@@ -1,3 +1,8 @@
+Thu May 20 03:50:46 BST 2004  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Remove references to sessions in doxygen
+	  comments.
+
 Thu May 20 03:44:28 BST 2004  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,backends/database.cc,

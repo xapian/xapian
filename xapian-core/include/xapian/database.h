@@ -198,8 +198,8 @@ class WritableDatabase : public Database {
 	/** Destroy this handle on the database.
 	 *
 	 *  If there are no copies of this object remaining, the database
-	 *  will be closed, and if there are any sessions or transactions
-	 *  in progress these will be ended.
+	 *  will be closed.  If there are any transactions in progress
+	 *  these will be ended.
 	 */
 	virtual ~WritableDatabase();
 
@@ -230,11 +230,9 @@ class WritableDatabase : public Database {
 	 *  For efficiency reasons, when performing multiple updates to a
 	 *  database it is best (indeed, almost essential) to make as many
 	 *  modifications as memory will permit in a single pass through
-	 *  the database.  To ensure this, Xapian performs modifications in
-	 *  "sessions".  Sessions are begun and ended implicitly, when the
-	 *  database is first modified, or closed.
+	 *  the database.  To ensure this, Xapian batches up modifications.
 	 *
-	 *  Flush may be called at any time during a modification session to
+	 *  Flush may be called at any time to
 	 *  ensure that the modifications which have been made are written to
 	 *  disk: if the flush succeeds, all the preceding modifications will
 	 *  have been written to disk.
@@ -280,9 +278,6 @@ class WritableDatabase : public Database {
 	 *  and as you might expect will generally have a fairly high
 	 *  performance cost.
 	 *
-	 *  A transaction may only be begun within a session, see
-	 *  begin_session().
-	 * 
 	 *  @exception Xapian::UnimplementedError will be thrown if transactions
 	 *             are not available for this database type.
 	 *
@@ -351,10 +346,7 @@ class WritableDatabase : public Database {
 	 *  As with all database modification operations, the effect is
 	 *  atomic: the document will either be fully added, or the document
 	 *  fails to be added and an exception is thrown (possibly at a
-	 *  later time when the session is ended or flushed).
-	 *
-	 *  If a session is not in progress when this method is called, a
-	 *  session will be started.
+	 *  later time when flush is called or the database is closed).
 	 *
 	 *  @param document The new document to be added.
 	 *
