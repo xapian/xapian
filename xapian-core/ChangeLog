@@ -1,3 +1,7 @@
+Thu Jun 15 12:16:00 BST 2000 Olly Betts
+
+	* NEAR almost working - just need to do pushback of pos info
+
 Wed Jun 14 18:26:00 BST 2000 Olly Betts
 
 	* Added docs/todo.html to .cvsignore

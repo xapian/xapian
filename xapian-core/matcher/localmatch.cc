@@ -108,6 +108,10 @@ bool msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b) {
     return false;
 }
 
+// FIXME: postlists passed by reference and needs to be kept "nice"
+// for NearPostList - so if there's a zero freq term it needs to be
+// empty, else it needs to have all the postlists in (though the order
+// can be different) - this is ultra-icky
 PostList *
 LocalMatch::build_and_tree(vector<PostList *> &postlists)
 {
@@ -129,13 +133,13 @@ LocalMatch::build_and_tree(vector<PostList *> &postlists)
     if (postlists.empty()) return new EmptyPostList();
     
     stable_sort(postlists.begin(), postlists.end(), PLPCmpLt());
-    
-    PostList *pl = postlists.back();
-    postlists.pop_back();
-    while (!postlists.empty()) {
+
+    int j = postlists.size() - 1;
+    PostList *pl = postlists[j];
+    while (j > 0) {
+	j--;
 	// NB right is always <= left - we use this to optimise.
-	pl = new AndPostList(postlists.back(), pl, this);
-	postlists.pop_back();
+	pl = new AndPostList(postlists[j], pl, this);
     }
     return pl;
 }
@@ -334,16 +338,16 @@ LocalMatch::postlist_from_queries(om_queryop op,
 
     if (op == OM_MOP_NEAR) {
 	PostList *res = build_and_tree(postlists);
-// FIXME:
-//	return new NearPostList(res, queries.size(), // FIXME: user specified window size...
-//				postlists);
+	// FIXME: handle EmptyPostList return specially?
+	// FIXME: user specified window size instead of queries.size()
+	return new NearPostList(res, queries.size(), postlists);
     }
 
     if (op == OM_MOP_PHRASE) {
 	PostList *res = build_and_tree(postlists);
-// FIXME:
-//	return new PhrasePostList(res, queries.size(), // FIXME: user specified window size...
-//				  postlists);
+	// FIXME: handle EmptyPostList return specially?
+	// FIXME: user specified window size instead of queries.size()
+	// FIXME: return new PhrasePostList(res, queries.size(), postlists);
     }
 
     // OK, it's an OR then...

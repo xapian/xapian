@@ -40,10 +40,22 @@ class NearPostList : public PostList {
     	PostList *source; // Source of candidate documents
 	vector<PostList *> terms;
 
+        inline bool do_near(vector<PositionList *> &plists,
+			    om_termcount i, om_termcount max);
     	inline bool terms_near();
     public:
 	PostList *next(om_weight w_min);
 	PostList *skip_to(om_docid did, om_weight w_min);
+
+	// pass all these through to the underlying source PostList
+	om_doccount get_termfreq() const { return source->get_termfreq(); }
+	om_weight get_maxweight() const { return source->get_maxweight(); }
+	om_docid get_docid() const { return source->get_docid(); }
+	om_weight get_weight() const { return source->get_weight(); }
+	om_doclength get_doclength() const { return source->get_doclength(); }
+	om_weight recalc_maxweight() { return source->recalc_maxweight(); }
+	PositionList * get_position_list() { return source->get_position_list(); }
+	bool at_end() const { return source->at_end(); }
 
 	string intro_term_description() const;
 

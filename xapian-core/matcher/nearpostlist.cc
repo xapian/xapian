@@ -22,12 +22,46 @@
 
 #include "nearpostlist.h"
 
+#include <algorithm>
+
+/** Class providing an operator which returns true if a has a (strictly)
+ *  smaller number of postings than b.
+ */
+class PosListCmpLt {
+    public:
+	/** Return true if and only if a is strictly shorter than b.
+	 */
+        bool operator()(const PositionList *a, const PositionList *b) {
+            return a->get_size() < b->get_size();
+        }
+};
+
 NearPostList::NearPostList(PostList *source_, om_termpos window_,
 			   vector<PostList *> terms_)
 {
     source = source_;
     window = window_;
     terms = terms_;
+}
+
+// FIXME: need to push back last pos before we back-up
+inline bool NearPostList::do_near(vector<PositionList *> &plists,
+				  om_termcount i, om_termcount max)
+{
+    plists[i]->skip_to(max - window + i);
+    while (1) {
+	om_termcount pos = plists[i]->get_position();
+	om_termcount j;
+	om_termcount min = max;
+	for (j = 0; j < i; j++) {
+	    om_termcount tmp = plists[j]->get_position();
+	    if (tmp < min) min = tmp;
+	}
+	if (pos > min + window - i) return false;
+	if (pos > max) max = pos;
+	if (do_near(plists, i + 1, max)) return true;
+	plists[i]->next();
+    }
 }
 
 inline bool
@@ -39,24 +73,11 @@ NearPostList::terms_near()
     for (i = terms.begin(); i != terms.end(); i++) {
 	plists.push_back((*i)->get_position_list());
     }
-    // FIXME: now sort plists...
-    while (1) {
-#if 0 // FIXME: recode...
-        lposlist->next();
-        if (lposlist->at_end()) break;
-        om_termpos lpos = lposlist->get_position();
-        om_termpos lthresh;
-        if (order_matters)
-	    lthresh = lpos + 1;
-        else
-	    lthresh = lpos - max_separation;
-        rposlist->skip_to(lthresh);
-        if (rposlist->at_end()) break;
-        // FIXME: if terms are the same should we reject rpos == lpos???
-        if (rposlist->get_position() <= lpos + max_separation) return true;
-#endif
-    }
-    return false;
+    sort(plists.begin(), plists.end(), PosListCmpLt());
+    Assert(plists.begin()->get_size() <= plists.end()->get_size());
+    plists[0]->next();
+    om_termcount pos = plists[0]->get_position();
+    return do_near(plists, 1, pos); 
 }
 
 PostList *
