@@ -833,8 +833,7 @@ void write_OM_database( OmWritableDatabase &database,
       map<string, list<string> >::const_iterator f = commit_comment_words.find(i->first);
 
 
-      //list<string> words; // words to index by
-      set<string> words; // words to index by
+      list<string> words; // words to index by
 
       assert( f != commit_comment_words.end() );
 
@@ -842,8 +841,7 @@ void write_OM_database( OmWritableDatabase &database,
       const list<string>& comment_words = f->second;
       for( list<string>::const_iterator j = comment_words.begin(); j != comment_words.end(); j++ ) {
 	symbol_string += "+"+(*j) + " "; // comment words have '+' prefix
-	//words.push_back(*j); // index by comment words (stemmed)
-	words.insert(*j); // index by comment words (stemmed)
+	words.push_back(*j); // index by comment words (stemmed)
       }
 
       // also index by code words
@@ -851,8 +849,7 @@ void write_OM_database( OmWritableDatabase &database,
       list<string>::const_iterator j;
       for (j = symbols.begin(); j != symbols.end(); ++j) {
 	symbol_string += (*j) + " ";
-	//words.push_back(*j); // also index by code words (stemmed)
-	words.insert(*j); // also index by code words (stemmed)
+	words.push_back(*j); // also index by code words (stemmed)
       }
 
       // cerr << "DATA = " << symbol_string << endl;
@@ -866,12 +863,10 @@ void write_OM_database( OmWritableDatabase &database,
       // ----------------------------------------
 
       if ( words.empty() ) {
-	//words.push_back("EMPTY");
-	words.insert("EMPTY");
+	words.push_back("EMPTY");
       }
 
-      //list<string>::const_iterator w;
-      set<string>::const_iterator w;
+      list<string>::const_iterator w;
       for (w = words.begin(); w != words.end(); ++w) {
 	newdocument.add_posting(*w, ++pos);
 	   //cerr << "... index term " << (*w) << endl;
@@ -919,6 +914,8 @@ get_data(lines & lines,
   unsigned int fileid = 0;
   string full_filename = "";
   string package_filename = "";
+
+  map< string, set< unsigned int > > file_commits;
 
   while ( lines.readNextLine() ) {
     string data = lines.getData();
@@ -992,10 +989,13 @@ get_data(lines & lines,
 	  // ----------------------------------------
 	  // have we entered info for this commit ?
 	  // ----------------------------------------
-/***
-	  if (commit_comment_words[commitid+offset].empty())
+
+          // enter commit comment only once per file
+	  if ( file_commits[full_filename].find(commitid+offset) == file_commits[full_filename].end() ) 
 	    {
-**/
+
+	      file_commits[full_filename].insert(commitid+offset);
+
 	      // ----------------------------------------
 	      // nope, we have not. so need to set
 	      // commit_comment_words[commitid]
@@ -1011,9 +1011,11 @@ get_data(lines & lines,
 		  }
 		}
 	      }
-/***
-	    }
-**/
+
+	    } else {
+		//cerr << "already have commit " << (commitid+offset) << " for " << full_filename << endl;
+          }
+
 	  // ----------------------------------------
 	  // now go through each symbol,
 	  // and add it to the commit_code_words mapping
