@@ -4,6 +4,8 @@
 #include "database.h"
 #include "omassert.h"
 
+class IRWeight;
+
 #include <queue>
 #include <stack>
 #include <vector>
@@ -28,14 +30,20 @@ class Match {
         weight max_weight;
 
 	stack<PostList *> q;
+	vector<IRWeight *> weights;
 
         PostList *merger;
 	RSet *rset;
     
 	bool have_added_terms;
         bool recalculate_maxweight;
+
+	DBPostList * mk_postlist(IRDatabase *DB,
+				 const termname& tname,
+				 RSet * rset);
     public:
         Match(IRDatabase *);
+        ~Match();
         void add_term(const termname &);
 	bool add_op(matchop op);
 	void add_oplist(matchop op, const vector<termname>&);

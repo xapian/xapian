@@ -41,14 +41,9 @@ class DBPostList : public virtual PostList {
     public:
 	DBPostList() : ir_wt(NULL) { return; }
 
-	~DBPostList() {
-	    if(ir_wt) {
-		delete ir_wt;
-	    }
-	    return;
-	}
+	~DBPostList() { return; }
 
-	void set_termweight(const IRWeight *); // Sets term weight
+	virtual void set_termweight(const IRWeight *); // Sets term weight
         weight get_maxweight() const;    // Gets max weight
         weight recalc_maxweight();       // recalculate weights
 };
@@ -56,9 +51,6 @@ class DBPostList : public virtual PostList {
 inline void
 DBPostList::set_termweight(const IRWeight * wt)
 {
-    if(ir_wt) {
-	delete ir_wt;
-    }
     ir_wt = wt;
 }
 

@@ -39,14 +39,24 @@ Match::Match(IRDatabase *database_new)
     rset = NULL;
 }
 
-DBPostList * mk_postlist(IRDatabase *DB,
-			 const termname& tname,
-			 RSet * rset) {
+Match::~Match()
+{
+    while (!weights.empty()) {
+	delete(weights.back());
+	weights.pop_back();
+    }
+}
+
+DBPostList *
+Match::mk_postlist(IRDatabase *DB,
+		   const termname& tname,
+		   RSet * rset) {
     // FIXME - this should be centralised into a postlist factory
     DBPostList * pl = DB->open_post_list(tname, rset);
     if(rset) rset->will_want_termfreq(tname);
 
     BM25Weight * wt = new BM25Weight();
+    weights.push_back(wt); // Remember it for deleting
     wt->set_stats(DB, pl->get_termfreq(), tname, rset);
     pl->set_termweight(wt);
     return pl;
