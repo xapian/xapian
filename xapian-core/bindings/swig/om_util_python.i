@@ -3,6 +3,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -364,49 +365,4 @@ PyObject *OmESet_items_get(OmESet *eset)
     %readonly
     PyObject *items;
     %readwrite
-}
-
-%typemap(python, in) const query_batch &(OmBatchEnquire::query_batch v){
-    if (!PyList_Check($source)) {
-        PyErr_SetString(PyExc_TypeError, "expected list");
-        return NULL;
-    }
-    int numitems = PyList_Size($source);
-    for (int i=0; i<numitems; ++i) {
-        PyObject *obj = PyList_GetItem($source, i);
-	if (PyTuple_Check(obj) && PyTuple_Size(obj) == 6) {
-	    query_desc mydesc;
-	    try {
-		OmQuery *qp = get_py_omquery(PyTuple_GetItem(obj, 0));
-		if (!qp) return NULL;
-		mydesc.query = *qp;
-		mydesc.first = get_py_int(PyTuple_GetItem(obj, 1));
-		mydesc.maxitems = get_py_int(PyTuple_GetItem(obj, 2));
-		mydesc.omrset = get_py_omrset(PyTuple_GetItem(obj, 3));
-		mydesc.moptions = get_py_omsettings(PyTuple_GetItem(obj, 4));
-		mydesc.mdecider = get_py_ommatchdecider(PyTuple_GetItem(obj, 5));
-		v.push_back(mydesc);
-	    } catch (OmPythonProblem &) {
-		return NULL;
-	    }
-	} else {
-	    PyErr_SetString(PyExc_TypeError,
-			    "expected tuple");
-	    return NULL;
-	}
-    }
-    $target = &v;
-}
-
-%addmethods mset_batch {
-    OmMSet __getitem__(int i) {
-	if (i >= self->size()) {
-	    throw OmRangeError("Index out of range");
-	}
-	return (*self)[i].value();
-    }
-
-    int __len__() {
-	return self->size();
-    }
 }

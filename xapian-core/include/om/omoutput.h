@@ -52,9 +52,6 @@ OUTPUT_FUNCTION(OmESetIterator)
 OUTPUT_FUNCTION(OmESet)
 OUTPUT_FUNCTION(OmEnquire)
 
-//#include "om/ombatchenquire.h"
-//OUTPUT_FUNCTION(OmBatchEnquire)
-
 #include "om/omstem.h"
 OUTPUT_FUNCTION(OmStem)
 

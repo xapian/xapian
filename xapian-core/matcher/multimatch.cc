@@ -394,6 +394,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // Is the mset a valid heap?
     bool is_heap = false; 
 
+#define BANDS 5
+#define sorting false //true
     while (1) {
 	if (recalculate_w_max) {
 	    if (min_item.wt > 0.0 && getorrecalc_maxweight(pl) < min_item.wt) {
@@ -442,6 +444,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	}
 
 	if (min_item.wt <= 0.0) {
+	    // we didn't calculate the weight above, but now we will need it
 	    wt = pl->get_weight();
 	    new_item.wt = wt;
 	}
@@ -558,6 +561,20 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		    }
 #endif
 	        }
+	    }
+	    if (sorting && BANDS > 1) {
+		if (greatest_wt >= getorrecalc_maxweight(pl)) {
+		    if (!is_heap) {
+			is_heap = true;
+			std::make_heap<std::vector<OmMSetItem>::iterator,
+				       OmMSetCmp>(items.begin(), items.end(),
+						  mcmp);
+		    }
+		    // greatest_wt cannot now rise any further, so we now know
+		    // exactly where the relevance bands are.
+		    om_weight w = greatest_wt / BANDS * floor(items.back().wt * BANDS / greatest_wt);
+		    if (w > min_item.wt) min_item.wt = w;
+		}
 	    }
 	}
     }

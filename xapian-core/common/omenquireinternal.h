@@ -119,10 +119,8 @@ class OmMSetItem {
 };
 
 /** Internals of enquire system.
- *  This allows the implementation of OmEnquire to be hidden, allows
- *  cleaner pthread locking by separating the API calls from the internals,
- *  and allows the implementation to be shared with
- *  OmBatchEnquire::Internal.
+ *  This allows the implementation of OmEnquire to be hidden and reference
+ *  counted.
  */
 class OmEnquire::Internal {
     public:

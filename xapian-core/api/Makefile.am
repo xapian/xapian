@@ -13,5 +13,3 @@ libapi_la_SOURCES = omenquire.cc omquery.cc omqueryinternal.cc \
 		    omdatabaseinternal.cc omerror.cc omsettings.cc \
 		    ompostlistiterator.cc ompositionlistiterator.cc \
 		    omtermlistiterator.cc omkeylistiterator.cc
-
-# ombatchenquire.cc

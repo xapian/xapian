@@ -965,55 +965,6 @@ and it may accept (by returning <CODE>true</CODE>) or reject (by returning
 <CODE>false</CODE>) the term as appropriate.
 </P>
 
-<H2>Query batches</H2>
-<P>
-In some applications you may want to run many queries against the
-same database as a batch.  Xapian provides an API to do this, with the
-<CODE>OmBatchEnquire</CODE> class.  This is currently implemented
-as a wrapper around OmEnquire.  Using <CODE>OmBatchEnquire</CODE>
-will make it possible to take advantage of possible future
-optimisations.
-</P>
-
-<H3>Setting up the database</H3>
-<P>
-An <CODE>OmBatchEnquire</CODE>
-object is constructed in the same way as an <CODE>OmEnquire</CODE>,
-using an <CODE>OmDatabase</CODE> object to specify the database.
-</P>
-
-<H3>Setting up the batch query</H3>
-<P>
-For each query in the batch, you need to provide the query as well as
-the arguments that would go to <CODE>OmEnquire::get_mset()</CODE> -
-the match options, number of matches to return, etc.  For each query
-fill in the fields of an <CODE>OmBatchEnquire::query_desc</CODE>
-structure, add it to a container of type <CODE>OmBatchEnquire::query_batch</CODE>,
-and pass the container to <CODE>OmBatchEnquire::set_queries(const OmBatchEnquire::query_batch &amp;queries)</CODE>.
-</P>
-
-<H3>Running the batch query</H3>
-<P>
-Once the query batch is set up, you can run the queries by calling
-<CODE>OmBatchEnquire::get_msets()</CODE>.  It returns a container
-(of type <CODE>OmBatchEnquire::mset_batch</CODE>) of
-<CODE>OmBatchEnquire::batch_result</CODE> objects.  The container
-will have as many elements as there were queries in the batch,
-with the results in the same order.  The <CODE>OmMSet</CODE>s
-are not returned directly because some of the results may be invalid,
-for example if an invalid argument is supplied for a particular query.
-When this happens, <CODE>OmBatchEnquire</CODE> continues to process
-the remaining queries unless a more catastrophic error happens, for
-example a fatal database error, in which case an exception will be
-thrown.
-</P><P>
-The main operation which can be done on a <CODE>batch_result</CODE> is
-to call <CODE>value()</CODE>, which will usually return the <CODE>OmMSet</CODE>
-associated with the relevant query.  If that query failed, however,
-<CODE>value()</CODE> will throw an exception of type <CODE>OmInvalidResultError</CODE>.  The validity of a result can also be determined by calling
-<CODE>is_valid()</CODE> to avoid an exception.
-</P>
-
 <H2>Thread safety</H2>
 <P>
 There's no pthread specific code in Xapian.  If you want to use the same

@@ -1292,33 +1292,6 @@ static bool test_poscollapse2()
     return true;
 }
 
-#if 0
-// test that the batch query functionality works
-static bool test_batchquery1()
-{
-    OmBatchEnquire::query_desc mydescs[3];
-    mydescs[0] = OmBatchEnquire::query_desc(query("this"), 0, 10, 0, 0, 0);
-    mydescs[1] = OmBatchEnquire::query_desc(OmQuery(), 0, 10, 0, 0, 0);
-    mydescs[2] = OmBatchEnquire::query_desc(OmQuery("word"), 0, 10, 0, 0, 0);
-
-    OmBatchEnquire benq(get_simple_database());
-
-    OmBatchEnquire::query_batch myqueries(mydescs, mydescs+3);
-
-    benq.set_queries(myqueries);
-
-    OmBatchEnquire::mset_batch myresults = benq.get_msets();
-
-    TEST_EQUAL(myresults.size(), 3);
-    TEST_EQUAL(myresults[0].value(), do_get_simple_query_mset(query("this")));
-    TEST(!myresults[1].is_valid());
-    TEST_EXCEPTION(OmInvalidResultError, OmMSet unused = myresults[1].value());
-    TEST_EQUAL(myresults[2].value(), do_get_simple_query_mset(OmQuery("word")));
-
-    return true;
-}
-#endif
-
 // test that running a query twice returns the same results
 static bool test_repeatquery1()
 {
@@ -3014,7 +2987,6 @@ test_desc db_tests[] = {
     {"absentfile1",	   test_absentfile1},
     {"poscollapse1",	   test_poscollapse1},
     {"poscollapse2",	   test_poscollapse2},
-    //{"batchquery1",	   test_batchquery1}, OmBatchEnquire temporarily removed
     {"repeatquery1",	   test_repeatquery1},
     {"fetchdocs1",	   test_fetchdocs1},
     {"absentterm1",	   test_absentterm1},

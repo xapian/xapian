@@ -204,40 +204,6 @@ class OmQuery {
 
 // TODO: OmExpandDecider
 
-#if defined(NOTDEFINED)
-%typedef OmBatchEnquire::batch_result batch_result;
-%typedef OmBatchEnquire::mset_batch mset_batch;
-%typedef OmBatchEnquire::query_desc query_desc;
-%typedef OmBatchEnquire::query_batch query_batch;
-
-class batch_result {
-    public:
-	OmMSet value() const;
-	bool is_valid() const;
-};
-
-class mset_batch {
-    public:
-	/*  Each language needs to define appropriate methods
-	 *  to get at the results (using %addmethods).
-	 */
-};
-
-class OmBatchEnquire {
-    public:
-        OmBatchEnquire(const OmDatabase &databases);
-        ~OmBatchEnquire();
-
-	void set_queries(const query_batch &queries_);
-
-	mset_batch get_msets() const;
-
-	const OmDocument get_document(om_docid did) const;
-
-	om_termname_list get_matching_terms(om_docid did) const;
-};
-#endif
-
 class OmSettings {
     public:
 	OmSettings();
