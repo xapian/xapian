@@ -1,3 +1,7 @@
+Fri Sep 03 16:40:11 BST 2004  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated with results from tinderbox.
+
 Fri Sep 03 14:34:00 BST 2004  Olly Betts <olly@survex.com>
 
 	* autoconf/definedir.m4,autoconf/rjb_find_stlport.m4: Quote macro
