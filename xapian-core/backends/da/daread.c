@@ -3,6 +3,8 @@
 #include <stdlib.h>  /* exit etc */
 #include <fcntl.h>   /* O_RDONLY etc */
 #include <string.h>  /* memmove, memcmp */
+#include <sys/types.h> /* lseek */
+#include <unistd.h> /* read, open, lseek */
 #include "daread.h"
 
 int wordat(byte * p) { return ((p[0]<<8|p[1])<<8|p[2])<<8|p[3]; }
@@ -754,7 +756,7 @@ extern int DAgetrecord(struct DAfile * p, int n, struct record * r)
    return (r->number eq n);
 }
 
-extern struct terms * openterms(struct termvec * tv)
+extern void openterms(struct termvec * tv)
 {  byte * p = tv->p;
    tv->nextterm = p+TVSTART;
    tv->l = p+TVSIZE(p,0);
@@ -813,7 +815,7 @@ DA term access:
 ---------------
 The procedures defined as extern are:
 
-struct DAfile * DAopen(byte * s, int type)
+struct DAfile * DAopen(char * s, int type)
 void DAclose(struct DAfile * p)
 int DAterm(byte * k, struct terminfo * t, struct DAfile * p)
 struct postings * DAopenpostings(struct terminfo * t, struct DAfile * p)
@@ -831,7 +833,7 @@ struct termvec * maketermvec()
 void losetermvec(struct termvec * tv)
 int DAgettermvec(struct DAfile * p, int n, struct termvec * tv)
 
-struct terms * openterms(struct termvec * tv)
+void openterms(struct termvec * tv)
 void readterms(struct termvec * tv)
 
 To open DA record and/or DA term files for example:
@@ -923,7 +925,7 @@ struct termvec * maketermvec()
 void losetermvec(struct termvec * tv)
 int DAgettermvec(struct DAfile * p, int n, struct termvec * tv)
 
-struct terms * openterms(struct termvec * tv)
+void openterms(struct termvec * tv)
 void readterms(struct termvec * tv)
 
 To get records 148, 241 in turn, do this:

@@ -117,7 +117,7 @@ extern struct termvec * maketermvec();
 extern void   losetermvec(struct termvec * tv);
 extern int    DAgettermvec(struct DAfile * p, int n, struct termvec * tv);
 
-extern struct terms * openterms(struct termvec * tv);
+extern void   openterms(struct termvec * tv);
 extern void   readterms(struct termvec * tv);
 
 #ifdef __cplusplus
