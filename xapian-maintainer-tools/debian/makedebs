@@ -25,8 +25,8 @@ VERSION=0.8.0
 
 # Patch numbers of packages to build
 PATCHNUM_CORE=9
-PATCHNUM_BINDINGS=4
-PATCHNUM_OMEGA=1
+PATCHNUM_BINDINGS=5
+PATCHNUM_OMEGA=2
 
 # CVS tag to use to check out xapian.
 CVSTAG="v`echo ${VERSION} | sed 's/\./-/g'`"
@@ -136,6 +136,9 @@ cd build
   cd xapian-bindings-${VERSION}
     mkdir -p debian
     cp -af ../../control/xapian-bindings/* debian/
+    if [ -r debian/patch ]; then
+      patch -p0 <debian/patch
+    fi
     debian/rules # Generates control from control.in and control-python.in
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_OPTS}
   cd ..
