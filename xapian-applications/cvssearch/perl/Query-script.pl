@@ -30,6 +30,7 @@ $CVSROOTS = "$CVSDATA/CVSROOTS";
 $all = "All";
 $queryfile = "Queryfile.cgi";
 $cache = "cache"; #where dump is written to
+$querywords = "";
 
 #---------------------------------------------
 # global mappigns defind in the script
@@ -626,7 +627,9 @@ sub displayFile{
 sub highlightquery{
 	my ($words) = @_;
 	my @lines = split /\n/, $words; 
-	@contains = grep s/($grepquery)/<b>\1<\/b>/ig, @lines;
+	my @qwords = split / /, $querywords;
+	$qwords = join "|", @qwords;
+	@contains = grep s/($grepquery|$qwords)/<b>\1<\/b>/ig, @lines;
 	return @contains;
 }
 

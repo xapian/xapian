@@ -237,7 +237,8 @@ if(param()){
 						print "</a></span>";
 						$found = 1;
 					}
-					last if $toprev eq $currev;
+                                        # this is removed for fixxing a bug.. don't uncomment this.
+					# last if $toprev eq $currev;
 				}
 				if($found==0){
 					if($flag==1){
