@@ -1,3 +1,8 @@
+Mon Jan 05 15:08:26 GMT 2004  Olly Betts <olly@survex.com>
+
+	* include/xapian/: Added "explicit" qualifier to internal ctors
+	  which take a single parameter.
+
 Mon Jan 05 15:04:12 GMT 2004  Olly Betts <olly@survex.com>
 
 	* include/xapian/base.h: Assigning a normal pointer to a RefCntPtr no
