@@ -124,7 +124,7 @@ main(int argc, char *argv[])
 	    docid q0 = match.mset[i].id;
 	    IRDocument *doc = database->open_document(q0);
 	    IRData data = doc->get_data();
-	    const char *p = data.value.c_str() + 19;
+	    string p = data.value;
 	    cout << q0 << ":[" << p << "]\n\n";
 	}
 	cout << endl;
