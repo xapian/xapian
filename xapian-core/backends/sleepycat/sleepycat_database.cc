@@ -78,7 +78,8 @@ SleepyDatabase::SleepyDatabase(const DatabaseBuilderParams &params)
     internals->open(params.paths[0], params.readonly);
 }
 
-SleepyDatabase::~SleepyDatabase() {
+SleepyDatabase::~SleepyDatabase()
+{
     // Close databases
     try {
 	internals->close();
@@ -97,15 +98,13 @@ SleepyDatabase::get_doccount() const
 om_doclength
 SleepyDatabase::get_avlength() const
 {
-    // FIXME
-    return 1;
+    return internals->get_totlength() / internals->get_doccount();
 }
 
 om_doclength
 SleepyDatabase::get_doclength(om_docid did) const
 {
-    // FIXME
-    return 1;
+    return internals->get_doclength(did);
 }
 
 om_doccount

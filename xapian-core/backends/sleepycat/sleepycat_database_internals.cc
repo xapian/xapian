@@ -40,6 +40,12 @@
 #define FILENAME_TERMTOID "termid.db"
 #define FILENAME_IDTOTERM "termname.db"
 #define FILENAME_DOCUMENT "document.db"
+#define FILENAME_STATS_DB "stats.db"
+
+enum {
+    RECNUM_DOCCOUNT = 1,
+    RECNUM_TOTALLEN = 2
+};
 
 SleepyDatabaseInternals::SleepyDatabaseInternals()
 	: opened(false),
@@ -47,7 +53,8 @@ SleepyDatabaseInternals::SleepyDatabaseInternals()
 	  termlist_db(0),
 	  termid_db(0),
 	  termname_db(0),
-	  document_db(0)
+	  document_db(0),
+	  stats_db(0)
 {
 }
 
@@ -90,6 +97,9 @@ SleepyDatabaseInternals::open(const string &pathname, bool readonly)
 
 	Db::open(FILENAME_DOCUMENT, DB_RECNO, dbflags, mode,
 		 &dbenv, 0, &document_db);
+
+	Db::open(FILENAME_STATS_DB, DB_RECNO, dbflags, mode,
+		 &dbenv, 0, &stats_db);
     }
     catch (DbException e) {
 	throw (OmOpeningError(string("Database error on open: ") + e.what()));
@@ -110,6 +120,8 @@ SleepyDatabaseInternals::close()
 	termname_db = 0;
 	if(document_db) document_db->close(0);
 	document_db = 0;
+	if(stats_db) stats_db->close(0);
+	stats_db = 0;
 
 	if(opened) dbenv.appexit();
 	opened = false;
@@ -120,14 +132,77 @@ SleepyDatabaseInternals::close()
 }
 
 om_doccount
-SleepyDatabaseInternals::get_doccount()
+SleepyDatabaseInternals::get_doccount() const
 {
+    const db_recno_t doccount_recnum = RECNUM_DOCCOUNT;
+
     Assert(opened);
+    om_doccount doccount = 0;
     try {
-	// FIXME
+	Dbt key(const_cast<db_recno_t *>(&doccount_recnum),
+		sizeof(doccount_recnum));
+
+	Dbt data;
+	// FIXME - this flag results in extra copying - more inefficiency.
+	// We should use DB_DBT_USERMEM and DB_DBT_PARTIAL
+	data.set_flags(DB_DBT_MALLOC);
+
+	int err_num = stats_db->get(0, &key, &data, 0);
+	if(err_num == DB_NOTFOUND) {
+	    // Document count hasn't been written: we have an empty database
+	} else {
+	    // Any other errors should cause an exception.
+	    Assert(err_num == 0);
+
+	    // FIXME: endian safety, check length, etc
+	    doccount = *(reinterpret_cast<om_doccount *>(data.get_data()));
+
+	    free(data.get_data());
+	}
     }
     catch (DbException e) {
-	throw (OmDatabaseError(string("Database error retrieving dbsize: ") + e.what()));
-    } 
-    return 1;
+	throw (OmDatabaseError(string("Database error retrieving document count: ") + e.what()));
+    }
+    return doccount;
+}
+
+om_doclength
+SleepyDatabaseInternals::get_totlength() const
+{
+    const db_recno_t doccount_totallen = RECNUM_TOTALLEN;
+
+    Assert(opened);
+    om_doclength totlength = 0;
+    try {
+	Dbt key(const_cast<db_recno_t *>(&doccount_totallen),
+		sizeof(doccount_totallen));
+
+	Dbt data;
+	// FIXME - this flag results in extra copying - more inefficiency.
+	// We should use DB_DBT_USERMEM and DB_DBT_PARTIAL
+	data.set_flags(DB_DBT_MALLOC);
+
+	int err_num = stats_db->get(0, &key, &data, 0);
+	if(err_num == DB_NOTFOUND) {
+	    // Document count hasn't been written: we have an empty database
+	} else {
+	    // Any other errors should cause an exception.
+	    Assert(err_num == 0);
+
+	    // FIXME: endian safety, check length, etc
+	    totlength = *(reinterpret_cast<om_doclength *>(data.get_data()));
+
+	    free(data.get_data());
+	}
+    }
+    catch (DbException e) {
+	throw (OmDatabaseError(string("Database error retrieving document lengths: ") + e.what()));
+    }
+    return totlength;
+}
+
+om_doclength
+SleepyDatabaseInternals::get_doclength(om_docid did) const
+{
+    throw OmUnimplementedError("SleepyDatabaseInternals::get_doclength() not implemented");
 }

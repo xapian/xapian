@@ -1,3 +1,8 @@
+Fri Jun  2 13:27:01 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added a stats database to sleepycat, to store things such as
+	  document count and length information.
+
 Thu Jun  1 18:10:12 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Implemented max_or_terms.  Activated test in apitest to check that

@@ -49,6 +49,7 @@ class SleepyDatabaseInternals {
 	Db *termid_db;
 	Db *termname_db;
 	Db *document_db;
+	Db *stats_db;
 
 	SleepyDatabaseInternals();
 	~SleepyDatabaseInternals();
@@ -57,7 +58,9 @@ class SleepyDatabaseInternals {
 	void open(const string & pathname, bool readonly);
 	void close();
 
-	om_doccount get_doccount();
+	om_doccount get_doccount() const;
+	om_doclength get_totlength() const;
+	om_doclength get_doclength(om_docid did) const;
 };
 
 #endif /* OM_HGUARD_SLEEPY_DATABASE_INTERNALS_H */
