@@ -300,7 +300,10 @@ SleepyList::pack() const
 
     vector<SleepyListItem>::const_iterator i;
     for(i = items.begin(); i != items.end(); i++) {
-	packed.append(i->pack());
+	string packeditem = i->pack();
+	temp = packeditem.size();
+	packed.append(reinterpret_cast<char *>(&temp), sizeof(entry_type));
+	packed.append(packeditem);
     }
 
     return packed;
