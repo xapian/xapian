@@ -82,7 +82,7 @@ class DATermList : public virtual TermList {
     public:
 	termid get_termid();
 	termcount get_wdf();       // Number of occurences of term in current doc
-	termcount get_termfreq();  // Number of docs indexed by term
+	doccount get_termfreq();  // Number of docs indexed by term
 	void   next();
 	bool   at_end();
 };
