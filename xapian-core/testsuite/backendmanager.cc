@@ -392,9 +392,11 @@ BackendManager::do_getdb_quartz(const vector<string> &dbnames, bool writable)
 	rmdir(dbdir);
     }
     if (files_exist(change_names_to_paths(dbnames))) {
-	// do the indexing.
-	Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE));
-	index_files_to_database(db, change_names_to_paths(dbnames));
+	if (create_dir_if_needed(dbdir)) {
+	    // directory was created, so do the indexing.
+	    Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE));
+	    index_files_to_database(db, change_names_to_paths(dbnames));
+	}
     }
     return Xapian::Quartz::open(dbdir);
 }

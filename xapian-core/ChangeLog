@@ -1,3 +1,8 @@
+Fri Jul 11 09:31:40 BST 2003  Olly Betts <olly@survex.com>
+
+	* testsuite/backendmanager.cc: Backed out incorrect hunk of previous
+	  patch which was causing test failures.
+
 Fri Jul 11 01:48:21 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_table_manager.cc,tests/quartztest.cc,
