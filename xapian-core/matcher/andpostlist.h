@@ -11,7 +11,7 @@ class AndPostList : public virtual BranchPostList {
         docid head;
         weight lmax, rmax;
 
-        void process_next_or_skip_to(PostList *);
+        void process_next_or_skip_to(weight w_min, PostList *);
     public:
 	doccount get_termfreq() const;
 
@@ -19,8 +19,9 @@ class AndPostList : public virtual BranchPostList {
 	weight get_weight() const;
 	weight get_maxweight() const;
     
-        PostList *next();
-        PostList *skip_to(docid);
+	PostList *next(weight w_min);
+	PostList *skip_to(docid, weight w_min);
+        PostList *flying_start(weight w_min);
 	bool   at_end() const;
 
         AndPostList(PostList *l, PostList *r);

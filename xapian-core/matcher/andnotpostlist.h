@@ -9,7 +9,7 @@
 class AndNotPostList : public virtual BranchPostList {
     private:
         docid lhead, rhead;
-        PostList *advance_to_next_match(PostList *);
+        PostList *advance_to_next_match(weight w_min, PostList *);
     public:
 	doccount get_termfreq() const;
 
@@ -17,8 +17,8 @@ class AndNotPostList : public virtual BranchPostList {
 	weight get_weight() const;
 	weight get_maxweight() const;
 
-        PostList *next();
-        PostList *skip_to(docid);
+	PostList *next(weight w_min);
+	PostList *skip_to(docid, weight w_min);
 	bool   at_end() const;
 
         AndNotPostList(PostList *l, PostList *r);

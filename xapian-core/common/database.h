@@ -23,8 +23,8 @@ class PostList {
 	virtual weight get_weight() const = 0;    // Gets current weight
         virtual weight get_maxweight() const = 0;    // Gets max weight
 
-	virtual PostList *next() = 0;          // Moves to next docid
-	virtual PostList *skip_to(docid);  // Moves to next docid >= specified docid
+	virtual PostList *next(weight w_min) = 0;          // Moves to next docid
+	virtual PostList *skip_to(docid, weight w_min);  // Moves to next docid >= specified docid
 	virtual bool   at_end() const = 0;        // True if we're off the end of the list
 
         virtual ~PostList() { return; }
@@ -32,11 +32,11 @@ class PostList {
 
 // naive implementation for database that can't do any better
 inline PostList *
-PostList::skip_to(docid id)
+PostList::skip_to(docid id, weight w_min)
 {
     Assert(!at_end());
     while (!at_end() && get_docid() < id) {
-	PostList *ret = next();
+	PostList *ret = next(w_min);
 	if (ret) return ret;
     }
     return NULL;

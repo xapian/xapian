@@ -1,7 +1,7 @@
 #include "andpostlist.h"
 
 inline void
-AndPostList::process_next_or_skip_to(PostList *ret)
+AndPostList::process_next_or_skip_to(weight w_min, PostList *ret)
 {
     head = 0;
     if (ret) {
@@ -10,7 +10,7 @@ AndPostList::process_next_or_skip_to(PostList *ret)
     }
     if (r->at_end()) return;
 
-    ret = l->skip_to(r->get_docid());
+    ret = l->skip_to(r->get_docid(), w_min);
     if (ret) {
 	delete l;
 	l = ret;
@@ -22,7 +22,7 @@ AndPostList::process_next_or_skip_to(PostList *ret)
 
     while (lhead != rhead) {
 	if (lhead < rhead) {
-	    PostList *ret = l->skip_to(rhead);
+	    PostList *ret = l->skip_to(rhead, w_min);
 	    if (ret) {
 		delete l;
 	        l = ret;
@@ -33,7 +33,7 @@ AndPostList::process_next_or_skip_to(PostList *ret)
 	    }
 	    lhead = l->get_docid();	    
 	} else {
-	    PostList *ret = r->skip_to(lhead);
+	    PostList *ret = r->skip_to(lhead, w_min);
 	    if (ret) {
 		delete r;
 		r = ret;
@@ -57,16 +57,25 @@ AndPostList::AndPostList(PostList *left, PostList *right)
     head = 0;
 }
 
+// left and right are already running so just move them into sync
+// FIXME: rename process_next_or_skip_to to this?
 PostList *
-AndPostList::next()
-{
-    process_next_or_skip_to(r->next());
+AndPostList::flying_start(weight w_min)
+{    
+    process_next_or_skip_to(w_min, NULL);
     return NULL;
 }
 
 PostList *
-AndPostList::skip_to(docid id)
+AndPostList::next(weight w_min)
 {
-    process_next_or_skip_to(r->skip_to(id));
+    process_next_or_skip_to(w_min, r->next(w_min));
+    return NULL;
+}
+
+PostList *
+AndPostList::skip_to(docid id, weight w_min)
+{
+    process_next_or_skip_to(w_min, r->skip_to(id, w_min));
     return NULL;
 }

@@ -9,7 +9,7 @@
 class OrPostList : public virtual BranchPostList {
     private:
         docid lhead, rhead;
-        weight lmax, rmax;
+        weight lmax, rmax, minmax;
     public:
 	doccount get_termfreq() const;
 
@@ -17,8 +17,8 @@ class OrPostList : public virtual BranchPostList {
 	weight get_weight() const;
 	weight get_maxweight() const;
 
-	PostList *next();
-	PostList *skip_to(docid);
+	PostList *next(weight w_min);
+	PostList *skip_to(docid, weight w_min);
 	bool   at_end() const;
 
         OrPostList(PostList *, PostList *);

@@ -1,7 +1,7 @@
 #include "andnotpostlist.h"
 
 inline PostList *
-AndNotPostList::advance_to_next_match(PostList *ret)
+AndNotPostList::advance_to_next_match(weight w_min, PostList *ret)
 {
     if (ret) {
 	delete l;
@@ -15,7 +15,7 @@ AndNotPostList::advance_to_next_match(PostList *ret)
 
     while (rhead <= lhead) {
 	if (lhead == rhead) {
-	    ret = l->next();	    
+	    ret = l->next(w_min);
 	    if (ret) {
 		delete l;
 		l = ret;
@@ -26,7 +26,7 @@ AndNotPostList::advance_to_next_match(PostList *ret)
 	    }
 	    lhead = l->get_docid();
 	}		
-	ret = r->skip_to(lhead);
+	ret = r->skip_to(lhead, w_min);
 	if (ret) {
 	    delete r;
 	    r = ret;
@@ -49,13 +49,13 @@ AndNotPostList::AndNotPostList(PostList *left, PostList *right)
 }
 
 PostList *
-AndNotPostList::next()
+AndNotPostList::next(weight w_min)
 {
-    return advance_to_next_match(l->next());
+    return advance_to_next_match(w_min, l->next(w_min));
 }
 
 PostList *
-AndNotPostList::skip_to(docid id)
+AndNotPostList::skip_to(docid id, weight w_min)
 {
-    return advance_to_next_match(l->skip_to(id));
+    return advance_to_next_match(w_min, l->skip_to(id, w_min));
 }

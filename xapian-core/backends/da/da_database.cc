@@ -93,7 +93,7 @@ weight DAPostList::get_maxweight() const
     return termweight * (k + 1);
 }
 
-PostList * DAPostList::next()
+PostList * DAPostList::next(weight w_min)
 {
     Assert(!at_end());
     if (currdoc && currdoc < docid(postlist->E)) {	
@@ -105,7 +105,7 @@ PostList * DAPostList::next()
     return NULL;
 }
 
-PostList * DAPostList::skip_to(docid id)
+PostList * DAPostList::skip_to(docid id, weight w_min)
 {
     Assert(!at_end());
     Assert(id >= currdoc);

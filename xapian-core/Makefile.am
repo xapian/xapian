@@ -5,7 +5,7 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 INCLUDES = -I/usr/local/BerkeleyDB/include
 
 noinst_HEADERS = da_database.h da_record.h daread.h database.h match.h \
- orpostlist.h andpostlist.h andnotpostlist.h \
+ orpostlist.h andpostlist.h andnotpostlist.h andmaybepostlist.h \
  damuscat.h omtypes.h proto_database.h proto_db.h sleepy_database.h \
  multi_database.h
 
@@ -23,7 +23,7 @@ dbtest_SOURCES = dbtest.cc $(ACCESS_DA) $(ACCESS_SLEEPY) \
 dbtest_LDADD = -L/usr/local/BerkeleyDB/lib -ldb
 
 matchtest_SOURCES = match.cc orpostlist.cc andpostlist.cc andnotpostlist.cc \
- matchtest.cc $(ACCESS_DA) $(STEMMER_SRC)
+ andmaybepostlist.cc matchtest.cc $(ACCESS_DA) $(STEMMER_SRC)
 matchtest_LDADD = -L/usr/local/BerkeleyDB/lib -ldb
 
 idxtest_SOURCES = idxtest.cc $(ACCESS_SLEEPY) $(ACCESS_MULTI)

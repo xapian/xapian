@@ -147,7 +147,7 @@ Match::match(void)
     // FIXME: partial_sort?
     // FIXME: quicker to just resort whole lot than sort and merge?
     while (1) {
-        PostList *ret = merger->next();
+        PostList *ret = merger->next(w_min);
         if (ret) {
 	    delete merger;
 	    merger = ret;
