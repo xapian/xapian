@@ -1,7 +1,11 @@
+Thu Sep 09 15:11:45 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated.
+
 Thu Sep 09 14:41:41 BST 2004  Olly Betts <olly@survex.com>
 
 	* query.cc: Use new checkatleast parameter to Enquire::get_mset to
-	  implement MIN_HITS.
+	  implement MINHITS.
 
 Thu Sep 02 01:45:46 BST 2004  Olly Betts <olly@survex.com>
 

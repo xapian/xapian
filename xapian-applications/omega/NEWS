@@ -1,3 +1,36 @@
+Omega 0.8.2 (2004-09-??):
+
+Up to: Thu Sep 09 15:11:45 BST 2004  Olly Betts <olly@survex.com>
+
+* omindex: When running with "replace duplicates" mode (the default), detect
+  documents removed since the last indexing run and delete them from the
+  database (bug #34).
+
+* omega: $highlight now handles accented characters (bug#9).
+
+* scriptindex: Report index script file name and line number when
+  reporting errors in it.  Added warning for redundant actions,
+  such as "truncate" as the last action in a rule.
+
+* templates/query: Always report if the database is not found - previously we
+  only did so if there was a query.
+	  
+* templates/query: Fixed missing </center> tag which happened in certain cases.
+
+* docs/omegascript.txt: Added note about that $add{$hit,1} gives
+  the "hit number".
+
+* Now includes htdig2omega and htdig2omega.script which allow you to crawl
+  remote websites with ht://dig, then build a searchable index of them with
+  Xapian and Omega.
+
+* Link with -lxapianqueryparser, not -lomqueryparser.
+
+* omindex: Use the new replace_document(term, doc) method.
+
+* omega: Use new checkatleast parameter to Enquire::get_mset to implement
+  MINHITS.
+
 Omega 0.8.1 (2004-06-30):
 
 * omindex: Renamed hash() to hash_string() to avoid colliding with something
