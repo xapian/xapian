@@ -24,12 +24,16 @@
 
 #ifdef MUS_DEBUG_VERBOSE
 
-#include "omlocks.h"
 #include "omdebug.h"
+
+#ifdef MUS_USE_PTHREAD
+#include <pthread.h>
+#endif /* MUS_USE_PTHREAD */
 
 OmDebug om_debug;
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string>
 #include <fstream>
 
@@ -37,83 +41,88 @@ OmDebug om_debug;
 #define OM_ENV_DEBUG_TYPES "OM_DEBUG_TYPES"
 
 OmDebug::OmDebug()
-	: output_initialised(false),
-	  types_initialised(false),
-	  mutex_initialised(false)
+	: initialised(false),
+	  outfile(0)
 {
+    // Can't do much in this constructor, because on Solaris the contents get wiped
+    // just before the start of main().
 }
 
 OmDebug::~OmDebug()
 {
-    if(mutex_initialised) {
+    if(initialised) {
 	delete mutex;
 	mutex = 0;
-	mutex_initialised = false;
+	initialised = false;
     }
 }
 
 void
 OmDebug::open_output()
 {
-    if (!output_initialised) {
-	char * filename = getenv(OM_ENV_DEBUG_FILE);
-	if (filename != 0) {
-	    {
-		// FIXME: have to do this to get around compiler brokenness
-		// in gcc version 2.95.2
-		std::auto_ptr<std::ofstream> temp(new std::ofstream(filename));
-		to = temp;
-	    }
-	    if (to.get() == 0 || *to == 0) {
-		cerr << "Can't open requested debug file `" <<
-			std::string(filename) << "' using stderr." << endl << flush;
-	    }
+    char * filename = getenv(OM_ENV_DEBUG_FILE);
+    if (filename != 0) {
+	outfile = fopen(filename, "w");
+	if (outfile == 0) {
+	    fprintf(stderr, "Can't open requested debug file `%s' using stderr.\n",
+		    filename);
+	    fflush(stderr);
 	}
-	output_initialised = true;
     }
 }
 
 void
 OmDebug::select_types()
 {
-    if (!types_initialised) {
-	char * typestring = getenv(OM_ENV_DEBUG_TYPES);
-	if (typestring != 0) {
-	    unsigned int types = atoi(typestring);
-	    while (types != 0) {
-		if(types & 1) {
-		    unwanted_types.push_back(false);
-		} else {
-		    unwanted_types.push_back(true);
-		}
-		types = types >> 1;
+    char * typestring = getenv(OM_ENV_DEBUG_TYPES);
+    if (typestring != 0) {
+	unsigned int types = atoi(typestring);
+	while (types != 0) {
+	    if(types & 1) {
+		unwanted_types.push_back(false);
+	    } else {
+		unwanted_types.push_back(true);
 	    }
+	    types = types >> 1;
 	}
-	types_initialised = true;
     }
 }
 
 void
 OmDebug::initialise_mutex()
 {
-    if (!mutex_initialised) {
-	mutex = new OmLock();
-	mutex_initialised = true;
-    }
+#ifdef MUS_USE_PTHREAD
+    mutex = new pthread_mutex_t;
+    pthread_mutex_init(mutex, 0);
+#endif /* MUS_USE_PTHREAD */
 }
 
-OmLock *
-OmDebug::get_mutex()
+void
+OmDebug::initialise()
 {
-    initialise_mutex();
-    return mutex;
+    if(!initialised) {
+	initialise_mutex();
+	// We get this as soon as we can - possible race condition exists here if the
+	// initialise() method is not explicitly called.
+#ifdef MUS_USE_PTHREAD
+	pthread_mutex_lock(mutex);
+#endif
+	select_types();
+	open_output();
+	initialised = true;
+#ifdef MUS_USE_PTHREAD
+	pthread_mutex_unlock(mutex);
+#endif
+
+	display_message(OM_DEBUG_UNKNOWN,
+			std::string("Om debugging version, initialised\n"));
+    }
 }
 
 bool
 OmDebug::want_type(enum om_debug_types type)
 {
-    open_output();
-    select_types();
+    initialise();
 
     if (unwanted_types.size() == 0) {
 	return true;
@@ -125,14 +134,25 @@ OmDebug::want_type(enum om_debug_types type)
     return true;
 }
 
-ostream &
-OmDebug::operator << (enum om_debug_types type)
+void
+OmDebug::display_message(enum om_debug_types type, std::string msg)
 {
-    open_output();
-    if (to.get() && *to) {
-	return *to;
+    initialise();
+    if(!want_type(type)) return;
+
+#ifdef MUS_USE_PTHREAD
+    pthread_mutex_lock(mutex);
+#endif
+    if (outfile) {
+	fprintf(outfile, "%s", msg.c_str());
+	fflush(outfile);
+    } else {
+	fprintf(stderr, "%s", msg.c_str());
+	fflush(stderr);
     }
-    return cerr;
+#ifdef MUS_USE_PTHREAD
+	pthread_mutex_unlock(mutex);
+#endif
 }
 
 #endif /* MUS_DEBUG_VERBOSE */

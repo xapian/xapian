@@ -27,6 +27,7 @@
 #include "omassert.h"
 
 #ifdef MUS_USE_PTHREAD
+#include "omdebug.h"
 
 #include <pthread.h>
 #include <iostream>
@@ -56,6 +57,7 @@ class OmLock {
     public:
 	/// The constructor, which initialises the mutex
     	OmLock() : islocked(false) {
+	    DEBUGCALL(LOCK, "OmLock::OmLock", "");
 	    pthread_mutexattr_t mutattr;
 	    pthread_mutexattr_init(&mutattr);
 #ifdef MUS_MUTEX_ERRCHECK
@@ -68,12 +70,16 @@ class OmLock {
 	}
 
 	/// The destructor, which destroys the mutex.
-	~OmLock() { pthread_mutex_destroy(&mutex); }
+	~OmLock() {
+	    DEBUGCALL(LOCK, "OmLock::~OmLock", "");
+	    pthread_mutex_destroy(&mutex);
+	}
 
 	/** Acquire an exclusive lock on the mutex.  This
 	 *  will not return until the mutex is locked.
 	 */
 	void lock() const {
+	    DEBUGCALL(LOCK, "OmLock::lock", "");
 	    int retval;
 	    retval = pthread_mutex_lock(&mutex);
 	    Assert(retval == 0);
@@ -84,6 +90,7 @@ class OmLock {
 	 *  owned by the thread calling unlock.
 	 */
 	void unlock() const {
+	    DEBUGCALL(LOCK, "OmLock::unlock", "");
 	    Assert(islocked);
 	    islocked = false;
 	    int retval;
@@ -115,11 +122,13 @@ class OmLockSentry {
 	/// The constructor, which locks the passed in OmLock
 	/// object.
     	OmLockSentry(const OmLock &mut_) : mut(mut_) {
+	    DEBUGCALL(LOCK, "OmLockSentry::OmLockSentry", "");
 	    mut.lock();
 	}
 
 	/// The destructor, which releases the lock.
 	~OmLockSentry() {
+	    DEBUGCALL(LOCK, "OmLockSentry::~OmLockSentry", "");
 	    try {
 		mut.unlock();
 	    } catch (OmAssertionError &err) {

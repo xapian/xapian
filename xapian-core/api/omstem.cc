@@ -317,7 +317,7 @@ OmStem::stem_word(const std::string &word) const
 std::vector<std::string>
 OmStem::get_available_languages()
 {
-    DEBUGAPICALL("OmStem::get_available_languages", "");
+    DEBUGAPICALL_STATIC("OmStem::get_available_languages", "");
     std::vector<std::string> languages;
 
     const char ** pos;

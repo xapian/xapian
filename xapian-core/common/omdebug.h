@@ -32,13 +32,13 @@
 #include "omstringstream.h"
 
 #ifdef MUS_DEBUG_VERBOSE
-#include <iostream>
-#include <fstream>
 #include <memory>
 #include <vector>
-#include <strstream.h>
+#include <stdio.h>
 
-#include "omlocks.h"
+#ifdef MUS_USE_PTHREAD
+#include <pthread.h>
+#endif /* MUS_USE_PTHREAD */
 
 /** The types of debug output.  These are specified within a DEBUGMSG in
  *  the code by the final portion of the name: ie, UNKNOWN, LOCK, etc...
@@ -80,7 +80,11 @@ enum om_debug_types {
 
     /** A debug message to report exceptions being called.
      */
-    OM_DEBUG_EXCEPTION
+    OM_DEBUG_EXCEPTION,
+
+    /** A debug message involved with locking or unlocking something in a database.
+     */
+    OM_DEBUG_DBLOCK
 };
 
 /** Class to manage verbose debugging output
@@ -102,45 +106,35 @@ class OmDebug {
 	 */
 	std::vector<bool> unwanted_types;
 
-	/// Whether the output stream has been opened.
-	bool output_initialised;
-
-	/// Open the output stream (if it hasn't already been opened)
+	/// Open the output stream
 	void open_output();
 
-	/// Whether the list of types wanted has been initialised.
-	bool types_initialised;
-
-	/// Initialise the list of types wanted.
+	/// Initialise the list of types wanted
 	void select_types();
-
-	/// Whether the mutex has been initialised.
-	bool mutex_initialised;
-
-	/** A mutex to protect the displaying of messages.
-	 *  Note that this is a pointer, not a member, because of Solaris
-	 *  not initialising global statics (or, at least, clearing the
-	 *  data of any global statics when main() is called).  We also
-	 *  don't initialise the mutex in the constructor, for this reason.
-	 */
-	OmLock * mutex;
 
 	/// Initialised the mutex
 	void initialise_mutex();
 
-	/** File to send this output to.  If this is null, it'll go to
-	 *  stderr.
+	/// Whether the object has been initialised
+	bool initialised;
+
+	/** Stream to send output to.  If this is null, it'll go to stderr.
 	 */
-	std::auto_ptr<std::ofstream> to;
+	FILE * outfile;
+
+#ifdef MUS_USE_PTHREAD
+	/// Mutex
+	pthread_mutex_t * mutex;
+#endif /* MUS_USE_PTHREAD */
     public:
-	/// Operator for outputting something
-	ostream & operator << (enum om_debug_types type);
+	/// Method for outputting something
+	void display_message(enum om_debug_types type, std::string msg);
 
 	/// Check whether a given type is wanted for output
 	bool want_type(enum om_debug_types type);
 
-	/// Get the mutex to use to protect access to the debug object.
-	OmLock * get_mutex();
+	/// Explicitly cause the omdebug object to be initialsed
+	void initialise();
 
 	/// Standard constructor
 	OmDebug();
@@ -153,12 +147,11 @@ extern OmDebug om_debug;
 
 /** Display a debugging message, if it is of a desired type. */
 // Don't bracket b, because it may have <<'s in it
-#define DEBUGMSG(a,b) { \
-    if(om_debug.want_type(OM_DEBUG_##a)) { \
+#define DEBUGMSG2(a,b) { \
+    if(om_debug.want_type(a)) { \
 	om_ostringstream os; \
 	os << b; \
-	OmLockSentry sentry(*(om_debug.get_mutex())); \
-	(om_debug << OM_DEBUG_##a << os.str()).flush(); \
+	om_debug.display_message(a, os.str()); \
     } \
 }
 
@@ -168,62 +161,95 @@ extern OmDebug om_debug;
 #define THREAD_INFO
 #endif // HAVE_LIBPTHREAD
 
-#define DEBUGLINE(a,b) DEBUGMSG(a, "Om" THREAD_INFO ": " << b << endl)
+#define DEBUGLINE2(a,b) DEBUGMSG2(a, "Om" THREAD_INFO ": " << b << endl)
 
 /** Class to manage printing a message at the start and end of a method call.
  */
-class OmDebugApiCall {
+class OmDebugCall {
     private:
 	/** The name of the method being called. */
         std::string methodname;
 
 	/** The return value. */
         std::string returnval;
+
+	/** The type of message to emit. */
+	enum om_debug_types type;
     public:
 	/** Constructor: called at the beginning of the method. */
-        OmDebugApiCall(std::string methodname_, std::string params)
-		: methodname(methodname_) {
-	    DEBUGLINE(APICALL, "Calling " << methodname << "(" <<
-		      params << ")");
+        OmDebugCall(enum om_debug_types type_,
+		    std::string methodname_,
+		    std::string params)
+		: methodname(methodname_),
+		  type(type_)
+	{
+	    DEBUGLINE2(type, methodname << "(" << params << ") called");
 	};
 
 	/** Optionally called to specify a return value. */
         void setreturnval(std::string returnval_) { returnval = returnval_; }
 
 	/** Destructor: displays message indicating that method has returned */
-        ~OmDebugApiCall() {
-            DEBUGLINE(APICALL, methodname << "() returning " << returnval);
+        ~OmDebugCall() {
+            DEBUGLINE2(type, methodname << "() returning " << returnval);
         }
 };
 
 /** Display a message indicating that a method has been called, and another
  *  message when the method ends.
  */
-#define DEBUGAPICALL(a,b) \
+#define DEBUGCALL(t,a,b) \
     std::string omdebugapicall_str; \
+    std::string omdebugapicall_method; \
     {\
-	om_ostringstream os; \
-	os << b; \
-	omdebugapicall_str = os.str(); \
+	om_ostringstream os1; \
+	os1 << "[" << this << "] " << a; \
+	omdebugapicall_method = os1.str(); \
+	om_ostringstream os2; \
+	os2 << b; \
+	omdebugapicall_str = os2.str(); \
     } \
-    OmDebugApiCall omdebugapicall(a, omdebugapicall_str);
+    OmDebugCall omdebugapicall(OM_DEBUG_##t, omdebugapicall_method, omdebugapicall_str);
 
-/** Use in conjunction with DEBUGAPICALL - specify the value that the method
+/** Equivalent of DEBUGCALL for static methods.
+ */
+#define DEBUGCALL_STATIC(t,a,b) \
+    std::string omdebugapicall_str; \
+    std::string omdebugapicall_method; \
+    {\
+	om_ostringstream os1; \
+	os1 << "[static   ] " << a; \
+	omdebugapicall_method = os1.str(); \
+	om_ostringstream os2; \
+	os2 << b; \
+	omdebugapicall_str = os2.str(); \
+    } \
+    OmDebugCall omdebugapicall(OM_DEBUG_##t, omdebugapicall_method, omdebugapicall_str);
+
+
+/** Use in conjunction with DEBUGCALL - specify the value that the method
  *  is going to return.
  */
-#define DEBUGAPIRETURN(a) { \
+#define DEBUGRETURN(a) { \
     om_ostringstream os; \
     os << a; \
     omdebugapicall.setreturnval(os.str()); \
 }
 
+#define DEBUGMSG(a,b) DEBUGMSG2(OM_DEBUG_##a, b)
+#define DEBUGLINE(a,b) DEBUGLINE2(OM_DEBUG_##a, b)
+
 #else /* MUS_DEBUG_VERBOSE */
 #define DEBUGMSG(a,b)
-#define DEBUGAPICALL(a,b)
-#define DEBUGAPIRETURN(a)
 #define DEBUGLINE(a,b)
+#define DEBUGCALL(t,a,b)
+#define DEBUGCALL_STATIC(t,a,b)
+#define DEBUGRETURN(a)
 #endif /* MUS_DEBUG_VERBOSE */
 
+#define DEBUGAPICALL(a,b) DEBUGCALL(APICALL, a, b)
+#define DEBUGAPICALL_STATIC(a,b) DEBUGCALL_STATIC(APICALL, a, b)
+#define DEBUGAPIRETURN(a) DEBUGRETURN(a)
 #define DebugMsg(a) DEBUGMSG(UNKNOWN, a)
 
 #endif /* OM_HGUARD_OMDEBUG_H */

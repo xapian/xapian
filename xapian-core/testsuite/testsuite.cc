@@ -330,7 +330,7 @@ int test_driver::main(int argc,
     // up on as a memory leak.
     DEBUGLINE(UNKNOWN, "Starting testsuite run.");
 #ifdef MUS_DEBUG_VERBOSE
-    om_debug.get_mutex();
+    om_debug.initialise();
 #endif /* MUS_DEBUG_VERBOSE */
 
     test_driver::result myresult;

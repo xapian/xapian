@@ -167,14 +167,14 @@ SleepyDatabase::is_locked()
 void
 SleepyDatabase::do_lock(om_timeout timeout)
 {
-    DEBUGMSG(LOCK, "SleepyDatabase::lock()" << endl);
+    DEBUGMSG(DBLOCK, "SleepyDatabase::lock()" << endl);
     // FIXME: lock database
 }
 
 void
 SleepyDatabase::do_unlock()
 {
-    DEBUGMSG(LOCK, "SleepyDatabase::unlock()" << endl);
+    DEBUGMSG(DBLOCK, "SleepyDatabase::unlock()" << endl);
     // FIXME: unlock database
 }
 

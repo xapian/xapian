@@ -227,10 +227,16 @@ SleepyList::move_to_next_item()
 {
     Assert(iteration_in_progress);
     if(iteration_at_start) {
+	DEBUGLINE(DB, "SleepyList[" << this << "]::move_to_next_item() - " <<
+		  "moved to first item, ID=" << iteration_position->id);
 	iteration_at_start = false;
     } else {
 	Assert(!at_end());
 	iteration_position++;
+	DEBUGLINE(DB, "SleepyList[" << this << "]::move_to_next_item() - " <<
+		  "moved to " <<
+		  (at_end() ? "end" :
+		   "item ID=" + om_inttostring(iteration_position->id)));
     }
 }
 
@@ -241,7 +247,12 @@ SleepyList::skip_to_item(SleepyListItem::id_type id)
     iteration_at_start = false;
     while(!at_end() && iteration_position->id < id) {
 	iteration_position++;
+	DEBUGLINE(DB, "SleepyList[" << this << "]::skip_to_item() - advanced");
     }
+    DEBUGLINE(DB, "SleepyList[" << this << "]::skip_to_item() - " <<
+	      "skipped to " <<
+		  (at_end() ? "end" :
+		   "item ID=" + om_inttostring(iteration_position->id)));
 }
 
 bool
