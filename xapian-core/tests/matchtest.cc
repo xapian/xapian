@@ -52,6 +52,13 @@ int main(int argc, char *argv[]) {
 			    printf("Failed to add boolean AND\n");
 			}
 			continue;
+		    } else if (term == "XOR") {
+			if (match.add_bxor()) {
+			    printf("Added boolean XOR\n");
+			} else {
+			    printf("Failed to add boolean XOR\n");
+			}
+			continue;
 		    }
 		}
 

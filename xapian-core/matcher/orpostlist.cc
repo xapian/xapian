@@ -13,9 +13,6 @@ OrPostList::OrPostList(PostList *left, PostList *right, Match *root_)
 PostList *
 OrPostList::next(weight w_min)
 {
-    bool ldry = false;
-    bool rnext = false;
-
     if (w_min > minmax) {
 	// we can replace the OR with another operator
 	PostList *ret;
@@ -42,6 +39,9 @@ OrPostList::next(weight w_min)
 	}
 	return ret;
     }
+
+    bool ldry = false;
+    bool rnext = false;
 
     if (lhead <= rhead) {
         if (lhead == rhead) rnext = true;

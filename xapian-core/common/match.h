@@ -32,6 +32,7 @@ class Match {
 	bool add_bterm(const string &);
 	bool add_band();
 	bool add_bor();
+	bool add_bxor();
 	bool add_bandnot();
         void match();
         void set_max_msize(doccount n);

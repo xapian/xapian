@@ -45,6 +45,14 @@ AndNotPostList::next(weight w_min)
 }
 
 PostList *
+AndNotPostList::sync_and_skip_to(docid id, weight w_min, docid lh, docid rh)
+{
+    lhead = lh;
+    rhead = rh;
+    return skip_to(id, w_min);
+}
+
+PostList *
 AndNotPostList::skip_to(docid id, weight w_min)
 {
     if (id <= lhead) return NULL;

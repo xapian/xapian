@@ -1,6 +1,7 @@
 #include "match.h"
 #include "andpostlist.h"
 #include "orpostlist.h"
+#include "xorpostlist.h"
 #include "andnotpostlist.h"
 #include "filterpostlist.h"
 
@@ -65,6 +66,21 @@ Match::add_bor()
     right = bq.top();
     bq.pop();
     bq.push(new OrPostList(left, right, this));
+
+    return true;
+}
+
+bool
+Match::add_bxor()
+{
+    if(bq.size() < 2) return false;
+    PostList *left, *right;
+
+    left = bq.top();
+    bq.pop();
+    right = bq.top();
+    bq.pop();
+    bq.push(new XorPostList(left, right, this));
 
     return true;
 }

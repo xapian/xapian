@@ -27,7 +27,7 @@ class AndPostList : public virtual BranchPostList {
 	bool   at_end() const;
 
         AndPostList(PostList *l, PostList *r, Match *root_,
-		    bool replacement = true);
+		    bool replacement = false);
 };
 
 inline doccount
