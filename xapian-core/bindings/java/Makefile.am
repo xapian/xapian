@@ -18,7 +18,6 @@ JSRC  = com/muscat/om/OmObject.java			\
 	com/muscat/om/OmMSetItem.java			\
 	com/muscat/om/OmQuery.java			\
 	com/muscat/om/OmRSet.java			\
-	com/muscat/om/OmSettings.java			\
 	com/muscat/om/OmMatchDecider.java		\
 	com/muscat/om/OmVector.java			\
 	com/muscat/om/OmStem.java			\
@@ -55,7 +54,6 @@ JCLASSES  = com/muscat/om/OmObject.class			\
 	com/muscat/om/OmMSetItem.class			\
 	com/muscat/om/OmQuery.class			\
 	com/muscat/om/OmRSet.class			\
-	com/muscat/om/OmSettings.class			\
 	com/muscat/om/OmVector.class			\
 	com/muscat/om/OmStem.class			\
 	com/muscat/om/OmMSetItemVector.class		\

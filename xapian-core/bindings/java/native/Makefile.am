@@ -12,12 +12,10 @@ JCLAS =	com.muscat.om.OmEnquire				\
 	com.muscat.om.OmMSetItemVector			\
 	com.muscat.om.OmStem				\
 	com.muscat.om.OmDocument			\
-	com.muscat.om.OmSettings    			\
 	com.muscat.om.OmRSet				\
 	com.muscat.om.OmESet				\
 	com.muscat.om.OmESetItem			\
 	com.muscat.om.OmESetItemVector			\
-	com.muscat.om.OmSettings			\
 	com.muscat.om.OmExpandDecider			\
 	com.muscat.om.OmPrefixExpandDecider
 
@@ -42,7 +40,6 @@ EXTRA_DIST = nvOmEnquire.cc			\
 	nvOmESetItem.cc			\
 	nvOmESetItemVector.cc		\
 	nvOmPrefixExpandDecider.cc	\
-	nvOmSettings.cc			\
 	utils.cc
 
 native_sources = nvOmEnquire.lo			\
@@ -60,7 +57,6 @@ native_sources = nvOmEnquire.lo			\
 	nvOmESetItem.lo			\
 	nvOmESetItemVector.lo		\
 	nvOmPrefixExpandDecider.lo	\
-	nvOmSettings.lo			\
 	utils.lo
 
 all-local: headers libxapianjava.so

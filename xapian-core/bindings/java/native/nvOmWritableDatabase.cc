@@ -9,23 +9,6 @@
 
 /*
  * Class:     com_muscat_om_OmWritableDatabase
- * Method:    createNativeObject
- * Signature: (Lcom/muscat/om/OmSettings;)J
- */
-JNIEXPORT jlong JNICALL Java_com_muscat_om_OmWritableDatabase_createNativeObject
-  (JNIEnv *env, jobject obj, jobject params)
-{
-    const OmSettings *params_n = (const OmSettings *) tryGetLongField (env, params, "nativePtr");
-
-    try {
-	return (jlong) new OmWritableDatabase(*params_n);
-    } catch (OmError &err) {
-	handleNativeError (env, err);
-    }
-}
-
-/*
- * Class:     com_muscat_om_OmWritableDatabase
  * Method:    deleteNativeObject
  * Signature: ()V
  */

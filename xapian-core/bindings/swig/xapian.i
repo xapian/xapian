@@ -6,6 +6,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -227,17 +228,6 @@ class OmQuery {
 
 // TODO: OmExpandDecider
 
-class OmSettings {
-    public:
-	OmSettings();
-	~OmSettings();
-	
-	void set(const string &key, const string &value);
-	string get(const string &key, const string &def="") const;
-	string get_description() const;
-	// TODO: make this look like a Dict/hash/whatever?
-};
-
 #if defined(NOTDEFINED)
 struct OmDocumentTerm {
     OmDocumentTerm(const string & tname_, om_termpos tpos = 0);
@@ -255,11 +245,10 @@ struct OmDocumentTerm {
 
 class OmDatabase {
     public:
-	OmDatabase(const OmSettings &params);
+	OmDatabase(const OmDatabase & database);
 	%name(emptyOmDatabase) OmDatabase();
 	virtual ~OmDatabase();
 
-	%name(add_dbargs) void add_database(const OmSettings &params);
 	void add_database(const OmDatabase & database);
 
 	OmDocument get_document(om_docid did);
@@ -278,7 +267,7 @@ class OmDatabase {
 
 class OmWritableDatabase : public OmDatabase {
     public:
-	OmWritableDatabase(const OmSettings & params);
+	OmWritableDatabase(const OmWritableDatabase & database);
 	virtual ~OmWritableDatabase();
 
 	void flush();
@@ -307,14 +296,15 @@ class OmEnquire {
 
 	OmESet get_eset(om_termcount maxitems,
 			const OmRSet &omrset,
-			const OmSettings *eoptions = 0,
+			int flags = 0, double k = 1.0,
 			const OmExpandDecider *edecider = 0) const;
 
 	OmMSet get_mset(om_doccount first,
 			om_doccount maxitems,
 			const OmRSet *omrset = 0,
-			const OmSettings *moptions = 0,
 			const OmMatchDecider *mdecider = 0) const;
+
+	// FIXME: add new methods to set match options...
 
 	%extend {
 		std::list<om_termname> get_matching_terms(const OmMSetIterator &hit) const {
@@ -344,5 +334,3 @@ class OmQueryParser {
   void set_default_op(OmQuery::op default_op_);
   OmQuery parse_query(const string &q);
 };
-
-

@@ -4,6 +4,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -90,25 +91,6 @@
 	return retval;
     }
 
-    OmSettings *get_py_omsettings(PyObject *obj)
-    {
-	OmSettings *retval = 0;
-	if (PyInstance_Check(obj)) {
-	    PyObject *mythis = PyDict_GetItemString(((PyInstanceObject *)obj)
-						    ->in_dict, "this");
-	    if (char *err = SWIG_GetPtr(PyString_AsString(mythis),
-					(void **)&retval,
-					"_OmSettings_p")) {
-		cerr << "obj.this: " << PyString_AsString(mythis) << endl;
-		cerr << "Problem is: " << err << endl;
-		PyErr_SetString(PyExc_ValueError,
-				"OmSettings object invalid");
-		return 0;
-	    }
-	}
-	return retval;
-    }
-
     OmMatchDecider *get_py_ommatchdecider(PyObject *obj)
     {
 	OmMatchDecider *retval = 0;
@@ -159,50 +141,6 @@
 	}
     }
     $target = &v;
-}
-
-%typemap(python, in) const OmSettings &(OmSettings s) {
-    if (!PyMapping_Check($source)) {
-        PyErr_SetString(PyExc_TypeError, "expected string to string map");
-        return NULL;
-    }
-    // return the list of (key, value) tuples
-    PyObject *items = PyMapping_Items($source);
-    int i = 0;
-    PyObject *obj;
-    while ((obj = PySequence_GetItem(items, i++)) != NULL) {
-	if (PyTuple_Check(obj) && PyTuple_Size(obj) == 2) {
-	    std::string key;
-	    if (PyString_Check(PyTuple_GetItem(obj, 0))) {
-		key = PyString_AsString(PyTuple_GetItem(obj, 0));
-	    } else {
-		PyErr_SetString(PyExc_TypeError,
-				"expected string keys");
-		return NULL;
-	    }
-
-            PyObject *val = PyTuple_GetItem(obj, 1);
-	    if (PyString_Check(val)) {
-	        std::string value = PyString_AsString(val);
-		s.set(key, value);
-		cout << "Set " << key << " to string `" << value << "'" << endl;
-	    } else if (PyNumber_Check(val)) {
-	        double value = PyFloat_AsDouble(PyNumber_Float(val));
-		s.set(key, value);
-		cout << "Set " << key << " to double `" << value << "'" << endl;
-	    } else {
-	        cout << "FOO" << endl;
-		PyErr_SetString(PyExc_TypeError,
-				"unexpected value type");
-		return NULL;
-	    }
-	} else {
-	    PyErr_SetString(PyExc_TypeError,
-			    "expected tuple");
-	    return NULL;
-	}
-    }
-    $target = &s;
 }
 
 %typemap(python, out) om_termname_list {

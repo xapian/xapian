@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,9 +24,6 @@ package com.muscat.om;
 
 public class OmWritableDatabase extends OmDatabase {
 
-    public OmWritableDatabase (OmSettings params) throws OmError { 
-	nativePtr = createNativeObject (params);
-    }
     protected native long createNativeObject (OmSettings params);
 
     protected void finalize () throws Throwable {
