@@ -113,7 +113,7 @@ bool test_netexpand1()
     return true;
 }
 
-// test a network match with two databases
+// test a tcp connection
 bool test_tcpclient1()
 {
     string command =
@@ -123,12 +123,41 @@ bool test_tcpclient1()
 
     system(command.c_str());
 
-    sleep(5);
+    sleep(3);
     TcpClient tc("localhost", 1235);
 
     return true;
 }
 
+// test a tcp match
+bool test_tcpmatch1()
+{
+    string command =
+	    string("./omtcpsrv --im ") +
+	    datadir +
+	    "apitest_simpledata.txt --port 1236 &";
+    system(command.c_str());
+    sleep(3);
+
+    OmDatabaseGroup databases;
+    vector<string> params;
+    params.push_back("tcp");
+    params.push_back("localhost");
+    params.push_back("1236");
+    databases.add_database("net", params);
+
+    OmEnquire enq(databases);
+
+    enq.set_query(OmQuery("word"));
+
+    OmMSet mset(enq.get_mset(0, 10));
+
+    if (verbose) {
+	cout << mset;
+    }
+
+    return true;
+}
 
 // #######################################################################
 // # End of test cases.
@@ -138,6 +167,7 @@ test_desc tests[] = {
     {"netmatch2",	test_netmatch2},
     {"netexpand1",      test_netexpand1},
     {"tcpclient1",	test_tcpclient1},
+    {"tcpmatch",	test_tcpmatch1},
     {0,			0},
 };
 

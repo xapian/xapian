@@ -20,12 +20,14 @@
  * -----END-LICENCE-----
  */
 
+#include <cstdlib>
 #include "omassert.h"
 #include "net_database.h"
 #include "database_builder.h"
 #include "progclient.h"
+#include "tcpclient.h"
 
-#include "om/omerror.h"
+#include <om/omerror.h>
 
 ///////////////////////////
 // Actual database class //
@@ -50,6 +52,10 @@ NetworkDatabase::NetworkDatabase(const DatabaseBuilderParams & params)
 						     params.paths[2]));
 	Assert(link.get() != 0);
 	//initialise_link();
+    } else if (params.paths[0] == "tcp") {
+	link = OmRefCntPtr<NetClient>(new TcpClient(
+					    params.paths[1],
+					    atoi(params.paths[2].c_str())));
     } else {
 	throw OmUnimplementedError(string("Network database type ") +
 				   params.paths[0]);
