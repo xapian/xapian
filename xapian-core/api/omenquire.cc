@@ -25,10 +25,12 @@
 #include <config.h>
 #include "omdebug.h"
 
-#include <xapian/error.h>
+#include <xapian/document.h>
 #include <xapian/enquire.h>
-#include <xapian/termiterator.h>
+#include <xapian/error.h>
+#include <xapian/errorhandler.h>
 #include <xapian/expanddecider.h>
+#include <xapian/termiterator.h>
 
 #include "vectortermlist.h"
 
@@ -36,9 +38,6 @@
 #include "multimatch.h"
 #include "expand.h"
 #include "database.h"
-#include <xapian/document.h>
-#include <xapian/errorhandler.h>
-#include <xapian/enquire.h>
 #include "omenquireinternal.h"
 #include "utils.h"
 
