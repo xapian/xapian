@@ -190,10 +190,10 @@ test_driver::runtest(const test_desc *test)
     bool success = true;
 
     // This is used to make a note of how many times we've run the test
-    volatile int runcount = 0;
+    //volatile int runcount = 0;
 
     while (true) {
-	runcount++;
+	//runcount++;
 	tout.str("");
 	// FIXME get snapshot with valgrind
 	SignalRedirector sig; // use object so signal handler are reset
@@ -204,11 +204,13 @@ test_driver::runtest(const test_desc *test)
 		success = test->run();
 		if (!success) {
 		    out << tout.str();
+		    tout.str("");
 		    out << " " << col_red << "FAILED" << col_reset;
 		}
 	    } catch (const TestFailure &fail) {
 		success = false;
 		out << tout.str();
+		tout.str("");
 		out << " " << col_red << "FAILED" << col_reset;
 		if (verbose) {
 		    out << fail.message << endl;
@@ -224,6 +226,7 @@ test_driver::runtest(const test_desc *test)
 	    } catch (const OmError &err) {
 		string errclass = err.get_type();
 		out << tout.str();
+		tout.str("");
 		if (expected_exception == errclass) {
 		    out << " " << col_yellow << "FAILED TO CATCH " << errclass << col_reset;
 		    throw TestSkip();
@@ -240,6 +243,7 @@ test_driver::runtest(const test_desc *test)
 		success = false;
 	    } catch (...) {
 		out << tout.str();
+		tout.str("");
 		out << " " << col_red << "EXCEPT" << col_reset;
 		if (verbose) {
 		    out << "Unknown exception!" << endl;
@@ -249,6 +253,7 @@ test_driver::runtest(const test_desc *test)
 	} else {
 	    // caught signal
 	    out << tout.str();
+	    tout.str("");
 	    const char *sig = "SIGNAL";
 	    switch (signum) {
 		case SIGSEGV: sig = "SIGSEGV"; break;
