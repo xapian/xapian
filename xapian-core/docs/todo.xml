@@ -1,4 +1,47 @@
 <todo>
+<todoitem priority=" " difficulty="" owner="Olly" area="Docs" release="0.5">
+
+Read through generated docs to ensure they read well in collated form.
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Use m4_include to pull in autoconf/*.m4 into aclocal once we move to requiring
+autoconf 2.50.
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Strip down buildall and rename to bootstrap.
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="Olly" area="" release="0.5">
+
+Disable building of bindings until they have stabilised (top level SUBDIRS and
+DISTSUBDIRS).
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Check for swig version.
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Tests for bindings.
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Clean up xapian-core/backends/quartz/z_make, etc.
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="" release="">
+
+Java bindings in com/muscat/om should probably move to org/xapian before the
+bindings are actually released.
+
+</todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="Debug" release="">
 
 Try to find some way to write a thread identifier into the debug log, while
@@ -28,24 +71,18 @@ progress, apart from C].
 Write (speed) performance test suite.
 
 </todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="General" release="1.0">
+<todoitem priority="M" difficulty="2" owner="" area="General" release="0.6">
 
 Check for zero byte cleanness wherever strings are used.  There are a
 number of c_str()s in the code, but I believe all in the core library
 (excluding the bindings) are harmless at 2002-04-29.  There may be other zero
-byte issues though.
+byte issues though.  xapian-applications/dbtools also uses c_str() where it
+should probably use data() and length().
 
 </todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="Iterators" release="">
 
 Write tests for copying term and postlist iterators.
-
-</todoitem>
-<todoitem priority="M" difficulty="1" owner="" area="API" release="1.0">
-
-The word "key" already has a widely understood meaning which isn't quite
-in line with an OmKey, so perhaps we should rename OmKey to avoid confusiorn?
-OmKey -&gt; OmAttrib / OmAttribute / OmAttr / OmFacet / ... ?
 
 </todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="DA/DB" release="1.0">
@@ -115,14 +152,7 @@ Make exceptions work with shared libs on solaris / find an alternative. (gcc
 =&gt; DISABLE_SHARED on Solaris)
 
 </todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="OmSettings" release="">
-
-Add serialisation methods to OmSettings, and use them instead of simply
-serialising those entries of the settings object that are desired, when
-passing match options over the network.
-
-</todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="OmQuery" release="">
+<todoitem priority="M" difficulty="2" owner="" area="OmQuery" release="0.6">
 
 Move all serialisation of OmQuery into OmQuery (out of socketcommon.cc and
 localmatch): modification of omquery requires changes in 3 separate parts
@@ -165,13 +195,13 @@ Allow negative relevance judgements?  Will need to check that this doesn't
 cause assumptions to be violated. (eg, unsigned integers going negative.)
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Stemming" release="">
+<todoitem priority="M" difficulty="3" owner="" area="Stemming" release="0.6">
 
 Replace our own stemming code with Martin Porter's snowball stemmers (with a
 thin OmStem wrapper).
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Databases" release="">
+<todoitem priority="M" difficulty="3" owner="" area="Databases" release="0.6">
 
 Change all internal references to net/network backend to remote backend (in
 step with external naming)
@@ -196,14 +226,14 @@ Clean up interaction of AllTermsIterator for quartz with QuartzPostList.
 Need QuartzPostListTermsIterator class?  (But with a snappier name. ;-) )
 
 </todoitem>
-<todoitem priority="L" difficulty="3" owner="" area="Quartz" release="">
+<todoitem priority="L" difficulty="3" owner="" area="Quartz" release="0.6">
 
 Make quartz database autoflush when enough changes have been performed based
 on the memory used up as a proportion of that available, rather than simply
 when a count of changes is reached.  Remove hardcoded count of 1000 changes.
 
 </todoitem>
-<todoitem priority="L" difficulty="4" owner="" area="API" release="">
+<todoitem priority="L" difficulty="4" owner="" area="API" release="0.6">
 
 Allow custom weighting functions.
 
@@ -276,11 +306,12 @@ Clustering algorithms.
 Improve performance using SIMD instructions
 
 </todoitem>
-<todoitem priority="V" difficulty="4" owner="" area="General" release="">
+<todoitem priority="V" difficulty="4" owner="" area="General" release="0.6">
 
 Make backends / weighting schemes / indexer modules register themselves
 automatically.  At runtime / linktime? (ie, replace current conditional
-compilation scheme)
+compilation scheme) - actually, we can use subclassing
+and factory classes to do this more cleanly.
 
 </todoitem>
 <todoitem priority="V" difficulty="3" owner="" area="Backends" release="">
@@ -363,12 +394,12 @@ share some techniques from implementing synonym postlists.
 "make install" on omega should install CGI binary somewhere more helpful
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="" release="">
+<todoitem priority=" " difficulty="" owner="Olly" area="" release="1.0">
 
 .deb and RPMs built, control files via autoconf
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="" release="">
+<todoitem priority=" " difficulty="" owner="Olly" area="" release="0.6">
 
 largefiles should get a better autoconf check?
 Propose: move to require autoconf >= 2.50 in the medium term as it includes
@@ -383,14 +414,9 @@ even though some languages (eg Python) have better tools
 available just because it's less overall work.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
+<todoitem priority=" " difficulty="" owner="" area="" release="0.6">
 
 indexgraph -> extra (needs to build as a support library?)
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="" release="">
-
-Reduce use of STL in API; Olly has a plan for std::string
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">
@@ -418,7 +444,7 @@ to deal with that, which can be done in the bindings although it's
 a little fiddly in some languages I believe.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="" release="">
+<todoitem priority=" " difficulty="" owner="Olly" area="" release="0.6">
 
 Fix up examples and make sure they are actually instructive.
 I've made a start.  delve is a reasonable example.  msearch probably needs
@@ -436,7 +462,7 @@ Investigate and find a proper fix for FILTER problem.
 Look at replacing btree implementation, or at least tidying it
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="" release="">
+<todoitem priority=" " difficulty="" owner="Olly" area="" release="0.5">
 
 Need to ensure getopt.c and getopt1.c get linked against
 anything that needs them for non-glibc platforms.
@@ -447,7 +473,7 @@ anything that needs them for non-glibc platforms.
 Automated testing across CF machines
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="James" area="" release="">
+<todoitem priority=" " difficulty="" owner="James" area="" release="0.5">
 
 I have some fixes for linux/alpha build, but they're somewhere in a
 pile of paper on my desk. I'll dig them out and test at some point
@@ -474,7 +500,7 @@ thought through and documented properly.  A longer term project.
 xapian.org: schema pages (not crucial, but would be nice)
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="James" area="" release="">
+<todoitem priority=" " difficulty="" owner="James" area="" release="0.5">
 
 make sure the non-autogenerated docs are actually correct at the moment
 
@@ -485,7 +511,7 @@ Use valgrind in the testsuite - waiting for Julian Seward to add the hooks
 needed.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="" release="">
+<todoitem priority=" " difficulty="" owner="Olly" area="" release="0.6">
 
 Replace all uses of OmSettings.
 The arguments for OmSettings are not as compelling as we
