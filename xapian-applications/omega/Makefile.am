@@ -6,7 +6,7 @@ AUTOMAKE_OPTIONS = 1.8.5
 
 noinst_HEADERS = omega.h query.h cgiparam.h symboltab.h\
  htmlparse.h utils.h configfile.h date.h indextext.h\
- getopt.h
+ gnu_getopt.h
 
 EXTRA_DIST = templates/query \
 	templates/godmode \
@@ -81,9 +81,9 @@ omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc
 omega_LDADD = $(XAPIAN_LIBS) -lxapianqueryparser # -lpcre
 
 omindex_SOURCES = omindex.cc htmlparse.cc indextext.cc\
- getopt.cc getopt1.cc
+ getopt.cc
 omindex_LDADD = $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc htmlparse.cc indextext.cc\
- getopt.cc getopt1.cc
+ getopt.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)

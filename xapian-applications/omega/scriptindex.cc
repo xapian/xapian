@@ -36,12 +36,13 @@
 #include <vector>
 #include <list>
 
-#include <getopt.h>
 #include <stdio.h>
 #include <unistd.h>
 
 #include "htmlparse.h"
 #include "indextext.h"
+
+#include "gnu_getopt.h"
 
 using namespace std;
 
@@ -567,7 +568,7 @@ main(int argc, char **argv)
 
     bool more = true, show_help = false;
     while (more) {
-	switch (getopt_long(argc, argv, "uqv", longopts, NULL)) {
+	switch (gnu_getopt_long(argc, argv, "uqv", longopts, NULL)) {
 	    case EOF:
 		more = false;
 		break;

@@ -39,7 +39,6 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <getopt.h>
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
@@ -49,6 +48,8 @@
 
 #include "htmlparse.h"
 #include "indextext.h"
+
+#include "gnu_getopt.h"
 
 #ifndef O_STREAMING
 # ifdef __linux__
@@ -575,7 +576,7 @@ main(int argc, char **argv)
     mime_map["eps"] = "application/postscript";
     mime_map["ai"] = "application/postscript";
 
-    while ((getopt_ret = getopt_long(argc, argv, "hvd:D:U:M:l", longopts, NULL))!=EOF) {
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l", longopts, NULL))!=EOF) {
 	switch (getopt_ret) {
 	case 'h':
 	    cout << OMINDEX << endl
