@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 # Make the Debian binary packages from the source packages.
 #
 # Copyright (C) 2004 Richard Boulton
@@ -18,13 +18,17 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
 
+# Usage: ./makedebs [COMPONENT]
+# COMPONENT defaults to "unstable".
+# Currently, the only sensible alternate value is "stable".
+
 set -e
 
 COMPONENT=unstable
-VERSION='0.8.2'
-DEBVER_CORE='3'
-DEBVER_BINDINGS='2'
-DEBVER_OMEGA='2'
+VERSION='0.8.3'
+DEBVER_CORE='1'
+DEBVER_BINDINGS='1'
+DEBVER_OMEGA='1'
 
 # Options to pass to dpkg-buildpackage when building binary packages.
 BUILDPACKAGE_BIN_OPTS="-us -uc -d -b"
@@ -40,6 +44,23 @@ TMPDIR="/tmp/xapian$$"
 
 ## BEGIN PROCESSING ##
 trap "(rm -rf $TMPDIR;echo \"makedebs failed\")" EXIT
+
+# Get the component specified by the user.
+if [ "x$1" != "x" ] ; then
+  COMPONENT=$1
+fi
+
+# Check that the component is sane.
+case $COMPONENT in
+  (stable)
+    echo "Building for $COMPONENT" ;;
+  (unstable)
+    echo "Building for $COMPONENT" ;;
+  (*)
+    echo "Component \"$COMPONENT\" not known - try \"stable\" or \"unstable\""
+    exit 1
+    ;;
+esac
 
 # Determine the architecture we're building on
 DEB_HOST_ARCH=`dpkg-architecture -qDEB_HOST_ARCH`

@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 # Make Debian source packages from a xapian source tree.
 #
 # Copyright (C) 2004 Richard Boulton
@@ -18,6 +18,10 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
 
+# Usage: ./makesources [COMPONENT]
+# COMPONENT defaults to "unstable".
+# Currently, the only sensible alternate value is "stable".
+
 set -e
 
 # CVS tag to use to check out Xapian sources
@@ -28,12 +32,12 @@ set -e
 # Otherwise, we are building a snapshot package, and will build directly
 # from CVS code.  (FIXME - currently generates from a cached tarball if there
 # is one.  Not sure this is a bad thing.)
-CVSTAG='v0-8-2'
+CVSTAG='v0-8-3'
 
 # CVS tags to use to check out Debian control files
-DEBTAG_CORE='debian0-8-2_3'
-DEBTAG_BINDINGS='debian0-8-2_2'
-DEBTAG_OMEGA='debian0-8-2_2'
+DEBTAG_CORE='debian0-8-3_1'
+DEBTAG_BINDINGS='debian0-8-3_1'
+DEBTAG_OMEGA='debian0-8-3_1'
 
 #CVSTAG=HEAD
 #DEBTAG_CORE=HEAD
@@ -41,7 +45,8 @@ DEBTAG_OMEGA='debian0-8-2_2'
 #DEBTAG_OMEGA=HEAD
 
 # Debian component to build for (libc version being the most important factor)
-COMPONENT=stable
+# This will be overridden by $1, if set.
+COMPONENT=unstable
 
 # Options to pass to dpkg-buildpackage when building source packages
 BUILDPACKAGE_SRC_OPTS="-us -uc -d -S"
@@ -60,6 +65,23 @@ CVSROOT=":pserver:cvsuser@cvs.xapian.org:/usr/data/cvs"
 
 ## BEGIN PROCESSING ##
 trap "echo \"makedebs failed\"" EXIT
+
+# Get the component specified by the user.
+if [ "x$1" != "x" ] ; then
+  COMPONENT=$1
+fi
+
+# Check that the component is sane.
+case $COMPONENT in
+  (stable)
+    echo "Building for $COMPONENT" ;;
+  (unstable)
+    echo "Building for $COMPONENT" ;;
+  (*)
+    echo "Component \"$COMPONENT\" not known - try \"stable\" or \"unstable\""
+    exit 1
+    ;;
+esac
 
 # Determine the architecture we're building on
 DEB_HOST_ARCH=`dpkg-architecture -qDEB_HOST_ARCH`
@@ -151,6 +173,9 @@ then
   # Distribution tarballs all exist
   true
 else
+  # Make source directory
+  mkdir -p "$POOLDIR/source"
+
   # Checkout original packages from CVS
   rm -rf origsrc
   mkdir -p origsrc
