@@ -56,6 +56,51 @@ enum om_queryop {
     OM_MOP_PHRASE
 };
 
+class OmDocument {
+  public:
+    ~OmDocument();
+
+    // OmKey and OmData are both strings as far as scripting languages
+    // see them.
+    OmKey get_key(om_keyno key) const;
+    %addmethods {
+      std::string get_data() {
+        return (self->get_data().value);
+      }
+    }
+
+    void set_data(string data_);
+
+    /** Type to store keys in. */
+//    typedef map<om_keyno, OmKey> document_keys;
+
+    /** The keys associated with this document. */
+//    document_keys keys;
+    %addmethods {
+	void add_key(int keyno, string value) {
+	    self->add_key(keyno, OmKey(value));
+	}
+    }
+
+    // TODO: sort out access to the maps somehow.
+    /** Type to store terms in. */
+//    typedef map<string, OmDocumentTerm> document_terms;
+
+    /** The terms (and their frequencies and positions) in this document. */
+//    document_terms terms;
+
+    /** Add an occurrence of a term to the document.
+     *
+     *  Multiple occurrences of the term at the same position are represented
+     *  only once in the positional information, but do increase the wdf.
+     *
+     *  @param tname  The name of the term.
+     *  @param tpos   The position of the term.
+     */
+    void add_posting(const string & tname, om_termpos tpos = 0);
+    string get_description() const;
+};
+
 class OmMSet {
     public:
 	OmMSet();
@@ -65,11 +110,16 @@ class OmMSet {
 //	int convert_to_percent(const OmMSetItem & item) const;
 	om_weight get_termfreq(string tname) const;
 	om_doccount get_termweight(string tname) const;
-//	om_doccount get_firstitem();
+	om_doccount get_firstitem() const;
 	om_weight get_max_possible();
 	om_weight get_max_attained();
+	%addmethods {
+	  const OmDocument get_document(om_doccount i) {
+	    return ((*self)[i]).get_document();
+ 	  }
+	}
 
-	string get_description();
+	string get_description() const;
 
 //	%readonly
 	/* Each language-specific part should include something like:
@@ -148,7 +198,6 @@ class OmQuery {
 	void set_cutoff(om_weight cutoff);
 	om_termcount get_length() const;
 	om_termcount set_length(om_termcount qlen_);
-//	om_termname_list get_terms() const;
 };
 
 // TODO: OmMatchDecider
@@ -195,7 +244,7 @@ class OmSettings {
 	~OmSettings();
 	
 	void set(const string &key, const string &value);
-//	string (const string &key) const;
+	string get(const string &key, const string &def="") const;
 	string get_description() const;
 	// TODO: make this look like a Dict/hash/whatever?
 };
@@ -214,46 +263,6 @@ struct OmDocumentTerm {
     void add_posting(om_termpos tpos = 0);
 };
 #endif
-
-class OmDocument {
-  public:
-    ~OmDocument();
-
-    // OmKey and OmData are both strings as far as scripting languages
-    // see them.
-    OmKey get_key(om_keyno key) const;
-    OmData get_data() const;
-    void set_data(string data_);
-
-    /** Type to store keys in. */
-//    typedef map<om_keyno, OmKey> document_keys;
-
-    /** The keys associated with this document. */
-//    document_keys keys;
-
-    %addmethods {
-	void add_key(int keyno, string value) {
-	    self->add_key(keyno, OmKey(value));
-	}
-    }
-
-    // TODO: sort out access to the maps somehow.
-    /** Type to store terms in. */
-//    typedef map<string, OmDocumentTerm> document_terms;
-
-    /** The terms (and their frequencies and positions) in this document. */
-//    document_terms terms;
-
-    /** Add an occurrence of a term to the document.
-     *
-     *  Multiple occurrences of the term at the same position are represented
-     *  only once in the positional information, but do increase the wdf.
-     *
-     *  @param tname  The name of the term.
-     *  @param tpos   The position of the term.
-     */
-    void add_posting(const string & tname, om_termpos tpos = 0);
-};
 
 class OmDatabase {
     public:
