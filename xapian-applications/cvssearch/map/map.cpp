@@ -82,17 +82,6 @@ main(unsigned int argc, const char **argv)
     unsigned int i = 1;
     string input_file = "";
 
-uid_t uid = getuid();
-uid_t euid = geteuid();
-
-setuid(euid);
-
-uid = getuid();
-euid = geteuid();
-
-cout << "uid : " << uid << endl;
-cout << "euid: " << euid << endl;
-
     while (i < argc)
     {
         if (0) {
@@ -210,9 +199,6 @@ cout << "euid: " << euid << endl;
     {
         delete pdb_file;
     }
-
-ofstream fout("/mnt/work/archive/thesis/temp");
-fout << "HELLO\n";
 
     exit (EXIT_SUCCESS);
 }
