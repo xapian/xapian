@@ -34,9 +34,9 @@
 class OmESetCmp {
     public:
         bool operator()(const OmESetItem &a, const OmESetItem &b) {
-	    if(a.wt > b.wt) return true;
-	    if(a.wt != b.wt) return false;
-	    return a.tname > b.tname;
+	    if (a.get_weight() > b.get_weight()) return true;
+	    if (a.get_weight() != b.get_weight()) return false;
+	    return a.get_termname() > b.get_termname();
         }
 };
 

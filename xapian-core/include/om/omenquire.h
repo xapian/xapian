@@ -244,29 +244,35 @@ class OmMSet {
 class OmESetItem {
     friend class OmExpand;
     private:
-	OmESetItem(om_weight wt_new, om_termname tname_new)
-		: wt(wt_new), tname(tname_new) {}
-    public:
+	OmESetItem(om_weight wt_, om_termname tname_)
+		: wt(wt_), tname(tname_) {}
 	/// Weight calculated.
 	om_weight wt;
 	/// Term suggested.
 	om_termname tname;
 
+    public:
+	/// Weight calculated.
+	om_weight get_weight() const { return wt; }
+
+	/// Term suggested.
+	om_termname get_termname() const { return tname; }
+	
 	/** Returns a string representing the eset item.
 	 *  Introspection method.
 	 */
 	std::string get_description() const;
 };
 
+typedef	std::vector<OmESetItem>::const_iterator OmESetIterator;
+
 /** Class representing an ESet.
  *  This set represents the results of an expand operation, which can be
  *  performed by OmEnquire::get_eset().
  */
 class OmESet {
+    friend class OmExpand;
     private:
-    public:
-	OmESet() : ebound(0) {}
-
 	/// A list of items comprising the (selected part of the) eset.
 	std::vector<OmESetItem> items;
 
@@ -275,6 +281,17 @@ class OmESet {
 	 *  equal to items.size()
 	 */
 	om_termcount ebound;
+
+    public:
+	OmESet() : ebound(0) {}
+
+	om_termcount get_ebound() const { return ebound; }
+
+	om_termcount size() const { return items.size(); }
+
+	OmESetIterator begin() const { return items.begin(); }
+
+	OmESetIterator end() const { return items.end(); }
 
 	/** Returns a string representing the eset.
 	 *  Introspection method.

@@ -155,7 +155,7 @@ static bool test_simplequery3()
 }
 
 // tests punctuation is OK in terms in remote queries
-static bool test_punc_terms1()
+static bool test_puncterms1()
 {
     OmDatabase db(get_database("apitest_punc"));
     OmEnquire enquire(db);
@@ -383,7 +383,7 @@ static bool test_expandmaxitems1()
     myrset.add_document(mymset.items[1].did);
 
     OmESet myeset = enquire.get_eset(1, myrset);
-    TEST_EQUAL(myeset.items.size(), 1);
+    TEST_EQUAL(myeset.size(), 1);
 
     return true;
 }
@@ -462,9 +462,9 @@ static bool test_expandfunctor1()
 
     OmESet myeset_orig = enquire.get_eset(1000, myrset);
     unsigned int neweset_size = 0;
-    vector<OmESetItem>::const_iterator i;
-    for (i = myeset_orig.items.begin(); i != myeset_orig.items.end(); ++i) {
-        if (myfunctor(i->tname)) neweset_size++;
+    OmESetIterator i = myeset_orig.begin();
+    for ( ; i != myeset_orig.end(); ++i) {
+        if (myfunctor(i->get_termname())) neweset_size++;
     }
     OmESet myeset = enquire.get_eset(neweset_size, myrset, 0, &myfunctor);
 
@@ -472,36 +472,37 @@ static bool test_expandfunctor1()
     // Compare myeset with the hand-filtered version of myeset_orig.
     if (verbose) {
 	tout << "orig_eset: ";
-	copy(myeset_orig.items.begin(), myeset_orig.items.end(),
+	copy(myeset_orig.begin(), myeset_orig.end(),
 	     ostream_iterator<OmESetItem>(tout, " "));
 	tout << "\n";
 
 	tout << "new_eset: ";
-	copy(myeset.items.begin(), myeset.items.end(),
+	copy(myeset.begin(), myeset.end(),
 	     ostream_iterator<OmESetItem>(tout, " "));
 	tout << "\n";
     }
 #endif
-    vector<OmESetItem>::const_iterator orig, filt;
-    for (orig = myeset_orig.items.begin(), filt = myeset.items.begin();
-         orig != myeset_orig.items.end() && filt != myeset.items.end();
-	 ++orig, ++filt) {
+    OmESetIterator orig = myeset_orig.begin();
+    OmESetIterator filt = myeset.begin();
+    for (; orig != myeset_orig.end() && filt != myeset.end(); ++orig, ++filt) {
 	// skip over items that shouldn't be in myeset
-	while (orig != myeset_orig.items.end() && !myfunctor(orig->tname)) {
+	while (orig != myeset_orig.end() && !myfunctor(orig->get_termname())) {
 	    ++orig;
 	}
 
-	TEST_AND_EXPLAIN(orig->tname == filt->tname && orig->wt == filt->wt,
-			 "Mismatch in items " << orig->tname << " vs. "
-			 << filt->tname << " after filtering");
+	TEST_AND_EXPLAIN(orig->get_termname() == filt->get_termname() &&
+			 orig->get_weight() == filt->get_weight(),
+			 "Mismatch in items " << orig->get_termname()
+			 << " vs. " << filt->get_termname()
+			 << " after filtering");
     }
 
-    while (orig != myeset_orig.items.end() && !myfunctor(orig->tname)) {
+    while (orig != myeset_orig.end() && !myfunctor(orig->get_termname())) {
 	++orig;
     }
 
-    TEST_EQUAL(orig, myeset_orig.items.end());
-    TEST_AND_EXPLAIN(filt == myeset.items.end(),
+    TEST_EQUAL(orig, myeset_orig.end());
+    TEST_AND_EXPLAIN(filt == myeset.end(),
 		     "Extra items in the filtered eset.");
     return true;
 }
@@ -612,8 +613,9 @@ static bool test_allowqterms1()
     eopt.set("expand_use_query_terms", false);
 
     OmESet myeset = enquire.get_eset(1000, myrset, &eopt);
-    for (unsigned int i = 0; i < myeset.items.size(); ++i) {
-        TEST_NOT_EQUAL(myeset.items[i].tname, "thi");
+    OmESetIterator i = myeset.begin();
+    for ( ; i != myeset.end(); ++i) {
+        TEST_NOT_EQUAL(i->get_termname(), "thi");
     }
 
     return true;
@@ -879,7 +881,7 @@ static bool test_repeatquery1()
 }
 
 // test that searching for a term with a space in it works
-static bool test_spaceterm1()
+static bool test_spaceterms1()
 {
     OmEnquire enquire(get_database("apitest_space"));
     OmMSet mymset;
@@ -1218,19 +1220,24 @@ static bool test_termlisttermfreq1()
     // search for weight of term 'another'
     std::string theterm = stemmer.stem_word("another");
 
-    vector<OmESetItem>::const_iterator i;
     om_weight wt1 = 0;
     om_weight wt2 = 0;
-    for (i = eset1.items.begin(); i != eset1.items.end(); i++) {
-	if (i->tname == theterm) {
-	    wt1 = i->wt;
-	    break;
+    {
+	OmESetIterator i = eset1.begin();
+	for ( ; i != eset1.end(); i++) {
+	    if (i->get_termname() == theterm) {
+		wt1 = i->get_weight();
+		break;
+	    }
 	}
     }
-    for (i = eset2.items.begin(); i != eset2.items.end(); i++) {
-	if (i->tname == theterm) {
-	    wt2 = i->wt;
-	    break;
+    {
+	OmESetIterator i = eset2.begin();
+	for ( ; i != eset2.end(); i++) {
+	    if (i->get_termname() == theterm) {
+		wt2 = i->get_weight();
+		break;
+	    }
 	}
     }
 
@@ -1273,20 +1280,18 @@ static bool test_multiexpand1()
     // This is the multi database without approximation
     OmESet eset3 = enquire2.get_eset(1000, rset2, &eopts);
 
-    TEST_EQUAL(eset1.items.size(), eset2.items.size());
-    TEST_EQUAL(eset1.items.size(), eset3.items.size());
+    TEST_EQUAL(eset1.size(), eset2.size());
+    TEST_EQUAL(eset1.size(), eset3.size());
 
-    vector<OmESetItem>::const_iterator i;
-    vector<OmESetItem>::const_iterator j;
-    vector<OmESetItem>::const_iterator k;
+    OmESetIterator i = eset1.begin();
+    OmESetIterator j = eset2.begin();
+    OmESetIterator k = eset3.begin();
     bool all_iwts_equal_jwts = true;
-    for(i = eset1.items.begin(), j = eset2.items.begin(),
-	k = eset3.items.begin();
-	i != eset1.items.end(), j != eset2.items.end(), k != eset3.items.end();
-	i++, j++, k++) {
-	if (i->wt != j->wt) all_iwts_equal_jwts = false;
-	TEST_EQUAL(i->wt, k->wt);
-	TEST_EQUAL(i->tname, k->tname);
+    for ( ; i != eset1.end(), j != eset2.end(), k != eset3.end();
+	 i++, j++, k++) {
+	if (i->get_weight() != j->get_weight()) all_iwts_equal_jwts = false;
+	TEST_EQUAL(i->get_weight(), k->get_weight());
+	TEST_EQUAL(i->get_termname(), k->get_termname());
     }
     TEST(!all_iwts_equal_jwts);
     return true;
@@ -1760,6 +1765,8 @@ test_desc db_tests[] = {
     {"termlist2",	   test_termlist2},
     {"termlist3",	   test_termlist3},
     {"termlist4",	   test_termlist4},
+    {"puncterms1",	   test_puncterms1},
+    {"spaceterms1",	   test_spaceterms1},
     {0, 0}
 };
 

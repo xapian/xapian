@@ -1,3 +1,10 @@
+Sun Dec 10 13:29:15 GMT 2000 Olly Betts
+
+	* Started to encapsulate OmESet/OmESetItem interface.  Interface is
+	  close, but currently implementation is exposed in omenquire.h.
+	  
+	* apitest wasn't running puncterms1 or spaceterms1 - fixed.
+ 
 Sun Dec 10 11:34:39 GMT 2000 Olly Betts
 
 	* om/autoptr.h -> autoptr.h in lots of places.
