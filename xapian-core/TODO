@@ -103,22 +103,6 @@ Priority | Area            | Task
 	 |                 | off.  Also, make sure that each subdatabase
 	 |                 | has the appropriate value in its "root" field.
 ---------+-----------------+--------------------------------------------------
- Medium  | MultiDatabase   | Check that query expansion over a MultiDatabase
-         |                 | gives the same result as over an equivalent
-	 |                 | single InMemory database.
----------+-----------------+--------------------------------------------------
- Medium  | General         | If two OmEnquire objects are initialised with
-         |                 | the same OmDatabase, they should share the
-	 |                 | same IRDatabase object.  This could be done with
-	 |                 | reference counted internals of OmDatabase
-	 |                 | (though this might cause problems if the
-	 |                 | OmDatabase was subsequently modified - it could
-	 |                 | make new internals for itself in that situation,
-	 |                 | though).  Would need pthread locks in the
-	 |                 | database class in this case, which might be less
-	 |                 | efficient, or might avoid resource conflicts and
-	 |                 | be better.
----------+-----------------+--------------------------------------------------
  Medium  | General / API   | Put Om into its own namespace, to ensure lack of
          |                 | symbol conflicts.
 ---------+-----------------+--------------------------------------------------
