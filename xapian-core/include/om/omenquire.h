@@ -806,16 +806,17 @@ class OmBatchEnquire {
 	/** This class stores the result of one of the queries in a
 	 *  batch of queries.
 	 */
-	class batch_result {
+	class batch_result {	    
 	    private:
+		friend class OmBatchEnquire::Internal;
 		bool isvalid;
 		OmMSet result;
-	    public:
+
 		/** Create a batch result.  This is used by
 		 *  OmBatchEnquire::Internal.
 		 */
 		batch_result(const OmMSet &mset, bool isvalid_);
-
+	    public:
 		/** Return the OmMSet, if valid.
 		 *  If not, then an OmInvalidResultError exception
 		 *  is thrown.
