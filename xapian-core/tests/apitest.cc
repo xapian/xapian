@@ -26,12 +26,6 @@
 #include <memory>
 #include <map>
 
-#ifdef HAVE_GETOPT_H
-#include <getopt.h>
-#else // HAVE_GETOPT_H
-#include <stdlib.h>
-#endif // HAVE_GETOPT_H
-
 #include "om/om.h"
 #include "testsuite.h"
 
@@ -163,48 +157,8 @@ test_desc tests[] = {
 
 string datadir;
 
-bool verbose = false;
-
-void usage(char *progname)
-{
-    cerr << "Usage: " << progname << " [-v] [-o] [-f] [testname]" << endl;
-}
-
 int main(int argc, char *argv[])
 {
-    bool fussy = true;
-
-    int c;
-
-    test_driver driver;
-
-    string one_test_name;
-    bool one_test = false;
-
-    while ((c = getopt(argc, argv, "vof")) != EOF) {
-	switch (c) {
-	    case 'v':
-		verbose = true;
-		break;
-	    case 'o':
-		driver.set_abort_on_error(true);
-		break;
-	    case 'f':
-	    	fussy = true;
-		break;
-	    default:
-	    	usage(argv[0]);
-		exit(1);
-	}
-    }
-
-    if (optind == (argc-1)) {
-	one_test = true;
-	one_test_name = argv[argc-1];
-    } else if (optind != (argc)) {
-    	usage(argv[0]);
-	return 1;
-    }
     char *srcdir = getenv("srcdir");
     if (srcdir == NULL) {
         cout << "Error: $srcdir must be in the environment!" << endl;
@@ -212,23 +166,7 @@ int main(int argc, char *argv[])
     }
     datadir = std::string(srcdir) + "/testdata/";
 
-    test_driver::result myresult;
-    if (one_test) {
-	myresult = driver.run_test(tests, one_test_name);
-    } else {
-	myresult = driver.run_tests(tests);
-    }
-
-    cout << "apitest finished: "
-         << myresult.succeeded << " tests passed, "
-	 << myresult.failed << " failed."
-	 << endl;
-	
-    if (fussy) {
-	return (bool)myresult.failed; // if 0, then everything passed
-    } else {
-	return 0;
-    }
+    return test_driver::main(argc, argv, tests);
 }
 
 

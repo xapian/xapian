@@ -34,9 +34,29 @@ struct test_desc {
   test_func run;
 };
 
+// The global verbose flag.  Individual tests may need to get at it.
+extern bool verbose;
+
 class test_driver {
     public:
-	test_driver();
+	/** main() replacement.  Standard OM test suite programs
+	 *  can have a one-liner main() which calls test_driver::main()
+	 *  with argc, argv, and the test array.  This function handles
+	 *  all the standard argument parsing and running of the tests.
+	 *  main() should return the result of test_driver::main() to
+	 *  the system.
+	 *
+	 *  @param  argc	The argument count passed into ::main()
+	 *  @param  argv	The argument list passed into ::main()
+	 *  @param  tests	The array of tests to run.
+	 */
+	static int main(int argc, char *argv[], const test_desc *tests);
+
+	/** The constructor, which sets up the test driver.
+	 *
+	 *  @param tests The zero-terminated array of tests to run.
+	 */
+	test_driver(const test_desc *tests_);
 
 	struct result {
 	    unsigned int succeeded;
@@ -44,17 +64,14 @@ class test_driver {
 	};
 
 	/** Run all the tests supplied and return the results
-	 *
-	 *  @param tests The zero-terminated array of tests to run.
 	 */
-	result run_tests(const test_desc *tests);
+	result run_tests();
 
 	/** Similar to run_tests() but only run the named test.
 	 *
-	 *  @param tests The zero-terminated array of tests to run
 	 *  @param testname The name of the test(s) to run.
 	 */
-	result run_test(const test_desc *tests, const string &testname);
+	result run_test(const string &testname);
 
 	void set_abort_on_error(bool aoe_);
 	void set_quiet(bool quiet_);
@@ -71,17 +88,19 @@ class test_driver {
 	 *  it runs test(s) (with runtest()), prints out messages for
 	 *  the user, and tracks the successes and failures.
 	 *
-	 *  @param tests The list of tests
 	 *  @param name  If non-empty, the name of the test(s) to run.
 	 *               If empty, all tests will be run.
 	 */
-	result do_run_tests(const test_desc *tests, const string &name);
+	result do_run_tests(const string &name);
 	
 	// abort tests at the first failure
 	bool abort_on_error;
 
 	// the default stream to output to
 	ostream out;
+
+	// the list of tests to run.
+	const test_desc *tests;
 };
 
 inline void test_driver::set_abort_on_error(bool aoe_)

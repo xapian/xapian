@@ -67,66 +67,9 @@ test_desc tests[] = {
     {0, 0}
 };
 
-bool verbose = false;
-
-void usage(char *progname)
-{
-    cerr << "Usage: " << progname << " [-v] [-o] [-f] [testname]" << endl;
-}
-
 int main(int argc, char *argv[])
 {
-    bool fussy = true;
-
-    int c;
-
-    test_driver driver;
-
-    string one_test_name;
-    bool one_test = false;
-
-    while ((c = getopt(argc, argv, "vof")) != EOF) {
-	switch (c) {
-	    case 'v':
-		verbose = true;
-		break;
-	    case 'o':
-		driver.set_abort_on_error(true);
-		break;
-	    case 'f':
-	    	fussy = true;
-		break;
-	    default:
-	    	usage(argv[0]);
-		exit(1);
-	}
-    }
-
-    if (optind == (argc-1)) {
-	one_test = true;
-	one_test_name = argv[argc-1];
-    } else if (optind != (argc)) {
-    	usage(argv[0]);
-	return 1;
-    }
-
-    test_driver::result myresult;
-    if (one_test) {
-	myresult = driver.run_test(tests, one_test_name);
-    } else {
-	myresult = driver.run_tests(tests);
-    }
-
-    cout << "internaltest finished: "
-         << myresult.succeeded << " tests passed, "
-	 << myresult.failed << " failed."
-	 << endl;
-	
-    if (fussy) {
-	return (bool)myresult.failed; // if 0, then everything passed
-    } else {
-	return 0;
-    }
+    return test_driver::main(argc, argv, tests);
 }
 
 bool test_trivial()
@@ -158,13 +101,13 @@ bool test_testsuite1()
 	{0, 0}
     };
 
-    test_driver driver;
+    test_driver driver(mytests);
     driver.set_abort_on_error(false);
     if (!verbose) {
 	driver.set_quiet(true);
     }
 
-    test_driver::result res = driver.run_tests(mytests);
+    test_driver::result res = driver.run_tests();
     if (res.succeeded != 1 ||
 	res.failed != 1) {
 	if (verbose) {
@@ -187,13 +130,13 @@ bool test_testsuite2()
 	{0, 0}
     };
 
-    test_driver driver;
+    test_driver driver(mytests);
     driver.set_abort_on_error(true);
     if (!verbose) {
 	driver.set_quiet(true);
     }
 
-    test_driver::result res = driver.run_tests(mytests);
+    test_driver::result res = driver.run_tests();
     if (res.succeeded != 0 ||
 	res.failed != 1) {
 	if (verbose) {
@@ -214,14 +157,14 @@ bool test_testsuite3()
 	{0, 0}
     };
 
-    test_driver driver;
+    test_driver driver(mytests);
     if (!verbose) {
 	driver.set_quiet(true);
     }
 
     bool success = true;
 
-    test_driver::result res = driver.run_tests(mytests);
+    test_driver::result res = driver.run_tests();
     if (res.succeeded != 0 ||
 	res.failed != 1) {
 	if (verbose) {

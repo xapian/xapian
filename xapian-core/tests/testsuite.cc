@@ -20,11 +20,19 @@
  * -----END-LICENCE-----
  */
 
+#include "config.h"
 #include <iostream>
 #include <streambuf.h>
 #include <string>
 #include <new>
 #include <cstdio>
+
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#else // HAVE_GETOPT_H
+#include <stdlib.h>
+#endif // HAVE_GETOPT_H
+
 #include "om/omerror.h"
 #include "testsuite.h"
 
@@ -34,9 +42,13 @@ class null_streambuf : public streambuf {
 /// A null stream buffer which we can redirect output to.
 static null_streambuf nullsb;
 
-test_driver::test_driver()
+/// The global verbose flag. 
+bool verbose;
+
+test_driver::test_driver(const test_desc *tests_)
 	: abort_on_error(false),
-	  out(cout.rdbuf())
+	  out(cout.rdbuf()),
+	  tests(tests_)
 {}
 
 void
@@ -175,20 +187,18 @@ test_driver::runtest(const test_desc *test)
     return success;
 }
 
-test_driver::result test_driver::run_tests(const test_desc *tests)
+test_driver::result test_driver::run_tests()
 {
     const string blank;
-    return do_run_tests(tests, blank);
+    return do_run_tests(blank);
 }
 
-test_driver::result test_driver::run_test(const test_desc *tests,
-					  const string &test_name)
+test_driver::result test_driver::run_test(const string &test_name)
 {
-    return do_run_tests(tests, test_name);
+    return do_run_tests(test_name);
 }
 
-test_driver::result test_driver::do_run_tests(const test_desc *tests,
-					      const string &testname)
+test_driver::result test_driver::do_run_tests(const string &testname)
 {
     const test_desc *test = tests;
     test_driver::result result = {0, 0};
@@ -215,3 +225,65 @@ test_driver::result test_driver::do_run_tests(const test_desc *tests,
     }
     return result;
 }
+
+static void usage(char *progname)
+{
+    cerr << "Usage: " << progname << " [-v] [-o] [-f] [testname]" << endl;
+}
+
+int test_driver::main(int argc, char *argv[], const test_desc *tests)
+{
+    bool fussy = true;
+
+    int c;
+
+    test_driver driver(tests);
+
+    string one_test_name;
+    bool one_test = false;
+
+    while ((c = getopt(argc, argv, "vof")) != EOF) {
+	switch (c) {
+	    case 'v':
+		verbose = true;
+		break;
+	    case 'o':
+		driver.set_abort_on_error(true);
+		break;
+	    case 'f':
+	    	fussy = true;
+		break;
+	    default:
+	    	usage(argv[0]);
+		return 1;
+	}
+    }
+
+    if (optind == (argc-1)) {
+	one_test = true;
+	one_test_name = argv[argc-1];
+    } else if (optind != (argc)) {
+    	usage(argv[0]);
+	return 1;
+    }
+
+    test_driver::result myresult;
+    if (one_test) {
+	myresult = driver.run_test(one_test_name);
+    } else {
+	myresult = driver.run_tests();
+    }
+
+    cout << argv[0] << " finished: "
+         << myresult.succeeded << " tests passed, "
+	 << myresult.failed << " failed."
+	 << endl;
+	
+    if (fussy) {
+	return (bool)myresult.failed; // if 0, then everything passed
+    } else {
+	return 0;
+    }
+}
+
+

@@ -1,3 +1,8 @@
+Mon May  8 14:34:21 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Moved mostly common implementation of test suite main() functions
+	  into test_driver::main().
+
 Fri May  5 18:55:31 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Pass MatchOptions object down to LocalMatch, rather than
