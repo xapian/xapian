@@ -133,11 +133,11 @@ static void sys_lseek(int h, off_t offset)
     }
 }
 
-static void sys_write_bytes(int h, int n, const byte * p)
+static void sys_write_bytes(int h, int n, const char * p)
 {
     ssize_t bytes_written;
     while (1) {
-	bytes_written = write(h, (char *)p, n);
+	bytes_written = write(h, p, n);
 	if (bytes_written == n) {
 	    // normal case - read succeeded, so return.
 	    return;
@@ -187,7 +187,7 @@ string sys_read_all_bytes(int h, size_t bytes_to_read)
 void
 sys_write_string(int h, const string &s)
 {
-    sys_write_bytes(h, s.length(), (const byte *)s.data());
+    sys_write_bytes(h, s.length(), s.data());
 }
 
 int sys_flush(int h) {
@@ -358,7 +358,7 @@ Btree::write_block(int4 n, const byte * p)
     }
 
     sys_lseek(handle, (off_t)block_size * n);
-    sys_write_bytes(handle, block_size, p);
+    sys_write_bytes(handle, block_size, (const char *)p);
     /* This used to set B->error as below, but will now throw
      * an exception if it fails.
 	B->error = BTREE_ERROR_DB_WRITE;
@@ -368,7 +368,7 @@ Btree::write_block(int4 n, const byte * p)
 
 /* A note on cursors:
 
-   Each B-tree level has a correponding array element C[j] in a
+   Each B-tree level has a corresponding array element C[j] in a
    cursor, C. C[0] is the leaf (or data) level, and C[B->level] is the
    root block level. Within a level j,
 
@@ -459,7 +459,7 @@ static int block_given_by(const byte * p, int c)
     return get_int4(p, c);
 }
 
-/** Btree_alter(C); is called when the B-tree is to be altered.
+/** Btree::alter(); is called when the B-tree is to be altered.
  
    It causes new blocks to be forced for the current set of blocks in
    the cursor.
@@ -481,7 +481,7 @@ static int block_given_by(const byte * p, int c)
 */
 
 void
-Btree::alter(Cursor * C)
+Btree::alter()
 {
     int j = 0;
     byte * p = C[j].p;
@@ -879,17 +879,17 @@ Btree::add_item_to_block(byte * p, byte * kt, int c)
     SET_TOTAL_FREE(p, new_total);
 }
 
-/* add_item(C, kt, j) adds item kt to the block at cursor level C[j].
+/* add_item(C_, kt, j) adds item kt to the block at cursor level C_[j].
  
    If there is not enough room the block splits and the item is then
    added to the appropriate half.
 */
 
 void
-Btree::add_item(Cursor * C, byte * kt, int j)
+Btree::add_item(Cursor * C_, byte * kt, int j)
 {
-    byte * p = C[j].p;
-    int c = C[j].c;
+    byte * p = C_[j].p;
+    int c = C_[j].c;
     int4 n;
 
     int kt_len = GETI(kt, 0);
@@ -897,7 +897,7 @@ Btree::add_item(Cursor * C, byte * kt, int j)
     int new_total = TOTAL_FREE(p) - needed;
     if (new_total < 0) {
 	int m;
-	byte * q = C[j].split_p;
+	byte * q = C_[j].split_p;
 	if (seq_count < 0) {
 	    /* If we're not in sequential mode, we split at the mid point
 	     * of the node. */
@@ -922,28 +922,28 @@ Btree::add_item(Cursor * C, byte * kt, int j)
 	    }
 	}
 	AssertParanoid(m >= mid_point(p));
-	split_off(C, j, m, p, q);
+	split_off(C_, j, m, p, q);
 	if (c >= m) {
 	    c -= (m - DIR_START);
 	    Assert(seq_count < 0 || c <= DIR_START + D2);
 	    Assert(c >= DIR_START);
 	    Assert(c <= DIR_END(p));
 	    add_item_to_block(p, kt, c);
-	    n = C[j].n;
+	    n = C_[j].n;
 	} else {
 	    Assert(c >= DIR_START);
 	    Assert(c <= DIR_END(q));
 	    add_item_to_block(q, kt, c);
-	    n = C[j].split_n;
+	    n = C_[j].split_n;
 	}
-	write_block(C[j].split_n, q);
+	write_block(C_[j].split_n, q);
 
-	enter_key(C, j + 1,                /* enters a separating key at level j + 1 */
+	enter_key(C_, j + 1,                /* enters a separating key at level j + 1 */
 		  key_of(q, DIR_END(q) - D2), /* - between the last key of block q, */
 		  key_of(p, DIR_START));      /* - and the first key of block p */
     } else {
 	add_item_to_block(p, kt, c);
-	n = C[j].n;
+	n = C_[j].n;
     }
     if (j == 0) {
 	changed_n = n;
@@ -951,7 +951,7 @@ Btree::add_item(Cursor * C, byte * kt, int j)
     }
 }
 
-/* delete_item(C, j, repeatedly) is (almost) the converse of add_item.
+/* delete_item(C_, j, repeatedly) is (almost) the converse of add_item.
 
    If repeatedly is true, the process repeats at the next level when a
    block has been completely emptied, freeing the block and taking out
@@ -960,10 +960,10 @@ Btree::add_item(Cursor * C, byte * kt, int j)
 */
 
 void
-Btree::delete_item(Cursor * C, int j, int repeatedly)
+Btree::delete_item(Cursor * C_, int j, int repeatedly)
 {
-    byte * p = C[j].p;
-    int c = C[j].c;
+    byte * p = C_[j].p;
+    int c = C_[j].c;
     int o = GETD(p, c);              /* offset of item to be deleted */
     int kt_len = GETI(p, o);         /* - and its length */
     int dir_end = DIR_END(p) - D2;   /* directory length will go down by 2 bytes */
@@ -976,11 +976,11 @@ Btree::delete_item(Cursor * C, int j, int repeatedly)
     if (!repeatedly) return;
     if (j < level) {
 	if (dir_end == DIR_START) {
-	    base.free_block(C[j].n);
-	    C[j].rewrite = false;
-	    C[j].n = -1;
-	    C[j + 1].rewrite = true;  /* *is* necessary */
-	    delete_item(C, j + 1, true);
+	    base.free_block(C_[j].n);
+	    C_[j].rewrite = false;
+	    C_[j].n = -1;
+	    C_[j + 1].rewrite = true;  /* *is* necessary */
+	    delete_item(C_, j + 1, true);
 	}
     } else {
 	/* j == B->level */
@@ -988,20 +988,20 @@ Btree::delete_item(Cursor * C, int j, int repeatedly)
 	    /* single item in the root block, so lose a level */
 	    int new_root = block_given_by(p, DIR_START);
 	    delete [] p;
-	    C[j].p = 0;
-	    base.free_block(C[j].n);
-	    C[j].rewrite = false;
-	    C[j].n = -1;
-	    delete [] C[j].split_p;
-	    C[j].split_p = 0;
-	    C[j].split_n = -1;
+	    C_[j].p = 0;
+	    base.free_block(C_[j].n);
+	    C_[j].rewrite = false;
+	    C_[j].n = -1;
+	    delete [] C_[j].split_p;
+	    C_[j].split_p = 0;
+	    C_[j].split_n = -1;
 	    level--;
 
-	    block_to_cursor(C, level, new_root);
+	    block_to_cursor(C_, level, new_root);
 	    if (overwritten) return;
 
 	    j--;
-	    p = C[j].p;
+	    p = C_[j].p;
 	    dir_end = DIR_END(p); /* prepare for the loop */
 	}
     }
@@ -1015,7 +1015,7 @@ static addcount = 0;
    B-tree, using cursor C.
    
    found == find() is handed over as a parameter from Btree::add.
-   Btree::alter(C) prepares for the alteration to the B-tree. Then
+   Btree::alter() prepares for the alteration to the B-tree. Then
    there are a number of cases to consider:
 
      If an item with the same key is in the B-tree (found is true),
@@ -1049,7 +1049,7 @@ Btree::add_kt(int found)
 	print_bytes(kt[I2] - K1 - C2, kt + I2 + K1); putchar('\n');
     }
     */
-    alter(C);
+    alter();
 
     if (found) { /* replacement */
 	seq_count = SEQ_START_POINT;
@@ -1119,7 +1119,7 @@ Btree::delete_kt()
     */
     if (found) {
 	components = components_of(C[0].p, C[0].c);
-	alter(C);
+	alter();
 	delete_item(C, 0, true);
     }
     return components;

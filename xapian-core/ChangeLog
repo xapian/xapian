@@ -1,3 +1,7 @@
+Thu Oct 10 17:32:10 BST 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/{btree.cc,btree.h}: More Btree tidying.
+
 Thu Oct 10 17:14:28 BST 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/{bcursor.cc,btree.cc,btree.h}: Btree::prev* and
