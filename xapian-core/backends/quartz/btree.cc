@@ -525,7 +525,7 @@ Btree::alter(Cursor * C)
    Now remember that items are added into the B-tree in fastest time when they
    are preordered by their keys. This is therefore the piece of code that needs
    to be followed to arrange for the preordering.
-   
+
    This is complicated by the fact that keys have two parts - a value and
    then a count.  We first compare the values, and only if they are equal
    do we compare the counts.
@@ -536,7 +536,7 @@ static int compare_keys(byte * key1, byte * key2)
     int key2_len = GETK(key2, 0);
     int k_smaller = (key2_len < key1_len ? key2_len : key1_len) - C2;
     int i;
-    
+
     // Compare the first part of the keys
     for (i = K1; i < k_smaller; i++)
     {
@@ -709,27 +709,26 @@ void Btree::make_index_item(byte * result, int result_len,
     // FIXME: check we don't overrun result_len
     Assert(compare_keys(prevkey, newkey) < 0);
 
-    int prevkey_len = GETK(prevkey, 0);
-    int newkey_len = GETK(newkey, 0);
+    int prevkey_len = GETK(prevkey, 0) - C2;
+    int newkey_len = GETK(newkey, 0) - C2;
     int i;
 
     if (truncate) {
-	i = K1;
-	while (i < prevkey_len - C2 &&
-	       i < newkey_len - C2 &&
-	       prevkey[i] == newkey[i]) {
-	    i++;
-	}
+        i = K1;
+        while (i < prevkey_len &&
+               prevkey[i] == newkey[i]) {
+            i++;
+        }
 
-	// Want one byte of difference.
-	i++;
+        // Want one byte of difference.
+        if (i < newkey_len) i++;
     } else {
-	i = GETK(newkey, 0);
+        i = newkey_len;
     }
     SETI(result, 0, I2 + i + C2 + sizeof(blocknumber)); // Set item length
     SETK(result, I2, i + C2);    // Set key length
     memmove(result + I2 + K1, newkey + K1, i - K1); // Copy the main part of the key
-    memmove(result + I2 + i, newkey + newkey_len - C2, C2); // copy count part
+    memmove(result + I2 + i, newkey + newkey_len, C2); // copy count part
 
     // Set tag contents to block number
     set_int4(result, I2 + i + C2, blocknumber);
@@ -1394,7 +1393,7 @@ Btree::basic_open(const char * name_,
 	// FIXME: assumption that there are only two bases
         if (base_ok[0] && base_ok[1]) both_bases = true;
         if (!base_ok[0] && !base_ok[1]) {
-	    std::string message = "Error opening table `"; 
+	    std::string message = "Error opening table `";
 	    message += name_;
 	    message += "':\n";
 	    message += err_msg;
@@ -1531,7 +1530,7 @@ Btree::read_root()
 	SET_LEVEL(p, 0);
 
         if (!writable) {
-	    /* reading - revision number doesn't matter as long as it's 
+	    /* reading - revision number doesn't matter as long as it's
 	     * not greater than the current one.*/
             SET_REVISION(p, 0);
             C[0].n = 0;
