@@ -186,16 +186,24 @@ else
     wget -q ${URL_CORE}
     wget -q ${URL_BINDINGS}
     wget -q ${URL_OMEGA}
+
+    # Omega package isn't named with a xapian- prefix, so unpack it, rename it,
+    # and repack it with the prefix.
+    tar zxf "omega-${SNAP_VERSION}.tar.gz"
+    mv "omega-${SNAP_VERSION}" "xapian-omega-${SNAP_VERSION}"
+    tar zcf "xapian-omega-${SNAP_VERSION}.tar.gz" "xapian-omega-${SNAP_VERSION}"
+
+    # If we've got all the packages, move them into place.
     if [ -e "xapian-core-${SNAP_VERSION}.tar.gz" -a \
          -e "xapian-bindings-${SNAP_VERSION}.tar.gz" -a \
-         -e "omega-${SNAP_VERSION}.tar.gz" ];
+         -e "xapian-omega-${SNAP_VERSION}.tar.gz" ];
     then
       # Make source directory
       mkdir -p "${PUBDIR}/${POOLDIR}/source"
 
       mv "xapian-core-${SNAP_VERSION}.tar.gz" ${TARBALL_CORE};
       mv "xapian-bindings-${SNAP_VERSION}.tar.gz" ${TARBALL_BINDINGS};
-      mv "omega-${SNAP_VERSION}.tar.gz" ${TARBALL_OMEGA};
+      mv "xapian-omega-${SNAP_VERSION}.tar.gz" ${TARBALL_OMEGA};
     fi
   cd ..
   rm -rf downloads
@@ -347,6 +355,13 @@ EOF
 cd upload-sources
   dpkg-scansources . /dev/null | gzip -9 > $SRCDIR/Sources.gz
 cd ..
+
+# Check that I own all files in $PUBDIR
+for file in `find "${PUBDIR}" -type f -and -not -user richard`;
+do
+  cp "${file}" "${file}_";
+  mv "${file}_" "${file}";
+done
 
 # Upload to $PUBDIR
 mkdir -p ${PUBDIR}
