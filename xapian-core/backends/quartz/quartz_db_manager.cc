@@ -95,6 +95,7 @@ QuartzDbManager::open_tables(QuartzRevisionNumber revision)
 QuartzRevisionNumber
 QuartzDbManager::get_revision_number() const
 {
+    // FIXME implement
 }
 
 int

@@ -67,11 +67,11 @@ QuartzModifications::apply()
 
     db_manager->log->make_entry("Applying modifications.  New revision number is " + new_revision.get_description() + ".");
 
-    success = postlist_diffs.apply(new_revision);
-    if (success) { success = positionlist_diffs.apply(new_revision); }
-    if (success) { success = termlist_diffs.apply(new_revision); }
-    if (success) { success = lexicon_diffs.apply(new_revision); }
-    if (success) { success = record_diffs.apply(new_revision); }
+    success = postlist_diffs->apply(new_revision);
+    if (success) { success = positionlist_diffs->apply(new_revision); }
+    if (success) { success = termlist_diffs->apply(new_revision); }
+    if (success) { success = lexicon_diffs->apply(new_revision); }
+    if (success) { success = record_diffs->apply(new_revision); }
 
     if (!success) {
 	// Modifications failed.  Wipe all the modifications from memory.
