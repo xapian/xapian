@@ -1,3 +1,9 @@
+Thu Dec 02 03:37:06 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: SWIG 1.3.23 causes warnings (and quite likely problems)
+	  with PHP4.  It helps C#, but since that's unfinished, PHP4
+	  definitely matters more, so drop back to SWIG 1.3.22.
+
 Thu Dec 02 03:27:37 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Added tcl8/docs/Makefile tcl8/docs/examples/Makefile
