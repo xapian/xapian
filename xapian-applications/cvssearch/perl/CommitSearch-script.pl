@@ -152,9 +152,9 @@ print STDERR "QUERY IS -$query-\n";
                         print "<tr";
               } 
                  print " valign=top>";
-              print "<td>$key</td>";
+              print "<td><pre>$key</pre></td>";
 
-              print "<td>[&nbsp<a href=\"./QueryComment.cgi?pkg=$key&id=$val&symbol=$urlsymbol&root=$root\">code</a>&nbsp/&nbsp<a href=\"./CommitSearch.cgi?query=$key\@$val&root=$root\">similar</a>&nbsp]</td>";
+              print "<td><pre>[<a href=\"./QueryComment.cgi?pkg=$key&id=$val&symbol=$urlsymbol&root=$root\">code</a>/<a href=\"./CommitSearch.cgi?query=$key\@$val&root=$root\">similar</a>]</pre></td>";
 
               print "<td><pre>$curcomments</pre></td>";
 
