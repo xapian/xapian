@@ -22,6 +22,7 @@
 
 #include "om/omindexermessage.h"
 #include "om/omerror.h"
+#include "omstringstream.h"
 
 OmIndexerData::OmIndexerData() : type(rt_empty)
 {
@@ -242,7 +243,8 @@ OmIndexerData::append_element(const OmIndexerData &element)
     u.vector_val->push_back(element);
 }
 
-static void write_record(std::ostream &os,
+template <class Stream>
+static void write_record(Stream &os,
 			 const OmIndexerData &record)
 {
     switch (record.get_type()) {
@@ -273,6 +275,15 @@ static void write_record(std::ostream &os,
     }
 }
 
+std::string
+OmIndexerData::get_description() const
+{
+    om_ostringstream os;
+    write_record(os, *this);
+    return os.str();
+}
+
+#if 0
 std::ostream &operator<<(std::ostream &os, const OmIndexerData &record)
 {
     os << "OmIndexerData(";
@@ -280,6 +291,7 @@ std::ostream &operator<<(std::ostream &os, const OmIndexerData &record)
     os << ")";
     return os;
 }
+#endif
 
 std::ostream &operator<<(std::ostream &os, const OmIndexerMessage &message)
 {

@@ -500,8 +500,8 @@ OmIndexerNode::Internal::get_input_record(const std::string &input_name)
     i = inputs.find(input_name);
 
     if (i == inputs.end()) {
-	throw OmInvalidArgumentError(std::string("Unknown input ") +
-				     input_name);
+	throw OmInvalidArgumentError(std::string("Unknown input `") +
+				     input_name + "'");
     } else {
 	return find_input_record(input_name);
     }
@@ -520,8 +520,8 @@ OmIndexerNode::Internal::get_input_string(const std::string &input_name)
     i = inputs.find(input_name);
 
     if (i == inputs.end()) {
-	throw OmInvalidArgumentError(std::string("Unknown input ") +
-				     input_name);
+	throw OmInvalidArgumentError(std::string("Unknown input `") +
+				     input_name + "'");
     } else {
 	return find_input_record(input_name)->get_string();
     }
@@ -540,8 +540,8 @@ OmIndexerNode::Internal::get_input_int(const std::string &input_name)
     i = inputs.find(input_name);
 
     if (i == inputs.end()) {
-	throw OmInvalidArgumentError(std::string("Unknown input ") +
-				     input_name);
+	throw OmInvalidArgumentError(std::string("Unknown input `") +
+				     input_name + "'");
     } else {
 	return find_input_record(input_name)->get_int();
     }
@@ -560,8 +560,8 @@ OmIndexerNode::Internal::get_input_double(const std::string &input_name)
     i = inputs.find(input_name);
 
     if (i == inputs.end()) {
-	throw OmInvalidArgumentError(std::string("Unknown input ") +
-				     input_name);
+	throw OmInvalidArgumentError(std::string("Unknown input `") +
+				     input_name + "'");
     } else {
 	return find_input_record(input_name)->get_double();
     }

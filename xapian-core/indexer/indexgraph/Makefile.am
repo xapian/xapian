@@ -29,7 +29,9 @@ endif
 INDEXERNODES = omstemmernode.cc omsplitternode.cc omlistconcatnode.cc \
 		omprefixnode.cc omstopwordnode.cc $(REGEX_NODES) \
 		omflattenstringnode.cc omtranslatenode.cc \
-		omfilereadernode.cc omvectorsplitnode.cc ommakedocnode.cc
+		omfilereadernode.cc omvectorsplitnode.cc \
+		ommakedocnode.cc omconstantnode.cc omnewtermlistnode.cc \
+		omtermlistaddnode.cc omnewkeylistnode.cc
 
 libindexgraph_la_SOURCES = omindexer.cc omindexermessage.cc \
 	do_registration.cc $(INDEXERNODES) indexerxml.cc \

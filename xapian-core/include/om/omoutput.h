@@ -69,6 +69,9 @@ OUTPUT_FUNCTION(OmPositionListIterator);
 #include "omtermlistiterator.h"
 OUTPUT_FUNCTION(OmTermListIterator);
 
+#include "omindexermessage.h"
+OUTPUT_FUNCTION(OmIndexerData);
+
 inline std::ostream &
 operator<<(std::ostream & os, const om_termname_list & obj) {
     os << "om_termname_list(";

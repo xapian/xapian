@@ -127,6 +127,8 @@ class OmIndexerData {
 
 	// FIXME: include the vector type as well.
 
+	/** Return a human-readable string describing the message */
+	std::string get_description() const;
     private:
 
 	/** The type of this record */

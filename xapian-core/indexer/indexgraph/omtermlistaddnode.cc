@@ -1,5 +1,4 @@
-/* ommakedocnode.cc: Node to combine parts of a document into a suitable
- *                   form for turning into an OmDocumentContents.
+/* omtermlistaddnode.cc: Node which adds words to a termlist
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -23,37 +22,45 @@
 
 #include "config.h"
 #include "om/omindexernode.h"
-#include "om/omindexermessage.h"
 #include "node_reg.h"
 #include <cctype>
 
-class OmMakeDocNode : public OmIndexerNode {
+class OmTermlistAddNode : public OmIndexerNode {
     public:
-	OmMakeDocNode(const OmSettings &config)
+	OmTermlistAddNode(const OmSettings &config)
 		: OmIndexerNode(config)
 	{
+	    // FIXME: parameters to set positional defaults?
 	}
     private:
 	// FIXME: implement config_modified()
 	void calculate() {
 	    request_inputs();
-	    OmIndexerMessage data = get_input_record("data");
-	    OmIndexerMessage terms = get_input_record("terms");
-	    OmIndexerMessage keys = get_input_record("keys");
+	    OmIndexerMessage terms = get_input_record("termlist");
+	    OmIndexerMessage words = get_input_record("words");
 
-	    OmIndexerMessage output(new OmIndexerData(
-				    std::vector<OmIndexerData>()));
-	    output->append_element(*data);
-	    output->append_element(*terms);
-	    output->append_element(*keys);
+	    for (size_t i = 0; i<words->get_vector_length(); ++i) {
+		terms->append_element(make_term(words->get_element(i), i+1));
+	    }
+	    set_output("out", terms);
+	}
 
-	    set_output("out", output);
+	OmIndexerData make_term(const OmIndexerData &word, int pos) {
+	    std::vector<OmIndexerData> empty;
+	    OmIndexerData retval(empty);
+	    retval.append_element(word);
+	    retval.append_element(1);  // wdf
+	    retval.append_element(1);  // termfreq
+	    OmIndexerData positions(empty);
+	    positions.append_element(pos);
+	    retval.append_element(positions);
+
+	    return retval;
 	}
 };
 
-NODE_BEGIN(OmMakeDocNode, ommakedoc)
-NODE_INPUT("terms", "terms", mt_vector)
-NODE_INPUT("keys", "keys", mt_vector)
-NODE_INPUT("data", "string", mt_string)
-NODE_OUTPUT("out", "document", mt_vector)
+NODE_BEGIN(OmTermlistAddNode, omtermlistadd)
+NODE_INPUT("words", "strings", mt_vector)
+NODE_INPUT("termlist", "terms", mt_vector)
+NODE_OUTPUT("out", "terms", mt_vector)
 NODE_END()

@@ -1,3 +1,17 @@
+Fri Oct 27 19:52:55 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* New indexer nodes: omnewkeylist, omnewtermlist, and omtermlistadd
+	  for managing term and key lists.  ommakedoc for combining all
+	  the parts of a document in the proper format.  omconstant for
+	  outputting constant (string ATM) values.
+
+	* Added OmIndexerData::get_description() and corresponding output
+	  function.
+
+	* Fixed OmIndexer's interpretation of the output document message.
+
+	* Clarified some exception messages
+
 Fri Oct 27 14:57:23 BST 2000 Olly Betts
 
 	* OmEnquireInternal -> OmEnquire::Internal; OmQueryInternal ->

@@ -25,6 +25,7 @@
 #include "omindexerinternal.h"
 #include "om/omerror.h"
 #include "deleter_map.h"
+#include "omdebug.h"
 
 OmIndexer::OmIndexer()
 	: internal(new OmIndexer::Internal)
@@ -88,6 +89,9 @@ OmIndexer::get_output()
     OmIndexerMessage mess =
 	    internal->final->get_output_record(internal->final_out);
 
+    DEBUGLINE(INDEXER, "OmIndexer::get_output(): raw output = "
+	      << mess->get_description());
+
     for (int i = 0; i < mess->get_vector_length(); ++i) {
 	const OmIndexerData &dat = mess->get_element(i);
 	if (dat.get_type() == OmIndexerData::rt_string) {
@@ -98,25 +102,24 @@ OmIndexer::get_output()
 	    have_data = true;
 	} else if (dat.get_type() == OmIndexerData::rt_vector) {
 	    // FIXME: check that there are enough elements
-	    const OmIndexerData &vec = dat[0];
 
 	    // it's either a termlist or a keylist
 	    // FIXME: do more checking rather than relying on exceptions
 	    // for bad access?
-	    std::string type = vec[0].get_string();
+	    std::string type = dat[0].get_string();
 	    // FIXME: write predicate functions rather than direct string
 	    // comparisions
 	    if (type == "keylist") {
 		if (have_keys) {
 		    throw OmInvalidDataError("Output message invalid: more than one keylist found");
 		}
-		contents.keys = extract_keys(vec);
+		contents.keys = extract_keys(dat);
 		have_keys = true;
 	    } else if (type == "termlist") {
 		if (have_terms) {
 		    throw OmInvalidDataError("Output message invalid: more than one termlist found");
 		}
-		contents.terms = extract_terms(vec);
+		contents.terms = extract_terms(dat);
 		have_terms = true;
 	    } else {
 		throw OmInvalidDataError("Output message invalid: bad vector field in top-level vector");

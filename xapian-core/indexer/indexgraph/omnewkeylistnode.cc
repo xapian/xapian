@@ -1,5 +1,4 @@
-/* ommakedocnode.cc: Node to combine parts of a document into a suitable
- *                   form for turning into an OmDocumentContents.
+/* omnewkeylistnode.cc: Node which makes a blank keylist
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -23,37 +22,24 @@
 
 #include "config.h"
 #include "om/omindexernode.h"
-#include "om/omindexermessage.h"
 #include "node_reg.h"
 #include <cctype>
 
-class OmMakeDocNode : public OmIndexerNode {
+class OmNewKeylistNode : public OmIndexerNode {
     public:
-	OmMakeDocNode(const OmSettings &config)
+	OmNewKeylistNode(const OmSettings &config)
 		: OmIndexerNode(config)
 	{
 	}
     private:
 	// FIXME: implement config_modified()
 	void calculate() {
-	    request_inputs();
-	    OmIndexerMessage data = get_input_record("data");
-	    OmIndexerMessage terms = get_input_record("terms");
-	    OmIndexerMessage keys = get_input_record("keys");
-
-	    OmIndexerMessage output(new OmIndexerData(
-				    std::vector<OmIndexerData>()));
-	    output->append_element(*data);
-	    output->append_element(*terms);
-	    output->append_element(*keys);
-
-	    set_output("out", output);
+	    OmIndexerMessage terms(new OmIndexerData(std::vector<OmIndexerData>()));
+	    terms->append_element(OmIndexerData("keylist"));
+	    set_output("out", terms);
 	}
 };
 
-NODE_BEGIN(OmMakeDocNode, ommakedoc)
-NODE_INPUT("terms", "terms", mt_vector)
-NODE_INPUT("keys", "keys", mt_vector)
-NODE_INPUT("data", "string", mt_string)
-NODE_OUTPUT("out", "document", mt_vector)
+NODE_BEGIN(OmNewKeylistNode, omnewkeylist)
+NODE_OUTPUT("out", "keys", mt_vector)
 NODE_END()
