@@ -126,9 +126,9 @@ void writeOMDatabase( const string& database_dir,
       added.insert(*w);
     }
 
-    // add symbols for indexing (symbols get a $ prefix to distinguish them from terms)
+    // add symbols for indexing (symbols get a : prefix to distinguish them from terms)
     for( set<string>::iterator j = symbols.begin(); j != symbols.end(); j++ ) {
-      newdocument.add_posting("$"+(*j), pos++); 
+      newdocument.add_posting(":"+(*j), pos++); 
     }
 
     //      cerr << "Symbol string is:  " << symbol_string << endl;
