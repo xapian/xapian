@@ -48,6 +48,12 @@ class NetworkMatch : public SingleMatch
 
 	/// The parent's StatsGatherer
 	StatsGatherer *mygatherer;
+
+	/// The maximum weight which can be returned
+	om_weight max_weight;
+
+	/// Indication of whether max_weight needs to be updated
+	bool max_weight_needs_fetch;
     public:
         NetworkMatch(IRDatabase * database_);
         ~NetworkMatch();

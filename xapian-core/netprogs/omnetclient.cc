@@ -343,6 +343,9 @@ void run_matcher() {
 
 		//cerr << "sent OK..." << endl;
 	    }
+	} else if (words[0] == "GETMAXWEIGHT") {
+	    cout << leafmatch.get_max_weight() << endl;
+	    cout.flush();
 	} else {
 	    cout << "ERROR" << endl;
 	    cout.flush();

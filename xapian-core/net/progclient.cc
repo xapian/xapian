@@ -268,3 +268,11 @@ ProgClient::get_mset(om_doccount first,
 	throw OmNetworkError("Error at end of mset");
     }
 }
+
+om_weight
+ProgClient::get_max_weight()
+{
+    string response = do_transaction_with_result("GETMAXWEIGHT");
+
+    return atof(response.c_str());
+}

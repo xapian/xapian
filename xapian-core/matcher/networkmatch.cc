@@ -38,13 +38,8 @@
 
 NetworkMatch::NetworkMatch(IRDatabase *database_)
 	: database(dynamic_cast<NetworkDatabase *>(database_)),
-	  mygatherer(0) /*,
-	  min_weight_percent(-1),
-	  max_weight_needs_calc(true),
-	  query(0),
-	  users_query(),
-	  extra_weight(0),
-	  rset(0),
+	  mygatherer(0),
+	  max_weight_needs_fetch(true) /*,
 	  wt_type(IRWeight::WTTYPE_BM25),
 	  do_collapse(false) */
 {
@@ -193,12 +188,7 @@ void
 NetworkMatch::set_weighting(IRWeight::weight_type wt_type_)
 {
     database->link->set_weighting(wt_type_);
-#if 0
-    Assert(query == NULL);
-    wt_type = wt_type_;
-    max_weight_needs_calc = true;
-    del_query_tree();
-#endif
+    max_weight_needs_fetch = true;
 }
 
 // Make a postlist from a vector of query objects.
@@ -394,22 +384,13 @@ NetworkMatch::build_query_tree()
 om_weight
 NetworkMatch::get_max_weight()
 {
-    Assert(false);
     Assert(is_prepared);
-#if 0
-    if (max_weight_needs_calc) {
-	// Ensure query tree is built
-	build_query_tree();
-
-	mk_extra_weight();
-	max_extra_weight = extra_weight->get_maxextra();
-
-	max_weight = query->recalc_maxweight() + max_extra_weight;
-	max_weight_needs_calc = false;
+    if (max_weight_needs_fetch) {
+	max_weight = database->link->get_max_weight();
+	max_weight_needs_fetch = false;
     }
 
     return max_weight;
-#endif
 }
 
 ///////////////////

@@ -67,6 +67,9 @@ class NetClient : public OmRefCntBase {
 			      om_doccount *mbound,
 			      om_weight *greatest_wt) = 0;
 
+	/** Find out the max_weight */
+	virtual om_weight get_max_weight() = 0;
+
 	/** Read some data from the remote process.
 	 */
 	virtual std::string read_data() = 0;

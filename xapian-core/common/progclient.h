@@ -90,6 +90,9 @@ class ProgClient : public NetClient {
 		      om_doccount *mbound,
 		      om_weight *greatest_wt);
 
+	/** Find the max weight */
+	om_weight get_max_weight();
+
 	/** Read some data from the process.
 	 */
 	string read_data();
