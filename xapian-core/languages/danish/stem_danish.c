@@ -300,7 +300,6 @@ extern void * setup_danish_stemmer()
 {   struct danish_stemmer * z = (struct danish_stemmer *) malloc(sizeof(struct danish_stemmer));
     z->p = 0; z->p_size = 0;
     z->irregulars = create_pool(irregular_forms);
-printf("version 1 ");
     return (void *) z;
 }
 
