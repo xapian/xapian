@@ -200,7 +200,8 @@ class Btree {
 	/** the last block to be changed by an addition */
 	int4 changed_n;
 
-	/* - and the corresponding directory offset */
+	/** directory offset corresponding to last block to be changed
+	 *  by an addition */
 	int changed_c;
 
 	int max_item_size;    /* maximum size of an item (key-tag pair) */

@@ -1234,6 +1234,8 @@ Btree::del(const string &key)
     form_key(key);
 
     int n = delete_kt();  /* there are n items to delete */
+    if (n <= 0) return false;
+
     for (int i = 2; i <= n; i++) {
 	int c = GETK(kt, I2) + I2 - C2;
 	SETC(kt, c, i);
@@ -1242,11 +1244,9 @@ Btree::del(const string &key)
 
 	if (overwritten) return false;
     }
-    if (n > 0) {
-	item_count--;
-	return true;
-    }
-    return false;
+
+    item_count--;
+    return true;
 }
 
 bool
