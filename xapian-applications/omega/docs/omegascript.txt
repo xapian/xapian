@@ -226,7 +226,7 @@ $score
 $set{OPT,VALUE}
 	set option value which may be looked up using $opt
 
-$set_relevant{docids}
+$setrelevant{docids}
 	add documents into the rset
 
 $setmap{PREFIX,NAME1,VALUE1,...}

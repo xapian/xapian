@@ -53,6 +53,7 @@ EXTRA_DIST = templates/query \
 	docs/omegascript.txt \
 	docs/overview.txt \
 	docs/quickstart.txt \
+	docs/scriptindex.txt \
 	dbi2omega
 
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)

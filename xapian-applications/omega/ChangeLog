@@ -1,3 +1,8 @@
+Sat Dec 21 01:44:53 GMT 2002  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Distribute docs/scriptindex.txt.
+	* docs/omegascript.txt: It's $setrelevant not $set_relevant.
+
 Sat Dec 14 13:54:10 GMT 2002  Olly Betts <olly@survex.com>
 
 	* configure.in: Version 0.6.3; removed -Wno-long-long as we don't use
