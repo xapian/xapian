@@ -1,5 +1,6 @@
 #include <xapian.h>
-#include <string>
+#include <string.h>
+#include <vector.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,8 +12,8 @@ extern "C" {
 }
 #endif
 
-using namespace Xapian;
 using namespace std;
+using namespace Xapian;
 
 
 MODULE = Search::Xapian		PACKAGE = Search::Xapian
