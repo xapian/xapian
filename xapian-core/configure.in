@@ -256,12 +256,12 @@ if test true = "$build_remote"; then
 fi
 
 dnl See if we have fdatasync, and what libraries are needed for it.
-AC_CHECK_FUNC(fdatasync, ,
-	AC_CHECK_LIB(rt, fdatasync,
-	    [XAPIAN_LDFLAGS="-lrt $XAPIAN_LDFLAGS"]))
-dnl unset the cached value since linking with "-lrt" may change the answer
-unset ac_cv_func_fdatasync
-AC_CHECK_FUNCS(fdatasync fsync)
+SAVE_LIBS="$LIBS"
+LIBS=
+AC_SEARCH_LIBS(fdatasync, rt, [XAPIAN_LDFLAGS="$LIBS $XAPIAN_LDFLAGS"])
+LIBS="$SAVE_LIBS"
+
+AC_CHECK_FUNCS(fsync)
 
 AC_CHECK_FUNCS(pread pwrite)
 

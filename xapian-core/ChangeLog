@@ -1,3 +1,9 @@
+Thu Nov 20 03:19:37 GMT 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Fixed test for fdatasync to work (I suspect a change
+	  in a recent autoconf broke it as it relied on autoconf internal
+	  naming).
+
 Tue Nov 18 17:53:29 GMT 2003  Olly Betts <olly@survex.com>
 
 	* extra/Makefile.am: Tweaked workaround for FreeBSD make in VPATH
