@@ -13,15 +13,16 @@ caused by this problem:
 
 Arch  | Platform                       |Version|Status| Notes / requirements
 ------+--------------------------------+-------+------+------------------------
-x86   | Linux 2.4 Debian 3.0 GCC 2.95.4| 0.5.0 |Passed|
+x86   | Linux 2.4 Debian 3.0 GCC 2.95.4| 0.5.1 |Passed|
 x86   | Linux 2.4 Debian 3.0 GCC 3.0   | 0.5.0 |Passed|
 x86   | Linux 2.2 Debian 2.2 GCC 2.95.4| 0.5.0 |Passed|
 x86   |*Linux 2.4 Debian 2.2 GCC 2.95.4| 0.5.1 |Passed|
-x86   |*Linux 2.4 RedHat 7.3 GCC 2.96  | 0.5.1 |Passed| --disable-remote-backend
+x86   |*Linux 2.4 RedHat 7.3 GCC 2.96  | 0.5.1+|Passed| [3]
 x86   | Linux 2.4 RedHat 7.3 GCC 3.1   | 0.5.0 |Passed| from Jan Algermissen
 x86   |*FreeBSD 4.5                    | 0.5.1 |Passed| [1]
 x86   |!OpenBSD 3.0 GCC 2.95.3	       | 0.5.0 |Passed|
 x86   | Solaris 8 GCC 2.95.3	       | 0.5.0 |Passed| from Peter Marelas
+alpha |*Linux 2.2 - Debian 2.2         | 0.5.1+|Passed|
 sparc |*Linux 2.2 - Debian 2.2         | 0.5.1 |Passed|
 sparc |*Solaris 8 GCC 2.95.3           | 0.5.1 |Passed| [2]
 sparc |!Solaris 7 GCC 2.95.3           | 0.5.1 |Passed| [2] 
@@ -29,7 +30,6 @@ ppc   |*Linux 2.4 - Debian 2.2         | 0.5.1 |Passed| [2]
 ------+--------------------------------+-------+------+------------------------
 arm   |@Linux 2.4 Debian 3.0 GCC2.95.4 | 0.5.0 |Failed| internal-&api-test fail 
 sparc |*Solaris 8 Sun Workshop C++     | 0.5.0 |Failed| Compilation fails
-alpha |*Linux 2.2 - Debian 2.2         | 0.5.1 |Failed| Quartz tests fail
 ppc   |*Darwin 5.4 - OS X 10.1         | 0.5.0 |Failed| [2] All tests fail
 ------+--------------------------------+-------+------+------------------------
 
@@ -40,3 +40,7 @@ ppc   |*Darwin 5.4 - OS X 10.1         | 0.5.0 |Failed| [2] All tests fail
 [1] ./configure spits many warnings but apparently succeeds.
 
 [2] Must be compiled as a static library (--disable-shared).
+
+[3] multierrhandler1 fails on remote backend unless you configure with
+--disable-shared or --disable-remote-backend.  The code this uses casts
+away const-ness which might cause problems...

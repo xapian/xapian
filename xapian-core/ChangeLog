@@ -1,3 +1,11 @@
+Fri Oct 04 03:53:44 BST 2002  Olly Betts <olly@survex.com>
+
+	* PLATFORMS,backends/quartz/{btree.cc,quartz_metafile.cc}: Fixed quartz
+	  problems on platforms where sizeof(long) != 4.
+	* PLATFORMS: Updated in the light of investigations into test failures
+	  on x86 Redhat Linux - only multierrhandler1 with the remote backend
+	  is actually a problem.
+
 Wed Oct 02 16:32:48 BST 2002  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated for 0.5.1 release.

@@ -716,9 +716,9 @@ void Btree::make_index_item(byte * result, unsigned int result_len,
     }
 
     // FIXME: abort not good - better than buffer overrun though
-    if (I2 + i + C2 + sizeof(blocknumber) > result_len) abort();
+    if (I2 + i + C2 + 4 > result_len) abort();
 
-    SETI(result, 0, I2 + i + C2 + sizeof(blocknumber)); // Set item length
+    SETI(result, 0, I2 + i + C2 + 4); // Set item length
     SETK(result, I2, i + C2);    // Set key length
     memmove(result + I2 + K1, newkey + K1, i - K1); // Copy the main part of the key
     memmove(result + I2 + i, newkey + newkey_len, C2); // copy count part

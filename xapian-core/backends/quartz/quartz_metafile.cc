@@ -34,8 +34,7 @@ using std::string;
 static const string metafile_magic = "OMMETA";
 static const unsigned int metafile_version = 1;
 
-static const size_t min_metafile_size = metafile_magic.length() +
-					sizeof(metafile_version);
+static const size_t min_metafile_size = metafile_magic.length() + 4;
 
 static const size_t max_metafile_size = min_metafile_size;
 
@@ -53,10 +52,9 @@ QuartzMetaFile::~QuartzMetaFile()
 static string encode_version(unsigned int version)
 {
     string data;
-    CompileTimeAssert(sizeof(metafile_version) == 4);
 
-    for (size_t i = 0; i < sizeof(metafile_version); ++i) {
-	data += (char)(version & 0xff);
+    for (size_t i = 0; i < 4; ++i) {
+	data += (char)version;
 	version >>= 8;
     }
 
@@ -67,8 +65,8 @@ static unsigned int decode_version(const string &s)
 {
     unsigned int version = 0;
 
-    for (size_t i = 1; i <= sizeof(metafile_version); ++i) {
-	version = (version << 8) + s[sizeof(metafile_version) - i];
+    for (size_t i = 1; i <= 4; ++i) {
+	version = (version << 8) + s[4 - i];
     }
 
     return version;
@@ -91,8 +89,8 @@ void QuartzMetaFile::open()
 				     " is invalid: magic string not found.");
     }
 
-    unsigned int version = decode_version(data.substr(metafile_magic.length(),
-						   sizeof(metafile_version)));
+    unsigned int version;
+    version = decode_version(data.substr(metafile_magic.length(), 4));
     if (version != metafile_version) {
 	throw OmOpeningError("Unknown Quartz metafile version " +
 			     om_tostring(version) + " in " +
