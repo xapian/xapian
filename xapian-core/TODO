@@ -38,6 +38,8 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Medium  | Matcher         | Implement match decision functor
 ---------+-----------------+--------------------------------------------------
+ Medium  | Matcher         | Finish implementation of BM25 weight
+---------+-----------------+--------------------------------------------------
  Medium  | General         | Set appropriate copy and assignment methods
          |                 | for each class with a destructor.
 ---------+-----------------+--------------------------------------------------
@@ -117,6 +119,7 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Dubious | General         | Use term classes instead of prefixes
 ---------+-----------------+--------------------------------------------------
+
 
 Big Jobs
 ========
