@@ -13,3 +13,4 @@ endif
 JAVA_SUBDIRS =
 
 SUBDIRS = $(SWIG_SUBDIRS) $(JAVA_SUBDIRS)
+DIST_SUBDIRS = python perl5 guile tcl8 java
