@@ -29,12 +29,12 @@ code_structure.html: mkdoc.pl
 	@echo "Generating documentation"
 	@./mkdoc.pl ${top_srcdir} $@
 
-DOCPPFLAGS = --all --sort --no-java-graphs --c-comments --quantel \
+DOCPPFLAGS = --sort --no-java-graphs --c-comments --quantel \
              --upwards-arrows --no-define
 
 apidoc/index.html:
 	doc++ ${DOCPPFLAGS} --dir apidoc `find ${top_srcdir}/include -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
 
 sourcedoc/index.html:
-	doc++ ${DOCPPFLAGS} --private --dir sourcedoc `find ${top_srcdir} -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
+	doc++ ${DOCPPFLAGS} --all --private --dir sourcedoc `find ${top_srcdir} -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
 
