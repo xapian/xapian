@@ -75,7 +75,7 @@ class SleepyTermList : public virtual DBTermList {
 	~SleepyTermList();
 	termcount get_approx_size() const;
 
-	ExpandBits get_weighting() const;  // Gets weight of current term
+	OMExpandBits get_weighting() const;  // Gets weight of current term
 	const termname get_termname() const;  // Current term
 	termcount get_wdf() const;  // Occurences of current term in doc
 	doccount get_termfreq() const;  // Docs indexed by current term
@@ -195,7 +195,7 @@ SleepyTermList::get_approx_size() const
     return terms;
 }
 
-inline ExpandBits
+inline OMExpandBits
 SleepyTermList::get_weighting() const {
     Assert(!at_end());
     Assert(pos != 0);

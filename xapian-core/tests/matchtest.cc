@@ -182,7 +182,7 @@ main(int argc, char *argv[])
 	OMMatchOptions opts;
 	if(collapse_key != -1) opts.set_collapse_key(collapse_key);
 
-	enquire.set_options(opts);
+	enquire.set_match_options(opts);
 
 	OMMSet mset;
 	enquire.get_mset(mset, mfirst, msize);

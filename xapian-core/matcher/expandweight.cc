@@ -26,23 +26,23 @@
 #include "omassert.h"
 #include "config.h"
 
-ExpandBits
-operator+(const ExpandBits &bits1, const ExpandBits &bits2)
+OMExpandBits
+operator+(const OMExpandBits &bits1, const OMExpandBits &bits2)
 {   
-    ExpandBits sum(bits1);
+    OMExpandBits sum(bits1);
     sum.multiplier += bits2.multiplier;
     sum.rtermfreq += bits2.rtermfreq;
 
     // FIXME - try to share this information rather than pick half of it
     if(bits2.dbsize > sum.dbsize) {
-	DebugMsg("ExpandBits::operator+ using second operand: " <<
+	DebugMsg("OMExpandBits::operator+ using second operand: " <<
 		 bits2.termfreq << "/" << bits2.dbsize << " instead of " <<
 		 bits1.termfreq << "/" << bits1.dbsize << endl);
 	sum.termfreq = bits2.termfreq;
 	sum.dbsize = bits2.dbsize;
     }
     else if(bits2.dbsize < sum.dbsize){
-	DebugMsg("ExpandBits::operator+ using first operand: " << 
+	DebugMsg("OMExpandBits::operator+ using first operand: " << 
 		bits1.termfreq << "/" << bits1.dbsize << " instead of " <<
 		bits2.termfreq << "/" << bits2.dbsize << endl);
     }
@@ -50,7 +50,7 @@ operator+(const ExpandBits &bits1, const ExpandBits &bits2)
 }
 
 weight
-ExpandWeight::get_weight(const ExpandBits &bits, const termname &tname) const
+OMExpandWeight::get_weight(const OMExpandBits &bits, const termname &tname) const
 {
     double termfreq = (double)bits.termfreq;
     if(bits.dbsize != dbsize) {
@@ -68,7 +68,7 @@ ExpandWeight::get_weight(const ExpandBits &bits, const termname &tname) const
     }
 
 #if 0
-    DebugMsg("ExpandWeight::get_weight("
+    DebugMsg("OMExpandWeight::get_weight("
 	     "N=" << dbsize << ", "
 	     "n=" << termfreq << ", "
 	     "R=" << rsize << ", "
@@ -104,7 +104,7 @@ ExpandWeight::get_weight(const ExpandBits &bits, const termname &tname) const
 
 // Provide an upper bound on the values which may be returned as weights 
 weight
-ExpandWeight::get_maxweight() const
+OMExpandWeight::get_maxweight() const
 {
     // FIXME - check the maths behind this.
     return(log(4.0 * (rsize + 0.5) * (dbsize - rsize + 0.5)) * rsize);

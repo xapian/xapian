@@ -294,7 +294,7 @@ class OMEnquireInternal {
 	void add_database(IRDatabase *);
 	void set_query(const OMQuery &);
 	void set_rset(const OMRSet &);
-	void set_options(const OMMatchOptions &);
+	void set_match_options(const OMMatchOptions &);
 	void get_mset(OMMSet &, doccount, doccount) const;
 };
 
@@ -343,7 +343,7 @@ OMEnquireInternal::set_rset(const OMRSet &_rset)
 }
 
 void
-OMEnquireInternal::set_options(const OMMatchOptions &_options)
+OMEnquireInternal::set_match_options(const OMMatchOptions &_options)
 {
     options = _options;
 }
@@ -425,13 +425,25 @@ OMEnquire::set_rset(const OMRSet &rset)
 }
 
 void
-OMEnquire::set_options(const OMMatchOptions &opts)
+OMEnquire::set_match_options(const OMMatchOptions &opts)
 {
-    internal->set_options(opts);
+    internal->set_match_options(opts);
 }
 
 void
 OMEnquire::get_mset(OMMSet &mset, doccount first, doccount maxitems) const
 {
     internal->get_mset(mset, first, maxitems);
+}
+
+void
+OMEnquire::set_expand_options(const OMExpandOptions &)
+{
+    // FIXME - implement
+}
+
+void
+OMEnquire::get_eset(OMESet &, termcount maxitems) const
+{
+    // FIXME - implement
 }

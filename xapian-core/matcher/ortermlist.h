@@ -33,7 +33,7 @@ class OrTermList : public virtual BranchTermList {
     public:
 	termcount get_approx_size() const;
 
-	ExpandBits get_weighting() const;
+	OMExpandBits get_weighting() const;
 	const termname get_termname() const;
         termcount get_wdf() const;
         doccount get_termfreq() const;
@@ -44,7 +44,7 @@ class OrTermList : public virtual BranchTermList {
         OrTermList(TermList *, TermList *);
 };
 
-inline ExpandBits
+inline OMExpandBits
 OrTermList::get_weighting() const
 {
     Assert(started);

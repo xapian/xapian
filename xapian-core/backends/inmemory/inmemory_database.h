@@ -161,7 +161,7 @@ class InMemoryTermList : public virtual DBTermList {
     public:
 	termcount get_approx_size() const;
 
-	ExpandBits get_weighting() const;
+	OMExpandBits get_weighting() const;
 	const termname get_termname() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term
@@ -318,7 +318,7 @@ inline termcount InMemoryTermList::get_approx_size() const
     return terms;
 }
 
-inline ExpandBits InMemoryTermList::get_weighting() const
+inline OMExpandBits InMemoryTermList::get_weighting() const
 {
     Assert(started);
     Assert(!at_end());

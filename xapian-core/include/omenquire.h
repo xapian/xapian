@@ -98,7 +98,7 @@ class OMQuery {
 
 ///////////////////////////////////////////////////////////////////
 // OMMatchOptions class
-// =============
+// ====================
 // Used to specify options for running a query
 
 class OMMatchOptions {
@@ -110,6 +110,18 @@ class OMMatchOptions {
 	void set_collapse_key(keyno);
 	void set_no_collapse();
 	OMMatchOptions();
+};
+
+///////////////////////////////////////////////////////////////////
+// OMExpandOptions class
+// =====================
+// Used to specify options for performing expand
+
+class OMExpandOptions {
+    friend OMEnquireInternal;
+    private:
+    public:
+	OMExpandOptions();
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -163,6 +175,31 @@ class OMMSet {
 };
 
 ///////////////////////////////////////////////////////////////////
+// OMESet class
+// =============
+// Class representing a set of expand terms
+
+// An item in the ESet
+class OMESetItem {
+    friend class OMExpand;
+    private:
+	OMESetItem(weight wt_new, termname tname_new)
+		: wt(wt_new), tname(tname_new) {}
+    public:
+	weight wt;
+	termname tname;
+};
+
+// Encapsulation of match set
+class OMESet {
+    private:
+    public:
+	OMESet() : etotal(0) {}
+	vector<OMESetItem> items;
+	termcount etotal;
+};
+
+///////////////////////////////////////////////////////////////////
 // OMEnquire class
 // ===============
 // This class provides an interface to the information retrieval
@@ -193,12 +230,16 @@ class OMEnquire {
 	void set_rset(const OMRSet &);
 
 	// Set options for the match, such as a collapse key.
-	void set_options(const OMMatchOptions &);
+	void set_match_options(const OMMatchOptions &);
 
 	// Get (a portion of) the match set for the current query
 	void get_mset(OMMSet &, doccount first, doccount maxitems) const;
 
-	void get_eset() const;
+	// Set options for the match, such as a collapse key.
+	void set_expand_options(const OMExpandOptions &);
+
+	// Get the expand set for the current rset
+	void get_eset(OMESet &, termcount maxitems) const;
 };
 
 #endif /* _omenquire_h_ */

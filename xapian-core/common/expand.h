@@ -25,48 +25,37 @@
 
 #include "database.h"
 #include "termlist.h"
+#include "omenquire.h"
 
 #include <queue>
 #include <stack>
 #include <vector>
 
-class ESetItem {
-    public:
-	weight wt;
-	termname tname;
-	ESetItem(weight wt_new, termname tname_new)
-		: wt(wt_new), tname(tname_new)
-		{ return ; }
-};
-
-class ExpandDecider {
+class OMExpandDecider {
     public:
 	virtual bool want_term(const termname&) const = 0;
 };
 
-class ExpandDeciderAlways : public virtual ExpandDecider {
+class OMExpandDeciderAlways : public virtual OMExpandDecider {
     public:
 	bool want_term(const termname&) const { return true; }
 };
 
-class Expand {
+class OMExpand {
     private:
         IRDatabase *database;
    
         termcount max_esize;
 
         bool recalculate_maxweight;
-	TermList * build_tree(const RSet *rset, const ExpandWeight *ewt);
+	TermList * build_tree(const RSet *rset, const OMExpandWeight *ewt);
     public:
-        Expand(IRDatabase *);
+        OMExpand(IRDatabase *);
 
-	void expand(const RSet *, const ExpandDecider *);
-
-        vector<ESetItem> eset;
-	termcount etotal;
+	void expand(OMESet &, const RSet *, const OMExpandDecider *);
 };
 
-inline Expand::Expand(IRDatabase *database_new)
+inline OMExpand::OMExpand(IRDatabase *database_new)
 	: database(database_new),
 	  max_esize(1000)
 { return; }

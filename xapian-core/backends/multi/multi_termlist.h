@@ -43,11 +43,11 @@ class MultiTermList : public virtual DBTermList {
 		      const IRDatabase *termdb,
 		      const IRDatabase *rootdb);
     public:
-	void set_weighting(const ExpandWeight *);
+	void set_weighting(const OMExpandWeight *);
 
 	termcount get_approx_size() const;
 
-	ExpandBits get_weighting() const; // Gets weight info of current term
+	OMExpandBits get_weighting() const; // Gets weight info of current term
 	const termname get_termname() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term
@@ -82,7 +82,7 @@ MultiTermList::get_approx_size() const
 }
 
 inline void
-MultiTermList::set_weighting(const ExpandWeight * wt_new)
+MultiTermList::set_weighting(const OMExpandWeight * wt_new)
 {
     // Note: wt in the MultiTermList base class isn't ever set or used
     DBTermList * dbtl = dynamic_cast<DBTermList *> (tl);
@@ -91,7 +91,7 @@ MultiTermList::set_weighting(const ExpandWeight * wt_new)
     return;
 }
 
-inline ExpandBits
+inline OMExpandBits
 MultiTermList::get_weighting() const {
     return tl->get_weighting();
 }

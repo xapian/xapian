@@ -28,9 +28,9 @@
 
 #include <algorithm>
 
-class ESetCmp {
+class OMESetCmp {
     public:
-        bool operator()(const ESetItem &a, const ESetItem &b) {
+        bool operator()(const OMESetItem &a, const OMESetItem &b) {
 	    if(a.wt > b.wt) return true;
 	    if(a.wt != b.wt) return false;
 	    return a.tname > b.tname;
@@ -45,8 +45,13 @@ class TLPCmpGt {
 };
 
 TermList *
-Expand::build_tree(const RSet *rset, const ExpandWeight *ewt)
+OMExpand::build_tree(const RSet *rset, const OMExpandWeight *ewt)
 {
+    // Put items in priority queue, such that items with greatest size
+    // are returned first.
+    // This is the same idea as for a set of postlists ORed together in
+    // the matcher.
+    //
     // FIXME: try using a heap instead (C++ sect 18.8)?
     priority_queue<TermList*, vector<TermList*>, TLPCmpGt> pq;
     vector<RSetItem>::const_iterator i;
@@ -70,7 +75,7 @@ Expand::build_tree(const RSet *rset, const ExpandWeight *ewt)
     // speeds things up.
     while (true) {
 	TermList *p = pq.top();
-	DebugMsg("Expand: adding termlist " << p << " to tree" << endl);
+	DebugMsg("OMExpand: adding termlist " << p << " to tree" << endl);
 	pq.pop();
 	if (pq.empty()) {
 	    return p;
@@ -83,17 +88,19 @@ Expand::build_tree(const RSet *rset, const ExpandWeight *ewt)
 }
 
 void
-Expand::expand(const RSet *rset, const ExpandDecider *decider)
-{    
-    eset.clear();
-    etotal = 0;
+OMExpand::expand(class OMESet &eset,
+		 const RSet *rset,
+		 const OMExpandDecider *decider)
+{
+    eset.items.clear();
+    eset.etotal = 0;
 
     if (rset->get_rsize() == 0) return; // No query
 
     weight w_min = 0;
 
     // Start weighting scheme
-    ExpandWeight ewt(database, rset->get_rsize());
+    OMExpandWeight ewt(database, rset->get_rsize());
 
     TermList *merger = build_tree(rset, &ewt);
     if(merger == NULL) return;
@@ -111,48 +118,51 @@ Expand::expand(const RSet *rset, const ExpandDecider *decider)
 
 	termname tname = merger->get_termname();
 	if(decider->want_term(tname)) {
-	    etotal++;
+	    eset.etotal++;
 
-	    ExpandBits ebits = merger->get_weighting();
+	    OMExpandBits ebits = merger->get_weighting();
 	    weight wt = ewt.get_weight(ebits, tname);
 
 	    if (wt > w_min) {
-		eset.push_back(ESetItem(wt, tname));
+		eset.items.push_back(OMESetItem(wt, tname));
 
 		// FIXME: find balance between larger size for more efficient
 		// nth_element and smaller size for better w_min optimisations
-		if (eset.size() == max_esize * 2) {
+		if (eset.items.size() == max_esize * 2) {
 		    // find last element we care about
 		    DebugMsg("finding nth" << endl);
-		    nth_element(eset.begin(),
-				eset.begin() + max_esize,
-				eset.end(),
-				ESetCmp());
+		    nth_element(eset.items.begin(),
+				eset.items.begin() + max_esize,
+				eset.items.end(),
+				OMESetCmp());
 		    // erase elements which don't make the grade
-		    eset.erase(eset.begin() + max_esize, eset.end());
-		    w_min = eset.back().wt;
-		    DebugMsg("eset size = " << eset.size() << endl);
+		    eset.items.erase(eset.items.begin() + max_esize,
+				     eset.items.end());
+		    w_min = eset.items.back().wt;
+		    DebugMsg("eset size = " << eset.items.size() << endl);
 		}
 	    }
 	}
     }
 
-    if (eset.size() > max_esize) {
+    if (eset.items.size() > max_esize) {
 	// find last element we care about
 	DebugMsg("finding nth" << endl);
-	nth_element(eset.begin(), eset.begin() + max_esize, eset.end(), ESetCmp());
+	nth_element(eset.items.begin(),
+		    eset.items.begin() + max_esize,
+		    eset.items.end(), OMESetCmp());
 	// erase elements which don't make the grade
-	eset.erase(eset.begin() + max_esize, eset.end());
+	eset.items.erase(eset.items.begin() + max_esize, eset.items.end());
     }
     DebugMsg("sorting" << endl);
 
     // Need a stable sort, but this is provided by comparison operator
-    sort(eset.begin(), eset.end(), ESetCmp());
+    sort(eset.items.begin(), eset.items.end(), OMESetCmp());
 
-    DebugMsg("esize = " << eset.size() << ", etotal = " << etotal << endl);
-    if (eset.size()) {
-	DebugMsg("max weight in eset = " << eset.front().wt
-		 << ", min weight in eset = " << eset.back().wt << endl);
+    DebugMsg("esize = " << eset.items.size() << ", etotal = " << eset.etotal << endl);
+    if (eset.items.size()) {
+	DebugMsg("max weight in eset = " << eset.items.front().wt
+		 << ", min weight in eset = " << eset.items.back().wt << endl);
     }
     delete merger;
 }

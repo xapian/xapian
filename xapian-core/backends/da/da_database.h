@@ -126,7 +126,7 @@ class DATermList : public virtual DBTermList {
     public:
 	termcount get_approx_size() const;
 
-	ExpandBits get_weighting() const; // Gets weight info of current term
+	OMExpandBits get_weighting() const; // Gets weight info of current term
 	const termname get_termname() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term
