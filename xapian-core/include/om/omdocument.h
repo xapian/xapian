@@ -28,53 +28,57 @@
 #include "om/omtermlistiterator.h"
 #include "om/omvalueiterator.h"
 
-/// A document in the database - holds values, terms, and postings
+/// A document in the database - holds data, values, terms, and postings
 class OmDocument {
     public:
 	class Internal;
-	/// @internal
+	/// @internal Internals
 	Internal *internal;
 
     public:
-	/** Constructor is only used by internal classes.
+	/** @internal Constructor is only used by internal classes.
 	 *
 	 *  @param params int internal opaque class
 	 */
 	explicit OmDocument(OmDocument::Internal *internal_);
 
 	/** Copying is allowed.  The internals are reference counted, so
-	 *  copying is also cheap.
+	 *  copying is cheap.
 	 */
 	OmDocument(const OmDocument &other);
 
 	/** Assignment is allowed.  The internals are reference counted,
-	 *  so assignment is also cheap.
+	 *  so assignment is cheap.
 	 */
 	void operator=(const OmDocument &other);
 
 	/// Make a new empty OmDocument
 	OmDocument();
 
-	/// Destructor.
+	/// Destructor
 	~OmDocument();
 
 	/// Get value by number (>= 0)
 	string get_value(om_valueno value) const;
 
+	/// Add a new value.  It will replace any existing value with the
+	//  same number.
 	void add_value(om_valueno valueno, const string &value);
 
+	/// Remove any value with the given number.
 	void remove_value(om_valueno valueno);
 
+	/// Remove all values associated with the document.
 	void clear_values();
 
-	/** Get data stored in document.
+	/** Get data stored in the document.
 	 *  This is a potentially expensive operation, and shouldn't normally
 	 *  be used in a match decider functor.  Put data for use by match
 	 *  deciders in a value instead.
 	 */
 	std::string get_data() const;
 
-	/// Set data stored in a document.
+	/// Set data stored in the document.
 	void set_data(const std::string &data);
 
 	/** Add an occurrence of a term at a particular position.
@@ -143,16 +147,27 @@ class OmDocument {
 	/// Remove all terms (and postings) from the document.
 	void clear_terms();
 
+	/// Count the terms in this document.
 	om_termcount termlist_count();
+
+	/// Iterator for the terms in this document.
 	OmTermIterator termlist_begin() const;
+
+	/// Equivalent end iterator for termlist_begin().
 	OmTermIterator termlist_end() const;
 
+	/// Count the values in this document.
 	om_termcount values_count();
+
+	/// Iterator for the values in this document.
 	OmValueIterator values_begin() const;
+
+	/// Equivalent end iterator for values_begin().
 	OmValueIterator values_end() const;
 
-	/** Returns a string representing the OmDocument.
-	 *  Introspection method.
+	/** Introspection method.
+	 *
+	 *  @return  A string representing this OmDocument.
 	 */
 	std::string get_description() const;
 };

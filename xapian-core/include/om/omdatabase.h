@@ -48,11 +48,8 @@ class OmWritableDatabase;
  */
 class OmDatabase {
     public:
-	/** Add a new database to use.
-	 *
-	 *  This call will opened a new database with the specified
-	 *  parameters, and add it to the set of databases to be accessed
-	 *  by this database group.
+	/** Open a database using the specified parameters, and add it to
+	 *  the databases this object operates over.
 	 *
 	 *  The database will always be opened read-only.
 	 *
@@ -64,13 +61,13 @@ class OmDatabase {
 	 */
 	void add_database(const OmSettings &params);
 
-	/** Add an already opened database (or set of databases) to the set
-	 *  to be accessed by this object.
+	/** Add an existing database (or group of databases) to those
+	 *  accessed by this object.
 	 *
-	 *  The handle on the database will be copied, so may be deleted
+	 *  The handle(s) of the database(s) will be copied, so may be deleted
 	 *  or reused by the caller as desired.
 	 *
-	 *  @param database the opened database to add.
+	 *  @param database the database(s) to add.
 	 */
 	void add_database(const OmDatabase & database);
     
@@ -80,7 +77,7 @@ class OmDatabase {
 	Internal *internal;
 
     protected:
-	/** Open a database, possibly readonly.
+	/** @internal Open a database, possibly readonly.
 	 *
 	 *  This may be used to open a database for writing, and is used
 	 *  in this way by OmWritableDatabase.
@@ -124,42 +121,62 @@ class OmDatabase {
 	virtual ~OmDatabase();
 
         /** Copying is allowed.  The internals are reference counted, so
-	 *  copying is also cheap.
+	 *  copying is cheap.
 	 */
 	OmDatabase(const OmDatabase &other);
 
         /** Assignment is allowed.  The internals are reference counted,
-	 *  so assignment is also cheap.
+	 *  so assignment is cheap.
 	 */
 	virtual void operator=(const OmDatabase &other);
 
 	/** Re-open the database.
-	 *  This re-opens the database to the latest available versions.
+	 *  This re-opens the database(s) to the latest available version(s).
 	 *  It can be used either to make sure the latest results are
 	 *  returned, or to recover from an OmDatabaseModifiedError.
 	 */
 	void reopen();
 
-	/** Returns a string representing the database object.
-	 *  Introspection method.
+	/** Introspection method.
+	 *
+	 *  @return A string describing this object.
 	 */
 	virtual std::string get_description() const;
 
+	/** An iterator pointing to the start of the postlist
+	 *  for a given term.
+	 */
 	OmPostListIterator postlist_begin(const om_termname &tname) const;
+
+	/** Corresponding end iterator to postlist_begin()
+	 */
 	OmPostListIterator postlist_end(const om_termname &tname) const;
 
+	/** An iterator pointing to the start of the termlist
+	 *  for a given document.
+	 */
 	OmTermIterator termlist_begin(om_docid did) const;
+	
+	/** Corresponding end iterator to termlist_begin()
+	 */
 	OmTermIterator termlist_end(om_docid did) const;
 
+	/** An iterator pointing to the start of the position list
+	 *  for a given term in a given document.
+	 */
 	OmPositionListIterator positionlist_begin(om_docid did, const om_termname &tname) const;
+
+	/** Corresponding end iterator to positionlist_begin()
+	 */
 	OmPositionListIterator positionlist_end(om_docid did, const om_termname &tname) const;
 
 	/** An iterator which runs across all terms in the database.
 	 */
-	//@{
 	OmTermIterator allterms_begin() const;
+
+	/** Corresponding end iterator to allterms_begin()
+	 */
 	OmTermIterator allterms_end() const;
-	//@}
 
 	/// Get the number of documents in the database.
 	om_doccount get_doccount() const;
@@ -170,19 +187,22 @@ class OmDatabase {
 	/// Get the number of documents in the database indexed by a given term.
 	om_doccount get_termfreq(const om_termname & tname) const;
 
-	/** Return true if and only if the term exists in the database.
+	/** Check if a given term exists in the database.
+	 *
+	 *  Return true if and only if the term exists in the database.
 	 *  This is the same as (get_termfreq(tname) != 0), but will often be
 	 *  more efficient.
 	 */
 	bool term_exists(const om_termname & tname) const;
 
-	/** Return the total number of occurrences of the given term.  This
-	 *  is the sum of the number of ocurrences of the term in each
+	/** Return the total number of occurrences of the given term.
+	 *
+	 *  This is the sum of the number of ocurrences of the term in each
 	 *  document: ie, the sum of the within document frequencies of the
 	 *  term.
 	 *
 	 *  @param tname  The term whose collection frequency is being
-	 *                requested.
+	 *  requested.
 	 */
 	om_termcount get_collection_freq(const om_termname & tname) const;
 
@@ -243,14 +263,16 @@ class OmWritableDatabase : public OmDatabase {
 	virtual ~OmWritableDatabase();
 
         /** Copying is allowed.  The internals are reference counted, so
-	 *  copying is also cheap.
+	 *  copying is cheap.
 	 */
 	OmWritableDatabase(const OmWritableDatabase &other);
 
         /** Assignment is allowed.  The internals are reference counted,
-	 *  so assignment is also cheap.  Note that only an
-	 *  OmWritableDatabase may be assigned to an OmWritableDatabase:
-	 *  an attempt to assign an OmDatabase will throw an exception.
+	 *  so assignment is cheap.
+	 *
+	 *  Note that only an OmWritableDatabase may be assigned to an
+	 *  OmWritableDatabase: an attempt to assign an OmDatabase will throw
+	 *  an exception.
 	 */
 	void operator=(const OmWritableDatabase &other);
 
@@ -321,7 +343,7 @@ class OmWritableDatabase : public OmDatabase {
 	 */
 	void begin_transaction();
 
-	/** This ends the transaction currently in progress, commiting the
+	/** End the transaction currently in progress, committing the
 	 *  modifications made to the database.
 	 *
 	 *  If this completes successfully, all the database modifications
@@ -349,7 +371,7 @@ class OmWritableDatabase : public OmDatabase {
 	 */
 	void commit_transaction();
 
-	/** This ends the transaction currently in progress, cancelling the
+	/** End the transaction currently in progress, cancelling the
 	 *  potential modifications made to the database.
 	 *
 	 *  If an error occurs in this method, an exception will be thrown,
@@ -401,17 +423,18 @@ class OmWritableDatabase : public OmDatabase {
 	om_docid add_document(const OmDocument & document);
 
 	/** Delete a document in the database.
-	 *  FIXME: document more.
 	 */
+	// FIXME: document more.
 	void delete_document(om_docid did);
 
 	/** Replace a given document in the database.
-	 *  FIXME: document more.
 	 */
+	// FIXME: document more.
 	void replace_document(om_docid did, const OmDocument & document);
 
-	/** Returns a string representing the database object.
-	 *  Introspection method.
+	/** Introspection method.
+	 *
+	 *  @return A string describing this object.
 	 */
 	std::string get_description() const;
 };

@@ -1,3 +1,7 @@
+Wed May 08 17:38:50 BST 2002  Olly Betts <olly@survex.com>
+
+	* Improved api documentation comments.
+
 Wed May 08 17:09:14 BST 2002  Olly Betts <olly@survex.com>
 
 	* Include findheaders.pl in tarball.

@@ -33,11 +33,6 @@
 class OmQuery;
 class OmErrorHandler;
 
-///////////////////////////////////////////////////////////////////
-// OmMSet class
-// =============
-// Representaton of a match result set
-
 /** An iterator pointing to items in an MSet.
  *  This is used for access to individual results of a match.
  */
@@ -146,7 +141,7 @@ class OmMSet {
 
     public:
 	// FIXME: public for now, private would be better
-	/// Constructor for internal use
+	/// @internal Constructor for internal use
 	OmMSet(OmMSet::Internal * internal_);
 
 	/// Create an empty OmMSet
@@ -315,6 +310,7 @@ class OmMSet {
 	std::string get_description() const;
 };
 
+/** Iterate through terms in the ESet */
 class OmESetIterator {
     public:
 	friend class OmESet;
@@ -385,8 +381,10 @@ class OmESet {
 	/// @internal Reference counted internals.
 	Internal *internal;
 
+	/// Construct an empty OmESet
 	OmESet();
 
+	/// Destructor.
 	~OmESet();
 
 	/// Copying is allowed (and is cheap).
@@ -401,24 +399,26 @@ class OmESet {
 	 */
 	om_termcount get_ebound() const;
 
+	/** The number of terms in this E-Set */
 	om_termcount size() const;
 
+	/** Test if this E-Set is empty */
 	bool empty() const;
 
+	/** Iterator for the terms in this E-Set */
 	OmESetIterator begin() const;
 
+	/** End iterator corresponding to begin() */
 	OmESetIterator end() const;
 
-	/** Returns a string representing the eset.
-	 *  Introspection method.
+	/** Introspection method.
+	 *
+	 *  @return  A string representing this OmESet.
 	 */
 	std::string get_description() const;
 };
 
-///////////////////////////////////////////////////////////////////
-// OmRSet class
-// =============
-/** A relevance set.
+/** A relevance set (R-Set).
  *  This is the set of documents which are marked as relevant, for use
  *  in modifying the term weights, and in performing query expansion.
  */
@@ -442,24 +442,33 @@ class OmRSet {
 	/// Destructor
 	~OmRSet();
 
+	/** The number of documents in this R-Set */
 	om_doccount size() const;
 
+	/** Test if this R-Set is empty */
 	bool empty() const;
 
 	/// Add a document to the relevance set.
 	void add_document(om_docid did);
+	
+	/// Add a document to the relevance set.
 	void add_document(const OmMSetIterator & i) { add_document(*i); }
 
 	/// Remove a document from the relevance set.
 	void remove_document(om_docid did);
+
+	/// Remove a document from the relevance set.
 	void remove_document(const OmMSetIterator & i) { remove_document(*i); }
 
-	/// Is a particular document in the relevance set.
+	/// Test if a given document in the relevance set.
 	bool contains(om_docid did) const;
+
+	/// Test if a given document in the relevance set.
 	bool contains(const OmMSetIterator & i) { return contains(*i); }
 
-	/** Returns a string representing the rset.
-	 *  Introspection method.
+	/** Introspection method.
+	 *
+	 *  @return  A string representing this OmRSet.
 	 */
 	std::string get_description() const;
 };
@@ -472,6 +481,7 @@ class OmMatchDecider {
 	 */
 	virtual int operator()(const OmDocument &doc) const = 0;
 
+	/// Destructor.
 	virtual ~OmMatchDecider() {}
 };
 
@@ -483,12 +493,9 @@ class OmExpandDecider {
 	 */
 	virtual int operator()(const om_termname & tname) const = 0;
 
-	virtual ~OmExpandDecider() {};
+	/// Destructor.
+	virtual ~OmExpandDecider() {}
 };
-
-///////////////////////////////////////////////////////////////////
-// OmEnquire class
-// ===============
 
 /** This class provides an interface to the information retrieval
  *  system for the purpose of searching.
@@ -510,9 +517,8 @@ class OmEnquire {
 
 	/// Assignment is not allowed.
 	void operator=(const OmEnquire &);
+
     public:
-    public:
-	/// Class holding details of OmEnquire
 	class Internal;
 	/// @internal Reference counted internals.
 	Internal *internal;
@@ -639,6 +645,8 @@ class OmEnquire {
 	 *                                     be found in the database.
 	 */
 	OmTermIterator get_matching_terms_begin(om_docid did) const;
+
+	/** End iterator corresponding to get_matching_terms_begin() */
 	OmTermIterator get_matching_terms_end(om_docid did) const;
 
 	/** Get terms which match a given document, by match set item.
@@ -665,6 +673,8 @@ class OmEnquire {
 	 *                                     be found in the database.
 	 */
 	OmTermIterator get_matching_terms_begin(const OmMSetIterator &it) const;
+
+	/** End iterator corresponding to get_matching_terms_begin() */
 	OmTermIterator get_matching_terms_end(const OmMSetIterator &it) const;
 
 	/** Register an OmMatchDecider.
@@ -672,8 +682,8 @@ class OmEnquire {
 	void register_match_decider(const std::string &name,
 				    const OmMatchDecider *mdecider = NULL);
 
-	/** Returns a string representing the enquire object.
-	 *  Introspection method.
+	/** Introspection method.
+	 *  @return  A string representing the enquire object.
 	 */
 	std::string get_description() const;
 };
