@@ -23,6 +23,15 @@ V Verylow
 D Dubious
 );
 
+my %priority_colours = qw(
+U ff7777
+H 77ff77
+M 77dd77
+L 77bb77
+V 779977
+D 777777
+);
+
 $priority{' '} = '';
 
 my $line;
@@ -43,6 +52,7 @@ while($line = <>) {
         print "<H2>" . $lastline . "</H2>\n";
     } else {
         if(($line =~ m/-\+-\+-\+-------------\+-----------------------------------------------------------/)) {
+	    $priority =~ s/\s+//g;
 	    if($priority ne '') {
 		if(!$tableopen) {
 		print <<EOT;
@@ -57,13 +67,14 @@ while($line = <>) {
 EOT
 		}
 		$tableopen = 1;
+		my $colour = '#' . ($priority_colours{$priority} || 'ffffff');
 		print <<EOT;
 <TR VALIGN=top>
-<TD VALIGN=top>$priority</TD>
-<TD VALIGN=top>$difficulty</TD>
-<TD VALIGN=top>$area</TD>
-<TD VALIGN=top>$task</TD>
-<TD VALIGN=top>$owner</TD>
+<TD BGCOLOR="$colour" VALIGN=top>$priority{$priority}</TD>
+<TD BGCOLOR="$colour" VALIGN=top>$difficulty</TD>
+<TD BGCOLOR="$colour" VALIGN=top>$area</TD>
+<TD BGCOLOR="$colour" VALIGN=top>$task</TD>
+<TD BGCOLOR="$colour" VALIGN=top>$owner</TD>
 </TR>
 EOT
 		$priority = '';
@@ -76,7 +87,7 @@ EOT
 	} else {
 	    if($isitem &&
 	       $line =~ m/^([UHMLVD ])\|([1-5 ])\|([\w ])\|([^|]*?)\s*\|\s*([^|]*?)\s*$/) {
-		$priority .= $priority{$1};
+		$priority .= $1;
 		$difficulty .= $2;
 		$owner .= $3;
 		$area .= $4 . " ";

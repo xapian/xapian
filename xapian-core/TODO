@@ -96,10 +96,10 @@ M|4| |Matcher      | Treat FILTER and AND as equivalent from the point of view
  | | |             | FilterPostList where the left branch is boolean and the
  | | |             | right probabilistic.
 -+-+-+-------------+-----------------------------------------------------------
-M|4| |Matcher      | max_or_terms should probably work in a more local way.
--+-+-+-------------+-----------------------------------------------------------
 M|3| |Backends     | multi backend is unused, except that MultiDatabase class
  | | |             | is abused as a smart IRDatabase container.
+-+-+-+-------------+-----------------------------------------------------------
+M|4| |Matcher      | max_or_terms should probably work in a more local way.
 -+-+-+-------------+-----------------------------------------------------------
 L|4| |Matcher      | max_or_terms should probably reduce the querysize by the
  | | |             | number of terms removed - hard to do because max_or_terms
