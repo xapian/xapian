@@ -1,3 +1,7 @@
+Thu Jul 10 00:03:04 BST 2003  Olly Betts <olly@survex.com>
+
+	* bindings/swig/om_util_perl5.i: Removed.
+
 Wed Jul 09 15:35:56 BST 2003  Olly Betts <olly@survex.com>
 
 	* bindings/guile/Makefile.am,bindings/php4/Makefile.am,
