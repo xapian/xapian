@@ -40,12 +40,12 @@ static void make_query_log_entry( const char *buf, size_t length );
 
 string db_name;
 static string db_dir;
-char *fmt = NULL;
-char *fmtfile = "t/fmt";
+string fmt;
+string fmtfile = "t/fmt";
 
 static const string muscat_dir = "/usr/muscat";
 
-int have_query; /* use to trap the "no query" case more reliably */
+bool have_query; /* use to trap the "no query" case more reliably */
 
 static int main2(int argc, char *argv[]);
 
@@ -71,7 +71,6 @@ static int main2(int argc, char *argv[])
     long int topdoc = 0;
     char     *method;
     char     *val;
-    int	boolean_present = 0;
     
     /* log query details */
      {
@@ -160,7 +159,7 @@ static int main2(int argc, char *argv[])
    
     setvbuf(stdout, NULL, _IOLBF, 0);
       
-    have_query = 0;
+    have_query = false;
 
     /* 1997-01-23 added so you can find the version of a given FX easily */
     method = getenv("REQUEST_METHOD");
@@ -310,7 +309,7 @@ static int main2(int argc, char *argv[])
        Ignore_Muscat();
 
        if (more) {
-	  have_query = 1;
+	  have_query = true;
 	  goto got_query_from_morelike;
        }
     }
@@ -482,7 +481,7 @@ static int main2(int argc, char *argv[])
        Ignore_Muscat();
 
        if (more) {
-	  have_query = 1;
+	  have_query = true;
 	  goto got_query_from_morelike;
        }       
 #endif
@@ -499,13 +498,13 @@ static int main2(int argc, char *argv[])
        more = strlen (val);
        to += more;
        val = NextEntry( "P", &n );
-       have_query = 1;
+       have_query = true;
     }
 
     /*** add expand terms ? **/
     if (GetEntry("ADD") != NULL) {
        val = FirstEntry( "X", &n );
-       if (val) have_query = 1;
+       if (val) have_query = true;
        while (val) {
 	  if (more) *to++ = ' ';
 	  strcpy (to, val);
@@ -523,11 +522,8 @@ static int main2(int argc, char *argv[])
     val = FirstEntry( "B", &n );
     while (val != NULL) {
        /* we'll definitely get empty B fields from "-ALL-" options */
-       if (isalnum(val[0])) {
-	  add_bterm(val);
-	  boolean_present = 1;
-       }
-       have_query = 1;
+       if (isalnum(val[0])) add_bterm(val);
+       have_query = true;
        val = NextEntry( "B", &n );
     }
 
@@ -543,20 +539,12 @@ static int main2(int argc, char *argv[])
 #endif
 
     if ((val = GetEntry("FMT")) != NULL && *val) {
-       static char fmtbuf[20] = "t/fmt.";
        if (strlen(val) <= 10) {
-	  char *p, *q;
-	  int ch;
-	  p = fmtbuf + 6;
-	  q = val;	  
-	  while ((ch = *q++)) {
-	     if (ch < 'a' || ch > 'z') break;
-	     *p++ = ch;
-	  }
-	  if (ch == 0) {
-	     *p = '\0';
+	  char *p = val;	  
+	  while (islower(*p)) p++;
+	  if (*p == '\0') {
 	     fmt = val;
-	     fmtfile = fmtbuf;
+	     fmtfile = "t/fmt." + fmt;
 	  }
        }       
     }

@@ -626,7 +626,7 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 	   cout << "<INPUT TYPE=hidden NAME=MAXHITS VALUE=" << maxhits << ">\n";
 
        /*** save fmt ***/
-       if (fmt && *fmt)
+       if (fmt.size())
 	   cout << "<INPUT TYPE=hidden NAME=FMT VALUE=\"" << fmt << "\">\n";
 
       if (which == 'Q') {
@@ -989,7 +989,7 @@ static void print_query_page( const char* page, long int first, long int size) {
 #ifndef META
 		     {
 			struct stat st;
-			int fd = open(fmtfile, O_RDONLY);
+			int fd = open(fmtfile.c_str(), O_RDONLY);
 			if (fd >= 0) {
 			   if (fstat(fd, &st) == 0 && st.st_size) {
 			      char *p;
