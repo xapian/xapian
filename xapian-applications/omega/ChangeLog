@@ -1,3 +1,8 @@
+Wed Oct 02 16:58:39 BST 2002  Olly Betts <olly@survex.com>
+
+	* query.cc,docs/omegascript.txt: Added $hit which gives the m-set
+	  number of the current hit.
+
 Sun Sep 22 15:47:33 BST 2002  Olly Betts <olly@survex.com>
 
 	* configfile.cc: Corrected use of string.data() to string.c_str().

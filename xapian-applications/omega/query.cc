@@ -681,9 +681,10 @@ print_query_string(const char *after)
 
 static map<string, string> field;
 static om_docid q0;
+static om_doccount hit_no;
 static int percent;
 
-static string print_caption(om_docid m, const string &fmt, const vector<string> &param);
+static string print_caption(const string &fmt, const vector<string> &param);
 
 enum tagval {
 CMD_,
@@ -797,6 +798,8 @@ static struct func_desc func_tab[] = {
 {T(ge),		2, 2, N, 0, 0}}, // test >=
 {T(gt),		2, 2, N, 0, 0}}, // test >
 {T(highlight),	2, 4, N, 0, 0}}, // html escape and highlight words from list
+{T(hit),	0, 0, N, 0, 0}}, // hit number of current mset entry (starting
+				 // from 0)
 {T(hitlist),	1, N, 0, 1, 0}}, // display hitlist using format in argument
 {T(hitsperpage),0, 0, N, 0, 0}}, // hits per page
 {T(hostname),	1, 1, N, 0, 0}}, // extract hostname from URL
@@ -1133,6 +1136,10 @@ eval(const string &fmt, const vector<string> &param)
 		value = html_highlight(args[0], args[1], bra, ket);
 		break;
 	    }
+	    case CMD_hit:
+		// 0-based mset index
+		value = int_to_string(hit_no);
+		break;
 	    case CMD_hitlist:
 #if 0
 		const char *q;
@@ -1163,8 +1170,9 @@ eval(const string &fmt, const vector<string> &param)
 		    query_string += i->second;
 		}
 #endif
-		for (om_docid m = topdoc; m < last; m++)
-		    value += print_caption(m, args[0], param);
+		for (hit_no = topdoc; hit_no < last; hit_no++)
+		    value += print_caption(args[0], param);
+		hit_no = 0;
 		break;
 	    case CMD_hitsperpage:
 		value = int_to_string(hits_per_page);
@@ -1628,11 +1636,11 @@ percentage(double ratio)
 }
 
 static string
-print_caption(om_docid m, const string &fmt, const vector<string> &param)
+print_caption(const string &fmt, const vector<string> &param)
 {
-    q0 = *(mset[m]);
+    q0 = *(mset[hit_no]);
 
-    percent = mset.convert_to_percent(mset[m]);
+    percent = mset.convert_to_percent(mset[hit_no]);
 
     OmDocument doc = omdb->get_document(q0);
     string text = doc.get_data();
