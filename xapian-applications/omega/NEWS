@@ -1,3 +1,29 @@
+Omega 0.8.5 (2004-12-23):
+
+* README,INSTALL: Proper installation instructions.
+
+* omega: If an exception is thrown, make sure that the HTTP headers
+  get written so that we don't cause "500 Internal Server Error".
+  This problem was introduced by the change to allow a user specified
+  Content-Type in 0.8.0.  Partly addresses bug#60.
+
+* scriptindex: Fixed "Unknown Exception" when trying to "unhtml" text which
+  contains "</body>" (bug#61).  This bug was introduced in 0.8.4.
+ 
+* omindex/scriptindex: <h1> - <h6> and </h1> - </h6> now leave a space in the
+  dumped HTML.  This bug was introduced in 0.8.4 - before that any tag left
+  a space in the dumped HTML.
+
+* omindex: Only try to delete removed documents in "replace duplicates" mode
+  (which is the default).
+
+* omindex: Change behaviour of crawler such that it doesn't follow symbolic
+  links any more.  The new "--follow" command line option turns following of
+  symlinks back on.
+
+* dbi2omega: Add a comment to the start of the file detailing what
+  dbi2omega does.
+
 Omega 0.8.4 (2004-12-08):
 
 * omindex,scriptindex: Improved HTML to text conversion - now we strip
