@@ -1,3 +1,7 @@
+Mon Feb 21 20:02:17 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am,java/run-java-test: Run SmokeTest on "make check".
+
 Mon Feb 21 18:42:32 GMT 2005  Olly Betts <olly@survex.com>
 
 	* java/org/xapian/ExpandDecider.java,
