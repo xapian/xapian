@@ -61,7 +61,7 @@ static void deletedir(std::string filename)
 
 static void makedir(std::string filename)
 {
-    system(("mkdir " + filename).c_str());
+    mkdir(filename.c_str(), 0755);
 }
 
 static void unlink_table(const std::string & path)
@@ -185,7 +185,6 @@ static bool test_disktable1()
     table2.open();
     QuartzDiskTable table1(tmpdir + "test_disktable1_", true, 0);
     table1.open();
-
 
     quartz_revision_number_t rev1 = table1.get_open_revision_number();
     quartz_revision_number_t rev2 = table2.get_open_revision_number();
@@ -355,10 +354,6 @@ static bool test_disktable3()
 
     table.apply(table.get_latest_revision_number() + 1);
 
-    int tradealen = 4000;
-    int tradelen = 4000;
-    int tradlen = 2000;
-
     QuartzDbKey tradeakey;
     QuartzDbKey tradekey;
     QuartzDbKey tradkey;
@@ -417,7 +412,7 @@ static bool test_tableentries1()
     QuartzDbKey key1;
 
 #ifdef MUS_DEBUG
-    key1.value="";
+    key1.value = "";
     TEST_EXCEPTION(OmAssertionError, entries.have_entry(key1));
     {
 	AutoPtr<QuartzDbTag> tagptr(new QuartzDbTag);
@@ -428,7 +423,7 @@ static bool test_tableentries1()
     TEST_EXCEPTION(OmAssertionError, entries.get_tag(key1));
 #endif
 
-    key1.value="foo";
+    key1.value = "foo";
     TEST(!entries.have_entry(key1));
     {
 	AutoPtr<QuartzDbTag> tagptr(new QuartzDbTag);

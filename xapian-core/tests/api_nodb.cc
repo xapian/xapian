@@ -143,7 +143,7 @@ static bool test_querylen3()
     return true;
 }
 
-// tests that querys validate correctly
+// tests that queries validate correctly
 static bool test_queryvalid1()
 {
     vector<OmQuery> v1;

@@ -1,8 +1,13 @@
-Mon Oct 22 16:41:12 2001    <tartarus@users.sourceforge.net>
+Mon Oct 22 17:42:30 BST 2001  Olly Betts <olly@survex.com>
+
+	* Minor fettles to quartztest: fixed warnings, whitespace tidying,
+	  use mkdir(...) rather than system("mkdir ...")
+
+Mon Oct 22 16:41:12 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 	* Renamed project to Xapian.
 
-Mon Oct 22 14:22:00 BST 2001  Olly Betts  <olly@survex.com>
+Mon Oct 22 14:22:00 BST 2001  Olly Betts <olly@survex.com>
 
 	* Fixed non-ISO C++ code so Xapian will compile under GCC 3.0
 	  (and also RedHat's "GCC 2.96").
