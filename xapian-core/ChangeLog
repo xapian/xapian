@@ -1,3 +1,7 @@
+Tue Jan 16 14:02:34 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added check for whether -ldl is necessary.
+
 Tue Jan 16 11:51:25 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added compatibility bits for early libxml1 versions.

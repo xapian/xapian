@@ -162,6 +162,11 @@ else
 AC_MSG_WARN(libxml doesn't have xmlValidateDocument: disabling validation.)
 fi
 
+dnl Check whether we need -ldl for dlsym() etc.
+AC_TRY_LINK_FUNC(dlsym, ,
+	[AC_CHECK_LIB(dl, dlsym, [DL_LIB="-ldl"])])
+AC_SUBST(DL_LIB)
+
 dnl Check for a POSIX regular expression library (so far only know rx)
 AC_CHECK_HEADER(rx/rxposix.h, [ HAVE_RX_RXPOSIX_H=yes ])
 AC_CHECK_HEADER(rxposix.h, [ HAVE_RXPOSIX_H=yes ])

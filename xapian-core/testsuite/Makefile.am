@@ -12,7 +12,7 @@ EXTRA_DIST = malloccheck.c malloc_wrapper.sh
 libtest_la_SOURCES = testsuite.cc testutils.cc backendmanager.cc \
 		allocdata.cc alloccommon.c textfile_indexer.cc index_utils.cc
 
-libtest_la_LIBADD = -ldl
+libtest_la_LIBADD = @DL_LIBS@
 
 if ENABLE_SHARED
 all-local: malloccheck.so
@@ -20,5 +20,5 @@ all-local: malloccheck.so
 CLEANFILES=malloccheck.so
 
 malloccheck.so: malloccheck.c alloccommon.lo
-	$(LIBTOOL) $(CC) -shared $< alloccommon.lo -o $@ -ldl
+	$(LIBTOOL) $(CC) -shared $< alloccommon.lo -o $@ @DL_LIBS@
 endif
