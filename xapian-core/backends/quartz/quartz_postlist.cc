@@ -47,7 +47,7 @@ make_key(const string & tname, string & key)
 // few bytes extra) - FIXME: tune this value to try to
 // maximise how well blocks are used.  Or performance.
 // Or indexing speed.  Or something...
-const unsigned int CHUNKSIZE = 2048;
+const unsigned int CHUNKSIZE = 2000;
 
 /** PostlistChunkWriter is a wrapper which acts roughly as an
  *  output iterator on a postlist chunk, taking care of the

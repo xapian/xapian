@@ -1,3 +1,9 @@
+Thu Aug 26 18:11:50 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc: Reduce quartz postlist chunk
+	  threshold from 2048 to 2000 so that chunks won't get split by the
+	  Btree.
+
 Thu Aug 26 18:10:27 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_record.cc: Throw DocNotFoundError if we
