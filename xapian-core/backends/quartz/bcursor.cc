@@ -75,7 +75,6 @@ Bcursor::~Bcursor()
     delete [] C;
 }
 
-#if 0 // Unused and untested in its current form...
 bool
 Bcursor::prev()
 {
@@ -83,7 +82,13 @@ Bcursor::prev()
     Assert(level == B->level);
     Assert(!is_after_end);
 
-    if (!is_positioned) return false;
+    if (!is_positioned) {
+	// We've read the last key and tag, and we're now not positioned.
+	// Simple fix - seek to the current key, and then it's as if we
+	// read the key but not the tag.
+	(void)find_entry(current_key);
+	have_read_tag = false;
+    }
 
     if (have_read_tag) {
 	while (true) {
@@ -111,8 +116,8 @@ Bcursor::prev()
     have_read_tag = false;
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
+    return true;
 }
-#endif
 
 bool
 Bcursor::next()
