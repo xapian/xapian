@@ -210,7 +210,7 @@ SleepyDatabase::open_term_list(docid did) const {
 
     // Get, no transactions, no flags
     try {
-	int found = internals->postlist_db->get(NULL, &key, &data, 0);
+	int found = internals->termlist_db->get(NULL, &key, &data, 0);
 	if(found == DB_NOTFOUND) throw RangeError("Docid not found");
 
 	// Any other errors should cause an exception.
