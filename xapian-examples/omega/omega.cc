@@ -589,7 +589,7 @@ int main(int argc, char *argv[]) {
        }
     }
    
-#ifdef FERRET
+#if 0 // FIXME def FERRET
    got_query_from_morelike:
 #endif
 

@@ -58,7 +58,7 @@ static char *fmtstr =
 
 char raw_prob[4048];
 static long int msize = 0;
-static long maxweight = -1;
+static double maxweight = -1;
 static char gif_dir[256] = "/fx-gif";
 static long int r_displayed[200];
 static long int r_di;
@@ -366,7 +366,7 @@ static int get_next_char( const char **p ) {
       cache = 0;
       return ch;
    }
-   ch = *((const unsigned char *)(*p))++;
+   ch = (int)(unsigned char)(*p++);
    switch (ch) {
 #include "symboltab.h"
    }
@@ -601,7 +601,7 @@ static void run_query(void) {
 #if 1 // FIXME
 	matcher->set_min_weight_percent(percent_min);
 #else
-	int t = maxweight * percent_min / 100;
+	weight t = maxweight * percent_min / 100;
 	if (t > weight_threshold) weight_threshold = t;
 	msize = trim_msize(msize, weight_threshold);
 
@@ -720,6 +720,7 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 
    if (!strncmp (pc, "SAVE", 4)) {
       long int r, i;
+      r = r; // FIXME
 
       /*** save DB name **/
 #ifdef FERRET
@@ -1086,7 +1087,7 @@ static void print_query_page( const char* page, long int first, long int size) {
     char line[512];
     char *pc;
     char *pre;
-    long int last;
+    long int last = 0;
     int expand_on = 1;
 #if 0//FIXME
     get_muscat_string ("gif_dir", gif_dir);
@@ -1221,8 +1222,8 @@ static void print_query_page( const char* page, long int first, long int size) {
 		else if (!strncmp (pc, "TOPTERMS", 8)) {
 		  if (msize) {
 		    /* Olly's expand on query page idea */
-		    int c = 0;
-		    int rel_hack = 0;
+		    // int c = 0;
+		    // int rel_hack = 0;
 #if 1 // FIXME
 		      printf("Sorry, we've not implemented relevance feedback yet\n");
 #else
@@ -1268,7 +1269,7 @@ static void print_query_page( const char* page, long int first, long int size) {
 #ifdef FERRET
 		else if (!strncmp (pc, "DOMATCH", 7)) {
 		   /* don't rerun query if we ran it earlier */
-		   if (maxweight == -1) {
+		   if (maxweight < 0) {
 		      matcher->set_max_msize(first + size);
 		      run_query();
 		      do_adjustm();
