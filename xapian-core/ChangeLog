@@ -1,3 +1,10 @@
+Fri Nov 21 01:14:23 GMT 2003  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.in,docs/Makefile.am,extra/Makefile.am: Change to
+	  using AM_MAINTAINER_MODE.  If you're doing development work on
+	  Xapian, you should configure with "--enable-maintainer-mode" and
+	  ideally use GNU make.
+
 Fri Nov 21 01:13:25 GMT 2003  Olly Betts <olly@survex.com>
 
 	* include/xapian/termiterator.h,tests/api_nodb.cc: Added TermIterator

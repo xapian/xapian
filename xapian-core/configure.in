@@ -18,6 +18,9 @@ dnl Add parameters for aclocal
 dnl (This must come after AM_INIT_AUTOMAKE, since it modifies ACLOCAL)
 ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"
 
+dnl disable "maintainer only" rules by default
+AM_MAINTAINER_MODE
+
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX

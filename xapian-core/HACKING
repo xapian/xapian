@@ -30,6 +30,16 @@ Xapian.
 --enable-debug=full
 	This is the same as --enable-debug --enable-debug-verbose
 
+--enable-maintainer-mode
+	This tells configure to enable make dependencies for regenerating build
+	system files (such as configure, Makefile.in, and Makefile) and other
+	generated files (some of the documentation and the yacc query parser)
+	when required.  This is disabled by default as some make programs try
+	to rebuild them when it's not appropriate (e.g. BSD make doesn't
+	handle VPATH except for implicit rules).  If you enable maintainer mode
+	you probably need to use a better make program (GNU make is
+	recommended).
+
 Debugging Messages
 ==================
 
@@ -284,9 +294,8 @@ Here's an incomplete list of things to avoid:
 
 * It appears that BSD make only support VPATH for implicit rules (e.g. ".c.o:")
   - there's certainly a restriction there which is not present in GNU make.
-  In docs/Makefile.am we work around this by checking the dependencies
-  ourselves using find with -newer.  A similar hack can probably be used in
-  other cases where VPATH doesn't work portably.
+  We used to try to work around this, but now we use AM_MAINTAINER_MODE to
+  disable sich rules and recommend that developers use GNU make.
 
 * This is actually a robustness point, not portability per se.  Rules which
   generate files should be careful not to leave a partial file in place if
