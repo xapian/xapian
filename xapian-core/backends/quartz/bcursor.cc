@@ -132,8 +132,8 @@ Bcursor::get_key(struct Btree_item * item)
     byte * p = key_of(C[0].p, C[0].c);
     int l = GETK(p, 0) - K1 - C2;       /* number of bytes to extract */
     if (item->key_size < l) {
-	free(item->key);
-	item->key = (byte *) calloc(l + 1, 1); /* 1 extra in case l == 0 */
+	delete [] item->key;
+	item->key = zeroed_new(l + 1); /* 1 extra in case l == 0 */
 	if (item->key == 0) {
 	    B->error = BTREE_ERROR_SPACE;
 	    throw std::bad_alloc();
@@ -168,8 +168,8 @@ Bcursor::get_tag(struct Btree_item * item)
     {
 	int4 space_for_tag = (int4) B->max_item_size * n;
 	if (item->tag_size < space_for_tag)
-	{   free(item->tag);
-	    item->tag = (byte *) calloc(space_for_tag + 5, 1);
+	{   delete [] item->tag;
+	    item->tag = zeroed_new(space_for_tag + 5);
 	    if (item->tag == 0) {
 		B->error = BTREE_ERROR_SPACE;
 		throw std::bad_alloc();

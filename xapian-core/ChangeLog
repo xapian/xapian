@@ -1,3 +1,7 @@
+Mon Feb 19 15:43:49 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Converted btree code to use new/delete instead of [mc]alloc/free.
+
 Mon Feb 19 13:52:23 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Added new test collapsekey2 designed to work with muscat36

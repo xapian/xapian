@@ -82,6 +82,13 @@ struct Cursor {
 
 struct Btree_item {
 
+    /* Constructor which zeroes all the fields */
+    Btree_item()
+	    : key_size(0), key_len(0), key(0),
+    	      tag_size(0), tag_len(0), tag(0)
+    {
+    }
+
     int key_size;       /* capacity of item->key */
     int key_len;        /* length of retrieved key */
     byte * key;         /* pointer to the key */

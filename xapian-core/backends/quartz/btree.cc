@@ -663,13 +663,13 @@ Btree::split_root(struct Cursor * C_, int j)
     /* check level overflow */
     AssertNe(level, BTREE_CURSOR_LEVELS);
 
-    byte * q = (byte *)calloc(block_size, 1);      /*?*/
+    byte * q = zeroed_new(block_size);
     if (q == 0) {
 	error = BTREE_ERROR_SPACE;
 	throw std::bad_alloc();
     }
     C_[j].p = q;
-    C_[j].split_p = (byte *)calloc(block_size, 1);  /*?*/
+    C_[j].split_p = zeroed_new(block_size);
     if (C_[j].split_p == 0) {
 	error = BTREE_ERROR_SPACE;
 	throw std::bad_alloc();
@@ -958,11 +958,11 @@ Btree::delete_item(struct Cursor * C, int j, int repeatedly)
     {   while (dir_end == DIR_START + D2 && j > 0)
         {   /* single item in the root block, so lose a level */
             int new_root = block_given_by(p, DIR_START);
-            free(p); C[j].p = 0;
+            delete [] p; C[j].p = 0;
             base.free_block(C[j].n);
             C[j].rewrite = false;
             C[j].n = -1;
-            free(C[j].split_p); C[j].split_p = 0;
+            delete [] C[j].split_p; C[j].split_p = 0;
             C[j].split_n = -1;
             level--;
 
@@ -1265,7 +1265,7 @@ extern int Btree_find_key(struct Btree * B, byte * key, int key_len)
 
 extern struct Btree_item * Btree_item_create(void)
 {
-    struct Btree_item * item = (struct Btree_item *) calloc(1, sizeof(struct Btree_item));
+    struct Btree_item * item = new Btree_item;
     if (item == 0) return 0;
     item->key_size = -1;
     item->tag_size = -1;
@@ -1300,8 +1300,8 @@ Btree::find_tag(byte * key, int key_len, struct Btree_item * item)
         {
 	    int4 space_for_tag = (int4) max_item_size * n;
             if (item->tag_size < space_for_tag)
-            {   free(item->tag);
-                item->tag = (byte *) calloc(space_for_tag + 5, 1);
+            {   delete [] item->tag;
+                item->tag = zeroed_new(space_for_tag + 5);
                 if (item->tag == 0) {
 		    error = BTREE_ERROR_SPACE;
 		    throw std::bad_alloc();
@@ -1330,8 +1330,9 @@ Btree::find_tag(byte * key, int key_len, struct Btree_item * item)
 
 extern void Btree_item_lose(struct Btree_item * item)
 {
-    free(item->key); free(item->tag);
-    free(item);
+    delete [] item->key;
+    delete [] item->tag;
+    delete item;
 }
 
 extern void Btree_full_compaction(struct Btree * B, int parity)
@@ -1470,7 +1471,7 @@ Btree::basic_open(const char * name_,
     }
 
     /* k holds contructed items as well as keys */
-    kt = (byte *)calloc(1, block_size);
+    kt = zeroed_new(block_size);
     if (kt == 0) {
 	throw std::bad_alloc();
     }
@@ -1576,11 +1577,11 @@ Btree::do_open_to_write(const char * name_,
         int j; for (j = 0; j <= level; j++)
         {   C[j].n = -1;
             C[j].split_n = -1;
-            C[j].p = (byte *)malloc(block_size);
+            C[j].p = new byte[block_size];
             if (C[j].p == 0) {
 		throw std::bad_alloc();
 	    }
-            C[j].split_p = (byte *)malloc(block_size);
+            C[j].split_p = new byte[block_size];
             if (C[j].split_p == 0) {
 		throw std::bad_alloc();
 	    }
@@ -1588,7 +1589,7 @@ Btree::do_open_to_write(const char * name_,
         read_root();
     }
 
-    buffer = (byte *)calloc(1, block_size);
+    buffer = zeroed_new(block_size);
     if (buffer == 0) {
 	throw std::bad_alloc();
     }
@@ -1749,11 +1750,12 @@ Btree::~Btree() {
     }
 
     for (int j = level; j >= 0; j--) {
-        free(C[j].p);
-        free(C[j].split_p);
+        delete [] C[j].p;
+        delete [] C[j].split_p;
     }
 
-    free(kt); free(buffer);
+    delete [] kt;
+    delete [] buffer;
 }
 
 extern int Btree_close(struct Btree * B_, uint4 revision)
@@ -1856,7 +1858,7 @@ Btree::do_open_to_read(const char * name_,
     {
         for (int j = shared_level; j <= level; j++) {
 	    C[j].n = -1;
-            C[j].p = (byte *)malloc(block_size);
+            C[j].p = new byte[block_size];
             if (C[j].p == 0) {
 		throw std::bad_alloc();
 	    }

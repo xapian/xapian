@@ -24,6 +24,7 @@
 #define OM_HGUARD_BTREE_UTIL_H
 
 #include "btree_types.h"
+#include <string.h>  /* memset */
 /* The unit of access into the DB files is an unsigned char, which is defined
    as 'byte' with a typedef.
 
@@ -221,6 +222,14 @@ int sys_read_bytes(int h, int n, byte *p);
 std::string sys_read_all_bytes(int h, size_t max);
 int sys_write_bytes(int h, int n, const byte *p);
 int sys_flush(int h);
+
+inline byte *zeroed_new(size_t size)
+{
+    byte *temp = new byte[size];
+    memset(temp, 0, size);
+
+    return temp;
+}
 
 /** A tiny class used to close a filehandle safely in the presence
  *  of exceptions.
