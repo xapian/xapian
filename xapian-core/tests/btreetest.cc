@@ -278,6 +278,6 @@ int main(int argc, char **argv)
     delete_dir(tmpdir);
     make_dir(tmpdir);
     test_driver::parse_command_line(argc, argv);
-    datadir = test_driver::get_srcdir() + "/z_data/";
+    datadir = test_driver::get_srcdir() + "/testdata/btreetest_";
     return test_driver::run(tests);
 }

@@ -1,3 +1,8 @@
+Tue May 27 02:39:43 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/,docs/tests.html,tests/: Moved quartztest and
+	  btreetest to tests/ directory.
+
 Tue May 27 02:03:07 BST 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.in,xapian.spec.in,backends/quartz/,bin/,

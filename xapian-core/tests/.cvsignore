@@ -5,12 +5,16 @@ Makefile
 .deps
 .libs
 apitest
+btreetest
 internaltest
+quartztest
 remotetest
 runtest
 stemtest
+.btreetmp
 .da
 .daflimsy
 .db
 .dbflimsy
 .quartz
+.quartztmp

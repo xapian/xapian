@@ -9,11 +9,18 @@ remote_check_programs = remotetest
 remote_tests = remotetest$(EXEEXT)
 endif
 
+if BUILD_BACKEND_QUARTZ
+quartz_check_programs = btreetest quartztest
+quartz_tests= btreetest$(EXEEXT) quartztest$(EXEEXT)
+endif
+
 ## Test programs to be run
-TESTS = apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) $(remote_tests)
+TESTS = $(quartz_tests) $(remote_tests) \
+ apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT)
 
 ## Programs to build
-check_PROGRAMS = apitest internaltest stemtest $(remote_check_programs)
+check_PROGRAMS = $(quartz_check_programs) $(remote_check_programs) \
+ apitest internaltest stemtest
     
 ## Sources:
 
@@ -27,6 +34,15 @@ stemtest_LDADD = ../testsuite/libtest.la ../libxapian.la
 
 internaltest_SOURCES = internaltest.cc
 internaltest_LDADD = ../testsuite/libtest.la ../libxapian.la
+
+btreetest_CXXFLAGS = -I$(top_srcdir)/backends/quartz
+btreetest_SOURCES = btreetest.cc $(top_srcdir)/backends/quartz/btreecheck.cc
+btreetest_LDADD = ../testsuite/libtest.la ../libxapian.la
+
+quartztest_CXXFLAGS = -I$(top_srcdir)/backends/quartz
+quartztest_SOURCES = quartztest.cc
+quartztest_LDADD = ../getopt/libgetopt.la ../testsuite/libtest.la \
+	../libxapian.la
 
 remotetest_SOURCES = remotetest.cc
 remotetest_LDADD = ../testsuite/libtest.la ../libxapian.la
@@ -45,7 +61,11 @@ EXTRA_DIST = runtest.in \
 	     testdata/apitest_allterms2.txt \
 	     testdata/apitest_poslist.txt \
 	     testdata/apitest_manydocs.txt \
-	     testdata/etext.txt
+	     testdata/etext.txt \
+	     testdata/btreetest_ord+ \
+	     testdata/btreetest_ord- \
+	     testdata/btreetest_ordnum+ \
+	     testdata/btreetest_ordnum-
 
 clean-local:
-	rm -rf .da .daflimsy .db .dbflimsy .quartz
+	rm -rf .da .daflimsy .db .dbflimsy .quartz .quartztmp .btreetmp

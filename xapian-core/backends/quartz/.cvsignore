@@ -5,7 +5,3 @@ Makefile
 .deps
 .libs
 libquartz.la
-btreetest
-quartztest
-.btreetmp
-.quartztmp

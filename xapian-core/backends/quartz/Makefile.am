@@ -43,20 +43,4 @@ libquartz_la_SOURCES = quartz_database.cc \
 		       bcursor.cc \
 		       btree_base.cc
 
-EXTRA_DIST = z_data/ord+ z_data/ord- z_data/ordnum+ z_data/ordnum-
-
 noinst_LTLIBRARIES = libquartz.la
-
-TESTS = btreetest$(EXEEXT) quartztest$(EXEEXT)
-
-check_PROGRAMS = btreetest quartztest
-
-clean-local:
-	rm -rf .quartztmp .btreetmp
-
-btreetest_SOURCES = btreetest.cc btreecheck.cc
-btreetest_LDADD = ../../testsuite/libtest.la ../../libxapian.la
-
-quartztest_SOURCES = quartztest.cc
-quartztest_LDADD = ../../getopt/libgetopt.la ../../testsuite/libtest.la \
-		   ../../libxapian.la

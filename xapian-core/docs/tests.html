@@ -33,24 +33,19 @@ to prevent the testsuite from installing its own signal handling.
 
 <H2><A NAME="writing">A Brief Guide to Writing Tests</A></H2>
 
-<P>Almost all tests live in tests/.  Some low-level tests are in the source
-directories for the areas they test (e.g. the btree and Quartz backend
-have their own internal consistency tests, which live in backends/quartz/
-- more on these in the next section).
-
-<P>The tests mostly use a standard test rig, in testsuite/, which wraps each test,
+<P>Test programs live in tests/.  They mostly use a standard test rig, in
+testsuite/, which wraps each test,
 reports results, and generally packages things up nicely.  The test rig counts
 passes, fails, and skips, catches signals and unhandled exceptions and so
-forth.  It used to check for memory leaks but this code is currently disabled
-as it was too hard to suppress false positives - we intend to replace it with
-valgrind, at least for x86 Linux.
+forth.  On x86 Linux is can also check for memory leaks and accesses to
+uninitialised values by making use of valgrind, if it is installed.
 
 <P>A typical test program has three parts: the tests themselves (at the top),
 a table of tests (at the bottom), and a tiny main which sets the test harness
 in motion.  It uses the table to figure out what the tests are called, and
 what function to call to run them.
 
-<P>The most important test system for most people will be the apitests. This also
+<P>The most important test system for most people will be apitest. This also
 uses the test rig, but has several tables of tests to be run depending what
 facilities each backend supports.  A lot of the work is done by macros and
 helper functions, which may make it hard to work out quite what is going on,
@@ -94,8 +89,8 @@ distract you.
 
 <H2><A NAME="quartz">Quartz Backend Tests</A></H2>
 
-<P>Tests of the btree's functionality go in backends/quartz/btreetest.cc;
-tests of quartz itself in backends/quartz/quartztest.cc.
+<P>Tests of the btree's functionality go in tests/btreetest.cc;
+tests of quartz itself in tests/quartztest.cc.
 
 <P>Okay. Basically, most of it you can ignore, because the framework is
 done for you. You are responsible for doing two things:
