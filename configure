@@ -52,6 +52,9 @@ for target in all install uninstall install-strip clean distclean mostlyclean ma
   for d in $dirs ; do
     echo "	cd $d && \$(MAKE) $target" >> Makefile.tmp
   done
+  case "$target" in
+    distclean|maintainer-clean) echo "	rm -f Makefile" >> Makefile.tmp ;;
+  esac
 done
 mv -f Makefile.tmp Makefile
 trap EXIT
