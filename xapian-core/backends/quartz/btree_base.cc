@@ -157,87 +157,91 @@ Btree_base::~Btree_base()
 }
 
 bool
+Btree_base::do_unpack_uint(const char **start, const char *end,
+			   uint4 *dest, std::string &err_msg, 
+			   const std::string &basename,
+			   const char *varname)
+{
+    bool result = unpack_uint(start, end, dest);
+    if (!result) {
+	err_msg += "Unable to read " + std::string(varname) + " from " +
+		    basename + "\n";
+    }
+    return result;
+}
+
+bool
+Btree_base::do_unpack_int(const char **start, const char *end,
+			   int4 *dest, std::string &err_msg, 
+			   const std::string &basename,
+			   const char *varname)
+{
+    return do_unpack_uint(start, end, reinterpret_cast<uint4 *>(dest),
+			  err_msg, basename, varname);
+}
+
+#define DO_UNPACK_UINT_ERRCHECK(start, end, var) \
+do { \
+    if (!do_unpack_uint(start, end, &var, err_msg, basename, #var)) { \
+	return false; \
+    } \
+} while(0)
+
+#define DO_UNPACK_INT_ERRCHECK(start, end, var) \
+do { \
+    if (!do_unpack_int(start, end, &var, err_msg, basename, #var)) { \
+	return false; \
+    } \
+} while(0)
+
+/* This should be bit enough that the base file without bitmap
+ * will fit in to this size with no problem.  Other than that
+ * it's fairly arbitrary, but shouldn't be big enough to cause
+ * serious memory problems!
+ */
+#define REASONABLE_BASE_SIZE 1024
+
+bool
 Btree_base::read(const std::string & name, char ch, std::string &err_msg)
 {
-    int h = sys_open_to_read_no_except(name + "base" + ch);
+    std::string basename = name + "base" + ch;
+    int h = sys_open_to_read_no_except(basename);
     fdcloser closefd(h);
     if ( ! valid_handle(h)) {
-	err_msg += "Couldn't open " + name + "base" +
-		ch + ": " + strerror(errno) + "\n";
+	err_msg += "Couldn't open " + basename +
+		": " + strerror(errno) + "\n";
 	return false;
     }
-    std::string buf(sys_read_all_bytes(h, 1024));
+    std::string buf(sys_read_all_bytes(h, REASONABLE_BASE_SIZE));
 
     const char *start = buf.data();
     const char *end = start + buf.length();
 
-    if (!unpack_uint(&start, end, &revision)) {
-	err_msg += "Unable to read revision number from " +
-		    name + "base" + ch + "\n";
-	return false;
-    }
+    DO_UNPACK_UINT_ERRCHECK(&start, end, revision);
     uint4 format;
-    if (!unpack_uint(&start, end, &format)) {
-	err_msg += "Unable to read revision number from " +
-		    name + "base" + ch + "\n";
-	return false;
-    }
+    DO_UNPACK_UINT_ERRCHECK(&start, end, format);
     if (format != CURR_FORMAT) {
 	err_msg += "Bad base file format " + om_tostring(format) + " in " +
-		    name + "base" + ch + "\n";
+		    basename + "\n";
 	return false;
     }
-    if (!unpack_uint(&start, end, &block_size)) {
-	err_msg += "Couldn't read block_size from base file " +
-	name + "base" + ch + "\n";
-	return false;
-    }
-    uint4 unsigned_temp;
-    if (!unpack_uint(&start, end, &unsigned_temp)) {
-	err_msg += "Couldn't read root from base file " +
-	name + "base" + ch + "\n";
-	return false;
-    }
-    root = unsigned_temp;
-    if (!unpack_uint(&start, end, &unsigned_temp)) {
-	err_msg += "Couldn't read level from base file " +
-	name + "base" + ch + "\n";
-	return false;
-    }
-    level = unsigned_temp;
-    if (!unpack_uint(&start, end, &unsigned_temp)) {
-	err_msg += "Couldn't read bit_map_size from base file " +
-	name + "base" + ch + "\n";
-	return false;
-    }
-    bit_map_size = unsigned_temp;
-    if (!unpack_uint(&start, end, &unsigned_temp)) {
-	err_msg += "Couldn't read item_count from base file " +
-	name + "base" + ch + "\n";
-	return false;
-    }
-    item_count = unsigned_temp;
-    if (!unpack_uint(&start, end, &unsigned_temp)) {
-	err_msg += "Couldn't read last_block from base file " +
-	name + "base" + ch + "\n";
-	return false;
-    }
-    last_block = unsigned_temp;
-    uint4 temp_have_fakeroot;
-    if (!unpack_uint(&start, end, &temp_have_fakeroot)) {
-	err_msg += "Couldn't read have_fakeroot from base file " +
-	name + "base" + ch + "\n";
-	return false;
-    }
-    have_fakeroot = temp_have_fakeroot;
+    DO_UNPACK_UINT_ERRCHECK(&start, end, block_size);
+    DO_UNPACK_INT_ERRCHECK(&start, end, root);
+    DO_UNPACK_INT_ERRCHECK(&start, end, level);
+    DO_UNPACK_INT_ERRCHECK(&start, end, bit_map_size);
+    /* Now that we know the size of the bit map, (possibly)
+     * read in more data from the base file in case
+     * REASONABLE_BASE_SIZE is too small.
+     */
+    buf += sys_read_all_bytes(h, bit_map_size);
+    DO_UNPACK_INT_ERRCHECK(&start, end, item_count);
+    DO_UNPACK_INT_ERRCHECK(&start, end, last_block);
+    uint4 have_fakeroot_;
+    DO_UNPACK_UINT_ERRCHECK(&start, end, have_fakeroot_);
+    have_fakeroot = have_fakeroot_;
 
     uint4 revision2;
-    if (!unpack_uint(&start, end, &revision2)) {
-	err_msg += "Couldn't read revision2 from base file " +
-	name + "base" + ch + "\n";
-	return false;
-    }
-
+    DO_UNPACK_UINT_ERRCHECK(&start, end, revision2);
     if (revision != revision2) {
 	err_msg += "Revision number mismatch in " +
 		name + "base" + ch + ": " +

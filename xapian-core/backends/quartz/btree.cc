@@ -1788,8 +1788,6 @@ Btree * Btree_open_to_read_revision(const char * name,
     }
 }
 
-// FIXME: continue working through errors after this point
-// when I'm more awake. JJJ
 extern struct Bcursor * Bcursor_create(struct Btree * B)
 {
     return new Bcursor(B);
@@ -1823,7 +1821,7 @@ Btree::prev_for_revision_1(struct Btree * B, struct Cursor * C, int dummy)
             if (n < 0) return false;
             B->read_block(n, p);
             if (B->overwritten == true) return false;
-            if (REVISION(p) > 1) { B->overwritten = true; return false; }
+            if (REVISION(p) > 1) { B->set_overwritten(); return false; }
             if (GET_LEVEL(p) == 0) break;
         }
         c = DIR_END(p);
@@ -1847,7 +1845,7 @@ Btree::next_for_revision_1(struct Btree * B, struct Cursor * C, int dummy)
             if (n > B->base.get_last_block()) return false;
             B->read_block(n, p);
             if (B->overwritten == true) return false;
-            if (REVISION(p) > 1) { B->overwritten = true; return false; }
+            if (REVISION(p) > 1) { B->set_overwritten(); return false; }
             if (GET_LEVEL(p) == 0) break;
         }
         c = DIR_START;
@@ -1886,8 +1884,8 @@ Btree::next_default(struct Btree * B, struct Cursor * C, int j)
 {   byte * p = C[j].p;
     int c = C[j].c;
     c += D2;
-    if (c == DIR_END(p))
-    {   if (j == B->level) return false;
+    if (c == DIR_END(p)) {
+	if (j == B->level) return false;
 
         if (j + 1 >= B->shared_level)
         {

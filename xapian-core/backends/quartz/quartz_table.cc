@@ -461,7 +461,9 @@ QuartzDiskTable::apply(quartz_revision_number_t new_revision)
     btree_for_writing = 0;
 
     // Reopen table
-    open();
+    if (!open(new_revision)) {
+	throw OmDatabaseError("Can't open the revision we've just written");
+    }
     // FIXME: check for errors
     // FIXME: want to indicate that the database closed successfully even
     // if we now can't open it.  Or is this a panic situation?

@@ -1,3 +1,13 @@
+Wed Nov 29 17:50:03 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Reworked Btree_base::read() a bit so that it's hopefully more
+	  readable.
+	
+	* Hopefully fixed a bug when the bitmap approaches 1k.
+
+	* Fix to catch problems re-opening databases after an apply in
+	  Quartz.
+
 Wed Nov 29 17:30:26 GMT 2000 Olly Betts
 
 	* Added OmDocument::termlist_begin() and OmDocument::termlist_end()
