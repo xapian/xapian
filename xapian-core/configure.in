@@ -404,16 +404,12 @@ AC_OUTPUT(
  net/Makefile
  netprogs/Makefile
  xapian-config.nodep
- docs/mkdoc.pl
- docs/todo2html.pl
  docs/doxygen_api_conf
  docs/doxygen_full_conf
  tests/stemtest.pl
- tests/findheaders.pl
  extra/Makefile
 ,
- for a in docs/mkdoc.pl docs/todo2html.pl tests/stemtest.pl \
-          tests/findheaders.pl ; do
+ for a in tests/stemtest.pl ; do
      test -f $a && chmod +x $a
  done
 )

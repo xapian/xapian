@@ -1,5 +1,5 @@
-#! @PERL@ -w
-# @configure_input@
+#! /usr/bin/perl -w
+# Generated automatically from mkdoc.pl.in by configure.
 # mkdoc.pl is automatically generated from mkdoc.pl.in
 # *** Do not edit the generated file ***
 
@@ -125,7 +125,7 @@ sub output_html() {
 </HEAD>
 <BODY BGCOLOR="white">
 This documentation was automatically generated, and corresponds to version
-@VERSION@ of Xapian.
+0.4.1-cvs of Xapian.
 <HR>
 EOF
 

@@ -73,7 +73,7 @@ DISTCLEANFILES = .deps-includetest-cc
 # Get GENDEPS macro
 include $(top_srcdir)/Makefile_common.am
 
-ALL_INCLUDES = `./findheaders.pl $(top_srcdir)`
+ALL_INCLUDES = `$(PERL) $(srcdir)/findheaders.pl $(top_srcdir)`
 
 ## Extra rules:
 includetest.cc: findheaders.pl

@@ -1,9 +1,5 @@
-#! @PERL@ -w
-# @configure_input@
-# todo2html.pl is automatically generated from todo2html.pl.in
-# *** Do not edit the generated file ***
-
-# todo2html.pl.in: generate documentation from source code and associated files.
+#! /usr/bin/perl -w
+# todo2html.pl: generate documentation from source code and associated files.
 require 5;
 use strict;
 use XML::Parser;

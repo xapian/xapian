@@ -1,3 +1,8 @@
+Tue May 07 13:12:23 BST 2002  Olly Betts <olly@survex.com>
+
+	* Run perl scripts from Makefiles explicitly with $(PERL) rather than
+	  having them as generated files in AC_OUTPUT.
+
 Mon May  6 16:04:37 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* Distribution fixes: make clean should now clear up all

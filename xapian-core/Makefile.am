@@ -37,19 +37,17 @@ lib_LTLIBRARIES = libxapian.la
 libxapian_la_SOURCES = dummy.c
 EXTRA_libxapian_la_SOURCES =
 
-TODO: ./docs/todo2html.pl $(top_srcdir)/docs/todo.xml $(top_srcdir)/docs/todo2html.pl.in
+TODO: $(srcdir)/docs/todo2html.pl $(srcdir)/docs/todo.xml
 if HAVE_PERL_XML_AND_TEXT
-	@echo "Generating $@"
-	./docs/todo2html.pl --text $(top_srcdir)/docs/todo.xml > $@
+	$(PERL) $(srcdir)/docs/todo2html.pl --text $(srcdir)/docs/todo.xml >$@
 else
 	@echo "Can't generate $@: need Perl XML and Text::Format module."
 	false
 endif
 
-TODO.release: ./docs/todo2html.pl $(top_srcdir)/docs/todo.xml $(top_srcdir)/docs/todo2html.pl.in
+TODO.release: $(srcdir)/docs/todo2html.pl $(srcdir)/docs/todo.xml
 if HAVE_PERL_XML_AND_TEXT
-	@echo "Generating $@"
-	./docs/todo2html.pl --release \* --text $(top_srcdir)/docs/todo.xml > $@
+	$(PERL) $(srcdir)/docs/todo2html.pl --release \* --text $(srcdir)/docs/todo.xml >$@
 else
 	@echo "Can't generate $@: need Perl XML and Text::Format module."
 	false

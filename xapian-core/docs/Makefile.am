@@ -7,7 +7,7 @@ HTMLFILES = index.html intro.html intro_ir.html userman.html \
 	quartzdesign.html
 
 # Files which should be put in the distribution by automake
-EXTRA_DIST = mkdoc.pl.in todo2html.pl.in todo.xml \
+EXTRA_DIST = mkdoc.pl todo2html.pl todo.xml \
         doxygen_api_conf.in doxygen_full_conf.in \
         $(HTMLFILES) \
         MatcherDesign Notes \
@@ -113,10 +113,8 @@ CLEANFILES=\
        doxygen_api_conf \
        doxygen_full_conf \
        code_structure.html \
-       mkdoc.pl \
        todo.html \
-       todo-release.html \
-       todo2html.pl
+       todo-release.html
 
 ################################
 # How to uninstall local files #
@@ -130,20 +128,13 @@ uninstall-local:
 ###############
 
 code_structure.html: mkdoc.pl
-	@echo "Generating documentation"
-	./mkdoc.pl $(top_srcdir) $@
+	$(PERL) $(srcdir)/mkdoc.pl $(top_srcdir) $@
 
 todo.html: todo2html.pl todo.xml
-	@echo "Generating todo list"
-	if test -f "todo.xml"; then d1="." ; else d1="$(srcdir)/"; fi; \
-	if test -f "todo2html.pl"; then d2="." ; else d2="$(srcdir)/"; fi; \
-	$${d2}/todo2html.pl $${d1}/todo.xml >$@
+	$(PERL) $(srcdir)/todo2html.pl $(srcdir)/todo.xml >$@
 
 todo-release.html: todo2html.pl todo.xml
-	@echo "Generating release todo list"
-	if test -f "todo.xml"; then d1="." ; else d1="$(srcdir)/"; fi; \
-	if test -f "todo2html.pl"; then d2="." ; else d2="$(srcdir)/"; fi; \
-	$${d2}/todo2html.pl --release \* $${d1}/todo.xml >$@
+	$(PERL) $(srcdir)/todo2html.pl --release \* $(srcdir)/todo.xml >$@
 
 .tex.dvi: docxx.sty
 	: #Make it as if docxx is there, for VPATH builds.

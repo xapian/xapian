@@ -7,8 +7,6 @@ Makefile
 .deps-sourcedoc-html
 .deps-sourcedoc-tex
 code_structure.html
-mkdoc.pl
-todo2html.pl
 todo.html
 todo-release.html
 doxygen_api

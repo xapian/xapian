@@ -18,10 +18,8 @@ internaltest
 includetest
 includetest.cc
 stemtest.pl
-findheaders.pl
 randtext_seed_*
 randjunk_seed_*
-.sleepycat
 .da
 .daflimsy
 .db
