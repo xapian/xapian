@@ -595,10 +595,9 @@ print_caption(long int m)
 	    break;
 	 case 'T': {
 	     bool comma = false;
-	     // FIXME: in general we should store the matching terms
+	     // FIXME: we should store the matching terms
 	     // in a vector and then sort by the value of matching_map[]
-	     // In the DA case the way termid-s are invented means we
-	     // don't actually need to do this...
+	     // so that they come back in the same order as in the query
 	     TermList *terms = database->open_term_list(q0);
 	     terms->next();
 	     while (!terms->at_end()) {
