@@ -9,6 +9,10 @@ noinst_HEADERS = api.h header.h snowball_danish.h snowball_dutch.h\
 
 noinst_LTLIBRARIES = liblanguages.la
 
+# snowball_*.c are machine generated sources which sometimes contain unused
+# labels and variables
+AM_CFLAGS = -Wno-unused
+
 liblanguages_la_SOURCES = api.c snowball_danish.c snowball_dutch.c\
  snowball_english.c snowball_finnish.c snowball_french.c snowball_german.c\
  snowball_italian.c snowball_lovins.c snowball_norwegian.c snowball_porter.c\
