@@ -383,7 +383,7 @@ QuartzDatabase::get_database_write_lock()
 				      + db_dir + "/db_lock");
 	}
 
-	int tempfd = open(tempname, O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+	int tempfd = open(tempname.c_str(), O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
 	if (tempfd < 0) {
 	    throw Xapian::DatabaseLockError("Unable to create " + tempname +
 				      ": " + strerror(errno),

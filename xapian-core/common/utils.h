@@ -45,74 +45,33 @@ using std::vector;
 #undef max
 #endif
 
-#ifdef __WIN32__
 #include <fcntl.h>
 
-inline int open(const string &filename, int flags, mode_t mode) {
-    return open(filename.c_str(), flags, mode);
-}
+#ifdef open
+// On older versions of Solaris, Sun's fcntl.h pollutes the namespace by
+// #define-ing open to open64 when largefile support is enabled (also creat to
+// creat64, etc but that's not a problem for us).
 
-// If filename is a char* and mode is an int, we get ambiguity warnings
-// when the compiler tries to pick which overloaded open function to use
-// - this avoids that problem.
-inline int open(const char *filename, int flags, int mode) {
-    return open(filename, flags, (mode_t)mode);
-}
-
-inline int open(const string &filename, int flags) {
-    return open(filename.c_str(), flags);
-}
-#else
-// Sun's fcntl.h pollutes the namespace by #define-ing open to open64 when
-// largefile support is enabled (also creat to creat64 but that's not a problem
-// for us).  So we do a little dance to mop up this pollution.  Otherwise we'd
-// have to rename all our open methods.
-
-namespace Fcntl {
-#include <fcntl.h>
-};
+// We can work around this, but the workaround doesn't work with Sun's C++
+// compiler (at least not when open isn't #define-d) so we only enable the
+// workaround if we have to...
 
 inline int fcntl_open(const char *filename, int flags, mode_t mode) {
-    return Fcntl::open(filename, flags, mode);
+    return open(filename, flags, mode);
 }
 
 inline int fcntl_open(const char *filename, int flags) {
-    return Fcntl::open(filename, flags);
+    return open(filename, flags);
 }
-
-#ifdef open
+ 
 #undef open
-#endif
 
-inline int open(const string &filename, int flags, mode_t mode) {
-    return fcntl_open(filename.c_str(), flags, mode);
+inline int open(const char *filename, int flags, mode_t mode) {
+    return fcntl_open(filename, flags, mode);
 }
 
-// If filename is a char* and mode is an int, we get ambiguity warnings
-// when the compiler tries to pick which overloaded open function to use
-// - this avoids that problem.
-inline int open(const char *filename, int flags, int mode) {
-    return fcntl_open(filename, flags, (mode_t)mode);
-}
-
-inline int open(const string &filename, int flags) {
-    return fcntl_open(filename.c_str(), flags);
-}
-
-inline int fcntl(int fd, int cmd) {
-    return Fcntl::fcntl(fd, cmd);
-}
-
-inline int fcntl(int fd, int cmd, int arg) {
-    return Fcntl::fcntl(fd, cmd, (long)arg);
-}
-
-inline int fcntl(int fd, int cmd, long arg) {
-    return Fcntl::fcntl(fd, cmd, arg);
-}
-
-inline int fcntl(int fd, int cmd, struct flock *lock) {
-    return Fcntl::fcntl(fd, cmd, lock);
+inline int open(const char *filename, int flags) {
+    return fcntl_open(filename, flags);
 }
 #endif
 
