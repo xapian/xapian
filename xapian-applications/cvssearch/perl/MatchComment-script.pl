@@ -8,7 +8,6 @@ sub toChar;
 sub highlightquery;
 
 my $ctrlA = chr(01);
-my $ctrlB = chr(02);
 my $ctrlC = chr(03);
 my $cvsdata = Cvssearch::get_cvsdata();
 

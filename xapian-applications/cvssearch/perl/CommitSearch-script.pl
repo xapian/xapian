@@ -21,8 +21,6 @@ $own = "./CommitSearch.cgi"; # name of this script
 
 # control character separator
 $ctrlA = chr(01);
-$ctrlB = chr(02);
-$ctrlC = chr(03);
 
 #-------------
 # start html

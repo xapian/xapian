@@ -53,8 +53,6 @@ $querywords = "";
 
 # control character separator
 $ctrlA = chr(01);
-$ctrlB = chr(02);
-$ctrlC = chr(03);
 
 
 #----------------------------------------
@@ -516,8 +514,8 @@ if($query && ($query ne "")){
 			@linecomment = split /\n/, $origcomment;
 			$beg = $linecomment[1];
 			$back = $linecomment[-1];
-			$beg =~s/($grepquery)/<b>\1<\/b>/ig;
-			$back =~s/($grepquery)/<b>\1<\/b>/ig;
+			$beg =~s/($grepquery)/<b>$1<\/b>/ig;
+			$back =~s/($grepquery)/<b>$1<\/b>/ig;
 			if(@highlight){
 				print "<br><b class=lightcvs>$revs[$i]: </b>";
 				foreach (@highlight){
@@ -623,7 +621,7 @@ sub displayFile{
 sub highlightquery{
 	my ($words) = @_;
 	my @lines = split /\n/, $words; 
-	@contains = grep s/($grepquery)/<b>\1<\/b>/ig, @lines;
+	@contains = grep s/($grepquery)/<b>$1<\/b>/ig, @lines;
 	return @contains;
 }
 
