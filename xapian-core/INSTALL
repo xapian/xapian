@@ -1,0 +1,47 @@
+Muscat uses a standard automake / autoconf / libtool / etc setup.
+This means that all you need to do to compile a standard distribution
+should be:
+
+ 1) Run ./configure, possibly with some extra arguments (see below)
+ 2) Run make
+ 3) Run make install to install Muscat
+
+Options to give to configure:
+=============================
+
+Note: If you wish to perform your build in a separate directory from the
+source, change to the build directory, and run the configure script
+(in the source directory) from the build directory.
+
+ie: mkdir BUILD; cd BUILD; ../configure
+
+--enable-debug
+	Should use this to build a version of muscat with debugging symbols
+	and assertions to help with debugging.  Recommended for initial
+	development with muscat - this helps to ensure that you are using
+	the API correctly.
+
+--enable-debug=paranoid
+--enable-debug=full
+	Should use one of these if you're going to be developing muscat.
+	"full" gives 
+
+Building from CVS:
+==================
+
+The CVS repository does not contain any automatically generated files
+(such as configure and Makefile.in's).  Because of this, you need to run
+several programs to build these files, before you can run the normal
+build process.
+
+At the time of writing, these programs are autoconf, libtool and automake.
+
+We have provided a simple standard script (based on one used by the
+Gnome Project - http://www.gnome.org/) to run these programs for you:
+simply run ./autogen.sh, in the same way you would normally run configure.
+Any arguments passed to autogen.sh are in turn passed on to configure.
+
+You may need to add extra macro directories to the path searched by aclocal
+(which is part of autoconf) - you may do this by specifying these in the
+ACLOCAL_FLAGS environment variable.
+
