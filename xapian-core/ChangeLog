@@ -1,3 +1,9 @@
+Fri Sep 03 17:51:59 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Require autoconf 2.59.  Noted LIBRARY_VERSION_INFO
+	  which 0.8.2 will probably have.
+	* Makefile.am: Require automake 1.8.5.
+
 Fri Sep 03 16:40:11 BST 2004  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated with results from tinderbox.

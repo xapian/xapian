@@ -2,7 +2,10 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl Need autoconf 2.50 or later for many features
 dnl 2.54 needed for automake 1.6
-AC_PREREQ(2.54)
+dnl 2.57 fixes the annoying warnings from configure on FreeBSD
+dnl 2.58 is needed by automake 1.8.5
+dnl 2.59 was released the same day as 2.58 to fix a problem
+AC_PREREQ(2.59)
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
 AC_INIT(xapian-core, 0.8.1)dnl FIXME: bugreport addr as third argument
@@ -44,6 +47,7 @@ AC_INIT(xapian-core, 0.8.1)dnl FIXME: bugreport addr as third argument
 # 3:0:0 0.8.1 (Xapian::Database::get_lastdocid added; QueryParser tries
 #	       reparsing after stripping punctuation; several unused
 #	       Error subclasses removed; assorted Iterator changes)
+# 4:0:1 0.8.2 (Xapian::ESet::back and many other methods added)
 LIBRARY_VERSION_INFO=3:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 

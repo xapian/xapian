@@ -2,7 +2,8 @@
 
 # Need 1.5 for AM_CFLAGS, etc; also so generated files in EXTRA_DIST work
 # Need 1.6.3 for tests/internaltest to build with Solaris make
-AUTOMAKE_OPTIONS = 1.6.3
+# 1.8.5 contains a lot of fixes over 1.6.3
+AUTOMAKE_OPTIONS = 1.8.5
 
 if BUILD_BACKEND_REMOTE
 remote_subdirs = net
