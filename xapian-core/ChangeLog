@@ -1,3 +1,7 @@
+Thu Nov 29 14:10:43 GMT 2001  Olly Betts <olly@survex.com>
+
+	* ExtraWeightPostlist wasn't handling prune correctly.
+
 Thu Nov 22 13:46:59 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Fixed segfault when percentage_cutoff emptied the proto-mset.

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +29,7 @@ class ExtraWeightPostList : public PostList {
     private:
 	PostList * pl;
 	IRWeight * wt;
+	MultiMatch * matcher;
 	om_weight max_weight;
 
     public:
@@ -38,14 +40,7 @@ class ExtraWeightPostList : public PostList {
 	om_docid  get_docid() const { return pl->get_docid(); }
 
 	om_weight get_weight() const {
-// FIXME don't have db here... DEBUGLINE(MATCH, "db.get_doclength(" << did << ") == " << db.get_doclength(did));
-	    DEBUGLINE(MATCH, "pl->get_doclength() == " << pl->get_doclength());
-// FIXME don't have db here... AssertEqDouble(db.get_doclength(did), pl->get_doclength());
 	    return pl->get_weight() + wt->get_sumextra(pl->get_doclength());
-	}
-
-	const OmKey * get_collapse_key() const {
-	    return pl->get_collapse_key();
 	}
 
 	om_weight get_maxweight() const {
@@ -57,11 +52,23 @@ class ExtraWeightPostList : public PostList {
 	}
 
 	PostList *next(om_weight w_min) {
-	    return pl->next(w_min - max_weight);
+	    PostList *p = pl->next(w_min - max_weight);
+	    if (p) {
+		delete pl;
+		pl = p;
+		if (matcher) matcher->recalc_maxweight();
+	    }
+	    return NULL;
 	}
 	    
 	PostList *skip_to(om_docid did, om_weight w_min) {
-	    return pl->skip_to(did, w_min - max_weight);
+	    PostList *p = pl->skip_to(did, w_min - max_weight);
+	    if (p) {
+		delete pl;
+		pl = p;
+		if (matcher) matcher->recalc_maxweight();
+	    }
+	    return NULL;
 	}
 
 	bool at_end() const { return pl->at_end(); }
@@ -85,8 +92,8 @@ class ExtraWeightPostList : public PostList {
 	    return pl->open_position_list();
 	}
 
-        ExtraWeightPostList(PostList * pl_, IRWeight *wt_)
-	    : pl(pl_), wt(wt_), max_weight(wt->get_maxextra())
+        ExtraWeightPostList(PostList * pl_, IRWeight *wt_, MultiMatch *matcher_)
+	    : pl(pl_), wt(wt_), matcher(matcher_), max_weight(wt->get_maxextra())
 	{ }
 
 	~ExtraWeightPostList() {

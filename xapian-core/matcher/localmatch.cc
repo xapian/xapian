@@ -476,7 +476,7 @@ LocalSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
 	delete wt;
 	return pl;
     }
-    return new ExtraWeightPostList(pl, wt);
+    return new ExtraWeightPostList(pl, wt, matcher);
 }
 
 
