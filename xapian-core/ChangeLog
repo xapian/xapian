@@ -1,3 +1,8 @@
+Thu Sep 09 19:30:07 BST 2004  Olly Betts <olly@survex.com>
+
+	* docs/todo.xml: Removed unused file - todo entries are now in
+	  bugzilla.
+
 Thu Sep 09 13:11:52 BST 2004  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,common/multimatch.h,common/omenquireinternal.h,
