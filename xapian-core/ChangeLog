@@ -1,3 +1,7 @@
+Sun Jul 06 11:47:46 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/: Use BLK_UNUSED rather than literal -1.
+
 Sun Jul 06 11:47:14 BST 2003  Olly Betts <olly@survex.com>
 
 	* common/utils.h: Fixed last check-in to compile.

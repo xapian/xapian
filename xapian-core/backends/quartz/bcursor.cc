@@ -39,7 +39,7 @@ Bcursor::Bcursor(Btree *B_)
     Cursor * C_of_B = B->C;
 
     for (int j = 0; j < level; j++) {
-        C[j].n = -1;
+        C[j].n = BLK_UNUSED;
 	C[j].p = new byte[B->block_size];
     }
     C[level].n = C_of_B[level].n;

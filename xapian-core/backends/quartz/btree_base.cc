@@ -427,7 +427,7 @@ Btree_base::write_to_file(const string &filename)
 bool
 Btree_base::block_free_at_start(int4 n) const
 {
-    int i = n / CHAR_BIT;
+    size_t i = n / CHAR_BIT;
     int bit = 0x1 << n % CHAR_BIT;
     return (bit_map0[i] & bit) == 0;
 }
@@ -440,7 +440,7 @@ Btree_base::block_free_at_start(int4 n) const
 void
 Btree_base::free_block(int4 n)
 {
-    int i = n / CHAR_BIT;
+    int4 i = n / CHAR_BIT;
     int bit = 0x1 << n % CHAR_BIT;
     bit_map[i] &= ~ bit;
 

@@ -1017,7 +1017,7 @@ Btree::delete_item(Cursor * C_, int j, bool repeatedly)
 	if (dir_end == DIR_START) {
 	    base.free_block(C_[j].n);
 	    C_[j].rewrite = false;
-	    C_[j].n = -1;
+	    C_[j].n = BLK_UNUSED;
 	    C_[j + 1].rewrite = true;  /* *is* necessary */
 	    delete_item(C_, j + 1, true);
 	}
@@ -1030,10 +1030,10 @@ Btree::delete_item(Cursor * C_, int j, bool repeatedly)
 	    C_[j].p = 0;
 	    base.free_block(C_[j].n);
 	    C_[j].rewrite = false;
-	    C_[j].n = -1;
+	    C_[j].n = BLK_UNUSED;
 	    delete [] C_[j].split_p;
 	    C_[j].split_p = 0;
-	    C_[j].split_n = -1;
+	    C_[j].split_n = BLK_UNUSED;
 	    level--;
 
 	    block_to_cursor(C_, level, new_root);
@@ -1334,7 +1334,7 @@ Btree::find_tag(const string &key, string * tag)
     
     tag->resize(0);
     if (n > 1) {
-	int4 space_for_tag = (int4) max_item_size * n;
+	string::size_type space_for_tag = (string::size_type) max_item_size * n;
 	tag->reserve(space_for_tag);
     }	
 
@@ -1570,8 +1570,8 @@ Btree::do_open_to_write(const string & name_,
     handle = sys_open_for_readwrite(name + "DB");
 
     for (int j = 0; j <= level; j++) {
-	C[j].n = -1;
-	C[j].split_n = -1;
+	C[j].n = BLK_UNUSED;
+	C[j].split_n = BLK_UNUSED;
 	C[j].p = new byte[block_size];
 	if (C[j].p == 0) {
 	    throw std::bad_alloc();
@@ -1802,7 +1802,7 @@ Btree::do_open_to_read(const string & name_,
 	next_ptr = &Btree::next_default;;
     }
 
-    C[level].n = -1;
+    C[level].n = BLK_UNUSED;
     C[level].p = new byte[block_size];
     if (C[level].p == 0) {
 	throw std::bad_alloc();

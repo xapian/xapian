@@ -31,6 +31,8 @@ typedef unsigned char byte;
 typedef long int4;
 typedef unsigned long uint4;
 
+#define BLK_UNUSED -1
+
 enum Btree_errors {
     BTREE_ERROR_NONE = 0,
 
@@ -66,7 +68,7 @@ class Cursor {
 
     public:
 	/// Constructor, to initiaise important elements.
-	Cursor() : p(0), c(-1), n(-1), rewrite(false), split_p(0), split_n(-1)
+	Cursor() : p(0), c(-1), n(BLK_UNUSED), rewrite(false), split_p(0), split_n(BLK_UNUSED)
 	{}
 
 	/// pointer to a block
@@ -85,16 +87,11 @@ class Cursor {
 
 /* n is kept in tandem with p.
    
-   The unassigned state is when member p == 0 and n == -1.
+   The unassigned state is when member p == 0 and n == BLK_UNUSED.
 
-   Similarly split.p == 0 corresponds to split.n == -1.
+   Similarly split.p == 0 corresponds to split.n == BLK_UNUSED.
 
-   Settings to -1 are not strictly neccessary in the code below, so the lines
-
-        C[j].n = -1;
-        C[j].split_n = -1;
-
-   might sometimes be omitted, but they help keep the intention clear.
+   Setting n/split_n to BLK_UNUSED is necessary in at least some cases.
 */
 
 extern string Btree_strerror(Btree_errors err);
