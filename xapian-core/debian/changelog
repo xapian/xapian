@@ -1,4 +1,4 @@
-xapian-core (0.8-5) unstable; urgency=low
+xapian-core (0.8-6) unstable; urgency=low
 
   * debian/rules,debian/control.in: Remove queryparser packages - merge
     them into the main library package.
