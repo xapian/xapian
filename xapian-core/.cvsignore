@@ -1,3 +1,4 @@
+.cvs_cme*
 .*.swp
 *.lo
 aclocal.m4
