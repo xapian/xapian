@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,7 +55,9 @@ QuartzTableEntries::get_tag(const string &key) const
 {
     DEBUGCALL(DB, string *, "QuartzTableEntries::get_tag", key);
     Assert(!key.empty());
-    return const_cast<QuartzTableEntries *>(this)->get_tag(key); // FIXME RETURN
+    items::const_iterator i = entries.find(key);
+    Assert(i != entries.end());
+    return i->second; // FIXME can't use RETURN for now
 }
 
 bool
