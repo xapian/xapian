@@ -1,3 +1,7 @@
+Mon Dec 02 20:12:31 GMT 2002  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated with changes since 0.6.1.
+
 Mon Dec 02 19:44:37 GMT 2002  Olly Betts <olly@survex.com>
 
 	* api/ompostlistiterator.cc,backends/multi/multi_postlist.h,

@@ -1,3 +1,27 @@
+Updated from ChangeLog as far as:
+Mon Dec 02 19:44:37 GMT 2002  Olly Betts <olly@survex.com>
+
+* OmWritableDatabase now has a default constructor.
+
+* Weighting scheme now specified by passing OmWeight object to OmEnquire.
+
+* No longer use OmSettings to specify parameters for constructing databases.
+  Instead there's a factory function for each database type - temporary naming
+  scheme is OmXxx__open(), mostly because it's easy to grep for later.  At
+  present stub databases and the machinery in InMemory to allow the
+  multierrhandler1 test aren't working.  Everything else should be.
+
+* OmEnquire::get_eset() takes parameters instead of an OmSettings object.
+
+* Fixed reversed sense of use_query_terms (and fixed reversed sense test in
+  apitest which meant this wasn't spotted).
+
+* Documentation: Link to annotated class lists in doxygen generated
+  documentation instead of the rather empty index pages; added doxygen
+  markup so that apidoc now documents header files.
+
+* Documentation: intro doc thing was very out of date in places - fixed.
+
 Xapian 0.6.1 (2002-11-28):
 
 * Fixed to compile with GCC 3.0.
