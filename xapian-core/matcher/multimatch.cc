@@ -231,7 +231,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
     } else {
 	Xapian::doccount number_of_leaves = db.internal.size();
 	// Can't just use resize - that creates N copies of the same RSet!
-	for (int i = 0; i < number_of_leaves; ++i) {
+	for (size_t i = 0; i < number_of_leaves; ++i) {
 	    subrsets.push_back(Xapian::RSet());
 	}
 

@@ -1,3 +1,7 @@
+Tue Mar 08 02:34:41 GMT 2005  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fix warning from newer versions of GCC.
+
 Sat Mar 05 00:25:07 GMT 2005  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,common/omenquireinternal.h,include/xapian/enquire.h,
