@@ -21,6 +21,7 @@
  */
 
 #include "progclient.h"
+#include "tcpclient.h"
 #include "testsuite.h"
 #include <om/omenquire.h>
 
@@ -28,10 +29,13 @@
 bool test_netmatch1();
 // test a network match with two databases
 bool test_netmatch2();
+// test a network match with two databases
+bool test_tcpclient1();
 
 test_desc tests[] = {
     {"netmatch1",	test_netmatch1},
     {"netmatch2",	test_netmatch2},
+    {"tcpclient1",	test_tcpclient1},
     {0,			0},
 };
 
@@ -108,6 +112,15 @@ bool test_netmatch2()
     if (verbose) {
 	cout << mset;
     }
+
+    return true;
+}
+
+bool test_tcpclient1()
+{
+    system("./omtcpsrv --im text1.txt --port 1235 &");
+    sleep(5);
+    TcpClient tc("localhost", 1235);
 
     return true;
 }

@@ -1,3 +1,9 @@
+Mon May 15 11:34:16 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Now use SO_REUSEADDR in TCP server
+
+	* Added the first tcp test to nettest.
+
 Fri May 12 19:18:43 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Bug fixes to the TCP server

@@ -50,12 +50,28 @@ TcpServer::get_listening_socket(int port)
 	throw OmNetworkError(string("socket: ") + strerror(errno));
     }
 
+    int retval;
+
+    {
+	int optval = 1;
+	retval = setsockopt(socketfd,
+			    SOL_SOCKET,
+			    SO_REUSEADDR,
+			    &optval,
+			    sizeof(optval));
+    }
+
+    if (retval < 0) {
+	close(socketfd);
+	throw OmNetworkError(string("setsockopt: ") + strerror(errno));
+    }
+
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
     addr.sin_addr.s_addr = INADDR_ANY;
 
-    int retval = bind(socketfd,
+    retval = bind(socketfd,
 		      reinterpret_cast<sockaddr *>(&addr),
 		      sizeof(addr));
 
