@@ -52,7 +52,6 @@ kdebase/kstyles
 kdebase/ksysguard
 kdebase/ktip
 kdebase/kvt
-
 kdebase/kwin
 kdebase/kwm
 kdebase/kwmcom
@@ -61,6 +60,7 @@ kdebase/kwrite
 kdebase/kxkb
 kdebase/kxmlrpc
 kdebase/legacyimport
+kdebase/libkong
 kdebase/mimetypes
 kdebase/nsplugins
 
@@ -87,13 +87,11 @@ kdegames/konquest
 kdegames/kpat
 kdegames/kpoker
 kdegames/kreversi
-
 kdegames/ksame
 kdegames/kshisen
 kdegames/ksirtet
 kdegames/ksmiletris
 kdegames/ksnake
-
 kdegames/ksokoban
 kdegames/kspaceduel
 kdegames/ktetris
@@ -211,7 +209,6 @@ kdenonbeta/javadcop
 kdenonbeta/kactivedesktop
 kdenonbeta/kafka
 kdenonbeta/kanu
-
 kdenonbeta/kappdock
 kdenonbeta/karbon
 kdenonbeta/karchie
@@ -275,7 +272,6 @@ kdenonbeta/libkmsg
 kdenonbeta/libodbc
 kdenonbeta/lnk
 kdenonbeta/mathopd
-
 kdenonbeta/maudio2
 kdenonbeta/motifdnd
 kdenonbeta/pfs
@@ -289,7 +285,6 @@ kdenonbeta/xmmsdcop
 
 kdepim/abbrowser
 kdepim/empath
-
 kdepim/kab2
 kdepim/korganizer
 kdepim/kpilot
@@ -350,7 +345,6 @@ kdeutils/ktreebrowser
 kdeutils/kwrite
 kdeutils/kzip
 
-
 kdevelop
 
 kdewidgets
@@ -373,7 +367,6 @@ koffice/kchart
 koffice/kdiagramm
 koffice/kformula
 koffice/graph
-
 koffice/killustrator
 koffice/kimage
 koffice/kimageshop
@@ -388,3 +381,5 @@ koffice/lib
 kpfa
 
 ksite
+
+ksm-database
