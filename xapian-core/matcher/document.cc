@@ -46,3 +46,10 @@ Document::get_data() const
     OmLockSentry locksentry(mutex);
     return do_get_data();
 }
+
+LeafTermList *
+Document::open_term_list() const
+{
+    OmLockSentry locksentry(mutex);
+    return database->open_term_list(did);
+}

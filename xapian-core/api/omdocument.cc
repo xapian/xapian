@@ -25,6 +25,7 @@
 #include "refcnt.h"
 #include "document.h"
 #include "omdocumentinternal.h"
+#include "omtermlistiteratorinternal.h"
 
 //////////////////////////////////
 // implementation of OmDocument //
@@ -201,4 +202,18 @@ OmDocument::clear_terms()
     } else {
 	internal->terms_here = true;
     }
+}
+
+OmTermListIterator
+OmDocument::termlist_begin() const
+{
+    DEBUGAPICALL(OmTermListIterator, "OmDocument::termlist_begin", "");
+    RETURN(OmTermListIterator(new OmTermListIterator::Internal(internal->ptr->open_term_list())));
+}
+
+OmTermListIterator
+OmDocument::termlist_end() const
+{
+    DEBUGAPICALL(OmTermListIterator, "OmDocument::termlist_end", "");
+    RETURN(OmTermListIterator(NULL));
 }

@@ -1,3 +1,7 @@
+Wed Nov 29 17:30:26 GMT 2000 Olly Betts
+
+	* Added OmDocument::termlist_begin() and OmDocument::termlist_end()
+
 Wed Nov 29 16:53:13 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Comment out quartzoverwrite1 test so that it doesn't cause problems

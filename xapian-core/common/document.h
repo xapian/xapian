@@ -26,6 +26,7 @@
 #include "om/omtypes.h"
 #include "refcnt.h"
 #include "omlocks.h"
+#include "termlist.h"
 #include <map>
 
 class OmKey;
@@ -102,6 +103,16 @@ class Document : public RefCntBase {
 	 */
 	OmData get_data() const;	
 
+	/** Open a term list.
+	 *
+	 *  This is a list of all the terms contained by a given document.
+	 *
+	 *  @return       A pointer to the newly created term list.
+	 *                This object must be deleted by the caller after
+	 *                use.
+	 */
+	LeafTermList * open_term_list() const;
+	
 	/** Constructor.  In derived classes, this will typically be a
 	 *  private method, and only be called by database objects of the
 	 *  corresponding type.

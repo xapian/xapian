@@ -24,6 +24,7 @@
 #define OM_HGUARD_OMDOCUMENT_H
 
 #include <om/omtypes.h>
+#include <om/omtermlistiterator.h>
 
 ///////////////////////////////////////////////////////////////////
 // OmData class
@@ -147,6 +148,9 @@ class OmDocument {
 	/// Remove all terms and postings.
 	void clear_terms();
 
+	OmTermListIterator termlist_begin() const;
+	OmTermListIterator termlist_end() const;
+	
 	/** Returns a string representing the OmDocument.
 	 *  Introspection method.
 	 */

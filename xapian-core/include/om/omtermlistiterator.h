@@ -31,6 +31,7 @@ class OmDatabase;
 class OmTermListIterator {
     private:
 	friend class OmDatabase; // So OmDatabase can construct us
+	friend class OmDocument; // So OmDocument can construct us
 
 	class Internal;
 

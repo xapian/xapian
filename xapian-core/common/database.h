@@ -230,7 +230,7 @@ class Database : public RefCntBase {
 	 *
 	 *  @param did    The document id whose term list is being requested.
 	 *
-	 *  @return       A pointer to the newly created posting list.
+	 *  @return       A pointer to the newly created term list.
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */

@@ -111,7 +111,7 @@ NetworkDatabase::open_document(om_docid did) const
     std::string doc;
     std::map<om_keyno, OmKey> keys;
     link->get_doc(did, doc, keys);
-    return new NetworkDocument(this, doc, keys);
+    return new NetworkDocument(this, did, doc, keys);
 }
 
 PositionList *
@@ -135,7 +135,7 @@ NetworkDatabase::collect_document(om_docid did) const
     std::string doc;
     std::map<om_keyno, OmKey> keys;
     link->collect_doc(did, doc, keys);
-    return new NetworkDocument(this, doc, keys);
+    return new NetworkDocument(this, did, doc, keys);
 }
 
 om_doclength
