@@ -1,3 +1,7 @@
+Tue Aug  8 15:58:59 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Implemented some more of the support code for Pythong apitest
+
 Tue Aug  8 14:49:46 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Implement do_get_all_keys() for DA and DB databases.  Untested.

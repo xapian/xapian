@@ -1,5 +1,6 @@
 #!/usr/bin/python
 from omuscat import *
+import os
 
 def create_dir_if_needed(dirname):
     import os
@@ -15,6 +16,12 @@ def create_dir_if_needed(dirname):
 	return 1
 
 class BackendManager:
+    def __init__(self):
+        self.datadir = None
+
+    def set_datadir(self, datadir_):
+        self.datadir = datadir_
+
     def get_database(self, dbnames):
         return self.do_getdb(dbnames)
 
@@ -28,8 +35,64 @@ class BackendManager:
 	dbdir = parent_dir + "/db"
 	for dbname in dbnames:
 	    dbdir = dbdir + "=" + dbname
+	
+	if files_exist(self.change_names_to_paths(dbnames)):
+	    created = create_dir_if_needed(dbdir)
+
+	    if (created):
+	        db = OmWritableDatabase("sleepycat", make_strvec(dbdir))
+		stderr.write("Indexing to " + dbdir)
+		index_files_to_database(db, self.change_names_to_paths(dbnames))
+		# let databases be written as database closed...
+		db = None
+		return OmDatabase("sleepycat", make_strvec(dbdir))
+	    else:
+	        return OmDatabase("sleepycat", make_strvec(dbdir))
+	else:
+	    return OmWritableDatabase("sleepycat", make_strvec(dbdir))
+
+    def change_names_to_paths(self, dbnames):
+        paths = []
+        for dbname in dbnames:
+            if len(dbname) > 0:
+	        if (self.datadir == None) or (len(self.datadir) == 0):
+		    paths.append(dbname)
+		else:
+		    paths.append(self.datadir + "/" + dbname + ".txt")
+	    else:
+	        paths.append("")
+        return paths
 
 backendmanager = BackendManager()
+try:
+    srcdir = os.environ['srcdir']
+    backendmanager.set_datadir(srcdir + "/../../tests/testdata/")
+except:
+    print "$srcdir must be set in the environment!"
+    raise
 
 def get_database(dbname):
     return backendmanager.get_database([dbname])
+
+def make_dbgrp(*dbs):
+    dbgrp = OmDatabaseGroup()
+
+    for db in dbs:
+        dbgrp.add_database(db)
+
+    return OmEnquire(dbgrp)
+
+def files_exist(fnames):
+    for fname in fnames:
+        try:
+            os.stat(fname)
+	except:
+	    return 0
+    return 1
+
+def make_strvec(*strs):
+    retval = []
+    for str in strs:
+        retval.append(str)
+    
+    return retval
