@@ -116,7 +116,9 @@ AC_CHECK_FUNCS(strerror)
 dnl mingw has _snprintf
 AC_CHECK_FUNCS(snprintf _snprintf)
 if test $ac_cv_func_snprintf$ac_cv_func__snprintf = noyes ; then
-  AC_DEFINE(snprintf, _snprintf, [Define snprintf to whatever it's called on this platform])
+  AC_DEFINE(snprintf, _snprintf,
+	    [Define snprintf to whatever it's called on this platform])
+  AC_DEFINE(HAVE_SNPRINTF, 1)
 fi
 
 dnl ***************************
