@@ -25,7 +25,7 @@
 #include "stats.h"
 #include "localmatch.h"
 #include "netutils.h"
-#include "progcommon.h"
+#include "socketcommon.h"
 #include "utils.h"
 #include <unistd.h>
 #include <memory>
@@ -115,7 +115,7 @@ ProgServer::run()
 	}
 
 	cerr << "Adding artificial delay for statistics" << endl;
-	sleep(3);
+	sleep(1);
 
 	// Message 4
 	send_local_stats(gatherer->get_local_stats());
@@ -139,7 +139,7 @@ ProgServer::run()
 	message = message.substr(8);
 
 	cerr << "Adding artificial delay..." << endl;
-	sleep(5);
+	sleep(2);
 
 	om_doccount first;
 	om_doccount maxitems;

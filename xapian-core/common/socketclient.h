@@ -1,0 +1,151 @@
+/* socketclient.h: implementation of NetClient over a socket
+ *
+ * ----START-LICENCE----
+ * Copyright 1999,2000 Dialog Corporation
+ * 
+ * This program is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU General Public License as 
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ * -----END-LICENCE-----
+ */
+
+#ifndef OM_HGUARD_SOCKETCLIENT_H
+#define OM_HGUARD_SOCKETCLIENT_H
+
+#include "netclient.h"
+#include "socketcommon.h"
+
+/** An implementation of the NetClient interface using a program.
+ *  ProgClient gets a socket by spawning a separate program, rather
+ *  than connecting to a remote machine.
+ */
+class SocketClient : public NetClient {
+    private:
+	// disallow copies
+	SocketClient(const SocketClient &);
+	void operator=(const SocketClient &);
+
+	/// The socket filedescriptor
+	int socketfd;
+
+	/// The line buffer which does the I/O
+	OmLineBuf buf;
+
+	/// The conversation state
+	enum {
+	    state_getquery,  // Accumulate the query and other info
+	    state_sentquery, // Query has been sent, waiting for remote stats.
+	    state_sendglobal,// Ready to send the global stats
+	    state_getmset,   // Ready to call get_mset
+	    state_getresult  // Waiting for result
+	} conv_state;
+
+	/// The weighting type to be used, as a string
+	string wt_string;
+
+	/// The current query, as a string
+	string query_string;
+
+	/// The remote statistics
+	Stats remote_stats;
+
+	/// If true, the remote_stats are valid
+	bool remote_stats_valid;
+
+	/// The global statistics ready to be sent to the remote end
+	Stats global_stats;
+
+	/// If true, the global_stats are valid
+	bool global_stats_valid;
+
+	/// The max weight from the remote match
+	om_weight remote_maxweight;
+
+	/// functions which actually do the work
+	string do_read();
+	void do_write(string data);
+
+	/** Write the string and get an "OK" message back,
+	 *  or else throw an exception
+	 */
+	void do_simple_transaction(string msg);
+
+	/** Write the string to the stream and return the
+	 *  reply.  Throw an exception if the reply is "ERROR".
+	 */
+	string do_transaction_with_result(string msg);
+
+	/** Spawn a program and return a filedescriptor of
+	 *  the local end of a socket to it.
+	 */
+	int get_spawned_socket(string progname, string arg);
+
+    protected:
+	/** Constructor.  The constructor is protected so that raw instances
+	 *  can't be created - a derived class must be instantiated which
+	 *  has code in the constructor to open the socket.
+	 *
+	 *  @param socketfd_  The socket used for the communications.
+	 */
+	SocketClient(int socketfd_);
+
+    public:
+	/** Destructor. */
+	virtual ~SocketClient();
+
+	/** Write some bytes to the process.
+	 */
+	void write_data(string msg);
+
+	/** Wait for input to be available */
+	void wait_for_input();
+
+	/** Set the weighting type */
+	void set_weighting(IRWeight::weight_type wt_type);
+
+	/** Set the query */
+	void set_query(const OmQueryInternal *query_);
+
+	/** Get the remote stats */
+	bool get_remote_stats(Stats &out);
+
+	/** Signal the end of the query specification phase.
+	 *  Returns true if the operation succeeded, or false
+	 *  if part or all of it is pending on network I/O.
+	 */
+	bool finish_query();
+
+	/** Send the global statistics */
+	void send_global_stats(const Stats &stats);
+
+	/** Do the actual MSet fetching */
+	bool get_mset(om_doccount first,
+		      om_doccount maxitems,
+		      vector<OmMSetItem> &mset,
+		      om_doccount *mbound,
+		      om_weight *greatest_wt);
+
+	/** Find the max weight */
+	om_weight get_max_weight();
+
+	/** Read some data from the process.
+	 */
+	string read_data();
+
+	/** Determine if any data is waiting to be read.
+	 */
+	bool data_is_available();
+};
+
+#endif  /* OM_HGUARD_SOCKETCLIENT_H */

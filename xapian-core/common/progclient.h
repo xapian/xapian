@@ -23,68 +23,18 @@
 #ifndef OM_HGUARD_PROGCLIENT_H
 #define OM_HGUARD_PROGCLIENT_H
 
-#include "netclient.h"
-#include "progcommon.h"
+#include "socketclient.h"
+#include "socketcommon.h"
 
 /** An implementation of the NetClient interface using a program.
  *  ProgClient gets a socket by spawning a separate program, rather
  *  than connecting to a remote machine.
  */
-class ProgClient : public NetClient {
+class ProgClient : public SocketClient {
     private:
 	// disallow copies
 	ProgClient(const ProgClient &);
 	void operator=(const ProgClient &);
-
-	/// The socket filedescriptor
-	int socketfd;
-
-	/// The line buffer which does the I/O
-	OmLineBuf buf;
-
-	/// The conversation state
-	enum {
-	    state_getquery,  // Accumulate the query and other info
-	    state_sentquery, // Query has been sent, waiting for remote stats.
-	    state_sendglobal,// Ready to send the global stats
-	    state_getmset,   // Ready to call get_mset
-	    state_getresult  // Waiting for result
-	} conv_state;
-
-	/// The weighting type to be used, as a string
-	string wt_string;
-
-	/// The current query, as a string
-	string query_string;
-
-	/// The remote statistics
-	Stats remote_stats;
-
-	/// If true, the remote_stats are valid
-	bool remote_stats_valid;
-
-	/// The global statistics ready to be sent to the remote end
-	Stats global_stats;
-
-	/// If true, the global_stats are valid
-	bool global_stats_valid;
-
-	/// The max weight from the remote match
-	om_weight remote_maxweight;
-
-	/// functions which actually do the work
-	string do_read();
-	void do_write(string data);
-
-	/** Write the string and get an "OK" message back,
-	 *  or else throw an exception
-	 */
-	void do_simple_transaction(string msg);
-
-	/** Write the string to the stream and return the
-	 *  reply.  Throw an exception if the reply is "ERROR".
-	 */
-	string do_transaction_with_result(string msg);
 
 	/** Spawn a program and return a filedescriptor of
 	 *  the local end of a socket to it.
@@ -100,49 +50,6 @@ class ProgClient : public NetClient {
 
 	/** Destructor. */
 	~ProgClient();
-
-	/** Write some bytes to the process.
-	 */
-	void write_data(string msg);
-
-	/** Wait for input to be available */
-	void wait_for_input();
-
-	/** Set the weighting type */
-	void set_weighting(IRWeight::weight_type wt_type);
-
-	/** Set the query */
-	void set_query(const OmQueryInternal *query_);
-
-	/** Get the remote stats */
-	bool get_remote_stats(Stats &out);
-
-	/** Signal the end of the query specification phase.
-	 *  Returns true if the operation succeeded, or false
-	 *  if part or all of it is pending on network I/O.
-	 */
-	bool finish_query();
-
-	/** Send the global statistics */
-	void send_global_stats(const Stats &stats);
-
-	/** Do the actual MSet fetching */
-	bool get_mset(om_doccount first,
-		      om_doccount maxitems,
-		      vector<OmMSetItem> &mset,
-		      om_doccount *mbound,
-		      om_weight *greatest_wt);
-
-	/** Find the max weight */
-	om_weight get_max_weight();
-
-	/** Read some data from the process.
-	 */
-	string read_data();
-
-	/** Determine if any data is waiting to be read.
-	 */
-	bool data_is_available();
 };
 
 #endif  /* OM_HGUARD_PROGCLIENT_H */

@@ -28,7 +28,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <cerrno>
-#include "progcommon.h"
+#include "socketcommon.h"
 #include "omassert.h"
 #include "omqueryinternal.h"
 #include "readquery.h"

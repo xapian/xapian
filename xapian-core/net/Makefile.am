@@ -8,4 +8,5 @@ noinst_HEADERS = readquery.h
 
 noinst_LTLIBRARIES = libnet.la
 
-libnet_la_SOURCES = progclient.cc progserver.cc progcommon.cc readquery.ll
+libnet_la_SOURCES = socketclient.cc progclient.cc progserver.cc \
+		    socketcommon.cc readquery.ll

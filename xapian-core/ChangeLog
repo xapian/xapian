@@ -1,3 +1,8 @@
+Wed May 10 15:26:37 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Split all the generic socket stuff rom ProgClient into a
+	  SocketClient base class.
+
 Tue May  9 17:30:46 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added collapse code to MultiMatch.  Could be considerably more
