@@ -1,3 +1,9 @@
+Tue Feb 15 02:10:35 GMT 2005  Olly Betts <olly@survex.com>
+
+	* extra/queryparser.cc,extra/queryparser.lemony,
+	  extra/queryparser_internal.h: Fixed namespace stuff to keep Sun's C++
+	  compiler happy.
+
 Mon Feb 14 21:21:08 GMT 2005  Olly Betts <olly@survex.com>
 
 	* api/vectortermlist.h: Workaround a shortcoming in Sun's C++

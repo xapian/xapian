@@ -25,6 +25,8 @@
 #include <xapian/termiterator.h>
 #include "vectortermlist.h"
 
+using namespace Xapian;
+
 QueryParser::QueryParser(const QueryParser & o) : internal(o.internal) { }
 
 QueryParser &

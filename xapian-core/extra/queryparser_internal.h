@@ -26,8 +26,6 @@
 #include <xapian/queryparser.h>
 #include <xapian/stem.h>
 
-using namespace Xapian;
-
 #include <list>
 #include <map>
 
@@ -35,15 +33,15 @@ using namespace std;
 
 class State;
 
-class QueryParser::Internal : public Xapian::Internal::RefCntBase {
-    friend class QueryParser;
+class Xapian::QueryParser::Internal : public Xapian::Internal::RefCntBase {
+    friend class Xapian::QueryParser;
     friend class State;
-    Stem stemmer;
+    Xapian::Stem stemmer;
     stem_strategy stem_action;
-    Stopper * stopper;
-    Query::op default_op;
+    Xapian::Stopper * stopper;
+    Xapian::Query::op default_op;
     const char * errmsg;
-    // Database db;
+    // Xapian::Database db;
     list<string> termlist;
     list<string> stoplist;
     multimap<string, string> unstem;
@@ -54,6 +52,6 @@ class QueryParser::Internal : public Xapian::Internal::RefCntBase {
     map<string, pair<bool, string> > prefixes;
   public:
     Internal() : stem_action(STEM_NONE), stopper(NULL),
-	default_op(Query::OP_OR), errmsg(NULL) { }
-    Query parse_query(const string & query_string, unsigned int flags);
+	default_op(Xapian::Query::OP_OR), errmsg(NULL) { }
+    Xapian::Query parse_query(const string & query_string, unsigned int flags);
 };
