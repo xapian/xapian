@@ -243,7 +243,8 @@ SocketServer::run_match(const string &firstmessage)
 	 ++i) {
 	char charbuf[100];
 	ostrstream os(charbuf, 100);
-	os << "MSETITEM: " << i->wt << " " << i->did << ends;
+	os << "MSETITEM: " << i->wt << " " << i->did << 
+		" " << omkey_to_string(i->collapse_key) << ends;
 	buf.writeline(charbuf);
 
 	DebugMsg("MSETITEM: " << i->wt << " " << i->did << endl);

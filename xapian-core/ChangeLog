@@ -1,3 +1,8 @@
+Tue Jun  6 18:54:43 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Updated socketclient / socketserver to pass the collapse key
+	  around with the mset items.
+
 Tue Jun  6 18:34:36 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Update BackendManager to accept arbitrary numbers of database

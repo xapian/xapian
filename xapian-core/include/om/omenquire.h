@@ -380,6 +380,9 @@ class OmMSetItem {
     public:
 	OmMSetItem(om_weight wt_, om_docid did_) : wt(wt_), did(did_) {}
 
+	OmMSetItem(om_weight wt_, om_docid did_, OmKey key_)
+		: wt(wt_), did(did_), collapse_key(key_) {}
+
 	/** Weight calculated. */
 	om_weight wt;
 

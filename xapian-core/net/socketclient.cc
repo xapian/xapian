@@ -327,14 +327,15 @@ string_to_msetitem(string s)
     istrstream is(s.c_str());
     om_weight wt;
     om_docid did;
+    string keyval;
 
     string header;
 
-    is >> header >> wt >> did;
+    is >> header >> wt >> did >> keyval;
 
     Assert (header == "MSETITEM:");
 
-    return OmMSetItem(wt, did);
+    return OmMSetItem(wt, did, string_to_omkey(keyval));
 }
 
 
