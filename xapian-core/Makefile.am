@@ -11,7 +11,8 @@ SUBDIRS = include testsuite autoconf common \
           backends api matcher languages $(BUILDSUBDIR_NET1) indexer . m4 \
 	  docs $(BUILDSUBDIR_NET2) tests bindings
 
-EXTRA_DIST = Makefile_common.am ChangeLog buildall HACKING TODO PLATFORMS
+EXTRA_DIST = Makefile_common.am ChangeLog buildall HACKING TODO PLATFORMS \
+             ar-wrapper-solaris
 
 lib_LTLIBRARIES = libomus.la
 
