@@ -113,38 +113,13 @@ SleepyDatabase::open_post_list(const om_termname & tname) const
     om_termid tid = termcache->term_name_to_id(tname);
     if(tid == 0) throw OmRangeError("Termid not found");
 
-    // FIXME - specify which of termfreqs, wdfs, and positional info
-    // should be stored.
     return new SleepyPostList(tid, internals, tname);
 }
 
 LeafTermList *
 SleepyDatabase::open_term_list(om_docid did) const
 {
-    throw OmUnimplementedError(
-	"SleepyDatabase.open_term_list() not implemented");
-    Dbt key(&did, sizeof(did));
-    Dbt data;
-
-    // FIXME - should use DB_DBT_USERMEM and DB_DBT_PARTIAL eventually
-    data.set_flags(DB_DBT_MALLOC);
-
-    // Get, no transactions, no flags
-    try {
-	int found = internals->termlist_db->get(NULL, &key, &data, 0);
-	if(found == DB_NOTFOUND) throw OmDocNotFoundError("Docid not found");
-
-	// Any other errors should cause an exception.
-	Assert(found == 0);
-    }
-    catch (DbException e) {
-	throw OmDatabaseError("TermlistDb error:" + string(e.what()));
-    }
-
-    return new SleepyTermList(termcache,
-			      (om_termid *)data.get_data(),
-			      data.get_size() / sizeof(om_termid),
-			      get_doccount());
+    return new SleepyTermList(did, this, internals, termcache);
 }
 
 LeafDocument *

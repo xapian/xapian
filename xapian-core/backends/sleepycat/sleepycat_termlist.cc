@@ -27,78 +27,84 @@
 #include "omassert.h"
 #include "sleepy_termlist.h"
 #include "sleepy_termcache.h"
+#include "sleepy_database_internals.h"
+#include "sleepy_database.h"
 #include <stdlib.h>
 
-SleepyTermList::SleepyTermList(const SleepyDatabaseTermCache *tc_new,
-			       om_termid *data_new,
-			       om_termcount terms_new,
-			       om_doccount dbsize_new)
-	: pos(0),
-	  data(data_new),
-	  terms(terms_new),
-	  dbsize(dbsize_new),
-	  termcache(tc_new)
-{ return; }
+SleepyTermList::SleepyTermList(om_docid did_,
+			       const SleepyDatabase * database_,
+			       const SleepyDatabaseInternals * internals_,
+			       const SleepyDatabaseTermCache *termcache_)
+	: mylist(internals_->postlist_db,
+		 reinterpret_cast<void *>(&did_),
+		 sizeof(did_)),
+	  database(database_),
+	  termcache(termcache_),
+	  db_size(database->get_doccount())
+{
+    mylist.move_to_start();
+}
 
-SleepyTermList::~SleepyTermList() {
-    free(data);
+SleepyTermList::~SleepyTermList()
+{
 }
 
 om_termcount
 SleepyTermList::get_approx_size() const
 {
-    return terms;
+    return mylist.get_item_count();
 }
 
 OmExpandBits
 SleepyTermList::get_weighting() const
 {
-    Assert(!at_end());
-    Assert(pos != 0);
     Assert(wt != NULL);
 
-    om_termcount wdf = 1; // FIXME - not yet stored in data structure
     om_doclength norm_len = 1.0; // FIXME - not yet stored in data structure
 
-    return wt->get_bits(wdf, norm_len, SleepyTermList::get_termfreq(), dbsize);
+    return wt->get_bits(SleepyTermList::get_wdf(),
+			norm_len,
+			SleepyTermList::get_termfreq(),
+			db_size);
 }
 
 const om_termname
 SleepyTermList::get_termname() const
 {
-    Assert(!at_end());
-    Assert(pos != 0);
-    return termcache->term_id_to_name(data[pos]);
+    return termcache->term_id_to_name(mylist.get_current_item().id);
 }
 
 om_termcount
 SleepyTermList::get_wdf() const
 {
-    Assert(!at_end());
-    Assert(pos != 0);
-    return 1;
+    om_termcount wdf = mylist.get_current_item().wdf;
+    if(wdf == 0) {
+	DebugMsg("WDF not present in termlist - using 1.");
+	wdf = 1;
+    }
+    return wdf;
 }
 
 om_doccount
 SleepyTermList::get_termfreq() const
 {
-    Assert(!at_end());
-    Assert(pos != 0);
-    return 1;
+    om_doccount tf = mylist.get_current_item().termfreq;
+    if(tf == 0) {
+	DebugMsg("Term frequency not present in termlist - getting from database");
+	tf = database->get_termfreq(SleepyTermList::get_termname());
+    }
+    return tf;
 }   
 
 TermList *
 SleepyTermList::next()
 {
-    Assert(!at_end());
-    pos ++;
+    mylist.move_to_next_item();
     return NULL;
 }
 
 bool
 SleepyTermList::at_end() const
 {
-    if(pos > terms) return true;
-    return false;
+    return mylist.at_end();
 }
-
