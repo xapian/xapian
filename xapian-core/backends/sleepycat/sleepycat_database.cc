@@ -135,13 +135,13 @@ weight SleepyPostList::get_weight() const {
 // Termlists //
 ///////////////
 
-SleepyTermList::SleepyTermList(const SleepyDatabase *db_new,
+SleepyTermList::SleepyTermList(const SleepyDatabaseTermCache *tc_new,
 			       termid *data_new,
 			       termcount terms_new)
 	: pos(0),
 	  data(data_new),
 	  terms(terms_new),
-	  db(db_new)
+	  termcache(tc_new)
 { return; }
 
 SleepyTermList::~SleepyTermList() {
@@ -154,14 +154,16 @@ SleepyTermList::~SleepyTermList() {
 
 SleepyDatabase::SleepyDatabase() {
     internals = new SleepyDatabaseInternals();
+    termcache = new SleepyDatabaseTermCache(internals);
     Assert((opened = false) == false);
 }
 
 SleepyDatabase::~SleepyDatabase() {
-    delete internals;
     // Close databases
     try {
+	delete termcache;
 	internals->close();
+	delete internals;
     }
     catch (DbException e) {
 	throw (OmError(string("Database error on close: ") + e.what()));
@@ -192,7 +194,7 @@ DBPostList *
 SleepyDatabase::open_post_list(const termname & tname, RSet *rset) const
 {
     Assert(opened);
-    termid tid = term_name_to_id(tname);
+    termid tid = termcache->term_name_to_id(tname);
     Assert(tid != 0);
 
     Dbt key(&tid, sizeof(tid));
@@ -238,7 +240,7 @@ SleepyDatabase::open_term_list(docid did) const {
 	throw OmError("TermlistDb error:" + string(e.what()));
     }
 
-    return new SleepyTermList(this,
+    return new SleepyTermList(termcache,
 			      (termid *)data.get_data(),
 			      data.get_size() / sizeof(termid));
 }
@@ -355,10 +357,12 @@ SleepyDatabase::add(termid tid, docid did, termpos tpos) {
 }
 #endif
 
-termid
-SleepyDatabase::term_name_to_id(const termname &tname) const {
-    Assert(opened);
+/////////////////
+// Term  cache //
+/////////////////
 
+termid
+SleepyDatabaseTermCache::term_name_to_id(const termname &tname) const {
     Dbt key((void *)tname.c_str(), tname.size());
     Dbt data;
     termid tid;
@@ -389,9 +393,7 @@ SleepyDatabase::term_name_to_id(const termname &tname) const {
 }
 
 termname
-SleepyDatabase::term_id_to_name(termid tid) const {
-    Assert(opened);
-
+SleepyDatabaseTermCache::term_id_to_name(termid tid) const {
     if(tid == 0) throw RangeError("Termid 0 not valid");
 
     Dbt key(&tid, sizeof(tid));

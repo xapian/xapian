@@ -33,6 +33,7 @@ class SleepyPostList : public virtual DBPostList {
 
 
 
+class SleepyDatabaseTermCache;
 // Termlist - a list of terms indexing a given document
 class SleepyTermList : public virtual TermList {
     friend class SleepyDatabase;
@@ -41,9 +42,9 @@ class SleepyTermList : public virtual TermList {
 	termid *data;
 	termcount terms;
 
-	const SleepyDatabase *db;
+	const SleepyDatabaseTermCache *termcache;
 
-	SleepyTermList(const SleepyDatabase *, termid *, termcount);
+	SleepyTermList(const SleepyDatabaseTermCache *, termid *, termcount);
     public:
 	~SleepyTermList();
 	termcount get_approx_size() const;
@@ -60,15 +61,24 @@ class SleepyTermList : public virtual TermList {
 
 class SleepyDatabaseInternals;
 
+class SleepyDatabaseTermCache {
+    friend class SleepyDatabase;
+    private:
+	SleepyDatabaseInternals * internals;
+	SleepyDatabaseTermCache(SleepyDatabaseInternals *i) : internals(i) {}
+    public:
+	termname term_id_to_name(termid) const;
+	termid term_name_to_id(const termname &) const;
+};
+
 class SleepyDatabase : public virtual IRDatabase {
     friend class DatabaseBuilder;
     private:
 	SleepyDatabaseInternals * internals;
 	bool opened;
 
-	termname term_id_to_name(termid) const;
-	termid term_name_to_id(const termname &) const;
-	
+	SleepyDatabaseTermCache * termcache;
+
 	void open(const DatabaseBuilderParams &);
 	SleepyDatabase();
     public:
@@ -154,7 +164,7 @@ SleepyTermList::get_termname() const
 {
     Assert(!at_end());
     Assert(pos != 0);
-    return db->term_id_to_name(data[pos]);
+    return termcache->term_id_to_name(data[pos]);
 }
 
 inline termcount
@@ -219,7 +229,7 @@ SleepyDatabase::get_termfreq(const termname &tname) const
 inline bool
 SleepyDatabase::term_exists(const termname &tname) const
 {
-    if(term_name_to_id(tname)) return true;
+    if(termcache->term_name_to_id(tname)) return true;
     return false;
 }
 
