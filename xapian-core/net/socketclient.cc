@@ -37,8 +37,8 @@
 #include <strstream.h>
 
 SocketClient::SocketClient(int socketfd_,
-			   bool close_socket_,
-			   int msecs_timeout_)
+			   int msecs_timeout_,
+			   bool close_socket_)
 	: socketfd(socketfd_),
 	  close_socket(close_socket_),
 	  buf(socketfd),

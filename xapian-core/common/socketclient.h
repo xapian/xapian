@@ -108,8 +108,8 @@ class SocketClient : public NetClient {
 	 *                       for this length of time (in milliseconds).
 	 */
 	SocketClient(int socketfd_,
-		     bool close_socket_ = true,
-		     int msecs_timeout_ = 10000);
+		     int msecs_timeout_,
+		     bool close_socket_ = true);
 
 	/// functions which actually do the work
 	std::string do_read();

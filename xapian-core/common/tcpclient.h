@@ -38,17 +38,19 @@ class TcpClient : public SocketClient {
 	/** Spawn a program and return a filedescriptor of
 	 *  the local end of a socket to it.
 	 */
-	int get_remote_socket(std::string hostname, int port);
+	int get_remote_socket(std::string hostname,
+			      int port,
+			      int msecs_timeout_);
 
     public:
 	/** Constructor.
 	 *
 	 *  @param hostname The name of the remote host
 	 *  @param port	    The TCP port to connect to.
-	 *  @param msecs_timeout The timeout in milliseconds before assuming
+	 *  @param msecs_timeout_ The timeout in milliseconds before assuming
 	 *  			the remote end has failed.
 	 */
-	TcpClient(std::string hostname, int port, int msecs_timeout = 10000);
+	TcpClient(std::string hostname, int port, int msecs_timeout_);
 
 	/** Destructor. */
 	~TcpClient();

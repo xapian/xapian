@@ -93,6 +93,13 @@ int main(int argc, char *argv[]) {
 	    dbs.push_back(params);
 	    argc -= 1;
 	    argv += 1;
+	} else if (argc >= 2 && strcmp(argv[0], "--quartz") == 0) {
+	    OmSettings *params = new OmSettings();
+	    params->set("backend", "quartz");
+	    params->set("quartz_dir", argv[1]);
+	    dbs.push_back(params);
+	    argc -= 2;
+	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--sleepycat") == 0) {
 	    OmSettings *params = new OmSettings();
 	    params->set("backend", "sleepycat");
@@ -130,7 +137,7 @@ int main(int argc, char *argv[]) {
 
     if (syntax_error || argc > 0 || !dbs.size()) {
 	cerr << "Syntax: " << progname << " [OPTIONS]" << endl <<
-		"\t--[da-flimsy|da-heavy|db|sleepycat] DIRECTORY\n" <<
+		"\t--[da-flimsy|da-heavy|db|sleepycat|quartz] DIRECTORY\n" <<
 		"\t--im INMEMORY\n" <<
 		"\t--port NUM" <<
 		"\t--timeout MSECS" <<
