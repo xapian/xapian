@@ -143,8 +143,6 @@ at the time of writing, the versions known to work are:
 		Bison 1.875 generates code which GNU C++ won't compile -
 		this problem has been fixed in 1.875a.
 
-	GNU Flex
-
 Please tell us if you find that older (or newer) versions work or fail to work.
 
 We have provided a simple script (bootstrap) to run these programs for you

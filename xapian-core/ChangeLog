@@ -1,3 +1,8 @@
+Thu Jun 05 17:55:21 BST 2003  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.in: Flex is no longer used, so removed configure
+	  tests and note in HACKING.
+
 Thu Jun 05 17:53:30 BST 2003  Olly Betts <olly@survex.com>
 
 	* tests/remotetest.cc: In test netexpand1, use TEST() rather than
