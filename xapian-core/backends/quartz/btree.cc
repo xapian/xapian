@@ -1540,35 +1540,6 @@ Btree::do_open_to_write(bool revision_supplied, quartz_revision_number_t revisio
     return true;
 }
 
-Btree::Btree()
-	: revision_number(0),
-	  item_count(0),
-	  block_size(0),
-	  other_revision_number(0),
-	  both_bases(false),
-	  base_letter('A'),
-	  faked_root_block(true),
-	  sequential(true),
-	  handle(-1),
-	  level(0),
-	  root(0),
-	  kt(0),
-	  buffer(0),
-	  base(),
-	  other_base_letter(0),
-	  seq_count(0),
-	  changed_n(0),
-	  changed_c(0),
-	  max_item_size(0),
-	  Btree_modified(false),
-	  full_compaction(false),
-	  writable(false),
-	  dont_close_handle(false),
-	  split_p(0)
-{
-    DEBUGCALL(DB, void, "Btree::Btree", "");
-}
-
 Btree::Btree(string path_, bool readonly_)
 	: revision_number(0),
 	  item_count(0),

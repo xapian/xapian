@@ -69,9 +69,6 @@ class Btree {
         Btree & operator=(const Btree &);
 
     public:
-	/** Constructor */
-	Btree();
-
 	/** Create a new Btree object.
 	 *
 	 *  This does not create the table on disk - the create() method must
