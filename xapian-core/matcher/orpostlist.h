@@ -97,13 +97,12 @@ OrPostList::get_termfreq_est() const
     double rest = static_cast<double>(r->get_termfreq_est());
     RETURN(static_cast<om_doccount> (lest + rest - lest * rest / dbsize));
 }
-#include <iostream.h>
+
 inline om_docid
 OrPostList::get_docid() const
 {
     DEBUGCALL(MATCH, om_docid, "OrPostList::get_docid", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
-cout << "OrPostList::get_docid() RETURN(ed " << std::min(lhead, rhead) << endl;
     RETURN(std::min(lhead, rhead));
 }
 
