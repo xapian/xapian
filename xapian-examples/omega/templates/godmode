@@ -13,13 +13,12 @@ o.substring(1,i)+o.substring(i+c.value.length+1,o.length-1);
 // -->
 </script>
 <head>
-$select{$cgi{ID}}
-<title>Omega: dump of record $id</title>
+<title>Omega: dump of record $cgi{ID}</title>
 </head>
 <body bgcolor=white>
 <b>Clunk</b> ... <i>god mode engaged!</i><hr>
-Raw record #$id:<br>
-<small><pre>$html{$record}</pre></small>
+Raw record #$cgi{ID}:<br>
+<small><pre>$html{$record{$cgi{ID}}}</pre></small>
 <hr>
 Terms indexing this record<br>
 <table><tr><th>Term</th><th>Freq</th></tr>

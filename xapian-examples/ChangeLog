@@ -1,3 +1,10 @@
+Thu Jan 11 13:59:18 GMT 2001 Olly Betts
+
+	* $date now takes an optional format argument.
+
+	* $select removed; $relevant and $record now take an optional document
+	  id argument.
+
 Thu Jan 11 12:48:23 GMT 2001 Olly Betts
 
 	* filter_map is now a multimap to allow multiple values for the same

@@ -386,7 +386,6 @@ CMD_record,
 CMD_relevant,
 CMD_relevants,
 CMD_score,
-CMD_select,
 CMD_set,
 CMD_terms,
 CMD_thispage,
@@ -419,7 +418,7 @@ static struct func_desc func_tab[] = {
 {T(add),	0, N, N, 0, 0 }, // add a list of numbers
 {T(cgi),	1, 1, N, 0, 0 }, // return cgi parameter value
 {T(cgilist),	1, 1, N, 0, 0 }, // return list of values for cgi parameter
-{T(date),	1, 1, N, 0, 0 }, // convert time_t to YYYY-MM-DD
+{T(date),	1, 2, N, 1, 0 }, // convert time_t to strftime format (default: YYYY-MM-DD)
 {T(dbname),	0, 0, N, 0, 0 }, // database name
 {T(defaultop),	0, 0, N, 0, 0 }, // default operator: "and" or "or"
 {T(env),	1, 1, N, 0, 0 }, // environment variable
@@ -448,11 +447,10 @@ static struct func_desc func_tab[] = {
 {T(query),	0, 0, N, 0, 0 }, // query
 {T(queryterms),	0, 0, N, 0, 1 }, // list of query terms
 {T(range),	2, 2, N, 0, 0 }, // return list of values between start and end
-{T(record),	0, 0, N, 0, 0 }, // record contents of current hit
-{T(relevant),	0, 0, N, 0, 0 }, // is current document relevant?
+{T(record),	0, 1, N, 1, 0 }, // record contents of document
+{T(relevant),	0, 1, N, 1, 0 }, // is document relevant?
 {T(relevants),	0, 0, N, 1, 0 }, // return list of relevant documents
 {T(score),	0, 0, N, 0, 0 }, // score (0-10) of current hit
-{T(select),	1, 1, N, 0, 0 }, // select record id
 {T(set),	2, 2, N, 0, 0 }, // set option value
 {T(terms),	0, 0, N, 1, 0 }, // list of matching terms
 {T(thispage),	0, 0, N, 1, 0 }, // page number of current page
@@ -587,7 +585,9 @@ eval(const string &fmt)
 		    if (date != (time_t)-1) {
 			struct tm *then;
 			then = gmtime(&date);
-			strftime(buf, sizeof buf, "%Y-%m-%d", then);
+			string fmt = "%Y-%m-%d";
+			if (args.size() > 1) fmt = eval(args[1]);
+			strftime(buf, sizeof buf, fmt.c_str(), then);
 		    }
 		    value = buf;
 		}
@@ -823,22 +823,21 @@ eval(const string &fmt)
 		}
 		break;
 	    }
-	    case CMD_record:
-		value = enquire->get_doc(q0).get_data().value;
+	    case CMD_record: {
+		int id = q0;
+		if (!args.empty()) id = string_to_int(args[0]);
+		value = enquire->get_doc(id).get_data().value;
 		break;
+	    }
 	    case CMD_relevant: {
-		static string val;
-		if (!relevant_cached) {
-		    relevant_cached = true;
-		    // document id if relevant; empty otherwise
-		    if (ticked[q0]) {
-			ticked[q0] = false; // icky side-effect
-			val = int_to_string(q0);
-		    } else {
-			val = "";
-		    }
+		// document id if relevant; empty otherwise
+		int id = q0;
+		if (!args.empty()) id = string_to_int(args[0]);
+		map<om_docid, bool>::iterator i = ticked.find(id);
+		if (i != ticked.end()) {
+		    i->second = false; // icky side-effect
+		    value = int_to_string(id);
 		}
-		value = val;
 		break;
 	    }
 	    case CMD_relevants:		
@@ -851,10 +850,6 @@ eval(const string &fmt)
 	    case CMD_score:
 	        // Score (0 to 10)
 		value = int_to_string(percent / 10);
-		break;
-	    case CMD_select:
-		q0 = string_to_int(args[0]);
-		// FIXME: more stuff?
 		break;
 	    case CMD_set:
 		option[args[0]] = args[1];

@@ -1,0 +1,134 @@
+CGI Parameters:
+===============
+
+General notes:
+
+Parameter name special cases:
+
+For handling of <input type=image ...>:
+
+<param>.x=<value> is converted to <param>=<value>
+<param>.y=<value> is ignored
+
+A parameter name with a space in it is split and the original value
+discarded (this allows nice "tool tips" for the page image buttons -
+Netscape uses the name parameter of an <input type=image ...> as the tooltip
+so the page buttons have name="[ 3 ]" which converts to "[=3 ]"):
+
+<prespace> <postspace>=<value> is converted to <prespace>=<postspace>
+
+If applicable, the second conversion is applied to the result of the first.
+
+CGI parameters recognised by Omega:
+
+HITSPERPAGE - hits per page (integer) - clipped to range 10-1000.
+
+DB - database name (give multiple values to search over several databases)
+     each DB value may be a list of database names separated by "/"
+
+DEFAULTOP - default operator - values recognised "AND", "and", "OR", "or".
+
+FMT - name of page format to use (a-z only).
+
+MORELIKE - value is a document id to return similar pages to.
+
+P - probabilistic query (may occur multiple times).
+
+ADD - if present, any X parameters are added to the probabilistic query (used
+for topterms support when javascript isn't supported or is disabled).
+
+X - topterms to add to query.
+
+B - boolean filter terms.
+
+OLDP - terms from previous probabilistic query - used to decide if this is a
+fresh query, in which case relevance judgements are discarded.
+
+TOPDOC - first document to display (snapped to multiple of HITSPERPAGE).
+
+< - previous page.
+
+> - next page.
+
+[ - goto this page (trailing junk after number ignored).
+
+R - relevant document (multiple values separated by ".")
+
+Also, arbitrary CGI parameters can be read with the $cgi{PARAM} and
+$cgilist{PARAM} omegascript commands.
+
+OmegaScript commands:
+=====================
+
+Note: A "list" is a string of tab separated values.
+
+Note2: You can add "{}" after commands with no arguments - useful if you
+want to say "X$fmt{}X" since "X$fmtX" would be parsed as a $fmtX command.
+
+${...} - commented out code
+$add{1,2,3} - add arguments together
+$cgi{CGI} - lookup the value of a CGI variable
+$cgilist{CGI} - return a list of all values of a CGI variable
+$date{TIME_T[,FMT]} - convert a time_t to strftime FMT (default: YYYY-MM-DD)
+$dbname - database name (multiple names are returned separated by "/").
+$defaultop - "and" or "or".
+$env{VAR} - lookup variable in environment
+$eq{A,B} - returns "true" if A and B are the same, "" otherwise.
+$field{NAME} - lookup field in record
+$filesize{SIZE} - pretty printed filesize (e.g. 100 bytes, 2K, 4M, 1G)
+$fmt - name of current format (as set by FMT, or the default)
+$freqs - returns an HTML string listing query terms and frequencies
+$hitlist{FMT} - display hitlist using format FMT
+$hitsperpage - hits per page (as set by HITSPERPAGE, or the default)
+$html{TEXT} - html escape string (<>&, etc)
+$id - document id of current doc
+$if{COND,THEN[,ELSE]} - if COND is non-empty, evaluate THEN, otherwise evaluate else (if present)
+$last - m-set number of last hit on this page
+$lastpage - number of last page of hits (may be an underestimate unless $thispage == $lastpage
+$list{LIST,...} - pretty print list
+If "LIST" is 1, 2, 3, 4 then:
+"$list{LIST,$. }" = "1, 2, 3, 4"
+"$list{LIST,$. , and }" = "1, 2, 3 and 4"
+"$list{LIST,List ,$. ,.}" = "List 1, 2, 3, 4."
+"$list{LIST,List ,$. , and ,.}" = "List 1, 2, 3 and 4."
+NB $list returns an empty string for an empty list (so the last two forms
+aren't redundant as it may at first appear).
+$map{LIST,...) - map a list into the arguments
+If "LIST" is 1, 2, 3, 4 then:
+"$map{LIST,x, = ,; }" = "x1 = 1; x2 = 2; x3 = 3; x4 = 4; "
+$max{...} - maximum of the arguments
+$min{...} - minimum of the arguments
+$msize - estimated number of matches
+$ne{A,B} - returns "true" if A and B are not the same, "" if they are.
+$not{A} - returns "true" for the empty string, "" otherwise.
+$opt{OPT} - lookup an option value (as set by $set).
+$or{...} - logical shortcutting or of its arguments - returns first non-empty argument
+$percentage - percentage score of current hit (in range 1-100).
+$query - query string (built from cgi P variable(s) plus possible added terms from ADD and X).
+$queryterms - list of probabilistic query terms
+$range{START,END} - return list of values between start and end
+$record[{ID}] - raw record contents of document
+$relevant[{ID}] - document id if document is relevant, "" otherwise (side-effect: removes id from list of relevant documents returned by $relevants)
+$relevants - return list of relevant documents
+$score - score (0-10) of current hit
+$set{OPT,VALUE} - set option value
+$terms - list of matching terms for current hit
+$thispage - page number of current page
+$topdoc - first document on current page of hit list (counting from 0)
+$topterms[{N}] - list of up to N top relevance feedback terms (default 20)
+$url{TEXT} - url encode argument
+$version - omega version string
+
+Todo:
+=====
+
+Configuration:
+
+read apache config for defaults?
+
+Handling of accented characters:
+
+Indexer - transliterate entities (e.g. &aumlaut;) and literals.
+
+Search - transliterate literals
+
