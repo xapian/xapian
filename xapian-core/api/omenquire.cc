@@ -545,6 +545,12 @@ ESet::empty() const
     return internal->items.empty();
 }
 
+void
+ESet::swap(ESet & other)
+{
+    std::swap(internal, other.internal);
+}
+
 ESetIterator
 ESet::begin() const
 {
@@ -555,6 +561,22 @@ ESetIterator
 ESet::end() const
 {
     return ESetIterator(internal->items.size(), *this);
+}
+
+ESetIterator
+ESet::operator[](Xapian::termcount i) const
+{
+    // Don't test 0 <= i - that gives a compiler warning if i is unsigned
+    Assert(0 < (i + 1) && i < size());
+    return ESetIterator(i, *this);
+}
+
+ESetIterator
+ESet::back() const
+{
+    Assert(!empty());
+    Assert(internal.get() != 0);
+    return ESetIterator(internal->items.size() - 1, *this);
 }
 
 string

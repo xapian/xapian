@@ -187,18 +187,24 @@ class MSet {
 	 */
 	Xapian::weight get_max_attained() const;
 
-	Xapian::doccount size() const;
+	/** The number of items in this MSet */
+	Xapian::termcount size() const;
 
 	Xapian::doccount max_size() const;
 
+	/** Test if this MSet is empty */
 	bool empty() const;
 
+	/** Swap the MSet we point to with another */
 	void swap(MSet & other);
 
+	/** Iterator for the terms in this MSet */
 	MSetIterator begin() const;
 
+	/** End iterator corresponding to begin() */
 	MSetIterator end() const;
 
+	/** Iterator pointing to the last element of this MSet */
 	MSetIterator back() const;
 	
 	/** This returns the document at position i in this MSet object.
@@ -413,11 +419,20 @@ class ESet {
 	/** Test if this E-Set is empty */
 	bool empty() const;
 
+	/** Swap the E-Set we point to with another */
+	void swap(ESet & other);
+
 	/** Iterator for the terms in this E-Set */
 	ESetIterator begin() const;
 
 	/** End iterator corresponding to begin() */
 	ESetIterator end() const;
+
+	/** Iterator pointing to the last element of this E-Set */
+	ESetIterator back() const;
+
+	/** This returns the document at position i in this E-Set.  */
+	ESetIterator operator[](Xapian::doccount i) const;
 
 	/** Introspection method.
 	 *
@@ -604,9 +619,6 @@ class ExpandDecider {
  *
  *  @exception Xapian::InvalidArgumentError will be thrown if an invalid
  *  argument is supplied, for example, an unknown database type.
- *
- *  @exception Xapian::DatabaseOpeningError will be thrown if the database
- *	cannot be opened (for example, a required file cannot be found).
  */
 class Enquire {
     private:
@@ -647,7 +659,6 @@ class Enquire {
 	 *  @param query_  the new query to run.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
-	 *  @exception Xapian::DatabaseOpeningError  See class documentation.
 	 */
 	void set_query(const Xapian::Query & query_);
 
@@ -768,7 +779,6 @@ class Enquire {
 	 *                   query.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
-	 *  @exception Xapian::DatabaseOpeningError  See class documentation.
 	 */
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      const RSet * omrset = 0,
@@ -797,7 +807,6 @@ class Enquire {
 	 *                   expand.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
-	 *  @exception Xapian::DatabaseOpeningError  See class documentation.
 	 */
 	ESet get_eset(Xapian::termcount maxitems,
 			const RSet & omrset,
@@ -817,7 +826,6 @@ class Enquire {
 	 *                   expand.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
-	 *  @exception Xapian::DatabaseOpeningError  See class documentation.
 	 */
 	inline ESet get_eset(Xapian::termcount maxitems, const RSet & omrset,
 			       const Xapian::ExpandDecider * edecider) const {
@@ -849,7 +857,6 @@ class Enquire {
 	 *                 even if they do in the query.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
-	 *  @exception Xapian::DatabaseOpeningError  See class documentation.
 	 *  @exception Xapian::DocNotFoundError      The document specified
 	 *	could not be found in the database.
 	 */
@@ -877,7 +884,6 @@ class Enquire {
 	 *                 even if they do in the query.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
-	 *  @exception Xapian::DatabaseOpeningError  See class documentation.
 	 *  @exception Xapian::DocNotFoundError      The document specified
 	 *	could not be found in the database.
 	 */

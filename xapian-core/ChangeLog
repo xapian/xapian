@@ -1,3 +1,12 @@
+Tue Aug 24 13:45:52 BST 2004  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,include/xapian/enquire.h: Added new ESet methods
+	  swap(), back() and operator[].
+	* include/xapian/enquire.h: Added documentation comments for
+	  MSet methods size(), empty(), swap(), begin(), end(), back().
+	* include/xapian/enquire.h: Removed bogus documentation saying
+	  that some Enquire methods can throw DatabaseOpeningError.
+
 Tue Aug 24 10:24:30 BST 2004  Olly Betts <olly@survex.com>
 
 	* HACKING: Noted automake 1.8 may be problematic.  Tweaked list of
