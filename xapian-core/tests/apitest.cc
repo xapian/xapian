@@ -375,8 +375,8 @@ bool test_simplequery2()
 
     // Check the weights
     if (success &&
-	!weights_are_equal_enough(mymset.items[0].wt, 0.993246) ||
-        !weights_are_equal_enough(mymset.items[1].wt, 0.430207)) {
+	(!weights_are_equal_enough(mymset.items[0].wt, 0.993246) ||
+	 !weights_are_equal_enough(mymset.items[1].wt, 0.430207))) {
 	success = false;
     }
 
