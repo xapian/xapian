@@ -1,5 +1,4 @@
-Updated from ChangeLog as far as:
-Sat Dec 07 20:21:41 GMT 2002  Olly Betts <olly@survex.com>
+Xapian 0.6.2 (2002-12-07):
 
 * Set env var XAPIAN_SIG_DFL to stop the testsuite installing its
   signal handler (may be useful with some debugging tools).
@@ -54,6 +53,14 @@ Sat Dec 07 20:21:41 GMT 2002  Olly Betts <olly@survex.com>
 
 * Documentation: intro doc thing was very out of date in places - fixed.
 
+* Omega: index .php files as HTML, with the PHP code stripped out; omindex
+  return non-zero return code if an unexpected exception is caught; fixed
+  HTML parser to not read one character past the end of the document in
+  some cases; updated in line with OmSettings related changes to the API;
+  Fixed $dbname to return "default" for the default database instead of "";
+  templates/query: Removed now unused xDEFAULTOP hidden field, and superfluous
+  "}"; dbi2omega now more efficient and can be restricted to listed fields.
+
 Xapian 0.6.1 (2002-11-28):
 
 * Fixed to compile with GCC 3.0.
@@ -86,6 +93,18 @@ Xapian 0.6.0 (2002-11-27):
 * Omega: Added dbi2omega perl script to dump any database which perl DBI can
   access into the dump format expected by scriptindex.
 
+Xapian 0.5.5 (2002-12-04):
+ 
+* Fixed compilation with --enable-debug.
+ 
+* Minor documentation updates.
+ 
+* Omega: Fixed paging on default database; removed xDEFAULTOP from the query
+  template as it's no longer used; removed bogus unmatched '}' from query
+  template; added dbi2omega perl script to dump any database which perl DBI
+  can access into the dump format expected by scriptindex; limit length of
+  probabilistic terms generated to 64 characters.
+ 
 Xapian 0.5.4 (2002-10-16):
 
 * Fixed a compilation error with "make check" when using GCC 3.2.
