@@ -64,6 +64,6 @@ IRWeight::get_maxweight() const
 {   
     if(!weight_calculated) calc_termweight();
 
-    return termweight * (k + 1);
+    return termweight;
 }
 
