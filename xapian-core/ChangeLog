@@ -1,3 +1,8 @@
+Fri May 10 13:42:59 BST 2002  Olly Betts <olly@survex.com>
+
+	* Replaced second match_sort_key optimisation with one which is
+	  faster and not flawed.
+
 Thu May 09 18:27:30 BST 2002  Olly Betts <olly@survex.com>
 
 	* match_sort_key now runs at a sensible speed (approx. 20x speed

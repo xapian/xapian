@@ -564,15 +564,51 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    
 	// OK, actually add the item to the mset.
 	if (pushback) {
-	    items.push_back(new_item);
 	    docs_matched++;
-	    if (!sort_bands && items.size() == max_msize) {
+	    if (!sort_bands && items.size() == max_msize - 1) {
+		items.push_back(new_item);
+		is_heap = false;
 		// We're done if this is a forward boolean match
 		// (bodgetastic, FIXME better if we can)
 		if (max_weight == 0) {
 		    if (opts.get_bool("match_sort_forward", true)) break;
 		}
-	    } else if (sort_bands != 1 && items.size() > max_msize) {
+	    } else if (items.size() >= max_msize && have_sort_key) {
+		if (!is_heap) {
+		    is_heap = true;
+		    make_heap<vector<OmMSetItem>::iterator,
+			      OmMSetCmp>(items.begin(), items.end(), mcmp);
+		}
+		min_item = items.front();
+		om_weight cmp = min_item.wt - new_item.wt;
+		if (cmp != 0.0) {
+		    if (min_item.sort_key.empty()) {
+			OmDocument doc = db.get_document(min_item.did);
+			min_item.sort_key = doc.get_value(sort_key);
+		    }
+		    if (new_item.sort_key.empty()) {
+			OmDocument doc = db.get_document(new_item.did);
+			new_item.sort_key = doc.get_value(sort_key);
+		    }
+		    if (cmp > 0) {
+			if (min_item.sort_key >= new_item.sort_key)
+			    pushback = false;
+		    } else {
+			if (min_item.sort_key <= new_item.sort_key) {
+			    pop_heap<vector<OmMSetItem>::iterator,
+				     OmMSetCmp>(items.begin(), items.end(),
+						mcmp);
+			    items.pop_back();
+			}
+		    }
+		}
+		if (pushback) {
+		    items.push_back(new_item);
+		    push_heap<vector<OmMSetItem>::iterator,
+			      OmMSetCmp>(items.begin(), items.end(), mcmp);
+		}
+	    } else if (items.size() >= max_msize && sort_bands == 0) {
+		items.push_back(new_item);
 		if (!is_heap) {
 		    is_heap = true;
 		    make_heap<vector<OmMSetItem>::iterator,
@@ -581,23 +617,16 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		    push_heap<vector<OmMSetItem>::iterator,
 			      OmMSetCmp>(items.begin(), items.end(), mcmp);
 		}
-		if (sort_bands) {
-		    om_weight ceiling;
-		    ceiling = max(greatest_wt, getorrecalc_maxweight(pl));
-		    om_weight w = ceiling / sort_bands *
-			    floor(items.front().wt * sort_bands / ceiling);
-		    if (w > min_item.wt) min_item.wt = w;
-		} else {
-		    pop_heap<vector<OmMSetItem>::iterator,
-			     OmMSetCmp>(items.begin(), items.end(), mcmp);
-		    items.pop_back(); 
-		    min_item = items.front();
-		    if (getorrecalc_maxweight(pl) < min_item.wt) {
-			DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
-			break;
-		    }
+		pop_heap<vector<OmMSetItem>::iterator,
+			 OmMSetCmp>(items.begin(), items.end(), mcmp);
+		items.pop_back(); 
+		min_item = items.front();
+		if (getorrecalc_maxweight(pl) < min_item.wt) {
+		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
+		    break;
 		}
 	    } else {
+		items.push_back(new_item);
 		is_heap = false;
 	    }
 	}
@@ -700,7 +729,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     if (sort_bands) {
 	sort(items.begin(), items.end(),
 	     MSetSortCmp(db, sort_bands, percent_scale,
-		     	 have_sort_key, sort_key, 
+			 have_sort_key, sort_key,
 			 opts.get_bool("match_sort_forward", true)));
 	if (items.size() > max_msize) {
 	    items.erase(items.begin() + max_msize, items.end());
