@@ -86,8 +86,15 @@ void
 Match::match(void)
 {    
     PostList *merger;
+    PostList *boolmerger = NULL;
 
     if (pq.empty()) return; // No terms in query
+
+    if (bq.size() > 1) return; // Partially constructed boolean query
+    if (bq.size() == 1) {
+	boolmerger = bq.top();
+	// bq.top() is a boolean query merged postlist
+    }
 
     // build a tree balanced by the term frequencies
     // (similar to building a huffman encoding tree)
@@ -100,6 +107,8 @@ Match::match(void)
 	pq.pop();
 	pq.push(merger);
     }
+
+    if(boolmerger) merger = boolmerger;
     
     doccount msize = 0, mtotal = 0;
     weight w_min = 0;
