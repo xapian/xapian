@@ -96,6 +96,28 @@ AM_CONDITIONAL(BUILD_BACKEND_SLEEPY, test x$build_sleepy = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_TEXTFILE, test x$build_textfile = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_MULTI, test x$build_multi = xtrue)
 
+dnl Set defines to specify what we compile
+
+if test x$build_da = xtrue; then
+AC_DEFINE(MUS_BUILD_BACKEND_DA,,
+  [Define if you want to build DA backend])
+fi
+
+if test x$build_sleepy = xtrue; then
+AC_DEFINE(MUS_BUILD_BACKEND_SLEEPY,,
+  [Define if you want to build sleepycat backend])
+fi
+
+if test x$build_textfile = xtrue; then
+AC_DEFINE(MUS_BUILD_BACKEND_TEXTFILE,,
+  [Define if you want to build textfile backend])
+fi
+
+if test x$build_da = xtrue; then
+AC_DEFINE(MUS_BUILD_BACKEND_MULTI,,
+  [Define if you want to build multi database backend])
+fi
+
 dnl *************************
 dnl * Set debugging options *
 dnl *************************
