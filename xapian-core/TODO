@@ -31,8 +31,6 @@ Priority | Area            | Task
  High    | LocalMatch      | Pass around partially created postlist as an
          |                 | auto_ptr, for exception safety.
 ---------+-----------------+--------------------------------------------------
- High    | Solaris         | Add test for requiring -lnsl for gethostbyname()
----------+-----------------+--------------------------------------------------
  Medium  | API             | OmDocumentTerm should use a set rather than a
          |                 | map.
 ---------+-----------------+--------------------------------------------------
