@@ -1,12 +1,15 @@
-all: simplesearch simpleindex
-
-simplesearch: simplesearch.cc
-	$(CXX) $< `libomus-config --libs --cflags` -o $@
+all: simpleindex simplesearch simpleexpand
 
 simpleindex: simpleindex.cc
 	$(CXX) $< `libomus-config --libs --cflags` -o $@
 
-html: simpleindex.cc.html simplesearch.cc.html
+simplesearch: simplesearch.cc
+	$(CXX) $< `libomus-config --libs --cflags` -o $@
+
+simpleexpand: simpleexpand.cc
+	$(CXX) $< `libomus-config --libs --cflags` -o $@
+
+html: simpleindex.cc.html simplesearch.cc.html simpleexpand.cc.html
 
 # This is the best way I've found to generate the html versions of the code
 # on my system.  It's not very portable, but the result of its execution is
@@ -21,4 +24,5 @@ html: simpleindex.cc.html simplesearch.cc.html
 		+"q" $<
 
 clean:
-	rm -f simpleindex simplesearch simpleindex.cc.html simplesearch.cc.html
+	rm -f simpleindex simplesearch simpleexpand \
+	      simpleindex.cc.html simplesearch.cc.html simpleexpand.cc.html
