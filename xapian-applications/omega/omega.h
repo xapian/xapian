@@ -53,6 +53,8 @@ extern int threshold;
 extern bool sort_numeric;
 extern om_valueno sort_key;
 extern int sort_bands;
+extern om_valueno collapse_key;
+extern bool collapse;
 
 extern map<string, string> option;
 

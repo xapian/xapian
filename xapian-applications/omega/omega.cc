@@ -66,6 +66,8 @@ int threshold = 0;
 bool sort_numeric = true;
 om_valueno sort_key = 0;
 int sort_bands = 0; // Don't sort
+om_valueno collapse_key=0;
+bool collapse=false;
 
 const static char filter_sep = '-';
 // Any choice of character for filter_sep could conceivably lead to
@@ -291,6 +293,14 @@ main2(int argc, char *argv[])
 
     filters += date1 + filter_sep + date2 + filter_sep + daysminus
 	+ (default_op == OmQuery::OP_AND ? 'A' : 'O');
+
+    // collapsing
+    val = cgi_params.find("COLLAPSE");
+    if (val != cgi_params.end() && !val->second.empty()) {
+	collapse_key = atoi(val->second.c_str());
+	collapse = true;
+	filters += filter_sep + val->second;
+    }
 
     // sorting
     val = cgi_params.find("SORT");

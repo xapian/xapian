@@ -268,6 +268,10 @@ $unstem{TERM}
 $url{TEXT}
 	url encode argument
 
+$value{KEY[,DOCID]}
+	returns the KEY value from the current hit (inside $hitlist) or
+	of the supplied document id.
+
 $version
 	omega version string
 	

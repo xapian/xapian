@@ -77,6 +77,12 @@ Filtering parameters
 B
 	general boolean filter terms.
 
+COLLAPSE
+	value number to use for removing duplicate documents.
+	Additional documents in the mset with the same value will be
+	removed from the mset ($value{$cgi{COLLAPSE}}) can be used to
+	access the actual value for each hit
+
 DAYSMINUS
 	filter on this number of days up to DATE1 (if present) or
 	now (if not)
@@ -93,7 +99,7 @@ xFILTERS
 	used to spot when the filters have changed from the previous search.
 	Set this to $html{$filters} in your query template ($filters is a
 	compact serialisation of the currently set B filters, date-range
-	filters, and DEFAULTOP).
+	filters, COLLAPSE and DEFAULTOP).
 
 THRESHOLD
 	apply a percentage cut-off at the value given by this parameter

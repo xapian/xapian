@@ -1,3 +1,10 @@
+Wed Feb 26 15:13:02 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
+
+        * Add DBUSER and DBPASSWD env var support to dbi2omega
+	  so that password protected DB's can easily be used
+	* add cgi paramter COLLAPSE to collapse on key values
+	* Add $value{key[,docid]} support to omegascript
+
 Wed Feb 26 09:58:01 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
 
         * Fix success message in bootstrap when building in non-src dir

@@ -24,9 +24,12 @@ $#ARGV >= 1 or die "Syntax: $0 DATABASE TABLE [FIELD...]\n";
 my $database = shift @ARGV;
 my $table = shift @ARGV;
 my $fields = join ",", @ARGV;
+my $username = $ENV{'DBUSER'} || $ENV{USER} || $ENV{LOGNAME} || '';
+my $password = $ENV{'DBPASSWORD'} || '';
+
 length $fields or $fields = "*";
 
-my $dbh = DBI->connect("DBI:mysql:$database")
+my $dbh = DBI->connect("DBI:mysql:$database",$username,$password)
   or die "Couldn't connect to database: " . DBI->errstr;
 
 my $sth = $dbh->prepare("SELECT $fields FROM $table")

@@ -396,6 +396,9 @@ run_query()
 	    enquire->set_sorting(sort_key, sort_bands);
 	    // FIXME: ignore sort_numeric for now
 	}
+	if (collapse) {
+	    enquire->set_collapse_key(collapse_key);
+	}
 				
 	// FIXME - set msetcmp to reverse?
 
@@ -822,6 +825,7 @@ CMD_topdoc,
 CMD_topterms,
 CMD_unstem,
 CMD_url,
+CMD_value,
 CMD_version,
 CMD_MACRO // special tag for macro evaluation
 };
@@ -920,6 +924,7 @@ static struct func_desc func_tab[] = {
 {T(unstem),	1, 1, N, 0, 0}}, // return list of probabilistic terms from
 				 // the query which stemmed to this term
 {T(url),	1, 1, N, 0, 0}}, // url encode argument
+{T(value),	1, 2, N, 0, 0}}, // return document value/slot/key/whatever
 {T(version),	0, 0, N, 0, 0}}, // omega version string
 { NULL,{0,      0, 0, 0, 0, 0}}
 };
@@ -1648,6 +1653,14 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_url:
 	        value = percent_encode(args[0]);
 		break;
+	    case CMD_value: {
+		int id = q0;
+		int key = 0;
+		if (!args.empty()) key = string_to_int(args[0]);
+		if (args.size()>1) id = string_to_int(args[1]);
+		value = omdb.get_document(id).get_value(key);
+		break;
+	    }
 	    case CMD_version:
 		value = "Xapian - "PACKAGE" "VERSION;
 		break;
