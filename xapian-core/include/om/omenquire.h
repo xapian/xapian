@@ -727,15 +727,26 @@ class OmBatchEnquire {
 	/** This class stores a set of queries to be performed as a batch.
 	 */
 	struct query_desc {
+	    /// The query to be executed
 	    OmQuery query;
+	    /// The first match to return
 	    om_doccount first;
+	    /// The maximum number of hits to be returned
 	    om_doccount maxitems;
+	    /// A pointer to the RSet for the query
 	    const OmRSet * omrset;
+	    /** A pointer to the match options for this query,
+	     *  if any.
+	     */
 	    const OmMatchOptions * moptions;
+	    /** A pointer to the match decider function, or
+	     *  0 for no decision functor.
+	     */
 	    const OmMatchDecider * mdecider;
 	};
 	    
 	/** Type used to store a batch of queries to be performed.
+	 *  This is essentially an array of query_desc objects.
 	 */
 	typedef vector<query_desc> query_batch;
 
@@ -761,8 +772,16 @@ class OmBatchEnquire {
 	    public:
 		batch_result(const OmMSet &mset, bool isvalid_);
 
+		/** Return the OmMSet, if valid.
+		 *  If not, then an OmInvalidResultError exception
+		 *  is thrown.
+		 */
 		OmMSet value() const;
 
+		/** Check to see if the result is valid without
+		 *  causing an exception.  Returns true if the
+		 *  result is valid.
+		 */
 		bool is_valid() const { return isvalid; }
 	};
 
