@@ -31,6 +31,7 @@ TextfilePostList::get_weight() const
 TextfileDatabase::TextfileDatabase()
 {
     Assert((opened = false) == false);
+    Assert((indexing = false) == false);
 }
 
 TextfileDatabase::~TextfileDatabase() {
@@ -45,6 +46,8 @@ void TextfileDatabase::open(const string &pathname, bool readonly) {
     totlen = 0;
 
     // Index document
+    Assert((indexing = true) == true);
+
     termname word;
     docid did;
     termcount position;
@@ -66,13 +69,15 @@ void TextfileDatabase::open(const string &pathname, bool readonly) {
     if(postlists.size() <= 0)
 	throw OmError("Document was empty or nearly empty - nothing to search");
 
-    opened = true;
+    Assert((opened = true) == true);
 }
 
 void TextfileDatabase::close() {
 }
 
 void TextfileDatabase::make_posting(termid tid, docid did, termcount position) {
+    Assert(indexing == true);
+    Assert(opened == false);
     Assert(tid > 0 && tid <= postlists.size());
     Assert(did > 0 && did <= termlists.size());
     Assert(did > 0 && did <= doclengths.size());
@@ -133,6 +138,9 @@ TextfileDatabase::add(termid tid, docid did, termpos tpos) {
 termid
 TextfileDatabase::make_term(const termname &tname)
 {
+    Assert(indexing == true);
+    Assert(opened == false);
+
     map<termname,termid>::const_iterator p = termidmap.find(tname);
 
     termid tid = 0;
@@ -150,6 +158,9 @@ TextfileDatabase::make_term(const termname &tname)
 docid
 TextfileDatabase::make_doc()
 {
+    Assert(indexing == true);
+    Assert(opened == false);
+
     termlists.push_back(TextfileDoc());
     doclengths.push_back(0);
 

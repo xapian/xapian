@@ -7,6 +7,7 @@
 #include "database.h"
 #include "postlist.h"
 #include "termlist.h"
+#include "indexer.h"
 #include <stdlib.h>
 #include <map>
 #include <vector>
@@ -145,7 +146,8 @@ class TextfileTermList : public virtual TermList {
 
 
 // Database
-class TextfileDatabase : public virtual IRDatabase {
+class TextfileDatabase : public virtual IRDatabase,
+			 public virtual IndexerDestination {
     private:
 	map<termname, termid> termidmap;
 	vector<termname> termvec;
@@ -155,13 +157,10 @@ class TextfileDatabase : public virtual IRDatabase {
 
 	vector<doclength> doclengths;
 
-	termid make_term(const termname &);
-	docid make_doc();
-	void make_posting(termid, docid, termcount);
-
 	totlength totlen;
 
 	bool opened; // Whether we have opened the database
+	bool indexing; // Whether we have started to index to the database
     public:
 	TextfileDatabase();
 	~TextfileDatabase();
@@ -187,6 +186,10 @@ class TextfileDatabase : public virtual IRDatabase {
 	IRDocument * open_document(docid) const;
 
 	doclength get_doclength(docid) const;
+
+	termid make_term(const termname &);
+	docid make_doc();
+	void make_posting(termid, docid, termcount);
 };
 
 

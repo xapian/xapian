@@ -48,6 +48,7 @@ AC_OUTPUT(
  Makefile
  stemmer/Makefile
  matcher/Makefile
+ indexer/Makefile
  tests/Makefile
  backends/Makefile
  backends/da/Makefile
