@@ -230,6 +230,8 @@ InMemoryPostList::InMemoryPostList(const InMemoryDatabase *db,
 	  started(false),
 	  this_db(db)
 {
+    // InMemoryPostLists cannot be empty
+    Assert(pos != end);
 }
 
 inline doccount
@@ -269,8 +271,7 @@ InMemoryPostList::skip_to(docid did, weight w_min)
     // could well be worse.
     Assert(!at_end());
     while (!at_end() && (*pos).did < did) {
-	PostList *ret = next(w_min);
-	if (ret) return ret;
+	(void) next(w_min);
     }
     return NULL;
 }
@@ -278,7 +279,6 @@ InMemoryPostList::skip_to(docid did, weight w_min)
 inline bool
 InMemoryPostList::at_end() const
 {
-    Assert(started);
     if(pos != end) return false;
     return true;
 }
