@@ -87,10 +87,15 @@ void test_mset_order_equal(const Xapian::MSet &mset1, const Xapian::MSet &mset2)
 /// Check that a piece of code throws an expected exception
 #define TEST_EXCEPTION(a,b) do {\
     	expected_exception = STRINGIZE(a);\
-	if (verbose) tout << "Expecting exception "STRINGIZE(a) << endl;\
+	if (strncmp(expected_exception, "Xapian::", 8) == 0)\
+	    expected_exception += 8;\
+	if (verbose)\
+	    tout << "Expecting exception " << expected_exception << endl;\
 	try {b;FAIL_TEST(TESTCASE_LOCN(Expected #a));}\
 	catch(const a &e){\
-	if (verbose) tout << "Caught expected "STRINGIZE(a)" exception: " << e.get_msg() << endl;\
+	if (verbose)\
+	    tout << "Caught expected " << expected_exception << " exception: "\
+		 << e.get_msg() << endl;\
 	}\
 	expected_exception = NULL;\
 	} while (0)

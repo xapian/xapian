@@ -1,3 +1,9 @@
+Mon Jul 28 15:41:12 BST 2003  Olly Betts <olly@survex.com>
+
+	* testsuite/testutils.h: Fixed check for broken exception handling
+	  - we were getting "Xapian::" prefixed to one version and not on the
+	  other.
+
 Mon Jul 28 15:34:54 BST 2003  Olly Betts <olly@survex.com>
 
 	* tests/runtest.in: Set srcdir if it isn't already to make it easy
