@@ -33,6 +33,15 @@ using namespace std;
 #include "refcnt.h"
 #include "omstringstream.h"
 
+#ifdef HAVE_MEMCHECK_H
+# include <memcheck.h>
+# if defined(VALGRIND_DO_LEAK_CHECK) && defined(VALGRIND_COUNT_ERRORS) && defined(VALGRIND_COUNT_LEAKS)
+// All is well!
+# else
+#  undef HAVE_MEMCHECK_H
+# endif
+#endif
+
 // always succeeds
 static bool test_trivial();
 // always fails (for testing the framework)
@@ -145,6 +154,9 @@ static bool test_testsuite2()
 // test the memory leak tests
 static bool test_testsuite3()
 {
+#ifdef HAVE_MEMCHECK_H
+    if (!RUNNING_ON_VALGRIND) SKIP_TEST("Not running under valgrind");
+
     // Note that duffnew leaks (deliberately), so it'll get run twice.
     // Bear this in mind if you're trying to debug stuff round here...
     test_desc mytests[] = {
@@ -168,19 +180,21 @@ static bool test_testsuite3()
     duff_allocation_2 = 0;
 
     return true;
+#else
+    SKIP_TEST("Not built to run under valgrind");
+#endif
 }
 
 // test the malloc() memory leak tests
 static bool test_testsuite4()
 {
+#ifdef HAVE_MEMCHECK_H
+    if (!RUNNING_ON_VALGRIND) SKIP_TEST("Not running under valgrind");
+
     test_desc mytests[] = {
 	{"duff_malloc", test_duffmalloc},
 	{0, 0}
     };
-
-    SKIP_TEST("malloc tracking library not installed");
-#if 0
-    }
 
     test_driver driver(mytests);
     if (!verbose) {
@@ -202,6 +216,8 @@ static bool test_testsuite4()
     }
 
     return true;
+#else
+    SKIP_TEST("Not built to run under valgrind");
 #endif
 }
 
@@ -376,8 +392,7 @@ test_desc tests[] = {
     {"except1",			test_except1},
     {"testsuite1",		test_testsuite1},
     {"testsuite2",		test_testsuite2},
-//FIXME: disabled until we have leak checking again...
-//    {"testsuite3",		test_testsuite3},
+    {"testsuite3",		test_testsuite3},
     {"testsuite4",		test_testsuite4},
     {"exception1",              test_exception1},
     {"refcnt1",			test_refcnt1},

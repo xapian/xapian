@@ -1,3 +1,8 @@
+Fri May 02 03:14:28 BST 2003  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: Reenabled tests for leak checking and fixed
+	  them up to work with valgrind.
+
 Fri May 02 02:14:28 BST 2003  Olly Betts <olly@survex.com>
 
 	* testsuite/testsuite.cc,testsuite/testsuite.h: If a testsuite program
