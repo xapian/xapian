@@ -217,7 +217,8 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 	// FIXME: check for errors
 	if (btree_for_reading == 0 || btree_for_reading->error) {
 	    // FIXME: throw an exception if it's not just this revision which
-	    // unopenable.
+	    // is unopenable.
+	    close();
 	    return false;
 	}
 	opened = true;
@@ -238,7 +239,8 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
     // FIXME: check for errors
     if (btree_for_writing == 0 || btree_for_writing->error) {
 	// FIXME: throw an exception if it's not just this revision which
-	// unopenable.
+	// is unopenable.
+	close();
 	return false;
     }
 
@@ -248,9 +250,9 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 				btree_for_writing->revision_number);
     // FIXME: check for errors
     if (btree_for_reading == 0 || btree_for_reading->error) {
-	close();
 	// FIXME: throw an exception if it's not just this revision which
-	// unopenable.
+	// is unopenable.
+	close();
 	return false;
     }
 
