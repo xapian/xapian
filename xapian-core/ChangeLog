@@ -1,3 +1,7 @@
+Tue Sep 30 11:20:09 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Fixed test for -lsocket.
+
 Tue Sep 30 10:17:09 BST 2003  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated - Solaris 8 + Sun Workshop C++ builds and passes
