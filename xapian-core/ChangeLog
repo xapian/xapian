@@ -1,3 +1,8 @@
+Mon May 19 13:20:46 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Create include/xapian if it doesn't exist so that
+	  VPATH builds work.
+
 Mon May 19 13:17:16 BST 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Disabled exported symbol regex for now.
