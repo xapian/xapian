@@ -1,3 +1,9 @@
+Thu Dec 20 16:29:27 GMT 2001  Richard Boulton <richard@tartarus.org>
+
+	* Remove querygui (moved to xapview in the applications module).
+	  Remove gui directory tree, and update configure.in and
+	  Makefile.am accordingly.
+
 Mon Dec 10 10:00:11 GMT 2001  Olly Betts <olly@survex.com>
 
 	* indexnasty: Index terms which start with a digit too.
