@@ -22,6 +22,8 @@
 
 #include "testutils.h"
 
+#include <vector>
+
 using std::cout;
 using std::endl;
 
@@ -91,12 +93,89 @@ bool operator==(const OmMSet &first, const OmMSet &second)
     return mset_range_is_same(first, 0, second, 0, first.items.size());
 }
 
+static void
+mset_expect_order_(const OmMSet &A, bool beginning,
+		   om_docid d1, om_docid d2, om_docid d3, om_docid d4,
+		   om_docid d5, om_docid d6, om_docid d7, om_docid d8,
+		   om_docid d9, om_docid d10, om_docid d11, om_docid d12)
+{
+    vector<om_docid> expect;
+    if (d1) {
+	expect.push_back(d1);
+	if (d2) {
+	    expect.push_back(d2);
+	    if (d3) {
+		expect.push_back(d3);
+		if (d4) {
+		    expect.push_back(d4);
+		    if (d5) {
+			expect.push_back(d5);
+			if (d6) {
+			    expect.push_back(d6);
+			    if (d7) {
+				expect.push_back(d7);
+				if (d8) {
+				    expect.push_back(d8);
+				    if (d9) {
+					expect.push_back(d9);
+					if (d10) {
+					    expect.push_back(d10);
+					    if (d11) {
+						expect.push_back(d11);
+						if (d12) {
+						    expect.push_back(d12);
+						}
+					    }
+					}
+				    }
+				}
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
+    // Wheeee!
 
-// ######################################################################
-// Useful test macros
+    if (beginning) {
+	TEST_AND_EXPLAIN(A.items.size() >= expect.size(),
+			 "Mset is of wrong size (" << A.items.size()
+			 << " < " << expect.size() << "):\n"
+			 << "Full mset was: " << A << endl
+			 << "Expected order to start: {" << expect << "}\n");
+    } else {
+	TEST_AND_EXPLAIN(A.items.size() == expect.size(),
+			 "Mset is of wrong size (" << A.items.size()
+			 << " != " << expect.size() << "):\n"
+			 << "Full mset was: " << A << endl
+			 << "Expected order: {" << expect << "}\n");
+    }
 
-/// Check size of mset is as expected
-#define TEST_MSET_SIZE(a, b) TEST_AND_EXPLAIN(((a).items.size() == (b)), \
-	"MSet `"STRINGIZE(a)"' is not of expected size: was `" << \
-	(a).items.size() << "' expected `" << (b) << "': " << endl << \
-	"Full mset was: " << endl << (a) << endl)
+    for (size_t i = 0; i < expect.size(); i++) {
+	TEST_AND_EXPLAIN(A.items[i].did == expect[i],
+			 "Mset didn't contain expected result:\n"
+			 << "Item " << i << " was " << A.items[i].did
+			 << ", expected " << expect[i] << endl
+			 << "Full mset was: " << A << endl
+			 << "Expected: {" << expect << "}\n");
+    }
+}
+
+void
+mset_expect_order_begins(const OmMSet &A,
+			 om_docid d1, om_docid d2, om_docid d3, om_docid d4,
+			 om_docid d5, om_docid d6, om_docid d7, om_docid d8,
+			 om_docid d9, om_docid d10, om_docid d11, om_docid d12)
+{
+    mset_expect_order_(A, true, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12);
+}
+
+void
+mset_expect_order(const OmMSet &A,
+		  om_docid d1, om_docid d2, om_docid d3, om_docid d4,
+		  om_docid d5, om_docid d6, om_docid d7, om_docid d8,
+		  om_docid d9, om_docid d10, om_docid d11, om_docid d12)
+{
+    mset_expect_order_(A, false, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12);
+}

@@ -48,83 +48,6 @@ using std::ostream;
 #include "backendmanager.h"
 #include "utils.h"
 
-static void
-TEST_EXPECTED_DOCS(const OmMSet &A,
-		   om_docid d1 = 0, om_docid d2 = 0, om_docid d3 = 0,
-		   om_docid d4 = 0, om_docid d5 = 0, om_docid d6 = 0,
-		   om_docid d7 = 0, om_docid d8 = 0, om_docid d9 = 0,
-		   om_docid d10 = 0, om_docid d11 = 0, om_docid d12 = 0)
-{
-    om_docid expect[12];
-    size_t expsize = 0;
-    if (d1) {
-	expect[expsize++] = d1;
-	if (d2) {
-	    expect[expsize++] = d2;
-	    if (d3) {
-		expect[expsize++] = d3;
-		if (d4) {
-		    expect[expsize++] = d4;
-		    if (d5) {
-			expect[expsize++] = d5;
-			if (d6) {
-			    expect[expsize++] = d6;
-			    if (d7) {
-				expect[expsize++] = d7;
-				if (d8) {
-				    expect[expsize++] = d8;
-				    if (d9) {
-					expect[expsize++] = d9;
-					if (d10) {
-					    expect[expsize++] = d10;
-					    if (d11) {
-						expect[expsize++] = d11;
-						if (d12) {
-						    expect[expsize++] = d12;
-						}
-					    }
-					}
-				    }
-				}
-			    }
-			}
-		    }
-		}
-	    }
-	}
-    }
-    // Wheeee!
-
-    if (A.items.size() != expsize) {
-	std::string expected;
-	for (size_t i = 0; i < expsize; i++) {
-	    if (i) expected += ", ";
-	    expected += om_tostring(expect[i]);
-	}
-	FAIL_TEST("Match set is of wrong size: was " << A.items.size()
-		  << " - expected " << expsize << endl
-		  << "Full mset was: " << A << endl
-		  << "Expected: {" << expected << "}\n");
-    }
-
-    om_docid *i;
-    vector<OmMSetItem>::const_iterator j;
-    for (i = expect, j = A.items.begin(); j != A.items.end(); i++, j++) {
-	if (*i != j->did) {
-	    std::string expected;
-	    for (size_t k = 0; k < expsize; k++) {
-		if (k) expected += ", ";
-		expected += om_tostring(expect[k]);
-	    }
-	    FAIL_TEST("Match set didn't contain expected result:" << endl
-		      << "Found docid " << j->did << " expected " << *i <<endl
-		      << "Full mset was: " << A << endl
-		      << "Expected: {" << expected << "}\n");
-	}
-    }
-}
-
-
 static bool floats_are_equal_enough(double a, double b)
 {
     if (fabs(a - b) > 1E-5) return false;
@@ -140,24 +63,6 @@ static bool weights_are_equal_enough(double a, double b)
     }
     return false;
 }
-
-
-static void
-expect_mset_order(const OmMSet &mset, om_docid *order,
-		  unsigned int ordersize, const string &mset_name)
-{
-    TEST_AND_EXPLAIN(mset.items.size() >= ordersize,
-		     "Mset " << mset_name << " too small: was " <<
-		     mset << ", expected " <<
-		     vector<om_docid>(order, order + 2) << endl);
-    for (unsigned int i = 0; i < ordersize; i++) {
-	TEST_AND_EXPLAIN(mset.items[i].did == order[i],
-			 "Mset " << mset_name << " has wrong contents: was " <<
-			 mset << ", expected " <<
-			 vector<om_docid>(order, order + 2) << endl);
-    }
-}
-
 
 #define TEST_MSET_ORDER_EQUAL(A, B) \
 	test_mset_order_equal((A), (B), STRINGIZE(A), STRINGIZE(B))
@@ -288,7 +193,7 @@ static bool test_simplequery2()
 
     // We've done the query, now check that the result is what
     // we expect (documents 2 and 4)
-    TEST_EXPECTED_DOCS(mymset, 2, 4);
+    mset_expect_order(mymset, 2, 4);
 
     // Check the weights
     if (!weights_are_equal_enough(mymset.items[0].wt, 0.661095) ||
@@ -1553,7 +1458,7 @@ static bool test_multidb3()
 
     // retrieve the top ten results
     OmMSet mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 2, 3, 7);
+    mset_expect_order(mymset, 2, 3, 7);
 
     return true;
 }
@@ -1575,7 +1480,7 @@ static bool test_multidb4()
 
     // retrieve the top ten results
     OmMSet mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 2, 3, 4, 10);
+    mset_expect_order(mymset, 2, 3, 4, 10);
 
     return true;
 }
@@ -1640,14 +1545,8 @@ static bool test_rset2()
 
     OmMSet mymset2 = enquire.get_mset(0, 10, &myrset);
 
-    TEST_MSET_SIZE(mymset1, 2);
-    TEST_MSET_SIZE(mymset2, 2);
-
-    om_docid order1[] = {1, 2};
-    om_docid order2[] = {2, 1};
-
-    expect_mset_order(mymset1, order1, 2, "mymset1");
-    expect_mset_order(mymset2, order2, 2, "mymset2");
+    mset_expect_order(mymset1, 1, 2);
+    mset_expect_order(mymset2, 2, 1);
 
     return success;
 }
@@ -1680,20 +1579,10 @@ static bool test_rsetmultidb1()
     OmMSet mymset2a = enquire2.get_mset(0, 10);
     OmMSet mymset2b = enquire2.get_mset(0, 10, &myrset2);
 
-    TEST_EQUAL(mymset1a.items.size(), 2);
-    TEST_EQUAL(mymset1b.items.size(), 2);
-    TEST_EQUAL(mymset2a.items.size(), 2);
-    TEST_EQUAL(mymset2b.items.size(), 2);
-
-    om_docid order1a[] = {1, 4};
-    om_docid order1b[] = {4, 1};
-    om_docid order2a[] = {1, 2};
-    om_docid order2b[] = {2, 1};
-
-    expect_mset_order(mymset1a, order1a, 2, "mymset1a");
-    expect_mset_order(mymset1b, order1b, 2, "mymset1b");
-    expect_mset_order(mymset2a, order2a, 2, "mymset2a");
-    expect_mset_order(mymset2b, order2b, 2, "mymset2b");
+    mset_expect_order(mymset1a, 1, 4);
+    mset_expect_order(mymset1b, 4, 1);
+    mset_expect_order(mymset2a, 1, 2);
+    mset_expect_order(mymset2b, 2, 1);
 
     mset_range_is_same_weights(mymset1a, 0, mymset2a, 0, 2);
     mset_range_is_same_weights(mymset1b, 0, mymset2b, 0, 2);
@@ -1729,20 +1618,10 @@ static bool test_rsetmultidb2()
     OmMSet mymset2a = enquire2.get_mset(0, 10);
     OmMSet mymset2b = enquire2.get_mset(0, 10, &myrset2);
 
-    TEST_EQUAL(mymset1a.items.size(), 2);
-    TEST_EQUAL(mymset1b.items.size(), 2);
-    TEST_EQUAL(mymset2a.items.size(), 2);
-    TEST_EQUAL(mymset2b.items.size(), 2);
-
-    om_docid order1a[] = {4, 3};
-    om_docid order1b[] = {4, 3};
-    om_docid order2a[] = {2, 5};
-    om_docid order2b[] = {2, 5};
-
-    expect_mset_order(mymset1a, order1a, 2, "mymset1a");
-    expect_mset_order(mymset1b, order1b, 2, "mymset1b");
-    expect_mset_order(mymset2a, order2a, 2, "mymset2a");
-    expect_mset_order(mymset2b, order2b, 2, "mymset2b");
+    mset_expect_order(mymset1a, 4, 3);
+    mset_expect_order(mymset1b, 4, 3);
+    mset_expect_order(mymset2a, 2, 5);
+    mset_expect_order(mymset2b, 2, 5);
 
     mset_range_is_same_weights(mymset1a, 0, mymset2a, 0, 2);
     mset_range_is_same_weights(mymset1b, 0, mymset2b, 0, 2);
@@ -1783,7 +1662,7 @@ static bool test_maxorterms1()
     // query lengths differ so mset weights not the same (at present)
     TEST_EQUAL(mymset1, mymset2);
 #endif
-    TEST_EXPECTED_DOCS(mymset2, 4, 2);
+    mset_expect_order(mymset2, 4, 2);
 
     return true;
 }
@@ -1980,7 +1859,7 @@ static bool test_near1()
 
     // retrieve the top ten results
     OmMSet mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset);
+    mset_expect_order(mymset);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
@@ -1991,7 +1870,7 @@ static bool test_near1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 3);
+    mset_expect_order(mymset, 3);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
@@ -2002,7 +1881,7 @@ static bool test_near1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 1, 3);
+    mset_expect_order(mymset, 1, 3);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
@@ -2013,7 +1892,7 @@ static bool test_near1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 1, 3);
+    mset_expect_order(mymset, 1, 3);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
@@ -2024,7 +1903,7 @@ static bool test_near1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 1, 2, 3);
+    mset_expect_order(mymset, 1, 2, 3);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
@@ -2036,7 +1915,7 @@ static bool test_near1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 4, 5, 6, 7, 8, 9);
+    mset_expect_order(mymset, 4, 5, 6, 7, 8, 9);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
@@ -2048,7 +1927,7 @@ static bool test_near1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 4, 5, 6, 7, 8, 9, 10);
+    mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
@@ -2060,7 +1939,7 @@ static bool test_near1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 4, 5, 6, 7, 8, 9, 10, 11);
+    mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
@@ -2072,7 +1951,7 @@ static bool test_near1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+    mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
@@ -2084,7 +1963,7 @@ static bool test_near1()
 
     // retrieve the top twenty results
     mymset = enquire.get_mset(0, 20);
-    TEST_EXPECTED_DOCS(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
+    mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
@@ -2096,7 +1975,7 @@ static bool test_near1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 20);
-    TEST_EXPECTED_DOCS(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
+    mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
@@ -2109,7 +1988,7 @@ static bool test_near1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 20);
-    TEST_EXPECTED_DOCS(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
+    mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
 
     return true;
 }
@@ -2134,7 +2013,7 @@ static bool test_near2()
 
     // retrieve the top ten results
     OmMSet mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 1);
+    mset_expect_order(mymset, 1);
 
     subqs.clear();
     subqs.push_back(OmQuery(OmQuery::OP_AND,
@@ -2147,7 +2026,7 @@ static bool test_near2()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 2);
+    mset_expect_order(mymset, 2);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("operator")));
@@ -2160,7 +2039,7 @@ static bool test_near2()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 2);
+    mset_expect_order(mymset, 2);
 
     return true;
 }
@@ -2183,7 +2062,7 @@ static bool test_phrase1()
 
     // retrieve the top ten results
     OmMSet mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset);
+    mset_expect_order(mymset);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
@@ -2194,7 +2073,7 @@ static bool test_phrase1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset);
+    mset_expect_order(mymset);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
@@ -2205,7 +2084,7 @@ static bool test_phrase1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 1);
+    mset_expect_order(mymset, 1);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
@@ -2216,7 +2095,7 @@ static bool test_phrase1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 1);
+    mset_expect_order(mymset, 1);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("phrase")));
@@ -2227,7 +2106,7 @@ static bool test_phrase1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 1, 2);
+    mset_expect_order(mymset, 1, 2);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
@@ -2239,7 +2118,7 @@ static bool test_phrase1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 4);
+    mset_expect_order(mymset, 4);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
@@ -2251,7 +2130,7 @@ static bool test_phrase1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 4);
+    mset_expect_order(mymset, 4);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
@@ -2263,7 +2142,7 @@ static bool test_phrase1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 4);
+    mset_expect_order(mymset, 4);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
@@ -2275,7 +2154,7 @@ static bool test_phrase1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 4);
+    mset_expect_order(mymset, 4);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
@@ -2287,7 +2166,7 @@ static bool test_phrase1()
 
     // retrieve the top twenty results
     mymset = enquire.get_mset(0, 20);
-    TEST_EXPECTED_DOCS(mymset, 4);
+    mset_expect_order(mymset, 4);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("leave")));
@@ -2299,7 +2178,7 @@ static bool test_phrase1()
 
     // retrieve the top 20 results
     mymset = enquire.get_mset(0, 20);
-    TEST_EXPECTED_DOCS(mymset, 4);
+    mset_expect_order(mymset, 4);
 
     // test really large window size
     subqs.clear();
@@ -2312,7 +2191,7 @@ static bool test_phrase1()
 
     // retrieve the top 20 results
     mymset = enquire.get_mset(0, 20);
-    TEST_EXPECTED_DOCS(mymset, 4);
+    mset_expect_order(mymset, 4);
 
     // regression test (was matching doc 15, should fail)
     subqs.clear();
@@ -2325,7 +2204,7 @@ static bool test_phrase1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset);
+    mset_expect_order(mymset);
 
     // regression test (should match doc 15, make sure still does with fix)
     subqs.clear();
@@ -2338,7 +2217,7 @@ static bool test_phrase1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 15);
+    mset_expect_order(mymset, 15);
 
     // regression test (phrase matching was getting order wrong when
     // build_and_tree reordered vector of PostLists)
@@ -2351,7 +2230,7 @@ static bool test_phrase1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 16);
+    mset_expect_order(mymset, 16);
 
     // regression test (phrase matching was getting order wrong when
     // build_and_tree reordered vector of PostLists)
@@ -2364,7 +2243,7 @@ static bool test_phrase1()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 17);
+    mset_expect_order(mymset, 17);
 
     return true;
 }
@@ -2389,7 +2268,7 @@ static bool test_phrase2()
 
     // retrieve the top ten results
     OmMSet mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset);
+    mset_expect_order(mymset);
 
     subqs.clear();
     subqs.push_back(OmQuery(OmQuery::OP_AND,
@@ -2402,7 +2281,7 @@ static bool test_phrase2()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 2);
+    mset_expect_order(mymset, 2);
 
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("operator")));
@@ -2415,7 +2294,7 @@ static bool test_phrase2()
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset);
+    mset_expect_order(mymset);
 
     return true;
 }
@@ -2587,7 +2466,7 @@ static bool test_adddoc1()
 
     OmMSet mset = enq.get_mset(0, 10);
 
-    TEST_EXPECTED_DOCS(mset, 3, 1, 2);
+    mset_expect_order(mset, 3, 1, 2);
 
     return true;    
 }

@@ -1,3 +1,7 @@
+Fri Sep 01 11:20:03 BST 2000 Olly Betts
+
+	* Moved some test helper functions from apitest.cc to testsuite.cc.
+ 
 Fri Sep 01 10:06:00 BST 2000 Olly Betts
 
 	* testutils.h and testsuite.h moved from common to testsuite.

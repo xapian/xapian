@@ -54,6 +54,20 @@ inline bool operator!=(const OmMSet &first, const OmMSet &second)
 }
 
 
+void
+mset_expect_order(const OmMSet &A,
+		  om_docid d1 = 0, om_docid d2 = 0, om_docid d3 = 0,
+		  om_docid d4 = 0, om_docid d5 = 0, om_docid d6 = 0,
+		  om_docid d7 = 0, om_docid d8 = 0, om_docid d9 = 0,
+		  om_docid d10 = 0, om_docid d11 = 0, om_docid d12 = 0);
+
+void
+mset_expect_order_begins(const OmMSet &A,
+			 om_docid d1 = 0, om_docid d2 = 0, om_docid d3 = 0,
+			 om_docid d4 = 0, om_docid d5 = 0, om_docid d6 = 0,
+			 om_docid d7 = 0, om_docid d8 = 0, om_docid d9 = 0,
+			 om_docid d10 = 0, om_docid d11 = 0, om_docid d12 = 0);
+
 // ######################################################################
 // Useful test macros
 
