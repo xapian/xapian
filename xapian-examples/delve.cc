@@ -37,6 +37,7 @@ static char separator = ' ';
 
 static bool verbose = false;
 static bool showvalues = false;
+static bool showdocdata = false;
 
 static void
 syntax(const char *progname)
@@ -47,6 +48,7 @@ syntax(const char *progname)
 	"\t-t <term> -r <recno>  for position list(s)\n"
 	"\t-1                    output one list entry per line\n"
 	"\t-k                    output values for each document referred to\n"
+	"\t-d                    output document data for each document\n"
 	"\t-v                    extra info (wdf and len for postlist;\n"
 	"\t\t\t\twdf termfreq for termlist)\n";
     exit(1);
@@ -63,13 +65,13 @@ show_db_stats(OmDatabase &db)
 static void
 show_values(OmDatabase &db, om_docid docid, char sep)
 {
-	OmDocument doc = db.get_document(docid);
-	OmValueIterator v = doc.values_begin();
-	OmValueIterator vend = doc.values_end();
-	while (v != vend) {
-	    cout << sep << v.get_valueno() << ':' << *v;
-	    ++v;
-	}
+    OmDocument doc = db.get_document(docid);
+    OmValueIterator v = doc.values_begin();
+    OmValueIterator vend = doc.values_end();
+    while (v != vend) {
+	cout << sep << v.get_valueno() << ':' << *v;
+	++v;
+    }
 }
 
 static void
@@ -77,11 +79,28 @@ show_values(OmDatabase &db,
 	    std::vector<om_docid>::const_iterator i,
 	    std::vector<om_docid>::const_iterator end)
 {
-    // Display values
     while (i != end) {
 	cout << "Values for record #" << *i << ':';
 	show_values(db, *i, separator);
 	cout << endl;
+	++i;
+    }
+}
+
+static void
+show_docdata(OmDatabase &db, om_docid docid, char sep)
+{
+    cout << sep << "[" << db.get_document(docid).get_data() << ']';
+}
+
+static void
+show_docdata(OmDatabase &db,
+	     std::vector<om_docid>::const_iterator i,
+	     std::vector<om_docid>::const_iterator end)
+{
+    while (i != end) {
+	cout << "Data for record #" << *i << ':' << endl;
+	cout << db.get_document(*i).get_data() << endl;
 	++i;
     }
 }
@@ -115,7 +134,7 @@ main(int argc, char *argv[])
     std::vector<string> dbs;
 
     int c;
-    while ((c = getopt(argc, argv, "r:t:1vk")) != EOF) {
+    while ((c = getopt(argc, argv, "r:t:1vkd")) != EOF) {
 	switch (c) {
 	    case 'r':
 		recnos.push_back(atoi(optarg));
@@ -128,6 +147,9 @@ main(int argc, char *argv[])
 		break;
 	    case 'k':
 		showvalues = true;
+		break;
+	    case 'd':
+		showdocdata = true;
 		break;
 	    case 'v':
 		verbose = true;
@@ -168,6 +190,10 @@ main(int argc, char *argv[])
 	    show_values(db, recnos.begin(), recnos.end());
 	}
 
+	if (!recnos.empty() && showdocdata) {
+	    show_docdata(db, recnos.begin(), recnos.end());
+	}
+
 	if (terms.empty()) {
 	    show_termlists(db, recnos.begin(), recnos.end());
 	    return 0;
@@ -197,9 +223,8 @@ main(int argc, char *argv[])
 			cout << ' ' << p.get_wdf()
 			    << ' ' << p.get_doclength();
 		    }
-		    if (showvalues) {
-			show_values(db, *p, ' ');
-		    }
+		    if (showvalues) show_values(db, *p, ' ');
+		    if (showdocdata) show_docdata(db, *p, ' ');
 		    p++;
 		}
 		cout << endl;
