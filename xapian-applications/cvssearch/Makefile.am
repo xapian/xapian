@@ -1,1 +1,1 @@
-SUBDIRS = db map
+SUBDIRS = db map perl
