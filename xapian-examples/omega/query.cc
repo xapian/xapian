@@ -1167,7 +1167,7 @@ static void print_query_page( const char* page, long int first, long int size) {
 			   delete pl;
 
 			   if (i == 0) {
-			       cout << "<B>Individual word frequencies:</B>";
+			       cout << "<B>Individual word frequencies:</B>\n";
 			   } else {
 			       cout << ", ";
 			   }
