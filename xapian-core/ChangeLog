@@ -1,3 +1,7 @@
+Thu Dec 14 14:38:39 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added another quoting regression test.
+
 Thu Dec 14 14:36:53 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed the quoting _again_, since it broke with backslashes.

@@ -986,6 +986,9 @@ static bool test_specialterms1()
 	if (key_no == 0) {
 	    TEST(key.value.size() > 262);
 	    TEST_EQUAL((unsigned char)(key.value[261]), 255);
+	    for (int k = 0; k < 256; k++) {
+		TEST_EQUAL((unsigned char)(key.value[k+6]), k);
+	    }
 	}
     }
     
