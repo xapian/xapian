@@ -1,3 +1,8 @@
+Mon Mar 19 17:46:36 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Fix omindex-config.cc to compile with STL port.  Now only complains
+	  about issues to do with libxml.
+
 Mon Mar 19 17:44:36 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Disable compilation of omindex-config, since it currently depends
