@@ -1,3 +1,11 @@
+xapian-core (0.8.2-2) unstable; urgency=low
+
+  * Oops - library version number should be 3.  Changed it back,
+    so we now have libxapian3.
+    (I was confused between the interface number and the version number.)
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 14 Sep 2004 16:44:37 +0100
+
 xapian-core (0.8.2-1) unstable; urgency=low
 
   * New upstream release (0.8.2).
