@@ -1,3 +1,7 @@
+Thu Aug 19 19:13:34 BST 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am: And actually ship htdig2omega and htdig2omega.script!
+
 Thu Aug 19 19:02:40 BST 2004  Olly Betts <olly@survex.com>
 
 	* htdig2omega,htdig2omega.script: Added perl script and corresponding

@@ -55,7 +55,7 @@ EXTRA_DIST = templates/query \
 	docs/overview.txt \
 	docs/quickstart.txt \
 	docs/scriptindex.txt \
-	dbi2omega
+	dbi2omega htdig2omega htdig2omega.script
 
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
 
