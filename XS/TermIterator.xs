@@ -28,14 +28,6 @@ TermIterator::inc()
     OUTPUT:
         RETVAL
 
-TermIterator *
-TermIterator::add_to(number)
-    int		number
-    CODE:
-        THIS->operator++(number);
-    OUTPUT:
-        THIS
-
 bool
 TermIterator::equal(that)
     TermIterator *	that
@@ -60,24 +52,13 @@ TermIterator::get_termname()
         RETVAL
 
 void
-TermIterator::skip_to(tname)
-    string	tname
-    CODE:
-        THIS->skip_to(tname);
+TermIterator::skip_to(string tname)
 
 termcount
 TermIterator::get_wdf()
-    CODE:
-        RETVAL = THIS->get_wdf();
-    OUTPUT:
-        RETVAL
 
 doccount
 TermIterator::get_termfreq()
-    CODE:
-        RETVAL = THIS->get_termfreq();
-    OUTPUT:
-        RETVAL
 
 PositionIterator *
 TermIterator::positionlist_begin()
@@ -97,7 +78,3 @@ TermIterator::positionlist_end()
 
 string
 TermIterator::get_description()
-    CODE:
-        RETVAL = THIS->get_description();
-    OUTPUT:
-        RETVAL

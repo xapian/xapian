@@ -17,21 +17,15 @@ new2(other);
     OUTPUT:
         RETVAL
 
-MSetIterator *
+void
 MSetIterator::inc()
     CODE:
-        RETVAL = new MSetIterator();
-        *RETVAL = ++(*THIS);
-    OUTPUT:
-        RETVAL
+        ++(*THIS);
 
-MSetIterator *
-MSetIterator::add_to(number)
-    int		number
+void
+MSetIterator::dec()
     CODE:
-        THIS->operator++(number);
-    OUTPUT:
-        THIS
+        --(*THIS);
 
 bool
 MSetIterator::equal(that)
@@ -69,6 +63,9 @@ MSetIterator::get_rank()
 
 weight
 MSetIterator::get_weight()
+
+doccount
+MSetIterator::get_collapse_count()
 
 percent
 MSetIterator::get_percent()

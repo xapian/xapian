@@ -73,31 +73,19 @@ newXobj(op, ...);
         RETVAL
 
 void
-Query::set_window(window)
-    termpos	window
-    CODE:
-	THIS->set_window(window);
+Query::set_window(termpos window)
 
 void
-Query::set_cutoff(cutoff)
-    weight	cutoff
-    CODE:
-        THIS->set_cutoff(cutoff);
+Query::set_cutoff(weight cutoff)
 
 void
-Query::set_elite_set_size(size)
-    termcount	size
-    CODE:
-	THIS->set_elite_set_size(size);
+Query::set_elite_set_size(termcount size)
 
 termcount
 Query::get_length()
 
 termcount
-Query::set_length(qlen)
-    termcount	qlen
-    CODE:
-        THIS->set_length(qlen);
+Query::set_length(termcount qlen)
 
 TermIterator *
 Query::get_terms_begin()
@@ -114,6 +102,9 @@ Query::get_terms_end()
         *RETVAL = THIS->get_terms_begin();
     OUTPUT:
         RETVAL
+
+bool
+Query::empty()
 
 bool
 Query::is_empty()

@@ -37,6 +37,7 @@ INCLUDE: XS/Stopper.xs
 INCLUDE: XS/TermIterator.xs
 INCLUDE: XS/PostingIterator.xs
 INCLUDE: XS/PositionIterator.xs
+INCLUDE: XS/ValueIterator.xs
 INCLUDE: XS/WritableDatabase.xs
 
 

@@ -1,5 +1,33 @@
 Revision history for Perl extension Search::Xapian.
 
+0.8.3.0  Tue Oct 27 20:32:36 2004
+	[Changes contributed by Olly Betts]
+	- Fixed exporting of DB_* constants.
+	- Makefile.PL now checks environmental variable XAPIAN_CONFIG.
+	- Wrap missing Database/WritableDatabase methods: get_lastdocid(),
+	  positionlist_begin(), and positionlist_end().
+	- Added WritableDatabase->new() which creates an inmemory database
+	- Wrap missing WritableDatabase methods: delete_document_by_term(),
+	  and replace_document_by_term().
+	- Wrap missing Document methods: remove_value(), and clear_values().
+	- Fixed usage message if MSet::fetch called with > 3 parameters.
+	- Fixed MSet::convert_to_percent() to actually return a value!
+	- Wrap missing MSetIterator methods: --, get_collapse_count().
+	- Removed bogus += methods from all iterators (these actually ignored
+	  the second argument and always incremented once).
+	- Cleaned up wrapping of ++ methods for all iterators.
+	- Wrap missing ESet methods: back().
+	- Fixed wrapping of ESetIterator methods: ==, !=. 
+	- Wrap 3 argument form of Enquire::set_sorting().
+	- Wrap missing method PositionIterator::get_description().
+	- Fixed return value for Query::set_length().
+	- Wrap missing method Query::empty().
+	- Second argument to QueryParser::set_stemming_options() may now be
+	  omitted.
+	- Wrap ValueIterator class.
+	- Added tests of many of the new and fixed methods.
+	- Documentation now lists unwrapped classes and methods.
+
 0.8.0.4  Wed Jun  9 12:08:54 2004
 	[Changes contributed by Tim Brody]
 	- Wrappers for ::QueryParser and ::Stopper

@@ -90,6 +90,36 @@ Database::termlist_end(did)
     OUTPUT:
         RETVAL
 
+PositionIterator *
+Database::positionlist_begin(did, term)
+    docid	did
+    string	term
+    CODE:
+        RETVAL = new PositionIterator();
+	try {
+	    *RETVAL = THIS->positionlist_begin(did, term);
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+    OUTPUT:
+        RETVAL
+
+PositionIterator *
+Database::positionlist_end(did, term)
+    docid	did
+    string	term
+    CODE:
+        RETVAL = new PositionIterator();
+	try {
+	    *RETVAL = THIS->positionlist_end(did, term);
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+    OUTPUT:
+        RETVAL
+
 TermIterator *
 Database::allterms_begin()
     CODE:
@@ -149,6 +179,18 @@ Database::get_doccount()
     CODE:
 	try {
             RETVAL = THIS->get_doccount();
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+    OUTPUT:
+        RETVAL
+
+docid
+Database::get_lastdocid()
+    CODE:
+	try {
+            RETVAL = THIS->get_lastdocid();
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );

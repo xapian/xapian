@@ -1,4 +1,4 @@
-package Search::Xapian::ESetIterator;
+package Search::Xapian::ValueIterator;
 
 use 5.006;
 use strict;
@@ -23,10 +23,10 @@ our @EXPORT = qw( );
 # Preloaded methods go here.
 
 use overload '++' => sub { $_[0]->inc() },
-	     '--' => sub { $_[0]->dec() },
              '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
+             '""' => sub { $_[0]->get_value() },
              'fallback' => 1;
 
 sub clone() {

@@ -65,7 +65,7 @@ sub fetch() {
     $invalid_args = 1;
   }
   if( $invalid_args ) {
-    Carp::carp( "USAGE: \$mset->fetch(\$key, \$value)" ); # FIXME - wrong!
+    Carp::carp( "USAGE: \$mset->fetch(\$begin, \$end), \$mset->fetch(\$msetiterator), \$mset->fetch()" );
     exit;
   }
 }
@@ -77,9 +77,9 @@ sub convert_to_percent() {
     my $arg = shift;
     my $arg_class = shift;
     if( !$arg_class ) {
-      $self->convert_to_percent1($arg);
+      return $self->convert_to_percent1($arg);
     } elsif( $arg_class eq 'Search::Xapian::MSetIterator' ) {
-      $self->convert_to_percent2($arg);
+      return $self->convert_to_percent2($arg);
     } else {
       $invalid_args = 1;
     }

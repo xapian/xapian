@@ -23,7 +23,7 @@ our @EXPORT = qw( );
 # Preloaded methods go here.
 
 use overload '='  => sub { $_[0]->clone() },
-             '""' => sub { $_[0]->get_description() },
+             '""' => sub { $_[0]->get_description() }, # FIXME: perhaps unwise?
              'fallback' => 1;
 
 sub clone() {

@@ -18,6 +18,7 @@ use Search::Xapian::QueryParser;
 use Search::Xapian::RSet;
 use Search::Xapian::Stopper;
 use Search::Xapian::TermIterator;
+use Search::Xapian::ValueIterator;
 use Search::Xapian::WritableDatabase;
 
 require Exporter;
@@ -46,10 +47,10 @@ our %EXPORT_TAGS = (
                                   OP_ELITE_SET
                                  ) ],
                     'db' => [ qw(
-                                 OM_DB_OPEN
-                                 OM_DB_CREATE
-                                 OM_DB_CREATE_OR_OPEN
-                                 OM_DB_CREATE_OR_OVERWRITE
+                                 DB_OPEN
+                                 DB_CREATE
+                                 DB_CREATE_OR_OPEN
+                                 DB_CREATE_OR_OVERWRITE
                                  ) ]
                    );
 $EXPORT_TAGS{standard} = [ @{ $EXPORT_TAGS{'ops'} }, @{ $EXPORT_TAGS{'db'} } ];
@@ -61,7 +62,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw( );
 
 
-our $VERSION = '0.8.0.4';
+our $VERSION = '0.8.3.0';
 
 bootstrap Search::Xapian $VERSION;
 
@@ -102,7 +103,7 @@ Search::Xapian - Perl XS frontend to the Xapian C++ search library.
 =head1 DESCRIPTION
 
 This module wraps most methods of most Xapian classes. The missing classes
-and methods should be added in the future. It also provides  a more
+and methods should be added in the future. It also provides a more
 simplified, 'perlish' interface - as demonstrated above.
 
 The Xapian library is evolving very quickly at the time of writing,
@@ -130,11 +131,32 @@ None by default.
 
 =item Error Handling
 
-Error handling for all method liable to generate them.
+Error handling for all methods liable to generate them.
 
 =item Documentation
 
 Brief descriptions of classes, possibly just adapted for Xapian docs.
+
+=item Unwrapped classes
+
+The following Xapian classes are not yet wrapped:
+Error (and subclasses), ErrorHandler, ExpandDecider (and subclasses),
+MatchDecider, Weight (and subclasses).
+
+=item Unwrapped methods
+
+The following methods are not yet wrapped:
+Enquire::get_eset(...) with more than two arguments,
+Enquire::get_mset(...) with more than two arguments,
+Enquire::register_match_decoder(...) with one argument,
+Enquire::set_weighting_scheme(const Weight &weight);
+Query::Query(tname, ...); with more than one argument;
+QueryParser::set_stemming_options() with third (Stopper) argument;
+RSet::add_document(const Xapian::MSetIterator & i),
+RSet::remove_document(const Xapian::MSetIterator & i),
+RSet::contains(const Xapian::MSetIterator & i)
+(these are very similar to wrapping of get_matching_terms_begin and _end in
+Xapian/Enquire.pm).
 
 =head1 CREDITS
 
@@ -143,7 +165,7 @@ finer points of how best to write XS frontends to C++ libraries, James
 Aylett E<lt>james@tartarus.orgE<gt> for clarifying the less obvious
 aspects of the Xapian API, and especially Olly Betts
 E<lt>olly@survex.comE<gt> for contributing advice, bugfixes, and
-wrapper code for the more obsure classes.
+wrapper code for the more obscure classes.
 
 =head1 AUTHOR
 
