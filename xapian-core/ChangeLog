@@ -1,3 +1,10 @@
+Mon Jul 21 01:10:55 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/install.html,m4/xapian.m4: Added XO_LIB_XAPIAN to replace
+	  OM_PATH_XAPIAN.  XO_LIB_XAPIAN will automagically enable use of
+	  "xapian-config --ltlibs" is A[CM]_PROG_LIBTOOL is used in
+	  configure.in.
+
 Sun Jul 20 16:00:43 BST 2003  Olly Betts <olly@survex.com>
 
 	* .cvsignore,Makefile.am,configure.in,xapian-config.in,

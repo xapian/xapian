@@ -27,15 +27,16 @@ tar zxvf xapian-core-&lt;versionnumber&gt;<!-- -&lt;date&gt;-->.tar.gz
 tar zxvf xapian-examples-&lt;versionnumber&gt;<!-- -&lt;date&gt;-->.tar.gz
 </code> </blockquote>
 These commands should unpack the archives into separate subdirectories
-("xapian-core" and "xapian-examples").
+("xapian-core-N.NN" and "xapian-examples-N.NN").
 
 <H3>Configuring and building Xapian</H3>
 Xapian uses the GNU automake and autoconf tools.  If you only wish to build
-from the snapshots or make minor alterations, this need not concern you
-greatly.
+releases <!-- FIXME: or nightly snapshots --> or make minor alterations, this
+need not concern you greatly.
 <p>
 These tools generate a shell script called "configure" for each of the
 archives, which you should run to set up the code for compilation.
+
 <p>
 A typical build would be done using the commands:
 <pre>
@@ -51,8 +52,8 @@ Various options may be given to the configure script:
 <p>
 By default, Xapian will be installed in directories under
 <CODE>/usr/local</CODE>.  This can be altered using the --prefix option
-to configure (e.g. <code>./configure --prefix=/opt</code>).
-</p>
+to configure (e.g. <code>./configure --prefix=/home/fred/xapian</code> if
+you don't have root access to the system you want to install Xapian on).
 
 <H3>Configuring and building the examples</H3>
 The examples can be built in almost exactly the same way as the core library.
@@ -68,27 +69,16 @@ examples.-->
 <p>
 <CODE>configure</CODE> should automatically find the installed Xapian
 library: if it doesn't you may need to specify the path to the
-<CODE>xapian-config</CODE> script, by using the
-<CODE>--with-xapian-config</CODE> option to configure.
+<CODE>xapian-config</CODE> script, by passing a value for
+<CODE>XAPIAN_CONFIG</CODE> to configure, e.g. <CODE>./configure&nbsp;XAPIAN_CONFIG=/home/fred/xapian/bin/xapian-config</CODE>
 <p>
-Note: you must install the Xapian library to be able to link applications
-with it.  In the past we've attempted to allow linking against uninstalled
-builds of the library, but it's very hard to do it reliably and portably.
-If you don't have the rights to install libraries in /usr/local/lib
-(or similar) then you can build Xapian to install under your home directory.
+Note: if you use libtool to link your application, you can link them with an
+uninstalled Xapian library.  If you don't use libtool, you must install
+Xapian.  We recommend using libtool anyway, since it handles setting the
+runtime library search path, so you can link against a shared Xapian library
+installed in a non-standard location, and it will be found without you having
+to mess with LD_LIBRARY_PATH.
 
-<p>
-Supposing you had unpacked both xapian and xapian-examples in the same
-directory, you could use:
-<pre>
-    cd xapian-core
-    ./configure --prefix=`pwd`/tempinstall --disable-shared
-    make
-    make install
-    cd ../xapian-examples
-    ./configure --with-xapian-config=`pwd`/../xapian-core/tempinstall/bin/xapian-config
-    make
-</pre>
 <p>
 Check the documentation within the xapian-examples archive for more details on
 building and running the examples.
