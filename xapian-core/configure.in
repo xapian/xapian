@@ -218,17 +218,17 @@ dnl Set defines to specify what we compile
 
 if test true = "$build_muscat36"; then
 AC_DEFINE(MUS_BUILD_BACKEND_MUSCAT36,,
-  [Define if you want to build the (old) Muscat 3.6 backend])
+  [Define if you want to build the (old) Muscat 3.6 database backend])
 fi
 
 if test true = "$build_quartz"; then
 AC_DEFINE(MUS_BUILD_BACKEND_QUARTZ,,
-  [Define if you want to build quartz backend])
+  [Define if you want to build the quartz database backend])
 fi
 
 if test true = "$build_inmemory"; then
 AC_DEFINE(MUS_BUILD_BACKEND_INMEMORY,,
-  [Define if you want to build inmemory backend])
+  [Define if you want to build the inmemory database backend])
 fi
 
 if test true = "$build_remote"; then
@@ -239,7 +239,7 @@ if test true = "$build_remote"; then
   RJB_FIND_GETHOSTENT
 
   AC_DEFINE(MUS_BUILD_BACKEND_REMOTE,,
-    [Define if you want to build remote database backend])
+    [Define if you want to build the remote database backend])
 fi
 
 dnl See if we have fdatasync, and what libraries are needed for it.
@@ -367,6 +367,12 @@ TOP_BUILDDIR='$(top_builddir)'
 
 AC_SUBST(TOP_SRCDIR)
 AC_SUBST(TOP_BUILDDIR)
+
+AH_TOP([#ifndef OM_HGUARD_CONFIG_H
+#define OM_HGUARD_CONFIG_H
+])
+AH_BOTTOM([#endif
+])
 
 dnl **************************
 dnl * Build the output files *

@@ -169,8 +169,8 @@ include $(top_srcdir)/Makefile_common.am
 # Rules for doc++ stuff #
 #########################
 
-APIDOC_SRC    = `find $(top_srcdir)/include \( -name \*.h -o -name \*.cc -o -name \*.cpp -o -name \*.c \) -print`
-SOURCEDOC_SRC = `find $(top_srcdir) \( \( -name \*.h -o -name \*.cc -o -name \*.cpp -o -name \*.c -not -name acconfig.h \) -not -path \*/tests/\* \) -print`
+APIDOC_SRC    = `find $(top_srcdir)/include -name \*.h -print`
+SOURCEDOC_SRC = `find $(top_srcdir) \( \( -name \*.h -o -name \*.cc -o -name \*.cpp -o -name \*.c \) -not -path \*/tests/\* \) -print`
 
 .FORCE: doxygen_source_docs doxygen_api_docs doxygen_docs
 

@@ -1,3 +1,7 @@
+Wed May 08 16:09:14 BST 2002  Olly Betts <olly@survex.com>
+
+	* Killed off acconfig.h.
+
 Wed May 08 15:53:11 BST 2002  Olly Betts <olly@survex.com>
 
 	* Added autom4te-*.cache to .cvsignore.
