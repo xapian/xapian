@@ -568,7 +568,9 @@ print <<_HTML_;
 <p>
 <b class=orange>Please send all bugs/comments to <a href="mailto:cvssearch\@cse.unsw.edu.au">cvssearch\@cse.unsw.edu.au</a>.
 <br>
-CVSSearch is under the GPL; the main project page is <a href="http://cvssearch.sourceforge.net">http://cvssearch.sourceforge.net</a>.
+The project page is <a href="http://cvssearch.sourceforge.net">http://cvssearch.sourceforge.net</a>.
+<br>
+CVSSearch is under the GPL.
 _HTML_
 
 #--------------------------
