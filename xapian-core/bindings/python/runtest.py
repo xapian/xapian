@@ -29,7 +29,9 @@ if (terms != [ "one", "two", "three", "four" ]):
 
 dbgrp = OmDatabaseGroup()
 
-dbgrp.add_dbargs("sleepycat", ["../../tests/.sleepycat/db=apitest_simpledata="])
+dbgrp.add_dbargs({ "backend": "sleepycat",
+                   "sleepycat_dir":
+		   "../../tests/.sleepycat/db=apitest_simpledata="})
 
 enq = OmEnquire(dbgrp)
 

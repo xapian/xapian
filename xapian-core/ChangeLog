@@ -1,3 +1,7 @@
+Tue Aug 22 19:02:14 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Python bindings partly moved into the present.
+
 Tue Aug 22 18:26:00 BST 2000 Olly Betts
 
 	* apitest now tests query length and within query frequency (wqf).

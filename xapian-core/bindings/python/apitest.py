@@ -3,7 +3,9 @@ from omuscat import *
 
 def get_simple_database():
     mydb = OmDatabaseGroup()
-    mydb.add_dbargs("sleepycat", ["../../tests/.sleepycat/db=apitest_simpledata="])
+    mydb.add_dbargs({ "backend": "sleepycat",
+                      "sleepycat_dir":
+		      "../../tests/.sleepycat/db=apitest_simpledata="})
     return mydb
 
 def init_simple_enquire(enq, query = OmQuery("thi")):
@@ -51,8 +53,7 @@ def test_pctcutoff1():
 
     print "Cutoff percent: ", my_pct
 
-    mymopt = OmMatchOptions()
-    mymopt.set_percentage_cutoff(my_pct)
+    mymopt = { "match_percent_cutoff": my_pct}
     mymset2 = enquire.get_mset(0, 100, "NULL", mymopt)
 
     print "Percentages after cutoff:",
@@ -78,12 +79,12 @@ def test_collapsekey1():
     enquire = OmEnquire(get_simple_database())
     init_simple_enquire(enquire)
 
-    mymopt = OmMatchOptions()
+    mymopt = {}
     mymset1 = enquire.get_mset(0, 100, "NULL", mymopt);
     mymsize1 = len(mymset1.items)
 
     for key_no in range(1, 8):
-	mymopt.set_collapse_key(key_no)
+	mymopt["match_collapse_key"] = key_no
 	mymset = enquire.get_mset(0, 100, "NULL", mymopt)
 
 	if(mymsize1 <= len(mymset.items)):

@@ -25,6 +25,19 @@
 #include "om/om.h"
 #include <string>
 #include <vector>
+
+enum om_queryop_values {
+    OM_MOP_AND = OmQuery::OP_AND,
+    OM_MOP_OR = OmQuery::OP_OR,
+    OM_MOP_AND_NOT = OmQuery::OP_AND_NOT,
+    OM_MOP_XOR = OmQuery::OP_XOR,
+    OM_MOP_AND_MAYBE = OmQuery::OP_AND_MAYBE,
+    OM_MOP_FILTER = OmQuery::OP_FILTER,
+    OM_MOP_NEAR = OmQuery::OP_NEAR,
+    OM_MOP_PHRASE = OmQuery::OP_PHRASE
+};
+
+typedef OmQuery::op om_queryop;
 %}
 %include "om_util.i"
 %include "omstem.i"
@@ -72,33 +85,7 @@ class OmQuery {
 	om_termname_list get_terms() const;
 };
 
-class OmMatchOptions {
-    public:
-	bool  do_collapse;
-	om_keyno collapse_key;
-	bool  sort_forward;
-	int percent_cutoff;
-	om_termcount max_or_terms;
-
-	OmMatchOptions();
-	~OmMatchOptions();
-
-	void set_collapse_key(om_keyno key_);
-	void set_no_collapse();
-	void set_sort_forward(bool forward_ = true);
-	void set_percentage_cutoff(int percent_);
-	void set_max_or_terms(om_termcount max_);
-	//TODO:OmMSetCmp get_sort_comparator() const;
-};
-
 // TODO: OmMatchDecider
-
-class OmExpandOptions {
-    public:
-	OmExpandOptions();
-	void set_use_query_terms(bool use_query_terms_);
-	void set_use_exact_termfreq(bool use_exact_termfreq_);
-};
 
 // TODO: OmExpandDecider
 
@@ -232,15 +219,13 @@ class OmDocumentContents {
 
 class OmDatabase {
     public:
-	OmDatabase(const string & type,
-		   const vector<string> & params);
+	OmDatabase(const OmSettings &params);
 	virtual ~OmDatabase();
 };
 
 class OmWritableDatabase : public OmDatabase {
     public:
-	OmWritableDatabase(const string & type,
-			   const vector<string> & params);
+	OmWritableDatabase(const OmSettings & params);
 	virtual ~OmWritableDatabase();
 
 	void begin_session(om_timeout timeout = 0);
@@ -279,8 +264,7 @@ class OmDatabaseGroup {
     	OmDatabaseGroup();
 	~OmDatabaseGroup();
 
-	%name(add_dbargs) void add_database(const string &type,
-			  const vector<string> &params);
+	%name(add_dbargs) void add_database(const OmSettings &params);
 	
 	void add_database(const OmDatabase & database);
 };
@@ -295,12 +279,12 @@ class OmEnquire {
 	OmMSet get_mset(om_doccount first,
 			om_doccount maxitems,
 			const OmRSet *omrset = 0,
-			const OmMatchOptions *moptions = 0,
+			const OmSettings *moptions = 0,
 			const OmMatchDecider *mdecider = 0);
 
 	OmESet get_eset(om_termcount maxitems,
 			const OmRSet &omrset,
-			const OmExpandOptions *eoptions = 0,
+			const OmSettings *eoptions = 0,
 			const OmExpandDecider *edecider = 0) const;
 
 	OmDocument get_doc(om_docid did);

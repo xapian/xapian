@@ -40,6 +40,17 @@
     }
 }
 
+/*
+%typemap(python, in) om_queryop &(OmQuery::op qop) {
+    try {
+        qop = (OmQuery::op)(get_py_int($source));
+    } catch (OmPythonProblem &) {
+        return NULL;
+    }
+    $target = &qop;
+}
+*/
+
 %{
     class OmPythonProblem {};
     OmQuery *get_py_omquery(PyObject *obj)
@@ -78,19 +89,19 @@
 	return retval;
     }
 
-    OmMatchOptions *get_py_ommatchoptions(PyObject *obj)
+    OmSettings *get_py_omsettings(PyObject *obj)
     {
-	OmMatchOptions *retval = 0;
+	OmSettings *retval = 0;
 	if (PyInstance_Check(obj)) {
 	    PyObject *mythis = PyDict_GetItemString(((PyInstanceObject *)obj)
 						    ->in_dict, "this");
 	    if (char *err = SWIG_GetPtr(PyString_AsString(mythis),
 					(void **)&retval,
-					"_OmMatchOptions_p")) {
+					"_OmSettings_p")) {
 		cerr << "obj.this: " << PyString_AsString(mythis) << endl;
 		cerr << "Problem is: " << err << endl;
 		PyErr_SetString(PyExc_ValueError,
-				"OmMatchOptions object invalid");
+				"OmSettings object invalid");
 		return 0;
 	    }
 	}
@@ -147,6 +158,47 @@
 	}
     }
     $target = &v;
+}
+
+%typemap(python, in) const OmSettings &(OmSettings s) {
+    if (!PyMapping_Check($source)) {
+        PyErr_SetString(PyExc_TypeError, "expected string to string map");
+        return NULL;
+    }
+    // return the list of (key, value) tuples
+    PyObject *items = PyMapping_Items($source);
+    int i = 0;
+    PyObject *obj;
+    while ((obj = PySequence_GetItem(items, i++)) != NULL) {
+	if (PyTuple_Check(obj) && PyTuple_Size(obj) == 2) {
+	    std::string key;
+	    if (PyString_Check(PyTuple_GetItem(obj, 0))) {
+		key = PyString_AsString(PyTuple_GetItem(obj, 0));
+	    } else {
+		PyErr_SetString(PyExc_TypeError,
+				"expected string keys");
+		return NULL;
+	    }
+
+            PyObject *val = PyTuple_GetItem(obj, 1);
+	    if (PyString_Check(val)) {
+	        std::string value = PyString_AsString(val);
+		s.set(key, value);
+	    } else if (PyNumber_Check(val)) {
+	        double value = PyFloat_AsDouble(PyNumber_Float(val));
+		s.set(key, value);
+	    } else {
+		PyErr_SetString(PyExc_TypeError,
+				"unexpected value type");
+		return NULL;
+	    }
+	} else {
+	    PyErr_SetString(PyExc_TypeError,
+			    "expected tuple");
+	    return NULL;
+	}
+    }
+    $target = &s;
 }
 
 %typemap(python, out) om_termname_list {
@@ -328,7 +380,7 @@ PyObject *OmESet_items_get(OmESet *eset)
 		mydesc.first = get_py_int(PyTuple_GetItem(obj, 1));
 		mydesc.maxitems = get_py_int(PyTuple_GetItem(obj, 2));
 		mydesc.omrset = get_py_omrset(PyTuple_GetItem(obj, 3));
-		mydesc.moptions = get_py_ommatchoptions(PyTuple_GetItem(obj, 4));
+		mydesc.moptions = get_py_omsettings(PyTuple_GetItem(obj, 4));
 		mydesc.mdecider = get_py_ommatchdecider(PyTuple_GetItem(obj, 5));
 		v.push_back(mydesc);
 	    } catch (OmPythonProblem &) {
