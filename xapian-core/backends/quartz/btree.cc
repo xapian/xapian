@@ -1623,7 +1623,6 @@ Btree::open_to_write(const string & name_, uint4 n)
 
 Btree::Btree()
 	: error(BTREE_ERROR_NONE),
-	  overwritten(false),
 	  revision_number(0),
 	  item_count(0),
 	  block_size(0),
@@ -1640,6 +1639,7 @@ Btree::Btree()
 	  next_revision(0),
 	  base(),
 	  other_base_letter(0),
+	  overwritten(false),
 	  seq_count(0),
 	  changed_n(0),
 	  changed_c(0),
