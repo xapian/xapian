@@ -155,7 +155,7 @@ else
     dnl Perhaps we should try to compile some code which uses iostream, for
     dnl scoping, etc, but maintaining such a snippet to cover everything we
     dnl require which any C++ compiler may not support is tricky.
-    AC_MSG_RESULT([none known for $GXX])
+    AC_MSG_RESULT([none known for $CXX])
   fi
 fi
 
@@ -594,22 +594,47 @@ dnl ******************************
 
 dnl extra flags for building with gcc
 if test yes = "$GXX"; then
-  dnl -Wno-long-long had appeared by GCC 2.95 and there's little likelihood
-  dnl Xapian will build with any earlier version, so there's not much point
-  dnl testing if -Wno-long-long is supported.
-  AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wno-long-long -fno-gnu-keywords"
-  dnl Automatically add -Werror if maintainer mode is enabled and we're using
-  dnl GCC3 or newer.  We don't do this for older GCCs as GCC 2.95 issues
-  dnl spurious warnings.
-  if test x$USE_MAINTAINER_MODE = xyes; then
-    dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
-    dnl but somewhere in the 3.X series the output became more verbose.
-    dnl So for simplicitly, we test for the earlier versions.
-    case `$CXX --version 2>&1` in
-    [[12]].*) ;;
-    *) AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
-    esac
-  fi
+  dnl Intel's C++ compiler is identified as "GXX" by autoconf's test - check
+  dnl which we actually have.
+  AC_EGREP_CPP(yes,
+    [#ifdef __INTEL_COMPILER
+     yes
+     #endif
+    ],
+    [
+      dnl Intel's compiler:
+      dnl
+      dnl -w1 stops the avalanche of uninteresting "remark" messages.
+      dnl FIXME: we'll also need some switches to disable warnings which
+      dnl don't have good workarounds in code...
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1"
+      dnl Automatically add -Werror if maintainer mode is enabled.
+      dnl if test x$USE_MAINTAINER_MODE = xyes; then
+        dnl FIXME: not for now - we need to work out which warnings we need
+	dnl to disable first above...
+	dnl AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+      dnl fi
+    ],
+    [
+      dnl GCC:
+      dnl
+      dnl -Wno-long-long had appeared by GCC 2.95 and there's little likelihood
+      dnl Xapian will build with any earlier version, so there's not much point
+      dnl testing if -Wno-long-long is supported.
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wno-long-long -fno-gnu-keywords"
+      dnl Automatically add -Werror if maintainer mode is enabled and we're
+      dnl using GCC3 or newer.  We don't do this for older GCCs as GCC 2.95
+      dnl issues spurious warnings.
+      if test x$USE_MAINTAINER_MODE = xyes; then
+	dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
+	dnl but somewhere in the 3.X series the output became more verbose.
+	dnl So for simplicitly, we test for the earlier versions.
+	case `$CXX --version 2>&1` in
+	[[12]].*) ;;
+	*) AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
+	esac
+      fi
+    ])
 fi
 
 dnl modify flags for building with stlport
