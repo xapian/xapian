@@ -58,8 +58,27 @@ class OmExpandWeight {
 	const IRDatabase *root; // Root database
 	om_doccount dbsize;        // Size of whole collection
 	om_doccount rsize;         // Size of RSet
+
+	/** Average length of a document in whole collection.
+	 */
+	om_doclength average_length;
+
+	/** If true, the exact term frequency will be requested from the
+	 *  root database, rather than an approximation made, when expand
+	 *  across a multi-database is being performed.
+	 *
+	 *  The approximation is to guess the term frequency based on the
+	 *  term frequency in the current database (as returned by the
+	 *  termlist), and the proportion of the documents in the total
+	 *  collection which that sub-database represents.
+	 */
+	bool use_exact_termfreq;
     public:
-	OmExpandWeight(const IRDatabase *root_, om_doccount rsetsize_);
+
+
+	OmExpandWeight(const IRDatabase *root_,
+		       om_doccount rsetsize_,
+		       bool use_exact_termfreq_);
 
 	OmExpandBits get_bits(om_termcount wdf,
 			      om_doclength len,
@@ -71,20 +90,6 @@ class OmExpandWeight {
 
 	om_weight get_maxweight() const;
 };
-
-///////////////////////////////
-// Inline method definitions //
-///////////////////////////////
-
-inline
-OmExpandWeight::OmExpandWeight(const IRDatabase *root_,
-			   om_doccount rsetsize_)
-	: root(root_),
-	  rsize(rsetsize_)
-{
-    dbsize = root->get_doccount();
-    return;
-}
 
 const double k = 1;
 

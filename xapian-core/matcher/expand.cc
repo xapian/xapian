@@ -103,7 +103,7 @@ OmExpand::expand(om_termcount max_esize,
     om_weight w_min = 0;
 
     // Start weighting scheme
-    OmExpandWeight ewt(database, rset->get_rsize());
+    OmExpandWeight ewt(database, rset->get_rsize(), false);
 
     TermList *merger = build_tree(rset, &ewt);
     if(merger == NULL) return;

@@ -53,9 +53,9 @@ class SleepyTermList : public LeafTermList {
 	 */
 	om_doccount db_size;
 
-	/** Normalised length of this document.
+	/** (Unnormalised) Length of this document.
 	 */
-	om_doclength norm_len;
+	om_doclength doc_len;
 
 	/** Create a SleepyPostList from the specified internals and
 	 *  term cache, using the specified document ID.

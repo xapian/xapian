@@ -123,7 +123,8 @@ DBTermList::get_weighting() const
     Assert(have_started);
     Assert(wt != NULL);
 
-    return wt->get_bits(pos->wdf, 1.0, pos->termfreq, dbsize);
+    // FIXME: want to use document length
+    return wt->get_bits(pos->wdf, 1, pos->termfreq, dbsize);
 }
 
 

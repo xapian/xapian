@@ -1,3 +1,14 @@
+Tue Jun 13 12:04:15 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Change ExpandWeight::get_bits() to take a document length, rather
+	  than a normalised document length.  Normalise document lengths
+	  across collection rather than across each sub-database.
+
+	* Add an option to ExpandWeight to use the exact term frequency,
+	  rather than approximate it.  (Currently set to false)
+
+	* Fix formatting of output from testsuite.cc
+
 Mon Jun 12 18:45:56 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix to omdebug.cc to get around a compiler borkenness.

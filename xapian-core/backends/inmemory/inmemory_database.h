@@ -159,7 +159,7 @@ class InMemoryTermList : public LeafTermList {
 	bool started;
 
 	const InMemoryDatabase * this_db;
-	om_doclength norm_len;
+	om_doclength document_length;
 
 	InMemoryTermList(const InMemoryDatabase * db,
 			 const InMemoryDoc & doc,
@@ -335,7 +335,7 @@ InMemoryTermList::InMemoryTermList(const InMemoryDatabase * db,
 	  started(false),
 	  this_db(db)
 {
-    norm_len = len / this_db->get_avlength();
+    document_length = len;
     return;
 }
 
@@ -353,7 +353,7 @@ InMemoryTermList::get_weighting() const
     Assert(wt != NULL);
 
     return wt->get_bits(InMemoryTermList::get_wdf(),
-			norm_len,
+			document_length,
 			InMemoryTermList::get_termfreq(),
 			this_db->get_doccount());
 }

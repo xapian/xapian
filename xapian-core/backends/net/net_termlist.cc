@@ -40,9 +40,8 @@ NetworkTermList::NetworkTermList(om_doclength average_length_,
 	  started(false),
 	  database_size(database_size_)
 {
-    // FIXME: set normalised length
-    // norm_len = len / this_db->get_avlength();
-    normalised_length = 1;
+    // FIXME: set length
+    document_length = 1;
 
     vector<NetClient::TermListItem>::const_iterator i = items_.begin();
     while (i != items_.end()) {
@@ -76,7 +75,7 @@ NetworkTermList::get_weighting() const
     Assert(wt != NULL);
 
     return wt->get_bits(NetworkTermList::get_wdf(),
-			normalised_length,
+			document_length,
 			NetworkTermList::get_termfreq(),
 			database_size);
 }

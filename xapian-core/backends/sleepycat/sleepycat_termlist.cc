@@ -43,7 +43,7 @@ SleepyTermList::SleepyTermList(om_docid did_,
 	  termcache(termcache_),
 	  db_size(database->get_doccount())
 {
-    norm_len = get_doclength() / database->get_avlength();
+    doc_len = get_doclength();
     mylist.move_to_start();
 }
 
@@ -63,7 +63,7 @@ SleepyTermList::get_weighting() const
     Assert(wt != NULL);
 
     return wt->get_bits(SleepyTermList::get_wdf(),
-			norm_len,
+			doc_len,
 			SleepyTermList::get_termfreq(),
 			db_size);
 }

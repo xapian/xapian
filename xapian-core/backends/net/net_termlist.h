@@ -83,14 +83,11 @@ class NetworkTermList : public LeafTermList {
 	 */
 	bool started;
 
-	/** The normalised document length of the document for which
-	 *  this is the termlist.
+	/** The length of the document for which this is the termlist.
 	 *
-	 *  Note that this is only normalised across the database within
-	 *  which this document resides.  Normalisation across databases
-	 *  is done by MultiTermList.
+	 *  Note that this is not a normalised document length.
 	 */
-	om_doclength normalised_length;
+	om_doclength document_length;
 
 	/** The number of documents in the database in which this
 	 *  document resides.

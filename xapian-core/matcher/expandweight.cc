@@ -49,25 +49,43 @@ operator+(const OmExpandBits &bits1, const OmExpandBits &bits2)
     return sum;
 }
 
+
+OmExpandWeight::OmExpandWeight(const IRDatabase *root_,
+			       om_doccount rsetsize_,
+			       bool use_exact_termfreq_)
+	: root(root_),
+	  rsize(rsetsize_),
+	  use_exact_termfreq(use_exact_termfreq_)
+{
+    dbsize = root->get_doccount();
+    average_length = root->get_avlength();
+    return;
+}
+
 OmExpandBits
 OmExpandWeight::get_bits(om_termcount wdf,
-			 om_doclength len,
+			 om_doclength document_length,
 			 om_doccount termfreq,
 			 om_doccount dbsize) const
 {
     om_weight multiplier = 1.0;
 
+    om_doclength normalised_length = document_length / average_length;
+
+    DEBUGMSG(WTCALC, "(doc_length, average_length) = (" <<
+	     document_length << ", " <<
+	     average_length << ") => normalised_length = " <<
+	     normalised_length << endl);
+
     if(wdf > 0) {
 	// FIXME -- use alpha, document importance
 	// FIXME -- lots of repeated calculation here - have a weight for each
 	// termlist, so can cache results?
-	multiplier = (k + 1) * wdf / (k * len + wdf);
-#if 1   
-	DEBUGMSG(WTCALC, "Using (wdf, len) = (" << wdf << ", " << len <<
-		 ") => multiplier = " << multiplier << endl);
+	multiplier = (k + 1) * wdf / (k * normalised_length + wdf);
+	DEBUGMSG(WTCALC, "Using (wdf, normalised_length) = (" << wdf << ", " <<
+		 normalised_length << ") => multiplier = " << multiplier << endl);
     } else {
 	DEBUGMSG(WTCALC, "No wdf information => multiplier = " << multiplier << endl);
-#endif
     }
     return OmExpandBits(multiplier, termfreq, dbsize);
 }
@@ -78,7 +96,7 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
 {
     double termfreq = (double)bits.termfreq;
     if(bits.dbsize != dbsize) {
-	if(bits.dbsize > 0) {
+	if (bits.dbsize > 0 && !use_exact_termfreq) {
 	    termfreq *= (double) dbsize / (double)bits.dbsize;
 	    DEBUGMSG(WTCALC, "Approximating termfreq of `" << tname << "': " <<
 		     bits.termfreq << " * " << dbsize << " / " <<
@@ -86,19 +104,17 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
 		     root->get_termfreq(tname) << ")" << endl);
 	} else {
 	    termfreq = root->get_termfreq(tname);
-	    DEBUGMSG(WTCALC, "Asking database for termfreq of `" << tname << "': " <<
-		     termfreq << endl);
+	    DEBUGMSG(WTCALC, "Asked database for termfreq of `" << tname <<
+		     "': " << termfreq << endl);
 	}
     }
 
-#if 1
     DEBUGMSG(WTCALC, "OmExpandWeight::get_weight("
 	     "N=" << dbsize << ", "
 	     "n=" << termfreq << ", "
 	     "R=" << rsize << ", "
 	     "r=" << bits.rtermfreq << ", "
 	     "mult=" << bits.multiplier << ")");
-#endif
 
     double rtermfreq = bits.rtermfreq;
     
@@ -118,10 +134,8 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
     }
     tw = log(tw);
 
-#if 1
     DEBUGMSG(WTCALC, " => Term weight = " << tw <<
 	     " Expand weight = " << bits.multiplier * tw << endl);
-#endif
 
     return(bits.multiplier * tw);
 }
