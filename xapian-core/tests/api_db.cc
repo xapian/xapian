@@ -315,7 +315,7 @@ static bool test_multierrhandler1()
     OmDatabase mydb2(get_database("apitest_simpledata"));
     OmDatabase mydb3(get_database("apitest_simpledata2"));
     int errcount = 1;
-    for (int testcount = 0; testcount < 13; testcount ++) {
+    for (int testcount = 0; testcount < 14; testcount ++) {
 	tout << "testcount=" << testcount << "\n";
 	OmDatabase mydb4(get_database("-e", "apitest_termorder"));
 	OmDatabase mydb5(get_network_database("apitest_termorder", 1));
