@@ -363,7 +363,7 @@ class QuartzDiskTable : public QuartzTable {
 	 *          otherwise.
 	 *
 	 */
-	bool set_entry(const QuartzDbKey & key, const QuartzDbTag * tag);
+	void set_entry(const QuartzDbKey & key, const QuartzDbTag * tag);
 
 	/** Apply changes to the table.
 	 *
@@ -378,7 +378,7 @@ class QuartzDiskTable : public QuartzTable {
 	 *  @return true if the operation completed successfully, false
 	 *          otherwise.
 	 */
-	bool apply(quartz_revision_number_t new_revision);
+	void apply(quartz_revision_number_t new_revision);
 
 	/** Virtual methods of QuartzTable.
 	 */
@@ -421,6 +421,10 @@ class QuartzBufferedTable : public QuartzTable {
 	 *          currently marked for deletion, true otherwise.
 	 */
 	bool have_tag(const QuartzDbKey &key);
+
+	/** Perform the writing of changes.
+	 */
+	void write_internal();
     public:
 	/** Create a new table.  This does not open the table - the open()
 	 *  method must be called before use is made of the table.
@@ -435,10 +439,17 @@ class QuartzBufferedTable : public QuartzTable {
 	 */
 	~QuartzBufferedTable();
 
+	/** Write any outstanding changes to disk.
+	 *
+	 *  This frees the memory used to store the changes in memory, but
+	 *  doesn't create a new revision.
+	 */
+	void write();
+
 	/** Apply any outstanding changes.
 	 *
 	 *  If an error occurs during the operation, this will be signalled
-	 *  by a return value of false.  The table on disk will be left in an
+	 *  by an exception.  The table on disk will be left in an
 	 *  unmodified state, and the changes made to it will be lost.
 	 *
 	 *  @param new_revision  The new revision number to store the
@@ -447,7 +458,7 @@ class QuartzBufferedTable : public QuartzTable {
 	 *  @return true if the operation completed successfully, false
 	 *          otherwise.
 	 */
-	bool apply(quartz_revision_number_t new_revision);
+	void apply(quartz_revision_number_t new_revision);
 
 	/** Cancel any outstanding changes.
 	 *

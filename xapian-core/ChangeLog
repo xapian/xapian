@@ -1,3 +1,21 @@
+Thu Nov 23 18:12:59 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add a cancel method to QuartzTableManager(), and ensure it is
+	  called if any errors occur while modifying the quartz database -
+	  this prevents partial modifications being applied.
+
+	* QuartzTableManager::set_revision_number() and apply() now return
+	  void - exceptions are thrown if errors occur.
+
+	* QuartzBufferedTables now free the memory they're using as soon as
+	  possible when writing changes to disk.
+
+	* Added QuartzBufferedTable::write() method - when implemented, this
+	  will write the changes so far to disk and free the memory used,
+	  but not make a new revision: this is wanted for some backends where
+	  no sort of the modifications is needed, so they don't need to be
+	  held in memory.
+
 Thu Nov 23 16:31:45 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Re-arranged Btree::basic_open slightly to make it easier to 

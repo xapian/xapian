@@ -223,7 +223,7 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 *          get_latest_revision_number()), or undefined behaviour will
 	 *          result.
 	 */
-	bool set_revision_number(quartz_revision_number_t new_revision);
+	void set_revision_number(quartz_revision_number_t new_revision);
 	
 	/** Virtual methods of QuartzTableManager
 	 */
@@ -286,7 +286,11 @@ class QuartzBufferedTableManager : public QuartzTableManager {
 	 *  @return true if the operation completed successfully, false
 	 *          otherwise.
 	 */
-	bool apply();
+	void apply();
+
+	/** Cancel any outstanding changes to the tables.
+	 */
+	void cancel();
 
 	/** Virtual methods of QuartzTableManager
 	 */

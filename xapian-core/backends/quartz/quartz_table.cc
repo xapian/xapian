@@ -404,10 +404,10 @@ QuartzDiskTable::cursor_get() const
     RETURN(new QuartzDiskCursor(btree_for_reading));
 }
 
-bool
+void
 QuartzDiskTable::set_entry(const QuartzDbKey & key, const QuartzDbTag * tag)
 {
-    DEBUGCALL(DB, bool, "QuartzDiskTable::set_entry",
+    DEBUGCALL(DB, void, "QuartzDiskTable::set_entry",
 	      "QuartzDbKey(" << key.value << "), "
 	      "QuartzDbTag*(" << (tag == 0 ? "<NULL>" : tag->value) << ")");
 
@@ -439,14 +439,12 @@ QuartzDiskTable::set_entry(const QuartzDbKey & key, const QuartzDbTag * tag)
 			       tag->value.size());
 	// FIXME: Check result
     }
-
-    RETURN(true);
 }
 
-bool
+void
 QuartzDiskTable::apply(quartz_revision_number_t new_revision)
 {
-    DEBUGCALL(DB, bool, "QuartzDiskTable::apply", new_revision);
+    DEBUGCALL(DB, void, "QuartzDiskTable::apply", new_revision);
 
     Assert(opened);
     if(readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
@@ -467,8 +465,6 @@ QuartzDiskTable::apply(quartz_revision_number_t new_revision)
     // FIXME: check for errors
     // FIXME: want to indicate that the database closed successfully even
     // if we now can't open it.  Or is this a panic situation?
-
-    RETURN(true);
 }
 
 
@@ -484,33 +480,50 @@ QuartzBufferedTable::~QuartzBufferedTable()
 {
 }
 
-bool
-QuartzBufferedTable::apply(quartz_revision_number_t new_revision)
+void
+QuartzBufferedTable::write_internal()
 {
-    bool result;
     try {
-	std::map<QuartzDbKey, QuartzDbTag *>::const_iterator entry;
-	entry = changed_entries.get_all_entries().begin();
-	Assert(entry != changed_entries.get_all_entries().end());
-	// Don't apply the null entry.
+	QuartzTableEntries::items & entries = changed_entries.get_all_entries();
+	std::map<QuartzDbKey, QuartzDbTag *>::iterator entry;
+	entry = entries.begin();
+	Assert(entry != entries.end());
+	// Don't set the null entry.
 	for (entry++;
 	     entry != changed_entries.get_all_entries().end();
 	     entry++) {
-	    result = disktable->set_entry(entry->first, entry->second);
+	    disktable->set_entry(entry->first, entry->second);
+	    delete entry->second;
+	    entry->second = 0;
 	}
-	disktable->apply(new_revision);
     } catch (...) {
 	changed_entries.clear();
 	throw;
     }
     changed_entries.clear();
+}
+
+void
+QuartzBufferedTable::write()
+{
+    // FIXME: implement
+    // write_internal();
+}
+
+void
+QuartzBufferedTable::apply(quartz_revision_number_t new_revision)
+{
+    write_internal();
+    disktable->apply(new_revision);
+
     AssertEq(entry_count, disktable->get_entry_count());
-    return result;
 }
 
 void
 QuartzBufferedTable::cancel()
 {
+    // FIXME: when write is implemented, ensure that this undoes any
+    // changes which have been written (but not yet applied).
     changed_entries.clear();
     entry_count = disktable->get_entry_count();
 }

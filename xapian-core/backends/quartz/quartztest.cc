@@ -393,7 +393,7 @@ static bool test_bufftable1()
 
     quartz_revision_number_t new_revision =
 	    disktable1.get_latest_revision_number() + 1;
-    TEST(bufftable1.apply(new_revision));
+    bufftable1.apply(new_revision);
     TEST_EQUAL(disktable1.get_entry_count(), 1);
     TEST_EQUAL(bufftable1.get_entry_count(), 1);
 
@@ -420,7 +420,7 @@ static bool test_bufftable1()
     TEST_EQUAL(bufftable1.get_entry_count(), 2);
 
     new_revision += 1;
-    TEST(bufftable1.apply(new_revision));
+    bufftable1.apply(new_revision);
 
     TEST_EQUAL(disktable1.get_entry_count(), 2);
     TEST_EQUAL(bufftable1.get_entry_count(), 2);
@@ -453,7 +453,7 @@ static bool test_bufftable2()
 	bufftable.get_or_make_tag(key)->value = "bar3";
 
 	new_revision = disktable.get_latest_revision_number() + 1;
-	TEST(bufftable.apply(new_revision));
+	bufftable.apply(new_revision);
 
 	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
 	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
@@ -501,7 +501,7 @@ static bool test_bufftable2()
 	bufftable.get_or_make_tag(key)->value = "bar25";
 	old_revision = new_revision;
 	new_revision += 1;
-	TEST(bufftable.apply(new_revision));
+	bufftable.apply(new_revision);
 
 	TEST_EQUAL(disktable.get_entry_count(), 4);
 	TEST_EQUAL(bufftable.get_entry_count(), 4);
@@ -527,7 +527,7 @@ static bool test_bufftable2()
 	key.value = "foo26";
 	bufftable.get_or_make_tag(key)->value = "bar26";
 	new_revision += 1;
-	TEST(bufftable.apply(new_revision));
+	bufftable.apply(new_revision);
 
 	TEST_EQUAL(disktable.get_entry_count(), 4);
 	TEST_EQUAL(bufftable.get_entry_count(), 4);
@@ -594,6 +594,70 @@ static bool test_bufftable2()
     return true;
 }
 
+/// Test making and playing with a QuartzBufferedTable
+static bool test_bufftable3()
+{
+    unlink_table("test_bufftable3_");
+    quartz_revision_number_t new_revision;
+    {
+	// Open table and add a couple of documents
+	QuartzDiskTable disktable("./test_bufftable3_", false, 8192);
+	disktable.open();
+	QuartzBufferedTable bufftable(&disktable);
+
+	TEST_EQUAL(disktable.get_entry_count(), 0);
+	TEST_EQUAL(bufftable.get_entry_count(), 0);
+
+	QuartzDbKey key;
+
+	key.value = "foo1";
+	bufftable.get_or_make_tag(key)->value = "bar1";
+	bufftable.write();
+
+	key.value = "foo2";
+	bufftable.get_or_make_tag(key)->value = "bar2";
+	bufftable.cancel();
+
+	key.value = "foo3";
+	bufftable.get_or_make_tag(key)->value = "bar3";
+
+	new_revision = disktable.get_latest_revision_number() + 1;
+	bufftable.apply(new_revision);
+
+	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
+	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
+    }
+    {
+	// Reopen and check that the documents are still there.
+	QuartzDiskTable disktable("./test_bufftable3_", false, 8192);
+	disktable.open();
+	QuartzBufferedTable bufftable(&disktable);
+
+	TEST_EQUAL(disktable.get_entry_count(), 1);
+	TEST_EQUAL(bufftable.get_entry_count(), 1);
+
+	QuartzDbKey key;
+
+	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
+	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
+
+	key.value = "foo";
+	AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
+	TEST(!cursor->find_entry(key));
+	TEST_EQUAL(cursor->current_key.value, "");
+	TEST_EQUAL(cursor->current_tag.value, "");
+
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key.value, "foo3");
+	TEST_EQUAL(cursor->current_tag.value, "bar3");
+
+	cursor->next();
+	TEST(cursor->after_end());
+    }
+    return true;
+}
+
 /// Test QuartzCursors
 static bool test_cursor1()
 {
@@ -614,7 +678,7 @@ static bool test_cursor1()
     bufftable1.get_or_make_tag(key)->value = "bar3";
     quartz_revision_number_t new_revision = disktable1.get_latest_revision_number();
     new_revision += 1;
-    TEST(bufftable1.apply(new_revision));
+    bufftable1.apply(new_revision);
 
     QuartzTable * table = &disktable1;
     int count = 2;
@@ -742,7 +806,7 @@ static bool test_cursor1()
     TEST_EQUAL(cursor->current_tag.value, "bar3");
 
     new_revision += 1;
-    TEST(bufftable1.apply(new_revision));
+    bufftable1.apply(new_revision);
 
     cursor.reset(bufftable1.cursor_get());
     key.value = "foo2";
@@ -806,7 +870,7 @@ static bool test_cursor2()
     bufftable1.get_or_make_tag(key)->value = tag2;
     quartz_revision_number_t new_revision = disktable1.get_latest_revision_number();
     new_revision += 1;
-    TEST(bufftable1.apply(new_revision));
+    bufftable1.apply(new_revision);
 
     AutoPtr<QuartzCursor> cursor(disktable1.cursor_get());
 
@@ -1523,6 +1587,7 @@ test_desc tests[] = {
     {"quartztableentries1",	test_tableentries1},
     {"quartzbufftable1",	test_bufftable1},
     {"quartzbufftable2",	test_bufftable2},
+    {"quartzbufftable3",	test_bufftable3},
     {"quartzcursor1",		test_cursor1},
     {"quartzcursor2",		test_cursor2},
     {"quartzopen1",		test_open1},

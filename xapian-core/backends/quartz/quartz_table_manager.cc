@@ -254,18 +254,15 @@ QuartzDiskTableManager::get_next_revision_number() const
     return new_revision;
 }
 
-bool
+void
 QuartzDiskTableManager::set_revision_number(quartz_revision_number_t new_revision)
 {
-    bool success = true;
-    success = success && postlist_table    .apply(new_revision);
-    success = success && positionlist_table.apply(new_revision);
-    success = success && termlist_table    .apply(new_revision);
-    success = success && lexicon_table     .apply(new_revision);
-    success = success && attribute_table   .apply(new_revision);
-    success = success && record_table      .apply(new_revision);
-
-    return success;
+    postlist_table    .apply(new_revision);
+    positionlist_table.apply(new_revision);
+    termlist_table    .apply(new_revision);
+    lexicon_table     .apply(new_revision);
+    attribute_table   .apply(new_revision);
+    record_table      .apply(new_revision);
 }
 
 QuartzDiskTable *
@@ -327,7 +324,7 @@ QuartzBufferedTableManager::~QuartzBufferedTableManager()
 {
 }
 
-bool
+void
 QuartzBufferedTableManager::apply()
 {
     if(!postlist_buffered_table.is_modified() &&
@@ -337,31 +334,27 @@ QuartzBufferedTableManager::apply()
        !attribute_buffered_table.is_modified() &&
        !record_buffered_table.is_modified()) {
 	disktables.log->make_entry("No modifications to apply.");
-	return true;
+	return;
     }
 
-    bool success;
     quartz_revision_number_t old_revision = disktables.get_revision_number();
     quartz_revision_number_t new_revision = disktables.get_next_revision_number();
 
     disktables.log->make_entry("Applying modifications.  New revision number is " + om_tostring(new_revision) + ".");
 
-    success = postlist_buffered_table.apply(new_revision);
-    if (success) { success = positionlist_buffered_table.apply(new_revision); }
-    if (success) { success = termlist_buffered_table.apply(new_revision); }
-    if (success) { success = lexicon_buffered_table.apply(new_revision); }
-    if (success) { success = attribute_buffered_table.apply(new_revision); }
-    if (success) { success = record_buffered_table.apply(new_revision); }
+    try {
+	postlist_buffered_table.apply(new_revision);
+	positionlist_buffered_table.apply(new_revision);
+	termlist_buffered_table.apply(new_revision);
+	lexicon_buffered_table.apply(new_revision);
+	attribute_buffered_table.apply(new_revision);
+	record_buffered_table.apply(new_revision);
 
-    if (!success) {
+	disktables.log->make_entry("Modifications succeeded.");
+    } catch (...) {
 	// Modifications failed.  Wipe all the modifications from memory.
 	disktables.log->make_entry("Attempted modifications failed.  Wiping partial modifications.");
-	postlist_buffered_table.cancel();
-	positionlist_buffered_table.cancel();
-	termlist_buffered_table.cancel();
-	lexicon_buffered_table.cancel();
-	attribute_buffered_table.cancel();
-	record_buffered_table.cancel();
+	cancel();
 	
 	// Reopen tables with old revision number, 
 	disktables.log->make_entry("Reopening tables without modifications: old revision is " + om_tostring(old_revision) + ".");
@@ -372,14 +365,28 @@ QuartzBufferedTableManager::apply()
 	new_revision += 1;
 	disktables.log->make_entry("Increasing revision number in all tables to " + om_tostring(new_revision) + ".");
 
-	if (!disktables.set_revision_number(new_revision)) {
-	    disktables.log->make_entry("Setting revision number failed.  Need recovery.");
+	try {
+	    disktables.set_revision_number(new_revision);
+	} catch (OmError & e) {
+	    disktables.log->make_entry("Setting revision number failed: " +
+				       e.get_type() + ": " +
+				       e.get_msg() + " " +
+				       e.get_context() + ".  Need recovery.");
 	    throw OmNeedRecoveryError("Quartz - cannot set revision numbers to consistent state.");
 	}
-    } else {
-	disktables.log->make_entry("Modifications succeeded.");
+	throw;
     }
-    return success;
+}
+
+void
+QuartzBufferedTableManager::cancel()
+{
+    postlist_buffered_table.cancel();
+    positionlist_buffered_table.cancel();
+    termlist_buffered_table.cancel();
+    lexicon_buffered_table.cancel();
+    attribute_buffered_table.cancel();
+    record_buffered_table.cancel();
 }
 
 QuartzBufferedTable *
