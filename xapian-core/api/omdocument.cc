@@ -114,6 +114,29 @@ OmDocument::add_key(om_keyno keyno, const OmKey &key)
 }
 
 void
+OmDocument::remove_key(om_keyno keyno)
+{
+    DEBUGAPICALL(void, "OmDocument::remove_key", keyno);
+    // FIXME: need to lock here...
+    if (!internal->keys_here) {
+	internal->keys = internal->ptr->get_all_keys();
+	internal->keys_here = true;
+    }
+    internal->keys.erase(keyno);
+}
+
+void
+OmDocument::clear_keys()
+{
+    DEBUGAPICALL(void, "OmDocument::clear_keys", "");
+    if (internal->keys_here) {
+	internal->keys.clear();
+    } else {
+	internal->keys_here = true;
+    }
+}
+
+void
 OmDocument::add_posting(const om_termname & tname, om_termpos tpos)
 {
     DEBUGAPICALL(void, "OmDocument::add_posting", tname << ", " << tpos);

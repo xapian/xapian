@@ -1,3 +1,7 @@
+Wed Nov 29 11:55:03 GMT 2000 Olly Betts
+
+	* Added OmDocument::remove_key() and OmDocument::clear_keys()
+
 Tue Nov 28 18:34:57 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Btree bitmap now merged with base - one object, one file.

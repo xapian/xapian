@@ -117,6 +117,10 @@ class OmDocument {
 
 	void add_key(om_keyno keyno, const OmKey &key);
 
+	void remove_key(om_keyno keyno);
+
+	void clear_keys();
+
 	/** Add an occurrence of a term to the document.
 	 *
 	 *  Multiple occurrences of the term at the same position are represented
