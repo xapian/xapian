@@ -99,8 +99,8 @@ print <<_HTML_;
 <body>
 <table width=100%>
 <tr valign=bottom><td>
-<a href="http://www.cse.unsw.edu.au/~amichail/cvssearch">
-<img border=0 src="http://www.cse.unsw.edu.au/~anniec/images/fishlogo.gif"></a>
+<a href="http://cvssearch.sourceforge.net">
+<img border=0 src="http://cvssearch.sourceforge.net/fishlogo.gif"></a>
 </td><td align=right>
 <form action=./Query.cgi>
 <b>Enter keyword(s) to search for: </b><input type=text size=45 name=query value="$query">
