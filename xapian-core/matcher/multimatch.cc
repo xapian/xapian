@@ -113,15 +113,24 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
 	Database *db = (*i).get();
 	Assert(db);
 	RefCntPtr<SubMatch> smatch;
-	// There is currently only one special case, for network databases.
-	if (db->is_network()) {
+	try {
+	    // There is currently only one special case, for network databases.
+	    if (db->is_network()) {
 #ifdef MUS_BUILD_BACKEND_REMOTE
-	    smatch = RefCntPtr<SubMatch>(new RemoteSubMatch(db, query, *subrset, opts, gatherer.get()));
+		smatch = RefCntPtr<SubMatch>(new RemoteSubMatch(db, query, *subrset, opts, gatherer.get()));
 #else /* MUS_BUILD_BACKEND_REMOTE */
-	    throw OmUnimplementedError("Network operation is not available");
+		throw OmUnimplementedError("Network operation is not available");
 #endif /* MUS_BUILD_BACKEND_REMOTE */
-	} else {
-	    smatch = RefCntPtr<SubMatch>(new LocalSubMatch(db, query, *subrset, opts, gatherer.get()));
+	    } else {
+		smatch = RefCntPtr<SubMatch>(new LocalSubMatch(db, query, *subrset, opts, gatherer.get()));
+	    }
+	} catch (OmError & e) {
+	    if (errorhandler) (*errorhandler)(e);
+	    // Continue match without this sub-postlist.
+	    throw;
+#if 0
+	    Make an EmptyMatch object instead of smatch
+#endif
 	}
 	leaves.push_back(smatch);
 	subrset++;
