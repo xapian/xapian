@@ -554,13 +554,11 @@ static bool test_poslist2()
     TEST_EXCEPTION(Xapian::RangeError,
 	// Check what happens when term doesn't exist
 	Xapian::PositionIterator i = db.positionlist_begin(did, "nosuchterm");
-	// FIXME: quartz doesn't throw!
     );
 
     TEST_EXCEPTION(Xapian::DocNotFoundError,
         // Check what happens when the document doesn't even exist
         Xapian::PositionIterator i = db.positionlist_begin(123, "nosuchterm");
-	// FIXME: quartz doesn't throw!
     );            
     
     {
@@ -595,11 +593,69 @@ static bool test_poslist2()
         // Check what happens when the document doesn't even exist
 	// (but once did)
 	Xapian::PositionIterator i = db.positionlist_begin(did, "nosuchterm");
-	// FIXME: quartz doesn't throw!
     );
 
     return true;
 }
+
+/// Test playing with a positionlist, testing skip_to in particular.
+/// (used to be quartztest's test_positionlist1).
+static bool test_poslist3()
+{
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    vector<Xapian::termpos> positions;
+
+    Xapian::Document document;
+    document.add_posting("foo", 5);
+    document.add_posting("foo", 8);
+    document.add_posting("foo", 10);
+    document.add_posting("foo", 12);
+    db.add_document(document);
+
+    TEST_EXCEPTION(Xapian::RangeError, db.positionlist_begin(1, "foobar"));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.positionlist_begin(2, "foo"));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.positionlist_begin(2, "foobar"));
+    Xapian::PositionIterator pl = db.positionlist_begin(1, "foo");
+    Xapian::PositionIterator pl_end = db.positionlist_end(1, "foo");
+
+    TEST(pl != pl_end);
+    TEST_EQUAL(*pl, 5);
+    ++pl;
+    TEST(pl != pl_end);
+    TEST_EQUAL(*pl, 8);
+    ++pl;
+    TEST(pl != pl_end);
+    TEST_EQUAL(*pl, 10);
+    ++pl;
+    TEST(pl != pl_end);
+    TEST_EQUAL(*pl, 12);
+    ++pl;
+    TEST(pl == pl_end);
+
+    pl = db.positionlist_begin(1, "foo");
+    pl.skip_to(5);
+    TEST(pl != pl_end);
+    TEST_EQUAL(*pl, 5);
+
+    pl.skip_to(9);
+    TEST(pl != pl_end);
+    TEST_EQUAL(*pl, 10);
+
+    ++pl;
+    TEST(pl != pl_end);
+    TEST_EQUAL(*pl, 12);
+
+    pl.skip_to(12);
+    TEST(pl != pl_end);
+    TEST_EQUAL(*pl, 12);
+
+    pl.skip_to(13);
+    TEST(pl == pl_end);
+
+    return true;
+}
+
 // # End of test cases: now we list the tests to run.
 
 /// The tests which need a backend which supports positional information
@@ -617,7 +673,7 @@ test_desc positionaldb_tests[] = {
  */
 test_desc localpositionaldb_tests[] = {
     {"poslist1",	   test_poslist1},
-// FIXME: fix quartz to pass this test
     {"poslist2",	   test_poslist2},
+    {"poslist3",	   test_poslist3},
     {0, 0}
 };

@@ -1,3 +1,8 @@
+Fri Aug 13 15:36:04 BST 2004  Olly Betts <olly@survex.com>
+
+	* tests/api_posdb.cc,tests/quartztest.cc: Reworked quartztest's
+	  positionlist1 into a generic api test as apitest's poslist3.
+
 Thu Aug 12 16:26:42 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_table.cc,backends/quartz/quartz_table.h,

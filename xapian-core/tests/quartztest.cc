@@ -1714,80 +1714,6 @@ static bool test_postlist2()
     return true;
 }
 
-/// Test playing with a positionlist, testing skip_to in particular.
-static bool test_positionlist1()
-{
-    QuartzPositionListTable table(tmpdir + "testdb_positionlist1", false, 8192);
-    table.erase();
-    table.create();
-    table.open();
-
-    vector<Xapian::termpos> positions;
-
-    Xapian::Document document;
-    document.add_posting("foo", 5);
-    document.add_posting("foo", 8);
-    document.add_posting("foo", 10);
-    document.add_posting("foo", 12);
-    table.set_positionlist(1, "foo",
-		 document.termlist_begin().positionlist_begin(),
-		 document.termlist_begin().positionlist_end());
-
-    QuartzPositionList pl;
-
-    pl.read_data(&table, 1, "foobar");
-    TEST_EQUAL(pl.get_size(), 0);
-    pl.read_data(&table, 2, "foo");
-    TEST_EQUAL(pl.get_size(), 0);
-    pl.read_data(&table, 1, "foo");
-    TEST_EQUAL(pl.get_size(), 4);
-
-    pl.next();
-    TEST(!pl.at_end());
-    TEST_EQUAL(pl.get_size(), 4);
-    TEST_EQUAL(pl.get_position(), 5);
-
-    pl.next();
-    TEST(!pl.at_end());
-    TEST_EQUAL(pl.get_position(), 8);
-
-    pl.next();
-    TEST(!pl.at_end());
-    TEST_EQUAL(pl.get_position(), 10);
-
-    pl.next();
-    TEST(!pl.at_end());
-    TEST_EQUAL(pl.get_position(), 12);
-
-    pl.next();
-    TEST(pl.at_end());
-
-    pl.read_data(&table, 1, "foo");
-    TEST_EQUAL(pl.get_size(), 4);
-
-    pl.skip_to(5);
-    TEST(!pl.at_end());
-    TEST_EQUAL(pl.get_size(), 4);
-    TEST_EQUAL(pl.get_position(), 5);
-
-    pl.skip_to(9);
-    TEST(!pl.at_end());
-    TEST_EQUAL(pl.get_position(), 10);
-
-    pl.next();
-    TEST(!pl.at_end());
-    TEST_EQUAL(pl.get_position(), 12);
-
-    pl.skip_to(12);
-    TEST(!pl.at_end());
-    TEST_EQUAL(pl.get_position(), 12);
-
-    pl.skip_to(13);
-    TEST(pl.at_end());
-
-    return true;
-}
-
 /// Test overwriting a table.
 static bool test_overwrite1()
 {
@@ -1840,7 +1766,7 @@ static bool test_overwrite1()
 }
 
 #if 0 // FIXME - why isn't this used?
-/// Test playing with a positionlist, testing skip_to in particular.
+/// overwrite2
 static bool test_overwrite2()
 {
     string dbname = tmpdir + "overwrite2";
@@ -2068,7 +1994,6 @@ test_desc tests[] = {
     {"unpackint1",	test_unpackint1},
     {"postlist1",	test_postlist1},
     {"postlist2",	test_postlist2},
-    {"positionlist1",	test_positionlist1},
     {"overwrite1", 	test_overwrite1},
 //    {"overwrite2", 	test_overwrite2},
     {"bitmap1", 	test_bitmap1},
