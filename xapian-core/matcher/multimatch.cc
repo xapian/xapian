@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +29,6 @@
 #include "rset.h"
 #include "omdebug.h"
 #include "omenquireinternal.h"
-#include "../api/omdatabaseinternal.h"
 #include "omdatabaseinterface.h"
 #include "omdocumentinternal.h"
 
@@ -66,29 +66,32 @@ class OmErrorHandler;
 
 // Comparison which sorts equally weighted MSetItems in docid order
 bool msetcmp_forward(const OmMSetItem &a, const OmMSetItem &b) {
-    if(a.wt > b.wt) return true;
-    if(a.wt == b.wt) return a.did < b.did;
-    return false;
+    if (a.wt > b.wt) return true;
+    if (a.wt < b.wt) return false;
+    // two special cases to make min_item compares work when did == 0
+    if (a.did == 0) return false;
+    if (b.did == 0) return true;
+    return (a.did < b.did);
 }
 
 // Comparison which sorts equally weighted MSetItems in reverse docid order
 bool msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b) {
-    if(a.wt > b.wt) return true;
-    if(a.wt == b.wt) return a.did > b.did;
-    return false;
+    if (a.wt > b.wt) return true;
+    if (a.wt < b.wt) return false;
+    return (a.did > b.did);
 }
 
 ////////////////////////////////////
 // Initialisation and cleaning up //
 ////////////////////////////////////
 MultiMatch::MultiMatch(const OmDatabase &db_,
-		       const OmQuery::Internal * query,
+		       const OmQuery::Internal * query_,
 		       const OmRSet & omrset,
 		       const OmSettings & opts_,
 		       OmErrorHandler * errorhandler_,
 		       AutoPtr<StatsGatherer> gatherer_)
-	: gatherer(gatherer_), db(db_), opts(opts_), mcmp(msetcmp_forward),
-	  errorhandler(errorhandler_)
+	: gatherer(gatherer_), db(db_), query(query_), opts(opts_),
+	  mcmp(msetcmp_forward), errorhandler(errorhandler_)
 {
     // FIXME: has this check been done already?
     // Check that we have a valid query to run
@@ -101,7 +104,8 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
     om_doccount number_of_leaves = internal->databases.size();
     std::vector<OmRSet> subrsets(number_of_leaves);
 
-    for (std::set<om_docid>::const_iterator reldoc = omrset.internal->items.begin();
+    std::set<om_docid>::const_iterator reldoc; 
+    for (reldoc = omrset.internal->items.begin();
 	 reldoc != omrset.internal->items.end(); reldoc++) {
 	om_doccount local_docid = ((*reldoc) - 1) / number_of_leaves + 1;
 	om_doccount subdatabase = ((*reldoc) - 1) % number_of_leaves;
@@ -220,7 +224,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     DEBUGCALL(EXCEPTION, void, "MultiMatch::get_mset",
 	      first << ", " << maxitems << ", ...");
 
-    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> termfreqandwts;
+    std::map<om_termname,
+    	     OmMSet::Internal::Data::TermFreqAndWeight> termfreqandwts;
 
     Assert(!leaves.empty());
 
@@ -232,7 +237,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		(*leaf)->start_match(first + maxitems);
 	    } catch (OmError & e) {
 		if (errorhandler) {
-		    DEBUGLINE(EXCEPTION, "Calling error handler for start_match() on a SubMatch.");
+		    DEBUGLINE(EXCEPTION, "Calling error handler for "
+			      "start_match() on a SubMatch.");
 		    (*errorhandler)(e);
 		    // Continue match without this sub-match.
 		    *leaf = RefCntPtr<SubMatch>(new EmptySubMatch());
@@ -269,7 +275,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		    DEBUGLINE(MATCH, "leaf is an EmptySubMatch, trying next");
 		} else {
 		    if (errorhandler) {
-			DEBUGLINE(EXCEPTION, "Calling error handler for get_term_info() on a SubMatch.");
+			DEBUGLINE(EXCEPTION, "Calling error handler for "
+				  "get_term_info() on a SubMatch.");
 			(*errorhandler)(e);
 			// Continue match without this sub-match.
 			*leaf = RefCntPtr<SubMatch>(new EmptySubMatch());
@@ -326,7 +333,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 					   matches_lower_bound,
 					   matches_estimated,
 					   max_weight, greatest_wt, items,
-					   termfreqandwts)));
+					   termfreqandwts,
+					   0)));
 	return;
     }
 
@@ -339,20 +347,12 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // should be considered for the mset.
     OmMSetItem min_item(0, 0);
 
-    {
-	int val = opts.get_int("match_percent_cutoff", 0);
-	if (val > 0) {
-	    min_item.wt = val * max_weight / 100;
-	}
-    }
-
+    om_weight percent_factor = opts.get_int("match_percent_cutoff", 0) / 100.0;
+    bool percent_cutoff = (percent_factor > 0);
+     
     {
 	om_weight val = opts.get_real("match_cutoff", 0);
-	if (val > 0) {
-	    if (min_item.wt < val) {
-		min_item.wt = val;
-	    }
-	}
+	if (val > 0) min_item.wt = val;
     }
 
     // Table of keys which have been seen already, for collapsing.
@@ -373,95 +373,21 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // Perform query
 
     // We form the mset in two stages.  In the first we fill up our working
-    // mset.  Adding a new document does not remove another.  In the
-    // second, we consider documents which may be better than documents
-    // already in the mset.  Each document added expels another already in
-    // the mset.
-    while (items.size() < max_msize) {
-	next_handling_prune(pl, min_item.wt, this);
+    // mset.  Adding a new document does not remove another.
+    //
+    // In the second, we consider documents which rank higher than the current
+    // lowest ranking document in the mset.  Each document added expels the
+    // current lowest ranking document.
+    //
+    // If a percentage cutoff is in effect, it cause the matcher to return
+    // from the second stage from the first.
 
-	if (pl->at_end()) goto match_complete;
+    // Is the mset a valid heap?
+    bool is_heap = false; 
 
-	om_docid did = pl->get_docid();
-
-	RefCntPtr<Document> doc;
-
-	// Use the decision functor if any.
-	// FIXME: if results are from MSetPostList then we can omit this
-	// step
-	if (mdecider != NULL) {
-	    if (doc.get() == 0) {
-		RefCntPtr<Document> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
-		doc = temp;
-	    }
-	    OmDocument mydoc(new OmDocument::Internal(doc, db, did));
-	    if (!mdecider->operator()(mydoc)) continue;
-	}
-
-	om_weight wt = pl->get_weight();
-	OmMSetItem new_item(wt, did);
-	DEBUGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
-
-	bool pushback = true;
-	    
-	// Perform collapsing on key if requested.
-	if (do_collapse) {
-	    new_item.collapse_key = get_collapse_key(pl, db, did,
-						     collapse_key, doc);
-
-	    // Don't collapse on null key
-	    if (!new_item.collapse_key.value.empty()) {
-		std::map<OmKey, OmMSetItem>::iterator oldkey;
-		oldkey = collapse_tab.find(new_item.collapse_key);
-		if (oldkey == collapse_tab.end()) {
-		    DEBUGLINE(MATCH, "collapsem: new key: " << new_item.collapse_key.value);
-		    // Key not been seen before
-		    collapse_tab.insert(std::make_pair(new_item.collapse_key, new_item));
-		} else {
-		    const OmMSetItem olditem = (*oldkey).second;
-		    if (mcmp(olditem, new_item)) {
-			DEBUGLINE(MATCH, "collapsem: better exists: " <<
-				  new_item.collapse_key.value);
-			// There's already a better match with this key
-			continue;
-		    }
-		    // This is best match with this key so far:
-		    // remove the old one from the MSet
-		    om_docid olddid = olditem.did;
-		    DEBUGLINE(MATCH, "collapsem: removing " << olddid <<
-			      ": " << new_item.collapse_key.value);
-		    std::vector<OmMSetItem>::iterator i;
-		    for (i = items.begin(); i->did != olddid; i++) {
-			Assert(i != items.end());
-		    }
-		    *i = new_item;
-		    pushback = false;
-		    oldkey->second = new_item;
-		}
-	    }
-	}
-	    
-	// OK, actually add the item to the mset.
-	if (pushback) {
-	    items.push_back(new_item);
-	    docs_matched++;
-	}
-
-	// Keep a track of the greatest weight we've seen.
-	if (wt > greatest_wt) greatest_wt = wt;
-    }
-    
-    // We're done if this is a forward boolean match
-    // (bodgetastic, FIXME better if we can)
-    if (max_weight == 0) {
-	if (opts.get_bool("match_sort_forward", true)) goto match_complete;
-    }
-
-    make_heap<vector<OmMSetItem>::iterator, OmMSetCmp>(items.begin(),
-						       items.end(), mcmp);
     while (1) {
 	if (recalculate_w_max) {
-	    if (getorrecalc_maxweight(pl) < min_item.wt) {
+	    if (min_item.wt > 0.0 && getorrecalc_maxweight(pl) < min_item.wt) {
 		DEBUGLINE(MATCH, "*** TERMINATING EARLY (1)");
 		break;
 	    }
@@ -484,13 +410,14 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	}
 
 	om_docid did = pl->get_docid();
-	om_weight wt = pl->get_weight();
+	om_weight wt = 0.0;
+	if (min_item.wt > 0.0) wt = pl->get_weight();
 
 	DEBUGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
 	OmMSetItem new_item(wt, did);
 
 	// test if item has high enough weight to get into proto-mset
-	if (!mcmp(new_item, min_item)) continue;
+	if (min_item.wt > 0.0 && !mcmp(new_item, min_item)) continue;
 
 	RefCntPtr<Document> doc;
 
@@ -505,24 +432,31 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    if (!mdecider->operator()(mydoc)) continue;
 	}
 
+	if (min_item.wt <= 0.0) {
+	    wt = pl->get_weight();
+	    new_item.wt = wt;
+	}
+
 	bool pushback = true;
 
 	// Perform collapsing on key if requested.
 	if (do_collapse) {
-	    new_item.collapse_key = get_collapse_key(pl, db, did, collapse_key,
-						     doc);
+	    new_item.collapse_key = get_collapse_key(pl, db, did,
+						     collapse_key, doc);
 
 	    // Don't collapse on null key
 	    if (!new_item.collapse_key.value.empty()) {
 		std::map<OmKey, OmMSetItem>::iterator oldkey;
 		oldkey = collapse_tab.find(new_item.collapse_key);
 		if (oldkey == collapse_tab.end()) {
-		    DEBUGLINE(MATCH, "collapsem: new key: " << new_item.collapse_key.value);
+		    DEBUGLINE(MATCH, "collapsem: new key: " <<
+			      new_item.collapse_key.value);
 		    // Key not been seen before
-		    collapse_tab.insert(std::make_pair(new_item.collapse_key, new_item));
+		    collapse_tab.insert(std::make_pair(new_item.collapse_key,
+						       new_item));
 		} else {
-		    const OmMSetItem olditem = (*oldkey).second;
-		    if (mcmp(olditem, new_item)) {
+		    const OmMSetItem old_item = oldkey->second;
+		    if (mcmp(old_item, new_item)) {
 			DEBUGLINE(MATCH, "collapsem: better exists: " <<
 				  new_item.collapse_key.value);
 			// There's already a better match with this key
@@ -530,54 +464,131 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		    }
 		    // This is best match with this key so far:
 		    // remove the old one from the MSet
-		    if (mcmp(olditem, min_item)) {
+		    if (min_item.wt <= 0.0 || mcmp(old_item, min_item)) {
 			// Old one hasn't fallen out of MSet yet
 			// Scan through (unsorted) MSet looking for entry
 			// FIXME: more efficient way than just scanning?
-			om_docid olddid = olditem.did;
+			om_docid olddid = old_item.did;
 			DEBUGLINE(MATCH, "collapsem: removing " << olddid <<
 				  ": " << new_item.collapse_key.value);
 			std::vector<OmMSetItem>::iterator i;
 			for (i = items.begin(); i->did != olddid; i++) {
 			    Assert(i != items.end());
 			}
-		        *i = new_item;
+			*i = new_item;
 			pushback = false;
-		        // FIXME: can't see how to just remove an arbitrary
-			// item from a heap...
-			make_heap<vector<OmMSetItem>::iterator,
-			          OmMSetCmp>(items.begin(), items.end(), mcmp);
+			// We can replace an arbitrary element in O(log N)
+			// but have to do it by hand (in this case the new
+			// elt is bigger, so we just swap down the tree)
+			// FIXME: implement this, and clean up is_heap
+			// handling
+			is_heap = false;
 		    }
 		    oldkey->second = new_item;
 		}
 	    }
 	}
-
+	    
 	// OK, actually add the item to the mset.
 	if (pushback) {
 	    items.push_back(new_item);
-	    push_heap<vector<OmMSetItem>::iterator,
-	              OmMSetCmp>(items.begin(), items.end(), mcmp);
-	    pop_heap<vector<OmMSetItem>::iterator,
-	             OmMSetCmp>(items.begin(), items.end(), mcmp);
-	    items.pop_back(); 
 	    docs_matched++;
-	    min_item = items.front();
-	    if (getorrecalc_maxweight(pl) < min_item.wt) {
-		DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
-		break;
+	    if (items.size() == max_msize) {
+		// We're done if this is a forward boolean match
+		// (bodgetastic, FIXME better if we can)
+		if (max_weight == 0) {
+		    if (opts.get_bool("match_sort_forward", true)) break;
+		}
+	    } else if (items.size() > max_msize) {
+		if (!is_heap) {
+		    is_heap = true;
+		    std::make_heap<std::vector<OmMSetItem>::iterator,
+			 	   OmMSetCmp>(items.begin(), items.end(), mcmp);
+		} else {
+		    std::push_heap<std::vector<OmMSetItem>::iterator,
+				   OmMSetCmp>(items.begin(), items.end(), mcmp);
+		}
+		std::pop_heap<std::vector<OmMSetItem>::iterator,
+			      OmMSetCmp>(items.begin(), items.end(), mcmp);
+		items.pop_back(); 
+		min_item = items.front();
+		if (getorrecalc_maxweight(pl) < min_item.wt) {
+		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
+		    break;
+		}
+	    } else {
+		is_heap = false;
 	    }
+	}
 
-	    // Keep a track of the greatest weight we've seen.
-	    if (wt > greatest_wt) greatest_wt = wt;
+	// Keep a track of the greatest weight we've seen.
+	if (wt > greatest_wt) {
+	    greatest_wt = wt;
+	    if (percent_cutoff) {
+	        om_weight w = wt * percent_factor;
+	        if (w > min_item.wt) {
+	            min_item.wt = w;
+	            min_item.did = 0;
+		    if (!is_heap) {
+			is_heap = true;
+			std::make_heap<std::vector<OmMSetItem>::iterator,
+				       OmMSetCmp>(items.begin(), items.end(),
+						  mcmp);
+		    }
+		    while (items.front().wt < min_item.wt) {
+			std::pop_heap<std::vector<OmMSetItem>::iterator,
+				      OmMSetCmp>(items.begin(), items.end(),
+						 mcmp);
+			items.pop_back();
+		    }
+	        }
+	    }
 	}
     }
 
-    match_complete:
-    
     // done with posting list tree
     delete pl;
-    
+
+    double percent_scale = 0;
+    if (!items.empty() && greatest_wt > 0) {
+	// OK, work out weight corresponding to 100%, then trim the
+	// mset to the correct answer...
+	double denom = 0;
+	std::map<om_termname,
+		 OmMSet::Internal::Data::TermFreqAndWeight>::const_iterator i;
+	for (i = termfreqandwts.begin(); i != termfreqandwts.end(); i++)
+	    denom += i->second.termweight;
+	denom *= greatest_wt;
+	Assert(denom > 0);
+	std::vector<OmMSetItem>::const_iterator best;
+	best = min_element(items.begin(), items.end(), mcmp);
+
+	OmTermIterator docterms = db.termlist_begin(best->did);
+        OmTermIterator docterms_end = db.termlist_end(best->did);
+	while (docterms != docterms_end) {
+	    i = termfreqandwts.find(*docterms);
+	    if (i != termfreqandwts.end())
+		percent_scale += i->second.termweight;
+	    docterms++;
+	}
+	percent_scale /= denom;
+	Assert(percent_scale > 0);
+	if (percent_cutoff) {
+	    om_weight min_wt = percent_factor / percent_scale;
+	    if (!is_heap) {
+		is_heap = true;
+		std::make_heap<std::vector<OmMSetItem>::iterator,
+			       OmMSetCmp>(items.begin(), items.end(), mcmp);
+	    }
+	    while (items.front().wt < min_wt) {
+		std::pop_heap<std::vector<OmMSetItem>::iterator,
+			      OmMSetCmp>(items.begin(), items.end(), mcmp);
+		items.pop_back();
+	    }
+	}
+	percent_scale *= 100.0;
+    }
+
     DEBUGLINE(MATCH, items.size() << " items in potential mset");
 
     if (first > 0) {
@@ -586,7 +597,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    items.clear();
 	} else {
 	    DEBUGLINE(MATCH, "finding " << first << "th");
-	    std::nth_element(items.begin(), items.begin() + first, items.end(), mcmp);
+	    std::nth_element(items.begin(), items.begin() + first, items.end(),
+			     mcmp);
 	    // erase the leading ``first'' elements
 	    items.erase(items.begin(), items.begin() + first);
 	}
@@ -631,7 +643,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 				       matches_lower_bound,
 				       matches_estimated,
 				       max_weight, greatest_wt, items,
-				       termfreqandwts)));
+				       termfreqandwts,
+				       percent_scale)));
 }
 
 // This method is called by branch postlists when they rebalance

@@ -1,3 +1,11 @@
+Tue Nov 06 11:16:42 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Matcher now calculates percentages like Omega does (or did as I'm
+	  about to remove that code from Omega), rather than as a percentage
+	  of the theoretical maximum possible weight.  The old way generally
+	  gives disappointingly low values, and by pushing the percentage
+	  code down into the matcher, it can be used to optimise the query.
+
 Tue Nov 06 11:13:06 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Quick fix for problems with null OmQuery-s.

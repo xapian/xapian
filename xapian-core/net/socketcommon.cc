@@ -724,6 +724,7 @@ string_to_ommset(const std::string &s)
     om_weight max_possible;
     om_weight max_attained;
     std::vector<OmMSetItem> items;
+    int msize;
 
     // first the easy ones...
     is >> firstitem >> 
@@ -731,12 +732,8 @@ string_to_ommset(const std::string &s)
 	    matches_estimated >>
 	    matches_upper_bound >>
 	    max_possible >>
-	    max_attained;
-    if (!is) {
-	throw OmNetworkError("Problem reading OmMSet from string");
-    }
-    int msize;
-    is >> msize;
+	    max_attained >>
+	    msize;
     if (!is) {
 	throw OmNetworkError("Problem reading OmMSet from string");
     }
@@ -769,7 +766,7 @@ string_to_ommset(const std::string &s)
 				       matches_lower_bound,
 				       matches_estimated,
 				       max_possible, max_attained,
-				       items, terminfo)));
+				       items, terminfo, 0)));
 }
 
 std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight>

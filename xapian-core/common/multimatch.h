@@ -49,6 +49,8 @@ class MultiMatch
 
 	const OmDatabase db;
 
+	const OmQuery::Internal *query;
+
 	OmSettings opts;
 
 	/// Comparison functor for sorting MSet

@@ -456,24 +456,13 @@ OmMSet::get_description() const
     RETURN("OmMSet(" + internal->data->get_description() + ")");
 }
 
-void
-OmMSet::Internal::Data::calc_percent_factor() const {
-    if (!have_percent_factor) {
-	if (max_possible == 0) percent_factor = 0;
-	else percent_factor = 100.0 / max_possible;
-	DEBUGLINE(API, "OmMSet::Internal::calc_percent_factor(): max_possible = " << max_possible << " => percent_factor = " << percent_factor);
-	have_percent_factor = true;
-    }
-}
-
 om_percent
 OmMSet::Internal::Data::convert_to_percent_internal(om_weight wt) const
 {
     DEBUGAPICALL(om_percent, "OmMSet::Internal::convert_to_percent", wt);
-    calc_percent_factor();
-
     if (percent_factor == 0) RETURN(100);
 
+    // FIXME: + 0.5 ???
     om_percent pcent = static_cast<om_percent>(wt * percent_factor);
     DEBUGLINE(API, "wt = " << wt << ", max_possible = "
 	      << max_possible << " =>  pcent = " << pcent);

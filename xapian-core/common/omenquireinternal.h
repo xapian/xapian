@@ -221,13 +221,7 @@ class OmMSet::Internal {
 class OmMSet::Internal::Data : public RefCntBase {
     private:
 	/// Factor to multiply weights by to convert them to percentages.
-	mutable double percent_factor;
-
-	/// True if percent factor has been calculated.
-	mutable bool have_percent_factor;
-
-	/// (Lazily) calcualates factor for converting weights to percentages.
-	void calc_percent_factor() const;
+	double percent_factor;
 
 	/// The set of documents which have been requested but not yet
 	/// collected.
@@ -278,7 +272,6 @@ class OmMSet::Internal::Data : public RefCntBase {
 
 	Data()
 		: percent_factor(0),
-		  have_percent_factor(false),
 		  firstitem(0),
 		  matches_lower_bound(0),
 		  matches_estimated(0),
@@ -293,8 +286,9 @@ class OmMSet::Internal::Data : public RefCntBase {
 	     om_weight max_possible_,
 	     om_weight max_attained_,
 	     const std::vector<OmMSetItem> &items_,
-	     const std::map<om_termname, TermFreqAndWeight> &termfreqandwts_)
-		: have_percent_factor(false),
+	     const std::map<om_termname, TermFreqAndWeight> &termfreqandwts_,
+	     om_weight percent_factor_)
+		: percent_factor(percent_factor_),
 		  termfreqandwts(termfreqandwts_),
 		  items(items_),
 		  firstitem(firstitem_),
