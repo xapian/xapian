@@ -1277,7 +1277,8 @@ ensure_match()
     run_query();
     done_query = true;
     // FIXME: size()?
-    if (topdoc > mset.get_matches_lower_bound()) topdoc = 0;
+    if (topdoc > mset.get_matches_lower_bound())
+	topdoc = (mset.get_matches_lower_bound() / hits_per_page) * hits_per_page;
     
     if (topdoc + hits_per_page < mset.get_matches_lower_bound())
 	last = topdoc + hits_per_page;

@@ -1,3 +1,8 @@
+Wed Nov 28 13:03:40 GMT 2001  Olly Betts <olly@survex.com>
+
+	* If we're asked for a page of hits beyond the end of the matches, clip to the
+	  last page of matches rather than the first.
+
 Wed Nov 28 13:02:31 GMT 2001  Olly Betts <olly@survex.com>
 
 	* For an EXTENDED_QUERY, force the first page of hits.
