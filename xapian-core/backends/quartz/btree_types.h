@@ -38,7 +38,7 @@ class Cursor {
 
     public:
 	/// Constructor, to initialise important elements.
-	Cursor() : p(0), c(-1), n(BLK_UNUSED), rewrite(false), split_p(0), split_n(BLK_UNUSED)
+	Cursor() : p(0), c(-1), n(BLK_UNUSED), rewrite(false)
 	{}
 
 	/// pointer to a block
@@ -49,18 +49,12 @@ class Cursor {
 	uint4 n;
 	/// true if the block is not the same as on disk, and so needs rewriting
 	int rewrite;
-	/// pointer to a block split off from main block
-	byte * split_p;
-	/// block number of a block split off from main block
-	uint4 split_n;
 };
 
 /* n is kept in tandem with p.  The unassigned state is when member p == 0 and
  * n == BLK_UNUSED.
  * 
- * Similarly split.p == 0 corresponds to split.n == BLK_UNUSED.
- * 
- * Setting n/split_n to BLK_UNUSED is necessary in at least some cases.
+ * Setting n to BLK_UNUSED is necessary in at least some cases.
  */
 
 #endif /* OM_HGUARD_BTREE_TYPES_H */

@@ -261,6 +261,7 @@ class Btree {
 	static uint4 block_given_by(const byte * p, int c);
 
 	Cursor C[BTREE_CURSOR_LEVELS];
+	Cursor C_split[BTREE_CURSOR_LEVELS]; // Only used when updating.
 
 	/* Debugging methods */
 //	void report_block_full(int m, int n, const byte * p);
