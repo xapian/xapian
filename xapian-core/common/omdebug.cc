@@ -137,13 +137,13 @@ OmDebug::want_type(enum om_debug_types type)
     initialise();
 
     if (unwanted_types.size() == 0) {
-	return true;
-    }
-    if (unwanted_types.size() <= static_cast<unsigned int>(type) ||
-	unwanted_types[type] == true) {
 	return false;
     }
-    return true;
+    if (unwanted_types.size() > static_cast<unsigned int>(type) &&
+	unwanted_types[type] == false) {
+	return true;
+    }
+    return false;
 }
 
 void

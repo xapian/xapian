@@ -26,7 +26,7 @@ if HAVE_PERL
 CREATED_DOCUMENTS1=code_structure.html
 # and if XML::Parser is installed
 if HAVE_PERL_XML
-CREATED_DOCUMENTS2=todo.html
+CREATED_DOCUMENTS2=todo.html todo-release.html
 endif
 endif
 
@@ -128,6 +128,7 @@ CLEANFILES=\
        code_structure.html \
        mkdoc.pl \
        todo.html \
+       todo-release.html \
        todo2html.pl
 
 ################################
@@ -156,6 +157,12 @@ todo.html: todo2html.pl todo.xml
 	@if test -f "todo.xml"; then d1="." ; else d1="$(srcdir)/"; fi; \
 	if test -f "todo2html.pl"; then d2="." ; else d2="$(srcdir)/"; fi; \
 	$${d2}/todo2html.pl $${d1}/todo.xml >$@
+
+todo-release.html: todo2html.pl todo.xml
+	@echo "Generating release todo list"
+	@if test -f "todo.xml"; then d1="." ; else d1="$(srcdir)/"; fi; \
+	if test -f "todo2html.pl"; then d2="." ; else d2="$(srcdir)/"; fi; \
+	$${d2}/todo2html.pl --release \* $${d1}/todo.xml >$@
 
 DOCPPFLAGS = --sort --no-java-graphs --c-comments --quantel \
              --upwards-arrows --no-define
