@@ -76,9 +76,9 @@ Match::add_bandnot()
     if(bq.size() < 2) return false;
     PostList *left, *right;
 
-    left = bq.top();
-    bq.pop();
     right = bq.top();
+    bq.pop();
+    left = bq.top();
     bq.pop();
     bq.push(new AndNotPostList(left, right));
 
