@@ -216,8 +216,6 @@ MultiMatch::add_next_sub_mset(vector<SingleMatch *>::iterator leaf,
 			      om_doccount leaf_number,
 			      om_doccount lastitem,
 			      const OmMatchDecider *mdecider,
-			      vector<bool> & mset_received,
-			      vector<SingleMatch *>::size_type *msets_received,
 			      OmMSet & mset,
 			      bool nowait)
 {
@@ -226,9 +224,6 @@ MultiMatch::add_next_sub_mset(vector<SingleMatch *>::iterator leaf,
     // Get next mset
     if ((*leaf)->get_mset(0, lastitem, sub_mset.items, &(sub_mset.mbound),
 			  &(sub_mset.max_attained), mdecider, nowait)) {
-	(*msets_received)++;
-	mset_received[leaf_number - 1] = true;
-
 	// Merge stats
 	mset.mbound += sub_mset.mbound;
 	if(sub_mset.max_attained > mset.max_attained)
@@ -263,6 +258,70 @@ MultiMatch::prepare_matchers()
 }
 
 void
+MultiMatch::collect_msets(om_doccount lastitem,
+			  const OmMatchDecider *mdecider,
+			  OmMSet & mset)
+{
+    // Empty the mset
+    mset.items.clear();
+    mset.mbound = 0;
+    mset.max_attained = 0;
+    mset.firstitem = 0;
+
+    vector<bool> mset_received(leaves.size(), false);
+    vector<SingleMatch *>::size_type msets_received = 0;
+
+    om_doccount leaf_number;
+    vector<SingleMatch *>::iterator leaf;
+
+    // Get msets one by one, and merge each one with the current mset.
+    // FIXME: this approach may be very inefficient - needs attention.
+    bool nowait = true;
+    while (msets_received != leaves.size()) {
+	for(leaf = leaves.begin(),
+	    leaf_number = 1;
+	    leaf != leaves.end();
+	    leaf++, leaf_number++) {
+
+	    if (mset_received[leaf_number - 1]) {
+		continue;
+	    }
+
+	    if (add_next_sub_mset(leaf,
+				  leaves.size(),
+				  leaf_number,
+				  lastitem,
+				  mdecider,
+				  mset,
+				  nowait)) {
+		msets_received++;
+		mset_received[leaf_number - 1] = true;
+	    }
+	}
+
+	// Use blocking IO on subsequent passes, so that we don't go into
+	// a tight loop.
+	nowait = false;
+    }
+}
+
+void
+MultiMatch::remove_leading_elements(om_doccount number_to_remove,
+				    OmMSet & mset)
+{
+    // Clear unwanted leading elements.
+    if(number_to_remove != 0) {
+	if(mset.items.size() < number_to_remove) {
+	    mset.items.clear();
+	} else {
+	    mset.items.erase(mset.items.begin(),
+			     mset.items.begin() + number_to_remove);
+	}
+	mset.firstitem += number_to_remove;
+    }
+}
+
+void
 MultiMatch::match(om_doccount first,
 		  om_doccount maxitems,
 		  OmMSet & mset,
@@ -281,58 +340,12 @@ MultiMatch::match(om_doccount first,
 	mset.max_possible = get_max_weight();
     } else if(leaves.size() > 1) {
 	// Need to merge msets.
-	mset.mbound = 0;
-	mset.max_attained = 0;
-	om_doccount lastitem = first + maxitems;
-
 	prepare_matchers();
 
-	vector<bool> mset_received(leaves.size(), false);
-	vector<SingleMatch *>::size_type msets_received = 0;
+	collect_msets(first + maxitems, mdecider, mset);
+	remove_leading_elements(first, mset);
 
-	om_doccount leaf_number;
-	vector<SingleMatch *>::iterator leaf;
-
-	// Get subsequent msets, and merge each one with the current mset
-	// FIXME: this approach may be very inefficient - needs attention.
-	bool nowait = true;
-	while (msets_received != leaves.size()) {
-	    for(leaf = leaves.begin(),
-		leaf_number = 1;
-		leaf != leaves.end();
-		leaf++, leaf_number++) {
-
-		if (mset_received[leaf_number-1]) {
-		    continue;
-		}
-
-		add_next_sub_mset(leaf,
-				  leaves.size(),
-				  leaf_number,
-				  lastitem,
-				  mdecider,
-				  mset_received,
-				  &msets_received,
-				  mset,
-				  nowait);
-	    }
-
-	    // Use blocking IO on subsequent passes, so that we don't go into
-	    // a tight loop.
-	    nowait = false;
-	}
-
-
-	// Clear unwanted leading elements.
-	if(first != 0) {
-	    if(mset.items.size() < first) {
-		mset.items.clear();
-	    } else if (first > 0) {
-		mset.items.erase(mset.items.begin(), mset.items.begin() + first);
-	    }
-	}
-	mset.firstitem = first;
-
+	// FIXME: get from sub msets (need to make them set it correctly first)
 	mset.max_possible = get_max_weight();
     }
 }
