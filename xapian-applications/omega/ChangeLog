@@ -1,3 +1,11 @@
+Thu Jan 10 14:34:35 GMT 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* toptermsjs snippet now included inside the HEAD, so it's
+	  actually legal HTML. Snippet now sets the required 'type'
+	  attribute as well. (It keeps the technically illegal
+	  'language' attribute because I have a sneaking suspicion it
+	  won't work otherwise.)
+
 Thu Jan 10 14:30:19 GMT 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* $opt with two arguments now acts as a lookup for a $setmap

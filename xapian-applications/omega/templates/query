@@ -29,9 +29,9 @@ $def{SPAGE,<INPUT TYPE=submit NAME="[" VALUE="$1" DISABLED=disabled>}
 $def{NEXT,$if{$ne{$last,$msize},<INPUT TYPE=submit NAME="&gt;" VALUE="Next">}}
 
 $set{topterms,$or{$ne{$msize,0},$query}}
-$if{topterms,$include{toptermsjs}}
 <head>
 <title>$if{$query,Omega search results for `$html{$query}',New Omega Search}</title>
+$if{topterms,$include{toptermsjs}}
 </head>
 <body bgcolor="#eeeeee">
 <FORM NAME=P METHOD=GET 
