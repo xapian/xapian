@@ -49,16 +49,30 @@ Finish reading through generated docs to ensure they read well in collated form.
 Check for swig version.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
-
-Clean up xapian-core/backends/quartz/z_make, etc.
-
-</todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="Debug" release="">
 
 Try to find some way to write a thread identifier into the debug log, while
 not depending of pthreads.  Try dlsym() on pthread_self?
 (pthread_t pthread_self(void)).
+
+<!--
+This works on all platforms I've tried except on MacOS X where it seems that
+dlsym(NULL, ...) doesn't do what we want:
+
+#include <dlfcn.h>
+#include <pthread.h>
+#ifndef RTLD_DEFAULT
+#define RTLD_DEFAULT NULL
+#endif
+...
+pthread_t
+get_threadid(void)
+{
+    pthread_t (*pt_s)(void) = (pthread_t (*)(void))dlsym(RTLD_DEFAULT, "pthread_self");
+    if (!pt_s) return (pthread_t)0;
+    return pt_s();
+}
+-->
 
 </todoitem>
 <todoitem priority="H" difficulty="2" owner="" area="Matcher" release="">
@@ -98,7 +112,7 @@ Add get_all_terms DB databases.  Needs extra code in dbread.[ch].
 </todoitem>
 <todoitem priority="M" difficulty="4" owner="" area="General" release="1.0">
 
-Allow setting of the document length in OmDocument.  (Currently defined to
+Allow setting of the document length in OmDocument?  (Currently defined to
 be the sum of the wdfs).
 
 </todoitem>

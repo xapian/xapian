@@ -1,6 +1,10 @@
+Sat Oct 12 15:43:22 BST 2002  Olly Betts <olly@survex.com>
+
+	* docs/todo.xml: Updated.
+
 Fri Oct 11 02:14:47 BST 2002  Olly Betts <olly@survex.com>
 
-	* backends/quartz/Makefile.am: Included test data for btreetest
+	* backends/quartz/Makefile.am: Include test data for btreetest
 	  in distribution tarball.
 
 Fri Oct 11 01:43:03 BST 2002  Olly Betts <olly@survex.com>
