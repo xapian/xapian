@@ -516,18 +516,21 @@ index_directory(const string &dir, const map<string, string>& mime_map)
 	if (!url.empty() && url[url.size() - 1] != '/') url += '/';
 	url += ent->d_name;
 	string file = root + indexroot + url;
-        if (follow_symlinks)
-        {
+#ifdef HAVE_LSTAT
+        if (follow_symlinks) {
+#endif
             if (stat(file.c_str(), &statbuf) == -1) {
                 cout << "Can't stat \"" << file << "\" - skipping\n";
                 continue;
             }
+#ifdef HAVE_LSTAT
         } else {
             if (lstat(file.c_str(), &statbuf) == -1) {
                 cout << "Can't stat \"" << file << "\" - skipping\n";
                 continue;
             }
         }
+#endif
 	if (S_ISDIR(statbuf.st_mode)) {
 	    if (!recurse) continue;
 	    try {

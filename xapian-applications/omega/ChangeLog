@@ -1,3 +1,8 @@
+Mon Dec 20 17:26:26 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,omindex.cc: Fixed "ignore symlinks" code to compile on
+	  systems without lstat (e.g. mingw).
+
 Mon Dec 20 12:18:18 GMT 2004  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Fix the "ignore symlinks" code to actually compile on

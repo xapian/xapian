@@ -33,6 +33,9 @@ if test $ac_cv_func_ftime = yes ; then
     AC_DEFINE(FTIME_RETURNS_VOID, 1, [Define if ftime returns void]))
 fi
 
+dnl Check for lstat (not available under mingw for example).
+AC_CHECK_FUNCS(lstat)
+
 AC_CHECK_FUNCS(posix_fadvise)
 
 AC_MSG_CHECKING(for working snprintf)
