@@ -232,6 +232,13 @@ QuartzPostList::current_chunk_contains(om_docid desired_did)
 void
 QuartzPostList::move_to_chunk_containing(om_docid desired_did)
 {
+    QuartzDbKey key;
+    make_key(tname, desired_did, key);
+    (void) cursor->find_entry(key);
+    Assert(!cursor->after_end());
+
+    
+    
     throw OmUnimplementedError("QuartzPostList::move_to_chunk_containing() not yet implemented");
 }
 
