@@ -1,3 +1,8 @@
+Fri Sep 17 00:00:25 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,tcl8/Makefile.am: Improved check for tcl.h to work with
+	  Fedora Core 2.
+
 Thu Sep 16 23:02:28 BST 2004  Olly Betts <olly@survex.com>
 
 	* java/native/Makefile.am,java/org/xapian/Makefile.am: Fixed "make

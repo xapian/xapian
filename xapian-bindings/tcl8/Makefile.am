@@ -12,7 +12,7 @@ tcllib_LTLIBRARIES = xapian.la
 install-data-hook:
 	rm -f $(DESTDIR)$(tcllibdir)/xapian.la
 
-AM_CPPFLAGS = -I@TCL_INC@
+AM_CPPFLAGS = @TCL_CPPFLAGS@
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS) @SWIG_CXXFLAGS@
 xapian_la_LDFLAGS = -avoid-version -module
 nodist_xapian_la_SOURCES = xapian_wrap.cc

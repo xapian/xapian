@@ -127,13 +127,20 @@ if test no != "$with_swig" ; then
 	    TCL_LIB="`echo 'puts $tcl_library'|$TCLSH`"
 	    AC_SUBST(TCL_LIB)
 	    dnl There's no obvious way to get "/usr/include/tcl8.2" directly...
-	    TCL_INC="`echo \"$TCL_LIB\"|sed 's!/lib/!/include/!'`"
-	    AC_SUBST(TCL_INC)
+	    dnl debian uses /usr/lib/tcl8.4, FC2 uses /usr/share/tcl8.4
+	    TCL_INC="`echo \"$TCL_LIB\"|sed 's!/\(share\|lib\)/!/include/!'`"
 	    dnl Check that the headers are there (the tcl8.2-dev package
 	    dnl may not be installed).
+	    TCL_CPPFLAGS=
 	    if test -f "$TCL_INC/tcl.h" ; then
 		BINDINGS="$BINDINGS tcl8"
+		TCL_CPPFLAGS="-I$TCL_INC"
+	    elif test -f "/usr/include/tcl.h" ; then
+		if test `awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' /usr/include/tcl.h` = \"`echo 'puts $tcl_version'|$TCLSH`\" ; then
+		    BINDINGS="$BINDINGS tcl8"
+		fi
 	    fi
+	    AC_SUBST(TCL_CPPFLAGS)
 	fi
     fi
   fi
