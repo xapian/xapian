@@ -21,7 +21,7 @@ DAPostList::DAPostList(struct postings *pl, doccount tf, doccount size)
 
     weight_initialised = false;
 
-    DAreadpostings(postlist, 0, 0);
+    //DAreadpostings(postlist, 0, 0);
 }
 
 DAPostList::~DAPostList()
