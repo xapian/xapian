@@ -131,7 +131,8 @@ SleepyList::SleepyList(Db * db_, void * keydata_, size_t keylen_,
 		       bool store_wdf,
 		       bool store_positional)
 	: db(db_),
-	  modified_and_locked(false)
+	  modified_and_locked(false),
+	  iteration_in_progress(false)
 {
     // Copy and store key data
     void *keydata = malloc(keylen_);
@@ -185,18 +186,65 @@ SleepyList::get_item_count() const
 }
 
 void
-SleepyList::flush()
+SleepyList::move_to_start()
 {
-    do_flush();
+    iteration_position = items.begin();
+    iteration_in_progress = true;
+    iteration_at_start = true;
 }
 
 void
-SleepyList::add(const SleepyListItem & newitem)
+SleepyList::move_to_next_item()
 {
+    Assert(iteration_in_progress);
+    if(iteration_at_start) {
+	iteration_at_start = false;
+    } else {
+	Assert(!at_end());
+	iteration_position++;
+    }
+}
+
+void
+SleepyList::skip_to_item(SleepyListItem::id_type id)
+{
+    Assert(iteration_in_progress);
+    iteration_at_start = false;
+    while(!at_end() && iteration_position->id < id) {
+	iteration_position++;
+    }
+}
+
+bool
+SleepyList::at_end() const
+{
+    Assert(iteration_in_progress);
+    return(iteration_position == items.end());
+}
+
+const SleepyListItem &
+SleepyList::get_current_item() const
+{
+    Assert(iteration_in_progress);
+    Assert(!iteration_at_start);
+    Assert(!at_end());
+    return *iteration_position;
+}
+
+void
+SleepyList::add_item(const SleepyListItem & newitem)
+{
+    iteration_in_progress = false;
     modified_and_locked = true;
     // FIXME - actually get a lock
 
     make_entry(newitem);
+}
+
+void
+SleepyList::flush()
+{
+    do_flush();
 }
 
 // /////////////////////

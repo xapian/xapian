@@ -64,6 +64,12 @@ dnl FIXME - check for C++ version
 
 SLEEPYCAT_LIBS=
 AC_CHECK_LIB(db2, db_open, SLEEPYCAT_LIBS=-ldb2++)
+if test "x$SLEEPYCAT_LIBS" = "x"; then
+  LDFLAGS_sleepysave=$LDFLAGS
+  LDFLAGS=-L/usr/local/BerkeleyDB/lib/
+  AC_CHECK_LIB(db, db_open, SLEEPYCAT_LIBS=-ldb)
+  LDFLAGS=$LDFLAGS_sleepysave
+fi
 
 have_sleepycat=no
 if test ! "x$SLEEPYCAT_LIBS" = "x"; then

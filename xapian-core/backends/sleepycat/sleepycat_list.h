@@ -128,6 +128,18 @@ class SleepyList {
 	 */
 	bool modified_and_locked;
 
+	/** Flag to say whether an iteration through the list has begun.
+	 */
+	bool iteration_in_progress;
+
+	/** Flag to say that iteration is at the initial (non-existent) item.
+	 */
+	bool iteration_at_start;
+
+	/** Current position of iteration through the list.
+	 */
+	vector<SleepyListItem>::const_iterator iteration_position;
+
 	/** The items stored in the list.
 	 */
 	vector<SleepyListItem> items;
@@ -210,15 +222,77 @@ class SleepyList {
 	/** Get the number of items in the list.
 	 */
 	itemcount_type get_item_count() const;
-	
+
+	/** Move to the start of the list.
+	 *
+	 *  Note that there is not an item at the start of the list: after
+	 *  this method move_to_next_item() must be called before an item
+	 *  may be accessed (eg, by get_current_item())
+	 *
+	 *  This convention makes it easier to have a setup step before
+	 *  accessing the list, makes it easier to deal with empty lists,
+	 *  and matches that used by PostList and TermList.
+	 */
+	void move_to_start();
+
+	/** Move to the next item in the list.
+	 *
+	 *  This must not be called if there are no more items in the list:
+	 *  you should always check this condition, by calling
+	 *  are_more_items(), before calling this method.
+	 */
+	void move_to_next_item();
+
+	/** Skip forward through the list until an item with id greater
+	 *  than or equal to that specified is found.
+	 *
+	 *  This method may not move forward in the list, if the current
+	 *  item satisfies the condition.  However, if the iteration
+	 *  through the list has not yet started, this method guarantees
+	 *  to move forward.
+	 *
+	 *  Like move_to_next_item(), this method must not be called if
+	 *  there are no more items in the list.
+	 */
+	void skip_to_item(SleepyListItem::id_type id);
+
+	/** Determine whether the iteration has reached the end of the list.
+	 *
+	 *  There is no item at the end of the list; it is not valid to
+	 *  call get_current_item() if this method returns true.
+	 *
+	 *  An iteration must be in progress when this method is called:
+	 *  ie. move_to_start() must have been called, and add_item() must
+	 *  not have been called since that.
+	 *  
+	 *  @return true  if we are at the end of the list,
+	 *          false if there is an item at the current position, or
+	 *                we havn't yet moved from the start of the list.
+	 */
+	bool at_end() const;
+
+	/** Get the current item pointed to in the list.
+	 *
+	 *  There is initially no current item: this method is not valid
+	 *  until move_to_start() has been called to start an iteration
+	 *  through the list, and move_to_next_item() has then been called
+	 *  to move to the first item in the list.
+	 */
+	const SleepyListItem & get_current_item() const;
+
 	/** Add an entry to the list.
 	 *
 	 *  If no changes have yet been made to the list, this method will
 	 *  obtain a lock on the list before proceeding.
 	 *
+	 *  This method also causes there to be no "current" item in the
+	 *  list - if an iteration through the list is in progress, it must
+	 *  be restarted with move_to_start(), before get_current_item()
+	 *  may be called.
+	 *
 	 *  @param item  The item to add to the list.
 	 */
-	void add(const SleepyListItem & newitem);
+	void add_item(const SleepyListItem & newitem);
 
 	/** Flush the list.  This writes any changes to the list to disk,
 	 *  and unlocks the list.

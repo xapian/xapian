@@ -1,3 +1,10 @@
+Tue Apr 11 13:59:24 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* More detection stuff for sleepycat library: now works on all my
+	  machines, but isn't really generic enough yet.
+
+	* SleepyList now has methods to iterate through the list.
+
 Thu Apr  6 00:57:46 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* More sleepycat stuff:
