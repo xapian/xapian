@@ -1,3 +1,9 @@
+Tue Apr 27 10:20:13 BST 2004  Richard Boulton <richard@tartarus.org>
+
+        * configure.ac: Add checks for ssize_t and socklen_t.
+        * acinclude.m4: New file - causes macro for checking for socklen_t
+          to be included from xapian-core.
+
 Mon Apr 26 23:57:15 BST 2004  Richard Boulton <richard@tartarus.org>
 
         * Makefile.am: Add clients/index.php to dist.

@@ -13,8 +13,11 @@ dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
 
-dnl Check for time functions.
-AC_CHECK_FUNCS(gettimeofday)
+dnl mingw (for instance) lacks ssize_t
+AC_CHECK_TYPE(ssize_t, long)
+
+dnl check for socklen_t
+TYPE_SOCKLEN_T
 
 dnl Check for libxapian
 AC_PROG_LIBTOOL
