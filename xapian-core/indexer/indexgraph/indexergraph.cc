@@ -199,6 +199,7 @@ static attrmap attr_to_map(xmlNodePtr node)
 		free(temp);
 		temp = 0;
 	    }
+#if 0  /* this is there to help in debugging odd attributes */
 	    {
 		xmlDocPtr doc = node->doc;
 		xmlAttributePtr attrDecl;
@@ -219,6 +220,7 @@ static attrmap attr_to_map(xmlNodePtr node)
 		    }
 		}
 	    }
+#endif
 	} catch (...) {
 	    if (temp) free(temp);
 	    throw;

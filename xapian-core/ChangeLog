@@ -1,3 +1,8 @@
+Thu Sep 28 18:19:17 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Removed some debugging code which doesn't work with some versions
+	  of libxml anyway.
+
 Thu Sep 28 17:55:30 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* regexcommon.h now has a guard for includetest
