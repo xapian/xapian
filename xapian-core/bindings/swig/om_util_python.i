@@ -3,6 +3,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 James Aylett
  * Copyright 2002 Ananova Ltd
  * Copyright 2002 Olly Betts
  *
@@ -26,32 +27,21 @@
 %include typemaps.i
 
 %typemap(python, out) string {
-    $target = PyString_FromString(($source)->c_str());
-    delete $source;
-    $source = 0;
+    $result = PyString_FromString($1.c_str());
+    // typemap out string    delete $1;
+    //    $1 = 0;
 }
 
 %typemap(python, in) const string &(string temp) {
-    if (PyString_Check($source)) {
-	temp = string(PyString_AsString($source),
-		      PyString_Size($source));
-	$target = &temp;
+    if (PyString_Check($input)) {
+	temp = string(PyString_AsString($input),
+		      PyString_Size($input));
+	$1 = &temp;
     } else {
         PyErr_SetString(PyExc_TypeError, "string expected");
 	return NULL;
     }
 }
-
-/*
-%typemap(python, in) om_queryop &(OmQuery::op qop) {
-    try {
-        qop = (OmQuery::op)(get_py_int($source));
-    } catch (OmPythonProblem &) {
-        return NULL;
-    }
-    $target = &qop;
-}
-*/
 
 %{
     class OmPythonProblem {};
@@ -60,11 +50,11 @@
 	OmQuery *retval = 0;
 	PyObject *mythis = PyDict_GetItemString(((PyInstanceObject *)obj)
 						->in_dict, "this");
-	if (char *err = SWIG_GetPtr(PyString_AsString(mythis),
-				    (void **)&retval,
-				    "_OmQuery_p")) {
-	    cerr << "obj.this: " << PyString_AsString(mythis) << endl;
-	    cerr << "Problem is: " << err << endl;
+	if (SWIG_ConvertPtr(mythis,
+			    (void **)&retval,
+			    SWIGTYPE_p_OmQuery, 0)) {
+	    //	    cerr << "obj.this: " << PyString_AsString(mythis) << endl;
+	    //	    cerr << "Problem is: " << err << endl;
 	    PyErr_SetString(PyExc_ValueError,
 			    "OmQuery object invalid");
 	    return 0;
@@ -78,11 +68,11 @@
 	if (PyInstance_Check(obj)) {
 	    PyObject *mythis = PyDict_GetItemString(((PyInstanceObject *)obj)
 						    ->in_dict, "this");
-	    if (char *err = SWIG_GetPtr(PyString_AsString(mythis),
-					(void **)&retval,
-					"_OmRSet_p")) {
-		cerr << "obj.this: " << PyString_AsString(mythis) << endl;
-		cerr << "Problem is: " << err << endl;
+	    if (SWIG_ConvertPtr(mythis,
+				(void **)&retval,
+				SWIGTYPE_p_OmRSet, 0)) {
+		// cerr << "obj.this: " << PyString_AsString(mythis) << endl;
+		// cerr << "Problem is: " << err << endl;
 		PyErr_SetString(PyExc_ValueError,
 				"OmRSet object invalid");
 		return 0;
@@ -97,11 +87,11 @@
 	if (PyInstance_Check(obj)) {
 	    PyObject *mythis = PyDict_GetItemString(((PyInstanceObject *)obj)
 						    ->in_dict, "this");
-	    if (char *err = SWIG_GetPtr(PyString_AsString(mythis),
-					(void **)&retval,
-					"_OmMatchDecider_p")) {
-		cerr << "obj.this: " << PyString_AsString(mythis) << endl;
-		cerr << "Problem is: " << err << endl;
+	    if (SWIG_ConvertPtr(mythis, 
+				(void **)&retval,
+				SWIGTYPE_p_OmMatchDecider, 0)) {
+		// cerr << "obj.this: " << PyString_AsString(mythis) << endl;
+		// cerr << "Problem is: " << err << endl;
 		PyErr_SetString(PyExc_ValueError,
 				"OmMatchDecider object invalid");
 		return 0;
@@ -120,13 +110,15 @@
 %}
 
 %typemap(python, in) const vector<OmQuery *> *(vector<OmQuery *> v){
-    if (!PySequence_Check($source)) {
+    if (!PySequence_Check($input)) {
         PyErr_SetString(PyExc_TypeError, "expected list of queries");
         return NULL;
     }
     int i = 0;
     PyObject *obj;
-    while ((obj = PySequence_GetItem($source, i++)) != NULL) {
+    int sz = PySequence_Size($input);
+    for (i=0; i<sz; i++) {
+	obj = PySequence_GetItem($input, i);
 	if (PyInstance_Check(obj)) {
 	    OmQuery *subqp = get_py_omquery(obj);
 	    if (!subqp) {
@@ -140,34 +132,34 @@
 	    return NULL;
 	}
     }
-    $target = &v;
+    $1 = &v;
 }
 
 %typemap(python, out) om_termname_list {
-    $target = PyList_New(0);
-    if ($target == 0) {
+    $result = PyList_New(0);
+    if ($result == 0) {
 	return NULL;
     }
 
-    om_termname_list::const_iterator i = $source->begin();
+    om_termname_list::const_iterator i = $1->begin();
 
-    while (i!= $source->end()) {
+    while (i!= $1->end()) {
         // FIXME: check return values (once we know what they should be)
-        PyList_Append($target, PyString_FromString(i->c_str()));
+        PyList_Append($result, PyString_FromString(i->c_str()));
 	++i;
     }
-    delete $source;
-    $source = 0;
+    delete $1;
+    $1 = 0;
 }
 
 %typemap(python, in) const vector<string> &(vector<string> v){
-    if (!PyList_Check($source)) {
+    if (!PyList_Check($input)) {
         PyErr_SetString(PyExc_TypeError, "expected list");
         return NULL;
     }
-    int numitems = PyList_Size($source);
+    int numitems = PyList_Size($input);
     for (int i=0; i<numitems; ++i) {
-        PyObject *obj = PyList_GetItem($source, i);
+        PyObject *obj = PyList_GetItem($input, i);
 	if (PyString_Check(obj)) {
 	    int len = PyString_Size(obj);
 	    char *err = PyString_AsString(obj);
@@ -178,21 +170,23 @@
 	    return NULL;
 	}
     }
-    $target = &v;
+    $1 = &v;
 }
 
 %typedef PyObject *LangSpecificListType;
 
 #define OMMSET_DID 0
 #define OMMSET_WT 1
-#define OMMSET_COLLAPSEKEY 2
+#define OMMSET_RANK 2
+#define OMMSET_PERCENT 3
 
 #define OMESET_TNAME 0
 #define OMESET_WT 1
 %{
 #define OMMSET_DID 0
 #define OMMSET_WT 1
-#define OMMSET_COLLAPSEKEY 2
+#define OMMSET_RANK 2
+#define OMMSET_PERCENT 3
 
 #define OMESET_TNAME 0
 #define OMESET_WT 1
@@ -204,13 +198,14 @@ PyObject *OmMSet_items_get(OmMSet *mset)
 	return NULL;
     }
 
-    vector<OmMSetItem>::const_iterator i = mset->items.begin();
-    while (i != mset->items.end()) {
-        PyObject *t = PyTuple_New(3);
+    OmMSetIterator i = mset->begin();
+    while (i != mset->end()) {
+        PyObject *t = PyTuple_New(4);
 
-	PyTuple_SetItem(t, OMMSET_DID, PyInt_FromLong(i->did));
-	PyTuple_SetItem(t, OMMSET_WT, PyFloat_FromDouble(i->wt));
-	PyTuple_SetItem(t, OMMSET_COLLAPSEKEY, PyString_FromString(i->collapse_key.value.c_str()));
+	PyTuple_SetItem(t, OMMSET_DID, PyInt_FromLong(*i));
+	PyTuple_SetItem(t, OMMSET_WT, PyFloat_FromDouble(i.get_weight()));
+	PyTuple_SetItem(t, OMMSET_RANK, PyInt_FromLong(i.get_rank()));
+	PyTuple_SetItem(t, OMMSET_PERCENT, PyInt_FromLong(i.get_percent()));
 
 	PyList_Append(retval, t);
         ++i;
@@ -225,12 +220,12 @@ PyObject *OmESet_items_get(OmESet *eset)
 	return NULL;
     }
 
-    vector<OmESetItem>::const_iterator i = eset->items.begin();
-    while (i != eset->items.end()) {
+    OmESetIterator i = eset->begin();
+    while (i != eset->end()) {
         PyObject *t = PyTuple_New(2);
 
-	PyTuple_SetItem(t, 0, PyString_FromString((i->tname).c_str()));
-	PyTuple_SetItem(t, 1, PyFloat_FromDouble(i->wt));
+	PyTuple_SetItem(t, 0, PyString_FromString((*i).c_str()));
+	PyTuple_SetItem(t, 1, PyFloat_FromDouble(i.get_weight()));
 
 	PyList_Append(retval, t);
         ++i;
@@ -240,23 +235,23 @@ PyObject *OmESet_items_get(OmESet *eset)
 %}
 
 %typemap(python, memberout) PyObject *items {
-    $target = PyList_New(0);
-    if ($target == 0) {
+    $result = PyList_New(0);
+    if ($result == 0) {
 	return NULL;
     }
 
-    vector<OmMSetItem>::const_iterator i = $source.begin();
-    while (i != $source.end()) {
-        PyObject *t = PyTuple_New(3);
+    OmMSetIterator i = $1.begin();
+    while (i != $1.end()) {
+        PyObject *t = PyTuple_New(2);
 
-	PyTuple_SetItem(t, 0, PyInt_FromLong(i->did));
-	PyTuple_SetItem(t, 1, PyFloat_FromDouble(i->wt));
-	PyTuple_SetItem(t, 2, PyString_FromString(i->collapse_key.value.c_str()));
+	PyTuple_SetItem(t, 0, PyInt_FromLong(*i));
+	PyTuple_SetItem(t, 1, PyFloat_FromDouble(i->get_weight()));
 
-	PyList_Append($target, t);
+	PyList_Append($result, t);
         ++i;
     }
 %}
+
 
 %addmethods OmMSet {
     %readonly
@@ -265,19 +260,17 @@ PyObject *OmESet_items_get(OmESet *eset)
 
     // for comparison
     int __cmp__(const OmMSet &other) {
-	if (self->docs_considered != other.docs_considered) {
-	    return (self->docs_considered < other.docs_considered)? -1 : 1;
-	} else if (self->max_possible != other.max_possible) {
-	    return (self->max_possible < other.max_possible)? -1 : 1;
-	} else if (self->items.size() != other.items.size()) {
-	    return (self->items.size() < other.items.size())? -1 : 1;
+	if (self->get_max_possible() != other.get_max_possible()) {
+	    return (self->get_max_possible() < other.get_max_possible())? -1 : 1;
+	} else if (self->size() != other.size()) {
+	    return (self->size() < other.size())? -1 : 1;
 	}
 
-	for (int i=0; i<self->items.size(); ++i) {
-	    if (self->items[i].wt != other.items[i].wt) {
-		return (self->items[i].wt < other.items[i].wt)? -1 : 1;
-	    } else if (self->items[i].did != other.items[i].did) {
-		return (self->items[i].did < other.items[i].did)? -1 : 1;
+	for (int i=0; i<self->size(); ++i) {
+	    if ((*self)[i].get_weight() != other[i].get_weight()) {
+		return ((*self)[i].get_weight() < other[i].get_weight())? -1 : 1;
+	    } else if (*(*self)[i] != *other[i]) {
+		return (*(*self)[i] < *other[i])? -1 : 1;
 	    }
 	}
 	return 0;
@@ -288,9 +281,9 @@ PyObject *OmESet_items_get(OmESet *eset)
 %apply LangSpecificListType items { PyObject *items }
 
 %typemap(python, out) OmKey {
-    $target = PyString_FromString(($source)->value.c_str());
-    delete $source;
-    $source = 0;
+    $result = PyString_FromString(($1).value.c_str());
+    // typemap out OmKey    delete $1;
+    //    $1 = 0;
 }
 
 %addmethods OmESet {

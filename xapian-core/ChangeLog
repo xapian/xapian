@@ -1,3 +1,9 @@
+Fri Dec 20 12:38:26 GMT 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* Tidied up some bindings-related issues, including changes to
+	  the Python bindings to work with Python 2.2. This probably won't
+	  compile as it stands, but it's disabled anyway.
+
 Sun Dec 15 18:23:42 GMT 2002  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,backends/muscat36/da_database.cc,

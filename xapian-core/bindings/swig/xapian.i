@@ -6,6 +6,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 James Aylett
  * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
@@ -95,6 +96,23 @@ class OmMSetIterator {
   }
 };
 
+// Classes
+//
+// done means the interface is pretty much there
+// FIXME means work yet to do to get all functionality
+// TODO means the class hasn't been wrapped at all yet
+//
+// OmDatabase					FIXME
+// OmWritableDatabase			done
+// OmDocument					FIXME
+// OmEnquire					FIXME
+// OmESet (+ iterator)			done
+// OmExpandDecider (+ subclasses)			TODO
+// OmMatchDecider					TODO
+// OmMSet (+ iterator)			done
+// OmQuery					FIXME
+// OmRSet					FIXME
+
 class OmMSet {
   public:
     OmMSet();
@@ -103,13 +121,14 @@ class OmMSet {
     om_doccount size() const;
     om_doccount get_matches_estimated() const;
     om_doccount get_matches_lower_bound() const;
-    om_weight get_termfreq(string tname) const;
-    om_doccount get_termweight(string tname) const;
+    om_doccount get_termfreq(string tname) const;
+    om_weight get_termweight(string tname) const;
     om_doccount get_firstitem() const;
     om_weight get_max_possible();
     om_weight get_max_attained();
     int convert_to_percent(const OmMSetIterator & item) const;
-    bool empty() const;
+    //    bool empty() const;
+    %name(is_empty) bool empty() const;
     OmMSetIterator begin() const;
     OmMSetIterator end() const;
     OmMSetIterator back() const;
@@ -148,9 +167,15 @@ class OmRSet {
     public:
 	OmRSet();
 
+	// FIXME: may not actually need direct access, but it would
+	// be considerably more consistent ...
 	// TODO: set<om_docid> items;
 	void add_document(om_docid did);
 	void remove_document(om_docid did);
+	//	bool contains(om_docid did);
+	//	%name(is_empty) bool empty() const;
+	//	om_doccount size() const;
+
         string get_description() const;
 };
 
@@ -174,18 +199,15 @@ class OmESet {
 
 class OmQuery {
     public:
-        /** Constructs a new query object */
-	%name(OmQuery) OmQuery();
-
         /** Constructs a query consisting of single term
          *  @param tname  The name of the term.
          *  @param wqf  Within-?-frequency.
          *  @param term_pos  Position of term related to other terms but there aren't any anyway!
         */
-        %name(OmQueryTerm) OmQuery(const string &tname,
-				   om_termcount wqf = 1,
-				   om_termpos term_pos = 0);
-	%extend {
+        %name(OmQuery) OmQuery(const string &tname,
+			       om_termcount wqf = 1,
+			       om_termpos term_pos = 0);
+	%addmethods {
             /** Constructs a query from a set of queries merged with the specified operator */
 	    %name (OmQueryList) OmQuery(OmQuery::op op,
 	    	    const vector<OmQuery *> *subqs,
@@ -199,6 +221,9 @@ class OmQuery {
 		}
 	    }
 	}
+
+        /** Constructs a new empty query object */
+	%name(OmEmptyQuery) OmQuery();
 
 	~OmQuery();
 
@@ -227,6 +252,50 @@ class OmQuery {
 // TODO: OmMatchDecider
 
 // TODO: OmExpandDecider
+
+class OmDocument {
+  public:
+    ~OmDocument();
+
+    string get_description() const;
+
+    string get_value(om_valueno value) const;
+    string add_value(om_valueno value, string & value);
+    string remove_value(om_valueno value) const;
+    string clear_values();
+    string get_data() const;
+    void set_data(string & data);
+
+    // FIXME: add/remove/clear keys + iterator
+    /** Type to store keys in. */
+//    typedef map<om_keyno, string> document_keys;
+
+    /** The keys associated with this document. */
+//    document_keys keys;
+
+    // FIXME: termlist
+    // TODO: sort out access to the maps somehow.
+    /** Type to store terms in. */
+//    typedef map<string, OmDocumentTerm> document_terms;
+
+    /** The terms (and their frequencies and positions) in this document. */
+//    document_terms terms;
+
+    /** Add an occurrence of a term to the document.
+     *
+     *  Multiple occurrences of the term at the same position are represented
+     *  only once in the positional information, but do increase the wdf.
+     *
+     *  @param tname  The name of the term.
+     *  @param tpos   The position of the term.
+     */
+    void add_posting(const string & tname, om_termpos tpos = 0, om_termcount wdfinc=1);
+
+    void add_term_nopos(const string & tname, om_termcount wdfinc = 1);
+    void remove_posting(const string & tname, om_termpos tpos, om_termcount wdfdec = 1);
+    void remove_term(const string & tname);
+    void clear_terms();
+};
 
 #if defined(NOTDEFINED)
 struct OmDocumentTerm {
@@ -261,7 +330,7 @@ class OmDatabase {
 	om_termcount get_collection_freq(const om_termname &tname) const;
 	om_doclength get_doclength(om_docid docid) const;
 	void keep_alive();
-	// SAMFIX still need term, postlist, positionlist and allterms iterators
+	// FIXME still need term, postlist, positionlist and allterms iterators
 };
 
 

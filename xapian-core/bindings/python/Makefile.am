@@ -17,10 +17,10 @@ omstem.py: omstem_wrap.cc
 xapian.py: xapian_wrap.cc
 
 omstem_wrap.o: omstem_wrap.cc
-	$(CXX) $(INCLUDES) $(CXXFLAGS) -c $(srcdir)/omstem_wrap.cc -I/usr/include/python1.5/ -o $@
+	$(CXX) $(INCLUDES) $(CXXFLAGS) -c $(srcdir)/omstem_wrap.cc -I/usr/include/python2.2/ -o $@
 
 xapian_wrap.o: xapian_wrap.cc
-	$(CXX) $(INCLUDES) $(CXXFLAGS) -c $(srcdir)/xapian_wrap.cc -I/usr/include/python1.5/ -o $@
+	$(CXX) $(INCLUDES) $(CXXFLAGS) -c $(srcdir)/xapian_wrap.cc -I/usr/include/python2.2/ -o $@
 
 omstemc.so: omstem_wrap.o $(top_builddir)/libxapian.la
 	$(CXX) -shared omstem_wrap.o -o $@
