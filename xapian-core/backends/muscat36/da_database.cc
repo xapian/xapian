@@ -58,36 +58,34 @@ DAPostList::~DAPostList()
     DA_close_postings(postlist);
 }
 
-PostList * DAPostList::next(om_weight w_min)
+PostList * DAPostList::next(om_weight /*w_min*/)
 {
     Assert(currdoc == 0 || !at_end());
-    DEBUGLINE(DB, "DAPostList::next(" << w_min <<
-	      "): current docid = " << currdoc);
+    DEBUGLINE(DB, "DAPostList::next(/*w_min*/): current docid = " << currdoc);
     if (currdoc && currdoc < om_docid(postlist->E)) {
 	currdoc++;
     } else {
 	DA_read_postings(postlist, 1, 0);
 	currdoc = om_docid(postlist->Doc);
     }
-    DEBUGLINE(DB, "DAPostList::next(" << w_min <<
-	      "): new docid = " << currdoc);
+    DEBUGLINE(DB, "DAPostList::next(/*w_min*/): new docid = " << currdoc);
     return NULL;
 }
 
-PostList * DAPostList::skip_to(om_docid did, om_weight w_min)
+PostList * DAPostList::skip_to(om_docid did, om_weight /*w_min*/)
 {
     Assert(currdoc == 0 || !at_end());
     Assert(did >= currdoc);
-    DEBUGLINE(DB, "DAPostList::skip_to(" << did << ", " << w_min <<
-	      "): current docid = " << currdoc);
+    DEBUGLINE(DB, "DAPostList::skip_to(" << did <<
+	      ", /*w_min*/): current docid = " << currdoc);
     if (currdoc && did <= om_docid(postlist->E)) {
 	currdoc = did;
     } else {
 	DA_read_postings(postlist, 1, did);
 	currdoc = om_docid(postlist->Doc);
     }
-    DEBUGLINE(DB, "DAPostList::skip_to(" << did << ", " << w_min <<
-	      "): new docid = " << currdoc);
+    DEBUGLINE(DB, "DAPostList::skip_to(" << did <<
+	      ", /*w_min*/): new docid = " << currdoc);
     return NULL;
 }
 
@@ -228,7 +226,7 @@ DADatabase::get_avlength() const
 }
 
 om_doclength
-DADatabase::get_doclength(om_docid did) const
+DADatabase::get_doclength(om_docid /*did*/) const
 {
     // FIXME: should return actual length.
     return get_avlength();
@@ -311,18 +309,19 @@ DADatabase::get_value(om_docid did, om_valueno valueid) const
 {
     string value;
     DEBUGLINE(DB, "Looking in valuefile for valueno " << valueid << " in document " << did);
+    if (valueid) return value;
 
     if (valuefile == 0) {
-	DEBUGLINE(DB, ": don't have valuefile - using record");
+	DEBUGLINE(DB, ": don't have valuefile");
     } else {
 	int seekok = fseek(valuefile, (long)did * 8, SEEK_SET);
 	if (seekok == -1) {
-	    DEBUGLINE(DB, ": seek off end of valuefile - using record");
+	    DEBUGLINE(DB, ": seek off end of valuefile");
 	} else {
 	    char input[9];
 	    size_t bytes_read = fread(input, sizeof(char), 8, valuefile);
 	    if (bytes_read < 8) {
-		DEBUGLINE(DB, ": read off end of valuefile - using record");
+		DEBUGLINE(DB, ": read off end of valuefile");
 	    } else {
 		value = string(input, 8);
 		DEBUGLINE(DB, ": found - value is `" << value << "'");
@@ -339,7 +338,7 @@ DADatabase::open_document(om_docid did, bool lazy) const
 }
 
 AutoPtr<PositionList> 
-DADatabase::open_position_list(om_docid did, const om_termname & tname) const
+DADatabase::open_position_list(om_docid /*did*/, const om_termname & /*tname*/) const
 {
     throw OmUnimplementedError("DA databases do not support opening positionlist");
 }

@@ -287,6 +287,7 @@ class DADatabase : public Database {
 	 */
 	LeafPostList * open_post_list_internal(const om_termname & tname) const;
 
+    public:
 	/** Create and open a DA database.
 	 *
 	 *  @exception OmOpeningError thrown if database can't be opened.
@@ -298,7 +299,7 @@ class DADatabase : public Database {
 	 */
 	DADatabase(const string &filename_r, const string &filename_t,
 		   const string &filename_v, bool heavy_duty_);
-    public:
+
 	~DADatabase();
 
 	/// Get the database size.
@@ -308,7 +309,7 @@ class DADatabase : public Database {
 	om_doclength get_doclength(om_docid did) const;
 
 	om_doccount get_termfreq(const om_termname & tname) const;
-	om_termcount get_collection_freq(const om_termname & tname) const {
+	om_termcount get_collection_freq(const om_termname & /*tname*/) const {
 	    throw OmUnimplementedError(
 		"DADatabase::get_collection_freq() not implemented: data not stored in database.");
 	}
@@ -355,17 +356,17 @@ class DADatabase : public Database {
 		"DADatabase::cancel_transaction() not implemented: readonly database type");
 	}
 
-	om_docid do_add_document(const OmDocument & document) {
+	om_docid do_add_document(const OmDocument & /*document*/) {
 	    throw OmUnimplementedError(
 		"DADatabase::add_document() not implemented: readonly database type");
 	}
 
-	void do_delete_document(om_docid did) {
+	void do_delete_document(om_docid /*did*/) {
 	    throw OmUnimplementedError(
 		"DADatabase::delete_document() not implemented: readonly database type");
 	}
 
-	void do_replace_document(om_docid did, const OmDocument & document) {
+	void do_replace_document(om_docid /*did*/, const OmDocument & /*document*/) {
 	    throw OmUnimplementedError(
 		"DADatabase::replace_document() not implemented: readonly database type");
 	}

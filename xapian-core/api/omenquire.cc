@@ -865,8 +865,9 @@ operator==(const OmMSetIterator &a, const OmMSetIterator &b)
 OmEnquire::Internal::Data::Data(const OmDatabase &db_,
 				OmErrorHandler * errorhandler_)
   : db(db_), query(0), collapse_key(om_valueno(-1)), sort_forward(true), 
-    percent_cutoff(0), weight_cutoff(0), sort_key(-1), sort_bands(0),
-    bias_halflife(0), bias_weight(0), errorhandler(errorhandler_), weight(0)
+    percent_cutoff(0), weight_cutoff(0), sort_key(om_valueno(-1)),
+    sort_bands(0), bias_halflife(0), bias_weight(0),
+    errorhandler(errorhandler_), weight(0)
 {
 }
 

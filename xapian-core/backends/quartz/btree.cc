@@ -1746,11 +1746,14 @@ Btree::do_open_to_read(const string & name_,
     handle = sys_open_to_read(name + "DB");
 
     {
-	int common_levels = revision_number <= 1 ? 1 : 2;
  	// Having more than one level not-shared seems to cause problems
 	// Get Martin to investigate...
-	// shared_level = level > common_levels ? common_levels : level;
+#if 0
+	int common_levels = revision_number <= 1 ? 1 : 2;
+	shared_level = level > common_levels ? common_levels : level;
+#else
 	shared_level = level;
+#endif
     }
 
     if (sequential) {

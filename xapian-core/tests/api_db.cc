@@ -356,6 +356,7 @@ static bool test_stubdb1()
     return true;
 }
 
+#if 0 // the "force error" mechanism is no longer in place...
 // tests error handler in multimatch().
 static bool test_multierrhandler1()
 {
@@ -453,6 +454,7 @@ static bool test_multierrhandler1()
 
     return true;
 }
+#endif
 
 // tests that changing a query object after calling set_query()
 // doesn't make any difference to get_mset().
@@ -2962,7 +2964,7 @@ static bool test_sortbands1()
     const char * terms[] = {"better", "place", "reader", "without", "would"};
     for (size_t j = 0; j < sizeof(terms) / sizeof(const char *); ++j) {
 	enquire.set_query(OmQuery(terms[j]));
-	enquire.set_sorting(-1, 10);
+	enquire.set_sorting(om_valueno(-1), 10);
 	OmMSet mset = enquire.get_mset(0, 20);
 	om_docid prev = 0;
 	int band = 9;

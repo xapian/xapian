@@ -1,3 +1,10 @@
+Sun Dec 15 03:08:28 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/muscat36/: DADatabase and DBDatabase ctors need to public
+	  so that they can called from the database factory functions.
+	* api/omenquire.cc,backends/muscat36/,backends/quartz/btree.cc,
+	  tests/api_db.cc: Fixed compilation warnings.
+
 Sat Dec 14 23:02:55 GMT 2002  Olly Betts <olly@survex.com>
 
 	* docs/quartzdesign.html,docs/todo.xml: Updated.

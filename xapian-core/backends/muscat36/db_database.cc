@@ -59,11 +59,10 @@ DBPostList::~DBPostList()
     DB_close_postings(postlist);
 }
 
-PostList * DBPostList::next(om_weight w_min)
+PostList * DBPostList::next(om_weight /*w_min*/)
 {
     Assert(currdoc == 0 || !at_end());
-    DEBUGLINE(DB, "DBPostList::next(" << w_min <<
-	      "): current docid = " << currdoc);
+    DEBUGLINE(DB, "DBPostList::next(/*w_min*/): current docid = " << currdoc);
     if (currdoc && currdoc < om_docid(postlist->E)) {
 	currdoc++;
     } else {
@@ -75,12 +74,12 @@ PostList * DBPostList::next(om_weight w_min)
     return NULL;
 }
 
-PostList * DBPostList::skip_to(om_docid did, om_weight w_min)
+PostList * DBPostList::skip_to(om_docid did, om_weight /*w_min*/)
 {
     Assert(currdoc == 0 || !at_end());
     Assert(did >= currdoc);
-    DEBUGLINE(DB, "DBPostList::skip_to(" << did << ", " << w_min <<
-	      "): current docid = " << currdoc);
+    DEBUGLINE(DB, "DBPostList::skip_to(" << did <<
+	      ", /*w_min*/): current docid = " << currdoc);
     if (currdoc && did <= om_docid(postlist->E)) {
 	DEBUGLINE(DB, "skip within range (end of range is " <<
 		  om_docid(postlist->E) << ")");
@@ -90,8 +89,8 @@ PostList * DBPostList::skip_to(om_docid did, om_weight w_min)
 	DEBUGLINE(DB, "reading more postings");
 	currdoc = om_docid(postlist->Doc);
     }
-    DEBUGLINE(DB, "DBPostList::skip_to(" << did << ", " << w_min <<
-	      "): new docid = " << currdoc);
+    DEBUGLINE(DB, "DBPostList::skip_to(" << did <<
+	      ", /*w_min*/): new docid = " << currdoc);
     return NULL;
 }
 
@@ -231,7 +230,7 @@ DBDatabase::get_avlength() const
 }
 
 om_doclength
-DBDatabase::get_doclength(om_docid did) const
+DBDatabase::get_doclength(om_docid /*did*/) const
 {
     // FIXME: should return actual length.
     return get_avlength();
@@ -319,6 +318,7 @@ DBDatabase::get_value(om_docid did, om_valueno valueid) const
 {
     string value;
     DEBUGLINE(DB, "Looking in valuefile for valueno " << valueid << " in document " << did);
+    if (valueid) return value;
 
     if (valuefile == 0) {
 	DEBUGLINE(DB, ": don't have valuefile - using record");
@@ -347,8 +347,8 @@ DBDatabase::open_document(om_docid did, bool lazy) const
 }
 
 AutoPtr<PositionList> 
-DBDatabase::open_position_list(om_docid did,
-			       const om_termname & tname) const
+DBDatabase::open_position_list(om_docid /*did*/,
+			       const om_termname & /*tname*/) const
 {
     throw OmUnimplementedError("DB databases do not support opening positionlist");
 }
