@@ -1,3 +1,9 @@
+Wed Sep 18 05:10:24 BST 2002  Richard Boulton <richard.boulton@omsee.com>
+
+	* docs/doxygen_{api,full}_header.html_tmpl: Remove meta robots tag -
+	  why shouldn't this be indexed?  Now the omega I set up pointing
+	  at copies of this should actually index something.
+
 Wed Sep 18 04:52:20 BST 2002  Olly Betts <olly@survex.com>
 
 	* configure.in: Merged two sed invocations into one - we don't want
