@@ -1,3 +1,11 @@
+Mon Sep 16 13:37:04 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* Now om/om.h is built from om/om.h.in, it may be in the build
+	  directly. Consequently, we need to add that to the include path
+	  for VPATH builds. Plus (also for VPATH), om/om.h needs to be
+	  output after AC_OUTPUT, because otherwise the destination
+	  directory may not exist.
+
 Mon Sep 16 04:19:54 BST 2002  Olly Betts <olly@survex.com>
 
 	* configure.in,docs/todo.xml,include/om/Makefile.am,include/om/om.h,
