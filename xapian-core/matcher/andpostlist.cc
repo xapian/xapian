@@ -3,8 +3,8 @@
 inline void
 AndPostList::advance_to_next_match()
 {
-    lhead = l->get_docid();
-    rhead = r->get_docid();
+    docid lhead = l->get_docid();
+    docid rhead = r->get_docid();
 
     while (lhead != rhead) {
 	if (lhead < rhead) {
@@ -22,21 +22,29 @@ AndPostList::advance_to_next_match()
 	    }
 	    rhead = r->get_docid();	    
 	}
-    }    
+    }
+
+    head = lhead;
 }
 
-AndPostList::AndPostList(PostList *left, PostList *right) : OrPostList(left, right)
+AndPostList::AndPostList(PostList *left, PostList *right)
 {    
     l = left;
     r = right;
-    lhead = rhead = 0;
+    head = 0;
     if (!l->at_end() && !r->at_end()) advance_to_next_match();
+}
+
+AndPostList::~AndPostList()
+{
+    delete l;
+    delete r;
 }
 
 void
 AndPostList::next()
 {
-    lhead = rhead = 0;
+    head = 0;
 
     r->next();
     if (r->at_end()) return;
@@ -50,7 +58,7 @@ AndPostList::next()
 void
 AndPostList::skip_to(docid id)
 {
-    lhead = rhead = 0;
+    head = 0;
 
     r->skip_to(id);
     if (r->at_end()) return;

@@ -21,7 +21,7 @@ AndNotPostList::advance_to_next_match()
     }
 }
 
-AndNotPostList::AndNotPostList(PostList *left, PostList *right) : OrPostList(left, right)
+AndNotPostList::AndNotPostList(PostList *left, PostList *right)
 {    
     l = left;
     r = right;
@@ -33,6 +33,12 @@ AndNotPostList::AndNotPostList(PostList *left, PostList *right) : OrPostList(lef
 	    advance_to_next_match();
 	}
     }
+}
+
+AndNotPostList::~AndNotPostList()
+{
+    delete l;
+    delete r;
 }
 
 void

@@ -4,7 +4,7 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 INCLUDES = -I/usr/local/BerkeleyDB/include
 
-noinst_HEADERS = da_database.h daread.h database.h match.h mergedpostlist.h \
+noinst_HEADERS = da_database.h daread.h database.h match.h \
  orpostlist.h andpostlist.h andnotpostlist.h \
  damuscat.h omtypes.h proto_database.h proto_db.h
 

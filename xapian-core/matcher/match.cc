@@ -1,5 +1,4 @@
 #include "match.h"
-#include "mergedpostlist.h"
 #include "andpostlist.h"
 #include "orpostlist.h"
 #include "andnotpostlist.h"
@@ -121,7 +120,7 @@ Match::match(void)
 	    pq.pop();
 	    if (pq.empty()) break;
 	    // NB right is always <= left - we can use this to optimise
-	    merger = new MergedPostList(pq.top(), merger);
+	    merger = new OrPostList(pq.top(), merger);
 	    pq.pop();
 	    pq.push(merger);
 	}

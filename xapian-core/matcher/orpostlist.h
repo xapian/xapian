@@ -1,4 +1,4 @@
-// boolean OR of two posting lists
+// OR of two posting lists
 
 #ifndef _orpostlist_h_
 #define _orpostlist_h_
@@ -6,7 +6,7 @@
 #include "database.h"
 
 class OrPostList : public virtual PostList {
-    protected:
+    private:
         PostList *l, *r;
         docid lhead, rhead;
     public:
@@ -20,7 +20,6 @@ class OrPostList : public virtual PostList {
 	bool   at_end() const;
 
         OrPostList(PostList *, PostList *);
-        OrPostList() {}
         ~OrPostList();
 };
 
@@ -44,10 +43,19 @@ OrPostList::get_docid() const
     return min(lhead, rhead);
 }
 
+// only called if we are doing a probabilistic OR
 inline weight
 OrPostList::get_weight() const
 {
-    return 1;
+    if (!rhead) return l->get_weight();
+   
+    if (!lhead) return r->get_weight();
+
+    if (lhead < rhead) return l->get_weight();
+   
+    if (lhead > rhead) return r->get_weight();
+
+    return l->get_weight() + r->get_weight();
 }
 
 inline bool

@@ -1,23 +1,29 @@
-// boolean AND of two posting lists
+// AND of two posting lists
 
 #ifndef _andpostlist_h_
 #define _andpostlist_h_
 
 #include "database.h"
-#include "orpostlist.h"
 
-class AndPostList : public virtual OrPostList {
+class AndPostList : public virtual PostList {
+    protected:
+        PostList *l, *r;
     private:
+        docid head;
+
         void advance_to_next_match();
     public:
 	doccount get_termfreq() const;
 
 	docid  get_docid() const;
+	weight get_weight() const;
 
 	void   next();
 	void   skip_to(docid);
+	bool   at_end() const;
 
         AndPostList(PostList *l, PostList *r);
+        ~AndPostList();
 };
 
 inline doccount
@@ -31,7 +37,20 @@ AndPostList::get_termfreq() const
 inline docid
 AndPostList::get_docid() const
 {
-    return lhead; // lhead and rhead are always equal between method calls
+    return head;
+}
+
+// only called if we are doing a probabilistic AND
+inline weight
+AndPostList::get_weight() const
+{
+    return l->get_weight() + r->get_weight();
+}
+
+inline bool
+AndPostList::at_end() const
+{
+    return head == 0;
 }
 
 #endif /* _andpostlist_h_ */

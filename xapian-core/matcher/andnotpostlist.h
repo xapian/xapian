@@ -1,24 +1,28 @@
-// boolean AND NOT of two posting lists
+// AND NOT of two posting lists
 
 #ifndef _andnotpostlist_h_
 #define _andnotpostlist_h_
 
 #include "database.h"
-#include "orpostlist.h"
 
-class AndNotPostList : public virtual OrPostList {
+class AndNotPostList : public virtual PostList {
     private:
+        PostList *l, *r;
+        docid lhead, rhead;
+
         void advance_to_next_match();
     public:
 	doccount get_termfreq() const;
 
 	docid  get_docid() const;
+	weight get_weight() const;
 
 	void   next();
 	void   skip_to(docid);
 	bool   at_end() const;
 
         AndNotPostList(PostList *l, PostList *r);
+        ~AndNotPostList();
 };
 
 inline doccount
@@ -32,6 +36,13 @@ inline docid
 AndNotPostList::get_docid() const
 {
     return lhead;
+}
+
+// only called if we are doing a probabilistic AND NOT
+inline weight
+AndNotPostList::get_weight() const
+{
+    return l->get_weight();
 }
 
 inline bool

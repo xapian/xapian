@@ -1,5 +1,4 @@
 #include "database.h"
-#include "mergedpostlist.h"
 
 #include <queue>
 #include <stack>
