@@ -105,6 +105,9 @@ class OMQuery {
 
 	// Check whether the query is null
 	bool is_null() const { return isnull; };
+
+	// Check whether the query is (pure) boolean
+	bool is_bool() const { return isbool; };
 };
 
 ///////////////////////////////////////////////////////////////////

@@ -526,7 +526,13 @@ OMEnquire::get_mset(OMMSet &mset,
     match.set_query(internal->query);
 
     // Run query and get results into supplied OMMSet object
-    match.match(first, maxitems, mset.items, msetcmp_forward, &(mset.mbound));
+    if(internal->query->is_bool()) {
+	match.boolmatch(first, maxitems, mset.items);
+	mset.mbound = mset.items.size();
+    } else {
+	match.match(first, maxitems, mset.items,
+		    msetcmp_forward, &(mset.mbound));
+    }
 
     // Get max weight for an item in the MSet
     mset.max_weight = match.get_max_weight();
