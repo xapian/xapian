@@ -98,13 +98,6 @@ class QuartzDatabase : public Xapian::Database::Internal {
  */
 class QuartzWritableDatabase : public Xapian::Database::Internal {
     private:
-	/** Pointer to buffered table manager.
-	 *
-	 *  This points to the same object as tables, but is used for
-	 *  modification access.
-	 */
-	QuartzTableManager * buffered_tables;
-
 	/** Total length of added documents which haven't been flushed yet. */
 	mutable quartz_totlen_t totlen_added;
 

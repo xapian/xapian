@@ -228,13 +228,12 @@ QuartzDatabase::open_allterms() const
 
 QuartzWritableDatabase::QuartzWritableDatabase(const string &dir, int action,
 					       int block_size)
-	: buffered_tables(new QuartzTableManager(dir, action, block_size)),
-	  totlen_added(0),
+	: totlen_added(0),
 	  totlen_removed(0),
 	  freq_deltas(),
 	  doclens(),
 	  mod_plists(),
-	  database_ro(AutoPtr<QuartzTableManager>(buffered_tables)),
+	  database_ro(AutoPtr<QuartzTableManager>(new QuartzTableManager(dir, action, block_size))),
 	  changes_made(0)
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase", dir << ", " << action << ", "
@@ -257,18 +256,18 @@ void
 QuartzWritableDatabase::do_flush_const() const
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase::do_flush_const", "");
-    Assert(buffered_tables != 0);
+    Assert(database_ro.tables.get() != 0);
 
-    QuartzTable * pl_table = buffered_tables->get_postlist_table();
+    QuartzTable * pl_table = database_ro.tables->get_postlist_table();
     QuartzPostList::merge_changes(pl_table, mod_plists, doclens, freq_deltas);
 
     // Update the total document length.
     QuartzRecordManager::modify_total_length(
-	    *(buffered_tables->get_record_table()),
+	    *(database_ro.tables->get_record_table()),
 	    totlen_removed,
 	    totlen_added);
 
-    buffered_tables->apply();
+    database_ro.tables->apply();
     totlen_added = 0;
     totlen_removed = 0;
     freq_deltas.clear();
@@ -289,19 +288,19 @@ Xapian::docid
 QuartzWritableDatabase::add_document_(Xapian::docid did,
 				      const Xapian::Document & document)
 {
-    Assert(buffered_tables != 0);
+    Assert(database_ro.tables.get() != 0);
 
     try {
 	if (did == 0) {
 	    // Set the record, and get the document ID to use.
 	    did = QuartzRecordManager::add_record(
-		    *(buffered_tables->get_record_table()),
+		    *(database_ro.tables->get_record_table()),
 		    document.get_data());
 	    Assert(did != 0);
 	} else {
 	    // Set the record using the provided document ID.
 	    QuartzRecordManager::replace_record(
-		    *(buffered_tables->get_record_table()),
+		    *(database_ro.tables->get_record_table()),
 		    document.get_data(),
 		    did);
 	}
@@ -312,7 +311,7 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
 	    Xapian::ValueIterator value_end = document.values_end();
 	    for ( ; value != value_end; ++value) {
 		QuartzValueManager::add_value(
-		    *(buffered_tables->get_value_table()),
+		    *(database_ro.tables->get_value_table()),
 		    *value, did, value.get_valueno());
 	    }
 	}
@@ -348,14 +347,14 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
 
 		if (term.positionlist_begin() != term.positionlist_end()) {
 		    QuartzPositionList::set_positionlist(
-			buffered_tables->get_positionlist_table(), did, tname,
+			database_ro.tables->get_positionlist_table(), did, tname,
 			term.positionlist_begin(), term.positionlist_end());
 		}
 	    }
 	}
 
 	// Set the termlist
-	QuartzTermList::set_entries(buffered_tables->get_termlist_table(), did,
+	QuartzTermList::set_entries(database_ro.tables->get_termlist_table(), did,
 		document.termlist_begin(), document.termlist_end(),
 		new_doclen, false);
 
@@ -367,7 +366,7 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
 	// transaction, the modifications so far must be cleared before
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
-	buffered_tables->cancel();
+	database_ro.tables->cancel();
 	totlen_added = 0;
 	totlen_removed = 0;
 	freq_deltas.clear();
@@ -401,7 +400,7 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase::delete_document", did);
     Assert(did != 0);
-    Assert(buffered_tables != 0);
+    Assert(database_ro.tables.get() != 0);
 
     try {
 	if (doclens.find(did) != doclens.end()) {
@@ -413,18 +412,18 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 
 	// Remove the record.
 	QuartzRecordManager::delete_record(
-		*(buffered_tables->get_record_table()), did);
+		*(database_ro.tables->get_record_table()), did);
 
 	// Remove the values
 	QuartzValueManager::delete_all_values(
-		*(buffered_tables->get_value_table()),
+		*(database_ro.tables->get_value_table()),
 		did);
 
 	// OK, now add entries to remove the postings in the underlying record.
 	Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
 	QuartzTermList termlist(ptrtothis,
 				database_ro.tables->get_termlist_table(),
-				did, database_ro.get_doccount());
+				did, get_doccount());
 
 	totlen_removed += termlist.get_doclength();
 
@@ -432,7 +431,7 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 	while (!termlist.at_end()) {
 	    string tname = termlist.get_termname();
 	    QuartzPositionList::delete_positionlist(
-		buffered_tables->get_positionlist_table(),
+		database_ro.tables->get_positionlist_table(),
 		did, tname);
 	    termcount wdf = termlist.get_wdf();
 
@@ -459,14 +458,14 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 	}
 
 	// Remove the termlist.
-	QuartzTermList::delete_termlist(buffered_tables->get_termlist_table(),
+	QuartzTermList::delete_termlist(database_ro.tables->get_termlist_table(),
 					did);
     } catch (...) {
 	// If an error occurs while deleting a document, or doing any other
 	// transaction, the modifications so far must be cleared before
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
-	buffered_tables->cancel();
+	database_ro.tables->cancel();
 	totlen_added = 0;
 	totlen_removed = 0;
 	freq_deltas.clear();
@@ -488,7 +487,7 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase::replace_document", did << ", " << document);
     Assert(did != 0);
-    Assert(buffered_tables != 0);
+    Assert(database_ro.tables.get() != 0);
 
     try {
 	if (doclens.find(did) != doclens.end()) {
@@ -502,7 +501,7 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 	Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
 	QuartzTermList termlist(ptrtothis,
 				database_ro.tables->get_termlist_table(),
-				did, database_ro.get_doccount());
+				did, get_doccount());
 
 	termlist.next();
 	while (!termlist.at_end()) {
@@ -535,7 +534,7 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 
 	// Replace the record
 	QuartzRecordManager::replace_record(
-		*(buffered_tables->get_record_table()),
+		*(database_ro.tables->get_record_table()),
 		document.get_data(),
 		did);
 
@@ -550,19 +549,19 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 		tmp.push_back(make_pair(*value, value.get_valueno()));
 	    }
 	//	QuartzValueManager::add_value(
-	//	    *(buffered_tables->get_value_table()),
+	//	    *(database_ro.tables->get_value_table()),
 	//	    *value, did, value.get_valueno());
 	
 	    // Replace the values.
 	    QuartzValueManager::delete_all_values(
-		    *(buffered_tables->get_value_table()),
+		    *(database_ro.tables->get_value_table()),
 		    did);
 
 	    // Set the values.
 	    list<pair<string, Xapian::valueno> >::const_iterator i;
 	    for (i = tmp.begin(); i != tmp.end(); ++i) {
 		QuartzValueManager::add_value(
-		    *(buffered_tables->get_value_table()),
+		    *(database_ro.tables->get_value_table()),
 		    i->first, did, i->second);
 	    }
 	}
@@ -607,18 +606,18 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 		// with itself (e.g. if a document is replaced with itself
 		// with just the values changed)
 		QuartzPositionList::delete_positionlist(
-		    buffered_tables->get_positionlist_table(),
+		    database_ro.tables->get_positionlist_table(),
 		    did, tname);
 		if (term.positionlist_begin() != term.positionlist_end()) {
 		    QuartzPositionList::set_positionlist(
-			buffered_tables->get_positionlist_table(), did, tname,
+			database_ro.tables->get_positionlist_table(), did, tname,
 			term.positionlist_begin(), term.positionlist_end());
 		}
 	    }
 	}
 
 	// Set the termlist
-	QuartzTermList::set_entries(buffered_tables->get_termlist_table(), did,
+	QuartzTermList::set_entries(database_ro.tables->get_termlist_table(), did,
 		document.termlist_begin(), document.termlist_end(),
 		new_doclen, false);
 
@@ -632,7 +631,7 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 	// transaction, the modifications so far must be cleared before
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
-	buffered_tables->cancel();
+	database_ro.tables->cancel();
 	totlen_added = 0;
 	totlen_removed = 0;
 	freq_deltas.clear();
@@ -754,8 +753,8 @@ QuartzWritableDatabase::open_document(Xapian::docid did, bool lazy) const
 
     Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
     RETURN(new QuartzDocument(ptrtothis,
-			      buffered_tables->get_value_table(),
-			      buffered_tables->get_record_table(),
+			      database_ro.tables->get_value_table(),
+			      database_ro.tables->get_record_table(),
 			      did, lazy));
 }
 
@@ -766,7 +765,7 @@ QuartzWritableDatabase::open_position_list(Xapian::docid did,
     Assert(did != 0);
 
     AutoPtr<QuartzPositionList> poslist(new QuartzPositionList());
-    poslist->read_data(buffered_tables->get_positionlist_table(), did, tname);
+    poslist->read_data(database_ro.tables->get_positionlist_table(), did, tname);
     if (poslist->get_size() == 0) {
 	// Check that term / document combination exists.
 	Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
@@ -786,7 +785,7 @@ QuartzWritableDatabase::open_allterms() const
     DEBUGCALL(DB, TermList *, "QuartzWritableDatabase::open_allterms", "");
     // Terms may have been added or removed, so we need to flush.
     do_flush_const();
-    QuartzTable *t = buffered_tables->get_postlist_table();
+    QuartzTable *t = database_ro.tables->get_postlist_table();
     AutoPtr<QuartzCursor> pl_cursor(t->cursor_get());
     RETURN(new QuartzAllTermsList(Xapian::Internal::RefCntPtr<const QuartzWritableDatabase>(this),
 				  pl_cursor, t->get_entry_count()));
