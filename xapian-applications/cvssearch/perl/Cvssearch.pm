@@ -309,7 +309,6 @@ sub cvsupdatedb {
     my ($root, $flag, $filepath) = @_;
     my $cvsdata = get_cvsdata(); # path where database content file is stored
     my $filename = "dbcontent"; # file containing database built
-    my $root = shift @ARGV;
     my $path;
     if ($cvsdata eq ""){
         print STDERR "Warning: \$CVSDATA is not set and cvssearch.conf cannot be read.";
