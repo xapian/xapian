@@ -1,3 +1,11 @@
+Thu May 06 02:25:33 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_positionlist.cc,
+	  backends/quartz/quartz_utils.h: Added SON_OF_QUARTZ define to
+	  disable incompatible changes to database formats by default, and
+	  use it to control the docid encoding for keys such that we're always
+	  inserting at the end of the table when added new documents.
+
 Thu May 06 02:23:02 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_postlist.cc: Improved a FIXME comment.

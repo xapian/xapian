@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -131,7 +131,11 @@ QuartzPositionList::make_key(Xapian::docid did,
 			     string & key)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzPositionList::make_key", did << ", " << tname << ", " << key);
+#ifdef SON_OF_QUARTZ
+    key = pack_uint_preserving_sort(did) + tname;
+#else
     key = pack_uint(did) + tname;
+#endif
 }
 
 // Methods modifying position lists

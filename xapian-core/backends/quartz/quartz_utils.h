@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,11 @@
 #include <xapian/types.h>
 
 #include <string>
+
+// Define this to use the new (incompatible) database encoding schemes.
+// Once this work is finished, we can have a flag day and enable them
+// all at once by default.
+// #define SON_OF_QUARTZ 1
 
 using namespace std;
 
@@ -389,7 +394,11 @@ pack_bool(bool value)
 inline string
 quartz_docid_to_key(Xapian::docid did)
 {
+#ifdef SON_OF_QUARTZ
+    return pack_uint_preserving_sort(did);
+#else
     return pack_uint_last(did);
+#endif
 }
 
 #endif /* OM_HGUARD_QUARTZ_UTILS_H */
