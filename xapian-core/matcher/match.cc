@@ -1,50 +1,76 @@
 #include "match.h"
 
-int
+Match::Match(IRDatabase *database)
+{
+    DB = database;
+    merger = NULL;
+}
+
+bool
 Match::add_pterm(const string& termname)
 {
     // FIXME: const discarded...
-    termid id = DB.term_name_to_id((char*)termname.c_str());
+    termid id = DB->term_name_to_id((char*)termname.c_str());
 
-    if (!id) return 0;
-   
-    PostListIterator *plist = new PostListIterator;
-    plist->open(id);
-    postlist.push_back(plist);
+    if (!id) return false;
+
+    PostList *postlist = DB->open_post_list(id);
+    if (merger) {
+        // FIXME: this builds a totally unbalanced tree
+        // or does that not matter?
+        merger = new MergedPostList(merger, postlist);
+    } else {
+        merger = postlist;
+    }
+    return true;
 }
+
+#define MSIZE 1000
+
+typedef struct {
+    weight w;
+    docid id;
+} msetitem;
 
 void
 Match::match(void)
 {
-    bool more = true;
-    docid current = 0;
-    map<docid,weight> m;
-   
-    while (more) {
-        more = false;
-       
-        list<PostListIterator*>::iterator i = postlist.begin();
-        list<PostListIterator*>::iterator end = postlist.end();
-        while (i != end) {
-	    PostListIterator *plist = *i;
-            if (!plist->at_end()) {
- 	        docid d = plist->get_docid();
-	        // FIXME: don't always want to advance each posting iterator...
-	        m[d]++;
-                plist->next();
-	    } else {
-	        // i.erase();
+    if (!merger) return;
+
+    docid msize = 0, mtotal = 0;
+    weight min = 0;
+    msetitem mset[MSIZE];
+
+    while (!merger->at_end()) {
+        weight w = merger->get_weight();
+        
+        if (w > min) {
+	    docid id = merger->get_docid();
+	    docid i;
+	    for (i = 0; i < msize; i++) {
+	        if (mset[i].w <= w) break;
 	    }
-            i++;
+
+	    if (i == msize) {
+	        if (msize < MSIZE) {
+		    mset[msize].id = id;
+		    mset[msize].w = w;
+	            msize++;
+		}
+	    } else {
+	        int len = msize - i;
+	        if (msize == MSIZE) len--;
+	        memmove(mset + i + 1, mset + i, len * sizeof(msetitem));
+	        mset[i].id = id;
+	        mset[i].w = w;
+	    }
 	}
-        more = postlist.size() > 0;
+        mtotal++;
+        merger->next();
     }
 
-    map<docid,weight>::iterator i = m.begin();
-    map<docid,weight>::iterator end = m.end();
-
-    while (i != end) {
-        cout << (*i).first << "\t" << (*i).second << endl;
-        i++;
+    cout << "msize = " << msize << ", mtotal = " << mtotal << endl;
+    for (docid i = 0; i < msize; i++) {
+        cout << mset[i].id << "\t" << mset[i].w << endl;
     }
 }
