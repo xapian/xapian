@@ -23,6 +23,7 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <map>
 #include <getopt.h>
 #include "om/om.h"
 #include "testsuite.h"
@@ -852,26 +853,37 @@ bool test_collapsekey1()
     init_simple_enquire(enquire);
 
     OmMatchOptions mymopt;
-    for (int key_no = 1; key_no<7; ++key_no) {
-        vector<om_docid> dids(key_no);
-	mymopt.set_collapse_key(key_no);
 
+    OmMSet mymset1 = enquire.get_mset(0, 100, 0, &mymopt);
+    om_doccount mymsize1 = mymset1.items.size();
+
+    for (int key_no = 1; key_no<7; ++key_no) {
+	mymopt.set_collapse_key(key_no);
 	OmMSet mymset = enquire.get_mset(0, 100, 0, &mymopt);
 
+	if(mymsize1 <= mymset.items.size()) {
+	    success = false;
+	    if (verbose) {
+		cout << "Had no fewer items when performing collapse: don't know whether it worked." << endl;
+	    }
+	}
+
+        map<string, om_docid> keys;
 	for (vector<OmMSetItem>::const_iterator i=mymset.items.begin();
 	     i != mymset.items.end();
 	     ++i) {
-	    if (dids[i->did % key_no] != 0) {
+	    OmKey key = enquire.get_doc(*i).get_key(key_no);
+	    if (keys[key.value] != 0 && key.value != "") {
 	        success = false;
 		if (verbose) {
-		    cout << "docids " << dids[i->did % key_no]
+		    cout << "docids " << keys[key.value]
 		         << " and " << i->did
-			 << " both found in MSet with key_no " << key_no
-			 << endl;
+			 << " both found in MSet with key `" << key.value
+			 << "'" << endl;
 		}
 		break;
 	    } else {
-	        dids[i->did % key_no] = i->did;
+	        keys[key.value] = i->did;
 	    }
 	}
 	// don't bother continuing if we've already failed.
