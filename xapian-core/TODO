@@ -135,6 +135,10 @@ Priority | Area            | Task
 	 |                 | query terms are not present in some of the sub
 	 |                 | databases.
 ---------+-----------------+--------------------------------------------------
+ Medium  | Matchers        | Deprecate get_max_weight() - not useful
+         |                 | independently of get_mset(), which now returns
+	 |                 | its value.
+---------+-----------------+--------------------------------------------------
  Low     | Documentation   | Add notes about catching exceptions throughout
          |                 | userman, particuarly in examples (eg, search
 	 |                 | engine example)
