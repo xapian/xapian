@@ -1,3 +1,9 @@
+Tue May 27 16:53:40 BST 2003  Olly Betts <olly@survex.com>
+
+	* bin/omprogsrv.cc,tests/api_db.cc: Use variable name "dbs" in
+	  preference to "dbgrp".  OmDatabaseGroup hasn't existed for
+	  years!
+
 Tue May 27 16:51:30 BST 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Fixed typo: "bin" should be "net" in remote_subdirs.

@@ -373,84 +373,84 @@ static bool test_multierrhandler1()
 	Xapian::Database mydb6(get_database("-e2", "apitest_termorder"));
 	Xapian::Database mydb7(get_database("-e3", "apitest_simpledata"));
 
-	Xapian::Database dbgrp;
+	Xapian::Database dbs;
 	switch (testcount) {
 	    case 0:
-		dbgrp.add_database(mydb2);
-		dbgrp.add_database(mydb3);
-		dbgrp.add_database(mydb4);
+		dbs.add_database(mydb2);
+		dbs.add_database(mydb3);
+		dbs.add_database(mydb4);
 		break;
 	    case 1:
-		dbgrp.add_database(mydb4);
-		dbgrp.add_database(mydb2);
-		dbgrp.add_database(mydb3);
+		dbs.add_database(mydb4);
+		dbs.add_database(mydb2);
+		dbs.add_database(mydb3);
 		break;
 	    case 2:
-		dbgrp.add_database(mydb3);
-		dbgrp.add_database(mydb4);
-		dbgrp.add_database(mydb2);
+		dbs.add_database(mydb3);
+		dbs.add_database(mydb4);
+		dbs.add_database(mydb2);
 		break;
 	    case 3:
-		dbgrp.add_database(mydb2);
-		dbgrp.add_database(mydb3);
-		dbgrp.add_database(mydb5);
+		dbs.add_database(mydb2);
+		dbs.add_database(mydb3);
+		dbs.add_database(mydb5);
 		sleep(1);
 		break;
 	    case 4:
-		dbgrp.add_database(mydb5);
-		dbgrp.add_database(mydb2);
-		dbgrp.add_database(mydb3);
+		dbs.add_database(mydb5);
+		dbs.add_database(mydb2);
+		dbs.add_database(mydb3);
 		sleep(1);
 		break;
 	    case 5:
-		dbgrp.add_database(mydb3);
-		dbgrp.add_database(mydb5);
-		dbgrp.add_database(mydb2);
+		dbs.add_database(mydb3);
+		dbs.add_database(mydb5);
+		dbs.add_database(mydb2);
 		sleep(1);
 		break;
 	    case 6:
-		dbgrp.add_database(mydb2);
-		dbgrp.add_database(mydb3);
-		dbgrp.add_database(mydb6);
+		dbs.add_database(mydb2);
+		dbs.add_database(mydb3);
+		dbs.add_database(mydb6);
 		break;
 	    case 7:
-		dbgrp.add_database(mydb6);
-		dbgrp.add_database(mydb2);
-		dbgrp.add_database(mydb3);
+		dbs.add_database(mydb6);
+		dbs.add_database(mydb2);
+		dbs.add_database(mydb3);
 		break;
 	    case 8:
-		dbgrp.add_database(mydb3);
-		dbgrp.add_database(mydb6);
-		dbgrp.add_database(mydb2);
+		dbs.add_database(mydb3);
+		dbs.add_database(mydb6);
+		dbs.add_database(mydb2);
 		break;
 	    case 9:
-		dbgrp.add_database(mydb2);
-		dbgrp.add_database(mydb3);
-		dbgrp.add_database(mydb7);
+		dbs.add_database(mydb2);
+		dbs.add_database(mydb3);
+		dbs.add_database(mydb7);
 		break;
 	    case 10:
-		dbgrp.add_database(mydb7);
-		dbgrp.add_database(mydb2);
-		dbgrp.add_database(mydb3);
+		dbs.add_database(mydb7);
+		dbs.add_database(mydb2);
+		dbs.add_database(mydb3);
 		break;
 	    case 11:
-		dbgrp.add_database(mydb3);
-		dbgrp.add_database(mydb7);
-		dbgrp.add_database(mydb2);
+		dbs.add_database(mydb3);
+		dbs.add_database(mydb7);
+		dbs.add_database(mydb2);
 		break;
 	    case 12:
-		dbgrp.add_database(mydb2);
-		dbgrp.add_database(mydb6);
-		dbgrp.add_database(mydb7);
+		dbs.add_database(mydb2);
+		dbs.add_database(mydb6);
+		dbs.add_database(mydb7);
 		break;
 	    case 13:
-		dbgrp.add_database(mydb2);
-		dbgrp.add_database(mydb7);
-		dbgrp.add_database(mydb6);
+		dbs.add_database(mydb2);
+		dbs.add_database(mydb7);
+		dbs.add_database(mydb6);
 		break;
 	}
-	tout << "db=" << dbgrp << "\n";
-	Xapian::Enquire enquire(dbgrp, &myhandler);
+	tout << "db=" << dbs << "\n";
+	Xapian::Enquire enquire(dbs, &myhandler);
 
 	// make a query
 	Xapian::Query myquery = query(Xapian::Query::OP_OR, "inmemory", "word");

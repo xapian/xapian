@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
     }
 
     /* variables needed in both try/catch blocks */
-    Xapian::Database dbgrp;
+    Xapian::Database dbs;
     unsigned int timeout = 60000;
 
     /* Trap exceptions related to setting up the database */
@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
 	}
 
 	Xapian::Database db = backendmanager.get_database(paths);
-	dbgrp.add_database(db);
+	dbs.add_database(db);
     } catch (const Xapian::Error &e) {
 	cout << 'E' << omerror_to_string(e) << endl;
     } catch (...) {
@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
      * on to the remote end, as SocketServer will do that itself.
      */
     try {
-	ProgServer server(dbgrp, 0, 1, timeout, timeout);
+	ProgServer server(dbs, 0, 1, timeout, timeout);
 	// If you have defined your own weighting scheme, register it here
 	// like so:
 	// server.register_weighting_scheme(FooWeight());
