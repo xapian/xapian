@@ -33,6 +33,7 @@
 #include <vector>
 #include <list>
 
+#include <stdio.h>
 #include <unistd.h>
 
 #include "htmlparse.h"
