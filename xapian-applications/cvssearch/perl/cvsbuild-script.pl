@@ -9,7 +9,7 @@ my $cvsindex = "./cvsindex";
 my $cvsmap = "./cvsmap";
 
 if (not (-x $cvsindex)) {
-    print STDERR "WARNING: a program used in this script cvsindex is not found.\n";
+    print STDERR "WARNING: a program used in this script called cvsindex is not found.\n";
     print STDERR "please change to the directory where $0 is stored and execute the script again.\n";
     print STDERR "(cvsindex should be in the same directory)\n";
     exit(1);
@@ -306,7 +306,7 @@ sub cvsbuild {
 
 sub usage() {
     print << "EOF";
-cvsbuild 1.0 (2001-2-22)
+cvsbuilddb 1.0 (2001-2-22)
 Usage $0 [Options]
         
 Options:

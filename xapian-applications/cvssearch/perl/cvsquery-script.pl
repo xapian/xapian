@@ -10,8 +10,8 @@ my $cvsroot_dir;
 # if $cvsdata is not set, use current directory instead.
 # ------------------------------------------------------------
 if($cvsdata eq "") {
-    print STDERR "WARNING: \$CVSDATA not set and \n";
-    print STDERR "cvssearch.conf is not created. !\n";
+    print STDERR "WARNING: \$CVSDATA not set and ";
+    print STDERR "cvssearch.conf has not been created!\n";
     exit(1);
 }
 
@@ -33,8 +33,8 @@ system ("$cvsquery @ARGV");
 sub usage()
 {
 print << "EOF";
-cvsquery-script 0.1 (2001-2-26)
-Usage: cvsquerydb root package [Options] [Options] ...
+cvsquerydb 1.0 (2001-2-26)
+Usage: $0 root_dir package [Options] [Options] ...
 
 Options:
   -h                     print out this message

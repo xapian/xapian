@@ -241,11 +241,10 @@ sub compare_pkg_index {
     print "<tr><td class=\"s\">File</td><td class=\"s\">Last Rev</td><td class=\"s\">Last CVS Comment</td></tr>\n";
     $i = 0;
     foreach (@filenames) {
-        my @class;
         print "<tr>\n";
-        print "<td $class[$i%2]><a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=". ($i+1)."\">$filenames[$i]</a></td>";
-        print "<td $class[$i%2]>$versions[$i]</td>\n";
-        print "<td $class[$i%2]>$comments[$i]</td>\n";
+        print "<td ".$class[$i%2]."><a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=". ($i+1)."\">$filenames[$i]</a></td>";
+        print "<td ".$class[$i%2].">$versions[$i]</td>\n";
+        print "<td ".$class[$i%2].">$comments[$i]</td>\n";
         print "</tr>\n";
         $i++;
     }
