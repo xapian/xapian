@@ -1,4 +1,4 @@
-lib_LIBRARIES = libcvs_db.a
+noinst_LIBRARIES = libcvs_db.a
 libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C  cvs_line_db.C \
  cvs_comment_db.h     cvs_db.h       cvs_file_revision_db.h  cvs_line_db.h \
  cvs_comment_id_db.C  cvs_db_file.C  cvs_filename_db.C       cvs_revision_db.C \
@@ -15,13 +15,16 @@ cvsquery_SOURCES = cvsquery.C
 cvsquery_LDADD = libcvs_db.a -ldb_cxx libcvs_db.a
 
 cvsindex_SOURCES = util.h util.C cvsindex.C
-cvsindex_LDFLAGS = -static `omsee-config --libs`
+cvsindex_LDFLAGS = -static
+cvsindex_LDADD = -lomsee
 
 cvssearch_SOURCES = util.h util.C cvssearch.C
-cvssearch_LDFLAGS = -static `omsee-config --libs`
+cvssearch_LDFLAGS = -static
+cvssearch_LDADD = -lomsee
 
 cvsusagesearch_SOURCES = util.h util.C cvsusagesearch.C
-cvsusagesearch_LDFLAGS = -static `omsee-config --libs`
+cvsusagesearch_LDFLAGS = -static 
+cvsusagesearch_LDADD = -lomsee
 
 #cvsclasses_SOURCES = util.h util.C cvspatterns.C
 #cvsclasses_LDADD = -ldb_cxx -lomsee
