@@ -933,7 +933,7 @@ print_caption(om_docid m, const string &fmt)
 {
     relevant_cached = false;
 
-    q0 = *(mset.items[m]);
+    q0 = *(mset[m]);
 
     static double scale = -1;
     if (scale < 0) {
@@ -941,16 +941,15 @@ print_caption(om_docid m, const string &fmt)
 	list<om_termname>::const_iterator i;
 	for (i = qp.termlist.begin(); i != qp.termlist.end(); i++)
 	    denom += mset.get_termweight(*i);
-	denom *= mset.items[0].get_weight();
+	denom *= mset[0].get_weight();
 	scale = 0;
-	om_termname_list matching =
-	    enquire->get_matching_terms(*(mset.items[0]));
+	om_termname_list matching = enquire->get_matching_terms(*(mset[0]));
 	for (i = matching.begin(); i != matching.end(); i++)
 	    scale += mset.get_termweight(*i);
 	if (denom > 0) scale /= denom;
     }
-    percent = percentage(mset.items[m].get_weight() * scale);
-    // percent = mset.convert_to_percent(mset.items[m]);
+    percent = percentage(mset[m].get_weight() * scale);
+    // percent = mset.convert_to_percent(mset[m]);
 
     OmDocument doc = enquire->get_doc(q0);
     OmData data = doc.get_data();

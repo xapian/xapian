@@ -158,9 +158,7 @@ result_destroy_notify(gpointer data)
 
 static void do_resultdisplay(gint row) {
     try {
-	OmMSetIterator i = mset.begin();
-	while (row > 0) i++; // FIXME: use [] once implemented
-	om_docid did = *i;
+	OmMSetIterator i = mset[row];
 	
 	OmDocument doc(enquire->get_doc(i));
 	std::string fulltext = doc.get_data().value;
@@ -173,7 +171,7 @@ static void do_resultdisplay(gint row) {
 	gtk_text_thaw(result_text);
 	gtk_label_set_text(result_query, querystring.c_str());
 	gtk_label_set_text(result_score, score.c_str());
-	gtk_label_set_text(result_docid, inttostring(did).c_str());
+	gtk_label_set_text(result_docid, inttostring(*i).c_str());
     } catch (OmError &e) {
 	cout << e.get_msg() << endl;
     }
