@@ -170,18 +170,22 @@ class OmMSet {
 	 *  access to the document contents when the documents are stored
 	 *  in a remote database.
 	 *
-	 *  The iterators must be over this OmMSet item: undefined behaviour
+	 *  The iterators must be over this OmMSet: undefined behaviour
 	 *  will result otherwise.
 	 *
 	 *  @param begin   OmMSetIterator for first item to fetch.
-	 *  @param end     OmMSetIterator for last item to fetch.
+	 *  @param end     OmMSetIterator for item after last item to fetch.
 	 */
-	void fetch_items(const OmMSetIterator &begin,
-			 const OmMSetIterator &end) const;
+	void fetch(const OmMSetIterator &begin,
+		   const OmMSetIterator &end) const;
+
+	/** Fetch the single item specified.
+	 */
+	void fetch(const OmMSetIterator &item) const;
 
 	/** Fetch all the items in the MSet.
 	 */
-	void fetch_items() const;
+	void fetch() const;
 
 	/** This converts the weight supplied to a percentage score.
 	 *  The return value will be in the range 0 to 100, and will be 0 if

@@ -1151,7 +1151,10 @@ static bool test_fetchdocs1()
     OmMSet mymset1 = enquire.get_mset(0, 10);
     OmMSet mymset2 = enquire.get_mset(0, 10);
     TEST_EQUAL(mymset1, mymset2);
-    mymset2.fetch_items();
+    mymset2.fetch(mymset2[0], mymset2[mymset2.size() - 1]);
+    mymset2.fetch(mymset2.begin(), mymset2.end());
+    mymset2.fetch(mymset2.begin());
+    mymset2.fetch();
 
     OmMSetIterator it1 = mymset1.begin();
     OmMSetIterator it2 = mymset2.begin();

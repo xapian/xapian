@@ -63,21 +63,21 @@ class OmQuery::Internal {
 	/// Length of query
 	om_termcount qlen;
 
+
+	// Properties of queries
+	
 	/** How close terms must be for NEAR or PHRASE.
 	 *  To match, all terms must occur in a window of this size.
 	 */
 	om_termcount window;
 
-
-	// Fields used only for leaf nodes.
-
-	/// Term that this leaf represents
+	/// Term that this node represents - leaf node only
 	om_termname tname;
 
-	/// Position in query of this term
+	/// Position in query of this term - leaf node only
 	om_termpos term_pos;
 
-	/// Within query frequency of this term
+	/// Within query frequency of this term - leaf node only
 	om_termcount wqf;
 
 	/// Copy another OmQuery::Internal into self.

@@ -221,10 +221,10 @@ OmMSet::operator=(const OmMSet &other)
 }
 
 void
-OmMSet::fetch_items(const OmMSetIterator & beginiter,
-		    const OmMSetIterator & enditer) const
+OmMSet::fetch(const OmMSetIterator & beginiter,
+	      const OmMSetIterator & enditer) const
 {
-    DEBUGAPICALL(void, "OmMSet::fetch_items", beginiter << ", " << enditer);
+    DEBUGAPICALL(void, "OmMSet::fetch", beginiter << ", " << enditer);
     Assert(internal != 0);
     Assert(internal->data.get() != 0);
 
@@ -241,9 +241,31 @@ OmMSet::fetch_items(const OmMSetIterator & beginiter,
 }
 
 void
-OmMSet::fetch_items() const
+OmMSet::fetch(const OmMSetIterator & beginiter) const
 {
-    DEBUGAPICALL(void, "OmMSet::fetch_items", "");
+    DEBUGAPICALL(void, "OmMSet::fetch", beginiter);
+    Assert(internal != 0);
+    Assert(internal->data.get() != 0);
+
+    // we have to convert the MSetIterators into vector iterators
+    // FIXME: this is messy
+    if (beginiter.internal == 0) return;
+
+    OmMSetIterator enditer = beginiter;
+    enditer++;
+
+    std::vector<OmMSetItem>::const_iterator end_vecit;
+    if (enditer.internal == 0) end_vecit = internal->data->items.end();
+    else end_vecit = enditer.internal->it;
+
+    internal->data->fetch_items(beginiter.get_rank(),
+				beginiter.internal->it, end_vecit);
+}
+
+void
+OmMSet::fetch() const
+{
+    DEBUGAPICALL(void, "OmMSet::fetch", "");
     Assert(internal != 0);
     Assert(internal->data.get() != 0);
     internal->data->fetch_items(internal->data->firstitem,

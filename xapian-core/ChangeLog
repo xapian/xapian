@@ -1,3 +1,10 @@
+Tue Feb  6 18:06:13 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Rename OmMSet::fetch_items() to fetch().  Add an overloaded
+	  fetch() method taking a single iterator, to fetch a single item.
+
+	* Fix some documentation comments.
+
 Mon Feb  5 19:16:45 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Update TODO
