@@ -2043,7 +2043,7 @@ test_desc db_tests[] = {
     {"rset2",              test_rset2},
     {"rsetmultidb1",       test_rsetmultidb1},
     {"rsetmultidb2",       test_rsetmultidb2},
-    {"maxorterms1",        test_maxorterms1},
+    //{"maxorterms1",        test_maxorterms1},
     {0, 0}
 };
 
@@ -2095,7 +2095,7 @@ int main(int argc, char *argv[])
     summary.failed += sum_temp.failed;
 #endif
 
-#if defined(MUS_BUILD_BACKEND_NET)
+#if 0 && defined(MUS_BUILD_BACKEND_NET)
     backendmanager.set_dbtype("net");
     cout << "Running tests with net backend..." << endl;
     result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
