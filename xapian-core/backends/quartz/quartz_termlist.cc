@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,14 +47,24 @@ QuartzTermList::set_entries(QuartzBufferedTable * table_,
     string prev_term;
     unsigned int size = 0;
     for ( ; t != t_end; ++t) {
-	// If there was a previous term, how much to reuse (one byte for now)
+	bool stored_wdf = false;
+	// If there was a previous term, work out how much we can reuse.
 	if (!prev_term.empty()) {
 	    string::size_type len = min(prev_term.length(), (*t).length());
 	    string::size_type i;
 	    for (i = 0; i < len; ++i) {
 		if (prev_term[i] != (*t)[i]) break;
 	    }
-	    v += (char)i;
+	    // See if we can squeeze the wdf into the spare space in a char.
+	    string::size_type x;
+	    x = (t.get_wdf() + 1) * (prev_term.length() + 1) + i;
+	    if (x < 256) {
+		// Cool, we can!
+		v += (char)x;
+		stored_wdf = true;
+	    } else {
+		v += (char)i;
+	    }
 	    v += (char)((*t).length() - i);
 	    v += (*t).substr(i);
 	} else {
@@ -63,7 +73,7 @@ QuartzTermList::set_entries(QuartzBufferedTable * table_,
 	}
 	prev_term = *t;
 
-	v += pack_uint(t.get_wdf());
+	if (!stored_wdf) v += pack_uint(t.get_wdf());
 	if (store_termfreqs) v += pack_uint(t.get_termfreq());
 	++size;
     }
@@ -146,9 +156,17 @@ QuartzTermList::next()
 	have_finished = true;
 	RETURN(0);
     }
-    // If there was a previous term, how much to reuse (one byte for now)
+    bool got_wdf = false;
+    // If there was a previous term, how much to reuse.
     if (!current_tname.empty()) {
-	current_tname.resize((unsigned char)(*pos++));
+	string::size_type len = (unsigned char)(*pos++);
+	if (len > current_tname.length()) {
+	    // The wdf was squeezed into the same byte.
+	    current_wdf = len / (current_tname.length() + 1) - 1;
+	    len %= (current_tname.length() + 1);
+	    got_wdf = true;
+	}
+	current_tname.resize(len);
     }
     // What to append (note len must be positive, since just truncating
     // always takes us backwards in the sort order)
@@ -156,12 +174,14 @@ QuartzTermList::next()
     current_tname.append(pos, len);
     pos += len;
 
-    // Read wdf
-    if (!unpack_uint(&pos, end, &current_wdf)) {
-	if (pos == 0) throw Xapian::DatabaseCorruptError("Unexpected end of data when reading termlist.");
-	throw Xapian::RangeError("Size of wdf out of range, in termlist.");
+    if (!got_wdf) {
+	// Read wdf
+	if (!unpack_uint(&pos, end, &current_wdf)) {
+	    if (pos == 0) throw Xapian::DatabaseCorruptError("Unexpected end of data when reading termlist.");
+	    throw Xapian::RangeError("Size of wdf out of range, in termlist.");
+	}
     }
-    
+ 
     // Read termfreq, if stored
     if (has_termfreqs) {
 	if (!unpack_uint(&pos, end, &current_termfreq)) {

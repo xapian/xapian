@@ -1,3 +1,9 @@
+Sun Jan 11 03:23:17 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_termlist.cc: When possible, pack the wdf into
+	  the same byte as the reuse length - doing so typically makes the
+	  termlist 14% smaller!  This change is backward compatible.
+
 Sat Jan 10 03:04:22 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_postlist.cc: Fixed bug in new postlist
