@@ -1,3 +1,41 @@
+Xapian 0.6.4 (2002-12-24):
+
+* Quartz backend: Fixed double setting of position list when updating a
+  document with term position information (overall result was correct, just
+  inefficient); when deleting a position_list, don't check if it's empty,
+  just ask the layer below to delete it and let it handle the case when
+  there's nothing to delete; Fixed unpacking of termlist on platforms where
+  char is signed.
+
+* OmQueryParser: Added support for searching probabilistic fields (using
+  <field>:<term>); the unstem multimap now includes "." on the end of a
+  term if it was there in the query.
+
+* Don't include "om.h" as a dependency for the api docs since it's generated
+  a configure time and the dependency was forcing users to regenerate the
+  documentation, which requires doxygen to be installed.
+
+* Bindings: Python bindings updated to work with the updated API (still
+  disabled by default).
+
+* Muscat 3.6 backend: Fixed to build with the new database factory functions;
+  fixed compilation warnings; Muscat 3.6 DA and DB databases don't support
+  positional information.  Instead of throwing an exception when we try to
+  access it, return an empty position list (like a quartz database with no
+  position information would).  This allows copydatabase to be used to convert
+  a Muscat 3.6 database to a quartz one.
+
+* Documentation: quartzdesign and todo list updated.
+
+* quartzcheck: default mode changed to "v" rather than "+", since "+" is too
+  verbose for a btree of any size; if you pass a quartz database directory,
+  quartzcheck will now check all the tables which make up a quartz database.
+
+* quartzcompact: new tool which makes a copy of a quartz database with full
+  compaction turned on - this results in a smaller database which is faster
+  to search.  The next update will result in a lot of block splitting though
+  (since all blocks are as full as possible).
+
 Xapian 0.6.3 (2002-12-14):
 
 * Updated PLATFORMS and todo list.  Noted in HACKING that Bison 1.50 seems to

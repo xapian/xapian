@@ -1,3 +1,7 @@
+Tue Dec 24 19:53:10 GMT 2002  Olly Betts <olly@survex.com>
+
+	* NEWS,PLATFORMS,configure.in: Version 0.6.4.
+
 Tue Dec 24 19:29:27 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc,backends/quartz/quartz_table.cc:
@@ -373,15 +377,15 @@ Sun Dec 01 21:45:49 GMT 2002  Olly Betts <olly@survex.com>
 
 Sun Dec 01 15:38:10 GMT 2002  Olly Betts <olly@survex.com>
 
-        * api/,backends/,common/,docs/omsettings,docs/todo.xml,
-          include/om/omdatabase.h,netprogs/,tests/,testsuite/backendmanager.cc,
-          testsuite/backendmanager.h: No longer use OmSettings to specify
-          parameters for constructing databases.  Instead there's a factory
-          function for each database type - temporary naming scheme is
-          OmXxx__open(), mostly because it's easy to grep for later.  At
-          present stub databases and the machinery in InMemory to allow
-          the multierrhandler1 test aren't working.  Everything else should
-          be.
+	* api/,backends/,common/,docs/omsettings,docs/todo.xml,
+	  include/om/omdatabase.h,netprogs/,tests/,testsuite/backendmanager.cc,
+	  testsuite/backendmanager.h: No longer use OmSettings to specify
+	  parameters for constructing databases.  Instead there's a factory
+	  function for each database type - temporary naming scheme is
+	  OmXxx__open(), mostly because it's easy to grep for later.  At
+	  present stub databases and the machinery in InMemory to allow
+	  the multierrhandler1 test aren't working.  Everything else should
+	  be.
 
 Thu Nov 28 20:15:47 GMT 2002  Olly Betts <olly@survex.com>
 
@@ -407,7 +411,7 @@ Thu Nov 28 01:38:05 GMT 2002  Olly Betts <olly@survex.com>
 Thu Nov 28 01:33:25 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/: Fixed to compile with GCC 3.0.
- 
+
 Thu Nov 28 01:32:31 GMT 2002  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated with test results from 0.5.4 release.
@@ -514,7 +518,7 @@ Sun Nov 17 14:12:12 GMT 2002  Olly Betts <olly@survex.com>
 	* backends/quartz/: Eliminate Btree_item - wherever it's used we
 	  only actually want the tag or key, so it's cleaner and clearer
 	  to just pass a pointer to a string.
-	
+
 Sun Nov 17 13:34:08 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/,docs/quartzdesign.html: Quartz mini-overhaul:
@@ -622,7 +626,7 @@ Mon Nov 04 02:35:22 GMT 2002  Olly Betts <olly@survex.com>
 
 	* include/om/omerror.h,net/omerr_string.cc,netprogs/omprogsrv.cc,
 	  netprogs/omtcpsrv.cc,testsuite/testsuite.cc: don't use typeid().
-	  
+
 Mon Nov 04 01:31:47 GMT 2002  Olly Betts <olly@survex.com>
 
 	* testsuite/testsuite.cc: Catch by const reference.
@@ -664,7 +668,7 @@ Mon Oct 14 15:13:18 BST 2002  Olly Betts <olly@survex.com>
 Mon Oct 14 15:07:03 BST 2002  Olly Betts <olly@survex.com>
 
 	* api/omstem.cc: French and Finnish stemmers were switched!
-	
+
 Mon Oct 14 02:49:12 BST 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_utils.h: change sort preserving packing for
@@ -785,7 +789,7 @@ Thu Oct 10 15:25:10 BST 2002  Olly Betts <olly@survex.com>
 	  improvments; Removed superfluous Cursor parameter from
 	  Btree::add_kt() - it always gets passed the C member of Btree
 	  which we have available anyway.
-	  
+
 Thu Oct 10 14:49:11 BST 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Removed "struct" from in front of
@@ -827,7 +831,7 @@ Tue Oct 08 20:10:35 BST 2002  Olly Betts <olly@survex.com>
 
 Tue Oct 08 19:57:03 BST 2002  Olly Betts <olly@survex.com>
 
-	* testsuite/: Disable colour test output if stdout isn't a terminal; 
+	* testsuite/: Disable colour test output if stdout isn't a terminal;
 	  reworked check for broken exception handling as the previous
 	  version never seemed to fire; added "using" for all the things
 	  we want from std::; improved how signal handlers are set and
@@ -986,7 +990,7 @@ Thu Sep 19 00:45:51 BST 2002  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Tested on Solaris 7 with GCC 2.95.3 (works) and Solaris 8
 	  Sun Workshop C++ compiler (fails to compile).
-	
+
 Thu Sep 19 00:41:53 BST 2002  Olly Betts <olly@survex.com>
 
 	* ar-wrapper-solaris,ltconfig,Makefile.am: libtool 1.4 doesn't use
@@ -1086,14 +1090,14 @@ Mon Sep 16 04:19:54 BST 2002  Olly Betts <olly@survex.com>
 	  include/om/om.h.in: When building the library with GCC, generate
 	  include/om/om.h with preprocessor code to check that any version
 	  of GCC used to build applications has a matching C++ ABI.
-	
+
 	  This means that users get a nice explanatory error message rather
 	  than a confusing link failure (or worse a program which builds
 	  but crashes).  Another benefit is that the check happens near the
 	  start of compilation of the first source file which uses Xapian
 	  in the user's application, rather than during the first attempt
 	  to link with Xapian.
-	
+
 Sun Sep 15 01:42:19 BST 2002  Olly Betts <olly@survex.com>
 
 	* net/tcpserver.cc: Solved std mystery - "using namespace std;" was
@@ -1202,7 +1206,7 @@ Tue Sep 10 13:02:04 BST 2002  Olly Betts <olly@survex.com>
 
 Tue Sep 10 02:07:29 BST 2002  Olly Betts <olly@survex.com>
 
-        * remote backend: implemented term_exists() and get_termfreq();
+	* remote backend: implemented term_exists() and get_termfreq();
 	  added test to check they work.
 
 Mon Sep  9 12:59:15 BST 2002  Richard Boulton <richard@tartarus.org>
@@ -1220,7 +1224,7 @@ Mon Sep 09 02:26:36 BST 2002  Olly Betts <olly@survex.com>
 	* Documentation updates: move suggested books into intro_ir.html
 	  and added URL for citeseer reference Richard posted to mailing
 	  list recently; clarified wording in a couple of places.
-	
+
 Sat Sep  7 12:52:12 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* docs: fixed references to OmDocumentContents (now OmDocument)
@@ -1264,7 +1268,7 @@ Sat Aug 10 14:57:17 2002  James Aylett  <tartarus@users.sourceforge.net>
 Tue Jul 23 22:12:34 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* Added a note to the effect that the indexgraph stuff isn't
- 	  really considered useful to the HTML document introducing it.
+	  really considered useful to the HTML document introducing it.
 
 Tue Jul 23 22:09:39 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
@@ -1276,7 +1280,7 @@ Tue Jul 23 22:09:39 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 Tue Jul 23 21:59:50 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* Reworded quickstart document so it does not refer to the example
- 	  code (it was never actually in sync).
+	  code (it was never actually in sync).
 
 Mon Jul 22 14:07:18 BST 2002  Sam Liddicott <sam@ananova.com>
 
