@@ -1,3 +1,11 @@
+Wed Oct 04 17:24:26 BST 2000 Olly Betts
+
+	* Added ExtraWeightPostList - weights from MSetPostList no longer get
+	  extra weight applied twice.
+
+	* SingleMatch no longer used so removed; SubMatch moved to match.h;
+	  SubMatch::mk_weight() moved to LocalSubMatch().
+
 Wed Oct 04 15:36:09 BST 2000 Olly Betts
 
 	* Removed references to multi backend since it no longer exists.

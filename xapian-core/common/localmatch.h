@@ -39,78 +39,6 @@ class PostList;
 #include <map>
 #include "autoptr.h"
 
-class SubMatch : public RefCntBase {
-    public:
-	/** Name of weighting scheme to use.
-	 *  This may differ from the requested scheme if, for example,
-	 *  the query is pure boolean.
-	 */
-	string weighting_scheme;
-
-	/// The size of the query (passed to IRWeight objects)
-	om_doclength querysize;
-    
-	/// Stored match options object
-	OmSettings mopts;
-
-	StatsSource * statssource;
-	
-	SubMatch(const OmQueryInternal * query, const OmSettings &mopts_,
-		 StatsSource * statssource_)
-	    : querysize(query->qlen), mopts(mopts_), statssource(statssource_)
-	{
-	    // Check that we have a valid query to run
-	    if (!query->isdefined) {
-		throw OmInvalidArgumentError("Query is not defined.");
-	    }
-	    
-	    // If query is boolean, set weighting to boolean
-	    if (query->is_bool()) {
-		weighting_scheme = "bool";
-	    } else {
-		weighting_scheme = mopts.get("match_weighting_scheme", "bm25");
-	    }	    
-	}
-
-	virtual ~SubMatch() {
-	    delete statssource;
-	}
-
-	///////////////////////////////////////////////////////////////////
-	// Prepare to do the match
-	// =======================
-
-	/** Prepare to perform the match operation.
-	 *  This must be called with a return value of true before
-	 *  get_postlist().  It can be called more
-	 *  than once.  If nowait is true, the operation has only succeeded
-	 *  when the return value is true.
-	 *
-	 *  @param nowait	If true, then return as soon as
-	 *  			possible even if the operation hasn't
-	 *  			been completed.  If it hasn't, then
-	 *  			the return value will be false.  The
-	 *  			caller should retry until prepare_match
-	 *  			returns true, or throws an exception to
-	 *  			indicate an error.
-	 *
-	 *  @return  If nowait is true, and the match is being performed
-	 *           over a network connection, and the result isn't
-	 *           immediately available, this method returns false.
-	 *           In all other circumstances it will return true.
-	 */
-	virtual bool prepare_match(bool nowait) = 0;
-
-	/// Make a weight - default argument is used for finding extra_weight
-	IRWeight * mk_weight(const OmQueryInternal *query = NULL);
-
-	virtual PostList * get_postlist(om_doccount maxitems, MultiMatch *matcher) = 0;
-
-	virtual LeafDocument * open_document(om_docid did) const = 0;
-
-	virtual const std::map<om_termname, OmMSet::TermFreqAndWeight> get_term_info() const = 0;
-};
-
 class LocalSubMatch : public SubMatch {
     private:
 	bool is_prepared;
@@ -151,6 +79,9 @@ class LocalSubMatch : public SubMatch {
 	void register_term(const om_termname &tname) {
 	    statssource->my_termfreq_is(tname, db->get_termfreq(tname));
 	}
+
+	/// Make a weight - default argument is used for finding extra_weight
+	IRWeight * mk_weight(const OmQueryInternal *query = NULL);
 
     public:
 	LocalSubMatch(const Database *db_, const OmQueryInternal * query,

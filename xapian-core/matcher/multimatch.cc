@@ -168,10 +168,6 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	pl = new MergePostList(v);
     }
 
-    // Extra weight object - used to calculate part of doc weight which
-    // doesn't come from the sum.
-    IRWeight * extra_weight = leaves.front()->mk_weight();
-
     const std::map<om_termname, OmMSet::TermFreqAndWeight> &termfreqandwts =
 	leaves.front()->get_term_info();
 
@@ -182,11 +178,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     om_weight greatest_wt = 0;
     std::vector<OmMSetItem> items;
 
-    // Max "extra weight" that an item can get (ie, not from the postlist tree).
-    om_weight max_extra_weight = extra_weight->get_maxextra();
-    
-    // Calculate max_weight a document could possibly have
-    const om_weight max_weight = pl->recalc_maxweight() + max_extra_weight;
+    // maximum weight a document could possibly have
+    const om_weight max_weight = pl->recalc_maxweight();
 
     om_weight w_max = max_weight; // w_max may decrease as tree is pruned
     recalculate_w_max = false;
@@ -195,7 +188,6 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // maxweight)
     if (maxitems == 0) {
 	delete pl;
-	delete extra_weight;
 
 	mset = OmMSet(first, mbound, max_weight, greatest_wt, items,
 		      termfreqandwts);
@@ -236,7 +228,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     while (1) {
 	if (recalculate_w_max) {
 	    recalculate_w_max = false;
-	    w_max = pl->recalc_maxweight() + max_extra_weight;
+	    w_max = pl->recalc_maxweight();
 	    DEBUGLINE(MATCH, "max possible doc weight = " << w_max);
 	    if (w_max < min_item.wt) {
 		DEBUGLINE(MATCH, "*** TERMINATING EARLY (1)");
@@ -244,7 +236,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    }
 	}
 
-	PostList *ret = pl->next(min_item.wt - max_extra_weight);
+	PostList *ret = pl->next(min_item.wt);
         if (ret) {
 	    DEBUGLINE(MATCH, "*** REPLACING ROOT");
 	    delete pl;
@@ -252,9 +244,9 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
 	    // no need for a full recalc (unless we've got to do one because
 	    // of a prune elsewhere) - we're just switching to a subtree
-	    w_max = pl->get_maxweight() + max_extra_weight;
+	    w_max = pl->get_maxweight();
 	    DEBUGLINE(MATCH, "max possible doc weight = " << w_max);
-            AssertParanoid(recalculate_w_max || fabs(w_max - max_extra_weight - pl->recalc_maxweight()) < 1e-9);
+            AssertParanoid(recalculate_w_max || fabs(w_max - pl->recalc_maxweight()) < 1e-9);
 
 	    if (w_max < min_item.wt) {
 		DEBUGLINE(MATCH, "*** TERMINATING EARLY (2)");
@@ -267,13 +259,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
         mbound++;
 
 	om_docid did = pl->get_docid();
-// FIXME not with NetworkDatabase DEBUGLINE(MATCH, "db.get_doclength(" << did << ") == " <<
-//		  db.get_doclength(did));
-	DEBUGLINE(MATCH, "pl->get_doclength() == " <<
-		  pl->get_doclength());
-// FIXME not with NetworkDatabase	AssertEqDouble(db.get_doclength(did), pl->get_doclength());
-        om_weight wt = pl->get_weight() +
-		extra_weight->get_sumextra(pl->get_doclength());
+        om_weight wt = pl->get_weight();
 
 	OmMSetItem new_item(wt, did);
 
@@ -326,7 +312,6 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
     // done with posting list tree
     delete pl;
-    delete extra_weight;
     
     if (items.size() > max_msize) {
 	// find last element we care about

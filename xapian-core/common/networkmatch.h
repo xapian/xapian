@@ -23,7 +23,7 @@
 #ifndef OM_HGUARD_NETWORKMATCH_H
 #define OM_HGUARD_NETWORKMATCH_H
 
-#include "localmatch.h"
+#include "match.h"
 #include "stats.h"
 #include "net_database.h"
 

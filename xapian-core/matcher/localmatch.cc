@@ -34,6 +34,7 @@
 #include "emptypostlist.h"
 #include "leafpostlist.h"
 #include "mergepostlist.h"
+#include "extraweightpostlist.h"
 
 #include "document.h"
 #include "rset.h"
@@ -383,13 +384,21 @@ LocalSubMatch::prepare_match(bool nowait)
 PostList *
 LocalSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
 {
-    return postlist_from_query(&users_query, matcher);
+    PostList *pl = postlist_from_query(&users_query, matcher);
+    IRWeight *wt = mk_weight();
+    // don't bother with an ExtraWeightPostList if there's no extra weight
+    // contribution.
+    if (wt->get_maxextra() == 0) {
+	delete wt;
+	return pl;
+    }
+    return new ExtraWeightPostList(pl, wt);
 }
 
 
 
 IRWeight *
-SubMatch::mk_weight(const OmQueryInternal *query_)
+LocalSubMatch::mk_weight(const OmQueryInternal *query_)
 {
     om_termname tname = "";
     om_termcount wqf = 1;
