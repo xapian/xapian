@@ -447,6 +447,8 @@ class Enquire {
 %feature("director") Weight;
 #endif
 class Weight {
+    private:
+	virtual Weight * clone() const = 0;
     public:
 	Weight();
 	virtual ~Weight();
