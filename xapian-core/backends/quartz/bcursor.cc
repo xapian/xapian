@@ -22,6 +22,8 @@
  */
 
 #include <config.h>
+#include <errno.h>
+
 #include "bcursor.h"
 #include "btree.h"
 #include "btree_util.h"

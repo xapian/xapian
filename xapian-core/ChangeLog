@@ -1,3 +1,11 @@
+Thu Jul 17 01:42:47 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/install.html,m4/xapian.m4: --with-XXX configure options are meant
+	  for *optional* packages, and Xapian is almost certainly a required
+	  package.  Document `./configure XAPIAN_CONFIG=~/bin/xapian-config'
+	  in `./configure --help' and warn that --with-xapian-config is
+	  deprecated if it's used.
+
 Thu Jul 17 00:56:35 BST 2003  Olly Betts <olly@survex.com>
 
 	* COPYING: Updated FSF address, and reinstated missing section: "How

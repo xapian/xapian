@@ -140,6 +140,7 @@ static void sys_write_bytes(int h, int n, const char * p)
 	    // normal case - write succeeded, so return.
 	    return;
 	} else if (bytes_written == -1) {
+	    if (errno == EINTR) continue;
 	    string message = "Error writing block: ";
 	    message += strerror(errno);
 	    throw Xapian::DatabaseError(message);
@@ -174,6 +175,7 @@ string sys_read_all_bytes(int h, size_t bytes_to_read)
 	    // end of file, we're finished
 	    break;
 	} else if (bytes_read == -1) {
+	    if (errno == EINTR) continue;
 	    string message = "Error reading all bytes: ";
 	    message += strerror(errno);
 	    throw Xapian::DatabaseError(message);
@@ -295,6 +297,7 @@ Btree::read_block(uint4 n, byte * p)
 	// normal case - read succeeded, so return.
 	if (bytes_read == m) return;
 	if (bytes_read == -1) {
+	    if (errno == EINTR) continue;
 	    string message = "Error reading block " + om_tostring(n) + ": ";
 	    message += strerror(errno);
 	    throw Xapian::DatabaseError(message);
@@ -323,6 +326,7 @@ Btree::read_block(uint4 n, byte * p)
 	// normal case - read succeeded, so return.
 	if (bytes_read == m) return;
 	if (bytes_read == -1) {
+	    if (errno == EINTR) continue;
 	    string message = "Error reading block " + om_tostring(n) + ": ";
 	    message += strerror(errno);
 	    throw Xapian::DatabaseError(message);
@@ -392,6 +396,7 @@ Btree::write_block(uint4 n, const byte * p)
 	    // normal case - write succeeded, so return.
 	    return;
 	} else if (bytes_written == -1) {
+	    if (errno == EINTR) continue;
 	    string message = "Error writing block: ";
 	    message += strerror(errno);
 	    throw Xapian::DatabaseError(message);
