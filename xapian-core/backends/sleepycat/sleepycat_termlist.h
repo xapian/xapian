@@ -77,6 +77,8 @@ class SleepyTermList : public LeafTermList {
 	om_doccount       get_termfreq() const;  // Docs indexed by current term
 	TermList *        next();
 	bool              at_end() const;
+
+	om_doclength      get_doclength() const; // Get length of document.
 };
 
 #endif /* OM_HGUARD_SLEEPY_TERMLIST_H */

@@ -1,3 +1,9 @@
+Mon Jun  5 14:26:11 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Enable storage of the sum of the wdfs in a SleepyList in the list.
+	  Use this to implement SleepyDatabase::get_doclength(), which reads
+	  the wdfsum from the termlist.
+
 Mon Jun  5 14:22:33 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Implement PostList::get_doclength() in each branchpostlist rather

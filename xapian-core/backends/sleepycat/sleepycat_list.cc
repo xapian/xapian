@@ -136,12 +136,15 @@ SleepyListItem::pack() const
 
 
 SleepyList::SleepyList(Db * db_, void * keydata_, size_t keylen_,
-		       bool store_termfreq,
-		       bool store_wdf,
-		       bool store_positional)
+		       bool store_termfreq_,
+		       bool store_wdf_,
+		       bool store_positional_,
+		       bool store_wdfsum_)
 	: db(db_),
 	  modified_and_locked(false),
-	  iteration_in_progress(false)
+	  iteration_in_progress(false),
+	  wdfsum(0),
+	  store_wdfsum(store_wdfsum_)
 {
     // Copy and store key data
     void *keydata = malloc(keylen_);
@@ -193,6 +196,12 @@ SleepyList::itemcount_type
 SleepyList::get_item_count() const
 {
     return items.size();
+}
+
+om_termcount
+SleepyList::get_wdfsum() const
+{
+    return wdfsum;
 }
 
 void
@@ -249,6 +258,8 @@ SleepyList::add_item(const SleepyListItem & newitem)
     // FIXME - actually get a lock
 
     make_entry(newitem);
+    DebugMsg("wdfsum(" << wdfsum << ") += newitem.wdf(" << newitem.wdf << ")" << endl);
+    wdfsum += newitem.wdf;
 }
 
 void
@@ -288,8 +299,11 @@ void
 SleepyList::unpack(string packed)
 {
     string::size_type pos = 0;
+    if(store_wdfsum) {
+	wdfsum = readentry<entry_type>(packed, pos);
+    }
+    
     entry_type number_of_items = readentry<entry_type>(packed, pos);
-
     while(items.size() < number_of_items) {
 	entry_type itemsize = readentry<entry_type>(packed, pos);
 
@@ -303,6 +317,11 @@ SleepyList::pack() const
 {
     string packed;
     entry_type temp;
+
+    if(store_wdfsum) {
+	temp = wdfsum;
+	packed.append(reinterpret_cast<char *>(&temp), sizeof(entry_type));
+    }
 
     temp = items.size();
     packed.append(reinterpret_cast<char *>(&temp), sizeof(entry_type));

@@ -108,3 +108,10 @@ SleepyTermList::at_end() const
 {
     return mylist.at_end();
 }
+
+om_doclength
+SleepyTermList::get_doclength() const
+{
+    om_doclength doclength = mylist.get_wdfsum();
+    return doclength;
+}

@@ -154,6 +154,18 @@ class SleepyList {
 	 */
 	vector<SleepyListItem> items;
 
+	/** The sum of the wdfs of the items in the list.
+	 *
+	 *  This corresponds to the document length for termlists, and the
+	 *  collection frequency for postlists.  If this information is not
+	 *  present, the value is 0.
+	 */
+	om_termcount wdfsum;
+
+	/** Whether to store wdfsum information.
+	 */
+	bool store_wdfsum;
+
 	/** Perform a flush operation.
 	 *
 	 *  This is a private method, containing the implementation for the
@@ -209,17 +221,22 @@ class SleepyList {
 	 *  @param db_      The database to find the list in.
 	 *  @param keydata_ The key to use for looking up list.
 	 *  @param keylen_  The size of keydata_.
-	 *  @param store_termfreq    If true, term frequencies will be stored
+	 *  @param store_termfreq_   If true, term frequencies will be stored
 	 *                           in the list.
-	 *  @param store_wdf         If true, wdf information will be stored
+	 *  @param store_wdf_        If true, wdf information will be stored
 	 *                           in the list.
-	 *  @param store_positional  If true, positional information will be
+	 *  @param store_positional_ If true, positional information will be
 	 *                           stored in the list.
+	 *  @param store_wdfsum_     If true, the sum of the wdfs will be
+	 *                           stored in the list.  This corresponds to
+	 *                           the document length for termlists, and
+	 *                           the collection frequency for postlists.
 	 */
 	SleepyList(Db * db_, void * keydata_, size_t keylen_,
-		   bool store_termfreq = true,
-		   bool store_wdf = true,
-		   bool store_positional = true);
+		   bool store_termfreq_ = true,
+		   bool store_wdf_ = true,
+		   bool store_positional_ = true,
+		   bool store_wdfsum_ = true);
 
 	/** Close the list.
 	 *
@@ -232,6 +249,11 @@ class SleepyList {
 	/** Get the number of items in the list.
 	 */
 	itemcount_type get_item_count() const;
+
+	/** Get the wdfsum.  If this information is not present, the value
+	 *  returned is 0.
+	 */
+	om_termcount get_wdfsum() const;
 
 	/** Move to the start of the list.
 	 *

@@ -108,7 +108,9 @@ SleepyDatabase::get_avlength() const
 om_doclength
 SleepyDatabase::get_doclength(om_docid did) const
 {
-    throw OmUnimplementedError("SleepyDatabase::get_doclength(did) is not yet implemented.");
+    auto_ptr<SleepyTermList> tl(
+	new SleepyTermList(did, this, internals.get(), termcache.get()));
+    return tl->get_doclength();
 }
 
 om_doccount
