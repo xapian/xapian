@@ -1,3 +1,8 @@
+Fri May 19 16:30:53 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Changed raw uses of "cout" and "cerr" in net code to use
+	  DebugMsg instead.
+
 Fri May 19 15:58:11 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add test to nettest to try to do an expand.  Currently fails, since

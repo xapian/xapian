@@ -43,7 +43,7 @@ SocketClient::SocketClient(int socketfd_)
 	do_write("HELLO!\n");
 
 	string received = do_read();
-	cout << "Read back " << received << endl;
+	DebugMsg("Read back " << received << endl);
 }
 
 string
@@ -51,7 +51,7 @@ SocketClient::do_read()
 {
     string retval = buf.readline();
 
-    cout << "do_read(): " << retval << endl;
+    DebugMsg("do_read(): " << retval << endl);
 
     return retval;
 }
@@ -59,7 +59,7 @@ SocketClient::do_read()
 void
 SocketClient::do_write(string data)
 {
-    cout << "do_write(): " << data.substr(0, data.find_last_of('\n')) << endl;
+    DebugMsg("do_write(): " << data.substr(0, data.find_last_of('\n')) << endl);
     buf.writeline(data);
 }
 

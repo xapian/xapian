@@ -97,7 +97,7 @@ SocketServer::run()
 	// extract the rset
 	message = buf.readline();
 	if (message.substr(0, 4) != "RSET") {
-	    cerr << "Expected RSET, got " << message << endl;
+	    DebugMsg("Expected RSET, got " << message << endl);
 	    throw OmNetworkError(string("Invalid message: ") + message);
 	}
 	{
@@ -111,7 +111,7 @@ SocketServer::run()
 	message = buf.readline();
 
 	if (message.substr(0, 8) != "SETQUERY") {
-	    cerr << "Expected SETQUERY, got " << message << endl;
+	    DebugMsg("Expected SETQUERY, got " << message << endl);
 	    throw OmNetworkError("Invalid message");
 	}
 
@@ -144,7 +144,7 @@ SocketServer::run()
 	    match.set_query(&temp);
 	}
 
-	cerr << "Adding artificial delay for statistics" << endl;
+	DebugMsg("Adding artificial delay for statistics" << endl);
 	sleep(1);
 
 	// Message 4
@@ -168,7 +168,7 @@ SocketServer::run()
 	}
 	message = message.substr(8);
 
-	cerr << "Adding artificial delay..." << endl;
+	DebugMsg("Adding artificial delay..." << endl);
 	sleep(2);
 
 	om_doccount first;
@@ -181,21 +181,21 @@ SocketServer::run()
 
 	OmMSet mset;
 
-	cerr << "About to get_mset(" << first
-		<< ", " << maxitems << "..." << endl;
+	DebugMsg("About to get_mset(" << first
+		<< ", " << maxitems << "..." << endl);
 
 	match.match(first,
 		    maxitems,
 		    mset,
 		    0);
 
-	cerr << "done get_mset..." << endl;
+	DebugMsg("done get_mset..." << endl);
 
 	buf.writeline(string("MSETITEMS ") +
 		      inttostring(mset.items.size()) + " "
 		      + doubletostring(mset.max_possible));
 
-	cerr << "sent size, maxweight..." << endl;
+	DebugMsg("sent size, maxweight..." << endl);
 
 	for (vector<OmMSetItem>::iterator i=mset.items.begin();
 	     i != mset.items.end();
@@ -205,13 +205,13 @@ SocketServer::run()
 	    os << "MSETITEM: " << i->wt << " " << i->did << ends;
 	    buf.writeline(charbuf);
 
-	    cerr << "MSETITEM: " << i->wt << " " << i->did << endl;
+	    DebugMsg("MSETITEM: " << i->wt << " " << i->did << endl);
 	}
-	//cerr << "sent items..." << endl;
+	//DebugMsg("sent items..." << endl);
 
 	buf.writeline("OK");
 
-	//cerr << "sent OK..." << endl;
+	//DebugMsg("sent OK..." << endl);
     }
 }
 
