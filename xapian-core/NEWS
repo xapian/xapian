@@ -1,3 +1,83 @@
+Xapian 0.7.3 (2003-07-??):
+
+testsuite:
+
+* internaltest: Changed test exception1 to actually test something (hopefully
+  what was originally intended!)
+
+* Added long option support to the testsuite programs (and quartzdump).
+
+backends:
+
+* quartz: Fixed allterms TermIterator to not give duplicate terms when a
+  posting list is chunked; added regression test (allterms4).
+
+* quartz: Check for EINTR when reading or writing blocks and retry the
+  operation.  This should mean quartz won't fail falsely if a signal is
+  received (e.g. if alarm() is used).
+
+build system:
+
+* xapian.m4: Added XO_LIB_XAPIAN to replace OM_PATH_XAPIAN.  XO_LIB_XAPIAN will
+  automagically enable use of "xapian-config --ltlibs" if A[CM]_PROG_LIBTOOL is
+  used in configure.in.
+
+* xapian-config: Now supports linking with libtool - using libtool means that
+  the run-time library path is set and that you can now link with an
+  uninstalled libxapian.  Also xapian-config will now work once xapian-core's
+  configure has been run, rather than only after "make all".
+
+* bootstrap: Removed bootstrap scripts in favour of top-level bootstrap which
+  creates a top-level configure you can optionally use to configure all checked
+  out Xapian modules with one command, and which creates a top level Makefile
+  to build all checked out Xapian modules with one command.
+
+* Added versioning information to libxapian and libomqueryparser.
+
+* xapian-example/omega: Use libtool and XO_LIB_XAPIAN so we can link with an
+  uninstalled Xapian, and so the run time load path gets built into the
+  binaries (no need to set LD_LIBRARY_PATH just because you install Xapian with
+  a non-standard prefix).
+
+portability:
+
+* common/getopt.h: #include <stdlib.h> before defining getopt as a macro -
+  hopefully that'll avoid problems with clobbering prototypes of getopt() in
+  system headers.
+
+* bin/quartzcompact.cc: Need stdio.h for rename().
+
+documentation:
+
+* Fix incorrect documentation comment for Enquire::set_set_forward().  (Looked
+  like a cut&paste error)
+
+* COPYING: Updated FSF address, and reinstated missing section: "How to Apply
+  These Terms to Your New Programs"
+
+* PLATFORMS: Updated some linux results: RH7.3 on x86, and Debian on alpha and
+  arm.
+
+* HACKING: Noted another reason my libtool 1.5 is needed.
+
+* docs/mkdoc.pl: Don't choke on a comment at the end of the DIST_SUBDIRS line
+  in a Makefile.am.
+
+* HACKING: Added note about additional tools needed for building a
+  distribution.
+
+omega:
+
+* omindex.cc: Added missing `#include <errno.h>'.
+
+* omindex/scriptindex: Fixed signed character issue in accent normalisation.
+
+* omindex: fixed memory and file descriptor leak on indexing a zero-sized file.
+
+* omindex: Fixed sense of test for unreadable files.
+
+* omindex: Improved log messages to distinguish re-indexed/added.
+
 Xapian 0.7.2 (2003-07-11):
 
 testsuite:
