@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -119,7 +119,7 @@ Bcursor::find_key(const string &key)
 }
 
 bool
-Bcursor::get_key(string * key)
+Bcursor::get_key(string * key) const
 {
     AssertEq(B->error, 0);
     Assert(!B->overwritten);
@@ -140,7 +140,7 @@ Bcursor::get_tag(string * tag)
 
     if (!positioned) return false;
 
-    byte * p = item_of(C[0].p, C[0].c); /* pointer to current component */
+    const byte * p = item_of(C[0].p, C[0].c); /* pointer to current component */
     int ct = GETK(p, I2) + I2;          /* offset to the tag */
 
     int n = GETC(p, ct);                /* n components to join */
@@ -149,15 +149,14 @@ Bcursor::get_tag(string * tag)
 
     tag->resize(0);
     if (n > 1) {
-	int4 space_for_tag = (int4) B->max_item_size * n;
-	tag->reserve(space_for_tag);
+	tag->reserve(B->max_item_size * n);
     }
 
      // FIXME: code to do very similar thing in btree.cc...
      for (int i = 1; i <= n; i++) {
 	/* number of bytes to extract from current component */
 	int l = GETI(p, 0) - cd;
-	tag->append(reinterpret_cast<char *>(p + cd), l);
+	tag->append(reinterpret_cast<const char *>(p + cd), l);
 	// FIXME Do we need to call B->next(...) on the last pass?
 	positioned = B->next(C, 0);
 
