@@ -1,3 +1,9 @@
+Mon Nov 27 18:20:42 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added a set of modifications to the todo.xml.  Also, add a
+	  "release" field, recording the release that the work must be
+	  performed by.
+
 Mon Nov 27 18:08:35 GMT 2000 Olly Betts
 
 	* A RefCntPtr now copes with being assigned to (used to delete the

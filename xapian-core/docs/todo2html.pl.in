@@ -52,13 +52,13 @@ if ($ARGV[0] eq '--text') {
 
 [D]ifficulty values range from 1 (easy) to 5 (hard)
 
-[W]ho the task is assigned to: [C]hris [R]ichard
+[W]ho the task is assigned to: [C]hris [R]ichard [O]lly
 
 ";
     $table_begin = 
-" | | |             |\n" .
-"P|D|W|Area         | Task\n" .
-"-+-+-+-------------+-----------------------------------------------------------\n";
+" | | |   |             |\n" .
+"P|D|W|Rel|Area         | Task\n" .
+"-+-+-+---+-------------+-------------------------------------------------------\n";
     $table_end = "";
     $postamble = "";
 } else {
@@ -76,6 +76,7 @@ if ($ARGV[0] eq '--text') {
 <TD>Difficulty</TD>
 <TD>Area</TD>
 <TD>Task</TD>
+<TD>Release</TD>
 <TD>Owner</TD>
 </TR>
 ";
@@ -120,22 +121,27 @@ sub handle_end {
     $tag eq 'todoitem' or return;
     if ($text) {
         print join "|", map substr("$field{$_} ", 0, 1), qw(priority difficulty owner);
-        my $f = Text::Format->new({columns => 58, firstIndent => 0});
+        my $f = Text::Format->new({columns => 54, firstIndent => 0});
 	my @tasklines = $f->format($field{'task'});
         my $f2 = Text::Format->new({columns => 13, firstIndent => 0});
 	my @arealines = $f2->format($field{'area'});
+        my $f3 = Text::Format->new({columns => 3, firstIndent => 0});
+	my @releaselines = $f->format($field{'release'});
 	my $prefix = '';
 	my $lines = scalar @tasklines;
 	$lines = scalar @arealines if scalar @arealines > $lines;
+	$lines = scalar @releaselines if scalar @releaselines > $lines;
 	for (1..$lines) {	
 	    my $area = shift @arealines || '';
 	    chomp $area;
 	    my $task = shift @tasklines || '';
 	    chomp $task;
-	    printf "%s|%-13s| %s\n", $prefix, $area, $task;
+	    my $release = shift @releaselines || '';
+	    chomp $release;
+	    printf "%s|%-3s|%-13s| %s\n", $prefix, $release, $area, $task;
 	    $prefix = " | | ";
 	}
-        print "-+-+-+-------------+-----------------------------------------------------------\n";
+        print "-+-+-+---+-------------+-------------------------------------------------------\n";
     } else {
         my $colour = '#' . ($priority_colours{$field{priority}} || 'ffffff');
 	print <<EOT;
@@ -144,6 +150,7 @@ sub handle_end {
 <TD BGCOLOR="$colour" VALIGN=top>$field{difficulty}</TD>
 <TD BGCOLOR="$colour" VALIGN=top>$field{area}</TD>
 <TD BGCOLOR="$colour" VALIGN=top>$field{task}</TD>
+<TD BGCOLOR="$colour" VALIGN=top>$field{release}</TD>
 <TD BGCOLOR="$colour" VALIGN=top>$field{owner}</TD>
 </TR>
 EOT

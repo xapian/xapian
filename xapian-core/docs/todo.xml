@@ -1,49 +1,49 @@
 <todo>
-<todoitem priority="H" difficulty="2" owner="" area="Matcher">
+<todoitem priority="H" difficulty="2" owner="" area="Matcher" release="">
 
 Pass around partially created postlist as an auto_ptr, for exception safety.
 
 </todoitem>
-<todoitem priority="H" difficulty="3" owner="" area="General / API">
+<todoitem priority="H" difficulty="3" owner="" area="General / API" release="">
 
 Put Om into its own namespace, to ensure lack of symbol conflicts.
 
 </todoitem>
-<todoitem priority="H" difficulty="5" owner="C" area="API">
+<todoitem priority="H" difficulty="5" owner="C" area="API" release="">
 
 Write bindings for other languages (Java, C, perl, python, etc.). [In
 progress, apart from C].
 
 </todoitem>
-<todoitem priority="H" difficulty="5" owner="" area="Performance">
+<todoitem priority="H" difficulty="5" owner="" area="Performance" release="">
 
 Write (speed) performance test suite.
 
 </todoitem>
-<todoitem priority="H" difficulty="5" owner="O" area="API">
+<todoitem priority="H" difficulty="5" owner="O" area="API" release="1.0">
 
 Merge OmDocument and OmDocumentContents into a single class, providing
 consistent interface.
 
 </todoitem>
-<todoitem priority="H" difficulty="5" owner="C" area="Indexer">
+<todoitem priority="H" difficulty="5" owner="C" area="Indexer" release="1.0">
 
 Write indexer modules.
 
 </todoitem>
-<todoitem priority="H" difficulty="3" owner="" area="Quartz">
+<todoitem priority="H" difficulty="3" owner="" area="Quartz" release="1.0">
 
 Get a lock on database when writing, to prevent accidental multiple
 writers (which would result in a corrupt database).
 
 </todoitem>
-<todoitem priority="H" difficulty="3" owner="" area="Quartz">
+<todoitem priority="H" difficulty="3" owner="" area="Quartz" release="1.0">
 
 Detect and deal with btree overwritten condition.  Write tests to ensure
 this works.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Porting">
+<todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
 
 Return more information about number of documents in database which match
 query. Perhaps an estimate based on the termfreqs of the terms in the query
@@ -51,23 +51,62 @@ query. Perhaps an estimate based on the termfreqs of the terms in the query
 Rename mbound to (something like) "docs_considered".
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="Porting">
+<todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
+
+Make the use of iterators consistent when supplying a set of things to the API:
+currently, sometimes you have to supply a begin and end iterator, and sometimes
+you have to supply a reference to an object.  Always use begin and end
+iterators.
+
+</todoitem>
+<todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
+
+For writable databases, make the behaviour currently obtained by calling
+begin_session() and later end_session() the default behaviour.  If users
+want the changes to be applied immediately following a change, they should
+call flush().  (Olly suggested an autoflush option, but this doesn't seem
+to gain much.)
+
+</todoitem>
+<todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
+
+Sort out API classes which expose members: check that this is really what is
+wanted in each case - rework to avoid it if so.  A particularly bad culprit is
+the OmDocumentContents (and OmDocumentTerm) class.
+
+</todoitem>
+<todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
+
+Rework OmEnquire::get_docs() - make it able to take a vector of docids as well
+as MSetItems?  General tidy up needed.
+
+</todoitem>
+<todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
+
+"Percentage" scores - should be made more useful: a document which is indexed
+by all terms should probably have a score of 100%, for example.  May need to
+store the fraction of terms in the query which index the document in order to
+do this: but what happens with boolean filter terms (particularly boolean not
+filters)?
+
+</todoitem>
+<todoitem priority="M" difficulty="5" owner="" area="Porting" release="1.0">
 
 Produce NT version of OM.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="API">
+<todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
 
 Implement methods to enable iteration through all the terms in the database,
 and possibly to iterate through all the documents in the database.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Quartz">
+<todoitem priority="M" difficulty="3" owner="" area="Quartz" release="1.0">
 
 Implement deletion and updating of documents.  Test.
 
 </todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="API">
+<todoitem priority="M" difficulty="2" owner="" area="API" release="">
 
 Test that optimisations are not causing wrong results to be returned.  Have a
 large dataset, and a query which returns at least 20 hits.  Perform queries
@@ -75,19 +114,19 @@ with all possible combinations of first item and mset size, and check that the
 returned results are consistent.
 
 </todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="API">
+<todoitem priority="M" difficulty="2" owner="" area="API" release="1.0">
 
 Rename AutoPtr to OmAutoPtr, and autoptr.h to omautoptr.h (or think
 of a suitable alternative scheme for avioding exposing the autoptrs).
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="Matcher">
+<todoitem priority="M" difficulty="5" owner="" area="Matcher" release="">
 
 Write tests to check that setting the parameters used in the BM25 and
 traditional weighting schemes works.
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="Exceptions">
+<todoitem priority="M" difficulty="5" owner="" area="Exceptions" release="">
 
 Make exceptions threadsafe: see
 http://metalab.unc.edu/pub/Linux/docs/faqs/SMP-FAQ GCC (and EGCS) need
@@ -95,50 +134,50 @@ existence of exceptions to be protected by a mutex - will need to cope with
 exception being copied.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Exceptions">
+<todoitem priority="M" difficulty="3" owner="" area="Exceptions" release="">
 
 Add context to errors, particularly those generated by a remote database
 failing, so that the source of the error can be identified.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Matcher">
+<todoitem priority="M" difficulty="3" owner="" area="Matcher" release="">
 
 Implement collapse keys for duplicate removal - which only fire if the
 two documents have the same weight.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Exceptions">
+<todoitem priority="M" difficulty="3" owner="" area="Exceptions" release="">
 
 Make net/omerr_string.c include om/omerrortypes.h, and use its own
 #defines to process this file appropriately, so that all error types can
 be dealt with.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Exceptions">
+<todoitem priority="M" difficulty="3" owner="" area="Exceptions" release="1.0">
 
 Add error handlers to (at least) OmDatabase.  Implement more carefully in
 MergePostlist.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Matcher">
+<todoitem priority="M" difficulty="3" owner="" area="Matcher" release="">
 
 Check that negative term weights don't mess up matcher's optimisations - if
 they do we need to either disallow negative term weights, or fix/disable the
 optimisations for the case of negative term weights.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Documentation">
+<todoitem priority="M" difficulty="3" owner="" area="Documentation" release="">
 
 Patch doxygen, so that todo items in the body of methods get displayed.
 
 </todoitem>
-<todoitem priority="M" difficulty="4" owner="" area="Matcher">
+<todoitem priority="M" difficulty="4" owner="" area="Matcher" release="">
 
 Test performance when nth_element is run more or less frequently, to see
 what is best.
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="General">
+<todoitem priority="M" difficulty="5" owner="" area="General" release="">
 
 Check that it is safe for an exception to be thrown and caught within a
 destructor, when that destructor is being called due to an exception
@@ -148,161 +187,160 @@ database's destructor calls internal_end_session() which throws an exception
 exceptions exist simultaneously.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Exceptions">
+<todoitem priority="M" difficulty="3" owner="" area="Exceptions" release="">
 
 Make exceptions work with shared libs on solaris / find an alternative. (gcc
 => DISABLE_SHARED on Solaris)
 
 </todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="Options">
+<todoitem priority="M" difficulty="2" owner="" area="Options" release="">
 
 Use OmSettings for specifying what debugging info to output
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="Documentation">
+<todoitem priority="M" difficulty="5" owner="" area="Documentation" release="1.0">
 
 Ensure that API documentation covers entirety of API.  Then rewrite it for
 clarity.
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="Documentation">
+<todoitem priority="M" difficulty="5" owner="" area="Documentation" release="">
 
 Document backend API (database, postlist, termlist, document, etc) in same
 way as enquire API.
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="Bindings">
+<todoitem priority="M" difficulty="5" owner="" area="Bindings" release="">
 
 Ensure that (Java in particular) bindings throw correct exception types.
 
 </todoitem>
-<todoitem priority="M" difficulty="4" owner="" area="Stemming">
+<todoitem priority="M" difficulty="4" owner="" area="Stemming" release="">
 
 Make a separate package to contain stemming algorithm stuff (docs, code,
 stemtest)
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Databases">
+<todoitem priority="M" difficulty="3" owner="" area="Databases" release="">
 
 Change all internal references to net/network backend to remote backend (in
 step with external naming)
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Databases">
+<todoitem priority="M" difficulty="3" owner="" area="Databases" release="1.0">
 
 Make references to muscat36/m36 consistent (may require externally visible
 changes)
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="DA backend">
+<todoitem priority="M" difficulty="5" owner="" area="DA backend" release="">
 
 Autodetect heavy-duty vs flimsy (3 byte vs 2 byte)
 
 </todoitem>
-<todoitem priority="M" difficulty="4" owner="" area="Matcher">
+<todoitem priority="M" difficulty="4" owner="" area="Matcher" release="">
 
 Treat FILTER and AND as equivalent from the point of view of building
 optimal AND trees.  Also add a variant on FilterPostList where the left
 branch is boolean and the right probabilistic.
 
 </todoitem>
-<todoitem priority="M" difficulty="4" owner="" area="Matcher">
+<todoitem priority="M" difficulty="4" owner="" area="Matcher" release="1.0">
 
 max_or_terms should probably work in a more local way.
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="Matcher">
+<todoitem priority="M" difficulty="5" owner="" area="Matcher" release="1.0">
 
 max_or_terms should not select groups of terms which don't match any
 documents.
 
 </todoitem>
-<todoitem priority="L" difficulty="4" owner="" area="Matcher">
+<todoitem priority="L" difficulty="4" owner="" area="Matcher" release="1.0">
 
 max_or_terms should probably reduce the querysize by the number of terms
 removed - hard to do because max_or_terms necessarily happens after some
 term weights have been calculated...
 
 </todoitem>
-<todoitem priority="L" difficulty="3" owner="" area="Purify">
+<todoitem priority="L" difficulty="3" owner="" area="Purify" release="">
 
 Write autoconf macro to turn on purify support. Submit to
 http://peti.cys.de/autoconf-archive/
 
 </todoitem>
-<todoitem priority="L" difficulty="3" owner="" area="Documentation">
+<todoitem priority="L" difficulty="3" owner="" area="Documentation" release="1.0">
 
 Add notes about catching exceptions throughout userman, particularly in
 examples (eg, search engine example)
 
 </todoitem>
-<todoitem priority="L" difficulty="3" owner="c" area="Backends">
+<todoitem priority="L" difficulty="3" owner="c" area="Backends" release="">
 
 Use thread locks around inmemory methods
 
 </todoitem>
-<todoitem priority="L" difficulty="2" owner="" area="Website">
+<todoitem priority="L" difficulty="2" owner="" area="Website" release="">
 
 Put PS/PDF documentation on website.
 
 </todoitem>
-<todoitem priority="L" difficulty="5" owner="c" area="General">
+<todoitem priority="L" difficulty="5" owner="c" area="General" release="">
 
 Audit for exception safety.
 
 </todoitem>
-<todoitem priority="L" difficulty="4" owner="R" area="Positional">
+<todoitem priority="L" difficulty="4" owner="R" area="Positional" release="">
 
-Add a get_position_list() method to databases.
-Change OmDatabase::positionlist_{begin,end} to use it.
+Test get_position_list() methods on databases.
 
 </todoitem>
-<todoitem priority="L" difficulty="3" owner="" area="Weighting">
+<todoitem priority="L" difficulty="3" owner="" area="Weighting" release="">
 
 Allow for a non-zero minimum value for the ndl (normalised doc len).
 
 </todoitem>
-<todoitem priority="L" difficulty="5" owner="" area="Positional">
+<todoitem priority="L" difficulty="5" owner="" area="Positional" release="">
 
 Passage retrieval.
 
 </todoitem>
-<todoitem priority="L" difficulty="5" owner="" area="Matcher">
+<todoitem priority="L" difficulty="5" owner="" area="Matcher" release="">
 
 Clustering algorithms.
 
 </todoitem>
-<todoitem priority="V" difficulty="5" owner="" area="General">
+<todoitem priority="V" difficulty="5" owner="" area="General" release="">
 
 Improve performance using SIMD instructions
 
 </todoitem>
-<todoitem priority="V" difficulty="4" owner="" area="General">
+<todoitem priority="V" difficulty="4" owner="" area="General" release="">
 
 Make backends / weighting schemes / indexer modules register themselves
 automatically.  At runtime / linktime? (ie, replace current conditional
 compilation scheme)
 
 </todoitem>
-<todoitem priority="V" difficulty="3" owner="" area="Backends">
+<todoitem priority="V" difficulty="3" owner="" area="Backends" release="">
 
 Split database definition files into database/postlist/termlist files.
 
 </todoitem>
-<todoitem priority="V" difficulty="4" owner="" area="General">
+<todoitem priority="V" difficulty="4" owner="" area="General" release="">
 
 A couple of classes get copied a lot - look into doing copy-on-write for
 them.  Notably ExpandBits and term names (currently strings so this happens,
 but may change)
 
 </todoitem>
-<todoitem priority="D" difficulty="3" owner="" area="API">
+<todoitem priority="D" difficulty="3" owner="" area="API" release="">
 
 Do allow boolean subqueries in OmQuery constructors, where
 it makes sense (or note in documentation to use FILTER).
 
 </todoitem>
-<todoitem priority="D" difficulty="5" owner="" area="Matcher">
+<todoitem priority="D" difficulty="5" owner="" area="Matcher" release="">
 
 Boolean filters result in collection statistics being for the wrong set of
 documents (should be appropriate subset).  Hard to be efficient
