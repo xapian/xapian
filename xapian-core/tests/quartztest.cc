@@ -59,8 +59,18 @@ static int get_filesize(const string &filename)
 static void makedir(const string &filename)
 {
     if (mkdir(filename, 0700) == -1 && errno != EEXIST) {
-	tout << "Couldn't create directory `" << filename << "' ("
-	     << strerror(errno) << ")";
+	FAIL_TEST("Couldn't create directory `" << filename << "' (" <<
+		  strerror(errno) << ")");
+    }
+}
+
+static void removedir(const string &filename)
+{
+    rmdir(filename);
+    struct stat buf;
+    if (stat(filename, &buf) == 0 || errno != ENOENT) {
+	FAIL_TEST("Failed to remove directory `" << filename << "' (" <<
+		  strerror(errno) << ")");
     }
 }
 
@@ -1032,7 +1042,7 @@ static bool test_cursor2()
 static bool test_open1()
 {
     string dbdir = tmpdir + "testdb_open1";
-    rmdir(dbdir);
+    removedir(dbdir);
     
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   Xapian::Internal::RefCntPtr<Xapian::Database::Internal> database_0 = new QuartzDatabase(dbdir));
@@ -1049,7 +1059,7 @@ static bool test_open1()
 static bool test_create1()
 {
     string dbdir = tmpdir + "testdb_create1";
-    rmdir(dbdir);
+    removedir(dbdir);
 
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db;
 
@@ -1063,7 +1073,8 @@ static bool test_create1()
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   db = new QuartzDatabase(dbdir));
     db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048);
-    rmdir(dbdir);
+    db = 0; // Close the database - Cygwin can't delete a locked file...
+    removedir(dbdir);
 
     makedir(dbdir);
 
@@ -1091,6 +1102,7 @@ static bool test_create1()
     // (7) db exists (create, overwrite)
     db = new QuartzDatabase(dbdir);
     TEST_EQUAL(db->get_doccount(), 0);
+    db = 0; // Close the database - Cygwin can't delete a locked file...
     db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE_OR_OVERWRITE, 2048);
     TEST_EQUAL(db->get_doccount(), 0);
     Xapian::Document document_in;
@@ -1107,6 +1119,7 @@ static bool test_create1()
 
     // (8) db exists with data (create, overwrite)
     db = new QuartzDatabase(dbdir);
+    db = 0; // Close the database - Cygwin can't delete a locked file...
     db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE_OR_OVERWRITE, 2048);
     db->add_document(document_in);
     TEST_EQUAL(db->get_doccount(), 1);
@@ -1120,7 +1133,7 @@ static bool test_create1()
 static bool test_adddoc1()
 {
     string dbdir = tmpdir + "testdb_adddoc1";
-    rmdir(dbdir);
+    removedir(dbdir);
 
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048);
 
@@ -1181,7 +1194,7 @@ static bool test_adddoc1()
 static bool test_adddoc2()
 {
     string dbdir = tmpdir + "testdb_adddoc2";
-    rmdir(dbdir);
+    removedir(dbdir);
 
     Xapian::docid did;
     Xapian::Document document_in;
@@ -1301,7 +1314,7 @@ static bool test_adddoc2()
 static bool test_adddoc3()
 {
     string dbdir = tmpdir + "testdb_adddoc3";
-    rmdir(dbdir);
+    removedir(dbdir);
 
     Xapian::docid did;
     Xapian::Document document_in;
@@ -1522,7 +1535,7 @@ static bool test_unpackint1()
 static bool test_postlist1()
 {
     string dbdir = tmpdir + "testdb_postlist1";
-    rmdir(dbdir);
+    removedir(dbdir);
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_w = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 8192);
 
     QuartzDiskTable disktable(dbdir + "/postlist_", false, 8192);
@@ -1581,7 +1594,7 @@ static bool test_postlist1()
 static bool test_postlist2()
 {
     string dbdir = tmpdir + "testdb_postlist2";
-    rmdir(dbdir);
+    removedir(dbdir);
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_w = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 8192);
 
     QuartzDiskTable disktable(tmpdir + "testdb_postlist2/postlist_", false, 2048);
@@ -1840,7 +1853,7 @@ static bool test_overwrite1()
 static bool test_overwrite2()
 {
     string dbname = tmpdir + "overwrite2";
-    rmdir(dbname);
+    removedir(dbname);
 
     Xapian::WritableDatabase writer(Xapian::Quartz::open(dbname, Xapian::DB_CREATE);
 
@@ -1964,7 +1977,7 @@ static bool test_bitmap1()
 static bool test_writelock1()
 {
     string dbname = tmpdir + "writelock1";
-    rmdir(dbname);
+    removedir(dbname);
 
     Xapian::WritableDatabase writer = Xapian::Quartz::open(dbname, Xapian::DB_CREATE);
     TEST_EXCEPTION(Xapian::DatabaseLockError, 
@@ -2074,7 +2087,7 @@ test_desc tests[] = {
 int main(int argc, char **argv)
 {
     tmpdir = ".quartztmp";
-    rmdir(tmpdir);
+    removedir(tmpdir);
     makedir(tmpdir);
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);

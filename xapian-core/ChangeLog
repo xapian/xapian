@@ -1,3 +1,10 @@
+Mon Mar 15 20:39:21 GMT 2004  Olly Betts <olly@survex.com>
+
+	* tests/quartztest.cc: Fail the test if there's still a directory after
+	  rmdir(), or there isn't a directory after mkdir().  Close a
+	  QuartzDatabase or QuartzWritableDatabase before trying to overwrite
+	  it - cygwin doesn't allow use to delete open/locked files...
+
 Mon Mar 15 20:38:11 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/database.cc: Database::Internal::Internal::keep_alive()
