@@ -53,11 +53,11 @@ DBDocument::get_key(om_keyno keyid) const
 	unsigned char *pos = (unsigned char *)rec->p;
 	unsigned int len = LENGTH_OF(pos, 0, heavy_duty);
 	unsigned int keypos = keyid;
-	if (keyid + 8 > len) {
+	if (keypos + 8 > len) {
 	    // Record not big enough.
 	    DebugMsg(": not found in record" << endl);
 	} else {
-	    key.value = string((char *)pos + LWIDTH(heavy_duty) + 3 + keyid, 8);
+	    key.value = string((char *)pos + LWIDTH(heavy_duty) + 3 + keypos, 8);
 	    DebugMsg(": found in record - value is `" << key.value << "'" << endl);
 	}
     }
