@@ -111,6 +111,10 @@ OmQueryInternal qfs_readcompound()
 		{
 		    vector<OmQueryInternal *> temp =
 			    convert_subqs(subqs);
+		    querytok myqt = qfs_gettok();
+		    if (myqt.type != querytok::OP_KET) {
+			throw OmInvalidArgumentError("Expected %) in query string");
+		    }
 		    return OmQueryInternal(OM_MOP_AND,
 					   temp.begin(),
 					   temp.end());
@@ -120,6 +124,10 @@ OmQueryInternal qfs_readcompound()
 		{
 		    vector<OmQueryInternal *> temp =
 			    convert_subqs(subqs);
+		    querytok myqt = qfs_gettok();
+		    if (myqt.type != querytok::OP_KET) {
+			throw OmInvalidArgumentError("Expected %) in query string");
+		    }
 		    return OmQueryInternal(OM_MOP_OR,
 					   temp.begin(),
 					   temp.end());
@@ -129,6 +137,10 @@ OmQueryInternal qfs_readcompound()
 		{
 		    vector<OmQueryInternal *> temp =
 			    convert_subqs(subqs);
+		    querytok myqt = qfs_gettok();
+		    if (myqt.type != querytok::OP_KET) {
+			throw OmInvalidArgumentError("Expected %) in query string");
+		    }
 		    return OmQueryInternal(OM_MOP_FILTER,
 					   temp.begin(),
 					   temp.end());
@@ -138,6 +150,10 @@ OmQueryInternal qfs_readcompound()
 		{
 		    vector<OmQueryInternal *> temp =
 			    convert_subqs(subqs);
+		    querytok myqt = qfs_gettok();
+		    if (myqt.type != querytok::OP_KET) {
+			throw OmInvalidArgumentError("Expected %) in query string");
+		    }
 		    return OmQueryInternal(OM_MOP_XOR,
 					   temp.begin(),
 					   temp.end());
@@ -147,6 +163,10 @@ OmQueryInternal qfs_readcompound()
 		{
 		    vector<OmQueryInternal *> temp =
 			    convert_subqs(subqs);
+		    querytok myqt = qfs_gettok();
+		    if (myqt.type != querytok::OP_KET) {
+			throw OmInvalidArgumentError("Expected %) in query string");
+		    }
 		    return OmQueryInternal(OM_MOP_AND_MAYBE,
 					   temp.begin(),
 					   temp.end());
@@ -156,6 +176,10 @@ OmQueryInternal qfs_readcompound()
 		{
 		    vector<OmQueryInternal *> temp =
 			    convert_subqs(subqs);
+		    querytok myqt = qfs_gettok();
+		    if (myqt.type != querytok::OP_KET) {
+			throw OmInvalidArgumentError("Expected %) in query string");
+		    }
 		    return OmQueryInternal(OM_MOP_AND_NOT,
 					   temp.begin(),
 					   temp.end());
@@ -225,7 +249,7 @@ void run_matcher() {
 	    cout << db->get_doccount() << endl;
 	    cout.flush();
 	} else if (words.size() == 2 && words[0] == "SETWEIGHT") {
-	    cerr << "responding to SETWEIGHT" << endl;
+	    //cerr << "responding to SETWEIGHT" << endl;
 	    IRWeight::weight_type wt_type = 
 		    static_cast<IRWeight::weight_type>(
 		    atol(words[1].c_str()));
