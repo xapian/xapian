@@ -42,6 +42,8 @@
 #endif
 #include "database.h"
 
+#include <stdio.h>
+
 using std::string;
 
 /** Type of a database */
@@ -69,40 +71,57 @@ static const StringAndValue database_strings[] = {
     { "",			DBTYPE_NULL		}  // End
 };
 
+static string
+read_file(const string path)
+{
+    FILE *stubfd = fopen(path.c_str(), "r");
+    if (stubfd == 0) {
+	throw OmOpeningError("Can't open stub database file: " + path);
+    }
+
+    struct stat st;
+    if (fstat(fileno(stubfd), &st) != 0 || !S_ISREG(st.st_mode)) {
+	throw OmOpeningError("Can't get size of stub database file: " + path);
+    }
+    char *buf = (char*)malloc(st.st_size);
+    if (buf == 0) { 
+	throw OmOpeningError("Can't allocate space to read stub database file: "
+			     + path);
+    }
+
+    int bytes = fread(buf, 1, st.st_size, stubfd);
+    if (bytes != st.st_size) {
+	throw OmOpeningError("Can't read stub database file: " + path);
+    }
+    string result = string(buf, st.st_size);
+    free(buf);
+    return result;
+}
+
 static void
 read_stub_database(OmSettings & params, bool readonly)
 {
     // Check validity of parameters
-    string path = params.get("auto_dir");
-    FILE *stubfd = fopen(path.c_str(), "r");
-    char * buf = 0;
-    size_t bufsize = 0;
-    int linelen = 0;
-    if (stubfd == 0) {
-	throw OmOpeningError("Can't open stub database file: " +
-			     path);
-    }
+    string buf = read_file(params.get("auto_dir"));
+
+    string::size_type linestart = 0;
+    string::size_type lineend = 0;
     int linenum = 0;
-    while (!feof(stubfd)) {
-	linelen = getline(&buf, &bufsize, stubfd);
-	if (linelen == -1) break;
+    while (linestart != buf.size()) {
+	lineend = buf.find_first_of("\n\r", linestart);
+	if (lineend == string::npos) lineend = buf.size();
 	linenum++;
-	while (linelen > 0 &&
-	       (buf[linelen - 1] == '\n' || buf[linelen - 1] == '\r')) {
-	    linelen--;
-	}
-	int eqpos;
-	for (eqpos = 0; eqpos < linelen; eqpos++) {
-	    if (buf[eqpos] == '=') break;
-	}
-	if (eqpos == linelen) {
+
+	string::size_type eqpos;
+	eqpos = buf.find('=', linestart);
+	if (eqpos >= lineend) {
 	    throw OmOpeningError("Invalid entry in stub database file, at line " + om_tostring(linenum));
 	}
-	params.set(string(buf, eqpos),
-		   string(buf + eqpos + 1, linelen - eqpos - 1));
+	params.set(buf.substr(linestart, eqpos - linestart),
+		   buf.substr(eqpos + 1, lineend - eqpos - 1));
+	linestart = buf.find_first_not_of("\n\r", lineend);
+	if (linestart == string::npos) linestart = buf.size();
     }
-    (void)fclose(stubfd);
-    free(buf);
 }
 
 RefCntPtr<Database>

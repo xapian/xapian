@@ -1,3 +1,8 @@
+Tue Sep 10 14:27:15 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* backend_manager.cc: Fix stub database code so that it doesn't use
+	  the gnu extension "getline()".
+
 Tue Sep 10 13:51:20 BST 2002  Olly Betts <olly@survex.com>
 
 	* quartz_table.cc: don't form tag when we just want to check if a
