@@ -8,7 +8,7 @@ noinst_HEADERS =
 
 noinst_LTLIBRARIES = libbackend.la
 
-libbackend_la_SOURCES = database_builder.cpp
+libbackend_la_SOURCES = database_builder.cc
 
 # Define backend libraries to include.  To add a new one:
 # i)   Add lines to configure.in to define the automake conditional
