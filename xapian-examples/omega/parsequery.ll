@@ -6,12 +6,16 @@
 %{
 #include "main.h"
 #include "query.h"
+#include "omassert.h"
 
 #define YY_DECL void parse_prob(const string &prob_query)
 
 #define yyterminate() return
 
 #define YY_NEVER_INTERACTIVE 1
+
+// ECHO should never get called
+#define ECHO Assert(0)
 
 static string query;
 static size_t query_index = 0;
@@ -89,7 +93,11 @@ get_next_char(const char **p)
     type = NORMAL;
 }
 
-<INITIAL>[A-Za-z0-9][A-Za-z0-9+&]*\.[ \t\r\n-] {
+<INITIAL>\" {
+    BEGIN(INQUOTES);
+}
+
+<INITIAL>[A-Za-z0-9][A-Za-z0-9+&]*\.[ \t\r\n] {
     // FIXME: termname with trailing dot at end of query?
     // termname with trailing dot, but not something like "muscat.com"    
     string termname;
@@ -132,13 +140,9 @@ get_next_char(const char **p)
     BEGIN(INITIAL);
 }
 
-<AFTERTERM>[^-+"A-Za-z0-9]+ {
+<AFTERTERM>[^-][^-+"A-Za-z0-9]* {
     type = NORMAL; // Reset any currently active "+" or "-"
     BEGIN(INITIAL);
-}
-
-<INITIAL>\" {
-    BEGIN(INQUOTES);
 }
 
 <INQUOTES>[^"A-Za-z0-9]*\" {

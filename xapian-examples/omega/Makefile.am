@@ -5,7 +5,7 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 noinst_HEADERS = main.h query.h cgiparam.h symboltab.h
 
 # include lex/flex generate C++ source
-EXTRA_DIST = parsepage.cc
+EXTRA_DIST = parsepage.cc parsequery.cc
 
 INCLUDES = -I$(top_srcdir)/include
 
