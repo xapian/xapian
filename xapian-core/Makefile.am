@@ -5,7 +5,7 @@
 AUTOMAKE_OPTIONS = 1.6.3
 
 if BUILD_BACKEND_REMOTE
-remote_subdirs = bin
+remote_subdirs = net
 LIBNET_LA = net/libnet.la
 endif
 

@@ -1,3 +1,7 @@
+Tue May 27 16:51:30 BST 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Fixed typo: "bin" should be "net" in remote_subdirs.
+
 Tue May 27 02:43:32 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/Makefile.am: Removed -I referencing testsuite
