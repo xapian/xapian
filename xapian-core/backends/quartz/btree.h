@@ -109,7 +109,10 @@ class Btree {
 	 */
 	void open();
 
-	/** Open the btree at a given revision
+	/** Open the btree at a given revision.
+	 *
+	 *  Like Btree::open, but try to open at the given revision number
+	 *  and fail if that isn't possible.
 	 *
 	 *  @param revision_      - revision number to open.
 	 *
@@ -162,18 +165,35 @@ class Btree {
 	 */
 	bool get_exact_entry(const string & key, string & tag) const;
 
+	/** Find a key in the Btree.
+	 * 
+	 *  The result is true iff the specified key is found in the Btree.
+	 */
 	bool find_key(const string &key) const;
+
+	/** Find a key in the Btree and read its tag.
+	 *
+	 *  Similar to Btree::find_key(), but when the key is found the tag is
+	 *  copied to tag.  If the key is not found tag is left unchanged.
+	 *
+	 *  e.g.
+	 *
+	 *    string t;
+	 *    btree.find_tag("TODAY", &t); // get today's date
+	 */
 	bool find_tag(const string &key, string * tag) const;
 
-	/** Add an entry to the table.
-	 *
-	 *  If the key already exists in the table, the existing tag
-	 *  is replaced by the supplied one.  If not, a new entry is
-	 *  created.
+	/** Add a key/tag pair to the table, replacing any existing pair with
+	 *  the same key.
 	 *
 	 *  If an error occurs during the operation, this will be signalled
 	 *  by a return value of false.  All modifications since the
 	 *  previous commit() will be lost.
+	 *
+	 *  If key is empty, then the null item is replaced.  If key.length()
+	 *  exceeds the the limit on key size, false is returned.
+	 *
+	 *  e.g.    ok = btree.add("TODAY", "Mon 9 Oct 2000");
 	 *
 	 *  @param key   The key to store in the table.
 	 *  @param tag   The tag to store in the table.
@@ -186,30 +206,48 @@ class Btree {
 	/** Delete an entry from the table.
 	 *
 	 *  The entry will be removed from the table, if it exists.  If
-	 *  it does not exist, no action will be taken.
+	 *  it does not exist, no action will be taken.  The item with
+	 *  an empty key can't be removed, and false is returned.
 	 *
 	 *  If an error occurs during the operation, this will be signalled
 	 *  by a return value of false.  All modifications since the
 	 *  previous commit() will be lost.
 	 *
-	 *  @param key   The key to store in the table.
+	 *  e.g.    ok = btree.del("TODAY")
+	 *
+	 *  @param key   The key to remove from the table.
 	 *
 	 *  @return true if the operation completed successfully, false
 	 *          otherwise.
 	 */
 	bool del(const string &key);
 
-	/** Create an empty btree structure on disk.
+	/** Create a new empty btree structure on disk.
+	 *
+	 *  The block size must be less than 64K, where K = 1024. It is unwise
+	 *  to use a small block size (less than 1024 perhaps), so we enforce a
+	 *  minimum block size of 2K.
+	 *
+	 *  Example:
+	 *
+	 *    Btree btree("X-");
+	 *    btree.create(8192);  // files will be X-DB, X-baseA (and X-baseB)
 	 *
 	 *  @param blocksize     - Size of blocks to use.
 	 *
 	 *  @exception Xapian::DatabaseCreateError if the table can't be created.
+	 *  @exception Xapian::InvalidArgumentError if the requested blocksize
+	 *  is unsuitable.
 	 */
 	void create(unsigned int blocksize);
 
 	void set_full_compaction(bool parity);
 
 	/** Get the latest revision number stored in this table.
+	 *
+	 *  This gives the higher of the revision numbers held in the base
+	 *  files of the B-tree, or just the revision number if there's only
+	 *  one base file.
 	 *
 	 *  It is possible that there are other, older, revisions of this
 	 *  table available, and indeed that the revision currently open
@@ -235,6 +273,8 @@ class Btree {
 
 	/** Return a count of the number of entries in the table.
 	 *
+	 *  The count does not include the ever-present item with null key.
+	 *
 	 *  @return The number of entries in the table.
 	 */
 	quartz_tablesize_t get_entry_count() const {
@@ -255,19 +295,13 @@ class Btree {
 	 */
 	bool is_modified() const { return Btree_modified; }
 
-	/** revision number of the opened B-tree. */
-	quartz_revision_number_t revision_number;
-
-	/** keeps a count of the number of items in the B-tree. */
-	uint4 item_count;
-
-	/** the largest possible value of a key_len. */
+	/** The largest possible value of a key_len.
+	 *
+	 *  This gives the upper limit of the size of a key that may
+	 *  be stored in the B-tree (252 bytes with the present
+	 *  implementation).
+	 */
 	static const string::size_type max_key_len = 252;
-
-	/* 'semi-public': the user might be allowed to read this */
-
-	/** block size of the B tree in bytes */
-	unsigned int block_size;
 
     protected:
 
@@ -303,11 +337,24 @@ class Btree {
 			     const uint4 blocknumber, bool truncate) const;
 	void form_key(const string & key) const;
 
-	/** revision number of the other base. */
+	/** revision number of the opened B-tree. */
+	quartz_revision_number_t revision_number;
+
+	/** keeps a count of the number of items in the B-tree. */
+	uint4 item_count;
+
+	/** block size of the B tree in bytes */
+	unsigned int block_size;
+
+	/** Revision number of the other base, or zero if there is only one
+	 *  base file.
+	 */
 	quartz_revision_number_t other_revision_number;
 
-	/** set to true if baseA and baseB both exist. The old base
-	 *  is deleted as soon as a write to the Btree takes place. */
+	/** set to true if baseA and baseB both exist as valid bases.
+	 *
+	 *  The unused base is deleted as soon as a write to the Btree takes
+	 *  place. */
 	mutable bool both_bases;
 
 	/** the value 'A' or 'B' of the current base */

@@ -1,3 +1,12 @@
+Sat Aug 14 17:44:39 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/bcursor.h,backends/quartz/btree.cc,
+	  backends/quartz/btree.h,bin/quartzcompact.cc,docs/quartzdesign.html:
+	  Updated quartz design docs to reflect recent changes.  Also pulled
+	  out the Btree and Bcursor API docs and slotted them in as doxygen
+	  documentation comments - this way they're much more likely to
+	  be kept up-to-date.
+
 Sat Aug 14 15:59:07 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc,backends/quartz/btree.h: Removed unused

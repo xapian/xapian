@@ -1136,8 +1136,7 @@ void Btree::form_key(const string & key) const
 }
 
 /* Btree::add(key, tag) adds the key/tag item to the
-   B-tree, replacing any existing item with the same key. The result is true
-   for an addition, false for a replacement.
+   B-tree, replacing any existing item with the same key.
 
    For a long tag, we end up having to add m components, of the form
 

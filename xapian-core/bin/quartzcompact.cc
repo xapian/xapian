@@ -92,7 +92,7 @@ main(int argc, char **argv)
 	    out.set_full_compaction(true);
 
 	    string key, tag;
-	    if (in.item_count) {
+	    if (in.get_entry_count()) {
 		Bcursor BC(&in);
 		BC.find_key(key);
 		while (BC.get_key(&key)) {

@@ -86,19 +86,27 @@ full key isn't known, by attempting to access an item which doesn't
 exist: the cursor will then be set to point to the first item with a
 key before that requested.
 <p>
-The QuartzTable class defines the standard interface to tables.  This
-has two subclasses - the QuartzDiskTable and QuartzBufferedTable 
-interface.  The former provides direct access to the table as stored
-on disk, and the latter provides access via a large buffer in order to
-use the memory as a write cache and greatly speed the process of
-indexing.
+The Btree class defines the standard interface to a table.  This has
+a subclass for each table - QuartzRecordTable, QuartzValueTable,
+QuartzPostListTable, QuartzPositionListTable, and QuartzTermListTable.
+Apart from QuartzPostListTable, these are fairly thin wrappers.
+QuartzPostListTable buffers up the inverted changes internally to
+allow fast updatig.
+<p>
+Changes are made to the Btree by calling add() and del(), but they will not be
+seen by readers until commit() is called.  Alternatively, calling cancel() will
+abandon changes.  This allows atomic transactions to be implemented.
+<p>
+The Btree class is optimised to be fast when changes are applied in sorted
+order.  For most tables, this means indexing documents in docid order.
+QuartzPostListTable takes care of this as part of the inversion process.
 
 <h2>The contents of the tables</h2>
 
 We shall worry about the implementation of the tables later, but first
 we shall look at what is stored within each table.
 <p>
-There are six tables comprising a quartz database.
+There are five tables comprising a quartz database.
 <ul>
 <li>
 <B>Record</B>.
@@ -285,46 +293,10 @@ An alternative approach would be to obtain a read-lock on the revision
 being accessed.  A write would then have to wait until no read-locks
 existed on the old revision before modifying the database.
 
-<h2>Buffered tables</h2>
-
-If each change to a table (ie, modification of a key-tag pair) was
-immediately written to disk, there would be two problems.
-
-<ol>
-<li>
-The system would be very slow.  If a disk read and then a write was
-required each time an item was changed, the indexing process would
-spend most of its time waiting for the disk's write head to seek to
-the appropriate block.  By buffering up a large set of changes, and
-then writing them all out in a sorted order, seeking is minimised.
-</li>
-<li>
-Operations which involve modifying more than one key-tag pair would not
-be atomic.  For example, when adding a document to a database the record
-table has three items updated - one containing the data stored in the
-document, one which stores the next document ID to allocate, and one which
-stores the sum of all the document lengths in the database.  These three
-items must be updated at the same time, so that a consistent state is always
-seen by other processes, and a consistent state remains if the system
-is terminated unexpectedly.
-</li>
-</ol>
-
-<p>
-As a result, the QuartzBufferedTable object is available.  This simply
-stores a set of modified entries in memory, applying them to disk only
-when the apply method is called.
-<p>
-In fact, a QuartzBufferedTable object has to have two handles open on
-the table - one for reading and one for writing.  This is simply
-because the interface for writing a table is more limited than that
-for reading a table (in particular, cursor operations are not
-available).
-
 <h2>Applying changes to all the tables simultaneously</h2>
 
-This is all wonderful: we have tables storing arbitrary bits of useful
-data, we can update bits of them as we like, and we can then call a
+To recap, we have tables storing key/tag pairs, we can update these,
+and we can then call a
 method and have all the modifications applied to the table atomically.
 Unfortunately, we need more than that - we need to be able to apply
 modifications as a single atomic transaction across multiple tables, so
@@ -345,7 +317,7 @@ When opening a database, after opening the first table, <em>A</em>, at the
 newest available revision, we read its revision number.  We then open all
 the other tables at the same revision number.
 </li><li>
-When writing changes to a database, we write the tables in reverse order.
+When we commit changes to a database, we commit the tables in reverse order.
 </li>
 </ul>
 
@@ -373,12 +345,6 @@ store document lengths, term frequencies in the termlists, document lengths
 in the posting lists, etc.
 </li>
 <li>
-Mention that when writing to a database, items are kept in the packed form
-they are stored in on disk and simply scanned through, modified and written
-on-the-fly.  This minimises memory use, allowing more data to be cached,
-and hopefully keeping performance high.
-</li>
-<li>
 Add comment about the inversion process - we are essentially doing a text
 based partitioning scheme.
 </li>
@@ -403,11 +369,6 @@ code) - if not, we'll add a discussion about it to this document.
 
 <h1><center>The Btree Implementation</center></h1>
 
-[Note: the Btree code used to be object-like C, evolved through a strange
-mishmash of this and C++, and is now pretty much "normal" C++.  These docs
-may not be fully up-to-date with these changes (FIXME - check)]
-
-<P>
 I'm not sure about the name 'Btree' that runs through all this, since the fact
 that it is all implemented as a B-tree is surely irrelevant. I have not been
 able to think of a better name though ...
@@ -533,344 +494,8 @@ in the corresponding revision of the B-tree.
 
 <H2>The API</H2>
 
-Most of the procedures described below can return with an error condition. Error
-conditions are described later. Meanwhile, the code examples given here ignore
-the possibility of errors. Bad practice, but it makes them more readable.
-
-<pre>
-<!--int-->void Btree::create(const string &amp; name, int block_size);
-</pre>
-
-<blockquote>
-    Creates a new B-tree with the given name and block size.
-    <!--The integer result gives an error condition.-->
-    On error, throws an exception.
-<pre>
-        <!--error_condition = -->Btree::create("/home/martin/develop/btree/", 8192);
-
-        Btree::create("X-", 6000); /* files will be X-baseA, X-DB etc */
-</pre>
-
-    The block size must be less than 64K, where K = 1024. It is unwise to
-    use a small block size (less than 1024 perhaps) - quartz enforces a
-    minimum block size of 2K.
-</blockquote>
-
-<P>
-Thereafter there are two modes for accessing the B-tree: update and retrieval.
-
-<H2>Update mode</H2>
-
-<pre>
-<!--bool-->void Btree::open_to_write(const string &amp; name);
-</pre>
-
-<blockquote>
-    The name is the same as the one used in creating.  Throws an exception
-    in case of error.  E.g:
-<pre>
-        Btree::open_to_write("/home/martin/develop/btree/");
-</pre>
-</blockquote>
-
-<pre>
-string::size_type Btree::max_key_len;
-</pre>
-
-<blockquote>
-    This gives the upper limit of the size of a key that may
-    be presented to the B-tree (252 bytes with the present implementation).
-</blockquote>
-
-<pre>
-uint4 Btree::revision_number;
-</pre>
-
-<blockquote>
-    This gives the revision number of the B-tree.  
-    (The type uint4 is an unsigned integral type at least 4 bytes in size).
-</blockquote>
-
-<pre>
-uint4 get_latest_revision_number() const;
-</pre>
-
-<blockquote>
-    This gives the higher of the revision numbers held in the base files of the
-    B-tree, or just the revision number if there's only one base file.
-</blockquote>
-<!-- now private:
-<pre>
-uint4 Btree::other_revision_number;
-</pre>
-
-<blockquote>
-    Similarly, this gives the revision number held in the other base file of the
-    B-tree, or is zero if there is only one base file, and
-</blockquote>
-
-<pre>
-bool Btree::both_bases;
-</pre>
-
-<blockquote>
-    is true iff both files baseA and baseB exist as valid bases.
-</blockquote>
--->
-<pre>
-bool Btree::open_to_write(const string &amp; name, unsigned long revision);
-</pre>
-
-<blockquote>
-    Like Btree::open_to_write, but open at the given revision number, and returns
-    false if the database couldn't be opened at the requested revision.
-</blockquote>
-
-<pre>
-bool Btree::add(const string &amp;key, const string &amp;tag);
-</pre>
-
-<blockquote>
-    Adds the given key-tag pair to the B-tree. e.g.
-
-<pre>
-        ok = B-&gt;add("TODAY", "Mon 9 Oct 2000");
-
-        ok = B-&gt;add(string(k + 1, k[0]), string(t + 1, t[0]));
-</pre>
-
-    The key and tag are C++ strings.
-<p>
-    If key and tag are empty, then the null item is replaced. If key.length()
-    exceeds the the limit on key sizes an error condition occurs.  The result
-    is false if the key is already in the B-tree, otherwise true.  Treated
-    as an integer, the result also measures the increase in the total number of
-    keys in the B-tree.
-</blockquote>
-
-<pre>
-bool Btree::del(const string &amp;key);
-</pre>
-
-<blockquote>
-    If key.empty() nothing happens, and the result is false.
-<p>
-    Otherwise this deletes the key and its tag from the B-tree, if found. e.g.
-
-<pre>
-        ok = B-&gt;del("TODAY")
-
-        ok = B-&gt;del(string(k + 1, k[0]));
-</pre>
-
-    The result is then false if the key is not in the B-tree, true
-    if it is.  Treated as an integer, the result also measures the decrease
-    in the total number of keys in the B-tree.
-</blockquote>
-
-<pre>
-bool Btree::find_key(const string &amp;key);
-</pre>
-
-<blockquote>
-    The result is true iff the specified key is found.
-</blockquote>
-
-<pre>
-bool Btree::find_tag(const string &amp;key, string * tag);
-</pre>
-
-<blockquote>
-    The same result, but when the key is found the tag is copied to tag.
-    If the key is not found tag is left unchanged. e.g.
-
-<pre>
-        string t;
-        B-&gt;find_tag("TODAY", &amp;t); /* get today's date */
-</pre>
-</blockquote>
-<!--
-<pre>
-int Btree::close(unsigned long revision);
-</pre>
-
-<blockquote>
-    There are two ways of closing the B-tree. Btree::close is the normal exit,
-    with all changes being flushed back to disk. Btree::quit abandons the
-    update, so the revision number of the B-tree will not increase.
-<p>
-    The revision number of Btree::close is typically one more than the revision
-    number found after opening:
-
-<pre>
-        Btree B;
-	B.open_to_write("database-1/");
-        unsigned long revision = B.revision_number;
-        ...
-        B.close(revision + 1);
-</pre>
-
-    An error condition occurs if the revision number given for closing does not
-    exceed the revision number of the B-tree found after opening it.
-</blockquote>
--->
-<pre>
-int4 Btree::item_count;
-</pre>
-
-<blockquote>
-    This returns the number of items in the B-tree, not including the
-    ever-present item with null key.
-</blockquote>
-
-<h2>Retrieval mode</h2>
-
-In retrieval mode there is no opportunity for updating the B-tree, but access
-is considerably elaborated by the use of cursors.
-
-
-<pre>
-<!--bool-->void Btree::open_to_read(const string &amp; name);
-uint4 Btree::revision_number;
-<!--bool-->void Btree::open_to_read(const string &amp; name, uint4 revision);
-</pre>
-
-<blockquote>
-    These are the same as for update mode, except that that the opened B-tree
-    is not modifiable.
-</blockquote>
-
-<pre>
-Bcursor::Bcursor(Btree *B);
-</pre>
-
-<blockquote>
-    Creates a cursor, which can be used to remember a position inside the
-    B-tree. The position is simply the item (key and tag) to which the cursor
-    points. A cursor is either positioned or unpositioned, and is initially
-    unpositioned.
-    <p>
-    NB: You must make sure that the Bcursor is destroyed before the Btree
-    it is attached to.
-</blockquote>
-
-<pre>
-bool Bcursor::find_key(const string &amp; key);
-</pre>
-
-<blockquote>
-    The result is true iff the specified key is found in the Btree.
-<p>
-    If found, the cursor is made to point to the item with the given key, and
-    if not found, it is made to point to the last item in the B-tree whose key
-    is &lt;= the key being searched for, The cursor is then set as 'positioned'.
-    Since the B-tree always contains a null key, which precedes everything, a
-    call to Bcursor::find_key always results in a valid key being pointed to by
-    the cursor.
-</blockquote>
-
-<pre>
-bool Bcursor::next();
-</pre>
-
-<blockquote>
-    If cursor BC is unpositioned, the result is simply false.
-<p>
-    If cursor BC is positioned, and points to the very last item in the Btree
-    the
-    cursor is made unpositioned, and the result is false. Otherwise the cursor
-    BC is moved to the next item in the B-tree, and the result is true.
-<p>
-    Effectively, Bcursor::next() loses the position of BC when it drops off
-    the end of the list of items. If this is awkward, one can always arrange
-    for a key to be present which has a rightmost position in a set of keys,
-    e.g.
-
-<pre>
-        B-&gt;add("\xFF", "");
-        /* all other keys have first char &lt; xF0, and a fortiori &lt; xFF */
-</pre>
-</blockquote>
-
-<pre> 
-bool Bcursor::prev();
-</pre>
-
-<blockquote>
-    This is like Bcursor::next, but BC is taken to the previous rather than
-    next item.
-</blockquote>
-
-<pre> 
-bool Bcursor::get_key(string * key);
-</pre>
-
-<blockquote>
-    If cursor BC is unpositioned, the result is simply false.
-<p>
-    If BC is positioned, the key of the item is copied into key
-    and the result is then true.
-<p>
-    For example,
-
-<pre> 
-        Bcursor BC(&amp;B);
-        string key;
-
-        /* Now we'll print all the keys in the B-tree (assuming they
-           have a simple form */
-
-        BC.find_key(""); // must give result true
-
-        while (BC.next()) { // skipping the null item
-	    BC.get_key(&amp;key);
-	    cout &lt;&lt; key &lt;&lt; endl;
-        }
-</pre>
-</blockquote>
-
-<pre> 
-bool Bcursor::get_tag(string * tag);
-</pre>
-
-<blockquote>
-    If cursor BC is unpositioned, the result is false.
-<p>
-    If BC is positioned, the tag of the item at cursor BC is copied into
-    tag. BC is then moved to the next item
-    as if Bcursor::next() had been called - this may leave BC unpositioned.
-    The result is true iff BC is left positioned.
-<p>
-    For example,
-
-<pre> 
-        Bcursor BC(&amp;B);
-	string key;
-        string tag;
-
-        /* Now do something to each key-tag pair in the Btree */
-           have a simple form */
-
-        BC.find_key(""); // must give result true
-
-        while (BC.get_key(&amp;key)) {
-            BC.get_tag(&amp;tag);
-            do_something_to(key, tag);
-        }
-
-        /* when BC is unpositioned by Bcursor::get_tag, Bcursor::get_key
-           gives result false the next time it called
-        */
-</pre>
-</blockquote>
-
-<pre> 
-Bcursor::~Bcursor();
-</pre>
-
-<blockquote>
-    Loses cursor BC.
-</blockquote>
+See the <a href="http://www.xapian.org/docs/sourcedoc/html/classBtree.html">doxygen generated documentation</a> for a description of the API of the Btree
+class and related classes.
 
 <h2>Checking the B-tree</h2>
 
@@ -885,8 +510,8 @@ void BtreeCheck::check(const string &amp; name, int opts);
     BtreeCheck::check(s, opts) is essentially equivalent to
 
 <pre>
-        Btree B;
-	B.open_to_write(s);
+        Btree B(s, false);
+	B.open();
         {
             // do a complete integrity check of the B-tree,
             // reporting according to the bitmask opts
@@ -978,35 +603,8 @@ open it for updating, set full compaction mode, and add all the items in a
 single transaction, sorted on keys. After closing, do not update further.
 Further updates can be prevented quite easily by deleting (or moving) the bitmap
 files. These are required in update mode but ignored in retrieval mode.
-
-<p>
-Here is a program fragment to unload B-tree B/ and reform it in Bnew/ as a fully
-compact B-tree with revision number 1:
-
-<pre> 
-    {
-	Btree B;
-	B.open_to_read("B/");
-        Bcursor BC(&amp;B);
-        string key, tag;
-
-	Btree::create("Bnew/", 8192);
-
-	Btree new_B;
-	new_B.open_to_write("Bnew/");
-	new_B.set_full_compaction(true);
-
-	BC.find_key("");
-
-	while (BC.get_key(&amp;key)) {
-	    BC.get_tag(&amp;tag);
-	    new_B.add(key, tag);
-	}
-	new_B.commit(1);
-    }
-</pre>
-
-For a complete program which does this, see the quartzcompact utility.
+Refer to the <a href="http://www.xapian.org/docs/sourcedoc/html/quartzcompact_8cc-source.html">source code of the quartzcompact utility</a> to see how this
+is implemented.
 
 <h2>Notes on space requirements</h2>
 
@@ -1021,9 +619,9 @@ requires (L - 2 + 2c)B bytes, where c is the number of active cursors. If
 however the revision number is one, it only requires (L - 2 + c)B bytes.
 
 <p>
-This may change in the future with code redesign, but meanwhile not that a K
-term query that needs k &lt;= K cursors open at once to process, will demand 2KB
-bytes of memory in the B-tree manager.
+This may change in the future with code redesign, but meanwhile note that a K
+term query that needs k &lt;= K cursors open at once to process, will demand
+2*K*B bytes of memory in the B-tree manager.
 
 <h2>Updating during retrieval</h2>
 
@@ -1044,22 +642,21 @@ retried.  Here is a model scheme:
 <pre> 
 static Btree * reopen(Btree * B)
 {
-    uint4 revision = B-&gt;revision_number;
-
     // Get the revision number. This will return the correct value, even when
-    // B-&gt;overwritten is detected during opening
+    // B-&gt;overwritten is detected during opening.
+    uint4 revision = B-&gt;get_open_revision_number();
 
     while (true) {
 	try {
 	    delete B;  /* close the B-tree */
-	    B = new Btree;
-	    B-&gt;open_to_read(s); /* and reopen */
+	    B = new Btree(s, true);
+	    B-&gt;open(s); /* and reopen */
 	    break;
 	} catch (const Xapian::DatabaseModifiedError &amp;) {
 	}
     }
 
-    if (revision == B-&gt;revision_number) {
+    if (revision == B-&gt;get_open_revision_number()) {
         // The revision number ought to have gone up from last time,
         // so if we arrive here, something has gone badly wrong ...
         printf("Possible database corruption!\n");
@@ -1079,8 +676,8 @@ static Btree * reopen(Btree * B)
     while (true) {
 	try {
 	    delete B;  /* close the B-tree */
-	    B = new Btree;
-	    B-&gt;open_to_read(s); /* and reopen */
+	    B = new Btree(s, true);
+	    B-&gt;open(); /* and reopen */
 	    break;
 	} catch (const Xapian::DatabaseModifiedError &amp;) {
 	}
