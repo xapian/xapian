@@ -1221,8 +1221,9 @@ static bool test_userweight1()
 {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_weighting_scheme(MyWeight());
-    char * query[] = { "this", "line", "paragraph", "rubbish" };
-    enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, query, query + sizeof(query) / sizeof(char*)));
+    const char * query[] = { "this", "line", "paragraph", "rubbish" };
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, query,
+				    query + sizeof(query) / sizeof(query[0])));
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);
 
     // MyWeight scores 1 for each matching term, so the weight should equal

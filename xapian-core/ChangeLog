@@ -1,3 +1,7 @@
+Tue Mar 01 16:21:07 GMT 2005  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Fixed warning from Sun's C++ compiler.
+
 Tue Mar 01 02:02:15 GMT 2005  Olly Betts <olly@survex.com>
 
 	* bin/quartzcompact.cc: Extended to allow merging several quartz
