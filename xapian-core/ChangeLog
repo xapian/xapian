@@ -1,3 +1,10 @@
+Tue May 16 12:06:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Created an OmDatabase object.  This represents a database,
+	  and is a base class for OmWritableDatabase, which is a database
+	  which can be written to.  Implemented, except for assignment
+	  operators which may operate incorrectly.
+
 Mon May 15 13:34:39 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Moved OmDatabaseGroup into a separate header file.

@@ -30,6 +30,9 @@
 
 #include <vector>
 
+///////////////////////////////////////////////////////////////////////
+// Translation of types as strings to types as enum om_database_type
+
 // Table of names of database types
 stringToType<om_database_type> stringToTypeMap<om_database_type>::types[] = {
     { "da_flimsy",		OM_DBTYPE_MUSCAT36_DA_F	},
@@ -43,15 +46,16 @@ stringToType<om_database_type> stringToTypeMap<om_database_type>::types[] = {
     { "",			OM_DBTYPE_NULL		}  // End
 };
 
-OmWritableDatabase::Internal::Internal(const string & type,
-				       const vector<string> & paths)
+OmDatabase::Internal::Internal(const string & type,
+			       const vector<string> & paths,
+			       bool readonly)
 {
     // Convert type into an om_database_type
     om_database_type dbtype = OM_DBTYPE_NULL;
     dbtype = stringToTypeMap<om_database_type>::get_type(type);
 
     // Prepare parameters to build database with (open it writable)
-    DatabaseBuilderParams params(dbtype, false);
+    DatabaseBuilderParams params(dbtype, readonly);
     params.paths = paths;
 
     // Open database

@@ -24,20 +24,49 @@
 #include "om/omerror.h"
 #include "omwritabledbinternal.h"
 
-OmWritableDatabase::OmWritableDatabase(const string & type,
-				       const vector<string> & params)
-	: internal(new OmWritableDatabase::Internal(type, params))
+OmDatabase::OmDatabase(const string & type,
+		       const vector<string> & params,
+		       bool readonly)
+	: internal(new OmDatabase::Internal(type, params, readonly))
 {
 }
 
-OmWritableDatabase::~OmWritableDatabase()
+OmDatabase::OmDatabase(const string & type,
+		       const vector<string> & params)
+	: internal(new OmDatabase::Internal(type, params, true))
+{
+}
+
+OmDatabase::OmDatabase(const OmDatabase &other)
+	: internal(new Internal(*(other.internal)))
+{
+}
+
+void
+OmDatabase::operator=(const OmDatabase &other)
+{
+    // FIXME: 
+    OmLockSentry locksentry(internal->mutex);
+    // pointers are reference counted.
+    internal->mydb = other.internal->mydb;
+}
+
+OmDatabase::~OmDatabase()
 {
     delete internal;
 }
 
-OmWritableDatabase::OmWritableDatabase(const OmWritableDatabase &other)
+
+
+OmWritableDatabase::OmWritableDatabase(const string & type,
+				       const vector<string> & params)
+	: OmDatabase(type, params, false)
 {
-    internal = new Internal(*(other.internal));
+}
+
+OmWritableDatabase::OmWritableDatabase(const OmWritableDatabase &other)
+	: OmDatabase(other)
+{
 }
 
 void
@@ -46,6 +75,10 @@ OmWritableDatabase::operator=(const OmWritableDatabase &other)
     OmLockSentry locksentry(internal->mutex);
     // pointers are reference counted.
     internal->mydb = other.internal->mydb;
+}
+
+OmWritableDatabase::~OmWritableDatabase()
+{
 }
 
 om_docid

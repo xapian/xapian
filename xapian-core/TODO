@@ -20,9 +20,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Urgent  | Chris           | Juggle
 ---------+-----------------+--------------------------------------------------
- High    | API             | Make OmDatabase object, which OmWritableDatabase
-         |                 | (and OmDatabaseGroup ?) inherit from.
----------+-----------------+--------------------------------------------------
  High    | InMemory        | Remove hardcoded reference to an indexer in
          |                 | InMemoryDatabase.  Index to it in the usual way.
 ---------+-----------------+--------------------------------------------------

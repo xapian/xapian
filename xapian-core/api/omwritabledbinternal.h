@@ -27,7 +27,6 @@
 
 #include "omlocks.h"
 #include "omrefcnt.h"
-#include "database_builder.h"
 #include "database.h"
 #include "om/omdatabase.h"
 
@@ -37,7 +36,7 @@
 
 /** Reference counted internals for OmWritableDatabase.
  */
-class OmWritableDatabase::Internal {
+class OmDatabase::Internal {
     public:
 	/** Make a new internal object, with the user supplied parameters.
 	 *
@@ -49,7 +48,8 @@ class OmWritableDatabase::Internal {
 	 *                 on database type.
 	 */
 	Internal(const string & type,
-		 const vector<string> & paths);
+		 const vector<string> & paths,
+		 bool readonly);
 
 	/** Make a copy of this object, copying the ref count pointer.
 	 */

@@ -33,11 +33,76 @@
 /** This class is used to access a database.
  */
 class OmDatabase {
-    private:
+    protected:
 	class Internal;
 
 	/** Reference counted internals. */
 	Internal *internal;
+
+	/** Open a database, possibly readonly.
+	 *
+	 *  This may be used to open a database for writing, and is used
+	 *  in this way by OmWritableDatabase.
+	 *
+	 *  @param type    a string describing the database type.
+	 *  @param params  a vector of parameters to be used to open the
+	 *                 database: meaning and number required depends
+	 *                 on database type.
+	 *
+	 *  @exception OmInvalidArgumentError will be thrown if an invalid
+	 *             argument is supplied, for example, an unknown database
+	 *             type.
+	 *  @exception OmOpeningError may be thrown if the database cannot
+	 *             be opened.
+	 *
+	 */
+	OmDatabase(const string & type,
+		   const vector<string> & params,
+		   bool readonly);
+    public:
+	/** Open a database.
+	 *
+	 *  @param type    a string describing the database type.
+	 *  @param params  a vector of parameters to be used to open the
+	 *                 database: meaning and number required depends
+	 *                 on database type.
+	 *
+	 *  @exception OmInvalidArgumentError will be thrown if an invalid
+	 *             argument is supplied, for example, an unknown database
+	 *             type.
+	 *  @exception OmOpeningError may be thrown if the database cannot
+	 *             be opened.
+	 */
+	OmDatabase(const string & type,
+		   const vector<string> & params);
+
+	/** Destroy this handle on the database.
+	 *  If there are no copies of this object remaining, the database
+	 *  will be closed.
+	 */
+	~OmDatabase();
+
+        /** Copying is allowed.  The internals are reference counted, so
+	 *  copying is also cheap.
+	 */
+	OmDatabase(const OmDatabase &other);
+
+        /** Assignment is allowed.  The internals are reference counted,
+	 *  so assignment is also cheap.
+	 */
+	void operator=(const OmDatabase &other);
+};
+
+///////////////////////////////////////////////////////////////////
+// OmWritableDatabase class
+// ========================
+
+/** This class provides writable access to a database.
+ *
+ *  NOTE: this class is still under heavy development, and the interface
+ *  is liable to change in the near future.
+ */
+class OmWritableDatabase : public OmDatabase {
     public:
 	/** Open a database for writing.
 	 *
@@ -52,27 +117,24 @@ class OmDatabase {
 	 *  @exception OmOpeningError may be thrown if the database cannot
 	 *             be opened.
 	 */
-	OmDatabase(const string & type,
+	OmWritableDatabase(const string & type,
 			   const vector<string> & params);
 
 	/** Destroy this handle on the database.
 	 *  If there are no copies of this object remaining, the database
 	 *  will be closed.
-	 *
-	 *  Calling this method will ensure that all changes made are
-	 *  flushed to the database.
 	 */
-	~OmDatabase();
+	~OmWritableDatabase();
 
         /** Copying is allowed.  The internals are reference counted, so
 	 *  copying is also cheap.
 	 */
-	OmDatabase(const OmDatabase &other);
+	OmWritableDatabase(const OmWritableDatabase &other);
 
         /** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is also cheap.
 	 */
-	void operator=(const OmDatabase &other);
+	void operator=(const OmWritableDatabase &other);
 
 	/** Add a new document to the database.
 	 *
@@ -123,10 +185,9 @@ class OmDatabaseGroup {
 
 	/** Add a new database to use.
 	 *
-	 *  The database may not be opened by this call: the system may wait
-	 *  until a get_mset (or similar call).
-	 *  Thus, failure to open the database may not result in an
-	 *  OmOpeningError exception being thrown until the database is used.
+	 *  This call will opened a new database with the specified
+	 *  parameters, and add it to the set of databases to be accessed
+	 *  by this database group.
 	 *
 	 *  The database will always be opened read-only.
 	 *
@@ -139,73 +200,16 @@ class OmDatabaseGroup {
 	 */
 	void add_database(const string & type,
 			  const vector<string> & params);
-};
 
-///////////////////////////////////////////////////////////////////
-// OmWritableDatabase class
-// ========================
-
-/** This class provides writable access to a database.
- *
- *  NOTE: this class is still under heavy development, and the interface
- *  is liable to change in the near future.
- */
-class OmWritableDatabase {
-    private:
-	class Internal;
-
-	/** Reference counted internals. */
-	Internal *internal;
-    public:
-	/** Open a database for writing.
+	/** Add an already opened database to the set of databases to be
+	 *  accessed by this database group.
 	 *
-	 *  @param type    a string describing the database type.
-	 *  @param params  a vector of parameters to be used to open the
-	 *                 database: meaning and number required depends
-	 *                 on database type.
+	 *  The handle on the database will be copied, so may be deleted
+	 *  or reused by the caller as desired.
 	 *
-	 *  @exception OmInvalidArgumentError will be thrown if an invalid
-	 *             argument is supplied, for example, an unknown database
-	 *             type.
-	 *  @exception OmOpeningError may be thrown if the database cannot
-	 *             be opened.
+	 *  @param database_ the opened database to add.
 	 */
-	OmWritableDatabase(const string & type,
-			   const vector<string> & params);
-
-	/** Destroy this handle on the database.
-	 *  If there are no copies of this object remaining, the database
-	 *  will be closed.
-	 *
-	 *  Calling this method will ensure that all changes made are
-	 *  flushed to the database.
-	 */
-	~OmWritableDatabase();
-
-        /** Copying is allowed.  The internals are reference counted, so
-	 *  copying is also cheap.
-	 */
-	OmWritableDatabase(const OmWritableDatabase &other);
-
-        /** Assignment is allowed.  The internals are reference counted,
-	 *  so assignment is also cheap.
-	 */
-	void operator=(const OmWritableDatabase &other);
-
-	/** Add a new document to the database.
-	 *
-	 *  This method atomically adds the document: the result is either
-	 *  that the document is added, or that the document fails to be
-	 *  added and an exception is thrown.
-	 *
-	 *  @param document The new document to be added.
-	 *
-	 *  @return         The document ID of the newly added document.
-	 *
-	 *  @exception OmDatabaseError will be thrown if a problem occurs
-	 *             while writing to the database.
-	 */
-	om_docid add_document(const OmDocumentContents & document);
+	void add_database(const OmDatabase & database_);
 };
 
 #endif /* OM_HGUARD_OMDATABASE_H */
