@@ -40,7 +40,7 @@ using namespace Xapian;
 /// Class used to pass information about a term from lexer to parser.
 class Term {
     // So State can read our name.
-    friend class State;
+    friend class ::State;
 
     string name;
     termpos pos;
