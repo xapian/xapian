@@ -156,10 +156,7 @@ int main(int argc, char *argv[])
       int files = 0;
       map< string, list<string>  > revision_comment_words;
 
-      // ----------------------------------------
-      // no stop words, line granularity
-      // ----------------------------------------
-      Lines lines( cvsdata+"/"+root+"/src", root, package, file_cmt, file_offset); 
+      Lines lines( cvsdata+"/"+root+"/src", root, package, file_cmt, file_offset, "indexing"); 
       string prev_file = "";
       while ( lines.ReadNextLine() ) {
 	if ( lines.currentFile() != prev_file ) {

@@ -30,11 +30,6 @@ class Lines {
   set<string> symbols;
   set<string> symbol_terms;
 
-  set<string> terms_return;
-  list<string> term_list_return;
-  set<string> symbols_return;
-  set<string> symbol_terms_return;
-  
   string code_line;
   string prev_file;
 
@@ -62,8 +57,10 @@ class Lines {
     
     void stemWords( const list<string>& words, list<string>& term_list );
 
+    string message;
+
 public:
-  Lines( const string& p, const string& root, const string& package, const string& file_db, const string& file_offset );
+  Lines( const string& p, const string& root, const string& package, const string& file_db, const string& file_offset, const string&  mes );
   ~Lines();
 
   void updateRevisionComments( map< string, list<string> >& revision_comment_words );
@@ -78,6 +75,7 @@ public:
   string getData();
   string getCodeLineData();
   string getCodeLine();
+  map< string, list<string> > getRevisionCommentWords();
 };
 
 void readTags( const string& fn, set<string>& S );

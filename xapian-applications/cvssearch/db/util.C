@@ -157,11 +157,13 @@ void Lines::stemWords( const list<string>& words, list<string>& term_list ) {
   }
 }
 
-Lines::Lines( const string& p, const string& sroot, const string& pkg, const string& file_db, const string& file_offset ) {
+Lines::Lines( const string& p, const string& sroot, const string& pkg, const string& file_db, const string& file_offset, const string& mes ) {
   
   path = p;
   root = sroot;
   package = pkg;
+  message = mes;
+  
   
   load_offset_file( file_offset, files, offsets );
   
@@ -222,16 +224,6 @@ void Lines::updateRevisionComments( map< string, list<string> >& rcw ) {
   for( map< string, list<string > >::iterator i = revision_comment_words.begin(); i != revision_comment_words.end(); i++ ) {
     if ( rcw[i->first].empty() ) {
       rcw[ i->first ] = i->second;
-    } else {
-      /**
-	 #warning "should take out this assert"
-	 if ( rcw[i->first] != i->second ) {
-	 cerr << "Revision " << i->first << endl;
-	 cerr << "rcw size " << rcw[i->first].size() << endl;
-	 cerr << "new size " << (i->second).size() << endl;
-	 assert(0);
-	 }
-      **/
     }
   }
 }
@@ -330,7 +322,7 @@ bool Lines::ReadNextLine() {
     file_count++;
 
     current_fn = fn;
-    cerr << "... processing " << current_fn << endl;
+    cerr << "..." << message << " " << current_fn << endl;
 
     int offset = atoi(offsets[file_no-1].c_str());
     if( line_no != offset ) {
@@ -382,10 +374,6 @@ bool Lines::ReadNextLine() {
     //      cerr << "...extracted # symbols = " << symbols.size() << endl;
   }
 
-  terms_return = terms;
-  symbols_return = symbols;
-  term_list_return = term_list;
-
   return true;
 
 }
@@ -395,16 +383,20 @@ string Lines::getCodeLine() {
 }
 
 set<string> Lines::getCommentTerms() {
-  return terms_return;
+  return terms;
 }
  
 set<string> Lines::getCodeSymbols() {
   assert( path != "" );
-  return symbols_return;
+  return symbols;
 }
 
 list<string> Lines::getTermList() {
-  return term_list_return;
+  return term_list;
+}
+
+map< string, list<string> > Lines::getRevisionCommentWords() { 
+  return revision_comment_words;
 }
 
 #if SHOW_WARNINGS
@@ -416,7 +408,7 @@ set<string> Lines::getCodeSymbolTerms() {
   
   set<string> code_terms;
  
-  for( set<string>::iterator s = symbols_return.begin(); s != symbols_return.end(); s++ ) {
+  for( set<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
  
     string w = "";
     for( string::const_iterator c = s->begin(); c != s->end(); c++ ) {

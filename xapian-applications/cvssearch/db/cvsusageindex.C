@@ -42,7 +42,7 @@
 // makes things to limit things in this way because symbols
 // could occur in many places.
 
-#define TOTAL_WORDS 200
+#define TOTAL_WORDS 9999999
 #define MAX_WORDS 9999999
 #define MIN_WORDS 1
 
@@ -97,12 +97,12 @@
 void usage(char * prog_name);
 const string database = "db";
 
-void writeDatabase( const string& database_dir, map<string, int>& app_symbol_count, map<string, list<string> >& app_symbol_terms ) {
+void writeDatabase( const string& database_dir, map<string, int>& app_symbol_count, map<string, set<list<string> > >& app_symbol_terms ) {
 
   cerr << "... removing directory " << database_dir << " (if it already exists)" << endl;
   assert( database_dir != "." );
   assert( database_dir != "..");
-  system( ("rm -rf " + database_dir).c_str() );
+  //  system( ("rm -rf " + database_dir).c_str() );
   system( ("rm -rf " + database_dir+"_c").c_str() );
   system( ("rm -rf " + database_dir+"_f").c_str() );
 
@@ -134,8 +134,18 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
     int count = c->second;
     bool isFunction = ( symbol.find("()") != -1 );
 
-    //    cerr <<"*** Symbol " << symbol << " has count " << count << endl;
-    list<string> words = app_symbol_terms[symbol];
+    cerr <<"*** Symbol " << symbol << " has count " << count << ":" << endl;
+
+    // merge all lists together
+    list<string> words;
+    for( set< list<string> >::const_iterator s = app_symbol_terms[symbol].begin(); s != app_symbol_terms[symbol].end(); s++ ) {
+      list<string> L = *s;
+      for (list<string>::const_iterator l = L.begin(); l != L.end(); l++ ) {
+	words.push_back(*l);
+	cerr << (*l) << " ";
+      }
+      cerr << endl;
+    }
 
     OmDocument newdocument;
     int pos = 1;
@@ -218,7 +228,7 @@ int main(int argc, char *argv[]) {
   //
 
   // we consider each comment only once
-  map< string, list<string> > lib_symbol_terms; // accumulated from all its points of usage
+  map< string, set<list<string> > > lib_symbol_terms; // accumulated from all its points of usage
 
   map<string, int> lib_symbol_count;
 
@@ -258,7 +268,7 @@ int main(int argc, char *argv[]) {
       system("rm -f " TEMP "/tags" );
 
       cerr << "Running ctags on " << package_path << endl;
-      string fullpath = cvsdata +"/" + package_path;
+      string fullpath = cvsdata +"/root0/src/" + package_path;
       string cmd = string("ctags ") + string(CTAGS_FLAGS) + " " + fullpath;
       cerr << "Invoking " << cmd << endl;
       system(cmd.c_str());
@@ -283,7 +293,7 @@ int main(int argc, char *argv[]) {
 	}
       }
       
-      package_path = "cvsdata/root0/db/"+package_path;
+      package_path = cvsdata +"/root0/db/"+package_path;
 
       //    string file_cmt = cvsdata+"/database/"+package + ".cmt";
       //    string file_offset = cvsdata +"/database/"+package +".offset";
@@ -318,16 +328,16 @@ int main(int argc, char *argv[]) {
 
       cerr << "... reading " << file_cmt << endl;
 
-      map< string, list<string> > app_symbol_terms; // accumulated from all its points of usage
+      map< string, set<list<string> > > app_symbol_terms; // accumulated from all its points of usage
       map<string, int> app_symbol_count;
       map< string, int > contributed_terms;
 
-      Lines lines( cvsdata, "", package, file_cmt, file_offset ); 
+      Lines lines( cvsdata + "/root0/src/", "", package, file_cmt, file_offset, "accumulating" ); 
 
       while ( lines.ReadNextLine() ) {
 
 	string data = lines.getData();
-	list<string> terms = lines.getTermList();
+	map<string, list<string> > terms = lines.getRevisionCommentWords();
 	set<string> symbols = lines.getCodeSymbols();
           
 	for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
@@ -339,13 +349,24 @@ int main(int argc, char *argv[]) {
 	  if ( app_symbols.find(*i) != app_symbols.end() ) {
 	    app_symbol_count[*i]++; // count number of lines that contain symbol
 
-	    cerr << "*** SYMBOL " << (*i) << endl;
-                  
-	    for( list<string>::iterator t = terms.begin(); t != terms.end(); t++ ) {
-	      cerr << (*t);
-	      app_symbol_terms[*i].push_back(*t);
+	    //	    cerr << "*** APP SYMBOL " << (*i) << endl;
+
+	    // for each revision comment associated with this line, we insert it
+	    for( map<string, list<string> >::iterator r = terms.begin(); r != terms.end(); r++ ) {
+	      list<string> word_list = r->second;
+
+	      /*
+	      for( list<string>::iterator t = word_list.begin(); t != word_list.end(); t++ ) {
+		cerr << (*t) << " ";
+	      }
+	      cerr << endl;
+	      */
+
+	      app_symbol_terms[*i].insert(word_list); // avoid repetition
 	    }
-	    cerr << endl;
+
+
+
 	  }
               
 	  if ( terms.size() < MIN_WORDS ) {
@@ -387,10 +408,18 @@ int main(int argc, char *argv[]) {
 	      
 	      lib_symbol_count[*i]++; // count number of lines that contain symbol
 	      
-	      for( list<string>::iterator t = terms.begin(); t != terms.end(); t++ ) {
-		lib_symbol_terms[*i].push_back(*t);
-		contributed_terms[*i]++;
+	      for( map<string, list<string> >::iterator r = terms.begin(); r != terms.end(); r++ ) {
+		list<string> word_list = r->second;
+
+		for( list<string>::iterator t = word_list.begin(); t != word_list.end(); t++ ) {
+		  //lib_symbol_word_list[*i].push_back(*t);
+		  contributed_terms[*i]++;
+		}
+
+
+		lib_symbol_terms[*i].insert(word_list); // avoid repetition
 	      }
+
 	      //	      cerr << "** NOT ignoring " << (*i) << endl;
 	      lib_symbol_app_count[*i]++;
 	    } else {
