@@ -176,7 +176,7 @@ static void do_topterms() {
 	}
 
 	OMESet topterms;
-	enquire->get_eset(topterms, 50);
+	enquire->get_eset(topterms, 50, rset);
 	//topterms.expand(&rset, &decider);
 
 	gtk_clist_freeze(topterms_widget);
