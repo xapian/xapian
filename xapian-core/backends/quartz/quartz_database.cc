@@ -190,17 +190,29 @@ QuartzDatabase::do_get_document_internal(om_docid did)
     OmDocumentContents document;
 
     document.data = QuartzRecordManager::get_record(
-			*(tables->get_record_table()), did);
+		*(tables->get_record_table()), did);
 
     QuartzAttributesManager::get_all_attributes(
-			*(tables->get_attribute_table()),
-			document.keys,
-			did);
+		*(tables->get_attribute_table()),
+		document.keys,
+		did);
 
-    AutoPtr<QuartzTermList> termlist(new QuartzTermList (
-		RefCntPtr<const QuartzDatabase>(RefCntPtrToThis(), this),
-		*(tables->get_termlist_table()),
-		did));
+    QuartzDatabase::RefCntPtrToThis tmp;
+    QuartzTermList termlist(
+		RefCntPtr<const QuartzDatabase>(tmp, this),
+		tables->get_termlist_table(),
+		did);
+
+    termlist.next();
+    while (!termlist.at_end()) {
+	OmDocumentTerm term(termlist.get_termname());
+	term.wdf = termlist.get_wdf();
+	term.termfreq = termlist.get_termfreq();
+	// FIXME: read appropriate QuartzPositionList, and store it too.
+
+	document.terms.insert(std::make_pair(term.tname, term));
+	termlist.next();
+    }
 
     return document;
 }
@@ -210,7 +222,6 @@ om_doccount
 QuartzDatabase::get_doccount() const
 {
     OmLockSentry sentry(quartz_mutex);
-
     return QuartzRecordManager::get_doccount(*(tables->get_record_table()));
 }
 
@@ -232,7 +243,13 @@ om_doccount
 QuartzDatabase::get_termfreq(const om_termname & tname) const
 {
     OmLockSentry sentry(quartz_mutex);
-    throw OmUnimplementedError("QuartzDatabase::get_termfreq() not yet implemented");
+    return get_termfreq_internal(tname);
+}
+
+om_doccount
+QuartzDatabase::get_termfreq_internal(const om_termname & tname) const
+{
+    throw OmUnimplementedError("QuartzDatabase::get_termfreq_internal() not yet implemented");
 }
 
 bool
@@ -355,6 +372,10 @@ QuartzWritableDatabase::do_cancel_transaction()
 om_docid
 QuartzWritableDatabase::do_add_document(const OmDocumentContents & document)
 {
+    // FIXME: if an error occurs while adding a document, or doing any other
+    // transaction, the modifications so far must be cleared before returning
+    // control to the user - otherwise partial modifications will persist in
+    // memory, and eventually get written to disk.
     OmLockSentry sentry(database_ro.quartz_mutex);
 
     Assert(buffered_tables != 0);
@@ -366,11 +387,13 @@ QuartzWritableDatabase::do_add_document(const OmDocumentContents & document)
 	doclen += term->second.wdf;
     }
 
+    // Set the record, and get the document ID to use.
     om_docid did = QuartzRecordManager::add_record(
 			*(buffered_tables->get_record_table()),
 			document.data,
 			doclen);
 
+    // Set the attributes.
     OmDocumentContents::document_keys::const_iterator key;
     for (key = document.keys.begin(); key != document.keys.end(); key++) {
 	QuartzAttributesManager::add_attribute(
@@ -380,6 +403,11 @@ QuartzWritableDatabase::do_add_document(const OmDocumentContents & document)
 			key->first);
     }
 
+    // Set the termlist.
+    QuartzTermList::set_entries(buffered_tables->get_termlist_table(),
+				did,
+				document.terms,
+				false);
 
     for (term = document.terms.begin(); term != document.terms.end(); term++) {
 #if 0
@@ -421,6 +449,14 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
     }
 #endif
 
+    // Remove the termlist.
+    QuartzTermList::delete_termlist(buffered_tables->get_termlist_table(),
+				    did);
+
+    // Remove the attributes
+    // FIXME: implement
+    
+    // Remove the record.
     QuartzRecordManager::delete_record(*(buffered_tables->get_record_table()),
 				       did);
 }

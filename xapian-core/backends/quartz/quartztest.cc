@@ -526,6 +526,7 @@ static bool test_adddoc2()
     document_in.keys[13] = OmKey("Key13");
     document_in.add_posting("foobar", 1);
     document_in.add_posting("rising", 2);
+    document_in.add_posting("foobar", 3);
 
     OmDocumentContents document_in2;
     document_in2.data.value = "Foobar falling";
@@ -652,7 +653,7 @@ static bool test_unpackint1()
     p = foo.data();
     success = unpack_uint(&p, foo.data() + foo.size(), &result);
     TEST(!success);
-    TEST_EQUAL(p, foo.data());
+    TEST_EQUAL(p, 0);
 
     foo = std::string("\000\002\301\001", 4);
     result = 1;
@@ -675,7 +676,7 @@ static bool test_unpackint1()
 
     success = unpack_uint(&p, foo.data() + foo.size(), &result);
     TEST(!success);
-    TEST_EQUAL(p, foo.data() + 4);
+    TEST_EQUAL(p, 0);
 
     foo = std::string("\377\377\377\377\017\377\377\377\377\020\007\200\200\200\200\200\200\200\000\200\200\200\200\200\200\001\200\200\200\200\200\200", 32);
     result = 1;
@@ -705,7 +706,7 @@ static bool test_unpackint1()
 
     success = unpack_uint(&p, foo.data() + foo.size(), &result);
     TEST(!success);
-    TEST_EQUAL(p, foo.data() + 32);
+    TEST_EQUAL(p, 0);
 
     return true;
 }

@@ -37,22 +37,23 @@ typedef long long           om_int64;
 
 /** Reads an integer from a string starting at a given position.
  *
- *  @param source_ptr   A pointer to a pointer to the data to read.  The
- *                      character pointer will be updated to point to the
- *                      next character to read, or 0 if no more data is to be
- *                      read.
- *  @param source_end   A pointer to the byte after the end of the data to
- *                      read the integer from.
- *  @param result       A pointer to a place to store the result.  If an
- *                      error occurs, the value stored in this location is
- *                      undefined.
+ *  @param src       A pointer to a pointer to the data to read.  The
+ *                   character pointer will be updated to point to the
+ *                   next character to read, or 0 if no more data is to be
+ *                   read.
+ *  @param src_end   A pointer to the byte after the end of the data to
+ *                   read the integer from.
+ *  @param result    A pointer to a place to store the result.  If an
+ *                   error occurs, the value stored in this location is
+ *                   undefined.
  *
  *  @result True if an integer was successfully read.  False if the read
  *          failed.  Failure may either be due to the data running out (in
- *          which case *source_ptr will equal 0), or due to the value
- *          read overflowing the size of result (in which case *source_ptr
- *          will point to wherever the value ends, despite the overflow).
+ *          which case *src will equal 0), or due to the value read
+ *          overflowing the size of result (in which case *src will point
+ *          to wherever the value ends, despite the overflow).
  */
+
 template<class T>
 bool
 unpack_uint(const char ** src,
@@ -70,6 +71,7 @@ unpack_uint(const char ** src,
 
     while(1) {
 	if ((*src) == src_end) {
+	    *src = 0;
 	    return false;
 	}
 
@@ -83,7 +85,10 @@ unpack_uint(const char ** src,
 	    // Overflowed - move to end of this integer
 	    while(1) {
 		if ((part & 0x80) == 0) return false;
-		if ((*src) == src_end) return false;
+		if ((*src) == src_end) {
+		    *src = 0;
+		    return false;
+		}
 		part = static_cast<const om_byte> (**src);
 		(*src)++;
 	    }
@@ -137,7 +142,7 @@ unpack_string(const char ** src,
 
     if (src_end - *src < 0 ||
 	(std::string::size_type)(src_end - *src) < length) {
-	src_end = 0;
+	src = 0;
 	return false;
     }
 
@@ -150,6 +155,29 @@ inline std::string
 pack_string(std::string value)
 {
     return pack_uint(value.size()) + value;
+}
+
+inline bool
+unpack_bool(const char ** src,
+	    const char * src_end,
+	    bool * result)
+{
+    if (*src == src_end) {
+	*src = 0;
+	return false;
+    }
+    switch (*((*src)++)) {
+	case '0': *result = false; return true;
+	case '1': *result = true; return true;
+    }
+    *src = 0;
+    return false;
+}
+
+inline std::string
+pack_bool(bool value)
+{
+    return value ? "1" : "0";
 }
 
 #include "quartz_table_entries.h"

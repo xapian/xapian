@@ -1,8 +1,8 @@
 <Directory>backends/quartz</Directory>
 
 <Description>
-This backend uses BerkeleyDB version 3.1 to store posting lists and
-termlists.  This is planned to be a highly efficient database, using
-compression to store the postlists, and supporting the full range of
-indexing functionality (sessions / transactions / etc).
+This backend uses a custom written Btree management system to store
+posting lists and termlists.  This is planned to be a highly efficient
+database, using compression to store the postlists, and supporting the
+full range of indexing functionality (sessions / transactions / etc).
 </Description>

@@ -29,6 +29,7 @@
 class QuartzTableManager;
 class QuartzBufferedTableManager;
 class QuartzModifications;
+class QuartzTermList;
 
 #include "om/autoptr.h"
 #include "omlocks.h"
@@ -38,6 +39,7 @@ class QuartzModifications;
  */
 class QuartzDatabase : public Database {
     friend class QuartzWritableDatabase;
+    friend class QuartzTermList;
     private:
 	/** Mutex to protect this object against concurrent access.
 	 */
@@ -68,6 +70,8 @@ class QuartzDatabase : public Database {
 	/// Implementation of do_get_document()
 	OmDocumentContents do_get_document_internal(om_docid did);
 
+	/// Implementation of get_termfreq()
+	om_doccount get_termfreq_internal(const om_termname & tname) const;
     public:
 	/** Create and open a quartz database.
 	 *

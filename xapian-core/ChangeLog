@@ -1,3 +1,9 @@
+Thu Oct 19 09:08:50 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* QuartzTermLists now implemented, and roughly tested.  Quartz test
+	  currently fails because databases don't yet have get_termfreq()
+	  implemented.
+
 Wed Oct 18 16:19:42 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Error handler is now set in constructor of OmEnquire - this means
