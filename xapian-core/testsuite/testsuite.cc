@@ -231,8 +231,9 @@ test_driver::runtest(const test_desc *test)
     if (verbose) { \
 	lseek(LOG_FD_FOR_VG, 0, SEEK_SET); \
 	char buf[1024]; \
-	ssize_t c; \
-	while ((c = read(LOG_FD_FOR_VG, buf, sizeof(buf))) != 0) { \
+	while (true) { \
+	    ssize_t c = read(LOG_FD_FOR_VG, buf, sizeof(buf)); \
+	    if (c == 0 || (c < 0 && errno != EINTR)) break; \
 	    if (c > 0) out << string(buf, c); \
 	} \
 	ftruncate(LOG_FD_FOR_VG, 0); \
@@ -484,23 +485,6 @@ test_driver::parse_command_line(int argc, char **argv)
 {
     argv0 = argv[0];
 
-#ifdef HAVE_VALGRIND_MEMCHECK_H
-    if (verbose && RUNNING_ON_VALGRIND) {
-	// Open the fd for valgrind to log to.
-	FILE * f = tmpfile();
-	if (f) {
-	    int fd = fileno(f);
-	    if (fd != -1) {
-		fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_APPEND);
-		if (fd != LOG_FD_FOR_VG) {
-		    dup2(fd, LOG_FD_FOR_VG);
-		    close(fd);
-		}
-	    }
-	}
-    }
-#endif
-
 #ifndef __WIN32__
     if (isatty(1)) {
 	col_red = "\x1b[1m\x1b[31m";
@@ -552,6 +536,23 @@ test_driver::parse_command_line(int argc, char **argv)
 	test_names.push_back(string(argv[optind]));
 	optind++;
     }
+
+#ifdef HAVE_VALGRIND_MEMCHECK_H
+    if (verbose && RUNNING_ON_VALGRIND) {
+	// Open a temporary file for valgrind to log to.
+	FILE * f = tmpfile();
+	if (f) {
+	    int fd = fileno(f);
+	    if (fd != -1) {
+		fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_APPEND);
+		if (fd != LOG_FD_FOR_VG) {
+		    dup2(fd, LOG_FD_FOR_VG);
+		    fclose(f);
+		}
+	    }
+	}
+    }
+#endif
 
     // We need to display something before we start, or the allocation
     // made when the first debug message is displayed is (wrongly) picked

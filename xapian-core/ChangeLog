@@ -1,3 +1,8 @@
+Sun Sep 07 00:09:32 BST 2003  Olly Betts <olly@survex.com>
+
+	* testsuite/testsuite.cc: Actaully open temporary file for valgrind
+	  to log to.
+
 Sat Sep 06 20:50:58 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in,testsuite/testsuite.cc: Fixed up detection of valgrind
