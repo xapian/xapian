@@ -1537,7 +1537,11 @@ print_caption(om_docid m, const string &fmt, const vector<string> &param)
 	string line = text.substr(old_i, i - old_i);
 	std::string::size_type j = line.find('=');
 	if (j != string::npos) {
-	    field[line.substr(0, j)] = line.substr(j + 1);
+	    string key=line.substr(0, j);
+	    string value=field[key];
+	    if (! value.empty()) value+='\t';
+	    value+=line.substr(j + 1);
+	    field[key] = value;
 	} else if (!line.empty()) {
 	    // FIXME: bodge for now
 	    if (field["caption"].empty()) field["caption"] = line;
