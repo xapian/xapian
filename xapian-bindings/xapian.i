@@ -443,14 +443,16 @@ class Enquire {
     string get_description() const;
 };
 
+/* Generated code won't compile if directors are enabled.  Disable for now
+   while we investigate.
 #ifdef SWIGPYTHON
 %feature("director") Weight;
 #endif
+*/
 class Weight {
     private:
 	virtual Weight * clone() const = 0;
     public:
-	Weight();
 	virtual ~Weight();
 
 	virtual std::string name() const = 0;

@@ -1,3 +1,8 @@
+Thu Dec 02 03:05:11 GMT 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,xapian.i: Removed the director for Xapian::Weight for now,
+	  since it was causing swig to generate code which didn't compile.
+
 Thu Dec 02 03:03:39 GMT 2004  Olly Betts <olly@survex.com>
 
 	* python/.cvsignore: Updated.

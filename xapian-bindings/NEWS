@@ -1,4 +1,4 @@
-Xapian-bindings 0.8.4 (2004-12-01):
+Xapian-bindings 0.8.4 (2004-12-02):
 
 General:
 
@@ -23,10 +23,8 @@ General:
 * Second argument to Document::add_posting() isn't optional, but xapian.i
   indicated that it was.
 
-* xapian.i: Wrapped Xapian::Weight and standard subclasses.  The class is
-  marked as needing a director for Python, so you should be able to create your
-  own Weight subclass in Python, but we've not managed to get this to work
-  yet...
+* xapian.i: Wrapped Xapian::Weight and standard subclasses.  Deriving your
+  own weight class in the scripting language isn't currently supported.
 
 * xapian.i: %name is deprecated, so use %rename instead.  This also works
   around a bug in SWIG 1.3.23.
