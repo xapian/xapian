@@ -71,6 +71,28 @@ MyHtmlParser::closing_tag(const string &text)
     }
 }
 
+static om_termpos index_text(const string &s, OmDocumentContents &doc,
+			     OmStem &stemmer, om_termpos pos)
+{    
+    size_t i, j = 0, k;
+    while ((i = s.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				"aabcdefghijklmnopqrstuvwxyz", j))
+	   != string::npos) {
+	
+	j = s.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				"abcdefghijklmnopqrstuvwxyz"
+				"0123456789", i);
+	k = s.find_first_not_of("+-", j);
+	if (k == string::npos || !isalnum(s[k])) j = k;
+	om_termname term = s.substr(i, j - i);
+	lowercase_term(term);
+        term = stemmer.stem_word(term);
+	doc.add_posting(term, pos++);
+	i = j + 1;
+    }
+    return pos;
+}
+
 static string root = "/home/httpd/html/open.muscat.com";
 
 static void
@@ -116,36 +138,9 @@ index_file(const string &url)
     if (p.title != "") record = record +"\ncaption=" + p.title;
     newdocument.data = record;
 
-    int pos = 1;
-    // FIXME: extract to separate function...
-    size_t j = 0;
-    while ((i = p.title.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-				      "abcdefghijklmnopqrstuvwxyz", j))
-	    != string::npos) {
-	
-	j = p.title.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-				      "abcdefghijklmnopqrstuvwxyz"
-				      "0123456789", i);
-	om_termname term = p.title.substr(i, j - i);
-	lowercase_term(term);
-        term = stemmer.stem_word(term);
-	newdocument.add_posting(term, pos++);
-	i = j + 1;
-    }
-    j = 0;
-    while ((i = dump.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-				   "abcdefghijklmnopqrstuvwxyz", j))
-	    != string::npos) {
-	
-	j = dump.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-				   "abcdefghijklmnopqrstuvwxyz"
-				   "0123456789", i);
-	om_termname term = dump.substr(i, j - i);
-	lowercase_term(term);
-        term = stemmer.stem_word(term);
-	newdocument.add_posting(term, pos++);
-	i = j + 1;
-    }
+    om_termpos pos = 1;
+    pos = index_text(p.title, newdocument, stemmer, pos);
+    pos = index_text(dump, newdocument, stemmer, pos);
 
     // Add the document to the database
     db->add_document(newdocument);

@@ -41,9 +41,6 @@
 static bool done_query = false;
 static om_docid last = 0;
 
-list<om_termname> new_terms_list;
-set<om_termname> new_terms;
-
 static OmMSet mset;
 
 static void ensure_match();
@@ -54,6 +51,8 @@ map<om_docid, bool> ticked;
 static OmQuery query;
 static string query_string;
 om_queryop op = OM_MOP_OR; // default matching mode
+
+static QueryParser qp;
 
 querytype
 set_probabilistic(const string &newp, const string &oldp)
@@ -68,7 +67,6 @@ set_probabilistic(const string &newp, const string &oldp)
     }
 
     // call YACC generated parser
-    QueryParser qp;
     qp.set_stemming_options(option["no_stem"] == "true" ? "english" : "",
 			    option["all_stem"] == "true"); 
     query = qp.parse_query(raw_prob);
@@ -91,14 +89,14 @@ set_probabilistic(const string &newp, const string &oldp)
 	n_old_terms++;
     }
     // short-cut: if the new query has fewer terms, it must be a new one
-    if (new_terms.size() < n_old_terms) return NEW_QUERY;
+    if (qp.termset.size() < n_old_terms) return NEW_QUERY;
     
     while ((pend = strchr(term, '.')) != NULL) {
-	if (new_terms.find(string(term, pend - term)) == new_terms.end())
+	if (qp.termset.find(string(term, pend - term)) == qp.termset.end())
 	    return NEW_QUERY;
 	term = pend + 1;
     }
-    if (new_terms.size() > n_old_terms) return EXTENDED_QUERY;
+    if (qp.termlist.size() > n_old_terms) return EXTENDED_QUERY;
     return SAME_QUERY;
 }
 
@@ -460,12 +458,12 @@ eval(const string &fmt)
 	    if (var == "freqs") {
 		ensure_match();
 		ok = true;
-		if (!new_terms_list.empty()) {
+		if (!qp.termlist.empty()) {
 		    static string val;
 		    if (val.empty()) {
 			list<om_termname>::const_iterator i;
-			for (i = new_terms_list.begin();
-			     i != new_terms_list.end(); i++) {
+			for (i = qp.termlist.begin();
+			     i != qp.termlist.end(); i++) {
 			    int freq = mset.get_termfreq(*i);
 			    val = val + *i + ":&nbsp;"
 				+ pretty_sprintf("%d", &freq) + '\t';
@@ -722,12 +720,12 @@ eval(const string &fmt)
 	    }
 	    if (var == "queryterms") {
 		ok = true;
-		if (!new_terms_list.empty()) {
+		if (!qp.termlist.empty()) {
 		    static string val;
 		    if (val.empty()) {
 			list<om_termname>::const_iterator i;
-			for (i = new_terms_list.begin();
-			     i != new_terms_list.end(); i++) {
+			for (i = qp.termlist.begin();
+			     i != qp.termlist.end(); i++) {
 			    val = val + *i + '\t';
 			}		    
 			if (!val.empty()) val.erase(val.size() - 1);
@@ -927,7 +925,7 @@ print_caption(om_docid m, const string &fmt)
     if (scale < 0) {
 	double denom = 0;
 	list<om_termname>::const_iterator i;
-	for (i = new_terms_list.begin(); i != new_terms_list.end(); i++)
+	for (i = qp.termlist.begin(); i != qp.termlist.end(); i++)
 	    denom += mset.get_termweight(*i);
 	denom *= mset.items[0].wt;
 	scale = 0;

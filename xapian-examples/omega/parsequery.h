@@ -23,6 +23,9 @@
 #ifndef OM_HGUARD_PARSEQUERY_H
 #define OM_HGUARD_PARSEQUERY_H
 
+#include <string>
+#include <om/om.h>
+
 class QueryParser {
     public:
 	QueryParser() {
@@ -30,6 +33,8 @@ class QueryParser {
 	}
 	void set_stemming_options(const string &lang, bool stem_all_ = false);
 	OmQuery parse_query(const string &q);
+	list<om_termname> termlist;
+	set<om_termname> termset;
 };
 
 #endif /* OM_HGUARD_PARSEQUERY_H */

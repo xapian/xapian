@@ -39,15 +39,17 @@ class U {
 
 #define YYSTYPE U
 
+#include "parsequery.h"
+
 static int yyparse();
 static int yyerror(const char *s);
 static int yylex();
 
 static OmQuery query;
 
-#include "parsequery.h"
-#include "omega.h"
-#include "query.h"
+static QueryParser *qp;
+static string q;
+    
 %}
 
 /* BISON Declarations */
@@ -119,7 +121,7 @@ hypphr:   TERM HYPHEN TERM	{ $$.v.push_back($1.q); $$.v.push_back($3.q); }
 
 %%
 
-static string::const_iterator q_ptr;
+static string::size_type qptr;
 static int pending_token;
 static om_termpos termpos;
 static bool stem, stem_all;
@@ -148,8 +150,8 @@ QueryParser::set_stemming_options(const string &lang, bool stem_all_)
 static inline int
 next_char()
 {
-   if (q_ptr == raw_prob.end()) return EOF;
-   return *q_ptr++;
+   if (qptr >= q.size()) return EOF;
+   return q[qptr++];
 }
 
 // FIXME: allow domain:uk in query...
@@ -167,35 +169,38 @@ yylex()
 	return c;
     }
     
-    /* skip white space  */
-    while (isspace((c = next_char())))
-	;
+    /* skip whitespace */
+    qptr = q.find_first_not_of(" \t\n\r\f\v", qptr);
+    if (qptr == string::npos) return 0;
+
     /* process terms */
-    if (isalnum(c)) {
+    if (isalnum(q[qptr])) {
 	string term;
 	bool stem_term = stem;
-	term = char(c);
-	c = next_char();
-	while (isalnum(c)) {
-	    term += char(c);
-	    c = next_char();
+	string::size_type term_end;
+	term_end = q.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				       "abcdefghijklmnopqrstuvwxyz"
+				       "0123456789", qptr);
+	if (term_end != string::npos) {
+	    string::size_type end2 = q.find_first_not_of("+-", term_end);
+	    if (end2 == string::npos || !isalnum(q[end2])) term_end = end2;
 	}
-	if (c == '.') {
-	    // "example.com" should give "exampl" and "com" - need EOF or
-	    // space after '.' to mean "don't stem"
-	    c = next_char();
-	    if (c == EOF || isspace(c)) stem_term = false;	    
-	}
-	if (c == '-') {
-	    int newc = next_char();
-	    if (isalnum(newc)) {
-		pending_token = HYPHEN;
-		c = newc;
-	    } else {
-		q_ptr--;
+	term = q.substr(qptr, term_end - qptr);
+	qptr = term_end;
+	if (qptr != string::npos) {
+	    if (q[qptr] == '.') {
+		// "example.com" should give "exampl" and "com" - need EOF or
+		// space after '.' to mean "don't stem"
+		qptr++;
+		if (qptr == q.size() || isspace(q[qptr])) stem_term = false;
+	    }
+	    if (q[qptr] == '-') {
+		if (qptr + 1 != q.size() && isalnum(q[qptr + 1])) {
+		    qptr++;
+		    pending_token = HYPHEN;
+		}
 	    }
 	}
-	if (c != EOF) q_ptr--;
 	if (term == "AND") {
 	    return AND;
         } else if (term == "OR") {
@@ -209,13 +214,12 @@ yylex()
         }
 	if (stem_term) term = stemmer->stem_word(term);
 	yylval = U(OmQuery(term, 1, termpos++));
-	new_terms_list.push_back(term);
-	new_terms.insert(term);
+	qp->termlist.push_back(term);
+	qp->termset.insert(term);
 	return TERM;
     }
+    c = q[qptr++];
     switch (c) {
-     case EOF:
-	return 0;
      case '&':
 	return AND;
      case '|':
@@ -232,11 +236,13 @@ yyerror(const char *s)
 }
 
 OmQuery
-QueryParser::parse_query(const string &q)
+QueryParser::parse_query(const string &q_)
 {
+    qp = this;
+    q = q_;
     pending_token = 0;
     termpos = 1;
-    q_ptr = q.begin();
+    qptr = 0;
     if (yyparse() == 1) {
 	throw "query failed to parse";
     }

@@ -47,6 +47,4 @@ extern om_queryop op;
 
 extern string raw_prob;
 extern map<om_docid, bool> ticked;
-extern list<om_termname> new_terms_list;
-extern set<om_termname> new_terms;
 #endif /* QUERY_H */

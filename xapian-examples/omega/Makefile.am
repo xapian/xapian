@@ -8,10 +8,13 @@ EXTRA_DIST = parsequery.cc
 
 INCLUDES = $(LIBOMUS_CFLAGS)
 
-bin_PROGRAMS = omega omindex
+bin_PROGRAMS = omega omindex parsequerytest
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc parsequery.yy utils.cc
 omega_LDADD = @LIBOMUS_LIBS@
 
 omindex_SOURCES = omindex.cc htmlparse.cc
 omindex_LDADD = @LIBOMUS_LIBS@
+
+parsequerytest_SOURCES = parsequerytest.cc parsequery.yy
+parsequerytest_LDADD = @LIBOMUS_LIBS@
