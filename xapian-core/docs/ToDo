@@ -4,6 +4,7 @@ ToDo items on the coding side.
 Near term (within a fortnight)
 =========================
 
+Make all debugging printf / cout stuff occur iff MUS_DEBUG_VERBOSE is defined.
 Split database definition files into database/postlist/termlist files.
 Rename TextfileDatabase (to DynamicDatabase?) - indexer is all that is Textfile.
 Sanify introspection methods - get_database_path, etc.
