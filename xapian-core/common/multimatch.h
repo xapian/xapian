@@ -139,8 +139,6 @@ class MultiMatch
 	void match(om_doccount first,
 		   om_doccount maxitems,
 		   OmMSet & mset,
-		   om_doccount * mbound,
-		   om_weight * greatest_wt,
 		   const OmMatchDecider *mdecider
 		  );
 };

@@ -157,15 +157,13 @@ ProgServer::run()
 	match.match(first,
 		    maxitems,
 		    mset,
-		    &(mset.mbound),
-		    &(mset.max_attained),
 		    0);
 
 	cerr << "done get_mset..." << endl;
 
 	buf.writeline(string("MSETITEMS ") +
 		      inttostring(mset.items.size()) + " "
-		      + doubletostring(match.get_max_weight()));
+		      + doubletostring(mset.max_possible));
 
 	cerr << "sent size, maxweight..." << endl;
 

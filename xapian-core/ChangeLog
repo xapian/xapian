@@ -1,3 +1,8 @@
+Tue May  9 12:21:35 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* MultiMatch::match() now returns all its results in its OmMSet
+	  parameter, which is thus now fully set by this method.
+
 Tue May  9 11:52:05 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* MultiMatch::match() takes an OmMSet instead of a vector<OmMSetItem>.

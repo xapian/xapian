@@ -267,8 +267,6 @@ void
 MultiMatch::match(om_doccount first,
 		  om_doccount maxitems,
 		  OmMSet & mset,
-		  om_doccount * mbound,
-		  om_weight * max_attained,
 		  const OmMatchDecider *mdecider)
 {
     Assert((allow_add_singlematch = false) == false);
@@ -278,7 +276,10 @@ MultiMatch::match(om_doccount first,
 	// Only one mset to get - so get it, and block.
 	leaves.front()->prepare_match(false);
 	leaves.front()->get_mset(first, maxitems, mset.items,
-				 mbound, max_attained, mdecider, false);
+				 &(mset.mbound), &(mset.max_attained),
+				 mdecider, false);
+	mset.firstitem = first;
+	mset.max_possible = get_max_weight();
     } else if(leaves.size() > 1) {
 	// Need to merge msets.
 	om_doccount tot_mbound = 0;
@@ -333,9 +334,10 @@ MultiMatch::match(om_doccount first,
 		mset.items.erase(mset.items.begin(), mset.items.begin() + first);
 	    }
 	}
+	mset.firstitem = first;
 
-	// Set the mbound and max_attained appropriately.
-	*mbound       = tot_mbound;
-	*max_attained = tot_greatest_wt;
+	mset.mbound       = tot_mbound;
+	mset.max_attained = tot_greatest_wt;
+	mset.max_possible = get_max_weight();
     }
 }
