@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +29,8 @@
 #include <map>
 #include <string>
 
+using namespace std;
+
 // Heuristics:
 // * If any terms have been removed, it's a "fresh query" so we discard any
 //   relevance judgements
@@ -48,8 +51,10 @@ void add_bterm(const string &);
 extern OmQuery::op default_op;
 
 extern string raw_prob;
-extern std::map<om_docid, bool> ticked;
+extern map<om_docid, bool> ticked;
 
 extern void report_error(const string &title, const string &msg);
-    
+
+extern string pretty_term(const string & word);
+
 #endif /* QUERY_H */

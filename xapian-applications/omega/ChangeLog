@@ -1,3 +1,8 @@
+Fri Jun 14 00:07:20 BST 2002  Olly Betts <olly@survex.com>
+
+	* $prettyterm{} no longer adds a trailing '.' if the term also exists
+	  with an R prefix and stems to itself.
+
 Fri Jun 14 00:02:16 BST 2002  Olly Betts <olly@survex.com>
 
 	* MORELIKE can now take a termname - this allows MORELIKE to be used

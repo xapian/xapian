@@ -4,6 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Lemur Consulting Ltd
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,13 +34,7 @@
 #include <map>
 #include <vector>
 
-// FIXME: yuckky
-using std::string;
-using std::vector;
-using std::map;
-using std::multimap;
-using std::cout;
-using std::endl;
+using namespace std;
 
 extern string dbname;
 extern string fmtname;
@@ -65,11 +60,19 @@ extern string date1, date2, daysminus;
 extern const string default_dbname;
 
 class ExpandDeciderOmega : public OmExpandDecider {
+    private:
+	OmDatabase db;
     public:
+	ExpandDeciderOmega(const OmDatabase &db_) : db(db_) { }
 	int operator()(const om_termname & tname) const {
 	    // only suggest 4 or more letter words for now to
 	    // avoid italian problems FIXME: fix this at index time
 	    if (tname.length() <= 3) return false;
+
+	    // Ignore a term that only occurs once (a hapax) since it's not
+	    // useful for finding related documents - it only occurs in a
+	    // document that's already been marked as relevant
+	    if (db.get_termfreq(tname) <= 1) return false;
 
 	    // Raw terms are OK, otherwise avoid terms with a prefix or with a space in
 	    if (tname[0] == 'R') return true;

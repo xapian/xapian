@@ -1333,14 +1333,7 @@ eval(const string &fmt, const vector<string> &param)
 		value = int_to_string(percent);
 		break;
 	    case CMD_prettyterm:
-		value = args[0];
-		if (!value.empty()) {
-		    if (value.length() >= 2 && value[0] == 'R') {
-			value = char(toupper(value[1])) + value.substr(2);
-		    } else {
-			value += '.';
-		    }
-		}
+		value = pretty_term(args[0]);
 		break;
 	    case CMD_query:
 		value = raw_prob;
@@ -1456,7 +1449,7 @@ eval(const string &fmt, const vector<string> &param)
 
 		    // List of expand terms
 		    OmESet eset;
-		    ExpandDeciderOmega decider;
+		    ExpandDeciderOmega decider(*omdb);
 
 		    if (!rset->empty()) {
 			eset = enquire->get_eset(howmany, *rset, 0, &decider);
@@ -1557,6 +1550,30 @@ eval_file(const string &fmtfile)
     throw msg;
 }
 
+extern string
+pretty_term(const string & term)
+{
+    if (term.empty()) return term;
+    
+    if (term.length() >= 2 && term[0] == 'R')
+	return char(toupper(term[1])) + term.substr(2);
+
+    // If the term wasn't indexed unstemmed, it's probably a non-term
+    // e.g. "litr" - the stem of "litre"
+    if (!omdb->term_exists('R' + term))
+	return term + '.';
+
+    if (!stemmer)
+	stemmer = new OmStem(option["no_stem"] == "true" ? "" : "english");
+
+    // The term is present unstemmed, but if it would stem further it still
+    // needs protecting
+    if (stemmer->stem_word(term) != term)
+	return term + '.';
+ 
+    return term;
+}
+	    
 /* return a sane (1-100) percentage value for ratio */
 static int
 percentage(double ratio)
