@@ -1,3 +1,7 @@
+Sun Dec 10 17:28:21 GMT 2000 Olly Betts
+
+	* OmDocumentContents -> OmDocument.
+
 Sun Dec 10 17:04:14 GMT 2000 Olly Betts
 
 	* OmESetItem -> OmESetIterator.

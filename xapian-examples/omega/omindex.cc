@@ -100,8 +100,8 @@ MyHtmlParser::closing_tag(const string &text)
     }
 }
 
-static om_termpos index_text(const string &s, OmDocumentContents &doc,
-			     OmStem &stemmer, om_termpos pos)
+static om_termpos
+index_text(const string &s, OmDocument &doc, OmStem &stemmer, om_termpos pos)
 {    
     size_t i, j = 0, k;
     while ((i = s.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -236,11 +236,11 @@ index_file(const string &url, const string &mimetype)
     while ((i = sample.find('\n', i)) != string::npos) sample[i] = ' ';
 
     // Put the data in the document
-    OmDocumentContents newdocument;
+    OmDocument newdocument;
     string record = "url=" + url + "\nsample=" + sample;
     if (title != "") record = record + "\ncaption=" + title;
     record = record + "\ntype=" + mimetype;
-    newdocument.data = record;
+    newdocument.set_data(record);
 
     // Add postings for terms to the document
     om_termpos pos = 1;
