@@ -90,10 +90,9 @@ class SingleMatch : public OmRefCntBase
 	// Set additional options for performing the query
 	// ===============================================
 
-	/** Set relevance information - the RSet object should not be
-	 *  altered after this call.
+	/** Set relevance information.
 	 */
-	virtual void set_rset(RSet * rset_) = 0;
+        virtual void set_rset(const OmRSet & omrset) = 0;
 
 	/** Set weighting scheme.
 	 *  FIXME: fold this into set_options()

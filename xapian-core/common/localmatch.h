@@ -84,7 +84,7 @@ class LocalMatch : public SingleMatch
 	vector<IRWeight *> weights;
 
 	/// RSet to be used (affects weightings)
-	RSet *rset;
+	auto_ptr<RSet> rset;
 
 	/// Weighting scheme which has been requested.
 	IRWeight::weight_type requested_weighting;
@@ -120,15 +120,14 @@ class LocalMatch : public SingleMatch
 				 const vector<OmQueryInternal *> & queries);
 
 	/// Open a postlist
-	LeafPostList * mk_postlist(const om_termname& tname, RSet * rset);
+	LeafPostList * mk_postlist(const om_termname& tname);
 
 	/// Make the extra weight object if needed
 	void mk_extra_weight();
 	
 	/// Make a weight
 	IRWeight * mk_weight(om_doclength querysize_,
-			     om_termname tname_,
-			     const RSet * rset_);
+			     om_termname tname_);
 
 	/// Clear the query tree (and the associated weights)
 	void del_query_tree();
@@ -153,7 +152,7 @@ class LocalMatch : public SingleMatch
 
 	void set_query(const OmQueryInternal * query_);
 
-        void set_rset(RSet * rset_);
+        void set_rset(const OmRSet & omrset);
 	void set_weighting(IRWeight::weight_type wt_type_);
 	void set_options(const OmMatchOptions & moptions_);
 

@@ -115,13 +115,13 @@ LocalMatch::~LocalMatch()
 }
 
 LeafPostList *
-LocalMatch::mk_postlist(const om_termname& tname, RSet * rset)
+LocalMatch::mk_postlist(const om_termname& tname)
 {
     // FIXME - this should be centralised into a postlist factory
     LeafPostList * pl = database->open_post_list(tname);
-    if(rset) rset->will_want_reltermfreq(tname);
+    if(rset.get() != 0) rset->will_want_reltermfreq(tname);
 
-    IRWeight * wt = mk_weight(1, tname, rset);
+    IRWeight * wt = mk_weight(1, tname);
     statssource.my_termfreq_is(tname, pl->get_termfreq());
     // Query size of 1 for now.  FIXME
     pl->set_termweight(wt);
@@ -133,18 +133,17 @@ void
 LocalMatch::mk_extra_weight()
 {
     if(extra_weight == 0) {
-	extra_weight = mk_weight(1, "", rset);
+	extra_weight = mk_weight(1, "");
     }
 }
 
 IRWeight *
 LocalMatch::mk_weight(om_doclength querysize_,
-		     om_termname tname_,
-		     const RSet * rset_)
+		     om_termname tname_)
 {
     IRWeight * wt = IRWeight::create(actual_weighting);
     weights.push_back(wt); // Remember it for deleting
-    wt->set_stats(&statssource, querysize_, tname_, rset_);
+    wt->set_stats(&statssource, querysize_, tname_, rset.get());
     return wt;
 }
 
@@ -185,12 +184,11 @@ LocalMatch::set_options(const OmMatchOptions & moptions_)
 
 
 void
-LocalMatch::set_rset(RSet *rset_)
+LocalMatch::set_rset(const OmRSet & omrset)
 {
     Assert(!is_prepared);
-    Assert(query == NULL);
-    rset = rset_;
     del_query_tree();
+    rset = auto_ptr<RSet>(new RSet(database, omrset));
 }
 
 void
@@ -321,7 +319,7 @@ LocalMatch::postlist_from_query(const OmQueryInternal *query_)
 	    Assert(query_->subqs.size() == 0);
 	    if (database->term_exists(query_->tname)) {
 		DebugMsg("Leaf: tname = " << query_->tname << endl);
-		pl = mk_postlist(query_->tname, rset);
+		pl = mk_postlist(query_->tname);
 	    } else {
 		DebugMsg("Leaf: tname = " << query_->tname << " (not in database)" << endl);
 		// Term doesn't exist in this database.  However, we create
@@ -410,6 +408,10 @@ LocalMatch::build_query_tree()
 
     DebugMsg("LocalMatch::query = (" << query->intro_term_description() <<
 	     ")" << endl);
+
+    if (rset.get() != 0) {
+	rset->calculate_stats();
+    }
 }
 
 ///////////////////

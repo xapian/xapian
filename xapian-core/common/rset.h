@@ -46,16 +46,20 @@ class RSet {
 
 	IRDatabase *root;
 
-	mutable map<om_termname, om_doccount> reltermfreqs;
-	mutable bool initialised_reltermfreqs;
+	map<om_termname, om_doccount> reltermfreqs;
+	bool calculated_reltermfreqs;
     public:
 	vector<RSetItem> documents; // FIXME - should be encapsulated
 
+	// FIXME: should take a OmRefCntPtr to an IRDatabase
 	RSet(IRDatabase *root_new);
-	RSet(IRDatabase *root_new, const OmRSet & _rset);
+	RSet(IRDatabase *root_new, const OmRSet & omrset);
 
 	void add_document(om_docid did);
-	void will_want_reltermfreq(om_termname tname) const;
+	void will_want_reltermfreq(om_termname tname);
+
+	void calculate_stats();
+
 	om_doccount get_rsize() const;
 	om_doccount get_reltermfreq(om_termname tname) const;
 };
@@ -67,16 +71,16 @@ class RSet {
 // Empty initialisation
 inline
 RSet::RSet(IRDatabase *root_new)
-	: root(root_new), initialised_reltermfreqs(false)
+	: root(root_new), calculated_reltermfreqs(false)
 {}
 
 // Initialise with an OMRset
 inline
-RSet::RSet(IRDatabase *root_new, const OmRSet & _rset)
-	: root(root_new), initialised_reltermfreqs(false)
+RSet::RSet(IRDatabase *root_new, const OmRSet & omrset)
+	: root(root_new), calculated_reltermfreqs(false)
 {
     set<om_docid>::const_iterator i;
-    for(i = _rset.items.begin(); i != _rset.items.end(); i++) {
+    for(i = omrset.items.begin(); i != omrset.items.end(); i++) {
 	add_document(*i);
     }
 }
@@ -85,8 +89,14 @@ inline void
 RSet::add_document(om_docid did)
 {
     // FIXME - check that document isn't already in rset
-    Assert(!initialised_reltermfreqs);
+    Assert(!calculated_reltermfreqs);
     documents.push_back(RSetItem(did));
+}
+
+inline void
+RSet::will_want_reltermfreq(om_termname tname)
+{
+    reltermfreqs[tname] = 0;
 }
 
 inline om_doccount
@@ -95,10 +105,16 @@ RSet::get_rsize() const
     return documents.size();
 }
 
-inline void
-RSet::will_want_reltermfreq(om_termname tname) const
+inline om_doccount
+RSet::get_reltermfreq(om_termname tname) const
 {
-    reltermfreqs[tname] = 0;
+    Assert(calculated_reltermfreqs);
+
+    map<om_termname, om_doccount>::const_iterator rfreq;
+    rfreq = reltermfreqs.find(tname);
+    Assert(rfreq != reltermfreqs.end());
+
+    return rfreq->second;
 }
 
 #endif /* OM_HGUARD_RSET_H */

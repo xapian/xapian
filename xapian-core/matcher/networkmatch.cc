@@ -182,7 +182,7 @@ NetworkMatch::set_options(const OmMatchOptions & moptions_)
 }
 
 void
-NetworkMatch::set_rset(RSet *rset_)
+NetworkMatch::set_rset(const OmRSet & omrset)
 {
     Assert(false);
 #if 0

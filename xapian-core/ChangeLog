@@ -1,3 +1,15 @@
+Wed May 17 15:56:52 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Pass relevance sets around as OmRSets, only creating an RSet within
+	  LocalMatch.  RSet now has a method to tell it to calculate the
+	  statistics, which is called after the query has been constructed,
+	  paving the way for integration with StatsSources.
+
+Wed May 17 15:56:36 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Ensure that the a refcount pointer is not made from a standard pointer
+	  more than once.
+
 Tue May 16 16:29:25 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* apitest now performs its own indexing for tests.  Next step is to

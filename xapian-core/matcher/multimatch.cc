@@ -77,15 +77,14 @@ MultiMatch::set_query(const OmQueryInternal * query)
 }
 
 void
-MultiMatch::set_rset(auto_ptr<RSet> rset_)
+MultiMatch::set_rset(const OmRSet & omrset)
 {
-    rset = rset_;
     for(vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
-	(*i)->set_rset(rset.get());
+	(*i)->set_rset(omrset);
     }
 
-    gatherer->set_global_stats(rset->get_rsize());
+    gatherer->set_global_stats(omrset.items.size());
 }
 
 void

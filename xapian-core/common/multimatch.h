@@ -47,9 +47,6 @@ class MultiMatch
 	/// stats gatherer
 	auto_ptr<StatsGatherer> gatherer;
 
-	/// Saved RSet (so that it can delete it properly)
-	auto_ptr<RSet> rset;
-
 	/// Comparison functor for sorting MSet
 	OmMSetCmp mcmp;
 
@@ -176,7 +173,7 @@ class MultiMatch
 	~MultiMatch();
 
 	void set_query(const OmQueryInternal * query);
-	void set_rset(auto_ptr<RSet> rset_);
+	void set_rset(const OmRSet & omrset);
 	void set_weighting(IRWeight::weight_type wt_type);
 	void set_options(const OmMatchOptions & moptions_);
 

@@ -216,8 +216,7 @@ OmEnquireInternal::get_mset(om_doccount first,
 
     // Set Rset
     if((omrset != 0) && (omrset->items.size() != 0)) {
-	// FIXME: make rset take a refcntptr
-	match.set_rset(auto_ptr<RSet>(new RSet(database.get(), *omrset)));
+	match.set_rset(*omrset);
     }
 
     // Set weighting scheme
