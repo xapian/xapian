@@ -18,13 +18,15 @@ matcher/multimatch.cc) and ii) in the inmemory database.
 </todoitem>
 <todoitem priority="M" difficulty="" owner="Olly" area="API" release="1.0">
 
-Consider default ctors for any API classes which are missing them.
+Consider default ctors for API classes which don't have them - currently:
+OmEnquire, OmError, and OmStem.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Olly" area="API" release="">
 
 Should it be possible to specify an arbitrary docid for a document (perhaps to
-match numeric docids in another system?)  Currently replace_document() fails
+match numeric docids in another system?)  This is potentially useful, though
+bad for compression in the backend.  Currently replace_document() fails
 if the document id doesn't exist already (at least with quartz).
 
 </todoitem>
@@ -101,7 +103,7 @@ Add get_all_terms DB databases.  Needs extra code in dbread.[ch].
 <todoitem priority="M" difficulty="4" owner="" area="General" release="1.0">
 
 Allow setting of the document length in OmDocument?  (Currently defined to
-be the sum of the wdfs).
+be the sum of the wdfs, which is perhaps the correct definition).
 
 </todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="General" release="">
@@ -224,7 +226,8 @@ backend.
 </todoitem>
 <todoitem priority="L" difficulty="4" owner="" area="API" release="">
 
-Provide explicit support for range searches.
+Provide explicit support for range searches, such as
+"RangePostList" - combine a sequence of adjacent terms...
 
 </todoitem>
 <todoitem priority="L" difficulty="5" owner="" area="Matcher" release="">
@@ -274,7 +277,7 @@ Probably leave until user database backends are possible, then do it
 by subclassing InMemory...
 
 </todoitem>
-<todoitem priority="L" difficulty="4" owner="" area="General" release="1.0">
+<todoitem priority="L" difficulty="4" owner="" area="General" release="">
 
 Allow user written backends?  Be good to allow them to register themselves
 automatically at runtime (or linktime perhaps) to replace current conditional
@@ -289,9 +292,8 @@ Split database definition files into database/postlist/termlist files.
 </todoitem>
 <todoitem priority="V" difficulty="4" owner="" area="General" release="">
 
-A couple of classes get copied a lot - look into doing copy-on-write for
-them.  Notably ExpandBits and term names (currently strings so this happens,
-but may change)
+A few classes get copied a lot (notably OmExpandBits) - look into doing
+copy-on-write for them.  Or perhaps to pass them around more carefully.
 
 </todoitem>
 <todoitem priority="D" difficulty="3" owner="" area="Exceptions" release="">
@@ -416,7 +418,7 @@ collapse.
 <todoitem priority=" " difficulty="" owner="Sam" area="" release="">
 
 Replace Omega with a simpler PHP or Python-based
-system, once the bindings are in place. Python would be good
+system, once the bindings are in place?  Python would be good
 because we could use it for omindex as well, and I suspect the code
 would be much cleaner, easier to work with, and generally
 understandable. For something that should be halfway between a
@@ -435,17 +437,6 @@ Fix up examples and make sure they are actually instructive.  Add a comment
 to each describing what it demonstrates.
 I've made a start.  delve is a reasonable example.  msearch probably needs
 simplifying to just do a probabilistic search, or to use OmQueryParser.
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="" release="">
-
-Investigate and find a proper fix for FILTER problem (believe this
-was fixed by fixes to quartz btree stuff).
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="" release="">
-
-Continue tidying up of quartz/btree code.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="James" area="" release="">
@@ -537,11 +528,6 @@ be good to have.
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">
 
-"RangePostList" - combine a sequence of adjacent terms...
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
-
 Quartz compression using a bitstream.
 
 </todoitem>
@@ -557,7 +543,7 @@ can add articles in date order and search backwards to do "sort by date".
 Date -&gt; terms in scriptindex
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
+<todoitem priority=" " difficulty="" owner="" area="omega" release="">
 
 Rename DATE1/DATE2/DAYSMINUS to better names?  START/END/SPAN?
 Allow other date formats in DATE1 and DATE2.

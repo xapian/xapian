@@ -1,3 +1,7 @@
+Mon Dec 23 04:44:46 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/todo.xml: Updated.
+
 Mon Dec 23 03:22:19 GMT 2002  Olly Betts <olly@survex.com>
 
 	* extra/parsequery.yy: If a stemmed form with a "." is in the query,
