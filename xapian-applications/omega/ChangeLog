@@ -1,3 +1,9 @@
+Sun Jul 27 16:34:19 BST 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am,getopt.c,getopt.h,getopt1.c: Copied our version of GNU
+	  getopt here from xapian-core so we can build omindex on non-glibc
+	  platforms (modifications are for better C++ compatibility).
+
 Mon Jul 21 01:16:59 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Use libtool; OM_PATH_XAPIAN -> XO_LIB_XAPIAN.
