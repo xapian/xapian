@@ -25,7 +25,12 @@ Write (speed) performance test suite.
 Write tests for copying term and postlist iterators.
 
 </todoitem>
-<todoitem priority="M" difficulty="1" owner="" area="OmQuery" release="1.0">
+<todoitem priority="M" difficulty="1" owner="" area="DA/DB" release="1.0">
+
+Add get_all_terms to DA / DB databases.  Needs extra code in dbread.[ch].
+
+</todoitem>
+<todoitem priority="M" difficulty="1" owner="" area="OmQuery" release="0.9">
 
 Add query operator to filter on weight / percentage weight.
 
@@ -35,7 +40,7 @@ Add query operator to filter on weight / percentage weight.
 Make all errors return a context if appropriate.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
+<todoitem priority="M" difficulty="3" owner="" area="API" release="0.9">
 
 API cleanup.  Classes should hide implementation in internals, and should
 not use STL containers as parameters or return types.
@@ -56,13 +61,13 @@ OmIndexerDesc::nodes
 OmIndexerBuilder::NodeType
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
+<todoitem priority="M" difficulty="3" owner="" area="API" release="0.9">
 
 Sort out API classes which expose members: check that this is really what is
 wanted in each case - rework to avoid it if so.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
+<todoitem priority="M" difficulty="3" owner="" area="API" release="0.9">
 
 Rework OmEnquire::get_docs() - make it able to take a vector of docids as well
 as MSetIterators?  General tidy up needed.
@@ -93,7 +98,7 @@ Possibly via a special term which indexes all documents.
 Implement deletion and updating of documents.  Test.
 
 </todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="Quartz" release="1.0">
+<todoitem priority="M" difficulty="2" owner="" area="Quartz" release="0.9">
 
 Implement and test QuartzDatabase::get_doclength().
 
