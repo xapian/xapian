@@ -1,3 +1,10 @@
+Fri May 17 14:45:28 BST 2002  Olly Betts <ollybe@ananova.net>
+
+	* .cvsignore: Updated.
+
+	* simplesearch and simpleexpand moved out of simple and into autotools
+	  build system.
+
 Mon May 13 13:36:26 BST 2002  Olly Betts <olly@survex.com>
 
 	* Started to clean up simple examples and move them into the main

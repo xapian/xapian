@@ -24,13 +24,15 @@
 #include <om/om.h>
 #include <vector>
 
+using namespace std;
+
 int main(int argc, char *argv[])
 {
     // Simplest possible options parsing: we just require two or more
     // parameters.
     if(argc < 3) {
-	std::cout << "usage: " << argv[0] <<
-		" <path to database> <search terms>" << std::endl;
+	cout << "usage: " << argv[0] <<
+		" <path to database> <search terms>" << endl;
 	exit(1);
     }
     
@@ -46,15 +48,15 @@ int main(int argc, char *argv[])
 	OmEnquire enquire(db);
 
 	// Prepare the query terms
-	std::vector<om_termname> queryterms;
+	vector<om_termname> queryterms;
 	for (int optpos = 2; optpos < argc; optpos++) {
 	    queryterms.push_back(argv[optpos]);
 	}
 
 	// Build the query object
 	OmQuery query(OmQuery::OP_OR, queryterms.begin(), queryterms.end());
-	std::cout << "Performing query `" << query.get_description() << "'" <<
-		std::endl;
+	cout << "Performing query `" << query.get_description() << "'" <<
+		endl;
 
 	// Give the query object to the enquire session
 	enquire.set_query(query);
@@ -63,18 +65,17 @@ int main(int argc, char *argv[])
 	OmMSet matches = enquire.get_mset(0, 10);
 
 	// Display the results
-	std::cout << matches.get_matches_estimated() <<
-		" results found" << std::endl;
+	cout << matches.get_matches_estimated() << " results found" << endl;
 
 	for (OmMSetIterator i = matches.begin();
 	     i != matches.end();
 	     i++) {
-	    std::cout << "Document ID " << *i << "\t" <<
+	    cout << "Document ID " << *i << "\t" <<
 		    i.get_percent() << "% [" <<
-		    i.get_document().get_data() << "]" << std::endl;
+		    i.get_document().get_data() << "]" << endl;
 	}
     }
-    catch(OmError &error) {
-	std::cout << "Exception: "  << error.get_msg() << std::endl;
+    catch (OmError &error) {
+	cout << "Exception: "  << error.get_msg() << endl;
     }
 }

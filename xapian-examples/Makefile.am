@@ -1,13 +1,16 @@
 ### Process this file with automake to produce Makefile.in
 
-# Need 1.5 for AM_CFLAGS, etc; also so generated files in EXTRA_DIST work
+# Need 1.5 for AM_CFLAGS, etc
 AUTOMAKE_OPTIONS = 1.5
 
-bin_PROGRAMS = msearch delve createdatabase simpleindex
+bin_PROGRAMS = msearch delve createdatabase simpleindex simplesearch \
+	simpleexpand
 
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
 
 noinst_HEADERS = getopt.h
+
+EXTRA_DIST = COPYING buildall README
 
 msearch_SOURCES = msearch.cc getopt.c getopt1.c
 msearch_LDADD = $(XAPIAN_LIBS)
@@ -22,6 +25,8 @@ createdatabase_LDADD = $(XAPIAN_LIBS)
 simpleindex_SOURCES = simpleindex.cc
 simpleindex_LDADD = $(XAPIAN_LIBS)
 
-EXTRA_DIST = COPYING buildall README \
-simple/README simple/Makefile simple/simpleindex.cc \
-              simple/simpleexpand.cc simple/simplesearch.cc
+simplesearch_SOURCES = simplesearch.cc
+simplesearch_LDADD = $(XAPIAN_LIBS)
+
+simpleexpand_SOURCES = simpleexpand.cc
+simpleexpand_LDADD = $(XAPIAN_LIBS)
