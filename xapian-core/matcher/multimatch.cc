@@ -208,6 +208,40 @@ MultiMatch::merge_msets(vector<OmMSetItem> &mset,
     }
 }
 
+bool
+MultiMatch::add_next_sub_mset(vector<SingleMatch *>::iterator leaf,
+			      om_doccount number_of_leaves,
+			      om_doccount leaf_number,
+			      om_doccount lastitem,
+			      const OmMatchDecider *mdecider,
+			      vector<bool> & mset_received,
+			      vector<SingleMatch *>::size_type *msets_received,
+			      om_doccount * tot_mbound,
+			      om_weight   * tot_greatest_wt,
+			      vector<OmMSetItem> & mset) {
+    om_doccount sub_mbound;
+    om_weight   sub_greatest_wt;
+    vector<OmMSetItem> sub_mset;
+
+    // Get next mset
+    if ((*leaf)->get_mset(0, lastitem, sub_mset, &sub_mbound,
+			  &sub_greatest_wt, mdecider, true)) {
+	(*msets_received)++;
+	mset_received[leaf_number - 1] = true;
+
+	change_docids_to_global(sub_mset, number_of_leaves, leaf_number);
+
+	// Merge stats
+	(*tot_mbound) += sub_mbound;
+	if(sub_greatest_wt > *tot_greatest_wt)
+	    *tot_greatest_wt = sub_greatest_wt;
+
+	merge_msets(mset, sub_mset, lastitem);
+	return true;
+    }
+    return false;
+}
+
 void
 MultiMatch::match(om_doccount first,
 		  om_doccount maxitems,
@@ -230,9 +264,8 @@ MultiMatch::match(om_doccount first,
 	om_weight   tot_greatest_wt = 0;
 	om_doccount lastitem = first + maxitems;
 
-	bool prepared;
+	bool prepared = true;
 	do {
-	    prepared = true;
 	    // Prepare all the msets
 	    for(vector<SingleMatch *>::iterator leaf = leaves.begin();
 		leaf != leaves.end(); leaf++) {
@@ -248,24 +281,6 @@ MultiMatch::match(om_doccount first,
 	om_doccount leaf_number;
 	vector<SingleMatch *>::iterator leaf;
 
-	while (msets_received == 0) {
-	    // Get the first available mset
-	    for (leaf_number=1,
-		 leaf = leaves.begin();
-		 leaf != leaves.end();
-		 ++leaf_number, ++leaf) {
-		if ((*leaf)->get_mset(0, lastitem, mset, &tot_mbound,
-				      &tot_greatest_wt, mdecider, true)) {
-		    // Modify its docids to be compilant with the whole.
-		    change_docids_to_global(mset, leaves.size(), leaf_number);
-
-		    mset_received[leaf_number-1] = true;
-		    msets_received++;
-		    break;
-		}
-	    }
-	}
-
 	// Get subsequent msets, and merge each one with the current mset
 	// FIXME: this approach may be very inefficient - needs attention.
 	while (msets_received != leaves.size()) {
@@ -278,27 +293,16 @@ MultiMatch::match(om_doccount first,
 		    continue;
 		}
 
-		om_doccount sub_mbound;
-		om_weight   sub_greatest_wt;
-		vector<OmMSetItem> sub_mset;
-
-		// Get next mset
-		if ((*leaf)->get_mset(0, lastitem, sub_mset, &sub_mbound,
-				  &sub_greatest_wt, mdecider, true)) {
-		    msets_received++;
-		    mset_received[leaf_number-1] = true;
-
-		    change_docids_to_global(sub_mset,
-					    leaves.size(),
-					    leaf_number);
-
-		    // Merge stats
-		    tot_mbound += sub_mbound;
-		    if(sub_greatest_wt > tot_greatest_wt)
-			tot_greatest_wt = sub_greatest_wt;
-
-		    merge_msets(mset, sub_mset, lastitem);
-		}
+		add_next_sub_mset(leaf,
+				  leaves.size(),
+				  leaf_number,
+				  lastitem,
+				  mdecider,
+				  mset_received,
+				  &msets_received,
+				  &tot_mbound,
+				  &tot_greatest_wt,
+				  mset);
 	    }
 	}
 

@@ -80,6 +80,17 @@ class MultiMatch
 			 vector<OmMSetItem> &more_mset,
 			 om_doccount lastitem);
 
+	bool add_next_sub_mset(vector<SingleMatch *>::iterator leaf,
+			       om_doccount number_of_leaves,
+			       om_doccount leaf_number,
+			       om_doccount lastitem,
+			       const OmMatchDecider *mdecider,
+			       vector<bool> & mset_received,
+			       vector<SingleMatch *>::size_type *msets_received,
+			       om_doccount * tot_mbound,
+			       om_weight   * tot_greatest_wt,
+			       vector<OmMSetItem> & mset);
+
 	// disallow copies
 	MultiMatch(const MultiMatch &);
 	void operator=(const MultiMatch &);

@@ -1,3 +1,8 @@
+Mon May  8 19:14:19 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* In MultiMatch::match(), factor out adding of a new mset to
+	  a separate method, add_next_sub_mset().
+
 Mon May  8 16:42:24 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Moved specification of mset comparison method into Match Options.
