@@ -1,3 +1,8 @@
+Fri Jul 11 22:00:36 BST 2003  Olly Betts <olly@survex.com>
+
+	* HACKING: Added note about additional tools needed for building a
+	  distribution.
+
 Fri Jul 11 15:13:08 BST 2003  Olly Betts <olly@survex.com>
 
 	* NEWS,PLATFORMS,configure.in: Version 0.7.2.
