@@ -163,6 +163,12 @@ inline int stat(const string &filename, struct stat *buf) {
     return stat(filename.c_str(), buf);
 }
 
+/// Touch a file.
+inline void touch(const string &filename) {
+   int fd = open(filename.c_str(), O_CREAT|O_WRONLY, 0644);
+   if (fd >= 0) close(fd);
+}
+
 /// Remove a directory and contents.
 inline void rmdir(const string &filename) {
     // Check filename exists and is actually a directory

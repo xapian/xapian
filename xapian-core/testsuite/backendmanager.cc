@@ -423,7 +423,7 @@ BackendManager::do_getwritedb_quartz(const vector<string> &dbnames,
     }
     if (files_exist(change_names_to_paths(dbnames))) {
 	if (create_dir_if_needed(dbdir)) {
-	    system(string("touch ") + dbdir + "/log");
+	    touch(dbdir + "/log");
 	    // directory was created, so do the indexing.
 	    Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE));
 	    index_files_to_database(db, change_names_to_paths(dbnames));
