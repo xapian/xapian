@@ -395,6 +395,13 @@ them.  Notably ExpandBits and term names (currently strings so this happens,
 but may change)
 
 </todoitem>
+<todoitem priority="D" difficulty="3" owner="" area="Decision functors" release="">
+
+Return a sensible value for OmMSet::matches_lower_bound when a decision
+functor is present: perhaps this should be matches_considered, but then again
+perhaps not.
+
+</todoitem>
 <todoitem priority="D" difficulty="3" owner="" area="API" release="">
 
 Do allow boolean subqueries in OmQuery constructors, where
