@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -78,6 +78,7 @@ class RefCntPtr {
 	RefCntPtr();
 	RefCntPtr(const RefCntPtr &other);
 	void operator=(const RefCntPtr &other);
+	void operator=(T *dest_);
 	~RefCntPtr();
 
 	template <class U>
@@ -103,14 +104,19 @@ inline RefCntPtr<T>::RefCntPtr(const RefCntPtr &other) : dest(other.dest)
 
 template <class T>
 inline void RefCntPtr<T>::operator=(const RefCntPtr &other) {
+    return operator=(other.dest);
+}
+
+template <class T>
+inline void RefCntPtr<T>::operator=(T *dest_) {
     // check if we're assigning a pointer to itself
-    if (dest == other.dest) return;
+    if (dest == dest_) return;
     
     // copy the new dest in before we delete the old to avoid a small
     // window in which dest points to a deleted object
     // FIXME: if pointer assignment isn't atomic, we ought to use locking...
     T *old_dest = dest;
-    dest = other.dest;
+    dest = dest_;
     if (dest) ++dest->ref_count;
     if (old_dest && --old_dest->ref_count == 0) delete old_dest;
 }
