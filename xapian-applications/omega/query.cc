@@ -745,6 +745,7 @@ CMD_score,
 CMD_set,
 CMD_setmap,
 CMD_setrelevant,
+CMD_slice,
 CMD_sub,
 CMD_terms,
 CMD_thispage,
@@ -796,7 +797,7 @@ static struct func_desc func_tab[] = {
 {T(ge),		2, 2, N, 0, 0}}, // test >=
 {T(gt),		2, 2, N, 0, 0}}, // test >
 {T(highlight),	2, 4, N, 0, 0}}, // html escape and highlight words from list
-{T(hitlist),	N, N, 0, 1, 0}}, // display hitlist using format in argument
+{T(hitlist),	1, N, 0, 1, 0}}, // display hitlist using format in argument
 {T(hitsperpage),0, 0, N, 0, 0}}, // hits per page
 {T(hostname),	1, 1, N, 0, 0}}, // extract hostname from URL
 {T(html),	1, 1, N, 0, 0}}, // html escape string (<>&")
@@ -833,6 +834,7 @@ static struct func_desc func_tab[] = {
 {T(set),	2, 2, N, 0, 0}}, // set option value
 {T(setmap),	1, N, N, 0, 0}}, // set map of option values
 {T(setrelevant),0, 1, N, 0, 0}}, // set rset
+{T(slice),	2, 2, N, 0, 0}}, // slice a list using a second list
 {T(sub),	2, 2, N, 0, 0}}, // subtract
 {T(terms),	0, 0, N, 1, 0}}, // list of matching terms
 {T(thispage),	0, 0, N, 1, 0}}, // page number of current page
@@ -1427,7 +1429,32 @@ eval(const string &fmt, const vector<string> &param)
 		    i = j + 1;
 		}
 		break;
-	    }			     
+	    }
+	    case CMD_slice: {
+		string list = args[0], pos = args[1];
+		vector<string> items;
+		string::size_type i = 0, j;
+		while (1) {
+		    j = list.find('\t', i);
+		    items.push_back(list.substr(i, j - i));
+		    if (j == string::npos) break;
+		    i = j + 1;
+		}
+		i = 0;
+		bool have_added = false;
+		while (1) {
+		    j = pos.find('\t', i);
+		    int item = string_to_int(pos.substr(i, j - i));
+		    if (item >= 0 && item < items.size()) {
+			if (have_added) value += '\t';
+			value += items[item];
+			have_added = true;
+		    }
+		    if (j == string::npos) break;
+		    i = j + 1;
+		}
+	        break;
+	    }
 	    case CMD_sub:
 		value = int_to_string(string_to_int(args[0]) -
 		       		      string_to_int(args[1]));
@@ -1645,7 +1672,7 @@ do_match()
 // run query if we haven't already
 static void
 ensure_match()
-{			    
+{
     if (done_query) return;
     
     run_query();

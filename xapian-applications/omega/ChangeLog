@@ -1,3 +1,12 @@
+Wed Aug 21 17:52:36 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* query.cc: Add $slice{} command, to slice a list at a set of
+	  positions (given by a second list).
+	  Also, bugfix: require $hitlist{} to take at least one parameter:
+	  it currently segfaults if given none.
+	* docs/omegascript.txt: Document $slice{}.
+	* extra/omegascript.vim: Update syntax highlighting.
+
 Wed Aug 21 18:03:43 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* omindex.cc: tidy up output so it doesn't wrap so much

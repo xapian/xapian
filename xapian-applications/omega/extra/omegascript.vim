@@ -51,29 +51,22 @@ syn region omegaScriptCommentBracePair start="{"rs=s+2 end="}" contains=omegaScr
 syn match omegaScriptCommentStart contained "{"
 syn region omegaScriptComment matchgroup=omegaScriptCommentStart start="${" end="}" contains=omegaScriptCommentBracePair,omegaScriptComment keepend extend
 
-syn keyword omegaScriptKW contained allterms cgi cgilist date def
-syn keyword omegaScriptKW contained env field filesize
-syn keyword omegaScriptKW contained freq highlight hitlist
-syn keyword omegaScriptKW contained hostname html htmlstrip
-syn keyword omegaScriptKW contained list map nice
-syn keyword omegaScriptKW contained opt prettyterm
-syn keyword omegaScriptKW contained range record
-syn keyword omegaScriptKW contained relevant set set_relevant
-syn keyword omegaScriptKW contained setmap topterms url
-syn keyword omegaScriptCommandKW contained dbname defaultop error fmt freqs
-syn keyword omegaScriptCommandKW contained hitsperpage id last lastpage msize
-syn keyword omegaScriptCommandKW contained percentage query querydescription
-syn keyword omegaScriptCommandKW contained queryterms relevants score terms
-syn keyword omegaScriptCommandKW contained thispage topdoc version
+" All keywords which can take parameters
+syn keyword omegaScriptKW contained add allterms and cgi cgilist collapse date def div env eq field filesize freq ge gt highlight hitlist hostname html htmlstrip if include le list lt map max min mod mul ne nice not opt or prettyterm range record relevant set setmap setrelevant slice sub topterms url
+
+" All keywords which can take no parameters
+syn keyword omegaScriptCommandKW contained add allterms collapse dbname defaultop error fmt freqs hitsperpage id last lastpage msize percentage query querydescription queryterms record relevant relevants score setrelevant terms thispage topdoc topterms version
+
+" Deprecated keywords
 syn keyword omegaScriptCommandKWDeprecated contained freqs
 
 hi link omegaScriptCommand Statement
 hi link omegaScriptBegin Statement
 hi link omegaScriptItem PreProc
 hi link omegaScriptLiteral Special
-hi link omegaScriptKW Statement
+hi link omegaScriptKW Type
 hi link omegaScriptArg Type
-hi link omegaScriptCommandKW Statement
+hi link omegaScriptCommandKW Type
 hi link omegaScriptCommandKWDeprecated Special
 hi link omegaScriptSep Normal
 hi link omegaScriptError Error
