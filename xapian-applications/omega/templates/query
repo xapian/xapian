@@ -107,7 +107,7 @@ $if{$ne{$hitsperpage,10},<INPUT TYPE=hidden NAME=HITSPERPAGE VALUE=$hitsperpage>
 $if{$fmt,<INPUT TYPE=hidden NAME=FMT VALUE="$html{$fmt}">}
 $list{$queryterms,<INPUT TYPE=hidden NAME=xP VALUE=",.,.">}
 <INPUT TYPE=hidden NAME=xDB VALUE="$html{$dbname}">
-<INPUT TYPE=hidden NAME=xFILTERS VALUE="$html{$filters}">}
+<INPUT TYPE=hidden NAME=xFILTERS VALUE="$html{$filters}">
 $if{$cgi{DEFAULTOP},<INPUT TYPE=hidden NAME=xDEFAULTOP VALUE="$html{$cgi{DEFAULTOP}}">}
 $list{$relevants,<INPUT TYPE=hidden NAME=R VALUE=",.,">}
 $if{$cgi{THRESHOLD},<INPUT TYPE=hidden NAME=THRESHOLD VALUE="$html{$cgi{THRESHOLD}}">}

@@ -1,3 +1,7 @@
+Wed Dec 04 11:57:13 GMT 2002  Olly Betts <olly@survex.com>
+
+	* templates/query: Removed bogus unmatched '}'.
+
 Thu Nov 28 20:24:08 GMT 2002  Olly Betts <olly@survex.com>
 
 	* omega.cc,query.cc: Updated in line with OmEnquire::get_eset() no
