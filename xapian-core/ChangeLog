@@ -1,3 +1,8 @@
+Mon Jul  3 12:38:11 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Change some FIXME's to \todo's - the new doxygen tag.  This should
+	  be used in most situations where we used to use FIXME, now.
+
 Mon Jul  3 12:29:10 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added get_description() methods to all API objects, returning
