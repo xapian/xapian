@@ -67,6 +67,7 @@ static OmWritableDatabase db;
 // Put a limit on the size of terms to help prevent the index being bloated
 // by useless junk terms
 static const unsigned int MAX_PROB_TERM_LENGTH = 64;
+static const unsigned int MAX_URL_LENGTH = 240;
 
 static void
 lowercase_term(om_termname &term)
@@ -240,6 +241,51 @@ moreterm:
     return pos;
 }
 
+/* Hash is computed as an unsigned long, and then converted to a
+ * string by writing 6 bits of it to each output byte.  So length is
+ * ceil(sizeof(unsigned long) * 8 / 6).
+ */
+#define HASH_LEN ((sizeof(unsigned long) * 8 + 5) / 6)
+
+/* Make a hash of a string - this isn't a very good hashing algorithm, but
+ * it's fast.  A collision would result in a document overwriting a different
+ * document, which is not desirable, but also wouldn't be a total disaster.
+ */
+static string
+hash(const string &s)
+{
+    unsigned long int h = 1;
+    for (string::const_iterator i = s.begin(); i != s.end(); ++i) {
+	h += (h << 5) + static_cast<unsigned long int>(*i);
+    }
+    string result = string(HASH_LEN, ' ');
+    int i = 0;
+    while (h != 0) {
+	char ch = (char)((h & 63) + 33);
+	result[i++] = ch;
+	h = h >> 6;
+    }
+    return result;
+}
+
+/* Make a term for a url, ensuring that it's not longer than the maximum
+ * length.  The term is "U"+baseurl+url, unless this would be too long, in
+ * which case it is truncated to the maximum length - the length of the hash,
+ * and has a hash of the truncated part appended.
+ */
+static string
+make_url_term(const string &url)
+{
+    if (1 + baseurl.length() + url.length() > MAX_URL_LENGTH) {
+	string result = "U" + baseurl + url;
+	result = result.substr(0, MAX_URL_LENGTH - HASH_LEN) +
+		hash(result.substr(MAX_URL_LENGTH - HASH_LEN));
+	//printf("Using '%s' as the url term\n", result.c_str());
+	return result;
+    }
+    return "U" + baseurl + url;
+}
+
 /* Truncate a string to a given maxlength, avoiding cutting off midword
  * if reasonably possible. */
 string
@@ -277,10 +323,13 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 {
     string file = root + url;
     string title, sample, keywords, dump;
+    string urlterm;
 
     cout << "Indexing \"" << url << "\" as " << mimetype << " ... ";
 
-    if (dupes == DUPE_ignore && db.term_exists("U" + baseurl + url)) {
+    urlterm = make_url_term(url);
+
+    if (dupes == DUPE_ignore && db.term_exists(urlterm)) {
 	cout << "duplicate. Ignored." << endl;
 	return;
     }
@@ -430,13 +479,13 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
     newdocument.add_term_nopos("M" + string(buf)); // Month (YYYYMM)
     buf[4] = '\0';
     newdocument.add_term_nopos("Y" + string(buf)); // Year (YYYY)
-    newdocument.add_term_nopos("U" + baseurl + url); // Url
+    newdocument.add_term_nopos(urlterm); // Url
 
-    if (dupes == DUPE_replace && db.term_exists("U" + baseurl + url)) {
+    if (dupes == DUPE_replace && db.term_exists(urlterm)) {
 	// This document has already been indexed - update!
 	try {
 	    auto_ptr<OmEnquire> enq = auto_ptr<OmEnquire>(new OmEnquire(db));
-	    enq->set_query(OmQuery("U" + baseurl + url));
+	    enq->set_query(OmQuery(urlterm));
 	    OmMSet mset = enq->get_mset(0, 1);
 	    try {
 		db.replace_document(*mset[0], newdocument);

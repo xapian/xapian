@@ -1,3 +1,14 @@
+Fri Jun  6 01:04:12 BST 2003  Richard Boulton <richard@tartarus.org>
+
+	* omindex.cc: Implement an upper limit on the length of URL
+	  terms.  Currently, this is set at 240 characters - it can
+	  probably be increased slightly, but I'm not sure exactly
+	  how long a term can safely be.  If the URL term would be
+	  longer than this, its last few bytes are replaced by a
+	  hash of the tail of the URL.  This means that (apart from
+	  hopefully very rare collisions) urlterms should still be
+	  unique ids for documents.
+
 Fri Jun 06 00:14:13 BST 2003  Richard Boulton <richard@tartarus.org>
 
 	* omindex.cc: Clean up processing of HTML documents:
