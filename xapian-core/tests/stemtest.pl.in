@@ -41,6 +41,8 @@ sub usage {
     die "Usage: $0 [-v] [--seed <seed>] [--no-random] [language(s)]";
 }
 
+$use_random = 0 if defined $ENV{"OM_STEMTEST_SKIP_RANDOM"};
+
 defined $ENV{"srcdir"} or die "srcdir needs to be set\n";
 
 while ($_ = shift @ARGV) {

@@ -111,8 +111,12 @@ dnl Check for libxml.  We do this by looking for xml-config.
 dnl FIXME: is something else needed for non-gnome libxml?
 AC_PATH_PROG(XML_CONFIG_PATH, xml-config)
 AM_CONDITIONAL(HAVE_LIBXML, test -n "$XML_CONFIG_PATH")
-AC_SUBST(HAVE_LIBXML)
 AC_SUBST(XML_CONFIG_PATH)
+if test -n "$XML_CONFIG_PATH"
+then
+AC_DEFINE(HAVE_LIBXML,,
+  [ Define if libxml is available.])
+fi
 
 if test -n "$XML_CONFIG_PATH"
 then
@@ -417,6 +421,9 @@ CME_FIND_SOCKETPAIR
 
 dnl Add -lnsl to $LDFLAGS if needed (eg Solaris)
 RJB_FIND_GETHOSTENT
+
+dnl Add -lresolv to $LDFLAGS if needed (eg Solaris)
+CME_FIND_HSTRERROR
 
 dnl See if we want to use STLport
 RJB_FIND_STLPORT
