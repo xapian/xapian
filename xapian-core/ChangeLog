@@ -1,3 +1,9 @@
+Mon Nov 18 19:49:09 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_termlist.cc: I'd put the new termlist stuff
+	  in the disabled branch of a "#ifdef" so it wasn't being used!  Fixed
+	  this and made it actually compile as an encore.
+
 Mon Nov 18 02:51:55 GMT 2002  Olly Betts <olly@survex.com>
 
 	* docs/todo.xml: Retargetted 0.6 tasks for 0.7 or 0.8; updated a few
