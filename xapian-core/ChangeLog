@@ -1,3 +1,8 @@
+Fri Nov 17 14:37:38 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed a problem with errors opening a database at a particular
+	  revision throwing an exception.
+
 Fri Nov 17 14:18:02 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix to Bcursor_find_key() so that it reads the tag correctly when
