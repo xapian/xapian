@@ -21,9 +21,9 @@
 set -e
 
 VERSION='0.8.2'
-DEBVER_CORE='1'
-DEBVER_BINDINGS='1'
-DEBVER_OMEGA='1'
+DEBVER_CORE='3'
+DEBVER_BINDINGS='2'
+DEBVER_OMEGA='2'
 COMPONENT=stable
 
 # Options to pass to dpkg-buildpackage when building binary packages
@@ -84,8 +84,8 @@ mkdir -p "$PUBDIR/$PKGDIR"
 
 # Calculate location that control files should be found at
 CONTROL_CORE="${PUBDIR}/$POOLDIR/xapian-core_${VERSION}-${DEBVER_CORE}${EXTRA_VERSION_DEBIAN}.dsc"
-CONTROL_BINDINGS="${PUBDIR}/$POOLDIR/xapian-bindings_${VERSION}-${DEBVER_CORE}${EXTRA_VERSION_DEBIAN}.dsc"
-CONTROL_OMEGA="${PUBDIR}/$POOLDIR/xapian-omega_${VERSION}-${DEBVER_CORE}${EXTRA_VERSION_DEBIAN}.dsc"
+CONTROL_BINDINGS="${PUBDIR}/$POOLDIR/xapian-bindings_${VERSION}-${DEBVER_BINDINGS}${EXTRA_VERSION_DEBIAN}.dsc"
+CONTROL_OMEGA="${PUBDIR}/$POOLDIR/xapian-omega_${VERSION}-${DEBVER_OMEGA}${EXTRA_VERSION_DEBIAN}.dsc"
 
 # Make tarballs, if we don't already have some
 if [ -e ${CONTROL_CORE} -a -e ${CONTROL_BINDINGS} -a -e ${CONTROL_OMEGA} ];
