@@ -1,3 +1,8 @@
+Wed Jun 18 19:00:55 BST 2003  Olly Betts <olly@survex.com>
+
+	* extra/queryparser.yy: Trim leading and trailing whitespace before
+	  attempting to parse the query.
+
 Wed Jun 18 17:58:56 BST 2003  Olly Betts <olly@survex.com>
 
 	* extra/queryparser.yy: `using namespace Xapian;'

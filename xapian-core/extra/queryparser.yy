@@ -488,7 +488,16 @@ Query
 QueryParser::parse_query(const string &q_)
 {
     qp = this;
-    q = q_;
+
+    /* Trim leading and trailing whitespace */
+    string::size_type b;
+    b = find_if(q_.begin(), q_.end(), p_notwhitespace) - q_.begin();
+    string::size_type e;
+    e = q_.rend() - find_if(q_.rbegin(), q_.rend(), p_notwhitespace);
+    if (e <= b) return Query();
+    q = q_.substr(b, e - b);
+//    printf("[%s]\n", q.c_str());
+    
     pending_token = 0;
     term_pos = 1;
     prefix = "";
