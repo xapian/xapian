@@ -2,3 +2,5 @@
 Makefile.in
 Makefile
 .deps
+code_structure.html
+mkdoc.pl
