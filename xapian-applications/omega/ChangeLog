@@ -1,3 +1,9 @@
+Tue Apr 05 23:45:39 BST 2005  Olly Betts <olly@survex.com>
+
+	* mbox2omega,mbox2omega.script,Makefile.am: Added mbox2omega which
+	  allows a mail folder to be indexed.  Mostly it's an example as
+	  there's no mechanism included to show the full original message.
+
 Tue Apr 05 23:41:44 BST 2005  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Tidy up STL header includes.

@@ -62,19 +62,19 @@ EXTRA_DIST = templates/query \
 	images/score-9.png \
 	omega.spec omega.conf \
 	$(omega_docs) \
-	dbi2omega htdig2omega htdig2omega.script
+	dbi2omega htdig2omega htdig2omega.script mbox2omega mbox2omega.script
 
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
 bin_PROGRAMS = omindex scriptindex
-bin_SCRIPTS = dbi2omega htdig2omega
+bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
 # Install documentation.
 docdatadir   = $(datadir)/doc/omega
 docdata_DATA = $(omega_docs)
 
 omegadatadir = $(datadir)/omega
-omegadata_DATA = htdig2omega.script
+omegadata_DATA = htdig2omega.script mbox2omega.script
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc
 omega_LDADD = $(XAPIAN_LIBS) # -lpcre
