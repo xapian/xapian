@@ -1,7 +1,7 @@
 // C++ includes
 #include <string>
 #include <vector>
-#include <string.h>
+#include <cstring>
 
 // Open Muscat includes
 #include "om/om.h"

@@ -3,6 +3,25 @@
 #include "utils.h"
 #include "om/om.h"
 
+#ifndef HAVE_STRCASECMP
+int strcasecmp(const char *s1, const char *s2)
+{
+    while (*s1 && *s2) {
+	if (tolower(*s1) < tolower(*s2)) return -1;
+	if (tolower(*s1) > tolower(*s2)) return 1;
+	++s1;
+	++s2;
+    }
+    if (*s1) {
+	return 1;
+    } else if (*s2) {
+	return -1;
+    } else {
+	return 0;
+    }
+}
+#endif /* HAVE_STRCASECMP */
+
 void throwNewException (JNIEnv *env, const char* type, const char* msg) {
     jclass xclass = env->FindClass (type);
     if (xclass != NULL) 

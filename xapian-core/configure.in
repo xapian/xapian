@@ -19,6 +19,9 @@ dnl Check for getopt.h.  On some systems, it's in stdlib.h
 AC_CHECK_HEADERS(getopt.h)
 AC_SUBST(HAVE_GETOPT_H)
 
+dnl check for strcasecmp.
+AC_CHECK_FUNCS([strcasecmp])
+
 dnl Check for -fno-access-control flag to compiler.
 dnl Used in some low-level test suite stuff.
 AC_LANG_SAVE

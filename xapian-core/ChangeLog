@@ -1,3 +1,8 @@
+Tue Jul  4 11:28:23 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Some tweaks to the Java bindings - now compiles and a test class
+	  will run and fail to find a database.
+
 Mon Jul  3 18:39:29 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add introspection to OmStem.

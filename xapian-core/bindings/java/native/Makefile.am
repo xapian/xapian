@@ -2,7 +2,7 @@ JDKINC = -I/usr/lib/jdk1.1/include -I/usr/local/jdk1.1/include/linux
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include $(JDKINC)
 #CPP     = g++
 
-noinst_LTLIBRARIES = libomusjava.la
+noinst_OBJECTS = libomusjava.so
 
 JCLAS =	com.muscat.om.OmEnquire				\
 	com.muscat.om.OmDatabaseGroup			\
@@ -22,7 +22,7 @@ JCLAS =	com.muscat.om.OmEnquire				\
 	com.muscat.om.OmPrefixExpandDecider
 
 
-libomusjava_la_SOURCES = nvOmEnquire.cc			\
+JAVALIB_SOURCE = nvOmEnquire.cc			\
 	nvOmDatabaseGroup.cc		\
 	nvOmQuery.cc 			\
 	nvOmMSet.cc 			\
@@ -39,7 +39,25 @@ libomusjava_la_SOURCES = nvOmEnquire.cc			\
 	nvOmPrefixExpandDecider.cc	\
 	utils.cc
 
-libomusjava_la_LIBADD = ../../../libomus.la
+libomusjava_so_OBJS = nvOmEnquire.lo			\
+	nvOmDatabaseGroup.lo		\
+	nvOmQuery.lo 			\
+	nvOmMSet.lo 			\
+	nvOmMSetItem.lo			\
+	nvOmMSetItemVector.lo		\
+	nvOmDocument.lo			\
+	nvOmStem.lo			\
+	nvOmMatchOptions.lo		\
+	nvOmRSet.lo			\
+	nvOmESet.lo			\
+	nvOmESetItem.lo			\
+	nvOmESetItemVector.lo		\
+	nvOmExpandOptions.lo		\
+	nvOmPrefixExpandDecider.lo	\
+	utils.lo
+
+libomusjava.so: $(libomusjava_so_OBJS)
+	$(LIBTOOL) $(CXX) -shared $(libomusjava_so_OBJS) ../../../libomus.la -o $@
 
 #all:	$(MODS)
 #	$(CPP) -shared -O3 -o libomusjava.so -lpthread $(MODS) $(OMLIB)
@@ -49,7 +67,3 @@ libomusjava_la_LIBADD = ../../../libomus.la
 
 headers:
 	CLASSPATH=../classes javah -jni $(JCLAS)
-
-install:
-	cp libomusjava.so /lib
-	/sbin/ldconfig
