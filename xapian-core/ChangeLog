@@ -1,3 +1,8 @@
+Thu Sep 21 12:58:18 BST 2000 Olly Betts
+
+	* LocalMatch again.  Now that mopts is stored, we don't need to read
+	  out most of the contents until we use them.
+
 Thu Sep 21 11:37:39 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Make dist will now fail if Perl XML parser is not available - this

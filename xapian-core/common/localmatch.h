@@ -85,8 +85,6 @@ class LocalMatch : public SingleMatch
     private:
 	SubMatch submatch;    
 
-        int min_weight_percent;
-
 	/// Query to be run
 	OmQueryInternal users_query;
 
@@ -99,20 +97,11 @@ class LocalMatch : public SingleMatch
 	/// Stored match options object
 	OmSettings mopts;
 
-	/// Weighting scheme which has been requested.
-	string requested_weighting;
-
-	/** Weighting scheme to use.
-	 *  This may differ from the requested_type if, for example,
+	/** Name of weighting scheme to use.
+	 *  This may differ from the requested scheme if, for example,
 	 *  the query is pure boolean.
 	 */
-	string actual_weighting;
-
-	/// Whether to perform collapse operation
-	bool do_collapse;
-
-	/// Key to collapse on, if desired
-	om_keyno collapse_key;
+	string weighting_scheme;
 
 	/** Optional limit on number of terms to OR together.
 	 *  If zero, there is no limit.

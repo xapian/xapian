@@ -219,11 +219,8 @@ LocalMatch::build_or_tree(std::vector<PostList *> &postlists)
 // MULTI
 LocalMatch::LocalMatch(Database *database_)
 	: submatch(database_),
-	  min_weight_percent(-1),
 	  users_query(),
 	  rset(0),
-	  requested_weighting("bm25"),
-	  do_collapse(false),
 	  max_or_terms(0),
 	  mcmp(msetcmp_forward),
 	  querysize(1)
@@ -246,7 +243,7 @@ LocalMatch::mk_weight(const OmQueryInternal *query_)
 	tname = query_->tname;
 	wqf = query_->wqf;
     }
-    IRWeight * wt = IRWeight::create(actual_weighting, mopts);
+    IRWeight * wt = IRWeight::create(weighting_scheme, mopts);
     // MULTI - this statssource should be the combined one...
     wt->set_stats(&submatch.statssource, querysize, wqf, tname);
 #ifdef MUS_DEBUG_PARANOID
@@ -270,17 +267,6 @@ LocalMatch::set_options(const OmSettings & mopts_)
 
     mopts = mopts_;
 
-    int val = mopts.get_int("match_percent_cutoff", 0);
-    if (val > 0) {
-	min_weight_percent = val;
-    }
-
-    val = mopts.get_int("match_collapse_key", -1);
-    if (val >= 0) {
-	do_collapse = true;
-	collapse_key = val;
-    }
-
     max_or_terms = mopts.get_int("match_max_or_terms", 0);
 
     if (mopts.get_bool("match_sort_forward", true)) {
@@ -288,8 +274,6 @@ LocalMatch::set_options(const OmSettings & mopts_)
     } else {
 	mcmp = OmMSetCmp(msetcmp_reverse);
     }
-
-    requested_weighting = mopts.get("match_weighting_scheme", "bm25");
 }
 
 
@@ -462,9 +446,9 @@ LocalMatch::set_query(const OmQueryInternal *query)
 
     // If query is boolean, set weighting to boolean
     if (query->is_bool()) {
-	actual_weighting = "bool";
+	weighting_scheme = "bool";
     } else {
-	actual_weighting = requested_weighting;
+	weighting_scheme = mopts.get("match_weighting_scheme", "bm25");
     }
 
     // Remember query
@@ -510,7 +494,7 @@ LocalMatch::perform_collapse(std::vector<OmMSetItem> &mset,
 			     const OmMSetItem &min_item)
 {
     // Don't collapse on null key
-    if(new_item.collapse_key.value.size() == 0) return true;
+    if (new_item.collapse_key.value.size() == 0) return true;
 
     bool add_item = true;
     std::map<OmKey, OmMSetItem>::iterator oldkey;
@@ -521,7 +505,7 @@ LocalMatch::perform_collapse(std::vector<OmMSetItem> &mset,
 	collapse_tab.insert(std::pair<OmKey, OmMSetItem>(new_item.collapse_key, new_item));
     } else {
 	const OmMSetItem olditem = (*oldkey).second;
-	if(mcmp(olditem, new_item)) {
+	if (mcmp(olditem, new_item)) {
 	    DEBUGLINE(MATCH, "collapsem: better exists: " <<
 		      new_item.collapse_key.value);
 	    // There's already a better match with this key
@@ -529,7 +513,7 @@ LocalMatch::perform_collapse(std::vector<OmMSetItem> &mset,
 	} else {
 	    // This is best match with this key so far:
 	    // remove the old one from the MSet
-	    if(mcmp(olditem, min_item)) {
+	    if (mcmp(olditem, min_item)) {
 		// Old one hasn't fallen out of MSet yet
 		// Scan through (unsorted) MSet looking for entry
 		// FIXME: more efficient way than just scanning?
@@ -618,12 +602,27 @@ LocalMatch::get_mset(om_doccount first,
     // Set the minimum item, used to compare against to see if an item
     // should be considered for the mset.
     OmMSetItem min_item(-1, 0);
-    if (min_weight_percent > 0) {
-	min_item.wt = min_weight_percent * max_weight / 100;
+    {
+	int val = mopts.get_int("match_percent_cutoff", 0);
+	if (val > 0) {
+	    min_item.wt = val * max_weight / 100;
+	}
     }
 
     // Table of keys which have been seen already, for collapsing.
     std::map<OmKey, OmMSetItem> collapse_tab;
+
+    // Whether to perform collapse operation
+    bool do_collapse = false;
+    // Key to collapse on, if desired
+    om_keyno collapse_key;
+    {
+	int val = mopts.get_int("match_collapse_key", -1);
+	if (val >= 0) {
+	    do_collapse = true;
+	    collapse_key = val;
+	}
+    }
 
     // Perform query
     while (1) {
