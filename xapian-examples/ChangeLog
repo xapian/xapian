@@ -1,3 +1,8 @@
+Thu Nov  1 20:32:47 GMT 2001  Richard Boulton <richard@tartarus.org>
+
+	* Use xml2 if available.  If it is available, compile
+	  omindex-config.
+
 Thu Nov  1 19:33:09 GMT 2001  Richard Boulton <richard@tartarus.org>
 
 	* omega/{omindex.cc,query.h}: Small fixes to compile with g++ 3.0

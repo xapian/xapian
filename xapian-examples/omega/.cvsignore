@@ -2,6 +2,7 @@
 *.lo
 omega
 omindex
+omindex-config
 Makefile.in
 Makefile
 .deps
