@@ -59,11 +59,11 @@ struct danish_stemmer
 
    Extra letters
 
-      form:                 o-slash   ae lig
-   a) old representation    o^z        -
-   b) HTML hex upper case   D8         C6
-   c) HTML hex lower case   F8         E6
-   d) representation here   'O'        'A'
+      form:                 o-slash   ae lig     a-ring
+   a) old representation    o^z        -         a^o
+   b) HTML hex upper case   D8         C6        C5
+   c) HTML hex lower case   F8         E6        E5
+   d) representation here   'O'        'A'       'B'
 
    Soon Object Muscat will move towards a Unicode representation. Meanwhile,
    this algorithm translates forms (a), (b) and (c) to (d) on entry, and
@@ -80,7 +80,7 @@ static int cons(struct danish_stemmer * z, int i)
 {   switch (z->p[i])
     {   case 'a': case 'e': case 'i': case 'o':
         case 'y':
-        case 'u': case 'A': case 'O':
+        case 'u': case 'A': case 'B': case 'O':
             return false;
         default:
             return true;
@@ -237,6 +237,7 @@ extern const char * danish_stem(void * z_, const char * q, int i0, int i1)
         {   int ch = q[j];
             switch (ch & 0xFF)
             {   case 0xC6: case 0xE6: ch = 'A'; break; /* ae lig */
+                case 0xC5: case 0xE5: ch = 'B'; break; /* a^o */
                 case 0xD8: case 0xF8: ch = 'O'; break; /* o^z */
             }
             if (ch == '^' && i0 < j && j < i1)
@@ -268,6 +269,7 @@ extern const char * danish_stem(void * z_, const char * q, int i0, int i1)
         {
             switch (p[j])
             {   case 'A': p[j] = '\xE6'; break; /* ae lig */
+                case 'B': p[j] = '\xE5'; break; /* a^o */
                 case 'O': p[j] = '\xF8'; break; /* o^z */
             }
         }

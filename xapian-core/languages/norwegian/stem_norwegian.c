@@ -63,7 +63,7 @@ struct norwegian_stemmer
    To summarise:
 
    Norwegian :   a-ring    ae lig    o-slash
-   Danish    :      -      ae lig    o-slash
+   Danish    :   a-ring    ae lig    o-slash
    Swedish   :   a-ring      -         -       a-umlaut   o-umlaut
 
 */
@@ -157,7 +157,7 @@ static void step_1(struct norwegian_stemmer * z)
                 ends(z, "ers") ||
                 ends(z, "ets") ||
                 (ends(z, "s") && ((cons(z, z->j) && z->p[z->j] != 's') ||
-				  z->p[z->j] == 'o'))
+                                  z->p[z->j] == 'o'))
                ) break;
             return;
         case 't':
