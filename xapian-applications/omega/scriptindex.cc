@@ -23,6 +23,8 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
+
 #include <xapian.h>
 
 #include <algorithm>
@@ -571,10 +573,12 @@ main(int argc, char **argv)
 		break;
 	    default:
 	    case 'h': // --help
-	    case 'V': // --version
 		show_help = true;
 		more = false;
 		break;
+	    case 'V': // --version
+		cout << "scriptindex (" << PACKAGE << ") " << VERSION << endl;
+		return 0;
 	    case 'o': // --overwrite
 		overwrite = true;
 		break;
@@ -607,7 +611,7 @@ main(int argc, char **argv)
 	     << "The --overwrite option causes the database to be created anew (the default is\n"
 	        "to update if the database already exists)."
 	     << endl;
-	exit(1);
+	exit(show_help ? 0 : 1);
     }
     
     parse_index_script(argv[1]);
