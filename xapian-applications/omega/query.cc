@@ -200,7 +200,7 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 	return OmQuery(OmQuery::OP_OR, v.begin(), v.end());
     }
 
-    int m_last = (y2 < y2) ? 12 : m2 - 1;
+    int m_last = (y1 < y2) ? 12 : m2 - 1;
     while (++m1 <= m_last) {
 	sprintf(buf + 4, "%02d", m1);
 	v.push_back(OmQuery('M' + std::string(buf)));

@@ -1,3 +1,9 @@
+Tue Jan 15 16:29:39 GMT 2002
+
+	* Fixed date_range_filter for the case where DATE1 and DATE2 don't
+	  share the same MONTH and YEAR and M## terms for intermediate months 
+	  need calculating between the years.
+
 Thu Jan 10 15:39:43 GMT 2002  Sam Liddicott  <sam@ananova.com>
 
 	* Added $htmlstrip{} to strip out html tags
