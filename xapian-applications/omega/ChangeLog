@@ -1,3 +1,9 @@
+Wed Nov 28 12:33:52 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Request one more match than the last we want to display so we can tell if the
+	  next page of hits is empty or not - otherwise we risk offering a "next page"
+	  link when there are no more hits.
+
 Mon Nov 26 16:28:00 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 	* --no-recurse / -l option added; useful if your sites are

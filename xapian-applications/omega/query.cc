@@ -287,7 +287,9 @@ run_query()
     OmSettings opt;
     opt.set("match_percent_cutoff", threshold);
     // FIXME - set msetcmp to reverse?
-    mset = enquire->get_mset(0, topdoc + hits_per_page, rset, &opt);
+    // Fetch one extra result so we know if we've reached the end of the matches or
+    // not - then we can avoid offering a "next" button which leads to an empty page
+    mset = enquire->get_mset(0, topdoc + hits_per_page + 1, rset, &opt);
 }
 
 #if 0
@@ -438,7 +440,7 @@ static void
 lowercase_term(om_termname &term)
 {
     om_termname::iterator i = term.begin();
-    while(i != term.end()) {
+    while (i != term.end()) {
 	*i = tolower(*i);
 	i++;
     }
