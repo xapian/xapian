@@ -17,14 +17,9 @@ $class[1] = "class=\"o\"";
 # ------------------------------------------------------------
 # path where all our files are stored.
 # ------------------------------------------------------------
-if($cvsdata) {
-}else{
+if($cvsdata eq "") {
     print STDERR "WARNING: \$CVSDATA not set!\n";
     exit(1);
-}
-
-if ($#ARGV < 0) {
-    usage();
 }
 
 print header;

@@ -9,14 +9,14 @@ my $cvsindex = "./cvsindex";
 my $cvsmap = "./cvsmap";
 
 if (not (-x $cvsindex)) {
-    print STDERR "Warning: a program used in this script cvsindex is not found.\n";
+    print STDERR "WARNING: a program used in this script cvsindex is not found.\n";
     print STDERR "please change to the directory where $0 is stored and execute the script again.\n";
     print STDERR "(cvsindex should be in the same directory)\n";
     exit(1);
 }
 
 if (not (-x $cvsmap)) {
-    print STDERR "Warning: a program used in this script $cvsmap is not found.\n";
+    print STDERR "WARNING: a program used in this script $cvsmap is not found.\n";
     print STDERR "please change to the directory where $0 is stored and execute the script again.\n";
     print STDERR "(cvsmap should be in the same directory)\n";
     exit(1);
@@ -38,7 +38,7 @@ $cvsroot = Cvssearch::strip_last_slash($cvsroot);
 # warn user about it and exit
 # ------------------------------------------------------------
 if ($cvsdata eq "") {
-    print STDERR "Warning: an environment variable \$CVSDATA\n";
+    print STDERR "WARNING: an environment variable \$CVSDATA\n";
     print STDERR "is not set, nor can the value be read from\n";
     print STDERR "a configuration file.\n";
     print STDERR "please export the environment variable\n";

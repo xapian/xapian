@@ -311,9 +311,9 @@ sub cvsupdatedb {
     my $filename = "dbcontent"; # file containing database built
     my $path;
     if ($cvsdata eq ""){
-        print STDERR "Warning: \$CVSDATA is not set and cvssearch.conf cannot be read.";
-        $path = "$cvsdata/$root/$filename";
+        print STDERR "WARNING: \$CVSDATA is not set and cvssearch.conf cannot be read.";
     }
+    $path = "$cvsdata/$root/$filename";
     
     if(-d "$cvsdata/$root") {
         if($flag eq "-r"){ # remove database
@@ -387,7 +387,7 @@ sub cvsupdatedb {
         }
     }
     else {
-        print STDERR "Warning: \$root $root does not exist.\n";
+        print STDERR "WARNING: \$root $root does not exist.\n";
         exit(1);
     }
 }
