@@ -995,7 +995,7 @@ static addcount = 0;
 
 /* add_kt(found, B, C) adds the item (key-tag pair) at B->kt into the B-tree
    given by B, using cursor C. found == find(B, C) is handed over as a
-   parameter from Btree_add. Btree_alter(B, C) prepares for the alteration to
+   parameter from Btree::add. Btree_alter(B, C) prepares for the alteration to
    the B-tree. Then there are a number of cases to consider:
 
       If an item with the same key is in the B-tree (found is true), the new kt
@@ -1129,7 +1129,7 @@ void form_key(struct Btree * B, byte * p, const byte * key, int key_len)
     SETC(p, c, 1);
 }
 
-/* Btree_add(B, key, key_len, tag, tag_len) adds the key/tag item to the
+/* Btree::add(key, key_len, tag, tag_len) adds the key/tag item to the
    B-tree, replacing any existing item with the same key. The result is 1 for
    an addition, 0 for a replacement.
 
@@ -1153,15 +1153,8 @@ void form_key(struct Btree * B, byte * p, const byte * key, int key_len)
    deletions.
 */
 
-extern int Btree_add(struct Btree * B, byte * key, int key_len,
-				       byte * tag, int tag_len)
-{
-    return B->add(key, key_len, tag, tag_len);
-}
-
 int
-Btree::add(byte *key, int key_len,
-	   byte *tag, int tag_len)
+Btree::add(byte *key, int key_len, byte *tag, int tag_len)
 {
     AssertEq(error, 0);
     Assert(!overwritten);
@@ -1223,19 +1216,14 @@ Btree::add(byte *key, int key_len,
     }
 }
 
-/* Btree_delete(B, key, key_len) returns 0 if the key is not in the B-tree,
+/* Btree::del(key, key_len) returns 0 if the key is not in the B-tree,
    otherwise deletes it and returns 1.
 
-   Again, this is parallel to Btree-add, but simpler in form.
+   Again, this is parallel to Btree::add, but simpler in form.
 */
 
-extern int Btree_delete(struct Btree * B, byte * key, int key_len)
-{
-    return B->delete_(key, key_len);
-}
-
 int
-Btree::delete_(byte * key, int key_len)
+Btree::del(byte * key, int key_len)
 {
     AssertEq(error, 0);
     Assert(!overwritten);
@@ -1269,11 +1257,6 @@ Btree::find_key(byte * key, int key_len)
     return find(C);
 }
 
-extern int Btree_find_key(struct Btree * B, byte * key, int key_len)
-{
-    return B->find_key(key, key_len);
-}
-
 extern struct Btree_item * Btree_item_create(void)
 {
     struct Btree_item * item = new Btree_item;
@@ -1281,11 +1264,6 @@ extern struct Btree_item * Btree_item_create(void)
     item->key_size = -1;
     item->tag_size = -1;
     return item;
-}
-
-extern int Btree_find_tag(struct Btree * B, byte * key, int key_len, struct Btree_item * item)
-{
-    return B->find_tag(key, key_len, item);
 }
 
 int
@@ -1906,13 +1884,6 @@ AutoPtr<Bcursor> Btree::Bcursor_create()
     return AutoPtr<Bcursor>(new Bcursor(this));
 }
 
-#if 0
-extern void Bcursor_lose(struct Bcursor * BC)
-{
-    delete BC;
-}
-#endif
-
 void
 Btree::force_block_to_cursor(struct Cursor * C_, int j)
 {
@@ -2028,31 +1999,6 @@ Btree::next_default(struct Btree * B, struct Cursor * C, int j)
 #endif /* BTREE_DEBUG_FULL */
     }
     return true;
-}
-
-extern int Bcursor_prev(struct Bcursor * BC)
-{
-    return BC->prev();
-}
-
-extern int Bcursor_next(struct Bcursor * BC)
-{
-    return BC->next();
-}
-
-extern int Bcursor_find_key(struct Bcursor * BC, byte * key, int key_len)
-{
-    return BC->find_key(key, key_len);
-}
-
-extern int Bcursor_get_key(struct Bcursor * BC, struct Btree_item * item)
-{
-    return BC->get_key(item);
-}
-
-extern int Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * item)
-{
-    return BC->get_tag(item);
 }
 
 /*********** B-tree creating ************/
@@ -2298,10 +2244,4 @@ Btree::check(const char * name, const char * opt_string)
     }
     Btree_quit(B);
     printf("B-tree checked okay\n");
-}
-
-void
-Btree_check(const char * name, const char * opt_string)
-{
-    Btree::check(name, opt_string);
 }

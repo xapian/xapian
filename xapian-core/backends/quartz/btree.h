@@ -78,7 +78,7 @@ class Btree {
 	int find_tag(byte * key, int key_len, struct Btree_item * t);
 
 	int add(byte * key, int key_len, byte * tag, int tag_len);
-	int delete_(byte * key, int key_len);
+	int del(byte * key, int key_len);
 
 	/** Create an initial btree structure on disk */
 	static void create(const char *name_, int blocksize);
@@ -228,27 +228,15 @@ class Btree {
 	void report_block_full(int m, int n, byte * p);
 };
 
-extern int Btree_find_key(struct Btree * B, byte * key, int key_len);
 extern struct Btree_item * Btree_item_create(); //
-extern int Btree_find_tag(struct Btree * B, byte * key, int key_len, struct Btree_item * t);
 extern void Btree_item_lose(struct Btree_item * kt); //
-extern int Btree_add(struct Btree * B, byte * key, int key_len,
-			               byte * tag, int tag_len);
-extern int Btree_delete(struct Btree * B, byte * key, int key_len);
 extern struct Btree * Btree_open_to_write(const char * name);
 extern struct Btree * Btree_open_to_write_revision(const char * name, unsigned long revision);
 extern void Btree_quit(struct Btree * B);
 extern int Btree_close(struct Btree * B, unsigned long revision);
 extern void Btree_create(const char * name, int block_size);
-extern void Btree_check(const char * name, const char * opt_string); //
 extern struct Btree * Btree_open_to_read(const char * name);
 extern struct Btree * Btree_open_to_read_revision(const char * name, unsigned long revision);
-extern int Bcursor_find_key(struct Bcursor * BC, byte * key, int key_len);
-extern int Bcursor_next(struct Bcursor * BC);
-extern int Bcursor_prev(struct Bcursor * BC);
-extern int Bcursor_get_key(struct Bcursor * BC, struct Btree_item * kt);
-extern int Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * kt);
-//extern void Bcursor_lose(struct Bcursor * BC);
 extern void Btree_full_compaction(struct Btree * B, int parity);
 
 #endif /* OM_HGUARD_BTREE_H */

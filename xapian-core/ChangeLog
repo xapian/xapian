@@ -1,3 +1,11 @@
+Tue Jun 11 13:09:39 BST 2002  Olly Betts <olly@survex.com>
+
+	* Removed a number of btree functions which were simply wrappers for
+	  calling methods on their first parameter, and most of which weren't
+	  even used!
+
+	* btree_api.txt: updated to better reflect the object-ized API.
+
 Tue Jun 11 02:01:53 BST 2002  Olly Betts <olly@survex.com>
 
 	* Btree::make_index_item(): Added check for buffer overflow.

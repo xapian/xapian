@@ -89,9 +89,9 @@ static void process_lines(Btree & btree, FILE * f)
                 } else {
 		    /*if (i > 0)*/
                         if (j > 0) {
-			    btree.delete_(s, min(j, btree.max_key_len));
+			    btree.del(s, min(j, btree.max_key_len));
 			} else {
-			    btree.delete_(s, min(i, btree.max_key_len));
+			    btree.del(s, min(i, btree.max_key_len));
 			}
                     break;
                 }
