@@ -1,3 +1,8 @@
+Thu Jul 17 00:48:40 BST 2003  Olly Betts <olly@survex.com>
+
+	* HACKING,bootstrap: Removed bootstrap in favour of top-level
+	  bootstrap.
+
 Mon Jul 14 23:36:14 BST 2003  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated some linux results: RH7.3 on x86, and Debian on

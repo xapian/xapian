@@ -149,8 +149,11 @@ Please tell us if you find that older or newer versions of any of these
 tools work or fail to work.
 
 We have provided a simple script (bootstrap) to run these programs for you
-and produce a source tree like that you'd get from unpacking the result of
-"make dist".
+on all the xapian modules you've checked out of CVS to produce a source tree
+like that you'd get from unpacking the result of "make dist".  bootstrap is
+in CVS in the level above xapian-core, etc.  There's also a configure script
+there which allows you to configure xapian-core and all the modules with one
+command.
 
 When running bootstrap, you may need to add extra macro directories to the path
 searched by aclocal (which is part of autoconf) - you may do this by specifying
