@@ -1,3 +1,7 @@
+Fri Aug 15 15:10:30 BST 2003  Olly Betts <olly@survex.com>
+
+	* common/utils.h: mkdir() only takes one argument on mingw.
+
 Fri Aug 15 01:26:22 BST 2003  Olly Betts <olly@survex.com>
 
 	* common/utils.h,testsuite/backendmanager.cc: Touch file using
