@@ -69,25 +69,22 @@ QuartzDiskCursor::find_entry(const QuartzDbKey &key)
 	// FIXME: check for errors
     }
 
-    Btree_item * item = Btree_item_create();
-    if (item == 0) throw std::bad_alloc();
+    Btree_item item;
 
-    int err = cursor->get_key(item);
+    int err = cursor->get_key(&item);
     (void)err; // FIXME: check for errors
 
-    is_positioned = cursor->get_tag(item);
+    is_positioned = cursor->get_tag(&item);
     // FIXME: check for errors
 
     // FIXME: unwanted copies
     current_key.value =
-	    string(reinterpret_cast<const char *>(item->key), item->key_len);
+	    string(reinterpret_cast<const char *>(item.key), item.key_len);
     current_tag.value =
-	    string(reinterpret_cast<const char *>(item->tag), item->tag_len);
+	    string(reinterpret_cast<const char *>(item.tag), item.tag_len);
 
     DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key.value) <<
 	      "', tag=`" << hex_encode(current_tag.value) << "'");
-
-    Btree_item_lose(item);
 
     RETURN(found);
 }
@@ -102,21 +99,18 @@ QuartzDiskCursor::next()
 	return;
     }
 
-    Btree_item * item = Btree_item_create();
-    if (item == 0) throw std::bad_alloc();
+    Btree_item item;
 
-    cursor->get_key(item);
+    cursor->get_key(&item);
     // FIXME: check for errors
-    is_positioned = cursor->get_tag(item);
+    is_positioned = cursor->get_tag(&item);
     // FIXME: check for errors
 
     // FIXME: unwanted copies
     current_key.value =
-	    string(reinterpret_cast<const char *>(item->key), item->key_len);
+	    string(reinterpret_cast<const char *>(item.key), item.key_len);
     current_tag.value =
-	    string(reinterpret_cast<const char *>(item->tag), item->tag_len);
-
-    Btree_item_lose(item);
+	    string(reinterpret_cast<const char *>(item.tag), item.tag_len);
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key.value) <<
 	      "', tag=`" << hex_encode(current_tag.value) << "'");
@@ -140,29 +134,26 @@ QuartzDiskCursor::prev()
 	// FIXME: check for errors
     }
 
-    Btree_item * item = Btree_item_create();
-    if (item == 0) throw std::bad_alloc();
+    Btree_item item;
 
-    cursor->get_key(item);
+    cursor->get_key(&item);
     // FIXME: check for errors
 
-    if (item->key_len != 0) {
+    if (item.key_len != 0) {
 	cursor->prev();
 	// FIXME: check for errors
-	cursor->get_key(item);
+	cursor->get_key(&item);
 	// FIXME: check for errors
     }
 
-    is_positioned = cursor->get_tag(item);
+    is_positioned = cursor->get_tag(&item);
     // FIXME: check for errors
 
     // FIXME: unwanted copies
     current_key.value =
-	    string(reinterpret_cast<const char *>(item->key), item->key_len);
+	    string(reinterpret_cast<const char *>(item.key), item.key_len);
     current_tag.value =
-	    string(reinterpret_cast<const char *>(item->tag), item->tag_len);
-
-    Btree_item_lose(item);
+	    string(reinterpret_cast<const char *>(item.tag), item.tag_len);
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key.value) <<
 	      "', tag=`" << hex_encode(current_tag.value) << "'");
@@ -187,11 +178,11 @@ QuartzDiskTable::close()
 {
     DEBUGCALL(DB, void, "QuartzDiskTable::close", "");
     if (btree_for_reading != 0) {
-	Btree_quit(btree_for_reading);
+	delete btree_for_reading;
 	btree_for_reading = 0;
     }
     if (btree_for_writing != 0) {
-	Btree_quit(btree_for_writing);
+	delete btree_for_writing;
 	btree_for_writing = 0;
     }
     opened = false;
@@ -213,7 +204,7 @@ QuartzDiskTable::create()
 
     close();
 
-    Btree_create(path.c_str(), blocksize);
+    Btree::create(path, blocksize);
 }
 
 void
@@ -235,11 +226,12 @@ QuartzDiskTable::open()
     close();
 
     if (readonly) {
-	btree_for_reading = Btree_open_to_read(path.c_str());
-	if (btree_for_reading == 0 || btree_for_reading->error) {
+	btree_for_reading = new Btree();
+	if (!btree_for_reading->open_to_read(path) ||
+	    btree_for_reading->error) {
 	    // FIXME: explain why
 	    string errormsg = "Cannot open table `"+path+"' for reading: ";
-	    if (btree_for_reading)
+	    if (btree_for_reading->error)
 		errormsg += om_tostring(btree_for_reading->error) + ", ";
 	    errormsg += strerror(errno);
 	    close();
@@ -249,27 +241,27 @@ QuartzDiskTable::open()
 	return;
     }
 
-    btree_for_writing = Btree_open_to_write(path.c_str());
+    btree_for_writing = new Btree();
     // FIXME: check for errors
-
-    if (btree_for_writing == 0 || btree_for_writing->error) {
+    if (!btree_for_writing->open_to_write(path) || btree_for_writing->error) {
 	// FIXME: explain why
 	string errormsg = "Cannot open table `"+path+"' for writing: ";
-	if (btree_for_writing)
+	if (btree_for_writing->error)
 	    errormsg += om_tostring(btree_for_writing->error) + ", ";
 	errormsg += strerror(errno);
 	close();
 	throw OmOpeningError(errormsg);
     }
 
-    btree_for_reading = Btree_open_to_read_revision(path.c_str(),
-				btree_for_writing->revision_number);
+    btree_for_reading = new Btree();
     // FIXME: check for errors
-    if (btree_for_reading == 0 || btree_for_reading->error) {
+    if (!btree_for_reading->open_to_read(path,
+					 btree_for_writing->revision_number) ||
+        btree_for_reading->error) {
 	// FIXME: explain why
 	string errormsg = "Cannot open table `" + path +
 		"' for reading and writing: ";
-	if (btree_for_reading)
+	if (btree_for_reading->error)
 	    errormsg += om_tostring(btree_for_reading->error) + ", ";
 	errormsg += strerror(errno);
 	close();
@@ -286,9 +278,10 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
     close();
 
     if (readonly) {
-	btree_for_reading = Btree_open_to_read_revision(path.c_str(), revision);
+	btree_for_reading = new Btree();
 	// FIXME: check for errors
-	if (btree_for_reading == 0 || btree_for_reading->error) {
+	if (!btree_for_reading->open_to_read(path, revision) ||
+	    btree_for_reading->error) {
 	    // FIXME: throw an exception if it's not just this revision which
 	    // is unopenable.
 	    close();
@@ -298,9 +291,10 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 	RETURN(true);
     }
 
-    btree_for_writing = Btree_open_to_write_revision(path.c_str(), revision);
+    btree_for_writing = new Btree();
     // FIXME: check for errors
-    if (btree_for_writing == 0 || btree_for_writing->error) {
+    if (!btree_for_writing->open_to_write(path, revision) ||
+	btree_for_writing->error) {
 	// FIXME: throw an exception if it's not just this revision which
 	// is unopenable.
 	close();
@@ -309,10 +303,11 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 
     AssertEq(btree_for_writing->revision_number, revision);
 
-    btree_for_reading = Btree_open_to_read_revision(path.c_str(),
-				btree_for_writing->revision_number);
+    btree_for_reading = new Btree();
     // FIXME: check for errors
-    if (btree_for_reading == 0 || btree_for_reading->error) {
+    if (!btree_for_reading->open_to_read(path,
+					 btree_for_writing->revision_number) ||
+	btree_for_reading->error) {
 	// FIXME: throw an exception if it's not just this revision which
 	// is unopenable.
 	close();
@@ -386,18 +381,14 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
 	RETURN(false);
     }
     
-    Btree_item * item = Btree_item_create();
-    if (item == 0) throw std::bad_alloc();
+    Btree_item item;
 
-    cursor->get_tag(item);
+    cursor->get_tag(&item);
     // FIXME: check for errors
 
     // FIXME: unwanted copy
-    tag.value = string(reinterpret_cast<char *>(item->tag), item->tag_len);
+    tag.value = string(reinterpret_cast<char *>(item.tag), item.tag_len);
 
-    // FIXME: ensure that these loses get called whatever exit route happens.
-    Btree_item_lose(item);
-    
     RETURN(true);
 }
 
@@ -452,7 +443,7 @@ QuartzDiskTable::apply(quartz_revision_number_t new_revision)
 
     // Close reading table
     Assert(btree_for_reading != 0);
-    Btree_quit(btree_for_reading);
+    delete btree_for_reading;
     btree_for_reading = 0;
 
     // Close writing table and write changes

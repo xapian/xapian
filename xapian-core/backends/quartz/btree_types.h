@@ -89,9 +89,15 @@ struct Cursor {
 struct Btree_item {
     /* Constructor which zeroes all the fields */
     Btree_item()
-	    : key_size(0), key_len(0), key(0),
-    	      tag_size(0), tag_len(0), tag(0)
+	    : key_size(-1), key_len(0), key(0),
+    	      tag_size(-1), tag_len(0), tag(0)
     {
+    }
+
+    ~Btree_item()
+    {
+	delete [] key;
+	delete [] tag;
     }
 
     int key_size;       /* capacity of item->key */

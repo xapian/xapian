@@ -1,3 +1,17 @@
+Wed Jun 12 02:28:30 BST 2002  Olly Betts <olly@survex.com>
+
+	* Btree_item_create and Btree_item_lose subsumed into Btree_item
+	  and ~Btree_item.
+
+	* Pass C++ strings rather than const char * into various Btree open
+	  methods.
+
+	* Removed pointless wrapper functions for Btree open methods.
+
+	* Btree_quit removed (just use delete directly).
+
+	* Btree_create removed (just use Btree::create directly).
+
 Wed Jun 12 00:48:52 BST 2002  Olly Betts <olly@survex.com>
 
 	* form_key is now a method of Btree; more passing of strings rather

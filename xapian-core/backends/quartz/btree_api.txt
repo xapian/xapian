@@ -2,6 +2,10 @@ Quartz notes
 
 -----------------------------------------------
 
+[Note: the Btree code used to be object-like C, evolved through a strange
+mishmash of this and C++, and is gradually becoming "true" C++.  These docs
+may not be fully up-to-date with these changes (FIXME - check)]
+
 I'm not sure about the name 'Btree' that runs through all this, since the fact
 that it is all implemented as a B-tree is surely irrelevant. I have not been
 able to think of a better name though ...
@@ -124,14 +128,14 @@ conditions are described later. Meanwhile, the code examples given here ignore
 the possibility of errors. Bad practise, but it makes them more readable.
 
 
-int Btree_create(const char * name, int block_size);
+int Btree::create(const string & name, int block_size);
 
     Creates a new B-tree with the given name and block size. The integer result
     gives an error condition.
 
-        error_condition = Btree_create("/home/martin/develop/btree/", 8192);
+        error_condition = Btree::create("/home/martin/develop/btree/", 8192);
 
-        Btree_create("X-", 6000); /* files will be X-bitmapA, X-DB etc */
+        Btree::create("X-", 6000); /* files will be X-bitmapA, X-DB etc */
 
     The block size must be less than 64K, where K = 1024. It is unwise to
     use a small block size (less than 1024 perhaps), but it is not at present
@@ -144,7 +148,7 @@ Thereafter there are two modes for accessing the B-tree: update and retrieval.
 Update mode
 -----------
 
-struct Btree * Btree_open_to_write(const char * name);
+bool Btree::open_to_write(const string & name);
 
     The name is the same as the one used in creating. The result is a pointer
     to a Btree structure, or 0 if the open fails, e.g.
@@ -181,7 +185,7 @@ B->both_bases
 
     is true iff both files baseA and baseB exist as valid bases.
 
-struct Btree * Btree_open_to_write_revision(const char * name, unsigned long revision);
+ool Btree::open_to_write(const string & name, unsigned long revision);
 
     Like Btree_open_to_write, but open at the given revision number.
 
@@ -218,11 +222,11 @@ bool Btree::del(const string &key);
     in the total number of keys in the B-tree.
 
 
-struct Btree_item * Btree_item_create();
+Btree_item::Btree_item();
 
-    Creates a structure for holding B-tree items. After
+    Creates an object for holding B-tree items. After
 
-        t = Btree_item_create();
+        t = new Btree_item();
 
     We can make use of the following,
 
@@ -248,7 +252,7 @@ bool Btree::find_key(const string &key);
     found.
 
 
-bool Btree::find_tag(const string &key, struct Btree_item * t);
+bool Btree::find_tag(const string &key, Btree_item * t);
 
     The same result, but when the key is found the tag is copied to t->tag and
     its length put in t->tag_len. If the key is not found t->tag and t->tag_len
@@ -258,14 +262,7 @@ bool Btree::find_tag(const string &key, struct Btree_item * t);
         B->find_tag("TODAY", t); /* get today's date */
 
 
-void Btree_item_lose(Btree_item * t);
-
-    Loses the structure.
-
-
-void Btree_quit(struct Btree * B);
-
-int Btree_close(struct Btree * B, unsigned long revision);
+int Btree_close(Btree * B, unsigned long revision);
 
     There are two ways of closing the B-tree. Btree_close is the normal exit,
     with all changes being flushed back to disk. Btree_quit abandons the
@@ -297,27 +294,21 @@ In retrieval mode there is no opportunity for updating the B-tree, but access
 is considerably elaborated by the use of cursors.
 
 
-struct Btree * Btree_open_to_read(const char * name);
+bool Btree_open_to_read(const string & name);
 
 B->revision_number
 
-struct Btree * Btree_open_to_read_revision(const char * name, unsigned long revision);
-
-void Btree_quit(struct Btree * B);
-
+bool Btree_open_to_read(const string & name, unsigned long revision);
 
 and,
 
-struct Btree_item * Btree_item_create();
-
-void Btree_item_lose(struct Btree item * kt);
-
+Btree_item::Btree_item();
 
     These are the same as for update mode, except that that the opened B-tree
     is not modifiable.
 
 
-struct Bcursor * BC = Bcursor_create(struct Btree * B);
+Bcursor * BC = Bcursor_create(Btree * B);
 
     This creates a cursor, which can be used to remember a position inside the
     B-tree. The position is simply the item (key and tag) to which the cursor
@@ -361,7 +352,7 @@ int Bcursor::prev();
     next item.
 
 
-int Bcursor::get_key(struct Btree_item * kt);
+int Bcursor::get_key(Btree_item * kt);
 
     If cursor BC is unpositioned, the result is simply 0.
 
@@ -387,7 +378,7 @@ int Bcursor::get_key(struct Btree_item * kt);
 
 
 
-int Bcursor::get_tag(struct Btree_item * kt);
+int Bcursor::get_tag(Btree_item * kt);
 
     If cursor BC is unpositioned, the result is simply 0.
 
@@ -460,7 +451,7 @@ void Btree_check(const char * name, const char * opt_string);
     Btree_check(s, opts) is essentially equivalent to
 
 
-        struct Btree * Btree_open_to_write(s);
+        Btree * Btree_open_to_write(s);
         {
             /* do a complete integrity check of the B-tree,
                reporting according to the option string
@@ -499,7 +490,7 @@ much higher compaction than 75% is achieved - about 90%. This is called
 the procedure
 
 
-void Btree_full_compaction(struct Btree * B, int parity);
+void Btree_full_compaction(Btree * B, int parity);
 
 So
 
@@ -538,13 +529,15 @@ Here is a program fragment to unload B-tree B/ and reform it in Bnew/ as a fully
 compact B-tree with revision number 1.
 
 
-    {   struct Btree * B = Btree_open_to_read("B/");
-        struct Bcursor * BC = Bcursor_create(B);
-        struct Btree_item * item = Btree_item_create();
+    {
+	Btree * B = Btree_open_to_read("B/");
+        Bcursor * BC = Bcursor_create(B);
+        Btree_item * item = Btree_item_create();
 
         Btree_create("Bnew/", 8192);
 
-        {   struct Btree * new_B = Btree_open_to_write("Bnew/");
+        {
+	    Btree * new_B = Btree_open_to_write("Bnew/");
             Btree_full_compaction(new_B, 1);
 
             BC->find_key("", 0);
@@ -597,7 +590,7 @@ is set to true. This may be detected, and suitable action taken. Here is a model
 scheme:
 
 
-static struct Btree * reopen(struct Btree * B)
+static Btree * reopen(Btree * B)
 {
     unsigned long int revision = B->revision_number;
 
@@ -623,7 +616,7 @@ static struct Btree * reopen(struct Btree * B)
     ....
 
     char * s = "database/";
-    struct Btree * B;
+    Btree * B;
     unsigned long int revision = 0;
 
     B = Btree_open_to_read(s);            /* open the B-tree */
@@ -654,7 +647,7 @@ an error that cannot generally be trapped in this way.
 In retrieval mode B->overwitten should be tested after the following procedures,
 
     B = Btree_open_to_read(name);
-    B = Btree_open_to_read_revision(name, revision);
+    B = Btree_open_to_read(name, revision);
     Bcursor::next();
     Bcursor::prev();
     BC->find_key(key);
@@ -680,10 +673,10 @@ Error conditions
 The procedures described above report errors in three ways. (A) A null result.
 If after
 
-   struct Btree_item kt = Btree_item_create();
+   Bcursor BC = Bcursor::create(B);
 
-kt == 0, the was not enough space left to create structure kt. (B) A non-zero
-result. Btree_close(B) returns an int result which is 0 if successful,
+BC == 0, the was not enough space left to create the Bcursor. (B) A non-zero
+result. Btree::close() returns an int result which is 0 if successful,
 otherwise an error number. (C) The error is placed in B->error, where B is the
 Btree structure used in the call, or the Btree structure from which the Bcursor
 structure used in the call derives. Then B->error == 0 means no error,
@@ -698,25 +691,21 @@ Here is a summary:
     (A)(B)(C)          error condition given by:
     ------------------------------------------------------
            *  n = Btree::find_key(key)
-     *        kt= Btree_item_create()
            *  n = Btree::find_tag(key, kt)
-                  Btree_item_lose(kt)
            *  n = Btree::add(key, tag)
            *  n = Btree::del(key)
-     *     *  B = Btree_open_to_write(s)
-     *     *  B = Btree_open_to_write_revision(s, rev)
-                  Btree_quit(B)
-        *     n = Btree_close(B, rev)
-        *     n = Btree_create(s, block_size)
-     *     *  B = Btree_open_to_read(s)
-     *     *  B = Btree_open_to_read_revision(s, rev)
-     *     *  BC= Bcursor_create(B)
+           *  B = Btree::open_to_write(s)
+           *  B = Btree::open_to_write(s, rev)
+        *     n = Btree::close(B, rev)
+        *     n = Btree::create(s, block_size)
+           *  B = Btree::open_to_read(s)
+           *  B = Btree::open_to_read(s, rev)
+     *     *  BC= Bcursor::create(B)
            *  n = Bcursor::find_key(key)
            *  n = Bcursor::next()
            *  n = Bcursor::prev()
            *  n = Bcursor::get_key(kt)
            *  n = Bcursor::get_tag(kt)
-                  Bcursor::~Bcursor()
                   Btree_full_compaction(B, parity)
 
     (A) null result (B) non-zero result (C) B->error == true

@@ -1026,8 +1026,8 @@ Btree::add_kt(int found, struct Cursor * C)
 
     /*
     {
-	printf("%d) %s ", addcount++, (found ? "replacing " : "adding "));
-	print_bytes(kt[I2] - K1 - C2, kt + I2 + K1); printf("\n");
+	printf("%d) %s ", addcount++, (found ? "replacing" : "adding"));
+	print_bytes(kt[I2] - K1 - C2, kt + I2 + K1); putchar('\n');
     }
     */
     alter(C);
@@ -1095,7 +1095,7 @@ Btree::delete_kt()
     /*
     {
 	printf("%d) %s ", addcount++, (found ? "deleting " : "ignoring "));
-	print_bytes(B->kt[I2] - K1 - C2, B->kt + I2 + K1); printf("\n");
+	print_bytes(B->kt[I2] - K1 - C2, B->kt + I2 + K1); putchar('\n');
     }
     */
     if (found)
@@ -1256,15 +1256,6 @@ Btree::find_key(const string &key)
     return find(C);
 }
 
-extern struct Btree_item * Btree_item_create(void)
-{
-    struct Btree_item * item = new Btree_item;
-    if (item == 0) return 0;
-    item->key_size = -1;
-    item->tag_size = -1;
-    return item;
-}
-
 bool
 Btree::find_tag(const string &key, struct Btree_item * item)
 {
@@ -1318,13 +1309,6 @@ Btree::find_tag(const string &key, struct Btree_item * item)
     return true;
 }
 
-extern void Btree_item_lose(struct Btree_item * item)
-{
-    delete [] item->key;
-    delete [] item->tag;
-    delete item;
-}
-
 extern void Btree_full_compaction(struct Btree * B, int parity)
 {
     B->set_full_compaction(parity);
@@ -1350,7 +1334,7 @@ Btree::write_base()
 }
 
 bool
-Btree::basic_open(const char * name_,
+Btree::basic_open(const string & name_,
 		  bool revision_supplied,
 		  uint4 revision_)
 {
@@ -1526,7 +1510,7 @@ Btree::read_root()
 }
 
 bool
-Btree::do_open_to_write(const char * name_,
+Btree::do_open_to_write(const string & name_,
 			bool revision_supplied,
 			uint4 revision_)
 {
@@ -1583,43 +1567,15 @@ Btree::do_open_to_write(const char * name_,
 }
 
 bool
-Btree::open_to_write(const char * name)
+Btree::open_to_write(const string & name)
 {
     return do_open_to_write(name, false, 0);
 }
 
 bool
-Btree::open_to_write(const char * name, uint4 n)
+Btree::open_to_write(const string & name, uint4 n)
 {
     return do_open_to_write(name, true, n);
-}
-
-struct Btree * Btree_open_to_write(const char * name)
-{
-    AutoPtr<Btree> B(new Btree());
-
-    if (B->open_to_write(name)) {
-	return B.release();
-    } else {
-	return 0;
-    }
-}
-
-struct Btree * Btree_open_to_write_revision(const char * name,
-					    unsigned long revision)
-{
-    AutoPtr<Btree> B(new Btree());
-
-    if (B->open_to_write(name, revision)) {
-	return B.release();
-    } else {
-	return 0;
-    }
-}
-
-extern void Btree_quit(struct Btree * B)
-{
-    delete B;
 }
 
 Btree::Btree()
@@ -1675,10 +1631,8 @@ Btree::erase(const string & tablename)
 }
 
 void
-Btree::create(const char *name_, int block_size)
+Btree::create(const string &name_, int block_size)
 {
-    string name(name_);
-
     if (block_size > BYTE_PAIR_RANGE) {
 	/* block size too large (64K maximum) */
 	throw OmInvalidArgumentError("Btree block size too large");
@@ -1699,12 +1653,12 @@ Btree::create(const char *name_, int block_size)
 	base.set_block_size(block_size);
 	base.set_have_fakeroot(true);
 	base.set_sequential(true);
-	base.write_to_file(name + "baseA");
+	base.write_to_file(name_ + "baseA");
 
 	/* create the main file */
 	/* error = BTREE_ERROR_DB_CREATE; */
 	{
-	    int h = sys_open_to_write(name + "DB");      /* - null */
+	    int h = sys_open_to_write(name_ + "DB");      /* - null */
 	    if ( ! (valid_handle(h) &&
 		    sys_close(h))) {
 		string message = "Error creating DB file: ";
@@ -1802,7 +1756,7 @@ Btree::commit(uint4 revision)
 /************ B-tree reading ************/
 
 bool
-Btree::do_open_to_read(const char * name_,
+Btree::do_open_to_read(const string & name_,
 		       bool revision_supplied,
 		       uint4 revision_)
 {
@@ -1839,38 +1793,15 @@ Btree::do_open_to_read(const char * name_,
 }
 
 bool
-Btree::open_to_read(const char * name)
+Btree::open_to_read(const string & name)
 {
     return do_open_to_read(name, false, 0);
 }
 
 bool
-Btree::open_to_read(const char * name, uint4 n)
+Btree::open_to_read(const string & name, uint4 n)
 {
     return do_open_to_read(name, true, n);
-}
-
-Btree * Btree_open_to_read(const char * name)
-{
-    AutoPtr<Btree> B(new Btree());
-
-    if (B->open_to_read(name)) {
-	return B.release();
-    } else {
-	return 0;
-    }
-}
-
-Btree * Btree_open_to_read_revision(const char * name,
-				    unsigned long revision)
-{
-    AutoPtr<Btree> B(new Btree());
-
-    if (B->open_to_read(name, revision)) {
-	return B.release();
-    } else {
-	return 0;
-    }
 }
 
 AutoPtr<Bcursor> Btree::Bcursor_create()
@@ -1999,13 +1930,6 @@ Btree::next_default(struct Btree * B, struct Cursor * C, int j)
     return true;
 }
 
-/*********** B-tree creating ************/
-
-extern void Btree_create(const char * name_, int block_size)
-{
-    Btree::create(name_, block_size);
-}
-
 /*********** B-tree checking ************/
 
 static void print_bytes(int n, const byte * p)
@@ -2045,7 +1969,7 @@ static void print_tag(byte * p, int c, int j)
 
 static void print_spaces(int n)
 {
-    print_bytes(n, (byte *) "                              ");
+    printf("%*s", n, "");
 }
 
 /* report_block(B, m, n, p) prints the block at p, block number n, indented by
@@ -2073,9 +1997,9 @@ static void report_block(struct Btree * B, int m, int n, byte * p)
 	if (c >= DIR_START + 6 && c < dir_end - 6) continue;
 
 	print_key(p, c, j);
-	printf(" ");
+	putchar(' ');
     }
-    printf("\n");
+    putchar('\n');
 }
 
 void Btree::report_block_full(int m, int n, byte * p)
@@ -2083,7 +2007,7 @@ void Btree::report_block_full(int m, int n, byte * p)
     int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);
     int c;
-    printf("\n");
+    putchar('\n');
     print_spaces(m);
     printf("Block [%d] level %d, revision *%d items (%d) usage %d%%:\n",
 	   n, j, REVISION(p), (dir_end - DIR_START)/D2, block_usage(this, p));
@@ -2091,9 +2015,9 @@ void Btree::report_block_full(int m, int n, byte * p)
     for (c = DIR_START; c < dir_end; c += D2) {
 	print_spaces(m);
 	print_key(p, c, j);
-	printf(" ");
+	putchar(' ');
 	print_tag(p, c, j);
-	printf("\n");
+	putchar('\n');
     }
 }
 
@@ -2176,48 +2100,50 @@ Btree::block_check(struct Cursor * C_, int j, int opts)
 }
 
 void
-Btree::check(const char * name, const char * opt_string)
+Btree::check(const string & name, const string & opt_string)
 {
-    struct Btree * B = Btree_open_to_write(name);
-    struct Cursor * C = B->C;
-
-    int opts = 0;
-
-    if (B->error) {
+    Btree B;
+    if (!B.open_to_write(name) || B.error) {
 	printf("error %d (%s) in opening %s\n",
-	       B->error, Btree_strerror(B->error).c_str(), name);
+	       B.error, Btree_strerror(B.error).c_str(), name.c_str());
 	exit(1);
     }
+    struct Cursor * C = B.C;
 
-    for (size_t i = 0; opt_string[i]; i++) {
+    int opts = 0;
+    for (string::size_type i = 0; i < opt_string.size(); i++) {
 	switch (opt_string[i]) {
 	    case 't': opts |= 1; break; /* short tree printing */
 	    case 'f': opts |= 2; break; /* full tree printing */
 	    case 'b': opts |= 4; break;
 	    case 'v': opts |= 8; break;
 	    case '+': opts |= 1 | 4 | 8; break;
-	    case '?': printf("use t,f,b,v or + in the option string\n"); exit(0);
-	    default: printf("option %s unknown\n", opt_string); exit(1);
+	    case '?':
+		printf("use t,f,b,v or + in the option string\n");
+		exit(0);
+	    default:
+		printf("option %s unknown\n", opt_string.c_str());
+		exit(1);
 	}
     }
     if (opts & 8)
 	printf("base%c  Revision *%ld  levels %d  root [%ld]%s  blocksize %d  items %ld  lastblock %ld\n",
-		B->base_letter,
-		B->revision_number,
-		B->level,
-		C[B->level].n,
-		B->faked_root_block ? "(faked)" : "",
-		B->block_size,
-		B->item_count,
-		B->base.get_last_block());
+		B.base_letter,
+		B.revision_number,
+		B.level,
+		C[B.level].n,
+		B.faked_root_block ? "(faked)" : "",
+		B.block_size,
+		B.item_count,
+		B.base.get_last_block());
 
-    int limit = B->base.get_bit_map_size() - 1;
+    int limit = B.base.get_bit_map_size() - 1;
 
     limit = limit * CHAR_BIT + CHAR_BIT - 1;
 
     if (opts & 4) {
 	for (int j = 0; j <= limit; j++) {
-	    putchar(B->base.block_free_at_start(j) ? '.' : '*');
+	    putchar(B.base.block_free_at_start(j) ? '.' : '*');
 	    if (j > 0) {
 		if ((j + 1) % 100 == 0) {
 		    putchar('\n');
@@ -2229,17 +2155,16 @@ Btree::check(const char * name, const char * opt_string)
 	printf("\n\n");
     }
 
-    if (B->faked_root_block)
+    if (B.faked_root_block)
 	printf("void ");
     else {
-	B->block_check(C, B->level, opts);
+	B.block_check(C, B.level, opts);
 
 	/* the bit map should now be entirely clear: */
 
-	if (!B->base.is_empty()) {
+	if (!B.base.is_empty()) {
 	    failure(100);
 	}
     }
-    Btree_quit(B);
     printf("B-tree checked okay\n");
 }

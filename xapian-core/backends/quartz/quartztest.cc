@@ -1510,22 +1510,21 @@ static bool test_unpackint1()
 static bool test_btree1()
 {
     string path = tmpdir + "test_btree1_";
-    Btree_create(path.c_str(), 8192);
-    struct Btree * btree = Btree_open_to_read(path.c_str());
+    Btree::create(path, 8192);
+    Btree btree;
+    if (!btree.open_to_read(path)) return false;
 
     string key = "foo";
     {
-	AutoPtr<Bcursor> cursor = btree->Bcursor_create();
+	AutoPtr<Bcursor> cursor = btree.Bcursor_create();
 	int found = cursor->find_key(key);
 	TEST(!found);
     }
     {
-	AutoPtr<Bcursor> cursor = btree->Bcursor_create();
+	AutoPtr<Bcursor> cursor = btree.Bcursor_create();
 	int found = cursor->find_key(key);
 	TEST(!found);
     }
-    
-    Btree_quit(btree);
 
     return true;
 }

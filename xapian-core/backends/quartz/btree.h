@@ -49,25 +49,25 @@ class Btree {
 	 *
 	 * @return true if the open succeeded.
 	 */
-	bool open_to_read(const char *name_);
+	bool open_to_read(const string &name_);
 
 	/** Open the btree to read at a given revision
 	 *
 	 * @return true if the open succeeded.
 	 */
-	bool open_to_read(const char *name_, uint4 revision_);
+	bool open_to_read(const string &name_, uint4 revision_);
 
 	/** Open the btree to write at the latest revision
 	 *
 	 * @return true if the open succeeded.
 	 */
-	bool open_to_write(const char *name_);
+	bool open_to_write(const string &name_);
 
 	/** Open the btree to write at a given revision
 	 *
 	 * @return true if the open succeeded.
 	 */
-	bool open_to_write(const char *name_, uint4 revision_);
+	bool open_to_write(const string &name_, uint4 revision_);
 
 	/** Attempt to commit changes to disk.  Returns
 	 *  BTREE_ERRORS_NONE if successful, otherwise an error.
@@ -82,14 +82,14 @@ class Btree {
 	bool del(const string &key);
 
 	/** Create an initial btree structure on disk */
-	static void create(const char *name_, int blocksize);
+	static void create(const string &name_, int blocksize);
 
 	/** Erase the btree structure from disk */
 	static void erase(const string & tablename);
 
 	void set_full_compaction(int parity);
 
-	static void check(const char *name, const char *opt_string);
+	static void check(const string & name, const string & opt_string);
 
 	AutoPtr<Bcursor> Bcursor_create();
 
@@ -132,7 +132,7 @@ class Btree {
 	 *
 	 * Return true if the open succeeded.
 	 */
-	bool do_open_to_read(const char *name_,
+	bool do_open_to_read(const string &name_,
 			     bool revision_supplied,
 			     uint4 revision_);
 
@@ -140,10 +140,10 @@ class Btree {
 	 *
 	 * Return false if the open succeeded.
 	 */
-	bool do_open_to_write(const char *name_,
+	bool do_open_to_write(const string &name_,
 			     bool revision_supplied,
 			     uint4 revision_);
-	bool basic_open(const char *name_,
+	bool basic_open(const string &name_,
 			bool revision_supplied,
 			uint4 revision);
 
@@ -229,15 +229,7 @@ class Btree {
 	void report_block_full(int m, int n, byte * p);
 };
 
-extern struct Btree_item * Btree_item_create(); //
-extern void Btree_item_lose(struct Btree_item * kt); //
-extern struct Btree * Btree_open_to_write(const char * name);
-extern struct Btree * Btree_open_to_write_revision(const char * name, unsigned long revision);
-extern void Btree_quit(struct Btree * B);
 extern int Btree_close(struct Btree * B, unsigned long revision);
-extern void Btree_create(const char * name, int block_size);
-extern struct Btree * Btree_open_to_read(const char * name);
-extern struct Btree * Btree_open_to_read_revision(const char * name, unsigned long revision);
 extern void Btree_full_compaction(struct Btree * B, int parity);
 
 #endif /* OM_HGUARD_BTREE_H */

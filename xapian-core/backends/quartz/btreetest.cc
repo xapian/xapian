@@ -122,11 +122,6 @@ static void do_update(const string & btree_dir,
     btree.commit(btree.revision_number + 1);
 }
 
-static void do_check(const string & btree_dir, const string & args)
-{
-    Btree::check(btree_dir.c_str(), args.c_str());
-}
-
 static void do_create(const string & btree_dir, int block_size = 1024)
 {
     delete_dir(btree_dir);
@@ -141,16 +136,16 @@ static bool test_insertdelete1()
 {
     string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
-    do_check(btree_dir, "v");
+    Btree::check(btree_dir, "v");
 
     if (!file_exists(datadir + "ord+") || !file_exists(datadir + "ord-"))
 	SKIP_TEST("Data files not present");
 
     do_update(btree_dir, datadir + "ord+");
-    do_check(btree_dir, "v");
+    Btree::check(btree_dir, "v");
 
     do_update(btree_dir, datadir + "ord-");
-    do_check(btree_dir, "vt");
+    Btree::check(btree_dir, "vt");
 
     Btree btree;
     btree.open_to_read(btree_dir.c_str());
@@ -168,16 +163,16 @@ static bool test_LFSinsertdelete1()
 
     string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
-    do_check(btree_dir, "v");
+    Btree::check(btree_dir, "v");
 
     if (!file_exists(datadir + "ord+") || !file_exists(datadir + "ord-"))
 	SKIP_TEST("Data files not present");
 
     do_update(btree_dir, datadir + "ord+");
-    do_check(btree_dir, "v");
+    Btree::check(btree_dir, "v");
 
     do_update(btree_dir, datadir + "ord-");
-    do_check(btree_dir, "vt");
+    Btree::check(btree_dir, "vt");
 
     Btree btree;
     btree.open_to_read(btree_dir.c_str());
