@@ -107,6 +107,21 @@ AC_PATH_PROG(SWIG_PATH, swig)
 AM_CONDITIONAL(HAVE_SWIG, test -n "$SWIG_PATH")
 AC_SUBST(SWIG_PATH)
 
+dnl Check for libxml.  We do this by looking for xml-config.
+dnl FIXME: is something else needed for non-gnome libxml?
+AC_PATH_PROG(XML_CONFIG_PATH, xml-config)
+AM_CONDITIONAL(HAVE_LIBXML, test -n "$XML_CONFIG_PATH")
+AC_SUBST(XML_CONFIG_PATH)
+
+if test -n "$XML_CONFIG_PATH"
+then
+    echo "Checking libxml flags..."
+    LIBXML_CFLAGS=`$XML_CONFIG_PATH --cflags`
+    LIBXML_LIBS=`$XML_CONFIG_PATH --libs`
+fi
+AC_SUBST(LIBXML_CFLAGS)
+AC_SUBST(LIBXML_LIBS)
+
 dnl Use libtool to manage our libraries
 AM_PROG_LIBTOOL
 
@@ -615,6 +630,7 @@ AC_OUTPUT(
  matcher/Makefile
  api/Makefile
  indexer/Makefile
+ indexer/indexgraph/Makefile
  tests/Makefile
  docs/Makefile
  m4/Makefile
