@@ -9,7 +9,7 @@ extern "C" {
 #endif
 
 #include <stdio.h>   /* main etc */
-#include "muscat.h"
+#include "damuscat.h"
 
 struct DAfile
 {   filehandle locator;
