@@ -76,7 +76,7 @@ should probably use data() and length().
 </todoitem>
 <todoitem priority="M" difficulty="4" owner="" area="General" release="1.0">
 
-Allow setting of the document length in OmDocument?  (Currently defined to
+Allow setting of the document length in Xapian::Document?  (Currently defined to
 be the sum of the wdfs, which is perhaps the correct definition).
 
 </todoitem>
@@ -602,7 +602,7 @@ min and max.
 <todoitem priority="" difficulty="" owner="" area="" release="">
 
 Try to reduce unnecessary inclusion of headers - sometimes just saying
-"class OmFoo;" is enough.  Look at using iosfwd instead of iostream
+"class Xapian::Foo;" is enough.  Look at using iosfwd instead of iostream
 where applicable (TC++PL 3ed 8.2.7).
 
 </todoitem>

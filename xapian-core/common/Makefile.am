@@ -8,14 +8,14 @@ noinst_HEADERS = \
  leafpostlist.h \
  expandweight.h stats.h networkstats.h \
  match.h multimatch.h expand.h rset.h \
- utils.h omqueryinternal.h refcnt.h \
+ utils.h omqueryinternal.h \
  document.h \
  netclient.h progclient.h net_database.h \
  netutils.h omtime.h netserver.h progserver.h socketclient.h socketserver.h \
  socketcommon.h positionlist.h tcpclient.h \
  tcpserver.h omerr_string.h omdebug.h omlinebuf.h omstringstream.h \
  inmemory_positionlist.h omenquireinternal.h emptypostlist.h \
- omdocumentinternal.h autoptr.h \
+ modifieddocument.h autoptr.h \
  alltermslist.h multialltermslist.h \
  deleter_vector.h getopt.h
 

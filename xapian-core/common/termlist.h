@@ -27,8 +27,7 @@
 #include <string>
 
 #include <xapian/types.h>
-#include "xapian/error.h"
-#include "refcnt.h"
+#include <xapian/error.h>
 #include "expandweight.h"
 
 using namespace std;

@@ -93,10 +93,8 @@ class Error {
 	}
 
 	/// Destructor
-	virtual ~Error();
+	virtual ~Error() { }
 };
-
-inline Error::~Error() {}
 
 #define DEFINE_ERROR_BASECLASS(a, b) \
 class a : public b { \

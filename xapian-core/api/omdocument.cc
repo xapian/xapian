@@ -23,12 +23,11 @@
  */
 
 #include <config.h>
-#include "om/omdocument.h"
+#include <xapian/document.h>
 #include <xapian/types.h>
-#include "refcnt.h"
 #include "document.h"
-#include "omdocumentinternal.h"
-#include "omtermlistiteratorinternal.h"
+#include "modifieddocument.h"
+#include "maptermlist.h"
 #include "omvalueiteratorinternal.h"
 #include "xapian/error.h"
 #include <algorithm>
@@ -36,313 +35,227 @@
 
 using namespace std;
 
-//////////////////////////////////
-// implementation of OmDocument //
-//////////////////////////////////
+namespace Xapian {
 
-OmDocument::OmDocument(OmDocument::Internal *internal_) : internal(internal_)
+// implementation of Document
+
+Document::Document(Document::Internal *internal_) : internal(internal_)
 {
 }
 
-OmDocument::OmDocument() : internal(new OmDocument::Internal)
+Document::Document() : internal(0)
 {
 }
 
 string
-OmDocument::get_value(om_valueno value) const
+Document::get_value(om_valueno value) const
 {
-    DEBUGAPICALL(string, "OmDocument::get_value", value);
-    if (internal->values_here) {
-	map<om_valueno, string>::const_iterator i;
-	i = internal->values.find(value);
-	if (i == internal->values.end()) RETURN("");
-	RETURN(i->second);
-    }
-    // create our own RefCntPtr in case another thread assigns a new ptr
-    RefCntPtr<Document> myptr = internal->ptr;
-
-    RETURN(myptr->get_value(value));
+    DEBUGAPICALL(string, "Document::get_value", value);
+    if (!internal.get()) RETURN("");
+    RETURN(internal->get_value(value));
 }
 
 string
-OmDocument::get_data() const
+Document::get_data() const
 {
-    DEBUGAPICALL(string, "OmDocument::get_data", "");
-    if (internal->data_here) RETURN(internal->data);
-    // create our own RefCntPtr in case another thread assigns a new ptr
-    // FIXME: threads not an issue now?
-    RefCntPtr<Document> myptr = internal->ptr;
-
-    RETURN(myptr->get_data());
+    DEBUGAPICALL(string, "Document::get_data", "");
+    if (!internal.get()) RETURN("");
+    RETURN(internal->get_data());
 }
 
 void
-OmDocument::set_data(const string &data)
+Document::set_data(const string &data)
 {
-    DEBUGAPICALL(void, "OmDocument::set_data", data);
-    internal->data = data;
-    internal->data_here = true;
+    DEBUGAPICALL(void, "Document::set_data", data);
+    if (!internal.get())
+	internal = new ModifiedDocument(0);
+    else
+	internal = internal->modify();
+    internal->set_data(data);
 }
 
 void
-OmDocument::operator=(const OmDocument &other)
+Document::operator=(const Document &other)
 {
     // pointers are reference counted.
-    *internal = *(other.internal);
+    internal = other.internal;
 }
 
-OmDocument::OmDocument(const OmDocument &other)
-	: internal(0)
+Document::Document(const Document &other)
+	: internal(other.internal)
 {
-    internal = new Internal(*other.internal);
 }
 
-OmDocument::~OmDocument()
+Document::~Document()
 {
-    delete internal;
 }
 
 string
-OmDocument::get_description() const
+Document::get_description() const
 {
-    string description = "OmDocument(data=";
-    if (internal->data_here)
-      	description += "`" + internal->data + "'";
+    if (!internal.get()) return "Document()";
+    return "Document(" + internal->get_description() + ")";
+}
+
+void
+Document::add_value(om_valueno valueno, const string &value)
+{
+    DEBUGAPICALL(void, "Document::add_value", valueno << ", " << value);
+    if (!internal.get())
+	internal = new ModifiedDocument(0);
     else
-	description += "[not fetched]";
+	internal = internal->modify();
+    internal->add_value(valueno, value);
+}
 
-    description += " values=";
-    if (internal->values_here)
-      	description += om_tostring(internal->values.size());
+void
+Document::remove_value(om_valueno valueno)
+{
+    DEBUGAPICALL(void, "Document::remove_value", valueno);
+    if (!internal.get())
+	internal = new ModifiedDocument(0);
     else
-	description += "[not fetched]";
+	internal = internal->modify();
+    internal->remove_value(valueno);
+}
 
-    description += " terms=";
-    if (internal->terms_here)
-       	description += om_tostring(internal->terms.size());
+void
+Document::clear_values()
+{
+    DEBUGAPICALL(void, "Document::clear_values", "");
+    if (!internal.get())
+	internal = new ModifiedDocument(0);
     else
-	description += "[not fetched]";
-
-    return description + ")";
+	internal = internal->modify();
+    internal->clear_values();
 }
 
 void
-OmDocument::add_value(om_valueno valueno, const string &value)
-{
-    DEBUGAPICALL(void, "OmDocument::add_value", valueno << ", " << value);
-    internal->need_values();
-    internal->values.insert(make_pair(valueno, value));	
-}
-
-void
-OmDocument::remove_value(om_valueno valueno)
-{
-    DEBUGAPICALL(void, "OmDocument::remove_value", valueno);
-    internal->need_values();
-    internal->values.erase(valueno);
-}
-
-void
-OmDocument::clear_values()
-{
-    DEBUGAPICALL(void, "OmDocument::clear_values", "");
-    internal->values.clear();
-    internal->values_here = true;
-}
-
-void
-OmDocument::Internal::read_termlist(Xapian::TermIterator t,
-				    const Xapian::TermIterator & tend)
-{
-    if (!terms_here) {
-	for ( ; t != tend; t++) {
-	    Xapian::PositionListIterator p = t.positionlist_begin();
-	    Xapian::PositionListIterator pend = t.positionlist_end();
-	    OmDocumentTerm term(*t);
-	    for ( ; p != pend; p++) {
-		term.add_position(*p);
-	    }
-	    term.set_wdf(t.get_wdf());
-	    terms.insert(make_pair(*t, term));
-	}
-	terms_here = true;
-    }
-}
-
-void
-OmDocument::add_posting(const string & tname,
+Document::add_posting(const string & tname,
 			om_termpos tpos,
 			om_termcount wdfinc)
 {
-    DEBUGAPICALL(void, "OmDocument::add_posting",
+    DEBUGAPICALL(void, "Document::add_posting",
 		 tname << ", " << tpos << ", " << wdfinc);
     if (tname.empty()) {
-	throw Xapian::InvalidArgumentError("Empty termnames aren't allowed.");
+	throw InvalidArgumentError("Empty termnames aren't allowed.");
     }
-    internal->read_termlist(termlist_begin(), termlist_end());
-
-    map<string, OmDocumentTerm>::iterator i;
-    i = internal->terms.find(tname);
-    if (i == internal->terms.end()) {
-	OmDocumentTerm newterm(tname);
-	newterm.add_position(tpos);
-	newterm.set_wdf(wdfinc);
-	internal->terms.insert(make_pair(tname, newterm));
-    } else {
-	i->second.add_position(tpos);
-	if (wdfinc) i->second.set_wdf(i->second.get_wdf() + wdfinc);
-    }
+    if (!internal.get())
+	internal = new ModifiedDocument(0);
+    else
+	internal = internal->modify();
+    internal->add_posting(tname, tpos, wdfinc);
 }
 
 void
-OmDocument::add_term_nopos(const string & tname,
-			   om_termcount wdfinc)
+Document::add_term_nopos(const string & tname, om_termcount wdfinc)
 {
-    DEBUGAPICALL(void, "OmDocument::add_term_nopos", tname << ", " << wdfinc);
+    DEBUGAPICALL(void, "Document::add_term_nopos", tname << ", " << wdfinc);
     if (tname.empty()) {
-	throw Xapian::InvalidArgumentError("Empty termnames aren't allowed.");
+	throw InvalidArgumentError("Empty termnames aren't allowed.");
     }
-    internal->read_termlist(termlist_begin(), termlist_end());
-
-    map<string, OmDocumentTerm>::iterator i;
-    i = internal->terms.find(tname);
-    if (i == internal->terms.end()) {
-	OmDocumentTerm newterm(tname);
-	newterm.set_wdf(wdfinc);
-	internal->terms.insert(make_pair(tname, newterm));
-    } else {
-	if (wdfinc) i->second.set_wdf(i->second.get_wdf() + wdfinc);
-    }
+    if (!internal.get())
+	internal = new ModifiedDocument(0);
+    else
+	internal = internal->modify();
+    internal->add_term_nopos(tname, wdfinc);
 }
 
 void
-OmDocument::remove_posting(const string & tname,
-			   om_termpos tpos,
-			   om_termcount wdfdec)
+Document::remove_posting(const string & tname, om_termpos tpos,
+			 om_termcount wdfdec)
 {
-    DEBUGAPICALL(void, "OmDocument::remove_posting",
+    DEBUGAPICALL(void, "Document::remove_posting",
 		 tname << ", " << tpos << ", " << wdfdec);
     if (tname.empty()) {
-	throw Xapian::InvalidArgumentError("Empty termnames aren't allowed.");
+	throw InvalidArgumentError("Empty termnames aren't allowed.");
     }
-    internal->read_termlist(termlist_begin(), termlist_end());
-
-    map<string, OmDocumentTerm>::iterator i;
-    i = internal->terms.find(tname);
-    if (i == internal->terms.end()) {
-	throw Xapian::InvalidArgumentError("Term `" + tname +
-				     "' is not present in document, in "
-				     "OmDocument::remove_posting()");
-    } else {
-	i->second.remove_position(tpos);
-	if (wdfdec) {
-	    om_termcount currwdf = i->second.get_wdf();
-	    currwdf = ((currwdf > wdfdec) ? (currwdf - wdfdec) : 0);
-	    i->second.set_wdf(currwdf);
-	}
-    }
+    if (!internal.get())
+	internal = new ModifiedDocument(0);
+    else
+	internal = internal->modify();
+    internal->remove_posting(tname, tpos, wdfdec);
 }
 
 void
-OmDocument::remove_term(const string & tname)
+Document::remove_term(const string & tname)
 {
-    DEBUGAPICALL(void, "OmDocument::remove_term", tname);
-    internal->read_termlist(termlist_begin(), termlist_end());
-    map<string, OmDocumentTerm>::iterator i;
-    i = internal->terms.find(tname);
-    if (i == internal->terms.end()) {
-	throw Xapian::InvalidArgumentError("Term `" + tname +
-				     "' is not present in document, in "
-				     "OmDocument::remove_term()");
-    } else {
-	internal->terms.erase(i);
-    }
+    DEBUGAPICALL(void, "Document::remove_term", tname);
+    if (!internal.get())
+	internal = new ModifiedDocument(0);
+    else
+	internal = internal->modify();
+    internal->remove_term(tname);
 }
 
-
 void
-OmDocument::clear_terms()
+Document::clear_terms()
 {
-    DEBUGAPICALL(void, "OmDocument::clear_terms", "");
-    if (internal->terms_here) {
-	internal->terms.clear();
-    } else {
-	internal->terms_here = true;
-    }
+    DEBUGAPICALL(void, "Document::clear_terms", "");
+    if (!internal.get())
+	internal = new ModifiedDocument(0);
+    else
+	internal = internal->modify();
+    internal->clear_terms();
 }
 
 om_termcount
-OmDocument::termlist_count() {
-    DEBUGAPICALL(om_termcount, "OmDocument::termlist_count", "");
-// How equivalent is this line below to the rest?
-//    RETURN(internal->ptr->open_term_list()->get_approx_size());
-    if (! internal->terms_here) {
-	internal->read_termlist(termlist_begin(), termlist_end()); 
-    }
-    Assert(internal->terms_here);
-    RETURN(internal->terms.size());
+Document::termlist_count() {
+    DEBUGAPICALL(om_termcount, "Document::termlist_count", "");
+    if (!internal.get())
+	internal = new ModifiedDocument(0);
+    else
+	internal = internal->modify();
+    RETURN(internal->termlist_count());
 }
 
-Xapian::TermIterator
-OmDocument::termlist_begin() const
+TermIterator
+Document::termlist_begin() const
 {
-    DEBUGAPICALL(Xapian::TermIterator, "OmDocument::termlist_begin", "");
-    if (internal->terms_here) {
-	RETURN(Xapian::TermIterator(
-		new MapTermList(internal->terms.begin(),
-				internal->terms.end(),
-				internal->terms.size())));
-    }
-    RETURN(Xapian::TermIterator(internal->ptr->open_term_list()));
+    DEBUGAPICALL(TermIterator, "Document::termlist_begin", "");
+    if (!internal.get()) RETURN(NULL);
+    RETURN(TermIterator(internal->open_term_list()));
 }
 
-Xapian::TermIterator
-OmDocument::termlist_end() const
+TermIterator
+Document::termlist_end() const
 {
-    DEBUGAPICALL(Xapian::TermIterator, "OmDocument::termlist_end", "");
-    RETURN(Xapian::TermIterator(NULL));
-}
-
-void
-OmDocument::Internal::need_values()
-{
-    DEBUGAPICALL(void, "OmDocument::need_values", "");
-    if (!values_here) {
-        values = ptr->get_all_values();
-        values_here = true;
-    }
+    DEBUGAPICALL(TermIterator, "Document::termlist_end", "");
+    RETURN(TermIterator(NULL));
 }
 
 om_termcount
-OmDocument::values_count() {
-    DEBUGAPICALL(om_termcount, "OmDocument::values_count", "");
-    internal->need_values();
-    Assert(internal->values_here);
-    RETURN(internal->values.size());
+Document::values_count() {
+    DEBUGAPICALL(om_termcount, "Document::values_count", "");
+    if (!internal.get())
+	internal = new ModifiedDocument(0);
+    else
+	internal = internal->modify();
+    RETURN(internal->values_count());
 }
 
 OmValueIterator
-OmDocument::values_begin() const
+Document::values_begin() const
 {
-    DEBUGAPICALL(OmValueIterator, "OmDocument::values_begin", "");
-    internal->need_values();
-    RETURN(OmValueIterator(new OmValueIterator::Internal(internal->values.begin())));
+    DEBUGAPICALL(OmValueIterator, "Document::values_begin", "");
+    if (!internal.get())
+	internal = new ModifiedDocument(0);
+    else
+	internal = internal->modify();
+    RETURN(OmValueIterator(internal->values_begin()));
 }
 
 OmValueIterator
-OmDocument::values_end() const
+Document::values_end() const
 {
-    DEBUGAPICALL(OmValueIterator, "OmDocument::values_end", "");
-    internal->need_values();
-    RETURN(OmValueIterator(new OmValueIterator::Internal(internal->values.end())));
+    DEBUGAPICALL(OmValueIterator, "Document::values_end", "");
+    if (!internal.get())
+	internal = new ModifiedDocument(0);
+    else
+	internal = internal->modify();
+    RETURN(OmValueIterator(internal->values_end()));
 }
 
-OmDocumentTerm::OmDocumentTerm(const string & tname_)
-	: tname(tname_),
-	  wdf(0),
-	  termfreq(0)
-{
-    DEBUGAPICALL(void, "OmDocumentTerm::OmDocumentTerm", tname_);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -402,4 +315,254 @@ OmDocumentTerm::get_description() const
 	    ", positions[" + om_tostring(positions.size()) + "]" +
 	    ")";
     RETURN(description);
+}
+
+string
+ModifiedDocument::get_value(om_valueno valueid) const
+{
+    if (values_here) {
+	map<om_valueno, string>::const_iterator i;
+	i = values.find(valueid);
+	if (i == values.end()) return "";
+	return i->second;
+    }
+    if (!ptr.get()) return "";
+    return ptr->get_value(valueid);
+}
+	
+map<om_valueno, string>
+ModifiedDocument::get_all_values() const
+{
+    if (values_here) return values;
+    if (!ptr.get()) {
+	map<om_valueno, string> nowt;
+	return nowt;
+    }
+    return ptr->get_all_values();
+}
+
+string
+ModifiedDocument::get_data() const
+{
+    if (data_here) return data;
+    if (!ptr.get()) return "";
+    return ptr->get_data();
+}
+
+void
+ModifiedDocument::set_data(const string &data_)
+{
+    data = data_;
+    data_here = true;
+}
+
+TermList *
+ModifiedDocument::open_term_list() const
+{
+    if (terms_here) {
+	return new MapTermList(terms.begin(), terms.end(), terms.size());
+    }
+    if (!ptr.get()) return NULL;
+    return ptr->open_term_list();
+}
+
+void
+ModifiedDocument::add_value(om_valueno valueno, const string &value)
+{
+    need_values();
+    values.insert(make_pair(valueno, value));	
+}
+
+void
+ModifiedDocument::remove_value(om_valueno valueno)
+{
+    need_values();
+    values.erase(valueno);
+}
+
+void
+ModifiedDocument::clear_values()
+{
+    values.clear();
+    values_here = true;
+}
+
+void
+ModifiedDocument::add_posting(const string & tname, om_termpos tpos,
+			      om_termcount wdfinc)
+{
+    need_terms();
+
+    map<string, OmDocumentTerm>::iterator i;
+    i = terms.find(tname);
+    if (i == terms.end()) {
+	OmDocumentTerm newterm(tname);
+	newterm.add_position(tpos);
+	newterm.set_wdf(wdfinc);
+	terms.insert(make_pair(tname, newterm));
+    } else {
+	i->second.add_position(tpos);
+	if (wdfinc) i->second.set_wdf(i->second.get_wdf() + wdfinc);
+    }
+}
+
+void
+ModifiedDocument::add_term_nopos(const string & tname, om_termcount wdfinc)
+{
+    need_terms();
+
+    map<string, OmDocumentTerm>::iterator i;
+    i = terms.find(tname);
+    if (i == terms.end()) {
+	OmDocumentTerm newterm(tname);
+	newterm.set_wdf(wdfinc);
+	terms.insert(make_pair(tname, newterm));
+    } else {
+	if (wdfinc) i->second.set_wdf(i->second.get_wdf() + wdfinc);
+    }
+}
+
+void
+ModifiedDocument::remove_posting(const string & tname, om_termpos tpos,
+				 om_termcount wdfdec)	
+{
+    need_terms();
+
+    map<string, OmDocumentTerm>::iterator i;
+    i = terms.find(tname);
+    if (i == terms.end()) {
+	throw Xapian::InvalidArgumentError("Term `" + tname +
+		"' is not present in document, in "
+		"ModifiedDocument::remove_posting()");
+    }
+    i->second.remove_position(tpos);
+    if (wdfdec) {
+	om_termcount currwdf = i->second.get_wdf();
+	currwdf = ((currwdf > wdfdec) ? (currwdf - wdfdec) : 0);
+	i->second.set_wdf(currwdf);
+    }
+}
+
+void
+ModifiedDocument::remove_term(const string & tname)
+{
+    need_terms();
+    map<string, OmDocumentTerm>::iterator i;
+    i = terms.find(tname);
+    if (i == terms.end()) {
+	throw Xapian::InvalidArgumentError("Term `" + tname +
+		"' is not present in document, in "
+		"Document::remove_term()");
+    }
+    terms.erase(i);
+}
+	
+void
+ModifiedDocument::clear_terms()
+{
+    terms.clear();
+    terms_here = true;
+}
+
+om_termcount
+ModifiedDocument::termlist_count()
+{
+    if (!terms_here) {
+	// How equivalent is this line to the rest?
+	// return ptr->open_term_list()->get_approx_size();
+	need_terms();
+    }
+    Assert(terms_here);
+    return terms.size();
+}
+
+void
+ModifiedDocument::need_terms()
+{
+    if (terms_here) return;
+    if (ptr.get()) {
+	Xapian::TermIterator t(ptr->open_term_list());
+	Xapian::TermIterator tend(NULL);
+	for ( ; t != tend; ++t) {
+	    Xapian::PositionListIterator p = t.positionlist_begin();
+	    Xapian::PositionListIterator pend = t.positionlist_end();
+	    OmDocumentTerm term(*t);
+	    for ( ; p != pend; ++p) {
+		term.add_position(*p);
+	    }
+	    term.set_wdf(t.get_wdf());
+	    terms.insert(make_pair(*t, term));
+	}
+    }
+    terms_here = true;
+}
+
+om_termcount
+ModifiedDocument::values_count()
+{
+    need_values();
+    Assert(values_here);
+    return values.size();
+}
+
+OmValueIterator::Internal *
+ModifiedDocument::values_begin() const
+{
+    need_values();
+    return new OmValueIterator::Internal(values.begin());
+}
+
+OmValueIterator::Internal *
+ModifiedDocument::values_end() const
+{
+    need_values();
+    return new OmValueIterator::Internal(values.end());
+}
+
+string
+ModifiedDocument::get_description() const
+{
+    string description = "ModifiedDocument(";
+
+    if (data_here) description += "data=`" + data + "'";
+
+    if (values_here) {
+	if (data_here) description += ", ";
+	description += "values[" + om_tostring(values.size()) + "]";
+    }
+
+    if (terms_here) {
+	if (data_here || values_here) description += ", ";
+	description += "terms[" + om_tostring(terms.size()) + "]";
+    }
+
+    if (ptr.get()) {
+	if (data_here || values_here || terms_here) description += ", ";
+	description += "doc=";
+	description += ptr->get_description();
+    }
+
+    description += ')';
+
+    return description;
+}
+
+void
+ModifiedDocument::need_values() const//FIXME const is hack
+{
+    if (!values_here) {
+	if (ptr.get()) values = ptr->get_all_values();
+	values_here = true;
+    }
+}
+
+Xapian::Document::Internal *
+ModifiedDocument::modify()
+{
+    return this;
+}
+
+Xapian::Document::Internal * Xapian::Document::Internal::modify()
+{
+    return new ModifiedDocument(this);
 }

@@ -84,7 +84,7 @@ NetworkDatabase::open_term_list(om_docid did) const {
 			       Xapian::Internal::RefCntPtr<const NetworkDatabase>(this));
 }
 
-Document *
+Xapian::Document::Internal *
 NetworkDatabase::open_document(om_docid did, bool /*lazy*/) const
 {
     // ignore lazy (for now at least - FIXME: can we sensibly pass it?)
@@ -109,7 +109,7 @@ NetworkDatabase::request_document(om_docid did) const
     link->request_doc(did);
 }
 
-Document *
+Xapian::Document::Internal *
 NetworkDatabase::collect_document(om_docid did) const
 {
     if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");

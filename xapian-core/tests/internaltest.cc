@@ -23,7 +23,6 @@
  */
 
 #include <config.h>
-#include <iostream>
 #include <string>
 
 using namespace std;
@@ -144,18 +143,14 @@ static bool test_stringcomp1()
 
     if ((s1 != s2) || (s1 > s2)) {
 	success = false;
-	if (verbose) {
-	    cout << "String comparisons BADLY wrong" << endl;
-	}
+	tout << "String comparisons BADLY wrong" << endl;
     }
 
     s1 += '\0';
 
     if ((s1 == s2) || (s1 < s2)) {
 	success = false;
-	if (verbose) {
-	    cout << "String comparisions don't cope with extra nulls" << endl;
-	}
+	tout << "String comparisions don't cope with extra nulls" << endl;
     }
 
     s2 += '\0';
@@ -165,16 +160,12 @@ static bool test_stringcomp1()
 
     if ((s1.length() != 5) || (s2.length() != 5)) {
 	success = false;
-	if (verbose) {
-	    cout << "Lengths with added nulls wrong" << endl;
-	}
+	tout << "Lengths with added nulls wrong" << endl;
     }
 
     if ((s1 == s2) || !(s1 < s2)) {
 	success = false;
-	if (verbose) {
-	    cout << "Characters after a null ignored in comparisons" << endl;
-	}
+	tout << "Characters after a null ignored in comparisons" << endl;
     }
 
     return success;

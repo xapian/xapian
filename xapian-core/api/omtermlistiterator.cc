@@ -27,6 +27,9 @@
 #include "positionlist.h"
 #include "omdebug.h"
 
+#include<iostream.h>
+using namespace std;
+
 Xapian::TermIterator::TermIterator(Internal *internal_)
 	: internal(internal_)
 {

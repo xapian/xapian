@@ -26,7 +26,6 @@
 #define OM_HGUARD_OMENQUIREINTERNAL_H
 
 #include <xapian/enquire.h>
-#include "refcnt.h"
 #include <algorithm>
 #include <math.h>
 #include <map>
@@ -103,7 +102,7 @@ class MSetItem {
 
 	/** For use by match_sort_key option - FIXME: document if this stays */
 	/* FIXME: this being mutable is a gross hack */
-	/* FIXME: why not just cache the OmDocument here!?! */
+	/* FIXME: why not just cache the Xapian::Document here!?! */
 	mutable string sort_key;
 
 	/** Returns a string representing the mset item.
@@ -171,7 +170,7 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Read a previously requested document from the database.
 	 */
-	OmDocument read_doc(const Xapian::Internal::MSetItem &item) const;
+	Xapian::Document read_doc(const Xapian::Internal::MSetItem &item) const;
 
 	void set_query(const Query & query_);
 	const Query & get_query();
@@ -199,7 +198,7 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 	mutable set<om_doccount> requested_docs;
 
 	/// Cache of documents, indexed by MSet index.
-	mutable map<om_doccount, OmDocument> indexeddocs;
+	mutable map<om_doccount, Xapian::Document> indexeddocs;
 
 	/// Read and cache the documents so far requested.
 	void read_docs() const;
@@ -273,7 +272,7 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 		  max_attained(max_attained_) {}
 
 	/// get a document by index in mset, via the cache.
-	OmDocument get_doc_by_index(om_doccount index) const;
+	Xapian::Document get_doc_by_index(om_doccount index) const;
 
 	/// Converts a weight to a percentage weight
 	percent convert_to_percent_internal(om_weight wt) const;

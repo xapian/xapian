@@ -41,12 +41,12 @@
 
 using namespace std;
 
-OmDocument
+Xapian::Document
 string_to_document(string paragraph)
 {
     Xapian::Stem stemmer("english");
 
-    OmDocument document;
+    Xapian::Document document;
     document.set_data(paragraph);
     om_termcount position = 1;
 
@@ -92,7 +92,7 @@ string_to_document(string paragraph)
 }
 
 void
-index_files_to_database(OmWritableDatabase & database,
+index_files_to_database(Xapian::WritableDatabase & database,
                         vector<string> paths)
 {
     vector<string>::const_iterator p;
@@ -126,7 +126,7 @@ index_files_to_m36(const string &prog, const string &dbdir,
 	while (*from) {
 	    string para;
 	    get_paragraph(*from, para);
-	    OmDocument doc = string_to_document(para);
+	    Xapian::Document doc = string_to_document(para);
 	    out << "#RSTART#\n" << doc.get_data() << "\n#REND#\n#TSTART#\n";
 	    {
 		Xapian::TermIterator i = doc.termlist_begin();
@@ -164,7 +164,7 @@ make_strvec(string s1 = "", string s2 = "", string s3 = "", string s4 = "")
 }
 
 void
-index_file_to_database(OmWritableDatabase & database, string path)
+index_file_to_database(Xapian::WritableDatabase & database, string path)
 {
     index_files_to_database(database, make_strvec(path));
 }
@@ -256,13 +256,13 @@ BackendManager::get_datadir(void)
     return datadir;
 }
 
-OmDatabase
+Xapian::Database
 BackendManager::getdb_void(const vector<string> &)
 {
     throw Xapian::InvalidArgumentError("Attempted to open a disabled database");
 }
 
-OmWritableDatabase
+Xapian::WritableDatabase
 BackendManager::getwritedb_void(const vector<string> &)
 {
     throw Xapian::InvalidArgumentError("Attempted to open a disabled database");
@@ -286,63 +286,63 @@ BackendManager::change_names_to_paths(const vector<string> &dbnames)
 }
 
 #ifdef MUS_BUILD_BACKEND_INMEMORY
-OmDatabase
+Xapian::Database
 BackendManager::getdb_inmemory(const vector<string> &dbnames)
 {
     return getwritedb_inmemory(dbnames);
 }
 
-OmWritableDatabase
+Xapian::WritableDatabase
 BackendManager::getwritedb_inmemory(const vector<string> &dbnames)
 {
-    OmWritableDatabase db(OmInMemory__open());
+    Xapian::WritableDatabase db(Xapian::InMemory::open());
     index_files_to_database(db, change_names_to_paths(dbnames));
     return db;
 }
 
-OmDatabase
+Xapian::Database
 BackendManager::getdb_inmemoryerr(const vector<string> &dbnames)
 {
     return getwritedb_inmemoryerr(dbnames);
 }
 
-OmWritableDatabase
+Xapian::WritableDatabase
 BackendManager::getwritedb_inmemoryerr(const vector<string> &dbnames)
 {
     // FIXME: params.set("inmemory_errornext", 1);
-    OmWritableDatabase db(OmInMemory__open());
+    Xapian::WritableDatabase db(Xapian::InMemory::open());
     index_files_to_database(db, change_names_to_paths(dbnames));
 
     return db;
 }
 
-OmDatabase
+Xapian::Database
 BackendManager::getdb_inmemoryerr2(const vector<string> &dbnames)
 {
     return getwritedb_inmemoryerr2(dbnames);
 }
 
-OmWritableDatabase
+Xapian::WritableDatabase
 BackendManager::getwritedb_inmemoryerr2(const vector<string> &dbnames)
 {
     // FIXME: params.set("inmemory_abortnext", 1);
-    OmWritableDatabase db(OmInMemory__open());
+    Xapian::WritableDatabase db(Xapian::InMemory::open());
     index_files_to_database(db, change_names_to_paths(dbnames));
 
     return db;
 }
 
-OmDatabase
+Xapian::Database
 BackendManager::getdb_inmemoryerr3(const vector<string> &dbnames)
 {
     return getwritedb_inmemoryerr3(dbnames);
 }
 
-OmWritableDatabase
+Xapian::WritableDatabase
 BackendManager::getwritedb_inmemoryerr3(const vector<string> &dbnames)
 {
     // params.set("inmemory_abortnext", 2);
-    OmWritableDatabase db(OmInMemory__open());
+    Xapian::WritableDatabase db(Xapian::InMemory::open());
     index_files_to_database(db, change_names_to_paths(dbnames));
 
     return db;
@@ -371,7 +371,7 @@ bool create_dir_if_needed(const string &dirname)
 }
 
 #ifdef MUS_BUILD_BACKEND_QUARTZ
-OmDatabase
+Xapian::Database
 BackendManager::do_getdb_quartz(const vector<string> &dbnames, bool writable)
 {
     string parent_dir = ".quartz";
@@ -395,14 +395,14 @@ BackendManager::do_getdb_quartz(const vector<string> &dbnames, bool writable)
     if (files_exist(change_names_to_paths(dbnames))) {
 	if (create_dir_if_needed(dbdir)) {
 	    // directory was created, so do the indexing.
-	    OmWritableDatabase db(OmQuartz__open(dbdir, OM_DB_CREATE));
+	    Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, OM_DB_CREATE));
 	    index_files_to_database(db, change_names_to_paths(dbnames));
 	}
     }
-    return OmQuartz__open(dbdir);
+    return Xapian::Quartz::open(dbdir);
 }
 
-OmWritableDatabase
+Xapian::WritableDatabase
 BackendManager::do_getwritedb_quartz(const vector<string> &dbnames,
 				bool writable)
 {
@@ -427,20 +427,20 @@ BackendManager::do_getwritedb_quartz(const vector<string> &dbnames,
 	if (create_dir_if_needed(dbdir)) {
 	    system(string("touch ") + dbdir + "/log");
 	    // directory was created, so do the indexing.
-	    OmWritableDatabase db(OmQuartz__open(dbdir, OM_DB_CREATE));
+	    Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, OM_DB_CREATE));
 	    index_files_to_database(db, change_names_to_paths(dbnames));
 	}
     }
-    return OmQuartz__open(dbdir, OM_DB_OPEN);
+    return Xapian::Quartz::open(dbdir, OM_DB_OPEN);
 }
 
-OmDatabase
+Xapian::Database
 BackendManager::getdb_quartz(const vector<string> &dbnames)
 {
     return do_getdb_quartz(dbnames, false);
 }
 
-OmWritableDatabase
+Xapian::WritableDatabase
 BackendManager::getwritedb_quartz(const vector<string> &dbnames)
 {
     return do_getwritedb_quartz(dbnames, true);
@@ -448,13 +448,13 @@ BackendManager::getwritedb_quartz(const vector<string> &dbnames)
 #endif
 
 #ifdef MUS_BUILD_BACKEND_REMOTE
-OmDatabase
+Xapian::Database
 BackendManager::getdb_remote(const vector<string> &dbnames)
 {
     // run an omprogsrv for now.  Later we should also use omtcpsrv
     string args = datadir;
     vector<string>::const_iterator i;
-    for (i=dbnames.begin(); i!=dbnames.end(); ++i) {
+    for (i = dbnames.begin(); i != dbnames.end(); ++i) {
 	if (*i == "#TIMEOUT#") {
 	    ++i;
 	    if (i == dbnames.end()) {
@@ -466,10 +466,10 @@ BackendManager::getdb_remote(const vector<string> &dbnames)
 	    args += *i;
 	}
     }
-    return OmRemote__open("../netprogs/omprogsrv", args);
+    return Xapian::Remote::open("../netprogs/omprogsrv", args);
 }
 
-OmWritableDatabase
+Xapian::WritableDatabase
 BackendManager::getwritedb_remote(const vector<string> &/*dbnames*/)
 {
     throw Xapian::InvalidArgumentError("Attempted to open writable remote database");
@@ -477,7 +477,7 @@ BackendManager::getwritedb_remote(const vector<string> &/*dbnames*/)
 #endif
 
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
-OmDatabase
+Xapian::Database
 BackendManager::getdb_da(const vector<string> &dbnames)
 {
     string parent_dir = ".da";
@@ -496,10 +496,10 @@ BackendManager::getdb_da(const vector<string> &dbnames)
 	    index_files_to_m36("makeDA", dbdir, change_names_to_paths(dbnames));
 	}
     }
-    return OmMuscat36DA__open(dbdir + "/R", dbdir + "/T", dbdir + "/keyfile");
+    return Xapian::Muscat36::open_da(dbdir + "/R", dbdir + "/T", dbdir + "/keyfile");
 }
 
-OmDatabase
+Xapian::Database
 BackendManager::getdb_daflimsy(const vector<string> &dbnames)
 {
     string parent_dir = ".daflimsy";
@@ -518,23 +518,23 @@ BackendManager::getdb_daflimsy(const vector<string> &dbnames)
 	    index_files_to_m36("makeDAflimsy", dbdir, change_names_to_paths(dbnames));
 	}
     }
-    return OmMuscat36DA__open(dbdir + "/R", dbdir + "/T", dbdir + "/keyfile",
+    return Xapian::Muscat36::open_da(dbdir + "/R", dbdir + "/T", dbdir + "/keyfile",
 			      false);
 }
 
-OmWritableDatabase
+Xapian::WritableDatabase
 BackendManager::getwritedb_da(const vector<string> &/*dbnames*/)
 {
     throw Xapian::InvalidArgumentError("Attempted to open writable da database");
 }
 
-OmWritableDatabase
+Xapian::WritableDatabase
 BackendManager::getwritedb_daflimsy(const vector<string> &/*dbnames*/)
 {
     throw Xapian::InvalidArgumentError("Attempted to open writable daflimsy database");
 }
 
-OmDatabase
+Xapian::Database
 BackendManager::getdb_db(const vector<string> &dbnames)
 {
     string parent_dir = ".db";
@@ -553,10 +553,10 @@ BackendManager::getdb_db(const vector<string> &dbnames)
 	    index_files_to_m36("makeDB", dbdir, change_names_to_paths(dbnames));
 	}
     }
-    return OmMuscat36DB__open(dbdir + "/DB", dbdir + "/keyfile");
+    return Xapian::Muscat36::open_db(dbdir + "/DB", dbdir + "/keyfile");
 }
 
-OmDatabase
+Xapian::Database
 BackendManager::getdb_dbflimsy(const vector<string> &dbnames)
 {
     string parent_dir = ".dbflimsy";
@@ -576,31 +576,30 @@ BackendManager::getdb_dbflimsy(const vector<string> &dbnames)
 	    index_files_to_m36("makeDBflimsy", dbdir, change_names_to_paths(dbnames));
 	}
     }
-    return OmMuscat36DB__open(dbdir + "/DB", dbdir + "/keyfile");
+    return Xapian::Muscat36::open_db(dbdir + "/DB", dbdir + "/keyfile");
 }
 
-OmWritableDatabase
+Xapian::WritableDatabase
 BackendManager::getwritedb_db(const vector<string> &/*dbnames*/)
 {
     throw Xapian::InvalidArgumentError("Attempted to open writable db database");
 }
 
-OmWritableDatabase
+Xapian::WritableDatabase
 BackendManager::getwritedb_dbflimsy(const vector<string> &/*dbnames*/)
 {
     throw Xapian::InvalidArgumentError("Attempted to open writable dbflimsy database");
 }
 #endif
 
-OmDatabase
+Xapian::Database
 BackendManager::get_database(const vector<string> &dbnames)
 {
     return (this->*do_getdb)(dbnames);
 }
 
-OmDatabase
-BackendManager::get_database(const string &dbname1,
-			     const string &dbname2)
+Xapian::Database
+BackendManager::get_database(const string &dbname1, const string &dbname2)
 {
     vector<string> dbnames;
     dbnames.push_back(dbname1);
@@ -608,7 +607,7 @@ BackendManager::get_database(const string &dbname1,
     return (this->*do_getdb)(dbnames);
 }
 
-OmWritableDatabase
+Xapian::WritableDatabase
 BackendManager::get_writable_database(const string &dbname)
 {
     vector<string> dbnames;

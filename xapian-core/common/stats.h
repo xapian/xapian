@@ -28,7 +28,6 @@
 
 #include <xapian/types.h>
 #include "omdebug.h"
-#include "refcnt.h"
 #include <map>
 #include <set>
 

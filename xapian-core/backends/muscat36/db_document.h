@@ -26,12 +26,12 @@
 #define OM_HGUARD_DB_DOCUMENT_H
 
 #include "document.h"
-#include "dbread.h"
+struct record;
 
 class DBDatabase;
 
 /// A document from a DA format database
-class DBDocument : public Document {
+class DBDocument : public Xapian::Document::Internal {
     friend class DBDatabase;
     private:
 	const DBDatabase * database;

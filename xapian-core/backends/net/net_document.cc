@@ -24,14 +24,13 @@
 
 #include <config.h>
 #include "net_document.h"
-#include "om/omdocument.h"
 #include "omdebug.h"
 
-NetworkDocument::NetworkDocument(const Xapian::Database::Internal *database_,
+NetworkDocument::NetworkDocument(const Xapian::Database::Internal *db_,
 				 om_docid did_,
 				 const string & doc_,
 				 const map<om_valueno, string> &values_)
-	: Document(database_, did_), doc(doc_), values(values_)
+	: Xapian::Document::Internal(db_, did_), doc(doc_), values(values_)
 {
 }
 

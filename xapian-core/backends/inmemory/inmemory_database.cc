@@ -126,7 +126,7 @@ InMemoryDatabase::open_term_list(om_docid did) const
 				termlists[did - 1], get_doclength(did));
 }
 
-Document *
+Xapian::Document::Internal *
 InMemoryDatabase::open_document(om_docid did, bool /*lazy*/) const
 {
     // we're never lazy so ignore that flag
@@ -239,7 +239,7 @@ InMemoryDatabase::do_delete_document(om_docid did)
 
 void
 InMemoryDatabase::do_replace_document(om_docid did,
-				      const OmDocument & document)
+				      const Xapian::Document & document)
 {
     DEBUGLINE(DB, "InMemoryDatabase::do_replace_document(): replaceing doc "
 	          << did);
@@ -255,7 +255,7 @@ InMemoryDatabase::do_replace_document(om_docid did,
 }
 
 om_docid
-InMemoryDatabase::do_add_document(const OmDocument & document)
+InMemoryDatabase::do_add_document(const Xapian::Document & document)
 {
     om_docid did = make_doc(document.get_data());
 
@@ -267,7 +267,7 @@ InMemoryDatabase::do_add_document(const OmDocument & document)
 }
 
 void
-InMemoryDatabase::finish_add_doc(om_docid did, const OmDocument &document)
+InMemoryDatabase::finish_add_doc(om_docid did, const Xapian::Document &document)
 {
     {
 	map<om_valueno, string> values;

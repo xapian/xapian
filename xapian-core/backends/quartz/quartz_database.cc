@@ -32,7 +32,6 @@
 #include "omdebug.h"
 #include "autoptr.h"
 #include "xapian/error.h"
-#include "refcnt.h"
 
 #include "quartz_postlist.h"
 #include "quartz_termlist.h"
@@ -48,8 +47,8 @@
 #include "quartz_alltermslist.h"
 
 #include <string>
-using std::string;
-using std::vector;
+
+using namespace std;
 
 QuartzDatabase::QuartzDatabase(const string &quartz_dir)
 {
@@ -106,7 +105,7 @@ QuartzDatabase::do_cancel_transaction()
 { Assert(false); }
 
 om_docid
-QuartzDatabase::do_add_document(const OmDocument & /*document*/)
+QuartzDatabase::do_add_document(const Xapian::Document & /*document*/)
 {
     DEBUGCALL(DB, om_docid, "QuartzDatabase::do_add_document", "");
     Assert(false);
@@ -119,7 +118,7 @@ QuartzDatabase::do_delete_document(om_docid /*did*/)
 
 void
 QuartzDatabase::do_replace_document(om_docid /*did*/,
-				    const OmDocument & /*document*/)
+				    const Xapian::Document & /*document*/)
 { Assert(false); }
 
 om_doccount 
@@ -246,14 +245,13 @@ QuartzDatabase::open_term_list(om_docid did) const
 {
     DEBUGCALL(DB, LeafTermList *, "QuartzDatabase::open_term_list", did);
     Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
-
     RETURN(open_term_list_internal(did, ptrtothis));
 }
 
-Document *
+Xapian::Document::Internal *
 QuartzDatabase::open_document(om_docid did, bool lazy) const
 {
-    DEBUGCALL(DB, Document *, "QuartzDatabase::open_document",
+    DEBUGCALL(DB, Xapian::Document::Internal *, "QuartzDatabase::open_document",
 	      did << ", " << lazy);
     Assert(did != 0);
     Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
@@ -380,7 +378,7 @@ QuartzWritableDatabase::do_cancel_transaction()
 }
 
 om_docid
-QuartzWritableDatabase::do_add_document(const OmDocument & document)
+QuartzWritableDatabase::do_add_document(const Xapian::Document & document)
 {
     DEBUGCALL(DB, om_docid,
 	      "QuartzWritableDatabase::do_add_document", document);
@@ -542,7 +540,7 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
 
 void
 QuartzWritableDatabase::do_replace_document(om_docid did,
-				    const OmDocument & document)
+				    const Xapian::Document & document)
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase::do_replace_document", did << ", " << document);
     Assert(did != 0);
@@ -712,7 +710,7 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
                   if (!qpl.at_end() || pIter != tIter.positionlist_end()) {
 		    // One of the position lists has not reached yet the end --
 		    // which means they are different. Create a new
-		    // positionlist based on the one in the new OmDocument.
+		    // positionlist based on the one in the new Xapian::Document.
   		    QuartzPositionList::set_positionlist(
 		      buffered_tables->get_positionlist_table(), did,
 		      *tIter, tIter.positionlist_begin(), tIter.positionlist_end());
@@ -819,10 +817,10 @@ QuartzWritableDatabase::open_term_list(om_docid did) const
     RETURN(database_ro.open_term_list_internal(did, ptrtothis));
 }
 
-Document *
+Xapian::Document::Internal *
 QuartzWritableDatabase::open_document(om_docid did, bool lazy) const
 {
-    DEBUGCALL(DB, Document *, "QuartzWritableDatabase::open_document",
+    DEBUGCALL(DB, Xapian::Document::Internal *, "QuartzWritableDatabase::open_document",
 	      did << ", " << lazy);
     Assert(did != 0);
 

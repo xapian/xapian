@@ -47,7 +47,7 @@ using std::set;
 #include "stats.h"
 #include "utils.h"
 #include <xapian/enquire.h>
-#include "om/omdocument.h"
+#include <xapian/document.h>
 #include "omlinebuf.h"
 #include "omenquireinternal.h"
 

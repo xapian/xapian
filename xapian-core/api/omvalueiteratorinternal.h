@@ -25,7 +25,7 @@
 #define OM_HGUARD_OMVALUEITERATORINTERNAL_H
 
 #include "om/omvalueiterator.h"
-#include "om/omdocument.h"
+#include <xapian/document.h>
 #include <map>
 
 class OmValueIterator::Internal {

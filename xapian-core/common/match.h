@@ -25,17 +25,16 @@
 #define OM_HGUARD_MATCH_H
 
 #include "database.h"
-#include "om/omdocument.h"
+#include <xapian/document.h>
 #include <xapian/enquire.h>
 #include "omqueryinternal.h"
 #include "match.h"
 #include "stats.h"
 #include "rset.h"
-#include "refcnt.h"
 
 #include <vector>
 
-class SubMatch : public RefCntBase {
+class SubMatch : public Xapian::Internal::RefCntBase {
     public:
 	virtual ~SubMatch() { }
 
@@ -65,7 +64,7 @@ class SubMatch : public RefCntBase {
 	
 	virtual PostList * get_postlist(om_doccount maxitems, MultiMatch *matcher) = 0;
 
-	virtual Document * open_document(om_docid did) const = 0;
+	virtual Xapian::Document::Internal * open_document(om_docid did) const = 0;
 
 	virtual const std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> get_term_info() const = 0;
 };

@@ -23,14 +23,10 @@
  */
 
 #include <config.h>
-#include <iostream>
 #include <string>
 #include <vector>
 
-using std::cout;
-using std::endl;
-using std::vector;
-using std::string;
+using namespace std;
 
 #include "om/om.h"
 #include "testsuite.h"
@@ -551,7 +547,7 @@ static bool test_poslist2()
 {
     Xapian::WritableDatabase db = get_writable_database("");
 
-    OmDocument doc;
+    Xapian::Document doc;
     doc.add_term_nopos("nopos");
     om_docid did = db.add_document(doc);
 
@@ -572,7 +568,7 @@ static bool test_poslist2()
 	TEST_EQUAL(i, db.positionlist_end(did, "nopos"));
     }
     
-    OmDocument doc2 = db.get_document(did);
+    Xapian::Document doc2 = db.get_document(did);
    
     Xapian::TermIterator term = doc2.termlist_begin();
 
@@ -581,11 +577,11 @@ static bool test_poslist2()
 	TEST_EQUAL(i, term.positionlist_end());
     }
 
-    OmDocument doc3;
+    Xapian::Document doc3;
     doc3.add_posting("hadpos", 1);
     om_docid did2 = db.add_document(doc3);
 
-    OmDocument doc4 = db.get_document(did2);
+    Xapian::Document doc4 = db.get_document(did2);
     doc4.remove_posting("hadpos", 1);
     db.replace_document(did2, doc4);
    

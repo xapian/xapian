@@ -54,14 +54,16 @@ static bool test_netmatch1()
     vector<string> paths;
     paths.push_back("apitest_simpledata");
 
-    Xapian::Enquire enq(backendmanager.get_database(paths));
+    Xapian::Database db(backendmanager.get_database(paths));
+    Xapian::Enquire enq(db);
+    //Xapian::Enquire enq(backendmanager.get_database(paths));
 
     enq.set_query(Xapian::Query("word"));
 
     Xapian::MSet mset(enq.get_mset(0, 10));
 
     if (verbose) {
-	cout << mset;
+	tout << mset;
     }
 
     return true;
@@ -91,7 +93,7 @@ static bool test_netmatch2()
     Xapian::MSet mset(enq.get_mset(0, 10));
 
     if (verbose) {
-	cout << mset;
+	tout << mset;
     }
 
     return true;
@@ -113,7 +115,7 @@ static bool test_netexpand1()
     Xapian::MSet mset(enq.get_mset(0, 10));
 
     if (verbose) {
-	cout << mset;
+	tout << mset;
     }
 
     Assert(mset.size() > 0);
@@ -170,7 +172,7 @@ static bool test_tcpmatch1()
     Xapian::MSet mset(enq.get_mset(0, 10));
 
     if (verbose) {
-	cout << mset;
+	tout << mset;
     }
 
     return true;
@@ -225,7 +227,7 @@ static bool test_tcpdead1()
 
     sleep(3);
 
-//    cout << pid << endl;
+//    tout << pid << endl;
 //    system("ps x | grep omtcp");
     
     time_t t = time(NULL);

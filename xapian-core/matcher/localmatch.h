@@ -30,10 +30,10 @@
 #include "stats.h"
 #include "rset.h"
 
-class Xapian::Weight;
-class Xapian::Database::Internal;
-class Document;
 namespace Xapian {
+    class Weight;
+    class Database::Internal;
+    class Document::Internal;
     class PostListIterator::Internal;
 }
 typedef Xapian::PostListIterator::Internal PostList;
@@ -127,7 +127,7 @@ class LocalSubMatch : public SubMatch {
 
 	PostList * get_postlist(om_doccount maxitems, MultiMatch *matcher);
 
-	virtual Document * open_document(om_docid did) const {
+	virtual Xapian::Document::Internal * open_document(om_docid did) const {
 	    return db->open_document(did);
 	}
 

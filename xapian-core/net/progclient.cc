@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,11 +27,12 @@
 #include "xapian/error.h"
 #include "utils.h"
 #include "netutils.h"
+#include "omdebug.h"
 
 #include <string>
-using std::string;
 #include <vector>
-using std::vector;
+
+using namespace std;
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -45,12 +47,15 @@ ProgClient::ProgClient(string progname, const string &args, int msecs_timeout_)
 		       get_progcontext(progname, args),
 		       false /* closing socket our responsibility */)
 {
+    DEBUGCALL(DB, void, "ProgClient::ProgClient", progname << ", " << args <<
+	      ", " << msecs_timeout_);
 }
 
 string
-ProgClient::get_progcontext(string progname,
-			    const string &args)
+ProgClient::get_progcontext(string progname, const string &args)
 {
+    DEBUGCALL_STATIC(DB, string, "ProgClient::get_progcontext", progname <<
+	   	    ", " << args);
     string result = "remote:prog(" + progname + " " + args;
     return result;
 }
@@ -58,6 +63,8 @@ ProgClient::get_progcontext(string progname,
 int
 ProgClient::get_spawned_socket(string progname, const string &args)
 {
+    DEBUGCALL(DB, int, "ProgClient::get_spawned_socket", progname << ", " <<
+	      args);
     /* socketpair() returns two sockets.  We keep sv[0] and give
      * sv[1] to the child process.
      */
@@ -108,7 +115,7 @@ ProgClient::get_spawned_socket(string progname, const string &args)
 	execvp(progname.c_str(),
 	       const_cast<char *const *>(new_argv));
 
-	// if we get here, then execlp failed.
+	// if we get here, then execvp failed.
 	/* throwing an exception is a bad idea, since we're
 	 * not the original process. */
 	_exit(-1);
@@ -116,7 +123,6 @@ ProgClient::get_spawned_socket(string progname, const string &args)
 	// parent
 	// close the child's end of the socket
 	close(sv[1]);
-
 	return sv[0];
     }
 }

@@ -27,7 +27,7 @@
 
 #include "document.h"
 
-class InMemoryDocument : public Document {
+class InMemoryDocument : public Xapian::Document::Internal {
     friend class InMemoryDatabase;
     private:
 	string doc;

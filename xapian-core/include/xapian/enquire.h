@@ -27,7 +27,7 @@
 #define XAPIAN_INCLUDED_ENQUIRE_H
 
 #include <xapian/types.h>
-#include "om/omdocument.h"
+#include <xapian/document.h>
 #include <xapian/database.h>
 #include <xapian/error.h>
 #include <string>
@@ -267,9 +267,9 @@ class MSetIterator {
 	/// Get the document ID for the current position.
 	om_docid operator*() const;
 
-	/** Get a OmDocument object for the current position.
+	/** Get a Xapian::Document object for the current position.
 	 *
-	 *  This method returns a OmDocument object which provides the
+	 *  This method returns a Xapian::Document object which provides the
 	 *  information about the document pointed to by the MSetIterator.
 	 *
 	 *  If the underlying database has suitable support, using this call
@@ -280,12 +280,12 @@ class MSetIterator {
 	 *
 	 *  @param it   The MSetIterator for which to retrieve the data.
 	 *
-	 *  @return     A OmDocument object containing the document data.
+	 *  @return     A Xapian::Document object containing the document data.
 	 *
 	 *  @exception Xapian::DocNotFoundError The document specified could not
 	 *                                 be found in the database.
 	 */
-	OmDocument get_document() const;
+	Xapian::Document get_document() const;
 
 	/** Get the rank of the document at the current position.
 	 * 
@@ -534,7 +534,7 @@ class MatchDecider {
     public:
 	/** Decide whether we want this document to be in the mset.
 	 */
-	virtual int operator()(const OmDocument &doc) const = 0;
+	virtual int operator()(const Xapian::Document &doc) const = 0;
 
 	/// Destructor.
 	virtual ~MatchDecider() {}
@@ -679,7 +679,7 @@ class Enquire {
          */
 	void set_cutoff(Xapian::percent percent_cutoff, om_weight weight_cutoff = 0);
 
-        /** Set the percentage and/or weight cutoffs.
+        /** Set the sorting key and number of sort bands.
          *
 	 * @param sort_key value number to reorder on.  Sorting is with a
 	 *	string compare.  Higher is better.  If match_sort_key is set,

@@ -41,13 +41,13 @@ using std::pair;
 #include "daread.h"
 #include "omdebug.h"
 
-#include "om/omdocument.h"
+#include <xapian/document.h>
 #include "xapian/error.h"
 
 DAPostList::DAPostList(const string & tname_,
 		       struct DA_postings * postlist_,
 		       om_doccount termfreq_,
-		       RefCntPtr<const DADatabase> this_db_)
+		       Xapian::Internal::RefCntPtr<const DADatabase> this_db_)
 	: postlist(postlist_), currdoc(0), tname(tname_), termfreq(termfreq_),
 	  this_db(this_db_)
 {
@@ -106,7 +106,7 @@ DAPostList::open_position_list() const
 
 
 DATermList::DATermList(struct termvec *tv, om_doccount dbsize_,
-		       RefCntPtr<const DADatabase> this_db_)
+		       Xapian::Internal::RefCntPtr<const DADatabase> this_db_)
 	: have_started(false), dbsize(dbsize_), this_db(this_db_)
 {
     // FIXME - read terms as we require them, rather than all at beginning?
@@ -257,14 +257,14 @@ LeafPostList *
 DADatabase::open_post_list_internal(const string & tname) const
 {
     // Make sure the term has been looked up
-    RefCntPtr<const DATerm> the_term = term_lookup(tname);
+    Xapian::Internal::RefCntPtr<const DATerm> the_term = term_lookup(tname);
     Assert(the_term.get() != 0);
 
     struct DA_postings * postlist;
     postlist = DA_open_postings(the_term->get_ti(), DA_t);
 
     return new DAPostList(tname, postlist, the_term->get_ti()->freq,
-			  RefCntPtr<const DADatabase>(RefCntPtrToThis(), this));
+			  Xapian::Internal::RefCntPtr<const DADatabase>(this));
 }
 
 // Returns a new term list, for the terms in this database for given document
@@ -284,7 +284,7 @@ DADatabase::open_term_list(om_docid did) const
     M_open_terms(tv);
 
     return new DATermList(tv, DADatabase::get_doccount(),
-			  RefCntPtr<const DADatabase>(RefCntPtrToThis(), this));
+			  Xapian::Internal::RefCntPtr<const DADatabase>(this));
 }
 
 struct record *
@@ -345,15 +345,15 @@ DADatabase::open_position_list(om_docid /*did*/, const string & /*tname*/) const
     return NULL;
 }
 
-RefCntPtr<const DATerm>
+Xapian::Internal::RefCntPtr<const DATerm>
 DADatabase::term_lookup(const string & tname) const
 {
     DEBUGMSG(DB, "DADatabase::term_lookup(`" << tname.c_str() << "'): ");
 
-    map<string, RefCntPtr<const DATerm> >::const_iterator p;
+    map<string, Xapian::Internal::RefCntPtr<const DATerm> >::const_iterator p;
     p = termmap.find(tname);
 
-    RefCntPtr<const DATerm> the_term;
+    Xapian::Internal::RefCntPtr<const DATerm> the_term;
     if (p == termmap.end()) {
 	string::size_type len = tname.length();
 	if (len > 255) return 0;
@@ -376,7 +376,7 @@ DADatabase::term_lookup(const string & tname) const
 	    }
 
 	    DEBUGLINE(DB, "found, adding to cache");
-	    pair<string, RefCntPtr<const DATerm> > termpair(tname, new DATerm(&ti, tname));
+	    pair<string, Xapian::Internal::RefCntPtr<const DATerm> > termpair(tname, new DATerm(&ti, tname));
 	    termmap.insert(termpair);
 	    the_term = termmap.find(tname)->second;
 	}
@@ -401,7 +401,7 @@ DADatabase::open_allterms() const
     string zero("", 1);
     DA_term(reinterpret_cast<const byte *>(zero.data()),
 	    &daterm, DA_t);
-    return new DAAllTermsList(RefCntPtr<const DADatabase>(RefCntPtrToThis(), this),
+    return new DAAllTermsList(Xapian::Internal::RefCntPtr<const DADatabase>(this),
 			      daterm,
 			      DA_t);
 }

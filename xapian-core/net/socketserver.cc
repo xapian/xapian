@@ -372,6 +372,7 @@ string
 SocketServer::readline(int msecs_timeout)
 {
     string result = buf->readline(OmTime::now() + OmTime(msecs_timeout));
+    DEBUGLINE(UNKNOWN, "READ[" << result << "]");
     // intercept 'X' messages.
     if (!result.empty() && result[0] == 'X') {
 	throw SocketServerFinished();
@@ -424,7 +425,7 @@ SocketServer::run_getdocument(const string &firstmessage)
     Assert(multiplier != 0);
     om_doccount n = (did - 1) % multiplier; // which actual database
     om_docid m = (did - 1) / multiplier + 1; // real docid in that database
-    AutoPtr<Document> doc(db.internal[n]->open_document(m));
+    AutoPtr<Xapian::Document::Internal> doc(db.internal[n]->open_document(m));
 
     writeline("O" + encode_tname(doc->get_data()));
 

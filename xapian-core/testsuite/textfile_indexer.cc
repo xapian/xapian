@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -64,7 +65,7 @@ TextfileIndexer::add_source(const IndexerSource & source)
 	string para;
 	get_paragraph(*from, para);
 
-	OmDocument document;
+	Xapian::Document document;
 	document.set_data(para);
 	om_termcount position = 1;
 

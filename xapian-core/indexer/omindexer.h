@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +28,7 @@
 #include <string>
 
 #include "om/omindexermessage.h"
-#include "om/omdocument.h"
+#include <xapian/document.h>
 
 class OmIndexer {
     public:
@@ -51,7 +52,7 @@ class OmIndexer {
 
 	/** Get the output document contents.
 	 */
-	OmDocument get_output();
+	Xapian::Document get_output();
 
 	/** Get the output as an OmIndexerMessage
 	 */

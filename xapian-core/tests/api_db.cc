@@ -687,7 +687,7 @@ static bool test_expandfunctor1()
 
 class myMatchDecider : public Xapian::MatchDecider {
     public:
-        int operator()(const OmDocument &doc) const {
+        int operator()(const Xapian::Document &doc) const {
 	    // Note that this is not recommended usage of get_data()
 	    return doc.get_data().find("This is") != string::npos;
 	}
@@ -708,7 +708,7 @@ static bool test_matchfunctor1()
     TEST(i != mymset.end());
     TEST_EQUAL(mymset.size(), 3);
     for ( ; i != mymset.end(); ++i) {
-	const OmDocument doc(i.get_document());
+	const Xapian::Document doc(i.get_document());
         TEST(myfunctor(doc));
     }
 
@@ -2233,7 +2233,7 @@ static bool test_adddoc1()
 {
     Xapian::WritableDatabase db = get_writable_database("");
 
-    OmDocument doc1, doc2, doc3;
+    Xapian::Document doc1, doc2, doc3;
 
     // doc1 should come top, but if term "foo" gets wdf of 1, doc2 will beat it
     // doc3 should beat both
@@ -2279,7 +2279,7 @@ static bool test_adddoc2()
 {
     Xapian::WritableDatabase db = get_writable_database("");
 
-    OmDocument doc1;
+    Xapian::Document doc1;
 
     doc1.add_posting("foo", 1);
     doc1.add_posting("foo", 1);
@@ -2292,7 +2292,7 @@ static bool test_adddoc2()
     doc1.add_posting("fooXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", 1);
     om_docid did;
 
-    OmDocument doc2 = db.get_document(did = db.add_document(doc1));
+    Xapian::Document doc2 = db.get_document(did = db.add_document(doc1));
     TEST_EQUAL(did, 1);
 
     Xapian::TermIterator iter1 = doc1.termlist_begin();
@@ -2453,7 +2453,7 @@ static bool test_implicitendsession1()
 {
     Xapian::WritableDatabase db = get_writable_database("");
 
-    OmDocument doc;
+    Xapian::Document doc;
 
     doc.set_data(string("top secret"));
     doc.add_posting("cia", 1);
@@ -2486,7 +2486,7 @@ static bool test_deldoc1()
 {
     Xapian::WritableDatabase db = get_writable_database("");
 
-    OmDocument doc1;
+    Xapian::Document doc1;
 
     doc1.add_posting("foo", 1);
     doc1.add_posting("foo", 1);
@@ -2515,7 +2515,7 @@ static bool test_deldoc1()
     doc1.add_term_nopos("fwing");
     db.replace_document(2, doc1);
 
-    OmDocument doc2 = db.get_document(2);
+    Xapian::Document doc2 = db.get_document(2);
     Xapian::TermIterator tit = doc2.termlist_begin();
     TEST_NOT_EQUAL(tit, doc2.termlist_end());
     TEST_EQUAL(*tit, "bar");
@@ -2532,7 +2532,7 @@ static bool test_replacedoc()
 {
     Xapian::WritableDatabase db = get_writable_database("");
 
-    OmDocument doc1;
+    Xapian::Document doc1;
 
     doc1.add_posting("foo", 1);
     doc1.add_posting("foo", 2);
@@ -2544,7 +2544,7 @@ static bool test_replacedoc()
     did = db.add_document(doc1);
     TEST_EQUAL(did, 1);
 
-    OmDocument doc2;
+    Xapian::Document doc2;
 
     doc2.add_posting("foo", 1);
     doc2.add_posting("pipco", 2);
@@ -2553,7 +2553,7 @@ static bool test_replacedoc()
 
     db.replace_document(did, doc2);
 
-    OmDocument doc3 = db.get_document(did);
+    Xapian::Document doc3 = db.get_document(did);
     Xapian::TermIterator tIter = doc3.termlist_begin();
     TEST_EQUAL(*tIter, "bar");
     Xapian::PositionListIterator pIter = tIter.positionlist_begin();
@@ -2578,7 +2578,7 @@ static bool test_deldoc2()
 {
     Xapian::WritableDatabase db = get_writable_database("");
 
-    OmDocument doc1;
+    Xapian::Document doc1;
 
     doc1.add_posting("one", 1);
     doc1.add_posting("two", 2);
@@ -2653,7 +2653,7 @@ static bool test_deldoc3()
 {
     Xapian::WritableDatabase db = get_writable_database("");
 
-    OmDocument doc1;
+    Xapian::Document doc1;
 
     doc1.add_posting("one", 1);
 
@@ -2702,17 +2702,17 @@ static bool test_deldoc4()
 {
     Xapian::WritableDatabase db = get_writable_database("");
 
-    OmDocument doc1;
+    Xapian::Document doc1;
 
     doc1.add_posting("one", 1);
     doc1.add_posting("two", 2);
     doc1.add_posting("two", 3);
 
-    OmDocument doc2 = doc1;
+    Xapian::Document doc2 = doc1;
     doc2.remove_term("one");
     doc2.add_posting("three", 4);
 
-    OmDocument doc3 = doc2;
+    Xapian::Document doc3 = doc2;
     doc3.add_posting("one", 7);
     doc3.remove_term("two");
 

@@ -25,8 +25,8 @@
 #ifndef OM_HGUARD_DOCUMENT_H
 #define OM_HGUARD_DOCUMENT_H
 
+#include <xapian/base.h>
 #include <xapian/types.h>
-#include "refcnt.h"
 #include "termlist.h"
 #include <map>
 #include <string>
@@ -36,18 +36,22 @@ using namespace std;
 class Xapian::Database::Internal;
 
 /// A document in the database - holds values, terms, postings, etc
-class Document : public RefCntBase {
+class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
     private:
         // Prevent copying
-        Document(const Document &);
-        Document & operator=(const Document &);
+        Internal(const Internal &);
+        Internal & operator=(const Internal &);
 
+	/// The database this document is in.
 	const Xapian::Database::Internal *database;
 
     protected:
-	/// The document ID of the document.
+	/// The document ID of the document in that database.
+	//
+	//  If we're using multiple databases together this may not be the
+	//  same as the docid in the combined database.
 	om_docid did;
-	
+
     public:
 	/** Get value by value number.
 	 *
@@ -78,6 +82,24 @@ class Document : public RefCntBase {
 	 */
 	virtual map<om_valueno, string> get_all_values() const = 0;
 
+	virtual om_termcount values_count() { Assert(false); return 0; }
+	virtual OmValueIterator::Internal * values_begin() const
+	{ Assert(false); return 0; }
+	virtual OmValueIterator::Internal * values_end() const
+	{ Assert(false); return 0; }
+	virtual void add_value(om_valueno, const string &) { Assert(false); }
+	virtual void remove_value(om_valueno) { Assert(false); }
+	virtual void clear_values() { Assert(false); }
+	virtual void add_posting(const string &, om_termpos, om_termcount)
+	{ Assert(false); }
+	virtual void add_term_nopos(const string &, om_termcount)
+	{ Assert(false); }
+	virtual void remove_posting(const string &, om_termpos, om_termcount)
+	{ Assert(false); }
+	virtual void remove_term(const string &) { Assert(false); }
+	virtual void clear_terms() { Assert(false); }
+	virtual om_termcount termlist_count() { Assert(false); return 0; }
+
 	/** Get data stored in document.
 	 *
 	 *  This is a general piece of data associated with a document, and
@@ -93,6 +115,8 @@ class Document : public RefCntBase {
 	 */
 	virtual string get_data() const = 0;	
 
+	virtual void set_data(const string &) { Assert(false); }
+
 	/** Open a term list.
 	 *
 	 *  This is a list of all the terms contained by a given document.
@@ -101,25 +125,35 @@ class Document : public RefCntBase {
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
-	LeafTermList * open_term_list() const {
-	    DEBUGCALL(MATCH, LeafTermList *, "Document::open_term_list", "");
+	virtual TermList * open_term_list() const {
+	    DEBUGCALL(MATCH, TermList *, "Document::Internal::open_term_list", "");
+	    Assert(database);
 	    RETURN(database->open_term_list(did));
 	}
 	
+	virtual Xapian::Document::Internal * modify();
+
+	/** Returns a string representing the object.
+	 *  Introspection method.
+	 */
+	string get_description() const { return "FIXME"; }
+
 	/** Constructor.
 	 *
 	 *  In derived classes, this will typically be a private method, and
 	 *  only be called by database objects of the corresponding type.
 	 */
-	Document(const Xapian::Database::Internal *database_, om_docid did_)
+	Internal(const Xapian::Database::Internal *database_, om_docid did_)
 	    : database(database_), did(did_) { }
+
+        Internal() : database(0) { }
 
 	/** Destructor.
 	 *
 	 *  Note that the database object which created this document must
 	 *  still exist at the time this is called.
 	 */
-	virtual ~Document() { }
+	virtual ~Internal() { }
 };
 
 #endif  // OM_HGUARD_DOCUMENT_H

@@ -80,7 +80,7 @@ class NetworkDatabase : public Xapian::Database::Internal {
 		"NetworkDatabase::cancel_transaction() not implemented: readonly database type");
 	}
 
-	om_docid do_add_document(const OmDocument & /*document*/) {
+	om_docid do_add_document(const Xapian::Document & /*document*/) {
 	    throw Xapian::UnimplementedError(
 		"NetworkDatabase::add_document() not implemented: readonly database type");
 	}
@@ -90,7 +90,7 @@ class NetworkDatabase : public Xapian::Database::Internal {
 		"NetworkDatabase::delete_document() not implemented: readonly database type");
 	}
 
-	void do_replace_document(om_docid /*did*/, const OmDocument & /*document*/) {
+	void do_replace_document(om_docid /*did*/, const Xapian::Document & /*document*/) {
 	    throw Xapian::UnimplementedError(
 		"NetworkDatabase::replace_document() not implemented: readonly database type");
 	}
@@ -112,13 +112,13 @@ class NetworkDatabase : public Xapian::Database::Internal {
 
 	LeafPostList * do_open_post_list(const string & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
-	Document * open_document(om_docid did, bool lazy = false) const;
+	Xapian::Document::Internal * open_document(om_docid did, bool lazy = false) const;
 	PositionList * open_position_list(om_docid did,
 					const string & tname) const;
 	TermList * open_allterms() const;
 
 	void request_document(om_docid did) const;
-	Document * collect_document(om_docid did) const;
+	Xapian::Document::Internal * collect_document(om_docid did) const;
 	
 	// keep-alive
 	void keep_alive() const;

@@ -32,7 +32,6 @@
 #include "rset.h"
 #include "omdebug.h"
 #include "omenquireinternal.h"
-#include "omdocumentinternal.h"
 
 #include "andpostlist.h"
 #include "orpostlist.h"
@@ -153,11 +152,11 @@ class MSetSortCmp {
 	    if (band_a != band_b) return band_a > band_b;
 	    if (sort_key != om_valueno(-1)) {
 		if (a.sort_key.empty()) {
-		    OmDocument doc = db.get_document(a.did);
+		    Xapian::Document doc = db.get_document(a.did);
 		    a.sort_key = doc.get_value(sort_key);
 		}
 		if (b.sort_key.empty()) {
-		    OmDocument doc = db.get_document(b.did);
+		    Xapian::Document doc = db.get_document(b.did);
 		    b.sort_key = doc.get_value(sort_key);
 		}
 		// "bigger is better"
@@ -217,7 +216,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
 	Assert(subrset != subrsets.end());
 	Xapian::Database::Internal *db = (*i).get();
 	Assert(db);
-	RefCntPtr<SubMatch> smatch;
+	Xapian::Internal::RefCntPtr<SubMatch> smatch;
 	try {
 	    // There is currently only one special case, for network databases.
 #ifdef MUS_BUILD_BACKEND_REMOTE
@@ -229,13 +228,13 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
 		if (bias_halflife) {
 		    throw Xapian::UnimplementedError("bias_halflife and bias_weight not supported with remote backend");
 		}
-		smatch = RefCntPtr<SubMatch>(
+		smatch = Xapian::Internal::RefCntPtr<SubMatch>(
 			new RemoteSubMatch(netdb, query, *subrset, collapse_key,
 			    sort_forward, percent_cutoff, weight_cutoff,
 			    gatherer.get(), weight));
 	    } else {
 #endif /* MUS_BUILD_BACKEND_REMOTE */
-		smatch = RefCntPtr<SubMatch>(new LocalSubMatch(db, query, *subrset, gatherer.get(), weight));
+		smatch = Xapian::Internal::RefCntPtr<SubMatch>(new LocalSubMatch(db, query, *subrset, gatherer.get(), weight));
 #ifdef MUS_BUILD_BACKEND_REMOTE
 	    }
 #endif /* MUS_BUILD_BACKEND_REMOTE */
@@ -244,7 +243,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
 		DEBUGLINE(EXCEPTION, "Calling error handler for creation of a SubMatch from a database and query.");
 		(*errorhandler)(e);
 		// Continue match without this sub-postlist.
-		smatch = RefCntPtr<SubMatch>(new EmptySubMatch());
+		smatch = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch());
 	    } else {
 		throw;
 	    }
@@ -272,7 +271,7 @@ MultiMatch::prepare_matchers()
     bool nowait = true;
     do {
 	prepared = true;
-	vector<RefCntPtr<SubMatch> >::iterator leaf;
+	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator leaf;
 	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
 	    try {
 		if (!(*leaf)->prepare_match(nowait)) prepared = false;
@@ -281,7 +280,7 @@ MultiMatch::prepare_matchers()
 		    DEBUGLINE(EXCEPTION, "Calling error handler for prepare_match() on a SubMatch.");
 		    (*errorhandler)(e);
 		    // Continue match without this sub-match.
-		    *leaf = RefCntPtr<SubMatch>(new EmptySubMatch());
+		    *leaf = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch());
 		    prepared = false;
 		} else {
 		    throw;
@@ -294,9 +293,9 @@ MultiMatch::prepare_matchers()
     } while (!prepared);
 }
 
-inline string
+string
 MultiMatch::get_collapse_key(PostList *pl, const Xapian::Database &db, om_docid did,
-			     om_valueno keyno, RefCntPtr<Document> &doc)
+			     om_valueno keyno, Xapian::Internal::RefCntPtr<Xapian::Document::Internal> &doc)
 {		      
     DEBUGCALL(MATCH, string, "MultiMatch::get_collapse_key", pl << ", " << db << ", " << did << ", " << keyno << ", [doc]");
     const string *key = pl->get_collapse_key();
@@ -307,7 +306,7 @@ MultiMatch::get_collapse_key(PostList *pl, const Xapian::Database &db, om_docid 
 	om_doccount n = (did - 1) % multiplier; // which actual database
 	om_docid m = (did - 1) / multiplier + 1; // real docid in that database
 
-   	RefCntPtr<Document> temp(db.internal[n]->open_document(m));
+   	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.internal[n]->open_document(m));
 	doc = temp;
     }
     RETURN(doc->get_value(keyno));
@@ -348,7 +347,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
     // Start matchers
     {
-	vector<RefCntPtr<SubMatch> >::iterator leaf;
+	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator leaf;
 	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
 	    try {
 		(*leaf)->start_match(first + maxitems);
@@ -358,7 +357,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			      "start_match() on a SubMatch.");
 		    (*errorhandler)(e);
 		    // Continue match without this sub-match.
-		    *leaf = RefCntPtr<SubMatch>(new EmptySubMatch());
+		    *leaf = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch());
 		} else {
 		    throw;
 		}
@@ -368,7 +367,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
     // Get postlists
     vector<PostList *> postlists;
-    vector<RefCntPtr<SubMatch> >::iterator i;
+    vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator i;
     for (i = leaves.begin(); i != leaves.end(); ++i) {
 	// FIXME: errorhandler here? (perhaps not needed if this simply makes a pending postlist)
 	postlists.push_back((*i)->get_postlist(first + maxitems, this));
@@ -377,7 +376,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // Get term info
     termfreqandwts.clear();
     {
-	vector<RefCntPtr<SubMatch> >::iterator leaf;
+	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator leaf;
 	vector<PostList * >::iterator pl_iter;
 	Assert(leaves.size() == postlists.size());
 	for (leaf = leaves.begin(), pl_iter = postlists.begin();
@@ -396,7 +395,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			      "get_term_info() on a SubMatch.");
 		    (*errorhandler)(e);
 		    // Continue match without this sub-match.
-		    *leaf = RefCntPtr<SubMatch>(new EmptySubMatch());
+		    *leaf = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch());
 
 		    AutoPtr<LeafPostList> lpl(new EmptyPostList);
 		    // give it a weighting object
@@ -527,7 +526,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	DEBUGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
 	Xapian::Internal::MSetItem new_item(wt, did);
 	if (sort_key != om_valueno(-1) && sort_bands == 1) {
-	    OmDocument doc = db.get_document(new_item.did);
+	    Xapian::Document doc = db.get_document(new_item.did);
 	    new_item.sort_key = doc.get_value(sort_key);
 	}
 
@@ -536,7 +535,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	if (sort_bands == 1 || min_item.wt > 0.0)
 	    if (!mcmp(new_item, min_item)) continue;
 
-	RefCntPtr<Document> doc;
+	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc;
 
 	// Use the decision functor if any.
 	// FIXME: if results are from MSetPostList then we can omit this step
@@ -547,10 +546,10 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		om_doccount n = (did - 1) % multiplier; // which actual database
 		om_docid m = (did - 1) / multiplier + 1; // real docid in that database
 
-		RefCntPtr<Document> temp(db.internal[n]->open_document(m));
+		Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.internal[n]->open_document(m));
 		doc = temp;
 	    }
-	    OmDocument mydoc(new OmDocument::Internal(doc, db, did));
+	    Xapian::Document mydoc(doc.get());
 	    if (!mdecider->operator()(mydoc)) continue;
 	}
 
@@ -644,7 +643,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
                     // are the correct way round.  We really should rework
                     // to share code with MSetSortCmp anyway...
 		    if (new_item.sort_key.empty()) {
-			OmDocument doc = db.get_document(new_item.did);
+			Xapian::Document doc = db.get_document(new_item.did);
 			new_item.sort_key = doc.get_value(sort_key);
 		    }
 		    if (min_item.wt > new_item.wt) {

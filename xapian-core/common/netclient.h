@@ -26,7 +26,6 @@
 #define OM_HGUARD_NETCLIENT_H
 
 #include <string>
-#include "refcnt.h"
 #include "omqueryinternal.h"
 #include "stats.h"
 #include "networkstats.h"

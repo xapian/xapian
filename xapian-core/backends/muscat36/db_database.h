@@ -51,12 +51,12 @@ class DBPostList : public LeafPostList {
 	string tname;
 	om_doccount termfreq;
 
-	RefCntPtr<const DBDatabase> this_db; // Just used to keep a reference
+	Xapian::Internal::RefCntPtr<const DBDatabase> this_db; // Just used to keep a reference
 
 	DBPostList(const string & tname_,
 		   struct DB_postings * postlist_,
 		   om_doccount termfreq_,
-		   RefCntPtr<const DBDatabase> this_db_);
+		   Xapian::Internal::RefCntPtr<const DBDatabase> this_db_);
     public:
 	~DBPostList();
 
@@ -139,10 +139,10 @@ class DBTermList : public LeafTermList {
 	bool have_started;
 	om_doccount dbsize;
 
-	RefCntPtr<const DBDatabase> this_db; // Just used to keep a reference
+	Xapian::Internal::RefCntPtr<const DBDatabase> this_db; // Just used to keep a reference
 
 	DBTermList(struct termvec *tv, om_doccount dbsize_,
-		   RefCntPtr<const DBDatabase> this_db_);
+		   Xapian::Internal::RefCntPtr<const DBDatabase> this_db_);
     public:
 	om_termcount get_approx_size() const;
 
@@ -195,7 +195,7 @@ inline bool DBTermList::at_end() const
 
 
 
-class DBTerm : public RefCntBase {
+class DBTerm : public Xapian::Internal::RefCntBase {
     friend class DBDatabase;
     private:
 	DBTerm(struct DB_term_info * ti_,
@@ -252,14 +252,14 @@ class DBDatabase : public Xapian::Database::Internal {
 
 	FILE * valuefile;
 
-	mutable std::map<string, RefCntPtr<const DBTerm> > termmap;
+	mutable std::map<string, Xapian::Internal::RefCntPtr<const DBTerm> > termmap;
 
 	// Stop copy / assignment being allowed
 	DBDatabase& operator=(const DBDatabase&);
 	DBDatabase(const DBDatabase&);
 
 	// Look up term in database
-	RefCntPtr<const DBTerm> term_lookup(const string & tname) const;
+	Xapian::Internal::RefCntPtr<const DBTerm> term_lookup(const string & tname) const;
 
 	// Get a record
 	struct record * get_record(om_docid did) const;
@@ -302,7 +302,7 @@ class DBDatabase : public Xapian::Database::Internal {
 
 	LeafPostList * do_open_post_list(const string & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
-	Document * open_document(om_docid did, bool lazy = false) const;
+	Xapian::Document::Internal * open_document(om_docid did, bool lazy = false) const;
 	PositionList * open_position_list(om_docid did,
 					  const string & tname) const;
 	TermList * open_allterms() const;
@@ -341,7 +341,7 @@ class DBDatabase : public Xapian::Database::Internal {
 		"DBDatabase::cancel_transaction() not implemented: readonly database type");
 	}
 
-	om_docid do_add_document(const OmDocument & /*document*/) {
+	om_docid do_add_document(const Xapian::Document & /*document*/) {
 	    throw Xapian::UnimplementedError(
 		"DBDatabase::add_document() not implemented: readonly database type");
 	}
@@ -351,7 +351,7 @@ class DBDatabase : public Xapian::Database::Internal {
 		"DBDatabase::delete_document() not implemented: readonly database type");
 	}
 
-	void do_replace_document(om_docid /*did*/, const OmDocument & /*document*/) {
+	void do_replace_document(om_docid /*did*/, const Xapian::Document & /*document*/) {
 	    throw Xapian::UnimplementedError(
 		"DBDatabase::replace_document() not implemented: readonly database type");
 	}

@@ -1094,7 +1094,7 @@ static bool test_create1()
     TEST_EQUAL(db->get_doccount(), 0);
     db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE_OR_OVERWRITE, 2048);
     TEST_EQUAL(db->get_doccount(), 0);
-    OmDocument document_in;
+    Xapian::Document document_in;
     document_in.set_data("Foobar rising");
     document_in.add_value(7, "Value7");
     document_in.add_value(13, "Value13");
@@ -1128,7 +1128,7 @@ static bool test_adddoc1()
 
     TEST_EQUAL(db->get_doccount(), 0);
     TEST_EQUAL(db->get_avlength(), 0);
-    OmDocument document;
+    Xapian::Document document;
     om_docid did;
 
     did = db->add_document(document);
@@ -1181,7 +1181,7 @@ static bool test_adddoc2()
     makedir(dbdir);
 
     om_docid did;
-    OmDocument document_in;
+    Xapian::Document document_in;
     document_in.set_data("Foobar rising");
     document_in.add_value(7, "Value7");
     document_in.add_value(13, "Value13");
@@ -1189,7 +1189,7 @@ static bool test_adddoc2()
     document_in.add_posting("rising", 2);
     document_in.add_posting("foobar", 3);
 
-    OmDocument document_in2;
+    Xapian::Document document_in2;
     document_in2.set_data("Foobar falling");
     document_in2.add_posting("foobar", 1);
     document_in2.add_posting("falling", 2);
@@ -1247,7 +1247,7 @@ static bool test_adddoc2()
 
     {
 	Xapian::Database database = Xapian::Quartz::open(dbdir);
-	OmDocument document_out = database.get_document(did);
+	Xapian::Document document_out = database.get_document(did);
 
 	TEST_EQUAL(document_in.get_data(), document_out.get_data());
 
@@ -1671,7 +1671,7 @@ static bool test_positionlist1()
 
     vector<om_termpos> positions;
 
-    OmDocument document;
+    Xapian::Document document;
     document.add_posting("foo", 5);
     document.add_posting("foo", 8);
     document.add_posting("foo", 10);
@@ -1791,13 +1791,9 @@ static bool test_overwrite2()
     deletedir(dbname);
     makedir(dbname);
 
-    OmSettings settings;
-    settings.set("backend", "quartz");
-    settings.set("quartz_dir", dbname);
-    settings.set("database_create", true);
-    Xapian::WritableDatabase writer(settings);
+    Xapian::WritableDatabase writer(Xapian::Quartz::open(dbname, Xapian::DB_CREATE);
 
-    OmDocument document_in;
+    Xapian::Document document_in;
     document_in.set_data("Foobar rising");
     document_in.add_key(7, "Value7");
     document_in.add_key(13, "Value13");
@@ -1818,7 +1814,7 @@ static bool test_overwrite2()
     Xapian::Database reader(settings);
     // FIXME: use reader.get_document() when available.
 
-    OmEnquire enquire(reader);
+    Xapian::Enquire enquire(reader);
 
     string doc_out;
     string value_out;
@@ -1859,7 +1855,7 @@ static bool test_overwrite2()
     }
     writer.flush();
 
-    enquire.set_query(OmQuery("falling"));
+    enquire.set_query(Xapian::Query("falling"));
     enquire.get_mset(1, 10);
 
     for (int i=0; i<1; ++i) {
@@ -1882,7 +1878,7 @@ static bool test_overwrite2()
     }
     writer.flush();
 
-    OmPostListIterator ki = reader.postlist_begin("falling");
+    Xapian::PostListIterator ki = reader.postlist_begin("falling");
     *ki;
 
     return true;

@@ -26,14 +26,15 @@
 
 #include <string>
 
+#include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/error.h>
-#include "refcnt.h"
+#include <xapian/postlistiterator.h>
 
 #include "positionlist.h"
 #include "autoptr.h"
 
-using std::string;
+using namespace std;
 
 /** Abstract base class for postlists. */
 class Xapian::PostListIterator::Internal : public Xapian::Internal::RefCntBase

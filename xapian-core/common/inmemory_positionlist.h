@@ -30,7 +30,7 @@
 #include <string>
 #include <vector>
 #include "positionlist.h"
-#include "omdocumentinternal.h"
+#include "documentterm.h"
 
 using namespace std;
 

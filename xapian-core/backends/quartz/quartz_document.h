@@ -25,14 +25,14 @@
 #ifndef OM_HGUARD_QUARTZ_DOCUMENT_H
 #define OM_HGUARD_QUARTZ_DOCUMENT_H
 
+#include <xapian/base.h>
 #include "document.h"
-#include "refcnt.h"
-#include "quartz_table.h"
 
 class QuartzDatabase;
+class QuartzTable;
 
 /// A document from a Quartz format database
-class QuartzDocument : public Document {
+class QuartzDocument : public Xapian::Document::Internal {
     friend class QuartzDatabase;
     friend class QuartzWritableDatabase;
     private:

@@ -23,7 +23,6 @@
  */
 
 #include <config.h>
-#include "om/omdocument.h"
 #include "omdebug.h"
 #include "quartz_database.h"
 #include "quartz_document.h"
@@ -37,7 +36,7 @@ QuartzDocument::QuartzDocument(Xapian::Internal::RefCntPtr<const Xapian::Databas
 			       QuartzTable *value_table_,
 			       QuartzTable *record_table_,
 			       om_docid did_, bool lazy)
-	: Document(database_.get(), did_),
+	: Xapian::Document::Internal(database_.get(), did_),
 	  database(database_),
 	  value_table(value_table_),
 	  record_table(record_table_)

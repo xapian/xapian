@@ -23,7 +23,6 @@
  */
 
 #include <config.h>
-#include "om/omdocument.h"
 #include "db_database.h"
 #include "db_document.h"
 #include "dbread.h"
@@ -31,8 +30,8 @@
 
 DBDocument::DBDocument(const DBDatabase * database_, om_docid did_,
 		       bool heavy_duty_, bool lazy)
-        : Document(database_, did_), database(database_), rec(NULL),
-	  heavy_duty(heavy_duty_)
+        : Xapian::Document::Internal(database_, did_), database(database_),
+	  rec(NULL), heavy_duty(heavy_duty_)
 {
     if (!lazy) rec = database->get_record(did);
 }

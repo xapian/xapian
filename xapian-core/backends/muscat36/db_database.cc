@@ -42,13 +42,13 @@ using std::pair;
 #include "dbread.h"
 #include "omdebug.h"
 
-#include "om/omdocument.h"
+#include <xapian/document.h>
 #include "xapian/error.h"
 
 DBPostList::DBPostList(const string & tname_,
 		       struct DB_postings * postlist_,
 		       om_doccount termfreq_,
-		       RefCntPtr<const DBDatabase> this_db_)
+		       Xapian::Internal::RefCntPtr<const DBDatabase> this_db_)
 	: postlist(postlist_), currdoc(0), tname(tname_), termfreq(termfreq_),
 	  this_db(this_db_)
 {
@@ -110,7 +110,7 @@ DBPostList::open_position_list() const
 
 
 DBTermList::DBTermList(struct termvec *tv, om_doccount dbsize_,
-		       RefCntPtr<const DBDatabase> this_db_)
+		       Xapian::Internal::RefCntPtr<const DBDatabase> this_db_)
 	: have_started(false), dbsize(dbsize_), this_db(this_db_)
 {
     // FIXME - read terms as we require them, rather than all at beginning?
@@ -260,14 +260,14 @@ LeafPostList *
 DBDatabase::open_post_list_internal(const string & tname) const
 {
     // Make sure the term has been looked up
-    RefCntPtr<const DBTerm> the_term = term_lookup(tname);
+    Xapian::Internal::RefCntPtr<const DBTerm> the_term = term_lookup(tname);
     Assert(the_term.get() != 0);
 
     struct DB_postings * postlist;
     postlist = DB_open_postings(the_term->get_ti(), DB);
 
     return new DBPostList(tname, postlist, the_term->get_ti()->freq,
-			  RefCntPtr<const DBDatabase>(RefCntPtrToThis(), this));
+			  Xapian::Internal::RefCntPtr<const DBDatabase>(this));
 }
 
 LeafPostList *
@@ -293,7 +293,7 @@ DBDatabase::open_term_list(om_docid did) const
     M_open_terms(tv);
 
     return new DBTermList(tv, DBDatabase::get_doccount(),
-			  RefCntPtr<const DBDatabase>(RefCntPtrToThis(), this));
+			  Xapian::Internal::RefCntPtr<const DBDatabase>(this));
 }
 
 struct record *
@@ -341,7 +341,7 @@ DBDatabase::get_value(om_docid did, om_valueno valueid) const
     return value;
 }
 
-Document *
+Xapian::Document::Internal *
 DBDatabase::open_document(om_docid did, bool lazy) const
 {
     return new DBDocument(this, did, DB->heavy_duty, lazy);
@@ -355,15 +355,15 @@ DBDatabase::open_position_list(om_docid /*did*/,
     return NULL;
 }
 
-RefCntPtr<const DBTerm>
+Xapian::Internal::RefCntPtr<const DBTerm>
 DBDatabase::term_lookup(const string & tname) const
 {
     //DEBUGLINE(DB, "DBDatabase::term_lookup(`" << tname.c_str() << "'): ");
 
-    map<string, RefCntPtr<const DBTerm> >::const_iterator p;
+    map<string, Xapian::Internal::RefCntPtr<const DBTerm> >::const_iterator p;
     p = termmap.find(tname);
 
-    RefCntPtr<const DBTerm> the_term;
+    Xapian::Internal::RefCntPtr<const DBTerm> the_term;
     if (p == termmap.end()) {
 	string::size_type len = tname.length();
 	if (len > 255) return 0;
@@ -386,7 +386,7 @@ DBDatabase::term_lookup(const string & tname) const
 	    }
 
 	    DEBUGLINE(DB, "found, adding to cache");
-	    pair<string, RefCntPtr<const DBTerm> > termpair(tname, new DBTerm(&ti, tname));
+	    pair<string, Xapian::Internal::RefCntPtr<const DBTerm> > termpair(tname, new DBTerm(&ti, tname));
 	    termmap.insert(termpair);
 	    the_term = termmap.find(tname)->second;
 	}

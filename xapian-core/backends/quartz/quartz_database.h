@@ -56,10 +56,10 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	virtual void do_commit_transaction();
 	virtual void do_cancel_transaction();
 
-	virtual om_docid do_add_document(const OmDocument & document);
+	virtual om_docid do_add_document(const Xapian::Document & document);
 	virtual void do_delete_document(om_docid did);
 	virtual void do_replace_document(om_docid did,
-					 const OmDocument & document);
+					 const Xapian::Document & document);
 
 	virtual void do_reopen();
 	//@}
@@ -101,7 +101,7 @@ class QuartzDatabase : public Xapian::Database::Internal {
 
 	LeafPostList * do_open_post_list(const string & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
-	Document * open_document(om_docid did, bool lazy = false) const;
+	Xapian::Document::Internal * open_document(om_docid did, bool lazy = false) const;
 	PositionList * open_position_list(om_docid did,
 					  const string & tname) const;
 	TermList * open_allterms() const;
@@ -140,10 +140,10 @@ class QuartzWritableDatabase : public Xapian::Database::Internal {
 	virtual void do_commit_transaction();
 	virtual void do_cancel_transaction();
 
-	virtual om_docid do_add_document(const OmDocument & document);
+	virtual om_docid do_add_document(const Xapian::Document & document);
 	virtual void do_delete_document(om_docid did);
 	virtual void do_replace_document(om_docid did,
-					 const OmDocument & document);
+					 const Xapian::Document & document);
 
 	virtual void do_reopen();
 	//@}
@@ -171,7 +171,7 @@ class QuartzWritableDatabase : public Xapian::Database::Internal {
 
 	LeafPostList * do_open_post_list(const string & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
-	Document * open_document(om_docid did, bool lazy = false) const;
+	Xapian::Document::Internal * open_document(om_docid did, bool lazy = false) const;
 	PositionList * open_position_list(om_docid did,
 					  const string & tname) const;
 	TermList * open_allterms() const;

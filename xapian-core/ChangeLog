@@ -1,3 +1,15 @@
+Fri May 23 15:32:29 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/,backends/database.cc,backends/inmemory/,backends/muscat36/,
+	  backends/net/net_database.cc,backends/net/net_document.cc,
+	  backends/net/net_document.h,backends/quartz/,common/,docs/,
+	  include/Makefile.am,include/om/om.h,include/om/omdocument.h,
+	  include/om/omvalueiterator.h,include/xapian/,indexer/omindexer.h,
+	  matcher/,net/,netprogs/nettest.cc,tests/api_db.cc,tests/api_posdb.cc,
+	  tests/internaltest.cc,testsuite/: OmDocument -> Xapian::Document, etc.
+	* include/Makefile.am: Fixed library headers to install in xapian and
+	  om subdirectories as they should.
+
 Fri May 23 15:31:05 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Consistently use int4 for block number -

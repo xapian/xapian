@@ -137,7 +137,7 @@ required.
 <H2>The Xapian::Enquire class</H2>
 
 <P>
-The <A HREF="apidoc/html/class_OmEnquire.html"><CODE>Xapian::Enquire</CODE></A> class
+The <A HREF="apidoc/html/classXapian_1_1Enquire.html"><CODE>Xapian::Enquire</CODE></A> class
 is central to all searching operations.  It provides an interface for
 <UL><LI>
 Specifying the database, or databases, to search across.
@@ -177,7 +177,7 @@ may not: you should catch exceptions in both situations).
 <P>
 When creating an Xapian::Enquire object, a database to search must be specified.
 Databases are specified by creating a <A
-HREF="apidoc/html/class_OmDatabase.html"><CODE>Xapian::Database</CODE> object</A>.
+HREF="apidoc/html/classXapian_1_1Database.html"><CODE>Xapian::Database</CODE> object</A>.
 This is done using a factory function such as <CODE>Xapian::Quartz::open()</CODE>
 - there's one of these for each backend type.  The parameters the function
 takes depend on the backend type, and whether we are creating a read-only
@@ -284,7 +284,7 @@ which cause special effects for testing.
 <P>
 Xapian can search across several databases as easily as searching across a
 single one.  Simply call
-<A HREF="apidoc/html/class_OmDatabase.html"><CODE>Xapian::Database::add_database()</CODE></A>
+<A HREF="apidoc/html/classXapian_1_1Database.html"><CODE>Xapian::Database::add_database()</CODE></A>
 for each database that you wish to search through.
 </P>
 <P>
@@ -346,7 +346,7 @@ particularly good for queries containing many terms.
 <H3>A query for a single term</H3>
 <P>
 All queries are represented by
-<A HREF="apidoc/html/class_OmQuery.html"><CODE>Xapian::Query</CODE></A>
+<A HREF="apidoc/html/classXapian_1_1Query.html"><CODE>Xapian::Query</CODE></A>
 objects.  The simplest possible (non-trivial) query is one which searches
 for a single term.  This can be created as follows (where <CODE>tname</CODE> is the term to be searched for):
 </P>
@@ -729,7 +729,7 @@ and it will perform whatever calculations are necessary to provide the
 answer:
 </P>
 <PRE>
-Xapian::MSet <A HREF="apidoc/html/class_OmEnquire.html">Xapian::Enquire::get_mset</A>(om_doccount first,
+Xapian::MSet <A HREF="apidoc/html/classXapian_1_1Enquire.html">Xapian::Enquire::get_mset</A>(om_doccount first,
                            om_doccount maxitems,
                            const Xapian::RSet * omrset = 0,
                            const Xapian::MatchDecider * mdecider = 0) const
@@ -756,9 +756,9 @@ below).
 <H3>The Xapian::MSet</H3>
 <P>
 Query results are returned in an
-<A HREF="apidoc/html/class_OmMSet.html"><CODE>Xapian::MSet</CODE></A> object.
+<A HREF="apidoc/html/classXapian_1_1MSet.html"><CODE>Xapian::MSet</CODE></A> object.
 The results can be accessed using a
-<A HREF="apidoc/html/class_OmMSetIterator.html"><CODE>Xapian::MSetIterator</CODE></A>
+<A HREF="apidoc/html/classXapian_1_1MSetIterator.html"><CODE>Xapian::MSetIterator</CODE></A>
 which returns the matches in descending sorted order
 of relevance (so the most relevant document is first in the list).
 Each <CODE>Xapian::MSet</CODE> entry comprises a document id, and the weight
@@ -794,14 +794,14 @@ if the search is recalculated with different values for <CODE>first</CODE> or
 </TABLE>
 </P>
 <P>
-See the <A HREF="apidoc/html/class_OmMSet.html">automatically extracted documentation</A>
+See the <A HREF="apidoc/html/classXapian_1_1MSet.html">automatically extracted documentation</A>
 for more details of these fields.
 </P>
 <P>
 The <CODE>Xapian::MSet</CODE> also provides methods for converting the score
 calculated for a given document into a percentage value, suitable for
 displaying to a user.  This may be done using the
-<A HREF="apidoc/html/class_OmMSet.html"><CODE>convert_to_percent()</CODE></A>
+<A HREF="apidoc/html/classXapian_1_1MSet.html"><CODE>convert_to_percent()</CODE></A>
 methods:
 <PRE>
      int Xapian::MSet::convert_to_percent(const Xapian::MSetIterator &amp; item) const
@@ -815,21 +815,21 @@ These methods return a value in the range 0 to 100, which will be
 <P>
 Each document in the database has some data associated with it,
 represented by an
-<A HREF="apidoc/html/class_OmDocument.html"><CODE>OmDocument</CODE></A> object.
+<A HREF="apidoc/html/classXapian_1_1Document.html"><CODE>Xapian::Document</CODE></A> object.
 There are some arbitrary numeric keys (which are not yet available,
 and mainly useful in the match process) and an arbitrary lump of
-data.  To get the <CODE>OmDocument</CODE> object, use
-<A HREF="apidoc/html/class_OmEnquire.html"><CODE>OmEnquire::get_doc()</CODE></A>.
-The returned <CODE>OmDocument</CODE> is fairly cheap to copy around.
+data.  To get the <CODE>Xapian::Document</CODE> object, use
+<A HREF="apidoc/html/classXapian_1_1Enquire.html"><CODE>Xapian::Enquire::get_doc()</CODE></A>.
+The returned <CODE>Xapian::Document</CODE> is fairly cheap to copy around.
 </P> <P>
 This data can be used to store a summary of the document along
 with a URL, for example, or anything else the application developer
 would like.
 </P><P>
 The data can be retrieved with
-<A HREF="apidoc/html/class_OmDocument.html"><CODE>OmDocument::get_data()</CODE></A>
-from the <CODE>OmDocument</CODE> object.  This returns
-a C++ string with the data.  It can include embedded nulls
+<A HREF="apidoc/html/classXapian_1_1Document.html"><CODE>Xapian::Document::get_data()</CODE></A>
+from the <CODE>Xapian::Document</CODE> object.  This returns
+a C++ string containing the data.  It can include embedded nulls
 or other special characters.
 </P>
 
@@ -838,8 +838,8 @@ or other special characters.
 Xapian supports the idea of relevance feedback: that is, of allowing the user
 to mark documents as being relevant to the search, and using this information
 to modify the search.  This is supported by means of relevance sets, which
-are simply sets of document id's which are marked as relevant.  These
-are held in <A HREF="apidoc/html/class_RSet.html"><CODE>Xapian::RSet</CODE></A> objects,
+are simply sets of document ids which are marked as relevant.  These
+are held in <A HREF="apidoc/html/classXapian_1_1RSet.html"><CODE>Xapian::RSet</CODE></A> objects,
 one of which may optionally be supplied to Xapian in the
 <CODE>omrset</CODE> parameter when calling
 <CODE>Xapian::Enquire::get_mset()</CODE>.
@@ -849,10 +849,10 @@ one of which may optionally be supplied to Xapian in the
 
 <P>
 There are various additional options which may be specified when
-performing the query.  These are specified by passing an
-<A HREF="apidoc/html/class_OmMatchOptions.html"><CODE>OmMatchOptions</CODE></A>
-object.  If no such object is passed, the default options will be
-used.  The options are as follows.
+performing the query.  These are specified by calling
+<A HREF="apidoc/html/classXapian_1_1Enquire.html">various methods
+of the <CODE>Xapian::Enquire</CODE> object</A>.
+The options are as follows.
 </P>
 <TABLE>
 <TR><TD VALIGN="top">
@@ -860,20 +860,16 @@ used.  The options are as follows.
 </TD><TD VALIGN="top">
 Each document in a database may have a set of numbered keys.   The
 contents of each key is a string of arbitrary length.
-The <CODE>OmMatchOptions::<A HREF="apidoc/html/class_OmMatchOptions.html">set_collapse_key</A>(om_keyno key_)</CODE>
-method specifies a key number upon which to remove duplicates, and the
-<CODE>OmMatchOptions::<A HREF="apidoc/html/class_OmMatchOptions.html">set_no_collapse</A>()</CODE>
-method specifies that no duplicate removal should be done.
-Only one duplicate removal key may be specified at any time, and the
+The <CODE>set_collapse_key</A>(om_valueno collapse_key)</CODE>
+method specifies a key number upon which to remove duplicates.
+Only the most recently set duplicate removal key is active at any time, and the
 default is to perform no duplicate removal.
 </TD></TR><TR><TD VALIGN="top">
 <B>percentage cutoff</B>
 </TD><TD VALIGN="top">
 It may occasionally be desirable to exclude any documents which have a
 weight less than a given percentage value.  This may be done using
-<CODE>OmMatchOptions::<A HREF="apidoc/html/class_OmMatchOptions.html">set_percentage_cutoff()</A></CODE>.
-Note that documents rarely score 100 percent, so using
-set_percentage_cutoff(100) will be unlikely to return any documents.
+<CODE>set_cutoff(Xapian::percent percent_cutoff)</A></CODE>.
 </TD></TR><TR><TD VALIGN="top">
 <B>sort direction</B>
 </TD><TD VALIGN="top">
@@ -881,7 +877,7 @@ Some weighting functions may frequently result in several documents being
 returned with the same weight.  In this case, by default, the documents
 will be returned in ascending document id order.  This can be changed
 by using
-<CODE>OmMatchOptions::<A HREF="apidoc/html/class_OmMatchOptions.html">set_sort_forward()</A></CODE>
+<CODE>set_sort_forward()</A></CODE>
 to set the sort direction.  <CODE>set_sort_forward(false)</CODE> may be
 useful, for example, when it would be best to return the newest documents,
 and new documents are being added to the end of the database.
@@ -894,12 +890,12 @@ Sometimes it may be useful to return only documents matching criteria
 which can't be easily represented by queries.  This can be done using
 a match decision functor.  To set such a condition, derive a class
 from <CODE>Xapian::MatchDecider</CODE> and override the function operator,
-<CODE>operator()(const OmDocument *doc)</CODE>.  The operator can make
-a decision based on the document keys via <CODE>OmDocument::get_key(om_keyno)</CODE>.
+<CODE>operator()(const Xapian::Document &amp;doc)</CODE>.  The operator can make
+a decision based on the document values via <CODE>Xapian::Document::get_value(om_valueno)</CODE>.
 </p>
 <p>
 The functor will also have access to the document data stored in the
-database (via <CODE>OmDocument::get_data()</CODE>), but beware that, for
+database (via <CODE>Xapian::Document::get_data()</CODE>), but beware that, for
 most database backends, this is an expensive operation and is likely to slow
 down the search considerably.
 </P>
@@ -910,13 +906,13 @@ Xapian also supports the idea of calculating terms to add to the
 query, based on the relevant documents supplied.  A set of such
 terms, together with their weights, may be returned by:
 <PRE>
-Xapian::ESet Xapian::Enquire::<A HREF="apidoc/html/class_OmEnquire.html">get_eset</A>(om_termcount maxitems,
+Xapian::ESet Xapian::Enquire::<A HREF="apidoc/html/classXapian_1_1Enquire.html">get_eset</A>(om_termcount maxitems,
                            const Xapian::RSet &amp; omrset,
 			   bool exclude_query_terms = true,
 			   bool use_exact_termfreq = false,
 			   double k = 1.0,
 			   const Xapian::ExpandDecider * edecider = 0) const;
-Xapian::ESet Xapian::Enquire::<A HREF="apidoc/html/class_OmEnquire.html">get_eset</A>(om_termcount maxitems,
+Xapian::ESet Xapian::Enquire::<A HREF="apidoc/html/classXapian_1_1Enquire.html">get_eset</A>(om_termcount maxitems,
                            const Xapian::RSet &amp; omrset,
                            const Xapian::ExpandDecider * edecider) const
 </PRE>
@@ -928,7 +924,7 @@ could be found.
 </P>
 <P>
 The expand terms are returned in sorted weight order in an
-<A HREF="apidoc/html/class_OmESet.html"><CODE>OmESet</CODE></A> item.
+<A HREF="apidoc/html/classXapian_1_1ESet.html"><CODE>Xapian::ESet</CODE></A> item.
 </P>
 
 <H3>exclude_query_terms</H3>

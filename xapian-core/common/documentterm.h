@@ -1,4 +1,4 @@
-/* omdocumentinternal.h: internal class representing a document
+/* documentterm.h: internal class representing a term in a modified document
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -22,23 +22,25 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OMDOCUMENTINTERNAL_H
-#define OM_HGUARD_OMDOCUMENTINTERNAL_H
+#ifndef OM_HGUARD_DOCUMENTTERM_H
+#define OM_HGUARD_DOCUMENTTERM_H
 
 #include <string>
 #include <xapian/types.h>
-#include "refcnt.h"
-#include "document.h"
 
 using namespace std;
 
 /// A term in a document.
-struct OmDocumentTerm {
+class OmDocumentTerm {
+    public:
     /** Make a new term.
      *
      *  @param tname_ The name of the new term.
      */
-    OmDocumentTerm(const string & tname_);
+    OmDocumentTerm(const string & tname_) : tname(tname_), wdf(0), termfreq(0)
+    {
+	DEBUGAPICALL(void, "OmDocumentTerm::OmDocumentTerm", tname_);
+    }
 
     /** The name of this term.
      */
@@ -108,71 +110,4 @@ struct OmDocumentTerm {
     string get_description() const;
 };
 
-// A document - holds values, terms, and document data
-// Data can be in a database (accessed via a Document) or held by this class
-// (or some combination if a document from a database is being amended).
-class OmDocument::Internal {
-    public:
-	/// The reference counted pointer to a Document instance
-	RefCntPtr<Document> ptr;
-
-	Xapian::Database database;
-
-	om_docid did;
-
-	bool data_here, values_here, terms_here;
-
-	/// The (user defined) data associated with this document.
-	string data;
-
-	/// Type to store values in.
-	typedef map<om_valueno, string> document_values;
-
-	/// The values associated with this document.
-	document_values values;
-
-	/// Type to store terms in.
-	typedef map<string, OmDocumentTerm> document_terms;
-
-	/// The terms (and their frequencies and positions) in this document.
-	document_terms terms;
-
-	explicit Internal(Document *ld, const Xapian::Database &database_,
-			  om_docid did_)
-		: ptr(ld), database(database_), did(did_), data_here(false),
-		  values_here(false), terms_here(false) {}
-
-	explicit Internal(RefCntPtr<Document> ptr_, const Xapian::Database &database_,
-			  om_docid did_)
-	        : ptr(ptr_), database(database_), did(did_), data_here(false),
-		  values_here(false), terms_here(false) {}
-
-	Internal(const Internal &other)
-		: ptr(other.ptr),
-		  database(other.database),
-		  did(other.did),
-		  data_here(other.data_here),
-		  values_here(other.values_here),
-		  terms_here(other.terms_here),
-		  data(other.data),
-		  values(other.values),
-		  terms(other.terms) {}
-
-	Internal()
-		: ptr(NULL), data_here(true), values_here(true), terms_here(true)
-	{}
-
-	void read_termlist(Xapian::TermIterator t, const Xapian::TermIterator & tend);
-
-	/** Returns a string representing the object.
-	 *  Introspection method.
-	 */
-	string get_description() const;
-
-        /* calls ptr->get_all_values(); or whatever, as so many
-         * methods seem to be doing this independantly.
-         */
-        void need_values();
-};
-
-#endif  // OM_HGUARD_OMDOCUMENTINTERNAL_H
+#endif // OM_HGUARD_DOCUMENTTERM_H

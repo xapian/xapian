@@ -26,12 +26,12 @@
 #define OM_HGUARD_DA_DOCUMENT_H
 
 #include "document.h"
-#include "daread.h"
+struct record;
 
 class DADatabase;
 
 /// A document from a DA format database
-class DADocument : public Document {
+class DADocument : public Xapian::Document::Internal {
     friend class DADatabase;
     private:
 	const DADatabase * database;

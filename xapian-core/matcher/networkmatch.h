@@ -79,7 +79,7 @@ class RemoteSubMatch : public SubMatch {
 	
 	PostList * get_postlist(om_doccount maxitems, MultiMatch *matcher);
 
-	virtual Document * open_document(om_docid did) const {
+	virtual Xapian::Document::Internal * open_document(om_docid did) const {
 	    return db->open_document(did);
 	}
 

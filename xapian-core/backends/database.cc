@@ -30,6 +30,7 @@
 #include <fstream>
 #include <string>
 
+#include<iostream>
 using namespace std;
 
 // Include headers for all the enabled database backends
@@ -55,11 +56,14 @@ namespace Xapian {
 #ifdef MUS_BUILD_BACKEND_QUARTZ
 Database
 Quartz::open(const string &dir) {
+    DEBUGAPICALL_STATIC(Database, "Quartz::open", dir);
     return Database(new QuartzDatabase(dir));
 }
 
 WritableDatabase
 Quartz::open(const string &dir, int action, int block_size) {
+    DEBUGAPICALL_STATIC(WritableDatabase, "Quartz::open", dir << ", " <<
+			action << ", " << block_size);
     return WritableDatabase(new QuartzWritableDatabase(dir, action,
 						       block_size));
 }
@@ -70,6 +74,7 @@ Quartz::open(const string &dir, int action, int block_size) {
 // not much use in allowing one to be created.
 WritableDatabase
 InMemory::open() {
+    DEBUGAPICALL_STATIC(Database, "InMemory::open", "");
     return WritableDatabase(new InMemoryDatabase());
 }
 #endif
@@ -77,22 +82,30 @@ InMemory::open() {
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
 Database
 Muscat36::open_da(const string &R, const string &T, bool heavy_duty) {
+    DEBUGAPICALL_STATIC(Database, "Muscat36::open_da", R << ", " << T << ", " <<
+			heavy_duty);
     return Database(new DADatabase(R, T, "", heavy_duty));
 }
 
 Database
 Muscat36::open_da(const string &R, const string &T, const string &keys,
 		  bool heavy_duty) {
+    DEBUGAPICALL_STATIC(Database, "Muscat36::open_da", R << ", " << T << ", " <<
+			keys << ", " << heavy_duty);
     return Database(new DADatabase(R, T, keys, heavy_duty));
 }
 
 Database
 Muscat36::open_db(const string &DB, size_t cache_size) {
+    DEBUGAPICALL_STATIC(Database, "Muscat36::open_db", DB << ", " <<
+			cache_size);
     return Database(new DBDatabase(DB, "", cache_size));
 }
 
 Database
 Muscat36::open_db(const string &DB, const string &keys, size_t cache_size) {
+    DEBUGAPICALL_STATIC(Database, "Muscat36::open_db", DB << ", " << keys <<
+			", " << cache_size);
     return Database(new DBDatabase(DB, keys, cache_size));
 }
 #endif
@@ -101,6 +114,7 @@ Muscat36::open_db(const string &DB, const string &keys, size_t cache_size) {
 Database
 Remote::open(const string &program, const string &args, unsigned int timeout)
 {
+    DEBUGAPICALL_STATIC(Database, "Remote::open", args << ", " << timeout);
     Xapian::Internal::RefCntPtr<NetClient> link(new ProgClient(program, args, timeout));
     return Database(new NetworkDatabase(link));
 }
@@ -109,6 +123,8 @@ Database
 Remote::open(const string &host, unsigned int port,
 	unsigned int timeout, unsigned int connect_timeout)
 {
+    DEBUGAPICALL_STATIC(Database, "Remote::open", host << ", " << port <<
+			", " << timeout << ", " << connect_timeout);
     if (connect_timeout == 0) connect_timeout = timeout;
     Xapian::Internal::RefCntPtr<NetClient> link(new TcpClient(host, port, timeout, connect_timeout));
     return Database(new NetworkDatabase(link));
@@ -118,6 +134,7 @@ Remote::open(const string &host, unsigned int port,
 Database
 Auto::open_stub(const string &file)
 {
+    DEBUGAPICALL_STATIC(Database, "Auto::open_stub", file);
     // A stub database is a text file with one or more lines of this format:
     // <dbtype> <serialised db object>
     ifstream stub(file.c_str());
@@ -186,6 +203,7 @@ Auto::open_stub(const string &file)
 Database
 Auto::open(const string &path)
 {
+    DEBUGAPICALL_STATIC(Database, "Auto::open", path);
     // Check for path actually being a file - if so, assume it to be
     // a stub database.
     if (file_exists(path)) {
@@ -222,6 +240,7 @@ Auto::open(const string &path)
 WritableDatabase
 Auto::open(const std::string &path, int action)
 {
+    DEBUGAPICALL_STATIC(WritableDatabase, "Auto::open", path << ", " << action);
 #ifdef MUS_BUILD_BACKEND_QUARTZ
     // Only quartz currently supports disk-based writable databases - if other
     // writable backends are added then this code needs to look at action and
@@ -329,7 +348,7 @@ Database::Internal::cancel_transaction()
 }
 
 om_docid
-Database::Internal::add_document(const OmDocument & document)
+Database::Internal::add_document(const Xapian::Document & document)
 {
     ensure_session_in_progress();
     return do_add_document(document);
@@ -343,7 +362,7 @@ Database::Internal::delete_document(om_docid did)
 }
 
 void
-Database::Internal::replace_document(om_docid did, const OmDocument & document)
+Database::Internal::replace_document(om_docid did, const Xapian::Document & document)
 {
     ensure_session_in_progress();
     do_replace_document(did, document);

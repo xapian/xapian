@@ -23,7 +23,6 @@
  */
 
 #include <config.h>
-#include "om/omdocument.h"
 #include "da_database.h"
 #include "da_document.h"
 #include "daread.h"
@@ -33,8 +32,8 @@
  */
 DADocument::DADocument(const DADatabase * database_, om_docid did_,
 		       bool heavy_duty_, bool lazy)
-        : Document(database_, did_), database(database_), rec(NULL),
-	  heavy_duty(heavy_duty_)
+        : Xapian::Document::Internal(database_, did_), database(database_),
+	  rec(NULL), heavy_duty(heavy_duty_)
 {
     if (!lazy) rec = database->get_record(did);
 }

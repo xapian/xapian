@@ -33,7 +33,6 @@
 #include <xapian/output.h>
 
 #include <xapian/termiterator.h>
-#include "omtermlistiteratorinternal.h"
 
 #include <vector>
 #include <map>

@@ -26,7 +26,6 @@
 
 #include "match.h"
 #include "stats.h"
-#include "refcnt.h"
 
 #include "omqueryinternal.h"
 
@@ -46,7 +45,7 @@ class MultiMatch
 	AutoPtr<StatsGatherer> gatherer;
 
 	/// Vector of the items.  This MUST be destroyed before "gatherer"
-	std::vector<RefCntPtr<SubMatch> > leaves;
+	std::vector<Xapian::Internal::RefCntPtr<SubMatch> > leaves;
 
 	const Xapian::Database db;
 
@@ -89,7 +88,7 @@ class MultiMatch
 	/// get the collapse key
 	string get_collapse_key(PostList *pl, const Xapian::Database &db,
 				om_docid did, om_valueno keyno,
-				RefCntPtr<Document> &doc);
+				Xapian::Internal::RefCntPtr<Xapian::Document::Internal> &doc);
 
 	/** get the maxweight that the postlist pl may return, calling
 	 *  recalc_maxweight if recalculate_w_max is set, and unsetting it.

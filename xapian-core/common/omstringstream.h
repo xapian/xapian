@@ -92,7 +92,7 @@ class om_ostringstream {
 
 OSTRINGSTREAMFUNC(Xapian::Database)
 OSTRINGSTREAMFUNC(Xapian::WritableDatabase)
-OSTRINGSTREAMFUNC(OmDocument)
+OSTRINGSTREAMFUNC(Xapian::Document)
 OSTRINGSTREAMFUNC(Xapian::Query)
 OSTRINGSTREAMFUNC(Xapian::RSet)
 OSTRINGSTREAMFUNC(Xapian::MSet)

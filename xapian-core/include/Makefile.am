@@ -1,12 +1,13 @@
 ## Process this file with automake to produce Makefile.in
 
-include_HEADERS = xapian/base.h xapian/stem.h xapian/types.h \
- xapian/error.h xapian/errorhandler.h xapian/errortypes.h xapian/output.h \
- xapian/expanddecider.h xapian/positionlistiterator.h xapian/termiterator.h \
- xapian/postlistiterator.h xapian/query.h xapian/enquire.h xapian/database.h \
- om/om.h \
- om/omdocument.h \
- om/omvalueiterator.h
-nodist_include_HEADERS = xapian/version.h
+xapianincludedir = $(includedir)/xapian
+omcompatincludedir = $(includedir)/om
+xapianinclude_HEADERS = xapian/base.h xapian/database.h xapian/document.h \
+ xapian/enquire.h xapian/error.h xapian/errorhandler.h xapian/errortypes.h \
+ xapian/expanddecider.h xapian/output.h xapian/positionlistiterator.h \
+ xapian/postlistiterator.h xapian/query.h xapian/stem.h xapian/termiterator.h \
+ xapian/types.h
+omcompatinclude_HEADERS = om/omvalueiterator.h om/om.h
+nodist_xapianinclude_HEADERS = xapian/version.h
 EXTRA_DIST = xapian/version.h.in
 DISTCLEANFILES = xapian/version.h

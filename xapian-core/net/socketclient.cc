@@ -38,14 +38,13 @@
 #include <cerrno>
 #ifdef HAVE_SSTREAM
 #include <sstream>
-using std::istringstream;
 #else
 #include <strstream.h>
 #endif
 #include <string>
-using std::string;
 #include <vector>
-using std::vector;
+
+using namespace std;
 
 SocketClient::SocketClient(int socketfd_,
 			   int msecs_timeout_,
@@ -84,7 +83,7 @@ SocketClient::SocketClient(int socketfd_,
     is >> version >> doccount >> avlength;
 
     if (version != OM_SOCKET_PROTOCOL_VERSION) {
-	throw Xapian::NetworkError(string("Invalid protocol version: found ") +
+	throw Xapian::NetworkError(string("Mismatched protocol version: found ") +
 			     om_tostring(version) + " expected " +
 			     om_tostring(OM_SOCKET_PROTOCOL_VERSION), context);
     }

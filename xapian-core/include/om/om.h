@@ -72,7 +72,7 @@ typedef std::string om_termname;
 #define OmRSet Xapian::RSet
 #define OmDatabase Xapian::Database
 #define OmWritableDatabase Xapian::WritableDatabase
-//#define OmDocument Xapian::Document
+#define OmDocument Xapian::Document
 
 #define OmAuto__open Xapian::Auto::open
 #define OmQuartz__open Xapian::Quartz::open
@@ -105,7 +105,7 @@ typedef std::string om_termname;
 #include <xapian/errorhandler.h>
 
 // Data access
-#include "om/omdocument.h"
+#include <xapian/document.h>
 #include <xapian/database.h>
 #include <xapian/postlistiterator.h>
 #include <xapian/positionlistiterator.h>

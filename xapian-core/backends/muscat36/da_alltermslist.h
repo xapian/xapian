@@ -53,7 +53,7 @@ class DAAllTermsList : public AllTermsList
 	bool is_at_end;
     public:
 	/// Standard constructor for base class.
-	DAAllTermsList(RefCntPtr<const Database> database_,
+	DAAllTermsList(Xapian::Internal::Xapian::Internal::RefCntPtr<const Database> database_,
 		       const DA_term_info &term_,
 		       DA_file *DA_t);
 

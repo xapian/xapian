@@ -49,7 +49,7 @@ class EmptySubMatch : public SubMatch {
 	    return lpl.release();
 	}
 
-	Document * open_document(om_docid /*did*/) const {
+	Xapian::Document::Internal * open_document(om_docid /*did*/) const {
 	    throw Xapian::InternalError("Attempt to open document from EmptySubMatch should not happen.");
 	}
 

@@ -27,7 +27,7 @@
 
 #include "document.h"
 
-class NetworkDocument : public Document {
+class NetworkDocument : public Xapian::Document::Internal {
     friend class NetworkDatabase;
     private:
 	string doc;

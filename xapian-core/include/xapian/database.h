@@ -28,7 +28,7 @@
 
 #include <vector>
 
-#include "om/omdocument.h"
+#include <xapian/document.h>
 #include <xapian/base.h>
 #include <xapian/termiterator.h>
 #include <xapian/positionlistiterator.h>
@@ -175,17 +175,17 @@ class Database {
 
 	/** Get a document from the database, given its document id.
 	 *
-	 *  This method returns a OmDocument object which provides the
+	 *  This method returns a Xapian::Document object which provides the
 	 *  information about a document.
 	 *
 	 *  @param did   The document id for which to retrieve the data.
 	 *
-	 *  @return      A OmDocument object containing the document data
+	 *  @return      A Xapian::Document object containing the document data
 	 *
 	 *  @exception Xapian::DocNotFoundError      The document specified
 	 *		could not be found in the database.
 	 */
-	OmDocument get_document(om_docid did) const;
+	Xapian::Document get_document(om_docid did) const;
 };
 
 /** This class provides read/write access to a database.
@@ -366,7 +366,7 @@ class WritableDatabase : public Database {
 	 *  @exception Xapian::DatabaseLockError will be thrown if a lock
 	 *  couldn't be acquired or subsequently released on the database.
 	 */
-	om_docid add_document(const OmDocument & document);
+	om_docid add_document(const Xapian::Document & document);
 
 	/** Delete a document in the database.
 	 */
@@ -376,7 +376,7 @@ class WritableDatabase : public Database {
 	/** Replace a given document in the database.
 	 */
 	// FIXME: document more.
-	void replace_document(om_docid did, const OmDocument & document);
+	void replace_document(om_docid did, const Xapian::Document & document);
 
 	/** Introspection method.
 	 *

@@ -28,17 +28,17 @@
 #include <vector>
 
 #ifdef __SUNPRO_CC
-class OmWritableDatabase; // Sun's CC appears to need this to compile this file
+class Xapian::WritableDatabase; // Sun's CC appears to need this to compile this file
 #endif
 
 class BackendManager {
     private:
 	/// The type of a get_database member function
-	typedef OmDatabase (BackendManager::*getdb_func)
+	typedef Xapian::Database (BackendManager::*getdb_func)
 				   (const std::vector<std::string> &dbnames);
 
 	/// The type of a get_writable_database member function
-	typedef OmWritableDatabase (BackendManager::*getwritedb_func)
+	typedef Xapian::WritableDatabase (BackendManager::*getwritedb_func)
 				   (const std::vector<std::string> &dbnames);
 
 	/// The current get_database member function
@@ -58,81 +58,81 @@ class BackendManager {
 		change_names_to_paths(const std::vector<std::string> &dbnames);
 
 	/// Throw an exception.
-	OmDatabase getdb_void(const std::vector<std::string> &dbnames);
+	Xapian::Database getdb_void(const std::vector<std::string> &dbnames);
 
 	/// Throw an exception.
-	OmWritableDatabase getwritedb_void(const std::vector<std::string> &dbnames);
+	Xapian::WritableDatabase getwritedb_void(const std::vector<std::string> &dbnames);
 
 #ifdef MUS_BUILD_BACKEND_INMEMORY
 	/// Get an inmemory database instance.
-	OmDatabase getdb_inmemory(const std::vector<std::string> &dbnames);
+	Xapian::Database getdb_inmemory(const std::vector<std::string> &dbnames);
 
 	/// Get a writable inmemory database instance.
-	OmWritableDatabase getwritedb_inmemory(const std::vector<std::string> &dbnames);
+	Xapian::WritableDatabase getwritedb_inmemory(const std::vector<std::string> &dbnames);
 
 	/** Get an inmemory database instance, which will throw an error when
 	 *  next is called.
 	 */
-	OmDatabase getdb_inmemoryerr(const std::vector<std::string> &dbnames);
-	OmDatabase getdb_inmemoryerr2(const std::vector<std::string> &dbnames);
-	OmDatabase getdb_inmemoryerr3(const std::vector<std::string> &dbnames);
+	Xapian::Database getdb_inmemoryerr(const std::vector<std::string> &dbnames);
+	Xapian::Database getdb_inmemoryerr2(const std::vector<std::string> &dbnames);
+	Xapian::Database getdb_inmemoryerr3(const std::vector<std::string> &dbnames);
 
 	/** Get a writable inmemory database instance, which will throw an
 	 *  error when next is called.
 	 */
-	OmWritableDatabase getwritedb_inmemoryerr(const std::vector<std::string> &dbnames);
-	OmWritableDatabase getwritedb_inmemoryerr2(const std::vector<std::string> &dbnames);
-	OmWritableDatabase getwritedb_inmemoryerr3(const std::vector<std::string> &dbnames);
+	Xapian::WritableDatabase getwritedb_inmemoryerr(const std::vector<std::string> &dbnames);
+	Xapian::WritableDatabase getwritedb_inmemoryerr2(const std::vector<std::string> &dbnames);
+	Xapian::WritableDatabase getwritedb_inmemoryerr3(const std::vector<std::string> &dbnames);
 #endif
 
 #ifdef MUS_BUILD_BACKEND_REMOTE
 	/// Get a remote database instance
-	OmDatabase getdb_remote(const std::vector<std::string> &dbnames);
+	Xapian::Database getdb_remote(const std::vector<std::string> &dbnames);
 
 	/// Get a writable remote database instance
-	OmWritableDatabase getwritedb_remote(const std::vector<std::string> &dbnames);
+	Xapian::WritableDatabase getwritedb_remote(const std::vector<std::string> &dbnames);
 #endif
 
 #ifdef MUS_BUILD_BACKEND_QUARTZ
 	/// Get a quartz database instance.
-	OmDatabase getdb_quartz(const std::vector<std::string> &dbnames);
+	Xapian::Database getdb_quartz(const std::vector<std::string> &dbnames);
 
 	/// Get a writable quartz database instance.
-	OmWritableDatabase getwritedb_quartz(const std::vector<std::string> &dbnames);
+	Xapian::WritableDatabase getwritedb_quartz(const std::vector<std::string> &dbnames);
 
 	/// Do the actual work of creating a quartz database instance.
-	OmDatabase do_getdb_quartz(const std::vector<std::string> &dbnames,
+	Xapian::Database do_getdb_quartz(const std::vector<std::string> &dbnames,
 					   bool writable);
 
 	/// Do the actual work of creating a quartz database instance.
-	OmWritableDatabase do_getwritedb_quartz(const std::vector<std::string> &dbnames,
+	Xapian::WritableDatabase do_getwritedb_quartz(const std::vector<std::string> &dbnames,
 					   bool writable);
 #endif
 
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
 	/// Get a da database instance.
-	OmDatabase getdb_da(const std::vector<std::string> &dbnames);
+	Xapian::Database getdb_da(const std::vector<std::string> &dbnames);
 
 	/// Get a writable da database instance.
-	OmWritableDatabase getwritedb_da(const std::vector<std::string> &dbnames);
+	Xapian::WritableDatabase getwritedb_da(const std::vector<std::string> &dbnames);
 
 	/// Get a daflimsy database instance.
-	OmDatabase getdb_daflimsy(const std::vector<std::string> &dbnames);
+	Xapian::Database getdb_daflimsy(const std::vector<std::string> &dbnames);
 
 	/// Get a writable daflimsy database instance.
-	OmWritableDatabase getwritedb_daflimsy(const std::vector<std::string> &dbnames);
+	Xapian::WritableDatabase getwritedb_daflimsy(const std::vector<std::string> &dbnames);
 
 	/// Get a db database instance.
-	OmDatabase getdb_db(const std::vector<std::string> &dbnames);
+	Xapian::Database getdb_db(const std::vector<std::string> &dbnames);
 
 	/// Get a writable db database instance.
-	OmWritableDatabase getwritedb_db(const std::vector<std::string> &dbnames);
+	Xapian::WritableDatabase getwritedb_db(const std::vector<std::string> &dbnames);
 
 	/// Get a dbflimsy database instance.
-	OmDatabase getdb_dbflimsy(const std::vector<std::string> &dbnames);
+	Xapian::Database getdb_dbflimsy(const std::vector<std::string> &dbnames);
 
 	/// Get a writable dbflimsy database instance.
-	OmWritableDatabase getwritedb_dbflimsy(const std::vector<std::string> &dbnames);
+	Xapian::WritableDatabase getwritedb_dbflimsy(const std::vector<std::string> &dbnames);
 #endif
 
 
@@ -158,14 +158,14 @@ class BackendManager {
 	const std::string get_datadir(void);
 
 	/// Get a database instance of the current type
-	OmDatabase get_database(const std::vector<std::string> &dbnames);
+	Xapian::Database get_database(const std::vector<std::string> &dbnames);
 
 	/// Get a database instance from individually named databases
-	OmDatabase get_database(const std::string &dbname1,
+	Xapian::Database get_database(const std::string &dbname1,
 				const std::string &dbname2 = "");
 
 	/// Get a writable database instance
-	OmWritableDatabase get_writable_database(const std::string & dbname);
+	Xapian::WritableDatabase get_writable_database(const std::string & dbname);
 };
 
 #endif /* OM_HGUARD_BACKENDMANAGER_H */

@@ -1,4 +1,4 @@
-/** \file omdocument.h
+/** \file document.h
  * \brief API for working with documents
  */
 /* ----START-LICENCE----
@@ -23,43 +23,47 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OMDOCUMENT_H
-#define OM_HGUARD_OMDOCUMENT_H
+#ifndef XAPIAN_INCLUDED_DOCUMENT_H
+#define XAPIAN_INCLUDED_DOCUMENT_H
 
 #include <string>
+
+#include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
 #include "om/omvalueiterator.h"
 
+namespace Xapian {
+
 /// A document in the database - holds data, values, terms, and postings
-class OmDocument {
+class Document {
     public:
 	class Internal;
-	/// @internal Internals
-	Internal *internal;
+	/// @internal Reference counted internals.
+	mutable Xapian::Internal::RefCntPtr<Internal> internal;//FIXME mutable is a hack
 
     public:
 	/** @internal Constructor is only used by internal classes.
 	 *
-	 *  @param params int internal opaque class
+	 *  @param internal_ pointer to internal opaque class
 	 */
-	explicit OmDocument(OmDocument::Internal *internal_);
+	explicit Document(Internal *internal_);
 
 	/** Copying is allowed.  The internals are reference counted, so
 	 *  copying is cheap.
 	 */
-	OmDocument(const OmDocument &other);
+	Document(const Document &other);
 
 	/** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is cheap.
 	 */
-	void operator=(const OmDocument &other);
+	void operator=(const Document &other);
 
-	/// Make a new empty OmDocument
-	OmDocument();
+	/// Make a new empty Document
+	Document();
 
 	/// Destructor
-	~OmDocument();
+	~Document();
 
 	/// Get value by number (>= 0)
 	std::string get_value(om_valueno value) const;
@@ -154,10 +158,10 @@ class OmDocument {
 	om_termcount termlist_count();
 
 	/// Iterator for the terms in this document.
-	Xapian::TermIterator termlist_begin() const;
+	TermIterator termlist_begin() const;
 
 	/// Equivalent end iterator for termlist_begin().
-	Xapian::TermIterator termlist_end() const;
+	TermIterator termlist_end() const;
 
 	/// Count the values in this document.
 	om_termcount values_count();
@@ -170,9 +174,11 @@ class OmDocument {
 
 	/** Introspection method.
 	 *
-	 *  @return  A string representing this OmDocument.
+	 *  @return  A string representing this Document.
 	 */
 	std::string get_description() const;
 };
 
-#endif  // OM_HGUARD_OMDOCUMENT_H
+}
+
+#endif // XAPIAN_INCLUDED_DOCUMENT_H

@@ -39,8 +39,8 @@ operator<<(std::ostream & os, const CLASS & object) { \
 XAPIAN_OUTPUT_FUNCTION(Xapian::Database)
 XAPIAN_OUTPUT_FUNCTION(Xapian::WritableDatabase)
 
-#include "om/omdocument.h"
-XAPIAN_OUTPUT_FUNCTION(OmDocument)
+#include <xapian/document.h>
+XAPIAN_OUTPUT_FUNCTION(Xapian::Document)
 
 #include <xapian/query.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::Query)

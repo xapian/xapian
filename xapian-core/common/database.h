@@ -28,14 +28,13 @@
 #include <string>
 
 #include <xapian/types.h>
-
-#include "om/omdocument.h"
-#include "refcnt.h"
+#include <xapian/document.h>
+#include "omdebug.h"
 #include "emptypostlist.h"
 
 using namespace std;
 
-class Document;
+class Xapian::Document::Internal;
 class LeafPostList;
 class Xapian::TermIterator::Internal;
 typedef Xapian::TermIterator::Internal TermList;
@@ -81,14 +80,14 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	virtual void do_cancel_transaction() = 0;
 
 	/// Virtual method providing implementation of add_document();
-	virtual om_docid do_add_document(const OmDocument & document) = 0;
+	virtual om_docid do_add_document(const Xapian::Document & document) = 0;
 
 	/// Virtual method providing implementation of delete_document();
 	virtual void do_delete_document(om_docid did) = 0;
 
 	/// Virtual method providing implementation of replace_document();
 	virtual void do_replace_document(om_docid did,
-					 const OmDocument & document) = 0;
+					 const Xapian::Document & document) = 0;
 
 	/// Start a modification session if there isn't one already.
 	void ensure_session_in_progress();
@@ -270,7 +269,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	/** Open a document.
 	 *
 	 *  This is used to access the values and data associated with a
-	 *  document.  See class Document for further details.
+	 *  document.  See class Xapian::Document::Internal for further details.
 	 *
 	 *  @param did    The document id which is being requested.
 	 *
@@ -283,7 +282,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
-	virtual ::Document *
+	virtual Xapian::Document::Internal *
 	open_document(om_docid did, bool lazy = false) const = 0;
 
 	/** do_reopen the database to the latest available revision.
@@ -326,7 +325,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *
 	 *  See WritableDatabase::add_document() for more information.
 	 */
-	om_docid add_document(const OmDocument & document);
+	om_docid add_document(const Xapian::Document & document);
 
 	/** Delete a document in the database.
 	 *
@@ -338,7 +337,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *
 	 *  See WritableDatabase::replace_document() for more information.
 	 */
-	void replace_document(om_docid did, const OmDocument & document);
+	void replace_document(om_docid did, const Xapian::Document & document);
 
 	/** Request and later collect a document from the database.
 	 *  Multiple documents can be requested with request_document(),
@@ -352,7 +351,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	//@{
 	virtual void request_document(om_docid /*did*/) const { }
 
-	virtual ::Document * collect_document(om_docid did) const {
+	virtual Xapian::Document::Internal * collect_document(om_docid did) const {
 	    return open_document(did);
 	}
 	//@}

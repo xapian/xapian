@@ -25,6 +25,7 @@
 #define OM_HGUARD_LEAFPOSTLIST_H
 
 #include <xapian/enquire.h>
+#include "omassert.h"
 #include "postlist.h"
 
 /** A postlist which generates termweights (rather than merely modifying

@@ -244,7 +244,7 @@ The code to open a database for writing is, then:
 
 <P>
 Now that we have the database open, we need to prepare a document to
-put in it.  This is done by creating an OmDocument object, filling
+put in it.  This is done by creating an Xapian::Document object, filling
 this with data, and then giving it to the database.
 </P>
 
@@ -252,7 +252,7 @@ this with data, and then giving it to the database.
 The first step, then, is to create the document:
 </P>
 <PRE>
-    OmDocument newdocument;
+    Xapian::Document newdocument;
 </PRE>
 
 <P>
@@ -272,10 +272,7 @@ command line in the data field:
 
 <P>
 The next step is to put the terms which are to be used when searching
-for the document into the OmDocument struct.  The members of the
-OmDocument are all public, so can be accessed directly, but there are
-also some convenience methods to help with the process of filling the
-struct.
+for the document into the Xapian::Document object.
 </P>
 <P>
 We shall use the <CODE>add_posting()</CODE> method, which adds an
@@ -309,7 +306,7 @@ command line parameters:
 <P>
 Finally, we can add the document to the database.  This simply involves
 calling <CODE>Xapian::WritableDatabase::add_document()</CODE>, and passing it
-the <CODE>OmDocument</CODE> object:
+the <CODE>Xapian::Document</CODE> object:
 </P>
 <PRE>
     database.add_document(newdocument);
@@ -541,7 +538,7 @@ more relevant document has a higher value.  We get this using
 </LI><LI>
 Last, we display the data associated with each returned document, which
 was specified by the user at database generation time.  To do this, we
-first use <CODE>i.get_document()</CODE> to get an <CODE>OmDocument</CODE>
+first use <CODE>i.get_document()</CODE> to get an <CODE>Xapian::Document</CODE>
 object representing the returned document; then we use the
 <CODE>get_data()</CODE> method of this object to get
 access to the data stored in this document.
@@ -551,7 +548,7 @@ access to the data stored in this document.
     for (i = matches.begin(); i != matches.end(); i++) {
         cout &lt;&lt; "Document ID " &lt;&lt; *i &lt;&lt; "\t";
 	cout &lt;&lt; i.get_percent() &lt;&lt; "% ";
-        OmDocument doc = i.get_document();
+        Xapian::Document doc = i.get_document();
 	cout &lt;&lt; "[" &lt;&lt; doc.get_data() &lt;&lt; "]" &lt;&lt; endl;
     }
 </PRE>

@@ -30,7 +30,9 @@
 #include <string>
 #include <xapian/types.h>
 
-class OmDocument;
+namespace Xapian {
+class Document;
+}
 
 /** An iterator pointing to values associated with a document.
  */
@@ -41,7 +43,7 @@ class OmValueIterator {
 	Internal *internal;
 
     private:
-	friend class OmDocument; // So OmDocument can construct us
+	friend class Xapian::Document; // So Xapian::Document can construct us
 
         friend bool operator==(const OmValueIterator &a, const OmValueIterator &b);
 

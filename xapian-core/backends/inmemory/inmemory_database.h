@@ -34,7 +34,7 @@
 #include <map>
 #include <vector>
 #include <algorithm>
-#include "om/omdocument.h"
+#include <xapian/document.h>
 #include "inmemory_positionlist.h"
 
 using namespace std;
@@ -217,7 +217,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	om_docid make_doc(const string & docdata);
 
 	/* The common parts of add_doc and replace_doc */
-	void finish_add_doc(om_docid did, const OmDocument &document);
+	void finish_add_doc(om_docid did, const Xapian::Document &document);
 	void add_values(om_docid did, const map<om_valueno, string> &values_);
 
 	void make_posting(const string & tname,
@@ -237,9 +237,9 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	void do_commit_transaction();
 	void do_cancel_transaction();
 
-	om_docid do_add_document(const OmDocument & document);
+	om_docid do_add_document(const Xapian::Document & document);
 	void do_delete_document(om_docid did);
-	void do_replace_document(om_docid did, const OmDocument & document);
+	void do_replace_document(om_docid did, const Xapian::Document & document);
 	//@}
 
     public:
@@ -270,7 +270,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
 	LeafPostList * do_open_post_list(const string & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
-	Document * open_document(om_docid did, bool lazy = false) const;
+	Xapian::Document::Internal * open_document(om_docid did, bool lazy = false) const;
 	PositionList * open_position_list(om_docid did,
 					  const string & tname) const;
 	TermList * open_allterms() const;
