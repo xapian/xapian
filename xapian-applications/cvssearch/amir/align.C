@@ -349,7 +349,28 @@ void processDiffOutput( const string& f, LineSequence& l1, LineSequence& l2 ) {
   while ( ! in.eof() ) {
     string line;
     getline( in, line, '\n' );
+
+    // strange diff bug
+    // sometimes we get things like ^M| or ^M<
+    // we change these to | or <
     
+    if ( line.length() == 2 && line[0] == 13 ) {
+      //      cerr << "** found line " << line << endl;
+      line = string( line, 1 );
+      //      cerr << "** changed to line " << line << endl;
+      assert( line.length() == 1 );
+    }
+
+    /**
+    cerr << endl;
+    cerr << "line length is " << line.size() << endl;
+    cerr << "last char of line is " << (int) line[line.size()-1] << endl;
+    
+    for (int i = 0; i < line.size(); i++ ) {
+      cerr << "char " << i << " has ascii = " << (int)line[i] << endl;
+    }
+    **/
+
     //    if ( DEBUG_MODE ) cerr << line << endl;
     char marker = 0;
     if ( line.length() > GNU_DIFF_MARKER_COL ) {
@@ -378,7 +399,7 @@ void processDiffOutput( const string& f, LineSequence& l1, LineSequence& l2 ) {
       }
     } else { // didn't find |, <, or >
       if( marker != 0 && marker != ' ' ) {
-	cerr << "found marker '" << marker << "'" << endl;
+	cerr << "found marker '" << marker << "' ascii = " << (int)marker << endl;
 	cerr << "in line " << endl;
 	cerr << "-" << line << "-" << endl;
 	assert(0);
