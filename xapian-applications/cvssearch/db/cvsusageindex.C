@@ -8,11 +8,16 @@
 // (at your option) any later version.
 
 //
-// Usage:  cvsusageindex < PACKAGE_LIST
+// Usage:  cvsusageindex < PACKAGE_LIST lib1_dir lib2_dir ...
 //
-//     Generates omsee database.
+//     Generates omsee databases each page.
+//
+//     If library directories given, also generates a "global" omsee database
+//     for library usage
 //
 
+// should have another command for classes/functions that look
+// at their contents 
 
 #warning "requires ctags from http://ctags.sourceforge.net/"
 #warning "should generate unique file for tags"
@@ -73,7 +78,8 @@
 #include "util.h"
 
 
-#define FLUSH_RATE 50
+// every 100 symbols
+#define FLUSH_RATE 500 
 
 void usage(char * prog_name);
 const string database = "db";
@@ -199,8 +205,6 @@ int main(int argc, char *argv[]) {
 
 
 
-    map<string, int> symbol_count;
-    //map<string, int> term_count;
 
 
     int lines_read = 0;
@@ -229,199 +233,115 @@ int main(int argc, char *argv[]) {
 
     cerr << "... removing directory " << database_dir << " (if it already exists)" << endl;
     system( ("rm -rf " + database_dir).c_str() );
+    system( ("rm -rf " + database_dir+"_c").c_str() );
+    system( ("rm -rf " + database_dir+"_f").c_str() );
 
     try {
 
       // ----------------------------------------
       // create database directory
       // ----------------------------------------
-      system(("mkdir " + database_dir ).c_str());
+      system(("mkdir " + database_dir+"_c" ).c_str());
+      system(("mkdir " + database_dir+"_f" ).c_str());
 
       // code which accesses Omsee
 
-      OmSettings db_parameters;
-      db_parameters.set("backend", "quartz");
-      db_parameters.set("quartz_dir", database_dir);
-      OmWritableDatabase database(db_parameters); // open database
+      OmSettings db_parameters_classes;
+      db_parameters_classes.set("backend", "quartz");
+      db_parameters_classes.set("quartz_dir", database_dir+"_c");
+      OmWritableDatabase database_classes(db_parameters_classes); // open database
 
-      database.begin_session();
+      database_classes.begin_session();
+
+      OmSettings db_parameters_functions;
+      db_parameters_functions.set("backend", "quartz");
+      db_parameters_functions.set("quartz_dir", database_dir+"_f");
+      OmWritableDatabase database_functions(db_parameters_functions); // open database
+
+      database_functions.begin_session();
 
       cerr << "... reading " << file_cmt << endl;
 
       map< string, list<string> > symbol_terms; // accumulated from all its points of usage
-
+      map<string, int> symbol_count;
 
       Lines lines( cvsdata, package, file_cmt, file_offset, GRANULARITY, USE_STOP_LIST ); // file level granularity
-      int files = 0;
-      string prev_file = "";
-      while ( lines.ReadNextLine() ) {
 
-	if ( lines.currentFile() != prev_file ) {
-	  prev_file = lines.currentFile();
-	  files++;
-	  if ( files % FLUSH_RATE == 0 ) {
-	    cerr << "... flushing database." << endl;
-	    database.flush();
-	  }
-	}
+      while ( lines.ReadNextLine() ) {
 
 	string data = lines.getData();
 	list<string> terms = lines.getTermList();
 	set<string> symbols = lines.getCodeSymbols();
 
 
-	for( list<string>::iterator i = terms.begin(); i != terms.end(); i++ ) {
-	  term_count[*i]++;
-	}
 
 	for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
 	  if ( defined_symbols.find(*i) != defined_symbols.end() ) {
 	    symbol_count[*i]++; // count number of lines that contain symbol
+
+	    for( list<string>::iterator t = terms.begin(); t != terms.end(); t++ ) {
+	      symbol_terms[*i].push_back(*t);
+	    }
 	  }
 	}
 	lines_read++;
       } // while
 
+      /// write out results to omsee
 
-      database.end_session();
+      int f_count = 0;
+      int c_count = 0;
+      for( map<string, int>::iterator c = symbol_count.begin(); c != symbol_count.end(); c++ ) {
+	string symbol = c->first;
+	int count = c->second;
+	bool isFunction = ( symbol.find("()") != -1 );
+
+	if ( isFunction ) {
+	  f_count++;
+
+	  if ( f_count % FLUSH_RATE == 0 ) {
+	    cerr << "*** FLUSHING FUNCTIONS" << endl;
+	    database_functions.flush();
+	  }
+	} else {
+	  c_count++;
+
+	  if ( c_count % FLUSH_RATE == 0 ) {
+	    cerr << "*** FLUSHING CLASSES" << endl;
+	    database_classes.flush();
+	  }
+
+	}
+
+
+
+	cerr <<"*** Symbol " << symbol << " has count " << count << endl;
+	list<string> words = symbol_terms[symbol];
+
+	OmDocumentContents newdocument;
+	int pos = 1;
+	for( list<string>::iterator i = words.begin(); i != words.end(); i++ ) {
+	  
+	  string word = *i;
+	  //	  cerr << "..." << pos << " " << word << endl;
+	  newdocument.add_posting(word, pos++); // term, position of term
+	}
+	static char str[4096];
+	sprintf(str, "%d %s", count, symbol.c_str());
+	newdocument.data = string(str);
+	if ( isFunction ) {
+	  database_functions.add_document(newdocument);
+	} else {
+	  database_classes.add_document(newdocument);
+	}
+      }
+
+
+      database_functions.end_session();
+      database_classes.end_session();
       cerr << "Done!" << endl;
 
-#if 0
-      map< pair<string, string>, set<string> > rule_support;
 
-      { // pass 2
-	cerr << "PASS 2" << endl;
-	Lines lines( cvsdata, package, file_cmt, file_offset, GRANULARITY, USE_STOP_LIST );
-
-	lines_read = 0;
-
-	while ( lines.ReadNextLine() ) {
-
-	  set<string> terms = lines.getCommentTerms();
-	  set<string> symbols = lines.getCodeSymbols();
-
-	  //	  string app = extractApp( lines.currentFile() );
-
-
-	  for( set<string>::iterator t = terms.begin(); t != terms.end(); t++ ) {
-	    if ( term_count[*t] >= MIN_SUPP ) {
-	      for ( set<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
-
-		if ( defined_symbols.find(*s) == defined_symbols.end() ) {
-		  continue;
-		}
-
-		if ( symbol_count[*s] >= MIN_SUPP ) {
-
-		  rule_support[ make_pair( *t, *s ) ].insert( lines.getData() );
-
-		}
-	      }
-	    }
-
-	  }
-	  lines_read++;
-	} // while
-      }
-
-      cerr << "*** lines read " << lines_read << endl;
-
-
-      // write results to two database files
-
-      Db dbclasses(0,0), dbfunctions(0,0);
-
-      dbclasses.open( (cvsdata+"/"+package+".classes").c_str() , 0 , DB_HASH, DB_CREATE, 0);
-      dbfunctions.open( (cvsdata+"/"+package+".functions").c_str() , 0 , DB_HASH, DB_CREATE, 0);
-
-
-      /////// we have term_count, symbol_count, rule_support (term=>symbol)
-
-      string prev_term = "";
-      string entryclasses;
-      string entryfunctions;
-      // print out rules
-      for ( map< pair<string, string>, set<string> >::iterator r = rule_support.begin(); r != rule_support.end(); r++ ) {
-	int supp = (r->second).size();
-	string ant = (r->first).first;
-	string con = (r->first).second;
-
-	if ( ant != prev_term ) { 
-
-	  // all rules with prev_term in antecedent
-	  //	  cerr << "*** ENTRY FOR " << prev_term << endl << entryclasses << entryfunctions << endl;
-
-	  if ( entryclasses != "" ) {
-	    Dbt key( (void*) prev_term.c_str(), prev_term.length()+1);
-	    Dbt data( (void*) entryclasses.c_str(), entryclasses.length()+1);
-	    dbclasses.put( 0, &key, &data, DB_NOOVERWRITE );
-	  }
-	  if ( entryfunctions != "" ) {
-	    Dbt key( (void*) prev_term.c_str(), prev_term.length()+1);
-	    Dbt data( (void*) entryfunctions.c_str(), entryfunctions.length()+1);
-	    dbfunctions.put( 0, &key, &data, DB_NOOVERWRITE );	  
-	  }
-	    
-	  prev_term = ant;
-	  entryclasses = "";
-	  entryfunctions = "";
-	}
-
-
-	
-	if ( supp >= MIN_SUPP ) {
-
-	  double con_conf = 100.0*(double)symbol_count[con] / (double)lines_read;
-	  double conf = 100.0*(double)supp / (double)term_count[ant];
-	  double surprise = (conf / con_conf ) * (double)supp; // log(1.1+(double)supp);
-	  bool isFunction = ( con.find("()") != -1 );
-
-	  static char str[256];
-	  sprintf(str, "%f", surprise);
-	  
-	  if ( isFunction ) {
-	    entryfunctions += string(str) + " " + con;
-	  } else {
-	    entryclasses += string(str) + " " + con;
-	  }
-
-	  if ( surprise >= MIN_SURPRISE ) {
-	    //	    cerr << ant << " => " << con << " has conf " << conf << " and support " << supp << " with con conf " << con_conf << endl;
-	    set<string> L = r->second;
-	    for( set<string>::iterator l = L.begin(); l != L.end(); l++ ) {
-	      //	      cerr << "..." << surprise << " " << (*l) << endl;
-	      if ( isFunction ) {
-		entryfunctions += " " + (*l);
-	      } else {
-		entryclasses += " " + (*l);
-	      }
-	    }
-	  }
-	  if ( isFunction ) {
-	    entryfunctions += "\n";
-	  } else {
-	    entryclasses += "\n";
-	  }
-	}
-      }
-
-      //      cerr << "*** ENTRY FOR " << prev_term << endl << entryclasses << entryfunctions << endl;
-      if ( entryclasses != "" ) {
-	Dbt key( (void*) prev_term.c_str(), prev_term.length()+1);
-	Dbt data( (void*) entryclasses.c_str(), entryclasses.length()+1);
-	dbclasses.put( 0, &key, &data, DB_NOOVERWRITE );
-      }
-      if ( entryfunctions != "" ) {
-	Dbt key( (void*) prev_term.c_str(), prev_term.length()+1);
-	Dbt data( (void*) entryfunctions.c_str(), entryfunctions.length()+1);
-	dbfunctions.put( 0, &key, &data, DB_NOOVERWRITE );
-      }
-
-
-      dbclasses.close(0);
-      dbfunctions.close(0);
-
-#endif
 
     } catch(OmError & error) {
       cerr << "OMSEE Exception: " << error.get_msg() << endl;
