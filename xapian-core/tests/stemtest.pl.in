@@ -48,7 +48,7 @@ while ($_ = shift @ARGV) {
 # of the stemming routines.
 if (!defined $seed) {
     $seed = unpack("%32L*", `hostname`);
-    print "The random seed is $seed; please report the seed when reporting a test failure.\n";
+    print "The random seed is $seed;\nplease report the seed when reporting a test failure.\n";
 };
 
 my ($randtext, $randjunk) = ("randtext_seed_$seed", "randjunk_seed_$seed");
