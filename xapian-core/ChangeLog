@@ -1,3 +1,8 @@
+Thu Jun 05 17:09:10 BST 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Moved bindings after extra in SUBDIRS - the bindings
+	  wrap Xapian::QueryParser so they need to be built after it.
+
 Thu Jun 05 01:28:01 BST 2003  Olly Betts <olly@survex.com>
 
 	* bindings/python/Makefile.am: Use $(SWIG) (as detected by configure).
