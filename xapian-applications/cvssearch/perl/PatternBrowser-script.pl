@@ -215,7 +215,7 @@ for ($i=0; $i <= $max; $i++, $flag *=-1) {
 	}
 }
 
-print "</table></body></html>";	
+print "</table></body></html>\n";	
 	
 
 #------------------
@@ -223,7 +223,7 @@ print "</table></body></html>";
 #------------------
 sub error{
 	($mesg) = @_;
-	print "<p><b class=red>$mesg</b></body></html>";
+	print "<p><b class=red>$mesg</b></body></html>\n";
 	exit(0);
 }
 

@@ -15,8 +15,7 @@ use Cvssearch;
 #-------------
 
 print "Content-Type: text/html\n\n";
-print "<html>\n";
-print "<head>\n";
+print "<html><head>\n";
 
 #---------------
 # style sheet
@@ -45,4 +44,4 @@ if(param()){
   print "<td align=right><a href=\"./Query.cgi\" target=_top>Search Again</a></td>\n";
   print "</tr></table>\n";
 }
-print "</body></html>";
+print "</body></html>\n";

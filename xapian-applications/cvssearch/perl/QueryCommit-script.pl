@@ -151,7 +151,7 @@ _HTML_
 	}
 
 	print "</table>";	
-	print "</body></html>";
+	print "</body></html>\n";
 }
 	
 
@@ -160,7 +160,7 @@ _HTML_
 #------------------
 sub error{
 	($mesg) = @_;
-	print "<p><b class=red>$mesg</b></body></html>";
+	print "<p><b class=red>$mesg</b></body></html>\n";
 	exit(0);
 }
 

@@ -96,8 +96,7 @@ sub compare_index() {
 sub compare_root_index {
     my ($root) = @_;
 
-    print "<html>\n";
-    print "<head>\n";
+    print "<html><head>\n";
     print_title("root index $root");
     Cvssearch::print_style_sheet();
     print "</head>\n";
@@ -126,11 +125,10 @@ sub compare_root_index {
     # didn't obtain a valid cvsroot entry
     # ----------------------------------------
     if ($cvsroot eq "") {
-        print start_html;
         print "the specified root directory does not correspond to a repository.\n";
         print "please check the file $cvsdata/CVSROOTS, it contains the mapping between repository path and root directory ";
         print "where cvssearch information for that repository are stored.";
-        print end_html;
+        print "</body></html>\n";
         exit(0);
     }
 
@@ -149,7 +147,7 @@ sub compare_root_index {
     close (DBCONTENT);
 
     print "<h1 align=center>Repository $cvsroot</h1>\n";
-    print "<table  width=100% align=center border=0 cellspacing=1 cellpadding=2>\n";
+    print "<table width=100% align=center border=0 cellspacing=1 cellpadding=2>\n";
     print "<tr><td colspan=3 class=s>Package</td></tr>\n";
     @pkgs = sort (@pkgs);
     foreach my $pkg (@pkgs) {
@@ -271,7 +269,7 @@ sub compare_pkg_index {
     print "latest version).";
 
     print "<hr noshade>\n";
-    print "<table  width=\"100%\" border=0 cellspacing=1 cellpadding=2>\n";
+    print "<table width=\"100%\" border=0 cellspacing=1 cellpadding=2>\n";
     print "<tr><td class=\"s\">File</td><td class=\"s\">Last Rev</td><td class=\"s\">Last CVS Comment</td></tr>\n";
     $i = 0;
     foreach (@filenames) {

@@ -45,8 +45,7 @@ sub print_html();
 #-------------
 
 print "Content-Type: text/html\n\n";
-print "<html>\n";
-print "<head>\n";
+print "<html><head>\n";
 
 # ----------------------------------------
 # print javascript for popups
@@ -360,7 +359,7 @@ sub print_html() {
 		$i++;
 	}
 	print "</table>";
-    print "</body></html>";
+    print "</body></html>\n";
 }
 
 

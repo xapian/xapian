@@ -26,8 +26,7 @@ my $source = "SourceComment.cgi";
 # start html
 # ----------------------------------------
 print "Content-Type: text/html\n\n";
-print "<html>\n";
-print "<head>\n";
+print "<html><head>\n";
 Cvssearch::print_style_sheet();
 if (param()) {
     my $id = param("id");

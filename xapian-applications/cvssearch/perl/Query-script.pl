@@ -72,8 +72,7 @@ if (param()) {
 #-------------
 
 print "Content-Type: text/html\n\n";
-print "<html>\n";
-print "<head>\n";
+print "<html><head>\n";
 
 if($searchmode eq "c"){
 	#redirect to pattern browser page
@@ -81,7 +80,7 @@ if($searchmode eq "c"){
 		$root = "";
 	}
 	print "<META HTTP-EQUIV=Refresh CONTENT=\"0; URL=./PatternBrowser.cgi?query=$urlquery&root=$root\">";
-	print "</head></html>";
+	print "</head></html>\n";
 	return (0);
 } 
 if($searchmode eq "m"){
@@ -93,7 +92,7 @@ if($searchmode eq "m"){
         $urlquery =~ s/;/%3b/g;
 
 	print "<META HTTP-EQUIV=Refresh CONTENT=\"0; URL=./CommitSearch.cgi?query=$urlquery&root=$root\">";
-	print "</head></html>";
+	print "</head></html>\n";
 	return (0);
 } 
 

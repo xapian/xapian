@@ -61,7 +61,9 @@ print <<_HTML_;
 </noframes>
 _HTML_
  	
-}else{
-	print "need to pass query and root as parameters"
+} else {
+    print "<body>\n";
+    print "need to pass query and root as parameters";
+    print "</body>\n";
 }
-print "</html>";
+print "</html>\n";

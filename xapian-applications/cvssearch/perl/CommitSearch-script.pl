@@ -30,8 +30,7 @@ my $ctrlA = chr(01);
 #-------------
 
 print "Content-Type: text/html\n\n";
-print "<html>\n";
-print "<head>\n";
+print "<html><head>\n";
 
 #---------------
 # style sheet
@@ -155,7 +154,7 @@ _HTML_
     }
 
     print "</table>";
-    print "</body></html>";
+    print "</body></html>\n";
 }
 
 #------------------
@@ -163,7 +162,7 @@ _HTML_
 #------------------
 sub error {
     my ($mesg) = @_;
-    print "<p><b class=red>$mesg</b></body></html>";
+    print "<p><b class=red>$mesg</b></body></html>\n";
     exit(0);
 }
 

@@ -28,8 +28,7 @@ my $cvsquery = "./cvsquerydb";
 #-------------
 
 print "Content-Type: text/html\n\n";
-print "<html>\n";
-print "<head>\n";
+print "<html><head>\n";
 # ----------------------------------------
 # common style sheet
 # ----------------------------------------
@@ -117,7 +116,7 @@ if (param()) {
 
 	print "</table>\n";	
 }
-print "</body></html>";
+print "</body></html>\n";
 
 #--------------------------------
 # replace digits with characters

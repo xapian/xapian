@@ -23,14 +23,13 @@ my $querycomment = "./QueryComment.cgi";
 #-------------
 
 print header;
-print "<html>\n";
-print "<head>\n";
+print "<html><head>\n";
 
 #---------------
 # style sheet
 #---------------
 Cvssearch::print_style_sheet();
-print "</head>\n";
+print "</head><body>\n";
 #----------------------------------------
 # Parse Parameters
 #----------------------------------------
@@ -40,8 +39,7 @@ if (param()) {
     my $pkg = param("pkg");
     my $cvsroot = Cvssearch::read_cvsroot_dir($root, $cvsdata);
 
-    print "<body>\n";
-    print "<table  width=\"100%\" border=0 cellspacing=1 cellpadding=2>\n";
+    print "<table width=\"100%\" border=0 cellspacing=1 cellpadding=2>\n";
     print "<tr>\n";
 
     print "<td align=left>";
@@ -71,4 +69,4 @@ if (param()) {
     close (QUERY);
     print "<pre class=popuplink>CVS comment:\n$comment</pre>\n";
 }
-print "</body></html>";
+print "</body></html>\n";
