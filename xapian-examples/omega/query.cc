@@ -1,6 +1,8 @@
 /* limit on mset size (as given in espec) */
 #define MLIMIT 1000 // FIXME: deeply broken
 
+#include <list>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -200,7 +202,7 @@ int set_probabilistic(const char *p, const char *oldp) {
    q = raw_prob + strlen(raw_prob);
    while (q > raw_prob && isspace(q[-1])) q--;
    *q = '\0';
-      
+
    n_new_terms = parse_prob(raw_prob, new_terms);
 
    is_old = is_old_query(oldp);
@@ -209,128 +211,48 @@ int set_probabilistic(const char *p, const char *oldp) {
    if (!is_old) {
       // FIXME Give_Muscat("delrels r0-*");
    }
-   
-   if (n_new_terms) {
-      int plus = 0;
-      int minus = 0;
-      for (i = 0; i < n_new_terms; i++) {
-	 if (matcher->add_term(new_terms[i].termname)) {
+
+    if (n_new_terms) {
+	list<termid> pluses;
+	list<termid> minuses;
+	list<termid> normals;
+      
+	for (i = 0; i < n_new_terms; i++) {
 	    switch (new_terms[i].type) {
-	     case MINUS: minus++; break;
-	     case PLUS: plus++; break;
-	     default: break; // suppress compiler warning
-	    }
-	 } else {
-	    new_terms[i].type = ABSENT;
-	 }
-      }
-
-       // now we constuct the query:
-       // ((plusterm_1 AND ... AND plusterm_n) ANDMAYBE
-       //  (term_1 OR ... OR term_m)) ANDNOT
-       // (minusterm_1 OR ... OR minusterm_p)
-#if 0
-      if (plus || minus) {
-	 int w_max = 0;
-	 Give_Muscat("show q style w");
-	 while (!Getfrom_Muscat(&z)) {
-	    /* I)          Len
-	     * I)  1935360 olli
-	     * ...
-	     */
-	    if (z.p[0] == 'I') {
-	       /* skip boolean terms */
-	       if (strncmp(z.p + 2, "          ", 10) != 0) {
-		  int w;
-		  w = atoi(z.p + 2);
-		  
-		  for (i = 0; i < n_new_terms; i++) {
-		     struct term *term = new_terms + i;
-		     if (term->type &&
-			 strcmp(term->termname.c_str(), z.p + 12) == 0) {
-			w = 0;
-			break;
-		     }
-#if 0
-		     /* FIXME: record weights like so... */
-		     /* then we can scale down in need be... */
-		     int weighting = term->weighting;
-		     if (weighting <= 0 && strcmp(term->string, z.p + 12) == 0) {
-			if (weighting < 0) {
-			   w = 0;
-			   break;
-			}
-			term->weighting = w;
-		     }
-#endif
-		  }
-		  
-		  w_max += w + 255; /* allow 255 per term for wdf */
-		  /* printf("<!-- %d '%s' -->\n", w, z.p + 12); */
-	       }
-	    }
-	 }
-	 /* printf("<!-- total %d -->\n", w_max); */
-	 
-	 w_max++; /* make it one larger than max weight from normal terms */
-
-	 /* work out weights needed to do + and - as other engines do */
-	 /* FIXME: catch overflows and handle gracefully */
-	 if (plus) {
-	    int t;
-	    /* plus * 256 allows for wdf contribution from plus terms */
-	    if (minus) minus = -((w_max + plus * 256) * (plus + 1));
-	    t = plus * w_max;
-	    if (t > weight_threshold) weight_threshold = t;
-	    plus = w_max;
-	 } else {
-	    minus = -w_max;
-	 }
-
-#ifdef DEBUG_WEIGHTS
-	 printf("<!-- +: %d -: %d cut:%d -->\n", plus, minus, weight_threshold);
-#endif
-
-	 for (i = 0; i < n_new_terms; i++) {
-	    struct term *term = new_terms + i;
-	    switch (term->weighting) {
-	     case MINUS:
-	       Give_Muscatf("settermweight %ld %s", minus, term->string);
-	       Ignore_Muscat();
-	       break;
 	     case PLUS:
-	       Give_Muscatf("settermweight %ld %s", plus, term->string);
-	       Ignore_Muscat();
-	       break;
-	    }
-	    /* FIXME: reset scaled term weights if necessary... */
-	 }
+		pluses.push_back(new_terms[i].id);
+		break;
+	     case MINUS:
+		minuses.push_back(new_terms[i].id);
+		break;
+	     case NORMAL:
+		normals.push_back(new_terms[i].id);
+		break;
+	     default:
+		cout << "ignoring term " << new_terms[i].termname << endl; // FIXME
+		break;
+	  }
+	}
 
-#ifdef DEBUG_WEIGHTS
-	 printf("\n\n<!-- weight_threshold = %d -->\n", weight_threshold);
-	 Give_Muscat("show q style w");
-	 while (!Getfrom_Muscat(&z)) {
-	    /* I)          Len
-	     * I)  1935360 olli
-	     * ...
-	     */
-	    if (z.p[0] == 'I') {
-	       /* skip boolean terms */
-	       if (strncmp(z.p + 2, "          ", 10) != 0) {
-		  int w;
-		  w = atoi(z.p + 2);
-		  printf("<!-- %d '%s' -->\n", w, z.p + 12);
-	       }
+	// now we constuct the query:
+	// ((plusterm_1 AND ... AND plusterm_n) ANDMAYBE
+	//  (term_1 OR ... OR term_m)) ANDNOT
+	// (minusterm_1 OR ... OR minusterm_p)
+	if (!pluses.empty()) matcher->add_oplist(AND, pluses);
+	if (!normals.empty()) {
+	    matcher->add_oplist(OR, normals);
+	    if (!pluses.empty()) matcher->add_op(AND_MAYBE);
+	}       
+	if (!minuses.empty()) {
+	    matcher->add_oplist(OR, minuses);
+	    if (!matcher->add_op(AND_NOT)) {
+		cout << "Don't be so negative\n" << endl;
+		exit(0);
 	    }
-	 }
-	 printf("\n");
-#endif
-
-      }
-#endif
-   }
+	}
+    }
    
-   return is_old;
+    return is_old;
 }
 
 /**************************************************************/
@@ -358,7 +280,7 @@ static int get_next_char( const char **p ) {
       cache = 0;
       return ch;
    }
-   ch = (int)(unsigned char)(*p++);
+   ch = (int)(unsigned char)(*(*p)++);
    switch (ch) {
 #include "symboltab.h"
    }
@@ -384,17 +306,16 @@ static int parse_prob( const char *text, struct term *pTerm ) {
     stem = 1;
     stem_all = 1;
 #else
-/*printf("addpterm(\"%s\")\n",text);fflush(stdout);*/
     stem = !get_muscat_string ("no_stem", buf);
     /* stem capitalised words too -- needed for EuroFerret - Olly 1997-03-19 */
     stem_all = get_muscat_string ("all_stem", buf);
 #endif
 
     ch = get_next_char( &pC );
-    while (ch) {
-/*printf("loop, ch = '%c'\n",ch);fflush(stdout);*/
+    while (ch) {	
+//printf("%p: %p: loop, ch = '%c'\n", text, pC, ch);fflush(stdout);
 	if (isalnum (ch)) {
-	    int got_next = 0;
+	    bool got_next = false;
 	    int do_stem;
 #ifdef COLONFILTERS
 	    int is_bool = 0;
@@ -466,7 +387,7 @@ static int parse_prob( const char *text, struct term *pTerm ) {
 	    }
 
 	    if (!in_quotes && ch == '.') {
-	       got_next = 1;
+	       got_next = true;
 	       ch = get_next_char(&pC);
 	       /* ignore a dot if followed by an alphanum e.g. index.html) */
 	       if (!isalnum(ch)) do_stem = 0;
