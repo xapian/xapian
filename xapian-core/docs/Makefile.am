@@ -94,30 +94,30 @@ doxygen_docs: doxygen_source_docs doxygen_api_docs
 doxygen_api_conf: $(top_srcdir)/configure.in
 doxygen_full_conf: $(top_srcdir)/configure.in
 
-# NB run LaTeX twice to resolve forward references (in general more passes
-# may be required, but 2 will probably be fine for us)
-
-apidoc/html/index.html apidoc.ps: $(top_srcdir)/configure.in \
+apidoc/html/index.html: $(top_srcdir)/configure.in \
 		$(srcdir)/doxygen_api_header.html_tmpl \
 		$(srcdir)/doxygen_api_footer.html_tmpl \
 		$(srcdir)/doxygen_api_conf.in \
 		$(APIDOC_SRC)
-	@echo "Generating API documentation with doxygen"
 	top_srcdir=$(top_srcdir) $(DOXYGEN) doxygen_api_conf
-	cd apidoc/latex && $(LATEX) "\scrollmode\input" refman.tex\
-		&& $(LATEX) "\scrollmode\input" refman.tex\
-		&& $(DVIPS) -o ../../apidoc.ps refman.dvi
 
-sourcedoc/html/index.html sourcedoc.ps: $(top_srcdir)/configure.in \
+apidoc.ps: apidoc/html/index.html
+	cd apidoc/latex && make refman.ps
+	mv apidoc/latex/refman.ps apidoc.ps
+
+# We used to do: $(LATEX) "\scrollmode\input" refman.tex
+# doxygen does: latex refman.tex
+
+sourcedoc/html/index.html: $(top_srcdir)/configure.in \
 		$(srcdir)/doxygen_full_header.html_tmpl \
 		$(srcdir)/doxygen_full_footer.html_tmpl \
 		$(srcdir)/doxygen_full_conf.in \
 		$(SOURCEDOC_SRC)
-	@echo "Generating full source documentation with doxygen"
 	top_srcdir=$(top_srcdir) $(DOXYGEN) doxygen_full_conf
-	cd sourcedoc/latex && $(LATEX) "\scrollmode\input" refman.tex\
-		&& $(LATEX) "\scrollmode\input" refman.tex\
-		&& $(DVIPS) -o ../../sourcedoc.ps refman.dvi
+
+sourcedoc.ps: sourcedoc/html/index.html
+	cd sourcedoc/latex && make refman.ps
+	mv sourcedoc/latex/refman.ps sourcedoc.ps
 
 ##################################
 # Generate images from dia files #

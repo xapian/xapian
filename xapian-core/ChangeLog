@@ -1,3 +1,9 @@
+Tue Jul 09 03:30:41 BST 2002  Olly Betts <olly@survex.com>
+
+	* configure.in, docs/Makefile.am: Fixed up apidoc and sourcedoc
+	  dependencies so that they work correctly in VPATH builds.  Also
+	  only use portable find arguments to generate SOURCEDOC_SRC.
+
 Sat Jul 06 13:53:27 BST 2002  Olly Betts <olly@survex.com>
 
 	* xapian.spec.in: Updated in preparation for release.
