@@ -208,7 +208,8 @@ SocketServer::run()
 
 	buf.writeline(string("MSETITEMS ") +
 		      inttostring(mset.items.size()) + " "
-		      + doubletostring(mset.max_possible));
+		      + doubletostring(mset.max_possible)
+		      + doubletostring(mset.max_attained));
 
 	DebugMsg("sent size, maxweight..." << endl);
 

@@ -1,3 +1,7 @@
+Tue May 23 17:34:30 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed max_attain for net backend.
+
 Tue May 23 16:57:44 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Made RSets work with network db.

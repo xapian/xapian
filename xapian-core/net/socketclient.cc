@@ -290,7 +290,7 @@ SocketClient::get_mset(om_doccount first,
 		{
 		    istrstream is(response.c_str());
 
-		    is >> numitems >> remote_maxweight;
+		    is >> numitems >> remote_maxweight >> *greatest_wt;
 		}
 
 		for (int i=0; i<numitems; ++i) {
