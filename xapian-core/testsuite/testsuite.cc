@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,9 +49,9 @@
 #include "omdebug.h"
 #include "utils.h"
 
-#ifdef HAVE_VALGRIND_H
-#undef HAVE_VALGRIND_H // Need to get suitable hooks in valgrind
-//#include <valgrind.h>
+#ifdef HAVE_MEMCHECK_H
+#undef HAVE_MEMCHECK_H // Need to get suitable hooks in valgrind
+//#include <memcheck.h>
 #endif
 
 using namespace std;
@@ -66,8 +66,9 @@ static null_streambuf nullsb;
 bool verbose;
 
 /// The exception type we were expecting in TEST_EXCEPTION
-//  - used to attempt to diagnose when the compiler fails to catch it when it
-//  should
+//  We use this to attempt to diagnose when the code fails to catch an
+//  exception when it should (due to a compiler or runtime fault in
+//  GCC 2.95 it seems)
 const char * expected_exception = NULL;
 
 /// The debug printing stream
@@ -276,7 +277,7 @@ test_driver::runtest(const test_desc *test)
 	    success = false;
 	}
 
-#ifdef HAVE_VALGRIND_H
+#ifdef HAVE_MEMCHECK_H
 	if (VALGRIND_DO_LEAK_CHECK(verbose && success)) {
 	    if (success) {
 		out << " " << col_red << "LEAK" << col_reset;

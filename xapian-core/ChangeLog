@@ -1,3 +1,8 @@
+Tue Apr 08 01:20:36 BST 2003  Olly Betts <olly@survex.com>
+
+	* testsuite/testsuite.cc: Updated unfinished hooks to use valgrind in
+	  the test harness.
+
 Fri Apr 04 03:12:27 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,api/omstem.cc,common/omdebug.cc: Fixed to compile
