@@ -1,3 +1,5 @@
+SUBDIRS = 
+
 lib_LIBRARIES = libcvs_db.a
 libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C  cvs_line_db.C \
  cvs_comment_db.h     cvs_db.h       cvs_file_revision_db.h  cvs_line_db.h \
@@ -7,8 +9,8 @@ libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C
  cvs_revision_less.h
 
 bin_PROGRAMS = cvsindex cvssearch cvscomments cvssymbolcount cvscountsymbols cvsmine cvsquery #cvseval
-bin_SCRIPTS = cvsbuild cvsupdatedb
-EXTRA_DIST = cvsbuild.pl cvsupdatedb.pl
+bin_SCRIPTS = cvsbuild cvsupdatedb cvsquery-script
+EXTRA_DIST = cvsbuild.pl cvsupdatedb.pl cvsquery-script.pl
 
 define build-perl-script
 $(PERL) -c $(firstword $^)
@@ -22,6 +24,9 @@ cvsbuild : $(srcdir)/cvsbuild.pl
 	$(build-perl-script)
 
 cvsupdatedb : $(srcdir)/cvsupdatedb.pl
+	$(build-perl-script)
+
+cvsquery-script : $(srcdir)/cvsquery-script.pl
 	$(build-perl-script)
 
 cvsquery_SOURCES = cvsquery.C
@@ -48,5 +53,4 @@ cvsmine_LDADD = -lomus -ldb_cxx
 #cvseval_SOURCES = util.h util.C cvseval.C
 #cvseval_LDADD = -lomus -ldb_cxx
 
-CXXFLAGS = -O3 -DINLINE -Wall
 

@@ -82,12 +82,12 @@ cvsbuild 0.1 (2001-2-22)
 Usage $0 [Options]
 
 Options:
-    -t file_types   specify file types of interest. e.g. -t html java
+    -t "file_types" specify file types of interest. e.g. -t "html java"
                     will only do the line mapping for files with extension
                     .html and .java; default types include: c cc cpp C h.
-    modules       a list of modules to built, e.g. koffice/kword  kdebase/konqueror
-    -f app.list   a file containing a list of modules
-    -h            print out this message
+    modules         a list of modules to built, e.g. koffice/kword  kdebase/konqueror
+    -f app.list     a file containing a list of modules
+    -h              print out this message
 EOF
 exit 0;
 }

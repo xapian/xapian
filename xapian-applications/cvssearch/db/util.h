@@ -7,6 +7,8 @@
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
 
+#include <list>
+
 extern void lowercase_term(om_termname &term);
 extern void lowercase_string(string &term);
 extern void split (const string & text, const string & separators, list<string> & words);
