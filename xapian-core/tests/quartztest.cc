@@ -969,7 +969,6 @@ static bool test_open1()
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   Xapian::Internal::RefCntPtr<Xapian::Database::Internal> database_0 = new QuartzDatabase(dbdir));
 
-    makedir(dbdir);
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> database_w =
 	    new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048);
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> database_r = new QuartzDatabase(dbdir);
@@ -997,8 +996,6 @@ static bool test_create1()
     db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048);
     db = 0; // Close the database - Cygwin can't delete a locked file...
     removedir(dbdir);
-
-    makedir(dbdir);
 
     // (3) db doesn't exist, basedir exists (no create)
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,

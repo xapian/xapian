@@ -1,3 +1,8 @@
+Mon Sep 06 02:46:32 BST 2004  Olly Betts <olly@survex.com>
+
+	* tests/quartztest.cc: Xapian::Database will create the directory for
+	  the database so there's no need to create it ourselves.
+
 Mon Sep 06 02:40:57 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/,tests/testdata/apitest_allterms4.txt: Split off tests which
