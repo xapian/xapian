@@ -28,6 +28,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include "omlocks.h"
 
 class OmEnquireInternal; // Internal state of enquire
 class OmEnquire;         // Declare Enquire class
@@ -68,7 +69,7 @@ enum om_queryop {
  */
 class OmQuery {
     friend class OmMatch;
-    friend class OmEnquire;
+    friend class OmEnquireInternal;
     private:
 	bool isdefined;
 	bool isbool;
@@ -94,6 +95,9 @@ class OmQuery {
 
 	/// Within query frequency of this term
 	om_termcount wqf;
+
+	/// The object mutex
+	OmLock mutex;
 
 	/// Copy another OmQuery into self.
 	void initialise_from_copy(const OmQuery & copyme);
@@ -199,7 +203,7 @@ class OmQuery {
 /// Used to specify options for running a query
 
 class OmMatchOptions {
-    friend OmEnquire;
+    friend OmEnquireInternal;
     private:
 	bool  do_collapse;
 	om_keyno collapse_key;
@@ -255,7 +259,7 @@ class OmMatchDecider {
 /// Used to specify options for performing expand
 
 class OmExpandOptions {
-    friend OmEnquire;
+    friend OmEnquireInternal;
     private:
 	bool  allow_query_terms;
     public:

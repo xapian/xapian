@@ -323,6 +323,8 @@ OmQuery::initialise_from_vector(const vector<OmQuery *>::const_iterator qbegin,
 string
 OmQuery::get_description() const
 {
+    OmLockSentry sentry(mutex);
+
     if(!isdefined) return "<NULL>";
     string opstr;
     switch(op) {
@@ -358,14 +360,20 @@ OmQuery::get_description() const
 }
 
 bool
-OmQuery::set_bool(bool isbool_) {
+OmQuery::set_bool(bool isbool_)
+{
+    OmLockSentry sentry(mutex);
+
     bool oldbool = isbool;
     isbool = isbool_;
     return oldbool;
 }
 
 om_termcount
-OmQuery::set_length(om_termcount qlen_) {
+OmQuery::set_length(om_termcount qlen_)
+{
+    OmLockSentry sentry(mutex);
+
     om_termcount oldqlen = qlen;
     qlen = qlen_;
     return oldqlen;
@@ -373,7 +381,7 @@ OmQuery::set_length(om_termcount qlen_) {
 
 void
 OmQuery::accumulate_terms(vector<pair<om_termname, om_termpos> > &terms) const
-{
+{ 
     Assert(isdefined);
 
     if (op == OM_MOP_LEAF) {
@@ -404,6 +412,7 @@ struct LessByTermpos {
 om_termname_list
 OmQuery::get_terms() const
 {
+    OmLockSentry sentry(mutex);
     om_termname_list result;
 
     vector<pair<om_termname, om_termpos> > terms;
@@ -528,8 +537,7 @@ OmMSet::convert_to_percent(const OmMSetItem & item) const
 /////////////////////////////////
 
 class OmEnquireInternal {
-    public:
-	IRDatabase * database;
+	mutable IRDatabase * database;
 	vector<DatabaseBuilderParams> dbparams;
 	
 	/* This may need to be mutable in future so that it can be
@@ -537,15 +545,31 @@ class OmEnquireInternal {
 	 */
 	OmQuery * query;
 
+    public:
 	// pthread mutexes, if available.
 	OmLock mutex;
 
 	OmEnquireInternal();
 	~OmEnquireInternal();
 
-	void open_database();
+	void open_database() const;
 	void add_database(const DatabaseBuilderParams & newdb);
+	void add_database(const string & type,
+			  const vector<string> & params);
 	void set_query(const OmQuery & query_);
+	OmMSet get_mset(om_doccount first,
+			om_doccount maxitems,
+			const OmRSet *omrset,
+			const OmMatchOptions *moptions,
+			const OmMatchDecider *mdecider) const;
+	OmESet get_eset(om_termcount maxitems,
+			const OmRSet & omrset,
+			const OmExpandOptions * eoptions,
+			const OmExpandDecider * edecider) const;
+	const OmDocument *get_doc(const OmMSetItem &mitem) const;
+	const OmDocument *get_doc(om_docid mitem) const;
+	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
+	om_termname_list get_matching_terms(om_docid mitem) const;
 };
 
 //////////////////////////////////////////
@@ -573,7 +597,7 @@ OmEnquireInternal::~OmEnquireInternal()
 
 // Open the database(s), if not already open.
 inline void
-OmEnquireInternal::open_database()
+OmEnquireInternal::open_database() const
 {
     if(database == 0) {
 	if(dbparams.size() == 0) {
@@ -599,6 +623,22 @@ OmEnquireInternal::add_database(const DatabaseBuilderParams & newdb)
     dbparams.push_back(newdb);
 }
 
+void
+OmEnquireInternal::add_database(const string & type,
+			const vector<string> & params)
+{
+    // Convert type into an om_database_type
+    om_database_type dbtype = OM_DBTYPE_NULL;
+    dbtype = stringToTypeMap<om_database_type>::get_type(type);
+
+    // Prepare dbparams to build database with (open it readonly)
+    DatabaseBuilderParams dbparams(dbtype, true);
+    dbparams.paths = params;
+
+    // Use dbparams to create database, and add it to the list of databases
+    add_database(dbparams);
+}
+
 inline void
 OmEnquireInternal::set_query(const OmQuery &query_)
 {
@@ -610,6 +650,212 @@ OmEnquireInternal::set_query(const OmQuery &query_)
         throw OmInvalidArgumentError("Query must not be undefined");
     }
     query = new OmQuery(query_);
+}
+
+OmMSet
+OmEnquireInternal::get_mset(om_doccount first,
+                    om_doccount maxitems,
+                    const OmRSet *omrset,
+                    const OmMatchOptions *moptions,
+		    const OmMatchDecider *mdecider) const
+{
+    if(query == 0) {
+        throw OmInvalidArgumentError("You must set a query before calling OmEnquire::get_mset()");
+    }
+    Assert(query->is_defined());
+
+    open_database();
+    Assert(database != 0);
+
+    // Use default options if none supplied
+    OmMatchOptions defmoptions;
+    if (moptions == 0) {
+        moptions = &defmoptions;
+    }
+
+    // Set Database
+    OmMatch match(database);
+
+    // Set cutoff percent
+    if (moptions->percent_cutoff > 0) {
+        match.set_min_weight_percent(moptions->percent_cutoff);
+    }
+
+    // Set Rset
+    RSet *rset = 0;
+    if((omrset != 0) && (omrset->items.size() != 0)) {
+	rset = new RSet(database, *omrset);
+	match.set_rset(rset);
+    }
+
+    // Set options
+    if(moptions->do_collapse) {
+	match.set_collapse_key(moptions->collapse_key);
+    }
+
+    // Set Query
+    match.set_query(query);
+
+    OmMSet retval;
+
+    // Run query and get results into supplied OmMSet object
+    if(query->is_bool()) {
+	match.boolmatch(first, maxitems, retval.items);
+	retval.mbound = retval.items.size();
+	retval.max_possible = 1;
+	if(retval.items.size() > 0) {
+	    retval.max_attained = 1;
+	} else {
+	    retval.max_attained = 0;
+	}
+    } else {
+	match.match(first, maxitems, retval.items,
+		    msetcmp_forward, &(retval.mbound), &(retval.max_attained),
+		    mdecider);
+
+	// Get max weight for an item in the MSet
+	retval.max_possible = match.get_max_weight();
+    }
+
+    // Store what the first item requested was, so that this information is
+    // kept with the mset.
+    retval.firstitem = first;
+
+    // Clear up
+    delete rset;
+
+    return retval;
+}
+
+OmESet
+OmEnquireInternal::get_eset(om_termcount maxitems,
+                    const OmRSet & omrset,
+	            const OmExpandOptions * eoptions,
+		    const OmExpandDecider * edecider) const
+{
+    OmESet retval;
+
+    OmExpandOptions defeoptions;
+    if (eoptions == 0) {
+        eoptions = &defeoptions;
+    }
+
+    open_database();
+    OmExpand expand(database);
+    RSet rset(database, omrset);
+
+    DebugMsg("rset size is " << rset.get_rsize() << endl);
+
+    OmExpandDeciderAlways decider_always;
+    if (edecider == 0) edecider = &decider_always;
+
+    /* The auto_ptrs will clean up any dynamically allocated
+     * expand deciders automatically.
+     */
+    auto_ptr<OmExpandDecider> decider_noquery;
+    auto_ptr<OmExpandDecider> decider_andnoquery;
+    
+    if (query != 0 && !eoptions->allow_query_terms) {
+        decider_noquery = auto_ptr<OmExpandDecider>(
+	    new OmExpandDeciderFilterTerms(query->get_terms()));
+	decider_andnoquery = auto_ptr<OmExpandDecider>(
+	    new OmExpandDeciderAnd(decider_noquery.get(), edecider));
+
+        edecider = decider_andnoquery.get();
+    }
+    
+    expand.expand(maxitems, retval, &rset, edecider);
+
+    return retval;
+}
+
+const OmDocument *
+OmEnquireInternal::get_doc(om_docid did) const
+{
+    open_database();
+    OmDocument *doc = database->open_document(did);
+
+    return doc;
+}
+
+const OmDocument *
+OmEnquireInternal::get_doc(const OmMSetItem &mitem) const
+{
+    open_database();
+    return get_doc(mitem.did);
+}
+
+om_termname_list
+OmEnquireInternal::get_matching_terms(const OmMSetItem &mitem) const
+{
+    // FIXME: take advantage of OmMSetItem to ensure that database
+    // doesn't change underneath us.
+    return get_matching_terms(mitem.did);
+}
+
+struct ByQueryIndexCmp {
+    typedef map<om_termname, unsigned int> tmap_t;
+    const tmap_t &tmap;
+    ByQueryIndexCmp(const tmap_t &tmap_) : tmap(tmap_) {};
+    bool operator()(const om_termname &left,
+		    const om_termname &right) const {
+	tmap_t::const_iterator l, r;
+	l = tmap.find(left);
+	r = tmap.find(right);
+	Assert((l != tmap.end()) && (r != tmap.end()));
+
+	return l->second < r->second;
+    }
+};
+
+om_termname_list
+OmEnquireInternal::get_matching_terms(om_docid did) const
+{
+    if (query == 0) {
+        throw OmInvalidArgumentError("Can't get matching terms before setting query");
+    }
+    Assert(query->is_defined());
+
+    open_database();  // will throw if database not set.
+
+    // the ordered list of terms in the query.
+    om_termname_list query_terms = query->get_terms();
+
+    // copy the list of query terms into a map for faster access.
+    // FIXME: a hash would be faster than a map, if this becomes
+    // a problem.
+    map<om_termname, unsigned int> tmap;
+    unsigned int index = 1;
+    for (om_termname_list::const_iterator i = query_terms.begin();
+	 i != query_terms.end();
+	 ++i) {
+	tmap[*i] = index++;
+    }
+    
+    auto_ptr<TermList> docterms(database->open_term_list(did));
+    
+    /* next() must be called on a TermList before you can
+     * do anything else with it.
+     */
+    docterms->next();
+
+    vector<om_termname> matching_terms;
+
+    while (!docterms->at_end()) {
+        map<om_termname, unsigned int>::iterator t =
+		tmap.find(docterms->get_termname());
+        if (t != tmap.end()) {
+	    matching_terms.push_back(docterms->get_termname());
+	}
+	docterms->next();
+    }
+    
+    // sort the resulting list by query position.
+    sort(matching_terms.begin(),
+	 matching_terms.end(),
+	 ByQueryIndexCmp(tmap));
+
+    return om_termname_list(matching_terms.begin(), matching_terms.end());
 }
 
 ////////////////////////////////////////////
@@ -635,27 +881,15 @@ void
 OmEnquire::add_database(const string & type,
 			const vector<string> & params)
 {
-    internal->mutex.lock();
-    // Convert type into an om_database_type
-    om_database_type dbtype = OM_DBTYPE_NULL;
-    dbtype = stringToTypeMap<om_database_type>::get_type(type);
-
-    // Prepare dbparams to build database with (open it readonly)
-    DatabaseBuilderParams dbparams(dbtype, true);
-    dbparams.paths = params;
-
-    // Use dbparams to create database, and add it to the list of databases
-    internal->add_database(dbparams);
-
-    internal->mutex.unlock();
+    OmLockSentry locksentry(internal->mutex);
+    internal->add_database(type, params);
 }
 
 void
 OmEnquire::set_query(const OmQuery & query_)
 {
-    internal->mutex.lock();
+    OmLockSentry locksentry(internal->mutex);
     internal->set_query(query_);
-    internal->mutex.unlock();
 }
 
 OmMSet
@@ -665,76 +899,8 @@ OmEnquire::get_mset(om_doccount first,
                     const OmMatchOptions *moptions,
 		    const OmMatchDecider *mdecider) const
 {
-    internal->mutex.lock();
-
-    if(internal->query == 0) {
-        throw OmInvalidArgumentError("You must set a query before calling OmEnquire::get_mset()");
-    }
-    Assert(internal->query->is_defined());
-
-    internal->open_database();
-    Assert(internal->database != 0);
-
-    // Use default options if none supplied
-    OmMatchOptions defmoptions;
-    if (moptions == 0) {
-        moptions = &defmoptions;
-    }
-
-    // Set Database
-    OmMatch match(internal->database);
-
-    // Set cutoff percent
-    if (moptions->percent_cutoff > 0) {
-        match.set_min_weight_percent(moptions->percent_cutoff);
-    }
-
-    // Set Rset
-    RSet *rset = 0;
-    if((omrset != 0) && (omrset->items.size() != 0)) {
-	rset = new RSet(internal->database, *omrset);
-	match.set_rset(rset);
-    }
-
-    // Set options
-    if(moptions->do_collapse) {
-	match.set_collapse_key(moptions->collapse_key);
-    }
-
-    // Set Query
-    match.set_query(internal->query);
-
-    OmMSet retval;
-
-    // Run query and get results into supplied OmMSet object
-    if(internal->query->is_bool()) {
-	match.boolmatch(first, maxitems, retval.items);
-	retval.mbound = retval.items.size();
-	retval.max_possible = 1;
-	if(retval.items.size() > 0) {
-	    retval.max_attained = 1;
-	} else {
-	    retval.max_attained = 0;
-	}
-    } else {
-	match.match(first, maxitems, retval.items,
-		    msetcmp_forward, &(retval.mbound), &(retval.max_attained),
-		    mdecider);
-
-	// Get max weight for an item in the MSet
-	retval.max_possible = match.get_max_weight();
-    }
-
-    // Store what the first item requested was, so that this information is
-    // kept with the mset.
-    retval.firstitem = first;
-
-    // Clear up
-    delete rset;
-
-    internal->mutex.unlock();
-
-    return retval;
+    OmLockSentry locksentry(internal->mutex);
+    return internal->get_mset(first, maxitems, omrset, moptions, mdecider);
 }
 
 OmESet
@@ -743,137 +909,34 @@ OmEnquire::get_eset(om_termcount maxitems,
 	            const OmExpandOptions * eoptions,
 		    const OmExpandDecider * edecider) const
 {
-    internal->mutex.lock();
-
-    OmESet retval;
-
-    OmExpandOptions defeoptions;
-    if (eoptions == 0) {
-        eoptions = &defeoptions;
-    }
-
-    internal->open_database();
-    OmExpand expand(internal->database);
-    RSet rset(internal->database, omrset);
-
-    DebugMsg("rset size is " << rset.get_rsize() << endl);
-
-    OmExpandDeciderAlways decider_always;
-    if (edecider == 0) edecider = &decider_always;
-
-    /* The auto_ptrs will clean up any dynamically allocated
-     * expand deciders automatically.
-     */
-    auto_ptr<OmExpandDecider> decider_noquery;
-    auto_ptr<OmExpandDecider> decider_andnoquery;
-    
-    if (internal->query != 0 && !eoptions->allow_query_terms) {
-        decider_noquery = auto_ptr<OmExpandDecider>(
-	    new OmExpandDeciderFilterTerms(internal->query->get_terms()));
-	decider_andnoquery = auto_ptr<OmExpandDecider>(
-	    new OmExpandDeciderAnd(decider_noquery.get(), edecider));
-
-        edecider = decider_andnoquery.get();
-    }
-    
-    expand.expand(maxitems, retval, &rset, edecider);
-
-    internal->mutex.unlock();
-
-    return retval;
+    OmLockSentry locksentry(internal->mutex);
+    return internal->get_eset(maxitems, omrset, eoptions, edecider);
 }
 
 const OmDocument *
 OmEnquire::get_doc(om_docid did) const
 {
-    internal->mutex.lock();
-    internal->open_database();
-    OmDocument *doc = internal->database->open_document(did);
-    internal->mutex.unlock();
-
-    return doc;
+    OmLockSentry locksentry(internal->mutex);
+    return internal->get_doc(did);
 }
 
 const OmDocument *
 OmEnquire::get_doc(const OmMSetItem &mitem) const
 {
-    internal->open_database();
-    return get_doc(mitem.did);
+    OmLockSentry locksentry(internal->mutex);
+    return internal->get_doc(mitem);
 }
 
 om_termname_list
 OmEnquire::get_matching_terms(const OmMSetItem &mitem) const
 {
-    // FIXME: take advantage of OmMSetItem to ensure that database
-    // doesn't change underneath us.
-    return get_matching_terms(mitem.did);
+    OmLockSentry locksentry(internal->mutex);
+    return internal->get_matching_terms(mitem);
 }
-
-struct ByQueryIndexCmp {
-    typedef map<om_termname, unsigned int> tmap_t;
-    const tmap_t &tmap;
-    ByQueryIndexCmp(const tmap_t &tmap_) : tmap(tmap_) {};
-    bool operator()(const om_termname &left,
-		    const om_termname &right) const {
-	tmap_t::const_iterator l, r;
-	l = tmap.find(left);
-	r = tmap.find(right);
-	Assert((l != tmap.end()) && (r != tmap.end()));
-
-	return l->second < r->second;
-    }
-};
 
 om_termname_list
 OmEnquire::get_matching_terms(om_docid did) const
 {
-    internal->mutex.lock();
-
-    if (internal->query == 0) {
-        throw OmInvalidArgumentError("Can't get matching terms before setting query");
-    }
-    Assert(internal->query->is_defined());
-
-    internal->open_database();  // will throw if database not set.
-
-    // the ordered list of terms in the query.
-    om_termname_list query_terms = internal->query->get_terms();
-
-    // copy the list of query terms into a map for faster access.
-    // FIXME: a hash would be faster than a map, if this becomes
-    // a problem.
-    map<om_termname, unsigned int> tmap;
-    unsigned int index = 1;
-    for (om_termname_list::const_iterator i = query_terms.begin();
-	 i != query_terms.end();
-	 ++i) {
-	tmap[*i] = index++;
-    }
-    
-    auto_ptr<TermList> docterms(internal->database->open_term_list(did));
-    
-    /* next() must be called on a TermList before you can
-     * do anything else with it.
-     */
-    docterms->next();
-
-    vector<om_termname> matching_terms;
-
-    while (!docterms->at_end()) {
-        map<om_termname, unsigned int>::iterator t =
-		tmap.find(docterms->get_termname());
-        if (t != tmap.end()) {
-	    matching_terms.push_back(docterms->get_termname());
-	}
-	docterms->next();
-    }
-    
-    // sort the resulting list by query position.
-    sort(matching_terms.begin(),
-	 matching_terms.end(),
-	 ByQueryIndexCmp(tmap));
-
-    internal->mutex.unlock();
-
-    return om_termname_list(matching_terms.begin(), matching_terms.end());
+    OmLockSentry locksentry(internal->mutex);
+    return internal->get_matching_terms(did);
 }

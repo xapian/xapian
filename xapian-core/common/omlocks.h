@@ -24,31 +24,70 @@
 #define OM_HGUARD_OMLOCKS_H
 
 #ifdef HAVE_LIBPTHREAD
+
 #include <pthread.h>
 #include "omassert.h"
 
 class OmLock {
-    pthread_mutex_t mutex;
+    mutable pthread_mutex_t mutex;
+
+    // disallow copies
+    OmLock(const OmLock &);
+    void operator=(const OmLock &);
+
     public:
     	OmLock() {
 	    pthread_mutex_init(&mutex, NULL);
 	}
 	~OmLock() { pthread_mutex_destroy(&mutex); }
 
-	void lock() {
+	void lock() const {
 	    int retval = pthread_mutex_lock(&mutex);
 	    Assert(retval == 0);
 	}
-	void unlock() {
+	void unlock() const {
 	    int retval = pthread_mutex_unlock(&mutex);
 	    Assert(retval == 0);
 	}
 };
+
+class OmLockSentry {
+    const OmLock &mut;
+
+    // disallow copies
+    OmLockSentry(const OmLockSentry &);
+    void operator=(const OmLockSentry &);
+
+    public:
+    	OmLockSentry(const OmLock &mut_) : mut(mut_) {
+	    mut.lock();
+	}
+
+	~OmLockSentry() {
+	    mut.unlock();
+	}
+};
+
 #else // !HAVE_LIBPTHREAD
+
 class OmLock {
     public:
-	void lock() {}
-	void unlock() {}
+	void lock() const {}
+	void unlock() const {}
 };
+
+class OmLockSentry {
+
+    // disallow copies
+    OmLockSentry(const OmLockSentry &);
+    void operator=(const OmLockSentry &);
+
+    public:
+    	OmLockSentry(const OmLock &mut_) { }
+
+	~OmLockSentry() { }
+};
+
 #endif // HAVE_LIBPTHREAD
+
 #endif /* OM_HGUARD_OMLOCKS_H */

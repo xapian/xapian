@@ -1,3 +1,9 @@
+Thu Feb 24 14:18:29 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Cleaned up the public/private separation in OmEnquire{Internal}
+
+	* Added exclusive locks to all public methods
+
 Wed Feb 23 19:00:10 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added initial pthread locking support.  More does need to be
