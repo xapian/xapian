@@ -576,9 +576,9 @@ void processDiffOutput( const string& f, LineSequence& l1, LineSequence& l2 ) {
   while ( ! in.eof() ) {
     string line;
     if(getline( in, line, '\n' ).eof()) {
-      if ( line == "" ) {
-	break;
-      }
+      //      if ( line == "" ) {
+	//	break; // we miss last block with this
+      //      }
     }
 
     // strange diff bug
