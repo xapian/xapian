@@ -126,23 +126,23 @@ if($query && ($query ne "")){
 	#--------------------------------------
 	# find projects
 	#--------------------------------------
-	#print "<p>$CVSDATA";#DEBUG
 	@temp = split /in:/, $query;
+    print "temp: @temp<br>\n"; #DEBUG
 	if($#temp>0){
 		$tempp = pop @temp;
 	}else{
 		$tempp = "";
 	}
+    print "tempp: $tempp<br>\n"; #DEBUG
 	$querywords = join "in:", @temp;
-#	print $query."<br>";#DEBUG
-#	print "@temp<br>";#DEBUG
-#	print $querywords."<br>";#DEBUG
+    print "querywords: $querywords<br>\n"; #DEBUG
 	@rawproj = split /;| /, $tempp;
-	#print @rawproj;#DEBUG
+    print "rawproj: @rawproj<br>\n"; #DEBUG
+
 	$rootproj = ''; #root:project pairs to give to cvssearch
 	
 	if($root eq $all){# selected all repositories
-	
+        
 		# go through each root
 		foreach (keys %dirMAProot){
 			$curroot = $_;
@@ -155,9 +155,6 @@ if($query && ($query ne "")){
 					chomp;
 					#store project for grep later
 					%rootMAPproj=&insertArray(\%rootMAPproj, $curroot, $_);
-#					print "PROJECTS:";#debug
-#					print $_;#debug
-#					print ";";#debug
 					#for input of cvssearch
 					$rootproj .= "$curroot/db/$_.om ";
 				}
@@ -215,32 +212,26 @@ if($query && ($query ne "")){
 	#---------------
 	
 	if($rootproj ne ''){
-		#print "<p>echo $rootproj | $cvssearch $num_matches $querywords";
         @matches = `echo $rootproj | $cvssearch $num_matches $querywords`;
-	}else{#no project matched
+	}else{
 		 &error("The project you specified was not found!");
 	}
 	
-	#print "<p>finished omsee";#DEBUG
-	#print "<p>omsee result: <br><pre>";#DEBUG
-	#print @matches;#DEBUG
-	
 	$stemquery = shift @matches;
 	chomp($stemquery);
-	#print "<p>stemquery: $stemquery\n";#DEBUG
-	
+
 	#----------------------------------
 	# find grep matches
 	#----------------------------------
 	
-	#turn query words into "or" grep format
-    my @temp_grep_queries = split /\s/, "$querywords $stemquery";
+	#turn query words into "or" grep forma
+    my @temp_grep_queries = split /[\s]+/, "$querywords $stemquery";
     my %temp_grep_queries;
     foreach (@temp_grep_queries) {
         $temp_grep_queries{$_} = 1;
     }
-	$grepquery = join "|", (reverse (keys %temp_grep_queries));
-	
+
+	$grepquery = join "|", keys %temp_grep_queries;
 	#---------------------------------------------
 	#find files to grep and insert in fileMAPid
 	#---------------------------------------------

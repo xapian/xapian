@@ -227,9 +227,9 @@ html_comparer::write_line(ostream & os,
                     select2, index2, do2,
                     diff_index);
 
-    if (do0 && pis0) getline(*pis0, line0);
-    if (do1 && pis1) getline(*pis1, line1);
-    if (do2 && pis2) getline(*pis2, line2);
+    if (do0 && pis0) {getline(*pis0, line0);}
+    if (do1 && pis1) {getline(*pis1, line1);}
+    if (do2 && pis2) {getline(*pis2, line2);}
 
     if (pis0 && !*pis0) {
         select0= sclass_n;
@@ -263,14 +263,15 @@ html_comparer::write_line(ostream & os,
             os << "</tr>" << endl;
         }
     }
-    if (do0) ++index0;
-    if (do1) ++index1;
-    if (do2) ++index2;
+    if (do0) {++index0;}
+    if (do1) {++index1;}
+    if (do2) {++index2;}
 }
 
 ostream &
 html_comparer::write(ostream & os) const
 {
+
     string select0 = " class=\"s\"";
     string select1 = " class=\"s\"";
     string select2 = " class=\"s\"";
@@ -463,7 +464,7 @@ html_comparer::write(ostream & os) const
         }
     }
     os << "</table>" << endl;
-    os << "<hr width=100%>" << endl;
+    os << "<hr noshade>" << endl;
     os << "<table border=0>" << endl;
     os << "<tr><td colspan=2>Legend:</td></tr>" << endl;
     os << "<tr><td class=\"n\"> </td><td align=center class=\"a\"> added in v."

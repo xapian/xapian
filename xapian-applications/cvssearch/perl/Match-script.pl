@@ -231,10 +231,14 @@ if(param()){
 	if($yesgrep){
 		push @revs, "grep";
 	}
+
+    my $show_gap = 0;
+
 	foreach(@file){
 		s/\n//g;
 		$line = $_;
 		if($lineMAPinfo{$i}){
+            $show_gap = 1;
 			$line = Entities::encode_entities($line);
 			print "<tr>";
 			print "<td><pre><a name=$i>$i</a></td>";
@@ -297,7 +301,7 @@ if(param()){
             }
 			print "<td bgcolor=$color><pre><a href=# onclick=\"return o($i);\">$line$space</a></td></tr>\n";
 		}
-		if ($lineMAPinfo{$i+1} > $lineMAPinfo{$i}) {
+		if ($lineMAPinfo{$i+1} > $lineMAPinfo{$i} && $show_gap != 0) {
             print "<tr><td></td><td><pre>";
 			$flag = 1;
 			for($j=0;$j<=$#revs;$j++){
