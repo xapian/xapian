@@ -783,15 +783,20 @@ class OmBatchEnquire {
 	struct query_desc {
 	    /// The query to be executed
 	    OmQuery query;
+
 	    /// The first match to return
 	    om_doccount first;
+
 	    /// The maximum number of hits to be returned
 	    om_doccount maxitems;
+
 	    /// A pointer to the RSet for the query
 	    const OmRSet * omrset;
+
 	    /** A pointer to the match options for this query,
 	     *  if any.
 	     */
+
 	    const OmMatchOptions * moptions;
 	    /** A pointer to the match decider function, or
 	     *  0 for no decision functor.
