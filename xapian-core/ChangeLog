@@ -1,3 +1,11 @@
+Tue Sep 07 02:07:43 BST 2004  Olly Betts <olly@survex.com>
+
+	* tests/quartztest.cc: Removed overwrite2 test.  Digging back in CVS
+	  it's been disabled since the day after it added.  After all this
+	  time it's hard to guess exactly what it was intended to test, so
+	  just removing it seems simplest.  We already have overwrite1 to test
+	  getting DatabaseModifiedError.
+
 Tue Sep 07 01:52:25 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/btreetest.cc: Cleaned up paths to temporary Btrees.

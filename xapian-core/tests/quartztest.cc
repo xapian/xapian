@@ -798,107 +798,6 @@ static bool test_overwrite1()
     return true;
 }
 
-#if 0 // FIXME - why isn't this used?
-/// overwrite2
-static bool test_overwrite2()
-{
-    string dbname = tmpdir + "overwrite2";
-    removedir(dbname);
-
-    Xapian::WritableDatabase writer(Xapian::Quartz::open(dbname, Xapian::DB_CREATE);
-
-    Xapian::Document document_in;
-    document_in.set_data("Foobar rising");
-    document_in.add_key(7, "Value7");
-    document_in.add_key(13, "Value13");
-    document_in.add_posting("foobar", 1);
-    document_in.add_posting("rising", 2);
-    document_in.add_posting("foobar", 3);
-
-    Xapian::docid last_doc = 0;
-
-    for (int i=0; i<1000; ++i) {
-	last_doc = writer.add_document(document_in);
-	if (i % 200 == 0) {
-	    writer.flush();
-	}
-    }
-    writer.flush();
-
-    Xapian::Database reader(settings);
-    // FIXME: use reader.get_document() when available.
-
-    Xapian::Enquire enquire(reader);
-
-    string doc_out;
-    string value_out;
-
-    doc_out = writer.get_document(last_doc).get_data();
-    TEST(doc_out == "Foobar rising");
-    value_out = writer.get_document(last_doc).get_value(7);
-    TEST(value_out == "Value7");
-
-    for (int i=0; i<1000; ++i) {
-	last_doc = writer.add_document(document_in);
-	if (i % 200 == 0) {
-	    writer.flush();
-	}
-    }
-    writer.flush();
-
-    doc_out = "";
-    doc_out = writer.get_document(last_doc).get_data();
-    TEST(doc_out == "Foobar rising");
-
-    for (int i=0; i<1000; ++i) {
-	last_doc = writer.add_document(document_in);
-	if (i % 200 == 0) {
-	    writer.flush();
-	}
-    }
-    writer.flush();
-
-    value_out = writer.get_document(last_doc).get_value(7);
-    TEST(value_out == "Value7");
-
-    for (int i=0; i<1000; ++i) {
-	last_doc = writer.add_document(document_in);
-	if (i % 200 == 0) {
-	    writer.flush();
-	}
-    }
-    writer.flush();
-
-    enquire.set_query(Xapian::Query("falling"));
-    enquire.get_mset(1, 10);
-
-    for (int i=0; i<1; ++i) {
-	last_doc = writer.add_document(document_in);
-	if (i % 200 == 0) {
-	    writer.flush();
-	}
-    }
-    writer.flush();
-
-    Xapian::TermIterator ti = reader.termlist_begin(1);
-    *ti;
-    ti++;
-
-    for (int i=0; i<1; ++i) {
-	last_doc = writer.add_document(document_in);
-	if (i % 200 == 0) {
-	    writer.flush();
-	}
-    }
-    writer.flush();
-
-    Xapian::PostingIterator ki = reader.postlist_begin("falling");
-    *ki;
-
-    return true;
-}
-#endif
-
 /// Test that write locks work
 static bool test_writelock1()
 {
@@ -994,7 +893,6 @@ test_desc tests[] = {
     {"postlist1",	test_postlist1},
     {"postlist2",	test_postlist2},
     {"overwrite1", 	test_overwrite1},
-//    {"overwrite2", 	test_overwrite2},
     {"writelock1", 	test_writelock1},
     {"packstring1", 	test_packstring1},
     {0, 0}
