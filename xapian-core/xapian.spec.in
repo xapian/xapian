@@ -42,8 +42,10 @@ make
 cd backends/quartz && make quartzcheck quartzcompact
 cd ../..
 make install-strip DESTDIR=%{buildroot}
-# move the docs to the "right" place
-mv %{buildroot}/usr/share/doc/%{name} %{buildroot}/usr/share/doc/%{name}-%{version}
+# Move the docs to the "right" place
+mv %{buildroot}/usr/share/doc/%{name} %{buildroot}/usr/share/doc/%{name}-devel-%{version}
+# Copy HACKING now, as "%doc HACKING" would overwrite everything
+cp HACKING %{buildroot}/usr/share/doc/%{name}-devel-%{version}
 # Extra binaries
 install -D -m755 netprogs/.libs/omtcpsrv %{buildroot}%{_bindir}/omtcpsrv
 install -D -m755 netprogs/.libs/omprogsrv %{buildroot}%{_bindir}/omprogsrv
@@ -70,13 +72,9 @@ install -D -m755 backends/quartz/.libs/quartzcompact %{buildroot}%{_bindir}/quar
 %{_libdir}/libxapian.so.0
 %{_libdir}/libxapian.so.0.0.0
 %doc AUTHORS ChangeLog COPYING NEWS PLATFORMS README
-# HACKING should arguably be in -devel, but then it ends up alone
-# in /usr/share/doc/xapian-core-devel-%{version}
-%doc HACKING
 
 %files devel
 %defattr(-, root, root)
-%docdir /usr/share/doc/xapian-core-%{version}
 %{_bindir}/xapian-config
 %{_includedir}/om
 %{_includedir}/xapian
@@ -85,8 +83,7 @@ install -D -m755 backends/quartz/.libs/quartzcompact %{buildroot}%{_bindir}/quar
 %{_libdir}/libxapian.a
 %{_libdir}/libxapian.la
 /usr/share/aclocal/xapian.m4
-# Put manual, etc in -devel package
-%{_docdir}
+%doc /usr/share/doc/%{name}-devel-%{version}
 
 %changelog
 * Wed Apr 09 2003  Olly Betts <olly@survex.com>

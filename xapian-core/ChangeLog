@@ -1,3 +1,7 @@
+Tue Apr 29 01:03:20 BST 2003  Fabrice Colin
+
+	* xapian.spec.in: Fixed packaging of docs.
+
 Tue Apr 29 00:33:21 BST 2003  Olly Betts <olly@survex.com>
 
 	* HACKING,testsuite/testsuite.cc,testsuite/testsuite.h: valgrind is
