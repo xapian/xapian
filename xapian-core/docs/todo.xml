@@ -435,9 +435,6 @@ Fix up examples and make sure they are actually instructive.  Add a comment
 to each describing what it demonstrates.
 I've made a start.  delve is a reasonable example.  msearch probably needs
 simplifying to just do a probabilistic search, or to use OmQueryParser.
-Add example to copy quartz database as "Full compaction with revision 1"
-(and perhaps delete/rename the bitmaps) as described in the quartz docs.
-This should produce a small fast database optimised for fast searching.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Olly" area="" release="">
@@ -650,13 +647,6 @@ just like matcher was changed a while ago.
 Build test harness to check consistency by composing random queries
 and checking the results.  Already sanity check mset size.
 Add cheks for %age cutoffs from 0 - 100%, bool filters.
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
-
-Rework quartzcheck into a program which automatically checks all the tables
-in a quartz database directory (or just anything in the directory which
-matches *{DB,baseA,baseB}, or one table if a directory isn't passed...
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">

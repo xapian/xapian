@@ -1,3 +1,7 @@
+Sat Dec 14 23:02:55 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/quartzdesign.html,docs/todo.xml: Updated.
+
 Sat Dec 14 22:57:41 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/Makefile.am,backends/quartz/quartzcheck.cc,

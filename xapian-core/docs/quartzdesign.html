@@ -583,7 +583,7 @@ Thereafter there are two modes for accessing the B-tree: update and retrieval.
     The name is the same as the one used in creating.  Throws an exception
     in case of error.  E.g:
 <pre>
-        Btree_open_to_write("/home/martin/develop/btree/");
+        Btree::open_to_write("/home/martin/develop/btree/");
 </pre>
 </blockquote>
 
@@ -627,7 +627,7 @@ bool Btree::open_to_write(const string &amp; name, unsigned long revision);
 </pre>
 
 <blockquote>
-    Like Btree_open_to_write, but open at the given revision number, and returns
+    Like Btree::open_to_write, but open at the given revision number, and returns
     false if the database couldn't be opened at the requested revision.
 </blockquote>
 
@@ -700,18 +700,19 @@ int Btree::close(unsigned long revision);
 </pre>
 
 <blockquote>
-    There are two ways of closing the B-tree. Btree_close is the normal exit,
-    with all changes being flushed back to disk. Btree_quit abandons the
+    There are two ways of closing the B-tree. Btree::close is the normal exit,
+    with all changes being flushed back to disk. Btree::quit abandons the
     update, so the revision number of the B-tree will not increase.
 <p>
-    The revision number of Btree_close is typically one more than the revision
+    The revision number of Btree::close is typically one more than the revision
     number found after opening:
 
 <pre>
-        Btree * B = Btree_open_to_write("database-1/");
-        unsigned long revision = B-&gt;revision_number;
+        Btree B;
+	B.open_to_write("database-1/");
+        unsigned long revision = B.revision_number;
         ...
-        Btree_close(B, revision + 1);
+        B.close(revision + 1);
 </pre>
 
     An error condition occurs if the revision number given for closing does not
@@ -734,9 +735,9 @@ is considerably elaborated by the use of cursors.
 
 
 <pre>
-<!--bool-->void Btree_open_to_read(const string &amp; name);
+<!--bool-->void Btree::open_to_read(const string &amp; name);
 uint4 Btree::revision_number;
-<!--bool-->void Btree_open_to_read(const string &amp; name, uint4 revision);
+<!--bool-->void Btree::open_to_read(const string &amp; name, uint4 revision);
 </pre>
 
 <blockquote>
@@ -818,16 +819,16 @@ bool Bcursor::get_key(string * key);
     For example,
 
 <pre> 
-        Bcursor * BC = Bcursor_create(B);
+        Bcursor BC(&amp;B);
         string key;
 
         /* Now we'll print all the keys in the B-tree (assuming they
            have a simple form */
 
-        BC-&gt;find_key("", 0); /* must give result true */
+        BC.find_key(""); // must give result true
 
-        while (BC-&gt;next()) {    /* bypassing the null item */
-	    BC-&gt;get_key(&amp;key);
+        while (BC.next()) { // skipping the null item
+	    BC.get_key(&amp;key);
 	    cout &lt;&lt; key &lt;&lt; endl;
         }
 </pre>
@@ -848,17 +849,17 @@ bool Bcursor::get_tag(string * tag);
     For example,
 
 <pre> 
-        Bcursor * BC = B-&gt;Bcursor_create();
+        Bcursor BC(&amp;B);
 	string key;
         string tag;
 
         /* Now do something to each key-tag pair in the Btree */
            have a simple form */
 
-        BC-&gt;find_key("", 0); /* must give result 1 */
+        BC.find_key(""); // must give result true
 
-        while (BC-&gt;get_key(&amp;key)) {
-            BC-&gt;get_tag(&amp;tag);
+        while (BC.get_key(&amp;key)) {
+            BC.get_tag(&amp;tag);
             do_something_to(key, tag);
         }
 
@@ -889,13 +890,12 @@ void BtreeCheck::check(const string &amp; name, int opts);
     BtreeCheck::check(s, opts) is essentially equivalent to
 
 <pre>
-        Btree * B = new Btree();
-	B-&gt;Btree_open_to_write(s);
+        Btree B;
+	B.open_to_write(s);
         {
             // do a complete integrity check of the B-tree,
             // reporting according to the bitmask opts
         }
-        delete B;
 </pre>
 
     The option bitmask may consist of any of the following values |-ed together:
@@ -950,13 +950,13 @@ void Btree::full_compaction(bool parity);
 So
 
 <pre> 
-    B-&gt;full_compaction(true);
+    B.full_compaction(true);
 </pre>
 
 switches full compaction on, and
 
 <pre> 
-    B-&gt;full_compaction(false);
+    B.full_compaction(false);
 </pre>
 
 switches it off. Full compaction may be switched on or off at any time, but
@@ -986,13 +986,13 @@ files. These are required in update mode but ignored in retrieval mode.
 
 <p>
 Here is a program fragment to unload B-tree B/ and reform it in Bnew/ as a fully
-compact B-tree with revision number 1.
+compact B-tree with revision number 1:
 
 <pre> 
     {
 	Btree B;
 	B.open_to_read("B/");
-        AutoPtr&lt;Bcursor&gt; BC = B.Bcursor_create();
+        Bcursor BC(&amp;B);
         string key, tag;
 
 	Btree::create("Bnew/", 8192);
@@ -1001,16 +1001,17 @@ compact B-tree with revision number 1.
 	new_B.open_to_write("Bnew/");
 	new_B.set_full_compaction(true);
 
-	BC-&gt;find_key("", 0);
+	BC.find_key("");
 
-	while (true) {
-	    if (!BC-&gt;get_key(&amp;key)) break;
-	    BC-&gt;get_tag(&amp;tag);
+	while (BC.get_key(&amp;key)) {
+	    BC.get_tag(&amp;tag);
 	    new_B.add(key, tag);
 	}
 	new_B.commit(1);
     }
 </pre>
+
+For a complete program which does this, see the quartzcompact utility.
 
 <h2>Notes on space requirements</h2>
 
@@ -1109,7 +1110,7 @@ In retrieval mode B-&gt;overwitten should be tested after the following procedur
 The test is not required after any of the following:
 
 <pre>
-   Btree::Bcursor_create();
+   Bcursor::Bcursor(Btree * B);
    Bcursor::get_key(string * key);
 </pre>
 
@@ -1122,16 +1123,9 @@ Note: this section is out of date - many methods now return errors in different
 ways to those this section indicates.
 
 <P>
-The procedures described above report errors in three ways. (A) A null result.
-If this:
-
-<pre>
-   AutoPtr&lt;Bcursor&gt; Btree::Bcursor_create();
-</pre>
-
-returns NULL, there was not enough space left to create the Bcursor. (B) A non-zero
+The procedures described above report errors in two ways. (A) A non-zero
 result. Btree::close() returns an int result which is 0 if successful,
-otherwise an error number. (C) The error is placed in B-&gt;error, where B is the
+otherwise an error number. (B) The error is placed in B-&gt;error, where B is the
 Btree structure used in the call, or the Btree structure from which the Bcursor
 structure used in the call derives. Then B-&gt;error == 0 means no error,
 otherwise it is a positive number (greater than 2) giving the error number.
@@ -1141,52 +1135,52 @@ Some procedures cannot give an error.  Here is a summary:
 
 <pre>
     Error method  procedure
-    (A)(B)(C)          error condition given by:
-    ------------------------------------------------------
-           *  n = Btree::find_key(key)
-           *  n = Btree::find_tag(key, kt)
-           *  n = Btree::add(key, tag)
-           *  n = Btree::del(key)
-           *  B = Btree::open_to_write(s)
-           *  B = Btree::open_to_write(s, rev)
-        *     n = Btree::close(B, rev)
-        *     n = Btree::create(s, block_size)
-           *  B = Btree::open_to_read(s)
-           *  B = Btree::open_to_read(s, rev)
-     *     *  BC= Bcursor::create(B)
-           *  n = Bcursor::find_key(key)
-           *  n = Bcursor::next()
-           *  n = Bcursor::prev()
-           *  n = Bcursor::get_key(kt)
-           *  n = Bcursor::get_tag(kt)
-                  Btree_full_compaction(B, parity)
+    (A)(B)          error condition given by:
+    ---------------------------------------------------
+        *  n = Btree::find_key(key)
+        *  n = Btree::find_tag(key, kt)
+        *  n = Btree::add(key, tag)
+        *  n = Btree::del(key)
+        *  B = Btree::open_to_write(s)
+        *  B = Btree::open_to_write(s, rev)
+     *     n = Btree::close(B, rev)
+     *     n = Btree::create(s, block_size)   [throws exception]
+        *  B = Btree::open_to_read(s)
+        *  B = Btree::open_to_read(s, rev)
+               Bcursor::Bcursor()
+        *  n = Bcursor::find_key(key)
+        *  n = Bcursor::next()
+        *  n = Bcursor::prev()
+        *  n = Bcursor::get_key(kt)
+        *  n = Bcursor::get_tag(kt)
+               Btree::full_compaction(parity)
 
-    (A) null result (B) non-zero result (C) B-&gt;error == true
+    (A) non-zero result (B) B.error == true
 </pre>
-
+<!--
 Here are some suitable error tests with the different calls,
 
 <pre>
-    B = Btree_open_to_write(s);
-    if (B == 0 || B-&gt;error) ...
+    Btree B;
+    B.open_to_write(s);
+    if (B.error) ...
 
-    n = Btree_create("...");
+    n = Btree::create("...");
     if (n) ...
 
-    n = B-&gt;delete(key);
-    if (B-&gt;error) ...
+    n = B.delete(key);
+    if (B.error) ...
 </pre>
-
-B-&gt;error is not cleared after being set true. B-&gt;error can, as a side effect,
-set B-&gt;overwritten to true, but this should not matter since the test for
-B-&gt;error should always be done first. The procedures that give no error can
-still have the test for error (C) applied. Error (A) will be rare, and most
-of the others should be rare, except for creating and opening the Btree, which
+-->
+B.error is not cleared after being set true. B.error can, as a side effect,
+set B.overwritten to true, but this should not matter since the test for
+B.error should always be done first. The procedures that give no error can
+still have the test for error (B) applied. Most of these errors
+should be rare, except for creating and opening the Btree, which
 will of course fail when the necessary files cannot be created or found.
 
 <p>
-Errors (B) and (C) have a consistent set of values, defined in btree.h. They
-are,
+Errors have a consistent set of values, defined in btree.h. They are:
 
 <pre>
 BTREE_ERROR_BLOCKSIZE     block size too large or too small during creation
@@ -1213,7 +1207,7 @@ BTREE_ERROR_TAGSIZE       - tag_len too large
 BTREE_ERROR_REVISION      - rev too small in Btree_close (programmer error)
 </pre>
 
-See 'keys and tags' above for the upper limit on tag sizes.
+See 'Keys and tags' above for the upper limit on tag sizes.
 <!-- FOOTER $Author$ $Date$ $Id$ -->
 </BODY>
 </HTML>
