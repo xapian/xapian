@@ -1,3 +1,7 @@
+Fri Aug 18 13:58:00 BST 2000 Olly Betts
+
+	* Added documentation of valid settings to OmSettings doc comments.
+
 Fri Aug 18 12:34:00 BST 2000 Olly Betts
 
 	* Dervied classes of IRDatabase now implement do_open_post_list,

@@ -31,6 +31,76 @@
 // ================
 
 /** This class is used to pass various settings to other OM classes.
+ *
+ *  The settings available are:
+ *
+ *  - backend : database backend type
+ *
+ *  auto pseudo-backend:
+ *
+ *  - auto_dir : directory for auto pseudo-backend to look for database in
+ *
+ *  sleepycat backend:
+ *
+ *  - sleepy_dir : directory containing sleepycat database
+ *
+ *  muscat36 backends:
+ *
+ *  - m36_key_file : keys for DA or DB file
+ *  - m36_record_file : DA record file
+ *  - m36_term_file : DA term file
+ *  - m36_db_file : DB file
+ *  - m36_db_cache_size : size of DB file cache in blocks (default 30)
+ *  - m36_heavyduty : true for 3 byte offset form, false for older 2 byte form
+ *    (default true)
+ *
+ *  network backend:
+ *
+ *  - network_type : "prog" or "tcp"
+ *  - network_program
+ *  - network_args
+ *  - network_server
+ *  - network_port
+ *
+ *  quartz backend:
+ *
+ *  - quartz_dir : directory containing sleepycat database
+ *
+ *  match options:
+ *
+ *  - match_collapse_key : key number to collapse on - duplicates mset
+ *    entries will be removed based on a key (default -1 => no collapsing)
+ *
+ *  - match_sort_forward : If true, documents with the same weight will
+ *    be returned in ascending document order; if false, they will be
+ *    returned in descending order.flag to sort forward (default true)
+ *
+ *  - match_percent_cutoff : Minimum percentage score for returned
+ *    documents. If a document has a lower percentage score than this, it
+ *    will not appear in the mset.  If your intention is to return only
+ *    matches which contain all the terms in the query, then consider using
+ *    OM_MOP_AND instead of OM_MOP_OR in the query). (default -1 => no
+ *    cut-off)
+ *
+ *  - match_max_or_terms : Maximum number of terms which will be used if
+ *    the query contains a large number of terms which are ORed together.
+ *    Only the terms with the match_max_or_terms highest termweights will be
+ *    used.  Parts of the query which do not involve terms ORed together will
+ *    be unaffected by this option.  An example use of this setting is to
+ *    set a query which represents a document - only the elite set of terms
+ *    which best distinguish that document to be used to find similar
+ *    documents, resulting in a performance improvement.
+ *    (default 0 => no limit)
+ *
+ *  expand options:
+ * 
+ *  - expand_use_query_terms : If false, terms already in the query will be
+ *    not be returned in the ESet; if true, they can be. (default false)
+ *
+ *  - expand_use_exact_termfreq : If true then term frequencies will be
+ *    calculated exactly; if true, an approximation may be used which can
+ *    greatly improve efficiency. The approximation only applies when
+ *    multiple databases are searched together. (default false)
  */
 class OmSettings {
     private:
