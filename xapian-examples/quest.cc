@@ -1,4 +1,4 @@
-/* quest.cc - command line searching using Xapian::QueryParser.
+/* quest.cc - Command line search tool using Xapian::QueryParser.
  *
  * Copyright 2004 Olly Betts
  *

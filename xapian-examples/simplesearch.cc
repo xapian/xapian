@@ -1,4 +1,5 @@
 /* simplesearch.cc: Simple command-line search program
+ * (See quest for a more complete example with sophisticated query parsing).
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC

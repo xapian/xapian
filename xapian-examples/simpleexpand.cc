@@ -1,4 +1,4 @@
-/* simpleexpand.cc: Simplest possible query expansion
+/* simpleexpand.cc: Simple example of use of query expansion.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC

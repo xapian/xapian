@@ -1,3 +1,9 @@
+Thu Apr 01 01:09:16 BST 2004  Olly Betts <olly@survex.com>
+
+	* quest.cc,simpleexpand.cc,simpleindex.cc,simplesearch.cc: Added
+	  or improved the short description of the example at the top
+	  of the source file.
+
 Tue Mar 30 01:11:39 BST 2004  Olly Betts <olly@survex.com>
 
 	* .cvsignore,Makefile.am,msearch.cc,quest.cc: Replaced the rather

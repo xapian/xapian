@@ -1,4 +1,4 @@
-/* simpleindex.cc: Index each paragraph in a textfile as a document
+/* simpleindex.cc: Index each paragraph in a textfile as a document.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
