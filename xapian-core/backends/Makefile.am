@@ -26,6 +26,11 @@ BUILDSUBDIR_SLEEPY = sleepy
 LIBADD_SLEEPY = sleepy/libsleepy.la
 endif
 
+if BUILD_BACKEND_QUARTZ
+BUILDSUBDIR_QUARTZ = quartz
+LIBADD_QUARTZ = quartz/libquartz.la
+endif
+
 if BUILD_BACKEND_INMEMORY
 BUILDSUBDIR_INMEMORY = inmemory
 LIBADD_INMEMORY = inmemory/libinmemory.la
@@ -42,10 +47,16 @@ LIBADD_NET = net/libnetdb.la
 endif
 
 SUBDIRS = \
-          $(BUILDSUBDIR_MUSCAT36) $(BUILDSUBDIR_SLEEPY) \
-          $(BUILDSUBDIR_INMEMORY) $(BUILDSUBDIR_MULTI) \
+          $(BUILDSUBDIR_MUSCAT36) \
+	  $(BUILDSUBDIR_SLEEPY) \
+          $(BUILDSUBDIR_QUARTZ) \
+          $(BUILDSUBDIR_INMEMORY) \
+	  $(BUILDSUBDIR_MULTI) \
 	  $(BUILDSUBDIR_NET) .
 libbackend_la_LIBADD = \
-          $(LIBADD_MUSCAT36) $(LIBADD_SLEEPY) \
-          $(LIBADD_INMEMORY) $(LIBADD_MULTI) \
+          $(LIBADD_MUSCAT36) \
+	  $(LIBADD_SLEEPY) \
+	  $(LIBADD_QUARTZ) \
+          $(LIBADD_INMEMORY) \
+	  $(LIBADD_MULTI) \
 	  $(LIBADD_NET)

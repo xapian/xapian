@@ -1,3 +1,8 @@
+Mon Aug 14 12:36:01 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added directory and build stuff for new backend - quartz.  Not
+	  compiled by default (but then, there's no code there yet either...)
+
 Fri Aug 11 19:59:32 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* IRDatabase destructor no longer tries to end session, since

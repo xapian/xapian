@@ -232,6 +232,14 @@ AC_ARG_ENABLE(backend_sleepy,
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-sleepy) ;;
 esac],[build_sleepy=true])
 
+AC_ARG_ENABLE(backend_quartz,
+[  --enable-backend-quartz Enable the quartz database backend (default=no)],
+[case "${enableval}" in
+  yes) build_quartz=true ;;
+  no)  build_quartz=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-quartz) ;;
+esac],[build_quartz=false])
+
 AC_ARG_ENABLE(backend_inmemory,
 [  --enable-backend-inmemory Enable the inmemory database backend (default=yes)],
 [case "${enableval}" in
@@ -316,6 +324,13 @@ if test "x$have_berkeley_2_x_cxx" != "xyes"; then
   build_sleepy=false;
 fi
 
+if test "x$have_berkeley_3_1_cxx" != "xyes"; then
+  if test ! "x$build_quartz" = "xfalse"; then
+    AC_MSG_WARN([BerkeleyDB 3.1 (C++ interface) not available: not building support]);
+  fi
+  build_quartz=false;
+fi
+
 if test x$HAVE_LIBPTHREAD = xno; then
   if test "x$use_pthread" = "xtrue"; then
     AC_MSG_WARN(pthread not available: not building support);
@@ -327,6 +342,7 @@ dnl Set conditionals to specify what we compile
 
 AM_CONDITIONAL(BUILD_BACKEND_MUSCAT36, test x$build_muscat36 = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_SLEEPY, test x$build_sleepy = xtrue)
+AM_CONDITIONAL(BUILD_BACKEND_QUARTZ, test x$build_quartz = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test x$build_inmemory = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_MULTI, test x$build_multi = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_NET, test x$build_net = xtrue)
@@ -342,6 +358,11 @@ fi
 if test x$build_sleepy = xtrue; then
 AC_DEFINE(MUS_BUILD_BACKEND_SLEEPY,,
   [Define if you want to build sleepycat backend])
+fi
+
+if test x$build_quartz = xtrue; then
+AC_DEFINE(MUS_BUILD_BACKEND_QUARTZ,,
+  [Define if you want to build quartz backend])
 fi
 
 if test x$build_inmemory = xtrue; then
@@ -555,6 +576,7 @@ AC_OUTPUT(
  backends/Makefile
  backends/muscat36/Makefile
  backends/sleepy/Makefile
+ backends/quartz/Makefile
  backends/multi/Makefile
  backends/inmemory/Makefile
  backends/net/Makefile

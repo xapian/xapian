@@ -36,6 +36,9 @@
 /* Define if you want to build sleepycat backend */
 #undef MUS_BUILD_BACKEND_SLEEPY
 
+/* Define if you want to build quartz backend */
+#undef MUS_BUILD_BACKEND_QUARTZ
+
 /* Define if you want to build inmemory backend */
 #undef MUS_BUILD_BACKEND_INMEMORY
 
