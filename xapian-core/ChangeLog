@@ -1,3 +1,8 @@
+Wed Nov 03 22:55:04 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Need to put flags to select ANSI C++ mode in CXXFLAGS
+	  not AM_CXXFLAGS.
+
 Wed Nov 03 22:27:08 GMT 2004  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc: Fixed typo.

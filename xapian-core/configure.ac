@@ -101,7 +101,9 @@ dnl Only works for ldflags which can be specified anywhere on the link line.
 AC_SUBST(ldflags)
 
 dnl Some C++ compilers need a special switch to select ANSI C++ mode.  Do
-dnl this early in configure so such settings are used for other tests.
+dnl this early in configure so such settings are used for other tests, and
+dnl put them in CXXFLAGS not AM_CXXFLAGS since AM_CXXFLAGS are only used in
+dnl the Makefiles.
 case "$CXX" in
   dnl Select ANSI mode (std:: namespace and ANSI scoping for i in:
   dnl   for (int i = 1; i < n; ++i) { ... }
@@ -111,10 +113,10 @@ case "$CXX" in
   dnl the default on Itanium, but not on PARISC:
   dnl  http://h21007.www2.hp.com/dspp/tech/tech_TechDocumentDetailPage_IDX/1,1701,5520,00.html
   dnl )
-  aCC|*/aCC) AM_CXXFLAGS="$AM_CXXFLAGS -AA" ;;
+  aCC|*/aCC) CXXFLAGS="$CXXFLAGS -AA" ;;
   dnl Select ANSI iostream implementation (default is a pre-standard
   dnl AT&T-compatible version).
-  cxx|*/cxx) AM_CXXFLAGS="$AM_CXXFLAGS -D__USE_STD_IOSTREAM" ;;
+  cxx|*/cxx) CXXFLAGS="$CXXFLAGS -D__USE_STD_IOSTREAM" ;;
 esac
 
 dnl Check for time functions.
