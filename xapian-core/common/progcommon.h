@@ -28,6 +28,43 @@
 class OmQueryInternal;
 class Stats;
 
+/** The OmLineBuf class implements a two-way line discipline
+ *  using Unix filedescriptors, allowing the client to read
+ *  and write a line at a time conveniently.
+ */
+class OmLineBuf {
+    private:
+	/// The filedescriptor used for reading
+	int readfd;
+	/// The filedescriptor used for writing
+	int writefd;
+
+	/// The buffer used for input
+	string buffer;
+
+	/// disallow copies
+	OmLineBuf(const OmLineBuf &other);
+	void operator=(const OmLineBuf &other);
+    public:
+	/** The main constructor.  The arguments are the
+	 *  input and output filedescriptors to use.
+	 */
+	OmLineBuf(int readfd_, int writefd_);
+
+	/** A convenience constructor which takes only one
+	 *  fd, which can be both read from and written to.
+	 */
+	OmLineBuf(int fd_);
+
+	/** Read one line from readfd
+	 */
+	string readline();
+
+	/** Write one line to writefd
+	 */
+	void writeline(string s);
+};
+
 OmQueryInternal query_from_string(string qs);
 string stats_to_string(const Stats &stats);
 Stats string_to_stats(const string &s);

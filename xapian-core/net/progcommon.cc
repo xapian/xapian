@@ -23,6 +23,8 @@
 #include <string>
 #include <vector>
 #include <strstream.h>
+#include <unistd.h>
+#include <cerrno>
 #include "progcommon.h"
 #include "omassert.h"
 #include "omqueryinternal.h"
@@ -259,4 +261,48 @@ OmQueryInternal qfs_readcompound()
 		throw OmInvalidArgumentError("Invalid query string");
 	} // switch(qt.type)
     } // while(1)
+}
+
+OmLineBuf::OmLineBuf(int readfd_, int writefd_)
+	: readfd(readfd_), writefd(writefd_)
+{
+}
+
+OmLineBuf::OmLineBuf(int fd_)
+	: readfd(fd_), writefd(fd_)
+{
+}
+
+string
+OmLineBuf::readline()
+{
+    string::size_type pos;
+    while ((pos = buffer.find_first_of('\n')) == buffer.npos) {
+	char buf[256];
+	ssize_t received = read(readfd, buf, sizeof(buf) - 1);
+
+	buffer += string(buf, buf + received);
+    }
+    string retval(buffer.begin(), buffer.begin() + pos);
+
+    buffer.erase(0, pos+1);
+
+    return retval;
+}
+
+void
+OmLineBuf::writeline(string s)
+{
+    if (s.length() == 0 || s[s.length()-1] != '\n') {
+	s += '\n';
+    }
+    while (s.length() > 0) {
+	ssize_t written = write(writefd, s.data(), s.length());
+
+	if (written < 0) {
+	    throw OmNetworkError(std::string("write:") + strerror(errno));
+	}
+
+	s.erase(0, written);
+    }
 }

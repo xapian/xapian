@@ -1,3 +1,7 @@
+Thu Apr 20 17:52:49 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* New OmLineBuf object to handle line buffering over a connection
+
 Thu Apr 20 15:38:39 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.1.3
