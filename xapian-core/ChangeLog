@@ -1,3 +1,7 @@
+Thu Sep 21 18:33:16 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added OmStemmerNode
+
 Thu Sep 21 17:08:35 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix typo in tests/Makefile.am
