@@ -48,6 +48,9 @@ class OmNodeDescriptor {
 	OmNodeDescriptor(const std::string &nodename_,
 			 OmNodeCreator creator_);
 
+	/** Copy constructor */
+	OmNodeDescriptor(const OmNodeDescriptor &other);
+
 	/** Destructor. */
 	~OmNodeDescriptor();
 

@@ -31,6 +31,11 @@ OmNodeDescriptor::OmNodeDescriptor(const std::string &nodename_,
     internal->creator = creator_;
 }
 
+OmNodeDescriptor::OmNodeDescriptor(const OmNodeDescriptor &other)
+	: internal(new Internal(*other.internal))
+{
+}
+
 void
 OmNodeDescriptor::add_input(const std::string &name,
 			    const std::string &type,

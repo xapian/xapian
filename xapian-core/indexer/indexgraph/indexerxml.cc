@@ -30,6 +30,29 @@
 #include <algorithm>
 #include <map>
 
+/** A trivial "smart pointer" which calls xmlFreeDoc when going out of
+ *  scope.
+ */
+class auto_xmlDocPtr {
+    public:
+	/** Construct a freeer object */
+	auto_xmlDocPtr(xmlDocPtr doc_) : doc(doc_) {}
+
+	/** Free the xml document tree */
+	~auto_xmlDocPtr() {
+	    if (doc) {
+		xmlFreeDoc(doc);
+	    }
+	}
+
+	/** return the contained xmlDocPtr */
+	xmlDocPtr get() const {
+	    return doc;
+	}
+    private:
+	xmlDocPtr doc;
+};
+
 /** Return true if this xml Document is valid */
 static bool doc_is_valid(xmlDocPtr doc);
 
@@ -44,26 +67,26 @@ static AutoPtr<OmIndexerDesc> desc_from_tree(xmlDocPtr doc);
 AutoPtr<OmIndexerDesc>
 desc_from_xml_file(const std::string &filename)
 {
-    xmlDocPtr doc = xmlParseFile(filename.c_str());
+    auto_xmlDocPtr doc = xmlParseFile(filename.c_str());
 
-    if (!doc || !doc_is_valid(doc)) {
+    if (!doc.get() || !doc_is_valid(doc.get())) {
 	throw OmInvalidDataError("Graph definition is invalid");
     }
 
-    return desc_from_tree(doc);
+    return desc_from_tree(doc.get());
 }
 
 AutoPtr<OmIndexerDesc>
 desc_from_xml_string(const std::string &xmldesc)
 {
-    xmlDocPtr doc = xmlParseMemory(const_cast<char *>(xmldesc.c_str()),
+    auto_xmlDocPtr doc = xmlParseMemory(const_cast<char *>(xmldesc.c_str()),
 				   xmldesc.length());
 
-    if (!doc || !doc_is_valid(doc)) {
+    if (!doc.get() || !doc_is_valid(doc.get())) {
 	throw OmInvalidDataError("Graph definition is invalid");
     }
 
-    return desc_from_tree(doc);
+    return desc_from_tree(doc.get());
 }
 
 extern "C" {
@@ -97,6 +120,13 @@ doc_is_valid(xmlDocPtr doc)
     // Add our predefined "START" id
     xmlAttrPtr attr = xmlNewDocProp(doc, "id", "START");
     xmlAddID(&ctxt, doc, "START", attr);
+
+    xmlFreeProp(attr);
+    attr = 0;
+    // add the Dtd if it's not there
+    if (doc->extSubset == 0) {
+	xmlNewDtd(doc, "omindexer", NULL, XML_DTD_PATH);
+    }
 
     return xmlValidateDocument(&ctxt, doc);
 #else  // HAVE_LIBXML_VALID

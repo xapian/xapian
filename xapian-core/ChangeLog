@@ -1,3 +1,7 @@
+Fri Oct 13 16:03:09 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed some leaks in the indexer system
+
 Fri Oct 13 13:47:32 BST 2000 Olly Betts
 
 	* backends/quartz/Makefile.am: Commented out quartz_termlist.cc as

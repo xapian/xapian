@@ -413,11 +413,16 @@ OmIndexerBuilder::Internal::get_inputcon(const std::string &nodetype,
 OmIndexerBuilder::OmIndexerBuilder()
 	: internal(new Internal)
 {
-    OmNodeDescriptor ndesc("START", &OmIndexerStartNode::create);
-    ndesc.add_output("out", "mystr", mt_record);
-    register_node_type(ndesc);
+    try {
+	OmNodeDescriptor ndesc("START", &OmIndexerStartNode::create);
+	ndesc.add_output("out", "mystr", mt_record);
+	register_node_type(ndesc);
 
-    register_core_nodes(*this);
+	register_core_nodes(*this);
+    } catch (...) {
+	delete internal;
+	throw;
+    }
 }
 
 OmIndexerBuilder::~OmIndexerBuilder()
