@@ -76,6 +76,15 @@ class OmQueryInternal {
 		const vector<OmQueryInternal *>::const_iterator qbegin,
 		const vector<OmQueryInternal *>::const_iterator qend);
 
+	/** swap the contents of this with another OmQueryInternal,
+	 *  in a way which is guaranteed not to throw.  This is
+	 *  used with the assignment operator to make it exception
+	 *  safe.
+	 *  It's important to adjust swap with any addition of
+	 *  member variables!
+	 */
+	void swap(OmQueryInternal &other);
+
 	/** Collapse lists of identical terms when possible
 	 */
 	void collapse_subqs();
@@ -117,7 +126,7 @@ class OmQueryInternal {
 	OmQueryInternal(const OmQueryInternal & copyme);
 
 	/** Assignment. */
-	OmQueryInternal & operator=(const OmQueryInternal & copyme);
+	void operator=(const OmQueryInternal & copyme);
 
 	/** Default constructor: makes an undefined query which can't be used
 	 *  directly.  Such queries should be thought of as placeholders:

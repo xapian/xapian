@@ -1,3 +1,7 @@
+Tue Mar 21 15:08:11 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Implemented OmQueryInternal::operator=()
+
 Mon Mar 20 13:02:37 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Removed old Match::boolmatch() methods - superceded.

@@ -282,6 +282,27 @@ OmQueryInternal::OmQueryInternal()
 	: mutex(), isdefined(false), qlen(0)
 {}
 
+void
+OmQueryInternal::swap(OmQueryInternal &other)
+{
+    std::swap(isdefined, other.isdefined);
+    std::swap(isbool, other.isbool);
+    std::swap(op, other.op);
+    subqs.swap(other.subqs);
+    std::swap(qlen, other.qlen);
+    std::swap(tname, other.tname);
+    std::swap(term_pos, other.term_pos);
+    std::swap(wqf, other.wqf);
+}
+
+void
+OmQueryInternal::operator=(const OmQueryInternal &copyme)
+{
+    // The exception-safe assignment operator idiom:
+    OmQueryInternal temp(copyme);
+    this->swap(temp);
+}
+
 OmQueryInternal::OmQueryInternal(const OmQueryInternal &copyme)
 	: mutex(), isdefined(copyme.isdefined),
 	isbool(copyme.isbool), op(copyme.op),
