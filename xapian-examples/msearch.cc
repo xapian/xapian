@@ -1,7 +1,8 @@
 /* msearch.cc - command line search example - implements a probabilistic and
  *   boolean searching (boolean uses reverse polish notation)
  *
- * Note: for a simpler example, see simplesearch.cc
+ * Note: this example tries to include support for most features in the
+ * matcher.  For a simpler example, see simplesearch.cc.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -209,7 +210,10 @@ main(int argc, char *argv[])
 //		    }
 		    if (doop) {
 			if (boolquery.size() < 2) {
-			    cout << "Syntax error: boolean operands need 2 arguments\n(NB: query should be in reverse polish notation).\n";
+			    cout << "Syntax error: "
+				    "boolean operands need 2 arguments\n"
+				    "(NB: boolean query should be in "
+				    "reverse polish notation).\n";
 			    exit(1);
 			}
 			OmQuery boolq_right(boolquery.top());
@@ -235,7 +239,7 @@ main(int argc, char *argv[])
 	    }
         }
 	if (boolean) {
-	    if (boolquery.size() == 0) {
+	    if (boolquery.empty()) {
 		cout << "Syntax error: Empty boolean query.\n";
 		exit(1);
 	    }

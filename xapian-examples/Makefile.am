@@ -3,14 +3,12 @@
 # Need 1.5 for AM_CFLAGS, etc
 AUTOMAKE_OPTIONS = 1.5
 
-bin_PROGRAMS = msearch delve createdatabase copydatabase simpleindex simplesearch \
-	simpleexpand
+bin_PROGRAMS = msearch delve createdatabase copydatabase\
+	simpleindex simplesearch simpleexpand
 
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
 
 noinst_HEADERS = getopt.h
-
-EXTRA_DIST = COPYING buildall README
 
 msearch_SOURCES = msearch.cc getopt.c getopt1.c
 msearch_LDADD = $(XAPIAN_LIBS)
