@@ -13,6 +13,7 @@ Makefile
 .libs
 apitest
 delve
+indextest
 internaltest
 includetest
 includetest.cc
