@@ -106,25 +106,19 @@ includetest.cc:
 	@echo '#include "$(top_srcdir)/common/omdebug.cc"' >> $@
 	@echo 'int main() { return 0; }' >> $@
 
-## Compile internaltest with the extra CXXFLAGS
+## Compile internaltest and delve with the extra CXXFLAGS
 ## We have to provide our own rules, because automake doesn't
 ## actually understand _CXXFLAGS, and we know of no other way
 ## to pass special flags to the compilation of one target.
 
-# Build from the file without the _dummy, with the extra flags
 internaltest.o: internaltest.cc
-	@cp $< internaltest_temp.cc
-	@$(MAKE) CXXFLAGS="$(CXXFLAGS) $(internaltest_CXXFLAGS)" internaltest_temp.o
-	@mv internaltest_temp.o $@
+	$(CXXCOMPILE) $(internaltest_CXXFLAGS) -c internaltest.cc
+
 internaltest.lo: internaltest.cc
-	@cp $< internaltest_temp.cc
-	@$(MAKE) CXXFLAGS="$(CXXFLAGS) $(internaltest_CXXFLAGS)" internaltest_temp.lo
-	@mv internaltest_temp.lo $@
+	$(LTCXXCOMPILE) $(internaltest_CXXFLAGS) -c internaltest.cc
+
 delve.o: delve.cc
-	@cp $< delve_temp.cc
-	@$(MAKE) CXXFLAGS="$(CXXFLAGS) $(delve_CXXFLAGS)" delve_temp.o
-	@mv delve_temp.o $@
+	$(CXXCOMPILE) $(delve_CXXFLAGS) -c delve.cc
+
 delve.lo: delve.cc
-	@cp $< delve_temp.cc
-	@$(MAKE) CXXFLAGS="$(CXXFLAGS) $(delve_CXXFLAGS)" delve_temp.lo
-	@mv delve_temp.lo $@
+	$(LTCXXCOMPILE) $(delve_CXXFLAGS) -c delve.cc
