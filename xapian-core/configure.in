@@ -188,5 +188,7 @@ AC_OUTPUT(
  indexer/Makefile
  tests/Makefile
  docs/Makefile
+ m4/Makefile
+ libomus-config
  docs/mkdoc.pl
 )
