@@ -1492,6 +1492,9 @@ Btree::do_open_to_write(const string & name_,
 
     handle = sys_open_for_readwrite(name + "DB");
 
+    prev_ptr = &Btree::prev_default;
+    next_ptr = &Btree::next_default;
+
     for (int j = 0; j <= level; j++) {
 	C[j].n = BLK_UNUSED;
 	C[j].split_n = BLK_UNUSED;
@@ -1687,9 +1690,6 @@ Btree::commit(uint4 revision)
 
     overwritten = false;
     Btree_modified = false;
-
-    prev_ptr = &Btree::prev_default;
-    next_ptr = &Btree::next_default;
 
     for (int i = 0; i < BTREE_CURSOR_LEVELS; ++i) {
 	C[i].n = BLK_UNUSED;
