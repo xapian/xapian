@@ -1,3 +1,13 @@
+Omega 0.8.1 (2004-06-30):
+
+* omindex: Renamed hash() to hash_string() to avoid colliding with something
+  on IRIX.
+
+* omega: Changed MORELIKE to pick up to 40 terms, rather than up to 6 (feedback
+  on the mailing list suggests this gives much better results).
+
+* scriptindex: Added explicit catch for std::bad_alloc.
+
 Omega 0.8.0 (2004-04-19):
 
 * scriptindex: Change default to *not* overwriting the database (use

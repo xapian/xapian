@@ -1,3 +1,7 @@
+Wed Jun 30 14:58:12 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.in: Version 0.8.1.
+
 Tue Jun 29 17:26:41 BST 2004  Richard Boulton <richard@tartarus.org>
 
 	* Makefile.am: Remove Debian files from distribution tarballs,
