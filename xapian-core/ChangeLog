@@ -1,3 +1,12 @@
+Fri Feb 18 18:06:21 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Databases now have a get_doclength() method, to return the length
+	  of a given document.  There may be efficiency issues with using
+	  this during the search, however.
+
+	* Extra constant terms, such as that in BM25Weight, now used
+	  and accounted for in min weight calculations.
+
 Fri Feb 18 17:49:13 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* OmQuery::get_terms now returns the terms in termpos order.

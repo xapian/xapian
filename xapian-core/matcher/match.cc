@@ -112,12 +112,23 @@ OmMatch::mk_postlist(const om_termname& tname, RSet * rset)
     DBPostList * pl = database->open_post_list(tname, rset);
     if(rset) rset->will_want_termfreq(tname);
 
-    BM25Weight * wt = new BM25Weight();
+    IRWeight * wt = mk_weight(database, 1, pl->get_termfreq(), tname, rset);
     weights.push_back(wt); // Remember it for deleting
     // Query size of 1 for now.  FIXME
-    wt->set_stats(database, 1, pl->get_termfreq(), tname, rset);
     pl->set_termweight(wt);
     return pl;
+}
+
+IRWeight *
+OmMatch::mk_weight(const IRDatabase * root_,
+		   om_doclength querysize_,
+		   om_doccount termfreq_,
+		   om_termname tname_,
+		   const RSet * rset_)
+{
+    IRWeight * wt = new BM25Weight();
+    wt->set_stats(root_, querysize_, termfreq_, tname_, rset_);
+    return wt;
 }
 
 // Make a postlist from a vector of query objects.
@@ -389,13 +400,16 @@ OmMatch::match(om_doccount first, om_doccount maxitems,
     om_weight w_max = max_weight;
     recalculate_maxweight = false;
 
+    IRWeight * extrawt = mk_weight(database, 1, 0, "", rset);
+    om_weight max_extra = extrawt->get_maxextra();
+
     map<OmKey, OmMSetItem> collapse_table;
 
     // Perform query
     while (1) {
 	if (recalculate_maxweight) {
 	    recalculate_maxweight = false;
-	    w_max = query->recalc_maxweight();
+	    w_max = query->recalc_maxweight() + max_extra;
 	    DebugMsg("max possible doc weight = " << w_max << endl);
 	    if (w_max < min_item.wt) {
 		DebugMsg("*** TERMINATING EARLY (1)" << endl);
@@ -403,7 +417,7 @@ OmMatch::match(om_doccount first, om_doccount maxitems,
 	    }
 	}    
 
-	PostList *ret = query->next(min_item.wt);
+	PostList *ret = query->next(min_item.wt - max_extra);
         if (ret) {
 	    delete query;
 	    query = ret;
@@ -411,9 +425,9 @@ OmMatch::match(om_doccount first, om_doccount maxitems,
 	    DebugMsg("*** REPLACING ROOT" << endl);
 	    // no need for a full recalc (unless we've got to do one because
 	    // of a prune elsewhere) - we're just switching to a subtree
-	    w_max = query->get_maxweight();
+	    w_max = query->get_maxweight() + max_extra;
 	    DebugMsg("max possible doc weight = " << w_max << endl);
-            AssertParanoid(recalculate_maxweight || fabs(w_max - query->recalc_maxweight()) < 1e-9);
+            AssertParanoid(recalculate_maxweight || fabs(w_max - max_extra - query->recalc_maxweight()) < 1e-9);
 
 	    if (w_max < min_item.wt) {
 		DebugMsg("*** TERMINATING EARLY (2)" << endl);
@@ -425,12 +439,17 @@ OmMatch::match(om_doccount first, om_doccount maxitems,
 
         (*mbound)++;
 	
-        om_weight w = query->get_weight();
+	om_docid did = query->get_docid();
+	// FIXME: next line is inefficient, by design.  (Makes it hard /
+	// impossible to store document lengths in postlists, so they've
+	// already been retrieved)
+        om_weight wt = query->get_weight() +
+		extrawt->get_sumextra(database->get_doclength(did) /
+				      database->get_avlength());
+	OmMSetItem new_item(wt, did);
         
-        if (w > min_item.wt) {
-	    om_docid did = query->get_docid();
+	if(mcmp(new_item, min_item)) {
 	    bool add_item = true;
-	    OmMSetItem new_item(w, did);
 
 	    auto_ptr<OmDocument> irdoc;
 	    
@@ -455,7 +474,9 @@ OmMatch::match(om_doccount first, om_doccount maxitems,
 
 	    if(add_item) {
 		mset.push_back(new_item);
-		if(w > *greatest_wt) *greatest_wt = w;
+
+		// Keep a track of the greatest weight we've seen.
+		if(wt > *greatest_wt) *greatest_wt = wt;
 
 		// FIXME: find balance between larger size for more efficient
 		// nth_element and smaller size for better minimum weight
@@ -503,6 +524,10 @@ OmMatch::match(om_doccount first, om_doccount maxitems,
 	DebugMsg("max weight in mset = " << mset[0].wt <<
 		 ", min weight in mset = " << mset[mset.size() - 1].wt << endl);
     }
+
+    delete extrawt;
+    extrawt = 0;
+
     delete query;
     query = NULL;
 }

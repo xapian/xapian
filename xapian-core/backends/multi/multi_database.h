@@ -52,6 +52,7 @@ class MultiDatabase : public virtual IRDatabase {
 
 	om_doccount  get_doccount() const;
 	om_doclength get_avlength() const;
+	om_doclength get_doclength(om_docid did) const;
 
 	om_doccount get_termfreq(const om_termname & tname) const;
 	bool term_exists(const om_termname & tname) const;
@@ -74,7 +75,6 @@ class MultiDatabase : public virtual IRDatabase {
 inline om_doccount
 MultiDatabase::get_doccount() const
 {
-    // FIXME - lazy evaluation?
     Assert(opened);
     Assert((used = true) == true);
 
@@ -92,7 +92,6 @@ MultiDatabase::get_doccount() const
 inline om_doclength
 MultiDatabase::get_avlength() const
 {
-    // FIXME - lazy evaluation?
     Assert(opened);
     Assert((used = true) == true);
 

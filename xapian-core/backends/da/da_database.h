@@ -265,6 +265,7 @@ class DADatabase : public virtual IRDatabase {
 
 	om_doccount  get_doccount() const;
 	om_doclength get_avlength() const;
+	om_doclength get_doclength(om_docid did) const;
 
 	om_doccount get_termfreq(const om_termname & tname) const;
 	bool term_exists(const om_termname & tname) const;
@@ -293,6 +294,13 @@ DADatabase::get_doccount() const
 
 inline om_doclength
 DADatabase::get_avlength() const
+{
+    Assert(opened);
+    return 1;
+}
+
+inline om_doclength
+DADatabase::get_doclength(om_docid did) const
 {
     Assert(opened);
     return 1;

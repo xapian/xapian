@@ -198,6 +198,7 @@ class InMemoryDatabase : public virtual IRDatabase {
 
 	om_doccount  get_doccount() const;
 	om_doclength get_avlength() const;
+	om_doclength get_doclength(om_docid did) const;
 
 	om_doccount get_termfreq(const om_termname & tname) const;
 	bool term_exists(const om_termname & tname) const;
@@ -205,8 +206,6 @@ class InMemoryDatabase : public virtual IRDatabase {
 	DBPostList * open_post_list(const om_termname & tname, RSet * rset) const;
 	DBTermList * open_term_list(om_docid did) const;
 	OmDocument * open_document(om_docid did) const;
-
-	om_doclength get_doclength(om_docid did) const;
 
 	void make_term(const om_termname & tname);
 	om_docid make_doc(const om_docname & dname);

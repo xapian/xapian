@@ -76,6 +76,13 @@ class OmMatch
 	DBPostList * mk_postlist(const om_termname& tname,
 				 RSet * rset);
 
+	// Make a weight
+	IRWeight * mk_weight(const IRDatabase * root_,
+			     om_doclength querysize_,
+			     om_doccount termfreq_,
+			     om_termname tname_,
+			     const RSet * rset_);
+
 	// Internal method to perform the collapse operation
 	bool perform_collapse(vector<OmMSetItem> &mset,
 			      map<OmKey, OmMSetItem> &collapse_table,

@@ -130,7 +130,8 @@ MultiDatabase::open_term_list(om_docid did) const {
 }
 
 OmDocument *
-MultiDatabase::open_document(om_docid did) const {
+MultiDatabase::open_document(om_docid did) const
+{
     Assert(opened);
     Assert((used = true) == true);
 
@@ -140,6 +141,20 @@ MultiDatabase::open_document(om_docid did) const {
     om_doccount dbnumber = (did - 1) % multiplier;
 
     return (*(databases.begin() + dbnumber))->open_document(realdid);
+}
+
+om_doclength
+MultiDatabase::get_doclength(om_docid did) const
+{
+    Assert(opened);
+    Assert((used = true) == true);
+
+    om_doccount multiplier = databases.size();
+
+    om_docid realdid = (did - 1) / multiplier + 1;
+    om_doccount dbnumber = (did - 1) % multiplier;
+
+    return (*(databases.begin() + dbnumber))->get_doclength(realdid);
 }
 
 bool
