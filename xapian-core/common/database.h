@@ -48,11 +48,6 @@ class PostList {
 	virtual bool   at_end() = 0;        // True if we're off the end of the list
 
         virtual ~PostList() { return; }
-
-        virtual bool operator < (const PostList *x) const
-        {
-	    return get_termfreq() > x->get_termfreq();
-        }
 };
 
 class TermList {
