@@ -30,6 +30,18 @@ if test "x$LIBOMUS_UNINST_EXEC" = "xyes"; then
   AC_MSG_ERROR(--with-libomus-uninst-exec needs path of top dir of libomus build)
 fi
 
+dnl If paths aren't absolute, complain
+case $LIBOMUS_UNINST in
+  /*) : ;;
+  *) AC_MSG_ERROR(Paths specified for libomus must be absolute) ;;
+esac
+case $LIBOMUS_UNINST_EXEC in
+  /*) : ;;
+  *) AC_MSG_ERROR(Paths specified for libomus must be absolute) ;;
+esac
+
+
+
 AC_MSG_CHECKING(for libomus)
 
 if test "x$LIBOMUS_UNINST" = "x"; then
@@ -44,7 +56,7 @@ if test "x$LIBOMUS_UNINST" = "x"; then
     AC_MSG_RESULT(not found)
     ifelse([$2], , :, [$2])
   else
-    if $LIBGLADE_CONFIG --check; then
+    if $LIBOMUS_CONFIG --check; then
       AC_MSG_RESULT(yes)
       LIBOMUS_CFLAGS=`$LIBOMUS_CONFIG --cflags $module_args`
       LIBOMUS_LIBS=`$LIBOMUS_CONFIG --libs $module_args`
