@@ -1030,14 +1030,17 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 		if (!cursor->find_entry(current_key)) {
 		    throw Xapian::DatabaseCorruptError("The key we're working on has disappeared");
 		}
-		while (!cursor->after_end()) {
-		    bufftable->delete_tag(cursor->current_key);
-		    if (islast) break;
-		    // FIXME: faster to always check is_last flag?
+		bufftable->delete_tag(cursor->current_key);
+		if (islast) continue;
+		while (true) {
+		    // FIXME: faster to always check is_last flag?  it would
+		    // save reading one key/tag pair...
 		    cursor->next();
+		    if (cursor->after_end()) break;
 		    const char *kpos = cursor->current_key.data();
 		    const char *kend = kpos + cursor->current_key.size();
 		    if (!check_tname_in_key_lite(&kpos, kend, tname)) break;
+		    bufftable->delete_tag(cursor->current_key);
 		}
 		continue;
 	    }
