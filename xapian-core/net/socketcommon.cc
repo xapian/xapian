@@ -34,6 +34,7 @@
 #include "readquery.h"
 #include "stats.h"
 #include "utils.h"
+#include <om/omenquire.h>
 
 OmQueryInternal qfs_readcompound();
 
@@ -435,4 +436,34 @@ OmLineBuf::writeline(string s)
 
 	s.erase(0, written);
     }
+}
+
+string
+moptions_to_string(const OmMatchOptions &moptions)
+{
+    string result;
+
+    result += inttostring(moptions.do_collapse) + " ";
+    result += inttostring(moptions.collapse_key) + " ";
+    result += inttostring(moptions.sort_forward) + " ";
+    result += inttostring(moptions.percent_cutoff) + " ";
+    result += inttostring(moptions.max_or_terms);
+
+    return result;
+}
+
+OmMatchOptions
+string_to_moptions(const string &s)
+{
+    istrstream is(s.c_str());
+
+    OmMatchOptions mopt;
+
+    is >> mopt.do_collapse
+       >> mopt.collapse_key
+       >> mopt.sort_forward
+       >> mopt.percent_cutoff
+       >> mopt.max_or_terms;
+
+    return mopt;
 }

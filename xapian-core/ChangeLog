@@ -1,3 +1,7 @@
+Tue May 16 12:22:33 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Now pass match options over the net link.  (Untested so far)
+
 Tue May 16 12:06:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Created an OmDatabase object.  This represents a database,

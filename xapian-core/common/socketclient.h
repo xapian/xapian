@@ -72,6 +72,9 @@ class SocketClient : public NetClient {
 	/// The max weight from the remote match
 	om_weight remote_maxweight;
 
+	/// The match options structure
+	OmMatchOptions moptions;
+
 	/// functions which actually do the work
 	string do_read();
 	void do_write(string data);
@@ -119,6 +122,12 @@ class SocketClient : public NetClient {
 
 	/** Get the remote stats */
 	bool get_remote_stats(Stats &out);
+
+	/** Set the match options for this match
+	 *
+	 *  @param moptions_  The match options to use.
+	 */
+	void set_options(const OmMatchOptions &moptions_);
 
 	/** Signal the end of the query specification phase.
 	 *  Returns true if the operation succeeded, or false

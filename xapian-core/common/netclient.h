@@ -77,6 +77,12 @@ class NetClient : public OmRefCntBase {
 	 */
 	virtual bool get_remote_stats(Stats &out) = 0;
 
+	/** Set the options to be used for this query.
+	 *
+	 * @param moptions_ The match options.
+	 */
+	virtual void set_options(const OmMatchOptions &moptions_) = 0;
+
 	/** Signal to the remote end that this is the end of the query
 	 *  specification phase.
 	 */

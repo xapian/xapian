@@ -20,12 +20,13 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_PROGCOMMON_H
-#define OM_HGUARD_PROGCOMMON_H
+#ifndef OM_HGUARD_SOCKETCOMMON_H
+#define OM_HGUARD_SOCKETCOMMON_H
 
 #include <string>
 
 class OmQueryInternal;
+class OmMatchOptions;
 class Stats;
 
 /** The OmLineBuf class implements a two-way line discipline
@@ -80,6 +81,8 @@ class OmLineBuf {
 OmQueryInternal query_from_string(string qs);
 string stats_to_string(const Stats &stats);
 Stats string_to_stats(const string &s);
+string moptions_to_string(const OmMatchOptions &moptions);
+OmMatchOptions string_to_moptions(const string &s);
 OmQueryInternal qfs_readquery();
 
-#endif /* OM_HGUARD_PROGCOMMON_H */
+#endif /* OM_HGUARD_SOCKETCOMMON_H */

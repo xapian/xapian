@@ -101,6 +101,12 @@ SocketClient::set_query(const OmQueryInternal *query_)
     query_string = query_->serialise();
 } 
 
+void
+SocketClient::set_options(const OmMatchOptions &moptions_)
+{
+    moptions = moptions_;
+}
+
 bool
 SocketClient::finish_query()
 {
@@ -109,9 +115,13 @@ SocketClient::finish_query()
 	case state_getquery:
 	    // Message 3 (see README_progprotocol.txt)
 	    {
-		string message = "SETQUERY " +
+		string message;
+
+		message += "MOPTIONS " +
+			moptions_to_string(moptions) + '\n';
+		message += "SETQUERY " +
 		                 wt_string + " \"" +
-		       	         query_string + "\"";
+		       	         query_string + "\"" + '\n';
 		do_write(message);
 	    }
 	    conv_state = state_sentquery;
@@ -221,10 +231,10 @@ SocketClient::send_global_stats(const Stats &stats)
 
 bool
 SocketClient::get_mset(om_doccount first,
-		     om_doccount maxitems,
-		     vector<OmMSetItem> &mset,
-		     om_doccount *mbound,
-		     om_weight *greatest_wt)
+		       om_doccount maxitems,
+		       vector<OmMSetItem> &mset,
+		       om_doccount *mbound,
+		       om_weight *greatest_wt)
 {
     Assert(global_stats_valid);
     Assert(conv_state >= state_getmset);
@@ -238,7 +248,8 @@ SocketClient::get_mset(om_doccount first,
 
 	    // Message 5 (see README_progprotocol.txt)
 	    {
-		string message = "GLOBSTATS " + stats_to_string(global_stats) + '\n';
+		string message = "GLOBSTATS " +
+			stats_to_string(global_stats) + '\n';
 		message += "GETMSET " +
 			    inttostring(first) + " " +
 			    inttostring(maxitems);

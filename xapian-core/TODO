@@ -26,6 +26,8 @@ Priority | Area            | Task
  High    |CDistribution    | Add support for RSets, and any match options
          |                 | which make sense over a net link
 ---------+-----------------+--------------------------------------------------
+ High    |CDistribution    | Add tests for network match options
+---------+-----------------+--------------------------------------------------
  High    |CDistribution    | Make the network server better (multithreaded
          |                 | etc.).
 ---------+-----------------+--------------------------------------------------

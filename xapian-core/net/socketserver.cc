@@ -83,6 +83,20 @@ SocketServer::run()
 	    return;
 	};
 
+	// extract the match options
+	if (message.substr(0, 8) != "MOPTIONS") {
+	    throw OmNetworkError(string("Expected MOPTIONS, got ") + message);
+	}
+
+	{
+	    OmMatchOptions moptions = string_to_moptions(message.substr(10));
+
+	    match.set_options(moptions);
+	}
+
+	// extract the query
+	message = buf.readline();
+
 	if (message.substr(0, 8) != "SETQUERY") {
 	    cerr << "Expected SETQUERY, got " << message << endl;
 	    throw OmNetworkError("Invalid message");
