@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,7 +34,7 @@ using std::list;
 
 class OmStopper {
     public:
-	virtual bool operator()(const om_termname &term) {
+	virtual bool operator()(const om_termname &/*ter*/m) {
 	    return false;
 	}
 };
