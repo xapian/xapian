@@ -1,0 +1,195 @@
+Announcing the version 0.2.0 of Muscat.
+=======================================
+
+This release contains many bugfixes and new features.  We recommend
+upgrading to this version.
+
+
+This release is available from the usual place:
+        http://open.muscat.com/download/index.html
+
+As ever, for the most up-to-date documentation, see our online copy at
+	http://open.muscat.com/developer/index.html
+
+
+API changes:
+
+ * A new OmMatchOption has been added, to allow the user to set a large
+   query, of which only the most important, elite, terms should be used
+   when actually performing the query.
+
+ * A new exception may be thrown by some methods, when performing
+   distributed searching: OmNetworkTimeoutError.
+
+ * Format of sleepycat databases has (incompatibly) changed.  Expect this
+   to keep occurring for the next month or two...
+
+
+And here are the highlights of the new features:
+
+ * Distributed searching is now implemented.  Work remains to be done on:
+
+   i)   Improving efficiency (in particular, the server is single threaded)
+   ii)  Adding ability to use MatchDeciders on remote databases.
+   iii) Improving configurability (especially timeout times).
+
+   In all other aspects, this feature is now complete.  It is all pretty
+   transparent from the users point of view: simply run a set of servers,
+   and open network databases giving their addresses, but has required a
+   lot of work, and a lot of internal reorganisation.
+
+   (Well done Chris, for getting this going!)
+
+ * InMemory databases now don't have indexing hacked into them: they are
+   plain honest writable databases.
+
+ * Many more tests have been added to the test suite.
+
+   Also, the test suite now runs all suitable tests on databases of each
+   type, in turn.  Currently tests inmemory and sleepycat databases, and
+   optionally network databases (which fail one test due to unimplemented
+   functionality).  All other tests pass.
+
+ * Initial work on producing scripting language interfaces (using SWIG).
+   We currently have interfaces to the stemming algorithms from Perl and
+   Python, and as I type Chris is working on extending this to our entire
+   API.
+
+ * Many other things I can't remember: see the ChangeLog...
+
+
+Bugs fixed include:
+
+ * The OmMSet::mbound member will have the maximum value from each of the
+   sub-databases, rather than the value from the first database (which
+   could be far too small).
+
+ * An exception will be thrown if a term of zero length is supplied to the
+   library, rather than mysterious strange behaviour occuring.
+
+ * Sleepycat has been virtually rewritten in order to make it work
+   correctly.
+
+ * Collapse now works correctly across multiple databases.
+
+ * More memory / resource leaks fixed.
+
+
+
+Announcing the version 0.1.3 of Muscat.
+=======================================
+
+This is mainly a bugfix release: we suggest upgrading to this version.
+
+
+This release is available from the usual place:
+        http://open.muscat.com/download/index.html
+
+As ever, for the most up-to-date documentation, see our online copy at
+	http://open.muscat.com/developer/index.html
+
+
+The bugs fixed are:
+
+ * MultiMatch was failing to return the correct document ID's: this was
+   causing searches across multiple databases to return effectively useless
+   results.
+
+ * Memory leaks in DA / DB databases.
+
+ * Memory leaks in OmQuery constructor.
+
+ * Miscellaneous other memory leaks.
+
+
+There's been a minor API change, concerning the database writing API.
+
+ * OmDocumentContents now contains OmData and a set of OmKey objects, rather
+   than strings.  Added constructors to OmData and OmKey.
+
+
+There have been several other changes:
+
+ * More work on the distributed searching.
+
+ * Termlists are now implemented for the sleepycat stuff - expand now works.
+
+ * PostingLists can now return a PositionList, containing the locations at
+   which a posting occurs within a document.  This is implemented for
+   sleepycat.
+
+ * Parameter checks when opening databases now throw
+   OmInvalidArgumentError exceptions, rather than just being Asserts.
+
+ * Test suite now attempts to detect memory leaks.
+
+ * More tests in the test suite, and fixes to code.
+
+ * Test suite now passes all tests.
+
+
+
+Announcing the version 0.1.2 of Muscat.
+=======================================
+
+It's been a month since the last release, and a lot has happened since
+then.  We've been to a conference (the BCS IRSG), got a prototype 
+of distributed searching working, written a writable database,
+and improved the documentation a great deal.
+
+In particular, we've now got a "QuickStart" guide, leading you through
+some simple examples of how to use Muscat.
+
+
+This release is available from the usual place:
+        http://open.muscat.com/download/index.html
+
+As ever, for the most up-to-date documentation, see our online copy at
+	http://open.muscat.com/developer/index.html
+
+
+There have been a couple of API changes, the first one of which is
+backwards INCOMPATIBLE.
+
+ * OmDatabase has been renamed to OmDatabaseGroup.  After all, that's what
+   it actually is...
+
+ * New classes/structs (OmWritableDatabase, OmDocumentContents and
+   OmDocumentTerm) have been added to the API, for writing to databases.
+   Note that this part of the API should be considered experimental: we'll
+   no doubt be changing it somewhat in the coming weeks.
+
+
+There have been lots of other changes:
+
+ * Created an API for writing to databases (centered around the
+   new OmWritableDatabase class).
+
+ * Implemented sleepycat backend, enough to perform queries.  There are
+   still significant amounts of work to do on this, (regarding collection
+   statistics, termlists, and keys), but the fundamental operations
+   needed to support retrieval are there.  This is the first writable
+   database!
+
+ * Greatly improved documentation: especially see the quickstart guide, at
+   docs/quickstart.html in the om package, or online at
+   http://open.muscat.com/developer/docs/quickstart.html
+
+ * Added many documentation comments throughout the code, and started using
+   Doxygen to generate documentation instead of doc++.
+
+ * Reworked the weighting schemes to allow easier plugging in of new schemes.
+   Made the pure boolean queries simply use a different weighting scheme,
+   fixing the reversebool test failures and removing significant amounts of
+   duplicated code.
+
+ * Many internal changes to allow distributed searching, and to clean up
+   the code.  Further implementation of distributed searching: we now have
+   a functioning prototype.
+
+ * Fixes to the Autoconf macro for finding the Muscat library.
+
+ * Various bug fixes, including one for a bug causing a segfault when
+   searching for terms not present in the database.
+
+ * Test suite now passes all tests.

@@ -1,7 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
-
 noinst_HEADERS = \
  omassert.h \
  database_builder.h database.h termlist.h postlist.h \

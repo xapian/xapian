@@ -4,8 +4,6 @@ DOCPP = @DOCPP_PATH@
 DVIPS = @DVIPS_PATH@
 LATEX = @LATEX_PATH@
 
-AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
-
 HTMLFILES = index.html intro.html intro_ir.html userman.html \
         stemming.html porterstem.html using_stemmers.html quickstart.html
 

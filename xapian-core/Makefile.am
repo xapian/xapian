@@ -1,7 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
-
 # Order is relvant: when building, tests must be at end
 # When installing, should install script and m4 stuff last, in case of failure
 SUBDIRS = testsuite autoconf include common \

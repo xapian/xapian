@@ -1,7 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
-
 INCLUDES = -I$(top_srcdir)/include
 
 SWIG_INCLUDES = $(INCLUDES) -I$(top_srcdir)/bindings/swig/
