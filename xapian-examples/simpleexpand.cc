@@ -40,10 +40,7 @@ int main(int argc, char *argv[])
     // Catch any OmError exceptions thrown
     try {
 	// Make the database
-	OmSettings settings;
-	settings.set("backend", "auto");
-	settings.set("auto_dir", argv[1]);
-	OmDatabase db(settings);
+	OmDatabase db(OmAuto__open(argv[1]));
 
 	// Start an enquire session
 	OmEnquire enquire(db);
@@ -110,8 +107,7 @@ int main(int argc, char *argv[])
 	    cout << "Term `" << *k << "'\t "
 		 << "(weight " << k.get_weight() << ")" << endl;
 	}
-    }
-    catch (const OmError &error) {
+    } catch (const OmError &error) {
 	cout << "Exception: "  << error.get_msg() << endl;
     }
 }

@@ -66,18 +66,11 @@ main(int argc, char **argv)
 	}
 
 	// Create the destination database
-	OmSettings dest_settings;
-	dest_settings.set("backend", "auto");
-	dest_settings.set("database_create", true);
-	dest_settings.set("auto_dir", dest);
-	OmWritableDatabase dest_database(dest_settings);
+	OmWritableDatabase dest_database(OmAuto__open(dest, OM_DB_CREATE));
 
 	for (int i = 1; i < argc - 1; ++i) {
 	    // Open the source database
-	    OmSettings src_settings;
-	    src_settings.set("backend", "auto");
-	    src_settings.set("auto_dir", argv[i]);
-	    OmDatabase src_database(src_settings);
+	    OmDatabase src_database(OmAuto__open(argv[i]));
 
 	    // Copy each document across
 
@@ -101,8 +94,7 @@ main(int argc, char **argv)
 	    }
 	    cout << '\r' << argv[i] << ": Done                  " << endl;
 	}
-    }
-    catch (const OmError &error) {
+    } catch (const OmError &error) {
 	cerr << argv[0] << ": " << error.get_msg() << endl;
 	exit(1);
     }

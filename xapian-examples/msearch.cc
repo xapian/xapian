@@ -42,7 +42,6 @@ main(int argc, char *argv[])
     int msize = 10;
     int mfirst = 0;
     OmRSet rset;
-    vector<OmSettings *> dbs;
     bool showmset = true;
     bool applystem = false;
     OmQuery::op default_op = OmQuery::OP_OR;
@@ -69,94 +68,82 @@ main(int argc, char *argv[])
 	{NULL,			0, 0, 0}
     };
 
-    int c;
-    while ((c = getopt_long(argc, argv, "", opts, NULL)) != EOF) {
-	switch (c) {
-	    case 'c':
-		msize = atoi(optarg);
-		break;
-	    case 'f':
-		mfirst = atoi(optarg);
-		break;
-	    case 'k':
-		collapse_key = atoi(optarg);
-		break;
-	    case 'r': {
-		OmSettings *params = new OmSettings;
-		params->set("backend", "remote");
-		params->set("remote_type", "tcp");
-		char *p = strchr(optarg, ':');
-		if (p) {
-		    *p = '\0';
-		    params->set("remote_server", optarg);
-		    params->set("remote_port", p + 1);
-		    dbs.push_back(params);
-		} else {
-		    syntax_error = true;
-		}
-		break;
-	    }
-	    case 'd': {
-		OmSettings *params = new OmSettings;
-		params->set("backend", "auto");
-		params->set("auto_dir", optarg);
-		dbs.push_back(params);
-		break;
-	    }
-	    case 's':
-		applystem = true;
-		break;
-	    case 'S':
-		applystem = false;
-		break;
-	    case 'm':
-		showmset = true;
-		break;
-	    case 'M':
-		showmset = false;
-		break;
-	    case 'a':
-		default_op = OmQuery::OP_AND;
-		break;
-	    case 'R':
-		rset.add_document(atoi(optarg));
-		break;
-	    case 'V':
-		sort_value = atoi(optarg);
-		break;
-	    case 'b':
-		sort_bands = atoi(optarg);
-		break;
-	    default:
-		syntax_error = true;
-	}
-    }
-	
-    if (syntax_error || dbs.empty() || argv[optind] == NULL) {
-	cout << "Syntax: " << argv[0] << " [OPTIONS] TERM...\n" <<
-		"\t--msize <msize>\n" <<
-		"\t--mfirst <first mitem to return>\n" <<
-		"\t--key <key to collapse mset on>\n" <<
-		"\t--dbdir DIRECTORY\n" <<
-		"\t--remote SERVER:PORT\n" <<
-		"\t--rel DOCID\n" <<
-		"\t--showmset (default)\n" <<
-		"\t--hidemset\n" <<
-		"\t--matchall\n" <<
-		"\t--stem\n" <<
-		"\t--sortvalue <value to sort by>\n" <<
-		"\t--sortbands <number of percentage bands to sort into>\n" <<
-		"\t--nostem (default)\n";
-	exit(1);
-    }
-
     try {
         OmDatabase mydbs;
 
-	vector<OmSettings *>::const_iterator p;
-	for (p = dbs.begin(); p != dbs.end(); p++) {
-	    mydbs.add_database(**p);
-	    delete *p;
+	int n_dbs = 0;
+	int c;
+	while ((c = getopt_long(argc, argv, "", opts, NULL)) != EOF) {
+	    switch (c) {
+		case 'c':
+		    msize = atoi(optarg);
+		    break;
+		case 'f':
+		    mfirst = atoi(optarg);
+		    break;
+		case 'k':
+		    collapse_key = atoi(optarg);
+		    break;
+		case 'r': {
+		    char *p = strchr(optarg, ':');
+		    if (p) {
+			*p = '\0';
+			mydbs.add_database(OmRemote__open(optarg, atoi(p + 1)));
+			++n_dbs;
+		    } else {
+			syntax_error = true;
+		    }
+		    break;
+		}
+		case 'd':
+		    mydbs.add_database(OmAuto__open(optarg));
+		    ++n_dbs;
+		    break;
+		case 's':
+		    applystem = true;
+		    break;
+		case 'S':
+		    applystem = false;
+		    break;
+		case 'm':
+		    showmset = true;
+		    break;
+		case 'M':
+		    showmset = false;
+		    break;
+		case 'a':
+		    default_op = OmQuery::OP_AND;
+		    break;
+		case 'R':
+		    rset.add_document(atoi(optarg));
+		    break;
+		case 'V':
+		    sort_value = atoi(optarg);
+		    break;
+		case 'b':
+		    sort_bands = atoi(optarg);
+		    break;
+		default:
+		    syntax_error = true;
+	    }
+	}
+	    
+	if (syntax_error || n_dbs == 0 || argv[optind] == NULL) {
+	    cout << "Syntax: " << argv[0] << " [OPTIONS] TERM...\n" <<
+		    "\t--msize <msize>\n" <<
+		    "\t--mfirst <first mitem to return>\n" <<
+		    "\t--key <key to collapse mset on>\n" <<
+		    "\t--dbdir DIRECTORY\n" <<
+		    "\t--remote SERVER:PORT\n" <<
+		    "\t--rel DOCID\n" <<
+		    "\t--showmset (default)\n" <<
+		    "\t--hidemset\n" <<
+		    "\t--matchall\n" <<
+		    "\t--stem\n" <<
+		    "\t--sortvalue <value to sort by>\n" <<
+		    "\t--sortbands <number of percentage bands to sort into>\n" <<
+		    "\t--nostem (default)\n";
+	    exit(1);
 	}
 
 	OmEnquire enquire(mydbs);
@@ -274,8 +261,7 @@ main(int argc, char *argv[])
 	    }
 	    cout << endl;
 	}
-    }
-    catch (const OmError &e) {
+    } catch (const OmError &e) {
 	cout << e.get_msg() << endl;
     }
 }

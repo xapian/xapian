@@ -1,3 +1,9 @@
+Wed Dec 04 18:05:34 GMT 2002  Olly Betts <olly@survex.com>
+
+	* copydatabase.cc,createdatabase.cc,delve.cc,msearch.cc,
+	  simpleexpand.cc,simpleindex.cc,simplesearch.cc: Updated in line
+	  with OmSettings related changes to the API.
+
 Wed Nov 27 05:10:44 GMT 2002  Olly Betts <olly@survex.com>
 
 	* simpleindex.cc: "const static ..." -> "static const ..."

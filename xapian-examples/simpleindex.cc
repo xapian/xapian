@@ -71,15 +71,11 @@ int main(int argc, char *argv[])
 	exit(1);
     }
 
-    OmWritableDatabase *database;
+    OmWritableDatabase database;
     try {
 	// Open the database
-	OmSettings settings;
-	settings.set("backend", "auto");
-	settings.set("auto_dir", argv[1]);
-	database = new OmWritableDatabase(settings);
-    }
-    catch (const OmError &error) {
+	database = OmAuto__open(argv[1], OM_DB_OPEN);
+    } catch (const OmError &error) {
 	cerr << "Exception: "  << error.get_msg() << endl;
 	exit(1);
     }
@@ -114,7 +110,7 @@ int main(int argc, char *argv[])
 		    }
 
 		    // Add the document to the database
-		    database->add_document(doc);
+		    database.add_document(doc);
 		}
 		catch (const OmError &error) {
 		    cerr << "Exception: "  << error.get_msg() << endl;
@@ -125,6 +121,4 @@ int main(int argc, char *argv[])
 	}
 	para += line;
     }
-    delete database;
-    return 0;
 }

@@ -62,13 +62,8 @@ main(int argc, char **argv)
 	}
 
 	// Create the database
-	OmSettings settings;
-	settings.set("backend", "auto");
-	settings.set("database_create", true);
-	settings.set("auto_dir", argv[1]);
-	OmWritableDatabase database(settings);
-    }
-    catch (const OmError &error) {
+	OmWritableDatabase database(OmAuto__open(argv[1], OM_DB_CREATE));
+    } catch (const OmError &error) {
 	cerr << argv[0] << ": " << error.get_msg() << endl;
 	exit(1);
     }

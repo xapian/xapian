@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +33,7 @@
 using std::string;
 using std::cout;
 using std::endl;
+using std::vector;
 
 static char separator = ' ';
 
@@ -76,8 +78,8 @@ show_values(OmDatabase &db, om_docid docid, char sep)
 
 static void
 show_values(OmDatabase &db,
-	    std::vector<om_docid>::const_iterator i,
-	    std::vector<om_docid>::const_iterator end)
+	    vector<om_docid>::const_iterator i,
+	    vector<om_docid>::const_iterator end)
 {
     while (i != end) {
 	cout << "Values for record #" << *i << ':';
@@ -95,8 +97,8 @@ show_docdata(OmDatabase &db, om_docid docid, char sep)
 
 static void
 show_docdata(OmDatabase &db,
-	     std::vector<om_docid>::const_iterator i,
-	     std::vector<om_docid>::const_iterator end)
+	     vector<om_docid>::const_iterator i,
+	     vector<om_docid>::const_iterator end)
 {
     while (i != end) {
 	cout << "Data for record #" << *i << ':' << endl;
@@ -106,8 +108,8 @@ show_docdata(OmDatabase &db,
 }
 
 static void
-show_termlists(OmDatabase &db, std::vector<om_docid>::const_iterator i,
-	       std::vector<om_docid>::const_iterator end)
+show_termlists(OmDatabase &db, vector<om_docid>::const_iterator i,
+	       vector<om_docid>::const_iterator end)
 {
     // Display termlists
     while (i != end) {
@@ -129,9 +131,9 @@ show_termlists(OmDatabase &db, std::vector<om_docid>::const_iterator i,
 int
 main(int argc, char *argv[])
 {
-    std::vector<om_docid> recnos;
-    std::vector<om_termname> terms;
-    std::vector<string> dbs;
+    vector<om_docid> recnos;
+    vector<om_termname> terms;
+    vector<string> dbs;
 
     int c;
     while ((c = getopt(argc, argv, "r:t:1vkd")) != EOF) {
@@ -167,15 +169,11 @@ main(int argc, char *argv[])
     
     OmDatabase db;
     try {
-	std::vector<string>::const_iterator i;
+	vector<string>::const_iterator i;
 	for (i = dbs.begin(); i != dbs.end(); i++) {
-	    OmSettings params;
-	    params.set("backend", "auto");
-	    params.set("auto_dir", *i);
-	    db.add_database(params);
+	    db.add_database(OmAuto__open(*i));
 	}
-    }
-    catch (const OmError &e) {
+    } catch (const OmError &e) {
 	cout << "Error opening database: " << e.get_msg() << endl;
 	return 1;
     }
@@ -199,7 +197,7 @@ main(int argc, char *argv[])
 	    return 0;
 	}
 
-	std::vector<om_termname>::const_iterator i;
+	vector<om_termname>::const_iterator i;
 	for (i = terms.begin(); i != terms.end(); i++) {
 	    om_termname term = *i;
 	    OmStem stemmer("english");
@@ -230,7 +228,7 @@ main(int argc, char *argv[])
 		cout << endl;
 	    } else {
 		// Display position lists
-		std::vector<om_docid>::const_iterator j;
+		vector<om_docid>::const_iterator j;
 		for (j = recnos.begin(); j != recnos.end(); j++) {
 		    p.skip_to(*j);
 		    if (p == pend || *p != *j) {
@@ -254,8 +252,7 @@ main(int argc, char *argv[])
 		}
 	    }
 	}
-    }
-    catch (const OmError &e) {
+    } catch (const OmError &e) {
 	cout << "Error: " << e.get_msg() << endl;
 	return 1;
     }
