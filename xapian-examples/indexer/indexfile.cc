@@ -24,8 +24,7 @@
 
 int main(int argc, char *argv[])
 {
-    // Simplest possible options parsing: we just require three or more
-    // parameters.
+    // Simplest possible options parsing: we just require two parameters.
     if(argc != 3) {
 	cout << "usage: " << argv[0] <<
 		" <path to database> <file to index>" << endl;

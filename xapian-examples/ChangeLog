@@ -1,3 +1,7 @@
+Wed Nov 22 16:05:01 GMT 2000 Olly Betts
+
+	* Corrected a comment.
+
 Wed Nov 22 13:07:59 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Change examples to use quartz rather than sleepycat.
