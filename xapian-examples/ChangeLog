@@ -1,3 +1,8 @@
+Thu Jul 17 01:41:14 BST 2003  Olly Betts <olly@survex.com>
+
+	* acinclude.m4: Removed - we no longer need the GTK macros, and should
+	  get OM_PATH_XAPIAN from xapian.m4.
+
 Thu Jul 17 00:49:43 BST 2003  Olly Betts <olly@survex.com>
 
 	* bootstrap: Removed bootstrap in favour of top-level bootstrap.
