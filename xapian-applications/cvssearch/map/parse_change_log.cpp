@@ -24,11 +24,11 @@ void parse_change_log (const string & module, const string & cvs2cl_path, cvs_db
     FILE *fin = fopen(slogfile.c_str(), "r");
     FILE *fout= fopen(sxmlfile.c_str(), "w");
     
-    const int bits = ~0x2F;
+    const int bits = ~0x1F;
     int ch;
     // ----------------------------------------
     // retain all \n, \t, and iso-8859-1 
-    // characters (> 0x2F)
+    // characters (> 0x1F)
     // ----------------------------------------
     while ((ch = getc(fin)) != EOF) {
         if (0) {
