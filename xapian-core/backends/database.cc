@@ -253,18 +253,12 @@ Auto::open(const string &path, int action)
 ///////////////////////////////////////////////////////////////////////////////
 
 Database::Internal::Internal()
-	: session_in_progress(false),
-	  transaction_in_progress(false)
+	: transaction_in_progress(false)
 {
 }
 
 Database::Internal::~Internal()
 {
-    // Can't end_session() here because derived class destructors have already
-    // run, and the derived classes therefore don't exist.  Thus, the
-    // derived classes have responsibility for ending outstanding sessions
-    // (by calling internal_end_session()):  let's check they did their job.
-    Assert(!session_in_progress);
 }
 
 void
@@ -273,52 +267,34 @@ Database::Internal::keep_alive() const
     // For the normal case of local databases, nothing needs to be done.
 }
 
-void
-Database::Internal::ensure_session_in_progress()
-{
-    if (!session_in_progress) {
-	do_begin_session();
-	session_in_progress = true;
-    }
-}
-
+// Discard any exceptions - we're called from the destructors of derived
+// classes so we can't safely throw.
 void
 Database::Internal::internal_end_session()
 {
-    if (!session_in_progress) return;
-
     if (transaction_in_progress) {
 	try {
 	    transaction_in_progress = false;
 	    do_cancel_transaction();
 	} catch (...) {
-	    session_in_progress = false;
-	    try {
-		do_end_session();
-	    } catch (...) {
-		// Discard exception - we want to re-throw the first error
-		// which occured
-	    }
-	    throw;
 	}
     }
 
-    session_in_progress = false;
-    do_end_session();
+    try {
+	do_flush();
+    } catch (...) {
+    }
 }
 
 void
 Database::Internal::flush()
 {
-    if (session_in_progress) {
-	do_flush();
-    }
+    do_flush();
 }
 
 void
 Database::Internal::begin_transaction()
 {
-    ensure_session_in_progress();
     if (transaction_in_progress)
 	throw InvalidOperationError("Cannot begin transaction - transaction already in progress");
     do_begin_transaction();
@@ -331,7 +307,6 @@ Database::Internal::commit_transaction()
     if (!transaction_in_progress)
 	throw InvalidOperationError("Cannot commit transaction - no transaction currently in progress");
     transaction_in_progress = false;
-    Assert(session_in_progress);
     do_commit_transaction();
 }
 
@@ -341,28 +316,24 @@ Database::Internal::cancel_transaction()
     if (!transaction_in_progress)
 	throw InvalidOperationError("Cannot cancel transaction - no transaction currently in progress");
     transaction_in_progress = false;
-    Assert(session_in_progress);
     do_cancel_transaction();
 }
 
 Xapian::docid
 Database::Internal::add_document(const Xapian::Document & document)
 {
-    ensure_session_in_progress();
     return do_add_document(document);
 }
 
 void
 Database::Internal::delete_document(Xapian::docid did)
 {
-    ensure_session_in_progress();
     do_delete_document(did);
 }
 
 void
 Database::Internal::replace_document(Xapian::docid did, const Xapian::Document & document)
 {
-    ensure_session_in_progress();
     do_replace_document(did, document);
 }
 

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -199,13 +199,7 @@ DBDatabase::DBDatabase(const string &filename, const string &filename_v,
 
 DBDatabase::~DBDatabase()
 {
-    try {
-	internal_end_session();
-    } catch (...) {
-	// Ignore any exceptions, since we may be being called due to an
-	// exception anyway.  internal_end_session() should have already
-	// been called, in the normal course of events.
-    }
+    internal_end_session();
 
     if (valuefile != 0) {
 	fclose(valuefile);

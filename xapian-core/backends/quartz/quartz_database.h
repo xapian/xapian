@@ -52,8 +52,6 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	//@{
 	/** Implementation of virtual methods: see Database for details.
 	 */
-	virtual void do_begin_session();
-	virtual void do_end_session();
 	virtual void do_flush();
 
 	virtual void do_begin_transaction();
@@ -149,8 +147,6 @@ class QuartzWritableDatabase : public Xapian::Database::Internal {
 	//@{
 	/** Implementation of virtual methods: see Database for details.
 	 */
-	virtual void do_begin_session();
-	virtual void do_end_session();
 	virtual void do_flush();
 
 	void do_flush_const() const;

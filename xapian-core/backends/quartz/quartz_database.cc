@@ -64,27 +64,7 @@ QuartzDatabase::QuartzDatabase(AutoPtr<QuartzTableManager> tables_)
 QuartzDatabase::~QuartzDatabase()
 {
     DEBUGCALL(DB, void, "~QuartzDatabase", "");
-    try {
-	internal_end_session();
-    } catch (...) {
-	// Ignore any exceptions, since we may be being called due to an
-	// exception anyway.  internal_end_session() should have already
-	// been called, in the normal course of events.
-	DEBUGLINE(DB, "Ignoring exception in QuartzDatabase destructor.");
-    }
 }
-
-void
-QuartzDatabase::do_begin_session()
-{
-    DEBUGCALL(DB, void, "QuartzDatabase::do_begin_session", "");
-    throw Xapian::InvalidOperationError(
-	"Cannot begin a modification session: database opened readonly.");
-}
-
-void
-QuartzDatabase::do_end_session()
-{ Assert(false); }
 
 void
 QuartzDatabase::do_flush()
@@ -289,42 +269,13 @@ QuartzWritableDatabase::QuartzWritableDatabase(const string &dir, int action,
 
 QuartzWritableDatabase::~QuartzWritableDatabase()
 {
-    DEBUGCALL(DB, void, "~QuartzWritableDatabase", "");
-    // FIXME - release write lock if held
-    try {
-	internal_end_session();
-    } catch (...) {
-	// Ignore any exceptions, since we may be being called due to an
-	// exception anyway.  internal_end_session() should have already
-	// been called, in the normal course of events.
-	DEBUGLINE(DB, "Ignoring exception in QuartzWritableDatabase destructor.");
-    }
-}
-
-void
-QuartzWritableDatabase::do_begin_session()
-{
-    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_begin_session", "");
-    Assert(buffered_tables != 0);
-
-    // FIXME - get a write lock on the database
-}
-
-void
-QuartzWritableDatabase::do_end_session()
-{
-    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_end_session", "");
-    Assert(buffered_tables != 0);
-
-    do_flush();
-
-    // FIXME - release write lock on the database (even if an apply() throws)
+    internal_end_session();
 }
 
 void
 QuartzWritableDatabase::do_flush()
 {
-    return do_flush_const();
+    if (changes_made) do_flush_const();
 }
 
 void

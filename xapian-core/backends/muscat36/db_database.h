@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -309,51 +309,34 @@ class DBDatabase : public Xapian::Database::Internal {
 
 	//@{
 	/** DBDatabase is a readonly database type, and thus this method is
-	 *  not supported: if called an exception will be thrown.
+	 *  not supported.
 	 */
-	void do_begin_session() {
-	    throw Xapian::UnimplementedError(
-		"DBDatabase::begin_session() not implemented: readonly database type");
-	}
-
-	void do_end_session() {
-	    throw Xapian::UnimplementedError(
-		"DBDatabase::do_end_session() not implemented: readonly database type");
-	}
-
 	void do_flush() {
-	    throw Xapian::UnimplementedError(
-		"DBDatabase::flush() not implemented: readonly database type");
+	    Assert(false);
 	}
 
 	void do_begin_transaction() {
-	    throw Xapian::UnimplementedError(
-		"DBDatabase::begin_transaction() not implemented: readonly database type");
+	    Assert(false);
 	}
 
 	void do_commit_transaction() {
-	    throw Xapian::UnimplementedError(
-		"DBDatabase::commit_transaction() not implemented: readonly database type");
+	    Assert(false);
 	}
 
 	void do_cancel_transaction() {
-	    throw Xapian::UnimplementedError(
-		"DBDatabase::cancel_transaction() not implemented: readonly database type");
+	    Assert(false);
 	}
 
 	Xapian::docid do_add_document(const Xapian::Document & /*document*/) {
-	    throw Xapian::UnimplementedError(
-		"DBDatabase::add_document() not implemented: readonly database type");
+	    Assert(false);
 	}
 
 	void do_delete_document(Xapian::docid /*did*/) {
-	    throw Xapian::UnimplementedError(
-		"DBDatabase::delete_document() not implemented: readonly database type");
+	    Assert(false);
 	}
 
 	void do_replace_document(Xapian::docid /*did*/, const Xapian::Document & /*document*/) {
-	    throw Xapian::UnimplementedError(
-		"DBDatabase::replace_document() not implemented: readonly database type");
+	    Assert(false);
 	}
 
 	//@}

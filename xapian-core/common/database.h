@@ -64,12 +64,6 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	/// Flag recording whether a transaction is in progress
 	bool transaction_in_progress;
 	
-	/// Virtual method to begin a session.
-	virtual void do_begin_session() = 0;
-
-	/// Virtual method to end a session.
-	virtual void do_end_session() = 0;
-
 	/// Virtual method providing implementation of flush();
 	virtual void do_flush() = 0;
 
