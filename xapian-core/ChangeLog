@@ -1,3 +1,9 @@
+Tue Apr 29 01:06:02 BST 2003  Olly Betts <olly@survex.com>
+
+	* xapian.spec.in: Removed %changelog - it hasn't been reliably updated
+	  and only really makes sense when the packaging is done by a third
+	  party anyway.
+
 Tue Apr 29 01:03:20 BST 2003  Fabrice Colin
 
 	* xapian.spec.in: Fixed packaging of docs.

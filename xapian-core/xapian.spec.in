@@ -84,13 +84,3 @@ install -D -m755 backends/quartz/.libs/quartzcompact %{buildroot}%{_bindir}/quar
 %{_libdir}/libxapian.la
 /usr/share/aclocal/xapian.m4
 %doc /usr/share/doc/%{name}-devel-%{version}
-
-%changelog
-* Wed Apr 09 2003  Olly Betts <olly@survex.com>
-  Further tweaking, partly based on comments from Sam Liddicott
-
-* Mon Mar 31 2003  Olly Betts <olly@survex.com>
-  Merged in changes from Fabrice Colin
-
-* Wed May 14 2002  Sam Liddicott <sam@ananova.com>
-  Based on a Redhat php .spec file
