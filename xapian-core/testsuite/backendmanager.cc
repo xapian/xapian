@@ -365,8 +365,8 @@ BackendManager::do_getdb_quartz(const vector<string> &dbnames, bool writable)
     create_dir_if_needed(parent_dir);
 
     string dbdir = parent_dir + "/db";
-    // add 'w' to distinguish readonly dbs (which can be reused) from
-    // writable ones (which need to be recreated on each use)
+    // add 'w' to distinguish writable dbs (which need to be recreated on each
+    // use) from readonly ones (which can be reused)
     if (writable) dbdir += 'w';
     for (vector<string>::const_iterator i = dbnames.begin();
 	 i != dbnames.end();
