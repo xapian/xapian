@@ -2,8 +2,6 @@
 
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
-SUBDIRS = da sleepy textfile multi .
-
 INCLUDES = -I$(top_srcdir)/include
 
 noinst_HEADERS =
@@ -12,7 +10,35 @@ noinst_LTLIBRARIES = libbackend.la
 
 libbackend_la_SOURCES = database_factory.cpp
 
-libbackend_la_LIBADD = da/libda.la \
- sleepy/libsleepy.la \
- multi/libmulti.la \
- textfile/libtextfile.la
+# Define backend libraries to include.  To add a new one:
+# i)   Add lines to configure.in to define the automake conditional
+#      "BUILD_BACKEND_NEWONE"
+# ii)  Add lines below to define BUILDSUBDIR_NEWONE and LIBADD_NEWONE
+# iii) Add $(BUILDSUBDIR_NEWONE) and $(LIBADD_NEWONE) to the definitions
+#      of SUBDIRS and libbackend_la_LIBADD at the bottom of this file
+# iv)  Write the library
+
+if BUILD_BACKEND_DA
+BUILDSUBDIR_DA = da
+LIBADD_DA = da/libda.la
+endif
+
+if BUILD_BACKEND_SLEEPY
+BUILDSUBDIR_SLEEPY += sleepy
+LIBADD_SLEEPY += sleepy/libsleepy.la
+endif
+
+if BUILD_BACKEND_TEXTFILE
+BUILDSUBDIR_TEXTFILE += textfile
+LIBADD_TEXTFILE += textfile/libtextfile.la
+endif
+
+if BUILD_BACKEND_MULTI
+BUILDSUBDIR_MULTI += multi
+LIBADD_MULTI += multi/libmulti.la
+endif
+
+SUBDIRS = $(BUILDSUBDIR_DA) $(BUILDSUBDIR_SLEEPY) \
+          $(BUILDSUBDIR_TEXTFILE) $(BUILDSUBDIR_MULTI) .
+libbackend_la_LIBADD = $(LIBADD_DA) $(LIBADD_SLEEPY) \
+          $(LIBADD_TEXTFILE) $(LIBADD_MULTI)
