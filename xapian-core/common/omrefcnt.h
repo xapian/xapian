@@ -104,7 +104,7 @@ class OmRefCntPtr {
 	 *
 	 *  Only class T, ie the class being ref count pointed,  
 	 */
-	OmRefCntPtr(OmRefCntPtr::BypassRefStart, T *dest_ = 0);
+	OmRefCntPtr(OmRefCntPtr::BypassRefStart, T *dest_);
     public:
 	T *operator->() const;
 	T &operator*() const;
