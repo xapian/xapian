@@ -160,7 +160,7 @@ sub cvsstat {
                 
                 my $pwd = `pwd`;
                 chomp $pwd;
-                my ($entries, $authors, $cvs_words) = get_cvs_stat($pwd, "$cvsdata/$root/src", $app_path);
+                my ($entries, $authors, $cvs_words) = &cvssearch::get_cvs_stat($pwd, "$cvsdata/$root/src", $app_path);
                 
                 open(LIST, "<$list_file") || die "cannot read temporary file $list_file: $!\n";
                 while (<LIST>) {
@@ -201,41 +201,3 @@ EOF
 exit 0;
 }
 
-sub get_cvs_stat {
-    my ($pwd, $path, $pkg) = @_;
-    my $get_msg = 0;
-    my $entries;
-    my %authors;
-    my @authors;
-    my $word_count;
-
-    if ($pkg ne "") {
-        chdir $path || die "cannot change directory to $path: $!";
-        open (ChangeLog, "$pwd/cvs2cl --stdout --xml $pkg |");
-        while (<ChangeLog>){ 
-            chomp;
-            my $line = $_;
-            if (0) {
-            } elsif (/<msg>(.*)<\/msg>/) {
-                my @words = split(/\s/, $1);
-                $word_count += $#words;
-            } elsif (/<msg>/) {
-                $get_msg = 1;
-            } elsif (/<\/msg>/) {
-                $get_msg = 0;
-            } elsif ($get_msg) {
-                my @words = split(/\s/);
-                $word_count += $#words;
-            } elsif (m/<entry>/) {
-                $entries++;
-            } elsif (m/<author>(.*)<\/author>/) {
-                $authors{$1}= 1;
-            }
-        }
-        
-        close (ChangeLog);
-        chdir $pwd || die "cannot change directory to $pwd: $!";
-        @authors = keys %authors;
-    }
-    return ($entries, $#authors, $word_count);
-}

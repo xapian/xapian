@@ -271,4 +271,44 @@ sub get_color {
     return $output;
 }
 
+sub get_cvs_stat {
+    my ($pwd, $path, $pkg) = @_;
+    my $get_msg = 0;
+    my $entries;
+    my %authors;
+    my @authors;
+    my $word_count;
+
+    if ($pkg ne "") {
+        chdir $path || die "cannot change directory to $path: $!";
+        open (ChangeLog, "$pwd/cvs2cl --stdout --xml $pkg |");
+        while (<ChangeLog>){ 
+            chomp;
+            my $line = $_;
+            if (0) {
+            } elsif (/<msg>(.*)<\/msg>/) {
+                my @words = split(/\s/, $1);
+                $word_count += $#words;
+            } elsif (/<msg>/) {
+                $get_msg = 1;
+            } elsif (/<\/msg>/) {
+                $get_msg = 0;
+            } elsif ($get_msg) {
+                my @words = split(/\s/);
+                $word_count += $#words;
+            } elsif (m/<entry>/) {
+                $entries++;
+            } elsif (m/<author>(.*)<\/author>/) {
+                $authors{$1}= 1;
+            }
+        }
+        
+        close (ChangeLog);
+        chdir $pwd || die "cannot change directory to $pwd: $!";
+        @authors = keys %authors;
+    }
+    return ($entries, $#authors, $word_count);
+}
+
 return 1;
+
