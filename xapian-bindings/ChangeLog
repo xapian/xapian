@@ -1,3 +1,7 @@
+Wed Dec 01 05:54:45 GMT 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/examples/simpleindex.tcl: Tweaked to actually work.
+
 Wed Dec 01 05:18:18 GMT 2004  Olly Betts <olly@survex.com>
 
 	* tcl8/docs/examples/simpleindex.tcl: Simpler, more idiomatic code
@@ -139,7 +143,7 @@ Fri Oct 22 03:24:11 BST 2004  Olly Betts <olly@survex.com>
 	  of the documentation, not right at the end.
 	* php4/docs/bindings.html: Remove documentation explicitly saying
 	  how we wrap Xapian::QueryParser and Xapian::Stem since we wrap them
-	  exactly as we wrap everything else we don't mention! 
+	  exactly as we wrap everything else we don't mention!
 
 Fri Oct 22 03:21:20 BST 2004  Olly Betts <olly@survex.com>
 

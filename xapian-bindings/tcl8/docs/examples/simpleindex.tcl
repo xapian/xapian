@@ -21,10 +21,7 @@
 
 # We need at least Tcl version 8.1
 package require Tcl 8.1
-
-# FIXME: sort out pkgIndex.tcl and then use something like:
-# lappend auto_path /path/to/xapian/lib/with/the/package
-# package require xapian 0.83
+#package require xapian 0.8.3
 load [file join "../../.libs" xapian.so]
 
 set MAX_PROB_TERM_LENGTH 64
@@ -46,36 +43,38 @@ if {[catch {
         if {[string equal $line ""]} {
             if {[string compare $para ""]} {
                 xapian::Document doc
-                doc set_data para
+                doc set_data $para
                 set pos 0
                 # A term is one or more alphanumerics, with optional trailing
-                # + and/or - (e.g. C++)
-                set re {([[:alnum:]]+[-+]*)}
-                set i 0
-                while {[regexp -indices -start $i $re $para -> word]} {
+                # + and/or - (e.g. C++).  But "hyphen-ated" should generate
+                # "hyphen" not "hyphen-".
+                set re {([[:alnum:]]+(?:[-+]*(?![[:alnum:]]))?)}
+                set j 0
+                while {[regexp -indices -start $j $re $para -> word]} {
+                    set i [lindex $word 0]
                     set j [lindex $word 1]
                     if {($j-$i) <= $MAX_PROB_TERM_LENGTH} {
-                        set term [string range $para $i [expr {$j-1}]]
-			puts $term
+                        set term [string range $para $i $j]
                         set term [string tolower $term]
                         set term [stemmer stem_word $term]
                         doc add_posting $term $pos
                         incr pos
                     }
-                    set i $j
+                    incr j
                 }
                 database add_document doc
                 set para ""
             }
         } else {
-            if {$para ne ""} {
-                set para "$para $line"
-            } else {
+            if {[string equal $para ""]} {
                 set para $line
+            } else {
+                set para "$para $line"
             }
         }
     }
-    # Partial workaround for Tcl bindings not calling destructors
+    # Partial workaround for Tcl bindings not calling destructors.  However
+    # a stale db_lock will still be left.
     # FIXME remove this once we work out what's going on there...
     database flush
 } exception]} {
