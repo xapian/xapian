@@ -3,11 +3,8 @@
 use strict;
 
 my $cvsdata = strip_last_slash($ENV{"CVSDATA"});
-my $cvsroot = strip_last_slash($ENV{"CVSROOT"});
 my $cvsroot_dir = "";
 my $i;
-my @file_types= qw(cc h cpp c C java);
-my $file_types_string;
 my @modules;
 
 # ------------------------------------------------------------
@@ -17,74 +14,32 @@ my @modules;
 if($cvsdata) {
 }else{
     print STDERR "WARNING: \$CVSDATA not set!\n";
-    exit(0);
+    exit(1);
 }
 
 if ($#ARGV < 0) {
     usage();
 }
 
-$i = 0;
-while ($i<=$#ARGV) {
-    if (0) {
-    } elsif ($ARGV[$i] eq "-d") {
-        $i++;
-        $cvsroot = strip_last_slash($ARGV[$i]);
-        $i++;
-    } elsif ($ARGV[$i] eq "-h") {
-        usage();
-    } else {
-        $i++;
-    }
-}
-
-if ($#ARGV < 0) {
-    usage();
-}
-
-if (read_root_dir()) {
-    $_ = $ARGV[0];
-    $ARGV[0]=~tr/\//\_/;
-    $ARGV[0] = "$cvsdata/$cvsroot_dir/db/$ARGV[0]/$ARGV[0].db";
-    @ARGV = ("$cvsdata/$cvsroot_dir", @ARGV);
-} else {
-    die "cannot find the root specified";
-}
+$_ = $ARGV[1];
+$ARGV[1]=~tr/\//\_/;
+$ARGV[0] = "$cvsdata/$ARGV[0]";
+$ARGV[1] = "$ARGV[0]/db/$ARGV[1]/$ARGV[1].db";
 
 # ------------------------------------------------------------
 # call cvsmap-script with the same parameters
 # ------------------------------------------------------------
 system ("cvsquery @ARGV");
 
-sub read_root_dir {
-    open(CVSROOTS, "<$cvsdata/CVSROOTS");
-    my $j = 0;
-    my $val = 0;
-    while(<CVSROOTS>) {
-        chomp;
-        my @fields = split(/\ /);
-        if (strip_last_slash($fields[0]) eq $cvsroot) {
-            $cvsroot_dir = $fields[1];
-            $val = 1;
-            last;
-        }
-        $j++;
-    }
-    close(CVSROOTS);
-    undef $j;
-    return $val;
-}
 
 sub usage()
 {
 print << "EOF";
 cvsquery-script 0.1 (2001-2-26)
-Usage: cvsquery-script package [Options] [Options] ...
+Usage: cvsquery-script root package [Options] [Options] ...
 
 Options:
   -h                     print out this message
-  -d CVSROOT             specify the \$CVSROOT variable.
-                         if this flag is not used. default \$CVSROOT is used.
   -c file_id revision    query for cvs comments from a file_id and a revision
   -r file_id line        query for revisions from a file_id and a line
   -l file_id revision    query for lines from a file_id and a revision
