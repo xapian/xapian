@@ -21,6 +21,9 @@
  * -----END-LICENCE-----
  */
 
+#include <algorithm>
+using std::find;
+using std::find_if;
 #include "htmlparse.h"
 #include <stdio.h>
 #include <ctype.h>

@@ -22,14 +22,16 @@
  */
 
 %{
+#include <algorithm>
+using std::find;
 #include <vector>
+using std::vector;
 #include <string>
+using std::string;
 #include <om/om.h>
 #include <stdio.h>
 #include <ctype.h>
-using std::vector;
-using std::string;
-
+ 
 class U {
     public:
 	OmQuery q;

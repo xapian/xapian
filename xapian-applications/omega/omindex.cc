@@ -27,6 +27,7 @@
 // for path
 //#define OLD_PREFIXES
 
+#include <algorithm>
 #include <string>
 #include <map>
 #include <memory>
@@ -48,6 +49,7 @@
 using std::cout;
 using std::cerr;
 using std::endl;
+using std::find;
 
 #define OMINDEX "omindex"
 #define VERSION "1.0"
