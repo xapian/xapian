@@ -30,13 +30,13 @@ AC_CHECK_FUNCS(strerror)
 dnl extra flags for building with gcc
 if test "$GCC" = yes; then
   changequote(, ) dnl avoid problems with [] in sed expressions
-  CFLAGS=`echo "$CFLAGS -pedantic -Wall -Wunused" | sed 's/-O[0-9]*/-O6/'`
+  CFLAGS=`echo "$CFLAGS -pedantic -Wall -Wunused -Wno-long-long" | sed 's/-O[0-9]*/-O6/'`
   case "$CFLAGS" in
     *-O6*) ;;
     *) CFLAGS="$CFLAGS -O6"
   esac
 
-  CXXFLAGS=`echo "$CXXFLAGS -pedantic -Wall -Wunused -fno-gnu-keywords" | sed 's/-O[0-9]*/-O6/'`
+  CXXFLAGS=`echo "$CXXFLAGS -pedantic -Wall -Wunused -Wno-long-long -fno-gnu-keywords" | sed 's/-O[0-9]*/-O6/'`
   case "$CXXFLAGS" in
     *-O6*) ;;
     *) CXXFLAGS="$CXXFLAGS -O6"
