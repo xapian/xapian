@@ -1,1 +1,24 @@
-See xapian-core for NEWS.
+Xapian-bindings 0.8.0 (2004-04-19):
+
+* README: Started collecting information on supporting Xapian from even
+  more languages.
+
+* Added configure tests to enable bindings only where the necessary tools
+  are installed and have a supported version.  ./configure --without-LANGUAGE
+  allows particular languages to be forcibly disabled.
+
+* Added Xapian::Document::add_term() - the new name for add_term_nopos().
+
+* A couple of Xapian::Query constructors weren't being wrapped - fixed.
+
+* Added Eric B. Ridge's JNI bindings for Java.
+
+* Xapian can now be used from TCL.
+
+* Python: MSet now provides a Python iterator.
+
+* Python: OMMSET_* and OMESET_* renamed to MSET_* and ESET_*.
+
+* Python: enable directors for MatchDecider, to allow subclassing in Python.
+
+* Python: Added basic documentation, and some examples.
