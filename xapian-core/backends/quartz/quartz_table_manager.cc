@@ -83,7 +83,7 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
 	    if (action == OM_DB_CREATE) {
 		throw OmDatabaseCreateError("Can't create new database at `" +
 			db_dir + "': a database already exists and I was told "
-			"not to overwrite it.");
+			"not to overwrite it");
 	    }
 	    // if we're overwriting, pretend the db doesn't exists
 	    // FIXME: if we allow OM_DB_OVERWRITE, check it here
@@ -109,10 +109,10 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
 	    postlist_table.get_latest_revision_number()) {
 	    quartz_revision_number_t new_revision = get_next_revision_number();
 
-	    log->make_entry("Detected partially applied changes.  Updating "
+	    log->make_entry("Detected partially applied changes, updating "
 			    "all revision numbers to consistent state (" +
-			    om_tostring(new_revision) + ") to proceed.  "
-			    "This will remove partial changes.");
+			    om_tostring(new_revision) + ") to proceed - "
+			    "this will remove partial changes");
 	    postlist_table    .apply(new_revision);
 	    positionlist_table.apply(new_revision);
 	    termlist_table    .apply(new_revision);
@@ -128,7 +128,7 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
 QuartzDiskTableManager::~QuartzDiskTableManager()
 {
     DEBUGCALL(DB, void, "~QuartzDiskTableManager", "");
-    log->make_entry("Closing database.");
+    log->make_entry("Closing database");
 }
 
 bool
@@ -154,7 +154,7 @@ QuartzDiskTableManager::create_and_open_tables()
     // FIXME: would be better to arrange that this works such that there's
     // always a valid database in place...  Or does it already?  The metafile
     // is created before erasing...
-    log->make_entry("Cleaning up database directory.");
+    log->make_entry("Cleaning up database directory");
     metafile.create();
     postlist_table.erase();
     positionlist_table.erase();
@@ -165,7 +165,7 @@ QuartzDiskTableManager::create_and_open_tables()
     value_table.erase();
     record_table.erase();
 
-    log->make_entry("Creating new database.");
+    log->make_entry("Creating new database");
     // Create postlist_table first, and record_table last.  Existence of
     // record_table is considered to imply existence of the database.
     metafile.create();
@@ -180,7 +180,7 @@ QuartzDiskTableManager::create_and_open_tables()
 
     Assert(database_exists());
 
-    log->make_entry("Opening new database.");
+    log->make_entry("Opening new database");
     metafile.open();
     record_table.open();
     value_table.open();
@@ -208,10 +208,10 @@ QuartzDiskTableManager::create_and_open_tables()
 #endif
 			om_tostring(termlist_table.get_open_revision_number()) + ", " +
 			om_tostring(positionlist_table.get_open_revision_number()) + " and " +
-			om_tostring(postlist_table.get_open_revision_number()) + ".");
-	throw OmDatabaseCreateError("Newly created tables are not in consistent state.");
+			om_tostring(postlist_table.get_open_revision_number()));
+	throw OmDatabaseCreateError("Newly created tables are not in consistent state");
     }
-    log->make_entry("Opened tables at revision " + om_tostring(revision) + ".");
+    log->make_entry("Opened tables at revision " + om_tostring(revision));
 }
 
 void
@@ -235,7 +235,7 @@ QuartzDiskTableManager::open_tables_consistent()
     int tries = 100;
     int tries_left = tries;
     while (!fully_opened && (tries_left--) > 0) {
-	log->make_entry("Trying revision " + om_tostring(revision) + ".");
+	log->make_entry("Trying revision " + om_tostring(revision));
 	
 	bool opened;
 	opened = value_table.open(revision);
@@ -265,18 +265,18 @@ QuartzDiskTableManager::open_tables_consistent()
 		// Revision number hasn't changed - therefore a second index
 		// sweep hasn't begun and the system must have failed.  Database
 		// is inconsistent.
-		log->make_entry("Cannot open all tables at revision in record table: " + om_tostring(revision) + ".");
-		throw OmDatabaseCorruptError("Cannot open tables at consistent revisions.");
+		log->make_entry("Cannot open all tables at revision in record table: " + om_tostring(revision));
+		throw OmDatabaseCorruptError("Cannot open tables at consistent revisions");
 	    }
 	}
     }
 
     if (!fully_opened) {
-	log->make_entry("Cannot open all tables in a consistent state - keep changing too fast, giving up after " + om_tostring(tries) + " attempts.");
-	throw OmOpeningError("Cannot open tables at stable revision - changing too fast.");
+	log->make_entry("Cannot open all tables in a consistent state - keep changing too fast, giving up after " + om_tostring(tries) + " attempts");
+	throw OmOpeningError("Cannot open tables at stable revision - changing too fast");
     }
 
-    log->make_entry("Opened tables at revision " + om_tostring(revision) + ".");
+    log->make_entry("Opened tables at revision " + om_tostring(revision));
 }
 
 string
@@ -327,7 +327,7 @@ void
 QuartzDiskTableManager::open_tables(quartz_revision_number_t revision)
 {
     DEBUGCALL(DB, void, "QuartzDiskTableManager::open_tables", revision);
-    log->make_entry("Opening tables at revision " + om_tostring(revision) + ".");
+    log->make_entry("Opening tables at revision " + om_tostring(revision));
     metafile.open();
     record_table.open(revision);
     value_table.open(revision);
@@ -337,7 +337,7 @@ QuartzDiskTableManager::open_tables(quartz_revision_number_t revision)
     termlist_table.open(revision);
     positionlist_table.open(revision);
     postlist_table.open(revision);
-    log->make_entry("Opened tables at revision " + om_tostring(revision) + ".");
+    log->make_entry("Opened tables at revision " + om_tostring(revision));
 }
 
 quartz_revision_number_t
@@ -469,7 +469,7 @@ QuartzBufferedTableManager::get_database_write_lock()
 	    host.nodename + "." +
 	    om_tostring(reinterpret_cast<long>(this)); /* should work within
 							  one process too! */
-    DEBUGLINE(DB, "Temporary file " << tempname << " created.");
+    DEBUGLINE(DB, "Temporary file " << tempname << " created");
     int num_tries = 5;
     while (true) {
 	num_tries--;
@@ -496,30 +496,27 @@ QuartzBufferedTableManager::get_database_write_lock()
 	if (result == 0) {
 	    unlink(tempname);
 	    return;
-	} else {
-#ifdef MUS_DEBUG_VERBOSE
-	    int link_errno = errno;
-#endif
-	    struct stat statbuf;
-	    int statresult = fstat(tempfd, &statbuf);
-	    int fstat_errno = errno;
-	    unlink(tempname);
-	    if (statresult != 0) {
-		throw OmDatabaseLockError("Unable to fstat() temporary file " +
-					  tempname + " while locking: " +
-					  strerror(fstat_errno));
-	    }
-	    if (statbuf.st_nlink == 2) {
-		/* success */
-		return;
-	    } else {
-		DEBUGLINE(DB, "link() returned " << result
-			  << "(" << strerror(link_errno) << ")");
-		DEBUGLINE(DB, "Links in statbuf: " << statbuf.st_nlink);
-		/* also failed */
-		continue;
-	    }
 	}
+#ifdef MUS_DEBUG_VERBOSE
+	int link_errno = errno;
+#endif
+	struct stat statbuf;
+	int statresult = fstat(tempfd, &statbuf);
+	int fstat_errno = errno;
+	unlink(tempname);
+	if (statresult != 0) {
+	    throw OmDatabaseLockError("Unable to fstat() temporary file " +
+				      tempname + " while locking: " +
+				      strerror(fstat_errno));
+	}
+	if (statbuf.st_nlink == 2) {
+	    /* success */
+	    return;
+	}
+	DEBUGLINE(DB, "link() returned " << result << "(" <<
+		  strerror(link_errno) << ")");
+	DEBUGLINE(DB, "Links in statbuf: " << statbuf.st_nlink);
+	/* also failed */
     }
 }
 
@@ -542,14 +539,14 @@ QuartzBufferedTableManager::apply()
 #endif
        !value_buffered_table.is_modified() &&
        !record_buffered_table.is_modified()) {
-	disktables.log->make_entry("No modifications to apply.");
+	disktables.log->make_entry("No modifications to apply");
 	return;
     }
 
     quartz_revision_number_t old_revision = disktables.get_revision_number();
     quartz_revision_number_t new_revision = disktables.get_next_revision_number();
 
-    disktables.log->make_entry("Applying modifications.  New revision number is " + om_tostring(new_revision) + ".");
+    disktables.log->make_entry("Applying modifications.  New revision number is " + om_tostring(new_revision));
 
     try {
 	postlist_buffered_table.apply(new_revision);
@@ -561,19 +558,19 @@ QuartzBufferedTableManager::apply()
 	value_buffered_table.apply(new_revision);
 	record_buffered_table.apply(new_revision);
 
-	disktables.log->make_entry("Modifications succeeded.");
+	disktables.log->make_entry("Modifications succeeded");
     } catch (...) {
 	// Modifications failed.  Wipe all the modifications from memory.
-	disktables.log->make_entry("Attempted modifications failed.  Wiping partial modifications.");
+	disktables.log->make_entry("Attempted modifications failed.  Wiping partial modifications");
 	
 	// Reopen tables with old revision number, 
-	disktables.log->make_entry("Reopening tables without modifications: old revision is " + om_tostring(old_revision) + ".");
+	disktables.log->make_entry("Reopening tables without modifications: old revision is " + om_tostring(old_revision));
 	disktables.open_tables(old_revision);
 
 	// Increase revision numbers to new revision number plus one,
 	// writing increased numbers to all tables.
 	new_revision += 1;
-	disktables.log->make_entry("Increasing revision number in all tables to " + om_tostring(new_revision) + ".");
+	disktables.log->make_entry("Increasing revision number in all tables to " + om_tostring(new_revision));
 
 	try {
 	    disktables.set_revision_number(new_revision);
@@ -581,12 +578,11 @@ QuartzBufferedTableManager::apply()
 	    // This cancel() causes any buffered changes to be thrown away,
 	    // and the buffer to be reinitialised with the old entry count.
 	    cancel();
-	} catch (OmError & e) {
+	} catch (const OmError & e) {
 	    disktables.log->make_entry("Setting revision number failed: " +
-				       e.get_type() + ": " +
-				       e.get_msg() + " " +
-				       e.get_context() + ".");
-	    throw OmDatabaseError("Modifications failed, and cannot set revision numbers in database to a consistent state.");
+				       e.get_type() + ": " + e.get_msg() + " " +
+				       e.get_context());
+	    throw OmDatabaseError("Modifications failed, and cannot set revision numbers in database to a consistent state");
 	}
 	throw;
     }

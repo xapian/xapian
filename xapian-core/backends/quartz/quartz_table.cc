@@ -271,11 +271,10 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 		// Can't open at all - throw an exception
 		throw OmOpeningError(errormsg + ": " +
 				     Btree_strerror(errorcode));
-	    } else {
-		// Can't open this revision - return an error
-		DEBUGLINE(DB, errormsg);
-		RETURN(false);
 	    }
+	    // Can't open this revision - return an error
+	    DEBUGLINE(DB, errormsg);
+	    RETURN(false);
 	}
 	opened = true;
 	RETURN(true);
@@ -292,11 +291,10 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 	if (errorcode) {
 	    // Can't open at all - throw an exception
 	    throw OmOpeningError(errormsg + ": " + Btree_strerror(errorcode));
-	} else {
-	    // Can't open this revision - return an error
-	    DEBUGLINE(DB, errormsg);
-	    RETURN(false);
 	}
+	// Can't open this revision - return an error
+	DEBUGLINE(DB, errormsg);
+	RETURN(false);
     }
 
     AssertEq(btree_for_writing->revision_number, revision);
@@ -313,11 +311,10 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 	if (errorcode == BTREE_ERROR_REVISION) {
 	    // Can't open at all - throw an exception
 	    throw OmOpeningError(errormsg + ": " + Btree_strerror(errorcode));
-	} else {
-	    // Can't open this revision - return an error
-	    DEBUGLINE(DB, errormsg);
-	    RETURN(false);
 	}
+	// Can't open this revision - return an error
+	DEBUGLINE(DB, errormsg);
+	RETURN(false);
     }
 
     AssertEq(btree_for_reading->revision_number, revision);
@@ -398,7 +395,8 @@ QuartzDiskTable::set_entry(const string & key, const string & tag)
 
     Assert(!key.empty());
     Assert(opened);
-    if (readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
+    if (readonly)
+	throw OmInvalidOperationError("Attempt to modify a readonly table");
 
     if (key.size() > Btree::max_key_len) {
 	throw OmInvalidArgumentError(
@@ -406,11 +404,11 @@ QuartzDiskTable::set_entry(const string & key, const string & tag)
 		om_tostring(key.size()) +
 		" bytes, maximum length of a key is " + 
 		om_tostring(Btree::max_key_len) +
-		" bytes.");
+		" bytes");
     }
 
     // add entry
-    DEBUGLINE(DB, "Adding entry to disk table.");
+    DEBUGLINE(DB, "Adding entry to disk table");
     int result = btree_for_writing->add(key, tag);
     (void)result; // FIXME: Check result
 }
@@ -422,7 +420,8 @@ QuartzDiskTable::set_entry(const string & key)
 
     Assert(!key.empty());
     Assert(opened);
-    if (readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
+    if (readonly)
+	throw OmInvalidOperationError("Attempt to modify a readonly table");
 
     if (key.size() > Btree::max_key_len) {
 	throw OmInvalidArgumentError(
@@ -430,11 +429,11 @@ QuartzDiskTable::set_entry(const string & key)
 		om_tostring(key.size()) +
 		" bytes, maximum length of a key is " + 
 		om_tostring(Btree::max_key_len) +
-		" bytes.");
+		" bytes");
     }
 
     // delete entry
-    DEBUGLINE(DB, "Deleting entry from disk table.");
+    DEBUGLINE(DB, "Deleting entry from disk table");
 
     // FIXME: don't want to have to check that key exists before deleting
     // - advertised interface of btree->del is that it will work ok if
@@ -461,7 +460,7 @@ QuartzDiskTable::apply(quartz_revision_number_t new_revision)
     DEBUGCALL(DB, void, "QuartzDiskTable::apply", new_revision);
 
     Assert(opened);
-    if (readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
+    if (readonly) throw OmInvalidOperationError("Attempt to modify a readonly table");
 
     // Close reading table
     Assert(btree_for_reading != 0);
@@ -490,9 +489,6 @@ QuartzDiskTable::apply(quartz_revision_number_t new_revision)
     // FIXME: want to indicate that the database closed successfully even
     // if we now can't open it.  Or is this a panic situation?
 }
-
-
-
 
 QuartzBufferedTable::QuartzBufferedTable(QuartzDiskTable * disktable_)
 	: disktable(disktable_),
@@ -562,12 +558,11 @@ QuartzBufferedTable::have_tag(const string &key)
     DEBUGCALL(DB, bool, "QuartzBufferedTable::have_tag", key);
     if (changed_entries.have_entry(key)) {
 	RETURN((changed_entries.get_tag(key) != 0));
-    } else {
-	// FIXME: don't want to read tag here - just want to check if there
-	// is a tag.
-	string tag;
-	RETURN(disktable->get_exact_entry(key, tag));
     }
+    // FIXME: don't want to read tag here - just want to check if there
+    // is a tag.
+    string tag;
+    RETURN(disktable->get_exact_entry(key, tag));
 }
 
 string *
@@ -584,15 +579,12 @@ QuartzBufferedTable::get_or_make_tag(const string &key)
 	    AutoPtr<string> tag(new string);
 	    tagptr = tag.get();
 	    changed_entries.set_tag(key, tag);
-	    entry_count += 1;
+	    ++entry_count;
 
 	    AssertEq(changed_entries.get_tag(key), tagptr);
 	    Assert(tag.get() == 0);
-
-	    RETURN(tagptr);
-	} else {
-	    RETURN(tagptr);
 	}
+	RETURN(tagptr);
     }
 
     AutoPtr<string> tag(new string);
@@ -603,7 +595,7 @@ QuartzBufferedTable::get_or_make_tag(const string &key)
     changed_entries.set_tag(key, tag);
     if (!found) {
 	DEBUGLINE(DB, "QuartzBufferedTable::get_or_make_tag - increasing entry_count - '" << key << "' added");
-	entry_count += 1;
+	++entry_count;
     }
     Assert(changed_entries.have_entry(key));
     AssertEq(changed_entries.get_tag(key), tagptr);
@@ -651,8 +643,7 @@ QuartzBufferedCursor *
 QuartzBufferedTable::cursor_get() const
 {
     DEBUGCALL(DB, QuartzBufferedCursor *, "QuartzBufferedTable::cursor_get", "");
-    return new QuartzBufferedCursor(disktable->cursor_get(),
-				    &changed_entries);
+    return new QuartzBufferedCursor(disktable->cursor_get(), &changed_entries);
 }
 
 bool
