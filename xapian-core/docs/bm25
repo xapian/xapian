@@ -8,9 +8,9 @@ probabilistic weighting scheme as revealed in the TREC tests.
 
 The Muscat term weighting function is (in its most general form)
 
- (A + 1)q   (B + 1)f                     (r+0.5)(R-r+0.5)
- -------- . -------- w, where w = log ----------------------    ...(1)
-  (A + q)    BL + f                   (n-r+0.5)(N-n-R+r+0.5)
+ (A + 1)q   (B + 1)f                  (r+0.5)(N-n-R+r+0.5)
+ -------- . -------- w, where w = log --------------------    ...(1)
+  (A + q)    BL + f                    (n-r+0.5)(R-r+0.5)
 
 where A, B are constants
 
