@@ -422,10 +422,25 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 					 matcher, is_bool);
 	case OmQuery::OP_FILTER:
 	    Assert(query->subqs.size() == 2);
+	    // FIXME:
+	    // AndPostList works, but FilterPostList doesn't - tracing suggests
+	    // that the left hand postlist behaves differently despite
+	    // receiving the same sequence of calls, so this may be a quartz
+	    // and/or btree problem and slightly different use of the RHS
+	    // is making a difference.  I suspect that using AndPostList just
+	    // masks the problem, so must get back to investigating this...
+	    // -- Olly
+#if 0
 	    return new FilterPostList(postlist_from_query(query->subqs[0], matcher, is_bool),
 				      postlist_from_query(query->subqs[1], matcher, true),
 				      matcher,
 				      db->get_doccount());
+#else
+	    return new AndPostList(postlist_from_query(query->subqs[0], matcher, is_bool),
+				      postlist_from_query(query->subqs[1], matcher, true),
+				      matcher,
+				      db->get_doccount());
+#endif
 	case OmQuery::OP_AND_NOT:
 	    Assert(query->subqs.size() == 2);
 	    return new AndNotPostList(postlist_from_query(query->subqs[0], matcher, is_bool),
