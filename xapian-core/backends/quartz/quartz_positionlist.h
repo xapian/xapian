@@ -28,7 +28,6 @@
 
 #include <xapian/types.h>
 #include "positionlist.h"
-#include <xapian/document.h>
 
 #include <string>
 

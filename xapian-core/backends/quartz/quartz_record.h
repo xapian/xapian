@@ -27,9 +27,11 @@
 
 #include <string>
 
-#include "quartz_table.h"
 #include <xapian/types.h>
-#include <xapian/document.h>
+#include "quartz_types.h"
+
+class QuartzBufferedTable;
+class QuartzTable;
 
 using namespace std;
 

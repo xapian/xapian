@@ -24,11 +24,13 @@
 
 #include <config.h>
 #include "quartz_record.h"
+#include "quartz_table.h"
 #include "quartz_utils.h"
 #include "utils.h"
 #include <xapian/error.h>
 #include "omassert.h"
 #include "omdebug.h"
+
 using std::string;
 
 // Magic key (which corresponds to an invalid docid) is used to store the

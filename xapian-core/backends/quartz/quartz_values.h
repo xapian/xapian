@@ -29,7 +29,6 @@
 
 #include "quartz_table.h"
 #include <xapian/types.h>
-#include <xapian/document.h>
 
 using namespace std;
 
