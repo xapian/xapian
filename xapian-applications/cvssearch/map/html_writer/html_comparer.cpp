@@ -193,8 +193,8 @@ html_comparer::get_class_type (string & select0, unsigned int index0, bool & do0
         if (_diff[diff_index].dest().begin() <= index2 && 
             _diff[diff_index].dest().end()   >  index2) 
         {
-            select2 = " class=\"n\"";
-            select1 = " class=\"a\"";
+            select2 = " class=\"d\"";
+            select1 = " class=\"n\"";
         }
     }
     
@@ -203,7 +203,7 @@ html_comparer::get_class_type (string & select0, unsigned int index0, bool & do0
             _diff[diff_index].source().end()   >  index1) 
         {
             select2 = " class=\"n\"";        
-            select1 = " class=\"d\"";
+            select1 = " class=\"a\"";
         }
     }
 
@@ -544,11 +544,11 @@ html_comparer::write(ostream & os) const
     os << "<HR width=100%>" << endl;
     os << "<TABLE border=0>" << endl;
     os << "<TR><TD colspan=2>Legend:</TD></TR>" << endl;
-    os << "<TR><TD class=\"n\"> </TD><TD align=center class=\"d\"> added in v."
+    os << "<TR><TD class=\"n\"> </TD><TD align=center class=\"a\"> added in v."
        << _revision1 << " and propagated to v." << _revision0 << "</TD></TR>" << endl;
     os << "<TR><TD colspan=2 align=center class=\"c\"> changed lines from v." << _revision2 << " to v." 
        << _revision1 << " and propagated to v." << _revision0 << "</TD></TR>" << endl;
-    os << "<TR><TD align=center class=\"a\"> removed in v." << _revision1 << "</TD><TD class=\"n\"> </TD></TR>" << endl;
+    os << "<TR><TD align=center class=\"d\"> removed in v." << _revision1 << "</TD><TD class=\"n\"> </TD></TR>" << endl;
     os << "</TABLE>" << endl;
 
     return os;
@@ -562,9 +562,9 @@ html_comparer::style(ostream & os) const
     os << "TABLE {background-color:#FFFFFF;}" << endl;
     os << "TD    {font-family:fixed;white-space:pre; overflow:hidden}" << endl;
     os << ".s {background-color:yellow;}" << endl;
-    os << ".d {background-color:#CCCCFF;}" << endl;
+    os << ".a {background-color:#CCCCFF;}" << endl;
     os << ".c {background-color:#99FF99;}" << endl;
-    os << ".a {background-color:#FF9999;}" << endl;
+    os << ".d {background-color:#FF9999;}" << endl;
     os << ".n {background-color:#CCCCCC;}" << endl;
     os << "</STYLE>" << endl;
     return os;
