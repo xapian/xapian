@@ -154,6 +154,7 @@ class TextfileDatabase : public virtual IRDatabase,
 
 	vector<TextfileTerm> postlists;
 	vector<TextfileDoc> termlists;
+	vector<string> doclists;
 
 	vector<doclength> doclengths;
 
@@ -188,7 +189,7 @@ class TextfileDatabase : public virtual IRDatabase,
 	doclength get_doclength(docid) const;
 
 	termid make_term(const termname &);
-	docid make_doc();
+	docid make_doc(const docname &);
 	void make_posting(termid, docid, termcount);
 };
 

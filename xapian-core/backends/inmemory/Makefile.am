@@ -6,4 +6,5 @@ INCLUDES = -I$(top_srcdir)/include
 
 noinst_LTLIBRARIES = libtextfile.la
 
-libtextfile_la_SOURCES = textfile_database.cc
+libtextfile_la_SOURCES = textfile_database.cc \
+    textfile_document.h textfile_document.cc

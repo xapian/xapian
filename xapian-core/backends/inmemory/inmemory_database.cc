@@ -5,6 +5,7 @@
 #include "omassert.h"
 #include "textfile_database.h"
 #include "textfile_indexer.h"
+#include "textfile_document.h"
 
 #include <string>
 #include <vector>
@@ -65,26 +66,6 @@ void TextfileDatabase::open(const string &pathname, bool readonly) {
 void TextfileDatabase::close() {
 }
 
-void TextfileDatabase::make_posting(termid tid, docid did, termcount position) {
-    Assert(indexing == true);
-    Assert(opened == false);
-    Assert(tid > 0 && tid <= postlists.size());
-    Assert(did > 0 && did <= termlists.size());
-    Assert(did > 0 && did <= doclengths.size());
-
-    // Make the posting
-    TextfilePosting posting;
-    posting.tid = tid;
-    posting.did = did;
-    posting.positions.push_back(position);
-
-    // Now record the posting
-    postlists[tid - 1].add_posting(posting);
-    termlists[did - 1].add_posting(posting);
-    doclengths[did - 1] += posting.positions.size();
-    totlen += posting.positions.size();
-}
-
 DBPostList *
 TextfileDatabase::open_post_list(termid tid) const {
     Assert(opened);
@@ -104,9 +85,9 @@ TextfileDatabase::open_term_list(docid did) const {
 IRDocument *
 TextfileDatabase::open_document(docid did) const {
     Assert(opened);
+    Assert(did > 0 && did <= doclists.size());
 
-    throw OmError("TextfileDatabase.open_document() not yet implemented");
-    return NULL;
+    return new TextfileDocument(doclists[did - 1]);
 }
 
 
@@ -146,17 +127,38 @@ TextfileDatabase::make_term(const termname &tname)
 }
 
 docid
-TextfileDatabase::make_doc()
+TextfileDatabase::make_doc(const docname &dname)
 {
     Assert(indexing == true);
     Assert(opened == false);
 
     termlists.push_back(TextfileDoc());
     doclengths.push_back(0);
+    doclists.push_back(dname);
 
     AssertParanoid(termlists.size() == doclengths.size());
 
     return termlists.size();
+}
+
+void TextfileDatabase::make_posting(termid tid, docid did, termcount position) {
+    Assert(indexing == true);
+    Assert(opened == false);
+    Assert(tid > 0 && tid <= postlists.size());
+    Assert(did > 0 && did <= termlists.size());
+    Assert(did > 0 && did <= doclengths.size());
+
+    // Make the posting
+    TextfilePosting posting;
+    posting.tid = tid;
+    posting.did = did;
+    posting.positions.push_back(position);
+
+    // Now record the posting
+    postlists[tid - 1].add_posting(posting);
+    termlists[did - 1].add_posting(posting);
+    doclengths[did - 1] += posting.positions.size();
+    totlen += posting.positions.size();
 }
 
 termid

@@ -42,7 +42,7 @@ TextfileIndexer::add_source(const IndexerSource &source)
 	string line;
 	getline(*from, line);
 	
-	docid did = dest->make_doc();
+	docid did = dest->make_doc(line);
 	termcount position = 1;
 
 	string::size_type spacepos;

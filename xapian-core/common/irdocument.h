@@ -21,7 +21,6 @@ class IRData {
 class IRDocument {
     private:
     public:
-	virtual ~IRDocument() { return; }
 	virtual IRKey get_key(keyno) const = 0;
 	virtual IRData get_data() const = 0;
 };

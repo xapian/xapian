@@ -19,7 +19,7 @@ class IndexerSource {
 class IndexerDestination {
     public:
 	virtual termid make_term(const termname &) = 0;
-	virtual docid make_doc() = 0;
+	virtual docid make_doc(const docname &) = 0;
 	virtual void make_posting(termid, docid, termcount) = 0;
 };
 
