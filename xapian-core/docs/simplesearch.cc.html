@@ -1,0 +1,86 @@
+<HTML>
+<HEAD>
+<TITLE>simplesearch.cc.html</TITLE>
+</HEAD>
+<BODY BGcolor=#ffffff TEXT=#000000>
+<PRE>
+<FONT color=#0000ff>/* simplesearch.cc: Simplest possible searcher</FONT>
+<FONT color=#0000ff> *</FONT>
+<FONT color=#0000ff> * ----START-LICENCE----</FONT>
+<FONT color=#0000ff> * Copyright 1999,2000 Dialog Corporation</FONT>
+<FONT color=#0000ff> * </FONT>
+<FONT color=#0000ff> * This program is free software; you can redistribute it and/or </FONT>
+<FONT color=#0000ff> * modify it under the terms of the GNU General Public License as </FONT>
+<FONT color=#0000ff> * published by the Free Software Foundation; either version 2 of the</FONT>
+<FONT color=#0000ff> * License, or (at your option) any later version.</FONT>
+<FONT color=#0000ff> * </FONT>
+<FONT color=#0000ff> * This program is distributed in the hope that it will be useful,</FONT>
+<FONT color=#0000ff> * but WITHOUT ANY WARRANTY; without even the implied warranty of</FONT>
+<FONT color=#0000ff> * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</FONT>
+<FONT color=#0000ff> * GNU General Public License for more details.</FONT>
+<FONT color=#0000ff> * </FONT>
+<FONT color=#0000ff> * You should have received a copy of the GNU General Public License</FONT>
+<FONT color=#0000ff> * along with this program; if not, write to the Free Software</FONT>
+<FONT color=#0000ff> * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307</FONT>
+<FONT color=#0000ff> * USA</FONT>
+<FONT color=#0000ff> * -----END-LICENCE-----</FONT>
+<FONT color=#0000ff> */</FONT>
+
+<FONT color=#a020f0>#include </FONT><FONT color=#ff00ff>&lt;om/om.h&gt;</FONT>
+
+<B><FONT color=#2e8b57>int</FONT></B> main(<B><FONT color=#2e8b57>int</FONT></B> argc, <B><FONT color=#2e8b57>char</FONT></B> *argv[])
+{
+    <FONT color=#0000ff>// Simplest possible options parsing: we just require two or more</FONT>
+    <FONT color=#0000ff>// parameters.</FONT>
+    <B><FONT color=#a52a2a>if</FONT></B>(argc &lt; <FONT color=#ff00ff>3</FONT>) {
+        cout &lt;&lt; <FONT color=#ff00ff>&quot;usage: &quot;</FONT> &lt;&lt; argv[<FONT color=#ff00ff>0</FONT>] &lt;&lt;
+                <FONT color=#ff00ff>&quot; &lt;path to database&gt; &lt;search terms&gt;&quot;</FONT> &lt;&lt; endl;
+        exit(<FONT color=#ff00ff>1</FONT>);
+    }
+    
+    <FONT color=#0000ff>// Catch any OmError exceptions thrown</FONT>
+    <B><FONT color=#a52a2a>try</FONT></B> {
+        <FONT color=#0000ff>// Make the database group</FONT>
+        OmDatabaseGroup databases;
+        vector&lt;string&gt; parameters;
+        parameters.push_back(argv[<FONT color=#ff00ff>1</FONT>]);
+        databases.add_database(<FONT color=#ff00ff>&quot;sleepycat&quot;</FONT>, parameters);
+
+        <FONT color=#0000ff>// Start an enquire session</FONT>
+        OmEnquire enquire(databases);
+
+        <FONT color=#0000ff>// Prepare the query terms</FONT>
+        vector&lt;om_termname&gt; queryterms;
+        <B><FONT color=#a52a2a>for</FONT></B> (<B><FONT color=#2e8b57>int</FONT></B> optpos = <FONT color=#ff00ff>2</FONT>; optpos &lt; argc; optpos++) {
+            queryterms.push_back(argv[optpos]);
+        }
+
+        <FONT color=#0000ff>// Build the query object</FONT>
+        OmQuery query(OM_MOP_OR, queryterms.begin(), queryterms.end());
+        cout &lt;&lt; <FONT color=#ff00ff>&quot;Performing query `&quot;</FONT> &lt;&lt; query.get_description() &lt;&lt; <FONT color=#ff00ff>&quot;'&quot;</FONT> &lt;&lt; endl;
+
+        <FONT color=#0000ff>// Give the query object to the enquire session</FONT>
+        enquire.set_query(query);
+
+        <FONT color=#0000ff>// Get the top 10 results of the query</FONT>
+        OmMSet matches = enquire.get_mset(<FONT color=#ff00ff>0</FONT>, <FONT color=#ff00ff>10</FONT>);
+
+        <FONT color=#0000ff>// Display the results</FONT>
+        cout &lt;&lt; matches.items.size() &lt;&lt; <FONT color=#ff00ff>&quot; results found&quot;</FONT> &lt;&lt; endl;
+
+        <B><FONT color=#a52a2a>for</FONT></B> (vector&lt;OmMSetItem&gt;::const_iterator i = matches.items.begin();
+             i != matches.items.end();
+             i++) {
+            OmDocument doc = enquire.get_doc(*i);
+            cout &lt;&lt; <FONT color=#ff00ff>&quot;Document ID &quot;</FONT> &lt;&lt; i-&gt;did &lt;&lt; <FONT color=#ff00ff>&quot;</FONT><FONT color=#6a5acd>\t</FONT><FONT color=#ff00ff>&quot;</FONT> &lt;&lt;
+                    matches.convert_to_percent(*i) &lt;&lt; <FONT color=#ff00ff>&quot;% [&quot;</FONT> &lt;&lt;
+                    doc.get_data().value &lt;&lt; <FONT color=#ff00ff>&quot;]&quot;</FONT> &lt;&lt; endl;
+        }
+    }
+    <B><FONT color=#a52a2a>catch</FONT></B>(OmError &amp;error) {
+        cout &lt;&lt; <FONT color=#ff00ff>&quot;Exception: &quot;</FONT>  &lt;&lt; error.get_msg() &lt;&lt; endl;
+    }
+}
+</PRE>
+</BODY>
+</HTML>

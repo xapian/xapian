@@ -108,6 +108,10 @@ How each piece of data might be stored.
 
 <H3><A NAME="sleepycat_databases">SleepyCat databases</A></H3>
 
+<P>
+FIXME: to be written.
+</P>
+
 <H3><A NAME="da_databases">DA databases</A></H3>
 
 <P>
@@ -143,11 +147,98 @@ sleepycat database (see the <A HREF="#searcher">example searcher</A>).
 <H2><A NAME="indexer">An example indexer</A></H2>
 
 <P>
-The first requirement in any program 
+The code for this example is in the examples package, in
+the &quot;<CODE>simple</CODE>&quot; subdirectory.  An HTML formatted
+version is available <A HREF="simpleindex.cc.html">here</A>.
 </P>
+<P>
+The &quot;indexer&quot; presented here is simply a small program which
+takes a path to a database and a set of parameters defining a document on
+the command line, and stores that document as a new entry in the database.
+</P>
+<H3>Include header files</H3>
+<P>
+The first requirement in any program using the Muscat library is to
+include the Muscat header file, &quot;<CODE>om.h</CODE>&quot;.
+This should be installed in a subdirectory &quot;<CODE>om</CODE>&quot; of
+a directory on the include path, so:
+<PRE>    #include &lt;om/om.h&gt;</PRE>
+</P>
+<P>
+Our example only has a single function, main(), so next we start that.
+<PRE>    int main(int argc, char *argv[])</PRE>
+</P>
+<H3>Options parsing</H3>
+<P>
+For this example we do very simple options parsing.  We are going to
+use the core functionality of Muscat of searching for specific terms in the
+database, and we are not going to use any of the extra facilities, such as
+the keys which may be associated with each document.  We are also going to
+store a simple string as the data associated with each document.
+</P><P>
+Thus, our command line syntax is:
+<UL><LI>
+<B>Parameter 1</B> - the (possibly relative) path to the database.
+</LI><LI>
+<B>Parameter 2</B> - the string to be stored as the document data.
+</LI><LI>
+<B>Parameters 3 onward</B> - the terms to be stored in the database.  The
+terms will be assumed to occur at successive positions in the document.
+</LI></UL>
+</P><P>
+The validity of a command line can therefore be checked very simply by
+ensuring that there are at least 3 parameters:
+<PRE>
+    if(argc &lt; 4) {
+        cout &lt;&lt; "usage: " &lt;&lt; argv[0] &lt;&lt;
+	        " &lt;path to database> &lt;document data> &lt;document terms>" &lt;&lt; endl;
+        exit(1);
+    }
+</PRE>
+</P>
+
+<H3>Catching exceptions</H3>
+<P>
+When an error occurs in Muscat it is reported by means of the C++ exception
+mechanism.  All errors in Muscat are derived classes of
+<CODE>OmError</CODE>, so simple error handling can be performed by
+enclosing all the code in a try-catch block to catch any
+<CODE>OmError</CODE> exceptions.  A (hopefully) helpful message can be
+extracted from the <CODE>OmError</CODE> object by calling its
+<CODE>get_msg()</CODE> method, which returns a human readable string.
+</P>
+<P>
+Note that all calls to the Muscat library should be performed inside a
+try-catch block, since otherwise errors will result in uncaught exceptions;
+this usually results in the execution aborting.
+</P>
+<P>
+Note also that OmError is a virtual base class, and thus can't be copied:
+you must therefore catch exceptions by reference, as this example does.
+</P>
+<PRE>
+    try {
+        ...
+    }
+    catch(OmError &amp; error) {
+        cout &lt;&lt; "Exception: "  &lt;&lt; error.get_msg() &lt;&lt; endl;
+    }
+</PRE>
+
+<H3>Opening the database</H3>
+
+<H3>Preparing the new document</H3>
+
+<H3>Adding the document to the database</H3>
 
 <HR>
 <H2><A NAME="searcher">An example searcher</A></H2>
+
+<P>
+The code for this example is also in the examples package, in
+the &quot;<CODE>simple</CODE>&quot; subdirectory.  An HTML formatted
+version is available <A HREF="simplesearch.cc.html">here</A>.
+</P>
 
 <HR>
 <H2>Compiling</H2>
