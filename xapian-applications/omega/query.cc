@@ -94,7 +94,7 @@ set_probabilistic(const string &newp, const string &oldp)
 	n_old_terms++;
     }
     // short-cut: if the new query has fewer terms, it must be a new one
-    if (qp.termset.size() < n_old_terms) return NEW_QUERY;
+    if (qp.termlist.size() < n_old_terms) return NEW_QUERY;
     
     while ((pend = strchr(term, '.')) != NULL) {
 	if (qp.termset.find(string(term, pend - term)) == qp.termset.end())
@@ -448,46 +448,51 @@ lowercase_term(om_termname &term)
     }
 }
 
+inline static bool
+p_alnum(unsigned int c)
+{
+    return isalnum(c);
+}
+
+inline static bool
+p_notalnum(unsigned int c)
+{
+    return !isalnum(c);
+}
+
+inline static bool
+p_notplusminus(unsigned int c)
+{
+    return c != '+' && c != '-';
+}
+
 // FIXME: shares algorithm with omindex.cc!
 static string
-html_highlight(const string &str, const string &list, const string &bra, const string &ket)
+html_highlight(const string &s, const string &list,
+	       const string &bra, const string &ket)
 {
+    string::const_iterator i, j = s.begin(), k, l;
     string res;
-    std::string::size_type i, j = 0, k, l = 0;
-    //    cerr << "html_highlight('" << str << "', '" << list << "'): ";
-    while ((i = str.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-				  "abcdefghijklmnopqrstuvwxyz", j))
-	   != std::string::npos) {
-
-	//	cerr << "[i=" << i << "]";
-	
-	j = str.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-				  "abcdefghijklmnopqrstuvwxyz"
-				  "0123456789", i);
-	k = str.find_first_not_of("+-", j);
-	if (k == string::npos || !isalnum(str[k])) j = k;
-
-	//	cerr << "[j=" << j << "] ";
-	
-	string word = str.substr(i, j - i);
-	string term = word;
-	lowercase_term(term);
-
-	res += html_escape(str.substr(l, i - l));
-	if (word_in_list(stemmer->stem_word(term), list)) {
-	    res += bra;
-	    res += word;
-	    res += ket;
-	} else {
-	    res += word;
-	}
+    while ((i = find_if(j, s.end(), p_alnum)) != s.end()) {
 	l = j;
-	//	i = j + 1;
+        j = find_if(i, s.end(), p_notalnum);
+        k = find_if(j, s.end(), p_notplusminus);
+        if (k == s.end() || !isalnum(*k)) j = k;
+        string word = s.substr(i - s.begin(), j - i);
+	string term = word;
+        lowercase_term(term);
+
+	res += html_escape(s.substr(l - s.begin(), i - l));
+	bool match = false;
+        if (isupper(*i) || isdigit(*i)) {
+	    if (word_in_list('R' + term, list)) match = true;
+        }
+	if (!match && word_in_list(stemmer->stem_word(term), list)) match = true;
+	if (match) res += bra;
+	res += word;
+	if (match) res += ket;
     }
-    //    cerr << endl;
-    if (l != std::string::npos) {
-	res += html_escape(str.substr(l));
-    }
+    if (j != s.end()) res += html_escape(s.substr(j - s.begin()));
     return res;
 }
 
@@ -564,6 +569,7 @@ CMD_not,
 CMD_opt,
 CMD_or,
 CMD_percentage,
+CMD_prettyterm,
 CMD_query,
 CMD_queryterms,
 CMD_range,
@@ -630,7 +636,7 @@ static struct func_desc func_tab[] = {
 {T(last),	0, 0, N, 1, 0}}, // m-set number of last hit on page
 {T(lastpage),	0, 0, N, 1, 0}}, // number of last hit page
 {T(list),	2, 5, N, 0, 0}}, // pretty print list
-{T(map),	1, N, 1, 0, 0}}, // map a list into another list
+{T(map),	1, 2, 1, 0, 0}}, // map a list into another list
 {T(max),	1, N, N, 0, 0}}, // maximum of a list of values
 {T(min),	1, N, N, 0, 0}}, // minimum of a list of values
 {T(msize),	0, 0, N, 1, 0}}, // number of matches
@@ -640,6 +646,7 @@ static struct func_desc func_tab[] = {
 {T(opt),	1, 1, N, 0, 0}}, // lookup an option value
 {T(or),		1, N, 0, 0, 0}}, // logical shortcutting or of a list of values
 {T(percentage),	0, 0, N, 0, 0}}, // percentage score of current hit
+{T(prettyterm),	1, 1, N, 0, 0}}, // pretty print term name
 {T(query),	0, 0, N, 0, 0}}, // query
 {T(queryterms),	0, 0, N, 0, 1}}, // list of query terms
 {T(range),	2, 2, N, 0, 0}}, // return list of values between start and end
@@ -1041,7 +1048,7 @@ eval(const string &fmt, const vector<string> &param)
 		    while (1) {
 			j = l.find('\t', i);
 			string save_loopvar;
-			p[0] = eval(l.substr(i, j - i), param);
+			p[0] = l.substr(i, j - i);
 			value += eval(pat, p);
 			if (j == string::npos) break;
 			value += '\t';
@@ -1102,6 +1109,16 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_percentage:
 		// percentage score
 		value = int_to_string(percent);
+		break;
+	    case CMD_prettyterm:
+		value = args[0];
+		if (!value.empty()) {
+		    if (value.length() >= 2 && value[0] == 'R') {
+			value = char(toupper(value[1])) + value.substr(2);
+		    } else {
+			value += '.';
+		    }
+		}
 		break;
 	    case CMD_query:
 		value = raw_prob;
@@ -1225,8 +1242,10 @@ eval(const string &fmt, const vector<string> &param)
 		    eset = enquire->get_eset(howmany, tmp, 0, &decider);
 		}
 		    
-		for (OmESetIterator i = eset.begin(); i != eset.end(); i++)
-		    value = value + *i + '\t';
+		for (OmESetIterator i = eset.begin(); i != eset.end(); i++) {
+		    value += *i;
+		    value += '\t';
+		}
 		if (!value.empty()) value.erase(value.size() - 1);
 		break;
 	    }

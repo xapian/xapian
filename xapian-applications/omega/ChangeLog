@@ -1,3 +1,16 @@
+Wed Dec 12 11:11:30 GMT 2001  Olly Betts <olly@survex.com>
+
+	* $highlight{} now uses find_if not find_first_of (faster).
+
+	* Fixed detection of new/old/extended query when a term occurs
+	  in the query more than once.
+
+	* Added $prettyterm{TERM} to convert a probabilistic term for
+	  display to the user.
+
+	* $map would allow more than two arguments, but ignore them.  Fixed
+	  to take exactly two.
+
 Fri Dec 07 15:59:21 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Added macros to OmegaScript.
