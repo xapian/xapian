@@ -41,16 +41,18 @@
 #define FILENAME_IDTOTERM "termname.db"
 #define FILENAME_DOCUMENT "document.db"
 
-SleepyDatabaseInternals::SleepyDatabaseInternals() {
-    postlist_db = 0;
-    termlist_db = 0;
-    termid_db = 0;
-    termname_db = 0;
-    document_db = 0;
-    opened = false;
+SleepyDatabaseInternals::SleepyDatabaseInternals()
+	: opened(false),
+	  postlist_db(0),
+	  termlist_db(0),
+	  termid_db(0),
+	  termname_db(0),
+	  document_db(0)
+{
 }
 
-SleepyDatabaseInternals::~SleepyDatabaseInternals(){
+SleepyDatabaseInternals::~SleepyDatabaseInternals()
+{
     close();
 }
 
@@ -115,4 +117,17 @@ SleepyDatabaseInternals::close()
     catch (DbException e) {
 	throw (OmDatabaseError(string("Database error on close: ") + e.what()));
     }
+}
+
+om_doccount
+SleepyDatabaseInternals::get_doccount()
+{
+    Assert(opened);
+    try {
+	// FIXME
+    }
+    catch (DbException e) {
+	throw (OmDatabaseError(string("Database error retrieving dbsize: ") + e.what()));
+    } 
+    return 1;
 }

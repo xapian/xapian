@@ -34,7 +34,15 @@
 class SleepyDatabaseInternals {
     private:
 	DbEnv dbenv;
+
+	/// Flag to record whether database has been opened.
 	bool opened;
+
+	/// Copying not allowed.
+	SleepyDatabaseInternals(const SleepyDatabaseInternals &);
+
+	/// Assignment not allowed.
+	void operator=(const SleepyDatabaseInternals &);
     public:
 	Db *postlist_db;
 	Db *termlist_db;
@@ -44,8 +52,12 @@ class SleepyDatabaseInternals {
 
 	SleepyDatabaseInternals();
 	~SleepyDatabaseInternals();
+
+	// open - FIXME - make this into the constructor.
 	void open(const string & pathname, bool readonly);
 	void close();
+
+	om_doccount get_doccount();
 };
 
 #endif /* OM_HGUARD_SLEEPY_DATABASE_INTERNALS_H */

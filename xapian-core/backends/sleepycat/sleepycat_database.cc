@@ -49,6 +49,8 @@ SleepyDatabase::SleepyDatabase(const DatabaseBuilderParams &params)
     Assert(params.paths.size() == 1);
     Assert(params.subdbs.size() == 0);
 
+    // FIXME - these should be autopointers, so that if an exception is
+    // thrown, memory isn't leaked.
     internals = new SleepyDatabaseInternals();
     termcache = new SleepyDatabaseTermCache(internals);
 
@@ -72,8 +74,7 @@ SleepyDatabase::~SleepyDatabase() {
 om_doccount
 SleepyDatabase::get_doccount() const
 {
-    // FIXME
-    return 1;
+    return internals->get_doccount();
 }
 
 om_doclength
