@@ -224,7 +224,8 @@ LocalMatch::set_rset(const OmRSet & omrset)
 {
     Assert(!is_prepared);
     del_query_tree();
-    rset = auto_ptr<RSet>(new RSet(database, omrset));
+    auto_ptr<RSet> new_rset(new RSet(database, omrset));
+    rset = new_rset;
 }
 
 void
