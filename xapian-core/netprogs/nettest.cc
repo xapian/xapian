@@ -27,9 +27,10 @@
 #include "backendmanager.h"
 #include <om/omenquire.h>
 #include <unistd.h>
+#include <string>
 
 // Directory which the data is stored in.
-string datadir;
+std::string datadir;
 
 // #######################################################################
 // # Start of test cases.
@@ -41,7 +42,7 @@ bool test_netmatch1()
     BackendManager backendmanager;
     backendmanager.set_dbtype("net");
     backendmanager.set_datadir(datadir);
-    vector<string> paths;
+    std::vector<std::string> paths;
     paths.push_back("apitest_simpledata");
     OmDatabase db = backendmanager.get_database(paths);
     databases.add_database(db);
@@ -53,7 +54,7 @@ bool test_netmatch1()
     OmMSet mset(enq.get_mset(0, 10));
 
     if (verbose) {
-	cout << mset;
+	std::cout << mset;
     }
 
     return true;
@@ -66,7 +67,7 @@ bool test_netmatch2()
     BackendManager backendmanager;
     backendmanager.set_dbtype("net");
     backendmanager.set_datadir(datadir);
-    vector<string> paths;
+    std::vector<std::string> paths;
 
     paths.push_back("apitest_simpledata");
     OmDatabase db = backendmanager.get_database(paths);
@@ -83,7 +84,7 @@ bool test_netmatch2()
     OmMSet mset(enq.get_mset(0, 10));
 
     if (verbose) {
-	cout << mset;
+	std::cout << mset;
     }
 
     return true;
@@ -95,7 +96,7 @@ bool test_netexpand1()
     BackendManager backendmanager;
     backendmanager.set_dbtype("net");
     backendmanager.set_datadir(datadir);
-    vector<string> paths;
+    std::vector<std::string> paths;
     paths.push_back("apitest_simpledata");
     OmDatabase db = backendmanager.get_database(paths);
 
@@ -109,7 +110,7 @@ bool test_netexpand1()
     OmMSet mset(enq.get_mset(0, 10));
 
     if (verbose) {
-	cout << mset;
+	std::cout << mset;
     }
 
     Assert(mset.items.size() > 0);
@@ -128,12 +129,12 @@ bool test_tcpclient1()
     BackendManager backendmanager;
     backendmanager.set_dbtype("sleepycat");
     backendmanager.set_datadir(datadir);
-    vector<string> paths;
+    std::vector<std::string> paths;
     paths.push_back("apitest_simpledata");
     OmDatabase db = backendmanager.get_database(paths);
 
-    string command =
-	    string("./omtcpsrv --one-shot --sleepycat ") +
+    std::string command =
+	    std::string("./omtcpsrv --one-shot --sleepycat ") +
 	    ".sleepy/db=apitest_simpledata" +
 	    " --port 1235 &";
 
@@ -151,19 +152,19 @@ bool test_tcpmatch1()
     BackendManager backendmanager;
     backendmanager.set_dbtype("sleepycat");
     backendmanager.set_datadir(datadir);
-    vector<string> paths;
+    std::vector<std::string> paths;
     paths.push_back("apitest_simpledata");
     OmDatabase db = backendmanager.get_database(paths);
 
-    string command =
-	    string("./omtcpsrv --one-shot --sleepycat ") +
+    std::string command =
+	    std::string("./omtcpsrv --one-shot --sleepycat ") +
 	    ".sleepy/db=apitest_simpledata" +
 	    " --port 1236 &";
     system(command.c_str());
     sleep(1);
 
     OmDatabaseGroup databases;
-    vector<string> params;
+    std::vector<std::string> params;
     params.push_back("tcp");
     params.push_back("localhost");
     params.push_back("1236");
@@ -176,7 +177,7 @@ bool test_tcpmatch1()
     OmMSet mset(enq.get_mset(0, 10));
 
     if (verbose) {
-	cout << mset;
+	std::cout << mset;
     }
 
     return true;
@@ -200,7 +201,7 @@ int main(int argc, char *argv[])
 {
     char *srcdir = getenv("srcdir");
     if (srcdir == NULL) {
-        cout << "Error: $srcdir must be in the environment!" << endl;
+        std::cout << "Error: $srcdir must be in the environment!" << std::endl;
 	return(1);
     }
     datadir = std::string(srcdir) + "/../tests/testdata/";

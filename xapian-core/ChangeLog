@@ -1,3 +1,7 @@
+Mon Jul 10 19:12:08 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* More Solaris portability fixes.
+
 Mon Jul 10 18:35:27 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added Norwegian stemming algorithm, and linked it into the build

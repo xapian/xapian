@@ -35,11 +35,13 @@
 #include <om/omenquire.h>
 #include "tcpserver.h"
 
+using std::vector;
+
 char *progname = 0;
 
 int main(int argc, char *argv[]) {
-    vector<vector<string> > dbargs;
-    vector<string> dbtypes;
+    std::vector<std::vector<std::string> > dbargs;
+    std::vector<std::string> dbtypes;
     int port = 0;
 
     progname = argv[0];
@@ -52,41 +54,41 @@ int main(int argc, char *argv[]) {
 
     while (argc && argv[0][0] == '-') {
 	if (argc >= 2 && strcmp(argv[0], "--da-flimsy") == 0) {
-	    vector<string> args;
+	    std::vector<std::string> args;
 	    args.push_back(argv[1]);
 	    dbargs.push_back(args);
 	    dbtypes.push_back("da_flimsy");
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--da-heavy") == 0) {
-	    vector<string> args;
+	    std::vector<std::string> args;
 	    args.push_back(argv[1]);
 	    dbargs.push_back(args);
 	    dbtypes.push_back("da_heavy");
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--db-flimsy") == 0) {
-	    vector<string> args;
+	    std::vector<std::string> args;
 	    args.push_back(argv[1]);
 	    dbargs.push_back(args);
 	    dbtypes.push_back("db_flimsy");
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--db-heavy") == 0) {
-	    vector<string> args;
+	    std::vector<std::string> args;
 	    args.push_back(argv[1]);
 	    dbargs.push_back(args);
 	    dbtypes.push_back("db_heavy");
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 1 && strcmp(argv[0], "--im") == 0) {
-	    vector<string> args;
+	    std::vector<std::string> args;
 	    dbargs.push_back(args);
 	    dbtypes.push_back("inmemory");
 	    argc -= 1;
 	    argv += 1;
 	} else if (argc >= 2 && strcmp(argv[0], "--sleepycat") == 0) {
-	    vector<string> args;
+	    std::vector<std::string> args;
 	    args.push_back(argv[1]);
 	    dbargs.push_back(args);
 	    dbtypes.push_back("sleepycat");
@@ -124,8 +126,8 @@ int main(int argc, char *argv[]) {
     try {
         OmDatabaseGroup mydbs;
 
-	vector<string>::const_iterator p;
-	vector<vector<string> >::const_iterator q;
+	std::vector<std::string>::const_iterator p;
+	std::vector<std::vector<std::string> >::const_iterator q;
 	for(p = dbtypes.begin(), q = dbargs.begin();
 	    p != dbtypes.end();
 	    p++, q++) {
