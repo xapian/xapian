@@ -84,7 +84,7 @@ class OmSettings::Internal {
 	/** Return stored settings as a string for use by
 	 *  OmSettings::get_description()
 	 */
-        string get_description() const;
+        string OmSettings::Internal::get_description() const;
 };
 
 ////////////////////////////////////////////////////////////////
