@@ -1,3 +1,18 @@
+Xapian 0.5.2:
+
+Further improvements to documentation and portability:
+
+* docs/: converted all text docs to HTML (except omsettings which will
+  has odd markup (LaTeX?) and will probably soon be obsolete anyway).
+
+* remote backend: Fixed handling of timeouts which are now in the past - fixes
+  test failures with redhat/x86.
+
+* quartz backend: now works on 64 bit platforms.
+
+* test suite: try to spot mishandled exceptions and stop them causing bogus
+  OMEXCEPT failures.
+
 Xapian 0.5.1:
 
 This release fixes features improved documentation and some build system

@@ -1,3 +1,7 @@
+Sat Oct 05 20:31:55 BST 2002  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.in: 0.5.2 release.
+
 Sat Oct 05 03:01:49 BST 2002  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated.
@@ -19,7 +23,7 @@ Fri Oct 04 19:08:08 BST 2002  Olly Betts <olly@survex.com>
 Fri Oct 04 18:24:55 BST 2002  Olly Betts <olly@survex.com>
 
 	* docs/: converted all text docs to HTML (except omsettings which will
-	  has odd markup (LaTeX?) and will probably soon be obselete anyway).
+	  has odd markup (LaTeX?) and will probably soon be obsolete anyway).
 	* docs/todo.xml: updated.
 
 Fri Oct 04 17:18:33 BST 2002  Olly Betts <olly@survex.com>
@@ -2017,7 +2021,7 @@ Wed Mar 14 17:51:40 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Added new operator OP_ELITE_SET, which replaces match_max_or_terms
 	  option.  Can now specify exactly which terms to apply max_or_terms
-	  to.  max_or_terms is obselete: an error will be thrown if an
+	  to.  max_or_terms is obsolete: an error will be thrown if an
 	  attempt is made to use it.
 
 Wed Mar 14 15:56:20 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
@@ -2087,7 +2091,7 @@ Tue Feb 27 18:40:33 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 	  new parameters to inmemory to cause abort()s at various stages of
 	  the match.
 
-	* Remove obselete (and unused) method
+	* Remove obsolete (and unused) method
 	  SocketServer::read_global_stats()
 
 	* Errors are now generated from strings by using omerrortypes.h with
