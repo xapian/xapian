@@ -1,3 +1,7 @@
+Tue Mar  7 12:17:47 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added OmRangeError and OmDatabaseError exceptions.
+
 Mon Mar  6 18:05:17 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* stemtest.pl now handles the child getting a Ctrl-C nicely.

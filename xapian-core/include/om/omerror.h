@@ -104,10 +104,24 @@ class OmDocNotFoundError : public OmRuntimeError {
 	OmDocNotFoundError(const string &msg) : OmRuntimeError(msg) {};
 };
 
-/** Thrown when opening a database fails. */
-class OmOpeningError : public OmRuntimeError {
+/** thrown when an element is out of range. */
+class OmRangeError : public OmRuntimeError {
     public:
-        OmOpeningError(const string &msg) : OmRuntimeError(msg) {};
+	OmRangeError(const string &msg) : OmRuntimeError(msg) {};
 };
+
+/** thrown for miscellaneous database errors. */
+class OmDatabaseError : public OmRuntimeError {
+    public:
+	OmDatabaseError(const string &msg) : OmRuntimeError(msg) {};
+};
+
+
+/** Thrown when opening a database fails. */
+class OmOpeningError : public OmDatabaseError {
+    public:
+        OmOpeningError(const string &msg) : OmDatabaseError(msg) {};
+};
+
 
 #endif /* OM_HGUARD_ERROR_H */
