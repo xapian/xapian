@@ -161,11 +161,13 @@ MultiMatch::get_max_weight()
     Assert((allow_add_leafmatch = false) == false);
     Assert(leaves.size() > 0);
 
+    leaves.front()->prepare_match();
     om_weight result = leaves.front()->get_max_weight();
 
 #ifdef MUS_DEBUG
     for(vector<SingleMatch *>::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
+	(*i)->prepare_match();
 	Assert((*i)->get_max_weight() == result);
     }
 #endif /* MUS_DEBUG */
@@ -188,8 +190,9 @@ MultiMatch::match(om_doccount first,
 
     if(leaves.size() == 1) {
 	// Only one mset to get - so get it.
-	(*(leaves.begin()))->get_mset(first, maxitems, mset, cmp,
-				      mbound, greatest_wt, mdecider);
+	leaves.front()->prepare_match();
+	leaves.front()->get_mset(first, maxitems, mset, cmp,
+				 mbound, greatest_wt, mdecider);
     } else if(leaves.size() > 1) {
 	// Need to merge msets.
 	MSetCmp mcmp(cmp);
@@ -198,6 +201,12 @@ MultiMatch::match(om_doccount first,
 	om_weight   tot_greatest_wt = 0;
 	om_doccount lastitem = first + maxitems;
 
+	// Prepare all the msets
+	for(vector<SingleMatch *>::iterator leaf = leaves.begin();
+	    leaf != leaves.end(); leaf++) {
+	    (*leaf)->prepare_match();
+	}
+	
 	// Get the first mset
 	(*(leaves.begin()))->get_mset(0, lastitem, mset, cmp,
 				      &tot_mbound, &tot_greatest_wt, mdecider);

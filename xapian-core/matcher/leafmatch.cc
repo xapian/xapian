@@ -464,9 +464,10 @@ LeafMatch::perform_collapse(vector<OmMSetItem> &mset,
 void
 LeafMatch::prepare_match()
 {
-    Assert(!is_prepared);
-    statsleaf.contrib_my_stats();
-    is_prepared = true;
+    if(!is_prepared) {
+	statsleaf.contrib_my_stats();
+	is_prepared = true;
+    }
 }
 
 // Return the maximum possible weight, calculating it if necessary.
