@@ -1,3 +1,17 @@
+Mon Jun  5 18:59:49 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Moved implementation of OmExpand::get_bits() out of the header file.
+
+	* Use actual normalised length in SleepyTermList for calculating
+	  weight.  Now produces same result as InMemoryTermList.
+
+	* Test that an expand across a multidatabase produces same result as
+	  an equivalent expand across a single database.  This test fails,
+	  because normalised lengths are not shared across databases.  This is
+	  part and parcel of the need to restructure the way expand is
+	  performed, which will take some time to accomplish, so the test
+	  is disabled for now.
+
 Mon Jun  5 18:54:14 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added proof-of-concept Python bindings for OmStem (using SWIG).
