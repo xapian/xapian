@@ -1,3 +1,8 @@
+Wed Jun 04 01:56:46 BST 2003  Olly Betts <olly@survex.com>
+
+	* HACKING: Bison 1.75 and 1.875a both checked with parsequery.yy
+	  - no problems found.
+
 Mon Jun 02 20:14:22 BST 2003  Olly Betts <olly@survex.com>
 
 	* ChangeLog.0: Fixed 2 typos.

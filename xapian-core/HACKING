@@ -137,11 +137,11 @@ at the time of writing, the versions known to work are:
 		might affect us, so we require at least 1.35.
 
 		Bison 1.50 is stricter than previous versions about certain
-		things - Xapian appears to work fine with Bison 1.50.
+		things - Xapian appears to work fine with Bison 1.50.  And
+		also with Bison 1.75.
 
 		Bison 1.875 generates code which GNU C++ won't compile -
-		the problem appears to have been fixed in 1.875a (judging
-		from the NEWS files) but we'venot verified this.
+		this problem has been fixed in 1.875a.
 
 	GNU Flex
 
@@ -288,7 +288,7 @@ Here's an incomplete list of things to avoid:
   have been checked (and fixed if required) as of 2003-05-26 (didn't check
   bindings or indexer subdirectories).
 
-And lastly a style point - using "@" to suppress outputing of commands being
+And lastly a style point - using "@" to suppress echoing of commands being
 executed removes choice from the user - they may want to see what commands
 are being executed.  And if they don't want to, they can use "make -s" (in
 many versions of make).
