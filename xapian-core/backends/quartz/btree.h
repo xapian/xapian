@@ -39,6 +39,30 @@ class Btree {
 
 	~Btree();
 
+	/** Open the btree to read at the latest revision
+	 *
+	 * @return true if the open succeeded.
+	 */
+	bool open_to_read(const char *name_);
+
+	/** Open the btree to read at a given revision
+	 *
+	 * @return true if the open succeeded.
+	 */
+	bool open_to_read(const char *name_, uint4 revision_);
+
+	/** Open the btree to write at the latest revision
+	 *
+	 * @return true if the open succeeded.
+	 */
+	bool open_to_write(const char *name_);
+
+	/** Open the btree to write at a given revision
+	 *
+	 * @return true if the open succeeded.
+	 */
+	bool open_to_write(const char *name_, uint4 revision_);
+
 	/** Create an initial btree structure on disk */
 	static int create(const char *name_, int blocksize);
 
@@ -78,6 +102,24 @@ class Btree {
 	// FIXME: make these private once operations are member functions.
 //    private:
 
+	/** Perform the opening operation to read.
+	 *
+	 * Return true if the open succeeded.
+	 */
+	bool do_open_to_read(const char *name_,
+			     bool revision_supplied,
+			     uint4 revision_);
+
+	/** Perform the opening operation to read.
+	 *
+	 * Return false if the open succeeded.
+	 */
+	bool do_open_to_write(const char *name_,
+			     bool revision_supplied,
+			     uint4 revision_);
+	bool basic_open(const char *name_,
+			bool revision_supplied,
+			uint4 revision);
 	/** true if the root block is faked (not written to disk).
 	 *  false otherwise.  This is true when the btree hasn't been modified yet.
 	 */

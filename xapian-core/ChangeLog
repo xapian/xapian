@@ -1,3 +1,13 @@
+Tue Nov 21 14:16:21 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Made the Btree opening functions member functions (as before,
+	  the Btree_* functions remain as wrappers).  They are not
+	  called from the constructor because they need to signal a
+	  failure without throwing an exception.
+
+	* The next() and prev() cursor functions were renamed to
+	  next_default() and prev_default() due to a namespace collision.
+
 Tue Nov 21 10:58:13 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Implemented collection frequency stuff.  This involves:

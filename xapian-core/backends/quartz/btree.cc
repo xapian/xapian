@@ -1292,16 +1292,15 @@ static int write_base(struct Btree * B)
     return true;
 }
 
-static struct Btree * basic_open(const char * name_,
-				 int revision_supplied,
-				 uint4 revision)
+bool
+Btree::basic_open(const char * name_,
+		  bool revision_supplied,
+		  uint4 revision_)
 {
-    AutoPtr<Btree> B(new Btree);
-    Assert(B.get() != 0);
-
     int ch = 'X'; /* will be 'A' or 'B' */
 
-    B->name = name_;
+    /* FIXME: move this into constructor initialiser name(name_) */
+    name = name_;
 
     {
 	std::string err_msg;
@@ -1309,10 +1308,10 @@ static struct Btree * basic_open(const char * name_,
 	Btree_base baseB;
 	bool baseA_ok;
 	bool baseB_ok;
-	baseA_ok = baseA.read(B->name, 'A', err_msg);
-        baseB_ok = baseB.read(B->name, 'B', err_msg);
+	baseA_ok = baseA.read(name, 'A', err_msg);
+        baseB_ok = baseB.read(name, 'B', err_msg);
 
-        if (baseA_ok && baseB_ok) B->both_bases = true;
+        if (baseA_ok && baseB_ok) both_bases = true;
         if (!baseA_ok && !baseB_ok) {
 	    std::string message = "Error opening table `"; 
 	    message += name_;
@@ -1322,16 +1321,16 @@ static struct Btree * basic_open(const char * name_,
 	}
 
         if (revision_supplied) {
-	    if (baseA_ok && baseA.get_revision() == revision) {
+	    if (baseA_ok && baseA.get_revision() == revision_) {
 		ch = 'A';
-	    } else if (baseB_ok && baseB.get_revision() == revision) {
+	    } else if (baseB_ok && baseB.get_revision() == revision_) {
 		ch = 'B';
 	    } else {
 		/* Couldn't open the revision that was asked for.
 		 * This shouldn't throw an exception, but should just return
 		 * 0 to upper levels.
 		 */
-		return 0;
+		return false;
 	    }
         } else {
 	    if (!baseA_ok) ch = 'B'; else
@@ -1340,65 +1339,64 @@ static struct Btree * basic_open(const char * name_,
                                   /* unsigned comparison */
         }
 
-	Btree_base *base;
+	Btree_base *basep;
 	Btree_base *other_base;
         if (ch == 'A') {
-	    base = &baseA;
+	    basep = &baseA;
 	    other_base = baseB_ok?&baseB : 0;
 	} else if (ch == 'B') {
-	    base = &baseB;
+	    basep = &baseB;
 	    other_base = baseA_ok?&baseA : 0;
 	} else {
 	    Assert(false);
-	    B->error = BTREE_ERROR_BASE_READ;
+	    error = BTREE_ERROR_BASE_READ;
 	}
 
         /* base now points to the most recent base block */
 
-        B->base = *base;
+        base = *basep;
 
-        B->revision_number = base->get_revision();
-        B->block_size =      base->get_block_size();
-        B->root =            base->get_root();
-        B->level =           base->get_level();
-        B->bit_map_size =    base->get_bit_map_size();
-        B->item_count =      base->get_item_count();
-        B->last_block =      base->get_last_block();
-        B->faked_root_block = base->get_have_fakeroot();
+        revision_number = basep->get_revision();
+        block_size =      basep->get_block_size();
+        root =            basep->get_root();
+        level =           basep->get_level();
+        bit_map_size =    basep->get_bit_map_size();
+        item_count =      basep->get_item_count();
+        last_block =      basep->get_last_block();
+        faked_root_block = basep->get_have_fakeroot();
 
         if (other_base != 0) {
-	    B->other_revision_number = other_base->get_revision();
+	    other_revision_number = other_base->get_revision();
         }
     }
 
     /* k holds contructed items as well as keys */
-    B->kt = (byte *)calloc(1, B->block_size);
-    if (B->kt == 0) {
+    kt = (byte *)calloc(1, block_size);
+    if (kt == 0) {
 	throw std::bad_alloc();
     }
 
-    B->max_item_size = (B->block_size - DIR_START - BLOCK_CAPACITY * D2) / BLOCK_CAPACITY;
+    max_item_size = (block_size - DIR_START - BLOCK_CAPACITY * D2) / BLOCK_CAPACITY;
 
     /* This upper limit corresponds to K1 == 1 */
-    B->max_key_len = UCHAR_MAX - K1 - C2;
+    max_key_len = UCHAR_MAX - K1 - C2;
 
     {
-	int max = B->max_item_size - I3 - C2 - C2 - TAG_CAPACITY;
+	int max = max_item_size - I3 - C2 - C2 - TAG_CAPACITY;
 
         /* This limit would come into effect with large keys in a B-tree with a
 	   small block size.
         */
 
-        if (B->max_key_len > max) B->max_key_len = max;
+        if (max_key_len > max) max_key_len = max;
     }
 
     /* ready to open the main file */
 
-    B->base_letter = ch;
-    B->next_revision = B->revision_number + 1;
+    base_letter = ch;
+    next_revision = revision_number + 1;
 
-    // Extract the pointer from the AutoPtr without deleting it.
-    return B.release();
+    return true;
 }
 
 static void read_root(struct Btree * B, struct Cursor * C)
@@ -1445,18 +1443,20 @@ static void read_root(struct Btree * B, struct Cursor * C)
     }
 }
 
-static struct Btree * open_to_write(const char * name, int revision_supplied, uint4 revision)
+bool
+Btree::do_open_to_write(const char * name_,
+			bool revision_supplied,
+			uint4 revision_)
 {
     /* FIXME: do the exception safety the right way, by making all the
      * parts into sensible objects.
      */
-    AutoPtr<Btree> B(basic_open(name, revision_supplied, revision));
-    if (B.get() == 0 || B->error) {
+    if (!basic_open(name_, revision_supplied, revision_)) {
 	if (!revision_supplied) {
 	    std::string message = "Failed to open for writing";
-	    if (B.get()) {
+	    if (error != BTREE_ERROR_NONE) {
 		message += std::string(": ");
-		message += Btree_strerror(B->error);
+		message += Btree_strerror(error);
 	    }
 	    throw OmOpeningError(message);
 	} else {
@@ -1464,64 +1464,89 @@ static struct Btree * open_to_write(const char * name, int revision_supplied, ui
 	     * case when open failed.  We should just return 0 here
 	     * instead.
 	     */
-	    return 0;
+	    return false;
 	}
     }
 
-    B->handle = sys_open_for_readwrite(B->name + "DB");
+    handle = sys_open_for_readwrite(name + "DB");
 
-    B->bit_map0 = read_bit_map(B->name, B->base_letter, B->bit_map_size);
-    if (B->bit_map0 == 0) {
+    bit_map0 = read_bit_map(name, base_letter, bit_map_size);
+    if (bit_map0 == 0) {
 	std::string message = "Failed to read bit map from table ";
-	message += B->name;
+	message += name;
 
-	B->error = BTREE_ERROR_BITMAP_READ;
+	error = BTREE_ERROR_BITMAP_READ;
 	throw OmOpeningError(message);
     }
 
-    B->bit_map = (byte *) malloc(B->bit_map_size);
-    if (B->bit_map == 0) {
+    bit_map = (byte *) malloc(bit_map_size);
+    if (bit_map == 0) {
 	throw std::bad_alloc();
     }
-    memmove(B->bit_map, B->bit_map0, B->bit_map_size);
+    memmove(bit_map, bit_map0, bit_map_size);
 
-    {   struct Cursor * C = B->C;
-        int j; for (j = 0; j <= B->level; j++)
+    {
+        int j; for (j = 0; j <= level; j++)
         {   C[j].n = -1;
             C[j].split_n = -1;
-            C[j].p = (byte *)malloc(B->block_size);
+            C[j].p = (byte *)malloc(block_size);
             if (C[j].p == 0) {
 		throw std::bad_alloc();
 	    }
-            C[j].split_p = (byte *)malloc(B->block_size);
+            C[j].split_p = (byte *)malloc(block_size);
             if (C[j].split_p == 0) {
 		throw std::bad_alloc();
 	    }
         }
-        read_root(B.get(), C);
+        read_root(this, C);
     }
 
-    B->buffer = (byte *)calloc(1, B->block_size);
-    if (B->buffer == 0) {
+    buffer = (byte *)calloc(1, block_size);
+    if (buffer == 0) {
 	throw std::bad_alloc();
     }
 
-    B->other_base_letter = B->base_letter == 'A' ? 'B' : 'A'; /* swap for writing */
+    other_base_letter = base_letter == 'A' ? 'B' : 'A'; /* swap for writing */
 
-    B->changed_n = -1;
-    B->seq_count = SEQ_START_POINT;
+    changed_n = -1;
+    seq_count = SEQ_START_POINT;
 
-    return B.release();
+    return true;
 }
 
-extern struct Btree * Btree_open_to_write(const char * name)
+bool
+Btree::open_to_write(const char * name)
 {
-    return open_to_write(name, false, 0);
+    return do_open_to_write(name, false, 0);
 }
 
-extern struct Btree * Btree_open_to_write_revision(const char * name, uint4 n)
+bool
+Btree::open_to_write(const char * name, uint4 n)
 {
-    return open_to_write(name, true, n);
+    return do_open_to_write(name, true, n);
+}
+
+struct Btree * Btree_open_to_write(const char * name)
+{
+    AutoPtr<Btree> B(new Btree());
+
+    if (B->open_to_write(name)) {
+	return B.release();
+    } else {
+	return 0;
+    }
+}
+
+struct Btree * Btree_open_to_write_revision(const char * name,
+					    unsigned long revision)
+{
+    AutoPtr<Btree> B(new Btree());
+
+    if (B->open_to_write(name, revision)) {
+	return B.release();
+    } else {
+	return 0;
+    }
 }
 
 extern void Btree_quit(struct Btree * B)
@@ -1720,56 +1745,83 @@ extern int Btree_close(struct Btree * B_, uint4 revision)
 
 /************ B-tree reading ************/
 
-static int prev(struct Btree * B, struct Cursor * C, int j);
-static int next(struct Btree * B, struct Cursor * C, int j);
+static int prev_default(struct Btree * B, struct Cursor * C, int j);
+static int next_default(struct Btree * B, struct Cursor * C, int j);
 
 static int prev_for_revision_1(struct Btree * B, struct Cursor * C, int dummy);
 static int next_for_revision_1(struct Btree * B, struct Cursor * C, int dummy);
 
-static struct Btree * open_to_read(const char * name, int revision_supplied, uint4 revision)
+bool
+Btree::do_open_to_read(const char * name_,
+		       bool revision_supplied,
+		       uint4 revision_)
 {
-    AutoPtr<Btree> B(basic_open(name, revision_supplied, revision));
-    if (B.get() == 0 || B->error) {
+    if (!basic_open(name_, revision_supplied, revision_)) {
 	std::string message = "Failed to open table to read: ";
-	if (B.get()) {
-	    message += Btree_strerror(B->error);
+	if (error != BTREE_ERROR_NONE) {
+	    message += Btree_strerror(error);
 	} else {
 	    message += "unknown error";
 	}
 	throw OmOpeningError(message);
     }
 
-    B->handle = sys_open_to_read(B->name + "DB");
+    handle = sys_open_to_read(name + "DB");
 
     {
-        int common_levels = B->revision_number <= 1 ? 1 : 2;
-        B->shared_level = B->level > common_levels ? common_levels : B->level;
+        int common_levels = revision_number <= 1 ? 1 : 2;
+        shared_level = level > common_levels ? common_levels : level;
     }
 
-    B->prev = B->revision_number <= 1 ? prev_for_revision_1 : prev;
-    B->next = B->revision_number <= 1 ? next_for_revision_1 : next;
+    prev = revision_number <= 1 ? prev_for_revision_1 : prev_default;
+    next = revision_number <= 1 ? next_for_revision_1 : next_default;
 
-    {   struct Cursor * C = B->C;
-        for (int j = B->shared_level; j <= B->level; j++) {
+    {
+        for (int j = shared_level; j <= level; j++) {
 	    C[j].n = -1;
-            C[j].p = (byte *)malloc(B->block_size);
+            C[j].p = (byte *)malloc(block_size);
             if (C[j].p == 0) {
 		throw std::bad_alloc();
 	    }
         }
-        read_root(B.get(), C);
+        read_root(this, C);
     }
-    return B.release();
+    return true;
 }
 
-extern struct Btree * Btree_open_to_read(const char * name)
+bool
+Btree::open_to_read(const char * name)
 {
-    return open_to_read(name, false, 0);
+    return do_open_to_read(name, false, 0);
 }
 
-extern struct Btree * Btree_open_to_read_revision(const char * name, uint4 n)
+bool
+Btree::open_to_read(const char * name, uint4 n)
 {
-    return open_to_read(name, true, n);
+    return do_open_to_read(name, true, n);
+}
+
+Btree * Btree_open_to_read(const char * name)
+{
+    AutoPtr<Btree> B(new Btree());
+
+    if (B->open_to_read(name)) {
+	return B.release();
+    } else {
+	return 0;
+    }
+}
+
+Btree * Btree_open_to_read_revision(const char * name,
+				    unsigned long revision)
+{
+    AutoPtr<Btree> B(new Btree());
+
+    if (B->open_to_read(name, revision)) {
+	return B.release();
+    } else {
+	return 0;
+    }
 }
 
 // FIXME: continue working through errors after this point
@@ -1838,7 +1890,7 @@ static int next_for_revision_1(struct Btree * B, struct Cursor * C, int dummy)
     return true;
 }
 
-static int prev(struct Btree * B, struct Cursor * C, int j)
+static int prev_default(struct Btree * B, struct Cursor * C, int j)
 {   byte * p = C[j].p;
     int c = C[j].c;
     if (c == DIR_START)
@@ -1848,7 +1900,7 @@ static int prev(struct Btree * B, struct Cursor * C, int j)
         {   force_block_to_cursor(B, C, j + 1);
             if (B->overwritten) return false;
         }
-        if (! prev(B, C, j + 1)) return false;
+        if (! prev_default(B, C, j + 1)) return false;
 
         c = DIR_END(p);
     }
@@ -1861,7 +1913,7 @@ static int prev(struct Btree * B, struct Cursor * C, int j)
     return true;
 }
 
-static int next(struct Btree * B, struct Cursor * C, int j)
+static int next_default(struct Btree * B, struct Cursor * C, int j)
 {   byte * p = C[j].p;
     int c = C[j].c;
     c += D2;
@@ -1872,7 +1924,7 @@ static int next(struct Btree * B, struct Cursor * C, int j)
         {   force_block_to_cursor(B, C, j + 1);
             if (B->overwritten) return false;
         }
-        if (! next(B, C, j + 1)) return false;
+        if (! next_default(B, C, j + 1)) return false;
 
         c = DIR_START;
     }
