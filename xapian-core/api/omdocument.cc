@@ -37,17 +37,29 @@ OmDocument::OmDocument(OmDocument::Internal *internal_) : internal(internal_)
 OmKey
 OmDocument::get_key(om_keyno key) const
 {
-    // create our own RefCntPtr in case another thread assigns new internals
+    DEBUGAPICALL(OmKey, "OmDocument::get_data", key);
+    if (internal->keys_here) {
+	std::map<om_keyno, OmKey>::const_iterator i;
+	i = internal->keys.find(key);
+	if (i == internal->keys.end()) {
+	    OmKey nul;
+	    RETURN(nul);
+	}
+	RETURN(i->second);
+    }
+    // create our own RefCntPtr in case another thread assigns a new ptr
     RefCntPtr<LeafDocument> myptr = internal->ptr;
-    return myptr->get_key(key);
+    RETURN(myptr->get_key(key));
 }
 
 OmData
 OmDocument::get_data() const
 {
-    // create our own RefCntPtr in case another thread assigns new internals
+    DEBUGAPICALL(OmData, "OmDocument::get_data", "");
+    if (internal->data_here) RETURN(internal->data);
+    // create our own RefCntPtr in case another thread assigns a new ptr
     RefCntPtr<LeafDocument> myptr = internal->ptr;
-    return myptr->get_data();
+    RETURN(myptr->get_data());
 }
 
 void
@@ -73,4 +85,42 @@ OmDocument::get_description() const
 {
     // FIXME - return document contents
     return "OmDocument()";
+//    description = "OmDocumentContents(" +
+//	    data.get_description() +
+//	    ", keys[" + om_tostring(keys.size()) + "]" +
+//	    ", terms[" + om_tostring(terms.size()) + "]" +
+//	    ")";
+}
+
+void
+OmDocument::add_key(om_keyno keyno, const OmKey &key)
+{
+    DEBUGAPICALL(void, "OmDocument::add_key", keyno << ", " << key);
+    // FIXME: need to lock here...
+    if (!internal->keys_here) {
+	internal->keys = internal->ptr->get_all_keys();
+	internal->keys_here = true;
+    }
+    internal->keys.insert(std::make_pair(keyno, key));	
+}
+
+void
+OmDocument::add_posting(const om_termname & tname, om_termpos tpos)
+{
+    DEBUGAPICALL(void, "OmDocument::add_posting", tname << ", " << tpos);
+    // FIXME: need to lock here...
+    if (!internal->terms_here) {
+	// FIXME: read terms from LeafDocument into terms
+	Assert(false);
+	internal->terms_here = true;
+    }
+    std::map<om_termname, OmDocumentTerm>::iterator i;
+    i = internal->terms.find(tname);
+
+    if (i == internal->terms.end()) {
+	internal->terms.insert(std::make_pair(tname,
+					      OmDocumentTerm(tname, tpos)));
+    } else {
+	i->second.add_posting(tpos);
+    }
 }

@@ -1,3 +1,8 @@
+Tue Nov 28 16:47:06 GMT 2000 Olly Betts
+
+	* Started to alter OmDocument to be a general purpose document class
+	  which includes the functionality currently in OmDocumentContents.
+
 Tue Nov 28 15:08:38 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added OmSplitOnCharsNode, which does a subset of OmRegexSplitNode
