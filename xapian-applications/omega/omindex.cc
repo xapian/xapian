@@ -151,15 +151,14 @@ MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
 }
 
 void
-MyHtmlParser::closing_tag(const string &text)
+MyHtmlParser::closing_tag(const string &tag)
 {
-    string x = text;
-    if (x == "title") {
+    if (tag == "title") {
 	title = dump;
 	dump = "";
-    } else if (x == "script") {
+    } else if (tag == "script") {
 	in_script_tag = false;
-    } else if (x == "style") {
+    } else if (tag == "style") {
 	in_style_tag = false;
     } else if (tag == "body") {
 	throw true;
