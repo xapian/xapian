@@ -71,7 +71,7 @@ class OmMSet {
 
 	string get_description();
 
-	%readonly
+//	%readonly
 	/* Each language-specific part should include something like:
 	 * %addmethods OmMSet {
 	 *     %readonly
@@ -80,7 +80,7 @@ class OmMSet {
 	 * and define LangListType OmMSet_items_get(OmMSet *)
 	 */
 
-	%readwrite
+//	%readwrite
 };
 
 class OmRSet {
@@ -96,7 +96,7 @@ class OmRSet {
 class OmESet {
     public:
 	~OmESet();
-	%readonly
+//	%readonly
         string get_description() const;
 	om_termcount get_ebound() const;
 	om_termcount size() const;
@@ -108,7 +108,7 @@ class OmESet {
 	 * }
 	 * and define LangListType OmMSet_items_get(OmMSet *)
 	 */
-	%readwrite
+//	%readwrite
 };
 
 class OmQuery {
@@ -195,7 +195,7 @@ class OmSettings {
 	~OmSettings();
 	
 	void set(const string &key, const string &value);
-	string (const string &key) const;
+//	string (const string &key) const;
 	string get_description() const;
 	// TODO: make this look like a Dict/hash/whatever?
 };
