@@ -86,7 +86,7 @@ main(int argc, char *argv[])
 	argv++;
     }
 
-    if (syntax_error || argc != 0 || (recnos.empty() && terms.empty())) {
+    if (syntax_error || argc != 0) {
 	cout << "Syntax:\t" << progname << " <options> <database>...\n"
 		"\t-r <recno>            for termlist(s)\n"
 		"\t-t <term>             for posting list(s)\n"
@@ -110,7 +110,11 @@ main(int argc, char *argv[])
 	    }
 	}
 
-	if (terms.empty()) {
+	if (terms.empty() && recnos.empty()) {
+	    // just display a few database stats
+	    cout << "number of documents = " << db.get_doccount() << endl;
+	    cout << "average document length = " << db.get_avlength() << endl;
+	} else if (terms.empty()) {
 	    // Display termlists
 	    std::vector<om_docid>::const_iterator i;
 	    for (i = recnos.begin(); i != recnos.end(); i++) {
@@ -183,7 +187,7 @@ main(int argc, char *argv[])
 	    }
 	}
     }
-    catch (OmError &e) {
+    catch (const OmError &e) {
 	cout << "Error: " << e.get_msg() << endl;
     }
 }
