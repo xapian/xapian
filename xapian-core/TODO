@@ -150,11 +150,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Low     | Backends        | Stop d[ba]read from exporting junk symbols
 ---------+-----------------+--------------------------------------------------
- Low     | InMemory        | Make InMemoryDatabase allow
-         |                 | <size of position vector> != <wdf>, ie, if
-	 |                 | posting is made and position is already there,
-	 |                 | leave position vector same but increment wdf.
----------+-----------------+--------------------------------------------------
  Low     |RPositional      | Use within query frequency and query length
 	 |                 | information in matcher.
 ---------+-----------------+--------------------------------------------------
