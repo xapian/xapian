@@ -16,8 +16,21 @@
 //  Generates package1.count package2.count ...
 
 
+
+//
+// Reasoning for looking at symbols in the most recent copy and
+// not on a commit by commit basis in previous versions:
+//
+//  code symbols change over time but not the domain concepts
+//  we describe them by in comments
+//
+
 // if in file mode, this is the minimum # files
 // 15 is reasonable but takes a while
+
+
+//#define MAX_LINES 500000
+#define MAX_LINES 50000000
 
 // for app, use 5
 #define MIN_SUPP 5 
@@ -31,8 +44,13 @@
 // any change in subdirectory counts as app change
 #define COUNT_APPS true
 
-#define COUNT_FUNCTION_SYMBOLS_ONLY 1
+// app count not exactly correct because files not handled
+// in order of app exactly but also by order of extension
+// (e.g., .h, .cc, .C, .cpp, etc.), so some apps may contribute
+// 2 or 3 to the count
 
+#define COUNT_FUNCTION_SYMBOLS_ONLY 0
+#define COUNT_KDE_CLASSES_ONLY 1
 
 #include <om/om.h>
 #include <db_cxx.h>
@@ -42,55 +60,47 @@
 #include <vector>
 #include <list>
 #include <map>
+#include <math.h>
+#include <algorithm>
 
 #include "util.h"
 
+// given a path, extract the application
+string extractApp( const string& s ) {
 
-bool isSame( const string& s, const string& t ) {
-  //  cerr << "isSame " << s << " and " << t << endl;
-  if ( s == "" || t== "" ) {
-    assert( s != t );
-    return false;
+  if ( s == "" ) {
+    return s;
   }
 
-  string sub1 = string( s, 0, s.find("/") );
-  string sub2 = string( t, 0, s.find("/") );
+  string sub = string( s, 0, s.find("/") );
   
-  //  cerr << "sub1 " << sub1 << endl;
-  //  cerr << "sub2 " << sub2 << endl;
-
-  if ( sub1 != sub2 ) {
-    return false;
-  }
-
   // main directories same, so perhaps check subdirectory
-  if ( sub1 == "kdenetwork" ||
-       sub1 == "kmusic" ||
-       sub1 == "koffice" ||
-       sub1 == "kdebase" ||
-       sub1 == "kdeutils" ||
-       sub1 == "kdegraphics" ||
-       sub1 == "kdemultimedia" ||
-       sub1 == "kdenonbeta" ||
-       sub1 == "kdepim" ||
-       sub1 == "kdesdk" ||
-       sub1 == "kdesupport" ||
-       sub1 == "kdetoys" ||
-       sub1 == "kdegames" ||
-       sub1 == "kdeutils" ||
-       sub1 == "kdelibs" || 
-       sub1 == "kdeadmin" ) {
-    //    cerr << "special case" << endl;
+  if ( sub == "kdenetwork" ||
+       sub == "kmusic" ||
+       sub == "koffice" ||
+       sub == "kdebase" ||
+       sub == "kdeutils" ||
+       sub == "kdegraphics" ||
+       sub == "kdemultimedia" ||
+       sub == "kdenonbeta" ||
+       sub == "kdepim" ||
+       sub == "kdesdk" ||
+       sub == "kdesupport" ||
+       sub == "kdetoys" ||
+       sub == "kdegames" ||
+       sub == "kdeutils" ||
+       sub == "kdelibs" || 
+       sub == "kdeadmin" ) {
+
     string x = string( s, s.find("/")+1, s.length() );
     x = string( x, 0, x.find("/") );
-    string y = string( t, t.find("/")+1, t.length() );
-    y = string( y, 0, y.find("/") );
-    //    cerr << "x = " << x << endl;
-    //    cerr << "y = " << y << endl;
-    return x == y;
-  }
-  return sub1 == sub2;
+    return x;
+  } 
+
+  return sub;
+
 }
+
 
 int main(int argc, char *argv[]) {
 
@@ -128,35 +138,28 @@ int main(int argc, char *argv[]) {
     string file_db = package + ".db";
     string file_offset = package +".offset";
 
-    map<string, int> symbol_count;
-    map<string, int> term_count;
-  
+    map<string, set<string> > symbol_count;
+    map<string, set<string> > term_count;
+    set<string> apps;
+
     try {
 
       { // pass 1
 	cerr << "PASS 1" << endl;
 	Lines lines( codepath, file_db, file_offset );
-	string prev_file = "";
-	map< string, bool > counted_term;
-	map< string, bool > counted_symbol;
-	while ( lines.ReadNextLine() ) {
+	int lines_read = 0;
+	while ( lines.ReadNextLine() && lines_read < MAX_LINES ) {
+
 	  set<string> terms = lines.getCommentTerms();
 	  set<string> symbols = lines.getCodeSymbols();
 
-	  if ( !isSame(lines.currentFile(), prev_file ) ) {
-	    //	    prev_file = lines.currentFile();
-	    cerr << "*** new app " << lines.currentFile() << endl;
-	    counted_term.clear();
-	    counted_symbol.clear();
-	  }
+	  string app = extractApp( lines.currentFile() );
+	  //	  cerr << lines.currentFile() << " => " << app << endl;
 
-	  prev_file = lines.currentFile();
+	  apps.insert(app);
 
 	  for( set<string>::iterator i = terms.begin(); i != terms.end(); i++ ) {
-	    if ( !COUNT_APPS || counted_term.find(*i) == counted_term.end() ) {
-	      term_count[*i]++;
-	      counted_term[*i] = true;
-	    }
+	      term_count[*i].insert(app);
 	  }
 
 	  for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
@@ -165,44 +168,37 @@ int main(int argc, char *argv[]) {
 	      continue;
 	    }
 #endif
-	    if ( !COUNT_APPS || counted_symbol.find(*i) == counted_symbol.end() ) {
-	      symbol_count[*i]++;
-	      counted_symbol[*i] = true;
+
+#if COUNT_KDE_CLASSES_ONLY
+	    if ( i-> find("()") == -1 && (*i)[0] != 'Q' && (*i)[0] != 'K' ) {
+	      continue;
 	    }
+#endif
+	    symbol_count[*i].insert(app);
 
 	  }
-	}
+	  lines_read++;
+	} // while
       }
 
-      map< pair<string, string>, int > rule_support;
-      int total_lines = 0;
-      int total_apps = 0;
+      map< pair<string, string>, set<string> > rule_support;
       
       { // pass 2
 	cerr << "PASS 2" << endl;
 	Lines lines( codepath, file_db, file_offset );
+	
+	int lines_read = 0;
 
-	string prev_file = "";
-	map< pair<string,string>, bool > counted_pair;
-
-	while ( lines.ReadNextLine() ) {
-	  total_lines++;
+	while ( lines.ReadNextLine() && lines_read < MAX_LINES ) {
 
 	  set<string> terms = lines.getCommentTerms();
 	  set<string> symbols = lines.getCodeSymbols();
 	  
+	  string app = extractApp( lines.currentFile() );
 
-	  if ( ! isSame (lines.currentFile(), prev_file) ) {
-	    //	    prev_file = lines.currentFile();
-	    cerr << "*** new app " << lines.currentFile() << endl;
-	    total_apps++;
-	    counted_pair.clear();
-	  }
-
-	  prev_file = lines.currentFile();
 
 	  for( set<string>::iterator t = terms.begin(); t != terms.end(); t++ ) {
-	    if ( term_count[*t] >= MIN_SUPP ) {
+	    if ( term_count[*t].size() >= MIN_SUPP ) {
 	      for ( set<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
 
 #if COUNT_FUNCTION_SYMBOLS_ONLY
@@ -210,28 +206,34 @@ int main(int argc, char *argv[]) {
 		  continue;
 		}
 #endif
+#if COUNT_KDE_CLASSES_ONLY
+		if ( s-> find("()") == -1 && (*s)[0] != 'Q' && (*s)[0] != 'K' ) {
+		  continue;
+		}
+#endif
 
-		if ( symbol_count[*s] >= MIN_SUPP ) {
+		if ( symbol_count[*s].size() >= MIN_SUPP ) {
 
-		  if ( ! COUNT_APPS || counted_pair.find( make_pair(*t,*s) ) == counted_pair.end() ) {
-
-		    rule_support[ make_pair( *t, *s ) ] ++;
-		    counted_pair[ make_pair( *t, *s ) ] = true;
-		  }
+		  rule_support[ make_pair( *t, *s ) ].insert(app);
 
 		}
 	      }
 	    }
-	  }  
-	  
-	}
+
+	  }
+	  lines_read++;	  
+	} // while
       }
+
+
+
+      cerr << "TOTAL APPS = " << apps.size() << endl;
 
       string prev_term = "";
       map< double, set<string> > results;
       // print out rules
-      for ( map< pair<string, string>, int >::iterator r = rule_support.begin(); r != rule_support.end(); r++ ) {
-	int supp = r->second;
+      for ( map< pair<string, string>, set<string> >::iterator r = rule_support.begin(); r != rule_support.end(); r++ ) {
+	int supp = (r->second).size();
 	string ant = (r->first).first;
 	string con = (r->first).second;
 
@@ -251,17 +253,78 @@ int main(int argc, char *argv[]) {
 	
 	if ( supp >= MIN_SUPP ) {
 
-	  double conf = 100.0*(double)supp / (double)term_count[ant];
-	  double con_usage;
-	  if ( COUNT_APPS ) {
-	    con_usage = 100.0*(double)symbol_count[con]/(double)total_apps;
-	  } else {
-	    con_usage = 100.0*(double)symbol_count[con]/(double)total_lines;
-	  }
-	  double surprise = conf / con_usage;
+	  double conf = 100.0*(double)supp / (double)term_count[ant].size();
+
+	  // we divide the confidence by the % of applications that contain
+	  // the consequent in *some* line but yet do not contain
+	  // both ant & con at the same time in *any* line.
+
+	  //
+	  // This doesn't really work because the consequent may only
+	  // occur in that one application, so the penalty would be zero!
+	  // We can kind of get around this by requiring some minimum support
+	  // of 5 say.  Another way is to multiply surprise by support if we can
+	  // get rid of the inf thing.
+	  
+
+
+
+
+	  // how to compute?
+
+	  // for each entry that we compute, we can keep a list of applications
+	  // that support it
+	  //
+	  // given a consequent, we need to know all apps that contain that consequent
+	  //
+	  // we can keep track of all apps supporting both ant & con, from this,
+	  // we can get a list of all apps that never contain ant & con in the same line
+	  //
+	  // we simply intersect thse two lists to get our count of applications
+	  // that contain the consequent in some line but yet do not contain
+	  // both ant & con at the same time in *any* line.
+	  //
+	  // So, basically we need to keep lists of applications for each symbol
+	  // and for each (term, symbol) pair.
+	  //
+	  // How much memory does this take?  Right now we do not keep track of any lists.
+	  //
+	  // 
+	
+	  set<string> S1 = symbol_count[con]; // apps containing consequent
+	  
+	  // compute apps that do not contain a line with both ant & con
+	  set<string> X = r->second; // apps for this rule
+
+	  // compute apps - X
+	  set<string> XP;
+	  set_difference( apps.begin(), apps.end(),
+			  X.begin(), X.end(),
+			  inserter(XP, XP.begin()) );
+
+
+	  // intersect XP with S1
+	  
+	  set<string> R;
+	  set_intersection( XP.begin(), XP.end(),
+			    S1.begin(), S1.end(),
+			    inserter(R, R.begin()) );
+
+#warning "penalty could be zero resulting in division by zero"
+	  double penalty = 100.0*(double)R.size() / (double)apps.size();
+	  
+	  double surprise = conf / penalty; // / con_usage;
+
+	  // multiplying by support is important since that takes
+	  // into account the importance of the relationship... perhaps
+	  // should only multiply by support of consequent
+
 	  if ( surprise >= MIN_SURPRISE ) {
-	    cerr << ant << " [ " << (supp*surprise) << "] " << " => " << con << " with conf " << conf << "% and support " << supp << " and surprise = " << surprise << " ** product " << (supp*surprise) << endl;
-	    results[-supp*surprise].insert(ant + " => " + con);
+	    //	    cerr << ant << " [ " << (supp*surprise) << "] " << " => " << con << " with conf " << conf << "% and support " << supp << " and surprise = " << surprise << " ** product " << (supp*surprise) << endl;
+	    //	    results[-supp*surprise].insert(ant + " => " + con);
+	    cerr << ant << " => " << con << " has conf " << conf << " and support " << supp << " and penalty " << penalty << " and surprise " << surprise << endl;
+#warning "uses product of surprise and supp"	   
+	    results[-surprise*supp].insert(ant + " => " + con);
 	  }
 	}
 

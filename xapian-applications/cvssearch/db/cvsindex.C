@@ -16,7 +16,7 @@
 //  Warning:  it always deletes the directory package if it exists already.
 
 #include <om/om.h>
-#include <db_cxx.h>
+//#include <db_cxx.h>
 #include <fstream.h>
 #include <stdio.h>
 
@@ -132,9 +132,11 @@ int main(int argc, char *argv[]) {
     catch(OmError & error) {
       cerr << "OMSEE Exception: " << error.get_msg() << endl;
     } 
+/*
     catch (DbException& e ) {
       cerr << "SleepyCat Exception: " << e.what() << endl;
     }
+*/
 
   }
   
