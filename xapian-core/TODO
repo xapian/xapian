@@ -96,6 +96,9 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Medium  |RPositional      | Add a get_position_list() method to databases.
 ---------+-----------------+--------------------------------------------------
+ Medium  | Positional      | Implement get_position_list() method on operators
+	 |                 | so that (A OR B) NEAR (C AND D) works.
+---------+-----------------+--------------------------------------------------
  Medium  | General / API   | Put Om into its own namespace, to ensure lack of
          |                 | symbol conflicts.
 ---------+-----------------+--------------------------------------------------
