@@ -80,6 +80,7 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	 */
 	//@{
 	Xapian::doccount  get_doccount() const;
+	Xapian::docid get_lastdocid() const;
 	Xapian::doclength get_avlength() const;
 	Xapian::doclength get_doclength(Xapian::docid did) const;
 	Xapian::doccount get_termfreq(const string & tname) const;
@@ -157,6 +158,7 @@ class QuartzWritableDatabase : public Xapian::Database::Internal {
 	 */
 	//@{
 	Xapian::doccount  get_doccount() const;
+	Xapian::docid get_lastdocid() const;
 	Xapian::doclength get_avlength() const;
 	Xapian::doclength get_doclength(Xapian::docid did) const;
 	Xapian::doccount get_termfreq(const string & tname) const;

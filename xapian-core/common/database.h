@@ -117,6 +117,10 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	virtual Xapian::doccount get_doccount() const = 0;
 
+	/** Return the last used document id of this (sub) database.
+	 */
+	virtual Xapian::docid get_lastdocid() const;
+
 	/** Return the average length of a document in this (sub) database.
 	 *
 	 *  See Database::Internal::get_doclength() for the meaning of document

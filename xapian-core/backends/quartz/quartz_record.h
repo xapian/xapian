@@ -59,6 +59,10 @@ class QuartzRecordManager {
 	 */
 	static Xapian::docid get_newdocid(QuartzBufferedTable & table);
 
+	/** Get the last document id used.
+	 */
+	static Xapian::docid get_lastdocid(QuartzTable & table);
+
 	/** Add a new record to the table.
 	 *
 	 */

@@ -141,7 +141,10 @@ class Database {
 
 	/// Get the number of documents in the database.
 	Xapian::doccount get_doccount() const;
-	
+
+	/// Get the last used document id of the database.
+	Xapian::docid get_lastdocid() const;
+
 	/// Get the average length of the documents in the database.
 	Xapian::doclength get_avlength() const;
 

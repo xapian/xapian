@@ -316,4 +316,11 @@ Database::Internal::cancel_transaction()
     throw Xapian::UnimplementedError("transactions aren't implemented");
 }
 
+Xapian::docid
+Database::Internal::get_lastdocid() const
+{
+    DEBUGCALL(DB, void, "Database::Internal::get_lastdocid", "");
+    throw Xapian::UnimplementedError("Database::Internal::get_lastdocid() not yet implemented");
+}
+
 }

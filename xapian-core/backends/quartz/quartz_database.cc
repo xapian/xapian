@@ -74,6 +74,13 @@ QuartzDatabase::get_doccount() const
     RETURN(QuartzRecordManager::get_doccount(*(tables->get_record_table())));
 }
 
+Xapian::docid
+QuartzDatabase::get_lastdocid() const
+{
+    DEBUGCALL(DB, Xapian::docid, "QuartzDatabase::get_lastdocid", "");
+    RETURN(QuartzRecordManager::get_lastdocid(*(tables->get_record_table())));
+}
+
 Xapian::doclength
 QuartzDatabase::get_avlength() const
 {
@@ -654,6 +661,13 @@ QuartzWritableDatabase::get_doccount() const
 {
     DEBUGCALL(DB, Xapian::doccount, "QuartzWritableDatabase::get_doccount", "");
     RETURN(database_ro.get_doccount());
+}
+
+Xapian::docid
+QuartzWritableDatabase::get_lastdocid() const
+{
+    DEBUGCALL(DB, Xapian::docid, "QuartzWritableDatabase::get_lastdocid", "");
+    RETURN(database_ro.get_lastdocid());
 }
 
 Xapian::doclength

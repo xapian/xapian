@@ -98,6 +98,23 @@ QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
 }
 
 Xapian::docid
+QuartzRecordManager::get_lastdocid(QuartzTable & table)
+{
+    DEBUGCALL_STATIC(DB, Xapian::docid, "QuartzRecordManager::get_lastdocid", "[table]");
+
+    string tag;
+    if (!table.get_exact_entry(METAINFO_KEY, tag)) RETURN(0u);
+
+    Xapian::docid did;
+    const char * data = tag.data();
+    const char * end = data + tag.size();
+    if (!unpack_uint(&data, end, &did)) {
+	throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
+    }
+    RETURN(did);
+}
+
+Xapian::docid
 QuartzRecordManager::add_record(QuartzBufferedTable & table,
 				const string & data)
 {

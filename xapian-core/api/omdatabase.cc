@@ -226,6 +226,21 @@ Database::get_doccount() const
     RETURN(docs);
 }
 
+Xapian::docid
+Database::get_lastdocid() const
+{
+    DEBUGAPICALL(Xapian::docid, "Database::get_lastdocid", "");
+    Xapian::docid did = 0;
+
+    unsigned int multiplier = internal.size();
+    Assert(multiplier != 0);
+    for (Xapian::doccount i = 0; i < multiplier; ++i) {
+	Xapian::docid did_i = internal[i]->get_lastdocid();
+	did = std::max(did, (did_i - 1) * multiplier + i + 1); // if did_i is 0 then did is unchanged
+    }
+    RETURN(did);
+}
+
 Xapian::doclength
 Database::get_avlength() const
 {
