@@ -1,3 +1,7 @@
+Mon Dec 10 10:00:11 GMT 2001  Olly Betts <olly@survex.com>
+
+	* indexnasty: Index terms which start with a digit too.
+
 Fri Dec 07 14:21:29 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Give raw (unstemmed) terms prefix 'R'.
