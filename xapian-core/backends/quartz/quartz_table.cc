@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,15 +28,15 @@
 #include "quartz_table.h"
 #include "om/omerror.h"
 #include "utils.h"
-#include <string.h>
+#include <string.h> // for strerror
 #include <errno.h>
 #include "omdebug.h"
 
 #ifdef MUS_DEBUG_VERBOSE
-static std::string hex_encode(const std::string & input) {
+static string hex_encode(const string & input) {
     const char * table = "0123456789abcdef";
-    std::string result;
-    std::string::const_iterator i = input.begin();
+    string result;
+    string::const_iterator i = input.begin();
     for (i = input.begin();
 	 i != input.end();
 	 i++) {
@@ -59,7 +60,7 @@ QuartzDiskCursor::find_entry(const QuartzDbKey &key)
 
     is_after_end = false;
 
-    std::string::size_type key_len = key.value.size();
+    string::size_type key_len = key.value.size();
 
     int found = false;
 
@@ -87,9 +88,9 @@ QuartzDiskCursor::find_entry(const QuartzDbKey &key)
 
     // FIXME: unwanted copies
     current_key.value =
-	    std::string(reinterpret_cast<const char *>(item->key), item->key_len);
+	    string(reinterpret_cast<const char *>(item->key), item->key_len);
     current_tag.value =
-	    std::string(reinterpret_cast<const char *>(item->tag), item->tag_len);
+	    string(reinterpret_cast<const char *>(item->tag), item->tag_len);
 
     DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key.value) <<
 	      "', tag=`" << hex_encode(current_tag.value) << "'");
@@ -119,9 +120,9 @@ QuartzDiskCursor::next()
 
     // FIXME: unwanted copies
     current_key.value =
-	    std::string(reinterpret_cast<const char *>(item->key), item->key_len);
+	    string(reinterpret_cast<const char *>(item->key), item->key_len);
     current_tag.value =
-	    std::string(reinterpret_cast<const char *>(item->tag), item->tag_len);
+	    string(reinterpret_cast<const char *>(item->tag), item->tag_len);
 
     Btree_item_lose(item);
 
@@ -167,9 +168,9 @@ QuartzDiskCursor::prev()
 
     // FIXME: unwanted copies
     current_key.value =
-	    std::string(reinterpret_cast<const char *>(item->key), item->key_len);
+	    string(reinterpret_cast<const char *>(item->key), item->key_len);
     current_tag.value =
-	    std::string(reinterpret_cast<const char *>(item->tag), item->tag_len);
+	    string(reinterpret_cast<const char *>(item->tag), item->tag_len);
 
     Btree_item_lose(item);
 
@@ -178,7 +179,7 @@ QuartzDiskCursor::prev()
 }
 
 
-QuartzDiskTable::QuartzDiskTable(std::string path_,
+QuartzDiskTable::QuartzDiskTable(string path_,
 				 bool readonly_,
 				 unsigned int blocksize_)
 	: path(path_),
@@ -247,7 +248,7 @@ QuartzDiskTable::open()
 	btree_for_reading = Btree_open_to_read(path.c_str());
 	if (btree_for_reading == 0 || btree_for_reading->error) {
 	    // FIXME: explain why
-	    std::string errormsg = "Cannot open table `"+path+"' for reading: ";
+	    string errormsg = "Cannot open table `"+path+"' for reading: ";
 	    if (btree_for_reading)
 		errormsg += om_tostring(btree_for_reading->error) + ", ";
 	    errormsg += strerror(errno);
@@ -263,7 +264,7 @@ QuartzDiskTable::open()
 
     if (btree_for_writing == 0 || btree_for_writing->error) {
 	// FIXME: explain why
-	std::string errormsg = "Cannot open table `"+path+"' for writing: ";
+	string errormsg = "Cannot open table `"+path+"' for writing: ";
 	if (btree_for_writing)
 	    errormsg += om_tostring(btree_for_writing->error) + ", ";
 	errormsg += strerror(errno);
@@ -276,7 +277,7 @@ QuartzDiskTable::open()
     // FIXME: check for errors
     if (btree_for_reading == 0 || btree_for_reading->error) {
 	// FIXME: explain why
-	std::string errormsg = "Cannot open table `" + path +
+	string errormsg = "Cannot open table `" + path +
 		"' for reading and writing: ";
 	if (btree_for_reading)
 	    errormsg += om_tostring(btree_for_reading->error) + ", ";
@@ -385,7 +386,7 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
     if (int(key.value.size()) > btree_for_reading->max_key_len) RETURN(false);
 
     // FIXME: avoid having to create a cursor here.
-    AutoPtr<Bcursor> cursor = Bcursor_create(btree_for_reading);
+    AutoPtr<Bcursor> cursor = btree_for_reading->Bcursor_create();
     // FIXME: check for errors
 
     int found = cursor->find_key(reinterpret_cast<const byte *>(key.value.data()),
@@ -403,7 +404,7 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
     // FIXME: check for errors
 
     // FIXME: unwanted copy
-    tag.value = std::string(reinterpret_cast<char *>(item->tag), item->tag_len);
+    tag.value = string(reinterpret_cast<char *>(item->tag), item->tag_len);
 
     // FIXME: ensure that these loses get called whatever exit route happens.
     Btree_item_lose(item);
@@ -510,14 +511,14 @@ QuartzBufferedTable::write_internal()
     DEBUGCALL(DB, void, "QuartzBufferedTable::write_internal", "");
     try {
 	QuartzTableEntries::items & entries = changed_entries.get_all_entries();
-	std::map<QuartzDbKey, QuartzDbTag *>::iterator entry;
+	map<QuartzDbKey, QuartzDbTag *>::iterator entry;
 	entry = entries.begin();
 	Assert(entry != entries.end());
 	// Don't set the null entry.
 	for (entry++;
 	     entry != changed_entries.get_all_entries().end();
 	     entry++) {
-	    DEBUGLINE(DB, "QuartzBufferedTable::write_internal(): setting key " << hex_encode(entry->first.value) << " to " << ((entry->second)? (hex_encode(entry->second->value)) : std::string("<NULL>")));
+	    DEBUGLINE(DB, "QuartzBufferedTable::write_internal(): setting key " << hex_encode(entry->first.value) << " to " << ((entry->second)? (hex_encode(entry->second->value)) : string("<NULL>")));
 	    disktable->set_entry(entry->first, entry->second);
 	    delete entry->second;
 	    entry->second = 0;
@@ -803,4 +804,3 @@ QuartzBufferedCursor::prev()
     DEBUGCALL(DB, void, "QuartzBufferedCursor::prev", "");
     throw OmUnimplementedError("QuartzBufferedCursor::prev() not yet implemented");
 }
-

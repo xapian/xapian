@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,15 +40,16 @@
 #include "unistd.h"
 #include <vector>
 #include <algorithm>
+using namespace std;
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
-static std::string tmpdir;
+static string tmpdir;
 
 /// Get the size of the given file in bytes.
-static int get_filesize(std::string filename)
+static int get_filesize(string filename)
 {
     struct stat buf;
     int result = stat(filename, &buf);
@@ -55,17 +57,17 @@ static int get_filesize(std::string filename)
     return buf.st_size;
 }
 
-static void deletedir(std::string filename)
+static void deletedir(string filename)
 {
     system("rm -fr " + filename);
 }
 
-static void makedir(std::string filename)
+static void makedir(string filename)
 {
     mkdir(filename, 0700);
 }
 
-static void unlink_table(const std::string & path)
+static void unlink_table(const string & path)
 {
     unlink(path + "DB");
     unlink(path + "baseA");
@@ -76,7 +78,7 @@ static void unlink_table(const std::string & path)
 
 /// Check the values returned by a table containing key/tag "hello"/"world"
 static void check_table_values_hello(QuartzDiskTable & table,
-				     std::string world)
+				     string world)
 {
     QuartzDbKey key;
     QuartzDbTag tag;
@@ -367,11 +369,11 @@ static bool test_disktable3()
     QuartzDbTag tag;
 
     {
-	tag.value = std::string(2200, 'a');
+	tag.value = string(2200, 'a');
 	table.set_entry(tradkey, &tag);
-	tag.value = std::string(3800, 'b');
+	tag.value = string(3800, 'b');
 	table.set_entry(tradekey, &tag);
-	tag.value = std::string(2000, 'c');
+	tag.value = string(2000, 'c');
 	table.set_entry(tradeakey, &tag);
 
 	table.apply(table.get_latest_revision_number() + 1);
@@ -388,7 +390,7 @@ static bool test_disktable3()
     }
 
     {
-	tag.value = std::string(4000, 'd');
+	tag.value = string(4000, 'd');
 	table.set_entry(tradekey, &tag);
 	table.apply(table.get_latest_revision_number() + 1);
     }
@@ -1021,11 +1023,11 @@ static bool test_cursor2()
     disktable1.open();
     QuartzBufferedTable bufftable1(&disktable1);
 
-    std::string key1 = "a";
-    std::string tag1 = std::string(2036, '\x00');
-    std::string key2 = "c";
-    std::string tag2 = "bar2";
-    std::string searchkey = "b";
+    string key1 = "a";
+    string tag1 = string(2036, '\x00');
+    string key2 = "c";
+    string tag2 = "bar2";
+    string searchkey = "b";
 
     key.value = key1;
     bufftable1.get_or_make_tag(key)->value = tag1;
@@ -1331,12 +1333,12 @@ static bool test_adddoc2()
 /// Test packing integers into strings
 static bool test_packint1()
 {
-    TEST_EQUAL(pack_uint(0u), std::string("\000", 1));
-    TEST_EQUAL(pack_uint(1u), std::string("\001", 1));
-    TEST_EQUAL(pack_uint(127u), std::string("\177", 1));
-    TEST_EQUAL(pack_uint(128u), std::string("\200\001", 2));
-    TEST_EQUAL(pack_uint(0xffffu), std::string("\377\377\003", 3));
-    TEST_EQUAL(pack_uint(0xffffffffu), std::string("\377\377\377\377\017", 5));
+    TEST_EQUAL(pack_uint(0u), string("\000", 1));
+    TEST_EQUAL(pack_uint(1u), string("\001", 1));
+    TEST_EQUAL(pack_uint(127u), string("\177", 1));
+    TEST_EQUAL(pack_uint(128u), string("\200\001", 2));
+    TEST_EQUAL(pack_uint(0xffffu), string("\377\377\003", 3));
+    TEST_EQUAL(pack_uint(0xffffffffu), string("\377\377\377\377\017", 5));
 
     return true;
 }
@@ -1344,7 +1346,7 @@ static bool test_packint1()
 /// Test packing integers into strings and unpacking again
 static bool test_packint2()
 {
-    std::string foo;
+    string foo;
 
     foo += pack_uint(3u);
     foo += pack_uint(12475123u);
@@ -1384,10 +1386,10 @@ static bool test_packint2()
 /// Test the sort preserving packing operations
 static bool test_packint3()
 {
-    std::string foo;
+    string foo;
 
-    std::vector<unsigned int> ints;
-    std::vector<std::string> strings;
+    vector<unsigned int> ints;
+    vector<string> strings;
 
     ints.push_back(3u);
     ints.push_back(12475123u);
@@ -1402,8 +1404,8 @@ static bool test_packint3()
     ints.push_back(0u);
     ints.push_back(82134u);
 
-    std::vector<unsigned int>::const_iterator i;
-    std::vector<std::string>::const_iterator j;
+    vector<unsigned int>::const_iterator i;
+    vector<string>::const_iterator j;
     for (i = ints.begin();
 	 i != ints.end();
 	 i++) {
@@ -1424,8 +1426,8 @@ static bool test_packint3()
     TEST(p != 0);
     TEST(i == ints.end());
 
-    std::sort(ints.begin(), ints.end());
-    std::sort(strings.begin(), strings.end());
+    sort(ints.begin(), ints.end());
+    sort(strings.begin(), strings.end());
 
     for (i = ints.begin(), j = strings.begin();
 	 i != ints.end() && j != strings.end();
@@ -1439,7 +1441,7 @@ static bool test_packint3()
 /// Test unpacking integers from strings
 static bool test_unpackint1()
 {
-    std::string foo;
+    string foo;
     const char *p;
     om_uint32 result;
     bool success;
@@ -1449,7 +1451,7 @@ static bool test_unpackint1()
     TEST(!success);
     TEST_EQUAL(p, 0);
 
-    foo = std::string("\000\002\301\001", 4);
+    foo = string("\000\002\301\001", 4);
     result = 1;
     p = foo.data();
 
@@ -1472,7 +1474,7 @@ static bool test_unpackint1()
     TEST(!success);
     TEST_EQUAL(p, 0);
 
-    foo = std::string("\377\377\377\377\017\377\377\377\377\020\007\200\200\200\200\200\200\200\000\200\200\200\200\200\200\001\200\200\200\200\200\200", 32);
+    foo = string("\377\377\377\377\017\377\377\377\377\020\007\200\200\200\200\200\200\200\000\200\200\200\200\200\200\001\200\200\200\200\200\200", 32);
     result = 1;
     p = foo.data();
 
@@ -1508,19 +1510,19 @@ static bool test_unpackint1()
 /// Test playing with a btree
 static bool test_btree1()
 {
-    std::string path = tmpdir + "test_btree1_";
+    string path = tmpdir + "test_btree1_";
     Btree_create(path.c_str(), 8192);
     struct Btree * btree = Btree_open_to_read(path.c_str());
 
-    std::string key = "foo";
+    string key = "foo";
     {
-	AutoPtr<Bcursor> cursor = Bcursor_create(btree);
+	AutoPtr<Bcursor> cursor = btree->Bcursor_create();
 	int found = cursor->find_key(reinterpret_cast<const byte *>(key.data()),
 				     key.size());
 	TEST(!found);
     }
     {
-	AutoPtr<Bcursor> cursor = Bcursor_create(btree);
+	AutoPtr<Bcursor> cursor = btree->Bcursor_create();
 	int found = cursor->find_key(reinterpret_cast<const byte *>(key.data()),
 				     key.size());
 	TEST(!found);
@@ -1621,7 +1623,7 @@ static bool test_postlist2()
     }
 
 
-    std::vector<unsigned int> testdata;
+    vector<unsigned int> testdata;
     unsigned int pos = 0;
     srand(17);
     for (unsigned int i = 10000; i > 0; i--) {
@@ -1629,7 +1631,7 @@ static bool test_postlist2()
 	testdata.push_back(pos);
     }
     unsigned int collfreq = 0;
-    for (std::vector<unsigned int>::const_iterator i2 = testdata.begin();
+    for (vector<unsigned int>::const_iterator i2 = testdata.begin();
 	 i2 != testdata.end(); i2++) {
 	QuartzPostList::add_entry(&bufftable, "foo",
 				  *i2, (*i2) % 5 + 1, (*i2) % 7 + 1);
@@ -1642,7 +1644,7 @@ static bool test_postlist2()
 	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
 	TEST_EQUAL(pl2.get_collection_freq(), collfreq);
 	pl2.next(0);
-	std::vector<unsigned int>::const_iterator i3 = testdata.begin();
+	vector<unsigned int>::const_iterator i3 = testdata.begin();
 
 	while(!pl2.at_end()) {
 	    TEST_EQUAL(pl2.get_docid(), *i3);
@@ -1659,7 +1661,7 @@ static bool test_postlist2()
 	QuartzPostList pl2(database_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
 	pl2.next(0);
-	std::vector<unsigned int>::const_iterator i3 = testdata.begin();
+	vector<unsigned int>::const_iterator i3 = testdata.begin();
 
 	while(!pl2.at_end()) {
 	    TEST_EQUAL(pl2.get_docid(), *i3);
@@ -1690,7 +1692,7 @@ static bool test_postlist2()
 	QuartzPostList pl2(database_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
 	pl2.next(0);
-	std::vector<unsigned int>::const_iterator i3 = testdata.begin();
+	vector<unsigned int>::const_iterator i3 = testdata.begin();
 
 	while(!pl2.at_end()) {
 	    TEST_EQUAL(pl2.get_docid(), *i3);
@@ -1706,7 +1708,7 @@ static bool test_postlist2()
     {
 	QuartzPostList pl2(database_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
-	std::vector<unsigned int>::const_iterator i3 = testdata.begin();
+	vector<unsigned int>::const_iterator i3 = testdata.begin();
 
 	while(!pl2.at_end()) {
 	    while (i3 != testdata.end()) {
@@ -1742,7 +1744,7 @@ static bool test_positionlist1()
     disktable.open();
     QuartzBufferedTable bufftable(&disktable);
 
-    std::vector<om_termpos> positions;
+    vector<om_termpos> positions;
 
     OmDocument document;
     document.add_posting("foo", 5);
@@ -1860,7 +1862,7 @@ static bool test_overwrite1()
 /// Test playing with a positionlist, testing skip_to in particular.
 static bool test_overwrite2()
 {
-    std::string dbname = tmpdir + "overwrite2";
+    string dbname = tmpdir + "overwrite2";
     deletedir(dbname);
     makedir(dbname);
 
@@ -1965,7 +1967,7 @@ static bool test_overwrite2()
 /// Test large bitmap files.
 static bool test_bitmap1()
 {
-    const std::string dbname = tmpdir + "testdb_bitmap1_";
+    const string dbname = tmpdir + "testdb_bitmap1_";
     unlink_table(dbname);
     /* Use a small block size to make it easier to get a large bitmap */
     QuartzDiskTable disktable(dbname, false, 256);
@@ -1992,7 +1994,7 @@ static bool test_bitmap1()
 /// Test that write locks work
 static bool test_writelock1()
 {
-    std::string dbname = tmpdir + "writelock1";
+    string dbname = tmpdir + "writelock1";
     deletedir(dbname);
     makedir(dbname);
 
@@ -2012,9 +2014,9 @@ static bool test_writelock1()
 /// Test pack_string_preserving_sort() etc
 static bool test_packstring1()
 {
-    std::string before;
-    std::string after;
-    std::string packed;
+    string before;
+    string after;
+    string packed;
     const char *src;
     const char *src_end;
 

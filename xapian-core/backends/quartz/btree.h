@@ -90,6 +90,8 @@ class Btree {
 
 	static void check(const char *name, const char *opt_string);
 
+	AutoPtr<Bcursor> Bcursor_create();
+
 	/** error number setting */
 	Btree_errors error;
 
@@ -241,7 +243,6 @@ extern void Btree_create(const char * name, int block_size);
 extern void Btree_check(const char * name, const char * opt_string); //
 extern struct Btree * Btree_open_to_read(const char * name);
 extern struct Btree * Btree_open_to_read_revision(const char * name, unsigned long revision);
-extern AutoPtr<Bcursor> Bcursor_create(struct Btree * B);
 extern int Bcursor_find_key(struct Bcursor * BC, byte * key, int key_len);
 extern int Bcursor_next(struct Bcursor * BC);
 extern int Bcursor_prev(struct Bcursor * BC);

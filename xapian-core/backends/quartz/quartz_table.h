@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,6 +30,8 @@
 #include "autoptr.h"
 #include <string>
 #include <map>
+using std::string;
+using std::map;
 
 #include "btree.h"
 
@@ -129,7 +132,7 @@ class QuartzDiskCursor : public QuartzCursor {
 	/// Create the cursor
 	QuartzDiskCursor(struct Btree * btree)
 		: is_positioned(false),
-		  cursor(Bcursor_create(btree)),
+		  cursor(btree->Bcursor_create()),
 		  max_key_len(btree->max_key_len) {}
 	
 	/// Destroy the cursor
@@ -250,7 +253,7 @@ class QuartzDiskTable : public QuartzTable {
 
 	/** The path at which the table is stored.
 	 */
-	std::string path;
+	string path;
 
 	/** The blocksize to create the database with, if it needs creating.
 	 */
@@ -292,9 +295,7 @@ class QuartzDiskTable : public QuartzTable {
 	 *  @param blocksize_     - Size of blocks to use.  This parameter is
 	 *                          only used when creating the table.
 	 */
-	QuartzDiskTable(std::string path_,
-			bool readonly_,
-			unsigned int blocksize_);
+	QuartzDiskTable(string path_, bool readonly_, unsigned int blocksize_);
 
 	/** Close the table.
 	 */
@@ -404,8 +405,7 @@ class QuartzDiskTable : public QuartzTable {
 	 */
 	//@{
 	quartz_tablesize_t get_entry_count() const;
-	bool get_exact_entry(const QuartzDbKey & key,
-			     QuartzDbTag & tag) const;
+	bool get_exact_entry(const QuartzDbKey & key, QuartzDbTag & tag) const;
 	QuartzDiskCursor * cursor_get() const;
 	//@}
 };
@@ -516,8 +516,7 @@ class QuartzBufferedTable : public QuartzTable {
 	 */
 	//@{
 	quartz_tablesize_t get_entry_count() const;
-	bool get_exact_entry(const QuartzDbKey & key,
-			     QuartzDbTag & tag) const;
+	bool get_exact_entry(const QuartzDbKey & key, QuartzDbTag & tag) const;
 	QuartzBufferedCursor * cursor_get() const;
 	//@}
 };

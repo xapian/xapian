@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,8 +32,7 @@ class Btree;
 /************ B-tree reading ************/
 
 class Bcursor {
-    // FIXME: in future probably a Btree member function.
-    friend AutoPtr<Bcursor> Bcursor_create(Btree *);
+    friend class Btree; // for AutoPtr<Bcursor> Btree::Bcursor_create();
     public:
 	/** Destroy a Bcursor */
 	~Bcursor();
@@ -47,12 +47,15 @@ class Bcursor {
 	/** Create a bcursor attached to a Btree. */
 	Bcursor(Btree *B_);
 
-	int positioned;    /* false initially, and after the cursor has dropped
-			      of either end of the list of items */
+	/** false initially, and after the cursor has dropped
+	 *  off either end of the list of items */
+	int positioned;
+		       
 	struct Btree * B;
 	struct Cursor * C;
 
-	int shared_level; /* The value of shared_level in the Btree structure. */
+	/** The value of shared_level in the Btree structure. */
+	int shared_level;
 };
 
 #endif /* OM_HGUARD_BCURSOR_H */

@@ -1846,16 +1846,15 @@ Btree::do_open_to_read(const char * name_,
     prev = sequential ? prev_for_sequential : prev_default;
     next = sequential ? next_for_sequential : next_default;
 
-    {
-        for (int j = shared_level; j <= level; j++) {
-	    C[j].n = -1;
-            C[j].p = new byte[block_size];
-            if (C[j].p == 0) {
-		throw std::bad_alloc();
-	    }
-        }
-        read_root();
+    for (int j = shared_level; j <= level; j++) {
+	C[j].n = -1;
+	C[j].p = new byte[block_size];
+	if (C[j].p == 0) {
+	    throw std::bad_alloc();
+	}
     }
+    read_root();
+ 
     return true;
 }
 
@@ -1894,9 +1893,9 @@ Btree * Btree_open_to_read_revision(const char * name,
     }
 }
 
-extern AutoPtr<Bcursor> Bcursor_create(struct Btree * B)
+AutoPtr<Bcursor> Btree::Bcursor_create()
 {
-    return AutoPtr<Bcursor>(new Bcursor(B));
+    return AutoPtr<Bcursor>(new Bcursor(this));
 }
 
 #if 0
