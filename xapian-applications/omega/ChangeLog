@@ -1,3 +1,8 @@
+Fri Dec 14 17:26:48 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Force first page of hits if DB, DEFAULTOP, B, DAYSMINUS, DATE1,
+	  or DATE2 changes; also clear relevance judgements if DB changes.
+
 Fri Dec 14 16:21:07 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Removed restriction on minimum page size (was 10) - for a shopping

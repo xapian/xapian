@@ -259,35 +259,62 @@ main2(int argc, char *argv[])
     rset = new OmRSet();
     string v;
     // get list of terms from previous iteration of query
-    val = cgi_params.find("OLDP");
+    val = cgi_params.find("xP");
+    if (val == cgi_params.end()) val = cgi_params.find("OLDP");
     if (val != cgi_params.end()) {
 	v = val->second;
     }
-    switch (set_probabilistic(big_buf, v)) {
+    int result = set_probabilistic(big_buf, v);
+    switch (result) {
 	case BAD_QUERY:
 	    // Hmm, how to handle this...
 	    break;
 	case NEW_QUERY:
 	    break;
 	case SAME_QUERY:
-	    // work out which mset element is at top of the new page of hits
-	    val = cgi_params.find("TOPDOC");
-	    if (val != cgi_params.end()) topdoc = atol(val->second.c_str());
-
-	    // Handle next, previous, and page links
-	    if (cgi_params.find(">") != cgi_params.end()) {
-		topdoc += hits_per_page;
-	    } else if (cgi_params.find("<") != cgi_params.end()) {
-		if (topdoc >= hits_per_page) topdoc -= hits_per_page;
-	    } else if ((val = cgi_params.find("[")) != cgi_params.end() ||
-		    (val = cgi_params.find("#")) != cgi_params.end()) {
-		topdoc = (atol(val->second.c_str()) - 1) * hits_per_page;
-	    }
-
-	    // snap topdoc to page boundary
-	    topdoc = (topdoc / hits_per_page) * hits_per_page;
-	    /* FALL THRU */
         case EXTENDED_QUERY:
+	    // If we've changed database, force the first page of hits
+	    // and discard the R-set (since the docids will have changed)
+	    val = cgi_params.find("xDB");
+	    if (val != cgi_params.end() && val->second != dbname) break;
+	    if (result == SAME_QUERY) {
+		static const char * check_vars[] = {
+		    "DEFAULTOP", "B", "DAYSMINUS", "DATE1", "DATE2", NULL
+		};
+		// FIXME: cope with multiple values for B...
+		const char **pv;
+		for (pv = check_vars; *pv; ++pv) {
+		    val = cgi_params.find('x' + string(*pv));
+		    if (val != cgi_params.end()) {
+			string oldv = val->second;
+			val = cgi_params.find(*pv);
+			if (val == cgi_params.end() || val->second != oldv)
+			    break;
+		    }
+		}
+		if (!*pv) {
+		    // No filters changed since last query
+
+		    // Work out which mset element is the first hit we want
+		    // to display
+		    val = cgi_params.find("TOPDOC");
+		    if (val != cgi_params.end())
+		       	topdoc = atol(val->second.c_str());
+
+		    // Handle next, previous, and page links
+		    if (cgi_params.find(">") != cgi_params.end()) {
+			topdoc += hits_per_page;
+		    } else if (cgi_params.find("<") != cgi_params.end()) {
+			if (topdoc >= hits_per_page) topdoc -= hits_per_page;
+		    } else if ((val = cgi_params.find("[")) != cgi_params.end() ||
+			    (val = cgi_params.find("#")) != cgi_params.end()) {
+			topdoc = (atol(val->second.c_str()) - 1) * hits_per_page;
+		    }
+
+		    // snap topdoc to page boundary
+		    topdoc = (topdoc / hits_per_page) * hits_per_page;
+		}
+	    }
 	    // put documents marked as relevant into the rset
 	    g = cgi_params.equal_range("R");
 	    for (MCI i = g.first; i != g.second; i++) {
