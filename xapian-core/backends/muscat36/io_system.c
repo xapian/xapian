@@ -124,10 +124,10 @@ static pthread_mutex_t init_bf_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif /* MUS_USE_PTHREAD */
 
 static int init_bf( void ) {
+   int i;
 #ifdef MUS_USE_PTHREAD
    pthread_mutex_lock(&init_bf_mutex);
 #endif /* MUS_USE_PTHREAD */
-   int i;
    if (bfds[0]) {
        /* do nothing on repeated calls */
 #ifdef MUS_USE_PTHREAD
