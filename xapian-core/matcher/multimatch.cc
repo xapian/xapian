@@ -87,18 +87,30 @@ msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b)
 
 class MSetSortCmp {
     private:
+	OmDatabase db;
 	double factor;
+	bool have_key;
+	om_valueno sort_key;
 	bool forward;
     public:
-	MSetSortCmp(int bands, double percent_scale, bool forward_)
-	    : factor(percent_scale * bands / 100.0), forward(forward_) {
+	MSetSortCmp(const OmDatabase &db_, int bands, double percent_scale,
+		    bool have_key_, om_valueno sort_key_, bool forward_)
+	    : db(db_), factor(percent_scale * bands / 100.0),
+	      have_key(have_key_), sort_key(sort_key_), forward(forward_) {
 	}
 	bool operator()(const OmMSetItem &a, const OmMSetItem &b) const {
 	    int band_a = int(a.wt * factor);
 	    int band_b = int(b.wt * factor);
 	    if (band_a != band_b) return band_a > band_b;
-
-	    // FIXME: sort by key...
+	    if (have_key) {
+		OmDocument doc_a = db.get_document(a.did);		
+		OmDocument doc_b = db.get_document(b.did);		
+		string key_a = doc_a.get_value(sort_key);
+		string key_b = doc_b.get_value(sort_key);
+		// "bigger is better"
+		if (key_a > key_b) return true;
+		if (key_a < key_b) return false;
+	    }
 	    if (forward) return a.did < b.did;
 	    return a.did > b.did;
 	}
@@ -403,6 +415,16 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     }
 
     int sort_bands = opts.get_int("match_sort_bands", 0);
+    bool have_sort_key = false;
+    om_valueno sort_key = 0; // Initialise to shut up compiler warnings
+    {
+	int val = opts.get_int("match_sort_key", -1);
+	if (val >= 0) {
+	    have_sort_key = true;
+	    sort_key = val;
+	    if (sort_bands == 0) sort_bands = 1;
+	}
+    }
 
     // Perform query
 
@@ -654,7 +676,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     
     if (sort_bands) {
 	sort(items.begin(), items.end(),
-	     MSetSortCmp(sort_bands, percent_scale,
+	     MSetSortCmp(db, sort_bands, percent_scale,
+		     	 have_sort_key, sort_key, 
 			 opts.get_bool("match_sort_forward", true)));
 	if (items.size() > max_msize) {
 	    items.erase(items.begin() + max_msize, items.end());
