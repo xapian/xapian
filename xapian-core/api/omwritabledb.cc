@@ -51,8 +51,8 @@ OmDatabase::OmDatabase(const OmDatabase &other)
 void
 OmDatabase::operator=(const OmDatabase &other)
 {
-    OmLockSentry locksentry(internal->mutex);
     DEBUGAPICALL("OmDatabase::operator=", "OmDatabase");
+    OmLockSentry locksentry(internal->mutex);
     // pointers are reference counted.
     internal->mydb = other.internal->mydb;
 }
@@ -121,12 +121,13 @@ OmWritableDatabase::begin_session(om_timeout timeout)
 {
     DEBUGAPICALL("OmWritableDatabase::begin_session", timeout);
     // Get the pointer while locked, in case someone is assigning to it.
-    internal->mutex.lock();
-    IRDatabase * database = internal->mydb.get();
-    internal->mutex.unlock();
+    IRDatabase * database;
+    {
+	OmLockSentry locksentry(internal->mutex);
+	database = internal->mydb.get();
+    }
 
-    // FIXME - begin a session here
-    database->lock(timeout);
+    database->begin_session(timeout);
 }
 
 void
@@ -134,29 +135,69 @@ OmWritableDatabase::end_session()
 {
     DEBUGAPICALL("OmWritableDatabase::end_session", "");
     // Get the pointer while locked, in case someone is assigning to it.
-    internal->mutex.lock();
-    IRDatabase * database = internal->mydb.get();
-    internal->mutex.unlock();
+    IRDatabase * database;
+    {
+	OmLockSentry locksentry(internal->mutex);
+	database = internal->mydb.get();
+    }
 
-    database->unlock();
+    database->end_session();
 }
 
 void
 OmWritableDatabase::flush()
 {
-    throw OmUnimplementedError("OmWritableDatabase::flush() not yet implemented");
+    DEBUGAPICALL("OmWritableDatabase::flush", "");
+    // Get the pointer while locked, in case someone is assigning to it.
+    IRDatabase * database;
+    {
+	OmLockSentry locksentry(internal->mutex);
+	database = internal->mydb.get();
+    }
+
+    database->flush();
 }
 
 void
-OmWritableDatabase::begin_transaction(om_timeout timeout = 0)
+OmWritableDatabase::begin_transaction()
 {
-    throw OmUnimplementedError("OmWritableDatabase::begin_transaction() not yet implemented");
+    DEBUGAPICALL("OmWritableDatabase::begin_transaction", "");
+    // Get the pointer while locked, in case someone is assigning to it.
+    IRDatabase * database;
+    {
+	OmLockSentry locksentry(internal->mutex);
+	database = internal->mydb.get();
+    }
+
+    database->begin_transaction();
 }
 
 void
-OmWritableDatabase::end_transaction()
+OmWritableDatabase::commit_transaction()
 {
-    throw OmUnimplementedError("OmWritableDatabase::end_transaction() not yet implemented");
+    DEBUGAPICALL("OmWritableDatabase::commit_transaction", "");
+    // Get the pointer while locked, in case someone is assigning to it.
+    IRDatabase * database;
+    {
+	OmLockSentry locksentry(internal->mutex);
+	database = internal->mydb.get();
+    }
+
+    database->commit_transaction();
+}
+
+void
+OmWritableDatabase::cancel_transaction()
+{
+    DEBUGAPICALL("OmWritableDatabase::cancel_transaction", "");
+    // Get the pointer while locked, in case someone is assigning to it.
+    IRDatabase * database;
+    {
+	OmLockSentry locksentry(internal->mutex);
+	database = internal->mydb.get();
+    }
+
+    database->cancel_transaction();
 }
 
 
@@ -164,7 +205,8 @@ om_docid
 OmWritableDatabase::add_document(const OmDocumentContents & document,
 				 om_timeout timeout)
 {
-    DEBUGAPICALL("OmWritableDatabase::add_document", document);
+    DEBUGAPICALL("OmWritableDatabase::add_document",
+		 document << ", " << timeout);
     // Check the validity of the document
     OmDocumentContents::document_terms::const_iterator i;
     for(i = document.terms.begin(); i != document.terms.end(); i++) {
@@ -175,35 +217,61 @@ OmWritableDatabase::add_document(const OmDocumentContents & document,
     }
 
     // Get the pointer while locked, in case someone is assigning to it.
-    internal->mutex.lock();
-    IRDatabase * database = internal->mydb.get();
-    internal->mutex.unlock();
+    IRDatabase * database;
+    {
+	OmLockSentry locksentry(internal->mutex);
+	database = internal->mydb.get();
+    }
 
-    // FIXME - have an implicit session here if not already in one,
-    // and make sure we're exception safe.
-    om_docid did = database->add_document(document);
+    om_docid did = database->add_document(document, timeout);
     DEBUGAPIRETURN(did);
     return did;
 }
 
 void
-OmWritableDatabase::delete_document(om_docid did, om_timeout timeout = 0)
+OmWritableDatabase::delete_document(om_docid did, om_timeout timeout)
 {
-    throw OmUnimplementedError("OmWritableDatabase::delete_document() not yet implemented");
+    DEBUGAPICALL("OmWritableDatabase::delete_document",
+		 did << ", " << timeout);
+    // Get the pointer while locked, in case someone is assigning to it.
+    IRDatabase * database;
+    {
+	OmLockSentry locksentry(internal->mutex);
+	database = internal->mydb.get();
+    }
+
+    database->delete_document(did, timeout);
 }
 
 void
 OmWritableDatabase::replace_document(om_docid did,
 				     const OmDocumentContents & document,
-				     om_timeout timeout = 0)
+				     om_timeout timeout)
 {
-    throw OmUnimplementedError("OmWritableDatabase::replace_document() not yet implemented");
+    DEBUGAPICALL("OmWritableDatabase::replace_document",
+		 did << ", " << document << ", " << timeout);
+    // Get the pointer while locked, in case someone is assigning to it.
+    IRDatabase * database;
+    {
+	OmLockSentry locksentry(internal->mutex);
+	database = internal->mydb.get();
+    }
+
+    database->replace_document(did, document, timeout);
 }
 
 OmDocumentContents
 OmWritableDatabase::get_document(om_docid did)
 {
-    throw OmUnimplementedError("OmWritableDatabase::get_document() not yet implemented");
+    DEBUGAPICALL("OmWritableDatabase::get_document", did);
+    // Get the pointer while locked, in case someone is assigning to it.
+    IRDatabase * database;
+    {
+	OmLockSentry locksentry(internal->mutex);
+	database = internal->mydb.get();
+    }
+
+    return database->get_document(did);
 }
 
 std::string

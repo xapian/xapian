@@ -82,6 +82,66 @@ class MultiDatabase : public IRDatabase {
 	 */
 	MultiDatabase(std::vector<OmRefCntPtr<IRDatabase> > databases_);
 
+	//@{
+	/** MultiDatabase is a readonly database type, and thus this method
+	 *  is not supported: if called an exception will be thrown.
+	 */
+	void do_begin_session(om_timeout timeout) {
+	    throw OmUnimplementedError(
+		"MultiDatabase::begin_session() not implemented: readonly database type");
+	};
+
+	void do_end_session() {
+	    throw OmUnimplementedError(
+		"MultiDatabase::do_end_session() not implemented: readonly database type");
+	};
+
+	void do_flush() {
+	    throw OmUnimplementedError(
+		"MultiDatabase::flush() not implemented: readonly database type");
+	};
+
+	void do_begin_transaction() {
+	    throw OmUnimplementedError(
+		"MultiDatabase::begin_transaction() not implemented: readonly database type");
+	};
+
+	void do_commit_transaction() {
+	    throw OmUnimplementedError(
+		"MultiDatabase::commit_transaction() not implemented: readonly database type");
+	};
+
+	void do_cancel_transaction() {
+	    throw OmUnimplementedError(
+		"MultiDatabase::cancel_transaction() not implemented: readonly database type");
+	};
+
+	om_docid do_add_document(const struct OmDocumentContents & document) {
+	    throw OmUnimplementedError(
+		"MultiDatabase::add_document() not implemented: readonly database type");
+	}
+
+	void do_delete_document(om_docid did) {
+	    throw OmUnimplementedError(
+		"MultiDatabase::delete_document() not implemented: readonly database type");
+	};
+
+	void do_replace_document(om_docid did,
+				 const OmDocumentContents & document) {
+	    throw OmUnimplementedError(
+		"MultiDatabase::replace_document() not implemented: readonly database type");
+	};
+
+	//@}
+
+	/** Get a document from the database.
+	 *  FIXME: implement this method.
+	 */
+	OmDocumentContents do_get_document(om_docid did) {
+	    throw OmUnimplementedError(
+		"MultiDatabase::get_document() not yet implemented");
+	};
+
     public:
 	~MultiDatabase();
 
@@ -95,30 +155,6 @@ class MultiDatabase : public IRDatabase {
 	LeafPostList * open_post_list(const om_termname & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
 	LeafDocument * open_document(om_docid did) const;
-
-	/** MultiDatabase is a readonly database type, and thus this method is
-	 *  not supported: if called an exception will be thrown.
-	 */
-	om_docid add_document(const struct OmDocumentContents & document) {
-	    throw OmUnimplementedError(
-		"MultiDatabase::add_document() not implemented");
-	}
-
-	/** MultiDatabase is a readonly database type, and thus this method is
-	 *  not supported: if called an exception will be thrown.
-	 */
-	void lock(om_timeout timeout) {
-	    throw OmUnimplementedError(
-		"MultiDatabase::lock() not implemented");
-	};
-
-	/** MultiDatabase is a readonly database type, and thus this method is
-	 *  not supported: if called an exception will be thrown.
-	 */
-	void unlock() {
-	    throw OmUnimplementedError(
-		"MultiDatabase::unlock() not implemented");
-	};
 };
 
 #endif /* OM_HGUARD_MULTI_DATABASE_H */

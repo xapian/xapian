@@ -315,29 +315,65 @@ class DBDatabase : public IRDatabase {
 	LeafTermList * open_term_list(om_docid did) const;
 	LeafDocument * open_document(om_docid did) const;
 
-        /** DBDatabase is a readonly database type, and thus this method is
-         *  not supported: if called an exception will be thrown.
-         */
-        om_docid add_document(const struct OmDocumentContents & document) {
-            throw OmUnimplementedError(
-                "DBDatabase::add_document() not implemented");
-        };
+	//@{
+	/** DBDatabase is a readonly database type, and thus this method is
+	 *  not supported: if called an exception will be thrown.
+	 */
+	void do_begin_session(om_timeout timeout) {
+	    throw OmUnimplementedError(
+		"DBDatabase::begin_session() not implemented: readonly database type");
+	};
 
-        /** DBDatabase is a readonly database type, and thus this method is
-         *  not supported: if called an exception will be thrown.
-         */
-        void lock(om_timeout timeout) {
-            throw OmUnimplementedError(
-                "DBDatabase::lock() not implemented");
-        };
+	void do_end_session() {
+	    throw OmUnimplementedError(
+		"DBDatabase::do_end_session() not implemented: readonly database type");
+	};
 
-        /** DBDatabase is a readonly database type, and thus this method is
-         *  not supported: if called an exception will be thrown.
-         */
-        void unlock() {
-            throw OmUnimplementedError(
-                "DBDatabase::unlock() not implemented");
-        };
+	void do_flush() {
+	    throw OmUnimplementedError(
+		"DBDatabase::flush() not implemented: readonly database type");
+	};
+
+	void do_begin_transaction() {
+	    throw OmUnimplementedError(
+		"DBDatabase::begin_transaction() not implemented: readonly database type");
+	};
+
+	void do_commit_transaction() {
+	    throw OmUnimplementedError(
+		"DBDatabase::commit_transaction() not implemented: readonly database type");
+	};
+
+	void do_cancel_transaction() {
+	    throw OmUnimplementedError(
+		"DBDatabase::cancel_transaction() not implemented: readonly database type");
+	};
+
+	om_docid do_add_document(const struct OmDocumentContents & document) {
+	    throw OmUnimplementedError(
+		"DBDatabase::add_document() not implemented: readonly database type");
+	}
+
+	void do_delete_document(om_docid did) {
+	    throw OmUnimplementedError(
+		"DBDatabase::delete_document() not implemented: readonly database type");
+	};
+
+	void do_replace_document(om_docid did,
+				 const OmDocumentContents & document) {
+	    throw OmUnimplementedError(
+		"DBDatabase::replace_document() not implemented: readonly database type");
+	};
+
+	//@}
+
+	/** Get a document from the database.
+	 *  FIXME: implement this method.
+	 */
+	OmDocumentContents do_get_document(om_docid did) {
+	    throw OmUnimplementedError(
+		"DBDatabase::get_document() not yet implemented");
+	};
 };
 
 #endif /* OM_HGUARD_DB_DATABASE_H */

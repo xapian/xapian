@@ -224,6 +224,25 @@ class InMemoryDatabase : public IRDatabase {
 	void make_posting(const om_termname & tname,
 			  om_docid did,
 			  om_termpos position);
+
+	//@{
+	/** Implementation of virtual methods: see IRDatabase for details.
+	 */
+	void do_begin_session(om_timeout timeout);
+	void do_end_session();
+	void do_flush();
+
+	void do_begin_transaction();
+	void do_commit_transaction();
+	void do_cancel_transaction();
+
+	om_docid do_add_document(const OmDocumentContents & document);
+	void do_delete_document(om_docid did);
+	void do_replace_document(om_docid did,
+				 const OmDocumentContents & document);
+	OmDocumentContents do_get_document(om_docid did);
+	//@}
+
     public:
 	~InMemoryDatabase();
 
@@ -237,10 +256,6 @@ class InMemoryDatabase : public IRDatabase {
 	LeafPostList * open_post_list(const om_termname & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
 	LeafDocument * open_document(om_docid did) const;
-
-	om_docid add_document(const struct OmDocumentContents & document);
-	void lock(om_timeout timeout) {};
-	void unlock() {};
 };
 
 

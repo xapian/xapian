@@ -232,6 +232,8 @@ class OmWritableDatabase : public OmDatabase {
 	 *  conditions (such as two threads simultaneously attempting to
 	 *  replace the same document) are avoided.
 	 *
+	 *  If an error occurs during the method, an exception will be thrown,
+	 *  and a session will not be started.
 	 *
 	 *  @param timeout  The time to wait for a lock.  (in microseconds)
 	 *                  The default of 0 means that failure to obtain a
@@ -259,6 +261,10 @@ class OmWritableDatabase : public OmDatabase {
 	 *  performed at all: it is then up to the application to work
 	 *  out which operations need to be repeated.
 	 *
+	 *  If an error occurs during the method, an exception will be thrown,
+	 *  and the session will be terminated.  If any transactions are
+	 *  in progress, they will be cancelled.
+	 *
 	 *  @exception OmDatabaseError will be thrown if a problem occurs
 	 *             while modifying the database.
 	 *
@@ -278,13 +284,14 @@ class OmWritableDatabase : public OmDatabase {
 	 *  session.
 	 *
 	 *  This may be called at any time during a session to ensure that
-	 *  the modifications which have been made are written to disk.  If
-	 *  any of the modifications fail, an exception will be thrown and
-	 *  the database will be left in a state in which each modification
-	 *  has either been performed fully or not at all.
-	 *
-	 *  If the flush succeeds, all the preceding modifications will
+	 *  the modifications which have been made are written to disk:
+	 *  if the flush succeeds, all the preceding modifications will
 	 *  have been written to disk.
+	 *
+	 *  If any of the modifications fail, an exception will be thrown and
+	 *  the database will be left in a state in which each modification
+	 *  has either been performed fully or has failed and not been
+	 *  performed at all.
 	 *
 	 *  If called within a transaction, this will flush database
 	 *  modifications made before the transaction was begun, but will
@@ -322,31 +329,36 @@ class OmWritableDatabase : public OmDatabase {
 	 *  long as the filesystem isn't corrupted, etc).
 	 *
 	 *  Transactions are only available with certain access methods,
-	 *  and as you might expect are likely to have a fairly high
+	 *  and as you might expect will generally have a fairly high
 	 *  performance cost.
 	 *
-	 *  A transaction may only be begun within a session.  However,
-	 *  if you do not explicitly begin a session, one will be created
-	 *  for the duration of the transaction.
+	 *  A transaction may only be begun within a session, see
+	 *  begin_session().
 	 * 
-	 *  @param timeout  The timeout parameter to pass to begin_session()
-	 *                  if a session is not already in progress.  This
-	 *                  parameter will only be used if a session has
-	 *                  not already been started (see begin_session()).
-	 *
 	 *  @exception OmUnimplementedError will be thrown if transactions
 	 *             are not available for this database type.
+	 *
+	 *  @exception OmInvalidOperationError will be thrown if this is
+	 *             called at an invalid time, such as when a session is
+	 *             not in progress or when a transaction is already in
+	 *             progress.
 	 */
-	void begin_transaction(om_timeout timeout = 0);
+	void begin_transaction();
 
-	/** This ends the transaction currently in progress.
+	/** This ends the transaction currently in progress, commiting the
+	 *  modifications made to the database.
 	 *
 	 *  If this completes successfully, all the database modifications
 	 *  made during the transaction will have been committed to the
-	 *  database.  If the transaction fails, an exception will be
-	 *  thrown, and none of the modifications made to the database
-	 *  during the transaction will have been applied to the database.
-	 * 
+	 *  database.
+	 *
+	 *  If an error occurs, an exception will be thrown, and none of
+	 *  the modifications made to the database during the transaction
+	 *  will have been applied to the database.
+	 *  
+	 *  Whatever occurs, after this method the transaction will no
+	 *  longer be in progress.
+	 *
 	 *  @exception OmDatabaseError will be thrown if a problem occurs
 	 *             while modifying the database.
 	 *
@@ -359,7 +371,27 @@ class OmWritableDatabase : public OmDatabase {
 	 *  @exception OmUnimplementedError will be thrown if transactions
 	 *             are not available for this database type.
 	 */
-	void end_transaction();
+	void commit_transaction();
+
+	/** This ends the transaction currently in progress, cancelling the
+	 *  potential modifications made to the database.
+	 *
+	 *  If an error occurs in this method, an exception will be thrown,
+	 *  but the transaction will be cancelled anyway.
+	 *
+	 *  @exception OmDatabaseError will be thrown if a problem occurs
+	 *             while modifying the database.
+	 *  
+	 *  @exception OmDatabaseCorruptError will be thrown if the
+	 *             database is in a corrupt state.
+	 *
+	 *  @exception OmInvalidOperationError will be thrown if a transaction
+	 *             is not currently in progress.
+	 *
+	 *  @exception OmUnimplementedError will be thrown if transactions
+	 *             are not available for this database type.
+	 */
+	void cancel_transaction();
 
 	/** Add a new document to the database.
 	 *

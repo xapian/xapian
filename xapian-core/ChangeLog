@@ -1,3 +1,21 @@
+Fri Aug 11 19:09:30 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* API change:  Replaced OmWritableDatabase::end_transaction() by
+	  OmWritableDatabase::commit_transaction() and
+	  OmWritableDatabase::cancel_transaction().
+
+	* IRDatabase no longer inherits from IndexerDestination: obselete
+	  class.
+
+	* Modified IRDatabase to support new writable database API model,
+	  giving it public methods to match.  These public methods ensure
+	  that the sessions and transactions are appropriately started
+	  and ended, and then call private virtual do_* methods, which
+	  are overridden to perform the actions.
+
+	* Modified backend Database classes to have stub methods so the
+	  system works with the new writable database model.
+
 Fri Aug 11 18:42:23 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Yet more Python updates.  17 out of the 20 tests currently

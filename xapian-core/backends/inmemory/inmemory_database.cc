@@ -129,8 +129,61 @@ InMemoryDatabase::add_keys(om_docid did,
     keylists.push_back(keys_);
 }
 
+void
+InMemoryDatabase::do_begin_session(om_timeout timeout)
+{
+}
+
+void
+InMemoryDatabase::do_end_session()
+{
+}
+
+void
+InMemoryDatabase::do_flush()
+{
+}
+
+void
+InMemoryDatabase::do_begin_transaction()
+{
+    throw OmUnimplementedError("Transactions not implemented for InMemoryDatabase");
+}
+
+void
+InMemoryDatabase::do_commit_transaction()
+{
+    throw OmUnimplementedError("Transactions not implemented for InMemoryDatabase");
+}
+
+void
+InMemoryDatabase::do_cancel_transaction()
+{
+    throw OmUnimplementedError("Transactions not implemented for InMemoryDatabase");
+}
+
+
+void
+InMemoryDatabase::do_delete_document(om_docid did)
+{
+    throw OmUnimplementedError("InMemoryDatabase::do_delete_document() not implemented");  
+}
+
+void
+InMemoryDatabase::do_replace_document(om_docid did,
+			 const OmDocumentContents & document)
+{
+    throw OmUnimplementedError("InMemoryDatabase::do_replace_document() not implemented");  
+}
+
+OmDocumentContents
+InMemoryDatabase::do_get_document(om_docid did)
+{
+    throw OmUnimplementedError("InMemoryDatabase::do_get_document() not implemented");  
+}
+
 om_docid
-InMemoryDatabase::add_document(const struct OmDocumentContents & document)
+InMemoryDatabase::do_add_document(const struct OmDocumentContents & document)
 {
     om_docid did = make_doc(document.data);
     add_keys(did, document.keys);

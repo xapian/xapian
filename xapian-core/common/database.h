@@ -27,8 +27,8 @@
 
 #include "database_builder.h"
 #include "om/omindexdoc.h"
-#include "indexer.h"
 #include "omrefcnt.h"
+#include "omlocks.h"
 
 class LeafDocument;
 class LeafPostList;
@@ -39,14 +39,55 @@ class LeafTermList;
  *  All classes derived from IRDatabase must have DatabaseBuilder as
  *  a friend, so that they can be constructed in a unified way.
  */
-class IRDatabase : public IndexerDestination,
-		   public OmRefCntBase {
+class IRDatabase : public OmRefCntBase {
     private:
 	/// Copies are not allowed.
 	IRDatabase(const IRDatabase &);
 
 	/// Assignment is not allowed.
 	void operator=(const IRDatabase &);
+
+	/// Flag recording whether an explicit session is in progress
+	bool session_in_progress;
+	
+	/// Flag recording whether a transaction is in progress
+	bool transaction_in_progress;
+	
+	/// Mutex protecting access to "*_in_progress" flags.
+	OmLock mutex;
+
+	/// Virtual method providing implementation of begin_session();
+	virtual void do_begin_session(om_timeout timeout) = 0;
+
+	/// Virtual method providing implementation of end_session();
+	virtual void do_end_session() = 0;
+
+	/// Virtual method providing implementation of flush();
+	virtual void do_flush() = 0;
+
+	/// Virtual method providing implementation of begin_transaction();
+	virtual void do_begin_transaction() = 0;
+
+	/// Virtual method providing implementation of commit_transaction();
+	virtual void do_commit_transaction() = 0;
+
+	/// Virtual method providing implementation of cancel_transaction();
+	virtual void do_cancel_transaction() = 0;
+
+	/// Virtual method providing implementation of add_document();
+	virtual om_docid do_add_document(
+		const OmDocumentContents & document) = 0;
+
+	/// Virtual method providing implementation of delete_document();
+	virtual void do_delete_document(om_docid did) = 0;
+
+	/// Virtual method providing implementation of replace_document();
+	virtual void do_replace_document(om_docid did,
+		const OmDocumentContents & document) = 0;
+
+	/// Virtual method providing implementation of get_document();
+	virtual OmDocumentContents do_get_document(om_docid did) = 0;
+
     protected:
     	/** Create a database - called only by derived classes.
 	 */
@@ -59,7 +100,7 @@ class IRDatabase : public IndexerDestination,
 	 *  \todo ensure that the database is not destroyed while objects
 	 *  are still using it by employing reference counted internals.
 	 */
-        virtual ~IRDatabase() { return; }
+        virtual ~IRDatabase();
 
 	//////////////////////////////////////////////////////////////////
 	// Database statistics:
@@ -165,28 +206,69 @@ class IRDatabase : public IndexerDestination,
 	// Modifying the database:
 	// =======================
 
+	/** Start a modification session on the database.
+	 *
+	 *  See OmWritableDatabase::begin_session() for more information.
+	 */
+	void begin_session(om_timeout timeout);
+
+	/** End a modification session on the database.
+	 *
+	 *  See OmWritableDatabase::end_session() for more information.
+	 */
+	void end_session();
+
+	/** Flush modifications to the database.
+	 *
+	 *  See OmWritableDatabase::flush() for more information.
+	 */
+	void flush();
+
+	/** Begin a transaction.
+	 *
+	 *  See OmWritableDatabase::begin_transaction() for more information.
+	 */
+	void begin_transaction();
+
+	/** Commit a transaction.
+	 *
+	 *  See OmWritableDatabase::commit_transaction() for more information.
+	 */
+	void commit_transaction();
+
+	/** Cancel a transaction.
+	 *
+	 *  See OmWritableDatabase::cancel_transaction() for more information.
+	 */
+	void cancel_transaction();
+
 	/** Add a new document to the database.
 	 *
-	 *  This is called by OmWritableDatabase.
-	 *
-	 *  If the database is not locked, this method must obtain a lock on
-	 *  the database for the duration of the operation.
-	 *
-	 *  @return The document ID of the newly created document.
+	 *  See OmWritableDatabase::add_document() for more information.
 	 */
-	virtual om_docid add_document(const struct OmDocumentContents & document) = 0;
+	om_docid add_document(const OmDocumentContents & document,
+			      om_timeout timeout = 0);
 
-	/** Obtain a write lock on the database.
+	/** Delete a document in the database.
 	 *
-	 *  See OmWritableDatabase::lock() for more information.
+	 *  See OmWritableDatabase::delete_document() for more information.
 	 */
-	virtual void lock(om_timeout timeout) = 0;
+	void delete_document(om_docid did, om_timeout timeout = 0);
 
-	/** Release a write lock on the database.
+	/** Replace a given document in the database.
 	 *
-	 *  See OmWritableDatabase::unlock() for more information.
+	 *  See OmWritableDatabase::replace_document() for more information.
 	 */
-	virtual void unlock() = 0;
+	void replace_document(om_docid did,
+			      const OmDocumentContents & document,
+			      om_timeout timeout = 0);
+
+	/** Get a document from the database.
+	 *
+	 *  See OmWritableDatabase::get_document() for more information.
+	 */
+	OmDocumentContents get_document(om_docid did);
+
 
 	//////////////////////////////////////////////////////////////////
 	// Introspection methods:
