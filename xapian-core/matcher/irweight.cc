@@ -1,12 +1,13 @@
 /* irweight.cc: C++ class for weight calculation routines */
 
-#include <stdio.h>
 #include <math.h>
 
 #include "database.h"
 #include "irweight.h"
 #include "rset.h"
 #include "omassert.h"
+
+#include "config.h"
 
 const double k = 1;
 
@@ -19,14 +20,18 @@ IRWeight::calc_termweight() const
     doccount dbsize = root->get_doccount();
     lenpart = k / root->get_avlength();
 
-    printf("Statistics: N=%d n_t=%d ", dbsize, termfreq);
+#ifdef MUS_DEBUG_VERBOSE
+    cout << "Statistics: N=" << dbsize << " n_t=" << termfreq;
+#endif /* MUS_DEBUG_VERBOSE */
 
     weight tw = 0;
     doccount rsize;
     if(rset != NULL && (rsize = rset->get_rsize()) != 0) {
 	doccount rtermfreq = rset->get_reltermfreq(tname);
 
-	printf("R=%d r_t=%d ", rsize, rtermfreq);
+#ifdef MUS_DEBUG_VERBOSE
+	cout << " R=" << rsize << " r_t=" << rtermfreq;
+#endif /* MUS_DEBUG_VERBOSE */
 
 	tw = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /
 	     ((rsize - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
@@ -41,7 +46,9 @@ IRWeight::calc_termweight() const
     }
     tw = log(tw);
 
-    printf("\t=> termweight = %f\n", tw);
+#ifdef MUS_DEBUG_VERBOSE
+    cout << " => termweight = " << tw << endl;
+#endif /* MUS_DEBUG_VERBOSE */
     termweight = tw;
     weight_calculated = true;
 }
@@ -82,14 +89,18 @@ BM25Weight::calc_termweight() const
     doccount dbsize = root->get_doccount();
     lenpart = B * D / root->get_avlength();
 
-    printf("Statistics: N=%d n_t=%d ", dbsize, termfreq);
+#ifdef MUS_DEBUG_VERBOSE
+    cout << "Statistics: N=" << dbsize << " n_t=" << termfreq;
+#endif /* MUS_DEBUG_VERBOSE */
 
     weight tw = 0;
     doccount rsize;
     if(rset != NULL && (rsize = rset->get_rsize()) != 0) {
 	doccount rtermfreq = rset->get_reltermfreq(tname);
 
-	printf("R=%d r_t=%d ", rsize, rtermfreq);
+#ifdef MUS_DEBUG_VERBOSE
+	cout << " R=" << rsize << " r_t=" << rtermfreq;
+#endif /* MUS_DEBUG_VERBOSE */
 
 	tw = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /
 	     ((rsize - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
@@ -104,7 +115,9 @@ BM25Weight::calc_termweight() const
     }
     tw = log(tw);
 
-    printf("\t=> termweight = %f\n", tw);
+#ifdef MUS_DEBUG_VERBOSE
+    cout << " => termweight = " << tw << endl;
+#endif /* MUS_DEBUG_VERBOSE */
     termweight = tw;
     weight_calculated = true;
 }
