@@ -408,11 +408,6 @@ better largefile checks, and should resolve this.
 Propose: remove mutex locking and hence dependency of pthreads, which removes
 all these issues.
 
- * Do a VPATH build. make clean. Some files are left which shouldn't
-   be.
-
-xapian-core is OK.  Need to check xapian-examples and -apps.
-
 Code
 ====
 
@@ -464,7 +459,8 @@ I think Richard was looking into this.
    method of GNU getopt being distributed with Xapian. This is a
    reversal of my previous position :)
 
-Made a major start.  More to do.
+Made a major start.  Need to ensure getopt.c and getopt1.c get linked against
+anything that needs them for non-glibc platforms.
 
 Ports
 =====
@@ -513,11 +509,6 @@ have been updated to reflect changes, and to no longer be correct.
 Propose: enhance valgrind slightly and replace out leak checking code with
 it.  This means we can only leak check on Linux though, rather than any
 platform which supports LD_PRELOAD.
-
- * Internals public but marked @internal for doxygen, avoid 'friends'
-   usage and just trust people not to be stupid
-
-Need to add doxygen comments still.
 
 And here are my extra points:
 
