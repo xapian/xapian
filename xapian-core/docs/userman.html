@@ -119,6 +119,18 @@ weighted (and sorted) according to the probabilistic model of information
 retrieval.
 </P>
 
+<H2>Memory handling</H2>
+<P>
+The user of Muscat does not usually need to worry about how Muscat performs
+its memory allocation: Muscat objects can all be created and deleted as any
+other C++ objects.  The convention is that whoever creates an object
+is ultimately responsible for deleting it.  This becomes relevant when
+passing a pointer to data to Muscat: Muscat will not assume that such
+pointers remain valid across separate API calls, and it will be the
+callers responsibility to delete the object pointed to, as and when
+required.
+</P>
+
 <H2>The OmEnquire class</H2>
 
 <P>
@@ -179,7 +191,7 @@ depend on the database type.
 Note that these parameters <EM>are</EM> case sensitive.
 
 <A NAME="database_types"><H3>Database types</H3></A>
-The current types understood by muscat are:
+The current types understood by Muscat are:
 </P>
 <TABLE>
 <TR><TD VALIGN="top"><B>da_flimsy</B></TD><TD>
@@ -444,13 +456,13 @@ An OmMSet also contains various information about the search result:
 <TR><TD VALIGN="top">
 <CODE>firstitem</CODE>
 </TD><TD>
-The index of the first item in the result to put
-into the mset.  (Corresponding to <CODE>first</CODE> in
+The index of the first item in the result which was put into the mset.
+(Corresponding to <CODE>first</CODE> in
 <CODE>OmEnquire::get_mset()</CODE>)
 </TD></TR><TR><TD VALIGN="top">
 <CODE>max_attained</CODE>
 </TD><TD>
-The greatest weight which is attained in the mset. 
+The greatest weight which is attained in the full results of the search.
 </TD></TR><TR><TD VALIGN="top">
 <CODE>max_possible</CODE>
 </TD><TD>
@@ -462,8 +474,21 @@ A lower bound on the number of documents in the database which have a weight gre
 </TD><TR>
 </TABLE>
 </P>
+<P>
+See the <A HREF="apidoc/OmMSet.html">automatically extracted documentation</A>
+for more details of these fields.
+</P>
 
 <H2>Specifying a relevance set</H2>
+<P>
+Muscat supports the idea of relevance feedback: that is, of allowing the user
+to mark documents as being relevant to the search, and using this information
+to modify the search.  This is supported by means of relevance sets, which
+are simply sets of document id's which are marked as relevant.  These
+are held in <A HREF="apidoc/OmRSet.html"><CODE>OmRSet</CODE></A> objects,
+one of which may optionally be supplied to Muscat when calling
+<CODE>OmEnquire::get_mset()</CODE>.
+</P>
 
 <H3>Match options</H3>
 
