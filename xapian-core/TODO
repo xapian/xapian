@@ -53,6 +53,13 @@ Priority | Area            | Task
 	 |                 | called repeatedly without calling add_database()
 	 |                 | in-between.
 ---------+-----------------+--------------------------------------------------
+ Medium  | Exceptions      | Make a OmFeatureUnavailableError() exception.
+         |                 | Throw whenever a task can't be performed because
+	 |                 | something isn't compiled in.
+---------+-----------------+--------------------------------------------------
+ Medium  | Exceptions      | Make them work with shared libs on solaris /
+         |                 | find an alternative.
+---------+-----------------+--------------------------------------------------
  Medium  | Options         | Make an OmOptions object, storing a map of
          |                 | option strings to their values.  Use for things
 	 |                 | such as, what debugging to output, what size
