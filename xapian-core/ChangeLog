@@ -1,3 +1,7 @@
+Sat Apr 10 00:27:58 BST 2004  Olly Betts <olly@survex.com>
+
+	* extra/xapian/queryparser.h: Added doxygen documentation comments.
+
 Sat Apr 10 00:23:13 BST 2004  Olly Betts <olly@survex.com>
 
 	* testsuite/testsuite.cc: Removed a now superfluous line.

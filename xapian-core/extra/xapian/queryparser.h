@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,40 +33,56 @@
 
 namespace Xapian {
 
+/** Stopword functor base class. */
 class Stopper {
     public:
+	/** Decide if a term is a stopword.
+	 *
+	 * @param term  the term to test.
+	 * @return true if term is a stopword.
+	 */
 	virtual bool operator()(const std::string &/*term*/) {
 	    return false;
 	}
 };
 
+/** Sophisticated query parser. */
 class QueryParser {
     private:
 	// Prevent copying
 	QueryParser(const QueryParser &);
 	QueryParser & operator=(const QueryParser &);
-    
+
     public:
+	/** Create a new query parser. */
 	QueryParser() : default_op(Query::OP_OR), stop(NULL), stemmer(NULL),
 		stem(true), stem_all(false)
 	{
 	    set_stemming_options("english");
 	}
-	
+
+	/** Set the stemming language and options.
+	 */
 	void set_stemming_options(const std::string &lang,
 				  bool stem_all_ = false,
 				  Stopper *stop_ = NULL);
-	
+
+	/** Set the default boolean operator.
+	 */
 	void set_default_op(Query::op default_op_) {
 	    default_op = default_op_;
 	}
 
+	/** Specify the database being searched.
+	 */
 	void set_database(const Database &db_) {
 	    db = db_;
 	}
 
+	/** Parse a query.
+	 */
 	Query parse_query(const std::string &q);
-	
+
 	std::list<std::string> termlist;
 	std::list<std::string> stoplist;
 
