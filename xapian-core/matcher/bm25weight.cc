@@ -25,7 +25,6 @@
 
 #include "omassert.h"
 #include "bm25weight.h"
-#include "rset.h"
 #include "stats.h"
 
 ///////////////////////////////////////////////////////////////////////////
@@ -57,9 +56,9 @@ BM25Weight::calc_termweight() const
     DebugMsg("Statistics: N=" << dbsize << " n_t=" << termfreq);
 
     om_weight tw = 0;
-    om_doccount rsize;
-    if(rset != NULL && (rsize = rset->get_rsize()) != 0) {
-	om_doccount rtermfreq = rset->get_reltermfreq(tname);
+    om_doccount rsize = stats->get_total_rset_size();
+    if (rsize != 0) {
+	om_doccount rtermfreq = stats->get_total_reltermfreq(tname);
 
 	DebugMsg(" R=" << rsize << " r_t=" << rtermfreq);
 

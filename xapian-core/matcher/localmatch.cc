@@ -143,7 +143,7 @@ LocalMatch::mk_weight(om_doclength querysize_,
 {
     IRWeight * wt = IRWeight::create(actual_weighting);
     weights.push_back(wt); // Remember it for deleting
-    wt->set_stats(&statssource, querysize_, tname_, rset.get());
+    wt->set_stats(&statssource, querysize_, tname_);
     return wt;
 }
 

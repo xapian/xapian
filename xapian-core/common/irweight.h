@@ -40,7 +40,6 @@ class IRWeight {
 	
 	om_doclength querysize;
 	om_termname tname;
-	const RSet * rset;
 
 	bool initialised;
 	mutable bool weight_calculated;
@@ -62,12 +61,10 @@ class IRWeight {
 	 *
 	 *  @param stats_    Object to ask for collection statistics.
 	 *  @param tname_    Term which this object is associated with.
-	 *  @param rset_     Relevance set to use for calculating weights.
 	 */
 	virtual void set_stats(const StatsSource * stats_,
 			       om_doclength querysize_,
-			       om_termname tname_,
-			       const RSet * rset_);
+			       om_termname tname_);
 
 	/** Get a weight which is part of the sum over terms being performed.
 	 *  This returns a weight for a given term and document.  These
@@ -109,15 +106,13 @@ class IRWeight {
 inline void
 IRWeight::set_stats(const StatsSource * stats_,
 		    om_doclength querysize_,
-		    om_termname tname_,
-		    const RSet * rset_ = NULL) {
+		    om_termname tname_) {
     // Can set stats several times, but can't set them after we've used them
     Assert(!weight_calculated);
 
     stats = stats_;
     querysize = querysize_;
     tname = tname_;
-    rset = rset_;
     initialised = true;
 }
 

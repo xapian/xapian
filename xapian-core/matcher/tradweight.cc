@@ -45,14 +45,14 @@ TradWeight::calc_termweight() const
     DebugMsg("Statistics: N=" << dbsize << " n_t=" << termfreq);
 
     om_weight tw = 0;
-    om_doccount rsize;
-    if(rset != NULL && (rsize = rset->get_rsize()) != 0) {
-	om_doccount rtermfreq = rset->get_reltermfreq(tname);
+    om_doccount rsize = stats->get_total_rset_size();
+    if (rsize != 0) {
+	om_doccount rtermfreq = stats->get_total_reltermfreq(tname);
 
 	DebugMsg(" R=" << rsize << " r_t=" << rtermfreq);
 
 	tw = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /
-	     ((rsize - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
+		((rsize - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
     } else {
 	tw = (dbsize - termfreq + 0.5) / (termfreq + 0.5);
     }

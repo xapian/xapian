@@ -1,3 +1,9 @@
+Wed May 17 17:26:41 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* BM25Weight and TradWeight now ask their statssource for information
+	  about the RSet, rather than asking the rset directly.  As a result,
+	  they no longer have or need an "RSet * rset" member.
+
 Wed May 17 17:09:35 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* RSet now has a give_stats_to_statssource() method, used by
