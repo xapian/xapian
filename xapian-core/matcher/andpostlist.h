@@ -10,7 +10,7 @@ class AndPostList : public virtual BranchPostList {
     private:
         docid head;
 
-        void advance_to_next_match();
+        void process_next_or_skip_to(PostList *);
     public:
 	doccount get_termfreq() const;
 

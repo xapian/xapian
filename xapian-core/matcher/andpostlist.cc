@@ -1,8 +1,22 @@
 #include "andpostlist.h"
 
 inline void
-AndPostList::advance_to_next_match()
+AndPostList::process_next_or_skip_to(PostList *ret)
 {
+    head = 0;
+    if (ret) {
+	delete r;
+	r = ret;
+    }
+    if (r->at_end()) return;
+
+    ret = l->skip_to(r->get_docid());
+    if (ret) {
+	delete l;
+	l = ret;
+    }
+    if (l->at_end()) return;
+
     docid lhead = l->get_docid();
     docid rhead = r->get_docid();
 
@@ -33,6 +47,7 @@ AndPostList::advance_to_next_match()
     }
 
     head = lhead;
+    return;
 }
 
 AndPostList::AndPostList(PostList *left, PostList *right)
@@ -45,47 +60,13 @@ AndPostList::AndPostList(PostList *left, PostList *right)
 PostList *
 AndPostList::next()
 {
-    PostList *ret;
-    head = 0;
-
-    ret = r->next();
-    if (ret) {
-	delete r;
-	r = ret;
-    }
-    if (r->at_end()) return NULL;
-
-    ret = l->skip_to(r->get_docid());
-    if (ret) {
-	delete l;
-	l = ret;
-    }
-    if (l->at_end()) return NULL;
-
-    advance_to_next_match();
+    process_next_or_skip_to(r->next());
     return NULL;
 }
 
 PostList *
 AndPostList::skip_to(docid id)
 {
-    PostList *ret;
-    head = 0;
-
-    ret = r->skip_to(id);
-    if (ret) {
-	delete r;
-	r = ret;
-    }
-    if (r->at_end()) return NULL;
-
-    ret = l->skip_to(r->get_docid());
-    if (ret) {
-	delete l;
-	l = ret;
-    }
-    if (l->at_end()) return NULL;
-
-    advance_to_next_match();
+    process_next_or_skip_to(r->skip_to(id));
     return NULL;
 }
