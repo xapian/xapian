@@ -44,6 +44,7 @@ int yylex();
 
 static string::const_iterator q_ptr;
 
+#include "omega.h"
 #include "query.h"
 %}
 
@@ -129,6 +130,14 @@ next_char()
 
 static OmStem stemmer("english");
 
+static bool stem, stem_all;
+
+// FIXME: allow domain:uk in query...
+// don't allow + and & in term then ?
+// or allow +&.-_ ?
+// domain/site/language/host ?
+
+static int
 yylex()
 {
     int c;
@@ -139,11 +148,18 @@ yylex()
     /* process terms */
     if (isalnum(c)) {
 	string term;
+	bool stem_term = stem;
 	term = char(c);
 	c = next_char();
 	while (isalnum(c)) {
 	    term += char(c);
 	    c = next_char();
+	}
+	if (c == '.') {
+	    // "example.com" should give "exampl" and "com" - need EOF or
+	    // space after '.' to mean "don't stem"
+	    c = next_char();
+	    if (c == EOF || isspace(c)) stem_term = false;	    
 	}
 	if (c != EOF) q_ptr--;
 	if (term == "AND") {
@@ -157,7 +173,7 @@ yylex()
         } else if (term == "NEAR") {
 	    return NEAR;
         }
-	term = stemmer.stem_word(term);
+	if (stem_term) term = stemmer.stem_word(term);
 	yylval = U(OmQuery(term, 1, termpos++));
 	new_terms_list.push_back(term);
 	new_terms.insert(term);
@@ -175,6 +191,7 @@ yylex()
     return c;                                
 }
 
+static int
 yyerror(const char *s)
 {
     throw s;
@@ -183,24 +200,16 @@ yyerror(const char *s)
 void
 parse_prob()
 {
+    stem = !atoi(option["no_stem"].c_str());
+    // stem capitalised words too -- needed for EuroFerret
+    stem_all = atoi(option["all_stem"].c_str());
     q_ptr = raw_prob.begin();
     yyparse();
 }
 
 #if 0
-    int stem, stem_all;
-
-    stem = !atoi(option["no_stem"].c_str());
-    /* stem capitalised words too -- needed for EuroFerret */
-    stem_all = atoi(option["all_stem"].c_str());
-    // FIXME: allow domain:uk in query...
-    // don't allow + and & in term then ?
-    // or allow +&.-_ ?
-    // domain/site/language/host ?
-#endif
-
-#if 0
-/* transliterate accented characters in step with what the indexers do */
+// FIXME
+// transliterate accented characters in step with what the indexers do
 static int
 get_next_char(const char **p)
 {
