@@ -1,3 +1,7 @@
+Wed Apr 06 02:03:41 BST 2005  Olly Betts <olly@survex.com>
+
+	* ./,docs/: Updated svn:ignore properties.
+
 Tue Apr 05 00:42:43 BST 2005  Olly Betts <olly@survex.com>
 
 	* docs/.cvsignore,.cvsignore: Remove .cvsignore files, as they're not
