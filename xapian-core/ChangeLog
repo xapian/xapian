@@ -1,3 +1,9 @@
+Fri Jan 28 16:44:49 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fixed problems with assigning to a query (old query elements were
+	  left in place.)  Implemented automatic merging of OR and AND nodes
+	  into a single list of terms to be ORed or ANDed.
+
 Fri Jan 28 15:53:53 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added introspection methods to OMQuery.

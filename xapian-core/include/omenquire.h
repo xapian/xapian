@@ -97,7 +97,7 @@ class OMQuery {
 	~OMQuery();
 
 	// Introspection method
-	string get_description();
+	string get_description() const;
 };
 
 ///////////////////////////////////////////////////////////////////

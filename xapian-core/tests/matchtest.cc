@@ -90,16 +90,16 @@ main(int argc, char *argv[])
     }
 	
     if (syntax_error || argc < 1 || !dbtypes.size()) {
-	cout << "Syntax: " << progname << " TERM ..." << endl;
-	cout << "\t--msize <msize>\n";
-	cout << "\t--mfirst <first mitem to return>\n";
-	cout << "\t--key <key to collapse mset on>\n";
-	cout << "\t--da DBDIRECTORY\n";
-	cout << "\t--im INMEMORY\n";
-	cout << "\t--rel DOCID\n";
-	cout << "\t--multidb\n";
-	cout << "\t--showmset\n";
-	cout << "\t--matchall\n";
+	cout << "Syntax: " << progname << " TERM ..." << endl <<
+		"\t--msize <msize>\n" <<
+		"\t--mfirst <first mitem to return>\n" <<
+		"\t--key <key to collapse mset on>\n" <<
+		"\t--da DBDIRECTORY\n" <<
+		"\t--im INMEMORY\n" <<
+		"\t--rel DOCID\n" <<
+		"\t--multidb\n" <<
+		"\t--showmset\n" <<
+		"\t--matchall\n";
 	exit(1);
     }
 
@@ -168,7 +168,9 @@ main(int argc, char *argv[])
 		    }
 		} else {
 		    term = stemmer->stem_word(term);
+		    DebugMsg("oldquery: " << query.get_description() << endl);
 		    query = OMQuery(default_op, query, term);
+		    DebugMsg("newquery: " << query.get_description() << endl);
 		}
 	    }
         }
@@ -178,7 +180,7 @@ main(int argc, char *argv[])
 	}
 
 	enquire.set_query(query);
-	cout << "Query is: " << query.get_description() << endl;
+	DebugMsg("Query is: " << query.get_description() << endl);
 
 	OMMatchOptions opts;
 	if(collapse_key != -1) opts.set_collapse_key(collapse_key);

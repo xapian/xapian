@@ -80,8 +80,6 @@ OMQuery::OMQuery(om_queryop _op, const OMQuery &query1, const OMQuery &query2)
 	: isnull(false), op(_op)
 {
     Assert(op != OM_MOP_LEAF); // FIXME throw exception rather than Assert
-    // FIXME; if sub query has same op, which is OR or AND, add to list
- 
     // Handle null sub-queries.
     // Table for result of operations when one of the operands is null:
     //
@@ -132,8 +130,38 @@ OMQuery::OMQuery(om_queryop _op, const OMQuery &query1, const OMQuery &query2)
 		Assert(false); // Shouldn't have got this far
 	}
     } else {
-	subqs.push_back(new OMQuery(query1));
-	subqs.push_back(new OMQuery(query2));
+	DebugMsg(" (" << query1.get_description() << " " << (int) op <<
+		 " " << query2.get_description() << ") => ");
+
+	// If sub query has same op, which is OR or AND, add to list rather
+	// than makeing sub-node.  Can then optimise the list at search time.
+	if(op == OM_MOP_AND || op == OM_MOP_OR) {
+	    if(query1.op == op && query2.op == op) {
+		// Both queries have same operation as top
+		initialise_from_copy(query1);
+		vector<OMQuery *>::const_iterator i;
+		for(i = query2.subqs.begin(); i != query2.subqs.end(); i++) {
+		    subqs.push_back(new OMQuery(**i));
+		}
+	    } else if(query1.op == op) {
+		// Query2 has different operation (or is a leaf)
+		initialise_from_copy(query1);
+		subqs.push_back(new OMQuery(query2));
+	    } else if(query2.op == op) { // query1 has different operation
+		// Query1 has different operation (or is a leaf)
+		initialise_from_copy(query2);
+		subqs.push_back(new OMQuery(query1));
+		// FIXME: this puts the
+		// query in an different order from that entered.
+	    } else {
+		subqs.push_back(new OMQuery(query1));
+		subqs.push_back(new OMQuery(query2));
+	    }
+	} else {
+	    subqs.push_back(new OMQuery(query1));
+	    subqs.push_back(new OMQuery(query2));
+	}
+	DebugMsg(get_description() << endl);
     }
 }
 
@@ -205,6 +233,10 @@ OMQuery::initialise_from_copy(const OMQuery &copyme)
 	tname = copyme.tname;
     } else {
 	vector<OMQuery *>::const_iterator i;
+	for(i = subqs.begin(); i != subqs.end(); i++) {
+	    delete *i;
+	}
+	subqs.clear();
 	for(i = copyme.subqs.begin(); i != copyme.subqs.end(); i++) {
 	    subqs.push_back(new OMQuery(**i));
 	}
@@ -258,8 +290,9 @@ OMQuery::initialise_from_vector(const vector<OMQuery *>::const_iterator qbegin,
 
 // Introspection
 string
-OMQuery::get_description()
+OMQuery::get_description() const
 {
+    if(isnull) return "<NULL>";
     string opstr;
     switch(op) {
 	case OM_MOP_LEAF:
