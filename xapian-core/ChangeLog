@@ -1,3 +1,12 @@
+Wed Jul 19 17:38:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+        * Replace om_inttostring and doubletostring by (overloaded)
+	  om_tostring methods.  Implement for several other types.
+
+	* Redo om_ostringstream class so that it is self contained, and
+	  doesn't depend on the system's streambuf; hopefully enabling
+	  us to get debugging output in multithreaded situations...
+
 Wed Jul 19 17:35:16 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* The Java apitest now correctly runs test_pctcutoff1, with either

@@ -21,29 +21,13 @@
  */
 
 #include "config.h"
-#include "omstringstream.h"
 
 #ifndef HAVE_SSTREAM
-
-template <class Ch, class Tr>
-om_stringbuf<Ch, Tr>::om_stringbuf()
-{
-}
-
-template <class Ch, class Tr>
-int om_stringbuf<Ch, Tr>::overflow(int c)
-{
-    buffer += std::string(pbase(), pptr());
-    if (c != EOF) {
-	buffer += c;
-    }
-    return c;
-}
+#include "omstringstream.h"
+#include "utils.h"
 
 om_ostringstream::om_ostringstream()
-	: ostream(0), ombuf(new om_stringbuf<char>())
 {
-    rdbuf(ombuf.get());
 }
 
 om_ostringstream::~om_ostringstream()
@@ -53,9 +37,38 @@ om_ostringstream::~om_ostringstream()
 std::string
 om_ostringstream::str() const
 {
-    ombuf->overflow();
-
-    return ombuf->buffer;
+    return mystring;
 }
+
+om_ostringstream & om_ostringstream::operator << (const std::string & msg)
+{
+    mystring += msg;
+    return *this;
+}
+
+om_ostringstream & om_ostringstream::operator << (int msg) {
+    return *this << om_tostring(msg);
+}
+
+om_ostringstream & om_ostringstream::operator << (unsigned int msg) {
+    return *this << om_tostring(msg);
+}
+
+om_ostringstream & om_ostringstream::operator << (long msg) {
+    return *this << om_tostring(msg);
+}
+
+om_ostringstream & om_ostringstream::operator << (unsigned long msg) {
+    return *this << om_tostring(msg);
+}
+
+om_ostringstream & om_ostringstream::operator << (double msg) {
+    return *this << om_tostring(msg);
+}
+
+om_ostringstream & om_ostringstream::operator << (bool msg) {
+    return *this << om_tostring(msg);
+}
+
 
 #endif // HAVE_SSTREAM

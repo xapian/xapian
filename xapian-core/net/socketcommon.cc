@@ -87,11 +87,11 @@ std::string stats_to_string(const Stats &stats)
 #endif
     std::string result;
 
-    result += om_inttostring(stats.collection_size);
+    result += om_tostring(stats.collection_size);
     result += " ";
-    result += om_inttostring(stats.rset_size);
+    result += om_tostring(stats.rset_size);
     result += " ";
-    result += doubletostring(stats.average_length);
+    result += om_tostring(stats.average_length);
     result += " ";
 
     std::map<om_termname, om_doccount>::const_iterator i;
@@ -100,14 +100,14 @@ std::string stats_to_string(const Stats &stats)
 	 i != stats.termfreq.end();
 	 ++i) {
 	result = result + "T" + encode_tname(i->first) +
-		"=" + doubletostring(i->second) + " ";
+		"=" + om_tostring(i->second) + " ";
     }
 
     for (i=stats.reltermfreq.begin();
 	 i != stats.reltermfreq.end();
 	 ++i) {
 	result = result + "R" + encode_tname(i->first) +
-		"=" + doubletostring(i->second) + " ";
+		"=" + om_tostring(i->second) + " ";
     }
 
     return result;
@@ -505,11 +505,11 @@ moptions_to_string(const OmMatchOptions &moptions)
 {
     std::string result;
 
-    result += om_inttostring(moptions.do_collapse) + " ";
-    result += om_inttostring(moptions.collapse_key) + " ";
-    result += om_inttostring(moptions.sort_forward) + " ";
-    result += om_inttostring(moptions.percent_cutoff) + " ";
-    result += om_inttostring(moptions.max_or_terms);
+    result += om_tostring(moptions.do_collapse) + " ";
+    result += om_tostring(moptions.collapse_key) + " ";
+    result += om_tostring(moptions.sort_forward) + " ";
+    result += om_tostring(moptions.percent_cutoff) + " ";
+    result += om_tostring(moptions.max_or_terms);
 
     return result;
 }
@@ -535,13 +535,13 @@ string_to_moptions(const std::string &s)
 std::string
 omrset_to_string(const OmRSet &omrset)
 {
-    std::string result = om_inttostring(omrset.items.size());
+    std::string result = om_tostring(omrset.items.size());
 
     for (std::set<om_docid>::const_iterator i = omrset.items.begin();
 	 i != omrset.items.end();
 	 ++i) {
 	result += " ";
-	result += om_inttostring(*i);
+	result += om_tostring(*i);
     }
     return result;
 }

@@ -236,7 +236,7 @@ SleepyList::move_to_next_item()
 	DEBUGLINE(DB, "SleepyList[" << this << "]::move_to_next_item() - " <<
 		  "moved to " <<
 		  (at_end() ? "end" :
-		   "item ID=" + om_inttostring(iteration_position->id)));
+		   "item ID=" + om_tostring(iteration_position->id)));
     }
 }
 
@@ -252,7 +252,7 @@ SleepyList::skip_to_item(SleepyListItem::id_type id)
     DEBUGLINE(DB, "SleepyList[" << this << "]::skip_to_item() - " <<
 	      "skipped to " <<
 		  (at_end() ? "end" :
-		   "item ID=" + om_inttostring(iteration_position->id)));
+		   "item ID=" + om_tostring(iteration_position->id)));
 }
 
 bool

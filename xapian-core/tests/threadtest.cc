@@ -196,7 +196,7 @@ bool check_query_threads(void * (* search_thread)(void *))
     std::vector<pthread_t> threads;
     std::vector<struct some_searches> searches;
 
-    OutputMessage("Performing test with " + om_inttostring(num_threads) +
+    OutputMessage("Performing test with " + om_tostring(num_threads) +
 		  " threads.");
 
     struct some_searches mainsearch;
@@ -213,17 +213,17 @@ bool check_query_threads(void * (* search_thread)(void *))
 	newsearch.database_path = mainsearch.database_path;
 	newsearch.dbgrp = mainsearch.dbgrp;
 
-	read_queries(queryfile + om_inttostring((i % 2) + 1),
+	read_queries(queryfile + om_tostring((i % 2) + 1),
 		     newsearch.queries);
-	OutputMessage("search " + om_inttostring(i + 1) + " has " +
-		om_inttostring(newsearch.queries.size()) + " items");
+	OutputMessage("search " + om_tostring(i + 1) + " has " +
+		om_tostring(newsearch.queries.size()) + " items");
 	TEST_NOT_EQUAL(newsearch.queries.size(), 0);
 	searches.push_back(newsearch);
     }
 
     for (int i = 0; i < num_threads; i++) {
 	OutputMessage("Performing single threaded search for search " +
-		om_inttostring(i + 1));
+		om_tostring(i + 1));
 	search_stuff(searches[i].database_type,
 		     searches[i].database_path,
 		     searches[i].queries,
@@ -240,7 +240,7 @@ bool check_query_threads(void * (* search_thread)(void *))
 
     for (int i = 0; i < num_threads; i++) {
 	int err;
-	OutputMessage("starting thread search " + om_inttostring(i + 1));
+	OutputMessage("starting thread search " + om_tostring(i + 1));
 	err = pthread_create(&threads[i],
 			     0,
 			     search_thread,
@@ -249,7 +249,7 @@ bool check_query_threads(void * (* search_thread)(void *))
     }
 
     for (int i = 0; i < num_threads; i++) {
-	OutputMessage("waiting for end of thread search " + om_inttostring(i + 1));
+	OutputMessage("waiting for end of thread search " + om_tostring(i + 1));
 	pthread_join(threads[i], NULL);
     }
     OutputMessage("all threads finished");
@@ -347,7 +347,7 @@ long time_sleep(OmLock * lock_ptr)
     long time = (tv2.tv_sec - tv1.tv_sec) * 1000;
     time += (tv2.tv_usec - tv1.tv_usec) / 1000;
 
-    OutputMessage("Time taken : " + om_inttostring(time) + "ms");
+    OutputMessage("Time taken : " + om_tostring(time) + "ms");
 
     return time;
 }

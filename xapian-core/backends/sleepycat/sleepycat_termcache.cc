@@ -80,7 +80,7 @@ SleepyDatabaseTermCache::term_id_to_name(om_termid tid) const
     try {
 	int found = internals->termname_db->get(0, &key, &data, 0);
 	if(found == DB_NOTFOUND) throw OmRangeError("Termid " +
-						    om_inttostring(tid) +
+						    om_tostring(tid) +
 						    " not found in termcache");
 
 	// Any other errors should cause an exception.

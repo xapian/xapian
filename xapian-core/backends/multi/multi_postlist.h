@@ -137,7 +137,7 @@ MultiPostList::intro_term_description() const
 	desc += (*i).pl->intro_term_description();
     }
 
-    return desc + "]:" + om_inttostring(get_termfreq());
+    return desc + "]:" + om_tostring(get_termfreq());
 }
 
 #endif /* OM_HGUARD_MULTI_POSTLIST_H */

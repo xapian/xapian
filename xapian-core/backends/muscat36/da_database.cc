@@ -311,7 +311,7 @@ DADatabase::open_term_list(om_docid did) const
 
     if(found == 0) {
 	M_lose_termvec(tv);
-	throw OmDocNotFoundError(std::string("Docid ") + om_inttostring(did) +
+	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
 				 std::string(" not found"));
     }
 
@@ -331,7 +331,7 @@ DADatabase::get_record(om_docid did) const
 
     if(found == 0) {
 	M_lose_record(r);
-	throw OmDocNotFoundError(std::string("Docid ") + om_inttostring(did) +
+	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
 				 std::string(" not found"));
     }
 

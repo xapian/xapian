@@ -64,7 +64,7 @@
 // Assertions to put in debug builds
 // NB use an else clause to avoid dangling else damage
 #define Assert(a) if (a) { } else throw OmAssertionError(ASSERT_LOCN(a))
-#define AssertEqDouble(a,b) if ((a) == (b)) { } else throw OmAssertionError(ASSERT_LOCN(a)" - values were " + doubletostring(a) + " and " + doubletostring(b))
+#define AssertEqDouble(a,b) if ((a) == (b)) { } else throw OmAssertionError(ASSERT_LOCN(a)" - values were " + om_tostring(a) + " and " + om_tostring(b))
 #else
 #define Assert(a)
 #define AssertEqDouble(a,b)

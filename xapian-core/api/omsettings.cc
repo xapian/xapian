@@ -150,7 +150,7 @@ OmSettings::Internal::Internal(bool is_default)
     if (is_default) {
 	Assert(!made_default);
 	default_data = OmRefCntPtr<OmSettingsData>(new OmSettingsData());
-	default_data->values["net.timeout"] = om_inttostring(10);
+	default_data->values["net.timeout"] = om_tostring(10);
 	data = default_data;
 	made_default = true;
     } else {

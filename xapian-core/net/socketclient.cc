@@ -73,7 +73,7 @@ SocketClient::handle_hello(const std::string &s)
 
     if (version != OM_SOCKET_PROTOCOL_VERSION) {
 	throw OmNetworkError(std::string("Invalid protocol version: ") +
-			     om_inttostring(version));
+			     om_tostring(version));
     }
 }
 
@@ -97,7 +97,7 @@ SocketClient::get_tlist(om_docid did,
 			std::vector<NetClient::TermListItem> &items) {
     std::string message;
 
-    buf.writeline(std::string("GETTLIST ") + om_inttostring(did));
+    buf.writeline(std::string("GETTLIST ") + om_tostring(did));
 
     while (startswith(message = do_read(), "TLISTITEM ")) {
 	items.push_back(string_to_tlistitem(message.substr(10)));
@@ -114,7 +114,7 @@ SocketClient::get_doc(om_docid did,
 		      std::map<om_keyno, OmKey> &keys)
 {
     std::string message;
-    buf.writeline(std::string("GETDOC ") + om_inttostring(did));
+    buf.writeline(std::string("GETDOC ") + om_tostring(did));
 
     message = do_read();
     if (!startswith(message, "DOC ")) {
@@ -210,7 +210,7 @@ void
 SocketClient::set_weighting(IRWeight::weight_type wt_type)
 {
     Assert(conv_state == state_getquery);
-    wt_string = om_inttostring(wt_type);
+    wt_string = om_tostring(wt_type);
 }
 
 void
@@ -373,8 +373,8 @@ SocketClient::get_mset(om_doccount first,
 		std::string message = "GLOBSTATS " +
 			stats_to_string(global_stats) + '\n';
 		message += "GETMSET " +
-			    om_inttostring(first) + " " +
-			    om_inttostring(maxitems);
+			    om_tostring(first) + " " +
+			    om_tostring(maxitems);
 		do_write(message);
 	    }
 	    conv_state = state_getresult;

@@ -20,30 +20,70 @@
  * -----END-LICENCE-----
  */
 
+#include "config.h"
+
+/** This so we can use snprintf */
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif /* _GNU_SOURCE */
+
 #include "utils.h"
 
 #include <sys/stat.h>
+#include <stdio.h>
+
+#define BUFSIZE 100
 
 // Convert a number to a string
-#include <strstream.h>
 std::string
-om_inttostring(int a)
+om_tostring(int val)
 {
-    // Use ostrstream (because ostringstream often doesn't exist)
-    char buf[100];  // Very big (though we're also bounds checked)
-    ostrstream ost(buf, 100);
-    ost << a << ends;
-    return std::string(buf);
+    char buf[BUFSIZE];
+    int len = snprintf(buf, BUFSIZE, "%d", val);
+    if(len == -1 || len > BUFSIZE) return std::string(buf, BUFSIZE);
+    return std::string(buf, len);
 }
 
 std::string
-doubletostring(double a)
+om_tostring(unsigned int val)
 {
-    // Use ostrstream (because ostringstream often doesn't exist)
-    char buf[100];  // Very big (though we're also bounds checked)
-    ostrstream ost(buf, 100);
-    ost << a << ends;
-    return std::string(buf);
+    char buf[BUFSIZE];
+    int len = snprintf(buf, BUFSIZE, "%u", val);
+    if(len == -1 || len > BUFSIZE) return std::string(buf, BUFSIZE);
+    return std::string(buf, len);
+}
+
+std::string
+om_tostring(long int val)
+{
+    char buf[BUFSIZE];
+    int len = snprintf(buf, BUFSIZE, "%ld", val);
+    if(len == -1 || len > BUFSIZE) return std::string(buf, BUFSIZE);
+    return std::string(buf, len);
+}
+
+std::string
+om_tostring(unsigned long int val)
+{
+    char buf[BUFSIZE];
+    int len = snprintf(buf, BUFSIZE, "%lu", val);
+    if(len == -1 || len > BUFSIZE) return std::string(buf, BUFSIZE);
+    return std::string(buf, len);
+}
+
+std::string
+om_tostring(double val)
+{
+    char buf[BUFSIZE];
+    int len = snprintf(buf, BUFSIZE, "%f", val);
+    if(len == -1 || len > BUFSIZE) return std::string(buf, BUFSIZE);
+    return std::string(buf, len);
+}
+
+std::string
+om_tostring(bool val)
+{
+    return val ? "true" : "false";
 }
 
 int

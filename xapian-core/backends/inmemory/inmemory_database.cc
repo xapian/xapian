@@ -106,7 +106,7 @@ InMemoryDatabase::open_term_list(om_docid did) const
     if(did > termlists.size()) {
 	// FIXME: the docid in this message will be local, not global, in
 	// the case of a multidatabase
-	throw OmDocNotFoundError(std::string("Docid ") + om_inttostring(did) +
+	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
 				 std::string(" not found"));
     }
 

@@ -242,8 +242,8 @@ OmQueryInternal::serialise() const
     }
     if (op == OM_MOP_LEAF) {
 	result += "%T" + encode_tname(tname) +
-		"," + om_inttostring(wqf) +
-		"," + om_inttostring(term_pos);
+		"," + om_tostring(wqf) +
+		"," + om_tostring(term_pos);
     } else {
 	result += "%(";
 	for (subquery_list::const_iterator i=subqs.begin();
@@ -274,10 +274,10 @@ OmQueryInternal::serialise() const
 		result += "%xor";
 		break;
 	    case OM_MOP_NEAR:
-		result += "%near" + om_inttostring(window);
+		result += "%near" + om_tostring(window);
 		break;
 	    case OM_MOP_PHRASE:
-		result += "%phrase" + om_inttostring(window);
+		result += "%phrase" + om_tostring(window);
 		break;
 	} // switch(op)
 	result += "%)";
@@ -314,10 +314,10 @@ OmQueryInternal::get_description() const
 	    opstr = " XOR ";
 	    break;
 	case OM_MOP_NEAR:
-	    opstr = " NEAR " + om_inttostring(window) + " ";
+	    opstr = " NEAR " + om_tostring(window) + " ";
 	    break;
 	case OM_MOP_PHRASE:
-	    opstr = " PHRASE " + om_inttostring(window) + " ";
+	    opstr = " PHRASE " + om_tostring(window) + " ";
 	    break;
     }
     std::string description;

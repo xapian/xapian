@@ -58,7 +58,7 @@ class NearPostList : public SelectPostList {
 inline std::string
 NearPostList::intro_term_description() const
 {
-    return "(Near " + om_inttostring(window) + " "
+    return "(Near " + om_tostring(window) + " "
 	   + source->intro_term_description() + ")";
 }
 
@@ -92,7 +92,7 @@ class PhrasePostList : public SelectPostList {
 inline std::string
 PhrasePostList::intro_term_description() const
 {
-    return "(Phrase " + om_inttostring(window) + " "
+    return "(Phrase " + om_tostring(window) + " "
 	   + source->intro_term_description() + ")";
 }
 

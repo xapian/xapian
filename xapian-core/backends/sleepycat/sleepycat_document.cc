@@ -62,7 +62,7 @@ SleepyDocument::SleepyDocument(Db * document_db_,
 	// Store keys
 	map<om_keyno, OmKey>::const_iterator i;
 	for(i = keys.begin(); i != keys.end(); i++) {
-	    string keyno = om_inttostring(did) + "_" + om_inttostring(i->first);
+	    string keyno = om_tostring(did) + "_" + om_tostring(i->first);
 	    Dbt dbkey2(const_cast<char *>(keyno.data()), keyno.size());
 	    Dbt dbdata2(const_cast<char *>(i->second.value.data()),
 			i->second.value.size());
@@ -93,7 +93,7 @@ SleepyDocument::do_get_key(om_keyno keyid) const
     OmKey result;
     try {
 	int err_num;
-	string keyno = om_inttostring(did) + "_" + om_inttostring(keyid);
+	string keyno = om_tostring(did) + "_" + om_tostring(keyid);
 	DebugMsg(" looking in database (for `" << keyno << "') ...");
 
 	Dbt dbkey(const_cast<char *>(keyno.data()), keyno.size());
@@ -117,8 +117,8 @@ SleepyDocument::do_get_key(om_keyno keyid) const
 	DebugMsg(" found (value == " << result.value << ")" << endl);
     } catch (DbException e) {
 	throw OmDatabaseError("Sleepycat database error, when reading key " +
-			      om_inttostring(keyid) + " from document " +
-			      om_inttostring(did) + ": " + string(e.what()));
+			      om_tostring(keyid) + " from document " +
+			      om_tostring(did) + ": " + string(e.what()));
     }
     return result;
 }
@@ -132,7 +132,7 @@ SleepyDocument::do_get_all_keys() const
 	int err_num;
 
 	// Set initial key
-	string keystr = om_inttostring(did) + "_";
+	string keystr = om_tostring(did) + "_";
 	char keyno[100];
 	Assert(keystr.size() < 100);
 	strncpy(keyno, keystr.data(), keystr.size());
@@ -185,7 +185,7 @@ SleepyDocument::do_get_all_keys() const
 	    dbcurs = 0;
 	}
 	throw OmDatabaseError("Sleepycat database error, when reading keys "
-			      "from document " + om_inttostring(did) + ": " +
+			      "from document " + om_tostring(did) + ": " +
 			      string(e.what()));
     }
     return keys;

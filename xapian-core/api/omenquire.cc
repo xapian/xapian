@@ -64,7 +64,7 @@ OmMatchOptions::get_description() const
     std::string description;
     if (do_collapse) {
 	if (description != "") description += ", ";
-	description += "collapse on key " + om_inttostring(collapse_key);
+	description += "collapse on key " + om_tostring(collapse_key);
     }
 
     if (!sort_forward) {
@@ -74,12 +74,12 @@ OmMatchOptions::get_description() const
 
     if (percent_cutoff != -1) {
 	if (description != "") description += ", ";
-	description += "cutoff at " + om_inttostring(percent_cutoff) + "%";
+	description += "cutoff at " + om_tostring(percent_cutoff) + "%";
     }
 
     if (max_or_terms != 0) {
 	if (description != "") description += ", ";
-	description += "max_or_terms = " + om_inttostring(max_or_terms);
+	description += "max_or_terms = " + om_tostring(max_or_terms);
     }
 
     description = "OmMatchOptions(" + description + ")";
@@ -236,7 +236,7 @@ OmRSet::get_description() const
 	 i != items.end();
 	 i++) {
 	if (description != "") description += ", ";
-	description += om_inttostring(*i);
+	description += om_tostring(*i);
     }
 
     description = "OmRSet(" + description + ")";
@@ -255,7 +255,7 @@ OmMSetItem::get_description() const
     DEBUGAPICALL("OmMSetItem::get_description", "");
     std::string description;
 
-    description = om_inttostring(did) + ", " + doubletostring(wt) + ", " +
+    description = om_tostring(did) + ", " + om_tostring(wt) + ", " +
 	    collapse_key.get_description();
 
     description = "OmMSetItem(" + description + ")";
@@ -337,10 +337,10 @@ OmMSet::get_description() const
     DEBUGAPICALL("OmMSet::get_description", "");
     std::string description;
 
-    description = "firstitem=" + om_inttostring(firstitem) + ", " +
-	    "mbound=" + om_inttostring(mbound) + ", " +
-	    "max_possible=" + doubletostring(max_possible) + ", " +
-	    "max_attained=" + doubletostring(max_attained);
+    description = "firstitem=" + om_tostring(firstitem) + ", " +
+	    "mbound=" + om_tostring(mbound) + ", " +
+	    "max_possible=" + om_tostring(max_possible) + ", " +
+	    "max_attained=" + om_tostring(max_attained);
 
     for (std::vector<OmMSetItem>::const_iterator i = items.begin();
 	 i != items.end();
@@ -365,7 +365,7 @@ OmESetItem::get_description() const
     DEBUGAPICALL("OmESetItem::get_description", "");
     std::string description;
 
-    description = "OmESetItem(" + tname + ", " + doubletostring(wt) + ")";
+    description = "OmESetItem(" + tname + ", " + om_tostring(wt) + ")";
 
     DEBUGAPIRETURN(description);
     return description;
@@ -381,7 +381,7 @@ OmESet::get_description() const
     DEBUGAPICALL("OmESet::get_description", "");
     std::string description;
 
-    description = "ebound=" + om_inttostring(ebound);
+    description = "ebound=" + om_tostring(ebound);
 
     for (std::vector<OmESetItem>::const_iterator i = items.begin();
 	 i != items.end();

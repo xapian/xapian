@@ -59,9 +59,9 @@ SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
     }
     buf->readline();
     buf->writeline("HELLO " +
-		  om_inttostring(OM_SOCKET_PROTOCOL_VERSION) + " " +
-		  om_inttostring(db->get_doccount()) + " " +
-		  doubletostring(db->get_avlength()));
+		  om_tostring(OM_SOCKET_PROTOCOL_VERSION) + " " +
+		  om_tostring(db->get_doccount()) + " " +
+		  om_tostring(db->get_avlength()));
 }
 
 SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
@@ -246,9 +246,9 @@ SocketServer::run_match(const std::string &firstmessage)
     DebugMsg("done get_mset..." << endl);
 
     buf->writeline(std::string("MSETITEMS ") +
-		  om_inttostring(mset.items.size()) + " "
-		  + doubletostring(mset.max_possible)
-		  + doubletostring(mset.max_attained));
+		  om_tostring(mset.items.size()) + " "
+		  + om_tostring(mset.max_possible)
+		  + om_tostring(mset.max_attained));
 
     DebugMsg("sent size, maxweight..." << endl);
 
@@ -288,8 +288,8 @@ SocketServer::run_gettermlist(const std::string &firstmessage)
     while (!tl->at_end()) {
 	std::string item = "TLISTITEM ";
 	item = item + encode_tname(tl->get_termname()) + " ";
-	item = item + om_inttostring(tl->get_wdf()) + " ";
-	item = item + om_inttostring(tl->get_termfreq());
+	item = item + om_tostring(tl->get_wdf()) + " ";
+	item = item + om_tostring(tl->get_termfreq());
 	buf->writeline(item);
 
 	tl->next();
@@ -318,7 +318,7 @@ SocketServer::run_getdocument(const std::string &firstmessage)
     std::map<om_keyno, OmKey>::const_iterator i = keys.begin();
     while (i != keys.end()) {
 	std::string item = std::string("KEY ") +
-		om_inttostring(i->first) + " " +
+		om_tostring(i->first) + " " +
 		omkey_to_string(i->second);
 	buf->writeline(item);
 	++i;

@@ -55,9 +55,9 @@ OmDocumentTerm::get_description() const
     std::string description;
 
     description = "OmDocumentTerm(" + tname +
-	    ", wdf = " + om_inttostring(wdf) +
-	    ", termfreq = " + om_inttostring(termfreq) +
-	    ", positions[" + om_inttostring(positions.size()) + "]" +
+	    ", wdf = " + om_tostring(wdf) +
+	    ", termfreq = " + om_tostring(termfreq) +
+	    ", positions[" + om_tostring(positions.size()) + "]" +
 	    ")";
     return description;
 }
@@ -83,8 +83,8 @@ OmDocumentContents::get_description() const
 
     description = "OmDocumentContents(" +
 	    data.get_description() +
-	    ", keys[" + om_inttostring(keys.size()) + "]" +
-	    ", terms[" + om_inttostring(terms.size()) + "]" +
+	    ", keys[" + om_tostring(keys.size()) + "]" +
+	    ", terms[" + om_tostring(terms.size()) + "]" +
 	    ")";
     return description;
 }

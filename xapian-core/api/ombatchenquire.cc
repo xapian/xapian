@@ -194,7 +194,7 @@ OmBatchEnquire::Internal::get_description() const
     std::string description;
 
     description = enquire.get_description() + ", " +
-	    om_inttostring(queries.size()) + "queries";
+	    om_tostring(queries.size()) + "queries";
 
     return description;
 }

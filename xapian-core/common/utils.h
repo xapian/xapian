@@ -27,11 +27,23 @@
 #include <vector>
 #include <map>
 
-// Convert an integer to a string
-std::string om_inttostring(int a);
+/// Convert an integer to a string
+std::string om_tostring(int a);
 
-// Convert a double to a string
-std::string doubletostring(double a);
+/// Convert an unsigned integer to a string
+std::string om_tostring(unsigned int a);
+
+/// Convert a long integer to a string
+std::string om_tostring(long int a);
+
+/// Convert an unsigned long integer to a string
+std::string om_tostring(unsigned long int a);
+
+/// Convert a double to a string
+std::string om_tostring(double a);
+
+/// Convert a bool to a string
+std::string om_tostring(bool a);
 
 ///////////////////////////////////////////
 // Mapping of types as strings to enums  //

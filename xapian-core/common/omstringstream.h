@@ -25,6 +25,9 @@
 
 #include "config.h"
 
+// So that we can use the output functions declared here.
+#include "om/omoutput.h"
+
 #ifdef HAVE_SSTREAM
 #include <sstream>
 typedef std::ostringstream om_ostringstream;
@@ -32,23 +35,8 @@ typedef std::ostringstream om_ostringstream;
 #else // HAVE_SSTREAM
 
 #include <string>
-#include <iostream>
-#include <streambuf.h>
-#include <memory>
 
-template <class Ch, class Tr = string_char_traits<Ch> >
-class om_stringbuf : public streambuf {
-    friend class om_ostringstream;
-    public:
-	om_stringbuf();
-    protected:
-	int overflow(int c = EOF);
-
-    private:
-	std::string buffer;
-};
-
-class om_ostringstream : public ostream {
+class om_ostringstream {
     public:
 	/// default constructor
 	om_ostringstream();
@@ -56,21 +44,66 @@ class om_ostringstream : public ostream {
 	/// virtual destructor
 	virtual ~om_ostringstream();
 
+	/// Get the string
 	std::string str() const;
 
+	/// Add a string to the stringstream
+	om_ostringstream & operator << (const std::string &);
+	om_ostringstream & operator << (int);
+	om_ostringstream & operator << (unsigned int);
+	om_ostringstream & operator << (long);
+	om_ostringstream & operator << (unsigned long);
+	om_ostringstream & operator << (double);
+	om_ostringstream & operator << (bool);
     private:
-	/** Pointer to the streambuf we use.
-	 *  Used to delete it at the end, and to access the
-	 *  internal string.
-	 */
-	auto_ptr<om_stringbuf<char> > ombuf;
-
 	/// Copies are not allowed.
 	om_ostringstream(const om_ostringstream &);
 
 	/// Assignment is not allowed.
 	void operator=(const om_ostringstream &);
+
+	/// The string so far
+	std::string mystring;
 };
+
+#define OSTRINGSTREAMFUNC(X) \
+    inline om_ostringstream & \
+    operator << (om_ostringstream &os, const X obj) { \
+	return os << obj.get_description(); \
+    }
+
+OSTRINGSTREAMFUNC(OmDatabase);
+OSTRINGSTREAMFUNC(OmWritableDatabase);
+OSTRINGSTREAMFUNC(OmDatabaseGroup);
+OSTRINGSTREAMFUNC(OmData);
+OSTRINGSTREAMFUNC(OmKey);
+OSTRINGSTREAMFUNC(OmDocument);
+OSTRINGSTREAMFUNC(OmQuery);
+OSTRINGSTREAMFUNC(OmMatchOptions);
+OSTRINGSTREAMFUNC(OmExpandOptions);
+OSTRINGSTREAMFUNC(OmRSet);
+OSTRINGSTREAMFUNC(OmMSetItem);
+OSTRINGSTREAMFUNC(OmMSet);
+OSTRINGSTREAMFUNC(OmESetItem);
+OSTRINGSTREAMFUNC(OmESet);
+OSTRINGSTREAMFUNC(OmEnquire);
+OSTRINGSTREAMFUNC(OmBatchEnquire);
+OSTRINGSTREAMFUNC(OmDocumentTerm);
+OSTRINGSTREAMFUNC(OmDocumentContents);
+OSTRINGSTREAMFUNC(OmStem);
+
+inline om_ostringstream &
+operator<<(om_ostringstream & os, const om_termname_list & obj) {
+    os << "om_termname_list(";
+    for(om_termname_list::const_iterator i = obj.begin(); i != obj.end(); i++) {
+	if (i != obj.end()) os << ", ";
+	os << *i;
+    }
+    os << ")";
+    return os;
+}
+
+#undef OSTRINGSTREAMFUNC
 
 #endif // HAVE_SSTREAM
 
