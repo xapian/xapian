@@ -1,3 +1,10 @@
+Tue Jun 29 17:29:03 BST 2004  Richard Boulton <richard@tartarus.org>
+
+	* Makefile.am: Remove Debian files from distribution tarballs,
+	  since there will often be multiple patch releases for each
+	  release.  Debian files will be available from an apt repository
+	  in future.
+
 Mon Jun 28 01:29:00 BST 2004  Olly Betts <olly@survex.com>
 
 	* NEWS: Mostly updated for 0.8.1 release.

@@ -25,18 +25,7 @@ bin_SCRIPTS = xapian-config
 CLEANFILES = xapian-config
 
 EXTRA_DIST = ChangeLog HACKING PLATFORMS xapian.spec m4/xapian.m4 \
- autoconf/rjb_find_stlport.m4 autoconf/definedir.m4 autoconf/type_socklen_t.m4 \
- debian/TODO \
- debian/changelog \
- debian/control.in \
- debian/copyright \
- debian/libxapianVERSION-dev.install \
- debian/libxapianVERSION.install \
- debian/rules \
- debian/xapian-doc.doc-base.apidocs \
- debian/xapian-doc.doc-base.xapian-intro \
- debian/xapian-doc.install \
- debian/xapian-tools.install
+ autoconf/rjb_find_stlport.m4 autoconf/definedir.m4 autoconf/type_socklen_t.m4
 
 
 # xapian.m4 contains the XO_LIB_XAPIAN autoconf macro.

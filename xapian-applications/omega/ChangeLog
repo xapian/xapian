@@ -1,3 +1,10 @@
+Tue Jun 29 17:26:41 BST 2004  Richard Boulton <richard@tartarus.org>
+
+	* Makefile.am: Remove Debian files from distribution tarballs,
+	  since there will often be multiple patch releases for each
+	  release.  Debian files will be available from an apt repository
+	  in future.
+
 Tue Jun 29 01:45:06 BST 2004  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Renamed hash() to hash_string() to avoid colliding
