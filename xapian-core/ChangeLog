@@ -1,3 +1,7 @@
+Fri Dec  8 17:20:04 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Updated indextest to not use AutoPtr<OmIndexer>
+
 Fri Dec  8 17:14:09 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Oops - removed one too many #include "autoptr.h"

@@ -60,7 +60,7 @@ bool test_basic3()
 
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+    OmIndexer indexer = builder.build_from_string(
       "<?xml version=\"1.0\"?>\n"
       "<omindexer>\n"
          "<output node='START' out_name='out'/>\n"
@@ -68,8 +68,8 @@ bool test_basic3()
       // FIXME: on PPC, it seems to miss the last character, so complains
       // that there's no final >.  Stop the bodge, and investigate.
 
-    indexer->set_input(OmIndexerMessage("garbage"));
-    OmIndexerMessage result = indexer->get_raw_output();
+    indexer.set_input(OmIndexerMessage("garbage"));
+    OmIndexerMessage result = indexer.get_raw_output();
     if (result.get_string() == "garbage") {
         // garbage in, garbage out
 	success = true;
@@ -171,7 +171,7 @@ bool test_flowcheck1()
 	    builder.register_node_type(ndesc);
 	}
 
-	AutoPtr<OmIndexer> indexer(builder.build_from_string(
+	OmIndexer indexer(builder.build_from_string(
 	     "<?xml version=\"1.0\"?>"
 	     "<omindexer>"
 	         "<node type='writetwice' id='wtwo'>"
@@ -191,8 +191,8 @@ bool test_flowcheck1()
              "</omindexer>\n"));
 	
 	std::vector<OmIndexerMessage> empty;
-	indexer->set_input(empty);
-	OmIndexerMessage result = indexer->get_raw_output();
+	indexer.set_input(empty);
+	OmIndexerMessage result = indexer.get_raw_output();
 	if (verbose) {
 	    std::cerr << "got output: " << result << '\n';
 	}
@@ -202,14 +202,14 @@ bool test_flowcheck1()
     return success;
 }
 
-AutoPtr<OmIndexer> make_indexer_one_node(const std::string &type,
+OmIndexer make_indexer_one_node(const std::string &type,
 					 const std::string &input = "in",
 					 const std::string &output = "out",
 					 const std::string &param = "")
 {
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+    OmIndexer indexer = builder.build_from_string(
       std::string(
       "<?xml version=\"1.0\"?>\n"
       "<omindexer>\n"
@@ -232,11 +232,11 @@ bool test_omsplitter1()
 {
     bool success = false;
 
-    AutoPtr<OmIndexer> indexer = make_indexer_one_node("omsplitter",
+    OmIndexer indexer = make_indexer_one_node("omsplitter",
 						       "in", "right");
 
-    indexer->set_input(std::string("garbage"));
-    OmIndexerMessage result = indexer->get_raw_output();
+    indexer.set_input(std::string("garbage"));
+    OmIndexerMessage result = indexer.get_raw_output();
     if (result.get_string() == "garbage") {
         // garbage in, garbage out
 	success = true;
@@ -249,7 +249,7 @@ bool test_omstemmer1()
 {
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer =
+    OmIndexer indexer =
 	    make_indexer_one_node("omstemmer", "in", "out",
 		"<param type='string' name='language' value='english'/>\n");
 
@@ -258,8 +258,8 @@ bool test_omstemmer1()
 
 #if 0
     // FIXME: should OmStemmerNode work with scalars as well as vectors?
-    indexer->set_input(OmIndexerMessage(new OmIndexerData("garbage")));
-    OmIndexerMessage result = indexer->get_raw_output();
+    indexer.set_input(OmIndexerMessage(new OmIndexerData("garbage")));
+    OmIndexerMessage result = indexer.get_raw_output();
     if (result.get_string() == stemmer.stem_word("garbage")) {
         // garbage in, garbage out
 	return false;
@@ -274,8 +274,8 @@ bool test_omstemmer1()
     v.push_back(OmIndexerMessage("elephants"));
 
     // now test with a vector
-    indexer->set_input(OmIndexerMessage(v));
-    result = indexer->get_raw_output();
+    indexer.set_input(OmIndexerMessage(v));
+    result = indexer.get_raw_output();
     if (verbose && result.get_type() != OmIndexerMessage::rt_vector) {
         tout << "Non-vector result: " << result << '\n';
     }
@@ -302,7 +302,7 @@ bool test_omprefix1()
 {
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer =
+    OmIndexer indexer =
 	    make_indexer_one_node("omprefix", "in", "out",
 	     "<param type='string' name='prefix' value='WIB'/>\n");
 
@@ -316,8 +316,8 @@ bool test_omprefix1()
     v.push_back(OmIndexerMessage("elephants"));
 
     // now test with a vector
-    indexer->set_input(OmIndexerMessage(v));
-    result = indexer->get_raw_output();
+    indexer.set_input(OmIndexerMessage(v));
+    result = indexer.get_raw_output();
     if (verbose && result.get_type() != OmIndexerMessage::rt_vector) {
         tout << "Non-vector result: " << result << '\n';
     }
@@ -339,7 +339,7 @@ bool test_omstopword1()
 {
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer =
+    OmIndexer indexer =
 	    make_indexer_one_node("omstopword", "in", "out",
 	     "<param type='list' name='stopwords'>\n"
 	         "<item value='stop1'/>\n"
@@ -356,8 +356,8 @@ bool test_omstopword1()
     v.push_back(OmIndexerMessage("elephants"));
 
     // now test with a vector
-    indexer->set_input(OmIndexerMessage(v));
-    result = indexer->get_raw_output();
+    indexer.set_input(OmIndexerMessage(v));
+    result = indexer.get_raw_output();
     if (verbose && result.get_type() != OmIndexerMessage::rt_vector) {
         tout << "Non-vector result: " << result << '\n';
     }
@@ -382,7 +382,7 @@ bool test_omflattenstring1()
 {
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer = make_indexer_one_node("omflattenstring");
+    OmIndexer indexer = make_indexer_one_node("omflattenstring");
 
     OmIndexerMessage result;
 
@@ -398,8 +398,8 @@ bool test_omflattenstring1()
     v.push_back(OmIndexerMessage(v2));
 
     // now test with a vector
-    indexer->set_input(OmIndexerMessage(v));
-    result = indexer->get_raw_output();
+    indexer.set_input(OmIndexerMessage(v));
+    result = indexer.get_raw_output();
     if (verbose && result.get_type() != OmIndexerMessage::rt_string) {
         tout << "Non-string result: " << result << '\n';
     }
@@ -417,7 +417,7 @@ bool test_omtranslate1()
 {
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer =
+    OmIndexer indexer =
 	    make_indexer_one_node("omtranslate", "in", "out",
 	     "<param type='string' name='from' value='abcdefghijklmnopqrstuvwxyz'/>\n"
 	     "<param type='string' name='to' value='nopqrstuvwxyzabcdefghijklm'/>\n");
@@ -440,8 +440,8 @@ bool test_omtranslate1()
     answer.push_back(OmIndexerMessage("ryrcunagf"));
 
     // now test with a vector
-    indexer->set_input(OmIndexerMessage(v));
-    result = indexer->get_raw_output();
+    indexer.set_input(OmIndexerMessage(v));
+    result = indexer.get_raw_output();
     if (verbose && result.get_type() != OmIndexerMessage::rt_vector) {
         tout << "Non-vector result: " << result << '\n';
     }
@@ -465,12 +465,12 @@ test_omfilereader1()
 
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer =
+    OmIndexer indexer =
 	    make_indexer_one_node("omfilereader", "", "out",
 		std::string("<param type='string' name='filename' value='") +
 	           datadir + "indextest_filereader.txt'/>\n");
 
-    OmIndexerMessage result = indexer->get_raw_output();
+    OmIndexerMessage result = indexer.get_raw_output();
 
     if (verbose && result.get_type() != OmIndexerMessage::rt_string) {
         tout << "Non-string result: " << result << '\n';
@@ -493,13 +493,13 @@ bool test_omfilereader2()
 
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer = 
+    OmIndexer indexer = 
 	    make_indexer_one_node("omfilereader", "filename");
 
-    indexer->set_input(OmIndexerMessage(datadir
+    indexer.set_input(OmIndexerMessage(datadir
 				+ "indextest_filereader.txt"));
 
-    OmIndexerMessage result = indexer->get_raw_output();
+    OmIndexerMessage result = indexer.get_raw_output();
 
     if (verbose && result.get_type() != OmIndexerMessage::rt_string) {
         tout << "Non-string result: " << result << '\n';
@@ -520,7 +520,7 @@ bool test_omvectorsplit1()
 {
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer =
+    OmIndexer indexer =
 	    make_indexer_one_node("omvectorsplit");
 
     OmIndexerMessage result;
@@ -533,10 +533,10 @@ bool test_omvectorsplit1()
     v.push_back(OmIndexerMessage("elephants"));
 
     // now test with a vector
-    indexer->set_input(OmIndexerMessage(v));
+    indexer.set_input(OmIndexerMessage(v));
 
     for (size_t i=0; i<v.size(); ++i) {
-	result = indexer->get_raw_output();
+	result = indexer.get_raw_output();
 	if (verbose && result.get_type() != OmIndexerMessage::rt_string) {
 	    tout << "Non-string result: " << result << '\n';
 	}
@@ -547,7 +547,7 @@ bool test_omvectorsplit1()
 	    return false;
 	}
     }
-    result = indexer->get_raw_output();
+    result = indexer.get_raw_output();
     if (result.get_type() != OmIndexerMessage::rt_empty) {
 	if (verbose) {
 	    tout << "Expected empty at end, got: " << result << '\n';
@@ -562,7 +562,7 @@ bool test_omlistconcat1()
 {
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+    OmIndexer indexer = builder.build_from_string(
       "<?xml version=\"1.0\"?>\n"
       "<omindexer>\n"
          "<node type='omsplitter' id='split'>\n"
@@ -587,8 +587,8 @@ bool test_omlistconcat1()
     v.push_back(OmIndexerMessage("elephants"));
 
     // now test with a vector
-    indexer->set_input(OmIndexerMessage(v));
-    result = indexer->get_raw_output();
+    indexer.set_input(OmIndexerMessage(v));
+    result = indexer.get_raw_output();
     if (verbose && result.get_type() != OmIndexerMessage::rt_vector) {
         tout << "Non-vector result: " << result << '\n';
     }
@@ -625,7 +625,7 @@ test_ommakepair1()
 {
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+    OmIndexer indexer = builder.build_from_string(
       "<?xml version=\"1.0\"?>\n"
       "<omindexer>\n"
          "<node type='omsplitter' id='split'>\n"
@@ -643,9 +643,9 @@ test_ommakepair1()
          "<output node='only' out_name='out'/>\n"
       "</omindexer>\n");
 
-    indexer->set_input(OmIndexerMessage("cab"));
+    indexer.set_input(OmIndexerMessage("cab"));
 
-    OmIndexerMessage result = indexer->get_raw_output();
+    OmIndexerMessage result = indexer.get_raw_output();
     if (result.get_type() != OmIndexerMessage::rt_vector) {
 	if (verbose) {
 	    tout << "Expected pair, got: " << result << '\n';
@@ -673,7 +673,7 @@ test_ommakepairs1()
 {
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+    OmIndexer indexer = builder.build_from_string(
       "<?xml version=\"1.0\"?>\n"
       "<omindexer>\n"
          "<node type='omsplitter' id='split'>\n"
@@ -694,9 +694,9 @@ test_ommakepairs1()
     std::vector<OmIndexerMessage> vec;
     vec.push_back(OmIndexerMessage("cab"));
     vec.push_back(OmIndexerMessage("abc"));
-    indexer->set_input(OmIndexerMessage(vec));
+    indexer.set_input(OmIndexerMessage(vec));
 
-    OmIndexerMessage result = indexer->get_raw_output();
+    OmIndexerMessage result = indexer.get_raw_output();
     if (result.get_type() != OmIndexerMessage::rt_vector) {
 	if (verbose) {
 	    tout << "Expected pair, got: " << result << '\n';
