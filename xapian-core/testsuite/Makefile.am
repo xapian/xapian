@@ -14,9 +14,11 @@ libtest_la_SOURCES = testsuite.cc testutils.cc backendmanager.cc \
 
 libtest_la_LIBADD = -ldl
 
+if ENABLE_SHARED
 all-local: malloccheck.so
 
 CLEANFILES=malloccheck.so
 
 malloccheck.so: malloccheck.c alloccommon.lo
 	$(LIBTOOL) $(CC) -shared $< alloccommon.lo -o $@ -ldl
+endif

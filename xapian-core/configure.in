@@ -48,6 +48,8 @@ AC_DEFINE(HAVE_SOCKLEN_T,,
   [Define if socklen_t is available])
 fi
 
+dnl Set a flag for AM when shared libraries are enabled.
+AM_CONDITIONAL(ENABLE_SHARED, test "$enable_shared" = yes)
 
 dnl Check for -fno-access-control flag to compiler.
 dnl Used in some low-level test suite stuff.

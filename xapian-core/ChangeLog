@@ -1,3 +1,7 @@
+Tue Nov 14 13:33:24 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Don't compile malloccheck if shared libraries are disabled.
+
 Thu Nov  9 17:23:03 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added readonly implementation of posting lists.  Just need to add
