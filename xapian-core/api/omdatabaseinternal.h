@@ -25,7 +25,7 @@
 #ifndef OM_HGUARD_OMDATABASEINTERNAL_H
 #define OM_HGUARD_OMDATABASEINTERNAL_H
 
-#include "om/omenquire.h"
+#include <xapian/enquire.h>
 #include "refcnt.h"
 #include "document.h"
 #include "database.h"

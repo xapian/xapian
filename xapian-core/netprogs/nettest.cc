@@ -28,7 +28,7 @@
 #include "testsuite.h"
 #include "testutils.h"
 #include "backendmanager.h"
-#include "om/omenquire.h"
+#include <xapian/enquire.h>
 #include "utils.h"
 #include <unistd.h>
 #include <string>
@@ -58,7 +58,7 @@ static bool test_netmatch1()
 
     enq.set_query(Xapian::Query("word"));
 
-    OmMSet mset(enq.get_mset(0, 10));
+    Xapian::MSet mset(enq.get_mset(0, 10));
 
     if (verbose) {
 	cout << mset;
@@ -88,7 +88,7 @@ static bool test_netmatch2()
 
     enq.set_query(Xapian::Query("word"));
 
-    OmMSet mset(enq.get_mset(0, 10));
+    Xapian::MSet mset(enq.get_mset(0, 10));
 
     if (verbose) {
 	cout << mset;
@@ -110,7 +110,7 @@ static bool test_netexpand1()
 
     enq.set_query(Xapian::Query("word"));
 
-    OmMSet mset(enq.get_mset(0, 10));
+    Xapian::MSet mset(enq.get_mset(0, 10));
 
     if (verbose) {
 	cout << mset;
@@ -167,7 +167,7 @@ static bool test_tcpmatch1()
 
     enq.set_query(Xapian::Query("word"));
 
-    OmMSet mset(enq.get_mset(0, 10));
+    Xapian::MSet mset(enq.get_mset(0, 10));
 
     if (verbose) {
 	cout << mset;
@@ -231,7 +231,7 @@ static bool test_tcpdead1()
     time_t t = time(NULL);
     try {
 	enq.set_query(Xapian::Query("word"));	
-	OmMSet mset(enq.get_mset(0, 10));
+	Xapian::MSet mset(enq.get_mset(0, 10));
     }
     catch (const Xapian::NetworkError &e) {
 	time_t t2 = time(NULL) - t;

@@ -70,7 +70,7 @@ class LocalSubMatch : public SubMatch {
 	const OmWeight * wtscheme;
 
 	/// The weights and termfreqs of terms in the query.
-	map<string, OmMSet::Internal::Data::TermFreqAndWeight> term_info;
+	map<string, Xapian::MSet::Internal::TermFreqAndWeight> term_info;
 
 
 	PostList * build_xor_tree(vector<PostList *> &postlists,
@@ -131,7 +131,7 @@ class LocalSubMatch : public SubMatch {
 	    return db->open_document(did);
 	}
 
-	const map<string, OmMSet::Internal::Data::TermFreqAndWeight> get_term_info() const {
+	const map<string, Xapian::MSet::Internal::TermFreqAndWeight> get_term_info() const {
 	    return term_info;
 	}
 };   

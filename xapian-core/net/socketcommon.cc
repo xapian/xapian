@@ -46,7 +46,7 @@ using std::set;
 #include "readquery.h"
 #include "stats.h"
 #include "utils.h"
-#include "om/omenquire.h"
+#include <xapian/enquire.h>
 #include "om/omdocument.h"
 #include "omlinebuf.h"
 #include "omenquireinternal.h"
@@ -474,12 +474,12 @@ ommsetitems_to_string(const vector<OmMSetItem> &ommsetitems)
 
 string
 ommset_termfreqwts_to_string(const map<string,
-			     OmMSet::Internal::Data::TermFreqAndWeight> &terminfo)
+			     Xapian::MSet::Internal::TermFreqAndWeight> &terminfo)
 {
     // encode as term freq weight term2 freq2 weight2 ...
     string result;
 
-    map<string, OmMSet::Internal::Data::TermFreqAndWeight>::const_iterator i;
+    map<string, Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator i;
     for (i = terminfo.begin(); i != terminfo.end(); ++i) {
 	result += encode_tname(i->first);
 	result += " ";
@@ -492,7 +492,7 @@ ommset_termfreqwts_to_string(const map<string,
 }
 
 string
-ommset_to_string(const OmMSet &ommset)
+ommset_to_string(const Xapian::MSet &ommset)
 {
     string result;
 
@@ -510,9 +510,9 @@ ommset_to_string(const OmMSet &ommset)
     result += " ";
     result += om_tostring(ommset.get_max_attained());
     result += " ";
-    result += ommsetitems_to_string(ommset.internal->data->items);
+    result += ommsetitems_to_string(ommset.internal->items);
     result += " ";
-    result += ommset_termfreqwts_to_string(ommset.internal->data->termfreqandwts);
+    result += ommset_termfreqwts_to_string(ommset.internal->termfreqandwts);
 
     return result;
 }
@@ -557,7 +557,7 @@ string_to_ommsetitems(const string &s_)
     return result;
 }
 
-OmMSet
+Xapian::MSet
 string_to_ommset(const string &s)
 {
 #ifdef HAVE_SSTREAM
@@ -584,7 +584,7 @@ string_to_ommset(const string &s)
 	    max_attained >>
 	    msize;
     if (!is) {
-	throw Xapian::NetworkError("Problem reading OmMSet from string");
+	throw Xapian::NetworkError("Problem reading Xapian::MSet from string");
     }
     while (msize > 0) {
 	string s;
@@ -592,16 +592,16 @@ string_to_ommset(const string &s)
 	om_docid did;
 	is >> wt >> did >> s;
 	if (!is) {
-	    throw Xapian::NetworkError("Problem reading OmMSet from string");
+	    throw Xapian::NetworkError("Problem reading Xapian::MSet from string");
 	}
 	items.push_back(OmMSetItem(wt, did, decode_tname(s)));
 	msize--;
     }
 
-    map<string, OmMSet::Internal::Data::TermFreqAndWeight> terminfo;
+    map<string, Xapian::MSet::Internal::TermFreqAndWeight> terminfo;
     string term;
     while (is >> term) {
-	OmMSet::Internal::Data::TermFreqAndWeight tfaw;
+	Xapian::MSet::Internal::TermFreqAndWeight tfaw;
 	if (!(is >> tfaw.termfreq >> tfaw.termweight)) {
 	    Assert(false); // FIXME
 	}
@@ -609,19 +609,19 @@ string_to_ommset(const string &s)
 	terminfo[term] = tfaw;
     }
 
-    return OmMSet(new OmMSet::Internal(new OmMSet::Internal::Data(
+    return Xapian::MSet(new Xapian::MSet::Internal(
 				       firstitem,
 				       matches_upper_bound,
 				       matches_lower_bound,
 				       matches_estimated,
 				       max_possible, max_attained,
-				       items, terminfo, 0)));
+				       items, terminfo, 0));
 }
 
-map<string, OmMSet::Internal::Data::TermFreqAndWeight>
+map<string, Xapian::MSet::Internal::TermFreqAndWeight>
 string_to_ommset_termfreqwts(const string &s)
 {
-    map<string, OmMSet::Internal::Data::TermFreqAndWeight> result;
+    map<string, Xapian::MSet::Internal::TermFreqAndWeight> result;
 #ifdef HAVE_SSTREAM
     istringstream is(s);
 #else
@@ -630,7 +630,7 @@ string_to_ommset_termfreqwts(const string &s)
 
     string term;
     while (is >> term) {
-	OmMSet::Internal::Data::TermFreqAndWeight tfaw;
+	Xapian::MSet::Internal::TermFreqAndWeight tfaw;
 	if (!(is >> tfaw.termfreq >> tfaw.termweight)) {
 	    Assert(false); // FIXME
 	}

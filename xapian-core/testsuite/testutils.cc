@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,8 +42,8 @@ operator<<(std::ostream &os, const std::vector<unsigned int> &ints)
 // Useful comparison operators
 
 bool
-mset_range_is_same(const OmMSet &mset1, unsigned int first1,
-		   const OmMSet &mset2, unsigned int first2,
+mset_range_is_same(const Xapian::MSet &mset1, unsigned int first1,
+		   const Xapian::MSet &mset2, unsigned int first2,
 		   unsigned int count)
 {
     TEST_AND_EXPLAIN(mset1.size() >= first1 + count - 1,
@@ -72,8 +73,8 @@ mset_range_is_same(const OmMSet &mset1, unsigned int first1,
 }
 
 bool
-mset_range_is_same_weights(const OmMSet &mset1, unsigned int first1,
-			   const OmMSet &mset2, unsigned int first2,
+mset_range_is_same_weights(const Xapian::MSet &mset1, unsigned int first1,
+			   const Xapian::MSet &mset2, unsigned int first2,
 			   unsigned int count)
 {
     TEST_AND_EXPLAIN(mset1.size() >= first1 + count - 1,
@@ -102,7 +103,7 @@ mset_range_is_same_weights(const OmMSet &mset1, unsigned int first1,
     return true;
 }
 
-bool operator==(const OmMSet &first, const OmMSet &second)
+bool operator==(const Xapian::MSet &first, const Xapian::MSet &second)
 {
     if ((first.get_matches_lower_bound() != second.get_matches_lower_bound()) ||
 	(first.get_matches_upper_bound() != second.get_matches_upper_bound()) ||
@@ -116,7 +117,7 @@ bool operator==(const OmMSet &first, const OmMSet &second)
 }
 
 static void
-mset_expect_order_(const OmMSet &A, bool beginning,
+mset_expect_order_(const Xapian::MSet &A, bool beginning,
 		   om_docid d1, om_docid d2, om_docid d3, om_docid d4,
 		   om_docid d5, om_docid d6, om_docid d7, om_docid d8,
 		   om_docid d9, om_docid d10, om_docid d11, om_docid d12)
@@ -186,7 +187,7 @@ mset_expect_order_(const OmMSet &A, bool beginning,
 }
 
 void
-mset_expect_order_begins(const OmMSet &A,
+mset_expect_order_begins(const Xapian::MSet &A,
 			 om_docid d1, om_docid d2, om_docid d3, om_docid d4,
 			 om_docid d5, om_docid d6, om_docid d7, om_docid d8,
 			 om_docid d9, om_docid d10, om_docid d11, om_docid d12)
@@ -195,7 +196,7 @@ mset_expect_order_begins(const OmMSet &A,
 }
 
 void
-mset_expect_order(const OmMSet &A,
+mset_expect_order(const Xapian::MSet &A,
 		  om_docid d1, om_docid d2, om_docid d3, om_docid d4,
 		  om_docid d5, om_docid d6, om_docid d7, om_docid d8,
 		  om_docid d9, om_docid d10, om_docid d11, om_docid d12)
@@ -219,7 +220,7 @@ weights_are_equal_enough(double a, double b)
 }
 
 void
-test_mset_order_equal(const OmMSet &mset1, const OmMSet &mset2)
+test_mset_order_equal(const Xapian::MSet &mset1, const Xapian::MSet &mset2)
 {
     TEST_AND_EXPLAIN(mset1.size() == mset2.size(),
 		     "Msets not the same size - "

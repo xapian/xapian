@@ -1,4 +1,4 @@
-/** \file omenquire.h
+/** \file enquire.h
  * \brief API for running queries
  */
 /* ----START-LICENCE----
@@ -23,8 +23,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OMENQUIRE_H
-#define OM_HGUARD_OMENQUIRE_H
+#ifndef XAPIAN_INCLUDED_ENQUIRE_H
+#define XAPIAN_INCLUDED_ENQUIRE_H
 
 #include <xapian/types.h>
 #include "om/omdocument.h"
@@ -36,6 +36,7 @@
 namespace Xapian {
 class Query;
 class ErrorHandler;
+class MSet;
 }
 
 class OmWeight;
@@ -45,7 +46,7 @@ class OmWeight;
  */
 class OmMSetIterator {
     public:
-	friend class OmMSet;
+	friend class Xapian::MSet;
 
 	class Internal;
 	/// @internal Reference counted internals.
@@ -156,42 +157,44 @@ inline bool operator!=(const OmMSetIterator &a,
     return !(a == b);
 }
 
+namespace Xapian {
+
 /** A match set (MSet).
  *  This class represents (a portion of) the results of a query.
  */
-class OmMSet {
+class MSet {
     public:
 	class Internal;
 	/// @internal Reference counted internals.
-	Internal *internal;
+	Xapian::Internal::RefCntPtr<Internal> internal;
 
     public:
 	// FIXME: public for now, private would be better
 	/// @internal Constructor for internal use
-	OmMSet(OmMSet::Internal * internal_);
+	MSet(MSet::Internal * internal_);
 
-	/// Create an empty OmMSet
-	OmMSet();
+	/// Create an empty Xapian::MSet
+	MSet();
 
-	/// Destroy an OmMSet
-	~OmMSet();
+	/// Destroy an Xapian::MSet
+	~MSet();
 
 	/// Copying is allowed (and is cheap).
-	OmMSet(const OmMSet & other);
+	MSet(const MSet & other);
 
         /// Assignment is allowed (and is cheap).
-	void operator=(const OmMSet &other);
+	void operator=(const MSet &other);
 
 	/** Fetch the the document info for a set of items in the MSet.
 	 *
 	 *  This method causes the documents in the range specified by the
 	 *  iterators to be fetched from the database, and cached in the
-	 *  OmMSet object.  This has little effect when performing a search
-	 *  across a local database, but will greatly speed up subsequent
-	 *  access to the document contents when the documents are stored
-	 *  in a remote database.
+	 *  Xapian::MSet object.  This has little effect when performing a
+	 *  search across a local database, but will greatly speed up
+	 *  subsequent access to the document contents when the documents are
+	 *  stored in a remote database.
 	 *
-	 *  The iterators must be over this OmMSet: undefined behaviour
+	 *  The iterators must be over this Xapian::MSet: undefined behaviour
 	 *  will result otherwise.
 	 *
 	 *  @param begin   OmMSetIterator for first item to fetch.
@@ -238,7 +241,7 @@ class OmMSet {
 	/** The index of the first item in the result which was put into the
 	 *  mset.
 	 *  This corresponds to the parameter "first" specified in
-	 *  OmEnquire::get_mset().  A value of 0 corresponds to the highest
+	 *  Xapian::Enquire::get_mset().  A value of 0 corresponds to the highest
 	 *  result being the first item in the mset.
 	 */
 	om_doccount get_firstitem() const;
@@ -288,7 +291,7 @@ class OmMSet {
 	 *  Note that calculation of max_attained requires calculation
 	 *  of at least one result item - therefore, if no items were
 	 *  requested when the query was performed (by specifying
-	 *  maxitems = 0 in OmEnquire::get_mset()), this value will be 0.
+	 *  maxitems = 0 in Xapian::Enquire::get_mset()), this value will be 0.
 	 */
 	om_weight get_max_attained() const;
 
@@ -298,7 +301,7 @@ class OmMSet {
 
 	bool empty() const;
 
-	void swap(OmMSet & other);
+	void swap(MSet & other);
 
 	OmMSetIterator begin() const;
 
@@ -309,8 +312,8 @@ class OmMSet {
 	/** This returns the document at position i in this MSet object.
 	 *
 	 *  Note that this is not the same as the document at rank i in the
-	 *  query, unless the "first" parameter to OmEnquire::get_mset was
-	 *  0.  Rather, it is the document at rank i + first.
+	 *  query, unless the "first" parameter to Xapian::Enquire::get_mset
+	 *  was 0.  Rather, it is the document at rank i + first.
 	 *
 	 *  In other words, the offset is into the documents represented by
 	 *  this object, not into the set of documents matching the query.
@@ -335,6 +338,8 @@ class OmMSet {
 	 */
 	std::string get_description() const;
 };
+
+}
 
 /** Iterate through terms in the ESet */
 class OmESetIterator {
@@ -399,7 +404,7 @@ operator!=(const OmESetIterator &a, const OmESetIterator &b)
 
 /** Class representing an ordered set of expand terms (an ESet).
  *  This set represents the results of an expand operation, which is
- *  performed by OmEnquire::get_eset().
+ *  performed by Xapian::Enquire::get_eset().
  */
 class OmESet {
     public:
@@ -524,14 +529,12 @@ class ExpandDecider {
 	virtual ~ExpandDecider() {}
 };
 
-}
-
 /** This class provides an interface to the information retrieval
  *  system for the purpose of searching.
  *
  *  Databases are usually opened lazily, so exceptions may not be
  *  thrown where you would expect them to be.  You should catch
- *  Xapian::Error exceptions when calling any method in OmEnquire.
+ *  Xapian::Error exceptions when calling any method in Xapian::Enquire.
  *
  *  @exception Xapian::InvalidArgumentError will be thrown if an invalid
  *  argument is supplied, for example, an unknown database type.
@@ -539,47 +542,39 @@ class ExpandDecider {
  *  @exception Xapian::OpeningError will be thrown if the database cannot
  *  be opened (for example, a required file cannot be found).
  */
-class OmEnquire {
+class Enquire {
     private:
 	/// Copies are not allowed.
-	OmEnquire(const OmEnquire &);
+	Enquire(const Enquire &);
 
 	/// Assignment is not allowed.
-	void operator=(const OmEnquire &);
+	void operator=(const Enquire &);
 
     public:
 	class Internal;
 	/// @internal Reference counted internals.
-	Internal *internal;
+	Xapian::Internal::RefCntPtr<Internal> internal;
 
-	/** Create an OmEnquire object.
+	/** Create an Xapian::Enquire object.
 	 *
-	 *  This specification cannot be changed once the OmEnquire is
-	 *  opened: you must create a new OmEnquire object to access a
+	 *  This specification cannot be changed once the Xapian::Enquire is
+	 *  opened: you must create a new Xapian::Enquire object to access a
 	 *  different database, or set of databases.
 	 *
 	 *  @param database Specification of the database or databases to
 	 *         use.
 	 *  @param errorhandler_  A pointer to the error handler to use.
 	 *         Ownership of the object pointed to is not assumed by the
-	 *         OmEnquire object - the user should delete the
-	 *         Xapian::ErrorHandler object after the OmEnquire object is
+	 *         Xapian::Enquire object - the user should delete the
+	 *         Xapian::ErrorHandler object after the Xapian::Enquire object is
 	 *         deleted.  To use no error handler, this parameter
 	 *         should be 0.
 	 */
-        OmEnquire(const OmDatabase &databases,
-		  Xapian::ErrorHandler * errorhandler_ = 0);
+        Enquire(const OmDatabase &databases, ErrorHandler * errorhandler_ = 0);
 
-	/** Close the OmEnquire object.
-	 *
-	 *  This frees all resources associated with the OmEnquire object,
-	 *  such as handles on the databases used.  As a result, any object
-	 *  which refers to these databases, such as a OmDocument, will
-	 *  become invalid after the destruction of the object, and must
-	 *  not be used subsequently. (FIXME: I don't think this is actually
-	 *  true - check)
+	/** Close the Xapian::Enquire object.
 	 */
-	~OmEnquire();
+	~Enquire();
 
 	/** Set the query to run.
 	 *
@@ -703,16 +698,15 @@ class OmEnquire {
 	 *                   given document should be put in the MSet
 	 *
 	 *
-	 *  @return          An OmMSet object containing the results of the
+	 *  @return          A Xapian::MSet object containing the results of the
 	 *                   query.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 *  @exception Xapian::OpeningError          See class documentation.
 	 */
-	OmMSet get_mset(om_doccount first,
-                        om_doccount maxitems,
-			const OmRSet * omrset = 0,
-			const OmMatchDecider * mdecider = 0) const;
+	MSet get_mset(om_doccount first, om_doccount maxitems,
+		      const OmRSet * omrset = 0,
+		      const OmMatchDecider * mdecider = 0) const;
 
 	static const int include_query_terms = 1;
 	static const int use_exact_termfreq = 2;
@@ -722,10 +716,10 @@ class OmEnquire {
 	 *  @param omrset    the relevance set to use when performing
 	 *                   the expand operation.
 	 *  @param flags     zero or more of these values |-ed together:
-	 *                    - OmEnquire::include_query_terms query terms may
-	 *                      be returned from expand
-	 *		      - OmEnquire::use_exact_termfreq for multi dbs,
-	 *			calculate the exact termfreq; otherwise an
+	 *                    - Xapian::Enquire::include_query_terms query
+	 *                      terms may be returned from expand
+	 *		      - Xapian::Enquire::use_exact_termfreq for multi
+	 *			dbs, calculate the exact termfreq; otherwise an
 	 *			approximation is used which can greatly improve
 	 *			efficiency, but still returns good results.
 	 *  @param k	     the parameter k in the query expansion algorithm
@@ -837,11 +831,13 @@ class OmEnquire {
 	std::string get_description() const;
 };
 
+}
+
 class SocketServer;
 
 /// Abstract base class for weighting schemes
 class OmWeight {
-    friend class OmEnquire; // So OmEnquire can clone us
+    friend class Xapian::Enquire; // So Xapian::Enquire can clone us
     friend class SocketServer; // So SocketServer can clone us - FIXME
     public:
 	class Internal;
@@ -870,7 +866,8 @@ class OmWeight {
 	/** Create a new weight object of the same type as this and initialise
 	 *  it with the specified statistics.
 	 *
-	 *  You shouldn't call this method yourself - it's called by OmEnquire.
+	 *  You shouldn't call this method yourself - it's called by
+	 *  Xapian::Enquire.
 	 *
 	 *  @param internal_  Object to ask for collection statistics.
 	 *  @param querysize_ Query size.
@@ -1078,4 +1075,4 @@ class TradWeight : public OmWeight {
 	bool get_sumpart_needs_doclength() const { return (lenpart != 0); }
 };
 
-#endif /* OM_HGUARD_OMENQUIRE_H */
+#endif /* XAPIAN_INCLUDED_ENQUIRE_H */

@@ -66,7 +66,7 @@ static bool test_zerodocid1()
     enquire.set_query(myquery);
 
     // retrieve the top ten results (we only expect one)
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
 
     // We've done the query, now check that the result is what
     // we expect (1 document, with non-zero docid)
@@ -131,7 +131,7 @@ query(string t)
     return Xapian::Query(Xapian::Stem("english").stem_word(t));
 }
 
-OmMSet do_get_simple_query_mset(Xapian::Query query, int maxitems = 10, int first = 0)
+Xapian::MSet do_get_simple_query_mset(Xapian::Query query, int maxitems = 10, int first = 0)
 {
     // open the database (in this case a simple text file
     // we prepared earlier)
@@ -145,7 +145,7 @@ OmMSet do_get_simple_query_mset(Xapian::Query query, int maxitems = 10, int firs
 // tests the document count for a simple query
 static bool test_simplequery1()
 {
-    OmMSet mymset = do_get_simple_query_mset(Xapian::Query("word"));
+    Xapian::MSet mymset = do_get_simple_query_mset(Xapian::Query("word"));
     TEST_MSET_SIZE(mymset, 2);
     return true;
 }
@@ -153,7 +153,7 @@ static bool test_simplequery1()
 // tests for the right documents and weights returned with simple query
 static bool test_simplequery2()
 {
-    OmMSet mymset = do_get_simple_query_mset(Xapian::Query("word"));
+    Xapian::MSet mymset = do_get_simple_query_mset(Xapian::Query("word"));
 
     // We've done the query, now check that the result is what
     // we expect (documents 2 and 4)
@@ -174,7 +174,7 @@ static bool test_simplequery2()
 // tests for the right document count for another simple query
 static bool test_simplequery3()
 {
-    OmMSet mymset = do_get_simple_query_mset(query("this"));
+    Xapian::MSet mymset = do_get_simple_query_mset(query("this"));
 
     // Check that 6 documents were returned.
     TEST_MSET_SIZE(mymset, 6);
@@ -190,15 +190,15 @@ static bool test_puncterms1()
 
     Xapian::Query q1("semi;colon");
     enquire.set_query(q1);
-    OmMSet m1 = enquire.get_mset(0, 10);
+    Xapian::MSet m1 = enquire.get_mset(0, 10);
 
     Xapian::Query q2("col:on");
     enquire.set_query(q2);
-    OmMSet m2 = enquire.get_mset(0, 10);
+    Xapian::MSet m2 = enquire.get_mset(0, 10);
 
     Xapian::Query q3("com,ma");
     enquire.set_query(q3);
-    OmMSet m3 = enquire.get_mset(0, 10);
+    Xapian::MSet m3 = enquire.get_mset(0, 10);
 
     return true;
 }
@@ -221,8 +221,8 @@ static bool test_multidb1()
 
     // retrieve the top ten results from each method of accessing
     // multiple text files
-    OmMSet mymset1 = enquire1.get_mset(0, 10);
-    OmMSet mymset2 = enquire2.get_mset(0, 10);
+    Xapian::MSet mymset1 = enquire1.get_mset(0, 10);
+    Xapian::MSet mymset2 = enquire2.get_mset(0, 10);
 
     TEST_EQUAL(mymset1.size(), mymset2.size());
     TEST(mset_range_is_same_weights(mymset1, 0, mymset2, 0, mymset1.size()));
@@ -248,8 +248,8 @@ static bool test_multidb2()
 
     // retrieve the top ten results from each method of accessing
     // multiple text files
-    OmMSet mymset1 = enquire1.get_mset(0, 10);
-    OmMSet mymset2 = enquire2.get_mset(0, 10);
+    Xapian::MSet mymset1 = enquire1.get_mset(0, 10);
+    Xapian::MSet mymset2 = enquire2.get_mset(0, 10);
 
     TEST_EQUAL(mymset1.size(), mymset2.size());
     TEST(mset_range_is_same_weights(mymset1, 0, mymset2, 0, mymset1.size()));
@@ -269,7 +269,7 @@ static bool test_multidb3()
     enquire.set_query(myquery);
 
     // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 2, 3, 7);
 
     return true;
@@ -289,7 +289,7 @@ static bool test_multidb4()
     enquire.set_query(myquery);
 
     // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 2, 3, 4, 10);
 
     return true;
@@ -308,7 +308,7 @@ static bool test_multidb5()
     enquire.set_query(myquery);
 
     // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 2);
 
     return true;
@@ -431,7 +431,7 @@ static bool test_multierrhandler1()
 
 	tout << "query=" << myquery << "\n";
 	// retrieve the top ten results
-	OmMSet mymset = enquire.get_mset(0, 10);
+	Xapian::MSet mymset = enquire.get_mset(0, 10);
 
 	switch (testcount) {
 	    case 0: case 3: case 6: case 9:
@@ -470,10 +470,10 @@ static bool test_changequery1()
     enquire.set_query(myquery);
 
     // retrieve the top ten results
-    OmMSet mset1 = enquire.get_mset(0, 10);
+    Xapian::MSet mset1 = enquire.get_mset(0, 10);
 
     myquery = Xapian::Query("foo");
-    OmMSet mset2 = enquire.get_mset(0, 10);
+    Xapian::MSet mset2 = enquire.get_mset(0, 10);
 
     // verify that both msets are identical
     TEST_EQUAL(mset1, mset2);
@@ -483,7 +483,7 @@ static bool test_changequery1()
 // tests that an empty query returns no matches
 static bool test_emptyquery1()
 {
-    OmMSet mymset = do_get_simple_query_mset(Xapian::Query());
+    Xapian::MSet mymset = do_get_simple_query_mset(Xapian::Query());
     TEST_MSET_SIZE(mymset, 0);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 0);
@@ -502,7 +502,7 @@ static bool test_emptyquery1()
 // that are returned.
 static bool test_msetmaxitems1()
 {
-    OmMSet mymset = do_get_simple_query_mset(query("this"), 1);
+    Xapian::MSet mymset = do_get_simple_query_mset(query("this"), 1);
     TEST_MSET_SIZE(mymset, 1);
     return true;
 }
@@ -514,7 +514,7 @@ static bool test_expandmaxitems1()
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
     tout << "mymset.size() = " << mymset.size() << endl;
     TEST(mymset.size() >= 2);
 
@@ -541,7 +541,7 @@ static bool test_boolquery1()
     enquire.set_weighting_scheme(BoolWeight());
 
     // retrieve the top results
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
 
     TEST_NOT_EQUAL(mymset.size(), 0);
     TEST_EQUAL(mymset.get_max_possible(), 0);
@@ -554,8 +554,8 @@ static bool test_boolquery1()
 // tests that get_mset() specifying "this" works as expected
 static bool test_msetfirst1()
 {
-    OmMSet mymset1 = do_get_simple_query_mset(query("this"), 6, 0);
-    OmMSet mymset2 = do_get_simple_query_mset(query("this"), 3, 3);
+    Xapian::MSet mymset1 = do_get_simple_query_mset(query("this"), 6, 0);
+    Xapian::MSet mymset2 = do_get_simple_query_mset(query("this"), 3, 3);
     TEST(mset_range_is_same(mymset1, 3, mymset2, 0, 3));
     return true;
 }
@@ -563,7 +563,7 @@ static bool test_msetfirst1()
 // tests the converting-to-percent functions
 static bool test_topercent1()
 {
-    OmMSet mymset = do_get_simple_query_mset(query("this"), 20, 0);
+    Xapian::MSet mymset = do_get_simple_query_mset(query("this"), 20, 0);
 
     int last_pct = 100;
     OmMSetIterator i = mymset.begin();
@@ -601,7 +601,7 @@ static bool test_expandfunctor1()
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
     TEST(mymset.size() >= 2);
 
     OmRSet myrset;
@@ -674,7 +674,7 @@ static bool test_matchfunctor1()
 
     myMatchDecider myfunctor;
 
-    OmMSet mymset = enquire.get_mset(0, 100, 0, &myfunctor);
+    Xapian::MSet mymset = enquire.get_mset(0, 100, 0, &myfunctor);
 
     OmMSetIterator i = mymset.begin();
     TEST(i != mymset.end());
@@ -692,7 +692,7 @@ static bool test_msetiterator1()
 {
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
-    OmMSet mymset = enquire.get_mset(0, 2);
+    Xapian::MSet mymset = enquire.get_mset(0, 2);
 
     OmMSetIterator j;
     j = mymset.begin();
@@ -738,7 +738,7 @@ static bool test_msetiterator2()
 {
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
-    OmMSet mymset = enquire.get_mset(0, 0);
+    Xapian::MSet mymset = enquire.get_mset(0, 0);
 
     OmMSetIterator j = mymset.begin();
     OmMSetIterator k = mymset.end();
@@ -760,7 +760,7 @@ static bool test_esetiterator1()
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
     TEST(mymset.size() >= 2);
 
     OmRSet myrset;
@@ -810,7 +810,7 @@ static bool test_esetiterator2()
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
     TEST(mymset.size() >= 2);
 
     OmRSet myrset;
@@ -834,7 +834,7 @@ static bool test_esetiterator2()
 }
 
 static void
-print_mset_weights(const OmMSet &mset)
+print_mset_weights(const Xapian::MSet &mset)
 {
     OmMSetIterator i = mset.begin();
     for ( ; i != mset.end(); ++i) {
@@ -848,7 +848,7 @@ static bool test_cutoff1()
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire, query(Xapian::Query::OP_OR,
 				       "this", "line", "paragraph", "rubbish"));
-    OmMSet mymset1 = enquire.get_mset(0, 100);
+    Xapian::MSet mymset1 = enquire.get_mset(0, 100);
 
     if (verbose) {
 	tout << "Original mset weights:";
@@ -877,7 +877,7 @@ static bool test_cutoff1()
     }
 
     enquire.set_cutoff(0, my_wt);
-    OmMSet mymset2 = enquire.get_mset(0, 100);
+    Xapian::MSet mymset2 = enquire.get_mset(0, 100);
 
     if (verbose) {
         tout << "Weights after cutoff:";
@@ -903,7 +903,7 @@ static bool test_cutoff2()
     Xapian::Query q = query(Xapian::Query::OP_OR, "this", "line", "paragraph", "rubbish");
     init_simple_enquire(enquire, query(Xapian::Query::OP_OR,
 				       "this", "line", "paragraph", "rubbish"));
-    OmMSet mymset1 = enquire.get_mset(0, 100);
+    Xapian::MSet mymset1 = enquire.get_mset(0, 100);
 
     if (verbose) {
 	tout << "Original mset weights:";
@@ -934,7 +934,7 @@ static bool test_cutoff2()
     Xapian::Query cutoffq(Xapian::Query::OP_WEIGHT_CUTOFF, q);
     cutoffq.set_cutoff(my_wt);
     enquire.set_query(cutoffq);
-    OmMSet mymset2 = enquire.get_mset(0, 100);
+    Xapian::MSet mymset2 = enquire.get_mset(0, 100);
 
     if (verbose) {
         tout << "Weights after cutoff:";
@@ -954,7 +954,7 @@ static bool test_cutoff2()
 }
 
 static void
-print_mset_percentages(const OmMSet &mset)
+print_mset_percentages(const Xapian::MSet &mset)
 {
     OmMSetIterator i = mset.begin();
     for ( ; i != mset.end(); ++i) {
@@ -968,7 +968,7 @@ static bool test_pctcutoff1()
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire, query(Xapian::Query::OP_OR,
 				       "this", "line", "paragraph", "rubbish"));
-    OmMSet mymset1 = enquire.get_mset(0, 100);
+    Xapian::MSet mymset1 = enquire.get_mset(0, 100);
 
     if (verbose) {
 	tout << "Original mset pcts:";
@@ -997,7 +997,7 @@ static bool test_pctcutoff1()
     }
 
     enquire.set_cutoff(my_pct);
-    OmMSet mymset2 = enquire.get_mset(0, 100);
+    Xapian::MSet mymset2 = enquire.get_mset(0, 100);
 
     if (verbose) {
         tout << "Percentages after cutoff:";
@@ -1022,7 +1022,7 @@ static bool test_allowqterms1()
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
     TEST(mymset.size() >= 2);
 
     OmRSet myrset;
@@ -1048,7 +1048,7 @@ static bool test_allowqterms1()
 // tests that the MSet max_attained works
 static bool test_maxattain1()
 {
-    OmMSet mymset = do_get_simple_query_mset(query("this"), 100, 0);
+    Xapian::MSet mymset = do_get_simple_query_mset(query("this"), 100, 0);
 
     om_weight mymax = 0;
     OmMSetIterator i = mymset.begin();
@@ -1066,12 +1066,12 @@ static bool test_collapsekey1()
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
-    OmMSet mymset1 = enquire.get_mset(0, 100);
+    Xapian::MSet mymset1 = enquire.get_mset(0, 100);
     om_doccount mymsize1 = mymset1.size();
 
     for (om_valueno value_no = 1; value_no < 7; ++value_no) {
 	enquire.set_collapse_key(value_no);
-	OmMSet mymset = enquire.get_mset(0, 100);
+	Xapian::MSet mymset = enquire.get_mset(0, 100);
 
 	TEST_AND_EXPLAIN(mymsize1 > mymset.size(),
 			 "Had no fewer items when performing collapse: don't know whether it worked.");
@@ -1094,12 +1094,12 @@ static bool test_collapsekey2()
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
-    OmMSet mymset1 = enquire.get_mset(0, 100);
+    Xapian::MSet mymset1 = enquire.get_mset(0, 100);
     om_doccount mymsize1 = mymset1.size();
 
     const om_valueno value_no = 0;
     enquire.set_collapse_key(value_no);
-    OmMSet mymset = enquire.get_mset(0, 100);
+    Xapian::MSet mymset = enquire.get_mset(0, 100);
 
     TEST_AND_EXPLAIN(mymsize1 > mymset.size(),
 		     "Had no fewer items when performing collapse: don't know whether it worked.");
@@ -1123,14 +1123,14 @@ static bool test_reversebool1()
     init_simple_enquire(enquire, query);
     enquire.set_weighting_scheme(BoolWeight());
 
-    OmMSet mymset1 = enquire.get_mset(0, 100);
+    Xapian::MSet mymset1 = enquire.get_mset(0, 100);
     TEST_AND_EXPLAIN(mymset1.size() > 1,
 		     "Mset was too small to test properly");
 
     enquire.set_sort_forward(true);
-    OmMSet mymset2 = enquire.get_mset(0, 100);
+    Xapian::MSet mymset2 = enquire.get_mset(0, 100);
     enquire.set_sort_forward(false);
-    OmMSet mymset3 = enquire.get_mset(0, 100);
+    Xapian::MSet mymset3 = enquire.get_mset(0, 100);
 
     // mymset1 and mymset2 should be identical
     TEST_EQUAL(mymset1.size(), mymset2.size());
@@ -1177,16 +1177,16 @@ static bool test_reversebool2()
     init_simple_enquire(enquire, query);
     enquire.set_weighting_scheme(BoolWeight());
 
-    OmMSet mymset1 = enquire.get_mset(0, 100);
+    Xapian::MSet mymset1 = enquire.get_mset(0, 100);
 
     TEST_AND_EXPLAIN(mymset1.size() > 1,
 		     "Mset was too small to test properly");
 
     enquire.set_sort_forward(true);
     om_doccount msize = mymset1.size() / 2;
-    OmMSet mymset2 = enquire.get_mset(0, msize);
+    Xapian::MSet mymset2 = enquire.get_mset(0, msize);
     enquire.set_sort_forward(false);
-    OmMSet mymset3 = enquire.get_mset(0, msize);
+    Xapian::MSet mymset3 = enquire.get_mset(0, msize);
 
     // mymset2 should be first msize items of mymset1
     TEST_EQUAL(msize, mymset2.size());
@@ -1246,7 +1246,7 @@ static bool test_getmterms1()
 
     enquire.set_query(myquery);
 
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
 
     TEST_MSET_SIZE(mymset, 1);
 #ifdef __SUNPRO_CC
@@ -1288,7 +1288,7 @@ static bool test_getmterms2()
 
     enquire.set_query(myquery);
 
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
 
     TEST_MSET_SIZE(mymset, 1);
 #ifdef __SUNPRO_CC
@@ -1319,7 +1319,7 @@ static bool test_absentfile1()
 		   Xapian::Query myquery("cheese");
 		   enquire.set_query(myquery);
 		   
-		   OmMSet mymset = enquire.get_mset(0, 10););
+		   Xapian::MSet mymset = enquire.get_mset(0, 10););
     return true;
 }
 
@@ -1336,8 +1336,8 @@ static bool test_poscollapse1()
 	tout << myquery2.get_description() << "\n";
     }
 
-    OmMSet mymset1 = do_get_simple_query_mset(myquery1);
-    OmMSet mymset2 = do_get_simple_query_mset(myquery2);
+    Xapian::MSet mymset1 = do_get_simple_query_mset(myquery1);
+    Xapian::MSet mymset2 = do_get_simple_query_mset(myquery2);
 
     TEST_EQUAL(mymset1, mymset2);
 
@@ -1360,8 +1360,8 @@ static bool test_repeatquery1()
 
     enquire.set_query(query(Xapian::Query::OP_OR, "this", "word"));
 
-    OmMSet mymset1 = enquire.get_mset(0, 10);
-    OmMSet mymset2 = enquire.get_mset(0, 10);
+    Xapian::MSet mymset1 = enquire.get_mset(0, 10);
+    Xapian::MSet mymset2 = enquire.get_mset(0, 10);
     TEST_EQUAL(mymset1, mymset2);
 
     return true;
@@ -1375,8 +1375,8 @@ static bool test_fetchdocs1()
 
     enquire.set_query(query(Xapian::Query::OP_OR, "this", "word"));
 
-    OmMSet mymset1 = enquire.get_mset(0, 10);
-    OmMSet mymset2 = enquire.get_mset(0, 10);
+    Xapian::MSet mymset1 = enquire.get_mset(0, 10);
+    Xapian::MSet mymset2 = enquire.get_mset(0, 10);
     TEST_EQUAL(mymset1, mymset2);
     mymset2.fetch(mymset2[0], mymset2[mymset2.size() - 1]);
     mymset2.fetch(mymset2.begin(), mymset2.end());
@@ -1404,7 +1404,7 @@ static bool test_fetchdocs1()
 static bool test_spaceterms1()
 {
     OmEnquire enquire(get_database("apitest_space"));
-    OmMSet mymset;
+    Xapian::MSet mymset;
     om_doccount count;
     OmMSetIterator m;
     Xapian::Stem stemmer("english");
@@ -1463,7 +1463,7 @@ static bool test_xor1()
     enquire.set_weighting_scheme(BoolWeight());
     enquire.set_query(query);
 
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 1, 2, 5, 6);
 
     return true;
@@ -1490,7 +1490,7 @@ static bool test_emptyop1()
     
     Xapian::Query query1(Xapian::Query::OP_XOR, nullvec.begin(), nullvec.end());
 
-    OmMSet mymset = do_get_simple_query_mset(query1);
+    Xapian::MSet mymset = do_get_simple_query_mset(query1);
     TEST_MSET_SIZE(mymset, 0);
     TEST_EXCEPTION(Xapian::InvalidArgumentError, enquire.get_matching_terms_begin(1));
 
@@ -1643,7 +1643,7 @@ static bool test_allterms3()
 static bool test_specialterms1()
 {
     OmEnquire enquire(get_database("apitest_space"));
-    OmMSet mymset;
+    Xapian::MSet mymset;
     om_doccount count;
     OmMSetIterator m;
     Xapian::Stem stemmer("english");
@@ -1686,7 +1686,7 @@ static bool test_absentterm1()
     Xapian::Query query("frink");
     init_simple_enquire(enquire, query);
 
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset);
 
     return true;
@@ -1702,7 +1702,7 @@ static bool test_absentterm2()
     Xapian::Query query(Xapian::Query::OP_OR, terms.begin(), terms.end());
     enquire.set_query(query);
 
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset);
 
     return true;
@@ -1716,12 +1716,12 @@ static bool test_rset1()
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "giraffe", "tiger");
     enquire.set_query(myquery);
 
-    OmMSet mymset1 = enquire.get_mset(0, 10);
+    Xapian::MSet mymset1 = enquire.get_mset(0, 10);
 
     OmRSet myrset;
     myrset.add_document(1);
 
-    OmMSet mymset2 = enquire.get_mset(0, 10, &myrset);
+    Xapian::MSet mymset2 = enquire.get_mset(0, 10, &myrset);
 
     // We should have the same documents turn up, but 1 and 3 should
     // have higher weights with the RSet.
@@ -1739,12 +1739,12 @@ static bool test_rset2()
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "cuddly", "people");
     enquire.set_query(myquery);
 
-    OmMSet mymset1 = enquire.get_mset(0, 10);
+    Xapian::MSet mymset1 = enquire.get_mset(0, 10);
 
     OmRSet myrset;
     myrset.add_document(2);
 
-    OmMSet mymset2 = enquire.get_mset(0, 10, &myrset);
+    Xapian::MSet mymset2 = enquire.get_mset(0, 10, &myrset);
 
     mset_expect_order(mymset1, 1, 2);
     mset_expect_order(mymset2, 2, 1);
@@ -1772,10 +1772,10 @@ static bool test_rsetmultidb1()
     myrset1.add_document(4);
     myrset2.add_document(2);
 
-    OmMSet mymset1a = enquire1.get_mset(0, 10);
-    OmMSet mymset1b = enquire1.get_mset(0, 10, &myrset1);
-    OmMSet mymset2a = enquire2.get_mset(0, 10);
-    OmMSet mymset2b = enquire2.get_mset(0, 10, &myrset2);
+    Xapian::MSet mymset1a = enquire1.get_mset(0, 10);
+    Xapian::MSet mymset1b = enquire1.get_mset(0, 10, &myrset1);
+    Xapian::MSet mymset2a = enquire2.get_mset(0, 10);
+    Xapian::MSet mymset2b = enquire2.get_mset(0, 10, &myrset2);
 
     mset_expect_order(mymset1a, 1, 4);
     mset_expect_order(mymset1b, 4, 1);
@@ -1810,10 +1810,10 @@ static bool test_rsetmultidb2()
     myrset1.add_document(4);
     myrset2.add_document(2);
 
-    OmMSet mymset1a = enquire1.get_mset(0, 10);
-    OmMSet mymset1b = enquire1.get_mset(0, 10, &myrset1);
-    OmMSet mymset2a = enquire2.get_mset(0, 10);
-    OmMSet mymset2b = enquire2.get_mset(0, 10, &myrset2);
+    Xapian::MSet mymset1a = enquire1.get_mset(0, 10);
+    Xapian::MSet mymset1b = enquire1.get_mset(0, 10, &myrset1);
+    Xapian::MSet mymset2a = enquire2.get_mset(0, 10);
+    Xapian::MSet mymset2b = enquire2.get_mset(0, 10, &myrset2);
 
     mset_expect_order(mymset1a, 4, 3);
     mset_expect_order(mymset1b, 4, 3);
@@ -1833,7 +1833,7 @@ static bool test_rsetmultidb3()
 {
     OmEnquire enquire(get_database("apitest_simpledata2"));
     enquire.set_query(query(Xapian::Query::OP_OR, "cuddly", "people"));
-    OmMSet mset = enquire.get_mset(0, 10); // used to fail assertion
+    Xapian::MSet mset = enquire.get_mset(0, 10); // used to fail assertion
     return true;
 }
 
@@ -1850,10 +1850,10 @@ static bool test_eliteset1()
     myquery2.set_elite_set_size(1);
 
     enquire.set_query(myquery1);
-    OmMSet mymset1 = enquire.get_mset(0, 10);
+    Xapian::MSet mymset1 = enquire.get_mset(0, 10);
 
     enquire.set_query(myquery2);
-    OmMSet mymset2 = enquire.get_mset(0, 10);
+    Xapian::MSet mymset2 = enquire.get_mset(0, 10);
 
     TEST_EQUAL(mymset1, mymset2);
     return true;
@@ -1874,10 +1874,10 @@ static bool test_eliteset2()
     myquery2.set_elite_set_size(1);
 
     enquire.set_query(myquery1);
-    OmMSet mymset1 = enquire.get_mset(0, 10);
+    Xapian::MSet mymset1 = enquire.get_mset(0, 10);
 
     enquire.set_query(myquery2);
-    OmMSet mymset2 = enquire.get_mset(0, 10);
+    Xapian::MSet mymset2 = enquire.get_mset(0, 10);
 
     TEST_EQUAL(mymset1, mymset2);
     // query lengths differ so mset weights not the same (with some weighting
@@ -1917,8 +1917,8 @@ static bool test_eliteset3()
     enquire2.set_query(myquery2);
 
     // retrieve the results
-    OmMSet mymset1 = enquire1.get_mset(0, 10);
-    OmMSet mymset2 = enquire2.get_mset(0, 10);
+    Xapian::MSet mymset1 = enquire1.get_mset(0, 10);
+    Xapian::MSet mymset2 = enquire2.get_mset(0, 10);
 
     TEST_EQUAL(mymset1.get_termfreq(term1),
 	       mymset2.get_termfreq(term1));
@@ -1953,8 +1953,8 @@ static bool test_eliteset4()
     enquire2.set_query(myquery2);
 
     // retrieve the results
-    OmMSet mymset1 = enquire1.get_mset(0, 10);
-    OmMSet mymset2 = enquire2.get_mset(0, 10);
+    Xapian::MSet mymset1 = enquire1.get_mset(0, 10);
+    Xapian::MSet mymset2 = enquire2.get_mset(0, 10);
 
     TEST_NOT_EQUAL(mymset2.size(), 0);
     TEST_EQUAL(mymset1, mymset2);
@@ -2086,8 +2086,8 @@ static bool test_qterminfo1()
     enquire2.set_query(myquery);
 
     // retrieve the results
-    OmMSet mymset1a = enquire1.get_mset(0, 0);
-    OmMSet mymset2a = enquire2.get_mset(0, 0);
+    Xapian::MSet mymset1a = enquire1.get_mset(0, 0);
+    Xapian::MSet mymset2a = enquire2.get_mset(0, 0);
 
     TEST_EQUAL(mymset1a.get_termfreq(term1),
 	       mymset2a.get_termfreq(term1));
@@ -2121,8 +2121,8 @@ static bool test_qterminfo1()
 // statistics which should be the same are.
 static bool test_msetzeroitems1()
 {
-    OmMSet mymset1 = do_get_simple_query_mset(query("this"), 0);
-    OmMSet mymset2 = do_get_simple_query_mset(query("this"), 1);
+    Xapian::MSet mymset1 = do_get_simple_query_mset(query("this"), 0);
+    Xapian::MSet mymset2 = do_get_simple_query_mset(query("this"), 1);
 
     TEST_EQUAL(mymset1.get_max_possible(), mymset2.get_max_possible());
 
@@ -2133,7 +2133,7 @@ static bool test_msetzeroitems1()
 static bool test_matches1()
 {
     Xapian::Query myquery;
-    OmMSet mymset;
+    Xapian::MSet mymset;
 
     myquery = query("word");
     mymset = do_get_simple_query_mset(myquery);
@@ -2239,7 +2239,7 @@ static bool test_adddoc1()
     OmEnquire enq(make_dbgrp(&db));
     enq.set_query(query);
 
-    OmMSet mset = enq.get_mset(0, 10);
+    Xapian::MSet mset = enq.get_mset(0, 10);
 
     mset_expect_order(mset, 3, 1, 2);
 
@@ -2767,8 +2767,8 @@ static bool test_wqf1()
     Xapian::Query q1("word", 2);
     Xapian::Query q2("word");
     q2.set_length(2);
-    OmMSet mset1 = do_get_simple_query_mset(q1);
-    OmMSet mset2 = do_get_simple_query_mset(q2);
+    Xapian::MSet mset1 = do_get_simple_query_mset(q1);
+    Xapian::MSet mset2 = do_get_simple_query_mset(q2);
     // Check the weights
     TEST(mset1.begin().get_weight() > mset2.begin().get_weight());
     return true;
@@ -2780,8 +2780,8 @@ static bool test_qlen1()
     Xapian::Query q1("word");
     Xapian::Query q2("word");
     q2.set_length(2);
-    OmMSet mset1 = do_get_simple_query_mset(q1);
-    OmMSet mset2 = do_get_simple_query_mset(q2);
+    Xapian::MSet mset1 = do_get_simple_query_mset(q1);
+    Xapian::MSet mset2 = do_get_simple_query_mset(q2);
     // Check the weights
     //TEST(mset1.begin().get_weight() < mset2.begin().get_weight());
     TEST(mset1.begin().get_weight() == mset2.begin().get_weight());
@@ -3037,7 +3037,7 @@ static bool test_sortbands1()
     for (size_t j = 0; j < sizeof(terms) / sizeof(const char *); ++j) {
 	enquire.set_query(Xapian::Query(terms[j]));
 	enquire.set_sorting(om_valueno(-1), 10);
-	OmMSet mset = enquire.get_mset(0, 20);
+	Xapian::MSet mset = enquire.get_mset(0, 20);
 	om_docid prev = 0;
 	int band = 9;
 	for (OmMSetIterator i = mset.begin(); i != mset.end(); ++i) {
@@ -3065,9 +3065,9 @@ static bool test_sortbands2()
 	    for (om_valueno value_no = 1; value_no < 7; ++value_no) {
 		tout << "Sorting on value " << value_no << endl;
 		enquire.set_sorting(value_no, bands);
-		OmMSet allbset = enquire.get_mset(0, 100);
-		OmMSet partbset1 = enquire.get_mset(0, 3);
-		OmMSet partbset2 = enquire.get_mset(3, 97);
+		Xapian::MSet allbset = enquire.get_mset(0, 100);
+		Xapian::MSet partbset1 = enquire.get_mset(0, 3);
+		Xapian::MSet partbset2 = enquire.get_mset(3, 97);
 		TEST_EQUAL(allbset.size(), partbset1.size() + partbset2.size());
 
 		bool ok = true;
@@ -3107,11 +3107,11 @@ static bool test_consistency1()
     OmEnquire enquire(db);
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, Xapian::Query("the"), Xapian::Query("sky")));
     om_doccount lots = 214;
-    OmMSet bigmset = enquire.get_mset(0, lots);
+    Xapian::MSet bigmset = enquire.get_mset(0, lots);
     try {
 	for (om_doccount start = 0; start < lots; ++start) {
 	    for (om_doccount size = 0; size < lots - start; ++size) {
-		OmMSet mset = enquire.get_mset(start, size);
+		Xapian::MSet mset = enquire.get_mset(start, size);
 		if (mset.size()) {
 		    TEST_EQUAL(start + mset.size(),
 			       min(start + size, bigmset.size()));

@@ -1,3 +1,10 @@
+Fri May 02 16:12:46 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/,common/,include/,matcher/,net/,netprogs/nettest.cc,
+	  netprogs/omtcpsrv.cc,tests/api_db.cc,tests/api_posdb.cc,
+	  testsuite/testutils.cc,testsuite/testutils.h: OmEnquire ->
+	  Xapian::Enquire, OmQuery -> Xapian::Query, etc.
+
 Fri May 02 03:14:28 BST 2003  Olly Betts <olly@survex.com>
 
 	* tests/internaltest.cc: Reenabled tests for leak checking and fixed

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,7 +26,7 @@
 #include "msetpostlist.h"
 #include "omdebug.h"
 
-MSetPostList::MSetPostList(const OmMSet mset_, const NetworkDatabase *db_)
+MSetPostList::MSetPostList(const Xapian::MSet mset_, const NetworkDatabase *db_)
     : mset(mset_), db(db_), current(-1)
 {
     DEBUGCALL(MATCH, void, "MSetPostList::MSetPostList", mset_ << ", " << db_);

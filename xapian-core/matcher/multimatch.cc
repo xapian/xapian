@@ -328,17 +328,17 @@ MultiMatch::getorrecalc_maxweight(PostList *pl)
 
 void
 MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
-		     OmMSet & mset, const OmMatchDecider *mdecider)
+		     Xapian::MSet & mset, const OmMatchDecider *mdecider)
 {
     DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
 	      << ", ...");
 
     if (!query) {
-	mset = OmMSet(); // FIXME: mset.get_firstitem() will return 0 not first
+	mset = Xapian::MSet(); // FIXME: mset.get_firstitem() will return 0 not first
 	return;
     }
 
-    map<string, OmMSet::Internal::Data::TermFreqAndWeight> termfreqandwts;
+    map<string, Xapian::MSet::Internal::TermFreqAndWeight> termfreqandwts;
 
     Assert(!leaves.empty());
 
@@ -443,14 +443,14 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // maxweight)
     if (maxitems == 0) {
 	delete pl;
-	mset = OmMSet(new OmMSet::Internal(new OmMSet::Internal::Data(
+	mset = Xapian::MSet(new Xapian::MSet::Internal(
 					   first,
 					   matches_upper_bound,
 					   matches_lower_bound,
 					   matches_estimated,
 					   max_weight, greatest_wt, items,
 					   termfreqandwts,
-					   0)));
+					   0));
 	return;
     }
 
@@ -748,7 +748,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
 	om_termcount matching_terms = 0;
 	map<string,
-	    OmMSet::Internal::Data::TermFreqAndWeight>::const_iterator i;
+	    Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator i;
 
 	Xapian::TermIterator docterms = db.termlist_begin(best->did);
         Xapian::TermIterator docterms_end = db.termlist_end(best->did);
@@ -917,14 +917,14 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	}
     }
     
-    mset = OmMSet(new OmMSet::Internal(new OmMSet::Internal::Data(
+    mset = Xapian::MSet(new Xapian::MSet::Internal(
 				       first,
 				       matches_upper_bound,
 				       matches_lower_bound,
 				       matches_estimated,
 				       max_weight, greatest_wt, items,
 				       termfreqandwts,
-				       percent_scale)));
+				       percent_scale));
 }
 
 // This method is called by branch postlists when they rebalance

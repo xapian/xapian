@@ -25,8 +25,9 @@
 #ifndef XAPIAN_INCLUDED_EXPANDDECIDER_H
 #define XAPIAN_INCLUDED_EXPANDDECIDER_H
 
-#include "om/omenquire.h"
 #include <set>
+
+#include <xapian/enquire.h>
 
 namespace Xapian {
 

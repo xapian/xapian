@@ -26,7 +26,7 @@
 
 #include "database.h"
 #include "termlist.h"
-#include "om/omenquire.h"
+#include <xapian/enquire.h>
 
 #include <queue>
 #include <stack>

@@ -28,7 +28,7 @@
 #include "omdocumentinternal.h"
 
 #include <xapian/error.h>
-#include "om/omenquire.h"
+#include <xapian/enquire.h>
 #include <xapian/output.h>
 #include <xapian/termiterator.h>
 #include <xapian/expanddecider.h>
@@ -41,7 +41,7 @@
 #include "database.h"
 #include "om/omdocument.h"
 #include <xapian/errorhandler.h>
-#include "om/omenquire.h"
+#include <xapian/enquire.h>
 #include "omenquireinternal.h"
 #include "utils.h"
 
@@ -49,6 +49,8 @@
 #include "autoptr.h"
 #include <algorithm>
 #include <math.h>
+
+using namespace std;
 
 Xapian::ExpandDeciderFilterTerms::ExpandDeciderFilterTerms(Xapian::TermIterator terms,
 						       Xapian::TermIterator termsend)
@@ -75,7 +77,7 @@ Xapian::ExpandDeciderFilterTerms::operator()(const string &tname) const
      * doesn't like comparing it to the const_iterator from end().
      * Therefore make sure we get a const_iterator to do the comparision.
      */
-    std::set<string>::const_iterator i = tset.find(tname);
+    set<string>::const_iterator i = tset.find(tname);
     return (i == tset.end());
 }
 
@@ -135,31 +137,31 @@ OmRSet::add_document(om_docid did)
 void
 OmRSet::remove_document(om_docid did)
 {
-    std::set<om_docid>::iterator i = internal->items.find(did);
+    set<om_docid>::iterator i = internal->items.find(did);
     if (i != internal->items.end()) internal->items.erase(i);
 }
 
 bool
 OmRSet::contains(om_docid did) const
 {
-    std::set<om_docid>::iterator i = internal->items.find(did);
+    set<om_docid>::iterator i = internal->items.find(did);
     return i != internal->items.end();
 }
 
-std::string
+string
 OmRSet::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "OmRSet::get_description", "");
+    DEBUGCALL(INTRO, string, "OmRSet::get_description", "");
     RETURN("OmRSet(" + internal->get_description() + ")");
 }
 
-std::string
+string
 OmRSet::Internal::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "OmRSet::get_description", "");
-    std::string description;
+    DEBUGCALL(INTRO, string, "OmRSet::get_description", "");
+    string description;
 
-    for (std::set<om_docid>::const_iterator i = items.begin();
+    for (set<om_docid>::const_iterator i = items.begin();
 	 i != items.end();
 	 i++) {
 	if (!description.empty()) description += ", ";
@@ -175,11 +177,11 @@ OmRSet::Internal::get_description() const
 // Methods for OmMSetItem //
 ////////////////////////////
 
-std::string
+string
 OmMSetItem::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "OmMSetItem::get_description", "");
-    std::string description;
+    DEBUGCALL(INTRO, string, "OmMSetItem::get_description", "");
+    string description;
 
     description = om_tostring(did) + ", " + om_tostring(wt) + ", " +
 	    collapse_key;
@@ -189,60 +191,58 @@ OmMSetItem::get_description() const
     RETURN(description);
 }
 
-////////////////////////
-// Methods for OmMSet //
-////////////////////////
+// Methods for Xapian::MSet
 
-OmMSet::OmMSet() : internal(new OmMSet::Internal())
+namespace Xapian {
+
+MSet::MSet() : internal(new MSet::Internal())
 {
 }
 
-OmMSet::OmMSet(OmMSet::Internal * internal_) : internal(internal_)
+MSet::MSet(MSet::Internal * internal_) : internal(internal_)
 {
 }
 
-OmMSet::~OmMSet()
-{
-    delete internal;
-}
-
-OmMSet::OmMSet(const OmMSet & other)
-	: internal(new OmMSet::Internal(*other.internal))
+MSet::~MSet()
 {
 }
 
-void
-OmMSet::operator=(const OmMSet &other)
+MSet::MSet(const Xapian::MSet & other) : internal(other.internal)
 {
-    *internal = *other.internal;
 }
 
 void
-OmMSet::fetch(const OmMSetIterator & beginiter,
-	      const OmMSetIterator & enditer) const
+MSet::operator=(const Xapian::MSet &other)
 {
-    DEBUGAPICALL(void, "OmMSet::fetch", beginiter << ", " << enditer);
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
+    internal = other.internal;
+}
+
+void
+MSet::fetch(const OmMSetIterator & beginiter,
+	    const OmMSetIterator & enditer) const
+{
+    DEBUGAPICALL(void, "Xapian::MSet::fetch", beginiter << ", " << enditer);
+    Assert(internal.get() != 0);
 
     // we have to convert the MSetIterators into vector iterators
     // FIXME: this is messy
     if (beginiter.internal == 0) return;
 
-    std::vector<OmMSetItem>::const_iterator end_vecit;
-    if (enditer.internal == 0) end_vecit = internal->data->items.end();
-    else end_vecit = enditer.internal->it;
+    vector<OmMSetItem>::const_iterator end_vecit;
+    if (enditer.internal == 0)
+	end_vecit = internal->items.end();
+    else
+	end_vecit = enditer.internal->it;
 
-    internal->data->fetch_items(beginiter.get_rank(),
-				beginiter.internal->it, end_vecit);
+    internal->fetch_items(beginiter.get_rank(),
+			  beginiter.internal->it, end_vecit);
 }
 
 void
-OmMSet::fetch(const OmMSetIterator & beginiter) const
+MSet::fetch(const OmMSetIterator & beginiter) const
 {
-    DEBUGAPICALL(void, "OmMSet::fetch", beginiter);
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
+    DEBUGAPICALL(void, "Xapian::MSet::fetch", beginiter);
+    Assert(internal.get() != 0);
 
     // we have to convert the MSetIterators into vector iterators
     // FIXME: this is messy
@@ -251,52 +251,49 @@ OmMSet::fetch(const OmMSetIterator & beginiter) const
     OmMSetIterator enditer = beginiter;
     enditer++;
 
-    std::vector<OmMSetItem>::const_iterator end_vecit;
-    if (enditer.internal == 0) end_vecit = internal->data->items.end();
-    else end_vecit = enditer.internal->it;
+    vector<OmMSetItem>::const_iterator end_vecit;
+    if (enditer.internal == 0)
+	end_vecit = internal->items.end();
+    else
+	end_vecit = enditer.internal->it;
 
-    internal->data->fetch_items(beginiter.get_rank(),
-				beginiter.internal->it, end_vecit);
+    internal->fetch_items(beginiter.get_rank(),
+			  beginiter.internal->it, end_vecit);
 }
 
 void
-OmMSet::fetch() const
+MSet::fetch() const
 {
-    DEBUGAPICALL(void, "OmMSet::fetch", "");
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
-    internal->data->fetch_items(internal->data->firstitem,
-				internal->data->items.begin(),
-				internal->data->items.end());
+    DEBUGAPICALL(void, "Xapian::MSet::fetch", "");
+    Assert(internal.get() != 0);
+    internal->fetch_items(internal->firstitem, internal->items.begin(),
+			  internal->items.end());
 }
 
-Xapian::percent
-OmMSet::convert_to_percent(om_weight wt) const
+percent
+MSet::convert_to_percent(om_weight wt) const
 {
-    DEBUGAPICALL(Xapian::percent, "OmMSet::convert_to_percent", wt);
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
-    RETURN(internal->data->convert_to_percent_internal(wt));
+    DEBUGAPICALL(Xapian::percent, "Xapian::MSet::convert_to_percent", wt);
+    Assert(internal.get() != 0);
+    RETURN(internal->convert_to_percent_internal(wt));
 }
 
-Xapian::percent
-OmMSet::convert_to_percent(const OmMSetIterator & it) const
+percent
+MSet::convert_to_percent(const OmMSetIterator & it) const
 {
-    DEBUGAPICALL(Xapian::percent, "OmMSet::convert_to_percent", it);
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
-    RETURN(internal->data->convert_to_percent_internal(it.get_weight()));
+    DEBUGAPICALL(Xapian::percent, "Xapian::MSet::convert_to_percent", it);
+    Assert(internal.get() != 0);
+    RETURN(internal->convert_to_percent_internal(it.get_weight()));
 }
 
 om_doccount
-OmMSet::get_termfreq(const string &tname) const
+MSet::get_termfreq(const string &tname) const
 {
-    DEBUGAPICALL(om_doccount, "OmMSet::get_termfreq", tname);
-    std::map<string, Internal::Data::TermFreqAndWeight>::const_iterator i;
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
-    i = internal->data->termfreqandwts.find(tname);
-    if (i == internal->data->termfreqandwts.end()) {
+    DEBUGAPICALL(om_doccount, "Xapian::MSet::get_termfreq", tname);
+    map<string, Internal::TermFreqAndWeight>::const_iterator i;
+    Assert(internal.get() != 0);
+    i = internal->termfreqandwts.find(tname);
+    if (i == internal->termfreqandwts.end()) {
 	throw Xapian::InvalidArgumentError("Term frequency of `" + tname +
 				     "' not available.");
     }
@@ -304,14 +301,13 @@ OmMSet::get_termfreq(const string &tname) const
 }
 
 om_weight
-OmMSet::get_termweight(const string &tname) const
+MSet::get_termweight(const string &tname) const
 {
-    DEBUGAPICALL(om_weight, "OmMSet::get_termweight", tname);
-    std::map<string, Internal::Data::TermFreqAndWeight>::const_iterator i;
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
-    i = internal->data->termfreqandwts.find(tname);
-    if (i == internal->data->termfreqandwts.end()) {
+    DEBUGAPICALL(om_weight, "Xapian::MSet::get_termweight", tname);
+    map<string, Internal::TermFreqAndWeight>::const_iterator i;
+    Assert(internal.get() != 0);
+    i = internal->termfreqandwts.find(tname);
+    if (i == internal->termfreqandwts.end()) {
 	throw Xapian::InvalidArgumentError("Term weight of `" + tname +
 				     "' not available.");
     }
@@ -319,145 +315,128 @@ OmMSet::get_termweight(const string &tname) const
 }
 
 om_doccount
-OmMSet::get_firstitem() const
+MSet::get_firstitem() const
 {
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
-    return internal->data->firstitem;
+    Assert(internal.get() != 0);
+    return internal->firstitem;
 }
 
 om_doccount
-OmMSet::get_matches_lower_bound() const
+MSet::get_matches_lower_bound() const
 {
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
-    return internal->data->matches_lower_bound;
+    Assert(internal.get() != 0);
+    return internal->matches_lower_bound;
 }
 
 om_doccount
-OmMSet::get_matches_estimated() const
+MSet::get_matches_estimated() const
 {
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
-    return internal->data->matches_estimated;
+    Assert(internal.get() != 0);
+    return internal->matches_estimated;
 }
 
 om_doccount
-OmMSet::get_matches_upper_bound() const
+MSet::get_matches_upper_bound() const
 {
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
-    return internal->data->matches_upper_bound;
+    Assert(internal.get() != 0);
+    return internal->matches_upper_bound;
 }
 
 om_weight
-OmMSet::get_max_possible() const
+MSet::get_max_possible() const
 {
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
-    return internal->data->max_possible;
+    Assert(internal.get() != 0);
+    return internal->max_possible;
 }
 
 om_weight
-OmMSet::get_max_attained() const
+MSet::get_max_attained() const
 {
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
-    return internal->data->max_attained;
+    Assert(internal.get() != 0);
+    return internal->max_attained;
 }
 
 om_doccount
-OmMSet::size() const
+MSet::size() const
 {
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
-    return internal->data->items.size();
+    Assert(internal.get() != 0);
+    return internal->items.size();
 }
 
 om_doccount
-OmMSet::max_size() const
+MSet::max_size() const
 {
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
+    Assert(internal.get() != 0);
     return om_doccount(-1); // FIXME: is there a better way to do this?
 }
 
 bool
-OmMSet::empty() const
+MSet::empty() const
 {
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
-    return internal->data->items.empty();
+    Assert(internal.get() != 0);
+    return internal->items.empty();
 }
 
 void
-OmMSet::swap(OmMSet & other)
+MSet::swap(MSet & other)
 {
     std::swap(internal, other.internal);
 }
 
 OmMSetIterator
-OmMSet::begin() const
+MSet::begin() const
 {
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
-    if (internal->data->items.begin() == internal->data->items.end()) {
-	return OmMSetIterator(NULL);
-    } else {
-	return OmMSetIterator(new OmMSetIterator::Internal(
-	    internal->data->items.begin(),
-	    internal->data->items.end(),
-	    internal->data->firstitem,
-	    internal->data));
-    }
+    Assert(internal.get() != 0);
+    if (internal->items.empty()) return OmMSetIterator(NULL);
+
+    return OmMSetIterator(new OmMSetIterator::Internal(
+	    internal->items.begin(), internal->items.end(),
+	    internal->firstitem, internal));
 }
 
 OmMSetIterator
-OmMSet::end() const
+MSet::end() const
 {
     return OmMSetIterator(NULL);
 }
 
 OmMSetIterator
-OmMSet::operator[](om_doccount i) const
+MSet::operator[](om_doccount i) const
 {
     // Don't test 0 <= i - that gives a compiler warning if i is unsigned
     Assert(0 < (i + 1) && i < size());
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
+    Assert(internal.get() != 0);
     return OmMSetIterator(new OmMSetIterator::Internal(
-	internal->data->items.begin() + i,
-	internal->data->items.end(),
-	internal->data->firstitem + i,
-	internal->data));
+	internal->items.begin() + i,
+	internal->items.end(),
+	internal->firstitem + i,
+	internal));
 }
 
 OmMSetIterator
-OmMSet::back() const
+MSet::back() const
 {
     Assert(!empty());
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
+    Assert(internal.get() != 0);
     return OmMSetIterator(new OmMSetIterator::Internal(
-	internal->data->items.begin() + internal->data->items.size() - 1,
-	internal->data->items.end(),
-	internal->data->firstitem + internal->data->items.size() - 1,
-	internal->data));
+	internal->items.begin() + internal->items.size() - 1,
+	internal->items.end(),
+	internal->firstitem + internal->items.size() - 1,
+	internal));
 }
 
-std::string
-OmMSet::get_description() const
+string
+MSet::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "OmMSet::get_description", "");
-    Assert(internal != 0);
-    Assert(internal->data.get() != 0);
-    RETURN("OmMSet(" + internal->data->get_description() + ")");
+    DEBUGCALL(INTRO, string, "Xapian::MSet::get_description", "");
+    Assert(internal.get() != 0);
+    RETURN("Xapian::MSet(" + internal->get_description() + ")");
 }
 
-Xapian::percent
-OmMSet::Internal::Data::convert_to_percent_internal(om_weight wt) const
+percent
+MSet::Internal::convert_to_percent_internal(om_weight wt) const
 {
-    DEBUGAPICALL(Xapian::percent, "OmMSet::Internal::convert_to_percent", wt);
+    DEBUGAPICALL(Xapian::percent, "Xapian::MSet::Internal::convert_to_percent", wt);
     if (percent_factor == 0) RETURN(100);
 
     // FIXME: + 0.5 ???
@@ -472,69 +451,66 @@ OmMSet::Internal::Data::convert_to_percent_internal(om_weight wt) const
 }
 
 OmDocument
-OmMSet::Internal::Data::get_doc_by_rank(om_doccount rank) const
+MSet::Internal::get_doc_by_rank(om_doccount rank) const
 {
-    DEBUGCALL(API, OmDocument, "OmMSet::Internal::Data::get_doc_by_rank", rank);
-    std::map<om_doccount, OmDocument>::const_iterator doc;
+    DEBUGCALL(API, OmDocument, "Xapian::MSet::Internal::Data::get_doc_by_rank", rank);
+    map<om_doccount, OmDocument>::const_iterator doc;
     doc = rankeddocs.find(rank);
-    if (doc == rankeddocs.end()) {
-	if (rank < firstitem || rank >= firstitem + items.size()) {
-	    throw Xapian::RangeError("The mset returned from the match does not contain the document at rank " + om_tostring(rank));
-	}
-	fetch_items(rank,
-		    items.begin() + (rank - firstitem),
-		    items.begin() + (rank - firstitem) + 1);
-	/* Actually read the fetched documents */
-	read_docs();
-	Assert(rankeddocs.find(rank) != rankeddocs.end());
-	Assert(rankeddocs.find(rank)->first == rank); // Paranoid assert
-	RETURN(rankeddocs.find(rank)->second);
-    } else {
+    if (doc != rankeddocs.end()) {
 	RETURN(doc->second);
     }
+    if (rank < firstitem || rank >= firstitem + items.size()) {
+	throw Xapian::RangeError("The mset returned from the match does not contain the document at rank " + om_tostring(rank));
+    }
+    fetch_items(rank,
+		items.begin() + (rank - firstitem),
+		items.begin() + (rank - firstitem) + 1);
+    /* Actually read the fetched documents */
+    read_docs();
+    Assert(rankeddocs.find(rank) != rankeddocs.end());
+    Assert(rankeddocs.find(rank)->first == rank); // Paranoid assert
+    RETURN(rankeddocs.find(rank)->second);
 }
 
 void
-OmMSet::Internal::Data::fetch_items(
+MSet::Internal::fetch_items(
 	om_doccount rank,
-	std::vector<OmMSetItem>::const_iterator begin,
-	std::vector<OmMSetItem>::const_iterator end) const
+	vector<OmMSetItem>::const_iterator begin,
+	vector<OmMSetItem>::const_iterator end) const
 {
 #ifdef MUS_DEBUG_VERBOSE
     unsigned int count = 0;
-    for (std::vector<OmMSetItem>::const_iterator i = begin; i != end; i++)
+    for (vector<OmMSetItem>::const_iterator i = begin; i != end; i++)
 	count++;
-    DEBUGAPICALL(void, "OmMSet::Internal::Data::fetch_items",
+    DEBUGAPICALL(void, "Xapian::MSet::Internal::Data::fetch_items",
 		 rank << ", " <<
 		 "[" << count << " items]");
 #endif
     if (enquire.get() == 0) {
 	throw Xapian::InvalidOperationError("Can't fetch documents from an Mset which is not derived from a query.");
-    } else {
-	om_doccount currrank = rank;
-	for (std::vector<OmMSetItem>::const_iterator i = begin;
-	     i!= end;
-	     ++i, ++currrank) {
-	    std::map<om_doccount, OmDocument>::const_iterator doc;
-	    doc = rankeddocs.find(currrank);
-	    if (doc == rankeddocs.end()) {
-		/* We don't have the document cached */
-		std::set<om_doccount>::const_iterator s;
-		s = requested_docs.find(currrank);
-		if (s == requested_docs.end()) {
-		    /* We haven't even requested it yet - do so now. */
-		    enquire->request_doc(*i);
-		    requested_docs.insert(currrank);
-		}
+    }
+    om_doccount currrank = rank;
+    vector<OmMSetItem>::const_iterator i;
+    for (i = begin; i != end; ++i, ++currrank) {
+	map<om_doccount, OmDocument>::const_iterator doc;
+	doc = rankeddocs.find(currrank);
+	if (doc == rankeddocs.end()) {
+	    /* We don't have the document cached */
+	    set<om_doccount>::const_iterator s;
+	    s = requested_docs.find(currrank);
+	    if (s == requested_docs.end()) {
+		/* We haven't even requested it yet - do so now. */
+		enquire->request_doc(*i);
+		requested_docs.insert(currrank);
 	    }
 	}
     }
 }
 
-std::string
-OmMSet::Internal::Data::get_description() const
+string
+MSet::Internal::get_description() const
 {
-    std::string description = "OmMSet::Internal::Data(";
+    string description = "Xapian::MSet::Internal(";
 
     description = "firstitem=" + om_tostring(firstitem) + ", " +
 	    "matches_lower_bound=" + om_tostring(matches_lower_bound) + ", " +
@@ -543,25 +519,22 @@ OmMSet::Internal::Data::get_description() const
 	    "max_possible=" + om_tostring(max_possible) + ", " +
 	    "max_attained=" + om_tostring(max_attained);
 
-    for (std::vector<OmMSetItem>::const_iterator i = items.begin();
-	 i != items.end();
-	 i++) {
+    for (vector<OmMSetItem>::const_iterator i = items.begin();
+	 i != items.end(); ++i) {
 	if (!description.empty()) description += ", ";
 	description += i->get_description();
     }
 
-    description = description + ")";
+    description += ")";
 
     return description;
 }
 
 void
-OmMSet::Internal::Data::read_docs() const
+MSet::Internal::read_docs() const
 {
-    std::set<om_doccount>::const_iterator i;
-    for (i = requested_docs.begin();
-	 i != requested_docs.end();
-	 ++i) {
+    set<om_doccount>::const_iterator i;
+    for (i = requested_docs.begin(); i != requested_docs.end(); ++i) {
 	rankeddocs[*i] = enquire->read_doc(items[*i - firstitem]);
 	DEBUGLINE(API, "stored doc at rank " << *i << " is " << rankeddocs[*i]);
     }
@@ -569,14 +542,16 @@ OmMSet::Internal::Data::read_docs() const
     requested_docs.clear();
 }
 
+}
+
 ////////////////////////////
 // Methods for OmESetItem //
 ////////////////////////////
 
-std::string
+string
 OmESetItem::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "OmESetItem::get_description", "");
+    DEBUGCALL(INTRO, string, "OmESetItem::get_description", "");
     RETURN("OmESetItem(" + tname + ", " + om_tostring(wt) + ")");
 }
 
@@ -637,10 +612,10 @@ OmESet::end() const
     return OmESetIterator(NULL);
 }
 
-std::string
+string
 OmESet::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "OmESet::get_description", "");
+    DEBUGCALL(INTRO, string, "OmESet::get_description", "");
     RETURN("OmESet(" + internal->get_description() + ")");
 }
 
@@ -648,13 +623,13 @@ OmESet::get_description() const
 // Methods for OmESet::Internal //
 //////////////////////////////////
 
-std::string
+string
 OmESet::Internal::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "OmESet::Internal::get_description", "");
-    std::string description = "ebound=" + om_tostring(ebound);
+    DEBUGCALL(INTRO, string, "OmESet::Internal::get_description", "");
+    string description = "ebound=" + om_tostring(ebound);
 
-    for (std::vector<OmESetItem>::const_iterator i = items.begin();
+    for (vector<OmESetItem>::const_iterator i = items.begin();
 	 i != items.end();
 	 i++) {
 	description += ", " + i->get_description();
@@ -696,7 +671,7 @@ OmESetIterator::operator=(const OmESetIterator &other)
     } else {
 	OmESetIterator::Internal temp(other.internal->it,
 				      other.internal->end);
-	std::swap(*internal, temp);
+	swap(*internal, temp);
     }
 }
 
@@ -733,7 +708,7 @@ OmESetIterator::get_weight() const
     return internal->it->wt;
 }
 
-std::string
+string
 OmESetIterator::get_description() const
 {
     return "OmESetIterator()"; // FIXME
@@ -784,7 +759,7 @@ OmMSetIterator::operator=(const OmMSetIterator &other)
 				      other.internal->end,
 				      other.internal->currrank,
 				      other.internal->msetdata);
-	std::swap(*internal, temp);
+	swap(*internal, temp);
     }
 }
 
@@ -848,7 +823,7 @@ OmMSetIterator::get_percent() const
     RETURN(internal->msetdata->convert_to_percent_internal(internal->it->wt));
 }
 
-std::string
+string
 OmMSetIterator::get_description() const
 {
     return "OmMSetIterator()"; // FIXME
@@ -862,12 +837,10 @@ operator==(const OmMSetIterator &a, const OmMSetIterator &b)
     return (*(a.internal) == *(b.internal));
 }
 
-///////////////////////////////////////////
-// Methods for OmEnquire::Internal::Data //
-///////////////////////////////////////////
+// Methods for Xapian::Enquire::Internal
 
-OmEnquire::Internal::Data::Data(const OmDatabase &db_,
-				Xapian::ErrorHandler * errorhandler_)
+Xapian::Enquire::Internal::Internal(const OmDatabase &db_,
+			    Xapian::ErrorHandler * errorhandler_)
   : db(db_), query(0), collapse_key(om_valueno(-1)), sort_forward(true), 
     percent_cutoff(0), weight_cutoff(0), sort_key(om_valueno(-1)),
     sort_bands(0), bias_halflife(0), bias_weight(0),
@@ -875,7 +848,7 @@ OmEnquire::Internal::Data::Data(const OmDatabase &db_,
 {
 }
 
-OmEnquire::Internal::Data::~Data()
+Xapian::Enquire::Internal::~Internal()
 {
     delete query;
     query = 0;
@@ -884,14 +857,13 @@ OmEnquire::Internal::Data::~Data()
 }
 
 void
-OmEnquire::Internal::Data::set_query(const Xapian::Query &query_)
+Xapian::Enquire::Internal::set_query(const Xapian::Query &query_)
 {
-    delete query;
     query = new Xapian::Query(query_);
 }
 
 const Xapian::Query &
-OmEnquire::Internal::Data::get_query()
+Xapian::Enquire::Internal::get_query()
 {
     if (query == 0) {
         throw Xapian::InvalidArgumentError("Can't get query before setting it");
@@ -899,14 +871,14 @@ OmEnquire::Internal::Data::get_query()
     return *query;
 }
 
-OmMSet
-OmEnquire::Internal::Data::get_mset(om_doccount first, om_doccount maxitems,
+Xapian::MSet
+Xapian::Enquire::Internal::get_mset(om_doccount first, om_doccount maxitems,
                     const OmRSet *omrset, const OmMatchDecider *mdecider) const
 {
-    DEBUGCALL(API, OmMSet, "OmEnquire::Internal::Data::get_mset", first << ", "
+    DEBUGCALL(API, Xapian::MSet, "Enquire::Internal::get_mset", first << ", "
 	      << maxitems << ", " << omrset << ", " << mdecider);
     if (query == 0) {
-        throw Xapian::InvalidArgumentError("You must set a query before calling OmEnquire::get_mset()");
+        throw Xapian::InvalidArgumentError("You must set a query before calling Xapian::Enquire::get_mset()");
     }
 
     // Set Rset
@@ -926,24 +898,24 @@ OmEnquire::Internal::Data::get_mset(om_doccount first, om_doccount maxitems,
 		     bias_halflife, bias_weight, errorhandler,
 		     AutoPtr<StatsGatherer>(new LocalStatsGatherer()), weight);
 
-    // Run query and get results into supplied OmMSet object
-    OmMSet retval;
+    // Run query and get results into supplied Xapian::MSet object
+    Xapian::MSet retval;
     match.get_mset(first, maxitems, retval, mdecider);
 
     Assert(weight->name() != "bool" || retval.get_max_possible() == 0);
 
-    // The OmMSet needs to have a pointer to ourselves, so that it can
+    // The Xapian::MSet needs to have a pointer to ourselves, so that it can
     // retrieve the documents.  This is set here explicitly to avoid having
     // to pass it into the matcher, which gets messy particularly in the
     // networked case.
-    retval.internal->data->enquire =
-	    RefCntPtr<const OmEnquire::Internal::Data>(this);
+    //Xapian::Internal::RefCntPtr<Xapian::Enquire::Internal> tmp(this);
+    retval.internal->enquire = this;
 
     return retval;
 }
 
 OmESet
-OmEnquire::Internal::Data::get_eset(om_termcount maxitems,
+Xapian::Enquire::Internal::get_eset(om_termcount maxitems,
                     const OmRSet & omrset, int flags, double k,
 		    const Xapian::ExpandDecider * edecider) const
 {
@@ -962,7 +934,7 @@ OmEnquire::Internal::Data::get_eset(om_termcount maxitems,
     AutoPtr<Xapian::ExpandDecider> decider_andnoquery;
     Xapian::ExpandDeciderAlways decider_always;
 
-    if (query != 0 && !(flags & OmEnquire::include_query_terms)) {
+    if (query != 0 && !(flags & Xapian::Enquire::include_query_terms)) {
 	AutoPtr<Xapian::ExpandDecider> temp1(
 	    new Xapian::ExpandDeciderFilterTerms(query->get_terms_begin(),
 					   query->get_terms_end()));
@@ -981,39 +953,37 @@ OmEnquire::Internal::Data::get_eset(om_termcount maxitems,
     }
 
     expand.expand(maxitems, retval, &rset, edecider,
-		  bool(flags & OmEnquire::use_exact_termfreq), k);
+		  bool(flags & Xapian::Enquire::use_exact_termfreq), k);
 
     return retval;
 }
 
 Xapian::TermIterator
-OmEnquire::Internal::Data::get_matching_terms(om_docid did) const
+Xapian::Enquire::Internal::get_matching_terms(om_docid did) const
 {
     return calc_matching_terms(did);
 }
 
 Xapian::TermIterator
-OmEnquire::Internal::Data::get_matching_terms(const OmMSetIterator &it) const
+Xapian::Enquire::Internal::get_matching_terms(const OmMSetIterator &it) const
 {
     // FIXME: take advantage of OmMSetIterator to ensure that database
     // doesn't get modified underneath us.
     return calc_matching_terms(*it);
 }
 
-std::string
-OmEnquire::Internal::Data::get_description() const
+string
+Xapian::Enquire::Internal::get_description() const
 {
-    std::string description = db.get_description();
+    string description = db.get_description();
     if (query) description += ", " + query->get_description();
     return description;
 }
 
-///////////////////////////////////////////////////
-// Private methods for OmEnquire::Internal::Data //
-///////////////////////////////////////////////////
+// Private methods for Xapian::Enquire::Internal
 
 void
-OmEnquire::Internal::Data::request_doc(const OmMSetItem &item) const
+Xapian::Enquire::Internal::request_doc(const OmMSetItem &item) const
 {
     try {
 	unsigned int multiplier = db.internal->databases.size();
@@ -1029,7 +999,7 @@ OmEnquire::Internal::Data::request_doc(const OmMSetItem &item) const
 }
 
 OmDocument
-OmEnquire::Internal::Data::read_doc(const OmMSetItem &item) const
+Xapian::Enquire::Internal::read_doc(const OmMSetItem &item) const
 {
     try {
 	unsigned int multiplier = db.internal->databases.size();
@@ -1037,7 +1007,7 @@ OmEnquire::Internal::Data::read_doc(const OmMSetItem &item) const
 	om_docid realdid = (item.did - 1) / multiplier + 1;
 	om_doccount dbnumber = (item.did - 1) % multiplier;
 
-	Document *doc = db.internal->databases[dbnumber]->collect_document(realdid);
+	::Document *doc = db.internal->databases[dbnumber]->collect_document(realdid);
 	return OmDocument(new OmDocument::Internal(doc, db, item.did));
     } catch (Xapian::Error & e) {
 	if (errorhandler) (*errorhandler)(e);
@@ -1048,7 +1018,7 @@ OmEnquire::Internal::Data::read_doc(const OmMSetItem &item) const
 
 class ByQueryIndexCmp {
  private:
-    typedef std::map<string, unsigned int> tmap_t;
+    typedef map<string, unsigned int> tmap_t;
     const tmap_t &tmap;
  public:
     ByQueryIndexCmp(const tmap_t &tmap_) : tmap(tmap_) {}
@@ -1064,7 +1034,7 @@ class ByQueryIndexCmp {
 };
 
 Xapian::TermIterator
-OmEnquire::Internal::Data::calc_matching_terms(om_docid did) const
+Xapian::Enquire::Internal::calc_matching_terms(om_docid did) const
 {
     if (query == 0) {
         throw Xapian::InvalidArgumentError("Can't get matching terms before setting query");
@@ -1077,20 +1047,20 @@ OmEnquire::Internal::Data::calc_matching_terms(om_docid did) const
     // copy the list of query terms into a map for faster access.
     // FIXME: a hash would be faster than a map, if this becomes
     // a problem.
-    std::map<string, unsigned int> tmap;
+    map<string, unsigned int> tmap;
     unsigned int index = 1;
     for ( ; qt != qt_end; qt++) {
 	if (tmap.find(*qt) == tmap.end())
 	    tmap[*qt] = index++;
     }
 
-    std::vector<string> matching_terms;
+    vector<string> matching_terms;
 
     Xapian::TermIterator docterms = db.termlist_begin(did);
     Xapian::TermIterator docterms_end = db.termlist_end(did);
     while (docterms != docterms_end) {
 	string term = *docterms;
-        std::map<string, unsigned int>::iterator t = tmap.find(term);
+        map<string, unsigned int>::iterator t = tmap.find(term);
         if (t != tmap.end()) matching_terms.push_back(term);
 	docterms++;
     }
@@ -1103,7 +1073,7 @@ OmEnquire::Internal::Data::calc_matching_terms(om_docid did) const
 }
 
 void
-OmEnquire::Internal::Data::register_match_decider(const std::string &name,
+Xapian::Enquire::Internal::register_match_decider(const string &name,
 	const OmMatchDecider *mdecider)
 {
     if (mdecider) {
@@ -1113,183 +1083,178 @@ OmEnquire::Internal::Data::register_match_decider(const std::string &name,
     }
 }
 
-//////////////////////////
-// Methods of OmEnquire //
-//////////////////////////
+// Methods of Xapian::Enquire
 
-OmEnquire::OmEnquire(const OmDatabase &databases,
-		     Xapian::ErrorHandler * errorhandler)
+Xapian::Enquire::Enquire(const OmDatabase &databases,
+			 Xapian::ErrorHandler * errorhandler)
+    : internal(new Xapian::Enquire::Internal(databases, errorhandler))
 {
-    DEBUGAPICALL(void, "OmEnquire::OmEnquire", databases);
-    internal = new OmEnquire::Internal(
-	new OmEnquire::Internal::Data(databases, errorhandler));
+    DEBUGAPICALL(void, "Xapian::Enquire::Enquire", databases);
 }
 
-OmEnquire::~OmEnquire()
+Xapian::Enquire::~Enquire()
 {
-    DEBUGAPICALL(void, "OmEnquire::~OmEnquire", "");
-    delete internal;
-    internal = NULL;
+    DEBUGAPICALL(void, "Xapian::Enquire::~Enquire", "");
 }
 
 void
-OmEnquire::set_query(const Xapian::Query & query_)
+Xapian::Enquire::set_query(const Xapian::Query & query_)
 {
-    DEBUGAPICALL(void, "OmEnquire::set_query", query_);
+    DEBUGAPICALL(void, "Xapian::Enquire::set_query", query_);
     try {
-	internal->data->set_query(query_);
+	internal->set_query(query_);
     } catch (Xapian::Error & e) {
-	if (internal->data->errorhandler) (*internal->data->errorhandler)(e);
+	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;
     }
 }
 
 const Xapian::Query &
-OmEnquire::get_query()
+Xapian::Enquire::get_query()
 {
-    DEBUGAPICALL(const Xapian::Query &, "OmEnquire::get_query", "");
+    DEBUGAPICALL(const Xapian::Query &, "Xapian::Enquire::get_query", "");
     try {
-	RETURN(internal->data->get_query());
+	RETURN(internal->get_query());
     } catch (Xapian::Error & e) {
-	if (internal->data->errorhandler) (*internal->data->errorhandler)(e);
+	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;
     }
 }
 
 void
-OmEnquire::set_weighting_scheme(const OmWeight &weight_)
+Xapian::Enquire::set_weighting_scheme(const OmWeight &weight_)
 {
-    DEBUGAPICALL(void, "OmEnquire::set_weighting_scheme", "[OmWeight]");
-    delete internal->data->weight;
-    internal->data->weight = weight_.clone();
+    DEBUGAPICALL(void, "Xapian::Enquire::set_weighting_scheme", "[OmWeight]");
+    delete internal->weight;
+    internal->weight = weight_.clone();
 }
 
 void
-OmEnquire::set_collapse_key(om_valueno collapse_key)
+Xapian::Enquire::set_collapse_key(om_valueno collapse_key)
 {
-    internal->data->collapse_key = collapse_key;
+    internal->collapse_key = collapse_key;
 }
 
 void
-OmEnquire::set_sort_forward(bool sort_forward)
+Xapian::Enquire::set_sort_forward(bool sort_forward)
 {
-    internal->data->sort_forward = sort_forward;
+    internal->sort_forward = sort_forward;
 }
 
 void
-OmEnquire::set_cutoff(Xapian::percent percent_cutoff, om_weight weight_cutoff)
+Xapian::Enquire::set_cutoff(Xapian::percent percent_cutoff, om_weight weight_cutoff)
 {
-    internal->data->percent_cutoff = percent_cutoff;
-    internal->data->weight_cutoff = weight_cutoff;
+    internal->percent_cutoff = percent_cutoff;
+    internal->weight_cutoff = weight_cutoff;
 }
 
 void
-OmEnquire::set_sorting(om_valueno sort_key, int sort_bands)
+Xapian::Enquire::set_sorting(om_valueno sort_key, int sort_bands)
 {
-    internal->data->sort_key = sort_key;
-    internal->data->sort_bands = sort_bands;
+    internal->sort_key = sort_key;
+    internal->sort_bands = sort_bands;
 }
 
 void
-OmEnquire::set_bias(om_weight bias_weight, time_t bias_halflife)
+Xapian::Enquire::set_bias(om_weight bias_weight, time_t bias_halflife)
 {
-    internal->data->bias_weight = bias_weight;
-    internal->data->bias_halflife = bias_halflife;
+    internal->bias_weight = bias_weight;
+    internal->bias_halflife = bias_halflife;
 }
 
-OmMSet
-OmEnquire::get_mset(om_doccount first,
+Xapian::MSet
+Xapian::Enquire::get_mset(om_doccount first,
                     om_doccount maxitems,
                     const OmRSet *omrset,
 		    const OmMatchDecider *mdecider) const
 {
     // FIXME: display contents of pointer params, if they're not null.
-    DEBUGAPICALL(OmMSet, "OmEnquire::get_mset", first << ", " << maxitems <<
-		 ", " << omrset << ", " << mdecider);
+    DEBUGAPICALL(Xapian::MSet, "Xapian::Enquire::get_mset", first << ", " <<
+		 maxitems << ", " << omrset << ", " << mdecider);
 
     try {
-	RETURN(internal->data->get_mset(first, maxitems, omrset, mdecider));
+	RETURN(internal->get_mset(first, maxitems, omrset, mdecider));
     } catch (Xapian::Error & e) {
-	if (internal->data->errorhandler) (*internal->data->errorhandler)(e);
+	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;
     }
 }
 
 OmESet
-OmEnquire::get_eset(om_termcount maxitems, const OmRSet & omrset, int flags,
+Xapian::Enquire::get_eset(om_termcount maxitems, const OmRSet & omrset, int flags,
 		    double k, const Xapian::ExpandDecider * edecider) const
 {
     // FIXME: display contents of pointer params and omrset, if they're not
     // null.
-    DEBUGAPICALL(OmESet, "OmEnquire::get_eset", maxitems << ", " <<
+    DEBUGAPICALL(OmESet, "Xapian::Enquire::get_eset", maxitems << ", " <<
 		 omrset << ", " << flags << ", " << k << ", " << edecider);
 
     try {
 	// FIXME: this copies the eset too much: pass it in by reference?
-	RETURN(internal->data->get_eset(maxitems, omrset, flags, k, edecider));
+	RETURN(internal->get_eset(maxitems, omrset, flags, k, edecider));
     } catch (Xapian::Error & e) {
-	if (internal->data->errorhandler) (*internal->data->errorhandler)(e);
+	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;
     }
 }
 
 Xapian::TermIterator
-OmEnquire::get_matching_terms_begin(const OmMSetIterator &it) const
+Xapian::Enquire::get_matching_terms_begin(const OmMSetIterator &it) const
 {
-    DEBUGAPICALL(Xapian::TermIterator, "OmEnquire::get_matching_terms", it);
+    DEBUGAPICALL(Xapian::TermIterator, "Xapian::Enquire::get_matching_terms", it);
     try {
-	RETURN(internal->data->get_matching_terms(it));
+	RETURN(internal->get_matching_terms(it));
     } catch (Xapian::Error & e) {
-	if (internal->data->errorhandler) (*internal->data->errorhandler)(e);
+	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;
     }
 }
 
 Xapian::TermIterator
-OmEnquire::get_matching_terms_begin(om_docid did) const
+Xapian::Enquire::get_matching_terms_begin(om_docid did) const
 {
-    DEBUGAPICALL(Xapian::TermIterator, "OmEnquire::get_matching_terms", did);
+    DEBUGAPICALL(Xapian::TermIterator, "Xapian::Enquire::get_matching_terms", did);
     try {
-	RETURN(internal->data->get_matching_terms(did));
+	RETURN(internal->get_matching_terms(did));
     } catch (Xapian::Error & e) {
-	if (internal->data->errorhandler) (*internal->data->errorhandler)(e);
+	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;
     }
 }
 
 Xapian::TermIterator
-OmEnquire::get_matching_terms_end(const OmMSetIterator &/*it*/) const
+Xapian::Enquire::get_matching_terms_end(const OmMSetIterator &/*it*/) const
 {
     return Xapian::TermIterator(NULL);
 }
 
 Xapian::TermIterator
-OmEnquire::get_matching_terms_end(om_docid /*did*/) const
+Xapian::Enquire::get_matching_terms_end(om_docid /*did*/) const
 {
     return Xapian::TermIterator(NULL);
 }
 
 void
-OmEnquire::register_match_decider(const std::string &name,
+Xapian::Enquire::register_match_decider(const string &name,
 				  const OmMatchDecider *mdecider)
 {
-    internal->data->register_match_decider(name, mdecider);
+    internal->register_match_decider(name, mdecider);
 }
 
-std::string
-OmEnquire::get_description() const
+string
+Xapian::Enquire::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "OmEnquire::get_description", "");
+    DEBUGCALL(INTRO, string, "Xapian::Enquire::get_description", "");
 #if 1
-    return "OmEnquire";
+    return "Xapian::Enquire()";
 #else
     // Hmm, causing and handling exceptions is a somewhat suspect thing to be
     // doing in code which we want to be able to use for non-intrusive
     // tracing - FIXME
     try {
-	RETURN("OmEnquire(" + internal->data->get_description() + ")");
+	RETURN("Xapian::Enquire(" + internal->get_description() + ")");
     } catch (Xapian::Error & e) {
-	if (internal->data->errorhandler) (*internal->data->errorhandler)(e);
+	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;
     }
 #endif

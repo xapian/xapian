@@ -47,7 +47,7 @@
 
 #include "match.h"
 #include "stats.h"
-#include "om/omenquire.h"
+#include <xapian/enquire.h>
 
 #include <algorithm>
 #include "autoptr.h"
@@ -381,7 +381,7 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 	case Xapian::Query::Internal::OP_LEAF: {
 	    // Make a postlist for a single term
 	    Assert(query->subqs.size() == 0);
-	    OmMSet::Internal::Data::TermFreqAndWeight info;
+	    Xapian::MSet::Internal::TermFreqAndWeight info;
 
 	    // FIXME: pass the weight type and the info needed to create it to
 	    // the postlist instead (why?)

@@ -133,7 +133,7 @@ class MultiMatch
 
 	void get_mset(om_doccount first,
 		      om_doccount maxitems,
-		      OmMSet & mset,
+		      Xapian::MSet & mset,
 		      const OmMatchDecider * mdecider);
 
 	/** Called by postlists to indicate that they've rearranged themselves

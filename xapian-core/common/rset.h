@@ -27,7 +27,7 @@
 #include <vector>
 #include <map>
 #include "omdebug.h"
-#include "om/omenquire.h"
+#include <xapian/enquire.h>
 #include "omenquireinternal.h"
 
 class Database;
@@ -90,7 +90,7 @@ RSet::RSet(const OmDatabase &root_, const OmRSet & omrset)
 {
     std::set<om_docid>::const_iterator i;
     for (i = omrset.internal->items.begin();
-	 i != omrset.internal->items.end(); i++) {
+	 i != omrset.internal->items.end(); ++i) {
 	add_document(*i);
     }
 }

@@ -486,7 +486,7 @@ SocketClient::send_global_stats(const Stats &stats)
 bool
 SocketClient::get_mset(om_doccount first,
 		       om_doccount maxitems,
-		       OmMSet &mset)
+		       Xapian::MSet &mset)
 {
     /* avoid confusing the protocol if there are requested documents
      * being returned.

@@ -117,7 +117,7 @@ RemoteSubMatch::start_match(om_doccount maxitems)
     DEBUGCALL(MATCH, void, "RemoteSubMatch::start_match", maxitems);
     Assert(is_prepared);
     db->link->send_global_stats(*(gatherer->get_stats()));
-    OmMSet mset;
+    Xapian::MSet mset;
     bool res = db->link->get_mset(0, maxitems, mset);
     (void)res;
     // FIXME: improve this

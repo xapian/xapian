@@ -45,13 +45,13 @@ XAPIAN_OUTPUT_FUNCTION(OmDocument)
 #include <xapian/query.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::Query)
 
-#include "om/omenquire.h"
+#include <xapian/enquire.h>
 XAPIAN_OUTPUT_FUNCTION(OmRSet)
 XAPIAN_OUTPUT_FUNCTION(OmMSetIterator)
-XAPIAN_OUTPUT_FUNCTION(OmMSet)
+XAPIAN_OUTPUT_FUNCTION(Xapian::MSet)
 XAPIAN_OUTPUT_FUNCTION(OmESetIterator)
 XAPIAN_OUTPUT_FUNCTION(OmESet)
-XAPIAN_OUTPUT_FUNCTION(OmEnquire)
+XAPIAN_OUTPUT_FUNCTION(Xapian::Enquire)
 
 #include <xapian/stem.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::Stem)

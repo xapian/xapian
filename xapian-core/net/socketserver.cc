@@ -36,7 +36,7 @@
 #include "omdebug.h"
 #include "autoptr.h"
 #include "../api/omdatabaseinternal.h"
-#include "om/omenquire.h"
+#include <xapian/enquire.h>
 #include <signal.h>
 #include <cerrno>
 #include <cstring>
@@ -355,7 +355,7 @@ SocketServer::run_match(const string &firstmessage)
 	is >> first >> maxitems;
     }
 
-    OmMSet mset;
+    Xapian::MSet mset;
 
     DEBUGLINE(UNKNOWN, "About to get_mset(" << first
 	      << ", " << maxitems << "...");

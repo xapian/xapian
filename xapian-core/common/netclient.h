@@ -94,7 +94,7 @@ class NetClient : public RefCntBase {
 
 	/** Do the actual MSet fetching */
 	virtual bool get_mset(om_doccount first, om_doccount maxitems,
-			      OmMSet &mset) = 0;
+			      Xapian::MSet &mset) = 0;
 
 	virtual void close_end_time() = 0;
 	

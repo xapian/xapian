@@ -40,7 +40,7 @@ using std::map;
 class Xapian::Query::Internal;
 class Stats;
 class OmRSet;
-class OmMSet;
+class Xapian::MSet;
 class OmTime;
 
 /** The OmSocketLineBuf class implements a two-way line discipline
@@ -134,30 +134,30 @@ string omrset_to_string(const OmRSet &omrset);
  */
 OmRSet string_to_omrset(const string &s);
 
-/** Convert an OmMSet object into a string representation.
+/** Convert an Xapian::MSet object into a string representation.
  *
  *  @param ommset		The object to serialise.
  */
-string ommset_to_string(const OmMSet &ommset);
+string ommset_to_string(const Xapian::MSet &ommset);
 
-/** Convert a serialised OmMSet string back into an object.
+/** Convert a serialised Xapian::MSet string back into an object.
  *
  *  @param s		The serialised object as a string.
  */
-OmMSet string_to_ommset(const string &s);
+Xapian::MSet string_to_ommset(const string &s);
 
 /** Convert a terminfo map into a string representation.
  *
  *  @param terminfo		The terminfo map to serialise.
  */
 string ommset_termfreqwts_to_string(const map<string,
-	OmMSet::Internal::Data::TermFreqAndWeight> &terminfo);
+	Xapian::MSet::Internal::TermFreqAndWeight> &terminfo);
 
 /** Convert a serialised terminfo string back into a map.
  *
  *  @param s		The seralised map as a string.
  */
-map<string, OmMSet::Internal::Data::TermFreqAndWeight>
+map<string, Xapian::MSet::Internal::TermFreqAndWeight>
 string_to_ommset_termfreqwts(const string &s);
 
 Xapian::Query::Internal * qfs_readquery();

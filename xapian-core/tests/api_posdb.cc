@@ -56,7 +56,7 @@ static bool test_near1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset);
 
     subqs.clear();
@@ -211,7 +211,7 @@ static bool test_near2()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 1);
 
     subqs.clear();
@@ -261,7 +261,7 @@ static bool test_phrase1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset);
 
     subqs.clear();
@@ -468,7 +468,7 @@ static bool test_phrase2()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset);
 
     subqs.clear();

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,7 +37,7 @@ class MSetPostList : public PostList {
         MSetPostList(const MSetPostList &);
         MSetPostList & operator=(const MSetPostList &);
 
-	OmMSet mset;    
+	Xapian::MSet mset;    
 	const NetworkDatabase *db;
 	int current;
 
@@ -68,7 +68,7 @@ class MSetPostList : public PostList {
 	virtual PositionList * read_position_list();
 	virtual PositionList * open_position_list() const;
 
-        MSetPostList(const OmMSet mset_, const NetworkDatabase *db_);
+        MSetPostList(const Xapian::MSet mset_, const NetworkDatabase *db_);
         ~MSetPostList();
 };
 
@@ -98,7 +98,7 @@ MSetPostList::get_docid() const
 {
     DEBUGCALL(MATCH, om_docid, "MSetPostList::get_docid", "");
     Assert(current != -1);
-    RETURN(mset.internal->data->items[current].did);
+    RETURN(mset.internal->items[current].did);
 }
 
 inline om_weight
@@ -106,7 +106,7 @@ MSetPostList::get_weight() const
 {
     DEBUGCALL(MATCH, om_weight, "MSetPostList::get_weight", "");
     Assert(current != -1);
-    return mset.internal->data->items[current].wt;
+    return mset.internal->items[current].wt;
 }
 
 inline const string *
@@ -114,7 +114,7 @@ MSetPostList::get_collapse_key() const
 {
     DEBUGCALL(MATCH, string *, "MSetPostList::get_collapse_key", "");
     Assert(current != -1);
-    return &(mset.internal->data->items[current].collapse_key);
+    return &(mset.internal->items[current].collapse_key);
 }
 
 inline om_weight
@@ -127,7 +127,7 @@ MSetPostList::get_maxweight() const
     if (current == -1) return mset.get_max_possible();
     if (mset.empty()) return 0;
     // mset.max_attained is bigger than this if firstitem != 0
-    return mset.internal->data->items[current].wt;
+    return mset.internal->items[current].wt;
 }
 
 inline om_weight
@@ -157,7 +157,7 @@ MSetPostList::get_doclength() const
     DEBUGCALL(MATCH, om_doclength, "MSetPostList::get_doclength", "");
     Assert(current != -1);
     return 1; // FIXME: this info is unused with present weights
-//    return db->get_doclength(mset.internal->data->items[current].did);
+//    return db->get_doclength(mset.internal->items[current].did);
 }
 
 inline PositionList *
@@ -186,7 +186,7 @@ class PendingMSetPostList : public PostList {
 
 	void make_pl() {
 	    if (pl) return;
-	    OmMSet mset;
+	    Xapian::MSet mset;
 	    while (!db->link->get_mset(0, maxitems, mset)) {
 		db->link->wait_for_input();
 	    }

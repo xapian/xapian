@@ -25,8 +25,7 @@
 #ifndef OM_HGUARD_OMENQUIREINTERNAL_H
 #define OM_HGUARD_OMENQUIREINTERNAL_H
 
-
-#include "om/omenquire.h"
+#include <xapian/enquire.h>
 #include "refcnt.h"
 #include <algorithm>
 #include <math.h>
@@ -106,7 +105,7 @@ class OmMSetItem {
 	 *  key's value for this particular item.  If the key is not present
 	 *  for this item, the value will be a null string.  Only one instance
 	 *  of each key value (apart from the null string) will be present in
-	 *  the items in the returned OmMSet.
+	 *  the items in the returned Xapian::MSet.
 	 */
 	string collapse_key;
 
@@ -129,27 +128,15 @@ class OmMSetItem {
 	std::string get_description() const;
 };
 
+class OmExpand;
+
+namespace Xapian {
+
 /** Internals of enquire system.
- *  This allows the implementation of OmEnquire to be hidden and reference
+ *  This allows the implementation of Xapian::Enquire to be hidden and reference
  *  counted.
  */
-class OmEnquire::Internal {
-    public:
-	/// Class holding the contents of the OmEnquire object.
-	class Data;
-
-	/// Constructor.
-	Internal(RefCntPtr<Data> data_);
-
-	// Default destructor, copy constructor and assignment.
-
-	/** The contents of the omenquire object.  This pointer may never be
-	 *  null.
-	 */
-	RefCntPtr<Data> data;
-};
-
-class OmEnquire::Internal::Data : public RefCntBase {
+class Enquire::Internal : public Xapian::Internal::RefCntBase {
     private:
 	/// The database which this enquire object uses.
 	const OmDatabase db;
@@ -158,24 +145,24 @@ class OmEnquire::Internal::Data : public RefCntBase {
 	 *  This may need to be mutable in future so that it can be
 	 *  replaced by an optimised version.
 	 */
-	Xapian::Query * query;
+	Query * query;
 
 	/** Calculate the matching terms.
 	 *  This method does the work for get_matching_terms().
 	 */
-	Xapian::TermIterator calc_matching_terms(om_docid did) const;
+	TermIterator calc_matching_terms(om_docid did) const;
 
 	/// Copy not allowed
-	Data(const Data &);
+	Internal(const Internal &);
 	/// Assignment not allowed
-	void operator=(const Data &);
+	void operator=(const Internal &);
 
     public:
 	om_valueno collapse_key;
 
 	bool sort_forward;
 
-	Xapian::percent percent_cutoff;
+	percent percent_cutoff;
 
 	om_weight weight_cutoff;
 
@@ -187,14 +174,14 @@ class OmEnquire::Internal::Data : public RefCntBase {
 
 	/** The error handler, if set.  (0 if not set).
 	 */
-	Xapian::ErrorHandler * errorhandler;
+	ErrorHandler * errorhandler;
 
 	std::map<std::string, const OmMatchDecider *> mdecider_map;
 
 	mutable OmWeight * weight; // mutable so get_mset can set default
 
-	Data(const OmDatabase &databases, Xapian::ErrorHandler * errorhandler_);
-	~Data();
+	Internal(const OmDatabase &databases, ErrorHandler * errorhandler_);
+	~Internal();
 
 	/** Request a document from the database.
 	 */
@@ -204,16 +191,16 @@ class OmEnquire::Internal::Data : public RefCntBase {
 	 */
 	OmDocument read_doc(const OmMSetItem &item) const;
 
-	void set_query(const Xapian::Query & query_);
-	const Xapian::Query & get_query();
-	OmMSet get_mset(om_doccount first, om_doccount maxitems,
+	void set_query(const Query & query_);
+	const Query & get_query();
+	Xapian::MSet get_mset(om_doccount first, om_doccount maxitems,
 			const OmRSet *omrset, 
 			const OmMatchDecider *mdecider) const;
 	OmESet get_eset(om_termcount maxitems, const OmRSet & omrset, int flags,
-			double k, const Xapian::ExpandDecider *edecider) const;
+			double k, const ExpandDecider *edecider) const;
 
-	Xapian::TermIterator get_matching_terms(om_docid did) const;
-	Xapian::TermIterator get_matching_terms(const OmMSetIterator &it) const;
+	TermIterator get_matching_terms(om_docid did) const;
+	TermIterator get_matching_terms(const OmMSetIterator &it) const;
 
 	void register_match_decider(const std::string &name,
 				    const OmMatchDecider *mdecider);
@@ -221,28 +208,7 @@ class OmEnquire::Internal::Data : public RefCntBase {
 	std::string get_description() const;
 };
 
-class OmExpand;
-
-class OmMSet::Internal {
-    public:
-	/// Class holding the actual data in the MSet.
-	class Data;
-
-	/// Constructor: makes a new empty mset.
-	Internal();
-
-	/// Constructor: makes a new mset from a pointer.
-	Internal(RefCntPtr<Data> data_);
-
-	// Default destructor, copy constructor and assignment.
-
-	/** The actual data stored in the mset.  This pointer may never be
-	 *  null.
-	 */
-	RefCntPtr<Data> data;
-};
-
-class OmMSet::Internal::Data : public RefCntBase {
+class MSet::Internal : public Xapian::Internal::RefCntBase {
     private:
 	/// Factor to multiply weights by to convert them to percentages.
 	double percent_factor;
@@ -258,12 +224,13 @@ class OmMSet::Internal::Data : public RefCntBase {
 	void read_docs() const;
 
 	/// Copy not allowed
-	Data(const Data &);
+	Internal(const Internal &);
 	/// Assignment not allowed
-	void operator=(const Data &);
+	void operator=(const Internal &);
+
     public:
-	/// OmEnquire reference, for getting documents.
-	RefCntPtr<const OmEnquire::Internal::Data> enquire;
+	/// Xapian::Enquire reference, for getting documents.
+	Xapian::Internal::RefCntPtr<const Enquire::Internal> enquire;
 
 	/** A structure containing the term frequency and weight for a
 	 *  given query term.
@@ -294,7 +261,7 @@ class OmMSet::Internal::Data : public RefCntBase {
 
 	om_weight max_attained;
 
-	Data()
+	Internal()
 		: percent_factor(0),
 		  firstitem(0),
 		  matches_lower_bound(0),
@@ -303,7 +270,7 @@ class OmMSet::Internal::Data : public RefCntBase {
 		  max_possible(0),
 		  max_attained(0) {}
 
-	Data(om_doccount firstitem_,
+	Internal(om_doccount firstitem_,
 	     om_doccount matches_upper_bound_,
 	     om_doccount matches_lower_bound_,
 	     om_doccount matches_estimated_,
@@ -326,7 +293,7 @@ class OmMSet::Internal::Data : public RefCntBase {
 	OmDocument get_doc_by_rank(om_doccount rank) const;
 
 	/// Converts a weight to a percentage weight
-	Xapian::percent convert_to_percent_internal(om_weight wt) const;
+	percent convert_to_percent_internal(om_weight wt) const;
 
 	/** Returns a string representing the mset.
 	 *  Introspection method.
@@ -340,21 +307,23 @@ class OmMSet::Internal::Data : public RefCntBase {
 			 std::vector<OmMSetItem>::const_iterator end) const;
 };
 
+}
+
 class OmMSetIterator::Internal {
     private:
 	friend class OmMSetIterator; // allow access to it
-	friend class OmMSet;
+	friend class Xapian::MSet;
 
 	std::vector<OmMSetItem>::const_iterator it;
 	std::vector<OmMSetItem>::const_iterator end;
 
 	om_doccount currrank;
-	RefCntPtr<OmMSet::Internal::Data> msetdata;
+	Xapian::Internal::RefCntPtr<Xapian::MSet::Internal> msetdata;
     public:
         Internal(std::vector<OmMSetItem>::const_iterator it_,
 		 std::vector<OmMSetItem>::const_iterator end_,
 		 om_doccount currrank_,
-		 RefCntPtr<OmMSet::Internal::Data> msetdata_)
+		 Xapian::Internal::RefCntPtr<Xapian::MSet::Internal> msetdata_)
 	    : it(it_), end(end_), currrank(currrank_), msetdata(msetdata_)
 	{ }
 
@@ -410,22 +379,5 @@ class OmRSet::Internal {
 	 */
 	std::string get_description() const;
 };
-
-
-
-inline
-OmEnquire::Internal::Internal(RefCntPtr<Data> data_)
-	: data(data_)
-{}
-
-inline
-OmMSet::Internal::Internal()
-	: data(new OmMSet::Internal::Data())
-{}
-
-inline
-OmMSet::Internal::Internal(RefCntPtr<Data> data_)
-	: data(data_)
-{}
 
 #endif // OM_HGUARD_OMENQUIREINTERNAL_H

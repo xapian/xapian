@@ -26,7 +26,7 @@
 
 #include "database.h"
 #include "om/omdocument.h"
-#include "om/omenquire.h"
+#include <xapian/enquire.h>
 #include "omqueryinternal.h"
 #include "match.h"
 #include "stats.h"
@@ -67,7 +67,7 @@ class SubMatch : public RefCntBase {
 
 	virtual Document * open_document(om_docid did) const = 0;
 
-	virtual const std::map<string, OmMSet::Internal::Data::TermFreqAndWeight> get_term_info() const = 0;
+	virtual const std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> get_term_info() const = 0;
 };
 
 #endif /* OM_HGUARD_MATCH_H */

@@ -206,7 +206,7 @@ class SocketClient : public NetClient {
 	void send_global_stats(const Stats &stats);
 
 	/** Do the actual MSet fetching */
-	bool get_mset(om_doccount first, om_doccount maxitems, OmMSet &mset);
+	bool get_mset(om_doccount first, om_doccount maxitems, Xapian::MSet &mset);
 
 	void next(om_weight w_min, om_docid &did, om_weight &w, string &value);
 	void skip_to(om_docid new_did, om_weight w_min, om_docid &did, om_weight &w, string &value);

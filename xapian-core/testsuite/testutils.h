@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,32 +38,32 @@ std::ostream &operator<<(std::ostream &os,
 // Useful comparison operators
 
 bool
-mset_range_is_same(const OmMSet &mset1, unsigned int first1,
-		   const OmMSet &mset2, unsigned int first2,
+mset_range_is_same(const Xapian::MSet &mset1, unsigned int first1,
+		   const Xapian::MSet &mset2, unsigned int first2,
 		   unsigned int count);
 
 bool
-mset_range_is_same_weights(const OmMSet &mset1, unsigned int first1,
-			   const OmMSet &mset2, unsigned int first2,
+mset_range_is_same_weights(const Xapian::MSet &mset1, unsigned int first1,
+			   const Xapian::MSet &mset2, unsigned int first2,
 			   unsigned int count);
 
-bool operator==(const OmMSet &first, const OmMSet &second);
+bool operator==(const Xapian::MSet &first, const Xapian::MSet &second);
 
-inline bool operator!=(const OmMSet &first, const OmMSet &second)
+inline bool operator!=(const Xapian::MSet &first, const Xapian::MSet &second)
 {
     return !(first == second);
 }
 
 
 void
-mset_expect_order(const OmMSet &A,
+mset_expect_order(const Xapian::MSet &A,
 		  om_docid d1 = 0, om_docid d2 = 0, om_docid d3 = 0,
 		  om_docid d4 = 0, om_docid d5 = 0, om_docid d6 = 0,
 		  om_docid d7 = 0, om_docid d8 = 0, om_docid d9 = 0,
 		  om_docid d10 = 0, om_docid d11 = 0, om_docid d12 = 0);
 
 void
-mset_expect_order_begins(const OmMSet &A,
+mset_expect_order_begins(const Xapian::MSet &A,
 			 om_docid d1 = 0, om_docid d2 = 0, om_docid d3 = 0,
 			 om_docid d4 = 0, om_docid d5 = 0, om_docid d6 = 0,
 			 om_docid d7 = 0, om_docid d8 = 0, om_docid d9 = 0,
@@ -73,7 +73,7 @@ bool doubles_are_equal_enough(double a, double b);
 
 void weights_are_equal_enough(double a, double b);
 
-void test_mset_order_equal(const OmMSet &mset1, const OmMSet &mset2);
+void test_mset_order_equal(const Xapian::MSet &mset1, const Xapian::MSet &mset2);
 
 // ######################################################################
 // Useful test macros

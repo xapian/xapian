@@ -28,11 +28,11 @@
 #include "utils.h"
 #include "netutils.h"
 
-#include "xapian/error.h"
-#include "om/omenquire.h"
+#include <xapian/error.h>
+#include <xapian/enquire.h>
 #include <xapian/output.h>
 
-#include "xapian/termiterator.h"
+#include <xapian/termiterator.h>
 #include "omtermlistiteratorinternal.h"
 
 #include <vector>
