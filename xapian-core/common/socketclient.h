@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -175,10 +176,6 @@ class SocketClient : public NetClient {
 	/** Send a keep-alive signal */
 	void keep_alive();
 
-	/** Write some bytes to the process.
-	 */
-	void write_data(std::string msg);
-
 	/** Wait for input to be available */
 	void wait_for_input();
 
@@ -230,10 +227,6 @@ class SocketClient : public NetClient {
 
 	/** Find out the remote average document length */
 	om_doclength get_avlength();
-
-	/** Read some data from the process.
-	 */
-	std::string read_data();
 
 	/** Determine if any data is waiting to be read.
 	 */

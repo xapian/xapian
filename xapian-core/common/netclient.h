@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,12 +55,6 @@ class NetClient : public RefCntBase {
 	virtual void keep_alive() = 0;
 
 	void register_statssource(NetworkStatsSource *statssource_);
-
-	/** Write some bytes to the remote process.
-	 *  FIXME: These will be specialised into content-specific
-	 *  writer and reader functions.
-	 */
-	virtual void write_data(std::string msg) = 0;
 
 	/** Wait for some input to be available.
 	 *  wait_for_input() can be called to avoid having to loop
@@ -134,10 +129,6 @@ class NetClient : public RefCntBase {
 
 	/** Find out the remote average document length */
 	virtual om_doclength get_avlength() = 0;
-
-	/** Read some data from the remote process.
-	 */
-	virtual std::string read_data() = 0;
 
 	/** Determine if any data is waiting to be read.
 	 */

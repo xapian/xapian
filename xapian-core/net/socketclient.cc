@@ -322,18 +322,6 @@ SocketClient::do_write(string data)
     }
 }
 
-void
-SocketClient::write_data(string msg)
-{
-    do_write(msg);
-}
-
-string
-SocketClient::read_data()
-{
-    return do_read();
-}
-
 bool
 SocketClient::data_is_available()
 {
