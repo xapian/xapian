@@ -1582,15 +1582,6 @@ sys_unlink_if_exists(const string & filename)
 }
 
 void
-Btree::erase(const string & tablename)
-{
-    DEBUGCALL_STATIC(DB, void, "Btree::erase", tablename);
-    sys_unlink_if_exists(tablename + "DB");
-    sys_unlink_if_exists(tablename + "baseA");
-    sys_unlink_if_exists(tablename + "baseB");
-}
-
-void
 Btree::create(const string &name_, int block_size)
 {
     DEBUGCALL_STATIC(DB, void, "Btree::create", name_ << ", " << block_size);

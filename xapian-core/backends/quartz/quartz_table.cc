@@ -178,17 +178,6 @@ QuartzTable::create()
 }
 
 void
-QuartzTable::erase()
-{
-    DEBUGCALL(DB, void, "QuartzTable::erase", "");
-    Assert(!readonly);
-
-    close();
-
-    Btree::erase(path);
-}
-
-void
 QuartzTable::open()
 {
     DEBUGCALL(DB, void, "QuartzTable::open", "");

@@ -81,9 +81,6 @@ class Btree {
 	/** Create an initial btree structure on disk */
 	static void create(const string &name_, int blocksize);
 
-	/** Erase the btree structure from disk */
-	static void erase(const string & tablename);
-
 	void set_full_compaction(bool parity);
 
 	uint4 get_latest_revision_number() const {
