@@ -94,7 +94,7 @@ $if{$ne{$add{$opt{w},1},$opt{x}},...}
 $map{$range{$opt{x},$add{$thispage,-1}},$PAGE{$_}}
 $SPAGE{$thispage}
 $map{$range{$add{$thispage,1},$opt{y}},$PAGE{$_}}
-$if{$ne{$opt{y},$last},...}
+$if{$ne{$opt{y},$lastpage},...}
 $NEXT
 }
 </center><br>

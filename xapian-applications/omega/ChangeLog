@@ -1,3 +1,8 @@
+Wed Dec 12 15:36:20 GMT 2001  Olly Betts <olly@survex.com>
+
+	* templates/query: Fixed typo which caused "..." to appear after
+	  page buttons when it wasn't appropriate.
+
 Wed Dec 12 15:11:23 GMT 2001  Olly Betts <olly@survex.com>
 
 	* omega: Added stopword list (still hardcoded at present though).
