@@ -1,3 +1,8 @@
+Tue Jun 17 17:50:00 BST 2003  Olly Betts <olly@survex.com>
+
+	* htmlparse.cc,htmlparse.h: Moved initialisation of named_ents out of
+	  header - it's not a sensible candidate for inlining.
+
 Wed Jun 11 02:32:25 BST 2003  Olly Betts <olly@survex.com>
 
 	* date.cc,date.h,omega.cc,omega.h,omindex.cc,query.cc,query.h,
