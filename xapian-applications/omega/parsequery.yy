@@ -94,6 +94,15 @@ exp:	  prob		{
 	| exp NOT exp	{ $$ = U(OmQuery(OmQuery::OP_AND_NOT, $1.q, $3.q)); }
 	| exp XOR exp	{ $$ = U(OmQuery(OmQuery::OP_XOR, $1.q, $3.q)); }
 	| '(' exp ')'	{ $$ = $2; }
+	/* error catches */
+	| exp AND	{ throw "Syntax: expression AND expression"; }
+	| AND exp	{ throw "Syntax: expression AND expression"; }
+	| exp OR	{ throw "Syntax: expression OR expression"; }
+	| OR exp	{ throw "Syntax: expression OR expression"; }
+	| exp NOT	{ throw "Syntax: expression NOT expression"; }
+	| NOT exp	{ throw "Syntax: expression NOT expression"; }
+	| exp XOR	{ throw "Syntax: expression XOR expression"; }
+	| XOR exp	{ throw "Syntax: expression XOR expression"; }
 ;
 
 prob:	  stopterm
@@ -338,3 +347,7 @@ get_next_char(const char **p)
     return ch;
 }
 #endif
+
+/* Tell vim this is a yacc file
+ * vim: syntax=yacc
+ */

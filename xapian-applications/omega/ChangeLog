@@ -1,3 +1,8 @@
+Fri Dec 14 14:49:18 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Give more helpful messages for query syntax errors in cases where
+	  we can without elaborate YACC hackery.
+
 Thu Dec 13 15:10:24 GMT 2001  Olly Betts <olly@survex.com>
 
 	* For image page buttons, display pages 10-999 by using 2 or 3 images.
