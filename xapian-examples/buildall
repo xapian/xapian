@@ -23,9 +23,6 @@
 # USA
 # -----END-LICENCE-----
 
-# Set this to be the name of your package
-PACKAGE="Xapian Examples"
-
 # Set this if you want verbose messages by default (probably a good idea)
 VERBOSE=1
 
@@ -35,7 +32,7 @@ RUNMAKE=1
 
 # Details of this script
 PROGNAME="`echo $0 | sed -e 's#^.*/##'`"
-VERSION="0.11"
+VERSION="0.12"
 
 # Little bit of paranoia
 test -z "${PROGNAME}" && PROGNAME="[build script]"
@@ -49,6 +46,10 @@ test -z "${PROGNAME}" && PROGNAME="[build script]"
 SRCDIR="`echo $0 | sed -e 's#/[^/]*$##'`"
 # Be paranoid about not getting SRCDIR
 test -z "$SRCDIR" && SRCDIR='.'
+
+# Get the package name from configure.in
+PACKAGE="`sed 's/^ *AM_INIT_AUTOMAKE *(\(.*\),.*/\1/p;d' <$SRCDIR/configure.in|head -1`"
+test -z "$PACKAGE" && PACKAGE='[package]'
 
 BUILDDIR="`pwd`"
 # Be paranoid about not getting BUILDDIR
@@ -180,9 +181,16 @@ error "${ERRMSG}See INSTALL for details of tools needed to develop $PACKAGE"
 # FIXME - Check for tested versions of tools
 
 # Change to srcdir
-cd ${SRCDIR}
+cd "${SRCDIR}"
 if test . != "${SRCDIR}" ; then
   display "${PROGNAME}: changed to source directory, `pwd`"
+fi
+
+if (exec >/dev/null 2>&1 ; xapian-config --prefix; exit $?) then
+  ACLOCAL_FLAGS="$ACLOCAL_FLAGS -I `xapian-config --prefix`/share/aclocal"
+fi
+if test -d autoconf ; then
+  ACLOCAL_FLAGS="$ACLOCAL_FLAGS -I autoconf"
 fi
 
 # Build configure script and Makefile.in's
@@ -192,7 +200,7 @@ run autoconf
 run automake --add-missing
 
 # Return to build directory
-cd ${BUILDDIR}
+cd "${BUILDDIR}"
 if test . != "${SRCDIR}" ; then
   display "${PROGNAME}: returned to build directory, ${BUILDDIR}"
 fi
@@ -223,7 +231,7 @@ if test yes = "$use_config_status" ; then
   run ./config.status --recheck
   run ./config.status
 else
-  run ${SRCDIR}/configure "$@"
+  run "${SRCDIR}/configure" "$@"
 fi
 
 if test -f Makefile ; then
