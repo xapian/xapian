@@ -212,41 +212,49 @@ set_int4(byte *p, int c, int x)
    component_of(p, c) returns the number marked 'x' above,
 
    components_of(p, c) returns the number marked 'C' above,
-
-   key_of(p, c) returns address k, marked above.
 */
 
-inline byte * item_of(byte * p, int c)
-{
-    c = GETD(p, c);
-    return p + c;
-}
+class Key {
+    const byte *p;
+public:
+    explicit Key(const byte * p_) : p(p_) { }
+    const byte * get_address() const { return p; }
+    void read(string * key) const {
+	key->assign(reinterpret_cast<const char *>(p + K1), length());
+    }
+    bool operator==(Key key2) const;
+    bool operator!=(Key key2) const { return !(*this == key2); }
+    bool operator<(Key key2) const;
+    bool operator>=(Key key2) const { return !(*this < key2); }
+    bool operator>(Key key2) const { return key2 < *this; }
+    bool operator<=(Key key2) const { return !(key2 < *this); }
+    int length() const {
+	return GETK(p, 0) - C2 - K1;
+    }
+    char operator[](size_t i) const {
+	return p[i + K1];
+    }
+};
 
-inline int component_of(const byte * p, int c)
-{
-    p += GETD(p, c);
-    p += GETK(p, I2) + I2 - C2;
-    return GETC(p, 0);
-}
-
-inline int components_of(const byte * p, int c)
-{
-    p += GETD(p, c);
-    p += GETK(p, I2) + I2;
-    return GETC(p, 0);
-}
-
-inline byte * key_of(byte * p, int c)
-{
-    c = GETD(p, c);
-    return p + c + I2;
-}
-
-inline const byte * key_of(const byte * p, int c)
-{
-    c = GETD(p, c);
-    return p + c + I2;
-}
+class Item {
+    const byte *p;
+public:
+    Item(const byte * p_, int c) : p(p_ + GETD(p_, c)) { }
+    const byte * item_of() const { return p; }
+    int component_of() const {
+	return GETC(p, GETK(p, I2) + I2 - C2);
+    }
+    int components_of() const {
+	return GETC(p, GETK(p, I2) + I2);
+    }
+    Key key() const { return Key(p + I2); }
+    void append_chunk(string * tag) const {
+	/* number of bytes to extract from current component */
+	int cd = GETK(p, I2) + I2 + C2;
+	int l = GETI(p, 0) - cd;
+	tag->append(reinterpret_cast<const char *>(p + cd), l);
+    }
+};
 
 int sys_open_to_read(const string & name);
 int sys_open_to_read_no_except(const string & name);

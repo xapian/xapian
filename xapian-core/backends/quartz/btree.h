@@ -320,7 +320,7 @@ class Btree {
 	void block_to_cursor(Cursor *C_, int j, uint4 n) const;
 	void alter();
 	void compress(byte *p);
-	void enter_key(int j, byte *kq, byte *kp);
+	void enter_key(int j, Key prevkey, Key newkey);
 	int mid_point(byte *p);
 	void add_item_to_block(byte *p, byte *kt, int c);
 	void add_item(byte *kt, int j);
@@ -416,21 +416,19 @@ class Btree {
 	bool dont_close_handle;
 
 	/* B-tree navigation functions */
-	bool prev(Cursor *C_, int j) { return (this->*prev_ptr)(C_, j); }
-	bool next(Cursor *C_, int j) { return (this->*next_ptr)(C_, j); }
+	bool prev(Cursor *C_, int j) const { return (this->*prev_ptr)(C_, j); }
+	bool next(Cursor *C_, int j) const { return (this->*next_ptr)(C_, j); }
 
-	bool (Btree::* prev_ptr)(Cursor *, int);
-	bool (Btree::* next_ptr)(Cursor *, int);
+	bool (Btree::* prev_ptr)(Cursor *, int) const;
+	bool (Btree::* next_ptr)(Cursor *, int) const;
 
-	bool prev_default(Cursor *C_, int j);
-	bool next_default(Cursor *C_, int j);
+	bool prev_default(Cursor *C_, int j) const;
+	bool next_default(Cursor *C_, int j) const;
 
-	bool prev_for_sequential(Cursor *C_, int dummy);
-	bool next_for_sequential(Cursor *C_, int dummy);
+	bool prev_for_sequential(Cursor *C_, int dummy) const;
+	bool next_for_sequential(Cursor *C_, int dummy) const;
 
-	static int find_in_block(const byte * p, const byte * key, int offset, int c);
-
-	static int compare_keys(const byte * key1, const byte * key2);
+	static int find_in_block(const byte * p, Key key, int offset, int c);
 
 	/** block_given_by(p, c) finds the item at block address p, directory
 	 *  offset c, and returns its tag value as an integer.

@@ -79,7 +79,7 @@ bool
 Bcursor::prev()
 {
     DEBUGCALL(DB, bool, "Bcursor::prev", "");
-    Assert(level == B->level);
+    Assert(B->level <= level);
     Assert(!is_after_end);
 
     if (!is_positioned) {
@@ -96,7 +96,7 @@ Bcursor::prev()
 		is_positioned = false;
 		return false;
 	    }
-	    if (component_of(C[0].p, C[0].c) == 1) {
+	    if (Item(C[0].p, C[0].c).component_of() == 1) {
 		break;
 	    }
 	}
@@ -107,7 +107,7 @@ Bcursor::prev()
 	    is_positioned = false;
 	    return false;
 	}
-	if (component_of(C[0].p, C[0].c) == 1) {
+	if (Item(C[0].p, C[0].c).component_of() == 1) {
 	    break;
 	}
     }
@@ -123,7 +123,7 @@ bool
 Bcursor::next()
 {
     DEBUGCALL(DB, bool, "Bcursor::next", "");
-    Assert(level == B->level);
+    Assert(B->level <= level);
     Assert(!is_after_end);
     if (!have_read_tag) {
 	while (true) {
@@ -131,7 +131,7 @@ Bcursor::next()
 		is_positioned = false;
 		break;
 	    }
-	    if (component_of(C[0].p, C[0].c) == 1) {
+	    if (Item(C[0].p, C[0].c).component_of() == 1) {
 		is_positioned = true;
 		break;
 	    }
@@ -155,7 +155,7 @@ bool
 Bcursor::find_entry(const string &key)
 {
     DEBUGCALL(DB, bool, "Bcursor::find_entry", key);
-    Assert(level == B->level);
+    Assert(B->level <= level);
 
     is_after_end = false;
 
@@ -179,7 +179,7 @@ Bcursor::find_entry(const string &key)
 	    C[0].c = DIR_START;
 	    if (! B->prev(C, 0)) goto done;
 	}
-	while (component_of(C[0].p, C[0].c) != 1) {
+	while (Item(C[0].p, C[0].c).component_of() != 1) {
 	    if (! B->prev(C, 0)) {
 		is_positioned = false;
 		break;
@@ -200,45 +200,38 @@ done:
 bool
 Bcursor::get_key(string * key) const
 {
-    Assert(level == B->level);
+    Assert(B->level <= level);
 
     if (!is_positioned) return false;
 
-    const byte * p = key_of(C[0].p, C[0].c);
-    int l = GETK(p, 0) - K1 - C2;       /* number of bytes to extract */
-    key->assign(reinterpret_cast<const char *>(p + K1), l);
+    (void)Item(C[0].p, C[0].c).key().read(key);
     return true;
 }
 
 bool
 Bcursor::get_tag(string * tag)
 {
-    Assert(level == B->level);
+    Assert(B->level <= level);
 
     if (!is_positioned) return false;
 
-    const byte * p = item_of(C[0].p, C[0].c); /* pointer to current component */
-    int ct = GETK(p, I2) + I2;          /* offset to the tag */
+    Item item(C[0].p, C[0].c);
 
-    int n = GETC(p, ct);                /* n components to join */
-
-    int cd = ct + C2;                   /* offset to the tag data */
+    /* n components to join */
+    int n = item.components_of();
 
     tag->resize(0);
-    if (n > 1) {
-	tag->reserve(B->max_item_size * n);
-    }
+    if (n > 1) tag->reserve(B->max_item_size * n);
 
-     // FIXME: code to do very similar thing in btree.cc...
-     for (int i = 1; i <= n; i++) {
-	/* number of bytes to extract from current component */
-	int l = GETI(p, 0) - cd;
-	tag->append(reinterpret_cast<const char *>(p + cd), l);
+    item.append_chunk(tag);
+    is_positioned = B->next(C, 0);
+
+    // FIXME: code to do very similar thing in btree.cc...
+    for (int i = 2; i <= n; i++) {
+	(void)Item(C[0].p, C[0].c).append_chunk(tag);
 	// We need to call B->next(...) on the last pass so that the
 	// cursor ends up on the next key.
 	is_positioned = B->next(C, 0);
-
-	p = item_of(C[0].p, C[0].c);
     }
     return is_positioned;
 }

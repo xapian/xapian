@@ -42,16 +42,16 @@ void BtreeCheck::print_bytes(int n, const byte * p) const
 
 void BtreeCheck::print_key(const byte * p, int c, int j) const
 {
-    const byte * k = key_of(p, c);
-    int l = GETK(k, 0);
-
+    Item item(p, c);
+    string key;
+    if (item.key().length() >= 0)
+	item.key().read(&key);
     if (j == 0) {
-	print_bytes(l - K1 - C2, k + K1);
-	out << '/' << GETC(k, l - C2);
+	out << key << '/' << item.component_of();
     } else {
-	for (int i = K1; i < l; i++) {
-	    // out << (k[i] < 32 ? '.' : k[i]);
-	    char ch = k[i];
+	for (string::const_iterator i = key.begin(); i != key.end(); ++i) {
+	    // out << (*i < 32 ? '.' : *i);
+	    char ch = *i;
 	    if (ch < 32) out << '/' << unsigned(ch); else out << ch;
 	}
     }
@@ -157,11 +157,11 @@ BtreeCheck::block_check(Cursor * C_, int j, int opts)
 	if (o + kt_len > int(block_size)) failure(40);
 	total_free -= kt_len;
 
-	if (c > significant_c &&
-	    compare_keys(key_of(p, c - D2), key_of(p,c)) >= 0)
+	if (c > significant_c && Item(p, c - D2).key() >= Item(p, c).key())
 	    failure(50);
     }
-    if (total_free != TOTAL_FREE(p)) failure(60);
+    if (total_free != TOTAL_FREE(p))
+	failure(60);
 
     if (j == 0) return;
     for (c = DIR_START; c < dir_end; c += D2) {
@@ -175,14 +175,14 @@ BtreeCheck::block_check(Cursor * C_, int j, int opts)
 	 * >= the key of p, c: */
 
 	if (j == 1 && c > DIR_START)
-	    if (compare_keys(key_of(q, DIR_START), key_of(p, c)) < 0)
+	    if (Item(q, DIR_START).key() < Item(p, c).key())
 		failure(70);
 
 	/* if j > 1, and c > DIR_START, the second key of level j - 1 must be
 	 * >= the key of p, c: */
 
 	if (j > 1 && c > DIR_START && DIR_END(q) > DIR_START + D2 &&
-	    compare_keys(key_of(q, DIR_START + D2), key_of(p, c)) < 0)
+	    Item(q, DIR_START + D2).key() < Item(p, c).key())
 	    failure(80);
 
 	/* the last key of level j - 1 must be < the key of p, c + D2, if c +
@@ -190,7 +190,7 @@ BtreeCheck::block_check(Cursor * C_, int j, int opts)
 
 	if (c + D2 < dir_end &&
 	    (j == 1 || DIR_END(q) - D2 > DIR_START) &&
-	    compare_keys(key_of(q, DIR_END(q) - D2), key_of(p, c + D2)) >= 0)
+	    Item(q, DIR_END(q) - D2).key() >= Item(p, c + D2).key())
 	    failure(90);
 
 	if (REVISION(q) > REVISION(p)) failure(91);

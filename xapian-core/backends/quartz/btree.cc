@@ -524,47 +524,6 @@ Btree::alter()
     }
 }
 
-/** compare_keys(k1, k2) compares two keys pointed to by k1 and k2.
-
-   (Think of them as the key part of two items, with the pointers
-   addressing the length indicator at the beginning of the keys.) The
-   result is <0, 0, or >0 according as k1 precedes, is equal to, or
-   follows k2. The comparison is for byte sequence collating order,
-   taking lengths into account. So if the keys are made up of lower
-   case ASCII letters we get alphabetical ordering.
-
-   Now remember that items are added into the B-tree in fastest time
-   when they are preordered by their keys. This is therefore the piece
-   of code that needs to be followed to arrange for the preordering.
-
-   This is complicated by the fact that keys have two parts - a value
-   and then a count.  We first compare the values, and only if they
-   are equal do we compare the counts.
-*/
-
-int Btree::compare_keys(const byte * key1, const byte * key2)
-{
-    DEBUGCALL_STATIC(DB, int, "Btree::compare_keys", (void*)key1 << ", " << (void*)key2);
-    int key1_len = GETK(key1, 0);
-    int key2_len = GETK(key2, 0);
-    if (key1_len == key2_len) {
-	// The keys are the same length, so we can compare the counts
-	// in the same operation since they're stored as 2 byte
-	// bigendian numbers.
-	RETURN(memcmp(key1 + K1, key2 + K1, key1_len - K1));
-    }
-
-    int k_smaller = (key2_len < key1_len ? key2_len : key1_len) - C2;
-
-    // Compare the first part of the keys
-    int diff = memcmp(key1 + K1, key2 + K1, k_smaller - K1);
-    if (diff != 0) RETURN(diff);
-
-    // We dealt with the "same length" case above so we never need to check
-    // the count here.
-    RETURN(key1_len - key2_len);
-}
-
 /** find_in_block(p, key, offset, c) searches for the key in the block at p.
 
    offset is D2 for a data block, and 0 for an index block, when the
@@ -577,24 +536,23 @@ int Btree::compare_keys(const byte * key1, const byte * key2)
    c if possible.
 */
 
-int Btree::find_in_block(const byte * p, const byte * key, int offset, int c)
+int Btree::find_in_block(const byte * p, Key key, int offset, int c)
 {
-    DEBUGCALL_STATIC(DB, int, "Btree::find_in_block", (void*)p << ", " << (void*)key << ", " << offset << ", " << c);
+    DEBUGCALL_STATIC(DB, int, "Btree::find_in_block", (void*)p << ", " << (void*)key.get_address() << ", " << offset << ", " << c);
     int i = DIR_START - offset;
     int j = DIR_END(p);
 
     if (c != -1) {
-	if (c < j && i < c && compare_keys(key, p + GETD(p, c) + I2) >= 0)
+	if (c < j && i < c && Item(p, c).key() <= key)
 	    i = c;
 	c += D2;
-	if (c < j && i < c && compare_keys(key, p + GETD(p, c) + I2) < 0)
+	if (c < j && i < c && key < Item(p, c).key())
 	    j = c;
     }
 
     while (j - i > D2) {
 	int k = i + ((j - i)/(D2 * 2))*D2; /* mid way */
-	int t = compare_keys(key, p + GETD(p, k) + I2);
-	if (t < 0) j = k; else i = k;
+	if (key < Item(p, k).key()) j = k; else i = k;
     }
     RETURN(i);
 }
@@ -613,11 +571,11 @@ Btree::find(Cursor * C_) const
     // Note: the parameter is needed when we're called by BCursor
     const byte * p;
     int c;
-    byte * k = kt + I2;
+    Key key(kt + I2);
     int j;
     for (j = level; j > 0; j--) {
 	p = C_[j].p;
-	c = find_in_block(p, k, 0, C_[j].c);
+	c = find_in_block(p, key, 0, C_[j].c);
 #ifdef BTREE_DEBUG_FULL
 	printf("Block in Btree:find - code position 1");
 	report_block_full(j, C_[j].n, p);
@@ -626,14 +584,14 @@ Btree::find(Cursor * C_) const
 	block_to_cursor(C_, j - 1, block_given_by(p, c));
     }
     p = C_[0].p;
-    c = find_in_block(p, k, D2, C_[j].c);
+    c = find_in_block(p, key, D2, C_[j].c);
 #ifdef BTREE_DEBUG_FULL
     printf("Block in Btree:find - code position 2");
     report_block_full(j, C_[j].n, p);
 #endif /* BTREE_DEBUG_FULL */
     C_[0].c = c;
     if (c < DIR_START) RETURN(false);
-    RETURN((compare_keys(k, key_of(p, c)) == 0));
+    RETURN(Item(p, c).key() == key);
 }
 
 /** compress(p) compresses the block at p by shuffling all the items up to the end.
@@ -724,23 +682,24 @@ Btree::split_root(uint4 split_n)
    block split, with a further call to enter_key. Hence the recursion.
 */
 void
-Btree::enter_key(int j, byte * prevkey, byte * newkey)
+Btree::enter_key(int j, Key prevkey, Key newkey)
 {
     Assert(writable);
-    Assert(compare_keys(prevkey, newkey) < 0);
+    Assert(prevkey < newkey);
     Assert(j >= 1);
 
     uint4 blocknumber = C[j - 1].n;
 
+    // FIXME update to use Key
     // Keys are truncated here: but don't truncate the count at the end away.
-    const int newkey_len = GETK(newkey, 0) - C2;
+    const int newkey_len = newkey.length();
     int i;
 
     if (j == 1) {
 	// Truncate the key to the minimal key which differs from prevkey,
 	// the preceding key in the block.
-	i = K1;
-	const int min_len = min(newkey_len, GETK(prevkey, 0) - C2);
+	i = 0;
+	const int min_len = min(newkey_len, prevkey.length());
 	while (i < min_len && prevkey[i] == newkey[i]) {
 	    i++;
 	}
@@ -754,27 +713,27 @@ Btree::enter_key(int j, byte * prevkey, byte * newkey)
     byte b[UCHAR_MAX + 6];
     Assert(I2 + i + C2 + 4 <= (int)sizeof(b));
 
-    SETI(b, 0, I2 + i + C2 + 4); // Set item length
-    SETK(b, I2, i + C2);    // Set key length
-    memmove(b + I2 + K1, newkey + K1, i - K1); // Copy the main part of the key
-    memmove(b + I2 + i, newkey + newkey_len, C2); // copy count part
+    SETI(b, 0, I2 + K1 + i + C2 + 4); // Set item length
+    SETK(b, I2, K1 + i + C2);    // Set key length
+    memmove(b + I2 + K1, newkey.get_address() + K1, i); // Copy the main part of the key
+    memmove(b + I2 + K1 + i, newkey.get_address() + K1 + newkey_len, C2); // copy count part
 
     // Set tag contents to block number
-    set_int4(b, I2 + i + C2, blocknumber);
+    set_int4(b, I2 + K1 + i + C2, blocknumber);
 
     // When j > 1 we can make the first key of block p null.  This is probably
     // worthwhile as it trades a small amount of CPU and RAM use for a small
     // saving in disk use.  Other redundant keys will still creep in though.
     if (j > 1) {
 	byte * p = C[j - 1].p;
-	int newkey_len = GETK(newkey, 0);
-	uint4 n = get_int4(newkey, newkey_len);
-	int new_total_free = TOTAL_FREE(p) + (newkey_len - K1);
-	form_null_key(newkey - I2, n);
+	int newkey_len = newkey.length();
+	uint4 n = get_int4(newkey.get_address(), newkey_len + K1 + C2);
+	int new_total_free = TOTAL_FREE(p) + newkey_len + C2;
+	form_null_key((byte *)newkey.get_address() - I2, n);
 	SET_TOTAL_FREE(p, new_total_free);
     }
 
-    C[j].c = find_in_block(C[j].p, b + I2, 0, 0) + D2;
+    C[j].c = find_in_block(C[j].p, Key(b + I2), 0, 0) + D2;
     C[j].rewrite = true; /* a subtle point: this *is* required. */
     add_item(b, j);
 }
@@ -918,9 +877,11 @@ Btree::add_item(byte * kt_, int j)
 	// Check if we're splitting the root block.
 	if (j == level) split_root(split_n);
 
-	enter_key(j + 1,                /* enters a separating key at level j + 1 */
-		  key_of(split_p, DIR_END(split_p) - D2), /* - between the last key of block split_p, */
-		  key_of(p, DIR_START));      /* - and the first key of block p */
+	/* Enter a separating key at level j + 1 between */
+	/* the last key of block split_p, and the first key of block p */
+	enter_key(j + 1,
+		  Item(split_p, DIR_END(split_p) - D2).key(),
+		  Item(p, DIR_START).key());
     } else {
 	add_item_to_block(p, kt_, c);
 	n = C[j].n;
@@ -1035,7 +996,7 @@ Btree::add_kt(bool found)
 	int kt_size = GETI(kt, 0);
 	int needed = kt_size - GETI(p, o);
 
-	components = components_of(p, c);
+	components = Item(p, c).components_of();
 
 	if (needed <= 0) {
 	    /* simple replacement */
@@ -1093,7 +1054,7 @@ Btree::delete_kt()
     }
     */
     if (found) {
-	components = components_of(C[0].p, C[0].c);
+	components = Item(C[0].p, C[0].c).components_of();
 	alter();
 	delete_item(0, true);
     }
@@ -1274,31 +1235,20 @@ Btree::find_tag(const string &key, string * tag) const
     form_key(key);
     if (!find(C)) RETURN(false);
 
-    int n = components_of(C[0].p, C[0].c);
-				    /* n components to join */
-    int ck = GETK(kt, I2) + I2 - C2;/* offset to the key counter */
-    int cd = ck + 2 * C2;           /* offset to the tag data */
-    int i = 1;                      /* see below */
+    Item item(C[0].p, C[0].c);
 
-    byte * p = item_of(C[0].p, C[0].c); /* pointer to current component */
+    /* n components to join */
+    int n = item.components_of();
 
     tag->resize(0);
-    if (n > 1) {
-	string::size_type space_for_tag = string::size_type(max_item_size) * n;
-	tag->reserve(space_for_tag);
-    }
+    if (n > 1) tag->reserve(max_item_size * n);
 
-    while (true) { // FIXME: code to do very similar thing in bcursor.cc...
-	/* number of bytes to extract from current component */
-	int l = GETI(p, 0) - cd;
-	tag->append(reinterpret_cast<char *>(p + cd), l);
+    item.append_chunk(tag);
 
-	if (i == n) break;
-	i++;
-	SETC(kt, ck, i);
-	find(C);
-
-	p = item_of(C[0].p, C[0].c);
+    // FIXME: code to do very similar thing in bcursor.cc...
+    for (int i = 2; i <= n; i++) {
+	next(C, 0);
+	(void)Item(C[0].p, C[0].c).append_chunk(tag);
     }
 
     RETURN(true);
@@ -1821,7 +1771,7 @@ Btree::open(quartz_revision_number_t revision)
 }
 
 bool
-Btree::prev_for_sequential(Cursor * C_, int /*dummy*/)
+Btree::prev_for_sequential(Cursor * C_, int /*dummy*/) const
 {
     int c = C_[0].c;
     if (c == DIR_START) {
@@ -1853,7 +1803,7 @@ Btree::prev_for_sequential(Cursor * C_, int /*dummy*/)
 }
 
 bool
-Btree::next_for_sequential(Cursor * C_, int /*dummy*/)
+Btree::next_for_sequential(Cursor * C_, int /*dummy*/) const
 {
     byte * p = C_[0].p;
     Assert(p);
@@ -1885,7 +1835,7 @@ Btree::next_for_sequential(Cursor * C_, int /*dummy*/)
 }
 
 bool
-Btree::prev_default(Cursor * C_, int j)
+Btree::prev_default(Cursor * C_, int j) const
 {
     byte * p = C_[j].p;
     int c = C_[j].c;
@@ -1906,7 +1856,7 @@ Btree::prev_default(Cursor * C_, int j)
 }
 
 bool
-Btree::next_default(Cursor * C_, int j)
+Btree::next_default(Cursor * C_, int j) const
 {
     byte * p = C_[j].p;
     int c = C_[j].c;
@@ -1930,4 +1880,53 @@ Btree::next_default(Cursor * C_, int j)
 #endif /* BTREE_DEBUG_FULL */
     }
     return true;
+}
+
+/** Compares this key with key2.
+
+   The result is true if this key precedes key2. The comparison is for byte
+   sequence collating order, taking lengths into account. So if the keys are
+   made up of lower case ASCII letters we get alphabetical ordering.
+
+   Now remember that items are added into the B-tree in fastest time
+   when they are preordered by their keys. This is therefore the piece
+   of code that needs to be followed to arrange for the preordering.
+
+   This is complicated by the fact that keys have two parts - a value
+   and then a count.  We first compare the values, and only if they
+   are equal do we compare the counts.
+*/
+
+bool Key::operator<(Key key2) const
+{
+    DEBUGCALL(DB, bool, "Key::operator<", (void*)key2.p);
+    int key1_len = length();
+    int key2_len = key2.length();
+    if (key1_len == key2_len) {
+	// The keys are the same length, so we can compare the counts
+	// in the same operation since they're stored as 2 byte
+	// bigendian numbers.
+	RETURN(memcmp(p + K1, key2.p + K1, key1_len + C2) < 0);
+    }
+
+    int k_smaller = (key2_len < key1_len ? key2_len : key1_len);
+
+    // Compare the common part of the keys
+    int diff = memcmp(p + K1, key2.p + K1, k_smaller);
+    if (diff != 0) RETURN(diff < 0);
+
+    // We dealt with the "same length" case above so we never need to check
+    // the count here.
+    RETURN(key1_len < key2_len);
+}
+
+bool Key::operator==(Key key2) const
+{
+    DEBUGCALL(DB, bool, "Key::operator==", (void*)key2.p);
+    int key1_len = length();
+    if (key1_len != key2.length()) return false;
+    // The keys are the same length, so we can compare the counts
+    // in the same operation since they're stored as 2 byte
+    // bigendian numbers.
+    RETURN(memcmp(p + K1, key2.p + K1, key1_len + C2) == 0);
 }

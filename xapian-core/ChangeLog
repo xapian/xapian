@@ -1,3 +1,9 @@
+Sat Nov 06 20:58:00 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/,testsuite/btreecheck.cc: Started to refactor the
+	  Btree manager by introducing Item and Key classes which take care
+	  of handling the on-disk format.
+
 Sat Nov 06 15:40:05 GMT 2004  Olly Betts <olly@survex.com>
 
 	* xapian-config.in,m4/xapian.m4: Pass across ac_top_srcdir and use it
