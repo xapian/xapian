@@ -30,6 +30,9 @@ typedef long int4;
 typedef unsigned long uint4;
 
 struct Cursor {
+    /** Constructor, to set important elements to 0.
+     */
+    Cursor() : p(0), split_p(0) {}
 
     byte * p;         /* pointer to a block */
     int c;            /* offset in the block's directory */
@@ -54,26 +57,58 @@ struct Cursor {
     /* allow for this many levels in the B-tree. Overflow practically impossible */
 
 struct Btree {
+    /** Constructor, to set important elements to 0.
+     */
+    Btree() : error(0),
+	      overwritten(false),
+	      handle(-1),
+	      level(0),
+	      kt(0),
+	      buffer(0),
+	      bit_map_size(0),
+	      bit_map_low(0),
+	      bit_map0(0),
+	      bit_map(0),
+	      base(0),
+	      Btree_modified(false),
+	      full_compaction(false) {}
 
-    /* 'public' information */
+/* 'public' information */
 
-    int error;            /* error number setting */
-    char overwritten;     /* set to true if a parallel overwrite is detected */
-    uint4 revision_number;/* revision number of the opened B-tree */
+    /** error number setting */
+    int error;
+
+    /** set to true if a parallel overwrite is detected. */
+    bool overwritten;
+
+    /** revision number of the opened B-tree. */
+    uint4 revision_number;
+
+    /** revision number of the other base. */
     uint4 other_revision_number;
-                          /* - revision number of the other base */
-    char both_bases;      /* set to true if baseA and baseB both exist. The old base
-                             is deleted as soon as a write to the Btree takes place */
-    int4 item_count;      /* keeps a count of the number of items in the B-tree */
-    int max_key_len;      /* the largest possible value of a key_len */
 
-    /* 'semi-public': the user might be allowed to read this */
+    /** set to true if baseA and baseB both exist. The old base
+     *  is deleted as soon as a write to the Btree takes place. */
+    bool both_bases;
 
-    int block_size;       /* block size of the B tree in bytes */
-    int base_letter;      /* the value 'A' or 'B' of the current base */
-    int4 last_block;      /* the last used block of B->bit_map0 */
+    /* keeps a count of the number of items in the B-tree. */
+    int4 item_count;
 
-    /* 'private' information */
+    /* the largest possible value of a key_len. */
+    int max_key_len;
+
+/* 'semi-public': the user might be allowed to read this */
+
+    /** block size of the B tree in bytes */
+    int block_size;
+
+    /** the value 'A' or 'B' of the current base */
+    int base_letter;
+
+    /** the last used block of B->bit_map0 */
+    int4 last_block;
+
+/* 'private' information */
 
     int handle;           /* corresponding file handle */
     int level;            /* number of levels, counting from 0 */
@@ -82,8 +117,8 @@ struct Btree {
     byte * buffer;        /* buffer of size block_size for reforming blocks */
     uint4 next_revision;  /* 1 + revision number of the opened B-tree */
     int bit_map_size;     /* size of the bit map of blocks, in bytes */
-    int bit_map_low;      /* byte offset into the bit map below which there are no
-                             free blocks */
+    int bit_map_low;      /* byte offset into the bit map below which there
+			     are no free blocks */
     byte * bit_map0;      /* the initial state of the bit map of blocks: 1 means in
                              use, 0 means free */
     byte * bit_map;       /* the current state of the bit map of blocks */
@@ -92,10 +127,16 @@ struct Btree {
 
     std::string name;     /* The path name of the B tree */
 
-    int seq_count;        /* count of the number of successive instances of purely sequential
-                             addition, starting at SEQ_START_POINT (neg) and going up to zero */
-    int4 changed_n;       /* the last block to be changed by an addition */
-    int changed_c;        /* - and the corresponding directory offset */
+    /** count of the number of successive instances of purely sequential
+     *  addition, starting at SEQ_START_POINT (neg) and going up to zero */
+    int seq_count;
+
+    /** the last block to be changed by an addition */
+    int4 changed_n;
+
+    /* - and the corresponding directory offset */
+    int changed_c;
+
     int max_item_size;    /* maximum size of an item (key-tag pair) */
     int shared_level;     /* in B-tree read mode, cursors share blocks in
                              BC->C for levels at or above B->shared_level */

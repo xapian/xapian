@@ -40,9 +40,6 @@
 #include "omassert.h"
 #include <string>
 
-#define true 1
-#define false 0
-
 /* The unit of access into the DB files is an unsigned char, which is defined
    as 'byte' with a typedef.
 
@@ -247,7 +244,9 @@ static int sys_flush(int h) {
     return true;
 }
 
-static int sys_close(int h) { return close(h) == 0; }  /* 0 if success */
+static int sys_close(int h) {
+    return close(h) == 0;
+}  /* 0 if success */
 
 
 
@@ -1100,6 +1099,9 @@ static void form_key(struct Btree * B, byte * p, byte * key, int key_len)
 extern int Btree_add(struct Btree * B, byte * key, int key_len,
                                        byte * tag, int tag_len)
 {
+    Assert(B->error == 0);
+    Assert(!B->overwritten);
+
     struct Cursor * C = B->C;
     byte * kt = B->kt;
 
@@ -1161,6 +1163,9 @@ extern int Btree_add(struct Btree * B, byte * key, int key_len,
 
 extern int Btree_delete(struct Btree * B, byte * key, int key_len)
 {
+    Assert(B->error == 0);
+    Assert(!B->overwritten);
+
     struct Cursor * C = B->C;
     byte * kt = B->kt;
 
@@ -1186,6 +1191,9 @@ extern int Btree_delete(struct Btree * B, byte * key, int key_len)
 
 extern int Btree_find_key(struct Btree * B, byte * key, int key_len)
 {
+    Assert(B->error == 0);
+    Assert(!B->overwritten);
+
     struct Cursor * C = B->C;
     form_key(B, B->kt, key, key_len);
     return find(B, C);
@@ -1202,6 +1210,9 @@ extern struct Btree_item * Btree_item_create(void)
 
 extern int Btree_find_tag(struct Btree * B, byte * key, int key_len, struct Btree_item * item)
 {
+    Assert(B->error == 0);
+    Assert(!B->overwritten);
+
     struct Cursor * C = B->C;
     byte * kt = B->kt;
 
@@ -1253,6 +1264,9 @@ extern void Btree_item_lose(struct Btree_item * item)
 
 extern void Btree_full_compaction(struct Btree * B, int parity)
 {
+    Assert(B->error == 0);
+    Assert(!B->overwritten);
+
     if (parity) B->seq_count = 0;
     B->full_compaction = parity;
 }
@@ -1281,7 +1295,10 @@ static byte * read_base(const std::string & name, char ch)
     byte * p;
     int size;
     if ( ! valid_handle(h)) return 0;
-    if (! sys_read_bytes(h, 2, w)) { sys_close(h); return 0; }
+    if (! sys_read_bytes(h, 2, w)) {
+	sys_close(h);
+	return 0;
+    }
     size = GETINT2(w, 0);
     p = malloc(size);
     if (p != 0)
@@ -1289,17 +1306,22 @@ static byte * read_base(const std::string & name, char ch)
 	if (sys_read_bytes(h, size - 2, p + 2) &&
 	    get_int4(p, B_REVISION) == get_int4(p, B_REVISION2)) return p;
     }
-    free(p); sys_close(h); return 0;
+
+    free(p);
+    sys_close(h);
+    return 0;
 }
 
 static byte * read_bit_map(const std::string & name, char ch, int size)
 {
     byte * p = malloc(size);
-    if (p != 0)
-    {   int h = sys_open_to_read((name + "bitmap" + ch).c_str());
+    if (p != 0) {
+	int h = sys_open_to_read((name + "bitmap" + ch).c_str());
 	if (valid_handle(h) &&
 	    sys_read_bytes(h, size, p) &&
-	    sys_close(h)) return p;
+	    sys_close(h)) {
+	    return p;
+	}
     }
     free(p); return 0;
 }
@@ -1326,11 +1348,10 @@ static struct Btree * basic_open(const char * name_,
 				 int revision_supplied,
 				 uint4 revision)
 {
-    struct Btree * B = (struct Btree *) calloc(1, sizeof(struct Btree));
+    struct Btree * B = new struct Btree;
+    Assert(B != 0);
 
     int ch = 'X'; /* will be 'A' or 'B' */
-
-    if (B == 0) return 0;              /* couldn't get space for B */
 
     B->name = name_;
 
@@ -1341,7 +1362,10 @@ static struct Btree * basic_open(const char * name_,
         byte * other_base;
 
         if (baseA != 0 && baseB != 0) B->both_bases = true;
-        if (baseA == 0 && baseB == 0) { B->error = BTREE_ERROR_BASE_READ; return B; }
+        if (baseA == 0 && baseB == 0) {
+	    B->error = BTREE_ERROR_BASE_READ;
+	    return B;
+	}
 
         if (revision_supplied)
         {   if (baseA != 0 && get_int4(baseA, B_REVISION) == revision) ch = 'A';
@@ -1375,18 +1399,21 @@ static struct Btree * basic_open(const char * name_,
             free(other_base);
         }
     }
-    B->kt = calloc(1, B->block_size); /* k holds contructed items as well as keys */
+
+    /* k holds contructed items as well as keys */
+    B->kt = calloc(1, B->block_size);
     if (B->kt == 0) goto no_space;
 
     B->max_item_size = (B->block_size - DIR_START - BLOCK_CAPACITY * D2) / BLOCK_CAPACITY;
 
-    B->max_key_len = UCHAR_MAX - K1 - C2;  /* This upper limit corresponds to K1 == 1 */
+    /* This upper limit corresponds to K1 == 1 */
+    B->max_key_len = UCHAR_MAX - K1 - C2;
 
-    {   int max = B->max_item_size - I3 - C2 - C2 - TAG_CAPACITY;
+    {
+	int max = B->max_item_size - I3 - C2 - C2 - TAG_CAPACITY;
 
-        /*
-           This limit would come into effect with large keys in a B-tree with a small
-           block size.
+        /* This limit would come into effect with large keys in a B-tree with a
+	   small block size.
         */
 
         if (B->max_key_len > max) B->max_key_len = max;
@@ -1476,15 +1503,22 @@ no_space:
 }
 
 extern struct Btree * Btree_open_to_write(const char * name)
-{   return open_to_write(name, false, 0);
+{
+    return open_to_write(name, false, 0);
 }
 
 extern struct Btree * Btree_open_to_write_revision(const char * name, uint4 n)
-{   return open_to_write(name, true, n);
+{
+    return open_to_write(name, true, n);
 }
 
 extern void Btree_quit(struct Btree * B)
 {
+    if (valid_handle(B->handle)) {
+	sys_close(B->handle);
+	B->handle = -1;
+    }
+
     struct Cursor * C = B->C;
     int j; for (j = B->level; j >= 0; j--)
     {
@@ -1494,11 +1528,14 @@ extern void Btree_quit(struct Btree * B)
 
     free(B->kt); free(B->buffer);
     free(B->bit_map); free(B->bit_map0); free(B->base);
-    free(B);
+    delete(B);
 }
 
 extern int Btree_close(struct Btree * B, uint4 revision)
 {
+    Assert(B->error == 0);
+    Assert(!B->overwritten);
+
     struct Cursor * C = B->C;
     int j;
     int error = BTREE_ERROR_REVISION;
@@ -1543,6 +1580,7 @@ extern int Btree_close(struct Btree * B, uint4 revision)
 
     error = 0;
 end:
+    B->handle = -1;
     Btree_quit(B);
     return error;
 }
@@ -1569,7 +1607,7 @@ static struct Btree * open_to_read(const char * name, int revision_supplied, uin
     struct Btree * B = basic_open(name, revision_supplied, revision);
     if (B == 0 || B->error) return B;
 
-    B->handle = sys_open_to_read((B->name).c_str());
+    B->handle = sys_open_to_read((B->name + "DB").c_str());
     if ( ! valid_handle(B->handle)) { B->error = BTREE_ERROR_DB_OPEN; return B; }
     {
         int common_levels = B->revision_number <= 1 ? 1 : 2;
@@ -1603,6 +1641,9 @@ extern struct Btree * Btree_open_to_read_revision(const char * name, uint4 n)
 
 extern struct Bcursor * Bcursor_create(struct Btree * B)
 {
+    Assert(B->error == 0);
+    Assert(!B->overwritten);
+
     struct Bcursor * BC = (struct Bcursor *) calloc(1, sizeof(struct Bcursor));
     if (BC == 0) return 0;
     BC->B = B;
@@ -1734,6 +1775,10 @@ static int next(struct Btree * B, struct Cursor * C, int j)
 extern int Bcursor_prev(struct Bcursor * BC)
 {
     struct Btree * B = BC->B;
+
+    Assert(B->error == 0);
+    Assert(!B->overwritten);
+
     if (! BC->positioned) return false;
 
     {   struct Cursor * C = BC->C;
@@ -1747,6 +1792,10 @@ extern int Bcursor_prev(struct Bcursor * BC)
 extern int Bcursor_next(struct Bcursor * BC)
 {
     struct Btree * B = BC->B;
+
+    Assert(B->error == 0);
+    Assert(!B->overwritten);
+
     if (! BC->positioned) return false;
 
     {   struct Cursor * C = BC->C;
@@ -1760,6 +1809,10 @@ extern int Bcursor_next(struct Bcursor * BC)
 extern int Bcursor_find_key(struct Bcursor * BC, byte * key, int key_len)
 {
     struct Btree * B = BC->B;
+
+    Assert(B->error == 0);
+    Assert(!B->overwritten);
+
     struct Cursor * C = BC->C;
     form_key(B, B->kt, key, key_len);
     {   int found = find(B, C);
@@ -1780,6 +1833,9 @@ extern int Bcursor_find_key(struct Bcursor * BC, byte * key, int key_len)
 
 extern int Bcursor_get_key(struct Bcursor * BC, struct Btree_item * item)
 {
+    Assert(BC->B->error == 0);
+    Assert(!BC->B->overwritten);
+
     if (! BC->positioned) return false;
 
     {   struct Cursor * C = BC->C;
@@ -1799,6 +1855,9 @@ extern int Bcursor_get_key(struct Bcursor * BC, struct Btree_item * item)
 
 extern int Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * item)
 {
+    Assert(BC->B->error == 0);
+    Assert(!BC->B->overwritten);
+
     struct Btree * B = BC->B;
     if (! BC->positioned) return false;
 
@@ -2065,7 +2124,8 @@ static void block_check(struct Btree * B, struct Cursor * C, int j, int opts)
 }
 
 extern void Btree_check(const char * name, const char * opt_string)
-{   struct Btree * B = Btree_open_to_write(name);
+{
+    struct Btree * B = Btree_open_to_write(name);
     struct Cursor * C = B->C;
 
     int opts = 0;
