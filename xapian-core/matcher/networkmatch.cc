@@ -38,7 +38,7 @@
 
 NetworkMatch::NetworkMatch(IRDatabase *database_)
 	: database(dynamic_cast<NetworkDatabase *>(database_)),
-	  statsleaf() /*,
+	  mygatherer(0) /*,
 	  min_weight_percent(-1),
 	  max_weight_needs_calc(true),
 	  query(0),
@@ -58,7 +58,8 @@ NetworkMatch::prepare_match()
     if (!is_prepared) {
 	get_remote_stats();
 
-	statsleaf.contrib_my_stats();
+	mygatherer->contrib_stats(remote_stats);
+	
 	is_prepared = true;
     }
 }
@@ -66,7 +67,15 @@ NetworkMatch::prepare_match()
 void
 NetworkMatch::get_remote_stats()
 {
-    Assert(false);
+    remote_stats = database->link->get_remote_stats();
+}
+
+void
+NetworkMatch::link_to_multi(StatsGatherer *gatherer)
+{
+    mygatherer = gatherer;
+//    statsleaf.my_collection_size_is(database->get_doccount());
+//    statsleaf.my_average_length_is(database->get_avlength());
 }
 
 //////////////////////////////////////////////////////////
@@ -74,14 +83,6 @@ NetworkMatch::get_remote_stats()
 // ########## IS JUST COPIED FROM LEAFMATCH, ########## //
 // ########## AND IS HENCE BOGUS TO THE MAX. ########## //
 //////////////////////////////////////////////////////////
-
-void
-NetworkMatch::link_to_multi(StatsGatherer *gatherer)
-{
-    statsleaf.connect_to_gatherer(gatherer);
-//    statsleaf.my_collection_size_is(database->get_doccount());
-//    statsleaf.my_average_length_is(database->get_avlength());
-}
 
 NetworkMatch::~NetworkMatch()
 {

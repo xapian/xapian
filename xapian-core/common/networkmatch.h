@@ -40,12 +40,14 @@ class NetworkMatch : public SingleMatch
 	NetworkDatabase *database;
 
 	/// the statistics object
-	StatsLeaf statsleaf;
+	Stats remote_stats;
 
-	/// Prepare the statsleaf object with contributed
+	/// Prepare the stats object with contributed
 	/// statistics from the remote end.
 	void get_remote_stats();
 
+	/// The parent's StatsGatherer
+	StatsGatherer *mygatherer;
     public:
         NetworkMatch(IRDatabase * database_);
         ~NetworkMatch();

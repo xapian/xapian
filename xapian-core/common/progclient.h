@@ -50,6 +50,16 @@ class ProgClient : public NetClient {
 	 */
 	void do_simple_transaction(string msg);
 
+	/** Write the string to the stream and return the
+	 *  reply.  Throw an exception if the reply is "ERROR".
+	 */
+	string do_transaction_with_result(string msg);
+
+	/** Convert the string returned by GETSTATS into
+	 *  a Stats object.
+	 */
+	Stats string_to_stats(const string &s);
+
     public:
 	/** Constructor.
 	 *
@@ -69,6 +79,9 @@ class ProgClient : public NetClient {
 
 	/** Set the query */
 	void set_query(const OmQueryInternal *query_);
+
+	/** Get the remote stats */
+	Stats get_remote_stats();
 
 	/** Read some data from the process.
 	 */

@@ -26,6 +26,8 @@
 #include <typeinfo>
 #include <memory>
 #include <algorithm>
+#include <strstream.h>
+#include <iomanip.h>
 #include "database.h"
 #include "database_builder.h"
 #include <om/omerror.h>
@@ -33,6 +35,7 @@
 #include "leafmatch.h"
 #include "omqueryinternal.h"
 #include "readquery.h"
+#include "netutils.h"
 
 void run_matcher();
 
@@ -50,17 +53,6 @@ int main() {
 	     << "): " << e.get_msg() << endl;
     } catch (...) {
 	cerr << "Caught exception" << endl;
-    }
-}
-
-void split_words(string text, vector<string> &words) {
-    if (text.length() > 0 && text[0] == ' ') {
-	text.erase(0, text.find_first_not_of(' '));
-    }
-    while (text.length() > 0) {
-	words.push_back(text.substr(0, text.find_first_of(' ')));
-	text.erase(0, text.find_first_of(' '));
-	text.erase(0, text.find_first_not_of(' '));
     }
 }
 
@@ -227,13 +219,48 @@ OmQueryInternal query_from_string(string qs)
     return retval;
 }
 
+string
+stats_to_string(const Stats &stats)
+{
+    ostrstream os;
+
+    os << stats.collection_size << " ";
+    os << stats.average_length << " ";
+
+    map<om_termname, om_doccount>::const_iterator i;
+
+    for (i=stats.termfreq.begin();
+	 i != stats.termfreq.end();
+	 ++i) {
+	os << "T" << encode_tname(i->first) << "=" << i->second << " ";
+    }
+
+    for (i = stats.reltermfreq.begin();
+	 i != stats.reltermfreq.end();
+	 ++i) {
+	os << "R" << encode_tname(i->first) << "=" << i->second << " ";
+    }
+
+    // FIXME: should be eos.
+    os << '\0';
+
+    string result(os.str());
+
+    os.freeze(0);
+
+    return result;
+}
+
 void run_matcher() {
     // open the database to return results
     DatabaseBuilderParams param(OM_DBTYPE_INMEMORY);
     param.paths.push_back("text.txt");
     auto_ptr<IRDatabase> db(DatabaseBuilder::create(param));
 
+    StatsGatherer statgath;
+
     LeafMatch leafmatch(db.get());
+    leafmatch.link_to_multi(&statgath);
 
     while (1) {
 	string message;
@@ -263,6 +290,12 @@ void run_matcher() {
 	    leafmatch.set_query(&temp);
 	    //cerr << "CLIENT QUERY: " << temp.serialise() << endl;
 	    cout << "OK" << endl;
+	    cout.flush();
+	} else if (words[0] == "GETSTATS") {
+	    // FIXME: we're not using the RSet stats yet.
+	    leafmatch.prepare_match();
+
+	    cout << stats_to_string(*statgath.get_stats()) << endl;
 	    cout.flush();
 	} else {
 	    cout << "ERROR" << endl;

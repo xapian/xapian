@@ -24,12 +24,14 @@
 #include "progclient.h"
 #include "om/omerror.h"
 #include "utils.h"
+#include "netutils.h"
 
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <cstdio>
 #include <cerrno>
+#include <strstream.h>
 
 ProgClient::ProgClient(string progname)
 {
@@ -151,6 +153,56 @@ ProgClient::set_query(const OmQueryInternal *query_)
     do_simple_transaction(string("SETQUERY ") + query_->serialise());
 } 
 
+Stats
+ProgClient::string_to_stats(const string &s)
+{
+    Stats stat;
+
+    istrstream is(s.c_str(), s.length());
+
+    is >> stat.collection_size;
+    is >> stat.average_length;
+
+    string word;
+    while (is >> word) {
+	if (word.length() == 0) continue;
+
+	if (word[0] == 'T') {
+            vector<string> parts;
+	    split_words(word.substr(1), parts, '=');
+
+	    if (parts.size() != 2) {
+		throw OmNetworkError(string("Invalid stats string word part: ")
+				     + word);
+	    }
+
+	    stat.termfreq[parts[0]] = atoi(parts[1].c_str());
+	} else if (word[0] == 'R') {
+            vector<string> parts;
+	    split_words(word.substr(1), parts, '=');
+
+	    if (parts.size() != 2) {
+		throw OmNetworkError(string("Invalid stats string word part: ")
+				     + word);
+	    }
+	    
+	    stat.reltermfreq[parts[0]] = atoi(parts[1].c_str());
+	} else {
+	    throw OmNetworkError(string("Invalid stats string word: ") + word);
+	}
+    }
+
+    return stat;
+}
+
+Stats
+ProgClient::get_remote_stats()
+{
+    string result = do_transaction_with_result(string("GETSTATS"));
+
+    return string_to_stats(result);
+}
+
 void
 ProgClient::do_simple_transaction(string msg)
 {
@@ -161,4 +213,17 @@ ProgClient::do_simple_transaction(string msg)
 	throw OmNetworkError(string("Invalid response: (") +
 			     msg + ") -> (" + response + ")");
     }
+}
+
+string
+ProgClient::do_transaction_with_result(string msg)
+{
+    do_write(msg + '\n');
+    string response = do_read();
+
+    if (response == "ERROR") {
+	throw OmNetworkError(string("Error response: (") +
+			     msg + ") -> (" + response + ")");
+    }
+    return response;
 }

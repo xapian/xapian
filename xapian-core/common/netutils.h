@@ -48,4 +48,15 @@ encode_tname(string tname)
     return result;
 }
 
+inline void split_words(string text, vector<string> &words, char ws = ' ') {
+    if (text.length() > 0 && text[0] == ws) {
+	text.erase(0, text.find_first_not_of(ws));
+    }
+    while (text.length() > 0) {
+	words.push_back(text.substr(0, text.find_first_of(ws)));
+	text.erase(0, text.find_first_of(ws));
+	text.erase(0, text.find_first_not_of(ws));
+    }
+}
+
 #endif /* OM_HGUARD_NETUTILS_H */
