@@ -717,15 +717,14 @@ OmEnquire::get_eset(om_termcount maxitems,
     /* The auto_ptrs will clean up any dynamically allocated
      * expand deciders automatically.
      */
-    auto_ptr<OmExpandDecider> decider_noquery, decider_andnoquery;
+    auto_ptr<OmExpandDecider> decider_noquery;
+    auto_ptr<OmExpandDecider> decider_andnoquery;
     
     if (internal->query != 0 && !eoptions->allow_query_terms) {
         decider_noquery = auto_ptr<OmExpandDecider>(
-	                      new OmExpandDeciderFilterTerms(
-			         internal->query->get_terms()));
+	    new OmExpandDeciderFilterTerms(internal->query->get_terms()));
 	decider_andnoquery = auto_ptr<OmExpandDecider>(
-	                      new OmExpandDeciderAnd(
-			         decider_noquery.get(), edecider));
+	    new OmExpandDeciderAnd(decider_noquery.get(), edecider));
 
         edecider = decider_andnoquery.get();
     }
