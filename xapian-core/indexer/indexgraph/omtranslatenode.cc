@@ -25,6 +25,33 @@
 #include "om/omerror.h"
 #include "node_reg.h"
 
+/** Node which performs a character translation.
+ *
+ *  The omtranslate node maps some characters to other characters in the
+ *  output.  The omtranslate node works on a string, and the
+ *  omtranslatelist works on a list of strings.
+ *
+ *  The mapping is specified as a "from" string and a "to" string, both
+ *  of the same length.  The character at position N in the "from" string
+ *  is mapped to the character at position N in the "to" string.
+ *  Characters not appearing in "from" stay as they are.
+ *
+ *  Example: from="abcdef", to="123456".  The string "wibble" would become
+ *  "wi22l5".  A common use would be from="ABCDEF...XYZ" and
+ *  to="abcdef...xyz", which converts all characters to lower-case.
+ *
+ *  Inputs:
+ *  	in: The input string (for omtranslate) or list of strings (for
+ *  		omtranslatelist)
+ *
+ *  Outputs:
+ *  	out: The translated string (for omtranslate) or list of strings
+ *  		(for omtranslatelist)
+ *
+ *  Parameters:
+ *  	from: The string of characters to be mapped to other characters.
+ *  	to: The characters to map to.
+ */
 class OmTranslateNode : public OmIndexerNode {
     public:
 	OmTranslateNode(const OmSettings &config)

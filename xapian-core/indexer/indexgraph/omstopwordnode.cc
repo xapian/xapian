@@ -47,6 +47,22 @@ static const char *const default_swords[] = {
     "make", "put", "see", "seen", "whether" 
 };
 
+/** Node which removes certain stopwords from a list of words.
+ *
+ *  The omstopword node removes occurences of stopwords from a list
+ *  of strings.  The list of words can be specified in a parameter.
+ *  If not specified, then a default list of (stemmed) English
+ *  stopwords is used.
+ *
+ *  Inputs:
+ *  	in: The input list of words.
+ *
+ *  Outputs:
+ *  	out: The list of words minus the stopwords.
+ *
+ *  Parameters:
+ *  	stopwords: The list of stopwords to remove.
+ */
 class OmStopWordNode : public OmIndexerNode {
     public:
 	OmStopWordNode(const OmSettings &config)

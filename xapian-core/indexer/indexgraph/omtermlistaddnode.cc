@@ -26,6 +26,24 @@
 #include <cctype>
 #include "om/omerror.h"
 
+/** Node which adds items to a termlist structure.
+ *
+ *  The omtermlistadd node adds a list of strings to a termlist as new
+ *  terms.
+ *
+ *  Inputs:
+ *  	termlist: The termlist to act on.  A termlist can be created by
+ *  		an omnewtermlist node.
+ *	words: The new terms to add to the termlist.  If invokes as an
+ *		omtermlistadd node, then this is a vector of strings.
+ *		If invoked as omtermlistaddone, then this is a single
+ *		string.
+ *
+ *  Outputs:
+ *  	out: The new termlist with added elements.
+ *
+ *  Parameters: none
+ */
 class OmTermlistAddNode : public OmIndexerNode {
     public:
 	OmTermlistAddNode(const OmSettings &config)

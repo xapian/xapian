@@ -25,6 +25,24 @@
 #include "om/omerror.h"
 #include "node_reg.h"
 
+/** Node which stems words.
+ *
+ *  The omstemmer node applies a stemming algorithm to each word
+ *  in an input list.  For the list of available stemming languages,
+ *  see the documentation from OmStem.
+ *
+ *  Inputs:
+ *  	in: A list of strings (words) to be stemmed.
+ *  	language: The language of the stemmer to invoke.  This input is
+ *  		not used if the language is provided as a paramter.
+ *
+ *  Outputs:
+ *  	out: The list of stemmed words.
+ *
+ *  Parameters:
+ *  	language: The language of the stemmer to invoke.  If this parameter
+ *  		is present, then the input of the same name is ignored.
+ */
 class OmStemmerNode : public OmIndexerNode {
     public:
 	OmStemmerNode(const OmSettings &config)

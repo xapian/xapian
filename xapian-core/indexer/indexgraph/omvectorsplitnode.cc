@@ -23,6 +23,22 @@
 #include "om/omindexernode.h"
 #include "node_reg.h"
 
+/** Node which splits a vector into several messages.
+ *
+ *  The omvectorsplit node is a utility node which converts a list
+ *  of N elements into N separate messages.  This can be useful when
+ *  splitting a source document into more than one index document,
+ *  which can only be indexed one at a time.
+ *
+ *  The output "out" can be read N times with different results before
+ *  the "in" input is reread.
+ *
+ *  Inputs:
+ *  	in: A list of any type.
+ *
+ *  Outputs:
+ *  	out: Part of the input list.
+ */
 class OmVectorSplitNode : public OmIndexerNode {
     public:
 	OmVectorSplitNode(const OmSettings &config)
