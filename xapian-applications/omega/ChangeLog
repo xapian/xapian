@@ -1,3 +1,7 @@
+Mon Aug 23 22:03:25 BST 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Use the new replace_document(term, doc) method.
+
 Sun Aug 22 13:11:23 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.in,configure.ac: Renamed configure.in to configure.ac.

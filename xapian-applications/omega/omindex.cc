@@ -464,17 +464,13 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
     newdocument.add_term(urlterm); // Url
 
     if (dupes == DUPE_replace) {
-	// This document has already been indexed - update!
+	// If this document has already been indexed, update the existing
+	// entry.
 	try {
-	    Xapian::PostingIterator p = db.postlist_begin(urlterm);
-	    if (p != db.postlist_end(urlterm)) {
-		db.replace_document(*p, newdocument);
-		cout << "duplicate. Re-indexed." << endl;
-	    } else {
-		db.add_document(newdocument);
-		cout << "done." << endl;
-	    }
+	    db.replace_document(urlterm, newdocument);
+	    cout << "done." << endl;
 	} catch (...) {
+	    // FIXME: is this actually needed?
 	    db.add_document(newdocument);
 	    cout << "done (failed re-seek for duplicate)." << endl;
 	}
