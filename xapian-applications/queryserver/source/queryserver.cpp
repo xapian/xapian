@@ -333,7 +333,7 @@ serve_client(int sock)
         }
     }
 
-    Xapian::Database db = Xapian::Auto::open(dbdir + "/" + dbname);
+    Xapian::Database db(dbdir + "/" + dbname);
     Xapian::Enquire enquire(db);
     enquire.set_query(query);
     if (have_collapsekey) {
