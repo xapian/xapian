@@ -1,4 +1,8 @@
-Fri May 17 14:08:52 BST 2002  Olly Betts <ollybe@ananova.net>
+Thu Jul 04 02:19:28 BST 2002  Olly Betts <olly@survex.com>
+
+	* Makefile.am, configure.in: cleaned up slightly. 
+
+Fri May 17 14:08:52 BST 2002  Olly Betts <olly@survex.com>
 
         * .cvsignore: updated.
 
