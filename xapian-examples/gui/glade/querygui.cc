@@ -39,8 +39,8 @@
 
 #include <list>
 
-OMEnquire * enquire;
-OMMSet mset;
+OmEnquire * enquire;
+OmMSet mset;
 string query;
 
 om_doccount max_msize;
@@ -155,7 +155,7 @@ static void do_resultdisplay(gint row) {
 
 static void do_topterms() {
     try {
-	OMRSet rset;
+	OmRSet rset;
 	GList *next = results_widget->selection;
 	gint index;
 
@@ -177,14 +177,14 @@ static void do_topterms() {
 	    }
 	}
 
-	OMESet topterms;
+	OmESet topterms;
 	enquire->get_eset(topterms, 50, rset);
 	//topterms.expand(&rset, &decider);
 
 	gtk_clist_freeze(topterms_widget);
 	gtk_clist_clear(topterms_widget);
 
-	vector<OMESetItem>::const_iterator i;
+	vector<OmESetItem>::const_iterator i;
 	for (i = topterms.items.begin(); i != topterms.items.end(); i++) {
 	    string tname = i->tname;
 //#ifdef DEBUG
@@ -230,10 +230,10 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	vector<QueryTerm> qterms;
 	qterms = parser.parse_query(query);
 
-	OMQuery query;
+	OmQuery query;
 	vector<QueryTerm>::const_iterator i = qterms.begin();
 	while(i != qterms.end()) {
-	    query = OMQuery(OM_MOP_OR, query, (*i).tname);
+	    query = OmQuery(OM_MOP_OR, query, (*i).tname);
 	    i++;
 	}
 
@@ -247,7 +247,7 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	        " Max_possible: " << mset.max_possible <<
 	        " Max_attained: " << mset.max_attained << endl;
 
-	vector<OMMSetItem>::const_iterator j;
+	vector<OmMSetItem>::const_iterator j;
 	for (j = mset.items.begin(); j != mset.items.end(); j++) {
 	    om_docid did = j->did;
 #if 0
@@ -343,7 +343,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Start enquiry system
-    enquire = new OMEnquire();
+    enquire = new OmEnquire();
 
     // Set Database(s)
     try {
@@ -385,7 +385,7 @@ int main(int argc, char *argv[]) {
 	/* start the event loop */
 	gtk_main();
     } catch (OmError &e) {
-	cout << "OMError: " << e.get_msg() << endl;
+	cout << "OmError: " << e.get_msg() << endl;
     }
     delete enquire;
     enquire = NULL;
