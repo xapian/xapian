@@ -51,12 +51,6 @@ TMPDIR="/tmp/xapian-core$$"
 ## BEGIN PROCESSING ##
 trap "(rm -rf $TMPDIR;echo \"makedebs failed\")" EXIT
 
-# Checkout original packages from CVS
-mkdir -p src
-cd src
-  cvs -Q -d ${CVSROOT} co -r $CVSTAG xapian
-cd ..
-
 # Checkout debian control files from CVS
 mkdir -p control
 cd control
@@ -65,39 +59,64 @@ cd control
   cvs -Q -d ${CVSROOT} co -r ${DEBTAG}${PATCHNUM_OMEGA} -d xapian-omega xapian/xapian-applications/omega/debian
 cd ..
 
-# Make distribution tarballs
-cd src
-  cd xapian
-    ./bootstrap
-    ./configure --enable-maintainer-mode
-    (cd xapian-core && make dist)
-    (cd xapian-bindings && make dist)
-    (cd xapian-applications/omega && make dist)
-    make dist
+# Calculate location that tarballs should be found at
+TARBALL_CORE="${PUBDIR}pool/main/xapian-core_${VERSION}.orig.tar.gz"
+TARBALL_BINDINGS="${PUBDIR}pool/main/xapian-bindings_${VERSION}.orig.tar.gz"
+TARBALL_OMEGA="${PUBDIR}pool/main/xapian-omega_${VERSION}.orig.tar.gz"
+
+# Make distribution tarballs, if we don't already have some
+if [ -e ${TARBALL_CORE} -a -e ${TARBALL_BINDINGS} -a -e ${TARBALL_OMEGA} ];
+then
+  # Distribution tarballs all exist
+  true
+else
+  # Checkout original packages from CVS
+  rm -rf origsrc
+  mkdir -p origsrc
+  cd origsrc
+    cvs -Q -d ${CVSROOT} co -r $CVSTAG xapian
+    cd xapian
+      ./bootstrap
+      ./configure --enable-maintainer-mode
+      if [ -e ${TARBALL_CORE} ]; then true; else
+        cd xapian-core
+	  make dist
+	  cp xapian-core-${VERSION}.tar.gz ${TARBALL_CORE}
+	cd ..
+      fi
+      if [ -e ${TARBALL_BINDINGS} ]; then true; else
+        cd xapian-bindings
+	  make dist
+	  cp xapian-bindings-${VERSION}.tar.gz ${TARBALL_BINDINGS}
+	cd ..
+      fi
+      if [ -e ${TARBALL_OMEGA} ]; then true; else
+        cd xapian-applications/omega
+	  make dist
+	  rm -rf distdir
+	  mkdir -p distdir
+	  tar zxvf omega-${VERSION}.tar.gz
+	  mv omega-${VERSION} xapian-omega-${VERSION}
+	  tar zcvf xapian-omega-${VERSION}.tar.gz xapian-omega-${VERSION}
+	  cp xapian-omega-${VERSION}.tar.gz ${TARBALL_OMEGA}
+	cd ../..
+      fi
+    cd ..
   cd ..
-cd ..
+  rm -rf origsrc
+fi
 
 # Unpack distribution tarballs, and put the debian control files into place.
 rm -rf build
 mkdir -p build
 cd build
-  tar zxf ../src/xapian/xapian-core/xapian-core-${VERSION}.tar.gz
-  mkdir -p xapian-core-${VERSION}/debian
-  cp -af ../control/xapian-core/* xapian-core-${VERSION}/debian/
-
-  tar zxf ../src/xapian/xapian-bindings/xapian-bindings-${VERSION}.tar.gz
-  mkdir -p xapian-bindings-${VERSION}/debian
-  cp -af ../control/xapian-bindings/* xapian-bindings-${VERSION}/debian/
-
-  tar zxf ../src/xapian/xapian-applications/omega/omega-${VERSION}.tar.gz
-  mv omega-${VERSION} xapian-omega-${VERSION}
-  mkdir -p xapian-omega-${VERSION}/debian
-  cp -af ../control/xapian-omega/* xapian-omega-${VERSION}/debian/
-
-
   # Build packages from xapian-core
+  tar zxf ${TARBALL_CORE}
   cd xapian-core-${VERSION}
-    debian/rules # Needed to generate control from control.in
+    mkdir -p debian
+    cp -af ../../control/xapian-core/* debian/
+
+    debian/rules # Generates generate control from control.in
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_OPTS}
 
     # Build and install (to a temporary location) the core library
@@ -106,19 +125,26 @@ cd build
       ../configure --prefix=${TMPDIR}
       make
       make install
-  cd ../..
+    cd ..
+  cd ..
   # Add new library to beginning of path.
   export PATH
   PATH="$TMPDIR/bin:$PATH"
 
   # Build packages from xapian-bindings
+  tar zxf ${TARBALL_BINDINGS}
   cd xapian-bindings-${VERSION}
-    debian/rules # Needed to generate control from control.in and control-python.in
+    mkdir -p debian
+    cp -af ../../control/xapian-bindings/* debian/
+    debian/rules # Generates control from control.in and control-python.in
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_OPTS}
   cd ..
 
   # Build packages from xapian-omega
+  tar zxf ${TARBALL_OMEGA}
   cd xapian-omega-${VERSION}
+    mkdir -p debian
+    cp -af ../control/xapian-omega/* debian/
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_OPTS}
   cd ..
 
