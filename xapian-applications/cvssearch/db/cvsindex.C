@@ -45,7 +45,7 @@ bool get_root_package(const string & input, string & root, string & package)
     list<string> root_package;
     split(input, ":", root_package);
     
-    if (root_package.size() == 2) 
+    if (root_package.size() == 2)
     {
         root = root_package.front();
         root_package.pop_front();
@@ -56,10 +56,12 @@ bool get_root_package(const string & input, string & root, string & package)
     }
 }
 
+/**
+
 // query words => revision comment
-void writeFileDB(const string & prev_file, 
-                 const string & package_path, 
-                 const map< string, list<string> >& revision_comment_words) 
+void writeFileDB(const string & prev_file,
+                 const string & package_path,
+                 const map< string, list<string> >& revision_comment_words)
 {
     // open database for file
     string filedb_dir = prev_file;
@@ -73,17 +75,17 @@ void writeFileDB(const string & prev_file,
         }
     }
     filedb_dir = package_path + ".om2/"+filedb_dir;
-    
+
     system(("mkdir " + filedb_dir ).c_str()); // for file db's
-    
+
     OmSettings db_parameters;
     db_parameters.set("backend", "quartz");
     db_parameters.set("quartz_dir", filedb_dir);
     db_parameters.set("database_create", true);
-    OmWritableDatabase file_db(db_parameters); // open database 
+    OmWritableDatabase file_db(db_parameters); // open database
 
     map<string, list<string> >::const_iterator r;
-    for(r = revision_comment_words.begin(); r != revision_comment_words.end(); ++r) 
+    for(r = revision_comment_words.begin(); r != revision_comment_words.end(); ++r)
     {
         const string & revision = r->first;
         const list<string> & words = r->second;
@@ -95,13 +97,13 @@ void writeFileDB(const string & prev_file,
             newdocument.add_posting(word, pos++); // term, position of term
         }
         newdocument.set_data(revision);
-        file_db.add_document(newdocument);	    	   
+        file_db.add_document(newdocument);
     }
 }
 
-void writeFileComments(OmWritableDatabase& db, 
+void writeFileComments(OmWritableDatabase& db,
                        const string& fn, 
-                       const set< list<string> >& file_comments ) 
+                       const set< list<string> >& file_comments )
 {
     list<string> all_words;
 
@@ -128,7 +130,9 @@ void writeFileComments(OmWritableDatabase& db,
     db.add_document(newdocument);
 }
 
-int main(int argc, char *argv[]) 
+**/
+
+int main(int argc, char *argv[])
 {
     if(argc < 2) {
         usage(argv[0]);
@@ -151,7 +155,7 @@ int main(int argc, char *argv[])
         string database_dir = package_path + ".om";
         string database_dir2= package_path + ".om2";
         string source_file  = package_path+".src";
-    
+
         // ofstream src( source_file.c_str() );
         try {
             // ----------------------------------------
@@ -170,20 +174,22 @@ int main(int argc, char *argv[])
             db_parameters.set("backend", "quartz");
             db_parameters.set("quartz_dir", database_dir);
             db_parameters.set("database_create", true);
-            OmWritableDatabase database(db_parameters); // open database 
+            OmWritableDatabase database(db_parameters); // open database
 
+            /**
             OmSettings db_parameters2;
             db_parameters2.set("backend", "quartz");
             db_parameters2.set("quartz_dir", database_dir2);
             db_parameters2.set("database_create", true);
-            OmWritableDatabase database2(db_parameters2); // open database 
+            OmWritableDatabase database2(db_parameters2); // open database
+            **/
 
             int files = 0;
-            map< string, list<string>  > revision_comment_words;
-
+            map< string, list<string>  > revision_comment_words; // for file comments
             set< list<string> > file_comments;
 
-            lines_cmt lines( cvsdata+"/"+root+"/src", root, package, file_cmt, file_offset, " indexing"); 
+#warning "change to lines_db?"
+            lines_cmt lines( cvsdata+"/"+root+"/src", root, package, file_cmt, file_offset, " indexing");
             string prev_file = "";
             while ( lines.readNextLine() ) {
                 if ( lines.getCurrentFile() != prev_file ) {
@@ -193,12 +199,12 @@ int main(int argc, char *argv[])
                     files++;
                 }
                 lines.updateRevisionComments( revision_comment_words );
-                const list<string> & words = lines.getTermList();
+                const list<string> & words = lines.getTermList(); // combined comments for line
                 const string & data = lines.getData();
                 // const string & code = lines.getCodeLine();
                 // const string & codelinedata = lines.getCodeLineData();
 
-                const map<string, list<string> > & terms = lines.getRevisionCommentWords();
+                const map<string, list<string> > & terms = lines.getRevisionCommentWords(); // for file comments
                 map<string, list<string> >::const_iterator r;
                 for(r = terms.begin(); r != terms.end(); ++r) {
                     const list<string> & word_list = r->second;
@@ -216,10 +222,12 @@ int main(int argc, char *argv[])
                 // 80 is the file number
                 // 15 is the line number
 
-                // so, along with each entry, we store the 
+                // so, along with each entry, we store the
                 // following associated string:
                 // 80 15:1.8 1.3 1.1
                 // ----------------------------------------
+
+                // add line comments
                 OmDocument newdocument;
                 unsigned int pos = 0;
                 list<string>::const_iterator i;
@@ -234,7 +242,7 @@ int main(int argc, char *argv[])
         }
         catch(OmError & error) {
             cerr << "OMSEE Exception: " << error.get_msg() << endl;
-        } 
+        }
     }
 }
 
