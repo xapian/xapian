@@ -100,25 +100,6 @@ TextfileDatabase::open_document(docid did) const
     return new TextfileDocument(doclists[did - 1]);
 }
 
-
-termid
-TextfileDatabase::add_term(const termname &tname)
-{
-    throw OmError("TextfileDatabase.add_term() not implemented");
-}
-
-docid
-TextfileDatabase::add_doc(IRDocument &doc)
-{
-    throw OmError("TextfileDatabase.add_doc() not implemented");
-}
-
-void
-TextfileDatabase::add(termid tid, docid did, termpos tpos)
-{
-    throw OmError("TextfileDatabase.add_term() not implemented");
-}
-
 termid
 TextfileDatabase::make_term(const termname &tname)
 {

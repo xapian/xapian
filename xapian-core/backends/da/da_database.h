@@ -233,16 +233,6 @@ class DADatabase : public virtual IRSingleDatabase {
 	termid term_name_to_id(const termname &) const;
 	termname term_id_to_name(termid) const;
 
-	termid add_term(const termname &) {
-	    throw OmError("DADatabase.add_term() not implemented");
-	}
-	docid add_doc(IRDocument &) {
-	    throw OmError("DADatabase.add_doc() not implemented");
-	}
-	void add(termid, docid, termpos) {
-	    throw OmError("DADatabase.add() not implemented");
-	}
-
 	void open(const string &pathname, bool readonly);
 	void close();
 

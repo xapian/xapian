@@ -10,10 +10,10 @@
 #include "multi/multi_database.h"
 #include "database.h"
 
-IRDatabase *
+IRSingleDatabase *
 DatabaseFactory::make(om_database_type type)
 {
-    IRDatabase * database = NULL;
+    IRSingleDatabase * database = NULL;
 
     switch(type) {
 	case OM_DBTYPE_DA:
@@ -34,10 +34,10 @@ DatabaseFactory::make(om_database_type type)
     return database;
 }
 
-IRDatabaseGroup *
-makegroup(om_databasegroup_type type)
+IRGroupDatabase *
+DatabaseFactory::makegroup(om_databasegroup_type type)
 {
-    IRDatabaseGroup * database = NULL;
+    IRGroupDatabase * database = NULL;
 
     switch(type) {
 	case OM_DBGRPTYPE_MULTI:

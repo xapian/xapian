@@ -242,6 +242,7 @@ SleepyDatabase::open_document(docid id) const {
     throw OmError("SleepyDatabase.open_document() not implemented");
 }
 
+#if 0
 termid
 SleepyDatabase::add_term(const termname &tname) {
     Assert(opened);
@@ -271,12 +272,6 @@ SleepyDatabase::add_term(const termname &tname) {
     }
 
     return newid;
-}
-
-docid
-SleepyDatabase::add_doc(IRDocument &doc) {
-    Assert(opened);
-    throw OmError("SleepyDatabase.add_doc() not implemented");
 }
 
 void
@@ -351,6 +346,7 @@ SleepyDatabase::add(termid tid, docid did, termpos tpos) {
 	throw OmError("PostlistDb error:" + string(e.what()));
     }
 }
+#endif
 
 termid
 SleepyDatabase::term_name_to_id(const termname &tname) const {

@@ -202,7 +202,7 @@ class MultiTerm {
 };
 
 
-class MultiDatabase : public virtual IRDatabase {
+class MultiDatabase : public virtual IRGroupDatabase {
     private:
 	mutable map<termname, termid> termidmap;
 	mutable vector<MultiTerm> termvec;
@@ -223,15 +223,9 @@ class MultiDatabase : public virtual IRDatabase {
 	termid term_name_to_id(const termname &) const;
 	termname term_id_to_name(termid) const;
 
-	termid add_term(const termname &);
-	docid add_doc(IRDocument &);
-	void add(termid, docid, termpos);
-
-	// MultiDatabase will take care of closing and deleting the
-	// database.  FIXME find appropriate structure to make this
-	// implicit in the interface.
-	void open_subdatabase(IRDatabase *,
-			      const string &pathname, bool readonly);
+	void open(om_database_type,
+		  const string &pathname,
+		  bool readonly);
 	void close();
 
 	doccount  get_doccount() const;

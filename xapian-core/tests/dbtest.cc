@@ -15,8 +15,9 @@ int main(int argc, char *argv[]) {
 	DatabaseFactory dbfactory;
 	IRDatabase * database;
 #if 1
-	database = dbfactory.make(DBTYPE_TEXTFILE);
-	database->open("textfile", 1);
+	IRSingleDatabase *tmp = dbfactory.make(OM_DBTYPE_TEXTFILE);
+	tmp->open("textfile", 1);
+	database = tmp;
 #endif
 #if 0
 	MultiDatabase database;

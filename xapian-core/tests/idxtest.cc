@@ -1,6 +1,4 @@
-#include "sleepy_database.h"
-#include "omerror.h"
-
+#include "om.h"
 #include <algorithm>
 #include <stdio.h>
 
@@ -11,6 +9,7 @@ int main(int argc, char *argv[]) {
     }
 
     try {
+#if 0
 	SleepyDatabase db;
 	db.open(argv[1], 0);
 
@@ -22,6 +21,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	db.add(tid, did, tpos);
+#endif
     }
     catch (OmError e) {
 	cout << e.get_msg() << endl;

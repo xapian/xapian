@@ -28,10 +28,6 @@ class IRDatabase {
 	virtual termid term_name_to_id(const termname &) const = 0;
 	virtual termname term_id_to_name(termid) const = 0;
     
-	virtual termid add_term(const termname &) = 0;
-	virtual docid add_doc(IRDocument &) = 0;
-	virtual void add(termid, docid, termpos) = 0;
-
 	// Close the database
 	virtual void close() = 0;
 
@@ -60,8 +56,9 @@ class IRSingleDatabase : public virtual IRDatabase {
 
 class IRGroupDatabase : public virtual IRDatabase {
     public:
-	virtual void open_subdatabase(IRDatabase *,
-				      const string &pathname, bool readonly);
+	virtual void open(om_database_type,
+			  const string &pathname,
+			  bool readonly) = 0;
 };
 
 inline bool

@@ -4,6 +4,7 @@
 
 #include "omassert.h"
 #include "multi_database.h"
+#include "database_factory.h"
 
 #include <string>
 #include <vector>
@@ -119,9 +120,14 @@ MultiDatabase::set_root(IRDatabase *db) {
 }
 
 void
-MultiDatabase::open_subdatabase(IRDatabase * db,
-				const string &pathname, bool readonly) {
+MultiDatabase::open(om_database_type type,
+		    const string &pathname,
+		    bool readonly) {
     Assert(!used);
+
+    DatabaseFactory dbfact;
+    IRSingleDatabase *db = dbfact.make(type);
+
     db->open(pathname, readonly);
     db->set_root(root);
 
@@ -195,22 +201,6 @@ MultiDatabase::open_document(docid did) const {
     doccount dbnumber = (did - 1) % multiplier;
 
     return (*(databases.begin() + dbnumber))->open_document(realdid);
-}
-
-
-termid
-MultiDatabase::add_term(const termname &tname) {
-    throw OmError("MultiDatabase.add_term() not implemented");
-}
-
-docid
-MultiDatabase::add_doc(IRDocument &doc) {
-    throw OmError("MultiDatabase.add_doc() not implemented");
-}
-
-void
-MultiDatabase::add(termid tid, docid did, termpos tpos) {
-    throw OmError("MultiDatabase.add_term() not implemented");
 }
 
 termid

@@ -152,7 +152,7 @@ class TextfileTermList : public virtual TermList {
 
 
 // Database
-class TextfileDatabase : public virtual IRDatabase,
+class TextfileDatabase : public virtual IRSingleDatabase,
 			 public virtual IndexerDestination {
     private:
 	string path;
@@ -178,10 +178,6 @@ class TextfileDatabase : public virtual IRDatabase,
 
 	termid term_name_to_id(const termname &) const;
 	termname term_id_to_name(termid) const;
-
-	termid add_term(const termname &);
-	docid add_doc(IRDocument &);
-	void add(termid, docid, termpos);
 
 	void open(const string &pathname, bool readonly);
 	void close();

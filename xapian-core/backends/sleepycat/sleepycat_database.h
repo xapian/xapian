@@ -65,7 +65,7 @@ class SleepyTermList : public virtual TermList {
 
 class SleepyDatabaseInternals;
 
-class SleepyDatabase : public virtual IRDatabase {
+class SleepyDatabase : public virtual IRSingleDatabase {
     private:
 	SleepyDatabaseInternals * internals;
 	string path;
@@ -76,10 +76,6 @@ class SleepyDatabase : public virtual IRDatabase {
 
 	termid term_name_to_id(const termname &) const;
 	termname term_id_to_name(termid) const;
-
-	termid add_term(const termname &);
-	docid add_doc(IRDocument &);
-	void add(termid, docid, termpos);
 
 	void open(const string &pathname, bool readonly);
 	void close();

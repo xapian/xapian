@@ -1,14 +1,6 @@
 #include <stdio.h>
 
-#include "omerror.h"
-#include "database.h"
-#include "database_factory.h"
-#include "irdocument.h"
-
-#include "match.h"
-#include "expand.h"
-#include "stem.h"
-#include "rset.h"
+#include "om.h"
 
 #include <list>
 
@@ -19,7 +11,7 @@ main(int argc, char *argv[])
     const char *progname = argv[0];
     list<docid> reldocs;
     list<string> dbnames;
-    list<enum database_type> dbtypes;
+    list<om_database_type> dbtypes;
     bool multidb = false;
     bool showmset = false;
     matchop default_op = OR;
@@ -86,19 +78,19 @@ main(int argc, char *argv[])
 	IRDatabase *database;
 
 	if (multidb || dbnames.size() > 1) {
-	    IRDatabaseGroup *multidb = dbfactory.makegroup(OM_DBGRPTYPE_MULTI);
+	    IRGroupDatabase *multidb = dbfactory.makegroup(OM_DBGRPTYPE_MULTI);
 	    list<string>::const_iterator p;
-	    list<string>::const_iterator q;
+	    list<om_database_type>::const_iterator q;
 	    for(p = dbnames.begin(), q = dbtypes.begin();
 		p != dbnames.end();
 		p++, q++) {
-		multidb->open_subdatabase(dbfactory.make(*q),
-					  *p, true);
+		multidb->open(*q, *p, true);
 	    }
 	    database = multidb;
 	} else {
-	    database = dbfactory.make(*(dbtypes.begin())),
-	    database->open(*(dbnames.begin()), true);
+	    IRSingleDatabase *singledb = dbfactory.make(*(dbtypes.begin()));
+	    singledb->open(*(dbnames.begin()), true);
+	    database = singledb;
 	}
        
 	RSet rset(database);
