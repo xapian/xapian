@@ -27,6 +27,11 @@
 #include "om/omtypes.h"
 #include "positionlist.h"
 #include <string>
+#include "om/omindexdoc.h"
+#include "quartz_table_entries.h"
+
+class QuartzTable;
+class QuartzBufferedTable;
 
 /** A termlist in a quartz database.
  */
@@ -68,7 +73,9 @@ class QuartzPositionList : public PositionList {
         ~QuartzPositionList() { return; }
 
         /// Fill list with data, and move the position to the start.
-        void set_data(const std::string & data_);
+        void read_data(const QuartzTable * table,
+		       om_docid did,
+		       const om_termname & tname);
 
         /// Gets size of position list.
         om_termcount get_size() const { return number_of_entries; }
@@ -90,6 +97,22 @@ class QuartzPositionList : public PositionList {
 
         /// True if we're off the end of the list
         bool at_end() const { return is_at_end; }
+
+	/// Make a key for accessing the positionlist.
+	static void make_key(om_docid did,
+			     const om_termname & tname,
+			     QuartzDbKey & key);
+
+	/// Set the position list for the given docid and termname
+	static void set_positionlist(QuartzBufferedTable * table,
+			om_docid did,
+			const om_termname & tname,
+			const OmDocumentTerm::term_positions & positions);
+
+	/// Delete the position list for the given docid and termname
+	static void delete_positionlist(QuartzBufferedTable * table,
+					om_docid did,
+					const om_termname & tname);
 };
 
 #endif /* OM_HGUARD_QUARTZ_POSITIONLIST_H */

@@ -32,6 +32,7 @@
 #include "refcnt.h"
 
 #include "quartz_termlist.h"
+#include "quartz_positionlist.h"
 #include "quartz_lexicon.h"
 #include "quartz_record.h"
 #include "quartz_attributes.h"
@@ -214,7 +215,17 @@ QuartzDatabase::do_get_document_internal(om_docid did,
 	OmDocumentTerm term(termlist.get_termname());
 	term.wdf = termlist.get_wdf();
 	term.termfreq = termlist.get_termfreq();
-	// FIXME: read appropriate QuartzPositionList, and store it too.
+
+	// read appropriate QuartzPositionList, and store it too.
+	QuartzPositionList positionlist;
+	positionlist.read_data(tables->get_positionlist_table(),
+			       did,
+			       term.tname);
+	positionlist.next();
+	while (!positionlist.at_end()) {
+	    term.positions.push_back(positionlist.get_position());
+	    positionlist.next();
+	}
 
 	document.terms.insert(std::make_pair(term.tname, term));
 	termlist.next();
@@ -461,12 +472,12 @@ QuartzWritableDatabase::do_add_document(const OmDocumentContents & document)
 				    term->second.tname,
 				    did,
 				    term->second.wdf);
-	QuartzPositionList::add_positionlist(
-				    *(buffered_tables.get_positionlist_table()),
-				    did,
-				    term->second.tname,
-				    term->second.positions);
 #endif
+	QuartzPositionList::set_positionlist(
+				buffered_tables->get_positionlist_table(),
+				did,
+				term->second.tname,
+				term->second.positions);
     }
 
     return did;
@@ -491,12 +502,11 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
 				       term->second.tname,
 				       did,
 				       term->second.wdf);
-	QuartzPositionList::delete_positionlist(
-				    *(buffered_tables.get_positionlist_table()),
-				    did,
-				    term->second.tname,
-				    term->second.positions);
 #endif
+	QuartzPositionList::delete_positionlist(
+				buffered_tables->get_positionlist_table(),
+				did,
+				term->second.tname);
 	QuartzLexicon::decrement_termfreq(buffered_tables->get_lexicon_table(),
 					  term->second.tname);
     }

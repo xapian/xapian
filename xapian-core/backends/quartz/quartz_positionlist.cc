@@ -23,11 +23,25 @@
 #include "omdebug.h"
 #include "quartz_positionlist.h"
 #include "quartz_utils.h"
+#include "quartz_table.h"
 
 void
-QuartzPositionList::set_data(const std::string & data_)
+QuartzPositionList::read_data(const QuartzTable * table,
+			      om_docid did,
+			      const om_termname & tname)
 {
-    data = data_;
+    QuartzDbKey key;
+    QuartzDbTag tag;
+    make_key(did, tname, key);
+    if (!table->get_exact_entry(key, tag)) {
+	throw OmDocNotFoundError("Position list for term " + tname +
+				 " in document " + om_tostring(did) +
+				 " not present in database.");
+    }
+
+    // FIXME: Unwanted copy
+    data = tag.value;
+
     pos = data.data();
     end = pos + data.size();
     is_at_end = false;
@@ -78,5 +92,48 @@ QuartzPositionList::skip_to(om_termpos termpos)
 {
     if (pos == data.data()) next_internal();
     while(!is_at_end && current_pos < termpos) next_internal();
+}
+
+void
+QuartzPositionList::make_key(om_docid did,
+			     const om_termname & tname,
+			     QuartzDbKey & key)
+{
+    key.value = pack_uint(did);
+    key.value += pack_string(tname);
+}
+
+// Methods modifying position lists
+
+void
+QuartzPositionList::set_positionlist(QuartzBufferedTable * table,
+			om_docid did,
+			const om_termname & tname,
+			const OmDocumentTerm::term_positions & positions)
+{
+    QuartzDbKey key;
+    QuartzDbTag * tag;
+
+    make_key(did, tname, key);
+    tag = table->get_or_make_tag(key);
+
+    tag->value = pack_uint(positions.size());
+
+    OmDocumentTerm::term_positions::const_iterator i;
+    for (i = positions.begin();
+	 i != positions.end();
+	 i++) {
+	tag->value += pack_uint(*i);
+    }
+}
+
+void
+QuartzPositionList::delete_positionlist(QuartzBufferedTable * table,
+			om_docid did,
+			const om_termname & tname)
+{
+    QuartzDbKey key;
+    make_key(did, tname, key);
+    table->delete_tag(key);
 }
 
