@@ -177,22 +177,38 @@ test_driver::runtest(const test_desc *test)
 
 test_driver::result test_driver::run_tests(const test_desc *tests)
 {
+    const string blank;
+    return do_run_tests(tests, blank);
+}
+
+test_driver::result test_driver::run_test(const test_desc *tests,
+					  const string &test_name)
+{
+    return do_run_tests(tests, test_name);
+}
+
+test_driver::result test_driver::do_run_tests(const test_desc *tests,
+					      const string &testname)
+{
     const test_desc *test = tests;
     test_driver::result result = {0, 0};
 
+    bool check_name = (testname.length() > 0);
     while ((test->name) != 0) {
-    	out << "Running test: " << test->name << "...";
-	out.flush();
-	bool succeeded = runtest(test);
-	if (succeeded) {
-	    ++result.succeeded;
-	    out << " ok." << endl;
-	} else {
-	    ++result.failed;
-	    out << " FAILED" << endl;
-	    if (abort_on_error) {
-	        out << "Test failed - aborting further tests." << endl;
-		break;
+	if ((check_name == false) || (testname == test->name)) {
+	    out << "Running test: " << test->name << "...";
+	    out.flush();
+	    bool succeeded = runtest(test);
+	    if (succeeded) {
+		++result.succeeded;
+		out << " ok." << endl;
+	    } else {
+		++result.failed;
+		out << " FAILED" << endl;
+		if (abort_on_error) {
+		    out << "Test failed - aborting further tests." << endl;
+		    break;
+		}
 	    }
 	}
 	++test;

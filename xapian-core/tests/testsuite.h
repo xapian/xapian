@@ -43,12 +43,39 @@ class test_driver {
 	    unsigned int failed;
 	};
 
+	/** Run all the tests supplied and return the results
+	 *
+	 *  @param tests The zero-terminated array of tests to run.
+	 */
 	result run_tests(const test_desc *tests);
+
+	/** Similar to run_tests() but only run the named test.
+	 *
+	 *  @param tests The zero-terminated array of tests to run
+	 *  @param testname The name of the test(s) to run.
+	 */
+	result run_test(const test_desc *tests, const string &testname);
 
 	void set_abort_on_error(bool aoe_);
 	void set_quiet(bool quiet_);
     private:
+	/** Runs the test function and returns its result.  It will
+	 *  also trap exceptions and some memory leaks and force a
+	 *  failure in those cases.
+	 *
+	 *  @param test A description of the test to run.
+	 */
 	bool runtest(const test_desc *test);
+
+	/** The implementation used by both run_test and run_tests.
+	 *  it runs test(s) (with runtest()), prints out messages for
+	 *  the user, and tracks the successes and failures.
+	 *
+	 *  @param tests The list of tests
+	 *  @param name  If non-empty, the name of the test(s) to run.
+	 *               If empty, all tests will be run.
+	 */
+	result do_run_tests(const test_desc *tests, const string &name);
 	
 	// abort tests at the first failure
 	bool abort_on_error;

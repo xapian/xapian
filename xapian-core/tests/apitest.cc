@@ -167,7 +167,7 @@ bool verbose = false;
 
 void usage(char *progname)
 {
-    cerr << "Usage: " << progname << " [-v] [-o] [-f]" << endl;
+    cerr << "Usage: " << progname << " [-v] [-o] [-f] [testname]" << endl;
 }
 
 int main(int argc, char *argv[])
@@ -177,6 +177,9 @@ int main(int argc, char *argv[])
     int c;
 
     test_driver driver;
+
+    string one_test_name;
+    bool one_test = false;
 
     while ((c = getopt(argc, argv, "vof")) != EOF) {
 	switch (c) {
@@ -195,7 +198,10 @@ int main(int argc, char *argv[])
 	}
     }
 
-    if (optind != (argc)) {
+    if (optind == (argc-1)) {
+	one_test = true;
+	one_test_name = argv[argc-1];
+    } else if (optind != (argc)) {
     	usage(argv[0]);
 	return 1;
     }
@@ -206,7 +212,12 @@ int main(int argc, char *argv[])
     }
     datadir = std::string(srcdir) + "/testdata/";
 
-    test_driver::result myresult = driver.run_tests(tests);
+    test_driver::result myresult;
+    if (one_test) {
+	myresult = driver.run_test(tests, one_test_name);
+    } else {
+	myresult = driver.run_tests(tests);
+    }
 
     cout << "apitest finished: "
          << myresult.succeeded << " tests passed, "
