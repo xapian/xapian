@@ -26,7 +26,7 @@
 
 #define CHECKPOINT  -8  /* unique number at start and end of block */
 #define BLOCKNUMBER  -7 /* block number, relative to blockoffset */
-#define VERSION  -6     /* DB version number at creation */
+#define BLOCK_VERSION  -6     /* DB version number at creation */
 #define LEVEL  -5       /* 0 for a leaf block, to level for root block */
 #define TYPE  -4        /* data or index block (used for consistency checking only) */
 #define DLEN  -3        /* directory length */

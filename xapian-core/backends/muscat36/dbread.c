@@ -76,7 +76,7 @@ static byte * C_block(struct DB_file * DB, struct DB_cursor * C, int j)
     if (P == NULL || n != P->n)  /* W(P->p, BLOCKNUMBER) */
     {   P = find_block(DB, n);
         C[j].pool = P;
-        C[j].version = W(P->p, VERSION);
+        C[j].version = W(P->p, BLOCK_VERSION);
         if (j == 0)
         {   if (W(P->p, LEVEL) != DB->levels) goto DB_exit;   }
         else

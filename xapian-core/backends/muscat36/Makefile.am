@@ -5,7 +5,7 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
 noinst_HEADERS = io_system.h 3point6.h \
-		 da_document.h damuscat.h daread.h da_database.h
+		 da_document.h da_database.h daread.h
 
 noinst_LTLIBRARIES = libmuscat36.la
 
