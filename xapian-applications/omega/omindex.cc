@@ -429,7 +429,7 @@ main(int argc, char **argv)
 		 << "  -h, --help\t\tdisplay this help and exit" << endl
 		 << "  -v --version\t\toutput version and exit" << endl << endl
 		 << "Report bugs via the web interface at:" << endl
-		 << "<http://sourceforge.net/tracker/?func=add&group_id=26013&atid=385771>" << endl;
+		 << "<http://sourceforge.net/tracker/?func=add&group_id=35626&atid=414875>" << endl;
 	    return 0;
 	    break;
 	case 'v':
