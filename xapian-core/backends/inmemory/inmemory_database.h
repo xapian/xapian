@@ -144,8 +144,7 @@ class InMemoryTermList : public virtual TermList {
 
 
 // Database
-class InMemoryDatabase : public virtual IRDatabase,
-			 public virtual IndexerDestination {
+class InMemoryDatabase : public virtual IRDatabase {
     friend class DatabaseBuilder;
     private:
 	map<termname, InMemoryTerm> postlists;

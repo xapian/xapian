@@ -8,6 +8,7 @@
 #include "omtypes.h"
 
 #include "database_builder.h"
+#include "indexer.h"
 
 class IRDocument;
 class PostList;
@@ -16,7 +17,7 @@ class TermList;
 class DBTermList;
 class RSet;
 
-class IRDatabase {
+class IRDatabase : public virtual IndexerDestination {
     // Class which can create IRDatabases.
     // All classes derived from IRDatabase must also have DatabaseBuilder as
     // a friend, so that they can be constructed in a unified way.

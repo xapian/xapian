@@ -39,6 +39,16 @@ class MultiDatabase : public virtual IRDatabase {
 	DBPostList * open_post_list(const termname&, RSet *) const;
 	TermList * open_term_list(docid id) const;
 	IRDocument * open_document(docid id) const;
+
+	void make_term(const termname &) {
+	    throw OmError("DADatabase::make_term() not implemented");
+	}
+	docid make_doc(const docname &) {
+	    throw OmError("DADatabase::make_doc() not implemented");
+	}
+	void make_posting(const termname &, unsigned int, unsigned int) {
+	    throw OmError("DADatabase::make_posting() not implemented");
+	}
 };
 
 inline doccount
