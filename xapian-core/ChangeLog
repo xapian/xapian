@@ -1,3 +1,16 @@
+Mon Dec 13 01:39:53 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/btree.h: Renamed
+	  Btree::compress() to Btree::compact() for consistency with
+	  "full_compaction" and "quartzcompact".  Also, "compress" is
+	  confusing since use "compact" and we use that term in the zlib
+	  patch.
+	* backends/quartz/btree.cc: When full_compaction is enabled, don't
+	  fill the last few bytes of a block if that would mean we needed
+	  an extra item and the overhead for that item would use up more
+	  of the next block than we save.  This reduces the table size
+	  after full compaction by up to 0.2% in my tests!
+
 Mon Dec 13 01:39:02 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/multi/multi_postlist.cc: Fixed to build with AssertParanoid

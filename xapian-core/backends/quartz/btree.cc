@@ -586,15 +586,15 @@ Btree::find(Cursor * C_) const
     RETURN(Item(p, c).key() == key);
 }
 
-/** compress(p) compresses the block at p by shuffling all the items up to the end.
+/** compact(p) compact the block at p by shuffling all the items up to the end.
 
    MAX_FREE(p) is then maximized, and is equal to TOTAL_FREE(p).
 */
 
 void
-Btree::compress(byte * p)
+Btree::compact(byte * p)
 {
-    DEBUGCALL(DB, void, "Btree::compress", (void*)p);
+    DEBUGCALL(DB, void, "Btree::compact", (void*)p);
     Assert(writable);
     int e = block_size;
     byte * b = buffer;
@@ -639,7 +639,7 @@ Btree::split_root(uint4 split_n)
     SET_REVISION(q, latest_revision_number + 1);
     SET_LEVEL(q, level);
     SET_DIR_END(q, DIR_START);
-    compress(q);   /* to reset TOTAL_FREE, MAX_FREE */
+    compact(q);   /* to reset TOTAL_FREE, MAX_FREE */
 
     /* form a null key in b with a pointer to the old root */
     byte b[10]; /* 7 is exact */
@@ -760,7 +760,7 @@ Btree::add_item_to_block(byte * p, Item_wr kt_, int c)
     Assert(new_total >= 0);
 
     if (new_max < 0) {
-	compress(p);
+	compact(p);
 	new_max = MAX_FREE(p) - needed;
 	Assert(new_max >= 0);
     }
@@ -814,7 +814,7 @@ Btree::add_item(Item_wr kt_, int j)
 
 	memcpy(split_p, p, block_size);  // replicate the whole block in split_p
 	SET_DIR_END(split_p, m);
-	compress(split_p);      /* to reset TOTAL_FREE, MAX_FREE */
+	compact(split_p);      /* to reset TOTAL_FREE, MAX_FREE */
 
 	{
 	    int residue = DIR_END(p) - m;
@@ -823,7 +823,7 @@ Btree::add_item(Item_wr kt_, int j)
 	    SET_DIR_END(p, new_dir_end);
 	}
 
-	compress(p);      /* to reset TOTAL_FREE, MAX_FREE */
+	compact(p);      /* to reset TOTAL_FREE, MAX_FREE */
 
 	bool add_to_upper_half;
 	if (seq_count < 0) {
@@ -1090,14 +1090,22 @@ Btree::add(const string &key, string tag)
     form_key(key);
 
     // sort of matching kt.append_chunk(), but setting the chunk
-    size_t cd = kt.key().length() + K1 + I2 + C2 + C2;  // offset to the tag data
-    size_t L = max_item_size - cd;	 // largest amount of tag data for any chunk
+    const size_t cd = kt.key().length() + K1 + I2 + C2 + C2;  // offset to the tag data
+    const size_t L = max_item_size - cd; // largest amount of tag data for any chunk
     size_t first_L = L;                  // - amount for tag1
     bool found = find(C);
-    if (full_compaction && !found) {
+    if (!found && full_compaction) {
 	byte * p = C[0].p;
 	int n = TOTAL_FREE(p) % (max_item_size + D2) - D2 - cd;
-	if (n > 0) first_L = n;
+	if (n > 0) {
+	    // We shouldn't always cram a few bytes in, if that means we need
+	    // more items we need to store an extra key so the total space
+	    // required might actually increase!  So we need to check this.
+	    //
+	    // n >= first_L Fully filling this block won't produce an extra item
+	    // n > cd We save more space than the extra item's space overhead
+	    if (n >= first_L || n > cd + D2) first_L = n;
+	}
     }
 
     // a null tag must be added in of course

@@ -568,7 +568,7 @@ class Btree {
 	void set_overwritten() const;
 	void block_to_cursor(Cursor *C_, int j, uint4 n) const;
 	void alter();
-	void compress(byte *p);
+	void compact(byte *p);
 	void enter_key(int j, Key prevkey, Key newkey);
 	int mid_point(byte *p);
 	void add_item_to_block(byte *p, Item_wr kt, int c);
