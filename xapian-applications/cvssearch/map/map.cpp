@@ -43,9 +43,9 @@ using std::vector;
 
 string scvs_root;
 
-string scvs_log    = "cvs -f log -b ";
-string scvs_diff   = "cvs -f diff -b ";
-string scvs_update = "cvs -f update -p ";
+string scvs_log    = "cvs -l -f log -b ";
+string scvs_diff   = "cvs -l -f diff -b ";
+string scvs_update = "cvs -l -f update -p ";
 
 string sversion    = "";
 bool use_html = false;
@@ -65,7 +65,7 @@ static unsigned int num_searches = 0;
 static unsigned int num_lines = 0;
 static unsigned int num_version = 0;
 static unsigned int max_version = 0;
-static unsigned int file_index = 0;
+static unsigned int file_index = 1;
 static unsigned int file_offset = 1;
 
 
@@ -82,15 +82,6 @@ main(unsigned int argc, const char **argv)
     unsigned int i = 1;
     string input_file = "";
 
-    // ----------------------------------------
-    // determine what the cvsroot is,
-    // make sure cvs use it explicitly.
-    // ----------------------------------------
-    char *cvsroot = getenv("CVSROOT");
-    if (cvsroot) {
-        scvs_root = cvsroot;
-    }
-
     while (i < argc)
     {
         if (0) {
@@ -104,7 +95,8 @@ main(unsigned int argc, const char **argv)
             scmt_db = argv[++i];
         } else if (!strcmp(argv[i], "-f2") && i+1 < argc) {
             soffset_db = argv[++i];
-        } else if (!strcmp(argv[i], "-html") && i+1 < argc) {
+        } else if (!strcmp(argv[i], "-html") && i+2 < argc) {
+            file_index = atoi(argv[++i]);
             sversion = argv[++i];
             use_html = true;
             read_mode = true;
@@ -123,6 +115,16 @@ main(unsigned int argc, const char **argv)
         ++i;
     }
 
+    // ----------------------------------------
+    // determine what the cvsroot is,
+    // make sure cvs use it explicitly.
+    // ----------------------------------------
+    if (scvs_root.length() == 0) 
+    {
+        usage(argv[0]);
+        exit(1);
+    }
+
     scvs_log    = "cvs -f -d " + scvs_root + " log -b ";
     scvs_diff   = "cvs -f -d " + scvs_root + " diff -b ";
     scvs_update = "cvs -f -d " + scvs_root + " update -p ";
@@ -135,7 +137,7 @@ main(unsigned int argc, const char **argv)
     if (use_db)
     {
         unlink(sfile_db.c_str());
-        pdb_file = new cvs_db_file(sfile_db);
+        pdb_file = new cvs_db_file(sfile_db, read_mode);
     }
 
     if (input_file == "")
@@ -148,7 +150,7 @@ main(unsigned int argc, const char **argv)
             if (pis)
             {
                 cvsmap(*pis, cmt_fout, offset_fout, pdb_file);
-                if (pdb_file && i % ssync_rate == 0)
+                if (pdb_file && !read_mode && i % ssync_rate == 0)
                 {
                     pdb_file->sync();
                 }
@@ -167,7 +169,7 @@ main(unsigned int argc, const char **argv)
             if (pis)
             {
                 cvsmap(*pis, cmt_fout, offset_fout, pdb_file);
-                if (pdb_file && i % ssync_rate == 0)
+                if (pdb_file && !read_mode && i % ssync_rate == 0)
                 {
                     pdb_file->sync();
                 }
@@ -203,17 +205,17 @@ main(unsigned int argc, const char **argv)
 
 static void usage(const string & prog_name)
 {
-    cerr << "Usage: " << prog_name << " [OPTION] [FILE] ..." << endl
+    cerr << "Usage: " << prog_name << " -d CVSROOT [OPTION] [FILE] ..." << endl
          << endl
          << "Options:" << endl
          << "  -h                 print this message" << endl
          << "  -i                 input file contain a list of files to map" << endl
          << "  -r                 use the forward range method" << endl
          << "  -l                 use the backward line method" << endl
-         << "  -d                 specify the cvsroot" << endl
-         << "  -db file.db        specify the database file" << endl
-         << "  -f1 line.db        specify the line-comment mapped file" << endl
-         << "  -f2 line.offset    the file-name index file" <<endl
+         << "  -html fileid version output html comparason result" << endl
+         << "  -db pkg.db         specify the database file" << endl
+         << "  -f1 pkg.cmt        specify the line-comment map file" << endl
+         << "  -f2 pkg.offset     specify the filename index file" <<endl
          << "  -st stat.file      output statistical information to stat.file" << endl
         ;
     
@@ -228,9 +230,9 @@ cvsmap(istream & log_in, ostream & line_out, ostream & offset_out, cvs_db_file *
     {
         map_algorithm * pcollection;
         if (use_line) {
-            pcollection = new backward_line_map_algorithm(log, ++file_index, pdb_file);
+            pcollection = new backward_line_map_algorithm(log, file_index++, pdb_file);
         } else {
-            pcollection = new forward_range_map_algorithm(log, ++file_index, pdb_file);
+            pcollection = new forward_range_map_algorithm(log, file_index++, pdb_file);
         }
         if (pcollection != 0) {
             num_mappings += pcollection->mappings();
