@@ -67,7 +67,7 @@ set_probabilistic(const string &newp, const string &oldp)
     }
 
     // call YACC generated parser
-    qp.set_stemming_options(option["no_stem"] == "true" ? "english" : "",
+    qp.set_stemming_options(option["no_stem"] == "true" ? "" : "english",
 			    option["all_stem"] == "true"); 
     query = qp.parse_query(raw_prob);
 
