@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -65,7 +65,7 @@ get_min_subqs(OmQuery::Internal::op_t op)
 	default:
 	    Assert(false);
 	    throw OmInvalidOperationError("get_min_subqs called with invalid operator type");
-    };
+    }
 }
 
 static unsigned int
@@ -91,7 +91,7 @@ get_max_subqs(OmQuery::Internal::op_t op)
 	default:
 	    Assert(false);
 	    throw OmInvalidOperationError("get_max_subqs called with invalid operator type");
-    };
+    }
 }
 
 static om_termpos
@@ -103,7 +103,7 @@ get_min_window(OmQuery::Internal::op_t op)
 	    return 1;
 	default:
 	    return 0;
-    };
+    }
 }
 
 static bool

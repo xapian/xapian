@@ -114,7 +114,7 @@ class Document : public RefCntBase {
 	 *  corresponding type.
 	 */
 	Document(const Database *database_, om_docid did_)
-	    : database(database_), did(did_) {};
+	    : database(database_), did(did_) {}
 
 	/** Destructor.  Note that the database object which created this
 	 *  document must still exist at the time this is called.

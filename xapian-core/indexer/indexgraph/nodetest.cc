@@ -71,7 +71,7 @@ int main() {
 	    case OmIndexerData::rt_empty:
 		cout << "Empty";
 		break;
-	};
+	}
 	cout << endl;
     } catch (const std::string &s) {
 	cout << "Got exception: " << s << endl;

@@ -55,9 +55,9 @@ class OmLineBuf {
     public:
 	/** The main constructor.
 	 */
-	OmLineBuf() {};
+	OmLineBuf() {}
 
-	virtual ~OmLineBuf() {};
+	virtual ~OmLineBuf() {}
 
 	/** Read one line
 	 *  @param end_time	The time at which the read will

@@ -54,7 +54,7 @@ class Regex {
 	Regex()
 		: compiled(false),
 		  regmatches(0),
-		  regmatch_size(0) {};
+		  regmatch_size(0) {}
 
 	void set(const std::string &expr) {
 	    if (compiled) {

@@ -1,3 +1,17 @@
+Wed Apr 02 15:13:58 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,api/omqueryinternal.cc,
+	  backends/inmemory/inmemory_database.h,common/document.h,
+	  common/netclient.h,common/netserver.h,common/networkstats.h,
+	  common/omlinebuf.h,common/stats.h,include/om/omerror.h,
+	  include/om/omerrorhandler.h,indexer/indexgraph/nodetest.cc,
+	  indexer/indexgraph/omindexerbuilder.cc,
+	  indexer/indexgraph/omindexerinternal.h,
+	  indexer/indexgraph/omstopwordnode.cc,
+	  indexer/indexgraph/regexcommon.h,indexer/indexgraph/toposort.h,
+	  tests/api_db.cc,tests/api_nodb.cc,testsuite/backendmanager.h:
+	  More fixes for Sun C++; removed many superfluous ";" after "}".
+
 Wed Apr 02 03:45:42 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/omdocument.cc,api/omenquire.cc,api/omtermlistiteratorinternal.h,

@@ -115,7 +115,7 @@ class OmStopWordNode : public OmIndexerNode {
 			if (accum.length() > 0) {
 			    vec.push_back(accum);
 			    accum.erase();
-			};
+			}
 			break;
 		    case '\\':
 			++i;

@@ -84,7 +84,7 @@ class StatsGatherer {
 	mutable Stats total_stats;
     public:
 	StatsGatherer();
-	virtual ~StatsGatherer() {};
+	virtual ~StatsGatherer() {}
 
 	/** Set the global collection statistics.
 	 *  Should be called before the match is performed.

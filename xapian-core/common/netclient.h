@@ -52,7 +52,7 @@ class NetClient : public RefCntBase {
 	/** Default constructor. */
 	NetClient() : statssource(0) {}
 	/** Destructor. */
-	virtual ~NetClient() {};
+	virtual ~NetClient() {}
 
 	virtual void keep_alive() = 0;
 

@@ -109,7 +109,7 @@ class InMemoryDoc {
 	vector<InMemoryPosting> terms;// Sorted list of terms indexing document
 
 	/* Initialise valid */
-	InMemoryDoc() : is_valid(true) {};
+	InMemoryDoc() : is_valid(true) {}
 	void add_posting(const InMemoryPosting & post) {
 	    // Add document to right place in list
 	    vector<InMemoryPosting>::iterator p;

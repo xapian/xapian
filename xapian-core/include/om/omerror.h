@@ -109,7 +109,7 @@ class a : public b { \
 	a(const std::string &msg_, \
 	  const std::string &context_, \
 	  const std::string &type_, \
-	  int errno_value_) : b(msg_, context_, type_, errno_value_) {}; \
+	  int errno_value_) : b(msg_, context_, type_, errno_value_) {} \
 }
 
 #define DEFINE_ERROR_CLASS(a, b) \
@@ -118,16 +118,16 @@ class a : public b { \
 	/** Constructor used publically. */ \
 	a(const std::string &msg_, \
 	  const std::string &context_ = "", \
-	  int errno_value_ = 0) : b(msg_, context_, #a, errno_value_) {}; \
+	  int errno_value_ = 0) : b(msg_, context_, #a, errno_value_) {} \
 	/** Constructor used publically. */ \
 	a(const std::string &msg_, \
-	  int errno_value_) : b(msg_, "", #a, errno_value_) {}; \
+	  int errno_value_) : b(msg_, "", #a, errno_value_) {} \
     protected: \
 	/** Constructor used by derived classes. */ \
 	a(const std::string &msg_, \
 	  const std::string &context_, \
 	  const std::string &type_, \
-	  int errno_value_) : b(msg_, context_, type_, errno_value_) {}; \
+	  int errno_value_) : b(msg_, context_, type_, errno_value_) {} \
 }
 
 #include "om/omerrortypes.h"

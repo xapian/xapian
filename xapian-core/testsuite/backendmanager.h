@@ -134,7 +134,7 @@ class BackendManager {
 	/// Constructor - set up default state.
 	BackendManager() :
 		do_getdb(&BackendManager::getdb_void),
-		do_getwritedb(&BackendManager::getwritedb_void) {};
+		do_getwritedb(&BackendManager::getwritedb_void) {}
 
 	/** Set the database type to use.
 	 *

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,7 +63,16 @@ static bool test_getqterms1()
 		    OmQuery("four", 1, 4),
 		    OmQuery("two", 1, 2)));
 
+#ifdef __SUNPRO_CC
+    om_termname_list list;
+    {
+        OmTermIterator t;
+        for (t = myquery.get_terms_begin(); t != myquery.get_terms_end(); ++t) 
+            list.push_back(*t);
+    }
+#else
     om_termname_list list(myquery.get_terms_begin(), myquery.get_terms_end());
+#endif
     TEST(list == answers_list);
     return true;
 }

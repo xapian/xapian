@@ -75,7 +75,7 @@ class TopoSort {
 	    std::vector<int> suc;
 
 	    /** The default initialisation */
-	    elem() : count(0), qlink(-1) {};
+	    elem() : count(0), qlink(-1) {}
 	};
 	/** The structure containing all the information built up from
 	 *  the pairs.

@@ -40,7 +40,7 @@ class NetServer {
 	/** Default constructor. */
 	NetServer() {}
 	/** Destructor. */
-	virtual ~NetServer() {};
+	virtual ~NetServer() {}
 
 	/** Send the local statistics to the remote gatherer.
 	 *  The remote gatherer works out the global statistics from

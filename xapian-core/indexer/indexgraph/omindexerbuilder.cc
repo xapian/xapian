@@ -487,7 +487,7 @@ OmIndexerBuilder::Internal::typecheck(type_data &feeder_node,
 					 "[" + receiver_input +
 					 "] are not physically compatible.");
 	}
-    };
+    }
 
     if (sendercon.type != receivercon.type) {
 	if (receivercon.type.length() > 0 && receivercon.type[0] == '*') {

@@ -323,7 +323,7 @@ class MyErrorHandler : public OmErrorHandler {
 		    error.get_msg() << ", with context `" <<
 		    error.get_context() << "': count is now " << count << "\n";
 	    return true;
-	};
+	}
 
 	MyErrorHandler() : count (0) {}
 };
@@ -1149,7 +1149,13 @@ static bool test_reversebool1()
 
     {
 	OmMSetIterator i = mymset1.begin();
+#ifdef __SUNPRO_CC
+	vector<om_docid> rev;
+	for (OmMSetIterator t = mymset3.begin(); t != mymset3.end(); ++t) 
+	    rev.push_back(*t);
+#else
 	vector<om_docid> rev(mymset3.begin(), mymset3.end());
+#endif
 	// Next iterator not const because of compiler brokenness (egcs 1.1.2)
 	vector<om_docid>::reverse_iterator j = rev.rbegin();
 	for ( ; i != mymset1.end(); ++i, j++) {
@@ -1197,9 +1203,15 @@ static bool test_reversebool2()
     // mymset3 should be last msize items of mymset1, in reverse order
     TEST_EQUAL(msize, mymset3.size());
     {
-	std::vector<om_docid> rev(mymset1.begin(), mymset1.end());
+#ifdef __SUNPRO_CC
+	vector<om_docid> rev;
+	for (OmMSetIterator t = mymset1.begin(); t != mymset1.end(); ++t) 
+	    rev.push_back(*t);
+#else
+	vector<om_docid> rev(mymset1.begin(), mymset1.end());
+#endif
 	// Next iterator not const because of compiler brokenness (egcs 1.1.2)
-	std::vector<om_docid>::reverse_iterator i = rev.rbegin();
+	vector<om_docid>::reverse_iterator i = rev.rbegin();
 	OmMSetIterator j = mymset3.begin();
 	for ( ; j != mymset3.end(); ++i, j++) {
 	    // if this fails, then setting match_sort_forward=false didn't
@@ -1370,13 +1382,13 @@ static bool test_spaceterms1()
 {
     OmEnquire enquire(get_database("apitest_space"));
     OmMSet mymset;
-    std::vector<om_docid> docs;
+    vector<om_docid> docs;
     OmStem stemmer("english");
 
     init_simple_enquire(enquire, OmQuery(stemmer.stem_word("space man")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
-    docs = std::vector<om_docid>(mymset.begin(), mymset.end());
+    docs = vector<om_docid>(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
     for (om_valueno value_no = 1; value_no < 7; ++value_no) {
@@ -1387,7 +1399,7 @@ static bool test_spaceterms1()
     init_simple_enquire(enquire, OmQuery(stemmer.stem_word("tab\tby")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
-    docs = std::vector<om_docid>(mymset.begin(), mymset.end());
+    docs = vector<om_docid>(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
     for (om_valueno value_no = 1; value_no < 7; ++value_no) {
@@ -1402,7 +1414,7 @@ static bool test_spaceterms1()
     init_simple_enquire(enquire, OmQuery(stemmer.stem_word("back\\slash")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
-    docs = std::vector<om_docid>(mymset.begin(), mymset.end());
+    docs = vector<om_docid>(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
     return true;
@@ -1415,7 +1427,7 @@ static bool test_xor1()
     init_simple_enquire(enquire);
     OmStem stemmer("english");
 
-    std::vector<om_termname> terms;
+    vector<om_termname> terms;
     terms.push_back(stemmer.stem_word("this"));
     terms.push_back(stemmer.stem_word("word"));
     terms.push_back(stemmer.stem_word("of"));
@@ -1447,7 +1459,7 @@ static bool test_getdoc1()
 static bool test_emptyop1()
 {
     OmEnquire enquire(get_simple_database());
-    std::vector<OmQuery> nullvec;
+    vector<OmQuery> nullvec;
     
     OmQuery query1(OmQuery::OP_XOR, nullvec.begin(), nullvec.end());
 
@@ -1605,13 +1617,13 @@ static bool test_specialterms1()
 {
     OmEnquire enquire(get_database("apitest_space"));
     OmMSet mymset;
-    std::vector<om_docid> docs;
+    vector<om_docid> docs;
     OmStem stemmer("english");
 
     init_simple_enquire(enquire, OmQuery(stemmer.stem_word("new\nline")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
-    docs = std::vector<om_docid>(mymset.begin(), mymset.end());
+    docs = vector<om_docid>(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
     for (om_valueno value_no = 0; value_no < 7; ++value_no) {
@@ -1627,10 +1639,10 @@ static bool test_specialterms1()
     }
     
     init_simple_enquire(enquire,
-			OmQuery(stemmer.stem_word(std::string("big\0zero", 8))));
+			OmQuery(stemmer.stem_word(string("big\0zero", 8))));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
-    docs = std::vector<om_docid>(mymset.begin(), mymset.end());
+    docs = vector<om_docid>(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
     return true;
@@ -1858,11 +1870,11 @@ static bool test_eliteset3()
     // make a query
     OmStem stemmer("english");
 
-    std::string term1 = stemmer.stem_word("word");
-    std::string term2 = stemmer.stem_word("rubbish");
-    std::string term3 = stemmer.stem_word("banana");
+    string term1 = stemmer.stem_word("word");
+    string term2 = stemmer.stem_word("rubbish");
+    string term3 = stemmer.stem_word("banana");
 
-    std::vector<om_termname> terms;
+    vector<om_termname> terms;
     terms.push_back(term1);
     terms.push_back(term2);
     terms.push_back(term3);
@@ -1936,7 +1948,7 @@ static bool test_termlisttermfreq1()
     OmESet eset2 = enquire.get_eset(1000, rset2);
 
     // search for weight of term 'another'
-    std::string theterm = stemmer.stem_word("another");
+    string theterm = stemmer.stem_word("another");
 
     om_weight wt1 = 0;
     om_weight wt2 = 0;
@@ -2031,9 +2043,9 @@ static bool test_qterminfo1()
     // make a query
     OmStem stemmer("english");
 
-    std::string term1 = stemmer.stem_word("word");
-    std::string term2 = stemmer.stem_word("inmemory");
-    std::string term3 = stemmer.stem_word("flibble");
+    string term1 = stemmer.stem_word("word");
+    string term2 = stemmer.stem_word("inmemory");
+    string term3 = stemmer.stem_word("flibble");
 
     OmQuery myquery(OmQuery::OP_OR,
 		    OmQuery(term1),
@@ -2168,7 +2180,7 @@ static bool test_adddoc1()
     // doc1 should come top, but if term "foo" gets wdf of 1, doc2 will beat it
     // doc3 should beat both
     // Note: all docs have same length
-    doc1.set_data(std::string("tom"));
+    doc1.set_data(string("tom"));
     doc1.add_posting("foo", 1);
     doc1.add_posting("foo", 1);
     doc1.add_posting("foo", 1);
@@ -2176,7 +2188,7 @@ static bool test_adddoc1()
     doc1.add_posting("bar", 4);
     db.add_document(doc1);
     
-    doc2.set_data(std::string("dick"));
+    doc2.set_data(string("dick"));
     doc2.add_posting("foo", 1);
     doc2.add_posting("foo", 2);
     doc2.add_posting("bar", 3);
@@ -2184,7 +2196,7 @@ static bool test_adddoc1()
     doc2.add_posting("bar", 3);
     db.add_document(doc2);
 
-    doc3.set_data(std::string("harry"));
+    doc3.set_data(string("harry"));
     doc3.add_posting("foo", 1);
     doc3.add_posting("foo", 1);
     doc3.add_posting("foo", 2);
@@ -2385,7 +2397,7 @@ static bool test_implicitendsession1()
 
     OmDocument doc;
 
-    doc.set_data(std::string("top secret"));
+    doc.set_data(string("top secret"));
     doc.add_posting("cia", 1);
     doc.add_posting("nsa", 2);
     doc.add_posting("fbi", 3);
@@ -2777,11 +2789,11 @@ static bool test_termlist2()
     OmTermIterator t_clone(t);
     TEST_EQUAL(t, t_clone);
 
-    std::vector<om_termname> v(t, tend);
+    vector<om_termname> v(t, tend);
 
     t = db.termlist_begin(1);    
     tend = db.termlist_end(1);
-    std::vector<om_termname>::const_iterator i;
+    vector<om_termname>::const_iterator i;
     for (i = v.begin(); i != v.end(); i++) {
 	TEST_NOT_EQUAL(t, tend);
 	TEST_EQUAL(*i, *t);
@@ -2833,7 +2845,7 @@ static bool test_postlist1()
 
     TEST_EQUAL(db.postlist_begin("rosebud"), db.postlist_end("rosebud"));
 
-    std::string s = "let_us_see_if_we_can_break_it_with_a_really_really_long_term.";
+    string s = "let_us_see_if_we_can_break_it_with_a_really_really_long_term.";
     s += s;
     s += s;
     s += s;
@@ -2865,11 +2877,11 @@ static bool test_postlist2()
     OmPostListIterator p_clone(p);
     TEST_EQUAL(p, p_clone);
 
-    std::vector<om_docid> v(p, pend);
+    vector<om_docid> v(p, pend);
 
     p = db.postlist_begin("this");
     pend = db.postlist_end("this");
-    std::vector<om_docid>::const_iterator i;
+    vector<om_docid>::const_iterator i;
     for (i = v.begin(); i != v.end(); i++) {
 	TEST_NOT_EQUAL(p, pend);
 	TEST_EQUAL(*i, *p);

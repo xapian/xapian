@@ -3,6 +3,7 @@
  */
 /* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -60,7 +61,7 @@ class OmErrorHandler {
 
         /** Standard destructor
 	 */
-	virtual ~OmErrorHandler() {};
+	virtual ~OmErrorHandler() {}
 
 	/** Method called to handle an error.
 	 *
@@ -69,7 +70,7 @@ class OmErrorHandler {
 	 *
 	 *  @param   error    The error which has occurred.
 	 */
-	void operator() (OmError & error);
+	void operator()(OmError & error);
 };
 
 #endif /* OM_HGUARD_OMERRORHANDLER_H */

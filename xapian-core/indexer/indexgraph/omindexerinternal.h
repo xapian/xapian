@@ -72,7 +72,7 @@ class OmIndexerStartNode : public OmIndexerNode
 	    //cout << "Setting message:" << msg << endl;
 	    message = msg;
 	    message_valid = true;
-	};
+	}
     private:
 	OmIndexerStartNode(const OmSettings &settings)
 		: OmIndexerNode(settings), message_valid(false) {}

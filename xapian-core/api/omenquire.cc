@@ -1050,7 +1050,7 @@ class ByQueryIndexCmp {
     typedef std::map<om_termname, unsigned int> tmap_t;
     const tmap_t &tmap;
  public:
-    ByQueryIndexCmp(const tmap_t &tmap_) : tmap(tmap_) {};
+    ByQueryIndexCmp(const tmap_t &tmap_) : tmap(tmap_) {}
     bool operator()(const om_termname &left,
 		    const om_termname &right) const {
 	tmap_t::const_iterator l, r;
