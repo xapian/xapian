@@ -34,7 +34,6 @@
 #include "autoptr.h"  // auto_ptr
 
 class SubMatch;
-class SocketServer;
 
 class MultiMatch
 {
