@@ -189,13 +189,25 @@ The current types understood by Muscat are:
 </P>
 <TABLE>
 <TR><TD VALIGN="top"><B>da_flimsy</B></TD><TD>
+<P>
 This is a proprietory, legacy format, holding a database in a
 non-updatable form (ie, the database can't be altered, it is built
 from an existing database).  We support read-only access to this,
 and it is thus unlikely to be useful outside our company.
-<BR>
-It takes one parameter, which is the path to the directory containing
-the Term and Record files.
+</P><P>
+This takes one, two or three parameters.  If one parameter is supplied,
+it represents the path to a directory containing the Record file in a file
+called &quot;R&quot;, the Term file in a file called &quot;T&quot;, and
+optionally the fast access key file in a file called &quot;keyfile&quot;
+</P><P>
+If two parameters are supplied, they represent the full paths to the
+Record and Term file, respectively.  In this case, there is assumed to be
+no keyfile.
+</P><P>
+If three parameters are supplied, the first two are the full paths to the
+Record and Term files, respectively, and the third is the full path to
+the keyfile.
+</P>
 </TD></TR>
 <TR><TD VALIGN="top"><B>da_heavy</B></TD><TD>
 This is a similar to da_flimsy, allowing access to the &quot;heavy duty&quot;
@@ -206,12 +218,22 @@ not been created for the new development.
 It takes the same parameters as da_flimsy.
 </TD></TR>
 <TR><TD VALIGN="top"><B>db_flimsy</B></TD><TD>
+<P>
 This is a proprietory, legacy format, holding a database in a dynamically
 updatable form (ie, the database can be altered while queries are being
 performed on it.)  We support read-only access to this,
 and it is thus unlikely to be useful outside our company.
-<BR>
+</P><P>
+This takes one or two parameters.  The first parameter is the full path to
+the DB file.
+</P><P>
+If a second parameter is supplied, it represents the full path to the fast
+access keyfile.  If a second parameter is not supplied, the keyfile will
+be searched for at &lt;first_parameter&gt;_keyfile; if this doesn't exist,
+no keyfile will be used.
+</P><P>
 It takes one parameter, which is the full path to the DB file.
+</P>
 </TD></TR>
 <TR><TD VALIGN="top"><B>db_heavy</B></TD><TD>
 This is a similar to db_flimsy, allowing access to the &quot;heavy duty&quot;
