@@ -23,18 +23,15 @@
 #ifndef OM_HGUARD_LEAFMATCH_H
 #define OM_HGUARD_LEAFMATCH_H
 
-
-#include "omassert.h"
 #include "om/omenquire.h"
-
+#include "omqueryinternal.h"
 #include "match.h"
 #include "stats.h"
-#include "irweight.h"
 
+class IRWeight;
 class IRDatabase;
 class LeafDocument;
 
-#include <stack>
 #include <vector>
 #include <map>
 
@@ -59,9 +56,30 @@ class LeafMatch : public Match
 	StatsLeaf statsleaf;
 
         int min_weight_percent;
+
+	/// Whether max weights have been calculated
+	bool max_weight_needs_calc;
+
+	/// Max weight that an item could have
         om_weight max_weight;
 
+	/** Max "extra weight" that an item can get (ie, not from the
+	 *  postlist tree.
+	 */
+	om_weight max_extra_weight;
+
+	/// Root postlist of query tree.  0 if not built yet.
 	PostList * query;
+
+	/// Query to be run
+	OmQueryInternal users_query;
+
+	/** Extra weight object - used to calculate part of doc weight which
+	 *  doesn't come from the sum.
+	 */
+	IRWeight * extra_weight;
+	
+	/// vector of weights.  This is just so that they can be deleted
 	vector<IRWeight *> weights;
 
 	/// RSet to be used (affects weightings)
@@ -76,8 +94,13 @@ class LeafMatch : public Match
 	/// Key to collapse on, if desired
 	om_keyno collapse_key;
 
+	/** Internal flag to note that maxweight needs to be recalculated
+	 *  while query is running.
+	 */
         bool recalculate_maxweight;
 
+	void build_query_tree();
+	
 	/// Make a postlist from a query object
 	PostList * postlist_from_query(const OmQueryInternal * query_);
 
@@ -87,13 +110,18 @@ class LeafMatch : public Match
 				 const vector<OmQueryInternal *> & queries);
 
 	/// Open a postlist
-	LeafPostList * mk_postlist(const om_termname& tname,
-				 RSet * rset);
+	LeafPostList * mk_postlist(const om_termname& tname, RSet * rset);
 
+	/// Make the extra weight object if needed
+	void mk_extra_weight();
+	
 	/// Make a weight
 	IRWeight * mk_weight(om_doclength querysize_,
 			     om_termname tname_,
 			     const RSet * rset_);
+
+	/// Clear the query tree (and the associated weights)
+	void del_query_tree();
 
 	/// Internal method to perform the collapse operation
 	bool perform_collapse(vector<OmMSetItem> &mset,
@@ -143,48 +171,5 @@ class LeafMatch : public Match
 	 */
         void recalc_maxweight();
 };
-
-///////////////////////////////
-// Inline method definitions //
-///////////////////////////////
-
-inline void
-LeafMatch::set_collapse_key(om_keyno key)
-{
-    do_collapse = true;
-    collapse_key = key;
-}
-
-inline void
-LeafMatch::set_no_collapse()
-{
-    do_collapse = false;
-}
-
-inline void
-LeafMatch::set_rset(RSet *rset_)
-{
-    Assert(query == NULL);
-    rset = rset_;
-}
-
-inline void
-LeafMatch::set_weighting(IRWeight::weight_type wt_type_)
-{
-    Assert(query == NULL);
-    wt_type = wt_type_;
-}
-
-inline void
-LeafMatch::set_min_weight_percent(int pcent)
-{
-    min_weight_percent = pcent;
-}
-
-inline om_weight
-LeafMatch::get_max_weight()
-{
-    return max_weight;
-}
 
 #endif /* OM_HGUARD_LEAFMATCH_H */

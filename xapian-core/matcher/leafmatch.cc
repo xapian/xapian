@@ -37,6 +37,9 @@
 #include "rset.h"
 #include "omqueryinternal.h"
 
+#include "match.h"
+#include "stats.h"
+#include "irweight.h"
 #include "bm25weight.h"
 //#include "tradweight.h"
 
@@ -86,23 +89,21 @@ LeafMatch::LeafMatch(IRDatabase *database_, StatsGatherer * gatherer_)
 	: database(database_),
 	  statsleaf(gatherer_),
 	  min_weight_percent(-1),
-	  max_weight(0),
-	  query(NULL),
-	  rset(NULL),
+	  max_weight_needs_calc(true),
+	  query(0),
+	  users_query(),
+	  extra_weight(0),
+	  rset(0),
 	  wt_type(IRWeight::WTTYPE_BM25),
 	  do_collapse(false)
 {
-
     statsleaf.my_collection_size_is(database->get_doccount());
     statsleaf.my_average_length_is(database->get_avlength());
 }
 
 LeafMatch::~LeafMatch()
 {
-    while (!weights.empty()) {
-	delete(weights.back());
-	weights.pop_back();
-    }
+    del_query_tree();
 }
 
 LeafPostList *
@@ -119,6 +120,15 @@ LeafMatch::mk_postlist(const om_termname& tname, RSet * rset)
     return pl;
 }
 
+
+void
+LeafMatch::mk_extra_weight()
+{
+    if(extra_weight == 0) {
+	extra_weight = mk_weight(1, "", rset);
+    }
+}
+
 IRWeight *
 LeafMatch::mk_weight(om_doclength querysize_,
 		     om_termname tname_,
@@ -129,6 +139,58 @@ LeafMatch::mk_weight(om_doclength querysize_,
     weights.push_back(wt); // Remember it for deleting
     wt->set_stats(&statsleaf, querysize_, tname_, rset_);
     return wt;
+}
+
+void
+LeafMatch::del_query_tree()
+{
+    delete query;
+    query = 0;
+
+    extra_weight = 0;
+    while (!weights.empty()) {
+	delete(weights.back());
+	weights.pop_back();
+    }
+}
+
+/////////////////////////////////////////////////////////////////////
+// Setting query options
+//
+void
+LeafMatch::set_collapse_key(om_keyno key)
+{
+    do_collapse = true;
+    collapse_key = key;
+}
+
+void
+LeafMatch::set_no_collapse()
+{
+    do_collapse = false;
+}
+
+void
+LeafMatch::set_min_weight_percent(int pcent)
+{
+    min_weight_percent = pcent;
+}
+
+void
+LeafMatch::set_rset(RSet *rset_)
+{
+    Assert(query == NULL);
+    rset = rset_;
+    del_query_tree();
+}
+
+void
+LeafMatch::set_weighting(IRWeight::weight_type wt_type_)
+{
+    Assert(query == NULL);
+    wt_type = wt_type_;
+    max_weight_needs_calc = true;
+    del_query_tree();
 }
 
 // Make a postlist from a vector of query objects.
@@ -305,12 +367,39 @@ LeafMatch::set_query(const OmQueryInternal *query_)
 	delete query;
 	query = NULL;
     }
-    
-    // Prepare query
-    if(query_->isdefined) {
-	query = postlist_from_query(query_);
-	max_weight = query->recalc_maxweight() + (*weights.begin())->get_maxextra();
+
+    // Remember query
+    users_query = *query_;
+}
+
+/// Build the query tree, if it isn't already built.
+void
+LeafMatch::build_query_tree()
+{
+    if (query == 0) {
+	query = postlist_from_query(&users_query);
     }
+
+    DebugMsg("LeafMatch::query = (" << query->intro_term_description() <<
+	     ")" << endl);
+}
+
+// Return the maximum possible weight, calculating it if necessary.
+om_weight
+LeafMatch::get_max_weight()
+{
+    if (max_weight_needs_calc) {
+	// Ensure query tree is built
+	build_query_tree();
+
+	mk_extra_weight();
+	max_extra_weight = extra_weight->get_maxextra();
+
+	max_weight = query->recalc_maxweight() + max_extra_weight;
+	max_weight_needs_calc = false;
+    }
+
+    return max_weight;
 }
 
 ///////////////////
@@ -384,43 +473,58 @@ LeafMatch::match(om_doccount first,
 		 om_weight * greatest_wt,
 		 const OmMatchDecider *mdecider)
 {
-    // Prepare query
+    // Empty result set
     *mbound = 0;
     *greatest_wt = 0;
     mset.clear();
 
+    // Set up comparison operator
     MSetCmp mcmp(cmp);
 
-    if(query == NULL) return;
+    // Check that we have a valid query to run
+    if(!(users_query.isdefined)) return;
+
+    // Check that any results have been asked for (might just be wanting
+    // maxweight)
     if(maxitems == 0) return;
 
-    DebugMsg("match.match(" << query->intro_term_description() << ")" << endl);
+    // Ensure query tree is built
+    build_query_tree();
 
-    OmMSetItem min_item(-1, 0);
-    if (min_weight_percent > 0) min_item.wt = min_weight_percent * max_weight / 100;
-
+    // Set max number of results that we want - this is used to decide
+    // when to throw away unwanted items.
     om_doccount max_msize = first + maxitems;
 
-    om_weight w_max = max_weight;
+    // Get initial max weight and the maximum extra weight contribution
+    om_weight w_max = get_max_weight();
     recalculate_maxweight = false;
 
-    IRWeight * extrawt = mk_weight(1, "", rset);
-    om_weight max_extra = extrawt->get_maxextra();
+    // Ensure that extra_weight is created
+    mk_extra_weight();
 
 #ifdef MUS_DEBUG_PARANOID
+    // Check that max_extra weight is really right
     for(vector<IRWeight *>::const_iterator i = weights.begin();
 	i != weights.end(); i++) {
-	Assert(max_extra == (*i)->get_maxextra());
+	Assert(max_extra_weight == (*i)->get_maxextra());
     }
 #endif /* MUS_DEBUG_PARANOID */
 
+    // Set the minimum item, used to compare against to see if an item
+    // should be considered for the mset.
+    OmMSetItem min_item(-1, 0);
+    if (min_weight_percent > 0) {
+	min_item.wt = min_weight_percent * max_weight / 100;
+    }
+
+    // Table of keys which have been seen already, for collapsing.
     map<OmKey, OmMSetItem> collapse_table;
 
     // Perform query
     while (1) {
 	if (recalculate_maxweight) {
 	    recalculate_maxweight = false;
-	    w_max = query->recalc_maxweight() + max_extra;
+	    w_max = query->recalc_maxweight() + max_extra_weight;
 	    DebugMsg("max possible doc weight = " << w_max << endl);
 	    if (w_max < min_item.wt) {
 		DebugMsg("*** TERMINATING EARLY (1)" << endl);
@@ -428,7 +532,7 @@ LeafMatch::match(om_doccount first,
 	    }
 	}    
 
-	PostList *ret = query->next(min_item.wt - max_extra);
+	PostList *ret = query->next(min_item.wt - max_extra_weight);
         if (ret) {
 	    delete query;
 	    query = ret;
@@ -436,9 +540,9 @@ LeafMatch::match(om_doccount first,
 	    DebugMsg("*** REPLACING ROOT" << endl);
 	    // no need for a full recalc (unless we've got to do one because
 	    // of a prune elsewhere) - we're just switching to a subtree
-	    w_max = query->get_maxweight() + max_extra;
+	    w_max = query->get_maxweight() + max_extra_weight;
 	    DebugMsg("max possible doc weight = " << w_max << endl);
-            AssertParanoid(recalculate_maxweight || fabs(w_max - max_extra - query->recalc_maxweight()) < 1e-9);
+            AssertParanoid(recalculate_maxweight || fabs(w_max - max_extra_weight - query->recalc_maxweight()) < 1e-9);
 
 	    if (w_max < min_item.wt) {
 		DebugMsg("*** TERMINATING EARLY (2)" << endl);
@@ -455,7 +559,7 @@ LeafMatch::match(om_doccount first,
 	// impossible to store document lengths in postlists, so they've
 	// already been retrieved)
         om_weight wt = query->get_weight() +
-		extrawt->get_sumextra(database->get_doclength(did));
+		extra_weight->get_sumextra(database->get_doclength(did));
 	OmMSetItem new_item(wt, did);
         
 	if(mcmp(new_item, min_item)) {
@@ -538,8 +642,7 @@ LeafMatch::match(om_doccount first,
 		 ", min weight in mset = " << mset[mset.size() - 1].wt << endl);
     }
 
-    extrawt = 0;
-
+    // Query now needs to be recalculated if it is needed again.
     delete query;
-    query = NULL;
+    query = 0;
 }

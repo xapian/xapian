@@ -1,3 +1,10 @@
+Tue Mar 21 15:41:49 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Tidy up structure of LeafMatch a great deal.
+
+	* Fix bug causing a segfault when a term which doesn't exist comprises
+	  the entire query.
+
 Tue Mar 21 15:26:03 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Test behaviour when searching for terms not in database.
