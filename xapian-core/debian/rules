@@ -2,7 +2,7 @@
 
 # The soversion number needs to be updated whenever the version numbers
 # in Makefile.am and extra/Makefile.am are updated.
-libxapian_soversion=2
+libxapian_soversion=4
 
 # For now, we're only supporting installation of the latest development
 # files.  Xapian changes are likely to be almost completely API compatible,

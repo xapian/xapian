@@ -1,3 +1,14 @@
+xapian-core (0.8.2-1) unstable; urgency=low
+
+  * New upstream release (0.8.2).
+  * library version number increased to 4 (from 2).
+    (Xapian::Database::get_lastdocid added; QueryParser tries
+    reparsing after stripping punctuation; several unused
+    Error subclasses removed; assorted Iterator changes,
+    Xapian::ESet::back and many other methods added).
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 14 Sep 2004 01:03:49 +0100
+
 xapian-core (0.8.1-1) unstable; urgency=low
 
   * New upstream release.
