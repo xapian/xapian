@@ -1,3 +1,11 @@
+xapian-bindings (0.8.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * Use swig's -modern switch for Python 2.2 and up - it gives cleaner, leaner,
+    faster Python wrapper code.
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 21 Sep 2004 13:31:14 +0100
+
 xapian-bindings (0.8.2-2) unstable; urgency=low
 
   * Build against libxapian3. (See changelog for libxapian for explanation)
