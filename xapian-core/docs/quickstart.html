@@ -165,7 +165,7 @@ a directory on the include path, so:
 <PRE>    #include &lt;om/om.h&gt;</PRE>
 </P>
 <P>
-Our example only has a single function, main(), so next we start that.
+Our example only has a single function, main(), so next we start that:
 <PRE>    int main(int argc, char *argv[])</PRE>
 </P>
 <H3>Options parsing</H3>
@@ -215,7 +215,7 @@ this usually results in the execution aborting.
 <P>
 Note also that OmError is a virtual base class, and thus can't be copied:
 you must therefore catch exceptions by reference, as in the following example
-code.
+code:
 </P>
 <PRE>
     try {
@@ -283,8 +283,12 @@ The code to open a database for writing is, then:
 <P>
 Finally, we can add the document to the database.  This simply involves
 calling <CODE>OmWritableDatabase::add_document()</CODE>, and passing it
-the <CODE>OmDocumentContents</CODE> object.
+the <CODE>OmDocumentContents</CODE> object:
 </P>
+<PRE>
+    database.add_document(newdocument);
+</PRE>
+
 <P>
 The operation of adding a document is atomic: either the document will be
 added, or an exception will be thrown and the document will not be in the
@@ -295,10 +299,6 @@ new database.
 This is the document ID of the newly added document, which is simply a
 handle which can be used to access the document in future.
 </P>
-
-<PRE>
-    database.add_document(newdocument);
-</PRE>
 
 <HR>
 <H2><A NAME="searcher">An example searcher</A></H2>
@@ -346,7 +346,6 @@ invoking the compiler!  For our example, we could compile the two
 utilities (simpleindex and simplesearch) by the commands:
 <PRE>
 c++ simpleindex.cc `libomus-config --libs --cflags` -o simpleindex
-<BR>
 c++ simplesearch.cc `libomus-config --libs --cflags` -o simplesearch
 </PRE>
 
