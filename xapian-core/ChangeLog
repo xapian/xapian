@@ -1,3 +1,9 @@
+Thu Aug 10 17:12:31 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add stub implementations for new methods in OmWritableDatabase,
+	  which throw OmUnimplementedError exceptions, so that the python
+	  port can proceed.
+
 Thu Aug 10 12:01:18 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.2.1

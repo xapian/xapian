@@ -141,6 +141,25 @@ OmWritableDatabase::end_session()
     database->unlock();
 }
 
+void
+OmWritableDatabase::flush()
+{
+    throw OmUnimplementedError("OmWritableDatabase::flush() not yet implemented");
+}
+
+void
+OmWritableDatabase::begin_transaction(om_timeout timeout = 0)
+{
+    throw OmUnimplementedError("OmWritableDatabase::begin_transaction() not yet implemented");
+}
+
+void
+OmWritableDatabase::end_transaction()
+{
+    throw OmUnimplementedError("OmWritableDatabase::end_transaction() not yet implemented");
+}
+
+
 om_docid
 OmWritableDatabase::add_document(const OmDocumentContents & document,
 				 om_timeout timeout)
@@ -165,6 +184,26 @@ OmWritableDatabase::add_document(const OmDocumentContents & document,
     om_docid did = database->add_document(document);
     DEBUGAPIRETURN(did);
     return did;
+}
+
+void
+OmWritableDatabase::delete_document(om_docid did, om_timeout timeout = 0)
+{
+    throw OmUnimplementedError("OmWritableDatabase::delete_document() not yet implemented");
+}
+
+void
+OmWritableDatabase::replace_document(om_docid did,
+				     const OmDocumentContents & document,
+				     om_timeout timeout = 0)
+{
+    throw OmUnimplementedError("OmWritableDatabase::replace_document() not yet implemented");
+}
+
+OmDocumentContents
+OmWritableDatabase::get_document(om_docid did)
+{
+    throw OmUnimplementedError("OmWritableDatabase::get_document() not yet implemented");
 }
 
 std::string
