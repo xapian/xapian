@@ -1,3 +1,4 @@
+ifdef([AC_SYS_LARGEFILE],[],[
 
 dnl TAKEN FROM GNU TAR
 dnl By default, many hosts won't let programs access large files;
@@ -113,3 +114,4 @@ AC_DEFUN(AC_SYS_LARGEFILE,
 	esac])
    fi
   ])
+])dnl
