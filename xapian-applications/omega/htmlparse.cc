@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,16 +29,18 @@ using std::find_if;
 #include <stdio.h>
 #include <ctype.h>
 
+map<string, unsigned int> HtmlParser::named_ents;
+
 inline static bool
 p_alpha(char c)
 {
-    return (((unsigned int)c | 32) - 'a') <= ('z' - 'a');
+    return isalpha(c);
 }
 
 inline static bool
 p_notdigit(char c)
 {
-    return ((unsigned int)c - '0') <= ('9' - '0');
+    return !isdigit(c);
 }
 
 inline static bool
@@ -100,12 +103,9 @@ HtmlParser::decode_entities(string &s)
 	} else {
 	    end = find_if(p, s_end, p_notalnum);
 	    string code = s.substr(p - s.begin(), end - p);
-	    // FIXME: make this list complete
-	    if (code == "amp") val = '&';
-	    else if (code == "lt") val = '<';
-	    else if (code == "gt") val = '>';
-	    else if (code == "nbsp") val = '\xa0';
-	    else if (code == "quot") val = '\"';
+	    map<string, unsigned int>::const_iterator i;
+	    i = named_ents.find(code);
+	    if (i != named_ents.end()) val = i->second;
 	}
 	if (end < s_end && *end == ';') end++;
 	if (val) {
