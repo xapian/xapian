@@ -1801,7 +1801,50 @@ Btree::open_to_read(const Btree &btree)
 	throw std::bad_alloc();
     }
 
-    read_root();
+    C[level].n = btree.C[level].n;
+    memcpy(C[level].p, btree.C[level].p, block_size);
+}
+
+void
+Btree::reopen_to_read(const Btree &btree)
+{
+    Assert(!writable);
+    Assert(name == btree.name);
+    Assert(dont_close_handle);
+    Assert(handle == btree.handle);
+
+    both_bases = btree.both_bases;
+    {
+	Btree_base tmp(btree.base);
+	base.swap(tmp);
+    }
+
+    revision_number = btree.revision_number;
+    root = btree.root;
+    if (level != btree.level) {
+	C[btree.level].p = C[level].p;
+	C[level].n = BLK_UNUSED;
+	C[level].p = 0;
+	level = btree.level;
+    }
+    item_count = btree.item_count;
+    faked_root_block = btree.faked_root_block;
+    sequential = btree.sequential;
+    other_revision_number = btree.other_revision_number;
+
+    base_letter = btree.base_letter;
+    next_revision = revision_number + 1;
+
+    if (sequential) {
+	prev_ptr = &Btree::prev_for_sequential;
+	next_ptr = &Btree::next_for_sequential;
+    } else {
+	prev_ptr = &Btree::prev_default;
+	next_ptr = &Btree::next_default;
+    }
+
+    C[level].n = btree.C[level].n;
+    memcpy(C[level].p, btree.C[level].p, block_size);
 }
 
 bool

@@ -63,6 +63,12 @@ class Btree {
 	 */
 	void open_to_read(const Btree &);
 
+	/** Update a read-only version of a given Btree to a just committed
+	 *  version.  The btree parameter must be the same as that passed
+	 *  to earlier calls to open_to_read().
+	 */
+	void reopen_to_read(const Btree &btree);
+
 	/** Open the btree to write at the latest revision
 	 */
 	void open_to_write(const string &name_);

@@ -1,3 +1,9 @@
+Sat May 01 04:42:43 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/btree.h,
+	  backends/quartz/quartz_table.cc: Reopening the readonly version
+	  of a writable Btree is now more efficient.
+
 Sat May 01 01:41:24 BST 2004  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Added up-to-date success reports for x86-openbsd and

@@ -387,27 +387,17 @@ QuartzDiskTable::apply(quartz_revision_number_t new_revision)
     Assert(opened);
     if (readonly) throw Xapian::InvalidOperationError("Attempt to modify a readonly table");
 
-    // Close reading table
-    Assert(btree_for_reading != 0);
-    delete btree_for_reading;
-    btree_for_reading = 0;
+    opened = false;
 
-    // Close writing table and write changes
+    // Commit changes to the writing table.
     Assert(btree_for_writing != 0);
     btree_for_writing->commit(new_revision);
 
-    opened = false;
-
-    btree_for_reading = new Btree();
-    btree_for_reading->open_to_read(path, btree_for_writing->revision_number);
-
-    AssertEq(btree_for_reading->revision_number, new_revision);
+    // Update the reading table to the new revision.
+    Assert(btree_for_reading != 0);
+    btree_for_reading->reopen_to_read(*btree_for_writing);
 
     opened = true;
-
-    // FIXME: check for errors
-    // FIXME: want to indicate that the database closed successfully even
-    // if we now can't open it.  Or is this a panic situation?
 }
 
 QuartzBufferedTable::QuartzBufferedTable(QuartzDiskTable * disktable_)
