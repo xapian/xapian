@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,8 +71,10 @@ public class RunTest {
 	OmDatabase dbgrp = ApiTest.get_simple_database();
 
 	OmSettings param = new OmSettings();
-        param.set("backend", "sleepycat");
-	param.set("sleepycat_dir", "/home/cemerson/working/open-muscat/build/om-debug-valis/tests/.sleepycat/db=apitest_simpledata=");
+        param.set("backend", "quartz");
+	// FIXME: path in next line may need to be absolute and is probably
+	// wrong anyway
+	param.set("quartz_dir", "../../tests/.quartz/db=apitest_simpledata=");
 	dbgrp.add_database(param);
 
 	OmEnquire enq = new OmEnquire(dbgrp);

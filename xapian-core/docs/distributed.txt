@@ -1,4 +1,4 @@
-This document describes how to make use of the facilities in Omsee
+This document describes how to make use of the facilities in Xapian
 for distributed searches.
 
 OVERVIEW
