@@ -59,9 +59,7 @@ Priority | Area            | Task
  Medium  | Positional      | Pass within-query-frequency and query length
 	 |                 | information to matcher.
 ---------+-----------------+--------------------------------------------------
- Medium  |RPositional      | Expose positional information in postlists in a
-	 |                 | consistent way.  (extra methods /
-	 |                 | get_positionlist() method ?)
+ Medium  |RPositional      | Add a get_positionlist() method to databases.
 ---------+-----------------+--------------------------------------------------
  Medium  |RPositional      | Implement phrase searching. - AND postlist, scan
 	 |                 | through positionlist for sequential positions.
