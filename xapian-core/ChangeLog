@@ -1,3 +1,9 @@
+Tue Sep 19 15:55:34 BST 2000 Olly Betts
+
+	* api_db.cc: Added query() helper functions
+
+	* Added rsetmultidb3 to demonstrate assertion failiure in stats.h.
+ 
 Tue Sep 19 15:50:26 BST 2000 Olly Betts
 
 	* testsuite.cc: output newline after skipped test.

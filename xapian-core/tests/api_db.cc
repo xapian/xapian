@@ -80,6 +80,33 @@ void init_simple_enquire(OmEnquire &enq, const OmQuery &query = OmQuery("thi"))
     enq.set_query(query);
 }
 
+OmQuery
+query(OmQuery::op op, om_termname t1 = "", om_termname t2 = "",
+      om_termname t3 = "", om_termname t4 = "", om_termname t5 = "",
+      om_termname t6 = "", om_termname t7 = "", om_termname t8 = "",
+      om_termname t9 = "", om_termname t10 = "")
+{
+    vector<om_termname> v;
+    OmStem stemmer("english");    
+    if (!t1.empty()) v.push_back(stemmer.stem_word(t1));
+    if (!t2.empty()) v.push_back(stemmer.stem_word(t2));
+    if (!t3.empty()) v.push_back(stemmer.stem_word(t3));
+    if (!t4.empty()) v.push_back(stemmer.stem_word(t4));
+    if (!t5.empty()) v.push_back(stemmer.stem_word(t5));
+    if (!t6.empty()) v.push_back(stemmer.stem_word(t6));
+    if (!t7.empty()) v.push_back(stemmer.stem_word(t7));
+    if (!t8.empty()) v.push_back(stemmer.stem_word(t8));
+    if (!t9.empty()) v.push_back(stemmer.stem_word(t9));
+    if (!t10.empty()) v.push_back(stemmer.stem_word(t10));
+    return OmQuery(op, v.begin(), v.end());
+}
+
+OmQuery
+query(om_termname t)
+{
+    return OmQuery(OmStem("english").stem_word(t));
+}
+
 OmMSet do_get_simple_query_mset(OmQuery query, int maxitems = 10, int first = 0)
 {
     // open the database (in this case a simple text file
@@ -123,7 +150,7 @@ static bool test_simplequery3()
 {
     // The search is for "thi" rather than "this" because
     // the index will have stemmed versions of the terms.
-    OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"));
+    OmMSet mymset = do_get_simple_query_mset(query("this"));
 
     // Check that 6 documents were returned.
     TEST_MSET_SIZE(mymset, 6);
@@ -171,16 +198,13 @@ static bool test_multidb2()
     OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
 
     // make a simple query
-    OmQuery myquery(OmQuery::OP_OR,
-		    OmQuery("inmemori"), // stemmed form
-		    OmQuery("word"));
+    OmQuery myquery = query(OmQuery::OP_OR, "inmemory", "word");
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
 
     // retrieve the top ten results from each method of accessing
     // multiple text files
     OmMSet mymset1 = enquire1.get_mset(0, 10);
-
     OmMSet mymset2 = enquire2.get_mset(0, 10);
 
     TEST_EQUAL(mymset1.items.size(), mymset2.items.size());
@@ -198,9 +222,7 @@ static bool test_multidb3()
     OmEnquire enquire(make_dbgrp(&mydb2, &mydb3));
 
     // make a query
-    OmQuery myquery(OmQuery::OP_OR,
-		    OmQuery("inmemori"), // stemmed form
-		    OmQuery("word"));
+    OmQuery myquery = query(OmQuery::OP_OR, "inmemory", "word");
     myquery.set_bool(true);
     enquire.set_query(myquery);
 
@@ -220,9 +242,7 @@ static bool test_multidb4()
     OmEnquire enquire(make_dbgrp(&mydb2, &mydb3, &mydb4));
 
     // make a query
-    OmQuery myquery(OmQuery::OP_OR,
-		    OmQuery("inmemori"), // stemmed form
-		    OmQuery("word"));
+    OmQuery myquery = query(OmQuery::OP_OR, "inmemory", "word");
     myquery.set_bool(true);
     enquire.set_query(myquery);
 
@@ -241,9 +261,7 @@ static bool test_multidb5()
     OmEnquire enquire(make_dbgrp(&mydb2, &mydb3));
 
     // make a query
-    OmQuery myquery(OmQuery::OP_AND,
-		    OmQuery("inmemori"), // stemmed form
-		    OmQuery("word"));
+    OmQuery myquery = query(OmQuery::OP_AND, "inmemory", "word");
     myquery.set_bool(true);
     enquire.set_query(myquery);
 
@@ -291,7 +309,7 @@ static bool test_nullquery1()
 // that are returned.
 static bool test_msetmaxitems1()
 {
-    OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"), 1);
+    OmMSet mymset = do_get_simple_query_mset(query("this"), 1);
     TEST_MSET_SIZE(mymset, 1);
     return true;
 }
@@ -321,25 +339,22 @@ static bool test_boolquery1()
 {
     OmQuery myboolquery(OmQuery(OmQuery::OP_FILTER,
 				OmQuery(),
-				OmQuery("thi")));
+				query("this")));
     OmMSet mymset = do_get_simple_query_mset(myboolquery);
 
     TEST_NOT_EQUAL(mymset.items.size(), 0);
     TEST_EQUAL(mymset.max_possible, 0);
-    vector<OmMSetItem>::const_iterator i;
-    for (i = mymset.items.begin(); i != mymset.items.end(); ++i) {
-	TEST_EQUAL(i->wt, 0);
+    for (unsigned int i = 0; i < mymset.items.size(); ++i) {
+	TEST_EQUAL(mymset.items[i].wt, 0);
     }
-
     return true;
 }
 
 // tests that get_mset() specifying "first" works as expected
 static bool test_msetfirst1()
 {
-    OmMSet mymset1 = do_get_simple_query_mset(OmQuery("thi"), 6, 0);
-    OmMSet mymset2 = do_get_simple_query_mset(OmQuery("thi"), 3, 3);
-
+    OmMSet mymset1 = do_get_simple_query_mset(query("this"), 6, 0);
+    OmMSet mymset2 = do_get_simple_query_mset(query("this"), 3, 3);
     TEST(mset_range_is_same(mymset1, 3, mymset2, 0, 3));
     return true;
 }
@@ -347,13 +362,12 @@ static bool test_msetfirst1()
 // tests the converting-to-percent functions
 static bool test_topercent1()
 {
-    OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"), 20, 0);
+    OmMSet mymset = do_get_simple_query_mset(query("this"), 20, 0);
 
     int last_pct = 100;
-    vector<OmMSetItem>::const_iterator i;
-    for (i = mymset.items.begin(); i != mymset.items.end(); ++i) {
-	int pct = mymset.convert_to_percent(*i);
-	TEST_AND_EXPLAIN(pct == mymset.convert_to_percent(i->wt),
+    for (unsigned int i = 0; i < mymset.items.size(); ++i) {
+	int pct = mymset.convert_to_percent(mymset.items[i]);
+	TEST_AND_EXPLAIN(pct == mymset.convert_to_percent(mymset.items[i].wt),
 			 "convert_to_%(msetitem) != convert_to_%(wt)");
         TEST_AND_EXPLAIN(pct >= 0 && pct <= 100,
 			 "percentage out of range: " << pct);
@@ -477,13 +491,8 @@ print_mset_percentages(const OmMSet &mset)
 static bool test_pctcutoff1()
 {
     OmEnquire enquire(get_simple_database());
-    vector<om_termname> t;
-    t.push_back("thi");
-    t.push_back("line");
-    t.push_back("paragraph");
-    t.push_back("rubbish");
-    init_simple_enquire(enquire, OmQuery(OmQuery::OP_OR, t.begin(), t.end()));
-
+    init_simple_enquire(enquire, query(OmQuery::OP_OR,
+				       "this", "line", "paragraph", "rubbish"));
     OmMSet mymset1 = enquire.get_mset(0, 100);
 
     if (verbose) {
@@ -547,10 +556,8 @@ static bool test_allowqterms1()
     eopt.set("expand_use_query_terms", false);
 
     OmESet myeset = enquire.get_eset(1000, myrset, &eopt);
-
-    vector<OmESetItem>::const_iterator i;
-    for (i = myeset.items.begin(); i != myeset.items.end(); ++i) {
-        TEST_NOT_EQUAL(i->tname, "thi");
+    for (unsigned int i = 0; i < myeset.items.size(); ++i) {
+        TEST_NOT_EQUAL(myeset.items[i].tname, "thi");
     }
 
     return true;
@@ -559,12 +566,11 @@ static bool test_allowqterms1()
 // tests that the MSet max_attained works
 static bool test_maxattain1()
 {
-    OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"), 100, 0);
+    OmMSet mymset = do_get_simple_query_mset(query("this"), 100, 0);
 
     om_weight mymax = 0;
-    vector<OmMSetItem>::const_iterator i;
-    for (i = mymset.items.begin(); i != mymset.items.end(); ++i) {
-        if (i->wt > mymax) mymax = i->wt;
+    for (unsigned int i = 0; i < mymset.items.size(); ++i) {
+        if (mymset.items[i].wt > mymax) mymax = mymset.items[i].wt;
     }
     TEST_EQUAL(mymax, mymset.max_attained);
 
@@ -780,7 +786,7 @@ static bool test_poscollapse2()
 static bool test_batchquery1()
 {
     OmBatchEnquire::query_desc mydescs[3];
-    mydescs[0] = OmBatchEnquire::query_desc(OmQuery("thi"), 0, 10, 0, 0, 0);
+    mydescs[0] = OmBatchEnquire::query_desc(query("this"), 0, 10, 0, 0, 0);
     mydescs[1] = OmBatchEnquire::query_desc(OmQuery(), 0, 10, 0, 0, 0);
     mydescs[2] = OmBatchEnquire::query_desc(OmQuery("word"), 0, 10, 0, 0, 0);
 
@@ -793,7 +799,7 @@ static bool test_batchquery1()
     OmBatchEnquire::mset_batch myresults = benq.get_msets();
 
     TEST_EQUAL(myresults.size(), 3);
-    TEST_EQUAL(myresults[0].value(), do_get_simple_query_mset(OmQuery("thi")));
+    TEST_EQUAL(myresults[0].value(), do_get_simple_query_mset(query("this")));
     TEST(!myresults[1].is_valid());
     TEST_EXCEPTION(OmInvalidResultError, OmMSet unused = myresults[1].value());
     TEST_EQUAL(myresults[2].value(), do_get_simple_query_mset(OmQuery("word")));
@@ -807,10 +813,7 @@ static bool test_repeatquery1()
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
-    OmQuery myquery(OmQuery::OP_OR,
-		    OmQuery("thi"),
-		    OmQuery("word"));
-    enquire.set_query(myquery);
+    enquire.set_query(query(OmQuery::OP_OR, "this", "word"));
 
     OmMSet mymset1 = enquire.get_mset(0, 10);
     OmMSet mymset2 = enquire.get_mset(0, 10);
@@ -853,13 +856,8 @@ static bool test_absentterm2()
 static bool test_rset1()
 {
     OmDatabase mydb(get_database("apitest_rset"));
-
     OmEnquire enquire(make_dbgrp(&mydb));
-
-    OmQuery myquery(OmQuery::OP_OR,
-		    OmQuery("giraff"),
-		    OmQuery("tiger"));
-
+    OmQuery myquery = query(OmQuery::OP_OR, "giraffe", "tiger");
     enquire.set_query(myquery);
 
     OmMSet mymset1 = enquire.get_mset(0, 10);
@@ -881,14 +879,8 @@ static bool test_rset1()
 static bool test_rset2()
 {
     OmDatabase mydb(get_database("apitest_rset"));
-
     OmEnquire enquire(make_dbgrp(&mydb));
-    OmStem stemmer("english");
-
-    OmQuery myquery(OmQuery::OP_OR,
-		    OmQuery(stemmer.stem_word("cuddly")),
-		    OmQuery(stemmer.stem_word("people")));
-
+    OmQuery myquery = query(OmQuery::OP_OR, "cuddly", "people");
     enquire.set_query(myquery);
 
     OmMSet mymset1 = enquire.get_mset(0, 10);
@@ -914,10 +906,7 @@ static bool test_rsetmultidb1()
     OmEnquire enquire1(make_dbgrp(&mydb1));
     OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
 
-    OmStem stemmer("english");
-    OmQuery myquery(OmQuery::OP_OR,
-		    OmQuery(stemmer.stem_word("cuddly")),
-		    OmQuery(stemmer.stem_word("multiple")));
+    OmQuery myquery = query(OmQuery::OP_OR, "cuddly", "multiple");
 
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
@@ -955,8 +944,7 @@ static bool test_rsetmultidb2()
     OmEnquire enquire1(make_dbgrp(&mydb1));
     OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
 
-    OmStem stemmer("english");
-    OmQuery myquery(stemmer.stem_word("is"));
+    OmQuery myquery = query("is");
 
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
@@ -984,21 +972,25 @@ static bool test_rsetmultidb2()
     return true;
 }
 
+// regression tests - used to cause assertion in stats.h to fail
+static bool test_rsetmultidb3()
+{
+    OmEnquire enquire(get_database("apitest_simpledata2"));
+    enquire.set_query(query(OmQuery::OP_OR, "cuddly", "people"));
+    OmMSet mset = enquire.get_mset(0, 10); // used to fail assertion
+    return true;
+}
+
 /// Simple test of the match_max_or_terms option.
 static bool test_maxorterms1()
 {
     OmDatabase mydb(get_database("apitest_simpledata"));
     OmEnquire enquire(make_dbgrp(&mydb));
 
-    OmStem stemmer("english");
-
-    std::string stemmed_word = stemmer.stem_word("word");
-    OmQuery myquery1(stemmed_word);
+    OmQuery myquery1 = query(OmQuery::OP_OR, "word");
     myquery1.set_length(2); // so the query lengths are the same
 
-    OmQuery myquery2(OmQuery::OP_OR,
-		     OmQuery(stemmer.stem_word("simple")),
-		     OmQuery(stemmer.stem_word("word")));
+    OmQuery myquery2 = query(OmQuery::OP_OR, "simple", "word");
 
     enquire.set_query(myquery1);
     OmMSet mymset1 = enquire.get_mset(0, 10);
@@ -1020,17 +1012,11 @@ static bool test_maxorterms2()
     OmDatabase mydb(get_database("apitest_simpledata"));
     OmEnquire enquire(make_dbgrp(&mydb));
 
-    OmStem stemmer("english");
-
-    OmQuery myquery1(OmQuery::OP_AND,
-		     OmQuery(stemmer.stem_word("word")),
-		     OmQuery(stemmer.stem_word("search")));
+    OmQuery myquery1 = query(OmQuery::OP_AND, "word", "search");
 
     OmQuery myquery2(OmQuery::OP_OR,
-		     OmQuery(stemmer.stem_word("this")),
-		     OmQuery(OmQuery::OP_AND,
-			     OmQuery(stemmer.stem_word("word")),
-			     OmQuery(stemmer.stem_word("search"))));
+		     query("this"),
+		     query(OmQuery::OP_AND, "word", "search"));
 
     enquire.set_query(myquery1);
     OmMSet mymset1 = enquire.get_mset(0, 10);
@@ -1105,19 +1091,8 @@ static bool test_maxorterms4()
     OmDatabase mydb2(get_database("apitest_simpledata"));
     OmEnquire enquire2(make_dbgrp(&mydb2));
 
-    // make a query
-    OmStem stemmer("english");
-
-    string term1 = stemmer.stem_word("word");
-    string term2 = stemmer.stem_word("rubbish");
-    string term3 = stemmer.stem_word("flibble");
-
-    OmQuery myquery1(term2);
-    OmQuery myquery2(OmQuery::OP_OR,
-		    OmQuery(term1),
-		    OmQuery(OmQuery::OP_OR,
-			    OmQuery(term2),
-			    OmQuery(term3)));
+    OmQuery myquery1 = query("rubbish");
+    OmQuery myquery2 = query(OmQuery::OP_OR, "word", "rubbish", "fibble");
     enquire1.set_query(myquery1);
     enquire2.set_query(myquery2);
 
@@ -1155,14 +1130,14 @@ static bool test_termlisttermfreq1()
     vector<OmESetItem>::const_iterator i;
     om_weight wt1 = 0;
     om_weight wt2 = 0;
-    for(i = eset1.items.begin(); i != eset1.items.end(); i++) {
-	if(i->tname == theterm) {
+    for (i = eset1.items.begin(); i != eset1.items.end(); i++) {
+	if (i->tname == theterm) {
 	    wt1 = i->wt;
 	    break;
 	}
     }
-    for(i = eset2.items.begin(); i != eset2.items.end(); i++) {
-	if(i->tname == theterm) {
+    for (i = eset2.items.begin(); i != eset2.items.end(); i++) {
+	if (i->tname == theterm) {
 	    wt2 = i->wt;
 	    break;
 	}
@@ -1287,8 +1262,8 @@ static bool test_qterminfo1()
 // statistics which should be the same are.
 static bool test_msetzeroitems1()
 {
-    OmMSet mymset1 = do_get_simple_query_mset(OmQuery("thi"), 0);
-    OmMSet mymset2 = do_get_simple_query_mset(OmQuery("thi"), 1);
+    OmMSet mymset1 = do_get_simple_query_mset(query("this"), 0);
+    OmMSet mymset2 = do_get_simple_query_mset(query("this"), 1);
 
     TEST_EQUAL(mymset1.max_possible, mymset2.max_possible);
 
@@ -1614,6 +1589,7 @@ test_desc db_tests[] = {
     {"rset1",              test_rset1},
     {"rset2",              test_rset2},
     {"rsetmultidb1",       test_rsetmultidb1},
+    {"rsetmultidb3",       test_rsetmultidb3},
     {"maxorterms1",        test_maxorterms1},
     {"maxorterms2",        test_maxorterms2},
     {"maxorterms3",        test_maxorterms3},

@@ -180,7 +180,6 @@ static bool test_emptyquerypart1()
 {
     vector<om_termname> emptyterms;
     OmQuery query(OmQuery::OP_OR, emptyterms.begin(), emptyterms.end());
-
     return true;
 }
 
