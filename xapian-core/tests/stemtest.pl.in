@@ -163,6 +163,8 @@ sub dicttest {
 	    };
 		    
 	};
+	close(STEMMED_ANSWERS);
+	close(STEMMER_OUTPUT) or die "Subprocess exited abnormally.";
 	print "$wordcount words checked... " . ($myretval? "FAILED" : "ok") . "\n";
     } else {
         print "stemming test data not available in $datadir\n";
@@ -187,6 +189,12 @@ sub randtest {
     if ($system_retval) {
         if ($verbose) {
 	    print "stemtest returned $system_retval\n";
+	};
+	# check for SIGINT - should really do it properly
+	# rather than comparing with 2...
+	if ($system_retval == 2) {
+	    print STDERR "Child received SIGINT - exiting\n";
+	    exit(1);
 	};
         $myretval = $val_failed;
     } else {

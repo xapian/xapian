@@ -1,3 +1,7 @@
+Mon Mar  6 18:05:17 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* stemtest.pl now handles the child getting a Ctrl-C nicely.
+
 Fri Mar  3 15:25:42 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added to one of the tests in apitest a check that the weights
