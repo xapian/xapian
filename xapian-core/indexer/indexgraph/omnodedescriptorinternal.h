@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 #include "om/omnodedescriptor.h"
-#include "om/omnodepad.h"
+#include "omnodepad.h"
 #include "refcnt.h"
 
 /** A description of a new node type */

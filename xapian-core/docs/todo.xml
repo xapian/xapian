@@ -99,7 +99,6 @@ Visible members:
 OmKey
 OmData
 OmError (probably necessary?)
-OmNodePad
 
 Vectors:
 OmQuery (see other TODO item)

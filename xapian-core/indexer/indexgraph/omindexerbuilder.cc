@@ -27,7 +27,7 @@
 #include "om/omerror.h"
 #include "register_core.h"
 #include "toposort.h"
-#include "om/omnodepad.h"
+#include "omnodepad.h"
 #include "om/omnodedescriptor.h"
 #include "omnodedescriptorinternal.h"
 #include "omdebug.h"

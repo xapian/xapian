@@ -6,7 +6,7 @@ noinst_HEADERS = deleter_map.h omindexerinternal.h \
 		register_core.h node_reg.h regexcommon.h indexerxml.h \
 		toposort.h omnodedescriptorinternal.h \
 		ompaditeratorinternal.h omnodeinstanceiteratorinternal.h \
-		omindexerdescinternal.h
+		omindexerdescinternal.h omnodepad.h
 
 data_DATA = omindexer.dtd
 

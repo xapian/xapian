@@ -25,7 +25,7 @@
 
 #include "om/ompaditerator.h"
 #include "omnodedescriptorinternal.h"
-#include "om/omnodepad.h"
+#include "omnodepad.h"
 #include "refcnt.h"
 #include "autoptr.h"
 
