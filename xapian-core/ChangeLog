@@ -1,3 +1,7 @@
+Tue May 06 00:25:03 BST 2003  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated.
+
 Fri May 02 16:58:15 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Improved check that LEX is flex - it will now accept
