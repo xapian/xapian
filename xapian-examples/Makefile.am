@@ -3,7 +3,7 @@
 # Need 1.5 for AM_CFLAGS, etc
 AUTOMAKE_OPTIONS = 1.5
 
-bin_PROGRAMS = msearch delve createdatabase simpleindex simplesearch \
+bin_PROGRAMS = msearch delve createdatabase copydatabase simpleindex simplesearch \
 	simpleexpand
 
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
@@ -18,6 +18,9 @@ msearch_LDADD = $(XAPIAN_LIBS)
 # delve doesn't use getopt_long so doesn't need getopt1.c
 delve_SOURCES = delve.cc getopt.c
 delve_LDADD = $(XAPIAN_LIBS)
+
+copydatabase_SOURCES = copydatabase.cc
+copydatabase_LDADD = $(XAPIAN_LIBS)
 
 createdatabase_SOURCES = createdatabase.cc
 createdatabase_LDADD = $(XAPIAN_LIBS)
