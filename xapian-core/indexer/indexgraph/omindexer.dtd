@@ -6,7 +6,8 @@
 <!ELEMENT item EMPTY>
 
 <!ATTLIST omindexer
-	  xmlns CDATA "http://xapian.org/schemas/indexgraph">
+	  xmlns CDATA "http://xapian.org/schemas/indexgraph"
+	  id ID #IMPLIED>
 <!ATTLIST node
           type CDATA #REQUIRED
 	  id   ID    #REQUIRED>

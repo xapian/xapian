@@ -73,6 +73,9 @@
 /* Define if libxml is available */
 #undef HAVE_LIBXML
 
+/* Define if libxml2 is available */
+#undef HAVE_LIBXML2
+
 /* Define if libxml supports validation */
 #undef HAVE_LIBXML_VALID
 

@@ -42,6 +42,18 @@
 #define xmlRootNode root
 #endif
 
+/** libxml1 defined CHAR -> xmlChar. libxml2 doesn't, apparently */
+#ifndef CHAR
+#define CHAR xmlChar
+#endif
+
+/** libxml2 behaves properly wrt all whitespace, whereas libxml1 didn't.
+ *  This enables us to still work with both.
+ */
+#ifndef HAVE_LIBXML2
+#define xmlIsBlankNode(x) (0)
+#endif
+
 /** A trivial "smart pointer" which calls xmlFreeDoc when going out of
  *  scope.
  */
@@ -328,7 +340,7 @@ get_config_values(xmlNodePtr node, OmSettings &config)
 {
     while (node != 0) {
 	// skip comments...
-	if (node->type == XML_COMMENT_NODE) {
+	if (node->type == XML_COMMENT_NODE || xmlIsBlankNode(node)) {
 	    node = node->next;
 	    continue;
 	}
@@ -357,7 +369,7 @@ FIXME: do something to replace this?
 	    xmlNodePtr items = node->xmlChildrenNode;
 	    std::vector<std::string> values;
 	    while (items) {
-		if (items->type == XML_COMMENT_NODE) {
+		if (items->type == XML_COMMENT_NODE || xmlIsBlankNode(items)) {
 		    items = items->next;
 		    continue;
 		}
@@ -407,7 +419,7 @@ desc_from_tree(xmlDocPtr doc)
 	 node != 0;
 	 node = node->next) {
 
-	if (node->type == XML_COMMENT_NODE) {
+	if (node->type == XML_COMMENT_NODE || xmlIsBlankNode(node)) {
 	    continue;
 	}
 	std::string type = xmlChar2string(node->name);
@@ -423,7 +435,7 @@ desc_from_tree(xmlDocPtr doc)
 
 	    // translate the inputs
 	    while (child != 0) {
-		if (child->type == XML_COMMENT_NODE) {
+		if (child->type == XML_COMMENT_NODE || xmlIsBlankNode(child)) {
 		    child = child->next;
 		    continue;
 		}

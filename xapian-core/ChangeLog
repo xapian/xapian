@@ -1,3 +1,9 @@
+Fri Jan 11 18:00:44 GMT 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* Various build fixes for libxml2: define CHAR as needed,
+	  --enable-validation (off by default), check for and discard
+	  'blank' text/cdata nodes as we encounter them
+
 Fri Jan 11 15:40:50 GMT 2002  Sam Liddicott <sam@ananova.com>
 
 	* Added Large File Support in the same way it was added to GNU tar.
