@@ -46,7 +46,7 @@ using std::endl;
 std::auto_ptr<OmLock> outputmutex;
 
 void
-OutputMessage(string msg) {
+OutputMessage(std::string msg) {
     OmLockSentry sentry(*outputmutex);
     fprintf(stdout, "%s\n", msg.c_str());
 }

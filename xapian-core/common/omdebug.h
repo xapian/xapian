@@ -243,6 +243,8 @@ class OmDebugCall {
 #define DEBUGMSG(a,b) DEBUGMSG2(OM_DEBUG_##a, b)
 #define DEBUGLINE(a,b) DEBUGLINE2(OM_DEBUG_##a, b)
 
+using std::endl;
+
 #else /* MUS_DEBUG_VERBOSE */
 #define DEBUGMSG(a,b)
 #define DEBUGLINE(a,b)
