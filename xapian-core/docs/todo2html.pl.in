@@ -78,6 +78,16 @@ EOT
 
 print "</TABLE>\n" if $tableopen;
 $tableopen = 0;
+
+my $date = `date '+%Y/%m/%d %H:%M:%S'`;
+chomp $date;
+my $author = 'a script';
+
+print "<!-- FOOTER \$";
+print "Author: $author ";
+print "\$ \$";
+print "Date: $date $";
+print " -->\n";
 print <<EOT;
 </BODY>
 </HTML>
