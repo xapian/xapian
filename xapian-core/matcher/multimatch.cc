@@ -555,6 +555,14 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		    min_item = items.front();
 		    min_item.wt = tmp;
 		    om_weight cmp = min_item.wt - new_item.wt;
+#if 0
+		    // FIXME: This optimisation gives incorrect results.
+		    // Disable for now, but check that the comparisons
+		    // are the correct way round.  We really should rework
+		    // to share code with MSetSortCmp anyway...
+		    // Also the sort_bands == 1 case is special - then
+		    // we only need to compare weights when the sortkeys
+		    // are identical.
 		    if (cmp != 0.0) {
 			if (min_item.sort_key.empty()) {
 			    OmDocument doc = db.get_document(min_item.did);
@@ -576,6 +584,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			    }
 			}
 		    }
+#endif
 		    if (pushback) {
 			items.push_back(new_item);
 			push_heap<vector<OmMSetItem>::iterator,
@@ -603,7 +612,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    } else {
 		items.push_back(new_item);
 		is_heap = false;
-		if (!sort_bands && items.size() == max_msize - 1) {
+		if (!sort_bands && items.size() == max_msize) {
 		    // We're done if this is a forward boolean match
 		    // (bodgetastic, FIXME better if we can)
 		    if (max_weight == 0 && sort_forward) break;

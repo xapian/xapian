@@ -4,7 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -2982,6 +2982,49 @@ static bool test_sortbands1()
     return true;
 }
 
+// Regression test for split msets being incorrect when sorting
+static bool test_sortbands2()
+{
+    OmEnquire enquire(get_simple_database());
+    init_simple_enquire(enquire);
+
+    for (int pass = 1; pass <= 2; ++pass) { 
+	for (om_valueno value_no = 1; value_no < 7; ++value_no) {
+	    tout << "Sorting on value " << value_no << endl;
+	    enquire.set_sorting(value_no, 10);
+	    OmMSet allbset = enquire.get_mset(0, 100);
+	    OmMSet partbset1 = enquire.get_mset(0, 3);
+	    OmMSet partbset2 = enquire.get_mset(3, 97);
+	    TEST_EQUAL(allbset.size(), partbset1.size() + partbset2.size());
+
+	    bool ok = true;
+	    int n = 0;
+	    OmMSetIterator i, j;
+	    j = allbset.begin();
+	    for (i = partbset1.begin(); i != partbset1.end(); ++i) {
+		tout << "Entry " << n << ": " << *i << " <=> " << *j << endl;
+		TEST(j != allbset.end()); 	
+		if (*i != *j) ok = false;
+		++j;
+		++n;
+	    }
+	    tout << "===\n";
+	    for (i = partbset2.begin(); i != partbset2.end(); ++i) {
+		tout << "Entry " << n << ": " << *i << " <=> " << *j << endl;
+		TEST(j != allbset.end()); 	
+		if (*i != *j) ok = false;
+		++j;
+		++n;
+	    }
+	    TEST(j == allbset.end()); 	
+	    if (!ok) FAIL_TEST("Split msets aren't consistent with unsplit");
+	}
+        enquire.set_sort_forward(false);
+    }
+
+    return true;
+}
+
 // consistency check match - vary mset size and check results agree
 static bool test_consistency1()
 {
@@ -3148,6 +3191,7 @@ test_desc localdb_tests[] = {
     {"postlist6",	   test_postlist6},
     {"termstats",	   test_termstats},
     {"sortbands1",	   test_sortbands1},
+    {"sortbands2",	   test_sortbands2},
     // consistency1 will run on the remote backend, but it's particularly slow
     // with that, and testing it there doesn't actually improve the test
     // coverage really.

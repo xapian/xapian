@@ -1,3 +1,10 @@
+Mon Feb 24 10:33:52 GMT 2003  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Disabled (for now) sort_bands
+	  optimisation which is misbehaving.  Fixed forward ordered boolean
+	  optimisation broken by last check-in. 
+	* tests/api_db.cc: Added test_sortbands2 based on James' test code.
+
 Sun Feb 23 20:28:47 GMT 2003  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Fixed problem with sort_bands when asking
