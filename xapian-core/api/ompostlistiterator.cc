@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +28,8 @@
 #include "ompositionlistiteratorinternal.h"
 #include "postlist.h"
 #include "omdebug.h"
+
+using namespace std;
 
 OmPostListIterator::OmPostListIterator()
 	: internal(0)
@@ -66,7 +69,7 @@ OmPostListIterator::operator=(const OmPostListIterator &other)
     Internal * newinternal = NULL;
     if (other.internal)
 	newinternal = new Internal(*(other.internal));
-    std::swap(internal, newinternal);
+    swap(internal, newinternal);
     delete newinternal;
 }
 
@@ -168,20 +171,19 @@ OmPostListIterator::positionlist_end()
     RETURN(OmPositionListIterator(NULL));
 }
 
-std::string
+string
 OmPostListIterator::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "OmPostListIterator::get_description", "");
+    DEBUGCALL(INTRO, string, "OmPostListIterator::get_description", "");
     /// \todo display contents of the object
-    om_ostringstream desc;
-    desc << "OmPostListIterator([pos=";
+    string desc = "OmPostListIterator([pos=";
     if (internal == 0) {
-	desc << "END";
+	desc += "END";
     } else {
-	desc << internal->postlist->get_description();
+	desc += internal->postlist->get_description();
     }
-    desc << "])";
-    RETURN(desc.str());
+    desc += "])";
+    RETURN(desc);
 }
 
 bool

@@ -1,3 +1,8 @@
+Fri Apr 04 03:08:35 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/ompostlistiterator.cc: Use "using namespace std;"; replaced
+	  gratuitous use of om_ostringstream.
+
 Fri Apr 04 03:07:05 BST 2003  Olly Betts <olly@survex.com>
 
 	* tests/api_nodb.cc: Use "using namespace std;"; removed stray cout
