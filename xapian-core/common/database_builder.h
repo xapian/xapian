@@ -25,13 +25,15 @@
 
 #include "om/omsettings.h"
 #include "om/omtypes.h"
+#include "refcnt.h"
 
 class Database;
 
 /** Class used to generate databases of a given type. */
 class DatabaseBuilder {
     public:
-	static Database * create(const OmSettings & params, bool readonly);
+	static RefCntPtr<Database> create(const OmSettings & params,
+					  bool readonly);
 };
 
 #endif /* OM_HGUARD_DATABASE_BUILDER_H */

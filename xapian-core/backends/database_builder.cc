@@ -70,10 +70,10 @@ static const StringAndValue database_strings[] = {
     { "",			DBTYPE_NULL		}  // End
 };
 
-Database *
+RefCntPtr<Database>
 DatabaseBuilder::create(const OmSettings & params, bool readonly)
 {
-    Database * database = NULL;
+    RefCntPtr<Database> database;
 
     // Convert type into an om_database_type
     om_database_type dbtype = static_cast<om_database_type> (
@@ -185,7 +185,7 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
     }
 
     // Check that we have a database
-    if (database == NULL) {
+    if (database.get() == NULL) {
 	throw OmFeatureUnavailableError("Couldn't create database: support "
 					"for specified database type not "
 					"available.");

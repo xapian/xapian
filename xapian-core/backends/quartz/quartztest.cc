@@ -30,6 +30,8 @@
 #include "quartz_table_entries.h"
 #include "quartz_utils.h"
 
+#include "database_builder.h"
+
 #include "om/autoptr.h"
 
 #include "unistd.h"
@@ -416,11 +418,17 @@ static bool test_open1()
     OmSettings settings;
     system("rm -fr .testdb_open1");
     settings.set("quartz_dir", ".testdb_open1");
+    settings.set("backend", "quartz");
 
-    TEST_EXCEPTION(OmOpeningError, QuartzDatabase database_0(settings));
+    TEST_EXCEPTION(OmOpeningError,
+		   RefCntPtr<Database> database_0 =
+		   DatabaseBuilder::create(settings, true));
+
     system("mkdir .testdb_open1");
-    QuartzWritableDatabase database_w(settings);
-    QuartzDatabase database_r(settings);
+    RefCntPtr<Database> database_w =
+	    DatabaseBuilder::create(settings, false);
+    RefCntPtr<Database> database_r =
+	    DatabaseBuilder::create(settings, true);
     return true;
 }
 
@@ -434,45 +442,51 @@ static bool test_adddoc1()
     system("mkdir .testdb_adddoc1");
     settings.set("quartz_dir", ".testdb_adddoc1");
     settings.set("quartz_logfile", "log");
-    QuartzWritableDatabase database(settings);
+    settings.set("backend", "quartz");
 
-    database.begin_session(0);
-    TEST_EQUAL(database.get_doccount(), 0);
+    RefCntPtr<Database> database = DatabaseBuilder::create(settings, false);
+
+    database->begin_session(0);
+    TEST_EQUAL(database->get_doccount(), 0);
     OmDocumentContents document;
     om_docid did;
 
-    did = database.add_document(document);
-    TEST_EQUAL(database.get_doccount(), 1);
+    did = database->add_document(document);
+    TEST_EQUAL(database->get_doccount(), 1);
     TEST_EQUAL(did, 1);
     settings.set("quartz_logfile", "log_ro");
     {
-	QuartzDatabase db_readonly(settings);
-	TEST_EQUAL(db_readonly.get_doccount(), 0);
+	RefCntPtr<Database> db_readonly =
+		DatabaseBuilder::create(settings, true);
+	TEST_EQUAL(db_readonly->get_doccount(), 0);
     }
-    database.flush();
+    database->flush();
     {
-	QuartzDatabase db_readonly(settings);
-	TEST_EQUAL(db_readonly.get_doccount(), 1);
+	RefCntPtr<Database> db_readonly =
+		DatabaseBuilder::create(settings, true);
+	TEST_EQUAL(db_readonly->get_doccount(), 1);
     }
 
-    database.delete_document(did);
-    TEST_EQUAL(database.get_doccount(), 0);
+    database->delete_document(did);
+    TEST_EQUAL(database->get_doccount(), 0);
     {
-	QuartzDatabase db_readonly(settings);
-	TEST_EQUAL(db_readonly.get_doccount(), 1);
+	RefCntPtr<Database> db_readonly =
+		DatabaseBuilder::create(settings, true);
+	TEST_EQUAL(db_readonly->get_doccount(), 1);
     }
-    database.flush();
+    database->flush();
     {
-	QuartzDatabase db_readonly(settings);
-	TEST_EQUAL(db_readonly.get_doccount(), 0);
+	RefCntPtr<Database> db_readonly =
+		DatabaseBuilder::create(settings, true);
+	TEST_EQUAL(db_readonly->get_doccount(), 0);
     }
 
-    did = database.add_document(document);
-    TEST_EQUAL(database.get_doccount(), 1);
+    did = database->add_document(document);
+    TEST_EQUAL(database->get_doccount(), 1);
     TEST_EQUAL(did, 2);
 
-    database.flush();
-    database.end_session();
+    database->flush();
+    database->end_session();
 
     return true;
 }
@@ -486,6 +500,7 @@ static bool test_adddoc2()
     system("mkdir .testdb_adddoc2");
     settings.set("quartz_dir", ".testdb_adddoc2");
     settings.set("quartz_logfile", "log");
+    settings.set("backend", "quartz");
 
     om_docid did;
     OmDocumentContents document_in;
@@ -500,21 +515,22 @@ static bool test_adddoc2()
     document_in2.add_posting("foobar", 1);
     document_in2.add_posting("falling", 2);
     {
-	QuartzWritableDatabase database(settings);
-	TEST_EQUAL(database.get_doccount(), 0);
+	RefCntPtr<Database> database = DatabaseBuilder::create(settings, false);
 
-	did = database.add_document(document_in);
-	TEST_EQUAL(database.get_doccount(), 1);
+	TEST_EQUAL(database->get_doccount(), 0);
 
-	om_docid did2 = database.add_document(document_in2);
-	TEST_EQUAL(database.get_doccount(), 2);
+	did = database->add_document(document_in);
+	TEST_EQUAL(database->get_doccount(), 1);
+
+	om_docid did2 = database->add_document(document_in2);
+	TEST_EQUAL(database->get_doccount(), 2);
 	TEST_NOT_EQUAL(did, did2);
     }
 
     {
 	settings.set("quartz_logfile", "log_ro");
-	QuartzDatabase database(settings);
-	OmDocumentContents document_out = database.get_document(did);
+	RefCntPtr<Database> database = DatabaseBuilder::create(settings, true);
+	OmDocumentContents document_out = database->get_document(did);
 
 	TEST_EQUAL(document_in.data.value, document_out.data.value);
 	TEST_EQUAL(document_in.keys.size(), document_out.keys.size());

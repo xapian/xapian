@@ -1,3 +1,19 @@
+Thu Oct 12 16:37:42 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* DatabaseBuilder::create() now returns a RefCntPtr, rather than a
+	  bare pointer, to prevent accidents involving not referring to
+	  a database by refcnt, making a {post,position,term}list, and then
+	  accidentally deleting the termlist when that list is deleted (and
+	  decrements the refcnt on the database back to 0).
+
+	* Added an assert to refcnt, to ensure that a refcnt pointer isn't
+	  made from `this', when this object isn't yet held by a reference
+	  counted pointer.
+
+	* Added a termlist to Quartz.  No implementation yet.
+
+	* Removed some old debugging code from Quartz.
+
 Thu Oct 12 14:45:03 BST 2000 Olly Betts
 
 	* Moved common/networkmatch.h into match/

@@ -144,6 +144,7 @@ inline RefCntPtr<T>::RefCntPtr(RefCntBase::RefCntPtrToThis, T *dest_)
 	: dest(dest_)
 {
     Assert(dest != 0);
+    Assert(dest->ref_count_get() != 0);
     dest->ref_increment();
 }
 

@@ -7,6 +7,7 @@ noinst_HEADERS =       quartz_types.h \
                        quartz_table_manager.h \
 		       quartz_table_entries.h \
 		       quartz_table.h \
+		       quartz_termlist.h \
 		       quartz_record.h \
 		       quartz_attributes.h \
 		       quartz_utils.h \
@@ -18,6 +19,7 @@ libquartz_la_SOURCES = quartz_database.cc \
                        quartz_table_manager.cc \
 		       quartz_table_entries.cc \
 		       quartz_table.cc \
+		       quartz_termlist.cc \
 		       quartz_record.cc \
 		       quartz_attributes.cc \
 		       quartz_utils.cc \
@@ -38,7 +40,5 @@ check_PROGRAMS = quartztest
 quartztest_SOURCES = quartztest.cc
 quartztest_LDADD = libquartz.la \
                    ../../testsuite/libtest.la \
-                   ../../common/libcommon.la \
-                   ../../api/libapi.la \
-		   ../libbackend.la
+		   ../../libomus.la
 

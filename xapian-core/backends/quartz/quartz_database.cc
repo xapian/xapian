@@ -29,7 +29,9 @@
 #include "omdebug.h"
 #include "om/autoptr.h"
 #include "om/omerror.h"
+#include "refcnt.h"
 
+#include "quartz_termlist.h"
 #include "quartz_record.h"
 #include "quartz_attributes.h"
 
@@ -194,6 +196,11 @@ QuartzDatabase::do_get_document_internal(om_docid did)
 			*(tables->get_attribute_table()),
 			document.keys,
 			did);
+
+    AutoPtr<QuartzTermList> termlist(new QuartzTermList (
+		RefCntPtr<const QuartzDatabase>(RefCntPtrToThis(), this),
+		*(tables->get_termlist_table()),
+		did));
 
     return document;
 }

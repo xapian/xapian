@@ -75,9 +75,7 @@ QuartzAttributesManager::add_attribute(QuartzBufferedTable & table,
 	om_keyno this_attrib_no;
 	std::string this_attribute;
 
-	DEBUGLINE(DB, "Pos, end " << (void *)pos << ", " << (void *)end);
 	unpack_entry(&pos, end, &this_attrib_no, this_attribute);
-	DEBUGLINE(DB, "EndPos, end " << (void *)pos << ", " << (void *)end);
 
 	if (this_attrib_no > keyno && !have_added) {
 	    DEBUGLINE(DB, "Adding attribute (number, value) = (" <<
@@ -98,8 +96,6 @@ QuartzAttributesManager::add_attribute(QuartzBufferedTable & table,
 	newvalue += pack_string(attribute.value);
     }
     tag->value = newvalue;
-    DEBUGLINE(DB, "Pos, end " << (void *)tag->value.data() <<
-	      ", " << (void *)(tag->value.data() + tag->value.size()));
 }
 
 void
@@ -151,9 +147,7 @@ QuartzAttributesManager::get_all_attributes(const QuartzTable & table,
 	om_keyno this_attrib_no;
 	std::string this_attribute;
 
-	DEBUGLINE(DB, "Pos, end " << (void *)pos << ", " << (void *)end);
 	unpack_entry(&pos, end, &this_attrib_no, this_attribute);
-	DEBUGLINE(DB, "NewPos, end " << (void *)pos << ", " << (void *)end);
 	attributes.insert(make_pair(this_attrib_no, OmKey(this_attribute)));
     }
 }
