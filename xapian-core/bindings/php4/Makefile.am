@@ -8,13 +8,13 @@ EXTRA_DIST = xapian/xapian_wrap.cpp xapian/php_xapian.h xapian.php \
 
 # This target is not needed for make dist
 xapian: xapian/configure
-	cd xapian
-	./configure
+	cd xapian &&\
+	./configure &&\
 	make
 
 xapian/configure: xapian/config.m4 xapian/Makefile.in xapian/xapian_wrap.cpp xapian/php_xapian.h xapian.php
 	for file in $? ; do \
-	  if test "`echo $$file | sed 's!.*/!!'`" != "xapian" ; \
+	  if test "`echo $$file | sed 's!/.*!!'`" != "xapian" ; \
 	  then cp $$file xapian ; \
 	  fi ; \
 	done
