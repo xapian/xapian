@@ -438,15 +438,15 @@ QuartzDiskTable::set_entry(const QuartzDbKey & key, const QuartzDbTag * tag)
     if (tag == 0) {
 	// delete entry
 	int result = Btree_delete(btree_for_writing,
-				  key.value.data(),
+				  (byte *)(key.value.data()),
 				  key.value.size());
 	// FIXME: Check result
     } else {
 	// add entry
 	int result = Btree_add(btree_for_writing,
-			       key.value.data(),
+			       (byte *)(key.value.data()),
 			       key.value.size(),
-			       tag->value.data(),
+			       (byte *)(tag->value.data()),
 			       tag->value.size());
 	// FIXME: Check result
     }
