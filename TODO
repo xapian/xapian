@@ -1,8 +1,1 @@
-Expand package descriptions.
-
-Autogenerate debian/control file from debian/rules, inserting package
-descriptions for the currently supported python versions.  Make it so
-that the list of python versions supported, and the default version,
-can be changed simply by changing a variable definition in debian/rules
-
 Package php4, java, guile and tcl8 bindings.
