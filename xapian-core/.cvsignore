@@ -5,13 +5,14 @@ idxtest
 matchtest
 stemtest
 testdir
+aclocal.m4
 Makefile.in
 Makefile
-stamp-h.in
 configure
 config.log
 config.h
 stamp-h
+stamp-h.in
 config.cache
 .deps
 config.status
