@@ -87,7 +87,13 @@ MultiPostList::get_wdf() const
 PositionList *
 MultiPostList::get_position_list()
 {
-    throw OmUnimplementedError("MultiPostList::get_position_list() unimplemented");
+    std::list<MultiPostListInternal>::const_iterator i = postlists.begin();
+    while (i != postlists.end()) {
+	if ((*i).currdoc == currdoc)
+	    return (*i).pl->get_position_list();
+	i++;
+    }
+    Assert(false);
 }
 
 PostList *

@@ -1,3 +1,7 @@
+Mon Sep 04 14:42:56 BST 2000 Olly Betts
+
+	* Implemented MultiPostList::get_position_list.
+ 
 Mon Sep 04 12:05:40 BST 2000 Olly Betts
 
 	* Moved multidbN tests together.
