@@ -162,13 +162,13 @@ class SocketClient : public NetClient {
 	/// Whether the timeout is valid
 	bool end_time_set;
 
+    public:
 	/// Initialise end_time to current time + msecs_timeout
 	void init_end_time();
 
 	/// Clear end_time
 	void close_end_time();
 
-    public:
 	/** Destructor. */
 	virtual ~SocketClient();
 

@@ -55,6 +55,7 @@ RemoteSubMatch::RemoteSubMatch(const Database *db_,
 
 RemoteSubMatch::~RemoteSubMatch()
 {
+    db->link->close_end_time();
     delete statssource;
 }
 

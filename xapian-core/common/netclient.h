@@ -96,6 +96,8 @@ class NetClient : public RefCntBase {
 	virtual bool get_mset(om_doccount first,
 			      om_doccount maxitems,
 			      OmMSet &mset) = 0;
+
+	virtual void close_end_time() = 0;
 	
 	virtual bool open_postlist(om_doccount first, om_doccount maxitems,
 			   om_doccount &termfreq_max,

@@ -84,6 +84,20 @@ SocketClient::keep_alive()
     // ignore message
 }
 
+// Timer sentry, used to ensure that the timer is set for a period and
+// gets unset even if an exception occurs.
+class TimerSentry {
+    private:
+	SocketClient *client;
+    public:
+	TimerSentry(SocketClient *client_) : client(client_) {
+	    client->init_end_time();
+	}
+	~TimerSentry() {
+	    client->close_end_time();
+	}
+};
+
 void
 SocketClient::init_end_time()
 {
@@ -124,15 +138,12 @@ SocketClient::get_tlist(om_docid did,
     get_requested_docs();
     do_write(std::string("T") + om_tostring(did));
 
-    init_end_time();
-
+    TimerSentry timersentry(this);
     while (1) {
 	std::string message = do_read();
 	if (message == "Z") break;
 	items.push_back(string_to_tlistitem(message));
     }
-
-    close_end_time();
 }
 
 void
@@ -153,6 +164,8 @@ void
 SocketClient::get_requested_docs()
 {
     while (!requested_docs.empty()) {
+	TimerSentry timersentry(this);
+
 	om_docid cdid = requested_docs.front();
 
 	/* Create new entry, and get a reference to it */
@@ -262,9 +275,8 @@ SocketClient::do_read()
     if (end_time_set) {
 	retval = buf.readline(end_time);
     } else {
-	init_end_time();
+	TimerSentry timersentry(this);
 	retval = buf.readline(end_time);
-	close_end_time();
     }
 
     DEBUGLINE(UNKNOWN, "do_read(): " << retval);
@@ -283,9 +295,8 @@ SocketClient::do_write(std::string data)
     if (end_time_set) {
 	buf.writeline(data, end_time);
     } else {
-	init_end_time();
+	TimerSentry timersentry(this);
 	buf.writeline(data, end_time);
-	close_end_time();
     }
 }
 
@@ -338,6 +349,8 @@ SocketClient::set_query(const OmQuery::Internal *query_,
 {
     /* no actual communication performed in this method */
 
+    // This timer will be sorted out by RemoteSubMatch's destructor, if
+    // neccessary, otherwise it will stop at the end of get_mset()
     init_end_time();
     Assert(conv_state == state_getquery);
     query_string = query_->serialise();

@@ -1,3 +1,13 @@
+Thu Mar 15 17:40:38 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Make timeout absolute, rather than cumulative, when fetching
+	  multiple documents from database: if two nodes fail, the total
+	  timeout should still be that specified, not twice it.
+
+	* Make the timeout set by SocketClient::set_query() get reset
+	  correctly if an exception happens (which used to prevent
+	  SocketClient::get_mset() ever getting called).
+
 Thu Mar 15 17:06:51 GMT 2001 Olly Betts
 
 	* Oops, checked in too much - backing out the wrong stuff.
