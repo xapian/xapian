@@ -20,11 +20,7 @@
  * -----END-LICENCE-----
  */
 
-#include <fstream>
-
-#include <string.h>
-#include <ctype.h>
-
+#include <stdio.h>
 #include <time.h>
 
 #include <fcntl.h>
@@ -46,10 +42,6 @@ map<string, string> option;
 
 const string default_dbname = "default";
 
-static string map_dbname_to_dir(const string &dbname);
-
-static void make_log_entry(const string &action, long matches);
-
 string dbname;
 string log_dir = "/tmp";
 string fmtname = "query";
@@ -59,34 +51,52 @@ om_docid list_size = 0;
 
 static const string muscat_dir = "/usr/om";
 
-static int main2(int argc, char *argv[]);
-
-int main(int argc, char *argv[])
+static void
+make_log_entry(const string &action, long matches)
 {
-    try {
-	return main2(argc, argv);
+    string log_buf = log_dir + "/omega.log";
+    int fd = open(log_buf.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
+       
+    if (fd == -1) return;
+
+    // (remote host)\t(date/time)\t(action)\t(db)\t(query)\t(referer)
+    // 193.131.74.35 [01/Jan/1997:09:07:22 +0000] query db1 test http://x.com/
+    char *var;
+    string line;
+    time_t t = time(NULL);
+    var = getenv("REMOTE_HOST");
+    if (var == NULL) {
+	var = getenv("REMOTE_ADDR");
+	if (var == NULL) var = "-";
     }
-    catch (OmError &e) {
-	cout << "Exception: " << e.get_msg() << endl;
-    }
-    catch (string &s) {
-	cout << "Exception: " << s << endl;
-    }
-    catch (const char *s) {
-	cout << "Exception: " << s << endl;
-    }
-    catch (...) {
-	cout << "Caught unknown exception" << endl;
-    }
-    return 0;
+    line = var;    
+    char buf[80];
+    strftime(buf, 80, "\t[%d/%b/%Y:%H:%M:%S", gmtime(&t));
+    line += buf;
+    line = line + " +0000]\t" + action + '\t' + dbname + '\t' + raw_prob;
+    sprintf(buf, "%li ", matches);
+    line = line + buf + '\t';
+    var = getenv("HTTP_REFERER");
+    if (var == NULL) var = "-";
+    line += var;
+    line += '\n';
+    write(fd, line.data(), line.length());
+    close(fd);
 }
 
-static int main2(int argc, char *argv[])
+static string
+map_dbname_to_dir(const string &dbname)
+{
+    return muscat_dir + "/data/" + dbname;
+}
+
+static int
+main2(int argc, char *argv[])
 {
     string big_buf;
     bool more = false;
-    int      is_old;
-    char     *method;
+    int is_old;
+    char *method;
     MCI val;
     pair<MCI, MCI> g;
 
@@ -95,7 +105,7 @@ static int main2(int argc, char *argv[])
     option["thousand"] = ",";
     
     // FIXME: set cout to linebuffered not stdout.  Or just flush regularly...
-    setvbuf(stdout, NULL, _IOLBF, 0);
+    //setvbuf(stdout, NULL, _IOLBF, 0);
 
     method = getenv("REQUEST_METHOD");
     if (method == NULL) {
@@ -149,9 +159,9 @@ static int main2(int argc, char *argv[])
 		dbname = "";
 		vector<string>::const_iterator i;
 		for (i = dbs.begin(); i != dbs.end(); i++) {
-		    if (i->size()) {
+		    if (!i->empty()) {
 			// Translate DB parameter to path of database directory
-			if (dbname.size()) dbname += '/';
+			if (!dbname.empty()) dbname += '/';
 			dbname += *i;
 			vector<string> params;          
 			params.push_back(map_dbname_to_dir(*i));
@@ -160,7 +170,7 @@ static int main2(int argc, char *argv[])
 		}
 	    }
 	}
-	if (dbname.size() == 0) {
+	if (dbname.empty()) {
 	    dbname = default_dbname;
 	    vector<string> params;          
 	    params.push_back(map_dbname_to_dir(dbname));
@@ -303,43 +313,22 @@ static int main2(int argc, char *argv[])
     return 0;
 }
 
-static string map_dbname_to_dir(const string &dbname) {    
-    return muscat_dir + "/data/" + dbname;
-}
-
-/**************************************************************/
-
-// Logging code
-
-static void
-make_log_entry(const string &action, long matches)
+int main(int argc, char *argv[])
 {
-    string log_buf = log_dir + "/omega.log";
-    int fd = open(log_buf.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
-       
-    if (fd == -1) return;
-
-    // (remote host)\t(date/time)\t(action)\t(db)\t(query)\t(referer)
-    // 193.131.74.35 [01/Jan/1997:09:07:22 +0000] query db1 test http://x.com/
-    char *var;
-    string line;
-    time_t t = time(NULL);
-    var = getenv("REMOTE_HOST");
-    if (var == NULL) {
-	var = getenv("REMOTE_ADDR");
-	if (var == NULL) var = "-";
+    try {
+	return main2(argc, argv);
     }
-    line = var;    
-    char buf[80];
-    strftime(buf, 80, "\t[%d/%b/%Y:%H:%M:%S", gmtime(&t));
-    line += buf;
-    line = line + " +0000]\t" + action + '\t' + dbname + '\t' + raw_prob;
-    sprintf(buf, "%li ", matches);
-    line = line + buf + '\t';
-    var = getenv("HTTP_REFERER");
-    if (var == NULL) var = "-";
-    line += var;
-    line += '\n';
-    write(fd, line.data(), line.length());
-    close(fd);
+    catch (OmError &e) {
+	cout << "Exception: " << e.get_msg() << endl;
+    }
+    catch (string &s) {
+	cout << "Exception: " << s << endl;
+    }
+    catch (const char *s) {
+	cout << "Exception: " << s << endl;
+    }
+    catch (...) {
+	cout << "Caught unknown exception" << endl;
+    }
+    return 0;
 }

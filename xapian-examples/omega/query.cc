@@ -410,7 +410,7 @@ eval(const string &fmt)
 		g = cgi_params.equal_range(eval(args[0]));
 		for (MCI i = g.first; i != g.second; i++)
 		    value = value + i->second + '\t';
-		if (value.size()) value.erase(value.size() - 1);
+		if (!value.empty()) value.erase(value.size() - 1);
 		break;
 	    }
 	    break;
@@ -418,7 +418,7 @@ eval(const string &fmt)
 	    if (var == "date") {
 		ok = true;
 		value = eval(args[0]);
-		if (value.size()) {
+		if (!value.empty()) {
 		    char buf[64] = "";
 		    time_t date = string_to_int(value);
 		    if (date != (time_t)-1) {
@@ -467,10 +467,9 @@ eval(const string &fmt)
 	    if (var == "freqs") {
 		ensure_match();
 		ok = true;
-		try { // FIXME: until get_termfreq works...
 		if (!new_terms_list.empty()) {
 		    static string val;
-		    if (val.size() == 0) {
+		    if (val.empty()) {
 			list<om_termname>::const_iterator i;
 			for (i = new_terms_list.begin();
 			     i != new_terms_list.end(); i++) {
@@ -478,13 +477,9 @@ eval(const string &fmt)
 			    val = val + *i + ":&nbsp;"
 				+ pretty_sprintf("%d", &freq) + '\t';
 			}		    
-			if (val.size()) val.erase(val.size() - 1);
+			if (!val.empty()) val.erase(val.size() - 1);
 		    }
 		    value = val;
-		}
-		}
-		catch (...) {
-		    value = "";
 		}
 		break;
 	    }
@@ -573,7 +568,7 @@ eval(const string &fmt)
 	    }
 	    if (var == "if") {
 		ok = true;
-		if (eval(args[0]).size())
+		if (!eval(args[0]).empty())
 		    value = eval(args[1]);
 		else if (args.size() > 2)
 		    value = eval(args[2]);
@@ -594,28 +589,28 @@ eval(const string &fmt)
 	    if (var == "list") {
 		ok = true;
 		string list = eval(args[0]);
-		string pre, inter, interlast, post;
-		switch (args.size()) {
-		 case 2:
-		    inter = interlast = eval(args[1]);
-		    break;
-		 case 3:
-		    inter = eval(args[1]);
-		    interlast = eval(args[2]);
-		    break;
-		 case 4:
-		    pre = eval(args[1]);
-		    inter = interlast = eval(args[2]);
-		    post = eval(args[3]);
-		    break;
-		 case 5:
-		    pre = eval(args[1]);
-		    inter = eval(args[2]);
-		    interlast = eval(args[3]);
-		    post = eval(args[4]);
-		    break;
-		}
-		if (list.size()) {
+		if (!list.empty()) {
+		    string pre, inter, interlast, post;
+		    switch (args.size()) {
+		     case 2:
+			inter = interlast = eval(args[1]);
+			break;
+		     case 3:
+			inter = eval(args[1]);
+			interlast = eval(args[2]);
+			break;
+		     case 4:
+			pre = eval(args[1]);
+			inter = interlast = eval(args[2]);
+			post = eval(args[3]);
+			break;
+		     case 5:
+			pre = eval(args[1]);
+			inter = eval(args[2]);
+			interlast = eval(args[3]);
+			post = eval(args[4]);
+			break;
+		    }
 		    value += pre;
 		    size_t split = 0, split2;
 		    while ((split2 = list.find('\t', split)) != string::npos) {
@@ -644,9 +639,9 @@ eval(const string &fmt)
 	    if (var == "map") {
 		ok = true;
 		string list = eval(args[0]);
-		size_t i = 0;
-		while (++i < args.size()) args[i] = eval(args[i]);
-		if (list.size()) {
+		if (!list.empty()) {
+		    size_t i = 0;
+		    while (++i < args.size()) args[i] = eval(args[i]);
 		    size_t split = 0, split2;
 		    while (1) {
 			split2 = list.find('\t', split);
@@ -693,7 +688,7 @@ eval(const string &fmt)
 	    }
 	    if (var == "not") {
 		ok = true;
-		if (eval(args[0]).size() == 0) value = "true";
+		if (eval(args[0]).empty()) value = "true";
 		break;
 	    }
 	    break;
@@ -703,7 +698,7 @@ eval(const string &fmt)
 		vector<string>::const_iterator i;
 		for (i = args.begin(); i != args.end(); i++) {
 		    value = eval(*i);
-		    if (value.size()) break;
+		    if (!value.empty()) break;
 	        }
 		break;
 	    }
@@ -736,13 +731,13 @@ eval(const string &fmt)
 		ok = true;
 		if (!new_terms_list.empty()) {
 		    static string val;
-		    if (val.size() == 0) {
+		    if (val.empty()) {
 			list<om_termname>::const_iterator i;
 			for (i = new_terms_list.begin();
 			     i != new_terms_list.end(); i++) {
 			    val = val + *i + '\t';
 			}		    
-			if (val.size()) val.erase(val.size() - 1);
+			if (!val.empty()) val.erase(val.size() - 1);
 		    }
 		    value = val;
 		}
@@ -784,7 +779,7 @@ eval(const string &fmt)
 		for (i = ticked.begin(); i != ticked.end(); i++) {
 		    if (i->second) value += int_to_string(i->first) + '\t';
 		}
-		if (value.size()) value.erase(value.size() - 1);
+		if (!value.empty()) value.erase(value.size() - 1);
 		break;
 	    }
 	    if (var == "record") {
@@ -821,7 +816,7 @@ eval(const string &fmt)
 		for (term = matching.begin(); term != matching.end(); term++)
 		    value = value + *term + '\t';
 
-		if (value.size()) value.erase(value.size() - 1);
+		if (!value.empty()) value.erase(value.size() - 1);
 		break;
 	    }
 	    if (var == "topdoc") {
@@ -837,11 +832,10 @@ eval(const string &fmt)
 	    if (var == "topterms") {
 		ok = true;
 		static string val;
-		if (val.size() == 0) {		    
+		if (val.empty()) {		    
 		    ensure_match();
 		    int howmany = 20;
-		    if (args.size() > 0)
-			howmany = string_to_int(eval(args[0]));
+		    if (!args.empty()) howmany = string_to_int(eval(args[0]));
 		    if (howmany < 0) howmany = 0;
 		    
 		    // Present a clickable list of expand terms
@@ -849,7 +843,7 @@ eval(const string &fmt)
 			OmESet eset;
 			ExpandDeciderOmega decider;
 			
-			if (rset->items.size()) {
+			if (!rset->items.empty()) {
 			    eset = enquire->get_eset(howmany, *rset, 0, &decider);
 			} else {
 			    // invent an rset
@@ -866,7 +860,7 @@ eval(const string &fmt)
 			     i != eset.items.end(); i++) {
 			    val = val + i->tname + '\t';
 			}
-			if (val.size()) val.erase(val.size() - 1);
+			if (!val.empty()) val.erase(val.size() - 1);
 		    }
 		}
 		value = val;
@@ -941,7 +935,7 @@ print_caption(om_docid m, const string &fmt)
 	    field[line.substr(0, j)] = line.substr(j + 1);
 	} else if (line != "") {
 	    // FIXME: bodge for now
-	    if (field["caption"].size() == 0) field["caption"] = line;
+	    if (field["caption"].empty()) field["caption"] = line;
 	    field["sample"] += line;
 	}
 	if (i == string::npos) break;

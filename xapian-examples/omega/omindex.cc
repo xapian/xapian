@@ -27,7 +27,7 @@ void lowercase_term(om_termname &term)
 void select_characters(om_termname &term, const string & keep)
 {
     string chars;
-    if(keep.size() == 0) {
+    if (keep.empty()) {
 	chars ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     } else {
 	chars = keep;
@@ -167,7 +167,7 @@ index_directory(const string &dir)
 	// ".", "..", and other hidden files
 	if (ent->d_name[0] == '.') continue;
 	string url = dir;
-	if (url.size() && url[url.size() - 1] != '/') url += '/';
+	if (!url.empty() && url[url.size() - 1] != '/') url += '/';
 	url += ent->d_name;
 	string file = root + url;
 	if (stat(file.c_str(), &statbuf) == -1) {
