@@ -1,3 +1,8 @@
+Sat Jul 26 21:04:06 BST 2003  Olly Betts <olly@survex.com>
+
+	* php4/Makefile.am: lib omqueryparser is now xapianqueryparser.
+	* python/Makefile.am: XAPIAN_LIBS now includes -lxapianqueryparser.
+
 Sat Jul 26 18:33:42 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Converted to use XO_LIB_XAPIAN.

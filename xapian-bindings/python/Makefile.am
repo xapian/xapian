@@ -21,7 +21,7 @@ AM_CPPFLAGS = -I@PYTHON_INC@
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS) -Wall -Wno-unused
 _xapian_la_LDFLAGS = -avoid-version -module
 nodist__xapian_la_SOURCES = xapian_wrap.cc
-_xapian_la_LIBADD = $(XAPIAN_LIBS) -lomqueryparser
+_xapian_la_LIBADD = $(XAPIAN_LIBS)
 
 BUILT_SOURCES = xapian_wrap.cc xapian.py
 
