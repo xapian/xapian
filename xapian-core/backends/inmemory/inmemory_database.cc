@@ -74,11 +74,12 @@ InMemoryPostList::get_wdf() const
 // Actual database class //
 ///////////////////////////
 
-InMemoryDatabase::InMemoryDatabase(const OmSettings & params, bool readonly)
+InMemoryDatabase::InMemoryDatabase()
 	: totdocs(0), totlen(0), error_in_next(0), abort_in_next(0)
 {
-    error_in_next = params.get_int("inmemory_errornext", 0);
-    abort_in_next = params.get_int("inmemory_abortnext", 0);
+    // FIXME: sort out his rather nasty error faking stuff
+    //error_in_next = params.get_int("inmemory_errornext", 0);
+    //abort_in_next = params.get_int("inmemory_abortnext", 0);
 }
 
 InMemoryDatabase::~InMemoryDatabase()

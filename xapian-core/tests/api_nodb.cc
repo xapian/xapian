@@ -254,49 +254,6 @@ static bool test_stemlangs1()
     return true;
 }
 
-// Check that backend BACKEND doesn't exist
-#define CHECK_BACKEND_UNKNOWN(BACKEND) do {\
-    OmSettings p;\
-    p.set("backend", (BACKEND));\
-    TEST_EXCEPTION(OmInvalidArgumentError, OmDatabase db(p));\
-    } while (0)
-
-// test that DatabaseBuilder throws correct error for a completely unknown
-// database backend, or if an empty string is passed for the backend
-static bool test_badbackend1()
-{
-    CHECK_BACKEND_UNKNOWN("shorterofbreathanotherdayclosertodeath");
-    CHECK_BACKEND_UNKNOWN("");
-    return true;
-}
-
-// Check that backend BACKEND isn't compiled in
-#define CHECK_BACKEND_UNAVAILABLE(BACKEND) do {\
-    OmSettings p;\
-    p.set("backend", (BACKEND));\
-    TEST_EXCEPTION(OmFeatureUnavailableError, OmDatabase db(p));\
-    } while (0)
-
-// test that DatabaseBuilder throws correct error for any unavailable
-// database backends
-static bool test_badbackend2()
-{
-#ifndef MUS_BUILD_BACKEND_INMEMORY
-    CHECK_BACKEND_UNAVAILABLE("inmemory");
-#endif
-#ifndef MUS_BUILD_BACKEND_QUARTZ
-    CHECK_BACKEND_UNAVAILABLE("quartz");
-#endif
-#ifndef MUS_BUILD_BACKEND_REMOTE
-    CHECK_BACKEND_UNAVAILABLE("remote");
-#endif
-#ifndef MUS_BUILD_BACKEND_MUSCAT36
-    CHECK_BACKEND_UNAVAILABLE("da");
-    CHECK_BACKEND_UNAVAILABLE("db");
-#endif
-    return true;
-}
-
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -311,7 +268,5 @@ test_desc nodb_tests[] = {
     {"emptyquerypart1",    test_emptyquerypart1},
     {"singlesubq1",	   test_singlesubq1},
     {"stemlangs1",	   test_stemlangs1},
-    {"badbackend1",	   test_badbackend1},
-    {"badbackend2",	   test_badbackend2},
     {0, 0}
 };

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -138,21 +139,10 @@ DATermList::get_weighting() const
 
 
 
-DADatabase::DADatabase(const OmSettings & params, bool readonly)
-	: DA_r(0), DA_t(0), valuefile(0)
+DADatabase::DADatabase(const string &filename_r, const string &filename_t,
+		       const string &filename_v, bool heavy_duty_)
+	: DA_r(0), DA_t(0), valuefile(0), heavy_duty(heavy_duty_)
 {
-    // Check validity of parameters
-    if (!readonly) {
-	throw OmInvalidArgumentError("DADatabase must be opened readonly.");
-    }
-
-    // Work out file paths
-    string filename_r = params.get("m36_record_file");
-    string filename_t = params.get("m36_term_file");
-    string filename_k = params.get("m36_key_file", "");
-
-    heavy_duty = params.get_bool("m36_heavyduty", true);
-
     // Open database with specified path
     DA_r = DA_open(filename_r.c_str(), DA_RECS, heavy_duty);
     if (DA_r == 0) {
@@ -165,26 +155,25 @@ DADatabase::DADatabase(const OmSettings & params, bool readonly)
 	throw OmOpeningError("Couldn't open " + filename_t, errno);
     }
 
-    if (filename_k.empty()) return;
+    if (filename_v.empty()) return;
     
     // Open valuefile
-    valuefile = fopen(filename_k.c_str(), "rb");
+    valuefile = fopen(filename_v.c_str(), "rb");
     if (valuefile == 0) {
-	throw OmOpeningError("Couldn't open " + filename_k, errno);
+	throw OmOpeningError("Couldn't open " + filename_v, errno);
     }
 
     // Check for magic string at beginning of file.
     try {
-	char input[9];
+	char input[8];
 	errno = 0;
-	size_t bytes_read = fread(input, sizeof(char), 8, valuefile);
+	size_t bytes_read = fread(input, 1, 8, valuefile);
 	if (bytes_read < 8) {
-	    throw OmOpeningError(string("When opening ") + filename_k +
+	    throw OmOpeningError(string("When opening ") + filename_v +
 				 ": couldn't read magic", errno);
 	}
-	input[8] = '\0';
-	if (strcmp(input, "omrocks!")) {
-	    throw OmOpeningError(string("When opening ") + filename_k +
+	if (memcmp(input, "omrocks!", 8)) {
+	    throw OmOpeningError(string("When opening ") + filename_v +
 				 ": found wrong magic - got `" + input + "'");
 	}
     }
@@ -228,23 +217,11 @@ DADatabase::~DADatabase()
 om_doccount
 DADatabase::get_doccount() const
 {
-    return get_doccount_internal();
-}
-
-om_doccount
-DADatabase::get_doccount_internal() const
-{
     return DA_r->itemcount;
 }
 
 om_doclength
 DADatabase::get_avlength() const
-{
-    return get_avlength_internal();
-}
-
-om_doclength
-DADatabase::get_avlength_internal() const
 {
     // FIXME - actually want to return real avlength.
     return 1;
@@ -254,7 +231,7 @@ om_doclength
 DADatabase::get_doclength(om_docid did) const
 {
     // FIXME: should return actual length.
-    return get_avlength_internal();
+    return get_avlength();
 }
 
 om_doccount
@@ -307,7 +284,7 @@ DADatabase::open_term_list(om_docid did) const
 
     M_open_terms(tv);
 
-    return new DATermList(tv, DADatabase::get_doccount_internal(),
+    return new DATermList(tv, DADatabase::get_doccount(),
 			  RefCntPtr<const DADatabase>(RefCntPtrToThis(), this));
 }
 
@@ -319,7 +296,7 @@ DADatabase::get_record(om_docid did) const
     struct record *r = M_make_record();
     int found = DA_get_record(DA_r, did, r);
 
-    if(found == 0) {
+    if (found == 0) {
 	M_lose_record(r);
 	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
@@ -388,11 +365,11 @@ DADatabase::term_lookup(const om_termname & tname) const
 	int found = DA_term(k, &ti, DA_t);
 	free(k);
 
-	if(found == 0) {
+	if (found == 0) {
 	    DEBUGLINE(DB, "Not in collection");
 	} else {
 	    // FIXME: be a bit nicer on the cache than this
-	    if(termmap.size() > 500) {
+	    if (termmap.size() > 500) {
 		DEBUGLINE(DB, "cache full, wiping");
 		termmap.clear();
 	    }

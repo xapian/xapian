@@ -162,7 +162,7 @@ unpack_uint_last(const char ** src, const char * src_end, T * resultptr)
     // Check byte is what it's meant to be
     CASSERT(sizeof(om_byte) == 1);
 
-    if (src_end - *src > sizeof(T)) {
+    if (src_end - *src > (int)sizeof(T)) {
 	// Would overflow
 	*src = src_end;
 	return false;

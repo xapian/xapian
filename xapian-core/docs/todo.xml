@@ -302,9 +302,7 @@ typo in an OmSettings value.  Another argument for it was to allow passing
 values to user weighting objects, etc, but I think it's best just to
 implement these with a clone() method, and pass an example one in.  And
 we might as well make built-in weighting objects work the same way rather
-than being a special case.  Backends can be done similarly, though an
-explicit factory is needed as there's more than one class to build.
-Also remove docs/omsettings.
+than being a special case.  Also remove docs/omsettings.
 
 </todoitem>
 <todoitem priority="L" difficulty="4" owner="" area="General" release="0.7">

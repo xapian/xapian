@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -370,12 +371,6 @@ OmQuery::Internal::get_terms() const
 						 result.end())));
 }
 
-
-
-
-
-
-
 // Methods 
 
 // Make an uninitialised query
@@ -444,11 +439,10 @@ OmQuery::Internal::Internal(const OmQuery::Internal &copyme)
     }
 }
 
-// //////////////////////////////////////////
-// // Methods for making new query objects
+//////////////////////////////////////////
+// Methods for making new query objects
 
-OmQuery::Internal::Internal(const om_termname & tname_,
-		 om_termcount wqf_,
+OmQuery::Internal::Internal(const om_termname & tname_, om_termcount wqf_,
 		 om_termpos term_pos_)
 	: op(OmQuery::Internal::OP_LEAF),
 	  subqs(),

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -98,6 +99,7 @@ class BackendManager {
 	OmWritableDatabase do_getwritedb_quartz(const std::vector<std::string> &dbnames,
 					   bool writable);
 
+#ifdef MUS_BUILD_BACKEND_MUSCAT36
 	/// Get a da database instance.
 	OmDatabase getdb_da(const std::vector<std::string> &dbnames);
 
@@ -121,6 +123,7 @@ class BackendManager {
 
 	/// Get a writable dbflimsy database instance.
 	OmWritableDatabase getwritedb_dbflimsy(const std::vector<std::string> &dbnames);
+#endif
 
 
     public:

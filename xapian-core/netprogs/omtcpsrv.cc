@@ -30,7 +30,6 @@
 #include "getopt.h"
 
 #include "database.h"
-#include "database_builder.h"
 #include "om/omerror.h"
 #include "om/omenquire.h"
 #include "tcpserver.h"
@@ -38,7 +37,6 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-    vector<OmSettings *> dbs;
     int port = 0;
     int msecs_active_timeout = 15000;
     int msecs_idle_timeout   = 60000;
@@ -113,23 +111,13 @@ int main(int argc, char **argv) {
 	exit(1);
     }
     
-    while (argv[optind]) {
-	OmSettings *params = new OmSettings();
-	params->set("backend", "auto");
-	params->set("auto_dir", argv[optind++]);
-	dbs.push_back(params);
-    }
-
-    if (verbose) cout << "Opening server on port " << port << "..." << endl;
-
     try {
         OmDatabase mydbs;
-
-	vector<OmSettings *>::const_iterator p;
-	for (p = dbs.begin(); p != dbs.end(); p++) {
-	    mydbs.add_database(**p);
-	    delete *p;
+	while (argv[optind]) {
+	    mydbs.add_database(OmAuto__open(argv[optind++]));
 	}
+
+	if (verbose) cout << "Opening server on port " << port << "..." << endl;
 
 #ifndef TIMING_PATCH
 	TcpServer server(mydbs, port, msecs_active_timeout,

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -156,46 +157,34 @@ DBTermList::get_weighting() const
 
 
 
-DBDatabase::DBDatabase(const OmSettings & params, bool readonly) : DB(0), valuefile(0)
+DBDatabase::DBDatabase(const string &filename, const string &filename_v,
+		       int cache_size) : DB(0), valuefile(0)
 {    
-    // Check validity of parameters
-    if (!readonly) {
-	throw OmInvalidArgumentError("DBDatabase must be opened readonly.");
-    }
-
-    string filename = params.get("m36_db_file");
-
-    string filename_k = params.get("m36_key_file", "");
-
-    // Get the cache_size
-    int cache_size = params.get_int("m36_db_cache_size", 30);
-
     // Actually open
     DB = DB_open(filename.c_str(), cache_size);
     if (DB == 0) {
 	throw OmOpeningError(string("When opening ") + filename + ": " + strerror(errno));
     }
 
-    if (filename_k.empty()) return;
+    if (filename_v.empty()) return;
     
     // Open valuefile
-    valuefile = fopen(filename_k.c_str(), "rb");
+    valuefile = fopen(filename_v.c_str(), "rb");
     if (valuefile == 0) {
-	throw OmOpeningError(string("When opening ") + filename_k +
+	throw OmOpeningError(string("When opening ") + filename_v +
 			     ": " + strerror(errno));
     }
 
     // Check for magic string at beginning of file.
     try {
-	char input[9];
-	size_t bytes_read = fread(input, sizeof(char), 8, valuefile);
+	char input[8];
+	size_t bytes_read = fread(input, 1, 8, valuefile);
 	if (bytes_read < 8) {
-	    throw OmOpeningError(string("When opening ") + filename_k +
+	    throw OmOpeningError(string("When opening ") + filename_v +
 				 ": couldn't read magic - " + strerror(errno));
 	}
-	input[8] = '\0';
-	if (strcmp(input, "omrocks!")) {
-	    throw OmOpeningError(string("When opening ") + filename_k +
+	if (memcmp(input, "omrocks!", 8)) {
+	    throw OmOpeningError(string("When opening ") + filename_v +
 				 ": couldn't read magic - got `" +
 				 input + "'");
 	}
@@ -206,8 +195,6 @@ DBDatabase::DBDatabase(const OmSettings & params, bool readonly) : DB(0), valuef
 	DB = 0;
 	throw;
     }
-
-    return;
 }
 
 DBDatabase::~DBDatabase()
@@ -220,11 +207,11 @@ DBDatabase::~DBDatabase()
 	// been called, in the normal course of events.
     }
 
-    if(valuefile != 0) {
+    if (valuefile != 0) {
 	fclose(valuefile);
 	valuefile = 0;
     }
-    if(DB != 0) {
+    if (DB != 0) {
 	DB_close(DB);
 	DB = 0;
     }
@@ -233,23 +220,11 @@ DBDatabase::~DBDatabase()
 om_doccount
 DBDatabase::get_doccount() const
 {
-    return get_doccount_internal();
-}
-
-om_doccount
-DBDatabase::get_doccount_internal() const
-{
     return DB->doc_count;
 }
 
 om_doclength
 DBDatabase::get_avlength() const
-{
-    return get_avlength_internal();
-}
-
-om_doclength
-DBDatabase::get_avlength_internal() const
 {
     // FIXME - actually want to return real avlength.
     return 1;
@@ -259,13 +234,13 @@ om_doclength
 DBDatabase::get_doclength(om_docid did) const
 {
     // FIXME: should return actual length.
-    return get_avlength_internal();
+    return get_avlength();
 }
 
 om_doccount
 DBDatabase::get_termfreq(const om_termname & tname) const
 {
-    if (!term_exists_internal(tname)) return 0;
+    if (!term_exists(tname)) return 0;
     LeafPostList *pl = open_post_list_internal(tname);
     om_doccount freq = 0;
     if (pl) freq = pl->get_termfreq();
@@ -274,16 +249,10 @@ DBDatabase::get_termfreq(const om_termname & tname) const
 }
 
 bool
-DBDatabase::term_exists_internal(const om_termname & tname) const
-{
-    return (term_lookup(tname).get() != 0);
-}
-
-bool
 DBDatabase::term_exists(const om_termname & tname) const
 {
     Assert(tname.size() != 0);
-    return term_exists_internal(tname);
+    return (term_lookup(tname).get() != 0);
 }
 
 // Returns a new posting list, for the postings in this database for given term
@@ -323,7 +292,7 @@ DBDatabase::open_term_list(om_docid did) const
 
     M_open_terms(tv);
 
-    return new DBTermList(tv, DBDatabase::get_doccount_internal(),
+    return new DBTermList(tv, DBDatabase::get_doccount(),
 			  RefCntPtr<const DBDatabase>(RefCntPtrToThis(), this));
 }
 
@@ -335,7 +304,7 @@ DBDatabase::get_record(om_docid did) const
     struct record *r = M_make_record();
     int found = DB_get_record(DB, did, r);
 
-    if(found == 0) {
+    if (found == 0) {
 	M_lose_record(r);
 	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
@@ -409,7 +378,7 @@ DBDatabase::term_lookup(const om_termname & tname) const
 	    DEBUGLINE(DB, "Not in collection");
 	} else {
 	    // FIXME: be a bit nicer on the cache than this
-	    if(termmap.size() > 500) {
+	    if (termmap.size() > 500) {
 		DEBUGLINE(DB, "cache full, wiping");
 		termmap.clear();
 	    }

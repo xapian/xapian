@@ -33,8 +33,6 @@
 #include "quartz_table_entries.h"
 #include "quartz_utils.h"
 
-#include "database_builder.h"
-
 #include "autoptr.h"
 
 #include "unistd.h"
@@ -1034,84 +1032,68 @@ static bool test_cursor2()
 /// Test opening of a quartz database
 static bool test_open1()
 {
-    OmSettings settings;
-    deletedir(tmpdir + "testdb_open1");
-    settings.set("quartz_dir", tmpdir + "testdb_open1");
-    settings.set("quartz_logfile", tmpdir + "log_open1");
-    settings.set("backend", "quartz");
-    settings.set("database_create", true);
-
+    string dbdir = tmpdir + "testdb_open1";
+    deletedir(dbdir);
+    
     TEST_EXCEPTION(OmOpeningError,
-		   RefCntPtr<Database> database_0 =
-		   DatabaseBuilder::create(settings, true));
+		   RefCntPtr<Database> database_0 = new QuartzDatabase(dbdir));
 
-    makedir(tmpdir + "testdb_open1");
+    makedir(dbdir);
     RefCntPtr<Database> database_w =
-	    DatabaseBuilder::create(settings, false);
-    RefCntPtr<Database> database_r =
-	    DatabaseBuilder::create(settings, true);
+	    new QuartzWritableDatabase(dbdir, true, false, 2048);
+    RefCntPtr<Database> database_r = new QuartzDatabase(dbdir);
+
     return true;
 }
 
 /// Test creating and opening of quartz databases
 static bool test_create1()
 {
-    RefCntPtr<Database> database;
+    string dbdir = tmpdir + "testdb_create1";
+    deletedir(dbdir);
 
-    OmSettings settings;
-    deletedir(tmpdir + "testdb_create1");
-    settings.set("quartz_dir", tmpdir + "testdb_create1");
-    settings.set("quartz_logfile", tmpdir + "log_create1");
-    settings.set("backend", "quartz");
-
-    OmSettings settings1 = settings;
+    RefCntPtr<Database> db;
 
     // (1) db doesn't exist (no create)
     TEST_EXCEPTION(OmOpeningError,
-		   database = DatabaseBuilder::create(settings1, true));
+		   db = new QuartzDatabase(dbdir));
     TEST_EXCEPTION(OmOpeningError,
-		   database = DatabaseBuilder::create(settings1, false));
+		   db = new QuartzWritableDatabase(dbdir, false, false, 2048));
 
     // (2) db doesn't exist, basedir doesn't exist (create)
-    settings1.set("database_create", true);
     TEST_EXCEPTION(OmOpeningError,
-		   database = DatabaseBuilder::create(settings1, true));
+		   db = new QuartzDatabase(dbdir));
     TEST_EXCEPTION(OmOpeningError,
-		   database = DatabaseBuilder::create(settings1, false));
+		   db = new QuartzWritableDatabase(dbdir, true, false, 2048));
 
-    makedir(tmpdir + "testdb_create1");
+    makedir(dbdir);
 
     // (3) db doesn't exist, basedir exists (no create)
-    settings1 = settings;
     TEST_EXCEPTION(OmOpeningError,
-		   database = DatabaseBuilder::create(settings1, true));
+		   db = new QuartzDatabase(dbdir));
     TEST_EXCEPTION(OmOpeningError,
-		   database = DatabaseBuilder::create(settings1, false));
+		   db = new QuartzWritableDatabase(dbdir, false, false, 2048));
 
     // (4) db doesn't exist, basedir exists (create)
-    settings1.set("database_create", true);
     TEST_EXCEPTION(OmOpeningError,
-		   database = DatabaseBuilder::create(settings1, true));
-    database = DatabaseBuilder::create(settings1, false);
-    database = DatabaseBuilder::create(settings1, true);
+		   db = new QuartzDatabase(dbdir));
+    db = new QuartzWritableDatabase(dbdir, true, false, 2048);
+    db = new QuartzDatabase(dbdir);
 
     // (5) db exists (create, no overwrite)
-    database = DatabaseBuilder::create(settings1, true);
+    db = new QuartzDatabase(dbdir);
     TEST_EXCEPTION(OmDatabaseCreateError,
-		   database = DatabaseBuilder::create(settings1, false));
-    database = DatabaseBuilder::create(settings1, true);
+		   db = new QuartzWritableDatabase(dbdir, true, false, 2048));
+    db = new QuartzDatabase(dbdir);
 
     // (6) db exists (no create)
-    settings1.set("database_create", false);
-    database = DatabaseBuilder::create(settings1, false);
+    db = new QuartzWritableDatabase(dbdir, false, false, 2048);
 
     // (7) db exists (create, overwrite)
-    settings1.set("database_create", true);
-    settings1.set("database_allow_overwrite", true);
-    database = DatabaseBuilder::create(settings1, true);
-    TEST_EQUAL(database->get_doccount(), 0);
-    database = DatabaseBuilder::create(settings1, false);
-    TEST_EQUAL(database->get_doccount(), 0);
+    db = new QuartzDatabase(dbdir);
+    TEST_EQUAL(db->get_doccount(), 0);
+    db = new QuartzWritableDatabase(dbdir, true, true, 2048);
+    TEST_EQUAL(db->get_doccount(), 0);
     OmDocument document_in;
     document_in.set_data("Foobar rising");
     document_in.add_value(7, "Value7");
@@ -1119,16 +1101,16 @@ static bool test_create1()
     document_in.add_posting("foobar", 1);
     document_in.add_posting("rising", 2);
     document_in.add_posting("foobar", 3);
-    database->add_document(document_in);
-    TEST_EQUAL(database->get_doccount(), 1);
-    database->add_document(document_in);
-    TEST_EQUAL(database->get_doccount(), 2);
+    db->add_document(document_in);
+    TEST_EQUAL(db->get_doccount(), 1);
+    db->add_document(document_in);
+    TEST_EQUAL(db->get_doccount(), 2);
 
     // (8) db exists with data (create, overwrite)
-    database = DatabaseBuilder::create(settings1, true);
-    database = DatabaseBuilder::create(settings1, false);
-    database->add_document(document_in);
-    TEST_EQUAL(database->get_doccount(), 1);
+    db = new QuartzDatabase(dbdir);
+    db = new QuartzWritableDatabase(dbdir, true, true, 2048);
+    db->add_document(document_in);
+    TEST_EQUAL(db->get_doccount(), 1);
 
     return true;
 }
@@ -1138,63 +1120,54 @@ static bool test_create1()
  */
 static bool test_adddoc1()
 {
-    OmSettings settings;
-    deletedir(tmpdir + "testdb_adddoc1");
-    makedir(tmpdir + "testdb_adddoc1");
-    settings.set("quartz_dir", tmpdir + "testdb_adddoc1");
-    settings.set("quartz_logfile", tmpdir + "log_adddoc1");
-    settings.set("backend", "quartz");
-    settings.set("database_create", true);
+    string dbdir = tmpdir + "testdb_adddoc1";
+    deletedir(dbdir);
+    makedir(dbdir);
 
-    RefCntPtr<Database> database = DatabaseBuilder::create(settings, false);
+    RefCntPtr<Database> db = new QuartzWritableDatabase(dbdir, true, false, 2048);
 
-    TEST_EQUAL(database->get_doccount(), 0);
-    TEST_EQUAL(database->get_avlength(), 0);
+    TEST_EQUAL(db->get_doccount(), 0);
+    TEST_EQUAL(db->get_avlength(), 0);
     OmDocument document;
     om_docid did;
 
-    did = database->add_document(document);
-    TEST_EQUAL(database->get_doccount(), 1);
+    did = db->add_document(document);
+    TEST_EQUAL(db->get_doccount(), 1);
     TEST_EQUAL(did, 1);
-    TEST_EQUAL(database->get_avlength(), 0);
-    settings.set("quartz_logfile", tmpdir + "log_adddoc1_ro");
+    TEST_EQUAL(db->get_avlength(), 0);
     {
-	RefCntPtr<Database> db_readonly =
-		DatabaseBuilder::create(settings, true);
+	RefCntPtr<Database> db_readonly = new QuartzDatabase(dbdir);
 	TEST_EQUAL(db_readonly->get_doccount(), 0);
 	TEST_EQUAL(db_readonly->get_avlength(), 0);
     }
-    database->flush();
+    db->flush();
     {
-	RefCntPtr<Database> db_readonly =
-		DatabaseBuilder::create(settings, true);
+	RefCntPtr<Database> db_readonly = new QuartzDatabase(dbdir);
 	TEST_EQUAL(db_readonly->get_doccount(), 1);
 	TEST_EQUAL(db_readonly->get_avlength(), 0);
     }
 
-    database->delete_document(did);
-    TEST_EQUAL(database->get_doccount(), 0);
-    TEST_EQUAL(database->get_avlength(), 0);
+    db->delete_document(did);
+    TEST_EQUAL(db->get_doccount(), 0);
+    TEST_EQUAL(db->get_avlength(), 0);
     {
-	RefCntPtr<Database> db_readonly =
-		DatabaseBuilder::create(settings, true);
+	RefCntPtr<Database> db_readonly = new QuartzDatabase(dbdir);
 	TEST_EQUAL(db_readonly->get_doccount(), 1);
 	TEST_EQUAL(db_readonly->get_avlength(), 0);
     }
-    database->flush();
+    db->flush();
     {
-	RefCntPtr<Database> db_readonly =
-		DatabaseBuilder::create(settings, true);
+	RefCntPtr<Database> db_readonly = new QuartzDatabase(dbdir);
 	TEST_EQUAL(db_readonly->get_doccount(), 0);
 	TEST_EQUAL(db_readonly->get_avlength(), 0);
     }
 
-    did = database->add_document(document);
-    TEST_EQUAL(database->get_doccount(), 1);
+    did = db->add_document(document);
+    TEST_EQUAL(db->get_doccount(), 1);
     TEST_EQUAL(did, 2);
-    TEST_EQUAL(database->get_avlength(), 0);
+    TEST_EQUAL(db->get_avlength(), 0);
 
-    database->flush();
+    db->flush();
 
     return true;
 }
@@ -1203,13 +1176,9 @@ static bool test_adddoc1()
  */
 static bool test_adddoc2()
 {
-    OmSettings settings;
-    deletedir(tmpdir + "testdb_adddoc2");
-    makedir(tmpdir + "testdb_adddoc2");
-    settings.set("quartz_dir", tmpdir + "testdb_adddoc2");
-    settings.set("quartz_logfile", tmpdir + "log_adddoc2");
-    settings.set("backend", "quartz");
-    settings.set("database_create", true);
+    string dbdir = tmpdir + "testdb_adddoc1";
+    deletedir(dbdir);
+    makedir(dbdir);
 
     om_docid did;
     OmDocument document_in;
@@ -1225,7 +1194,7 @@ static bool test_adddoc2()
     document_in2.add_posting("foobar", 1);
     document_in2.add_posting("falling", 2);
     {
-	OmWritableDatabase database(settings);
+	OmWritableDatabase database = OmQuartz__open(dbdir, true);
 
 	TEST_EQUAL(database.get_doccount(), 0);
 	TEST_EQUAL(database.get_avlength(), 0);
@@ -1277,8 +1246,7 @@ static bool test_adddoc2()
     }
 
     {
-	settings.set("quartz_logfile", tmpdir + "log_adddoc2_ro");
-	OmDatabase database(settings);
+	OmDatabase database = OmQuartz__open(dbdir);
 	OmDocument document_out = database.get_document(did);
 
 	TEST_EQUAL(document_in.get_data(), document_out.get_data());
@@ -1503,23 +1471,19 @@ static bool test_unpackint1()
 /// Test playing with a postlist
 static bool test_postlist1()
 {
-    OmSettings settings;
-    deletedir(tmpdir + "testdb_postlist1");
-    makedir(tmpdir + "testdb_postlist1");
-    settings.set("quartz_dir", tmpdir + "testdb_postlist1");
-    settings.set("quartz_logfile", tmpdir + "log_postlist1");
-    settings.set("backend", "quartz");
-    settings.set("database_create", true);
-    RefCntPtr<Database> database_w = DatabaseBuilder::create(settings, false);
+    string dbdir = tmpdir + "testdb_postlist1";
+    deletedir(dbdir);
+    makedir(dbdir);
+    RefCntPtr<Database> db_w = new QuartzWritableDatabase(dbdir, true, false, 8192);
 
-    QuartzDiskTable disktable(tmpdir + "testdb_postlist1/postlist_", false, 8192);
+    QuartzDiskTable disktable(dbdir + "/postlist_", false, 8192);
     disktable.open();
     QuartzBufferedTable bufftable(&disktable);
     QuartzTable * table = &bufftable;
-    QuartzDiskTable positiontable(tmpdir + "testdb_postlist1/position_", false, 8192);
+    QuartzDiskTable positiontable(dbdir + "/position_", false, 8192);
 
     {
-	QuartzPostList pl2(database_w, table, &positiontable, "foo");
+	QuartzPostList pl2(db_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 0);
 	TEST_EQUAL(pl2.get_collection_freq(), 0);
 	pl2.next(0);
@@ -1528,7 +1492,7 @@ static bool test_postlist1()
 
     QuartzPostList::add_entry(&bufftable, "foo", 5, 7, 3);
     {
-	QuartzPostList pl2(database_w, table, &positiontable, "foo");
+	QuartzPostList pl2(db_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 1);
 	TEST_EQUAL(pl2.get_collection_freq(), 7);
 	pl2.next(0);
@@ -1542,7 +1506,7 @@ static bool test_postlist1()
 
     QuartzPostList::add_entry(&bufftable, "foo", 6, 1, 2);
     {
-	QuartzPostList pl2(database_w, table, &positiontable, "foo");
+	QuartzPostList pl2(db_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 2);
 	TEST_EQUAL(pl2.get_collection_freq(), 8);
 	pl2.next(0);
@@ -1565,14 +1529,10 @@ static bool test_postlist1()
 /// Test playing with a postlist
 static bool test_postlist2()
 {
-    OmSettings settings;
-    deletedir(tmpdir + "testdb_postlist2");
-    makedir(tmpdir + "testdb_postlist2");
-    settings.set("quartz_dir", tmpdir + "testdb_postlist2");
-    settings.set("quartz_logfile", tmpdir + "log_postlist2");
-    settings.set("backend", "quartz");
-    settings.set("database_create", true);
-    RefCntPtr<Database> database_w = DatabaseBuilder::create(settings, false);
+    string dbdir = tmpdir + "testdb_postlist2";
+    deletedir(dbdir);
+    makedir(dbdir);
+    RefCntPtr<Database> db_w = new QuartzWritableDatabase(dbdir, true, false, 8192);
 
     QuartzDiskTable disktable(tmpdir + "testdb_postlist2/postlist_", false, 2048);
     disktable.open();
@@ -1581,13 +1541,12 @@ static bool test_postlist2()
     QuartzDiskTable positiontable(tmpdir + "testdb_postlist2/position_", false, 8192);
 
     {
-	QuartzPostList pl2(database_w, table, &positiontable, "foo");
+	QuartzPostList pl2(db_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 0);
 	TEST_EQUAL(pl2.get_collection_freq(), 0);
 	pl2.next(0);
 	TEST(pl2.at_end());
     }
-
 
     vector<unsigned int> testdata;
     unsigned int pos = 0;
@@ -1606,13 +1565,13 @@ static bool test_postlist2()
     bufftable.apply(disktable.get_latest_revision_number() + 1);
 
     {
-	QuartzPostList pl2(database_w, table, &positiontable, "foo");
+	QuartzPostList pl2(db_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
 	TEST_EQUAL(pl2.get_collection_freq(), collfreq);
 	pl2.next(0);
 	vector<unsigned int>::const_iterator i3 = testdata.begin();
 
-	while(!pl2.at_end()) {
+	while (!pl2.at_end()) {
 	    TEST_EQUAL(pl2.get_docid(), *i3);
 	    TEST_EQUAL(pl2.get_wdf(), (*i3) % 5 + 1);
 	    TEST_EQUAL(pl2.get_doclength(), (*i3) % 7 + 1);
@@ -1624,12 +1583,12 @@ static bool test_postlist2()
 	TEST(pl2.at_end());
     }
     {
-	QuartzPostList pl2(database_w, table, &positiontable, "foo");
+	QuartzPostList pl2(db_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
 	pl2.next(0);
 	vector<unsigned int>::const_iterator i3 = testdata.begin();
 
-	while(!pl2.at_end()) {
+	while (!pl2.at_end()) {
 	    TEST_EQUAL(pl2.get_docid(), *i3);
 	    TEST_EQUAL(pl2.get_wdf(), (*i3) % 5 + 1);
 	    TEST_EQUAL(pl2.get_doclength(), (*i3) % 7 + 1);
@@ -1655,12 +1614,12 @@ static bool test_postlist2()
 	TEST(pl2.at_end());
     }
     {
-	QuartzPostList pl2(database_w, table, &positiontable, "foo");
+	QuartzPostList pl2(db_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
 	pl2.next(0);
 	vector<unsigned int>::const_iterator i3 = testdata.begin();
 
-	while(!pl2.at_end()) {
+	while (!pl2.at_end()) {
 	    TEST_EQUAL(pl2.get_docid(), *i3);
 	    TEST_EQUAL(pl2.get_wdf(), (*i3) % 5 + 1);
 	    TEST_EQUAL(pl2.get_doclength(), (*i3) % 7 + 1);
@@ -1672,11 +1631,11 @@ static bool test_postlist2()
 	TEST(pl2.at_end());
     }
     {
-	QuartzPostList pl2(database_w, table, &positiontable, "foo");
+	QuartzPostList pl2(db_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
 	vector<unsigned int>::const_iterator i3 = testdata.begin();
 
-	while(!pl2.at_end()) {
+	while (!pl2.at_end()) {
 	    while (i3 != testdata.end()) {
 		if ((unsigned int)(10.0*rand()/(RAND_MAX+1.0)) == 1) break;
 		i3++;
@@ -1961,16 +1920,9 @@ static bool test_writelock1()
     deletedir(dbname);
     makedir(dbname);
 
-    OmSettings settings;
-    settings.set("backend", "quartz");
-    settings.set("quartz_dir", dbname);
-
-    OmSettings settings1 = settings;
-    settings1.set("database_create", true);
-    OmWritableDatabase writer(settings1);
-
+    OmWritableDatabase writer = OmQuartz__open(dbname, true);
     TEST_EXCEPTION(OmDatabaseLockError, 
-		   OmWritableDatabase writer2(settings));
+	OmWritableDatabase writer2 = OmQuartz__open(dbname, false));
     return true;
 }
 

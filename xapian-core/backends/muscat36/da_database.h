@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -282,14 +283,6 @@ class DADatabase : public Database {
 	 */
 	string get_value(om_docid did, om_valueno valueid) const;
 
-	/// Internal method for getting the database size.
-	om_doccount  get_doccount_internal() const;
-
-	/** Internal method for getting the average length of a document in
-	 *  the database.
-	 */
-	om_doclength get_avlength_internal() const;
-
 	/** Internal method for opening postlists.
 	 */
 	LeafPostList * open_post_list_internal(const om_termname & tname) const;
@@ -298,14 +291,19 @@ class DADatabase : public Database {
 	 *
 	 *  @exception OmOpeningError thrown if database can't be opened.
 	 *
-	 *  @param params Parameters supplied by the user to specify the                 *                location of the database to open.  The meanings
-	 *                of these parameters are dependent on the database              *                type.
+	 *  @param filename_r Filename of the record file (usually called "R").
+	 *  @param filename_t Filename of the term file (usually called "T").
+	 *  @param filename_v Filename of the value file (or "" if none).
+	 *  @param heavy_duty_ True if lengths are 3 bytes, false if they're 2.
 	 */
-	DADatabase(const OmSettings & params, bool readonly);
+	DADatabase(const string &filename_r, const string &filename_t,
+		   const string &filename_v, bool heavy_duty_);
     public:
 	~DADatabase();
 
+	/// Get the database size.
 	om_doccount  get_doccount() const;
+	/// Get the average length of a document in the database.
 	om_doclength get_avlength() const;
 	om_doclength get_doclength(om_docid did) const;
 

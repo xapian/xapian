@@ -29,6 +29,9 @@
 #include "emptyalltermslist.h"
 #include "multialltermslist.h"
 
+#include "progclient.h"
+#include "tcpclient.h"
+
 #include "../backends/multi/multi_postlist.h"
 #include "../backends/multi/multi_termlist.h"
 
@@ -36,27 +39,286 @@
 #include "om/omoutput.h"
 #include <vector>
 
+using std::vector;
+
+// Include headers for all the database types
+#ifdef MUS_BUILD_BACKEND_MUSCAT36
+#include "../backends/muscat36/da_database.h"
+#include "../backends/muscat36/db_database.h"
+#endif
+#ifdef MUS_BUILD_BACKEND_INMEMORY
+#include "../backends/inmemory/inmemory_database.h"
+#endif
+#ifdef MUS_BUILD_BACKEND_QUARTZ
+#include "../backends/quartz/quartz_database.h"
+#endif
+#ifdef MUS_BUILD_BACKEND_REMOTE
+// net_database.h is in common/
+#include "net_database.h"
+#endif
+
+//#include "database.h"
+
+//#include <stdio.h>
+
+using std::string;
+
+#ifdef MUS_BUILD_BACKEND_QUARTZ
+OmDatabase
+OmQuartz__open(const string &quartz_dir) {
+    return OmDatabase(new OmDatabase::Internal(new QuartzDatabase(quartz_dir)));
+}
+
+OmWritableDatabase
+OmQuartz__open(const string &quartz_dir, bool create, bool overwrite,
+	       int block_size) {
+//     - database_create : boolean, true if a new database should be created.
+//       Default is false.
+//     - database_allow_overwrite : boolean.  This has no effect unless
+//       backend_create is ue.  If this setting is true a new database will be
+//       created in place of an existing one.  If false, an exception will be
+//       thrown if there is an existing database in place.  Default is false.
+//     FIXME: shouldn't describe a tri-state as 2 booleans - this is really
+//     one option with 3 possible settings:
+    // create if not there, fail if it is / create or open / create or overwrite
+    // (the last isn't quite the same as "rm -rf" then create as it should
+    // atomically replace so the database is always there - is that a useful
+    // distinction though?)
+    return OmWritableDatabase(new OmDatabase::Internal(
+	new QuartzWritableDatabase(quartz_dir, create, overwrite, block_size)));
+}
+#endif
+
+#ifdef MUS_BUILD_BACKEND_INMEMORY
+// Note: a read-only inmemory database will always be empty, and so there's
+// not much use in allowing one to be created.
+OmWritableDatabase
+OmInMemory__open() {
+    return OmWritableDatabase(new OmDatabase::Internal(new InMemoryDatabase()));
+}
+#endif
+
+#ifdef MUS_BUILD_BACKEND_MUSCAT36
+OmDatabase
+OmMuscat36DA__open(const string &R, const string &T, bool heavy_duty) {
+    return OmDatabase(new OmDatabase::Internal(
+	new DADatabase(R, T, "", heavy_duty)));
+}
+
+OmDatabase
+OmMuscat36DA__open(const string &R, const string &T, const string &keys,
+		   bool heavy_duty) {
+    return OmDatabase(new OmDatabase::Internal(
+	new DADatabase(R, T, keys, heavy_duty)));
+}
+
+OmDatabase
+OmMuscat36DB__open(const string &DB, size_t cache_size) {
+    return OmDatabase(new OmDatabase::Internal(
+	new DBDatabase(DB, "", cache_size)));
+}
+
+OmDatabase
+OmMuscat36DB__open(const string &DB, const string &keys, size_t cache_size) {
+    return OmDatabase(new OmDatabase::Internal(
+	new DBDatabase(DB, keys, cache_size)));
+}
+#endif
+
+#ifdef MUS_BUILD_BACKEND_REMOTE
+OmDatabase
+OmRemote__open(const string &program, const string &args, unsigned int timeout)
+{
+    RefCntPtr<NetClient> link(new ProgClient(program, args, timeout));
+    return OmDatabase(new OmDatabase::Internal(new NetworkDatabase(link)));
+}
+
+OmDatabase
+OmRemote__open(const string &host, unsigned int port,
+	unsigned int timeout, unsigned int connect_timeout)
+{
+    if (connect_timeout == 0) connect_timeout = timeout;
+    RefCntPtr<NetClient> link(new TcpClient(host, port, timeout, connect_timeout));
+    return OmDatabase(new OmDatabase::Internal(new NetworkDatabase(link)));
+}
+#endif
+
+#if 0
+/** Type of a database */
+enum om_database_type {
+    DBTYPE_NULL,
+    DBTYPE_AUTO, // autodetect database type
+    DBTYPE_MUSCAT36_DA,
+    DBTYPE_MUSCAT36_DB,
+    DBTYPE_INMEMORY,
+    DBTYPE_REMOTE,
+    DBTYPE_QUARTZ
+};
+
+// Translation of types as strings to types as enum om_database_type
+
+/** The mapping from database type names to database type codes.
+ *  This list must be in alphabetic order. */
+static const StringAndValue database_strings[] = {
+    { "auto",			DBTYPE_AUTO		},
+    { "da",			DBTYPE_MUSCAT36_DA	},
+    { "db",			DBTYPE_MUSCAT36_DB	},
+    { "inmemory",		DBTYPE_INMEMORY		},
+    { "remote",			DBTYPE_REMOTE		},
+    { "quartz",			DBTYPE_QUARTZ		},
+    { "",			DBTYPE_NULL		}  // End
+};
+
+static string
+read_file(const string path)
+{
+    FILE *stubfd = fopen(path.c_str(), "r");
+    if (stubfd == 0) {
+	throw OmOpeningError("Can't open stub database file: " + path);
+    }
+
+    struct stat st;
+    if (fstat(fileno(stubfd), &st) != 0 || !S_ISREG(st.st_mode)) {
+	throw OmOpeningError("Can't get size of stub database file: " + path);
+    }
+    char *buf = (char*)malloc(st.st_size);
+    if (buf == 0) { 
+	throw OmOpeningError("Can't allocate space to read stub database file: "
+			     + path);
+    }
+
+    int bytes = fread(buf, 1, st.st_size, stubfd);
+    if (bytes != st.st_size) {
+	throw OmOpeningError("Can't read stub database file: " + path);
+    }
+    string result = string(buf, st.st_size);
+    free(buf);
+    return result;
+}
+
+static void
+read_stub_database(OmSettings & params, bool /*readonly*/)
+{
+    // Check validity of parameters
+    string buf = read_file(params.get("auto_dir"));
+
+    string::size_type linestart = 0;
+    string::size_type lineend = 0;
+    int linenum = 0;
+    while (linestart != buf.size()) {
+	lineend = buf.find_first_of("\n\r", linestart);
+	if (lineend == string::npos) lineend = buf.size();
+	linenum++;
+
+	string::size_type eqpos;
+	eqpos = buf.find('=', linestart);
+	if (eqpos >= lineend) {
+	    throw OmOpeningError("Invalid entry in stub database file, at line " + om_tostring(linenum));
+	}
+	params.set(buf.substr(linestart, eqpos - linestart),
+		   buf.substr(eqpos + 1, lineend - eqpos - 1));
+	linestart = buf.find_first_not_of("\n\r", lineend);
+	if (linestart == string::npos) linestart = buf.size();
+    }
+}
+#endif
+
+OmDatabase
+OmAuto__open(const string &path)
+{
+// FIXME : sort out stub databases - their current format is rather
+// angled towards the OmSettings approach.  Need to think whether all
+// the flexibility is worth preserving, or if we actually just need to
+// stub remote databases...
+#if 0
+    // Check for path actually being a file - if so, assume it to be
+    // a stub database.
+    if (file_exists(path)) {
+	read_stub_database(myparams, readonly);
+    }
+#endif
+
+#ifdef MUS_BUILD_BACKEND_MUSCAT36
+    if (file_exists(path + "/R") && file_exists(path + "/T")) {
+	// can't easily tell flimsy from heavyduty so assume hd
+	string keyfile = path + "/keyfile";
+	if (!file_exists(path + "/keyfile")) keyfile = "";
+	return OmMuscat36DA__open(path + "/R", path + "/T", keyfile, true);
+    }
+    if (file_exists(path + "/DB")) {
+	string keyfile = path + "/keyfile";
+	if (!file_exists(path + "/keyfile")) keyfile = "";
+	return OmMuscat36DB__open(path + "/DB", keyfile);
+    }
+    if (file_exists(path + "/DB.da")) {
+	string keyfile = path + "/keyfile";
+	if (!file_exists(path + "/keyfile")) keyfile = "";
+	return OmMuscat36DB__open(path + "/DB.da", keyfile);
+    }
+#endif
+#ifdef MUS_BUILD_BACKEND_QUARTZ
+    // FIXME: Quartz has lots of files, and the names may change
+    // during development.  Make sure this stays up to date.
+
+    if (file_exists(path + "/record_DB")) {
+	return OmQuartz__open(path);
+    }
+#endif
+
+    throw OmFeatureUnavailableError("Couldn't detect type of database");
+}
+
+OmWritableDatabase
+OmAuto__open(const std::string &path, bool create, bool overwrite)
+{
+// FIXME : sort out stub databases - their current format is rather
+// angled towards the OmSettings approach.  Need to think whether all
+// the flexibility is worth preserving, or if we actually just need to
+// stub remote databases...
+#if 0
+    // Check for path actually being a file - if so, assume it to be
+    // a stub database.
+    if (file_exists(path)) {
+	read_stub_database(myparams, readonly);
+    }
+#endif
+
+    if (create) {
+	// OK, we didn't detect a known database.  If we're constructing
+	// a writable database, this may mean it doesn't exist, so try
+	// defaulting to a backend which supports writing and is actually
+	// built in...
+#ifdef MUS_BUILD_BACKEND_QUARTZ
+	return OmQuartz__open(path, create, overwrite);
+#endif
+    } else {
+#ifdef MUS_BUILD_BACKEND_QUARTZ
+	// FIXME: Quartz has lots of files, and the names may change
+	// during development.  Make sure this stays up to date.
+
+        if (file_exists(path + "/record_DB")) {
+	    return OmQuartz__open(path, create, overwrite);
+	}
+#endif
+    }
+
+    throw OmFeatureUnavailableError("Couldn't detect type of database");
+}
+
 /////////////////////////////////////
 // Methods of OmDatabase::Internal //
 /////////////////////////////////////
 
-OmDatabase::Internal::Internal(const OmSettings &params, bool readonly)
+OmDatabase::Internal::Internal(Database *db)
 {
-    add_database(params, readonly);
+    add_database(db);
 }
 
 void
-OmDatabase::Internal::add_database(const OmSettings & params, bool readonly)
+OmDatabase::Internal::add_database(Database *db)
 {
-    // Open database (readonly) and add it to the list
-    RefCntPtr<Database> newdb(DatabaseBuilder::create(params, readonly));
+    RefCntPtr<Database> newdb(db);
     databases.push_back(newdb);
-}
-
-void
-OmDatabase::Internal::add_database(const OmSettings & params)
-{
-    add_database(params, true);
 }
 
 void
@@ -71,7 +333,7 @@ OmDatabase::Internal::get_avlength() const
     om_doccount docs = 0;
     om_doclength totlen = 0;
 
-    std::vector<RefCntPtr<Database> >::const_iterator i;
+    vector<RefCntPtr<Database> >::const_iterator i;
     for (i = databases.begin(); i != databases.end(); i++) {
 	om_doccount db_doccount = (*i)->get_doccount();
 	docs += db_doccount;
@@ -89,16 +351,16 @@ OmDatabase::Internal::open_post_list(const om_termname & tname,
     // Don't bother checking that the term exists first.  If it does, we
     // just end up doing more work, and if it doesn't, we save very little
     // work.
-    std::vector<LeafPostList *> pls;
+    vector<LeafPostList *> pls;
     try {
-	std::vector<RefCntPtr<Database> >::const_iterator i;
+	vector<RefCntPtr<Database> >::const_iterator i;
 	for (i = databases.begin(); i != databases.end(); i++) {
 	    pls.push_back((*i)->open_post_list(tname));
 	    pls.back()->next();
 	}
 	Assert(pls.begin() != pls.end());
     } catch (...) {
-	std::vector<LeafPostList *>::iterator i;
+	vector<LeafPostList *>::iterator i;
 	for (i = pls.begin(); i != pls.end(); i++) {
 	    delete *i;
 	    *i = 0;
@@ -150,9 +412,9 @@ OmDatabase::Internal::open_allterms() const
 {
     if (databases.empty()) return new EmptyAllTermsList();
     
-    std::vector<TermList *> lists;
+    vector<TermList *> lists;
 
-    std::vector<RefCntPtr<Database> >::const_iterator i;
+    vector<RefCntPtr<Database> >::const_iterator i;
     for (i = databases.begin(); i != databases.end(); ++i) {
 	lists.push_back((*i)->open_allterms());
     }

@@ -27,7 +27,6 @@
 
 #include "om/omenquire.h"
 #include "refcnt.h"
-#include "database_builder.h"
 #include "document.h"
 #include "database.h"
 #include "om/omdatabase.h"
@@ -43,25 +42,16 @@ class AllTermsList;
 /** Reference counted internals for OmDatabase.
  */
 class OmDatabase::Internal {
-    private:
-	/// Add a database, based on parameters.
-	void add_database(const OmSettings &params, bool readonly);
-    
     public:
 	/// databases which this consists of.
 	std::vector<RefCntPtr<Database> > databases;
 
-	/** Make a new internal object, with the user supplied parameters.
+	/** Wrap the given internal database object, in another class which
+	 *  holds it as a refcount pointer.
 	 *
-	 *  This opens the database and stores it in the ref count pointer.
-	 *
-	 *  @param params  a vector of parameters to be used to open the
-	 *                 database: meaning and number required depends
-	 *                 on database type.
-	 *
-	 *  @param readonly flag as to whether to open database read only
+	 *  @param db pointer to Database object
 	 */
-	Internal(const OmSettings &params, bool readonly);
+	Internal(Database *db);
 
 	/** Make a copy of this object, copying the ref count pointer.
 	 */
@@ -71,7 +61,7 @@ class OmDatabase::Internal {
 	Internal() { }
 
 	/// Add a database, based on parameters.
-	void add_database(const OmSettings &params);
+	void add_database(Database *db);
 
 	// Add an already opened database
 	void add_database(RefCntPtr<Database> newdb);
@@ -80,10 +70,9 @@ class OmDatabase::Internal {
 	om_doclength get_avlength() const;
 
 	LeafPostList * open_post_list(const om_termname & tname,
-				     const OmDatabase &db) const;
-
-	LeafTermList * open_term_list(om_docid did,
 				      const OmDatabase &db) const;
+
+	LeafTermList * open_term_list(om_docid did, const OmDatabase &db) const;
 
 	TermList * open_allterms() const;
 

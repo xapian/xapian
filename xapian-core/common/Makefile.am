@@ -4,7 +4,7 @@ INCLUDES = -I$(top_srcdir)/include
 
 noinst_HEADERS = \
  omassert.h \
- database_builder.h database.h termlist.h postlist.h \
+ database.h termlist.h postlist.h \
  leafpostlist.h \
  irweight.h expandweight.h stats.h networkstats.h \
  match.h multimatch.h expand.h rset.h \

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -204,7 +205,6 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 *             consistent revision available.
 	 */
 	QuartzDiskTableManager(std::string db_dir_,
-			       std::string log_filename_,
 			       bool readonly_,
 			       unsigned int block_size,
 			       bool create,
@@ -306,7 +306,6 @@ class QuartzBufferedTableManager : public QuartzTableManager {
 	 *  QuartzDiskTableManager's constructor.
 	 */
 	QuartzBufferedTableManager(std::string db_dir_,
-				   std::string log_filename_,
 				   unsigned int block_size,
 				   bool create,
 				   bool allow_overwrite);

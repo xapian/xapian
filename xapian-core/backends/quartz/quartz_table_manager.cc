@@ -39,8 +39,9 @@
 #include <sys/utsname.h>
 #include <cerrno>
 
-QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
-					       std::string log_filename,
+using std::string;
+
+QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_,
 					       bool readonly_,
 					       unsigned int block_size,
 					       bool create,
@@ -58,8 +59,9 @@ QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
 	  record_table(record_path(), readonly, block_size)
 {
     DEBUGCALL(DB, void, "QuartzDiskTableManager", db_dir_ << ", " << log_filename << ", " << readonly_ << ", " << block_size << ", " << create << ", " << allow_overwrite);
-    // Open modification log
-    log.reset(new QuartzLog(log_filename));
+    // Open modification log if there
+    
+    log.reset(new QuartzLog(db_dir + "/log"));
     if (readonly) {
 	log->make_entry("Opening database at `" + db_dir + "' readonly.");
     } else if (create) {
@@ -87,7 +89,7 @@ QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
 	open_tables_consistent();
     } else if (create) {
 	if (dbexists) {
-	    log->make_entry("Old database exists at `" + db_dir + "'");
+	    log->make_entry("Old database exists");
 	}
 	if (!allow_overwrite && dbexists) {
 	    throw OmDatabaseCreateError("Can't create new database at `" +
@@ -128,7 +130,7 @@ QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
 QuartzDiskTableManager::~QuartzDiskTableManager()
 {
     DEBUGCALL(DB, void, "~QuartzDiskTableManager", "");
-    log->make_entry("Closing database at `" + db_dir + "'.");
+    log->make_entry("Closing database.");
 }
 
 bool
@@ -151,7 +153,7 @@ QuartzDiskTableManager::create_and_open_tables()
     //FIXME - check that database directory exists.
 
     // Delete any existing tables
-    log->make_entry("Cleaning up database directory at `" + db_dir + "'.");
+    log->make_entry("Cleaning up database directory.");
     metafile.create();
     postlist_table.erase();
     positionlist_table.erase();
@@ -162,7 +164,7 @@ QuartzDiskTableManager::create_and_open_tables()
     value_table.erase();
     record_table.erase();
 
-    log->make_entry("Creating new database at `" + db_dir + "'.");
+    log->make_entry("Creating new database.");
     // Create postlist_table first, and record_table last.  Existence of
     // record_table is considered to imply existence of the database.
     metafile.create();
@@ -177,7 +179,7 @@ QuartzDiskTableManager::create_and_open_tables()
 
     Assert(database_exists());
 
-    log->make_entry("Opening new database at `" + db_dir + "'.");
+    log->make_entry("Opening new database.");
     metafile.open();
     record_table.open();
     value_table.open();
@@ -276,45 +278,45 @@ QuartzDiskTableManager::open_tables_consistent()
     log->make_entry("Opened tables at revision " + om_tostring(revision) + ".");
 }
 
-std::string
+string
 QuartzDiskTableManager::metafile_path() const
 {
     return db_dir + "/meta";
 }
 
-std::string
+string
 QuartzDiskTableManager::record_path() const
 {
     return db_dir + "/record_";
 }
 
-std::string
+string
 QuartzDiskTableManager::value_path() const
 {
     return db_dir + "/value_";
 }
 
 #ifdef USE_LEXICON
-std::string
+string
 QuartzDiskTableManager::lexicon_path() const
 {
     return db_dir + "/lexicon_";
 }
 #endif
 
-std::string
+string
 QuartzDiskTableManager::termlist_path() const
 {
     return db_dir + "/termlist_";
 }
 
-std::string
+string
 QuartzDiskTableManager::positionlist_path() const
 {
     return db_dir + "/position_";
 }
 
-std::string
+string
 QuartzDiskTableManager::postlist_path() const
 {
     return db_dir + "/postlist_";
@@ -427,13 +429,11 @@ QuartzDiskTableManager::reopen()
 }
 
 
-QuartzBufferedTableManager::QuartzBufferedTableManager(std::string db_dir_,
-						       std::string log_filename,
+QuartzBufferedTableManager::QuartzBufferedTableManager(string db_dir_,
 						       unsigned int block_size,
 						       bool create,
 						       bool allow_overwrite)
 	: disktables(db_dir_,
-		     log_filename,
 		     false,
 		     block_size,
 		     create,
@@ -448,7 +448,8 @@ QuartzBufferedTableManager::QuartzBufferedTableManager(std::string db_dir_,
 	  record_buffered_table(disktables.get_record_table()),
 	  lock_name(db_dir_ + "/db_lock")
 {
-    DEBUGCALL(DB, void, "QuartzBufferedTableManager", db_dir_ << ", " << log_filename << ", " << block_size << ", " << create << ", " << allow_overwrite);
+    DEBUGCALL(DB, void, "QuartzBufferedTableManager", db_dir_ << ", " <<
+	      block_size << ", " << create << ", " << allow_overwrite);
     get_database_write_lock();
 }
 
@@ -467,7 +468,7 @@ QuartzBufferedTableManager::get_database_write_lock()
     if (!uname(&host)) {
 	host.nodename[0] = '\0';
     }
-    std::string tempname = lock_name + ".tmp."
+    string tempname = lock_name + ".tmp."
 	    + om_tostring(getpid()) + "." +
 	    host.nodename + "." +
 	    om_tostring(reinterpret_cast<long>(this)); /* should work within
@@ -537,7 +538,7 @@ void
 QuartzBufferedTableManager::apply()
 {
     DEBUGCALL(DB, void, "QuartzBufferedTableManager::apply", "");
-    if(!postlist_buffered_table.is_modified() &&
+    if (!postlist_buffered_table.is_modified() &&
        !positionlist_buffered_table.is_modified() &&
        !termlist_buffered_table.is_modified() &&
 #ifdef USE_LEXICON

@@ -26,9 +26,7 @@
 #include "net_database.h"
 #include "net_termlist.h"
 #include "net_document.h"
-#include "database_builder.h"
-#include "progclient.h"
-#include "tcpclient.h"
+#include "netclient.h"
 #include "omdebug.h"
 #include "utils.h"
 
@@ -38,43 +36,10 @@
 // Actual database class //
 ///////////////////////////
 
-NetworkDatabase::NetworkDatabase(const OmSettings & params, bool readonly)
-	: link(0)
+NetworkDatabase::NetworkDatabase(RefCntPtr<NetClient> link_) : link(link_)
 {
-    // Check validity of parameters
-    if (!readonly) {
-	throw OmInvalidArgumentError("NetworkDatabase must be opened readonly.");
-    }
-    string type = params.get("remote_type");
-    int timeout = params.get_int("remote_timeout", 10000);
-    if (timeout < 0) {
-	throw OmInvalidArgumentError("Negative timeout (" +
-				     om_tostring(timeout) + ") not valid.");
-    }
-    int connect_timeout = params.get_int("remote_connect_timeout", timeout);
-    if (connect_timeout < 0) {
-	throw OmInvalidArgumentError("Negative connect timeout (" +
-				     om_tostring(connect_timeout) +
-				     ") not valid.");
-    }
-    if (type == "prog") {
-	string prog = params.get("remote_program");
-	string args = params.get("remote_args");
-	link = RefCntPtr<NetClient>(new ProgClient(prog, args, timeout));
-	Assert(link.get() != 0);
-	//initialise_link();
-    } else if (type == "tcp") {
-	string server = params.get("remote_server");
-	// FIXME: default port?
-	int port = params.get_int("remote_port");
-	link = RefCntPtr<NetClient>(new TcpClient(server, port,
-						  timeout, connect_timeout));
-    } else {
-	throw OmUnimplementedError(string("Network database type ") +
-				   type);
-    }
+    Assert(link.get() != 0);
 }
-
 
 NetworkDatabase::~NetworkDatabase() {
     try {

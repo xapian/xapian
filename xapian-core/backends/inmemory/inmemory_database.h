@@ -212,21 +212,9 @@ class InMemoryDatabase : public Database {
 
 	bool indexing; // Whether we have started to index to the database
 
-	/// If true, we're not allowed to add documents.
-	bool readonly;
-
 	// Stop copy / assignment being allowed
 	InMemoryDatabase& operator=(const InMemoryDatabase &);
 	InMemoryDatabase(const InMemoryDatabase &);
-
-	/** Create and open an in-memory database.
-	 *
-	 *  @exception OmOpeningError thrown if database can't be opened.
-	 *
-	 *  @param params Parameters supplied by the user to specify the
-	 *                location of the database to open.
-	 */
-	InMemoryDatabase(const OmSettings & params, bool readonly);
 
 	void make_term(const om_termname & tname);
 
@@ -265,6 +253,13 @@ class InMemoryDatabase : public Database {
 	 */
 	int error_in_next;
 	int abort_in_next;
+
+	/** Create and open an in-memory database.
+	 *
+	 *  @exception OmOpeningError thrown if database can't be opened.
+	 *
+	 */
+	InMemoryDatabase();
 
 	~InMemoryDatabase();
 

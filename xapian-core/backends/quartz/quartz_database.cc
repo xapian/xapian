@@ -51,29 +51,11 @@
 using std::string;
 using std::vector;
 
-// Compulsory settings.
-// quartz_dir    - Directory that the database is stored in.  Must be a full
-//                 path.
-//
-// Optional settings.
-// quartz_logfile - File in which to store log information regarding
-//                 modifications and accesses made to the database.  If not
-//                 specified, such log information will not be stored.
-//                 If this is a relative path, it is taken to be relative
-//                 to the quartz_dir directory.
-//
-// quartz_block_size - Integer.  This is the size of the blocks to use in
-//                 the tables, in bytes.  Acceptable values are powers of
-//                 two in the range 2048 to 65536.  The default is 8192.
-//                 This setting is only used when creating databases.  If
-//                 the database already exists, it is completely ignored.
-//
-QuartzDatabase::QuartzDatabase(const OmSettings & settings)
+QuartzDatabase::QuartzDatabase(const string &quartz_dir)
 {
-    DEBUGCALL(DB, void, "QuartzDatabase", settings);
+    DEBUGCALL(DB, void, "QuartzDatabase", quartz_dir);
     // Open database manager
-    tables.reset(new QuartzDiskTableManager(get_db_dir(settings),
-					    get_log_filename(settings),
+    tables.reset(new QuartzDiskTableManager(quartz_dir,
 					    true,
 					    0u,
 					    false,
@@ -97,41 +79,6 @@ QuartzDatabase::~QuartzDatabase()
 	// been called, in the normal course of events.
 	DEBUGLINE(DB, "Ignoring exception in QuartzDatabase destructor.");
     }
-}
-
-string
-QuartzDatabase::get_db_dir(const OmSettings & settings)
-{
-    DEBUGCALL_STATIC(DB, string, "QuartzDatabase::get_db_dir", settings);
-    RETURN(settings.get("quartz_dir"));
-}
-
-string
-QuartzDatabase::get_log_filename(const OmSettings & settings)
-{
-    DEBUGCALL_STATIC(DB, string, "QuartzDatabase::get_log_filename", settings);
-    RETURN(settings.get("quartz_logfile", ""));
-}
-
-unsigned int
-QuartzDatabase::get_block_size(const OmSettings & settings)
-{
-    DEBUGCALL_STATIC(DB, unsigned int, "QuartzDatabase::get_block_size", settings);
-    RETURN(settings.get_int("quartz_block_size", QUARTZ_BTREE_DEF_BLOCK_SIZE));
-}
-
-bool
-QuartzDatabase::get_create(const OmSettings & settings)
-{
-    DEBUGCALL_STATIC(DB, bool, "QuartzDatabase::get_create", settings);
-    RETURN(settings.get_bool("database_create", false));
-}
-
-bool
-QuartzDatabase::get_allow_overwrite(const OmSettings & settings)
-{
-    DEBUGCALL_STATIC(DB, bool, "QuartzDatabase::get_allow_overwrite", settings);
-    RETURN(settings.get_bool("database_allow_overwrite", false));
 }
 
 void
@@ -363,17 +310,17 @@ QuartzDatabase::open_allterms() const
 }
 
 
-QuartzWritableDatabase::QuartzWritableDatabase(const OmSettings & settings)
-	: buffered_tables(new QuartzBufferedTableManager(
-				QuartzDatabase::get_db_dir(settings),
-				QuartzDatabase::get_log_filename(settings),
-				QuartzDatabase::get_block_size(settings),
-				QuartzDatabase::get_create(settings),
-				QuartzDatabase::get_allow_overwrite(settings))),
+QuartzWritableDatabase::QuartzWritableDatabase(const string &quartz_dir,
+	bool create, bool overwrite, int block_size)
+	: buffered_tables(new QuartzBufferedTableManager(quartz_dir,
+							 block_size,
+							 create,
+							 overwrite)),
 	  changecount(0),
 	  database_ro(AutoPtr<QuartzTableManager>(buffered_tables))
 {
-    DEBUGCALL(DB, void, "QuartzWritableDatabase", settings);
+    DEBUGCALL(DB, void, "QuartzWritableDatabase", quartz_dir << ", " <<
+	      create << ", " << overwrite << ", " << block_size);
 }
 
 QuartzWritableDatabase::~QuartzWritableDatabase()

@@ -39,16 +39,9 @@ OmDatabase::OmDatabase() : internal(new OmDatabase::Internal())
     DEBUGAPICALL(void, "OmDatabase::OmDatabase", "");
 }
 
-OmDatabase::OmDatabase(const OmSettings & params, bool readonly)
-	: internal(new OmDatabase::Internal(params, readonly))
+OmDatabase::OmDatabase(OmDatabase::Internal *internal_) : internal(internal_)
 {
-    DEBUGAPICALL(void, "OmDatabase::OmDatabase", params << ", " << readonly);
-}
-
-OmDatabase::OmDatabase(const OmSettings & params)
-	: internal(new OmDatabase::Internal(params, true))
-{
-    DEBUGAPICALL(void, "OmDatabase::OmDatabase", params);
+    DEBUGAPICALL(void, "OmDatabase::OmDatabase", "OmDatabase::Internal");
 }
 
 OmDatabase::OmDatabase(const OmDatabase &other)
@@ -86,13 +79,6 @@ OmDatabase::reopen()
     for (i = internal->databases.begin(); i != internal->databases.end(); i++) {
 	(*i)->do_reopen();
     }
-}
-
-void
-OmDatabase::add_database(const OmSettings &params)
-{
-    DEBUGAPICALL(void, "OmDatabase::add_database", params);
-    internal->add_database(params);
 }
 
 void
@@ -289,11 +275,16 @@ OmDatabase::get_description() const
     RETURN("OmDatabase()");
 }
 
-
-OmWritableDatabase::OmWritableDatabase(const OmSettings & params)
-	: OmDatabase(params, false)
+OmWritableDatabase::OmWritableDatabase() : OmDatabase()
 {
-    DEBUGAPICALL(void, "OmWritableDatabase::OmWritableDatabase", params);
+    DEBUGAPICALL(void, "OmWritableDatabase::OmWritableDatabase", "");
+}
+
+OmWritableDatabase::OmWritableDatabase(OmDatabase::Internal *internal_)
+	: OmDatabase(internal_)
+{
+    DEBUGAPICALL(void, "OmWritableDatabase::OmWritableDatabase",
+		 "OmDatabase::Internal");
 }
 
 OmWritableDatabase::OmWritableDatabase(const OmWritableDatabase &other)

@@ -39,7 +39,6 @@
 #include "multimatch.h"
 #include "expand.h"
 #include "database.h"
-#include "database_builder.h"
 #include "om/omdocument.h"
 #include "om/omerrorhandler.h"
 #include "om/omenquire.h"

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -269,34 +270,26 @@ class DBDatabase : public Database {
 	 */
 	string get_value(om_docid did, om_valueno valueid) const;
 
-	/// Internal method for getting the database size.
-	om_doccount  get_doccount_internal() const;
-
-	/** Internal method for getting the average length of a document in
-	 *  the database.
-	 */
-	om_doclength get_avlength_internal() const;
-
 	/** Internal method for opening postlists.
 	 */
 	LeafPostList * open_post_list_internal(const om_termname & tname) const;
-
-	/** Internal method for checking term existence.
-	 */
-	bool term_exists_internal(const om_termname & tname) const;
 
 	/** Create and open a DB database.
 	 *
 	 *  @exception OmOpeningError thrown if database can't be opened.
 	 *
-	 *  @param params Parameters supplied by the user to specify the
-	 *                location of the database to open.
+	 *  @param filename Filename of the DB file.
+	 *  @param filename_v Filename of the value file (or "" if none).
+	 *  @param cache_size Number of blocks to cache.
 	 */
-	DBDatabase(const OmSettings & params, bool readonly);
+	DBDatabase(const string &filename, const string &filename_v,
+		   int cache_size);
     public:
 	~DBDatabase();
 
+	/// Get the database size.
 	om_doccount  get_doccount() const;
+	/// Get the average length of a document in the database.
 	om_doclength get_avlength() const;
 	om_doclength get_doclength(om_docid did) const;
 

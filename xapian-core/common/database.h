@@ -27,7 +27,6 @@
 
 #include "om/omtypes.h"
 
-#include "database_builder.h"
 #include "om/omdocument.h"
 #include "refcnt.h"
 #include "emptypostlist.h"

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -157,12 +158,7 @@ static bool test_tcpmatch1()
     system(command);
     sleep(3);
 
-    OmSettings params;
-    params.set("backend", "remote");
-    params.set("remote_type", "tcp");
-    params.set("remote_server", "localhost");
-    params.set("remote_port", 1235);
-    OmDatabase db(params);
+    OmDatabase db = OmRemote__open("localhost", 1235);
 
     OmEnquire enq(db);
 

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,42 +26,52 @@
 #include "quartz_log.h"
 #include "omdebug.h"
 
-#include <string.h>
 #include <errno.h>
 
-QuartzLog::QuartzLog(std::string filename)
-	: fp(0)
+#include <sys/types.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+using std::string;
+
+QuartzLog::QuartzLog(string filename)
 {
     DEBUGCALL(DB, void, "QuartzLog", filename);
-    if (!filename.empty()) {
-	fp = fopen(filename.c_str(), "a");
-	if (fp == 0)
-	    throw OmOpeningError("Can't open logfile `" + filename + "': " +
-				 std::string(strerror(errno)));
-    }
+    fd = open(filename.c_str(), O_APPEND|O_WRONLY);
 }
 
 QuartzLog::~QuartzLog()
 {
     DEBUGCALL(DB, void, "~QuartzLog", "");
-    if (fp != 0) {
-	(void) fclose(fp);
-	// Would like to complain if there's an error, but mustn't because
-	// we're in a destructor
+    if (fd != -1) {
+	// Must ignore errors - we can't throw an exception here.
+	(void) close(fd);
     }
 }
  
 void
-QuartzLog::make_entry(std::string entry) const
+QuartzLog::make_entry(const string &entry) const
 {
     DEBUGCALL(DB, void, "QuartzLog::make_entry", entry);
-    if (fp != 0) {
-	fwrite(entry.data(), entry.size(), 1, fp);
-	putc('\n', fp);
-	if (fflush(fp)) {
-	    throw OmOpeningError("Error when flushing logfile: " +
-				 std::string(strerror(errno)));
+    if (fd != -1) {
+	string line (om_tostring(getpid()));
+	line += ':';
+	line += om_tostring(time(NULL));
+	line += ':';
+	line += entry;
+	line += '\n';
+	const char *p = line.data();
+	ssize_t c = line.size();
+	while (c) {
+	    ssize_t n = write(fd, p, c);
+	    if (n == -1) {
+		if (errno == EINTR) continue;
+		// FIXME: Om*Opening*Error ?!
+		throw OmOpeningError("Error writing log file: " +
+			string(strerror(errno)));
+	    }
+	    c -= n;
+	    p += n;
 	}
     }
 }
-

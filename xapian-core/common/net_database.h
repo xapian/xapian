@@ -47,8 +47,6 @@ class NetworkDatabase : public Database {
 	/// Set up the connection, including swapping statistics.
 	void initialise_link();
 
-	NetworkDatabase(const OmSettings & params, bool readonly);
-
 	//@{
 	/** NetworkDatabase is a readonly database type, and thus this method
 	 *  is not supported: if called an exception will be thrown.
@@ -101,6 +99,8 @@ class NetworkDatabase : public Database {
 	//@}
 
     public:
+	NetworkDatabase(RefCntPtr<NetClient> link_);
+
 	~NetworkDatabase();
 
 	om_doccount  get_doccount() const;

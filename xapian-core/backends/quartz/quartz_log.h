@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,15 +39,13 @@ class QuartzLog {
 	/// Assignment not allowed
 	void operator=(const QuartzLog &);
 
-	/** File pointer.
-	 */
-	FILE * fp;
+	/// File descriptor of log file (or -1 if not logging)
+	int fd;
     public:
 	/** Open the log.
 	 *
-	 *  @param filename  The full filename of the logfile.  If this is
-	 *                   null, no logfile is opened, and messages are
-	 *                   discarded.
+	 *  @param filename  The full filename of the logfile.  If this file
+	 *  		     doesn't exists, log messages are discarded.
 	 */
 	QuartzLog(std::string filename);
 
@@ -56,7 +55,7 @@ class QuartzLog {
 	 
 	/** Make an entry in the log.
 	 */
-	void make_entry(std::string entry) const;
+	void make_entry(const std::string &entry) const;
 };
 
 #endif /* OM_HGUARD_QUARTZ_LOG_H */

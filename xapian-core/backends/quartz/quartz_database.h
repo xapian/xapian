@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,10 +77,9 @@ class QuartzDatabase : public Database {
 	 *
 	 *  @exception OmOpeningError thrown if database can't be opened.
 	 *
-	 *  @param params Parameters supplied by the user to specify the
-	 *                location of the database to open.
+	 *  @param dbdir directory holding quartz tables
 	 */
-	QuartzDatabase(const OmSettings & params);
+	QuartzDatabase(const string &dbdir);
 
 	/** Constructor used by QuartzWritableDatabase.
 	 *
@@ -88,23 +88,6 @@ class QuartzDatabase : public Database {
 	QuartzDatabase(AutoPtr<QuartzTableManager> tables_);
 
 	~QuartzDatabase();
-
-	/// Get the directory that the database is stored in.
-	static std::string get_db_dir(const OmSettings & settings);
-
-	/// Get the file to use as a logfile.
-	static std::string get_log_filename(const OmSettings & settings);
-
-	/// Get the block size to use.
-	static unsigned int get_block_size(const OmSettings & settings);
-
-	/// Get whether a new database should be created.
-	static bool get_create(const OmSettings & settings);
-
-	/** Get whether we should allow creation over the top of an old
-	 *  database.
-	 */
-	static bool get_allow_overwrite(const OmSettings & settings);
 
 	/** Virtual methods of Database.
 	 */
@@ -171,10 +154,9 @@ class QuartzWritableDatabase : public Database {
 	 *
 	 *  @exception OmOpeningError thrown if database can't be opened.
 	 *
-	 *  @param params Parameters supplied by the user to specify the
-	 *                location of the database to open.
+	 *  @param quartz_dir directory holding quartz tables
 	 */
-	QuartzWritableDatabase(const OmSettings & params);
+	QuartzWritableDatabase(const string &quartz_dir, bool create, bool overwrite, int block_size);
 
 	~QuartzWritableDatabase();
 

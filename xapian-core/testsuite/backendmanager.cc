@@ -198,6 +198,7 @@ BackendManager::set_dbtype(const string &type)
     } else if (type == "remote") {
 	do_getdb = &BackendManager::getdb_network;
 	do_getwritedb = &BackendManager::getwritedb_network;
+#ifdef MUS_BUILD_BACKEND_MUSCAT36
     } else if (type == "da") {
 	do_getdb = &BackendManager::getdb_da;
 	do_getwritedb = &BackendManager::getwritedb_da;
@@ -214,6 +215,12 @@ BackendManager::set_dbtype(const string &type)
 	do_getdb = &BackendManager::getdb_dbflimsy;
 	do_getwritedb = &BackendManager::getwritedb_dbflimsy;
 	system("rm -fr .dbflimsy");
+#else
+    } else if (type == "da" || type == "db" || type == "daflimsy" ||
+	       type == "dbflimsy") {
+	do_getdb = &BackendManager::getdb_void;
+	do_getwritedb = &BackendManager::getwritedb_void;
+#endif
     } else if (type == "void") {
 	do_getdb = &BackendManager::getdb_void;
 	do_getwritedb = &BackendManager::getwritedb_void;
@@ -276,11 +283,8 @@ BackendManager::getdb_inmemory(const vector<string> &dbnames)
 OmWritableDatabase
 BackendManager::getwritedb_inmemory(const vector<string> &dbnames)
 {
-    OmSettings params;
-    params.set("backend", "inmemory");
-    OmWritableDatabase db(params);
+    OmWritableDatabase db(OmInMemory__open());
     index_files_to_database(db, change_names_to_paths(dbnames));
-
     return db;
 }
 
@@ -293,10 +297,8 @@ BackendManager::getdb_inmemoryerr(const vector<string> &dbnames)
 OmWritableDatabase
 BackendManager::getwritedb_inmemoryerr(const vector<string> &dbnames)
 {
-    OmSettings params;
-    params.set("backend", "inmemory");
-    params.set("inmemory_errornext", 1);
-    OmWritableDatabase db(params);
+    // FIXME: params.set("inmemory_errornext", 1);
+    OmWritableDatabase db(OmInMemory__open());
     index_files_to_database(db, change_names_to_paths(dbnames));
 
     return db;
@@ -311,10 +313,8 @@ BackendManager::getdb_inmemoryerr2(const vector<string> &dbnames)
 OmWritableDatabase
 BackendManager::getwritedb_inmemoryerr2(const vector<string> &dbnames)
 {
-    OmSettings params;
-    params.set("backend", "inmemory");
-    params.set("inmemory_abortnext", 1);
-    OmWritableDatabase db(params);
+    // FIXME: params.set("inmemory_abortnext", 1);
+    OmWritableDatabase db(OmInMemory__open());
     index_files_to_database(db, change_names_to_paths(dbnames));
 
     return db;
@@ -329,10 +329,8 @@ BackendManager::getdb_inmemoryerr3(const vector<string> &dbnames)
 OmWritableDatabase
 BackendManager::getwritedb_inmemoryerr3(const vector<string> &dbnames)
 {
-    OmSettings params;
-    params.set("backend", "inmemory");
-    params.set("inmemory_abortnext", 2);
-    OmWritableDatabase db(params);
+    // params.set("inmemory_abortnext", 2);
+    OmWritableDatabase db(OmInMemory__open());
     index_files_to_database(db, change_names_to_paths(dbnames));
 
     return db;
@@ -379,19 +377,14 @@ BackendManager::do_getdb_quartz(const vector<string> &dbnames, bool writable)
 	string cmd = "rm -fr " + dbdir;
 	system(cmd);
     }
-    OmSettings params;
-    params.set("backend", "quartz");
-    params.set("quartz_dir", dbdir);
     if (files_exist(change_names_to_paths(dbnames))) {
 	if (create_dir_if_needed(dbdir)) {
 	    // directory was created, so do the indexing.
-	    OmSettings params1 = params;
-	    params1.set("database_create", true);
-	    OmWritableDatabase db(params1);
+	    OmWritableDatabase db(OmQuartz__open(dbdir, true));
 	    index_files_to_database(db, change_names_to_paths(dbnames));
 	}
     }
-    return OmDatabase(params);
+    return OmQuartz__open(dbdir);
 }
 
 OmWritableDatabase
@@ -416,20 +409,15 @@ BackendManager::do_getwritedb_quartz(const vector<string> &dbnames,
 	string cmd = "rm -fr " + dbdir;
 	system(cmd);
     }
-    OmSettings params;
-    params.set("backend", "quartz");
-    params.set("quartz_dir", dbdir);
-    params.set("quartz_logfile", dbdir + "/logfile");
     if (files_exist(change_names_to_paths(dbnames))) {
 	if (create_dir_if_needed(dbdir)) {
+	    system(string("touch ") + dbdir + "/log");
 	    // directory was created, so do the indexing.
-	    OmSettings params1 = params;
-	    params1.set("database_create", true);
-	    OmWritableDatabase db(params1);
+	    OmWritableDatabase db(OmQuartz__open(dbdir, true));
 	    index_files_to_database(db, change_names_to_paths(dbnames));
 	}
     }
-    return OmWritableDatabase(params);
+    return OmQuartz__open(dbdir, false);
 }
 
 OmDatabase
@@ -462,15 +450,7 @@ BackendManager::getdb_network(const vector<string> &dbnames)
 	    args += *i;
 	}
     }
-
-    OmSettings params;
-    params.set("backend", "remote");
-    params.set("remote_type", "prog");
-    params.set("remote_program", "../netprogs/omprogsrv");
-    params.set("remote_args", args);
-    OmDatabase db(params);
-
-    return db;
+    return OmRemote__open("../netprogs/omprogsrv", args);
 }
 
 OmWritableDatabase
@@ -479,6 +459,7 @@ BackendManager::getwritedb_network(const vector<string> &/*dbnames*/)
     throw OmInvalidArgumentError("Attempted to open writable network database");
 }
 
+#ifdef MUS_BUILD_BACKEND_MUSCAT36
 OmDatabase
 BackendManager::getdb_da(const vector<string> &dbnames)
 {
@@ -491,11 +472,6 @@ BackendManager::getdb_da(const vector<string> &dbnames)
 	 i++) {
 	dbdir += "=" + *i;
     }
-    OmSettings params;
-    params.set("backend", "da");
-    params.set("m36_record_file", dbdir + "/R");
-    params.set("m36_term_file", dbdir + "/T");
-    params.set("m36_key_file", dbdir + "/keyfile");
     if (files_exist(change_names_to_paths(dbnames))) {
 	if (create_dir_if_needed(dbdir)) {
 	    // directory was created, so do the indexing.
@@ -503,7 +479,7 @@ BackendManager::getdb_da(const vector<string> &dbnames)
 	    index_files_to_m36("makeDA", dbdir, change_names_to_paths(dbnames));
 	}
     }
-    return OmDatabase(params);
+    return OmMuscat36DA__open(dbdir + "/R", dbdir + "/T", dbdir + "/keyfile");
 }
 
 OmDatabase
@@ -518,12 +494,6 @@ BackendManager::getdb_daflimsy(const vector<string> &dbnames)
 	 i++) {
 	dbdir += "=" + *i;
     }
-    OmSettings params;
-    params.set("backend", "da");
-    params.set("m36_record_file", dbdir + "/R");
-    params.set("m36_term_file", dbdir + "/T");
-    params.set("m36_key_file", dbdir + "/keyfile");
-    params.set("m36_heavyduty", false);
     if (files_exist(change_names_to_paths(dbnames))) {
 	if (create_dir_if_needed(dbdir)) {
 	    // directory was created, so do the indexing.
@@ -531,7 +501,8 @@ BackendManager::getdb_daflimsy(const vector<string> &dbnames)
 	    index_files_to_m36("makeDAflimsy", dbdir, change_names_to_paths(dbnames));
 	}
     }
-    return OmDatabase(params);
+    return OmMuscat36DA__open(dbdir + "/R", dbdir + "/T", dbdir + "/keyfile",
+			      false);
 }
 
 OmWritableDatabase
@@ -558,10 +529,6 @@ BackendManager::getdb_db(const vector<string> &dbnames)
 	 i++) {
 	dbdir += "=" + *i;
     }
-    OmSettings params;
-    params.set("backend", "db");
-    params.set("m36_db_file", dbdir + "/DB");
-    params.set("m36_key_file", dbdir + "/keyfile");
     if (files_exist(change_names_to_paths(dbnames))) {
 	if (create_dir_if_needed(dbdir)) {
 	    // directory was created, so do the indexing.
@@ -569,7 +536,7 @@ BackendManager::getdb_db(const vector<string> &dbnames)
 	    index_files_to_m36("makeDB", dbdir, change_names_to_paths(dbnames));
 	}
     }
-    return OmDatabase(params);
+    return OmMuscat36DB__open(dbdir + "/DB", dbdir + "/keyfile");
 }
 
 OmDatabase
@@ -584,10 +551,6 @@ BackendManager::getdb_dbflimsy(const vector<string> &dbnames)
 	 i++) {
 	dbdir += "=" + *i;
     }
-    OmSettings params;
-    params.set("backend", "db");
-    params.set("m36_db_file", dbdir + "/DB");
-    params.set("m36_key_file", dbdir + "/keyfile");
     // should autodetect flimsy - don't specify to test this
     if (files_exist(change_names_to_paths(dbnames))) {
 	if (create_dir_if_needed(dbdir)) {
@@ -596,7 +559,7 @@ BackendManager::getdb_dbflimsy(const vector<string> &dbnames)
 	    index_files_to_m36("makeDBflimsy", dbdir, change_names_to_paths(dbnames));
 	}
     }
-    return OmDatabase(params);
+    return OmMuscat36DB__open(dbdir + "/DB", dbdir + "/keyfile");
 }
 
 OmWritableDatabase
@@ -610,6 +573,7 @@ BackendManager::getwritedb_dbflimsy(const vector<string> &/*dbnames*/)
 {
     throw OmInvalidArgumentError("Attempted to open writable dbflimsy database");
 }
+#endif
 
 OmDatabase
 BackendManager::get_database(const vector<string> &dbnames)

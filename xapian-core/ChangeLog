@@ -1,3 +1,15 @@
+Sun Dec 01 15:38:10 GMT 2002  Olly Betts <olly@survex.com>
+
+        * api/,backends/,common/,docs/omsettings,docs/todo.xml,
+          include/om/omdatabase.h,netprogs/,tests/,testsuite/backendmanager.cc,
+          testsuite/backendmanager.h: No longer use OmSettings to specify
+          parameters for constructing databases.  Instead there's a factory
+          function for each database type - temporary naming scheme is
+          OmXxx__open(), mostly because it's easy to grep for later.  At
+          present stub databases and the machinery in InMemory to allow
+          the multierrhandler1 test aren't working.  Everything else should
+          be.
+
 Thu Nov 28 20:15:47 GMT 2002  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,common/omenquireinternal.h,docs/omsettings,
