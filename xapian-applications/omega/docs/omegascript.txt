@@ -50,16 +50,8 @@ values.
 ${...}
 	commented out code
 
-$add{1,2,3}
-	add arguments together
-
 $allterms{docid}
 	list of all terms matching document
-
-$and{...}
-	logical shortcutting and of its arguments - evaluates
-	arguments until it finds an empty one (and returns "true") or
-	has evaluated them all (returns "")
 
 $cgi{CGI}
 	lookup the value of a CGI variable
@@ -88,9 +80,6 @@ $defaultop
 $env{VAR}
 	lookup variable in environment
 
-$eq{A,B}
-	returns "true" if A and B are the same, "" otherwise.
-
 $field{NAME}
 	lookup field in record
 
@@ -104,7 +93,14 @@ $freq{term}
 	frequency of a term
 
 $freqs
-	returns an HTML string listing query terms and frequencies
+	returns an HTML string listing query terms and frequencies.
+	
+	Deprecated and likely to be removed, as it hardcodes HTML layout into
+	the omega binary.  Exactly equivalent to:
+
+	$map{$queryterms,$_:&nbsp;$nice{$freq{$_}}}
+
+	Use this (or some variation of it) in preference.
 
 $highlight{TEXT,LIST,[OPEN,[CLOSE]]}
 	html escape string (<>&, etc) and highlight any terms from LIST
@@ -126,13 +122,6 @@ $html{TEXT}
 
 $id
 	document id of current doc
-
-$if{COND,THEN[,ELSE]}
-	if COND is non-empty, evaluate THEN, otherwise evaluate else
-	(if present)
-
-$include{FILE}
-	include another omegascript file
 
 $last
 	m-set number of last hit on this page
@@ -162,31 +151,15 @@ $map{LIST,STUFF)
 	versions). If the tabs are a problem, use $list{$map{...},}
 	to get rid of them.
 
-$max{...}
-	maximum of the arguments
-
-$min{...}
-	minimum of the arguments
-
 $msize
 	estimated number of matches
-
-$ne{A,B}
-	returns "true" if A and B are not the same, "" if they are.
 
 $nice{number}
 	pretty print integer (with thousands separator)
 
-$not{A}
-	returns "true" for the empty string, "" otherwise.
-
 $opt{OPT}
 
 	lookup an option value (as set by $set).
-
-$or{...}
-	logical shortcutting or of its arguments - returns first
-	non-empty argument
 
 $percentage
 	percentage score of current hit (in range 1-100).
@@ -217,7 +190,7 @@ $relevants
 	return list of relevant documents
 
 $score
-	score (0-10) of current hit
+	score (0-10) of current hit (equivalent to $div{$percentage,10})
 
 $set{OPT,VALUE}
 	set option value
@@ -245,3 +218,70 @@ $url{TEXT}
 
 $version
 	omega version string
+Numeric Operators:
+==================
+
+$add{A,B,...}
+	add arguments together
+
+$div{A,B}
+	returns int(A / B) (or "divide by 0" if B is zero)
+	    
+$mod{A,B}
+	returns int(A % B) (or "divide by 0" if B is zero)
+	    
+$max{...}
+	maximum of the arguments
+
+$min{...}
+	minimum of the arguments
+
+$mul{A,B,...}
+	multiply arguments together
+
+$sub{A,B}
+	return (A - B)
+
+Logical Operators:
+==================
+
+$and{...}
+	logical shortcutting and of its arguments - evaluates
+	arguments until it finds an empty one (and returns "true") or
+	has evaluated them all (returns "")
+
+$eq{A,B}
+	returns "true" if A and B are the same, "" otherwise.
+
+$ge{A,B}
+	returns "true" if A is numerically >= B.
+
+$gt{A,B}
+	returns "true" if A is numerically > B.
+
+$le{A,B}
+	returns "true" if A is numerically <= B.
+
+$lt{A,B}
+	returns "true" if A is numerically < B.
+
+$ne{A,B}
+	returns "true" if A and B are not the same, "" if they are.
+
+$not{A}
+	returns "true" for the empty string, "" otherwise.
+
+$or{...}
+	logical shortcutting or of its arguments - returns first
+	non-empty argument
+
+Control:
+========
+
+$if{COND,THEN[,ELSE]}
+	if COND is non-empty, evaluate THEN, otherwise evaluate else
+	(if present)
+
+$include{FILE}
+	include another omegascript file
+

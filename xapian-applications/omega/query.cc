@@ -583,6 +583,7 @@ CMD_date,
 CMD_dbname,
 CMD_def,
 CMD_defaultop,
+CMD_div,
 CMD_eq,
 CMD_env,
 CMD_field,
@@ -590,6 +591,8 @@ CMD_filesize,
 CMD_fmt,
 CMD_freq,
 CMD_freqs,
+CMD_ge,
+CMD_gt,
 CMD_highlight,
 CMD_hitlist,
 CMD_hitsperpage,
@@ -600,11 +603,15 @@ CMD_if,
 CMD_include,
 CMD_last,
 CMD_lastpage,
+CMD_le,
 CMD_list,
+CMD_lt,
 CMD_map,
 CMD_max,
 CMD_min,
+CMD_mod,
 CMD_msize,
+CMD_mul,
 CMD_ne,
 CMD_nice,
 CMD_not,
@@ -622,6 +629,7 @@ CMD_score,
 CMD_set,
 CMD_setmap,
 CMD_setrelevant,
+CMD_sub,
 CMD_terms,
 CMD_thispage,
 CMD_topdoc,
@@ -660,6 +668,7 @@ static struct func_desc func_tab[] = {
 {T(dbname),	0, 0, N, 0, 0}}, // database name
 {T(def),	2, 2, 1, 0, 0}}, // define a macro
 {T(defaultop),	0, 0, N, 0, 0}}, // default operator: "and" or "or"
+{T(div),	2, 2, N, 0, 0}}, // integer divide
 {T(env),	1, 1, N, 0, 0}}, // environment variable
 {T(eq),		2, 2, N, 0, 0}}, // test equality
 {T(field),	1, 1, N, 0, 0}}, // lookup field in record
@@ -667,6 +676,8 @@ static struct func_desc func_tab[] = {
 {T(fmt),	0, 0, N, 0, 0}}, // name of current format
 {T(freq),	1, 1, N, 0, 0}}, // frequency of a term
 {T(freqs),	0, 0, N, 1, 1}}, // return HTML string listing query terms and frequencies
+{T(ge),		2, 2, N, 0, 0}}, // test >=
+{T(gt),		2, 2, N, 0, 0}}, // test >
 {T(highlight),	2, 4, N, 0, 0}}, // html escape and highlight words from list
 {T(hitlist),	N, N, 0, 1, 0}}, // display hitlist using format in argument
 {T(hitsperpage),0, 0, N, 0, 0}}, // hits per page
@@ -677,11 +688,15 @@ static struct func_desc func_tab[] = {
 {T(include),	1, 1, 1, 0, 0}}, // include another file
 {T(last),	0, 0, N, 1, 0}}, // m-set number of last hit on page
 {T(lastpage),	0, 0, N, 1, 0}}, // number of last hit page
+{T(le),		2, 2, N, 0, 0}}, // test <=
 {T(list),	2, 5, N, 0, 0}}, // pretty print list
+{T(lt),		2, 2, N, 0, 0}}, // test <
 {T(map),	1, 2, 1, 0, 0}}, // map a list into another list
 {T(max),	1, N, N, 0, 0}}, // maximum of a list of values
 {T(min),	1, N, N, 0, 0}}, // minimum of a list of values
+{T(mod),	2, 2, N, 0, 0}}, // integer modulus
 {T(msize),	0, 0, N, 1, 0}}, // number of matches
+{T(mul),	2, N, N, 0, 0}}, // multiply a list of numbers
 {T(ne), 	2, 2, N, 0, 0}}, // test not equal
 {T(nice),	1, 1, N, 0, 0}}, // pretty print integer (with thousands sep)
 {T(not),	1, 1, N, 0, 0}}, // logical not
@@ -699,6 +714,7 @@ static struct func_desc func_tab[] = {
 {T(set),	2, 2, N, 0, 0}}, // set option value
 {T(setmap),	1, N, N, 0, 0}}, // set map of option values
 {T(setrelevant),0, 1, N, 0, 0}}, // set rset
+{T(sub),	2, 2, N, 0, 0}}, // subtract
 {T(terms),	0, 0, N, 1, 0}}, // list of matching terms
 {T(thispage),	0, 0, N, 1, 0}}, // page number of current page
 {T(topdoc),	0, 0, N, 0, 0}}, // first document on current page of hit list (counting from 0)
@@ -757,13 +773,15 @@ eval(const string &fmt, const vector<string> &param)
 		if (ch < param.size()) res += param[ch];
 		p = q + 1;
 		continue;
-	    case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g': case 'h':
-	    case 'i': case 'j': case 'k': case 'l': case 'm': case 'n': case 'o': case 'p':
-	    case 'q': case 'r': case 's': case 't': case 'u': case 'v': case 'w': case 'x':
+	    case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+	    case 'g': case 'h': case 'i': case 'j': case 'k': case 'l':
+	    case 'm': case 'n': case 'o': case 'p': case 'q': case 'r':
+	    case 's': case 't': case 'u': case 'v': case 'w': case 'x':
 	    case 'y': case 'z': 
-	    case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': case 'H':
-	    case 'I': case 'J': case 'K': case 'L': case 'M': case 'N': case 'O': case 'P':
-	    case 'Q': case 'R': case 'S': case 'T': case 'U': case 'V': case 'W': case 'X':
+	    case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+	    case 'G': case 'H': case 'I': case 'J': case 'K': case 'L':
+	    case 'M': case 'N': case 'O': case 'P': case 'Q': case 'R':
+	    case 'S': case 'T': case 'U': case 'V': case 'W': case 'X':
 	    case 'Y': case 'Z':
 	    case '{':
 		break;
@@ -906,6 +924,16 @@ eval(const string &fmt, const vector<string> &param)
 		    value = "or";
 		}
 		break;
+	    case CMD_div: {
+		int denom = string_to_int(args[1]);
+		if (denom == 0) {
+		    value = "divide by 0";
+		} else {
+		    value = int_to_string(string_to_int(args[0]) /
+					  string_to_int(args[1]));
+		}
+		break;
+	    }
 	    case CMD_eq:
 		if (args[0] == args[1]) value = "true";
 		break;
@@ -948,6 +976,14 @@ eval(const string &fmt, const vector<string> &param)
 		// for backward compatibility
 		value = eval("$map{$queryterms,$_:&nbsp;$nice{$freq{$_}}}",
 			     param);
+		break;
+            case CMD_ge:
+		if (string_to_int(args[0]) >= string_to_int(args[1]))
+		    value = "true";
+		break;
+            case CMD_gt:
+		if (string_to_int(args[0]) > string_to_int(args[1]))
+		    value = "true";
 		break;
 	    case CMD_highlight: {
 		string bra, ket;
@@ -1045,6 +1081,10 @@ eval(const string &fmt, const vector<string> &param)
 		value = int_to_string(l);
 		break;
 	    }
+            case CMD_le:
+		if (string_to_int(args[0]) <= string_to_int(args[1]))
+		    value = "true";
+		break;
 	    case CMD_list: {
 		if (!args[0].empty()) {
 		    string pre, inter, interlast, post;
@@ -1082,6 +1122,10 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		break;
 	    }
+            case CMD_lt:
+		if (string_to_int(args[0]) < string_to_int(args[1]))
+		    value = "true";
+		break;
 	    case CMD_map:
 		if (!args[0].empty()) {
 		    string l = args[0], pat = args[1];
@@ -1122,6 +1166,24 @@ eval(const string &fmt, const vector<string> &param)
 		// number of matches
 		value = int_to_string(mset.get_matches_estimated());
 		break;
+	    case CMD_mod: {
+		int denom = string_to_int(args[1]);
+		if (denom == 0) {
+		    value = "divide by 0";
+		} else {
+		    value = int_to_string(string_to_int(args[0]) %
+					  string_to_int(args[1]));
+		}
+		break;
+	    }
+	    case CMD_mul: {
+		vector<string>::const_iterator i = args.begin();
+		int total = string_to_int(*i++);
+		while (i != args.end())
+		    total *= string_to_int(*i++);
+		value = int_to_string(total);
+		break;
+	    }
             case CMD_ne:
 		if (args[0] != args[1]) value = "true";
 		break;
@@ -1238,6 +1300,10 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		break;
 	    }			     
+	    case CMD_sub:
+		value = int_to_string(string_to_int(args[0]) -
+		       		      string_to_int(args[1]));
+		break;
 	    case CMD_terms: {
 		// list of matching terms
 		OmTermIterator term = enquire->get_matching_terms_begin(q0);
