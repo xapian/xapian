@@ -4,7 +4,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h parsequery.h symboltab.h\
  htmlparse.h utils.h
 
 # include yacc/bison generated C++ source
-EXTRA_DIST = parsequery.cc
+EXTRA_DIST = parsequery.cc templates/query templates/godmode
 
 INCLUDES = $(LIBOMUS_CFLAGS)
 

@@ -1,3 +1,7 @@
+Wed Sep 06 11:01:10 BST 2000 Olly Betts
+
+	* omega: weren't distributing omega templates (d'oh!)
+
 Tue Sep 05 10:44:28 BST 2000 Olly Betts
 
 	* msearch: --multidb option no longer exists, so removed from
