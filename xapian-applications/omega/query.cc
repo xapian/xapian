@@ -543,6 +543,7 @@ CMD_freqs,
 CMD_highlight,
 CMD_hitlist,
 CMD_hitsperpage,
+CMD_hostname,
 CMD_html,
 CMD_id,
 CMD_if,
@@ -616,6 +617,7 @@ static struct func_desc func_tab[] = {
 {T(highlight),	2, 2, N, 0, 0}}, // html escape and highlight words from list
 {T(hitlist),	N, N, 0, 1, 0}}, // display hitlist using format in argument
 {T(hitsperpage),0, 0, N, 0, 0}}, // hits per page
+{T(hostname),	1, 1, N, 0, 0}}, // extract hostname from URL
 {T(html),	1, 1, N, 0, 0}}, // html escape string (<>&)
 {T(id),		0, 0, N, 0, 0}}, // docid of current doc
 {T(if),		2, 3, 1, 0, 0}}, // conditional
@@ -862,6 +864,9 @@ eval(const string &fmt, const string &loopvar)
 		value = eval("$map{$queryterms,$_:&nbsp;$nice{$freq{$_}}}",
 			     loopvar);
 		break;
+	    case CMD_highlight:
+		value = html_highlight(args[0], args[1]);
+		break;
 	    case CMD_hitlist:
 #if 0
 		const char *q;
@@ -898,9 +903,20 @@ eval(const string &fmt, const string &loopvar)
 	    case CMD_hitsperpage:
 		value = int_to_string(hits_per_page);
 		break;
-	    case CMD_highlight:
-		value = html_highlight(args[0], args[1]);
+	    case CMD_hostname: {
+	        value = args[0];
+		// remove URL scheme and/or path
+		string::size_type i = value.find("://");
+		if (i == string::npos) i = 0; else i += 3;
+		value = value.substr(i, value.find('/', i) - i);
+		// remove user@ or user:password@
+		i = value.find('@');
+		if (i != string::npos) value = value.substr(i + 1);
+		// remove :port
+		i = value.find(':');
+		if (i != string::npos) value = value.substr(0, i);
 		break;
+	    }
 	    case CMD_html:
 	        value = html_escape(args[0]);
 		break;
@@ -1159,7 +1175,7 @@ eval(const string &fmt, const string &loopvar)
 	        value = percent_encode(args[0]);
 		break;
 	    case CMD_version:
-		value = PROGRAM_NAME" - "PACKAGE" "VERSION;
+		value = "Xapian - "PACKAGE" "VERSION;
 		break;
 	    default:
 		// FIXME: should never get here, so assert this?

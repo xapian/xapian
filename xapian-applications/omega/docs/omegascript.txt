@@ -107,6 +107,9 @@ $hitlist{FMT}
 $hitsperpage
 	hits per page (as set by HITSPERPAGE, or the default)
 
+$hostname{URL}
+	return the hostname from url URL
+
 $html{TEXT}
 	html escape string (<>&, etc)
 
