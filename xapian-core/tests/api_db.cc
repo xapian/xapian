@@ -258,6 +258,27 @@ static bool test_multidb4()
     return true;
 }
 
+// tests MultiPostList::skip_to().
+static bool test_multidb5()
+{
+    OmDatabase mydb2(get_database("apitest_simpledata"));
+    OmDatabase mydb3(get_database("apitest_simpledata2"));
+    OmEnquire enquire(make_dbgrp(&mydb2, &mydb3));
+
+    // make a query
+    OmQuery myquery(OmQuery::OP_AND,
+		    OmQuery("inmemory"),
+		    OmQuery("word"));
+    myquery.set_bool(true);
+    enquire.set_query(myquery);
+
+    // retrieve the top ten results
+    OmMSet mymset = enquire.get_mset(0, 10);
+    mset_expect_order(mymset, 2);
+
+    return true;
+}
+
 // tests that changing a query object after calling set_query()
 // doesn't make any difference to get_mset().
 static bool test_changequery1()
@@ -1535,6 +1556,7 @@ test_desc db_tests[] = {
     {"multidb2",           test_multidb2},
     {"multidb3",           test_multidb3},
     {"multidb4",           test_multidb4},
+    {"multidb5",           test_multidb5},
     {"changequery1",	   test_changequery1},
     {"msetmaxitems1",      test_msetmaxitems1},
     {"expandmaxitems1",    test_expandmaxitems1},
