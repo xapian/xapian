@@ -80,8 +80,8 @@ B
 COLLAPSE
 	value number to use for removing duplicate documents.
 	Additional documents in the mset with the same value will be
-	removed from the mset ($value{$cgi{COLLAPSE}}) can be used to
-	access the actual value for each hit
+	removed from the mset. $value{$cgi{COLLAPSE}} can be used to
+	access the actual value for each hit.
 
 SPAN
 	filter on this number of days up to END (if set), or after
@@ -103,7 +103,7 @@ xFILTERS
 	used to spot when the filters have changed from the previous search.
 	Set this to $html{$filters} in your query template ($filters is a
 	compact serialisation of the currently set B filters, date-range
-	filters, COLLAPSE and DEFAULTOP).
+	filters, COLLAPSE, and DEFAULTOP).
 
 THRESHOLD
 	apply a percentage cut-off at the value given by this parameter
@@ -132,7 +132,7 @@ HITSPERPAGE
 
 TOPDOC
 	first document to display (snapped to multiple of HITSPERPAGE
-	if RAW_SEARCH is not set)
+	if RAWSEARCH is not set)
 
 If a parameter named '<' or '>' exists, Omega will go to the previous
 or next results page (based on the value of TOPDOC), respectively. If

@@ -1,3 +1,7 @@
+Wed Apr 30 01:18:47 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/cgiparams.txt,docs/omegascript.txt: Minor improvements.
+
 Wed Apr 30 01:14:46 BST 2003  Olly Betts <olly@survex.com>
 
 	* query.cc: Use correct types for docid and value_no in $value.
