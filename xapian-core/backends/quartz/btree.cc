@@ -1804,7 +1804,7 @@ Btree::force_block_to_cursor(Cursor * C_, int j)
     }
 }
 
-int
+bool
 Btree::prev_for_sequential(Cursor * C_, int /*dummy*/)
 {
     byte * p = C_[0].p;
@@ -1830,7 +1830,7 @@ Btree::prev_for_sequential(Cursor * C_, int /*dummy*/)
     return true;
 }
 
-int
+bool
 Btree::next_for_sequential(Cursor * C_, int /*dummy*/)
 {
     byte * p = C_[0].p;
@@ -1856,7 +1856,7 @@ Btree::next_for_sequential(Cursor * C_, int /*dummy*/)
     return true;
 }
 
-int
+bool
 Btree::prev_default(Cursor * C_, int j)
 {
     byte * p = C_[j].p;
@@ -1883,7 +1883,7 @@ Btree::prev_default(Cursor * C_, int j)
     return true;
 }
 
-int
+bool
 Btree::next_default(Cursor * C_, int j)
 {
     byte * p = C_[j].p;

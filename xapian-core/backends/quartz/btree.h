@@ -230,22 +230,20 @@ class Btree {
 	/// set to true when full compaction is to be achieved
 	bool full_compaction;
 
-
 	/// Set to true when the database is opened to write.
 	bool writable;
 
+	bool prev(Cursor *C_, int j) { return (this->*prev_ptr)(C_, j); }
+	bool next(Cursor *C_, int j) { return (this->*next_ptr)(C_, j); }
 
-	int prev(Cursor *C_, int j) { return (this->*prev_ptr)(C_, j); }
-	int next(Cursor *C_, int j) { return (this->*next_ptr)(C_, j); }
+	bool (Btree::* prev_ptr)(Cursor *, int);
+	bool (Btree::* next_ptr)(Cursor *, int);
 
-	int (Btree::* prev_ptr)(Cursor *, int);
-	int (Btree::* next_ptr)(Cursor *, int);
+	bool prev_default(Cursor *C_, int j);
+	bool next_default(Cursor *C_, int j);
 
-	int prev_default(Cursor *C_, int j);
-	int next_default(Cursor *C_, int j);
-
-	int prev_for_sequential(Cursor *C_, int dummy);
-	int next_for_sequential(Cursor *C_, int dummy);
+	bool prev_for_sequential(Cursor *C_, int dummy);
+	bool next_for_sequential(Cursor *C_, int dummy);
 
 	/* B-tree navigation functions */
 

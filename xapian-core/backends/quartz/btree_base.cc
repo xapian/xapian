@@ -42,11 +42,11 @@ using namespace std;
  * The format consists of a sequence of numbers in this order:
  *
  * REVISION
- * FORMAT	will be = 1 for the current format.  If this value is
+ * FORMAT	will be = CURR_FORMAT for the current format.  If this value
  * 		higher then it is a different format which we
  * 		doesn't yet understand, so we bomb out.  If it's lower,
  * 		then it depends if we have backwards-compatibility code
- * 		implemented.
+ * 		implemented (we don't for format versions < 5).
  * BLOCK_SIZE
  * ROOT
  * LEVEL
