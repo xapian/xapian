@@ -56,6 +56,11 @@ class OmPostListIterator {
 
 	// extra method, not required for an input_iterator
 	OmPostListIterator skip_to(om_docid did);
+
+	/** Returns a string describing this object.
+	 *  Introspection method.
+	 */
+	std::string get_description() const;
 };
 
 #endif /* OM_HGUARD_OMPOSTLISTITERATOR_H */

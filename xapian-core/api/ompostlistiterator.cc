@@ -54,8 +54,19 @@ OmPostListIterator::skip_to(om_docid did) {
     return *this;
 }    
 
+std::string
+OmPostListIterator::get_description() const
+{
+    DEBUGAPICALL("OmPostListIterator::get_description", "");
+    /// \todo display contents of the object
+    std::string description = "OmPostListIterator()";
+    DEBUGAPIRETURN(description);
+    return description;
+}
+
 bool
 operator==(const OmPostListIterator &a, const OmPostListIterator &b)
 {
     return (a.internal->postlist->at_end() && b.internal->postlist->at_end());
 }
+

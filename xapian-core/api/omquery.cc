@@ -760,7 +760,7 @@ OmQueryInternal::initialise_from_vector(
 	isdefined = false;
     } else if(subqs.size() == 1) {
 	// Should just have copied into self
-	OmQueryInternal * copyme = *(subqs.begin());
+	const OmQueryInternal * copyme = *(subqs.begin());
 	subqs.clear();
 	initialise_from_copy(*copyme);
 	delete copyme;

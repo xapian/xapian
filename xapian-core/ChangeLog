@@ -1,3 +1,11 @@
+Sun Sep 03 13:06:31 BST 2000 Olly Betts
+
+	* Added OmPostListIterator::get_description method.
+	
+	* Added missing const in OmQuery.cc.
+
+	* Fixed maxorterms1 test to work with da backend.
+
 Sun Sep 03 11:55:33 BST 2000 Olly Betts
 
 	* Checked in missing new sources.

@@ -1134,31 +1134,24 @@ static bool test_maxorterms1()
 
     OmStem stemmer("english");
 
-#if 0
     std::string stemmed_word = stemmer.stem_word("word");
     OmQuery myquery1(stemmed_word);
-#endif
+    myquery1.set_length(2); // so the query lengths are the same
 
     OmQuery myquery2(OmQuery::OP_OR,
 		     OmQuery(stemmer.stem_word("simple")),
 		     OmQuery(stemmer.stem_word("word")));
 
-#if 0
     enquire.set_query(myquery1);
     OmMSet mymset1 = enquire.get_mset(0, 10);
-#endif
 
     enquire.set_query(myquery2);
     OmSettings moptions;
     moptions.set("match_max_or_terms", 1);
     OmMSet mymset2 = enquire.get_mset(0, 10, NULL, &moptions);
 
-#if 0
-    // query lengths differ so mset weights not the same (at present)
-    TEST_EQUAL(mymset1, mymset2);
-#endif
-    mset_expect_order(mymset2, 4, 2);
 
+    TEST_EQUAL(mymset1, mymset2);
     return true;
 }
 
@@ -1547,7 +1540,6 @@ test_desc db_tests[] = {
     {"msetfirst1",         test_msetfirst1},
     {"topercent1",	   test_topercent1},
     {"expandfunctor1",	   test_expandfunctor1},
-// lack of document lengths means several hits come out with same weight
     {"pctcutoff1",	   test_pctcutoff1},
     {"allowqterms1",       test_allowqterms1},
     {"maxattain1",         test_maxattain1},
@@ -1567,6 +1559,7 @@ test_desc db_tests[] = {
     {"rset1",              test_rset1},
     {"rset2",              test_rset2},
     {"rsetmultidb1",       test_rsetmultidb1},
+    {"maxorterms1",        test_maxorterms1},
     {"maxorterms2",        test_maxorterms2},
     {"maxorterms3",        test_maxorterms3},
     {"termlisttermfreq",   test_termlisttermfreq},
@@ -1584,7 +1577,6 @@ test_desc doclendb_tests[] = {
     {"simplequery2",       test_simplequery2},
 // Mset comes out in wrong order - no document length?
     {"rsetmultidb2",       test_rsetmultidb2},
-    {"maxorterms1",        test_maxorterms1},
     {0, 0}
 };
 
