@@ -207,7 +207,7 @@ class OmDebugCall {
     std::string omdebugapicall_method; \
     {\
 	om_ostringstream os1; \
-	os1 << "[" << this << "] " << a; \
+	os1 << "[" << ((void *)this) << "] " << a; \
 	omdebugapicall_method = os1.str(); \
 	om_ostringstream os2; \
 	os2 << b; \

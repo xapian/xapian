@@ -1,3 +1,8 @@
+Thu Jul 20 15:56:13 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* In DEBUGCALL, make sure that "this" is displayed as a pointer,
+	  not as the description of an API object.
+
 Thu Jul 20 15:03:38 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* More work on omstringstream, now understands char *, std::endl and
