@@ -9,7 +9,7 @@ target: omuscatc.so omuscat.py
 omstem_wrap.cc: ../swig/omstem.i ../swig/om_util.i
 	swig $(SWIG_INCLUDES) -c++ -python -shadow -o $@ $<
 
-omuscat_wrap.cc: ../swig/omuscat.i ../swig/omstem.i ../swig/om_util.i
+omuscat_wrap.cc: ../swig/omuscat.i ../swig/omstem.i ../swig/om_util.i ../swig/om_util_python.i
 	swig $(SWIG_INCLUDES) -c++ -python -shadow -o $@ $<
 
 omstem.py: omstem_wrap.cc

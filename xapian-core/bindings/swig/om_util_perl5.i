@@ -64,6 +64,34 @@
     $target = &v;
 }
 
+%typemap(perl5, in) const vector<string> &(vector<string> v) {
+    if (!SvROK($source)) { // check that it's a reference...
+        croak("Expected a reference");
+    }
+    if (SvTYPE(SvRV($source)) != SVt_PVAV) { // ... to an array
+        croak("Expected an array reference");
+    }
+
+    AV *tempav = (AV *)SvRV($source);
+    I32 len = av_len(tempav);
+    for (int i=0; i<=len; ++i) {
+        SV **sv = av_fetch(tempav, i, 0);
+	if (SvPOK(*sv)) {
+	    STRLEN slen;
+	    char *ctemp = SvPV(*sv, slen);
+	    v.push_back(string(ctemp, slen));
+	} else {
+	    croak("Expected list of strings");
+	}
+    }
+    $target = &v;
+    cout << "length is " << $target->size() << endl;
+    for (int i=0; i<$target->size(); ++i) {
+	cout << "string is `" << (*$target)[i] << "'" << endl;
+	cout << "  length is " << (*$target)[i].length() << endl;
+    }
+}
+
 %typemap(perl5, out) om_termname_list {
     int len = $source->size();
     SV **svs = new SV *[len];

@@ -31,7 +31,8 @@
 
 %typemap(python, in) const string &(string temp) {
     if (PyString_Check($source)) {
-	temp = string(PyString_AsString($source));
+	temp = string(PyString_AsString($source),
+		      PyString_Size($source));
 	$target = &temp;
     } else {
         PyErr_SetString(PyExc_TypeError, "string expected");
@@ -48,19 +49,6 @@
     for (int i=0; i<numitems; ++i) {
         PyObject *obj = PyList_GetItem($source, i);
 	if (PyInstance_Check(obj)) {
-#if 0  // for now don't bother checking for class.  Might be good to check
-       // that we inherit from OmQueryPtr at some point, but probably not
-       // necessary as long as obj.this is a valid OmQuery pointer.
-	    PyClassObject *objtype = ((PyInstanceObject *)obj)->in_class;
-	    string stype = PyString_AsString(objtype->cl_name);
-	    if (stype != "OmQuery") {
-	        string msg("expected OmQuery object, got: ");
-		msg += stype;
-		PyErr_SetString(PyExc_TypeError,
-				msg.c_str());
-		return NULL;
-	    }
-#endif
 	    PyObject *mythis = PyDict_GetItemString(((PyInstanceObject *)obj)
 						    ->in_dict, "this");
 	    OmQuery *subqp;
@@ -99,3 +87,76 @@
     delete $source;
     $source = 0;
 }
+
+%typemap(python, in) const vector<string> &(vector<string> v){
+    if (!PyList_Check($source)) {
+        PyErr_SetString(PyExc_TypeError, "expected list");
+        return NULL;
+    }
+    int numitems = PyList_Size($source);
+    for (int i=0; i<numitems; ++i) {
+        PyObject *obj = PyList_GetItem($source, i);
+	if (PyString_Check(obj)) {
+	    int len = PyString_Size(obj);
+	    char *err = PyString_AsString(obj);
+	    v.push_back(string(err, len));
+	} else {
+	    PyErr_SetString(PyExc_TypeError,
+			    "expected list of strings");
+	    return NULL;
+	}
+    }
+    $target = &v;
+}
+
+%typedef PyObject *LangSpecificListType;
+
+%{
+PyObject *OmMSet_items_get(OmMSet *mset)
+{
+    PyObject *retval = PyList_New(0);
+    if (retval == 0) {
+	return NULL;
+    }
+
+    vector<OmMSetItem>::const_iterator i = mset->items.begin();
+    while (i != mset->items.end()) {
+        PyObject *t = PyTuple_New(3);
+
+	PyTuple_SetItem(t, 0, PyInt_FromLong(i->did));
+	PyTuple_SetItem(t, 1, PyFloat_FromDouble(i->wt));
+	PyTuple_SetItem(t, 2, PyString_FromString(i->collapse_key.value.c_str()));
+
+	PyList_Append(retval, t);
+        ++i;
+    }
+    return retval;
+}
+%}
+
+%typemap(python, memberout) PyObject *items {
+    $target = PyList_New(0);
+    if ($target == 0) {
+	return NULL;
+    }
+
+    vector<OmMSetItem>::const_iterator i = $source.begin();
+    while (i != $source.end()) {
+        PyObject *t = PyTuple_New(3);
+
+	PyTuple_SetItem(t, 0, PyInt_FromLong(i->did));
+	PyTuple_SetItem(t, 1, PyFloat_FromDouble(i->wt));
+	PyTuple_SetItem(t, 2, PyString_FromString(i->collapse_key.value.c_str()));
+
+	PyList_Append($target, t);
+        ++i;
+    }
+%}
+
+%addmethods OmMSet {
+    %readonly
+    PyObject *items;
+    %readwrite
+}
+
+%apply LangSpecificListType items { PyObject *items }

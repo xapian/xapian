@@ -62,3 +62,45 @@ class OmQuery {
 	om_termcount set_length(om_termcount qlen_);
 	om_termname_list get_terms() const;
 };
+
+class OmDatabaseGroup {
+    public:
+    	OmDatabaseGroup();
+	~OmDatabaseGroup();
+
+	void add_database(const string &type,
+			  const vector<string> &params);
+};
+
+class OmEnquire {
+    public:
+        OmEnquire(const OmDatabaseGroup &databases);
+	~OmEnquire();
+
+	void set_query(const OmQuery &query);
+	
+	// FIXME: add other parameters too.
+	OmMSet get_mset(om_doccount first,
+			om_doccount maxitems);
+}
+
+class OmMSet {
+    public:
+	OmMSet();
+
+	int convert_to_percent(om_weight wt) const;
+//	int convert_to_percent(const OmMSetItem & item) const;
+	%readonly
+	/* Each language-specific part should include something like:
+	 * %addmethods OmMSet {
+	 *     %readonly
+	 *     LangListType items;
+	 * }
+	 * and define LangListType OmMSet_items_get(OmMSet *)
+	 */
+	om_doccount firstitem;
+	om_doccount mbound;
+	om_weight max_possible;
+	om_weight max_attained;
+	%readwrite
+};
