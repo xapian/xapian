@@ -1402,6 +1402,19 @@ static bool test_xor1()
     return true;
 }
 
+// test OmDatabase::get_document()
+static bool test_getdoc1()
+{
+    OmDatabase db(get_database("apitest_onedoc"));
+    db.get_document(1);
+    TEST_EXCEPTION(OmInvalidArgumentError, db.get_document(0));
+    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(999999999));    
+    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(123456789));
+    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(3));
+    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(2));
+    return true;
+}
+
 // test for keepalives
 static bool test_keepalive1()
 {
@@ -2648,6 +2661,7 @@ test_desc db_tests[] = {
     {"puncterms1",	   test_puncterms1},
     {"spaceterms1",	   test_spaceterms1},
     {"xor1",		   test_xor1},
+    {"getdoc1",		   test_getdoc1},
     {0, 0}
 };
 

@@ -1,3 +1,8 @@
+Mon Mar 19 19:16:34 GMT 2001 Olly Betts
+
+	* Added test getdoc1 to check exceptions are thrown for out-of-range
+	  docids (currently they aren't for quartz and muscat36 backends).
+
 Mon Mar 19 17:17:31 GMT 2001 Olly Betts
 
 	* New simpler implementation of leak detection in testsuite.
