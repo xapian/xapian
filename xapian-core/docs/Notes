@@ -11,14 +11,14 @@ in the inmemory databse.
 
 Table for result of operations when one of the operands is null:
 
-           | a,b                    | a,0 | 0,b | 0,0 |
------------+------------------------+-----+-----+-----+
-OR         | a or b                 |  a  |  b  |  0  | 
-AND        | a and b                |  a  |  b  |  0  |
-FILTER     | a and b                |  a  |  b  |  0  |
-AND_MAYBE  | a (weights from b)     |  a  |  0  |  0  |
-AND_NOT     | a but not b            |  a  | n/a |  0  |
-XOR        | (a or b) not (a and b) | n/a | n/a |  0  |
------------+------------------------+-----+-----+-----+
+            | a,b                    | a,0 | 0,b | 0,0 |
+ -----------+------------------------+-----+-----+-----+
+  OR        | a or b                 |  a  |  b  |  0  | 
+  AND       | a and b                |  a  |  b  |  0  |
+  FILTER    | a and b                |  a  |  b  |  0  |
+  AND_MAYBE | a (weights from b)     |  a  |  0  |  0  |
+  AND_NOT   | a but not b            |  a  | n/a | n/a |
+  XOR       | (a or b) not (a and b) | n/a | n/a | n/a |
+ -----------+------------------------+-----+-----+-----+
 
 =====================
