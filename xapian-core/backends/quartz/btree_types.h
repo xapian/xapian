@@ -31,7 +31,7 @@ typedef unsigned char byte;
 typedef long int4;
 typedef unsigned long uint4;
 
-#define BLK_UNUSED -1
+#define BLK_UNUSED uint4(-1)
 
 enum Btree_errors {
     BTREE_ERROR_NONE = 0,
@@ -76,13 +76,13 @@ class Cursor {
 	/// offset in the block's directory
 	int c;
 	/// block number
-	int4 n;
+	uint4 n;
 	/// true if the block is not the same as on disk, and so needs rewriting
 	int rewrite;
 	/// pointer to a block split off from main block
 	byte * split_p;
 	/// block number of a block split off from main block
-	int4 split_n;
+	uint4 split_n;
 };
 
 /* n is kept in tandem with p.

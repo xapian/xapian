@@ -1,3 +1,8 @@
+Sun Jul 06 12:15:34 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/: Made quartz block count unsigned, which should
+	  nearly double the size of database for a given block size.
+
 Sun Jul 06 11:47:46 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/: Use BLK_UNUSED rather than literal -1.

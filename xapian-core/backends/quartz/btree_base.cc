@@ -158,26 +158,9 @@ Btree_base::do_unpack_uint(const char **start, const char *end,
     return result;
 }
 
-bool
-Btree_base::do_unpack_int(const char **start, const char *end,
-			   int4 *dest, string &err_msg, 
-			   const string &basename,
-			   const char *varname)
-{
-    return do_unpack_uint(start, end, reinterpret_cast<uint4 *>(dest),
-			  err_msg, basename, varname);
-}
-
 #define DO_UNPACK_UINT_ERRCHECK(start, end, var) \
 do { \
     if (!do_unpack_uint(start, end, &var, err_msg, basename, #var)) { \
-	return false; \
-    } \
-} while(0)
-
-#define DO_UNPACK_INT_ERRCHECK(start, end, var) \
-do { \
-    if (!do_unpack_int(start, end, &var, err_msg, basename, #var)) { \
 	return false; \
     } \
 } while(0)
@@ -214,9 +197,9 @@ Btree_base::read(const string & name, char ch, string &err_msg)
 	return false;
     }
     DO_UNPACK_UINT_ERRCHECK(&start, end, block_size);
-    DO_UNPACK_INT_ERRCHECK(&start, end, root);
-    DO_UNPACK_INT_ERRCHECK(&start, end, level);
-    DO_UNPACK_INT_ERRCHECK(&start, end, bit_map_size);
+    DO_UNPACK_UINT_ERRCHECK(&start, end, root);
+    DO_UNPACK_UINT_ERRCHECK(&start, end, level);
+    DO_UNPACK_UINT_ERRCHECK(&start, end, bit_map_size);
     /* Now that we know the size of the bit map, (possibly)
      * read in more data from the base file in case
      * REASONABLE_BASE_SIZE is too small.  We need to update
@@ -228,8 +211,8 @@ Btree_base::read(const string & name, char ch, string &err_msg)
 	start = buf.data() + start_offset;
 	end = buf.data() + buf.length();
     }
-    DO_UNPACK_INT_ERRCHECK(&start, end, item_count);
-    DO_UNPACK_INT_ERRCHECK(&start, end, last_block);
+    DO_UNPACK_UINT_ERRCHECK(&start, end, item_count);
+    DO_UNPACK_UINT_ERRCHECK(&start, end, last_block);
     uint4 have_fakeroot_;
     DO_UNPACK_UINT_ERRCHECK(&start, end, have_fakeroot_);
     have_fakeroot = have_fakeroot_;
@@ -256,7 +239,7 @@ Btree_base::read(const string & name, char ch, string &err_msg)
     }
 
     /* Read the bitmap */
-    if (end - start <= bit_map_size) {
+    if ((uint4)(end - start) <= bit_map_size) {
 	err_msg += "Not enough space for bitmap in base file " +
 		basename + "\n";
 	return false;
@@ -308,31 +291,31 @@ Btree_base::get_block_size()
     return block_size;
 }
 
-int4
+uint4
 Btree_base::get_root()
 {
     return root;
 }
 
-int4
+uint4
 Btree_base::get_level()
 {
     return level;
 }
 
-int4
+uint4
 Btree_base::get_bit_map_size()
 {
     return bit_map_size;
 }
 
-int4
+uint4
 Btree_base::get_item_count()
 {
     return item_count;
 }
 
-int4
+uint4
 Btree_base::get_last_block()
 {
     return last_block;
@@ -363,19 +346,19 @@ Btree_base::set_block_size(uint4 block_size_)
 }
 
 void
-Btree_base::set_root(int4 root_)
+Btree_base::set_root(uint4 root_)
 {
     root = root_;
 }
 
 void
-Btree_base::set_level(int4 level_)
+Btree_base::set_level(uint4 level_)
 {
     level = level_;
 }
 
 void
-Btree_base::set_item_count(int4 item_count_)
+Btree_base::set_item_count(uint4 item_count_)
 {
     item_count = item_count_;
 }
@@ -425,7 +408,7 @@ Btree_base::write_to_file(const string &filename)
 */
 
 bool
-Btree_base::block_free_at_start(int4 n) const
+Btree_base::block_free_at_start(uint4 n) const
 {
     size_t i = n / CHAR_BIT;
     int bit = 0x1 << n % CHAR_BIT;
@@ -438,15 +421,15 @@ Btree_base::block_free_at_start(int4 n) const
 */
 
 void
-Btree_base::free_block(int4 n)
+Btree_base::free_block(uint4 n)
 {
-    int4 i = n / CHAR_BIT;
+    uint4 i = n / CHAR_BIT;
     int bit = 0x1 << n % CHAR_BIT;
     bit_map[i] &= ~ bit;
 
-    if (bit_map_low > i &&
-       (bit_map0[i] & bit) == 0) /* free at start */
-        bit_map_low = i;
+    if (bit_map_low > i)
+	if ((bit_map0[i] & bit) == 0) /* free at start */
+	    bit_map_low = i;
 }
 
 /* extend(B) increases the size of the two bit maps in an obvious way.
@@ -496,10 +479,10 @@ Btree_base::extend_bit_map()
    no free bits it is extended so that it will have.
 */
 
-int
+uint4
 Btree_base::next_free_block()
 {
-    int4 i;
+    uint4 i;
     int x;
     for (i = bit_map_low;; i++)
     {  
@@ -509,7 +492,7 @@ Btree_base::next_free_block()
         x = bit_map0[i] | bit_map[i];
         if (x != UCHAR_MAX) break;
     }
-    int4 n = i * CHAR_BIT;
+    uint4 n = i * CHAR_BIT;
     int d = 0x1;
     while ((x & d) != 0) { d <<= 1; n++; }
     bit_map[i] |= d;   /* set as 'in use' */
@@ -518,9 +501,9 @@ Btree_base::next_free_block()
 }
 
 bool
-Btree_base::block_free_now(int4 n)
+Btree_base::block_free_now(uint4 n)
 {
-    int4 i = n / CHAR_BIT;
+    uint4 i = n / CHAR_BIT;
     int bit = 0x1 << n % CHAR_BIT;
     return (bit_map[i] & bit) == 0;
 }
@@ -545,7 +528,7 @@ Btree_base::calculate_last_block()
 	last_block = 0;
 	return;
     }
-    int4 n = (i + 1) * CHAR_BIT - 1;
+    uint4 n = (i + 1) * CHAR_BIT - 1;
     int d = 0x1 << (CHAR_BIT - 1);
     while ((x & d) == 0) { d >>= 1; n--; }
 
@@ -555,7 +538,7 @@ Btree_base::calculate_last_block()
 bool
 Btree_base::is_empty() const
 {
-    for (int i = 0; i < bit_map_size; i++) {
+    for (uint4 i = 0; i < bit_map_size; i++) {
 	if (bit_map[i] != 0) {
 	    return false;
 	}

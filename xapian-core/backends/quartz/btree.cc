@@ -273,7 +273,7 @@ Btree_strerror(Btree_errors err)
 
 /// read_block(n, p) reads block n of the DB file to address p.
 void
-Btree::read_block(int4 n, byte * p)
+Btree::read_block(uint4 n, byte * p)
 {
     /* Check that n is in range. */
     Assert(n >= 0);
@@ -349,7 +349,7 @@ Btree::read_block(int4 n, byte * p)
  *  subsequently as an invalid base.
  */
 void
-Btree::write_block(int4 n, const byte * p)
+Btree::write_block(uint4 n, const byte * p)
 {
     /* Check that n is in range. */
     Assert(n >= 0);
@@ -459,7 +459,7 @@ Btree::set_overwritten()
 */
 
 void
-Btree::block_to_cursor(Cursor * C_, int j, int4 n)
+Btree::block_to_cursor(Cursor * C_, int j, uint4 n)
 {
     byte * p = C_[j].p;
     if (n == C_[j].n) return;
@@ -493,7 +493,7 @@ Btree::block_to_cursor(Cursor * C_, int j, int4 n)
    (The built in '4' below is the number of bytes per block number.)
 */
 
-static void set_block_given_by(byte * p, int c, int4 n)
+static void set_block_given_by(byte * p, int c, uint4 n)
 {
     c = GETD(p, c);        /* c is an offset to an item */
     c += GETI(p, c) - 4;   /* c is an offset to a block number */
@@ -504,7 +504,7 @@ static void set_block_given_by(byte * p, int c, int4 n)
    and returns its tag value as an integer.
 */
 
-static int4 block_given_by(const byte * p, int c)
+static uint4 block_given_by(const byte * p, int c)
 {
     c = GETD(p, c);        /* c is an offset to an item */
     c += GETI(p, c) - 4;   /* c is an offset to a block number */
@@ -541,7 +541,7 @@ Btree::alter()
 	if (C[j].rewrite) return; /* all new, so return */
 	C[j].rewrite = true;
 
-	int4 n = C[j].n;
+	uint4 n = C[j].n;
 	if (base.block_free_at_start(n)) return;
 	base.free_block(n);
 	n = base.next_free_block();
@@ -696,7 +696,7 @@ Btree::compress(byte * p)
 /* form_null_key(b, n) forms in b a null key with block number n in the tag.
  */
 
-static void form_null_key(byte * b, int4 n)
+static void form_null_key(byte * b, uint4 n)
 {
     set_int4(b, I3, n);
     SETK(b, I2, K1);     /* null key */
@@ -737,7 +737,7 @@ Btree::split_root(Cursor * C_, int j)
 
     /* form a null key in b with a pointer to the old root */
 
-    int4 old_root = C_[j - 1].split_n;
+    uint4 old_root = C_[j - 1].split_n;
     byte b[10]; /* 7 is exact */
     form_null_key(b, old_root);
     add_item(C_, b, j);
@@ -751,7 +751,7 @@ Btree::split_root(Cursor * C_, int j)
  */
 void Btree::make_index_item(byte * result, unsigned int result_len,
 			    const byte * prevkey, const byte * newkey,
-			    const int4 blocknumber, bool truncate) const
+			    const uint4 blocknumber, bool truncate) const
 {
     Assert(compare_keys(prevkey, newkey) < 0);
 
@@ -807,7 +807,7 @@ Btree::enter_key(Cursor * C_, int j, byte * prevkey, byte * newkey)
 
     /*  byte * p = C_[j - 1].p;  -- see below */
 
-    int4 blocknumber = C_[j - 1].n;
+    uint4 blocknumber = C_[j - 1].n;
 
     // Keys are truncated here: but don't truncate the count at the end away.
     // FIXME: check that b is big enough.  Dynamically allocate.
@@ -821,7 +821,7 @@ here:
     /*
        if (j > 1) {
 	   int newkey_len = GETK(newkey, 0);
-	   int n = get_int4(newkey, newkey_len);
+	   uint4 n = get_int4(newkey, newkey_len);
 	   int new_total_free = TOTAL_FREE(p) + (newkey_len - K1);
 	   form_null_key(newkey - I2, n);
 	   SET_TOTAL_FREE(p, new_total_free);
@@ -936,7 +936,7 @@ Btree::add_item(Cursor * C_, byte * kt_, int j)
 {
     byte * p = C_[j].p;
     int c = C_[j].c;
-    int4 n;
+    uint4 n;
 
     int kt_len = GETI(kt_, 0);
     int needed = kt_len + D2;
@@ -1025,7 +1025,7 @@ Btree::delete_item(Cursor * C_, int j, bool repeatedly)
 	/* j == B->level */
 	while (dir_end == DIR_START + D2 && j > 0) {
 	    /* single item in the root block, so lose a level */
-	    int4 new_root = block_given_by(p, DIR_START);
+	    uint4 new_root = block_given_by(p, DIR_START);
 	    delete [] p;
 	    C_[j].p = 0;
 	    base.free_block(C_[j].n);
@@ -1829,7 +1829,7 @@ Btree::prev_for_sequential(Cursor * C_, int /*dummy*/)
     byte * p = C_[0].p;
     int c = C_[0].c;
     if (c == DIR_START) {
-	int4 n = C_[0].n;
+	uint4 n = C_[0].n;
 	while (true) {
 	    if (n == 0) return false;
 	    n--;
@@ -1856,7 +1856,7 @@ Btree::next_for_sequential(Cursor * C_, int /*dummy*/)
     int c = C_[0].c;
     c += D2;
     if (c == DIR_END(p)) {
-	int4 n = C_[0].n;
+	uint4 n = C_[0].n;
 	while (true) {
 	    n++;
 	    if (n > base.get_last_block()) return false;

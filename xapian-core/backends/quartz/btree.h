@@ -106,7 +106,7 @@ class Btree {
 	bool both_bases;
 
 	/** keeps a count of the number of items in the B-tree. */
-	int4 item_count;
+	uint4 item_count;
 
 	/** the largest possible value of a key_len. */
 	static const string::size_type max_key_len = 252;
@@ -120,7 +120,7 @@ class Btree {
 	int base_letter;
 
 	/** the last used block of B->bit_map0 */
-	/*int4 last_block; */
+	/*uint4 last_block; */
 
     protected:
 
@@ -143,10 +143,10 @@ class Btree {
 
 	bool find(Cursor *);
 	int delete_kt();
-	void read_block(int4 n, byte *p);
-	void write_block(int4 n, const byte *p);
+	void read_block(uint4 n, byte *p);
+	void write_block(uint4 n, const byte *p);
 	void set_overwritten();
-	void block_to_cursor(Cursor *C_, int j, int4 n);
+	void block_to_cursor(Cursor *C_, int j, uint4 n);
 	void alter();
 	void compress(byte *p);
 	void enter_key(Cursor *C_, int j, byte *kq, byte *kp);
@@ -162,7 +162,7 @@ class Btree {
 	void split_root(Cursor *C_, int j);
 	void make_index_item(byte * result, unsigned int result_len,
 			     const byte * prevkey, const byte * newkey,
-			     const int4 blocknumber, bool truncate) const;
+			     const uint4 blocknumber, bool truncate) const;
 	void form_key(const string & key);
 
 	/** true if the root block is faked (not written to disk).
@@ -183,7 +183,7 @@ class Btree {
 	int level;
 
 	/// the root block of the B-tree
-	int4 root;
+	uint4 root;
 
 	/// buffer of size block_size for making up key-tag items
 	byte * kt;
@@ -210,7 +210,7 @@ class Btree {
 	int seq_count;
 
 	/** the last block to be changed by an addition */
-	int4 changed_n;
+	uint4 changed_n;
 
 	/** directory offset corresponding to last block to be changed
 	 *  by an addition */

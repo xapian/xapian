@@ -60,19 +60,19 @@ class Btree_base {
 
 	uint4 get_revision();
 	uint4 get_block_size();
-	int4 get_root();
-	int4 get_level();
-	int4 get_bit_map_size();
-	int4 get_item_count();
-	int4 get_last_block();
+	uint4 get_root();
+	uint4 get_level();
+	uint4 get_bit_map_size();
+	uint4 get_item_count();
+	uint4 get_last_block();
 	bool get_have_fakeroot();
 	bool get_sequential();
 
 	void set_revision(uint4 revision_);
 	void set_block_size(uint4 block_size_);
-	void set_root(int4 root_);
-	void set_level(int4 level_);
-	void set_item_count(int4 item_count_);
+	void set_root(uint4 root_);
+	void set_level(uint4 level_);
+	void set_item_count(uint4 item_count_);
 	void set_have_fakeroot(bool have_fakeroot_);
 	void set_sequential(bool sequential_);
 
@@ -83,13 +83,13 @@ class Btree_base {
 	/** true iff block n was free at the start of the transaction on
 	 *  the B-tree.
 	 */
-	bool block_free_at_start(int4 n) const;
+	bool block_free_at_start(uint4 n) const;
 
-	void free_block(int4 n);
+	void free_block(uint4 n);
 
-	int next_free_block();
+	uint4 next_free_block();
 
-	bool block_free_now(int4 n);
+	bool block_free_now(uint4 n);
 
 	void calculate_last_block();
 
@@ -113,29 +113,21 @@ class Btree_base {
 			    const string &basename,
 			    const char *varname);
 
-	/** Do most of the error handling from unpack_uint(),
-	 *  with conversion to signed int.
-	 */
-	bool do_unpack_int(const char **start, const char *end,
-			   int4 *dest, string &err_msg,
-			   const string &basename,
-			   const char *varname);
-
 	/* Decoded values from the base file follow */
 	uint4 revision;
 	uint4 block_size;
-	int4 root;
-	int4 level;
-	int4 bit_map_size;
-	int4 item_count;
-	int4 last_block;
+	uint4 root;
+	uint4 level;
+	uint4 bit_map_size;
+	uint4 item_count;
+	uint4 last_block;
 	bool have_fakeroot;
 	bool sequential;
 
 	/* Data related to the bitmap */
 	/** byte offset into the bit map below which there
 	   are no free blocks */
-	int bit_map_low;
+	uint4 bit_map_low;
 
 	/** the initial state of the bit map of blocks: 1 means in
 	   use, 0 means free */
