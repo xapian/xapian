@@ -1,3 +1,8 @@
+Mon Dec 11 12:42:02 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* OmIndexerMessage::get_element and ...::operator[] now have
+	  non-const versions.  Fixes const-warning in omstemmernode.cc.
+
 Mon Dec 11 12:17:32 GMT 2000 Olly Betts
 
 	* Better typedef-s for Om*Iterator::difference_type.

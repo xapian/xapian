@@ -324,6 +324,12 @@ OmIndexerMessage::get_vector_length() const
     return internal->u.vector_val->size();
 }
 
+OmIndexerMessage &
+OmIndexerMessage::operator[](unsigned int offset)
+{
+    return get_element(offset);
+}
+
 const OmIndexerMessage &
 OmIndexerMessage::operator[](unsigned int offset) const
 {
@@ -332,6 +338,18 @@ OmIndexerMessage::operator[](unsigned int offset) const
 
 const OmIndexerMessage &
 OmIndexerMessage::get_element(size_type offset) const
+{
+    if (internal->type != rt_vector) {
+	throw OmTypeError("OmIndexerMessage::get_vector_length() called for non-vector value");
+    }
+    if (offset > internal->u.vector_val->size()) {
+	throw OmRangeError("Access to non-existant element of vector record");
+    }
+    return (*internal->u.vector_val)[offset];
+}
+
+OmIndexerMessage &
+OmIndexerMessage::get_element(size_type offset)
 {
     if (internal->type != rt_vector) {
 	throw OmTypeError("OmIndexerMessage::get_vector_length() called for non-vector value");

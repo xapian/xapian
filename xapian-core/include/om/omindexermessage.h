@@ -103,6 +103,22 @@ class OmIndexerMessage {
 	 *
 	 *  @param offset	The (zero-based) offset into the vector.
 	 */
+	OmIndexerMessage &operator[](size_type offset);
+
+	/** Return a reference to a given element in a vector.
+	 *  Will throw an exception if this message is not a vector,
+	 *  or if the offset is out of range.
+	 *
+	 *  @param offset	The (zero-based) offset into the vector.
+	 */
+	OmIndexerMessage &get_element(size_type offset);
+
+	/** Return a reference to a given element in a vector.
+	 *  Will throw an exception if this message is not a vector,
+	 *  or if the offset is out of range.
+	 *
+	 *  @param offset	The (zero-based) offset into the vector.
+	 */
 	const OmIndexerMessage &get_element(size_type offset) const;
 
 	/** Append a OmIndexerMessage to the vector value.
