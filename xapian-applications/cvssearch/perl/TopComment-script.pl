@@ -49,7 +49,7 @@ if(param()){
     print "<a href=\"$cvscompare?root=$root&pkg=$pkg\" target=\"s\">[$pkg]</a></b>\n";
     print "<td align=center><b>Similar Commits in [<a href=\"$related?query=$pkg\@$commit_id%20in:$pkg&root=$root\" target=s>$pkg</a> / <a href=\"$related?query=$pkg\@$commit_id&root=$root\" target=s>All Packages</a>]</b></td>\n";
     print "<td align=right><a href=\"./Query.cgi\" target=_top>Search Again</a></td>\n";
-    print "<tr></tr>\n";
+#    print "<tr></tr>\n";
 #    print "<td align=left><b>Similar Commits in [<a href=\"$related?query=$pkg\@$commit_id%20in:$pkg&root=$root\" target=s>$pkg</a> / <a href=\"$related?query=$pkg\@$commit_id&root=$root\" target=s>All Packages</a>]</b></td>\n";
     print "</tr>\n";
     print "</table>\n";
