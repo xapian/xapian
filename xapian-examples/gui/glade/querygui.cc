@@ -37,9 +37,8 @@
 
 #include <list>
 
-IRDatabase *database;
-Match * matcher;
-vector<MSetItem> mset;
+OMEnquire * enquire;
+OMMSet mset;
 string query;
 
 doccount max_msize;
@@ -131,12 +130,12 @@ result_destroy_notify(gpointer data)
 
 static void do_resultdisplay(gint row) {
     try {
-	docid did = mset[row].did;
-	IRDocument *doc = database->open_document(did);
-	IRData data = doc->get_data();
-	string fulltext = data.value;
-	weight maxweight = matcher->get_max_weight();
-	string score = inttostring((int)(100 * mset[row].wt / maxweight));
+	docid did = mset.items[row].did;
+	//IRDocument *doc = database->open_document(did);
+	//IRData data = doc->get_data();
+	//string fulltext = data.value;
+	string fulltext = "<unimplemented>";
+	string score = inttostring((int)(100 * mset.items[row].wt / mset.max_weight));
 
 	gtk_text_freeze(result_text);
 	gtk_text_backward_delete(result_text, gtk_text_get_length(result_text));
@@ -152,7 +151,7 @@ static void do_resultdisplay(gint row) {
 
 static void do_topterms() {
     try {
-	RSet rset(database);
+	OMRSet rset;
 	GList *next = results_widget->selection;
 	gint index;
 
@@ -164,7 +163,7 @@ static void do_topterms() {
 	    next = next->next;
 	}
 
-	if (!rset.get_rsize()) {
+	if (!rset.items.size()) {
 	    // invent an rset
 	    gint msize = results_widget->rows;
 	    for (index = min(4, msize - 1); index >= 0; index--) {
@@ -174,15 +173,15 @@ static void do_topterms() {
 	    }
 	}
 
-	Expand topterms(database);
-	ExpandDeciderAlways decider;
-	topterms.expand(&rset, &decider);
+	OMESet topterms;
+	enquire->get_eset(topterms, 50);
+	//topterms.expand(&rset, &decider);
 
 	gtk_clist_freeze(topterms_widget);
 	gtk_clist_clear(topterms_widget);
 
-	vector<ESetItem>::const_iterator i;
-	for (i = topterms.eset.begin(); i != topterms.eset.end(); i++) {
+	vector<OMESetItem>::const_iterator i;
+	for (i = topterms.items.begin(); i != topterms.items.end(); i++) {
 	    string tname = i->tname;
 //#ifdef DEBUG
 	    tname = tname + " (" + floattostring(i->wt) + ")";
@@ -220,10 +219,6 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
     g_free(tmp);
 
     try {
-	delete matcher;
-	matcher = NULL;
-	matcher = new Match(database); 
-
 	// split into terms
 	QueryParser parser;
 	TextfileIndexer idx;
@@ -231,23 +226,26 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	vector<QueryTerm> qterms;
 	qterms = parser.parse_query(query);
 
+	OMQuery query;
 	vector<QueryTerm>::const_iterator i = qterms.begin();
 	while(i != qterms.end()) {
-	    matcher->add_term((*i).tname);
+	    query = OMQuery(OM_MOP_OR, query, (*i).tname);
 	    i++;
 	}
 
 	// Perform match
-	doccount mtotal;
-	matcher->match(0, max_msize, mset, msetcmp_forward, &mtotal);
-	weight maxweight = matcher->get_max_weight();
+	enquire->set_query(query);
+        enquire->get_mset(mset, 0, max_msize);
 
 	gtk_clist_freeze(results_widget);
 	gtk_clist_clear(results_widget);
-	cout << "MTotal: " << mtotal << " Maxweight: " << maxweight << endl;
-	vector<MSetItem>::const_iterator j;
-	for (j = mset.begin(); j != mset.end(); j++) {
+	cout << "MBound: " << mset.mbound <<
+	        " Maxweight: " << mset.max_weight << endl;
+
+	vector<OMMSetItem>::const_iterator j;
+	for (j = mset.items.begin(); j != mset.items.end(); j++) {
 	    docid did = j->did;
+#if 0
 	    IRDocument *doc = database->open_document(did);
 	    IRData data = doc->get_data();
 	    string message;
@@ -261,8 +259,10 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 #endif
 	    message += data.value;
 	    message = data.value;
+#endif
+string message = "<unimplemented>";
 	    ResultItemGTK * item = new ResultItemGTK(j->did,
-		100 * j->wt / maxweight, message);
+		100 * j->wt / mset.max_weight, message);
 	    gint index = gtk_clist_append(results_widget, item->data);
 
 	    // Make sure it gets freed when item is removed from result list
@@ -364,17 +364,7 @@ int main(int argc, char *argv[]) {
 	exit(1);
     }
 
-    matcher = new Match(database); 
-
-    // FIXME - debugging code - remove this
-    matcher->add_term("love");
-    doccount mtotal;
-    matcher->match(0, 10, mset, msetcmp_forward, &mtotal);
-    weight maxweight = matcher->get_max_weight();
-    cout << maxweight << " " << mtotal << " " << mset.size() << endl;
-
-    delete matcher;
-    matcher = NULL;
+    enquire = new OMEnquire();
 
     GladeXML *xml;
 
@@ -398,5 +388,9 @@ int main(int argc, char *argv[]) {
 
     /* start the event loop */
     gtk_main();
+
+    delete enquire;
+    enquire = NULL;
+
     return 0;
 }
