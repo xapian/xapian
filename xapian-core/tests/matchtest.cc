@@ -4,8 +4,24 @@
 #include "irdocument.h"
 
 #include "da_database.h"
+#include "textfile_database.h"
 #include "match.h"
 #include "stem.h"
+
+IRDatabase *makenewdb(const string &type)
+{
+    IRDatabase * database = NULL;
+
+    if(type == "da") database = new DADatabase;
+    else if(type == "textfile") database = new TextfileDatabase;
+
+    if(database == NULL) {
+	cout << "Couldn't open database (unknown type?)" << endl;
+	exit(1);
+    }
+
+    return database;
+}
 
 int
 main(int argc, char *argv[])
@@ -13,6 +29,7 @@ main(int argc, char *argv[])
     int msize = 10;
     const char *progname = argv[0];
     list<string> dbnames;
+    list<string> dbtypes;
     bool multidb = false;
 
     bool syntax_error = false;
@@ -25,6 +42,12 @@ main(int argc, char *argv[])
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--db") == 0) {
 	    dbnames.push_back(argv[1]);
+	    dbtypes.push_back("da");
+	    argc -= 2;
+	    argv += 2;
+	} else if (argc >= 2 && strcmp(argv[0], "--tf") == 0) {
+	    dbnames.push_back(argv[1]);
+	    dbtypes.push_back("textfile");
 	    argc -= 2;
 	    argv += 2;
 	} else if (strcmp(argv[0], "--multidb") == 0) {
@@ -41,11 +64,15 @@ main(int argc, char *argv[])
 	cout << "Syntax: " << progname << " TERM ..." << endl;
 	cout << "\t--msize MSIZE\n";
 	cout << "\t--db DBDIRECTORY\n";
+	cout << "\t--tf TEXTFILE\n";
 	cout << "\t--multidb\n";
 	exit(1);
     }
 
-    if(!dbnames.size()) dbnames.push_back("testdir");
+    if(!dbnames.size()) {
+	dbnames.push_back("testdir");
+	dbtypes.push_back("da");
+    }
     
     try {
 	IRDatabase *database;
@@ -53,13 +80,16 @@ main(int argc, char *argv[])
 	if (multidb || dbnames.size() > 1) {
 	    MultiDatabase *multidb = new MultiDatabase;
 	    list<string>::const_iterator p;
-	    for(p = dbnames.begin(); p != dbnames.end(); p++) {
-		multidb->open_subdatabase(new DADatabase, *p, 0);
+	    list<string>::const_iterator q;
+	    for(p = dbnames.begin(), q = dbtypes.begin();
+		p != dbnames.end();
+		p++, q++) {
+		multidb->open_subdatabase(makenewdb(*q), *p, true);
 	    }
 	    database = multidb;
 	} else {
-	    database = new DADatabase;
-	    database->open(*(dbnames.begin()), 0);
+	    database = makenewdb(*(dbtypes.begin()));
+	    database->open(*(dbnames.begin()), true);
 	}
        
         Match match(database);
