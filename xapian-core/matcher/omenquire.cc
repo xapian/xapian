@@ -623,10 +623,14 @@ OmEnquire::get_mset(om_doccount first,
     if(mdecider != 0)
 	throw OmUnimplementedError("Decision functors are not yet implemented "
 				   "in OmEnquire::get_mset().");
-    
+
+    if(internal->query == 0) {
+        throw OmInvalidArgumentError("You must set a query before calling OmEnquire::get_mset()");
+    }
+    Assert(internal->query->is_defined());
+
     internal->open_database();
-    Assert(internal->database != NULL);
-    Assert(internal->query != NULL);
+    Assert(internal->database != 0);
 
     // Use default options if none supplied
     OmMatchOptions defmoptions;
@@ -709,6 +713,7 @@ OmEnquire::get_eset(om_termcount maxitems,
     OmExpandDeciderAlways decider_always;
     if (edecider == 0) edecider = &decider_always;
 
+//FIXME - calls get_terms() on a null query
     OmExpandDeciderFilterTerms decider_noquery(internal->query->get_terms());
     OmExpandDeciderAnd decider_andnoquery(&decider_noquery, edecider);
     if (!eoptions->allow_query_terms) {
@@ -749,6 +754,7 @@ OmEnquire::get_matching_terms(om_docid did) const
     if (internal->query == 0) {
         throw OmInvalidArgumentError("Can't get matching terms before setting query");
     }
+    Assert(internal->query->is_defined());
 
     internal->open_database();  // will throw if database not set.
 
