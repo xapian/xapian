@@ -7,16 +7,20 @@ noinst_HEADERS = symboltab.h
 xapianincludedir = $(includedir)/xapian
 omcompatincludedir = $(includedir)/om
 
-xapianinclude_HEADERS = queryparser.h
+xapianinclude_HEADERS = xapian/queryparser.h
 omcompatinclude_HEADERS = omparsequery.h
 
-lib_LTLIBRARIES = libomqueryparser.la
+lib_LTLIBRARIES = libxapianqueryparser.la libomqueryparser.la
 check_PROGRAMS = queryparsertest
 TESTS = queryparsertest$(EXEEXT)
 
 # 0:0:0 0.7.2 (and anything before) 
-libomqueryparser_la_LDFLAGS = -version-info 0:0:0
+libxapianqueryparser_la_LDFLAGS = -version-info 0:0:0
 
+libxapianqueryparser_la_SOURCES = queryparser.yy
+
+# For backward compatibility
 libomqueryparser_la_SOURCES = queryparser.yy
+
 queryparsertest_SOURCES = queryparsertest.cc
 queryparsertest_LDADD = libomqueryparser.la ../libxapian.la

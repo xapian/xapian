@@ -50,9 +50,9 @@ while test 0 != "$#"; do
     	# check if this is an uninstalled xapian-config
    	if test -n "$builddir" -a -f "${builddir}Makefile" ; then
 	    if test . = "@srcdir@"; then
-		inc="-Iinclude"
+		inc="-Iinclude -Iextra"
 	    else
-		inc="-I@srcdir@/include"
+		inc="-I@srcdir@/include -I@srcdir@/extra"
 	    fi
 	else	    
 	    case "$includedir" in
@@ -80,7 +80,9 @@ while test 0 != "$#"; do
 	eval `grep ^dependency_libs= "$libdir/libxapian.la"`
 	D=
 	test -n "$dependency_libs" && D=" $dependency_libs"
-	echo "$L-lxapian$D"
+	eval `grep ^dependency_libs= "$libdir/libxapianqueryparser.la"`
+	test -n "$dependency_libs" && D="$D $dependency_libs"
+	echo "$L-lxapian -lxapianqueryparser$D"
 	;;
 
     --ltlibs)
@@ -88,12 +90,12 @@ while test 0 != "$#"; do
    	if test -n "$builddir" -a -f "${builddir}Makefile" ; then
 	    # don't check if libxapian.la exists yet - it won't unless
 	    # the xapian-core tree has been built!
-	    echo "${builddir}libxapian.la"
+	    echo "${builddir}libxapian.la ${builddir}extra/libxapianqueryparser.la"
 	    exit 0
 	fi
 
 	if test -f "$libdir/libxapian.la"; then
-	    echo "$libdir/libxapian.la"
+	    echo "$libdir/libxapian.la $libdir/libxapianqueryparser.la"
 	    exit 0
 	fi
 

@@ -49,7 +49,7 @@ class U {
 
 #define YYSTYPE U
 
-#include "queryparser.h"
+#include <xapian/queryparser.h>
 
 static int yyparse();
 static int yyerror(const char *s);

@@ -1,3 +1,9 @@
+Sat Jul 26 20:05:47 BST 2003  Olly Betts <olly@survex.com>
+
+	* xapian-config.in,extra/Makefile.am,extra/queryparser.h,
+	  extra/queryparser.yy,extra/xapian/queryparser.h: Sorted out
+	  xapian-config so it handles using QueryParser too.
+
 Sat Jul 26 19:03:04 BST 2003  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Updated logic in --libs and --cxxflags in line
