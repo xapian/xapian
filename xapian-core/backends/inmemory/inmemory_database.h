@@ -132,9 +132,9 @@ class InMemoryPostList : public LeafPostList {
 	 */
 	InMemoryPositionList mypositions;
 
-	const InMemoryDatabase * this_db;
+	OmRefCntPtr<const InMemoryDatabase> this_db;
 
-	InMemoryPostList(const InMemoryDatabase * db,
+	InMemoryPostList(OmRefCntPtr<const InMemoryDatabase> db,
 			 const InMemoryTerm & term);
     public:
 	om_doccount get_termfreq() const;
@@ -147,7 +147,7 @@ class InMemoryPostList : public LeafPostList {
 
 	PostList *next(om_weight w_min); // Moves to next docid
 
-	PostList *skip_to(om_docid did, om_weight w_min);// Moves to next docid >= specified docid
+	PostList *skip_to(om_docid did, om_weight w_min); // Moves to next docid >= specified docid
 
 	bool   at_end() const;        // True if we're off the end of the list
 
@@ -164,10 +164,10 @@ class InMemoryTermList : public LeafTermList {
 	om_termcount terms;
 	bool started;
 
-	const InMemoryDatabase * this_db;
+	OmRefCntPtr<const InMemoryDatabase> this_db;
 	om_doclength document_length;
 
-	InMemoryTermList(const InMemoryDatabase * db,
+	InMemoryTermList(OmRefCntPtr<const InMemoryDatabase> db,
 			 const InMemoryDoc & doc,
 			 om_doclength len);
     public:
@@ -268,7 +268,7 @@ class InMemoryDatabase : public IRDatabase {
 //////////////////////////////////////////////
 
 inline
-InMemoryPostList::InMemoryPostList(const InMemoryDatabase * db,
+InMemoryPostList::InMemoryPostList(OmRefCntPtr<const InMemoryDatabase> db,
 				   const InMemoryTerm & term)
 	: pos(term.docs.begin()),
 	  end(term.docs.end()),
@@ -348,7 +348,7 @@ InMemoryPostList::intro_term_description() const
 //////////////////////////////////////////////
 
 inline
-InMemoryTermList::InMemoryTermList(const InMemoryDatabase * db,
+InMemoryTermList::InMemoryTermList(OmRefCntPtr<const InMemoryDatabase> db,
 				   const InMemoryDoc & doc,
 				   om_doclength len)
 	: pos(doc.terms.begin()),

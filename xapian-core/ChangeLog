@@ -1,3 +1,9 @@
+Tue Sep 12 12:35:49 BST 2000 Olly Betts
+
+	* *PostList and *TermList now keep a reference to their parent database
+	  so they'll continue to work if all other references to the database
+	  die (tested by termlist3).
+
 Tue Sep 12 12:34:40 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* The Java stuff now actually compiles.

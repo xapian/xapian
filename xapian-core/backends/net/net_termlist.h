@@ -28,8 +28,7 @@
 #include "termlist.h"
 #include "expandweight.h"
 #include "netclient.h"
-
-class NetworkDatabase;
+#include "net_database.h"
 
 /** An item in a NetworkTermList.
  */
@@ -97,6 +96,9 @@ class NetworkTermList : public LeafTermList {
 	 */
 	om_doccount database_size;
 
+	///  Keep a reference to our database
+	OmRefCntPtr<const NetworkDatabase> this_db;
+
 	/** Standard constructor is private: NetworkTermLists are created
 	 *  by NetworkDatabase object only, which is a friend.
 	 *
@@ -105,7 +107,8 @@ class NetworkTermList : public LeafTermList {
 	 */
 	NetworkTermList(om_doclength average_length_,
 			om_doccount  database_size_,
-			const std::vector<NetClient::TermListItem> &items_);
+			const std::vector<NetClient::TermListItem> &items_,
+			OmRefCntPtr<const NetworkDatabase> this_db_);
     public:
 
 	/** Get the number of terms in the termlist.

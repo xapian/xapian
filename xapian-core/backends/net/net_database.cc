@@ -95,7 +95,8 @@ NetworkDatabase::open_term_list(om_docid did) const {
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
     std::vector<NetClient::TermListItem> items;
     link->get_tlist(did, items);
-    return new NetworkTermList(get_avlength(), get_doccount(), items);
+    return new NetworkTermList(get_avlength(), get_doccount(), items,
+			       OmRefCntPtr<const NetworkDatabase>(RefCntPtrToThis(), this));
 }
 
 LeafDocument *

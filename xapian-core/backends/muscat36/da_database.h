@@ -50,9 +50,12 @@ class DAPostList : public LeafPostList {
 	om_termname tname;
 	om_doccount termfreq;
 
+	OmRefCntPtr<const DADatabase> this_db; // Just used to keep a reference
+
 	DAPostList(const om_termname & tname_,
 		   struct DA_postings * postlist_,
-		   om_doccount termfreq_);
+		   om_doccount termfreq_,
+		   OmRefCntPtr<const DADatabase> this_db_);
     public:
 	~DAPostList();
 
@@ -126,13 +129,10 @@ class DATermListItem {
 	om_termcount wdf;
 	om_doccount termfreq;
 
-	DATermListItem(om_termname tname_,
-		       om_termcount wdf_,
+	DATermListItem(om_termname tname_, om_termcount wdf_,
 		       om_doccount termfreq_)
-		: tname(tname_),
-		  wdf(wdf_),
-		  termfreq(termfreq_)
-	{ return; }
+		: tname(tname_), wdf(wdf_), termfreq(termfreq_)
+	{ }
 };
 
 /** A term list for a DA Database */
@@ -144,7 +144,10 @@ class DATermList : public LeafTermList {
 	bool have_started;
 	om_doccount dbsize;
 
-	DATermList(struct termvec *tv, om_doccount dbsize_);
+	OmRefCntPtr<const DADatabase> this_db;
+
+	DATermList(struct termvec *tv, om_doccount dbsize_,
+		   OmRefCntPtr<const DADatabase> this_db_);
     public:
 	om_termcount get_approx_size() const;
 

@@ -46,7 +46,7 @@ class SleepycatTermList : public LeafTermList {
 
 	/** Database internals object.
 	 */
-	const SleepycatDatabase * database;
+	OmRefCntPtr<const SleepycatDatabase> database;
 
 	/** Object to do name to ID mapping.
 	 */
@@ -69,7 +69,7 @@ class SleepycatTermList : public LeafTermList {
 	 *  @param termcache_  The term name to ID translator.
 	 */
 	SleepycatTermList(om_docid did_,
-			  const SleepycatDatabase * database_,
+			  OmRefCntPtr<const SleepycatDatabase> database_,
 			  const SleepycatDatabaseInternals * internals_,
 			  const SleepycatDatabaseTermCache *termcache_);
     public:

@@ -1,4 +1,4 @@
-/* omrefcnt.h: Reference-counted pointers
+#/* omrefcnt.h: Reference-counted pointers
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -50,6 +50,11 @@ class OmRefCntBase {
 	OmRefCntBase(const OmRefCntBase &other)
 		: ref_count(0), ref_count_mutex() { }
 
+	/** Dummy class, used simply to make the private constructor
+	 *  different.
+	 */
+	class RefCntPtrToThis {};
+
     public:
 	/** Return the current ref count.
 	 *
@@ -88,11 +93,7 @@ class OmRefCntPtr {
     private:
 	T *dest;
 
-	/** Dummy class, used simply to make the private constructor
-	 *  different.
-	 */
-	class BypassRefStart {};
-
+    public:
 	/** Make an OmRefCntPtr for an object which may already
 	 *  have reference counted pointers.  This should only
 	 *  be called by the object itself, to pass references
@@ -102,8 +103,8 @@ class OmRefCntPtr {
 	 *  (eg, a database might pass a newly created postlist
 	 *  a reference counted pointer to itself.)
 	 */
-	OmRefCntPtr(OmRefCntPtr::BypassRefStart, T *dest_);
-    public:
+	OmRefCntPtr(OmRefCntBase::RefCntPtrToThis, T *dest_);
+
 	T *operator->() const;
 	T &operator*() const;
 	T *get() const;
@@ -113,7 +114,7 @@ class OmRefCntPtr {
 	~OmRefCntPtr();
 
 	template <class U>
-	OmRefCntPtr(OmRefCntPtr<U> &other);
+	OmRefCntPtr(const OmRefCntPtr<U> &other);
 };
 
 inline void OmRefCntBase::ref_start() const
@@ -139,7 +140,7 @@ inline bool OmRefCntBase::ref_decrement() const
 
 
 template <class T>
-inline OmRefCntPtr<T>::OmRefCntPtr(OmRefCntPtr::BypassRefStart, T *dest_)
+inline OmRefCntPtr<T>::OmRefCntPtr(OmRefCntBase::RefCntPtrToThis, T *dest_)
 	: dest(dest_)
 {
     Assert(dest != 0);
@@ -187,7 +188,7 @@ inline OmRefCntPtr<T>::~OmRefCntPtr()
 template <class T>
 template <class U>
 inline
-OmRefCntPtr<T>::OmRefCntPtr(OmRefCntPtr<U> &other)
+OmRefCntPtr<T>::OmRefCntPtr(const OmRefCntPtr<U> &other)
 	: dest(other.get())
 {
     if (dest) {

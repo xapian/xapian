@@ -32,9 +32,9 @@
 #include <stdlib.h>
 
 SleepycatTermList::SleepycatTermList(om_docid did_,
-			       const SleepycatDatabase * database_,
-			       const SleepycatDatabaseInternals * internals_,
-			       const SleepycatDatabaseTermCache *termcache_)
+				     OmRefCntPtr<const SleepycatDatabase> database_,
+				     const SleepycatDatabaseInternals * internals_,
+				     const SleepycatDatabaseTermCache *termcache_)
 	: mylist(internals_->termlist_db,
 		 reinterpret_cast<void *>(&did_),
 		 sizeof(did_),

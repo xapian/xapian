@@ -1567,9 +1567,18 @@ static bool test_termlist2()
     OmDatabase db(get_database("apitest_onedoc"));
     OmTermListIterator t = db.termlist_begin(1);
     OmTermListIterator tend = db.termlist_end(1);
+
+    // test operator= creates a copy which compares equal
+    OmTermListIterator t_copy = t;
+    TEST_EQUAL(t, t_copy);
+
+    // test copy constructor creates a copy which compares equal
+    OmTermListIterator t_clone(t);
+    TEST_EQUAL(t, t_clone);
+
     std::vector<om_termname> v(t, tend);
 
-    t = db.termlist_begin(1);
+    t = db.termlist_begin(1);    
     tend = db.termlist_end(1);
     std::vector<om_termname>::const_iterator i;
     for (i = v.begin(); i != v.end(); i++) {
@@ -1578,6 +1587,29 @@ static bool test_termlist2()
 	t++;
     }
     TEST_EQUAL(t, tend);
+    return true;
+}
+
+static OmTermListIterator
+test_termlist3_helper()
+{
+    OmDatabase db(get_database("apitest_onedoc"));
+    return db.termlist_begin(1);
+}
+
+// tests that a TermListIterator still works when the DB is deleted
+static bool test_termlist3()
+{
+    OmTermListIterator u = test_termlist3_helper();
+    OmDatabase db(get_database("apitest_onedoc"));
+    OmTermListIterator t = db.termlist_begin(1);
+    OmTermListIterator tend = db.termlist_end(1);
+
+    while (t != tend) {
+	TEST_EQUAL(*t, *u);
+	t++;
+	u++;
+    }
     return true;
 }
 
@@ -1630,6 +1662,7 @@ test_desc db_tests[] = {
     {"qlen1",		   test_qlen1},
     {"termlist1",	   test_termlist1},
     {"termlist2",	   test_termlist2},
+    {"termlist3",	   test_termlist3},
     {0, 0}
 };
 

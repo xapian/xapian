@@ -40,8 +40,10 @@
 
 DAPostList::DAPostList(const om_termname & tname_,
 		       struct DA_postings * postlist_,
-		       om_doccount termfreq_)
-	: postlist(postlist_), currdoc(0), tname(tname_), termfreq(termfreq_)
+		       om_doccount termfreq_,
+		       OmRefCntPtr<const DADatabase> this_db_)
+	: postlist(postlist_), currdoc(0), tname(tname_), termfreq(termfreq_),
+	  this_db(this_db_)
 {
 }
 
@@ -102,8 +104,9 @@ DAPostList::get_position_list()
 
 
 
-DATermList::DATermList(struct termvec *tv, om_doccount dbsize_)
-	: have_started(false), dbsize(dbsize_)
+DATermList::DATermList(struct termvec *tv, om_doccount dbsize_,
+		       OmRefCntPtr<const DADatabase> this_db_)
+	: have_started(false), dbsize(dbsize_), this_db(this_db_)
 {
     // FIXME - read terms as we require them, rather than all at beginning?
     M_read_terms(tv);
@@ -293,8 +296,8 @@ DADatabase::open_post_list_internal(const om_termname & tname) const
     struct DA_postings * postlist;
     postlist = DA_open_postings(the_term->get_ti(), DA_t);
 
-    LeafPostList * pl = new DAPostList(tname, postlist, the_term->get_ti()->freq);
-    return pl;
+    return new DAPostList(tname, postlist, the_term->get_ti()->freq,
+			  OmRefCntPtr<const DADatabase>(RefCntPtrToThis(), this));
 }
 
 // Returns a new term list, for the terms in this database for given document
@@ -305,9 +308,8 @@ DADatabase::open_term_list(om_docid did) const
     OmLockSentry sentry(mutex);
 
     struct termvec *tv = M_make_termvec();
-    int found = DA_get_termvec(DA_r, did, tv);
 
-    if(found == 0) {
+    if (DA_get_termvec(DA_r, did, tv) == 0) {
 	M_lose_termvec(tv);
 	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
 				 std::string(" not found"));
@@ -315,8 +317,8 @@ DADatabase::open_term_list(om_docid did) const
 
     M_open_terms(tv);
 
-    DATermList *tl = new DATermList(tv, DADatabase::get_doccount_internal());
-    return tl;
+    return new DATermList(tv, DADatabase::get_doccount_internal(),
+			  OmRefCntPtr<const DADatabase>(RefCntPtrToThis(), this));
 }
 
 struct record *

@@ -130,7 +130,8 @@ MultiDatabase::do_open_post_list(const om_termname & tname) const
 	throw;
     }
 
-    return new MultiPostList(pls, this);
+    return new MultiPostList(pls,
+			     OmRefCntPtr<const MultiDatabase>(RefCntPtrToThis(), this));
 }
 
 LeafTermList *
@@ -139,7 +140,8 @@ MultiDatabase::open_term_list(om_docid did) const {
     om_doccount dbnumber = (did - 1) % multiplier;
 
     TermList *newtl = databases[dbnumber]->open_term_list(realdid);
-    return new MultiTermList(newtl, databases[dbnumber].get(), this);
+    return new MultiTermList(newtl, databases[dbnumber],
+			     OmRefCntPtr<const IRDatabase>(RefCntPtrToThis(), this));
 }
 
 LeafDocument *

@@ -33,12 +33,14 @@
 ///////////////
 
 SleepycatPostList::SleepycatPostList(om_termid tid_,
-			       SleepycatDatabaseInternals * internals_,
-			       const om_termname & tname_)
+				     SleepycatDatabaseInternals * internals_,
+				     const om_termname & tname_,
+				     OmRefCntPtr<const SleepycatDatabase> this_db_)
 	: tname(tname_),
 	  mylist(internals_->postlist_db,
 		 reinterpret_cast<void *>(&tid_),
-		 sizeof(tid_), true)
+		 sizeof(tid_), true),
+	  this_db(this_db_)
 {
     mylist.move_to_start();
 }

@@ -91,7 +91,7 @@ om_doclength
 SleepycatDatabase::get_avlength() const
 {
     om_doccount doccount = internals->get_doccount();
-    if(doccount == 0) return 0;
+    if (doccount == 0) return 0;
     return internals->get_totlength() / doccount;
 }
 
@@ -119,7 +119,7 @@ SleepycatDatabase::term_exists(const om_termname &tname) const
 {
     DEBUGLINE(DB, "termcache->term_name_to_id(tname) = " <<
 	      termcache->term_name_to_id(tname));
-    if(termcache->term_name_to_id(tname) != 0) return true;
+    if (termcache->term_name_to_id(tname) != 0) return true;
     return false;
 }
 
@@ -127,25 +127,27 @@ LeafPostList *
 SleepycatDatabase::do_open_post_list(const om_termname & tname) const
 {
     om_termid tid = termcache->term_name_to_id(tname);
-    if(tid == 0) throw OmRangeError("Termid " + om_tostring(tid) +
-				    " not found; can't open postlist");
+    if (tid == 0) throw OmRangeError("Termid " + om_tostring(tid) +
+				     " not found; can't open postlist");
 
-    return new SleepycatPostList(tid, internals.get(), tname);
+    return new SleepycatPostList(tid, internals.get(), tname,
+				 OmRefCntPtr<const SleepycatDatabase>(RefCntPtrToThis(), this));
 }
 
 LeafTermList *
 SleepycatDatabase::open_term_list(om_docid did) const
 {
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
-    return new SleepycatTermList(did, this, internals.get(), termcache.get());
+    return new SleepycatTermList(did, OmRefCntPtr<const SleepycatDatabase>(RefCntPtrToThis(), this),
+				 internals.get(), termcache.get());
 }
 
 LeafDocument *
 SleepycatDatabase::open_document(om_docid did) const
 {
     return new SleepycatDocument(internals->document_db,
-			      internals->key_db,
-			      did);
+				 internals->key_db,
+				 did);
 }
 
 void
@@ -262,10 +264,10 @@ SleepycatDatabase::do_add_document(const struct OmDocumentContents & document)
 
 om_doccount
 SleepycatDatabase::add_entry_to_postlist(om_termid tid,
-				      om_docid did,
-				      om_termcount wdf,
-				      const OmDocumentTerm::term_positions & positions,
-				      om_doclength doclength)
+					 om_docid did,
+					 om_termcount wdf,
+					 const OmDocumentTerm::term_positions & positions,
+					 om_doclength doclength)
 {
 // FIXME: suggest refactoring most of this method into a constructor of
 // SleepycatPostList, followed by adding an item to the postlist
@@ -284,8 +286,8 @@ om_docid
 SleepycatDatabase::make_new_document(const OmDocumentContents & doccontents)
 {
     SleepycatDocument document(internals->document_db,
-			    internals->key_db,
-			    doccontents);
+			       internals->key_db,
+			       doccontents);
     return document.get_docid();
 }
 
@@ -301,13 +303,13 @@ SleepycatDatabase::make_new_termlist(om_docid did,
     Assert(mylist.get_item_count() == 0);
 
     std::map<om_termid, OmDocumentTerm>::const_iterator term;
-    for(term = terms.begin(); term != terms.end(); term++) {
+    for (term = terms.begin(); term != terms.end(); term++) {
 	// Document length is not used in termlists: use 0.
 	SleepycatListItem myitem(term->first,
-			      term->second.wdf,
-			      term->second.positions,
-			      term->second.termfreq,
-			      0);
+				 term->second.wdf,
+				 term->second.positions,
+				 term->second.termfreq,
+				 0);
 	mylist.add_item(myitem);
     }
 }

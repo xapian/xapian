@@ -97,7 +97,8 @@ InMemoryDatabase::do_open_post_list(const om_termname & tname) const
     std::map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
     Assert(i != postlists.end());
 
-    return new InMemoryPostList(this, i->second);
+    return new InMemoryPostList(OmRefCntPtr<const InMemoryDatabase>(RefCntPtrToThis(), this),
+				i->second);
 }
 
 LeafTermList *
@@ -110,7 +111,8 @@ InMemoryDatabase::open_term_list(om_docid did) const
 	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
 				 std::string(" not found"));
     }
-    return new InMemoryTermList(this, termlists[did - 1], get_doclength(did));
+    return new InMemoryTermList(OmRefCntPtr<const InMemoryDatabase>(RefCntPtrToThis(), this),
+				termlists[did - 1], get_doclength(did));
 }
 
 LeafDocument *

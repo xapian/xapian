@@ -41,8 +41,10 @@
 
 DBPostList::DBPostList(const om_termname & tname_,
 		       struct DB_postings * postlist_,
-		       om_doccount termfreq_)
-	: postlist(postlist_), currdoc(0), tname(tname_), termfreq(termfreq_)
+		       om_doccount termfreq_,
+		       OmRefCntPtr<const DBDatabase> this_db_)
+	: postlist(postlist_), currdoc(0), tname(tname_), termfreq(termfreq_),
+	  this_db(this_db_)
 {
 }
 
@@ -105,8 +107,9 @@ DBPostList::get_position_list()
 
 
 
-DBTermList::DBTermList(struct termvec *tv, om_doccount dbsize_)
-	: have_started(false), dbsize(dbsize_)
+DBTermList::DBTermList(struct termvec *tv, om_doccount dbsize_,
+		       OmRefCntPtr<const DBDatabase> this_db_)
+	: have_started(false), dbsize(dbsize_), this_db(this_db_)
 {
     // FIXME - read terms as we require them, rather than all at beginning?
     M_read_terms(tv);
@@ -286,8 +289,8 @@ DBDatabase::open_post_list_internal(const om_termname & tname) const
     struct DB_postings * postlist;
     postlist = DB_open_postings(the_term->get_ti(), DB);
 
-    LeafPostList * pl = new DBPostList(tname, postlist, the_term->get_ti()->freq);
-    return pl;
+    return new DBPostList(tname, postlist, the_term->get_ti()->freq,
+			  OmRefCntPtr<const DBDatabase>(RefCntPtrToThis(), this));
 }
 
 LeafPostList *
@@ -306,9 +309,8 @@ DBDatabase::open_term_list(om_docid did) const
     OmLockSentry sentry(mutex);
 
     struct termvec *tv = M_make_termvec();
-    int found = DB_get_termvec(DB, did, tv);
 
-    if(found == 0) {
+    if (DB_get_termvec(DB, did, tv) == 0) {
 	M_lose_termvec(tv);
 	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
 				 std::string(" not found"));
@@ -316,8 +318,8 @@ DBDatabase::open_term_list(om_docid did) const
 
     M_open_terms(tv);
 
-    DBTermList *tl = new DBTermList(tv, DBDatabase::get_doccount_internal());
-    return tl;
+    return new DBTermList(tv, DBDatabase::get_doccount_internal(),
+			  OmRefCntPtr<const DBDatabase>(RefCntPtrToThis(), this));
 }
 
 struct record *

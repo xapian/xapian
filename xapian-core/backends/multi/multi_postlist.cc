@@ -34,7 +34,7 @@
 //////////////
 
 MultiPostList::MultiPostList(std::vector<LeafPostList *> & pls,
-			     const MultiDatabase * this_db_)
+			     OmRefCntPtr<const MultiDatabase> this_db_)
 	: postlists(pls),
 	  this_db(this_db_),
 	  finished(false),

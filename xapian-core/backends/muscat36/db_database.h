@@ -50,9 +50,12 @@ class DBPostList : public LeafPostList {
 	om_termname tname;
 	om_doccount termfreq;
 
+	OmRefCntPtr<const DBDatabase> this_db; // Just used to keep a reference
+
 	DBPostList(const om_termname & tname_,
 		   struct DB_postings * postlist_,
-		   om_doccount termfreq_);
+		   om_doccount termfreq_,
+		   OmRefCntPtr<const DBDatabase> this_db_);
     public:
 	~DBPostList();
 
@@ -125,13 +128,9 @@ class DBTermListItem {
 	om_termcount wdf;
 	om_doccount termfreq;
 
-	DBTermListItem(om_termname tname_,
-		       om_termcount wdf_,
+	DBTermListItem(om_termname tname_, om_termcount wdf_,
 		       om_doccount termfreq_)
-		: tname(tname_),
-		  wdf(wdf_),
-		  termfreq(termfreq_)
-	{ return; }
+		: tname(tname_), wdf(wdf_), termfreq(termfreq_) { }
 };
 
 class DBTermList : public LeafTermList {
@@ -142,7 +141,10 @@ class DBTermList : public LeafTermList {
 	bool have_started;
 	om_doccount dbsize;
 
-	DBTermList(struct termvec *tv, om_doccount dbsize_);
+	OmRefCntPtr<const DBDatabase> this_db; // Just used to keep a reference
+
+	DBTermList(struct termvec *tv, om_doccount dbsize_,
+		   OmRefCntPtr<const DBDatabase> this_db_);
     public:
 	om_termcount get_approx_size() const;
 
