@@ -1,3 +1,8 @@
+Tue Aug 31 00:53:35 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Short-cutting Btree::cancel causes
+	  problems so disable that for the time being at least.
+
 Fri Aug 27 13:09:56 BST 2004  Olly Betts <olly@survex.com>
 
 	* testsuite/btreecheck.cc: Fixed %% to % (presumably a hangover from
