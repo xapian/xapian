@@ -22,12 +22,7 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    | Documentation   | Write more and more API documentation
 ---------+-----------------+--------------------------------------------------
- High    | Matcher         | Implement match decision functor
----------+-----------------+--------------------------------------------------
  High    | Matcher         | Finish implementation of BM25 weight
----------+-----------------+--------------------------------------------------
- Medium  | Matcher         | Test what happens if reversed sort order is
-         |                 | specified for a boolean search.
 ---------+-----------------+--------------------------------------------------
  Medium  | General         | Set appropriate copy and assignment methods
          |                 | for each class with a destructor.
