@@ -17,10 +17,11 @@ AM_PATH_GTK(1.2.0, , build_gui=no)
 AM_PATH_GLIB(1.2.0, , build_gui=no)
 AM_PATH_LIBGLADE(, build_gui=no)
 if test "X$build_gui" = Xyes; then
- AC_SUBST(GUI_SUBDIR, gui)
+ GUI_SUBDIR=gui
 else
- AC_SUBST(GUI_SUBDIR, )
+ GUI_SUBDIR=
 fi
+AC_SUBST(GUI_SUBDIR)
 
 dnl Checks for libraries.
 dnl empty action if found - libtool will take care of things
