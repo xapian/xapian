@@ -163,8 +163,8 @@ void SleepyDatabase::close() {
 }
 
 PostList *
-SleepyDatabase::open_post_list(termid id) const {
-    Dbt key(&id, sizeof(id));
+SleepyDatabase::open_post_list(termid tid) const {
+    Dbt key(&tid, sizeof(tid));
     Dbt data;
 
     // FIXME - should use DB_DBT_USERMEM and DB_DBT_PARTIAL eventually
@@ -187,8 +187,8 @@ SleepyDatabase::open_post_list(termid id) const {
 }
 
 TermList *
-SleepyDatabase::open_term_list(docid id) const {
-    Dbt key(&id, sizeof(id));
+SleepyDatabase::open_term_list(docid tid) const {
+    Dbt key(&tid, sizeof(tid));
     Dbt data;
 
     // FIXME - should use DB_DBT_USERMEM and DB_DBT_PARTIAL eventually
@@ -245,7 +245,7 @@ SleepyDatabase::add_doc(IRDocument &doc) {
 }
 
 void
-SleepyDatabase::add(termid tid, docid did) {
+SleepyDatabase::add(termid tid, docid did, termpos tpos) {
     // Add to Postlist
     try {
 	// First see if appropriate postlist already exists
@@ -314,11 +314,11 @@ termid
 SleepyDatabase::term_name_to_id(const termname &tname) const {
     Dbt key((void *)tname.c_str(), tname.size());
     Dbt data;
-    termid id;
+    termid tid;
 
     data.set_flags(DB_DBT_USERMEM);
-    data.set_ulen(sizeof(id));
-    data.set_data(&id);
+    data.set_ulen(sizeof(tid));
+    data.set_data(&tid);
 
     // Get, no transactions, no flags
     try {
@@ -333,16 +333,14 @@ SleepyDatabase::term_name_to_id(const termname &tname) const {
     }
 
     if(data.get_size() != sizeof(termid)) {
-	// FIXME - test what _does_ happen if the termname is not the
-	// size of an id.
 	throw OmError("TermidDb: found termname, but data is not a termid.");
     }
-    return id;
+    return tid;
 }
 
 termname
-SleepyDatabase::term_id_to_name(termid id) const {
-    Dbt key(&id, sizeof(id));
+SleepyDatabase::term_id_to_name(termid tid) const {
+    Dbt key(&tid, sizeof(tid));
     Dbt data;
 
     // Get, no transactions, no flags

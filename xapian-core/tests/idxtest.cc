@@ -3,8 +3,8 @@
 #include <stdio.h>
 
 int main(int argc, char *argv[]) {
-    if (argc != 4) {
-	printf("Syntax: %s dbdir term docid\n", argv[0]);
+    if (argc < 4 || argc > 5) {
+	printf("Syntax: %s dbdir term docid [termpos]\n", argv[0]);
 	exit(1);
     }
 
@@ -14,8 +14,12 @@ int main(int argc, char *argv[]) {
 
 	termid tid = db.add_term(argv[2]);
 	docid did = atoi(argv[3]);
+	termpos tpos = 0;
+	if(argc == 5) {
+	    tpos = atoi(argv[4]);
+	}
 
-	db.add(tid, did);
+	db.add(tid, did, tpos);
     }
     catch (OmError e) {
 	cout << e.get_msg() << endl;

@@ -70,7 +70,7 @@ class IRDatabase {
     
 	virtual termid add_term(const termname &) = 0;
 	virtual docid add_doc(IRDocument &) = 0;
-	virtual void add(termid, docid) = 0;
+	virtual void add(termid, docid, termpos) = 0;
 
         virtual void open(const string &pathname, bool readonly) = 0;
 	virtual void close() = 0;

@@ -160,7 +160,7 @@ class DADatabase : public virtual IRDatabase {
 	docid add_doc(IRDocument &) {
 	    throw OmError("DADatabase.add_doc() not implemented");
 	}
-	void add(termid, docid) {
+	void add(termid, docid, termpos) {
 	    throw OmError("DADatabase.add() not implemented");
 	}
 

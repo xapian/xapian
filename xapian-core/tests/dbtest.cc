@@ -16,12 +16,6 @@ int main(int argc, char *argv[]) {
 
     try {
 	database.open("test_sleepy", 0);
-
-	tid = database.add_term("thou");
-	printf("Added term, new tid is %d\n", tid);
-
-	database.add(tid, 1);
-	
 	tid = database.term_name_to_id("thou");
 	printf("tid is %d\n", tid);
 	termname tname = database.term_id_to_name(tid);
