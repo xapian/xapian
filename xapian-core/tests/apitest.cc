@@ -100,6 +100,12 @@ TEST_EXPECTED_DOCS(const OmMSet &A,
 	    cout << "Match set is of wrong size: was " << A.items.size()
 		 << " - expected " << expsize << endl;
 	    cout << "Full mset was: " << A << endl;
+	    cout << "Expected: {";
+	    for (size_t i = 0; i < expsize; i++) {
+		if (i) cout << ", ";
+		cout << expect[i];
+	    }
+	    cout << "}\n";
 	}
 	return false;
     } else {
@@ -111,6 +117,12 @@ TEST_EXPECTED_DOCS(const OmMSet &A,
 		    cout << "Match set didn't contain expected result:" << endl;
 		    cout << "Found docid " << j->did << " expected " << *i <<endl;
 		    cout << "Full mset was: " << A << endl;
+		    cout << "Expected: {";
+		    for (size_t i = 0; i < expsize; i++) {
+			if (i) cout << ", ";
+			cout << expect[i];
+		    }
+		    cout << "}\n";
 		}
 		return false;
 	    }
@@ -262,20 +274,7 @@ bool test_simplequery2()
 
     // We've done the query, now check that the result is what
     // we expect (documents 2 and 4)
-    if ((mymset.items.size() != 2) ||
-	(mymset.items[0].did != 2) ||
-	(mymset.items[1].did != 4)) {
-	if (verbose) {
-	    cout << "Got docids:";
-	    for (size_t i=0; i<mymset.items.size(); ++i) {
-		if (i != 0) cout << ", ";
-		cout << " " << mymset.items[i].did <<
-			"(wt " << mymset.items[i].wt << ")";
-	    }
-	    cout << ", expected 2 and 4." << endl;
-	}
-	success = false;
-    }
+    if (!TEST_EXPECTED_DOCS(mymset, 2, 4)) success = false;
 
     // Check the weights
     if (success &&
@@ -2546,79 +2545,105 @@ test_desc localdb_tests[] = {
     {0, 0}
 };
 
+test_desc muscat36da_tests[] = {
+    {"zerodocid", 	   test_zerodocid},
+    {"nullquery1",	   test_nullquery1},
+    {"simplequery1",       test_simplequery1},
+// get wrong weight back - probably because no document length in calcs
+//    {"simplequery2",       test_simplequery2},
+    {"simplequery3",       test_simplequery3},
+    {"multidb1",           test_multidb1},
+    {"multidb2",           test_multidb2},
+    {"changequery1",	   test_changequery1},
+    {"msetmaxitems1",      test_msetmaxitems1},
+    {"expandmaxitems1",    test_expandmaxitems1},
+    {"boolquery1",         test_boolquery1},
+    {"msetfirst1",         test_msetfirst1},
+    {"topercent1",	   test_topercent1},
+    {"expandfunctor1",	   test_expandfunctor1},
+// lack of document lengths means several hits come out with same weight
+//    {"pctcutoff1",	   test_pctcutoff1},
+    {"allowqterms1",       test_allowqterms1},
+    {"maxattain1",         test_maxattain1},
+    {"collapsekey1",	   test_collapsekey1},
+    {"reversebool1",	   test_reversebool1},
+    {"reversebool2",	   test_reversebool2},
+    {"getmterms1",	   test_getmterms1},
+    {"absentfile1",	   test_absentfile1},
+    {"poscollapse1",	   test_poscollapse1},
+    {"batchquery1",	   test_batchquery1},
+    {"repeatquery1",	   test_repeatquery1},
+    {"absentterm1",	   test_absentterm1},
+    {"absentterm2",	   test_absentterm2},
+    {"multidb3",           test_multidb3},
+    {"multidb4",           test_multidb4},
+    {"rset1",              test_rset1},
+    {"rset2",              test_rset2},
+    {"rsetmultidb1",       test_rsetmultidb1},
+// Mset comes out in wrong order - no document length?
+//    {"rsetmultidb2",       test_rsetmultidb2},
+    {"maxorterms1",        test_maxorterms1},
+    {"maxorterms2",        test_maxorterms2},
+    {"maxorterms3",        test_maxorterms3},
+    {"termlisttermfreq",   test_termlisttermfreq},
+// Don't have word based positional info in DA databases
+//    {"near1",		   test_near1},
+//    {"phrase1",		   test_phrase1},
+    {"qterminfo1",	   test_qterminfo1},
+    {"msetzeroitems1",     test_msetzeroitems1},
+    {"mbound1",            test_mbound1},
+    {0, 0}
+};
+
+#define RUNTESTS(B, T) if (backend.empty() || backend == (B)) {\
+    test_driver::result sum_temp;\
+    backendmanager.set_dbtype((B));\
+    cout << "Running " << #T << " tests with " << (B) << " backend..." << endl;\
+    result = max(result, test_driver::main(argc, argv, T##_tests, &sum_temp));\
+    summary.succeeded += sum_temp.succeeded;\
+    summary.failed += sum_temp.failed; } else (void)0
+
 int main(int argc, char *argv[])
 {
     string srcdir = test_driver::get_srcdir(argv[0]);
+    string backend;
+    const char *p = getenv("OM_TEST_BACKEND");
+    if (p) backend = p;
 
-    int result;
+    int result = 0;
     test_driver::result summary = {0, 0};
-    test_driver::result sum_temp;
 
     backendmanager.set_datadir(srcdir + "/testdata/");
-    backendmanager.set_dbtype("void");
-    cout << "Running tests with no backend..." << endl;
-    result = test_driver::main(argc, argv, nodb_tests, &summary);
+
+    RUNTESTS("void", nodb);
 
 #if 1 && defined(MUS_BUILD_BACKEND_INMEMORY)
-    backendmanager.set_dbtype("inmemory");
-    cout << "Running tests with inmemory backend..." << endl;
-    result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
-    summary.succeeded += sum_temp.succeeded;
-    summary.failed += sum_temp.failed;
-    cout << "Running writabledb tests with inmemory backend..." << endl;
-    result = max(result,
-		 test_driver::main(argc, argv, writabledb_tests, &sum_temp));
-    summary.succeeded += sum_temp.succeeded;
-    summary.failed += sum_temp.failed;
-    cout << "Running localdb tests with inmemory backend..." << endl;
-    result = max(result,
-		 test_driver::main(argc, argv, localdb_tests, &sum_temp));
-    summary.succeeded += sum_temp.succeeded;
-    summary.failed += sum_temp.failed;
+    RUNTESTS("inmemory", db);
+    RUNTESTS("inmemory", writabledb);
+    RUNTESTS("inmemory", localdb);
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_QUARTZ)
-    backendmanager.set_dbtype("quartz");
-    cout << "Running tests with quartz backend..." << endl;
-    result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
-    summary.succeeded += sum_temp.succeeded;
-    summary.failed += sum_temp.failed;
-    cout << "Running writabledb tests with quartz backend..." << endl;
-    result = max(result,
-		 test_driver::main(argc, argv, writabledb_tests, &sum_temp));
-    summary.succeeded += sum_temp.succeeded;
-    summary.failed += sum_temp.failed;
-    cout << "Running localdb tests with quartz backend..." << endl;
-    result = max(result,
-		 test_driver::main(argc, argv, localdb_tests, &sum_temp));
-    summary.succeeded += sum_temp.succeeded;
-    summary.failed += sum_temp.failed;
+    RUNTESTS("quartz", db);
+    RUNTESTS("quartz", writabledb);
+    RUNTESTS("quartz", localdb);
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_SLEEPYCAT)
-    backendmanager.set_dbtype("sleepycat");
-    cout << "Running tests with sleepycat backend..." << endl;
-    result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
-    summary.succeeded += sum_temp.succeeded;
-    summary.failed += sum_temp.failed;
-    cout << "Running writabledb tests with sleepycat backend..." << endl;
-    result = max(result,
-		 test_driver::main(argc, argv, writabledb_tests, &sum_temp));
-    summary.succeeded += sum_temp.succeeded;
-    summary.failed += sum_temp.failed;
-    cout << "Running localdb tests with sleepycat backend..." << endl;
-    result = max(result,
-		 test_driver::main(argc, argv, localdb_tests, &sum_temp));
-    summary.succeeded += sum_temp.succeeded;
-    summary.failed += sum_temp.failed;
+    RUNTESTS("sleepycat", db);
+    RUNTESTS("sleepycat", writabledb);
+    RUNTESTS("sleepycat", localdb);
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_NET)
-    backendmanager.set_dbtype("network");
-    cout << "Running tests with net backend..." << endl;
-    result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
-    summary.succeeded += sum_temp.succeeded;
-    summary.failed += sum_temp.failed;
+    RUNTESTS("network", db);
+#endif
+
+#if 1 && defined(MUS_BUILD_BACKEND_MUSCAT36)
+    // need makeDA tool to build da databases
+    if (file_exists("../../makeda/makeDA")) {
+	RUNTESTS("da", muscat36da);
+    }
 #endif
 
     cout << argv[0] << " total: " << summary.succeeded << " passed, "

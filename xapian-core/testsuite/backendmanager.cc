@@ -21,7 +21,7 @@
  */
 
 #include "config.h"
-#include <iostream>
+#include <fstream>
 #include <string>
 #include <memory>
 #include <map>
@@ -90,6 +90,45 @@ index_files_to_database(OmWritableDatabase & database,
     }
 }
 
+void
+index_files_to_da(const string &dbdir, std::vector<std::string> paths)
+{
+    string dump = dbdir + "/DATA";
+    ofstream out(dump.c_str());
+    string keyfile = dbdir + "/keyfile";
+    ofstream keys(keyfile.c_str());
+    keys << "omrocks!"; // magic word
+    for (std::vector<std::string>::const_iterator p = paths.begin();
+	 p != paths.end();
+	 p++) {
+	TextfileIndexerSource source(*p);
+	std::auto_ptr<std::istream> from(source.get_stream());
+
+	while (*from) {
+	    std::string para;
+	    get_paragraph(*from, para);
+	    OmDocumentContents doc = string_to_document(para);
+	    out << "#RSTART#\n" << doc.data.value << "\n#REND#\n#TSTART#\n";
+	    OmDocumentContents::document_terms::const_iterator i;
+	    for (i = doc.terms.begin(); i != doc.terms.end(); i++) {
+		out << i->second.tname << endl;
+	    }
+	    out << "#TEND#\n";
+	    OmDocumentContents::document_keys::const_iterator key_i;
+	    key_i = doc.keys.begin();
+	    string key = string("\0\0\0\0\0\0\0", 8);
+	    if (key_i != doc.keys.end()) key = key_i->second.value + key;
+	    key = key.substr(0, 8);
+	    keys << key;
+	}
+    }
+    out.close();
+    string cmd = "../../makeda/makeDA -source " + dump + " -da " + dbdir +
+	"/ -work " + dbdir + "/tmp- > /dev/null";
+    system(cmd.c_str());
+    unlink(dump.c_str());
+}
+
 std::vector<std::string>
 make_strvec(std::string s1 = "",
 	    std::string s2 = "",
@@ -127,14 +166,18 @@ BackendManager::set_dbtype(const std::string &type)
 	do_getwritedb = &BackendManager::getwritedb_quartz;
 	system("rm -fr .quartz");
     } else if (type == "network") {
-	do_getdb = &BackendManager::getdb_net;
-	do_getwritedb = &BackendManager::getwritedb_net;
+	do_getdb = &BackendManager::getdb_network;
+	do_getwritedb = &BackendManager::getwritedb_network;
+    } else if (type == "da") {
+	do_getdb = &BackendManager::getdb_da;
+	do_getwritedb = &BackendManager::getwritedb_da;
+	system("rm -fr .da");
     } else if (type == "void") {
 	do_getdb = &BackendManager::getdb_void;
 	do_getwritedb = &BackendManager::getwritedb_void;
     } else {
 	throw OmInvalidArgumentError(
-		"Expected inmemory, sleepycat, quartz, network, or void");
+		"Expected inmemory, sleepycat, quartz, network, da or void");
     }
 }
 
@@ -315,7 +358,7 @@ BackendManager::getwritedb_quartz(const std::vector<std::string> &dbnames)
 }
 
 OmDatabase
-BackendManager::getdb_net(const std::vector<std::string> &dbnames)
+BackendManager::getdb_network(const std::vector<std::string> &dbnames)
 {
     // run an omprogsrv for now.  Later we should also use omtcpsrv
     std::vector<std::string> args;
@@ -333,9 +376,42 @@ BackendManager::getdb_net(const std::vector<std::string> &dbnames)
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_net(const std::vector<std::string> &dbnames)
+BackendManager::getwritedb_network(const std::vector<std::string> &dbnames)
 {
     throw OmInvalidArgumentError("Attempted to open writable network database");
+}
+
+OmDatabase
+BackendManager::getdb_da(const std::vector<std::string> &dbnames)
+{
+    std::string parent_dir = ".da";
+    create_dir_if_needed(parent_dir);
+
+    std::string dbdir = parent_dir + "/db";
+    for (std::vector<std::string>::const_iterator i = dbnames.begin();
+	 i != dbnames.end();
+	 i++) {
+	dbdir += "=" + *i;
+    }
+    OmSettings params;
+    params.set("backend", "da");
+    params.set("m36_record_file", dbdir + "/R");
+    params.set("m36_term_file", dbdir + "/T");
+    params.set("m36_key_file", dbdir + "/keyfile");
+    if (files_exist(change_names_to_paths(dbnames))) {
+	if (create_dir_if_needed(dbdir)) {
+	    // directory was created, so do the indexing.
+	    // need to build temporary file and run it through makeda (yum)
+	    index_files_to_da(dbdir, change_names_to_paths(dbnames));
+	}
+    }
+    return OmDatabase(params);
+}
+
+OmWritableDatabase
+BackendManager::getwritedb_da(const std::vector<std::string> &dbnames)
+{
+    throw OmInvalidArgumentError("Attempted to open writable da database");
 }
 
 OmDatabase

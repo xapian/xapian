@@ -61,11 +61,11 @@ class BackendManager {
 	/// Get an writable inmemory database instance.
 	OmWritableDatabase getwritedb_inmemory(const std::vector<std::string> &dbnames);
 
-	/// Get a net database instance
-	OmDatabase getdb_net(const std::vector<std::string> &dbnames);
+	/// Get a network database instance
+	OmDatabase getdb_network(const std::vector<std::string> &dbnames);
 
-	/// Get a writable net database instance
-	OmWritableDatabase getwritedb_net(const std::vector<std::string> &dbnames);
+	/// Get a writable network database instance
+	OmWritableDatabase getwritedb_network(const std::vector<std::string> &dbnames);
 
 	/// Get a sleepycat database instance.
 	OmDatabase getdb_sleepycat(const std::vector<std::string> &dbnames);
@@ -87,6 +87,13 @@ class BackendManager {
 	OmWritableDatabase do_getwritedb_quartz(const std::vector<std::string> &dbnames,
 						bool writable);
 
+	/// Get a da database instance.
+	OmDatabase getdb_da(const std::vector<std::string> &dbnames);
+
+	/// Get a writable da database instance.
+	OmWritableDatabase getwritedb_da(const std::vector<std::string> &dbnames);
+
+
     public:
 	/// Constructor - set up default state.
 	BackendManager() :
@@ -96,7 +103,7 @@ class BackendManager {
 	/** Set the database type to use.
 	 *
 	 *  Valid values for dbtype are "inmemory", "sleepycat", "quartz",
-	 *  "void", and "net".
+	 *  "void", "da", and "network".
 	 */
 	void set_dbtype(const std::string &type);
 

@@ -23,6 +23,8 @@ Priority | Area            | Task
          |                 | default.
 ---------+-----------------+--------------------------------------------------
  High    | Tests	   | Make apitest's tests use da/db backends as well
+         |                 | [Now use da.  No program to write dbs so that's
+         |                 | hard].
 ---------+-----------------+--------------------------------------------------
  High    | LocalMatch      | Pass around partially created postlist as an
          |                 | auto_ptr, for exception safety.

@@ -1,3 +1,17 @@
+Sun Aug 20 14:19:00 BST 2000 Olly Betts
+
+	* Added support for muscat36 da backend to backendmanager (uses
+	  makeDA program, so only works on Linux).  Some tests won't work
+	  with this backend as it doesn't support word-based positional
+	  information or document lengths.
+
+	* Sucked repeated code for running tests in apitest into a macro.
+
+	* Can now restrict apitest to use one backend like so:
+	  OM_TEST_BACKEND=inmemory ./apitest
+
+	* includetest now checks that found headers are actually files.
+
 Sat Aug 19 19:24:00 BST 2000 Olly Betts
 
 	* nettest now guesses srcdir like apitest does.

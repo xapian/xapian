@@ -20,3 +20,5 @@ stemtest.pl
 randtext_seed_*
 randjunk_seed_*
 .sleepycat
+.da
+.quartz
