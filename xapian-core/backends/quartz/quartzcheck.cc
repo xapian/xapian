@@ -31,6 +31,8 @@ using namespace std;
 #include <string.h>
 #include <sys/stat.h>
 
+#include "btree.h"
+
 int
 main(int argc, char **argv)
 {
