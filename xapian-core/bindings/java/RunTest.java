@@ -69,7 +69,7 @@ public class RunTest {
 
 	OmDatabaseGroup dbgrp = ApiTest.get_simple_database();
 
-        String[] dbgrp_ = { "/home/cemerson/working/open-muscat/build/om-debug-valis/tests/.sleepy/db=apitest_simpledata=" };
+        String[] dbgrp_ = { "/home/cemerson/working/open-muscat/build/om-debug-valis/tests/.sleepycat/db=apitest_simpledata=" };
 	dbgrp.add_database("sleepycat", dbgrp_);
 
 	OmEnquire enq = new OmEnquire(dbgrp);

@@ -11,8 +11,8 @@ dnl
 
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
-CXXFLAGS_sleepysave=$CXXFLAGS
-LIBS_sleepysave=$LIBS
+CXXFLAGS_sleepycatsave=$CXXFLAGS
+LIBS_sleepycatsave=$LIBS
 CXXFLAGS="$CXXFLAGS $SLEEPYCAT_INCLUDES $SLEEPYCAT_LINKFLAGS"
 LIBS="$LIBS $SLEEPYCAT_LIBS"
 AC_TRY_RUN([#include <db_cxx.h>
@@ -22,18 +22,18 @@ AC_TRY_RUN([#include <db_cxx.h>
 	   return !($1);
 	   }
 	   ],
-	   [have_sleepy_cxx=yes],
-	   [have_sleepy_cxx=no],
+	   [have_sleepycat_cxx=yes],
+	   [have_sleepycat_cxx=no],
 	   AC_TRY_COMPILE([#include <db_cxx.h>],
 			  [int major, minor, patch;
 			  DbEnv::version(&major, &minor, &patch);
 			  return !($1);
 			  ],
-			  [have_sleepy_cxx=yes],
-			  [have_sleepy_cxx=no],
-			  [have_sleepy_cxx=no]))
-CXXFLAGS=$CXXFLAGS_sleepysave
-LIBS=$LIBS_sleepysave
+			  [have_sleepycat_cxx=yes],
+			  [have_sleepycat_cxx=no],
+			  [have_sleepycat_cxx=no]))
+CXXFLAGS=$CXXFLAGS_sleepycatsave
+LIBS=$LIBS_sleepycatsave
 AC_LANG_RESTORE
 
 ])

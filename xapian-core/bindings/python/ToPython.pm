@@ -75,7 +75,7 @@ for arg in sys.argv[1:]:
 # a hack...
 apitest_helpers.verbose = verbose
 
-os.system("rm -fr .sleepy/")
+os.system("rm -fr .sleepycat/")
 
 succeeded = 0;
 failed = 0;

@@ -1,4 +1,4 @@
-<Directory>backends/sleepy</Directory>
+<Directory>backends/sleepycat</Directory>
 
 <Description>
 This backend uses the Berkeley database library to store posting lists and

@@ -29,10 +29,10 @@ class BackendManager:
         return self.do_getdb(dbnames)
 
     def do_getdb(self, dbnames):
-        return self.do_getdb_sleepy(dbnames)
+        return self.do_getdb_sleepycat(dbnames)
 
-    def do_getdb_sleepy(self, dbnames):
-        parent_dir = ".sleepy"
+    def do_getdb_sleepycat(self, dbnames):
+        parent_dir = ".sleepycat"
 	create_dir_if_needed(parent_dir)
 
 	dbdir = parent_dir + "/db"

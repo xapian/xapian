@@ -29,11 +29,11 @@ public class BackendManager {
     }
 
     public OmDatabase do_getdb(String[] dbnames) throws Throwable {
-        return do_getdb_sleepy(dbnames);
+        return do_getdb_sleepycat(dbnames);
     }
 
-    public OmDatabase do_getdb_sleepy(String[] dbnames) throws Throwable {
-        String parent_dir = ".sleepy";
+    public OmDatabase do_getdb_sleepycat(String[] dbnames) throws Throwable {
+        String parent_dir = ".sleepycat";
 	create_dir_if_needed(parent_dir);
 
 	String dbdir = parent_dir + "/db";
