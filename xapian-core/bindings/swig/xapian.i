@@ -30,19 +30,6 @@
 #include <string>
 #include <vector>
 
-enum om_queryop_values {
-    OM_MOP_AND = OmQuery::OP_AND,
-    OM_MOP_OR = OmQuery::OP_OR,
-    OM_MOP_AND_NOT = OmQuery::OP_AND_NOT,
-    OM_MOP_XOR = OmQuery::OP_XOR,
-    OM_MOP_AND_MAYBE = OmQuery::OP_AND_MAYBE,
-    OM_MOP_FILTER = OmQuery::OP_FILTER,
-    OM_MOP_NEAR = OmQuery::OP_NEAR,
-    OM_MOP_PHRASE = OmQuery::OP_PHRASE
-};
-
-typedef OmQuery::op om_queryop;
-
 %}
 
 %include "stl.i"
@@ -51,17 +38,6 @@ using namespace std;
 %include "om_util.i"
 %include "omstem.i"
 %include "omtypes.i"
-
-enum om_queryop {
-    OM_MOP_AND,
-    OM_MOP_OR,
-    OM_MOP_AND_NOT,
-    OM_MOP_XOR,
-    OM_MOP_AND_MAYBE,
-    OM_MOP_FILTER,
-    OM_MOP_NEAR,
-    OM_MOP_PHRASE
-};
 
 class OmDocument {
   public:
@@ -210,7 +186,7 @@ class OmQuery {
 				   om_termpos term_pos = 0);
 	%extend {
             /** Constructs a query from a set of queries merged with the specified operator */
-	    %name (OmQueryList) OmQuery(om_queryop op,
+	    %name (OmQueryList) OmQuery(OmQuery::op op,
 	    	    const vector<OmQuery *> *subqs,
 		    om_termpos window = 0) {
 		if ((subqs->size() == 2) && (window == 0)) {
@@ -232,6 +208,19 @@ class OmQuery {
 	void set_cutoff(om_weight cutoff);
 	om_termcount get_length() const;
 	om_termcount set_length(om_termcount qlen_);
+
+  enum op {
+    OP_AND = OmQuery::OP_AND,
+    OP_OR = OmQuery::OP_OR,
+    OP_AND_NOT = OmQuery::OP_AND_NOT,
+    OP_XOR = OmQuery::OP_XOR,
+    OP_AND_MAYBE = OmQuery::OP_AND_MAYBE,
+    OP_FILTER = OmQuery::OP_FILTER,
+    OP_NEAR = OmQuery::OP_NEAR,
+    OP_PHRASE = OmQuery::OP_PHRASE
+  };
+
+
 };
 
 // TODO: OmMatchDecider
