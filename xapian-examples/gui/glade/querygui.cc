@@ -380,11 +380,11 @@ int main(int argc, char *argv[]) {
 	result_docid = GTK_LABEL(glade_xml_get_widget(xml, "result_docid"));
 	result_text = GTK_TEXT(glade_xml_get_widget(xml, "result_text"));
 
-	/* start the event loop */
-	gtk_main();
-
 	// Start enquiry system
 	enquire = new OmEnquire(mydbs);
+
+	/* start the event loop */
+	gtk_main();
 
     } catch (OmError &e) {
 	cout << "OmError: " << e.get_msg() << endl;
