@@ -87,6 +87,7 @@ function showPopup (targetObjectId, eventObj) {
 	    // if we successfully showed the popup
 	    // store its Id on a globally-accessible object
 	    window.currentlyVisiblePopup = targetObjectId;
+
 	    return true;
 	} else {
 	    // we couldn't show the popup, boo hoo!

@@ -67,20 +67,23 @@ function h() {
     return false;
 }
 
-function c(line, rev){
-    var link = "./Compare.cgi?root=$root&pkg=$pkg&fileid=$fileid&short=1&version="+ rev + "#"+line;
-//    if (parent.frames[2].location.href != link) {
-       parent.frames[2].location.href=link;
-//    }
+function c(targetObjectId, event, line, rev){
+    var link = "./Compare.cgi?root=$root&pkg=$pkg&fileid=$fileid&short=1&version="+ rev;
+    if (showPopup(targetObjectId, event)) {
+       link = link+"#"+line;
+    }
 
+    if (parent.frames[2].location.href != link) {
+       parent.frames[2].location.href=link;
+    }
     return false;
 }
 
 function o(line) {
     var link = "$source$passparam"+"#"+line;
-//    if (parent.frames[2].location.href != link) {
+    if (parent.frames[2].location.href != link) {
         parent.s.location.href = link;
-//    }
+    }
     return false;
 }   
 </script>
@@ -102,12 +105,10 @@ if(param()){
 	
 	$found = Cvssearch::findfile($dump,$id);
 	if (!$found){
-      &error("Page expired");
+        &error("Page expired");
 	}
     
-    
 	@entries = split /\n/, $found;
-    
 	$query = shift @entries;    #query
 	$stemquery = shift @entries; #stemquery
 	$grepquery = shift @entries;
@@ -256,7 +257,7 @@ if(param()){
                         $ch = toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
                         print "<a href=#$i ";
 						if($revMAPmatch{$currev}){
-                            print "onclick=\"return c($i, $currev);\" onmouseover=s('$ch',event); onmouseout=h();>";
+                            print "onclick=\"return c('$ch', event, $i, $currev);\" onmouseover=s('$ch',event); onmouseout=h();>";
                             if ($color) {
                                 # need to convert digits to alphabets since netscape doesn't understand digit id
                                 $ch1 = &toChar($currev); 
@@ -297,7 +298,18 @@ if(param()){
 			print "<td bgcolor=$color><pre><a href=# onclick=\"return o($i);\">$line$space</a></td></tr>\n";
 		}
 		if ($lineMAPinfo{$i+1} > $lineMAPinfo{$i}) {
-            print "<tr><td colspan=3><div style=\"height:5px;\"> </div></td></tr>\n";
+            print "<tr><td></td><td><pre>";
+			$flag = 1;
+			for($j=0;$j<=$#revs;$j++){
+                $flag *= -1;
+                if($flag==1){
+                    print " ";
+                }else{
+                    print "<span class=g> </span>";
+                }
+            }
+            print "</td><td></td></tr>\n";
+#            print "<tr><td colspan=3><div style=\"height:5px;\"> </div></td></tr>\n";
 		}
 		$i++;
 	}

@@ -234,8 +234,12 @@ if($query && ($query ne "")){
 	#----------------------------------
 	
 	#turn query words into "or" grep format
-	$grepquery = $stemquery;
-	$grepquery =~s/ /|/g;
+    my @temp_grep_queries = split /\s/, "$querywords $stemquery";
+    my %temp_grep_queries;
+    foreach (@temp_grep_queries) {
+        $temp_grep_queries{$_} = 1;
+    }
+	$grepquery = join "|", (reverse (keys %temp_grep_queries));
 	
 	#---------------------------------------------
 	#find files to grep and insert in fileMAPid
@@ -270,32 +274,8 @@ if($query && ($query ne "")){
 	#----------------
 	
 	$files = join ' ', (values %idMAPfile);
-	#print "<p>grep -I -i -n -H '$grepquery' $files | head -$num_matches";
-	#@grepmatches = `grep -I -i -n -H '$grepquery' $files | head -$num_matches`;
+	@grepmatches = `grep -E -I -i -n -H '$grepquery' $files | head -$num_matches`;
 	
-	# this tries to do "and" instead of "or"
-	$tmpgrep = $grepquery;
-	@tmpgrep = split / /, $stemquery;
-	#$tmpgrep =~ s/\|/\\|/g;
-	$first = shift @tmpgrep;
-	#print "<pre>";
-	#print $first;
-	#@grepmatches = `grep -I -i -n -H '$tmpgrep' $files | head -$num_matches`;
-	@grepmatches = `grep -I -i -n -H '$first' $files`;
-	#print @grepmatches;
-	foreach (@tmpgrep){
-		#print $_;
-		@grepmatches = grep '$_', @grepmatches; 
-		#print @grepmatches;
-	}
-	#print "</pre>";
-	if($#grepmatches > $num_matches){
-		@grepmatches = @grepmatches[0..$num_matches];
-	}
-
-	#print "<p>finished grep\n";#DEBUG
-	#print "<p>grep result: @grepmatches";#debug
-
 	#-----------------------------------
 	# parse matches
 	#-----------------------------------
@@ -620,9 +600,7 @@ sub displayFile{
 sub highlightquery{
 	my ($words) = @_;
 	my @lines = split /\n/, $words; 
-	my @qwords = split / /, $querywords;
-	$qwords = join "|", @qwords;
-	@contains = grep s/($grepquery|$qwords)/<b>\1<\/b>/ig, @lines;
+	@contains = grep s/($grepquery)/<b>\1<\/b>/ig, @lines;
 	return @contains;
 }
 

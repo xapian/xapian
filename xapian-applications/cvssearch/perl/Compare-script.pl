@@ -507,7 +507,7 @@ sub print_compare_form {
     print "<input type=hidden name=root value=$root>\n";
     print "<input type=hidden name=pkg value=$pkg>\n";
     print "<input type=hidden name=fileid value=$fileid>\n";
-    print "Aligned diff in the commit of version <input type=text size=5 name=version value=\"$version\">,";
+    print "Aligned diff in the commit of version <input type=text size=5 name=version value=\"$version\">, ";
     print "propagated to version <input type=text size=5 name=latest  value=\"$latest_version\">";
     print "<font size=-1> (if this field is empty, the latest version when database is built will be used).</font><br>\n";
     print "output should be <select name=short>\n";
