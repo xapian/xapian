@@ -4,8 +4,6 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 if HAVE_PERL
 
-bin_SCRIPTS = mkdoc.pl
-
 CREATED_DOCUMENTS=code_structure.html
 
 code_structure.html: mkdoc.pl
@@ -16,4 +14,4 @@ code_structure.html: mkdoc.pl
 endif
 
 pkgdata_DATA = $(CREATED_DOCUMENTS)
-EXTRA_DIST = MatcherDesign Notes
+EXTRA_DIST = MatcherDesign Notes mkdoc.pl.in
