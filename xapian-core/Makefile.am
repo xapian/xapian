@@ -1,5 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 
+# Need 1.5 for AM_CFLAGS, etc; also so generated files in EXTRA_DIST work
+AUTOMAKE_OPTIONS = 1.5
+
 #ln -s `find .. -type f \( -name \*.cc -o -name \*.h -o -name \*.c \) -print` .
 
 if BUILD_BACKEND_REMOTE

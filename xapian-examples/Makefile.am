@@ -1,5 +1,8 @@
 ### Process this file with automake to produce Makefile.in
 
+# Need 1.5 for AM_CFLAGS, etc; also so generated files in EXTRA_DIST work
+AUTOMAKE_OPTIONS = 1.5
+
 INCLUDES = $(XAPIAN_CFLAGS)
 
 bin_PROGRAMS = msearch delve

@@ -1,5 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
+AUTOMAKE_OPTIONS = 1.5 foreign # don't fuss about GNU required files
+
 noinst_HEADERS = omega.h query.h cgiparam.h parsequery.h symboltab.h\
  htmlparse.h utils.h configfile.h
 

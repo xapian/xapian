@@ -1,5 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
+AUTOMAKE_OPTIONS = 1.5 foreign # don't fuss about GNU required files
+
 noinst_HEADERS = xapview.glade
 
 INCLUDES = $(XAPIAN_CFLAGS) $(GTK_CFLAGS) $(LIBGLADE_CFLAGS)
