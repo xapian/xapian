@@ -185,8 +185,8 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    string file_cmt = package + ".cmt";
-    string file_offset = package +".offset";
+    string file_cmt = cvsdata+"/database/"+package + ".cmt";
+    string file_offset = cvsdata +"/database/"+package +".offset";
 
     map<string, int> symbol_count;
     map<string, int> term_count;

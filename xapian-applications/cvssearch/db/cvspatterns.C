@@ -96,6 +96,8 @@ int main(int argc, char *argv[]) {
 
 	 string package = *p;
 
+	 //	 cerr << "*** looking at package " << (*p) << endl;
+
 	 // change / to _ in package
 	 for( int i = 0; i < package.length(); i++ ) {
 	   if ( package[i] == '/' ) {
@@ -106,20 +108,37 @@ int main(int argc, char *argv[]) {
 
 	 //	 cerr << "...processing " << package << endl;
 	 Db db(0,0);
-	 if ( doFunctions ) {
-	   db.open( (cvsdata+"/"+package+".functions").c_str(), 0, DB_HASH, DB_RDONLY, 0);
-	 } else {
-	   db.open( (cvsdata +"/"+package+".classes").c_str(), 0, DB_HASH, DB_RDONLY, 0);
+
+	 try {
+	   if ( doFunctions ) {
+	     db.open( (cvsdata+"/"+package+".functions").c_str(), 0, DB_HASH, DB_RDONLY, 0);
+	   } else {
+	     db.open( (cvsdata +"/"+package+".classes").c_str(), 0, DB_HASH, DB_RDONLY, 0);
+	   }
+	 } catch ( DbException& e ) {
+	   //	   cerr << "Exception:  " << e.what() << endl;     
+	   db.close(0);
+	   continue;
 	 }
+
 
 	 Dbt key((void*) queryterm.c_str(), queryterm.length()+1);
 	 Dbt data;
-	 db.get(0, &key, &data, 0);
+
+	 if ( db.get(0, &key, &data, 0) == DB_NOTFOUND ) {
+	   db.close(0);
+	   continue;
+                 }
+
 	 //	 cout << (char*)data.get_data();
 
+
 	 string data_str = string((char*)data.get_data());
+
 	 list<string> lines;
+
 	 split( data_str, "\n", lines );
+
 	 for( list<string>::iterator line = lines.begin(); line != lines.end(); line++ ) {
 	   string score_str = line->substr(0, line->find(" "));
 	   double score = atof(score_str.c_str());
@@ -128,20 +147,22 @@ int main(int argc, char *argv[]) {
 	 }
 	 db.close(0);
 
-	 int c = 0;
-	 for( map<double, set<string> >::iterator i = results.begin(); i != results.end(); i++ ) {
-	   double score = i->first;
-	   set<string> S = i->second;
-	   for( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
-	     cout << (*s) << endl;
-	     c++;
-	     if ( c == num_results ) {
-	       goto done;
-	     }
+       }
+
+       int c = 0;
+       for( map<double, set<string> >::iterator i = results.begin(); i != results.end(); i++ ) {
+	 double score = i->first;
+	 set<string> S = i->second;
+	 for( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
+
+	   cout << (*s) << endl;
+	   c++;
+	   if ( c == num_results ) {
+	     goto done;
 	   }
 	 }
-       done: ;
        }
+     done: ;
        
     } catch( DbException& e ) {
       cerr << "Exception:  " << e.what() << endl;     
