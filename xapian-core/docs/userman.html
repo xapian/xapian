@@ -5,16 +5,16 @@
 </HEAD>
 <BODY BGCOLOR="white">
 
-<B>Note: This document is still in the early stages of being written.<BR>
+<B>Note: This document is still being written.<BR>
 The content, and formatting, will improve.  Helpful comments are always welcome.
 <BR>
-Richard Boulton - 11 Feb 2000</B>
+Richard Boulton - 15 Feb 2000</B>
 
 <H1>Overview</H1>
 
 <P>
 This document provides an introduction to the native C++ Muscat API.
-This API allows programmers quickly to add the ability to search through
+This API provides programmers with the ability to search through
 (potentially very large) bodies of data using probabilistic methods.
 </P>
 
@@ -63,7 +63,7 @@ through them, and distributed enquiry systems.
 Errors in Muscat are all reported by means of exceptions.  All exceptions
 thrown by Muscat will be subclasses of
 <A HREF="apidoc/OmError.html"><CODE>OmError</CODE></A>.  Note that
-<CODE>OmError</CODE> is an abstract class; thus you should catch exceptions
+<CODE>OmError</CODE> is an abstract class; thus you must catch exceptions
 by reference rather than by value.
 </P>
 
@@ -138,7 +138,7 @@ Given the supplied information, suggesting a ranked set of terms to add to the
 query.
 </LI><LI>
 Returning information about the documents which matched, such as their
-associated data, and 
+associated data, and which terms from the query were found within them.
 </LI></UL>
 </P>
 <P>
@@ -323,7 +323,7 @@ The two most common operators are <CODE>OM_MOP_AND</CODE> and
 <CODE>OM_MOP_OR</CODE>, which provide facilities for performing boolean AND
 and OR operations.
 The traditional probabalistic model would consist of a set of terms
-joined together with <CODE>OM_MOP_AND</CODE>.
+joined together with <CODE>OM_MOP_OR</CODE>.
 </P>
 <P>
 The full set of available
@@ -382,7 +382,7 @@ as follows:
 Make the desired query, as described above.
 For example, putting it in <CODE>query</CODE>:
 example:<PRE>
-OmQuery query(OM_MOP_NOT, OmQuery("cheese"), OmQuery("bread"));
+OmQuery query(OM_MOP_AND_NOT, OmQuery("cheese"), OmQuery("bread"));
 </PRE>
 </LI><LI>
 Make a pure boolean query, by filtering a null query with the boolean query.
@@ -405,18 +405,62 @@ and it will perform whatever calculations are neccessary to provide the
 answer:
 </P>
 <PRE>
-OmMSet get_mset(om_doccount first,
-		om_doccount maxitems,
-		const OmRSet * omrset = 0,
-		const OmMatchOptions * moptions = 0,
-		const OmMatchDecider * mdecider = 0) const 
+OmMSet <A HREF="apidoc/OmEnquire.html#get_mset">OmEnquire::get_mset</A>(om_doccount first,
+                           om_doccount maxitems,
+                           const OmRSet * omrset = 0,
+                           const OmMatchOptions * moptions = 0,
+                           const OmMatchDecider * mdecider = 0) const 
 </PRE>
 <P>
+When asking for the results, you must specify (in <CODE>first</CODE>) the
+first item in the result set to return, where the numbering starts at zero
+(so a value of
+zero corresponds to the first item returned being that with the highest
+score, and a value of 10 corresponds to the first 10 items being ignored,
+and the returned items starting at the eleventh).
+</P>
+<P>
+You must also specify (in <CODE>maxitems</CODE>) the the maximum number of
+items to return.  Unless there are not enough matching items, precisely
+this number of items will be returned.
+If <CODE>maxitems</CODE> is zero, no items will be returned, but the usual
+statistics (such as the maximum possible weight which a document could be
+assigned by the query) will be calculated.  (See &quot;The OmMSet&quot; below).
 </P>
 
 <H3>The OmMSet</H3>
 <P>
-Query results are returned in an OmMSet object
+Query results are returned in an
+<A HREF="apidoc/OmMSet.html"><CODE>OmMSet</CODE></A> object.  The prime
+field in this is <CODE>items</CODE>, which is a list of OmMSet comprising the
+selected part of the match results.  This list is in descending sorted order
+of relevance (so the most relevant document is first in the list).
+Each OmMSet item contains a document id, and the weight calculated for this
+document.
+</P>
+<P>
+An OmMSet also contains various information about the search result:
+<TABLE>
+<TR><TD VALIGN="top">
+<CODE>firstitem</CODE>
+</TD><TD>
+The index of the first item in the result to put
+into the mset.  (Corresponding to <CODE>first</CODE> in
+<CODE>OmEnquire::get_mset()</CODE>)
+</TD></TR><TR><TD VALIGN="top">
+<CODE>max_attained</CODE>
+</TD><TD>
+The greatest weight which is attained in the mset. 
+</TD></TR><TR><TD VALIGN="top">
+<CODE>max_possible</CODE>
+</TD><TD>
+The maximum possible weight in the mset. 
+</TD></TR><TR><TD VALIGN="top">
+<CODE>mbound</CODE>
+</TD><TD>
+A lower bound on the number of documents in the database which have a weight greater than zero. 
+</TD><TR>
+</TABLE>
 </P>
 
 <H3>Match options</H3>
@@ -439,7 +483,7 @@ example in the om-examples package.
 
 <HR>
 
-Last modified: 7 Feb 2000 by Richard Boulton
+Last modified: 15 Feb 2000 by Richard Boulton
 
 </BODY>
 </HTML>
