@@ -1,3 +1,9 @@
+Thu Apr 29 22:41:05 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/quartz_table.cc: Don't
+	  close and reopen the database table file descriptors every time
+	  we flush changes.
+
 Thu Apr 29 22:40:36 BST 2004  Olly Betts <olly@survex.com>
 
 	* docs/quartzdesign.html: Improved wording in a couple of places.

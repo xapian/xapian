@@ -41,7 +41,6 @@ hex_encode(const string & input)
     string result;
     for (string::const_iterator i = input.begin(); i != input.end(); ++i) {
 	unsigned char val = *i;
-	Assert(val < 256);
 	result += "\\x";
 	result += table[val/16];
 	result += table[val%16];
@@ -238,9 +237,8 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 
     btree_for_writing = new Btree();
     if (!btree_for_writing->open_to_write(path, revision)) {
+	// Can't open at the requested revision.
 	close();
-	// Can't open this revision - return an error
-	DEBUGLINE(DB, errormsg);
 	RETURN(false);
     }
 
@@ -397,17 +395,16 @@ QuartzDiskTable::apply(quartz_revision_number_t new_revision)
     // Close writing table and write changes
     Assert(btree_for_writing != 0);
     btree_for_writing->commit(new_revision);
-    delete btree_for_writing; 
-    btree_for_writing = 0;
 
-    // Reopen table
-    if (!open(new_revision)) {
-	DEBUGLINE(DB, "Failed to open new revision (" << new_revision <<
-		  ") of disktable at path `" << path << "'");
-	throw Xapian::DatabaseError("Can't open the revision we've just written (" +
-			      om_tostring(new_revision) + ") for table at `" +
-			      path + "'");
-    }
+    opened = false;
+
+    btree_for_reading = new Btree();
+    btree_for_reading->open_to_read(path, btree_for_writing->revision_number);
+
+    AssertEq(btree_for_reading->revision_number, new_revision);
+
+    opened = true;
+
     // FIXME: check for errors
     // FIXME: want to indicate that the database closed successfully even
     // if we now can't open it.  Or is this a panic situation?
