@@ -237,7 +237,6 @@ int main(int argc, char *argv[]) {
 	doccount mressize = matcher.msize;
 	cout << maxweight << " " << mtotal << " " << mressize << endl;
 
-    exit(0);
 
     GladeXML *xml;
 
