@@ -1,8 +1,15 @@
+Sat Nov 06 13:37:23 GMT 2004  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h,matcher/bm25weight.cc,
+	  matcher/tradweight.cc: Move virtual methods of BM25Weight and
+	  TradWeight out of the header.
+
 Sat Nov 06 13:19:32 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,include/xapian/version.h.in: Another rework of how
 	  include/xapian/version.h is generated - this time to make it work
-	  with Sun's C++ compiler again; XAPIAN_VERSION is now a string.
+	  with Sun's C++ compiler again; XAPIAN_VERSION is now a string;
+	  Define XAPIAN_REVISION (which is 4 for version 0.8.4).
 
 Sat Nov 06 04:22:57 GMT 2004  Olly Betts <olly@survex.com>
 

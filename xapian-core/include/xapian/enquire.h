@@ -173,7 +173,7 @@ class MSet {
 	Xapian::weight get_max_possible() const;
 
 	/** The greatest weight which is attained by any document in the
-	 *  database.  
+	 *  database.
 	 *
 	 *  If firstitem == 0, this is the weight of the first entry in
 	 *  items.
@@ -206,7 +206,7 @@ class MSet {
 
 	/** Iterator pointing to the last element of this MSet */
 	MSetIterator back() const;
-	
+
 	/** This returns the document at position i in this MSet object.
 	 *
 	 *  Note that this is not the same as the document at rank i in the
@@ -219,7 +219,7 @@ class MSet {
 	MSetIterator operator[](Xapian::doccount i) const;
 
 	/// Allow use as an STL container
-	//@{	
+	//@{
 	typedef MSetIterator value_type; // FIXME: not assignable...
 	typedef MSetIterator iterator;
 	typedef MSetIterator const_iterator;
@@ -229,7 +229,7 @@ class MSet {
 	typedef Xapian::doccount_diff difference_type;
 	typedef Xapian::doccount size_type;
 	//@}
-	
+
 	/** Returns a string representing the mset.
 	 *  Introspection method.
 	 */
@@ -321,7 +321,7 @@ class MSetIterator {
 	Xapian::Document get_document() const;
 
 	/** Get the rank of the document at the current position.
-	 * 
+	 *
 	 *  The rank is the position that this document is at in the ordered
 	 *  list of results of the query.  The document judged "most relevant"
 	 *  will have rank of 0.
@@ -364,7 +364,7 @@ class MSetIterator {
 	std::string get_description() const;
 
 	/// Allow use as an STL iterator
-	//@{	
+	//@{
 	typedef std::bidirectional_iterator_tag iterator_category; // FIXME: could enhance to be a randomaccess_iterator
 	typedef Xapian::docid value_type;
 	typedef Xapian::doccount_diff difference_type;
@@ -512,7 +512,7 @@ class ESetIterator {
 	std::string get_description() const;
 
 	/// Allow use as an STL iterator
-	//@{	
+	//@{
 	typedef std::bidirectional_iterator_tag iterator_category; // FIXME: go for randomaccess_iterator!
 	typedef std::string value_type;
 	typedef Xapian::termcount_diff difference_type;
@@ -563,7 +563,7 @@ class RSet {
 
 	/// Add a document to the relevance set.
 	void add_document(Xapian::docid did);
-	
+
 	/// Add a document to the relevance set.
 	void add_document(const Xapian::MSetIterator & i) { add_document(*i); }
 
@@ -701,7 +701,7 @@ class Enquire {
 	 *      Subject: as a boolean term as well as putting it in a value,
 	 *      you can offer a link to a non-collapsed search restricted to
 	 *      that thread using a boolean filter.
-	 *      
+	 *
 	 *      (default is Xapian::valueno(-1) which means no collapsing).
          */
 	void set_collapse_key(Xapian::valueno collapse_key);
@@ -740,12 +740,12 @@ class Enquire {
 	 *	but match_sort_bands isn't, sort the whole mset my the key.
 	 *	(default is Xapian::valueno(-1) which means re-sort by doc id:
 	 *	ascending or descending as controlled by sort_forward).
-	 * 
+	 *
 	 * @param sort_bands sort results into this many bands of equal
 	 *	 percentage relevance.  Within each band, sort by the value
 	 *	 number specified by sort_key.  (default is 0 which means
 	 *	 no re-sorting).
-	 * 
+	 *
 	 * @param sort_by_relevance sort results with equal keys by relevance
 	 *       rather than docid.  (default is false).
 	 */
@@ -942,9 +942,11 @@ class Weight {
 
 	/** Return a new weight object of this type.
 	 *
-	 * Each subclass should implement this as:
-	 * virtual OmFooWeight * clone() const {
-	 *     return new OmFooWeight(param1, param2);
+	 * A subclass called FooWeight taking parameters param1 and param2
+	 * should implement this as:
+	 *
+	 * virtual FooWeight * clone() const {
+	 *     return new FooWeight(param1, param2);
 	 * }
 	 */
 	virtual Weight * clone() const = 0;
@@ -1048,7 +1050,7 @@ class BoolWeight : public Weight {
 	Xapian::weight get_sumextra(Xapian::doclength /*len*/) const { return 0; }
 	Xapian::weight get_maxextra() const { return 0; }
 
-	bool get_sumpart_needs_doclength() const { return false; }	
+	bool get_sumpart_needs_doclength() const { return false; }
 };
 
 /** BM25 weighting scheme
@@ -1094,7 +1096,7 @@ class BM25Weight : public Weight {
 	 * 		  smaller values will be forced up to this cutoff.
 	 *		  This prevents very small documents getting a huge
 	 *		  bonus weight.  Default is 0.5.
-	 */ 
+	 */
 	BM25Weight(double A_, double B_, double C_, double D_,
 		   double min_normlen_)
 		: A(A_), B(B_), C(C_), D(D_), min_normlen(min_normlen_),
@@ -1108,11 +1110,9 @@ class BM25Weight : public Weight {
 	BM25Weight() : A(1), B(1), C(0), D(0.5), min_normlen(0.5),
 		       weight_calculated(false) { }
 
-	Weight * clone() const {
-	    return new BM25Weight(A, B, C, D, min_normlen);
-	}
+	BM25Weight * clone() const;
 	~BM25Weight() { }
-	std::string name() const { return "BM25"; }
+	std::string name() const;
 	std::string serialise() const;
 	Weight * unserialise(const std::string & s) const;
 	Xapian::weight get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const;
@@ -1121,7 +1121,7 @@ class BM25Weight : public Weight {
 	Xapian::weight get_sumextra(Xapian::doclength len) const;
 	Xapian::weight get_maxextra() const;
 
-	bool get_sumpart_needs_doclength() const { return (lenpart != 0); }
+	bool get_sumpart_needs_doclength() const;
 };
 
 /** Traditional probabilistic weighting scheme (as used by Muscat 3.6)
@@ -1160,22 +1160,20 @@ class TradWeight : public Weight {
 	}
 
 	TradWeight() : param_k(1.0), weight_calculated(false) { }
-	
-	Weight * clone() const {
-	    return new TradWeight(param_k);
-	}
+
+	TradWeight * clone() const;
 	~TradWeight() { }
-	std::string name() const { return "Trad"; }
+	std::string name() const;
 	std::string serialise() const;
 	Weight * unserialise(const std::string & s) const;
-	
+
 	Xapian::weight get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const;
 	Xapian::weight get_maxpart() const;
 
 	Xapian::weight get_sumextra(Xapian::doclength len) const;
 	Xapian::weight get_maxextra() const;
 
-	bool get_sumpart_needs_doclength() const { return (lenpart != 0); }
+	bool get_sumpart_needs_doclength() const;
 };
 
 }

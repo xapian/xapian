@@ -33,6 +33,12 @@
 
 namespace Xapian {
 
+TradWeight * TradWeight::clone() const {
+    return new TradWeight(param_k);
+}
+
+std::string TradWeight::name() const { return "Trad"; }
+
 string TradWeight::serialise() const {
     return om_tostring(param_k);
 }
@@ -118,5 +124,7 @@ TradWeight::get_maxextra() const
     DEBUGCALL(MATCH, Xapian::weight, "TradWeight::get_maxextra", "");
     RETURN(0);
 }
+
+bool TradWeight::get_sumpart_needs_doclength() const { return (lenpart != 0); }
 
 }

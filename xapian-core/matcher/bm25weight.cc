@@ -32,6 +32,12 @@
 
 namespace Xapian {
 
+BM25Weight * BM25Weight::clone() const {
+    return new BM25Weight(A, B, C, D, min_normlen);
+}
+
+std::string BM25Weight::name() const { return "BM25"; }
+
 string BM25Weight::serialise() const {
     return om_tostring(A) + ' ' + om_tostring(B) + ' ' +
 	   om_tostring(C) + ' ' + om_tostring(D) + ' ' +
@@ -159,5 +165,7 @@ BM25Weight::get_maxextra() const
 	      " => maxextra = " << maxextra);
     RETURN(maxextra);
 }
+
+bool BM25Weight::get_sumpart_needs_doclength() const { return (lenpart != 0); }
 
 }
