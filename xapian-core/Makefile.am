@@ -26,7 +26,7 @@ matchtest_SOURCES = match.cc orpostlist.cc andpostlist.cc andnotpostlist.cc \
  andmaybepostlist.cc matchtest.cc irweight.cc $(ACCESS_DA) $(STEMMER_SRC)
 matchtest_LDADD = -L/usr/local/BerkeleyDB/lib -ldb
 
-idxtest_SOURCES = idxtest.cc $(ACCESS_SLEEPY) $(ACCESS_MULTI)
+idxtest_SOURCES = irweight.cc idxtest.cc $(ACCESS_SLEEPY) $(ACCESS_MULTI)
 idxtest_LDADD = -L/usr/local/BerkeleyDB/lib -ldb
 
 stemtest_SOURCES = $(STEMMER_SRC) stemtest.cc
