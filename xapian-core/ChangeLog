@@ -1,3 +1,7 @@
+Thu Jul  6 19:01:32 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix concurrency problem ... in threadtest.  D'oh!
+
 Thu Jul  6 18:01:23 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* More portability fixes.

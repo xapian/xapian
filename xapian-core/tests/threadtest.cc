@@ -34,6 +34,11 @@
 #include <string.h>
 #include <errno.h>
 
+#include "omlocks.h"
+#include <memory>
+auto_ptr<OmLock> outputmutex;
+#define OutputMessage(a) { OmLockSentry sentry(*outputmutex); cout << a; }
+
 static string database_path;
 static string queryfile;
 static int num_threads;
@@ -67,7 +72,7 @@ open_db_group(string database_type, string dlist_path)
 	    database_path += string(&c, 1);
 	}
 	if(database_path.size() != 0) {
-	    cout << "Adding `" << database_path << "' to dlist" << endl;
+	    OutputMessage("Adding `" << database_path << "' to dlist" << endl);
 	    vector<string> params;
 	    params.push_back(database_path);
 	    OmDatabase db(database_type, params);
@@ -91,7 +96,7 @@ search_stuff(OmEnquire & enq,
 	enq.set_query(*i);
 	results.push_back(enq.get_mset(0, 10));
 	if(results[results.size() - 1].items.size() > 0) {
-	    cout << enq.get_matching_terms(results[results.size() - 1].items[0]);
+	    OutputMessage(enq.get_matching_terms(results[results.size() - 1].items[0]) << endl);
 	}
     }
 }
@@ -167,7 +172,7 @@ read_queries(string filename, vector<OmQuery> & queries)
 
 	if (terms.size() != 0) {
 	    OmQuery new_query(OM_MOP_OR, terms.begin(), terms.end());
-	    //cout << new_query.get_description() << endl;
+	    //OutputMessage(new_query.get_description() << endl);
 	    queries.push_back(new_query);
 	}
     }
@@ -179,7 +184,7 @@ bool check_query_threads(void * (* search_thread)(void *))
     vector<pthread_t> threads;
     vector<struct some_searches> searches;
 
-    cout << "Performing test with " << num_threads << " threads." << endl;
+    OutputMessage("Performing test with " << num_threads << " threads." << endl);
 
     struct some_searches mainsearch;
 
@@ -197,41 +202,44 @@ bool check_query_threads(void * (* search_thread)(void *))
 
 	read_queries(queryfile + om_inttostring((i % 2) + 1),
 		     newsearch.queries);
-	cout << "search " << (i + 1) << " has " <<
-		newsearch.queries.size() << " items" << endl;
+	OutputMessage("search " << (i + 1) << " has " <<
+		newsearch.queries.size() << " items" << endl);
 	TEST_NOT_EQUAL(newsearch.queries.size(), 0);
 	searches.push_back(newsearch);
     }
 
     for (int i = 0; i < num_threads; i++) {
-	cout << "Performing single threaded search for search " <<
-		(i + 1) << endl;
+	OutputMessage("Performing single threaded search for search " <<
+		(i + 1) << endl);
 	search_stuff(searches[i].database_type,
 		     searches[i].database_path,
 		     searches[i].queries,
 		     searches[i].expected_results);
 	TEST_EQUAL(searches[i].expected_results.size(),
 		   searches[i].queries.size());
-	cout << "done." << endl;
+	OutputMessage("done." << endl);
+    }
+
+    for (int i = 0; i < num_threads; i++) {
+	pthread_t newthread;
+	threads.push_back(newthread);
     }
 
     for (int i = 0; i < num_threads; i++) {
 	int err;
-	pthread_t newthread;
-	threads.push_back(newthread);
-	cout << "starting thread search " << (i + 1) << endl;
-	err = pthread_create(&threads[threads.size() - 1],
+	OutputMessage("starting thread search " << (i + 1) << endl);
+	err = pthread_create(&threads[i],
 			     0,
 			     search_thread,
-			     &searches[threads.size() - 1]);
+			     &searches[i]);
 	TEST_EQUAL(err, 0);
     }
 
     for (int i = 0; i < num_threads; i++) {
-	cout << "waiting for end of thread search " << (i + 1) << endl;
+	OutputMessage("waiting for end of thread search " << (i + 1) << endl);
 	pthread_join(threads[i], NULL);
     }
-    cout << "all threads finished" << endl;
+    OutputMessage("all threads finished" << endl);
 
     for (int i = 0; i < num_threads; i++) {
 	TEST_EQUAL(searches[i].expected_results.size(),
@@ -276,6 +284,10 @@ test_desc tests[] = {
 
 int main(int argc, char *argv[])
 {
+    {
+	auto_ptr<OmLock> temp(new OmLock());
+	outputmutex = temp;
+    }
     if (argc < 4) {
 	cerr << "Usage: " << argv[0] <<
 		" <dlist path> <queryfile> <threadcount> <options>" << endl;
@@ -286,5 +298,6 @@ int main(int argc, char *argv[])
     num_threads = atoi(argv[3]);
     argc -= 3;
     argv += 3;
+
     return test_driver::main(argc, argv, tests);
 }
