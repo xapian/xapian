@@ -1,3 +1,7 @@
+Wed Apr 21 00:24:08 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Corrected a comment.
+
 Mon Apr 19 14:42:06 BST 2004  Olly Betts <olly@survex.com>
 
 	* NEWS: Final update for 0.8.0.

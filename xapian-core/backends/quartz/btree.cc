@@ -1574,8 +1574,7 @@ Btree::do_open_to_write(const string & name_,
 	    throw Xapian::DatabaseOpeningError(message);
 	}
 	/* When the revision is supplied, it's not an exceptional
-	 * case when open failed.  We should just return false
-	 * here instead.
+	 * case when open failed, so we just return false here.
 	 */
 	return false;
     }
