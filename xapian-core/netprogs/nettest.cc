@@ -20,6 +20,9 @@
  * -----END-LICENCE-----
  */
 
+// need _POSIX_SOURCE to get kill() on Linux
+#define _POSIX_SOURCE 1
+
 #include "progclient.h"
 #include "tcpclient.h"
 #include "testsuite.h"
@@ -29,6 +32,10 @@
 #include <unistd.h>
 #include <string>
 
+#include <sys/types.h>
+#include <signal.h> // for kill()
+#include <sys/wait.h>
+
 // Directory which the data is stored in.
 std::string datadir;
 
@@ -36,7 +43,7 @@ std::string datadir;
 // # Start of test cases.
 
 // Test a simple network match
-bool test_netmatch1()
+static bool test_netmatch1()
 {
     BackendManager backendmanager;
     backendmanager.set_dbtype("remote");
@@ -58,7 +65,7 @@ bool test_netmatch1()
 }
 
 // test a network match with two databases
-bool test_netmatch2()
+static bool test_netmatch2()
 {
     OmDatabase databases;
     BackendManager backendmanager;
@@ -88,7 +95,7 @@ bool test_netmatch2()
 }
 
 // test a simple network expand
-bool test_netexpand1()
+static bool test_netexpand1()
 {
     BackendManager backendmanager;
     backendmanager.set_dbtype("remote");
@@ -117,7 +124,7 @@ bool test_netexpand1()
 }
 
 // test a tcp connection
-bool test_tcpclient1()
+static bool test_tcpclient1()
 {
     BackendManager backendmanager;
     backendmanager.set_dbtype("sleepycat");
@@ -138,7 +145,7 @@ bool test_tcpclient1()
 }
 
 // test a tcp match
-bool test_tcpmatch1()
+static bool test_tcpmatch1()
 {
     BackendManager backendmanager;
     backendmanager.set_dbtype("sleepycat");
@@ -173,6 +180,80 @@ bool test_tcpmatch1()
     return true;
 }
 
+// test a tcp match when the remote end dies
+static bool test_tcpdead1()
+{
+    BackendManager backendmanager;
+    backendmanager.set_dbtype("sleepycat");
+    backendmanager.set_datadir(datadir);
+    std::vector<std::string> paths;
+    paths.push_back("apitest_simpledata");
+    OmDatabase dbremote = backendmanager.get_database(paths);
+
+    int pid = fork();
+    if (pid == 0) {
+	// child code
+	char *args[] = {
+	    "./omtcpsrv",
+	    "--one-shot",
+	    "--quiet",
+	    "--sleepycat",
+	    ".sleepycat/db=apitest_simpledata",
+	    "--port",
+	    "1237",
+	    NULL
+	};
+	// FIXME: we run this directly so we know the pid of the omtcpsrv
+	// parent - below we assume the child is the next pid (which isn't
+	// necessarily true)
+	execv(".libs/lt-omtcpsrv", args);
+	// execv only returns if it couldn't start omtcpsrv
+	exit(0);
+    } else if (pid < 0) {
+	// fork() failed
+	FAIL_TEST("fork() failed");
+    }
+
+    sleep(1);
+
+    // parent code:
+    OmSettings params;
+    params.set("backend", "remote");
+    params.set("remote_type", "tcp");
+    params.set("remote_server", "localhost");
+    params.set("remote_port", 1237);
+    OmDatabase db(params);
+
+    OmEnquire enq(db);
+
+    // FIXME: this assumes fork-ed child omtcpsrv process is the pid after
+    // the parent
+    if (kill(pid + 1, SIGTERM) == -1) {
+	FAIL_TEST("Couldn't send signal to child");
+    }
+
+    sleep(1);
+
+//    cout << pid << endl;
+//    system("ps x | grep omtcp");
+    
+    time_t t = time(NULL);
+    try {
+	enq.set_query(OmQuery("word"));	
+	OmMSet mset(enq.get_mset(0, 10));
+    }
+    catch (const OmNetworkError &e) {
+	time_t t2 = time(NULL) - t;
+	if (t2 > 1) {
+	    FAIL_TEST("Client took too long to notice server died (" +
+		      om_tostring(t2) + " secs)");
+	}
+	return true;
+    }
+    FAIL_TEST("Client didn't get exception when server died");
+    return false;
+}
+
 // #######################################################################
 // # End of test cases.
 
@@ -183,6 +264,8 @@ test_desc tests[] = {
 #ifdef MUS_BUILD_BACKEND_SLEEPYCAT
     {"tcpclient1",	test_tcpclient1},
     {"tcpmatch1",	test_tcpmatch1},
+// disable until we can work out how to kill the right process cleanly
+//    {"tcpdead1",	test_tcpdead1},
 #endif
     {0,			0},
 };
