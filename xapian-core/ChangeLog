@@ -1,3 +1,9 @@
+Mon Oct  9 14:39:34 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Part-implemented add_document and delete_document methods in
+	  quartz - document data is now added, stored and deleted.  Terms are
+	  not dealt with, though.
+
 Mon Oct 09 14:22:04 BST 2000 Olly Betts
 
 	* Added SubMatch::start_match() so we can set remote matchers going

@@ -64,4 +64,11 @@ bool unpack_uint32(const char ** source_ptr,
  */
 std::string pack_uint32(om_uint32 value);
 
+#include "quartz_table_entries.h"
+#include "om/omtypes.h"
+
+/** Convert a document id to an OmKey.
+ */
+QuartzDbKey quartz_docid_to_key(om_docid did);
+
 #endif /* OM_HGUARD_QUARTZ_UTILS_H */

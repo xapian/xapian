@@ -65,6 +65,9 @@ class QuartzDatabase : public Database {
 	virtual OmDocumentContents do_get_document(om_docid did);
 	//@}
 
+	/// Implementation of do_get_document()
+	OmDocumentContents do_get_document_internal(om_docid did);
+
     public:
 	/** Create and open a quartz database.
 	 *
@@ -139,6 +142,10 @@ class QuartzWritableDatabase : public Database {
 					 const OmDocumentContents & document);
 	virtual OmDocumentContents do_get_document(om_docid did);
 	//@}
+
+	/** Get a document ID for a new document.
+	 */
+	om_docid get_newdocid();
 
     public:
 

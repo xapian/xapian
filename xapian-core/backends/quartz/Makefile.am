@@ -7,17 +7,21 @@ noinst_HEADERS =       quartz_types.h \
                        quartz_table_manager.h \
 		       quartz_table_entries.h \
 		       quartz_table.h \
-		       quartz_diffs.h \
+		       quartz_record.h \
 		       quartz_utils.h \
 		       quartz_log.h
+#		       quartz_postlist.h \
+#		       quartz_positionlist.h \
 
 libquartz_la_SOURCES = quartz_database.cc \
                        quartz_table_manager.cc \
 		       quartz_table_entries.cc \
 		       quartz_table.cc \
-		       quartz_diffs.cc \
+		       quartz_record.cc \
 		       quartz_utils.cc \
 		       quartz_log.cc
+#		       quartz_postlist.cc \
+#		       quartz_positionlist.cc \
 
 noinst_LTLIBRARIES = libquartz.la
 

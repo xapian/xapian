@@ -81,3 +81,11 @@ pack_uint32(om_uint32 value)
     return result;
 }
 
+QuartzDbKey
+quartz_docid_to_key(om_docid did)
+{
+    QuartzDbKey key;
+    key.value = did;
+    return key;
+}
+

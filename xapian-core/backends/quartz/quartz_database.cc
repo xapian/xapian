@@ -31,6 +31,8 @@
 #include "om/autoptr.h"
 #include "om/omerror.h"
 
+#include "quartz_record.h"
+
 #include <string>
 
 //
@@ -169,9 +171,14 @@ QuartzDatabase::do_get_document(om_docid did)
 {
     OmLockSentry sentry(quartz_mutex);
 
-    throw OmUnimplementedError("QuartzDatabase::do_get_document() not yet implemented");
+    return do_get_document_internal(did);
 }
 
+OmDocumentContents
+QuartzDatabase::do_get_document_internal(om_docid did)
+{
+    throw OmUnimplementedError("QuartzDatabase::do_get_document_internal() not yet implemented");
+}
 
 
 om_doccount 
@@ -327,18 +334,56 @@ QuartzWritableDatabase::do_add_document(const OmDocumentContents & document)
     OmLockSentry sentry(database_ro.quartz_mutex);
 
     Assert(buffered_tables != 0);
-    //return modifications->add_document(document);
-    throw OmUnimplementedError("QuartzWritableDatabase::do_add_document() not yet implemented");
+
+    om_docid did = get_newdocid();
+    
+    did = QuartzRecord::add_record(*(buffered_tables->get_record_table()),
+				   did,
+				   document.data);
+
+    OmDocumentContents::document_terms::const_iterator i;
+    for (i = document.terms.begin(); i != document.terms.end(); i++) {
+#if 0
+	QuartzPostList::add_posting(*(buffered_tables.get_postlist_table()),
+				    i->second.tname,
+				    did,
+				    i->second.wdf);
+	QuartzPositionList::add_positionlist(
+				    *(buffered_tables.get_positionlist_table()),
+				    did,
+				    i->second.tname,
+				    i->second.positions);
+#endif
+    }
+
+    return did;
 }
 
 void
 QuartzWritableDatabase::do_delete_document(om_docid did)
 {
     OmLockSentry sentry(database_ro.quartz_mutex);
-
     Assert(buffered_tables != 0);
-    //return modifications->delete_document(did);
-    throw OmUnimplementedError("QuartzWritableDatabase::do_delete_document() not yet implemented");
+
+#if 0
+    OmDocumentContents document(database_ro.do_get_document_internal(did));
+
+    OmDocumentContents::document_terms::const_iterator i;
+    for (i = document.terms.begin(); i != document.terms.end(); i++) {
+	QuartzPostList::delete_posting(*(buffered_tables.get_postlist_table()),
+				       i->second.tname,
+				       did,
+				       i->second.wdf);
+	QuartzPositionList::delete_positionlist(
+				    *(buffered_tables.get_positionlist_table()),
+				    did,
+				    i->second.tname,
+				    i->second.positions);
+    }
+#endif
+
+    QuartzRecord::delete_record(*(buffered_tables->get_record_table()),
+				did);
 }
 
 void
@@ -355,7 +400,16 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 OmDocumentContents
 QuartzWritableDatabase::do_get_document(om_docid did)
 {
-    return database_ro.do_get_document(did);
+    OmLockSentry sentry(database_ro.quartz_mutex);
+
+    return database_ro.do_get_document_internal(did);
+}
+
+om_docid
+QuartzWritableDatabase::get_newdocid()
+{
+    // FIXME read from item 0 in record table.
+    return 1;
 }
 
 om_doccount 
