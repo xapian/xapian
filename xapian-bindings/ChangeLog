@@ -1,3 +1,7 @@
+Mon Feb 21 05:02:30 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/README: Need . in -classpath.
+
 Tue Jan 18 02:27:06 GMT 2005  Olly Betts <olly@survex.com>
 
 	* java/org/xapian/Xapian.java: Another missing java source!
