@@ -1,3 +1,7 @@
+Wed May 17 18:12:53 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added simple test for RSet usage.
+
 Wed May 17 17:52:22 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix memory leak in rset.cc

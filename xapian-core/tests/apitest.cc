@@ -113,6 +113,8 @@ bool test_emptyquerypart1();
 bool test_multidb3();
 // test that a multidb with 3 dbs query returns correct docids
 bool test_multidb4();
+// test that rsets do sensible things
+bool test_rset1();
 
 test_desc tests[] = {
     {"trivial",            test_trivial},
@@ -154,6 +156,7 @@ test_desc tests[] = {
     {"emptyquerypart1",    test_emptyquerypart1},
     {"multidb3",           test_multidb3},
     {"multidb4",           test_multidb4},
+    {"rset1",           test_rset1},
     {0, 0}
 };
 
@@ -1762,5 +1765,42 @@ bool test_multidb4()
     if (!success && verbose) {
 	cout << "Full mset was: " << mymset << endl;
     }
+    return success;
+}
+
+bool test_rset1()
+{
+    bool success = true;
+
+    OmWritableDatabase mydb("inmemory", make_strvec());
+    index_file_to_database(mydb, datadir + "/apitest_rset.txt");
+
+    OmEnquire enquire(make_dbgrp(&mydb));
+
+    OmQuery myquery(OM_MOP_OR,
+		    OmQuery("giraff"),
+		    OmQuery("tiger"));
+
+    enquire.set_query(myquery);
+
+    OmMSet mymset1 = enquire.get_mset(0, 10);
+
+    OmRSet myrset;
+    myrset.add_document(1);
+
+    OmMSet mymset2 = enquire.get_mset(0, 10, &myrset);
+
+    // We should have the same documents turn up, but 1 and 3 should
+    // have higher weights with the RSet.
+    if (mymset1.items.size() != 3 ||
+	mymset2.items.size() != 3) {
+	if (verbose) {
+	    cout << "MSets are of different size: " << endl;
+	    cout << "mset1: " << mymset1 << endl;
+	    cout << "mset2: " << mymset2 << endl;
+	}
+	success = false;
+    }
+
     return success;
 }
