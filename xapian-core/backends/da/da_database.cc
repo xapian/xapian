@@ -29,17 +29,9 @@ DAPostList::~DAPostList() {
     DAclosepostings(postlist);
 }
 
-doccount DAPostList::get_termfreq() const {
-    return termfreq;
-}
-
-docid DAPostList::get_docid() {
-    if(at_end()) throw OmError("Attempt to access beyond end of postlist.");
-    return postlist->Doc;
-}
 
 /* This is the biggie */
-weight DAPostList::get_weight() {
+weight DAPostList::get_weight() const {
     if(at_end()) throw OmError("Attempt to access beyond end of postlist.");
     doccount wdf;
     weight wt;
@@ -48,7 +40,7 @@ weight DAPostList::get_weight() {
 
 //    printf("(wdf, termweight)  = (%4d, %4.2f)", wdf, termweight);
 
-    double k = 1;
+    const double k = 1;
     // FIXME - precalculate this freq score for several values of wt - may
     // remove much computation.
     wt = (double) wdf / (k + wdf);
@@ -70,12 +62,6 @@ void DAPostList::skip_to(docid id) {
     if(at_end()) throw OmError("Attempt to access beyond end of postlist.");
     DAreadpostings(postlist, 0, id);
 }
-
-bool DAPostList::at_end() {
-    if(postlist->Doc == MAXINT) return true;
-    return false;
-}
-
 
 
 DATermList::DATermList(DADatabase *db, struct termvec *tv) {

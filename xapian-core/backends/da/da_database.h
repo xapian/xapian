@@ -20,13 +20,37 @@ class DAPostList : public virtual PostList {
 
 	doccount get_termfreq() const;
 
-	docid  get_docid();     // Gets current docid
-	weight get_weight();    // Gets current weight
+	docid  get_docid() const;     // Gets current docid
+	weight get_weight() const;    // Gets current weight
 	void   next();          // Moves to next docid
 	void   skip_to(docid);  // Moves to next docid >= specified docid
-	bool   at_end();        // True if we're off the end of the list
+	bool   at_end() const;        // True if we're off the end of the list
 };
 
+inline doccount
+DAPostList::get_termfreq() const
+{
+    return termfreq;
+}
+
+inline docid
+DAPostList::get_docid() const
+{
+    if(at_end()) throw OmError("Attempt to access beyond end of postlist.");
+    return postlist->Doc;
+}
+
+inline bool
+DAPostList::at_end() const
+{
+    if(postlist->Doc == MAXINT) return true;
+    return false;
+}
+
+
+
+
+ 
 class DATermList : public virtual TermList {
     friend class DADatabase;
     private:
