@@ -99,7 +99,7 @@ extern struct DA_file * DA_open(const char * s, int type, int heavy_duty)
     if (q == -1) return NULL;
     bsize = M_get_block_size(q, s);
     b = malloc(bsize+40);  /* ample */
-    p = (struct DA_file *) malloc(sizeof(struct DA_file));
+    p = (struct DA_file *) calloc(1, sizeof(struct DA_file));
     p->locator = q;
     p->blocksize = bsize;
     readda(p, 0, b);
@@ -119,11 +119,11 @@ extern struct DA_file * DA_open(const char * s, int type, int heavy_duty)
     }
     free(b);
     {   int bvecsize = p->levels;
-        byte * * bvec = (byte * *) malloc((bvecsize+1) * sizeof(byte *));
-        int * buse = (int *) malloc((bvecsize+1) * sizeof(int));
+        byte * * bvec = (byte * *) calloc(1, (bvecsize+1) * sizeof(byte *));
+        int * buse = (int *) calloc(1, (bvecsize+1) * sizeof(int));
 
         {  int i; for (i = 0; i <= bvecsize; i++)
-           {   bvec[i] = (byte *) malloc(p->blocksize);
+           {   bvec[i] = (byte *) calloc(1, p->blocksize);
                buse[i] = -1;
            }
         }
@@ -289,10 +289,10 @@ static int * read_shortcut(struct DA_file * p, int n, int o, int shsize, int shc
 }
 
 extern struct DA_postings * DA_open_postings(struct DA_term_info * v, struct DA_file * p)
-{   struct DA_postings * q = (struct DA_postings *) malloc(sizeof(struct DA_postings));
+{   struct DA_postings * q = (struct DA_postings *) calloc(1, sizeof(struct DA_postings));
      q->p = p; q->D = 1; q->E = 0; q->wdf = 0; q->shortcut = 0;
      if (v->freq == 0)
-     {   byte * b = (byte *) malloc(1);
+     {   byte * b = (byte *) calloc(1, sizeof(byte));
          q->b = b; q->o = 0;
          b[0] = 0;  /* terminator */
          return q;
@@ -300,7 +300,7 @@ extern struct DA_postings * DA_open_postings(struct DA_term_info * v, struct DA_
      {   int l = p->blocksize;
          int size = v->psize;
          int blocknum = v->pn;
-         if (p->next == 0) { p->next = (byte *) malloc(l); p->pblockno = -1; }
+         if (p->next == 0) { p->next = (byte *) calloc(1, l); p->pblockno = -1; }
          if (l > size)
          {   q->b = copybytes(size, p, blocknum, v->po);
              q->blockinc = -1; q->o = 0;

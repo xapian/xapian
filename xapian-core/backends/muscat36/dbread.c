@@ -219,7 +219,7 @@ static struct DB_cursor * DB_make_cursor(struct DB_file * DB)
 {
     int n = 20; /* The number of levels in the B-tree can never approach 20 */
 
-    struct DB_cursor * C = (struct DB_cursor *) malloc(n * sizeof(struct DB_cursor));
+    struct DB_cursor * C = (struct DB_cursor *) calloc(1, n * sizeof(struct DB_cursor));
     int i;
     for (i = 0; i < n; i++) C[i].pool = NULL;
     C[0].n = DB->root;
@@ -227,7 +227,7 @@ static struct DB_cursor * DB_make_cursor(struct DB_file * DB)
 }
 
 extern struct DB_postings * DB_open_postings(struct DB_term_info * t, struct DB_file * DB)
-{   struct DB_postings * q = (struct DB_postings *) malloc(sizeof(struct DB_postings));
+{   struct DB_postings * q = (struct DB_postings *) calloc(1, sizeof(struct DB_postings));
     q->DB = DB;
     q->cursor = DB_make_cursor(DB);
     q->buffer_size = 0;
@@ -361,7 +361,7 @@ static int valid_base(const byte * p)
 
 static struct DB_pool * DB_make_pool(int n)
 {
-    struct DB_pool * P = (struct DB_pool *) malloc(n * sizeof(struct DB_pool));
+    struct DB_pool * P = (struct DB_pool *) calloc(1, n * sizeof(struct DB_pool));
     int i;
     for (i = 0; i < n; i++) { P[i].p = NULL; P[i].n = -1; P[i].clock = 0; }
     return P;
@@ -376,7 +376,7 @@ extern struct DB_file * DB_open(const char * s, int pool_size, int heavy_duty)
     q = X_findtoread(s); if (q == -1) return NULL;
     block_size = M_get_block_size(q, s);
 
-    DB = (struct DB_file *) malloc(sizeof(struct DB_file));
+    DB = (struct DB_file *) calloc(1, sizeof(struct DB_file));
     DB->locator = q;
     DB->block_size = block_size;
 

@@ -59,7 +59,7 @@ extern int M_get_block_size(filehandle f, const char * s)
 
 
 extern struct record * M_make_record()
-{  struct record * r = (struct record *) malloc(sizeof(struct record));
+{  struct record * r = (struct record *) calloc(1, sizeof(struct record));
    r->size = 0;
    r->p = 0;
    r->number = -1;
@@ -114,7 +114,7 @@ extern void M_read_terms(struct termvec * tv)
 }
 
 extern struct termvec * M_make_termvec()
-{  struct termvec * tv = (struct termvec *) malloc(sizeof(struct termvec));
+{  struct termvec * tv = (struct termvec *) calloc(1, sizeof(struct termvec));
    tv->size = 0;
    tv->p = 0;
    tv->number = -1;

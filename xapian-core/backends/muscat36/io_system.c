@@ -123,7 +123,7 @@ static int init_bf( void ) {
    /* set up stdin, stdout and stderr */
    for ( i=0 ; i <= 2 ; i++ ) {
       bfd *p;
-      p = malloc(sizeof(struct bfd));
+      p = calloc(1, sizeof(struct bfd));
       if (!p) return 0;
       p->bfd_flags = BFD_DONTFAKE;
       p->fd = i;
@@ -149,7 +149,7 @@ extern int X_findtoread(const char *pathname) {
    if (!bf_inited) init_bf();
 
    fnm = malloc(strlen(pathname)+EXTRA_MAX+1);
-   p = malloc(sizeof(struct bfd));
+   p = calloc(1, sizeof(struct bfd));
    if (!fnm || !p) goto err;
 
    strcpy(fnm, pathname);
