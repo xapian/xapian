@@ -1,3 +1,9 @@
+Wed Nov 29 14:03:43 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add quartztest to test for case when a database block gets
+	  overwritten.  Currently, this fails because an exception doesn't
+	  get thrown when it should.
+
 Wed Nov 29 13:18:24 GMT 2000 Olly Betts
 
 	* LeafDocument class renamed to Document.

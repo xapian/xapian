@@ -1584,6 +1584,44 @@ static bool test_positionlist1()
     return true;
 }
 
+/// Test playing with a positionlist, testing skip_to in particular.
+static bool test_overwrite1()
+{
+    unlink_table(tmpdir + "testdb_overwrite1_");
+    QuartzDiskTable disktable(tmpdir + "testdb_overwrite1_", false, 8192);
+    disktable.open();
+    QuartzBufferedTable bufftable(&disktable);
+
+
+    quartz_revision_number_t new_revision;
+    QuartzDbKey key;
+    QuartzDbTag tag;
+    key.value = "foo1";
+
+    bufftable.get_or_make_tag(key)->value = "bar1";
+    new_revision = disktable.get_latest_revision_number() + 1;
+    bufftable.apply(new_revision);
+
+    QuartzDiskTable disktable_ro(tmpdir + "testdb_overwrite1_", true, 8192);
+    disktable_ro.open();
+    TEST(disktable_ro.get_exact_entry(key, tag));
+    TEST_EQUAL(tag.value, "bar1");
+
+    bufftable.get_or_make_tag(key)->value = "bar2";
+    new_revision = disktable.get_latest_revision_number() + 1;
+    bufftable.apply(new_revision);
+    TEST(disktable_ro.get_exact_entry(key, tag));
+    TEST_EQUAL(tag.value, "bar1");
+
+    bufftable.get_or_make_tag(key)->value = "bar3";
+    new_revision = disktable.get_latest_revision_number() + 1;
+    bufftable.apply(new_revision);
+    TEST_EXCEPTION(OmRuntimeError, disktable_ro.get_exact_entry(key, tag));
+    TEST_EQUAL(tag.value, "bar1");
+
+    return true;
+}
+
 
 // ================================
 // ========= END OF TESTS =========
@@ -1615,6 +1653,7 @@ test_desc tests[] = {
     {"quartzpostlist1",		test_postlist1},
     {"quartzpostlist2",		test_postlist2},
     {"quartzpositionlist1",	test_positionlist1},
+    {"quartzoverwrite1", 	test_overwrite1},
     {0, 0}
 };
 
