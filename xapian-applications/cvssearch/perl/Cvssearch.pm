@@ -5,7 +5,7 @@ use strict;
 # ----------------------------------------
 # symbols to export by default
 # ----------------------------------------
-my @EXPORT = qw(read_cvsroot_dir read_root_dir strip_last_slash get_cvsdata get_cvs_stat code_comment_counter);
+my @EXPORT = qw(read_cvsroot_dir read_root_dir strip_last_slash get_cvsdata get_cvs_stat code_comment_counter g2l_commit);
 
 
 
@@ -541,6 +541,58 @@ sub print_style_sheet {
     print ".orange {color:#FF7A12}\n";
     print ".t {background-color:$color;}\n";
     print "</style>\n";
+}
+
+sub g2l_commit {
+    my ($cvsdata, $root, @commits) = @_;
+    my @offsets;
+    my @pkgs;
+    open (FILE, "<$cvsdata/$root/commit.offset");
+    while (<FILE>) {
+        chomp;
+        my ($pkg, $offset) = split /\s/;
+        push (@offsets, $offset);
+        push (@pkgs, $pkg);
+    }
+    close FILE;
+
+    my @results;
+    
+    foreach (@commits) {
+        my $commit = $_;
+        my $i = $#offsets / 2;
+        my $j = $#offsets / 4;
+        
+        while (1) {
+            if ($j == 0) {
+                if ($offsets[$i] > $commit) {
+                    push(@results, $pkgs[$i-1]);
+                    push(@results, ($commit - $offsets[$i-1]));
+                } elsif ($offsets[$i] < $commit) {
+                    push(@results, $pkgs[$i]);
+                    push(@results, ($commit - $offsets[$i]));
+                } elsif ($offsets[$i] == $commit) {
+                    push(@results, $pkgs[$i-1]);
+                    push(@results, ($commit - $offsets[$i-1]));
+                }
+                last;
+            } elsif ($offsets[$i] > $commit) {
+                $i = $i - $j;
+                $j = $j / 2;
+            } elsif ($offsets[$i] < $commit) {
+                $i = $i + $j;
+                $j = $j / 2;
+            } elsif ($offsets[$i] == $commit) {
+                push(@results, $pkgs[$i-1]);
+                push(@results, $commit - $offsets[$i-1]);
+                last;
+            }
+        }
+    }
+    return @results;
+}
+
+sub l2g_commit {
 }
 
 return 1;

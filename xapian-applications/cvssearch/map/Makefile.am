@@ -5,7 +5,12 @@ SUBDIRS = $(LIBDIRS) include
 
 INCLUDES = $(foreach dir, $(LIBDIRS), -I$(srcdir)/$(dir)) -I$(srcdir)/../db -I$(srcdir)/include
 
+if DYNAMIC
+FLAGS = 
+else
+FLAGS = -static
+endif
+
 cvsmap_SOURCES = map.cpp parse_change_log.h parse_change_log.cpp
-cvsmap_LDADD = $(foreach dir, $(LIBDIRS), $(dir)/lib$(dir).a)  ../db/libcvs_db.a \
-  -lm -lxml2 -lz -ldb_cxx $(foreach dir, $(LIBDIRS), $(dir)/lib$(dir).a) ../db/libcvs_db.a
-cvsmap_LDFLAGS = -static
+cvsmap_LDADD = $(foreach dir, $(LIBDIRS), $(dir)/lib$(dir).a)  ../db/libcvs_db.a -lm -lxml2 -lz -ldb_cxx $(foreach dir, $(LIBDIRS), $(dir)/lib$(dir).a)
+cvsmap_LDFLAGS = $(FLAGS)

@@ -987,6 +987,15 @@ fi
 test -n "$PERL" && break
 done
 
+
+
+if false; then
+  DYNAMIC_TRUE=
+  DYNAMIC_FALSE='#'
+else
+  DYNAMIC_TRUE='#'
+  DYNAMIC_FALSE=
+fi
 trap '' 1 2 15
 cat > confcache <<\EOF
 # This file is a shell script that caches the results of configure
@@ -1159,6 +1168,8 @@ s%@SET_MAKE@%$SET_MAKE%g
 s%@CXX@%$CXX%g
 s%@RANLIB@%$RANLIB%g
 s%@PERL@%$PERL%g
+s%@DYNAMIC_TRUE@%$DYNAMIC_TRUE%g
+s%@DYNAMIC_FALSE@%$DYNAMIC_FALSE%g
 
 CEOF
 EOF

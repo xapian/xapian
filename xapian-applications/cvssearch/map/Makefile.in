@@ -71,11 +71,12 @@ LIBDIRS = process range diff  aligned_diff cvs_parser map_algorithm html_writer 
 SUBDIRS = $(LIBDIRS) include
 
 INCLUDES = $(foreach dir, $(LIBDIRS), -I$(srcdir)/$(dir)) -I$(srcdir)/../db -I$(srcdir)/include
+@DYNAMIC_TRUE@FLAGS = 
+@DYNAMIC_FALSE@FLAGS = -static
 
 cvsmap_SOURCES = map.cpp parse_change_log.h parse_change_log.cpp
-cvsmap_LDADD = $(foreach dir, $(LIBDIRS), $(dir)/lib$(dir).a)  ../db/libcvs_db.a   -lm -lxml2 -lz -ldb_cxx $(foreach dir, $(LIBDIRS), $(dir)/lib$(dir).a) ../db/libcvs_db.a
-
-cvsmap_LDFLAGS = -static
+cvsmap_LDADD = $(foreach dir, $(LIBDIRS), $(dir)/lib$(dir).a)  ../db/libcvs_db.a -lm -lxml2 -lz -ldb_cxx $(foreach dir, $(LIBDIRS), $(dir)/lib$(dir).a)
+cvsmap_LDFLAGS = $(FLAGS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
 PROGRAMS =  $(bin_PROGRAMS)
@@ -87,8 +88,7 @@ LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 cvsmap_OBJECTS =  map.o parse_change_log.o
 cvsmap_DEPENDENCIES =  $(foreach dir, $(LIBDIRS), $(dir)/lib$(dir).a) \
-../db/libcvs_db.a $(foreach dir, $(LIBDIRS), $(dir)/lib$(dir).a) \
-../db/libcvs_db.a
+../db/libcvs_db.a $(foreach dir, $(LIBDIRS), $(dir)/lib$(dir).a)
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
@@ -101,7 +101,7 @@ DIST_COMMON =  Makefile.am Makefile.in
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = tar
+TAR = gtar
 GZIP_ENV = --best
 DEP_FILES =  .deps/map.P .deps/parse_change_log.P
 SOURCES = $(cvsmap_SOURCES)
@@ -267,7 +267,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$d/$$file $(distdir)/$$file; \
+	    cp -pr $$/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \

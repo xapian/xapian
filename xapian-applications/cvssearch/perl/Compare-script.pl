@@ -15,7 +15,7 @@ my $cvsmap = "$pwd/cvsmap";
 my $ctrlA = chr(01);
 my $ctrlB = chr(02);
 my $ctrlC = chr(03);
-my @class = {"class=\"e\"", "class=\"o\""};
+my @class = ("class=\"e\"", "class=\"o\"");
 
 # ------------------------------------------------------------
 # path where all our files are stored.

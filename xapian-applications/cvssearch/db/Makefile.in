@@ -75,32 +75,35 @@ bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsmine2index cvsminesea
 
 
 LIBS = $(noinst_LIBRARIES) -lomsee -ldb_cxx
+@DYNAMIC_TRUE@FLAGS = 
+@DYNAMIC_FALSE@FLAGS = -static
 
 cvsquery_SOURCES = cvsquery.C
+cvsquery_LDFLAGS = $(FLAGS)
 cvsquery_LDADD = $(LIBS)
 
 cvsindex_SOURCES = cvsindex.C
-cvsindex_LDFLAGS = -static
+cvsindex_LDFLAGS = $(FLAGS)
 cvsindex_LDADD = $(LIBS)
 
 cvssearch_SOURCES = cvssearch.C
-cvssearch_LDFLAGS = -static
+cvssearch_LDFLAGS = $(FLAGS)
 cvssearch_LDADD = $(LIBS)
 
 cvsminesearch_SOURCES = cvsminesearch.C
-cvsminesearch_LDFLAGS = -static
+cvsminesearch_LDFLAGS = $(FLAGS)
 cvsminesearch_LDADD = $(LIBS)
 
 cvsmine2search_SOURCES = cvsmine2search.C
-cvsmine2search_LDFLAGS = -static
+cvsmine2search_LDFLAGS = $(FLAGS)
 cvsmine2search_LDADD = $(LIBS)
 
 cvsfilesearch_SOURCES = cvsfilesearch.C
-cvsfilesearch_LDFLAGS = -static
+cvsfilesearch_LDFLAGS = $(FLAGS)
 cvsfilesearch_LDADD = $(LIBS) 
 
 #cvsusagesearch_SOURCES =   cvsusagesearch.C
-#cvsusagesearch_LDFLAGS = -static 
+#cvsusagesearch_LDFLAGS = $(FLAGS) 
 #cvsusagesearch_LDADD = $(LIBS) 
 
 #cvsclasses_SOURCES =   cvspatterns.C
@@ -111,19 +114,19 @@ cvsfilesearch_LDADD = $(LIBS)
 
 #cvsusageindex_SOURCES =   cvsusageindex.C
 #cvsusageindex_LDADD = $(LIBS) 
-#cvsusageindex_LDFLAGS = -static
+#cvsusageindex_LDFLAGS = $(FLAGS)
 
 cvsmineindex_SOURCES = cvsmineindex.C
 cvsmineindex_LDADD = $(LIBS) 
-cvsmineindex_LDFLAGS = -static
+cvsmineindex_LDFLAGS = $(FLAGS)
 
 cvsmine2index_SOURCES = cvsmine2index.C
-cvsmine2index_LDADD = libcvs_db.a libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a libcvs_db.a
-cvsmine2index_LDFLAGS = -static
+cvsmine2index_LDADD = $(LIBS)
+cvsmine2index_LDFLAGS = $(FLAGS)
 
 cvsfileindex_SOURCES = cvsfileindex.C
 cvsfileindex_LDADD = $(LIBS)
-cvsfileindex_LDFLAGS = -static
+cvsfileindex_LDFLAGS = $(FLAGS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
 LIBRARIES =  $(noinst_LIBRARIES)
@@ -147,12 +150,10 @@ cvssearch_OBJECTS =  cvssearch.o
 cvssearch_DEPENDENCIES =  libcvs_db.a libcvs_lines.a
 cvsquery_OBJECTS =  cvsquery.o
 cvsquery_DEPENDENCIES =  libcvs_db.a libcvs_lines.a
-cvsquery_LDFLAGS = 
 cvsmineindex_OBJECTS =  cvsmineindex.o
 cvsmineindex_DEPENDENCIES =  libcvs_db.a libcvs_lines.a
 cvsmine2index_OBJECTS =  cvsmine2index.o
-cvsmine2index_DEPENDENCIES =  libcvs_db.a libcvs_lines.a libcvs_lines.a \
-libcvs_db.a
+cvsmine2index_DEPENDENCIES =  libcvs_db.a libcvs_lines.a
 cvsminesearch_OBJECTS =  cvsminesearch.o
 cvsminesearch_DEPENDENCIES =  libcvs_db.a libcvs_lines.a
 cvsmine2search_OBJECTS =  cvsmine2search.o
@@ -474,19 +475,19 @@ mostlyclean distclean maintainer-clean
 
 #cvscomments_SOURCES = cvscomments.C
 #cvscomments_LDADD = $(LIBS)
-#cvscomments_LDFLAGS = -static
+#cvscomments_LDFLAGS = $(FLAGS)
 
 #cvssymbolcount_SOURCES = cvssymbolcount.C
 #cvssymbolcount_LDADD = $(LIBS)
-#cvssymbolcount_LDFLAGS = -static
+#cvssymbolcount_LDFLAGS = $(FLAGS)
 
 #cvscountsymbols_SOURCES =   cvscountsymbols.C
 #cvscountsymbols_LDADD = $(LIBS)
-#cvscountsymbols_LDFLAGS = -static
+#cvscountsymbols_LDFLAGS = $(FLAGS)
 
 #cvsminelocal_SOURCES =   cvsminelocal.C
 #cvsminelocal_LDADD = $(LIBS)
-#cvsminelocal_LDFLAGS = -static
+#cvsminelocal_LDFLAGS = $(FLAGS)
 
 #cvsmineglobal_SOURCES =   cvsmineglobal.C
 #cvsmineglobal_LDADD = $(LIBS)

@@ -37,6 +37,7 @@ if(param()){
   my %dirMAProot = Cvssearch::read_cvsroots($cvsdata);
   $id = Cvssearch::decode($id);
   my ($root, $db, $fileid) = split / /, $id;
+  $db =~tr/\_/\//;
   print "<body>\n";
   print "<table  width=\"100%\" border=0 cellspacing=1 cellpadding=2>\n";
   print "<tr>\n";
