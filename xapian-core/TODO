@@ -20,6 +20,8 @@ increment wdf.
 
 Allow for a non-zero minimum value for the ndl (normalised doc len).
 
+Place const in appropriate places in stemming algorithms.
+
 Rename some methods to use consistent nomenclature: eg
 get_termfreq -> get_cfreq (cf - collection frequency)
 

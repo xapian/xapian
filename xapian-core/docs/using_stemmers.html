@@ -1,0 +1,184 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Muscat: Using the stemming algorithms</TITLE>
+</HEAD>
+<BODY BGCOLOR="white">
+
+<H1>Using the stemming algorithms</H1>
+
+The stemming algorithms are designed to be part of our Muscat search engine,
+but can also be used as standalone pieces of code.  They are implemented,
+and have an interface in, the C programming language.
+
+<H2>Using the English stemming algorithm</H2>
+
+The function prototypes are:
+<PRE>
+    extern struct english_stemmer * setup_english_stemmer();
+
+    extern char * english_stem(struct english_stemmer * z, char * q, int i0, int i1);
+
+    extern void closedown_english_stemmer(struct english_stemmer * z);
+</PRE>
+
+The stemming process is set up with a call of the type
+<PRE>
+    struct english_stemmer * z = setup_english_stemmer();
+</PRE>
+and thereafter used with repeated calls of the type
+<PRE>
+    char * p = english_stem(z, q, i0, i1);
+</PRE>
+The word to be stemmed is in byte address q offsets i0 to i1 inclusive (i.e.
+from q[i0] to q[i1]). i1 &lt; i0 is treated as i1 == i0. The stemmed result is
+the C string at address p.
+<P>
+Finally the stemming process is closed down with
+<PRE>
+    closedown_english_stemmer(z);
+</PRE>
+
+
+
+For example,
+<PRE>
+    {
+    	struct english_stemmer * z = setup_english_stemmer();
+	char * s;
+
+	s = "advisability";
+	printf("'%s' stems to '%s'\n",
+	       s,
+	       english_stem(z, s, 0, strlen(s));
+
+	s = "supercalifragilisticexpialidocious";
+	printf("'%s' stems to '%s'\n",
+	       s,
+	       english_stem(z, s, 0, strlen(s));
+
+        closedown_english_stemmer(z);
+    }
+</PRE>
+
+[This code hasn't been tested...]
+
+<H2>Using the other stemming algorithms</H2>
+
+The other stemming algorithms can be invoked by subsituting in
+place of 'english' above one of the words:
+<UL><LI>
+dutch
+</LI><LI>
+french
+</LI><LI>
+german
+</LI><LI>
+italian
+</LI><LI>
+spanish
+</LI><LI>
+portuguese
+</LI></UL>
+
+For a general account of stemmers see the document on
+<A HREF="stemming.html">writing stemming algorithms</A>.
+
+For background on the English stemmer, see Porter's paper of 1980, An
+algorithm for suffix stripping [FIXME html link].
+
+<H2>Text representation: letters and accents</H2>
+
+We will probably move over to a Unicode reresentation of accented letters
+in the future, so the scheme outlined below may be regarded as provisional.
+
+(Note that, at present, the stemming algorithms are the only part of the
+ Muscat search engine which has any dependence on character representation.)
+<P>
+The word to be be stemmed must be entirely in lower case.
+<P>
+Accents are represented as L^A where L is the letter and A the accent. This
+is unusual, but very convenient.
+<p>
+    The full Muscat scheme for accents (just for the record) is as follows:
+
+<pre>
+       coding    common name                placing      occurs in:
+       --------+--------------------------+------------+-------------
+        ^a       Acute                       over        French etc
+        ^b       Breve                       over        Rumanian
+        ^c       Cedilla                     under       French
+        ^d       Dot                         over        Hungarian
+        ^g       Grave                       over        French etc
+        ^h       circumflex (Hat)            over        French etc
+        ^l       Left hook                   under       Polish
+        ^m       Macron (line over a letter) over        Latvian
+        ^n       No dot (over i or j)        over        ?
+        ^o       circle (O-shape)            over        Danish etc
+        ^q       double acute (Quote shape)  over        Hungarian
+        ^r       Right hook                  under       Polish
+        ^s       underline (underScore)      under       -
+        ^t       Tilde                       over        Spanish etc
+        ^u       diaeresis (Umlaut)          over        French etc
+        ^v       hacek (V-shape)             over        Czech
+        ^z       stroke through letter       through     Danish
+</pre>
+
+    Each language on the far right of this table supplies just one example.
+    Thus hacek is used in Latvian, Lithuanian, Serbo-Croatian (using the
+    Roman alphabet), Slovak and Slovene - as well as Czech.
+<p>
+    This list, to the best of our knowledge, covers all European languages
+    that use the Roman alphabet.
+<p>
+In the code of the algorithm, significant accent combinations are translated
+into certain upper case letters.
+<p>
+For example, French makes use of the accents ^a ^g ^u ^h and ^c, and there is
+this mapping of letter-accent combinations to upper case letters:
+<pre>
+        A      a^h   (a circumflex)
+        F      e^a   (e acute)
+        G      e^g   (e grave)
+        E      e^h   (e circumflex)
+        I      i^h   (i circumflex)
+        U      u^h   (u cicumflex)
+        J      i^u   (i trema, or diaeresis)
+</pre>
+This table is declared in stem_french.c, with similar tables for the other
+languages.
+<p>
+In German and Dutch accents are completely removed before the stemming
+process begins.
+<p>
+In English there are no accents, and the issue is not addressed.
+<p>
+The mappings of a^h to A etc and back again are done at POINT A and POINT B,
+as marked in stem_french.c. To escape from our unusual representation of
+accents you may wish to recode this (and that is extremely easy when the
+accented letters are represented by single byte characters.)
+<p>
+Similar adjustments may be made to the other algorithms.
+<p>
+Note that in the irregular_forms[] table words are given with the upper case
+letters standing for accented letters, e.g.
+<pre>
+    "etr" ,
+    "Etre/FtF/FtFe/FtFes/FtFs/Ftant/Ftante/Ftants/Ftantes/suis/es/"
+    ....
+</pre>
+Here E stands for e-circumflex, and F for e-acute.
+
+
+<H2>Vocabularies</H2>
+
+Each stemmer is issued with a vocabulary in data/voc.txt, and its stemmed
+form in data/voc.st0. You can use these for testing and evaluation purposes.
+
+<HR>
+
+Original author: Martin Porter
+Last modified: 26 Jan 2000, by Richard Boulton
+
+</BODY>
+</HTML>
