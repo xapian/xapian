@@ -1,3 +1,9 @@
+Wed Apr 06 00:25:47 BST 2005  Olly Betts <olly@survex.com>
+
+	* omindex.cc,docs/overview.txt: Replace -l/--no-recurse with
+	  -l/--depth-limit which takes an argument allowing recursion
+	  to be restriction to any depth, not just 0 or infinite!
+
 Tue Apr 05 23:45:39 BST 2005  Olly Betts <olly@survex.com>
 
 	* mbox2omega,mbox2omega.script,Makefile.am: Added mbox2omega which

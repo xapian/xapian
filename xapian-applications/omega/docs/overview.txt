@@ -121,9 +121,13 @@ Index static website data via the filesystem.
   -D, --db              path to database to use
   -U, --url             base url DIRECTORY represents
   -M, --mime-type	additional MIME mapping ext:type
-  -l, --no-recurse	only process the given directory
+  -l, --depth-limit=LIMIT
+                        set recursion limit (0 = unlimited)
+  -f, --follow          follow symbolic links
+      --overwrite       create the database anew (the default is
+                        to update if the database already exists).
   -h, --help            display this help and exit
-  -v --version          output version and exit
+  -v, --version         output version and exit
 ----------------------------------------------------------------------
 
 You _must_ specify the database to index into (it's created if it
@@ -166,7 +170,7 @@ $ omindex --db /www/omega --url '/product/large' /www/example/product/large
 because that would make the large products part of a new site,
 '/product/large', which is unlikely to be what you want, as large
 products would no longer come up in a search of the product
-site. (Note that the --no-recurse option may come in handy if you have
+site. (Note that the --depth-limit option may come in handy if you have
 sites '/product' and '/product/large', or similar.)
 
 Currently omindex can index:
@@ -223,8 +227,9 @@ strange things to your results set. In general, 'ignore' is useful for
 completely static documents (eg: archive sites), while 'replace' is
 the most generally useful.
 
---no-recurse prevents omindex from indexing any directories it finds
-within the directory you give it.
+--depth-limit allows you to prevent omindex from descending more than
+a certain number of directories.  If you wish to replicate the old
+--no-recurse option, use ----depth-limit=1.
 
 
 Boolean terms

@@ -72,7 +72,6 @@ using namespace std;
 #define DUPE_replace 1
 #define DUPE_duplicate 2
 static int dupes = DUPE_replace;
-static int recurse = 1;
 static bool follow_symlinks = false;
 static string dbpath;
 static string root;
@@ -496,7 +495,8 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 }
 
 static void
-index_directory(const string &dir, const map<string, string>& mime_map)
+index_directory(size_t depth_limit, const string &dir,
+		const map<string, string>& mime_map)
 {
     DIR *d;
     struct dirent *ent;
@@ -533,11 +533,12 @@ index_directory(const string &dir, const map<string, string>& mime_map)
         }
 #endif
 	if (S_ISDIR(statbuf.st_mode)) {
-	    if (!recurse) continue;
+	    if (depth_limit == 1) continue;
 	    try {
-		index_directory(url, mime_map);
-	    }
-	    catch (...) {
+		size_t new_limit = depth_limit;
+		if (new_limit) --new_limit;
+		index_directory(new_limit, url, mime_map);
+	    } catch (...) {
 		cout << "Caught unknown exception in index_directory, rethrowing" << endl;
 		throw;
 	    }
@@ -566,6 +567,7 @@ main(int argc, char **argv)
     // If overwrite is true, the database will be created anew even if it
     // already exists.
     bool overwrite = false;
+    size_t depth_limit = 0;
 
     static const struct option longopts[] = {
 	{ "help",	no_argument,		NULL, 'h' },
@@ -575,7 +577,7 @@ main(int argc, char **argv)
 	{ "db",		required_argument,	NULL, 'D' },
 	{ "url",	required_argument,	NULL, 'U' },
 	{ "mime-type",	required_argument,	NULL, 'M' },
-	{ "no-recurse",	no_argument,		NULL, 'l' },
+	{ "depth-limit",required_argument,	NULL, 'l' },
 	{ "follow",	no_argument,		NULL, 'f' },
 	{ 0, 0, NULL, 0 }
     };
@@ -620,7 +622,7 @@ main(int argc, char **argv)
 		 << "  -D, --db\t\tpath to database to use\n"
 		 << "  -U, --url\t\tbase url DIRECTORY represents\n"
 	         << "  -M, --mime-type\tadditional MIME mapping ext:type\n"
-		 << "  -l, --no-recurse\tonly process the given directory\n"
+		 << "  -l, --depth-limit=LIMIT\tset recursion limit (0 = unlimited)\n"
 		 << "  -f, --follow\t\tfollow symbolic links\n"
 		 << "      --overwrite\tcreate the database anew (the default is\n"
 	        "\t\t\tto update if the database already exists).\n"
@@ -634,7 +636,7 @@ main(int argc, char **argv)
 		 << "Copyright (c) 1999,2000,2001 BrightStation PLC.\n"
 		 << "Copyright (c) 2001 James Aylett\n"
 		 << "Copyright (c) 2001,2002 Ananova Ltd\n"
-		 << "Copyright (c) 2002,2003,2004 Olly Betts\n\n"
+		 << "Copyright (c) 2002,2003,2004,2005 Olly Betts\n\n"
 		 << "This is free software, and may be redistributed under\n"
 		 << "the terms of the GNU Public License." << endl;
 	    return 0;
@@ -651,9 +653,12 @@ main(int argc, char **argv)
 		break;
 	    }
 	    break;
-	case 'l': // Turn off recursion
-	    recurse = 0;
+	case 'l': { // Set recursion limit
+	    int arg = atoi(optarg);
+	    if (arg < 0) arg = 0;
+	    depth_limit = size_t(arg);
 	    break;
+	}
 	case 'f': // Turn on following of symlinks
 	    follow_symlinks = true;
 	    break;
@@ -734,7 +739,7 @@ main(int argc, char **argv)
 	} else {
 	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OVERWRITE);
 	}
-	index_directory("/", mime_map);
+	index_directory(depth_limit, "/", mime_map);
 	if (dupes == DUPE_replace) {
 	    for (Xapian::docid did = 1; did < updated.size(); ++did) {
 		if (!updated[did]) {
