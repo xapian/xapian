@@ -26,10 +26,10 @@ Make sure that all methods and classes in the API have documentation
 comments.
 
 </todoitem>
-<todoitem priority="M" difficulty="1" owner="" area="General" release="0.9">
+<todoitem priority="M" difficulty="2" owner="" area="General" release="1.0">
 
-Replace references to the old name with "Omsee", particularly in
-documentation.
+Check for zero byte cleanness wherever strings are used.  There are a lot
+of c_str()s in the code...
 
 </todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="Quartz" release="0.9">
