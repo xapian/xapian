@@ -69,7 +69,9 @@ class OmQuery {
 		if ((subqs->size() == 2) && (window == 0)) {
 		    return new OmQuery(op, *(*subqs)[0], *(*subqs)[1]);
 		} else {
-		    return new OmQuery(op, subqs->begin(),subqs->end(), window);
+		    OmQuery * query=new OmQuery(op, subqs->begin(),subqs->end());
+		    query->set_window(window);
+		    return query;
 		}
 	    }
 	}
