@@ -71,6 +71,8 @@ static string query_string;
 
 matchop op = OR; // default matching mode
 
+static map<termname, int> matching_map;
+
 static void do_adjustm ( void );
 static int parse_prob( const char *, struct term * );
 static char *find_format_string( char *pc );
@@ -210,16 +212,19 @@ int set_probabilistic(const char *p, const char *oldp) {
 	vector<termid> minuses;
 	vector<termid> normals;
       
-	for (i = 0; i < n_new_terms; i++) {
+	for (i = 0; i < n_new_terms; i++) {	    
 	    switch (new_terms[i].type) {
 	     case PLUS:
 		pluses.push_back(new_terms[i].id);
+		matching_map[new_terms[i].termname] = i;
 		break;
 	     case MINUS:
 		minuses.push_back(new_terms[i].id);
+		// don't put MINUS terms in map - they won't match...
 		break;
 	     case NORMAL:
 		normals.push_back(new_terms[i].id);
+		matching_map[new_terms[i].termname] = i;
 		break;
 	     default:
 		cout << "ignoring term " << new_terms[i].termname << endl; // FIXME
@@ -1546,26 +1551,28 @@ static int print_caption( long int m, int do_expand ) {
 		 cout << percent << '%';
 		 break;
 	      case 'T': {
-#if 0 // FIXME:
-		 int comma = 0;		  
-		 Give_Muscatf("show qandtof m%ld style q", m);
-		 while (!Getfrom_Muscat (&z)) {
-		    if (z.length > 6 && z.p[2] == '+' && z.p[3] == 'p') {
-		       char *p = z.p + 6;
+		  bool comma = false;
+		  TermList *terms = database.open_term_list(q0);
+		  terms->next();
+		  while (!terms->at_end()) {
+		      termname term = database.term_id_to_name(terms->get_termid());
+		      map<termname, int>::iterator i = matching_map.find(term);
+		      if (i != matching_map.end()) {
 #ifdef META
-		       if (comma) cout << ','; else comma = 1;
+			  if (comma) cout << ','; else comma = true;
 #else
-		       if (comma) cout << ' '; else comma = 1;
+			  if (comma) cout << ' '; else comma = true;
 #endif
-		       /* quote terms with spaces in */
-		       if (strchr(p, ' '))
-			    cout << '"' << p << '"';
-		       else
-			    cout << p;
-		    }
-		 }
-#endif
-		 break;
+			  /* quote terms with spaces in */
+			  if (term.find(' ') != string::npos)
+			      cout << '"' << term << '"';
+			  else
+			      cout << term;
+		      }
+		      terms->next();
+		  }
+		  delete terms;
+		  break;
 	      }
 	      case 'G': /* score Gif */
 		 cout << "/fx-gif/score-" << percent / 10 << ".gif";
