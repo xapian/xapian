@@ -1,3 +1,8 @@
+Tue Nov 02 18:52:39 GMT 2004  Olly Betts <olly@survex.com>
+
+	* getopt.cc: Protect getopt definition for possible getopt macro
+	  declared in getopt.h.
+
 Tue Nov 02 06:53:23 GMT 2004  Olly Betts <olly@survex.com>
 
 	* getopt.cc,getopt1.cc: Fixed function declarations to not use K&R C

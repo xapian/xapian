@@ -1,3 +1,8 @@
+Tue Nov 02 18:54:12 GMT 2004  Olly Betts <olly@survex.com>
+
+	* getopt.cc: Protect getopt definition for possible getopt macro
+	  declared in getopt.h.
+
 Tue Nov 02 17:56:08 GMT 2004  Olly Betts <olly@survex.com>
 
 	* indextext.h: Fixed 2 warnings.
