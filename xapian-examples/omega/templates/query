@@ -69,11 +69,11 @@ Size: <b>$html{$or{$filesize{$field{size}},unknown}}</b>
 Last modified: <b>$html{$or{$date{$field{modified}},unknown}}</b><br>
 }
 $percentage% relevant, matching:
-<i>$list{$html{$terms},$. ,</i> and <i>}</i></small></TD></TR>}
+<i>$list{$html{$terms},$. ,</i> and <i>}</i></small>${for lynx:}<P></TD></TR>}
 </table>
 ${$map{$range{1,$lastpage},<INPUT TYPE=submit NAME="[" VALUE=,>}}
 <br>
-$if{$ne{$topdoc,0},<INPUT TYPE=image NAME="&lt;"
+$if{$ne{$topdoc,0},<INPUT TYPE=image NAME="&lt;" ALT="&lt;"
 SRC="http://www.euroferret.com/fx-gif/previous.gif" BORDER=0 HEIGHT=56
 WIDTH=56>,
 ${<IMG ALT="" SRC="http://www.euroferret.com/fx-gif/prevoff.gif" HEIGHT=56 WIDTH=56>}}
@@ -89,7 +89,7 @@ $map{$range{$add{$thispage,1},$min{$lastpage,$add{$thispage,9}}},
 <INPUT TYPE=image NAME="[ , ]" VALUE=,
 SRC="http://www.muscat.com/muscat/oval/page-,.gif" BORDER=0$opt{a} ALT=,>}
 }
-$if{$ne{$last,$msize},<INPUT TYPE=image NAME="&gt;"
+$if{$ne{$last,$msize},<INPUT TYPE=image NAME="&gt;" ALT="&gt;"
 SRC="http://www.euroferret.com/fx-gif/next.gif" BORDER=0 HEIGHT=56 WIDTH=56>,
 ${<IMG ALT="" SRC="http://www.euroferret.com/fx-gif/nextoff.gif" HEIGHT=56 WIDTH=56>}}
 <br>
@@ -102,6 +102,6 @@ $if{$dbname,<INPUT TYPE=hidden NAME=DB VALUE="$html{$dbname}">
 }$list{$queryterms,<INPUT TYPE=hidden NAME=OLDP VALUE=",.,.">
 }$list{$relevants,<INPUT TYPE=hidden NAME=R VALUE=",.,">
 }</FORM>
-<hr><div align=right><i><small>$html{$version}</small></i></div>
+<hr><div align=right><i><small><a href="http://open.muscat.com/">$html{$version}</a></small></i></div>
 </body>
 </html>

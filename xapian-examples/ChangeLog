@@ -1,3 +1,8 @@
+Tue Sep 19 16:19:07 BST 2000 Olly Betts
+
+	* omega: Improved output when using lynx; added link to
+	  open.muscat.com.
+
 Tue Sep 19 14:52:24 BST 2000 Olly Betts
 
 	* makesymboltabh.pl: ''' -> '\'' in generated code.
