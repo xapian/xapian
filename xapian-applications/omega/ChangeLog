@@ -1,3 +1,7 @@
+Wed Apr 23 14:00:37 BST 2003  Olly Betts <olly@survex.com>
+
+	* omega.spec.in: Merged changes from Fabrice Colin.
+
 Thu Apr 10 03:14:51 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Updated for 0.6.5 release.
@@ -967,5 +971,6 @@ Mon Nov  5 12:42:26 GMT 2001  Richard Boulton <richard@tartarus.org>
 
 	* Omega moved to new home, from om-examples/omega.
 	  Standalone build system added.
+
 
 
