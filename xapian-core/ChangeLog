@@ -1,3 +1,9 @@
+Sat Feb 19 04:23:51 GMT 2005  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/btree.h: Change
+	  Btree::find_in_block to take a bool indicating if this is a leaf
+	  block rather than an offset to subtract when it is.
+
 Fri Feb 18 04:27:16 GMT 2005  Olly Betts <olly@survex.com>
 
 	* HACKING: Added better description of how reference-counted API

@@ -518,10 +518,10 @@ Btree::alter()
 #endif
 }
 
-/** find_in_block(p, key, offset, c) searches for the key in the block at p.
+/** find_in_block(p, key, leaf, c) searches for the key in the block at p.
 
-   offset is D2 for a data block, and 0 for an index block, when the
-   first key is dummy and never needs to be tested. What we get is the
+   leaf is true for a data block, and false for an index block (when the
+   first key is dummy and never needs to be tested). What we get is the
    directory entry to the last key <= the key being searched for.
 
    The lookup is by binary chop, with i and j set to the left and
@@ -530,10 +530,11 @@ Btree::alter()
    c if possible.
 */
 
-int Btree::find_in_block(const byte * p, Key key, int offset, int c)
+int Btree::find_in_block(const byte * p, Key key, bool leaf, int c)
 {
-    DEBUGCALL_STATIC(DB, int, "Btree::find_in_block", (void*)p << ", " << (void*)key.get_address() << ", " << offset << ", " << c);
-    int i = DIR_START - offset;
+    DEBUGCALL_STATIC(DB, int, "Btree::find_in_block", (void*)p << ", " << (void*)key.get_address() << ", " << leaf << ", " << c);
+    int i = DIR_START;
+    if (leaf) i -= D2;
     int j = DIR_END(p);
 
     if (c != -1) {
@@ -566,10 +567,9 @@ Btree::find(Cursor * C_) const
     const byte * p;
     int c;
     Key key = kt.key();
-    int j;
-    for (j = level; j > 0; j--) {
+    for (int j = level; j > 0; --j) {
 	p = C_[j].p;
-	c = find_in_block(p, key, 0, C_[j].c);
+	c = find_in_block(p, key, false, C_[j].c);
 #ifdef BTREE_DEBUG_FULL
 	printf("Block in Btree:find - code position 1");
 	report_block_full(j, C_[j].n, p);
@@ -578,10 +578,10 @@ Btree::find(Cursor * C_) const
 	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
     }
     p = C_[0].p;
-    c = find_in_block(p, key, D2, C_[j].c);
+    c = find_in_block(p, key, true, C_[0].c);
 #ifdef BTREE_DEBUG_FULL
     printf("Block in Btree:find - code position 2");
-    report_block_full(j, C_[j].n, p);
+    report_block_full(0, C_[0].n, p);
 #endif /* BTREE_DEBUG_FULL */
     C_[0].c = c;
     if (c < DIR_START) RETURN(false);
@@ -716,7 +716,7 @@ Btree::enter_key(int j, Key prevkey, Key newkey)
 	SET_TOTAL_FREE(p, new_total_free);
     }
 
-    C[j].c = find_in_block(C[j].p, item.key(), 0, 0) + D2;
+    C[j].c = find_in_block(C[j].p, item.key(), false, 0) + D2;
     C[j].rewrite = true; /* a subtle point: this *is* required. */
     add_item(item, j);
 }
