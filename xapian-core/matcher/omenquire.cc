@@ -66,6 +66,14 @@ OmQuery::OmQuery(om_queryop op_, const OmQuery &left, const OmQuery &right)
     if (op == OM_MOP_LEAF) {
     	throw OmInvalidArgumentError("Invalid query operation");
     }
+
+    // reject any attempt to make up a composite query when any sub-query
+    // is a pure boolean query.  FIXME: ought to handle the different
+    // operators specially.
+    if ((left.isdefined && left.isbool) || (right.isdefined && right.isbool)) {
+	throw OmInvalidArgumentError("Only the top-level query can be bool");
+    }
+
     // Handle undefined sub-queries.
     // See documentation for table for result of operations when one of the
     // operands is undefined:
@@ -244,7 +252,20 @@ OmQuery::initialise_from_vector(const vector<OmQuery>::const_iterator qbegin,
     }
 
     vector<OmQuery>::const_iterator i;
+    // reject any attempt to make up a composite query when any sub-query
+    // is a pure boolean query.  FIXME: ought to handle the different
+    // operators specially.
+    for (i=qbegin; i!= qend; ++i) {
+	if (i->isbool) {
+	    throw OmInvalidArgumentError("Only the top-level query can be bool");
+	}
+    }
+
     for(i = qbegin; i != qend; i++) {
+	// FIXME: this doesn't look very exception-safe.  If this is called
+	// from within a constructor, then the destructor might not be called
+	// to delete the sub-queries.  This loop ought also to be merged with
+	// the previous one, once this is sorted out.
 	if(i->isdefined) subqs.push_back(new OmQuery(*i));
     }
 
@@ -269,7 +290,17 @@ OmQuery::initialise_from_vector(const vector<OmQuery *>::const_iterator qbegin,
     }
 
     vector<OmQuery *>::const_iterator i;
+    // reject any attempt to make up a composite query when any sub-query
+    // is a pure boolean query.  FIXME: ought to handle the different
+    // operators specially.
+    for (i=qbegin; i!= qend; ++i) {
+	if ((*i)->isbool) {
+	    throw OmInvalidArgumentError("Only the top-level query can be bool");
+	}
+    }
+    
     for(i = qbegin; i != qend; i++) {
+	// FIXME: see other initialise_from_vector comment re exceptions.
 	if(!(*i)->isdefined) subqs.push_back(new OmQuery(**i));
     }
 

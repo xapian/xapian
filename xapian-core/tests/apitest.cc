@@ -84,6 +84,8 @@ bool test_reversebool2();
 bool test_getqterms1();
 // tests that get_matching_terms() returns the terms in the right order
 bool test_getmterms1();
+// tests that building a query with boolean sub-queries throws an exception.
+bool test_boolsubq1();
 
 om_test tests[] = {
     {"trivial",            test_trivial},
@@ -110,6 +112,7 @@ om_test tests[] = {
     {"reversebool2",	   test_reversebool2},
     {"getqterms1",	   test_getqterms1},
     {"getmterms1",	   test_getmterms1},
+    {"boolsubq1",	   test_boolsubq1},
     {0, 0}
 };
 
@@ -997,6 +1000,23 @@ bool test_getmterms1()
 	    }
 	}
 
+    }
+
+    return success;
+}
+
+bool test_boolsubq1() {
+    bool success = false;
+
+    OmQuery mybool("foo");
+    mybool.set_bool(true);
+
+    try {
+	OmQuery query(OM_MOP_OR,
+		      OmQuery("bar"),
+		      mybool);
+    } catch (OmInvalidArgumentError &) {
+	success = true;
     }
 
     return success;

@@ -1,3 +1,8 @@
+Mon Feb 21 18:07:14 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Attempts to build a query with a boolean subquery throws an
+	  exception for now.
+
 Mon Feb 21 15:33:10 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added test for OmEnquire::get_matching_terms()
