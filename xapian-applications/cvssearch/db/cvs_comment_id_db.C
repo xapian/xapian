@@ -30,7 +30,7 @@
 #include <strstream>
 
 cvs_comment_id_db::cvs_comment_id_db(DbEnv *dbenv, u_int32_t flags)
-    :cvs_db("file_revision-id", "2", dbenv, flags)
+    :cvs_db("file_revision-comment_id", "2", dbenv, flags)
 {
 }
 

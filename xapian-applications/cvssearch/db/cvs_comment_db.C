@@ -29,7 +29,7 @@
 #include "cvs_comment_db.h"
 
 cvs_comment_db::cvs_comment_db(DbEnv *dbenv, u_int32_t flags)
-    :cvs_filename_db("recno", "1", dbenv, flags)
+    :cvs_filename_db("recno-comment", "1", dbenv, flags)
 {
 }
 
