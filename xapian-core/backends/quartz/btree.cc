@@ -198,17 +198,17 @@ static void report_cursor(int N, struct Btree * B, struct Cursor * C)
 
 static int valid_handle(int h) { return h >= 0; }
 
-static int sys_open_to_read(const char * s)
+static int sys_open_to_read(const std::string & name)
 {
-    return open(s, O_RDONLY, 0666);
+    return open(name.c_str(), O_RDONLY, 0666);
 }
 
-static int sys_open_to_write(const char * s)
+static int sys_open_to_write(const std::string & name)
 {
-    return open(s, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    return open(name.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
 }
 
-static int sys_open_for_da(const std::string & name)
+static int sys_open_for_readwrite(const std::string & name)
 {
     return open(name.c_str(), O_RDWR, 0666);
 }
@@ -338,19 +338,13 @@ static int next_free_block(struct Btree * B)
     }
 }
 
-/* read_block(B, n, p)  reads           to            from
-                               block n      address p      the DB file.
-   write_block(B, n, p) writes         from            to
-
-   In writing we check to see if the DB file has as yet been modified. If not
-   (so this is the first write) the old base is deleted. This prevents the
-   possibility of it being openend subsequently as an invalid base.
-*/
-
+/** read_block(B, n, p) reads block n to address p in the DB file.
+ */
 static void read_block(struct Btree * B, int4 n, byte * p)
 {
     /* Check that n is in range. */
-    Assert(n >= 0 && n < B->bit_map_size * CHAR_BIT);
+    Assert(n >= 0);
+    Assert(n / CHAR_BIT < B->bit_map_size);
 
     if (! sys_read_block(B->handle, B->block_size, n, p))
     {  /* failure to read a block */
@@ -360,10 +354,16 @@ static void read_block(struct Btree * B, int4 n, byte * p)
     }
 }
 
+/** write_block(B, n, p) writes block n to address p in the DB file.
+ *  In writing we check to see if the DB file has as yet been modified. If not
+ *  (so this is the first write) the old base is deleted. This prevents the
+ *  possibility of it being openend subsequently as an invalid base.
+ */
 static void write_block(struct Btree * B, int4 n, byte * p)
 {
     /* Check that n is in range. */
-    Assert(n >= 0 && n < B->bit_map_size * CHAR_BIT);
+    Assert(n >= 0);
+    Assert(n / CHAR_BIT < B->bit_map_size);
 
     /* don't write to non-free */;
     AssertParanoid(block_free_at_start(B, n));
@@ -430,16 +430,17 @@ static void block_to_cursor(struct Btree * B, struct Cursor * C, int j, int4 n)
         C[j].rewrite = false;
     }
     read_block(B, n, p);
+    if (B->overwritten == true) return;
+
     C[j].n = n;
     B->C[j].n = n; /* not necessarily the same (in B-tree read mode) */
-    if (j < B->level)
-    {   if (REVISION(p) > REVISION(C[j + 1].p))  /* unsigned comparison */
-        {
+    if (j < B->level) {
+	if (REVISION(p) > REVISION(C[j + 1].p)) { /* unsigned comparison */
             set_overwritten(B);
             return;
         }
     }
-    Assert(j == LEVEL(p));
+    AssertEq(j, LEVEL(p));
 }
 
 /* set_block_given_by(p, c, n) finds the item at block address p, directory
@@ -685,7 +686,7 @@ static void enter_key(struct Btree * B, struct Cursor * C, int j, byte * kq, byt
 	B->level ++;
 
 	/* check level overflow */
-	Assert(B->level != BTREE_CURSOR_LEVELS);
+	AssertNe(B->level, BTREE_CURSOR_LEVELS);
 
 	byte * q = calloc(B->block_size, 1);      /*?*/
 	if (q == 0) { B->error = BTREE_ERROR_SPACE; return; }
@@ -926,7 +927,9 @@ static void delete_item(struct Btree * B, struct Cursor * C, int j, int repeated
             free(C[j].split_p); C[j].split_p = 0;
             C[j].split_n = -1;
             B->level--;
-            block_to_cursor(B, C, B->level, new_root); /* omitting this was an early bug */
+
+            block_to_cursor(B, C, B->level, new_root);
+	    if (B->overwritten) return;
 
             j--; p = C[j].p; dir_end = DIR_END(p); /* prepare for the loop */
         }
@@ -1028,11 +1031,12 @@ static int add_kt(int found, struct Btree * B, struct Cursor * C)
 */
 
 static int delete_kt(struct Btree * B, struct Cursor * C)
-{   int found = find(B, C);
+{
+    int found = find(B, C);
+    if (B->overwritten) return 0;
+
     int components = 0;
     B->seq_count = SEQ_START_POINT;
-
-    if (B->overwritten) return 0;
 
     /*
     {
@@ -1290,7 +1294,7 @@ extern void Btree_full_compaction(struct Btree * B, int parity)
 
 static byte * read_base(const std::string & name, char ch)
 {
-    int h = sys_open_to_read((name + "base" + ch).c_str());
+    int h = sys_open_to_read(name + "base" + ch);
     byte w[2];
     byte * p;
     int size;
@@ -1301,10 +1305,13 @@ static byte * read_base(const std::string & name, char ch)
     }
     size = GETINT2(w, 0);
     p = malloc(size);
-    if (p != 0)
-    {   SETINT2(p, 0, size);
+    if (p != 0) {
+	SETINT2(p, 0, size);
 	if (sys_read_bytes(h, size - 2, p + 2) &&
-	    get_int4(p, B_REVISION) == get_int4(p, B_REVISION2)) return p;
+	    get_int4(p, B_REVISION) == get_int4(p, B_REVISION2)) {
+	    sys_close(h);
+	    return p;
+	}
     }
 
     free(p);
@@ -1316,7 +1323,7 @@ static byte * read_bit_map(const std::string & name, char ch, int size)
 {
     byte * p = malloc(size);
     if (p != 0) {
-	int h = sys_open_to_read((name + "bitmap" + ch).c_str());
+	int h = sys_open_to_read(name + "bitmap" + ch);
 	if (valid_handle(h) &&
 	    sys_read_bytes(h, size, p) &&
 	    sys_close(h)) {
@@ -1328,7 +1335,7 @@ static byte * read_bit_map(const std::string & name, char ch, int size)
 
 static int write_bit_map(struct Btree * B)
 {
-    int h = sys_open_to_write((B->name + "bitmap" + B->other_base_letter).c_str());
+    int h = sys_open_to_write(B->name + "bitmap" + B->other_base_letter);
     return valid_handle(h) &&
 	    sys_write_bytes(h, B->bit_map_size, B->bit_map) &&
 	    sys_flush(h) &&
@@ -1337,7 +1344,7 @@ static int write_bit_map(struct Btree * B)
 
 static int write_base(struct Btree * B)
 {
-    int h = sys_open_to_write((B->name + "base" + B->other_base_letter).c_str());
+    int h = sys_open_to_write(B->name + "base" + B->other_base_letter);
     return valid_handle(h) &&
 	    sys_write_bytes(h, GETINT2(B->base, 0), B->base) &&
 	    sys_flush(h) &&
@@ -1431,8 +1438,9 @@ no_space:
 
 static void read_root(struct Btree * B, struct Cursor * C)
 {
-    if (B->revision_number == 0)
-    {                                  /* creating first root */
+    if (B->revision_number == 0) {
+	/* creating first root */
+
         int o = B->block_size - C2;
         byte * p = C[0].p;
         SETC(p, o, 1); o -= C2;        /* number of components in tag */
@@ -1454,12 +1462,13 @@ static void read_root(struct Btree * B, struct Cursor * C)
             SET_REVISION(p, 1);
             C[0].n = next_free_block(B);
         }
-    }
-    else
-    {  block_to_cursor(B, C, B->level, B->root);
+    } else {
+	/* root already exists */
+	block_to_cursor(B, C, B->level, B->root);
+	if (B->overwritten) return;
 
-       if (REVISION(C[B->level].p) >= B->next_revision) set_overwritten(B);
-       /* although this is unlikely */
+	if (REVISION(C[B->level].p) >= B->next_revision) set_overwritten(B);
+	/* although this is unlikely */
     }
 }
 
@@ -1468,7 +1477,7 @@ static struct Btree * open_to_write(const char * name, int revision_supplied, ui
     struct Btree * B = basic_open(name, revision_supplied, revision);
     if (B == 0 || B->error) return B;
 
-    B->handle = sys_open_for_da(B->name + "DB");
+    B->handle = sys_open_for_readwrite(B->name + "DB");
     if ( ! valid_handle(B->handle)) { B->error = BTREE_ERROR_DB_OPEN; return B; }
 
     B->bit_map0 = read_bit_map(B->name, B->base_letter, B->bit_map_size);
@@ -1515,6 +1524,8 @@ extern struct Btree * Btree_open_to_write_revision(const char * name, uint4 n)
 extern void Btree_quit(struct Btree * B)
 {
     if (valid_handle(B->handle)) {
+	// If an error occurs here, we just ignore it, since we're just
+	// trying to free everything.
 	sys_close(B->handle);
 	B->handle = -1;
     }
@@ -1607,7 +1618,7 @@ static struct Btree * open_to_read(const char * name, int revision_supplied, uin
     struct Btree * B = basic_open(name, revision_supplied, revision);
     if (B == 0 || B->error) return B;
 
-    B->handle = sys_open_to_read((B->name + "DB").c_str());
+    B->handle = sys_open_to_read(B->name + "DB");
     if ( ! valid_handle(B->handle)) { B->error = BTREE_ERROR_DB_OPEN; return B; }
     {
         int common_levels = B->revision_number <= 1 ? 1 : 2;
@@ -1676,11 +1687,12 @@ extern void Bcursor_lose(struct Bcursor * BC)
 }
 
 static void force_block_to_cursor(struct Btree * B, struct Cursor * C, int j)
-{   int n = C[j].n;
-    if (n != B->C[j].n)
-    {
+{
+    int n = C[j].n;
+    if (n != B->C[j].n) {
         C[j].n = -1;
         block_to_cursor(B, C, j, n);
+	if (B->overwritten) return;
     }
 }
 
@@ -1694,6 +1706,7 @@ static int prev_for_revision_1(struct Btree * B, struct Cursor * C, int dummy)
         {   n--;
             if (n < 0) return false;
             read_block(B, n, p);
+            if (B->overwritten == true) return false;
             if (REVISION(p) > 1) { B->overwritten = true; return false; }
             if (LEVEL(p) == 0) break;
         }
@@ -1716,6 +1729,7 @@ static int next_for_revision_1(struct Btree * B, struct Cursor * C, int dummy)
         {   n++;
             if (n > B->last_block) return false;
             read_block(B, n, p);
+            if (B->overwritten == true) return false;
             if (REVISION(p) > 1) { B->overwritten = true; return false; }
             if (LEVEL(p) == 0) break;
         }
@@ -1742,8 +1756,8 @@ static int prev(struct Btree * B, struct Cursor * C, int j)
     }
     c -= D2;
     C[j].c = c;
-    if (j > 0)
-    {   block_to_cursor(B, C, j - 1, block_given_by(p, c));
+    if (j > 0) {
+	block_to_cursor(B, C, j - 1, block_given_by(p, c));
         if (B->overwritten) return false;
     }
     return true;
@@ -1765,8 +1779,8 @@ static int next(struct Btree * B, struct Cursor * C, int j)
         c = DIR_START;
     }
     C[j].c = c;
-    if (j > 0)
-    {   block_to_cursor(B, C, j - 1, block_given_by(p, c));
+    if (j > 0) {
+	block_to_cursor(B, C, j - 1, block_given_by(p, c));
         if (B->overwritten) return false;
     }
     return true;
@@ -1923,7 +1937,7 @@ extern int Btree_create(const char * name_, int block_size)
         if (b == 0) goto end;
         b[0] = 0;  /* set the root block as 'in use' */
         {
-	    int h = sys_open_to_write((name + "bitmapA").c_str());
+	    int h = sys_open_to_write(name + "bitmapA");
             if ( ! (valid_handle(h) &&
                     sys_write_bytes(h, 1, b) &&
                     sys_close(h))) goto end;
@@ -1938,7 +1952,7 @@ extern int Btree_create(const char * name_, int block_size)
         set_int4(b, B_BLOCK_SIZE, block_size);
         set_int4(b, B_BIT_MAP_SIZE, 1);
         {
-	    int h = sys_open_to_write((name + "baseA").c_str());
+	    int h = sys_open_to_write(name + "baseA");
             if ( ! (valid_handle(h) &&
                     sys_write_bytes(h, B_SIZE, b) &&
                     sys_close(h))) goto end;
@@ -1947,7 +1961,7 @@ extern int Btree_create(const char * name_, int block_size)
 	/* create the main file */
         error = BTREE_ERROR_DB_CREATE;
         {
-	    int h = sys_open_to_write((name + "DB").c_str());      /* - null */
+	    int h = sys_open_to_write(name + "DB");      /* - null */
             if ( ! (valid_handle(h) &&
                     sys_close(h))) goto end;
         }
@@ -2096,9 +2110,11 @@ static void block_check(struct Btree * B, struct Cursor * C, int j, int opts)
     if (total_free != TOTAL_FREE(p)) failure(60);
 
     if (j == 0) return;
-    for (c = DIR_START; c < dir_end; c += D2)
-    {   C[j].c = c;
+    for (c = DIR_START; c < dir_end; c += D2) {
+	C[j].c = c;
         block_to_cursor(B, C, j - 1, block_given_by(p, c));
+        if (B->overwritten) return;
+
         block_check(B, C, j - 1, opts);
 
         {   byte * q = C[j - 1].p;
