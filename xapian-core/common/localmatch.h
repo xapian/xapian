@@ -150,7 +150,6 @@ class LocalMatch : public SingleMatch
 
 	bool prepare_match(bool nowait);
 
-        om_weight get_max_weight();
 	bool get_mset(om_doccount first,
 		      om_doccount maxitems,
 		      OmMSet & mset,

@@ -537,15 +537,6 @@ LocalMatch::prepare_match(bool nowait)
     return true;
 }
 
-// Return the maximum possible weight, calculating it if necessary.
-om_weight
-LocalMatch::get_max_weight()
-{
-    throw OmUnimplementedError("LocalMatch::get_max_weight() is deprecated and "
-			       "no longer supported - use LocalMatch::get_mset "
-			       "and read the mbound member of the mset.");
-}
-
 // This is the method which runs the query, generating the M set
 bool
 LocalMatch::get_mset(om_doccount first,
