@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -212,7 +212,7 @@ class SleepyList {
 
 	/// Assignment is not allowed.
 	void operator=(const SleepyList &);
-	
+
     public:
 	/** A type big enough to represent the number of items which a
 	 *  list could hold.
@@ -306,7 +306,7 @@ class SleepyList {
 	 *  An iteration must be in progress when this method is called:
 	 *  ie. move_to_start() must have been called, and add_item() must
 	 *  not have been called since that.
-	 *  
+	 *
 	 *  @return true  if we are at the end of the list,
 	 *          false if there is an item at the current position, or
 	 *                we havn't yet moved from the start of the list.

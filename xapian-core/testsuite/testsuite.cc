@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -62,7 +62,7 @@ class null_streambuf : public streambuf {
 /// A null stream buffer which we can redirect output to.
 static null_streambuf nullsb;
 
-/// The global verbose flag. 
+/// The global verbose flag.
 bool verbose;
 
 test_driver::test_driver(const test_desc *tests_)
@@ -99,7 +99,7 @@ struct allocation_info {
 };
 static allocation_info new_allocations[max_allocations];
 
-/** Our overridden new and delete operators, which 
+/** Our overridden new and delete operators, which
  *  allow us to check for leaks.
  *
  *  FIXME: add handling of new[] and delete[]
@@ -348,7 +348,7 @@ int test_driver::main(int argc,
          << myresult.succeeded << " tests passed, "
 	 << myresult.failed << " failed."
 	 << std::endl;
-	
+
     if (fussy) {
 	return (bool)myresult.failed; // if 0, then everything passed
     } else {

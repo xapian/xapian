@@ -52,7 +52,7 @@ JNIEXPORT jintArray JNICALL Java_com_muscat_om_OmRSet_get_1items
     {
 	buf[p++] = *it;
     }
-    
+
     env->SetIntArrayRegion (ret, 0, size, buf);
     return ret;
 }
@@ -71,7 +71,7 @@ JNIEXPORT void JNICALL Java_com_muscat_om_OmRSet_add_1document
     }
     catch (OmError& err) {
 	handleNativeError (env, err);
-    }    
+    }
 }
 
 /*
@@ -88,5 +88,5 @@ JNIEXPORT void JNICALL Java_com_muscat_om_OmRSet_remove_1document
     }
     catch (OmError& err) {
 	handleNativeError (env, err);
-    }    
+    }
 }

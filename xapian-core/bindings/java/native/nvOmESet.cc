@@ -29,7 +29,7 @@ JNIEXPORT jobject JNICALL Java_com_muscat_om_OmESet_get_1items
 {
     OmESet* eset = (OmESet*) tryGetLongField (env, obj, "nativePtr");
     jlong native = (jlong) new vector<OmESetItem> (eset->items);
-    return makeReturnObject (env, "com/muscat/om/OmESetItemVector", native);    
+    return makeReturnObject (env, "com/muscat/om/OmESetItemVector", native);
 }
 
 /*

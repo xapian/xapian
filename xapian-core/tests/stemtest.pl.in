@@ -7,17 +7,17 @@
 #
 # ----START-LICENCE----
 # Copyright 1999,2000 BrightStation PLC
-# 
-# This program is free software; you can redistribute it and/or 
-# modify it under the terms of the GNU General Public License as 
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation; either version 2 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -130,7 +130,7 @@ sub dicttest {
 	    or die "Failed to run stemtest";
 	open(STEMMED_ANSWERS, "<$datadir/voc.st")
 	    or die "Failed to open stemmed data";
-	
+
 	while (1) {
 	    my $stemmed = <STEMMER_OUTPUT>;
 	    my $answer = <STEMMED_ANSWERS>;
@@ -161,7 +161,7 @@ sub dicttest {
 		};
 		last;
 	    };
-		    
+
 	};
 	close(STEMMED_ANSWERS);
 	close(STEMMER_OUTPUT) or die "Subprocess exited abnormally.";
@@ -202,7 +202,7 @@ sub randtest {
         # do some sanity checks on the result
 	my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
 	    $atime,$mtime,$ctime,$blksize,$blocks) = stat $outputfname;
-        
+
 	if (!defined $size) {
 	    $myretval = $val_failed;
 	    if ($verbose) {

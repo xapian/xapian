@@ -171,7 +171,7 @@ OP_KET		%\)
 		    qt.type = querytok::END;
 		    return qt;
 		}
-		    
+
 %%
 
 static YY_BUFFER_STATE qfs_yystate;

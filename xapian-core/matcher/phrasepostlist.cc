@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -78,7 +78,7 @@ NearPostList::do_test(std::vector<PositionList *> &plists, om_termcount i,
 	DebugMsg("[" << i << "]: " << max - window + 1 << " " << min << " "
 		 << pos << " " << max << " " << min + window - 1 << endl);
 	if (pos > min + window - 1) return false;
-	if (i + 1 == plists.size()) return true; 
+	if (i + 1 == plists.size()) return true;
 	if (pos < min) min = pos;
 	else if (pos > max) max = pos;
 	if (do_test(plists, i + 1, min, max)) return true;
@@ -100,11 +100,11 @@ PhrasePostList::test_doc()
     for (i = terms.begin(); i != terms.end(); i++) {
 	PositionList *p = (*i)->get_position_list();
 	p->index = i - terms.begin();
-	plists.push_back(p);				       
+	plists.push_back(p);
     }
 
     std::sort(plists.begin(), plists.end(), PositionListCmpLt());
-     
+
     om_termpos pos;
     om_termpos idx, min;
     do {

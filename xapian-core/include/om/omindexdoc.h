@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -57,18 +57,18 @@ struct OmDocumentTerm {
     /** Type to store positional information in. */
     typedef std::vector<om_termpos> term_positions;
 
-    /** Positional information. 
+    /** Positional information.
      *
      *  This is a list of positions at which the term occurs in the
      *  document. The list is in strictly increasing order of term
-     *  position. 
+     *  position.
      *
-     *  The positions start at 1. 
+     *  The positions start at 1.
      *
      *  Note that, even if positional information is present, the WDF might
      *  not be equal to the length of the position list, since a term might
      *  occur multiple times at a single position, but will only have one
-     *  entry in the position list for each position. 
+     *  entry in the position list for each position.
      */
     term_positions positions;
 
@@ -85,7 +85,7 @@ struct OmDocumentTerm {
      *  This method increments the wdf.  If positional information is
      *  supplied, this also adds an entry to the list of positions, unless
      *  there is already one for the specified position.
-     *  
+     *
      *  @param tpos The position within the document at which the term
      *              occurs.  If this information is not available, use
      *              the default value of 0.

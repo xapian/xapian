@@ -11,7 +11,7 @@ INCLUDES += @SLEEPYCAT_INCLUDES@
 if HAVE_PERL
 PERLTESTS = stemtest.pl
 else
-PERLTESTS = 
+PERLTESTS =
 endif
 
 if HAVE_CPP_ACCESS_BYPASS
@@ -25,7 +25,7 @@ endif
 if BUILD_PTHREAD_SUPPORT
 THREADTESTS = threadtest
 else
-THREADTESTS = 
+THREADTESTS =
 endif
 
 ## Test programs to be run
@@ -98,7 +98,7 @@ include $(top_srcdir)/Makefile_common.am
 ALL_INCLUDES = `find $(top_srcdir) \( -name \*.h -and -not -name acconfig.h \) -print | grep -v 'bindings/java'`
 
 ## Extra rules:
-includetest.cc: 
+includetest.cc:
 	@echo "Generating includetest.cc - including all header files."
 	@depends="$(ALL_INCLUDES)"; destfile=".deps-includetest-cc"; $(GENDEPS)
 	@for header in $(ALL_INCLUDES) ; do echo $$header ; done | \

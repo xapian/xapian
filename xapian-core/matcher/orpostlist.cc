@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -56,7 +56,7 @@ OrPostList::next(om_weight w_min)
 	    ret = new AndMaybePostList(l, r, matcher, lhead, rhead);
 	    ret2 = ret->next(w_min);
 	}
-		
+
 	l = r = NULL;
 	if (ret2) {
 	    delete ret;
@@ -90,7 +90,7 @@ OrPostList::next(om_weight w_min)
 	lhead = l->get_docid();
 	return NULL;
     }
-    
+
     PostList *ret = r;
     r = NULL;
     return ret;
@@ -120,7 +120,7 @@ OrPostList::skip_to(om_docid did, om_weight w_min)
 	    did = std::max(did, lhead);
 	}
 
-	PostList *ret2 = ret->skip_to(did, w_min);	
+	PostList *ret2 = ret->skip_to(did, w_min);
 	l = r = NULL;
 	if (ret2) {
 	    delete ret;
@@ -150,7 +150,7 @@ OrPostList::skip_to(om_docid did, om_weight w_min)
 	lhead = l->get_docid();
 	return NULL;
     }
-    
+
     PostList *ret = r;
     r = NULL;
     return ret;

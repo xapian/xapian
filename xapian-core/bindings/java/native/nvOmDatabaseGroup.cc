@@ -19,7 +19,7 @@
 JNIEXPORT jlong JNICALL Java_com_muscat_om_OmDatabaseGroup_createNativeObject
   (JNIEnv *env, jobject obj)
 {
-    return (jlong) new OmDatabaseGroup ();    
+    return (jlong) new OmDatabaseGroup ();
 }
 
 /*
@@ -43,7 +43,7 @@ JNIEXPORT void JNICALL Java_com_muscat_om_OmDatabaseGroup_add_1database
 {
     OmDatabaseGroup* db = (OmDatabaseGroup*) tryGetLongField (env, obj, "nativePtr");
     string type_n = getStringValue (env, type);
-    
+
     jsize params_len = env->GetArrayLength (params);
     vector<string> params_n;
     for (jsize i = 0; i < params_len; i++) {
@@ -52,7 +52,7 @@ JNIEXPORT void JNICALL Java_com_muscat_om_OmDatabaseGroup_add_1database
 	params_n.push_back (parm);
 	env->DeleteLocalRef (param_obj);
     }
-    
+
     try {
 	db->add_database (type_n, params_n);
     }

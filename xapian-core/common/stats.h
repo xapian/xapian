@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -60,7 +60,7 @@ class Stats {
 
 class StatsSource;
 
-/** Statistics collector: gathers statistics from sub-databases, puts them 
+/** Statistics collector: gathers statistics from sub-databases, puts them
  *  together to build statistics for whole collection, and returns the
  *  overall statistics to each sub-database.
  */
@@ -164,7 +164,7 @@ class StatsSource {
 	/** Set the average length of a document in this sub-database.
 	 */
 	void my_average_length_is(om_doclength avlen);
-	
+
 	/** Set the term frequency in the sub-database which this stats
 	 *  object represents.  This is the number of documents in
 	 *  the sub-database indexed by the given term.
@@ -324,7 +324,7 @@ StatsSource::my_termfreq_is(const om_termname & tname, om_doccount tfreq)
 
 inline void
 StatsSource::my_reltermfreq_is(const om_termname & tname, om_doccount rtfreq)
-{   
+{
     Assert(total_stats == 0);
     Assert(my_stats.reltermfreq.find(tname) == my_stats.reltermfreq.end());
     my_stats.reltermfreq[tname] = rtfreq;

@@ -26,7 +26,7 @@ JNIEXPORT jlong JNICALL Java_com_muscat_om_OmEnquire_createNativeObject
     catch (OmError& err) {
 	handleNativeError (env, err);
     }
-    
+
     return enq;
 }
 
@@ -75,26 +75,26 @@ JNIEXPORT jobject JNICALL Java_com_muscat_om_OmEnquire_get_1doc__I
  * Signature: (JJLcom/muscat/om/OmRSet;Lcom/muscat/om/OmMatchOptions;Lcom/muscat/om/OmMatchDecider;)Lcom/muscat/om/OmMSet;
  */
 JNIEXPORT jobject JNICALL Java_com_muscat_om_OmEnquire_get_1mset
-  (JNIEnv *env, jobject obj, jint first, jint max, 
+  (JNIEnv *env, jobject obj, jint first, jint max,
    jobject omrset, jobject omoptions, jobject ommatchdecider)
 {
     OmEnquire* enq = (OmEnquire*) tryGetLongField (env, obj, "nativePtr");
-    OmRSet*          rset = omrset ? 
+    OmRSet*          rset = omrset ?
 	(OmRSet*)           tryGetLongField (env, omrset, "nativePtr") : NULL;
-    OmMatchOptions*  mopt = omoptions ? 
+    OmMatchOptions*  mopt = omoptions ?
 	(OmMatchOptions*)   tryGetLongField (env, omoptions, "nativePtr") : NULL;
-    OmMatchDecider*  mdec = ommatchdecider ? 
+    OmMatchDecider*  mdec = ommatchdecider ?
 	(OmMatchDecider*)   tryGetLongField (env, ommatchdecider, "nativePtr") : NULL;
 
     try {
-	OmMSet* mset = new OmMSet (enq->get_mset ((om_doccount) first, (om_doccount) max, 
+	OmMSet* mset = new OmMSet (enq->get_mset ((om_doccount) first, (om_doccount) max,
 						  rset, mopt, mdec));
 	return makeReturnObject (env, "com/muscat/om/OmMSet", (jlong) mset);
     }
     catch (OmError& err) {
 	handleNativeError (env, err);
     }
-    return NULL;						 
+    return NULL;
 }
 
 /*
@@ -103,7 +103,7 @@ JNIEXPORT jobject JNICALL Java_com_muscat_om_OmEnquire_get_1mset
  * Signature: (Lcom/muscat/om/OmQuery;)V
  */
 JNIEXPORT void JNICALL Java_com_muscat_om_OmEnquire_set_1query
-  (JNIEnv *env, jobject obj, jobject query) 
+  (JNIEnv *env, jobject obj, jobject query)
 {
     OmEnquire* enq = (OmEnquire*) tryGetLongField (env, obj, "nativePtr");
     OmQuery* query_n = (OmQuery*) tryGetLongField (env, query, "nativePtr");
@@ -112,7 +112,7 @@ JNIEXPORT void JNICALL Java_com_muscat_om_OmEnquire_set_1query
     }
     catch (OmError& err) {
 	handleNativeError (env, err);
-    }    
+    }
 }
 
 /*
@@ -125,7 +125,7 @@ JNIEXPORT jobject JNICALL Java_com_muscat_om_OmEnquire_get_1eset
 {
     OmEnquire* enq              = (OmEnquire*)       tryGetLongField (env, obj, "nativePtr");
     OmRSet* rset_n              = (OmRSet*)          tryGetLongField (env, rset, "nativePtr");
-    
+
     OmExpandOptions* eoptions_n = (eoptions == NULL) ? 0 :
 	(OmExpandOptions*) tryGetLongField (env, eoptions, "nativePtr");
 
@@ -133,9 +133,9 @@ JNIEXPORT jobject JNICALL Java_com_muscat_om_OmEnquire_get_1eset
 	(OmExpandDecider*) tryGetLongField (env, edecider, "nativePtr");
 
     try {
-	OmESet* ret = new OmESet (enq->get_eset ((om_termcount) maxterms, *rset_n, 
+	OmESet* ret = new OmESet (enq->get_eset ((om_termcount) maxterms, *rset_n,
 						 eoptions_n, edecider_n));
-	
+
 	return makeReturnObject (env, "com/muscat/om/OmESet", (jlong) ret);
     }
     catch (OmError& err) {
@@ -152,7 +152,7 @@ JNIEXPORT jobject JNICALL Java_com_muscat_om_OmEnquire_get_1eset
  * Signature: (I)[Ljava/lang/String;
  */
 JNIEXPORT jobjectArray JNICALL Java_com_muscat_om_OmEnquire_get_1matching_1terms
-  (JNIEnv *env, jobject obj, jint did) 
+  (JNIEnv *env, jobject obj, jint did)
 {
     OmEnquire* enq = (OmEnquire*) tryGetLongField (env, obj, "nativePtr");
     om_termname_list terms = enq->get_matching_terms ((om_docid) did);
@@ -164,7 +164,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_muscat_om_OmEnquire_get_1matching_1terms
 	 it != terms.end (); it++, p++)
     {
 	env->SetObjectArrayElement (ret, p, env->NewStringUTF (((string) *it).c_str()));
-    }	
+    }
 
     return ret;
 }

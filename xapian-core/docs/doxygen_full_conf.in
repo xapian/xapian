@@ -32,7 +32,7 @@ INHERIT_DOCS          = YES
 INLINE_INFO           = YES
 SORT_MEMBER_DOCS      = NO
 TAB_SIZE              = 8
-ENABLED_SECTIONS      = 
+ENABLED_SECTIONS      =
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
 #---------------------------------------------------------------------------
@@ -48,16 +48,16 @@ FILE_PATTERNS         = *.cpp *.cc *.c *.h
 RECURSIVE             = YES
 EXCLUDE               = @TOP_SRCDIR@/docs @TOP_SRCDIR@/tests
 EXCLUDE_PATTERNS      = acconfig.h
-EXAMPLE_PATH          = 
-EXAMPLE_PATTERNS      = 
-IMAGE_PATH            = 
-INPUT_FILTER          = 
+EXAMPLE_PATH          =
+EXAMPLE_PATTERNS      =
+IMAGE_PATH            =
+INPUT_FILTER          =
 #---------------------------------------------------------------------------
 # configuration options related to the alphabetical class index
 #---------------------------------------------------------------------------
 ALPHABETICAL_INDEX    = YES
 COLS_IN_ALPHA_INDEX   = 3
-IGNORE_PREFIX         = 
+IGNORE_PREFIX         =
 #---------------------------------------------------------------------------
 # configuration options related to the HTML output
 #---------------------------------------------------------------------------
@@ -65,7 +65,7 @@ GENERATE_HTML         = YES
 HTML_OUTPUT           = html
 HTML_HEADER           = @TOP_SRCDIR@/docs/doxygen_full_header.html_tmpl
 HTML_FOOTER           = @TOP_SRCDIR@/docs/doxygen_full_footer.html_tmpl
-HTML_STYLESHEET       = 
+HTML_STYLESHEET       =
 HTML_ALIGN_MEMBERS    = YES
 GENERATE_HTMLHELP     = NO
 #---------------------------------------------------------------------------
@@ -75,8 +75,8 @@ GENERATE_LATEX        = YES
 LATEX_OUTPUT          = latex
 COMPACT_LATEX         = NO
 PAPER_TYPE            = a4
-EXTRA_PACKAGES        = 
-LATEX_HEADER          = 
+EXTRA_PACKAGES        =
+LATEX_HEADER          =
 PDF_HYPERLINKS        = YES
 LATEX_BATCHMODE       = YES
 #---------------------------------------------------------------------------
@@ -94,20 +94,20 @@ GENERATE_MAN          = YES
 MAN_OUTPUT            = man
 MAN_EXTENSION         = .3
 #---------------------------------------------------------------------------
-# Configuration options related to the preprocessor   
+# Configuration options related to the preprocessor
 #---------------------------------------------------------------------------
 ENABLE_PREPROCESSING  = YES
 MACRO_EXPANSION       = YES
 EXPAND_ONLY_PREDEF    = YES
 SEARCH_INCLUDES       = YES
-INCLUDE_PATH          = 
-PREDEFINED            = 
+INCLUDE_PATH          =
+PREDEFINED            =
 EXPAND_AS_DEFINED     = DEFINE_ERROR_BASECLASS DEFINE_ERROR_CLASS
 #---------------------------------------------------------------------------
 # Configuration::addtions related to external references
 #---------------------------------------------------------------------------
-TAGFILES              = 
-GENERATE_TAGFILE      = 
+TAGFILES              =
+GENERATE_TAGFILE      =
 ALLEXTERNALS          = NO
 PERL_PATH             = @PERL_PATH@
 #---------------------------------------------------------------------------
@@ -127,8 +127,8 @@ MAX_DOT_GRAPH_HEIGHT  = 1024
 #---------------------------------------------------------------------------
 SEARCHENGINE          = NO
 CGI_NAME              = search.cgi
-CGI_URL               = 
-DOC_URL               = 
-DOC_ABSPATH           = 
+CGI_URL               =
+DOC_URL               =
+DOC_ABSPATH           =
 BIN_ABSPATH           = /usr/local/bin/
-EXT_DOC_PATHS         = 
+EXT_DOC_PATHS         =

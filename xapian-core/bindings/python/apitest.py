@@ -50,7 +50,7 @@ def test_pctcutoff1():
 	print "MSet not varied enough to test"
 
     print "Cutoff percent: ", my_pct
-    
+
     mymopt = OmMatchOptions()
     mymopt.set_percentage_cutoff(my_pct)
     mymset2 = enquire.get_mset(0, 100, "NULL", mymopt)
@@ -58,7 +58,7 @@ def test_pctcutoff1():
     print "Percentages after cutoff:",
     print_mset_percentages(mymset2)
     print
-    
+
     mymset2items = mymset2.items
     if (len(mymset2items) < num_items):
         success = 0

@@ -17,7 +17,7 @@
 JNIEXPORT void JNICALL Java_com_muscat_om_OmMSetItem_deleteNativeObject
   (JNIEnv *env, jobject obj)
 {
-    delete (OmMSetItem*) tryGetLongField (env, obj, "nativePtr");    
+    delete (OmMSetItem*) tryGetLongField (env, obj, "nativePtr");
 }
 
 /*
@@ -55,21 +55,21 @@ JNIEXPORT jobject JNICALL Java_com_muscat_om_OmMSetItem_get_1collapse_1key
     OmKey key = ((OmMSetItem*) tryGetLongField (env, obj, "nativePtr"))->collapse_key;
 
     //cerr << "--- nvOmMSetItem: collapse_key=" << key.value << ";\n";
-    
+
     // convert to Java object
 
     jclass clazz = env->FindClass ("com/muscat/om/OmKey");
     if (clazz == NULL)
-	throwNewException (env, "java/lang/RuntimeException", 
+	throwNewException (env, "java/lang/RuntimeException",
 			   "NATIVE: error getting class ID for com/muscat/om/OmKey");
-    
-    jmethodID cid = env->GetMethodID (clazz, "<init>", "(Ljava/lang/String;)V"); 
+
+    jmethodID cid = env->GetMethodID (clazz, "<init>", "(Ljava/lang/String;)V");
     if (cid == NULL)
 	throwNewException (env, "java/lang/RuntimeException",
 			   "NATIVE: error getting constructor ID for com/muscat/om/OmKey");
-    
-    jobject ret =  env->NewObject (clazz, cid, 
+
+    jobject ret =  env->NewObject (clazz, cid,
 				   env->NewStringUTF (key.value.c_str()));
     env->DeleteLocalRef (clazz);
-    return ret;    
+    return ret;
 }

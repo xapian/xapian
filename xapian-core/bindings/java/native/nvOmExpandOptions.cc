@@ -14,9 +14,9 @@
  * Signature: ()J
  */
 JNIEXPORT jlong JNICALL Java_com_muscat_om_OmExpandOptions_createNativeObject
-    (JNIEnv *env, jobject obj) 
+    (JNIEnv *env, jobject obj)
 {
-    return (jlong) new OmExpandOptions ();        
+    return (jlong) new OmExpandOptions ();
 }
 
 /*

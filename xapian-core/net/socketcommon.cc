@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -45,7 +45,7 @@ OmQueryInternal query_from_string(std::string qs)
     Assert(qs.length() > 1);
 
     qfs_start(qs);
-    
+
 //    cerr << "Reading from query " << qs << endl;
     OmQueryInternal retval = qfs_readquery();
     DebugMsg("query_from_string(" << qs << ") = " << retval.serialise());
@@ -146,7 +146,7 @@ string_to_stats(const std::string &s)
 		throw OmNetworkError(std::string("Invalid stats string word part: ")
 				     + word);
 	    }
-	    
+
 	    stat.reltermfreq[decode_tname(parts[0])] = atoi(parts[1].c_str());
 	} else {
 	    throw OmNetworkError(std::string("Invalid stats string word: ") + word);
@@ -370,7 +370,7 @@ OmSocketLineBuf::do_readline()
     while ((curr_time = time(NULL)) <= (start_time + timeout) &&
 	   (pos = buffer.find_first_of('\n')) == buffer.npos) {
 	char buf[256];
-	
+
 	// wait for input to be available.
 	fd_set fdset;
 	FD_ZERO(&fdset);
@@ -413,7 +413,7 @@ OmSocketLineBuf::wait_for_data(int msecs)
     // FIXME: share with readline()
     while (buffer.find_first_of('\n') == buffer.npos) {
 	char buf[256];
-	
+
 	// wait for input to be available.
 	fd_set fdset;
 	FD_ZERO(&fdset);

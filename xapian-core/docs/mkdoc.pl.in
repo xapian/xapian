@@ -86,7 +86,7 @@ sub get_codestruct() {
 	while($contents =~ m#(/\*.*?\*/)#s) {
 	    print "comment: `$1'\n";
 	    my $newlines = "";
-	    
+
 	    $contents = "$`/*$newlines*/$'";
 	}
 	while($contents =~ s#//(.*?)\n#\n#) { print "removing $1\n"}

@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -119,7 +119,7 @@ LocalMatch::build_and_tree(std::vector<PostList *> &postlists)
     // Build nice tree for AND-ed terms
     // SORT list into ascending freq order
     // AND last two elements, then AND with each subsequent element
-	
+
     std::vector<PostList *>::const_iterator i;
     for (i = postlists.begin(); i != postlists.end(); i++) {
 	if ((*i)->get_termfreq() == 0) {
@@ -132,7 +132,7 @@ LocalMatch::build_and_tree(std::vector<PostList *> &postlists)
     }
 
     if (postlists.empty()) return new EmptyPostList();
-    
+
     std::stable_sort(postlists.begin(), postlists.end(), PLPCmpLt());
 
     int j = postlists.size() - 1;
@@ -386,7 +386,7 @@ LocalMatch::postlist_from_queries(om_queryop op,
 	    // FIXME: handle EmptyPostList return specially?
 	    return new PhrasePostList(res, window, postlists_orig);
 	}
-    
+
 	case OM_MOP_OR:
 	    if (max_or_terms != 0) {
 		// Select top terms
@@ -716,7 +716,7 @@ LocalMatch::get_mset(om_doccount first,
 		DebugMsg("*** TERMINATING EARLY (1)" << endl);
 		break;
 	    }
-	}    
+	}
 
 	PostList *ret = query->next(min_item.wt - max_extra_weight);
         if (ret) {
@@ -739,7 +739,7 @@ LocalMatch::get_mset(om_doccount first,
 	if (query->at_end()) break;
 
         (*mbound)++;
-	
+
 	om_docid did = query->get_docid();
 	// FIXME: next line is inefficient, due to design.  (Makes it hard /
 	// impossible to store document lengths in postlists, so they've
@@ -753,7 +753,7 @@ LocalMatch::get_mset(om_doccount first,
 		extra_weight->get_sumextra(query->get_doclength());
 //		extra_weight->get_sumextra(database->get_doclength(did));
 	OmMSetItem new_item(wt, did);
-        
+
 	if(mcmp(new_item, min_item)) {
 	    bool add_item = true;
 

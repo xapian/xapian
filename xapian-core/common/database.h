@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -102,7 +102,7 @@ class IRDatabase : public IndexerDestination,
 	 */
 	virtual om_doccount get_termfreq(const om_termname & tname) const = 0;
 
-	/** Check whether a given term is in the database. 
+	/** Check whether a given term is in the database.
 	 *
 	 *  This method should normally be functionally equivalent to
 	 *  (get_termfreq() != 0), but this equivalence should not be
@@ -151,7 +151,7 @@ class IRDatabase : public IndexerDestination,
 	 *  This is used to access the keys and data associated with a
 	 *  document.  See class LeafDocument for details of accessing
 	 *  the keys and data.
-	 *  
+	 *
 	 *  @param did    The document id which is being requested.
 	 *
 	 *  @return       A pointer to the newly created document object.
@@ -191,7 +191,7 @@ class IRDatabase : public IndexerDestination,
 	//////////////////////////////////////////////////////////////////
 	// Introspection methods:
 	// ======================
-	
+
 	/** Determine whether the database is a network database.  This is
 	 *  used by MultiMatch to decide whether to use a LocalMatch or a
 	 *  NetworkMatch to perform a search over the database.

@@ -39,7 +39,7 @@ all-dvi:
 all-ps:
 endif
 
-# Things to do if have doxygen installed 
+# Things to do if have doxygen installed
 if HAVE_DOXYGEN
 all-local: # doxygen_docs
 dist-hook: doxygen_docs doxygen_dist
@@ -139,7 +139,7 @@ clean-local:
 ################################
 # How to uninstall local files #
 ################################
-uninstall-local: 
+uninstall-local:
 	@if [ -d $(DESTDIR)$(docdatadir)/apidoc ]; then \
 	  echo "Uninstalling $(DESTDIR)$(docdatadir)/apidoc" ; \
 	  rm -rf $(DESTDIR)$(docdatadir)/apidoc ; \
@@ -236,17 +236,17 @@ sourcedoc/html/index.html: doxygen_full_conf \
 ## 	@echo "Generating HTML documentation for API"
 ## 	@depends="$(APIDOC_SRC)"; destfile=".deps-apidoc-html"; $(GENDEPS)
 ## 	@doc++ $(DOCPPFLAGS) --dir apidoc $(APIDOC_SRC)
-## 
+##
 ## apidoc.tex:
 ## 	@echo "Generating LaTeX documentation for API"
 ## 	@depends="$(APIDOC_SRC)"; destfile=".deps-apidoc-tex"; $(GENDEPS)
 ## 	@doc++ -t $(DOCPPFLAGS) --output $@ $(APIDOC_SRC)
-## 
+##
 ## sourcedoc/index.html:
 ## 	@echo "Generating HTML documentation for full source"
 ## 	@depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-html"; $(GENDEPS)
 ## 	@doc++ $(DOCPPFLAGS) --all --private --dir sourcedoc $(SOURCEDOC_SRC)
-## 
+##
 ## sourcedoc.tex:
 ## 	@echo "Generating LaTeX documentation for full source"
 ## 	@depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-tex"; $(GENDEPS)

@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -28,7 +28,7 @@
 
 OmExpandBits
 operator+(const OmExpandBits &bits1, const OmExpandBits &bits2)
-{   
+{
     OmExpandBits sum(bits1);
     sum.multiplier += bits2.multiplier;
     sum.rtermfreq += bits2.rtermfreq;
@@ -41,7 +41,7 @@ operator+(const OmExpandBits &bits1, const OmExpandBits &bits2)
 	sum.termfreq = bits2.termfreq;
 	sum.dbsize = bits2.dbsize;
     } else {
-	DEBUGMSG(WTCALC, "OmExpandBits::operator+ using first operand: " << 
+	DEBUGMSG(WTCALC, "OmExpandBits::operator+ using first operand: " <<
 		bits1.termfreq << "/" << bits1.dbsize << " instead of " <<
 		bits2.termfreq << "/" << bits2.dbsize << endl);
 	// sum already contains the parts of the first operand
@@ -117,7 +117,7 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
 	     "mult=" << bits.multiplier << ")");
 
     double rtermfreq = bits.rtermfreq;
-    
+
     om_weight tw;
     tw = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /
 	    ((rsize - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
@@ -140,7 +140,7 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
     return(bits.multiplier * tw);
 }
 
-// Provide an upper bound on the values which may be returned as weights 
+// Provide an upper bound on the values which may be returned as weights
 om_weight
 OmExpandWeight::get_maxweight() const
 {

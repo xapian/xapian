@@ -62,7 +62,7 @@ if test "x$LIBOMUS_UNINST" = "xno"; then
   if test "x$LIBOMUS_CONFIG" = "xno"; then
     AC_PATH_PROG(LIBOMUS_CONFIG, libomus-config, no)
   fi
-  
+
   AC_MSG_CHECKING(for libomus)
   if test "x$LIBOMUS_CONFIG" = "xno"; then
     AC_MSG_RESULT(not found)

@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -38,9 +38,9 @@ class SingleMatch;
 class MultiMatch
 {
     private:
-	/// Vector of the items 
+	/// Vector of the items
 	std::vector<OmRefCntPtr<SingleMatch> > leaves;
-	
+
 	/// The database
 	const MultiDatabase * multi_database;
 
@@ -76,7 +76,7 @@ class MultiMatch
 	 */
 	bool have_not_seen_key(std::set<OmKey> & collapse_entries,
 			       const OmKey & new_key);
-	
+
         /** Merge two msets together.
 	 *
 	 *  @param mset      The mset to put the results in.
@@ -125,7 +125,7 @@ class MultiMatch
 			   OmMSet & mset);
 
 	/** Remove elements from the start of the list of items in the mset.
-	 * 
+	 *
 	 *  This removes the given number of elements from the start of the
 	 *  items in the mset.  It also increments mset.firstitem
 	 *  appropriately, so that it still has the correct value.

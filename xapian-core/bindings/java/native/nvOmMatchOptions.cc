@@ -18,7 +18,7 @@
 JNIEXPORT jlong JNICALL Java_com_muscat_om_OmMatchOptions_createNativeObject
   (JNIEnv *env, jobject obj)
 {
-    return (jlong) new OmMatchOptions ();    
+    return (jlong) new OmMatchOptions ();
 }
 
 /*
@@ -29,7 +29,7 @@ JNIEXPORT jlong JNICALL Java_com_muscat_om_OmMatchOptions_createNativeObject
 JNIEXPORT void JNICALL Java_com_muscat_om_OmMatchOptions_deleteNativeObject
   (JNIEnv *env, jobject obj)
 {
-    delete (OmMatchOptions*) tryGetLongField (env, obj, "nativePtr");    
+    delete (OmMatchOptions*) tryGetLongField (env, obj, "nativePtr");
 }
 
 /*

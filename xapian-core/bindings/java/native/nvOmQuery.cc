@@ -52,23 +52,23 @@ JNIEXPORT jlong JNICALL Java_com_muscat_om_OmQuery_createNativeObject__Ljava_lan
 om_queryop transOp (JNIEnv* env, jstring op) {
     char* op_n = (char*) env->GetStringUTFChars (op, NULL);
     om_queryop ret = OM_MOP_LEAF;
-    if (! strcasecmp (op_n, "AND")) 
+    if (! strcasecmp (op_n, "AND"))
 	ret = OM_MOP_AND;
-    else if (! strcasecmp (op_n, "OR")) 
+    else if (! strcasecmp (op_n, "OR"))
 	ret = OM_MOP_OR;
-    else if (! strcasecmp (op_n, "AND NOT")) 
+    else if (! strcasecmp (op_n, "AND NOT"))
 	ret = OM_MOP_AND_NOT;
-    else if (! strcasecmp (op_n, "XOR")) 
+    else if (! strcasecmp (op_n, "XOR"))
 	ret = OM_MOP_XOR;
-    else if (! strcasecmp (op_n, "AND MAYBE")) 
+    else if (! strcasecmp (op_n, "AND MAYBE"))
 	ret = OM_MOP_AND_MAYBE;
-    else if (! strcasecmp (op_n, "FILTER")) 
+    else if (! strcasecmp (op_n, "FILTER"))
 	ret = OM_MOP_FILTER;
     else if (! strcasecmp (op_n, "NEAR"))
 	ret = OM_MOP_NEAR;
     else if (! strcasecmp (op_n, "PHRASE"))
 	ret = OM_MOP_PHRASE;
-	
+
     env->ReleaseStringUTFChars (op, op_n);
 
     if (ret == OM_MOP_LEAF)
@@ -76,7 +76,7 @@ om_queryop transOp (JNIEnv* env, jstring op) {
 
     return ret;
 }
-    
+
 
 /*
  * Class:     com_muscat_om_OmQuery
@@ -110,9 +110,9 @@ JNIEXPORT jlong JNICALL Java_com_muscat_om_OmQuery_createNativeObject__Ljava_lan
 	terms_n.push_back (getStringValue (env, jterm));
 	env->DeleteLocalRef (jterm);
     }
-    
+
     om_queryop op_n = transOp (env, op);
-    
+
     return (jlong) new OmQuery (op_n, terms_n.begin(),
 				terms_n.end(), (om_termpos)window);
 }
@@ -143,9 +143,9 @@ JNIEXPORT jobjectArray JNICALL Java_com_muscat_om_OmQuery_get_1terms
 	 it != terms.end (); it++, p++)
     {
 	env->SetObjectArrayElement (ret, p, env->NewStringUTF (((string) *it).c_str()));
-    }	
+    }
 
-    return ret;    
+    return ret;
 }
 
 /*

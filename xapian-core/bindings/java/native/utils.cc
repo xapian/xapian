@@ -24,9 +24,9 @@ int strcasecmp(const char *s1, const char *s2)
 
 void throwNewException (JNIEnv *env, const char* type, const char* msg) {
     jclass xclass = env->FindClass (type);
-    if (xclass != NULL) 
+    if (xclass != NULL)
 	env->ThrowNew (xclass, msg);
-    
+
     env->DeleteLocalRef (xclass);
 }
 
@@ -77,12 +77,12 @@ jobject makeReturnObject (JNIEnv* env, const char* classname, jlong native) {
 	throwNewException (env, "java/lang/RuntimeException", msg.c_str());
     }
 
-    jmethodID cid = env->GetMethodID (clazz, "<init>", "(J)V"); 
+    jmethodID cid = env->GetMethodID (clazz, "<init>", "(J)V");
     if (cid == NULL) {
 	string msg = string ("NATIVE: error getting constructor ID for: ") + classname;
 	throwNewException (env, "java/lang/RuntimeException", msg.c_str());
     }
-    
+
     jobject ret = env->NewObject (clazz, cid, native);
     env->DeleteLocalRef (clazz);
     return ret;
@@ -94,7 +94,7 @@ jlong tryGetLongField (JNIEnv* env, const jobject& obj, const char* fieldname) {
 	string msg = string ("NATIVE: error getting long field: ") + fieldname;
 	throwNewException (env, "java/lang/RuntimeException", msg.c_str());
     }
-    
+
     jlong ret = env->GetLongField (obj, fid);
     return ret;
 }

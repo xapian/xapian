@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -137,7 +137,7 @@ class test_driver {
 	 *               If empty, all tests will be run.
 	 */
 	result do_run_tests(const std::string &name);
-	
+
 	// abort tests at the first failure
 	bool abort_on_error;
 
@@ -155,7 +155,7 @@ inline void test_driver::set_abort_on_error(bool aoe_)
 
 #ifndef STRINGIZE
 /** STRINGIZE converts a piece of code to a string, so it can be displayed.
- * 
+ *
  *  The 2nd level of the stringize definition here is not needed for the use we
  *  put this to in this file (since we always use it within a macro here) but
  *  is required in general  (#N doesn't work outside a macro definition)

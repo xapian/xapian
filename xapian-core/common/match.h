@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -102,13 +102,13 @@ class SingleMatch : public OmRefCntBase
 	///////////////////////////////////////////////////////////////////
 	// Prepare to do the match
 	// =======================
-	
+
 	/** Prepare to perform the match operation.
 	 *  This must be called before either get_max_weight() or
 	 *  get_mset().  It can be called more than once.  If nowait
 	 *  is true, the operation has only succeeded when the return
 	 *  value is true.
-	 * 
+	 *
 	 *  @param nowait	If true, then return as soon as
 	 *  			possible even if the operation hasn't
 	 *  			been completed.  If it hasn't, then
@@ -123,7 +123,7 @@ class SingleMatch : public OmRefCntBase
 	 *           In all other circumstances it will return true.
 	 */
 	virtual bool prepare_match(bool nowait) = 0;
-	
+
 	///////////////////////////////////////////////////////////////////
 	// Get information about result
 	// ============================
@@ -139,7 +139,7 @@ class SingleMatch : public OmRefCntBase
 	 *  performed, this is likely to be much lower than the actual
 	 *  number of matching records, but it is expensive to do the
 	 *  exact calculation.
-	 * 
+	 *
 	 *  It is generally considered that presenting the mbound to users
 	 *  causes them to worry about the large number of results, rather
 	 *  than how useful those at the top of the mset are, and is thus
@@ -150,7 +150,7 @@ class SingleMatch : public OmRefCntBase
 	 *  @param mset           Results will be put here
 	 *  @param mbound         Mbound will returned here
 	 *  @param greatest_wt    Gets set to max weight attained
-	 *  @param termfreqandwts 
+	 *  @param termfreqandwts
 	 *  @param mdecider       Optional decision functor
 	 *  @param nowait         If true, then work asynchronously -
 	 *                        see prepare_match()
@@ -168,7 +168,7 @@ class SingleMatch : public OmRefCntBase
 			      std::vector<OmMSetItem> & mset,
 			      om_doccount * mbound,
 			      om_weight * greatest_wt,
-			      std::map<om_termname, OmMSet::TermFreqAndWeight> & termfreqandwts,   
+			      std::map<om_termname, OmMSet::TermFreqAndWeight> & termfreqandwts,
 			      const OmMatchDecider *mdecider,
 			      bool nowait) = 0;
 };

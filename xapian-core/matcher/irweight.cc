@@ -7,7 +7,7 @@
 #include "bm25weight.h"
 #include "boolweight.h"
 
-IRWeight * 
+IRWeight *
 IRWeight::create(IRWeight::weight_type wt_type)
 {
     IRWeight * weight = NULL;

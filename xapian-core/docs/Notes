@@ -13,7 +13,7 @@ Table for result of operations when one of the operands is undefined (0):
 
             | a,b                           | a,0 | 0,b | 0,0 |
  -----------+-------------------------------+-----+-----+-----+
-  OR        | a or b                        |  a  |  b  |  0  | 
+  OR        | a or b                        |  a  |  b  |  0  |
   AND       | a and b                       |  a  |  b  |  0  |
   FILTER    | a and b (just weights from a) |  a  |  b* |  0  |
   AND_MAYBE | a (extra weights from b)      |  a  |  b  |  0  |

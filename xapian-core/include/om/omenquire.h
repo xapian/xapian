@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -68,7 +68,7 @@ enum om_queryop {
     /// As AND, but also require that terms occur close together (uses
     /// positional information)
     OM_MOP_NEAR,
-    
+
     /// As AND, but terms must occur adjacently in order specified
     /// (uses positional information)
     OM_MOP_PHRASE
@@ -208,7 +208,7 @@ class OmMatchOptions {
 	 *  See set_max_or_terms() for more details.
 	 */
 	om_termcount max_or_terms;
-    
+
 
 	/** Create a match options object.
 	 */
@@ -225,7 +225,7 @@ class OmMatchOptions {
 	 */
 	void set_no_collapse();
 
-	/** Set direction of sorting.  This applies only to documents which 
+	/** Set direction of sorting.  This applies only to documents which
 	 *  have the same weight, which will only ever occur with some
 	 *  weighting schemes.
 	 */
@@ -370,7 +370,7 @@ class OmExpandDeciderAnd : public OmExpandDecider {
 	 */
 	OmExpandDeciderAnd(const OmExpandDecider *left_,
 	                   const OmExpandDecider *right_);
-	
+
 	virtual int operator()(const om_termname &tname) const;
 
     private:
@@ -783,7 +783,7 @@ class OmEnquire {
 
 
 	/** Get terms which match a given document, by document id.
-	 * 
+	 *
 	 *  This method returns the terms in the current query which match
 	 *  the given document.
 	 *
@@ -863,7 +863,7 @@ class OmEnquire {
  *
  *  @exception OmOpeningError will be thrown if the database cannot
  *  be opened (for example, a required file cannot be found).
- *  
+ *
  */
 class OmBatchEnquire {
     private:
@@ -902,7 +902,7 @@ class OmBatchEnquire {
 	     */
 	    const OmMatchDecider * mdecider;
 	};
-	    
+
 	/** Type used to store a batch of queries to be performed.
 	 *  This is essentially an array of query_desc objects.
 	 */

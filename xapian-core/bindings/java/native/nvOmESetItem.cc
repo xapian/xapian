@@ -17,7 +17,7 @@
 JNIEXPORT void JNICALL Java_com_muscat_om_OmESetItem_deleteNativeObject
   (JNIEnv *env, jobject obj)
 {
-    delete (OmESetItem*) tryGetLongField (env, obj, "nativePtr");        
+    delete (OmESetItem*) tryGetLongField (env, obj, "nativePtr");
 }
 
 /*
@@ -29,7 +29,7 @@ JNIEXPORT jstring JNICALL Java_com_muscat_om_OmESetItem_get_1tname
   (JNIEnv *env, jobject obj)
 {
     OmESetItem* item = (OmESetItem*) tryGetLongField (env, obj, "nativePtr");
-    return env->NewStringUTF (item->tname.c_str());    
+    return env->NewStringUTF (item->tname.c_str());
 }
 
 /*

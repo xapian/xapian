@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -82,7 +82,7 @@ OmQuery::OmQuery(om_queryop op_,
 		 const std::vector<OmQuery>::const_iterator qend,
 		 om_termpos window)
 	: internal(0)
-{   
+{
     // FIXME: display the contents of the vector
     DEBUGAPICALL("OmQuery::OmQuery",
 		 op_ << ", " << "std::vector<OmQuery>, " << window);
@@ -348,7 +348,7 @@ OmQueryInternal::set_length(om_termcount qlen_)
 void
 OmQueryInternal::accumulate_terms(
 			std::vector<std::pair<om_termname, om_termpos> > &terms) const
-{ 
+{
     Assert(isdefined);
 
     if (op == OM_MOP_LEAF) {
@@ -590,7 +590,7 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 		 const std::vector<OmQueryInternal *>::const_iterator qend,
 		 om_termpos window_)
 	: isdefined(true), isbool(false), op(op_)
-{   
+{
     initialise_from_vector(qbegin, qend, window_);
     collapse_subqs();
 }
@@ -702,7 +702,7 @@ OmQueryInternal::initialise_from_vector(
 	    throw OmInvalidArgumentError("Only the top-level query can be pure boolean");
 	}
     }
-    
+
     try {
 	for (i = qbegin; i != qend; i++) {
 	    if((*i)->isdefined) {

@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -182,7 +182,7 @@ OmExpandOptions::set_use_query_terms(bool use_query_terms_)
 
 void
 OmExpandOptions::set_use_exact_termfreq(bool use_exact_termfreq_)
-{   
+{
     DEBUGAPICALL("OmExpandOptions::set_use_exact_termfreq", use_exact_termfreq_);
     use_exact_termfreq = use_exact_termfreq_;
 }
@@ -512,12 +512,12 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
      */
     std::auto_ptr<OmExpandDecider> decider_noquery;
     std::auto_ptr<OmExpandDecider> decider_andnoquery;
-    
+
     if (query != 0 && !eoptions->use_query_terms) {
 	std::auto_ptr<OmExpandDecider> temp1(
 	    new OmExpandDeciderFilterTerms(query->get_terms()));
         decider_noquery = temp1;
-	
+
 	std::auto_ptr<OmExpandDecider> temp2(
 	    new OmExpandDeciderAnd(decider_noquery.get(),
 				   edecider));
@@ -525,7 +525,7 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
 
         edecider = decider_andnoquery.get();
     }
-    
+
     expand.expand(maxitems, retval, &rset, edecider,
 		  eoptions->use_exact_termfreq);
 
@@ -628,9 +628,9 @@ OmEnquireInternal::calc_matching_terms(om_docid did) const
 	 ++i) {
 	tmap[*i] = index++;
     }
-    
+
     std::auto_ptr<TermList> docterms(database->open_term_list(did));
-    
+
     /* next() must be called on a TermList before you can
      * do anything else with it.
      */

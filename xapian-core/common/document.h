@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -41,13 +41,13 @@ class LeafDocument : public OmRefCntBase {
 	void operator=(const LeafDocument &);
 
 	OmLock mutex;
-	
+
 	/// The virtual implementation of get_key().
 	virtual OmKey do_get_key(om_keyno keyid) const = 0;
 	/// The virtual implementation of get_key().
 	virtual std::map<om_keyno, OmKey> do_get_all_keys() const = 0;
 	/// The virtual implementation of get_data().
-	virtual OmData do_get_data() const = 0;     
+	virtual OmData do_get_data() const = 0;
     public:
 	/** Get key by key number.
 	 *
@@ -66,7 +66,7 @@ class LeafDocument : public OmRefCntBase {
 	 *  length string
 	 */
 	OmKey get_key(om_keyno keyid) const;
-	
+
 	/** Get all keys for this document
 	 *
 	 *  Keys are quickly accessible fields, for use during the match
@@ -95,7 +95,7 @@ class LeafDocument : public OmRefCntBase {
 	 *  @return       An OmData object containing the data for this
 	 *  document.
 	 */
-	OmData get_data() const;     
+	OmData get_data() const;
 
 	/** Constructor.  In derived classes, this will typically be a
 	 *  private method, and only be called by database objects of the

@@ -17,7 +17,7 @@
 JNIEXPORT void JNICALL Java_com_muscat_om_OmESetItemVector_deleteNativeObject
   (JNIEnv *env, jobject obj)
 {
-    delete (vector<OmESetItem>*) tryGetLongField (env, obj, "nativePtr");        
+    delete (vector<OmESetItem>*) tryGetLongField (env, obj, "nativePtr");
 }
 
 /*
@@ -38,7 +38,7 @@ JNIEXPORT jint JNICALL Java_com_muscat_om_OmESetItemVector_size
  * Signature: (I)Ljava/lang/Object;
  */
 JNIEXPORT jobject JNICALL Java_com_muscat_om_OmESetItemVector_elementAt
-  (JNIEnv *env, jobject obj, jint pos) 
+  (JNIEnv *env, jobject obj, jint pos)
 {
     vector<OmESetItem>* vec = (vector<OmESetItem>*) tryGetLongField (env, obj, "nativePtr");
     OmESetItem* item = new OmESetItem ((*vec)[pos]);

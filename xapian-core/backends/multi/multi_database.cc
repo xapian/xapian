@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -84,7 +84,7 @@ MultiDatabase::~MultiDatabase()
 
 om_doccount
 MultiDatabase::get_doccount() const
-{   
+{
     om_doccount docs = 0;
 
     std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i = databases.begin();
@@ -99,7 +99,7 @@ MultiDatabase::get_doccount() const
 
 om_doclength
 MultiDatabase::get_avlength() const
-{   
+{
     if(!length_initialised) {
 	om_doccount docs = 0;
 	om_doclength totlen = 0;
@@ -122,7 +122,7 @@ MultiDatabase::get_avlength() const
 
 om_doccount
 MultiDatabase::get_termfreq(const om_termname & tname) const
-{   
+{
     if(!term_exists(tname)) return 0;
     PostList *pl = open_post_list(tname);
     om_doccount freq = 0;
@@ -152,7 +152,7 @@ MultiDatabase::open_post_list(const om_termname & tname) const
 	i++;
     }
     Assert(pls.begin() != pls.end());
-    
+
     LeafPostList * newpl = new MultiPostList(pls, this);
     return newpl;
 }

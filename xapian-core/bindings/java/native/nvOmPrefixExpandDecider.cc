@@ -15,7 +15,7 @@ class OmPrefixExpandDecider : public OmExpandDecider {
     int prelen;
 
     public:
-    OmPrefixExpandDecider (const string& p) { 
+    OmPrefixExpandDecider (const string& p) {
 	prefix = p;
 	prelen = p.length();
     }

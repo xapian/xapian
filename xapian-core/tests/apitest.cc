@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -571,7 +571,7 @@ bool test_expandfunctor1()
 
     OmMSet mymset = enquire.get_mset(0, 10);
     if (mymset.items.size() < 2) return false;
-    
+
     OmRSet myrset;
     myrset.add_document(mymset.items[0].did);
     myrset.add_document(mymset.items[1].did);
@@ -591,7 +591,7 @@ bool test_expandfunctor1()
 	copy(myeset_orig.items.begin(), myeset_orig.items.end(),
 	     ostream_iterator<OmESetItem>(cout, " "));
 	cout << endl;
-	
+
 	cout << "new_eset: ";
 	copy(myeset.items.begin(), myeset.items.end(),
 	     ostream_iterator<OmESetItem>(cout, " "));
@@ -619,7 +619,7 @@ bool test_expandfunctor1()
 	    break;
 	}
     }
-    
+
     while (orig != myeset_orig.items.end() && !myfunctor(orig->tname)) {
 	++orig;
     }
@@ -722,7 +722,7 @@ bool test_pctcutoff1()
     if (verbose) {
         cout << "Cutoff percent: " << my_pct << endl;
     }
-    
+
     OmMatchOptions mymopt;
     mymopt.set_percentage_cutoff(my_pct);
     OmMSet mymset2 = enquire.get_mset(0, 100, 0, &mymopt);
@@ -732,7 +732,7 @@ bool test_pctcutoff1()
 	print_mset_percentages(mymset2);
         cout << endl;
     }
-    
+
     if (mymset2.items.size() < num_items) {
         success = false;
 	if (verbose) {
@@ -795,7 +795,7 @@ bool test_maxattain1()
     bool success = true;
 
     OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"), 100, 0);
-    
+
     om_weight mymax = 0;
     for (unsigned i=0; i<mymset.items.size(); ++i) {
         if (mymset.items[i].wt > mymax) {
@@ -1061,7 +1061,7 @@ bool test_getqterms1()
 bool test_getmterms1()
 {
     bool success = true;
-    
+
     static string answers[4] = {
 	"one",
 	"two",
@@ -1214,7 +1214,7 @@ bool test_querylen3()
     auto_ptr<OmQuery> dynquery2(new OmQuery("ring"));
     v3.push_back(dynquery1.get());
     v3.push_back(dynquery2.get());
-    
+
     OmQuery myq1 = OmQuery(OM_MOP_AND, v1.begin(), v1.end());
     if (myq1.get_length() != 3) {
 	success = false;
@@ -1314,13 +1314,13 @@ bool test_subqcollapse1()
 	OmQuery("wibble"),
 	OmQuery("wobble"),
 	OmQuery(OM_MOP_OR, std::string("jelly"), std::string("belly"))
-    };  
+    };
 
     OmQuery queries2[3] = {
 	OmQuery(OM_MOP_AND, std::string("jelly"), std::string("belly")),
 	OmQuery("wibble"),
 	OmQuery("wobble")
-    };  
+    };
 
     vector<OmQuery> vec1(queries1, queries1+3);
     OmQuery myquery1(OM_MOP_OR, vec1.begin(), vec1.end());
@@ -1422,7 +1422,7 @@ bool test_repeatquery1()
 		    OmQuery("thi"),
 		    OmQuery("word"));
     enquire.set_query(myquery);
-    
+
     OmMSet mymset1 = enquire.get_mset(0, 10);
     OmMSet mymset2 = enquire.get_mset(0, 10);
 
@@ -1600,7 +1600,7 @@ bool test_rset2()
 
     OmEnquire enquire(make_dbgrp(&mydb));
     OmStem stemmer("english");
-    
+
     OmQuery myquery(OM_MOP_OR,
 		    OmQuery(stemmer.stem_word("cuddly")),
 		    OmQuery(stemmer.stem_word("people")));
@@ -1748,7 +1748,7 @@ bool test_maxorterms1()
     OmMSet mymset2 = enquire.get_mset(0, 10, 0, &moptions);
 
     TEST_EQUAL(mymset1, mymset2);
-    
+
     return true;
 }
 
@@ -1780,7 +1780,7 @@ bool test_maxorterms2()
     OmMSet mymset2 = enquire.get_mset(0, 10, 0, &moptions);
 
     TEST_EQUAL(mymset1, mymset2);
-    
+
     return true;
 }
 
@@ -1816,7 +1816,7 @@ bool test_termlisttermfreq()
 	    break;
 	}
     }
-    
+
     TEST_NOT_EQUAL(wt1, 0);
     TEST_NOT_EQUAL(wt2, 0);
     TEST_EQUAL(wt1, wt2);
@@ -2202,7 +2202,7 @@ bool test_phrase1()
     mymset = enquire.get_mset(0, 10);
     if (!TEST_EXPECTED_DOCS(mymset, 15)) return false;
 
-    // regression test (phrase matching was getting order wrong when     
+    // regression test (phrase matching was getting order wrong when
     // build_and_tree reordered vector of PostLists)
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("milk")));
@@ -2215,7 +2215,7 @@ bool test_phrase1()
     mymset = enquire.get_mset(0, 10);
     if (!TEST_EXPECTED_DOCS(mymset, 16)) return false;
 
-    // regression test (phrase matching was getting order wrong when     
+    // regression test (phrase matching was getting order wrong when
     // build_and_tree reordered vector of PostLists)
     subqs.clear();
     subqs.push_back(OmQuery(stemmer.stem_word("rare")));
@@ -2247,7 +2247,7 @@ bool test_qterminfo1()
     string term1 = stemmer.stem_word("word");
     string term2 = stemmer.stem_word("inmemory");
     string term3 = stemmer.stem_word("flibble");
-    
+
     OmQuery myquery(OM_MOP_OR,
 		    OmQuery(term1),
 		    OmQuery(OM_MOP_OR,
@@ -2283,7 +2283,7 @@ bool test_qterminfo1()
 
     TEST_EXCEPTION(OmInvalidArgumentError,
 		   mymset1a.get_termfreq("sponge"));
-    
+
     return true;
 }
 
@@ -2381,13 +2381,13 @@ int main(int argc, char *argv[])
 	string::size_type i = srcdir.find_last_of('/');
 	if (i != string::npos) {
 	    srcdir.erase(i);
-	} else {	    
+	} else {
 	    // default to current directory - probably won't work if libtool
 	    // is involved
 	    srcdir = ".";
 	}
         // sanity check
-	if (!file_exists(srcdir + "/apitest.cc")) {	    
+	if (!file_exists(srcdir + "/apitest.cc")) {
 	    if (file_exists("tests/apitest.cc")) {
 		srcdir = "tests";
 	    } else {
@@ -2402,7 +2402,7 @@ int main(int argc, char *argv[])
     int result;
     test_driver::result summary = {0, 0};
     test_driver::result sum_temp;
-    
+
     backendmanager.set_datadir(srcdir + "/testdata/");
     backendmanager.set_dbtype("void");
     cout << "Running tests with no backend..." << endl;

@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -74,7 +74,7 @@ SleepyDatabase::SleepyDatabase(const DatabaseBuilderParams &params)
 	throw OmOpeningError(string("SleepyDatabase: `") + params.paths[0] +
 			     "' is not a directory.");
     }
-    
+
     // Open database with specified path
     // May throw an OmOpeningError exception
     internals->open(params.paths[0], params.readonly);
@@ -127,7 +127,7 @@ SleepyDatabase::get_termfreq(const om_termname &tname) const
 bool
 SleepyDatabase::term_exists(const om_termname &tname) const
 {
-    DebugMsg("termcache->term_name_to_id(tname) = " << 
+    DebugMsg("termcache->term_name_to_id(tname) = " <<
 	     termcache->term_name_to_id(tname) << endl);
     if(termcache->term_name_to_id(tname) != 0) return true;
     return false;
@@ -283,7 +283,7 @@ SleepyDatabase::add_entry_to_postlist(om_termid tid,
 }
 
 om_docid
-SleepyDatabase::make_new_document(const OmDocumentContents & doccontents) 
+SleepyDatabase::make_new_document(const OmDocumentContents & doccontents)
 {
     SleepyDocument document(internals->document_db,
 			    internals->key_db,
