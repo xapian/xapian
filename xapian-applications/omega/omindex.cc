@@ -4,7 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,7 @@
 #ifdef HAVE_POSIX_FADVISE
 # ifdef __linux__
 #  define _POSIX_C_SOURCE 200112L // for posix_fadvise from fcntl.h
+#  define _BSD_SOURCE 1 // Need this to get lstat() as well
 # endif
 #endif
 #include <algorithm>
@@ -202,7 +203,7 @@ file_to_string(const string &file)
 
     if (st.st_size > 0) {
 #ifdef HAVE_POSIX_FADVISE
-	posix_fadvise(fd, 0, 0, POSIX_FADV_NOREUSE);
+	posix_fadvise(fd, 0, 0, POSIX_FADV_NOREUSE); // or POSIX_FADV_SEQUENTIAL
 #endif
 	out.reserve(st.st_size);
 	char blk[4096];
@@ -216,10 +217,10 @@ file_to_string(const string &file)
 	    if (r == 0) break; // end of file
 	    out.append(blk, r);
 	}
-    }
 #ifdef HAVE_POSIX_FADVISE
-    posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
+	posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
 #endif
+    }
     close(fd);
     return out;
 }

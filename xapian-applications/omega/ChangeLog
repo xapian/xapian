@@ -1,3 +1,8 @@
+Wed Feb 16 03:44:24 GMT 2005  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Fixed so that we get lstat() prototype on Linux systems
+	  where we have posix_fadvise().
+
 Mon Jan 17 03:35:35 GMT 2005  Olly Betts <olly@survex.com>
 
 	* query.cc: Corrected a comment.
