@@ -56,6 +56,7 @@ using std::endl;
 #define DUPE_replace 1
 #define DUPE_duplicate 2
 static int dupes = DUPE_replace;
+static int recurse = 1;
 static string dbpath;
 static string root;
 static string indexroot;
@@ -381,6 +382,9 @@ index_directory(const string &dir, const map<string, string>& mime_map)
 	    continue;
 	}
 	if (S_ISDIR(statbuf.st_mode)) {
+	    if (!recurse) {
+		continue;
+	    }
 	    try {
 		index_directory(url, mime_map);
 	    }
@@ -411,8 +415,8 @@ int
 main(int argc, char **argv)
 {
     // getopt
-    char* optstring = "hvd:D:U:M:";
-    struct option longopts[7];
+    char* optstring = "hvd:D:U:M:l";
+    struct option longopts[8];
     int longindex, getopt_ret;
 
     longopts[0].name = "help";
@@ -435,14 +439,18 @@ main(int argc, char **argv)
     longopts[4].has_arg = required_argument;
     longopts[4].flag = NULL;
     longopts[4].val = 'U';
-    longopts[5].name = "mime-map";
+    longopts[5].name = "mime-type";
     longopts[5].has_arg = required_argument;
     longopts[5].flag = NULL;
     longopts[5].val = 'M';
-    longopts[6].name = 0;
+    longopts[6].name = "no-recurse";
     longopts[6].has_arg = 0;
-    longopts[6].flag = 0;
-    longopts[6].val = 0;
+    longopts[6].flag = NULL;
+    longopts[6].val = 'l';
+    longopts[7].name = 0;
+    longopts[7].has_arg = 0;
+    longopts[7].flag = 0;
+    longopts[7].val = 0;
 
     map<string, string> mime_map = map<string, string>();
     mime_map["txt"] = "text/plain";
@@ -467,7 +475,8 @@ main(int argc, char **argv)
 		 << "  \t\t\tone of `ignore', `replace', `duplicate'" << endl
 		 << "  -D, --db\t\tpath to database to use" << endl
 		 << "  -U, --url\t\tbase url DIRECTORY represents" << endl
-	         << "  -M, --mime-type\t\tadditional MIME mapping ext:type" << endl
+	         << "  -M, --mime-type\tadditional MIME mapping ext:type" << endl
+		 << "  -l, --no-recurse\tonly process the given directory" << endl
 		 << "  -h, --help\t\tdisplay this help and exit" << endl
 		 << "  -v --version\t\toutput version and exit" << endl << endl
 		 << "Report bugs via the web interface at:" << endl
@@ -494,6 +503,9 @@ main(int argc, char **argv)
 		dupes = DUPE_replace;
 		break;
 	    }
+	    break;
+	case 'l': // Turn off recursion
+	    recurse = 0;
 	    break;
 	case 'M':
 	    {

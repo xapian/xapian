@@ -122,6 +122,8 @@ Index static website data via the filesystem.
                         one of `ignore', `replace', `duplicate'
   -D, --db              path to database to use
   -U, --url             base url DIRECTORY represents
+  -M, --mime-type	additional MIME mapping ext:type
+  -l, --no-recurse	only process the given directory
   -h, --help            display this help and exit
   -v --version          output version and exit
 ----------------------------------------------------------------------
@@ -165,11 +167,28 @@ $ omindex --db /www/omega --url '/product/large' /www/example/product/large
 
 because that would make the large products part of a new site,
 '/product/large', which is unlikely to be what you want, as large
-products would no longer come up in a search of the product site.
+products would no longer come up in a search of the product
+site. (Note that the --no-recurse option may come in handy if you have
+sites '/product' and '/product/large', or similar.)
 
 Currently omindex can index HTML (.html, .htm, .shtml) and text files
 (.txt, .text), and PostScript (.ps, .eps, .ai) if pstotext is
-available, and PDF (.pdf) if pdftotext is available.
+available, and PDF (.pdf) if pdftotext is available. If you have
+additional extensions that represent one of these types, you need to
+add an additional MIME mapping using the --mime-type option. For
+instance:
+
+$ omindex --db /www/omega --url '/press' /www/example/press
+          --mime-type 'doc:application/postscript'
+
+The syntax of --mime-type is 'ext:type', where ext is the extension of
+a file of that type (everything after the last '.'), and type is one
+of:
+
+    text/html
+    text/plain
+    application/postscript
+    application/pdf
 
 --duplicates configures how omindex handles duplicates (detected on
 URL). 'ignore' means to ignore a document if it already appears to be
@@ -180,6 +199,9 @@ database as well. The last strategy is very fast, but is liable to do
 strange things to your results set. In general, 'ignore' is useful for
 completely static documents (eg: archive sites), while 'replace' is
 the most generally useful.
+
+--no-recurse prevents omindex from indexing any directories it finds
+within the directory you give it.
 
 
 Boolean terms
