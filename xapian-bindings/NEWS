@@ -1,3 +1,16 @@
+Xapian-bindings 0.8.5 (2004-12-23):
+
+General:
+
+* INSTALL: Added non-generic installation instructions.
+
+Python:
+
+* Fixed bytecode compilation of xapian.py.  xapian.pyc was being generated in
+  the same directory as xapian.py, but Makefile.am was looking in current
+  directory when installing it.  Additionally, VPATH builds were broken.
+  These problems were introduced by changes in 0.8.4.
+
 Xapian-bindings 0.8.4 (2004-12-08):
 
 General:
