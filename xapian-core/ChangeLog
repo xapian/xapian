@@ -1,3 +1,7 @@
+Thu Mar 15 13:14:10 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Update TODO
+
 Wed Mar 14 17:51:40 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Added new operator OP_ELITE_SET, which replaces match_max_or_terms

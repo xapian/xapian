@@ -219,12 +219,6 @@ optimal AND trees.  Also add a variant on FilterPostList where the left
 branch is boolean and the right probabilistic.
 
 </todoitem>
-<todoitem priority="M" difficulty="4" owner="R" area="Matcher" release="1.0">
-
-max_or_terms should probably work in a more local way.  Should be a new
-query operator rather than a hack on OM_MOP_OR.
-
-</todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Threads" release="">
 
 Make ./configure --enable-mutex-errcheck compile on more systems: need
@@ -270,16 +264,16 @@ Provide explicit support for range searches.
 </todoitem>
 <todoitem priority="L" difficulty="5" owner="" area="Matcher" release="">
 
-max_or_terms should never select groups of terms which don't match any
+OP_ELITE_SET should never select groups of terms which don't match any
 documents.  (Currently, will exclude those for which termfreq_max() is 0,
 but this may still result in a bad choice)
 
 </todoitem>
 <todoitem priority="L" difficulty="4" owner="" area="Matcher" release="">
 
-max_or_terms should probably reduce the querysize by the number of terms
-removed - hard to do because max_or_terms necessarily happens after some
-term weights have been calculated...
+OP_ELITE_SET should probably reduce the querysize by the number of terms
+removed.  When making a contribution to querysize, could just use the lesser
+of the number of terms, and elite_set_size.
 
 </todoitem>
 <todoitem priority="L" difficulty="3" owner="" area="Purify" release="">
