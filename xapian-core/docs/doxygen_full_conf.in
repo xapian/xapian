@@ -122,7 +122,7 @@ CLASS_DIAGRAMS       = YES
 # If the SOURCE_BROWSER tag is set to YES then a list of source files will
 # be generated. Documented entities will be cross-referenced with these sources.
 
-SOURCE_BROWSER       = YES
+SOURCE_BROWSER       = NO
 
 # Setting the INLINE_SOURCES tag to YES will include the body
 # of functions and classes directly in the documentation.
