@@ -299,7 +299,7 @@ class DADatabase : public IRDatabase {
 	 *  @param params Parameters supplied by the user to specify the                 *                location of the database to open.  The meanings
 	 *                of these parameters are dependent on the database              *                type.
 	 */
-	DADatabase(const DatabaseBuilderParams & params, int heavy_duty_);
+	DADatabase(const OmSettings & params, bool readonly);
     public:
 	~DADatabase();
 

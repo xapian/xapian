@@ -62,7 +62,6 @@ class OmSettings::Internal {
 	/** Assignment as with copy.  */
 	void operator=(const Internal &other);
 
-
 	/** Destructor. */
 	~Internal();
 
@@ -81,6 +80,11 @@ class OmSettings::Internal {
 	 *  @exception   OmRangeError will be thrown for an invalid key.
 	 */
 	string get_value(const string &key) const;
+
+	/** Return stored settings as a string for use by
+	 *  OmSettings::get_description()
+	 */
+        string OmSettings::Internal::get_description() const;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -118,6 +122,12 @@ OmSettings::set_value(const string &key, const string &value)
 }
 
 void
+OmSettings::set_value(const string &key, const char *value)
+{
+    internal->set_value(key, value);
+}
+
+void
 OmSettings::set_value(const string &key, int value)
 {
     char buf[64];
@@ -133,10 +143,37 @@ OmSettings::set_value(const string &key, double value)
     internal->set_value(key, string(buf));
 }
 
+void
+OmSettings::set_value(const string &key, bool value)
+{
+    internal->set_value(key, value ? "1" : "");
+}
+
+void
+OmSettings::set_value(const string &key, vector<string>::const_iterator begin,
+		      vector<string>::const_iterator end)
+{
+    string s;
+    while (true) {
+	s += *begin;
+	begin++;
+	if (begin == end) break;
+	s += '\0';
+    }
+    internal->set_value(key, s);
+}
+
 string
-OmSettings::get_value_string(const string &key) const
+OmSettings::get_value(const string &key) const
 {
     return internal->get_value(key);
+}
+
+bool
+OmSettings::get_value_bool(const string &key) const
+{
+    string s = internal->get_value(key);
+    return !(s.empty() || s == "0");
 }
 
 int
@@ -157,12 +194,84 @@ OmSettings::get_value_real(const string &key) const
     return res;
 }
 
+string
+OmSettings::get_value(const string &key, string def) const
+{
+    try {
+	return internal->get_value(key);
+    }
+    catch (const OmRangeError &e) {
+	return def;
+    }
+}
+
+bool
+OmSettings::get_value_bool(const string &key, bool def) const
+{
+    try {
+	return get_value_bool(key);
+    }
+    catch (const OmRangeError &e) {
+	return def;
+    }
+}
+
+int
+OmSettings::get_value_int(const string &key, int def) const
+{
+    try {
+	return get_value_int(key);
+    }
+    catch (const OmRangeError &e) {
+	return def;
+    }
+}
+
+double
+OmSettings::get_value_real(const string &key, double def) const
+{
+    try {
+	return get_value_real(key);
+    }
+    catch (const OmRangeError &e) {
+	return def;
+    }
+}
+
+vector<string>
+OmSettings::get_value_vector(const string &key) const
+{
+    string s = internal->get_value(key);
+    string::size_type p = 0, q;
+    vector<string> v;
+    while (1) {	    
+	q = s.find('\0', p);
+	v.push_back(s.substr(p, q - p));
+	if (q == string::npos) break;
+	p = q + 1;
+    }
+    return v;
+}
+
+std::string
+OmSettings::get_description() const
+{
+    DEBUGAPICALL("OmSettings::get_description", "");
+    /// \todo display all the settings
+    std::string description = "OmSettings(";
+    description += internal->get_description();
+    description += ')';
+    DEBUGAPIRETURN(description);
+    return description;
+}
+
 ////////////////////////////////////////////////////////////////
 // OmSettings::Internal methods
 
 OmSettings::Internal::Internal()
-	: mutex(), data()
+	: mutex()
 {
+    data = new OmSettingsData;
 }
 
 OmSettings::Internal::Internal(const OmSettings::Internal &other)
@@ -202,7 +311,18 @@ OmSettings::Internal::get_value(const string &key) const
     i = data->values.find(key);
 
     if (i == data->values.end()) {
-	throw OmRangeError(string("Key ") + key + " doesn't exist.");
+	throw OmRangeError(string("Setting ") + key + " doesn't exist.");
     }
     return i->second;
+}
+
+string
+OmSettings::Internal::get_description() const
+{
+    std::string description;
+    OmSettingsData::map_type::const_iterator i;
+    for (i = data->values.begin(); i != data->values.end(); i++) {
+	description += "\"" + i->first + "\"->\"" + i->second + "\" ";	
+    }
+    return description;
 }

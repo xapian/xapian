@@ -40,7 +40,7 @@ bool test_netmatch1()
 {
     OmDatabaseGroup databases;
     BackendManager backendmanager;
-    backendmanager.set_dbtype("net");
+    backendmanager.set_dbtype("network");
     backendmanager.set_datadir(datadir);
     std::vector<std::string> paths;
     paths.push_back("apitest_simpledata");
@@ -65,7 +65,7 @@ bool test_netmatch2()
 {
     OmDatabaseGroup databases;
     BackendManager backendmanager;
-    backendmanager.set_dbtype("net");
+    backendmanager.set_dbtype("network");
     backendmanager.set_datadir(datadir);
     std::vector<std::string> paths;
 
@@ -94,7 +94,7 @@ bool test_netmatch2()
 bool test_netexpand1()
 {
     BackendManager backendmanager;
-    backendmanager.set_dbtype("net");
+    backendmanager.set_dbtype("network");
     backendmanager.set_datadir(datadir);
     std::vector<std::string> paths;
     paths.push_back("apitest_simpledata");
@@ -164,11 +164,12 @@ bool test_tcpmatch1()
     sleep(1);
 
     OmDatabaseGroup databases;
-    std::vector<std::string> params;
-    params.push_back("tcp");
-    params.push_back("localhost");
-    params.push_back("1236");
-    databases.add_database("net", params);
+    OmSettings params;
+    params.set_value("backend", "network");
+    params.set_value("network_type", "tcp");
+    params.set_value("network_server", "localhost");
+    params.set_value("network_port", 1236);
+    databases.add_database(params);
 
     OmEnquire enq(databases);
 

@@ -32,16 +32,10 @@
 #include <om/omoutput.h>
 #include <vector>
 
-OmDatabase::Internal::Internal(const std::string & type,
-			       const std::vector<std::string> & paths,
-			       bool readonly)
+OmDatabase::Internal::Internal(const OmSettings &params, bool readonly)
 {
-    // Prepare parameters to build database with (open it writable)
-    DatabaseBuilderParams params(type, readonly);
-    params.paths = paths;
-
     // Open database
-    mydb = DatabaseBuilder::create(params);
+    mydb = DatabaseBuilder::create(params, readonly);
 }
 
 ////////////////////////////////
@@ -95,12 +89,10 @@ OmDatabaseGroup::operator=(const OmDatabaseGroup &other)
 }
 
 void
-OmDatabaseGroup::add_database(const std::string &type,
-			      const std::vector<std::string> &params)
+OmDatabaseGroup::add_database(const OmSettings &params)
 {
-    // FIXME: describe the params
-    DEBUGAPICALL("OmDatabaseGroup::add_database", type << ", " << "[params]");
-    internal->add_database(type, params);
+    DEBUGAPICALL("OmDatabaseGroup::add_database", params);
+    internal->add_database(params);
 }
 
 void
@@ -131,20 +123,15 @@ OmDatabaseGroup::get_description() const
 //////////////////////////////////////////
 
 void
-OmDatabaseGroup::Internal::add_database(const std::string & type,
-					const std::vector<std::string> & paths)
+OmDatabaseGroup::Internal::add_database(const OmSettings & params)
 {
     OmLockSentry locksentry(mutex);
 
     // Forget existing multidatabase
     multi_database = 0;
 
-    // Prepare parameters to build database with (opening it readonly)
-    DatabaseBuilderParams dbparam(type, true);
-    dbparam.paths = paths;
-
-    // Open database and add it to the list
-    OmRefCntPtr<IRDatabase> newdb(DatabaseBuilder::create(dbparam));
+    // Open database (readonly) and add it to the list
+    OmRefCntPtr<IRDatabase> newdb(DatabaseBuilder::create(params, true));
     databases.push_back(newdb);
 }
 

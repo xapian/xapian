@@ -42,7 +42,7 @@ class NetworkDatabase : public IRDatabase {
 	/// Set up the connection, including swapping statistics.
 	void initialise_link();
 
-	NetworkDatabase(const DatabaseBuilderParams & params);
+	NetworkDatabase(const OmSettings & params, bool readonly);
 
 	//@{
 	/** NetworkDatabase is a readonly database type, and thus this method

@@ -71,11 +71,12 @@ int main(int argc, char *argv[]) {
 	dbgrp.add_database(db);
 
 #if 0
-	DatabaseBuilderParams param("inmemory");
+	OmSettings param;
+	param.set_value("backend", "inmemory");
 
-	DatabaseBuilderParams mparam("multi");
-	mparam.subdbs.push_back(param);
-	auto_ptr<IRDatabase> db(DatabaseBuilder::create(mparam));
+	std::vector<IRDatabase> dbs;
+	dbs.push_back(DatabaseBuilder::create(param));
+	auto_ptr<IRDatabase> db(DatabaseBuilder::create(dbs));
 	OmRefCntPtr<MultiDatabase> mdb(dynamic_cast<MultiDatabase *>(db.get()));
 	if (!mdb.get()) {
 	    throw OmDatabaseError("Invalid database");

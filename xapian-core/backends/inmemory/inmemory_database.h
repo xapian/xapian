@@ -213,7 +213,7 @@ class InMemoryDatabase : public IRDatabase {
 	 *  @param params Parameters supplied by the user to specify the
 	 *                location of the database to open.
 	 */
-	InMemoryDatabase(const DatabaseBuilderParams & params);
+	InMemoryDatabase(const OmSettings & params, bool readonly);
 
 	void make_term(const om_termname & tname);
 

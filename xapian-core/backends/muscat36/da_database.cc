@@ -130,82 +130,67 @@ DATermList::get_weighting() const
 
 
 
-DADatabase::DADatabase(const DatabaseBuilderParams & params, int heavy_duty_)
-	: DA_r(0),
-	  DA_t(0),
-	  keyfile(0),
-	  heavy_duty(heavy_duty_)
+DADatabase::DADatabase(const OmSettings & params, bool readonly)
+	: DA_r(0), DA_t(0), keyfile(0)
 {
     // Check validity of parameters
-    if(params.readonly != true) {
+    if (!readonly) {
 	throw OmInvalidArgumentError("DADatabase must be opened readonly.");
     }
 
-    if(params.subdbs.size() != 0) {
-	throw OmInvalidArgumentError("DADatabase cannot have sub databases.");
-    }
-    if(params.paths.size() < 1 || params.paths.size() > 3) {
-	throw OmInvalidArgumentError("DADatabase requires 1, 2 or 3 parameters.");
-    }
-
     // Work out file paths
-    std::string filename_r;
-    std::string filename_t;
-    std::string filename_k;
+    std::string filename_r = params.get_value("m36_record_file");
+    std::string filename_t = params.get_value("m36_term_file");
+    std::string filename_k = params.get_value("m36_key_file", "");
 
-    if(params.paths.size() == 1) {
-	filename_r = params.paths[0] + "/R";
-	filename_t = params.paths[0] + "/T";
-	filename_k = params.paths[0] + "/keyfile";
-    } else {
-	filename_r = params.paths[0];
-	filename_t = params.paths[1];
-	if(params.paths.size() == 3) {
-	    filename_k = params.paths[2];
-	}
-    }
-
+    heavy_duty = params.get_value_bool("m36_heavyduty", true);
 
     // Open database with specified path
     DA_r = DA_open(filename_r.c_str(), DA_RECS, heavy_duty);
     if (DA_r == 0) {
-	throw OmOpeningError(std::string("When opening ") + filename_r + ": " + strerror(errno));
+	throw OmOpeningError(std::string("When opening ") + filename_r +
+			     ": " + strerror(errno));
     }
     DA_t = DA_open(filename_t.c_str(), DA_TERMS, heavy_duty);
     if (DA_t == 0) {
 	DA_close(DA_r);
 	DA_r = 0;
-	throw OmOpeningError(std::string("When opening ") + filename_t + ": " + strerror(errno));
+	throw OmOpeningError(std::string("When opening ") + filename_t +
+			     ": " + strerror(errno));
     }
 
-    // Open keyfile, if we can
+    if (filename_k.empty()) return;
+    
+    // Open keyfile
     keyfile = fopen(filename_k.c_str(), "rb");
-    if (keyfile != 0) {
-	// Check for magic string at beginning of file.
+    if (keyfile == 0) {
+	throw OmOpeningError(std::string("When opening ") + filename_k +
+			     ": " + strerror(errno));
+    }
+
+    // Check for magic string at beginning of file.
+    try {
 	char input[9];
 	size_t bytes_read = fread(input, sizeof(char), 8, keyfile);
-	if(bytes_read < 8) {
-	    fclose(keyfile);
-	    keyfile = 0;
-	    DA_close(DA_t);
-	    DA_t = 0;
-	    DA_close(DA_r);
-	    DA_r = 0;
-	    throw OmOpeningError(std::string("When opening ") + filename_k + ": couldn't read magic - " + strerror(errno));
-	} else {
-	    input[8] = '\0';
-	    if(strcmp(input, "omrocks!")) {
-		fclose(keyfile);
-		keyfile = 0;
-		DA_close(DA_t);
-		DA_t = 0;
-		DA_close(DA_r);
-		DA_r = 0;
-		throw OmOpeningError(std::string("When opening ") + filename_k + ": couldn't read magic - got `" + input + "'");
-	    }
+	if (bytes_read < 8) {
+	    throw OmOpeningError(std::string("When opening ") + filename_k +
+				 ": couldn't read magic - " + strerror(errno));
 	}
-    } else if(params.paths.size() == 3) {
-	throw OmOpeningError(std::string("When opening ") + filename_k + ": " + strerror(errno));
+	input[8] = '\0';
+	if (strcmp(input, "omrocks!")) {
+	    throw OmOpeningError(std::string("When opening ") + filename_k +
+				 ": couldn't read magic - got `" +
+				 input + "'");
+	}
+    }
+    catch (...) {
+	fclose(keyfile);
+	keyfile = 0;
+	DA_close(DA_t);
+	DA_t = 0;
+	DA_close(DA_r);
+	DA_r = 0;
+	throw;
     }
 
     return;

@@ -37,10 +37,6 @@
 #ifdef MUS_BUILD_BACKEND_QUARTZ
 #include "quartz/quartz_database.h"
 #endif
-#ifdef MUS_BUILD_BACKEND_MULTI
-// multi_database.h is in common/
-#include "multi_database.h"
-#endif
 #ifdef MUS_BUILD_BACKEND_NET
 // net_database.h is in common/
 #include "net_database.h"
@@ -51,15 +47,12 @@
 enum om_database_type {
     DBTYPE_NULL,
     DBTYPE_AUTO, // autodetect database type
-    DBTYPE_MUSCAT36_DA_F,
-    DBTYPE_MUSCAT36_DA_H,
-    DBTYPE_MUSCAT36_DB_F,
-    DBTYPE_MUSCAT36_DB_H,
+    DBTYPE_MUSCAT36_DA,
+    DBTYPE_MUSCAT36_DB,
     DBTYPE_INMEMORY,
-    DBTYPE_SLEEPY,
+    DBTYPE_NETWORK,
     DBTYPE_QUARTZ,
-    DBTYPE_MULTI,
-    DBTYPE_NET
+    DBTYPE_SLEEPYCAT
 };
 
 // Translation of types as strings to types as enum om_database_type
@@ -68,59 +61,61 @@ enum om_database_type {
  *  This list must be in alphabetic order. */
 static const StringAndValue database_strings[] = {
     { "auto",			DBTYPE_AUTO		},
-    { "da_flimsy",		DBTYPE_MUSCAT36_DA_F	},
-    { "da_heavy",		DBTYPE_MUSCAT36_DA_H	},
-    { "db_flimsy",		DBTYPE_MUSCAT36_DB_F	},
-    { "db_heavy",		DBTYPE_MUSCAT36_DB_H	},
+    { "da",			DBTYPE_MUSCAT36_DA	},
+    { "db",			DBTYPE_MUSCAT36_DB	},
     { "inmemory",		DBTYPE_INMEMORY		},
-    { "multidb",		DBTYPE_MULTI		},
-    { "net",			DBTYPE_NET		},
-    { "sleepycat",		DBTYPE_SLEEPY		},
+    { "network",		DBTYPE_NETWORK		},
     { "quartz",			DBTYPE_QUARTZ		},
+    { "sleepycat",		DBTYPE_SLEEPYCAT	},
     { "",			DBTYPE_NULL		}  // End
 };
 
 IRDatabase *
-DatabaseBuilder::create(const DatabaseBuilderParams & params)
+DatabaseBuilder::create(const OmSettings & params, bool readonly)
 {
     IRDatabase * database = NULL;
 
     // Convert type into an om_database_type
     om_database_type dbtype = static_cast<om_database_type> (
-	map_string_to_value(database_strings, params.type));
+	map_string_to_value(database_strings, params.get_value("backend")));
 
     // Create database of correct type, and open it
     switch (dbtype) {
 	case DBTYPE_NULL:
-	    throw OmInvalidArgumentError("Unspecified database type");
+	    throw OmInvalidArgumentError("Unknown database type `" + 
+					 params.get_value("backend") + "'");
 	    break;
-	case DBTYPE_AUTO:
+	case DBTYPE_AUTO: {
 	    // Check validity of parameters
-	    if (params.paths.size() != 1) {
-		throw OmInvalidArgumentError("OM_DBTYPE_AUTO requires 1 parameter.");
-	    }
+	    string path = params.get_value("auto_dir");
+	    OmSettings myparams = params;
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
-	    if (file_exists(params.paths[0] + "/R") &&
-		file_exists(params.paths[0] + "/T")) {
+	    if (file_exists(path + "/R") && file_exists(path + "/T")) {
 		// can't easily tell flimsy from heavyduty so assume hd
-		// database = new DADatabase(params, 0);
-		database = new DADatabase(params, 1);
+		myparams.set_value("m36_record_file", path + "/R");
+		myparams.set_value("m36_term_file", path + "/T");
+		myparams.set_value("m36_heavyduty", true);
+                if (file_exists(path + "/keyfile"))
+		    myparams.set_value("m36_key_file", path + "/keyfile");
+		database = new DADatabase(myparams, readonly);
                 break;
             }
-	    if (file_exists(params.paths[0] + "/DB")) {
-		DatabaseBuilderParams myparams = params;
-		myparams.paths[0] += "/DB";
+	    if (file_exists(path + "/DB")) {
+		myparams.set_value("m36_filename", path + "/DB");
 		// can't easily tell flimsy from heavyduty so assume hd
-		// database = new DBDatabase(myparams, 0);
-		database = new DBDatabase(myparams, 1);
+		myparams.set_value("m36_heavyduty", true);
+                if (file_exists(path + "/keyfile"))
+		    myparams.set_value("m36_key_file", path + "/keyfile");
+		database = new DBDatabase(myparams, readonly);
                 break;
             }
-	    if (file_exists(params.paths[0] + "/DB.da")) {
-		DatabaseBuilderParams myparams = params;
-		myparams.paths[0] += "/DB.da";
+	    if (file_exists(path + "/DB.da")) {
+		myparams.set_value("m36_filename", path + "/DB.da");
 		// can't easily tell flimsy from heavyduty so assume hd
-		// database = new DBDatabase(myparams, 0);
-		database = new DBDatabase(myparams, 1);
+		myparams.set_value("m36_heavyduty", true);
+                if (file_exists(path + "/keyfile"))
+		    myparams.set_value("m36_key_file", path + "/keyfile");
+		database = new DBDatabase(myparams, readonly);
                 break;
             }
 #endif
@@ -133,52 +128,39 @@ DatabaseBuilder::create(const DatabaseBuilderParams & params)
 //#define FILENAME_DOCUMENT "document.db"
 //#define FILENAME_DOCKEYDB "dockey.db"
 //#define FILENAME_STATS_DB "stats.db"
-            database = new SleepyDatabase(params);
+	    myparams.set_value("sleepy_dir", path);
+            database = new SleepyDatabase(myparams, readonly);
 #endif
             break;
-	case DBTYPE_MUSCAT36_DA_F:
+        }
+	case DBTYPE_MUSCAT36_DA:
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
-	    database = new DADatabase(params, 0);
+	    database = new DADatabase(params, readonly);
 #endif
 	    break;
-	case DBTYPE_MUSCAT36_DA_H:
+	case DBTYPE_MUSCAT36_DB:
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
-	    database = new DADatabase(params, 1);
-#endif
-	    break;
-	case DBTYPE_MUSCAT36_DB_F:
-#ifdef MUS_BUILD_BACKEND_MUSCAT36
-	    database = new DBDatabase(params, 0);
-#endif
-	    break;
-	case DBTYPE_MUSCAT36_DB_H:
-#ifdef MUS_BUILD_BACKEND_MUSCAT36
-	    database = new DBDatabase(params, 1);
+	    database = new DBDatabase(params, readonly);
 #endif
 	    break;
 	case DBTYPE_INMEMORY:
 #ifdef MUS_BUILD_BACKEND_INMEMORY
-	    database = new InMemoryDatabase(params);
+	    database = new InMemoryDatabase(params, readonly);
 #endif
 	    break;
-	case DBTYPE_SLEEPY:
+	case DBTYPE_SLEEPYCAT:
 #ifdef MUS_BUILD_BACKEND_SLEEPY
-	    database = new SleepyDatabase(params);
+	    database = new SleepyDatabase(params, readonly);
 #endif
 	    break;
 	case DBTYPE_QUARTZ:
 #ifdef MUS_BUILD_BACKEND_QUARTZ
-	    database = new QuartzDatabase(params);
+	    database = new QuartzDatabase(params, readonly);
 #endif
 	    break;
-	case DBTYPE_MULTI:
-#ifdef MUS_BUILD_BACKEND_MULTI
-	    database = new MultiDatabase(params);
-#endif
-	    break;
-	case DBTYPE_NET:
+	case DBTYPE_NETWORK:
 #ifdef MUS_BUILD_BACKEND_NET
-	    database = new NetworkDatabase(params);
+	    database = new NetworkDatabase(params, readonly);
 #endif
 	    break;
 	default:

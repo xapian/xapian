@@ -25,6 +25,7 @@
 
 #include <vector>
 #include "omindexdoc.h"
+#include "omsettings.h"
 
 class OmWritableDatabase;
 class OmDatabaseGroup;
@@ -68,10 +69,10 @@ class OmDatabase {
 	 *  This may be used to open a database for writing, and is used
 	 *  in this way by OmWritableDatabase.
 	 *
-	 *  @param type    a string describing the database type.
-	 *  @param params  a vector of parameters to be used to open the
-	 *                 database: meaning and number required depends
-	 *                 on database type.
+	 *  @param params  an OmSettings object specifying the parameters
+	 *		   to be used to open the database.
+	 *
+	 *  @param readonly readonly flag.
 	 *
 	 *  @exception OmInvalidArgumentError will be thrown if an invalid
 	 *             argument is supplied, for example, an unknown database
@@ -80,16 +81,12 @@ class OmDatabase {
 	 *             be opened.
 	 *
 	 */
-	OmDatabase(const std::string & type,
-		   const std::vector<std::string> & params,
-		   bool readonly);
+	OmDatabase(const OmSettings &params, bool readonly);
     public:
 	/** Open a database.
 	 *
-	 *  @param type    a string describing the database type.
-	 *  @param params  a vector of parameters to be used to open the
-	 *                 database: meaning and number required depends
-	 *                 on database type.
+	 *  @param params  an OmSettings object specifying the parameters
+	 *		   to be used to open the database.
 	 *
 	 *  @exception OmInvalidArgumentError will be thrown if an invalid
 	 *             argument is supplied, for example, an unknown database
@@ -97,8 +94,7 @@ class OmDatabase {
 	 *  @exception OmOpeningError may be thrown if the database cannot
 	 *             be opened.
 	 */
-	OmDatabase(const std::string & type,
-		   const std::vector<std::string> & params);
+	OmDatabase(const OmSettings &params);
 
 	/** Destroy this handle on the database.
 	 *  If there are no copies of this object remaining, the database
@@ -157,10 +153,8 @@ class OmWritableDatabase : public OmDatabase {
     public:
 	/** Open a database for writing.
 	 *
-	 *  @param type    a string describing the database type.
-	 *  @param params  a vector of parameters to be used to open the
-	 *                 database: meaning and number required depends
-	 *                 on database type.
+	 *  @param params  an OmSettings object specifying the parameters
+	 *		   to be used to open the database.
 	 *
 	 *  @exception OmInvalidArgumentError will be thrown if an invalid
 	 *             argument is supplied, for example, an unknown database
@@ -168,8 +162,7 @@ class OmWritableDatabase : public OmDatabase {
 	 *  @exception OmOpeningError may be thrown if the database cannot
 	 *             be opened.
 	 */
-	OmWritableDatabase(const std::string & type,
-			   const std::vector<std::string> & params);
+	OmWritableDatabase(const OmSettings &params);
 
 	/** Destroy this handle on the database.
 	 *
@@ -497,15 +490,13 @@ class OmDatabaseGroup {
 	 *
 	 *  The database will always be opened read-only.
 	 *
-	 *  @param type    a string describing the database type.
-	 *  @param params  a vector of parameters to be used to open the
-	 *  database: meaning and number required depends on database type.
+	 *  @param params  an OmSettings object specifying the parameters
+	 *		   to be used to open the database.
 	 *
 	 *  @exception OmInvalidArgumentError  See class documentation.
 	 *  @exception OmOpeningError          See class documentation.
 	 */
-	void add_database(const std::string & type,
-			  const std::vector<std::string> & params);
+	void add_database(const OmSettings &params);
 
 	/** Add an already opened database to the set of databases to be
 	 *  accessed by this database group.
@@ -524,4 +515,3 @@ class OmDatabaseGroup {
 };
 
 #endif /* OM_HGUARD_OMDATABASE_H */
-

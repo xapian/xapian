@@ -22,7 +22,6 @@
 
 
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <string>
@@ -46,15 +45,9 @@
 
 #include "om/omerror.h"
 
-SleepyDatabase::SleepyDatabase(const DatabaseBuilderParams &params)
+SleepyDatabase::SleepyDatabase(const OmSettings &params, bool readonly)
 {
-    // Check validity of parameters
-    if(params.paths.size() != 1) {
-	throw OmInvalidArgumentError("SleepyDatabase requires 1 path parameter.");
-    }
-    if(params.subdbs.size() != 0) {
-	throw OmInvalidArgumentError("SleepyDatabase cannot have sub databases.");
-    }
+    string path = params.get_value("sleepy_dir");
 
     // FIXME: misuse of auto_ptr - should be refcnt
     std::auto_ptr<SleepyDatabaseInternals> tempptr1(new SleepyDatabaseInternals());
@@ -63,21 +56,9 @@ SleepyDatabase::SleepyDatabase(const DatabaseBuilderParams &params)
 	tempptr2(new SleepyDatabaseTermCache(internals.get()));
     termcache = tempptr2;
 
-    // Check that path is to a valid extant directory
-    struct stat buf;
-    int err_num = stat(params.paths[0].c_str(), &buf);
-    if (err_num != 0) {
-	throw OmOpeningError(std::string("SleepyDatabase: can't stat `") +
-			     params.paths[0] + "'");
-    }
-    if (!S_ISDIR(buf.st_mode)) {
-	throw OmOpeningError(std::string("SleepyDatabase: `") +
-			     params.paths[0] + "' is not a directory.");
-    }
-
     // Open database with specified path
     // May throw an OmOpeningError exception
-    internals->open(params.paths[0], params.readonly);
+    internals->open(path, readonly);
 }
 
 SleepyDatabase::~SleepyDatabase()

@@ -61,7 +61,7 @@ class MultiDatabase : public IRDatabase {
 	 *
 	 *  @exception OmInvalidOperationError will always be thrown.
 	 */
-	MultiDatabase(const DatabaseBuilderParams & params);
+	MultiDatabase(const OmSettings & params);
 
 	/** Create a multi database from a set of existing databases.
 	 *

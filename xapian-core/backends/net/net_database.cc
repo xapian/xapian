@@ -35,37 +35,31 @@
 // Actual database class //
 ///////////////////////////
 
-NetworkDatabase::NetworkDatabase(const DatabaseBuilderParams & params)
+NetworkDatabase::NetworkDatabase(const OmSettings & params, bool readonly)
 	: link(0)
 {
     // Check validity of parameters
-    if(params.readonly != true) {
+    if (!readonly) {
 	throw OmInvalidArgumentError("NetworkDatabase must be opened readonly.");
     }
-    if(params.subdbs.size() != 0) {
-	throw OmInvalidArgumentError("NetworkDatabase cannot have sub databases.");
-    }
-    if (params.paths[0] == "prog") {
-	if (params.paths.size() < 3) {
-	    throw OmInvalidArgumentError("NetworkDatabase(prog) requires at least three parameters.");
+    std::string type = params.get_value("network_type");
+    if (type == "prog") {
+	std::string prog = params.get_value("network_program");
+	if (prog.empty()) {
+	    throw OmInvalidArgumentError("NetworkDatabase(prog) requires network_program parameter.");
 	}
-	std::vector<std::string> progargs(params.paths.begin() + 2,
-				params.paths.end());
-	link = OmRefCntPtr<NetClient>(new ProgClient(params.paths[1],
-						     progargs));
+	std::vector<std::string> args = params.get_value_vector("network_args");
+	link = OmRefCntPtr<NetClient>(new ProgClient(prog, args));
 	Assert(link.get() != 0);
 	//initialise_link();
-    } else if (params.paths[0] == "tcp") {
-	if (params.paths.size() != 3) {
-	    throw OmInvalidArgumentError("NetworkDatabase(tcp) requires three path parameters.");
-	}
-
-	link = OmRefCntPtr<NetClient>(new TcpClient(
-					    params.paths[1],
-					    atoi(params.paths[2].c_str())));
+    } else if (type == "tcp") {
+	std::string server = params.get_value("network_server");
+	// FIXME: default port?
+	int port = params.get_value_int("network_port");
+	link = OmRefCntPtr<NetClient>(new TcpClient(server, port));
     } else {
 	throw OmUnimplementedError(std::string("Network database type ") +
-				   params.paths[0]);
+				   type);
     }
 }
 

@@ -37,11 +37,10 @@
 // Actual database class //
 ///////////////////////////
 
-MultiDatabase::MultiDatabase(const DatabaseBuilderParams & params)
+MultiDatabase::MultiDatabase(const OmSettings & params)
 {
     throw OmInvalidOperationError("MultiDatabase::MultiDatabase(const "
-				  "DatabaseBuilderParams & params) not "
-				  "supported");
+				  "OmSettings & params) not supported");
 }
 
 MultiDatabase::MultiDatabase(std::vector<OmRefCntPtr<IRDatabase> > databases_)

@@ -68,6 +68,19 @@ SleepyDatabaseInternals::~SleepyDatabaseInternals()
 void
 SleepyDatabaseInternals::open(const std::string &pathname, bool readonly)
 {
+    // Check that pathname is to a valid extant directory
+    struct stat buf;
+    int err_num = stat(pathname.c_str(), &buf);
+    if (err_num != 0) {
+	throw OmOpeningError(std::string("SleepyDatabase: can't stat `") +
+			     pathname + "'");
+    }
+    if (!S_ISDIR(buf.st_mode)) {
+	throw OmOpeningError(std::string("SleepyDatabase: `") +
+			     pathname + "' is not a directory.");
+    }
+
+    DEBUGLINE(DB, "path='" << pathname << "' ro=" << readonly);
     try {
 	// Set up environment
 	u_int32_t envflags = 0;

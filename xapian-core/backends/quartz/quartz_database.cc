@@ -140,7 +140,7 @@ QuartzDatabase::Internals::calc_mode()
 
 //
 // Compulsory parameters.
-// quartz_dbdir  - Directory that the database is stored in.
+// quartz_dir    - Directory that the database is stored in.
 //
 // Optional parameters.
 // quartz_tmpdir - Directory in which to store temporary files.  If not
@@ -148,7 +148,7 @@ QuartzDatabase::Internals::calc_mode()
 // quartz_envdir - Directory to use to keep the database environment in.
 // 		   If not specified, the database directory will be used.
 //
-QuartzDatabase::QuartzDatabase(const DatabaseBuilderParams & params)
+QuartzDatabase::QuartzDatabase(const OmSettings & params, bool readonly)
 	: internals(new Internals())
 {
 // FIXME: Make sure that environment is not in a network filesystem, eg NFS.
@@ -159,7 +159,6 @@ QuartzDatabase::QuartzDatabase(const DatabaseBuilderParams & params)
     string tmp_dir;
     string env_dir;
 
-    bool readonly = false;
     bool use_transactions = false;
 
     // set cache size parameters, etc, here.

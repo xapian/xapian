@@ -40,8 +40,7 @@ using std::vector;
 char *progname = 0;
 
 int main(int argc, char *argv[]) {
-    std::vector<std::vector<std::string> > dbargs;
-    std::vector<std::string> dbtypes;
+    std::vector<OmSettings *> dbs;
     int port = 0;
 
     progname = argv[0];
@@ -54,44 +53,57 @@ int main(int argc, char *argv[]) {
 
     while (argc && argv[0][0] == '-') {
 	if (argc >= 2 && strcmp(argv[0], "--da-flimsy") == 0) {
-	    std::vector<std::string> args;
-	    args.push_back(argv[1]);
-	    dbargs.push_back(args);
-	    dbtypes.push_back("da_flimsy");
+	    OmSettings *params = new OmSettings();
+	    std::string path = argv[1];
+	    params->set_value("backend", "da");
+	    params->set_value("m36_heavyduty", false);	    
+	    params->set_value("m36_record_file", path + "/R");
+	    params->set_value("m36_term_file", path + "/T");
+	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--da-heavy") == 0) {
-	    std::vector<std::string> args;
-	    args.push_back(argv[1]);
-	    dbargs.push_back(args);
-	    dbtypes.push_back("da_heavy");
+	    OmSettings *params = new OmSettings();
+	    std::string path = argv[1];
+	    params->set_value("backend", "da");
+	    params->set_value("m36_heavyduty", true);
+	    params->set_value("m36_record_file", path + "/R");
+	    params->set_value("m36_term_file", path + "/T");
+	    params->set_value("m36_key_file", path + "/keyfile");
+	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--db-flimsy") == 0) {
-	    std::vector<std::string> args;
-	    args.push_back(argv[1]);
-	    dbargs.push_back(args);
-	    dbtypes.push_back("db_flimsy");
+	    OmSettings *params = new OmSettings();
+	    std::string path = argv[1];
+	    params->set_value("backend", "db");
+	    params->set_value("m36_heavyduty", false);
+	    params->set_value("m36_file", path + "/DB");
+	    params->set_value("m36_key_file", path + "/keyfile");
+	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--db-heavy") == 0) {
-	    std::vector<std::string> args;
-	    args.push_back(argv[1]);
-	    dbargs.push_back(args);
-	    dbtypes.push_back("db_heavy");
+	    OmSettings *params = new OmSettings();
+	    std::string path = argv[1];
+	    params->set_value("backend", "db");
+	    params->set_value("m36_heavyduty", true);
+	    params->set_value("m36_file", path + "/DB");
+	    params->set_value("m36_key_file", path + "/keyfile");
+	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 1 && strcmp(argv[0], "--im") == 0) {
-	    std::vector<std::string> args;
-	    dbargs.push_back(args);
-	    dbtypes.push_back("inmemory");
+	    OmSettings *params = new OmSettings();
+	    params->set_value("backend", "inmemory");
+	    dbs.push_back(params);
 	    argc -= 1;
 	    argv += 1;
 	} else if (argc >= 2 && strcmp(argv[0], "--sleepycat") == 0) {
-	    std::vector<std::string> args;
-	    args.push_back(argv[1]);
-	    dbargs.push_back(args);
-	    dbtypes.push_back("sleepycat");
+	    OmSettings *params = new OmSettings();
+	    params->set_value("backend", "sleepycat");
+	    params->set_value("sleepy_dir", argv[1]);
+	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--port") == 0) {
@@ -108,9 +120,9 @@ int main(int argc, char *argv[]) {
 	}
     }
 
-    if (syntax_error || argc > 0 || !dbtypes.size()) {
+    if (syntax_error || argc > 0 || !dbs.size()) {
 	cerr << "Syntax: " << progname << " [OPTIONS]" << endl <<
-		"\t--[da-flimsy|da-heavy|db-flimsy|db-heavy] DIRECTORY\n" <<
+		"\t--[da-flimsy|da-heavy|db-flimsy|db-heavy|sleepycat] DIRECTORY\n" <<
 		"\t--im INMEMORY\n" <<
 		"\t--port NUM" << endl;
 	exit(1);
@@ -126,13 +138,10 @@ int main(int argc, char *argv[]) {
     try {
         OmDatabaseGroup mydbs;
 
-	std::vector<std::string>::const_iterator p;
-	std::vector<std::vector<std::string> >::const_iterator q;
-	for(p = dbtypes.begin(), q = dbargs.begin();
-	    p != dbtypes.end();
-	    p++, q++) {
-
-	    mydbs.add_database(*p, *q);
+	std::vector<OmSettings *>::const_iterator p;
+	for (p = dbs.begin(); p != dbs.end(); p++) {
+	    mydbs.add_database(**p);
+	    delete *p;
 	}
 
 	OmRefCntPtr<MultiDatabase> mdb(

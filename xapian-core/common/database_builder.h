@@ -23,30 +23,15 @@
 #ifndef OM_HGUARD_DATABASE_BUILDER_H
 #define OM_HGUARD_DATABASE_BUILDER_H
 
-#include <string>
-#include <vector>
+#include "om/omsettings.h"
 #include "om/omtypes.h"
 
 class IRDatabase;
 
-/** Parameters used when opening a database*/
-class DatabaseBuilderParams {
-    public:
-	DatabaseBuilderParams(std::string type_ = "", bool readonly_ = true)
-		: type(type_), readonly(readonly_)
-	{ return; }
-
-	std::string type;
-	bool readonly;
-
-	std::vector<std::string> paths;
-	std::vector<DatabaseBuilderParams> subdbs;
-};
-
 /** Class used to generate databases of a given type. */
 class DatabaseBuilder {
     public:
-	static IRDatabase * create(const DatabaseBuilderParams & params);
+	static IRDatabase * create(const OmSettings & params, bool readonly);
 };
 
 #endif /* OM_HGUARD_DATABASE_BUILDER_H */

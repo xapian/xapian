@@ -106,6 +106,7 @@ OSTRINGSTREAMFUNC(OmBatchEnquire);
 OSTRINGSTREAMFUNC(OmDocumentTerm);
 OSTRINGSTREAMFUNC(OmDocumentContents);
 OSTRINGSTREAMFUNC(OmStem);
+OSTRINGSTREAMFUNC(OmSettings);
 
 inline om_ostringstream &
 operator<<(om_ostringstream & os, const om_termname_list & obj) {

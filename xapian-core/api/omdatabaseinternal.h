@@ -59,8 +59,7 @@ class OmDatabaseGroup::Internal {
 
 	/** Add a database to the group, based on parameters.
 	 */
-	void add_database(const std::string & type,
-			  const std::vector<std::string> & paths);
+	void add_database(const OmSettings &params);
 
 	/** Add an opened database to the group.
 	 */

@@ -130,67 +130,57 @@ DBTermList::get_weighting() const
 
 
 
-DBDatabase::DBDatabase(const DatabaseBuilderParams & params, int heavy_duty_)
-	: DB(0),
-	  keyfile(0),
-	  heavy_duty(heavy_duty_)
-{
+DBDatabase::DBDatabase(const OmSettings & params, bool readonly) : DB(0), keyfile(0)
+{    
     // Check validity of parameters
-    if(params.readonly != true) {
+    if (!readonly) {
 	throw OmInvalidArgumentError("DBDatabase must be opened readonly.");
     }
-    if(params.subdbs.size() != 0) {
-	throw OmInvalidArgumentError("DBDatabase cannot have sub databases.");
-    }
-    if(params.paths.size() < 1 || params.paths.size() > 2) {
-	throw OmInvalidArgumentError("DBDatabase requires either 1 or 2 parameters.");
-    }
 
-    // Open database with specified path
-    std::string filename = params.paths[0];
-    std::string filename_k;
+    std::string filename = params.get_value("m36_db_file");
 
-    if (params.paths.size() > 1) {
-	filename_k = params.paths[1];
-    } else {
-	filename_k = filename + "_keyfile";
-    }
+    std::string filename_k = params.get_value("m36_key_file", "");
+
+    heavy_duty = params.get_value_bool("m36_heavyduty", true);
 
     // Get the cache_size
-    int cache_size = 30;
-    if (params.paths.size() == 2) {
-	cache_size = atoi(params.paths[1].c_str());
-    }
+    int cache_size = params.get_value_int("m36_cache_size", 30);
 
     // Actually open
     DB = DB_open(filename.c_str(), cache_size, heavy_duty);
-    if(DB == 0) {
+    if (DB == 0) {
 	throw OmOpeningError(std::string("When opening ") + filename + ": " + strerror(errno));
     }
 
-    // Open keyfile, if we can
+    if (filename_k.empty()) return;
+    
+    // Open keyfile
     keyfile = fopen(filename_k.c_str(), "rb");
-    if (keyfile != 0) {
-	// Check for magic string at beginning of file.
+    if (keyfile == 0) {
+	throw OmOpeningError(std::string("When opening ") + filename_k +
+			     ": " + strerror(errno));
+    }
+
+    // Check for magic string at beginning of file.
+    try {
 	char input[9];
 	size_t bytes_read = fread(input, sizeof(char), 8, keyfile);
-	if(bytes_read < 8) {
-	    fclose(keyfile);
-	    DB_close(DB);
-	    DB = 0;
-	    throw OmOpeningError(std::string("When opening ") + filename_k + ": couldn't read magic - " + strerror(errno));
-	} else {
-	    input[8] = '\0';
-	    if(strcmp(input, "omrocks!")) {
-		fclose(keyfile);
-		keyfile = 0;
-		DB_close(DB);
-		DB = 0;
-		throw OmOpeningError(std::string("When opening ") + filename_k + ": couldn't read magic - got `" + input + "'");
-	    }
+	if (bytes_read < 8) {
+	    throw OmOpeningError(std::string("When opening ") + filename_k +
+				 ": couldn't read magic - " + strerror(errno));
 	}
-    } else if (params.paths.size() > 1) {
-	throw OmOpeningError(std::string("When opening ") + filename_k + ": " + strerror(errno));
+	input[8] = '\0';
+	if (strcmp(input, "omrocks!")) {
+	    throw OmOpeningError(std::string("When opening ") + filename_k +
+				 ": couldn't read magic - got `" +
+				 input + "'");
+	}
+    }
+    catch (...) {
+	fclose(keyfile);
+	DB_close(DB);
+	DB = 0;
+	throw;
     }
 
     return;

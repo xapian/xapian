@@ -126,7 +126,7 @@ BackendManager::set_dbtype(const std::string &type)
 	do_getdb = &BackendManager::getdb_quartz;
 	do_getwritedb = &BackendManager::getwritedb_quartz;
 	system("rm -fr .quartz");
-    } else if (type == "net") {
+    } else if (type == "network") {
 	do_getdb = &BackendManager::getdb_net;
 	do_getwritedb = &BackendManager::getwritedb_net;
     } else if (type == "void") {
@@ -183,7 +183,9 @@ BackendManager::getdb_inmemory(const std::vector<std::string> &dbnames)
 OmWritableDatabase
 BackendManager::getwritedb_inmemory(const std::vector<std::string> &dbnames)
 {
-    OmWritableDatabase db("inmemory", make_strvec());
+    OmSettings params;
+    params.set_value("backend", "inmemory");
+    OmWritableDatabase db(params);
     index_files_to_database(db, change_names_to_paths(dbnames));
 
     return db;
@@ -233,22 +235,18 @@ BackendManager::getwritedb_sleepy(const std::vector<std::string> &dbnames)
 	 i++) {
 	dbdir += "=" + *i;
     }
-    if(files_exist(change_names_to_paths(dbnames))) {
-	bool created = create_dir_if_needed(dbdir);
-
-	if (created) {
+    OmSettings params;
+    params.set_value("backend", "sleepycat");
+    params.set_value("sleepy_dir", dbdir);
+    if (files_exist(change_names_to_paths(dbnames))) {
+	if (create_dir_if_needed(dbdir)) {
 	    // directory was created, so do the indexing.
-	    OmWritableDatabase db("sleepycat", make_strvec(dbdir));
+	    OmWritableDatabase db(params);
 	    index_files_to_database(db, change_names_to_paths(dbnames));
 	    return db;
-	} else {
-	    // else just return a read-only db.
-	    return OmWritableDatabase("sleepycat", make_strvec(dbdir));
 	}
-    } else {
-	// open a non-existant database
-	return OmWritableDatabase("sleepycat", make_strvec(dbdir));
     }
+    return OmWritableDatabase(params);
 }
 
 OmDatabase
@@ -269,22 +267,18 @@ BackendManager::getwritedb_quartz(const std::vector<std::string> &dbnames)
 	 i++) {
 	dbdir += "=" + *i;
     }
-    if(files_exist(change_names_to_paths(dbnames))) {
-	bool created = create_dir_if_needed(dbdir);
-
-	if (created) {
+    OmSettings params;
+    params.set_value("backend", "quartz");
+    params.set_value("quartz_dir", dbdir);
+    if (files_exist(change_names_to_paths(dbnames))) {
+	if (create_dir_if_needed(dbdir)) {
 	    // directory was created, so do the indexing.
-	    OmWritableDatabase db("quartz", make_strvec(dbdir));
+	    OmWritableDatabase db(params);
 	    index_files_to_database(db, change_names_to_paths(dbnames));
 	    return db;
-	} else {
-	    // else just return a read-only db.
-	    return OmWritableDatabase("quartz", make_strvec(dbdir));
 	}
-    } else {
-	// open a non-existant database
-	return OmWritableDatabase("quartz", make_strvec(dbdir));
     }
+    return OmWritableDatabase(params);
 }
 
 OmDatabase
@@ -292,11 +286,15 @@ BackendManager::getdb_net(const std::vector<std::string> &dbnames)
 {
     // run an omprogsrv for now.  Later we should also use omtcpsrv
     std::vector<std::string> args;
-    args.push_back("prog");
-    args.push_back("../netprogs/omprogsrv");
     args.push_back(datadir);
     args.insert(args.end(), dbnames.begin(), dbnames.end());
-    OmDatabase db("net", args);
+
+    OmSettings params;
+    params.set_value("backend", "network");
+    params.set_value("network_type", "prog");
+    params.set_value("network_program", "../netprogs/omprogsrv");
+    params.set_value("network_args", args.begin(), args.end());
+    OmDatabase db(params);
 
     return db;
 }

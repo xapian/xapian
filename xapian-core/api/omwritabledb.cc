@@ -25,21 +25,16 @@
 #include "omdebug.h"
 #include <om/omoutput.h>
 
-OmDatabase::OmDatabase(const std::string & type,
-		       const std::vector<std::string> & params,
-		       bool readonly)
-	: internal(new OmDatabase::Internal(type, params, readonly))
+OmDatabase::OmDatabase(const OmSettings & params, bool readonly)
+	: internal(new OmDatabase::Internal(params, readonly))
 {
-    DEBUGAPICALL("OmDatabase::OmDatabase",
-		 type << ", " << "[params]" << ", " << readonly);
+    DEBUGAPICALL("OmDatabase::OmDatabase", params << ", " << readonly);
 }
 
-OmDatabase::OmDatabase(const std::string & type,
-		       const std::vector<std::string> & params)
-	: internal(new OmDatabase::Internal(type, params, true))
+OmDatabase::OmDatabase(const OmSettings & params)
+	: internal(new OmDatabase::Internal(params, true))
 {
-    DEBUGAPICALL("OmDatabase::OmDatabase",
-		 type << ", " << "[params]");
+    DEBUGAPICALL("OmDatabase::OmDatabase", params);
 }
 
 OmDatabase::OmDatabase(const OmDatabase &other)
@@ -73,12 +68,10 @@ OmDatabase::get_description() const
 }
 
 
-OmWritableDatabase::OmWritableDatabase(const std::string & type,
-				       const std::vector<std::string> & params)
-	: OmDatabase(type, params, false)
+OmWritableDatabase::OmWritableDatabase(const OmSettings & params)
+	: OmDatabase(params, false)
 {
-    DEBUGAPICALL("OmWritableDatabase::OmWritableDatabase",
-		 type << ", [params]");
+    DEBUGAPICALL("OmWritableDatabase::OmWritableDatabase", params);
 }
 
 OmWritableDatabase::OmWritableDatabase(const OmWritableDatabase &other)

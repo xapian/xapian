@@ -69,10 +69,11 @@ main(int argc, char *argv[])
 	exit(1);
     }
     try {
-	DatabaseBuilderParams params("auto");
-	params.paths.push_back(argv[0]);
+	OmSettings params;
+	params.set_value("backend", "auto");
+	params.set_value("auto_dir", argv[0]);
 	DatabaseBuilder dbb;
-	IRDatabase *db = dbb.create(params);
+	IRDatabase *db = dbb.create(params, true);
 
 	if (!term.empty()) {
 	    OmStem stemmer("english");

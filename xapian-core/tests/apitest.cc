@@ -2475,7 +2475,7 @@ int main(int argc, char *argv[])
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_NET)
-    backendmanager.set_dbtype("net");
+    backendmanager.set_dbtype("network");
     cout << "Running tests with net backend..." << endl;
     result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
     summary.succeeded += sum_temp.succeeded;

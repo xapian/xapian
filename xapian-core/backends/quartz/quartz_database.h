@@ -45,11 +45,9 @@ class QuartzDatabase : public IRDatabase {
 	 *  @exception OmOpeningError thrown if database can't be opened.
 	 *
 	 *  @param params Parameters supplied by the user to specify the
-	 *                location of the database to open.  The meanings
-	 *                of these parameters are dependent on the database
-	 *                type.
+	 *                location of the database to open.
 	 */
-	QuartzDatabase(const DatabaseBuilderParams & params);
+	QuartzDatabase(const OmSettings & params, bool readonly);
 
 	//@{
 	/** Implementation of virtual methods: see IRDatabase for details.

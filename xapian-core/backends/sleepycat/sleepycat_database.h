@@ -50,11 +50,9 @@ class SleepyDatabase : public IRDatabase {
 	 *  @exception OmOpeningError thrown if database can't be opened.
 	 *
 	 *  @param params Parameters supplied by the user to specify the
-	 *                location of the database to open.  The meanings
-	 *                of these parameters are dependent on the database
-	 *                type.
+	 *                location of the database to open.
 	 */
-	SleepyDatabase(const DatabaseBuilderParams & params);
+	SleepyDatabase(const OmSettings &params, bool readonly);
 
 	/** Make a new entry in a postlist.
 	 *

@@ -42,14 +42,13 @@ class OmDatabase::Internal {
 	 *
 	 *  This opens the database and stores it in the ref count pointer.
 	 *
-	 *  @param type    a string describing the database type.
 	 *  @param params  a vector of parameters to be used to open the
 	 *                 database: meaning and number required depends
 	 *                 on database type.
+	 *
+	 *  @param readonly flag as to whether to open database read only
 	 */
-	Internal(const std::string & type,
-		 const std::vector<std::string> & paths,
-		 bool readonly);
+	Internal(const OmSettings &params, bool readonly);
 
 	/** Make a copy of this object, copying the ref count pointer.
 	 */

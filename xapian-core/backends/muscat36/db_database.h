@@ -297,10 +297,10 @@ class DBDatabase : public IRDatabase {
 	 *
 	 *  @exception OmOpeningError thrown if database can't be opened.
 	 *
-	 *  @param params Parameters supplied by the user to specify the                 *                location of the database to open.  The meanings
-	 *                of these parameters are dependent on the database              *                type.
+	 *  @param params Parameters supplied by the user to specify the
+	 *                location of the database to open.
 	 */
-	DBDatabase(const DatabaseBuilderParams & params, int heavy_duty_);
+	DBDatabase(const OmSettings & params, bool readonly);
     public:
 	~DBDatabase();
 

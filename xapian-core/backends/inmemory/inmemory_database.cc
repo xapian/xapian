@@ -70,17 +70,11 @@ InMemoryPostList::get_wdf() const
 // Actual database class //
 ///////////////////////////
 
-InMemoryDatabase::InMemoryDatabase(const DatabaseBuilderParams & params)
+InMemoryDatabase::InMemoryDatabase(const OmSettings & params, bool readonly)
 	: totlen(0)
 {
-    // FIXME - do appropriate thing if readonly flag is set.
-
-    // Check validity of parameters
-    if(params.paths.size() != 0) {
-	throw OmInvalidArgumentError("InMemoryDatabase expects no parameters.");
-    }
-    if(params.subdbs.size() != 0) {
-	throw OmInvalidArgumentError("InMemoryDatabase cannot have sub databases.");
+    if (!readonly) {
+// FIXME:	throw OmInvalidArgumentError("InMemoryDatabase must be opened readonly.");
     }
 }
 
