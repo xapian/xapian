@@ -243,13 +243,13 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
     vector<Xapian::Internal::RefCntPtr<Xapian::Database::Internal> >::const_iterator i;
     for (i = db.internal.begin(); i != db.internal.end(); ++i) {
 	Assert(subrset != subrsets.end());
-	Xapian::Database::Internal *db = (*i).get();
-	Assert(db);
+	Xapian::Database::Internal *subdb = (*i).get();
+	Assert(subdb);
 	Xapian::Internal::RefCntPtr<SubMatch> smatch;
 	try {
 	    // There is currently only one special case, for network databases.
 #ifdef MUS_BUILD_BACKEND_REMOTE
-	    const NetworkDatabase *netdb = db->as_networkdatabase();
+	    const NetworkDatabase *netdb = subdb->as_networkdatabase();
 	    if (netdb) {
 		if (sort_key != Xapian::valueno(-1) || sort_bands) {
 		    throw Xapian::UnimplementedError("sort_key and sort_bands not supported with remote backend");
@@ -263,7 +263,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
 			    gatherer.get(), weight));
 	    } else {
 #endif /* MUS_BUILD_BACKEND_REMOTE */
-		smatch = Xapian::Internal::RefCntPtr<SubMatch>(new LocalSubMatch(db, query, *subrset, gatherer.get(), weight));
+		smatch = Xapian::Internal::RefCntPtr<SubMatch>(new LocalSubMatch(subdb, query, *subrset, gatherer.get(), weight));
 #ifdef MUS_BUILD_BACKEND_REMOTE
 	    }
 #endif /* MUS_BUILD_BACKEND_REMOTE */
@@ -323,10 +323,10 @@ MultiMatch::prepare_matchers()
 }
 
 string
-MultiMatch::get_collapse_key(PostList *pl, const Xapian::Database &db, Xapian::docid did,
+MultiMatch::get_collapse_key(PostList *pl, Xapian::docid did,
 			     Xapian::valueno keyno, Xapian::Internal::RefCntPtr<Xapian::Document::Internal> &doc)
 {		      
-    DEBUGCALL(MATCH, string, "MultiMatch::get_collapse_key", pl << ", " << db << ", " << did << ", " << keyno << ", [doc]");
+    DEBUGCALL(MATCH, string, "MultiMatch::get_collapse_key", pl << ", " << did << ", " << keyno << ", [doc]");
     const string *key = pl->get_collapse_key();
     if (key) RETURN(*key);
     if (doc.get() == 0) {
@@ -609,8 +609,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
 	// Perform collapsing on key if requested.
 	if (collapse_key != Xapian::valueno(-1)) {
-	    new_item.collapse_key = get_collapse_key(pl, db, did,
-						     collapse_key, doc);
+	    new_item.collapse_key = get_collapse_key(pl, did, collapse_key,
+						     doc);
 
 	    // Don't collapse on null key
 	    if (!new_item.collapse_key.empty()) {

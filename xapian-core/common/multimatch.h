@@ -88,7 +88,7 @@ class MultiMatch
 	void prepare_matchers();
 
 	/// get the collapse key
-	string get_collapse_key(PostList *pl, const Xapian::Database &db,
+	string get_collapse_key(PostList *pl,
 				Xapian::docid did, Xapian::valueno keyno,
 				Xapian::Internal::RefCntPtr<Xapian::Document::Internal> &doc);
 

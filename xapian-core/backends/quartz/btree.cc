@@ -1577,20 +1577,20 @@ sys_unlink_if_exists(const string & filename)
 }
 
 void
-Btree::create(unsigned int block_size)
+Btree::create(unsigned int block_size_)
 {
-    DEBUGCALL(DB, void, "Btree::create", block_size);
+    DEBUGCALL(DB, void, "Btree::create", block_size_);
     close();
 
     // FIXME: it would be good to arrange that this works such that there's
     // always a valid table in place...
 
-    if (block_size > BYTE_PAIR_RANGE) {
+    if (block_size_ > BYTE_PAIR_RANGE) {
 	/* block size too large (64K maximum) */
 	throw Xapian::InvalidArgumentError("Btree block size too large");
     }
 
-    if (block_size < 2048) {
+    if (block_size_ < 2048) {
 	/* block size far too small */
 	throw Xapian::InvalidArgumentError("Btree block size too small");
     }
@@ -1598,11 +1598,11 @@ Btree::create(unsigned int block_size)
     /* write initial values to files */
 
     /* create the base file */
-    Btree_base base;
-    base.set_block_size(block_size);
-    base.set_have_fakeroot(true);
-    base.set_sequential(true);
-    base.write_to_file(name + "baseA");
+    Btree_base base_;
+    base_.set_block_size(block_size_);
+    base_.set_have_fakeroot(true);
+    base_.set_sequential(true);
+    base_.write_to_file(name + "baseA");
 
     /* remove the alternative base file, if any */
     sys_unlink_if_exists(name + "baseB");

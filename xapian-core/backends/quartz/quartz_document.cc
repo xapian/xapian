@@ -73,9 +73,9 @@ map<Xapian::valueno, string>
 QuartzDocument::do_get_all_values() const
 {
     DEBUGCALL(DB, void, "QuartzDocument::do_get_all_values", "");
-    map<Xapian::valueno, string> values;
-    value_table->get_all_values(values, did);
-    return values;
+    map<Xapian::valueno, string> value_map;
+    value_table->get_all_values(value_map, did);
+    return value_map;
 }
 
 /** Retrieve the document data from the database

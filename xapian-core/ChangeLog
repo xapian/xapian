@@ -1,3 +1,9 @@
+Wed Oct 06 01:10:46 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/quartz_document.cc,
+	  matcher/multimatch.cc,common/multimatch.h: Fix some warnings
+	  from Sun's C++ compiler.
+
 Thu Sep 30 22:16:37 BST 2004  Olly Betts <olly@survex.com>
 
 	* common/utils.cc,common/utils.h: Fixes for win32 and sun's c++
