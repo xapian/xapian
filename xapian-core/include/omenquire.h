@@ -38,7 +38,7 @@ class OMMatch;           // Class which performs queries
 // Representation of a query
 
 // Enum of possible query operations
-typedef enum {
+enum om_queryop {
     OM_MOP_LEAF,      // For internal use - must never be specified as parameter
 
     OM_MOP_AND,       // Return iff both subqueries are satisfied
@@ -47,7 +47,7 @@ typedef enum {
     OM_MOP_XOR,       // Return if one query satisfied, but not both
     OM_MOP_AND_MAYBE, // Return iff left satisfied, but use weights from both
     OM_MOP_FILTER     // As AND, but use only weights from left subquery
-} om_queryop;
+};
 
 // Class representing a query
 class OMQuery {
@@ -58,39 +58,39 @@ class OMQuery {
 	termname tname;
 	om_queryop op;
 
-	void initialise_from_copy(const OMQuery &);
-	void initialise_from_vector(const vector<OMQuery>::const_iterator,
-				    const vector<OMQuery>::const_iterator);
-	void initialise_from_vector(const vector<OMQuery *>::const_iterator,
-				    const vector<OMQuery *>::const_iterator);
+	void initialise_from_copy(const OMQuery & copyme);
+	void initialise_from_vector(const vector<OMQuery>::const_iterator qbegin,
+				    const vector<OMQuery>::const_iterator qend);
+	void initialise_from_vector(const vector<OMQuery *>::const_iterator qbegin,
+				    const vector<OMQuery *>::const_iterator qend);
     public:
 	// A query consisting of a single term
-	OMQuery(const termname &);
+	OMQuery(const termname & tname_);
 
 	// A query consisting of two subqueries, opp-ed together
-	OMQuery(om_queryop, const OMQuery &, const OMQuery &);
+	OMQuery(om_queryop op_, const OMQuery & left, const OMQuery & right);
 
 	// A set of OMQuery's, merged together with specified operator.
 	// (Takes begin and end iterators).
 	// The only operators allowed are AND and OR.
-	OMQuery(om_queryop,
-		const vector<OMQuery>::const_iterator,
-		const vector<OMQuery>::const_iterator);
+	OMQuery(om_queryop op_,
+		const vector<OMQuery>::const_iterator qbegin,
+		const vector<OMQuery>::const_iterator qend);
 
-	OMQuery(om_queryop,
-		const vector<OMQuery *>::const_iterator,
-		const vector<OMQuery *>::const_iterator);
+	OMQuery(om_queryop op_,
+		const vector<OMQuery *>::const_iterator qbegin,
+		const vector<OMQuery *>::const_iterator qend);
 
 	// As before, except subqueries are all individual terms.
-	OMQuery(om_queryop,
-		const vector<termname>::const_iterator,
-		const vector<termname>::const_iterator);
+	OMQuery(om_queryop op_,
+		const vector<termname>::const_iterator tbegin,
+		const vector<termname>::const_iterator tend);
 
 	// Copy constructor
-	OMQuery(const OMQuery &);
+	OMQuery(const OMQuery & copyme);
 
 	// Assignment
-	OMQuery & operator=(const OMQuery &);
+	OMQuery & operator=(const OMQuery & copyme);
 
 	// Default constructor: makes a null query which can't be used
 	// (Convenient to have a default constructor though)
@@ -116,9 +116,9 @@ class OMMatchOptions {
 
 	bool  sort_forward;
     public:
-	void set_collapse_key(keyno);
+	void set_collapse_key(keyno key_);
 	void set_no_collapse();
-	void set_sort_forward(bool = true);
+	void set_sort_forward(bool forward_ = true);
 	OMMatchOptions();
 };
 
@@ -143,8 +143,8 @@ class OMRSet {
     private:
     public:
 	set<docid> items;
-	void add_document(docid);
-	void remove_document(docid);
+	void add_document(docid did);
+	void remove_document(docid did);
 };
 
 inline void
@@ -233,24 +233,24 @@ class OMEnquire {
 	// database: meaning and number required depends on database type.
 	//
 	// The database will always be opened read-only.
-	void add_database(const string &,
-			  const vector<string> &);
+	void add_database(const string & type,
+			  const vector<string> & params);
 
 	// Set the query to run.
-	void set_query(const OMQuery &);
+	void set_query(const OMQuery & query_);
 
 	// Get (a portion of) the match set for the current query
-	void get_mset(OMMSet &,
+	void get_mset(OMMSet & mset,
                       doccount first,
                       doccount maxitems,
-		      const OMRSet * = 0,
-	              const OMMatchOptions * = 0) const;
+		      const OMRSet * omrset = 0,
+	              const OMMatchOptions * moptions = 0) const;
 
 	// Get the expand set for the given rset
-	void get_eset(OMESet &,
+	void get_eset(OMESet & eset,
                       termcount maxitems,
-                      const OMRSet &,
-                      const OMExpandOptions * = 0) const;
+                      const OMRSet & omrset,
+                      const OMExpandOptions * eoptions = 0) const;
 };
 
 #endif /* _omenquire_h_ */

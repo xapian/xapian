@@ -34,7 +34,7 @@
 // Postlist //
 //////////////
 
-MultiPostList::MultiPostList(list<MultiPostListInternal> &pls)
+MultiPostList::MultiPostList(list<MultiPostListInternal> & pls)
 	: postlists(pls), finished(false), currdoc(0),
 	  freq_initialised(false)
 {

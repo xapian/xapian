@@ -59,18 +59,18 @@ class MultiPostList : public virtual DBPostList {
 
 	weight termweight;
 
-	MultiPostList(list<MultiPostListInternal> &);
+	MultiPostList(list<MultiPostListInternal> & pls);
     public:
 	~MultiPostList();
 
-	void set_termweight(const IRWeight *); // Sets term weight
+	void set_termweight(const IRWeight * wt); // Sets term weight
 
 	doccount get_termfreq() const;
 
 	docid  get_docid() const;     // Gets current docid
 	weight get_weight() const;    // Gets current weight
-	PostList *next(weight);          // Moves to next docid
-	PostList *skip_to(docid, weight);// Moves to next docid >= specified docid
+	PostList *next(weight w_min);          // Moves to next docid
+	PostList *skip_to(docid did, weight w_min);// Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
 
 	string intro_term_description() const;

@@ -31,13 +31,13 @@ class InMemoryDocument : public virtual IRDocument {
     private:
 	string doc;
 
-	InMemoryDocument(const string &);
+	InMemoryDocument(const string & doc_);
 
 	// Stop copying
 	InMemoryDocument(const InMemoryDocument &);
 	InMemoryDocument & operator = (const InMemoryDocument &);
     public:
-	IRKey get_key(keyno) const;
+	IRKey get_key(keyno keyid) const;
 	IRData get_data() const;
 };
 

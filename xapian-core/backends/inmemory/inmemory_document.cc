@@ -22,12 +22,12 @@
 
 #include "inmemory_document.h"
 
-InMemoryDocument::InMemoryDocument(const string &doc_new)
-	: doc(doc_new)
+InMemoryDocument::InMemoryDocument(const string & doc_)
+	: doc(doc_)
 { return; }
 
 IRKey
-InMemoryDocument::get_key(keyno id) const
+InMemoryDocument::get_key(keyno keyid) const
 {
     IRKey key;
     key.value = 0;

@@ -44,21 +44,21 @@ class MultiDatabase : public virtual IRDatabase {
 	mutable bool used;// Have we used the database (if so, can't add more DBs)
 
 	MultiDatabase();
-	void open(const DatabaseBuilderParams &);
+	void open(const DatabaseBuilderParams & params);
     public:
 	~MultiDatabase();
 
-	void set_root(IRDatabase *);
+	void set_root(IRDatabase * db);
 
 	doccount  get_doccount() const;
 	doclength get_avlength() const;
 
-	doccount get_termfreq(const termname &) const;
-	bool term_exists(const termname &) const;
+	doccount get_termfreq(const termname & tname) const;
+	bool term_exists(const termname & tname) const;
 
-	DBPostList * open_post_list(const termname&, RSet *) const;
-	DBTermList * open_term_list(docid id) const;
-	IRDocument * open_document(docid id) const;
+	DBPostList * open_post_list(const termname & tname, RSet * rset) const;
+	DBTermList * open_term_list(docid did) const;
+	IRDocument * open_document(docid did) const;
 
 	void make_term(const termname &) {
 	    throw OmError("DADatabase::make_term() not implemented");
@@ -116,7 +116,7 @@ MultiDatabase::get_avlength() const
 }
 
 inline doccount
-MultiDatabase::get_termfreq(const termname &tname) const
+MultiDatabase::get_termfreq(const termname & tname) const
 {
     if(!term_exists(tname)) return 0;
     PostList *pl = open_post_list(tname, NULL);

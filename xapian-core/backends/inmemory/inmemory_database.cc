@@ -63,7 +63,7 @@ InMemoryDatabase::~InMemoryDatabase()
 }
 
 void
-InMemoryDatabase::open(const DatabaseBuilderParams &params)
+InMemoryDatabase::open(const DatabaseBuilderParams & params)
 {
     Assert(!opened); // Can only open once
 
@@ -93,7 +93,7 @@ InMemoryDatabase::open(const DatabaseBuilderParams &params)
 }
 
 DBPostList *
-InMemoryDatabase::open_post_list(const termname & tname, RSet *rset) const
+InMemoryDatabase::open_post_list(const termname & tname, RSet * rset) const
 {
     Assert(opened);
     Assert(term_exists(tname));
@@ -123,7 +123,7 @@ InMemoryDatabase::open_document(docid did) const
 }
 
 void
-InMemoryDatabase::make_term(const termname &tname)
+InMemoryDatabase::make_term(const termname & tname)
 {
     Assert(indexing == true);
     Assert(opened == false);
@@ -132,7 +132,7 @@ InMemoryDatabase::make_term(const termname &tname)
 }
 
 docid
-InMemoryDatabase::make_doc(const docname &dname)
+InMemoryDatabase::make_doc(const docname & dname)
 {
     Assert(indexing == true);
     Assert(opened == false);
@@ -148,7 +148,7 @@ InMemoryDatabase::make_doc(const docname &dname)
 
 void InMemoryDatabase::make_posting(const termname & tname,
 				    docid did,
-				    termcount position)
+				    termpos position)
 {
     Assert(indexing == true);
     Assert(opened == false);
@@ -170,7 +170,7 @@ void InMemoryDatabase::make_posting(const termname & tname,
 }
 
 bool
-InMemoryDatabase::term_exists(const termname &tname) const
+InMemoryDatabase::term_exists(const termname & tname) const
 {
     Assert(opened);
 

@@ -39,11 +39,11 @@ class MultiTermList : public virtual DBTermList {
 	const IRDatabase *rootdb;
 	double termfreq_factor;
 
-	MultiTermList(TermList *tl,
-		      const IRDatabase *termdb,
-		      const IRDatabase *rootdb);
+	MultiTermList(TermList * tl_,
+		      const IRDatabase * termdb_,
+		      const IRDatabase * rootdb_);
     public:
-	void set_weighting(const OMExpandWeight *);
+	void set_weighting(const OMExpandWeight *wt_new);
 
 	termcount get_approx_size() const;
 
@@ -57,10 +57,10 @@ class MultiTermList : public virtual DBTermList {
 	~MultiTermList();
 };
 
-inline MultiTermList::MultiTermList(TermList *tl_new,
-				    const IRDatabase *termdb_new,
-				    const IRDatabase *rootdb_new)
-	: tl(tl_new), termdb(termdb_new), rootdb(rootdb_new)
+inline MultiTermList::MultiTermList(TermList * tl_,
+				    const IRDatabase * termdb_,
+				    const IRDatabase * rootdb_)
+	: tl(tl_), termdb(termdb_), rootdb(rootdb_)
 {
     termfreq_factor = ((double)(rootdb->get_doccount())) /
 		      (termdb->get_doccount());

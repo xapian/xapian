@@ -52,7 +52,7 @@ MultiDatabase::~MultiDatabase() {
 }
 
 void
-MultiDatabase::set_root(IRDatabase *db) {
+MultiDatabase::set_root(IRDatabase * db) {
     Assert(!used);
     root = db;
 
@@ -88,7 +88,7 @@ MultiDatabase::open(const DatabaseBuilderParams & params) {
 }
 
 DBPostList *
-MultiDatabase::open_post_list(const termname & tname, RSet *rset) const
+MultiDatabase::open_post_list(const termname & tname, RSet * rset) const
 {
     Assert(opened);
     Assert((used = true) == true);
@@ -143,7 +143,7 @@ MultiDatabase::open_document(docid did) const {
 }
 
 bool
-MultiDatabase::term_exists(const termname &tname) const
+MultiDatabase::term_exists(const termname & tname) const
 {
     Assert(opened);
     Assert((used = true) == true);

@@ -18,7 +18,7 @@
 #endif
 #include "database.h"
 
-IRDatabase *
+static IRDatabase *
 DatabaseBuilder::create(const DatabaseBuilderParams & params)
 {
     IRDatabase * database = NULL;

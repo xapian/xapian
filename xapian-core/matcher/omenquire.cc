@@ -72,56 +72,48 @@ stringToType<om_database_type> stringToTypeMap<om_database_type>::types[] = {
 // Methods for OMQuery //
 /////////////////////////
 
-OMQuery::OMQuery(const termname & _tname)
-	: isnull(false), tname(_tname), op(OM_MOP_LEAF)
+OMQuery::OMQuery(const termname & tname_)
+	: isnull(false), tname(tname_), op(OM_MOP_LEAF)
 {
 }
 
-OMQuery::OMQuery(om_queryop _op, const OMQuery &query1, const OMQuery &query2)
-	: isnull(false), op(_op)
+OMQuery::OMQuery(om_queryop op_, const OMQuery &left, const OMQuery &right)
+	: isnull(false), op(op_)
 {
     Assert(op != OM_MOP_LEAF); // FIXME throw exception rather than Assert
     // Handle null sub-queries.
-    // Table for result of operations when one of the operands is null:
+    // See documentation for table for result of operations when one of the
+    // operands is null:
     //
-    //            | a,b                    | a,0 | 0,b | 0,0 |
-    // -----------+------------------------+-----+-----+-----+
-    // OR         | a or b                 |  a  |  b  |  0  |
-    // AND        | a and b                |  a  |  b  |  0  |
-    // FILTER     | a and b                |  a  |  b  |  0  |
-    // AND_MAYBE  | a (weights from b)     |  a  |  0  |  0  |
-    // AND_NOT    | a but not b            |  a  | n/a |  0  |
-    // XOR        | (a or b) not (a and b) | n/a | n/a |  0  |
-    // -----------+------------------------+-----+-----+-----+
-    if(query1.isnull || query2.isnull) {
+    if(left.isnull || right.isnull) {
 	switch (op) {
 	    case OM_MOP_OR:
 	    case OM_MOP_AND:
 	    case OM_MOP_FILTER:
-		if (!query1.isnull) {
-		    initialise_from_copy(query1);
+		if (!left.isnull) {
+		    initialise_from_copy(left);
 		} else {
-		    if (!query2.isnull) initialise_from_copy(query2);
+		    if (!right.isnull) initialise_from_copy(right);
 		    else isnull = true;
 		}
 		break;
 	    case OM_MOP_AND_MAYBE:
-		if (!query1.isnull) {
-		    initialise_from_copy(query1);
+		if (!left.isnull) {
+		    initialise_from_copy(left);
 		} else {
 		    isnull = true;
 		}
 		break;
 	    case OM_MOP_AND_NOT:
-		if (!query1.isnull) {
-		    initialise_from_copy(query1);
+		if (!left.isnull) {
+		    initialise_from_copy(left);
 		} else {
-		    if (!query2.isnull) Assert(false); // FIXME: throw exception
+		    if (!right.isnull) Assert(false); // FIXME: throw exception
 		    else isnull = true;
 		}
 		break;
 	    case OM_MOP_XOR:
-		if (query1.isnull && query2.isnull) {
+		if (left.isnull && right.isnull) {
 		    isnull = true;
 		} else {
 		    Assert(false); // FIXME: throw exception
@@ -131,61 +123,61 @@ OMQuery::OMQuery(om_queryop _op, const OMQuery &query1, const OMQuery &query2)
 		Assert(false); // Shouldn't have got this far
 	}
     } else {
-	DebugMsg(" (" << query1.get_description() << " " << (int) op <<
-		 " " << query2.get_description() << ") => ");
+	DebugMsg(" (" << left.get_description() << " " << (int) op <<
+		 " " << right.get_description() << ") => ");
 
 	// If sub query has same op, which is OR or AND, add to list rather
 	// than makeing sub-node.  Can then optimise the list at search time.
 	if(op == OM_MOP_AND || op == OM_MOP_OR) {
-	    if(query1.op == op && query2.op == op) {
+	    if(left.op == op && right.op == op) {
 		// Both queries have same operation as top
-		initialise_from_copy(query1);
+		initialise_from_copy(left);
 		vector<OMQuery *>::const_iterator i;
-		for(i = query2.subqs.begin(); i != query2.subqs.end(); i++) {
+		for(i = right.subqs.begin(); i != right.subqs.end(); i++) {
 		    subqs.push_back(new OMQuery(**i));
 		}
-	    } else if(query1.op == op) {
+	    } else if(left.op == op) {
 		// Query2 has different operation (or is a leaf)
-		initialise_from_copy(query1);
-		subqs.push_back(new OMQuery(query2));
-	    } else if(query2.op == op) { // query1 has different operation
+		initialise_from_copy(left);
+		subqs.push_back(new OMQuery(right));
+	    } else if(right.op == op) { // left has different operation
 		// Query1 has different operation (or is a leaf)
-		initialise_from_copy(query2);
-		subqs.push_back(new OMQuery(query1));
+		initialise_from_copy(right);
+		subqs.push_back(new OMQuery(left));
 		// FIXME: this puts the
 		// query in an different order from that entered.
 	    } else {
-		subqs.push_back(new OMQuery(query1));
-		subqs.push_back(new OMQuery(query2));
+		subqs.push_back(new OMQuery(left));
+		subqs.push_back(new OMQuery(right));
 	    }
 	} else {
-	    subqs.push_back(new OMQuery(query1));
-	    subqs.push_back(new OMQuery(query2));
+	    subqs.push_back(new OMQuery(left));
+	    subqs.push_back(new OMQuery(right));
 	}
 	DebugMsg(get_description() << endl);
     }
 }
 
-OMQuery::OMQuery(om_queryop _op,
+OMQuery::OMQuery(om_queryop op_,
 		 const vector<OMQuery *>::const_iterator qbegin,
 		 const vector<OMQuery *>::const_iterator qend)
-	: isnull(false), op(_op)
+	: isnull(false), op(op_)
 {   
     initialise_from_vector(qbegin, qend);
 }
 
-OMQuery::OMQuery(om_queryop _op,
+OMQuery::OMQuery(om_queryop op_,
 		 const vector<OMQuery>::const_iterator qbegin,
 		 const vector<OMQuery>::const_iterator qend)
-	: isnull(false), op(_op)
+	: isnull(false), op(op_)
 {   
     initialise_from_vector(qbegin, qend);
 }
 
-OMQuery::OMQuery(om_queryop _op,
+OMQuery::OMQuery(om_queryop op_,
 		 const vector<termname>::const_iterator tbegin,
 		 const vector<termname>::const_iterator tend)
-	: isnull(false), op(_op)
+	: isnull(false), op(op_)
 {
     vector<OMQuery> subqueries;
     vector<termname>::const_iterator i;
@@ -196,14 +188,14 @@ OMQuery::OMQuery(om_queryop _op,
 }
 
 // Copy constructor
-OMQuery::OMQuery(const OMQuery &copyme)
+OMQuery::OMQuery(const OMQuery & copyme)
 {
     initialise_from_copy(copyme);
 }
 
 // Assignment
 OMQuery &
-OMQuery::operator=(const OMQuery &copyme)
+OMQuery::operator=(const OMQuery & copyme)
 {
     initialise_from_copy(copyme);
     return *this;
@@ -337,16 +329,22 @@ OMMatchOptions::OMMatchOptions()
 {}
 
 void
-OMMatchOptions::set_collapse_key(keyno _key)
+OMMatchOptions::set_collapse_key(keyno key_)
 {
     do_collapse = true;
-    collapse_key = _key;
+    collapse_key = key_;
 }
 
 void
 OMMatchOptions::set_no_collapse()
 {
     do_collapse = false;
+}
+
+void
+OMMatchOptions::set_sort_forward(bool forward_)
+{
+    sort_forward = forward_;
 }
 
 /////////////////////////////////
@@ -361,8 +359,8 @@ class OMEnquireInternal {
 	OMEnquireInternal();
 	~OMEnquireInternal();
 
-	void add_database(IRDatabase *);
-	void set_query(const OMQuery &);
+	void add_database(IRDatabase * database_);
+	void set_query(const OMQuery & query_);
 };
 
 //////////////////////////////////////////
@@ -386,21 +384,21 @@ OMEnquireInternal::~OMEnquireInternal()
 }
 
 inline void
-OMEnquireInternal::add_database(IRDatabase * _database)
+OMEnquireInternal::add_database(IRDatabase * database_)
 {
     // FIXME (and in destructor): actually add database, rather than replace
     if(database) delete database;
-    database = _database;
+    database = database_;
 }
 
 inline void
-OMEnquireInternal::set_query(const OMQuery &_query)
+OMEnquireInternal::set_query(const OMQuery &query_)
 {
     if(query) {
 	delete query;
 	query = NULL;
     }
-    query = new OMQuery(_query);
+    query = new OMQuery(query_);
 }
 
 ////////////////////////////////////////////
@@ -424,24 +422,24 @@ OMEnquire::~OMEnquire()
 
 void
 OMEnquire::add_database(const string & type,
-			const vector<string> & entries)
+			const vector<string> & params)
 {
     // Convert type into an om_database_type
     om_database_type dbtype = OM_DBTYPE_NULL;
     dbtype = stringToTypeMap<om_database_type>::get_type(type);
 
-    // Prepare params to build database with (open it readonly)
-    DatabaseBuilderParams params(dbtype, true);
-    params.paths = entries;
+    // Prepare dbparams to build database with (open it readonly)
+    DatabaseBuilderParams dbparams(dbtype, true);
+    dbparams.paths = params;
 
-    // Use params to create database, and add it to the list of databases
-    internal->add_database(DatabaseBuilder::create(params));
+    // Use dbparams to create database, and add it to the list of databases
+    internal->add_database(DatabaseBuilder::create(dbparams));
 }
 
 void
-OMEnquire::set_query(const OMQuery &query)
+OMEnquire::set_query(const OMQuery & query_)
 {
-    internal->set_query(query);
+    internal->set_query(query_);
 }
 
 void
@@ -489,10 +487,10 @@ OMEnquire::get_mset(OMMSet &mset,
 }
 
 void
-OMEnquire::get_eset(OMESet &eset,
+OMEnquire::get_eset(OMESet & eset,
 	            termcount maxitems,
-                    const OMRSet &omrset,
-	            const OMExpandOptions *eoptions) const
+                    const OMRSet & omrset,
+	            const OMExpandOptions * eoptions) const
 {
     OMExpand expand(internal->database);
     RSet rset(internal->database, omrset);

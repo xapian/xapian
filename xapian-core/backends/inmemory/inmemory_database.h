@@ -42,7 +42,7 @@ class InMemoryPosting {
     public:
 	docid did;
 	termname tname;
-	vector<termcount> positions; // Sorted list of positions
+	vector<termpos> positions; // Sorted list of positions
 
 	// Merge two postings (same term/doc pair, new positional info)
 	void merge(const InMemoryPosting & post) {
@@ -126,16 +126,16 @@ class InMemoryPostList : public virtual DBPostList {
 
 	const InMemoryDatabase * this_db;
 
-	InMemoryPostList(const InMemoryDatabase *,
-			 const InMemoryTerm &);
+	InMemoryPostList(const InMemoryDatabase * db,
+			 const InMemoryTerm & term);
     public:
 	doccount get_termfreq() const;
 
 	docid  get_docid() const;     // Gets current docid
 	weight get_weight() const;    // Gets current weight
-	PostList *next(weight);          // Moves to next docid
+	PostList *next(weight w_min); // Moves to next docid
 
-	PostList *skip_to(docid, weight);// Moves to next docid >= specified docid
+	PostList *skip_to(docid did, weight w_min);// Moves to next docid >= specified docid
 
 	bool   at_end() const;        // True if we're off the end of the list
 
@@ -155,9 +155,9 @@ class InMemoryTermList : public virtual DBTermList {
 	const InMemoryDatabase * this_db;
 	doclength norm_len;
 
-	InMemoryTermList(const InMemoryDatabase *,
-			 const InMemoryDoc &,
-			 doclength);
+	InMemoryTermList(const InMemoryDatabase * db,
+			 const InMemoryDoc & doc,
+			 doclength len);
     public:
 	termcount get_approx_size() const;
 
@@ -186,11 +186,11 @@ class InMemoryDatabase : public virtual IRDatabase {
 	bool indexing; // Whether we have started to index to the database
 
 	// Stop copy / assignment being allowed
-	InMemoryDatabase& operator=(const InMemoryDatabase&);
-	InMemoryDatabase(const InMemoryDatabase&);
+	InMemoryDatabase& operator=(const InMemoryDatabase &);
+	InMemoryDatabase(const InMemoryDatabase &);
 
 	InMemoryDatabase();
-	void open(const DatabaseBuilderParams &);
+	void open(const DatabaseBuilderParams & params);
     public:
 	~InMemoryDatabase();
 
@@ -199,18 +199,18 @@ class InMemoryDatabase : public virtual IRDatabase {
 	doccount  get_doccount() const;
 	doclength get_avlength() const;
 
-	doccount get_termfreq(const termname &) const;
-	bool term_exists(const termname &) const;
+	doccount get_termfreq(const termname & tname) const;
+	bool term_exists(const termname & tname) const;
 
-	DBPostList * open_post_list(const termname&, RSet *) const;
-	DBTermList * open_term_list(docid) const;
-	IRDocument * open_document(docid) const;
+	DBPostList * open_post_list(const termname & tname, RSet * rset) const;
+	DBTermList * open_term_list(docid did) const;
+	IRDocument * open_document(docid did) const;
 
-	doclength get_doclength(docid) const;
+	doclength get_doclength(docid did) const;
 
-	void make_term(const termname &);
-	docid make_doc(const docname &);
-	void make_posting(const termname &, docid, termcount);
+	void make_term(const termname & tname);
+	docid make_doc(const docname & dname);
+	void make_posting(const termname & tname, docid did, termpos position);
 };
 
 
@@ -221,8 +221,8 @@ class InMemoryDatabase : public virtual IRDatabase {
 //////////////////////////////////////////////
 
 inline
-InMemoryPostList::InMemoryPostList(const InMemoryDatabase *db,
-				   const InMemoryTerm &term)
+InMemoryPostList::InMemoryPostList(const InMemoryDatabase * db,
+				   const InMemoryTerm & term)
 	: pos(term.docs.begin()),
 	  end(term.docs.end()),
 	  tname(pos->tname),
@@ -300,8 +300,8 @@ InMemoryPostList::intro_term_description() const
 // Inline function definitions for termlist //
 //////////////////////////////////////////////
 
-inline InMemoryTermList::InMemoryTermList(const InMemoryDatabase *db,
-					  const InMemoryDoc &doc,
+inline InMemoryTermList::InMemoryTermList(const InMemoryDatabase * db,
+					  const InMemoryDoc & doc,
 					  doclength len)
 	: pos(doc.terms.begin()),
 	  end(doc.terms.end()),
