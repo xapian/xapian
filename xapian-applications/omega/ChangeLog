@@ -1,3 +1,8 @@
+Thu Sep 09 14:41:41 BST 2004  Olly Betts <olly@survex.com>
+
+	* query.cc: Use new checkatleast parameter to Enquire::get_mset to
+	  implement MIN_HITS.
+
 Thu Sep 02 01:45:46 BST 2004  Olly Betts <olly@survex.com>
 
 	* templates/query: Always report database not found - previously we

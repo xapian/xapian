@@ -354,10 +354,10 @@ run_query()
 	    // need to know the first few items on the mset to fake a
 	    // relevance set for topterms.
 	    //
-	    // Fetch one extra result so we know if we've reached the end of the
-	    // matches or not - then we can avoid offering a "next" button which
-	    // leads to an empty page
-	    mset = enquire->get_mset(0,
+	    // If min_hits isn't set, check at least one extra result so we
+	    // know if we've reached the end of the matches or not - then we
+	    // can avoid offering a "next" button which leads to an empty page.
+	    mset = enquire->get_mset(0, topdoc + hits_per_page,
 				     topdoc + max(hits_per_page + 1, min_hits),
 				     &rset);
 	}
