@@ -72,14 +72,14 @@ TextfileIndexer::add_source(const IndexerSource & source)
 	string::size_type spacepos;
 	string word;
 	while ((spacepos = para.find_first_not_of(" \t\n")) != string::npos) {
-	    if (spacepos) para = para.erase(0, spacepos);
+	    if (spacepos) para.erase(0, spacepos);
 	    spacepos = para.find_first_of(" \t\n");
 	    word = para.substr(0, spacepos);
 	    select_characters(word, "");
 	    lowercase_term(word);
 	    word = stemmer.stem_word(word);
 	    document.add_posting(word, position++);
-	    para = para.erase(0, spacepos);
+	    para.erase(0, spacepos);
 	}
 
 	dest->add_document(document);

@@ -57,11 +57,11 @@ string_to_document(string paragraph)
     }
 
     {
-	string value;
-
 	/* We need a value which will be useful for collapsing with DA
 	 * databases, where only the first 8 bytes of value 0 count.
 	 */
+	string value;
+
 	value = paragraph[2];
 
 	value += string("\0\0\0 \1\t", 6);
@@ -76,7 +76,7 @@ string_to_document(string paragraph)
     string::size_type spacepos;
     string word;
     while ((spacepos = paragraph.find_first_not_of(" \t\n")) != string::npos) {
-	if (spacepos) paragraph = paragraph.erase(0, spacepos);
+	if (spacepos) paragraph.erase(0, spacepos);
 	spacepos = paragraph.find_first_of(" \t\n");
 	word = paragraph.substr(0, spacepos);
 	select_characters(word, "");
@@ -85,7 +85,7 @@ string_to_document(string paragraph)
 	if (!word.empty()) {
 	    document.add_posting(word, position++);
 	}
-	paragraph = paragraph.erase(0, spacepos);
+	paragraph.erase(0, spacepos);
     }
 
     return document;

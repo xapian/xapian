@@ -1,3 +1,9 @@
+Mon May 26 12:03:29 BST 2003  Olly Betts <olly@survex.com>
+
+	* testsuite/backendmanager.cc,testsuite/textfile_indexer.cc: Corrected
+	  odd uses of std::string::erase() (instead of `str = str.erase(n, m)'
+	  just use `str.erase(n,m)').
+
 Sun May 25 22:59:44 BST 2003  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated.
