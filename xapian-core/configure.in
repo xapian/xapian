@@ -359,8 +359,7 @@ AC_SUBST(AM_CXXFLAGS)
 dnl See if large file support is available
 AC_SYS_LARGEFILE
 
-APIDOC_SRC="`cd \"$srcdir\";find include -name \*.h -print|sed 's!^!$T/!'|tr '
-' ' '`"
+APIDOC_SRC="`cd \"$srcdir\";echo include/om/om?*.h|sed 's!include!$T/include!g'`"
 dnl find SOURCEDOC in 3 goes to avoid overflowing the 4096 character
 dnl line length limit in some sed implementations
 SOURCEDOC_CC_SRC="`cd \"$srcdir\";find . -name tests -prune -o -name \*.cc -print|sed 's!^\.!$T!'|tr '
@@ -422,7 +421,7 @@ AC_OUTPUT(
 dnl for portability, files run through $CXXCPP must have extension .c .cc or .C
 rm -f _xaptmp.cc
 ln -s $srcdir/include/om/om.h.in _xaptmp.cc
-$CXXCPP _xaptmp.cc|sed '/^\(# .*\)\?$/d;s/^%$//;s/  */ /g;s!^% !// !;s/^%/#/;s/%/__/g' > include/om/om.h.tmp
+$CXXCPP -DVERSION=$VERSION _xaptmp.cc|sed '/^\(# .*\)\?$/d;s/^%$//;s/  */ /g;s!^% !// !;s/^%/#/;s/%/__/g' > include/om/om.h.tmp
 rm -f _xaptmp.cc
 if cmp include/om/om.h.tmp include/om/om.h >/dev/null 2>&1 ; then
   rm include/om/om.h.tmp
