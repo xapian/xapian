@@ -197,7 +197,7 @@ BackendManager::set_dbtype(const string &type)
 #ifdef MUS_BUILD_BACKEND_QUARTZ
 	do_getdb = &BackendManager::getdb_quartz;
 	do_getwritedb = &BackendManager::getwritedb_quartz;
-	system("rm -fr .quartz");
+	rmdir(".quartz");
 #else
 	do_getdb = &BackendManager::getdb_void;
 	do_getwritedb = &BackendManager::getwritedb_void;
@@ -214,19 +214,19 @@ BackendManager::set_dbtype(const string &type)
     } else if (type == "da") {
 	do_getdb = &BackendManager::getdb_da;
 	do_getwritedb = &BackendManager::getwritedb_da;
-	system("rm -fr .da");
+	rmdir(".da");
     } else if (type == "db") {
 	do_getdb = &BackendManager::getdb_db;
 	do_getwritedb = &BackendManager::getwritedb_db;
-	system("rm -fr .db");
+	rmdir(".db");
     } else if (type == "daflimsy") {
 	do_getdb = &BackendManager::getdb_daflimsy;
 	do_getwritedb = &BackendManager::getwritedb_daflimsy;
-	system("rm -fr .daflimsy");
+	rmdir(".daflimsy");
     } else if (type == "dbflimsy") {
 	do_getdb = &BackendManager::getdb_dbflimsy;
 	do_getwritedb = &BackendManager::getwritedb_dbflimsy;
-	system("rm -fr .dbflimsy");
+	rmdir(".dbflimsy");
 #else
     } else if (type == "da" || type == "db" || type == "daflimsy" ||
 	       type == "dbflimsy") {
@@ -389,8 +389,7 @@ BackendManager::do_getdb_quartz(const vector<string> &dbnames, bool writable)
     if (writable) {
 	// if the database is opened readonly, we can reuse it, but if it's
 	// writable we need to start afresh each time
-	string cmd = "rm -fr " + dbdir;
-	system(cmd);
+	rmdir(dbdir);
     }
     if (files_exist(change_names_to_paths(dbnames))) {
 	if (create_dir_if_needed(dbdir)) {
@@ -420,8 +419,7 @@ BackendManager::do_getwritedb_quartz(const vector<string> &dbnames,
     if (writable) {
 	// if the database is opened readonly, we can reuse it, but if it's
 	// writable we need to start afresh each time
-	string cmd = "rm -fr " + dbdir;
-	system(cmd);
+	rmdir(dbdir);
     }
     if (files_exist(change_names_to_paths(dbnames))) {
 	if (create_dir_if_needed(dbdir)) {

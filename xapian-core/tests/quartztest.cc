@@ -47,7 +47,7 @@ using namespace std;
 static string tmpdir;
 
 /// Get the size of the given file in bytes.
-static int get_filesize(string filename)
+static int get_filesize(const string &filename)
 {
     struct stat buf;
     int result = stat(filename, &buf);
@@ -55,12 +55,7 @@ static int get_filesize(string filename)
     return buf.st_size;
 }
 
-static void deletedir(string filename)
-{
-    system("rm -fr " + filename);
-}
-
-static void makedir(string filename)
+static void makedir(const string &filename)
 {
     mkdir(filename, 0700);
 }
@@ -75,7 +70,7 @@ static void unlink_table(const string & path)
 }
 
 /// Check the values returned by a table containing key/tag "hello"/"world"
-static void check_table_values_hello(QuartzDiskTable & table, string world)
+static void check_table_values_hello(QuartzDiskTable & table, const string &world)
 {
     string key;
     string tag;
@@ -1033,7 +1028,7 @@ static bool test_cursor2()
 static bool test_open1()
 {
     string dbdir = tmpdir + "testdb_open1";
-    deletedir(dbdir);
+    rmdir(dbdir);
     
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   Xapian::Internal::RefCntPtr<Xapian::Database::Internal> database_0 = new QuartzDatabase(dbdir));
@@ -1050,7 +1045,7 @@ static bool test_open1()
 static bool test_create1()
 {
     string dbdir = tmpdir + "testdb_create1";
-    deletedir(dbdir);
+    rmdir(dbdir);
 
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db;
 
@@ -1121,7 +1116,7 @@ static bool test_create1()
 static bool test_adddoc1()
 {
     string dbdir = tmpdir + "testdb_adddoc1";
-    deletedir(dbdir);
+    rmdir(dbdir);
     makedir(dbdir);
 
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048);
@@ -1177,7 +1172,7 @@ static bool test_adddoc1()
 static bool test_adddoc2()
 {
     string dbdir = tmpdir + "testdb_adddoc2";
-    deletedir(dbdir);
+    rmdir(dbdir);
     makedir(dbdir);
 
     Xapian::docid did;
@@ -1472,7 +1467,7 @@ static bool test_unpackint1()
 static bool test_postlist1()
 {
     string dbdir = tmpdir + "testdb_postlist1";
-    deletedir(dbdir);
+    rmdir(dbdir);
     makedir(dbdir);
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_w = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 8192);
 
@@ -1530,7 +1525,7 @@ static bool test_postlist1()
 static bool test_postlist2()
 {
     string dbdir = tmpdir + "testdb_postlist2";
-    deletedir(dbdir);
+    rmdir(dbdir);
     makedir(dbdir);
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_w = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 8192);
 
@@ -1788,7 +1783,7 @@ static bool test_overwrite1()
 static bool test_overwrite2()
 {
     string dbname = tmpdir + "overwrite2";
-    deletedir(dbname);
+    rmdir(dbname);
     makedir(dbname);
 
     Xapian::WritableDatabase writer(Xapian::Quartz::open(dbname, Xapian::DB_CREATE);
@@ -1913,7 +1908,7 @@ static bool test_bitmap1()
 static bool test_writelock1()
 {
     string dbname = tmpdir + "writelock1";
-    deletedir(dbname);
+    rmdir(dbname);
     makedir(dbname);
 
     Xapian::WritableDatabase writer = Xapian::Quartz::open(dbname, Xapian::DB_CREATE);
@@ -2023,7 +2018,7 @@ test_desc tests[] = {
 int main(int argc, char **argv)
 {
     tmpdir = ".quartztmp/";
-    deletedir(tmpdir);
+    rmdir(tmpdir);
     makedir(tmpdir);
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);

@@ -1,3 +1,10 @@
+Sun Jul 06 11:01:03 BST 2003  Olly Betts <olly@survex.com>
+
+	* common/utils.h,tests/btreetest.cc,tests/quartztest.cc,
+	  testsuite/backendmanager.cc: Replaced system("rm -rf ...") with
+	  rmdir() function and added two ms windows implementations for
+	  Sam to try.
+
 Sat Jul 05 10:37:35 BST 2003  Olly Betts <olly@survex.com>
 
 	* getopt/getopt.c: Suppress "unused variable" warnings from getopt.c.

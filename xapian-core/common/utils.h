@@ -153,6 +153,48 @@ inline int stat(const string &filename, struct stat *buf) {
     return stat(filename.c_str(), buf);
 }
 
+/// Remove a directory and contents.
+inline void rmdir(const string &filename) {
+    string safefile = filename;
+# ifdef __WIN32__
+    if (getenv("USE_SHFILEOPSTRUCT") == 0) {
+	string::const_iterator i;
+	// Check for illegal characters in filename
+	for (i = safefile.begin(); i != safefile.end(); ++i) {
+	    if (*i == '/') {
+		*i = '\\';
+	    } else if (*i < 32 || strchr(*i, "<>\"|*?")) {
+		return;
+	    }
+	}
+	// for NT like systems:
+	system("rd /s /q \"" + safefile + "\"");
+	// for 95 like systems:
+	system("deltree /y \"" + safefile + "\"");
+    } else {
+	safefile.append("\0", 2);
+	SHFILEOPSTRUCT shfo;
+	memset((void*)&shfo, 0, sizeof(shfo));
+	shfo.hwnd = 0;
+	shfo.wFunc = FO_DELETE;
+	shfo.pFrom = safefile.data();
+	shfo.fFlags = FOF_NOCONFIRMATION|FOF_NOERRORUI|FOF_SILENT;
+	(void)SHFileOperation(&shfo);
+    }
+# else
+    string::size_type p = 0;
+    while (p < safefile.size()) {
+	// Don't escape a few safe characters which are common in filenames
+	if (!isalnum(safefile[p]) && strchr("/._-", safefile[p]) == NULL) {
+	    safefile.insert(p, '\\');
+	    ++p;
+	}
+	++p;
+    }
+    system("rm -rf " + safefile);
+# endif
+}
+
 # ifdef __WIN32__
 inline unsigned int sleep(unsigned int secs) {
     _sleep(secs * 1000);

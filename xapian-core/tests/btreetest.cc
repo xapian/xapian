@@ -51,12 +51,7 @@ using namespace std;
 static string tmpdir;
 static string datadir;
 
-static void delete_dir(string filename)
-{
-    system("rm -fr " + filename);
-}
-
-static void make_dir(string filename)
+static void make_dir(const string & filename)
 {
     mkdir(filename, 0700);
 }
@@ -108,7 +103,7 @@ static int do_update(const string & btree_dir,
 
 static void do_create(const string & btree_dir, int block_size = 2048)
 {
-    delete_dir(btree_dir);
+    rmdir(btree_dir);
     make_dir(btree_dir);
 
     Btree::create(btree_dir.c_str(), block_size);
@@ -275,7 +270,7 @@ int main(int argc, char **argv)
     } else {
 	tmpdir = ".btreetmp/";
     }
-    delete_dir(tmpdir);
+    rmdir(tmpdir);
     make_dir(tmpdir);
     test_driver::parse_command_line(argc, argv);
     datadir = test_driver::get_srcdir() + "/testdata/btreetest_";
