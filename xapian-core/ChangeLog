@@ -1,3 +1,8 @@
+Sun May 23 00:56:41 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/btree.h: Merge split_off()
+	  into add_item().
+
 Sat May 22 01:28:58 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Another DEBUGCALL.

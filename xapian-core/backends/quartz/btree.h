@@ -147,7 +147,6 @@ class Btree {
 	void alter();
 	void compress(byte *p);
 	void enter_key(int j, byte *kq, byte *kp);
-	void split_off(int j, int c, byte *p, byte *q);
 	int mid_point(byte *p);
 	void add_item_to_block(byte *p, byte *kt, int c);
 	void add_item(byte *kt, int j);

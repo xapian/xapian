@@ -790,36 +790,6 @@ here:
     add_item(b, j);
 }
 
-/* split_off(j, c, p, q) splits the block at p at directory offset c.
-
-   In fact p is just C[j].p, and q is C_split[j].p, a block buffer
-   provided at each cursor level to accommodate the split.
-
-   The first half block goes into q, with block number in C_split[j].n
-   copied from C[j].n, the second half into p with a new block number.
-*/
-
-void
-Btree::split_off(int j, int c, byte * p, byte * q)
-{
-    Assert(writable);
-    /* p is C[j].p, q is C_split[j].p */
-
-    C_split[j].n = C[j].n;
-    C[j].n = base.next_free_block();
-
-    memmove(q, p, block_size);  /* replicate the whole block in q */
-    SET_DIR_END(q, c);
-    compress(q);      /* to reset TOTAL_FREE, MAX_FREE */
-
-    int residue = DIR_END(p) - c;
-    int new_dir_end = DIR_START + residue;
-    memmove(p + DIR_START, p + c, residue);
-    SET_DIR_END(p, new_dir_end);
-
-    compress(p);      /* to reset TOTAL_FREE, MAX_FREE */
-}
-
 /** mid_point(p) finds the directory entry in c that determines the
    approximate mid point of the data in the block at p.
  */
@@ -903,7 +873,6 @@ Btree::add_item(byte * kt_, int j)
     if (TOTAL_FREE(p) < needed) {
 	int m;
 	byte * q = C_split[j].p;
-	int add_to_upper_half;
 
 	// Prepare to split p. After splitting, the block is in two halves, the
 	// lower half is q, the upper half p again. add_to_upper_half becomes
@@ -913,14 +882,33 @@ Btree::add_item(byte * kt_, int j)
 	    // If we're not in sequential mode, we split at the mid point
 	    // of the node.
 	    m = mid_point(p);
-	    split_off(j, m, p, q);
-	    add_to_upper_half = c >= m;
 	} else {
 	    // During sequential addition, split at the insert point
 	    m = c;
-	    split_off(j, m, p, q);
+	}
+
+	C_split[j].n = C[j].n;
+	C[j].n = base.next_free_block();
+
+	memcpy(q, p, block_size);  /* replicate the whole block in q */
+	SET_DIR_END(q, m);
+	compress(q);      /* to reset TOTAL_FREE, MAX_FREE */
+
+	{
+	    int residue = DIR_END(p) - m;
+	    int new_dir_end = DIR_START + residue;
+	    memmove(p + DIR_START, p + m, residue);
+	    SET_DIR_END(p, new_dir_end);
+	}
+
+	compress(p);      /* to reset TOTAL_FREE, MAX_FREE */
+
+	bool add_to_upper_half;
+	if (seq_count < 0) {
+	    add_to_upper_half = (c >= m);
+	} else {
 	    // And add item to lower half if q has room, otherwise upper half
-	    add_to_upper_half = TOTAL_FREE(q) < needed;
+	    add_to_upper_half = (TOTAL_FREE(q) < needed);
 	}
 
 	if (add_to_upper_half) {
