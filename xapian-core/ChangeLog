@@ -1,3 +1,7 @@
+Fri Mar 26 12:31:24 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Fixed check for --enable-runtime-pseudo-reloc.
+
 Fri Mar 26 12:31:00 GMT 2004  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.am: Removed spurious "-lz" from quartzdump_LDADD.

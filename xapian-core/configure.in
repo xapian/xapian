@@ -33,8 +33,8 @@ ldflags=
 if test yesyes = "$GCC$enable_shared" ; then
   case $host_os in
     *mingw* | *cygwin*)
-      ldflags="-Wl,--enable-runtime-pseudo-reloc"
-      if $CXX $ldflags 2>&1 >/dev/null|grep -e $ldflags >/dev/null 2>&1; then
+      ldflags="--enable-runtime-pseudo-reloc"
+      if $CXX -Wl,$ldflags 2>&1 >/dev/null|grep -e $ldflags >/dev/null 2>&1; then
 	dnl The error message contains the flag name - it must be a
 	dnl complaint that the option is unrecognized (doing it this
 	dnl way allows it to work regardless of the i18n in use):
@@ -45,6 +45,7 @@ if test yesyes = "$GCC$enable_shared" ; then
 	dnl just disable the shared build automatically...
 	AC_MSG_ERROR([ld version too old to support a shared build - configure with --disable-shared, or install binutils 2.13.90-20030111-1 or later])
       fi
+      ldflags="-Wl,$ldflags"
     ;;
   esac
 fi
