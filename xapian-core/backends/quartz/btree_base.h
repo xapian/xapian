@@ -66,6 +66,7 @@ class Btree_base {
 	int4 get_item_count();
 	int4 get_last_block();
 	bool get_have_fakeroot();
+	bool get_sequential();
 
 	void set_revision(uint4 revision_);
 	void set_block_size(uint4 block_size_);
@@ -73,6 +74,7 @@ class Btree_base {
 	void set_level(int4 level_);
 	void set_item_count(int4 item_count_);
 	void set_have_fakeroot(bool have_fakeroot_);
+	void set_sequential(bool sequential_);
 
 	/** Write the btree base file to disk. */
 	void write_to_file(const std::string &filename);
@@ -128,6 +130,7 @@ class Btree_base {
 	int4 item_count;
 	int4 last_block;
 	bool have_fakeroot;
+	bool sequential;
 
 	/* Data related to the bitmap */
 	/** byte offset into the bit map below which there

@@ -28,8 +28,9 @@
 #include "btree_base.h"
 #include "bcursor.h"
 
+/* allow for this many levels in the B-tree. Overflow practically impossible */
+/* FIXME: but we want it to be completely impossible... */
 #define BTREE_CURSOR_LEVELS 10
-    /* allow for this many levels in the B-tree. Overflow practically impossible */
 
 class Btree {
     friend class Bcursor; /* Should probably fix this. */
@@ -162,10 +163,15 @@ class Btree {
 			     const int4 blocknumber, bool truncate) const;
 
 
-	/** true if the root block is faked (not written to disk).
-	 *  false otherwise.  This is true when the btree hasn't been modified yet.
+	/** true if the root block is faked (not written to disk).  false
+	 * otherwise.  This is true when the btree hasn't been modified yet.
 	 */
 	bool faked_root_block;
+
+	/** true iff the data has been written in a single write in sequential
+	 *  order.
+	 */
+	bool sequential;
 
 	int handle;           /* corresponding file handle */
 	int level;            /* number of levels, counting from 0 */
@@ -202,8 +208,8 @@ class Btree {
 	static int prev_default(Btree *, Cursor *C, int j);
 	static int next_default(Btree *, Cursor *C, int j);
 
-	static int prev_for_revision_1(Btree *, Cursor *C, int dummy);
-	static int next_for_revision_1(Btree *, Cursor *C, int dummy);
+	static int prev_for_sequential(Btree *, Cursor *C, int dummy);
+	static int next_for_sequential(Btree *, Cursor *C, int dummy);
 
 	/* B-tree navigation functions */
 

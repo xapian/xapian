@@ -1,3 +1,7 @@
+Mon Jan 15 15:35:50 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add some fixes to sequential access to btrees from Martin.
+
 Mon Jan 15 12:23:02 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Set matches_* to the known value of the number of hits if we have

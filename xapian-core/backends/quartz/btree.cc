@@ -1026,6 +1026,7 @@ Btree::add_kt(int found, struct Cursor * C)
 
     if (found)  /* replacement */
     {   seq_count = SEQ_START_POINT;
+	sequential = false;
         {   byte * p = C[0].p;
             int c = C[0].c;
             int o = GETD(p, c);
@@ -1060,10 +1061,12 @@ Btree::add_kt(int found, struct Cursor * C)
     }
     else  /* addition */
     {
-        if (changed_n == C[0].n && changed_c == C[0].c)
-            { if (seq_count < 0) seq_count++; }
-        else
-            seq_count = SEQ_START_POINT;
+        if (changed_n == C[0].n && changed_c == C[0].c) {
+	    if (seq_count < 0) seq_count++;
+	} else {
+	    seq_count = SEQ_START_POINT;
+	    sequential = false;
+	}
         C[0].c += D2;
         add_item(C, kt, 0);
     }
@@ -1083,6 +1086,7 @@ Btree::delete_kt()
 
     int components = 0;
     seq_count = SEQ_START_POINT;
+    sequential = false;
 
     /*
     {
@@ -1457,13 +1461,14 @@ Btree::basic_open(const char * name_,
 	 */
         base.swap(*basep);
 
-        revision_number = base.get_revision();
-        block_size =      base.get_block_size();
-        root =            base.get_root();
-        level =           base.get_level();
-        //bit_map_size =    basep->get_bit_map_size();
-        item_count =      base.get_item_count();
+        revision_number =  base.get_revision();
+        block_size =       base.get_block_size();
+        root =             base.get_root();
+        level =            base.get_level();
+        //bit_map_size =     basep->get_bit_map_size();
+        item_count =       base.get_item_count();
         faked_root_block = base.get_have_fakeroot();
+        sequential =       base.get_sequential();
 
         if (other_base != 0) {
 	    other_revision_number = other_base->get_revision();
@@ -1596,7 +1601,8 @@ Btree::do_open_to_write(const char * name_,
 
     other_base_letter = base_letter == 'A' ? 'B' : 'A'; /* swap for writing */
 
-    changed_n = -1;
+    changed_n = 0;
+    changed_c = DIR_START;
     seq_count = SEQ_START_POINT;
 
     return true;
@@ -1653,6 +1659,7 @@ Btree::Btree()
 	  block_size(0),
 	  base_letter('A'),
 	  faked_root_block(true),
+	  sequential(true),
 	  handle(-1),
 	  level(0),
 	  root(0),
@@ -1774,8 +1781,10 @@ Btree::commit(uint4 revision)
     }
 
     faked_root_block &= ! Btree_modified; /* still faked? */
+
     if (faked_root_block) {
-	base.clear_bit_map(); /* if so, dummy bit map */
+	/* We will use a dummy bitmap. */
+	base.clear_bit_map();
     }
 
     errorval = BTREE_ERROR_BASE_WRITE;
@@ -1784,6 +1793,7 @@ Btree::commit(uint4 revision)
     base.set_level(level);
     base.set_item_count(item_count);
     base.set_have_fakeroot(faked_root_block);
+    base.set_sequential(sequential);
 
     if (! write_base()) {
 	return errorval;
@@ -1818,8 +1828,8 @@ Btree::do_open_to_read(const char * name_,
         shared_level = level > common_levels ? common_levels : level;
     }
 
-    prev = revision_number <= 1 ? prev_for_revision_1 : prev_default;
-    next = revision_number <= 1 ? next_for_revision_1 : next_default;
+    prev = sequential ? prev_for_sequential : prev_default;
+    next = sequential ? next_for_sequential : next_default;
 
     {
         for (int j = shared_level; j <= level; j++) {
@@ -1893,7 +1903,7 @@ Btree::force_block_to_cursor(struct Cursor * C_, int j)
 }
 
 int
-Btree::prev_for_revision_1(struct Btree * B, struct Cursor * C, int dummy)
+Btree::prev_for_sequential(struct Btree * B, struct Cursor * C, int dummy)
 {   byte * p = C[0].p;
     int c = C[0].c;
     if (c == DIR_START)
@@ -1916,7 +1926,7 @@ Btree::prev_for_revision_1(struct Btree * B, struct Cursor * C, int dummy)
 }
 
 int
-Btree::next_for_revision_1(struct Btree * B, struct Cursor * C, int dummy)
+Btree::next_for_sequential(struct Btree * B, struct Cursor * C, int dummy)
 {   byte * p = C[0].p;
     int c = C[0].c;
     c += D2;
@@ -2172,14 +2182,15 @@ Btree::block_check(struct Cursor * C_, int j, int opts)
             if (j == 1 && c > DIR_START)
                 if (compare_keys(key_of(q, DIR_START), key_of(p, c)) < 0) failure(70);
 
-            /* if j > 1, the second key of level j - 1 must be >= the key of p, c: */
+	    /* if j > 1, and c > DIR_START, the second key of level j - 1 must be >= the key of p, c: */
 
-            if (j > 1 && DIR_END(q) > DIR_START + D2)
+	    if (j > 1 && c > DIR_START && DIR_END(q) > DIR_START + D2)
                 if (compare_keys(key_of(q, DIR_START + D2), key_of(p, c)) < 0) failure(80);
 
             /* the last key of level j - 1 must be < the key of p, c + D2, if c + D2 < dir_end: */
 
             if (c + D2 < dir_end &&
+		(j == 1 || DIR_END(q) - D2 > DIR_START) &&
                 compare_keys(key_of(q, DIR_END(q) - D2), key_of(p, c + D2)) >= 0) failure(90);
 
             if (REVISION(q) > REVISION(p)) failure(91);

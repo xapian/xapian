@@ -24,6 +24,7 @@
 #include "quartz_utils.h"
 #include "utils.h"
 #include "om/omerror.h"
+#include "omassert.h"
 #include <errno.h>
 
 /************ Base file parameters ************/
@@ -54,27 +55,7 @@
  * BITMAP	The bitmap.  This will be BIT_MAP_SIZE raw bytes.
  * REVISION3	A third copy of the revision number, for consistency checks.
  */
-#define CURR_FORMAT 4U
-
-#if 0
-
-/** This is the description of the old base file format: IGNORE */
-#define B_SIZE          80  /* 2 bytes */
-
-#define B_FORMAT         2  /* 1 byte - spare; 256 possible styles ... */
-#define B_REVISION       3  /* 4 bytes */
-#define B_BLOCK_SIZE     7  /* 4 bytes */
-#define B_ROOT          11  /* 4 bytes */
-#define B_LEVEL         15  /* 4 bytes */
-#define B_BIT_MAP_SIZE  19  /* 4 bytes */
-#define B_ITEM_COUNT    23  /* 4 bytes */
-#define B_LAST_BLOCK    27  /* 4 bytes */
-#define B_HAVE_FAKEROOT 31  /* 1 byte - boolean */
-
-        /* 31 to 75 are spare */
-
-#define B_REVISION2     (B_SIZE - 4)
-#endif
+#define CURR_FORMAT 5U
 
 Btree_base::Btree_base()
 	: revision(0),
@@ -85,6 +66,7 @@ Btree_base::Btree_base()
 	  item_count(0),
 	  last_block(0),
 	  have_fakeroot(false),
+	  sequential(false),
 	  bit_map_low(0),
 	  bit_map0(0),
 	  bit_map(0)
@@ -99,7 +81,8 @@ Btree_base::Btree_base(const std::string &name_, char ch)
 	  bit_map_size(0),
 	  item_count(0),
 	  last_block(0),
-	  have_fakeroot(false)
+	  have_fakeroot(false),
+	  sequential(false)
 {
     std::string err_msg;
     if (!read(name_, ch, err_msg)) {
@@ -116,6 +99,7 @@ Btree_base::Btree_base(const Btree_base &other)
 	  item_count(other.item_count),
 	  last_block(other.last_block),
 	  have_fakeroot(other.have_fakeroot),
+	  sequential(other.sequential),
 	  bit_map_low(other.bit_map_low),
 	  bit_map0(0),
 	  bit_map(0)
@@ -143,6 +127,7 @@ Btree_base::swap(Btree_base &other)
     std::swap(item_count, other.item_count);
     std::swap(last_block, other.last_block);
     std::swap(have_fakeroot, other.have_fakeroot);
+    std::swap(sequential, other.sequential);
     std::swap(bit_map_low, other.bit_map_low);
     std::swap(bit_map0, other.bit_map0);
     std::swap(bit_map, other.bit_map);
@@ -194,7 +179,7 @@ do { \
     } \
 } while(0)
 
-/* This should be bit enough that the base file without bitmap
+/* This should be big enough that the base file without bitmap
  * will fit in to this size with no problem.  Other than that
  * it's fairly arbitrary, but shouldn't be big enough to cause
  * serious memory problems!
@@ -245,6 +230,16 @@ Btree_base::read(const std::string & name, char ch, std::string &err_msg)
     uint4 have_fakeroot_;
     DO_UNPACK_UINT_ERRCHECK(&start, end, have_fakeroot_);
     have_fakeroot = have_fakeroot_;
+
+    uint4 sequential_;
+    DO_UNPACK_UINT_ERRCHECK(&start, end, sequential_);
+    sequential = sequential_;
+
+    if (have_fakeroot && !sequential) {
+	err_msg += "Corrupt base file, `" + basename + "': "
+		"`sequential' must be set whenever `have_fakeroot' is set.\n";
+	return false;
+    }
 
     uint4 revision2;
     DO_UNPACK_UINT_ERRCHECK(&start, end, revision2);
@@ -344,6 +339,12 @@ Btree_base::get_have_fakeroot()
     return have_fakeroot;
 }
 
+bool
+Btree_base::get_sequential()
+{
+    return sequential;
+}
+
 void
 Btree_base::set_revision(uint4 revision_)
 {
@@ -381,6 +382,12 @@ Btree_base::set_have_fakeroot(bool have_fakeroot_)
 }
 
 void
+Btree_base::set_sequential(bool sequential_)
+{
+    sequential = sequential_;
+}
+
+void
 Btree_base::write_to_file(const std::string &filename)
 {
     calculate_last_block();
@@ -395,6 +402,7 @@ Btree_base::write_to_file(const std::string &filename)
     buf += pack_uint(static_cast<uint4>(item_count));
     buf += pack_uint(static_cast<uint4>(last_block));
     buf += pack_uint(have_fakeroot);
+    buf += pack_uint(sequential);
     buf += pack_uint(revision);
     buf.append(reinterpret_cast<const char *>(bit_map), bit_map_size);
     buf += pack_uint(revision);  // REVISION2

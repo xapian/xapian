@@ -241,6 +241,12 @@ max_or_terms should probably work in a more local way.  Should be a new
 query operator rather than a hack on OM_MOP_OR.
 
 </todoitem>
+<todoitem priority="M" difficulty="3" owner="" area="Threads" release="">
+
+Make ./configure --enable-mutex-errcheck compile on more systems: need
+configure check for pthread_mutexattr_settype()
+
+</todoitem>
 <todoitem priority="L" difficulty="3" owner="" area="Quartz" release="">
 
 Clean up interaction of AllTermsIterator for quartz with QuartzPostList.
