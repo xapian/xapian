@@ -1,3 +1,9 @@
+Fri Nov 05 17:23:36 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: AM_CONFIG_HEADER -> AC_CONFIG_HEADERS; Run tests using
+	  the C++ compiler; select ANSI mode for aCC and cxx; Check GXX not
+	  GCC when chosing warning flags.
+
 Wed Nov 03 10:33:15 GMT 2004  Olly Betts <olly@survex.com>
 
 	* source/queryserver.cpp: Use SOCKLEN_T as the latest TYPE_SOCKLEN_T
