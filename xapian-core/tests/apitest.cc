@@ -159,6 +159,8 @@ test_desc tests[] = {
 
 string datadir;
 
+vector<OmDocumentContents> documentcontents;
+    
 int main(int argc, char *argv[])
 {
     char *srcdir = getenv("srcdir");
@@ -265,8 +267,8 @@ operator<<(ostream &os, const OmMSet &mset)
     return os;
 }
 
-void
-index_string_to_database(OmWritableDatabase & database, string paragraph)
+OmDocumentContents
+string_to_document(string paragraph)
 {
     OmStem stemmer("english");
 
@@ -287,7 +289,7 @@ index_string_to_database(OmWritableDatabase & database, string paragraph)
 	paragraph = paragraph.erase(0, spacepos);
     }
 
-    database.add_document(document);
+    return document;
 }
 
 void
@@ -303,7 +305,7 @@ index_files_to_database(OmWritableDatabase & database, vector<string> paths)
 	while(*from) {
 	    string para;
 	    get_paragraph(*from, para);
-	    index_string_to_database(database, para);
+	    database.add_document(string_to_document(para));
 	}
     }
 }
