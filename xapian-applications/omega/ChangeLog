@@ -1,3 +1,8 @@
+Sun Apr 18 22:31:24 BST 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Only need _POSIX_C_SOURCE on Linux, and it seems to
+	  cause problems with Sun's C++ compiler.
+
 Sun Apr 18 17:50:35 BST 2004  Olly Betts <olly@survex.com>
 
 	* omindex.cc: _POSIX_C_SOURCE works better than _POSIX_SOURCE for
