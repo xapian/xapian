@@ -1,3 +1,9 @@
+Tue Mar 23 19:20:19 GMT 2004  Olly Betts <olly@survex.com>
+
+	* templates/xml: Correct spelling of `relavence' to `relevance'.
+	  NB: if you're parsing the XML output, you'll need to fix this
+	  spelling in your parser!
+
 Sun Mar 21 14:23:23 GMT 2004  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Use getopt for option parsing.  Change default to
