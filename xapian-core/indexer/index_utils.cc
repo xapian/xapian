@@ -41,9 +41,9 @@ void get_paragraph(istream &input, string &para) {
     do {
 	getline(input, line);
 	para += line;
+	para += "\n";
 	linecount ++;
 	if(linecount > 30) break;;
-	para += " ";
     } while(line.find_first_not_of(" \t") != string::npos || linecount < 3);
 }
 

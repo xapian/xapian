@@ -29,7 +29,6 @@ TextfileIndexer::add_source(const IndexerSource &source)
     Assert(dest != NULL);
     istream *from = source.get_stream();
 
-
     // Read lines, each line is a document, split lines into words,
     // each word is a term
     // FIXME - This is just a temporary hack - we want to make a toolkit
@@ -40,17 +39,17 @@ TextfileIndexer::add_source(const IndexerSource &source)
 
     while(*from) {
 	string para;
-	//get_paragraph(*from, para);
-	get_a_line(*from, para);
+	get_paragraph(*from, para);
+	//get_a_line(*from, para);
 	
 	docid did = dest->make_doc(para);
 	termcount position = 1;
 
 	string::size_type spacepos;
 	termname word;
-	while((spacepos = para.find_first_not_of(" \t")) != string::npos) {
+	while((spacepos = para.find_first_not_of(" \t\n")) != string::npos) {
 	    if(spacepos) para = para.erase(0, spacepos);
-	    spacepos = para.find_first_of(" \t");
+	    spacepos = para.find_first_of(" \t\n");
 	    word = para.substr(0, spacepos);
 	    select_characters(word, "");
 	    lowercase_term(word);
