@@ -21,29 +21,38 @@
  */
 
 #include <math.h>
+#include "config.h"
 
-#include "database.h"
+#include "omassert.h"
 #include "bm25weight.h"
 #include "rset.h"
-#include "omassert.h"
-
-#include "config.h"
+#include "stats.h"
 
 ///////////////////////////////////////////////////////////////////////////
 
 // const double A = 1; // used with wqf (which we don't do yet)
 const double B = 1;
 const double D = .5;
-const double C = 1; // Well, why not.  FIXME
+const double C = .5;
+
+// The following parameters cause BM25Weight to behave identically to
+// TradWeight.
+//const double A = 1;
+//const double B = 1;
+//const double D = 1;
+//const double C = 0;
 
 // Calculate weights using statistics retrieved from databases
 void
 BM25Weight::calc_termweight() const
 {
     Assert(initialised);
+    Assert(stats->get_total_average_length() != 0);
 
-    om_doccount dbsize = root->get_doccount();
-    lenpart = B * D / root->get_avlength();
+    om_doccount dbsize = stats->get_total_collection_size();
+    lenpart = B * D / stats->get_total_average_length();
+
+    om_doccount termfreq = stats->get_total_termfreq(tname);
 
     DebugMsg("Statistics: N=" << dbsize << " n_t=" << termfreq);
 
@@ -78,8 +87,12 @@ BM25Weight::get_sumpart(om_doccount wdf, om_doclength len) const
     if(!weight_calculated) calc_termweight();
 
     om_weight wt = (double) wdf / (len * lenpart + B * (1 - D) + wdf);
+    DebugMsg("(wdf,len,lenpart) = (" << wdf << "," << len << "," << lenpart <<
+	     ") =>  wtadj = " << wt);
 
     wt *= termweight;
+
+    DebugMsg(" =>  sumpart = " << wt << endl);
 
     return wt;
 }
@@ -88,7 +101,7 @@ om_weight
 BM25Weight::get_maxpart() const
 {   
     if(!weight_calculated) calc_termweight();
-
+    DebugMsg("maxpart = " << termweight << endl);
     return termweight;
 }
 
@@ -99,11 +112,20 @@ BM25Weight::get_maxpart() const
 om_weight
 BM25Weight::get_sumextra(om_doclength len) const
 {
-    return C * querysize / (1 + len);
+    om_doclength normlen = len / stats->get_total_average_length();
+    om_weight extra = C * querysize / (1 + normlen);
+    DebugMsg("len = " << len <<
+	     " querysize = " << querysize <<
+	     " =>  normlen = " << normlen <<
+	     " =>  sumextra = " << extra << endl);
+    return extra;
 }
 
 om_weight
 BM25Weight::get_maxextra() const
 {
-    return C * querysize;
+    om_weight maxextra = C * querysize;
+    DebugMsg("querysize = " << querysize <<
+	     " =>  maxextra = " << maxextra << endl);
+    return maxextra;
 }

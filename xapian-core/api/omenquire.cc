@@ -120,6 +120,8 @@ int
 OmMSet::convert_to_percent(om_weight wt) const
 {
     int pcent = (int) ceil(wt * 100 / max_possible);
+    DebugMsg("wt = " << wt << ", max_possible = " << max_possible <<
+	     " =>  pcent = " << pcent << endl);
     if(pcent > 100) pcent = 100;
     if(pcent < 0) pcent = 0;
     if(pcent == 0 && wt > 0) pcent = 1;
@@ -262,10 +264,9 @@ OmEnquireInternal::get_mset(om_doccount first,
 
     // FIXME: should be done by top match object.
     if(rset == 0) {
-	gatherer.set_global_stats(database->get_doccount(), 0);
+	gatherer.set_global_stats(0);
     } else {
-	gatherer.set_global_stats(database->get_doccount(),
-				  rset->get_rsize());
+	gatherer.set_global_stats(rset->get_rsize());
     }
 
     // Set options
@@ -300,6 +301,12 @@ OmEnquireInternal::get_mset(om_doccount first,
     // Store what the first item requested was, so that this information is
     // kept with the mset.
     retval.firstitem = first;
+
+    // Do checks that the statistics got shared correctly.
+    AssertParanoid(gatherer.get_stats()->collection_size ==
+		   database->get_doccount());
+    AssertParanoid((rset == 0 && gatherer.get_stats()->rset_size == 0) ||
+		   (rset != 0 && gatherer.get_stats()->rset_size == rset->get_rsize()));
 
     // Clear up
     delete rset;

@@ -22,12 +22,12 @@
 
 #include <math.h>
 
-#include "database.h"
+#include "config.h"
+
+#include "stats.h"
 #include "tradweight.h"
 #include "rset.h"
 #include "omassert.h"
-
-#include "config.h"
 
 const double k = 1;
 
@@ -37,8 +37,10 @@ TradWeight::calc_termweight() const
 {
     Assert(initialised);
 
-    om_doccount dbsize = root->get_doccount();
-    lenpart = k / root->get_avlength();
+    om_doccount dbsize = stats->get_total_collection_size();
+    lenpart = k / stats->get_total_average_length();
+
+    om_doccount termfreq = stats->get_total_termfreq(tname);
 
     DebugMsg("Statistics: N=" << dbsize << " n_t=" << termfreq);
 

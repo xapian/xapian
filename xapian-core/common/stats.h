@@ -48,7 +48,7 @@ class Stats {
 
 	Stats() : collection_size(0),
 		  rset_size(0),
-		  average_length(0)
+		  average_length(1.0)
 	{}
 
 	/** Add in the supplied statistics from a sub-database.
@@ -77,8 +77,7 @@ class StatsGatherer {
 	/** Set the global collection statistics.
 	 *  Should be called before the match is performed.
 	 */
-	void set_global_stats(om_doccount collection_size,
-			      om_doccount rset_size);
+	void set_global_stats(om_doccount rset_size);
 
 	/** Contribute some statistics to the overall statistics.
 	 *  Should only be called once by each sub-database.
@@ -141,13 +140,13 @@ class StatsLeaf {
 	 *  object represents.  This is the number of documents in
 	 *  the sub-database indexed by the given term.
 	 */
-	void my_termfreq_is(om_termname & tname, om_doccount tfreq);
+	void my_termfreq_is(const om_termname & tname, om_doccount tfreq);
 
 	/** Set the relevant term-frequency in the sub-database which this
 	 *  stats object represents.  This is the number of relevant
 	 *  documents in the sub-database indexed by the given term.
 	 */
-	void my_reltermfreq_is(om_termname & tname, om_doccount rtfreq);
+	void my_reltermfreq_is(const om_termname & tname, om_doccount rtfreq);
 
 
 
@@ -173,13 +172,13 @@ class StatsLeaf {
 	 *  given term.  This is "n_t", the number of documents in the
 	 *  collection indexed by the given term.
 	 */
-	om_doccount get_total_termfreq(om_termname & tname) const;
+	om_doccount get_total_termfreq(const om_termname & tname) const;
 
 	/** Get the relevant term-frequency over the whole collection, for
 	 *  the given term.  This is "r_t", the number of relevant documents
 	 *  in the collection indexed by the given term.
 	 */
-	om_doccount get_total_reltermfreq(om_termname & tname) const;
+	om_doccount get_total_reltermfreq(const om_termname & tname) const;
 };
 
 ///////////////////////////////
@@ -191,9 +190,13 @@ Stats::operator +=(const Stats & inc)
 {
     // Set the new collection size and average length.
     om_doccount new_collection_size = collection_size + inc.collection_size;
-    average_length = (average_length * collection_size +
-		      inc.average_length * inc.collection_size) /
-		     new_collection_size;
+    if(new_collection_size != 0) {
+	// Cope with adding in a collection of zero size at the beginning:
+	// perhaps we have multiple databases, but some are not yet populated
+	average_length = (average_length * collection_size +
+			  inc.average_length * inc.collection_size) /
+			 new_collection_size;
+    }
     collection_size = new_collection_size;
 
     // Pass up rset_size.  This is used for checking
@@ -221,10 +224,8 @@ StatsGatherer::StatsGatherer()
 {}
 
 inline void
-StatsGatherer::set_global_stats(om_doccount collection_size,
-				om_doccount rset_size)
+StatsGatherer::set_global_stats(om_doccount rset_size)
 {
-    total_stats.collection_size = collection_size;
     total_stats.rset_size = rset_size;
 }
 
@@ -260,7 +261,7 @@ StatsLeaf::my_average_length_is(om_doclength avlen)
 }
 
 inline void
-StatsLeaf::my_termfreq_is(om_termname & tname, om_doccount tfreq)
+StatsLeaf::my_termfreq_is(const om_termname & tname, om_doccount tfreq)
 {
     Assert(total_stats == 0);
     Assert(my_stats.termfreq.find(tname) == my_stats.termfreq.end());
@@ -268,7 +269,7 @@ StatsLeaf::my_termfreq_is(om_termname & tname, om_doccount tfreq)
 }
 
 inline void
-StatsLeaf::my_reltermfreq_is(om_termname & tname, om_doccount rtfreq)
+StatsLeaf::my_reltermfreq_is(const om_termname & tname, om_doccount rtfreq)
 {   
     Assert(total_stats == 0);
     Assert(my_stats.reltermfreq.find(tname) == my_stats.reltermfreq.end());
@@ -297,9 +298,14 @@ StatsLeaf::get_total_average_length() const
 }
 
 inline om_doccount
-StatsLeaf::get_total_termfreq(om_termname & tname) const
+StatsLeaf::get_total_termfreq(const om_termname & tname) const
 {
     if(total_stats == 0) perform_request();
+
+    // To get the statistics about a given term, we have to have
+    // supplied our own ones first.
+    Assert(my_stats.termfreq.find(tname) != my_stats.termfreq.end());
+
     map<om_termname, om_doccount>::const_iterator tfreq;
     tfreq = total_stats->termfreq.find(tname);
     Assert(tfreq != total_stats->termfreq.end());
@@ -307,7 +313,7 @@ StatsLeaf::get_total_termfreq(om_termname & tname) const
 }
 
 inline om_doccount
-StatsLeaf::get_total_reltermfreq(om_termname & tname) const
+StatsLeaf::get_total_reltermfreq(const om_termname & tname) const
 {
     if(total_stats == 0) perform_request();
     map<om_termname, om_doccount>::const_iterator rtfreq;

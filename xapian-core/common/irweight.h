@@ -28,6 +28,7 @@
 
 class IRDatabase;
 class RSet;
+class StatsLeaf;
 
 /// Abstract base class for weighting schemes
 class IRWeight {
@@ -35,9 +36,9 @@ class IRWeight {
 	IRWeight(const IRWeight &);
 	void operator=(IRWeight &);
     protected:
-	const IRDatabase *root;
+	const StatsLeaf *stats;
+	
 	om_doclength querysize;
-	om_doccount termfreq;
 	om_termname tname;
 	const RSet * rset;
 
@@ -52,21 +53,21 @@ class IRWeight {
 	/** Initialise the weight object with the neccessary stats, or
 	 *  places to get them from.
 	 *
-	 *  @param root_     Database to ask for collection statistics.
-	 *  @param termfreq_ Term frequency: number of documents indexed by
-	 *                   this term.  This may be an approximation.
+	 *  @param stats_    Object to ask for collection statistics.
 	 *  @param tname_    Term which this object is associated with.
 	 *  @param rset_     Relevance set to use for calculating weights.
 	 */
-	virtual void set_stats(const IRDatabase * root_,
+	virtual void set_stats(const StatsLeaf * stats_,
 			       om_doclength querysize_,
-			       om_doccount termfreq_,
 			       om_termname tname_,
 			       const RSet * rset_);
 
 	/** Get a weight which is part of the sum over terms being performed.
 	 *  This returns a weight for a given term and document.  These
 	 *  weights are summed to give a total weight for the document.
+	 *
+	 *  @param wdf the within document frequency of the term.
+	 *  @param len the (unnormalised) document length.
 	 */
 	virtual om_weight get_sumpart(om_doccount wdf,
 				      om_doclength len) const = 0;
@@ -83,6 +84,8 @@ class IRWeight {
 	 *  This returns a weight for a given document, and is used by some
 	 *  weighting schemes to account for influence such as document
 	 *  length.
+	 *
+	 *  @param len the (unnormalised) document length.
 	 */
 	virtual om_weight get_sumextra(om_doclength len) const = 0;
 
@@ -97,17 +100,15 @@ class IRWeight {
 ///////////////////////////////
 
 inline void
-IRWeight::set_stats(const IRDatabase * root_,
+IRWeight::set_stats(const StatsLeaf * stats_,
 		    om_doclength querysize_,
-		    om_doccount termfreq_,
 		    om_termname tname_,
 		    const RSet * rset_ = NULL) {
     // Can set stats several times, but can't set them after we've used them
     Assert(!weight_calculated);
 
-    root = root_;
+    stats = stats_;
     querysize = querysize_;
-    termfreq = termfreq_;
     tname = tname_;
     rset = rset_;
     initialised = true;

@@ -90,9 +90,7 @@ class LeafMatch : public Match
 				 RSet * rset);
 
 	/// Make a weight
-	IRWeight * mk_weight(const IRDatabase * root_,
-			     om_doclength querysize_,
-			     om_doccount termfreq_,
+	IRWeight * mk_weight(om_doclength querysize_,
 			     om_termname tname_,
 			     const RSet * rset_);
 
@@ -110,7 +108,7 @@ class LeafMatch : public Match
 	void operator=(const LeafMatch &);
     public:
         LeafMatch(IRDatabase * database_,
-		  class StatsGatherer * gatherer_);
+		  StatsGatherer * gatherer_);
         ~LeafMatch();
 
 	///////////////////////////////////////////////////////////////////

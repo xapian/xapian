@@ -1,3 +1,18 @@
+Thu Mar  9 15:17:47 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Use Stats objects to pass statistics needed for the match around,
+	  instead of directly asking the database.
+
+	* Change parameters for BM25Weight: attach less importance to
+	  document length.
+
+	* Now copes with empty sub-databases rather better.
+
+	* Calculate max_possible_weight (and thus percentages) correctly
+	  when using BM25Weight.  (Had forgotten additive parameter.)
+
+	* More debugging messages available.
+
 Thu Mar  9 11:20:55 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Removed inline from omenquireinternal methods.

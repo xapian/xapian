@@ -35,6 +35,7 @@
 #include "omqueryinternal.h"
 
 #include "bm25weight.h"
+//#include "tradweight.h"
 
 #include <algorithm>
 #include <memory>
@@ -90,14 +91,18 @@ bool msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b) {
 ////////////////////////////////////
 
 LeafMatch::LeafMatch(IRDatabase *database_, StatsGatherer * gatherer_)
-	: statsleaf(gatherer_),
+	: database(database_),
+	  statsleaf(gatherer_),
+	  min_weight_percent(-1),
+	  max_weight(0),
 	  query(NULL),
+	  rset(NULL),
 	  do_collapse(false),
 	  have_added_terms(false)
 {
-    database = database_;
-    min_weight_percent = -1;
-    rset = NULL;
+
+    statsleaf.my_collection_size_is(database->get_doccount());
+    statsleaf.my_average_length_is(database->get_avlength());
 }
 
 LeafMatch::~LeafMatch()
@@ -115,22 +120,22 @@ LeafMatch::mk_postlist(const om_termname& tname, RSet * rset)
     LeafPostList * pl = database->open_post_list(tname, rset);
     if(rset) rset->will_want_termfreq(tname);
 
-    IRWeight * wt = mk_weight(database, 1, pl->get_termfreq(), tname, rset);
-    weights.push_back(wt); // Remember it for deleting
+    IRWeight * wt = mk_weight(1, tname, rset);
+    statsleaf.my_termfreq_is(tname, pl->get_termfreq());
     // Query size of 1 for now.  FIXME
     pl->set_termweight(wt);
     return pl;
 }
 
 IRWeight *
-LeafMatch::mk_weight(const IRDatabase * root_,
-		     om_doclength querysize_,
-		     om_doccount termfreq_,
+LeafMatch::mk_weight(om_doclength querysize_,
 		     om_termname tname_,
 		     const RSet * rset_)
 {
     IRWeight * wt = new BM25Weight();
-    wt->set_stats(root_, querysize_, termfreq_, tname_, rset_);
+    //IRWeight * wt = new TradWeight();
+    weights.push_back(wt); // Remember it for deleting
+    wt->set_stats(&statsleaf, querysize_, tname_, rset_);
     return wt;
 }
 
@@ -312,7 +317,8 @@ LeafMatch::set_query(const OmQueryInternal *query_)
     // Prepare query
     if(query_->isdefined) {
 	query = postlist_from_query(query_);
-	max_weight = query->recalc_maxweight();
+	Assert(weights.size() != 0);
+	max_weight = query->recalc_maxweight() + (*weights.begin())->get_maxextra();
     }
 }
 
@@ -404,8 +410,15 @@ LeafMatch::match(om_doccount first, om_doccount maxitems,
     om_weight w_max = max_weight;
     recalculate_maxweight = false;
 
-    IRWeight * extrawt = mk_weight(database, 1, 0, "", rset);
+    IRWeight * extrawt = mk_weight(1, "", rset);
     om_weight max_extra = extrawt->get_maxextra();
+
+#ifdef MUS_DEBUG_PARANOID
+    for(vector<IRWeight *>::const_iterator i = weights.begin();
+	i != weights.end(); i++) {
+	Assert(max_extra == (*i)->get_maxextra());
+    }
+#endif /* MUS_DEBUG_PARANOID */
 
     map<OmKey, OmMSetItem> collapse_table;
 
@@ -448,8 +461,7 @@ LeafMatch::match(om_doccount first, om_doccount maxitems,
 	// impossible to store document lengths in postlists, so they've
 	// already been retrieved)
         om_weight wt = query->get_weight() +
-		extrawt->get_sumextra(database->get_doclength(did) /
-				      database->get_avlength());
+		extrawt->get_sumextra(database->get_doclength(did));
 	OmMSetItem new_item(wt, did);
         
 	if(mcmp(new_item, min_item)) {
@@ -531,7 +543,6 @@ LeafMatch::match(om_doccount first, om_doccount maxitems,
 		 ", min weight in mset = " << mset[mset.size() - 1].wt << endl);
     }
 
-    delete extrawt;
     extrawt = 0;
 
     delete query;
