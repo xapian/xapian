@@ -443,7 +443,83 @@ class Enquire {
     string get_description() const;
 };
 
-// FIXME: wrap class Weight;
+class Weight {
+    public:
+	Weight();
+	virtual ~Weight();
+
+	virtual std::string name() const = 0;
+	virtual std::string serialise() const = 0;
+	virtual Weight * unserialise(const std::string &s) const = 0;
+
+	virtual Xapian::weight get_sumpart(Xapian::termcount wdf,
+				      Xapian::doclength len) const = 0;
+
+	virtual Xapian::weight get_maxpart() const = 0;
+
+	virtual Xapian::weight get_sumextra(Xapian::doclength len) const = 0;
+
+	virtual Xapian::weight get_maxextra() const = 0;
+
+	virtual bool get_sumpart_needs_doclength() const;
+};
+
+class BoolWeight : public Weight {
+    public:
+	BoolWeight * clone() const;
+	BoolWeight();
+	~BoolWeight();
+	std::string name() const;
+	std::string serialise() const;
+	BoolWeight * unserialise(const std::string & /*s*/) const;
+	Xapian::weight get_sumpart(Xapian::termcount /*wdf*/, Xapian::doclength /*len*/) const;
+	Xapian::weight get_maxpart() const;
+
+	Xapian::weight get_sumextra(Xapian::doclength /*len*/) const;
+	Xapian::weight get_maxextra() const;
+
+	bool get_sumpart_needs_doclength() const;
+};
+
+class BM25Weight : public Weight {
+    public:
+	BM25Weight(double A_, double B_, double C_, double D_,
+		   double min_normlen_);
+	BM25Weight();
+
+	BM25Weight * clone() const;
+	~BM25Weight();
+	std::string name() const;
+	std::string serialise() const;
+	BM25Weight * unserialise(const std::string & s) const;
+	Xapian::weight get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const;
+	Xapian::weight get_maxpart() const;
+
+	Xapian::weight get_sumextra(Xapian::doclength len) const;
+	Xapian::weight get_maxextra() const;
+
+	bool get_sumpart_needs_doclength() const;
+};
+
+class TradWeight : public Weight {
+    public:
+	explicit TradWeight(double k);
+	TradWeight();
+
+	TradWeight * clone() const;
+	~TradWeight();
+	std::string name() const;
+	std::string serialise() const;
+	TradWeight * unserialise(const std::string & s) const;
+
+	Xapian::weight get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const;
+	Xapian::weight get_maxpart() const;
+
+	Xapian::weight get_sumextra(Xapian::doclength len) const;
+	Xapian::weight get_maxextra() const;
+
+	bool get_sumpart_needs_doclength() const;
+};
 
 // xapian/database.h
 

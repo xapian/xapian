@@ -1,3 +1,10 @@
+Sun Nov 14 06:30:47 GMT 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Wrapped Xapian::Weight and subclasses (compiles, but
+	  otherwise totally untested).  Nothing special is done about
+	  directors, so deriving your own Weight subclass in the scripting
+	  language probably won't currently work.
+
 Wed Nov 10 03:32:23 GMT 2004  Olly Betts <olly@survex.com>
 
 	* README: Improved a bit.
