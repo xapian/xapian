@@ -138,15 +138,15 @@ sub strip_last_slash() {
 #-------------------------------------------
 sub encode{
 	my ($string) = @_;
-	my $string =~ s/ /+/g, $string;
-	my $string =~ s/([^a-zA-Z0-9])/'%'.unpack("H*",$1)/eg;
+	$string =~ s/ /+/g, $string;
+	$string =~ s/([^a-zA-Z0-9])/'%'.unpack("H*",$1)/eg;
 	return $string;
 }
 
 sub decode{
 	my ($string) = @_;
-	my $string =~ tr/+/ /; #pluses become spaces
-	my $string =~ s/%(..)/pack('c',hex($1))/ge;
+	$string =~ tr/+/ /; #pluses become spaces
+	$string =~ s/%(..)/pack('c',hex($1))/ge;
 	return $string;
 }
 
