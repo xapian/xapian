@@ -1,3 +1,8 @@
+Wed Aug  9 17:05:52 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Apitest now runs with the network backend by default.  Two of the
+	  tests are only run for the local databases.
+
 Wed Aug  9 15:29:58 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Documentation comment fix in OmMSet.

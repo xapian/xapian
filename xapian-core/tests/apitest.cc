@@ -2329,6 +2329,21 @@ bool test_mbound1()
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
+/// The tests which don't use any of the backends
+test_desc nodb_tests[] = {
+    {"trivial",            test_trivial},
+    // {"alwaysfail",       test_alwaysfail},
+    {"getqterms1",	   test_getqterms1},
+    {"boolsubq1",	   test_boolsubq1},
+    {"querylen1",	   test_querylen1},
+    {"querylen2",	   test_querylen2},
+    {"querylen3",	   test_querylen3},
+    {"subqcollapse1",	   test_subqcollapse1},
+    {"emptyquerypart1",    test_emptyquerypart1},
+    {"stemlangs",	   test_stemlangs},
+    {0, 0}
+};
+
 /// The tests which use a backend
 test_desc db_tests[] = {
     {"zerodocid", 	   test_zerodocid},
@@ -2345,7 +2360,6 @@ test_desc db_tests[] = {
     {"msetfirst1",         test_msetfirst1},
     {"topercent1",	   test_topercent1},
     {"expandfunctor1",	   test_expandfunctor1},
-    {"matchfunctor1",	   test_matchfunctor1},
     {"pctcutoff1",	   test_pctcutoff1},
     {"allowqterms1",       test_allowqterms1},
     {"maxattain1",         test_maxattain1},
@@ -2368,7 +2382,6 @@ test_desc db_tests[] = {
     {"maxorterms1",        test_maxorterms1},
     {"maxorterms2",        test_maxorterms2},
     {"termlisttermfreq",   test_termlisttermfreq},
-    {"multiexpand1",       test_multiexpand1},
     {"near1",		   test_near1},
     {"phrase1",		   test_phrase1},
     {"qterminfo1",	   test_qterminfo1},
@@ -2377,18 +2390,9 @@ test_desc db_tests[] = {
     {0, 0}
 };
 
-/// The tests which don't use any of the backends
-test_desc nodb_tests[] = {
-    {"trivial",            test_trivial},
-    // {"alwaysfail",       test_alwaysfail},
-    {"getqterms1",	   test_getqterms1},
-    {"boolsubq1",	   test_boolsubq1},
-    {"querylen1",	   test_querylen1},
-    {"querylen2",	   test_querylen2},
-    {"querylen3",	   test_querylen3},
-    {"subqcollapse1",	   test_subqcollapse1},
-    {"emptyquerypart1",    test_emptyquerypart1},
-    {"stemlangs",	   test_stemlangs},
+test_desc localdb_tests[] = {
+    {"matchfunctor1",	   test_matchfunctor1},
+    {"multiexpand1",       test_multiexpand1},
     {0, 0}
 };
 
@@ -2437,6 +2441,11 @@ int main(int argc, char *argv[])
     result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
     summary.succeeded += sum_temp.succeeded;
     summary.failed += sum_temp.failed;
+    cout << "Running localdb tests with inmemory backend..." << endl;
+    result = max(result,
+		 test_driver::main(argc, argv, localdb_tests, &sum_temp));
+    summary.succeeded += sum_temp.succeeded;
+    summary.failed += sum_temp.failed;
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_SLEEPY)
@@ -2445,9 +2454,14 @@ int main(int argc, char *argv[])
     result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
     summary.succeeded += sum_temp.succeeded;
     summary.failed += sum_temp.failed;
+    cout << "Running localdb tests with sleepycat backend..." << endl;
+    result = max(result,
+		 test_driver::main(argc, argv, localdb_tests, &sum_temp));
+    summary.succeeded += sum_temp.succeeded;
+    summary.failed += sum_temp.failed;
 #endif
 
-#if 0 && defined(MUS_BUILD_BACKEND_NET)
+#if 1 && defined(MUS_BUILD_BACKEND_NET)
     backendmanager.set_dbtype("net");
     cout << "Running tests with net backend..." << endl;
     result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
