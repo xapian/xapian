@@ -44,27 +44,19 @@ const string::size_type BTREE_MAX_KEY_LEN = 252;
        ------  ---
        K1      the 1 byte length of key
        I2      the 2 byte length of an item (key-tag pair)
-       I3      the two byte item length followed by the 1 byte key kength
        D2      the 2 byte offset to the item from the directory
        C2      the 2 byte counter that ends each key and begins each tag
 */
 
 #define K1 1
 #define I2 2
-#define I3 3
 #define D2 2
 #define C2 2
 
-/*  and when setting or getting K1, I2, D2, C2 we use SETK, GETK ... defined as: */
+/*  and when getting K1 or setting D2, we use GETK, SETD defined as: */
 
 #define GETK(p, c)    GETINT1(p, c)
-#define SETK(p, c, x) SETINT1(p, c, x)
-//#define GETI(p, c)    GETINT2(p, c)
-#define SETI(p, c, x) SETINT2(p, c, x)
-//#define GETD(p, c)    GETINT2(p, c)
 #define SETD(p, c, x) SETINT2(p, c, x)
-//#define GETC(p, c)    GETINT2(p, c)
-#define SETC(p, c, x) SETINT2(p, c, x)
 
 /* A B-tree comprises (a) a base file, containing essential information (Block
    size, number of the B-tree root block etc), (b) a bitmap, the Nth bit of the
@@ -217,6 +209,7 @@ public:
 };
 
 class Item_wr : public Item_base<byte *> {
+    void set_key_len(int x) { SETINT1(p, I2, x); }
 public:
     /* Item_wr from block address and offset to item pointer */
     Item_wr(byte * p_, int c) : Item_base<byte *>(p_, c) { }
@@ -253,22 +246,34 @@ public:
     void set_block_given_by(uint4 n) {
 	set_int4(p, size() - BYTES_PER_BLOCK_NUMBER, n);
     }
+    void set_size(int l) { SETINT2(p, 0, l); }
     /** Form an item with a null key and with block number n in the tag.
      */
     void form_null_key(uint4 n) {
-	set_int4(p, I3, n);
-	SETK(p, I2, K1);     /* null key */
-	SETI(p, 0, I3 + 4);  /* total length */
+	set_int4(p, I2 + K1, n);
+	set_key_len(K1);        /* null key */
+	set_size(I2 + K1 + 4);  /* total length */
     }
-    void form_key(const string & key) const {
+    void form_key(const string & key) {
 	Assert(key.length() <= BTREE_MAX_KEY_LEN);
 
 	// This just so it doesn't fall over horribly in non-debug builds.
 	string::size_type key_len = std::min(key.length(), BTREE_MAX_KEY_LEN);
 
-	SETK(p, I2, key_len + K1 + C2);
+	set_key_len(key_len + K1 + C2);
 	memmove(p + I2 + K1, key.data(), key_len);
-	SETC(p, I2 + K1 + key_len, 1);
+	set_component_of(1);
+    }
+    // FIXME passing cd here is icky
+    void set_tag(int cd, const char *start, int len) {
+	memmove(p + cd, start, len);
+	set_size(cd + len); // XXX to Item
+    }
+    void fake_root_item() {
+	set_key_len(K1 + C2);   // null key length
+	set_size(I2 + K1 + 2 * C2);   // length of the item
+	set_component_of(1);
+	set_components_of(1);
     }
 };
 

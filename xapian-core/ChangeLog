@@ -1,3 +1,7 @@
+Tue Nov 09 19:29:37 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/btree.h: More refactoring.
+
 Tue Nov 09 17:13:10 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/: More refactoring.  Also rearranged the contents
@@ -369,7 +373,7 @@ Mon Nov 01 03:16:36 GMT 2004  Olly Betts <olly@survex.com>
 
 Mon Nov 01 02:56:31 GMT 2004  Olly Betts <olly@survex.com>
 
-	* configure.ac: Select ANSI iostream implmentation for Compaq C++.
+	* configure.ac: Select ANSI iostream implementation for Compaq C++.
 
 Mon Nov 01 02:41:58 GMT 2004  Olly Betts <olly@survex.com>
 
@@ -853,7 +857,7 @@ Sun Sep 05 20:20:01 BST 2004  Olly Betts <olly@survex.com>
 
 Sun Sep 05 13:54:58 BST 2004  Olly Betts <olly@survex.com>
 
-	* testsuite/backendmanager.h: Removed superfulous "BackendManager::".
+	* testsuite/backendmanager.h: Removed superfluous "BackendManager::".
 
 Sun Sep 05 01:54:49 BST 2004  Olly Betts <olly@survex.com>
 
@@ -911,7 +915,7 @@ Thu Sep 02 14:50:20 BST 2004  Olly Betts <olly@survex.com>
 Wed Sep 01 16:15:23 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/: Change QuartzWritableDatabase to store the total
-	  document length and the last docid itself rather than talling added
+	  document length and the last docid itself rather than tallying added
 	  and removed document length and writing the last docid back every
 	  time a document is added.  This gives cleaner code and a small
 	  performance win.  Removed XAPIAN_FLUSH_THRESHOLD_LENGTH as we no

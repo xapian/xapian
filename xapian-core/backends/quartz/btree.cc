@@ -1101,13 +1101,12 @@ Btree::add(const string &key, const string &tag)
 	size_t l = (i == m ? residue : (i == 1 ? first_L : L));
 	Assert(cd + l <= block_size);
 	Assert(string::size_type(o + l) <= tag.length());
-	byte * p = const_cast<byte*>(kt.get_address());
-	memmove(p + cd, tag.data() + o, l);
+	kt.set_tag(cd, tag.data() + o, l);
+	kt.set_component_of(i);
+	
 	o += l;
 	residue -= l;
 
-	kt.set_component_of(i);
-	SETI(p, 0, cd + l); // XXX to Item
 	if (i > 1) found = find(C);
 	n = add_kt(found);
 	if (n > 0) replacement = true;
@@ -1336,7 +1335,6 @@ Btree::read_root()
 {
     if (faked_root_block) {
 	/* root block for an unmodified database. */
-	int o = block_size - C2;
 	byte * p = C[0].p;
 	Assert(p);
 
@@ -1345,11 +1343,9 @@ Btree::read_root()
 	 * the same database. */
 	memset(p, 0, block_size);
 
-	// XXX to item
-	SETC(p, o, 1); o -= C2;        // number of components in tag
-	SETC(p, o, 1); o -= K1;        // component one in key
-	SETK(p, o, K1 + C2); o -= I2;  // null key length
-	SETI(p, o, I3 + 2 * C2);       // length of the item
+	int o = block_size - I2 - K1 - C2 - C2;
+	Item_wr(p + o).fake_root_item();
+
 	SETD(p, DIR_START, o);         // its directory entry
 	SET_DIR_END(p, DIR_START + D2);// the directory size
 
