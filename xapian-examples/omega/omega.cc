@@ -35,7 +35,7 @@ const string default_db_name = "ompf";
 
 static string map_dbname_to_dir(const string &db_name);
 
-static void make_log_entry(const char *action, long matches);
+static void make_log_entry(const string &action, long matches);
 static void make_query_log_entry(const string &buf);
 
 string db_name;
@@ -517,49 +517,52 @@ extern FILE *page_fopen(const string &page) {
     return NULL;
 }
 
-/****************************************************************************/
+// Logging code
 
-/* Logging code */
-
-static void make_log_entry( const char *action, long matches ) {
-   int fd;
-   string log_buf = db_dir + "/fx.log";
-   fd = open(log_buf.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
+static void
+make_log_entry(const string &action, long matches)
+{
+    string log_buf = db_dir + "/fx.log";
+    int fd = open(log_buf.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
        
-   if (fd != -1) {
-      char log_buf[512];
-      /* (remote host) (remote logname from identd) (remote user from auth) (time)  */
-      /* \"(first line of request)\" (last status of request) (bytes sent)  */
-      /* " - - [01/Jan/1997:09:07:22 +0000] \"GET /path HTTP/1.0\" 200 12345\n";*/
-      char *p, *var;
-      time_t t;
+    if (fd != -1) {
+	/* (remote host) (remote logname from identd) (remote user from auth) (time)  */
+	/* \"(first line of request)\" (last status of request) (bytes sent)  */
+	/* " - - [01/Jan/1997:09:07:22 +0000] \"GET /path HTTP/1.0\" 200 12345\n";*/
+	char *var;
+	string line;
+	time_t t;
 
-      t = time(NULL);
-      var = getenv("REMOTE_HOST");
-      if (var == NULL) {
-	 var = getenv("REMOTE_ADDR");
-	 if (var == NULL) var = "-";
-      }
-      strcpy( log_buf, var );
-      p = log_buf + strlen( log_buf );
-      strftime( p, log_buf+sizeof(log_buf)-p, " - - [%d/%b/%Y:%H:%M:%S +0000] \"", gmtime(&t) );
-      p += strlen( p );
-      sprintf( p, "GET /%s/%s\" 200 %li ", db_name.c_str(), action, matches );
-      p += strlen( p );
-      var = getenv( "HTTP_REFERER" );
-      if (var != NULL) {
-	 *p++ = '\"';
-	 strcpy( p, var );
-	 strcat( p, "\"\n" );
-      } else {
-	 strcpy( p, "-\n" );
-      }
-      write( fd, log_buf, strlen(log_buf) );
-      close( fd );
-   }
+	t = time(NULL);
+	var = getenv("REMOTE_HOST");
+	if (var == NULL) {
+	    var = getenv("REMOTE_ADDR");
+	    if (var == NULL) var = "-";
+	}
+	line = var;
+
+	char buf[80];
+	strftime(buf, 80, " - - [%d/%b/%Y:%H:%M:%S", gmtime(&t));
+	line += buf;
+	line += " +0000] \"GET /" + db_name + "/" + action + "\" 200 ";
+	sprintf(buf, "%li ", matches);
+	line += buf;
+	var = getenv("HTTP_REFERER");
+	if (var != NULL) {
+	    line += '"';
+	    line += var;
+	    line += "\"\n";
+	} else {
+	    line += "-\n";
+	}
+	write(fd, line.data(), line.length());
+	close(fd);
+    }
 }
 
-static void make_query_log_entry(const string &buf) {
+static void
+make_query_log_entry(const string &buf)
+{
     string log_buf = db_dir + "/query.log";
     int fd = open(log_buf.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
     if (fd != -1) {
