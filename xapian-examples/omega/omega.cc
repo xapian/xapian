@@ -483,14 +483,9 @@ static int main2(int argc, char *argv[])
 }
 
 static string map_dbname_to_dir(const string &db_name) {
-   const char *p = db_name.c_str();
-   while ((p = strchr(p, '.')) != NULL) {
-      if (p[1] == '.') throw "naughty hacker"; /* FIXME db_name has .. in */
-      p += 2;
-   }
-   string dir = muscat_dir + "/data/";
-   dir += db_name;
-   return dir;
+    size_t i = db_name.find("..");
+    if (i != string::npos) throw "naughty hacker"; // FIXME db_name has .. in
+    return muscat_dir + "/data/" + db_name;
 }
 
 /**************************************************************/
