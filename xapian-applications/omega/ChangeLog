@@ -1,3 +1,9 @@
+Sun Jun 27 23:47:35 BST 2004  Olly Betts <olly@survex.com>
+
+	* omega.cc: Change MORELIKE to pick up to 40 terms, rather than up to
+	  6 (feedback on the mailing list suggests this gives much better
+	  results).
+
 Fri Jun 11 02:22:38 BST 2004  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Added catch for std::bad_alloc.

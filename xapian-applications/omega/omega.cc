@@ -199,7 +199,7 @@ try {
 	    tmprset.add_document(docid);
 
 	    ExpandDeciderOmega decider(db);
-	    Xapian::ESet eset(enquire->get_eset(6, tmprset, &decider));
+	    Xapian::ESet eset(enquire->get_eset(40, tmprset, &decider));
 	    for (Xapian::ESetIterator i = eset.begin(); i != eset.end(); i++) {
 		if ((*i).empty()) continue;
 		if (!query_string.empty()) query_string += ' ';
