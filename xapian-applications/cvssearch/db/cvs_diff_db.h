@@ -39,7 +39,7 @@ using std::vector;
 class cvs_diff_db : public cvs_db 
 {
 protected:
-    int do_open(const string & filename);
+    int do_open(const string & filename, bool read_only);
 public:
     cvs_diff_db(DbEnv *dbenv = 0, u_int32_t flags = 0);
     int get(unsigned int fileId, const string & revision, 

@@ -37,7 +37,7 @@ using std::set;
 class cvs_revision_line_db : public cvs_db 
 {
 protected:
-    int do_open(const string & filename);
+    int do_open(const string & filename, bool read_only);
 public:
     cvs_revision_line_db(DbEnv *dbenv = 0, u_int32_t flags = 0);
     int get(unsigned int fileId, const string & revision, unsigned int line_new, unsigned int & line_current);

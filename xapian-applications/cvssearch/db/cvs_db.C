@@ -25,11 +25,11 @@
 #include "cvs_db.h"
 
 int
-cvs_db::open(const string & filename) 
+cvs_db::open(const string & filename, bool read_only) 
 {
     int val = 0;
     string filename1 = filename + _db_index;
-    if (_opened || (val = do_open(filename1)) == 0)
+    if (_opened || (val = do_open(filename1, read_only)) == 0)
     {
         _opened = true;
     }

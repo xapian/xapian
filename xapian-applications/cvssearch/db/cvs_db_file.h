@@ -54,9 +54,10 @@ protected:
     cvs_diff_db _diff_db;
     cvs_revision_line_db _revision_line_db;
     const string _database_name;
+    bool _read_only;
 
 public:
-    cvs_db_file(const string & database_name) : _database_name(database_name) {}
+    cvs_db_file(const string & database_name, bool read_only) : _database_name(database_name), _read_only(read_only) {}
     int get_comment(unsigned int file_id, const string & revision,       string & comment);
     int get_revision         (unsigned int file_id, unsigned int line, set<string, cvs_revision_less> & revisions);
     int get_line             (unsigned int file_id, const string & revision, set<unsigned int> &lines);

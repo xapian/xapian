@@ -38,12 +38,14 @@ cvs_filename_db::cvs_filename_db(DbEnv *dbenv, u_int32_t flags)
  *
  * @param filename the name of the physical file where the database
  *                 is located/to be created.
+ * @param read_only set database to be read_only if true.
  * @return error code of the open operation.
  **/
 int
-cvs_filename_db::do_open(const string & filename)
+cvs_filename_db::do_open(const string & filename, bool read_only)
 {
-    return _db.open(filename.c_str(), _db_name.c_str(), DB_RECNO, DB_CREATE, 0);
+    int flag = read_only ? DB_RDONLY : DB_CREATE;
+    return _db.open(filename.c_str(), _db_name.c_str(), DB_RECNO, flag, 0);
 }
 
 /**

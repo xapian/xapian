@@ -37,13 +37,13 @@ protected:
     string _db_name;
     string _db_index;
     bool _opened;
-    virtual int do_open(const string & filename) = 0;
+    virtual int do_open(const string & filename, bool read_only) = 0;
 
 public:
     cvs_db(const string & name, const string & index, DbEnv *dbenv, u_int32_t flags) 
         : _db(dbenv, flags), _db_name(name), _db_index(index), _opened(false) {}
     virtual ~cvs_db() {}
-    int open(const string & filename);
+    int open(const string & filename, bool read_only);
     int close(int flags = 0);
     int remove(const string & filename, int flags = 0);
     int sync();

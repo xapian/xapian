@@ -37,6 +37,7 @@ static void query_comment         (cvs_db_file & db_file, unsigned int file_id, 
 static void query_line            (cvs_db_file & db_file, unsigned int file_id, const string & revision);
 static void query_revision        (cvs_db_file & db_file, unsigned int file_id, unsigned int line);
 static void query_revision_comment(cvs_db_file & db_file, unsigned int file_id);
+static void query_all_revisions   (cvs_db_file & db_file, unsigned int file_id);
 
 static string cvsroot_name;
 static string database_name;
@@ -54,12 +55,11 @@ main(unsigned int argc, char **argv)
         usage(argv[0]);
     }
 
-    cvsroot_name = argv[1];
-    database_name = argv[2];
+    database_name = argv[1];
 
-    cvs_db_file db_file(database_name);
+    cvs_db_file db_file(database_name, true);
 
-    for (unsigned int i = 3; i < argc; ++i)
+    for (unsigned int i = 2; i < argc; ++i)
     {
         if (0) {
         } else if (!strcmp(argv[i],"-f") && i+2 <= argc) {
@@ -85,6 +85,10 @@ main(unsigned int argc, char **argv)
             file_id = strtoul(argv[++i], (char **) NULL, 10);
 
             query_revision_comment(db_file, file_id);
+        } else if (!strcmp(argv[i],"-v") && i+ 2 <= argc) {
+            file_id = strtoul(argv[++i], (char **) NULL, 10);            
+
+            query_all_revisions(db_file, file_id);
         } else if (!strcmp(argv[i],"-h")) {
             usage(argv[0]);
         }
@@ -96,14 +100,16 @@ main(unsigned int argc, char **argv)
 void
 usage(char * prog_name)
 {
-    cerr << "Usage: " << prog_name << " $CVSDATA/rootdir DatabaseFile [Options] [Options] ..." << endl
+    cerr << "Usage: " << prog_name << " DatabaseFile [Options] [Options] ..." << endl
          << endl
          << "Options:" << endl
          << "  -h                     print out this message" << endl
          << "  -c file_id revision    query for cvs comments from a file_id and a revision" << endl
          << "  -r file_id line        query for revisions from a file_id and a line"<< endl
          << "  -l file_id revision    query for lines from a file_id and a revision" << endl
-         << "  -a file_id             query for all revision,comment pairs" <<endl;
+         << "  -a file_id             query for all revision,comment pairs" <<endl
+         << "  -v file_id             query for all revisions" << endl;
+        ;
     
     exit(0);
 }
@@ -113,7 +119,7 @@ void query_filename(cvs_db_file & db_file, unsigned int file_id)
     string filename;
     if (db_file.get_filename(file_id, filename) == 0)
     {
-        cout << cvsroot_name << "/src/" << filename << endl;
+        cout << filename << endl;
     }
 }
 
@@ -146,6 +152,23 @@ void query_line(cvs_db_file & db_file, unsigned int file_id, const string & revi
     {
         set<unsigned int>::iterator itr;
         for (itr = lines.begin(); itr != lines.end(); ++itr)
+        {
+            cout << *itr << endl;
+        }
+    }
+}
+
+void query_all_revisions(cvs_db_file & db_file, unsigned int file_id)
+{
+    set<string, cvs_revision_less> revisions;
+    vector<string> comments;
+    if (db_file.get_revision_comment(file_id, revisions, comments) == 0)
+    {
+        set<string, cvs_revision_less>::iterator itr;
+        unsigned int i;
+        for (itr = revisions.begin(), i = 0;
+             i < comments.size() && itr!= revisions.end();
+             ++i, ++itr)
         {
             cout << *itr << endl;
         }
