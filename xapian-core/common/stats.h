@@ -25,6 +25,7 @@
 
 #include "om/omtypes.h"
 #include "omassert.h"
+#include "omrefcnt.h"
 #include <map>
 #include <vector>
 
@@ -79,7 +80,7 @@ class StatsGatherer {
 
 	/** The total statistics gathered for the whole collection.
 	 */
-	Stats total_stats;
+	mutable Stats total_stats;
     public:
 	StatsGatherer();
 	virtual ~StatsGatherer() {};
@@ -112,25 +113,40 @@ class LocalStatsGatherer : public StatsGatherer {
 	const Stats *get_stats() const;
 };
 
+// forward declaration for NetworkStatsGatherer
+class NetServer;
+
 /** A "slave" StatsGatherer used for the remote matcher
  */
 class NetworkStatsGatherer : public StatsGatherer {
     private:
-	bool have_global_stats;
-    public:
-	const Stats *get_stats() const;
+	/// Flag indicating that the global stats are uptodate.
+	mutable bool have_global_stats;
 
-	// FIXME: NetworkStatsGatherer perhaps ought to somehow get this
-	// from get_stats()
-	void set_global_stats(Stats stats);
+	/** The NetServer object using us.
+	 *  It is used to communicate with the remote statistics
+	 *  node.
+	 */
+	NetServer *nserv;
+
+	/** Fetch the global statistics, once we have all the
+	 *  local ones.
+	 *  The object will use the NetServer to do the exchange.
+	 */
+	void fetch_global_stats() const;
+
+    public:
+	NetworkStatsGatherer(NetServer *nserv);
+
+	/// See StatsGatherer::get_stats()
+	const Stats *get_stats() const;
 };
 
 /** Statistics source: gathers notifications of statistics which will be
- *  needed, and passes them on in bulk.  There is one of these for each
- *  LocalMatch.
+ *  needed, and passes them on in bulk to a StatsGatherer.
  */
 class StatsSource {
-    private:
+    protected:
 	/** The gatherer which we report our information to, and ask
 	 *  for the global information from.
 	 */
@@ -144,7 +160,7 @@ class StatsSource {
 	 *  0 before these have been retrieved.
 	 */
 	mutable const Stats * total_stats;
-	
+
 	/** Perform the request for the needed information.  This involves
 	 *  passing our information to the gatherer, and then getting the
 	 *  result back.
@@ -154,12 +170,15 @@ class StatsSource {
 	/// Constructor
 	StatsSource();
 
+	/// Virtual destructor
+	virtual ~StatsSource() {};
+
 	/// set up the parent gatherer
 	void connect_to_gatherer(StatsGatherer *gatherer_);
 
 	/// Contribute all the statistics that don't depend on global
-	/// stats.
-	void contrib_my_stats();
+	/// stats.  Used by StatsGatherer.
+	virtual void contrib_my_stats() = 0;
 
 	/* ################################################################
 	 * # Give statistics about yourself.  These are used to generate, #
@@ -218,6 +237,45 @@ class StatsSource {
 	 *  in the collection indexed by the given term.
 	 */
 	om_doccount get_total_reltermfreq(const om_termname & tname) const;
+};
+
+/** LocalStatsSource: the StatsSource object which provides methods
+ *  to access the statistics.  A LocalMatch object uses it to report
+ *  on its local statistics and retrieve the global statistics after
+ *  the gathering process is complete.
+ */
+class LocalStatsSource : public StatsSource {
+    private:
+    public:
+	/// Constructor
+	LocalStatsSource();
+
+	/// Destructor
+	~LocalStatsSource();
+
+	/// Contribute all the statistics that don't depend on global
+	/// stats.
+	void contrib_my_stats();
+};
+
+class NetClient;
+
+/** Network StatsSource: a virtual StatsSource which is part of the glue
+ *  between a StatsGatherer and the remote matching process.
+ */
+class NetworkStatsSource : public StatsSource {
+    private:
+	OmRefCntPtr<NetClient> nclient;
+    public:
+	/// Constructor
+	NetworkStatsSource(OmRefCntPtr<NetClient> nclient_);
+
+	/// Destructor
+	~NetworkStatsSource();
+
+	/// Contribute all the statistics that don't depend on global
+	/// stats.  Used by StatsGatherer.
+	void contrib_my_stats();
 };
 
 /////////////////////////////////////////
@@ -286,7 +344,7 @@ StatsSource::connect_to_gatherer(StatsGatherer *gatherer_)
 }
 
 inline void
-StatsSource::contrib_my_stats()
+LocalStatsSource::contrib_my_stats()
 {
     gatherer->contrib_stats(my_stats);
 }

@@ -25,6 +25,9 @@
 
 #include "netserver.h"
 #include "database.h"
+#include "multi_database.h"
+#include "multimatch.h"
+#include "progcommon.h"
 #include <memory>
 
 /** The base class of the network server object.
@@ -38,17 +41,47 @@ class ProgServer : public NetServer {
 	void operator=(const ProgServer &);
 
 	/// The database we're associated with
-	auto_ptr<IRDatabase> db;
+	auto_ptr<MultiDatabase> db;
 
+	/// The filedescriptors for talking to the remote end.
 	int readfd;
 	int writefd;
 
+	/// The line buffer for doing the actual I/O
+	OmLineBuf buf;
+
+	/// The various states of the conversation we can be in
+	enum conv_states {
+	    /// "Ready" state, waiting for a request.
+	    conv_ready,
+	    /// Got request, going to send local stats
+	    conv_sendlocal,
+	    /// Waiting for response with global stats
+	    conv_getglobal,
+	    /// Got stats, will next send the MSet.
+	    conv_sendresult
+	} conversation_state;
+
+	/// The multimatch object used
+	MultiMatch match;
+
     public:
 	/** Default constructor. */
-	ProgServer(auto_ptr<IRDatabase> db, int readfd_, int writefd_);
+	ProgServer(auto_ptr<MultiDatabase> db, int readfd_, int writefd_);
 
 	/** Destructor. */
 	~ProgServer();
+
+	/** Send the local statistics to the remote gatherer.
+	 *  The remote gatherer works out the global statistics from
+	 *  this.
+	 */
+	void send_local_stats(Stats stats);
+
+	/** Ask for the remote global statistics.
+	 *  These are calculated from the contributed local statistics.
+	 */
+	Stats get_global_stats();
 
 	/** Handle requests from a ProgClient until the connection
 	 *  is closed.

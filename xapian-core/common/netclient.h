@@ -60,6 +60,11 @@ class NetClient : public OmRefCntBase {
 	/** Read the remote statistics */
 	virtual Stats get_remote_stats() = 0;
 
+	/** Signal to the remote end that this is the end of the query
+	 *  specification phase.
+	 */
+	virtual void finish_query() = 0;
+
 	/** Send the global statistics down */
 	virtual void set_global_stats(const Stats &stats) = 0;
 

@@ -23,6 +23,9 @@
 #ifndef OM_HGUARD_NETSERVER_H
 #define OM_HGUARD_NETSERVER_H
 
+// forward declaration of Stats
+class Stats;
+
 /** The base class of the network server object.
  *  A NetServer object is used by server programs to take care
  *  of a connection to a NetClient.
@@ -38,6 +41,17 @@ class NetServer {
 	NetServer() {}
 	/** Destructor. */
 	virtual ~NetServer() {};
+
+	/** Send the local statistics to the remote gatherer.
+	 *  The remote gatherer works out the global statistics from
+	 *  this.
+	 */
+	virtual void send_local_stats(Stats stats) = 0;
+
+	/** Ask for the remote global statistics.
+	 *  These are calculated from the contributed local statistics.
+	 */
+	virtual Stats get_global_stats() = 0;
 
 	/** Handle messages from the NetClient until the
 	 *  connection is terminated.

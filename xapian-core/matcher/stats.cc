@@ -22,6 +22,8 @@
 
 #include "stats.h"
 #include "omassert.h"
+#include "netserver.h"
+#include "netclient.h"
 
 void
 StatsGatherer::add_child(StatsSource *source) {
@@ -50,6 +52,11 @@ LocalStatsGatherer::get_stats() const
     return (&total_stats);
 }
 
+NetworkStatsGatherer::NetworkStatsGatherer(NetServer *nserv_)
+	: have_global_stats(false), nserv(nserv_)
+{
+}
+
 const Stats *
 NetworkStatsGatherer::get_stats() const
 {
@@ -61,17 +68,45 @@ NetworkStatsGatherer::get_stats() const
 	}
 	have_gathered = true;
     }
-    // FIXME: wait until the global stats have arrived
-    Assert(have_global_stats);
+    fetch_global_stats();
 
     return &total_stats;
 }
 
 void
-NetworkStatsGatherer::set_global_stats(Stats stats)
+NetworkStatsGatherer::fetch_global_stats() const
 {
-    total_stats = stats;
+    Assert(have_gathered);
+
+    nserv->send_local_stats(total_stats);
+    total_stats = nserv->get_global_stats();
+
     have_global_stats = true;
+}
+
+LocalStatsSource::LocalStatsSource()
+{
+}
+
+LocalStatsSource::~LocalStatsSource()
+{
+}
+
+NetworkStatsSource::NetworkStatsSource(OmRefCntPtr<NetClient> nclient_)
+	: nclient(nclient_)
+{
+}
+
+NetworkStatsSource::~NetworkStatsSource()
+{
+}
+
+void
+NetworkStatsSource::contrib_my_stats()
+{
+    my_stats = nclient->get_remote_stats();
+    gatherer->contrib_stats(my_stats);
+    nclient->set_global_stats(*(gatherer->get_stats()));
 }
 
 void

@@ -24,6 +24,7 @@
 #define OM_HGUARD_PROGCLIENT_H
 
 #include "netclient.h"
+#include "progcommon.h"
 
 /** An implementation of the NetClient interface using a program.
  *  ProgClient gets a socket by spawning a separate program, rather
@@ -35,11 +36,11 @@ class ProgClient : public NetClient {
 	ProgClient(const ProgClient &);
 	void operator=(const ProgClient &);
 
-	/// The descriptor of our end of the socket.
+	/// The socket filedescriptor
 	int socketfd;
 
-	/// buffer for the data being read in
-	string buffer;
+	/// The line buffer which does the I/O
+	OmLineBuf buf;
 
 	/// functions which actually do the work
 	string do_read();
@@ -59,6 +60,11 @@ class ProgClient : public NetClient {
 	 *  a Stats object.
 	 */
 	Stats string_to_stats(const string &s);
+
+	/** Spawn a program and return a filedescriptor of
+	 *  the local end of a socket to it.
+	 */
+	int get_spawned_socket(string progname, string arg);
 
     public:
 	/** Constructor.
@@ -82,6 +88,10 @@ class ProgClient : public NetClient {
 
 	/** Get the remote stats */
 	Stats get_remote_stats();
+
+	/** Signal the end of the query specification phase.
+	 */
+	void finish_query();
 
 	/** Send the global statistics */
 	void set_global_stats(const Stats &stats);

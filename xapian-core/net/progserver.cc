@@ -26,13 +26,17 @@
 #include "localmatch.h"
 #include "netutils.h"
 #include "progcommon.h"
+#include <unistd.h>
 #include <memory>
 
 /// The ProgServer constructor, taking two filedescriptors and a database.
-ProgServer::ProgServer(auto_ptr<IRDatabase> db_,
+ProgServer::ProgServer(auto_ptr<MultiDatabase> db_,
 		       int readfd_,
 		       int writefd_)
-	: db(db_), readfd(readfd_), writefd(writefd_)
+	: db(db_), readfd(readfd_), writefd(writefd_),
+	  buf(readfd, writefd),
+	  conversation_state(conv_ready),
+	  match(db_.get(), auto_ptr<StatsGatherer>(new NetworkStatsGatherer(this)))
 {
 }
 
@@ -42,13 +46,34 @@ ProgServer::~ProgServer()
 }
 
 void
+ProgServer::send_local_stats(Stats stats)
+{
+    Assert(conversation_state == conv_sendlocal);
+    string mystatstr = stats_to_string(stats);
+    mystatstr += '\n';
+
+    write(writefd, mystatstr.data(), mystatstr.length());
+
+    conversation_state = conv_getglobal;
+}
+
+Stats
+ProgServer::get_global_stats()
+{
+    Assert(conversation_state == conv_getglobal);
+
+    string global_stats;
+
+    Stats mystats = string_to_stats(global_stats);
+
+    conversation_state = conv_sendresult;
+
+    return mystats;
+}
+
+void
 ProgServer::run()
 {
-    NetworkStatsGatherer statgath;
-
-    LocalMatch singlematch(db.get());
-    singlematch.link_to_multi(&statgath);
-
     while (1) {
 	string message;
 	getline(cin, message);
@@ -59,47 +84,24 @@ ProgServer::run()
 	if (words.empty()) {
 	    break;
 	};
-	if (words[0] == "GETDOCCOUNT") {
-	    cout << db->get_doccount() << endl;
-	    cout.flush();
-	} else if (words.size() == 2 && words[0] == "SETWEIGHT") {
+	if (words.size() == 2 && words[0] == "SETWEIGHT") {
 	    //cerr << "responding to SETWEIGHT" << endl;
 	    IRWeight::weight_type wt_type = 
 		    static_cast<IRWeight::weight_type>(
 		    atol(words[1].c_str()));
-	    singlematch.set_weighting(wt_type);
+	    match.set_weighting(wt_type);
 	    cout << "OK" << endl;
 	    cout.flush();
 	} else if (words[0] == "SETQUERY") {
 	    OmQueryInternal temp =
 		    query_from_string(message.substr(9,
 						     message.npos));
-	    singlematch.set_query(&temp);
+	    match.set_query(&temp);
 	    //cerr << "CLIENT QUERY: " << temp.serialise() << endl;
 	    cout << "OK" << endl;
 	    cout.flush();
-	} else if (words[0] == "GETSTATS") {
-	    // FIXME: we're not using the RSet stats yet.
-	    singlematch.prepare_match();
-
-	    cout << stats_to_string(*statgath.get_stats()) << endl;
-	    cout.flush();
-	} else if (words[0] == "SETSTATS") {
-
-	    string global_stats;
-	    if (words.size() < 2) {
-		cout << "ERROR" << endl;
-		cout.flush();
-	    } else {
-		// FIXME: this is a silly way of doing it
-		string global_stats = words[1];
-		for (vector<string>::size_type i=2; i<words.size(); ++i) {
-		    global_stats = global_stats + " " + words[i];
-		}
-		statgath.set_global_stats(string_to_stats(global_stats));
-		cout << "OK" << endl;
-		cout.flush();
-	    }
+	} else if (words[0] == "ENDQUERY") {
+	    conversation_state = conv_sendlocal;
 	} else if (words[0] == "GET_MSET") {
 	    //cerr << "GET_MSET: " << words.size() << " words" << endl;
 	    if (words.size() != 3) {
@@ -116,13 +118,13 @@ ProgServer::run()
 		cerr << "About to get_mset(" << first
 			<< ", " << maxitems << "..." << endl;
 
-		singlematch.get_mset(first,
-				   maxitems,
-				   mset,
-				   msetcmp_forward,
-				   &mbound,
-				   &greatest_wt,
-				   0);
+		match.match(first,
+			    maxitems,
+			    mset,
+			    msetcmp_forward,
+			    &mbound,
+			    &greatest_wt,
+			    0);
 
 		//cerr << "done get_mset..." << endl;
 
@@ -147,7 +149,7 @@ ProgServer::run()
 		//cerr << "sent OK..." << endl;
 	    }
 	} else if (words[0] == "GETMAXWEIGHT") {
-	    cout << singlematch.get_max_weight() << endl;
+	    cout << match.get_max_weight() << endl;
 	    cout.flush();
 	} else {
 	    cout << "ERROR" << endl;

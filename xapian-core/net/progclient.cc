@@ -34,6 +34,17 @@
 #include <strstream.h>
 
 ProgClient::ProgClient(string progname, string arg)
+	: socketfd(get_spawned_socket(progname, arg)),
+	  buf(socketfd)
+{
+	do_write("HELLO!\n");
+
+	string received = do_read();
+	cout << "Read back " << received << endl;
+}
+
+int
+ProgClient::get_spawned_socket(string progname, string arg)
 {
     /* socketpair() returns two sockets.  We keep sv[0] and give
      * sv[1] to the child process.
@@ -76,30 +87,17 @@ ProgClient::ProgClient(string progname, string arg)
 	_exit(-1);
     } else {
 	// parent
-	socketfd = sv[0];
+	// close the child's end of the socket
+	close(sv[1]);
 
-	do_write("HELLO!\n");
-
-	string received = do_read();
-	cout << "Read back " << received << endl;
+	return sv[0];
     }
 }
 
 string
 ProgClient::do_read()
 {
-    string::size_type pos;
-    while ((pos = buffer.find_first_of('\n')) == buffer.npos) {
-	char buf[256];
-	ssize_t received = read(socketfd, buf, sizeof(buf) - 1);
-
-	buffer += string(buf, buf + received);
-    }
-    string retval(buffer.begin(), buffer.begin() + pos);
-
-    //cout << "PreBuffer: [" << buffer << "]" << endl;
-    buffer.erase(0, pos+1);
-    //cout << "PostBuffer: [" << buffer << "]" << endl;
+    string retval = buf.readline();
 
     cout << "do_read(): " << retval << endl;
 
@@ -110,21 +108,13 @@ void
 ProgClient::do_write(string data)
 {
     cout << "do_write(): " << data.substr(0, data.length() - 1) << endl;
-    while (data.length() > 0) {
-	ssize_t written = write(socketfd, data.data(), data.length());
-
-	if (written < 0) {
-	    throw OmNetworkError(std::string("write:") + strerror(errno));
-	}
-
-	data.erase(0, written);
-    }
+    buf.writeline(data);
 }
 
 void
 ProgClient::write_data(string msg)
 {
-    do_write(msg + '\n');
+    do_write(msg);
 }
 
 string
@@ -198,10 +188,16 @@ ProgClient::string_to_stats(const string &s)
     return stat;
 }
 
+void
+ProgClient::finish_query()
+{
+    do_write(string("ENDQUERY"));
+}
+
 Stats
 ProgClient::get_remote_stats()
 {
-    string result = do_transaction_with_result(string("GETSTATS"));
+    string result = do_read();
 
     return string_to_stats(result);
 }
@@ -243,38 +239,6 @@ string_to_msetitem(string s)
     return OmMSetItem(wt, did);
 }
 
-// FIXME: put in a sensible place
-static string
-stats_to_string(const Stats &stats)
-{
-    ostrstream os;
-
-    os << stats.collection_size << " ";
-    os << stats.average_length << " ";
-
-    map<om_termname, om_doccount>::const_iterator i;
-
-    for (i=stats.termfreq.begin();
-	 i != stats.termfreq.end();
-	 ++i) {
-	os << "T" << encode_tname(i->first) << "=" << i->second << " ";
-    }
-
-    for (i = stats.reltermfreq.begin();
-	 i != stats.reltermfreq.end();
-	 ++i) {
-	os << "R" << encode_tname(i->first) << "=" << i->second << " ";
-    }
-
-    // FIXME: should be eos.
-    os << '\0';
-
-    string result(os.str());
-
-    os.freeze(0);
-
-    return result;
-}
 
 void
 ProgClient::set_global_stats(const Stats &stats)

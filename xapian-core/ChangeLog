@@ -1,3 +1,14 @@
+Thu Apr 20 18:00:36 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* StatsSource now has two varients - LocalStatsSource and
+	  NetworkStatsSource
+	
+	* Some changes to the prototype protocol
+
+	* ProgClient and ProgServer use OmLineBuf to share code
+
+	* Some code moved around
+
 Thu Apr 20 17:52:49 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* New OmLineBuf object to handle line buffering over a connection

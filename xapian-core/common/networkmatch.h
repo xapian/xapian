@@ -44,10 +44,10 @@ class NetworkMatch : public SingleMatch
 
 	/// Prepare the stats object with contributed
 	/// statistics from the remote end.
-	void get_remote_stats();
+	void finish_query();
 
-	/// The parent's StatsGatherer
-	StatsGatherer *mygatherer;
+	/// The StatsSource object
+	NetworkStatsSource statssource;
 
 	/// The maximum weight which can be returned
 	om_weight max_weight;

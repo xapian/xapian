@@ -54,9 +54,19 @@ int main(int argc, char *argv[]) {
 	// open the database to return results
 	DatabaseBuilderParams param(OM_DBTYPE_INMEMORY);
 	param.paths.push_back(argv[1]);
-	auto_ptr<IRDatabase> db(DatabaseBuilder::create(param));
 
-	ProgServer server(db, 0, 1);
+	DatabaseBuilderParams mparam(OM_DBTYPE_MULTI);
+	mparam.subdbs.push_back(param);
+	auto_ptr<IRDatabase> db(DatabaseBuilder::create(mparam));
+	auto_ptr<MultiDatabase> mdb(dynamic_cast<MultiDatabase *>(db.get()));
+	if (!mdb.get()) {
+	    throw OmDatabaseError("Invalid database");
+	} else {
+	    // db no longer should have ownership
+	    db.release();
+	}
+
+	ProgServer server(mdb, 0, 1);
 
 	server.run();
     } catch (OmError &e) {
