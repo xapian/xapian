@@ -118,6 +118,7 @@ class NetworkDatabase : public Database {
 	om_doclength get_doclength(om_docid did) const;
 
 	om_doccount get_termfreq(const om_termname & tname) const;
+	om_termcount get_collection_freq(const om_termname & tname) const;
 	bool term_exists(const om_termname & tname) const;
 
 	LeafPostList * do_open_post_list(const om_termname & tname) const;
@@ -143,6 +144,12 @@ NetworkDatabase::get_termfreq(const om_termname & tname) const
     delete pl;
     return freq;
 #endif
+}
+
+inline om_termcount
+NetworkDatabase::get_collection_freq(const om_termname & tname) const
+{
+    throw OmUnimplementedError("NetworkDatabase::get_collection_freq() not implemented: data not stored in database.");
 }
 
 inline bool

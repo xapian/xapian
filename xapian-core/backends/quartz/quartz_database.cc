@@ -282,6 +282,7 @@ QuartzDatabase::get_doclength(om_docid did) const
 om_doccount
 QuartzDatabase::get_termfreq(const om_termname & tname) const
 {
+    Assert(tname.size() != 0);
     OmLockSentry sentry(quartz_mutex);
 
     om_doccount termfreq = 0; // If not found, this value will be unchanged.
@@ -289,6 +290,21 @@ QuartzDatabase::get_termfreq(const om_termname & tname) const
 			     tname,
 			     &termfreq);
     return termfreq;
+}
+
+om_termcount
+QuartzDatabase::get_collection_freq(const om_termname & tname) const
+{
+    Assert(tname.size() != 0);
+    OmLockSentry sentry(quartz_mutex);
+
+    om_termcount collfreq = 0; // If not found, this value will be unchanged.
+    QuartzPostList pl(0,
+		      tables->get_postlist_table(),
+		      tables->get_positionlist_table(),
+		      tname);
+    collfreq = pl.get_collection_freq();
+    return collfreq;
 }
 
 bool
@@ -451,6 +467,9 @@ QuartzWritableDatabase::do_cancel_transaction()
 om_docid
 QuartzWritableDatabase::do_add_document(const OmDocumentContents & document)
 {
+    DEBUGCALL(DB, om_docid,
+	      "QuartzWritableDatabase::do_add_document", document);
+
     // FIXME: if an error occurs while adding a document, or doing any other
     // transaction, the modifications so far must be cleared before returning
     // control to the user - otherwise partial modifications will persist in
@@ -513,7 +532,7 @@ QuartzWritableDatabase::do_add_document(const OmDocumentContents & document)
 				term->second.positions);
     }
 
-    return did;
+    RETURN(did);
 }
 
 void
@@ -530,12 +549,9 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
 
     OmDocumentContents::document_terms::const_iterator term;
     for (term = document.terms.begin(); term != document.terms.end(); term++) {
-#if 0
-	QuartzPostList::delete_posting(*(buffered_tables.get_postlist_table()),
-				       term->second.tname,
-				       did,
-				       term->second.wdf);
-#endif
+	QuartzPostList::delete_entry(buffered_tables->get_postlist_table(),
+				     term->second.tname,
+				     did);
 	QuartzPositionList::delete_positionlist(
 				buffered_tables->get_positionlist_table(),
 				did,
@@ -618,6 +634,12 @@ om_doccount
 QuartzWritableDatabase::get_termfreq(const om_termname & tname) const
 {
     return database_ro.get_termfreq(tname);
+}
+
+om_termcount
+QuartzWritableDatabase::get_collection_freq(const om_termname & tname) const
+{
+    return database_ro.get_collection_freq(tname);
 }
 
 bool

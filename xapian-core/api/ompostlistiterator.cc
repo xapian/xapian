@@ -125,6 +125,20 @@ OmPostListIterator::positionlist_end()
     RETURN(OmPositionListIterator(NULL));
 }
 
+om_doccount
+OmPostListIterator::get_termfreq() const
+{   
+    DEBUGAPICALL(om_doccount, "OmPostListIterator::get_termfreq", "");
+    RETURN(internal->postlist->get_termfreq());
+}
+
+om_termcount
+OmPostListIterator::get_collection_freq() const
+{   
+    DEBUGAPICALL(om_termcount, "OmPostListIterator::get_collection_freq", "");
+    RETURN(internal->postlist->get_collection_freq());
+}
+
 std::string
 OmPostListIterator::get_description() const
 {

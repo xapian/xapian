@@ -157,6 +157,17 @@ class OmDatabase {
 	om_doccount get_doccount() const;
 	om_doclength get_avlength() const;
 	om_doccount get_termfreq(const om_termname & tname) const;
+
+	/** Return the total number of occurrences of the given term.  This
+	 *  is the sum of the number of ocurrences of the term in each
+	 *  document: ie, the sum of the within document frequencies of the
+	 *  term.
+	 *
+	 *  @param tname  The term whose collection frequency is being
+	 *                requested.
+	 */
+	om_termcount get_collection_freq(const om_termname & tname) const;
+
 	om_doclength get_doclength(om_docid did) const;
 
 	bool term_exists(const om_termname & tname) const;

@@ -124,6 +124,10 @@ class SleepycatDatabase : public Database {
 	om_doclength get_avlength() const;
 	om_doclength get_doclength(om_docid did) const;
 	om_doccount get_termfreq(const om_termname & tname) const;
+	om_termcount get_collection_freq(const om_termname & tname) const {
+	    throw OmUnimplementedError(
+		"SleepycatDatabase::get_collection_freq() not implemented: data not stored in database.");
+	}
 	bool term_exists(const om_termname & tname) const;
 
 	LeafPostList * do_open_post_list(const om_termname & tname) const;

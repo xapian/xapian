@@ -54,8 +54,6 @@ class OmPostListIterator {
 	 */
 	void operator=(const OmPostListIterator &other);
 
-	const om_docid operator *();
-
 	OmPostListIterator & operator++();
 
 	void operator++(int);
@@ -63,26 +61,57 @@ class OmPostListIterator {
 	// extra method, not required for an input_iterator
 	void skip_to(om_docid did);
 
-// need to set a weight object for this...	om_weight get_weight() const;
+// Get the weight of the posting at the current position: will
+// need to set a weight object for this to work.
+// om_weight get_weight() const;
+
+	/** Get the document id at the current position in the postlist.
+	 */
+	const om_docid operator *();
+
+	/** Get the length of the document at the current position in the
+	 *  postlist.
+	 *
+	 *  This information may be stored in the postlist, in which case
+	 *  this lookup should be extremely fast (indeed, not require further
+	 *  disk access).  If the information is not present in the postlist,
+	 *  it will be retrieved from the database, at a greater performance
+	 *  cost.
+	 */
 	om_doclength get_doclength() const;
+
+	/** Get the within document frequency of the document at the
+	 *  current position in the postlist.
+	 */
         om_termcount get_wdf() const;
 
     	// allow iteration of positionlist for current term
 	OmPositionListIterator positionlist_begin();
-
 	OmPositionListIterator positionlist_end();
+
+	/** Return the number of documents indexed by this term.
+	 */
+	om_doccount get_termfreq() const;
+
+	/** Return the total number of occurrences of the term in the
+	 *  database.  This is equal to the sum of the wdfs of all the
+	 *  items in the postlist.
+	 */
+	om_termcount get_collection_freq() const;
 
 	/** Returns a string describing this object.
 	 *  Introspection method.
 	 */
 	std::string get_description() const;
 
-	// Allow use as an STL iterator
+	/// Allow use as an STL iterator
+	//@{
 	typedef input_iterator_tag iterator_category;
 	typedef om_docid value_type;
 	typedef om_docid difference_type;
 	typedef om_docid * pointer;
 	typedef om_docid & reference;
+	//@}
 };
 
 #endif /* OM_HGUARD_OMPOSTLISTITERATOR_H */

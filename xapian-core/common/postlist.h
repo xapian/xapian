@@ -58,6 +58,12 @@ class PostList : public RefCntBase
 	 *  be as tight as possible. */
         virtual om_weight get_maxweight() const = 0;
 
+	/** Return the total number of occurrences of the term in the
+	 *  database.  This is equal to the sum of the wdfs of all the
+	 *  items in the postlist.
+	 */
+	virtual om_termcount get_collection_freq() const;
+
 	///////////////////////////////////////////////////////////////////
 	// Information about the current item
 
@@ -100,7 +106,8 @@ class PostList : public RefCntBase
 	/// Recalculate weights (used when tree has been autopruned)
         virtual om_weight recalc_maxweight() = 0;
 
-	/** Get the within document frequency of this postlist.
+	/** Get the within document frequency of the document at the
+	 *  current position in the postlist.
 	 *
 	 *  This is currently only meaningful for a LeafPostList, although
 	 *  in future such things as a "SynonymPostList" may be created and
@@ -157,6 +164,12 @@ inline om_termcount
 PostList::get_wdf() const
 {
     throw OmUnimplementedError("PostList::get_wdf() unimplemented");
+}
+
+inline om_termcount
+PostList::get_collection_freq() const
+{
+    throw OmUnimplementedError("PostList::get_collection_freq() unimplemented");
 }
 
 #endif /* OM_HGUARD_POSTLIST_H */

@@ -40,9 +40,10 @@ static void make_key(const om_termname & tname,
 /** Make the data to go at the start of the very first chunk.
  */
 static inline std::string make_start_of_first_chunk(om_termcount entries,
+						    om_termcount collectionfreq,
 						    om_docid new_did)
 {
-    return pack_uint(entries) + pack_uint(new_did);
+    return pack_uint(entries) + pack_uint(collectionfreq) + pack_uint(new_did);
 }
 
 static std::string make_wdf_and_length(om_termcount wdf,
@@ -74,7 +75,7 @@ static void new_postlist(QuartzBufferedTable * bufftable,
     Assert(tag != 0);
     Assert(tag->value.size() == 0);
 
-    tag->value = make_start_of_first_chunk(1u, new_did);
+    tag->value = make_start_of_first_chunk(1u, new_wdf, new_did);
     tag->value += make_start_of_chunk(true, new_did, new_did);
     tag->value += make_wdf_and_length(new_wdf, new_doclen);
 }
@@ -140,10 +141,12 @@ static void report_read_error(const char * position)
     }
 }
 
-static void adjust_number_of_entries(QuartzBufferedTable * bufftable,
-				     const om_termname & tname,
-				     om_termcount increase,
-				     om_termcount decrease)
+static void adjust_counts(QuartzBufferedTable * bufftable,
+			  const om_termname & tname,
+			  om_termcount entries_increase,
+			  om_termcount entries_decrease,
+			  om_termcount collection_freq_increase,
+			  om_termcount collection_freq_decrease)
 {
     QuartzDbKey key;
     key.value = pack_string(tname);
@@ -154,13 +157,20 @@ static void adjust_number_of_entries(QuartzBufferedTable * bufftable,
     const char * tagpos = tag->value.data();
     const char * tagend = tagpos + tag->value.size();
     om_termcount number_of_entries;
+    om_termcount collection_freq;
     if (!unpack_uint(&tagpos, tagend, &number_of_entries))
 	report_read_error(tagpos);
-    number_of_entries += increase;
-    number_of_entries -= decrease;
+    if (!unpack_uint(&tagpos, tagend, &collection_freq))
+	report_read_error(tagpos);
+
+    number_of_entries += entries_increase;
+    number_of_entries -= entries_decrease;
+    collection_freq += collection_freq_increase;
+    collection_freq -= collection_freq_decrease;
 
     tag->value.replace(0, tagpos - tag->value.data(), 
-		       pack_uint(number_of_entries));
+		       pack_uint(number_of_entries) +
+		       pack_uint(collection_freq));
 }
 
 
@@ -170,9 +180,12 @@ static void adjust_number_of_entries(QuartzBufferedTable * bufftable,
  */
 static void read_number_of_entries(const char ** posptr,
 				   const char * end,
-				   om_termcount * number_of_entries_ptr)
+				   om_termcount * number_of_entries_ptr,
+				   om_termcount * collection_freq_ptr)
 {
     if (!unpack_uint(posptr, end, number_of_entries_ptr))
+	report_read_error(*posptr);
+    if (!unpack_uint(posptr, end, collection_freq_ptr))
 	report_read_error(*posptr);
 }
 
@@ -189,9 +202,11 @@ static void read_first_docid(const char ** posptr,
 static void read_start_of_first_chunk(const char ** posptr,
 				      const char * end,
 				      om_termcount * number_of_entries_ptr,
+				      om_termcount * collection_freq_ptr,
 				      om_docid * did_ptr)
 {
-    read_number_of_entries(posptr, end, number_of_entries_ptr);
+    read_number_of_entries(posptr, end,
+			   number_of_entries_ptr, collection_freq_ptr);
     read_first_docid(posptr, end, did_ptr);
 }
 
@@ -270,6 +285,7 @@ QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
     int found = cursor->find_entry(key);
     if (!found) {
 	number_of_entries = 0;
+	collection_freq = 0;
 	is_at_end = true;
 	pos = 0;
 	end = 0;
@@ -280,7 +296,8 @@ QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
     pos = cursor->current_tag.value.data();
     end = pos + cursor->current_tag.value.size();
 
-    read_start_of_first_chunk(&pos, end, &number_of_entries, &did);
+    read_start_of_first_chunk(&pos, end,
+			      &number_of_entries, &collection_freq, &did);
     first_did_in_chunk = did;
     read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk,
 			&last_did_in_chunk);
@@ -436,11 +453,14 @@ QuartzPostList::move_to_chunk_containing(om_docid desired_did)
 	// In first chunk
 #ifdef MUS_DEBUG
 	om_termcount old_number_of_entries = number_of_entries;
-	read_start_of_first_chunk(&pos, end, &number_of_entries, &did);
+	om_termcount old_collection_freq = collection_freq;
+	read_start_of_first_chunk(&pos, end,
+				  &number_of_entries, &collection_freq, &did);
 #else
-	read_start_of_first_chunk(&pos, end, 0, &did);
+	read_start_of_first_chunk(&pos, end, 0, 0, &did);
 #endif
 	Assert(old_number_of_entries == number_of_entries);
+	Assert(old_collection_freq == collection_freq);
     } else {
 	// In normal chunk
 	if (!unpack_uint_preserving_sort(&keypos, keyend, &did)) {
@@ -580,7 +600,8 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
 
 	om_docid first_did_in_chunk;
 	if (is_first_chunk) {
-	    read_start_of_first_chunk(&tagpos, tagend, 0, &first_did_in_chunk);
+	    read_start_of_first_chunk(&tagpos, tagend,
+				      0, 0, &first_did_in_chunk);
 	} else {
 	    if (!unpack_uint_preserving_sort(&keypos, keyend,
 					     &first_did_in_chunk))
@@ -625,7 +646,15 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
 	    }
 	}
 
-	adjust_number_of_entries(bufftable, tname, 1, 0);
+	adjust_counts(bufftable, tname, 1, 0, new_wdf, 0);
     }
+}
+
+void
+QuartzPostList::delete_entry(QuartzBufferedTable * bufftable,
+			     const om_termname & tname,
+			     om_docid did)
+{
+    throw OmUnimplementedError("QuartzPostList::delete_entry() not yet implemented");
 }
 

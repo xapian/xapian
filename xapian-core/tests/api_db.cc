@@ -385,7 +385,7 @@ static bool test_boolquery1()
     return true;
 }
 
-// tests that get_mset() specifying "first" works as expected
+// tests that get_mset() specifying "this" works as expected
 static bool test_msetfirst1()
 {
     OmMSet mymset1 = do_get_simple_query_mset(query("this"), 6, 0);
@@ -1592,6 +1592,45 @@ static bool test_postlist4()
     OmPostListIterator i = db.postlist_begin("thi");
     i.skip_to(1);
     i.skip_to(999999999);
+    TEST(i == db.postlist_end("thi"));
+    return true;
+}
+
+// tests collection frequency
+static bool test_collfreq1()
+{
+    OmDatabase db(get_database("apitest_simpledata"));
+
+    TEST_EQUAL(db.get_collection_freq("thi"), 11);
+    TEST_EQUAL(db.postlist_begin("thi").get_collection_freq(), 11);
+    TEST_EQUAL(db.get_collection_freq("first"), 1);
+    TEST_EQUAL(db.postlist_begin("first").get_collection_freq(), 1);
+    TEST_EQUAL(db.get_collection_freq("last"), 0);
+    TEST_EQUAL(db.postlist_begin("last").get_collection_freq(), 0);
+    TEST_EQUAL(db.get_collection_freq("word"), 9);
+    TEST_EQUAL(db.postlist_begin("word").get_collection_freq(), 9);
+
+    OmDatabase db1(get_database("apitest_simpledata", "apitest_simpledata2"));
+    OmDatabase db2(get_database("apitest_simpledata"));
+    db2.add_database(get_database("apitest_simpledata2"));
+
+    TEST_EQUAL(db1.get_collection_freq("thi"), 15);
+    TEST_EQUAL(db1.postlist_begin("thi").get_collection_freq(), 15);
+    TEST_EQUAL(db1.get_collection_freq("first"), 1);
+    TEST_EQUAL(db1.postlist_begin("first").get_collection_freq(), 1);
+    TEST_EQUAL(db1.get_collection_freq("last"), 0);
+    TEST_EQUAL(db1.postlist_begin("last").get_collection_freq(), 0);
+    TEST_EQUAL(db1.get_collection_freq("word"), 11);
+    TEST_EQUAL(db1.postlist_begin("word").get_collection_freq(), 11);
+    TEST_EQUAL(db2.get_collection_freq("thi"), 15);
+    TEST_EQUAL(db2.postlist_begin("thi").get_collection_freq(), 15);
+    TEST_EQUAL(db2.get_collection_freq("first"), 1);
+    TEST_EQUAL(db2.postlist_begin("first").get_collection_freq(), 1);
+    TEST_EQUAL(db2.get_collection_freq("last"), 0);
+    TEST_EQUAL(db2.postlist_begin("last").get_collection_freq(), 0);
+    TEST_EQUAL(db2.get_collection_freq("word"), 11);
+    TEST_EQUAL(db2.postlist_begin("word").get_collection_freq(), 11);
+
     return true;
 }
 
@@ -1657,6 +1696,12 @@ test_desc doclendb_tests[] = {
     {"simplequery2",       test_simplequery2},
 // Mset comes out in wrong order - no document length?
     {"rsetmultidb2",       test_rsetmultidb2},
+    {0, 0}
+};
+
+/// Tests which need getting collection frequencies to be supported.
+test_desc collfreq_tests[] = {
+    {"collfreq1",          test_collfreq1},
     {0, 0}
 };
 

@@ -92,7 +92,10 @@ class QuartzPostList : public LeafPostList {
 	bool have_started;
 
 	/// The number of entries in the posting list.
-	om_termcount number_of_entries;
+	om_doccount number_of_entries;
+
+	/// The number of occurences of the term in the posting list.
+	om_termcount collection_freq;
 
 	/// The position list object for this posting list.
 	QuartzPositionList positionlist;
@@ -169,6 +172,12 @@ class QuartzPostList : public LeafPostList {
 	 */
 	om_doccount   get_termfreq() const { return number_of_entries; }
 
+	/** Returns the number of occurences of the term in the database.
+	 *
+	 *  This is the sum of the wdfs in the postlist.
+	 */
+	om_termcount get_collection_freq() const { return collection_freq; }
+
 	/// Returns the current docid.
 	om_docid     get_docid() const { Assert(have_started); return did; }
 
@@ -206,12 +215,10 @@ class QuartzPostList : public LeafPostList {
 			      om_termcount new_wdf,
 			      quartz_doclen_t new_doclen);
 
-#if 0
 	/// Delete an entry
-	static void delete_entry(QuartzBufferedTable * table,
+	static void delete_entry(QuartzBufferedTable * bufftable,
 				 const om_termname & tname,
 				 om_docid did);
-#endif
 
 };
 

@@ -113,6 +113,7 @@ int main(int argc, char *argv[])
     RUNTESTS("quartz", localdb);
     RUNTESTS("quartz", positionaldb);
     RUNTESTS("quartz", doclendb);
+    RUNTESTS("quartz", collfreq);
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_SLEEPYCAT)

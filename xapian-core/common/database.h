@@ -171,6 +171,16 @@ class Database : public RefCntBase {
 	 */
 	virtual om_doccount get_termfreq(const om_termname & tname) const = 0;
 
+	/** Return the total number of occurrences of the given term.  This
+	 *  is the sum of the number of ocurrences of the term in each
+	 *  document: ie, the sum of the within document frequencies of the
+	 *  term.
+	 *
+	 *  @param tname  The term whose collection frequency is being
+	 *                requested.
+	 */
+	virtual om_termcount get_collection_freq(const om_termname & tname) const = 0;
+
 	/** Check whether a given term is in the database.
 	 *
 	 *  This method should normally be functionally equivalent to

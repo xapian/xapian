@@ -43,6 +43,9 @@ class MultiPostList : public LeafPostList {
 	mutable bool freq_initialised;
 	mutable om_doccount termfreq;
 
+	mutable bool collfreq_initialised;
+	mutable om_termcount collfreq;
+
 	om_weight termweight;
 
 	om_doccount multiplier;
@@ -55,6 +58,7 @@ class MultiPostList : public LeafPostList {
 	void set_termweight(const IRWeight * wt); // Sets term weight
 
 	om_doccount get_termfreq() const;
+	om_termcount get_collection_freq() const;
 
 	om_docid  get_docid() const;     // Gets current docid
 	om_doclength get_doclength() const; // Get length of current document
@@ -93,6 +97,23 @@ MultiPostList::get_termfreq() const
 
     freq_initialised = true;
     return termfreq;
+}
+
+inline om_termcount
+MultiPostList::get_collection_freq() const
+{
+    if(collfreq_initialised) return collfreq;
+    DEBUGLINE(DB, "Calculating multiple term frequencies");
+
+    // Calculate and remember the collfreq
+    collfreq = 0;
+    std::vector<LeafPostList *>::const_iterator i;
+    for (i = postlists.begin(); i != postlists.end(); i++) {
+	collfreq += (*i)->get_collection_freq();
+    }
+
+    collfreq_initialised = true;
+    return collfreq;
 }
 
 inline om_docid

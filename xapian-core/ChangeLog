@@ -1,3 +1,24 @@
+Tue Nov 21 10:58:13 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Implemented collection frequency stuff.  This involves:
+
+	  - Added an OmDatabase::get_collection_freq() method.
+	  - Added an OmPostListIterator::get_collection_freq() method.
+	    (Also, added an OmPostListIterator::get_termfreq() method)
+	  - Postlists and Databases have get_collection_freq() method.
+	  - QuartzPostLists store the collection frequency at the beginning
+	    of the list.
+	  - Added tests to apitest and quartztest for reading collection
+	    frequencies, both from a single database and from several
+	    databases.
+
+	  Collection frequencies will not work with SleepyCat, InMemory, or
+	  Muscat 3.6 databases.
+
+	* Also, make tests clear old databases at _start_ of their test run,
+	  but not in the middle, so that all the old databases are present
+	  for inspection but don't interfere with the new test run.
+
 Tue Nov 21 11:46:24 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* testsuite.cc should work when RTLD_DEFAULT is not defined.

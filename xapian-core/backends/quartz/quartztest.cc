@@ -944,18 +944,46 @@ static bool test_adddoc2()
 	TEST_EQUAL(database->get_doccount(), 1);
 	TEST_EQUAL(database->get_avlength(), 3);
 
+	TEST_EQUAL(database->get_termfreq("foobar"), 1);
+	TEST_EQUAL(database->get_collection_freq("foobar"), 2);
+	TEST_EQUAL(database->get_termfreq("rising"), 1);
+	TEST_EQUAL(database->get_collection_freq("rising"), 1);
+	TEST_EQUAL(database->get_termfreq("falling"), 0);
+	TEST_EQUAL(database->get_collection_freq("falling"), 0);
+
 	om_docid did2 = database->add_document(document_in2);
 	TEST_EQUAL(database->get_doccount(), 2);
 	TEST_NOT_EQUAL(did, did2);
 	TEST_EQUAL(database->get_avlength(), 5.0/2.0);
 
+	TEST_EQUAL(database->get_termfreq("foobar"), 2);
+	TEST_EQUAL(database->get_collection_freq("foobar"), 3);
+	TEST_EQUAL(database->get_termfreq("rising"), 1);
+	TEST_EQUAL(database->get_collection_freq("rising"), 1);
+	TEST_EQUAL(database->get_termfreq("falling"), 1);
+	TEST_EQUAL(database->get_collection_freq("falling"), 1);
+
 	database->delete_document(did);
 	TEST_EQUAL(database->get_doccount(), 1);
 	TEST_EQUAL(database->get_avlength(), 2);
 
+	TEST_EQUAL(database->get_termfreq("foobar"), 1);
+	TEST_EQUAL(database->get_collection_freq("foobar"), 1);
+	TEST_EQUAL(database->get_termfreq("rising"), 0);
+	TEST_EQUAL(database->get_collection_freq("rising"), 0);
+	TEST_EQUAL(database->get_termfreq("falling"), 1);
+	TEST_EQUAL(database->get_collection_freq("falling"), 1);
+
 	did = database->add_document(document_in);
 	TEST_EQUAL(database->get_doccount(), 2);
 	TEST_EQUAL(database->get_avlength(), 5.0/2.0);
+
+	TEST_EQUAL(database->get_termfreq("foobar"), 2);
+	TEST_EQUAL(database->get_collection_freq("foobar"), 3);
+	TEST_EQUAL(database->get_termfreq("rising"), 1);
+	TEST_EQUAL(database->get_collection_freq("rising"), 1);
+	TEST_EQUAL(database->get_termfreq("falling"), 1);
+	TEST_EQUAL(database->get_collection_freq("falling"), 1);
     }
 
     {
@@ -1235,6 +1263,7 @@ static bool test_postlist1()
     {
 	QuartzPostList pl2(database_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 0);
+	TEST_EQUAL(pl2.get_collection_freq(), 0);
 	pl2.next(0);
 	TEST(pl2.at_end());
     }
@@ -1243,6 +1272,7 @@ static bool test_postlist1()
     {
 	QuartzPostList pl2(database_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 1);
+	TEST_EQUAL(pl2.get_collection_freq(), 7);
 	pl2.next(0);
 	TEST(!pl2.at_end());
 	TEST_EQUAL(pl2.get_docid(), 5);
@@ -1256,6 +1286,7 @@ static bool test_postlist1()
     {
 	QuartzPostList pl2(database_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 2);
+	TEST_EQUAL(pl2.get_collection_freq(), 8);
 	pl2.next(0);
 	TEST(!pl2.at_end());
 	TEST_EQUAL(pl2.get_docid(), 5);
@@ -1293,6 +1324,7 @@ static bool test_postlist2()
     {
 	QuartzPostList pl2(database_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 0);
+	TEST_EQUAL(pl2.get_collection_freq(), 0);
 	pl2.next(0);
 	TEST(pl2.at_end());
     }
@@ -1305,16 +1337,19 @@ static bool test_postlist2()
 	pos += (unsigned int)(10.0*rand()/(RAND_MAX+1.0)) + 1;
 	testdata.push_back(pos);
     }
+    unsigned int collfreq = 0;
     for (vector<unsigned int>::const_iterator i2 = testdata.begin();
 	 i2 != testdata.end(); i2++) {
 	QuartzPostList::add_entry(&bufftable, "foo",
 				  *i2, (*i2) % 5 + 1, (*i2) % 7 + 1);
+	collfreq += (*i2) % 5 + 1;
     }
     bufftable.apply(disktable.get_latest_revision_number() + 1);
 
     {
 	QuartzPostList pl2(database_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
+	TEST_EQUAL(pl2.get_collection_freq(), collfreq);
 	pl2.next(0);
 	vector<unsigned int>::const_iterator i3 = testdata.begin();
 

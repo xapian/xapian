@@ -202,6 +202,20 @@ OmDatabase::get_termfreq(const om_termname & tname) const
     RETURN(tf);
 }
 
+om_termcount
+OmDatabase::get_collection_freq(const om_termname & tname) const
+{
+    DEBUGAPICALL(om_termcount, "OmDatabase::get_collection_freq", tname);
+    if (tname.empty())
+	throw OmInvalidArgumentError("Zero length terms are invalid");
+    om_termcount cf = 0;
+    std::vector<RefCntPtr<Database> >::const_iterator i;
+    for (i = internal->databases.begin(); i != internal->databases.end(); i++) {
+	cf += (*i)->get_collection_freq(tname);
+    }
+    RETURN(cf);
+}
+
 om_doclength
 OmDatabase::get_doclength(om_docid did) const
 {

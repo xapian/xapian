@@ -155,7 +155,9 @@ index_file_to_database(OmWritableDatabase & database, std::string path)
 void
 BackendManager::set_dbtype(const std::string &type)
 {
-    if (type == "inmemory") {
+    if (type == current_type) {
+	// leave it as it is.
+    } else if (type == "inmemory") {
 	do_getdb = &BackendManager::getdb_inmemory;
 	do_getwritedb = &BackendManager::getwritedb_inmemory;
     } else if (type == "inmemoryerr") {
@@ -164,30 +166,30 @@ BackendManager::set_dbtype(const std::string &type)
     } else if (type == "sleepycat") {
 	do_getdb = &BackendManager::getdb_sleepycat;
 	do_getwritedb = &BackendManager::getwritedb_sleepycat;
-	//system("rm -fr .sleepycat");
+	system("rm -fr .sleepycat");
     } else if (type == "quartz") {
 	do_getdb = &BackendManager::getdb_quartz;
 	do_getwritedb = &BackendManager::getwritedb_quartz;
-	//system("rm -fr .quartz");
+	system("rm -fr .quartz");
     } else if (type == "remote") {
 	do_getdb = &BackendManager::getdb_network;
 	do_getwritedb = &BackendManager::getwritedb_network;
     } else if (type == "da") {
 	do_getdb = &BackendManager::getdb_da;
 	do_getwritedb = &BackendManager::getwritedb_da;
-	//system("rm -fr .da");
+	system("rm -fr .da");
     } else if (type == "db") {
 	do_getdb = &BackendManager::getdb_db;
 	do_getwritedb = &BackendManager::getwritedb_db;
-	//system("rm -fr .db");
+	system("rm -fr .db");
     } else if (type == "daflimsy") {
 	do_getdb = &BackendManager::getdb_daflimsy;
 	do_getwritedb = &BackendManager::getwritedb_daflimsy;
-	//system("rm -fr .daflimsy");
+	system("rm -fr .daflimsy");
     } else if (type == "dbflimsy") {
 	do_getdb = &BackendManager::getdb_dbflimsy;
 	do_getwritedb = &BackendManager::getwritedb_dbflimsy;
-	//system("rm -fr .dbflimsy");
+	system("rm -fr .dbflimsy");
     } else if (type == "void") {
 	do_getdb = &BackendManager::getdb_void;
 	do_getwritedb = &BackendManager::getwritedb_void;

@@ -45,6 +45,9 @@ class BackendManager {
 	/// The current data directory
 	std::string datadir;
 
+	/// The current backend type
+	std::string current_type;
+
 	/// Change names of databases into paths to them, within the datadir
 	std::vector<std::string>
 		change_names_to_paths(const std::vector<std::string> &dbnames);
