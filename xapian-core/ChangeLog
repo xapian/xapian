@@ -1,3 +1,8 @@
+Thu May 29 16:45:39 BST 2003  Olly Betts <olly@survex.com>
+
+	* extra/queryparser.yy,extra/queryparsertest.cc: Improved handling
+	  of various odd queries encountered in real life applications.
+
 Thu May 29 01:50:51 BST 2003  Olly Betts <olly@survex.com>
 
 	* docs/todo.xml: Updated more.

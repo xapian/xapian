@@ -130,7 +130,11 @@ probterm: stopterm
 	| PREFIXTERM
 ;
 
-stopterm: TERM		{ string term = *($1.q.get_terms_begin()); 
+ignorehypterm:	  TERM
+		| HYPHEN TERM   { $$ = $2; } /* Ignore leading HYPHEN */
+;
+
+stopterm: ignorehypterm	{ string term = *($1.q.get_terms_begin()); 
 			  if (qp->stop && (*qp->stop)(term)) {
 			      $$ = U();
 			      qp->stoplist.push_back(term);
@@ -154,7 +158,7 @@ stopterm: TERM		{ string term = *($1.q.get_terms_begin());
 			  $$.q.set_window($1.v.size() + 9); }
 ;
 
-term:	  TERM
+term:	  ignorehypterm	{ $$ = $1; }
 	| PREFIXTERM
 	| '"' phrase '"'{ $$ = U(Xapian::Query(Xapian::Query::OP_PHRASE, $2.v.begin(), $2.v.end()));
 			  $$.q.set_window($2.v.size()); }
@@ -164,11 +168,13 @@ term:	  TERM
 			  $$.q.set_window($1.v.size() + 9); }
 ;
 
-phrase:	  TERM		{ $$.v.push_back($1.q); }
-	| phrase TERM	{ $$ = $1; $$.v.push_back($2.q); }
+phrase:	  ignorehypterm		{ $$.v.push_back($1.q); }
+	| phrase ignorehypterm	{ $$ = $1; $$.v.push_back($2.q); }
 ;
 
 hypphr:   TERM HYPHEN TERM	{ $$.v.push_back($1.q); $$.v.push_back($3.q); }
+	| HYPHEN TERM HYPHEN TERM /* Ignore leading HYPHEN */
+				{ $$.v.push_back($2.q); $$.v.push_back($4.q); }
 	| hypphr HYPHEN TERM	{ $$ = $1; $$.v.push_back($3.q); }
 ;
 
@@ -258,6 +264,8 @@ yylex()
 	return c;
     }
     
+    if (qptr == q.end()) return 0;
+
     if (prefix.empty()) {
 	/* skip whitespace */
 	qptr = find_if(qptr, q.end(), p_notwhitespace);
@@ -410,7 +418,39 @@ more_term:
 	/* these characters generate a phrase search */
 	if (isalnum(*qptr)) return HYPHEN;
 	break;
-     case '(': case ')': case '-': case '+': case '"':
+     case '(':
+	// Ignore ( at end of query
+	if (qptr == q.end()) return 0;
+	if (*qptr == ')') {
+	    /* Ignore () */
+	    ++qptr;
+	    return yylex();
+	}
+	/* '(' is used in the grammar rules */
+	return c;
+     case '+':
+	// Ignore + at end of query
+	if (qptr == q.end()) return 0;
+	if (isspace(*qptr) || *qptr == '+') {
+	    /* Ignore ++ or + followed by a space */
+	    /* Note that C++ and Mg2+ are handled above */
+	    ++qptr;
+	    return yylex();
+	}
+	/* '+' is used in the grammar rules */
+	return c;
+     case '-':
+	// Ignore - at end of query
+	if (qptr == q.end()) return 0;
+	if (isspace(*qptr) || *qptr == '-') {
+	    /* Ignore -- or - followed by a space */
+	    /* Note that nethack-- and Cl- are handled above */
+	    ++qptr;
+	    return yylex();
+	}
+	/* '-' is used in the grammar rules */
+	return c;
+     case ')': case '"':
 	/* these characters are used in the grammar rules */
 	return c;
     }
