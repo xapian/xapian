@@ -89,27 +89,4 @@ OmExpandWeight::OmExpandWeight(const IRDatabase *root_,
 
 const double k = 1;
 
-inline OmExpandBits
-OmExpandWeight::get_bits(om_termcount wdf,
-		       om_doclength len,
-		       om_doccount termfreq,
-		       om_doccount dbsize) const
-{
-    om_weight multiplier = 1.0;
-
-    if(wdf > 0) {
-	// FIXME -- use alpha, document importance
-	// FIXME -- lots of repeated calculation here - have a weight for each
-	// termlist, so can cache results?
-	multiplier = (k + 1) * wdf / (k * len + wdf);
-#if 0
-	DebugMsg("Using (wdf, len) = (" << wdf << ", " << len <<
-		 ") => multiplier = " << multiplier << endl);
-    } else {
-	DebugMsg("No wdf information => multiplier = " << multiplier << endl);
-#endif
-    }
-    return OmExpandBits(multiplier, termfreq, dbsize);
-}
-
 #endif /* OM_HGUARD_EXPANDWEIGHT_H */
