@@ -1,3 +1,8 @@
+Wed Feb 23 17:33:43 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added a test "includetest" which simply checks that a program
+	  which includes all headers in the project compiles.
+
 Wed Feb 23 14:46:16 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Muscat36 backend now replaces DA backend.
