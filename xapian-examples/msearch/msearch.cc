@@ -24,8 +24,21 @@
 
 #include <om/om.h>
 #include <om/omstem.h>
-// FIXME: shouldn't really include omassert.h
-#include "omassert.h"
+
+#ifdef MUS_DEBUG_VERBOSE
+// Verbose debugging output
+#define DebugMsg(a) cout << a ; cout.flush()
+#else
+#define DebugMsg(a)
+#endif
+
+#ifdef MUS_DEBUG
+// Assertions to put in debug builds
+// NB use an else clause to avoid dangling else damage
+#define Assert(a) if (a) { } else throw OmAssertionError(ASSERT_LOCN(a))
+#else
+#define Assert(a)
+#endif
 
 #include <vector>
 #include <stack>
@@ -40,7 +53,7 @@ main(int argc, char *argv[])
     OmRSet rset;
     vector<vector<string> > dbargs;
     vector<string> dbtypes;
-    bool showmset = false;
+    bool showmset = true;
     om_queryop default_op = OM_MOP_OR;
     int collapse_key = -1;
 
@@ -99,6 +112,10 @@ main(int argc, char *argv[])
 	    showmset = true;
 	    argc--;
 	    argv++;
+	} else if (strcmp(argv[0], "--hidemset") == 0) {
+	    showmset = false;
+	    argc--;
+	    argv++;
 	} else if (strcmp(argv[0], "--matchall") == 0) {
 	    default_op = OM_MOP_AND;
 	    argc--;
@@ -122,7 +139,8 @@ main(int argc, char *argv[])
 		"\t--im INMEMORY\n" <<
 		"\t--rel DOCID\n" <<
 		"\t--multidb\n" <<
-		"\t--showmset\n" <<
+		"\t--showmset (default)\n" <<
+		"\t--hidemset\n" <<
 		"\t--matchall\n";
 	exit(1);
     }
