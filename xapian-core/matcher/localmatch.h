@@ -108,7 +108,7 @@ class LocalSubMatch : public SubMatch {
 	    rset = new_rset;
 
 	    if (opts.get_int("match_max_or_terms", 0) != 0)
-		throw OmInvalidArgumentError("The match_max_or_terms parameter is deprecated: use the OP_ELITE_SET query type instead.");
+		throw OmInvalidArgumentError("The match_max_or_terms parameter is no longer supported: use the OP_ELITE_SET query type instead.");
 
 	    statssource->take_my_stats(db->get_doccount(), db->get_avlength());
 	}

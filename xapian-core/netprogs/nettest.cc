@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -130,7 +131,7 @@ static bool test_tcpclient1()
     paths.push_back("apitest_simpledata");
     OmDatabase db = backendmanager.get_database(paths);
 
-    std::string command = "./omtcpsrv --one-shot --quiet --quartz "
+    std::string command = "./omtcpsrv --one-shot --quiet "
 	                  ".quartz/db=apitest_simpledata "
 	                  "--port 1236 &";
     system(command.c_str());
@@ -151,7 +152,7 @@ static bool test_tcpmatch1()
     paths.push_back("apitest_simpledata");
     OmDatabase dbremote = backendmanager.get_database(paths);
 
-    std::string command = "./omtcpsrv --one-shot --quiet --quartz "
+    std::string command = "./omtcpsrv --one-shot --quiet "
 	                  ".quartz/db=apitest_simpledata"
 	                  " --port 1235 &";
     system(command.c_str());
@@ -194,7 +195,6 @@ static bool test_tcpdead1()
 	    "./omtcpsrv",
 	    "--one-shot",
 	    "--quiet",
-	    "--quartz",
 	    ".quartz/db=apitest_simpledata",
 	    "--port",
 	    "1237",
@@ -205,7 +205,7 @@ static bool test_tcpdead1()
 	// necessarily true)
 	execv(".libs/lt-omtcpsrv", args);
 	// execv only returns if it couldn't start omtcpsrv
-	exit(0);
+	exit(1);
     } else if (pid < 0) {
 	// fork() failed
 	FAIL_TEST("fork() failed");

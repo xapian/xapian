@@ -58,51 +58,7 @@ int main(int argc, char *argv[]) {
     argc--;
 
     while (argc && argv[0][0] == '-') {
-	if (argc >= 2 && strcmp(argv[0], "--da-flimsy") == 0) {
-	    OmSettings *params = new OmSettings();
-	    std::string path = argv[1];
-	    params->set("backend", "da");
-	    params->set("m36_heavyduty", false);	    
-	    params->set("m36_record_file", path + "/R");
-	    params->set("m36_term_file", path + "/T");
-	    params->set("m36_key_file", path + "/keyfile");
-	    dbs.push_back(params);
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--da-heavy") == 0) {
-	    OmSettings *params = new OmSettings();
-	    std::string path = argv[1];
-	    params->set("backend", "da");
-	    params->set("m36_heavyduty", true);
-	    params->set("m36_record_file", path + "/R");
-	    params->set("m36_term_file", path + "/T");
-	    params->set("m36_key_file", path + "/keyfile");
-	    dbs.push_back(params);
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--db") == 0) {
-	    OmSettings *params = new OmSettings();
-	    std::string path = argv[1];
-	    params->set("backend", "db");
-	    params->set("m36_db_file", path + "/DB");
-	    params->set("m36_key_file", path + "/keyfile");
-	    dbs.push_back(params);
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 1 && strcmp(argv[0], "--im") == 0) {
-	    OmSettings *params = new OmSettings();
-	    params->set("backend", "inmemory");
-	    dbs.push_back(params);
-	    argc -= 1;
-	    argv += 1;
-	} else if (argc >= 2 && strcmp(argv[0], "--quartz") == 0) {
-	    OmSettings *params = new OmSettings();
-	    params->set("backend", "quartz");
-	    params->set("quartz_dir", argv[1]);
-	    dbs.push_back(params);
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--port") == 0) {
+	if (argc >= 2 && strcmp(argv[0], "--port") == 0) {
 	    port = atoi(argv[1]);
 	    argc -= 2;
 	    argv += 2;
@@ -139,22 +95,24 @@ int main(int argc, char *argv[]) {
 	}
     }
 
-    if (syntax_error || argc > 0 || !dbs.size()) {
-	cerr << "Syntax: " << progname << " [OPTIONS]" << endl <<
-		"\t--[da-flimsy|da-heavy|db|quartz] DIRECTORY\n" <<
-		"\t--im INMEMORY\n" <<
-		"\t--port NUM" <<
-		"\t--idle-timeout MSECS" <<
-		"\t--active-timeout MSECS" <<
-		"\t--timeout MSECS" <<
-		"\t--one-shot" <<
-		"\t--quiet" << endl;
+    if (syntax_error || argc == 0) {
+	cerr << "Syntax: " << progname << " [OPTIONS]\n"
+		"\t--port NUM\n"
+		"\t--idle-timeout MSECS\n"
+		"\t--active-timeout MSECS\n"
+		"\t--timeout MSECS\n"
+		"\t--one-shot\n"
+		"\t--quiet\n"
+	        "DATABASE_DIRECTORY..." << endl;
 	exit(1);
     }
-
-    if (port <= 0 || port >= 65536) {
-	cerr << "Error: must specify a valid port." << endl;
-	exit(1);
+  
+    while (*argv) {
+	OmSettings *params = new OmSettings();
+	params->set("backend", "auto");
+	params->set("auto_dir", argv[1]);
+	dbs.push_back(params);
+	++argv;
     }
 
     if (verbose) cout << "Opening server on port " << port << "..." << endl;

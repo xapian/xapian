@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -65,7 +66,7 @@ SocketServer::SocketServer(OmDatabase db_, int readfd_, int writefd_,
 #ifdef TIMING_PATCH
 	  timing(timing_),
 #endif /* TIMING_PATCH */
-	  buf(new OmSocketLineBuf(readfd, writefd, "socketserver(" + db.get_description() + ")")),
+	  buf(new OmSocketLineBuf(readfd, writefd, "socketserver(" + db.get_description() + ')')),
 	  conversation_state(conv_ready),
 	  gatherer(0),
 	  have_global_stats(0)
@@ -76,17 +77,17 @@ SocketServer::SocketServer(OmDatabase db_, int readfd_, int writefd_,
 	throw OmNetworkError("Couldn't install SIGPIPE handler", errno);
     }
     writeline("OM "STRINGIZE(OM_SOCKET_PROTOCOL_VERSION)" " +
-		   om_tostring(db.get_doccount()) + " " +
-		   om_tostring(db.get_avlength()));
+	      om_tostring(db.get_doccount()) + ' ' +
+	      om_tostring(db.get_avlength()));
 }
 
 SocketServer::SocketServer(OmDatabase db_, AutoPtr<OmLineBuf> buf_,
-			   int msecs_active_timeout_,
-#ifndef TIMING_PATCH
-			   int msecs_idle_timeout_)
-#else /* TIMING_PATCH */
-			   int msecs_idle_timeout_, bool timing_)
+			   int msecs_active_timeout_, int msecs_idle_timeout_
+#ifdef TIMING_PATCH
+			   bool timing_
+			   
 #endif /* TIMING_PATCH */
+			   )
 	: db(db_), readfd(-1), writefd(-1),
 	  msecs_active_timeout(msecs_active_timeout_),
 	  msecs_idle_timeout(msecs_idle_timeout_),
@@ -107,7 +108,7 @@ SocketServer::~SocketServer()
 void
 SocketServer::send_local_stats(Stats stats)
 {
-    writeline("L" + stats_to_string(stats));
+    writeline('L' + stats_to_string(stats));
 }
 
 Stats
@@ -137,11 +138,11 @@ SocketServer::run()
 	    returnval = gettimeofday(&stp, NULL);
 #endif /* TIMING_PATCH */
 	    message = readline(msecs_idle_timeout);
-#ifndef TIMING_PATCH
-
-#else /* TIMING_PATCH */
+	    
+#ifdef TIMING_PATCH
 	    returnval = gettimeofday(&etp, NULL);
-	    time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
+	    time = ((1000000 * etp.tv_sec) + etp.tv_usec)
+	       	- ((1000000 * stp.tv_sec) + stp.tv_usec);
 	    totalidle += time;
 #endif /* TIMING_PATCH */
 	    switch (message.empty() ? '\0' : message[0]) {
@@ -152,57 +153,69 @@ SocketServer::run()
 		case 'K': run_keepalive(message.substr(1)); break;
 #else /* TIMING_PATCH */
 		case 'Q': {
-			      returnval = gettimeofday(&stp, NULL);
-			      run_match(message.substr(1));
-			      returnval = gettimeofday(&etp, NULL);
-			      time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
-			      total += time;
-			      if (timing) cout << "Match time = " << time << " usecs. (socketserver.cc)\n";
-			  }
-			  break;
+		    returnval = gettimeofday(&stp, NULL);
+		    run_match(message.substr(1));
+		    returnval = gettimeofday(&etp, NULL);
+		    time = ((1000000 * etp.tv_sec) + etp.tv_usec)
+		       	- ((1000000 * stp.tv_sec) + stp.tv_usec);
+		    total += time;
+		    if (timing) cout << "Match time = " << time
+			<< " usecs. (socketserver.cc)\n";
+		    break;
+		}
 		case 'T': {
-			      returnval = gettimeofday(&stp, NULL);
-			      run_gettermlist(message.substr(1));
-			      returnval = gettimeofday(&etp, NULL);
-			      time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
-			      total += time;
-			      if (timing) cout << "Get Term List time = " << time << " usecs. (socketserver.cc)\n";
-			  }
-			  break;
+		    returnval = gettimeofday(&stp, NULL);
+		    run_gettermlist(message.substr(1));
+		    returnval = gettimeofday(&etp, NULL);
+		    time = ((1000000 * etp.tv_sec) + etp.tv_usec)
+		       	- ((1000000 * stp.tv_sec) + stp.tv_usec);
+		    total += time;
+		    if (timing) cout << "Get Term List time = " << time
+		       	<< " usecs. (socketserver.cc)\n";
+		    break;
+		}
 		case 'D': {
-			      returnval = gettimeofday(&stp, NULL);
-			      run_getdocument(message.substr(1));
-			      gettimeofday(&etp, NULL);
-			      time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
-			      total += time;
-			      if (timing) cout << "Get Doc time = " << time << " usecs. (socketserver.cc)\n";
-			  }
-			  break;
+		    returnval = gettimeofday(&stp, NULL);
+		    run_getdocument(message.substr(1));
+		    gettimeofday(&etp, NULL);
+		    time = ((1000000 * etp.tv_sec) + etp.tv_usec)
+		       	- ((1000000 * stp.tv_sec) + stp.tv_usec);
+		    total += time;
+		    if (timing) cout << "Get Doc time = " << time
+		       	<< " usecs. (socketserver.cc)\n";
+		    break;
+		}
 		case 'K': {
-			      returnval = gettimeofday(&stp, NULL);
-			      run_keepalive(message.substr(1));
-			      gettimeofday(&etp, NULL);
-			      time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
-			      total += time;
-			      if (timing) cout << "Keep-alive time = " << time << " usecs. (socketserver.cc)\n";
-			  }
-			  break;
+		    returnval = gettimeofday(&stp, NULL);
+		    run_keepalive(message.substr(1));
+		    gettimeofday(&etp, NULL);
+		    time = ((1000000 * etp.tv_sec) + etp.tv_usec)
+		       	- ((1000000 * stp.tv_sec) + stp.tv_usec);
+		    total += time;
+		    if (timing) cout << "Keep-alive time = " << time
+		       	<< " usecs. (socketserver.cc)\n";
+		    break;
+		}
 #endif /* TIMING_PATCH */
-		case 'm': break; // ignore min weight message left over from postlist
-		case 'S': break; // ignore skip_to message left over from postlist
+		case 'm': // ignore min weight message left over from postlist
+		    break;
+		case 'S': // ignore skip_to message left over from postlist
+		    break;
 		default:
-			  throw OmInvalidArgumentError(std::string("Unexpected message:") +
+		    throw OmInvalidArgumentError(std::string("Unexpected message:") +
 						       message);
 	    }
 	} catch (const SocketServerFinished &) {
-		// received close message, just return.
+	    // received close message, just return.
 #ifdef TIMING_PATCH
-		if (timing) {
-		    cout << "Total working time = " << total << " usecs. (socketserver.cc)\n";
-		    cout << "Total waiting time = " << totalidle << " usecs. (socketserver.cc)\n";
-		}
+	    if (timing) {
+		cout << "Total working time = " << total
+		    << " usecs. (socketserver.cc)\n";
+		cout << "Total waiting time = " << totalidlei
+		    << " usecs. (socketserver.cc)\n";
+	    }
 #endif
-		return;
+	    return;
 	} catch (const OmNetworkError &e) {
 	    // _Don't_ send network errors over, since they're likely
 	    // to have been caused by an error talking to the other end.
@@ -211,7 +224,7 @@ SocketServer::run()
 	    throw;
 	} catch (const OmError &e) {
 	    /* Pass the error across the link, and continue. */
-	    writeline(std::string("E") + omerror_to_string(e));
+	    writeline(std::string('E') + omerror_to_string(e));
 	} catch (...) {
 	    /* Do what we can reporting the error, and then propagate
 	     * the exception.
@@ -253,7 +266,7 @@ SocketServer::run_match(const std::string &firstmessage)
     // Message 5, part 1
     message = readline(msecs_active_timeout);
 
-    if (!startswith(message, "G")) {
+    if (!message.empty() && message[0] == 'G') {
 	throw OmNetworkError(std::string("Expected 'G', got ") + message);
     }
 
@@ -263,7 +276,7 @@ SocketServer::run_match(const std::string &firstmessage)
     // Message 5, part 2
     message = readline(msecs_active_timeout);
 
-    if (message.substr(0, 1) != "M") {
+    if (message.empty() || message[0] != 'M') {
 	throw OmNetworkError(std::string("Expected 'M', got ") + message);
     }
 
@@ -291,7 +304,7 @@ SocketServer::run_match(const std::string &firstmessage)
 
     DEBUGLINE(UNKNOWN, "done get_mset...");
 
-    writeline("O" + ommset_to_string(mset));
+    writeline('O' + ommset_to_string(mset));
 
     DEBUGLINE(UNKNOWN, "sent mset...");
 }
@@ -329,13 +342,16 @@ SocketServer::run_gettermlist(const std::string &firstmessage)
     OmTermIterator tlend = db.termlist_end(did);
 
     while (tl != tlend) {
-	std::string item = om_tostring(tl.get_wdf())
-	    + " " + om_tostring(tl.get_termfreq()) + " " + encode_tname(*tl);
+	std::string item = om_tostring(tl.get_wdf());
+        item += ' ';
+        item += om_tostring(tl.get_termfreq());
+        item += ' ';
+	item += encode_tname(*tl);
 	writeline(item);
 	tl++;
     }
 
-    writeline("Z");
+    writeline('Z');
 }
 
 void
@@ -347,19 +363,20 @@ SocketServer::run_getdocument(const std::string &firstmessage)
 
     AutoPtr<Document> doc(OmDatabase::InternalInterface::get(db)->open_document(did));
 
-    writeline("O" + encode_tname(doc->get_data().value));
+    writeline('O' + encode_tname(doc->get_data().value));
 
     std::map<om_keyno, OmKey> keys = doc->get_all_keys();
 
     std::map<om_keyno, OmKey>::const_iterator i = keys.begin();
     while (i != keys.end()) {
-	std::string item = om_tostring(i->first) + " "
-	    + omkey_to_string(i->second);
+	std::string item = om_tostring(i->first);
+	item += ' ';
+	item += omkey_to_string(i->second);
 	writeline(item);
 	++i;
     }
 
-    writeline("Z");
+    writeline('Z');
 }
 
 void

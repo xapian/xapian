@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -61,17 +62,17 @@ std::string stats_to_string(const Stats &stats)
 #if 0
     ostrstream os;
 
-    os << stats.collection_size << " ";
-    os << stats.average_length << " ";
+    os << stats.collection_size << ' ';
+    os << stats.average_length << ' ';
 
     std::map<om_termname, om_doccount>::const_iterator i;
 
     for (i=stats.termfreq.begin(); i != stats.termfreq.end(); ++i) {
-	os << "T" << encode_tname(i->first) << " " << i->second << " ";
+	os << 'T' << encode_tname(i->first) << ' ' << i->second << ' ';
     }
 
     for (i = stats.reltermfreq.begin(); i != stats.reltermfreq.end(); ++i) {
-	os << "R" << encode_tname(i->first) << " " << i->second << " ";
+	os << 'R' << encode_tname(i->first) << ' ' << i->second << ' ';
     }
 
     // FIXME: should be eos.
@@ -84,26 +85,28 @@ std::string stats_to_string(const Stats &stats)
     std::string result;
 
     result += om_tostring(stats.collection_size);
-    result += " ";
+    result += ' ';
     result += om_tostring(stats.rset_size);
-    result += " ";
+    result += ' ';
     result += om_tostring(stats.average_length);
-    result += " ";
+    result += ' ';
 
     std::map<om_termname, om_doccount>::const_iterator i;
 
-    for (i=stats.termfreq.begin();
-	 i != stats.termfreq.end();
-	 ++i) {
-	result = result + "T" + encode_tname(i->first) +
-		" " + om_tostring(i->second) + " ";
+    for (i = stats.termfreq.begin(); i != stats.termfreq.end(); ++i) {
+	result += 'T';
+	result += encode_tname(i->first);
+	result += ' ';
+	result += om_tostring(i->second);
+	result += ' ';
     }
 
-    for (i=stats.reltermfreq.begin();
-	 i != stats.reltermfreq.end();
-	 ++i) {
-	result = result + "R" + encode_tname(i->first) +
-		" " + om_tostring(i->second) + " ";
+    for (i = stats.reltermfreq.begin(); i != stats.reltermfreq.end(); ++i) {
+	result += 'R';
+	result += encode_tname(i->first);
+	result += ' ';
+	result += om_tostring(i->second);
+	result += ' ';
     }
 
     return result;
@@ -122,7 +125,7 @@ string_to_stats(const std::string &s)
 
     std::string word;
     while (is >> word) {
-	if (word.length() == 0) continue;
+	if (word.empty()) continue;
 
 	if (word[0] == 'T') {
 	    is >> stat.termfreq[decode_tname(word.substr(1))];
@@ -172,7 +175,7 @@ OmQuery::Internal qfs_readquery()
 	    Assert(false);
     }
     throw OmInvalidArgumentError("Invalid query string: type was `" +
-				 om_tostring(qt.type) + "'");
+				 om_tostring(qt.type) + '\'');
 }
 
 static OmQuery::Internal
@@ -391,7 +394,7 @@ void
 OmSocketLineBuf::attempt_to_read(const OmTime & end_time)
 {
     DEBUGCALL(UNKNOWN, std::string, "OmSocketLineBuf::attempt_to_read",
-	      end_time.sec << ":" << end_time.usec);
+	      end_time.sec << ':' << end_time.usec);
     fd_set fdset;
     FD_ZERO(&fdset);
     FD_SET(readfd, &fdset);
@@ -415,7 +418,7 @@ OmSocketLineBuf::attempt_to_read(const OmTime & end_time)
 	    return;
 	} else {
 	    throw OmNetworkError(std::string("select failed (") +
-				 strerror(errno) + ")",
+				 strerror(errno) + ')',
 				 errcontext, errno);
 	}
     } else if (retval == 0) {
@@ -497,7 +500,7 @@ void
 OmSocketLineBuf::do_writeline(std::string s, const OmTime & end_time)
 {
     DEBUGCALL(UNKNOWN, void, "OmSocketLineBuf::do_writeline", s);
-    if (s.length() == 0 || s[s.length()-1] != '\n') {
+    if (s.empty() || s[s.length() - 1] != '\n') {
 	s += '\n';
     }
     while (s.length() > 0) {
@@ -549,11 +552,14 @@ moptions_to_string(const OmSettings &moptions)
 {
     std::string result;
 
-    result += om_tostring(moptions.get_int("match_collapse_key", -1)) + " ";
-    result += om_tostring((int)moptions.get_bool("match_sort_forward", true)) + " ";
-    result += om_tostring(moptions.get_int("match_percent_cutoff", 0)) + " ";
-    result += om_tostring(moptions.get_real("match_cutoff", 0)) + " ";
-    result += om_tostring(moptions.get_int("match_max_or_terms", 0));
+    result += om_tostring(moptions.get_int("match_collapse_key", -1));
+    result += ' ';
+    result += om_tostring((int)moptions.get_bool("match_sort_forward", true));
+    result += ' ';
+    result += om_tostring(moptions.get_int("match_percent_cutoff", 0));
+    result += ' ';
+    result += om_tostring(moptions.get_real("match_cutoff", 0));
+    result += ' ';
     result += moptions.get("match_weighting_scheme", "bm25");
 
     return result;
@@ -566,7 +572,7 @@ string_to_moptions(const std::string &s)
 
     OmSettings mopt;
     bool sort_forward;
-    int collapse_key, percent_cutoff, max_or_terms;
+    int collapse_key, percent_cutoff;
     om_weight cutoff;
     std::string weighting_scheme;
 
@@ -574,14 +580,12 @@ string_to_moptions(const std::string &s)
        >> sort_forward
        >> percent_cutoff
        >> cutoff
-       >> max_or_terms
        >> weighting_scheme;
 
     mopt.set("match_collapse_key", collapse_key);
     mopt.set("match_sort_forward", sort_forward);
     mopt.set("match_percent_cutoff", percent_cutoff);
     mopt.set("match_cutoff", cutoff);
-    mopt.set("match_max_or_terms", max_or_terms);
     mopt.set("match_weighting_scheme", weighting_scheme);
     
     Assert(s == moptions_to_string(mopt));
@@ -817,14 +821,4 @@ string_to_omrset(const std::string &s)
     }
 
     return omrset;
-}
-
-bool startswith(const std::string &s, const std::string &prefix)
-{
-    for (std::string::size_type i=0; i<prefix.length(); ++i) {
-	if ((i > s.length()) || (s[i] != prefix[i])) {
-	    return false;
-	}
-    }
-    return true;
 }

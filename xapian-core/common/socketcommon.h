@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,7 +34,7 @@
 #include "om/omquery.h"
 #include "omtime.h"
 
-#define OM_SOCKET_PROTOCOL_VERSION 13
+#define OM_SOCKET_PROTOCOL_VERSION 14
 
 class OmQuery::Internal;
 class Stats;
@@ -79,7 +80,8 @@ class OmSocketLineBuf : public OmLineBuf {
 	/** The main constructor.  The arguments are the
 	 *  input and output filedescriptors to use.
 	 */
-	OmSocketLineBuf(int readfd_, int writefd_, const std::string & errcontext_);
+	OmSocketLineBuf(int readfd_, int writefd_,
+	       		const std::string & errcontext_);
 
 	/** A convenience constructor which takes only one
 	 *  fd, which can be both read from and written to.
@@ -160,7 +162,7 @@ OmMSet string_to_ommset(const std::string &s);
  *  @param terminfo		The terminfo map to serialise.
  */
 std::string ommset_termfreqwts_to_string(const std::map<om_termname,
-					 OmMSet::Internal::Data::TermFreqAndWeight> &terminfo);
+	OmMSet::Internal::Data::TermFreqAndWeight> &terminfo);
 
 /** Convert a serialised terminfo string back into a map.
  *

@@ -1,28 +1,14 @@
+Sun Dec 16 17:31:08 GMT 2001  Olly Betts <olly@survex.com>
+
+	* omtcpsrv: simplified arguments - just list database directories and
+	  they'll be opened with the auto backend.  Removed --im as it didn't
+	  work as advertised and nobody's noticed (as actually implemented it
+	  was useless).
+
 Sat Dec 15 14:10:32 GMT 2001  Olly Betts <olly@survex.com>
 
-	* 
+	* Minor update to todo.xml. 
 
-
-? ChangeLog.17659.new
-? check.log
-? diffs.diff
-? make
-? matchfunctorpostlist.patch
-? probably-unwanted-omquerynull.patch
-Index: docs/todo.xml
-===================================================================
-RCS file: /cvsroot/xapian/om/docs/todo.xml,v
-retrieving revision 1.86
-diff -r1.86 todo.xml
-361,362c361,365
-< functor is present: perhaps this should be matches_considered, but then again
-< perhaps not.
----
-> functor is present.  This has to be the number of documents that the decision
-> functor tested and approved, as we know there are at least that many and
-> can't know if there are more.  matches_upper_bound can be reduced by the
-> number of documents that the functor rejected, and matches_estimated
-> can be adjusted somehow - perhaps look at the reject rate of the functor?
 Sat Dec 15 13:43:47 GMT 2001  Olly Betts <olly@survex.com>
 
 	* More fettling of OmBiasFunctor stuff - still not ready for use yet...

@@ -448,7 +448,7 @@ BackendManager::getdb_network(const std::vector<std::string> &dbnames)
 	    }
 	    args += " -t" + *i;
 	} else {
-	    args += " ";
+	    args += ' ';
 	    args += *i;
 	}
     }

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,8 +39,8 @@
 #include "backendmanager.h"
 
 int main(int argc, char *argv[]) {
-    std::string message;
 #if 0
+    std::string message;
     getline(cin, message);
     cerr << "omnetclient: read " << message << endl;
     cout << "BOO!" << endl;
@@ -87,7 +88,7 @@ int main(int argc, char *argv[]) {
 	cerr << "OmError exception (" << typeid(e).name()
 	     << "): " << e.get_msg() << endl;
 	 */
-	cout << "E" << omerror_to_string(e) << endl;
+	cout << 'E' << omerror_to_string(e) << endl;
     } catch (...) {
 	/*
 	cerr << "Caught exception" << endl;

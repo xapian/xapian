@@ -65,14 +65,17 @@ The arguments omtcpsrv currently knows are:
     --one-shot
         Handle one connection, and then exit.  If --one-shot is not used,
 	then the server runs until it is killed manually.
+    --idle-timeout MSECS
+	Set the timeout on a idle connection.
+    --active-timeout MSECS
+	Set the timeout waiting for responses when the connection is active.
+    --timeout MSECS
+	Set the idle and active timeouts to the same value.
+    --quiet
+	Minimal output.
 
-Options for specifying the database(s):
-    --da-flimsy <dir>, --da-heavy <dir>, --db <dir>
-        Add a da/db database to the database group served by this server.
-    --im <filename>
-        Add an inmemory (text file) database to the group.
-    --quartz <dir>
-        Add a quartz database to the group.
+One or more databases need to be specified by listing their directories - they
+are opened using the "auto" pseudo-backend.
 
 Once started, the server will run and listen for connections on the
 configured port, currently handling them one by one (although this will
