@@ -9,7 +9,8 @@
 
 //
 // Usage:  cvssearch package (# results) query_word1 query_word2 ... 
-//               cvssearch -f package.list (# results) query_word1 query_word2 ...
+//
+//               cvssearch (# results) query_word1 query_word2 ... takes list of packages from stdin
 //
 // Example:  cvssearch kdeutils_kfind 10 ftp nfs
 //
@@ -38,18 +39,15 @@ int main(int argc, char *argv[]) {
      int npos;
 
      // get packages from cmd line or from file
-     if ( strcmp( argv[1], "-f" ) == 0 ) {
+     if ( isdigit(argv[1][0] )) {
        // get packages from file
-       ifstream in( argv[2] );
-       assert (in);
        string p;
-       while (!in.eof()) {
-	 in >> p;
+       while (!cin.eof()) {
+	 cin >> p;
 	 packages.insert(p);
        }
-       in.close();
-       npos = 3;
-       qpos = 4;
+       npos = 1;
+       qpos = 2;
      } else {
        // get package from cmd line
        packages.insert( argv[1] );
