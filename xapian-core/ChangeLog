@@ -1,3 +1,7 @@
+Thu Apr 01 00:39:59 BST 2004  Olly Betts <olly@survex.com>
+
+	* docs/todo.xml: Updated.
+
 Fri Mar 26 22:33:30 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc: Fix problems with termfreq and
