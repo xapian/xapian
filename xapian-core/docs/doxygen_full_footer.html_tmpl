@@ -1,0 +1,8 @@
+<hr>
+<address><small>
+Documentation for OpenMuscat (version $projectnumber).<br>
+Generated on $date by
+<a href="http://www.stack.nl/~dimitri/doxygen/index.html">Doxygen $doxygenversion</a>.
+</small></address>
+</body>
+</html>

@@ -15,7 +15,9 @@ EXTRA_DIST = mkdoc.pl.in doxygen_api_conf.in doxygen_full_conf.in \
         MatcherDesign Notes stemming.txt \
 	docxx.sty \
 	doxygen_api_header.html_tmpl \
-	doxygen_api_footer.html_tmpl
+	doxygen_api_footer.html_tmpl \
+	doxygen_full_header.html_tmpl \
+	doxygen_full_footer.html_tmpl
 
 # Things to do if have perl installed
 if HAVE_PERL
@@ -211,7 +213,9 @@ apidoc/html/index.html: doxygen_api_conf \
 	@depends="$(APIDOC_SRC)"; destfile=".deps-apidoc-html"; $(GENDEPS)
 	@top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN_PATH) doxygen_api_conf
 
-sourcedoc/html/index.html: doxygen_full_conf
+sourcedoc/html/index.html: doxygen_full_conf \
+                        $(srcdir)/doxygen_full_header.html_tmpl \
+			$(srcdir)/doxygen_full_footer.html_tmpl
 	@echo "Generating full source documentation with doxygen"
 	@depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-html"; $(GENDEPS)
 	@top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN_PATH) doxygen_full_conf
