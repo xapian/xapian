@@ -71,7 +71,7 @@ libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C
 
 libcvs_lines_a_SOURCES = util.C util.h lines.h lines.C lines_cmt.C lines_cmt.h lines_db.C lines_db.h
 
-bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsminesearch cvscommitindex cvscommitsearch
+bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsminesearch cvscommitindex cvscommitsearch cvsrelatedindex cvsrelatedsearch
 
 LIBS = $(noinst_LIBRARIES) -lomseek -ldb_cxx
 @DYNAMIC_TRUE@FLAGS = 
@@ -104,6 +104,14 @@ cvscommitsearch_LDADD = $(LIBS)
 cvscommitindex_SOURCES = cvscommitindex.C
 cvscommitindex_LDADD = $(LIBS)
 cvscommitindex_LDFLAGS = $(FLAGS)
+
+cvsrelatedsearch_SOURCES = cvsrelatedsearch.C
+cvsrelatedsearch_LDFLAGS = $(FLAGS)
+cvsrelatedsearch_LDADD = $(LIBS)
+
+cvsrelatedindex_SOURCES = cvsrelatedindex.C
+cvsrelatedindex_LDADD = $(LIBS)
+cvsrelatedindex_LDFLAGS = $(FLAGS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
 LIBRARIES =  $(noinst_LIBRARIES)
@@ -135,6 +143,10 @@ cvscommitindex_OBJECTS =  cvscommitindex.o
 cvscommitindex_DEPENDENCIES =  libcvs_db.a libcvs_lines.a
 cvscommitsearch_OBJECTS =  cvscommitsearch.o
 cvscommitsearch_DEPENDENCIES =  libcvs_db.a libcvs_lines.a
+cvsrelatedindex_OBJECTS =  cvsrelatedindex.o
+cvsrelatedindex_DEPENDENCIES =  libcvs_db.a libcvs_lines.a
+cvsrelatedsearch_OBJECTS =  cvsrelatedsearch.o
+cvsrelatedsearch_DEPENDENCIES =  libcvs_db.a libcvs_lines.a
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
@@ -155,10 +167,10 @@ DEP_FILES =  .deps/cvs_comment_db.P .deps/cvs_comment_id2_db.P \
 .deps/cvs_filename_db.P .deps/cvs_line_db.P .deps/cvs_revision_db.P \
 .deps/cvscommitindex.P .deps/cvscommitsearch.P .deps/cvsindex.P \
 .deps/cvsmineindex.P .deps/cvsminesearch.P .deps/cvsquery.P \
-.deps/cvssearch.P .deps/lines.P .deps/lines_cmt.P .deps/lines_db.P \
-.deps/util.P
-SOURCES = $(libcvs_db_a_SOURCES) $(libcvs_lines_a_SOURCES) $(cvsindex_SOURCES) $(cvssearch_SOURCES) $(cvsquery_SOURCES) $(cvsmineindex_SOURCES) $(cvsminesearch_SOURCES) $(cvscommitindex_SOURCES) $(cvscommitsearch_SOURCES)
-OBJECTS = $(libcvs_db_a_OBJECTS) $(libcvs_lines_a_OBJECTS) $(cvsindex_OBJECTS) $(cvssearch_OBJECTS) $(cvsquery_OBJECTS) $(cvsmineindex_OBJECTS) $(cvsminesearch_OBJECTS) $(cvscommitindex_OBJECTS) $(cvscommitsearch_OBJECTS)
+.deps/cvsrelatedindex.P .deps/cvsrelatedsearch.P .deps/cvssearch.P \
+.deps/lines.P .deps/lines_cmt.P .deps/lines_db.P .deps/util.P
+SOURCES = $(libcvs_db_a_SOURCES) $(libcvs_lines_a_SOURCES) $(cvsindex_SOURCES) $(cvssearch_SOURCES) $(cvsquery_SOURCES) $(cvsmineindex_SOURCES) $(cvsminesearch_SOURCES) $(cvscommitindex_SOURCES) $(cvscommitsearch_SOURCES) $(cvsrelatedindex_SOURCES) $(cvsrelatedsearch_SOURCES)
+OBJECTS = $(libcvs_db_a_OBJECTS) $(libcvs_lines_a_OBJECTS) $(cvsindex_OBJECTS) $(cvssearch_OBJECTS) $(cvsquery_OBJECTS) $(cvsmineindex_OBJECTS) $(cvsminesearch_OBJECTS) $(cvscommitindex_OBJECTS) $(cvscommitsearch_OBJECTS) $(cvsrelatedindex_OBJECTS) $(cvsrelatedsearch_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -258,6 +270,14 @@ cvscommitindex: $(cvscommitindex_OBJECTS) $(cvscommitindex_DEPENDENCIES)
 cvscommitsearch: $(cvscommitsearch_OBJECTS) $(cvscommitsearch_DEPENDENCIES)
 	@rm -f cvscommitsearch
 	$(CXXLINK) $(cvscommitsearch_LDFLAGS) $(cvscommitsearch_OBJECTS) $(cvscommitsearch_LDADD) $(LIBS)
+
+cvsrelatedindex: $(cvsrelatedindex_OBJECTS) $(cvsrelatedindex_DEPENDENCIES)
+	@rm -f cvsrelatedindex
+	$(CXXLINK) $(cvsrelatedindex_LDFLAGS) $(cvsrelatedindex_OBJECTS) $(cvsrelatedindex_LDADD) $(LIBS)
+
+cvsrelatedsearch: $(cvsrelatedsearch_OBJECTS) $(cvsrelatedsearch_DEPENDENCIES)
+	@rm -f cvsrelatedsearch
+	$(CXXLINK) $(cvsrelatedsearch_LDFLAGS) $(cvsrelatedsearch_OBJECTS) $(cvsrelatedsearch_LDADD) $(LIBS)
 .C.o:
 	$(CXXCOMPILE) -c $<
 
