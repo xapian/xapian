@@ -13,10 +13,16 @@ int main(int argc, char *argv[]) {
        
         StemEn stemmer;
 
+        if (argc >= 3 && strcmp(argv[1], "--msize") == 0) {
+	    match.set_max_msize(atoi(argv[2]));
+	    argc -= 2;
+	    memmove(argv + 1, argv + 3, argc);
+	}
+
         if (argc < 2) {
 	    cout << "Syntax: " << argv[0] << " TERM ..." << endl;
 	    exit(1);
-	}
+	}        
        
         for (char **p = argv + 1; *p; p++) {
 	    string term = *p;

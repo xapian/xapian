@@ -20,8 +20,6 @@ Match::add_pterm(const string& termname)
     return true;
 }
 
-#define MSIZE 1000
-
 typedef struct {
     weight w;
     docid id;
@@ -49,9 +47,9 @@ Match::match(void)
         merger = tmp;
     }
 
-    docid msize = 0, mtotal = 0;
+    doccount msize = 0, mtotal = 0;
     weight min = 0;
-    msetitem mset[MSIZE];
+    msetitem *mset = new msetitem[max_msize];
 
     // FIXME: this method of building the M-set isn't very efficient
     // - want to avoid all those memmove-s
@@ -66,20 +64,20 @@ Match::match(void)
 	    }
 
 	    if (i == msize) {
-	        if (msize < MSIZE) {
+	        if (msize < max_msize) {
 		    mset[msize].id = id;
 		    mset[msize].w = w;
 	            msize++;
 		}
 	    } else {
 	        int len;
-	        if (msize < MSIZE) msize++;
+	        if (msize < max_msize) msize++;
 	        len = msize - i - 1;
 	        memmove(mset + i + 1, mset + i, len * sizeof(msetitem));
 	        mset[i].id = id;
 	        mset[i].w = w;	        
 	    }
-	    if (msize == MSIZE) min = mset[MSIZE - 1].w;
+	    if (msize == max_msize) min = mset[max_msize - 1].w;
 	}
         mtotal++;
         merger->next();

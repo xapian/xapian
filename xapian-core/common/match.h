@@ -15,7 +15,7 @@ class Match {
         IRDatabase *DB;
    
         PostList *merger;
-//        const int msize = 1000;
+        doccount max_msize;
 
         // FIXME: try using a heap instead (C++ sect 18.8)
         priority_queue<PostList*, vector<PostList*>, PLPCmp> pq;
@@ -24,4 +24,5 @@ class Match {
         Match(IRDatabase *);
         bool add_pterm(const string&);
         void match(void);
+        void set_max_msize(doccount n) { max_msize = n; }
 };
