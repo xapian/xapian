@@ -246,9 +246,9 @@ extern const char * swedish_stem(void * z_, const char * q, int i0, int i1)
         int j; for (j = 0; j <= z->k; j++)
         {
             switch (p[j])
-            {   case 'A': p[j] = 0xE4; break; /* a^u */
-                case 'B': p[j] = 0xE5; break; /* a^o */
-                case 'O': p[j] = 0xF6; break; /* o^u */
+            {   case 'A': p[j] = '\xE4'; break; /* a^u */
+                case 'B': p[j] = '\xE5'; break; /* a^o */
+                case 'O': p[j] = '\xF6'; break; /* o^u */
             }
         }
     }

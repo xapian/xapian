@@ -1,3 +1,7 @@
+Thu Sep 14 17:20:41 BST 2000 Olly Betts
+
+	* Fixed some compiler warnings in stemmer code.
+
 Thu Sep 14 17:09:53 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Rename QuartzDbBlocks to QuartzDbEntries and finish specifying the

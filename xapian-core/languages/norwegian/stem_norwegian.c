@@ -247,9 +247,9 @@ extern const char * norwegian_stem(void * z_, const char * q, int i0, int i1)
         int j; for (j = 0; j <= z->k; j++)
         {
             switch (p[j])
-            {   case 'A': p[j] = 0xE6; break; /* ae lig */
-                case 'B': p[j] = 0xE5; break; /* a^o */
-                case 'O': p[j] = 0xF8; break; /* o^z */
+            {   case 'A': p[j] = '\xE6'; break; /* ae lig */
+                case 'B': p[j] = '\xE5'; break; /* a^o */
+                case 'O': p[j] = '\xF8'; break; /* o^z */
             }
         }
     }
