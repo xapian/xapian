@@ -498,14 +498,35 @@ class OmDatabase {
  */
 class OmEnquire {
     private:
+	/// Internals, where most of the work is performed.
 	OmEnquireInternal *internal;
 
-	// disallow copies
+	/// Copies are not allowed.
 	OmEnquire(const OmEnquire &);
+
+	/// Assignment is not allowed.
 	void operator=(const OmEnquire &);
     public:
-        OmEnquire(const OmDatabase &db);
-        ~OmEnquire();
+	/** Create an OmEnquire object.
+	 *
+	 *  This specification cannot be changed once the OmEnquire is
+	 *  opened: you must create a new OmEnquire object to access a
+	 *  different database, or set of databases.
+	 *
+	 *  @param database Specification of the database or databases to
+	 *         use.
+	 */
+        OmEnquire(const OmDatabase &database);
+
+	/** Close the OmEnquire object.
+	 *
+	 *  This frees all resources associated with the OmEnquire object,
+	 *  such as handles on the databases used.  As a result, any object
+	 *  which refers to these databases, such as an OmDocument, will
+	 *  become invalid after the destruction of the object, and must
+	 *  not be used subsequently.
+	 */
+	~OmEnquire();
 
 	/** Set the query to run.
 	 *
@@ -670,13 +691,15 @@ class OmEnquire {
 
 ///////////////////////////////////////////////////////////////////
 // OmBatchEnquire class
-// ===============
+// ====================
+
 /** This class provides an interface to submit batches of queries.
- *  This will be no worse than using a plain OmEnquire object
- *  multiple times, and this is how it is currently implemented.
- *  In future it may be reimplemented such that significant performance
- *  advantages result from running multiple queries using this class
- *  rather than running them as individual queries using OmEnquire.
+ *
+ *  Using this class will be no more expensive than simply using an
+ *  OmEnquire object multiple times, and this is how it is currently
+ *  implemented.  In future it may be reimplemented such that significant
+ *  performance advantages result from running multiple queries using this
+ *  class rather than running them as individual queries using OmEnquire.
  *
  *  If you are producing a system which will run batches of queries
  *  together (such as a nightly alerting system), we recommend use
@@ -689,7 +712,6 @@ class OmEnquire {
  *  be opened (for example, a required file cannot be found).
  *  
  */
-
 class OmBatchEnquire {
     private:
 	class Internal;
