@@ -40,7 +40,6 @@ using std::streambuf;
 
 #include <string>
 #include <cstdio>
-#include <dlfcn.h>
 
 #include <stdlib.h>
 
