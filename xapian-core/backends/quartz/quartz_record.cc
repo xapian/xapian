@@ -60,42 +60,28 @@ QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
     QuartzDbTag * tag = table.get_or_make_tag(key);
 
     om_docid did;
-    const char * data = tag->value.data();
-    const char * end = data + tag->value.size();
-    bool success = unpack_uint(&data, end, &did);
-    if (!success) {
-	if (data == end) { // Overflow
-	    throw OmRangeError("Next document number is out of range.");
-	} else { // Number ran out
-	    throw OmDatabaseCorruptError("Record containing next free docid is corrupt.");
+    if (tag->value.size() == 0) {
+	did = 1u;
+    } else {
+	const char * data = tag->value.data();
+	const char * end = data + tag->value.size();
+	bool success = unpack_uint(&data, end, &did);
+	if (!success) {
+	    if (data == end) { // Overflow
+		throw OmRangeError("Next document number is out of range.");
+	    } else { // Number ran out
+		throw OmDatabaseCorruptError("Record containing next free docid is corrupt.");
+	    }
 	}
-    }
-    if (data != end) {
-	// Junk data at end of record
-	throw OmDatabaseCorruptError("Junk data at end of record containing next free docid.");
+	if (data != end) {
+	    // Junk data at end of record
+	    throw OmDatabaseCorruptError("Junk data at end of record containing next free docid.");
+	}
     }
 
     tag->value = pack_uint(did + 1);
 
     return did;
-}
-
-void
-QuartzRecordManager::initialise(QuartzDiskTable & table,
-				quartz_revision_number_t new_revision)
-{
-    QuartzDbKey key;
-    QuartzDbTag tag;
-
-    key.value = NEXTDOCID_TAG;
-    tag.value = pack_uint(1u);
-    table.set_entry(key, &tag);
-
-    key.value = TOTLEN_TAG;
-    tag.value = pack_uint(0u);
-    table.set_entry(key, &tag);
-
-    table.apply(new_revision);
 }
 
 om_docid
@@ -122,14 +108,22 @@ QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
     QuartzDbTag * tag = table.get_or_make_tag(key);
 
     quartz_totlen_t totlen;
-    const char * data = tag->value.data();
-    const char * end = data + tag->value.size();
-    bool success = unpack_uint(&data, end, &totlen);
-    if (!success) {
-	if (data == end) { // Overflow
-	    throw OmRangeError("Total document length is out of range.");
-	} else { // Number ran out
-	    throw OmDatabaseCorruptError("Record containing total document length is corrupt.");
+    if (tag->value.size() == 0) {
+	totlen = 0u;
+    } else {
+	const char * data = tag->value.data();
+	const char * end = data + tag->value.size();
+	bool success = unpack_uint(&data, end, &totlen);
+	if (!success) {
+	    if (data == end) { // Overflow
+		throw OmRangeError("Total document length is out of range.");
+	    } else { // Number ran out
+		throw OmDatabaseCorruptError("Record containing total document length is corrupt.");
+	    }
+	}
+	if (data != end) {
+	    // Junk data at end of record
+	    throw OmDatabaseCorruptError("Junk data at end of record containing total document length.");
 	}
     }
 
@@ -150,7 +144,7 @@ QuartzRecordManager::get_total_length(QuartzTable & table)
     QuartzDbTag tag;
 
     if (!table.get_exact_entry(key, tag)) {
-	throw OmDatabaseCorruptError("Record containing total document length is missing.");
+	return 0u;
     }
 
     quartz_totlen_t totlen;

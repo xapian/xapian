@@ -1,3 +1,9 @@
+Wed Nov 22 18:44:01 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove QuartzRecord::initialise() - replace by assuming initial
+	  values if the TOTLEN or NEXTDID tags aren't present.  Stops having
+	  a wasted revision when a database is created.
+
 Wed Nov 22 18:35:56 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove QuartzBufferedTable::get_tag() method - was only used to

@@ -35,10 +35,6 @@ class QuartzRecordManager {
 	QuartzRecordManager();
 	~QuartzRecordManager();
     public:
-	/** Initialise table for searching.
-	 */
-	static void initialise(QuartzDiskTable & table,                                                        quartz_revision_number_t new_revision);
-
 	/** Retrieve a document from the table.
 	 */
 	static OmData get_record(QuartzTable & table,

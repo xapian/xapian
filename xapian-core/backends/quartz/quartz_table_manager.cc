@@ -103,8 +103,7 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_,
 	    termlist_table    .apply(new_revision);
 	    lexicon_table     .apply(new_revision);
 	    attribute_table   .apply(new_revision);
-
-	    QuartzRecordManager::initialise(record_table, new_revision);
+	    record_table      .apply(new_revision);
 	}
     }
 }
