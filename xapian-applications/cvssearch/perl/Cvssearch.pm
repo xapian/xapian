@@ -294,7 +294,7 @@ sub code_comment_counter {
 # 1. cvsupdatedb root filepath
 #    inserts a database stored in the filepath under root if the database 
 #    is not already stored.
-#    e.g. cvsupdatedb kdebase/konqueror
+#    e.g. cvsupdatedb -i kdebase/konqueror
 # 2. cvsupdatedb root -r filepath
 #    remove a database stored in the filepath
 # 3. cvsupdatedb root -f filepath
@@ -365,7 +365,7 @@ sub cvsupdatedb {
                     print @secmatches;
                 }
             }
-        }else{
+        } elsif($flag eq "-i"){
             # ----------------------------------------
             # insert database
             # ----------------------------------------

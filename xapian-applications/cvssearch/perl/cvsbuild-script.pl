@@ -6,20 +6,12 @@ use Cvssearch;
 # if not found, exit.
 # ------------------------------------------------------------
 my $cvsindex = "./cvsindex";
-my $cvsupdatedb = "./cvsupdatedb";
 my $cvsmap = "./cvsmap";
 
 if (not (-x $cvsindex)) {
     print STDERR "Warning: a program used in this script cvsindex is not found.\n";
     print STDERR "please change to the directory where $0 is stored and execute the script again.\n";
     print STDERR "(cvsindex should be in the same directory)\n";
-    exit(1);
-}
-
-if (not (-x $cvsupdatedb)) {
-    print STDERR "Warning: a program used in this script $cvsupdatedb is not found.\n";
-    print STDERR "please change to the directory where $0 is stored and execute the script again.\n";
-    print STDERR "(cvsupdatedb should be in the same directory)\n";
     exit(1);
 }
 
@@ -219,7 +211,7 @@ sub cvsbuild {
                             " -comp");
                 } else {
                     $map_start_date = time;
-                    Cvssearch::cvsupdatedb ($root, "-r". $app_name);
+                    Cvssearch::cvsupdatedb ($root, "-r", $app_name);
                     system ("$cvsmap -d $cvsroot".
                             " -i $list_file".
                             " -db $prefix_path.db".
@@ -230,7 +222,7 @@ sub cvsbuild {
                     $index_start_date =time;
                     system ("$cvsindex $root:$app_name");
                     $index_end_date =time;
-                    Cvssearch::cvsupdatedb ($root, $app_name);
+                    Cvssearch::cvsupdatedb ($root, "-i", $app_name);
                     # ----------------------------------------
                     # clear db directory
                     # ----------------------------------------
