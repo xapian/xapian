@@ -1,5 +1,10 @@
 Revision history for Perl extension Search::Xapian.
 
+0.8.0.2  Thu May 13 17:36:45 2004
+	- More error handling for Query and Document classes
+	- Fully wrapped PositionIterator and PostingIterator
+	- Optional arguments now supported for most methods
+
 0.8.0.1  Wed May 12 18:58:46 2004
         - Improved Query class which uses new C++ constructor methods
           to allow the combination of an unlimited number of terms 

@@ -41,10 +41,11 @@ Enquire::set_cutoff(percent_cutoff, weight_cutoff = NO_INIT)
     percent     percent_cutoff
     weight      weight_cutoff
     CODE:
-        if (items == 2)
+        if (items == 2) {
             THIS->set_cutoff(percent_cutoff, weight_cutoff);
-        else
+        } else {
             THIS->set_cutoff(percent_cutoff);
+        }
 
 void
 Enquire::set_sorting(sort_key, sort_bands)

@@ -66,7 +66,7 @@ ok( $match = $matches->begin(), "match set iterator returned ok" );
 is( $match, $matches->begin(), "match set returns consistent start point");
 ok( $match++, "match set iterator can increment" );
 isnt( $match, $matches->begin(), "match set iterator increments correctly" );
-is( $match->get_docid(), 2, "document id returned ok" );
+ok( $match->get_docid(), "document id returned ok" );
 ok( $match->get_percent(), "percent relevance returned ok" );
 
 my $doc;

@@ -25,6 +25,14 @@ ESetIterator::inc()
     OUTPUT:
         RETVAL
 
+ESetIterator *
+ESetIterator::add_to(number)
+    int		number
+    CODE:
+        THIS->operator++(number);
+    OUTPUT:
+        THIS
+
 bool
 MSetIterator::equal(MSetIterator * that)
     CODE:

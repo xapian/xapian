@@ -37,36 +37,55 @@ Document::set_data(data)
         THIS->set_data(data);
 
 void
-Document::add_posting(tname, tpos)
+Document::add_posting(tname, tpos, wdfinc = NO_INIT)
     string	tname
     termpos	tpos
+    termcount	wdfinc
     CODE:
-        THIS->add_posting(tname, tpos);
+        if (items == 3) {
+            THIS->add_posting(tname, tpos, wdfinc);
+        } else {
+            THIS->add_posting(tname, tpos);
+        }
 
 void
-Document::add_term(tname)
+Document::add_term(tname, wdfinc = NO_INIT)
     string	tname
+    termcount	wdfinc
     CODE:
-        THIS->add_term(tname);
+        if (items == 2) {
+            THIS->add_term(tname, wdfinc);
+        } else {
+            THIS->add_term(tname);
+        }
 
 void
-Document::add_term_nopos(tname)
-    string	tname
-    CODE:
-        THIS->add_term_nopos(tname);
-
-void
-Document::remove_posting(tname, tpos)
+Document::remove_posting(tname, tpos, wdfdec = NO_INIT)
     string	tname
     termpos	tpos
+    termcount	wdfdec
     CODE:
-        THIS->remove_posting(tname, tpos);
+	try {
+            if (items == 3) {
+                THIS->remove_posting(tname, tpos, wdfdec);
+            } else {
+                THIS->remove_posting(tname, tpos);
+            }
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
 
 void
 Document::remove_term(tname)
     string	tname
     CODE:
-        THIS->remove_term(tname);  
+	try {
+            THIS->remove_term(tname);  
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
 
 void
 Document::clear_terms()
