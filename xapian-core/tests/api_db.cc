@@ -566,7 +566,7 @@ static bool test_msetiterator1()
     TEST_NOT_EQUAL(j, k);
     TEST_NOT_EQUAL(k, l);
     TEST_EQUAL(k, m);
-    TEST_NOT_EQUAL(n, l);
+    TEST_EQUAL(n, l);
 
     n = m;
     TEST_NOT_EQUAL(n, l);
@@ -639,7 +639,7 @@ static bool test_esetiterator1()
     TEST_NOT_EQUAL(j, k);
     TEST_NOT_EQUAL(k, l);
     TEST_EQUAL(k, m);
-    TEST_NOT_EQUAL(n, l);
+    TEST_EQUAL(n, l);
 
     n = m;
     TEST_NOT_EQUAL(n, l);
