@@ -208,6 +208,10 @@ Match::match()
 	    recalculate_maxweight = false;
 	    w_max = merger->recalc_maxweight();
 	    cout << "max possible doc weight = " << w_max << endl;
+	    if (w_max < w_min) {
+		cout << "*** TERMINATING EARLY (1)" << endl;
+		break;
+	    }
 	}    
 
 	PostList *ret = merger->next(w_min);
@@ -216,13 +220,14 @@ Match::match()
 	    merger = ret;
 
 	    cout << "*** REPLACING ROOT\n";
-	    // no need for a full recalc - we're just switching to a subtree
+	    // no need for a full recalc (unless we've got to do one because
+	    // of a prune elsewhere) - we're just switching to a subtree
 	    w_max = merger->get_maxweight();
 	    cout << "max possible doc weight = " << w_max << endl;
-	    AssertParanoid(fabs(w_max - merger->recalc_maxweight()) < 1e-9);
+            AssertParanoid(recalculate_maxweight || fabs(w_max - merger->recalc_maxweight()) < 1e-9);
 
 	    if (w_max < w_min) {
-		cout << "*** TERMINATING EARLY" << endl;
+		cout << "*** TERMINATING EARLY (2)" << endl;
 		break;
 	    }
 	}
