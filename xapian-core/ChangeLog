@@ -1,3 +1,8 @@
+Wed Feb  7 17:33:00 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Fix to InMemory databases: terms can be added even if they
+	  don't have any positions.  (Was causing adddoc2 to fail).
+
 Tue Feb  6 18:06:13 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Rename OmMSet::fetch_items() to fetch().  Add an overloaded

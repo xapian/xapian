@@ -217,6 +217,9 @@ om_docid
 InMemoryDatabase::do_add_document(const OmDocument & document)
 {
     om_docid did = make_doc(document.get_data());
+
+    DEBUGLINE(DB, "InMemoryDatabase::do_add_document(): adding doc "
+	          << did);
  
     {
 	std::map<om_keyno, OmKey> keys;
@@ -224,6 +227,8 @@ InMemoryDatabase::do_add_document(const OmDocument & document)
 	OmKeyListIterator k_end = document.keylist_end();
 	for ( ; k != k_end; ++k) {
 	    keys.insert(std::make_pair(k.get_keyno(), *k));
+	    DEBUGLINE(DB, "InMemoryDatabase::do_add_document(): adding key "
+		      << k.get_keyno() << " -> " << *k);
 	}
 	add_keys(did, keys);
     }
@@ -233,10 +238,18 @@ InMemoryDatabase::do_add_document(const OmDocument & document)
     for ( ; i != i_end; ++i) {
 	make_term(*i);
 
+	DEBUGLINE(DB, "InMemoryDatabase::do_add_document(): adding term "
+		  << *i);
 	OmPositionListIterator j = i.positionlist_begin();
 	OmPositionListIterator j_end = i.positionlist_end();
-	for ( ; j != j_end; ++j) {
-	    make_posting(*i, did, *j, i.get_wdf());
+
+	if (j == j_end) {
+	    /* Make sure the posting exists, even without a position. */
+	    make_posting(*i, did, 0, i.get_wdf(), false);
+	} else {
+	    for ( ; j != j_end; ++j) {
+		make_posting(*i, did, *j, i.get_wdf());
+	    }
 	}
 
 	Assert(did > 0 && did <= doclengths.size());
@@ -268,7 +281,8 @@ InMemoryDatabase::make_doc(const OmData & docdata)
 void InMemoryDatabase::make_posting(const om_termname & tname,
 				    om_docid did,
 				    om_termpos position,
-				    om_termcount wdf)
+				    om_termcount wdf,
+				    bool use_position)
 {
     Assert(postlists.find(tname) != postlists.end());
     Assert(did > 0 && did <= termlists.size());
@@ -278,7 +292,9 @@ void InMemoryDatabase::make_posting(const om_termname & tname,
     InMemoryPosting posting;
     posting.tname = tname;
     posting.did = did;
-    posting.positions.push_back(position);
+    if (use_position) {
+	posting.positions.push_back(position);
+    }
     posting.wdf = wdf;
 
     // Now record the posting

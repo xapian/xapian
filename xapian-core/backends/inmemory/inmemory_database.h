@@ -223,7 +223,8 @@ class InMemoryDatabase : public Database {
 	void make_posting(const om_termname & tname,
 			  om_docid did,
 			  om_termpos position,
-			  om_termcount wdf);
+			  om_termcount wdf,
+			  bool use_position = true);
 
 	//@{
 	/** Implementation of virtual methods: see Database for details.
@@ -366,6 +367,8 @@ InMemoryTermList::InMemoryTermList(RefCntPtr<const InMemoryDatabase> db,
 	  started(false),
 	  this_db(db)
 {
+    DEBUGLINE(DB, "InMemoryTermList::InMemoryTermList(): " <<
+	          end - pos << " terms starting from " << pos->tname);
     document_length = len;
     return;
 }
