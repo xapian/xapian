@@ -1,3 +1,7 @@
+Tue Jan 16 14:25:03 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Changed references to SIGCLD to SIGCHLD as it's more portable.
+
 Tue Jan 16 14:02:34 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added check for whether -ldl is necessary.

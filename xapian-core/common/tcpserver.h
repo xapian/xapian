@@ -91,7 +91,7 @@ class TcpServer {
 	/** Signal handlers
 	 */
 	static void on_SIGTERM(int);
-	static void on_SIGCLD(int);
+	static void on_SIGCHLD(int);
 };
 
 #endif  /* OM_HGUARD_TCPSERVER_H */

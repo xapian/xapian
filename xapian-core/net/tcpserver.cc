@@ -245,10 +245,14 @@ void
 TcpServer::run()
 {
     // set up signal handlers
+    /* NOTE: Changed from SIGCLD to SIGCHLD, as I believe it to be
+     * more portable.  If any systems only understand SIGCLD, then
+     * we'll have to add a define, but it may not be necessary.
+     */
 #ifndef HAVE_WAITPID
-    signal(SIGCLD, SIG_IGN);
+    signal(SIGCHLD, SIG_IGN);
 #else
-    signal(SIGCLD, on_SIGCLD);
+    signal(SIGCHLD, on_SIGCHLD);
 #endif
     signal(SIGTERM, on_SIGTERM);
     while (1) {
@@ -281,7 +285,7 @@ TcpServer::on_SIGTERM (int sig)
 
 //////////////////////////////////////////////////////////////
 void 
-TcpServer::on_SIGCLD (int sig)
+TcpServer::on_SIGCHLD (int sig)
 {    
     int status;
     while (waitpid(-1, &status, WNOHANG) > 0);
