@@ -45,6 +45,8 @@
 
 using namespace std;
 
+static const char * DEFAULT_STEM_LANGUAGE = "english";
+
 Xapian::Enquire * enquire;
 Xapian::Database db;
 Xapian::RSet rset;
@@ -98,6 +100,9 @@ try {
     option["decimal"] = ".";
     option["thousand"] = ",";
     
+    // set the default stemming language
+    option["stemmer"] = DEFAULT_STEM_LANGUAGE;
+
     // FIXME: set cout to linebuffered not stdout.  Or just flush regularly...
     //setvbuf(stdout, NULL, _IOLBF, 0);
 

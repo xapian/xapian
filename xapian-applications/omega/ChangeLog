@@ -1,3 +1,8 @@
+Thu Nov 20 02:43:03 GMT 2003  Olly Betts <olly@survex.com>
+
+	* omega.cc,query.cc: Set default value for $opt{stemmer} to "english"
+	  rather than taking "" to mean English.
+
 Tue Oct 21 21:29:18 BST 2003  Olly Betts <olly@survex.com>
 
 	* query.cc: Fixed $setmap{} to not add bogus entries.

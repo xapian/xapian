@@ -64,8 +64,6 @@
 
 using namespace std;
 
-static const char * DEFAULT_STEM_LANGUAGE = "english";
-
 static bool query_parsed = false;
 static bool done_query = false;
 static Xapian::docid last = 0;
@@ -160,9 +158,7 @@ static querytype
 set_probabilistic(const string &oldp)
 {
     // call YACC generated parser
-    string stemmer_lang = option["stemmer"];
-    if (stemmer_lang == "") stemmer_lang = DEFAULT_STEM_LANGUAGE;
-    qp.set_stemming_options(stemmer_lang, option["stem_all"] == "true",
+    qp.set_stemming_options(option["stemmer"], option["stem_all"] == "true",
 			    new MyStopper()); 
     qp.set_default_op(default_op);
     qp.set_database(db);
@@ -603,9 +599,7 @@ html_highlight(const string &s, const string &list,
 	       const string &bra, const string &ket)
 {
     if (!stemmer) {
-	string stemmer_lang = option["stemmer"];
-	if (stemmer_lang == "") stemmer_lang = DEFAULT_STEM_LANGUAGE;
-	stemmer = new Xapian::Stem(stemmer_lang);
+	stemmer = new Xapian::Stem(option["stemmer"]);
     }
     string::const_iterator i, j = s.begin(), k, l;
     string res;
@@ -1608,10 +1602,7 @@ eval(const string &fmt, const vector<string> &param)
 		    set<string> seen;
 		    {
 			if (!stemmer) {
-			    string stemmer_lang = option["stemmer"];
-			    if (stemmer_lang == "")
-				stemmer_lang = DEFAULT_STEM_LANGUAGE;
-			    stemmer = new Xapian::Stem(stemmer_lang);
+			    stemmer = new Xapian::Stem(option["stemmer"]);
 			}
 			// Exclude terms "similar" to those already in
 			// the query
@@ -1805,9 +1796,7 @@ pretty_term(const string & term)
 	return term + '.';
 
     if (!stemmer) {
-	string stemmer_lang = option["stemmer"];
-	if (stemmer_lang == "") stemmer_lang = DEFAULT_STEM_LANGUAGE;
-	stemmer = new Xapian::Stem(stemmer_lang);
+	stemmer = new Xapian::Stem(option["stemmer"]);
     }
 
     // The term is present unstemmed, but if it would stem further it still
