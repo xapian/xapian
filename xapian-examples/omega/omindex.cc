@@ -150,6 +150,10 @@ index_text(const string &s, OmDocument &doc, OmStem &stemmer, om_termpos pos)
 	if (k == string::npos || !isalnum(s[k])) j = k;
 	om_termname term = s.substr(i, j - i);
 	lowercase_term(term);
+	if (isupper(s[i]) || isdigit(s[i])) {
+	  doc.add_posting(term, pos);
+	}
+
         term = stemmer.stem_word(term);
 	doc.add_posting(term, pos++);
 	i = j + 1;
