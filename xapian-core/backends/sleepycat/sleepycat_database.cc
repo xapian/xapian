@@ -27,17 +27,20 @@
 #include <string>
 #include <algorithm>
 
+#include <om/omdocument.h>
+
+#include "utils.h"
+#include "omassert.h"
+
+// Sleepycat database stuff
+#include <db_cxx.h>
+
 #include "sleepy_postlist.h"
 #include "sleepy_termlist.h"
 #include "sleepy_database.h"
 #include "sleepy_database_internals.h"
 #include "sleepy_list.h"
-
-// Sleepycat database stuff
-#include <db_cxx.h>
-
-#include "utils.h"
-#include "omassert.h"
+#include "sleepy_document.h"
 #include "sleepy_termcache.h"
 
 SleepyDatabase::SleepyDatabase(const DatabaseBuilderParams &params)
@@ -147,8 +150,7 @@ SleepyDatabase::open_term_list(om_docid did) const
 LeafDocument *
 SleepyDatabase::open_document(om_docid did) const
 {
-    throw OmUnimplementedError(
-	"SleepyDatabase.open_document() not implemented");
+    return new SleepyDocument(internals->document_db, did);
 }
 
 
@@ -196,6 +198,8 @@ SleepyDatabase::add_entry_to_postlist(om_termid tid,
 				       om_termcount wdf,
 				       const vector<om_termpos> & positions)
 {
+// FIXME: suggest refactoring most of this method into a constructor of
+// SleepyPostList, followed by adding an item to the postlist
     SleepyList mylist(internals->postlist_db,
 		      reinterpret_cast<void *>(&tid),
 		      sizeof(tid));
@@ -208,15 +212,22 @@ SleepyDatabase::add_entry_to_postlist(om_termid tid,
 }
 
 om_docid
-SleepyDatabase::make_new_document(const string & data) 
+SleepyDatabase::make_new_document(const string & docdata) 
 {
-    return get_doccount() + 1;
+    OmData omdata;
+    map<om_keyno, OmKey> omkeys;
+
+    omdata.value = docdata;
+
+    SleepyDocument document(internals->document_db, omdata, omkeys);
+    return document.get_docid();
 }
 
 void
 SleepyDatabase::make_new_termlist(om_docid did,
 				  const map<om_termid, OmDocumentTerm> & terms)
 {
+// FIXME: suggest refactoring this method into a constructor of SleepyTermList
     SleepyList mylist(internals->termlist_db,
 		      reinterpret_cast<void *>(&did),
 		      sizeof(did));

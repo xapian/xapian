@@ -1,3 +1,8 @@
+Thu Apr 13 01:37:41 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added SleepyDocument class, to store keys and document data.
+	  Implementation not yet done.
+
 Wed Apr 12 19:31:21 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* API change - added a termfreq member to OmDocumentTerm.
