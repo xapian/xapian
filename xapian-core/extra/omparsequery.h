@@ -28,13 +28,11 @@
 #include <om/om.h>
 
 #include <string>
-using std::string;
 #include <list>
-using std::list;
 
 class OmStopper {
     public:
-	virtual bool operator()(const om_termname &/*ter*/m) {
+	virtual bool operator()(const om_termname &/*term*/) {
 	    return false;
 	}
 };
@@ -47,7 +45,8 @@ class OmQueryParser {
 	    set_stemming_options("english");
 	}
 	
-	void set_stemming_options(const string &lang, bool stem_all_ = false,
+	void set_stemming_options(const std::string &lang,
+				  bool stem_all_ = false,
 				  OmStopper *stop_ = NULL);
 	
 	void set_default_op(OmQuery::op default_op_) {
@@ -58,10 +57,10 @@ class OmQueryParser {
 	    db = db_;
 	}
 
-	OmQuery parse_query(const string &q);
+	OmQuery parse_query(const std::string &q);
 	
-	list<om_termname> termlist;
-	list<om_termname> stoplist;
+	std::list<om_termname> termlist;
+	std::list<om_termname> stoplist;
 
 	// don't touch these - FIXME: make private and use friend...
 	OmQuery::op default_op;

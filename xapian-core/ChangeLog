@@ -1,3 +1,8 @@
+Wed Oct 09 10:46:42 BST 2002  Olly Betts <olly@survex.com>
+
+	* extra/omparsequery.h,include/om/omvalueiterator.h: Don't use
+	  "using std::foo;" in externally visible headers.
+
 Wed Oct 09 10:26:05 BST 2002  Olly Betts <olly@survex.com>
 
 	* extra/omparsequery.h: fixed unused parameter warning.

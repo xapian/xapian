@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,7 +27,6 @@
 
 #include <iterator>
 #include <string>
-using std::string;
 #include "om/omtypes.h"
 
 class OmDocument;
@@ -64,10 +64,10 @@ class OmValueIterator {
 	void operator++(int);
 
 	/// Get the value for the current position
-	const string & operator *() const;
+	const std::string & operator *() const;
 
 	/// Get the value for the current position
-	const string * operator ->() const;
+	const std::string * operator ->() const;
 
 	/// Get the number of the value at the current position
         om_valueno get_valueno() const;
@@ -80,10 +80,10 @@ class OmValueIterator {
 	/// Allow use as an STL iterator
 	//@{
 	typedef std::input_iterator_tag iterator_category;
-	typedef string value_type;
+	typedef std::string value_type;
 	typedef om_valueno_diff difference_type;
-	typedef string * pointer;
-	typedef string & reference;
+	typedef std::string * pointer;
+	typedef std::string & reference;
 	//@}
 };
 
