@@ -364,12 +364,13 @@ if test "x$have_berkeley_2_x_cxx" != "xyes"; then
   build_sleepycat=false;
 fi
 
-if test "x$have_berkeley_3_1_cxx" != "xyes"; then
-  if test ! "x$build_quartz" = "xfalse"; then
-    AC_MSG_WARN([BerkeleyDB 3.1 (C++ interface) not available: not building support]);
-  fi
-  build_quartz=false;
-fi
+dnl Quartz doesn't depend on berkeley DB 3.1 anymore
+dnl if test "x$have_berkeley_3_1_cxx" != "xyes"; then
+dnl   if test ! "x$build_quartz" = "xfalse"; then
+dnl     AC_MSG_WARN([BerkeleyDB 3.1 (C++ interface) not available: not building support]);
+dnl   fi
+dnl   build_quartz=false;
+dnl fi
 
 if test x$HAVE_LIBPTHREAD = xno; then
   if test "x$use_pthread" = "xtrue"; then
