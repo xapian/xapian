@@ -4,14 +4,14 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 INCLUDES = -I/usr/local/BerkeleyDB/include
 
-noinst_HEADERS = da_database.h daread.h database.h match.h \
+noinst_HEADERS = da_database.h da_record.h daread.h database.h match.h \
  orpostlist.h andpostlist.h andnotpostlist.h \
  damuscat.h omtypes.h proto_database.h proto_db.h
 
 bin_PROGRAMS = dbtest matchtest idxtest stemtest
 
 ACCESS_PROTO = proto_database.cc proto_db.c
-ACCESS_DA = da_database.cc daread.c
+ACCESS_DA = da_database.cc daread.c da_record.cc
 
 STEMMER_SRC = stem.c stem_en.cc
 

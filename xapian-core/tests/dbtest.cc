@@ -2,6 +2,7 @@
 
 #include "proto_database.h"
 #include "da_database.h"
+#include "da_record.h"
 //#include "match.h"
 
 int main(int argc, char *argv[]) {
@@ -43,6 +44,9 @@ int main(int argc, char *argv[]) {
 	    termlist->next();
 	}
 	delete termlist;
+	DARecord * rec = database.get_document(did);
+
+	delete rec;
 	database.close();
     }
     catch (OmError e) {

@@ -133,6 +133,7 @@ class DATerm {
 };
 
 
+class DARecord;
 
 class DADatabase : public virtual IRDatabase {
     private:
@@ -153,6 +154,7 @@ class DADatabase : public virtual IRDatabase {
 
 	PostList * open_post_list(termid id);
 	TermList * open_term_list(docid id);
+	DARecord * get_document(docid id);
 
 	termid term_name_to_id(const termname &);
 	termname term_id_to_name(termid);

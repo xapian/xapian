@@ -10,6 +10,7 @@
 
 #include "database.h"
 #include "da_database.h"
+#include "da_record.h"
 #include "daread.h"
 
 DAPostList::DAPostList(struct postings *pl, doccount tf, doccount size)
@@ -181,12 +182,31 @@ TermList * DADatabase::open_term_list(docid id)
     struct termvec *tv = maketermvec();
     int found = DAgettermvec(DA_r, id, tv);
 
-    if(found == 0) throw RangeError("Docid not found");
+    if(found == 0) {
+	losetermvec(tv);
+	throw RangeError("Docid not found");
+    }
 
     openterms(tv);
 
     DATermList *tl = new DATermList(this, tv);
     return tl;
+}
+
+DARecord * DADatabase::get_document(docid id)
+{
+    Assert(opened);
+
+    struct record *r = makerecord();
+    int found = DAgetrecord(DA_r, id, r);
+
+    if(found == 0) {
+	loserecord(r);
+	throw RangeError("Docid not found");
+    }
+
+    DARecord *rec = new DARecord(r);
+    return rec;
 }
 
 termid
