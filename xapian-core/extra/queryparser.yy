@@ -31,7 +31,7 @@
 #include <map>
 #include <xapian.h>
 #include <stdio.h>
-#include <ctype.h>
+#include "utils.h"
 
 using namespace std;
 using namespace Xapian;
@@ -234,39 +234,14 @@ next_char()
    return *qptr++;
 }
 
-// FIXME: copied from om/indexer/index_utils.cc
 static void
 lowercase_term(string &term)
 {
     string::iterator i = term.begin();
     while (i != term.end()) {
-	*i = tolower(*i);
+	*i = C_tolower(*i);
 	i++;
     }
-}
-
-inline static bool
-p_notalnum(char c)
-{
-    return !isalnum(c);
-}
-
-inline static bool
-p_whitespace(char c)
-{
-    return isspace(c);
-}
-
-inline static bool
-p_notwhitespace(char c)
-{
-    return !isspace(c);
-}
-
-inline static bool
-p_notplusminus(unsigned int c)
-{
-    return c != '+' && c != '-';
 }
 
 static int
@@ -275,7 +250,12 @@ yylex()
 {
     static int yylex2();
     int r = yylex2();
-    printf("(%c) %d @%d\n", isprint(r) ? r : '?', r, qptr - q.begin() - 1);
+    if (r >= ' ' && r != '\x7f' && r < 256) {
+	printf("    %d", r);
+    } else {
+	printf("(%c) %d", r, r);
+    }
+    printf(" @%d\n", qptr - q.begin() - 1);
     return r;
 }
 
@@ -287,7 +267,7 @@ yylex2()
     // Whitespace nullifies pending hyphenation.
     if (pending_token == HYPHEN) {
 	while (qptr != q.end() && strchr("_/\\@'*.", *qptr)) ++qptr;
-	if (qptr == q.end() || isspace(*qptr)) {
+	if (qptr == q.end() || C_isspace(*qptr)) {
 	    pending_token = 0;
 	}
     }
@@ -302,12 +282,12 @@ yylex2()
 
     if (prefix.empty()) {
 	/* skip whitespace */
-	qptr = find_if(qptr, q.end(), p_notwhitespace);
+	qptr = find_if(qptr, q.end(), C_isnotspace);
 	if (qptr == q.end()) return 0;
     }
 
     /* process terms */
-    if (isalnum(*qptr)) {
+    if (C_isalnum(*qptr)) {
 	string term, original_term;
 	bool already_stemmed = !qp->stem;
 	string::iterator term_start = qptr, term_end;
@@ -318,8 +298,8 @@ yylex2()
 	// the longest non-whitespace string is a keyword.
 	// So if there's a term "Kb*witched", you can search for
 	// `B*witched concert tickets'.
-	term_end = find_if(term_start, q.end(), p_whitespace);
-	if (find_if(term_start, term_end, p_notalnum) != term_end) {
+	term_end = find_if(term_start, q.end(), C_isspace);
+	if (find_if(term_start, term_end, C_isnotalnum) != term_end) {
 	    // It contains punctuation, so see if it's a keyword
 	    term = q.substr(term_start - q.begin(), term_end - term_start);
 	    original_term = term;
@@ -334,31 +314,31 @@ yylex2()
 	    }
 	}
 #endif
-	if (term.empty() && isupper(*qptr)) {
+	if (term.empty() && C_isupper(*qptr)) {
 	    term = *qptr;
 	    while (++qptr != q.end() && *qptr == '.' &&
-		   ++qptr != q.end() && isupper(*qptr)) {
+		   ++qptr != q.end() && C_isupper(*qptr)) {
 		term += *qptr;
 	    }
-	    if (term.length() < 2 || (qptr != q.end() && isalnum(*qptr))) {
+	    if (term.length() < 2 || (qptr != q.end() && C_isalnum(*qptr))) {
 		qptr = term_start;
 		term = "";
 	    }
 	}
 	if (term.empty()) {
 more_term:
-	    term_end = find_if(qptr, q.end(), p_notalnum);
+	    term_end = find_if(qptr, q.end(), C_isnotalnum);
 	    if (term_end != q.end()) {
 		if (*term_end == '&') {
 		    // Treat AT&T M&S A&P etc as a single term
-		    if (term_end + 1 != q.end() && isalnum(term_end[1])) {
+		    if (term_end + 1 != q.end() && C_isalnum(term_end[1])) {
 			qptr = term_end + 1;
 			goto more_term;
 		    }
 		} else {
 		    string::iterator end2;
-		    end2 = find_if(term_end, q.end(), p_notplusminus);
-		    if (end2 == q.end() || !isalnum(*end2)) term_end = end2;
+		    end2 = find_if(term_end, q.end(), C_isnotsign);
+		    if (end2 == q.end() || !C_isalnum(*end2)) term_end = end2;
 		}
 	    }
 	    term = q.substr(term_start - q.begin(), term_end - term_start);
@@ -370,8 +350,8 @@ more_term:
 		// "example.com" should give "exampl" and "com" - need EOF or
 		// space after '.' to mean "don't stem"
 		qptr++;
-		if (qptr == q.end() || isspace(*qptr)) {
-		    if (isupper(term[0])) {
+		if (qptr == q.end() || C_isspace(*qptr)) {
+		    if (C_isupper(term[0])) {
 			// Can't have come from relevance feedback - must be
 			// something like E.T. or pasted text...
 		    } else {
@@ -383,7 +363,7 @@ more_term:
 		}
 	    }
 	    if (*qptr == '-') {
-		if (qptr + 1 != q.end() && isalnum(*(qptr + 1))) {
+		if (qptr + 1 != q.end() && C_isalnum(*(qptr + 1))) {
 		    qptr++;
 		    pending_token = HYPHEN;
 		}
@@ -391,7 +371,7 @@ more_term:
 	    if (prefix.empty() && *qptr == ':') {
 		string::iterator saved_qptr = qptr;
 		++qptr;
-		if (qptr != q.end() && !isspace(*qptr)) {
+		if (qptr != q.end() && !C_isspace(*qptr)) {
 		    map<string, string>::const_iterator f;
 		    f = qp->prefixes.find(term);
 		    if (f != qp->prefixes.end()) {
@@ -430,7 +410,7 @@ more_term:
 	    }
 	}
 
-	bool raw_term = (!already_stemmed && !qp->stem_all && isupper(term[0]));
+	bool raw_term = (!already_stemmed && !qp->stem_all && C_isupper(term[0]));
 	if (original_term.empty()) original_term = term;
 	lowercase_term(term);
 	if (raw_term)
@@ -440,10 +420,13 @@ more_term:
 	if (prefix.empty() && !group_prefix.empty())
 	    prefix = group_prefix.back();
 	if (!prefix.empty()) {
-	    if (prefix.length() > 1 && *(prefix.back) != ':') {
-		unsigned char ch = (unsigned char)term[0];
-		if (!isupper(*(prefix.back)) || isupper(ch) || isdigit(ch))) {
-		    prefix += ':';
+	    if (prefix.length() > 1) {
+		unsigned char back = prefix[prefix.length() - 1];
+		if (back != ':') {
+		    if (!C_isupper(back) ||
+			C_isupdig(static_cast<unsigned char>(term[0]))) {
+			prefix += ':';
+		    }
 		}
 	    }
 	    term = prefix + term;
@@ -478,9 +461,9 @@ more_term:
 	if (qptr == q.end()) return 0;
 
 	// Ignore if not preceded by alphanumerics
-	if (!isalnum(*(qptr - 2))) break;
+	if (!C_isalnum(*(qptr - 2))) break;
 
-	while (!isalnum(*qptr)) {
+	while (!C_isalnum(*qptr)) {
 	    // Skip multiple phrase generaters
 	    if (!strchr("_/\\@'*.", *qptr)) return yylex();
 	    ++qptr;
@@ -498,27 +481,17 @@ more_term:
 	}
 	/* '(' is used in the grammar rules */
 	return c;
-     case '+':
-	// Ignore + at end of query
+     case '+': case '-':
+	// Ignore + or - at end of query
 	if (qptr == q.end()) return 0;
-	if (isspace(*qptr) || *qptr == '+') {
-	    /* Ignore ++ or + followed by a space */
+	if (C_isspace(*qptr) || *qptr == c) {
+	    /* Ignore ++ or + or -- or - followed by a space */
 	    /* Note that C++ and Mg2+ are handled above */
-	    ++qptr;
-	    return yylex();
-	}
-	/* '+' is used in the grammar rules */
-	return c;
-     case '-':
-	// Ignore - at end of query
-	if (qptr == q.end()) return 0;
-	if (isspace(*qptr) || *qptr == '-') {
-	    /* Ignore -- or - followed by a space */
 	    /* Note that nethack-- and Cl- are handled above */
 	    ++qptr;
 	    return yylex();
 	}
-	/* '-' is used in the grammar rules */
+	/* '-' and '+' are used in the grammar rules */
 	return c;
      case '"':
 	if (qptr != q.end() && *qptr == '"') {
@@ -557,7 +530,7 @@ QueryParser::parse_query(const string &q_)
 
     string::const_iterator i = q_.begin();
     // Skip leading whitespace
-    while (isspace((unsigned char)*i)) ++i;
+    while (C_isspace(*i)) ++i;
     
     for ( ; i != q_.end(); ++i) {
 	int ch = (unsigned char)*i;
@@ -579,7 +552,7 @@ QueryParser::parse_query(const string &q_)
 
     // Skip trailing whitespace
     i = q.end();
-    while (isspace((unsigned char)i[-1])) --i;
+    while (C_isspace(i[-1])) --i;
     q.erase(i - q.begin());
  
 #if 0 
@@ -596,7 +569,7 @@ QueryParser::parse_query(const string &q_)
 	// FIXME: be smarter about certain non-alphanumerics...
 	string::iterator j = q.begin();
 	while (true) {
-	    j = find_if(j, q.end(), p_notalnum);
+	    j = find_if(j, q.end(), C_isnotalnum);
 	    if (j == q.end()) break;
 	    if (*j != '.') *j = ' ';
 	    ++j;

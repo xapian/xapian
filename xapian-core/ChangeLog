@@ -1,3 +1,10 @@
+Wed Sep 29 16:52:53 BST 2004  Olly Betts <olly@survex.com>
+
+	* common/utils.cc,common/utils.h,extra/Makefile.am,
+	  extra/queryparser.yy,tests/api_anydb.cc,testsuite/index_utils.cc:
+	  Provide our own C_isalpha(), etc replacements for isalpha(), etc
+	  which always work in the C locale and avoid signed char problems.
+
 Tue Sep 28 00:04:11 BST 2004  Olly Betts <olly@survex.com>
 
 	* common/utils.cc,common/utils.h: rmdir() isn't a sensible candidate

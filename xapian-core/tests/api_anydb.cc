@@ -312,17 +312,36 @@ static bool test_changequery1()
 {
     // Open the database (in this case a simple text file
     // we prepared earlier)
-    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    Xapian::Database db(get_database("apitest_simpledata"));
 
-    Xapian::Query myquery("this");
-    // make a simple query
-    enquire.set_query(myquery);
+    const char * phrase[] = { "this", "paragraph" };
+    Xapian::MSet mset1;
+    {
+	Xapian::Enquire enquire(db);
 
-    // retrieve the top ten results
-    Xapian::MSet mset1 = enquire.get_mset(0, 10);
+	// make a simple query
+	Xapian::Query myquery(Xapian::Query::OP_NEAR, phrase, phrase + 2);
+	enquire.set_query(myquery);
 
-    myquery = Xapian::Query("foo");
-    Xapian::MSet mset2 = enquire.get_mset(0, 10);
+	// retrieve the top ten results
+	mset1 = enquire.get_mset(0, 10);
+    }
+
+    Xapian::MSet mset2;
+    {
+	Xapian::Enquire enquire(db);
+
+	// make a simple query
+	Xapian::Query myquery(Xapian::Query::OP_NEAR, phrase, phrase + 2);
+	enquire.set_query(myquery);
+
+	// Now change the query - this shouldn't affect the query enquire
+	// will run.
+	myquery.set_window(10);
+
+	// retrieve the top ten results
+	mset2 = enquire.get_mset(0, 10);
+    }
 
     // verify that both msets are identical
     TEST_EQUAL(mset1, mset2);

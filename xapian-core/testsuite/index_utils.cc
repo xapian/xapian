@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,15 +23,14 @@
 
 #include <config.h>
 #include "index_utils.h"
-#include <ctype.h>
-#include <cctype>
+#include "utils.h"
 #include <iostream>
 
 void lowercase_term(string &term)
 {
     string::iterator i = term.begin();
-    while(i != term.end()) {
-	*i = tolower(*i);
+    while (i != term.end()) {
+	*i = C_tolower(*i);
 	i++;
     }
     std::string::size_type a;

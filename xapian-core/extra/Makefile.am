@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/include -I${top_builddir}/include # -I$(top_srcdir)/testsuite
+INCLUDES = -I$(top_srcdir)/include -I${top_builddir}/include -I$(top_builddir)/common # -I$(top_srcdir)/testsuite
 
 noinst_HEADERS = symboltab.h
 

@@ -175,4 +175,84 @@ inline unsigned int sleep(unsigned int secs) {
 }
 # endif
 
+// Like C's isXXXXX() but:
+//  (a) always work in the C locale
+//  (b) handle signed char as well as unsigned char
+//  (c) have a suitable signature for use as predicates with find_if()
+//  (d) add negated versions isnotXXXXX() which are useful as predicates
+//  (e) add some extra categories we find useful
+
+namespace Xapian {
+    namespace Internal {
+	const unsigned char IS_DIGIT = 0x01;
+	const unsigned char IS_LOWER = 0x02;
+	const unsigned char IS_UPPER = 0x04;
+	const unsigned char IS_HEX   = 0x08;
+	const unsigned char IS_SIGN  = 0x10;
+	const unsigned char IS_SPACE = 0x20;
+	extern const unsigned char is_tab[];
+	extern const unsigned char lo_tab[];
+	extern const unsigned char up_tab[];
+    }
+}
+
+inline bool C_isdigit(char ch) {
+    using namespace Xapian::Internal;
+    return is_tab[static_cast<unsigned char>(ch)] & IS_DIGIT;
+}
+
+inline bool C_isupper(char ch) {
+    using namespace Xapian::Internal;
+    return is_tab[static_cast<unsigned char>(ch)] & IS_UPPER;
+}
+
+inline bool C_islower(char ch) {
+    using namespace Xapian::Internal;
+    return is_tab[static_cast<unsigned char>(ch)] & IS_LOWER;
+}
+
+inline bool C_isalpha(char ch) {
+    using namespace Xapian::Internal;
+    return is_tab[static_cast<unsigned char>(ch)] & (IS_UPPER|IS_LOWER);
+}
+
+inline bool C_isalnum(char ch) {
+    using namespace Xapian::Internal;
+    return is_tab[static_cast<unsigned char>(ch)] & (IS_UPPER|IS_LOWER|IS_DIGIT);
+}
+
+inline bool C_isspace(char ch) {
+    using namespace Xapian::Internal;
+    return is_tab[static_cast<unsigned char>(ch)] & IS_SPACE;
+}
+
+inline bool C_issign(char ch) {
+    using namespace Xapian::Internal;
+    return is_tab[static_cast<unsigned char>(ch)] & IS_SIGN;
+}
+
+inline bool C_isupdig(char ch) {
+    extern const unsigned char Xapian::Internal::is_tab[];
+    using namespace Xapian::Internal;
+    return is_tab[static_cast<unsigned char>(ch)] & IS_UPPER|IS_DIGIT;
+}
+
+inline bool C_isnotdigit(char ch) { return !C_isdigit(ch); }
+inline bool C_isnotupper(char ch) { return !C_isupper(ch); }
+inline bool C_isnotlower(char ch) { return !C_islower(ch); }
+inline bool C_isnotalpha(char ch) { return !C_isalpha(ch); }
+inline bool C_isnotalnum(char ch) { return !C_isalnum(ch); }
+inline bool C_isnotspace(char ch) { return !C_isspace(ch); }
+inline bool C_isnotsign(char ch) { return !C_issign(ch); }
+
+inline char C_tolower(char ch) {
+    using namespace Xapian::Internal;
+    return lo_tab[static_cast<unsigned char>(ch)];
+}
+
+inline char C_toupper(char ch) {
+    using namespace Xapian::Internal;
+    return up_tab[static_cast<unsigned char>(ch)];
+}
+
 #endif /* OM_HGUARD_UTILS_H */
