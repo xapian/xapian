@@ -154,7 +154,8 @@ OmStem::Internal::Internal(string language)
     langcode = get_stemtype(language);
     if (langcode == STEMLANG_NULL) {
         // FIXME: use a separate InvalidLanguage exception?
-        throw OmInvalidArgumentError("Unknown language specified");
+        throw OmInvalidArgumentError("Unknown language `" +
+				     language + "' specified");
     }
     set_language(langcode);
 }
@@ -284,8 +285,8 @@ OmStem::get_available_languages()
     vector<string> languages;
 
     const char ** pos;
-    for (pos = language_names;
-	 pos != language_names + sizeof(language_names);
+    for (pos = language_names + 1;
+	 pos != language_names + (sizeof(language_names) / sizeof(char *));
 	 pos++) {
 	languages.push_back(*pos);
     }

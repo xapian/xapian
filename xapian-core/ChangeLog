@@ -1,3 +1,7 @@
+Tue Jul  4 12:16:36 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix OmStem::get_available_languages(), and test it.
+
 Tue Jul  4 11:28:23 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Some tweaks to the Java bindings - now compiles and a test class

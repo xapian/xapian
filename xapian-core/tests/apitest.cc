@@ -1518,13 +1518,13 @@ bool test_stemlangs()
     vector<string> langs;
     langs = OmStem::get_available_languages();
 
-    if(verbose) {
-	vector<string>::const_iterator i;
-	for(i = langs.begin(); i != langs.end(); i++) {
-	    if (i != langs.begin()) cout << ", ";
-	    cout << *i;
-	}
-	cout << endl;
+    TEST(langs.size() != 0);
+
+    vector<string>::const_iterator i;
+    for (i = langs.begin(); i != langs.end(); i++) {
+	// try making a stemmer with the given language -
+	// it should successfully create, and not throw an exception.
+	OmStem stemmer(*i);
     }
 
     return true;
@@ -2236,7 +2236,7 @@ test_desc nodb_tests[] = {
     {"querylen3",	   test_querylen3},
     {"subqcollapse1",	   test_subqcollapse1},
     {"emptyquerypart1",    test_emptyquerypart1},
-    //{"stemlangs",	   test_stemlangs},
+    {"stemlangs",	   test_stemlangs},
     {0, 0}
 };
 
