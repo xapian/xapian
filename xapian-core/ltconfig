@@ -1465,18 +1465,22 @@ else
     case "$host_os" in
     solaris2.[0-5] | solaris2.[0-5].*) ;;
     *) # Supported since Solaris 2.6 (maybe 2.5.1?)
+      whole_archive_flag_spec='-z allextract$convenience -z defaultextract'
       # if recent Solaris, then use our ar wrapper which uses CC
       # instead of plain ar for making archives.
-      if [ -x "$srcdir/ar-wrapper-solaris" ]
+      if [ "$with_gcc" = "no" ]
       then
-        case "$srcdir" in
-	  /*) AR="$SHELL $srcdir/ar-wrapper-solaris" ;;
-	  *)  AR="$SHELL `pwd`/$srcdir/ar-wrapper-solaris" ;;
-	esac
-      fi
-      # "-z muldefs" added to avoid multiple definitions from template
-      # instantiations with recent Solaris CC.
-      whole_archive_flag_spec='-z muldefs -z allextract$convenience -z defaultextract' ;;
+        if [ -x "$srcdir/ar-wrapper-solaris" ]
+        then
+          case "$srcdir" in
+	    /*) AR="$SHELL $srcdir/ar-wrapper-solaris" ;;
+	    *)  AR="$SHELL `pwd`/$srcdir/ar-wrapper-solaris" ;;
+	  esac
+        fi
+        # "-z muldefs" added to avoid multiple definitions from template
+        # instantiations with recent Solaris CC.
+        whole_archive_flag_spec='-z muldefs -z allextract$convenience -z defaultextract'
+      fi ;;
     esac
     ;;
 
