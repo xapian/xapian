@@ -24,6 +24,8 @@
 #define OM_HGUARD_BTREE_H
 
 #include <string>
+using std::string;
+
 #include "btree_types.h"
 #include "btree_base.h"
 #include "bcursor.h"
@@ -81,7 +83,7 @@ class Btree {
 	static void create(const char *name_, int blocksize);
 
 	/** Erase the btree structure from disk */
-	static void erase(const std::string & tablename);
+	static void erase(const string & tablename);
 
 	void set_full_compaction(int parity);
 
@@ -103,10 +105,10 @@ class Btree {
 	 *  is deleted as soon as a write to the Btree takes place. */
 	bool both_bases;
 
-	/* keeps a count of the number of items in the B-tree. */
+	/** keeps a count of the number of items in the B-tree. */
 	int4 item_count;
 
-	/* the largest possible value of a key_len. */
+	/** the largest possible value of a key_len. */
 	int max_key_len;
 
 	/* 'semi-public': the user might be allowed to read this */
@@ -185,7 +187,7 @@ class Btree {
 	Btree_base base;          /* for writing back as file baseA or baseB */
 	char other_base_letter;/* - and the value 'B' or 'A' of the next base */
 
-	std::string name;     /* The path name of the B tree */
+	string name;     /* The path name of the B tree */
 
 	/** count of the number of successive instances of purely sequential
 	 *  addition, starting at SEQ_START_POINT (neg) and going up to zero */

@@ -1,19 +1,28 @@
-Wed Jun  5 12:22:57 BST 2002
+Sun Jun 09 12:46:25 BST 2002  Olly Betts <olly@survex.com>
+
+	* btree.cc,btree.h: fixed bug caused by local variable masking member
+	  variable with same name.  Tidied up a lot.
+
+Wed Jun  5 12:22:57 BST 2002  Sam Liddicott <saml@ananova.net>
 
 	* Fix OmQuery::op enum handling.
 
 Mon May 27 14:28:06 BST 2002  Sam Liddicott <saml@ananova.net>
 
 	* Add crash-protected next() to OmMSetIterator
+
 	* Add ->valid() method to iterator which returns FALSE if
 	  the iterator has reached the end
+
 	* Added namespace fixes for latest cvs swig to be released next month
 
 Fri May 24 15:28:18 BST 2002  Sam Liddicott <saml@ananova.net>
 
 	* Took out the string typemaps as swig now has them in stl.i
+
 	* Added om_percent to omtypes.i - I wonder if we might just
 	  read omtypes.h instead, as swig can
+
 	* Added OmMSetIterator and made changes to OmMSet
 
 Fri May 24 11:46:50 BST 2002  Sam Liddicott <saml@ananova.net>

@@ -44,8 +44,12 @@
 #include "omdebug.h"
 #include "om/omerror.h"
 #include "utils.h"
-#include <string>
+
 #include <algorithm>  // for std::min()
+#include <string>
+
+using std::min;
+using std::string;
 
 //#define BTREE_DEBUG_FULL 1
 #undef BTREE_DEBUG_FULL
@@ -75,45 +79,45 @@ static void report_cursor(int N, struct Btree * B, struct Cursor * C)
 
 bool valid_handle(int h) { return h >= 0; }
 
-int sys_open_to_read_no_except(const std::string & name)
+int sys_open_to_read_no_except(const string & name)
 {
     int fd = open(name, O_RDONLY, 0666);
     return fd;
 }
 
-int sys_open_to_read(const std::string & name)
+int sys_open_to_read(const string & name)
 {
     int fd = sys_open_to_read_no_except(name);
     if (fd < 0) {
-	std::string message = std::string("Couldn't open ")
+	string message = string("Couldn't open ")
 		+ name + " to read: " + strerror(errno);
 	throw OmOpeningError(message);
     }
     return fd;
 }
 
-static int sys_open_to_write_no_except(const std::string & name)
+static int sys_open_to_write_no_except(const string & name)
 {
     int fd = open(name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     return fd;
 }
 
-int sys_open_to_write(const std::string & name)
+int sys_open_to_write(const string & name)
 {
     int fd = sys_open_to_write_no_except(name);
     if (fd < 0) {
-	std::string message = std::string("Couldn't open ")
+	string message = string("Couldn't open ")
 		+ name + " to write: " + strerror(errno);
 	throw OmOpeningError(message);
     }
     return fd;
 }
 
-static int sys_open_for_readwrite(const std::string & name)
+static int sys_open_for_readwrite(const string & name)
 {
     int fd = open(name, O_RDWR, 0666);
     if (fd < 0) {
-	std::string message = std::string("Couldn't open ")
+	string message = string("Couldn't open ")
 		+ name + " read/write: " + strerror(errno);
 	throw OmOpeningError(message);
     }
@@ -122,8 +126,8 @@ static int sys_open_for_readwrite(const std::string & name)
 
 static void sys_lseek(int h, off_t offset)
 {
-    if (lseek(h, (off_t)offset, SEEK_SET) == -1) {
-	std::string message = "Error seeking to block: ";
+    if (lseek(h, offset, SEEK_SET) == -1) {
+	string message = "Error seeking to block: ";
 	message += strerror(errno);
 	throw OmDatabaseError(message);
     }
@@ -150,11 +154,11 @@ int sys_read_bytes(int h, int n, byte * p)
 	    // normal case - read succeeded, so return.
 	    break;
 	} else if (bytes_read == -1) {
-	    std::string message = "Error reading block: ";
+	    string message = "Error reading block: ";
 	    message += strerror(errno);
 	    throw OmDatabaseError(message);
 	} else if (bytes_read == 0) {
-	    std::string message = "Error reading block: got end of file";
+	    string message = "Error reading block: got end of file";
 	    throw OmDatabaseError(message);
 	} else if (bytes_read < n) {
 	    /* Read part of the block, which is not an error.  We should
@@ -167,14 +171,14 @@ int sys_read_bytes(int h, int n, byte * p)
     return true;
 }
 
-std::string sys_read_all_bytes(int h, size_t max)
+string sys_read_all_bytes(int h, size_t max)
 {
     ssize_t bytes_read;
     size_t bytes_to_read = max;
-    std::string retval;
+    string retval;
     while (1) {
 	char buf[1024];
-	bytes_read = read(h, buf, std::min(sizeof(buf), bytes_to_read));
+	bytes_read = read(h, buf, min(sizeof(buf), bytes_to_read));
 	if (bytes_read > 0) {
 	    // add byte to string, continue unless we reached max
 	    retval.append(buf, buf+bytes_read);
@@ -186,7 +190,7 @@ std::string sys_read_all_bytes(int h, size_t max)
 	    // end of file, we're finished
 	    break;
 	} else if (bytes_read == -1) {
-	    std::string message = "Error reading block: ";
+	    string message = "Error reading block: ";
 	    message += strerror(errno);
 	    throw OmDatabaseError(message);
 	}
@@ -203,11 +207,11 @@ int sys_write_bytes(int h, int n, const byte * p)
 	    // normal case - read succeeded, so return.
 	    break;
 	} else if (bytes_written == -1) {
-	    std::string message = "Error writing block: ";
+	    string message = "Error writing block: ";
 	    message += strerror(errno);
 	    throw OmDatabaseError(message);
 	} else if (bytes_written == 0) {
-	    std::string message = "Error writing block: wrote no data";
+	    string message = "Error writing block: wrote no data";
 	    throw OmDatabaseError(message);
 	} else if (bytes_written < n) {
 	    /* Wrote part of the block, which is not an error.  We should
@@ -237,10 +241,10 @@ int sys_close(int h) {
     return close(h) == 0;
 }  /* 0 if success */
 
-static void sys_unlink(const std::string &filename)
+static void sys_unlink(const string &filename)
 {
     if (unlink(filename) == -1) {
-	std::string message = "Failed to unlink ";
+	string message = "Failed to unlink ";
 	message += filename;
 	message += ": ";
 	message += strerror(errno);
@@ -250,7 +254,7 @@ static void sys_unlink(const std::string &filename)
 
 /** Btree_strerror() converts Btree_errors values to more meaningful strings.
  */
-std::string
+string
 Btree_strerror(Btree_errors err)
 {
     switch (err) {
@@ -432,7 +436,7 @@ Btree::block_to_cursor(struct Cursor * C_, int j, int4 n)
         C_[j].rewrite = false;
     }
     read_block(n, p);
-    if (overwritten == true) return;
+    if (overwritten) return;
 
     C_[j].n = n;
     C[j].n = n; /* not necessarily the same (in B-tree read mode) */
@@ -456,7 +460,7 @@ Btree::block_to_cursor(struct Cursor * C_, int j, int4 n)
 static void set_block_given_by(byte * p, int c, int4 n)
 {   c = GETD(p, c);        /* c is an offset to an item */
     c += GETI(p, c) - 4;   /* c is an offset to a block number */
-    SETINT4(p, c, n);
+    set_int4(p, c, n);
 }
 
 /* block_given_by(p, c) finds the item at block address p, directory offset c,
@@ -466,7 +470,7 @@ static void set_block_given_by(byte * p, int c, int4 n)
 static int block_given_by(byte * p, int c)
 {   c = GETD(p, c);        /* c is an offset to an item */
     c += GETI(p, c) - 4;   /* c is an offset to a block number */
-    return GETINT4(p, c);
+    return get_int4(p, c);
 }
 
 /* Btree_alter(B, C); is called when the B-tree is to be altered. It causes new
@@ -492,7 +496,7 @@ Btree::alter(Cursor * C)
 {
     int j = 0;
     byte * p = C[j].p;
-    while(true) {
+    while (true) {
 	if (C[j].rewrite) return; /* all new, so return */
 	C[j].rewrite = true;
 
@@ -527,23 +531,25 @@ Btree::alter(Cursor * C)
 */
 
 static int compare_keys(const byte * key1, const byte * key2)
-{   int key1_len = GETK(key1, 0);
+{
+    int key1_len = GETK(key1, 0);
     int key2_len = GETK(key2, 0);
     int k_smaller = (key2_len < key1_len ? key2_len : key1_len) - C2;
     int i;
 
     // Compare the first part of the keys
-    for (i = K1; i < k_smaller; i++)
-    {
+    for (i = K1; i < k_smaller; i++) {
 	int diff = (int) key1[i] - key2[i];
         if (diff != 0) return diff;
     }
-    int diff = key1_len - key2_len;
-    if (diff != 0) return diff;
+
+    {
+	int diff = key1_len - key2_len;
+	if (diff != 0) return diff;
+    }
 
     // Compare the count
-    for (; i < k_smaller + C2; i++)
-    {
+    for (; i < k_smaller + C2; i++) {
 	int diff = (int) key1[i] - key2[i];
         if (diff != 0) return diff;
     }
@@ -562,7 +568,8 @@ static int compare_keys(const byte * key1, const byte * key2)
 */
 
 static int find_in_block(byte * p, byte * key, int offset, int c)
-{   int i = DIR_START - offset;
+{
+    int i = DIR_START - offset;
     int j = DIR_END(p);
 
     if (c != -1) {
@@ -573,8 +580,8 @@ static int find_in_block(byte * p, byte * key, int offset, int c)
 	    j = c;
     }
 
-    while (j - i > D2)
-    {   int k = i + ((j - i)/D4)*D2; /* mid way */
+    while (j - i > D2) {
+	int k = i + ((j - i)/D4)*D2; /* mid way */
         int t = compare_keys(key, p + GETD(p, k) + I2);
         if (t < 0) j = k; else i = k;
     }
@@ -597,8 +604,7 @@ Btree::find(struct Cursor * C_)
     byte * p; int c;
     byte * k = kt + I2;
     int j;
-    for (j = level; j > 0; j--)
-    {
+    for (j = level; j > 0; j--) {
 	p = C_[j].p;
         c = find_in_block(p, k, 0, C_[j].c);
 #ifdef BTREE_DEBUG_FULL
@@ -630,11 +636,12 @@ Btree::compress(byte * p)
     int e = block_size;
     byte * b = buffer;
     int dir_end = DIR_END(p);
-    int c; for (c = DIR_START; c < dir_end; c += D2)
-    {   int o = GETD(p, c);
+    for (int c = DIR_START; c < dir_end; c += D2) {
+	int o = GETD(p, c);
         int l = GETI(p, o);
         e -= l;
-        memmove(b + e, p + o, l); SETD(p, c, e);  /* reform in b */
+        memmove(b + e, p + o, l);
+	SETD(p, c, e);  /* reform in b */
     }
     memmove(p + e, b + e, block_size - e);  /* copy back */
     e -= dir_end;
@@ -646,9 +653,10 @@ Btree::compress(byte * p)
  */
 
 static void form_null_key(byte * b, int4 n)
-{    SETINT4(b, I3, n);
-     SETK(b, I2, K1);     /* null key */
-     SETI(b, 0, I3 + 4);  /* total length */
+{
+    set_int4(b, I3, n);
+    SETK(b, I2, K1);     /* null key */
+    SETI(b, 0, I3 + 4);  /* total length */
 }
 
 
@@ -710,8 +718,7 @@ void Btree::make_index_item(byte * result, int result_len,
 
     if (truncate) {
         i = K1;
-        while (i < prevkey_len &&
-               prevkey[i] == newkey[i]) {
+        while (i < prevkey_len && prevkey[i] == newkey[i]) {
             i++;
         }
 
@@ -800,7 +807,8 @@ Btree::split_off(struct Cursor * C_, int j, int c, byte * p, byte * q)
     SET_DIR_END(q, c);
     compress(q);      /* to reset TOTAL_FREE, MAX_FREE */
 
-    {   int residue = DIR_END(p) - c;
+    {
+	int residue = DIR_END(p) - c;
         int new_dir_end = DIR_START + residue;
         memmove(p + DIR_START, p + c, residue);
         SET_DIR_END(p, new_dir_end);
@@ -814,15 +822,16 @@ Btree::split_off(struct Cursor * C_, int j, int c, byte * p, byte * q)
 
 int
 Btree::mid_point(byte * p)
-{   int n = 0;
+{
+    int n = 0;
     int dir_end = DIR_END(p);
     int size = block_size - TOTAL_FREE(p) - dir_end;
-    int c; for (c = DIR_START; c < dir_end; c += D2)
-    {   int o = GETD(p, c);
+    for (int c = DIR_START; c < dir_end; c += D2) {
+	int o = GETD(p, c);
         int l = GETI(p, o);
         n += 2 * l;
-        if (n >= size)
-        {   if (l < n-size) return c;
+        if (n >= size) {
+	    if (l < n - size) return c;
             return c + D2;
         }
     }
@@ -849,8 +858,7 @@ Btree::add_item_to_block(byte * p, byte * kt, int c)
 
     Assert(new_total >= 0);
 
-    if (new_max < 0)
-    {
+    if (new_max < 0) {
 	compress(p);
         new_max = MAX_FREE(p) - needed;
 	Assert(new_max >= 0);
@@ -858,8 +866,10 @@ Btree::add_item_to_block(byte * p, byte * kt, int c)
     Assert(dir_end >= c);
 
     memmove(p + c + D2, p + c, dir_end - c);
-    dir_end += D2; SET_DIR_END(p, dir_end);
-    {   int o = dir_end + new_max;
+    dir_end += D2;
+    SET_DIR_END(p, dir_end);
+    {
+	int o = dir_end + new_max;
         SETD(p, c, o);
         memmove(p + o, kt, kt_len);
     }
@@ -879,45 +889,46 @@ Btree::add_item(struct Cursor * C, byte * kt, int j)
 {
     byte * p = C[j].p;
     int c = C[j].c;
-    int4 changed_n;
+    int4 n;
 
     int kt_len = GETI(kt, 0);
     int needed = kt_len + D2;
     int new_total = TOTAL_FREE(p) - needed;
-    if (new_total < 0)
-    {   int m;
-        byte * q = C[j].split_p;
-        if (seq_count < 0 /*|| j > 0*/ ) m = mid_point(p); else
-        {   if (c < DIR_END(p))
-            {   m = c - D2;
-                /* splits at dirend-2 */
-            }
-            else
-            {   m = c;
-                /* splits at dirend. (This has all been cautiously tested) */
-            }
-        }
-        split_off(C, j, m, p, q);
-        if (c >= m)
-        {   c -= (m - DIR_START);
-            add_item_to_block(p, kt, c);
-            changed_n = C[j].n;
-        }
-        else
-        {   add_item_to_block(q, kt, c);
-            changed_n = C[j].split_n;
-        }
-        write_block(C[j].split_n, q);
+    if (new_total < 0) {
+	int m;
+	byte * q = C[j].split_p;
+	if (seq_count < 0 /*|| j > 0*/ )
+	    m = mid_point(p);
+	else {
+	    if (c < DIR_END(p)) {
+		m = c - D2;
+		/* splits at dirend-2 */
+	    } else {
+		m = c;
+		/* splits at dirend. (This has all been cautiously tested) */
+	    }
+	}
+	split_off(C, j, m, p, q);
+	if (c >= m) {
+	    c -= (m - DIR_START);
+	    add_item_to_block(p, kt, c);
+	    n = C[j].n;
+	} else {   add_item_to_block(q, kt, c);
+	    n = C[j].split_n;
+	}
+	write_block(C[j].split_n, q);
 
         enter_key(C, j + 1,                /* enters a separating key at level j + 1 */
                   key_of(q, DIR_END(q) - D2), /* - between the last key of block q, */
                   key_of(p, DIR_START));      /* - and the first key of block p */
+    } else {
+	add_item_to_block(p, kt, c);
+	n = C[j].n;
     }
-    else
-    {   add_item_to_block(p, kt, c);
-        changed_n = C[j].n;
+    if (j == 0) {
+	changed_n = n;
+	changed_c = c;
     }
-    if (j == 0) { changed_n = changed_n; changed_c = c; }
 }
 
 /* delete_item(B, C, j, repeatedly) is (almost) the converse of add_item. If
@@ -938,28 +949,24 @@ Btree::delete_item(struct Cursor * C, int j, int repeatedly)
 
     memmove(p + c, p + c + D2, dir_end - c);
     SET_DIR_END(p, dir_end);
-    {   int max_free = MAX_FREE(p) + D2;
-        SET_MAX_FREE(p, max_free);
-    }
-    {   int total_free = TOTAL_FREE(p) + kt_len + D2;
-        SET_TOTAL_FREE(p, total_free);
-    }
+    SET_MAX_FREE(p, MAX_FREE(p) + D2);
+    SET_TOTAL_FREE(p, TOTAL_FREE(p) + kt_len + D2);
+
     if (!repeatedly) return;
-    if (j < level)
-    {   if (dir_end == DIR_START)
-        {
+    if (j < level) {
+       if (dir_end == DIR_START) {
             base.free_block(C[j].n);
             C[j].rewrite = false;
             C[j].n = -1;
             C[j + 1].rewrite = true;  /* *is* necessary */
             delete_item(C, j + 1, true);
         }
-    }
-    else /* j == B->level */
-    {   while (dir_end == DIR_START + D2 && j > 0)
-        {   /* single item in the root block, so lose a level */
-            int new_root = block_given_by(p, DIR_START);
-            delete [] p; C[j].p = 0;
+    } else {
+	/* j == B->level */
+	while (dir_end == DIR_START + D2 && j > 0) {
+	    /* single item in the root block, so lose a level */
+	    int new_root = block_given_by(p, DIR_START);
+	    delete [] p; C[j].p = 0;
             base.free_block(C[j].n);
             C[j].rewrite = false;
             C[j].n = -1;
@@ -970,7 +977,9 @@ Btree::delete_item(struct Cursor * C, int j, int repeatedly)
             block_to_cursor(C, level, new_root);
 	    if (overwritten) return;
 
-            j--; p = C[j].p; dir_end = DIR_END(p); /* prepare for the loop */
+            j--;
+	    p = C[j].p;
+	    dir_end = DIR_END(p); /* prepare for the loop */
         }
     }
 }
@@ -1018,44 +1027,39 @@ Btree::add_kt(int found, struct Cursor * C)
     */
     alter(C);
 
-    if (found)  /* replacement */
-    {   seq_count = SEQ_START_POINT;
+    if (found) { /* replacement */
+	seq_count = SEQ_START_POINT;
 	sequential = false;
 
-        {   byte * p = C[0].p;
-            int c = C[0].c;
-            int o = GETD(p, c);
-            int kt_size = GETI(kt, 0);
-            int needed = kt_size - GETI(p, o);
+        byte * p = C[0].p;
+	int c = C[0].c;
+	int o = GETD(p, c);
+	int kt_size = GETI(kt, 0);
+	int needed = kt_size - GETI(p, o);
 
-            components = components_of(p, c);
+	components = components_of(p, c);
 
-            if (needed <= 0)   /* simple replacement */
-            {   memmove(p + o, kt, kt_size);
-                {   int new_total = TOTAL_FREE(p) - needed;
-                    SET_TOTAL_FREE(p, new_total);
-                }
-            }
-            else   /* new item into the block's freespace */
-            {   int new_max = MAX_FREE(p) - kt_size;
-                if (new_max >= 0)
-                {   o = DIR_END(p) + new_max;
-                    memmove(p + o, kt, kt_size);
-                    SETD(p, c, o);
-                    SET_MAX_FREE(p, new_max);
-                    {   int new_total = TOTAL_FREE(p) - needed;
-                        SET_TOTAL_FREE(p, new_total);
-                    }
-                }
-                else   /* do it the long way */
-                {   delete_item(C, 0, false);
-                    add_item(C, kt, 0);
-                }
-            }
+	if (needed <= 0) {
+	    /* simple replacement */
+	    memmove(p + o, kt, kt_size);
+	    SET_TOTAL_FREE(p, TOTAL_FREE(p) - needed);
+	} else {
+	    /* new item into the block's freespace */
+	    int new_max = MAX_FREE(p) - kt_size;
+	    if (new_max >= 0) {
+		o = DIR_END(p) + new_max;
+		memmove(p + o, kt, kt_size);
+		SETD(p, c, o);
+		SET_MAX_FREE(p, new_max);
+		SET_TOTAL_FREE(p, TOTAL_FREE(p) - needed);
+	    } else {
+		/* do it the long way */
+		delete_item(C, 0, false);
+		add_item(C, kt, 0);
+	    }
         }
-    }
-    else  /* addition */
-    {
+    } else {
+	/* addition */
         if (changed_n == C[0].n && changed_c == C[0].c) {
 	    if (seq_count < 0) seq_count++;
 	} else {
@@ -1233,21 +1237,17 @@ Btree::delete_(byte * key, int key_len)
     if (key_len == 0) return 0;
     form_key(this, kt, key, key_len);
 
-    {
-	int n = delete_kt();  /* there are n items to delete */
-        for (int i = 2; i <= n; i++)
-        {
-            int c = GETK(kt, I2) + I2 - C2;
-            SETC(kt, c, i);
+    int n = delete_kt();  /* there are n items to delete */
+    for (int i = 2; i <= n; i++) {
+	int c = GETK(kt, I2) + I2 - C2;
+	SETC(kt, c, i);
 
-            delete_kt();
+	delete_kt();
 
-            if (overwritten) return 0;
-
-        }
-        if (n > 0) { item_count--; return 1; }
-        return 0;
+	if (overwritten) return 0;
     }
+    if (n > 0) { item_count--; return 1; }
+    return 0;
 }
 
 bool
@@ -1301,8 +1301,8 @@ Btree::find_tag(byte * key, int key_len, struct Btree_item * item)
         l = GETI(p, 0) - cd;
         {
 	    int4 space_for_tag = (int4) max_item_size * n;
-            if (item->tag_size < space_for_tag)
-            {   delete [] item->tag;
+            if (item->tag_size < space_for_tag) {
+		delete [] item->tag;
                 item->tag = zeroed_new(space_for_tag + 5);
                 if (item->tag == 0) {
 		    error = BTREE_ERROR_SPACE;
@@ -1311,13 +1311,13 @@ Btree::find_tag(byte * key, int key_len, struct Btree_item * item)
                 item->tag_size = space_for_tag + 5;
             }
         }
-        while(true)
-        {
+        while(true) {
 	    Assert(o + l <= item->tag_size);
 
             memmove(item->tag + o, p + cd, l); o += l;
             if (i == n) break;
-            i++; SETC(kt, ck, i);
+            i++;
+	    SETC(kt, ck, i);
             find(C);
 
             if (overwritten) return 0;
@@ -1372,10 +1372,7 @@ Btree::basic_open(const char * name_,
     name = name_;
 
     {
-	using std::vector;
-	using std::string;
-
-	std::string err_msg;
+	string err_msg;
 	vector<char> basenames;
 	basenames.push_back('A');
 	basenames.push_back('B');
@@ -1390,7 +1387,7 @@ Btree::basic_open(const char * name_,
 	// FIXME: assumption that there are only two bases
         if (base_ok[0] && base_ok[1]) both_bases = true;
         if (!base_ok[0] && !base_ok[1]) {
-	    std::string message = "Error opening table `";
+	    string message = "Error opening table `";
 	    message += name_;
 	    message += "':\n";
 	    message += err_msg;
@@ -1556,9 +1553,9 @@ Btree::do_open_to_write(const char * name_,
      */
     if (!basic_open(name_, revision_supplied, revision_)) {
 	if (!revision_supplied) {
-	    std::string message = "Failed to open for writing";
+	    string message = "Failed to open for writing";
 	    if (error != BTREE_ERROR_NONE) {
-		message += std::string(": ");
+		message += string(": ");
 		message += Btree_strerror(error);
 	    }
 	    throw OmOpeningError(message);
@@ -1575,20 +1572,18 @@ Btree::do_open_to_write(const char * name_,
 
     handle = sys_open_for_readwrite(name + "DB");
 
-    {
-        int j; for (j = 0; j <= level; j++)
-        {   C[j].n = -1;
-            C[j].split_n = -1;
-            C[j].p = new byte[block_size];
-            if (C[j].p == 0) {
-		throw std::bad_alloc();
-	    }
-            C[j].split_p = new byte[block_size];
-            if (C[j].split_p == 0) {
-		throw std::bad_alloc();
-	    }
-        }
-        read_root();
+    for (int j = 0; j <= level; j++) {
+	C[j].n = -1;
+	C[j].split_n = -1;
+	C[j].p = new byte[block_size];
+	if (C[j].p == 0) {
+	    throw std::bad_alloc();
+	}
+	C[j].split_p = new byte[block_size];
+	if (C[j].split_p == 0) {
+	    throw std::bad_alloc();
+	}
+	read_root();
     }
 
     buffer = zeroed_new(block_size);
@@ -1680,7 +1675,7 @@ Btree::Btree()
  *  doesn't exist)
  */
 void
-sys_unlink_if_exists(const std::string & filename)
+sys_unlink_if_exists(const string & filename)
 {
     if (unlink(filename) == -1) {
 	if (errno == ENOENT) return;
@@ -1690,7 +1685,7 @@ sys_unlink_if_exists(const std::string & filename)
 }
 
 void
-Btree::erase(const std::string & tablename)
+Btree::erase(const string & tablename)
 {
     sys_unlink_if_exists(tablename + "DB");
     sys_unlink_if_exists(tablename + "baseA");
@@ -1700,7 +1695,7 @@ Btree::erase(const std::string & tablename)
 void
 Btree::create(const char *name_, int block_size)
 {
-    std::string name(name_);
+    string name(name_);
 
     if (block_size > BYTE_PAIR_RANGE) {
 	/* block size too large (64K maximum) */
@@ -1730,7 +1725,7 @@ Btree::create(const char *name_, int block_size)
 	    int h = sys_open_to_write(name + "DB");      /* - null */
             if ( ! (valid_handle(h) &&
                     sys_close(h))) {
-		std::string message = "Error creating DB file: ";
+		string message = "Error creating DB file: ";
 		message += strerror(errno);
 		throw OmOpeningError(message);
 	    }
@@ -1771,7 +1766,7 @@ Btree::commit(uint4 revision)
     int j;
     Btree_errors errorval = BTREE_ERROR_REVISION;
     if (revision < next_revision) {
-	/* FIXME: should Btree_close() throw exceptions (so as it's
+	/* FIXME: should Btree_close() throw exceptions, as it's
 	 * likely to be called from destructors they'll need to catch
 	 * the exception), or return an error value?  (So we need to
 	 * trap errors here and convert them)
@@ -1793,8 +1788,7 @@ Btree::commit(uint4 revision)
     }
 
     errorval = BTREE_ERROR_DB_CLOSE;
-    if ( ! (sys_flush(handle) &&
-            sys_close(handle))) {
+    if ( ! (sys_flush(handle) && sys_close(handle))) {
 	handle = -1;
 	return errorval;
     }
@@ -1833,7 +1827,7 @@ Btree::do_open_to_read(const char * name_,
 		       uint4 revision_)
 {
     if (!basic_open(name_, revision_supplied, revision_)) {
-	std::string message = "Failed to open table to read: ";
+	string message = "Failed to open table to read: ";
 	if (error != BTREE_ERROR_NONE) {
 	    message += Btree_strerror(error);
 	} else {
@@ -1925,17 +1919,20 @@ Btree::force_block_to_cursor(struct Cursor * C_, int j)
 
 int
 Btree::prev_for_sequential(struct Btree * B, struct Cursor * C, int dummy)
-{   byte * p = C[0].p;
+{
+    byte * p = C[0].p;
     int c = C[0].c;
-    if (c == DIR_START)
-    {
+    if (c == DIR_START) {
         int n = C[0].n;
-        while(true)
-        {   n--;
+        while (true) {
+	    n--;
             if (n < 0) return false;
             B->read_block(n, p);
-            if (B->overwritten == true) return false;
-            if (REVISION(p) > 1) { B->set_overwritten(); return false; }
+            if (B->overwritten) return false;
+            if (REVISION(p) > 1) {
+		B->set_overwritten();
+		return false;
+	    }
             if (GET_LEVEL(p) == 0) break;
         }
         c = DIR_END(p);
@@ -1948,18 +1945,21 @@ Btree::prev_for_sequential(struct Btree * B, struct Cursor * C, int dummy)
 
 int
 Btree::next_for_sequential(struct Btree * B, struct Cursor * C, int dummy)
-{   byte * p = C[0].p;
+{
+    byte * p = C[0].p;
     int c = C[0].c;
     c += D2;
-    if (c == DIR_END(p))
-    {
+    if (c == DIR_END(p)) {
         int n = C[0].n;
-        while(true)
-        {   n++;
+        while (true) {
+	    n++;
             if (n > B->base.get_last_block()) return false;
             B->read_block(n, p);
-            if (B->overwritten == true) return false;
-            if (REVISION(p) > 1) { B->set_overwritten(); return false; }
+            if (B->overwritten) return false;
+            if (REVISION(p) > 1) {
+		B->set_overwritten();
+		return false;
+	    }
             if (GET_LEVEL(p) == 0) break;
         }
         c = DIR_START;
@@ -1971,13 +1971,14 @@ Btree::next_for_sequential(struct Btree * B, struct Cursor * C, int dummy)
 
 int
 Btree::prev_default(struct Btree * B, struct Cursor * C, int j)
-{   byte * p = C[j].p;
+{
+    byte * p = C[j].p;
     int c = C[j].c;
-    if (c == DIR_START)
-    {   if (j == B->level) return false;
+    if (c == DIR_START) {
+	if (j == B->level) return false;
 
-        if (j + 1 >= B->shared_level)
-        {   B->force_block_to_cursor(C, j + 1);
+        if (j + 1 >= B->shared_level) {
+	    B->force_block_to_cursor(C, j + 1);
             if (B->overwritten) return false;
         }
         if (! prev_default(B, C, j + 1)) return false;
@@ -1995,14 +1996,14 @@ Btree::prev_default(struct Btree * B, struct Cursor * C, int j)
 
 int
 Btree::next_default(struct Btree * B, struct Cursor * C, int j)
-{   byte * p = C[j].p;
+{
+    byte * p = C[j].p;
     int c = C[j].c;
     c += D2;
     if (c == DIR_END(p)) {
 	if (j == B->level) return false;
 
-        if (j + 1 >= B->shared_level)
-        {
+        if (j + 1 >= B->shared_level) {
 	    B->force_block_to_cursor(C, j + 1);
             if (B->overwritten) return false;
         }
@@ -2056,45 +2057,44 @@ extern void Btree_create(const char * name_, int block_size)
 
 /*********** B-tree checking ************/
 
-static void print_bytes(int n, byte * p)
-{   int i;
-    for (i = 0; i < n; i++) printf("%c", p[i]);
+static void print_bytes(int n, const byte * p)
+{
+    fwrite(p, n, 1, stdout);
 }
 
 static void print_key(byte * p, int c, int j)
-{   byte * k = key_of(p, c);
+{
+    byte * k = key_of(p, c);
     int l = GETK(k, 0);
 
-    if (j == 0)
-    {
+    if (j == 0) {
         print_bytes(l - K1 - C2, k + K1);
         printf("/%d", GETC(k, l - C2));
-    }
-    else
-    {   int i;
-        for (i = K1; i < l; i++) /*printf("%c", k[i] < 32 ? '.' : k[i]);*/
-        {   int ch = k[i];
-            if (ch < 32) printf("/%d",ch); else
-            printf("%c",ch);
+    } else {
+        for (int i = K1; i < l; i++) {
+	    /*putchar(k[i] < 32 ? '.' : k[i]);*/
+            int ch = k[i];
+            if (ch < 32) printf("/%d", ch); else putchar(ch);
         }
     }
 }
 
 static void print_tag(byte * p, int c, int j)
-{   int o = GETD(p, c);
+{
+    int o = GETD(p, c);
     int o_tag = o + I2 + GETK(p, o + I2);
     int l = o + GETI(p, o) - o_tag;
 
-    if (j == 0)
-    {   printf("/%d", GETC(p, o_tag));
+    if (j == 0) {
+        printf("/%d", GETC(p, o_tag));
         print_bytes(l - C2, p + o_tag + C2);
-    }
-    else
+    } else
         printf("--> [%d]", get_int4(p, o_tag));
 }
 
 static void print_spaces(int n)
-{   print_bytes(n, (byte *) "                              ");
+{
+    print_bytes(n, (byte *) "                              ");
 }
 
 /* report_block(B, m, n, p) prints the block at p, block number n, indented by
@@ -2102,31 +2102,34 @@ static void print_spaces(int n)
 */
 
 static int block_usage(struct Btree * B, byte * p)
-{   int space = B->block_size - DIR_END(p);
+{
+    int space = B->block_size - DIR_END(p);
     int free = TOTAL_FREE(p);
     return (space - free) * 100 / space;  /* a percentage */
 }
 
 static void report_block(struct Btree * B, int m, int n, byte * p)
-{   int j = GET_LEVEL(p);
+{
+    int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);
     int c;
     print_spaces(m);
     printf("[%d] *%d (%d) %d%% ",
            n, REVISION(p), (dir_end - DIR_START)/D2, block_usage(B, p));
 
-    for (c = DIR_START; c < dir_end; c += D2)
-    {
+    for (c = DIR_START; c < dir_end; c += D2) {
         if (c == DIR_START + 6) printf ("... ");
         if (c >= DIR_START + 6 && c < dir_end - 6) continue;
 
-        print_key(p, c, j); printf(" ");
+        print_key(p, c, j);
+	printf(" ");
     }
     printf("\n");
 }
 
 void Btree::report_block_full(int m, int n, byte * p)
-{   int j = GET_LEVEL(p);
+{
+    int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);
     int c;
     printf("\n");
@@ -2134,20 +2137,18 @@ void Btree::report_block_full(int m, int n, byte * p)
     printf("Block [%d] level %d, revision *%d items (%d) usage %d%%:\n",
 	   n, j, REVISION(p), (dir_end - DIR_START)/D2, block_usage(this, p));
 
-    for (c = DIR_START; c < dir_end; c += D2)
-    {
+    for (c = DIR_START; c < dir_end; c += D2) {
         print_spaces(m);
-        {   print_key(p, c, j);
-            printf(" ");
-            print_tag(p, c, j);
-
-        }
+        print_key(p, c, j);
+	printf(" ");
+	print_tag(p, c, j);
         printf("\n");
     }
 }
 
 static void failure(int n)
-{   fprintf(stderr, "B-tree error %d\n", n);
+{
+    fprintf(stderr, "B-tree error %d\n", n);
     exit(1);
 }
 
@@ -2175,15 +2176,17 @@ Btree::block_check(struct Cursor * C_, int j, int opts)
 
     if (opts & 2) report_block_full(3*(level - j), n, p);
 
-    for (c = DIR_START; c < dir_end; c += D2)
-    {   int o = GETD(p, c);
+    for (c = DIR_START; c < dir_end; c += D2) {
+	int o = GETD(p, c);
         if (o > block_size) failure(21);
         if (o - dir_end < max_free) failure(30);
-        {   int kt_len = GETI(p, o);
-            if (o + kt_len > block_size) failure(40);
-            total_free -= kt_len;
-        }
-        if (c > significant_c && compare_keys(key_of(p, c - D2), key_of(p,c)) >= 0)
+
+	int kt_len = GETI(p, o);
+	if (o + kt_len > block_size) failure(40);
+	total_free -= kt_len;
+
+        if (c > significant_c &&
+	    compare_keys(key_of(p, c - D2), key_of(p,c)) >= 0)
             failure(50);
     }
     if (total_free != TOTAL_FREE(p)) failure(60);
@@ -2196,26 +2199,28 @@ Btree::block_check(struct Cursor * C_, int j, int opts)
 
         block_check(C_, j - 1, opts);
 
-        {   byte * q = C_[j - 1].p;
-            /* if j == 1, and c > DIR_START, the first key of level j - 1 must be >= the
-               key of p, c: */
+	byte * q = C_[j - 1].p;
+	/* if j == 1, and c > DIR_START, the first key of level j - 1 must be >= the
+	   key of p, c: */
 
-            if (j == 1 && c > DIR_START)
-                if (compare_keys(key_of(q, DIR_START), key_of(p, c)) < 0) failure(70);
+	if (j == 1 && c > DIR_START)
+	    if (compare_keys(key_of(q, DIR_START), key_of(p, c)) < 0)
+		failure(70);
 
-	    /* if j > 1, and c > DIR_START, the second key of level j - 1 must be >= the key of p, c: */
+	/* if j > 1, and c > DIR_START, the second key of level j - 1 must be >= the key of p, c: */
 
-	    if (j > 1 && c > DIR_START && DIR_END(q) > DIR_START + D2)
-                if (compare_keys(key_of(q, DIR_START + D2), key_of(p, c)) < 0) failure(80);
+	if (j > 1 && c > DIR_START && DIR_END(q) > DIR_START + D2 &&
+	    compare_keys(key_of(q, DIR_START + D2), key_of(p, c)) < 0)
+	    failure(80);
 
-            /* the last key of level j - 1 must be < the key of p, c + D2, if c + D2 < dir_end: */
+	/* the last key of level j - 1 must be < the key of p, c + D2, if c + D2 < dir_end: */
 
-            if (c + D2 < dir_end &&
-		(j == 1 || DIR_END(q) - D2 > DIR_START) &&
-                compare_keys(key_of(q, DIR_END(q) - D2), key_of(p, c + D2)) >= 0) failure(90);
+	if (c + D2 < dir_end &&
+	    (j == 1 || DIR_END(q) - D2 > DIR_START) &&
+	    compare_keys(key_of(q, DIR_END(q) - D2), key_of(p, c + D2)) >= 0)
+	    failure(90);
 
-            if (REVISION(q) > REVISION(p)) failure(91);
-        }
+	if (REVISION(q) > REVISION(p)) failure(91);
     }
 }
 
@@ -2227,58 +2232,55 @@ Btree::check(const char * name, const char * opt_string)
 
     int opts = 0;
 
-    if (B->error) { printf("error %d (%s) in opening %s\n",
-			   B->error,
-			   Btree_strerror(B->error).c_str(),
-			   name); exit(1); }
+    if (B->error) {
+	printf("error %d (%s) in opening %s\n",
+	       B->error, Btree_strerror(B->error).c_str(), name);
+	exit(1);
+    }
 
-    for (size_t i = 0; i < strlen(opt_string); i++) {
+    for (size_t i = 0; opt_string[i]; i++) {
 	switch (opt_string[i]) {
             case 't': opts |= 1; break; /* short tree printing */
             case 'f': opts |= 2; break; /* full tree printing */
             case 'b': opts |= 4; break;
             case 'v': opts |= 8; break;
-            case '+': opts |= 1+4+8; break;
+            case '+': opts |= 1 | 4 | 8; break;
             case '?': printf("use t,f,b,v or + in the option string\n"); exit(0);
             default: printf("option %s unknown\n", opt_string); exit(1);
         }
     }
     if (opts & 8)
-    printf("base%c  Revision *%ld  levels %d  root [%ld]%s  blocksize %d  items %ld  lastblock %ld\n",
-            B->base_letter,
-            B->revision_number,
-            B->level,
-            C[B->level].n,
-	    B->faked_root_block ? "(faked)" : "",
-            B->block_size,
-            B->item_count,
-            B->base.get_last_block());
+	printf("base%c  Revision *%ld  levels %d  root [%ld]%s  blocksize %d  items %ld  lastblock %ld\n",
+		B->base_letter,
+		B->revision_number,
+		B->level,
+		C[B->level].n,
+		B->faked_root_block ? "(faked)" : "",
+		B->block_size,
+		B->item_count,
+		B->base.get_last_block());
 
-    {   int i;
-        int limit = B->base.get_bit_map_size() - 1;
+    int limit = B->base.get_bit_map_size() - 1;
 
-        limit = limit * CHAR_BIT + CHAR_BIT - 1;
+    limit = limit * CHAR_BIT + CHAR_BIT - 1;
 
-        if (opts & 4)
-        {
-	    for (i = 0; i <= limit; i++)
-            {
-		printf("%c", B->base.block_free_at_start(i) ? '.' : '*');
-                if (i > 0) {
-                    if ((i + 1) % 100 == 0) {
-                        printf("\n");
-                    } else if ((i + 1) % 10 == 0) {
-                        printf(" ");
-                    }
-                }
-            }
-            printf("\n\n");
-        }
+    if (opts & 4) {
+	for (int j = 0; j <= limit; j++) {
+	    putchar(B->base.block_free_at_start(j) ? '.' : '*');
+	    if (j > 0) {
+		if ((j + 1) % 100 == 0) {
+		    putchar('\n');
+		} else if ((j + 1) % 10 == 0) {
+		    putchar(' ');
+		}
+	    }
+	}
+	printf("\n\n");
     }
 
-    if (B->faked_root_block) printf("void "); else
-
-    {
+    if (B->faked_root_block)
+	printf("void ");
+    else {
 	B->block_check(C, B->level, opts);
 
         /* the bit map should now be entirely clear: */
