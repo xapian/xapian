@@ -1,3 +1,7 @@
+Wed Sep 20 19:07:30 BST 2000 Olly Betts
+
+	* More LocalMatch work.
+
 Wed Sep 20 18:57:55 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Make quartztest compile again.  (Though it fails)

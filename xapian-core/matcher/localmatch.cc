@@ -237,38 +237,20 @@ LocalMatch::link_to_multi(StatsGatherer *gatherer)
     submatch.link_to_multi(gatherer);
 }
 
-PostList *
-LocalMatch::mk_postlist(const om_termname & tname, om_termcount wqf)
-{
-    DEBUGLINE(MATCH, "LocalMatch::mk_postlist(" << tname << ", " << wqf << ")");
-
-    OmMSet::TermFreqAndWeight info;
-	
-    // FIXME: pass the weight type and the info needed to create it to the
-    // postlist instead
-    IRWeight * wt = mk_weight(tname, wqf);
-    info.termweight = wt->get_maxpart();
-
-    // MULTI - this statssource should be the combined one...
-    info.termfreq = submatch.statssource.get_total_termfreq(tname);
-
-    DEBUGLINE(MATCH, " weight = " << info.termweight <<
-	      ", frequency = " << info.termfreq);
-
-    term_info.insert(std::make_pair(tname, info));
-
-    // MULTI
-    return submatch.open_post_list(tname, wt);
-}
-
 IRWeight *
-LocalMatch::mk_weight(om_termname tname_, om_termcount wqf_)
+LocalMatch::mk_weight(const OmQueryInternal *query_)
 {
+    om_termname tname = "";
+    om_termcount wqf = 1;
+    if (query_) {
+	tname = query_->tname;
+	wqf = query_->wqf;
+    }
     IRWeight * wt = IRWeight::create(actual_weighting, mopts);
     // MULTI - this statssource should be the combined one...
-    wt->set_stats(&submatch.statssource, querysize, wqf_, tname_);
+    wt->set_stats(&submatch.statssource, querysize, wqf, tname);
 #ifdef MUS_DEBUG_PARANOID
-    if (!tname_.empty()) {
+    if (!tname.empty()) {
 	AutoPtr<IRWeight> extra_weight(mk_weight());
 	// Check that max_extra weight is really right
 	AssertEqDouble(wt->get_maxextra(), extra_weight->get_maxextra());
@@ -413,10 +395,27 @@ LocalMatch::postlist_from_query(const OmQueryInternal *query)
     Assert(query->isdefined);
 
     switch (query->op) {
-	case OmQuery::OP_LEAF:
+	case OmQuery::OP_LEAF: {
 	    // Make a postlist for a single term
 	    Assert(query->subqs.size() == 0);
-	    return mk_postlist(query->tname, query->wqf);
+	    OmMSet::TermFreqAndWeight info;
+	
+	    // FIXME: pass the weight type and the info needed to create it to the
+	    // postlist instead
+	    IRWeight * wt = mk_weight(query);
+	    info.termweight = wt->get_maxpart();
+
+	    // MULTI - this statssource should be the combined one...
+	    info.termfreq = submatch.statssource.get_total_termfreq(query->tname);
+
+	    DEBUGLINE(MATCH, " weight = " << info.termweight <<
+		      ", frequency = " << info.termfreq);
+
+	    term_info.insert(std::make_pair(query->tname, info));
+
+	    // MULTI
+	    return submatch.open_post_list(query->tname, wt);
+	}
 	case OmQuery::OP_AND:
 	case OmQuery::OP_OR:
 	case OmQuery::OP_PHRASE:

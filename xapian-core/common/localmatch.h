@@ -146,11 +146,8 @@ class LocalMatch : public SingleMatch
 				const std::vector<OmQueryInternal *> & queries,
 				om_termcount window);
 
-	/// Open a postlist
-	PostList * mk_postlist(const om_termname & tname, om_termcount wqf);
-
-	/// Make a weight - default arguments are for finding extra_weight
-	IRWeight * mk_weight(om_termname tname_ = "", om_termcount wqf_ = 1);
+	/// Make a weight - default argument is used for finding extra_weight
+	IRWeight * mk_weight(const OmQueryInternal *query = NULL);
 
 	/// Internal method to perform the collapse operation
 	bool perform_collapse(std::vector<OmMSetItem> &mset,
