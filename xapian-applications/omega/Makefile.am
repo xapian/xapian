@@ -69,7 +69,7 @@ docdata_DATA = docs/cgiparams.txt \
 	docs/omegascript.txt \
 	docs/overview.txt \
 	docs/quickstart.txt \
-	docs/scriptindex.txt \
+	docs/scriptindex.txt
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc
 omega_LDADD = $(XAPIAN_LIBS) -lomqueryparser # -lpcre
