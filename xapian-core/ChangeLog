@@ -1,3 +1,11 @@
+Fri Apr 05 10:21:28 BST 2002  Olly Betts <olly@survex.com>
+
+	* Removed --enable-profiling, --enable-purify, and --enable-insure.
+	  They don't do anything which can't be achieved by passing
+	  environment variables and switches to configure (now documented
+	  in HACKING).  Adding a separate switch for every profiling and
+	  code-quality tool out there isn't a sensible approach.
+
 Thu Apr 04 20:37:12 BST 2002  Olly Betts <olly@survex.com>
 
 	* Updated .cvsignore files.

@@ -205,30 +205,6 @@ AC_ARG_ENABLE(pthread-support,
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-pthread) ;;
 esac], [use_pthread=true])
 
-AC_ARG_ENABLE(profiling,
-[  --enable-profiling      Enable profiling support (no|yes)(default=no)],
-[case "${enableval}" in
-  yes) use_profiling=true ;;
-  no)  use_profiling=false ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-profiling) ;;
-esac], [use_profiling=false])
-
-AC_ARG_ENABLE(purify,
-[  --enable-purify         Enable purify support (no|yes)(default=no)],
-[case "${enableval}" in
-  yes) use_purify=true ;;
-  no)  use_purify=false ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-purify) ;;
-esac], [use_purify=false])
-
-AC_ARG_ENABLE(insure,
-[  --enable-insure         Enable insure support (no|yes)(default=no)],
-[case "${enableval}" in
-  yes) use_insure=true ;;
-  no)  use_insure=false ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-insure) ;;
-esac], [use_insure=false])
-
 AC_ARG_ENABLE(quiet,
 [  --enable-quiet          Enable quiet building (default=no)],
 [case "${enableval}" in
@@ -257,7 +233,7 @@ dnl Turn off compilation of anything that we don't have the requirements for
 
 if test x$HAVE_PTHREAD = x; then
   if test "x$use_pthread" = "xtrue"; then
-    AC_MSG_WARN(pthread not available: not building support);
+    AC_MSG_WARN(pthread not available: not building support)
   fi
   use_pthread=false
 fi
@@ -310,8 +286,8 @@ RJB_FIND_STLPORT
 if test x$use_pthread = xtrue; then
 AC_DEFINE(MUS_USE_PTHREAD,,
   [Define if you want to build with libpthreads support])
-CFLAGS="$CFLAGS -D_REENTRANT -D_PTHREADS";
-CXXFLAGS="$CXXFLAGS -D_REENTRANT -D_PTHREADS";
+CFLAGS="$CFLAGS -D_REENTRANT -D_PTHREADS"
+CXXFLAGS="$CXXFLAGS -D_REENTRANT -D_PTHREADS"
 fi
 
 dnl *************************
@@ -320,10 +296,10 @@ dnl *************************
 
 dnl Work out what debugging we want
 
-use_debug=no;
-use_debug_paranoid=no;
-use_debug_verbose=no;
-use_debug_profile=no;
+use_debug=no
+use_debug_paranoid=no
+use_debug_verbose=no
+use_debug_profile=no
 
 AC_ARG_ENABLE(debug,
 [  --enable-debug          Turn on debugging (no|partial|yes|full|profile)(default=no)],
@@ -359,8 +335,8 @@ CFLAGS=`echo " $CFLAGS " | sed 's/[ 	][ 	]*/  /g' | sed 's/ -g / /g'`
 CXXFLAGS=`echo " $CXXFLAGS " | sed 's/[ 	][ 	]*/  /g' | sed 's/ -g / /g'`
 
 if test "$use_debug" = yes; then
-CFLAGS="$CFLAGS -g";
-CXXFLAGS="$CXXFLAGS -g";
+CFLAGS="$CFLAGS -g"
+CXXFLAGS="$CXXFLAGS -g"
 AC_DEFINE(MUS_DEBUG,,
   [Define if you want debugging to be enabled (will cause some slow down)])
 fi
@@ -385,34 +361,6 @@ if test "$use_mutex_errcheck" = yes; then
 AC_DEFINE(MUS_MUTEX_ERRCHECK,,
   [Define if you want error-checking mutexes])
 fi
-
-dnl *********************
-dnl * Profiling options *
-dnl *********************
-
-if test "x$use_profiling" = xtrue; then
-CFLAGS="$CFLAGS -pg";
-CXXFLAGS="$CXXFLAGS -pg";
-LDFLAGS="$LDFLAGS -pg";
-fi
-
-if test "x$use_purify" = xtrue; then
-CXXLD='purify $(CXX)'
-CCLD='purify $(CC)'
-enable_static=no
-else
-CXXLD='$(CXX)'
-CCLD='$(CC)'
-fi
-AC_SUBST(CXXLD)
-AC_SUBST(CCLD)
-
-if test "x$use_insure" = xtrue; then
-CXX='insure'
-CC='insure'
-fi
-AC_SUBST(CXX)
-AC_SUBST(CC)
 
 dnl ******************************
 dnl * Set special compiler flags *

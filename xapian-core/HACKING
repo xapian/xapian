@@ -50,8 +50,8 @@ environment variables.  You can:
 Of course, if you didn't compile with --enable-debug=full, these environment
 variables will have no effect.
 
-Debuging memory allocations
-===========================
+Debugging memory allocations
+============================
 
 The testsuite library used in most of the test programs (apitest, internaltest,
 nettest) includes implementations of the C++ memory allocation operators
@@ -67,6 +67,27 @@ OM_ALLOC_TRAP=1c ./run-apitest -v
 
 This will cause a segfault when this block is allocated and you can use gdb
 to find out where this is.
+
+Building with various profiling and leak-finding tools:
+=======================================================
+
+For use with valgrind, no special build flags are required, except to disable
+pthread support (valgrind doesn't support threaded applications, at least at
+present):
+
+  ./configure --disable-pthread-support
+
+To enable profiling for gprof (was --enable-profiling):
+
+  CFLAGS=-pg CXXFLAGS=-pg LDFLAGS=-pg ./configure
+
+To use Purify (was --enable-purify):
+
+  CXXLD='purify c++' CCLD='purify cc' ./configure --disable-shared
+
+To use Insure (was --enable-insure):
+
+  CXX=insure CC=insure ./configure
 
 Building from CVS:
 ==================
