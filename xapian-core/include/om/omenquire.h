@@ -106,6 +106,9 @@ class OmMSetIterator {
 	/// Get the weight of the document at the current position
         om_weight get_weight() const;
 
+	// Get the number of documents that have been collapsed into this one
+	om_doccount get_collapse_count() const;
+	
 	/** This returns the weight of the document as a percentage score
 	 *  The return value will be in the range 0 to 100:  0 meaning
 	 *  that the item did not match the query at all.

@@ -85,10 +85,11 @@ class OmESetIterator::Internal {
 class OmMSetItem {
     private:
     public:
-	OmMSetItem(om_weight wt_, om_docid did_) : wt(wt_), did(did_) {}
+	OmMSetItem(om_weight wt_, om_docid did_) 
+		: wt(wt_), did(did_), collapse_count(0) {}
 
 	OmMSetItem(om_weight wt_, om_docid did_, const string &key_)
-		: wt(wt_), did(did_), collapse_key(key_) {}
+		: wt(wt_), did(did_), collapse_key(key_), collapse_count(0) {}
 
 	/** Weight calculated. */
 	om_weight wt;
@@ -108,6 +109,14 @@ class OmMSetItem {
 	 *  the items in the returned OmMSet.
 	 */
 	string collapse_key;
+
+	/** Count of collapses done on collapse_key so far
+	 *
+	 * This is normally 0, and goes up for each collapse done
+	 * It is not neccessarily an indication of how many collapses
+	 * might be done if an exhaustive match was done
+	 */
+	 om_doccount collapse_count;
 
 	/** For use by match_sort_key option - FIXME: document if this stays */
 	/* FIXME: this being mutable is a gross hack */

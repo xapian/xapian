@@ -1,3 +1,9 @@
+Fri Feb 28 10:11:04 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
+
+	* Add get_collapse_count() to OmMSetIterator
+	* Add collapse_count to OmMSetItem
+	* Add collapse_count tracking to get_mset()
+
 Thu Feb 27 15:28:08 GMT 2003  Olly Betts <olly@survex.com>
 
 	* common/match.h,common/multimatch.h,matcher/multimatch.cc: Optimise

@@ -1,3 +1,14 @@
+Fri Feb 28 09:52:03 GMT 2003 Sam Liddicott <sam.liddicott@orange.co.uk>
+
+	* Added $collapsed to omegascript to give the number of hits
+	  collapsed into the current hit, eg:
+
+	  $if{$ne{$collapsed,0},$collapsed hidden results 
+	                        ($value{$cgi{COLLAPSE}})}
+
+	* removed euro ferret icon reference from godmode template
+	* added value dumping to godmode, for values from 0-255
+
 Thu Feb 27 11:58:13 GMT 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am,query.cc,docs/omegascript.txt,templates/query:

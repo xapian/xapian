@@ -53,6 +53,12 @@ ${...}
 $allterms{docid}
 	list of all terms matching document
 
+$collapsed
+	number of other documents collapsed into current hit inside $hitlist
+	useful like:
+
+  $if{$ne{$collapsed,0},$collapsed hidden results ($value{$cgi{COLLAPSE}})}
+
 $cgi{CGI}
 	lookup the value of a CGI variable
 

@@ -837,6 +837,12 @@ OmMSetIterator::get_weight() const
     return internal->it->wt;
 }
 
+om_doccount
+OmMSetIterator::get_collapse_count() const
+{
+    return internal->it->collapse_count;
+}
+
 om_percent
 OmMSetIterator::get_percent() const
 {

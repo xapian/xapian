@@ -563,10 +563,16 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			DEBUGLINE(MATCH, "collapsem: better exists: " <<
 				  new_item.collapse_key);
 			// There's already a better match with this key
+			oldkey->second.collapse_count++;
 			continue;
 		    }
+		    // Make a note of the updated collapse count in the
+		    // replacement item
+		    new_item.collapse_count = old_item.collapse_count+1;
+
 		    // This is best match with this key so far:
 		    // remove the old one from the MSet
+		    // 
 		    if (min_item.wt <= 0.0 || mcmp(old_item, min_item)) {
 			// Old one hasn't fallen out of MSet yet
 			// Scan through (unsorted) MSet looking for entry

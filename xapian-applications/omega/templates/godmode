@@ -18,7 +18,13 @@ o.substring(1,i)+o.substring(i+c.value.length+1,o.length-1);
 <body bgcolor=white>
 $setrelevant{$cgi{ID}}
 <small>Raw record #$cgi{ID}:<br>
-<pre>$html{$record{$cgi{ID}}}</pre></small>
+<pre>$html{$record{$cgi{ID}}}</pre>
+<table><tr><th>Key</th><th>Value</th></tr>
+$list{$map{$range{0,255},$if{$value{$_,$cgi{ID}},
+<tr><td>$_</td><td>$value{$_,$cgi{ID}}</td></tr>
+}},}
+</table>
+</small>
 <hr>
 Terms indexing this record<br>
 <table><tr><th>Term</th><th>Freq</th></tr>
@@ -28,8 +34,7 @@ Terms indexing this record<br>
 document.write('<INPUT NAME=P VALUE=\"\" SIZE=65>')
 // -->
 </SCRIPT>
-<INPUT ALIGN=middle TYPE=image HEIGHT=56 WIDTH=56 BORDER=0 
-SRC="http://www.euroferret.com/fx-gif/find.gif" VALUE=Find>
+<INPUT ALIGN=middle TYPE=SUBMIT VALUE="Find">
 $if{$dbname,<INPUT TYPE=hidden NAME=DB VALUE="$html{$dbname}">}
 $map{$allterms{$cgi{ID}},
 <tr><td>

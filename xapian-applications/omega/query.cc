@@ -759,6 +759,7 @@ static map<string, string> field;
 static om_docid q0;
 static om_doccount hit_no;
 static int percent;
+static om_doccount collapsed;
 
 static string print_caption(const string &fmt, const vector<string> &param);
 
@@ -769,6 +770,7 @@ CMD_allterms,
 CMD_and,
 CMD_cgi,
 CMD_cgilist,
+CMD_collapsed,
 CMD_date,
 CMD_dbname,
 CMD_dbsize,
@@ -869,6 +871,7 @@ static struct func_desc func_tab[] = {
 {T(and),	1, N, 0, 0, 0}}, // logical shortcutting and of a list of values
 {T(cgi),	1, 1, N, 0, 0}}, // return cgi parameter value
 {T(cgilist),	1, 1, N, 0, 0}}, // return list of values for cgi parameter
+{T(collapsed),	0, 0, N, 0, 0}}, // return number of hits collapsed into this
 {T(date),	1, 2, N, 1, 0}}, // convert time_t to strftime format (default: YYYY-MM-DD)
 {T(dbname),	0, 0, N, 0, 0}}, // database name
 {T(dbsize),	0, 0, N, 0, 1}}, // database size (# of documents)
@@ -1105,6 +1108,10 @@ eval(const string &fmt, const vector<string> &param)
 		for (MCI i = g.first; i != g.second; i++)
 		    value = value + i->second + '\t';
 		if (!value.empty()) value.erase(value.size() - 1);
+		break;
+	    }
+	    case CMD_collapsed: {
+		value = int_to_string(collapsed);
 		break;
 	    }
 	    case CMD_date:
@@ -1854,6 +1861,7 @@ print_caption(const string &fmt, const vector<string> &param)
     q0 = *(mset[hit_no]);
 
     percent = mset.convert_to_percent(mset[hit_no]);
+    collapsed = mset[hit_no].get_collapse_count();
 
     OmDocument doc = omdb.get_document(q0);
     string text = doc.get_data();
