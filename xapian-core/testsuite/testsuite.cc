@@ -49,7 +49,7 @@
 #include "omdebug.h"
 #include "utils.h"
 
-#ifdef HAVE_VALGRIND_MEMCHECK_H
+#ifdef HAVE_VALGRIND
 # include <valgrind/memcheck.h>
 # include <stdio.h>
 # include <sys/types.h>
@@ -196,7 +196,7 @@ class SignalRedirector {
 test_driver::test_result
 test_driver::runtest(const test_desc *test)
 {
-#ifdef HAVE_VALGRIND_MEMCHECK_H
+#ifdef HAVE_VALGRIND
     // This is used to make a note of how many times we've run the test
     volatile int runcount = 0;
 #endif
@@ -209,7 +209,7 @@ test_driver::runtest(const test_desc *test)
 	    if (catch_signals) sig.activate();
 	    try {
 		expected_exception = NULL;
-#ifdef HAVE_VALGRIND_MEMCHECK_H
+#ifdef HAVE_VALGRIND
 		VALGRIND_DO_LEAK_CHECK;
 		int vg_errs = VALGRIND_COUNT_ERRORS;
 		int vg_leaks = 0, vg_dubious = 0, vg_reachable = 0, dummy;
@@ -226,7 +226,7 @@ test_driver::runtest(const test_desc *test)
 		    out << " " << col_red << "FAILED" << col_reset;
 		    return FAIL;
 		}
-#ifdef HAVE_VALGRIND_MEMCHECK_H
+#ifdef HAVE_VALGRIND
 		// We must empty tout before asking valgrind to perform its
 		// leak checks, otherwise the buffers holding the output may
 		// be identified as a memory leak (especially if >1K of output
@@ -550,7 +550,7 @@ test_driver::parse_command_line(int argc, char **argv)
 	optind++;
     }
 
-#ifdef HAVE_VALGRIND_MEMCHECK_H
+#ifdef HAVE_VALGRIND
     if (verbose && RUNNING_ON_VALGRIND) {
 	// Open a temporary file for valgrind to log to.
 	FILE * f = tmpfile();

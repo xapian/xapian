@@ -1,3 +1,9 @@
+Sun Nov 30 23:42:52 GMT 2003  Olly Betts <olly@survex.com>
+
+	* configure.in,testsuite/testsuite.cc: Fix test for valgrind - it
+	  wasn't working correctly when valgrind was installed but was too
+	  a version to support VALGRIND_COUNT_ERRORS and VALGRIND_COUNT_LEAKS.
+
 Wed Nov 26 16:31:19 GMT 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am,extra/Makefile.am: Updated libtool -version-info
