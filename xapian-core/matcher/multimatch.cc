@@ -530,7 +530,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 				       OmMSetCmp>(items.begin(), items.end(),
 						  mcmp);
 		    }
-		    while (items.front().wt < min_item.wt) {
+		    while (!items.empty() && items.front().wt < min_item.wt) {
 			std::pop_heap<std::vector<OmMSetItem>::iterator,
 				      OmMSetCmp>(items.begin(), items.end(),
 						 mcmp);
@@ -578,7 +578,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		std::make_heap<std::vector<OmMSetItem>::iterator,
 			       OmMSetCmp>(items.begin(), items.end(), mcmp);
 	    }
-	    while (items.front().wt < min_wt) {
+	    while (!items.empty() && items.front().wt < min_wt) {
 		std::pop_heap<std::vector<OmMSetItem>::iterator,
 			      OmMSetCmp>(items.begin(), items.end(), mcmp);
 		items.pop_back();
