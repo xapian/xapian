@@ -9,8 +9,7 @@ Match::Match(IRDatabase *database)
 bool
 Match::add_pterm(const string& termname)
 {
-    // FIXME: const discarded...
-    termid id = DB->term_name_to_id((char*)termname.c_str());
+    termid id = DB->term_name_to_id(termname);
 
     if (!id) return false;
 
