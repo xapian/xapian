@@ -447,7 +447,7 @@ summarised the most notable changes and improvements:
         documents from a query which have a weight greater than a specified
         cutoff value.
       + Removed OmBatchEnquire from system: it may return at a later date, but
-        for now it is simply out of date and a maintainance liability, and
+        for now it is simply out of date and a maintenance liability, and
         gives no significant advantage.
       + Added experimental match bias functors.
 
