@@ -234,6 +234,7 @@ bool Lines::ReadNextLine() {
   bool changedFiles = false;
 
   revision_comment_words.clear();
+  revision_comment_string.clear();
 
   terms.clear();
   term_list.clear();
@@ -303,6 +304,9 @@ bool Lines::ReadNextLine() {
 
     list<string> words;
     split( comments[i], " .,:;#%_*+&'\"/!()[]{}<>?-\t\n\002\003", words ); // we get 002 sometimes if ".^B"
+
+    revision_comment_string[ revisions[i] ] = comments[i];
+
     list<string> term_list;
     stemWords( words, term_list );
     revision_comment_words[ revisions[i] ] = term_list;
@@ -402,6 +406,10 @@ list<string> Lines::getTermList() {
 
 map< string, list<string> > Lines::getRevisionCommentWords() { 
   return revision_comment_words;
+}
+
+map< string, string > Lines::getRevisionCommentString() { 
+  return revision_comment_string;
 }
 
 #if SHOW_WARNINGS

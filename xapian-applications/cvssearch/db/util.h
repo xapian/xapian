@@ -20,6 +20,7 @@ extern void split (const string & text, const string & separators, list<string> 
 class Lines {
 
   map< string, list<string> > revision_comment_words;
+  map< string, string > revision_comment_string;
 
   ifstream *in_comments;
   ifstream *in_code;
@@ -77,6 +78,7 @@ public:
   string getCodeLineData();
   string getCodeLine();
   map< string, list<string> > getRevisionCommentWords();
+  map< string, string > getRevisionCommentString();
 };
 
 void readTags( const string& fn, set<string>& S, map< string, string>& tag );
