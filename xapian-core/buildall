@@ -1,0 +1,215 @@
+#!/bin/sh
+# cvscompile - run everything needed to configure and build the system from
+# a CVS checkout.
+# 
+# Copyright 1999 Dialog Corporation
+
+# Set this to be the name of your package
+PACKAGE="Muscat"
+
+# Set this if you want verbose messages by default (probably a good idea)
+VERBOSE=1
+
+# Set this if you want make to get run after configure by default
+# (also probably a good idea)
+RUNMAKE=1
+
+# Details of this script
+PROGNAME="`echo $0 | sed -e 's#^.*/##'`"
+VERSION="0.9"
+
+# Little bit of paranoia
+test -z "${PROGNAME}" && PROGNAME="[build script]"
+
+#######################
+# Get directory names #
+#######################
+
+# Get the source directory, ie the directory 
+# Don't use dirname incase we havn't got GNU tools
+SRCDIR="`echo $0 | sed -e 's#/[^/]*$##'`"
+# Be paranoid about not getting SRCDIR
+test -z "$SRCDIR" && SRCDIR='.'
+
+BUILDDIR="`pwd`"
+# Be paranoid about not getting BUILDDIR
+test -z "$BUILDDIR" && BUILDDIR='-'
+
+########################
+# Function definitions #
+########################
+
+printlines() {
+  # Display arguments, interpreting \n
+  # FIXME: Don't assume we have an echo which interprets \n correctly
+  echo -e "$*"
+}
+
+display() {
+  # Display a string, unless not being verbose
+  if [ $VERBOSE -eq 1 ] ; then
+    printlines "$*"
+  fi
+}
+
+error() {
+  # Display an error message and stop
+  printlines "${PROGNAME}: error: $*" >&2
+  exit 1
+}
+
+warn() {
+  # Display a warning
+  printlines "${PROGNAME}: warning: $*" >&2
+}
+
+run() {
+  # Run a program, stopping if it returns an error condition
+  display "${PROGNAME}: running $*"
+  $* || error "in $*"
+}
+
+#####################################################################
+# Check options which are exclusive (ie, only valid if only option) #
+#####################################################################
+
+# Check if user asked for help
+if [ "x$*" = "x--help" ] ; then
+  display "Usage: ${PROGNAME} [--quiet|--no-make] [--] [arguments for configure]"
+  display "Usage: ${PROGNAME} --help | --version"
+  display
+  display "  This script runs all the neccessary utilities to configure and"
+  display "  compile ${PACKAGE}."
+  display
+  display "Options:"
+  display "  --help            Display this message"
+  display "  --version         Display cvscompile version number (${VERSION})"
+  display "  --quiet           Don't report on progress of cvscompile"
+  display "  --no-make          Don't run make after configuring"
+  display "  --                Mark end of options: all further arguments will be passed"
+  display "                    to configure"
+  display
+  if [ -x "${SRCDIR}/configure" ] ; then
+    display "Run \"${SRCDIR}/configure --help\" for arguments to pass to configure"
+  else
+    display "Run \"$0 -- --help\" for arguments to pass to configure"
+  fi
+  exit 0
+fi
+
+# Check if user asked for version
+if [ "x$*" = "x--version" ] ; then
+  display "${PROGNAME} version ${VERSION}"
+  exit 0
+fi
+
+#######################
+# Parse other options #
+#######################
+
+# Check if asked to be quiet
+if [ "x$1" = "x--quiet" ] ; then
+  VERBOSE=0
+  shift
+fi
+
+# Check if asked to be quiet
+if [ "x$1" = "x--no-make" ] ; then
+  RUNMAKE=0
+  shift
+fi
+
+# Check if asked to be quiet (again)
+if [ "x$1" = "x--quiet" ] ; then
+  if [ $VERBOSE eq 1 ] ; then
+    # If verbose is already 0
+    VERBOSE=0
+    shift
+  fi
+fi
+
+# Check if asked not to parse further arguments (by passing --)
+# (We just throw this away, since it has already worked)
+if [ "x$1" = "x--" ] ; then
+  shift
+fi 
+
+# Check for existence of neccessary tools
+
+display "${PROGNAME}: checking for tools"
+
+ERRMSG=""
+(autoconf --version) < /dev/null > /dev/null 2>&1 || {
+  ERRMSG="${ERRMSG}Maintainer tool autoconf not found\\n"
+}
+(automake --version) < /dev/null > /dev/null 2>&1 || {
+  ERRMSG="${ERRMSG}Maintainer tool automake not found\\n"
+}
+(libtool --version) < /dev/null > /dev/null 2>&1 || {
+  ERRMSG="${ERRMSG}Maintainer tool libtool not found\\n"
+}
+test -z "${ERRMSG}" ||
+error "${ERRMSG}See INSTALL for details of tools needed to develop $PACKAGE"
+
+ERRMSG=""
+(aclocal --version) < /dev/null > /dev/null 2>&1 || {
+  ERRMSG="${ERRMSG}Maintainer tool aclocal (part of automake) not found\\n"
+}
+(autoheader --version) < /dev/null > /dev/null 2>&1 || {
+  ERRMSG="${ERRMSG}Maintainer tool autoheader (part of autoconf) not found\\n"
+}
+test -z "${ERRMSG}" ||
+error "${ERRMSG}See INSTALL for details of tools needed to develop $PACKAGE"
+
+# FIXME - Check for tested versions of tools
+
+# Build configure script and Makefile.in's
+cd ${SRCDIR}
+if [ "x${SRCDIR}" != "x." ] ; then
+  display "${PROGNAME}: changed to source directory, `pwd`"
+fi
+run aclocal $ACLOCAL_FLAGS
+run autoheader
+run autoconf
+run automake --add-missing
+
+# Return to build directory
+cd ${BUILDDIR}
+if [ "x${SRCDIR}" != "x." ] ; then
+  display "${PROGNAME}: returned to build directory, ${BUILDDIR}"
+fi
+
+# Run configure script
+if [ -z "$*" ] ; then
+  if [ -x ./config.status ] ; then
+    run ./config.status --recheck
+    run ./config.status
+  else
+    run ${SRCDIR}/configure
+  fi
+else
+  run ${SRCDIR}/configure $*
+fi
+
+# HACK: try not to run make, or say we've configured, if configure didn't
+# actually perform configuration
+# Can be fooled by --no-create.  If they use this and there's a Makefile,
+# we run make anyway.  Ho hum.  Think this is acceptable.
+if [ "x$*" = "x--he" -o "x$*" = "x--hel" -o "x$*" = "x--help" ] ; then
+  exit 0
+fi
+if [ "x$*" = "x--vers" -o "x$*" = "x--versi" -o \
+     "x$*" = "x--versio" -o "x$*" = "x--version" ] ; then
+  exit 0
+fi
+
+# Now run the make
+if [ -r Makefile ] ; then
+  if [ ${RUNMAKE} -eq 1 ] ; then
+    run make
+    display "${PROGNAME}: successfully built ${PACKAGE}"
+  else
+    display "${PROGNAME}: configuration successful"
+    display "Run \"make\" to compile"
+  fi
+fi
