@@ -1,3 +1,7 @@
+Tue Sep  5 11:48:54 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed a double-deleting bug in indexer
+
 Tue Sep  5 10:49:18 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Re-added OmTypeError with slightly different comment.

@@ -120,7 +120,6 @@ OmIndexerNode::get_output_string(const std::string &output_name)
 	    throw OmInvalidArgumentError(std::string("Attempt to convert a non-string output (") + output_name + ") into a string");
 	}
 	result = (*i->second)->get_string();
-	delete i->second;
 	outputs_record.erase(i);
     }
     return result;
