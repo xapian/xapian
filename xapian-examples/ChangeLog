@@ -1,3 +1,8 @@
+Wed Nov 03 20:09:20 GMT 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am,delve.cc,getopt.cc,getopt.h,getopt1.cc,gnu_getopt.h,
+	  quest.cc: Updated to reworked getopt from xapian-core.
+
 Wed Nov 03 04:10:13 GMT 2004  Olly Betts <olly@survex.com>
 
 	* getopt.cc: Defining _NO_PROTO is a really bad idea for C++ code!

@@ -9,12 +9,11 @@ bin_PROGRAMS = quest delve copydatabase\
 
 AM_CXXFLAGS = @AM_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
 
-noinst_HEADERS = getopt.h
+noinst_HEADERS = gnu_getopt.h
 
-quest_SOURCES = quest.cc getopt.cc getopt1.cc
+quest_SOURCES = quest.cc getopt.cc
 quest_LDADD = $(XAPIAN_LIBS)
 
-# delve doesn't use getopt_long so doesn't need getopt1.cc
 delve_SOURCES = delve.cc getopt.cc
 delve_LDADD = $(XAPIAN_LIBS)
 

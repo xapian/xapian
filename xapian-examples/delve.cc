@@ -28,7 +28,7 @@
 #include <iostream>
 #include <vector>
 
-#include "getopt.h"
+#include "gnu_getopt.h"
 
 using namespace Xapian;
 using namespace std;
@@ -148,7 +148,7 @@ main(int argc, char **argv)
     vector<string> dbs;
 
     int c;
-    while ((c = getopt(argc, argv, "r:t:1vkd")) != EOF) {
+    while ((c = gnu_getopt(argc, argv, "r:t:1vkd")) != EOF) {
 	switch (c) {
 	    case 'r':
 		recnos.push_back(atoi(optarg));

@@ -25,7 +25,7 @@
 
 #include <iostream>
 
-#include "getopt.h"
+#include "gnu_getopt.h"
 
 using namespace std;
 
@@ -60,7 +60,8 @@ main(int argc, char **argv)
 	Xapian::Database db;
 
 	int c;
-	while ((c = getopt_long(argc, argv, "hvm:d:", long_opts, 0)) != EOF) {
+	while ((c = gnu_getopt_long(argc, argv, "hvm:d:", long_opts, 0)) != EOF)
+	{
 	    switch (c) {
 		case 'm':
 		    msize = atoi(optarg);
