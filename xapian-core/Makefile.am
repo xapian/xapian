@@ -18,7 +18,7 @@ ACCESS_DA = da_database.cc daread.c da_record.cc
 
 STEMMER_SRC = stem.c stem_en.cc
 
-dbtest_SOURCES = dbtest.cc $(ACCESS_PROTO) $(ACCESS_DA) $(ACCESS_SLEEPY) \
+dbtest_SOURCES = dbtest.cc $(ACCESS_DA) $(ACCESS_SLEEPY) \
                  $(ACCESS_MULTI)
 dbtest_LDADD = -L/usr/local/BerkeleyDB/lib -ldb
 
