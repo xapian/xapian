@@ -30,6 +30,12 @@ Write (speed) performance test suite.
 Write indexer modules.
 
 </todoitem>
+<todoitem priority="M" difficulty="2" owner="" area="API">
+
+Rename AutoPtr to OmAutoPtr, and autoptr.h to omautoptr.h (or think
+of a suitable alternative scheme for avioding exposing the autoptrs).
+
+</todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="Matcher">
 
 Write tests to check that setting the parameters used in the BM25 and

@@ -1,3 +1,7 @@
+Fri Oct  6 12:02:53 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add autoptr cleanup item to todo.
+
 Thu Oct  5 18:28:48 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Renamed OmIndexer::get_output to get_raw_output and added new
