@@ -25,6 +25,7 @@
 #include "utils.h"
 #include "om/omerror.h"
 #include "omassert.h"
+#include "omdebug.h"
 
 #define NEXTDOCID_TAG std::string("\000\000", 2)
 #define TOTLEN_TAG std::string("\000\001", 2)
@@ -154,12 +155,13 @@ QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
 om_totlength
 QuartzRecordManager::get_total_length(QuartzTable & table)
 {
+    DEBUGCALL_STATIC(DB, om_totlength, "QuartzRecordManager::get_total_length", "QuartzTable &");
     QuartzDbKey key;
     key.value = TOTLEN_TAG;
     QuartzDbTag tag;
 
     if (!table.get_exact_entry(key, tag)) {
-	return 0u;
+	RETURN(0u);
     }
 
     quartz_totlen_t totlen;
@@ -174,7 +176,7 @@ QuartzRecordManager::get_total_length(QuartzTable & table)
 	}
     }
 
-    return (om_totlength) totlen;
+    RETURN((om_totlength) totlen);
 }
 
 void

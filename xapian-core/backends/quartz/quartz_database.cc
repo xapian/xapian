@@ -193,9 +193,9 @@ QuartzDatabase::get_avlength_internal() const
     // FIXME: probably want to cache this value (but not miss updates)
     om_doccount docs = get_doccount_internal();
     if (docs == 0) return 0;
+    om_totlength totlen = QuartzRecordManager::get_total_length(*(tables->get_record_table()));
 
-    return QuartzRecordManager::get_total_length(*(tables->get_record_table()))
-	    / docs;
+    return (double) totlen / docs;
 }
 
 om_doclength
