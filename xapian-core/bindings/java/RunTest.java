@@ -24,7 +24,8 @@ import java.util.*;
 import java.io.*;
 
 public class RunTest {
-    public static void main (String[] args) throws Throwable {
+    public static int main (String[] args) throws Throwable {
+        boolean success = true;
     	// First some quick playing with stemmers and queries.
     	OmStem foo = new OmStem("english");
 
@@ -49,10 +50,26 @@ public class RunTest {
 						  new OmQuery("two", 1, 2)));
 
 	String[] terms = myquery.get_terms();
+	String[] correct_terms = { "one", "two", "three", "four" };
 	System.out.print("terms = ");
 	for (int i=0; i<terms.length; ++i) {
 	    System.out.print(terms[i] + " ");
+	    if (i < correct_terms.length) {
+	        if (terms[i] != correct_terms[i]) {
+	            System.err.println("Incorrect term.");
+		    success = false;
+		}
+	    } else {
+	        System.err.println("Incorrect number of terms.");
+		success = false;
+	    }
 	}
 	System.out.println("");
+
+	OmDatabaseGroup dbgrp = new OmDatabaseGroup();
+
+//	dbgrp.add_database("inmemory", {});
+
+	return (success? 0 : -1);
     }
 }

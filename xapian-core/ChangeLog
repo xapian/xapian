@@ -1,3 +1,7 @@
+Fri Jul  7 18:18:07 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added OmDatabase to java bindings
+
 Fri Jul  7 17:31:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added OmMSet::get_termfreq() and OmMSet::get_termweight() methods,
