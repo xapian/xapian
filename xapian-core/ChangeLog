@@ -1,3 +1,9 @@
+Mon Feb 14 02:25:53 GMT 2005  Olly Betts <olly@survex.com>
+
+	* extra/lempar.c,extra/queryparser.lt: Rename lemon template to .lt
+	  which is more sensible than calling it lempar.c and should work
+	  with VPATH builds.
+
 Mon Feb 14 02:12:51 GMT 2005  Olly Betts <olly@survex.com>
 
 	* extra/Makefile.am: Fixes for VPATH builds.
