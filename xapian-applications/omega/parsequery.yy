@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001 Ananova Ltd
+ * Copyright 2001,2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -268,11 +268,14 @@ yylex()
 		qptr++;
 		if (qptr == q.end() || isspace(*qptr)) already_stemmed = true;
 	    }
-	    if (*qptr == '-') {
-		if (qptr + 1 != q.end() && isalnum(*(qptr + 1))) {
-		    qptr++;
-		    pending_token = HYPHEN;
-		}
+	    switch (*qptr) {
+		case '-': case '_': case '/': case '\\':
+		    /* Terms separated by these characters are treated as a
+		     * phrase search */
+		    if (qptr + 1 != q.end() && isalnum(*(qptr + 1))) {
+			qptr++;
+			pending_token = HYPHEN;
+		    }
 	    }
 	}
 	if (term == "AND") {
@@ -302,11 +305,12 @@ yylex()
 	return AND;
      case '|':
 	return OR;
-     case '_':
-	return HYPHEN;
+     case '(': case ')': case '-': case '+': case '"':
+	/* these characters are used in the grammar rules */
+	return c;
     }
-    /* return single chars */
-    return c;                                
+    /* ignore any other characters */
+    return yylex();                                
 }
 
 int

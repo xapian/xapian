@@ -1,10 +1,14 @@
-Mon Feb  4 14:57:36 GMT 2002
+Mon Mar 25 13:11:14 GMT 2002  Olly Betts <olly@survex.com>
 
-	* Added support for repeated keys in document data.
-	  $field{key} may now return multiple tab separated values if more
-	  than one instance of key exists in the document data
+	* More tolerant treatment of random punctuation in query.
 
-Tue Jan 15 16:29:39 GMT 2002
+Mon Feb  4 14:57:36 GMT 2002  Sam Liddicott  <sam@ananova.com>
+
+	* Added support for repeated fields in document data.
+	  $field{fieldname} may now return multiple tab separated values if
+	  more than one instance of a field exists in the document data
+
+Tue Jan 15 16:29:39 GMT 2002  Sam Liddicott  <sam@ananova.com>
 
 	* Fixed date_range_filter for the case where DATE1 and DATE2 don't
 	  share the same MONTH and YEAR and M## terms for intermediate months 
