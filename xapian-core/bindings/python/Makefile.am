@@ -11,7 +11,8 @@ pylib_LTLIBRARIES = _xapian.la
 
 # Remove the .la file - _xapian.la is never linked against (it's a module)
 # and Python doesn't use libltdl.
-# hmm -hook doesn't seem to execute after everything else
+# hmm -hook seems to execute first, not after everything else as the
+# automake manual says it does
 install-exec-local:
 	rm -f $(DESTDIR)$(pylibdir)/_xapian.la
 

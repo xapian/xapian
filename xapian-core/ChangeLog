@@ -1,3 +1,10 @@
+Wed Jul 09 03:00:17 BST 2003  Olly Betts <olly@survex.com>
+
+	* bindings/guile/Makefile.am,bindings/python/Makefile.am,
+	  bindings/tcl8/Makefile.am: Worked towards getting guile and tcl8
+	  bindings up-to-date.
+	* bindings/php4/.cvsignore: Ignore the whole xapian subdirectory.
+
 Wed Jul 09 02:37:12 BST 2003  Olly Betts <olly@survex.com>
 
 	* bindings/perl5/: Removed remaining files.

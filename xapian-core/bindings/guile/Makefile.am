@@ -1,25 +1,19 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/include -I$(top_srcdir)/extra
+SWIG_INCLUDES = $(INCLUDES) -I$(top_srcdir)/bindings/swig
 
-SWIG_INCLUDES = $(INCLUDES) -I$(top_srcdir)/bindings/swig/
+noinst_LTLIBRARIES = xapianc.la
 
-target: omstem.so
+# swig generated code gives lots of (non-harmful) warnings with -W or -Wunused
+AM_CXXFLAGS = -Wall -Wno-unused
+xapianc_la_LDFLAGS = -avoid-version -module
+nodist_xapianc_la_SOURCES = xapian_wrap.cc
+xapianc_la_LIBADD = ../../libxapian.la ../../extra/libomqueryparser.la
 
-omstem_wrap.cc: ../swig/omstem.i ../swig/om_util.i ../swig/om_util_guile.i
-	swig $(SWIG_INCLUDES) -c++ -guile -o $@ $<
+BUILT_SOURCES = xapian_wrap.cc
 
 xapian_wrap.cc: ../swig/xapian.i ../swig/omstem.i ../swig/om_util.i ../swig/om_util_guile.i
-	swig $(SWIG_INCLUDES) -c++ -guile -shadow -o $@ $<
+	$(SWIG) $(SWIG_INCLUDES) -c++ -guile -shadow -o $@ $(srcdir)/../swig/xapian.i
 
-omstem_wrap.o: omstem_wrap.cc
-	$(CXX) $(INCLUDES) $(CXXFLAGS) -c $< -o $@
-
-xapian_wrap.o: xapian_wrap.cc
-	$(CXX) $(INCLUDES) $(CXXFLAGS) -c $< -o $@
-
-omstem.so: omstem_wrap.o
-	$(LIBTOOL) $(CXX) -shared $< ../../libxapian.la -o $@
-
-xapianc.so: xapian_wrap.o
-	$(LIBTOOL) $(CXX) -shared $< ../../libxapian.la -o $@
+CLEANFILES = $(BUILT_SOURCES)
