@@ -6,7 +6,7 @@
 // Include headers for all the database types
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
 #include "muscat36/da_database.h"
-//#include "muscat36/db_database.h"
+#include "muscat36/db_database.h"
 #endif
 #ifdef MUS_BUILD_BACKEND_INMEMORY
 #include "inmemory/inmemory_database.h"
@@ -41,12 +41,12 @@ DatabaseBuilder::create(const DatabaseBuilderParams & params)
 	    break;
 	case OM_DBTYPE_MUSCAT36_DB_F:
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
-	    //database = new DBDatabase(0);
+	    database = new DBDatabase(0);
 #endif
 	    break;
 	case OM_DBTYPE_MUSCAT36_DB_H:
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
-	    //database = new DBDatabase(1);
+	    database = new DBDatabase(1);
 #endif
 	    break;
 	case OM_DBTYPE_INMEMORY:
