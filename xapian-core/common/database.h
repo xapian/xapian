@@ -24,7 +24,6 @@ class PostListIterator {
 	
     public:
 	PostListIterator();
-	~PostListIterator();
 	void   open(termid);    // Throws RangeError if termid invalid
 	docid  get_docid();     // Gets current docid
 	void   next();          // Moves to next docid
@@ -37,12 +36,12 @@ class TermListIterator {
     private:
     public:
 	TermListIterator();
-	~TermListIterator();
 	void   open(docid);     // Throws InvalidIDException if docid invalid
 	termid get_termid();    // Gets current termid
 	void   next();          // Moves to next termid
 	void   skip_to(termid); // Moves to next termid >= specified termid
 	bool   are_more();      // True if there are more termid's
+	void   close();
 };
 
 class IRDatabase {
