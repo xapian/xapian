@@ -28,9 +28,11 @@ case "$bison_version" in
   echo "Bison 1.875 won't work with Xapian.  Please upgrade to 1.875a or newer,"
   echo "or downgrade to an older version."
   exit 1
+  ;;
 *)
   echo "You must have Bison 1.35 or newer (you appear to have $bison_version)"
   exit 1
+  ;;
 esac
 
 # change to srcdir to give Debian's hybrid autoconf 2.13/2.50 more to work with
