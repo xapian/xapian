@@ -85,7 +85,7 @@ class DATermList : public virtual TermList {
 	vector<DATermListItem>::iterator pos;
 	vector<DATermListItem> terms;
 
-	DATermList(IRDatabase *root, struct termvec *tv);
+	DATermList(const IRDatabase *root, struct termvec *tv);
     public:
 	termid get_termid() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc

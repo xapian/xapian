@@ -69,7 +69,7 @@ PostList * DAPostList::skip_to(docid id, weight w_min)
 
 
 
-DATermList::DATermList(IRDatabase *db, struct termvec *tv)
+DATermList::DATermList(const IRDatabase *db, struct termvec *tv)
 {
     readterms(tv);
     while(tv->term != 0) {
@@ -171,7 +171,7 @@ TermList * DADatabase::open_term_list(docid id) const
 
     openterms(tv);
 
-    DATermList *tl = new DATermList(root, tv);
+    DATermList *tl = new DATermList(this, tv);
     return tl;
 }
 
