@@ -25,6 +25,8 @@ test -z "$srcdir_raw" && srcdir_raw=.
 srcdir="`cd \"$srcdir_raw\" && pwd`"
 dirs=
 here="`pwd`"
+XAPIAN_CONFIG="$here/xapian-core/xapian-config"
+export XAPIAN_CONFIG
 for d in xapian-core xapian-bindings xapian-examples xapian-applications/* ; do
   if test -f "$srcdir/$d/configure" ; then
     if test -d "$d" ; then : ; else
