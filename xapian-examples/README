@@ -1,7 +1,7 @@
 This directory contains example programs which can be compiled against
 Xapian.
 
-Run "./configure" to configure the example, then run "make" to build them all.
+Run "./configure" to configure the examples, then run "make" to build them all.
 
 Developers
 ==========

@@ -1,3 +1,10 @@
+Mon May 13 13:36:26 BST 2002  Olly Betts <olly@survex.com>
+
+	* Started to clean up simple examples and move them into the main
+	  build system.
+
+	* Link with GNU getopt where required.
+
 Fri May 10 14:52:34 BST 2002  Olly Betts <olly@survex.com>
 
 	* indexnasty: add_key -> add_value.
