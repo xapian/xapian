@@ -269,7 +269,7 @@ sub prologue() {
 MAINSTART
     my $name;
     foreach $name (split(/ +/, $self->{tests})) {
-        next if $name eq "";
+        if ($name eq "" or $name eq "test_alwaysfail") { next};
         $result .= <<TESTEND;
     if ((test == null) || (test.equals("$name"))) {
 	System.out.print("${name}... ");
@@ -353,6 +353,12 @@ sub addtext($) {
     $text =~ s/OM_MOP_([A-Z_]+)/"$1"/g;
     # Change NULL into null
     $text =~ s/\bNULL\b/null/g;
+    # Convert (mset1 == mset2) (which doesn't work with java references)
+    # into mset_equal(mset1, mset2).
+    $text =~ s/\b([a-z_]*mset[a-zA-Z0-9_]*) == ([a-z_]*mset[a-zA-Z0-9_]*)\b/mset_equal($1,$2)/g;
+    # similarly for mset1 != mset2
+    $text =~ s/\b([a-z_]*mset[a-zA-Z0-9_]*) != ([a-z_]*mset[a-zA-Z0-9_]*)\b/!mset_equal($1,$2)/g;
+
     $self->{func} .= (" " x $self->{indent_level}) . $text;
 }
 
