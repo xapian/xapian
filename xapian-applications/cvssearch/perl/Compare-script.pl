@@ -372,13 +372,11 @@ sub compare_file_index {
         }
         $i = $#versions;
         print "<hr size=1 noshade>\n";
-        print "<a href=\"$cvscompare?";
-        print "fileid=$fileid&";
-        print "pkg=$pkg&";
-        print "root=$root&";
-        print "version=$versions[$i]\">initial version for <b>$filename</b></a><br>\n";
+        print "<b>$filename</b>: inserted lines in initial version ";
+        print "$versions[$i] matched with corresponding lines in latest version\n";
+        print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=0&version=$versions[$i]\">full</a>,\n";
+        print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=1&version=$versions[$i]\">short</a>\n";
         print "<pre>$comments[$i]</pre>\n";
-
         print "<hr noshade>\n";
         print_compare_form($root, $pkg, $fileid, $versions[$#versions], $versions[0]);
     } else {
