@@ -121,12 +121,17 @@ B-tree.
 The API
 -------
 
-int Btree_create(char * name, int block_size);
+Most of the procedures described below can return with an error condition. Error
+conditions are described later. Meanwhile, the code examples given here ignore
+the possibility of errors. Bad practise, but it makes them more readable.
 
-    Creates a new B-tree with the given name and block size. result is 1 (true)
-    if successful, otherwise zero. e.g.
 
-        ok = Btree_create("/home/martin/develop/btree/", 8192);
+int Btree_create(const char * name, int block_size);
+
+    Creates a new B-tree with the given name and block size. The integer result
+    gives an error condition.
+
+        error_condition = Btree_create("/home/martin/develop/btree/", 8192);
 
         Btree_create("X-", 6000); /* files will be X-bitmapA, X-DB etc */
 
@@ -141,7 +146,7 @@ Thereafter there are two modes for accessing the B-tree: update and retrieval.
 Update mode
 -----------
 
-struct Btree * Btree_open_to_write(char * name);
+struct Btree * Btree_open_to_write(const char * name);
 
     The name is the same as the one used in creating. The result is a pointer
     to a Btree structure, or 0 if the open fails, e.g.
@@ -178,7 +183,7 @@ B->both_bases
 
     is true iff both files baseA and baseB exist as valid bases.
 
-struct Btree * Btree_open_to_write_revision(char * name, unsigned long revision);
+struct Btree * Btree_open_to_write_revision(const char * name, unsigned long revision);
 
     Like Btree_open_to_write, but open at the given revision number.
 
@@ -197,10 +202,10 @@ int Btree_add(struct Btree * B, byte * key, int key_len,
     'key_len' and 'tag_len' give the number of bytes in the key and the tag.
 
     tag_len can be zero. key_len can be zero, and then the null item is
-    replaced. If key_len exceeds the the limit on key sizes an error occurs.
-    The result is 0 (or false) if a the key is already in the B-tree, otherwise
-    1 (or true). So the result also measures the increase in the total number
-    of keys in the B-tree.
+    replaced. If key_len exceeds the the limit on key sizes an error condition
+    occurs. The result is 0 (or false) if a the key is already in the B-tree,
+    otherwise 1 (or true). So the result also measures the increase in the
+    total number of keys in the B-tree.
 
 
 int Btree_delete(struct Btree * B, byte * key, int key_len);
@@ -264,7 +269,7 @@ void Btree_item_lose(Btree_item * t);
 
 void Btree_quit(struct Btree * B);
 
-void Btree_close(struct Btree * B, unsigned long revision);
+int Btree_close(struct Btree * B, unsigned long revision);
 
     There are two ways of closing the B-tree. Btree_close is the normal exit,
     with all changes being flushed back to disk. Btree_quit abandons the
@@ -278,8 +283,8 @@ void Btree_close(struct Btree * B, unsigned long revision);
         ...
         Btree_close(B, revision + 1);
 
-    An error occurs if the revision number given for closing does not exceed
-    the revision number of the B-tree found after opening it.
+    An error condition occurs if the revision number given for closing does not
+    exceed the revision number of the B-tree found after opening it.
 
 B->item_count
 
@@ -296,11 +301,11 @@ In retrieval mode there is no opportunity for updating the B-tree, but access
 is considerably elaborated by the use of cursors.
 
 
-struct Btree * Btree_open_to_read(char * name);
+struct Btree * Btree_open_to_read(const char * name);
 
 B->revision_number
 
-struct Btree * Btree_open_to_read_revision(char * name, unsigned long revision);
+struct Btree * Btree_open_to_read_revision(const char * name, unsigned long revision);
 
 void Btree_quit(struct Btree * B);
 
@@ -454,7 +459,7 @@ Checking the B-tree
 
 Provisionally, the following is provided:
 
-void Btree_check(char * name, char * opt_string);
+void Btree_check(const char * name, const char * opt_string);
 
     Btree_check(s, opts) is essentially equivalent to
 
@@ -673,4 +678,102 @@ The test is not required after any of the following,
 Note particularly that opening the B-tree can set B->overwritten, and that
 Bcursor_get_key(..) will not set B->overwritten.
 
+
+Error conditions
+----------------
+
+The procedures described above report errors in three ways. (A) A null result.
+If after
+
+   struct Btree_item kt = Btree_item_create();
+
+kt == 0, the was not enough space left to create structure kt. (B) A non-zero
+result. Btree_close(B) returns an int result which is 0 if successful,
+otherwise an error number. (C) The error is placed in B->error, where B is the
+Btree structure used in the call, or the Btree structure from which the Bcursor
+structure used in the call derives. Then B->error == 0 means no error,
+otherwise it is a positive number (greater than 2) giving the error number.
+
+Some procedures cannot give an error.
+
+Here is a summary:
+
+
+    Error method  procedure
+    (A)(B)(C)          error condition given by:
+    ------------------------------------------------------
+           *  n = Btree_find_key(B, key, key_len)
+     *        kt= Btree_item_create(void)
+           *  n = Btree_find_tag(B, key, key_len, kt)
+                  Btree_item_lose(kt)
+           *  n = Btree_add(B, key, key_len, tag, tag_len)
+           *  n = Btree_delete(B, key, key_len)
+     *     *  B = Btree_open_to_write(s)
+     *     *  B = Btree_open_to_write_revision(s, rev)
+                  Btree_quit(B)
+        *     n = Btree_close(B, rev)
+        *     n = Btree_create(s, block_size)
+     *        B = Btree_open_to_read(s)
+     *     *  B = Btree_open_to_read_revision(s, rev)
+     *     *  BC= Bcursor_create(B)
+           *  n = Bcursor_find_key(BC, key, key_len)
+           *  n = Bcursor_next(BC)
+           *  n = Bcursor_prev(BC)
+           *  n = Bcursor_get_key(BC, kt)
+           *  n = Bcursor_get_tag(BC, kt)
+                  Bcursor_lose(BC)
+                  Btree_full_compaction(B, parity)
+
+    (A) null result (B) non-zero result (C) B->error == true
+
+Here are some suitable error tests with the different calls,
+
+    kt = Btree_item_create(s);
+    if (kt == 0) ...
+
+    B = Btree_open_to_write(s);
+    if (B == 0 || B->error) ...
+
+    n = Btree_create("...");
+    if (n) ...
+
+    n = Btree_delete(B, key, key_len);
+    if (B->error) ...
+
+B->error is not cleared after being set true. B->error can, as a side effect,
+set B->overwritten to true, but this should not matter since the test for
+B->error should always be done first. The procedures that give no error can
+still have the test for error (C) applied. Error (A) will be rare, and most
+of the others should be rare, except for creating and opening the Btree, which
+will of course fail when the necessary files cannot be created or found.
+
+Errors (B) and (C) have a consistent set of values, defined in btree.h. They
+are,
+
+
+BTREE_ERROR_BLOCKSIZE     block size too large or too small during creation
+BTREE_ERROR_SPACE         malloc, calloc failure
+
+BTREE_ERROR_BASE_CREATE   For the base files, failure to create
+BTREE_ERROR_BASE_DELETE   - failure to delete
+BTREE_ERROR_BASE_READ     - failure to read
+BTREE_ERROR_BASE_WRITE    - failure to write
+
+BTREE_ERROR_BITMAP_CREATE For the bit map files, failure to create
+BTREE_ERROR_BITMAP_READ   - failure to read
+BTREE_ERROR_BITMAP_WRITE  - failure to write
+
+BTREE_ERROR_DB_CREATE     For the DB file, failure to create
+BTREE_ERROR_DB_OPEN       - failure to open
+BTREE_ERROR_DB_CLOSE      - failure to close
+BTREE_ERROR_DB_READ       - failure to read
+BTREE_ERROR_DB_WRITE      - failure to write
+
+BTREE_ERROR_KEYSIZE       - key_len too large (programmer error)
+BTREE_ERROR_TAGSIZE       - tag_len too large
+
+BTREE_ERROR_REVISION      - rev too small in Btree_close (programmer error)
+
+
+See 'keys and tags' above for the upper limit on tag sizes.
 

@@ -20,14 +20,6 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_BTREE_H
-#define OM_HGUARD_BTREE_H
-
-/* Make header file work when included from C++ */
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef unsigned char byte;
 typedef long int4;
 typedef unsigned long uint4;
@@ -60,6 +52,7 @@ struct Btree {
 
     /* 'public' information */
 
+    int error;            /* error number setting */
     char overwritten;     /* set to true if a parallel overwrite is detected */
     uint4 revision_number;/* revision number of the opened B-tree */
     uint4 other_revision_number;
@@ -124,21 +117,48 @@ struct Btree_item {
 
 };
 
+enum Btree_errors {
+
+    BTREE_ERROR_BLOCKSIZE = 3,
+    BTREE_ERROR_SPACE,
+
+    BTREE_ERROR_BASE_CREATE,
+    BTREE_ERROR_BASE_DELETE,
+    BTREE_ERROR_BASE_READ,
+    BTREE_ERROR_BASE_WRITE,
+
+    BTREE_ERROR_BITMAP_CREATE,
+    BTREE_ERROR_BITMAP_READ,
+    BTREE_ERROR_BITMAP_WRITE,
+
+    BTREE_ERROR_DB_CREATE,
+    BTREE_ERROR_DB_OPEN,
+    BTREE_ERROR_DB_CLOSE,
+    BTREE_ERROR_DB_READ,
+    BTREE_ERROR_DB_WRITE,
+
+    BTREE_ERROR_KEYSIZE,
+    BTREE_ERROR_TAGSIZE,
+
+    BTREE_ERROR_REVISION
+
+};
+
 extern int Btree_find_key(struct Btree * B, byte * key, int key_len);
-extern struct Btree_item * Btree_item_create();
+extern struct Btree_item * Btree_item_create(void);
 extern int Btree_find_tag(struct Btree * B, byte * key, int key_len, struct Btree_item * t);
 extern void Btree_item_lose(struct Btree_item * kt);
 extern int Btree_add(struct Btree * B, byte * key, int key_len,
                                        byte * tag, int tag_len);
 extern int Btree_delete(struct Btree * B, byte * key, int key_len);
-extern struct Btree * Btree_open_to_write(char * name);
-extern struct Btree * Btree_open_to_write_revision(char * name, unsigned long revision);
+extern struct Btree * Btree_open_to_write(const char * name);
+extern struct Btree * Btree_open_to_write_revision(const char * name, unsigned long revision);
 extern void Btree_quit(struct Btree * B);
-extern void Btree_close(struct Btree * B, unsigned long revision);
-extern void Btree_create(char * name, int block_size);
-extern void Btree_check(char * name, char * opt_string);
-extern struct Btree * Btree_open_to_read(char * name);
-extern struct Btree * Btree_open_to_read_revision(char * name, unsigned long revision);
+extern int Btree_close(struct Btree * B, unsigned long revision);
+extern int Btree_create(const char * name, int block_size);
+extern void Btree_check(const char * name, const char * opt_string);
+extern struct Btree * Btree_open_to_read(const char * name);
+extern struct Btree * Btree_open_to_read_revision(const char * name, unsigned long revision);
 extern struct Bcursor * Bcursor_create(struct Btree * B);
 extern int Bcursor_find_key(struct Bcursor * BC, byte * key, int key_len);
 extern int Bcursor_next(struct Bcursor * BC);
@@ -147,9 +167,3 @@ extern int Bcursor_get_key(struct Bcursor * BC, struct Btree_item * kt);
 extern int Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * kt);
 extern void Bcursor_lose(struct Bcursor * BC);
 extern void Btree_full_compaction(struct Btree * B, int parity);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* OM_HGUARD_BTREE_H */
