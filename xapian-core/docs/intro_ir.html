@@ -59,8 +59,10 @@ you can do it either way.
 
 In an index a document, D, is of course a short identifier for a document, not
 the document itself. To keep things simple, a posting list can be thought
-of as a list of numbers, and term list as either a list of strings, or a list
-of numbers.
+of as a list of numbers (document ids), and term list as a list of strings
+(the terms).  Some systems represent each term by a number internally, so the
+term list is then also a list of numbers.  Xapian doesn't - it uses the terms
+themselves.
 
 <H2>Xapian's context within IR</H2>
 
@@ -181,11 +183,20 @@ of documents <I>R</I> of size R are relevant to the query. So if a document is i
 is able to give us back K documents, among which r are relevant. <EM>Precision</EM>
 and <EM>recall</EM> are defined as being,
 
-<PRE>
-                    r                    r
-        precision = -,          recall = -
-                    K                    R
-</PRE>
+<blockquote>
+<table border=0><tr valign=center>
+<td><tt>precision =&nbsp;</tt></td>
+<td>
+<tt><center>
+<u>r</u><br>K</center></tt>
+</td>
+<td><tt>,&nbsp;&nbsp;&nbsp;recall =&nbsp;</tt></td>
+<td>
+<tt><center>
+<u>r</u><br>R</center></tt>
+</td>
+</tr></table>
+</blockquote>
 
 Precision is the density of relevant documents among those retrieved. Recall
 is the proportion of relevant documents retrieved. In most IR systems K is a
@@ -231,24 +242,28 @@ weight to a term t of Q. Just how this weight gets used we will see below,
 but essentially a high weight means an important term and a low weight means
 an unimportant term. The formula is,
 
-<PRE>
-                   p (1 - q)
-        w(t) = log ---------
-                   (1 - p) q
-</PRE>
+<blockquote>
+<table border=0><tr valign=center>
+<td><tt>w(t) = log&nbsp;</tt></td>
+<td>
+<tt><center>
+<u>p (1 - q)</u><br>(1 - p) q</center></tt>
+</td>
+</tr></table>
+</blockquote>
 
 (The base of the logarithm doesn't matter, but we can suppose it is e.) p is
 the probability that t indexes a relevant document, and q the probability
 that t indexes a non-relevant document. And of course, 1 - p is the
 probability that t does not index a relevant document, and 1 - q the
 probability that t does not index a non-relevant document. More mathematically,
-<PRE>
-        p = P(t -&gt; D | D in <I>R</I>)
-        q = P(t -&gt; D | D not in <I>R</I>)
+<blockquote><PRE>
+p = P(t -&gt; D | D in <I>R</I>)
+q = P(t -&gt; D | D not in <I>R</I>)
 
-        1 - p = P(t not -&gt; D | D in <I>R</I>)
-        1 - q = P(t not -&gt; D | D not in <I>R</I>)
-</PRE>
+1 - p = P(t not -&gt; D | D in <I>R</I>)
+1 - q = P(t not -&gt; D | D not in <I>R</I>)
+</PRE></blockquote>
 
 Suppose that t indexes n of the N documents in the IR system. Suppose also
 that there are R documents in <I>R</I>, and that there are r documents in <I>R</I> which
@@ -260,32 +275,63 @@ indexed by t to the total number of relevant documents.
 The total number of non-relevant documents is N - R, and the number of those
 indexed by t is n - r, so we can estimate q as (n - r)/(N - R). This gives us
 the estimates,
-<PRE>
-                r              N - R - n + r
-            p = -,     1 - q = -------------
-                R                  N - R
-
-                R - r          n - r
-        1 - p = -----,     q = -----
-                  R            N - R
-</PRE>
+<blockquote>
+<table border=0><tr valign=center>
+<td><tt>&nbsp;&nbsp;&nbsp;&nbsp;p =&nbsp;</tt></td>
+<td>
+<tt><center>
+<u>r</u><br>R</center></tt>
+</td>
+<td><tt>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1 - q =&nbsp;</tt></td>
+<td>
+<tt><center>
+<u>N - R - n + r</u><br>N - R</center></tt>
+</td>
+</tr></table>
+<table border=0><tr valign=center>
+<td><tt>1 - p =&nbsp;</tt></td>
+<td>
+<tt><center>
+<u>R - r</u><br>R</center></tt>
+</td>
+<td><tt>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;q =&nbsp;</tt></td>
+<td>
+<tt><center>
+<u>n - r</u><br>N - R</center></tt>
+</td>
+</tr></table>
+</blockquote>
 
 and so substituting in the formula for w(t) we get the estimate,
 
-<PRE>
-                   r (N - R - n + r)
-        w(t) = log -----------------
-                    (R - r)(n - r)
-</PRE>
+<blockquote>
+<table border=0><tr valign=center>
+<td>
+<tt>w(t) = log&nbsp;</tt>
+</td>
+<td>
+<tt><center>
+<u>r (N - R - n + r)</u><br>(R - r)(n - r)</center></tt>
+</td>
+</tr></table>
+</blockquote>
 
 Unfortunately, this formula is subject to violent behaviour when, say, n = r
 (infinity) or r = 0 (minus infinity), and so Robertson suggests the modified
 form
-<PRE>
-                   (r + h) (N - R - n + r + h)
-        w(t) = log ---------------------------, where h = 1/2
-                    (R - r + h) (n - r + h)
-</PRE>
+<blockquote>
+<table border=0><tr valign=center>
+<td>
+<tt>w(t) = log&nbsp;</tt>
+</td>
+<td>
+<tt><center>
+<u>(r + h) (N - R - n + r + h)</u><br>(R - r + h) (n - r + h)</center></tt>
+</td>
+<td><tt>, where h =&nbsp;</tt></td>
+<td><tt><small><u>1</u><br>2</small></tt></td>
+</tr></table>
+</blockquote>
 
 with the reassurance that this has "some theoretical justification". This is
 the form of the term weighting formula used in Xapian.
@@ -309,11 +355,16 @@ documents which have been judged as relevant.
 <P>
 Suppose we have no documents marked as relevant. Then R = r = 0, and w(t)
 becomes,
-<PRE>
-            N - n + h
-        log ---------
-              n + h
-</PRE>
+
+<blockquote>
+<table border=0><tr valign=center>
+<td><tt>log&nbsp;</tt></td>
+<td>
+<tt><center>
+<u>N - n + h</u><br>n + h</center></tt>
+</td>
+</tr></table>
+</blockquote>
 
 This is approximately log((N - n)/n). Or log(N/n), since n is usually small
 compared with N. This is called inverse logarithmic weighting, and has been
@@ -384,12 +435,19 @@ currently use the concept of wqp.
 Now to pull everything together. From the probabilistic term weights we can
 assign a weight to any document, D, as follows,
 
-<PRE>
-                  ---     (K + 1) f<sub>t</sub>
-        W(D) =    \       -----------  w(t)
-                  /__      KL + f<sub>t</sub>
-            t -&gt; D, t in <I>Q</I>
-</PRE>
+<blockquote>
+<table border=0><tr valign=center>
+<td><tt>W(D) =&nbsp;</tt></td>
+<td>
+<tt><center>
+<u>&nbsp;&nbsp;&nbsp;</u><br>\&nbsp;&nbsp;<br><u>/&nbsp;&nbsp;</u><br><small>t -&gt; D, t in <i>Q</i></small></tt>
+</td>
+<td><tt><center>
+<u>(K + 1) f</u><sub>t</sub><br>KL + f<sub>t</sub>
+</center></tt></td>
+<td><tt>&nbsp;w(t)</tt></td>
+</tr></table>
+</blockquote>
 
 The sum extends over the terms of <I>Q</I> which index D. f<sub>t</sub> is the wdf of t in D,
 L is the ndl of D, and K is some suitably chosen constant.
@@ -442,12 +500,23 @@ match process.
 A modification of the weighting scheme can be employed that takes into
 account the query itself. This would be
 
-<PRE>
-                  ---     (K' + 1) f'<sub>t</sub> (K + 1) f<sub>t</sub>
-        W(D) =    \       ------------- -----------  w(t)
-                  /__      K'L' + f'<sub>t</sub>   KL + f<sub>t</sub>
-            t -&gt; D, t in <I>Q</I>
-</PRE>
+<blockquote>
+<table border=0><tr valign=center>
+<td><tt>W(D) =&nbsp;</tt></td>
+<td>
+<tt><center>
+<u>&nbsp;&nbsp;&nbsp;</u><br>\&nbsp;&nbsp;<br><u>/&nbsp;&nbsp;</u><br><small>t -&gt; D, t in <i>Q</i></small></center></tt>
+</td>
+<td><tt><center>
+<u>(K' + 1) f'</u><sub>t</sub><br>K'L' + f'<sub>t</sub>
+</center></tt></td>
+<td><tt>&nbsp;</tt></td>
+<td><tt><center>
+<u>(K + 1) f</u><sub>t</sub><br>KL + f<sub>t</sub>
+</center></tt></td>
+<td><tt>&nbsp;w(t)</tt></td>
+</tr></table>
+</blockquote>
 
 where f'<sub>t</sub> is the wqf of t in <I>Q</I>, L' is the nql, or normalised query length,
 and K' is a further constant. In computing W(D) across the document space,
@@ -472,16 +541,18 @@ mainly used for query expansion, it is called the <EM>expand set</EM> or <EM><I>
 <P>
 The term expansion weighting formula is as follows,
 
+<blockquote>
 <PRE>
-        W(t) =  r w(t)
+W(t) = r w(t)
 </PRE>
+</blockquote>
 
 in other words we multiply the term weight by r.
 <P>
 The <I>E</I> set then has this form,
 
 <PRE>
-    <I>E</I> set:       item 0:   t<sub>0</sub>  W(t<sub>0</sub>)
+     <I>E</I> set:       item 0:   t<sub>0</sub>  W(t<sub>0</sub>)
                   item 1:   t<sub>1</sub>  W(t<sub>1</sub>)
                   item 2:   t<sub>2</sub>  W(t<sub>2</sub>)
                         ....
@@ -501,14 +572,21 @@ This simple form of W(t) is traditional in the probabilistic model, but
 seems less than optimal because it does not take into account wdf information.
 One can if fact try to generalise it to
 
-<PRE>
-                  ---     (K + 1) f<sub>t</sub>
-        W(t) =    \       -----------  w(t)
-                  /__       KL + f<sub>t</sub>
-            t -&gt; D, D in <I>R</I>
-</PRE>
+<blockquote>
+<table border=0><tr valign=center>
+<td><tt>W(t) =&nbsp;</tt></td>
+<td>
+<tt><center>
+<u>&nbsp;&nbsp;&nbsp;</u><br>\&nbsp;&nbsp;<br><u>/&nbsp;&nbsp;</u><br><small>t -&gt; D, D in <i>R</i></small></tt>
+</td>
+<td><tt><center>
+<u>(K + 1) f</u><sub>t</sub><br>KL + f<sub>t</sub>
+</center></tt></td>
+<td><tt>&nbsp;w(t)</tt></td>
+</tr></table>
+</blockquote>
 
-The K here being not necessarily th same as the one used in forming the <I>M</I> set.
+The K here being not necessarily the same as the one used in forming the <I>M</I> set.
 <P>
 This reduces to W(t) = r w(t) when K = 0. Certainly this form can be
 recommended in the very common case where r = 1, that is, we have a single

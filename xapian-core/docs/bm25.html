@@ -7,74 +7,203 @@
 
 <H1>The BM25 Weighting Scheme</H1>
 
+<p>
 This is a technical note about the BM25 weighting scheme.  Recent TREC
-tests showed BM25 to be the best known probabilistic weighting scheme.
+tests have shown BM25 to be the best of the known probabilistic weighting
+schemes.  BM25 is the default weighting scheme used by Xapian.
+</p>
 
-<H2>Weighting in Muscat 3.6</H2>
+<p>
+We'll follow the evolution from the traditional probabilistic weighting
+scheme through to BM25.
+</p>
 
-The Muscat 3.6 term weighting function is (in its most general form):
-<PRE>
- (A + 1)q   (B + 1)f                  (r+0.5)(N-n-R+r+0.5)
- -------- . -------- w, where w = log --------------------    ...(1)
-  (A + q)    BL + f                    (n-r+0.5)(R-r+0.5)
+<H2>The Traditional Probabilistic Weighting Scheme</H2>
 
-where A, B are constants
+<p>
+In its most general form, the traditional probabilistic term weighting function
+(sometimes known as BM1) is:
+</p>
 
-q is the wqf, the within query frequency,
-f is the wdf, the within document frequency,
-</PRE>
-n,r,N,R you will know, and
-L = 1 in Muscat 3.6, because we don't keep document lengths, but in Stephen
-Robertson's formula is the normalised document length, i.e. the length
-of the document divided by the average length of a document.
+<table border=0><tr valign=center>
+<td>
+<tt><center>
+<u>(A+1)q</u><br>(A+q)</center></tt>
+</td>
+<td><tt>&middot;</tt></td>
+<td>
+<tt><center>
+<u>(B+1)f</u><br>(BL+f)</center></tt>
+</td>
+<td><tt>&middot;log</tt></td>
+<td><tt><center>
+<u>(r+0.5)(N-n-R+r+0.5)</u><br>(n-r+0.5)(R-r+0.5)</center></tt>
+</td>
+<td>
+<tt>
+&nbsp;...(1)
+</tt>
+</td>
+</tr></table>
+<p>where:</p>
 
-<P>(The factors (A + 1), (B + 1) are unnecessary here, but help scale the
-weights, so ((A+1)q)/(A+q) = 1 when q = 1 etc. But they are critical below.)
+<p>
+<tt>A, B are constants.<br>
+q is the wqf, the within query frequency,<br>
+f is the wdf, the within document frequency,<br>
+n is the number of documents in the collection indexed by this term,<br>
+N is the total number of documents in the collection,<br>
+r is the number of relevant documents indexed by this term,<br>
+R is the total number of relevant documents,<br>
+L is the normalised document length (i.e. the length of this document
+divided by the average length of documents in the collection).
+</tt>
+</p>
+
+<p>
+The factors (A + 1), (B + 1) are unnecessary here, but help scale the
+weights, so the first component is 1 when q = 1 etc. But they are critical
+below when we add an extra item to the sum of term weights.
+</p>
+
+<p>
+(In Muscat 3.6 the average document length wasn't stored so the Muscat 3.6
+backends always give L=1).
+</p>
 
 <H2>BM11</H2>
     
-<P>Stephen's BM11 is this formula for the term weights, but then he adds
+<p>
+Stephen Robertson's BM11 uses formula (1) for the term weights, but adds
 an extra item to the sum of term weights to give the overall document
-score. It is
-<PRE>
-        (1-L)
-    C s -----                                               ...(2)
-        (1+L)
-</PRE>
-where s is the size of the query (the number of terms in the query) and
-C is yet another constant. Of course, this is zero when L = 1.
+score:
+</p>
+
+<table border=0><tr valign=center>
+<td><tt>C s</tt></td>
+<td>
+<tt><center>
+<u>(1-L)</u><br>(1+L)</center></tt>
+</td>
+<td>
+<tt>
+&nbsp;...(2)
+</tt>
+</td>
+</tr></table>
+
+<p>where:</p>
+
+<p>
+<tt>s is the size of the query (the number of terms in the query),<br>
+C is yet another constant.
+</tt>
+</p>
+
+<p>
+Note that this extra item is zero when L = 1.
+</p>
 
 <H2>BM15</H2>
 
-<P>BM15 is BM11 with the B+f in place of BL+f in (1).
+<p>BM15 is BM11 with the B+f in place of BL+f in (1).</p>
 
 <H2>BM25</H2>
     
-<P>BM25 combines the two with a scaling factor, D, which turns BM15 into BM25 as
-it moves from 0 to 1 :
-<PRE>
- (A + 1)q   (B + 1)f
- -------- . -------- w                              ...(3)
-  (A + q)     K + f
+<p>BM25 combines the B11 and B15 with a scaling factor, D, which turns BM15
+into BM11 as it moves from 0 to 1:
+</p>
 
-where K = B((1 - D ) + DL)
-</PRE>
+<table border=0><tr valign=center>
+<td>
+<tt><center>
+<u>(A+1)q</u><br>(A+q)</center></tt>
+</td>
+<td><tt>&middot;</tt></td>
+<td>
+<tt><center>
+<u>(B+1)f</u><br>(K+f)</center></tt>
+</td>
+<td><tt>&middot;log</tt></td>
+<td><tt><center>
+<u>(r+0.5)(N-n-R+r+0.5)</u><br>(n-r+0.5)(R-r+0.5)</center></tt>
+</td>
+<td>
+<tt>
+&nbsp;...(3)
+</tt>
+</td>
+</tr></table>
+
+<p>where:</p>
+
+<p>
+<tt>K = B((1 - D) + DL)</tt>
+</p>
+
+<p>
 and introduces another constant E, as a power to which f and K are raised,
-i.e.
-<PRE>
- (A + 1)q    (B + 1)f^E
- -------- . ----------- w                          ...(4)
-  (A + q)    K^E + f^E
-</PRE>
-where a^b means a to the power b. (2) and (4) make up BM25, with which
-Stephen has had so much recent success.
+i.e.:
+</p>
 
-<P>This all seems so ad-hoc, and there are so many unknown constants in the
-formula, that my first response is one of some doubt. But note that with
-L = 1 and E = 1 we get the Muscat 3.6 formula anyway. Our choice of L = 1 is
-rational given the successful approach of Euroferret style indexing (index
-every document with roughly the same number of terms), and Stephen
-remarks that values of E other than 1 were 'not helpful'.
+<table border=0><tr valign=center>
+<td>
+<tt><center>
+<u>(A+1)q</u><br>(A+q)</center></tt
+</td>
+<td><tt>&middot;</tt></td>
+<td>
+<tt><center>
+<u>(B+1)f</u><sup>E</sup><br>(K<sup>E</sup>+f<sup>E</sup>)</center></tt>
+</td>
+<td><tt>&middot;log</tt></td>
+<td><tt><center>
+<u>(r+0.5)(N-n-R+r+0.5)</u><br>(n-r+0.5)(R-r+0.5)</center></tt>
+</td>
+<td>
+<tt>
+&nbsp;...(4)
+</tt>
+</td>
+</tr></table>
+
+<p>
+(2) and (4) make up BM25, with which Stephen has had so much recent success.
+</p>
+
+<p>
+This does all seem somewhat ad-hoc, with so many unknown constants
+in the formula.  But note that with C = 0, D = 1, and E = 1 we get
+the traditional formula anyway.
+</p>
+
+<p>
+Stephen remarks that values of E other than 1 were <i>'not helpful'</i>,
+and so Xapian fixes E = 1.  The default values we use are A = 1, B = 1,
+C = 0, and D = 0.5 (but these are almost certainly not optimal and
+so you can easily use different values if you want).
+</p>
+
+<p>
+We also apply a floor to L (0.5 by default) which
+helps stop tiny documents get ridiculously high weights.  And the matcher
+wants the extra item in the sum to be positive, so we add C&nbsp;s
+(constant for a given query) to (2) to give:
+</p>
+
+<table border=0><tr valign=center>
+<td>
+<tt><center>
+<u>2 C s</u><br>(1+L)</center></tt>
+</td>
+<td>
+<tt>
+&nbsp;...(5)
+</tt>
+</td>
+</tr></table>
+
+<p>and then incorporate the factor of 2 into C.</p>
 
 <!-- FOOTER $Author$ $Date$ $Id$ -->
 </BODY>
