@@ -1,4 +1,7 @@
 <Directory>common</Directory>
 
 <Description>
+This directory contains header files which are used in various places within
+the Muscat library code.  It does not contain header files which are
+externally visible: these are kept in the "include" directory.
 </Description>
