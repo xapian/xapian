@@ -1,5 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
+INCLUDES = -I$(top_srcdir)/include
+
 noinst_HEADERS = \
  omassert.h \
  database_builder.h database.h termlist.h postlist.h \

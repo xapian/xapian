@@ -1,3 +1,7 @@
+Tue Jun 13 14:31:42 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add include path to common/Makefile.am.  Whoops.
+
 Tue Jun 13 14:31:00 BST 2000 Olly Betts
 
 	* Factored out code to build optimal AND and OR trees into separate
