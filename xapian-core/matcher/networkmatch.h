@@ -29,7 +29,7 @@
 
 #include "msetpostlist.h"
 
-//#define USE_MSETPOSTLIST
+#define USE_MSETPOSTLIST
 
 /// Class for performing match calculations remotely
 class RemoteSubMatch : public SubMatch {

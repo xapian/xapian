@@ -444,7 +444,7 @@ OmSocketLineBuf::wait_for_data(int msecs)
 	tv.tv_sec = msecs / 1000;
 	tv.tv_usec = (msecs % 1000) * 1000;
 
-	int retval = select(readfd+1, &fdset, 0, 0,
+	int retval = select(readfd + 1, &fdset, 0, &fdset,
 			    (msecs == 0)? NULL : &tv);
 	if (retval == 0) {
 	    // select's timeout arrived before any data
@@ -499,7 +499,7 @@ OmSocketLineBuf::data_waiting()
 	// a tenth of a second, as an arbitrary non-zero number to avoid
 	// hogging the CPU in a loop.
 	tv.tv_usec = 100000;
-	if (select(readfd+1, &fdset, 0, 0, &tv) > 0) {
+	if (select(readfd + 1, &fdset, 0, &fdset, &tv) > 0) {
 	    return true;
 	} else {
 	    return false;
@@ -693,7 +693,7 @@ string_to_ommset_termfreqwts(const std::string &s_)
     while (s.length() > 0) {
 	std::string::size_type pos = s.find_first_of(';');
 	std::string terminfo = s.substr(0, pos);
-	s = s.substr(pos+1);
+	s = s.substr(pos + 1);
 
 	om_termname term;
 	om_doccount freq;
@@ -704,14 +704,14 @@ string_to_ommset_termfreqwts(const std::string &s_)
 	    throw OmNetworkError("Invalid term frequency info in string `" + s_ + "'");
 	}
 	term = decode_tname(terminfo.substr(0, pos));
-	terminfo = terminfo.substr(pos+1);
+	terminfo = terminfo.substr(pos + 1);
 
 	pos = terminfo.find_first_of(',');
 	if (pos == terminfo.npos || (pos != terminfo.find_last_of(','))) {
 	    throw OmNetworkError("Invalid term weight info in string`" + s_ + "'");
 	}
 	freq = atoi(terminfo.substr(0, pos).c_str());
-	wt = atof(terminfo.substr(pos+1).c_str());
+	wt = atof(terminfo.substr(pos + 1).c_str());
 
 	OmMSet::TermFreqAndWeight tfaw;
 	tfaw.termfreq = freq;

@@ -184,7 +184,7 @@ TcpServer::run_once()
 	    SocketServer sserv(db, connected_socket, -1, msecs_timeout, timing);
 #endif /* TIMING_PATCH */
 	    sserv.run();
-	} catch (OmError &err) {
+	} catch (const OmError &err) {
 	    cerr << "Got exception " << err.get_type()
 		 << ": " << err.get_msg() << endl;
 	} catch (...) {
@@ -220,15 +220,15 @@ TcpServer::run()
 {
     // set up signal handlers
 #ifndef HAVE_WAITPID
-    signal(SIGCLD,SIG_IGN);
+    signal(SIGCLD, SIG_IGN);
 #else
-    signal(SIGCLD,on_SIGCLD);
+    signal(SIGCLD, on_SIGCLD);
 #endif
     signal(SIGTERM, on_SIGTERM);
     while (1) {
 	try {
 	    run_once();
-	} catch (OmError &err) {
+	} catch (const OmError &err) {
 	    // FIXME: better error handling.
 	    std::cerr << "Caught " << err.get_type()
 		      << ": " << err.get_msg() << endl;

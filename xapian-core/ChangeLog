@@ -1,3 +1,10 @@
+Wed Nov 08 12:16:20 GMT 2000 Olly Betts
+
+	* Switched back to MSetPostList (for now at least).
+
+	* select() now checks for error conditions on sockets as well as
+	  data available to read.
+
 Tue Nov  7 18:22:16 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Removed unnecessary FIXME comments.
