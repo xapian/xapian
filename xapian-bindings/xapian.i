@@ -440,7 +440,8 @@ class Query {
 	~Query();
 
 	string get_description();
-	bool is_empty() const;
+	bool empty() const;
+	bool is_empty() const; /* DEPRECATED alias */
 	void set_window(termpos window);
 	void set_elite_set_size(termcount size);
 	void set_cutoff(weight cutoff);
