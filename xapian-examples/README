@@ -1,0 +1,10 @@
+This directory contains example programs which can be compiled against
+Muscat.
+
+Due to the lack of a proper API, Muscat should currently not be installed.
+The makefiles in this directory therefore expect to find libom and the
+needed header files in the directory tree for Muscat, in the path ../om
+relative to this directory.  ie: the examples directory should be placed
+in the same directory as the om directory.
+
+This will be fixed at a later date.

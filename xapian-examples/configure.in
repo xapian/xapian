@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(include/database.h)
+AC_INIT(gui/glade/querygui.cc)
 AM_INIT_AUTOMAKE(om, 0.0.1)
 AM_CONFIG_HEADER(config.h)
 
@@ -12,10 +12,6 @@ AC_PROG_CC
 AC_PROG_CXX
 AM_PROG_LEX
 
-dnl Checks for perl.  (Needed to make some of the documentation)
-AC_PATH_PROG(PERL, perl)
-AM_CONDITIONAL(HAVE_PERL, test -n "$PERL")
-
 # Turn off shared libraries for now as the make the build take longer
 AC_DISABLE_SHARED
 AM_PROG_LIBTOOL
@@ -25,140 +21,7 @@ build_gui=yes
 AM_PATH_GTK(1.2.0, , build_gui=no)
 AM_PATH_GLIB(1.2.0, , build_gui=no)
 AM_PATH_LIBGLADE(, build_gui=no)
-if test "X$build_gui" = Xyes; then
- GUI_SUBDIR=gui
-else
- GUI_SUBDIR=
-fi
-AC_SUBST(GUI_SUBDIR)
-
-dnl Checks for libraries.
-dnl empty action if found - libtool will take care of things
-AC_CHECK_LIB(db, db_open, :)
-
-dnl Checks for header files.
-AC_HEADER_STDC
-AC_CHECK_HEADERS(fcntl.h limits.h)
-
-dnl Checks for typedefs, structures, and compiler characteristics.
-AC_C_CONST
-AC_TYPE_SIZE_T
-
-dnl Checks for library functions.
-AC_FUNC_MEMCMP
-AC_CHECK_FUNCS(strerror)
-
-dnl Check for sleepycat library.
-dnl FIXME - just assume that we don't have it, for now
-have_berkleydb=no
-
-dnl ***************************
-dnl * Select modules to build *
-dnl ***************************
-
-dnl Find out what we've been asked to build
-
-AC_ARG_ENABLE(backend_da,
-[  --enable-backend-da     Enable the da database backend (default=yes)],
-[case "${enableval}" in
-  yes) build_da=true ;;
-  no)  build_da=false ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-da) ;;
-esac],[build_da=true])
-
-AC_ARG_ENABLE(backend_sleepy,
-[  --enable-backend-sleepy Enable the sleepycat database backend (default=yes)],
-[case "${enableval}" in
-  yes) build_sleepy=true ;;
-  no)  build_sleepy=false ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-sleepy) ;;
-esac],[build_sleepy=true])
-
-AC_ARG_ENABLE(backend_inmemory,
-[  --enable-backend-inmemory Enable the inmemory database backend (default=yes)],
-[case "${enableval}" in
-  yes) build_inmemory=true ;;
-  no)  build_inmemory=false ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-inmemory) ;;
-esac],[build_inmemory=true])
-
-AC_ARG_ENABLE(backend_multi,
-[  --enable-backend-multi  Enable the multi database backend (default=yes)],
-[case "${enableval}" in
-  yes) build_multi=true ;;
-  no)  build_multi=false ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-multi) ;;
-esac],[build_multi=true])
-
-dnl Turn off compilation of anything that we don't have the requirements for
-
-if test x$have_berkleydb = xno; then
-  build_sleepy=false;
-fi
-
-dnl Set conditionals to specify what we compile
-
-AM_CONDITIONAL(BUILD_BACKEND_DA, test x$build_da = xtrue)
-AM_CONDITIONAL(BUILD_BACKEND_SLEEPY, test x$build_sleepy = xtrue)
-AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test x$build_inmemory = xtrue)
-AM_CONDITIONAL(BUILD_BACKEND_MULTI, test x$build_multi = xtrue)
-
-dnl Set defines to specify what we compile
-
-if test x$build_da = xtrue; then
-AC_DEFINE(MUS_BUILD_BACKEND_DA,,
-  [Define if you want to build DA backend])
-fi
-
-if test x$build_sleepy = xtrue; then
-AC_DEFINE(MUS_BUILD_BACKEND_SLEEPY,,
-  [Define if you want to build sleepycat backend])
-fi
-
-if test x$build_inmemory = xtrue; then
-AC_DEFINE(MUS_BUILD_BACKEND_INMEMORY,,
-  [Define if you want to build inmemory backend])
-fi
-
-if test x$build_da = xtrue; then
-AC_DEFINE(MUS_BUILD_BACKEND_MULTI,,
-  [Define if you want to build multi database backend])
-fi
-
-dnl *************************
-dnl * Set debugging options *
-dnl *************************
-
-dnl Work out what debugging we want
-
-AC_ARG_ENABLE(debug, 
-[  --enable-debug          Turn on debugging (no|yes|paranoid|full)(default=no)],
-[case "${enableval}" in
-  full) use_debug_paranoid=yes ; use_debug=yes ; use_debug_verbose=yes ;;
-  paranoid) use_debug_paranoid=yes ; use_debug=yes ;;
-  yes) use_debug=yes ;;
-  no)  use_debug=no ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
-esac], [use_debug=yes])
-
-dnl Now set appropriate defines
-
-if test "$use_debug" = yes; then
-CFLAGS="$CFLAGS -g";
-AC_DEFINE(MUS_DEBUG,,
-  [Define if you want debugging to be enabled (will cause some slow down)])
-fi
-
-if test "$use_debug_paranoid" = yes; then
-AC_DEFINE(MUS_DEBUG_PARANOID,,
-  [Define if you want paranoid debugging to be enabled (will cause
-  significant slow-down)])
-fi
-
-if test "$use_debug_verbose" = yes; then
-AC_DEFINE(MUS_DEBUG_VERBOSE,,
-  [Define if you want lots of debugging messages])
-fi
+AM_CONDITIONAL(BUILD_GUI, test "X$build_gui" = Xyes)
 
 dnl ******************************
 dnl * Set special compiler flags *
@@ -187,16 +50,5 @@ dnl **************************
 
 AC_OUTPUT(
  Makefile
- languages/Makefile
- languages/en/Makefile
- matcher/Makefile
- indexer/Makefile
- backends/Makefile
- backends/da/Makefile
- backends/sleepy/Makefile
- backends/multi/Makefile
- backends/inmemory/Makefile
- include/Makefile
- docs/Makefile
- docs/mkdoc.pl
- tests/Makefile)
+ gui/Makefile
+ gui/glade/Makefile)
