@@ -39,7 +39,7 @@ class PostList
 	//
 	// These may be called at any point
 
-	// Number of docs indexed by term
+	// (Upper bound on) Number of docs indexed by term
 	virtual doccount get_termfreq() const = 0;
 	// Gets max weight
         virtual weight get_maxweight() const = 0;

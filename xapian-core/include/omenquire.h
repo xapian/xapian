@@ -101,6 +101,7 @@ class OMQueryOptions {
     public:
 	void set_collapse_key(keyno);
 	void set_no_collapse();
+	OMQueryOptions();
 };
 
 ///////////////////////////////////////////////////////////////////

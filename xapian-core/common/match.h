@@ -74,6 +74,12 @@ class OMMatch
 	// Add list of terms op'd together to stack
 	void add_oplist(om_queryop op, const vector<termname>&);
 
+	// Make a postlist from a query object
+	PostList * postlist_from_query(const OMQuery *);
+
+	// Make a postlist from a vector of query objects (AND or OR)
+	PostList * postlist_from_queries(om_queryop, const vector<OMQuery *> &);
+
 	// Open a postlist
 	DBPostList * mk_postlist(const termname& tname,
 				 RSet * rset);

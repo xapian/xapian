@@ -105,8 +105,7 @@ OMMatch::~OMMatch()
 }
 
 DBPostList *
-OMMatch::mk_postlist(const termname& tname,
-		   RSet * rset)
+OMMatch::mk_postlist(const termname& tname, RSet * rset)
 {
     // FIXME - this should be centralised into a postlist factory
     DBPostList * pl = database->open_post_list(tname, rset);
@@ -119,14 +118,165 @@ OMMatch::mk_postlist(const termname& tname,
     return pl;
 }
 
+// Make a postlist from a vector of query objects.
+// Operation must be either AND or OR.
+// Optimise query by building tree carefully.
+PostList *
+OMMatch::postlist_from_queries(om_queryop op, const vector<OMQuery *> &queries)
+{
+    Assert(op == OM_MOP_OR || op == OM_MOP_AND);
+    Assert(queries.size() >= 2);
+
+    // Open a postlist for each query, and store these postlists in a vector.
+    vector<PostList *> postlists;
+    postlists.reserve(queries.size());
+    vector<OMQuery *>::const_iterator q;
+    for(q = queries.begin(); q != queries.end(); q++) {
+	postlists.push_back(postlist_from_query(*q));
+	cout << "Made postlist: get_termfreq() = " << postlists.back()->get_termfreq() << endl;
+    }
+
+    // Build tree
+    if (op == OM_MOP_OR) {
+	// Build nice tree for OR-ed postlists
+	// Want postlists with most entries to be at top of tree, to reduce
+	// average number of nodes an entry gets "pulled" through.
+	//
+	// Put postlists into a priority queue, such that those with greatest
+	// term frequency are returned first.
+	// FIXME: try using a heap instead (C++ sect 18.8)?
+
+	priority_queue<PostList *, vector<PostList *>, PLPCmpGt> pq;
+	vector<PostList *>::const_iterator i;
+	for (i = postlists.begin(); i != postlists.end(); i++) {
+	    // for an OR, we can just ignore zero freq terms
+	    if(*i == NULL) {
+		// This shouldn't happen, but would mean that a postlist
+		// didn't get opened.  Might as well try and recover.
+	    } else if((*i)->get_termfreq() == 0) {
+		delete *i;
+	    } else {
+		pq.push(*i);
+	    }
+	}
+
+	// If none of the postlists had any entries, return an EmptyPostList.
+	if (pq.empty()) {
+	    return new EmptyPostList();
+	}
+
+	// Build a tree balanced by the term frequencies
+	// (similar to building a huffman encoding tree).
+	//
+	// This scheme reduces the number of objects common terms
+	// get "pulled" through, reducing the amount of work done which
+	// speeds things up.
+	while (true) {
+	    PostList *pl = pq.top();
+	    pq.pop();
+	    if (pq.empty()) {
+		return pl;
+	    }
+	    // NB right is always <= left - we can use this to optimise
+	    pl = new OrPostList(pq.top(), pl, this);
+	    pq.pop();
+	    pq.push(pl);
+	}
+    } else {
+	// Build nice tree for AND-ed terms
+	// SORT list into ascending freq order
+	// AND last two elements, then AND with each subsequent element
+	
+	// 
+	vector<PostList *>::const_iterator i;
+	for (i = postlists.begin(); i != postlists.end(); i++) {
+	    if((*i)->get_termfreq() == 0) {
+		// a zero freq term => the AND has zero freq
+		vector<PostList *>::const_iterator j;
+		for (j = postlists.begin(); j != postlists.end(); j++)
+		    delete *j;
+		postlists.clear();
+		break;
+	    }
+	}
+
+	if (postlists.empty()) {
+	    return new EmptyPostList();
+	}
+
+	stable_sort(postlists.begin(), postlists.end(), PLPCmpLt());
+
+	PostList *pl = postlists.back();
+	postlists.pop_back();
+	while (!postlists.empty()) {	    
+	    // NB right is always <= left - we use this to optimise
+	    pl = new AndPostList(postlists.back(), pl, this);
+	    postlists.pop_back();
+	}
+	return pl;
+    }
+}
+
+// Make a postlist from a query object
+PostList *
+OMMatch::postlist_from_query(const OMQuery *qu)
+{
+    PostList *pl = NULL;
+    switch (qu->op) {
+	case OM_MOP_LEAF:
+	    // Make a postlist for a single term
+	    Assert(qu->subqs.size() == 0);
+	    if (database->term_exists(qu->tname)) {
+		pl = mk_postlist(qu->tname, rset);
+	    } else {
+		// Term doesn't exist in this database.  However, we create
+		// a (empty) postlist for it to help make distributed searching
+		// cleaner (term might exist in other databases).
+		// This is similar to using the muscat3.6 zerofreqs option.
+		pl = new EmptyPostList();
+	    }
+	    break;
+	case OM_MOP_AND:
+	case OM_MOP_OR:
+	    // Build a tree of postlists for 
+	    pl = postlist_from_queries(qu->op, qu->subqs);
+	    break;
+	case OM_MOP_FILTER:
+	    Assert(qu->subqs.size() == 2);
+	    pl = new FilterPostList(postlist_from_query(qu->subqs[0]),
+				    postlist_from_query(qu->subqs[1]),
+				    this);
+	    break;
+	case OM_MOP_AND_NOT:
+	    Assert(qu->subqs.size() == 2);
+	    pl = new AndNotPostList(postlist_from_query(qu->subqs[0]),
+				    postlist_from_query(qu->subqs[1]),
+				    this);
+	    break;
+	case OM_MOP_AND_MAYBE:
+	    Assert(qu->subqs.size() == 2);
+	    pl = new AndMaybePostList(postlist_from_query(qu->subqs[0]),
+				    postlist_from_query(qu->subqs[1]),
+				    this);
+	    break;
+	case OM_MOP_XOR:
+	    Assert(qu->subqs.size() == 2);
+	    pl = new XorPostList(postlist_from_query(qu->subqs[0]),
+				    postlist_from_query(qu->subqs[1]),
+				    this);
+	    break;
+    }
+    return pl;
+}
+
 ////////////////////////
 // Building the query //
 ////////////////////////
 
 void
-OMMatch::set_query(const OMQuery *)
+OMMatch::set_query(const OMQuery *qu)
 {
-    
+    query.push(postlist_from_query(qu));
 }
 
 void
@@ -236,24 +386,24 @@ OMMatch::add_op(om_queryop op)
     left = query.top();
     query.pop();
     switch (op) {
-     case OM_MOP_AND:
-	left = new AndPostList(left, right, this);
-	break;
-     case OM_MOP_OR:
-	left = new OrPostList(left, right, this);
-	break;
-     case OM_MOP_FILTER:
-	left = new FilterPostList(left, right, this);
-	break;
-     case OM_MOP_AND_NOT:
-	left = new AndNotPostList(left, right, this);
-	break;
-     case OM_MOP_AND_MAYBE:
-	left = new AndMaybePostList(left, right, this);
-	break;
-     case OM_MOP_XOR:
-	left = new XorPostList(left, right, this);
-	break;
+	case OM_MOP_AND:
+	    left = new AndPostList(left, right, this);
+	    break;
+	case OM_MOP_OR:
+	    left = new OrPostList(left, right, this);
+	    break;
+	case OM_MOP_FILTER:
+	    left = new FilterPostList(left, right, this);
+	    break;
+	case OM_MOP_AND_NOT:
+	    left = new AndNotPostList(left, right, this);
+	    break;
+	case OM_MOP_AND_MAYBE:
+	    left = new AndMaybePostList(left, right, this);
+	    break;
+	case OM_MOP_XOR:
+	    left = new XorPostList(left, right, this);
+	    break;
     }
     query.push(left);
 

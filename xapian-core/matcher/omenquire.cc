@@ -175,6 +175,10 @@ OMQuery::initialise_from_vector(const vector<OMQuery>::const_iterator qbegin,
 // Methods for OMQueryOptions //
 ////////////////////////////////
 
+OMQueryOptions::OMQueryOptions()
+	: do_collapse(false)
+{}
+
 void
 OMQueryOptions::set_collapse_key(keyno _key)
 {
@@ -264,6 +268,7 @@ OMEnquireInternal::get_mset(OMMSet &mset,
 			    doccount first, doccount maxitems) const
 {
     Assert(database != NULL);
+    Assert(query != NULL);
 
     // Set Database
     OMMatch match(database);
@@ -311,7 +316,8 @@ OMEnquire::add_database(const string & type,
 			bool readonly)
 {
     // Convert type into an om_database_type
-    om_database_type dbtype = stringToTypeMap<om_database_type>::get_type(type);
+    om_database_type dbtype = OM_DBTYPE_NULL;
+    dbtype = stringToTypeMap<om_database_type>::get_type(type);
 
     // Prepare params to build database with
     DatabaseBuilderParams params(dbtype, readonly);
