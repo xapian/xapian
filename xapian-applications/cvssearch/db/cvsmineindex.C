@@ -7,7 +7,7 @@
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
 
-#define SUPP_FRAC 0.01
+#define SUPP_FRAC 0.0
 
 //
 // Usage:  cvsusageindex < PACKAGE_LIST lib1_dir lib2_dir ...
@@ -187,15 +187,14 @@ int main(int argc, char *argv[]) {
 
   for( int i = 1; i < argc; i++ ) {
     string dir = argv[i];
-    //    cerr << "...running ctags on library " << dir << endl;
-    //    string cmd = string("ctags -a ") + string(CTAGS_FLAGS) + " " + dir; // append mode
-    //    cerr << "...invoking " << cmd << endl;
-    //    system(cmd.c_str());
+        cerr << "...running ctags on library " << dir << endl;
+        string cmd = string("ctags -a ") + string(CTAGS_FLAGS) + " " + dir; // append mode
+        cerr << "...invoking " << cmd << endl;
+        system(cmd.c_str());
   }
   
   cerr << "...reading library tags" << endl;
-#warning "not reading library tags"
-  //  readTags( TEMP "/tags", lib_symbols, lib_symbol_tag );
+  readTags( TEMP "/tags", lib_symbols, lib_symbol_tag );
 
   // might be easier to just maintain something like:  file:revision
   // that we way do not duplicate comments
@@ -328,8 +327,11 @@ int main(int argc, char *argv[]) {
 	  comment_words[i->second] = terms[i->first];
 
 	  for( set<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
-	    comment_symbols[ i->second].insert(*s);
-	    //	    cerr << "..." << (*s) << endl;
+
+	    if ( lib_symbols.find(*s) != lib_symbols.end() ) {
+		    comment_symbols[ i->second].insert(*s);
+		    //	    cerr << "..." << (*s) << endl;
+            }
 	  }
 
 	}
@@ -352,6 +354,13 @@ int main(int argc, char *argv[]) {
     // b -> confidence (irrespective of query)
     // this can all be put in one database
 
+
+
+
+
+
+
+
     /////// data mining step
     /////// transactions are in comment_symbols
     
@@ -372,6 +381,8 @@ int main(int argc, char *argv[]) {
       }
     }
 
+
+#if 0
     // count pairs
    map< pair<string, string>, int> pair_count;
 
@@ -393,8 +404,13 @@ int main(int argc, char *argv[]) {
 	 pair_count[ make_pair(*i1, *i2) ] ++;
        }
      }
-   }    
-    
+   } 
+
+#endif
+
+   
+
+#if 0    
    map< double, set<pair<string, string> > > rules;
 
    cerr << "... generating rules" << endl;
@@ -403,15 +419,33 @@ int main(int argc, char *argv[]) {
       considerRule( rules, p->first.first, item_count[p->first.first], p->first.second, item_count[p->first.second], p->second, transaction_count );
       considerRule( rules, p->first.second, item_count[p->first.second], p->first.first, item_count[p->first.first], p->second, transaction_count );
     }
+#endif
 
-
-    cerr << "... writing out rules" << endl;
+    cerr << "... writing out item counts" << endl;
 
     system( ("rm -rf " + cvsdata +"/root0/db/mining.db" ).c_str() );
     
     Db dbrules(0,0);
     dbrules.open( (cvsdata +"/root0/db/mining.db").c_str(),  0 , DB_HASH, DB_CREATE, 0 );
 
+
+    for( map<string, int>::iterator i = item_count.begin(); i != item_count.end(); i++ ) {
+      double conf = 100.0*(double)(i->second)/(double)transaction_count;
+      string item = i->first;
+      
+
+      ostrstream ost;
+      ost << conf << ends;
+      string s = ost.str();
+      
+      // write to database
+      Dbt key( (void*) item.c_str(), item.length()+1);
+      Dbt data( (void*) s.c_str(), s.length()+1);
+      dbrules.put( 0, &key, &data, DB_NOOVERWRITE );
+      ost.freeze(0);
+    }
+
+#if 0
     for ( map< double, set< pair< string, string > > >::iterator i = rules.begin(); i != rules.end(); i++ ) {
       double conf = (i->first);
       set< pair< string, string> > S = i->second;
@@ -432,8 +466,17 @@ int main(int argc, char *argv[]) {
 	ost.freeze(0);
       }
     }
+#endif
+
     
     dbrules.close(0);
+
+
+
+
+
+
+
 
     /////// write out OM database
     writeOMDatabase( cvsdata + "/root0/db/mining.om", 

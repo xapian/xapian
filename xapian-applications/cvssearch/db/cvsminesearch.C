@@ -1,4 +1,4 @@
-// cvssearch.C
+// cvsminesearch.C
 //
 // (c) 2001 Amir Michail (amir@users.sourceforge.net)
 
@@ -8,9 +8,9 @@
 // (at your option) any later version.
 
 //
-// Usage:  cvssearch package (# results) query_word1 query_word2 ... 
+// Usage:  cvsminesearch package (# results) query_word1 query_word2 ... 
 //
-//               cvssearch (# results) query_word1 query_word2 ... takes list of packages from stdin
+//               cvsminesearch (# results) query_word1 query_word2 ... takes list of packages from stdin
 //
 // Example:  cvssearch root0/db/kdeutils_kfind 10 ftp nfs
 //
@@ -19,12 +19,16 @@
 // ($CVSDATA/package is the directory with the quartz database inside)
 //
 
-#define SUPP_FRAC 0.05
-#define MIN_SURPRISE 2.0
+// For rules, you need to supply something like:  double buffering QPixmap=>
+//
+// This will look for rules starting with QPixmap.  
+// 
 
-double compute_surprise( double conf, double conf2 ) {
-  return conf / conf2;
-}
+#define ONLY_Q_AND_K_CLASSES 1
+
+// actually, divide seems to work better for both
+
+#warning "using diff for rules and div for single items"
 
 #include <db_cxx.h>
 #include <om/om.h>
@@ -33,72 +37,59 @@ double compute_surprise( double conf, double conf2 ) {
 
 #include "util.h"
 
-void considerRule( Db& dbrules, map< double, set< pair<string, string> > >& rules, const string& ant, int ant_count, const string& con, int con_count, int pair_supp, int total_transactions ) {
+void considerRule( Db& db, string rule_antecedent,  map< double, set< pair<string, string> > >& rules, const string& ant, int ant_count, const string& con, int con_count, int pair_supp, int total_transactions ) {
   //  cerr << "Considering " << ant << " => " << con << " with supp " << pair_supp << endl;
   //  cerr << "... ant has count " << ant_count << " and con has count " << con_count << endl;
+
+  assert ( rule_antecedent != "" );
+
+  if ( ant != rule_antecedent ) {
+    return;
+  }
+
+  if ( ant.find("()") != -1 ) {
+    return;
+  }
+
+  if ( ant+"()" == con || con+"()" == ant ) {
+    return; // not too surprising
+  }
+
 
   int importance = pair_supp;
 
   double conf = 100.0*(double)pair_supp / (double)ant_count;
 
-  double con_conf = 100.0*(double)con_count / (double) total_transactions;
+  double surprise = 0.0;
 
-  //  cerr << "... conf " << conf << endl;
-  //  cerr << "... con_conf " << con_conf << endl;
-  //  cerr << "... surprise1 " << surprise1 << endl;
-  //  cerr << "... surprise2 " << surprise2 << endl;
+  cerr << "Considering rule Query ^ " << ant << "=>" << con << " with conf " << conf << endl;
 
-  double surprise1=0.0;
-  double surprise2=0.0;
-  double surprise3=0.0;
+  cerr << "... importance " << importance << endl;
 
-  surprise1 = compute_surprise( conf, con_conf ); // compare Q=>b with Q^a=>b
-  if ( surprise1 < MIN_SURPRISE ) {
-    return; // skip rule
+  Dbt key( (void*) con.c_str(), con.length()+1 );
+  Dbt data;
+  int rc = db.get( 0, &key, &data, 0 );
+  if ( rc != DB_NOTFOUND ) {
+    double conf_a = atof( (char*) data.get_data() );
+#warning "surprise is diff"
+    surprise = conf / conf_a;
+    cerr << "... surprise " << surprise << endl;
+    //      if ( surprise3 < MIN_SURPRISE ) {
+    //	return; // skip rule
+    //      }
+  } else {
+    cerr << "Could not find confidence for " << con << endl;
+    assert(0);
   }
 
 
-  {
-    string rule_string = ant + "=>" + con;
-    Dbt key( (void*) rule_string.c_str(), rule_string.length()+1 );
-    Dbt data;
-    int rc = dbrules.get( 0, &key, &data, 0 );
-    if ( rc != DB_NOTFOUND ) {
-      cerr << "Found " << rule_string << endl;
-      double conf_a = atof( (char*) data.get_data() );
-      surprise2 = compute_surprise( conf, conf_a ); // compare a=>b with Q^a=>b
-      cerr << "... surprise2 " << surprise2 << endl;
-      if ( surprise2 < MIN_SURPRISE ) {
-	return; // skip rule
-      }
-    } else {
-      cerr << "Could not find confidence for " << rule_string << endl;
-      return; // skip it
-    }
-  }
 
-  {
-    string rule_string = "=>"+con;
-    Dbt key( (void*) rule_string.c_str(), rule_string.length()+1 );
-    Dbt data;
-    int rc = dbrules.get( 0, &key, &data, 0 );
-    if ( rc != DB_NOTFOUND ) {
-      cerr << "Found " << rule_string << endl;
 
-      double conf_a = atof( (char*) data.get_data() );
-      surprise3 = compute_surprise( conf, conf_a );  // compare b with Q^a=>b
-      cerr << "... surprise3 " << surprise3 << endl;
-      if ( surprise3 < MIN_SURPRISE ) {
-	return; // skip rule
-      }
-    } else {
-      cerr << "Could not find confidence for " << rule_string << endl;
-      return; // skip it
-    }
-  }
+  //  double score = (1.0+surprise1)*(1.0+surprise2)*(1.0+surprise3); //*importance; // surprise * importance; // * importance; // surprise2 * importance;
 
-  double score = surprise1*surprise2*surprise3*importance; // surprise * importance; // * importance; // surprise2 * importance;
+  double score = surprise * importance;
 
+  cerr << "... resulting score = " << score << endl;
 
   rules[ -score ].insert( make_pair( ant, con ) );
 
@@ -151,8 +142,8 @@ int main(int argc, char *argv[]) {
   try {
 
 
-    Db dbrules(0,0);
-    dbrules.open( (cvsdata +"/root0/db/mining.db").c_str(),  0 , DB_HASH, DB_RDONLY, 0 );
+    Db db(0,0);
+    db.open( (cvsdata +"/root0/db/mining.db").c_str(),  0 , DB_HASH, DB_RDONLY, 0 );
     
 
 
@@ -174,8 +165,18 @@ int main(int argc, char *argv[]) {
     vector<om_termname> queryterms;
          
     OmStem stemmer("english");
+
+    string rule_antecedent = "";
          
     for (int optpos = qpos; optpos < argc; optpos++) {
+
+      string s = argv[optpos];
+      if ( s.find("=>") != -1 ) {
+	rule_antecedent = s.substr( 0, s.length()-2 );
+	cerr << "** antecedent -" << rule_antecedent << "-" << endl;
+	continue;
+      }
+
       om_termname term = argv[optpos];
       lowercase_term(term);
       term = stemmer.stem_word(term);
@@ -201,13 +202,6 @@ int main(int argc, char *argv[]) {
          
     cerr <<  matches.size() << " results found" << endl;
 
-    min_supp = (int)(SUPP_FRAC * (double)matches.size());
-
-    cerr << "min supp = " << min_supp << endl;
-
-
-         
-
     list< set<string> > transactions;
 
     //vector<OmMSetItem>::const_iterator i;
@@ -232,7 +226,11 @@ int main(int argc, char *argv[]) {
 
 
     /// okay, let's count individual items first
+    cerr << "... counting items" << endl;
     map< string, int > item_count;
+
+    map< double, set<string> > function_ranking;
+    map< double, set<string> > class_ranking;
 
     for( list< set<string> >::iterator t = transactions.begin(); t != transactions.end(); t++ ) {
       set<string> S = *t;
@@ -240,48 +238,143 @@ int main(int argc, char *argv[]) {
 	item_count[*s]++;
       }
     }
-    
-    /// now, we count item pairs
-    map< pair<string, string>, int> pair_count;
 
-    for( list< set<string> >::iterator t = transactions.begin(); t != transactions.end(); t++ ) {
-      set<string> S = *t;
+    for( map<string, int>::iterator i = item_count.begin(); i != item_count.end(); i++ ) {
+      string k = i->first;
 
-      for( set<string>::iterator i1 = S.begin(); i1 != S.end(); i1++) {
-	if ( item_count[*i1] < min_supp ) {
-	  continue;
-	}
+      /// compute confidence of Q => c/f for each class/function
+      /// observe though that the number of transactions with Q is fixed
+      /// across these rules..., so strictly speaking, it's not really required
 
-	for( set<string>::iterator i2 = i1; i2 != S.end(); i2++ ) {
-	  if ( i1 == i2 || item_count[*i2] < min_supp ) {
+      double c = 100.0*(double) i->second / (double) transactions.size();
+
+      cerr << k << endl;
+      cerr << "...conf " << c << endl;
+
+      // divide by confidence of consequent alone
+      Dbt key( (void*) k.c_str(), k.length()+1 );
+      Dbt data;
+      int rc = db.get( 0, &key, &data, 0 );
+      if ( rc != DB_NOTFOUND ) {
+	double conf_a = atof( (char*) data.get_data() );
+	cerr << "...conf of consequent " << conf_a << endl;
+	c = c / conf_a;
+	cerr << "...conf imp " << c << endl;
+      } else {
+	cerr << "*** NOT FOUND " << k << endl;
+	assert(0);
+      }
+
+      cerr << "... supp " << i->second << endl;
+      c = c * (i->second); // multiply by support of (Q, con)
+
+      cerr << "... score " << c << endl;
+
+      if ( k.find("()") != -1 ) {
+	function_ranking[-c].insert(k);
+      } else {
+	class_ranking[-c].insert(k);
+      }
+    }
+
+
+    ///// print out item counts
+
+    //// show only those items that we found in the database
+
+
+
+
+    for( map< double, set<string> >::iterator i = class_ranking.begin(); i != class_ranking.end(); i++ ) {
+      double score = - (i->first);
+      set<string> S = i->second;
+      for( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
+	if ( ONLY_Q_AND_K_CLASSES ) {
+	  if ( s->find("K") != 0 && s->find("Q") != 0 ) {
 	    continue;
 	  }
+	}
+	cerr << "class " << (*s) << " has score " << score << endl;
+      }
+    }
 
-	  assert( (*i1) < (*i2) );
-	  pair_count[ make_pair(*i1, *i2) ] ++;
+    for( map< double, set<string> >::iterator i = function_ranking.begin(); i != function_ranking.end(); i++ ) {
+      double score = - (i->first);
+      set<string> S = i->second;
+      for( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
+	cerr << "function " << (*s) << " has score " << score << endl;
+      }
+    }
+
+    
+    if ( rule_antecedent != "" ) {
+
+
+    
+      /// now, we count item pairs
+      cerr << "... counting pairs" << endl;
+      map< pair<string, string>, int> pair_count;
+
+      for( list< set<string> >::iterator t = transactions.begin(); t != transactions.end(); t++ ) {
+	set<string> S = *t;
+
+	for( set<string>::iterator i1 = S.begin(); i1 != S.end(); i1++) {
+
+	  if ( ONLY_Q_AND_K_CLASSES ) {
+	    if ( i1->find("()") == -1 && i1->find("K") != 0 && i1->find("Q") != 0 ) {
+	      continue;
+	    }
+	  }
+
+
+
+	  for( set<string>::iterator i2 = i1; i2 != S.end(); i2++ ) {
+	    if ( i1 == i2 ) {
+	      continue;
+	    }
+
+	    if ( ONLY_Q_AND_K_CLASSES ) {
+	      if ( i2->find("()") == -1 && i2->find("K") != 0 && i2->find("Q") != 0 ) {
+		continue;
+	      }
+	    }
+
+
+	    if ( rule_antecedent != "" ) {
+	      if  ( (*i1) != rule_antecedent && (*i2) != rule_antecedent ) {
+		continue;
+	      }
+	    }
+
+	    assert( (*i1) < (*i2) );
+	    pair_count[ make_pair(*i1, *i2) ] ++;
+	  }
 	}
       }
-    }
 
-    map< double, set<pair<string, string> > > rules;
 
-    // okay, now generate rules
-    for( map< pair<string, string >, int>::iterator p = pair_count.begin(); p != pair_count.end(); p++ ) {
-      considerRule( dbrules, rules, p->first.first, item_count[p->first.first], p->first.second, item_count[p->first.second], p->second, transactions.size() );
-      considerRule( dbrules, rules, p->first.second, item_count[p->first.second], p->first.first, item_count[p->first.first], p->second, transactions.size() );
-    }
+      map< double, set<pair<string, string> > > rules;
 
-    for ( map< double, set< pair< string, string > > >::iterator i = rules.begin(); i != rules.end(); i++ ) {
-      double score = -(i->first);
-      //      cerr << "*** Score " << score << endl;
-      set< pair< string, string> > S = i->second;
-      for( set< pair< string, string > >::iterator p = S.begin(); p != S.end(); p++ ) {
-	pair<string, string> pair = *p;
-	cerr << score << ":  " << pair.first << " => " << pair.second << endl;
+      cerr << "... generating rules" << endl;
+      // okay, now generate rules
+      for( map< pair<string, string >, int>::iterator p = pair_count.begin(); p != pair_count.end(); p++ ) {
+	considerRule( db, rule_antecedent, rules, p->first.first, item_count[p->first.first], p->first.second, item_count[p->first.second], p->second, transactions.size() );
+	considerRule( db, rule_antecedent, rules, p->first.second, item_count[p->first.second], p->first.first, item_count[p->first.first], p->second, transactions.size() );
       }
+
+      for ( map< double, set< pair< string, string > > >::iterator i = rules.begin(); i != rules.end(); i++ ) {
+	double score = -(i->first);
+	//      cerr << "*** Score " << score << endl;
+	set< pair< string, string> > S = i->second;
+	for( set< pair< string, string > >::iterator p = S.begin(); p != S.end(); p++ ) {
+	  pair<string, string> pair = *p;
+	  cerr << score << ":  " << pair.first << " => " << pair.second << endl;
+	}
+      }
+
     }
 
-    dbrules.close(0);
+    db.close(0);
     
          
   }
