@@ -8,8 +8,8 @@
     <node type="omfilereader" id="readfile">
         <input name="filename" node="splitfname" out_name="left"/></node>
     <!-- Split the file into "words" -->
-    <node type="omregexsplit" id="wordsplit">
-        <param name="regex" type="string" value="[^a-zA-Z]\+"/>
+    <node type="omsplitonchars" id="wordsplit">
+        <param name="wordchars" type="string" value="a-zA-Z"/>
         <input name="in" node="readfile" out_name="out"/></node>
     <!-- Duplicate the list of words -->
     <node type="omsplitter" id="dupwords">

@@ -1,3 +1,8 @@
+Tue Nov 28 15:07:19 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Updated indexer/indexfile.xml to use the omsplitonchars node
+	  instead of the omregexsplit node.
+
 Fri Nov 24 16:05:03 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.4.1
