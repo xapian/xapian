@@ -11,13 +11,9 @@ lines_cmt::load_offset_file(  const string& file_offset, vector<string>& files, 
     ifstream in(file_offset.c_str());
     assert(in);
   
-    while (!in.eof()) {
-        string file;
-        string offset;
-        in >> file;
-        if ( file == "" ) {
-            break;
-        }
+    string file;
+    string offset;
+    while ( in >> file ) {
         in >> offset;
         files.push_back( file ); 
         offsets.push_back( offset ); 

@@ -189,15 +189,10 @@ string convert(const string & input, char src, char dst) {
 void get_packages(istream & is, set<string> & packages)
 {
     string p;
-    while (!is.eof()) 
+    while ( is >> p )
     {
-        is >> p;
-        if ( is.eof() && p == "" ) {
-            break;
-        }
-        if (p != "") {
-            cerr << "... will process " << p << endl;
-            packages.insert(p);
-        }
+        assert( p != "" );
+        cerr << "... package " << p << endl;
+        packages.insert(p);
     }
 }

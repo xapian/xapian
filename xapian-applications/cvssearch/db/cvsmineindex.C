@@ -154,6 +154,7 @@ int main(unsigned int argc, char *argv[]) {
     if (read_library) {
         cerr << "... reading library tags" << endl;
         readTags( CTAGS_OUTPUT, lib_symbols, lib_symbol_parents );
+        cerr << "done reading tags" << endl;
     }
 
     // ----------------------------------------
@@ -168,10 +169,12 @@ int main(unsigned int argc, char *argv[]) {
     map<unsigned int, set <string> > commit_symbols1;
     map<unsigned int, list<string> > commit_words1;
 
+    cerr << "...writing commit offset" << endl;
     string commit_path = cvsdata + "/" + root + "/commit.offset";
     ofstream fout(commit_path.c_str());
     map<string, unsigned int> commit_offsets = write_commit_offset(fout, cvsdata, root, packages);
     fout.close();
+    cerr << "...done writing commit offset" << endl;
 
     try {
         // ----------------------------------------
@@ -282,7 +285,7 @@ int main(unsigned int argc, char *argv[]) {
                         // ----------------------------------------
                         // have we entered info for this commit ?
                         // ----------------------------------------
-                        if (commit_words.find(commitid+offset) == commit_words.end()) 
+                        if (commit_words.find(commitid+offset) == commit_words.end())
                         {
                             // ----------------------------------------
                             // nope, we have not. so need to set

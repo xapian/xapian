@@ -293,8 +293,7 @@ int main(unsigned int argc, char *argv[]) {
         // get packages from file
         // ----------------------------------------
         string p;
-        while (!cin.eof()) {
-            cin >> p;
+        while ( cin >> p) {
             packages.insert(p);
         }
         // ----------------------------------------
