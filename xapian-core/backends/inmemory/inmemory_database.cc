@@ -70,7 +70,7 @@ InMemoryDatabase::InMemoryDatabase(const DatabaseBuilderParams & params)
     // FIXME - do appropriate thing if readonly flag is set.
 
     // Check validity of parameters
-#if 0
+#if 1
     if(params.paths.size() != 0) {
 	throw OmInvalidArgumentError("InMemoryDatabase expects no parameters.");
     }
@@ -79,7 +79,7 @@ InMemoryDatabase::InMemoryDatabase(const DatabaseBuilderParams & params)
 	throw OmInvalidArgumentError("InMemoryDatabase cannot have sub databases.");
     }
 
-#if 1
+#if 0
     if(params.paths.size() != 0) {
 	TextfileIndexer indexer;
 	indexer.set_destination(this);
