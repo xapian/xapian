@@ -140,6 +140,12 @@ class QuartzWritableDatabase : public Database {
 	 */
 	QuartzBufferedTableManager * buffered_tables;
 
+	/** A count of the number of changes since the last flush:
+	 *  FIXME: this should be replaced by keeping track of the memory used
+	 *  up, and flushing when it reaches a critical value.
+	 */
+	int changecount;
+
 	/** The readonly database encapsulated in the writable database.
 	 */
 	QuartzDatabase database_ro;

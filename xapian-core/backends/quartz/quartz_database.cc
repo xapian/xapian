@@ -332,6 +332,7 @@ QuartzWritableDatabase::QuartzWritableDatabase(const OmSettings & settings)
 				QuartzDatabase::get_log_filename(settings),
 				QuartzDatabase::get_perform_recovery(settings),
 				QuartzDatabase::get_block_size(settings))),
+	  changecount(0),
 	  database_ro(AutoPtr<QuartzTableManager>(buffered_tables))
 {
 }
@@ -478,6 +479,14 @@ QuartzWritableDatabase::do_add_document(const OmDocument & document)
 	throw;
     }
 
+    // FIXME: this should be configurable
+    // FIXME: this should be done by checking memory usage, not the number of
+    // changes.
+    if (++changecount > 1000) {
+	buffered_tables->apply();
+	changecount = 0;
+    }
+
     RETURN(did);
 }
 
@@ -539,6 +548,14 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
 
 	throw;
     }
+
+    // FIXME: this should be configurable
+    // FIXME: this should be done by checking memory usage, not the number of
+    // changes.
+    if (++changecount > 1000) {
+	buffered_tables->apply();
+	changecount = 0;
+    }
 }
 
 void
@@ -557,6 +574,14 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
     // persist in memory, and eventually get written to disk.
 
     throw OmUnimplementedError("QuartzWritableDatabase::do_replace_document() not yet implemented");
+
+    // FIXME: this should be configurable
+    // FIXME: this should be done by checking memory usage, not the number of
+    // changes.
+    if (++changecount > 1000) {
+	buffered_tables->apply();
+	changecount = 0;
+    }
 }
 
 om_doccount 

@@ -85,11 +85,11 @@ OmIndexerBuilder::NodeType
 OmExpandDeciderFilterTerms::OmExpandDeciderFilterTerms()
 
 </todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="Quartz" release="1.0">
+<todoitem priority="L" difficulty="3" owner="" area="Quartz" release="">
 
-Make database autoflush when enough changes have been performed.  Could
-simply flush after, say, 1000 changes for now, but mustn't simply use up
-all memory available...
+Make quartz database autoflush when enough changes have been performed based
+on the memory used up as a proportion of that available, rather than simply
+when a count of changes is reached.  Remove hardcoded count of 1000 changes.
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
