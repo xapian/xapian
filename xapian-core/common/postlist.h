@@ -95,6 +95,19 @@ class PostList
 	// recalculate weights (used when tree has been autopruned)
         virtual om_weight recalc_maxweight() = 0;
 
+	/** Get the within document frequency of this postlist.
+	 *
+	 *  This is currently only meaningful for a LeafPostList, although
+	 *  in future such things as a "SynonymPostList" may be created and
+	 *  implement this method.
+	 *
+	 *  This method may only be called while the current position is at a
+	 *  valid item: ie, after at least one next() or skip_to() has been
+	 *  performed, and before at_end() returns true (or would do were it to
+	 *  be called).
+	 */
+        virtual om_termcount get_wdf() const = 0;
+
 	/** Get the list of positions at which the current term appears.
 	 *  This method returns a reference to a PositionList, which is valid
 	 *  until next() or skip_to() is called on this PostList, or until

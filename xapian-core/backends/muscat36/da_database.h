@@ -61,6 +61,7 @@ class DAPostList : public LeafPostList {
 	om_docid  get_docid() const;     // Gets current docid
 	om_weight get_weight() const;    // Gets current weight
 	om_doclength get_doclength() const; // Get length of current document
+        om_termcount get_wdf() const;    // Within Document Frequency
 	PositionList *get_position_list(); // Gets positions
 	PostList *next(om_weight w_min);          // Moves to next docid
 	PostList *skip_to(om_docid did, om_weight w_min);  // Moves to next docid >= specified docid
@@ -88,6 +89,12 @@ DAPostList::get_doclength() const
 {
     // FIXME: return database->get_doclength()
     return 1;
+}
+
+inline om_termcount
+DAPostList::get_wdf() const
+{
+    return postlist->wdf;
 }
 
 inline bool

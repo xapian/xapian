@@ -59,6 +59,12 @@ InMemoryPostList::get_position_list()
     throw OmUnimplementedError("InMemoryPostList::get_position_list() unimplemented");
 }
 
+om_termcount
+InMemoryPostList::get_wdf() const
+{
+    return (*pos).positions.size();
+}
+
 ///////////////////////////
 // Actual database class //
 ///////////////////////////

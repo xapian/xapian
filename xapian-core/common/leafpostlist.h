@@ -41,7 +41,7 @@ class LeafPostList : public PostList
 	// Sets term weighting formula, and needed information
 	virtual void set_termweight(const IRWeight * wt);
 
-        om_weight get_maxweight() const;    // Gets max weight
+	om_weight get_maxweight() const;    // Gets max weight
         om_weight recalc_maxweight();       // recalculate weights
 };
 

@@ -59,20 +59,31 @@ MultiPostList::~MultiPostList()
 om_weight
 MultiPostList::get_weight() const
 {
-    om_weight wt = 0;
     list<MultiPostListInternal>::const_iterator i = postlists.begin();
     while(i != postlists.end()) {
 	if((*i).currdoc == currdoc)
-	    wt += (*i).pl->get_weight();
+	    return (*i).pl->get_weight();
 	i++;
     }
-    return wt;
+    Assert(false);
 }
 
 om_doclength
 MultiPostList::get_doclength() const
 {
     return this_db->get_doclength(get_docid());
+}
+
+om_termcount
+MultiPostList::get_wdf() const
+{
+    list<MultiPostListInternal>::const_iterator i = postlists.begin();
+    while (i != postlists.end()) {
+	if ((*i).currdoc == currdoc)
+	    return (*i).pl->get_wdf();
+	i++;
+    }
+    Assert(false);
 }
 
 PositionList *

@@ -63,8 +63,14 @@ enum om_queryop {
     /// As AND, but use only weights from left subquery
     OM_MOP_FILTER,
 
-    /// As AND, but also check terms are close using positional information
-    OM_MOP_NEAR
+    // FIXME: describing NEAR and PHRASE as "As AND" is a very internal view
+    /// As AND, but also require that terms occur close together (uses
+    /// positional information)
+    OM_MOP_NEAR,
+    
+    /// As AND, but terms must occur adjacently in order specified
+    /// (uses positional information)
+    OM_MOP_PHRASE
 };
 
 /// Internals of query class

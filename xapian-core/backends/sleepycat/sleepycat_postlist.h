@@ -70,6 +70,7 @@ class SleepyPostList : public LeafPostList {
 	om_docid     get_docid() const;     // Current docid
 	om_weight    get_weight() const;    // Current weight
 	om_doclength get_doclength() const; // Length of current document
+        om_termcount get_wdf() const;	    // Within Document Frequency
 	SleepyPositionList *get_position_list(); // Get positions
         PostList * next(om_weight w_min);  // Move to next docid
         PostList * skip_to(om_docid did, om_weight w_min);  // Skip to next docid >= docid

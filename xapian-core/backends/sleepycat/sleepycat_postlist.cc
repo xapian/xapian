@@ -80,6 +80,17 @@ SleepyPostList::get_weight() const
     return ir_wt->get_sumpart(wdf, get_doclength());
 }
 
+om_termcount
+SleepyPostList::get_wdf() const
+{
+    om_termcount wdf = mylist.get_current_item().wdf;
+    if (wdf == 0) {
+	DebugMsg("WDF not present in postlist - using 1." << endl);
+	wdf = 1;
+    }
+    return wdf;
+}
+
 SleepyPositionList *
 SleepyPostList::get_position_list()
 {
