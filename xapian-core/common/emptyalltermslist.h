@@ -39,7 +39,7 @@ class EmptyAllTermsList : public AllTermsList
 	EmptyAllTermsList() {}
 
 	// Gets current termname
-	const om_termname get_termname() const
+	om_termname get_termname() const
 	{
 	    Assert(false);
 	    return "";

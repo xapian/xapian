@@ -45,7 +45,7 @@ DAAllTermsList::update_cache()
     termfreq = term.freq;
 }
 
-const om_termname
+om_termname
 DAAllTermsList::get_termname() const
 {
     return current_term;

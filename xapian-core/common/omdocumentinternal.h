@@ -145,8 +145,7 @@ class OmDocument::Internal {
 		: ptr(NULL), data_here(true), keys_here(true), terms_here(true)
 	{}
 
-	void read_termlist(OmTermListIterator t,
-			   const OmTermListIterator & tend);
+	void read_termlist(OmTermIterator t, const OmTermIterator & tend);
 
 	/** Returns a string representing the object.
 	 *  Introspection method.

@@ -27,112 +27,198 @@
 #include "termlist.h"
 
 #include "omdocumentinternal.h"
+#include "ompositionlistiteratorinternal.h"
 
-class OmTermListIterator::Internal {
+#include "inmemory_positionlist.h"
+
+class OmTermIterator::Internal {
     private:
-	friend class OmTermListIterator; // allow access to termlist
-        friend bool operator==(const OmTermListIterator &a, const OmTermListIterator &b);
-
 	RefCntPtr<TermList> termlist;
 
 	/// The database to read position lists from.
-	OmDatabase database;
+	OmDatabase db;
 
 	/// The document ID in the database to read position lists from.
 	om_docid did;
 
-	OmDocument::Internal::document_terms::const_iterator it;
-	OmDocument::Internal::document_terms::const_iterator it_end;
-
-	/// Whether we're using the termlist object, or the iterator
-	bool using_termlist;
-
     public:
-        Internal(TermList *termlist_,
-		 const OmDatabase &database_,
-		 om_docid did_)
-		: termlist(termlist_),
-		  database(database_),
-		  did(did_),
-		  using_termlist(true)
+        Internal(TermList *termlist_, const OmDatabase &db_, om_docid did_)
+		: termlist(termlist_), db(db_), did(did_)
 	{
 	    // A TermList starts before the start, iterators start at the start
 	    termlist->next();
 	}
 
-	Internal(const OmDocument::Internal::document_terms::const_iterator &it_,
-		 const OmDocument::Internal::document_terms::const_iterator &it_end_)
-		: it(it_),
-		  it_end(it_end_),
-		  using_termlist(false)
-	{ }
-
-        Internal(const Internal &other)
-		: termlist(other.termlist),
-		  database(other.database),
-		  did(other.did),
-		  it(other.it),
-		  it_end(other.it_end),
-		  using_termlist(other.using_termlist)
-	{ }
-
-	void next()
+        Internal(TermList *termlist_) : termlist(termlist_), did(0)
 	{
-	    if (using_termlist) termlist->next();
-	    else it++;
+	    // A TermList starts before the start, iterators start at the start
+	    termlist->next();
 	}
 
-	void skip_to(const om_termname & tname)
-	{
-	    if (using_termlist) {
-		// FIXME: termlists should have a skip_to method and use it
-		// here
-		while (!termlist->at_end() && termlist->get_termname() < tname)
-		    termlist->next();
-	    } else {
-		// FIXME: use map operations to jump to correct position
-		while (it != it_end && it->first < tname)
-		    it++;
-	    }
+	om_termname get_termname() const {	    
+	    return termlist->get_termname();
 	}
 
-	bool at_end()
-	{
-	    if (using_termlist) {
-		return termlist->at_end();
-	    } else {
-		return it == it_end;
-	    }
+	om_termcount get_wdf() const {
+	    return termlist->get_wdf();
 	}
 
-	bool operator== (const OmTermListIterator::Internal &other)
-	{
-	    if (using_termlist != other.using_termlist) return false;
-	    if (using_termlist) {
-		return (termlist.get() == other.termlist.get());
-	    } else {
-		return (it == other.it);
-	    }
+	om_doccount get_termfreq() const {
+	    return termlist->get_termfreq();
+	}
+	
+	OmPositionListIterator positionlist_begin() const {
+	    if (did)
+		return db.positionlist_begin(did, termlist->get_termname());
+	    return termlist->positionlist_begin();
+	}
+
+	void next() {
+	    termlist->next();
+	}
+
+	void skip_to(const om_termname & tname) {
+	    // FIXME: termlists should have a skip_to method and use it here
+	    // FIXME: what if termlist not ordered (e.g. VectorTermList)?
+	    while (!termlist->at_end() && termlist->get_termname() < tname)
+		termlist->next();
+	}
+
+	bool at_end() const {
+	    return termlist->at_end();
+	}
+
+	bool operator==(const OmTermIterator::Internal &other) const {
+	    return termlist.get() == other.termlist.get();
 	}
 };
 
-class OmTermIterator::Internal {
+class VectorTermList : public TermList {
     private:
-	friend class OmTermIterator; // allow access to iterators
-        friend bool operator==(const OmTermIterator &a, const OmTermIterator &b);
-
 	std::vector<om_termname> terms;
-	std::vector<om_termname>::const_iterator it;
+	int offset;
 
     public:
-	Internal(const std::vector<om_termname>::const_iterator &begin,
-		 const std::vector<om_termname>::const_iterator &end)
-		: terms(begin, end), it(terms.begin())
-	{ }
+	VectorTermList(std::vector<om_termname>::const_iterator begin,
+		       std::vector<om_termname>::const_iterator end)
+	    : terms(begin, end), offset(-1)
+	{
+	}
 
-        Internal(const Internal &other)
-		: terms(other.terms), it(other.it - other.terms.begin() + terms.begin())
-	{ }
+	// Gets size of termlist
+	om_termcount get_approx_size() const {
+	    return terms.size();
+	}
+
+	// Gets weighting info for current term
+	OmExpandBits get_weighting() const {
+	    Assert(false); // should never get called
+	}
+	    
+	// Gets current termname
+	om_termname get_termname() const {
+	    Assert(offset >= 0 && offset < terms.size());
+	    return terms[offset];
+	}
+
+	// Get wdf of current term
+	om_termcount get_wdf() const {
+	    Assert(offset >= 0 && offset < terms.size());
+	    return 1; // FIXME: or is OmInvalidOperationError better?
+	}
+
+	// Get num of docs indexed by term
+	om_doccount get_termfreq() const {
+            throw OmInvalidOperationError("get_termfreq not supported");
+	}
+
+	/** next() causes the TermList to move to the next term in the list.
+	 *  It must be called before any other methods.
+	 *  If next() returns a non-zero pointer P, then the original
+	 *  termlist should be deleted, and the original pointer replaced
+	 *  with P.
+	 *  In LeafTermList, next() will always return 0.
+	 */
+	TermList * next() {
+	    Assert(!at_end());
+	    offset++;
+	    return NULL;
+	}
+
+	// True if we're off the end of the list
+	bool at_end() const {
+	    return offset == terms.size();
+	}
+};
+
+class MapTermList : public TermList {
+    private:
+	OmDocument::Internal::document_terms::const_iterator it;
+	OmDocument::Internal::document_terms::const_iterator it_end;
+	om_termcount size;
+	bool started;
+
+    public:
+        MapTermList(const OmDocument::Internal::document_terms::const_iterator &it_,
+		    const OmDocument::Internal::document_terms::const_iterator &it_end_,
+		    om_termcount size_)
+		: it(it_), it_end(it_end_), size(size_), started(false)
+	{}
+
+	// Gets size of termlist
+	om_termcount get_approx_size() const {
+	    return size;
+	}
+
+	// Gets weighting info for current term
+	OmExpandBits get_weighting() const {
+	    Assert(false); // should never get called
+	}
+	    
+	// Gets current termname
+	om_termname get_termname() const {
+	    Assert(started);
+	    Assert(!at_end());
+	    return it->first;
+	}
+
+	// Get wdf of current term
+	om_termcount get_wdf() const {
+	    Assert(started);
+	    Assert(!at_end());
+	    return it->second.wdf;
+	}
+
+	// Get num of docs indexed by term
+	om_doccount get_termfreq() const {
+	    Assert(started);
+	    Assert(!at_end());
+	    return it->second.termfreq;
+	}
+
+	OmPositionListIterator positionlist_begin() const {
+	    AutoPtr<InMemoryPositionList> pl(new InMemoryPositionList());
+	    pl->set_data(it->second.positions);
+	    return OmPositionListIterator(new OmPositionListIterator::Internal(
+					AutoPtr<PositionList>(pl.release())));
+	}
+
+	// FIXME: needs to allow a next() before we start
+	TermList * next() {
+	    if (!started) {
+		started = true;
+	    } else {
+		Assert(!at_end());
+		it++;
+	    }
+	    return NULL;
+	}
+
+	// True if we're off the end of the list
+	bool at_end() const {
+	    Assert(started);
+	    return it == it_end;
+	}
 };
 
 #endif /* OM_HGUARD_OMTERMLISTITERATOR_H */

@@ -44,7 +44,7 @@ class AllTermsList : public RefCntBase
 	virtual ~AllTermsList() { return; }
 
 	// Gets current termname
-	virtual const om_termname get_termname() const = 0;
+	virtual om_termname get_termname() const = 0;
 
 	// Get num of docs indexed by term
 	virtual om_doccount get_termfreq() const = 0;

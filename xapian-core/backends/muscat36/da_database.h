@@ -149,7 +149,7 @@ class DATermList : public LeafTermList {
 	om_termcount get_approx_size() const;
 
 	OmExpandBits get_weighting() const; // Gets weight info of current term
-	const om_termname get_termname() const;
+	om_termname get_termname() const;
 	om_termcount get_wdf() const; // Number of occurences of term in current doc
 	om_doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
@@ -161,7 +161,7 @@ inline om_termcount DATermList::get_approx_size() const
     return terms.size();
 }
 
-inline const om_termname DATermList::get_termname() const
+inline om_termname DATermList::get_termname() const
 {
     Assert(!at_end());
     Assert(have_started);

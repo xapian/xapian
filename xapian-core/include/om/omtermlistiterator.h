@@ -29,75 +29,12 @@
 class OmDatabase;
 class OmPositionListIterator;
 
-class OmTermListIterator {
-    private:
-	friend class OmDatabase; // So OmDatabase can construct us
-	friend class OmDocument; // So OmDocument can construct us
-
-	class Internal;
-
-	Internal *internal; // reference counted internals
-
-        friend bool operator==(const OmTermListIterator &a, const OmTermListIterator &b);
-
-	OmTermListIterator(Internal *internal_);
-
-    public:
-        ~OmTermListIterator();
-
-        /** Copying is allowed.  The internals are reference counted, so
-	 *  copying is also cheap.
-	 */
-	OmTermListIterator(const OmTermListIterator &other);
-
-        /** Assignment is allowed.  The internals are reference counted,
-	 *  so assignment is also cheap.
-	 */
-	void operator=(const OmTermListIterator &other);
-
-	om_termname operator *() const;
-
-	OmTermListIterator & operator++();
-
-	void operator++(int);
-
-	// extra method, not required for an input_iterator
-	void skip_to(const om_termname & tname);
-
-	om_termcount get_wdf() const;
-	om_doccount get_termfreq() const;
-
-    	// allow iteration of positionlist for current document
-	OmPositionListIterator positionlist_begin();
-	OmPositionListIterator positionlist_end();
-    
-	/** Returns a string describing this object.
-	 *  Introspection method.
-	 */
-	std::string get_description() const;
-
-	/// Allow use as an STL iterator
-	//@{
-	typedef std::input_iterator_tag iterator_category;
-	typedef om_termname value_type;
-	typedef om_termcount_diff difference_type;
-	typedef om_termname * pointer;
-	typedef om_termname & reference;
-	//@}
-};
-
-inline bool
-operator!=(const OmTermListIterator &a, const OmTermListIterator &b)
-{
-    return !(a == b);
-}
-
 class OmTermIterator {
     private:
-	// classes that need to be able to construct this one
-	friend class OmEnquire;
+	// friend classes which need to be able to construct us
+	friend class OmDatabase;
+	friend class OmDocument;
 	//friend class OmEnquire::Internal;
-	friend class OmQuery;
 
 	class Internal;
 
@@ -105,10 +42,10 @@ class OmTermIterator {
 
         friend bool operator==(const OmTermIterator &a, const OmTermIterator &b);
 
-    public: // FIXME
+    public:
+	// FIXME: better if this was private...
 	OmTermIterator(Internal *internal_);
 
-    public:
         ~OmTermIterator();
 
         /** Copying is allowed.  The internals are reference counted, so
@@ -130,12 +67,12 @@ class OmTermIterator {
 	// extra method, not required for an input_iterator
 	void skip_to(const om_termname & tname);
 
-	// om_termcount get_wdf() const;
-	// om_doccount get_termfreq() const;
+	om_termcount get_wdf() const;
+	om_doccount get_termfreq() const;
 
     	// allow iteration of positionlist for current document
-	// OmPositionListIterator positionlist_begin();
-	// OmPositionListIterator positionlist_end();
+	OmPositionListIterator positionlist_begin();
+	OmPositionListIterator positionlist_end();
     
 	/** Returns a string describing this object.
 	 *  Introspection method.

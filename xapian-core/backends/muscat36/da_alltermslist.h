@@ -59,7 +59,7 @@ class DAAllTermsList : public AllTermsList
 	~DAAllTermsList();
 
 	// Gets current termname
-	const om_termname get_termname() const;
+	om_termname get_termname() const;
 
 	// Get num of docs indexed by term
 	om_doccount get_termfreq() const;

@@ -34,12 +34,12 @@ class OrTermList : public BranchTermList {
 	om_termcount get_approx_size() const;
 
 	OmExpandBits get_weighting() const;
-	const om_termname get_termname() const;
+	om_termname get_termname() const;
         om_termcount get_wdf() const;
         om_doccount get_termfreq() const;
 
 	TermList *next();
-	bool   at_end() const;
+	bool at_end() const;
 
         OrTermList(TermList * left, TermList * right);
 };
@@ -61,7 +61,7 @@ OrTermList::get_termfreq() const
     return r->get_termfreq();
 }
 
-inline const om_termname
+inline om_termname
 OrTermList::get_termname() const
 {
     Assert(started);

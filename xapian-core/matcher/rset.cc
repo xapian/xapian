@@ -49,8 +49,8 @@ RSet::calculate_stats()
 		tl->next();
 	    }
 	} else {
-	    OmTermListIterator tl = root.termlist_begin(doc->did);
-	    OmTermListIterator tlend = root.termlist_end(doc->did);
+	    OmTermIterator tl = root.termlist_begin(doc->did);
+	    OmTermIterator tlend = root.termlist_end(doc->did);
 	    while (tl != tlend) {
 		// FIXME - can this lookup be done faster?
 		// Store termnames in a hash for each document, rather than

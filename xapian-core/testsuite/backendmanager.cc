@@ -120,8 +120,8 @@ index_files_to_m36(const std::string &prog, const std::string &dbdir,
 	    OmDocument doc = string_to_document(para);
 	    out << "#RSTART#\n" << doc.get_data() << "\n#REND#\n#TSTART#\n";
 	    {
-		OmTermListIterator i = doc.termlist_begin();
-		OmTermListIterator i_end = doc.termlist_end();
+		OmTermIterator i = doc.termlist_begin();
+		OmTermIterator i_end = doc.termlist_end();
 		for ( ; i != i_end; ++i) {
 		    out << *i << std::endl;
 		}

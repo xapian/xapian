@@ -118,8 +118,8 @@ QuartzTermList::write_item(std::string & data,
 void
 QuartzTermList::set_entries(QuartzBufferedTable * table,
 			    om_docid did,
-			    OmTermListIterator t,
-			    const OmTermListIterator &t_end,
+			    OmTermIterator t,
+			    const OmTermIterator &t_end,
 			    quartz_doclen_t doclen,
 			    bool store_termfreqs)
 {
@@ -218,7 +218,7 @@ QuartzTermList::at_end() const
     return have_finished;
 }
 
-const om_termname
+om_termname
 QuartzTermList::get_termname() const
 {
     return current_tname;

@@ -116,7 +116,7 @@ class NetworkTermList : public LeafTermList {
 	om_termcount get_approx_size() const;
 
 	OmExpandBits get_weighting() const;
-	const om_termname get_termname() const;
+	om_termname get_termname() const;
 	om_termcount get_wdf() const;
 	om_doccount get_termfreq() const;
 	TermList * next();

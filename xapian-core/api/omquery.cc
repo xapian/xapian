@@ -389,8 +389,9 @@ OmQuery::Internal::get_terms() const
 	result.push_back(i->first);
     }
 
-    return OmTermIterator(new OmTermIterator::Internal(result.begin(),
-						       result.end()));
+    return OmTermIterator(new OmTermIterator::Internal(
+			      new VectorTermList(result.begin(),
+						 result.end())));
 }
 
 OmQuery::Internal::Internal()

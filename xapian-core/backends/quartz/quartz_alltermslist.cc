@@ -47,7 +47,7 @@ QuartzAllTermsList::~QuartzAllTermsList()
 {
 }
 
-const om_termname
+om_termname
 QuartzAllTermsList::get_termname() const
 {
     if (!is_at_end) {

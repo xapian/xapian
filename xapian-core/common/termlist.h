@@ -28,6 +28,8 @@
 #include "refcnt.h"
 #include "expandweight.h"
 
+class OmPositionListIterator;
+
 /** Abstract base class for termlists. */
 class TermList : public RefCntBase
 {
@@ -42,7 +44,7 @@ class TermList : public RefCntBase
 	TermList() {}
 
 	/// Standard destructor for base class.
-	virtual ~TermList() { return; }
+	virtual ~TermList() {}
 
 	// Gets size of termlist
 	virtual om_termcount get_approx_size() const = 0;
@@ -51,7 +53,7 @@ class TermList : public RefCntBase
 	virtual OmExpandBits get_weighting() const = 0;
 
 	// Gets current termname
-	virtual const om_termname get_termname() const = 0;
+	virtual om_termname get_termname() const = 0;
 
 	// Get wdf of current term
 	virtual om_termcount get_wdf() const = 0;
@@ -69,7 +71,11 @@ class TermList : public RefCntBase
 	virtual TermList * next() = 0;
 
 	// True if we're off the end of the list
-	virtual bool   at_end() const = 0;
+	virtual bool at_end() const = 0;
+
+	virtual OmPositionListIterator positionlist_begin() const {
+	    throw OmInvalidOperationError("positionlist_begin not supported");
+	}
 };
 
 /** Base class for termlists which are at the leaves of the termlist tree,
@@ -81,8 +87,8 @@ class LeafTermList : public TermList
     protected:
 	const OmExpandWeight * wt;
     public:
-	LeafTermList() : wt(NULL) { return; }
-	~LeafTermList() { return; }
+	LeafTermList() : wt(NULL) {}
+	~LeafTermList() {}
 
 	// Sets term weight
 	virtual void set_weighting(const OmExpandWeight * wt_) { wt = wt_; }

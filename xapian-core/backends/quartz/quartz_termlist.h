@@ -195,7 +195,7 @@ class QuartzTermList : public LeafTermList {
 	 */
 	static void
 	set_entries(QuartzBufferedTable * table, om_docid did,
-		    OmTermListIterator t, const OmTermListIterator &t_end,
+		    OmTermIterator t, const OmTermIterator &t_end,
 		    quartz_doclen_t doclen, bool store_termfreqs);
 
 	/** Clear the termlist.  After this call, the termlist for the
@@ -237,12 +237,11 @@ class QuartzTermList : public LeafTermList {
 
 	/** Check whether the termlist reader has reached the end.
 	 */
-	bool   at_end() const;
-
+	bool at_end() const;
 
 	/** Get the current term in the termlist.
 	 */
-	const om_termname get_termname() const;
+	om_termname get_termname() const;
 
 	/** Get the within document frequency of the current term.
 	 */

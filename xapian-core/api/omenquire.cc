@@ -140,6 +140,13 @@ OmRSet::remove_document(om_docid did)
     if (i != internal->items.end()) internal->items.erase(i);
 }
 
+bool
+OmRSet::contains(om_docid did) const
+{
+    std::set<om_docid>::iterator i = internal->items.find(did);
+    return i != internal->items.end();
+}
+
 std::string
 OmRSet::get_description() const
 {
@@ -901,8 +908,8 @@ OmEnquire::Internal::calc_matching_terms(om_docid did) const
 
     std::vector<om_termname> matching_terms;
 
-    OmTermListIterator docterms = db.termlist_begin(did);
-    OmTermListIterator docterms_end = db.termlist_end(did);
+    OmTermIterator docterms = db.termlist_begin(did);
+    OmTermIterator docterms_end = db.termlist_end(did);
     while (docterms != docterms_end) {
 	om_termname term = *docterms;
         std::map<om_termname, unsigned int>::iterator t = tmap.find(term);
@@ -913,8 +920,9 @@ OmEnquire::Internal::calc_matching_terms(om_docid did) const
     // sort the resulting list by query position.
     sort(matching_terms.begin(), matching_terms.end(), ByQueryIndexCmp(tmap));
 
-    return OmTermIterator(new OmTermIterator::Internal(matching_terms.begin(),
-						       matching_terms.end()));
+    return OmTermIterator(new OmTermIterator::Internal(
+			      new VectorTermList(matching_terms.begin(),
+						 matching_terms.end())));
 }
 
 //////////////////////////

@@ -34,7 +34,7 @@ InMemoryAllTermsList::~InMemoryAllTermsList()
 {
 }
 
-const om_termname
+om_termname
 InMemoryAllTermsList::get_termname() const
 {
     return it->first;

@@ -1074,8 +1074,8 @@ static bool test_adddoc2()
 	    }
 	}
 	{
-	    OmTermListIterator i(document_in.termlist_begin());
-	    OmTermListIterator j(document_out.termlist_begin());
+	    OmTermIterator i(document_in.termlist_begin());
+	    OmTermIterator j(document_out.termlist_begin());
 	    for (; i != document_in.termlist_end(); i++, j++) {
 		TEST_NOT_EQUAL(j, document_out.termlist_end());
 		TEST_EQUAL(*i, *j);
@@ -1097,7 +1097,9 @@ static bool test_adddoc2()
 		    TEST_NOT_EQUAL(l, j.positionlist_end());
 		    TEST_EQUAL(*k, *l);
 		}
+		TEST_EQUAL(l, j.positionlist_end());
 	    }
+	    TEST_EQUAL(j, document_out.termlist_end());
 	}
     }
 
@@ -1713,7 +1715,7 @@ static bool test_overwrite2()
     }
     writer.flush();
 
-    OmTermListIterator ti = reader.termlist_begin(1);
+    OmTermIterator ti = reader.termlist_begin(1);
     *ti;
     ti++;
 

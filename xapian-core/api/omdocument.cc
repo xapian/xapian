@@ -155,8 +155,8 @@ OmDocument::clear_keys()
 }
 
 void
-OmDocument::Internal::read_termlist(OmTermListIterator t,
-				    const OmTermListIterator & tend)
+OmDocument::Internal::read_termlist(OmTermIterator t,
+				    const OmTermIterator & tend)
 {
     // FIXME: need to lock here...
     if (!terms_here) {
@@ -240,26 +240,27 @@ OmDocument::clear_terms()
     }
 }
 
-OmTermListIterator
+OmTermIterator
 OmDocument::termlist_begin() const
 {
-    DEBUGAPICALL(OmTermListIterator, "OmDocument::termlist_begin", "");
+    DEBUGAPICALL(OmTermIterator, "OmDocument::termlist_begin", "");
     if (internal->terms_here) {
-	RETURN(OmTermListIterator(new OmTermListIterator::Internal(
-		internal->terms.begin(),
-		internal->terms.end())));
+	RETURN(OmTermIterator(new OmTermIterator::Internal(
+		new MapTermList(internal->terms.begin(),
+				internal->terms.end(),
+				internal->terms.size()))));
     }
-    RETURN(OmTermListIterator(new OmTermListIterator::Internal(
+    RETURN(OmTermIterator(new OmTermIterator::Internal(
 		internal->ptr->open_term_list(),
 		internal->database,
 		internal->did)));
 }
 
-OmTermListIterator
+OmTermIterator
 OmDocument::termlist_end() const
 {
-    DEBUGAPICALL(OmTermListIterator, "OmDocument::termlist_end", "");
-    RETURN(OmTermListIterator(NULL));
+    DEBUGAPICALL(OmTermIterator, "OmDocument::termlist_end", "");
+    RETURN(OmTermIterator(NULL));
 }
 
 OmKeyListIterator

@@ -56,7 +56,7 @@ MultiAllTermsList::update_current()
     }
 }
 
-const om_termname
+om_termname
 MultiAllTermsList::get_termname() const
 {
     return current;

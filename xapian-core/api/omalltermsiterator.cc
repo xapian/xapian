@@ -119,9 +119,9 @@ OmAllTermsIterator::operator++(int)
 
 // extra method, not required to be an input_iterator
 void
-OmTermListIterator::skip_to(const om_termname & tname)
+OmAllTermsIterator::skip_to(const om_termname & tname)
 {
-    DEBUGAPICALL(void, "OmTermListIterator::skip_to", tname);
+    DEBUGAPICALL(void, "OmAllTermsIterator::skip_to", tname);
     Assert(internal);
     Assert(!internal->at_end());
     internal->skip_to(tname);

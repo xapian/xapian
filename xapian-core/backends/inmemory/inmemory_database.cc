@@ -228,8 +228,8 @@ InMemoryDatabase::do_add_document(const OmDocument & document)
 	add_keys(did, keys);
     }
 
-    OmTermListIterator i = document.termlist_begin();
-    OmTermListIterator i_end = document.termlist_end();
+    OmTermIterator i = document.termlist_begin();
+    OmTermIterator i_end = document.termlist_end();
     for ( ; i != i_end; ++i) {
 	make_term(*i);
 

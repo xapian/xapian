@@ -79,7 +79,7 @@ NetworkTermList::get_weighting() const
 			database_size);
 }
 
-const om_termname
+om_termname
 NetworkTermList::get_termname() const
 {
     Assert(started);

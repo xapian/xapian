@@ -27,14 +27,15 @@
 #include "omtypes.h"
 
 class OmPostListIterator;
-class OmTermListIterator;
+class OmTermIterator;
 class OmDatabase;
 
 class OmPositionListIterator {
     private:
-	friend class OmPostListIterator; // So OmPostListIterator can construct us
-	friend class OmTermListIterator; // So OmTermListIterator can construct us
-	friend class OmDatabase; // So OmDatabase can construct us
+	// friend classes which need to be able to construct us
+	friend class OmPostListIterator;
+	friend class OmTermIterator;
+	friend class OmDatabase;
 
 	class Internal;
 
@@ -42,9 +43,10 @@ class OmPositionListIterator {
 
         friend bool operator==(const OmPositionListIterator &a, const OmPositionListIterator &b);
 
+    public:
+	// FIXME: ought to be private
 	OmPositionListIterator(Internal *internal_);
 
-    public:
         ~OmPositionListIterator();
 
 	void operator=(OmPositionListIterator &o);

@@ -1876,27 +1876,27 @@ static bool test_termlist1()
 {
     OmDatabase db(get_database("apitest_onedoc"));
     TEST_EXCEPTION(OmInvalidArgumentError,
-		   OmTermListIterator t = db.termlist_begin(0));
+		   OmTermIterator t = db.termlist_begin(0));
     TEST_EXCEPTION(OmDocNotFoundError,
-		   OmTermListIterator t = db.termlist_begin(2));
+		   OmTermIterator t = db.termlist_begin(2));
     TEST_EXCEPTION(OmDocNotFoundError,
-		   OmTermListIterator t = db.termlist_begin(999999999));
+		   OmTermIterator t = db.termlist_begin(999999999));
     return true;
 }
 
-// tests that an OmTermListIterator works as an STL iterator
+// tests that an OmTermIterator works as an STL iterator
 static bool test_termlist2()
 {
     OmDatabase db(get_database("apitest_onedoc"));
-    OmTermListIterator t = db.termlist_begin(1);
-    OmTermListIterator tend = db.termlist_end(1);
+    OmTermIterator t = db.termlist_begin(1);
+    OmTermIterator tend = db.termlist_end(1);
 
     // test operator= creates a copy which compares equal
-    OmTermListIterator t_copy = t;
+    OmTermIterator t_copy = t;
     TEST_EQUAL(t, t_copy);
 
     // test copy constructor creates a copy which compares equal
-    OmTermListIterator t_clone(t);
+    OmTermIterator t_clone(t);
     TEST_EQUAL(t, t_clone);
 
     std::vector<om_termname> v(t, tend);
@@ -1913,20 +1913,20 @@ static bool test_termlist2()
     return true;
 }
 
-static OmTermListIterator
+static OmTermIterator
 test_termlist3_helper()
 {
     OmDatabase db(get_database("apitest_onedoc"));
     return db.termlist_begin(1);
 }
 
-// tests that an OmTermListIterator still works when the DB is deleted
+// tests that an OmTermIterator still works when the DB is deleted
 static bool test_termlist3()
 {
-    OmTermListIterator u = test_termlist3_helper();
+    OmTermIterator u = test_termlist3_helper();
     OmDatabase db(get_database("apitest_onedoc"));
-    OmTermListIterator t = db.termlist_begin(1);
-    OmTermListIterator tend = db.termlist_end(1);
+    OmTermIterator t = db.termlist_begin(1);
+    OmTermIterator tend = db.termlist_end(1);
 
     while (t != tend) {
 	TEST_EQUAL(*t, *u);
@@ -1940,7 +1940,7 @@ static bool test_termlist3()
 static bool test_termlist4()
 {
     OmDatabase db(get_database("apitest_onedoc"));
-    OmTermListIterator i = db.termlist_begin(1);
+    OmTermIterator i = db.termlist_begin(1);
     i.skip_to("");
     i.skip_to("\xff");
     return true;

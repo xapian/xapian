@@ -156,8 +156,8 @@ class OmDatabase {
 	OmPostListIterator postlist_begin(const om_termname &tname) const;
 	OmPostListIterator postlist_end(const om_termname &tname) const;
 
-	OmTermListIterator termlist_begin(om_docid did) const;
-	OmTermListIterator termlist_end(om_docid did) const;
+	OmTermIterator termlist_begin(om_docid did) const;
+	OmTermIterator termlist_end(om_docid did) const;
 
 	OmPositionListIterator positionlist_begin(om_docid did, const om_termname &tname) const;
 	OmPositionListIterator positionlist_end(om_docid did, const om_termname &tname) const;

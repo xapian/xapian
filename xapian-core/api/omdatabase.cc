@@ -141,22 +141,22 @@ OmDatabase::postlist_end(const om_termname &tname) const
     RETURN(OmPostListIterator(NULL));
 }
 
-OmTermListIterator
+OmTermIterator
 OmDatabase::termlist_begin(om_docid did) const
 {
-    DEBUGAPICALL(OmTermListIterator, "OmDatabase::termlist_begin", did);
+    DEBUGAPICALL(OmTermIterator, "OmDatabase::termlist_begin", did);
     if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
 
-    RETURN(OmTermListIterator(new OmTermListIterator::Internal(internal->open_term_list(did, *this),
-							       *this, did)));
+    RETURN(OmTermIterator(new OmTermIterator::Internal(internal->open_term_list(did, *this),
+						       *this, did)));
 }
 
-OmTermListIterator
+OmTermIterator
 OmDatabase::termlist_end(om_docid did) const
 {
-    DEBUGAPICALL(OmTermListIterator, "OmDatabase::termlist_end", did);
+    DEBUGAPICALL(OmTermIterator, "OmDatabase::termlist_end", did);
     if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
-    RETURN(OmTermListIterator(NULL));
+    RETURN(OmTermIterator(NULL));
 }
 
 OmAllTermsIterator

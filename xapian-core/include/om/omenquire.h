@@ -371,6 +371,9 @@ class OmRSet {
 	/// Remove a document from the relevance set.
 	void remove_document(om_docid did);
 
+	/// Is a particular document in the relevance set.
+	bool contains(om_docid did) const;
+
 	/** Returns a string representing the rset.
 	 *  Introspection method.
 	 */

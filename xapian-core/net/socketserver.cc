@@ -396,8 +396,8 @@ SocketServer::run_gettermlist(const std::string &firstmessage)
 
     om_docid did = atoi(message.c_str());
 
-    OmTermListIterator tl = db.termlist_begin(did);
-    OmTermListIterator tlend = db.termlist_end(did);
+    OmTermIterator tl = db.termlist_begin(did);
+    OmTermIterator tlend = db.termlist_end(did);
 
     while (tl != tlend) {
 	std::string item = om_tostring(tl.get_wdf())

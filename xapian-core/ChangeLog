@@ -1,3 +1,13 @@
+Wed Dec 20 15:13:05 GMT 2000 Olly Betts
+
+	* OmTermListIterator merged into OmTermIterator.
+
+	* Added OmRSet::contains() - checks if an RSet contains a given
+	  docid.
+
+	* Methods returning `const om_termname' now just return
+	  `om_termname'.
+
 Tue Dec 19 16:55:02 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Implemented AllTermsIterator for DA and Multi databases.

@@ -419,8 +419,8 @@ QuartzWritableDatabase::do_add_document(const OmDocument & document)
     // Calculate the new document length
     quartz_doclen_t new_doclen = 0;
     {
-	OmTermListIterator term = document.termlist_begin();
-	OmTermListIterator term_end = document.termlist_end();    
+	OmTermIterator term = document.termlist_begin();
+	OmTermIterator term_end = document.termlist_end();    
 	for ( ; term != term_end; ++term) {
 	    new_doclen += term.get_wdf();
 	}
@@ -460,8 +460,8 @@ QuartzWritableDatabase::do_add_document(const OmDocument & document)
 		new_doclen);
 
 	{
-	    OmTermListIterator term = document.termlist_begin();
-	    OmTermListIterator term_end = document.termlist_end();    
+	    OmTermIterator term = document.termlist_begin();
+	    OmTermIterator term_end = document.termlist_end();    
 	    for ( ; term != term_end; ++term) {
 		QuartzLexicon::increment_termfreq(
 		    buffered_tables->get_lexicon_table(),

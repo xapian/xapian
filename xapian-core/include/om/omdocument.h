@@ -157,8 +157,8 @@ class OmDocument {
 	/// Remove all terms and postings.
 	void clear_terms();
 
-	OmTermListIterator termlist_begin() const;
-	OmTermListIterator termlist_end() const;
+	OmTermIterator termlist_begin() const;
+	OmTermIterator termlist_end() const;
 
 	OmKeyListIterator keylist_begin() const;
 	OmKeyListIterator keylist_end() const;

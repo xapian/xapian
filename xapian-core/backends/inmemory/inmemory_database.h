@@ -173,7 +173,7 @@ class InMemoryTermList : public LeafTermList {
 	om_termcount get_approx_size() const;
 
 	OmExpandBits get_weighting() const;
-	const om_termname get_termname() const;
+	om_termname get_termname() const;
 	om_termcount get_wdf() const; // Number of occurences of term in current doc
 	om_doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
@@ -389,7 +389,7 @@ InMemoryTermList::get_weighting() const
 			this_db->get_doccount());
 }
 
-inline const om_termname
+inline om_termname
 InMemoryTermList::get_termname() const
 {
     Assert(started);

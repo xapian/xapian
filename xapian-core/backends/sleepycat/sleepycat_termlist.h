@@ -78,7 +78,7 @@ class SleepycatTermList : public LeafTermList {
 	om_termcount get_approx_size() const;
 
 	OmExpandBits      get_weighting() const;  // Gets weight of current term
-	const om_termname get_termname() const;  // Current term
+	om_termname	  get_termname() const;  // Current term
 	om_termcount      get_wdf() const;  // Occurences of current term in doc
 	om_doccount       get_termfreq() const;  // Docs indexed by current term
 	TermList *        next();

@@ -118,8 +118,8 @@ main(int argc, char *argv[])
 	    // Display termlists
 	    std::vector<om_docid>::const_iterator i;
 	    for (i = recnos.begin(); i != recnos.end(); i++) {
-		OmTermListIterator t = db.termlist_begin(*i);
-		OmTermListIterator tend = db.termlist_end(*i);
+		OmTermIterator t = db.termlist_begin(*i);
+		OmTermIterator tend = db.termlist_end(*i);
 		cout << "Term List for record #" << *i << ':';
 		while (t != tend) {
 		    cout << separator << *t;

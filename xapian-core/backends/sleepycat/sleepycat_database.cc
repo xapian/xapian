@@ -219,8 +219,8 @@ SleepycatDatabase::do_add_document(const OmDocument & document)
     // Build list of terms, sorted by termID
     std::map<om_termid, OmDocumentTerm> terms;
     {
-	OmTermListIterator i = document.termlist_begin();
-	OmTermListIterator i_end = document.termlist_end();
+	OmTermIterator i = document.termlist_begin();
+	OmTermIterator i_end = document.termlist_end();
 	for ( ; i != i_end; i++) {
 	    Assert(!(*i).empty());
 	    om_termid tid = termcache->assign_new_termid(*i);
