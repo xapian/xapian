@@ -3,6 +3,48 @@
 #include <ctype.h>
 
 void
+HtmlParser::decode_entities(string &s)
+{
+    string::size_type amp = 0;
+    while ((amp = s.find('&', amp)) != string::npos) {
+	int val = 0;
+	string::size_type end;
+	size_t p = amp + 1;
+	if (p < s.size() && s[p] == '#') {
+	    p++;
+	    if (p < s.size() && tolower(s[p]) == 'x') {
+		// hex
+		p++;
+		end = s.find_first_not_of("ABCDEFabcdef0123456789", p);
+		sscanf(s.substr(p, end - p).c_str(), "%x", &val);
+	    } else {
+		// number
+		end = s.find_first_not_of("0123456789", p);
+		val = atoi(s.substr(p, end - p).c_str());
+	    }
+	} else {
+	    end = s.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				      "abcdefghijklmnopqrstuvwxyz"
+				      "0123456789", p);
+	    string code = s.substr(p, end - p);
+	    // FIXME: make this list complete
+	    if (code == "amp") val = '&';
+	    else if (code == "lt") val = '<';
+	    else if (code == "gt") val = '>';
+	    else if (code == "nbsp") val = '\xa0';
+	    else if (code == "quot") val = '\"';
+	}
+	if (end < s.size() && s[end] == ';') end++;
+	if (val) {
+	    s.replace(amp, end - amp, char(val));
+	    amp += 1;
+	} else {
+	    amp = end;
+	}
+    }
+}
+
+void
 HtmlParser::parse_html(const string &body)
 {
     map<string,string> Param;
@@ -28,43 +70,7 @@ HtmlParser::parse_html(const string &body)
 	// process text up to start of tag
 	if (p > start) {
 	    string text = body.substr(start, p - start);
-	    size_t amp = 0;
-	    while ((amp = text.find('&', amp)) != string::npos) {
-		int val = 0;
-		string::size_type end;
-		size_t p = amp + 1;
-		if (p < text.size() && text[p] == '#') {
-		    p++;
-		    if (p < text.size() && tolower(text[p]) == 'x') {
-			// hex
-			p++;
-			end = text.find_first_not_of("ABCDEFabcdef"
-						     "0123456789", p);
-			sscanf(text.substr(p, end - p).c_str(), "%x", &val);
-		    } else {
-			// number
-			end = text.find_first_not_of("0123456789", p);
-			val = atoi(text.substr(p, end - p).c_str());
-		    }
-		} else {
-		    end = text.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-						 "abcdefghijklmnopqrstuvwxyz"
-						 "0123456789", p);
-		    string code = text.substr(p, end - p);
-		    if (code == "amp") val = '&';
-		    else if (code == "lt") val = '<';
-		    else if (code == "gt") val = '>';
-		    else if (code == "nbsp") val = '\xa0';
-		    else if (code == "quot") val = '\"';
-		}
-		if (end < text.size() && text[end] == ';') end++;
-		if (val) {
-		    text.replace(amp, end - amp, char(val));
-		    amp += 1;
-		} else {
-		    amp = end;
-		}
-	    }
+	    decode_entities(text);
 	    process_text(text);
 	}
 

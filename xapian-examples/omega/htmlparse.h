@@ -2,6 +2,8 @@
 #include <map>
 
 class HtmlParser {
+    protected:
+	void decode_entities(string &s);
     public:
 	virtual void process_text(const string &text) { }
 	virtual void opening_tag(const string &tag,

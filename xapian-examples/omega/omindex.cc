@@ -45,10 +45,12 @@ static OmWritableDatabase *db;
 
 class MyHtmlParser : public HtmlParser {
     public:
-    	string title, dump;
+    	string title, sample, keywords, dump;
+	bool indexing_allowed;
 	void process_text(const string &text);
-//	void opening_tag(const string &tag, const map<string,string> &p);
+	void opening_tag(const string &tag, const map<string,string> &p);
 	void closing_tag(const string &tag);
+	MyHtmlParser() : indexing_allowed(true) { }
 };
 
 void
@@ -56,6 +58,39 @@ MyHtmlParser::process_text(const string &text)
 {
     // some tags are meaningful mid-word so this is simplistic at best...
     dump += text + " ";
+}
+
+void
+MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
+{
+    if (tag == "meta") {
+	map<string, string>::const_iterator i, j;
+	if ((i = p.find("content")) != p.end()) {
+	    if ((j = p.find("name")) != p.end()) {
+		string name = j->second;
+		lowercase_term(name);
+		if (name == "description") {
+		    if (sample.empty()) {
+			sample = i->second;
+			decode_entities(sample);
+		    }
+		} else if (name == "keywords") {
+		    if (!keywords.empty()) keywords += ' ';
+		    string tmp = i->second;
+		    decode_entities(tmp);
+		    keywords += tmp;
+		} else if (name == "robots") {
+		    string val = i->second;
+		    decode_entities(val);
+		    lowercase_term(val);
+		    if (val.find("none") != string::npos && 
+			val.find("noindex") != string::npos) {
+			indexing_allowed = false;
+		    }
+		}
+	    }
+	}
+    }
 }
 
 void
@@ -99,11 +134,9 @@ static void
 index_file(const string &url, const string &mimetype)
 {
     string file = root + url;
-    string title;
+    string title, sample, keywords, dump;
 
     cout << "Indexing \"" << url << "\"\n";
-
-    string dump;
 
     if (mimetype == "text/html") {
 	std::ifstream in(file.c_str());
@@ -122,6 +155,8 @@ index_file(const string &url, const string &mimetype)
 	p.parse_html(text);
 	dump = p.dump;
 	title = p.title;
+	keywords = p.keywords;
+	sample = p.sample;
     } else if (mimetype == "text/plain") {
 	std::ifstream in(file.c_str());
 	if (!in) {
@@ -165,7 +200,11 @@ index_file(const string &url, const string &mimetype)
     OmStem stemmer("english");    
 
     // Produce a sample
-    string sample = dump.substr(0, 300);
+    if (sample.empty()) {
+	sample = dump.substr(0, 300);
+    } else {
+	sample = sample.substr(0, 300);
+    }
     size_t space = sample.find_last_of(" \t\n");
     if (space != string::npos) sample.erase(space);
     // replace newlines with spaces
@@ -181,8 +220,9 @@ index_file(const string &url, const string &mimetype)
     // Add postings for terms to the document
     om_termpos pos = 1;
     pos = index_text(title, newdocument, stemmer, pos);
-    pos = index_text(dump, newdocument, stemmer, pos);
-
+    pos = index_text(dump, newdocument, stemmer, pos + 100);
+    pos = index_text(keywords, newdocument, stemmer, pos + 100);
+    
     // Add the document to the database
     db->add_document(newdocument);
 }
