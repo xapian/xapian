@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
 #endif
 
 	OmRefCntPtr<MultiDatabase> multidb;
-	multidb = OmDatabase::InternalInterface::get_irdatabase(dbgrp);
+	multidb = OmDatabase::InternalInterface::get_multi_database(dbgrp);
 	ProgServer server(multidb, 0, 1);
 
 	server.run();

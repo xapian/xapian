@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	OmRefCntPtr<MultiDatabase> mdb(
-	    OmDatabase::InternalInterface::get_irdatabase(mydbs));
+	    OmDatabase::InternalInterface::get_multi_database(mydbs));
 
 	TcpServer server(mdb, port);
 
