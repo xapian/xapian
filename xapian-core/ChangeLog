@@ -1,3 +1,7 @@
+Thu Dec 20 10:32:56 GMT 2001  Richard Boulton <richard@tartarus.org>
+
+	* Fix a couple of misquoted messages in configure.in.
+
 Tue Dec 18 23:22:00 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 	* Use xapian.org where appropriate in documentation references

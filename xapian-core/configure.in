@@ -497,7 +497,7 @@ dnl * Set special compiler flags *
 dnl ******************************
 
 dnl Add -Wno-long-long to $CXXFLAGS if it's supported
-AC_MSG_CHECKING("whether -Wno-long-long works with C++")
+AC_MSG_CHECKING([whether -Wno-long-long works with C++])
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 SAVED_CXXFLAGS="$CXXFLAGS"
@@ -509,7 +509,7 @@ unset SAVED_CXXFLAGS
 AC_LANG_RESTORE
 
 dnl Add -Wno-long-long to $CFLAGS if it's supported
-AC_MSG_CHECKING("whether -Wno-long-long works with C")
+AC_MSG_CHECKING([whether -Wno-long-long works with C])
 AC_LANG_SAVE
 AC_LANG_C
 SAVED_CFLAGS="$CFLAGS"
