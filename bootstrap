@@ -44,7 +44,9 @@ for module in xapian-core xapian-bindings xapian-examples xapian-applications/om
   d="${srcdir}$module"
   if test -f "$d/configure.in" -o -f "$d/configure.ac" ; then
     echo "Bootstrapping \`$module'"
-    ${AUTORECONF-autoreconf} -i "$d"
+    # use --install as debian's autoconf wrapper uses 2.5X if it sees it
+    # (but it doesn't check for -i).
+    ${AUTORECONF-autoreconf} --install "$d"
   fi
 
   if test xapian-core = "$module" ; then
