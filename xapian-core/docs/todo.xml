@@ -40,12 +40,6 @@ Check for zero byte cleanness wherever strings are used.  There are a lot
 of c_str()s in the code...
 
 </todoitem>
-<todoitem priority="M" difficulty="1" owner="" area="Quartz" release="0.9">
-
-Add format numbers to the quartz database as a whole, rather than just relying
-on the btree format numbers.
-
-</todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="Indexer" release="1.0">
 
 Check that the interface used by OmDocument isn't causing great
@@ -66,7 +60,7 @@ Write tests for copying term and postlist iterators.
 </todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="DA/DB" release="1.0">
 
-Rename keys to attributes.  (OmKey -> OmAttrib / OmAttribute / OmAttr ?)
+Rename keys to attributes.  (OmKey -&gt; OmAttrib / OmAttribute / OmAttr ?)
 
 </todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="DA/DB" release="1.0">
@@ -100,6 +94,15 @@ Make all errors return a context if appropriate.
 API cleanup.  Classes should hide implementation in internals, and should
 not use STL containers as parameters or return types.  Member variables
 shouldn't be exposed.
+
+Visible members:
+OmKey
+OmData
+OmError (probably necessary?)
+OmNodePad
+
+Vectors:
+OmQuery (see other TODO item)
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
