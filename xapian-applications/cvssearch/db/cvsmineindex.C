@@ -219,6 +219,7 @@ int main(unsigned int argc, char *argv[]) {
             cvs_db_file db_file(package_db_path + ".db/" + package_name + ".db", true);
             lines_db  lines (root, package_path, " mining", db_file);
             lines_cmt lines1(root, package_path, package_db_path + ".cmt", package_db_path + ".offset", " mining");
+            // cerr << "getdata " << endl;
             get_data(lines, 
                      package_path, 
                      db_file, 
@@ -227,6 +228,7 @@ int main(unsigned int argc, char *argv[]) {
                      commit_id_set, 
                      lib_symbols,
                      offset);
+            // cerr << "getdata1" << endl;
             get_data(lines1,
                      package_path,
                      db_file,
@@ -489,8 +491,10 @@ get_data(lines & lines,
         
         // cycle through every revision that this line is part of
         for(i = revisions.begin(); i != revisions.end(); ++i ) {
+            // cerr << "get commit with input " << fileid << " " << i->first << endl;
             if (db_file.get_commit(fileid, i->first, commitid) == 0) 
             {
+                // cerr << "got commit " << commitid << " with input " << fileid << " " << i->first << endl;
                 commit_id_set.insert( commitid+offset ); // set of all commit ids
                 
                 if ( commit_words.find( commitid+offset ) == commit_words.end() ) {

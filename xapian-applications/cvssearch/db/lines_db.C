@@ -50,35 +50,33 @@ bool lines_db::readNextLine() {
         // the next line.
         // ----------------------------------------
         _db_file.get_revision(file_id, ++line_no, revisions);
-    } else if (_db_file.get_revision(++file_id, line_no = 1, revisions) == 0) {
-        if (_db_file.get_filename(file_id, current_fn) == 0)
-        {
-            if ( in_code != 0 ) {
-                delete in_code;
-            }
-            current_fn = package + "/" + current_fn;
-            string file_path = path + "/" + current_fn;
-            {
-                string command = "wc -l " + file_path;
-                FILE * fout = popen(command.c_str(), "r");
-                istream * pis = 0;
-                if (fout != NULL)
-                {
-                    pis = new istdiostream(fout);
-                }
-                if (pis) {
-                    *pis >> file_length;
-                }
-                pclose(fout);
-                delete pis;
-            }
-            in_code = new ifstream(file_path.c_str());
-            if( ! *in_code ) {
-                cerr << "*** could not open " << file_path << endl;
-                assert(0);
-            }
-            cerr << "..." << message << " " << current_fn << endl;
+    } else if (_db_file.get_filename(++file_id, current_fn) == 0) {
+        if ( in_code != 0 ) {
+            delete in_code;
         }
+        current_fn = package + "/" + current_fn;
+        string file_path = path + "/" + current_fn;
+        {
+            string command = "wc -l " + file_path;
+            FILE * fout = popen(command.c_str(), "r");
+            istream * pis = 0;
+            if (fout != NULL)
+            {
+                pis = new istdiostream(fout);
+            }
+            if (pis) {
+                *pis >> file_length;
+            }
+            pclose(fout);
+            delete pis;
+        }
+        in_code = new ifstream(file_path.c_str());
+        if( ! *in_code ) {
+            cerr << "*** could not open " << file_path << endl;
+            assert(0);
+        }
+        cerr << "..." << message << " " << current_fn << endl;
+        _db_file.get_revision(file_id, line_no = 1, revisions);
     } else {
         return false;
     }
