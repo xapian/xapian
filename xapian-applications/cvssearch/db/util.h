@@ -74,3 +74,4 @@ public:
   string getCodeLine();
 };
 
+void readTags( const string& fn, set<string>& S );

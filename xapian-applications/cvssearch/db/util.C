@@ -876,3 +876,33 @@ set<string> Lines::getCodeSymbolTerms() {
 
   return code_terms;
 }
+
+void readTags( const string& fn, set<string>& S ) {
+  cerr << "readTags " << fn << endl;
+  ifstream in(fn.c_str());
+  assert (in);
+  string s;
+  while ( getline( in, s ) ) {
+    if ( s == "" || s[0] == '!' ) {
+      continue;
+    }
+    //    cerr << "FOUND -" << s << "-" << endl;
+    bool function = (s.find("\tfunction\t") != -1) || (s.find("\tfunction")+string("\tfunction").length() == s.length());
+    string symbol = s.substr( 0, s.find("\t") );
+    if ( symbol.find("::") != -1 ) {
+      symbol = symbol.substr( symbol.find("::")+2 );
+    }
+
+    // skip it if still has ::
+    if ( symbol.find("::") != -1 ) {
+      continue;
+    }
+
+    if ( function ) {
+      symbol += "()";
+    }
+    S.insert(symbol);
+    cerr << "** found symbol -" << symbol << "-" << endl;
+  } 
+  in.close();
+}
