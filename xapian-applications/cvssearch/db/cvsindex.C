@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 
         string file_cmt    = package_path + ".cmt";
         string file_offset = package_path + ".offset";
-        string database_dir= package_path;
+        string database_dir= package_path + ".om";
 
         cerr << "... removing directory " << database_dir << " (if it already exists)" << endl;
         system( ("rm -rf " + database_dir).c_str() );

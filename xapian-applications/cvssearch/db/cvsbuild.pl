@@ -76,9 +76,9 @@ sub read_root_dir {
         if ($cvsroot_dir) {
             if (-d "$cvsdata/$cvsroot_dir") {
             } else {
-                mkdir "$cvsdata/$cvsroot_dir"    || die " cannot create directory $cvsdata/$cvsroot_dir";
-                mkdir "$cvsdata/$cvsroot_dir/db" || die " cannot create directory $cvsdata/$cvsroot_dir/db";
-                mkdir "$cvsdata/$cvsroot_dir/src"|| die " cannot create directory $cvsdata/$cvsroot_dir/src";
+                mkdir ("$cvsdata/$cvsroot_dir",    0777)|| die " cannot create directory $cvsdata/$cvsroot_dir";
+                mkdir ("$cvsdata/$cvsroot_dir/db", 0777)|| die " cannot create directory $cvsdata/$cvsroot_dir/db";
+                mkdir ("$cvsdata/$cvsroot_dir/src",0777)|| die " cannot create directory $cvsdata/$cvsroot_dir/src";
             }
         } else {
             while (-d "$cvsdata/root$j") {
@@ -86,9 +86,9 @@ sub read_root_dir {
             }
             open(CVSROOTS, ">>$cvsdata/CVSROOTS") || die "cannot write to $cvsdata/CVSROOTS";
             $cvsroot_dir = "root$j";
-            mkdir "$cvsdata/$cvsroot_dir"    || die " cannot create directory $cvsdata/$cvsroot_dir";
-            mkdir "$cvsdata/$cvsroot_dir/db" || die " cannot create directory $cvsdata/$cvsroot_dir/db";
-            mkdir "$cvsdata/$cvsroot_dir/src"|| die " cannot create directory $cvsdata/$cvsroot_dir/src";
+            mkdir ("$cvsdata/$cvsroot_dir",    0777) || die " cannot create directory $cvsdata/$cvsroot_dir";
+            mkdir ("$cvsdata/$cvsroot_dir/db", 0777) || die " cannot create directory $cvsdata/$cvsroot_dir/db";
+            mkdir ("$cvsdata/$cvsroot_dir/src",0777) || die " cannot create directory $cvsdata/$cvsroot_dir/src";
             print CVSROOTS "$cvsroot $cvsroot_dir\n";
             close(CVSROOTS);
         }
@@ -118,7 +118,11 @@ sub cvsbuild {
             # ----------------------------------------
             # checkout files
             # ----------------------------------------
-            system ("cvs -d $cvsroot checkout -d $cvsdata/$cvsroot_dir/src -N $app_path 2>/dev/null");
+            if ($app_path eq ".") {
+                system ("cvs -d $cvsroot checkout -d $cvsdata/$cvsroot_dir/src . 1>/dev/null 2>/dev/null");
+            } else {
+                system ("cvs -d $cvsroot checkout -d $cvsdata/$cvsroot_dir/src -N $app_path 1>/dev/null 2>/dev/null"); 
+            }
             
             # ----------------------------------------
             # find files
@@ -142,20 +146,25 @@ sub cvsbuild {
                 print TIME "$cvsdata/$cvsroot_dir/src/$app_path", "\n";
                 print TIME "Started  @ ", `date`;
                 my $start_date = time;
-                
+                my $prefix_path = "$cvsdata/$cvsroot_dir/db/$app_name";
                 system ("cvsmap -d $cvsroot".
                         " -i $list_file".
-                        " -db $cvsdata/$cvsroot_dir/db/$app_name.db".
-                        " -f1 $cvsdata/$cvsroot_dir/db/$app_name.cmt".
-                        " -f2 $cvsdata/$cvsroot_dir/db/$app_name.offset");
+                        " -db $prefix_path.db".
+                        " -f1 $prefix_path.cmt".
+                        " -f2 $prefix_path.offset");
                 
-                system ("cvsindex $cvsdata/$cvsroot_dir/db/$app_name.cmt");
+                system ("cvsindex $prefix_path.cmt");
                 system ("cvsupdatedb $cvsroot_dir $app_name");
+
                 # ----------------------------------------
-                # cvsindex should have created directory
-                # $cvsdata/$cvsroot_dir/db/$app_name.
+                # clear db directory
                 # ----------------------------------------
-                system ("mv $cvsdata/$cvsroot_dir/db/$app_name.db* $cvsdata/$cvsroot_dir/db/$app_name");
+                if (-d "$prefix_path.db") {
+                    system ("rm -rf $prefix_path.db/*");
+                } else {
+                    mkdir ("$prefix_path.db",0777) || die " cannot mkdir $prefix_path.db: $!";
+                }
+                system ("mv $prefix_path.db? $prefix_path.db");
                 print TIME "Finished @ ", `date`;
                 $delta_time += time - $start_date;
                 print TIME "\n";

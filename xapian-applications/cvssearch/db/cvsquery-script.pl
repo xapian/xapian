@@ -24,7 +24,7 @@ if ($#ARGV < 0) {
 $_ = $ARGV[1];
 $ARGV[1]=~tr/\//\_/;
 $ARGV[0] = "$cvsdata/$ARGV[0]";
-$ARGV[1] = "$ARGV[0]/db/$ARGV[1]/$ARGV[1].db";
+$ARGV[1] = "$ARGV[0]/db/$ARGV[1]/$ARGV[1].db/$ARGV[1].db";
 
 # ------------------------------------------------------------
 # call cvsmap-script with the same parameters
