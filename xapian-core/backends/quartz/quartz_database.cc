@@ -312,6 +312,16 @@ QuartzDatabase::open_position_list(om_docid did,
 
     AutoPtr<QuartzPositionList> poslist(new QuartzPositionList());
     poslist->read_data(tables->get_positionlist_table(), did, tname);
+    if (poslist->get_size() == 0) {
+	// Check that term / document combination exists.
+	AutoPtr<LeafTermList> ltl;
+	RefCntBase::RefCntPtrToThis tmp;
+	RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
+	ltl.reset(open_term_list_internal(did, ptrtothis));
+	ltl->skip_to(tname);
+	if (ltl->at_end() || ltl->get_termname() != tname)
+	    throw OmDocNotFoundError("Can't open position list: requested term is not present in document.");
+    }
 
     return AutoPtr<PositionList>(poslist.release());
 }
