@@ -1,3 +1,8 @@
+Tue Jun 20 14:53:28 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* The lex parser used for queries should no longer interfere
+	  with other lexers.  (I was having problems in examples)
+
 Tue Jun 20 14:49:54 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Portability fixes - network bits now stand a better chance

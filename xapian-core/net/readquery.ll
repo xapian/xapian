@@ -9,6 +9,7 @@
 querytok qt;
 %}
 
+%option prefix="omquery"
 %option noyywrap
 %option stdinit
 %option never-interactive

@@ -10,3 +10,6 @@ libnet_la_SOURCES = socketclient.cc progclient.cc progserver.cc \
 		    socketcommon.cc tcpclient.cc readquery.ll \
 		    socketserver.cc tcpserver.cc omerr_string.cc \
 		    omlinebuf.cc
+
+readquery.cc: readquery.ll
+	$(LEX) -o$@ $(AM_LFLAGS) $< $(LFLAGS)
