@@ -26,8 +26,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    | Matcher         | Finish implementation of BM25 weight
 ---------+-----------------+--------------------------------------------------
- High    | Tests           | Write tests for collapse M.
----------+-----------------+--------------------------------------------------
  Medium  | Matcher         | Test what happens if reversed sort order is
          |                 | specified for a boolean search.
 ---------+-----------------+--------------------------------------------------
@@ -48,8 +46,6 @@ Priority | Area            | Task
          |                 | results of OmQuery(tname, 2) and
          |                 | OmQuery(OM_MOP_OR, OmQuery(tname),
          |                 | OmQuery(tname)) are exactly equivalent. 
----------+-----------------+--------------------------------------------------
- Medium  | Macher          | Fix the MSetCmp fixme in OmMatch::match
 ---------+-----------------+--------------------------------------------------
  Medium  | API             | Make OmEnquire::get_matching_terms and
          |                 | OmQuery::get_terms return terms in sorted order
