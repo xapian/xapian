@@ -27,10 +27,13 @@
 #include "document.h"
 #include "omdocumentinternal.h"
 #include "omtermlistiteratorinternal.h"
-#include "omkeylistiteratorinternal.h"
+#include "omvalueiteratorinternal.h"
 #include "om/omerror.h"
 #include "omdatabaseinternal.h"
 #include <algorithm>
+
+using std::make_pair;
+using std::lower_bound;
 
 //////////////////////////////////
 // implementation of OmDocument //
@@ -44,15 +47,15 @@ OmDocument::OmDocument() : internal(new OmDocument::Internal)
 {
 }
 
-OmKey
-OmDocument::get_key(om_keyno key) const
+OmValue
+OmDocument::get_value(om_valueno value) const
 {
-    DEBUGAPICALL(OmKey, "OmDocument::get_key", key);
-    if (internal->keys_here) {
-	std::map<om_keyno, OmKey>::const_iterator i;
-	i = internal->keys.find(key);
-	if (i == internal->keys.end()) {
-	    OmKey nul;
+    DEBUGAPICALL(OmValue, "OmDocument::get_value", value);
+    if (internal->values_here) {
+	map<om_valueno, OmValue>::const_iterator i;
+	i = internal->values.find(value);
+	if (i == internal->values.end()) {
+	    OmValue nul;
 	    RETURN(nul);
 	}
 	RETURN(i->second);
@@ -60,7 +63,7 @@ OmDocument::get_key(om_keyno key) const
     // create our own RefCntPtr in case another thread assigns a new ptr
     RefCntPtr<Document> myptr = internal->ptr;
 
-    RETURN(myptr->get_key(key));
+    RETURN(myptr->get_value(value));
 }
 
 string
@@ -76,7 +79,7 @@ OmDocument::get_data() const
 }
 
 void
-OmDocument::set_data(const std::string &data)
+OmDocument::set_data(const string &data)
 {
     DEBUGAPICALL(void, "OmDocument::set_data", data);
     internal->data = data;
@@ -101,18 +104,18 @@ OmDocument::~OmDocument()
     delete internal;
 }
 
-std::string
+string
 OmDocument::get_description() const
 {
-    std::string description = "OmDocument(data=";
+    string description = "OmDocument(data=";
     if (internal->data_here)
       	description += "`" + internal->data + "'";
     else
 	description += "[not fetched]";
 
-    description += " keys=";
-    if (internal->keys_here)
-      	description += om_tostring(internal->keys.size());
+    description += " values=";
+    if (internal->values_here)
+      	description += om_tostring(internal->values.size());
     else
 	description += "[not fetched]";
 
@@ -126,36 +129,33 @@ OmDocument::get_description() const
 }
 
 void
-OmDocument::add_key(om_keyno keyno, const OmKey &key)
+OmDocument::add_value(om_valueno valueno, const OmValue &value)
 {
-    DEBUGAPICALL(void, "OmDocument::add_key", keyno << ", " << key);
-    // FIXME: need to lock here...
-    internal->need_keylist();
-    internal->keys.insert(std::make_pair(keyno, key));	
+    DEBUGAPICALL(void, "OmDocument::add_value", valueno << ", " << value);
+    internal->need_values();
+    internal->values.insert(make_pair(valueno, value));	
 }
 
 void
-OmDocument::remove_key(om_keyno keyno)
+OmDocument::remove_value(om_valueno valueno)
 {
-    DEBUGAPICALL(void, "OmDocument::remove_key", keyno);
-    // FIXME: need to lock here...
-    internal->need_keylist();
-    internal->keys.erase(keyno);
+    DEBUGAPICALL(void, "OmDocument::remove_value", valueno);
+    internal->need_values();
+    internal->values.erase(valueno);
 }
 
 void
-OmDocument::clear_keys()
+OmDocument::clear_values()
 {
-    DEBUGAPICALL(void, "OmDocument::clear_keys", "");
-    internal->keys.clear();
-    internal->keys_here = true;
+    DEBUGAPICALL(void, "OmDocument::clear_values", "");
+    internal->values.clear();
+    internal->values_here = true;
 }
 
 void
 OmDocument::Internal::read_termlist(OmTermIterator t,
 				    const OmTermIterator & tend)
 {
-    // FIXME: need to lock here...
     if (!terms_here) {
 	for ( ; t != tend; t++) {
 	    OmPositionListIterator p = t.positionlist_begin();
@@ -165,7 +165,7 @@ OmDocument::Internal::read_termlist(OmTermIterator t,
 		term.add_position(*p);
 	    }
 	    term.set_wdf(t.get_wdf());
-	    terms.insert(std::make_pair(*t, term));
+	    terms.insert(make_pair(*t, term));
 	}
 	terms_here = true;
     }
@@ -183,13 +183,13 @@ OmDocument::add_posting(const om_termname & tname,
     }
     internal->read_termlist(termlist_begin(), termlist_end());
 
-    std::map<om_termname, OmDocumentTerm>::iterator i;
+    map<om_termname, OmDocumentTerm>::iterator i;
     i = internal->terms.find(tname);
     if (i == internal->terms.end()) {
 	OmDocumentTerm newterm(tname);
 	newterm.add_position(tpos);
 	newterm.set_wdf(wdfinc);
-	internal->terms.insert(std::make_pair(tname, newterm));
+	internal->terms.insert(make_pair(tname, newterm));
     } else {
 	i->second.add_position(tpos);
 	if (wdfinc) i->second.set_wdf(i->second.get_wdf() + wdfinc);
@@ -206,12 +206,12 @@ OmDocument::add_term_nopos(const om_termname & tname,
     }
     internal->read_termlist(termlist_begin(), termlist_end());
 
-    std::map<om_termname, OmDocumentTerm>::iterator i;
+    map<om_termname, OmDocumentTerm>::iterator i;
     i = internal->terms.find(tname);
     if (i == internal->terms.end()) {
 	OmDocumentTerm newterm(tname);
 	newterm.set_wdf(wdfinc);
-	internal->terms.insert(std::make_pair(tname, newterm));
+	internal->terms.insert(make_pair(tname, newterm));
     } else {
 	if (wdfinc) i->second.set_wdf(i->second.get_wdf() + wdfinc);
     }
@@ -229,7 +229,7 @@ OmDocument::remove_posting(const om_termname & tname,
     }
     internal->read_termlist(termlist_begin(), termlist_end());
 
-    std::map<om_termname, OmDocumentTerm>::iterator i;
+    map<om_termname, OmDocumentTerm>::iterator i;
     i = internal->terms.find(tname);
     if (i == internal->terms.end()) {
 	throw OmInvalidArgumentError("Term `" + tname +
@@ -250,7 +250,7 @@ OmDocument::remove_term(const om_termname & tname)
 {
     DEBUGAPICALL(void, "OmDocument::remove_term", tname);
     internal->read_termlist(termlist_begin(), termlist_end());
-    std::map<om_termname, OmDocumentTerm>::iterator i;
+    map<om_termname, OmDocumentTerm>::iterator i;
     i = internal->terms.find(tname);
     if (i == internal->terms.end()) {
 	throw OmInvalidArgumentError("Term `" + tname +
@@ -309,40 +309,37 @@ OmDocument::termlist_end() const
 }
 
 void
-OmDocument::Internal::need_keylist()
+OmDocument::Internal::need_values()
 {
-    DEBUGAPICALL(void, "OmDocument::need_keylist", "");
-    // FIXME: need to lock here...
-    if (!keys_here) {
-        keys = ptr->get_all_keys();
-        keys_here = true;
+    DEBUGAPICALL(void, "OmDocument::need_values", "");
+    if (!values_here) {
+        values = ptr->get_all_values();
+        values_here = true;
     }
 }
 
 om_termcount
-OmDocument::keylist_count() {
-    DEBUGAPICALL(om_termcount, "OmDocument::keylist_count", "");
-    internal->need_keylist();
-    assert(internal->keys_here);
-    RETURN(internal->keys.size());
+OmDocument::values_count() {
+    DEBUGAPICALL(om_termcount, "OmDocument::values_count", "");
+    internal->need_values();
+    assert(internal->values_here);
+    RETURN(internal->values.size());
 }
 
-OmKeyListIterator
-OmDocument::keylist_begin() const
+OmValueIterator
+OmDocument::values_begin() const
 {
-    DEBUGAPICALL(OmKeyListIterator, "OmDocument::keylist_begin", "");
-    // FIXME: need to lock here...
-    internal->need_keylist();
-    RETURN(OmKeyListIterator(new OmKeyListIterator::Internal(internal->keys.begin())));
+    DEBUGAPICALL(OmValueIterator, "OmDocument::values_begin", "");
+    internal->need_values();
+    RETURN(OmValueIterator(new OmValueIterator::Internal(internal->values.begin())));
 }
 
-OmKeyListIterator
-OmDocument::keylist_end() const
+OmValueIterator
+OmDocument::values_end() const
 {
-    DEBUGAPICALL(OmKeyListIterator, "OmDocument::keylist_end", "");
-    // FIXME: need to lock here...
-    internal->need_keylist();
-    RETURN(OmKeyListIterator(new OmKeyListIterator::Internal(internal->keys.end())));
+    DEBUGAPICALL(OmValueIterator, "OmDocument::values_end", "");
+    internal->need_values();
+    RETURN(OmValueIterator(new OmValueIterator::Internal(internal->values.end())));
 }
 
 OmDocumentTerm::OmDocumentTerm(const om_termname & tname_)
@@ -370,8 +367,8 @@ OmDocumentTerm::add_position(om_termpos tpos)
 
     // Search for the position the term occurs at.  Use binary chop to
     // search, since this is a sorted list.
-    std::vector<om_termpos>::iterator i;
-    i = std::lower_bound(positions.begin(), positions.end(), tpos);
+    vector<om_termpos>::iterator i;
+    i = lower_bound(positions.begin(), positions.end(), tpos);
     if (i == positions.end() || *i != tpos) {
 	positions.insert(i, tpos);
     }
@@ -384,8 +381,8 @@ OmDocumentTerm::remove_position(om_termpos tpos)
     
     // Search for the position the term occurs at.  Use binary chop to
     // search, since this is a sorted list.
-    std::vector<om_termpos>::iterator i;
-    i = std::lower_bound(positions.begin(), positions.end(), tpos);
+    vector<om_termpos>::iterator i;
+    i = lower_bound(positions.begin(), positions.end(), tpos);
     if (i == positions.end() || *i != tpos) {
 	throw OmInvalidArgumentError("Position `" + om_tostring(tpos) +
 				     "' not found in list of positions that `" +
@@ -398,11 +395,11 @@ OmDocumentTerm::remove_position(om_termpos tpos)
     }
 }
 
-std::string
+string
 OmDocumentTerm::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "OmDocumentTerm::get_description", "");
-    std::string description;
+    DEBUGCALL(INTRO, string, "OmDocumentTerm::get_description", "");
+    string description;
 
     description = "OmDocumentTerm(" + tname +
 	    ", wdf = " + om_tostring(wdf) +

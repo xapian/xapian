@@ -26,17 +26,17 @@
 #include "document.h"
 #include "om/omdocument.h"
 
-OmKey
-Document::get_key(om_keyno keyid) const
+OmValue
+Document::get_value(om_valueno valueid) const
 {
-    DEBUGCALL(MATCH, OmKey, "Document::get_key", keyid);
-    RETURN(do_get_key(keyid));
+    DEBUGCALL(MATCH, OmValue, "Document::get_value", valueid);
+    RETURN(do_get_value(valueid));
 }
 
-map<om_keyno, OmKey>
-Document::get_all_keys() const
+map<om_valueno, OmValue>
+Document::get_all_values() const
 {
-    return do_get_all_keys();
+    return do_get_all_values();
 }
 
 string

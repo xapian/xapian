@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,16 +68,16 @@ make_dbgrp(OmDatabase * db1, OmDatabase * db2,
 static BackendManager backendmanager;
 
 OmDatabase
-get_database(const std::string &dbname, const std::string &dbname2)
+get_database(const string &dbname, const string &dbname2)
 {
     return backendmanager.get_database(dbname, dbname2);
 }
 
 OmDatabase
-get_network_database(const std::string &dbname,
+get_network_database(const string &dbname,
 		     unsigned int timeout)
 {
-    std::vector<std::string> params;
+    vector<string> params;
     params.push_back("#TIMEOUT#");
     params.push_back(om_tostring(timeout));
     params.push_back(dbname);
@@ -84,7 +85,7 @@ get_network_database(const std::string &dbname,
 }
 
 OmWritableDatabase
-get_writable_database(const std::string &dbname)
+get_writable_database(const string &dbname)
 {
     return backendmanager.get_writable_database(dbname);
 }
@@ -97,8 +98,8 @@ get_writable_database(const std::string &dbname)
 
 int main(int argc, char *argv[])
 {
-    std::string srcdir = test_driver::get_srcdir(argv[0]);
-    std::string backend;
+    string srcdir = test_driver::get_srcdir(argv[0]);
+    string backend;
     const char *p = getenv("OM_TEST_BACKEND");
     if (p) backend = p;
 
@@ -118,7 +119,7 @@ int main(int argc, char *argv[])
     RUNTESTS("inmemory", doclendb);
     RUNTESTS("inmemory", collfreq);
     RUNTESTS("inmemory", allterms);
-    RUNTESTS("inmemory", multikey);
+    RUNTESTS("inmemory", multivalue);
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_QUARTZ)
@@ -131,7 +132,7 @@ int main(int argc, char *argv[])
     RUNTESTS("quartz", doclendb);
     RUNTESTS("quartz", collfreq);
     RUNTESTS("quartz", allterms);
-    RUNTESTS("quartz", multikey);
+    RUNTESTS("quartz", multivalue);
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_REMOTE)
@@ -140,7 +141,7 @@ int main(int argc, char *argv[])
     RUNTESTS("remote", remotedb);
     RUNTESTS("remote", positionaldb);
     RUNTESTS("remote", doclendb);
-    RUNTESTS("remote", multikey);
+    RUNTESTS("remote", multivalue);
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_MUSCAT36)

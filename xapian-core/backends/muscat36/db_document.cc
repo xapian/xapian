@@ -40,46 +40,46 @@ DBDocument::~DBDocument()
     if (rec != NULL) M_lose_record(rec);
 }
 
-OmKey
-DBDocument::do_get_key(om_keyno keyid) const
+OmValue
+DBDocument::do_get_value(om_valueno valueid) const
 {
-    if (keyid == 0) return database->get_key(did, keyid);
+    if (valueid == 0) return database->get_value(did, valueid);
 
-    DebugMsg("Looking in record for keyno " << keyid <<
+    DebugMsg("Looking in record for valueno " << valueid <<
 	     " in document " << did);
     if (rec == 0) rec = database->get_record(did);
 
-    OmKey key;
+    OmValue value;
     unsigned char *pos = (unsigned char *)rec->p;
     unsigned int len = LENGTH_OF(pos, 0, heavy_duty);
-    unsigned int keypos = keyid;
-    if (keypos + 8 > len) {
+    unsigned int valuepos = valueid;
+    if (valuepos + 8 > len) {
 	// Record not big enough.
 	DEBUGLINE(DB, ": not found in record");
     } else {
-	key.value = string((char *)pos + LWIDTH(heavy_duty) + 3 + keypos, 8);
-	DEBUGLINE(DB, ": found in record - value is `" << key.value << "'");
+	value.value = string((char *)pos + LWIDTH(heavy_duty) + 3 + valuepos, 8);
+	DEBUGLINE(DB, ": found in record - value is `" << value.value << "'");
     }
-    return key;
+    return value;
 }
 
-/** Get all the keys for a DB document.
+/** Get all the values for a DB document.
  *
- *  Note: this only returns keys from the keyfile.  If keys are being
+ *  Note: this only returns values from the valuefile.  If values are being
  *  read from the record, this will not return them.
  */
-map<om_keyno, OmKey>
-DBDocument::do_get_all_keys() const
+map<om_valueno, OmValue>
+DBDocument::do_get_all_values() const
 {
-    om_keyno keyid = 0;
-    map<om_keyno, OmKey> keys;
+    om_valueno valueid = 0;
+    map<om_valueno, OmValue> values;
 
-    OmKey key = database->get_key(did, keyid);
-    if (key.value.size() != 0) {
-	keys[keyid] = key;
+    OmValue value = database->get_value(did, valueid);
+    if (value.value.size() != 0) {
+	values[valueid] = value;
     }
 
-    return keys;
+    return values;
 }
 
 

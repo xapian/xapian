@@ -6,4 +6,4 @@ omstem.h \
 omerror.h omerrortypes.h omerrorhandler.h omtypes.h omenquire.h omquery.h \
 omdocument.h omdatabase.h omsettings.h omoutput.h \
 ompostlistiterator.h ompositionlistiterator.h omtermlistiterator.h \
-omkeylistiterator.h omexpanddecider.h
+omvalueiterator.h omexpanddecider.h

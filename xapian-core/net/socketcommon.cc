@@ -29,6 +29,10 @@ using std::istringstream;
 #else
 #include <strstream.h>
 #endif
+#include <map>
+using std::map;
+#include <set>
+using std::set;
 #include <string>
 #include <vector>
 #include <sys/time.h>
@@ -49,7 +53,7 @@ using std::istringstream;
 
 OmQuery::Internal qfs_readcompound();
 
-OmQuery::Internal query_from_string(std::string qs)
+OmQuery::Internal query_from_string(string qs)
 {
     Assert(qs.length() > 1);
 
@@ -64,7 +68,7 @@ OmQuery::Internal query_from_string(std::string qs)
     return retval;
 }
 
-std::string stats_to_string(const Stats &stats)
+string stats_to_string(const Stats &stats)
 {
 #if 0
     ostrstream os;
@@ -72,7 +76,7 @@ std::string stats_to_string(const Stats &stats)
     os << stats.collection_size << ' ';
     os << stats.average_length << ' ';
 
-    std::map<om_termname, om_doccount>::const_iterator i;
+    map<om_termname, om_doccount>::const_iterator i;
 
     for (i=stats.termfreq.begin(); i != stats.termfreq.end(); ++i) {
 	os << 'T' << encode_tname(i->first) << ' ' << i->second << ' ';
@@ -85,11 +89,11 @@ std::string stats_to_string(const Stats &stats)
     // FIXME: should be eos.
     os << '\0';
 
-    std::string result(os.str());
+    string result(os.str());
 
     os.freeze(0);
 #endif
-    std::string result;
+    string result;
 
     result += om_tostring(stats.collection_size);
     result += ' ';
@@ -98,7 +102,7 @@ std::string stats_to_string(const Stats &stats)
     result += om_tostring(stats.average_length);
     result += ' ';
 
-    std::map<om_termname, om_doccount>::const_iterator i;
+    map<om_termname, om_doccount>::const_iterator i;
 
     for (i = stats.termfreq.begin(); i != stats.termfreq.end(); ++i) {
 	result += 'T';
@@ -120,7 +124,7 @@ std::string stats_to_string(const Stats &stats)
 }
 
 Stats
-string_to_stats(const std::string &s)
+string_to_stats(const string &s)
 {
     Stats stat;
 #ifdef HAVE_SSTREAM
@@ -133,7 +137,7 @@ string_to_stats(const std::string &s)
     is >> stat.rset_size;
     is >> stat.average_length;
 
-    std::string word;
+    string word;
     while (is >> word) {
 	if (word.empty()) continue;
 
@@ -142,7 +146,7 @@ string_to_stats(const std::string &s)
 	} else if (word[0] == 'R') {
 	    is >> stat.reltermfreq[decode_tname(word.substr(1))];
 	} else {
-	    throw OmNetworkError(std::string("Invalid stats string word: ") + word);
+	    throw OmNetworkError(string("Invalid stats string word: ") + word);
 	}
     }
 
@@ -151,10 +155,10 @@ string_to_stats(const std::string &s)
 
 // A vector converter: vector<OmQuery::Internal> to vector<OmQuery::Internal *>
 // The original vector is still responsible for destroying the objects.
-std::vector<OmQuery::Internal *>
-convert_subqs(std::vector<OmQuery::Internal> &v) {
-    std::vector<OmQuery::Internal *> result;
-    std::vector<OmQuery::Internal>::iterator i;
+vector<OmQuery::Internal *>
+convert_subqs(vector<OmQuery::Internal> &v) {
+    vector<OmQuery::Internal *> result;
+    vector<OmQuery::Internal>::iterator i;
     for (i = v.begin(); i != v.end(); ++i) {
 	result.push_back(&(*i));
     }
@@ -189,9 +193,9 @@ OmQuery::Internal qfs_readquery()
 }
 
 static OmQuery::Internal
-qint_from_vector(OmQuery::op op, std::vector<OmQuery::Internal *> & vec) {
+qint_from_vector(OmQuery::op op, vector<OmQuery::Internal *> & vec) {
     OmQuery::Internal qint(op);
-    std::vector<OmQuery::Internal *>::const_iterator i;
+    vector<OmQuery::Internal *>::const_iterator i;
     for (i = vec.begin(); i != vec.end(); i++)
 	qint.add_subquery(**i);
     qint.end_construction();
@@ -200,7 +204,7 @@ qint_from_vector(OmQuery::op op, std::vector<OmQuery::Internal *> & vec) {
 
 OmQuery::Internal qfs_readcompound()
 {
-    std::vector<OmQuery::Internal> subqs;
+    vector<OmQuery::Internal> subqs;
     while (1) {
 	querytok qt = qfs_gettok();
 	switch (qt.type) {
@@ -230,7 +234,7 @@ OmQuery::Internal qfs_readcompound()
 		break;
 	    case querytok::OP_AND:
 		{
-		    std::vector<OmQuery::Internal *> temp =
+		    vector<OmQuery::Internal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
@@ -241,7 +245,7 @@ OmQuery::Internal qfs_readcompound()
 		break;
 	    case querytok::OP_OR:
 		{
-		    std::vector<OmQuery::Internal *> temp =
+		    vector<OmQuery::Internal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
@@ -252,7 +256,7 @@ OmQuery::Internal qfs_readcompound()
 		break;
 	    case querytok::OP_FILTER:
 		{
-		    std::vector<OmQuery::Internal *> temp =
+		    vector<OmQuery::Internal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
@@ -263,7 +267,7 @@ OmQuery::Internal qfs_readcompound()
 		break;
 	    case querytok::OP_XOR:
 		{
-		    std::vector<OmQuery::Internal *> temp =
+		    vector<OmQuery::Internal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
@@ -274,7 +278,7 @@ OmQuery::Internal qfs_readcompound()
 		break;
 	    case querytok::OP_ANDMAYBE:
 		{
-		    std::vector<OmQuery::Internal *> temp =
+		    vector<OmQuery::Internal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
@@ -285,7 +289,7 @@ OmQuery::Internal qfs_readcompound()
 		break;
 	    case querytok::OP_ANDNOT:
 		{
-		    std::vector<OmQuery::Internal *> temp =
+		    vector<OmQuery::Internal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
@@ -296,7 +300,7 @@ OmQuery::Internal qfs_readcompound()
 		break;
 	    case querytok::OP_NEAR:
 		{
-		    std::vector<OmQuery::Internal *> temp =
+		    vector<OmQuery::Internal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
@@ -310,7 +314,7 @@ OmQuery::Internal qfs_readcompound()
 		break;
 	    case querytok::OP_PHRASE:
 		{
-		    std::vector<OmQuery::Internal *> temp =
+		    vector<OmQuery::Internal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
@@ -337,7 +341,7 @@ OmQuery::Internal qfs_readcompound()
 		break;
 	    case querytok::OP_ELITE_SET:
 		{
-		    std::vector<OmQuery::Internal *> temp =
+		    vector<OmQuery::Internal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
@@ -354,7 +358,7 @@ OmQuery::Internal qfs_readcompound()
     } // while(1)
 }
 
-OmSocketLineBuf::OmSocketLineBuf(int readfd_, int writefd_, const std::string & errcontext_)
+OmSocketLineBuf::OmSocketLineBuf(int readfd_, int writefd_, const string & errcontext_)
 	: readfd(readfd_), writefd(writefd_), errcontext(errcontext_)
 {
     // set non-blocking flag on reading fd
@@ -363,7 +367,7 @@ OmSocketLineBuf::OmSocketLineBuf(int readfd_, int writefd_, const std::string & 
     }
 }
 
-OmSocketLineBuf::OmSocketLineBuf(int fd_, const std::string & errcontext_)
+OmSocketLineBuf::OmSocketLineBuf(int fd_, const string & errcontext_)
 	: readfd(fd_), writefd(fd_), errcontext(errcontext_)
 {
     // set non-blocking flag on reading fd
@@ -372,16 +376,16 @@ OmSocketLineBuf::OmSocketLineBuf(int fd_, const std::string & errcontext_)
     }
 }
 
-std::string
+string
 OmSocketLineBuf::do_readline(const OmTime & end_time)
 {
-    DEBUGCALL(UNKNOWN, std::string, "OmSocketLineBuf::do_readline",
+    DEBUGCALL(UNKNOWN, string, "OmSocketLineBuf::do_readline",
 	      end_time.sec << ", " << end_time.usec);
-    std::string::size_type pos;
+    string::size_type pos;
     while ((pos = buffer.find_first_of('\n')) == buffer.npos) {
 	attempt_to_read(end_time);
     }
-    std::string retval(buffer.begin(), buffer.begin() + pos);
+    string retval(buffer.begin(), buffer.begin() + pos);
     buffer.erase(0, pos + 1);
     RETURN(retval);
 }
@@ -389,7 +393,7 @@ OmSocketLineBuf::do_readline(const OmTime & end_time)
 void
 OmSocketLineBuf::attempt_to_read(const OmTime & end_time)
 {
-    DEBUGCALL(UNKNOWN, std::string, "OmSocketLineBuf::attempt_to_read",
+    DEBUGCALL(UNKNOWN, string, "OmSocketLineBuf::attempt_to_read",
 	      end_time.sec << ':' << end_time.usec);
     fd_set fdset;
     FD_ZERO(&fdset);
@@ -413,7 +417,7 @@ OmSocketLineBuf::attempt_to_read(const OmTime & end_time)
 	    DEBUGLINE(UNKNOWN, "Got EINTR in select");
 	    return;
 	} else {
-	    throw OmNetworkError(std::string("select failed (") +
+	    throw OmNetworkError(string("select failed (") +
 				 strerror(errno) + ')',
 				 errcontext, errno);
 	}
@@ -454,13 +458,13 @@ OmSocketLineBuf::attempt_to_read(const OmTime & end_time)
 	throw OmNetworkError("No response from remote end", errcontext);
     }
 
-    buffer += std::string(buf, buf + received);
+    buffer += string(buf, buf + received);
 }
 
 void
 OmSocketLineBuf::wait_for_data(int msecs)
 {
-    DEBUGCALL(UNKNOWN, std::string, "OmSocketLineBuf::wait_for_data", msecs);
+    DEBUGCALL(UNKNOWN, string, "OmSocketLineBuf::wait_for_data", msecs);
     OmTime end_time = OmTime::now() + OmTime(msecs);
     // wait for input to be available.
     while (buffer.find_first_of('\n') == buffer.npos) {
@@ -493,7 +497,7 @@ OmSocketLineBuf::data_waiting()
 }
 
 void
-OmSocketLineBuf::do_writeline(std::string s, const OmTime & end_time)
+OmSocketLineBuf::do_writeline(string s, const OmTime & end_time)
 {
     DEBUGCALL(UNKNOWN, void, "OmSocketLineBuf::do_writeline", s);
     if (s.empty() || s[s.length() - 1] != '\n') {
@@ -543,10 +547,10 @@ OmSocketLineBuf::do_writeline(std::string s, const OmTime & end_time)
     }
 }
 
-std::string
+string
 moptions_to_string(const OmSettings &moptions)
 {
-    std::string result;
+    string result;
 
     result += om_tostring(moptions.get_int("match_collapse_key", -1));
     result += ' ';
@@ -562,7 +566,7 @@ moptions_to_string(const OmSettings &moptions)
 }
 
 OmSettings
-string_to_moptions(const std::string &s)
+string_to_moptions(const string &s)
 {
 #ifdef HAVE_SSTREAM
     istringstream is(s);
@@ -574,7 +578,7 @@ string_to_moptions(const std::string &s)
     bool sort_forward;
     int collapse_key, percent_cutoff;
     om_weight cutoff;
-    std::string weighting_scheme;
+    string weighting_scheme;
 
     is >> collapse_key
        >> sort_forward
@@ -594,12 +598,12 @@ string_to_moptions(const std::string &s)
     return mopt;
 }
 
-std::string
+string
 omrset_to_string(const OmRSet &omrset)
 {
-    std::string result = om_tostring(omrset.size());
+    string result = om_tostring(omrset.size());
 
-    for (std::set<om_docid>::const_iterator i = omrset.internal->items.begin();
+    for (set<om_docid>::const_iterator i = omrset.internal->items.begin();
 	 i != omrset.internal->items.end();
 	 ++i) {
 	result += " ";
@@ -608,13 +612,13 @@ omrset_to_string(const OmRSet &omrset)
     return result;
 }
 
-std::string
-ommsetitems_to_string(const std::vector<OmMSetItem> &ommsetitems)
+string
+ommsetitems_to_string(const vector<OmMSetItem> &ommsetitems)
 {
     // format: length wt did key wt did key ...
-    std::string result = om_tostring(ommsetitems.size());
+    string result = om_tostring(ommsetitems.size());
 
-    std::vector<OmMSetItem>::const_iterator i;
+    vector<OmMSetItem>::const_iterator i;
     for (i = ommsetitems.begin(); i != ommsetitems.end(); ++i) {
 	result += ' ';
 
@@ -622,7 +626,7 @@ ommsetitems_to_string(const std::vector<OmMSetItem> &ommsetitems)
 	result += " ";
 	result += om_tostring(i->did);
 	result += " ";
-	result += omkey_to_string(i->collapse_key);
+	result += omvalue_to_string(i->collapse_key);
 
 	DEBUGLINE(UNKNOWN, "MSETITEM: " << i->wt << " " << i->did);
     }
@@ -631,14 +635,14 @@ ommsetitems_to_string(const std::vector<OmMSetItem> &ommsetitems)
     return result;
 }
 
-std::string
-ommset_termfreqwts_to_string(const std::map<om_termname,
+string
+ommset_termfreqwts_to_string(const map<om_termname,
 			     OmMSet::Internal::Data::TermFreqAndWeight> &terminfo)
 {
     // encode as term freq weight term2 freq2 weight2 ...
-    std::string result;
+    string result;
 
-    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight>::const_iterator i;
+    map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight>::const_iterator i;
     for (i = terminfo.begin(); i != terminfo.end(); ++i) {
 	result += encode_tname(i->first);
 	result += " ";
@@ -650,10 +654,10 @@ ommset_termfreqwts_to_string(const std::map<om_termname,
     return result;
 }
 
-std::string
+string
 ommset_to_string(const OmMSet &ommset)
 {
-    std::string result;
+    string result;
 
     // termandfreqthingies
     // items
@@ -676,17 +680,17 @@ ommset_to_string(const OmMSet &ommset)
     return result;
 }
 
-std::vector<OmMSetItem>
-string_to_ommsetitems(const std::string &s_)
+vector<OmMSetItem>
+string_to_ommsetitems(const string &s_)
 {
-    std::vector<OmMSetItem> result;
+    vector<OmMSetItem> result;
 
-    std::string::size_type colon = s_.find_first_of(' ');
-    std::string s = s_.substr(colon + 1);
+    string::size_type colon = s_.find_first_of(' ');
+    string s = s_.substr(colon + 1);
 
     while (s.length() > 0) {
-	std::string wt_s, did_s, key_s;
-	std::string::size_type pos = s.find_first_of(' ');
+	string wt_s, did_s, value_s;
+	string::size_type pos = s.find_first_of(' ');
 	if (pos == s.npos) {
 	    throw OmNetworkError("Invalid msetitem string `" + s + "'");
 	}
@@ -702,22 +706,22 @@ string_to_ommsetitems(const std::string &s_)
 
 	pos = s.find_first_of(' ');
 	if (pos == s.npos) {
-	    key_s = s;
+	    value_s = s;
 	    s = "";
 	} else {
-	    key_s = s.substr(0, pos);
+	    value_s = s.substr(0, pos);
 	    s = s.substr(pos + 1);
 	}
 	result.push_back(OmMSetItem(atof(wt_s.c_str()),
 				    atol(did_s.c_str()),
-				    string_to_omkey(key_s)));
+				    string_to_omvalue(value_s)));
     }
     AssertEq((unsigned)atoi(s_.substr(0, colon)), result.size());
     return result;
 }
 
 OmMSet
-string_to_ommset(const std::string &s)
+string_to_ommset(const string &s)
 {
 #ifdef HAVE_SSTREAM
     istringstream is(s);
@@ -731,7 +735,7 @@ string_to_ommset(const std::string &s)
     om_doccount matches_upper_bound;
     om_weight max_possible;
     om_weight max_attained;
-    std::vector<OmMSetItem> items;
+    vector<OmMSetItem> items;
     int msize;
 
     // first the easy ones...
@@ -746,18 +750,18 @@ string_to_ommset(const std::string &s)
 	throw OmNetworkError("Problem reading OmMSet from string");
     }
     while (msize > 0) {
-	std::string s;
+	string s;
 	om_weight wt;
 	om_docid did;
 	is >> wt >> did >> s;
 	if (!is) {
 	    throw OmNetworkError("Problem reading OmMSet from string");
 	}
-	items.push_back(OmMSetItem(wt, did, string_to_omkey(s)));
+	items.push_back(OmMSetItem(wt, did, string_to_omvalue(s)));
 	msize--;
     }
 
-    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> terminfo;
+    map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> terminfo;
     om_termname term;
     while (is >> term) {
 	OmMSet::Internal::Data::TermFreqAndWeight tfaw;
@@ -777,10 +781,10 @@ string_to_ommset(const std::string &s)
 				       items, terminfo, 0)));
 }
 
-std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight>
-string_to_ommset_termfreqwts(const std::string &s)
+map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight>
+string_to_ommset_termfreqwts(const string &s)
 {
-    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> result;
+    map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> result;
 #ifdef HAVE_SSTREAM
     istringstream is(s);
 #else
@@ -800,20 +804,20 @@ string_to_ommset_termfreqwts(const std::string &s)
     return result;
 }
 
-std::string
-omkey_to_string(const OmKey &omkey)
+string
+omvalue_to_string(const OmValue &omvalue)
 {
-    return encode_tname(omkey.value);
+    return encode_tname(omvalue.value);
 }
 
-OmKey
-string_to_omkey(const std::string &s)
+OmValue
+string_to_omvalue(const string &s)
 {
     return decode_tname(s);
 }
 
 OmRSet
-string_to_omrset(const std::string &s)
+string_to_omrset(const string &s)
 {
     OmRSet omrset;
 

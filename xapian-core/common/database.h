@@ -263,16 +263,15 @@ class Database : public RefCntBase {
 
 	/** Open a document.
 	 *
-	 *  This is used to access the keys and data associated with a
-	 *  document.  See class Document for details of accessing
-	 *  the keys and data.
+	 *  This is used to access the values and data associated with a
+	 *  document.  See class Document for further details.
 	 *
 	 *  @param did    The document id which is being requested.
 	 *
 	 *  @param lazy   Don't check the document exists immediately -
 	 *                use from within the matcher where we know the
 	 *                document exists, and don't want to read the
-	 *                record when we just want the keys.
+	 *                record when we just want the values.
 	 *
 	 *  @return       A pointer to the newly created document object.
 	 *                This object must be deleted by the caller after

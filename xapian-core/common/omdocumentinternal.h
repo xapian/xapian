@@ -45,7 +45,7 @@ struct OmDocumentTerm {
      */
     om_termcount wdf;
 
-    typedef std::vector<om_termpos> term_positions;
+    typedef vector<om_termpos> term_positions;
 
     /** Positional information.
      *
@@ -101,11 +101,11 @@ struct OmDocumentTerm {
     /** Returns a string representing the OmDocumentTerm.
      *  Introspection method.
      */
-    std::string get_description() const;
+    string get_description() const;
 };
 
-// A document - holds keys, terms, and document data
-// Data be in a database (accessed via a Document) or held by this class
+// A document - holds values, terms, and document data
+// Data can be in a database (accessed via a Document) or held by this class
 // (or some combination if a document from a database is being amended).
 class OmDocument::Internal {
     public:
@@ -116,19 +116,19 @@ class OmDocument::Internal {
 
 	om_docid did;
 
-	bool data_here, keys_here, terms_here;
+	bool data_here, values_here, terms_here;
 
 	/// The (user defined) data associated with this document.
 	string data;
 
-	/// Type to store keys in.
-	typedef std::map<om_keyno, OmKey> document_keys;
+	/// Type to store values in.
+	typedef map<om_valueno, OmValue> document_values;
 
-	/// The keys associated with this document.
-	document_keys keys;
+	/// The values associated with this document.
+	document_values values;
 
 	/// Type to store terms in.
-	typedef std::map<om_termname, OmDocumentTerm> document_terms;
+	typedef map<om_termname, OmDocumentTerm> document_terms;
 
 	/// The terms (and their frequencies and positions) in this document.
 	document_terms terms;
@@ -136,26 +136,26 @@ class OmDocument::Internal {
 	explicit Internal(Document *ld, const OmDatabase &database_,
 			  om_docid did_)
 		: ptr(ld), database(database_), did(did_), data_here(false),
-		  keys_here(false), terms_here(false) {}
+		  values_here(false), terms_here(false) {}
 
 	explicit Internal(RefCntPtr<Document> ptr_, const OmDatabase &database_,
 			  om_docid did_)
 	        : ptr(ptr_), database(database_), did(did_), data_here(false),
-		  keys_here(false), terms_here(false) {}
+		  values_here(false), terms_here(false) {}
 
 	Internal(const Internal &other)
 		: ptr(other.ptr),
 		  database(other.database),
 		  did(other.did),
 		  data_here(other.data_here),
-		  keys_here(other.keys_here),
+		  values_here(other.values_here),
 		  terms_here(other.terms_here),
 		  data(other.data),
-		  keys(other.keys),
+		  values(other.values),
 		  terms(other.terms) {}
 
 	Internal()
-		: ptr(NULL), data_here(true), keys_here(true), terms_here(true)
+		: ptr(NULL), data_here(true), values_here(true), terms_here(true)
 	{}
 
 	void read_termlist(OmTermIterator t, const OmTermIterator & tend);
@@ -163,12 +163,12 @@ class OmDocument::Internal {
 	/** Returns a string representing the object.
 	 *  Introspection method.
 	 */
-	std::string get_description() const;
+	string get_description() const;
 
-        /* calls ptr->get_all_keys(); or whatever, as so many
+        /* calls ptr->get_all_values(); or whatever, as so many
          * methods seem to be doing this independantly.
          */
-        void need_keylist();
+        void need_values();
 };
 
 #endif  // OM_HGUARD_OMDOCUMENTINTERNAL_H

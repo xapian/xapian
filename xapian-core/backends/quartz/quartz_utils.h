@@ -123,7 +123,7 @@ pack_uint(T value)
     // Check unsigned
     CASSERT((T)(-1) > 0);
 
-    if (value == 0) return std::string("\000", 1u);
+    if (value == 0) return std::string("", 1u);
     std::string result;
 
     while(value != 0) {
@@ -326,7 +326,7 @@ pack_bool(bool value)
 #include "quartz_table_entries.h"
 #include "om/omtypes.h"
 
-/** Convert a document id to an OmKey.
+/** Convert a document id to a QuartzDBKey.
  */
 QuartzDbKey quartz_docid_to_key(om_docid did);
 

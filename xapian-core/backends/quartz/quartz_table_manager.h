@@ -65,9 +65,9 @@ class QuartzTableManager {
 	 */
 	virtual QuartzTable * get_lexicon_table() = 0;
 
-	/** Get table storing attributes.
+	/** Get table storing values.
 	 */
-	virtual QuartzTable * get_attribute_table() = 0;
+	virtual QuartzTable * get_value_table() = 0;
 
 	/** Get table storing records.
 	 */
@@ -121,9 +121,9 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 */
 	QuartzDiskTable lexicon_table;
 
-	/** Table storing keys.
+	/** Table storing values.
 	 */
-	QuartzDiskTable attribute_table;
+	QuartzDiskTable value_table;
 
 	/** Table storing records.
 	 *
@@ -165,8 +165,8 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	/// Return the path that the record table is stored at.
 	std::string record_path() const;
 
-	/// Return the path that the attribute table is stored at.
-	std::string attribute_path() const;
+	/// Return the path that the value table is stored at.
+	std::string value_path() const;
 
 	/// Return the path that the lexicon table is stored at.
 	std::string lexicon_path() const;
@@ -249,7 +249,7 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	QuartzDiskTable * get_positionlist_table();
 	QuartzDiskTable * get_termlist_table();
 	QuartzDiskTable * get_lexicon_table();
-	QuartzDiskTable * get_attribute_table();
+	QuartzDiskTable * get_value_table();
 	QuartzDiskTable * get_record_table();
 	void reopen();
 	//@}
@@ -274,7 +274,7 @@ class QuartzBufferedTableManager : public QuartzTableManager {
 	QuartzBufferedTable positionlist_buffered_table;
 	QuartzBufferedTable termlist_buffered_table;
 	QuartzBufferedTable lexicon_buffered_table;
-	QuartzBufferedTable attribute_buffered_table;
+	QuartzBufferedTable value_buffered_table;
 	QuartzBufferedTable record_buffered_table;
 	//@}
 	
@@ -329,7 +329,7 @@ class QuartzBufferedTableManager : public QuartzTableManager {
 	QuartzBufferedTable * get_positionlist_table();
 	QuartzBufferedTable * get_termlist_table();
 	QuartzBufferedTable * get_lexicon_table();
-	QuartzBufferedTable * get_attribute_table();
+	QuartzBufferedTable * get_value_table();
 	QuartzBufferedTable * get_record_table();
 	void reopen();
 	//@}

@@ -1118,8 +1118,8 @@ static bool test_create1()
     database = DatabaseBuilder::create(settings1, false);
     OmDocument document_in;
     document_in.set_data("Foobar rising");
-    document_in.add_key(7, OmKey("Key7"));
-    document_in.add_key(13, OmKey("Key13"));
+    document_in.add_value(7, OmValue("Value7"));
+    document_in.add_value(13, OmValue("Value13"));
     document_in.add_posting("foobar", 1);
     document_in.add_posting("rising", 2);
     document_in.add_posting("foobar", 3);
@@ -1217,8 +1217,8 @@ static bool test_adddoc2()
     om_docid did;
     OmDocument document_in;
     document_in.set_data("Foobar rising");
-    document_in.add_key(7, OmKey("Key7"));
-    document_in.add_key(13, OmKey("Key13"));
+    document_in.add_value(7, OmValue("Value7"));
+    document_in.add_value(13, OmValue("Value13"));
     document_in.add_posting("foobar", 1);
     document_in.add_posting("rising", 2);
     document_in.add_posting("foobar", 3);
@@ -1287,12 +1287,12 @@ static bool test_adddoc2()
 	TEST_EQUAL(document_in.get_data(), document_out.get_data());
 
 	{
-	    OmKeyListIterator i(document_in.keylist_begin());
-	    OmKeyListIterator j(document_out.keylist_begin());
-	    for (; i != document_in.keylist_end(); i++, j++) {
-		TEST_NOT_EQUAL(j, document_out.keylist_end());
+	    OmValueIterator i(document_in.values_begin());
+	    OmValueIterator j(document_out.values_begin());
+	    for (; i != document_in.values_end(); i++, j++) {
+		TEST_NOT_EQUAL(j, document_out.values_end());
 		TEST_EQUAL(i->value, j->value);
-		TEST_EQUAL(i.get_keyno(), j.get_keyno());
+		TEST_EQUAL(i.get_valueno(), j.get_valueno());
 	    }
 	}
 	{
@@ -1872,8 +1872,8 @@ static bool test_overwrite2()
 
     OmDocument document_in;
     document_in.set_data("Foobar rising");
-    document_in.add_key(7, OmKey("Key7"));
-    document_in.add_key(13, OmKey("Key13"));
+    document_in.add_key(7, OmValue("Value7"));
+    document_in.add_key(13, OmValue("Value13"));
     document_in.add_posting("foobar", 1);
     document_in.add_posting("rising", 2);
     document_in.add_posting("foobar", 3);
@@ -1894,12 +1894,12 @@ static bool test_overwrite2()
     OmEnquire enquire(reader);
 
     string doc_out;
-    OmKey key_out;
+    OmValue value_out;
 
     doc_out = writer.get_document(last_doc).get_data();
     TEST(doc_out == "Foobar rising");
-    key_out = writer.get_document(last_doc).get_key(7);
-    TEST(key_out.value == "Key7");
+    value_out = writer.get_document(last_doc).get_value(7);
+    TEST(value_out.value == "Value7");
 
     for (int i=0; i<1000; ++i) {
 	last_doc = writer.add_document(document_in);
@@ -1921,9 +1921,9 @@ static bool test_overwrite2()
     }
     writer.flush();
 
-    key_out = OmKey();
-    key_out = writer.get_document(last_doc).get_key(7);
-    TEST(key_out.value == "Key7");
+    value_out = OmValue();
+    value_out = writer.get_document(last_doc).get_value(7);
+    TEST(value_out.value == "Value7");
 
     for (int i=0; i<1000; ++i) {
 	last_doc = writer.add_document(document_in);
@@ -2072,10 +2072,10 @@ static bool test_packstring1()
 // ========= END OF TESTS =========
 // ================================
 //
-// Tests to write:
+// FIXME: Tests to write:
 //
-// Check behaviour of attributes - write same attribute twice, test reading
-// single attributes which exist and don't exist / have been deleted.
+// Check behaviour of values - write same value twice, test reading
+// single values which exist and don't exist / have been deleted.
 
 /// The lists of tests to perform
 test_desc tests[] = {

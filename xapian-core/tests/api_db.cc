@@ -1039,19 +1039,19 @@ static bool test_collapsekey1()
     OmMSet mymset1 = enquire.get_mset(0, 100, 0, &mymopt);
     om_doccount mymsize1 = mymset1.size();
 
-    for (int key_no = 1; key_no < 7; ++key_no) {
-	mymopt.set("match_collapse_key", key_no);
+    for (om_valueno value_no = 1; value_no < 7; ++value_no) {
+	mymopt.set("match_collapse_key", (int)value_no);
 	OmMSet mymset = enquire.get_mset(0, 100, 0, &mymopt);
 
 	TEST_AND_EXPLAIN(mymsize1 > mymset.size(),
 			 "Had no fewer items when performing collapse: don't know whether it worked.");
 
-	map<string, om_docid> keys;
+	map<string, om_docid> values;
 	OmMSetIterator i = mymset.begin();
 	for ( ; i != mymset.end(); ++i) {
-	    OmKey key = i.get_document().get_key(key_no);
-	    TEST(keys[key.value] == 0 || key.value == "");
-	    keys[key.value] = *i;
+	    OmValue value = i.get_document().get_value(value_no);
+	    TEST(values[value.value] == 0 || value.value == "");
+	    values[value.value] = *i;
 	}
     }
 
@@ -1069,19 +1069,19 @@ static bool test_collapsekey2()
     OmMSet mymset1 = enquire.get_mset(0, 100, 0, &mymopt);
     om_doccount mymsize1 = mymset1.size();
 
-    const int key_no = 0;
-    mymopt.set("match_collapse_key", key_no);
+    const om_valueno value_no = 0;
+    mymopt.set("match_collapse_key", (int)value_no);
     OmMSet mymset = enquire.get_mset(0, 100, 0, &mymopt);
 
     TEST_AND_EXPLAIN(mymsize1 > mymset.size(),
 		     "Had no fewer items when performing collapse: don't know whether it worked.");
 
-    map<string, om_docid> keys;
+    map<string, om_docid> values;
     OmMSetIterator i = mymset.begin();
     for ( ; i != mymset.end(); ++i) {
-	OmKey key = i.get_document().get_key(key_no);
-	TEST(keys[key.value] == 0 || key.value == "");
-	keys[key.value] = *i;
+	OmValue value = i.get_document().get_value(value_no);
+	TEST(values[value.value] == 0 || value.value == "");
+	values[value.value] = *i;
     }
 
     return true;
@@ -1354,9 +1354,9 @@ static bool test_spaceterms1()
     docs = std::vector<om_docid>(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
-    for (int key_no = 1; key_no < 7; ++key_no) {
+    for (om_valueno value_no = 1; value_no < 7; ++value_no) {
 	TEST_NOT_EQUAL(mymset.begin().get_document().get_data(), "");
-	TEST_NOT_EQUAL(mymset.begin().get_document().get_key(key_no).value, "");
+	TEST_NOT_EQUAL(mymset.begin().get_document().get_value(value_no).value, "");
     }
 
     init_simple_enquire(enquire, OmQuery(stemmer.stem_word("tab\tby")));
@@ -1365,12 +1365,12 @@ static bool test_spaceterms1()
     docs = std::vector<om_docid>(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
-    for (int key_no = 1; key_no < 7; ++key_no) {
-	OmKey key = mymset.begin().get_document().get_key(key_no);
-	TEST_NOT_EQUAL(key.value, "");
-	if (key_no == 0) {
-	    TEST(key.value.size() > 262);
-	    TEST_EQUAL((unsigned char)(key.value[261]), 255);
+    for (om_valueno value_no = 1; value_no < 7; ++value_no) {
+	OmValue value = mymset.begin().get_document().get_value(value_no);
+	TEST_NOT_EQUAL(value.value, "");
+	if (value_no == 0) {
+	    TEST(value.value.size() > 262);
+	    TEST_EQUAL((unsigned char)(value.value[261]), 255);
 	}
     }
     
@@ -1590,14 +1590,14 @@ static bool test_specialterms1()
     docs = std::vector<om_docid>(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
-    for (int key_no = 0; key_no < 7; ++key_no) {
-	OmKey key = mymset.begin().get_document().get_key(key_no);
-	TEST_NOT_EQUAL(key.value, "");
-	if (key_no == 0) {
-	    TEST(key.value.size() > 263);
-	    TEST_EQUAL((unsigned char)(key.value[262]), 255);
+    for (om_valueno value_no = 0; value_no < 7; ++value_no) {
+	OmValue value = mymset.begin().get_document().get_value(value_no);
+	TEST_NOT_EQUAL(value.value, "");
+	if (value_no == 0) {
+	    TEST(value.value.size() > 263);
+	    TEST_EQUAL((unsigned char)(value.value[262]), 255);
 	    for (int k = 0; k < 256; k++) {
-		TEST_EQUAL((unsigned char)(key.value[k+7]), k);
+		TEST_EQUAL((unsigned char)(value.value[k+7]), k);
 	    }
 	}
     }
@@ -3018,8 +3018,8 @@ test_desc db_tests[] = {
     {0, 0}
 };
 
-/// The tests which require a database which supports keys > 0 sensibly
-test_desc multikey_tests[] = {
+/// The tests which require a database which supports values > 0 sensibly
+test_desc multivalue_tests[] = {
     {"collapsekey1",	   test_collapsekey1},
     {0, 0}
 };

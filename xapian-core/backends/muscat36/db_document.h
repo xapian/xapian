@@ -46,8 +46,8 @@ class DBDocument : public Document {
     public:
 	~DBDocument();
 
-	OmKey do_get_key(om_keyno keyid) const;
-	map<om_keyno, OmKey> do_get_all_keys() const;
+	OmValue do_get_value(om_valueno valueid) const;
+	map<om_valueno, OmValue> do_get_all_values() const;
 	string do_get_data() const;
 };
 

@@ -1,4 +1,4 @@
-/* omkeylistiteratorinternal.h
+/* omvalueiteratorinternal.h
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -20,26 +20,26 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OMKEYLISTITERATORINTERNAL_H
-#define OM_HGUARD_OMKEYLISTITERATORINTERNAL_H
+#ifndef OM_HGUARD_OMVALUEITERATORINTERNAL_H
+#define OM_HGUARD_OMVALUEITERATORINTERNAL_H
 
-#include "om/omkeylistiterator.h"
+#include "om/omvalueiterator.h"
 #include "om/omdocument.h"
 #include <map>
 
-class OmKeyListIterator::Internal {
+class OmValueIterator::Internal {
     private:
-	friend class OmKeyListIterator; // allow access to it
-        friend bool operator==(const OmKeyListIterator &a, const OmKeyListIterator &b);
+	friend class OmValueIterator; // allow access to it
+        friend bool operator==(const OmValueIterator &a, const OmValueIterator &b);
 
-	std::map<om_keyno, OmKey>::const_iterator it;
+	std::map<om_valueno, OmValue>::const_iterator it;
     
     public:
-        Internal(std::map<om_keyno, OmKey>::const_iterator it_) : it(it_)
+        Internal(std::map<om_valueno, OmValue>::const_iterator it_) : it(it_)
 	{ }
 
         Internal(const Internal &other) : it(other.it)
 	{ }
 };
 
-#endif /* OM_HGUARD_OMKEYLISTITERATOR_H */
+#endif /* OM_HGUARD_OMVALUEITERATOR_H */

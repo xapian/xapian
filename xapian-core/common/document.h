@@ -32,10 +32,10 @@ using std::map;
 #include <string>
 using std::string;
 
-class OmKey;
+class OmValue;
 class Database;
 
-/// A document in the database - holds keys and records
+/// A document in the database - holds values, terms, postings, etc
 class Document : public RefCntBase {
     private:
 	/// Copies are not allowed.
@@ -46,10 +46,10 @@ class Document : public RefCntBase {
 
 	const Database *database;
 
-	/// The virtual implementation of get_key().
-	virtual OmKey do_get_key(om_keyno keyid) const = 0;
-	/// The virtual implementation of get_all_keys().
-	virtual map<om_keyno, OmKey> do_get_all_keys() const = 0;
+	/// The virtual implementation of get_value().
+	virtual OmValue do_get_value(om_valueno valueid) const = 0;
+	/// The virtual implementation of get_all_values().
+	virtual map<om_valueno, OmValue> do_get_all_values() const = 0;
 	/// The virtual implementation of get_data().
 	virtual string do_get_data() const = 0;
 
@@ -58,34 +58,34 @@ class Document : public RefCntBase {
 	om_docid did;
 	
     public:
-	/** Get key by key number.
+	/** Get value by value number.
 	 *
-	 *  Keys are quickly accessible fields, for use during the match
-	 *  operation.  Each document may have a set of keys, each of which
-	 *  having a different keyid.  Duplicate keys with the same keyid are
-	 *  not supported in a single document.
+	 *  Values are quickly accessible fields, for use during the match
+	 *  operation.  Each document may have a set of values, each of which
+	 *  having a different valueid.  Duplicate values with the same valueid
+	 *  are not supported in a single document.
 	 *
-	 *  Key numbers are any integer >= 0, but particular database types may
-	 *  impose a more restrictive range than that.
+	 *  Value numbers are any integer >= 0, but particular database
+	 *  backends may impose a more restrictive range than that.
 	 *
-	 *  @param keyid  The key number requested.
+	 *  @param valueid  The value number requested.
 	 *
-	 *  @return       An OmKey object containing the specified key.  If the
-	 *  key is not present in this document, the key's value will be a zero
-	 *  length string
+	 *  @return       An OmValue object containing the specified value.  If
+	 *  the value is not present in this document, the value's value will
+	 *  be a zero length string
 	 */
-	OmKey get_key(om_keyno keyid) const;
+	OmValue get_value(om_valueno valueid) const;
 
-	/** Get all keys for this document
+	/** Get all values for this document
 	 *
-	 *  Keys are quickly accessible fields, for use during the match
-	 *  operation.  Each document may have a set of keys, each of which
-	 *  having a different keyid.  Duplicate keys with the same keyid are
-	 *  not supported in a single document.
+	 *  Values are quickly accessible fields, for use during the match
+	 *  operation.  Each document may have a set of values, each of which
+	 *  having a different valueid.  Duplicate values with the same valueid
+	 *  are not supported in a single document.
 	 *
-	 *  @return   A map of OmKey objects containing all the keys.
+	 *  @return   A map of OmValue objects containing all the values.
 	 */
-	map<om_keyno, OmKey> get_all_keys() const;
+	map<om_valueno, OmValue> get_all_values() const;
 
 	/** Get data stored in document.
 	 *
@@ -96,7 +96,7 @@ class Document : public RefCntBase {
 	 *
 	 *  This operation can be expensive, and shouldn't normally be used
 	 *  during the match operation (such as in a match decider functor):
-	 *  use a key instead, if at all possible.
+	 *  use a value instead, if at all possible.
 	 *
 	 *  @return       An string containing the data for this document.
 	 */

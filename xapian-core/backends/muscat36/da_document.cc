@@ -45,56 +45,56 @@ DADocument::~DADocument()
     if (rec != NULL) M_lose_record(rec);
 }
 
-/** Get the key for a DA document.
- *  If a key file is available, this will be used to provide extremely fast
- *  key lookup.
+/** Get the value for a DA document.
+ *  If a value file is available, this will be used to provide extremely fast
+ *  value lookup.
  */
-OmKey
-DADocument::do_get_key(om_keyno keyid) const
+OmValue
+DADocument::do_get_value(om_valueno valueid) const
 {
-    if (keyid == 0) return database->get_key(did, keyid);
+    if (valueid == 0) return database->get_value(did, valueid);
 
-    DebugMsg("Looking in record for keyno " << keyid <<
+    DebugMsg("Looking in record for valueno " << valueid <<
 	     " in document " << did);
     if (rec == 0) rec = database->get_record(did);
 
-    OmKey key;
+    OmValue value;
     unsigned char *pos = (unsigned char *)rec->p;
     unsigned int len = LENGTH_OF(pos, 0, heavy_duty);
-    unsigned int keypos = keyid;
-    if (keypos + 8 > len) {
+    unsigned int valuepos = valueid;
+    if (valuepos + 8 > len) {
 	// Record not big enough.
 	DEBUGLINE(DB, ": not found in record");
     } else {
-	key.value = string((char *)pos + LWIDTH(heavy_duty) + 3 + keypos, 8);
-	DEBUGLINE(DB, ": found in record - value is `" << key.value << "'");
+	value.value = string((char *)pos + LWIDTH(heavy_duty) + 3 + valuepos, 8);
+	DEBUGLINE(DB, ": found in record - value is `" << value.value << "'");
     }
-    return key;
+    return value;
 }
 
-/** Get all the keys for a DA document.
+/** Get all the values for a DA document.
  *
- *  Note: this only returns keys from the keyfile.  If keys are being
+ *  Note: this only returns values from the valuefile.  If values are being
  *  read from the record, this will not return them.
  */
-map<om_keyno, OmKey>
-DADocument::do_get_all_keys() const
+map<om_valueno, OmValue>
+DADocument::do_get_all_values() const
 {
-    om_keyno keyid = 0;
-    map<om_keyno, OmKey> keys;
+    om_valueno valueid = 0;
+    map<om_valueno, OmValue> values;
 
-    OmKey key = database->get_key(did, keyid);
-    if (key.value.size() != 0) {
-	keys[keyid] = key;
+    OmValue value = database->get_value(did, valueid);
+    if (value.value.size() != 0) {
+	values[valueid] = value;
     }
 
-    return keys;
+    return values;
 }
 
 /** Get the data for a DA Document.
  *  This can be expensive, and shouldn't normally be used
  *  during the match operation (such as in a match decider functor):
- *  use a key instead, if at all possible.
+ *  use a value instead, if at all possible.
  */
 string
 DADocument::do_get_data() const

@@ -167,7 +167,7 @@ SocketClient::get_tlist(om_docid did,
 void
 SocketClient::request_doc(om_docid did)
 {
-    std::map<om_docid, unsigned int>::iterator i = request_count.find(did);
+    map<om_docid, unsigned int>::iterator i = request_count.find(did);
     if (i != request_count.end()) {
 	/* This document has been requested already - just count it again. */
 	(i->second)++;
@@ -202,10 +202,10 @@ SocketClient::get_requested_docs()
 #else
 	    istrstream is(message.data(), message.length());
 #endif
-	    om_keyno keyno;
-	    string omkey;
-	    is >> keyno >> omkey;
-	    cdoc.keys[keyno] = string_to_omkey(omkey);
+	    om_valueno valueno;
+	    string omvalue;
+	    is >> valueno >> omvalue;
+	    cdoc.values[valueno] = string_to_omvalue(omvalue);
 	}
 	cdoc.users = request_count[cdid];
 	request_count.erase(cdid);
@@ -217,16 +217,16 @@ SocketClient::get_requested_docs()
 
 void
 SocketClient::collect_doc(om_docid did, string &doc,
-			  std::map<om_keyno, OmKey> &keys)
+			  map<om_valueno, OmValue> &values)
 {
     /* First check that the data isn't in our temporary cache */
-    std::map<om_docid, cached_doc>::iterator i;
+    map<om_docid, cached_doc>::iterator i;
     i = collected_docs.find(did);
 
     if (i != collected_docs.end()) {
 	/* A hit! */
 	doc = i->second.data;
-	keys = i->second.keys;
+	values = i->second.values;
 
 	/* remove from cache if necessary */
 	i->second.users--;
@@ -254,7 +254,7 @@ SocketClient::collect_doc(om_docid did, string &doc,
     if (i != collected_docs.end()) {
 	/* A hit! */
 	doc = i->second.data;
-	keys = i->second.keys;
+	values = i->second.values;
 
 	i->second.users--;
 
@@ -272,10 +272,10 @@ SocketClient::collect_doc(om_docid did, string &doc,
 void
 SocketClient::get_doc(om_docid did,
 		      string &doc,
-		      std::map<om_keyno, OmKey> &keys)
+		      map<om_valueno, OmValue> &values)
 {
     request_doc(did);
-    collect_doc(did, doc, keys);
+    collect_doc(did, doc, values);
 }
 
 om_doccount
@@ -505,7 +505,7 @@ SocketClient::get_mset(om_doccount first,
 }
 
 bool
-SocketClient::get_posting(om_docid &did, om_weight &w, OmKey &key)
+SocketClient::get_posting(om_docid &did, om_weight &w, OmValue &value)
 {
     DEBUGCALL(MATCH, bool, "SocketClient::get_posting", "");
     Assert(global_stats_valid);
@@ -554,7 +554,7 @@ SocketClient::get_posting(om_docid &did, om_weight &w, OmKey &key)
 		    w = 0;
 		}
 		if (i != message.npos) {
-		    key = string_to_omkey(message.substr(i + 1));
+		    value = string_to_omvalue(message.substr(i + 1));
 		}
 	    }
 	}
@@ -564,18 +564,18 @@ SocketClient::get_posting(om_docid &did, om_weight &w, OmKey &key)
 }
 
 void
-SocketClient::next(om_weight w_min, om_docid &did, om_weight &w, OmKey &key)
+SocketClient::next(om_weight w_min, om_docid &did, om_weight &w, OmValue &value)
 {
     if (w_min > minw) {
 	minw = w_min;
 	do_write("m" + om_tostring(w_min));
     }
 
-    while (!get_posting(did, w, key)) wait_for_input();
+    while (!get_posting(did, w, value)) wait_for_input();
 }
 
 void
-SocketClient::skip_to(om_docid new_did, om_weight w_min, om_docid &did, om_weight &w, OmKey &key)
+SocketClient::skip_to(om_docid new_did, om_weight w_min, om_docid &did, om_weight &w, OmValue &value)
 {
     do_write("S" + om_tostring(new_did));
     if (w_min > minw) {
@@ -583,6 +583,6 @@ SocketClient::skip_to(om_docid new_did, om_weight w_min, om_docid &did, om_weigh
 	do_write("m" + om_tostring(w_min));
     }
 
-    while (!get_posting(did, w, key) || (did && (did < new_did || w < w_min)))
+    while (!get_posting(did, w, value) || (did && (did < new_did || w < w_min)))
 	wait_for_input();
 }

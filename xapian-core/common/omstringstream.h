@@ -94,7 +94,7 @@ class om_ostringstream {
 
 OSTRINGSTREAMFUNC(OmDatabase)
 OSTRINGSTREAMFUNC(OmWritableDatabase)
-OSTRINGSTREAMFUNC(OmKey)
+OSTRINGSTREAMFUNC(OmValue)
 OSTRINGSTREAMFUNC(OmDocument)
 OSTRINGSTREAMFUNC(OmQuery)
 OSTRINGSTREAMFUNC(OmRSet)
@@ -108,7 +108,7 @@ OSTRINGSTREAMFUNC(OmSettings)
 OSTRINGSTREAMFUNC(OmPostListIterator)
 OSTRINGSTREAMFUNC(OmPositionListIterator)
 OSTRINGSTREAMFUNC(OmTermIterator)
-OSTRINGSTREAMFUNC(OmKeyListIterator)
+OSTRINGSTREAMFUNC(OmValueIterator)
 
 inline om_ostringstream &
 operator<<(om_ostringstream & os, const std::vector<std::string> & v)

@@ -30,7 +30,7 @@
 #include "positionlist.h"
 #include "autoptr.h"
 
-class OmKey;
+class OmValue;
 
 /** Abstract base class for postlists. */
 class PostList : public RefCntBase
@@ -97,7 +97,7 @@ class PostList : public RefCntBase
 	 */
 	virtual om_weight get_weight() const = 0;
 
-	virtual const OmKey * get_collapse_key() const { return NULL; }
+	virtual const OmValue * get_collapse_key() const { return NULL; }
 
 	/** Get the length of the document at the current position in the
 	 *  postlist.

@@ -48,30 +48,30 @@ string_to_document(string paragraph)
     document.set_data(paragraph);
     om_termcount position = 1;
 
-    for (om_keyno i=1; i<=10; ++i) {
+    for (om_valueno i = 1; i <= 10; ++i) {
 	if (i >= paragraph.length()) {
 	    break;
 	} else {
-	    OmKey key;
-	    key.value = paragraph.substr(i, 1);
-	    document.add_key(i, key);
+	    OmValue value;
+	    value.value = paragraph.substr(i, 1);
+	    document.add_value(i, value);
 	}
     }
     {
-	OmKey key;
+	OmValue value;
 
-	/* We need a key which will be useful for collapsing with DA
-	 * databases, where only the first 8 bytes of key 0 count.
+	/* We need a value which will be useful for collapsing with DA
+	 * databases, where only the first 8 bytes of value 0 count.
 	 */
-	key.value = paragraph[2];
+	value.value = paragraph[2];
 
-	key.value += string("\0\0\0 \1\t", 6);
+	value.value += string("\0\0\0 \1\t", 6);
 
 	for (int k = 0; k < 256; k++) {
-	    key.value += (char)(k);
+	    value.value += (char)(k);
 	}
-	key.value += paragraph;
-	document.add_key(0, key);
+	value.value += paragraph;
+	document.add_value(0, value);
     }
 
     string::size_type spacepos;
@@ -116,9 +116,9 @@ index_files_to_m36(const string &prog, const string &dbdir,
 {
     string dump = dbdir + "/DATA";
     std::ofstream out(dump.c_str());
-    string keyfile = dbdir + "/keyfile";
-    std::ofstream keys(keyfile.c_str());
-    keys << "omrocks!"; // magic word
+    string valuefile = dbdir + "/keyfile";
+    std::ofstream values(valuefile.c_str());
+    values << "omrocks!"; // magic word
     for (vector<string>::const_iterator p = paths.begin();
 	 p != paths.end();
 	 p++) {
@@ -138,11 +138,11 @@ index_files_to_m36(const string &prog, const string &dbdir,
 		}
 	    }
 	    out << "#TEND#\n";
-	    OmKeyListIterator key_i = doc.keylist_begin();
-	    string key = string("\0\0\0\0\0\0\0", 8);
-	    if (key_i != doc.keylist_end()) key = (*key_i).value + key;
-	    key = key.substr(0, 8);
-	    keys << key;
+	    OmValueIterator value_i = doc.values_begin();
+	    string value = string("\0\0\0\0\0\0\0", 8);
+	    if (value_i != doc.values_end()) value = (*value_i).value + value;
+	    value = value.substr(0, 8);
+	    values << value;
 	}
     }
     out.close();

@@ -26,33 +26,33 @@
 
 #include "om/omtypes.h"
 #include "om/omtermlistiterator.h"
-#include "om/omkeylistiterator.h"
+#include "om/omvalueiterator.h"
 
-/// A key in a document.
-class OmKey {
+/// A value associated with a document.
+class OmValue {
     public:
-	/// The value of a key.
+	/// The value itself.
 	std::string value;
 
-	/// Ordering for keys, so they can be stored in STL containers.
-	bool operator < (const OmKey &k) const { return(value < k.value); }
+	/// Ordering for values, so they can be stored in STL containers.
+	bool operator < (const OmValue &k) const { return(value < k.value); }
 
 	/// Construct from a string.
-	OmKey(const std::string &data) : value(data) {}
+	OmValue(const std::string &data) : value(data) {}
 
 	/// Default constructor.
-	OmKey() {}
+	OmValue() {}
 
 	/// Default destructor.
-	~OmKey() {}
+	~OmValue() {}
 
-	/** Returns a string representing the OmKey.
+	/** Returns a string representing the OmValue.
 	 *  Introspection method.
 	 */
-	std::string get_description() const { return "OmKey(" + value + ")"; }
+	std::string get_description() const { return "OmValue(" + value + ")"; }
 };
 
-/// A document in the database - holds keys and records
+/// A document in the database - holds values, terms, and postings
 class OmDocument {
     public:
 	class Internal;
@@ -82,19 +82,19 @@ class OmDocument {
 	/// Destructor.
 	~OmDocument();
 
-	/// Get key by number (>= 0)
-	OmKey get_key(om_keyno key) const;
+	/// Get value by number (>= 0)
+	OmValue get_value(om_valueno value) const;
 
-	void add_key(om_keyno keyno, const OmKey &key);
+	void add_value(om_valueno valueno, const OmValue &value);
 
-	void remove_key(om_keyno keyno);
+	void remove_value(om_valueno valueno);
 
-	void clear_keys();
+	void clear_values();
 
 	/** Get data stored in document.
 	 *  This is a potentially expensive operation, and shouldn't normally
 	 *  be used in a match decider functor.  Put data for use by match
-	 *  deciders in a key instead.
+	 *  deciders in a value instead.
 	 */
 	std::string get_data() const;
 
@@ -164,16 +164,16 @@ class OmDocument {
 	 */
 	void remove_term(const om_termname & tname);
 
-	/// Remove all terms and postings from the document.
+	/// Remove all terms (and postings) from the document.
 	void clear_terms();
 
 	om_termcount termlist_count();
 	OmTermIterator termlist_begin() const;
 	OmTermIterator termlist_end() const;
 
-	om_termcount keylist_count();
-	OmKeyListIterator keylist_begin() const;
-	OmKeyListIterator keylist_end() const;
+	om_termcount values_count();
+	OmValueIterator values_begin() const;
+	OmValueIterator values_end() const;
 
 	/** Returns a string representing the OmDocument.
 	 *  Introspection method.

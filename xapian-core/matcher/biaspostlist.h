@@ -63,8 +63,8 @@ class OmBiasFunctor {
 
 	om_weight get_weight(om_docid id) {
 #ifndef DOCID_BASED
-	    OmKey key = db.get_document(id).get_key(0);
-	    time_t t = atoi(key.value);
+	    OmValue value = db.get_document(id).get_value(0);
+	    time_t t = atoi(value.value);
 	    if (t >= now) return max_w;
 #else /* DOCID_BASED */
 	    if (id >= max_id) return max_w;
@@ -137,7 +137,7 @@ class BiasPostList : public PostList {
 
 	bool at_end() const { return pl->at_end(); }
 
-	std::string get_description() const {
+	string get_description() const {
 	    return "( Bias " + pl->get_description() + " )";
 	}
 

@@ -250,7 +250,7 @@ class DBDatabase : public Database {
     private:
 	struct DB_file * DB;
 
-	FILE * keyfile;
+	FILE * valuefile;
 
 	mutable std::map<om_termname, RefCntPtr<const DBTerm> > termmap;
 
@@ -264,10 +264,10 @@ class DBDatabase : public Database {
 	// Get a record
 	struct record * get_record(om_docid did) const;
 
-	/** Get a key from keyfile (will return empty value if keyfile
+	/** Get a value from valuefile (will return empty value if valuefile
 	 *  not open).
 	 */
-	OmKey get_key(om_docid did, om_keyno keyid) const;
+	OmValue get_value(om_docid did, om_valueno valueid) const;
 
 	/// Internal method for getting the database size.
 	om_doccount  get_doccount_internal() const;

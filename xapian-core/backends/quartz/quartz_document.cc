@@ -25,22 +25,22 @@
 #include "omdebug.h"
 #include "quartz_database.h"
 #include "quartz_document.h"
-#include "quartz_attributes.h"
+#include "quartz_values.h"
 #include "quartz_record.h"
 
 /** Create a QuartzDocument: this is only called by
  *  QuartzDatabase::open_document().
  */
 QuartzDocument::QuartzDocument(RefCntPtr<const Database> database_,
-			       QuartzTable *attribute_table_,
+			       QuartzTable *value_table_,
 			       QuartzTable *record_table_,
 			       om_docid did_, bool lazy)
 	: Document(database_.get(), did_),
 	  database(database_),
-	  attribute_table(attribute_table_),
+	  value_table(value_table_),
 	  record_table(record_table_)
 {
-    DEBUGCALL(DB, void, "QuartzDocument", "[database_], " << attribute_table_ << ", " << record_table_ << ", " << did_ << ", " << lazy);
+    DEBUGCALL(DB, void, "QuartzDocument", "[database_], " << value_table_ << ", " << record_table_ << ", " << did_ << ", " << lazy);
     // FIXME: this should work but isn't great - in fact I wonder if
     // we should cache the results anyway...
     if (!lazy) (void)QuartzRecordManager::get_record(*record_table, did);
@@ -53,36 +53,28 @@ QuartzDocument::~QuartzDocument()
     DEBUGCALL(DB, void, "~QuartzDocument", "");
 }
 
-/** Retrieve a key value from the database
+/** Retrieve a value from the database
  *
- *  @param keyid	The key number for this document.
+ *  @param valueid	The value number to retrieve.
  */
-OmKey
-QuartzDocument::do_get_key(om_keyno keyid) const
+OmValue
+QuartzDocument::do_get_value(om_valueno valueid) const
 {
-    DEBUGCALL(DB, OmKey, "QuartzDocument::do_get_key", keyid);
-    OmKey retval;
-    QuartzAttributesManager::get_attribute(
-		*attribute_table,
-		retval,
-		did,
-		keyid);
-
+    DEBUGCALL(DB, OmValue, "QuartzDocument::do_get_value", valueid);
+    OmValue retval;
+    QuartzValueManager::get_value(*value_table, retval, did, valueid);
     RETURN(retval);
 }
 
-/** Retrieve all key values from the database
+/** Retrieve all value values from the database
  */
-map<om_keyno, OmKey>
-QuartzDocument::do_get_all_keys() const
+map<om_valueno, OmValue>
+QuartzDocument::do_get_all_values() const
 {
-    map<om_keyno, OmKey> keys;
-    QuartzAttributesManager::get_all_attributes(
-		*attribute_table,
-		keys,
-		did);
-
-    return keys;
+    DEBUGCALL(DB, void, "QuartzDocument::do_get_all_values", "");
+    map<om_valueno, OmValue> values;
+    QuartzValueManager::get_all_values(*value_table, values, did);
+    return values;
 }
 
 /** Retrieve the document data from the database

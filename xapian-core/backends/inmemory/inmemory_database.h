@@ -43,7 +43,7 @@ class InMemoryPosting {
     public:
 	om_docid did;
 	om_termname tname;
-	std::vector<om_termpos> positions; // Sorted vector of positions
+	vector<om_termpos> positions; // Sorted vector of positions
 	om_termcount wdf;
 
 	// Merge two postings (same term/doc pair, new positional info)
@@ -55,7 +55,7 @@ class InMemoryPosting {
 			     post.positions.begin(),
 			     post.positions.end());
 	    // FIXME - inefficient - use merge (and list<>)?
-	    std::sort(positions.begin(), positions.end());
+	    sort(positions.begin(), positions.end());
 	}
 };
 
@@ -80,7 +80,7 @@ class InMemoryPostingLessByTermName {
 // Class representing a term and the documents indexing it
 class InMemoryTerm {
     public:
-	std::vector<InMemoryPosting> docs;// Sorted list of documents indexing term
+	vector<InMemoryPosting> docs;// Sorted list of documents indexing term
 
 	om_termcount collection_freq;
 
@@ -88,8 +88,8 @@ class InMemoryTerm {
 
 	void add_posting(const InMemoryPosting & post) {
 	    // Add document to right place in list
-	    std::vector<InMemoryPosting>::iterator p;
-	    p = std::lower_bound(docs.begin(), docs.end(),
+	    vector<InMemoryPosting>::iterator p;
+	    p = lower_bound(docs.begin(), docs.end(),
 			    post,
 			    InMemoryPostingLessByDocId());
 	    if(p == docs.end() || InMemoryPostingLessByDocId()(post, *p)) {
@@ -104,14 +104,14 @@ class InMemoryTerm {
 class InMemoryDoc {
     public:
 	bool is_valid;
-	std::vector<InMemoryPosting> terms;// Sorted list of terms indexing document
+	vector<InMemoryPosting> terms;// Sorted list of terms indexing document
 
 	/* Initialise valid */
 	InMemoryDoc() : is_valid(true) {};
 	void add_posting(const InMemoryPosting & post) {
 	    // Add document to right place in list
-	    std::vector<InMemoryPosting>::iterator p;
-	    p = std::lower_bound(terms.begin(), terms.end(),
+	    vector<InMemoryPosting>::iterator p;
+	    p = lower_bound(terms.begin(), terms.end(),
 			    post,
 			    InMemoryPostingLessByTermName());
 	    if(p == terms.end() || InMemoryPostingLessByTermName()(post, *p)) {
@@ -130,8 +130,8 @@ class InMemoryDoc {
 class InMemoryPostList : public LeafPostList {
     friend class InMemoryDatabase;
     private:
-	std::vector<InMemoryPosting>::const_iterator pos;
-	std::vector<InMemoryPosting>::const_iterator end;
+	vector<InMemoryPosting>::const_iterator pos;
+	vector<InMemoryPosting>::const_iterator end;
 	om_termname tname;
 	om_doccount termfreq;
 	bool started;
@@ -160,7 +160,7 @@ class InMemoryPostList : public LeafPostList {
 
 	bool   at_end() const;        // True if we're off the end of the list
 
-	std::string get_description() const;
+	string get_description() const;
 };
 
 
@@ -168,8 +168,8 @@ class InMemoryPostList : public LeafPostList {
 class InMemoryTermList : public LeafTermList {
     friend class InMemoryDatabase;
     private:
-	std::vector<InMemoryPosting>::const_iterator pos;
-	std::vector<InMemoryPosting>::const_iterator end;
+	vector<InMemoryPosting>::const_iterator pos;
+	vector<InMemoryPosting>::const_iterator end;
 	om_termcount terms;
 	bool started;
 
@@ -198,12 +198,12 @@ class InMemoryTermList : public LeafTermList {
 class InMemoryDatabase : public Database {
     friend class DatabaseBuilder;
     private:
-	std::map<om_termname, InMemoryTerm> postlists;
-	std::vector<InMemoryDoc> termlists;
-	std::vector<std::string> doclists;
-	std::vector<std::map<om_keyno, OmKey> > keylists;
+	map<om_termname, InMemoryTerm> postlists;
+	vector<InMemoryDoc> termlists;
+	vector<std::string> doclists;
+	vector<std::map<om_valueno, OmValue> > valuelists;
 
-	std::vector<om_doclength> doclengths;
+	vector<om_doclength> doclengths;
 
 	om_doccount totdocs;
 
@@ -234,7 +234,7 @@ class InMemoryDatabase : public Database {
 
 	/* The common parts of add_doc and replace_doc */
 	void finish_add_doc(om_docid did, const OmDocument &document);
-	void add_keys(om_docid did, const std::map<om_keyno, OmKey> &keys_);
+	void add_values(om_docid did, const map<om_valueno, OmValue> &values_);
 
 	void make_posting(const om_termname & tname,
 			  om_docid did,
@@ -371,7 +371,7 @@ InMemoryPostList::at_end() const
 }
 
 
-inline std::string
+inline string
 InMemoryPostList::get_description() const
 {
     return tname + ":" + om_tostring(termfreq);
@@ -488,7 +488,7 @@ InMemoryDatabase::get_avlength() const
 inline om_doccount
 InMemoryDatabase::get_termfreq(const om_termname & tname) const
 {
-    std::map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
+    map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if(i == postlists.end()) return 0;
     return i->second.docs.size();
 }
@@ -496,7 +496,7 @@ InMemoryDatabase::get_termfreq(const om_termname & tname) const
 inline om_termcount
 InMemoryDatabase::get_collection_freq(const om_termname &tname) const
 {
-    std::map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
+    map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if(i == postlists.end()) return 0;
     return i->second.collection_freq;
 }
@@ -505,8 +505,8 @@ inline om_doclength
 InMemoryDatabase::get_doclength(om_docid did) const
 {
     if (!doc_exists(did)) {
-	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
-				 std::string(" not found"));
+	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
+				 string(" not found"));
     }
     return doclengths[did - 1];
 }

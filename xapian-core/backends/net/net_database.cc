@@ -123,9 +123,9 @@ NetworkDatabase::open_document(om_docid did, bool lazy) const
     // ignore lazy (for now at least - FIXME: can we sensibly pass it?)
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
     std::string doc;
-    std::map<om_keyno, OmKey> keys;
-    link->get_doc(did, doc, keys);
-    return new NetworkDocument(this, did, doc, keys);
+    std::map<om_valueno, OmValue> values;
+    link->get_doc(did, doc, values);
+    return new NetworkDocument(this, did, doc, values);
 }
 
 AutoPtr<PositionList> 
@@ -147,9 +147,9 @@ NetworkDatabase::collect_document(om_docid did) const
 {
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
     std::string doc;
-    std::map<om_keyno, OmKey> keys;
-    link->collect_doc(did, doc, keys);
-    return new NetworkDocument(this, did, doc, keys);
+    std::map<om_valueno, OmValue> values;
+    link->collect_doc(did, doc, values);
+    return new NetworkDocument(this, did, doc, values);
 }
 
 om_doclength

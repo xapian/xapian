@@ -37,11 +37,11 @@ class QuartzDocument : public Document {
     private:
 	RefCntPtr<const Database> database;
 
-	QuartzTable *attribute_table;
+	QuartzTable *value_table;
 	QuartzTable *record_table;
 
 	QuartzDocument(RefCntPtr<const Database> database_,
-		       QuartzTable *attribute_table_,
+		       QuartzTable *value_table_,
 		       QuartzTable *record_table_,
 		       om_docid did_, bool lazy);
 
@@ -51,8 +51,8 @@ class QuartzDocument : public Document {
     public:
 	~QuartzDocument();
 
-	OmKey do_get_key(om_keyno keyid) const;
-	map<om_keyno, OmKey> do_get_all_keys() const;
+	OmValue do_get_value(om_valueno valueid) const;
+	map<om_valueno, OmValue> do_get_all_values() const;
 	string do_get_data() const;
 };
 

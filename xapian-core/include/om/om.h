@@ -38,7 +38,7 @@
 #include "om/ompostlistiterator.h"
 #include "om/ompositionlistiterator.h"
 #include "om/omtermlistiterator.h"
-#include "om/omkeylistiterator.h"
+#include "om/omvalueiterator.h"
 
 /* Searching */
 #include "om/omenquire.h"

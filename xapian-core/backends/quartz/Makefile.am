@@ -12,7 +12,7 @@ noinst_HEADERS =       quartz_types.h \
 		       quartz_positionlist.h \
 		       quartz_lexicon.h \
 		       quartz_record.h \
-		       quartz_attributes.h \
+		       quartz_values.h \
 		       quartz_utils.h \
 		       quartz_log.h \
 		       quartz_document.h \
@@ -33,7 +33,7 @@ libquartz_la_SOURCES = quartz_database.cc \
 		       quartz_positionlist.cc \
 		       quartz_lexicon.cc \
 		       quartz_record.cc \
-		       quartz_attributes.cc \
+		       quartz_values.cc \
 		       quartz_utils.cc \
 		       quartz_log.cc \
 		       quartz_document.cc \

@@ -27,30 +27,29 @@
 
 NetworkDocument::NetworkDocument(const Database *database_,
 				 om_docid did_,
-				 const std::string & doc_,
-				 const std::map<om_keyno, OmKey> &keys_)
-	: Document(database_, did_), doc(doc_), keys(keys_)
+				 const string & doc_,
+				 const map<om_valueno, OmValue> &values_)
+	: Document(database_, did_), doc(doc_), values(values_)
 {
 }
 
-OmKey
-NetworkDocument::do_get_key(om_keyno keyid) const
+OmValue
+NetworkDocument::do_get_value(om_valueno valueid) const
 {
-    DebugMsg("NetworkDocument::do_get_key(" << keyid << ")");
-    std::map<om_keyno, OmKey>::const_iterator k = keys.find(keyid);
-    if (k != keys.end()) {
-	DEBUGLINE(DB, " = " << k->second.value);
-	return k->second;
+    DEBUGCALL(DB, OmValue, "NetworkDocument::do_get_value", valueid);
+    map<om_valueno, OmValue>::const_iterator k = values.find(valueid);
+    if (k != values.end()) {
+	RETURN(k->second);
     } else {
-	DEBUGLINE(DB, " = not found");
-	return OmKey();
+	OmValue empty;
+	RETURN(empty);
     }
 }
 
-std::map<om_keyno, OmKey>
-NetworkDocument::do_get_all_keys() const
+map<om_valueno, OmValue>
+NetworkDocument::do_get_all_values() const
 {
-    return keys;
+    return values;
 }
 
 string

@@ -37,7 +37,7 @@ OUTPUT_FUNCTION(OmDatabase)
 OUTPUT_FUNCTION(OmWritableDatabase)
 
 #include "om/omdocument.h"
-OUTPUT_FUNCTION(OmKey)
+OUTPUT_FUNCTION(OmValue)
 OUTPUT_FUNCTION(OmDocument)
 
 #include "om/omquery.h"
@@ -66,7 +66,7 @@ OUTPUT_FUNCTION(OmPositionListIterator)
 #include "om/omtermlistiterator.h"
 OUTPUT_FUNCTION(OmTermIterator)
 
-#include "om/omkeylistiterator.h"
-OUTPUT_FUNCTION(OmKeyListIterator)
+#include "om/omvalueiterator.h"
+OUTPUT_FUNCTION(OmValueIterator)
 
 #endif /* OM_HGUARD_OMOUTPUT_H */

@@ -52,7 +52,7 @@ QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
 	  positionlist_table(positionlist_path(), readonly, block_size),
 	  termlist_table(termlist_path(), readonly, block_size),
 	  lexicon_table(lexicon_path(), readonly, block_size),
-	  attribute_table(attribute_path(), readonly, block_size),
+	  value_table(value_path(), readonly, block_size),
 	  record_table(record_path(), readonly, block_size)
 {
     DEBUGCALL(DB, void, "QuartzDiskTableManager", db_dir_ << ", " << log_filename << ", " << readonly_ << ", " << block_size << ", " << create << ", " << allow_overwrite);
@@ -115,7 +115,7 @@ QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
 	    positionlist_table.apply(new_revision);
 	    termlist_table    .apply(new_revision);
 	    lexicon_table     .apply(new_revision);
-	    attribute_table   .apply(new_revision);
+	    value_table       .apply(new_revision);
 	    record_table      .apply(new_revision);
 	}
     }
@@ -135,7 +135,7 @@ QuartzDiskTableManager::database_exists() {
 	    positionlist_table.exists() &&
 	    termlist_table.exists() &&
 	    lexicon_table.exists() &&
-	    attribute_table.exists();
+	    value_table.exists();
 }
 
 void
@@ -151,7 +151,7 @@ QuartzDiskTableManager::create_and_open_tables()
     positionlist_table.erase();
     termlist_table.erase();
     lexicon_table.erase();
-    attribute_table.erase();
+    value_table.erase();
     record_table.erase();
 
     log->make_entry("Creating new database at `" + db_dir + "'.");
@@ -162,7 +162,7 @@ QuartzDiskTableManager::create_and_open_tables()
     positionlist_table.create();
     termlist_table.create();
     lexicon_table.create();
-    attribute_table.create();
+    value_table.create();
     record_table.create();
 
     Assert(database_exists());
@@ -170,7 +170,7 @@ QuartzDiskTableManager::create_and_open_tables()
     log->make_entry("Opening new database at `" + db_dir + "'.");
     metafile.open();
     record_table.open();
-    attribute_table.open();
+    value_table.open();
     lexicon_table.open();
     termlist_table.open();
     positionlist_table.open();
@@ -178,14 +178,14 @@ QuartzDiskTableManager::create_and_open_tables()
 
     // Check consistency
     quartz_revision_number_t revision = record_table.get_open_revision_number();
-    if (revision != attribute_table.get_open_revision_number() ||
+    if (revision != value_table.get_open_revision_number() ||
 	revision != lexicon_table.get_open_revision_number() ||
 	revision != termlist_table.get_open_revision_number() ||
 	revision != positionlist_table.get_open_revision_number() ||
 	revision != postlist_table.get_open_revision_number()) {
 	log->make_entry("Revisions are not consistent: have " + 
 			om_tostring(revision) + ", " +
-			om_tostring(attribute_table.get_open_revision_number()) + ", " +
+			om_tostring(value_table.get_open_revision_number()) + ", " +
 			om_tostring(lexicon_table.get_open_revision_number()) + ", " +
 			om_tostring(termlist_table.get_open_revision_number()) + ", " +
 			om_tostring(positionlist_table.get_open_revision_number()) + " and " +
@@ -219,7 +219,7 @@ QuartzDiskTableManager::open_tables_consistent()
 	log->make_entry("Trying revision " + om_tostring(revision) + ".");
 	
 	bool opened;
-	opened = attribute_table.open(revision);
+	opened = value_table.open(revision);
 	if (opened) opened = lexicon_table.open(revision);
 	if (opened) opened = termlist_table.open(revision);
 	if (opened) opened = positionlist_table.open(revision);
@@ -271,7 +271,7 @@ QuartzDiskTableManager::record_path() const
 }
 
 std::string
-QuartzDiskTableManager::attribute_path() const
+QuartzDiskTableManager::value_path() const
 {
     return db_dir + "/attribute_";
 }
@@ -307,7 +307,7 @@ QuartzDiskTableManager::open_tables(quartz_revision_number_t revision)
     log->make_entry("Opening tables at revision " + om_tostring(revision) + ".");
     metafile.open();
     record_table.open(revision);
-    attribute_table.open(revision);
+    value_table.open(revision);
     lexicon_table.open(revision);
     termlist_table.open(revision);
     positionlist_table.open(revision);
@@ -345,7 +345,7 @@ QuartzDiskTableManager::set_revision_number(quartz_revision_number_t new_revisio
     positionlist_table.apply(new_revision);
     termlist_table    .apply(new_revision);
     lexicon_table     .apply(new_revision);
-    attribute_table   .apply(new_revision);
+    value_table   .apply(new_revision);
     record_table      .apply(new_revision);
 }
 
@@ -378,10 +378,10 @@ QuartzDiskTableManager::get_lexicon_table()
 }
 
 QuartzDiskTable *
-QuartzDiskTableManager::get_attribute_table()
+QuartzDiskTableManager::get_value_table()
 {
-    DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_attribute_table", "");
-    RETURN(&attribute_table);
+    DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_value_table", "");
+    RETURN(&value_table);
 }
 
 QuartzDiskTable *
@@ -416,7 +416,7 @@ QuartzBufferedTableManager::QuartzBufferedTableManager(std::string db_dir_,
 	  positionlist_buffered_table(disktables.get_positionlist_table()),
 	  termlist_buffered_table(disktables.get_termlist_table()),
 	  lexicon_buffered_table(disktables.get_lexicon_table()),
-	  attribute_buffered_table(disktables.get_attribute_table()),
+	  value_buffered_table(disktables.get_value_table()),
 	  record_buffered_table(disktables.get_record_table()),
 	  lock_name(db_dir_ + "/db_lock")
 {
@@ -515,7 +515,7 @@ QuartzBufferedTableManager::apply()
        !positionlist_buffered_table.is_modified() &&
        !termlist_buffered_table.is_modified() &&
        !lexicon_buffered_table.is_modified() &&
-       !attribute_buffered_table.is_modified() &&
+       !value_buffered_table.is_modified() &&
        !record_buffered_table.is_modified()) {
 	disktables.log->make_entry("No modifications to apply.");
 	return;
@@ -531,7 +531,7 @@ QuartzBufferedTableManager::apply()
 	positionlist_buffered_table.apply(new_revision);
 	termlist_buffered_table.apply(new_revision);
 	lexicon_buffered_table.apply(new_revision);
-	attribute_buffered_table.apply(new_revision);
+	value_buffered_table.apply(new_revision);
 	record_buffered_table.apply(new_revision);
 
 	disktables.log->make_entry("Modifications succeeded.");
@@ -570,7 +570,7 @@ QuartzBufferedTableManager::cancel()
     positionlist_buffered_table.cancel();
     termlist_buffered_table.cancel();
     lexicon_buffered_table.cancel();
-    attribute_buffered_table.cancel();
+    value_buffered_table.cancel();
     record_buffered_table.cancel();
 }
 
@@ -603,10 +603,10 @@ QuartzBufferedTableManager::get_lexicon_table()
 }
 
 QuartzBufferedTable *
-QuartzBufferedTableManager::get_attribute_table()
+QuartzBufferedTableManager::get_value_table()
 {
-    DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_attribute_table", "");
-    RETURN(&attribute_buffered_table);
+    DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_value_table", "");
+    RETURN(&value_buffered_table);
 }
 
 QuartzBufferedTable *

@@ -26,27 +26,27 @@
 
 InMemoryDocument::InMemoryDocument(const Database *database_,
 				   om_docid did_,
-				   const std::string & doc_,
-				   const std::map<om_keyno, OmKey> &keys_)
-	: Document(database_, did_), doc(doc_), keys(keys_)
+				   const string & doc_,
+				   const map<om_valueno, OmValue> &values_)
+	: Document(database_, did_), doc(doc_), values(values_)
 {
 }
 
-OmKey
-InMemoryDocument::do_get_key(om_keyno keyid) const
+OmValue
+InMemoryDocument::do_get_value(om_valueno valueid) const
 {
-    std::map<om_keyno, OmKey>::const_iterator k = keys.find(keyid);
-    if (k != keys.end()) {
+    map<om_valueno, OmValue>::const_iterator k = values.find(valueid);
+    if (k != values.end()) {
 	return k->second;
     } else {
-	return OmKey();
+	return OmValue();
     }
 }
 
-std::map<om_keyno, OmKey>
-InMemoryDocument::do_get_all_keys() const
+map<om_valueno, OmValue>
+InMemoryDocument::do_get_all_values() const
 {
-    return keys;
+    return values;
 }
 
 string

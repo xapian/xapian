@@ -38,7 +38,7 @@
 #include "quartz_positionlist.h"
 #include "quartz_lexicon.h"
 #include "quartz_record.h"
-#include "quartz_attributes.h"
+#include "quartz_values.h"
 #include "quartz_document.h"
 #include "quartz_alltermslist.h"
 
@@ -313,7 +313,7 @@ QuartzDatabase::open_document(om_docid did, bool lazy) const
     RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
 
     return new QuartzDocument(ptrtothis,
-			      tables->get_attribute_table(),
+			      tables->get_value_table(),
 			      tables->get_record_table(),
 			      did, lazy);
 }
@@ -461,14 +461,14 @@ QuartzWritableDatabase::do_add_document(const OmDocument & document)
 		document.get_data());
 	Assert(did != 0);
 
-	// Set the attributes.
+	// Set the values.
 	{
-	    OmKeyListIterator key = document.keylist_begin();
-	    OmKeyListIterator key_end = document.keylist_end();
-	    for ( ; key != key_end; ++key) {
-		QuartzAttributesManager::add_attribute(
-		    *(buffered_tables->get_attribute_table()),
-		    *key, did, key.get_keyno());
+	    OmValueIterator value = document.values_begin();
+	    OmValueIterator value_end = document.values_end();
+	    for ( ; value != value_end; ++value) {
+		QuartzValueManager::add_value(
+		    *(buffered_tables->get_value_table()),
+		    *value, did, value.get_valueno());
 	    }
 	}
 
@@ -563,9 +563,9 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
 		old_doclen,
 		0);
 
-	// Remove the attributes
-	QuartzAttributesManager::delete_all_attributes(*(buffered_tables->get_attribute_table()),
-						       did);
+	// Remove the values
+	QuartzValueManager::delete_all_values(*(buffered_tables->get_value_table()),
+					      did);
 
 	// Remove the termlist.
 	QuartzTermList::delete_termlist(buffered_tables->get_termlist_table(),
@@ -618,17 +618,17 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 		document.get_data(),
 		did);
 
-	// Replace the attributes.
-	QuartzAttributesManager::delete_all_attributes(
-		*(buffered_tables->get_attribute_table()),
+	// Replace the values.
+	QuartzValueManager::delete_all_values(
+		*(buffered_tables->get_value_table()),
 		did);
 	{
-	    OmKeyListIterator key = document.keylist_begin();
-	    OmKeyListIterator key_end = document.keylist_end();
-	    for ( ; key != key_end; ++key) {
-		QuartzAttributesManager::add_attribute(
-		    *(buffered_tables->get_attribute_table()),
-		    *key, did, key.get_keyno());
+	    OmValueIterator value = document.values_begin();
+	    OmValueIterator value_end = document.values_end();
+	    for ( ; value != value_end; ++value) {
+		QuartzValueManager::add_value(
+		    *(buffered_tables->get_value_table()),
+		    *value, did, value.get_valueno());
 	    }
 	}
 
@@ -882,7 +882,7 @@ QuartzWritableDatabase::open_document(om_docid did, bool lazy) const
     RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
 
     RETURN(new QuartzDocument(ptrtothis,
-			      buffered_tables->get_attribute_table(),
+			      buffered_tables->get_value_table(),
 			      buffered_tables->get_record_table(),
 			      did, lazy));
 }

@@ -22,5 +22,6 @@ xapian/xapian_wrap.cpp xapian/makefile.in xapian/config.m4 xapian/php_xapian.h x
 	test -d xapian || mkdir xapian
 	swig $(SWIG_INCLUDES) -c++ -php4 -phpfull -withlibs libxapian.so -withincs om/om.h -shadow -o xapian/xapian_wrap.cpp ../swig/xapian.i
 	mv config.m4 xapian/config.m4
+	: # FIXME: next line is broken if srcdir == builddir...
 	mv Makefile.in xapian/Makefile.in
 	rm CREDITS

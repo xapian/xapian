@@ -134,7 +134,7 @@ SocketServer::run()
 #endif /* TIMING_PATCH */
     while (1) {
 	try {
-	    std::string message;
+	    string message;
 
 	    // Message 3 (see README_progprotocol.txt)
 #ifdef TIMING_PATCH
@@ -205,7 +205,7 @@ SocketServer::run()
 		case 'S': // ignore skip_to message left over from postlist
 		    break;
 		default:
-		    throw OmInvalidArgumentError(std::string("Unexpected message:") +
+		    throw OmInvalidArgumentError(string("Unexpected message:") +
 						       message);
 	    }
 	} catch (const SocketServerFinished &) {
@@ -227,21 +227,21 @@ SocketServer::run()
 	    throw;
 	} catch (const OmError &e) {
 	    /* Pass the error across the link, and continue. */
-	    writeline(std::string("E") + omerror_to_string(e));
+	    writeline(string("E") + omerror_to_string(e));
 	} catch (...) {
 	    /* Do what we can reporting the error, and then propagate
 	     * the exception.
 	     */
-	    writeline(std::string("EUNKNOWN"));
+	    writeline(string("EUNKNOWN"));
 	    throw;
 	}
     }
 }
 
 void
-SocketServer::run_match(const std::string &firstmessage)
+SocketServer::run_match(const string &firstmessage)
 {
-    std::string message = firstmessage;
+    string message = firstmessage;
     
     gatherer = new NetworkStatsGatherer(this);
     
@@ -270,7 +270,7 @@ SocketServer::run_match(const std::string &firstmessage)
     message = readline(msecs_active_timeout);
 
     if (message.empty() || message[0] != 'G') {
-	throw OmNetworkError(std::string("Expected 'G', got ") + message);
+	throw OmNetworkError(string("Expected 'G', got ") + message);
     }
 
     global_stats = string_to_stats(message.substr(1));
@@ -280,7 +280,7 @@ SocketServer::run_match(const std::string &firstmessage)
     message = readline(msecs_active_timeout);
 
     if (message.empty() || message[0] != 'M') {
-	throw OmNetworkError(std::string("Expected 'M', got ") + message);
+	throw OmNetworkError(string("Expected 'M', got ") + message);
     }
 
     message = message.substr(1);
@@ -316,10 +316,10 @@ SocketServer::run_match(const std::string &firstmessage)
     DEBUGLINE(UNKNOWN, "sent mset...");
 }
 
-std::string
+string
 SocketServer::readline(int msecs_timeout)
 {
-    std::string result = buf->readline(OmTime::now() + OmTime(msecs_timeout));
+    string result = buf->readline(OmTime::now() + OmTime(msecs_timeout));
     // intercept 'X' messages.
     if (!result.empty() && result[0] == 'X') {
 	throw SocketServerFinished();
@@ -328,7 +328,7 @@ SocketServer::readline(int msecs_timeout)
 }
 
 void
-SocketServer::writeline(const std::string &message,
+SocketServer::writeline(const string &message,
 			int milliseconds_timeout)
 {
     if (milliseconds_timeout == 0) {
@@ -339,9 +339,9 @@ SocketServer::writeline(const std::string &message,
 }
 
 void
-SocketServer::run_gettermlist(const std::string &firstmessage)
+SocketServer::run_gettermlist(const string &firstmessage)
 {
-    std::string message = firstmessage;
+    string message = firstmessage;
 
     om_docid did = atoi(message);
 
@@ -349,7 +349,7 @@ SocketServer::run_gettermlist(const std::string &firstmessage)
     OmTermIterator tlend = db.termlist_end(did);
 
     while (tl != tlend) {
-	std::string item = om_tostring(tl.get_wdf());
+	string item = om_tostring(tl.get_wdf());
         item += ' ';
         item += om_tostring(tl.get_termfreq());
         item += ' ';
@@ -362,9 +362,9 @@ SocketServer::run_gettermlist(const std::string &firstmessage)
 }
 
 void
-SocketServer::run_getdocument(const std::string &firstmessage)
+SocketServer::run_getdocument(const string &firstmessage)
 {
-    std::string message = firstmessage;
+    string message = firstmessage;
 
     om_docid did = atoi(message);
 
@@ -372,13 +372,13 @@ SocketServer::run_getdocument(const std::string &firstmessage)
 
     writeline("O" + encode_tname(doc->get_data()));
 
-    std::map<om_keyno, OmKey> keys = doc->get_all_keys();
+    map<om_valueno, OmValue> values = doc->get_all_values();
 
-    std::map<om_keyno, OmKey>::const_iterator i = keys.begin();
-    while (i != keys.end()) {
-	std::string item = om_tostring(i->first);
+    map<om_valueno, OmValue>::const_iterator i = values.begin();
+    while (i != values.end()) {
+	string item = om_tostring(i->first);
 	item += ' ';
-	item += omkey_to_string(i->second);
+	item += omvalue_to_string(i->second);
 	writeline(item);
 	++i;
     }
@@ -387,7 +387,7 @@ SocketServer::run_getdocument(const std::string &firstmessage)
 }
 
 void
-SocketServer::run_keepalive(const std::string &message)
+SocketServer::run_keepalive(const string &message)
 {
     /* Transmit to any of our own remote databases */
     db.keep_alive();

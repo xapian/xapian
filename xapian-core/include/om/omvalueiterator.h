@@ -1,4 +1,4 @@
-/* omkeylistiterator.h
+/* omvalueiterator.h
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -21,18 +21,18 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OMKEYLISTITERATOR_H
-#define OM_HGUARD_OMKEYLISTITERATOR_H
+#ifndef OM_HGUARD_OMVALUEITERATOR_H
+#define OM_HGUARD_OMVALUEITERATOR_H
 
 #include <iterator>
 #include "om/omtypes.h"
 
 class OmDocument;
-class OmKey;
+class OmValue;
 
-/** An iterator pointing to items in a list of keys.
+/** An iterator pointing to values associated with a document.
  */
-class OmKeyListIterator {
+class OmValueIterator {
     public:
 	class Internal;
 	/// @internal Reference counted internals.
@@ -41,35 +41,35 @@ class OmKeyListIterator {
     private:
 	friend class OmDocument; // So OmDocument can construct us
 
-        friend bool operator==(const OmKeyListIterator &a, const OmKeyListIterator &b);
+        friend bool operator==(const OmValueIterator &a, const OmValueIterator &b);
 
-	OmKeyListIterator(Internal *internal_);
+	OmValueIterator(Internal *internal_);
 
     public:
 	/// Default constructor - for declaring an uninitialised iterator
-	OmKeyListIterator();
+	OmValueIterator();
 
 	/// Destructor
-        ~OmKeyListIterator();
+        ~OmValueIterator();
 
 	/// Copying is allowed (and is cheap).
-	OmKeyListIterator(const OmKeyListIterator &other);
+	OmValueIterator(const OmValueIterator &other);
 
         /// Assignment is allowed (and is cheap).
-	void operator=(const OmKeyListIterator &other);
+	void operator=(const OmValueIterator &other);
 
-	OmKeyListIterator & operator++();
+	OmValueIterator & operator++();
 
 	void operator++(int);
 
-	/// Get the OmKey for the current position
-	const OmKey & operator *() const;
+	/// Get the OmValue for the current position
+	const OmValue & operator *() const;
 
-	/// Get the OmKey for the current position
-	const OmKey * operator ->() const;
+	/// Get the OmValue for the current position
+	const OmValue * operator ->() const;
 
-	/// Get the number of the key at the current position
-        om_keyno get_keyno() const;
+	/// Get the number of the value at the current position
+        om_valueno get_valueno() const;
 
 	/** Returns a string describing this object.
 	 *  Introspection method.
@@ -79,17 +79,16 @@ class OmKeyListIterator {
 	/// Allow use as an STL iterator
 	//@{
 	typedef std::input_iterator_tag iterator_category;
-	typedef OmKey value_type;
-	typedef om_keyno_diff difference_type; // "om_keycount"
-	typedef OmKey * pointer;
-	typedef OmKey & reference;
+	typedef OmValue value_type;
+	typedef om_valueno_diff difference_type;
+	typedef OmValue * pointer;
+	typedef OmValue & reference;
 	//@}
 };
 
-inline bool operator!=(const OmKeyListIterator &a,
-		       const OmKeyListIterator &b)
+inline bool operator!=(const OmValueIterator &a, const OmValueIterator &b)
 {
     return !(a == b);
 }
 
-#endif /* OM_HGUARD_OMKEYLISTITERATOR_H */
+#endif /* OM_HGUARD_OMVALUEITERATOR_H */

@@ -1,3 +1,7 @@
+Fri May 03 14:42:31 BST 2002  Olly Betts <olly@survex.com>
+
+	* Terminology change - a "key" (in the OmKey sense) is now a "value".
+
 Fri May  3 14:31:57 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* Fixed up todo list and HTML generation script to cope with

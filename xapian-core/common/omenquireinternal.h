@@ -87,7 +87,7 @@ class OmMSetItem {
     public:
 	OmMSetItem(om_weight wt_, om_docid did_) : wt(wt_), did(did_) {}
 
-	OmMSetItem(om_weight wt_, om_docid did_, const OmKey &key_)
+	OmMSetItem(om_weight wt_, om_docid did_, const OmValue &key_)
 		: wt(wt_), did(did_), collapse_key(key_) {}
 
 	/** Weight calculated. */
@@ -96,21 +96,21 @@ class OmMSetItem {
 	/** Document id. */
 	om_docid did;
 
-	/** Key which was used to collapse upon.
+	/** Value which was used to collapse upon.
 	 *
 	 *  If the collapse option is not being used, this will always
 	 *  have a null value.
 	 *
-	 *  If a key of collapsing upon is specified, this will contain
-	 *  the key for this particular item.  If the key is not present
-	 *  for this item, the value will be a null string.  Only one
-	 *  instance of each key value (apart from the null string) will
-	 *  be present in the items in the returned OmMSet.
+	 *  If the collapse option is in use, this will contain the collapse
+	 *  key's value for this particular item.  If the key is not present
+	 *  for this item, the value will be a null string.  Only one instance
+	 *  of each key value (apart from the null string) will be present in
+	 *  the items in the returned OmMSet.
 	 *
 	 *  See the OmSettings match_collapse_key parameter for more
-	 *  information about setting a key to collapse upon.
+	 *  information about setting a collapse key upon.
 	 */
-	OmKey collapse_key;
+	OmValue collapse_key;
 
 	/** Returns a string representing the mset item.
 	 *  Introspection method.

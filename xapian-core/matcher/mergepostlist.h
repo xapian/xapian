@@ -37,7 +37,7 @@ class MergePostList : public PostList {
     private:
         om_weight w_max;
 
-	std::vector<PostList *> plists;
+	vector<PostList *> plists;
 
 	int current;
 
@@ -56,7 +56,7 @@ class MergePostList : public PostList {
 
 	om_docid  get_docid() const;
 	om_weight get_weight() const;
-	const OmKey * get_collapse_key() const;
+	const OmValue * get_collapse_key() const;
 
 	om_weight get_maxweight() const;
 
@@ -66,7 +66,7 @@ class MergePostList : public PostList {
 	PostList *skip_to(om_docid did, om_weight w_min);
 	bool   at_end() const;
 
-	std::string get_description() const;
+	string get_description() const;
 
 	/** Return the document length of the document the current term
 	 *  comes from.
@@ -76,7 +76,7 @@ class MergePostList : public PostList {
 	virtual PositionList * read_position_list();
 	virtual AutoPtr<PositionList> open_position_list() const;
 
-        MergePostList(std::vector<PostList *> plists_,
+        MergePostList(vector<PostList *> plists_,
 		      MultiMatch *matcher,
 		      OmErrorHandler * errorhandler_);
         ~MergePostList();
@@ -88,7 +88,7 @@ MergePostList::get_termfreq_max() const
     DEBUGCALL(MATCH, om_doccount, "MergePostList::get_termfreq_max", "");
     // sum of termfreqs for all children
     om_doccount total = 0;
-    std::vector<PostList *>::const_iterator i;
+    vector<PostList *>::const_iterator i;
     for (i = plists.begin(); i != plists.end(); i++) {
 	total += (*i)->get_termfreq_max();
     }
@@ -101,7 +101,7 @@ MergePostList::get_termfreq_min() const
     DEBUGCALL(MATCH, om_doccount, "MergePostList::get_termfreq_min", "");
     // sum of termfreqs for all children
     om_doccount total = 0;
-    std::vector<PostList *>::const_iterator i;
+    vector<PostList *>::const_iterator i;
     for (i = plists.begin(); i != plists.end(); i++) {
 	total += (*i)->get_termfreq_min();
     }
@@ -114,7 +114,7 @@ MergePostList::get_termfreq_est() const
     DEBUGCALL(MATCH, om_doccount, "MergePostList::get_termfreq_est", "");
     // sum of termfreqs for all children
     om_doccount total = 0;
-    std::vector<PostList *>::const_iterator i;
+    vector<PostList *>::const_iterator i;
     for (i = plists.begin(); i != plists.end(); i++) {
 	total += (*i)->get_termfreq_est();
     }
@@ -139,10 +139,10 @@ MergePostList::get_weight() const
     return plists[current]->get_weight();
 }
 
-inline const OmKey *
+inline const OmValue *
 MergePostList::get_collapse_key() const
 {
-    DEBUGCALL(MATCH, OmKey *, "MergePostList::get_collapse_key", "");
+    DEBUGCALL(MATCH, OmValue *, "MergePostList::get_collapse_key", "");
     Assert(current != -1);
     return plists[current]->get_collapse_key();
 }
@@ -159,7 +159,7 @@ MergePostList::recalc_maxweight()
 {
     DEBUGCALL(MATCH, om_weight, "MergePostList::recalc_maxweight", "");
     w_max = 0;
-    std::vector<PostList *>::iterator i;
+    vector<PostList *>::iterator i;
     for (i = plists.begin(); i != plists.end(); i++) {
 	try {
 	    om_weight w = (*i)->recalc_maxweight();
@@ -197,11 +197,11 @@ MergePostList::at_end() const
     return (unsigned int)current >= plists.size();    
 }
 
-inline std::string
+inline string
 MergePostList::get_description() const
 {
-    std::string desc = "( Merge ";
-    std::vector<PostList *>::const_iterator i;
+    string desc = "( Merge ";
+    vector<PostList *>::const_iterator i;
     for (i = plists.begin(); i != plists.end(); i++) {
 	desc += (*i)->get_description() + " ";
     }

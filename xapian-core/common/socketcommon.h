@@ -39,7 +39,7 @@
 class OmQuery::Internal;
 class Stats;
 class OmRSet;
-class OmKey;
+class OmValue;
 class OmMSet;
 
 /** The OmSocketLineBuf class implements a two-way line discipline
@@ -171,17 +171,17 @@ std::string ommset_termfreqwts_to_string(const std::map<om_termname,
 std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight>
 string_to_ommset_termfreqwts(const std::string &s);
 
-/** Convert an OmKey object into a string representation.
+/** Convert an OmValue object into a string representation.
  *
  *  @param omrset		The object to serialise.
  */
-std::string omkey_to_string(const OmKey &omkey);
+std::string omvalue_to_string(const OmValue &omvalue);
 
-/** Convert a serialised OmKey string back into an object.
+/** Convert a serialised OmValue string back into an object.
  *
  *  @param s		The serialised object as a string.
  */
-OmKey string_to_omkey(const std::string &s);
+OmValue string_to_omvalue(const std::string &s);
 
 OmQuery::Internal qfs_readquery();
 

@@ -35,6 +35,8 @@
 
 #include "om/omerror.h"
 
+using std::make_pair;
+
 //////////////
 // Postlist //
 //////////////
@@ -99,7 +101,7 @@ InMemoryDatabase::do_open_post_list(const om_termname & tname) const
 	return new EmptyPostList();
     };
 
-    std::map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
+    map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
     Assert(i != postlists.end());
 
     return new InMemoryPostList(RefCntPtr<const InMemoryDatabase>(RefCntPtrToThis(), this),
@@ -119,8 +121,8 @@ InMemoryDatabase::open_term_list(om_docid did) const
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
     if (!doc_exists(did)) {
 	// FIXME: the docid in this message will be local, not global
-	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
-				 std::string(" not found"));
+	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
+				 string(" not found"));
     }
     return new InMemoryTermList(RefCntPtr<const InMemoryDatabase>(RefCntPtrToThis(), this),
 				termlists[did - 1], get_doclength(did));
@@ -133,11 +135,11 @@ InMemoryDatabase::open_document(om_docid did, bool lazy) const
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
     if (!doc_exists(did)) {
 	// FIXME: the docid in this message will be local, not global
-	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
-				 std::string(" not found"));
+	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
+				 string(" not found"));
     }
     return new InMemoryDocument(this, did, doclists[did - 1],
-				keylists[did - 1]);
+				valuelists[did - 1]);
 }
 
 AutoPtr<PositionList> 
@@ -150,7 +152,7 @@ InMemoryDatabase::open_position_list(om_docid did,
     }
     const InMemoryDoc &doc = termlists[did-1];
 
-    std::vector<InMemoryPosting>::const_iterator i;
+    vector<InMemoryPosting>::const_iterator i;
     for (i = doc.terms.begin();
 	 i != doc.terms.end();
 	 ++i) {
@@ -164,10 +166,10 @@ InMemoryDatabase::open_position_list(om_docid did,
 }
 
 void
-InMemoryDatabase::add_keys(om_docid did,
-			   const std::map<om_keyno, OmKey> &keys_)
+InMemoryDatabase::add_values(om_docid did,
+			     const map<om_valueno, OmValue> &values_)
 {
-    keylists.push_back(keys_);
+    valuelists.push_back(values_);
 }
 
 void
@@ -208,25 +210,25 @@ void
 InMemoryDatabase::do_delete_document(om_docid did)
 {
     if (!doc_exists(did)) {
-	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
-				 std::string(" not found"));
+	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
+				 string(" not found"));
     }
     termlists[did-1].is_valid = false;
     doclists[did-1] = "";
-    keylists[did-1].clear();
+    valuelists[did-1].clear();
     totlen -= doclengths[did-1];
     doclengths[did-1] = 0;
     totdocs--;
 
-    std::vector<InMemoryPosting>::const_iterator i;
+    vector<InMemoryPosting>::const_iterator i;
     for (i = termlists[did-1].terms.begin();
 	 i != termlists[did-1].terms.end();
 	 ++i) {
-	std::map<om_termname, InMemoryTerm>::iterator t
+	map<om_termname, InMemoryTerm>::iterator t
 		= postlists.find(i->tname);
 	Assert(t != postlists.end());
 	t->second.collection_freq -= i->wdf;
-	std::vector<InMemoryPosting>::iterator posting = t->second.docs.begin();
+	vector<InMemoryPosting>::iterator posting = t->second.docs.begin();
 	/* FIXME: inefficient on vectors... */
 	while (posting != t->second.docs.end()) {
 	    if (posting->did == did) {
@@ -277,15 +279,15 @@ void
 InMemoryDatabase::finish_add_doc(om_docid did, const OmDocument &document)
 {
     {
-	std::map<om_keyno, OmKey> keys;
-	OmKeyListIterator k = document.keylist_begin();
-	OmKeyListIterator k_end = document.keylist_end();
+	map<om_valueno, OmValue> values;
+	OmValueIterator k = document.values_begin();
+	OmValueIterator k_end = document.values_end();
 	for ( ; k != k_end; ++k) {
-	    keys.insert(std::make_pair(k.get_keyno(), *k));
-	    DEBUGLINE(DB, "InMemoryDatabase::do_add_document(): adding key "
-		      << k.get_keyno() << " -> " << *k);
+	    values.insert(make_pair(k.get_valueno(), *k));
+	    DEBUGLINE(DB, "InMemoryDatabase::do_add_document(): adding value "
+		      << k.get_valueno() << " -> " << *k);
 	}
-	add_keys(did, keys);
+	add_values(did, values);
     }
 
     OmTermIterator i = document.termlist_begin();
@@ -364,7 +366,7 @@ InMemoryDatabase::term_exists(const om_termname & tname) const
 {
     //DebugMsg("InMemoryDatabase::term_exists(`" << tname.c_str() << "'): ");
     Assert(tname.size() != 0);
-    std::map<om_termname, InMemoryTerm>::const_iterator p = postlists.find(tname);
+    map<om_termname, InMemoryTerm>::const_iterator p = postlists.find(tname);
 
     if (p == postlists.end()) {
 	//DebugMsg("not found" << endl);

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,7 +34,7 @@ extern test_desc collfreq_tests[];
 extern test_desc writabledb_tests[];
 extern test_desc localdb_tests[];
 extern test_desc remotedb_tests[];
-extern test_desc multikey_tests[];
+extern test_desc multivalue_tests[];
 
 // FIXME: should implement for other databases
 extern test_desc allterms_tests[];

@@ -43,7 +43,7 @@ class MSetPostList : public PostList {
 
 	om_docid  get_docid() const;
 	om_weight get_weight() const;
-	const OmKey * get_collapse_key() const;
+	const OmValue * get_collapse_key() const;
 
 	om_weight get_maxweight() const;
 
@@ -53,7 +53,7 @@ class MSetPostList : public PostList {
 	PostList *skip_to(om_docid did, om_weight w_min);
 	bool   at_end() const;
 
-	std::string get_description() const;
+	string get_description() const;
 
 	/** Return the document length of the document the current term
 	 *  comes from.
@@ -104,10 +104,10 @@ MSetPostList::get_weight() const
     return mset.internal->data->items[current].wt;
 }
 
-inline const OmKey *
+inline const OmValue *
 MSetPostList::get_collapse_key() const
 {
-    DEBUGCALL(MATCH, OmKey *, "MSetPostList::get_collapse_key", "");
+    DEBUGCALL(MATCH, OmValue *, "MSetPostList::get_collapse_key", "");
     Assert(current != -1);
     return &(mset.internal->data->items[current].collapse_key);
 }
@@ -140,7 +140,7 @@ MSetPostList::at_end() const
     return (unsigned int)current >= mset.size();
 }
 
-inline std::string
+inline string
 MSetPostList::get_description() const
 {
     return "( MSet " + mset.get_description() + " )";
@@ -230,7 +230,7 @@ class PendingMSetPostList : public PostList {
 
 	bool at_end() const { Assert(false); return true; }
 
-	std::string get_description() const {
+	string get_description() const {
 	    if (pl) return "PendingMset(" + pl->get_description() + ")";
 	    return "PendingMSet()";
 	}

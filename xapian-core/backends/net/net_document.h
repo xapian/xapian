@@ -31,18 +31,18 @@ class NetworkDocument : public Document {
     private:
 	string doc;
 
-	map<om_keyno, OmKey> keys;
+	map<om_valueno, OmValue> values;
 
 	NetworkDocument(const Database *database_, om_docid did_,
 			const string & doc_,
-			const map<om_keyno, OmKey> &keys_);
+			const map<om_valueno, OmValue> &values_);
 
 	// Stop copying
 	NetworkDocument(const NetworkDocument &);
 	NetworkDocument & operator = (const NetworkDocument &);
     public:
-	OmKey do_get_key(om_keyno keyid) const;
-	map<om_keyno, OmKey> do_get_all_keys() const;
+	OmValue do_get_value(om_valueno valueid) const;
+	map<om_valueno, OmValue> do_get_all_values() const;
 	string do_get_data() const;
 };
 

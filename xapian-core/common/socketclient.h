@@ -112,7 +112,7 @@ class SocketClient : public NetClient {
 
 	struct cached_doc {
 	    std::string data;
-	    std::map<om_keyno, OmKey> keys;
+	    std::map<om_valueno, OmValue> values;
 	    int users;  // number of clients wanting to retrieve this document
 	};
 	/// A store of the undecoded documents we've collected from the
@@ -150,7 +150,7 @@ class SocketClient : public NetClient {
 	/// Close the socket
 	void do_close();
 
-	bool get_posting(om_docid &did, om_weight &w, OmKey &key);
+	bool get_posting(om_docid &did, om_weight &w, OmValue &value);
 
 	/// The timeout value used in network communications,
 	/// in milliseconds
@@ -203,8 +203,8 @@ class SocketClient : public NetClient {
 	/** Do the actual MSet fetching */
 	bool get_mset(om_doccount first, om_doccount maxitems, OmMSet &mset);
 
-	void next(om_weight w_min, om_docid &did, om_weight &w, OmKey &key);
-	void skip_to(om_docid new_did, om_weight w_min, om_docid &did, om_weight &w, OmKey &key);
+	void next(om_weight w_min, om_docid &did, om_weight &w, OmValue &value);
+	void skip_to(om_docid new_did, om_weight w_min, om_docid &did, om_weight &w, OmValue &value);
 	
 	/** get the remote termlist */
 	void get_tlist(om_docid did,
@@ -213,14 +213,14 @@ class SocketClient : public NetClient {
 	/** Retrieve a remote document */
 	void get_doc(om_docid did,
 		     std::string &doc,
-		     std::map<om_keyno, OmKey> &keys);
+		     std::map<om_valueno, OmValue> &values);
 
 	/** Request a remote document */
 	void request_doc(om_docid did);
 
 	/** Collect a remote document */
 	void collect_doc(om_docid did, std::string &doc,
-			 std::map<om_keyno, OmKey> &keys);
+			 std::map<om_valueno, OmValue> &values);
 
 	/** Get the document count. */
 	om_doccount get_doccount();

@@ -39,14 +39,15 @@ class DADocument : public Document {
 
 	DADocument(const DADatabase * database_, om_docid did_,
 		   bool heavy_duty_, bool lazy);
+
 	// Stop copying
 	DADocument(const DADocument &);
 	DADocument & operator = (const DADocument &);
     public:
 	~DADocument();
 
-	OmKey do_get_key(om_keyno keyid) const;
-	map<om_keyno, OmKey> do_get_all_keys() const;
+	OmValue do_get_value(om_valueno valueid) const;
+	map<om_valueno, OmValue> do_get_all_values() const;
 	string do_get_data() const;
 };
 

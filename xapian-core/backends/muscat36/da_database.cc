@@ -136,7 +136,7 @@ DATermList::get_weighting() const
 
 
 DADatabase::DADatabase(const OmSettings & params, bool readonly)
-	: DA_r(0), DA_t(0), keyfile(0)
+	: DA_r(0), DA_t(0), valuefile(0)
 {
     // Check validity of parameters
     if (!readonly) {
@@ -164,9 +164,9 @@ DADatabase::DADatabase(const OmSettings & params, bool readonly)
 
     if (filename_k.empty()) return;
     
-    // Open keyfile
-    keyfile = fopen(filename_k.c_str(), "rb");
-    if (keyfile == 0) {
+    // Open valuefile
+    valuefile = fopen(filename_k.c_str(), "rb");
+    if (valuefile == 0) {
 	throw OmOpeningError("Couldn't open " + filename_k, errno);
     }
 
@@ -174,7 +174,7 @@ DADatabase::DADatabase(const OmSettings & params, bool readonly)
     try {
 	char input[9];
 	errno = 0;
-	size_t bytes_read = fread(input, sizeof(char), 8, keyfile);
+	size_t bytes_read = fread(input, sizeof(char), 8, valuefile);
 	if (bytes_read < 8) {
 	    throw OmOpeningError(std::string("When opening ") + filename_k +
 				 ": couldn't read magic", errno);
@@ -186,8 +186,8 @@ DADatabase::DADatabase(const OmSettings & params, bool readonly)
 	}
     }
     catch (...) {
-	fclose(keyfile);
-	keyfile = 0;
+	fclose(valuefile);
+	valuefile = 0;
 	DA_close(DA_t);
 	DA_t = 0;
 	DA_close(DA_r);
@@ -208,15 +208,15 @@ DADatabase::~DADatabase()
 	// been called, in the normal course of events.
     }
 
-    if(keyfile != 0) {
-	fclose(keyfile);
-	keyfile = 0;
+    if (valuefile != 0) {
+	fclose(valuefile);
+	valuefile = 0;
     }
-    if(DA_r != NULL) {
+    if (DA_r != NULL) {
 	DA_close(DA_r);
 	DA_r = NULL;
     }
-    if(DA_t != NULL) {
+    if (DA_t != NULL) {
 	DA_close(DA_t);
 	DA_t = NULL;
     }
@@ -325,31 +325,31 @@ DADatabase::get_record(om_docid did) const
     return r;
 }
 
-/// Get the specified key for given document from the fast lookup file.
-OmKey
-DADatabase::get_key(om_docid did, om_keyno keyid) const
+/// Get the specified value for given document from the fast lookup file.
+OmValue
+DADatabase::get_value(om_docid did, om_valueno valueid) const
 {
-    OmKey key;
-    DEBUGLINE(DB, "Looking in keyfile for keyno " << keyid << " in document " << did);
+    OmValue value;
+    DEBUGLINE(DB, "Looking in valuefile for valueno " << valueid << " in document " << did);
 
-    if (keyfile == 0) {
-	DEBUGLINE(DB, ": don't have keyfile - using record");
+    if (valuefile == 0) {
+	DEBUGLINE(DB, ": don't have valuefile - using record");
     } else {
-	int seekok = fseek(keyfile, (long)did * 8, SEEK_SET);
-	if(seekok == -1) {
-	    DEBUGLINE(DB, ": seek off end of keyfile - using record");
+	int seekok = fseek(valuefile, (long)did * 8, SEEK_SET);
+	if (seekok == -1) {
+	    DEBUGLINE(DB, ": seek off end of valuefile - using record");
 	} else {
 	    char input[9];
-	    size_t bytes_read = fread(input, sizeof(char), 8, keyfile);
-	    if(bytes_read < 8) {
-		DEBUGLINE(DB, ": read off end of keyfile - using record");
+	    size_t bytes_read = fread(input, sizeof(char), 8, valuefile);
+	    if (bytes_read < 8) {
+		DEBUGLINE(DB, ": read off end of valuefile - using record");
 	    } else {
-		key.value = std::string(input, 8);
-		DEBUGLINE(DB, ": found - value is `" << key.value << "'");
+		value.value = std::string(input, 8);
+		DEBUGLINE(DB, ": found - value is `" << value.value << "'");
 	    }
 	}
     }
-    return key;
+    return value;
 }
 
 Document *

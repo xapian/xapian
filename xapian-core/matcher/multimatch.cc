@@ -185,18 +185,18 @@ MultiMatch::prepare_matchers()
     } while (!prepared);
 }
 
-inline OmKey
+inline OmValue
 MultiMatch::get_collapse_key(PostList *pl, const OmDatabase &db, om_docid did,
-			     om_keyno keyno, RefCntPtr<Document> &doc)
+			     om_valueno keyno, RefCntPtr<Document> &doc)
 {		      
-    DEBUGCALL(MATCH, OmKey, "MultiMatch::get_collapse_key", pl << ", " << db << ", " << did << ", " << keyno << ", [doc]");
-    const OmKey *key = pl->get_collapse_key();
+    DEBUGCALL(MATCH, OmValue, "MultiMatch::get_collapse_key", pl << ", " << db << ", " << did << ", " << keyno << ", [doc]");
+    const OmValue *key = pl->get_collapse_key();
     if (key) RETURN(*key);
     if (doc.get() == 0) {
 	RefCntPtr<Document> temp(db.internal->open_document(did));
 	doc = temp;
     }
-    RETURN(doc->get_key(keyno));
+    RETURN(doc->get_value(keyno));
 }
 
 om_weight
@@ -365,12 +365,12 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     }
 
     // Table of keys which have been seen already, for collapsing.
-    std::map<OmKey, OmMSetItem> collapse_tab;
+    std::map<OmValue, OmMSetItem> collapse_tab;
 
     // Whether to perform collapse operation
     bool do_collapse = false;
     // Key to collapse on, if desired
-    om_keyno collapse_key = 0; // Initialise to shut up compiler warnings
+    om_valueno collapse_key = 0; // Initialise to shut up compiler warnings
     {
 	int val = opts.get_int("match_collapse_key", -1);
 	if (val >= 0) {
@@ -458,7 +458,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
 	    // Don't collapse on null key
 	    if (!new_item.collapse_key.value.empty()) {
-		std::map<OmKey, OmMSetItem>::iterator oldkey;
+		std::map<OmValue, OmMSetItem>::iterator oldkey;
 		oldkey = collapse_tab.find(new_item.collapse_key);
 		if (oldkey == collapse_tab.end()) {
 		    DEBUGLINE(MATCH, "collapsem: new key: " <<

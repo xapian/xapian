@@ -1,4 +1,4 @@
-/* omkeylistiterator.cc
+/* omvalueiterator.cc
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -20,38 +20,38 @@
  * -----END-LICENCE-----
  */
 
-#include "om/omkeylistiterator.h"
-#include "omkeylistiteratorinternal.h"
+#include "om/omvalueiterator.h"
+#include "omvalueiteratorinternal.h"
 #include "omdebug.h"
 
-OmKeyListIterator::OmKeyListIterator()
+OmValueIterator::OmValueIterator()
 	: internal(0)
 {
 }
 
-OmKeyListIterator::OmKeyListIterator(Internal *internal_)
+OmValueIterator::OmValueIterator(Internal *internal_)
 	: internal(internal_)
 {
 }
 
-OmKeyListIterator::~OmKeyListIterator() {
-    DEBUGAPICALL(void, "OmKeyListIterator::~OmKeyListIterator", "");
+OmValueIterator::~OmValueIterator() {
+    DEBUGAPICALL(void, "OmValueIterator::~OmValueIterator", "");
     delete internal;
 }
 
-OmKeyListIterator::OmKeyListIterator(const OmKeyListIterator &other)
+OmValueIterator::OmValueIterator(const OmValueIterator &other)
     : internal(NULL)
 {
-    DEBUGAPICALL(void, "OmKeyListIterator::OmKeyListIterator", other);
+    DEBUGAPICALL(void, "OmValueIterator::OmValueIterator", other);
     if (other.internal) internal = new Internal(*(other.internal));
 }
 
 void
-OmKeyListIterator::operator=(const OmKeyListIterator &other)
+OmValueIterator::operator=(const OmValueIterator &other)
 {
-    DEBUGAPICALL(void, "OmKeyListIterator::operator=", other);
+    DEBUGAPICALL(void, "OmValueIterator::operator=", other);
     if (this == &other) {
-	DEBUGLINE(API, "OmKeyListIterator assigned to itself");
+	DEBUGLINE(API, "OmValueIterator assigned to itself");
 	return;
     }
 
@@ -62,57 +62,57 @@ OmKeyListIterator::operator=(const OmKeyListIterator &other)
     delete newinternal;
 }
 
-const OmKey &
-OmKeyListIterator::operator *() const
+const OmValue &
+OmValueIterator::operator *() const
 {
-    DEBUGAPICALL(const OmKey &, "OmKeyListIterator::operator*", "");
+    DEBUGAPICALL(const OmValue &, "OmValueIterator::operator*", "");
     Assert(internal);
     RETURN(internal->it->second);
 }
 
-const OmKey *
-OmKeyListIterator::operator ->() const
+const OmValue *
+OmValueIterator::operator ->() const
 {
-    DEBUGAPICALL(const OmKey *, "OmKeyListIterator::operator->", "");
+    DEBUGAPICALL(const OmValue *, "OmValueIterator::operator->", "");
     Assert(internal);
     RETURN(&(internal->it->second));
 }
 
-OmKeyListIterator &
-OmKeyListIterator::operator++()
+OmValueIterator &
+OmValueIterator::operator++()
 {
-    DEBUGAPICALL(OmKeyListIterator &, "OmKeyListIterator::operator++", "");
+    DEBUGAPICALL(OmValueIterator &, "OmValueIterator::operator++", "");
     Assert(internal);
     internal->it++;
     RETURN(*this);
 }
 
 void
-OmKeyListIterator::operator++(int)
+OmValueIterator::operator++(int)
 {
-    DEBUGAPICALL(void, "OmKeyListIterator::operator++", "int");
+    DEBUGAPICALL(void, "OmValueIterator::operator++", "int");
     Assert(internal);
     internal->it++;
 }
 
-om_keyno
-OmKeyListIterator::get_keyno() const
+om_valueno
+OmValueIterator::get_valueno() const
 {
-    DEBUGAPICALL(om_keyno, "OmKeyListIterator::get_keyno", "");
+    DEBUGAPICALL(om_valueno, "OmValueIterator::get_valueno", "");
     Assert(internal);
     RETURN(internal->it->first);
 }
 
 std::string
-OmKeyListIterator::get_description() const
+OmValueIterator::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "OmKeyListIterator::get_description", "");
+    DEBUGCALL(INTRO, std::string, "OmValueIterator::get_description", "");
     /// \todo display contents of the object
-    RETURN("OmKeyListIterator()");
+    RETURN("OmValueIterator()");
 }
 
 bool
-operator==(const OmKeyListIterator &a, const OmKeyListIterator &b)
+operator==(const OmValueIterator &a, const OmValueIterator &b)
 {
     Assert(a.internal);
     Assert(b.internal);
