@@ -50,6 +50,18 @@ extern int X_read(filehandle h, byte * b, int n)
 #define HIGHEST_BFD 255
 #define UNIX 1
 
+#define UINT64 unsigned long long
+
+#if 0
+#define BIG_OFF_T off64_t
+#define BIGLSEEK lseek64
+#define OPEN open64
+#else
+#define BIG_OFF_T off_t
+#define BIGLSEEK lseek
+#define OPEN open
+#endif
+
 #if defined(NT) || !defined(EINTR)
 # define read_all(FD, BUF, C, POS) read((FD), (BUF), (C))
 #else
@@ -97,7 +109,6 @@ static ssize_t read_all_(int fd, char *buf, size_t count) {
 /* NB this must be *strictly* less than 2G */
 #define MAXPOS (1024*1024*1024)
 
-#define BIG_OFF_T off_t
 
 /* hold the info we need about a given bfd (big file descriptor) */
 typedef struct bfd {
@@ -158,7 +169,6 @@ static int init_bf( void ) {
 }
 
 #define BIG_STRUCT_STAT struct stat
-#define OPEN open
 #define BIGSTAT stat
 #define BIGFSTAT fstat
 
@@ -233,9 +243,6 @@ extern int X_findtoread(const char *pathname) {
    if (fd >= 0) close(fd);
    return -1;
 }
-
-#define UINT64 unsigned long long
-#define BIGLSEEK lseek
 
 extern int X_point(filehandle fd, int n, int m)
 {
