@@ -1,3 +1,7 @@
+Sun Oct 13 01:03:04 BST 2002  Olly Betts <olly@survex.com>
+
+	* configure.in: Removed references to languages/*/Makefile.
+
 Sun Oct 13 00:50:01 BST 2002  Olly Betts <olly@survex.com>
 
 	* docs/indexerquickstart.html,docs/quartzdesign.html: Updated.
