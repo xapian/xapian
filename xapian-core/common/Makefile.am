@@ -10,7 +10,7 @@ noinst_HEADERS = \
  match.h expand.h rset.h \
  stemmer.h \
  indexer.h textfile_indexer.h query_parser.h \
- utils.h
+ utils.h omlocks.h
 
 noinst_LTLIBRARIES = libcommon.la
 

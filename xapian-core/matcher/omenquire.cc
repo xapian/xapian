@@ -22,6 +22,7 @@
 
 #include "omassert.h"
 #include "utils.h"
+#include "omlocks.h"
 
 #include "om/omerror.h"
 #include "om/omenquire.h"
@@ -536,6 +537,9 @@ class OmEnquireInternal {
 	 */
 	OmQuery * query;
 
+	// pthread mutexes, if available.
+	OmLock mutex;
+
 	OmEnquireInternal();
 	~OmEnquireInternal();
 
@@ -631,6 +635,7 @@ void
 OmEnquire::add_database(const string & type,
 			const vector<string> & params)
 {
+    internal->mutex.lock();
     // Convert type into an om_database_type
     om_database_type dbtype = OM_DBTYPE_NULL;
     dbtype = stringToTypeMap<om_database_type>::get_type(type);
@@ -641,12 +646,16 @@ OmEnquire::add_database(const string & type,
 
     // Use dbparams to create database, and add it to the list of databases
     internal->add_database(dbparams);
+
+    internal->mutex.unlock();
 }
 
 void
 OmEnquire::set_query(const OmQuery & query_)
 {
+    internal->mutex.lock();
     internal->set_query(query_);
+    internal->mutex.unlock();
 }
 
 OmMSet
@@ -656,6 +665,8 @@ OmEnquire::get_mset(om_doccount first,
                     const OmMatchOptions *moptions,
 		    const OmMatchDecider *mdecider) const
 {
+    internal->mutex.lock();
+
     if(internal->query == 0) {
         throw OmInvalidArgumentError("You must set a query before calling OmEnquire::get_mset()");
     }
@@ -721,6 +732,8 @@ OmEnquire::get_mset(om_doccount first,
     // Clear up
     delete rset;
 
+    internal->mutex.unlock();
+
     return retval;
 }
 
@@ -730,6 +743,8 @@ OmEnquire::get_eset(om_termcount maxitems,
 	            const OmExpandOptions * eoptions,
 		    const OmExpandDecider * edecider) const
 {
+    internal->mutex.lock();
+
     OmESet retval;
 
     OmExpandOptions defeoptions;
@@ -763,14 +778,19 @@ OmEnquire::get_eset(om_termcount maxitems,
     
     expand.expand(maxitems, retval, &rset, edecider);
 
+    internal->mutex.unlock();
+
     return retval;
 }
 
 const OmDocument *
 OmEnquire::get_doc(om_docid did) const
 {
+    internal->mutex.lock();
     internal->open_database();
     OmDocument *doc = internal->database->open_document(did);
+    internal->mutex.unlock();
+
     return doc;
 }
 
@@ -807,6 +827,8 @@ struct ByQueryIndexCmp {
 om_termname_list
 OmEnquire::get_matching_terms(om_docid did) const
 {
+    internal->mutex.lock();
+
     if (internal->query == 0) {
         throw OmInvalidArgumentError("Can't get matching terms before setting query");
     }
@@ -850,6 +872,8 @@ OmEnquire::get_matching_terms(om_docid did) const
     sort(matching_terms.begin(),
 	 matching_terms.end(),
 	 ByQueryIndexCmp(tmap));
+
+    internal->mutex.unlock();
 
     return om_termname_list(matching_terms.begin(), matching_terms.end());
 }
