@@ -136,7 +136,7 @@ Use of C++ Features:
 ====================
 
 * STL:  We decided early on to embrace the C++ STL.  Some older compilers
-  don't include full support for this.  In some cases, we work can work around
+  don't include full support for this.  In some cases, we can work around
   this (stringstream vs strstream, providing our own auto_ptr implementation).
   In others, users will either have to upgrade to a more compliant compiler, or
   use another STL implementation such as STLPort (http://www.stlport.org/).
@@ -258,7 +258,7 @@ Here's an incomplete list of things to avoid:
 	mv foo.tmp foo.cc
 
   Alternatively, pass the output filename to the script and make sure you
-  delete the output on error, or SIGINT.  Some makefiles or scripts still
+  delete the output on error or a signal.  Some makefiles or scripts still
   need modifying to avoid this problem (FIXME).
 
 And lastly a style point - using "@" to suppress outputing of commands being
@@ -272,13 +272,13 @@ don't use "@" - it makes it harder to track down problems in the makefiles.
 Use of Assert
 =============
 
-Use Asserts to perform internal consistency checks, and to check for invalid
+Use Assert to perform internal consistency checks, and to check for invalid
 arguments to functions and methods (e.g. passing a NULL pointer when this isn't
-permitted).  They should *NOT* be used to check for error conditions such as
+permitted).  It should *NOT* be used to check for error conditions such as
 file read errors, new returning 0, etc (since we want to perform such checks
 in non-debug builds too).
 
-File format errors should also not be tested with Asserts - we want to catch
+File format errors should also not be tested with Assert - we want to catch
 a corrupted database or a malformed input file in a non-debug build too.
 
 There are several variants of Assert:
@@ -297,11 +297,10 @@ AssertParanoid(P) -- a particularly expensive assertion.  If you want a build
 Submitting Patches:
 ===================
 
-If you have a patch to fix a problem in Xapian, or to add a new
-feature, feel free to submit it to us via the SourceForge patch
-management system. Any major changes should be discussed on the
-xapian-devel mailing list first:
-<http://lists.sourceforge.net/mailman/listinfo/xapian-devel>
+If you have a patch to fix a problem in Xapian, or to add a new feature,
+please send it to us for inclusion.  Any major changes should be discussed
+on the xapian-devel mailing list first:
+<http://www.xapian.org/lists.php>
 
 We find patches generated with "diff -puN" easiest to read.  If you are
 working from a CVS copy of the code, you can use "cvs diff -puN" to generate
@@ -310,18 +309,19 @@ your patch, or put the line "diff -puN" in your ~/.cvsrc file and just use
 
 We will however do our best to give proper attribution to you.  In
 particular, if we have used patches from you, or received helpful
-reports or advice, we will add your name to the AUTHORS file; unless
-you specifically request us not to.  If you see we have forgotten to
-do this, please draw it to our attention so that we can sort it out.
+reports or advice, we will add your name to the AUTHORS file (unless
+you specifically request us not to).  If you see we have forgotten to
+do this, please draw it to our attention so that we can address the
+omission.
 
 Developers with CVS access:
 ===========================
 
 People who are more seriously involved with the project are likely to
-have write access to the repository at SourceForge. This section gives
-the conventions for those developers. In addition to this, obviously
-you should make sure you update any documentation, especially the
-inline source code documentation that generates the API docs.
+have write access to the CVS repository. This section gives the conventions
+for those developers. In addition to this, obviously you should make sure
+you update any documentation, especially the inline source code
+documentation that generates the API docs.
 
 1  Make sure the tests are right
 --------------------------------
@@ -333,7 +333,7 @@ inline source code documentation that generates the API docs.
 
 If you don't know how to write tests using the Xapian test rig, then
 ask. It's reasonably simple once you've done it once. There is a brief
-introduction to the Xapian test system in docs/tests.txt .
+introduction to the Xapian test system in docs/tests.html .
 
 2  Make sure the attributions are right
 ---------------------------------------
@@ -342,9 +342,8 @@ introduction to the Xapian test system in docs/tests.txt .
    files you've altered. If there is no copyright statement, you may
    add one (there are a couple of Makefile.am's and similar that don't
    have copyright statements; anything that small doesn't really need
-   one anyway, so it's a judgement call).
-   If you've added files, they should include the GPL boilerplate
-   with your name only.
+   one anyway, so it's a judgement call).  If you've added files, they
+   should include the GPL boilerplate with your name only.
  * If you're not in there, add yourself to the AUTHORS file.
 
 3  Create a log entry and commit
@@ -354,5 +353,5 @@ introduction to the Xapian test system in docs/tests.txt .
    text of this can be identical to the cvs commit message.
  * Commit to the repository.
 
-Then you can update any patch, bug or feature request items in the
-tracker to indicate that they've been dealt with.
+Then you can update any patch, bug or feature request items in Bugzilla
+to indicate that they've been dealt with.
