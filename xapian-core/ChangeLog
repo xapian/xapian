@@ -1,3 +1,7 @@
+Tue Nov 02 21:29:40 GMT 2004  Olly Betts <olly@survex.com>
+
+	* getopt/getopt.cc: Fixes for Compaq C++.
+
 Tue Nov 02 18:51:43 GMT 2004  Olly Betts <olly@survex.com>
 
 	* getopt/getopt.cc: Protect getopt definition for possible getopt

@@ -199,18 +199,18 @@ static char *posixly_correct;
 # define my_index	strchr
 #else
 
-# if HAVE_STRING_H
-#  include <string.h>
-# else
-#  include <strings.h>
-# endif
+//# if HAVE_STRING_H
+#  include <cstring>
+using std::strlen;
+using std::strcmp;
+using std::strncmp;
+//# else
+//#  include <strings.h>
+//# endif
 
-/* Avoid depending on library functions or files
-   whose names are inconsistent.  */
-
-#ifndef getenv
-extern char *getenv ();
-#endif
+/* getopt may be prototyped in stdlib, and the prototype may clash. */
+#include <cstdlib>
+using std::getenv;
 
 static char *
 my_index (const char *str, int chr)
