@@ -221,6 +221,8 @@ OmQuery::initialise_from_copy(const OmQuery &copyme)
     op = copyme.op;
     if(op == OM_MOP_LEAF) {
 	tname = copyme.tname;
+	term_pos = copyme.term_pos;
+	wqf = copyme.wqf;
     } else {
 	vector<OmQuery *>::const_iterator i;
 	for(i = subqs.begin(); i != subqs.end(); i++) {
@@ -356,7 +358,11 @@ OmQuery::accumulate_terms(vector<pair<om_termname, om_termpos> > &terms) const
 struct LessByTermpos {
     typedef const pair<om_termname, om_termpos> argtype;
     bool operator()(argtype &left, argtype &right) {
-	return left.second < right.second;
+	if (left.second != right.second) {
+	    return left.second < right.second;
+	} else {
+	    return left.first < right.first;
+	}
     }
 };
 
@@ -369,7 +375,16 @@ OmQuery::get_terms() const
     if (isdefined) {
         accumulate_terms(terms);
     }
+
     sort(terms.begin(), terms.end(), LessByTermpos());
+
+    // remove adjacent duplicates, and return an iterator pointing
+    // to just after the last unique element
+    vector<pair<om_termname, om_termpos> >::iterator newlast =
+	    	unique(terms.begin(), terms.end());
+    // and remove the rest...  (See Stroustrup 18.6.3)
+    terms.erase(newlast, terms.end());
+
     vector<pair<om_termname, om_termpos> >::const_iterator i;
     for (i=terms.begin(); i!= terms.end(); ++i) {
 	result.push_back(i->first);

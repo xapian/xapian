@@ -80,6 +80,8 @@ bool test_collapsekey1();
 bool test_reversebool1();
 // tests a reversed boolean query, where the full mset isn't returned
 bool test_reversebool2();
+// tests that get_query_terms() returns the terms in the right order
+bool test_getqterms1();
 
 om_test tests[] = {
     {"trivial",            test_trivial},
@@ -104,6 +106,7 @@ om_test tests[] = {
     {"collapsekey1",	   test_collapsekey1},
     {"reversebool1",	   test_reversebool1},
     {"reversebool2",	   test_reversebool2},
+    {"getqterms1",	   test_getqterms1},
     {0, 0}
 };
 
@@ -906,4 +909,37 @@ bool test_reversebool2()
     }
 
     return true;
+}
+
+bool test_getqterms1()
+{
+    bool success;
+
+    static string answers[4] = {
+	"one",
+	"two",
+	"three",
+	"four"
+    };
+
+    OmQuery myquery(OM_MOP_OR,
+	    OmQuery(OM_MOP_AND,
+		    OmQuery("one", 1, 1),
+		    OmQuery("three", 1, 3)),
+	    OmQuery(OM_MOP_OR,
+		    OmQuery("four", 1, 4),
+		    OmQuery("two", 1, 2)));
+
+    om_termname_list terms = myquery.get_terms();
+
+    success = (terms == om_termname_list(answers, answers+4));
+    if (verbose && !success) {
+	cout << "Terms returned in incorrect order: ";
+	copy(terms.begin(),
+	     terms.end(),
+	     ostream_iterator<om_termname>(cout, " "));
+	cout << endl << "Expected: one two three four" << endl;
+    }
+
+    return success;
 }

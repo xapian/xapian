@@ -111,11 +111,6 @@ class OmQuery {
 	/** Private function used to implement get_terms() */
         void accumulate_terms(
 	    vector<pair<om_termname, om_termpos> > &terms) const;
-
-	/** Return an om_termname_list containing all the terms in the query,
-	 *  in left to right order.
-	 */
-	om_termname_list get_terms() const;
     public:
 	/** A query consisting of a single term. */
 	OmQuery(const om_termname & tname_,
@@ -189,6 +184,13 @@ class OmQuery {
 	 *  Returns the old value of the query length.
 	 */
 	om_termcount set_length(om_termcount qlen_);
+
+	/** Return an om_termname_list containing all the terms in the query,
+	 *  in order of termpos.  If multiple terms have the same term
+	 *  position, their order is unspecified.  Duplicates (same term and
+	 *  termpos) will be removed.
+	 */
+	om_termname_list get_terms() const;
 };
 
 ///////////////////////////////////////////////////////////////////

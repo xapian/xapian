@@ -1,3 +1,13 @@
+Mon Feb 21 14:38:30 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Made OmQuery::get_terms() public, tightened the specification,
+	  and made it conform to the specification.
+	
+	* Added a test for the above to apitest
+
+	* Fixed a bug in OmQuery::initialise_from_copy() to make the above
+	  test work.
+
 Fri Feb 18 18:06:21 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Databases now have a get_doclength() method, to return the length
