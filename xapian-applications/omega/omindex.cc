@@ -38,6 +38,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <stdio.h>
 #include <string.h>
 
 #include <om/om.h>
@@ -57,6 +58,7 @@ using std::endl;
 static int dupes = DUPE_replace;
 static string dbpath;
 static string root;
+static string indexroot;
 static string baseurl;
 static OmWritableDatabase *db;
 
@@ -359,7 +361,8 @@ index_directory(const string &dir, const map<string, string>& mime_map)
 {
     DIR *d;
     struct dirent *ent;
-    string path = root + dir;
+    string path = root + indexroot + dir;
+
     d = opendir(path.c_str());
     if (d == NULL) {
 	cout << "Can't open directory \"" << path << "\" - skipping\n";
@@ -372,7 +375,7 @@ index_directory(const string &dir, const map<string, string>& mime_map)
 	string url = dir;
 	if (!url.empty() && url[url.size() - 1] != '/') url += '/';
 	url += ent->d_name;
-	string file = root + url;
+	string file = root + indexroot + url;
 	if (stat(file.c_str(), &statbuf) == -1) {
 	    cout << "Can't stat \"" << file << "\" - skipping\n";
 	    continue;
@@ -395,7 +398,7 @@ index_directory(const string &dir, const map<string, string>& mime_map)
 	    map<string,string>::const_iterator mt;
 	    if ((mt = mime_map.find(ext))!=mime_map.end()) {
 	      // If it's in our MIME map, presumably we know how to index it
-	      index_file(url, mt->second, statbuf.st_mtime);
+	      index_file(indexroot + url, mt->second, statbuf.st_mtime);
 	    }
 	    continue;
 	}
@@ -454,7 +457,7 @@ main(int argc, char **argv)
 	case 'h':
 	    cout << OMINDEX << endl
 		 << "Usage: " << argv[0] << " [OPTION] --db DATABASE "
-		 << endl << "\t--url BASEURL DIRECTORY" << endl << endl
+		 << endl << "\t--url BASEURL [BASEDIRECTORY] DIRECTORY" << endl << endl
 		 << "Index static website data via the filesystem." << endl
 		 << "  -d, --duplicates\tset duplicate handling" << endl
 		 << "  \t\t\tone of `ignore', `replace', `duplicate'" << endl
@@ -492,7 +495,7 @@ main(int argc, char **argv)
 	    {
 		char* s;
 		if ((s = strchr(optarg, ':'))!=NULL && s[1]!=0) {
-		mime_map[string(optarg, s - optarg)] = string(s+1);
+		    mime_map[string(optarg, s - optarg)] = string(s+1);
 		} else {
 		    cerr << "Illegal MIME mapping '" << optarg << "'" << endl;
 		    cerr << "Should be of the form ext:type, eg txt:text/plain" << endl;
@@ -530,11 +533,19 @@ main(int argc, char **argv)
 	baseurl = baseurl.substr(0, baseurl.length()-1);
     }
 
-    if (optind >= argc || optind+1 < argc) {
-	cerr << OMINDEX << ": you must specify a single directory to index.\n";
+    if (optind >= argc || optind+2 < argc) {
+	cerr << OMINDEX << ": you must specify a directory to index.\nDo this either as a single directory (taken to be the store of the base URL)\nor two, one the store of the base URL and one a dir within that to index.";
 	return 1;
     }
     root = argv[optind];
+    if (optind+2 == argc) {
+	indexroot = argv[optind+1]; // relative to root
+	if (indexroot[0]!='/') {
+	    indexroot = "/" + indexroot;
+	}
+    } else {
+	indexroot = ""; // index the whole of root
+    }
 
     OmSettings params;
     params.set("backend", "quartz");
