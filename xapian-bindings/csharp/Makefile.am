@@ -10,8 +10,8 @@ EXTRA_DIST = util.i extra.i AssemblyInfo.cs.in SmokeTest.cs $(BUILT_SOURCES)
 ASSEMBLY=XapianSharp
 
 XAPIAN_SWIG_CS_SRCS=\
-	BoolWeight.cs \
 	BM25Weight.cs \
+	BoolWeight.cs \
 	Database.cs \
 	Document.cs \
 	ESet.cs \
@@ -26,11 +26,11 @@ XAPIAN_SWIG_CS_SRCS=\
 	RSet.cs \
 	SWIGTYPE_p_Xapian__ExpandDecider.cs \
 	SWIGTYPE_p_Xapian__MatchDecider.cs \
-	SWIGTYPE_p_Xapian__Stopper.cs \
 	SWIGTYPE_p_std__listTstd__string_t.cs \
-	SWIGTYPE_p_std__vectorTstd__string_t.cs \
 	SWIGTYPE_p_time_t.cs \
+	SWIGTYPE_p_vectorTstd__string_t.cs \
 	Stem.cs \
+	Stopper.cs \
 	TermIterator.cs \
 	TradWeight.cs \
 	ValueIterator.cs \
