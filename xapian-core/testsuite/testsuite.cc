@@ -150,7 +150,7 @@ void operator delete(void *p) throw() {
 bool
 test_driver::runtest(const test_desc *test)
 {
-    bool success;
+    bool success = true;
 
     int old_allocations = num_new_allocations;
     int old_bound = new_allocations_bound;
@@ -160,32 +160,38 @@ test_driver::runtest(const test_desc *test)
     } catch (TestFailure &fail) {
 	success = false;
 	if (verbose) {
-	    cout << fail.message;
+	    cout << fail.message << endl;
 	}
     } catch (OmError &err) {
-	out << "OmError exception: " << err.get_msg();
+	if (verbose) {
+	    out << "OmError exception: " << err.get_msg() << endl;
+	}
 	success = false;
     } catch (...) {
-	out << "Unknown exception! ";
+	if (verbose) {
+	    out << "Unknown exception!" << endl;
+	}
 	success = false;
     }
     int after_allocations = num_new_allocations;
     int after_bound = new_allocations_bound;
 
     if (after_allocations != old_allocations) {
-	if (after_allocations > old_allocations) {
-	    out << after_allocations - old_allocations
-		    << " extra allocations not freed: ";
-	    for (int i=old_bound; i<after_bound; ++i) {
-		if (new_allocations[i].p != 0) {
-		    out << new_allocations[i].p << "("
-			<< new_allocations[i].size << ") ";
+	if (verbose) {
+	    if (after_allocations > old_allocations) {
+		out << after_allocations - old_allocations
+			<< " extra allocations not freed: ";
+		for (int i=old_bound; i<after_bound; ++i) {
+		    if (new_allocations[i].p != 0) {
+			out << new_allocations[i].p << "("
+				<< new_allocations[i].size << ") ";
+		    }
 		}
+		out << endl;
+	    } else {
+		out << old_allocations - after_allocations
+			<< " extra frees not allocated!" << endl;
 	    }
-	    out << endl;
-	} else {
-	    out << old_allocations - after_allocations
-		    << " extra frees not allocated!";
 	}
 	success = false;
     }
