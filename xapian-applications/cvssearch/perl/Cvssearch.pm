@@ -256,13 +256,13 @@ sub cvs_stat {
 }
 
 sub code_comment_counter {
-    my $line;
-    my $temp;
-    my $word_count;
+    my $line = "";
+    my $temp = "";
+    my $word_count = 0;
 
     my ($file) = @_;
-    open (FILE, $file);
-    while (<FILE>) {
+    open (MYFILE, "<$file");
+    while (<MYFILE>) {
         chomp;
         $line = $_;
         if (m/\/\/(.*)/) {
@@ -272,7 +272,7 @@ sub code_comment_counter {
         $temp .= $line;
         $temp .= " ";
     }
-    close(FILE);
+    close(MYFILE);
     while ($temp =~ s#(/\*(.*?)\*/)##) {
            my @words = split(/\s/, $1);
            $word_count += $#words;
