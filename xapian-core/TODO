@@ -16,6 +16,8 @@ Little Jobs
          |                 |
 Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
+ Urgent  | Tea             | Drink tea
+---------+-----------------+--------------------------------------------------
  High    | API             | Write get_matching_terms method for OmEnquire.
 ---------+-----------------+--------------------------------------------------
  High    | API             | Implement percentage cutoffs in API.
@@ -28,16 +30,14 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Medium  | Matcher         | Implement match decision functor
 ---------+-----------------+--------------------------------------------------
- Medium  | Website         | Fix doc++ with CVSWEB
----------+-----------------+--------------------------------------------------
  Medium  | General         | Set appropriate copy and assignment methods
          |                 | for each class with a destructor.
 ---------+-----------------+--------------------------------------------------
  Medium  | Documentation   | Document how each function should work in
          |                 | database, and what it should do in error
-	 |                 | conditions (when things should be Asserted / when
-	 |                 | exceptions should be thrown / when error
-	 |                 | condition should be returned.) Do same for
+	 |                 | conditions (when things should be Asserted /
+	 |                 | when exceptions should be thrown / when error
+	 |                 | condition should be returned.)  Do same for
 	 |                 | postlists, termlists, documents, matcher, etc.
 ---------+-----------------+--------------------------------------------------
  Medium  | Tests           | Write tests for percentage cutoffs.
