@@ -45,6 +45,24 @@ using std::vector;
 #undef max
 #endif
 
+#ifdef __WIN32__
+#include <fcntl.h>
+
+inline int open(const string &filename, int flags, mode_t mode) {
+    return open(filename.c_str(), flags, mode);
+}
+
+// If filename is a char* and mode is an int, we get ambiguity warnings
+// when the compiler tries to pick which overloaded open function to use
+// - this avoids that problem.
+inline int open(const char *filename, int flags, int mode) {
+    return open(filename, flags, (mode_t)mode);
+}
+
+inline int open(const string &filename, int flags) {
+    return open(filename.c_str(), flags);
+}
+#else
 // Sun's fcntl.h pollutes the namespace by #define-ing open to open64 when
 // largefile support is enabled (also creat to creat64 but that's not a problem
 // for us).  So we do a little dance to mop up this pollution.  Otherwise we'd
@@ -96,6 +114,7 @@ inline int fcntl(int fd, int cmd, long arg) {
 inline int fcntl(int fd, int cmd, struct flock *lock) {
     return Fcntl::fcntl(fd, cmd, lock);
 }
+#endif
 
 /// Convert a string to a string!
 inline string om_tostring(const string &s) { return s; }
