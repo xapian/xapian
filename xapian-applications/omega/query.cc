@@ -113,6 +113,7 @@ set_probabilistic(const string &newp, const string &oldp)
 			    option["all_stem"] == "true",
 			    new MyStopper()); 
     qp.set_default_op(default_op);
+    if (omdb) qp.set_database(*omdb);
     try {
 	query = qp.parse_query(raw_prob);
     }

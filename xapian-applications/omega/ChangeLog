@@ -1,3 +1,8 @@
+Fri May 17 14:09:25 BST 2002  Olly Betts <ollybe@ananova.net>
+
+	* Pass the database to the query parser (not used there at present,
+	  but will allow wildcarded searches, etc to be implemented).
+
 Thu May 16 17:57:34 BST 2002  Olly Betts <ollybe@ananova.net>
 
 	* <algo.h> -> <algorithm>.
