@@ -25,3 +25,17 @@ on_button_newobj_clicked               (GtkButton       *button,
     handle_newobj();
 }
 
+
+void
+on_openbutton_clicked                  (GtkButton       *button,
+                                        gpointer         user_data)
+{
+    handle_open();
+}
+
+void
+on_filesel_ok_clicked                  (GtkButton       *button,
+                                        gpointer         user_data)
+{
+    handle_filechosen(user_data);
+}

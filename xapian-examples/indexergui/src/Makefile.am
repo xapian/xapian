@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
 INCLUDES = \
-	$(GNOME_INCLUDEDIR)
+	$(GNOME_INCLUDEDIR) $(LIBOMUS_CFLAGS)
 
 bin_PROGRAMS = indexergui
 
@@ -12,5 +12,4 @@ indexergui_SOURCES = \
 	callbacks.c callbacks.h \
 	display.cc graph.cc
 
-indexergui_LDADD = $(GNOME_LIBDIR) $(GNOMEUI_LIBS)
-
+indexergui_LDADD = $(GNOME_LIBDIR) $(GNOMEUI_LIBS) @LIBOMUS_LIBS@

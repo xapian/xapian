@@ -30,6 +30,8 @@
 #include <vector>
 #include <map>
 #include "nodeinstance.h"
+#include "om/omindexerdesc.h"
+#include "om/omindexerbuilder.h"
 
 class Graph {
     public:
@@ -41,13 +43,26 @@ class Graph {
 
 	/** Add a new object (node) to the graph */
 	void make_obj(const std::string &type, const std::string &name,
-		      int inputs, int outputs);
+		      const OmIndexerBuilder::NodeType &nt,
+		      double x, double y);
+
+	/** Add a new connection between two nodes */
+	void make_connection(const std::string &feedee,
+			     const std::string &feedee_port,
+			     const std::string &feeder,
+			     const std::string &feeder_port);
 
 	/** Add a pad to an object */
 	void make_pad(NodeInstance &node,
 		      double x, double y,
 		      double width, double height,
-		      bool output, int index);
+		      bool output, const std::string &name);
+
+	/** Open an indexer description file. */
+	void do_open(const std::string &filename);
+
+	/** Create a file open dialog (used when the Open button is pressed)*/
+	void handle_open();
 
 	/** Handle mouse events on a node pad */
 	gint pad_event_handler(GnomeCanvasItem *item,
@@ -67,22 +82,34 @@ class Graph {
 	GtkWidget *indexergui;
 	GnomeCanvas *canvas;
 
-	NodeInstance &new_node(int numinputs, int numoutputs,
+	NodeInstance &new_node(const std::string &id,
+			       const OmIndexerBuilder::NodeType &nt,
 			       GnomeCanvasGroup *group);
-	NodeInstance &get_node(int index);
+	NodeInstance *get_node(const std::string &id);
 
-	std::vector<NodeInstance *> nodes;
+	std::map<std::string, NodeInstance *> nodes;
 
 	std::map<GnomeCanvasItem *, PadInstance *> pads;
 
 	PadInstance *find_pad(GnomeCanvasItem *item);
 
+	/** Clear all graph elements */
+	void clear_graph();
+
+	/** Initialise the display with the graph description */
+	void init_graph(const OmIndexerDesc &desc);
+
+	GnomeCanvasItem *make_arrow(double x1, double y1,
+				    double x2, double y2);
 	/* Update the floating end of the moving arrow */
 	void update_floating_arrow(double x, double y);
 
 	/* Update the floating end of the moving arrow */
 	void start_floating_arrow(PadInstance *orig,
 				     double x, double y);
+
+	/** Used for interfacing with the indexer building system. */
+	OmIndexerBuilder builder;
 
 	/* state used while dragging between input/output pads */
 	bool dragging_pad;

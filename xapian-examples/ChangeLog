@@ -1,3 +1,8 @@
+Tue Nov 14 19:32:46 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* The indexer GUI can load graphs from XML files and display them
+	  in a partly sensible manner.  Nodes can be dragged around.
+
 Mon Nov 13 18:43:24 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added lots of file for the indexer GUI stuff (as yet incomplete).

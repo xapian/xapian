@@ -3,3 +3,4 @@
  */
 
 GtkWidget* create_indexergui (void);
+GtkWidget* create_fileselection1 (void);

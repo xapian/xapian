@@ -1,0 +1,209 @@
+<?xml version="1.0"?>
+<GTK-Interface>
+
+<project>
+  <name>indexergui</name>
+  <program_name>indexergui</program_name>
+  <directory></directory>
+  <source_directory>src</source_directory>
+  <pixmaps_directory>pixmaps</pixmaps_directory>
+  <language>C</language>
+  <gnome_support>True</gnome_support>
+  <gettext_support>False</gettext_support>
+</project>
+
+<widget>
+  <class>GtkWindow</class>
+  <name>indexergui</name>
+  <signal>
+    <name>delete_event</name>
+    <handler>gtk_main_quit</handler>
+    <last_modification_time>Fri, 10 Nov 2000 14:04:36 GMT</last_modification_time>
+  </signal>
+  <title>indexergui</title>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>False</modal>
+  <default_width>200</default_width>
+  <default_height>200</default_height>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>True</allow_grow>
+  <auto_shrink>False</auto_shrink>
+
+  <widget>
+    <class>GtkVBox</class>
+    <name>vbox1</name>
+    <homogeneous>False</homogeneous>
+    <spacing>0</spacing>
+
+    <widget>
+      <class>GtkMenuBar</class>
+      <name>menubar1</name>
+      <shadow_type>GTK_SHADOW_OUT</shadow_type>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>False</fill>
+      </child>
+
+      <widget>
+	<class>GtkMenuItem</class>
+	<name>file1</name>
+	<stock_item>GNOMEUIINFO_MENU_FILE_TREE</stock_item>
+
+	<widget>
+	  <class>GtkMenu</class>
+	  <name>file1_menu</name>
+
+	  <widget>
+	    <class>GtkPixmapMenuItem</class>
+	    <name>exit1</name>
+	    <signal>
+	      <name>activate</name>
+	      <handler>on_exit1_activate</handler>
+	      <last_modification_time>Fri, 10 Nov 2000 14:52:49 GMT</last_modification_time>
+	    </signal>
+	    <stock_item>GNOMEUIINFO_MENU_EXIT_ITEM</stock_item>
+	  </widget>
+	</widget>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkScrolledWindow</class>
+      <name>scrolledwindow1</name>
+      <hscrollbar_policy>GTK_POLICY_AUTOMATIC</hscrollbar_policy>
+      <vscrollbar_policy>GTK_POLICY_AUTOMATIC</vscrollbar_policy>
+      <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
+      <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+      <child>
+	<padding>0</padding>
+	<expand>True</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GnomeCanvas</class>
+	<name>canvas1</name>
+	<anti_aliased>True</anti_aliased>
+	<scroll_x1>0</scroll_x1>
+	<scroll_y1>0</scroll_y1>
+	<scroll_x2>100</scroll_x2>
+	<scroll_y2>100</scroll_y2>
+	<pixels_per_unit>1</pixels_per_unit>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkViewport</class>
+      <name>viewport1</name>
+      <shadow_type>GTK_SHADOW_IN</shadow_type>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+      </child>
+
+      <widget>
+	<class>GtkToolbar</class>
+	<name>toolbar1</name>
+	<orientation>GTK_ORIENTATION_HORIZONTAL</orientation>
+	<type>GTK_TOOLBAR_BOTH</type>
+	<space_size>5</space_size>
+	<space_style>GTK_TOOLBAR_SPACE_EMPTY</space_style>
+	<relief>GTK_RELIEF_NORMAL</relief>
+	<tooltips>True</tooltips>
+
+	<widget>
+	  <class>GtkButton</class>
+	  <child_name>Toolbar:button</child_name>
+	  <name>button_newobj</name>
+	  <can_focus>True</can_focus>
+	  <signal>
+	    <name>clicked</name>
+	    <handler>on_button_newobj_clicked</handler>
+	    <object>canvas1</object>
+	    <last_modification_time>Fri, 10 Nov 2000 16:35:11 GMT</last_modification_time>
+	  </signal>
+	  <label>New</label>
+	  <stock_pixmap>GNOME_STOCK_PIXMAP_NEW</stock_pixmap>
+	</widget>
+
+	<widget>
+	  <class>GtkButton</class>
+	  <child_name>Toolbar:button</child_name>
+	  <name>openbutton</name>
+	  <signal>
+	    <name>clicked</name>
+	    <handler>on_openbutton_clicked</handler>
+	    <last_modification_time>Tue, 14 Nov 2000 11:21:09 GMT</last_modification_time>
+	  </signal>
+	  <label>Open</label>
+	  <stock_pixmap>GNOME_STOCK_PIXMAP_OPEN</stock_pixmap>
+	</widget>
+
+	<widget>
+	  <class>GtkButton</class>
+	  <child_name>Toolbar:button</child_name>
+	  <name>button3</name>
+	  <label>button3</label>
+	</widget>
+      </widget>
+    </widget>
+  </widget>
+</widget>
+
+<widget>
+  <class>GtkFileSelection</class>
+  <name>fileselection1</name>
+  <border_width>10</border_width>
+  <title>Open file</title>
+  <type>GTK_WINDOW_DIALOG</type>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>True</modal>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>True</allow_grow>
+  <auto_shrink>False</auto_shrink>
+  <show_file_op_buttons>False</show_file_op_buttons>
+
+  <widget>
+    <class>GtkButton</class>
+    <child_name>FileSel:ok_button</child_name>
+    <name>ok_button1</name>
+    <can_default>True</can_default>
+    <can_focus>True</can_focus>
+    <signal>
+      <name>clicked</name>
+      <handler>on_filesel_ok_clicked</handler>
+      <data>fileselection1</data>
+      <last_modification_time>Tue, 14 Nov 2000 11:54:22 GMT</last_modification_time>
+    </signal>
+    <signal>
+      <name>clicked</name>
+      <handler>gtk_widget_destroy</handler>
+      <object>fileselection1</object>
+      <last_modification_time>Tue, 14 Nov 2000 11:43:43 GMT</last_modification_time>
+    </signal>
+    <label>OK</label>
+    <relief>GTK_RELIEF_NORMAL</relief>
+  </widget>
+
+  <widget>
+    <class>GtkButton</class>
+    <child_name>FileSel:cancel_button</child_name>
+    <name>cancel_button1</name>
+    <can_default>True</can_default>
+    <can_focus>True</can_focus>
+    <signal>
+      <name>clicked</name>
+      <handler>gtk_widget_destroy</handler>
+      <object>fileselection1</object>
+      <last_modification_time>Tue, 14 Nov 2000 11:44:08 GMT</last_modification_time>
+    </signal>
+    <label>Cancel</label>
+    <relief>GTK_RELIEF_NORMAL</relief>
+  </widget>
+</widget>
+
+</GTK-Interface>

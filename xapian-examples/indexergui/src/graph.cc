@@ -22,6 +22,13 @@
  */
 
 #include "graph.h"
+#include "om/omindexerbuilder.h"
+#include "om/omindexerdesc.h"
+#include "om/omerror.h"
+#include <map>
+extern "C" {
+#include "interface.h"
+}
 
 static gint
 canvas_handler(GnomeCanvasItem *item, GdkEvent *event, gpointer data)
@@ -45,10 +52,7 @@ Graph::Graph(GtkWidget *indexergui_)
 
 Graph::~Graph()
 {
-    std::vector<NodeInstance *>::iterator i;
-    for (i=nodes.begin(); i!=nodes.end(); ++i) {
-	delete *i;
-    }
+    clear_graph();
 }
 
 gint
@@ -69,10 +73,22 @@ Graph::canvas_event_handler(GnomeCanvasItem *item,
 }
 
 NodeInstance &
-Graph::new_node(int numinputs, int numoutputs, GnomeCanvasGroup *group)
+Graph::new_node(const std::string &id,
+		const OmIndexerBuilder::NodeType &nt,
+		GnomeCanvasGroup *group)
 {
-    nodes.push_back(new NodeInstance(this, numinputs, numoutputs, group));
-    return *nodes[nodes.size() - 1];
+    nodes[id] = new NodeInstance(this, nt, group, id);
+    return *nodes[id];
+}
+
+NodeInstance *
+Graph::get_node(const std::string &id)
+{
+    if (nodes.find(id) != nodes.end()) {
+	return nodes.find(id)->second;
+    } else {
+	return 0;
+    }
 }
 
 PadInstance *
@@ -86,6 +102,8 @@ do_drag(GnomeCanvasItem *item, GdkEvent *event, gpointer data)
 {
     static bool clicked = false;
     static double last_x, last_y;
+
+    NodeInstance *node = reinterpret_cast<NodeInstance *>(data);
     switch (event->type) {
 	case GDK_BUTTON_PRESS:
 	    {
@@ -100,9 +118,8 @@ do_drag(GnomeCanvasItem *item, GdkEvent *event, gpointer data)
 	    return TRUE;
 	case GDK_MOTION_NOTIFY:
 	    if (clicked) {
-		gnome_canvas_item_move(item,
-				       event->button.x - last_x,
-				       event->button.y - last_y);
+		node->move_by(event->button.x - last_x,
+			      event->button.y - last_y);
 		last_x = event->button.x;
 		last_y = event->button.y;
 	    }
@@ -265,6 +282,31 @@ Graph::update_floating_arrow(double x, double y)
 		   NULL);
 }
 
+GnomeCanvasItem *
+Graph::make_arrow(double x1, double y1,
+		  double x2, double y2)
+{
+    GnomeCanvasItem *result;
+    GnomeCanvasPoints *points = gnome_canvas_points_new(2);
+    points->coords[0] = x1;
+    points->coords[1] = y1;
+    points->coords[2] = x2;
+    points->coords[3] = y2;
+    result = gnome_canvas_item_new(
+				   gnome_canvas_root(GNOME_CANVAS(canvas)),
+				   gnome_canvas_line_get_type(),
+				   "points", points,
+				   "fill_color", "black",
+				   "width_pixels", 2,
+				   "last_arrowhead", TRUE,
+				   "arrow_shape_a", 5.0,
+				   "arrow_shape_b", 20.0,
+				   "arrow_shape_c", 10.0,
+				   NULL);
+    gnome_canvas_points_unref(points);
+    return result;
+}
+
 void
 Graph::start_floating_arrow(PadInstance *orig,
 			    double x, double y)
@@ -321,17 +363,19 @@ Graph::handle_new_connection(PadInstance *src,
 
 void
 Graph::make_obj(const std::string &type, const std::string &name,
-		int inputs, int outputs)
+		const OmIndexerBuilder::NodeType &nt,
+		double x, double y)
 {
     const double width = 100.0;
     const double height = 100.0;
     GnomeCanvasGroup *root = gnome_canvas_root(GNOME_CANVAS(canvas));
     GnomeCanvasGroup *newgroup = GNOME_CANVAS_GROUP(gnome_canvas_item_new(root,
 						     gnome_canvas_group_get_type(),
-						     "x", 0.0,
-						     "y", 0.0,
+						     "x", x,
+						     "y", y,
 						     NULL));
-    NodeInstance &node = new_node(inputs, outputs, newgroup);
+    NodeInstance &node = new_node(name, nt, newgroup);
+    node.set_pos(x, y);
 
     GnomeCanvasItem *item;
     item = gnome_canvas_item_new(node.get_group(),
@@ -354,12 +398,15 @@ Graph::make_obj(const std::string &type, const std::string &name,
 				 "clip", 0,
 				 NULL);
 
+    int inputs = nt.inputs.size();
+    int outputs = nt.outputs.size();
+
     for (int i=0; i<inputs; ++i) {
 	make_pad(node, (width * i / inputs) + 0.5 * (width / inputs),
 		        0,
 			width * 0.5 / inputs,
 			height / 10.0,
-			false, i);
+			false, nt.inputs[i].name);
     }
 
     for (int i=0; i<outputs; ++i) {
@@ -367,19 +414,58 @@ Graph::make_obj(const std::string &type, const std::string &name,
 		 height,
 		 width * 0.5 / outputs,
 		 height / 10.0,
-		 true, i);
+		 true, nt.outputs[i].name);
     }
 
     gtk_signal_connect(GTK_OBJECT(node.get_group()), "event",
-		       GTK_SIGNAL_FUNC(do_drag), NULL);
+		       GTK_SIGNAL_FUNC(do_drag), (gpointer)&node);
+}
+
+void
+Graph::make_connection(const std::string &feedee,
+		       const std::string &feedee_port,
+		       const std::string &feeder,
+		       const std::string &feeder_port)
+{
+    fprintf(stderr, "Making connection from %s[%s] to %s[%s]\n",
+	    feeder.c_str(), feeder_port.c_str(),
+	    feedee.c_str(), feedee_port.c_str());
+    NodeInstance *src = get_node(feeder);
+    NodeInstance *dest = get_node(feedee);
+
+    if (!src || !dest) {
+	std::string message = "Graph::make_connection(): couldn't find nodes ";
+	message += feedee + " and " + feeder;
+	gnome_error_dialog(message.c_str());
+	return;
+    }
+
+    PadInstance *out_pad = src->get_output(feeder_port);
+    PadInstance *in_pad = dest->get_input(feedee_port);
+    if (!out_pad || !in_pad) {
+	std::string message = "Graph::make_connection(): couldn't find pads of ";
+	message += feedee + " and " + feeder;
+	gnome_error_dialog(message.c_str());
+	return;
+    }
+
+    GnomeCanvasItem *arrow = make_arrow(src->get_x() + out_pad->x,
+					src->get_y() + out_pad->y,
+					dest->get_x() + in_pad->x,
+					dest->get_y() + in_pad->y);
+
+    in_pad->arrow = arrow;
+    out_pad->arrow = arrow;
 }
 
 void
 Graph::make_pad(NodeInstance &node,
 		double x, double y, double width, double height,
-		bool output, int index)
+		bool output, const std::string &name)
 {
-    PadInstance &pad = output? node.get_output(index): node.get_input(index);
+    PadInstance *pad = output? node.get_output(name): node.get_input(name);
+    pad->x = x;
+    pad->y = y;
     GnomeCanvasPoints *points = gnome_canvas_points_new(4);
     points->coords[0] = x - width/2;
     points->coords[1] = y - height/2;
@@ -398,8 +484,112 @@ Graph::make_pad(NodeInstance &node,
 			  NULL);
     gnome_canvas_points_unref(points);
 
-    pads[pad_widget] = &pad;
+    pads[pad_widget] = pad;
 
     gtk_signal_connect(GTK_OBJECT(pad_widget), "event",
-		       GTK_SIGNAL_FUNC(pad_handler), (gpointer)&pad);
+		       GTK_SIGNAL_FUNC(pad_handler), (gpointer)pad);
+}
+
+void
+Graph::handle_open()
+{
+    GtkWidget *filesel = create_fileselection1();
+
+    gtk_file_selection_complete(GTK_FILE_SELECTION(filesel), "*.xml");
+    gtk_widget_show(filesel);
+}
+
+void
+Graph::do_open(const std::string &filename)
+{
+    try {
+	fprintf(stderr, "Opening file %s\n", filename.c_str());
+
+	OmIndexerDesc desc = builder.desc_from_file(filename);
+	fprintf(stderr, "Opened file.\n");
+
+	desc = builder.sort_desc(desc);
+
+	clear_graph();
+	init_graph(desc);
+    } catch (OmError &e) {
+	gnome_error_dialog(e.get_msg().c_str());
+    }
+}
+
+void
+Graph::clear_graph()
+{
+    std::map<std::string, NodeInstance *>::iterator i;
+    for (i=nodes.begin(); i!=nodes.end(); ++i) {
+	delete i->second;
+    }
+    nodes.clear();
+}
+
+void
+Graph::init_graph(const OmIndexerDesc &desc)
+{
+    map<string, int> node_rows;
+    map<string, int> node_cols;
+    int max_row = 0;
+    int max_col = 0;
+    map<int, int> row_length;
+    const double x_inc = 120.0;
+    const double y_inc = 120.0;
+
+    std::vector<OmIndexerDesc::NodeInstance>::const_iterator curr_node;
+
+    /** First step, assign rows to each node.  We place each node one row
+     *  below its lowest feeder.
+     */
+    for (curr_node = desc.nodes.begin();
+	 curr_node != desc.nodes.end();
+	 ++curr_node) {
+	int this_node_row = 0;
+	/* If any of this node's feeder nodes are in the current row,
+	 * then we must increment the row.
+	 */
+	for (size_t i = 0; i<curr_node->input.size(); ++i) {
+	    map<string, int>::const_iterator in;
+	    in = node_rows.find(curr_node->input[i].feeder_node);
+	    if (in != node_rows.end()) {
+		if (in->second >= this_node_row) {
+		    this_node_row = in->second + 1;
+		}
+	    }
+	}
+	node_rows[curr_node->id] = this_node_row;
+	node_cols[curr_node->id] = row_length[this_node_row]++;
+	if (this_node_row > max_row) {
+	    max_row = this_node_row;
+	}
+	if (row_length[this_node_row] > max_col) {
+	    max_col = row_length[this_node_row];
+	}
+    }
+
+    for (curr_node = desc.nodes.begin();
+	 curr_node != desc.nodes.end();
+	 ++curr_node) {
+	fprintf(stderr, "Making node %s at %d, %d\n", curr_node->id.c_str(),
+		node_cols[curr_node->id], node_rows[curr_node->id]);
+
+	OmIndexerBuilder::NodeType nt = builder.get_node_info(curr_node->type);
+
+	make_obj(curr_node->type, curr_node->id,
+		 nt,
+		 node_cols[curr_node->id] * x_inc,
+		 node_rows[curr_node->id] * y_inc);
+
+	for (size_t i=0; i<curr_node->input.size(); ++i) {
+	    make_connection(curr_node->id,
+			    curr_node->input[i].input_name,
+			    curr_node->input[i].feeder_node,
+			    curr_node->input[i].feeder_out);
+	}
+    }
+    gnome_canvas_set_scroll_region(canvas, -50, -50,
+				   (max_col+1) * x_inc + 50,
+				   (max_row+1) * y_inc + 50);
 }

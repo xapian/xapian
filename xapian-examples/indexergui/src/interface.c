@@ -41,7 +41,7 @@ create_indexergui (void)
   GtkWidget *toolbar1;
   GtkWidget *tmp_toolbar_icon;
   GtkWidget *button_newobj;
-  GtkWidget *button2;
+  GtkWidget *openbutton;
   GtkWidget *button3;
 
   indexergui = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -123,16 +123,17 @@ create_indexergui (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (button_newobj);
 
-  button2 = gtk_toolbar_append_element (GTK_TOOLBAR (toolbar1),
+  tmp_toolbar_icon = gnome_stock_pixmap_widget (indexergui, GNOME_STOCK_PIXMAP_OPEN);
+  openbutton = gtk_toolbar_append_element (GTK_TOOLBAR (toolbar1),
                                 GTK_TOOLBAR_CHILD_BUTTON,
                                 NULL,
-                                "button2",
+                                "Open",
                                 NULL, NULL,
-                                NULL, NULL, NULL);
-  gtk_widget_ref (button2);
-  gtk_object_set_data_full (GTK_OBJECT (indexergui), "button2", button2,
+                                tmp_toolbar_icon, NULL, NULL);
+  gtk_widget_ref (openbutton);
+  gtk_object_set_data_full (GTK_OBJECT (indexergui), "openbutton", openbutton,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (button2);
+  gtk_widget_show (openbutton);
 
   button3 = gtk_toolbar_append_element (GTK_TOOLBAR (toolbar1),
                                 GTK_TOOLBAR_CHILD_BUTTON,
@@ -151,7 +152,47 @@ create_indexergui (void)
   gtk_signal_connect_object (GTK_OBJECT (button_newobj), "clicked",
                              GTK_SIGNAL_FUNC (on_button_newobj_clicked),
                              GTK_OBJECT (canvas1));
+  gtk_signal_connect (GTK_OBJECT (openbutton), "clicked",
+                      GTK_SIGNAL_FUNC (on_openbutton_clicked),
+                      NULL);
 
   return indexergui;
+}
+
+GtkWidget*
+create_fileselection1 (void)
+{
+  GtkWidget *fileselection1;
+  GtkWidget *ok_button1;
+  GtkWidget *cancel_button1;
+
+  fileselection1 = gtk_file_selection_new ("Open file");
+  gtk_object_set_data (GTK_OBJECT (fileselection1), "fileselection1", fileselection1);
+  gtk_container_set_border_width (GTK_CONTAINER (fileselection1), 10);
+  GTK_WINDOW (fileselection1)->type = GTK_WINDOW_DIALOG;
+  gtk_window_set_modal (GTK_WINDOW (fileselection1), TRUE);
+  gtk_file_selection_hide_fileop_buttons (GTK_FILE_SELECTION (fileselection1));
+
+  ok_button1 = GTK_FILE_SELECTION (fileselection1)->ok_button;
+  gtk_object_set_data (GTK_OBJECT (fileselection1), "ok_button1", ok_button1);
+  gtk_widget_show (ok_button1);
+  GTK_WIDGET_SET_FLAGS (ok_button1, GTK_CAN_DEFAULT);
+
+  cancel_button1 = GTK_FILE_SELECTION (fileselection1)->cancel_button;
+  gtk_object_set_data (GTK_OBJECT (fileselection1), "cancel_button1", cancel_button1);
+  gtk_widget_show (cancel_button1);
+  GTK_WIDGET_SET_FLAGS (cancel_button1, GTK_CAN_DEFAULT);
+
+  gtk_signal_connect (GTK_OBJECT (ok_button1), "clicked",
+                      GTK_SIGNAL_FUNC (on_filesel_ok_clicked),
+                      fileselection1);
+  gtk_signal_connect_object (GTK_OBJECT (ok_button1), "clicked",
+                             GTK_SIGNAL_FUNC (gtk_widget_destroy),
+                             GTK_OBJECT (fileselection1));
+  gtk_signal_connect_object (GTK_OBJECT (cancel_button1), "clicked",
+                             GTK_SIGNAL_FUNC (gtk_widget_destroy),
+                             GTK_OBJECT (fileselection1));
+
+  return fileselection1;
 }
 
