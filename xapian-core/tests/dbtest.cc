@@ -14,9 +14,11 @@ int main(int argc, char *argv[]) {
 	postlist = database.open_post_list(tid);
 	while(!postlist->at_end()) {
 	    docid did;
+	    weight wt;
 
 	    did = postlist->get_docid();
-	    printf("TermId: %d  DocId: %d\n", tid, did);
+	    wt = postlist->get_weight();
+	    printf("TermId: %d  DocId: %d  Weight: %d\n", tid, did, wt);
 	    if(did == 2) postlist->skip_to(5);
 	    else postlist->next();
 	}
