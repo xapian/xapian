@@ -5,7 +5,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,6 +48,10 @@
 #include <sys/timeb.h>
 #else
 #include <time.h>
+#endif
+
+#ifdef HAVE_PCRE
+#include <pcre.h>
 #endif
 
 #include "utils.h"
@@ -177,7 +181,13 @@ set_probabilistic(const string &newp, const string &oldp)
 	    return NEW_QUERY;
 	term = pend + 1;
     }
-    if (n_new_terms > n_old_terms) return EXTENDED_QUERY;
+    // Use termset.size() rather than n_new_terms so we correctly handle
+    // the case when the query has repeated terms.
+    // This works wrongly in the case when the user extends the query
+    // by adding a term already in it, but that's unlikely and the behaviour
+    // isn't too bad (we just don't reset page 1).  We also mishandle a few
+    // other obscure cases e.g. adding quotes to turn a query into a phrase.
+    if (termset.size() > n_old_terms) return EXTENDED_QUERY;
     return SAME_QUERY;
 }
 
@@ -823,6 +833,10 @@ CMD_thispage,
 CMD_time,
 CMD_topdoc,
 CMD_topterms,
+#ifdef HAVE_PCRE
+CMD_transform,
+#endif
+CMD_uniq,
 CMD_unstem,
 CMD_url,
 CMD_value,
@@ -921,6 +935,10 @@ static struct func_desc func_tab[] = {
 {T(topdoc),	0, 0, N, 0, 0}}, // first document on current page of hit list (counting from 0)
 // FIXME: cache really needs to be smart about parameter value...
 {T(topterms),	0, 1, N, 1, 1}}, // list of up to N top relevance feedback terms (default 16)
+#ifdef HAVE_PCRE
+{T(transform),  3, 3, N, 0, 0}}, // transform with a regexp
+#endif
+{T(uniq),	1, 1, N, 0, 0}}, // removed duplicates from a sorted list
 {T(unstem),	1, 1, N, 0, 0}}, // return list of probabilistic terms from
 				 // the query which stemmed to this term
 {T(url),	1, 1, N, 0, 0}}, // url encode argument
@@ -1639,6 +1657,61 @@ eval(const string &fmt, const vector<string> &param)
 		    if (!value.empty()) value.erase(value.size() - 1);
 		}
 		break;
+#ifdef HAVE_PCRE
+	    case CMD_transform: {
+		pcre *re;
+		const char *error;
+		int erroffset;
+		int offsets[30];
+		int matches;
+		re = pcre_compile(args[0].c_str(), 0, &error, &erroffset, NULL);
+		matches = pcre_exec(re, NULL, args[2].data(), args[2].size(),
+				    0, 0, offsets, 30);
+		if (matches > 0) {
+		    string::const_iterator i;
+		    value = args[2].substr(0, offsets[0]);
+		    for (i = args[1].begin(); i != args[1].end(); ++i) {
+			if (*i != '\\') {
+			    value += *i;
+			} else {
+			    ++i;
+			    if (i != args[1].end()) {
+				if (*i >= '0' && *i < '0' + matches) {
+				    int c = (*i - '0') * 2;
+				    value.append(args[2].substr(offsets[c],
+						offsets[c + 1] - offsets[c]));
+				} else {
+				    value += *i;
+				}
+			    }
+			}
+		    }
+		    value += args[2].substr(offsets[1]);
+		} else {
+		    value = args[2];
+		}
+		break;
+	    }
+#endif
+	    case CMD_uniq: {
+		const string &list = args[0];
+		if (list.empty()) break;
+		string::size_type split = 0, split2;
+		string prev;
+		do {
+		    split2 = list.find('\t', split);
+		    string item = list.substr(split, split2 - split);
+		    if (split == 0) {
+			value = item;
+		    } else if (item != prev) {
+			value += '\t';
+			value += item;
+		    }
+		    prev = item;
+		    split = split2 + 1;
+		} while (split2 != string::npos);
+		break;
+	    }
 	    case CMD_unstem: {
 		const string &term = args[0];
 		multimap<string, string>::const_iterator i;
@@ -1762,7 +1835,7 @@ pretty_term(const string & term)
  
     return term;
 }
-	    
+    
 /* return a sane (1-100) percentage value for ratio */
 static int
 percentage(double ratio)

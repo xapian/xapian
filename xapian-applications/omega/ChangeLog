@@ -1,3 +1,12 @@
+Thu Feb 27 11:58:13 GMT 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am,query.cc,docs/omegascript.txt,templates/query:
+	  Added $transform{} which does regexp manipulation (currently
+	  disabled); Added $uniq{} to eliminate duplicates from a sorted
+	  list; Fixed a query with repeated terms to be identified as
+	  SAME_QUERY not EXTENDED_QUERY; remove duplicates from terms
+	  listed in term frequencies.
+
 Wed Feb 26 17:50:26 GMT 2003  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Allow '_' in fieldnames.  Diagnose bad characters

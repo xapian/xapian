@@ -261,6 +261,14 @@ $topdoc
 $topterms[{N}]
 	list of up to N top relevance feedback terms (default 16)
 
+$transform{REGEXP,SUBST,STRING}
+	transform string using Perl compatible regular expressions.  This
+	command is like the perl code: STRING =~ s/REGEXP/SUBST/
+	[Disabled for now - need to sort out build issues]
+
+$uniq{LIST}
+	remove duplicates from a sorted list
+
 $unstem{TERM}
 	maps a stemmed term to a list of the unstemmed forms of it used in
 	the query

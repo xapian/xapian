@@ -64,7 +64,7 @@ bin_PROGRAMS = omindex scriptindex
 bin_SCRIPTS = dbi2omega
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc
-omega_LDADD = $(XAPIAN_LIBS) -lomqueryparser
+omega_LDADD = $(XAPIAN_LIBS) -lomqueryparser # -lpcre
 
 omindex_SOURCES = omindex.cc htmlparse.cc
 omindex_LDADD = $(XAPIAN_LIBS)
