@@ -47,7 +47,8 @@ while test 0 != "$#"; do
 
     --cxxflags)
 	inc=
-	if test -f "${builddir}libxapian.la"; then
+    	# check if this is an uninstalled xapian-config
+   	if test -n "$builddir" -a -f "${builddir}Makefile" ; then
 	    if test . = "@srcdir@"; then
 		inc="-Iinclude"
 	    else
@@ -67,9 +68,11 @@ while test 0 != "$#"; do
 	;;
 
     --libs)
-	if test -f "${builddir}libxapian.la" ; then
+    	# check if this is an uninstalled xapian-config
+   	if test -n "$builddir" -a -f "${builddir}Makefile" ; then
 	    echo "$0: If you want to link against an uninstalled libxapian," 1>&2
 	    echo "use libtool and \`xapian-config --ltlibs'." 1>&2
+	    echo "If using XO_LIB_XAPIAN, simply add AC_PROG_LIBTOOL to your configure.in." 1>&2
 	    exit 1
 	fi
 	L=

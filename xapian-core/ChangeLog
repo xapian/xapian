@@ -1,3 +1,8 @@
+Sat Jul 26 19:03:04 BST 2003  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Updated logic in --libs and --cxxflags in line
+	  with recent change in --ltlibs.
+
 Sat Jul 26 18:31:11 BST 2003  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Reworked logic for finding libxapian.la in
