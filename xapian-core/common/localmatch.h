@@ -112,7 +112,7 @@ class LocalMatch : public SingleMatch
 
 	/// Make a postlist from a vector of query objects (AND or OR)
 	PostList *postlist_from_queries(
-				om_queryop op,
+				OmQuery::op op,
 				const std::vector<OmQueryInternal *> & queries,
 				om_termcount window);
 

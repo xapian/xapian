@@ -45,7 +45,7 @@ class OmQueryInternal {
 	bool isbool;
 
 	/// Operation to be performed at this node
-	om_queryop op;
+	OmQuery::op op;
 
 	/// The container type for storing pointers to subqueries
 	typedef std::vector<OmQueryInternal *> subquery_list;
@@ -115,7 +115,7 @@ class OmQueryInternal {
 		om_termpos term_pos_ = 0);
 
 	/** A query consisting of two subqueries, opp-ed together. */
-	OmQueryInternal(om_queryop op_,
+	OmQueryInternal(OmQuery::op op_,
 			const OmQueryInternal & left,
 			const OmQueryInternal & right);
 
@@ -123,20 +123,20 @@ class OmQueryInternal {
 	 * operator.  (Takes begin and end iterators).
 	 * The only operators allowed are AND, OR, NEAR, and PHRASE. */
 #if 0
-	OmQueryInternal(om_queryop op_,
+	OmQueryInternal(OmQuery::op op_,
 		const std::vector<OmQueryInternal>::const_iterator qbegin,
 		const std::vector<OmQueryInternal>::const_iterator qend,
 		om_termpos window = 0);
 #endif
 
 	/** As before, but uses a vector of OmQueryInternal pointers. */
-	OmQueryInternal(om_queryop op_,
+	OmQueryInternal(OmQuery::op op_,
 		const std::vector<OmQueryInternal*>::const_iterator qbegin,
 		const std::vector<OmQueryInternal*>::const_iterator qend,
 		om_termpos window = 0);
 
 	/** As before, except subqueries are all individual terms. */
-	OmQueryInternal(om_queryop op_,
+	OmQueryInternal(OmQuery::op op_,
 		const std::vector<om_termname>::const_iterator tbegin,
 		const std::vector<om_termname>::const_iterator tend,
 		om_termpos window = 0);

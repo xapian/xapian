@@ -49,7 +49,7 @@ OmQuery::OmQuery(const om_termname & tname_,
     internal = new OmQueryInternal(tname_, wqf_, term_pos_);
 }
 
-OmQuery::OmQuery(om_queryop op_, const OmQuery &left, const OmQuery &right)
+OmQuery::OmQuery(OmQuery::op op_, const OmQuery &left, const OmQuery &right)
 	: internal(0)
 {
     DEBUGAPICALL("OmQuery::OmQuery",
@@ -59,7 +59,7 @@ OmQuery::OmQuery(om_queryop op_, const OmQuery &left, const OmQuery &right)
 				   *(right.internal));
 }
 
-OmQuery::OmQuery(om_queryop op_,
+OmQuery::OmQuery(OmQuery::op op_,
 		 const std::vector<OmQuery *>::const_iterator qbegin,
 		 const std::vector<OmQuery *>::const_iterator qend,
 		 om_termpos window)
@@ -77,7 +77,7 @@ OmQuery::OmQuery(om_queryop op_,
     internal = new OmQueryInternal(op_, temp.begin(), temp.end(), window);
 }
 
-OmQuery::OmQuery(om_queryop op_,
+OmQuery::OmQuery(OmQuery::op op_,
 		 const std::vector<OmQuery>::const_iterator qbegin,
 		 const std::vector<OmQuery>::const_iterator qend,
 		 om_termpos window)
@@ -96,7 +96,7 @@ OmQuery::OmQuery(om_queryop op_,
 }
 
 
-OmQuery::OmQuery(om_queryop op_,
+OmQuery::OmQuery(OmQuery::op op_,
 		 const std::vector<om_termname>::const_iterator tbegin,
 		 const std::vector<om_termname>::const_iterator tend,
 		 om_termpos window)
@@ -240,7 +240,7 @@ OmQueryInternal::serialise() const
     if (isbool) {
 	result = "%B";
     }
-    if (op == OM_MOP_LEAF) {
+    if (op == OmQuery::OP_LEAF) {
 	result += "%T" + encode_tname(tname) +
 		"," + om_tostring(wqf) +
 		"," + om_tostring(term_pos);
@@ -252,31 +252,31 @@ OmQueryInternal::serialise() const
 	    result += (*i)->serialise() + " ";
 	}
 	switch (op) {
-	    case OM_MOP_LEAF:
+	    case OmQuery::OP_LEAF:
 		Assert(false);
 		break;
-	    case OM_MOP_AND:
+	    case OmQuery::OP_AND:
 		result += "%and";
 		break;
-	    case OM_MOP_OR:
+	    case OmQuery::OP_OR:
 		result += "%or";
 		break;
-	    case OM_MOP_FILTER:
+	    case OmQuery::OP_FILTER:
 		result += "%filter";
 		break;
-	    case OM_MOP_AND_MAYBE:
+	    case OmQuery::OP_AND_MAYBE:
 		result += "%andmaybe";
 		break;
-	    case OM_MOP_AND_NOT:
+	    case OmQuery::OP_AND_NOT:
 		result += "%andnot";
 		break;
-	    case OM_MOP_XOR:
+	    case OmQuery::OP_XOR:
 		result += "%xor";
 		break;
-	    case OM_MOP_NEAR:
+	    case OmQuery::OP_NEAR:
 		result += "%near" + om_tostring(window);
 		break;
-	    case OM_MOP_PHRASE:
+	    case OmQuery::OP_PHRASE:
 		result += "%phrase" + om_tostring(window);
 		break;
 	} // switch(op)
@@ -292,31 +292,31 @@ OmQueryInternal::get_description() const
     if(!isdefined) return "<NULL>";
     std::string opstr;
     switch(op) {
-	case OM_MOP_LEAF:
+	case OmQuery::OP_LEAF:
 	    return tname;
 	    break;
-	case OM_MOP_AND:
+	case OmQuery::OP_AND:
 	    opstr = " AND ";
 	    break;
-	case OM_MOP_OR:
+	case OmQuery::OP_OR:
 	    opstr = " OR ";
 	    break;
-	case OM_MOP_FILTER:
+	case OmQuery::OP_FILTER:
 	    opstr = " FILTER ";
 	    break;
-	case OM_MOP_AND_MAYBE:
+	case OmQuery::OP_AND_MAYBE:
 	    opstr = " AND_MAYBE ";
 	    break;
-	case OM_MOP_AND_NOT:
+	case OmQuery::OP_AND_NOT:
 	    opstr = " AND_NOT ";
 	    break;
-	case OM_MOP_XOR:
+	case OmQuery::OP_XOR:
 	    opstr = " XOR ";
 	    break;
-	case OM_MOP_NEAR:
+	case OmQuery::OP_NEAR:
 	    opstr = " NEAR " + om_tostring(window) + " ";
 	    break;
-	case OM_MOP_PHRASE:
+	case OmQuery::OP_PHRASE:
 	    opstr = " PHRASE " + om_tostring(window) + " ";
 	    break;
     }
@@ -351,7 +351,7 @@ OmQueryInternal::accumulate_terms(
 {
     Assert(isdefined);
 
-    if (op == OM_MOP_LEAF) {
+    if (op == OmQuery::OP_LEAF) {
         // We're a leaf, so just return our term.
         terms.push_back(std::make_pair(tname, term_pos));
     } else {
@@ -458,7 +458,7 @@ OmQueryInternal::OmQueryInternal(const OmQueryInternal &copyme)
 OmQueryInternal::OmQueryInternal(const om_termname & tname_,
 		 om_termcount wqf_,
 		 om_termpos term_pos_)
-	: isdefined(true), isbool(false), op(OM_MOP_LEAF),
+	: isdefined(true), isbool(false), op(OmQuery::OP_LEAF),
 	qlen(wqf_), tname(tname_), term_pos(term_pos_), wqf(wqf_)
 {
     if(tname.size() == 0) {
@@ -466,17 +466,17 @@ OmQueryInternal::OmQueryInternal(const om_termname & tname_,
     }
 }
 
-OmQueryInternal::OmQueryInternal(om_queryop op_,
+OmQueryInternal::OmQueryInternal(OmQuery::op op_,
 				 const OmQueryInternal &left,
 				 const OmQueryInternal &right)
 	: isdefined(true), isbool(false), op(op_),
 	  qlen(left.qlen + right.qlen)
 {
-    if (op == OM_MOP_LEAF) {
+    if (op == OmQuery::OP_LEAF) {
     	throw OmInvalidArgumentError("Invalid query operation");
     }
 
-    if (op == OM_MOP_NEAR || op == OM_MOP_PHRASE) {
+    if (op == OmQuery::OP_NEAR || op == OmQuery::OP_PHRASE) {
     	throw OmInvalidArgumentError("NEAR/PHRASE take window size and list of terms or queries");
     }
 
@@ -493,8 +493,8 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
     //
     if(!left.isdefined || !right.isdefined) {
 	switch (op) {
-	    case OM_MOP_OR:
-	    case OM_MOP_AND:
+	    case OmQuery::OP_OR:
+	    case OmQuery::OP_AND:
 		if (left.isdefined) {
 		    initialise_from_copy(left);
 		} else {
@@ -502,7 +502,7 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 		    else isdefined = false;
 		}
 		break;
-	    case OM_MOP_FILTER:
+	    case OmQuery::OP_FILTER:
 		if (left.isdefined) {
 		    initialise_from_copy(left);
 		} else {
@@ -515,7 +515,7 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 		    }
 		}
 		break;
-	    case OM_MOP_AND_MAYBE:
+	    case OmQuery::OP_AND_MAYBE:
 		if (left.isdefined) {
 		    initialise_from_copy(left);
 		} else {
@@ -523,7 +523,7 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 		    else isdefined = false;
 		}
 		break;
-	    case OM_MOP_AND_NOT:
+	    case OmQuery::OP_AND_NOT:
 		if (left.isdefined) {
 		    initialise_from_copy(left);
 		} else {
@@ -532,16 +532,16 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 		    } else isdefined = false;
 		}
 		break;
-	    case OM_MOP_XOR:
+	    case OmQuery::OP_XOR:
 		if (!left.isdefined && !right.isdefined) {
 		    isdefined = true;
 		} else {
 		    throw OmInvalidArgumentError("XOR can't have one undefined argument");
 		}
 		break;
-	    case OM_MOP_LEAF:
-	    case OM_MOP_NEAR:
-	    case OM_MOP_PHRASE:
+	    case OmQuery::OP_LEAF:
+	    case OmQuery::OP_NEAR:
+	    case OmQuery::OP_PHRASE:
 		Assert(false); // Shouldn't have got this far
 	}
     } else {
@@ -550,7 +550,7 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 
 	// If sub query has same op, which is OR or AND, add to list rather
 	// than makeing sub-node.  Can then optimise the list at search time.
-	if(op == OM_MOP_AND || op == OM_MOP_OR) {
+	if(op == OmQuery::OP_AND || op == OmQuery::OP_OR) {
 	    if(left.op == op && right.op == op) {
 		// Both queries have same operation as top
 		initialise_from_copy(left);
@@ -585,7 +585,7 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
     }
 }
 
-OmQueryInternal::OmQueryInternal(om_queryop op_,
+OmQueryInternal::OmQueryInternal(OmQuery::op op_,
 		 const std::vector<OmQueryInternal *>::const_iterator qbegin,
 		 const std::vector<OmQueryInternal *>::const_iterator qend,
 		 om_termpos window_)
@@ -595,7 +595,7 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
     collapse_subqs();
 }
 
-OmQueryInternal::OmQueryInternal(om_queryop op_,
+OmQueryInternal::OmQueryInternal(OmQuery::op op_,
 		 const std::vector<om_termname>::const_iterator tbegin,
 		 const std::vector<om_termname>::const_iterator tend,
 		 om_termpos window_)
@@ -645,7 +645,7 @@ OmQueryInternal::initialise_from_copy(const OmQueryInternal &copyme)
     isbool = copyme.isbool;
     op = copyme.op;
     qlen = copyme.qlen;
-    if(op == OM_MOP_LEAF) {
+    if(op == OmQuery::OP_LEAF) {
 	tname = copyme.tname;
 	term_pos = copyme.term_pos;
 	wqf = copyme.wqf;
@@ -669,24 +669,24 @@ OmQueryInternal::initialise_from_vector(
 {
     bool merge_ok = false; // set if merging with subqueries is valid
     switch (op) {
-	case OM_MOP_AND:
-	case OM_MOP_OR:
+	case OmQuery::OP_AND:
+	case OmQuery::OP_OR:
 	    if (window_ != 0)
 		throw OmInvalidArgumentError("window parameter not valid for AND or OR");
 	    merge_ok = true;
 	    break;
-	case OM_MOP_NEAR:
-	case OM_MOP_PHRASE:
+	case OmQuery::OP_NEAR:
+	case OmQuery::OP_PHRASE:
 	    break;
-	case OM_MOP_AND_NOT:
-	case OM_MOP_XOR:
-	case OM_MOP_AND_MAYBE:
-	case OM_MOP_FILTER:
+	case OmQuery::OP_AND_NOT:
+	case OmQuery::OP_XOR:
+	case OmQuery::OP_AND_MAYBE:
+	case OmQuery::OP_FILTER:
 	    if ((qend - qbegin) != 2) {
 		throw OmInvalidArgumentError("AND_NOT, XOR, AND_MAYBE, FILTER must have exactly two subqueries.");
 	    }
 	    break;
-	case OM_MOP_LEAF:
+	case OmQuery::OP_LEAF:
 	    throw OmInvalidArgumentError("LEAF queries from vectors invalid");
     }
     // FIXME: if NEAR/PHRASE and window_ == 0 default to number of subqueries
@@ -761,7 +761,7 @@ void OmQueryInternal::collapse_subqs()
 {
     // We must have more than one query item for collapsing to make sense
     // For the moment, we only collapse ORs and ANDs.
-    if ((subqs.size() > 1) && ((op == OM_MOP_OR) || (op == OM_MOP_AND))) {
+    if ((subqs.size() > 1) && ((op == OmQuery::OP_OR) || (op == OmQuery::OP_AND))) {
 	typedef std::map<std::pair<om_termpos, om_termname>,
 	            OmQueryInternal *,
 		    Collapse_PosNameLess> subqtable;
@@ -769,7 +769,7 @@ void OmQueryInternal::collapse_subqs()
 	subqtable sqtab;
 	subquery_list::iterator sq = subqs.begin();
 	while (sq != subqs.end()) {
-	    if ((*sq)->op == OM_MOP_LEAF) {
+	    if ((*sq)->op == OmQuery::OP_LEAF) {
 		subqtable::key_type key(std::make_pair((*sq)->term_pos,
 						  (*sq)->tname));
 		subqtable::iterator s = sqtab.find(key);

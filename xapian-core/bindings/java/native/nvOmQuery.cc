@@ -55,29 +55,29 @@ JNIEXPORT jlong JNICALL Java_com_muscat_om_OmQuery_createNativeObject__Ljava_lan
 }
 
 /* helper function */
-om_queryop transOp (JNIEnv* env, jstring op) {
+OmQuery::op transOp (JNIEnv* env, jstring op) {
     char* op_n = (char*) env->GetStringUTFChars (op, NULL);
-    om_queryop ret = OM_MOP_LEAF;
+    OmQuery::op ret = OmQuery::OP_LEAF;
     if (! strcasecmp (op_n, "AND"))
-	ret = OM_MOP_AND;
+	ret = OmQuery::OP_AND;
     else if (! strcasecmp (op_n, "OR"))
-	ret = OM_MOP_OR;
+	ret = OmQuery::OP_OR;
     else if (! strcasecmp (op_n, "AND NOT"))
-	ret = OM_MOP_AND_NOT;
+	ret = OmQuery::OP_AND_NOT;
     else if (! strcasecmp (op_n, "XOR"))
-	ret = OM_MOP_XOR;
+	ret = OmQuery::OP_XOR;
     else if (! strcasecmp (op_n, "AND MAYBE"))
-	ret = OM_MOP_AND_MAYBE;
+	ret = OmQuery::OP_AND_MAYBE;
     else if (! strcasecmp (op_n, "FILTER"))
-	ret = OM_MOP_FILTER;
+	ret = OmQuery::OP_FILTER;
     else if (! strcasecmp (op_n, "NEAR"))
-	ret = OM_MOP_NEAR;
+	ret = OmQuery::OP_NEAR;
     else if (! strcasecmp (op_n, "PHRASE"))
-	ret = OM_MOP_PHRASE;
+	ret = OmQuery::OP_PHRASE;
 
     env->ReleaseStringUTFChars (op, op_n);
 
-    if (ret == OM_MOP_LEAF)
+    if (ret == OmQuery::OP_LEAF)
 	throwNewException (env, "java/lang/RuntimeException", "invalid query operator name");
 
     return ret;
@@ -95,7 +95,7 @@ JNIEXPORT jlong JNICALL Java_com_muscat_om_OmQuery_createNativeObject__Ljava_lan
 
     OmQuery* left_n  = (OmQuery*) tryGetLongField (env, left, "nativePtr");
     OmQuery* right_n = (OmQuery*) tryGetLongField (env, right, "nativePtr");
-    om_queryop op_n = transOp (env, op);
+    OmQuery::op op_n = transOp (env, op);
 
     try {
 	return (jlong) new OmQuery (op_n, *left_n, *right_n);
@@ -123,7 +123,7 @@ JNIEXPORT jlong JNICALL Java_com_muscat_om_OmQuery_createNativeObject__Ljava_lan
 	env->DeleteLocalRef (jterm);
     }
 
-    om_queryop op_n = transOp (env, op);
+    OmQuery::op op_n = transOp (env, op);
 
     return (jlong) new OmQuery (op_n, terms_n.begin(),
 				terms_n.end(), (om_termpos)window);

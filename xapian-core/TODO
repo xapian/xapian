@@ -30,10 +30,6 @@ H|2| |Postlist     | Add ability to retrieve collection frequency
 H|2| |General / API| Put Om into its own namespace, to ensure lack of
  | | |             | symbol conflicts.
 -+-+-+-------------+-----------------------------------------------------------
-H|2| |General      | Make om_queryop a member of OmQuery, as far as
- | | |             | the API is concerned.  Have an internal typedef
- | | |             | so that this isn't inappropriate internally.
--+-+-+-------------+-----------------------------------------------------------
 H|5|C|API          | Write bindings for other languages (Java, C,
  | | |             | perl, python, etc.). [In progress, apart from C].
 -+-+-+-------------+-----------------------------------------------------------

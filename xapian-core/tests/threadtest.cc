@@ -184,7 +184,7 @@ read_queries(std::string filename, std::vector<OmQuery> & queries)
 	}
 
 	if (terms.size() != 0) {
-	    OmQuery new_query(OM_MOP_OR, terms.begin(), terms.end());
+	    OmQuery new_query(OmQuery::OP_OR, terms.begin(), terms.end());
 	    OutputMessage(new_query.get_description());
 	    queries.push_back(new_query);
 	}

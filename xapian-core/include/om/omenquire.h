@@ -41,39 +41,6 @@ class OmMSetCmp;         // Declare mset item comparison class
 // =============
 // Representation of a query
 
-/// Enum of possible query operations
-enum om_queryop {
-    /// For internal use - must never be specified as parameter
-    OM_MOP_LEAF,
-
-    /// Return iff both subqueries are satisfied
-    OM_MOP_AND,
-
-    /// Return if either subquery is satisfied
-    OM_MOP_OR,
-
-    /// Return if left but not right satisfied
-    OM_MOP_AND_NOT,
-
-    /// Return if one query satisfied, but not both
-    OM_MOP_XOR,
-
-    /// Return iff left satisfied, but use weights from both
-    OM_MOP_AND_MAYBE,
-
-    /// As AND, but use only weights from left subquery
-    OM_MOP_FILTER,
-
-    // FIXME: describing NEAR and PHRASE as "As AND" is a very internal view
-    /// As AND, but also require that terms occur close together (uses
-    /// positional information)
-    OM_MOP_NEAR,
-
-    /// As AND, but terms must occur adjacently in order specified
-    /// (uses positional information)
-    OM_MOP_PHRASE
-};
-
 /// Internals of query class
 class OmQueryInternal;
 
@@ -85,32 +52,65 @@ class OmQuery {
 	friend class OmEnquireInternal;
     	OmQueryInternal *internal;
     public:
+	/// Enum of possible query operations
+        typedef enum {
+	    /// For internal use - must never be specified as parameter
+	    OP_LEAF,
+
+	    /// Return iff both subqueries are satisfied
+	    OP_AND,
+
+	    /// Return if either subquery is satisfied
+	    OP_OR,
+
+	    /// Return if left but not right satisfied
+	    OP_AND_NOT,
+
+	    /// Return if one query satisfied, but not both
+	    OP_XOR,
+
+	    /// Return iff left satisfied, but use weights from both
+	    OP_AND_MAYBE,
+
+	    /// As AND, but use only weights from left subquery
+	    OP_FILTER,
+
+	    // FIXME: describing NEAR and PHRASE as "As AND" is a very internal view
+	    /// As AND, but also require that terms occur close together (uses
+	    /// positional information)
+	    OP_NEAR,
+
+	    /// As AND, but terms must occur adjacently in order specified
+	    /// (uses positional information)
+	    OP_PHRASE
+	} op;
+
 	/** A query consisting of a single term. */
 	OmQuery(const om_termname & tname_,
 		om_termcount wqf_ = 1,
 		om_termpos term_pos_ = 0);
 
 	/** A query consisting of two subqueries, opp-ed together. */
-	OmQuery(om_queryop op_, const OmQuery & left, const OmQuery & right);
+	OmQuery(OmQuery::op op_, const OmQuery & left, const OmQuery & right);
 
 	/** A set of OmQuery's, merged together with specified operator.
 	 * (Takes begin and end iterators).
 	 * If the operator is anything other than AND, OR, NEAR, and PHRASE,
 	 * then there must be exactly two subqueries.
 	 */
-	OmQuery(om_queryop op_,
+	OmQuery(OmQuery::op op_,
 		const std::vector<OmQuery>::const_iterator qbegin,
 		const std::vector<OmQuery>::const_iterator qend,
 		om_termpos window = 0);
 
 	/** As before, but uses a vector of OmQuery pointers. */
-	OmQuery(om_queryop op_,
+	OmQuery(OmQuery::op op_,
 		const std::vector<OmQuery *>::const_iterator qbegin,
 		const std::vector<OmQuery *>::const_iterator qend,
 		om_termpos window = 0);
 
 	/** As before, except subqueries are all individual terms. */
-	OmQuery(om_queryop op_,
+	OmQuery(OmQuery::op op_,
 		const std::vector<om_termname>::const_iterator tbegin,
 		const std::vector<om_termname>::const_iterator tend,
 		om_termpos window = 0);

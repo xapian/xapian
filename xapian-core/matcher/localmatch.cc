@@ -299,12 +299,12 @@ LocalMatch::set_rset(const OmRSet & omrset)
 // Operation must be either AND or OR.
 // Optimise query by building tree carefully.
 PostList *
-LocalMatch::postlist_from_queries(om_queryop op,
+LocalMatch::postlist_from_queries(OmQuery::op op,
 				  const std::vector<OmQueryInternal *> &queries,
 				  om_termcount window)
 {
-    Assert(op == OM_MOP_OR || op == OM_MOP_AND || op == OM_MOP_NEAR ||
-	   op == OM_MOP_PHRASE);
+    Assert(op == OmQuery::OP_OR || op == OmQuery::OP_AND || op == OmQuery::OP_NEAR ||
+	   op == OmQuery::OP_PHRASE);
     Assert(queries.size() >= 2);
 
     // Open a postlist for each query, and store these postlists in a vector.
@@ -320,17 +320,17 @@ LocalMatch::postlist_from_queries(om_queryop op,
 
     // Build tree
     switch (op) {
-	case OM_MOP_AND:
+	case OmQuery::OP_AND:
 	    return build_and_tree(postlists);
 
-	case OM_MOP_NEAR:
+	case OmQuery::OP_NEAR:
 	{
 	    PostList *res = build_and_tree(postlists);
 	    // FIXME: handle EmptyPostList return specially?
 	    return new NearPostList(res, window, postlists);
 	}
 
-	case OM_MOP_PHRASE:
+	case OmQuery::OP_PHRASE:
 	{
 	    // build_and_tree reorders postlists, but the order is
 	    // important for phrase, so we need to keep a copy
@@ -341,7 +341,7 @@ LocalMatch::postlist_from_queries(om_queryop op,
 	    return new PhrasePostList(res, window, postlists_orig);
 	}
 
-	case OM_MOP_OR:
+	case OmQuery::OP_OR:
 	    if (max_or_terms != 0) {
 		// Select top terms
 		DEBUGLINE(API, "Selecting top " << max_or_terms <<
@@ -387,34 +387,34 @@ LocalMatch::postlist_from_query(const OmQueryInternal *query)
     Assert(query->isdefined);
 
     switch (query->op) {
-	case OM_MOP_LEAF:
+	case OmQuery::OP_LEAF:
 	    // Make a postlist for a single term
 	    Assert(query->subqs.size() == 0);
 	    return mk_postlist(query->tname);
-	case OM_MOP_AND:
-	case OM_MOP_OR:
-	case OM_MOP_PHRASE:
-	case OM_MOP_NEAR:
+	case OmQuery::OP_AND:
+	case OmQuery::OP_OR:
+	case OmQuery::OP_PHRASE:
+	case OmQuery::OP_NEAR:
 	    // Build a tree of postlists for AND, OR, PHRASE, or NEAR
 	    return postlist_from_queries(query->op, query->subqs,
 					 query->window);
-	case OM_MOP_FILTER:
+	case OmQuery::OP_FILTER:
 	    Assert(query->subqs.size() == 2);
 	    return new FilterPostList(postlist_from_query(query->subqs[0]),
 				      postlist_from_query(query->subqs[1]),
 				      this);
-	case OM_MOP_AND_NOT:
+	case OmQuery::OP_AND_NOT:
 	    Assert(query->subqs.size() == 2);
 	    return new AndNotPostList(postlist_from_query(query->subqs[0]),
 				      postlist_from_query(query->subqs[1]),
 				      this);
-	case OM_MOP_AND_MAYBE:
+	case OmQuery::OP_AND_MAYBE:
 	    Assert(query->subqs.size() == 2);
 	    return new AndMaybePostList(postlist_from_query(query->subqs[0]),
 					postlist_from_query(query->subqs[1]),
 					this);
 	    break;
-	case OM_MOP_XOR:
+	case OmQuery::OP_XOR:
 	    Assert(query->subqs.size() == 2);
 	    return new XorPostList(postlist_from_query(query->subqs[0]),
 				   postlist_from_query(query->subqs[1]),

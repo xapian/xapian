@@ -79,7 +79,7 @@
  *    documents. If a document has a lower percentage score than this, it
  *    will not appear in the mset.  If your intention is to return only
  *    matches which contain all the terms in the query, then consider using
- *    OM_MOP_AND instead of OM_MOP_OR in the query). (default -1 => no
+ *    OmQuery::OP_AND instead of OmQuery::OP_OR in the query). (default -1 => no
  *    cut-off)
  *
  *  - match_max_or_terms : Maximum number of terms which will be used if
