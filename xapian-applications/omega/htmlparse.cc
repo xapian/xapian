@@ -109,9 +109,10 @@ HtmlParser::decode_entities(string &s)
 	}
 	if (end < s_end && *end == ';') end++;
 	if (val) {
+	    string::size_type amp_pos = amp - s.begin();
 	    s.replace(amp - s.begin(), end - amp, 1u, char(val));
 	    s_end = s.end();
-	    ++amp;
+	    amp = s.begin() + amp_pos + 1;
 	} else {
 	    amp = end;
 	}

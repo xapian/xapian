@@ -1,3 +1,7 @@
+Wed Aug 21 18:01:38 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* htmlparse.cc: fixed bug in entity reference handling
+
 Wed Aug 21 13:21:12 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* omindex.cc: Bugfix to metaterm generation when operating on an
