@@ -58,8 +58,9 @@ enum om_queryop {
 
 class OmQuery {
     public:
-        string get_description() const;
-	// 
+        /** Constructs a new query object */
+	%name(OmQuery) OmQuery();
+
         /** Constructs a query consisting of single term
          *  @param tname  The name of the term.
          *  @param wqf  Within-?-frequency.
@@ -68,9 +69,6 @@ class OmQuery {
         %name(OmQueryTerm) OmQuery(const string &tname,
 				   om_termcount wqf = 1,
 				   om_termpos term_pos = 0);
-        /** Constructs a new query object */
-	%name(OmQueryNull) OmQuery();
-
 	%addmethods {
             /** Constructs a query from a set of queries merged with the specified operator */
 	    %name (OmQueryList) OmQuery(om_queryop op,
@@ -91,7 +89,6 @@ class OmQuery {
 	string get_description();
 	bool is_empty() const;
 	void set_window(om_termpos window);
-	void set_length(om_termpos qlen);
 	void set_elite_set_size(om_termpos size);
 	void set_cutoff(om_weight cutoff);
 	om_termcount get_length() const;
@@ -110,6 +107,7 @@ class OmRSet {
 	// TODO: set<om_docid> items;
 	void add_document(om_docid did);
 	void remove_document(om_docid did);
+        string get_description() const;
 };
 
 class OmESet {
@@ -119,6 +117,7 @@ class OmESet {
         string get_description() const;
 	om_termcount get_ebound() const;
 	om_termcount size() const;
+	%name(is_empty) om_termcount empty() const;
 	/* Each language-specific part should include something like:
 	 * %addmethods OmESet {
 	 *     %readonly
@@ -163,18 +162,16 @@ class OmBatchEnquire {
 };
 #endif
 
-#if defined(NOTDEFINED)
 class OmSettings {
     public:
 	OmSettings();
 	~OmSettings();
-
-	void set_value(const string &key, const string &value);
-
-	string get_value(const string &key) const;
+	
+	void set(const string &key, const string &value);
+	string (const string &key) const;
+	string get_description() const;
 	// TODO: make this look like a Dict/hash/whatever?
 };
-#endif
 
 #if defined(NOTDEFINED)
 struct OmDocumentTerm {
@@ -199,16 +196,7 @@ class OmDocument {
     // see them.
     OmKey get_key(om_keyno key) const;
     OmData get_data() const;
-
-    %addmethods {
-        OmDocumentContents() {
-	    return new OmDocumentContents();
-	};
-
-        void set_data(string data_) {
-	    self->set_data(data_);
-	}
-    }
+    void set_data(string data_);
 
     /** Type to store keys in. */
 //    typedef map<om_keyno, OmKey> document_keys;
@@ -248,6 +236,17 @@ class OmDatabase {
 	%name(add_dbargs) void add_database(const OmSettings &params);
 	
 	void add_database(const OmDatabase & database);
+	OmDocument get_document(om_docid did);
+	string get_description() const;
+	void reopen();
+	om_doccount get_doccount() const;
+	om_doclength get_avlength() const;
+	om_doccount get_termfreq(const om_termname &tname) const;
+	bool term_exists(const om_termname &tname) const;
+	om_termcount get_collection_freq(const om_termname &tname) const;
+	om_doclength get_doclength(om_docid docid) const;
+	void keep_alive();
+	// SAMFIX still need term, postlist, positionlist and allterms iterators
 };
 
 class OmWritableDatabase : public OmDatabase {
@@ -263,8 +262,7 @@ class OmWritableDatabase : public OmDatabase {
 
 	om_docid add_document(const OmDocument & document);
 	void delete_document(om_docid did);
-	void replace_document(om_docid did,
-			      const OmDocument & document);
+	void replace_document(om_docid did, const OmDocument & document);
 
 	OmDocument get_document(om_docid did);
 	string get_description() const;

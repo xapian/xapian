@@ -25,22 +25,20 @@
 %include typemaps.i
 
 %typemap(php4, out) string {
-    RETURN_STRINGL((char*)$source.data(), $source.length(),1);
+    RETURN_STRINGL((char*)$1.data(), $1.length(),1);
 }
 
-%typemap(php4, in) const string & (string temp) {
+%typemap(php4, in) const string & {
     convert_to_string_ex($input);
     // Don't like this new string lark, what a waste of init-ing the old string
     $1 = new string(Z_STRVAL_PP($input));
 }
 
 %typemap(php4, out) om_termname_list {
-    int len = $source->size();
-    array_init($target);
+    array_init($result);
 
-    for(om_termname_list::const_iterator tn = $source->begin();
-        tn!=$source->end;$tn++) {
-      add_assoc_string($target,tn->c_str(),tn->c_str(),1);
+    for(om_termname_list::const_iterator tn = $1->begin();
+        tn!=$1->end;$tn++) {
+      add_next_index_stringl($result,tn->c_str(),tn->length(),1);
     }
-    
 }
