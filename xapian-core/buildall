@@ -68,8 +68,17 @@ run() {
   $cmd "$@" || error "in $cmd $*"
 }
 
-# Check for existence of neccessary tools
+# Change to srcdir
+# Note - we do this before testing for neccessary tools so that scripts which
+# guess which autotools version to use have more information available to
+# guess with: for example, the Debian autoconf version guessing script looks
+# for "configure.ac" as a sign that autoconf 2.50+ is required.
+cd "${SRCDIR}"
+if test . != "${SRCDIR}" ; then
+  display "${PROGNAME}: changed to source directory, `pwd`"
+fi
 
+# Check for existence of neccessary tools
 display "${PROGNAME}: checking for tools"
 
 ERRMSG=""
@@ -125,12 +134,6 @@ case "`autoheader --version|sed 's/.* //;q'`" in
 esac
 test -z "${ERRMSG}" ||
 error "${ERRMSG}See HACKING for details of developer tools needed"
-
-# Change to srcdir
-cd "${SRCDIR}"
-if test . != "${SRCDIR}" ; then
-  display "${PROGNAME}: changed to source directory, `pwd`"
-fi
 
 if (exec >/dev/null 2>&1 ; xapian-config --prefix; exit $?) then
   EXTRA_DIR="`xapian-config --prefix`/share/aclocal"

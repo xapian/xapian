@@ -1,3 +1,11 @@
+Sat Sep 14 09:29:08 BST 2002  Richard Boulton <richard.boulton@omsee.com>
+
+	* buildall: change to srcdir before testing for neccessary tools
+	  so that scripts which guess which autotools version to use have more
+	  information available to guess with: for example, the Debian
+	  autoconf version guessing script looks for "configure.ac" as a sign
+	  that autoconf 2.50+ is required.
+
 Sat Sep 14 02:50:23 BST 2002  Olly Betts <olly@survex.com>
 
 	* docs/distributed.txt,docs/quartzdesign.html,docs/todo.xml: assorted
