@@ -40,12 +40,13 @@ class OmError {
 	/// A message giving the context in which the error occurred.
 	std::string context;
 
-	/** The type of the error.
-	 */
+	/// The type of the error.
 	std::string type;
 
-	/** Whether the error has passed through a handler yet.
-	 */
+	/// Value of errno (if any) associated with the error
+	int errno_value;
+
+	/// Whether the error has passed through a handler yet.
 	bool has_been_handled;
 
 	/// assignment operator private and unimplemented
@@ -56,12 +57,14 @@ class OmError {
 	 */
         OmError(const std::string &msg_,
 		const std::string &context_,
-		const std::string &type_);
+		const std::string &type_,
+		int errno_value_);
 
 	OmError(const OmError &copyme)
 		: msg(copyme.msg),
 		  context(copyme.context),
 		  type(copyme.type),
+		  errno_value(copyme.errno_value),
 		  has_been_handled(copyme.has_been_handled) {}
     public:
 	/** Return a message describing the error.
@@ -72,18 +75,22 @@ class OmError {
             return msg;
         }
 
-	/** Return the type of the error.
-	 */
+	/// Return the type of the error.
 	std::string get_type() const
 	{
 	    return type;
 	}
 
-	/** Get the context of the error.
-	 */
+	/// Get the context of the error.
 	std::string get_context() const
 	{
 	    return context;
+	}
+
+	/// Get the errno value associated with the error (or 0 if none).
+	int get_errno() const
+	{
+	    return errno_value;
 	}
 
         /// Instantiations of OmError (as opposed to subclasses) are forbidden
@@ -98,7 +105,8 @@ class a : public b { \
 	/** Constructor used by derived classes. */ \
 	a(const std::string &msg_, \
 	  const std::string &context_, \
-	  const std::string &type_) : b(msg_, context_, type_) {}; \
+	  const std::string &type_, \
+	  int errno_value_) : b(msg_, context_, type_, errno_value_) {}; \
 }
 
 #define DEFINE_ERROR_CLASS(a, b) \
@@ -106,12 +114,17 @@ class a : public b { \
     public: \
 	/** Constructor used publically. */ \
 	a(const std::string &msg_, \
-	  const std::string &context_ = "") : b(msg_, context_, #a) {}; \
+	  const std::string &context_ = "", \
+	  int errno_value_ = 0) : b(msg_, context_, #a, errno_value_) {}; \
+	/** Constructor used publically. */ \
+	a(const std::string &msg_, \
+	  int errno_value_) : b(msg_, "", #a, errno_value_) {}; \
     protected: \
 	/** Constructor used by derived classes. */ \
 	a(const std::string &msg_, \
 	  const std::string &context_, \
-	  const std::string &type_) : b(msg_, context_, type_) {}; \
+	  const std::string &type_, \
+	  int errno_value_) : b(msg_, context_, type_, errno_value_) {}; \
 }
 
 #include "omerrortypes.h"

@@ -61,7 +61,7 @@ TcpClient::get_remote_socket(std::string hostname,
     int socketfd = socket(PF_INET, SOCK_STREAM, 0);
 
     if (socketfd < 0) {
-	throw OmNetworkError(std::string("Couldn't make socket: ") + strerror(errno));
+	throw OmNetworkError("Couldn't create socket", errno);
     }
 
     struct sockaddr_in remaddr;
@@ -76,8 +76,9 @@ TcpClient::get_remote_socket(std::string hostname,
 
     if (retval < 0) {
 	if (errno != EINPROGRESS) {
+	    int saved_errno = errno; // note down in case close hits an error
 	    close(socketfd);
-	    throw OmNetworkError(std::string("Can't connect socket: ") + strerror(errno));
+	    throw OmNetworkError("Couldn't connect", saved_errno);
 	}
 
 	// wait for input to be available.
@@ -93,7 +94,7 @@ TcpClient::get_remote_socket(std::string hostname,
 	
 	if (retval == 0) {
 	    close(socketfd);
-	    throw OmNetworkTimeoutError("Can't connect socket: timed out");
+	    throw OmNetworkTimeoutError("Couldn't connect", ETIMEDOUT);
 	}
 
 	int err = 0;
@@ -101,13 +102,13 @@ TcpClient::get_remote_socket(std::string hostname,
 	retval = getsockopt(socketfd, SOL_SOCKET, SO_ERROR, &err, &len);
 	
 	if (retval < 0) {
-	    err = errno;
+	    int saved_errno = errno; // note down in case close hits an error
 	    close(socketfd);
-	    throw OmNetworkError(std::string("Couldn't get socket options: ") + strerror(err));
+	    throw OmNetworkError("Couldn't get socket options", saved_errno);
 	}
 	if (err) {
 	    close(socketfd);
-	    throw OmNetworkError(std::string("Connect failed: ") + strerror(err));
+	    throw OmNetworkError("Couldn't connect", err);
 	}
     }
 

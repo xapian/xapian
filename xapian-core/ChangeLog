@@ -69,7 +69,7 @@ Fri Nov 24 10:11:05 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 Thu Nov 23 19:40:31 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
-	* Added automatie detection of fdatasync, checking if -lrt is needed,
+	* Added automatic detection of fdatasync, checking if -lrt is needed,
 	  and reverting to fsync if not present.
 
 Thu Nov 23 18:12:59 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>

@@ -26,10 +26,13 @@
 
 OmError::OmError(const std::string &msg_,
 		 const std::string &context_,
-		 const std::string &type_)
-	: msg(msg_), context(context_), type(type_), has_been_handled(false)
+		 const std::string &type_,
+		 int errno_value_)
+	: msg(msg_), context(context_), type(type_),
+	  errno_value(errno_value_), has_been_handled(false)
 {
-    DEBUGLINE(EXCEPTION, type << "(" << msg << ", " << context_ << ")");
+    DEBUGLINE(EXCEPTION, type << "(" << msg << ", " << context_
+	                 << errno_value_ << ")");
 }
 
 void
@@ -39,4 +42,3 @@ OmErrorHandler::operator() (OmError & error)
     error.has_been_handled = true;
     if (!handle_error(error)) throw error;
 }
-
