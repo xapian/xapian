@@ -58,8 +58,6 @@ cp HACKING %{buildroot}/usr/share/doc/%{name}-devel-%{version}
 %{_bindir}/quartzcheck
 %{_bindir}/quartzcompact
 %{_bindir}/quartzdump
-%{_libdir}/libomqueryparser.so
-%{_libdir}/libomqueryparser.so.*
 %{_libdir}/libxapianqueryparser.so
 %{_libdir}/libxapianqueryparser.so.*
 %{_libdir}/libxapian.so
@@ -69,11 +67,8 @@ cp HACKING %{buildroot}/usr/share/doc/%{name}-devel-%{version}
 %files devel
 %defattr(-, root, root)
 %{_bindir}/xapian-config
-%{_includedir}/om
 %{_includedir}/xapian
 %{_includedir}/xapian.h
-%{_libdir}/libomqueryparser.a
-%{_libdir}/libomqueryparser.la
 %{_libdir}/libxapianqueryparser.a
 %{_libdir}/libxapianqueryparser.la
 %{_libdir}/libxapian.a

@@ -1,3 +1,11 @@
+Mon Aug 16 15:27:30 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.spec.in,debian/libxapianVERSION-dev.install,
+	  extra/.cvsignore,extra/Makefile.am,extra/omparsequery.h,
+	  include/Makefile.am,include/om/.cvsignore,include/om/dir_contents,
+	  include/om/om.h,m4/xapian.m4: Removed the compatibility layer which
+	  allowed programs written against the pre-0.7.0 API to be compiled.
+
 Mon Aug 16 15:08:08 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_table.cc: Fixed QuartzCursor::find()
