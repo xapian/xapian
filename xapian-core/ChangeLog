@@ -1,3 +1,8 @@
+Wed Nov 03 01:10:01 GMT 2004  Olly Betts <olly@survex.com>
+
+	* autoconf/type_socklen_t.m4: Rewritten to work with HPUX which
+	  helpfully defines socklen_t but doesn't use it!
+
 Tue Nov 02 21:29:40 GMT 2004  Olly Betts <olly@survex.com>
 
 	* getopt/getopt.cc: Fixes for Compaq C++.
