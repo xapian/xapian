@@ -1,3 +1,7 @@
+Mon Dec 11 13:53:18 GMT 2000 Olly Betts
+
+	* omenquire.h: Removed superfluous declaration of OmMSetCmp.
+
 Mon Dec 11 13:38:12 GMT 2000 Olly Betts
 
 	* Updated TODO list.

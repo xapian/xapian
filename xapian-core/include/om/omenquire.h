@@ -34,7 +34,6 @@
 
 class OmQuery;
 class OmErrorHandler;
-class OmMSetCmp; // Declare mset item comparison class
 
 ///////////////////////////////////////////////////////////////////
 // OmMSet class
