@@ -1,3 +1,12 @@
+Wed Mar 02 02:59:23 GMT 2005  Olly Betts <olly@survex.com>
+
+	* bin/quartzcheck.cc: Now checks the structure of all the tables, not
+	  just the postlist table, and cross-checks doclen values between
+	  termlist and postlist tables.  Recognises "--help" option.  Should
+	  now continue after an error (typically it would crash before), and
+	  counts the number of errors found.  Now exits with non-zero status
+	  if any errors were found.
+
 Tue Mar 01 18:48:25 GMT 2005  Olly Betts <olly@survex.com>
 
 	* xapian.spec.in: '/usr/share' -> '%{_datadir}'.
