@@ -557,7 +557,7 @@ static bool test_expandmaxitems1()
     return true;
 }
 
-// tests that a pure boolean query has all weights set to 1
+// tests that a pure boolean query has all weights set to 0
 static bool test_boolquery1()
 {
     Xapian::Query myboolquery(query("this"));
