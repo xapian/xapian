@@ -46,6 +46,7 @@ public:
     cvs_log_entry();
     virtual ~cvs_log_entry() {}
     const cvs_revision & revision() const { return _revision; }
+    const string & comments()       const { return _comments;}
     const string & date()           const { return _date; }
     const string & author()         const { return _author; }
     const string & state()          const { return _state; }

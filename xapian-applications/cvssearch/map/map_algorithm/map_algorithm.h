@@ -29,6 +29,8 @@
 #include "diff.h"
 #include "virtual_iostream.h"
 
+#include "cvs_db_file.h"
+
 class map_algorithm : public virtual_iostream
 {
 protected:

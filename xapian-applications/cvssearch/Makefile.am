@@ -1,1 +1,1 @@
-SUBDIRS = map db
+SUBDIRS = db map

@@ -27,10 +27,16 @@
 #include "process.h"
 #include "aligned_diff.h"
 
-forward_range_map_algorithm::forward_range_map_algorithm(const cvs_log & log, unsigned int index)
-   :range_map_algorithm(index)
+forward_range_map_algorithm::forward_range_map_algorithm(const cvs_log & log, unsigned int index, cvs_db_file * db_file)
+    :range_map_algorithm(index),
+     _db_file(db_file),
+     _log(log)
 {
     parse_log(log);
+    if (_db_file)
+    {
+        get_line_mappings(*_db_file);
+    }
 }
 
 void
@@ -236,6 +242,34 @@ forward_range_map_algorithm::parse_diff_entry(const cvs_log_entry & log_entry, c
     _begin_entries.insert(new_entries.begin(), new_entries.end());
     _end_entries.insert(new_entries.begin(), new_entries.end());
     assert(_begin_entries.size() == _end_entries.size());
+}
+
+void
+forward_range_map_algorithm::get_line_mappings(cvs_db_file & db_file) const
+{
+    int val = 0;
+    unsigned int file_id;
+
+    if ((val = db_file.put_filename(file_id, _log.path_name())) == 0)
+    {
+        for (unsigned int i = 0; i < _log.size(); ++i)
+        {
+            if ((val = db_file.put_revision(file_id, _log[i].revision())) == 0 &&
+                (val = db_file.put_comment (file_id, _log[i].revision(), _log[i].comments())) == 0)
+            {
+            }
+                 
+        }
+        multiset<range_map *, range_begin_less_than>::const_iterator itr;
+        for (itr = _begin_entries.begin(); itr != _begin_entries.end(); ++itr)
+        {
+            range_map * pmap = *(itr);
+            for (unsigned int i = pmap->begin(); i < pmap->end(); ++i)
+            {
+                db_file.put_mapping(_index, pmap->log_entry().revision(), i);
+            }
+        }
+    }
 }
 
 

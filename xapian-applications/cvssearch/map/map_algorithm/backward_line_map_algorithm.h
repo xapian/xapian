@@ -36,13 +36,10 @@ using std::set;
 class backward_line_map_algorithm : public backward_map_algorithm, public line_map_algorithm
 {
 protected:
-    const cvs_log_entry * _pcurrent_log_entry;
-    const cvs_log_entry * _pprevious_log_entry;
+    cvs_db_file * _db_file;
+    const cvs_log & _log;
     const string & _filename;
     const string & _pathname;
-    set <unsigned int> _deletes;
-    set <unsigned int> _changes;
-    set <unsigned int> _adds;
 
     vector <unsigned int> _contents;
     unsigned int _current_index;
@@ -52,10 +49,12 @@ protected:
     virtual void last(const cvs_log_entry & log_entry, unsigned int);
     ostream & show(ostream & os) const { return line_map_algorithm::show(os);}
 public:
-    backward_line_map_algorithm(const cvs_log & log, unsigned int index);
+    backward_line_map_algorithm(const cvs_log & log, unsigned int index, cvs_db_file * db_file = 0);
     unsigned int size() const     { return line_map_algorithm::size();}
     unsigned int lines() const    { return line_map_algorithm::lines();}
     unsigned int mappings() const { return line_map_algorithm::mappings();}
+
+    void get_line_mappings(cvs_db_file & db_file) const;
 };
 
 #endif
