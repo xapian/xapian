@@ -174,22 +174,38 @@ bool test_flowcheck1()
     return success;
 }
 
+AutoPtr<OmIndexer> make_indexer_one_node(const std::string &type,
+					 const std::string &input = "in",
+					 const std::string &output = "out",
+					 const std::string &param = "")
+{
+    OmIndexerBuilder builder;
+
+    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+      std::string(
+      "<?xml version=\"1.0\"?>\n"
+      "<omindexer>\n"
+         "<node type='") + type + "' id='only'>\n"
+	     + param + 
+	     ((input.length() > 0)?
+	       std::string("<input name='")
+	       + input + "' node='START' out_name='out'/>\n"
+	     : std::string("")) + 
+	 "</node>\n"
+         "<output node='only' out_name='" + output + "'/>\n"
+      "</omindexer>\n");
+      // FIXME: on PPC, it seems to miss the last character, so complains
+      // that there's no final >.  Stop the bodge, and investigate.
+
+      return indexer;
+}
+
 bool test_omsplitter1()
 {
     bool success = false;
 
-    OmIndexerBuilder builder;
-
-    AutoPtr<OmIndexer> indexer = builder.build_from_string(
-      "<?xml version=\"1.0\"?>\n"
-      "<omindexer>\n"
-         "<node type='omsplitter' id='only'>\n"
-	     "<input name='in' node='START' out_name='out'/>\n"
-	 "</node>\n"
-         "<output node='only' out_name='right'/>\n"
-      "</omindexer>\n");
-      // FIXME: on PPC, it seems to miss the last character, so complains
-      // that there's no final >.  Stop the bodge, and investigate.
+    AutoPtr<OmIndexer> indexer = make_indexer_one_node("omsplitter",
+						       "in", "right");
 
     indexer->set_input(OmIndexerMessage(new OmIndexerData("garbage")));
     OmIndexerMessage result = indexer->get_raw_output();
@@ -205,17 +221,9 @@ bool test_omstemmer1()
 {
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer = builder.build_from_string(
-      "<?xml version=\"1.0\"?>\n"
-      "<omindexer>\n"
-         "<node type='omstemmer' id='only'>\n"
-	     "<param type='string' name='language' value='english'/>\n"
-	     "<input name='in' node='START' out_name='out'/>\n"
-	 "</node>\n"
-         "<output node='only' out_name='out'/>\n"
-      "</omindexer>\n");
-      // FIXME: on PPC, it seems to miss the last character, so complains
-      // that there's no final >.  Stop the bodge, and investigate.
+    AutoPtr<OmIndexer> indexer =
+	    make_indexer_one_node("omstemmer", "in", "out",
+		"<param type='string' name='language' value='english'/>\n");
 
     OmIndexerMessage result;
     OmStem stemmer("english");
@@ -261,17 +269,9 @@ bool test_omprefix1()
 {
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer = builder.build_from_string(
-      "<?xml version=\"1.0\"?>\n"
-      "<omindexer>\n"
-         "<node type='omprefix' id='only'>\n"
-	     "<param type='string' name='prefix' value='WIB'/>\n"
-	     "<input name='in' node='START' out_name='out'/>\n"
-	 "</node>\n"
-         "<output node='only' out_name='out'/>\n"
-      "</omindexer>\n");
-      // FIXME: on PPC, it seems to miss the last character, so complains
-      // that there's no final >.  Stop the bodge, and investigate.
+    AutoPtr<OmIndexer> indexer =
+	    make_indexer_one_node("omprefix", "in", "out",
+	     "<param type='string' name='prefix' value='WIB'/>\n");
 
     OmIndexerMessage result;
 
@@ -306,20 +306,12 @@ bool test_omstopword1()
 {
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer = builder.build_from_string(
-      "<?xml version=\"1.0\"?>\n"
-      "<omindexer>\n"
-         "<node type='omstopword' id='only'>\n"
+    AutoPtr<OmIndexer> indexer =
+	    make_indexer_one_node("omstopword", "in", "out",
 	     "<param type='list' name='stopwords'>\n"
 	         "<item value='stop1'/>\n"
 		 "<item value='2stop'/>\n"
-	     "</param>\n"
-	     "<input name='in' node='START' out_name='out'/>\n"
-	 "</node>\n"
-         "<output node='only' out_name='out'/>\n"
-      "</omindexer>\n");
-      // FIXME: on PPC, it seems to miss the last character, so complains
-      // that there's no final >.  Stop the bodge, and investigate.
+	     "</param>\n");
 
     OmIndexerMessage result;
 
@@ -357,16 +349,7 @@ bool test_omflattenstring1()
 {
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer = builder.build_from_string(
-      "<?xml version=\"1.0\"?>\n"
-      "<omindexer>\n"
-         "<node type='omflattenstring' id='only'>\n"
-	     "<input name='in' node='START' out_name='out'/>\n"
-	 "</node>\n"
-         "<output node='only' out_name='out'/>\n"
-      "</omindexer>\n");
-      // FIXME: on PPC, it seems to miss the last character, so complains
-      // that there's no final >.  Stop the bodge, and investigate.
+    AutoPtr<OmIndexer> indexer = make_indexer_one_node("omflattenstring");
 
     OmIndexerMessage result;
 
@@ -401,18 +384,10 @@ bool test_omtranslate1()
 {
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer = builder.build_from_string(
-      "<?xml version=\"1.0\"?>\n"
-      "<omindexer>\n"
-         "<node type='omtranslate' id='only'>\n"
+    AutoPtr<OmIndexer> indexer =
+	    make_indexer_one_node("omtranslate", "in", "out",
 	     "<param type='string' name='from' value='abcdefghijklmnopqrstuvwxyz'/>\n"
-	     "<param type='string' name='to' value='nopqrstuvwxyzabcdefghijklm'/>\n"
-	     "<input name='in' node='START' out_name='out'/>\n"
-	 "</node>\n"
-         "<output node='only' out_name='out'/>\n"
-      "</omindexer>\n");
-      // FIXME: on PPC, it seems to miss the last character, so complains
-      // that there's no final >.  Stop the bodge, and investigate.
+	     "<param type='string' name='to' value='nopqrstuvwxyzabcdefghijklm'/>\n");
 
     OmIndexerMessage result;
 
@@ -457,17 +432,10 @@ test_omfilereader1()
 
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer = builder.build_from_string(
-      "<?xml version=\"1.0\"?>\n"
-      "<omindexer>\n"
-         "<node type='omfilereader' id='only'>\n"
-	     "<param type='string' name='filename' value='" +
-	           datadir + "indextest_filereader.txt'/>\n"
-	 "</node>\n"
-         "<output node='only' out_name='out'/>\n"
-      "</omindexer>\n");
-      // FIXME: on PPC, it seems to miss the last character, so complains
-      // that there's no final >.  Stop the bodge, and investigate.
+    AutoPtr<OmIndexer> indexer =
+	    make_indexer_one_node("omfilereader", "", "out",
+		std::string("<param type='string' name='filename' value='") +
+	           datadir + "indextest_filereader.txt'/>\n");
 
     OmIndexerMessage result = indexer->get_raw_output();
 
@@ -492,16 +460,8 @@ bool test_omfilereader2()
 
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer = builder.build_from_string(
-      "<?xml version=\"1.0\"?>\n"
-      "<omindexer>\n"
-         "<node type='omfilereader' id='only'>\n"
-	     "<input name='filename' node='START' out_name='out'/>\n"
-	 "</node>\n"
-         "<output node='only' out_name='out'/>\n"
-      "</omindexer>\n");
-      // FIXME: on PPC, it seems to miss the last character, so complains
-      // that there's no final >.  Stop the bodge, and investigate.
+    AutoPtr<OmIndexer> indexer = 
+	    make_indexer_one_node("omfilereader", "filename");
 
     indexer->set_input(OmIndexerMessage(new OmIndexerData(datadir
 				+ "indextest_filereader.txt")));
@@ -527,16 +487,8 @@ bool test_omvectorsplit1()
 {
     OmIndexerBuilder builder;
 
-    AutoPtr<OmIndexer> indexer = builder.build_from_string(
-      "<?xml version=\"1.0\"?>\n"
-      "<omindexer>\n"
-         "<node type='omvectorsplit' id='only'>\n"
-	     "<input name='in' node='START' out_name='out'/>\n"
-	 "</node>\n"
-         "<output node='only' out_name='out'/>\n"
-      "</omindexer>\n");
-      // FIXME: on PPC, it seems to miss the last character, so complains
-      // that there's no final >.  Stop the bodge, and investigate.
+    AutoPtr<OmIndexer> indexer =
+	    make_indexer_one_node("omvectorsplit");
 
     OmIndexerMessage result;
 
@@ -628,15 +580,7 @@ test_badnode1()
 {
     bool success = false;
     try {
-	OmIndexerBuilder builder;
-	builder.build_from_string(
-      "<?xml version=\"1.0\"?>\n"
-      "<omindexer>\n"
-         "<node type='non-existant' id='only'>\n"
-	     "<input name='in' node='START' out_name='out'/>\n"
-	 "</node>\n"
-         "<output node='only' out_name='out'/>\n"
-      "</omindexer>\n");
+	make_indexer_one_node("non-existant");
     } catch (OmInvalidDataError &) {
 	success = true;
     }

@@ -1,3 +1,7 @@
+Wed Nov  8 13:40:26 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Factored some common code out of most index tests.
+
 Wed Nov 08 12:16:20 GMT 2000 Olly Betts
 
 	* Switched back to MSetPostList (for now at least).
