@@ -36,6 +36,7 @@ x86   | Linux 2.4 RedHat 7.3 GCC 2.96  | 0.8.0 |Passed| from Chris Good
 x86   |*Linux 2.4 RedHat 9.0 GCC 3.2.2 | 0.8.0 |Passed|
 x86   |*Linux 2.4 RedHat AS3 GCC 2.96  | 0.8.0 |Passed|
 x86   |*Linux 2.4 RedHat AS3 GCC 3.2.3 | 0.8.0 |Passed|
+x86   | Linux 2.4 Slackw. 9.1 GCC 3.2.3|~0.8.1 |Passed| from tweakers.net
 x86   |!FreeBSD 4.8 GCC 2.95.4         | 0.8.0 |Passed| [1]
 x86   |*FreeBSD 4.10 GCC 2.95.4        | 0.8.0 |Passed| [1]
 x86   |*NetBSD 1.6.1 GCC 2.95.3        | 0.8.0 |Passed|
