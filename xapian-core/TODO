@@ -30,9 +30,6 @@ H|2| |Postlist     | Add ability to retrieve collection frequency
 H|3| |General / API| Put Om into its own namespace, to ensure lack of
  | | |             | symbol conflicts.
 -+-+-+-------------+-----------------------------------------------------------
-H|3| |Database     | OmDatabase and related classes are in misleadingly named
- | | |             | files in several cases - fix this.
--+-+-+-------------+-----------------------------------------------------------
 H|5|C|API          | Write bindings for other languages (Java, C,
  | | |             | perl, python, etc.). [In progress, apart from C].
 -+-+-+-------------+-----------------------------------------------------------
