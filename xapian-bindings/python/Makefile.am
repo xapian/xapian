@@ -44,12 +44,12 @@ if MAINTAINER_MODE
 # Python versions (which in our case means 2.1).
 
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i extra.i
-	-mkdir modern
+	test -d modern || mkdir modern
 	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -python -shadow -modern \
 	    -o modern/xapian_wrap.cc $(srcdir)/../xapian.i
 
 olde/xapian_wrap.cc olde/xapian_wrap.h olde/xapian.py: ../xapian.i util.i extra.i
-	-mkdir olde
+	test -d olde || mkdir olde
 	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -python -shadow \
 	    -o olde/xapian_wrap.cc $(srcdir)/../xapian.i
 
