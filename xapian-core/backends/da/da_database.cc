@@ -54,7 +54,7 @@ PostList * DAPostList::next(weight w_min)
 
 PostList * DAPostList::skip_to(docid id, weight w_min)
 {
-    Assert(!at_end());
+    Assert(currdoc == 0 || !at_end());
     Assert(id >= currdoc);
     if (currdoc && id <= docid(postlist->E)) {
 	// skip_to later in the current range
