@@ -30,7 +30,7 @@
 class QuartzDatabase;
 
 /// A document from a Quartz format database
-class QuartzDocument : public LeafDocument {
+class QuartzDocument : public Document {
     friend class QuartzDatabase;
     friend class QuartzWritableDatabase;
     private:

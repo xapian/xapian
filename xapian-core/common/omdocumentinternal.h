@@ -28,17 +28,17 @@
 #include "document.h"
 
 // A document - holds keys, terms, and document data
-// Data be in a database (accessed via a LeafDocument) or held by this class
+// Data be in a database (accessed via a Document) or held by this class
 // (or some combination if a document from a database is being amended).
 class OmDocument::Internal {
     public:
-	/// The reference counted pointer to a LeafDocument instance
-	RefCntPtr<LeafDocument> ptr;
+	/// The reference counted pointer to a Document instance
+	RefCntPtr<Document> ptr;
 
-	explicit Internal(LeafDocument *ld) : ptr(ld),
+	explicit Internal(Document *ld) : ptr(ld),
 		data_here(false), keys_here(false), terms_here(false) {}
 
-	explicit Internal(RefCntPtr<LeafDocument> ptr_) : ptr(ptr_),
+	explicit Internal(RefCntPtr<Document> ptr_) : ptr(ptr_),
 		data_here(false), keys_here(false), terms_here(false) {}
 
 	Internal(const Internal &other)

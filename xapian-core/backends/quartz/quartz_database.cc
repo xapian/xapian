@@ -362,7 +362,7 @@ QuartzDatabase::open_term_list(om_docid did) const
     return open_term_list_internal(did, ptrtothis);
 }
 
-LeafDocument *
+Document *
 QuartzDatabase::open_document(om_docid did) const
 {
     Assert(did != 0);
@@ -703,7 +703,7 @@ QuartzWritableDatabase::open_term_list(om_docid did) const
     return database_ro.open_term_list_internal(did, ptrtothis);
 }
 
-LeafDocument *
+Document *
 QuartzWritableDatabase::open_document(om_docid did) const
 {
     Assert(did != 0);

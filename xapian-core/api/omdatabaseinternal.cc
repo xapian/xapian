@@ -127,7 +127,7 @@ OmDatabase::Internal::open_term_list(om_docid did, const OmDatabase &db) const
     return new MultiTermList(newtl, databases[dbnumber], db);
 }
 
-LeafDocument *
+Document *
 OmDatabase::Internal::open_document(om_docid did) const
 {
     unsigned int multiplier = databases.size();

@@ -113,7 +113,7 @@ InMemoryDatabase::open_term_list(om_docid did) const
 				termlists[did - 1], get_doclength(did));
 }
 
-LeafDocument *
+Document *
 InMemoryDatabase::open_document(om_docid did) const
 {
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");

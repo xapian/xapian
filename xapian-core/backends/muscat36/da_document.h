@@ -29,7 +29,7 @@
 class DADatabase;
 
 /// A document from a DA format database
-class DADocument : public LeafDocument {
+class DADocument : public Document {
     friend class DADatabase;
     private:
 	const DADatabase * database;

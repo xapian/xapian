@@ -139,7 +139,7 @@ SleepycatDatabase::open_term_list(om_docid did) const
 				 internals.get(), termcache.get());
 }
 
-LeafDocument *
+Document *
 SleepycatDatabase::open_document(om_docid did) const
 {
     return new SleepycatDocument(internals->document_db,

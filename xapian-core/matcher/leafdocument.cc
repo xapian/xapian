@@ -27,21 +27,21 @@
 #include <om/omdocument.h>
 
 OmKey
-LeafDocument::get_key(om_keyno keyid) const
+Document::get_key(om_keyno keyid) const
 {
     OmLockSentry locksentry(mutex);
     return do_get_key(keyid);
 }
 
 std::map<om_keyno, OmKey>
-LeafDocument::get_all_keys() const
+Document::get_all_keys() const
 {
     OmLockSentry locksentry(mutex);
     return do_get_all_keys();
 }
 
 OmData
-LeafDocument::get_data() const
+Document::get_data() const
 {
     OmLockSentry locksentry(mutex);
     return do_get_data();

@@ -375,7 +375,7 @@ DBDatabase::get_key(om_docid did, om_keyno keyid) const
     return key;
 }
 
-LeafDocument *
+Document *
 DBDatabase::open_document(om_docid did) const
 {
     OmLockSentry sentry(mutex);

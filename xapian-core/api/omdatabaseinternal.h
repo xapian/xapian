@@ -90,7 +90,7 @@ class OmDatabase::Internal {
 
 	LeafTermList *open_term_list(om_docid did, const OmDatabase &db) const;
 
-	LeafDocument *open_document(om_docid did) const;
+	Document *open_document(om_docid did) const;
 
 	RefCntPtr<PositionList> open_position_list(om_docid did,
 					 const om_termname &tname) const;

@@ -70,7 +70,7 @@ class MultiMatch
 	/// get the collapse key
 	OmKey get_collapse_key(PostList *pl, const OmDatabase &db,
 			       om_docid did, om_keyno keyno,
-			       RefCntPtr<LeafDocument> &doc);
+			       RefCntPtr<Document> &doc);
 
 	/// Copying is not permitted.
 	MultiMatch(const MultiMatch &);

@@ -32,13 +32,13 @@ class OmKey;
 class OmData;
 
 /// A document in the database - holds keys and records
-class LeafDocument : public RefCntBase {
+class Document : public RefCntBase {
     private:
 	/// Copies are not allowed.
-	LeafDocument(const LeafDocument &);
+	Document(const Document &);
 
 	/// Assignment is not allowed.
-	void operator=(const LeafDocument &);
+	void operator=(const Document &);
 
 	OmLock mutex;
 
@@ -101,12 +101,12 @@ class LeafDocument : public RefCntBase {
 	 *  private method, and only be called by database objects of the
 	 *  corresponding type.
 	 */
-	LeafDocument() {};
+	Document() {};
 
 	/** Destructor.  Note that the database object which created this
 	 *  document must still exist at the time this is called.
 	 */
-	virtual ~LeafDocument() {}
+	virtual ~Document() {}
 };
 
 #endif  // OM_HGUARD_DOCUMENT_H

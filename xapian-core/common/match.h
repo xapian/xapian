@@ -85,7 +85,7 @@ class SubMatch : public RefCntBase {
 	
 	virtual PostList * get_postlist(om_doccount maxitems, MultiMatch *matcher) = 0;
 
-	virtual LeafDocument * open_document(om_docid did) const = 0;
+	virtual Document * open_document(om_docid did) const = 0;
 
 	virtual const std::map<om_termname, OmMSet::TermFreqAndWeight> get_term_info() const = 0;
 };

@@ -409,7 +409,7 @@ OmEnquire::Internal::get_docs(std::vector<OmMSetItem>::const_iterator begin,
 	om_docid realdid = (i->did - 1) / multiplier + 1;
 	om_doccount dbnumber = (i->did - 1) % multiplier;
 	
-	LeafDocument *doc = internal->databases[dbnumber]->collect_document(realdid);
+	Document *doc = internal->databases[dbnumber]->collect_document(realdid);
 	docs.push_back(OmDocument(new OmDocument::Internal(doc)));
     }
 
@@ -452,7 +452,7 @@ OmEnquire::Internal::read_doc(om_docid did) const
     om_docid realdid = (did - 1) / multiplier + 1;
     om_doccount dbnumber = (did - 1) % multiplier;
 
-    LeafDocument *doc = internal->databases[dbnumber]->open_document(realdid);
+    Document *doc = internal->databases[dbnumber]->open_document(realdid);
 
     return OmDocument(new OmDocument::Internal(doc));
 }

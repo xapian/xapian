@@ -343,7 +343,7 @@ SocketServer::run_match(const std::string &firstmessage)
 		std::string msg = om_tostring(did);
 		if (w != 0) msg += " " + om_tostring(w);
 		if (do_collapse) {
-		    AutoPtr<LeafDocument> doc(OmDatabase::InternalInterface::get(match.db)->open_document(did));
+		    AutoPtr<Document> doc(OmDatabase::InternalInterface::get(match.db)->open_document(did));
 		    msg += ";" + omkey_to_string(doc->get_key(collapse_key));		    
 		}
 		buf->writeline(msg);
@@ -412,7 +412,7 @@ SocketServer::run_getdocument(const std::string &firstmessage)
 
     om_docid did = atoi(message.c_str());
 
-    AutoPtr<LeafDocument> doc(OmDatabase::InternalInterface::get(db)->open_document(did));
+    AutoPtr<Document> doc(OmDatabase::InternalInterface::get(db)->open_document(did));
 
     buf->writeline("O" + encode_tname(doc->get_data().value));
 

@@ -191,12 +191,12 @@ MultiMatch::get_postlist(om_doccount first, om_doccount maxitems,
 
 inline OmKey
 MultiMatch::get_collapse_key(PostList *pl, const OmDatabase &db, om_docid did,
-			     om_keyno keyno, RefCntPtr<LeafDocument> &doc)
+			     om_keyno keyno, RefCntPtr<Document> &doc)
 {		      
     const OmKey *key = pl->get_collapse_key();
     if (key) return *key;
     if (doc.get() == 0) {
-	RefCntPtr<LeafDocument> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
+	RefCntPtr<Document> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
 	doc = temp;
     }
     return doc->get_key(keyno);
@@ -288,14 +288,14 @@ MultiMatch::get_mset_2(PostList *pl,
 	    
 	    om_docid did = pl->get_docid();
 	    
-	    RefCntPtr<LeafDocument> doc;
+	    RefCntPtr<Document> doc;
 	    
 	    // Use the decision functor if any.
 	    // FIXME: if results are from MSetPostList then we can omit this
 	    // step
 	    if (mdecider != NULL) {
 		if (doc.get() == 0) {
-		    RefCntPtr<LeafDocument> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
+		    RefCntPtr<Document> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
 		    doc = temp;
 		}
 		OmDocument mydoc(new OmDocument::Internal(doc));
@@ -405,14 +405,14 @@ MultiMatch::get_mset_2(PostList *pl,
 	    // test if item has high enough weight to get into proto-mset
 	    if (!mcmp(new_item, min_item)) continue;
 	    
-	    RefCntPtr<LeafDocument> doc;
+	    RefCntPtr<Document> doc;
 	    
 	    // Use the decision functor if any.
 	    // FIXME: if results are from MSetPostList then we can omit this
 	    // step
 	    if (mdecider != NULL) {
 		if (doc.get() == 0) {
-		    RefCntPtr<LeafDocument> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
+		    RefCntPtr<Document> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
 		    doc = temp;
 		}
 		OmDocument mydoc(new OmDocument::Internal(doc));

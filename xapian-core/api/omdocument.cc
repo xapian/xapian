@@ -48,7 +48,7 @@ OmDocument::get_key(om_keyno key) const
 	RETURN(i->second);
     }
     // create our own RefCntPtr in case another thread assigns a new ptr
-    RefCntPtr<LeafDocument> myptr = internal->ptr;
+    RefCntPtr<Document> myptr = internal->ptr;
     RETURN(myptr->get_key(key));
 }
 
@@ -58,7 +58,7 @@ OmDocument::get_data() const
     DEBUGAPICALL(OmData, "OmDocument::get_data", "");
     if (internal->data_here) RETURN(internal->data);
     // create our own RefCntPtr in case another thread assigns a new ptr
-    RefCntPtr<LeafDocument> myptr = internal->ptr;
+    RefCntPtr<Document> myptr = internal->ptr;
     RETURN(myptr->get_data());
 }
 
@@ -142,7 +142,7 @@ OmDocument::add_posting(const om_termname & tname, om_termpos tpos)
     DEBUGAPICALL(void, "OmDocument::add_posting", tname << ", " << tpos);
     // FIXME: need to lock here...
     if (!internal->terms_here) {
-	// FIXME: read terms from LeafDocument into terms
+	// FIXME: read terms from Document into terms
 	Assert(false);
 	internal->terms_here = true;
     }
@@ -163,7 +163,7 @@ OmDocument::remove_posting(const om_termname & tname, om_termpos tpos)
     DEBUGAPICALL(void, "OmDocument::remove_posting", tname << ", " << tpos);
     // FIXME: need to lock here...
     if (!internal->terms_here) {
-	// FIXME: read terms from LeafDocument into terms
+	// FIXME: read terms from Document into terms
 	Assert(false);
 	internal->terms_here = true;
     }
@@ -184,7 +184,7 @@ OmDocument::remove_term(const om_termname & tname)
     DEBUGAPICALL(void, "OmDocument::remove_term", tname);
     // FIXME: need to lock here...
     if (!internal->terms_here) {
-	// FIXME: read terms from LeafDocument into terms
+	// FIXME: read terms from Document into terms
 	Assert(false);
 	internal->terms_here = true;
     }

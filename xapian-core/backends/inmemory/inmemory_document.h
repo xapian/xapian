@@ -26,7 +26,7 @@
 #include "document.h"
 #include <string>
 
-class InMemoryDocument : public LeafDocument {
+class InMemoryDocument : public Document {
     friend class InMemoryDatabase;
     private:
 	std::string doc;

@@ -31,7 +31,7 @@
 #include "omlocks.h"
 #include "emptypostlist.h"
 
-class LeafDocument;
+class Document;
 class LeafPostList;
 class LeafTermList;
 class PositionList;
@@ -253,7 +253,7 @@ class Database : public RefCntBase {
 	/** Open a document.
 	 *
 	 *  This is used to access the keys and data associated with a
-	 *  document.  See class LeafDocument for details of accessing
+	 *  document.  See class Document for details of accessing
 	 *  the keys and data.
 	 *
 	 *  @param did    The document id which is being requested.
@@ -262,7 +262,7 @@ class Database : public RefCntBase {
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
-	virtual LeafDocument * open_document(om_docid did) const = 0;
+	virtual Document * open_document(om_docid did) const = 0;
 
 
 	//////////////////////////////////////////////////////////////////
@@ -344,7 +344,7 @@ class Database : public RefCntBase {
 	//@{
 	virtual void request_document(om_docid did) const { }
 
-	virtual LeafDocument * collect_document(om_docid did) const {
+	virtual Document * collect_document(om_docid did) const {
 	    return open_document(did);
 	}
 	//@}

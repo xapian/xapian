@@ -1,3 +1,7 @@
+Wed Nov 29 13:18:24 GMT 2000 Olly Betts
+
+	* LeafDocument class renamed to Document.
+
 Wed Nov 29 12:35:49 GMT 2000 Olly Betts
 
 	* Added OmDocument::remove_posting(), OmDocument::remove_term(),

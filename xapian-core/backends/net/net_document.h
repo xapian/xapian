@@ -26,7 +26,7 @@
 #include "document.h"
 #include <string>
 
-class NetworkDocument : public LeafDocument {
+class NetworkDocument : public Document {
     friend class NetworkDatabase;
     private:
 	std::string doc;

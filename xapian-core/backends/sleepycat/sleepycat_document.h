@@ -34,7 +34,7 @@
 
 /** A document in a sleepycat Database.
  */
-class SleepycatDocument : public LeafDocument {
+class SleepycatDocument : public Document {
     friend class SleepycatDatabase;
     private:
 	/** The database in which the document data is held.

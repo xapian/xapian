@@ -32,7 +32,7 @@
 
 class IRWeight;
 class Database;
-class LeafDocument;
+class Document;
 class PostList;
 
 #include <vector>
@@ -130,7 +130,7 @@ class LocalSubMatch : public SubMatch {
 
 	PostList * get_postlist(om_doccount maxitems, MultiMatch *matcher);
 
-	virtual LeafDocument * open_document(om_docid did) const {
+	virtual Document * open_document(om_docid did) const {
 	    return db->open_document(did);
 	}
 

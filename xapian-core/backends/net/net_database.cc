@@ -104,7 +104,7 @@ NetworkDatabase::open_term_list(om_docid did) const {
 			       RefCntPtr<const NetworkDatabase>(RefCntPtrToThis(), this));
 }
 
-LeafDocument *
+Document *
 NetworkDatabase::open_document(om_docid did) const
 {
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
@@ -128,7 +128,7 @@ NetworkDatabase::request_document(om_docid did) const
     link->request_doc(did);
 }
 
-LeafDocument *
+Document *
 NetworkDatabase::collect_document(om_docid did) const
 {
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
