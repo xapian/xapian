@@ -236,7 +236,9 @@ class OmMSet::Internal {
 
     public:
 	Internal()
-		: firstitem(0),
+		: percent_factor(0),
+		  have_percent_factor(false),
+		  firstitem(0),
 		  matches_lower_bound(0),
 		  matches_estimated(0),
 		  matches_upper_bound(0),
@@ -251,7 +253,8 @@ class OmMSet::Internal {
 		 om_weight max_attained_,
 		 const std::vector<OmMSetItem> &items_,
 		 const std::map<om_termname, TermFreqAndWeight> &termfreqandwts_)
-		: termfreqandwts(termfreqandwts_),
+		: have_percent_factor(false),
+		  termfreqandwts(termfreqandwts_),
 		  items(items_),
 		  firstitem(firstitem_),
 		  matches_lower_bound(matches_lower_bound_),

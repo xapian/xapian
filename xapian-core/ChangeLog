@@ -1,3 +1,7 @@
+Mon Jan  8 13:49:50 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix failure to initialise OmMSet::Internal::have_percent_factor.
+
 Thu Jan  4 17:21:24 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add new test for a postlist with many documents, designed to fail

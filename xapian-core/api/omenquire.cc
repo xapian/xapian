@@ -368,7 +368,8 @@ void
 OmMSet::Internal::calc_percent_factor() const {
     if (!have_percent_factor) {
 	if (max_possible == 0) percent_factor = 0;
-	else percent_factor = 100 / max_possible;
+	else percent_factor = 100.0 / max_possible;
+	DEBUGLINE(API, "OmMSet::Internal::calc_percent_factor(): max_possible = " << max_possible << " => percent_factor = " << percent_factor);
 	have_percent_factor = true;
     }
 }

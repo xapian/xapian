@@ -421,6 +421,8 @@ static bool test_topercent1()
     OmMSetIterator i = mymset.begin();
     for ( ; i != mymset.end(); ++i) {
 	int pct = mymset.convert_to_percent(i);
+	TEST_AND_EXPLAIN(pct == i.get_percent(),
+			 "convert_to_%(msetitor) != convert_to_%(wt)");
 	TEST_AND_EXPLAIN(pct == mymset.convert_to_percent(i.get_weight()),
 			 "convert_to_%(msetitor) != convert_to_%(wt)");
         TEST_AND_EXPLAIN(pct >= 0 && pct <= 100,
@@ -2070,7 +2072,8 @@ static bool test_postlist4()
 static bool test_postlist5()
 {
     OmDatabase db(get_database("apitest_manydocs"));
-    TEST_EQUAL_DOUBLE(db.get_avlength(), 4);
+    if(db.get_avlength() != 1) // Allow for databases which don't support length
+	TEST_EQUAL_DOUBLE(db.get_avlength(), 4);
     OmPostListIterator i = db.postlist_begin("thi");
     unsigned int j = 1;
     while(i != db.postlist_end("thi")) {
