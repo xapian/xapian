@@ -389,8 +389,16 @@ index_file(istream &stream, Xapian::WritableDatabase &database,
 		    }
 		    case Action::UNHTML: {
 			MyHtmlParser p;
-			p.parse_html(value);
-			value = p.dump;
+			try {
+			    p.parse_html(value);
+			} catch (bool) {
+			    // MyHtmlParser throws a bool to abandon parsing at
+			    // </body> or when indexing is disallowed
+			}
+			if (p.indexing_allowed)
+			    value = p.dump;
+			else
+			    value = "";
 			break;
 		    }
 		    case Action::UNIQUE: {
