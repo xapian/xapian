@@ -35,13 +35,13 @@ class MultiTermList : public LeafTermList {
     friend class MultiDatabase;
     private:
 	TermList *tl;
-	RefCntPtr<const IRDatabase> termdb;
-	RefCntPtr<const IRDatabase> rootdb;
+	RefCntPtr<const Database> termdb;
+	RefCntPtr<const Database> rootdb;
 	double termfreq_factor;
 
 	MultiTermList(TermList * tl_,
-		      const RefCntPtr<const IRDatabase> & termdb_,
-		      RefCntPtr<const IRDatabase> rootdb_);
+		      const RefCntPtr<const Database> & termdb_,
+		      RefCntPtr<const Database> rootdb_);
     public:
 	void set_weighting(const OmExpandWeight *wt_new);
 
@@ -58,8 +58,8 @@ class MultiTermList : public LeafTermList {
 };
 
 inline MultiTermList::MultiTermList(TermList * tl_,
-				    const RefCntPtr<const IRDatabase> & termdb_,
-				    RefCntPtr<const IRDatabase> rootdb_)
+				    const RefCntPtr<const Database> & termdb_,
+				    RefCntPtr<const Database> rootdb_)
 	: tl(tl_), termdb(termdb_), rootdb(rootdb_)
 {
     termfreq_factor = ((double)(rootdb->get_doccount())) /

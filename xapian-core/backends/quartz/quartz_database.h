@@ -36,7 +36,7 @@ class QuartzModifications;
 /** A backend designed for efficient indexing and retrieval, using
  *  compressed posting lists and a btree storage scheme.
  */
-class QuartzDatabase : public IRDatabase {
+class QuartzDatabase : public Database {
     private:
 	/** Mutex to protect this object against concurrent access.
 	 */
@@ -59,7 +59,7 @@ class QuartzDatabase : public IRDatabase {
 	bool readonly;
 
 	//@{
-	/** Implementation of virtual methods: see IRDatabase for details.
+	/** Implementation of virtual methods: see Database for details.
 	 */
 	void do_begin_session(om_timeout timeout);
 	void do_end_session();
@@ -88,7 +88,7 @@ class QuartzDatabase : public IRDatabase {
 
 	~QuartzDatabase();
 
-	// Virtual methods of IRDatabase
+	// Virtual methods of Database
 	om_doccount  get_doccount() const;
 	om_doclength get_avlength() const;
 	om_doclength get_doclength(om_docid did) const;

@@ -70,10 +70,10 @@ static const StringAndValue database_strings[] = {
     { "",			DBTYPE_NULL		}  // End
 };
 
-IRDatabase *
+Database *
 DatabaseBuilder::create(const OmSettings & params, bool readonly)
 {
-    IRDatabase * database = NULL;
+    Database * database = NULL;
 
     // Convert type into an om_database_type
     om_database_type dbtype = static_cast<om_database_type> (

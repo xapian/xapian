@@ -216,7 +216,7 @@ LocalMatch::build_or_tree(std::vector<PostList *> &postlists)
 // Initialisation and cleaning up //
 ////////////////////////////////////
 
-LocalMatch::LocalMatch(IRDatabase *database_)
+LocalMatch::LocalMatch(Database *database_)
 	: database(database_),
 	  statssource(),
 	  min_weight_percent(-1),

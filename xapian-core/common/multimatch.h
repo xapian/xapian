@@ -50,8 +50,8 @@ class MultiMatch
 	/// Comparison functor for sorting MSet
 	OmMSetCmp mcmp;
 
-	/// Construct a SingleMatch object from an IRDatabase
-	RefCntPtr<SingleMatch> make_match_from_database(IRDatabase *db);
+	/// Construct a SingleMatch object from an Database
+	RefCntPtr<SingleMatch> make_match_from_database(Database *db);
 
 	/** Change all the document IDs in the given mset to be valid
 	 *  globally, rather than within the sub-match which produced them.

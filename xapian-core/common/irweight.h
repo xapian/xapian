@@ -27,7 +27,7 @@
 #include "om/omsettings.h"
 #include "omdebug.h"
 
-class IRDatabase;
+class Database;
 class RSet;
 class StatsSource;
 

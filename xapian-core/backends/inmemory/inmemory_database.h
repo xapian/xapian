@@ -186,7 +186,7 @@ class InMemoryTermList : public LeafTermList {
  *
  *  This is a prototype database, mainly used for debugging and testing.
  */
-class InMemoryDatabase : public IRDatabase {
+class InMemoryDatabase : public Database {
     friend class DatabaseBuilder;
     private:
 	std::map<om_termname, InMemoryTerm> postlists;
@@ -228,7 +228,7 @@ class InMemoryDatabase : public IRDatabase {
 			  om_termcount wdf);
 
 	//@{
-	/** Implementation of virtual methods: see IRDatabase for details.
+	/** Implementation of virtual methods: see Database for details.
 	 */
 	void do_begin_session(om_timeout timeout);
 	void do_end_session();

@@ -26,12 +26,12 @@
 #include "om/omsettings.h"
 #include "om/omtypes.h"
 
-class IRDatabase;
+class Database;
 
 /** Class used to generate databases of a given type. */
 class DatabaseBuilder {
     public:
-	static IRDatabase * create(const OmSettings & params, bool readonly);
+	static Database * create(const OmSettings & params, bool readonly);
 };
 
 #endif /* OM_HGUARD_DATABASE_BUILDER_H */

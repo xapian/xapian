@@ -54,7 +54,7 @@ class OmDatabase::Internal {
     public:
 	/** The databases which this consists of.
 	 */
-	std::vector<RefCntPtr<IRDatabase> > databases;
+	std::vector<RefCntPtr<Database> > databases;
 
 	/** Make a new internal object, with the user supplied parameters.
 	 *
@@ -82,16 +82,16 @@ class OmDatabase::Internal {
 
 	/** Add an already opened database (or set of databases).
 	 */
-	void add_database(RefCntPtr<IRDatabase> newdb);
+	void add_database(RefCntPtr<Database> newdb);
 
 	/** A lock to control concurrent access to this object.
-	 *  This is not intended to control access to the IRDatabase objects.
+	 *  This is not intended to control access to the Database objects.
 	 */
 	OmLock mutex;
 
 	/** Create a MultiDatabase from an OmDatabase.
 	 *
-	 *  Even if the OmDatabase contains only one IRDatabase, this will
+	 *  Even if the OmDatabase contains only one Database, this will
 	 *  be returned encapsulated in a MultiDatabase.
 	 *
 	 *  The MultiDatabase will be newly created if it hasn't been

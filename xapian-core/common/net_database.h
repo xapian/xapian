@@ -32,7 +32,7 @@
 /** A network database.  This is a reference to a remote database, and is
  *  mainly used by a NetworkMatch object.
  */
-class NetworkDatabase : public IRDatabase {
+class NetworkDatabase : public Database {
     friend class DatabaseBuilder;
     friend class NetworkMatch;
     private:

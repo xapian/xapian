@@ -37,16 +37,16 @@ class LeafTermList;
 
 /** Base class for databases.
  *
- *  All classes derived from IRDatabase must have DatabaseBuilder as
+ *  All classes derived from Database must have DatabaseBuilder as
  *  a friend, so that they can be constructed in a unified way.
  */
-class IRDatabase : public RefCntBase {
+class Database : public RefCntBase {
     private:
 	/// Copies are not allowed.
-	IRDatabase(const IRDatabase &);
+	Database(const Database &);
 
 	/// Assignment is not allowed.
-	void operator=(const IRDatabase &);
+	void operator=(const Database &);
 
 	/// Flag recording whether an explicit session is in progress
 	bool session_in_progress;
@@ -92,7 +92,7 @@ class IRDatabase : public RefCntBase {
     protected:
     	/** Create a database - called only by derived classes.
 	 */
-	IRDatabase();
+	Database();
 
 	/** Internal method providing implementation of end_session().
 	 *
@@ -133,7 +133,7 @@ class IRDatabase : public RefCntBase {
 	 *  and ending the session, but errors produced by these operations
 	 *  will not be reported.
 	 */
-        virtual ~IRDatabase();
+        virtual ~Database();
 
 	//////////////////////////////////////////////////////////////////
 	// Database statistics:
@@ -145,7 +145,7 @@ class IRDatabase : public RefCntBase {
 
 	/** Return the average length of a document in this (sub) database.
 	 *
-	 *  See IRDatabase::get_doclength() for the meaning of document
+	 *  See Database::get_doclength() for the meaning of document
 	 *  length within Muscat.
 	 */
 	virtual om_doclength get_avlength() const = 0;
@@ -321,7 +321,7 @@ class IRDatabase : public RefCntBase {
 	virtual bool is_network() const;
 };
 
-inline bool IRDatabase::is_network() const
+inline bool Database::is_network() const
 {
     return false;
 }

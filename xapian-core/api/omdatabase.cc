@@ -107,7 +107,7 @@ OmDatabase::add_database(const OmDatabase & database)
 	throw OmInvalidArgumentError("Can't add an OmDatabase to itself");
 	return;
     }
-    std::vector<RefCntPtr<IRDatabase> >::iterator i;
+    std::vector<RefCntPtr<Database> >::iterator i;
     OmLockSentry locksentry(database.internal->mutex);
     for (i = database.internal->databases.begin();
 	 i != database.internal->databases.end(); i++) {
@@ -203,7 +203,7 @@ OmWritableDatabase::begin_session(om_timeout timeout)
 {
     DEBUGAPICALL(void, "OmWritableDatabase::begin_session", timeout);
     // Get the pointer while locked, in case someone is assigning to it.
-    IRDatabase * database;
+    Database * database;
     {
 	OmLockSentry locksentry(internal->mutex);
 	database = internal->databases[0].get();
@@ -217,7 +217,7 @@ OmWritableDatabase::end_session()
 {
     DEBUGAPICALL(void, "OmWritableDatabase::end_session", "");
     // Get the pointer while locked, in case someone is assigning to it.
-    IRDatabase * database;
+    Database * database;
     {
 	OmLockSentry locksentry(internal->mutex);
 	database = internal->databases[0].get();
@@ -231,7 +231,7 @@ OmWritableDatabase::flush()
 {
     DEBUGAPICALL(void, "OmWritableDatabase::flush", "");
     // Get the pointer while locked, in case someone is assigning to it.
-    IRDatabase * database;
+    Database * database;
     {
 	OmLockSentry locksentry(internal->mutex);
 	database = internal->databases[0].get();
@@ -245,7 +245,7 @@ OmWritableDatabase::begin_transaction()
 {
     DEBUGAPICALL(void, "OmWritableDatabase::begin_transaction", "");
     // Get the pointer while locked, in case someone is assigning to it.
-    IRDatabase * database;
+    Database * database;
     {
 	OmLockSentry locksentry(internal->mutex);
 	database = internal->databases[0].get();
@@ -259,7 +259,7 @@ OmWritableDatabase::commit_transaction()
 {
     DEBUGAPICALL(void, "OmWritableDatabase::commit_transaction", "");
     // Get the pointer while locked, in case someone is assigning to it.
-    IRDatabase * database;
+    Database * database;
     {
 	OmLockSentry locksentry(internal->mutex);
 	database = internal->databases[0].get();
@@ -273,7 +273,7 @@ OmWritableDatabase::cancel_transaction()
 {
     DEBUGAPICALL(void, "OmWritableDatabase::cancel_transaction", "");
     // Get the pointer while locked, in case someone is assigning to it.
-    IRDatabase * database;
+    Database * database;
     {
 	OmLockSentry locksentry(internal->mutex);
 	database = internal->databases[0].get();
@@ -299,7 +299,7 @@ OmWritableDatabase::add_document(const OmDocumentContents & document,
     }
 
     // Get the pointer while locked, in case someone is assigning to it.
-    IRDatabase * database;
+    Database * database;
     {
 	OmLockSentry locksentry(internal->mutex);
 	database = internal->databases[0].get();
@@ -314,7 +314,7 @@ OmWritableDatabase::delete_document(om_docid did, om_timeout timeout)
     DEBUGAPICALL(void, "OmWritableDatabase::delete_document",
 		 did << ", " << timeout);
     // Get the pointer while locked, in case someone is assigning to it.
-    IRDatabase * database;
+    Database * database;
     {
 	OmLockSentry locksentry(internal->mutex);
 	database = internal->databases[0].get();
@@ -331,7 +331,7 @@ OmWritableDatabase::replace_document(om_docid did,
     DEBUGAPICALL(void, "OmWritableDatabase::replace_document",
 		 did << ", " << document << ", " << timeout);
     // Get the pointer while locked, in case someone is assigning to it.
-    IRDatabase * database;
+    Database * database;
     {
 	OmLockSentry locksentry(internal->mutex);
 	database = internal->databases[0].get();
@@ -345,7 +345,7 @@ OmWritableDatabase::get_document(om_docid did) const
 {
     DEBUGAPICALL(OmDocumentContents, "OmWritableDatabase::get_document", did);
     // Get the pointer while locked, in case someone is assigning to it.
-    IRDatabase * database;
+    Database * database;
     {
 	OmLockSentry locksentry(internal->mutex);
 	database = internal->databases[0].get();

@@ -1,3 +1,7 @@
+Wed Sep 20 14:27:55 BST 2000 Olly Betts
+
+	* IRDatabase renamed to just plain ol' Database.
+
 Wed Sep 20 13:31:31 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added untested AutoPtr template (auto_ptr clone)

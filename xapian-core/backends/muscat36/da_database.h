@@ -254,7 +254,7 @@ DATerm::get_ti() const
 }
 
 /** A DA Database */
-class DADatabase : public IRDatabase {
+class DADatabase : public Database {
     friend class DatabaseBuilder;
     friend class DADocument;
     private:

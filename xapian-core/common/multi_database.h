@@ -32,14 +32,14 @@
 
 /** A database which contains other databases.
  */
-class MultiDatabase : public IRDatabase {
+class MultiDatabase : public Database {
     /** DatabaseBuilder is a friend of this class, so that it can call
      *  the constructor.
      */
     friend class DatabaseBuilder;
 
     /** OmDatabase::Internal is a friend of this class,
-     *  so that it can call the constructor, passing in IRDatabase pointers.
+     *  so that it can call the constructor, passing in Database pointers.
      */
     friend class OmDatabase::Internal;
 
@@ -50,7 +50,7 @@ class MultiDatabase : public IRDatabase {
 
     private:
 	// List of subdatabases
-	std::vector<RefCntPtr<IRDatabase> > databases;
+	std::vector<RefCntPtr<Database> > databases;
 
 	mutable bool length_initialised;
 	mutable om_doclength avlength;
@@ -70,7 +70,7 @@ class MultiDatabase : public IRDatabase {
 	 *  @exception OmInvalidArgumentError if no databases are specified
 	 *             in the vector.
 	 */
-	MultiDatabase(std::vector<RefCntPtr<IRDatabase> > databases_);
+	MultiDatabase(std::vector<RefCntPtr<Database> > databases_);
 
 	//@{
 	/** MultiDatabase is a readonly database type, and thus this method

@@ -49,7 +49,7 @@ OmDatabase::Internal::add_database(const OmSettings & params, bool readonly)
     multi_database = 0;
 
     // Open database (readonly) and add it to the list
-    RefCntPtr<IRDatabase> newdb(DatabaseBuilder::create(params, readonly));
+    RefCntPtr<Database> newdb(DatabaseBuilder::create(params, readonly));
     databases.push_back(newdb);
 }
 
@@ -60,7 +60,7 @@ OmDatabase::Internal::add_database(const OmSettings & params)
 }
 
 void
-OmDatabase::Internal::add_database(RefCntPtr<IRDatabase> newdb)
+OmDatabase::Internal::add_database(RefCntPtr<Database> newdb)
 {
     OmLockSentry locksentry(mutex);
 

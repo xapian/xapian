@@ -41,7 +41,7 @@ class SleepycatDatabaseInternals;
  *
  *  Sleepycat is available from http://www.sleepycat.com/
  */
-class SleepycatDatabase : public IRDatabase {
+class SleepycatDatabase : public Database {
     friend class DatabaseBuilder;
     private:
 	std::auto_ptr<SleepycatDatabaseInternals> internals;
@@ -99,7 +99,7 @@ class SleepycatDatabase : public IRDatabase {
 			       const std::map<om_termid, OmDocumentTerm> & terms);
 
 	//@{
-	/** Implementation of virtual methods: see IRDatabase for details.
+	/** Implementation of virtual methods: see Database for details.
 	 */
 	void do_begin_session(om_timeout timeout);
 	void do_end_session();
@@ -119,7 +119,7 @@ class SleepycatDatabase : public IRDatabase {
     public:
 	~SleepycatDatabase();
 
-	// Virtual methods of IRDatabase
+	// Virtual methods of Database
 	om_doccount  get_doccount() const;
 	om_doclength get_avlength() const;
 	om_doclength get_doclength(om_docid did) const;

@@ -50,7 +50,7 @@ operator+(const OmExpandBits &bits1, const OmExpandBits &bits2)
 }
 
 
-OmExpandWeight::OmExpandWeight(const IRDatabase *root_,
+OmExpandWeight::OmExpandWeight(const Database *root_,
 			       om_doccount rsetsize_,
 			       bool use_exact_termfreq_)
 	: root(root_),

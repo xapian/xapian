@@ -58,7 +58,7 @@ class NetworkMatch : public SingleMatch
 	/// Indication of whether max_weight needs to be updated
 	bool max_weight_needs_fetch;
     public:
-        NetworkMatch(IRDatabase * database_);
+        NetworkMatch(Database * database_);
         ~NetworkMatch();
 
 	///////////////////////////////////////////////////////////////////

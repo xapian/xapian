@@ -30,7 +30,7 @@
 #include "stats.h"
 
 class IRWeight;
-class IRDatabase;
+class Database;
 class LeafDocument;
 class PostList;
 
@@ -55,7 +55,7 @@ bool msetcmp_reverse(const OmMSetItem &, const OmMSetItem &);
 class LocalMatch : public SingleMatch
 {
     private:
-        IRDatabase *database;
+        Database *database;
 	LocalStatsSource statssource;
 
         int min_weight_percent;
@@ -143,7 +143,7 @@ class LocalMatch : public SingleMatch
 	PostList * build_and_tree(std::vector<PostList *> &postlists);
 	PostList * build_or_tree(std::vector<PostList *> &postlists);
     public:
-        LocalMatch(IRDatabase * database_);
+        LocalMatch(Database * database_);
 
 	///////////////////////////////////////////////////////////////////
 	// Implement these virtual methods

@@ -1,4 +1,4 @@
-/* database.cc: Methods for IRDatabase
+/* database.cc: Methods for Database
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -24,13 +24,13 @@
 #include "database.h"
 #include <om/omerror.h>
 
-IRDatabase::IRDatabase()
+Database::Database()
 	: session_in_progress(false),
 	  transaction_in_progress(false)
 {
 }
 
-IRDatabase::~IRDatabase()
+Database::~Database()
 {
     // Can't end_session() here because derived class destructors have already
     // run, and the derived classes therefore don't exist.  Thus, the
@@ -40,7 +40,7 @@ IRDatabase::~IRDatabase()
 }
 
 void
-IRDatabase::begin_session(om_timeout timeout)
+Database::begin_session(om_timeout timeout)
 {
     OmLockSentry sentry(mutex);
     if (session_in_progress)
@@ -50,7 +50,7 @@ IRDatabase::begin_session(om_timeout timeout)
 }
 
 void
-IRDatabase::end_session()
+Database::end_session()
 {
     if (!session_in_progress)
 	throw OmInvalidOperationError("Cannot end session - no session currently in progress");
@@ -59,7 +59,7 @@ IRDatabase::end_session()
 }
 
 void
-IRDatabase::internal_end_session()
+Database::internal_end_session()
 {
     OmLockSentry sentry(mutex);
     if (!session_in_progress) return;
@@ -85,7 +85,7 @@ IRDatabase::internal_end_session()
 }
 
 void
-IRDatabase::flush()
+Database::flush()
 {
     OmLockSentry sentry(mutex);
     if (!session_in_progress)
@@ -94,7 +94,7 @@ IRDatabase::flush()
 }
 
 void
-IRDatabase::begin_transaction()
+Database::begin_transaction()
 {
     OmLockSentry sentry(mutex);
     if (!session_in_progress)
@@ -106,7 +106,7 @@ IRDatabase::begin_transaction()
 }
 
 void
-IRDatabase::commit_transaction()
+Database::commit_transaction()
 {
     OmLockSentry sentry(mutex);
     if (!transaction_in_progress)
@@ -117,7 +117,7 @@ IRDatabase::commit_transaction()
 }
 
 void
-IRDatabase::cancel_transaction()
+Database::cancel_transaction()
 {
     OmLockSentry sentry(mutex);
     if (!transaction_in_progress)
@@ -128,7 +128,7 @@ IRDatabase::cancel_transaction()
 }
 
 om_docid
-IRDatabase::add_document(const OmDocumentContents & document,
+Database::add_document(const OmDocumentContents & document,
 			 om_timeout timeout)
 {
     OmLockSentry sentry(mutex);
@@ -159,7 +159,7 @@ IRDatabase::add_document(const OmDocumentContents & document,
 }
 
 void
-IRDatabase::delete_document(om_docid did, om_timeout timeout)
+Database::delete_document(om_docid did, om_timeout timeout)
 {
     OmLockSentry sentry(mutex);
 
@@ -185,7 +185,7 @@ IRDatabase::delete_document(om_docid did, om_timeout timeout)
 }
 
 void
-IRDatabase::replace_document(om_docid did,
+Database::replace_document(om_docid did,
 			     const OmDocumentContents & document,
 			     om_timeout timeout)
 {
@@ -213,7 +213,7 @@ IRDatabase::replace_document(om_docid did,
 }
 
 OmDocumentContents
-IRDatabase::get_document(om_docid did)
+Database::get_document(om_docid did)
 {
     return do_get_document(did);
 }

@@ -28,7 +28,7 @@
 #include "omdebug.h"
 #include "om/omenquire.h"
 
-class IRDatabase;
+class Database;
 class StatsSource;
 
 class RSetItem {
@@ -45,16 +45,16 @@ class RSet {
 	RSet(const RSet &);
 	void operator=(const RSet &);
 
-	IRDatabase *root;
+	Database *root;
 
 	std::map<om_termname, om_doccount> reltermfreqs;
 	bool calculated_reltermfreqs;
     public:
 	std::vector<RSetItem> documents; // FIXME - should be encapsulated
 
-	// FIXME: should take a RefCntPtr to an IRDatabase
-	RSet(IRDatabase *root_new);
-	RSet(IRDatabase *root_new, const OmRSet & omrset);
+	// FIXME: should take a RefCntPtr to an Database
+	RSet(Database *root_new);
+	RSet(Database *root_new, const OmRSet & omrset);
 
 	void add_document(om_docid did);
 	void will_want_reltermfreq(om_termname tname);
@@ -72,13 +72,13 @@ class RSet {
 
 // Empty initialisation
 inline
-RSet::RSet(IRDatabase *root_new)
+RSet::RSet(Database *root_new)
 	: root(root_new), calculated_reltermfreqs(false)
 {}
 
 // Initialise with an OMRset
 inline
-RSet::RSet(IRDatabase *root_new, const OmRSet & omrset)
+RSet::RSet(Database *root_new, const OmRSet & omrset)
 	: root(root_new), calculated_reltermfreqs(false)
 {
     std::set<om_docid>::const_iterator i;

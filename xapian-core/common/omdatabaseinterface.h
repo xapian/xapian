@@ -37,7 +37,7 @@ class OmDatabase::InternalInterface {
     public:
 	/** Create a MultiDatabase from an OmDatabase.
 	 *
-	 *  Even if the OmDatabase contains only one IRDatabase, this will
+	 *  Even if the OmDatabase contains only one Database, this will
 	 *  be returned encapsulated in a MultiDatabase.
 	 *
 	 *  The MultiDatabase will be newly created if it hasn't been

@@ -244,7 +244,7 @@ DBTerm::get_ti() const
     return &ti;
 }
 
-class DBDatabase : public IRDatabase {
+class DBDatabase : public Database {
     friend class DatabaseBuilder;
     friend class DBDocument;
     private:

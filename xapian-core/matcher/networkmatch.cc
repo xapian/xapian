@@ -36,7 +36,7 @@
 // Initialisation and cleaning up //
 ////////////////////////////////////
 
-NetworkMatch::NetworkMatch(IRDatabase *database_)
+NetworkMatch::NetworkMatch(Database *database_)
 	: database(dynamic_cast<NetworkDatabase *>(database_)),
 	  statssource(database->link),
 	  max_weight_needs_fetch(true)

@@ -48,7 +48,7 @@ MultiMatch::MultiMatch(const MultiDatabase * multi_database_,
 	  gatherer(gatherer_),
 	  mcmp(msetcmp_forward)
 {
-    std::vector<RefCntPtr<IRDatabase> >::const_iterator db;
+    std::vector<RefCntPtr<Database> >::const_iterator db;
     for (db = multi_database->databases.begin();
 	 db != multi_database->databases.end();
 	 ++db) {
@@ -65,7 +65,7 @@ MultiMatch::MultiMatch(const MultiDatabase * multi_database_,
 }
 
 RefCntPtr<SingleMatch>
-MultiMatch::make_match_from_database(IRDatabase *db)
+MultiMatch::make_match_from_database(Database *db)
 {
     /* There is currently only one special case, for network
      * databases.
