@@ -1,3 +1,9 @@
+xapian-bindings (0.8.1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 30 Jun 2004 20:19:11 +0100
+
 xapian-bindings (0.8.0-9) unstable; urgency=low
 
   * debian/rules: Read value of $COMPONENT from a file, rather than the
