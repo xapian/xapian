@@ -1,3 +1,8 @@
+Wed Nov 22 19:01:33 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Don't return incorrect doccount if informational entries havn't
+	  yet been created in the quartz record database.
+
 Wed Nov 22 18:53:33 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* A couple of missed bits of the previous change - we no longer need

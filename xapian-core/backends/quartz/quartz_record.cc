@@ -24,6 +24,7 @@
 #include "quartz_utils.h"
 #include "utils.h"
 #include "om/omerror.h"
+#include "omassert.h"
 
 #define NEXTDOCID_TAG std::string("\000\000", 2)
 #define TOTLEN_TAG std::string("\000\001", 2)
@@ -48,7 +49,11 @@ QuartzRecordManager::get_doccount(QuartzTable & table)
 {   
     // FIXME: check that the sizes of these types (om_doccount and
     // quartz_tablesize_t) are compatible.
-    return table.get_entry_count();
+    om_doccount entries = table.get_entry_count();
+
+    Assert(entries != 1);
+    if (entries < 2) return 0;
+    return entries - 2;
 }
 
 om_docid
@@ -62,6 +67,11 @@ QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
     om_docid did;
     if (tag->value.size() == 0) {
 	did = 1u;
+
+	// Ensure that other informational tag is present.
+	QuartzDbKey key2;
+	key2.value = TOTLEN_TAG;
+	(void) table.get_or_make_tag(key2);
     } else {
 	const char * data = tag->value.data();
 	const char * end = data + tag->value.size();
@@ -110,6 +120,11 @@ QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
     quartz_totlen_t totlen;
     if (tag->value.size() == 0) {
 	totlen = 0u;
+
+	// Ensure that other informational tag is present.
+	QuartzDbKey key2;
+	key2.value = NEXTDOCID_TAG;
+	(void) table.get_or_make_tag(key2);
     } else {
 	const char * data = tag->value.data();
 	const char * end = data + tag->value.size();
