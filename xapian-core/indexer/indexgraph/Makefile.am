@@ -33,7 +33,7 @@ nodetest.o: nodetest.cc
 	$(CXXCOMPILE) @LIBXML_CFLAGS@ -c $<
 
 do_registration.cc: $(INDEXERNODES) make_register.pl
-	./make_register.pl $(INDEXERNODES) > $@
+	srcdir=$(srcdir) ./make_register.pl $(INDEXERNODES) > $@
 
 do_registration.lo: do_registration.cc
 	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<
