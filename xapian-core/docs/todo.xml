@@ -60,6 +60,16 @@ get a positionlist from a postlist are required: read_postlist() and
 make_postlist() or something along those lines?
 
 </todoitem>
+<todoitem priority="M" difficulty="2" owner="" area="distributed" release="1.0">
+
+Make errors when talking to a network database return a context.
+
+</todoitem>
+<todoitem priority="M" difficulty="2" owner="" area="general" release="">
+
+Make all errors return a context if appropriate.
+
+</todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
 
 Return more information about number of documents in database which match
