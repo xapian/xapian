@@ -74,7 +74,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   if test -z "$SWIG" ; then
     AC_MSG_ERROR([Can't find SWIG utility])
   fi
-  dnl Check for swig >= 1.3.22
+  dnl Check for swig >= 1.3.24
   dnl We need 1.3.14 for overloaded functions.
   dnl 1.3.19 was missing std_common.i - it was empty at the time so you
   dnl can just touch it into existence, but it's cleaner to just require
@@ -84,28 +84,15 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   dnl us currently.
   dnl 1.3.22 fixes a problem with wrapping classes in namespaces with guile.
   dnl 1.3.23 adds support for optional arguments in C#.
-  dnl 1.3.24 doesn't seem to touch anything we care about.
+  dnl 1.3.24 tweaks C# enums
   dnl You can see the latest SWIG changes here:
   dnl http://cvs.sourceforge.net/viewcvs.py/*checkout*/swig/SWIG/CHANGES
   v="`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`"
   case "$v" in
-   1.3.22)
-     SWIG_1_3_22="$SWIG" ;;
-   [1.3.2[3-9]|1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*])
-     ;;
+   [1.3.2[4-9]|1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
    *)
-     AC_MSG_ERROR([SWIG >= 1.3.22 required (you have $v)]) ;;
+     AC_MSG_ERROR([SWIG >= 1.3.24 required (you have $v)]) ;;
   esac
-  AC_PATH_PROG(SWIG_1_3_22, [swig-1.3.22], [])
-  if test -z "$SWIG_1_3_22" ; then
-    AC_MSG_ERROR([Can't find SWIG utility version 1.3.22])
-  fi
-  dnl SWIG 1.3.23 changes how overloading works, and this causes problems with
-  dnl optional arguments in PHP, so we need to stick to 1.3.22 for PHP for now.
-  v="`$SWIG_1_3_22 -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`"
-  if test 1.3.22 != "$v" ; then
-    AC_MSG_ERROR([$SWIG_1_3_22 isn't SWIG 1.3.22])
-  fi
 fi
 
 if test no != "$with_swig" ; then
