@@ -1,3 +1,8 @@
+Tue Jun 13 14:22:06 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added the java stuff to the bindings.  Needs some work to get it
+	  nicely integrated.
+
 Tue Jun 13 13:07:27 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Made multiexpand1 slightly more rigourous.

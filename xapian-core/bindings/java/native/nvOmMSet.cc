@@ -1,0 +1,94 @@
+// C++ includes
+#include <string>
+#include <vector>
+
+// Open Muscat includes
+#include "om/om.h"
+
+// JNI includes
+#include "com_webtop_om_OmMSet.h"
+#include "utils.h"
+
+/*
+ * Class:     com_webtop_om_OmMSet
+ * Method:    deleteNativeObject
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_webtop_om_OmMSet_deleteNativeObject
+  (JNIEnv *env, jobject obj)
+{
+    delete (OmMSet*) tryGetLongField (env, obj, "nativePtr");
+}
+
+/*
+ * Class:     com_webtop_om_OmMSet
+ * Method:    get_firstitem
+ * Signature: ()J
+ */
+JNIEXPORT jint JNICALL Java_com_webtop_om_OmMSet_get_1firstitem
+  (JNIEnv *env, jobject obj)
+{
+    OmMSet* mset = (OmMSet*) tryGetLongField (env, obj, "nativePtr");
+    return (jint) mset->firstitem;
+}
+
+/*
+ * Class:     com_webtop_om_OmMSet
+ * Method:    get_items
+ * Signature: ()[Lcom/webtop/om/OmMSetItem;
+ */
+JNIEXPORT jobject JNICALL Java_com_webtop_om_OmMSet_get_1items
+  (JNIEnv *env, jobject obj)
+{
+    OmMSet* mset = (OmMSet*) tryGetLongField (env, obj, "nativePtr");
+    jlong native = (jlong) new vector<OmMSetItem> (mset->items);
+    return makeReturnObject (env, "com/webtop/om/OmMSetItemVector", native);
+}
+
+/*
+ * Class:     com_webtop_om_OmMSet
+ * Method:    get_max_attained
+ * Signature: ()D
+ */
+JNIEXPORT jdouble JNICALL Java_com_webtop_om_OmMSet_get_1max_1attained
+  (JNIEnv *env, jobject obj)
+{
+    OmMSet* mset = (OmMSet*) tryGetLongField (env, obj, "nativePtr");
+    return (jdouble) mset->max_attained;
+}
+
+/*
+ * Class:     com_webtop_om_OmMSet
+ * Method:    get_max_possible
+ * Signature: ()D
+ */
+JNIEXPORT jdouble JNICALL Java_com_webtop_om_OmMSet_get_1max_1possible
+  (JNIEnv *env, jobject obj)
+{
+    OmMSet* mset = (OmMSet*) tryGetLongField (env, obj, "nativePtr");
+    return (jdouble) mset->max_possible;
+}
+
+/*
+ * Class:     com_webtop_om_OmMSet
+ * Method:    get_mbound
+ * Signature: ()J
+ */
+JNIEXPORT jint JNICALL Java_com_webtop_om_OmMSet_get_1mbound
+  (JNIEnv *env, jobject obj)
+{
+    OmMSet* mset = (OmMSet*) tryGetLongField (env, obj, "nativePtr");
+    return (jint) mset->mbound;
+}
+
+/*
+ * Class:     com_webtop_om_OmMSet
+ * Method:    convert_to_percent
+ * Signature: (D)I
+ */
+JNIEXPORT jint JNICALL Java_com_webtop_om_OmMSet_convert_1to_1percent
+  (JNIEnv *env, jobject obj, jdouble weight)
+{
+    OmMSet* mset = (OmMSet*) tryGetLongField (env, obj, "nativePtr");
+    return (jint) mset->convert_to_percent ((om_weight) weight);
+}
