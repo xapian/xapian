@@ -39,6 +39,10 @@ while ($_ = shift @ARGV) {
   };
 };
 
+$main::testspassed = 0;
+$main::testsfailed = 0;
+$main::testsskipped = 0;
+
 foreach ("dutch", "english", "french", "german", "italian", "portuguese", "spanish") {
     my $language = $_;
     my $datadir = $ENV{"srcdir"} . "/../../data/stemming/$language/data";
@@ -94,11 +98,19 @@ foreach ("dutch", "english", "french", "german", "italian", "portuguese", "spani
     } else {
         print "stemming test data not available in $datadir\n";
 	print "(skipping language $language)\n";
+	$main::testsskipped++;
     };
     if ($myretval) {
         $main::retval = $myretval;
+	$main::testsfailed++;
+    } else {
+        $main::testspassed++;
     };
 };
+
+print "$0 finished: $main::testspassed tests passed, " .
+      "$main::testsfailed failed" .
+      ($main::testsskipped? ", $main::testsskipped skipped" : "") . ".\n";
 
 if ($main::did_something) {
     exit $main::retval;
