@@ -21,3 +21,13 @@ noinst_LTLIBRARIES = libquartz.la
 libquartz_la_LIBADD = @BERKELEY_3_1_LIBS@
 
 libquartz_la_LDFLAGS = @BERKELEY_3_1_LINKFLAGS@
+
+TESTS = quartztest
+
+check_PROGRAMS = quartztest
+
+quartztest_SOURCES = quartztest.cc
+quartztest_LDADD = ../../testsuite/libtest.la \
+                   ../../common/libcommon.la \
+		   libquartz.la
+
