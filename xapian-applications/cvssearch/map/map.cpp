@@ -83,11 +83,6 @@ main(unsigned int argc, const char **argv)
     char *cvsroot = getenv("CVSROOT");
     if (cvsroot) {
         scvs_root = cvsroot;
-    } else {
-        ifstream f("CVS/Root");
-        if (f) {
-            getline(f, scvs_root);
-        }
     }
 
     while (i < argc)
@@ -118,6 +113,10 @@ main(unsigned int argc, const char **argv)
         ++i;
     }
 
+    scvs_log    = "cvs -f -d " + scvs_root + " log -b ";
+    scvs_diff   = "cvs -f -d " + scvs_root + " diff -b ";
+    scvs_update = "cvs -f -d " + scvs_root + " update -p ";
+    
     ofstream line_fout  (sline_db.c_str());
     ofstream offset_fout(soffset_db.c_str());
     ostream * pstats_fout = 0;
@@ -146,7 +145,7 @@ main(unsigned int argc, const char **argv)
                 cvsmap(*pis, line_fout, offset_fout, pdb_file);
                 if (pdb_file && i % ssync_rate == 0)
                 {
-                    //pdb_file->sync();
+                    pdb_file->sync();
                 }
             }
         }
@@ -165,13 +164,16 @@ main(unsigned int argc, const char **argv)
                 cvsmap(*pis, line_fout, offset_fout, pdb_file);
                 if (pdb_file && i % ssync_rate == 0)
                 {
-                    //pdb_file->sync();
+                    pdb_file->sync();
                 }
             }
 
         }
     }
-
+    
+    // ----------------------------------------
+    // print statistics information
+    // ----------------------------------------
     if (num_size != 0 && num_lines != 0)
     {
         *pstats_fout << "************************************************************"

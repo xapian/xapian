@@ -7,8 +7,8 @@
 #    inserts a database stored in the filepath if the database 
 #    is not already stored.
 #    e.g. ./insertdb.pl kdebase/konqueror
-# 2. ./cvsupdatedb.pl -d filepath
-#    deletes a database stored in the filepath
+# 2. ./cvsupdatedb.pl -r filepath
+#    removes a database stored in the filepath
 # 3. ./cvsupdatedb.pl -f filepath
 #    finds if the database for this filepath is built, if not, 
 #    returns all the database built under that filepath if any.
@@ -17,19 +17,18 @@
 # Date: Feb 17 2001
 #------------------------------------------------------------------------
 
-#$ENV{'CVSDATA'} = '/home/annie/codeweb/web'; # for testing, to be deleted
+my $cvsdata = $ENV{"CVSDATA"}; # path where database content file is stored
+my $filename = "dbcontent"; # file containing database built
 
-$CVSDATA = $ENV{"CVSDATA"}; # path where database content file is stored
-$filename = "dbcontent"; # file containing database built
-
-if($CVSDATA){
-	$path = "$CVSDATA/$filename";
+if($cvsdata){
+	$path = "$cvsdata/$filename";
 }else{
 	print STDERR "WARNING: \$CVSDATA not set!\n";
-	$path = $filename;
+    exit(1);
 }
 
-if($ARGV[0] eq "-d"){ # delete database
+if (0) {
+} elsif($ARGV[0] eq "-d"){ # delete database
 	@files = `cat $path`;
 	open FILE, ">$path";
 	foreach (@files){
@@ -40,7 +39,7 @@ if($ARGV[0] eq "-d"){ # delete database
 		}
 	}
 	close FILE;
-}elsif($ARGV[0] eq "-f"){ # file database
+}elsif($ARGV[0] eq "-f") { # file database
 	@matches = `grep ^$ARGV[1] $path`;
 	foreach (@matches){
 		if("$ARGV[1]\n" eq $_){
@@ -49,13 +48,11 @@ if($ARGV[0] eq "-d"){ # delete database
 		}
 	}
 	print @matches;
-	
-}else{ # insert database
+} else{ # insert database
 	if(!`grep ^"$ARGV[0]"\$ $path`){
 		print "$ARGV[0] inserted.";
 		`echo "$ARGV[0]" >> $path`;
 	}else{
 		print "$ARGV[0] already exists!\n";
 	}
-	
 }
