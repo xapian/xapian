@@ -23,8 +23,7 @@
 
 
 
-// for some reason, omseek ranking is better with set than list for data mining purposes??
-#warning "USING SET INSTEAD OF LIST FOR INDEX ENTRIES"
+#warning "SHOULD PROBABLY USE LIST FOR INDEX ENTRIES -- NOT SET !!"
 
 #warning "*** USING COMMENT PROFILES"
 
@@ -523,7 +522,7 @@ char *stopList[] = {
 // function declarations.
 // ----------------------------------------
 static void usage(char * prog_name);
-static void write_OM_database( const string & database_dir,
+static void write_OM_database( OmWritableDatabase &database,
                                const map<string, list<string> > & commit_code_words,
                                const map<string, list<string> > & commit_comment_words
                                );
@@ -590,9 +589,7 @@ int main(unsigned int argc, char *argv[]) {
   set<unsigned int> commit_id_set; // set of all commit ids
 
 #warning "file name (should include repository prefix?)"
-  map<string, list <string> > commit_code_words;
-  map<string, list<string> > commit_comment_words;
-  map<string, list<string> > commit_all_words;
+
 
 
   unsigned int offset = 0;
@@ -601,6 +598,28 @@ int main(unsigned int argc, char *argv[]) {
   ofstream fout(commit_path.c_str());
 
   try {
+
+    // ----------------------------------------
+    // data commit location.
+    // ----------------------------------------
+    string commit_path = cvsdata + "/" + root + "/db/file";
+
+    string database_dir =  commit_path + ".om";
+    system( ("rm -rf " + database_dir).c_str() );
+    system( ("mkdir " + database_dir).c_str() );
+    
+    OmSettings db_parameters;
+    db_parameters.set("backend", "quartz");
+    db_parameters.set("quartz_dir", database_dir);
+    db_parameters.set("database_create", true);
+    OmWritableDatabase database(db_parameters); // open database
+
+
+
+
+
+
+
     // ----------------------------------------
     // go through each package
     // ----------------------------------------
@@ -619,6 +638,11 @@ int main(unsigned int argc, char *argv[]) {
       lines_db  lines (root, package_path, " file", db_file);
 
       // cerr << "getdata " << endl;
+
+      map<string, list <string> > commit_code_words;
+      map<string, list<string> > commit_comment_words;
+      map<string, list<string> > commit_all_words;
+
       get_data(lines,
 	       package_path,
 	       db_file,
@@ -627,6 +651,15 @@ int main(unsigned int argc, char *argv[]) {
 	       commit_all_words,
 	       commit_id_set,
 	       offset);
+
+      
+      cerr << "... WRITING TO OM DB" << endl;
+
+
+      // write to OM file after every file
+      write_OM_database( database,  commit_code_words, commit_comment_words);
+
+
       // cerr << "getdata1" << endl;
 
       // ----------------------------------------
@@ -648,10 +681,7 @@ int main(unsigned int argc, char *argv[]) {
     // write results
     // ----------------------------------------
 
-    // ----------------------------------------
-    // data commit location.
-    // ----------------------------------------
-    string commit_path = cvsdata + "/" + root + "/db/file";
+
 
     // ----------------------------------------
     // printing # of commits to a file
@@ -659,7 +689,7 @@ int main(unsigned int argc, char *argv[]) {
     // transactions are in commit_code_words
     // ----------------------------------------
     ofstream out((commit_path + ".count").c_str());
-    out << commit_comment_words.size() << endl; // # files
+    //    out << commit_comment_words.size() << endl; // # files
     out.close();
 
     // ----------------------------------------
@@ -667,17 +697,18 @@ int main(unsigned int argc, char *argv[]) {
     // mainly the frequency of each symbol and
     // # of times it appeared.
     // ----------------------------------------
-    write_DB_database( commit_path + "_cmt.db",  commit_comment_words);
-    write_DB_database( commit_path + "_code.db",  commit_code_words);
-    //    write_DB_database( commit_path + ".db1", commit_code_words1);
+    //    write_DB_database( commit_path + "_cmt.db",  commit_comment_words);
+    //    write_DB_database( commit_path + "_code.db",  commit_code_words);
+
 
     // ----------------------------------------
     // write out the omsee database
     // index by comment terms, the info field
     // should contain all the symbols
     // ----------------------------------------
-    write_OM_database( commit_path + ".om",  commit_code_words, commit_comment_words);
-    //    write_OM_database( commit_path + ".om1", commit_code_words1, commit_comment_words1);
+
+    // write_OM_database( commit_path + ".om",  commit_code_words, commit_comment_words);
+
   } catch(OmError & error) {
     cerr << "OmSee Exception: " << error.get_msg() << endl;
   } catch( DbException& e ) {
@@ -771,11 +802,12 @@ void write_DB_database( const string & database_file,
 // the parameter shouldn't be changed
 // ----------------------------------------
 
-void write_OM_database( const string & database_dir,
+void write_OM_database( OmWritableDatabase &database,
                         const map<string, list<string> > & commit_code_words,
                         const map<string, list<string> > & commit_comment_words
 			)
 {
+  /***
   system( ("rm -rf " + database_dir).c_str() );
   system( ("mkdir " + database_dir).c_str() );
 
@@ -784,6 +816,7 @@ void write_OM_database( const string & database_dir,
   db_parameters.set("quartz_dir", database_dir);
   db_parameters.set("database_create", true);
   OmWritableDatabase database(db_parameters); // open database
+  ***/
 
 
   int transactions_written = 0;
@@ -861,12 +894,15 @@ void write_OM_database( const string & database_dir,
       newdocument.set_data(  symbol_string );
 
       database.add_document(newdocument);
+      //      cerr << "Just wrote " << symbol_string << endl;      
       transactions_written++;
     }
 #warning "why is this number lower than largest offset?"
 #warning "possibly because some lines where deleted and it doesn't reach the most current version?"
 #warning "since we build up transactions on a line by line basis from the most current version"
   cerr << "transactions written = " << transactions_written << endl;
+
+  database.flush();
 }
 
 void
