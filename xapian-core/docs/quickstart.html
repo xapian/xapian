@@ -137,9 +137,9 @@ quartz database (see the <A HREF="#searcher">example searcher</A>).
 <H2><A NAME="indexer">An example indexer</A></H2>
 
 <P>
-The code for this example is in the examples package, in
-the &quot;<CODE>simple</CODE>&quot; subdirectory.  An HTML formatted
-version is available <A HREF="simpleindex.cc.html">here</A>.
+We now present sample code for an indexer. This is deliberately
+simplified to make it easy to follow. You can also read it in <A
+HREF="simpleindex.cc.html">an HTML formatted version</A>.
 </P>
 <P>
 The &quot;indexer&quot; presented here is simply a small program which
@@ -352,9 +352,9 @@ the <A HREF="userman.html">user manual</A>.
 <H2><A NAME="searcher">An example searcher</A></H2>
 
 <P>
-The code for this example is also in the examples package, in
-the &quot;<CODE>simple</CODE>&quot; subdirectory.  An HTML formatted
-version is available <A HREF="simplesearch.cc.html">here</A>.
+Now we show the code for a simple searcher, which will search the
+database built by the indexer above. Again, you can read <A
+HREF="simplesearch.cc.html">an HTML formatted version</A>.
 </P>
 <P>
 The &quot;searcher&quot; presented here is, like the &quot;indexer&quot;,
@@ -627,10 +627,11 @@ c++ simplesearch.cc `xapian-config --libs --cflags` -o simplesearch
 <H2>Running the examples</H2>
 
 <P>
-Once we have compiled the examples, we can build up a simple database as
-follows.  Note that we must first create a directory for the database files to
-live in; although Xapian will create new empty database files if they do not
-yet exist, it will not create a new directory for them.
+Once we have compiled the above examples, we can build up a simple
+database as follows.  Note that we must first create a directory for
+the database files to live in; although Xapian will create new empty
+database files if they do not yet exist, it will not create a new
+directory for them.
 <PRE>
 $ mkdir proverbs
 $ ./simpleindex proverbs \

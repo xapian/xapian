@@ -1,3 +1,8 @@
+Tue Jul 23 21:59:50 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* Reworded quickstart document so it does not refer to the example
+ 	  code (it was never actually in sync).
+
 Mon Jul 22 14:07:18 BST 2002  Sam Liddicott <saml@ananova.net>
 
 	* Forgot to actually add the quartzcheck.cc file last time
