@@ -47,6 +47,22 @@
 #include <memory>
 #include <queue>
 
+//////////////////////
+// 
+//////////////////
+struct PostListAndTermWeight {
+    public:
+	PostList * postlist;
+	om_weight  termweight;
+
+	PostListAndTermWeight(PostList * postlist_ = 0,
+			      om_weight termweight_ = 0)
+		: postlist(postlist_),
+		  termweight(termweight_)
+		  {}
+	~PostListAndTermWeight() {}
+};
+
 /////////////////////////////////////////////
 // Comparison operators which we will need //
 /////////////////////////////////////////////
@@ -59,11 +75,28 @@ class PLPCmpGt {
         }
 };
 
+/** Class providing an operator which returns true if a has a (strictly)
+ *  lower termweight than b.
+ */
+class PlCmpGtTermWt {
+    public:
+	/** Return true if and only if a has a strictly greater termweight
+	 *  than b.
+	 */
+	bool operator()(const PostListAndTermWeight & a,
+			const PostListAndTermWeight & b) {
+	    DebugMsg("termweights are: " << a.termweight << " and " <<
+		     b.termweight << endl);
+	    return a.termweight > b.termweight;
+	}
+};
+
 // Return true if a has fewer postings than b
 class PLPCmpLt {
     public:
-        bool operator()(const PostList *a, const PostList *b) {
-            return a->get_termfreq() < b->get_termfreq();
+        bool operator()(const PostListAndTermWeight & a,
+			const PostListAndTermWeight & b) {
+            return a.postlist->get_termfreq() < b.postlist->get_termfreq();
         }
 };
 
@@ -207,24 +240,49 @@ LocalMatch::set_weighting(IRWeight::weight_type wt_type_)
 // Make a postlist from a vector of query objects.
 // Operation must be either AND or OR.
 // Optimise query by building tree carefully.
-PostList *
+PostListAndTermWeight
 LocalMatch::postlist_from_queries(om_queryop op,
-			       const vector<OmQueryInternal *> &queries)
+				  const vector<OmQueryInternal *> &queries)
 {
     Assert(op == OM_MOP_OR || op == OM_MOP_AND);
     Assert(queries.size() >= 2);
 
     // Open a postlist for each query, and store these postlists in a vector.
-    vector<PostList *> postlists;
+    vector<PostListAndTermWeight> postlists;
     postlists.reserve(queries.size());
+
     vector<OmQueryInternal *>::const_iterator q;
     for(q = queries.begin(); q != queries.end(); q++) {
 	postlists.push_back(postlist_from_query(*q));
-	DebugMsg("Made postlist: get_termfreq() = " << postlists.back()->get_termfreq() << endl);
+	DebugMsg("Made postlist: get_termfreq() = " <<
+		 postlists.back().postlist->get_termfreq() << endl);
     }
 
     // Build tree
     if (op == OM_MOP_OR) {
+	// Select top terms
+	if(max_or_terms != 0) {
+	    DebugMsg("Selecting top " << max_or_terms << " terms, out of " <<
+		     postlists.size() << "." << endl);
+	    if(postlists.size() > max_or_terms) {
+		nth_element(postlists.begin(),
+			    postlists.begin() + max_or_terms,
+			    postlists.end(),
+			    PlCmpGtTermWt());
+		DebugMsg("Discarding " << (postlists.size() - max_or_terms) <<
+			 " terms." << endl);
+		
+		vector<PostListAndTermWeight>::const_iterator i;
+		for (i = postlists.begin() + max_or_terms;
+		     i != postlists.end();
+		     i++) {
+		    delete i->postlist;
+		}
+		postlists.erase(postlists.begin() + max_or_terms,
+				postlists.end());
+	    }
+	}
+
 	// Build nice tree for OR-ed postlists
 	// Want postlists with most entries to be at top of tree, to reduce
 	// average number of nodes an entry gets "pulled" through.
@@ -234,16 +292,16 @@ LocalMatch::postlist_from_queries(om_queryop op,
 	// FIXME: try using a heap instead (C++ sect 18.8)?
 
 	priority_queue<PostList *, vector<PostList *>, PLPCmpGt> pq;
-	vector<PostList *>::const_iterator i;
+	vector<PostListAndTermWeight>::const_iterator i;
 	for (i = postlists.begin(); i != postlists.end(); i++) {
 	    // for an OR, we can just ignore zero freq terms
-	    if(*i == NULL) {
+	    if(i->postlist == 0) {
 		// This shouldn't happen, but would mean that a postlist
 		// didn't get opened.  Might as well try and recover.
-	    } else if((*i)->get_termfreq() == 0) {
-		delete *i;
+	    } else if(i->postlist->get_termfreq() == 0) {
+		delete i->postlist;
 	    } else {
-		pq.push(*i);
+		pq.push(i->postlist);
 	    }
 	}
 
@@ -274,14 +332,13 @@ LocalMatch::postlist_from_queries(om_queryop op,
 	// SORT list into ascending freq order
 	// AND last two elements, then AND with each subsequent element
 	
-	// 
-	vector<PostList *>::const_iterator i;
+	vector<PostListAndTermWeight>::const_iterator i;
 	for (i = postlists.begin(); i != postlists.end(); i++) {
-	    if((*i)->get_termfreq() == 0) {
+	    if(i->postlist->get_termfreq() == 0) {
 		// a zero freq term => the AND has zero freq
-		vector<PostList *>::const_iterator j;
+		vector<PostListAndTermWeight>::const_iterator j;
 		for (j = postlists.begin(); j != postlists.end(); j++)
-		    delete *j;
+		    delete j->postlist;
 		postlists.clear();
 		break;
 	    }
@@ -293,11 +350,11 @@ LocalMatch::postlist_from_queries(om_queryop op,
 
 	stable_sort(postlists.begin(), postlists.end(), PLPCmpLt());
 
-	PostList *pl = postlists.back();
+	PostList *pl = postlists.back().postlist;
 	postlists.pop_back();
-	while (!postlists.empty()) {	    
+	while (!postlists.empty()) {
 	    // NB right is always <= left - we use this to optimise
-	    pl = new AndPostList(postlists.back(), pl, this);
+	    pl = new AndPostList(postlists.back().postlist, pl, this);
 	    postlists.pop_back();
 	}
 	return pl;
@@ -306,10 +363,10 @@ LocalMatch::postlist_from_queries(om_queryop op,
 
 // Make a postlist from a query object - this is called recursively down
 // the query tree.
-PostList *
+PostListAndTermWeight
 LocalMatch::postlist_from_query(const OmQueryInternal *query_)
 {
-    PostList *pl = NULL;
+    PostListAndTermWeight result;
 
     // This should be true happen, because we check the
     // top level of the query, and !isdefined should only
@@ -322,47 +379,54 @@ LocalMatch::postlist_from_query(const OmQueryInternal *query_)
 	    Assert(query_->subqs.size() == 0);
 	    if (database->term_exists(query_->tname)) {
 		DebugMsg("Leaf: tname = " << query_->tname << endl);
-		pl = mk_postlist(query_->tname);
+		result.postlist = mk_postlist(query_->tname);
+
+		// FIXME: use wqf here
+		result.termweight = term_weights[query_->tname];
 	    } else {
 		DebugMsg("Leaf: tname = " << query_->tname << " (not in database)" << endl);
 		// Term doesn't exist in this database.  However, we create
 		// a (empty) postlist for it to help make distributed searching
 		// cleaner (term might exist in other databases).
 		// This is similar to using the muscat3.6 zerofreqs option.
-		pl = new EmptyPostList();
+		result.postlist = new EmptyPostList();
 	    }
 	    break;
 	case OM_MOP_AND:
 	case OM_MOP_OR:
 	    // Build a tree of postlists for AND or OR
-	    pl = postlist_from_queries(query_->op, query_->subqs);
+	    result = postlist_from_queries(query_->op, query_->subqs);
 	    break;
 	case OM_MOP_FILTER:
 	    Assert(query_->subqs.size() == 2);
-	    pl = new FilterPostList(postlist_from_query(query_->subqs[0]),
-				    postlist_from_query(query_->subqs[1]),
-				    this);
+	    result.postlist = new FilterPostList(
+				postlist_from_query(query_->subqs[0]).postlist,
+				postlist_from_query(query_->subqs[1]).postlist,
+				this);
 	    break;
 	case OM_MOP_AND_NOT:
 	    Assert(query_->subqs.size() == 2);
-	    pl = new AndNotPostList(postlist_from_query(query_->subqs[0]),
-				    postlist_from_query(query_->subqs[1]),
-				    this);
+	    result.postlist = new AndNotPostList(
+				postlist_from_query(query_->subqs[0]).postlist,
+				postlist_from_query(query_->subqs[1]).postlist,
+				this);
 	    break;
 	case OM_MOP_AND_MAYBE:
 	    Assert(query_->subqs.size() == 2);
-	    pl = new AndMaybePostList(postlist_from_query(query_->subqs[0]),
-				    postlist_from_query(query_->subqs[1]),
-				    this);
+	    result.postlist = new AndMaybePostList(
+				postlist_from_query(query_->subqs[0]).postlist,
+				postlist_from_query(query_->subqs[1]).postlist,
+				this);
 	    break;
 	case OM_MOP_XOR:
 	    Assert(query_->subqs.size() == 2);
-	    pl = new XorPostList(postlist_from_query(query_->subqs[0]),
-				    postlist_from_query(query_->subqs[1]),
-				    this);
+	    result.postlist = new XorPostList(
+				postlist_from_query(query_->subqs[0]).postlist,
+				postlist_from_query(query_->subqs[1]).postlist,
+				this);
 	    break;
     }
-    return pl;
+    return result;
 }
 
 ////////////////////////
@@ -417,7 +481,7 @@ LocalMatch::build_query_tree()
 	select_query_terms();
 
 	DebugMsg("LocalMatch::build_query_tree()" << endl);
-	query = postlist_from_query(&users_query);
+	query = postlist_from_query(&users_query).postlist;
 	DebugMsg("LocalMatch::query = (" << query->intro_term_description() <<
 		 ")" << endl);
     }

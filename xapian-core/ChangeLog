@@ -1,3 +1,8 @@
+Thu Jun  1 18:10:12 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Implemented max_or_terms.  Activated test in apitest to check that
+	  it is working.
+
 Thu Jun  1 16:40:03 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* ProgClient now reaps its child, so no more zombie buildup.

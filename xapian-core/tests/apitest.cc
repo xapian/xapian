@@ -2043,7 +2043,7 @@ test_desc db_tests[] = {
     {"rset2",              test_rset2},
     {"rsetmultidb1",       test_rsetmultidb1},
     {"rsetmultidb2",       test_rsetmultidb2},
-    //{"maxorterms1",        test_maxorterms1},
+    {"maxorterms1",        test_maxorterms1},
     {0, 0}
 };
 
