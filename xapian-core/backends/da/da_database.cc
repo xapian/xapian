@@ -93,7 +93,9 @@ DATermList::DATermList(DADatabase *db, struct termvec *tv)
 	termid id;
 	// FIXME - Next line is inefficient - checks for term in term list
 	id = db->term_name_to_id(string(term + 1, (unsigned)term[0] - 1));
-	terms.push_back(DATermListItem(id, tv->wdf));
+
+	doccount freq = tv->freq;
+	terms.push_back(DATermListItem(id, tv->wdf, freq));
 	readterms(tv);
     }
     losetermvec(tv);

@@ -36,9 +36,10 @@ int main(int argc, char *argv[]) {
 	while(!termlist->at_end()) {
 	    termid tid = termlist->get_termid();
 
-	    printf("Term (Id %d) `%s' wdf=%d\n", tid,
+	    printf("Term (Id %d) `%s' wdf=%d termfreq=%d\n", tid,
 		   database.term_id_to_name(tid).c_str(),
-		   termlist->get_wdf());
+		   termlist->get_wdf(),
+		   termlist->get_termfreq());
 	    termlist->next();
 	}
 	delete termlist;
