@@ -9,12 +9,6 @@ OrPostList::OrPostList(PostList *left, PostList *right)
     if (!r->at_end()) rhead = r->get_docid();
 }
 
-OrPostList::~OrPostList()
-{
-    delete l;
-    delete r;
-}
-
 void
 OrPostList::next()
 {

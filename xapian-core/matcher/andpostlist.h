@@ -4,10 +4,9 @@
 #define _andpostlist_h_
 
 #include "database.h"
+#include "branchpostlist.h"
 
-class AndPostList : public virtual PostList {
-    protected:
-        PostList *l, *r;
+class AndPostList : public virtual BranchPostList {
     private:
         docid head;
 
@@ -23,7 +22,6 @@ class AndPostList : public virtual PostList {
 	bool   at_end() const;
 
         AndPostList(PostList *l, PostList *r);
-        ~AndPostList();
 };
 
 inline doccount

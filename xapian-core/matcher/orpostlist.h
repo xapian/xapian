@@ -4,10 +4,10 @@
 #define _orpostlist_h_
 
 #include "database.h"
+#include "branchpostlist.h"
 
-class OrPostList : public virtual PostList {
+class OrPostList : public virtual BranchPostList {
     private:
-        PostList *l, *r;
         docid lhead, rhead;
     public:
 	doccount get_termfreq() const;
@@ -20,7 +20,6 @@ class OrPostList : public virtual PostList {
 	bool   at_end() const;
 
         OrPostList(PostList *, PostList *);
-        ~OrPostList();
 };
 
 inline doccount

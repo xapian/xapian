@@ -35,12 +35,6 @@ AndNotPostList::AndNotPostList(PostList *left, PostList *right)
     }
 }
 
-AndNotPostList::~AndNotPostList()
-{
-    delete l;
-    delete r;
-}
-
 void
 AndNotPostList::next()
 {

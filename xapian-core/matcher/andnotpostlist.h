@@ -4,10 +4,10 @@
 #define _andnotpostlist_h_
 
 #include "database.h"
+#include "branchpostlist.h"
 
-class AndNotPostList : public virtual PostList {
+class AndNotPostList : public virtual BranchPostList {
     private:
-        PostList *l, *r;
         docid lhead, rhead;
 
         void advance_to_next_match();
@@ -22,7 +22,6 @@ class AndNotPostList : public virtual PostList {
 	bool   at_end() const;
 
         AndNotPostList(PostList *l, PostList *r);
-        ~AndNotPostList();
 };
 
 inline doccount

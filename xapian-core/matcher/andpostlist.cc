@@ -10,14 +10,14 @@ AndPostList::advance_to_next_match()
 	if (lhead < rhead) {
 	    l->skip_to(rhead);
 	    if (l->at_end()) {
-		lhead = rhead = 0;
+		head = 0;
 		return;
 	    }
 	    lhead = l->get_docid();	    
 	} else {
 	    r->skip_to(lhead);
 	    if (r->at_end()) {
-		lhead = rhead = 0;
+		head = 0;
 		return;
 	    }
 	    rhead = r->get_docid();	    
@@ -33,12 +33,6 @@ AndPostList::AndPostList(PostList *left, PostList *right)
     r = right;
     head = 0;
     if (!l->at_end() && !r->at_end()) advance_to_next_match();
-}
-
-AndPostList::~AndPostList()
-{
-    delete l;
-    delete r;
 }
 
 void
