@@ -176,7 +176,7 @@ NetworkMatch::del_query_tree()
 void
 NetworkMatch::set_options(const OmMatchOptions & moptions_)
 {
-    Assert(false);
+    moptions = moptions_;
 }
 
 void
@@ -492,11 +492,13 @@ NetworkMatch::get_mset(om_doccount first,
 	finished = database->link->get_mset(first, maxitems,
 					    mset, mbound, greatest_wt);
     } else {
-	do {
+	finished = database->link->get_mset(first, maxitems,
+					    mset, mbound, greatest_wt);
+	while (!finished) {
 	    database->link->wait_for_input();
 	    finished = database->link->get_mset(first, maxitems,
 						mset, mbound, greatest_wt);
-	} while (!finished);
+	};
     }
     return finished;
 }

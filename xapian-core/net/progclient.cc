@@ -198,7 +198,7 @@ ProgClient::finish_query()
 void
 ProgClient::wait_for_input()
 {
-    buf.wait_for_data();
+    buf.wait_for_data(10000);
 }
 
 bool

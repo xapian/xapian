@@ -1,3 +1,7 @@
+Tue May  9 16:16:06 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Network stuff should now time out if there is no response.
+
 Tue May  9 14:45:44 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* OmMSetItems now have a collapse_key member, which the key used

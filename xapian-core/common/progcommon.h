@@ -65,8 +65,12 @@ class OmLineBuf {
 	bool data_waiting();
 
 	/** Block until at least a line of data has been read.
+	 *
+	 *  @param msecs  The timeout in milliseconds (or infinite
+	 *                if zero).  An exception will be thrown if
+	 *                the timeout is exceeded.
 	 */
-	void wait_for_data();
+	void wait_for_data(int msecs = 0);
 
 	/** Write one line to writefd
 	 */

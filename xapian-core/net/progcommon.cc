@@ -33,6 +33,7 @@
 #include "omqueryinternal.h"
 #include "readquery.h"
 #include "stats.h"
+#include "utils.h"
 
 OmQueryInternal qfs_readcompound();
 
@@ -54,6 +55,7 @@ OmQueryInternal query_from_string(string qs)
 
 string stats_to_string(const Stats &stats)
 {
+#if 0
     ostrstream os;
 
     os << stats.collection_size << " ";
@@ -79,6 +81,29 @@ string stats_to_string(const Stats &stats)
     string result(os.str());
 
     os.freeze(0);
+#endif
+    string result;
+
+    result += inttostring(stats.collection_size);
+    result += " ";
+    result += doubletostring(stats.average_length);
+    result += " ";
+
+    map<om_termname, om_doccount>::const_iterator i;
+
+    for (i=stats.termfreq.begin();
+	 i != stats.termfreq.end();
+	 ++i) {
+	result = result + "T" + encode_tname(i->first) +
+		"=" + doubletostring(i->second) + " ";
+    }
+
+    for (i=stats.reltermfreq.begin();
+	 i != stats.reltermfreq.end();
+	 ++i) {
+	result = result + "R" + encode_tname(i->first) +
+		"=" + doubletostring(i->second) + " ";
+    }
 
     return result;
 }
@@ -296,7 +321,17 @@ OmLineBuf::readline()
 	fd_set fdset;
 	FD_ZERO(&fdset);
 	FD_SET(readfd, &fdset);
-	select(readfd+1, &fdset, 0, 0, NULL);
+	int retval = select(readfd+1, &fdset, 0, 0, NULL);
+
+	if (retval < 0) {
+	    if (errno == EAGAIN) {
+		continue;
+	    } else {
+		throw OmNetworkError(string("select:") = strerror(errno));
+	    }
+	} else if (retval == 0) {
+	    continue;
+	}
 
 	ssize_t received = read(readfd, buf, sizeof(buf) - 1);
 
@@ -310,41 +345,78 @@ OmLineBuf::readline()
 }
 
 void
-OmLineBuf::wait_for_data()
+OmLineBuf::wait_for_data(int msecs)
 {
     // FIXME: share with readline()
-    string::size_type pos;
-    while ((pos = buffer.find_first_of('\n')) == buffer.npos) {
+    while (buffer.find_first_of('\n') == buffer.npos) {
 	char buf[256];
 	
 	// wait for input to be available.
 	fd_set fdset;
 	FD_ZERO(&fdset);
 	FD_SET(readfd, &fdset);
-	select(readfd+1, &fdset, 0, 0, NULL);
 
-	ssize_t received = read(readfd, buf, sizeof(buf) - 1);
+	struct timeval tv;
+	tv.tv_sec = msecs / 1000;
+	tv.tv_usec = (msecs % 1000) * 1000;
 
-	buffer += string(buf, buf + received);
+	int retval = select(readfd+1, &fdset, 0, 0,
+			    (msecs == 0)? NULL : &tv);
+	if (retval == 0) {
+	    // select's timeout arrived before any data
+	    throw OmNetworkTimeoutError("Timeout exceeded waiting for remote.");
+	} else if (retval < 0) {
+	    // an error happened
+	    if (errno == EINTR) {
+		// select interrupted due to signal
+		// FIXME: adjust timeout for next time around to compensate
+		// for time used.  Need to use gettimeofday() or similar, since
+		// the contents of tv are now effectively undefined.  (On Linux,
+		// it's the time not slept, but this isn't portable)
+		continue;
+	    } else {
+		throw OmNetworkError("Unknown network error waiting for remote.");
+	    }
+	}
+	// if we got this far, then there is data to be received.
+
+	ssize_t received;
+	do {
+	    received = read(readfd, buf, sizeof(buf) - 1);
+
+	    if (received > 0) {
+		buffer += string(buf, buf + received);
+	    } else if (received < 0) {
+		if (errno != EAGAIN) {
+		    throw OmNetworkError(string("Network error: ") +
+					 string(strerror(errno)));
+		}
+	    }
+	} while (received > 0);
     }
 }
 
 bool
 OmLineBuf::data_waiting()
 {
-    fd_set fdset;
-    FD_ZERO(&fdset);
-    FD_SET(readfd, &fdset);
-
-    struct timeval tv;
-    tv.tv_sec = 0;
-    // a tenth of a second, as an arbitrary non-zero number to avoid
-    // hogging the CPU in a loop.
-    tv.tv_usec = 100000;
-    if (select(readfd+1, &fdset, 0, 0, &tv) > 0) {
+    if (buffer.find_first_of('\n') != buffer.npos) {
 	return true;
     } else {
-	return false;
+	// crude check to see if there's data in the socket
+	fd_set fdset;
+	FD_ZERO(&fdset);
+	FD_SET(readfd, &fdset);
+
+	struct timeval tv;
+	tv.tv_sec = 0;
+	// a tenth of a second, as an arbitrary non-zero number to avoid
+	// hogging the CPU in a loop.
+	tv.tv_usec = 100000;
+	if (select(readfd+1, &fdset, 0, 0, &tv) > 0) {
+	    return true;
+	} else {
+	    return false;
+	}
     }
 }
 
