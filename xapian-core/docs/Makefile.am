@@ -13,12 +13,12 @@ code_structure.html: mkdoc.pl
 
 endif
 
-if HAVE_DOCPP
-
-html/index.html:
-	doc++ --dir html ../include/*.h ../matcher/*.cc
-
-endif
+#if HAVE_DOCPP
+#
+#html/index.html:
+	#doc++ --dir html ../include/*.h ../matcher/*.cc
+#
+#endif
 
 docdatadir   = ${datadir}/omuscat
 docdata_DATA = ${CREATED_DOCUMENTS}
