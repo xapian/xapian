@@ -1248,8 +1248,18 @@ static bool test_getmterms1()
     OmMSet mymset = enquire.get_mset(0, 10);
 
     TEST_MSET_SIZE(mymset, 1);
+#ifdef __SUNPRO_CC
+    om_termname_list list;
+    {
+        OmTermIterator t;
+        for (t = enquire.get_matching_terms_begin(mymset.begin());
+	     t != enquire.get_matching_terms_end(mymset.begin()); ++t) {
+            list.push_back(*t);
+    }
+#else
     om_termname_list list(enquire.get_matching_terms_begin(mymset.begin()),
 			  enquire.get_matching_terms_end(mymset.begin()));
+#endif
     TEST(list == answers_list);
 
     return true;
@@ -1279,8 +1289,18 @@ static bool test_getmterms2()
     OmMSet mymset = enquire.get_mset(0, 10);
 
     TEST_MSET_SIZE(mymset, 1);
+#ifdef __SUNPRO_CC
+    om_termname_list list;
+    {
+        OmTermIterator t;
+        for (t = enquire.get_matching_terms_begin(mymset.begin());
+	     t != enquire.get_matching_terms_end(mymset.begin()); ++t) {
+            list.push_back(*t);
+    }
+#else
     om_termname_list list(enquire.get_matching_terms_begin(mymset.begin()),
 			  enquire.get_matching_terms_end(mymset.begin()));
+#endif
     TEST(list == answers_list);
 
     return true;
@@ -1382,14 +1402,16 @@ static bool test_spaceterms1()
 {
     OmEnquire enquire(get_database("apitest_space"));
     OmMSet mymset;
-    vector<om_docid> docs;
+    om_doccount count;
+    OmMSetIterator m;
     OmStem stemmer("english");
 
     init_simple_enquire(enquire, OmQuery(stemmer.stem_word("space man")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
-    docs = vector<om_docid>(mymset.begin(), mymset.end());
-    TEST_EQUAL(docs.size(), 1);
+    count = 0;
+    for (m = mymset.begin(); m != mymset.end(); ++m) ++count;
+    TEST_EQUAL(count, 1);
 
     for (om_valueno value_no = 1; value_no < 7; ++value_no) {
 	TEST_NOT_EQUAL(mymset.begin().get_document().get_data(), "");
@@ -1399,8 +1421,9 @@ static bool test_spaceterms1()
     init_simple_enquire(enquire, OmQuery(stemmer.stem_word("tab\tby")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
-    docs = vector<om_docid>(mymset.begin(), mymset.end());
-    TEST_EQUAL(docs.size(), 1);
+    count = 0;
+    for (m = mymset.begin(); m != mymset.end(); ++m) ++count;
+    TEST_EQUAL(count, 1);
 
     for (om_valueno value_no = 1; value_no < 7; ++value_no) {
 	string value = mymset.begin().get_document().get_value(value_no);
@@ -1414,8 +1437,9 @@ static bool test_spaceterms1()
     init_simple_enquire(enquire, OmQuery(stemmer.stem_word("back\\slash")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
-    docs = vector<om_docid>(mymset.begin(), mymset.end());
-    TEST_EQUAL(docs.size(), 1);
+    count = 0;
+    for (m = mymset.begin(); m != mymset.end(); ++m) ++count;
+    TEST_EQUAL(count, 1);
 
     return true;
 }
@@ -1617,14 +1641,16 @@ static bool test_specialterms1()
 {
     OmEnquire enquire(get_database("apitest_space"));
     OmMSet mymset;
-    vector<om_docid> docs;
+    om_doccount count;
+    OmMSetIterator m;
     OmStem stemmer("english");
 
     init_simple_enquire(enquire, OmQuery(stemmer.stem_word("new\nline")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
-    docs = vector<om_docid>(mymset.begin(), mymset.end());
-    TEST_EQUAL(docs.size(), 1);
+    count = 0;
+    for (m = mymset.begin(); m != mymset.end(); ++m) ++count;
+    TEST_EQUAL(count, 1);
 
     for (om_valueno value_no = 0; value_no < 7; ++value_no) {
 	string value = mymset.begin().get_document().get_value(value_no);
@@ -1642,8 +1668,9 @@ static bool test_specialterms1()
 			OmQuery(stemmer.stem_word(string("big\0zero", 8))));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
-    docs = vector<om_docid>(mymset.begin(), mymset.end());
-    TEST_EQUAL(docs.size(), 1);
+    count = 0;
+    for (m = mymset.begin(); m != mymset.end(); ++m) ++count;
+    TEST_EQUAL(count, 1);
 
     return true;
 }
@@ -2789,7 +2816,15 @@ static bool test_termlist2()
     OmTermIterator t_clone(t);
     TEST_EQUAL(t, t_clone);
 
+#ifdef __SUNPRO_CC
+    vector<om_termname> v;
+    while (t != tend) {
+	v.push_back(*t);
+	++t;
+    }
+#else
     vector<om_termname> v(t, tend);
+#endif
 
     t = db.termlist_begin(1);    
     tend = db.termlist_end(1);
@@ -2877,7 +2912,15 @@ static bool test_postlist2()
     OmPostListIterator p_clone(p);
     TEST_EQUAL(p, p_clone);
 
+#ifdef __SUNPRO_CC
+    vector<om_docid> v;
+    while (p != pend) {
+	v.push_back(*p);
+	++p;
+    }
+#else
     vector<om_docid> v(p, pend);
+#endif
 
     p = db.postlist_begin("this");
     pend = db.postlist_end("this");

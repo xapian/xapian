@@ -38,7 +38,7 @@ class EmptySubMatch : public SubMatch {
 	    DEBUGCALL(MATCH, bool, "EmptySubMatch::prepare_match", nowait);
 	    (void)nowait;
 	    RETURN(true);
-	};
+	}
 
 	/// get a postlist - returns an empty postlist
 	PostList * get_postlist(om_doccount /*maxitems*/, MultiMatch * /*matcher*/) {

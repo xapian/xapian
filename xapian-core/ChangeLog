@@ -1,3 +1,7 @@
+Wed Apr 02 15:42:54 BST 2003  Olly Betts <olly@survex.com>
+
+	* matcher/emptymatch.h,tests/api_db.cc: More fixes for Sun C++.
+
 Wed Apr 02 15:13:58 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,api/omqueryinternal.cc,
