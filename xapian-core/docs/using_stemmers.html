@@ -15,16 +15,16 @@ and have an interface in, the C programming language.
 
 The function prototypes are:
 <PRE>
-    extern struct english_stemmer * setup_english_stemmer();
+    extern void * setup_english_stemmer();
 
-    extern char * english_stem(struct english_stemmer * z, char * q, int i0, int i1);
+    extern char * english_stem(void * z, char * q, int i0, int i1);
 
-    extern void closedown_english_stemmer(struct english_stemmer * z);
+    extern void closedown_english_stemmer(void * z);
 </PRE>
 
 The stemming process is set up with a call of the type
 <PRE>
-    struct english_stemmer * z = setup_english_stemmer();
+    void * z = setup_english_stemmer();
 </PRE>
 and thereafter used with repeated calls of the type
 <PRE>
@@ -44,18 +44,18 @@ Finally the stemming process is closed down with
 For example,
 <PRE>
     {
-    	struct english_stemmer * z = setup_english_stemmer();
+    	void * z = setup_english_stemmer();
 	char * s;
 
 	s = "advisability";
 	printf("'%s' stems to '%s'\n",
 	       s,
-	       english_stem(z, s, 0, strlen(s));
+	       english_stem(z, s, 0, strlen(s) - 1));
 
 	s = "supercalifragilisticexpialidocious";
 	printf("'%s' stems to '%s'\n",
 	       s,
-	       english_stem(z, s, 0, strlen(s));
+	       english_stem(z, s, 0, strlen(s) - 1));
 
         closedown_english_stemmer(z);
     }
@@ -77,6 +77,8 @@ french
 german
 </LI><LI>
 italian
+</LI><LI>
+norwegian
 </LI><LI>
 portuguese
 </LI><LI>
