@@ -1,3 +1,7 @@
+Sat Apr 13 20:20:52 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* Fixed omtcpsrv getopt usage so it works again.
+
 Fri Apr 12 16:24:06 BST 2002  Olly Betts <olly@survex.com>
 
 	* Require automake 1.5.

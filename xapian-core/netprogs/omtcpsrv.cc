@@ -62,9 +62,9 @@ int main(int argc, char *argv[]) {
     bool syntax_error = false;
 
     struct option opts[] = {
-	{"port",		required_argument, &port, 0},
-	{"active-timeout",	required_argument, &msecs_active_timeout, 0},
-	{"idle-timeout",	required_argument, &msecs_idle_timeout, 0},
+	{"port",		required_argument, 0, 'p'},
+	{"active-timeout",	required_argument, 0, 'a'},
+	{"idle-timeout",	required_argument, 0, 'i'},
 	{"timeout",		required_argument, 0, 't'},
 	{"one-shot",		no_argument, 0, 'o'},
 	{"quiet",		no_argument, 0, 'q'},
@@ -75,8 +75,17 @@ int main(int argc, char *argv[]) {
     };
 
     int c;
-    while ((c = getopt_long(argc, argv, "", opts, NULL)) != EOF) {
+    while ((c = getopt_long(argc, argv, "p:a:i:t:oq", opts, NULL)) != EOF) {
 	switch (c) {
+	    case 'p':
+                port = atoi(optarg);
+	        break;
+	    case 'a':
+                msecs_active_timeout = atoi(optarg);
+	        break;
+            case 'i':
+	        msecs_idle_timeout   = atoi(optarg);
+	        break;
 	    case 't':
 		msecs_active_timeout = msecs_idle_timeout = atoi(optarg);
 		break;
@@ -108,7 +117,7 @@ int main(int argc, char *argv[]) {
     }
     
     if (port <= 0 || port >= 65536) {
-	cerr << "Error: must specify a valid port number (between 1 and 65535)."
+      cerr << "Error: must specify a valid port number (between 1 and 65535). We actually got " << (port)
 	     << endl;
 	exit(1);
     }
