@@ -4,7 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -530,20 +530,23 @@ index_directory(const string &dir, const map<string, string>& mime_map)
 int
 main(int argc, char **argv)
 {
-    // getopt
-    char* optstring = "hvd:D:U:M:l";
-    struct option longopts[8] = {
-	{ "help",	0,			NULL, 'h' },
-	{ "version",	0,			NULL, 'v' },
+    // If overwrite is true, the database will be created anew even if it
+    // already exists.
+    bool overwrite = false;
+
+    static const struct option longopts[] = {
+	{ "help",	no_argument,		NULL, 'h' },
+	{ "version",	no_argument,		NULL, 'v' },
+	{ "overwrite",	no_argument,		NULL, 'o' },
 	{ "duplicates",	required_argument,	NULL, 'd' },
 	{ "db",		required_argument,	NULL, 'D' },
 	{ "url",	required_argument,	NULL, 'U' },
 	{ "mime-type",	required_argument,	NULL, 'M' },
-	{ "no-recurse",	0,			NULL, 'l' },
+	{ "no-recurse",	no_argument,		NULL, 'l' },
 	{ 0, 0, NULL, 0 }
     };
 
-    int longindex, getopt_ret;
+    int getopt_ret;
 
     map<string, string> mime_map = map<string, string>();
     mime_map["txt"] = "text/plain";
@@ -557,8 +560,7 @@ main(int argc, char **argv)
     mime_map["eps"] = "application/postscript";
     mime_map["ai"] = "application/postscript";
 
-    while ((getopt_ret = getopt_long(argc, argv, optstring,
-				     longopts, &longindex))!=EOF) {
+    while ((getopt_ret = getopt_long(argc, argv, "hvd:D:U:M:l", longopts, NULL))!=EOF) {
 	switch (getopt_ret) {
 	case 'h':
 	    cout << OMINDEX << endl
@@ -571,6 +573,8 @@ main(int argc, char **argv)
 		 << "  -U, --url\t\tbase url DIRECTORY represents\n"
 	         << "  -M, --mime-type\tadditional MIME mapping ext:type\n"
 		 << "  -l, --no-recurse\tonly process the given directory\n"
+		 << "      --overwrite\tcreate the database anew (the default is\n"
+	        "\t\t\tto update if the database already exists).\n"
 		 << "  -h, --help\t\tdisplay this help and exit\n"
 		 << "  -v, --version\t\toutput version and exit\n\n"
 		 << "Report bugs via the web interface at:\n"
@@ -581,7 +585,7 @@ main(int argc, char **argv)
 		 << "Copyright (c) 1999,2000,2001 BrightStation PLC.\n"
 		 << "Copyright (c) 2001 James Aylett\n"
 		 << "Copyright (c) 2001,2002 Ananova Ltd\n"
-		 << "Copyright (c) 2002,2003 Olly Betts\n\n"
+		 << "Copyright (c) 2002,2003,2004 Olly Betts\n\n"
 		 << "This is free software, and may be redistributed under\n"
 		 << "the terms of the GNU Public License." << endl;
 	    return 0;
@@ -618,6 +622,9 @@ main(int argc, char **argv)
 	    break;
 	case 'U':
 	    baseurl = optarg;
+	    break;
+	case 'o': // --overwrite
+	    overwrite = true;
 	    break;
 	case ':': // missing param
 	    return 1;
@@ -661,7 +668,11 @@ main(int argc, char **argv)
     }
 
     try {
-	db = Xapian::Auto::open(dbpath, Xapian::DB_CREATE_OR_OPEN);
+	if (!overwrite) {
+	    db = Xapian::Auto::open(dbpath, Xapian::DB_CREATE_OR_OPEN);
+	} else {
+	    db = Xapian::Auto::open(dbpath, Xapian::DB_CREATE_OR_OVERWRITE);
+	}
 	index_directory("/", mime_map);
 	// cout << "\n\nNow we have " << db.get_doccount() << " documents.\n";
 	db.flush();

@@ -1,3 +1,8 @@
+Fri Mar 12 02:09:33 GMT 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Added --overwrite option which forces an existing
+	  database to be deleted before indexing begins.
+
 Wed Mar 10 14:39:13 GMT 2004  Olly Betts <olly@survex.com>
 
 	* templates/xml: "Content-Type: text/xml".
