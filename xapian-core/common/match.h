@@ -73,7 +73,7 @@ class OmMatch
 					 const vector<OmQuery *> & queries);
 
 	// Open a postlist
-	DBPostList * mk_postlist(const om_termname& tname,
+	LeafPostList * mk_postlist(const om_termname& tname,
 				 RSet * rset);
 
 	// Make a weight

@@ -31,9 +31,9 @@
 
 class OmDocument;
 class PostList;
-class DBPostList;
+class LeafPostList;
 class TermList;
-class DBTermList;
+class LeafTermList;
 class RSet;
 
 /** Base class for databases.
@@ -80,8 +80,8 @@ class IRDatabase : public virtual IndexerDestination {
 	// Data item access methods:
 	// =========================
 
-	virtual DBPostList * open_post_list(const om_termname&, RSet *) const = 0;
-	virtual DBTermList * open_term_list(om_docid did) const = 0;
+	virtual LeafPostList * open_post_list(const om_termname&, RSet *) const = 0;
+	virtual LeafTermList * open_term_list(om_docid did) const = 0;
 	virtual OmDocument * open_document(om_docid did) const = 0;
 
 #if 0

@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_DBPOSTLIST_H
-#define OM_HGUARD_DBPOSTLIST_H
+#ifndef OM_HGUARD_LEAFPOSTLIST_H
+#define OM_HGUARD_LEAFPOSTLIST_H
 
 #include "postlist.h"
 #include "irweight.h"
@@ -29,14 +29,14 @@
 // Postlist which generates termweights (rather than merely modifying them
 // and passing them on)
 // FIXME - choose a better name for this class
-class DBPostList : public virtual PostList
+class LeafPostList : public virtual PostList
 {
     protected:
 	const IRWeight * ir_wt;
     public:
-	DBPostList() : ir_wt(NULL) { return; }
+	LeafPostList() : ir_wt(NULL) { return; }
 
-	~DBPostList() { return; }
+	~LeafPostList() { return; }
 
 	// Sets term weighting formula, and needed information
 	virtual void set_termweight(const IRWeight * wt);
@@ -46,23 +46,23 @@ class DBPostList : public virtual PostList
 };
 
 inline void
-DBPostList::set_termweight(const IRWeight * wt)
+LeafPostList::set_termweight(const IRWeight * wt)
 {
     ir_wt = wt;
 }
 
 // return an upper bound on the termweight
 inline om_weight
-DBPostList::get_maxweight() const
+LeafPostList::get_maxweight() const
 {
     Assert(ir_wt != NULL);
     return ir_wt->get_maxpart();
 }
 
 inline om_weight
-DBPostList::recalc_maxweight()
+LeafPostList::recalc_maxweight()
 {
-    return DBPostList::get_maxweight();
+    return LeafPostList::get_maxweight();
 }
 
-#endif /* OM_HGUARD_DBPOSTLIST_H */
+#endif /* OM_HGUARD_LEAFPOSTLIST_H */

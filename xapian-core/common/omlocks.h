@@ -23,10 +23,12 @@
 #ifndef OM_HGUARD_OMLOCKS_H
 #define OM_HGUARD_OMLOCKS_H
 
+#include "config.h"
+#include "omassert.h"
+
 #ifdef HAVE_LIBPTHREAD
 
 #include <pthread.h>
-#include "omassert.h"
 
 class OmLock {
     mutable pthread_mutex_t mutex;

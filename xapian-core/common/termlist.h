@@ -48,24 +48,24 @@ class TermList {
 	 *  If next() returns a non-zero pointer P, then the original
 	 *  termlist should be deleted, and the original pointer replaced
 	 *  with P.
-	 *  In DBTermList, next() will always return 0.
+	 *  In LeafTermList, next() will always return 0.
 	 */
 	virtual TermList * next() = 0; // Moves to next term
 	virtual bool   at_end() const = 0; // True if we're off the end of the list
 	virtual ~TermList() { return; }
 };
 
-class DBTermList : public virtual TermList {
+class LeafTermList : public virtual TermList {
     protected:
 	const OmExpandWeight * wt;
     public:
-	DBTermList() : wt(NULL) { return; }
-	~DBTermList() { return; }
+	LeafTermList() : wt(NULL) { return; }
+	~LeafTermList() { return; }
 	virtual void set_weighting(const OmExpandWeight * wt_); // Sets term weight
 };
 
 inline void
-DBTermList::set_weighting(const OmExpandWeight * wt_)
+LeafTermList::set_weighting(const OmExpandWeight * wt_)
 {
     wt = wt_;
 }
