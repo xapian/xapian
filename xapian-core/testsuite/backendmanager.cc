@@ -55,7 +55,11 @@ string_to_document(std::string paragraph)
     }
     {
 	OmKey key;
-	key.value = std::string("\0\0\0 \1", 5);
+	key.value = std::string("\0\0\0 \1\t", 6);
+	for (int k = 0; k < 256; k++) {
+	    key.value += (char)(k);
+	}
+	key.value += paragraph;
 	document.add_key(0, key);
     }
 

@@ -42,8 +42,24 @@ void lowercase_term(om_termname &term)
     while ((a = term.find("^b")) != term.npos) {
 	term.replace(a, 2, "\\");
     }
+    while ((a = term.find("^t")) != term.npos) {
+	term.replace(a, 2, std::string("\t", 1));
+    }
     while ((a = term.find("^0")) != term.npos) {
 	term.replace(a, 2, std::string("\0", 1));
+    }
+    while ((a = term.find("^x")) != term.npos) {
+	if (a > term.size() - 4) return;
+	char b = term[a + 2];
+	char c = term[a + 3];
+	if (b <= '9') b = b - '0';
+	else if (b <= 'Z') b = b - 'A';
+	else b = b - 'a';
+	if (c <= '9') c = c - '0';
+	else if (c <= 'Z') c = c - 'A';
+	else c = c - 'a';
+	b = b * 16 + a;
+	term.replace(a, 4, std::string(&b, 1));
     }
 }
 

@@ -156,10 +156,12 @@ OmDebug::display_message(enum om_debug_types type, std::string msg)
     pthread_mutex_lock(mutex);
 #endif
     if (outfile) {
-	fprintf(outfile, "{%d}%s", type, msg.c_str());
+	fprintf(outfile, "{%d}", type);
+	fwrite(msg.data(), 1, msg.size(), outfile);
 	fflush(outfile);
     } else {
-	fprintf(stderr, "{%d}%s", type, msg.c_str());
+	fprintf(stderr, "{%d}", type);
+	fwrite(msg.data(), 1, msg.size(), stderr);
 	fflush(stderr);
     }
 #ifdef MUS_USE_PTHREAD
