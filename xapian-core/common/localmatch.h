@@ -41,12 +41,15 @@ class PostList;
 
 class LocalSubMatch : public SubMatch {
     private:
+	StatsSource * statssource;
+	
 	bool is_prepared;
 
 	/// Query to be run
 	OmQueryInternal users_query;
 
 	const Database *db;
+
 	PostList *postlist;
 
 	/// RSet to be used (affects weightings)
@@ -56,6 +59,18 @@ class LocalSubMatch : public SubMatch {
 	 *  If zero, there is no limit.
 	 */
 	om_termcount max_or_terms;
+
+	/// The size of the query (passed to IRWeight objects)
+	om_doclength querysize;
+    
+	/** Name of weighting scheme to use.
+	 *  This may differ from the requested scheme if, for example,
+	 *  the query is pure boolean.
+	 */
+	string weighting_scheme;
+
+	/// Stored match options object
+	OmSettings opts;
 
 	/// The weights and termfreqs of terms in the query.
 	std::map<om_termname, OmMSet::TermFreqAndWeight> term_info;
@@ -85,21 +100,34 @@ class LocalSubMatch : public SubMatch {
 
     public:
 	LocalSubMatch(const Database *db_, const OmQueryInternal * query,
-		      const OmRSet & omrset, const OmSettings &mopts_,
+		      const OmRSet & omrset, const OmSettings &opts_,
 		      StatsGatherer *gatherer)
-		: SubMatch(query, mopts_, new LocalStatsSource),
-		  is_prepared(false), users_query(*query), db(db_)
+		: statssource(new LocalStatsSource), is_prepared(false),
+		  users_query(*query), db(db_), querysize(query->qlen),
+		  opts(opts_)	
 	{	    
 	    AutoPtr<RSet> new_rset(new RSet(db, omrset));
 	    rset = new_rset;
 
-	    max_or_terms = mopts.get_int("match_max_or_terms", 0);
+	    max_or_terms = opts.get_int("match_max_or_terms", 0);
+
+	    // If query is boolean, set weighting to boolean
+	    if (query->is_bool()) {
+		weighting_scheme = "bool";
+	    } else {
+		weighting_scheme = opts.get("match_weighting_scheme", "bm25");
+	    }
 
 	    statssource->my_collection_size_is(db->get_doccount());
 	    statssource->my_average_length_is(db->get_avlength());
 	    statssource->connect_to_gatherer(gatherer);
 	}
 
+	~LocalSubMatch()
+	{
+	    delete statssource;
+	}
+	
 	/// Calculate the statistics for the query
 	bool prepare_match(bool nowait);
 

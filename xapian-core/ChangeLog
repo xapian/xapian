@@ -1,3 +1,9 @@
+Mon Oct 09 16:19:43 BST 2000 Olly Betts
+
+	* Cleaned up members of SubMatch and subclasses.
+
+	* Merged NetClient::set_query() and set_options().
+
 Mon Oct 09 15:27:59 BST 2000 Olly Betts
 
 	* Implemented OmEnquire::get_docs() - currently just fetches them

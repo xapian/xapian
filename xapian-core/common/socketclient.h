@@ -144,17 +144,19 @@ class SocketClient : public NetClient {
 	/** Wait for input to be available */
 	void wait_for_input();
 
+	/** Set the query
+	 *
+	 * @param query_ The query.
+	 * @param moptions_ The match options.
+	 */
+	void set_query(const OmQueryInternal *query_,
+		       const OmSettings &moptions_);
+
 	/** Set the query */
 	void set_query(const OmQueryInternal *query_);
 
 	/** Get the remote stats */
 	bool get_remote_stats(Stats &out);
-
-	/** Set the match options for this match
-	 *
-	 *  @param moptions_  The match options to use.
-	 */
-	void set_options(const OmSettings &moptions_);
 
 	/** Set the rset for the match.
 	 */

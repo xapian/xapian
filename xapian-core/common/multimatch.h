@@ -45,7 +45,7 @@ class MultiMatch
 
 	const OmDatabase db;
 
-	OmSettings mopts;
+	OmSettings opts;
 
 	/// Comparison functor for sorting MSet
 	OmMSetCmp mcmp;
@@ -89,7 +89,7 @@ class MultiMatch
 	MultiMatch(const OmDatabase &db_,
 		   const OmQueryInternal * query,
 		   const OmRSet & omrset,
-		   const OmSettings & mopts_,
+		   const OmSettings & opts_,
 		   AutoPtr<StatsGatherer> gatherer_
 		       = AutoPtr<StatsGatherer>(new LocalStatsGatherer()));
 	~MultiMatch();

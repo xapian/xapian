@@ -390,7 +390,7 @@ OmEnquireInternal::get_doc(const OmMSetItem &mitem) const
 
 const std::vector<OmDocument>
 OmEnquireInternal::get_docs(std::vector<OmMSetItem>::const_iterator begin,
-		    std::vector<OmMSetItem>::const_iterator end) const
+			    std::vector<OmMSetItem>::const_iterator end) const
 {
     OmLockSentry locksentry(mutex);
 

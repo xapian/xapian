@@ -82,10 +82,16 @@ bool msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b) {
 MultiMatch::MultiMatch(const OmDatabase &db_,
 		       const OmQueryInternal * query,
 		       const OmRSet & omrset,
-		       const OmSettings & mopts_,
+		       const OmSettings & opts_,
 		       AutoPtr<StatsGatherer> gatherer_)
-	: gatherer(gatherer_), db(db_), mopts(mopts_), mcmp(msetcmp_forward)
+	: gatherer(gatherer_), db(db_), opts(opts_), mcmp(msetcmp_forward)
 {
+    // FIXME: has this check been done already?
+    // Check that we have a valid query to run
+    if (!query->isdefined) {
+	throw OmInvalidArgumentError("Query is not defined.");
+    }
+
     OmDatabase::Internal * internal = OmDatabase::InternalInterface::get(db);
     om_doccount number_of_leaves = internal->databases.size();
     std::vector<OmRSet> subrsets(number_of_leaves);
@@ -108,12 +114,12 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
 	// There is currently only one special case, for network databases.
 	if (db->is_network()) {
 #ifdef MUS_BUILD_BACKEND_REMOTE
-	    smatch = RefCntPtr<SubMatch>(new RemoteSubMatch(db, query, *subrset, mopts, gatherer.get()));
+	    smatch = RefCntPtr<SubMatch>(new RemoteSubMatch(db, query, *subrset, opts, gatherer.get()));
 #else /* MUS_BUILD_BACKEND_REMOTE */
 	    throw OmUnimplementedError("Network operation is not available");
 #endif /* MUS_BUILD_BACKEND_REMOTE */
 	} else {
-	    smatch = RefCntPtr<SubMatch>(new LocalSubMatch(db, query, *subrset, mopts, gatherer.get()));
+	    smatch = RefCntPtr<SubMatch>(new LocalSubMatch(db, query, *subrset, opts, gatherer.get()));
 	}
 	leaves.push_back(smatch);
 	subrset++;
@@ -123,7 +129,7 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
     gatherer->set_global_stats(omrset.items.size());
     prepare_matchers();
 
-    if (!mopts.get_bool("match_sort_forward", true)) {
+    if (!opts.get_bool("match_sort_forward", true)) {
 	mcmp = OmMSetCmp(msetcmp_reverse);
     }
 }
@@ -210,7 +216,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // should be considered for the mset.
     OmMSetItem min_item(-1, 0);
     {
-	int val = mopts.get_int("match_percent_cutoff", 0);
+	int val = opts.get_int("match_percent_cutoff", 0);
 	if (val > 0) {
 	    min_item.wt = val * max_weight / 100;
 	}
@@ -224,7 +230,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // Key to collapse on, if desired
     om_keyno collapse_key;
     {
-	int val = mopts.get_int("match_collapse_key", -1);
+	int val = opts.get_int("match_collapse_key", -1);
 	if (val >= 0) {
 	    do_collapse = true;
 	    collapse_key = val;

@@ -65,20 +65,19 @@ class NetClient : public RefCntBase {
 	 */
 	virtual void wait_for_input() = 0;
 
-	/** Set the query */
-	virtual void set_query(const OmQueryInternal *query_) = 0;
+	/** Set the query
+	 *
+	 * @param query_ The query.
+	 * @param moptions_ The match options.
+	 */
+	virtual void set_query(const OmQueryInternal *query_,
+			       const OmSettings &moptions_) = 0;
 
 	/** Read the remote statistics.
 	 *  Returns true if the call succeeded, or false
 	 *  if the remote end hasn't yet responded.
 	 */
 	virtual bool get_remote_stats(Stats &out) = 0;
-
-	/** Set the options to be used for this query.
-	 *
-	 * @param moptions_ The match options.
-	 */
-	virtual void set_options(const OmSettings &moptions_) = 0;
 
 	/** Set the rset to be transmitted over the link.
 	 *

@@ -59,44 +59,7 @@ class OmMSetCmp {
 
 class SubMatch : public RefCntBase {
     public:
-	/** Name of weighting scheme to use.
-	 *  This may differ from the requested scheme if, for example,
-	 *  the query is pure boolean.
-	 */
-	string weighting_scheme;
-
-	/// The size of the query (passed to IRWeight objects)
-	om_doclength querysize;
-    
-	/// Stored match options object
-	OmSettings mopts;
-
-	StatsSource * statssource;
-	
-	SubMatch(const OmQueryInternal * query, const OmSettings &mopts_,
-		 StatsSource * statssource_)
-	    : querysize(query->qlen), mopts(mopts_), statssource(statssource_)
-	{
-	    // Check that we have a valid query to run
-	    if (!query->isdefined) {
-		throw OmInvalidArgumentError("Query is not defined.");
-	    }
-	    
-	    // If query is boolean, set weighting to boolean
-	    if (query->is_bool()) {
-		weighting_scheme = "bool";
-	    } else {
-		weighting_scheme = mopts.get("match_weighting_scheme", "bm25");
-	    }	    
-	}
-
-	virtual ~SubMatch() {
-	    delete statssource;
-	}
-
-	///////////////////////////////////////////////////////////////////
-	// Prepare to do the match
-	// =======================
+	virtual ~SubMatch() { }
 
 	/** Prepare to perform the match operation.
 	 *  This must be called with a return value of true before

@@ -36,31 +36,20 @@
 
 RemoteSubMatch::RemoteSubMatch(const Database *db_,
 			       const OmQueryInternal * query,
-			       const OmRSet & omrset, const OmSettings &mopts,
+			       const OmRSet & omrset, const OmSettings &opts,
 			       StatsGatherer *gatherer_)
-	: SubMatch(query, mopts, new NetworkStatsSource(dynamic_cast<const NetworkDatabase *>(db_)->link)),
-	  is_prepared(false), db(dynamic_cast<const NetworkDatabase *>(db_)),
-	  gatherer(gatherer_)
+	: is_prepared(false), db(dynamic_cast<const NetworkDatabase *>(db_)),
+	  gatherer(gatherer_), statssource(new NetworkStatsSource(db->link))
 {	    
     // make sure that the database was a NetworkDatabase after all
     // (dynamic_cast<foo *> returns 0 if the cast fails)
     Assert(db);
 
-    db->link->set_query(query);
-    db->link->set_options(mopts);
+    db->link->set_query(query, opts);
 
-    NetworkStatsSource * nss = dynamic_cast<NetworkStatsSource *>(statssource);
-    Assert(nss != NULL);
-    db->link->register_statssource(nss);
+    db->link->register_statssource(statssource);
     statssource->connect_to_gatherer(gatherer);
 
-    // If query is boolean, set weighting to boolean
-    if (query->is_bool()) {
-	weighting_scheme = "bool";
-    } else {
-	weighting_scheme = mopts.get("match_weighting_scheme", "bm25");
-    }
-    
     AutoPtr<RSet> new_rset(new RSet(db, omrset));
     rset = new_rset;
 
@@ -69,6 +58,7 @@ RemoteSubMatch::RemoteSubMatch(const Database *db_,
 
 RemoteSubMatch::~RemoteSubMatch()
 {
+    delete statssource;
 }
 
 PostList *
@@ -109,9 +99,7 @@ RemoteSubMatch::prepare_match(bool nowait)
 		db->link->wait_for_input();
 	    } while (!db->link->get_remote_stats(mystats));
 	}
-	NetworkStatsSource * nss = dynamic_cast<NetworkStatsSource *>(statssource);
-	Assert(nss != NULL);
-	nss->take_remote_stats(mystats);
+	statssource->take_remote_stats(mystats);
 
 	is_prepared = true;
     }

@@ -34,9 +34,6 @@ class RemoteSubMatch : public SubMatch {
     private:
 	bool is_prepared;
 
-	/// The size of the query (passed to IRWeight objects)
-	om_doclength querysize;
-    
 	const NetworkDatabase *db;
 
 	PendingMSetPostList *postlist; // FIXME remove this crap
@@ -47,9 +44,10 @@ class RemoteSubMatch : public SubMatch {
 	/// A pointer to the gatherer, to access the statistics.
 	StatsGatherer *gatherer;
 
+	NetworkStatsSource * statssource;
+	
 	/// the statistics object
 	Stats remote_stats;
-
 
 	// disallow copies
 	RemoteSubMatch(const RemoteSubMatch &);
@@ -64,7 +62,7 @@ class RemoteSubMatch : public SubMatch {
 
     public:
 	RemoteSubMatch(const Database *db_, const OmQueryInternal * query,
-		       const OmRSet & omrset, const OmSettings &mopts,
+		       const OmRSet & omrset, const OmSettings &opts,
 		       StatsGatherer *gatherer_);
 
 	~RemoteSubMatch();

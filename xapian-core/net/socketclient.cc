@@ -210,15 +210,11 @@ SocketClient::~SocketClient()
 }
 
 void
-SocketClient::set_query(const OmQueryInternal *query_)
+SocketClient::set_query(const OmQueryInternal *query_,
+			const OmSettings &moptions_)
 {
     Assert(conv_state == state_getquery);
     query_string = query_->serialise();
-}
-
-void
-SocketClient::set_options(const OmSettings &moptions_)
-{
     moptions = moptions_;
 }
 
