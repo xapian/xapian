@@ -1,0 +1,21 @@
+<Directory>backends/multi</Directory>
+
+<Description>
+This directory contains the MultiDatabase backend, which enables
+searches to be performed across several databases.  Opening this
+database involves opening each of the sub-databases and merging
+them together.
+
+Searches are performed across the sub-databases via MultiPostList
+and MultiTermList objects, which represent merged sets of postlist
+and termlist objects.
+
+This is probably not the most efficient way to perform these searches,
+but works well enough for the moment.  It is expected that the
+implementation of distributed searching will render this largely
+obselete.
+
+There is also considerable scope for further optimisation of this
+backend, but this is not considered a priority since itis not expected
+to persist in its current form.
+</Description>

@@ -1,0 +1,12 @@
+<Directory>backends/inmemory</Directory>
+
+<Description>
+This directory contains the DA backend, used to access (old-style)
+Direct Access databases.
+
+This backend only supports reading from the database: databases
+can be created with the old Muscat 3.6 software.  We do not plan
+to implement writing to these databases, since they are a legacy
+format and do not have the ability to represent several of the
+data structures we require for some of our new features.
+</Description>
