@@ -33,6 +33,8 @@
 om_termid
 SleepyDatabaseTermCache::term_name_to_id(const om_termname &tname) const
 {
+    DebugMsg("Looking up term ID for `" << tname <<  "' ...");
+
     Dbt key((void *)tname.c_str(), tname.size());
     Dbt data;
     om_termid tid;
@@ -59,6 +61,7 @@ SleepyDatabaseTermCache::term_name_to_id(const om_termname &tname) const
 	throw OmDatabaseError("TermidDb error: " + string(e.what()));
     }
 
+    DebugMsg(" found (" << tid << ")" << endl);
     return tid;
 }
 
@@ -66,6 +69,7 @@ om_termname
 SleepyDatabaseTermCache::term_id_to_name(om_termid tid) const
 {
     if(tid == 0) throw OmRangeError("Termid 0 not valid");
+    DebugMsg("Looking up termname for term ID " << tid << " ...");
 
     Dbt key(&tid, sizeof(tid));
     Dbt data;
@@ -85,6 +89,8 @@ SleepyDatabaseTermCache::term_id_to_name(om_termid tid) const
 
     om_termname tname((char *)data.get_data(), data.get_size());
     free(data.get_data());
+
+    DebugMsg(" found (`" << tname << "')" << endl);
     return tname;
 }
 
