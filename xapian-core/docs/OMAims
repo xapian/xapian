@@ -1,0 +1,5 @@
+Aim to be efficient both for large and small databases.
+
+Reasonable aim, since most optimisation is to be done in the database
+access methods; we allow multiple methods, so can have some optimised
+for each situation.
