@@ -40,7 +40,7 @@ class OmErrorHandler;
  *  and allows the implementation to be shared with
  *  OmBatchEnquire::Internal.
  */
-class OmEnquireInternal {
+class OmEnquire::Internal {
     private:
 	/// The database which this enquire object uses.
 	const OmDatabase db;
@@ -68,9 +68,8 @@ class OmEnquireInternal {
 	 */
 	OmErrorHandler * errorhandler;
 
-	OmEnquireInternal(const OmDatabase &databases,
-			  OmErrorHandler * errorhandler_);
-	~OmEnquireInternal();
+	Internal(const OmDatabase &databases, OmErrorHandler * errorhandler_);
+	~Internal();
 
 	void set_query(const OmQuery & query_);
 	const OmQuery & get_query();

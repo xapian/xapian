@@ -193,7 +193,7 @@ SocketServer::run_match(const std::string &firstmessage)
     } else {
 	message = message.substr(1, message.length() - 2);
     }
-    OmQueryInternal query = query_from_string(message);
+    OmQuery::Internal query = query_from_string(message);
 
     gatherer = new NetworkStatsGatherer(this);
     MultiMatch match(db, &query, omrset, moptions,

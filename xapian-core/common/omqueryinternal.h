@@ -33,11 +33,11 @@ class MultiMatch;
 class LocalSubMatch;
 
 ///////////////////////////////////////////////////////////////////
-// OmQueryInternal class
+// OmQuery::Internal class
 // =====================
 
 /// Internal class, implementing most of OmQuery
-class OmQueryInternal {
+class OmQuery::Internal {
     friend class MultiMatch;
     friend class LocalSubMatch;
     public:
@@ -50,7 +50,7 @@ class OmQueryInternal {
 	OmQuery::op op;
 
 	/// The container type for storing pointers to subqueries
-	typedef std::vector<OmQueryInternal *> subquery_list;
+	typedef std::vector<OmQuery::Internal *> subquery_list;
 
 	/// Sub queries on which to perform operation
 	subquery_list subqs;
@@ -75,24 +75,24 @@ class OmQueryInternal {
 	/// Within query frequency of this term
 	om_termcount wqf;
 
-	/// Copy another OmQueryInternal into self.
-	void initialise_from_copy(const OmQueryInternal & copyme);
+	/// Copy another OmQuery::Internal into self.
+	void initialise_from_copy(const OmQuery::Internal & copyme);
 
 	/** Set my vector of queries to be a memberwise copy of the
-	 *  supplied vector of OmQueryInternal pointers. */
+	 *  supplied vector of OmQuery::Internal pointers. */
 	void initialise_from_vector(
-		const std::vector<OmQueryInternal *>::const_iterator qbegin,
-		const std::vector<OmQueryInternal *>::const_iterator qend,
+		const std::vector<OmQuery::Internal *>::const_iterator qbegin,
+		const std::vector<OmQuery::Internal *>::const_iterator qend,
 		om_termpos window = 0);
 
-	/** swap the contents of this with another OmQueryInternal,
+	/** swap the contents of this with another OmQuery::Internal,
 	 *  in a way which is guaranteed not to throw.  This is
 	 *  used with the assignment operator to make it exception
 	 *  safe.
 	 *  It's important to adjust swap with any addition of
 	 *  member variables!
 	 */
-	void swap(OmQueryInternal &other);
+	void swap(OmQuery::Internal &other);
 
 	/** Collapse lists of identical terms when possible
 	 */
@@ -105,34 +105,33 @@ class OmQueryInternal {
 
     public:
 	/** A query consisting of a single term. */
-	OmQueryInternal(const om_termname & tname_,
-		om_termcount wqf_ = 1,
-		om_termpos term_pos_ = 0);
+	Internal(const om_termname & tname_, om_termcount wqf_ = 1,
+		 om_termpos term_pos_ = 0);
 
 	/** A query consisting of two subqueries, opp-ed together. */
-	OmQueryInternal(OmQuery::op op_,
-			OmQueryInternal & left,
-			OmQueryInternal & right);
+	Internal(OmQuery::op op_,
+		 OmQuery::Internal & left,
+		 OmQuery::Internal & right);
 
-	/** A vector of pointers to OmQueryInternal-s, merged together with
+	/** A vector of pointers to OmQuery::Internal-s, merged together with
 	 *  specified operator.  (Takes begin and end iterators).
 	 *  The only operators allowed are AND, OR, NEAR, and PHRASE. */
-	OmQueryInternal(OmQuery::op op_,
-		const std::vector<OmQueryInternal*>::const_iterator qbegin,
-		const std::vector<OmQueryInternal*>::const_iterator qend,
-		om_termpos window = 0);
+	Internal(OmQuery::op op_,
+		 const std::vector<OmQuery::Internal*>::const_iterator qbegin,
+		 const std::vector<OmQuery::Internal*>::const_iterator qend,
+		 om_termpos window = 0);
 
 	/** As before, except subqueries are all individual terms. */
-	OmQueryInternal(OmQuery::op op_,
-		const std::vector<om_termname>::const_iterator tbegin,
-		const std::vector<om_termname>::const_iterator tend,
-		om_termpos window = 0);
+	Internal(OmQuery::op op_,
+		 const std::vector<om_termname>::const_iterator tbegin,
+		 const std::vector<om_termname>::const_iterator tend,
+		 om_termpos window = 0);
 
 	/** Copy constructor. */
-	OmQueryInternal(const OmQueryInternal & copyme);
+	Internal(const OmQuery::Internal & copyme);
 
 	/** Assignment. */
-	void operator=(const OmQueryInternal & copyme);
+	void operator=(const OmQuery::Internal & copyme);
 
 	/** Default constructor: makes an undefined query which can't be used
 	 *  directly.  Such queries should be thought of as placeholders:
@@ -142,10 +141,10 @@ class OmQueryInternal {
 	 *  An exception will be thrown if an attempt is made to run an
 	 *  undefined query
 	 */
-	OmQueryInternal();
+	Internal();
 
 	/** Destructor. */
-	~OmQueryInternal();
+	~Internal();
 
 	/** Return a string in an easily parsed form
 	 *  which contains all the information in a query.

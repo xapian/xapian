@@ -209,7 +209,7 @@ LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists,
 // Optimise query by building tree carefully.
 PostList *
 LocalSubMatch::postlist_from_queries(OmQuery::op op,
-				     const std::vector<OmQueryInternal *> &queries,
+				     const std::vector<OmQuery::Internal *> &queries,
 				     om_termcount window,
 				     MultiMatch *matcher)
 {
@@ -221,7 +221,7 @@ LocalSubMatch::postlist_from_queries(OmQuery::op op,
     std::vector<PostList *> postlists;
     postlists.reserve(queries.size());
 
-    std::vector<OmQueryInternal *>::const_iterator q;
+    std::vector<OmQuery::Internal *>::const_iterator q;
     for (q = queries.begin(); q != queries.end(); q++) {
 	postlists.push_back(postlist_from_query(*q, matcher));
 	DEBUGLINE(MATCH, "Made postlist: get_termfreq() = " <<
@@ -291,7 +291,7 @@ LocalSubMatch::postlist_from_queries(OmQuery::op op,
 // Make a postlist from a query object - this is called recursively down
 // the query tree.
 PostList *
-LocalSubMatch::postlist_from_query(const OmQueryInternal *query,
+LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 				   MultiMatch *matcher)
 {
     // This should never fail, because isdefined should only be false
@@ -398,7 +398,7 @@ LocalSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
 
 
 IRWeight *
-LocalSubMatch::mk_weight(const OmQueryInternal *query_)
+LocalSubMatch::mk_weight(const OmQuery::Internal *query_)
 {
     om_termname tname = "";
     om_termcount wqf = 1;

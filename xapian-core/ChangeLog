@@ -1,3 +1,8 @@
+Fri Oct 27 14:57:23 BST 2000 Olly Betts
+
+	* OmEnquireInternal -> OmEnquire::Internal; OmQueryInternal ->
+	  OmQuery::Internal.  More work than you'd think!
+
 Fri Oct 27 13:54:13 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added OmMakeDocNode to combine data, terms, keys at the end

@@ -31,7 +31,7 @@
 
 #define OM_SOCKET_PROTOCOL_VERSION 4
 
-class OmQueryInternal;
+class OmQuery::Internal;
 class Stats;
 class OmRSet;
 class OmKey;
@@ -93,7 +93,7 @@ class OmSocketLineBuf : public OmLineBuf {
  *
  *  @param qs  The string from which to build the query.
  */
-OmQueryInternal query_from_string(std::string qs);
+OmQuery::Internal query_from_string(std::string qs);
 
 /** Convert a Stats object into a string representation.
  *
@@ -170,7 +170,7 @@ std::string omkey_to_string(const OmKey &omkey);
  */
 OmKey string_to_omkey(const std::string &s);
 
-OmQueryInternal qfs_readquery();
+OmQuery::Internal qfs_readquery();
 
 /** returns true if the string s starts with prefix.
  */

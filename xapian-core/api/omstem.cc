@@ -114,7 +114,7 @@ static const StringAndValue language_strings[] = {
 
 
 ////////////////////////////////////////////////////////////
-// OmStemInternal class
+// OmStem::Internal class
 // ====================
 // Implementation of the OmStem interface
 

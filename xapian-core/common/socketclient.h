@@ -154,7 +154,7 @@ class SocketClient : public NetClient {
 	 * @param moptions_ The match options.
 	 * @param omrset_ The rset.
 	 */
-	void set_query(const OmQueryInternal *query_,
+	void set_query(const OmQuery::Internal *query_,
 		       const OmSettings &moptions_, const OmRSet &omrset_);
 
 	/** Get the remote stats */

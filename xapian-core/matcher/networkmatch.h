@@ -64,10 +64,10 @@ class RemoteSubMatch : public SubMatch {
 	void finish_query();
 
 	/// Make a weight - default argument is used for finding extra_weight
-	IRWeight * mk_weight(const OmQueryInternal *query = NULL);
+	IRWeight * mk_weight(const OmQuery::Internal *query = NULL);
 
     public:
-	RemoteSubMatch(const Database *db_, const OmQueryInternal * query,
+	RemoteSubMatch(const Database *db_, const OmQuery::Internal * query,
 		       const OmRSet & omrset, const OmSettings &opts,
 		       StatsGatherer *gatherer_);
 

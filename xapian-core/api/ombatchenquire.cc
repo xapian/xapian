@@ -32,7 +32,7 @@
 
 class OmBatchEnquire::Internal {
     private:
-        mutable OmEnquireInternal enquire;
+        mutable OmEnquire::Internal enquire;
 
 	query_batch queries;
 

@@ -35,7 +35,7 @@
 #include <cstdio>
 
 RemoteSubMatch::RemoteSubMatch(const Database *db_,
-			       const OmQueryInternal * query,
+			       const OmQuery::Internal * query,
 			       const OmRSet & omrset, const OmSettings &opts,
 			       StatsGatherer *gatherer_)
 	: is_prepared(false), db(dynamic_cast<const NetworkDatabase *>(db_)),

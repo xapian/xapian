@@ -46,7 +46,7 @@ class LocalSubMatch : public SubMatch {
 	bool is_prepared;
 
 	/// Query to be run
-	OmQueryInternal users_query;
+	OmQuery::Internal users_query;
 
 	const Database *db;
 
@@ -84,11 +84,11 @@ class LocalSubMatch : public SubMatch {
 
 	/// Make a postlist from a vector of query objects (AND or OR)
 	PostList *postlist_from_queries(OmQuery::op op,
-				const std::vector<OmQueryInternal *> & queries,
+				const std::vector<OmQuery::Internal *> & queries,
 				om_termcount window, MultiMatch *matcher);
 
 	/// Make a postlist from a query object
-	PostList *postlist_from_query(const OmQueryInternal * query,
+	PostList *postlist_from_query(const OmQuery::Internal * query,
 				      MultiMatch *matcher);
 
 	void register_term(const om_termname &tname) {
@@ -96,10 +96,10 @@ class LocalSubMatch : public SubMatch {
 	}
 
 	/// Make a weight - default argument is used for finding extra_weight
-	IRWeight * mk_weight(const OmQueryInternal *query = NULL);
+	IRWeight * mk_weight(const OmQuery::Internal *query = NULL);
 
     public:
-	LocalSubMatch(const Database *db_, const OmQueryInternal * query,
+	LocalSubMatch(const Database *db_, const OmQuery::Internal * query,
 		      const OmRSet & omrset, const OmSettings &opts_,
 		      StatsGatherer *gatherer)
 		: statssource(new LocalStatsSource(gatherer)),

@@ -38,15 +38,15 @@
 #include "om/omdocument.h"
 #include "omlinebuf.h"
 
-OmQueryInternal qfs_readcompound();
+OmQuery::Internal qfs_readcompound();
 
-OmQueryInternal query_from_string(std::string qs)
+OmQuery::Internal query_from_string(std::string qs)
 {
     Assert(qs.length() > 1);
 
     qfs_start(qs);
 
-    OmQueryInternal retval = qfs_readquery();
+    OmQuery::Internal retval = qfs_readquery();
     DebugMsg("query_from_string(" << qs << ") = " << retval.serialise());
     Assert(retval.serialise() == qs);
 
@@ -155,12 +155,12 @@ string_to_stats(const std::string &s)
     return stat;
 }
 
-// A vector converter: vector<OmQueryInternal> to vector<OmQueryInternal *>
+// A vector converter: vector<OmQuery::Internal> to vector<OmQuery::Internal *>
 // The original vector is still responsible for destroying the objects.
-std::vector<OmQueryInternal *>
-convert_subqs(std::vector<OmQueryInternal> &v) {
-    std::vector<OmQueryInternal *> result;
-    for (std::vector<OmQueryInternal>::iterator i=v.begin();
+std::vector<OmQuery::Internal *>
+convert_subqs(std::vector<OmQuery::Internal> &v) {
+    std::vector<OmQuery::Internal *> result;
+    for (std::vector<OmQuery::Internal>::iterator i=v.begin();
 	 i != v.end();
 	 ++i) {
 	result.push_back(&(*i));
@@ -168,29 +168,29 @@ convert_subqs(std::vector<OmQueryInternal> &v) {
     return result;
 }
 
-OmQueryInternal qfs_readquery()
+OmQuery::Internal qfs_readquery()
 {
     querytok qt = qfs_gettok();
     switch (qt.type) {
 	case querytok::NULL_QUERY:  // null query
-	    return OmQueryInternal();
+	    return OmQuery::Internal();
 	    break;
 	case querytok::TERM:
-	    return OmQueryInternal(qt.tname, qt.wqf, qt.term_pos);
+	    return OmQuery::Internal(qt.tname, qt.wqf, qt.term_pos);
 	    break;
 	case querytok::OP_BRA:
 	    return qfs_readcompound();
 	    break;
 	case querytok::BOOL_FLAG:
 	    {
-		OmQueryInternal temp(qfs_readquery());
+		OmQuery::Internal temp(qfs_readquery());
 		temp.set_bool(true);
 		return temp;
 	    }
 	    break;
 	case querytok::QUERY_LEN:
 	    {
-		OmQueryInternal temp(qfs_readquery());
+		OmQuery::Internal temp(qfs_readquery());
 		temp.set_length(qt.qlen);
 		return temp;
 	    }
@@ -202,39 +202,39 @@ OmQueryInternal qfs_readquery()
 				 om_tostring(qt.type) + "'");
 }
 
-OmQueryInternal qfs_readcompound()
+OmQuery::Internal qfs_readcompound()
 {
     querytok qt;
-    std::vector<OmQueryInternal> subqs;
+    std::vector<OmQuery::Internal> subqs;
     while(1) {
 	qt = qfs_gettok();
 	switch (qt.type) {
 	    case querytok::OP_KET:
 		if (subqs.empty()) {
-		    return OmQueryInternal();
+		    return OmQuery::Internal();
 		} else {
 		    throw OmInvalidArgumentError("Invalid query string");
 		}
 		break;
 	    case querytok::NULL_QUERY:
-		subqs.push_back(OmQueryInternal());
+		subqs.push_back(OmQuery::Internal());
 		break;
 	    case querytok::BOOL_FLAG:
 		{
-		    OmQueryInternal temp(qfs_readquery());
+		    OmQuery::Internal temp(qfs_readquery());
 		    temp.set_bool(true);
 		    subqs.push_back(temp);
 		}
 		break;
 	    case querytok::QUERY_LEN:
 		{
-		    OmQueryInternal temp(qfs_readquery());
+		    OmQuery::Internal temp(qfs_readquery());
 		    temp.set_length(qt.qlen);
 		    subqs.push_back(temp);
 		}
 		break;
 	    case querytok::TERM:
-		subqs.push_back(OmQueryInternal(qt.tname,
+		subqs.push_back(OmQuery::Internal(qt.tname,
 						qt.wqf,
 						qt.term_pos));
 		break;
@@ -243,104 +243,104 @@ OmQueryInternal qfs_readcompound()
 		break;
 	    case querytok::OP_AND:
 		{
-		    std::vector<OmQueryInternal *> temp =
+		    std::vector<OmQuery::Internal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQueryInternal(OmQuery::OP_AND,
+		    return OmQuery::Internal(OmQuery::OP_AND,
 					   temp.begin(),
 					   temp.end());
 		}
 		break;
 	    case querytok::OP_OR:
 		{
-		    std::vector<OmQueryInternal *> temp =
+		    std::vector<OmQuery::Internal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQueryInternal(OmQuery::OP_OR,
+		    return OmQuery::Internal(OmQuery::OP_OR,
 					   temp.begin(),
 					   temp.end());
 		}
 		break;
 	    case querytok::OP_FILTER:
 		{
-		    std::vector<OmQueryInternal *> temp =
+		    std::vector<OmQuery::Internal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQueryInternal(OmQuery::OP_FILTER,
+		    return OmQuery::Internal(OmQuery::OP_FILTER,
 					   temp.begin(),
 					   temp.end());
 		}
 		break;
 	    case querytok::OP_XOR:
 		{
-		    std::vector<OmQueryInternal *> temp =
+		    std::vector<OmQuery::Internal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQueryInternal(OmQuery::OP_XOR,
+		    return OmQuery::Internal(OmQuery::OP_XOR,
 					   temp.begin(),
 					   temp.end());
 		}
 		break;
 	    case querytok::OP_ANDMAYBE:
 		{
-		    std::vector<OmQueryInternal *> temp =
+		    std::vector<OmQuery::Internal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQueryInternal(OmQuery::OP_AND_MAYBE,
+		    return OmQuery::Internal(OmQuery::OP_AND_MAYBE,
 					   temp.begin(),
 					   temp.end());
 		}
 		break;
 	    case querytok::OP_ANDNOT:
 		{
-		    std::vector<OmQueryInternal *> temp =
+		    std::vector<OmQuery::Internal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQueryInternal(OmQuery::OP_AND_NOT,
+		    return OmQuery::Internal(OmQuery::OP_AND_NOT,
 					   temp.begin(),
 					   temp.end());
 		}
 		break;
 	    case querytok::OP_NEAR:
 		{
-		    std::vector<OmQueryInternal *> temp =
+		    std::vector<OmQuery::Internal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQueryInternal(OmQuery::OP_NEAR,
+		    return OmQuery::Internal(OmQuery::OP_NEAR,
 					   temp.begin(),
 					   temp.end(), qt.window);
 		}
 		break;
 	    case querytok::OP_PHRASE:
 		{
-		    std::vector<OmQueryInternal *> temp =
+		    std::vector<OmQuery::Internal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
-		    return OmQueryInternal(OmQuery::OP_PHRASE,
+		    return OmQuery::Internal(OmQuery::OP_PHRASE,
 					   temp.begin(),
 					   temp.end(), qt.window);
 		}

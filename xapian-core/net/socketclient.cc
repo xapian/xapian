@@ -242,7 +242,7 @@ SocketClient::~SocketClient()
 }
 
 void
-SocketClient::set_query(const OmQueryInternal *query_,
+SocketClient::set_query(const OmQuery::Internal *query_,
 			const OmSettings &moptions_, const OmRSet &omrset_)
 {
     Assert(conv_state == state_getquery);

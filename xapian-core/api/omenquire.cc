@@ -243,16 +243,16 @@ OmESet::get_description() const
 }
 
 ///////////////////////////////////
-// Methods for OmEnquireInternal //
+// Methods for OmEnquire::Internal //
 ///////////////////////////////////
 
-OmEnquireInternal::OmEnquireInternal(const OmDatabase &db_,
+OmEnquire::Internal::Internal(const OmDatabase &db_,
 				     OmErrorHandler * errorhandler_)
   : db(db_), query(0), errorhandler(errorhandler_)
 {
 }
 
-OmEnquireInternal::~OmEnquireInternal()
+OmEnquire::Internal::~Internal()
 {
     if(query != 0) {
 	delete query;
@@ -261,7 +261,7 @@ OmEnquireInternal::~OmEnquireInternal()
 }
 
 void
-OmEnquireInternal::set_query(const OmQuery &query_)
+OmEnquire::Internal::set_query(const OmQuery &query_)
 {
     OmLockSentry locksentry(mutex);
     if(query) {
@@ -275,7 +275,7 @@ OmEnquireInternal::set_query(const OmQuery &query_)
 }
 
 const OmQuery &
-OmEnquireInternal::get_query()
+OmEnquire::Internal::get_query()
 {
     if (query == 0) {
         throw OmInvalidArgumentError("Can't get query before setting it");
@@ -284,7 +284,7 @@ OmEnquireInternal::get_query()
 }
 
 OmMSet
-OmEnquireInternal::get_mset(om_doccount first,
+OmEnquire::Internal::get_mset(om_doccount first,
                     om_doccount maxitems,
                     const OmRSet *omrset,
                     const OmSettings *moptions,
@@ -324,7 +324,7 @@ OmEnquireInternal::get_mset(om_doccount first,
 }
 
 OmESet
-OmEnquireInternal::get_eset(om_termcount maxitems,
+OmEnquire::Internal::get_eset(om_termcount maxitems,
                     const OmRSet & omrset,
 	            const OmSettings * eoptions,
 		    const OmExpandDecider * edecider) const
@@ -372,14 +372,14 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
 }
 
 const OmDocument
-OmEnquireInternal::get_doc(om_docid did) const
+OmEnquire::Internal::get_doc(om_docid did) const
 {
     OmLockSentry locksentry(mutex);
     return read_doc(did);
 }
 
 const OmDocument
-OmEnquireInternal::get_doc(const OmMSetItem &mitem) const
+OmEnquire::Internal::get_doc(const OmMSetItem &mitem) const
 {
     OmLockSentry locksentry(mutex);
     // FIXME: take advantage of OmMSetItem to ensure that database
@@ -388,7 +388,7 @@ OmEnquireInternal::get_doc(const OmMSetItem &mitem) const
 }
 
 const std::vector<OmDocument>
-OmEnquireInternal::get_docs(std::vector<OmMSetItem>::const_iterator begin,
+OmEnquire::Internal::get_docs(std::vector<OmMSetItem>::const_iterator begin,
 			    std::vector<OmMSetItem>::const_iterator end) const
 {
     OmLockSentry locksentry(mutex);
@@ -417,14 +417,14 @@ OmEnquireInternal::get_docs(std::vector<OmMSetItem>::const_iterator begin,
 }
 
 om_termname_list
-OmEnquireInternal::get_matching_terms(om_docid did) const
+OmEnquire::Internal::get_matching_terms(om_docid did) const
 {
     OmLockSentry locksentry(mutex);
     return calc_matching_terms(did);
 }
 
 om_termname_list
-OmEnquireInternal::get_matching_terms(const OmMSetItem &mitem) const
+OmEnquire::Internal::get_matching_terms(const OmMSetItem &mitem) const
 {
     OmLockSentry locksentry(mutex);
     // FIXME: take advantage of OmMSetItem to ensure that database
@@ -433,7 +433,7 @@ OmEnquireInternal::get_matching_terms(const OmMSetItem &mitem) const
 }
 
 std::string
-OmEnquireInternal::get_description() const
+OmEnquire::Internal::get_description() const
 {
     std::string description = db.get_description();
     if (query) description += ", " + query->get_description();
@@ -441,11 +441,11 @@ OmEnquireInternal::get_description() const
 }
 
 ///////////////////////////////////////////
-// Private methods for OmEnquireInternal //
+// Private methods for OmEnquire::Internal //
 ///////////////////////////////////////////
 
 const OmDocument
-OmEnquireInternal::read_doc(om_docid did) const
+OmEnquire::Internal::read_doc(om_docid did) const
 {
     OmDatabase::Internal * internal = OmDatabase::InternalInterface::get(db);
     unsigned int multiplier = internal->databases.size();
@@ -476,7 +476,7 @@ class ByQueryIndexCmp {
 };
 
 om_termname_list
-OmEnquireInternal::calc_matching_terms(om_docid did) const
+OmEnquire::Internal::calc_matching_terms(om_docid did) const
 {
     if (query == 0) {
         throw OmInvalidArgumentError("Can't get matching terms before setting query");
@@ -522,7 +522,7 @@ OmEnquire::OmEnquire(const OmDatabase &databases,
 		     OmErrorHandler * errorhandler)
 {
     DEBUGAPICALL(void, "OmEnquire::OmEnquire", databases);
-    internal = new OmEnquireInternal(databases, errorhandler);
+    internal = new OmEnquire::Internal(databases, errorhandler);
 }
 
 OmEnquire::~OmEnquire()

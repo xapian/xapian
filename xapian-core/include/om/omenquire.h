@@ -32,242 +32,9 @@
 #include <set>
 #include <map>
 
-class OmEnquireInternal; // Internal state of enquire
-class OmEnquire;         // Declare Enquire class
-class OmErrorHandler;    // Declare ErrorHandler class
-class OmMSetCmp;         // Declare mset item comparison class
-
-///////////////////////////////////////////////////////////////////
-// OmQuery class
-// =============
-// Representation of a query
-
-/// Internals of query class
-class OmQueryInternal;
-
-/** Class representing a query.
- *  Queries are represented as a heirarchy of classes.
- */
-class OmQuery {
-    private:
-	friend class OmEnquireInternal;
-    	OmQueryInternal *internal;
-    public:
-	/// Enum of possible query operations
-        typedef enum {
-	    /// For internal use - must never be specified as parameter
-	    OP_LEAF,
-
-	    /// Return iff both subqueries are satisfied
-	    OP_AND,
-
-	    /// Return if either subquery is satisfied
-	    OP_OR,
-
-	    /// Return if left but not right satisfied
-	    OP_AND_NOT,
-
-	    /// Return if one query satisfied, but not both
-	    OP_XOR,
-
-	    /// Return iff left satisfied, but use weights from both
-	    OP_AND_MAYBE,
-
-	    /// As AND, but use only weights from left subquery
-	    OP_FILTER,
-
-	    // FIXME: describing NEAR and PHRASE as "As AND" is a very internal view
-	    /// As AND, but also require that terms occur close together (uses
-	    /// positional information)
-	    OP_NEAR,
-
-	    /// As AND, but terms must occur adjacently in order specified
-	    /// (uses positional information)
-	    OP_PHRASE
-	} op;
-
-	/** A query consisting of a single term. */
-	OmQuery(const om_termname & tname_,
-		om_termcount wqf_ = 1,
-		om_termpos term_pos_ = 0);
-
-	/** A query consisting of two subqueries, opp-ed together. */
-	OmQuery(OmQuery::op op_, const OmQuery & left, const OmQuery & right);
-
-	/** A set of OmQuery's, merged together with specified operator.
-	 * (Takes begin and end iterators).
-	 * If the operator is anything other than AND, OR, NEAR, and PHRASE,
-	 * then there must be exactly two subqueries.
-	 */
-	OmQuery(OmQuery::op op_,
-		const std::vector<OmQuery>::const_iterator qbegin,
-		const std::vector<OmQuery>::const_iterator qend,
-		om_termpos window = 0);
-
-	/** As before, but uses a vector of OmQuery pointers. */
-	OmQuery(OmQuery::op op_,
-		const std::vector<OmQuery *>::const_iterator qbegin,
-		const std::vector<OmQuery *>::const_iterator qend,
-		om_termpos window = 0);
-
-	/** As before, except subqueries are all individual terms. */
-	OmQuery(OmQuery::op op_,
-		const std::vector<om_termname>::const_iterator tbegin,
-		const std::vector<om_termname>::const_iterator tend,
-		om_termpos window = 0);
-
-	/** Copy constructor. */
-	OmQuery(const OmQuery & copyme);
-
-	/** Assignment. */
-	OmQuery & operator=(const OmQuery & copyme);
-
-	/** Default constructor: makes an undefined query which can't be used
-	 *  directly.  Such queries should be thought of as placeholders:
-	 *  they are provided for convenience, and to help make certain
-	 *  operations more natural.
-	 *
-	 *  An exception will be thrown if an attempt is made to run an
-	 *  undefined query
-	 */
-	OmQuery();
-
-	/** Destructor. */
-	~OmQuery();
-
-	/** Check whether the query is defined. */
-	bool is_defined() const;
-
-	/** Check whether the query is (pure) boolean. */
-	bool is_bool() const;
-
-	/** Set whether the query is a pure boolean.
-	 *  Returns true iff the query was previously a boolean query.
-	 */
-	bool set_bool(bool isbool_);
-
-	/** Get the length of the query, used by some ranking formulae.
-	 *  This value is calculated automatically, but may be overridden
-	 *  using set_length().
-	 */
-	om_termcount get_length() const;
-
-	/** Set the length of the query.
-	 *  This overrides the automatically calculated value, which may
-	 *  be desirable in some situations.
-	 *  Returns the old value of the query length.
-	 */
-	om_termcount set_length(om_termcount qlen_);
-
-	/** Return an om_termname_list containing all the terms in the query,
-	 *  in order of termpos.  If multiple terms have the same term
-	 *  position, their order is unspecified.  Duplicates (same term and
-	 *  termpos) will be removed.
-	 */
-	om_termname_list get_terms() const;
-
-	/** Returns a string representing the query.
-	 *  Introspection method.
-	 */
-	std::string get_description() const;
-};
-
-/** Base class for matcher decision functor.
- */
-class OmMatchDecider {
-    public:
-	/** Decide whether we want this document to be in the mset.
-	 */
-	virtual int operator()(const OmDocument &doc) const = 0;
-
-	virtual ~OmMatchDecider() {}
-};
-
-/** Base class for expand decision functor.
- */
-class OmExpandDecider {
-    public:
-	/** Decide whether we want this term to be in the expand set.
-	 */
-	virtual int operator()(const om_termname & tname) const = 0;
-
-	virtual ~OmExpandDecider() {};
-};
-
-/** One useful expand decision functor, which provides a way of
- *  filtering out a fixed list of terms from the expand set.
- */
-class OmExpandDeciderFilterTerms : public OmExpandDecider {
-    public:
-        /** Constructor, which takes a list of terms which
-	 *  will be filtered out.
-	 */
-        OmExpandDeciderFilterTerms(const om_termname_list &terms);
-
-        virtual int operator()(const om_termname &tname) const;
-    private:
-        std::set<om_termname> tset;
-};
-
-/** An expand decision functor which can be used to join two
- *  functors with an AND operation.
- */
-class OmExpandDeciderAnd : public OmExpandDecider {
-    public:
-    	/** Constructor, which takes as arguments the two
-	 *  decision functors to AND together.
-	 *  OmExpandDeciderAnd will not delete its sub-
-	 *  functors.
-	 */
-	OmExpandDeciderAnd(const OmExpandDecider *left_,
-	                   const OmExpandDecider *right_);
-
-	virtual int operator()(const om_termname &tname) const;
-
-    private:
-        const OmExpandDecider *left;
-	const OmExpandDecider *right;
-};
-
-///////////////////////////////////////////////////////////////////
-// OmRSet class
-// =============
-/** A relevance set.
- *  This is the set of documents which are marked as relevant, for use
- *  in modifying the term weights, and in performing query expansion.
- */
-
-class OmRSet {
-    private:
-    public:
-	/** Items in the relevance set.
-	 *  These can be altered directly if desired. */
-	std::set<om_docid> items;
-
-	/** Add a document to the relevance set. */
-	void add_document(om_docid did);
-
-	/** Remove a document from the relevance set. */
-	void remove_document(om_docid did);
-
-	/** Returns a string representing the rset.
-	 *  Introspection method.
-	 */
-	std::string get_description() const;
-};
-
-inline void
-OmRSet::add_document(om_docid did)
-{
-    items.insert(did);
-}
-
-inline void
-OmRSet::remove_document(om_docid did)
-{
-    std::set<om_docid>::iterator i = items.find(did);
-    if(i != items.end()) items.erase(i);
-}
+class OmQuery;
+class OmErrorHandler;
+class OmMSetCmp; // Declare mset item comparison class
 
 ///////////////////////////////////////////////////////////////////
 // OmMSet class
@@ -322,7 +89,7 @@ class OmMSet {
 	/** Interface used to the MSet class internally.
 	 */
 	class InternalInterface;
-    friend InternalInterface;
+	friend class InternalInterface;
 
 	/** A structure containing the term frequency and weight for a
 	 *  given query term.
@@ -499,6 +266,105 @@ class OmESet {
 	std::string get_description() const;
 };
 
+///////////////////////////////////////////////////////////////////
+// OmRSet class
+// =============
+/** A relevance set.
+ *  This is the set of documents which are marked as relevant, for use
+ *  in modifying the term weights, and in performing query expansion.
+ */
+
+class OmRSet {
+    private:
+    public:
+	/** Items in the relevance set.
+	 *  These can be altered directly if desired. */
+	std::set<om_docid> items;
+
+	/** Add a document to the relevance set. */
+	void add_document(om_docid did);
+
+	/** Remove a document from the relevance set. */
+	void remove_document(om_docid did);
+
+	/** Returns a string representing the rset.
+	 *  Introspection method.
+	 */
+	std::string get_description() const;
+};
+
+// FIXME - probably shouldn't have implementation here, but since we're
+// exposing the set anyway, maybe it doesn't matter.  But should we expose
+// the set?
+inline void
+OmRSet::add_document(om_docid did)
+{
+    items.insert(did);
+}
+
+inline void
+OmRSet::remove_document(om_docid did)
+{
+    std::set<om_docid>::iterator i = items.find(did);
+    if(i != items.end()) items.erase(i);
+}
+
+/** Base class for matcher decision functor.
+ */
+class OmMatchDecider {
+    public:
+	/** Decide whether we want this document to be in the mset.
+	 */
+	virtual int operator()(const OmDocument &doc) const = 0;
+
+	virtual ~OmMatchDecider() {}
+};
+
+/** Base class for expand decision functor.
+ */
+class OmExpandDecider {
+    public:
+	/** Decide whether we want this term to be in the expand set.
+	 */
+	virtual int operator()(const om_termname & tname) const = 0;
+
+	virtual ~OmExpandDecider() {};
+};
+
+/** One useful expand decision functor, which provides a way of
+ *  filtering out a fixed list of terms from the expand set.
+ */
+class OmExpandDeciderFilterTerms : public OmExpandDecider {
+    public:
+        /** Constructor, which takes a list of terms which
+	 *  will be filtered out.
+	 */
+        OmExpandDeciderFilterTerms(const om_termname_list &terms);
+
+        virtual int operator()(const om_termname &tname) const;
+    private:
+        std::set<om_termname> tset;
+};
+
+/** An expand decision functor which can be used to join two
+ *  functors with an AND operation.
+ */
+class OmExpandDeciderAnd : public OmExpandDecider {
+    public:
+    	/** Constructor, which takes as arguments the two
+	 *  decision functors to AND together.
+	 *  OmExpandDeciderAnd will not delete its sub-
+	 *  functors.
+	 */
+	OmExpandDeciderAnd(const OmExpandDecider *left_,
+	                   const OmExpandDecider *right_);
+
+	virtual int operator()(const om_termname &tname) const;
+
+    private:
+        const OmExpandDecider *left;
+	const OmExpandDecider *right;
+};
 
 ///////////////////////////////////////////////////////////////////
 // OmEnquire class
@@ -520,7 +386,8 @@ class OmESet {
 class OmEnquire {
     private:
 	/// Internals, where most of the work is performed.
-	OmEnquireInternal *internal;
+	class Internal;
+	Internal *internal;
 
 	/// Copies are not allowed.
 	OmEnquire(const OmEnquire &);
@@ -747,6 +614,143 @@ class OmEnquire {
 	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
 
 	/** Returns a string representing the enquire object.
+	 *  Introspection method.
+	 */
+	std::string get_description() const;
+};
+
+
+///////////////////////////////////////////////////////////////////
+// OmQuery class
+// =============
+// Representation of a query
+
+/** Class representing a query.
+ *  Queries are represented as a hierarchy of classes.
+ */
+class OmQuery {
+    private:
+	friend class OmEnquire::Internal;
+
+	class Internal;
+	/// Internals of query class
+    	Internal *internal;
+
+    public:
+	/// Enum of possible query operations
+        typedef enum {
+	    /// For internal use - must never be specified as parameter
+	    OP_LEAF,
+
+	    /// Return iff both subqueries are satisfied
+	    OP_AND,
+
+	    /// Return if either subquery is satisfied
+	    OP_OR,
+
+	    /// Return if left but not right satisfied
+	    OP_AND_NOT,
+
+	    /// Return if one query satisfied, but not both
+	    OP_XOR,
+
+	    /// Return iff left satisfied, but use weights from both
+	    OP_AND_MAYBE,
+
+	    /// As AND, but use only weights from left subquery
+	    OP_FILTER,
+
+	    // FIXME: describing NEAR and PHRASE as "As AND" is a very internal view
+	    /// As AND, but also require that terms occur close together (uses
+	    /// positional information)
+	    OP_NEAR,
+
+	    /// As AND, but terms must occur adjacently in order specified
+	    /// (uses positional information)
+	    OP_PHRASE
+	} op;
+
+	/** A query consisting of a single term. */
+	OmQuery(const om_termname & tname_,
+		om_termcount wqf_ = 1,
+		om_termpos term_pos_ = 0);
+
+	/** A query consisting of two subqueries, opp-ed together. */
+	OmQuery(OmQuery::op op_, const OmQuery & left, const OmQuery & right);
+
+	/** A set of OmQuery's, merged together with specified operator.
+	 * (Takes begin and end iterators).
+	 * If the operator is anything other than AND, OR, NEAR, and PHRASE,
+	 * then there must be exactly two subqueries.
+	 */
+	OmQuery(OmQuery::op op_,
+		const std::vector<OmQuery>::const_iterator qbegin,
+		const std::vector<OmQuery>::const_iterator qend,
+		om_termpos window = 0);
+
+	/** As before, but uses a vector of OmQuery pointers. */
+	OmQuery(OmQuery::op op_,
+		const std::vector<OmQuery *>::const_iterator qbegin,
+		const std::vector<OmQuery *>::const_iterator qend,
+		om_termpos window = 0);
+
+	/** As before, except subqueries are all individual terms. */
+	OmQuery(OmQuery::op op_,
+		const std::vector<om_termname>::const_iterator tbegin,
+		const std::vector<om_termname>::const_iterator tend,
+		om_termpos window = 0);
+
+	/** Copy constructor. */
+	OmQuery(const OmQuery & copyme);
+
+	/** Assignment. */
+	OmQuery & operator=(const OmQuery & copyme);
+
+	/** Default constructor: makes an undefined query which can't be used
+	 *  directly.  Such queries should be thought of as placeholders:
+	 *  they are provided for convenience, and to help make certain
+	 *  operations more natural.
+	 *
+	 *  An exception will be thrown if an attempt is made to run an
+	 *  undefined query
+	 */
+	OmQuery();
+
+	/** Destructor. */
+	~OmQuery();
+
+	/** Check whether the query is defined. */
+	bool is_defined() const;
+
+	/** Check whether the query is (pure) boolean. */
+	bool is_bool() const;
+
+	/** Set whether the query is a pure boolean.
+	 *  Returns true iff the query was previously a boolean query.
+	 */
+	bool set_bool(bool isbool_);
+
+	/** Get the length of the query, used by some ranking formulae.
+	 *  This value is calculated automatically, but may be overridden
+	 *  using set_length().
+	 */
+	om_termcount get_length() const;
+
+	/** Set the length of the query.
+	 *  This overrides the automatically calculated value, which may
+	 *  be desirable in some situations.
+	 *  Returns the old value of the query length.
+	 */
+	om_termcount set_length(om_termcount qlen_);
+
+	/** Return an om_termname_list containing all the terms in the query,
+	 *  in order of termpos.  If multiple terms have the same term
+	 *  position, their order is unspecified.  Duplicates (same term and
+	 *  termpos) will be removed.
+	 */
+	om_termname_list get_terms() const;
+
+	/** Returns a string representing the query.
 	 *  Introspection method.
 	 */
 	std::string get_description() const;

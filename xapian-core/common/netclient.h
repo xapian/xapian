@@ -71,7 +71,7 @@ class NetClient : public RefCntBase {
 	 * @param moptions_ The match options.
 	 * @param omrset_ The rset.
 	 */
-	virtual void set_query(const OmQueryInternal *query_,
+	virtual void set_query(const OmQuery::Internal *query_,
 			       const OmSettings &moptions_,
 			       const OmRSet &omrset_) = 0;
 

@@ -82,7 +82,7 @@ bool msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b) {
 ////////////////////////////////////
 
 MultiMatch::MultiMatch(const OmDatabase &db_,
-		       const OmQueryInternal * query,
+		       const OmQuery::Internal * query,
 		       const OmRSet & omrset,
 		       const OmSettings & opts_,
 		       AutoPtr<StatsGatherer> gatherer_)

@@ -90,7 +90,7 @@ class MultiMatch
 	 *                   suitable for non-network use.
 	 */
 	MultiMatch(const OmDatabase &db_,
-		   const OmQueryInternal * query,
+		   const OmQuery::Internal * query,
 		   const OmRSet & omrset,
 		   const OmSettings & opts_,
 		   AutoPtr<StatsGatherer> gatherer_
