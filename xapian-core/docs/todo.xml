@@ -263,9 +263,7 @@ Clustering algorithms.
 
 Finish off loose ends from OmSettings removal.  These are:
 stub databases not working; machinery in InMemory backend
-to allow multierrhandler1 to work; sort out final names for factory functions;
-maybe replace boolean flags for expand with bit flags |-ed together
-(so they are named in calls and code is clearer).
+to allow multierrhandler1 to work; sort out final names for factory functions.
 
 </todoitem>
 <todoitem priority="H" difficulty="" owner="Olly" area="" release="0.7">

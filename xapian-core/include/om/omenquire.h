@@ -606,16 +606,20 @@ class OmEnquire {
 			const OmSettings * moptions = 0,
 			const OmMatchDecider * mdecider = 0) const;
 
+	static const int include_query_terms = 1;
+	static const int use_exact_termfreq = 2;
 	/** Get the expand set for the given rset.
 	 *
 	 *  @param maxitems  the maximum number of items to return.
 	 *  @param omrset    the relevance set to use when performing
 	 *                   the expand operation.
-	 *  @param use_query_terms query terms may be returned from expand
-	 *  @param use_exact_termfreq for multi dbs, calculate the exact
-	 *		     termfreq; otherwise an approximation is used
-	 *		     which can greatly improve efficiency, but still
-	 *		     returns good results.
+	 *  @param flags     zero or more of these values |-ed together:
+	 *                    - OmEnquire::include_query_terms query terms may
+	 *                      be returned from expand
+	 *		      - OmEnquire::use_exact_termfreq for multi dbs,
+	 *			calculate the exact termfreq; otherwise an
+	 *			approximation is used which can greatly improve
+	 *			efficiency, but still returns good results.
 	 *  @param k	     the parameter k in the query expansion algorithm
 	 *  		     (default is 1.0)
 	 *  @param edecider  a decision functor to use to decide whether a
@@ -629,8 +633,7 @@ class OmEnquire {
 	 */
 	OmESet get_eset(om_termcount maxitems,
 			const OmRSet & omrset,
-			bool exclude_query_terms = true,
-			bool use_exact_termfreq = false,
+			int flags = 0,
 			double k = 1.0,
 			const OmExpandDecider * edecider = 0) const;
 
@@ -650,11 +653,12 @@ class OmEnquire {
 	 */
 	inline OmESet get_eset(om_termcount maxitems, const OmRSet & omrset,
 			       const OmExpandDecider * edecider) const {
-	    return get_eset(maxitems, omrset, true, false, 1.0, edecider);
+	    return get_eset(maxitems, omrset, 0, 1.0, edecider);
 	}
 
+	// FIXME: remove when OmSettings goes away
 	// This is needed as otherwise the first overloaded method is
-	// used (since X* matches bool...)
+	// used (since X* matches int...)
 	inline OmESet get_eset(om_termcount, const OmRSet &, OmSettings *,
 			       OmExpandDecider *dummy = 0) const {
 	    (void)dummy;

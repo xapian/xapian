@@ -1029,7 +1029,7 @@ static bool test_allowqterms1()
         TEST_NOT_EQUAL(*j, "this");
     }
 
-    OmESet myeset2 = enquire.get_eset(1000, myrset, false);
+    OmESet myeset2 = enquire.get_eset(1000, myrset, OmEnquire::include_query_terms);
     j = myeset2.begin();
     for ( ; j != myeset2.end(); ++j) {
         if (*j == "this") break;
@@ -1994,7 +1994,7 @@ static bool test_multiexpand1()
     OmESet eset2 = enquire2.get_eset(1000, rset2);
 
     // This is the multi database without approximation
-    OmESet eset3 = enquire2.get_eset(1000, rset2, true, true);
+    OmESet eset3 = enquire2.get_eset(1000, rset2, OmEnquire::use_exact_termfreq);
 
     TEST_EQUAL(eset1.size(), eset2.size());
     TEST_EQUAL(eset1.size(), eset3.size());

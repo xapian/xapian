@@ -185,17 +185,11 @@ class OmEnquire::Internal::Data : public RefCntBase {
 
 	void set_query(const OmQuery & query_);
 	const OmQuery & get_query();
-	OmMSet get_mset(om_doccount first,
-			om_doccount maxitems,
-			const OmRSet *omrset,
-			const OmSettings *moptions,
+	OmMSet get_mset(om_doccount first, om_doccount maxitems,
+			const OmRSet *omrset, const OmSettings *moptions,
 			const OmMatchDecider *mdecider) const;
-	OmESet get_eset(om_termcount maxitems,
-			const OmRSet & omrset,
-			bool exclude_query_terms,
-			bool use_exact_termfreq,
-			double k,
-			const OmExpandDecider *edecider) const;
+	OmESet get_eset(om_termcount maxitems, const OmRSet & omrset, int flags,
+			double k, const OmExpandDecider *edecider) const;
 
 	OmTermIterator get_matching_terms(om_docid did) const;
 	OmTermIterator get_matching_terms(const OmMSetIterator &it) const;

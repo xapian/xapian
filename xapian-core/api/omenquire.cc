@@ -946,10 +946,7 @@ OmEnquire::Internal::Data::get_mset(om_doccount first,
 
 OmESet
 OmEnquire::Internal::Data::get_eset(om_termcount maxitems,
-                    const OmRSet & omrset,
-		    bool exclude_query_terms,
-		    bool use_exact_termfreq,
-		    double k,
+                    const OmRSet & omrset, int flags, double k,
 		    const OmExpandDecider * edecider) const
 {
     OmESet retval;
@@ -967,7 +964,7 @@ OmEnquire::Internal::Data::get_eset(om_termcount maxitems,
     AutoPtr<OmExpandDecider> decider_andnoquery;
     OmExpandDeciderAlways decider_always;
 
-    if (query != 0 && exclude_query_terms) {
+    if (query != 0 && !(flags & OmEnquire::include_query_terms)) {
 	AutoPtr<OmExpandDecider> temp1(
 	    new OmExpandDeciderFilterTerms(query->get_terms_begin(),
 					   query->get_terms_end()));
@@ -985,7 +982,8 @@ OmEnquire::Internal::Data::get_eset(om_termcount maxitems,
 	edecider = &decider_always;
     }
 
-    expand.expand(maxitems, retval, &rset, edecider, use_exact_termfreq, k);
+    expand.expand(maxitems, retval, &rset, edecider,
+		  bool(flags & OmEnquire::use_exact_termfreq), k);
 
     return retval;
 }
@@ -1192,20 +1190,17 @@ OmEnquire::get_mset(om_doccount first,
 }
 
 OmESet
-OmEnquire::get_eset(om_termcount maxitems, const OmRSet & omrset,
-		    bool exclude_query_terms, bool use_exact_termfreq, double k,
-		    const OmExpandDecider * edecider) const
+OmEnquire::get_eset(om_termcount maxitems, const OmRSet & omrset, int flags,
+		    double k, const OmExpandDecider * edecider) const
 {
     // FIXME: display contents of pointer params and omrset, if they're not
     // null.
     DEBUGAPICALL(OmESet, "OmEnquire::get_eset", maxitems << ", " <<
-		 omrset << ", " << exclude_query_terms << ", " <<
-		 use_exact_termfreq << ", " << k << ", " << edecider);
+		 omrset << ", " << flags << ", " << k << ", " << edecider);
 
     try {
 	// FIXME: this copies the eset too much: pass it in by reference?
-	RETURN(internal->data->get_eset(maxitems, omrset, exclude_query_terms,
-	       use_exact_termfreq, k, edecider));
+	RETURN(internal->data->get_eset(maxitems, omrset, flags, k, edecider));
     } catch (OmError & e) {
 	if (internal->data->errorhandler) (*internal->data->errorhandler)(e);
 	throw;

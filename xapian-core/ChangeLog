@@ -1,3 +1,10 @@
+Mon Dec 09 20:13:00 GMT 2002  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/omenquireinternal.h,docs/todo.xml,
+	  include/om/omenquire.h,tests/api_db.cc: OmEnquire::get_eset()
+	  now takes a flags argument of bit constants |-ed together
+	  instead of 2 bools.
+
 Mon Dec 09 12:52:38 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc,backends/quartz/btree.h: Applied patch
