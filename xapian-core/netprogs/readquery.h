@@ -1,5 +1,6 @@
 #include <om/omtypes.h>
 #include <string>
+#include "netutils.h"
 
 struct querytok {
     enum etype {
@@ -25,8 +26,6 @@ struct querytok {
     querytok(int type_)
 	    : type(static_cast<etype>(type_)) {}
 };
-
-char hextochar(char high, char low);
 
 void qfs_start(string text);
 querytok qfs_gettok();

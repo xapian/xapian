@@ -24,6 +24,8 @@
 #define OM_HGUARD_NETUTILS_H
 
 #include <string>
+#include <vector>
+#include "omassert.h"
 
 inline string
 tohex(char c)
