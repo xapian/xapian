@@ -1,3 +1,8 @@
+Wed Apr 06 02:44:58 BST 2005  Olly Betts <olly@survex.com>
+
+	* omindex.cc,docs/overview.txt: Removed useless "DUPE_duplicate"
+	  option.
+
 Wed Apr 06 00:48:08 BST 2005  Olly Betts <olly@survex.com>
 
 	* omindex.cc,docs/overview.txt: Added support for using pod2text for

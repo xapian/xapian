@@ -116,8 +116,7 @@ Usage: omindex [OPTION] --db DATABASE
         --url BASEURL [BASEDIRECTORY] DIRECTORY
 
 Index static website data via the filesystem.
-  -d, --duplicates      set duplicate handling
-                        one of `ignore', `replace', `duplicate'
+  -d, --duplicates      set duplicate handling ('ignore' or 'replace')
   -D, --db              path to database to use
   -U, --url             base url DIRECTORY represents
   -M, --mime-type	additional MIME mapping ext:type

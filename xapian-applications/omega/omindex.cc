@@ -68,10 +68,7 @@ using namespace std;
 
 #define OMINDEX "omindex"
 
-#define DUPE_ignore 0
-#define DUPE_replace 1
-#define DUPE_duplicate 2
-static int dupes = DUPE_replace;
+static bool skip_duplicates = false;
 static bool follow_symlinks = false;
 static string dbpath;
 static string root;
@@ -254,7 +251,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 
     urlterm = make_url_term(url);
 
-    if (dupes == DUPE_ignore && db.term_exists(urlterm)) {
+    if (skip_duplicates && db.term_exists(urlterm)) {
 	cout << "duplicate. Ignored." << endl;
 	return;
     }
@@ -480,7 +477,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
     newdocument.add_term("Y" + string(buf)); // Year (YYYY)
     newdocument.add_term(urlterm); // Url
 
-    if (dupes == DUPE_replace) {
+    if (!skip_duplicates) {
 	// If this document has already been indexed, update the existing
 	// entry.
 	try {
@@ -497,6 +494,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 	    cout << "added (failed re-seek for duplicate)." << endl;
 	}
     } else {
+	// If this were a duplicate, we'd have skipped it above.
 	db.add_document(newdocument);
 	cout << "added." << endl;
     }
@@ -634,8 +632,7 @@ main(int argc, char **argv)
 		 << "Usage: " << argv[0] << " [OPTION] --db DATABASE\n"
 		 << "\t--url BASEURL [BASEDIRECTORY] DIRECTORY\n\n"
 		 << "Index static website data via the filesystem.\n"
-		 << "  -d, --duplicates\tset duplicate handling\n"
-		 << "  \t\t\tone of `ignore', `replace', `duplicate'\n"
+		 << "  -d, --duplicates\tset duplicate handling ('ignore' or 'replace')\n"
 		 << "  -D, --db\t\tpath to database to use\n"
 		 << "  -U, --url\t\tbase url DIRECTORY represents\n"
 	         << "  -M, --mime-type\tadditional MIME mapping ext:type\n"
@@ -659,14 +656,11 @@ main(int argc, char **argv)
 	    return 0;
 	case 'd': // how shall we handle duplicate documents?
 	    switch (optarg[0]) {
-	    case 'd':
-		dupes = DUPE_duplicate;
-		break;
 	    case 'i':
-		dupes = DUPE_ignore;
+		skip_duplicates = true;
 		break;
 	    case 'r':
-		dupes = DUPE_replace;
+		skip_duplicates = false;
 		break;
 	    }
 	    break;
@@ -749,7 +743,7 @@ main(int argc, char **argv)
     try {
 	if (!overwrite) {
 	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OPEN);
-	    if (dupes == DUPE_replace) {
+	    if (!skip_duplicates) {
 		// + 1 so that db.get_lastdocid() is a valid subscript.
 		updated.resize(db.get_lastdocid() + 1);
 	    }
@@ -757,7 +751,7 @@ main(int argc, char **argv)
 	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OVERWRITE);
 	}
 	index_directory(depth_limit, "/", mime_map);
-	if (dupes == DUPE_replace) {
+	if (!skip_duplicates) {
 	    for (Xapian::docid did = 1; did < updated.size(); ++did) {
 		if (!updated[did]) {
 		    try {
