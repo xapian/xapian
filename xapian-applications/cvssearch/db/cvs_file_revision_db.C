@@ -98,14 +98,16 @@ cvs_file_revision_db::get(unsigned int fileId, set<string, cvs_revision_less> & 
                         revisions.insert((char *) data.get_data());
                     }
                 }
+                pcursor->close();
+                return 0;
             }
             pcursor->close();
+            return val;
         }
-        return 0;
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
     }
-    return 0;
+    return val;
 }
 
 /**

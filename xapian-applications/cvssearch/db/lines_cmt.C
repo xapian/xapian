@@ -33,41 +33,22 @@ lines_cmt::load_offset_file(  const string& file_offset, vector<string>& files, 
 //
 //    * in_comment is the stream for reading from cmt file
 //
-lines_cmt::lines_cmt( const string& p,           // path (e.g., "cvsdata/root0/src/")
-                      const string& sroot,       // ?????????
+lines_cmt::lines_cmt( const string& src,         // path (e.g., "cvsdata/root0/src/")
+                      const string& root,        // ?????????
                       const string& pkg,         // package 
                       const string& file_db,     // name of cmt file
                       const string& file_offset, // name of offset file 
                       const string& mes          // message used for progress indicator
     )
+    :lines(src, root, pkg, mes)
 {
-    path = p;
-    root = sroot;
-    package = pkg;
-    message = mes;
-  
-  
     load_offset_file( file_offset, files, offsets );
-  
     in_comments = new ifstream(file_db.c_str());
-  
-
-  
-    line_no = 0;
-    current_fn = "";
     current_offset = 1;
-    
-    file_count = 0;
-
-    in_code = 0;
-  
 }
 
 lines_cmt::~lines_cmt() {
     delete in_comments;
-    if ( in_code != 0 ) {
-        delete in_code;
-    }
 }
 
 // ----------------------------------------

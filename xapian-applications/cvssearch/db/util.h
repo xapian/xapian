@@ -34,3 +34,4 @@ string convert(const string & input, char src, char dst);
 void get_packages(istream & is, set<string> & packages);
 
 #include "lines_cmt.h"
+#include "lines_db.h"

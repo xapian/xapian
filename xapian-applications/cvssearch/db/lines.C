@@ -1,12 +1,25 @@
 #include "lines.h"
 #include "util.h"
 
-lines::lines() {
+lines::lines(const string & src_path, const string & r, const string & p, const string & m)
+    :path(src_path),
+     root(r),
+     package(p),
+     message(m)
+{
     stemmer = new OmStem("english");
+    current_fn = "";
+    line_no = 0;  
+    file_count = 0;
+    in_code = 0;
 }
 
-lines::~lines() {
+lines::~lines() 
+{
     delete stemmer;
+    if ( in_code != 0 ) {
+        delete in_code;
+    }
 }
 
 

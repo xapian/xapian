@@ -119,9 +119,11 @@ cvs_comment_id2_db::get(unsigned int comment_id, vector<unsigned int> & fileIds,
                         revisions.push_back(revision);
                     }
                 }
+                pcursor->close();
+                return 0;
             }
             pcursor->close();
-            return 0;
+            return val;
         }
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;

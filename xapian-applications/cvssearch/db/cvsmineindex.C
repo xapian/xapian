@@ -165,6 +165,9 @@ int main(unsigned int argc, char *argv[]) {
     map<unsigned int, set <string> > commit_symbols;
     map<unsigned int, list<string> > commit_words;
 
+    map<unsigned int, set <string> > commit_symbols1;
+    map<unsigned int, list<string> > commit_words1;
+
     string commit_path = cvsdata + "/" + root + "/commit.offset";
     ofstream fout(commit_path.c_str());
     map<string, unsigned int> commit_offsets = write_commit_offset(fout, cvsdata, root, packages);
@@ -212,27 +215,30 @@ int main(unsigned int argc, char *argv[]) {
             // map< unsigned int, int> app_symbol_count;
             // set<string> found_symbol_before;
 
-            string file_cmt    = package_db_path + ".cmt";
-            string file_offset = package_db_path + ".offset";
-            
-            // file may not exist (if it was deleted in repostory at some point)
-            {
-                ifstream in( file_cmt.c_str() );
-                if ( !in ) {
-                    cerr << "Could not find " << file_cmt << endl;
-                    continue;
-                }
-            }
-            
-            cerr << "... reading " << file_cmt << endl;
             
             map< string, set<list<string> > > app_symbol_terms; // accumulated from all its points of usage
             map<string, int> app_symbol_count;
             set<string> found_symbol_before;
+
+//             string file_cmt    = package_db_path + ".cmt";
+//             string file_offset = package_db_path + ".offset";
             
-            lines_cmt lines    (cvsdata + "/" + root + "/src/", "", package_name, file_cmt, file_offset, " mining" ); 
+//             // file may not exist (if it was deleted in repostory at some point)
+//             {
+//                 ifstream in( file_cmt.c_str() );
+//                 if ( !in ) {
+//                     cerr << "Could not find " << file_cmt << endl;
+//                     continue;
+//                 }
+//             }
+//             cerr << "... reading " << file_cmt << endl;
+//             lines_cmt lines(cvsdata + "/" + root + "/src/", root, package_name, file_cmt, file_offset, " mining");
+
             cvs_db_file db_file(package_db_path + ".db/" + package_name + ".db", true);            
+            lines_db lines(cvsdata + "/" + root + "/src/", "", package_name, " mining", db_file); 
             
+            
+
             // ----------------------------------------
             // this line NEEDS to be changed..
             // ----------------------------------------
@@ -247,7 +253,6 @@ int main(unsigned int argc, char *argv[]) {
             unsigned int fileid = 0;
             string filename = "";
             while ( lines.readNextLine() ) {
-
                 string data = lines.getData();
                 set<string> symbols = lines.getCodeSymbols();
                 
@@ -313,7 +318,123 @@ int main(unsigned int argc, char *argv[]) {
                     }
                 }
             }
+//             {
+//                 lines_db lines1(cvsdata + "/" + root + "/src/", "", package_name, " mining", db_file); 
+            
+//                 // ------------------------------------------------------------
+//                 // need first input to be 
+//                 // "...cvsdata/root0/db/pkg" + ".db/" + pkg.db"
+//                 // ------------------------------------------------------------
+
+//                 unsigned int commitid = 0;
+//                 unsigned int fileid = 0;
+//                 string filename = "";
+//                 while ( lines1.readNextLine() ) {
+//                     string data = lines1.getData();
+//                     set<string> symbols = lines1.getCodeSymbols();
+                
+//                     if (strcmp(filename.c_str(), lines1.getCurrentFile().c_str())) {
+//                         filename = lines1.getCurrentFile();
+//                         filename = filename.substr(package_name.length() + 1, filename.length() - package_name.length() - 1);
+//                         // ----------------------------------------
+//                         // need to obtain file id
+//                         // only when the file has changed.
+//                         // ----------------------------------------
+//                         if (db_file.get_fileid(fileid, filename) != 0) {
+//                             fileid = 0;
+//                         }
+//                     }
+//                     if (fileid == 0) {
+//                         continue;
+//                     }
+//                     // ----------------------------------------
+//                     // here we have a mapping between revision
+//                     // for this line and the associated CVS comment.
+//                     // ----------------------------------------
+//                     const map<string, string > & revisions = lines1.getRevisionCommentString();
+//                     map<string, string >::const_iterator i;
+                
+//                     for(i = revisions.begin(); i != revisions.end(); ++i ) {
+//                         if (db_file.get_commit(fileid, i->first, commitid) == 0) {
+//                             // ----------------------------------------
+//                             // have we entered info for this commit ?
+//                             // ----------------------------------------
+//                             if (commit_words1.find(commitid+offset) == commit_words1.end()) 
+//                             {
+//                                 // ----------------------------------------
+//                                 // nope, we have not. so need to set
+//                                 // commit_words[commitid]
+//                                 // ----------------------------------------
+//                                 const map<string, list<string> > & terms = lines1.getRevisionCommentWords();
+//                                 map<string, list<string> >::const_iterator itr = terms.find(i->first);
+//                                 if (itr != terms.end()) {
+//                                     commit_words1[commitid+offset] = itr->second;
+//                                 }
+//                             }
+//                             // ----------------------------------------
+//                             // now go through each symbol,
+//                             // and add it to the commit_symbols mapping
+//                             // ----------------------------------------
+//                             for( set<string>::iterator s = symbols.begin(); s != symbols.end(); ++s ) {
+//                                 if ( lib_symbols.find(*s) != lib_symbols.end() ) {
+//                                     commit_symbols1[commitid+offset].insert(*s);
+//                                 } else {
+//                                 // ----------------------------------------
+//                                 // this symbol is not in the library, so 
+//                                 // let's see if its parents are;
+//                                 // if so, we add every such parent
+//                                 // ----------------------------------------
+//                                     set<string> parents = app_symbol_parents[*s];
+//                                     for( set<string>::iterator p = parents.begin(); p != parents.end(); ++p ) {
+//                                         if ( lib_symbols.find(*p) != lib_symbols.end() ) {
+//                                             commit_symbols1[commitid+offset].insert(*p);
+//                                         }
+//                                     }
+//                                 }
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
         } // for packages
+
+//         cerr << "commit_symbols1 size" << commit_symbols1.size() << endl;
+//         cerr << "commit_symbols  size" << commit_symbols.size() << endl;
+//         cerr << "commit_words1   size" << commit_words1.size() << endl;
+//         cerr << "commit_words    size" << commit_words.size() << endl;
+
+//         for (map<unsigned int, set<string> >::const_iterator itr = commit_symbols.begin(),
+//                  itr1 = commit_symbols1.begin();
+//              itr != commit_symbols.end(); ++itr, ++itr1) {
+//             cerr << "symbols  size " << (itr->second).size() << endl;
+//             cerr << "symbols1 size " << (itr1->second).size() << endl;
+//             for(set<string>::const_iterator sitr = (itr->second).begin(),
+//                     sitr1 = (itr1->second).begin();
+//                 sitr != (itr->second).end();
+//                 ++sitr, ++sitr1)
+//             {
+//                 cerr << "from symbols  " << *sitr << endl;
+//                 cerr << "from symbols1 " << *sitr1<< endl;
+//                 assert(!strcmp ((*sitr).c_str(), (*sitr1).c_str()));
+//             }
+//         }
+
+//         for (map<unsigned int, list<string> >::const_iterator itr = commit_words.begin(),
+//                  itr1 = commit_words1.begin();
+//              itr != commit_words.end(); ++itr, ++itr1) {
+//             cerr << "words    size " << (itr->second).size() << endl;
+//             cerr << "words1   size " << (itr1->second).size() << endl;
+//             for(list<string>::const_iterator sitr = (itr->second).begin(),
+//                     sitr1 = (itr1->second).begin();
+//                 sitr != (itr->second).end();
+//                 ++sitr, ++sitr1)
+//             {
+//                 cerr << "from words  " << *sitr << endl;
+//                 cerr << "from words1 " << *sitr1<< endl;
+//                 assert(!strcmp ((*sitr).c_str(), (*sitr1).c_str()));
+//             }
+//         }
+        
         // ----------------------------------------
         // write results
         // ----------------------------------------

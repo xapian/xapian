@@ -72,7 +72,7 @@ public:
     int get_filename         (unsigned int file_id, string & filename);
     int get_fileid           (unsigned int & file_id, const string & filename);
     int put_filename         (unsigned int & file_id, const string & filename);
-    
+    int get_filename_count   (unsigned int & count);    
 
 
     int get_diff             (unsigned int fileId, const string & revision, 

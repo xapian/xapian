@@ -101,10 +101,13 @@ cvs_line_db::get(unsigned int fileId, const string & revision, set<unsigned int>
                         result.insert(*(unsigned int *) data.get_data());
                     }
                 }
+                pcursor->close();
+                return 0;
             }
             pcursor->close();
+            return val;
         }
-        return 0;
+        return val;
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
     }

@@ -7,6 +7,7 @@
 #include <map>
 #include <string>
 #include <om/om.h>
+#include <fstream>
 
 class lines
 {
@@ -32,14 +33,20 @@ protected:
     list<string> term_list;
     set <string> symbols;
     set <string> terms;
-
+    unsigned int line_no;
     map< string, list<string> > revision_comment_words;
     map< string, string >       revision_comment_string;
 
     OmStem *stemmer;
+    ifstream *in_code;
+    unsigned int file_count;
+    string path;
+    string root;
+    string package;
+    string message;
 
 public:
-    lines();
+    lines(const string & src_path, const string & root, const string & package, const string & message);
     virtual ~lines();
 
     // ----------------------------------------
@@ -52,11 +59,6 @@ public:
     virtual bool readNextLine() = 0;
 
 
-    // ----------------------------------------
-    // Gets the number of line just read from 
-    // current file.
-    // ----------------------------------------
-    virtual unsigned int        getLineNumber() const = 0;
 
     // ----------------------------------------
     // functions above need implementation
@@ -174,7 +176,14 @@ public:
     // its computed here, since may not be 
     // required by some apps, so the output is
     // not a reference.
+    // ----------------------------------------
     const set<string>   getCodeSymbolTerms();
+
+    // ----------------------------------------
+    // Gets the number of line just read from 
+    // current file.
+    // ----------------------------------------
+    unsigned int        getLineNumber() const { return line_no; }
 };
 
 #endif

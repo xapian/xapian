@@ -327,3 +327,15 @@ cvs_db_file::get_commit_count     (unsigned int & count){
     }
     return val;
 }
+
+int
+cvs_db_file::get_filename_count   (unsigned int & count){
+    int val = 0;
+    if ((val = _filename_db.open(_database_name, true)) == 0)
+    {
+        if ((val = _filename_db.count(count)) == 0)
+        {
+        }
+    }
+    return val;
+}
