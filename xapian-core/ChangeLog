@@ -1,3 +1,7 @@
+Wed May 08 15:53:11 BST 2002  Olly Betts <olly@survex.com>
+
+	* Added autom4te-*.cache to .cvsignore.
+
 Wed May 08 15:50:56 BST 2002  Olly Betts <olly@survex.com>
 
 	* Rebuild docs on "make", not just "make dist" or "make install".

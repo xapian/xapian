@@ -21,3 +21,4 @@ libxapian.la
 xapian-core-*.tar.gz
 TODO
 TODO.release
+autom4te-*.cache
