@@ -49,7 +49,7 @@ static char *fmtstr =
 char raw_prob[4048];
 static long int msize = 0;
 static double maxweight = -1;
-static char gif_dir[256] = "/fx-gif";
+static string gif_dir = "/fx-gif";
 static long int r_displayed[200];
 static long int r_di;
 static struct term new_terms[MAXTERMS];
@@ -913,19 +913,12 @@ static void print_query_page( const char* page, long int first, long int size) {
     char *pre;
     long int last = 0;
     int expand_on = 1;
-#if 0//FIXME
-    get_muscat_string ("gif_dir", gif_dir);
-    if (get_muscat_string ("no_expand", line)) expand_on = 0;
-    doclink_height = get_muscat_int ("doclink_height");
-    if (!doclink_height) doclink_height = 25;
-    doclink_width = get_muscat_int ("doclink_width");
-    if (!doclink_width)  doclink_width = 25;
-    score_height = get_muscat_int ("score_height");
-    score_width = get_muscat_int ("score_width");
-#else
-    score_height = 21;
-    score_width = 21;
-#endif
+
+    string tmp = option["gif_dir"];
+    if (tmp != "") gif_dir = tmp;
+    if (option["no_expand"] != "") expand_on = 0;
+    score_height = atoi(option["score_height"].c_str());
+    score_width = atoi(option["score_width"].c_str());
     if ((filep = page_fopen(page)) == NULL) return;
 
     r_di = 0;
@@ -1225,15 +1218,9 @@ static void print_page_links( char type, long int hits_per_page,
       /* If not specified, plh and plw no longer default to 15
        * since that prevents the user having different sized page gifs
        */
-#if 0
-      plh = get_muscat_int("pagelink_height");
-      plw = get_muscat_int("pagelink_width");
-      have_selected_page_gifs = get_muscat_int("have_selected_page_gifs");
-#else
-      plh = 0;
-      plw = 0;
-      have_selected_page_gifs = 0;
-#endif
+      plh = atoi(option["pagelink_height"].c_str());
+      plw = atoi(option["pagelink_width"].c_str());
+      have_selected_page_gifs = atoi(option["pagelink_width"].c_str());
 
       for ( page = 0; page < 10; page++ ) {
 	 new_first = page * hits_per_page;
@@ -1552,8 +1539,12 @@ static int print_caption( long int m, int do_expand ) {
 		 break;
 	      case 'T': {
 		  bool comma = false;
+		  // FIXME: in general we should store the matching terms
+		  // in a vector and then sort by the value of matching_map[]
+		  // In the DA case the way termid-s are invented means we
+		  // don't actually need to do this...
 		  TermList *terms = database.open_term_list(q0);
-		  terms->next();
+		  terms->next();		  
 		  while (!terms->at_end()) {
 		      termname term = database.term_id_to_name(terms->get_termid());
 		      map<termname, int>::iterator i = matching_map.find(term);
