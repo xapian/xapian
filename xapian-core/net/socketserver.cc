@@ -249,7 +249,7 @@ SocketServer::run_match(const std::string &firstmessage)
     message = readline(msecs_active_timeout);
     OmRSet omrset = string_to_omrset(message);
 
-    MultiMatch match(db, &query, omrset, moptions,
+    MultiMatch match(db, &query, omrset, moptions, 0,
 		     AutoPtr<StatsGatherer>(gatherer));
 
 #if 0
@@ -290,7 +290,7 @@ SocketServer::run_match(const std::string &firstmessage)
 	PostList *pl;
 	{
 	    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> terminfo;
-	    pl = match.get_postlist(first, maxitems, terminfo, 0);
+	    pl = match.get_postlist(first, maxitems, terminfo);
 	    writeline(om_tostring(pl->get_termfreq_max()) + " " +
 			   om_tostring(pl->get_termfreq_min()) + " " +
 			   om_tostring(pl->get_termfreq_est()) + " " +
@@ -308,7 +308,7 @@ SocketServer::run_match(const std::string &firstmessage)
 	{
 	    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> terminfo;
 	    // not sure we really need these numbers...
-	    pl = match.get_postlist(first, maxitems, terminfo, 0);
+	    pl = match.get_postlist(first, maxitems, terminfo);
 	    writeline(om_tostring(pl->get_termfreq_max()) + " " +
 			   om_tostring(pl->get_termfreq_min()) + " " +
 			   om_tostring(pl->get_termfreq_est()) + " " +

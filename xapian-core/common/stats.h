@@ -27,7 +27,7 @@
 #include "omdebug.h"
 #include "refcnt.h"
 #include <map>
-#include <vector>
+#include <set>
 
 /** Class to hold statistics for a given collection. */
 class Stats {
@@ -76,7 +76,7 @@ class StatsGatherer {
 	 *  The Gatherer uses this to make sure that each child
 	 *  has contributed before it will give out its statistics.
 	 */
-	mutable std::vector<StatsSource *> sources;
+	mutable std::set<StatsSource *> sources;
 
 	/** The total statistics gathered for the whole collection.
 	 */
@@ -95,6 +95,12 @@ class StatsGatherer {
 	 *  into its own summary statistics.
 	 */
 	void add_child(StatsSource *source);
+
+	/** Remove a StatsSource object from this gatherer.
+	 *  This is needed in the case of some parts of the database dying
+	 *  during the match.
+	 */
+	void remove_child(StatsSource *source);
 
 	/** Contribute some statistics to the overall statistics.
 	 *  Should only be called once by each sub-database.
@@ -142,7 +148,7 @@ class StatsSource {
 	StatsSource(StatsGatherer *gatherer_);
 
 	/// Virtual destructor
-	virtual ~StatsSource() {};
+	virtual ~StatsSource();
 
 	/// Contribute all the statistics that don't depend on global
 	/// stats.  Used by StatsGatherer.
@@ -282,6 +288,12 @@ StatsSource::StatsSource(StatsGatherer *gatherer_)
 	: gatherer(gatherer_), total_stats(0)
 {
     gatherer->add_child(this);
+}
+
+inline
+StatsSource::~StatsSource()
+{
+    gatherer->remove_child(this);
 }
 
 inline void

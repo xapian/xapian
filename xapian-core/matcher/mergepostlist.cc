@@ -75,15 +75,20 @@ MergePostList::next(om_weight w_min)
 	    }
 #endif
 	} catch (OmError & e) {
-	    if (errorhandler) (*errorhandler)(e);
-	    // Continue match without this sub-postlist.
-	    delete plists[current];
-	    AutoPtr<LeafPostList> lpl(new EmptyPostList);
-	    // give it a weighting object
-	    // FIXME: make it an EmptyWeight instead of BoolWeight
-	    OmSettings unused;
-	    lpl->set_termweight(new BoolWeight(unused));
-	    plists[current] = lpl.release();
+	    if (errorhandler) {
+		DEBUGLINE(EXCEPTION, "Calling error handler in MergePostList::next().");
+		(*errorhandler)(e);
+		// Continue match without this sub-postlist.
+		delete plists[current];
+		AutoPtr<LeafPostList> lpl(new EmptyPostList);
+		// give it a weighting object
+		// FIXME: make it an EmptyWeight instead of BoolWeight
+		OmSettings unused;
+		lpl->set_termweight(new BoolWeight(unused));
+		plists[current] = lpl.release();
+	    } else {
+		throw;
+	    }
 	}
 #ifdef USE_MSETPOSTLIST
     } while ((unsigned)current < plists.size());

@@ -25,8 +25,17 @@
 
 void
 StatsGatherer::add_child(StatsSource *source) {
+    DEBUGCALL(MATCH, void, "StatsGatherer::add_child", source);
     Assert(have_gathered == false);
-    sources.push_back(source);
+    sources.insert(source);
+}
+
+void
+StatsGatherer::remove_child(StatsSource *source) {
+    DEBUGCALL(MATCH, void, "StatsGatherer::remove_child", source);
+    // If have_gathered is true, the stats will be wrong, but we just
+    // continue as best we can.
+    sources.erase(source);
 }
 
 void
@@ -40,7 +49,7 @@ const Stats *
 LocalStatsGatherer::get_stats() const
 {
     if(!have_gathered) {
-	for (std::vector<StatsSource *>::iterator i = sources.begin();
+	for (std::set<StatsSource *>::iterator i = sources.begin();
 	     i != sources.end();
 	     ++i) {
 	    (*i)->contrib_my_stats();
@@ -75,7 +84,7 @@ void
 NetworkStatsGatherer::fetch_local_stats() const
 {
     if (!have_gathered) {
-	for (std::vector<StatsSource *>::iterator i = sources.begin();
+	for (std::set<StatsSource *>::iterator i = sources.begin();
 	     i != sources.end();
 	     ++i) {
 	    (*i)->contrib_my_stats();

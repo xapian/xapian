@@ -38,6 +38,7 @@ class PostList;
 #include <vector>
 #include <map>
 #include "autoptr.h"
+#include "omdebug.h"
 
 class LocalSubMatch : public SubMatch {
     private:
@@ -106,6 +107,9 @@ class LocalSubMatch : public SubMatch {
 		  is_prepared(false), users_query(*query), db(db_),
 		  querysize(query->qlen), opts(opts_)
 	{	    
+	    DEBUGCALL(MATCH, void, "LocalSubMatch::LocalSubMatch",
+		      db << ", " << query << ", " << omrset << ", " <<
+		      opts_ << ", " << gatherer << ", ");
 	    AutoPtr<RSet> new_rset(new RSet(db, omrset));
 	    rset = new_rset;
 
@@ -123,6 +127,7 @@ class LocalSubMatch : public SubMatch {
 
 	~LocalSubMatch()
 	{
+	    DEBUGCALL(MATCH, void, "LocalSubMatch::~LocalSubMatch", "");
 	}
 	
 	/// Calculate the statistics for the query

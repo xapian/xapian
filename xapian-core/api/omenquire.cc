@@ -898,6 +898,9 @@ OmEnquire::Internal::Data::get_mset(om_doccount first,
                     const OmSettings *moptions,
 		    const OmMatchDecider *mdecider) const
 {
+    DEBUGCALL(API, OmMSet, "OmEnquire::Internal::Data::get_mset",
+	      first << ", " << maxitems << ", " << omrset << ", " <<
+	      moptions << ", " << mdecider << ", ");
     OmLockSentry locksentry(mutex);
     if(query == 0) {
         throw OmInvalidArgumentError("You must set a query before calling OmEnquire::get_mset()");
@@ -920,11 +923,11 @@ OmEnquire::Internal::Data::get_mset(om_doccount first,
     //
     // Notes: when accessing query, we don't need to lock mutex, since it's
     // our own copy and we're locked ourselves
-    MultiMatch match(db, query->internal, *omrset, *moptions);
+    MultiMatch match(db, query->internal, *omrset, *moptions, errorhandler);
 
     // Run query and get results into supplied OmMSet object
     OmMSet retval;
-    match.get_mset(first, maxitems, retval, mdecider, errorhandler);
+    match.get_mset(first, maxitems, retval, mdecider);
 
     Assert(!(query->is_bool()) || retval.get_max_possible() == 0);
 

@@ -24,6 +24,7 @@
 #include "multimatch.h"
 #include "match.h"
 #include "localmatch.h"
+#include "emptymatch.h"
 #include "rset.h"
 #include "omdebug.h"
 #include "omenquireinternal.h"
@@ -80,13 +81,14 @@ bool msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b) {
 ////////////////////////////////////
 // Initialisation and cleaning up //
 ////////////////////////////////////
-
 MultiMatch::MultiMatch(const OmDatabase &db_,
 		       const OmQuery::Internal * query,
 		       const OmRSet & omrset,
 		       const OmSettings & opts_,
+		       OmErrorHandler * errorhandler_,
 		       AutoPtr<StatsGatherer> gatherer_)
-	: gatherer(gatherer_), db(db_), opts(opts_), mcmp(msetcmp_forward)
+	: gatherer(gatherer_), db(db_), opts(opts_), mcmp(msetcmp_forward),
+	  errorhandler(errorhandler_)
 {
     // FIXME: has this check been done already?
     // Check that we have a valid query to run
@@ -125,12 +127,14 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
 		smatch = RefCntPtr<SubMatch>(new LocalSubMatch(db, query, *subrset, opts, gatherer.get()));
 	    }
 	} catch (OmError & e) {
-#if 0
-	    if (errorhandler) (*errorhandler)(e);
-	    // Continue match without this sub-postlist.
-	    Make an EmptyMatch object instead of smatch
-#endif
-	    throw;
+	    if (errorhandler) {
+		DEBUGLINE(EXCEPTION, "Calling error handler for creation of a SubMatch from a database and query.");
+		(*errorhandler)(e);
+		// Continue match without this sub-postlist.
+		smatch = RefCntPtr<SubMatch>(new EmptySubMatch());
+	    } else {
+		throw;
+	    }
 	}
 	leaves.push_back(smatch);
 	subrset++;
@@ -152,13 +156,26 @@ MultiMatch::~MultiMatch()
 void
 MultiMatch::prepare_matchers()
 {
+    DEBUGCALL(EXCEPTION, void, "MultiMatch::prepare_matchers", "");
     bool prepared;
     bool nowait = true;
     do {
 	prepared = true;
 	std::vector<RefCntPtr<SubMatch> >::iterator leaf;
 	for (leaf = leaves.begin(); leaf != leaves.end(); leaf++) {
-	    if (!(*leaf)->prepare_match(nowait)) prepared = false;
+	    try {
+		if (!(*leaf)->prepare_match(nowait)) prepared = false;
+	    } catch (OmError & e) {
+		if (errorhandler) {
+		    DEBUGLINE(EXCEPTION, "Calling error handler for prepare_match() on a SubMatch.");
+		    (*errorhandler)(e);
+		    // Continue match without this sub-match.
+		    *leaf = RefCntPtr<SubMatch>(new EmptySubMatch());
+		    prepared = false;
+		} else {
+		    throw;
+		}
+	    }
 	}
 	// Use blocking IO on subsequent passes, so that we don't go into
 	// a tight loop.
@@ -168,34 +185,88 @@ MultiMatch::prepare_matchers()
 
 PostList *
 MultiMatch::get_postlist(om_doccount first, om_doccount maxitems,
-			 std::map<om_termname, OmMSet::Internal::Data::Data::TermFreqAndWeight> & termfreqandwts,
-			 OmErrorHandler * errorhandler)
+			 std::map<om_termname, OmMSet::Internal::Data::Data::TermFreqAndWeight> & termfreqandwts)
 {
+    DEBUGCALL(EXCEPTION, PostList *, "MultiMatch::get_postlist",
+	      first << ", " << maxitems << ", <termfreqandwts>");
     Assert(!leaves.empty());
 
+    // Start matchers
     {
 	std::vector<RefCntPtr<SubMatch> >::iterator leaf;
 	for (leaf = leaves.begin(); leaf != leaves.end(); leaf++) {
-	    (*leaf)->start_match(first + maxitems);
+	    try {
+		(*leaf)->start_match(first + maxitems);
+	    } catch (OmError & e) {
+		if (errorhandler) {
+		    DEBUGLINE(EXCEPTION, "Calling error handler for start_match() on a SubMatch.");
+		    (*errorhandler)(e);
+		    // Continue match without this sub-match.
+		    *leaf = RefCntPtr<SubMatch>(new EmptySubMatch());
+		} else {
+		    throw;
+		}
+	    }
 	}
     }
 
-    PostList *pl;
-    if (leaves.size() == 1) {
-	// Only one mset to get - so get it
-	pl = leaves.front()->get_postlist(first + maxitems, this);
-    } else {
-	std::vector<PostList *> v;
-	std::vector<RefCntPtr<SubMatch> >::iterator i;
-	for (i = leaves.begin(); i != leaves.end(); i++) {
-	    v.push_back((*i)->get_postlist(first + maxitems, this));
-	}
-	pl = new MergePostList(v, this, errorhandler);
+    // Get postlists
+    std::vector<PostList *> postlists;
+    std::vector<RefCntPtr<SubMatch> >::iterator i;
+    for (i = leaves.begin(); i != leaves.end(); i++) {
+	// FIXME: errorhandler here? (perhaps not needed if this simply makes a pending postlist)
+	postlists.push_back((*i)->get_postlist(first + maxitems, this));
     }
 
-    termfreqandwts = leaves.front()->get_term_info();
+    // Get term info
+    termfreqandwts.clear();
+    {
+	std::vector<RefCntPtr<SubMatch> >::iterator leaf;
+	std::vector<PostList * >::iterator pl_iter;
+	Assert(leaves.size() == postlists.size());
+	for (leaf = leaves.begin(), pl_iter = postlists.begin();
+	     leaf != leaves.end();
+	     leaf++, pl_iter++) {
+	    try {
+		termfreqandwts = (*leaf)->get_term_info();
+		break;
+	    } catch (OmError & e) {
+		if (e.get_type() == "OmInternalError" &&
+		    e.get_msg().substr(0, 13) == "EmptySubMatch") {
+		    DEBUGLINE(MATCH, "leaf is an EmptySubMatch, trying next");
+		} else {
+		    if (errorhandler) {
+			DEBUGLINE(EXCEPTION, "Calling error handler for get_term_info() on a SubMatch.");
+			(*errorhandler)(e);
+			// Continue match without this sub-match.
+			*leaf = RefCntPtr<SubMatch>(new EmptySubMatch());
+
+			AutoPtr<LeafPostList> lpl(new EmptyPostList);
+			// give it a weighting object
+			// FIXME: make it an EmptyWeight instead of BoolWeight
+			OmSettings unused;
+			lpl->set_termweight(new BoolWeight(unused));
+
+			delete *pl_iter;
+			*pl_iter = lpl.release();
+		    } else {
+			throw;
+		    }
+		}
+	    }
+	}
+    }
     
-    return pl;
+    // Get a single combined postlist
+    PostList *pl;
+    Assert(postlists.size() != 0);
+    if (postlists.size() == 1) {
+	pl = postlists.front();
+    } else {
+	pl = new MergePostList(postlists, this, errorhandler);
+    }
+
+    RETURN(pl);
 }
 
 inline OmKey
@@ -230,11 +301,12 @@ MultiMatch::getorrecalc_maxweight(PostList *pl)
 void
 MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		     OmMSet & mset, const OmMatchDecider *mdecider,
-		     OmErrorHandler * errorhandler,
 		     void (*snooper)(const OmMSetItem &))
 {
+    DEBUGCALL(EXCEPTION, void, "MultiMatch::get_mset",
+	      first << ", " << maxitems << ", ...");
     std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> termfreqandwts;
-    PostList *pl = get_postlist(first, maxitems, termfreqandwts, errorhandler);
+    PostList *pl = get_postlist(first, maxitems, termfreqandwts);
     get_mset_2(pl, termfreqandwts,
 	       first, maxitems, mset, mdecider, snooper);
 }

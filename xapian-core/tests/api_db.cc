@@ -294,10 +294,13 @@ static bool test_multidb5()
 
 class MyErrorHandler : public OmErrorHandler {
     public:
-	bool count;
+	int count;
 
 	bool handle_error(OmError & error) {
 	    count += 1;
+	    tout << "Error handling caught: " << error.get_type() << ": " <<
+		    error.get_msg() << ", with context `" <<
+		    error.get_context() << "': count is now " << count << "\n";
 	    return true;
 	};
 
@@ -311,19 +314,60 @@ static bool test_multierrhandler1()
 
     OmDatabase mydb2(get_database("apitest_simpledata"));
     OmDatabase mydb3(get_database("apitest_simpledata2"));
-    OmDatabase mydb4(get_database("-e", "apitest_termorder"));
-    OmEnquire enquire(make_dbgrp(&mydb2, &mydb3, &mydb4), &myhandler);
+    for (int testcount = 0; testcount < 6; testcount ++) {
+	tout << "testcount=" << testcount << "\n";
+	OmDatabase mydb4(get_database("-e", "apitest_termorder"));
+	OmDatabase mydb5(get_network_database("apitest_termorder", 1));
 
-    // make a query
-    OmQuery myquery = query(OmQuery::OP_OR, "inmemory", "word");
-    myquery.set_bool(true);
-    enquire.set_query(myquery);
+	OmDatabase dbgrp;
+	switch (testcount) {
+	    case 0:
+		dbgrp = make_dbgrp(&mydb2, &mydb3, &mydb4);
+		break;
+	    case 1:
+		dbgrp = make_dbgrp(&mydb4, &mydb2, &mydb3);
+		break;
+	    case 2:
+		dbgrp = make_dbgrp(&mydb3, &mydb4, &mydb2);
+		break;
+	    case 3:
+		dbgrp = make_dbgrp(&mydb2, &mydb3, &mydb5);
+		sleep(1);
+		break;
+	    case 4:
+		dbgrp = make_dbgrp(&mydb5, &mydb2, &mydb3);
+		sleep(1);
+		break;
+	    case 5:
+		dbgrp = make_dbgrp(&mydb3, &mydb5, &mydb2);
+		sleep(1);
+		break;
+	}
+	tout << "db=" << dbgrp << "\n";
+	OmEnquire enquire(dbgrp, &myhandler);
 
-    // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10);
+	// make a query
+	OmQuery myquery = query(OmQuery::OP_OR, "inmemory", "word");
+	myquery.set_bool(true);
+	enquire.set_query(myquery);
 
-    TEST_EQUAL(myhandler.count, 1);
-    mset_expect_order(mymset, 2, 4, 10);
+	tout << "query=" << myquery << "\n";
+	// retrieve the top ten results
+	OmMSet mymset = enquire.get_mset(0, 10);
+
+	switch (testcount % 3) {
+	    case 0:
+		mset_expect_order(mymset, 2, 4, 10);
+		break;
+	    case 1:
+		mset_expect_order(mymset, 3, 5, 11);
+		break;
+	    case 2:
+		mset_expect_order(mymset, 1, 6, 12);
+		break;
+	}
+	TEST_EQUAL(myhandler.count, testcount + 1);
+    }
 
     return true;
 }
@@ -2561,7 +2605,7 @@ test_desc localdb_tests[] = {
 };
 
 test_desc remotedb_tests[] = {
-    {"multierrhandler1",           test_multierrhandler1},
+    {"multierrhandler1",   test_multierrhandler1},
     {"keepalive1",	   test_keepalive1},
     {0, 0}
 };

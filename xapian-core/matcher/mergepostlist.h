@@ -161,19 +161,25 @@ MergePostList::recalc_maxweight()
 	    om_weight w = (*i)->recalc_maxweight();
 	    if (w > w_max) w_max = w;
 	} catch (OmError & e) {
-	    if (errorhandler) (*errorhandler)(e);
-	    if (current == i - plists.begin()) {
-		// Fatal error
+	    if (errorhandler) {
+		DEBUGLINE(EXCEPTION, "Calling error handler in MergePostList::recalc_maxweight().");
+		(*errorhandler)(e);
+
+		if (current == i - plists.begin()) {
+		    // Fatal error
+		    throw;
+		} 
+		// Continue match without this sub-postlist.
+		delete (*i);
+		AutoPtr<LeafPostList> lpl(new EmptyPostList);
+		// give it a weighting object
+		// FIXME: make it an EmptyWeight instead of BoolWeight
+		OmSettings unused;
+		lpl->set_termweight(new BoolWeight(unused));
+		*i = lpl.release();
+	    } else {
 		throw;
-	    } 
-	    // Continue match without this sub-postlist.
-	    delete (*i);
-	    AutoPtr<LeafPostList> lpl(new EmptyPostList);
-	    // give it a weighting object
-	    // FIXME: make it an EmptyWeight instead of BoolWeight
-	    OmSettings unused;
-	    lpl->set_termweight(new BoolWeight(unused));
-	    *i = lpl.release();
+	    }
 	}
     }
     return w_max;

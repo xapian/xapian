@@ -1,3 +1,15 @@
+Wed Feb 21 19:30:20 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Add an errorhandler member to MultiMatch, and remove it from
+	  various calls which used to pass it about.
+
+	* Add an EmptyMatch object, which always returns an emptypostlist.
+
+	* Implement errorhandlers at start of query for initially down
+	  nodes.  Improve test for errorhandlers to cover many more cases.
+
+	* Add many debug messages to error handling code.
+
 Wed Feb 21 14:33:50 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Use a deque<> directly instead of a queue, due to conflict

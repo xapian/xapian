@@ -42,11 +42,11 @@ class MultiMatch
 {
     friend class SocketServer; // FIXME: temporary bodge
     private:
-	/// Vector of the items
-	std::vector<RefCntPtr<SubMatch> > leaves;
-
 	/// stats gatherer
 	AutoPtr<StatsGatherer> gatherer;
+
+	/// Vector of the items.  This MUST be destroyed before "gatherer"
+	std::vector<RefCntPtr<SubMatch> > leaves;
 
 	const OmDatabase db;
 
@@ -54,6 +54,9 @@ class MultiMatch
 
 	/// Comparison functor for sorting MSet
 	OmMSetCmp mcmp;
+
+	/// ErrorHandler
+	OmErrorHandler * errorhandler;
 
 	/** Internal flag to note that w_max needs to be recalculated
 	 *  while query is running.
@@ -100,6 +103,7 @@ class MultiMatch
 		   const OmQuery::Internal * query,
 		   const OmRSet & omrset,
 		   const OmSettings & opts_,
+		   OmErrorHandler * errorhandler,
 		   AutoPtr<StatsGatherer> gatherer_
 		       = AutoPtr<StatsGatherer>(new LocalStatsGatherer()));
 	~MultiMatch();
@@ -108,13 +112,11 @@ class MultiMatch
 		      om_doccount maxitems,
 		      OmMSet & mset,
 		      const OmMatchDecider * mdecider,
-		      OmErrorHandler * errorhandler,
 		      void (*snooper)(const OmMSetItem &) = NULL);
 
 	// FIXME: temporary bodge
 	PostList *get_postlist(om_doccount first, om_doccount maxitems,
-			       std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> & termfreqandwts,
-			       OmErrorHandler * errorhandler);
+			       std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> & termfreqandwts);
 
 	void get_mset_2(PostList *pl, 
 			std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> & termfreqandwts,

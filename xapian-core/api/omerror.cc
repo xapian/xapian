@@ -31,14 +31,26 @@ OmError::OmError(const std::string &msg_,
 	: msg(msg_), context(context_), type(type_),
 	  errno_value(errno_value_), has_been_handled(false)
 {
-    DEBUGLINE(EXCEPTION, type << "(" << msg << ", " << context_
-	                 << errno_value_ << ")");
+    DEBUGLINE(EXCEPTION, type << "(" << msg << ", " << context
+	      << errno_value << ")");
 }
 
 void
 OmErrorHandler::operator() (OmError & error)
 {
-    if (error.has_been_handled) throw error;
+    DEBUGLINE(EXCEPTION, 
+	      "Invoking error handler for: " << error.get_type() << "(" <<
+	      error.get_msg() << ", " << error.get_context() << ", " <<
+	      error.get_errno() << ")");
+    if (error.has_been_handled) {
+	DEBUGLINE(EXCEPTION, "Error has been handled previously: rethrowing.");
+	throw error;
+    }
     error.has_been_handled = true;
-    if (!handle_error(error)) throw error;
+    if (!handle_error(error)) {
+	DEBUGLINE(EXCEPTION, "Error handler: Rethrowing error.");
+	throw error;
+    } else {
+	DEBUGLINE(EXCEPTION, "Error handler: error dealt with, continuing execution if possible.");
+    }
 }
