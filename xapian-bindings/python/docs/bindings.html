@@ -124,9 +124,10 @@ the TCP version is currently wrapped, the "program" version isn't).
 <p>
    Please note that although the source code for the bindings
    indicates that there's another constructor to <code>xapian.Query</code> that
-   should be able to take a query operator, a list of queries,
+   should be able to take a query operator, a list of Query objects,
    and an optional window, this doesn't actually work in Python at the
-   moment due to the way SWIG overloading works.
+   moment due to the way SWIG overloading works.  However, you can pass a
+   query operator, a list of strings, and an optional window.
 </p>
 
 <h2>Enquire</h2>
@@ -157,9 +158,14 @@ class mymatcher(xapian.MatchDecider):
 </pre>
 
 <p>
-There are examples of the Python bindings, based on simplesearch, simpleindex,
-and simpleexpand from <code>xapian-examples</code>, in the <code>examples</code>
-subdirectory. There is also an example of defining a MatchDecider in Python.
+The <code>examples</code> subdirectory contains examples showing how to use the
+Python bindings based on the simple examples from <code>xapian-examples</code>:
+<a href="examples/simpleindex.py">simpleindex.py</a>,
+<a href="examples/simplesearch.py">simplesearch.py</a>,
+<a href="examples/simpleexpand.py">simpleexpand.py</a>.
+There's also 
+<a href="examples/simplematchdecider.py">simplematchdecider.py</a>
+which shows how to define a MatchDecider in Python.
 </p>
 
 <address>

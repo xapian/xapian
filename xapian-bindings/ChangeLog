@@ -1,3 +1,9 @@
+Thu Oct 21 18:00:14 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/docs/bindings.html: Note that you can construct a query
+	  from a list of terms, even if you can't from a list of queries.
+	  Add HTML links to the examples.
+
 Thu Oct 21 17:44:19 BST 2004  Olly Betts <olly@survex.com>
 
 	* python/docs/bindings.html: Remove documentation explicitly saying
