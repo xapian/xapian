@@ -43,6 +43,15 @@
 #include "pool.h"
 #include "stem_english.h"
 
+struct english_stemmer
+{
+    char * p;
+    int p_size;
+    int k;
+    int j;
+    struct pool * irregulars;
+};
+
 #define true 1
 #define false 0
 
@@ -60,7 +69,7 @@
 /* cons(z, i) is true <=> p[i] is a consonant.
 */
 
-int cons(struct english_stemmer * z, int i)
+static int cons(struct english_stemmer * z, int i)
 {   switch (z->p[i])
     {   case 'a': case 'e': case 'i': case 'o': case 'u':
             return false;
@@ -81,7 +90,7 @@ int cons(struct english_stemmer * z, int i)
       ....
 */
 
-int m(struct english_stemmer * z)
+static int m(struct english_stemmer * z)
 {   int n = 0;
     int i = 0;
     while(true)
@@ -109,7 +118,7 @@ int m(struct english_stemmer * z)
 /* vowelinstem(z) is true p[0], ... p[j] contains a vowel
 */
 
-int vowelinstem(struct english_stemmer * z)
+static int vowelinstem(struct english_stemmer * z)
 {   int i;
     for (i = 0; i <= z->j; i++) if (! cons(z, i)) return true;
     return false;
@@ -118,7 +127,7 @@ int vowelinstem(struct english_stemmer * z)
 /* doublec(z, i) is true <=> p[i], p[i - 1] contain a double consonant.
 */
 
-int doublec(struct english_stemmer * z, int i)
+static int doublec(struct english_stemmer * z, int i)
 {   if (i < 1) return false;
     if (z->p[i] != z->p[i - 1]) return false;
     return cons(z, i);
@@ -133,7 +142,7 @@ int doublec(struct english_stemmer * z, int i)
 
 */
 
-int cvc(struct english_stemmer * z, int i)
+static int cvc(struct english_stemmer * z, int i)
 {   if (i < 2 || !cons(z, i) || cons(z, i - 1) || !cons(z, i - 2)) return false;
     {   int ch = z->p[i];
         if (ch == 'w' || ch == 'x' || ch == 'y') return false;
@@ -144,7 +153,7 @@ int cvc(struct english_stemmer * z, int i)
 /* ends(z, s, length) is true <=> p[0], ... p[k] ends with the string s.
 */
 
-int ends(struct english_stemmer * z, char * s, int length)
+static int ends(struct english_stemmer * z, char * s, int length)
 {
     if (length > z->k + 1) return false;
     if (memcmp(z->p + z->k - length + 1, s, length) != 0) return false;
@@ -156,7 +165,7 @@ int ends(struct english_stemmer * z, char * s, int length)
    readjusting k.
 */
 
-void setto(struct english_stemmer * z, char * s, int length)
+static void setto(struct english_stemmer * z, char * s, int length)
 {
     memmove(z->p + z->j + 1, s, length);
     z->k = z->j + length;
@@ -164,7 +173,7 @@ void setto(struct english_stemmer * z, char * s, int length)
 
 /* r(z, s, length) is used further down. */
 
-void r(struct english_stemmer * z, char * s, int length)
+static void r(struct english_stemmer * z, char * s, int length)
 {
     if (m(z) > 0) setto(z, s, length);
 }
@@ -192,7 +201,7 @@ void r(struct english_stemmer * z, char * s, int length)
 
 */
 
-void step_1ab(struct english_stemmer * z)
+static void step_1ab(struct english_stemmer * z)
 {   if (z->p[z->k] == 's')
     {   if (ends(z, "sses", 4)) z->k -= 2; else
         if (ends(z, "ies", 3))
@@ -247,7 +256,7 @@ void step_1ab(struct english_stemmer * z)
 
 */
 
-void step_1c(struct english_stemmer * z)
+static void step_1c(struct english_stemmer * z)
 {
     if (ends(z, "y", 1) && z->j > 0 && cons(z, z->k - 1)) z->p[z->k] = 'i';
 }
@@ -258,7 +267,7 @@ void step_1c(struct english_stemmer * z)
    m(z) > 0.
 */
 
-void step_2(struct english_stemmer * z)
+static void step_2(struct english_stemmer * z)
 {   switch (z->p[z->k - 1])
     {
         case 'a':
@@ -312,7 +321,7 @@ void step_2(struct english_stemmer * z)
 /* step_3(z) deals with -ic-, -full, -ness etc. Similar strategy to step_2.
 */
 
-void step_3(struct english_stemmer * z)
+static void step_3(struct english_stemmer * z)
 {   switch (z->p[z->k])
     {
         case 'e':
@@ -336,7 +345,7 @@ void step_3(struct english_stemmer * z)
 /* step_4() takes off -ant, -ence etc., in context <c>vcvc<v>.
 */
 
-void step_4(struct english_stemmer * z)
+static void step_4(struct english_stemmer * z)
 {   switch (z->p[z->k - 1])
     {   case 'a':
             if (ends(z, "al", 2)) break; return;
@@ -381,7 +390,7 @@ void step_4(struct english_stemmer * z)
    m(z) > 1.
 */
 
-void step_5(struct english_stemmer * z)
+static void step_5(struct english_stemmer * z)
 {   z->j = z->k;
     if (z->p[z->k] == 'e')
     {   int a = m(z);

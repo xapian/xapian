@@ -28,6 +28,19 @@
 #include "pool.h"
 #include "stem_italian.h"
 
+struct italian_stemmer
+{
+    char * p;
+    int p_size;
+    int k;
+
+    int j;
+    int posV;
+    int pos2;
+    struct pool * irregulars;
+
+};
+
 #define true 1
 #define false 0
 
@@ -52,7 +65,7 @@
    or vowel. Used in measure().
 */
 
-int vowel(int ch)
+static int vowel(int ch)
 {   switch (ch)
     {   case 'a': case 'e': case 'i': case 'o': case 'u':
         case 'A': case 'E': case 'I': case 'O':
@@ -62,7 +75,7 @@ int vowel(int ch)
 }
 
 
-int char_type(struct italian_stemmer * z, int i)
+static int char_type(struct italian_stemmer * z, int i)
 {   char * p = z->p;
     switch (p[i])
     {   case 'a': case 'e': case 'o':
@@ -109,7 +122,7 @@ int char_type(struct italian_stemmer * z, int i)
               k
 */
 
-int measure(struct italian_stemmer * z)
+static int measure(struct italian_stemmer * z)
 {   int j = 0;
     int k = z->k;
     char * p = z->p;
@@ -138,7 +151,7 @@ int measure(struct italian_stemmer * z)
    and if true, j is decreased by the length of s.
 */
 
-int look_for(struct italian_stemmer * z, char * s)
+static int look_for(struct italian_stemmer * z, char * s)
 {   char * p = z->p;
     int length = strlen(s);
     int jbase = z->j-length+1;
@@ -187,7 +200,7 @@ int look_for(struct italian_stemmer * z, char * s)
 
 /* ends(z, s) applies look_for(z, s) at the end of the word, i.e. with j = k-1. */
 
-int ends(struct italian_stemmer * z, char * s)
+static int ends(struct italian_stemmer * z, char * s)
 {  z->j = z->k - 1;
    return look_for(z, s);
 }
@@ -196,7 +209,7 @@ int ends(struct italian_stemmer * z, char * s)
    k.
 */
 
-void setto(struct italian_stemmer * z, char * s)
+static void setto(struct italian_stemmer * z, char * s)
 {   int length = strlen(s);
     memmove(z->p+z->j+1, s, length);
     z->k = z->j+length+1;
@@ -214,39 +227,39 @@ void setto(struct italian_stemmer * z, char * s)
 
 */
 
-int attachV(struct italian_stemmer * z, char * s)
+static int attachV(struct italian_stemmer * z, char * s)
 {   if (z->j < z->posV) return false;
     setto(z, s);
     return true;
 }
 
-int after_posV(struct italian_stemmer * z)
+static int after_posV(struct italian_stemmer * z)
 {   if (z->j < z->posV) return false;
     z->k = z->j+1;
     return true;
 }
 
-int chopV(struct italian_stemmer * z, char * s) { return ends(z, s) && after_posV(z); }
+static int chopV(struct italian_stemmer * z, char * s) { return ends(z, s) && after_posV(z); }
 
-int attach2(struct italian_stemmer * z, char * s)
+static int attach2(struct italian_stemmer * z, char * s)
 {   if (z->j < z->pos2) return false;
     setto(z, s);
     return true;
 }
 
-int after_pos2(struct italian_stemmer * z)
+static int after_pos2(struct italian_stemmer * z)
 {   if (z->j < z->pos2) return false;
     z->k = z->j+1;
     return true;
 }
 
-int chop2(struct italian_stemmer * z, char * s) { return ends(z, s) && after_pos2(z); }
+static int chop2(struct italian_stemmer * z, char * s) { return ends(z, s) && after_pos2(z); }
 
 /*
 
 */
 
-int attached_pronoun(struct italian_stemmer * z)
+static int attached_pronoun(struct italian_stemmer * z)
 {   char * p = z->p;
     int b = z->k;
     switch (p[b-2])
@@ -351,7 +364,7 @@ int attached_pronoun(struct italian_stemmer * z)
 
 */
 
-int verb_ending(struct italian_stemmer * z)
+static int verb_ending(struct italian_stemmer * z)
 {   switch (z->p[z->k - 2])
     {   case 'a':
             if (chopV(z, "2rai")) return true;
@@ -390,18 +403,18 @@ int verb_ending(struct italian_stemmer * z)
     } return false;
 }
 
-int stem_OUS(struct italian_stemmer * z) { return chop2(z, "os"); }
-int stem_ABLE(struct italian_stemmer * z) { return chop2(z, "abil"); }
-int stem_ATIV(struct italian_stemmer * z) { return chop2(z, "ativ"); }
-int stem_IC(struct italian_stemmer * z) { return chop2(z, "ic"); }
-int stem_IV(struct italian_stemmer * z) { return chop2(z, "iv"); }
+static int stem_OUS(struct italian_stemmer * z) { return chop2(z, "os"); }
+static int stem_ABLE(struct italian_stemmer * z) { return chop2(z, "abil"); }
+static int stem_ATIV(struct italian_stemmer * z) { return chop2(z, "ativ"); }
+static int stem_IC(struct italian_stemmer * z) { return chop2(z, "ic"); }
+static int stem_IV(struct italian_stemmer * z) { return chop2(z, "iv"); }
 
-int stem_AT(struct italian_stemmer * z)
+static int stem_AT(struct italian_stemmer * z)
 {   if (chop2(z, "at")) { stem_IC(z); return true; }
     return false;
 }
 
-int remove_suffix(struct italian_stemmer * z)
+static int remove_suffix(struct italian_stemmer * z)
 {   char * p = z->p;
     switch (p[z->k - 2])
     {   case 'c':
@@ -460,7 +473,7 @@ int remove_suffix(struct italian_stemmer * z)
     } return false;
 }
 
-void tidy_up(struct italian_stemmer * z)
+static void tidy_up(struct italian_stemmer * z)
 {   char * p = z->p;
     {   int i;
         for (i = 0; i < z->k; i++) p[i] = tolower(p[i]);

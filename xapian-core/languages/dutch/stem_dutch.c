@@ -27,6 +27,15 @@
 #include "pool.h"
 #include "stem_dutch.h"
 
+struct dutch_stemmer
+{
+    char * p;
+    int p_size;
+    int k;
+    int j;
+    struct pool * irregulars;
+};
+
 #define true 1
 #define false 0
 
@@ -41,7 +50,7 @@
    We will write p, k etc in place of z->p, z->k in the comments.
 */
 
-int not_aeio(struct dutch_stemmer * z, int i)
+static int not_aeio(struct dutch_stemmer * z, int i)
 {   switch (z->p[i])
     {   case 'a': case 'e': case 'i': case 'o':
             return false;
@@ -55,7 +64,7 @@ int not_aeio(struct dutch_stemmer * z, int i)
 /* vowel(z, i) is true <=> p[i] is a one of 'a', 'e', 'i', 'o' or 'u'.
 */
 
-int vowel(struct dutch_stemmer * z, int i)
+static int vowel(struct dutch_stemmer * z, int i)
 {   switch (z->p[i])
     {  case 'a': case 'e': case 'i': case 'o': case 'u':
            return true;
@@ -67,7 +76,7 @@ int vowel(struct dutch_stemmer * z, int i)
 /* cons(z, i) is true <=> p[i] is a consonant.
 */
 
-int cons(struct dutch_stemmer * z, int i)
+static int cons(struct dutch_stemmer * z, int i)
 {   switch (z->p[i])
     {   case 'a': case 'e': case 'o': case 'u':
             return false;
@@ -100,7 +109,7 @@ int cons(struct dutch_stemmer * z, int i)
       ....
 */
 
-int m(struct dutch_stemmer * z)
+static int m(struct dutch_stemmer * z)
 {   int n = 0;
     int i = 0;
     if (z->j <= 1) return 0;
@@ -130,7 +139,7 @@ int m(struct dutch_stemmer * z)
 /* ends(z, s, length) is true <=> p[0], ... p[k] ends with the string s.
 */
 
-int ends(struct dutch_stemmer * z, char * s)
+static int ends(struct dutch_stemmer * z, char * s)
 {   int length = strlen(s);
     if (length > z->k + 1) return false;
     if (memcmp(z->p + z->k - length + 1, s, length) != 0) return false;
@@ -138,7 +147,7 @@ int ends(struct dutch_stemmer * z, char * s)
     return true;
 }
 
-int context(struct dutch_stemmer * z, char * s)
+static int context(struct dutch_stemmer * z, char * s)
 {   int keep_j = z->j;
     int keep_k = z->k;
     z->k = z->j;
@@ -149,7 +158,7 @@ int context(struct dutch_stemmer * z, char * s)
     }
 }
 
-void undouble(struct dutch_stemmer * z)
+static void undouble(struct dutch_stemmer * z)
 {   int ch = z->p[z->k];
     switch (ch)
     {   case 'k': case 'd': case 't': /* the only doubles worth reducing */
@@ -157,7 +166,7 @@ void undouble(struct dutch_stemmer * z)
     }
 }
 
-int ends_e(struct dutch_stemmer * z)
+static int ends_e(struct dutch_stemmer * z)
 {   if (ends(z,"e") && cons(z,z->j) && m(z) > 0)
     {   z->k = z->j; undouble(z);
         return true;
@@ -165,7 +174,7 @@ int ends_e(struct dutch_stemmer * z)
     return false;
 }
 
-int en_ending(struct dutch_stemmer * z)
+static int en_ending(struct dutch_stemmer * z)
 {   if (cons(z,z->j) && m(z) > 0 &&
         ! context(z,"gem")) /* algemene etc */
     {   z->k = z->j; undouble(z);
@@ -174,7 +183,7 @@ int en_ending(struct dutch_stemmer * z)
     return false;
 }
 
-int step_1(struct dutch_stemmer * z) /* result true if '-e' removed */
+static int step_1(struct dutch_stemmer * z) /* result true if '-e' removed */
 {   if ((ends(z,"en") || ends(z,"ene")) && en_ending(z)) return false;
     if (ends(z,"s") || ends(z,"se"))
     {   if (cons(z,z->j) && m(z) > 0) { z->k = z->j; return false; }
@@ -182,20 +191,20 @@ int step_1(struct dutch_stemmer * z) /* result true if '-e' removed */
     return ends_e(z);
 }
 
-int chop(struct dutch_stemmer * z, char * s)
+static int chop(struct dutch_stemmer * z, char * s)
 {   if (ends(z,s) && m(z) > 1) { z->k = z->j; return true; }
     return false;
 }
 
-int valid_i(struct dutch_stemmer * z) { return z->p[z->j] != 'e'; }
-int valid_h(struct dutch_stemmer * z) { return z->p[z->j] != 'c'; }
+static int valid_i(struct dutch_stemmer * z) { return z->p[z->j] != 'e'; }
+static int valid_h(struct dutch_stemmer * z) { return z->p[z->j] != 'c'; }
 
-int chop_test(struct dutch_stemmer * z, char * s, int (*f)(struct dutch_stemmer *))
+static int chop_test(struct dutch_stemmer * z, char * s, int (*f)(struct dutch_stemmer *))
 {   if (ends(z,s) && m(z) > 1 && f(z)) { z->k = z->j; return true; }
     return false;
 }
 
-void step_2(struct dutch_stemmer * z, int e_removed)
+static void step_2(struct dutch_stemmer * z, int e_removed)
 {   switch (z->p[z->k])
     {   case 'd':
             if (chop(z,"end")) { chop_test(z,"ig",valid_i); return; }
@@ -224,7 +233,7 @@ void step_2(struct dutch_stemmer * z, int e_removed)
     }
 }
 
-int aeou(struct dutch_stemmer * z,int i)
+static int aeou(struct dutch_stemmer * z,int i)
 {   switch (z->p[i])
     {   case 'a': case 'e': case 'o': case 'u':
             return true;
@@ -232,7 +241,7 @@ int aeou(struct dutch_stemmer * z,int i)
     }
 }
 
-void step_3(struct dutch_stemmer * z)   /* undouble vowel in -cvvc context */
+static void step_3(struct dutch_stemmer * z)   /* undouble vowel in -cvvc context */
 {   int k = z->k;
     if (k >= 3 &&
         z->p[k - 1] == z->p[k - 2] &&

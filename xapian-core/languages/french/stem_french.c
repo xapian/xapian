@@ -67,7 +67,7 @@ struct french_stemmer
    or vowel. Used in measure().
 */
 
-int vowel(int ch)
+static int vowel(int ch)
 {   switch (ch)
     {   case 'a': case 'e': case 'i': case 'o': case 'u':
         case 'A': case 'F': case 'G': case 'E': case 'I': case 'U': case 'J':
@@ -77,7 +77,7 @@ int vowel(int ch)
     }
 }
 
-int char_type(struct french_stemmer * z, int i)
+static int char_type(struct french_stemmer * z, int i)
 {   char * p = z->p;
     switch (p[i])
     {   case 'a': case 'e': case 'o':
@@ -132,7 +132,7 @@ int char_type(struct french_stemmer * z, int i)
    pos0 and pos1 are also established for certain rarer tests.
 */
 
-int measure(struct french_stemmer * z)
+static int measure(struct french_stemmer * z)
 {   int j = 0;
     int k = z->k;
     char * p = z->p;
@@ -162,7 +162,7 @@ int measure(struct french_stemmer * z)
    s.
 */
 
-int look_for(struct french_stemmer * z, char * s)
+static int look_for(struct french_stemmer * z, char * s)
 {   int length = strlen(s);
     int jbase = z->j - length + 1;
     if (jbase < 0) return false;
@@ -173,7 +173,7 @@ int look_for(struct french_stemmer * z, char * s)
 
 /* ends(z, s) applies look_for(z, s) at the end of the word, i.e. with j = k-1. */
 
-int ends(struct french_stemmer * z, char * s)
+static int ends(struct french_stemmer * z, char * s)
 {  z->j = z->k - 1;
 /*printf("[%s] ",s); */
    return look_for(z, s);
@@ -183,7 +183,7 @@ int ends(struct french_stemmer * z, char * s)
    k.
 */
 
-void setto(struct french_stemmer * z, char * s)
+static void setto(struct french_stemmer * z, char * s)
 {   int length = strlen(s);
     memmove(z->p + z->j + 1, s, length);
     z->k = z->j + length + 1;
@@ -203,59 +203,59 @@ void setto(struct french_stemmer * z, char * s)
 
 */
 
-int attachV(struct french_stemmer * z, char * s)
+static int attachV(struct french_stemmer * z, char * s)
 {   if (z->j < z->posV) return false;
     setto(z, s);
     return true;
 }
 
-int after_posV(struct french_stemmer * z)
+static int after_posV(struct french_stemmer * z)
 {   if (z->j < z->posV) return false;
     z->k = z->j + 1;
     return true;
 }
 
-int chopV(struct french_stemmer * z, char * s) { return ends(z, s) && after_posV(z); }
+static int chopV(struct french_stemmer * z, char * s) { return ends(z, s) && after_posV(z); }
 
 
-int attach0(struct french_stemmer * z, char * s)
+static int attach0(struct french_stemmer * z, char * s)
 {   if (z->j < z->pos0) return false;
     setto(z, s);
     return true;
 }
 
-int attach1(struct french_stemmer * z, char * s)
+static int attach1(struct french_stemmer * z, char * s)
 {   if (z->j < z->pos1) return false;
     setto(z, s);
     return true;
 }
 
-int after_pos1(struct french_stemmer * z)
+static int after_pos1(struct french_stemmer * z)
 {   if (z->j < z->pos1) return false;
     z->k = z->j + 1;
     return true;
 }
 
-int chop1(struct french_stemmer * z, char * s) { return ends(z, s) && after_pos1(z); }
+static int chop1(struct french_stemmer * z, char * s) { return ends(z, s) && after_pos1(z); }
 
-int attach2(struct french_stemmer * z, char * s)
+static int attach2(struct french_stemmer * z, char * s)
 {   if (z->j < z->pos2) return false;
     setto(z, s);
     return true;
 }
 
-int after_pos2(struct french_stemmer * z)
+static int after_pos2(struct french_stemmer * z)
 {   if (z->j < z->pos2) return false;
     z->k = z->j + 1;
     return true;
 }
 
-int chop2(struct french_stemmer * z, char * s) { return ends(z, s) && after_pos2(z); }
+static int chop2(struct french_stemmer * z, char * s) { return ends(z, s) && after_pos2(z); }
 
 /* chopV_ge(z, s) is like chopV, but removes a preceding 'e' after 'g'.
 */
 
-int chopV_ge(struct french_stemmer * z, char * s)
+static int chopV_ge(struct french_stemmer * z, char * s)
 {   if (! (ends(z, s) && after_posV(z))) return false;
     if (look_for(z, "ge")) z->k --;
     return true;
@@ -265,7 +265,7 @@ int chopV_ge(struct french_stemmer * z, char * s)
    a CON.
 */
 
-int chopV_CON(struct french_stemmer * z, char * s)
+static int chopV_CON(struct french_stemmer * z, char * s)
 {   return ends(z, s) && char_type(z, z->j) == CON && after_posV(z);
 }
 
@@ -328,7 +328,7 @@ int chopV_CON(struct french_stemmer * z, char * s)
 
 */
 
-int verb_ending(struct french_stemmer * z)
+static int verb_ending(struct french_stemmer * z)
 {   switch (z->p[z->k - 1])
     {   case 'F':
             if (chopV(z, "F")) return true;
@@ -415,32 +415,32 @@ int verb_ending(struct french_stemmer * z)
     return false;
 }
 
-int stem_OUS(struct french_stemmer * z) { return chop2(z, "os"); }
-int stem_ABLE(struct french_stemmer * z) { return chop2(z, "abl"); }
-int stem_ATIV(struct french_stemmer * z) { return chop2(z, "ativ"); }
-int stem_IQU(struct french_stemmer * z) { return chop2(z, "iqu"); }
-int stem_IV(struct french_stemmer * z) { return chop2(z, "iv"); }
+static int stem_OUS(struct french_stemmer * z) { return chop2(z, "os"); }
+static int stem_ABLE(struct french_stemmer * z) { return chop2(z, "abl"); }
+static int stem_ATIV(struct french_stemmer * z) { return chop2(z, "ativ"); }
+static int stem_IQU(struct french_stemmer * z) { return chop2(z, "iqu"); }
+static int stem_IV(struct french_stemmer * z) { return chop2(z, "iv"); }
 
-int stem_IC(struct french_stemmer * z)
+static int stem_IC(struct french_stemmer * z)
 {   if (ends(z, "ic")) { if (after_pos2(z)) return true; setto(z, "iqu"); }
     return false;
 }
 
-int stem_AT(struct french_stemmer * z)
+static int stem_AT(struct french_stemmer * z)
 {   if (chop2(z, "at")) { stem_IC(z); return true; }
     return false;
 }
 
-int stem_ABIL(struct french_stemmer * z)
+static int stem_ABIL(struct french_stemmer * z)
 {   if (ends(z, "abil")) setto(z, "abl");
     return stem_ABLE(z);
 }
 
-int stem_EUSE(struct french_stemmer * z)
+static int stem_EUSE(struct french_stemmer * z)
 {   return ends(z, "eus") && (after_pos2(z) || attach1(z, "eux"));
 }
 
-int remove_suffix(struct french_stemmer * z)
+static int remove_suffix(struct french_stemmer * z)
 {   char * p = z->p;
     switch (p[z->k - 1])
     {   case 'e':
@@ -506,10 +506,10 @@ int remove_suffix(struct french_stemmer * z)
     }
 }
 
-int s_or_t(int ch) { return ch == 's' || ch == 't'; }
-int not_aiou(int ch) { return ch == 'e' || ch == 'F' || ! vowel(ch); }
+static int s_or_t(int ch) { return ch == 's' || ch == 't'; }
+static int not_aiou(int ch) { return ch == 'e' || ch == 'F' || ! vowel(ch); }
 
-void residual_ending(struct french_stemmer * z)
+static void residual_ending(struct french_stemmer * z)
 {   char * p = z->p;
 
     /* The next two tests must be done after verb_ending() so the longer
@@ -525,7 +525,7 @@ void residual_ending(struct french_stemmer * z)
     chopV(z, "e");
 }
 
-int double_letter(struct french_stemmer * z)
+static int double_letter(struct french_stemmer * z)
 {   switch (z->p[z->k - 1])
     {   case 'n':
             if (ends(z, "enn") || ends(z, "onn")) return true;

@@ -27,6 +27,16 @@
 #include "pool.h"
 #include "stem_german.h"
 
+struct german_stemmer
+{
+    char * p;
+    int p_size;
+    int k;
+    int k0;
+    int j;
+    struct pool * irregulars;
+};
+
 #define true 1
 #define false 0
 
@@ -43,7 +53,7 @@
    We will write p, k etc in place of z->p, z->k in the comments.
 */
 
-int not_aeio(struct german_stemmer * z, int i)
+static int not_aeio(struct german_stemmer * z, int i)
 {   switch (z->p[i])
     {   case 'a': case 'e': case 'i': case 'o':
             return false;
@@ -55,7 +65,7 @@ int not_aeio(struct german_stemmer * z, int i)
 /* cons(z, i) is true <=> p[i] is a consonant.
 */
 
-int cons(struct german_stemmer * z, int i)
+static int cons(struct german_stemmer * z, int i)
 {   switch (z->p[i])
     {   case 'a': case 'e': case 'i': case 'o':
             return false;
@@ -81,7 +91,7 @@ int cons(struct german_stemmer * z, int i)
       ....
 */
 
-int m(struct german_stemmer * z)
+static int m(struct german_stemmer * z)
 {   int n = 0;
     int i = 0;
     if (z->j <= 1) return 0;  /* This improves treatment of short words */
@@ -110,7 +120,7 @@ int m(struct german_stemmer * z)
 /* ends(z, s, length) is true <=> p[0], ... p[k] ends with the string s.
 */
 
-int ends(struct german_stemmer * z, char * s)
+static int ends(struct german_stemmer * z, char * s)
 {   int length = strlen(s);
     if (length > z->k + 1) return false;
     if (memcmp(z->p + z->k - length + 1, s, length) != 0) return false;
@@ -121,7 +131,7 @@ int ends(struct german_stemmer * z, char * s)
 /* starts(z, s) is true <=> p[0], ... p[k] starts with the string s.
 */
 
-int starts(struct german_stemmer * z, char * s)
+static int starts(struct german_stemmer * z, char * s)
 {   int length = strlen(s);
     if (length > z->k + 1) return false;
     if (memcmp(z->p + z->k0, s, length) != 0) return false;
@@ -133,7 +143,7 @@ int starts(struct german_stemmer * z, char * s)
    readjusting k.
 */
 
-void setto(struct german_stemmer * z, char * s)
+static void setto(struct german_stemmer * z, char * s)
 {   int length = strlen(s);
     memmove(z->p + z->j + 1, s, length);
     z->k = z->j + length;
@@ -141,7 +151,7 @@ void setto(struct german_stemmer * z, char * s)
 
 
 
-int separable_prefix(struct german_stemmer * z)
+static int separable_prefix(struct german_stemmer * z)
 {
     switch (PAIR(z->p[z->k0], z->p[z->k0 + 1]))
     {   default:
@@ -245,7 +255,7 @@ int separable_prefix(struct german_stemmer * z)
     }
 }
 
-void step_0(struct german_stemmer * z)
+static void step_0(struct german_stemmer * z)
 {   z->k0 = 0;
     if (separable_prefix(z) && starts(z, "zu"))
     {   if (ends(z, "en") &&
@@ -258,12 +268,12 @@ void step_0(struct german_stemmer * z)
     }
 }
 
-int drop(struct german_stemmer * z, char * s, int (*f)(struct german_stemmer *))
+static int drop(struct german_stemmer * z, char * s, int (*f)(struct german_stemmer *))
 {   if (ends(z, s) && f(z) && m(z) > 0) {  z->k = z->j; return true; }
     return false;
 }
 
-int ends_s(struct german_stemmer * z)
+static int ends_s(struct german_stemmer * z)
 {   switch(z->p[z->j])
     {   case 'b': case 'd': case 'f': case 'g': case 'h': case 'k':
         case 'l': case 'm': case 'n': case 'r': case 't':
@@ -274,19 +284,19 @@ int ends_s(struct german_stemmer * z)
 
 /* the delicate test on the next line looks after 'ernst' 'kunst' etc */
 
-int ends_st(struct german_stemmer * z) { return ends_s(z) && z->p[z->j] != 'r' && z->j > 2; }
-int ends_i(struct german_stemmer * z) { return z->p[z->j] != 'e'; }
-int ends_e(struct german_stemmer * z) { return true; }
+static int ends_st(struct german_stemmer * z) { return ends_s(z) && z->p[z->j] != 'r' && z->j > 2; }
+static int ends_i(struct german_stemmer * z) { return z->p[z->j] != 'e'; }
+static int ends_e(struct german_stemmer * z) { return true; }
 
-int ends_t(struct german_stemmer * z) { return ends_s(z); }
-int dummy(struct german_stemmer * z) { return true; }
+static int ends_t(struct german_stemmer * z) { return ends_s(z); }
+static int dummy(struct german_stemmer * z) { return true; }
 
-int drop_e(struct german_stemmer * z, char * s) { return drop(z, s, ends_e); }
-int drop_s(struct german_stemmer * z, char * s) { return drop(z, s, ends_s); }
-int drop_st(struct german_stemmer * z, char * s) { return drop(z, s, ends_st); }
-int drop_t(struct german_stemmer * z, char * s) { return drop(z, s, ends_t); }
+static int drop_e(struct german_stemmer * z, char * s) { return drop(z, s, ends_e); }
+static int drop_s(struct german_stemmer * z, char * s) { return drop(z, s, ends_s); }
+static int drop_st(struct german_stemmer * z, char * s) { return drop(z, s, ends_st); }
+static int drop_t(struct german_stemmer * z, char * s) { return drop(z, s, ends_t); }
 
-void step_1x(struct german_stemmer * z)
+static void step_1x(struct german_stemmer * z)
 {   switch(z->p[z->k])
     {   case 'r':
             drop_e(z, "er"); return;
@@ -298,7 +308,7 @@ void step_1x(struct german_stemmer * z)
     }
 }
 
-void step_1(struct german_stemmer * z)
+static void step_1(struct german_stemmer * z)
 {   switch(z->p[z->k])
     {   case 'm':
             drop_e(z, "em");
@@ -321,24 +331,24 @@ void step_1(struct german_stemmer * z)
     step_1x(z);
 }
 
-void step_2x(struct german_stemmer * z)
+static void step_2x(struct german_stemmer * z)
 {   switch(z->p[z->k])
     {   case 'r': drop_e(z, "er"); return;
         case 'n': drop_e(z, "en"); return;
     }
 }
 
-int ends1(struct german_stemmer * z, char * s)
+static int ends1(struct german_stemmer * z, char * s)
 {   if (ends(z, s) && m(z) > 1) {  z->k = z->j; return true; }
     return false;
 }
 
-int ends1i(struct german_stemmer * z, char * s)
+static int ends1i(struct german_stemmer * z, char * s)
 {   if (ends(z, s) && m(z) > 1 && ends_i(z)) {  z->k = z->j; return true; }
     return false;
 }
 
-void step_2(struct german_stemmer * z)
+static void step_2(struct german_stemmer * z)
 {   switch(z->p[z->k])
     {   case 'd':  if (ends1(z, "end")) { ends1i(z, "ig"); return; }
                    return;

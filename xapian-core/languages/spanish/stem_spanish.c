@@ -28,6 +28,19 @@
 #include "pool.h"
 #include "stem_spanish.h"
 
+struct spanish_stemmer
+{
+    char * p;
+    int p_size;
+    int k;
+
+    int j;
+    int posV;
+    int pos2;
+    struct pool * irregulars;
+
+};
+
 #define true 1
 #define false 0
 
@@ -52,7 +65,7 @@ void debug(struct spanish_stemmer * z, int n)
    Used in measure().
 */
 
-int char_type(int ch)
+static int char_type(int ch)
 {   switch (ch)
     {   case 'a': case 'e': case 'i': case 'o': case 'u':
         case 'A': case 'E': case 'I': case 'O': case 'U':
@@ -89,7 +102,7 @@ int char_type(int ch)
               k
 */
 
-int measure(struct spanish_stemmer * z)
+static int measure(struct spanish_stemmer * z)
 {   int j = 0;
     int k = z->k;
     char * p = z->p;
@@ -118,9 +131,9 @@ int measure(struct spanish_stemmer * z)
    and if true, j is decreased by the length of s.
 */
 
-int aei(int ch) { return (ch == 'a' || ch == 'e' || ch == 'i'); }
+static int aei(int ch) { return (ch == 'a' || ch == 'e' || ch == 'i'); }
 
-int look_for(struct spanish_stemmer * z, char * s)
+static int look_for(struct spanish_stemmer * z, char * s)
 {   char * p = z->p;
     int length = strlen(s);
     int jbase = z->j-length+1;
@@ -143,7 +156,7 @@ int look_for(struct spanish_stemmer * z, char * s)
 
 /* ends(z, s) applies look_for(z, s) at the end of the word, i.e. with j = k-1. */
 
-int ends(struct spanish_stemmer * z, char * s)
+static int ends(struct spanish_stemmer * z, char * s)
 {  z->j = z->k - 1;
    return look_for(z, s);
 }
@@ -152,7 +165,7 @@ int ends(struct spanish_stemmer * z, char * s)
    k.
 */
 
-void setto(struct spanish_stemmer * z, char * s)
+static void setto(struct spanish_stemmer * z, char * s)
 {   int length = strlen(s);
     memmove(z->p+z->j+1, s, length);
     z->k = z->j+length+1;
@@ -174,47 +187,47 @@ void setto(struct spanish_stemmer * z, char * s)
 */
 
 /*
-int attachV(struct spanish_stemmer * z, char * s)
+static int attachV(struct spanish_stemmer * z, char * s)
 {   if (z->j < z->posV) return false;
     setto(z, s);
     return true;
 }
 */
 
-int after_posV(struct spanish_stemmer * z)
+static int after_posV(struct spanish_stemmer * z)
 {   if (z->j < z->posV) return false;
     z->k = z->j+1;
     return true;
 }
 
-int chopV(struct spanish_stemmer * z, char * s) { return ends(z, s) && after_posV(z); }
+static int chopV(struct spanish_stemmer * z, char * s) { return ends(z, s) && after_posV(z); }
 
-int chopV_try_u(struct spanish_stemmer * z, char * s)
+static int chopV_try_u(struct spanish_stemmer * z, char * s)
 {   if (!ends(z, s)) return false;
     if (z->p[z->j-1] == 'g') look_for(z, "u");
     return after_posV(z);
 }
 
-int attach2(struct spanish_stemmer * z, char * s)
+static int attach2(struct spanish_stemmer * z, char * s)
 {   if (z->j < z->pos2) return false;
     setto(z, s);
     return true;
 }
 
-int after_pos2(struct spanish_stemmer * z)
+static int after_pos2(struct spanish_stemmer * z)
 {   if (z->j < z->pos2) return false;
     z->k = z->j+1;
     return true;
 }
 
-int chop2(struct spanish_stemmer * z, char * s) { return ends(z, s) && after_pos2(z); }
+static int chop2(struct spanish_stemmer * z, char * s) { return ends(z, s) && after_pos2(z); }
 
 /* attached pronouns can of course double, but apart from
    -se + lo, la, los, las they seem to be v. rare, and are ignored here.
 
 */
 
-int attached_pronoun(struct spanish_stemmer * z)
+static int attached_pronoun(struct spanish_stemmer * z)
 {   char * p = z->p;
     int b = z->k;
     switch (p[b-2])
@@ -327,7 +340,7 @@ int attached_pronoun(struct spanish_stemmer * z)
 */
 
 
-int verb_ending(struct spanish_stemmer * z)
+static int verb_ending(struct spanish_stemmer * z)
 {   switch (z->p[z->k-2])
     {   case 'a':
           if (chopV(z, "ieran") || chopV(z, "ieras") || chopV(z, ".rIan") ||
@@ -390,7 +403,7 @@ int verb_ending(struct spanish_stemmer * z)
     } return false;
 }
 
-int remove_suffix(struct spanish_stemmer * z)
+static int remove_suffix(struct spanish_stemmer * z)
 {   char * p = z->p;
     int ess = p[z->k-1] == 's';
     if (ess) z->k--;
@@ -464,7 +477,7 @@ int remove_suffix(struct spanish_stemmer * z)
     if (ess) z->k++; return false;
 }
 
-void tidy_up(struct spanish_stemmer * z)
+static void tidy_up(struct spanish_stemmer * z)
 {   switch (z->p[z->k-1])
     {   case 's':
           if (chopV(z, "os")) return;
