@@ -24,9 +24,19 @@
 #include "database.h"
 #include <om/omerror.h>
 
+IRDatabase::IRDatabase()
+	: session_in_progress(false),
+	  transaction_in_progress(false)
+{
+}
+
 IRDatabase::~IRDatabase()
 {
-    if (session_in_progress) end_session();
+    // Can't end_session() here because derived class destructors have already
+    // run, and the derived classes therefore don't exist.  Thus, the
+    // derived classes have responsibility for ending outstanding sessions
+    // (by calling internal_end_session()):  let's check they did their job.
+    Assert(!session_in_progress);
 }
 
 void
@@ -42,9 +52,17 @@ IRDatabase::begin_session(om_timeout timeout)
 void
 IRDatabase::end_session()
 {
-    OmLockSentry sentry(mutex);
     if (!session_in_progress)
 	throw OmInvalidOperationError("Cannot end session - no session currently in progress");
+
+    internal_end_session();
+}
+
+void
+IRDatabase::internal_end_session()
+{
+    OmLockSentry sentry(mutex);
+    if (!session_in_progress) return;
 
     if (transaction_in_progress) {
 	try {

@@ -91,7 +91,15 @@ class IRDatabase : public OmRefCntBase {
     protected:
     	/** Create a database - called only by derived classes.
 	 */
-	IRDatabase() { return; }
+	IRDatabase();
+
+	/** Internal method providing implementation of end_session().
+	 *
+	 *  Derived class' destructors should call this method before
+	 *  destroying the database to ensure that no sessions are in
+	 *  progress at destruction time.
+	 */
+	void internal_end_session();
 
     public:
 	/** Destroy the database.  This method must not be called until all

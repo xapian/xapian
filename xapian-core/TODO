@@ -31,6 +31,10 @@ Priority | Area            | Task
  High    | LocalMatch      | Pass around partially created postlist as an
          |                 | auto_ptr, for exception safety.
 ---------+-----------------+--------------------------------------------------
+ High    | OmDatabase      | Test that sessions get ended correctly if class
+         |                 | is destroyed without the explicit finishing
+	 |                 | methods being called.
+---------+-----------------+--------------------------------------------------
  Medium  | OmDatabase      | Make sure that end_session() gets called from
          |                 | destructor if a session is in progress.
 ---------+-----------------+--------------------------------------------------

@@ -86,6 +86,7 @@ InMemoryDatabase::InMemoryDatabase(const DatabaseBuilderParams & params)
 
 InMemoryDatabase::~InMemoryDatabase()
 {
+    internal_end_session();
 }
 
 LeafPostList *

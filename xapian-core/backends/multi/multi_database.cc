@@ -78,7 +78,7 @@ MultiDatabase::MultiDatabase(std::vector<OmRefCntPtr<IRDatabase> > databases_)
 
 MultiDatabase::~MultiDatabase()
 {
-    // Close all databases
+    internal_end_session();
 }
 
 

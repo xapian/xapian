@@ -1,3 +1,13 @@
+Fri Aug 11 19:59:32 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* IRDatabase destructor no longer tries to end session, since
+	  derived classes will have been destroyed: added (protected)
+	  internal_end_session() instead, which derived class destructors
+	  should call.
+
+	* Fix failure to initialise IRDatabase::session_in_progress and
+	  IRDatabase::transaction_in_progress
+
 Fri Aug 11 19:25:10 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add to internaltest a test that nested exceptions work correctly.

@@ -198,6 +198,8 @@ DBDatabase::DBDatabase(const DatabaseBuilderParams & params, int heavy_duty_)
 
 DBDatabase::~DBDatabase()
 {
+    internal_end_session();
+
     if(keyfile != 0) {
 	fclose(keyfile);
 	keyfile = 0;

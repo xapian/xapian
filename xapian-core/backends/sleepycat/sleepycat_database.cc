@@ -82,6 +82,8 @@ SleepyDatabase::SleepyDatabase(const DatabaseBuilderParams &params)
 
 SleepyDatabase::~SleepyDatabase()
 {
+    internal_end_session();
+
     // Close databases
     try {
 	internals->close();

@@ -71,6 +71,7 @@ NetworkDatabase::NetworkDatabase(const DatabaseBuilderParams & params)
 
 
 NetworkDatabase::~NetworkDatabase() {
+    internal_end_session();
 }
 
 om_doccount
