@@ -3,6 +3,11 @@
 #ifndef _daread_h_
 #define _daread_h_
 
+/* Make header file work when included from C++ */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>   /* main etc */
 #include "muscat.h"
 
@@ -111,5 +116,9 @@ extern int    DAgettermvec(struct DAfile * p, int n, struct termvec * tv);
 
 extern struct terms * openterms(struct termvec * tv);
 extern void   readterms(struct termvec * tv);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* daread.h */
