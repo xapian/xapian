@@ -66,6 +66,14 @@ documentation:
 * HACKING: Added note about additional tools needed for building a
   distribution.
 
+bindings:
+
+* Fixed VPATH builds.
+
+* python: Fixed to link with libomqueryparser.
+
+* guile,tcl8: Updated typemaps to SWIG 1.3 style.
+
 omega:
 
 * omindex.cc: Added missing `#include <errno.h>'.
