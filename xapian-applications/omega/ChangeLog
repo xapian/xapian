@@ -1,3 +1,7 @@
+Fri Apr 12 15:48:33 BST 2002  Olly Betts <olly@survex.com>
+
+	* Remove parsequery.cc on "make maintainer-clean".
+
 Fri Apr 12 16:19:19 BST 2002  Olly Betts <olly@survex.com>
 
 	* Require automake 1.5.
