@@ -102,7 +102,7 @@ class MultiMatch
 		      OmMSet & mset,
 		      const OmMatchDecider * mdecider,
 		      OmErrorHandler * errorhandler,
-		      void (*snooper)(const OmMSetItem &) = NULL);
+		      om_docid (*snooper)(const OmMSetItem &, om_weight &w_min) = NULL);
 
 	// FIXME: temporary bodge
 	PostList *get_postlist(om_doccount first, om_doccount maxitems,
@@ -112,7 +112,7 @@ class MultiMatch
 			std::map<om_termname, OmMSet::TermFreqAndWeight> & termfreqandwts,
 			om_doccount first, om_doccount maxitems,
 			OmMSet & mset, const OmMatchDecider *mdecider,
-			void (*snooper)(const OmMSetItem &));
+			om_docid (*snooper)(const OmMSetItem &, om_weight &w_min) = NULL);
 	    
 	/** Called by postlists to indicate that they've rearranged themselves
 	 *  and the maxweight now possible is smaller.

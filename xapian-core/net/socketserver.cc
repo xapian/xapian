@@ -47,14 +47,11 @@
 #endif /* TIMING_PATCH */
 
 /// The SocketServer constructor, taking two filedescriptors and a database.
-SocketServer::SocketServer(OmDatabase db_,
-			   int readfd_,
-			   int writefd_,
+SocketServer::SocketServer(OmDatabase db_, int readfd_, int writefd_,
 #ifndef TIMING_PATCH
 			   int msecs_timeout_)
 #else /* TIMING_PATCH */
-			   int msecs_timeout_,
-			   bool timing_)
+			   int msecs_timeout_, bool timing_)
 #endif /* TIMING_PATCH */
 	: db(db_),
 	  readfd(readfd_),
@@ -73,30 +70,22 @@ SocketServer::SocketServer(OmDatabase db_,
     if (signal(SIGPIPE, SIG_IGN) < 0) {
 	throw OmNetworkError(std::string("signal: ") + strerror(errno));
     }
-    buf->writeline("OM " +
-		  om_tostring(OM_SOCKET_PROTOCOL_VERSION) + " " +
-		  om_tostring(db.get_doccount()) + " " +
-		  om_tostring(db.get_avlength()));
+    buf->writeline("OM " + om_tostring(OM_SOCKET_PROTOCOL_VERSION) + " " +
+		   om_tostring(db.get_doccount()) + " " +
+		   om_tostring(db.get_avlength()));
 }
 
-SocketServer::SocketServer(OmDatabase db_,
-			   AutoPtr<OmLineBuf> buf_,
+SocketServer::SocketServer(OmDatabase db_, AutoPtr<OmLineBuf> buf_,
 #ifndef TIMING_PATCH
 			   int msecs_timeout_)
 #else /* TIMING_PATCH */
-			   int msecs_timeout_,
-			   bool timing_)
+			   int msecs_timeout_, bool timing_)
 #endif /* TIMING_PATCH */
-	: db(db_),
-	  readfd(-1),
-	  writefd(-1),
-	  msecs_timeout(msecs_timeout_),
+	: db(db_), readfd(-1), writefd(-1), msecs_timeout(msecs_timeout_),
 #ifdef TIMING_PATCH
 	  timing(timing_),
 #endif /* TIMING_PATCH */
-	  buf(buf_),
-	  conversation_state(conv_ready),
-	  gatherer(0),
+	  buf(buf_), conversation_state(conv_ready), gatherer(0),
 	  have_global_stats(0)
 {
     Assert(buf.get() != 0);
@@ -126,11 +115,11 @@ SocketServer::run()
 {
     try {
 #ifdef TIMING_PATCH
-      struct timeval stp, etp;
-      uint64_t time = 0;
-      uint64_t total = 0;
-      uint64_t totalidle = 0;
-      int returnval = 0;
+	struct timeval stp, etp;
+	uint64_t time = 0;
+	uint64_t total = 0;
+	uint64_t totalidle = 0;
+	int returnval = 0;
 #endif /* TIMING_PATCH */
 	while (1) {
 	    std::string message;
@@ -196,11 +185,11 @@ SocketServer::run()
 						 message);
 	    }
 	}
-    } catch (OmNetworkError &e) {
+    } catch (const OmNetworkError &e) {
 	// _Don't_ send network errors over, since they're likely to have
 	// been caused by an error talking to the other end.
 	throw;
-    } catch (OmError &e) {
+    } catch (const OmError &e) {
 	buf->writeline(std::string("E") + omerror_to_string(e));
 	throw;
     } catch (...) {
@@ -212,13 +201,41 @@ SocketServer::run()
 static OmLineBuf *snooper_buf; // FIXME FIXME FIXME
 static snooper_do_collapse;
 
-void
-match_snooper(const OmMSetItem &i)
+om_docid
+match_snooper(const OmMSetItem &i, om_weight &w_min)
 {
-    std::string msg = om_tostring(i.did);
-    if (i.wt != 0) msg += " " + om_tostring(i.wt);
-    if (snooper_do_collapse) msg += ";" + omkey_to_string(i.collapse_key);
-    snooper_buf->writeline(msg);
+    om_docid new_did = 0;
+    while (snooper_buf->data_waiting()) {
+	std::string m = snooper_buf->readline(0);
+	switch (m.empty() ? 0 : m[0]) {
+	    case 'm': {
+		// min weight has dropped
+		istrstream is(m.c_str() + 1);
+		om_weight w;
+		is >> w;
+		if (w < w_min) w_min = w;
+		DEBUGLINE(UNKNOWN, "w_min now " << w_min);
+		break;
+	    }
+	    case 'S': {
+		// skip to
+		istrstream is(m.c_str() + 1);
+		is >> new_did;
+		DEBUGLINE(UNKNOWN, "skip_to now " << new_did);
+		break;
+	    }
+	    default:
+	    Assert(false);
+	}
+    }
+    if (i.did >= new_did && i.wt >= w_min) {
+        std::string msg = om_tostring(i.did);
+	if (i.wt != 0) msg += " " + om_tostring(i.wt);
+	if (snooper_do_collapse) msg += ";" + omkey_to_string(i.collapse_key);
+	snooper_buf->writeline(msg);
+	return 0;
+    }
+    return (new_did > i.did + 1 ? new_did : 0);
 }
 
 void

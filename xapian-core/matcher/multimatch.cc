@@ -206,7 +206,7 @@ void
 MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		     OmMSet & mset, const OmMatchDecider *mdecider,
 		     OmErrorHandler * errorhandler,
-		     void (*snooper)(const OmMSetItem &))
+		     om_docid (*snooper)(const OmMSetItem &, om_weight &w_min))
 {
     std::map<om_termname, OmMSet::TermFreqAndWeight> termfreqandwts;
     PostList *pl = get_postlist(first, maxitems, termfreqandwts, errorhandler);
@@ -218,7 +218,7 @@ MultiMatch::get_mset_2(PostList *pl,
 		       std::map<om_termname, OmMSet::TermFreqAndWeight> & termfreqandwts,
 		       om_doccount first, om_doccount maxitems,
 		       OmMSet & mset, const OmMatchDecider *mdecider,
-		       void (*snooper)(const OmMSetItem &))
+		       om_docid (*snooper)(const OmMSetItem &, om_weight &w_min))
 {
     DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
 
@@ -271,6 +271,8 @@ MultiMatch::get_mset_2(PostList *pl,
 	}
     }
 
+    om_docid new_did;    
+
     // Perform query
 
     // We form the mset in two stages.  In the first we fill up our working
@@ -281,6 +283,8 @@ MultiMatch::get_mset_2(PostList *pl,
     if (min_item.wt <= 0) {
 	while (items.size() < max_msize) {
 	    next_handling_prune(pl, min_item.wt);
+
+	    skipped:
 
 	    if (pl->at_end()) break;
 	    
@@ -349,7 +353,27 @@ MultiMatch::get_mset_2(PostList *pl,
 	    // Keep a track of the greatest weight we've seen.
 	    if (wt > greatest_wt) greatest_wt = wt;
 
-	    if (snooper) snooper(new_item);
+	    if (snooper) {
+		new_did = snooper(new_item, min_item.wt);
+		if (new_did) {
+		    if (skip_to_handling_prune(pl, new_did, min_item.wt)) {
+			DEBUGLINE(MATCH, "*** REPLACING ROOT");
+		
+			// no need for a full recalc (unless we've got to do one because
+			// of a prune elsewhere) - we're just switching to a subtree
+			om_weight w_max = pl->get_maxweight();
+			DEBUGLINE(MATCH, "max possible doc weight = " << w_max);
+			AssertParanoid(recalculate_w_max || fabs(w_max - pl->recalc_maxweight()) < 1e-9);
+			
+			if (w_max < min_item.wt) {
+			    DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
+			    break;
+			}			
+		    }
+		    if (min_item.wt > 0) goto skipped2;
+		    goto skipped;
+		}
+	    }
 	}
     }
     
@@ -387,6 +411,8 @@ MultiMatch::get_mset_2(PostList *pl,
 		}
 	    }
 	    
+	    skipped2:
+
 	    if (pl->at_end()) break;
 	    
 	    mbound++;
@@ -464,8 +490,6 @@ MultiMatch::get_mset_2(PostList *pl,
 	    // Keep a track of the greatest weight we've seen.
 	    if (wt > greatest_wt) greatest_wt = wt;
 
-	    if (snooper) snooper(new_item);
-	    
 	    // FIXME: find balance between larger size for more efficient
 	    // nth_element and smaller size for better minimum weight
 	    // optimisations
@@ -478,6 +502,27 @@ MultiMatch::get_mset_2(PostList *pl,
 		items.erase(items.begin() + max_msize, items.end());
 		min_item = items.back();
 		DEBUGLINE(MATCH, "mset size = " << items.size());
+	    }
+	    if (snooper) {
+		new_did = snooper(new_item, min_item.wt);
+		now_have_min_wt:
+		if (new_did) {
+		    if (skip_to_handling_prune(pl, new_did, min_item.wt)) {
+			DEBUGLINE(MATCH, "*** REPLACING ROOT");
+		
+			// no need for a full recalc (unless we've got to do one because
+			// of a prune elsewhere) - we're just switching to a subtree
+			om_weight w_max = pl->get_maxweight();
+			DEBUGLINE(MATCH, "max possible doc weight = " << w_max);
+			AssertParanoid(recalculate_w_max || fabs(w_max - pl->recalc_maxweight()) < 1e-9);
+			
+			if (w_max < min_item.wt) {
+			    DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
+			    break;
+			}			
+		    }
+		    goto skipped2;
+		}
 	    }
 	}
     }
