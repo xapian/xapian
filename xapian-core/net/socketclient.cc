@@ -72,8 +72,9 @@ SocketClient::handle_hello(const std::string &s)
     is >> version >> doccount >> avlength;
 
     if (version != OM_SOCKET_PROTOCOL_VERSION) {
-	throw OmNetworkError(std::string("Invalid protocol version: ") +
-			     om_tostring(version));
+	throw OmNetworkError(std::string("Invalid protocol version: found ") +
+			     om_tostring(version) + " expected " +
+			     om_tostring(OM_SOCKET_PROTOCOL_VERSION));
     }
 }
 
