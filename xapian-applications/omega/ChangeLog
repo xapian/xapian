@@ -1,7 +1,16 @@
+Tue Mar 25 14:46:10 GMT 2003  Olly Betts <olly@survex.com>
+
+	* query.cc: If xP and P are both empty, classify as SAME_QUERY not
+	  NEW_QUERY as there may be a boolean query too.
+	* query.cc: Fixed off-by-one error in rounding down topdoc - it was
+	  possible to get to an empty page of hits if there were exactly a
+	  multiple of HITSPERPAGE matches and the matcher over-estimated the
+	  number of matches and Omega displayed page links.
+
 Mon Mar 24 09:40:04 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
 
-	* query template: Added propagation of B boolean filter
-	* query2 template: factored about a bit more, query2 is
+	* templates/query: Added propagation of B boolean filter
+	* templates/query2: factored about a bit more, query2 is
 	  a more modular version of query which will ultimately
 	  lend itself to customisation a bit more to the uninitiated.
 
@@ -18,8 +27,8 @@ Fri Feb 28 09:52:03 GMT 2003 Sam Liddicott <sam.liddicott@orange.co.uk>
 	  $if{$ne{$collapsed,0},$collapsed hidden results 
 	                        ($value{$cgi{COLLAPSE}})}
 
-	* removed euro ferret icon reference from godmode template
-	* added value dumping to godmode, for values from 0-255
+	* templates/godmode: removed euro ferret icon reference
+	* templates/godmode: added value dumping, for values from 0-255
 
 Thu Feb 27 11:58:13 GMT 2003  Olly Betts <olly@survex.com>
 

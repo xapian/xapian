@@ -161,7 +161,7 @@ set_probabilistic(const string &newp, const string &oldp)
     const char *term;
     unsigned int n_old_terms = 0;
 
-    if (oldp.empty()) return NEW_QUERY;
+    if (oldp.empty()) return newp.empty() ? SAME_QUERY : NEW_QUERY;
 
     // We used to use "word1#word2#" (with trailing #) but some broken old
     // browsers (versions of MSIE) don't quote # in form GET submissions
@@ -1452,7 +1452,7 @@ eval(const string &fmt, const vector<string> &param)
 		if (args[0].empty()) value = "true";
 		break;
 	    case CMD_opt:
-		if (args.size()==2) {
+		if (args.size() == 2) {
 		    value = option[args[0] + "," + args[1]];
 		} else {
 		    value = option[args[0]];
@@ -1912,9 +1912,10 @@ ensure_match()
 	// Otherwise topdoc ends up being -6 if it's non-zero!
 	topdoc = 0;
     } else {
-	if (topdoc > last)
+	if (topdoc >= last)
 	    topdoc = ((last - 1) / hits_per_page) * hits_per_page;
-	
+	// last is the count of documents up to the end of the current page
+	// (as returned by $last)
 	if (topdoc + hits_per_page < last)
 	    last = topdoc + hits_per_page;
     }
