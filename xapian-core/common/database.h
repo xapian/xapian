@@ -41,6 +41,12 @@ class LeafTermList;
  */
 class IRDatabase : public IndexerDestination,
 		   public OmRefCntBase {
+    private:
+	/// Copies are not allowed.
+	IRDatabase(const IRDatabase &);
+
+	/// Assignment is not allowed.
+	void operator=(const IRDatabase &);
     protected:
     	/** Create a database - called only by derived classes.
 	 */
