@@ -647,6 +647,7 @@ AC_OUTPUT(
  bindings/perl5/Makefile
  bindings/guile/Makefile
  bindings/tcl8/Makefile
+ bindings/php4/Makefile
  bindings/java/Makefile
  bindings/java/native/Makefile
  extra/Makefile
