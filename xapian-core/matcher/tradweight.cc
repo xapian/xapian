@@ -72,7 +72,7 @@ TradWeight::calc_termweight() const
 }
 
 om_weight
-TradWeight::get_weight(om_doccount wdf, om_doclength len) const
+TradWeight::get_sumpart(om_doccount wdf, om_doclength len) const
 {
     if(!weight_calculated) calc_termweight();
 
@@ -84,9 +84,21 @@ TradWeight::get_weight(om_doccount wdf, om_doclength len) const
 }
 
 om_weight
-TradWeight::get_maxweight() const
-{   
+TradWeight::get_maxpart() const
+{
     if(!weight_calculated) calc_termweight();
 
     return termweight;
+}
+
+om_weight
+TradWeight::get_sumextra(om_doclength len) const
+{
+    return 0;
+}
+
+om_weight
+TradWeight::get_maxextra() const
+{
+    return 0;
 }

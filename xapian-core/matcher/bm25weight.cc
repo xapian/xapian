@@ -34,7 +34,7 @@
 // const double A = 1; // used with wqf (which we don't do yet)
 const double B = 1;
 const double D = .5;
-const double C = 1 / (B + 1);
+const double C = 1; // Well, why not.  FIXME
 
 // Calculate weights using statistics retrieved from databases
 void
@@ -73,7 +73,7 @@ BM25Weight::calc_termweight() const
 }
 
 om_weight
-BM25Weight::get_weight(om_doccount wdf, om_doclength len) const
+BM25Weight::get_sumpart(om_doccount wdf, om_doclength len) const
 {
     if(!weight_calculated) calc_termweight();
 
@@ -85,9 +85,25 @@ BM25Weight::get_weight(om_doccount wdf, om_doclength len) const
 }
 
 om_weight
-BM25Weight::get_maxweight() const
+BM25Weight::get_maxpart() const
 {   
     if(!weight_calculated) calc_termweight();
 
     return termweight;
+}
+
+/* Should return C * querysize * (1-len) / (1+len)
+ * However, want to return a positive value, so add (C * querysize) to return.
+ * ie: return C * querysize / (1 + len)  (factor of 2 is incorporated into C)
+ */
+om_weight
+BM25Weight::get_sumextra(om_doclength len) const
+{
+    return C * querysize / (1 + len);
+}
+
+om_weight
+BM25Weight::get_maxextra() const
+{
+    return C * querysize;
 }

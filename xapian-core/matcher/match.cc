@@ -113,7 +113,8 @@ OmMatch::mk_postlist(const om_termname& tname, RSet * rset)
 
     BM25Weight * wt = new BM25Weight();
     weights.push_back(wt); // Remember it for deleting
-    wt->set_stats(database, pl->get_termfreq(), tname, rset);
+    // Query size of 1 for now.  FIXME
+    wt->set_stats(database, 1, pl->get_termfreq(), tname, rset);
     pl->set_termweight(wt);
     return pl;
 }

@@ -33,6 +33,7 @@ class RSet;
 class IRWeight {
     protected:
 	const IRDatabase *root;
+	om_doclength querysize;
 	om_doccount termfreq;
 	om_termname tname;
 	const RSet * rset;
@@ -44,12 +45,48 @@ class IRWeight {
     public:
 	IRWeight() : initialised(false), weight_calculated(false) { return; }
 	virtual ~IRWeight() { return; };
+
+	/** Initialise the weight object with the neccessary stats, or
+	 *  places to get them from.
+	 *
+	 *  @param root_     Database to ask for collection statistics.
+	 *  @param termfreq_ Term frequency: number of documents indexed by
+	 *                   this term.  This may be an approximation.
+	 *  @param tname_    Term which this object is associated with.
+	 *  @param rset_     Relevance set to use for calculating weights.
+	 */
 	virtual void set_stats(const IRDatabase * root_,
+			       om_doclength querysize_,
 			       om_doccount termfreq_,
 			       om_termname tname_,
 			       const RSet * rset_);
-	virtual om_weight get_weight(om_doccount wdf, om_doclength len) const = 0;
-	virtual om_weight get_maxweight() const = 0;
+
+	/** Get a weight which is part of the sum over terms being performed.
+	 *  This returns a weight for a given term and document.  These
+	 *  weights are summed to give a total weight for the document.
+	 */
+	virtual om_weight get_sumpart(om_doccount wdf,
+				      om_doclength len) const = 0;
+
+	/** Gets the maximum value that get_sumpart() may return.  This
+	 *  is used in optimising searches, by having the postlist tree
+	 *  decay appropriately when parts of it can have limited, or no,
+	 *  further effect.
+	 */
+	virtual om_weight get_maxpart() const = 0;
+
+	/** Get an extra weight for a document to add to the sum calculated
+	 *  over the query terms.
+	 *  This returns a weight for a given document, and is used by some
+	 *  weighting schemes to account for influence such as document
+	 *  length.
+	 */
+	virtual om_weight get_sumextra(om_doclength len) const = 0;
+
+	/** Gets the maximum value that get_sumextra() may return.  This
+	 *  is used in optimising searches.
+	 */
+	virtual om_weight get_maxextra() const = 0;
 };
 
 ///////////////////////////////
@@ -58,6 +95,7 @@ class IRWeight {
 
 inline void
 IRWeight::set_stats(const IRDatabase * root_,
+		    om_doclength querysize_,
 		    om_doccount termfreq_,
 		    om_termname tname_,
 		    const RSet * rset_ = NULL) {
@@ -65,6 +103,7 @@ IRWeight::set_stats(const IRDatabase * root_,
     Assert(!weight_calculated);
 
     root = root_;
+    querysize = querysize_;
     termfreq = termfreq_;
     tname = tname_;
     rset = rset_;

@@ -36,8 +36,11 @@ class TradWeight : public virtual IRWeight {
 	void calc_termweight() const;
     public:
 	~TradWeight() { }
-	om_weight get_weight(om_doccount wdf, om_doclength len) const;
-	om_weight get_maxweight() const;
+	om_weight get_sumpart(om_doccount wdf, om_doclength len) const;
+	om_weight get_maxpart() const;
+
+	om_weight get_sumextra(om_doclength len) const;
+	om_weight get_maxextra() const;
 };
 
 #endif /* OM_HGUARD_TRADWEIGHT_H */

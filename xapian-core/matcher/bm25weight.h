@@ -36,8 +36,11 @@ class BM25Weight : public virtual IRWeight {
 	void calc_termweight() const;
     public:
 	~BM25Weight() { }
-	om_weight get_weight(om_doccount wdf, om_doclength len) const;
-	om_weight get_maxweight() const;
+	om_weight get_sumpart(om_doccount wdf, om_doclength len) const;
+	om_weight get_maxpart() const;
+
+	om_weight get_sumextra(om_doclength len) const;
+	om_weight get_maxextra() const;
 };
 
 #endif /* OM_HGUARD_BM25WEIGHT_H */

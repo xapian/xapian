@@ -56,7 +56,7 @@ inline om_weight
 DBPostList::get_maxweight() const
 {
     Assert(ir_wt != NULL);
-    return ir_wt->get_maxweight();
+    return ir_wt->get_maxpart();
 }
 
 inline om_weight

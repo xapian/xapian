@@ -43,8 +43,8 @@ InMemoryPostList::get_weight() const
     Assert(!at_end());
     Assert(ir_wt != NULL);
 
-    return ir_wt->get_weight((*pos).positions.size(),
-			     this_db->get_doclength(get_docid()));
+    return ir_wt->get_sumpart((*pos).positions.size(),
+			      this_db->get_doclength(get_docid()));
 }
 
 ///////////////////////////
