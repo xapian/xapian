@@ -42,8 +42,14 @@
 #include <sys/wait.h>
 #ifdef TIMING_PATCH
 #include <sys/time.h>
+#include <iostream>
 
 using namespace std;
+/* FIXME: with a development snapshot of gcc-3.2.1 (Debian unstable,
+ * 1:3.2.1ds0-0pre1 - CVS 20020829) - this file wouldn't compile until
+ * all cout's, cerr's and endl's were prefixed with std::, despite the
+ * presence of using namespace std; or using std::cout; etc...
+ * Investigate this. */
 
 #define uint64_t unsigned long long
 #endif /* TIMING_PATCH */
@@ -170,11 +176,11 @@ TcpServer::get_connected_socket()
     }
 
     if (verbose) {
-	cout << "Connection from " << hent->h_name << ", port " <<
+	std::cout << "Connection from " << hent->h_name << ", port " <<
 #ifndef TIMING_PATCH
-	    remote_address.sin_port << endl;
+	    remote_address.sin_port << std::endl;
 #else /* TIMING_PATCH */
-	    remote_address.sin_port << ". (tcpserver.cc)" << endl;
+	    remote_address.sin_port << ". (tcpserver.cc)" << std::endl;
 #endif /* TIMING_PATCH */
     }
 
@@ -195,7 +201,7 @@ TcpServer::run_once()
     // record start time
     int returnval = gettimeofday(&stp,NULL);
     if (returnval != 0) {
-	cerr << "Could not get time of day...\n";
+	std::cerr << "Could not get time of day...\n";
     }
 #endif /* TIMING_PATCH */
     int pid = fork();
@@ -214,23 +220,23 @@ TcpServer::run_once()
 #endif /* TIMING_PATCH */
 	    sserv.run();
 	} catch (const OmError &err) {
-	    cerr << "Got exception " << err.get_type()
-		 << ": " << err.get_msg() << endl;
+	    std::cerr << "Got exception " << err.get_type()
+		 << ": " << err.get_msg() << std::endl;
 	} catch (...) {
 	    // ignore other exceptions
 	}
 	close(connected_socket);
 
 #ifndef TIMING_PATCH
-	if (verbose) cout << "Closing connection.\n";
+	if (verbose) std::cout << "Closing connection.\n";
 #else /* TIMING_PATCH */
 	// record end time
 	returnval = gettimeofday(&etp, NULL);
 	if (returnval != 0) {
-	    cerr << "Could not get time of day...\n";
+	    std::cerr << "Could not get time of day...\n";
 	}
 	uint64_t total = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
-	if (verbose) cout << "Connection held open for " <<  total << " usecs. (tcpserver.cc)\n\n";
+	if (verbose) std::cout << "Connection held open for " <<  total << " usecs. (tcpserver.cc)\n\n";
 #endif /* TIMING_PATCH */
 	exit(0);
     } else if (pid > 0) {
@@ -262,15 +268,15 @@ TcpServer::run()
 	try {
 	    run_once();
 	} catch (const OmDatabaseModifiedError &) {
-	    cerr << "Database modified - calling db.reopen()" << endl;
+	    std::cerr << "Database modified - calling db.reopen()" << std::endl;
 	    db.reopen();
 	} catch (const OmError &err) {
 	    // FIXME: better error handling.
-	    cerr << "Caught " << err.get_type()
-		 << ": " << err.get_msg() << endl;
+	    std::cerr << "Caught " << err.get_type()
+		 << ": " << err.get_msg() << std::endl;
 	} catch (...) {
 	    // FIXME: better error handling.
-	    cerr << "Caught exception." << endl;
+	    std::cerr << "Caught exception." << std::endl;
 	}
     }
 }

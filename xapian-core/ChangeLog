@@ -1,3 +1,10 @@
+Sun Sep 15 01:21:34 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* tests/tcpserver.cc: Hacky fix to compile with gcc-3.2 snapshot in
+	  Debian unstable - add a FIXME to work out why this is needed.
+	* todo: add entry about checking ABI versions using
+	  __GXX_ABI_VERSION macro.
+
 Sat Sep 14 22:39:11 BST 2002  Olly Betts <olly@survex.com>
 
 	* configure.in,tests/Makefile.am,tests/internaltest.cc: It turns out
