@@ -24,7 +24,8 @@
 #define _inmemory_database_h_
 
 #include "omassert.h"
-#include "postlist.h"
+#include "utils.h"
+#include "dbpostlist.h"
 #include "termlist.h"
 #include "database.h"
 #include "indexer.h"
@@ -119,6 +120,7 @@ class InMemoryPostList : public virtual DBPostList {
     private:
 	vector<InMemoryPosting>::const_iterator pos;
 	vector<InMemoryPosting>::const_iterator end;
+	termname tname;
 	doccount termfreq;
 	bool started;
 
@@ -136,6 +138,8 @@ class InMemoryPostList : public virtual DBPostList {
 	PostList *skip_to(docid, weight);// Moves to next docid >= specified docid
 
 	bool   at_end() const;        // True if we're off the end of the list
+
+	string intro_term_description() const;
 };
 
 
@@ -221,6 +225,7 @@ InMemoryPostList::InMemoryPostList(const InMemoryDatabase *db,
 				   const InMemoryTerm &term)
 	: pos(term.docs.begin()),
 	  end(term.docs.end()),
+	  tname(pos->tname),
 	  termfreq(term.docs.size()),
 	  started(false),
 	  this_db(db)
@@ -279,6 +284,11 @@ InMemoryPostList::at_end() const
 }
 
 
+inline string
+InMemoryPostList::intro_term_description() const
+{
+    return tname + ":" + inttostring(termfreq);
+}
 
 
 //////////////////////////////////////////////

@@ -88,4 +88,11 @@ AndNotPostList::at_end() const
     return lhead == 0;
 }
 
+inline string
+AndNotPostList::intro_term_description() const
+{
+    return "(" + l->intro_term_description() + " AndNot " +
+	    r->intro_term_description() + ")";
+}
+
 #endif /* _andnotpostlist_h_ */

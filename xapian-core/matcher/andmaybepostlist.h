@@ -50,6 +50,8 @@ class AndMaybePostList : public virtual BranchPostList {
 	PostList *skip_to(docid, weight w_min);
 	bool   at_end() const;
 
+	string intro_term_description() const;
+
         AndMaybePostList(PostList *, PostList *, Match *root_,
 			 docid lh = 0, docid rh = 0);
 };
@@ -96,6 +98,13 @@ inline bool
 AndMaybePostList::at_end() const
 {
     return lhead == 0;
+}
+
+inline string
+AndMaybePostList::intro_term_description() const
+{
+    return "(" + l->intro_term_description() + " AndMaybe " +
+	    r->intro_term_description() + ")";
 }
 
 #endif /* _andmaybepostlist_h_ */

@@ -28,7 +28,6 @@
 
 class IRWeight;
 
-#include <queue>
 #include <stack>
 #include <vector>
 
@@ -41,17 +40,28 @@ class MSetItem {
 		{ return; }
 };
 
-typedef enum { AND, OR, FILTER, AND_NOT, AND_MAYBE, XOR } matchop;
+// Match operations
+typedef enum {
+    MOP_AND,
+    MOP_OR,
+    MOP_FILTER,
+    MOP_AND_NOT,
+    MOP_AND_MAYBE,
+    MOP_XOR
+} matchop;
 
-class Match {
+class Match
+{
     private:
-        IRDatabase *DB;
+        IRDatabase *database;
+
+	matchop default_op;
    
         doccount max_msize;
         int min_weight_percent;
         weight max_weight;
 
-	stack<PostList *> q;
+	stack<PostList *> query;
 	vector<IRWeight *> weights;
 
         PostList *merger;
@@ -60,8 +70,7 @@ class Match {
 	bool have_added_terms;
         bool recalculate_maxweight;
 
-	DBPostList * mk_postlist(IRDatabase *DB,
-				 const termname& tname,
+	DBPostList * mk_postlist(const termname& tname,
 				 RSet * rset);
     public:
         Match(IRDatabase *);
@@ -71,6 +80,7 @@ class Match {
 	void add_oplist(matchop op, const vector<termname>&);
 
         void match();
+	void set_default_op(matchop);
         void set_max_msize(doccount n);
         void set_rset(RSet *new_rset);
         weight get_max_weight();
@@ -81,6 +91,12 @@ class Match {
         doccount msize;
         doccount mtotal;
 };
+
+inline void
+Match::set_default_op(matchop _default_op)
+{
+    default_op = _default_op;
+}
 
 inline void
 Match::set_rset(RSet *new_rset)

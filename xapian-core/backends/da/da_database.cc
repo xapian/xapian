@@ -27,15 +27,15 @@
 #include <algorithm>
 
 #include "database.h"
-#include "postlist.h"
+#include "dbpostlist.h"
 #include "termlist.h"
 #include "da_database.h"
 #include "da_record.h"
 #include "daread.h"
 #include "damuscat.h"
 
-DAPostList::DAPostList(struct postings *pl, doccount tf)
-	: postlist(pl), currdoc(0), termfreq(tf)
+DAPostList::DAPostList(const termname & tn, struct postings *pl, doccount tf)
+	: postlist(pl), currdoc(0), tname(tn), termfreq(tf)
 {
 }
 
@@ -178,7 +178,7 @@ DBPostList * DADatabase::open_post_list(const termname &tname, RSet *rset) const
     struct postings * postlist;
     postlist = DAopenpostings(the_term->get_ti(), DA_t);
 
-    DBPostList * pl = new DAPostList(postlist, the_term->get_ti()->freq);
+    DBPostList * pl = new DAPostList(tname, postlist, the_term->get_ti()->freq);
     return pl;
 }
 

@@ -95,4 +95,11 @@ XorPostList::at_end() const
     return lhead == 0;
 }
 
+inline string
+XorPostList::intro_term_description() const
+{
+    return "(" + l->intro_term_description() + " Xor " +
+	    r->intro_term_description() + ")";
+}
+
 #endif /* _xorpostlist_h_ */

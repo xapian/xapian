@@ -23,8 +23,9 @@
 #ifndef _sleepy_database_h_
 #define _sleepy_database_h_
 
+#include "utils.h"
 #include "omassert.h"
-#include "postlist.h"
+#include "dbpostlist.h"
 #include "termlist.h"
 #include "database.h"
 #include <stdlib.h>
@@ -36,9 +37,10 @@ class SleepyPostList : public virtual DBPostList {
 	doccount pos;
 	docid *data;
 
+	termname tname;
 	doccount termfreq;
 
-	SleepyPostList(docid *, doccount);
+	SleepyPostList(const termname &, docid *, doccount);
     public:
 	~SleepyPostList();
 
@@ -175,6 +177,13 @@ SleepyPostList::at_end() const
     if(pos > termfreq) return true;
     return false;
 }
+
+inline string
+SleepyPostList::intro_term_description() const
+{   
+    return tname + ":" + inttostring(termfreq);
+}
+
 
 ///////////////////////////////////////////
 // Inline definitions for SleepyTermList //

@@ -28,13 +28,20 @@
 #include "andmaybepostlist.h"
 #include "filterpostlist.h"
 #include "emptypostlist.h"
+#include "dbpostlist.h"
 #include "irdocument.h"
 #include "rset.h"
 
 #include "bm25weight.h"
 
 #include <algorithm>
+#include <queue>
 
+/////////////////////////////////////////////
+// Comparison operators which we will need //
+/////////////////////////////////////////////
+
+// Return true if a has more postings than b
 class PLPCmpGt {
     public:
         bool operator()(const PostList *a, const PostList *b) {
@@ -42,6 +49,7 @@ class PLPCmpGt {
         }
 };
 
+// Return true if a has fewer postings than b
 class PLPCmpLt {
     public:
         bool operator()(const PostList *a, const PostList *b) {
@@ -49,10 +57,28 @@ class PLPCmpLt {
         }
 };
 
-Match::Match(IRDatabase *database_new)
-	: have_added_terms(false)
+// Determine the order of elements in the MSet
+// Return true if a should be listed before b
+// (By default, equally weighted items will be returned in reverse
+// document id number.)
+class MSetCmp {
+    public:
+        bool operator()(const MSetItem &a, const MSetItem &b) {
+	    if(a.wt > b.wt) return true;
+	    if(a.wt == b.wt) return a.did > b.did;
+	    return false;
+        }
+};
+
+////////////////////////////////////
+// Initialisation and cleaning up //
+////////////////////////////////////
+
+Match::Match(IRDatabase *_database)
+	: default_op(MOP_OR),
+	  have_added_terms(false)
 {
-    DB = database_new;
+    database = _database;
     max_msize = 1000;
     min_weight_percent = -1;
     rset = NULL;
@@ -67,19 +93,23 @@ Match::~Match()
 }
 
 DBPostList *
-Match::mk_postlist(IRDatabase *DB,
-		   const termname& tname,
-		   RSet * rset) {
+Match::mk_postlist(const termname& tname,
+		   RSet * rset)
+{
     // FIXME - this should be centralised into a postlist factory
-    DBPostList * pl = DB->open_post_list(tname, rset);
+    DBPostList * pl = database->open_post_list(tname, rset);
     if(rset) rset->will_want_termfreq(tname);
 
     BM25Weight * wt = new BM25Weight();
     weights.push_back(wt); // Remember it for deleting
-    wt->set_stats(DB, pl->get_termfreq(), tname, rset);
+    wt->set_stats(database, pl->get_termfreq(), tname, rset);
     pl->set_termweight(wt);
     return pl;
 }
+
+////////////////////////
+// Building the query //
+////////////////////////
 
 void
 Match::add_term(const termname& tname)
@@ -87,10 +117,10 @@ Match::add_term(const termname& tname)
     Assert((have_added_terms = true) == true);
     // We want to push a null PostList in most (all?) situations
     // for similar reasons to using the muscat3.6 zerofreqs option
-    if (DB->term_exists(tname)) {
-	q.push(mk_postlist(DB, tname, rset));
+    if (database->term_exists(tname)) {
+	query.push(mk_postlist(tname, rset));
     } else {
-	q.push(new EmptyPostList());
+	query.push(new EmptyPostList());
     }
 }
 
@@ -99,15 +129,18 @@ void
 Match::add_oplist(matchop op, const vector<termname> &terms)
 {
     Assert((have_added_terms = true) == true);
-    Assert(op == OR || op == AND);
-    if (op == OR) {
+    Assert(op == MOP_OR || op == MOP_AND);
+    if (op == MOP_OR) {
 	// FIXME: try using a heap instead (C++ sect 18.8)?
+	
+	// Put terms into a priority queue, such that those with greatest
+	// term frequency are returned first.
 	priority_queue<PostList*, vector<PostList*>, PLPCmpGt> pq;
 	vector<termname>::const_iterator i;
 	for (i = terms.begin(); i != terms.end(); i++) {
 	    // for an OR, we can just ignore zero freq terms
-	    if (DB->term_exists(*i)) {
-		pq.push(mk_postlist(DB, *i, rset));
+	    if (database->term_exists(*i)) {
+		pq.push(mk_postlist(*i, rset));
 	    }
 	}
 
@@ -118,7 +151,7 @@ Match::add_oplist(matchop op, const vector<termname> &terms)
 	// get "pulled" through, reducing the amount of work done which
 	// speeds things up.
 	if (pq.empty()) {
-	    q.push(new EmptyPostList());
+	    query.push(new EmptyPostList());
 	    return;
 	}
 
@@ -126,7 +159,7 @@ Match::add_oplist(matchop op, const vector<termname> &terms)
 	    PostList *p = pq.top();
 	    pq.pop();
 	    if (pq.empty()) {
-		q.push(p);		
+		query.push(p);		
 		return;
 	    }
 	    // NB right is always <= left - we can use this to optimise
@@ -142,18 +175,18 @@ Match::add_oplist(matchop op, const vector<termname> &terms)
     vector<PostList *> sorted;
     vector<termname>::const_iterator i;
     for (i = terms.begin(); i != terms.end(); i++) {
-	if (!DB->term_exists(*i)) {
+	if (!database->term_exists(*i)) {
 	    // a zero freq term => the AND has zero freq
 	    vector<PostList *>::const_iterator j;
 	    for (j = sorted.begin(); j != sorted.end(); j++) delete *j;
 	    sorted.clear();
 	    break;
 	}
-	sorted.push_back(mk_postlist(DB, *i, rset));
+	sorted.push_back(mk_postlist(*i, rset));
     }
     
     if (sorted.empty()) {
-	q.push(new EmptyPostList());
+	query.push(new EmptyPostList());
 	return;
     }
 
@@ -166,53 +199,49 @@ Match::add_oplist(matchop op, const vector<termname> &terms)
 	p = new AndPostList(sorted.back(), p, this);
 	sorted.pop_back();
     }
-    q.push(p);		
+    query.push(p);		
 }
 
 bool
 Match::add_op(matchop op)
 {
-    if (q.size() < 2) return false;
+    if (query.size() < 2) return false;
     PostList *left, *right;
 
-    right = q.top();
-    q.pop();
-    left = q.top();
-    q.pop();
+    right = query.top();
+    query.pop();
+    left = query.top();
+    query.pop();
     switch (op) {
-     case AND:
+     case MOP_AND:
 	left = new AndPostList(left, right, this);
 	break;
-     case OR:
+     case MOP_OR:
 	left = new OrPostList(left, right, this);
 	break;
-     case FILTER:
+     case MOP_FILTER:
 	left = new FilterPostList(left, right, this);
 	break;
-     case AND_NOT:
+     case MOP_AND_NOT:
 	left = new AndNotPostList(left, right, this);
 	break;
-     case AND_MAYBE:
+     case MOP_AND_MAYBE:
 	left = new AndMaybePostList(left, right, this);
 	break;
-     case XOR:
+     case MOP_XOR:
 	left = new XorPostList(left, right, this);
 	break;
     }
-    q.push(left);
+    query.push(left);
 
     return true;
 }
 
-class MSetCmp {
-    public:
-        bool operator()(const MSetItem &a, const MSetItem &b) {
-	    if(a.wt > b.wt) return true;
-	    if(a.wt == b.wt) return a.did > b.did;
-	    return false;
-        }
-};
+///////////////////
+// Run the query //
+///////////////////
 
+// This method is called by 
 void
 Match::recalc_maxweight()
 {
@@ -223,21 +252,20 @@ Match::recalc_maxweight()
 
 void
 Match::match()
-{    
-    
+{
     msize = 0;
     mtotal = 0;
     max_weight = 0;
 
     merger = NULL;
 
-    if (q.size() == 0) return; // No query
+    if (query.size() == 0) return; // No query
 
-    // FIXME: option to specify default operator? e.g. combine all remaining
-    // terms with AND
-    while (q.size() > 1) add_op(OR);
+    // Add default operator to all remaining terms.  Unless set with
+    // set_default_op(), the default operator is MOP_OR
+    while (query.size() > 1) add_op(default_op);
 
-    merger = q.top();
+    merger = query.top();
 
     weight w_max = max_weight = merger->recalc_maxweight();
     recalculate_maxweight = false;

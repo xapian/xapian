@@ -20,6 +20,9 @@
  * -----END-LICENCE-----
  */
 
+#ifndef _stem_h_
+#define _stem_h_
+
 #include <string>
 
 class Stem {
@@ -33,3 +36,5 @@ class StemEn : public virtual Stem {
     public:
         string stem_word(const string &);
 };
+
+#endif /* _stem_h_ */

@@ -26,9 +26,10 @@
 #include <map>
 #include <vector>
 
+#include "utils.h"
 #include "omassert.h"
 
-#include "postlist.h"
+#include "dbpostlist.h"
 #include "termlist.h"
 #include "database.h"
 
@@ -50,9 +51,10 @@ class DAPostList : public virtual DBPostList {
 	struct postings * postlist;
 	docid  currdoc;
 
+	termname tname;
 	doccount termfreq;
 
-	DAPostList(struct postings *, doccount);
+	DAPostList(const termname &, struct postings *, doccount);
     public:
 	~DAPostList();
 
@@ -63,6 +65,8 @@ class DAPostList : public virtual DBPostList {
 	PostList *next(weight w_min);          // Moves to next docid
 	PostList *skip_to(docid, weight w_min);  // Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
+
+	string intro_term_description() const;
 };
 
 inline doccount
@@ -87,6 +91,11 @@ DAPostList::at_end() const
     return false;
 }
 
+inline string
+DAPostList::intro_term_description() const
+{
+    return tname + ":" + inttostring(termfreq);
+}
 
 
 

@@ -27,67 +27,62 @@
 
 #include "omtypes.h"
 #include "omerror.h"
-#include "irweight.h"
 
-class PostList {
+class PostList
+{
     private:
     public:
-	virtual doccount get_termfreq() const = 0;// Gets number of docs indexed by this term
+        virtual ~PostList() { return; }
 
-	virtual docid  get_docid() const = 0;     // Gets current docid
-	virtual weight get_weight() const = 0;    // Gets current weight
-        virtual weight get_maxweight() const = 0;    // Gets max weight
+	///////////////////////////////////////////////////////////////////
+	// Information about the postlist
+	//
+	// These may be called at any point
 
-        virtual weight recalc_maxweight() = 0; // recalculate weights (used when tree has been autopruned)
+	// Number of docs indexed by term
+	virtual doccount get_termfreq() const = 0;
+	// Gets max weight
+        virtual weight get_maxweight() const = 0;
 
-	// w_min in the next two functions is simply a hint -
+	///////////////////////////////////////////////////////////////////
+	// Information about the current item
+	//
+	// These may only be called after a next() or a skip_to(),
+	// and before at_end() returns true (or would do were it to be called)
+
+	virtual docid  get_docid() const = 0;
+	virtual weight get_weight() const = 0;
+
+	// recalculate weights (used when tree has been autopruned)
+        virtual weight recalc_maxweight() = 0;
+
+
+	///////////////////////////////////////////////////////////////////
+	// Movement around the postlist
+	//
+	// w_min in next() and skip_to() is simply a hint -
 	// documents with a weight less than w_min will be ignored.
 	// However, it may be best to return them anyway, if the weight
 	// calculation is expensive, since many documents will be thrown
 	// away anyway without calculating the weight.
-	virtual PostList *next(weight w_min) = 0; // Moves to next docid
-	virtual PostList *skip_to(docid, weight w_min) = 0; // Moves to next docid >= specified docid
-	virtual bool   at_end() const = 0;        // True if we're off the end of the list
 
-        virtual ~PostList() { return; }
+	// Move to next docid
+	virtual PostList *next(weight w_min) = 0;
+
+	// Moves to next docid >= specified docid
+	virtual PostList *skip_to(docid, weight w_min) = 0;
+
+	// Returns true if we're off the end of the list
+	virtual bool   at_end() const = 0;
+
+	///////////////////////////////////////////////////////////////////
+	// Introspection methods
+	//
+	// These are mainly useful for debugging.
+
+	// Returns a description of the term or terms from which the postlist
+	// derives.
+	virtual string intro_term_description() const = 0;
 };
-
-// Postlist which generates termweights (rather than merely modifying them
-// and passing them on)
-// FIXME - choose a better name for this class
-class DBPostList : public virtual PostList {
-    protected:
-	const IRWeight * ir_wt;
-    public:
-	DBPostList() : ir_wt(NULL) { return; }
-
-	~DBPostList() { return; }
-
-	virtual void set_termweight(const IRWeight *); // Sets term weight
-        weight get_maxweight() const;    // Gets max weight
-        weight recalc_maxweight();       // recalculate weights
-};
-
-inline void
-DBPostList::set_termweight(const IRWeight * wt)
-{
-    ir_wt = wt;
-}
-
-// return an upper bound on the termweight
-inline weight
-DBPostList::get_maxweight() const
-{
-    Assert(ir_wt != NULL);
-    return ir_wt->get_maxweight();
-}
-
-inline weight
-DBPostList::recalc_maxweight()
-{
-    // FIXME - always this?
-    // FIXME - const?
-    return DBPostList::get_maxweight();
-}
 
 #endif /* _postlist_h_ */

@@ -17,6 +17,7 @@ lib_LTLIBRARIES = libomus.la
 libomus_la_SOURCES = dummy.c
 
 libomus_la_LIBADD = \
+ backends/libcommon.la \
  backends/libbackend.la \
  matcher/libmatcher.la \
  languages/liblanguages.la \

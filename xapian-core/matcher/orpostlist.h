@@ -95,4 +95,11 @@ OrPostList::at_end() const
     return false;
 }
 
+inline string
+OrPostList::intro_term_description() const
+{
+    return "(" + l->intro_term_description() + " Or " +
+	    r->intro_term_description() + ")";
+}
+
 #endif /* _orpostlist_h_ */

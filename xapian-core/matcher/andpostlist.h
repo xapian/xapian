@@ -92,4 +92,11 @@ AndPostList::at_end() const
     return head == 0;
 }
 
+inline string
+AndPostList::intro_term_description() const
+{
+    return "(" + l->intro_term_description() + " And " +
+	    r->intro_term_description() + ")";
+}
+
 #endif /* _andpostlist_h_ */

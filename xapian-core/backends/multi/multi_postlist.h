@@ -23,8 +23,9 @@
 #ifndef _multi_postlist_h_
 #define _multi_postlist_h_
 
+#include "utils.h"
 #include "omassert.h"
-#include "postlist.h"
+#include "dbpostlist.h"
 #include <stdlib.h>
 #include <set>
 #include <vector>
@@ -52,6 +53,7 @@ class MultiPostList : public virtual DBPostList {
 	bool   finished;
 	docid  currdoc;
 
+	termname tname;
 	mutable bool freq_initialised;
 	mutable doccount termfreq;
 
@@ -70,6 +72,8 @@ class MultiPostList : public virtual DBPostList {
 	PostList *next(weight);          // Moves to next docid
 	PostList *skip_to(docid, weight);// Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
+
+	string intro_term_description() const;
 };
 
 inline void
@@ -121,7 +125,19 @@ MultiPostList::at_end() const
     return finished;
 }
 
+inline string
+MultiPostList::intro_term_description() const
+{
+    string desc = "(";
 
+    // Calculate and remember the termfreq
+    list<MultiPostListInternal>::const_iterator i;
+    for(i = postlists.begin(); i != postlists.end(); i++) {
+	if(desc != "(") desc += ",";
+	desc += (*i).pl->intro_term_description();
+    }
 
+    return desc + "):" + inttostring(get_termfreq());
+}
 
 #endif /* _multi_postlist_h_ */

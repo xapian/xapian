@@ -90,4 +90,11 @@ EmptyPostList::at_end() const
     return true;
 }
 
+inline string
+EmptyPostList::intro_term_description() const
+{
+    return "[empty]";
+	    
+}
+
 #endif /* _emptypostlist_h_ */

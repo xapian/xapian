@@ -21,6 +21,9 @@
  * -----END-LICENCE-----
  */
 
+#ifndef _filterpostlist_h_
+#define _filterpostlist_h_
+
 #include "database.h"
 #include "andpostlist.h"
 
@@ -55,3 +58,12 @@ FilterPostList::recalc_maxweight()
 {
     return l->recalc_maxweight();    
 }
+
+inline string
+FilterPostList::intro_term_description() const
+{
+    return "(" + l->intro_term_description() + " Filter " +
+	    r->intro_term_description() + ")";
+}
+
+#endif /* _filterpostlist_h_ */

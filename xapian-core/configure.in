@@ -19,8 +19,10 @@ dnl Checks for perl.  (Needed to make some of the documentation)
 AC_PATH_PROG(PERL, perl)
 AM_CONDITIONAL(HAVE_PERL, test -n "$PERL")
 
-# Turn off shared libraries for now as the make the build take longer
+dnl Turn off shared libraries for now as the make the build take longer
 AC_DISABLE_SHARED
+
+dnl Use libtool to manage our libraries
 AM_PROG_LIBTOOL
 
 dnl Checks for libraries.

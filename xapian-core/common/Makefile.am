@@ -5,7 +5,13 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 noinst_HEADERS = \
  omassert.h \
  database_builder.h database.h termlist.h postlist.h irdocument.h \
+ dbpostlist.h \
  irweight.h expandweight.h \
  match.h expand.h rset.h \
  stem.h \
- indexer.h textfile_indexer.h query_parser.h
+ indexer.h textfile_indexer.h query_parser.h \
+ utils.h
+
+noinst_LTLIBRARIES = libcommon.la
+
+libcommon_la_SOURCES = utils.cpp
