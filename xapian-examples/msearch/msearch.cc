@@ -211,7 +211,11 @@ main(int argc, char *argv[])
 		    if (applystem)
 			term = stemmer.stem_word(term);
 		    DebugMsg("oldquery: " << query.get_description() << std::endl);
-		    query = OmQuery(default_op, query, term);
+		    if (query.is_defined()) {
+		        query = OmQuery(default_op, query, term);
+		    } else {
+		        query = OmQuery(term);
+		    }
 		    DebugMsg("newquery: " << query.get_description() << std::endl);
 		}
 	    }
