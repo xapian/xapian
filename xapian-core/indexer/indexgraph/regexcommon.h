@@ -25,6 +25,12 @@
 #include "config.h"
 
 extern "C" {
+
+/* This is a grotty workaround for an interaction between rxposix.h
+ * and <map> - the fact that pair is defined confused the compiler
+ * in one of the regex structs.  So we move it out of the way first...
+ */
+#define pair PAIR_BY_ANOTHER_NAME
 #ifdef HAVE_RXPOSIX_H
 #include <rxposix.h>
 #define HAVE_REGEX
@@ -34,6 +40,9 @@ extern "C" {
 #define HAVE_REGEX
 #endif // HAVE_RX_RXPOSIX_H
 #endif // HAVE_RXPOSIX_H
+
+/* End of grotty hack - see comment above. */
+#undef pair
 };
 
 #ifdef HAVE_REGEX
