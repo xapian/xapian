@@ -2,11 +2,14 @@ use CGI qw(:standard);
 use strict;
 use Cvssearch;
 
+my $pwd = `pwd`;
+chomp $pwd;
+
 my $cvsdata = Cvssearch::get_cvsdata();
-my $cvscompare = "./Compare.cgi";
-my $cvsquery = "./cvsquerydb";
-my $cvsbuild = "./cvsbuilddb";
-my $cvsmap = "./cvsmap";
+my $cvscompare = "$pwd/Compare.cgi";
+my $cvsquery = "$pwd/cvsquerydb";
+my $cvsbuild = "$pwd/cvsbuilddb";
+my $cvsmap = "$pwd/cvsmap";
 my $ctrlA = chr(01);
 my $ctrlB = chr(02);
 my $ctrlC = chr(03);
@@ -389,8 +392,6 @@ sub compare_file_version {
         print end_html;
     }
     open (FILE, "$cvsquery $root $pkg -f $fileid |");
-    my $pwd = `pwd`;
-    chomp $pwd;
     chdir ("$cvsdata/$root/src");
     while (<FILE>) {
         chomp;
