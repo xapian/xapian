@@ -1,7 +1,5 @@
 #include "database.h"
 
-typedef unsigned int weight;
-
 class Match {
     private:
         IRDatabase DB;

@@ -7,5 +7,6 @@ typedef unsigned int termid;
 typedef unsigned int docid;
 typedef unsigned int omcount;
 typedef char *termname;
+typedef unsigned int weight;
 
 #endif /* _omtypes_h_ */
