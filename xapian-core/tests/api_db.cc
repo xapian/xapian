@@ -1174,6 +1174,52 @@ static bool test_sortrel1()
     return true;
 }
 
+// Coordinate matching - scores 1 for each matching term
+class MyWeight : public Xapian::Weight {
+    public:
+	MyWeight * clone() const {
+	    return new MyWeight;
+	}
+	MyWeight() { }
+	~MyWeight() { }
+	std::string name() const { return "Coord"; }
+	std::string serialise() const { return ""; }
+	MyWeight * unserialise(const std::string & /*s*/) const {
+	    return new MyWeight;
+	}
+	Xapian::weight get_sumpart(Xapian::termcount /*wdf*/, Xapian::doclength /*len*/) const { return 1; }
+	Xapian::weight get_maxpart() const { return 1; }
+
+	Xapian::weight get_sumextra(Xapian::doclength /*len*/) const { return 0; }
+	Xapian::weight get_maxextra() const { return 0; }
+
+	bool get_sumpart_needs_doclength() const { return false; }
+};
+
+// tests user weighting scheme
+static bool test_userweight1()
+{
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_weighting_scheme(MyWeight());
+    char * query[] = { "this", "line", "paragraph", "rubbish" };
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, query, query + sizeof(query) / sizeof(char*)));
+    Xapian::MSet mymset1 = enquire.get_mset(0, 100);
+
+    // MyWeight scores 1 for each matching term, so the weight should equal
+    // the number of matching terms.
+    for (Xapian::MSetIterator i = mymset1.begin(); i != mymset1.end(); ++i) {
+	Xapian::termcount matching_terms = 0;
+	Xapian::TermIterator t = enquire.get_matching_terms_begin(i);
+	while (t != enquire.get_matching_terms_end(i)) {
+	    ++matching_terms;
+	    ++t;
+	}
+	TEST_EQUAL(i.get_weight(), matching_terms);
+    }
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -1239,6 +1285,9 @@ test_desc localdb_tests[] = {
     // with that, and testing it there doesn't actually improve the test
     // coverage really.
     {"consistency1",	   test_consistency1},
+    // Would work with remote if we registered the weighting scheme.
+    // FIXME: do this so we also test that functionality...
+    {"userweight1",	   test_userweight1},
     {0, 0}
 };
 
