@@ -6,9 +6,10 @@ INCLUDES = -I$(top_srcdir)/include
 
 include_HEADERS = orpostlist.h andpostlist.h andnotpostlist.h \
  andmaybepostlist.h xorpostlist.h branchpostlist.h filterpostlist.h \
- emptypostlist.h
+ emptypostlist.h ortermlist.h
 
 noinst_LTLIBRARIES = libmatcher.la
 
 libmatcher_la_SOURCES = match.cc orpostlist.cc andpostlist.cc \
  andnotpostlist.cc andmaybepostlist.cc xorpostlist.cc irweight.cc expand.cc
+ ortermlist.cc
