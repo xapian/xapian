@@ -14,13 +14,10 @@ SRC="/images/next.png" BORDER=0 HEIGHT=30 WIDTH=30>,
 }
 
 $def{P,<INPUT TYPE=image NAME="$1" VALUE="$1" SRC="/images/page-$2.png" BORDER=0$opt{a} ALT="$1">}
-
-$def{PAGE,$if{$gt{$1,9},$if{$gt{$1,99},$P{$1,$div{$1,100}}}
-$P{$1,$mod{$div{$1,10},10}}}$P{$1,$mod{$1,10}}}
+$def{PAGE,$if{$gt{$1,9},$if{$gt{$1,99},$P{$1,$div{$1,100}}}$P{$1,$mod{$div{$1,10},10}}}$P{$1,$mod{$1,10}}}
 
 $def{S,<IMG SRC="/images/page-$2s.png"$opt{a} ALT=$1>}
-$def{SPAGE,$if{$gt{$1,9},$if{$gt{$1,99},$S{$1,$div{$1,100}}}
-$S{$1,$mod{$div{$1,10},10}}}$S{$1,$mod{$1,10}}}
+$def{SPAGE,$if{$gt{$1,9},$if{$gt{$1,99},$S{$1,$div{$1,100}}}$S{$1,$mod{$div{$1,10},10}}}$S{$1,$mod{$1,10}}}
 }
 
 $def{PREV,$if{$ne{$topdoc,0},<INPUT TYPE=submit NAME="&lt;" VALUE="Previous">}}
