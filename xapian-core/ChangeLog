@@ -1,3 +1,12 @@
+Fri May 12 18:29:01 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* New class OmDatabaseGroup::InternalInterface, used to extend
+	  the OmDatabaseGroup interface for internal use.
+	
+	* ProgServer's implementation mostly moved into new SocketServer.
+
+	* New class TcpServer deriving from SocketServer
+
 Fri May 12 16:10:44 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove set_root() method and "root" member from IRDatabase, and
