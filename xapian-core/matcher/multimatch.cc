@@ -34,9 +34,10 @@
 // Initialisation and cleaning up //
 ////////////////////////////////////
 
-MultiMatch::MultiMatch(MultiDatabase *database_)
+MultiMatch::MultiMatch(MultiDatabase *database_,
+		       auto_ptr<StatsGatherer> gatherer_)
 	: database(database_),
-	  gatherer(new LocalStatsGatherer())
+	  gatherer(gatherer_)
 #ifdef MUS_DEBUG
 	, allow_add_singlematch(true)
 #endif /* MUS_DEBUG */

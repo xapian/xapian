@@ -27,8 +27,6 @@ Priority | Area            | Task
  High    | Stemming        | Make a separate package to contain stemming
          | Algorithms      | algorithm stuff (docs, code, stemtest)
 ---------+-----------------+--------------------------------------------------
- Medium  |CDistribution    | Make MultiMatch able to use a NetworkGatherer
----------+-----------------+--------------------------------------------------
  Medium  |CDistribution    | Make omprogsrv use a MultiMatch instead of Local
 ---------+-----------------+--------------------------------------------------
  Medium  |CDistribution    | Make Stats gathering etc. work asynchronously

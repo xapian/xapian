@@ -1,3 +1,8 @@
+Wed Apr 12 15:49:17 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* MultiMatch now takes an optional StatsGatherer argument to
+	  its constructor.
+
 Wed Apr 12 14:03:52 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* IRDatabase now inherits from OmRefCntBase: we have multiple

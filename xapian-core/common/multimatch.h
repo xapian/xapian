@@ -66,8 +66,16 @@ class MultiMatch
 	 *  is destroyed, and for deallocating the object afterwards.
 	 *
 	 *  @param database_ A pointer to the database to use.
+	 *
+	 *  @param gatherer_ An auto_ptr to a StatsGatherer instance.
+	 *                   The MultiMatch takes ownership of the
+	 *                   StatsGatherer.  This argument is optional;
+	 *                   the default is to use a LocalStatsGatherer,
+	 *                   suitable for non-network use.
 	 */
-	MultiMatch(MultiDatabase *database_);
+	MultiMatch(MultiDatabase *database_,
+		   auto_ptr<StatsGatherer> gatherer_
+		       = auto_ptr<StatsGatherer>(new LocalStatsGatherer()));
 	~MultiMatch();
 
 	void set_query(const OmQueryInternal * query);
