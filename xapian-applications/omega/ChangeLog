@@ -1,3 +1,9 @@
+Thu Sep 02 01:45:46 BST 2004  Olly Betts <olly@survex.com>
+
+	* templates/query: Always report database not found - previously we
+	  only did so if there was a query.  Also fixed missing </center>
+	  tag which happened in certain cases.
+
 Wed Aug 25 23:19:47 BST 2004  Olly Betts <olly@survex.com>
 
 	* omindex.cc: When running with "replace duplicates" mode (the

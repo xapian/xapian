@@ -49,8 +49,9 @@ $if{$opt{topterms},
  </td></tr></table>
  <hr>
 }
+$or{$html{$error},
 $if{$eq{$msize,0},
-$if{$query,$or{$html{$error},No documents match your query},
+$if{$query,No documents match your query,
 <hr>Searching $nice{$dbsize} documents
 },
 $if{$not{$msizeexact},
@@ -101,8 +102,8 @@ $map{$range{$add{$thispage,1},$opt{y}},$PAGE{$_}}
 $if{$ne{$opt{y},$lastpage},...}
 $NEXT
 }
+}}
 </center><br>
-}
 $if{$dbname,<INPUT TYPE=hidden NAME=DB VALUE="$html{$dbname}">}
 $if{$ne{$topdoc,0},<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>}
 $if{$ne{$hitsperpage,10},<INPUT TYPE=hidden NAME=HITSPERPAGE VALUE=$hitsperpage>}
