@@ -363,6 +363,13 @@ DADatabase::open_document(om_docid did) const
     return new DADocument(this, did, heavy_duty);
 }
 
+PositionList *
+DADatabase::open_position_list(om_docid did,
+			       const om_termname & tname) const
+{
+    throw OmUnimplementedError("DA databases do not support opening positionlist");
+}
+
 RefCntPtr<const DATerm>
 DADatabase::term_lookup(const om_termname & tname) const
 {

@@ -125,6 +125,13 @@ InMemoryDatabase::open_document(om_docid did) const
     return new InMemoryDocument(doclists[did - 1], keylists[did - 1]);
 }
 
+PositionList *
+InMemoryDatabase::open_position_list(om_docid did,
+				     const om_termname & tname) const
+{
+    throw OmUnimplementedError("InMemory databases do not support opening positionlist");
+}
+
 void
 InMemoryDatabase::add_keys(om_docid did,
 	      const OmDocumentContents::document_keys &keys_)

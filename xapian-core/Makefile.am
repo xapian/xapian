@@ -34,7 +34,7 @@ lib_LTLIBRARIES = libomus.la
 libomus_la_SOURCES = dummy.c
 EXTRA_libomus_la_SOURCES =
 
-TODO: ./docs/todo2html.pl $(top_srcdir)/docs/todo.xml
+TODO: ./docs/todo2html.pl $(top_srcdir)/docs/todo.xml $(top_srcdir)/docs/todo2html.pl.in
 if HAVE_PERL_XML
 	@echo "Generating TODO"
 	@./docs/todo2html.pl --text $(top_srcdir)/docs/todo.xml > TODO

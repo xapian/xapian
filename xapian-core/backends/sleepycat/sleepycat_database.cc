@@ -147,6 +147,13 @@ SleepycatDatabase::open_document(om_docid did) const
 				 did);
 }
 
+PositionList *
+SleepycatDatabase::open_position_list(om_docid did,
+				      const om_termname & tname) const
+{
+    throw OmUnimplementedError("Sleepycat databases do not support opening positionlist");
+}
+
 void
 SleepycatDatabase::do_begin_session(om_timeout timeout)
 {

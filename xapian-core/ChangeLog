@@ -1,3 +1,9 @@
+Mon Nov 27 18:45:27 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Implement get_position_list() on databases.  Untested.  Also needs
+	  some work to make consistent with open_position_list() on posting
+	  lists: see todo list.
+
 Mon Nov 27 18:29:00 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Change #define LEVEL ... to #define GET_LEVEL ... in btree_util.h:

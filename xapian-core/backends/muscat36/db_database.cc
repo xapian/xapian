@@ -383,6 +383,13 @@ DBDatabase::open_document(om_docid did) const
     return new DBDocument(this, did, DB->heavy_duty);
 }
 
+PositionList *
+DBDatabase::open_position_list(om_docid did,
+			       const om_termname & tname) const
+{
+    throw OmUnimplementedError("DB databases do not support opening positionlist");
+}
+
 RefCntPtr<const DBTerm>
 DBDatabase::term_lookup(const om_termname & tname) const
 {

@@ -154,8 +154,9 @@ OmDatabase::positionlist_begin(om_docid did, const om_termname &tname) const
 		 did << ", " << tname);
     if (tname.empty()) throw OmInvalidArgumentError("Zero length terms are invalid");
     if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
-    throw OmUnimplementedError("positionlist_begin() needs backends to support get_position_list on databases");
-    //RETURN(OmPositionListIterator(new OmPositionListIterator::Internal( ... )));
+    RefCntPtr<PositionList> poslist = internal->open_position_list(did, tname);
+
+    RETURN(OmPositionListIterator(new OmPositionListIterator::Internal(poslist)));
 }
 
 OmPositionListIterator
@@ -165,7 +166,6 @@ OmDatabase::positionlist_end(om_docid did, const om_termname &tname) const
 		 did << ", " << tname);
     if (tname.empty()) throw OmInvalidArgumentError("Zero length terms are invalid");
     if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
-    throw OmUnimplementedError("positionlist_end() needs backends to support get_position_list on databases");
     RETURN(OmPositionListIterator(NULL));
 }
 

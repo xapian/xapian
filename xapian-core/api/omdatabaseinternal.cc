@@ -136,3 +136,15 @@ OmDatabase::Internal::open_document(om_docid did) const
 
     return databases[dbnumber]->open_document(realdid);
 }
+
+RefCntPtr<PositionList>
+OmDatabase::Internal::open_position_list(om_docid did,
+					 const om_termname &tname) const
+{
+    unsigned int multiplier = databases.size();
+    om_docid realdid = (did - 1) / multiplier + 1;
+    om_doccount dbnumber = (did - 1) % multiplier;
+
+    return databases[dbnumber]->open_position_list(realdid, tname);
+}
+

@@ -377,6 +377,18 @@ QuartzDatabase::open_document(om_docid did) const
 			      did);
 }
 
+PositionList *
+QuartzDatabase::open_position_list(om_docid did,
+				   const om_termname & tname) const
+{
+    Assert(did != 0);
+    OmLockSentry sentry(quartz_mutex);
+
+    RefCntBase::RefCntPtrToThis tmp;
+    RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
+
+    throw OmUnimplementedError("Quartz databases do not support opening positionlist");
+}
 
 
 
@@ -705,3 +717,17 @@ QuartzWritableDatabase::open_document(om_docid did) const
 			      buffered_tables->get_record_table(),
 			      did);
 }
+
+PositionList *
+QuartzWritableDatabase::open_position_list(om_docid did,
+				   const om_termname & tname) const
+{
+    Assert(did != 0);
+    OmLockSentry sentry(database_ro.quartz_mutex);
+
+    RefCntBase::RefCntPtrToThis tmp;
+    RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
+
+    throw OmUnimplementedError("Quartz databases do not support opening positionlist");
+}
+

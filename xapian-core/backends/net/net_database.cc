@@ -114,6 +114,13 @@ NetworkDatabase::open_document(om_docid did) const
     return new NetworkDocument(doc, keys);
 }
 
+PositionList *
+NetworkDatabase::open_position_list(om_docid did,
+				    const om_termname & tname) const
+{
+    throw OmUnimplementedError("Network databases do not support opening positionlist");
+}
+
 void
 NetworkDatabase::request_document(om_docid did) const
 {

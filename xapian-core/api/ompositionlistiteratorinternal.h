@@ -25,20 +25,37 @@
 
 #include "om/ompositionlistiterator.h"
 #include "positionlist.h"
+#include "refcnt.h"
 
 class OmPositionListIterator::Internal {
     private:
 	friend class OmPositionListIterator; // allow access to positionlist
         friend bool operator==(const OmPositionListIterator &a, const OmPositionListIterator &b);
 
-	PositionList *positionlist;
+	RefCntPtr<PositionList> positionlist_rc;
+	PositionList * positionlist;
     
     public:
-        Internal(PositionList *positionlist_) : positionlist(positionlist_)
+        Internal(PositionList *positionlist_)
+		: positionlist_rc(0),
+		  positionlist(positionlist_)
 	{
 	    // A PositionList starts before the start, iterators start at the start
 	    positionlist->next();
 	}
+
+        Internal(RefCntPtr<PositionList> positionlist_rc_)
+		: positionlist_rc(positionlist_rc_),
+		  positionlist(positionlist_rc.get())
+	{
+	    // A PositionList starts before the start, iterators start at the start
+	    positionlist->next();
+	}
+
+	Internal(const Internal &other)
+		: positionlist_rc(other.positionlist_rc),
+		  positionlist(other.positionlist)
+	{ }
 };
 
 #endif /* OM_HGUARD_OMPOSITIONLISTITERATOR_H */

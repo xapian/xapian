@@ -34,6 +34,7 @@
 class LeafDocument;
 class LeafPostList;
 class LeafTermList;
+class PositionList;
 
 /** Base class for databases.
  *
@@ -234,6 +235,20 @@ class Database : public RefCntBase {
 	 *                use.
 	 */
 	virtual LeafTermList * open_term_list(om_docid did) const = 0;
+
+	/** Open a position list for the given term in the given document.
+	 *
+	 *  @param did    The document id for which a position list is being
+	 *                requested.
+	 *  @param tname  The term for which a position list is being
+	 *                requested.
+	 *
+	 *  @return       A pointer to the newly created position list.
+	 *                This object must be deleted by the caller after
+	 *                use.
+	 */
+	virtual PositionList * open_position_list(om_docid did,
+					const om_termname & tname) const = 0;
 
 	/** Open a document.
 	 *
