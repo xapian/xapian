@@ -1,3 +1,7 @@
+Tue Nov 02 15:38:21 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,docs/Makefile.am: Removed SOURCEDOC_C_SRC.
+
 Tue Nov 02 06:51:39 GMT 2004  Olly Betts <olly@survex.com>
 
 	* getopt/getopt.cc,getopt/getopt1.cc: Fixed function declarations to

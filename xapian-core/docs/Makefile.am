@@ -101,7 +101,7 @@ sourcedoc/html/index.html: $(top_srcdir)/configure.ac \
 		$(srcdir)/doxygen_full_header.html_tmpl \
 		$(srcdir)/doxygen_full_footer.html_tmpl \
 		$(srcdir)/doxygen_full_conf.in \
-		$(SOURCEDOC_CC_SRC) $(SOURCEDOC_C_SRC) $(SOURCEDOC_H_SRC) \
+		$(SOURCEDOC_CC_SRC) $(SOURCEDOC_H_SRC) \
 		$(APIDOC_SRC)
 	rm -rf sourcedoc
 	top_srcdir=$(top_srcdir) $(DOXYGEN) doxygen_full_conf

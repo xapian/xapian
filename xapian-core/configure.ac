@@ -457,7 +457,8 @@ case "$CXX" in
   dnl  http://h21007.www2.hp.com/dspp/tech/tech_TechDocumentDetailPage_IDX/1,1701,5520,00.html
   dnl )
   aCC|*/aCC) AM_CXXFLAGS="$AM_CXXFLAGS -AA" ;;
-  dnl Select ANSI iostream implmentation
+  dnl Select ANSI iostream implementation (default is a pre-standard
+  dnl AT&T-compatible version).
   cxx|*/cxx) AM_CXXFLAGS="$AM_CXXFLAGS -D__USE_STD_IOSTREAM" ;;
 esac
 
@@ -483,13 +484,10 @@ dnl find SOURCEDOC in 3 goes to avoid overflowing the 4096 character
 dnl line length limit in some sed implementations
 SOURCEDOC_CC_SRC="`cd \"$srcdir\";find . -name tests -prune -o -name \*.cc -print|sed 's!^\.!$T!'|tr '
 ' ' '`"
-SOURCEDOC_C_SRC="`cd \"$srcdir\";find . -name tests -prune -o -name \*.c -print|sed 's!^\.!$T!'|tr '
-' ' '`"
 SOURCEDOC_H_SRC="`cd \"$srcdir\";find . -name tests -prune -o -name include -prune -o -name \*.h -print|sed '/^\.\/confdefs\.h$/d;s!^\.!$T!'|tr '
 ' ' '`"
 AC_SUBST(APIDOC_SRC)
 AC_SUBST(SOURCEDOC_CC_SRC)
-AC_SUBST(SOURCEDOC_C_SRC)
 AC_SUBST(SOURCEDOC_H_SRC)
 
 dnl *******************************************************************
