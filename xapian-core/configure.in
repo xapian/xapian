@@ -586,13 +586,16 @@ if test "$GCC" = yes; then
 fi
 
 dnl modify flags for building with stlport
+STLPORT_CFLAGS=""
 if test "x$use_stlport" = "xyes"; then
   if test "$GCC" = yes; then
-    CXXFLAGS="-nostdinc++ $CXXFLAGS"
+    STLPORT_CFLAGS="-nostdinc++ "
   fi
-  CXXFLAGS="$STLPORT_INCLUDE $CXXFLAGS"
+  STLPORT_CFLAGS="$STLPORT_CFLAGS $STLPORT_INCLUDE"
+  CXXFLAGS="$STLPORT_CFLAGS $CXXFLAGS"
   LIBS="$STLPORT_LIBS $LIBS"
 fi
+AC_SUBST(STLPORT_CFLAGS)
 
 dnl *******************************************************************
 dnl * Make sure we can reference the top source and build directories *

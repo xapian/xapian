@@ -1,3 +1,15 @@
+Thu Jan 25 13:45:49 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* When setting up an RSet, allow documents to be referenced by
+	  OmMSetIterator, for convenience.
+
+	* Allow OmMSetIterators and OmESetIterators to be created without
+	  initialising, also for convenience.
+
+	* Include CFLAGS for STLPORT in the flags produced by omsee-config.
+
+	* Change several more missed "omus"s to omsee.
+
 Thu Jan 25 13:50:06 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Changed a mention of libomus in netprogs/Makefile.am to libomsee

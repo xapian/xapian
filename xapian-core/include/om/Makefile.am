@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
-libomusincludedir = $(includedir)/om
-libomusinclude_HEADERS = om.h \
+libomseeincludedir = $(includedir)/om
+libomseeinclude_HEADERS = om.h \
 omstem.h \
 omerror.h omerrortypes.h omerrorhandler.h omtypes.h omenquire.h omdocument.h \
 omdatabase.h omsettings.h omoutput.h \

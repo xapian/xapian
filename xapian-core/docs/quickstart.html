@@ -605,15 +605,15 @@ Now that we have the code written, all we need to do is compile it!
 <H3>Finding the Omsee library</H3>
 
 <P>
-A small utility, &quot;libomus-config&quot;, is installed along with Omsee
+A small utility, &quot;omsee-config&quot;, is installed along with Omsee
 to assist you in finding the installed Omsee library, and in generating
 the flags to pass to the compiler and linker to compile.
 </P><P>
 After a successful compilation, this utility should be in your path, so
 you can simply run
-<BLOCKQUOTE><CODE>libomus-config --cflags</CODE></BLOCKQUOTE>
+<BLOCKQUOTE><CODE>omsee-config --cflags</CODE></BLOCKQUOTE>
 to determine the flags to pass to the compiler, and
-<BLOCKQUOTE><CODE>libomus-config --libs</CODE></BLOCKQUOTE>
+<BLOCKQUOTE><CODE>omsee-config --libs</CODE></BLOCKQUOTE>
 to determine the flags to pass to the linker.
 
 These flags are returned on the utility's standard output (so you could use
@@ -635,8 +635,8 @@ Once you know the compilation flags, compilation is a simple matter of
 invoking the compiler!  For our example, we could compile the two
 utilities (simpleindex and simplesearch) with the commands:
 <PRE>
-c++ simpleindex.cc `libomus-config --libs --cflags` -o simpleindex
-c++ simplesearch.cc `libomus-config --libs --cflags` -o simplesearch
+c++ simpleindex.cc `omsee-config --libs --cflags` -o simpleindex
+c++ simplesearch.cc `omsee-config --libs --cflags` -o simplesearch
 </PRE>
 
 <HR>

@@ -55,6 +55,11 @@ class OmMSetIterator {
 	OmMSetIterator(Internal *internal_);
 
     public:
+	/** Create an uninitialised iterator; this cannot be used, but is
+	 *  convenient syntactically.
+	 */
+        OmMSetIterator();
+
         ~OmMSetIterator();
 
 	/// Copying is allowed (and is cheap).
@@ -321,6 +326,11 @@ class OmESetIterator {
 	OmESetIterator(Internal *internal_);
 
     public:
+	/** Create an uninitialised iterator; this cannot be used, but is
+	 *  convenient syntactically.
+	 */
+        OmESetIterator();
+
         ~OmESetIterator();
 
 	/// Copying is allowed (and is cheap).
@@ -438,12 +448,15 @@ class OmRSet {
 
 	/// Add a document to the relevance set.
 	void add_document(om_docid did);
+	void add_document(const OmMSetIterator & i) { add_document(*i); }
 
 	/// Remove a document from the relevance set.
 	void remove_document(om_docid did);
+	void remove_document(const OmMSetIterator & i) { remove_document(*i); }
 
 	/// Is a particular document in the relevance set.
 	bool contains(om_docid did) const;
+	bool contains(const OmMSetIterator & i) { return contains(*i); }
 
 	/** Returns a string representing the rset.
 	 *  Introspection method.

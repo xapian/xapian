@@ -639,6 +639,10 @@ OmESetIterator::OmESetIterator(Internal *internal_) : internal(internal_)
 {
 }
 
+OmESetIterator::OmESetIterator() : internal(0)
+{
+}
+
 OmESetIterator::~OmESetIterator()
 {
     delete internal;
@@ -716,6 +720,10 @@ operator==(const OmESetIterator &a, const OmESetIterator &b)
 // OmMSetIterator
 
 OmMSetIterator::OmMSetIterator(Internal *internal_) : internal(internal_)
+{
+}
+
+OmMSetIterator::OmMSetIterator() : internal(0)
 {
 }
 

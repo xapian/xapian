@@ -546,7 +546,8 @@ static bool test_msetiterator1()
     init_simple_enquire(enquire);
     OmMSet mymset = enquire.get_mset(0, 2);
 
-    OmMSetIterator j = mymset.begin();
+    OmMSetIterator j;
+    j = mymset.begin();
     OmMSetIterator k = mymset.end();
     OmMSetIterator l(j);
     OmMSetIterator m(k);
@@ -623,7 +624,8 @@ static bool test_esetiterator1()
     eopt.set("expand_use_query_terms", false);
 
     OmESet myeset = enquire.get_eset(2, myrset, &eopt);
-    OmESetIterator j = myeset.begin();
+    OmESetIterator j;
+    j = myeset.begin();
     OmESetIterator k = myeset.end();
     OmESetIterator l(j);
     OmESetIterator m(k);

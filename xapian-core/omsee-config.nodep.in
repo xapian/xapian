@@ -8,6 +8,7 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 dependency_libs="@dependency_libs@"
+stlport_cflags="@STLPORT_CFLAGS@"
 
 usage()
 {
@@ -106,7 +107,7 @@ if test "$exec_prefix_set" = "true"; then
 fi
 
 if test "$echo_cflags" = "yes"; then
-    echo -I$includedir
+    echo $stlport_cflags -I$includedir
 fi
 
 if test "$echo_libs" = "yes"; then
