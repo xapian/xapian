@@ -468,7 +468,7 @@ html_comparer::write(ostream & os) const
 ostream &
 html_comparer::style(ostream & os) const
 {
-    os << "<style type=\"type/css\">" << endl;
+    os << "<style type=\"text/css\">" << endl;
     os << "body  {background-color:#EEEEEE;}" << endl;
     os << "table {background-color:#FFFFFF;}" << endl;
     os << "td    {white-space:pre; overflow:hidden;font-family:courier;}" << endl;

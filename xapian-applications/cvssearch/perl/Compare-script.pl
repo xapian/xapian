@@ -425,7 +425,7 @@ sub  print_title {
 }
 
 sub print_style_sheet {
-    print "<style type=\"type/css\">\n";
+    print "<style type=\"text/css\">\n";
     print "body  {background-color:#EEEEEE;}\n";
     print "table {background-color:#FFFFFF;}\n";
     print "td    {white-space:pre; overflow:hidden;}\n";
