@@ -287,7 +287,7 @@ pretty_printf(const char *p, int *a)
 \\TOPTERMS {
     // Olly's expand on query page idea
     if (msize) {
-	Expand topterms(&database);
+	Expand topterms(database);
 
 	if (rset->get_rsize()) {
 #ifdef DEBUG
@@ -296,7 +296,7 @@ pretty_printf(const char *p, int *a)
 	    topterms.expand(rset);
 	} else {
 	    // invent an rset
-	    RSet tmp(&database);
+	    RSet tmp(database);
 	    
 	    for (int m = min(4, int(msize) - 1); m >= 0; m--) {
 #ifdef DEBUG
@@ -411,12 +411,7 @@ pretty_printf(const char *p, int *a)
 	    const char *term = i->c_str();
 
 	    // FIXME: is there a better way?
-	    int freq = 0;
-	    if (database.term_exists(*i)) {
-		PostList *pl = database.open_post_list(*i, NULL); // FIXME NULL?
-		freq = pl->get_termfreq();
-		delete pl;
-	    }
+	    int freq = database->get_termfreq(*i);
 	    
 	    if (i == new_terms.begin()) {
 		cout << "<B>Individual word frequencies:</B>\n";

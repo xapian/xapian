@@ -21,9 +21,8 @@ int n_dlist = 0;
 
 #include "cgiparam.h"
 #include "query.h"
-#include "da_database.h"
 
-MultiDatabase database;
+IRDatabase *database = NULL;
 Match *matcher;
 RSet *rset;
 
@@ -176,6 +175,9 @@ static int main2(int argc, char *argv[])
 #ifdef DEBUG
 	cout << "Dlist opened" << endl;
 #endif
+	DatabaseFactory dbfact;
+	IRGroupDatabase * dbgroup = dbfact.makegroup(OM_DBGRPTYPE_MULTI);
+	database = dbgroup;
 	string line;
 	while (!dlist_in.eof()) {
 	    getline(dlist_in, line);
@@ -193,8 +195,7 @@ static int main2(int argc, char *argv[])
 			    "', number " << db_id << endl;
 #endif
 		    try {
-			database.open_subdatabase(new DADatabase(),
-						  dbpath, true);
+			dbgroup->open(OM_DBTYPE_DA, dbpath, true);
 		    } catch (OmError e) {
 			cout << e.get_msg() << endl;
 		    }
@@ -222,8 +223,8 @@ static int main2(int argc, char *argv[])
      }
 #endif
    
-    matcher = new Match(&database);
-    rset = new RSet(&database);
+    matcher = new Match(database);
+    rset = new RSet(database);
     matcher->set_rset(rset);
        
     /* read thousands and decimal separators: e.g. 16<thou>729<dec>8037 */
@@ -244,9 +245,9 @@ static int main2(int argc, char *argv[])
     if (val != notfound) {
        int doc = atol(val->second.c_str());
        
-	Expand topterms(&database);
+	Expand topterms(database);
 
-	RSet tmp(&database);
+	RSet tmp(database);
 	tmp.add_document(doc);		
 	topterms.expand(&tmp);
 

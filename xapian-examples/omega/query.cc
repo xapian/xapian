@@ -429,7 +429,7 @@ print_caption(long int m)
     /* get hostname from longest N tag
      * and country from shortest (allowing for uk+) */
     int len = -1, got_plus = 0;
-    TermList *terms = database.open_term_list(q0);
+    TermList *terms = database->open_term_list(q0);
     terms->next();
     while (!terms->at_end()) {
 	string term = terms->get_termname();
@@ -479,7 +479,7 @@ print_caption(long int m)
     }
 #endif
 
-    IRDocument *doc = database.open_document(q0);
+    IRDocument *doc = database->open_document(q0);
     IRData data = doc->get_data();
     pp = data.value.c_str() + 14;
 
@@ -599,7 +599,7 @@ print_caption(long int m)
 	     // in a vector and then sort by the value of matching_map[]
 	     // In the DA case the way termid-s are invented means we
 	     // don't actually need to do this...
-	     TermList *terms = database.open_term_list(q0);
+	     TermList *terms = database->open_term_list(q0);
 	     terms->next();
 	     while (!terms->at_end()) {
 		 termname term = terms->get_termname();

@@ -1,5 +1,7 @@
 /* querygui.cc */
 
+#include "config.h"
+
 #include <gtk/gtk.h>
 #include <glade/glade.h>
 #include <cstdio>
@@ -8,23 +10,12 @@
 #include <sys/stat.h>
 #include "querygui.h"
 
-#include "database.h"
-#include "postlist.h"
-#include "termlist.h"
-#include "irdocument.h"
-#include "expand.h"
-#include "rset.h"
-#include "match.h"
-#include "stem.h"
-
-#include "multi_database.h"
-#include "da_database.h"
-#include "textfile_database.h"
+#include "om.h"
 
 #include "textfile_indexer.h"
 #include "query_parser.h"
 
-#include "config.h"
+#include <list>
 
 IRDatabase *database;
 doccount max_msize;
@@ -208,11 +199,13 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	    IRDocument *doc = database->open_document(q0);
 	    IRData data = doc->get_data();
 	    string message;
-	    if(MultiDatabase *mdb = dynamic_cast<MultiDatabase *>(database)) {
+#if 0
+	    if(Database *mdb = dynamic_cast<MultiDatabase *>(database)) {
 		message = (mdb->get_database_of_doc(q0))->get_database_path();
 	    } else {
+#endif
 		message = database->get_database_path();
-	    }
+//	    }
 	    message += " ";
 	    message += data.value;
 	    message = data.value;
@@ -239,26 +232,11 @@ on_mainwindow_destroy(GtkWidget *widget,
     return FALSE;
 }
 
-IRDatabase *makenewdb(const string &type)
-{
-    IRDatabase * database = NULL;
-
-    if(type == "da") database = new DADatabase;
-    else if(type == "textfile") database = new TextfileDatabase;
-
-    if(database == NULL) {
-	cout << "Couldn't open database (unknown type?)" << endl;
-	exit(1);
-    }
-
-    return database;
-}
-
 int main(int argc, char *argv[]) {
     string gladefile = "querygui.glade";
     max_msize = 10;
     list<string> dbnames;
-    list<string> dbtypes;
+    list<om_database_type> dbtypes;
 
     gtk_init(&argc, &argv);
     glade_init();
@@ -275,12 +253,12 @@ int main(int argc, char *argv[]) {
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--da") == 0) {
 	    dbnames.push_back(argv[1]);
-	    dbtypes.push_back("da");
+	    dbtypes.push_back(OM_DBTYPE_DA);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--tf") == 0) {
 	    dbnames.push_back(argv[1]);
-	    dbtypes.push_back("textfile");
+	    dbtypes.push_back(OM_DBTYPE_TEXTFILE);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--glade") == 0) {
@@ -304,23 +282,26 @@ int main(int argc, char *argv[]) {
 
     if(!dbnames.size()) {
 	dbnames.push_back("/mnt/ivory/disk1/home/richard/textfile");
-	dbtypes.push_back("textfile");
+	dbtypes.push_back(OM_DBTYPE_TEXTFILE);
     }
 
     try {
 	if (dbnames.size() > 1) {
-	    MultiDatabase *multidb = new MultiDatabase;
+	    DatabaseFactory dbfact;
+	    IRGroupDatabase *multidb = dbfact.makegroup(OM_DBGRPTYPE_MULTI);
 	    list<string>::const_iterator p;
-	    list<string>::const_iterator q;
+	    list<om_database_type>::const_iterator q;
 	    for(p = dbnames.begin(), q = dbtypes.begin();
 		p != dbnames.end();
 		p++, q++) {
-		multidb->open_subdatabase(makenewdb(*q), *p, true);
+		multidb->open(*q, *p, true);
 	    }
 	    database = multidb;
 	} else {
-	    database = makenewdb(*(dbtypes.begin()));
-	    database->open(*(dbnames.begin()), true);
+	    DatabaseFactory dbfact;
+	    IRSingleDatabase *singledb = dbfact.make(*(dbtypes.begin()));
+	    singledb->open(*(dbnames.begin()), true);
+	    database = singledb;
 	}
     } catch (OmError e) {
 	cout << e.get_msg() << endl;
