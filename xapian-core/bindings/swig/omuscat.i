@@ -68,7 +68,25 @@ class OmQuery {
 	om_termname_list get_terms() const;
 };
 
-// TODO: OmMatchOptions
+class OmMatchOptions {
+    public:
+	bool  do_collapse;
+	om_keyno collapse_key;
+	bool  sort_forward;
+	int percent_cutoff;
+	om_termcount max_or_terms;
+
+	OmMatchOptions();
+	~OmMatchOptions();
+
+	void set_collapse_key(om_keyno key_);
+	void set_no_collapse();
+	void set_sort_forward(bool forward_ = true);
+	void set_percentage_cutoff(int percent_);
+	void set_max_or_terms(om_termcount max_);
+	//TODO:OmMSetCmp get_sort_comparator() const;
+};
+
 // TODO: OmMatchDecider
 // TODO: OmExpandOptions
 // TODO: OmExpandDecider
@@ -98,13 +116,16 @@ class OmEnquire {
 
 	void set_query(const OmQuery &query);
 
-	// FIXME: add other parameters too.
 	OmMSet get_mset(om_doccount first,
-			om_doccount maxitems);
+			om_doccount maxitems,
+			const OmRSet *omrset = 0,
+			const OmMatchOptions *moptions = 0,
+			const OmMatchDecider *mdecider = 0);
 
 	// TODO: get_eset()
 	// TODO: get_doc()
-	// TODO: get_matching_terms()
+	
+	om_termname_list get_matching_terms(om_docid did);
 }
 
 class OmMSet {
