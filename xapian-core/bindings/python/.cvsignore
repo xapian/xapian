@@ -4,5 +4,6 @@ Makefile.in
 Makefile
 .deps
 .libs
-apitest_helpers.py
-apitest_to_python.pl
+xapian.py
+xapian_wrap.cc
+_xapian.la

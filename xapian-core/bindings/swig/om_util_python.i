@@ -303,7 +303,7 @@ namespace Xapian {
 		return (self->size() < other.size())? -1 : 1;
 	    }
 
-	    for (int i=0; i<self->size(); ++i) {
+	    for (size_t i=0; i<self->size(); ++i) {
 		if ((*self)[i].get_weight() != other[i].get_weight()) {
 		    return ((*self)[i].get_weight() < other[i].get_weight())? -1 : 1;
 		} else if (*(*self)[i] != *other[i]) {

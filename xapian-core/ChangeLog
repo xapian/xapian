@@ -1,3 +1,10 @@
+Thu Jun 05 22:40:21 BST 2003  Olly Betts <olly@survex.com>
+
+	* bindings/python/.cvsignore,bindings/python/Makefile.am,
+	  bindings/python/dothemake.txt,bindings/swig/om_util_python.i:
+	  Cleaned up building of python bindings by making better use of
+	  automake.
+
 Thu Jun 05 22:17:40 BST 2003  Olly Betts <olly@survex.com>
 
 	* languages/Makefile.am: Reenable standard warnings apart from the
