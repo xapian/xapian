@@ -940,6 +940,16 @@ bool test_collapsekey1()
 	     i != mymset.items.end();
 	     ++i) {
 	    OmKey key = enquire.get_doc(*i).get_key(key_no);
+	    if (key.value != i->collapse_key.value) {
+		success = false;
+		if (verbose) {
+		    cout << "Expected key value was not found in MSetItem: "
+			 << "expected `" << key.value
+			 << "' found `" << i->collapse_key.value
+			 << "'" << endl;
+
+		}
+	    }
 	    if (keys[key.value] != 0 && key.value != "") {
 	        success = false;
 		if (verbose) {
