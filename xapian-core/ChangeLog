@@ -1,3 +1,8 @@
+Mon Feb 28 13:07:42 GMT 2005  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_alltermslist.cc,tests/api_db.cc: Updated (C)
+	  dates for changes earlier this year.
+
 Mon Feb 28 13:04:41 GMT 2005  Olly Betts <olly@survex.com>
 
 	* api/omquery.cc,api/omqueryinternal.cc,include/xapian/query.h,
