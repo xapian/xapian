@@ -9,7 +9,7 @@ in the inmemory databse.
 
 =====================
 
-Table for result of operations when one of the operands is null:
+Table for result of operations when one of the operands is undefined (0):
 
             | a,b                           | a,0 | 0,b | 0,0 |
  -----------+-------------------------------+-----+-----+-----+
@@ -18,7 +18,7 @@ Table for result of operations when one of the operands is null:
   FILTER    | a and b (just weights from a) |  a  |  b* |  0  |
   AND_MAYBE | a (extra weights from b)      |  a  |  0  |  0  |
   AND_NOT   | a but not b                   |  a  | n/a | n/a |
-  XOR       | (a or b) not (a and b)        | n/a | n/a | n/a |
+  XOR       | (a or b) not (a and b)        | n/a | n/a |  0  |
  -----------+-------------------------------+-----+-----+-----+
 
 * - this represents a pure boolean query - all weights will be 1
