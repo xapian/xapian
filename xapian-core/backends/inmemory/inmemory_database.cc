@@ -112,6 +112,7 @@ TextfileDatabase::~TextfileDatabase() {
 }
 
 void TextfileDatabase::open(const string &pathname, bool readonly) {
+    Assert(readonly == true);
     close();
 
     // Initialise
@@ -121,8 +122,22 @@ void TextfileDatabase::open(const string &pathname, bool readonly) {
     termidmap.clear();
 
     // Index document
+    termname word = "thou";
+    docid did = make_doc();
+    termcount position = 5;
+
+    make_posting(make_term(word), did, position);
 
     opened = true;
+}
+
+void TextfileDatabase::make_posting(termid tid, docid did, termcount position) {
+    TextfilePosting posting;
+    posting.tid = tid;
+    posting.did = did;
+    posting.positions.push_back(position);
+    termlists[tid - 1].add_posting(posting);
+    postlists[did - 1].add_posting(posting);
 }
 
 void TextfileDatabase::close() {
@@ -170,6 +185,30 @@ TextfileDatabase::add(termid tid, docid did, termpos tpos) {
 }
 
 termid
+TextfileDatabase::make_term(const termname &tname)
+{
+    map<termname,termid>::const_iterator p = termidmap.find(tname);
+
+    termid tid = 0;
+    if (p == termidmap.end()) {
+	tid = termvec.size() + 1;
+	termvec.push_back(tname);
+	termidmap[tname] = tid;
+	termlists.push_back(TextfileTerm());
+    } else {
+	tid = (*p).second;
+    }
+    return tid;
+}
+
+docid
+TextfileDatabase::make_doc()
+{
+    postlists.push_back(TextfileDoc());
+    return postlists.size();
+}
+
+termid
 TextfileDatabase::term_name_to_id(const termname &tname) const
 {
     Assert(opened);
@@ -179,9 +218,7 @@ TextfileDatabase::term_name_to_id(const termname &tname) const
 
     termid tid = 0;
     if (p == termidmap.end()) {
-	tid = termvec.size() + 1;
-	termvec.push_back(tname);
-	termidmap[tname] = tid;
+	tid = 0;
     } else {
 	tid = (*p).second;
     }

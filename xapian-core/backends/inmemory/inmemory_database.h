@@ -231,11 +231,15 @@ class TextfileDoc {
 
 class TextfileDatabase : public virtual IRDatabase {
     private:
-	mutable map<termname, termid> termidmap;
-	mutable vector<termname> termvec;
+	map<termname, termid> termidmap;
+	vector<termname> termvec;
 
 	vector<TextfileTerm> termlists;
 	vector<TextfileDoc> postlists;
+
+	termid make_term(const termname &);
+	docid make_doc();
+	void make_posting(termid, docid, termcount);
 
 	doccount docs;
 	doclength avlength;

@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     try {
 #if 1
 	TextfileDatabase database;
-	database.open("textfile", 0);
+	database.open("textfile", 1);
 #endif
 #if 0
 	MultiDatabase database;
