@@ -33,12 +33,15 @@
 QuartzDocument::QuartzDocument(RefCntPtr<const Database> database_,
 			       QuartzTable *attribute_table_,
 			       QuartzTable *record_table_,
-			       om_docid did_)
+			       om_docid did_, bool lazy)
 	: Document(database_.get(), did_),
 	  database(database_),
 	  attribute_table(attribute_table_),
 	  record_table(record_table_)
 {
+    // FIXME: this should work but isn't great - in fact I wonder if
+    // we should cache the results anyway...
+    if (!lazy) (void)QuartzRecordManager::get_record(*record_table, did);
 }
 
 /** Destroy a QuartzDocument.

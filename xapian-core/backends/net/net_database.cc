@@ -118,8 +118,9 @@ NetworkDatabase::open_term_list(om_docid did) const {
 }
 
 Document *
-NetworkDatabase::open_document(om_docid did) const
+NetworkDatabase::open_document(om_docid did, bool lazy) const
 {
+    // ignore lazy (for now at least - FIXME: can we sensibly pass it?)
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
     std::string doc;
     std::map<om_keyno, OmKey> keys;

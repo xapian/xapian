@@ -27,42 +27,38 @@
 #include "omdebug.h"
 
 DBDocument::DBDocument(const DBDatabase * database_, om_docid did_,
-		       int heavy_duty_)
+		       bool heavy_duty_, bool lazy)
         : Document(database_, did_), database(database_), rec(NULL),
 	  heavy_duty(heavy_duty_)
 {
+    if (!lazy) rec = database->get_record(did);
 }
 
 DBDocument::~DBDocument()
 {
-    if(rec != NULL) M_lose_record(rec);
+    if (rec != NULL) M_lose_record(rec);
 }
 
 OmKey
 DBDocument::do_get_key(om_keyno keyid) const
 {
+    if (keyid == 0) return database->get_key(did, keyid);
+
+    DebugMsg("Looking in record for keyno " << keyid <<
+	     " in document " << did);
+    if (rec == 0) rec = database->get_record(did);
+
     OmKey key;
-    if (keyid == 0) {
-	key = database->get_key(did, keyid);
+    unsigned char *pos = (unsigned char *)rec->p;
+    unsigned int len = LENGTH_OF(pos, 0, heavy_duty);
+    unsigned int keypos = keyid;
+    if (keypos + 8 > len) {
+	// Record not big enough.
+	DEBUGLINE(DB, ": not found in record");
+    } else {
+	key.value = std::string((char *)pos + LWIDTH(heavy_duty) + 3 + keypos, 8);
+	DEBUGLINE(DB, ": found in record - value is `" << key.value << "'");
     }
-
-    if (key.value.size() == 0 && keyid != 0) {
-	DebugMsg("Looking in record for keyno " << keyid <<
-		 " in document " << did);
-	if (rec == 0) rec = database->get_record(did);
-
-	unsigned char *pos = (unsigned char *)rec->p;
-	unsigned int len = LENGTH_OF(pos, 0, heavy_duty);
-	unsigned int keypos = keyid;
-	if (keypos + 8 > len) {
-	    // Record not big enough.
-	    DEBUGLINE(DB, ": not found in record");
-	} else {
-	    key.value = std::string((char *)pos + LWIDTH(heavy_duty) + 3 + keypos, 8);
-	    DEBUGLINE(DB, ": found in record - value is `" << key.value << "'");
-	}
-    }
-
     return key;
 }
 

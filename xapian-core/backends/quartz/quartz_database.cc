@@ -289,7 +289,7 @@ QuartzDatabase::open_term_list(om_docid did) const
 }
 
 Document *
-QuartzDatabase::open_document(om_docid did) const
+QuartzDatabase::open_document(om_docid did, bool lazy) const
 {
     Assert(did != 0);
     OmLockSentry sentry(quartz_mutex);
@@ -300,7 +300,7 @@ QuartzDatabase::open_document(om_docid did) const
     return new QuartzDocument(ptrtothis,
 			      tables->get_attribute_table(),
 			      tables->get_record_table(),
-			      did);
+			      did, lazy);
 }
 
 AutoPtr<PositionList> 
@@ -662,7 +662,7 @@ QuartzWritableDatabase::open_term_list(om_docid did) const
 }
 
 Document *
-QuartzWritableDatabase::open_document(om_docid did) const
+QuartzWritableDatabase::open_document(om_docid did, bool lazy) const
 {
     Assert(did != 0);
     OmLockSentry sentry(database_ro.quartz_mutex);
@@ -673,7 +673,7 @@ QuartzWritableDatabase::open_document(om_docid did) const
     return new QuartzDocument(ptrtothis,
 			      buffered_tables->get_attribute_table(),
 			      buffered_tables->get_record_table(),
-			      did);
+			      did, lazy);
 }
 
 AutoPtr<PositionList> 

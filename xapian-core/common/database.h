@@ -272,11 +272,17 @@ class Database : public RefCntBase {
 	 *
 	 *  @param did    The document id which is being requested.
 	 *
+	 *  @param lazy   Don't check the document exists immediately -
+	 *                use from within the matcher where we know the
+	 *                document exists, and don't want to read the
+	 *                record when we just want the keys.
+	 *
 	 *  @return       A pointer to the newly created document object.
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
-	virtual Document * open_document(om_docid did) const = 0;
+	virtual Document *
+	open_document(om_docid did, bool lazy = false) const = 0;
 
 	/** do_reopen the database to the latest available revision.
 	 *

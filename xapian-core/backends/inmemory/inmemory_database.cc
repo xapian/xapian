@@ -117,8 +117,9 @@ InMemoryDatabase::open_term_list(om_docid did) const
 }
 
 Document *
-InMemoryDatabase::open_document(om_docid did) const
+InMemoryDatabase::open_document(om_docid did, bool lazy) const
 {
+    // we're never lazy so ignore that flag
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
     if (did > doclists.size()) {
 	// FIXME: the docid in this message will be local, not global

@@ -1,3 +1,10 @@
+Tue Mar 20 18:47:12 GMT 2001 Olly Betts
+
+	* open_document() now takes a lazy flag - if not set we need to check
+	  that the docid given actually exists.
+
+	* heavy_duty flag now a bool instead of an int.
+
 Mon Mar 19 19:16:34 GMT 2001 Olly Betts
 
 	* Added test getdoc1 to check exceptions are thrown for out-of-range

@@ -31,8 +31,7 @@
 #define TOTLEN_TAG std::string("\000\001", 2)
 
 OmData
-QuartzRecordManager::get_record(QuartzTable & table,
-				om_docid did)
+QuartzRecordManager::get_record(QuartzTable & table, om_docid did)
 {
     QuartzDbKey key(quartz_docid_to_key(did));
     QuartzDbTag tag;

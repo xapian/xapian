@@ -34,10 +34,10 @@ class DBDocument : public Document {
     private:
 	const DBDatabase * database;
 	mutable struct record * rec;
-	int heavy_duty;
+	bool heavy_duty;
 
 	DBDocument(const DBDatabase * database_, om_docid did_,
-		   int heavy_duty_);
+		   bool heavy_duty_, bool lazy);
 
 	// Stop copying
 	DBDocument(const DBDocument &);

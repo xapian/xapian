@@ -382,11 +382,10 @@ DBDatabase::get_key(om_docid did, om_keyno keyid) const
 }
 
 Document *
-DBDatabase::open_document(om_docid did) const
+DBDatabase::open_document(om_docid did, bool lazy) const
 {
     OmLockSentry sentry(mutex);
-
-    return new DBDocument(this, did, DB->heavy_duty);
+    return new DBDocument(this, did, DB->heavy_duty, lazy);
 }
 
 AutoPtr<PositionList> 

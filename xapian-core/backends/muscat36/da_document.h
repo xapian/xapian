@@ -34,11 +34,10 @@ class DADocument : public Document {
     private:
 	const DADatabase * database;
 	mutable struct record * rec;
-	int heavy_duty;
+	bool heavy_duty;
 
 	DADocument(const DADatabase * database_, om_docid did_,
-		   int heavy_duty_);
-
+		   bool heavy_duty_, bool lazy);
 	// Stop copying
 	DADocument(const DADocument &);
 	DADocument & operator = (const DADocument &);

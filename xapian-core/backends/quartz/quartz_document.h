@@ -42,7 +42,7 @@ class QuartzDocument : public Document {
 	QuartzDocument(RefCntPtr<const Database> database_,
 		       QuartzTable *attribute_table_,
 		       QuartzTable *record_table_,
-		       om_docid did_);
+		       om_docid did_, bool lazy);
 
 	// Stop copying
 	QuartzDocument(const QuartzDocument &);

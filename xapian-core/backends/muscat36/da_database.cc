@@ -363,16 +363,14 @@ DADatabase::get_key(om_docid did, om_keyno keyid) const
 }
 
 Document *
-DADatabase::open_document(om_docid did) const
+DADatabase::open_document(om_docid did, bool lazy) const
 {
     OmLockSentry sentry(mutex);
-
-    return new DADocument(this, did, heavy_duty);
+    return new DADocument(this, did, heavy_duty, lazy);
 }
 
 AutoPtr<PositionList> 
-DADatabase::open_position_list(om_docid did,
-			       const om_termname & tname) const
+DADatabase::open_position_list(om_docid did, const om_termname & tname) const
 {
     throw OmUnimplementedError("DA databases do not support opening positionlist");
 }

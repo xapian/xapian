@@ -38,7 +38,7 @@ extern "C" {
 
 /* In next few defs x should be either FLIMSY or HEAVY_DUTY */
 
-#define LENGTH_OF(p,c,x)  ((p)[(c)+2] * (x) << 16 | (p)[(c)+1] << 8 | (p)[(c)])
+#define LENGTH_OF(p,c,x)  (((x) ? (p)[(c)+2] << 16 : 0) | (p)[(c)+1] << 8 | (p)[(c)])
 #define TYPE_OF(p,c,x)    ((p)[(c)+(x)+2])
 #define FLAGS_OF(p,c,x)   ((p)[(c)+(x)+3])
 #define CODE_OF(p,c,x)    ((p)[(c)+(x)+4])

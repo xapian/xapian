@@ -266,7 +266,7 @@ class DADatabase : public Database {
 
 	mutable std::map<om_termname, RefCntPtr<const DATerm> > termmap;
 
-	int heavy_duty;
+	bool heavy_duty;
 
 	// Stop copy / assignment being allowed
 	DADatabase& operator=(const DADatabase&);
@@ -319,7 +319,7 @@ class DADatabase : public Database {
 
 	LeafPostList * do_open_post_list(const om_termname & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
-	Document * open_document(om_docid did) const;
+	Document * open_document(om_docid did, bool lazy = false) const;
 	AutoPtr<PositionList> open_position_list(om_docid did,
 					  const om_termname & tname) const;
 	TermList * open_allterms() const;
