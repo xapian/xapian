@@ -1740,6 +1740,22 @@ static bool test_bitmap1()
     return true;
 }
 
+/// Test that write locks work
+static bool test_writelock1()
+{
+    std::string dbname = tmpdir + "writelock1";
+    deletedir(dbname);
+    makedir(dbname);
+
+    OmSettings settings;
+    settings.set("backend", "quartz");
+    settings.set("quartz_dir", dbname);
+    OmWritableDatabase writer(settings);
+
+    TEST_EXCEPTION(OmDatabaseLockError, 
+		   OmWritableDatabase writer2(settings));
+    return true;
+}
 
 // ================================
 // ========= END OF TESTS =========
@@ -1774,6 +1790,7 @@ test_desc tests[] = {
     {"quartzoverwrite1", 	test_overwrite1},
 //    {"quartzoverwrite2", 	test_overwrite2},
     {"quartzbitmap1", 		test_bitmap1},
+    {"quartzwritelock1", 	test_writelock1},
     {0, 0}
 };
 

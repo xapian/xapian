@@ -1,3 +1,7 @@
+Thu Dec  7 18:25:50 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added test for Quartz write locks
+
 Thu Dec  7 17:56:19 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add OmDocument::set_data() method which takes a string, instead of
