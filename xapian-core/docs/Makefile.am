@@ -118,6 +118,15 @@ apidoc-dvi-install:
 # How to clean up local files #
 ###############################
 clean-local:
+	@if [ -d doxygen_api ]; then \
+	  echo "removing doxygen_api/"; \
+	  $(RM) -r doxygen_api/* ; rmdir doxygen_api ; \
+	fi
+	@if [ -d doxygen_full ]; then \
+	  echo "removing doxygen_full/"; \
+	  $(RM) -r doxygen_full/* ; rmdir doxygen_full ; \
+	fi
+
 	@if [ -d apidoc ]; then \
 	  echo "removing apidoc/"; $(RM) apidoc/* ; rmdir apidoc ; \
 	fi
@@ -208,9 +217,17 @@ include $(top_srcdir)/Makefile_common.am
 APIDOC_SRC    = `find $(top_srcdir)/include \( -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c \) -print`
 SOURCEDOC_SRC = `find $(top_srcdir) \( \( -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c -and -not -name acconfig.h \) -and -not -path \*/tests/\* \) -print`
 
-doxygen/html/index.html: doxygen.conf
-	@echo "Generating documentation with doxygen"
-	@top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) doxygen doxygen.conf
+.FORCE: doxygen_docs
+
+doxygen_docs: doxygen_api/html/index.html doxygen_full/html/index.html
+
+doxygen_api/html/index.html: doxygen_api_conf
+	@echo "Generating API documentation with doxygen"
+	@top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) doxygen doxygen_api_conf
+
+doxygen_full/html/index.html: doxygen_full_conf
+	@echo "Generating full source documentation with doxygen"
+	@top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) doxygen doxygen_full_conf
 
 apidoc/index.html:
 	@echo "Generating HTML documentation for API"

@@ -285,7 +285,8 @@ AC_OUTPUT(
  m4/Makefile
  libomus-config
  docs/mkdoc.pl
- docs/doxygen.conf
+ docs/doxygen_api_conf
+ docs/doxygen_full_conf
  tests/stemtest.pl
 ,
  if test -e docs/mkdoc.pl ; then chmod +x docs/mkdoc.pl ; fi

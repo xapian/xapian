@@ -8,7 +8,8 @@ Makefile
 .deps-sourcedoc-tex
 code_structure.html
 mkdoc.pl
-doxygen
+doxygen_api
+doxygen_full
 sourcedoc
 apidoc
 *.tex
