@@ -108,6 +108,18 @@ class PostlistChunkWriter {
 	/// Append an entry to this chunk.
 	void append(Xapian::docid did, Xapian::termcount wdf, quartz_doclen_t doclen);
 
+	/// Append a block of raw entries to this chunk.
+	void raw_append(Xapian::docid first_did_, Xapian::docid current_did_,
+			const string & s) {
+	    Assert(!started);
+	    first_did = first_did_;
+	    current_did = current_did_;
+	    if (!s.empty()) {
+		chunk.append(s);
+		started = true;
+	    }
+	}
+
 	/** Flush the chunk to the buffered table.  Note: this may write it
 	 *  with a different key to the original one, if for example the first
 	 *  entry has changed.
@@ -140,13 +152,13 @@ static void report_read_error(const char * position)
     throw Xapian::RangeError("Value in posting list too large.");
 }
 
-static bool get_tname_from_key(const char **src, const char *end,
+static inline bool get_tname_from_key(const char **src, const char *end,
 			       string &tname)
 {
     return unpack_string_preserving_sort(src, end, tname);
 }
 
-static bool
+static inline bool
 check_tname_in_key_lite(const char **keypos, const char *keyend, const string &tname)
 {
     string tname_in_key;
@@ -160,7 +172,7 @@ check_tname_in_key_lite(const char **keypos, const char *keyend, const string &t
     return tname_in_key == tname;
 }
 
-static bool
+static inline bool
 check_tname_in_key(const char **keypos, const char *keyend, const string &tname)
 {
     if (*keypos == keyend) return false;
@@ -197,7 +209,7 @@ read_start_of_first_chunk(const char ** posptr,
     RETURN(did);
 }
 
-static void read_did_increase(const char ** posptr,
+static inline void read_did_increase(const char ** posptr,
 			      const char * end,
 			      Xapian::docid * did_ptr)
 {
@@ -207,7 +219,7 @@ static void read_did_increase(const char ** posptr,
 }
 
 /// Read the wdf and the document length of an item.
-static void read_wdf_and_length(const char ** posptr,
+static inline void read_wdf_and_length(const char ** posptr,
 				const char * end,
 				Xapian::termcount * wdf_ptr,
 				quartz_doclen_t * doclength_ptr)
@@ -949,25 +961,60 @@ get_chunk(QuartzBufferedTable * bufftable, const string &tname,
     const char * keypos = cursor->current_key.data();
     const char * keyend = keypos + cursor->current_key.size();
 
-    *from = NULL;
     string * tag;
     if (!check_tname_in_key(&keypos, keyend, tname)) {
 	// Postlist for this termname doesn't exist.
 	if (!adding)
 	    throw Xapian::DatabaseCorruptError("Attempted to delete or modify an entry in a non-existent posting list for " + tname);
 
+	*from = NULL;
 	*to = new PostlistChunkWriter("", true, tname, true);
+	return Xapian::docid(-1);
+    }
+    
+    tag = bufftable->get_or_make_tag(cursor->current_key);
+    Assert(tag != 0);
+    Assert(!tag->empty());
+
+    // See if we're appending - if so we can shortcut by just copying
+    // the data part of the chunk wholesale.
+    bool is_first_chunk = (keypos == keyend);
+
+    const char * pos = tag->begin();
+    const char * end = pos + tag->size();
+    Xapian::docid first_did_in_chunk;
+    if (is_first_chunk) {
+	first_did_in_chunk = read_start_of_first_chunk(&pos, end, NULL, NULL);
     } else {
-	tag = bufftable->get_or_make_tag(cursor->current_key);
-	Assert(tag != 0);
-	Assert(!tag->empty());
-	*from = new PostlistChunkReader(keypos, keyend, *tag);
+	if (!unpack_uint_preserving_sort(&keypos, keyend,
+					 &first_did_in_chunk)) {
+	    report_read_error(keypos);
+	}
+    }
+
+    bool is_last_chunk;
+    Xapian::docid last_did_in_chunk;
+    last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk);
+    if (did > last_did_in_chunk) {
+	// This is the shortcut.  Not very pretty, but I'll leave refactoring
+	// until I've a clearer picture of everything which needs to be done.
+	// (FIXME)
+	*from = NULL;
 	*to = new PostlistChunkWriter(cursor->current_key,
 			(keypos == keyend),
 			tname,
-			(*from)->get_is_last_chunk());
+			is_last_chunk);
+	(*to)->raw_append(first_did_in_chunk, last_did_in_chunk,
+			  string(pos, end)); 
+	if (is_last_chunk) return Xapian::docid(-1);
+    } else {
+	*from = new PostlistChunkReader(keypos, keyend, *tag);
+	*to = new PostlistChunkWriter(cursor->current_key,
+		(keypos == keyend),
+		tname,
+		(*from)->get_is_last_chunk());
+	if ((*from)->get_is_last_chunk()) return Xapian::docid(-1);
     }
-    if (!*from || (*from)->get_is_last_chunk()) return Xapian::docid(-1);
 
     // Find first did of next tag.
     cursor->next();

@@ -1,3 +1,9 @@
+Thu Jan 08 21:06:37 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc: Shortcut the very common case
+	  of appending to a posting list (which happens when we're just
+	  adding new documents).  Declare small helper functions as "inline".
+
 Wed Jan 07 23:21:59 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc: Set threshold for flushing to
