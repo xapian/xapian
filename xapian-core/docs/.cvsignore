@@ -4,3 +4,5 @@ Makefile
 .deps
 code_structure.html
 mkdoc.pl
+sourcedoc
+apidoc

@@ -9,3 +9,7 @@ Makefile.in
 Makefile
 .deps
 .libs
+apitest
+stemtest.pl
+randtext_seed_*
+randjunk_seed_*
