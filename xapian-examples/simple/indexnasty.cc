@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
- * Copyright 2001 Ananova Ltd
+ * Copyright 2001,2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -264,7 +264,7 @@ IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer)
         string text=line.substr(cursor);
 
 	if (!field.empty() && !text.empty()) data+=field+'='+text+'\n';
-	if (!key.empty() && !text.empty()) newdocument.add_key(atoi(key.c_str()),text);
+	if (!key.empty() && !text.empty()) newdocument.add_value(atoi(key.c_str()),text);
 
         // now index field if required
         if (term) {

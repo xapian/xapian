@@ -1,3 +1,7 @@
+Fri May 10 14:52:34 BST 2002  Olly Betts <olly@survex.com>
+
+	* indexnasty: add_key -> add_value.
+
 Fri May 03 16:23:47 BST 2002  Olly Betts <olly@survex.com>
 
 	* Updated wrt key->value change in xapian-core.
