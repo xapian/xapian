@@ -1,3 +1,9 @@
+Tue Jul 18 19:14:45 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* The beginnings of a Java apitest.  One test implemented, which
+	  doesn't seem to work.  Updates to BackendManager and a few
+	  related bits.
+
 Tue Jul 18 18:48:05 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Change threadtests output so that it doesn't use om_stringstream.

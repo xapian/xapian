@@ -46,11 +46,11 @@ public class BackendManager {
 	    if (created) {
 	        OmWritableDatabase db =
 		    new OmWritableDatabase("sleepycat", make_strvec(dbdir));
+		System.err.println("Indexing to " + dbdir);
 	        index_files_to_database(db, change_names_to_paths(dbnames));
 		return db;
-	    } else {
-	        return new OmDatabase("sleepycat", make_strvec(dbdir));
 	    }
+	    return new OmDatabase("sleepycat", make_strvec(dbdir));
 	} else {
 	    return new OmWritableDatabase("sleepycat", make_strvec(dbdir));
 	}
@@ -105,7 +105,6 @@ public class BackendManager {
 
     private static boolean files_exist(String[] fnames) {
         for (int i=0; i<fnames.length; i++) {
-	    System.out.println("Checking file " + fnames[i]);
 	    File f = new File(fnames[i]);
 	    if (!f.exists()) {
 	        return false;
@@ -125,20 +124,23 @@ public class BackendManager {
     {
         for (int i=0; i<paths.length; ++i) {
 	    FileReader from = new FileReader(paths[i]);
+	    LineNumberReader from_byline = new LineNumberReader(from);
 
-	    while (from.ready()) {
-	        String para = get_paragraph(from);
+	    while (from_byline.ready()) {
+	        String para = get_paragraph(from_byline);
 		database.add_document(string_to_document(para));
 	    }
 	}
     }
 
-    private static String get_paragraph(InputStreamReader rawinput) throws Throwable {
-        LineNumberReader input = new LineNumberReader(rawinput);
+    private static String get_paragraph(LineNumberReader input) throws Throwable {
         String para = "";
 	String line;
 	int linecount = 0;
 	do {
+	    if (!input.ready()) {
+	        break;
+	    }
 	    line = input.readLine();
 	    if (line != null) {
 		para += line + "\n";
@@ -147,12 +149,14 @@ public class BackendManager {
 		    break;
 		}
 	    }
-	} while(linecount < 3 || (line != null && line.trim() != ""));
+	} while(linecount < 3 || (line != null && !line.trim().equals("")));
         return para;
     }
 
     private static OmDocumentContents string_to_document(String paragraph) throws OmError {
         OmStem stemmer = new OmStem("english");
+
+	//System.out.println("Adding paragraph: " + paragraph);
 
 	OmDocumentContents document = new OmDocumentContents();
 

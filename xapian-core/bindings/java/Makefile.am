@@ -40,6 +40,7 @@ JSRC  = com/muscat/om/OmObject.java			\
 	com/muscat/om/OmDocNotFoundError.java		\
 	com/muscat/om/OmNetworkError.java		\
 	RunTest.java					\
+	ApiTest.java					\
 	BackendManager.java
 
 JCLASSES  = com/muscat/om/OmObject.class			\
@@ -76,6 +77,7 @@ JCLASSES  = com/muscat/om/OmObject.class			\
 	com/muscat/om/OmDocNotFoundError.class		\
 	com/muscat/om/OmNetworkError.class		\
 	RunTest.class                                   \
+	ApiTest.class                                   \
 	BackendManager.class
 
 # where to put the class files

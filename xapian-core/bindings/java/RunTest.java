@@ -25,12 +25,8 @@ import java.io.*;
 
 public class RunTest {
     public static void main (String[] args) throws Throwable {
-        backendmanager = new BackendManager();
-
-	backendmanager.set_datadir(System.getProperty("srcdir", ".") +
-	                           "/../../tests/testdata/" );
-
         boolean success = true;
+
     	// First some quick playing with stemmers and queries.
     	OmStem foo = new OmStem("english");
 
@@ -71,7 +67,7 @@ public class RunTest {
 	    }
 	}
 
-	OmDatabaseGroup dbgrp = get_simple_database();
+	OmDatabaseGroup dbgrp = ApiTest.get_simple_database();
 
         String[] dbgrp_ = { "/home/cemerson/working/open-muscat/build/om-debug-valis/tests/.sleepy/db=apitest_simpledata=" };
 	dbgrp.add_database("sleepycat", dbgrp_);
@@ -101,24 +97,5 @@ public class RunTest {
 	    System.out.print(a[i] + " ");
 	}
 	System.out.println("");
-    }
-
-    private static OmDatabaseGroup get_simple_database() throws Throwable {
-        OmDatabase mydb = get_database("apitest_simpledata");
-	return make_dbgrp(mydb);
-    }
-
-    private static OmDatabaseGroup make_dbgrp(OmDatabase db1) throws Throwable {
-        OmDatabaseGroup result = new OmDatabaseGroup();
-
-	result.add_database(db1);
-
-	return result;
-    }
-
-    private static BackendManager backendmanager;
-
-    private static OmDatabase get_database(String dbname) throws Throwable {
-        return backendmanager.get_database(dbname);
     }
 }

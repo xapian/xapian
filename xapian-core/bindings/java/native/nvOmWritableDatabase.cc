@@ -88,6 +88,8 @@ JNIEXPORT jint JNICALL Java_com_muscat_om_OmWritableDatabase_add_1document
     OmWritableDatabase *db = (OmWritableDatabase *) tryGetLongField (env, obj, "nativePtr");
     OmDocumentContents *doc = (OmDocumentContents *) tryGetLongField (env, document, "nativePtr");
     try {
+//	cerr << db->get_description() << endl;
+//	cerr << doc->get_description() << endl;
 	return (jint)db->add_document(*doc);
     }
     catch (OmError& err) {

@@ -21,6 +21,11 @@ public class OmEnquire extends OmObject {
     public native OmDocument get_doc (int did);
 
     /** Get (a portion of) the match set for the current query. */
+    public OmMSet get_mset (int first, int maxitems, OmRSet rset,
+    			    OmMatchOptions moptions)
+    {
+	return get_mset (first, maxitems, rset, moptions, null);
+    }
     public OmMSet get_mset (int first, int maxitems) {
 	return get_mset (first, maxitems, null, null, null);
     }
