@@ -1,0 +1,30 @@
+Search/Xapian version 0.01
+==========================
+
+This is Search::Xapian, a Perl XS frontend to the Xapian C++ search 
+library.
+
+INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+DEPENDENCIES
+
+This module requires these other modules and libraries:
+
+  The Xapian C++ search library, which can be downloaded by following
+  the instructions on http://www.xapian.org/
+
+COPYRIGHT AND LICENCE
+
+Please report any bugs/suggestions to Alex Bowley <kilinrax@cpan.org>
+
+Copyright (c) 2002 Alex Bowley. All rights reserved.
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+

@@ -1,0 +1,63 @@
+TYPEMAP
+OmSettings           O_OBJECT
+OmSettings *         O_OBJECT
+OmDatabase           O_OBJECT
+OmDatabase *         O_OBJECT
+OmEnquire *          O_OBJECT
+OmQuery              O_OBJECT
+OmQuery *            O_OBJECT
+OmMSet               O_MSET
+OmMSet *             O_MSET
+OmMSetIterator       O_MSETI
+OmMSetIterator *     O_MSETI
+OmDocument           O_DOC
+OmDocument *         O_DOC
+
+string               STRING
+string *             STRING
+
+om_docid             T_IV
+om_doccount          T_IV
+om_percent           T_IV
+om_termname          T_PV
+
+OmQuery::op          T_IV
+
+
+INPUT
+STRING
+                     $var = new string(SvPV($arg,PL_na))
+O_MSET
+	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a blessed SV reference\" );
+		XSRETURN_UNDEF;
+	}
+
+O_MSETI
+	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a blessed SV reference\" );
+		XSRETURN_UNDEF;
+	}
+
+O_DOC
+	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a blessed SV reference\" );
+		XSRETURN_UNDEF;
+	}
+       
+
+OUTPUT
+STRING
+                     sv_setpv((SV*)$arg, * (char **) &$var);
+O_MSET
+	sv_setref_pv( $arg, "Search::Xapian::MatchSet", (void*)$var );
+O_MSETI
+	sv_setref_pv( $arg, "Search::Xapian::MatchSetIterator", (void*)$var );
+O_DOC
+	sv_setref_pv( $arg, "Search::Xapian::Document", (void*)$var );

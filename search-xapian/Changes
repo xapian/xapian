@@ -1,0 +1,6 @@
+Revision history for Perl extension Search::Xapian.
+
+0.01  Tue Sep 10 16:03:23 2002
+	- original version; created by h2xs 1.21 with options
+		-x -O -n Search::Xapian -A simplesearch.h
+
