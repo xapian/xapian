@@ -184,7 +184,9 @@ class TextfileDatabase : public virtual IRSingleDatabase,
 
 	doccount  get_doccount() const;
 	doclength get_avlength() const;
-	doccount get_termfreq(const termname &) const; // Numb of docs indexed by term
+
+	doccount get_termfreq(const termname &) const;
+	bool term_exists(const termname &) const;
 
 	DBPostList * open_post_list(const termname&, RSet *) const;
 	TermList * open_term_list(docid) const;
@@ -355,6 +357,13 @@ TextfileDatabase::get_termfreq(const termname & tname) const
     map<termname, TextfileTerm>::const_iterator i = postlists.find(tname);
     Assert(i != postlists.end());
     return i->second.docs.size();
+}
+
+inline bool
+TextfileDatabase::term_exists(const termname &tname) const
+{
+    if(term_name_to_id(tname)) return true;
+    return false;
 }
 
 inline doclength

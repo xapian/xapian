@@ -231,6 +231,9 @@ class MultiDatabase : public virtual IRGroupDatabase {
 	doccount  get_doccount() const;
 	doclength get_avlength() const;
 
+	doccount get_termfreq(const termname &) const;
+	bool term_exists(const termname &) const;
+
 	DBPostList * open_post_list(const termname&, RSet *) const;
 	TermList * open_term_list(docid id) const;
 	IRDocument * open_document(docid id) const;
@@ -282,6 +285,23 @@ MultiDatabase::get_avlength() const
     }
 
     return avlength;
+}
+
+inline doccount
+MultiDatabase::get_termfreq(const termname &tname) const
+{   
+    PostList *pl = open_post_list(tname, NULL);
+    doccount freq = 0;
+    if(pl) freq = pl->get_termfreq();
+    delete pl;
+    return freq;
+}
+
+inline bool
+MultiDatabase::term_exists(const termname &tname) const
+{
+    if(term_name_to_id(tname)) return true;
+    return false;
 }
 
 inline termname
