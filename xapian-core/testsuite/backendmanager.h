@@ -63,6 +63,7 @@ class BackendManager {
 	/// Throw an exception.
 	OmWritableDatabase getwritedb_void(const std::vector<std::string> &dbnames);
 
+#ifdef MUS_BUILD_BACKEND_INMEMORY
 	/// Get an inmemory database instance.
 	OmDatabase getdb_inmemory(const std::vector<std::string> &dbnames);
 
@@ -82,13 +83,17 @@ class BackendManager {
 	OmWritableDatabase getwritedb_inmemoryerr(const std::vector<std::string> &dbnames);
 	OmWritableDatabase getwritedb_inmemoryerr2(const std::vector<std::string> &dbnames);
 	OmWritableDatabase getwritedb_inmemoryerr3(const std::vector<std::string> &dbnames);
+#endif
 
-	/// Get a network database instance
-	OmDatabase getdb_network(const std::vector<std::string> &dbnames);
+#ifdef MUS_BUILD_BACKEND_REMOTE
+	/// Get a remote database instance
+	OmDatabase getdb_remote(const std::vector<std::string> &dbnames);
 
-	/// Get a writable network database instance
-	OmWritableDatabase getwritedb_network(const std::vector<std::string> &dbnames);
+	/// Get a writable remote database instance
+	OmWritableDatabase getwritedb_remote(const std::vector<std::string> &dbnames);
+#endif
 
+#ifdef MUS_BUILD_BACKEND_QUARTZ
 	/// Get a quartz database instance.
 	OmDatabase getdb_quartz(const std::vector<std::string> &dbnames);
 
@@ -102,6 +107,7 @@ class BackendManager {
 	/// Do the actual work of creating a quartz database instance.
 	OmWritableDatabase do_getwritedb_quartz(const std::vector<std::string> &dbnames,
 					   bool writable);
+#endif
 
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
 	/// Get a da database instance.

@@ -36,6 +36,7 @@
 #include "testsuite.h"
 #include "testutils.h"
 #include "backendmanager.h"
+#include "utils.h"
 
 #include "apitest.h"
 #include "api_db.h"

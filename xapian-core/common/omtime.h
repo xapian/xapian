@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -93,17 +94,25 @@ OmTime::now()
 	return result;
     }
 #endif
-#ifdef HAVE_FTIME
+#ifdef FTIME_RETURNS_VOID
+    struct timeb tp;
+    ftime(&tp);
+    result.sec = tp.time;
+    result.usec = tp.millitm * 1000;
+    return result;
+#else
+# ifdef HAVE_FTIME
     struct timeb tp;
     if (ftime(&tp) == 0) {
 	result.sec = tp.time;
 	result.usec = tp.millitm * 1000;
 	return result;
     }
-#endif
+# endif
     result.sec = time(NULL);
     result.usec = 0;
     return result;
+#endif
 }
 
 #endif /* OM_HGUARD_OMTIME_H */

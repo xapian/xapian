@@ -47,27 +47,25 @@ EXTRA_DIST = z_data/ord+ z_data/ord- z_data/ordnum+ z_data/ordnum-
 
 noinst_LTLIBRARIES = libquartz.la
 
-TESTS = btreetest quartztest
+TESTS = btreetest$(EXEEXT) quartztest$(EXEEXT)
 
 check_PROGRAMS = btreetest quartztest quartzdump quartzcheck quartzcompact
 
-#FIXME: need to make these *after* libxapian...
+#FIXME: need to make these *after* libxapian, but want to install them...
 #bin_PROGRAMS = quartzcheck quartzcompact
 
 clean-local:
 	rm -rf .quartztmp .btreetmp
 
 btreetest_SOURCES = btreetest.cc btreecheck.cc
-btreetest_LDADD = ../../testsuite/libtest.la \
-		  ../../libxapian.la
+btreetest_LDADD = ../../testsuite/libtest.la ../../libxapian.la
 
 quartztest_SOURCES = quartztest.cc
-quartztest_LDADD = ../../getopt/libgetopt.la \
-                   ../../testsuite/libtest.la \
+quartztest_LDADD = ../../getopt/libgetopt.la ../../testsuite/libtest.la \
 		   ../../libxapian.la
 
 quartzdump_SOURCES = quartzdump.cc
-quartzdump_LDADD = ../../libxapian.la
+quartzdump_LDADD = ../../getopt/libgetopt.la ../../libxapian.la
 
 quartzcheck_SOURCES = quartzcheck.cc btreecheck.cc
 quartzcheck_LDADD = ../../libxapian.la

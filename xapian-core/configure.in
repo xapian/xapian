@@ -36,16 +36,30 @@ AC_PROG_YACC
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
 
+dnl See if ftime returns void (as it does on mingw)
+if test $ac_cv_func_ftime = yes ; then
+  AC_TRY_COMPILE([#include <sys/timeb.h>],
+    [struct timeb tp; int i = ftime(&tp);],
+    ,
+    AC_DEFINE(FTIME_RETURNS_VOID, 1, [Define if ftime returns void]))
+fi
+
+dnl how to find the hostname
+AC_CHECK_HEADERS(sys/utsname.h) dnl uname function in here
+AC_CHECK_FUNCS(gethostname)
+
+dnl mingw doesn't have getpid (it has GetCurrentProcessId() instead)
+AC_CHECK_FUNC(getpid)
+
+dnl mingw (for instance) lacks ssize_t
+AC_CHECK_TYPE(ssize_t, long)
+
+AC_LANG_SAVE
+AC_LANG_CPLUSPLUS
 dnl Check for a stringstream implementation.  (If not present, we roll
 dnl one ourselves).
-AC_LANG_SAVE
-AC_LANG_CPLUSPLUS
 AC_CHECK_HEADERS(sstream)
-AC_LANG_RESTORE
-
 dnl Check for a new streams implementation.
-AC_LANG_SAVE
-AC_LANG_CPLUSPLUS
 AC_CHECK_HEADERS(streambuf)
 AC_LANG_RESTORE
 
@@ -124,6 +138,12 @@ AC_TYPE_SIZE_T
 dnl Checks for library functions.
 AC_FUNC_MEMCMP
 AC_CHECK_FUNCS(strerror)
+
+dnl mingw has _snprintf
+AC_CHECK_FUNCS(snprintf _snprintf)
+if test $ac_cv_func_snprintf$ac_cv_func__snprintf = noyes ; then
+  AC_DEFINE(snprintf, _snprintf, [Define snprintf to whatever it's called on this platform])
+fi
 
 dnl ***************************
 dnl * Select modules to build *
@@ -243,7 +263,7 @@ AC_ARG_ENABLE(debug,
   yes) use_debug_paranoid=yes ; use_debug=yes ;;
   partial) use_debug=yes ;;
   profile) use_debug_profile=yes ;;
-  no)  use_debug=no ;;
+  no) use_debug=no ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
 esac])
 

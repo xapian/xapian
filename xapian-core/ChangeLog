@@ -1,3 +1,16 @@
+Tue Apr 08 19:55:15 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in,backends/quartz/Makefile.am,backends/quartz/btree.cc,
+	  netprogs/nettest.cc,common/getopt.h,common/omtime.h,common/utils.cc,
+	  common/utils.h,tests/Makefile.am,tests/api_db.cc: Now builds with
+	  Linux to mingw cross-compiler.
+	* tests/Makefile.am: don't include findheaders.pl in the tarball -
+	  it's no longer used.
+	* tests/internaltest.cc: removed "#include <dlfcn.h>" and disabled
+	  code which used to use it.
+	* testsuite/backendmanager.cc,testsuite/backendmanager.h: fixed to
+	  work if any backends are disabled.
+
 Tue Apr 08 16:09:11 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc,backends/quartz/quartz_log.cc,

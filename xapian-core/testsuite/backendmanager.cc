@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,9 +25,8 @@
 #include <config.h>
 #include <fstream>
 #include <string>
-using std::string;
 #include <vector>
-using std::vector;
+
 #include "autoptr.h"
 #include <sys/stat.h>
 #include <unistd.h>
@@ -40,6 +39,8 @@ using std::vector;
 #include "omdebug.h"
 #include "utils.h"
 
+using namespace std;
+
 OmDocument
 string_to_document(string paragraph)
 {
@@ -50,13 +51,11 @@ string_to_document(string paragraph)
     om_termcount position = 1;
 
     for (om_valueno i = 1; i <= 10; ++i) {
-	if (i >= paragraph.length()) {
-	    break;
-	} else {
-	    string value = paragraph.substr(i, 1);
-	    document.add_value(i, value);
-	}
+	if (i >= paragraph.length()) break;
+	string value = paragraph.substr(i, 1);
+	document.add_value(i, value);
     }
+
     {
 	string value;
 
@@ -76,14 +75,14 @@ string_to_document(string paragraph)
 
     string::size_type spacepos;
     om_termname word;
-    while((spacepos = paragraph.find_first_not_of(" \t\n")) != string::npos) {
-	if(spacepos) paragraph = paragraph.erase(0, spacepos);
+    while ((spacepos = paragraph.find_first_not_of(" \t\n")) != string::npos) {
+	if (spacepos) paragraph = paragraph.erase(0, spacepos);
 	spacepos = paragraph.find_first_of(" \t\n");
 	word = paragraph.substr(0, spacepos);
 	select_characters(word, "");
 	lowercase_term(word);
 	word = stemmer.stem_word(word);
-	if (word.size() != 0) {
+	if (!word.empty()) {
 	    document.add_posting(word, position++);
 	}
 	paragraph = paragraph.erase(0, spacepos);
@@ -96,13 +95,12 @@ void
 index_files_to_database(OmWritableDatabase & database,
                         vector<string> paths)
 {
-    for (vector<string>::const_iterator p = paths.begin();
-	 p != paths.end();
-	 p++) {
+    vector<string>::const_iterator p;
+    for (p = paths.begin(); p != paths.end(); ++p) {
 	TextfileIndexerSource source(*p);
-	AutoPtr<std::istream> from(source.get_stream());
+	AutoPtr<istream> from(source.get_stream());
 
-	while(*from) {
+	while (*from) {
 	    string para;
 	    get_paragraph(*from, para);
 	    database.add_document(string_to_document(para));
@@ -115,15 +113,15 @@ index_files_to_m36(const string &prog, const string &dbdir,
 		   vector<string> paths)
 {
     string dump = dbdir + "/DATA";
-    std::ofstream out(dump.c_str());
+    ofstream out(dump.c_str());
     string valuefile = dbdir + "/keyfile";
-    std::ofstream values(valuefile.c_str());
+    ofstream values(valuefile.c_str());
     values << "omrocks!"; // magic word
     for (vector<string>::const_iterator p = paths.begin();
 	 p != paths.end();
 	 p++) {
 	TextfileIndexerSource source(*p);
-	AutoPtr<std::istream> from(source.get_stream());
+	AutoPtr<istream> from(source.get_stream());
 
 	while (*from) {
 	    string para;
@@ -134,7 +132,7 @@ index_files_to_m36(const string &prog, const string &dbdir,
 		OmTermIterator i = doc.termlist_begin();
 		OmTermIterator i_end = doc.termlist_end();
 		for ( ; i != i_end; ++i) {
-		    out << *i << std::endl;
+		    out << *i << endl;
 		}
 	    }
 	    out << "#TEND#\n";
@@ -153,10 +151,7 @@ index_files_to_m36(const string &prog, const string &dbdir,
 }
 
 vector<string>
-make_strvec(string s1 = "",
-	    string s2 = "",
-	    string s3 = "",
-	    string s4 = "")
+make_strvec(string s1 = "", string s2 = "", string s3 = "", string s4 = "")
 {
     vector<string> result;
 
@@ -179,6 +174,7 @@ BackendManager::set_dbtype(const string &type)
 {
     if (type == current_type) {
 	// leave it as it is.
+#ifdef MUS_BUILD_BACKEND_INMEMORY
     } else if (type == "inmemory") {
 	do_getdb = &BackendManager::getdb_inmemory;
 	do_getwritedb = &BackendManager::getwritedb_inmemory;
@@ -191,13 +187,29 @@ BackendManager::set_dbtype(const string &type)
     } else if (type == "inmemoryerr3") {
 	do_getdb = &BackendManager::getdb_inmemoryerr3;
 	do_getwritedb = &BackendManager::getwritedb_inmemoryerr3;
+#else
+    } else if (type == "inmemory" || type == "inmemoryerr" ||
+	       type == "inmemoryerr2" || type == "inmemoryerr3") {
+	do_getdb = &BackendManager::getdb_void;
+	do_getwritedb = &BackendManager::getwritedb_void;
+#endif
     } else if (type == "quartz") {
+#ifdef MUS_BUILD_BACKEND_QUARTZ
 	do_getdb = &BackendManager::getdb_quartz;
 	do_getwritedb = &BackendManager::getwritedb_quartz;
 	system("rm -fr .quartz");
+#else
+	do_getdb = &BackendManager::getdb_void;
+	do_getwritedb = &BackendManager::getwritedb_void;
+#endif
     } else if (type == "remote") {
-	do_getdb = &BackendManager::getdb_network;
-	do_getwritedb = &BackendManager::getwritedb_network;
+#ifdef MUS_BUILD_BACKEND_REMOTE
+	do_getdb = &BackendManager::getdb_remote;
+	do_getwritedb = &BackendManager::getwritedb_remote;
+#else
+	do_getdb = &BackendManager::getdb_void;
+	do_getwritedb = &BackendManager::getwritedb_void;
+#endif
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
     } else if (type == "da") {
 	do_getdb = &BackendManager::getdb_da;
@@ -238,7 +250,7 @@ BackendManager::set_datadir(const string &datadir_)
     datadir = datadir_;
 }
 
-const std::string
+const string
 BackendManager::get_datadir(void)
 {
     return datadir;
@@ -260,11 +272,10 @@ vector<string>
 BackendManager::change_names_to_paths(const vector<string> &dbnames)
 {
     vector<string> paths;
-    for(vector<string>::const_iterator i = dbnames.begin();
-	i != dbnames.end();
-	i++) {
-	if (i->length() > 0) {
-	    if(datadir.size() == 0) {
+    vector<string>::const_iterator i;
+    for (i = dbnames.begin(); i != dbnames.end(); ++i) {
+	if (!i->empty()) {
+	    if (datadir.empty()) {
 		paths.push_back(*i);
 	    } else {
 		paths.push_back(datadir + "/" + *i + ".txt");
@@ -274,6 +285,7 @@ BackendManager::change_names_to_paths(const vector<string> &dbnames)
     return paths;
 }
 
+#ifdef MUS_BUILD_BACKEND_INMEMORY
 OmDatabase
 BackendManager::getdb_inmemory(const vector<string> &dbnames)
 {
@@ -335,6 +347,7 @@ BackendManager::getwritedb_inmemoryerr3(const vector<string> &dbnames)
 
     return db;
 }
+#endif
 
 /** Create the directory dirname if needed.  Returns true if the
  *  directory was created and false if it was already there.  Throws
@@ -356,6 +369,7 @@ bool create_dir_if_needed(const string &dirname)
     return false; // Already a directory.
 }
 
+#ifdef MUS_BUILD_BACKEND_QUARTZ
 OmDatabase
 BackendManager::do_getdb_quartz(const vector<string> &dbnames, bool writable)
 {
@@ -399,8 +413,7 @@ BackendManager::do_getwritedb_quartz(const vector<string> &dbnames,
     // writable ones (which need to be recreated on each use)
     if (writable) dbdir += 'w';
     for (vector<string>::const_iterator i = dbnames.begin();
-	 i != dbnames.end();
-	 i++) {
+	 i != dbnames.end(); ++i) {
 	dbdir += "=" + *i;
     }
     if (writable) {
@@ -431,9 +444,11 @@ BackendManager::getwritedb_quartz(const vector<string> &dbnames)
 {
     return do_getwritedb_quartz(dbnames, true);
 }
+#endif
 
+#ifdef MUS_BUILD_BACKEND_REMOTE
 OmDatabase
-BackendManager::getdb_network(const vector<string> &dbnames)
+BackendManager::getdb_remote(const vector<string> &dbnames)
 {
     // run an omprogsrv for now.  Later we should also use omtcpsrv
     string args = datadir;
@@ -454,10 +469,11 @@ BackendManager::getdb_network(const vector<string> &dbnames)
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_network(const vector<string> &/*dbnames*/)
+BackendManager::getwritedb_remote(const vector<string> &/*dbnames*/)
 {
-    throw OmInvalidArgumentError("Attempted to open writable network database");
+    throw OmInvalidArgumentError("Attempted to open writable remote database");
 }
+#endif
 
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
 OmDatabase

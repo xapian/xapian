@@ -48,8 +48,8 @@
 #include <algorithm>  // for std::min()
 #include <string>
 
-#ifdef HAVE__COMMIT
-# include <io.h>
+#ifdef __WIN32__
+# include <io.h> // for _commit()
 #endif
 
 using std::min;
@@ -199,7 +199,7 @@ int sys_flush(int h) {
     fdatasync(h);
 #elif defined HAVE_FSYNC
     fsync(h);
-#elif defined HAVE__COMMIT
+#elif defined __WIN32__
     _commit(h);
 #else
 #error "Have neither fsync() nor fdatasync() nor _commit() - cannot sync."

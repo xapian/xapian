@@ -25,7 +25,6 @@
 #include <config.h>
 #include <iostream>
 #include <string>
-#include <dlfcn.h>
 
 using namespace std;
 
@@ -143,11 +142,6 @@ static bool test_testsuite2()
     return true;
 }
 
-/* In some systems <dlfcn.h> doesn't define RTLD_DEFAULT */
-#ifndef RTLD_DEFAULT
-#define RTLD_DEFAULT (void *)0
-#endif
-
 // test the memory leak tests
 static bool test_testsuite3()
 {
@@ -184,10 +178,7 @@ static bool test_testsuite4()
 	{0, 0}
     };
 
-#if 0
-    if (!dlsym(RTLD_DEFAULT, "malloc_allocdata")) {
-#endif
-	SKIP_TEST("malloc tracking library not installed");
+    SKIP_TEST("malloc tracking library not installed");
 #if 0
     }
 

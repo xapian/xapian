@@ -113,12 +113,11 @@ struct StringAndValue {
  *  isn't found, the value returned is the value in the terminating
  *  object (which has a zero length string).
  *
- *  Note: this just uses a list of entrys, and searches linearly
+ *  Note: this just uses a list of entries, and searches linearly
  *  through them.  Could at make this do a binary chop, but probably
  *  not worth doing so, unless list gets large.
  */
-int map_string_to_value(const StringAndValue * haystack,
-			const string needle);
+int map_string_to_value(const StringAndValue * haystack, const string & needle);
 
 /** Return true if the file fname exists.
  */
@@ -151,5 +150,12 @@ inline int mkdir(const string &filename, mode_t mode) {
 inline int stat(const string &filename, struct stat *buf) {
     return stat(filename.c_str(), buf);
 }
+
+# ifdef __WIN32__
+inline unsigned int sleep(unsigned int secs) {
+    _sleep(secs * 1000);
+    return 0;
+}
+# endif
 
 #endif /* OM_HGUARD_UTILS_H */

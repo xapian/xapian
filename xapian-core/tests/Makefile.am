@@ -3,7 +3,7 @@
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_srcdir)/testsuite -I${top_builddir}/include
 
 ## Test programs to be run
-TESTS = apitest internaltest stemtest
+TESTS = apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT)
 
 ## Programs to build
 check_PROGRAMS = apitest internaltest stemtest
@@ -39,8 +39,7 @@ EXTRA_DIST = testdata/apitest_onedoc.txt \
 	     testdata/apitest_allterms2.txt \
 	     testdata/apitest_poslist.txt \
 	     testdata/apitest_manydocs.txt \
-	     testdata/etext.txt \
-	     findheaders.pl
+	     testdata/etext.txt
 
 clean-local:
 	rm -rf .quartz

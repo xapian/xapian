@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,80 +24,84 @@
 
 #include <config.h>
 
-/** This so we can use snprintf */
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif /* _GNU_SOURCE */
+#ifdef HAVE_SNPRINTF
+/* This so we can use snprintf */
+# ifndef _ISOC99_SOURCE
+#  define _ISOC99_SOURCE
+# endif
+#endif
 
 #include "utils.h"
 
 #include <stdio.h>
 
+using namespace std;
+
 #define BUFSIZE 100
 
 // Convert a number to a string
-std::string
+string
 om_tostring(int val)
 {
     char buf[BUFSIZE];
     int len = snprintf(buf, BUFSIZE, "%d", val);
-    if(len == -1 || len > BUFSIZE) return std::string(buf, BUFSIZE);
-    return std::string(buf, len);
+    if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);
+    return string(buf, len);
 }
 
-std::string
+string
 om_tostring(unsigned int val)
 {
     char buf[BUFSIZE];
     int len = snprintf(buf, BUFSIZE, "%u", val);
-    if(len == -1 || len > BUFSIZE) return std::string(buf, BUFSIZE);
-    return std::string(buf, len);
+    if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);
+    return string(buf, len);
 }
 
-std::string
+string
 om_tostring(long int val)
 {
     char buf[BUFSIZE];
     int len = snprintf(buf, BUFSIZE, "%ld", val);
-    if(len == -1 || len > BUFSIZE) return std::string(buf, BUFSIZE);
-    return std::string(buf, len);
+    if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);
+    return string(buf, len);
 }
 
-std::string
+string
 om_tostring(unsigned long int val)
 {
     char buf[BUFSIZE];
     int len = snprintf(buf, BUFSIZE, "%lu", val);
-    if(len == -1 || len > BUFSIZE) return std::string(buf, BUFSIZE);
-    return std::string(buf, len);
+    if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);
+    return string(buf, len);
 }
 
-std::string
+string
 om_tostring(double val)
 {
     char buf[BUFSIZE];
     int len = snprintf(buf, BUFSIZE, "%.20g", val);
-    if(len == -1 || len > BUFSIZE) return std::string(buf, BUFSIZE);
-    return std::string(buf, len);
+    if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);
+    return string(buf, len);
 }
 
-std::string
+string
 om_tostring(const void * val)
 {
     char buf[BUFSIZE];
     int len = snprintf(buf, BUFSIZE, "%p", val);
-    if(len == -1 || len > BUFSIZE) return std::string(buf, BUFSIZE);
-    return std::string(buf, len);
+    if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);
+    return string(buf, len);
 }
 
-std::string
+string
 om_tostring(bool val)
 {
     return val ? "true" : "false";
 }
 
 void
-split_words(std::string text, std::vector<std::string> &words, char ws)
+split_words(string text, vector<string> &words, char ws)
 {
     if (text.length() > 0 && text[0] == ws) {
 	text.erase(0, text.find_first_not_of(ws));
@@ -109,10 +114,10 @@ split_words(std::string text, std::vector<std::string> &words, char ws)
 }
 
 int
-map_string_to_value(const StringAndValue * haystack, const std::string needle)
+map_string_to_value(const StringAndValue * haystack, const string & needle)
 {
-    while(haystack->name[0] != '\0') {
-	if(haystack->name == needle) break;
+    while (haystack->name[0] != '\0') {
+	if (haystack->name == needle) break;
 	haystack++;
     }
     return haystack->value;
@@ -121,7 +126,7 @@ map_string_to_value(const StringAndValue * haystack, const std::string needle)
 /** Return true if the file fname exists
  */
 bool
-file_exists(const std::string &fname)
+file_exists(const string &fname)
 {
     struct stat sbuf;
     // exists && is a regular file
@@ -131,9 +136,10 @@ file_exists(const std::string &fname)
 /** Return true if all the files fnames exist.
  */
 bool
-files_exist(const std::vector<std::string> &fnames)
+files_exist(const vector<string> &fnames)
 {
-    for (std::vector<std::string>::const_iterator i = fnames.begin(); i != fnames.end(); i++) {
+    vector<string>::const_iterator i;
+    for (i = fnames.begin(); i != fnames.end(); ++i) {
 	if (!file_exists(*i)) return false;
     }
     return true;
