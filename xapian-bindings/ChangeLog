@@ -1,3 +1,8 @@
+Tue Jun 29 01:20:22 BST 2004  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/errors/: Removed wrappers for unused error classes
+	  which have been pruned from C++.
+
 Sun Jun 27 00:57:25 BST 2004  Olly Betts <olly@survex.com>
 
 	* java/org/xapian/errors/.cvsignore,
