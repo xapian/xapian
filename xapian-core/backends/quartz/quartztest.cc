@@ -284,14 +284,9 @@ static bool test_dbentries1()
 
     QuartzDbKey key1;
 
-    key1.value="";
 #ifdef MUS_DEBUG
-    TEST_EXCEPTION(OmAssertionError, entries.have_entry(key1));
-#endif
-    key1.value="foo";
-    TEST(!entries.have_entry(key1));
-
     key1.value="";
+    TEST_EXCEPTION(OmAssertionError, entries.have_entry(key1));
     {
 	auto_ptr<QuartzDbTag> tagptr(new QuartzDbTag);
 	tagptr->value = "bar";
@@ -299,8 +294,11 @@ static bool test_dbentries1()
     }
     TEST_EXCEPTION(OmAssertionError, entries.have_entry(key1));
     TEST_EXCEPTION(OmAssertionError, entries.get_tag(key1));
+    TEST_EXCEPTION(OmAssertionError, entries.forget_entry(key1));
+#endif
 
     key1.value="foo";
+    TEST(!entries.have_entry(key1));
     {
 	auto_ptr<QuartzDbTag> tagptr(new QuartzDbTag);
 	tagptr->value = "bar";
@@ -309,9 +307,12 @@ static bool test_dbentries1()
     TEST(entries.have_entry(key1));
     TEST(entries.get_tag(key1) != 0);
     TEST(entries.get_tag(key1)->value == "bar");
-
-    //key1.value="foo";
-    //TEST(entries.have_entry(key1));
+    {
+	auto_ptr<QuartzDbTag> tagptr(0);
+	entries.set_tag(key1, tagptr);
+    }
+    TEST(entries.have_entry(key1));
+    TEST(entries.get_tag(key1) == 0);
 
     return true;
 }
