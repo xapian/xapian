@@ -161,7 +161,9 @@ static void step_1(struct swedish_stemmer * z)
                 ends(z, "erns") ||
                 ends(z, "as") ||
                 ends(z, "es") ||
-                ends(z, "s")) break;
+                ends(z, "s") && (cons(z, z->j) ||
+                                 z->p[z->j] == 'o' ||
+                                 z->p[z->j] == 'y')) break;
             return;
         case 't':
             if (ends(z, "het") ||
@@ -189,6 +191,8 @@ static void step_3(struct swedish_stemmer * z)
 {   if (ends(z, "lig") ||
         ends(z, "ig") ||
         ends(z, "els")) z->k = z->j;
+    else if
+       (ends(z, "lOst")) z->k--; /* take off the t */
 }
 
 extern const char * swedish_stem(void * z_, const char * q, int i0, int i1)
