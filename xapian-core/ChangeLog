@@ -1,3 +1,7 @@
+Fri Jun  2 18:00:25 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added a text file explaining how to do distributed searches.
+
 Fri Jun  2 13:27:01 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added a stats database to sleepycat, to store things such as

@@ -1,0 +1,77 @@
+This document attempts to describe how to make use of the facilities in
+Open Muscat for distributed searches.
+
+OVERVIEW
+========
+There are two sides to the distributed searching.  The client end is the
+program initiating the search on behalf of a user, and the server end is
+the program which provides a searching interface over a set of databases
+for the client.  There can be many servers, with many clients sharing
+them.  In theory, a server can also be a client to other servers, but
+this may not be very useful or efficient.
+
+The client runs queries in the same way that it would on local databases,
+but with different database arguments.  Instead of type, eg, "da_flimsy",
+use "net".  The extra parameters describe how to connect to the server.
+Once the database is opened, the query process is identical to any other.
+
+There are currently network client/server methods: prog and tcp.  They
+both use the same protocol, although different means to contact the
+server.
+
+THE PROG METHOD
+===============
+The prog method actually spawns a program when the database is opened, and
+communicates with it over a Unix domain socket.  This isn't intended for
+production use, but is really only useful for debugging and testing.  The
+omprogsrv program currently only uses text files indexed into inmemory
+databases.
+
+From the client end, the following database parameters are used:
+
+Argument 1: "prog"
+Argument 2: The program to be run, ie "omprogsrv", which is built in the
+            netprogs directory in the OM distribution.  If a full path
+	    isn't given, the PATH environment variable is used.
+Argument >=3: The arguments to the program.  In the case of omprogsrv,
+            each argument is the name of a text file to be indexed into
+	    an inmemory database.  Any number can be used - one file per
+	    argument.
+
+THE TCP METHOD
+==============
+The tcp method uses TCP/IP sockets to connect to a running server on a
+remote (or indeed local) machine.
+
+The client's database parameters are:
+
+Argument 1: "tcp"
+Argument 2: The server's hostname.
+Argument 3: The server port to use (as a decimal string).
+
+The server is omtcpsrv in the netprogs/ directory of the OM distribution.
+The arguments omtcpsrv currently knows are:
+    --port <portnum>
+        (required) the port to listen on.
+    --one-shot
+        Handle one connection, and then exit.  If --one-shot is not used,
+	then the server runs until it is killed manually.
+
+Options for specifying the database(s):
+    --da-flimsy <dir>, --da-heavy <dir>, --db-flimsy <dir>, --db-heavy <dir>
+        Add a da/db flimsy/heavy database to the database group served by
+	this server.
+    --im <filename>
+        Add an inmemory (text file) database to the group
+    --sleepycat <dir>
+        Add a sleepycat databaes to the group.
+
+Once started, the server will run and listen for connections on the
+configured port, currently handling them one by one (although this will
+change at some point).
+
+NOTES
+=====
+A network search should behave just like the equivalent local one, currently
+with the exception of match decision functors.  Exceptions are propagated
+over the link.
