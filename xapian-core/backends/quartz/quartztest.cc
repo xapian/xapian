@@ -64,6 +64,15 @@ static void makedir(std::string filename)
     system(("mkdir " + filename).c_str());
 }
 
+static void unlink_table(const std::string & path)
+{
+    unlink((path + "DB").c_str());
+    unlink((path + "baseA").c_str());
+    unlink((path + "baseB").c_str());
+    unlink((path + "bitmapA").c_str());
+    unlink((path + "bitmapB").c_str());
+}
+
 /// Check the values returned by a table containing key/tag "hello"/"world"
 static void check_table_values_hello(QuartzDiskTable & table,
 				     std::string world)
@@ -160,15 +169,6 @@ static void check_table_values_empty(QuartzDiskTable & table)
     TEST(!cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key.value, "");
     TEST_EQUAL(cursor->current_tag.value, "");
-}
-
-static void unlink_table(const std::string & path)
-{
-    unlink((path + "DB").c_str());
-    unlink((path + "baseA").c_str());
-    unlink((path + "baseB").c_str());
-    unlink((path + "bitmapA").c_str());
-    unlink((path + "bitmapB").c_str());
 }
 
 /// Test making and playing with a QuartzDiskTable
@@ -338,6 +338,70 @@ static bool test_disktable2()
     table.set_entry(key, &tag);
     table.apply(table.get_latest_revision_number() + 1);
     TEST_EQUAL(get_filesize(tmpdir + "test_disktable2_DB"), 8192);
+
+    return true;
+}
+
+/// Test making and playing with a QuartzDiskTable
+static bool test_disktable3()
+{
+    unlink_table(tmpdir + "test_disktable3_");
+
+    QuartzDiskTable table(tmpdir + "test_disktable3_", false, 8192);
+    table.open();
+
+    table.apply(table.get_latest_revision_number() + 1);
+
+    int tradealen = 4000;
+    int tradelen = 4000;
+    int tradlen = 2000;
+
+    QuartzDbKey tradeakey;
+    QuartzDbKey tradekey;
+    QuartzDbKey tradkey;
+
+    tradkey.value = "trad";
+    tradekey.value = "trade";
+    tradeakey.value = "tradea";
+
+    QuartzDbTag tag;
+
+    {
+	tag.value = std::string(2200, 'a');
+	table.set_entry(tradkey, &tag);
+	tag.value = std::string(3800, 'b');
+	table.set_entry(tradekey, &tag);
+	tag.value = std::string(2000, 'c');
+	table.set_entry(tradeakey, &tag);
+
+	table.apply(table.get_latest_revision_number() + 1);
+    }
+
+    {
+	AutoPtr<QuartzCursor> cursor(table.cursor_get());
+	TEST(cursor->find_entry(tradekey));
+	TEST_EQUAL(cursor->current_key.value, tradekey.value);
+	TEST_EQUAL(cursor->current_tag.value.size(), 3800);
+
+	cursor->next();
+	TEST_EQUAL(cursor->current_key.value, tradeakey.value);
+    }
+
+    {
+	tag.value = std::string(4000, 'd');
+	table.set_entry(tradekey, &tag);
+	table.apply(table.get_latest_revision_number() + 1);
+    }
+
+    {
+	AutoPtr<QuartzCursor> cursor(table.cursor_get());
+	TEST(cursor->find_entry(tradekey));
+	TEST_EQUAL(cursor->current_key.value, tradekey.value);
+	TEST_EQUAL(cursor->current_tag.value.size(), 4000);
+
+	cursor->next();
+	TEST_EQUAL(cursor->current_key.value, tradeakey.value);
+    }
 
     return true;
 }
@@ -1462,7 +1526,7 @@ static bool test_postlist2()
     settings.set("backend", "quartz");
     RefCntPtr<Database> database_w = DatabaseBuilder::create(settings, false);
 
-    QuartzDiskTable disktable(tmpdir + "testdb_postlist2/postlist_", false, 8192);
+    QuartzDiskTable disktable(tmpdir + "testdb_postlist2/postlist_", false, 2048);
     disktable.open();
     QuartzBufferedTable bufftable(&disktable);
     QuartzTable * table = &bufftable;
@@ -1927,6 +1991,7 @@ static bool test_packstring1()
 test_desc tests[] = {
     {"disktable1",	test_disktable1},
     {"disktable2",	test_disktable2},
+    {"disktable3",	test_disktable3},
     {"tableentries1",	test_tableentries1},
     {"bufftable1",	test_bufftable1},
     {"bufftable2",	test_bufftable2},

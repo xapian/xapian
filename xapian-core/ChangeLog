@@ -1,3 +1,12 @@
+Fri Jan 12 15:32:34 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add test to apitest (postlist6) that doclengths got from postlists
+	  are the same as those from databases.  Fails for Quartz for the
+	  moment.
+
+	* Add test to quartztest (disktable3) to try and bring out a bug in
+	  adding to tables.
+
 Fri Jan 12 15:20:09 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix STLport macro so that it will accept an STLport installation
