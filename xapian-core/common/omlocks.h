@@ -56,7 +56,15 @@ class OmLock {
     public:
 	/// The constructor, which initialises the mutex
     	OmLock() : islocked(false) {
-	    pthread_mutex_init(&mutex, NULL);
+	    pthread_mutexattr_t mutattr;
+	    pthread_mutexattr_init(&mutattr);
+#ifdef MUS_MUTEX_ERRCHECK
+	    pthread_mutexattr_settype(&mutattr,
+				      PTHREAD_MUTEX_ERRORCHECK_NP);
+#endif // MUS_MUTEX_ERRCHECK
+	    pthread_mutex_init(&mutex, &mutattr);
+
+	    pthread_mutexattr_destroy(&mutattr);
 	}
 
 	/// The destructor, which destroys the mutex.

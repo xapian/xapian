@@ -150,6 +150,14 @@ AC_ARG_ENABLE(debug,
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
 esac], [use_debug=no])
 
+AC_ARG_ENABLE(mutex-errcheck,
+[  --enable-mutex-errcheck Turn on error-checking mutexes (no|yes)(default=no)],
+[case "${enableval}" in
+  yes) use_mutex_errcheck=yes ;;
+  no)  use_mutex_errcheck=no ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-mutex) ;;
+esac], [use_mutex_errcheck=no])
+
 dnl Now set appropriate defines
 
 if test "$use_debug" = yes; then
@@ -167,6 +175,11 @@ fi
 if test "$use_debug_verbose" = yes; then
 AC_DEFINE(MUS_DEBUG_VERBOSE,,
   [Define if you want lots of debugging messages])
+fi
+
+if test "$use_mutex_errcheck" = yes; then
+AC_DEFINE(MUS_MUTEX_ERRCHECK,,
+  [Define if you want error-checking mutexes])
 fi
 
 dnl ******************************

@@ -1,3 +1,8 @@
+Tue Mar  7 18:09:36 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added configure option to use error-checking mutexes instead
+	  of the (portable) default.
+
 Tue Mar  7 12:20:08 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Sleepycat backend now compiles, although undoubtably isn't

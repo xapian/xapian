@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include "config.h"
 #include "utils.h"
 #include "omlocks.h"
 #include "omdatabaseinternal.h"

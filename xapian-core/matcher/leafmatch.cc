@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include "config.h"
 #include "match.h"
 #include "andpostlist.h"
 #include "orpostlist.h"

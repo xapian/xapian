@@ -52,5 +52,17 @@
 /* Define if you want lots of debugging messages */
 #undef MUS_DEBUG_VERBOSE
 
+/* Define if you want error-checking mutexes */
+#undef MUS_MUTEX_ERRCHECK
+
 @BOTTOM@
+#ifdef MUS_MUTEX_ERRCHECK
+/* We need _GNU_SOURCE to get the right definitions
+ * of pthread_mutexattr_settype() from pthread.h.
+ * Ick.
+ */
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#endif
 #endif /* OM_HGUARD_OM_CONFIG_H */
