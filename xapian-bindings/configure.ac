@@ -142,7 +142,7 @@ if test no != "$with_swig" ; then
 		BINDINGS="$BINDINGS tcl8"
 		TCL_CPPFLAGS="-I$TCL_INC"
 	    elif test -f "/usr/include/tcl.h" ; then
-		if test x`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' /usr/include/tcl.h` = x\"`echo 'puts $tcl_version'|$TCLSH`\" ; then
+		if test x`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' /usr/include/tcl.h` = x'"'`echo 'puts $tcl_version'|$TCLSH`'"' ; then
 		    BINDINGS="$BINDINGS tcl8"
 		fi
 	    fi
@@ -195,7 +195,7 @@ AC_SUBST(BINDINGS)
 dnl extra flags for building with gcc
 SWIG_CXXFLAGS=
 JAVA_CXXFLAGS=
-if test yes = "$GCC" ; then
+if test yes = "$GXX" ; then
   dnl Swig generated code gives lots of unused and uninitialized warnings.
   dnl They're non-harmful, so suppress them.
   SWIG_CXXFLAGS="-Wall -Wno-unused -Wno-uninitialized"

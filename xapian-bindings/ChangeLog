@@ -1,3 +1,8 @@
+Sat Nov 06 16:19:30 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Check GXX instead of GCC when deciding whether to pass
+	  GCC specific warning flags.
+
 Sat Nov 06 13:04:52 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Reinstated the check that the bindings version matches
