@@ -1,3 +1,7 @@
+Wed Nov 03 04:10:13 GMT 2004  Olly Betts <olly@survex.com>
+
+	* getopt.cc: Defining _NO_PROTO is a really bad idea for C++ code!
+
 Tue Nov 02 18:52:39 GMT 2004  Olly Betts <olly@survex.com>
 
 	* getopt.cc: Protect getopt definition for possible getopt macro
