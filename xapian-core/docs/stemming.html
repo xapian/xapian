@@ -13,11 +13,12 @@ At present, Xapian has stemming algorithms for English, French,
 Spanish, Italian, Portuguese, German, Dutch, Swedish and (most recently) Danish
 and Norwegian.<p>
 
-We intend to move from using these to using the
+We are in the process of moving to using the
 <A HREF="http://snowball.tartarus.org/">Snowball Stemmers</A> which are
 written and maintained by Martin Porter (who originally wrote the Xapian
 stemmers).  Snowball supports all the languages Xapian already does and
-additionally has Russian and Finnish stemmers.<p>
+additionally has Russian and Finnish stemmers, and an implementation of
+Lovins' English stemmer.<p>
 
 We'd like to add stemmers for other languages too - see the Snowball site for
 information on how to contribute.<p>
@@ -336,9 +337,6 @@ stopword list in both source and stemmed form. The source form, in
 the file <code>stopsource</code>, is carefully annotated, and the derived
 file, <code>stopwords</code>, contains an equivalent list of sorted, stemmed,
 stopwords.<p>
-
-For background on the English stemmer, see Porter's paper of 1980,
-<A HREF="porterstem.html">An algorithm for suffix stripping</A>.
 <!-- FOOTER $Author$ $Date$ $Id$ -->
 </BODY>
 </HTML>

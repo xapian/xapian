@@ -1,3 +1,9 @@
+Sun Oct 06 18:37:39 BST 2002  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated.
+	* docs/: Removed Martin's paper - background information for stemmers
+	  is best left to the Snowball documentation.
+
 Sat Oct 05 20:31:55 BST 2002  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.in: 0.5.2 release.
