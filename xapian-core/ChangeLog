@@ -1,3 +1,9 @@
+Mon Sep 18 17:38:38 BST 2000 Olly Betts
+
+	* All api tests now have a number suffix.
+
+	* apitest_parser.pm cope with tests being declared "static".
+	
 Mon Sep 18 17:19:32 BST 2000 Olly Betts
 
 	* Efficiency tweak to max_or_terms comparator - don't call

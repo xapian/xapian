@@ -38,7 +38,7 @@ using std::string;
 #include "utils.h"
 
 // always succeeds
-static bool test_trivial()
+static bool test_trivial1()
 {
     return true;
 }
@@ -274,7 +274,7 @@ static bool test_emptyquerypart1()
     return true;
 }
 
-static bool test_stemlangs()
+static bool test_stemlangs1()
 {
     vector<string> langs;
     langs = OmStem::get_available_languages();
@@ -342,7 +342,7 @@ static bool test_badbackend2()
 // # End of test cases: now we list the tests to run.
 
 test_desc nodb_tests[] = {
-    {"trivial",            test_trivial},
+    {"trivial1",           test_trivial1},
     {"getqterms1",	   test_getqterms1},
     {"boolsubq1",	   test_boolsubq1},
     {"querylen1",	   test_querylen1},
@@ -350,7 +350,7 @@ test_desc nodb_tests[] = {
     {"querylen3",	   test_querylen3},
     {"subqcollapse1",	   test_subqcollapse1},
     {"emptyquerypart1",    test_emptyquerypart1},
-    {"stemlangs",	   test_stemlangs},
+    {"stemlangs1",	   test_stemlangs1},
     {"badbackend1",	   test_badbackend1},
     {"badbackend2",	   test_badbackend2},
     {0, 0}

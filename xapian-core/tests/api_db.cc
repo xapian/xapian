@@ -44,7 +44,7 @@ using std::string;
 // # Tests start here
 
 // tests that the backend doesn't return zero docids
-static bool test_zerodocid()
+static bool test_zerodocid1()
 {
     // open the database (in this case a simple text file
     // we prepared earlier)
@@ -1302,7 +1302,7 @@ static bool test_maxorterms4()
 }
 
 /// Test that the termfreq returned by termlists is correct.
-static bool test_termlisttermfreq()
+static bool test_termlisttermfreq1()
 {
     OmDatabase mydb(get_database("apitest_simpledata"));
     OmEnquire enquire(make_dbgrp(&mydb));
@@ -1517,7 +1517,7 @@ static bool test_adddoc1()
 }
 
 // tests that database destructors end_session if it isn't done explicitly
-static bool test_implicitendsession()
+static bool test_implicitendsession1()
 {
     try {
 	OmWritableDatabase db = get_writable_database("");
@@ -1542,7 +1542,7 @@ static bool test_implicitendsession()
 }
 
 // tests that assignment of OmDatabase and OmWritableDatabase work as expected
-static bool test_databaseassign()
+static bool test_databaseassign1()
 {
     OmWritableDatabase wdb = get_writable_database("");
     OmDatabase db = get_database("");
@@ -1748,7 +1748,7 @@ static bool test_postlist4()
 
 /// The tests which use a backend
 test_desc db_tests[] = {
-    {"zerodocid", 	   test_zerodocid},
+    {"zerodocid1", 	   test_zerodocid1},
     {"nullquery1",	   test_nullquery1},
     {"simplequery1",       test_simplequery1},
     {"simplequery3",       test_simplequery3},
@@ -1785,7 +1785,7 @@ test_desc db_tests[] = {
     {"maxorterms2",        test_maxorterms2},
     {"maxorterms3",        test_maxorterms3},
     {"maxorterms4",        test_maxorterms4},
-    {"termlisttermfreq",   test_termlisttermfreq},
+    {"termlisttermfreq1",  test_termlisttermfreq1},
     {"qterminfo1",	   test_qterminfo1},
     {"msetzeroitems1",     test_msetzeroitems1},
     {"mbound1",            test_mbound1},
@@ -1810,8 +1810,8 @@ test_desc doclendb_tests[] = {
 /// The tests which use a writable backend
 test_desc writabledb_tests[] = {
     {"adddoc1",		   test_adddoc1},
-    {"implicitendsession", test_implicitendsession},
-    {"databaseassign",	   test_databaseassign},
+    {"implicitendsession1",test_implicitendsession1},
+    {"databaseassign1",	   test_databaseassign1},
     {0, 0}
 };
 

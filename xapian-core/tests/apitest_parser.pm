@@ -52,7 +52,7 @@ sub getline() {
     return $line;
 }
 
-$apitest_parser::func_start_regex = '^bool (test_[a-z_]*[0-9]*)\(\) *$';
+$apitest_parser::func_start_regex = '^(?:static\s)?\s*bool\s+(test_[a-z_]*[0-9]*)\(\) *$';
 $apitest_parser::type = "\\b(?:bool|(?:unsigned )?int|unsigned|size_t|Om[A-Z][A-Za-z]+|om_[a-z]+|(?:std::)?string)";
 $apitest_parser::identifier = "(?:\\b[a-zA-Z_0-9]+\\b)";
 $apitest_parser::func = "(?:(?:$apitest_parser::identifier\\.)*$apitest_parser::identifier)";
