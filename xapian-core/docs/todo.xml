@@ -30,11 +30,6 @@ Write tests for copying term and postlist iterators.
 Add query operator to filter on weight / percentage weight.
 
 </todoitem>
-<todoitem priority="M" difficulty="1" owner="" area="API" release="1.0">
-
-Test getting positionlists from databases.  Implement for InMemory databases.
-
-</todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="general" release="">
 
 Make all errors return a context if appropriate.
