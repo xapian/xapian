@@ -1,3 +1,9 @@
+Wed Feb 21 19:02:44 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Overhauled the OmMSet::fetch() etc. methods.  Documents are
+	  requested when fetch() is called, but are only fetched (all
+	  at once) when the first get_document() is called.
+
 Wed Feb 21 19:30:20 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Add an errorhandler member to MultiMatch, and remove it from

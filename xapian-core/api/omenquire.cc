@@ -497,6 +497,8 @@ OmMSet::Internal::Data::get_doc_by_rank(om_doccount rank) const
 	fetch_items(rank,
 		    items.begin() + (rank - firstitem),
 		    items.begin() + (rank - firstitem) + 1);
+	/* Actually read the fetched documents */
+	read_docs();
 	Assert(rankeddocs.find(rank) != rankeddocs.end());
 	Assert(rankeddocs.find(rank)->first == rank); // Paranoid assert
 	RETURN(rankeddocs.find(rank)->second);
@@ -522,19 +524,22 @@ OmMSet::Internal::Data::fetch_items(
     if (enquire.get() == 0) {
 	throw OmInvalidOperationError("Can't fetch documents from an Mset which is not derived from a query.");
     } else {
-	// FIXME: don't refetch documents which are already in the cache - this
-	// is already implemented for getting a single document (in
-	// get_doc_by_rank()), but should perhaps be at this level.
-	const std::vector<OmDocument> docs = enquire->read_docs(begin, end);
-	DEBUGLINE(API, "fetch_items: read " << docs.size() << " docs");
 	om_doccount currrank = rank;
-	for(std::vector<OmDocument>::const_iterator i = docs.begin();
-	    i != docs.end(); i++) {
-	    DEBUGLINE(API, "new doc at rank " << currrank << " is " << *i);
-	    DEBUGLINE(API, "old doc at rank " << currrank << " is " << rankeddocs[currrank]);
-	    rankeddocs[currrank] = *i;
-	    DEBUGLINE(API, "stored doc at rank " << currrank << " is " << rankeddocs[currrank]);
-	    currrank++;
+	for (std::vector<OmMSetItem>::const_iterator i = begin;
+	     i!= end;
+	     ++i, ++currrank) {
+	    std::map<om_doccount, OmDocument>::const_iterator doc;
+	    doc = rankeddocs.find(currrank);
+	    if (doc == rankeddocs.end()) {
+		/* We don't have the document cached */
+		std::set<om_doccount>::const_iterator s;
+		s = requested_docs.find(currrank);
+		if (s == requested_docs.end()) {
+		    /* We haven't even requested it yet - do so now. */
+		    enquire->request_doc(*i);
+		    requested_docs.insert(currrank);
+		}
+	    }
 	}
     }
 }
@@ -561,6 +566,20 @@ OmMSet::Internal::Data::get_description() const
     description = description + ")";
 
     return description;
+}
+
+void
+OmMSet::Internal::Data::read_docs() const
+{
+    std::set<om_doccount>::const_iterator i;
+    for (i = requested_docs.begin();
+	 i != requested_docs.end();
+	 ++i) {
+	rankeddocs[*i] = enquire->read_doc(items[*i - firstitem]);
+	DEBUGLINE(API, "stored doc at rank " << *i << " is " << rankeddocs[*i]);
+    }
+    /* Clear list of requested but not fetched documents. */
+    requested_docs.clear();
 }
 
 ////////////////////////////
@@ -1020,10 +1039,8 @@ OmEnquire::Internal::Data::get_description() const
 // Private methods for OmEnquire::Internal::Data //
 ///////////////////////////////////////////////////
 
-const std::vector<OmDocument>
-OmEnquire::Internal::Data::read_docs(
-	std::vector<OmMSetItem>::const_iterator begin,
-	std::vector<OmMSetItem>::const_iterator end) const
+void
+OmEnquire::Internal::Data::request_doc(const OmMSetItem &item) const
 {
     OmLockSentry locksentry(mutex);
     try {
@@ -1031,23 +1048,31 @@ OmEnquire::Internal::Data::read_docs(
 		OmDatabase::InternalInterface::get(db);
 	unsigned int multiplier = dbinternal->databases.size();
 
-	for (std::vector<OmMSetItem>::const_iterator i = begin; i != end; i++) {
-	    om_docid realdid = (i->did - 1) / multiplier + 1;
-	    om_doccount dbnumber = (i->did - 1) % multiplier;
+	om_docid realdid = (item.did - 1) / multiplier + 1;
+	om_doccount dbnumber = (item.did - 1) % multiplier;
 
-	    dbinternal->databases[dbnumber]->request_document(realdid);
-	}
+	dbinternal->databases[dbnumber]->request_document(realdid);
+    } catch (OmError & e) {
+	if (errorhandler) (*errorhandler)(e);
+	throw;
+    }
+}
 
-	std::vector<OmDocument> docs;
-	for (std::vector<OmMSetItem>::const_iterator i = begin; i != end; i++) {
-	    om_docid realdid = (i->did - 1) / multiplier + 1;
-	    om_doccount dbnumber = (i->did - 1) % multiplier;
+OmDocument
+OmEnquire::Internal::Data::read_doc(const OmMSetItem &item) const
+{
+    OmLockSentry locksentry(mutex);
+    try {
+	OmDatabase::Internal * dbinternal =
+		OmDatabase::InternalInterface::get(db);
+	unsigned int multiplier = dbinternal->databases.size();
 
-	    Document *doc = dbinternal->databases[dbnumber]->collect_document(realdid);
-	    docs.push_back(OmDocument(new OmDocument::Internal(doc, db, i->did)));
-	}
+	om_docid realdid = (item.did - 1) / multiplier + 1;
+	om_doccount dbnumber = (item.did - 1) % multiplier;
 
-	return docs;
+	Document *doc = dbinternal->databases[dbnumber]->collect_document(realdid);
+	return OmDocument(new OmDocument::Internal(doc, db, item.did));
+
     } catch (OmError & e) {
 	if (errorhandler) (*errorhandler)(e);
 	throw;

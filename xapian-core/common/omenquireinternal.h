@@ -172,11 +172,13 @@ class OmEnquire::Internal::Data : public RefCntBase {
 	     OmErrorHandler * errorhandler_);
 	~Data();
 
-	/** Read a set of documents from the database.
+	/** Request a document from the database.
 	 */
-	const std::vector<OmDocument> read_docs(
-		std::vector<OmMSetItem>::const_iterator begin,
-		std::vector<OmMSetItem>::const_iterator end) const;
+	void request_doc(const OmMSetItem &item) const;
+
+	/** Read a previously requested document from the database.
+	 */
+	OmDocument read_doc(const OmMSetItem &item) const;
 
 	void set_query(const OmQuery & query_);
 	const OmQuery & get_query();
@@ -227,8 +229,15 @@ class OmMSet::Internal::Data : public RefCntBase {
 	/// (Lazily) calcualates factor for converting weights to percentages.
 	void calc_percent_factor() const;
 
+	/// The set of documents which have been requested but not yet
+	/// collected.
+	mutable std::set<om_doccount> requested_docs;
+
 	/// Cache of documents, indexed by rank.
 	mutable std::map<om_doccount, OmDocument> rankeddocs;
+
+	/// Read and cache the documents so far requested.
+	void read_docs() const;
 
 	/// Copy not allowed
 	Data(const Data &);
