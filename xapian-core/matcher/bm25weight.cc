@@ -44,7 +44,7 @@ string BM25Weight::serialise() const {
 	   om_tostring(min_normlen);
 }
 
-Weight * BM25Weight::unserialise(const string & s) const {
+BM25Weight * BM25Weight::unserialise(const string & s) const {
     // We never actually modify through p, but strtod takes a char **
     // as the second parameter and we can't pass &p if p is const char *
     // (sigh)

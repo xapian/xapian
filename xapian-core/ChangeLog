@@ -1,3 +1,8 @@
+Sun Nov 07 03:33:24 GMT 2004  Olly Betts <olly@survex.com>
+
+	* matcher/bm25weight.cc,matcher/tradweight.cc: Fixed definitions to
+	  match declarations after recent change.
+
 Sun Nov 07 02:33:50 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Noted LIBRARY_VERSION_INFO which 0.8.4 will get.

@@ -43,7 +43,7 @@ string TradWeight::serialise() const {
     return om_tostring(param_k);
 }
 
-Weight * TradWeight::unserialise(const std::string & s) const {
+TradWeight * TradWeight::unserialise(const std::string & s) const {
     return new TradWeight(strtod(s.c_str(), NULL));
 }
 
