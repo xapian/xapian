@@ -36,8 +36,10 @@
 #include <signal.h> // for kill()
 #include <sys/wait.h>
 
+using namespace std;
+
 // Directory which the data is stored in.
-std::string datadir;
+string datadir;
 
 // #######################################################################
 // # Start of test cases.
@@ -48,7 +50,7 @@ static bool test_netmatch1()
     BackendManager backendmanager;
     backendmanager.set_dbtype("remote");
     backendmanager.set_datadir(datadir);
-    std::vector<std::string> paths;
+    vector<string> paths;
     paths.push_back("apitest_simpledata");
 
     OmEnquire enq(backendmanager.get_database(paths));
@@ -58,7 +60,7 @@ static bool test_netmatch1()
     OmMSet mset(enq.get_mset(0, 10));
 
     if (verbose) {
-	std::cout << mset;
+	cout << mset;
     }
 
     return true;
@@ -71,7 +73,7 @@ static bool test_netmatch2()
     BackendManager backendmanager;
     backendmanager.set_dbtype("remote");
     backendmanager.set_datadir(datadir);
-    std::vector<std::string> paths;
+    vector<string> paths;
 
     paths.push_back("apitest_simpledata");
     OmDatabase db = backendmanager.get_database(paths);
@@ -88,7 +90,7 @@ static bool test_netmatch2()
     OmMSet mset(enq.get_mset(0, 10));
 
     if (verbose) {
-	std::cout << mset;
+	cout << mset;
     }
 
     return true;
@@ -100,7 +102,7 @@ static bool test_netexpand1()
     BackendManager backendmanager;
     backendmanager.set_dbtype("remote");
     backendmanager.set_datadir(datadir);
-    std::vector<std::string> paths;
+    vector<string> paths;
     paths.push_back("apitest_simpledata");
 
     OmEnquire enq(backendmanager.get_database(paths));
@@ -110,7 +112,7 @@ static bool test_netexpand1()
     OmMSet mset(enq.get_mset(0, 10));
 
     if (verbose) {
-	std::cout << mset;
+	cout << mset;
     }
 
     Assert(mset.size() > 0);
@@ -129,11 +131,11 @@ static bool test_tcpclient1()
     BackendManager backendmanager;
     backendmanager.set_dbtype("quartz");
     backendmanager.set_datadir(datadir);
-    std::vector<std::string> paths;
+    vector<string> paths;
     paths.push_back("apitest_simpledata");
     OmDatabase db = backendmanager.get_database(paths);
 
-    std::string command = "./omtcpsrv --one-shot --quiet --port 1236 "
+    string command = "./omtcpsrv --one-shot --quiet --port 1236 "
 	                  ".quartz/db=apitest_simpledata &";
     system(command);
 
@@ -149,11 +151,11 @@ static bool test_tcpmatch1()
     BackendManager backendmanager;
     backendmanager.set_dbtype("quartz");
     backendmanager.set_datadir(datadir);
-    std::vector<std::string> paths;
+    vector<string> paths;
     paths.push_back("apitest_simpledata");
     OmDatabase dbremote = backendmanager.get_database(paths);
 
-    std::string command = "./omtcpsrv --one-shot --quiet --port 1235 "
+    string command = "./omtcpsrv --one-shot --quiet --port 1235 "
 	                  ".quartz/db=apitest_simpledata &";
     system(command);
     sleep(3);
@@ -167,7 +169,7 @@ static bool test_tcpmatch1()
     OmMSet mset(enq.get_mset(0, 10));
 
     if (verbose) {
-	std::cout << mset;
+	cout << mset;
     }
 
     return true;
@@ -180,7 +182,7 @@ static bool test_tcpdead1()
     BackendManager backendmanager;
     backendmanager.set_dbtype("quartz");
     backendmanager.set_datadir(datadir);
-    std::vector<std::string> paths;
+    vector<string> paths;
     paths.push_back("apitest_simpledata");
     OmDatabase dbremote = backendmanager.get_database(paths);
 
@@ -210,12 +212,7 @@ static bool test_tcpdead1()
     sleep(3);
 
     // parent code:
-    OmSettings params;
-    params.set("backend", "remote");
-    params.set("remote_type", "tcp");
-    params.set("remote_server", "localhost");
-    params.set("remote_port", 1237);
-    OmDatabase db(params);
+    OmDatabase db(OmRemote__open("localhost", 1237);
 
     OmEnquire enq(db);
 
@@ -264,7 +261,7 @@ test_desc tests[] = {
 
 int main(int argc, char *argv[])
 {
-    std::string srcdir = test_driver::get_srcdir(argv[0]);
+    string srcdir = test_driver::get_srcdir(argv[0]);
 
     datadir = srcdir + "/../tests/testdata/";
 
