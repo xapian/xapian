@@ -1,3 +1,8 @@
+Sun Sep 07 03:53:48 BST 2003  Olly Betts <olly@survex.com>
+
+	* testsuite/testsuite.cc: Also need to rerun test if it "probably
+	  leaked".
+
 Sun Sep 07 03:51:37 BST 2003  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: Use x & (x - 1) trick to check for x being a power

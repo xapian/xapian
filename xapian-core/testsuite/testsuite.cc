@@ -263,6 +263,14 @@ test_driver::runtest(const test_desc *test)
 		    return FAIL;
 		}
 		if (vg_dubious > 0) {
+		    // If code deliberately holds onto blocks by a pointer not
+		    // to the start (e.g. languages/utilities.c does) then we
+		    // need to rerun the test to see if the leak is real...
+		    if (runcount == 0) {
+			out << " " << col_yellow << "PROBABLY LEAKED MEMORY - RETRYING TEST" << col_reset;
+			++runcount;
+			continue;
+		    }
 		    REPORT_FAIL_VG("PROBABLY LEAKED " << vg_dubious << " BYTES");
 		    return FAIL;
 		}
