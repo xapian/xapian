@@ -1,12 +1,15 @@
+Thu Oct 10 14:49:11 BST 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Removed "struct" from in front of
+	  Btree and Cursor; Updated and reformatted many comments.
+
 Thu Oct 10 03:45:56 BST 2002  Olly Betts <olly@survex.com>
 
 	* testsuite/backendmanager.cc: Reworded comment to make it clearer.
 
-
 Thu Oct 10 03:29:52 BST 2002  Olly Betts <olly@survex.com>
 
 	* docs/todo.xml: Updated.
-
 
 Wed Oct 09 14:05:07 BST 2002  Olly Betts <olly@survex.com>
 

@@ -62,7 +62,7 @@ static void print_key(const byte * p, int c, int j);
 static void print_tag(const byte * p, int c, int j);
 
 /*
-static void report_cursor(int N, struct Btree * B, struct Cursor * C)
+static void report_cursor(int N, Btree * B, Cursor * C)
 {
     int i;
     printf("%d)\n", N);
@@ -280,12 +280,7 @@ Btree_strerror(Btree_errors err)
 
 #define BYTE_PAIR_RANGE (1 << 2 * CHAR_BIT)
 
-/* Nearly all the defined procedures have 'struct Btree * B' as first argument.
-   This is defined in Btree.h, and is the handle for the whole B-tree structure.
-   */
-
-/** read_block(B, n, p) reads block n to address p in the DB file.
- */
+/// read_block(n, p) reads block n of the DB file to address p.
 void
 Btree::read_block(int4 n, byte * p)
 {
@@ -326,10 +321,11 @@ Btree::read_block(int4 n, byte * p)
      */
 }
 
-/** write_block(B, n, p) writes block n to address p in the DB file.
- *  In writing we check to see if the DB file has as yet been modified. If not
- *  (so this is the first write) the old base is deleted. This prevents the
- *  possibility of it being openend subsequently as an invalid base.
+/** write_block(n, p) writes block n in the DB file from address p.
+ *  In writing we check to see if the DB file has as yet been
+ *  modified. If not (so this is the first write) the old base is
+ *  deleted. This prevents the possibility of it being openend
+ *  subsequently as an invalid base.
  */
 void
 Btree::write_block(int4 n, const byte * p)
@@ -372,22 +368,22 @@ Btree::write_block(int4 n, const byte * p)
 
 /* A note on cursors:
 
-   Each B-tree level has a correponding array element C[j] in a cursor, C. C[0]
-   is the leaf (or data) level, and C[B->level] is the root block level. Within
-   a level j,
+   Each B-tree level has a correponding array element C[j] in a
+   cursor, C. C[0] is the leaf (or data) level, and C[B->level] is the
+   root block level. Within a level j,
 
        C[j].p  addresses the block
        C[j].c  is the offset into the directory entry in the block
        C[j].n  is the number of the block at C[j].p
 
-   A look up in the B-tree causes navigation of the blocks starting from the
-   root. In each block, p,  we find an offset, c, to an item which gives the
-   number, n, of the block for the next level. This leads to an array of values
-   p,c,n which are held inside the cursor.
+   A look up in the B-tree causes navigation of the blocks starting
+   from the root. In each block, p,  we find an offset, c, to an item
+   which gives the number, n, of the block for the next level. This
+   leads to an array of values p,c,n which are held inside the cursor.
 
-   Structure B has a built-in cursor, at B->C. But other cursors may be
-   created. If BC is a created cursor, BC->C is the cursor in the sense given
-   above, and BC->B is the handle for the B-tree again.
+   Structure B has a built-in cursor, at B->C. But other cursors may
+   be created. If BC is a created cursor, BC->C is the cursor in the
+   sense given above, and BC->B is the handle for the B-tree again.
 */
 
 
@@ -399,17 +395,18 @@ Btree::set_overwritten()
     throw OmDatabaseModifiedError("Db block overwritten");
 }
 
-/* block_to_cursor(B, C, j, n) puts block n into position C[j] of cursor C,
-   writing the block currently at C[j] back to disk if necessary. Note that
+/* block_to_cursor(C, j, n) puts block n into position C[j] of cursor
+   C, writing the block currently at C[j] back to disk if necessary.
+   Note that
 
        C[j].rewrite
 
-   is true iff C[j].n is different from block n in file DB. If it is false no
-   rewriting is necessary.
+   is true iff C[j].n is different from block n in file DB. If it is
+   false no rewriting is necessary.
 */
 
 void
-Btree::block_to_cursor(struct Cursor * C_, int j, int4 n)
+Btree::block_to_cursor(Cursor * C_, int j, int4 n)
 {
     byte * p = C_[j].p;
     if (n == C_[j].n) return;
@@ -426,7 +423,8 @@ Btree::block_to_cursor(struct Cursor * C_, int j, int4 n)
     C_[j].n = n;
     C[j].n = n; /* not necessarily the same (in B-tree read mode) */
     if (j < level) {
-	if (REVISION(p) > REVISION(C_[j + 1].p)) { /* unsigned comparison */
+	/* unsigned comparison */
+	if (REVISION(p) > REVISION(C_[j + 1].p)) {
 	    set_overwritten();
 	    return;
 	}
@@ -434,10 +432,10 @@ Btree::block_to_cursor(struct Cursor * C_, int j, int4 n)
     AssertEq(j, GET_LEVEL(p));
 }
 
-/* set_block_given_by(p, c, n) finds the item at block address p, directory
-   offset c, and sets its tag value to n. For blocks not at the data level,
-   when GET_LEVEL(p) > 0, the tag of an item is just the block number of
-   another block in the B-tree structure.
+/* set_block_given_by(p, c, n) finds the item at block address p,
+   directory offset c, and sets its tag value to n. For blocks not at
+   the data level, when GET_LEVEL(p) > 0, the tag of an item is just
+   the block number of another block in the B-tree structure.
 
    (The built in '4' below is the number of bytes per block number.)
 */
@@ -460,22 +458,25 @@ static int block_given_by(const byte * p, int c)
     return get_int4(p, c);
 }
 
-/* Btree_alter(B, C); is called when the B-tree is to be altered. It causes new
-   blocks to be forced for the current set of blocks in the cursor.
+/** Btree_alter(C); is called when the B-tree is to be altered.
+ 
+   It causes new blocks to be forced for the current set of blocks in
+   the cursor.
 
-   The point is that if a block at level 0 is to be altered it may get a new
-   number. Then the pointer to this block from level 1 will need changing. So
-   the block at level 1 needs altering and may get a new block number. Then the
-   pointer to this block from level 2 will need changing ... and so on back to
-   the root.
+   The point is that if a block at level 0 is to be altered it may get
+   a new number. Then the pointer to this block from level 1 will need
+   changing. So the block at level 1 needs altering and may get a new
+   block number. Then the pointer to this block from level 2 will need
+   changing ... and so on back to the root.
 
-   The clever bit here is spotting the cases when we can make an early exit
-   from this process. If C[j].rewrite is true, C[j+k].rewrite will be true for
-   k = 1,2 ... We have been through all this before, and there is no need to do
-   it again. If C[j].n was free at the start of the transaction, we can copy it
-   back to the same place without violating the integrity of the B-tree. We
-   don't then need a new n and can return. The corresponding C[j].rewrite may
-   be true or false in that case.
+   The clever bit here is spotting the cases when we can make an early
+   exit from this process. If C[j].rewrite is true, C[j+k].rewrite
+   will be true for k = 1,2 ... We have been through all this before,
+   and there is no need to do it again. If C[j].n was free at the
+   start of the transaction, we can copy it back to the same place
+   without violating the integrity of the B-tree. We don't then need a
+   new n and can return. The corresponding C[j].rewrite may be true or
+   false in that case.
 */
 
 void
@@ -501,20 +502,22 @@ Btree::alter(Cursor * C)
     }
 }
 
-/* compare_keys(k1, k2) compares two keys pointed to by k1 and k2. (Think of
-   them as the key part of two items, with the pointers addressing the length
-   indicator at the beginning of the keys.) The result is <0, 0, or >0
-   according as k1 precedes, is equal to, or follows k2. The comparison is for
-   byte sequence collating order, taking lengths into account. So if the keys
-   are made up of lower case ASCII letters we get alphabetical ordering.
+/** compare_keys(k1, k2) compares two keys pointed to by k1 and k2.
 
-   Now remember that items are added into the B-tree in fastest time when they
-   are preordered by their keys. This is therefore the piece of code that needs
-   to be followed to arrange for the preordering.
+   (Think of them as the key part of two items, with the pointers
+   addressing the length indicator at the beginning of the keys.) The
+   result is <0, 0, or >0 according as k1 precedes, is equal to, or
+   follows k2. The comparison is for byte sequence collating order,
+   taking lengths into account. So if the keys are made up of lower
+   case ASCII letters we get alphabetical ordering.
 
-   This is complicated by the fact that keys have two parts - a value and
-   then a count.  We first compare the values, and only if they are equal
-   do we compare the counts.
+   Now remember that items are added into the B-tree in fastest time
+   when they are preordered by their keys. This is therefore the piece
+   of code that needs to be followed to arrange for the preordering.
+
+   This is complicated by the fact that keys have two parts - a value
+   and then a count.  We first compare the values, and only if they
+   are equal do we compare the counts.
 */
 
 static int compare_keys(const byte * key1, const byte * key2)
@@ -543,14 +546,16 @@ static int compare_keys(const byte * key1, const byte * key2)
     return 0;
 }
 
-/* find_in_block(p, key, offset, c) searches for the key in the block at p.
-   offset is D2 for a data block, and 0 for and index block, when the first key
-   is dummy and never needs to be tested. What we get is the directory entry to
-   the last key <= the key being searched for.
+/** find_in_block(p, key, offset, c) searches for the key in the block at p.
+ 
+   offset is D2 for a data block, and 0 for and index block, when the
+   first key is dummy and never needs to be tested. What we get is the
+   directory entry to the last key <= the key being searched for.
 
-   The lookup is by binary chop, with i and j set to the left and right ends
-   of the search area. In sequential addition, c will often be the answer, so
-   we test the keys round c and move i and j towards c if possible.
+   The lookup is by binary chop, with i and j set to the left and
+   right ends of the search area. In sequential addition, c will often
+   be the answer, so we test the keys round c and move i and j towards
+   c if possible.
 
 */
 
@@ -575,17 +580,19 @@ static int find_in_block(const byte * p, const byte * key, int offset, int c)
     return i;
 }
 
-/* find(B, C_) searches for the key of B->kt in the B-tree.  Result is true if
-   found, false otherwise.  When false, the B_tree cursor is positioned at the
-   last key in the B-tree <= the search key.  Goes to first (null) item in
-   B-tree when key length == 0.
+/** find(C_) searches for the key of B->kt in the B-tree.
+ 
+   Result is true if found, false otherwise.  When false, the B_tree
+   cursor is positioned at the last key in the B-tree <= the search
+   key.  Goes to first (null) item in B-tree when key length == 0.
 
-   (In this case, example debugging lines are shown commented. Debugging is easy
-   with the help of the B-tree writing code included further down.)
+   (In this case, example debugging lines are shown commented.
+   Debugging is easy with the help of the B-tree writing code included
+   further down.)
 */
 
 bool
-Btree::find(struct Cursor * C_)
+Btree::find(Cursor * C_)
 {
     /* FIXME: is the parameter necessary? */
     const byte * p;
@@ -614,8 +621,9 @@ Btree::find(struct Cursor * C_)
     return (compare_keys(kt + I2, key_of(p, c)) == 0);
 }
 
-/* compress(B, p) compresses the block at p by shuffling all the items up to
-   the end. MAX_FREE(p) is then maximized, and is equal to TOTAL_FREE(p).
+/** compress(p) compresses the block at p by shuffling all the items up to the end.
+   
+   MAX_FREE(p) is then maximized, and is equal to TOTAL_FREE(p).
 */
 
 void
@@ -652,7 +660,7 @@ static void form_null_key(byte * b, int4 n)
  *  and construct a new one.
  */
 void
-Btree::split_root(struct Cursor * C_, int j)
+Btree::split_root(Cursor * C_, int j)
 {
     /* gain a level */
     level ++;
@@ -727,23 +735,23 @@ void Btree::make_index_item(byte * result, unsigned int result_len,
     set_int4(result, I2 + i + C2, blocknumber);
 }
 
-/* enter_key(B, C, j, prevkey, newkey) is called after a block split. It enters
-   in the
-   block at level C[j] a separating key for the block at level C[j - 1]. The
-   key itself is newkey. prevkey is the preceding key, and at level 1 newkey
-   can be trimmed down to the first point of difference to prevkey for entry in
-   C[j].
+/** enter_key(C, j, prevkey, newkey) is called after a block split.
+  
+   It enters in the block at level C[j] a separating key for the block
+   at level C[j - 1]. The key itself is newkey. prevkey is the
+   preceding key, and at level 1 newkey can be trimmed down to the
+   first point of difference to prevkey for entry in C[j].
 
-   This code looks longer than it really is. If j exceeds the number of B-tree
-   levels the root block has split and we have to construct a new one, but this
-   is a rare event.
+   This code looks longer than it really is. If j exceeds the number
+   of B-tree levels the root block has split and we have to construct
+   a new one, but this is a rare event.
 
-   The key is constructed in b, with block number C[j - 1].n as tag, and this
-   is added in with add_item. add_item may itself cause a block split, with a
-   further call to enter_key. Hence the recursion.
+   The key is constructed in b, with block number C[j - 1].n as tag,
+   and this is added in with add_item. add_item may itself cause a
+   block split, with a further call to enter_key. Hence the recursion.
 */
 void
-Btree::enter_key(struct Cursor * C_, int j, byte * prevkey, byte * newkey)
+Btree::enter_key(Cursor * C_, int j, byte * prevkey, byte * newkey)
 {
     Assert(compare_keys(prevkey, newkey) < 0);
     Assert(j >= 1);
@@ -777,16 +785,17 @@ here:
     add_item(C_, b, j);
 }
 
-/* split_off(B, C, j, c, p, q) splits the block at p at directory offset c.
-   In fact p is just C[j].p, and q is C[j].split_p, a block buffer provided at
-   each cursor level to accommodate the split.
+/* split_off(C, j, c, p, q) splits the block at p at directory offset c.
 
-   The first half block goes into q, with block number in C[j].split_n copied
-   from C[j].n, the second half into p with a new block number.
+   In fact p is just C[j].p, and q is C[j].split_p, a block buffer
+   provided at each cursor level to accommodate the split.
+
+   The first half block goes into q, with block number in C[j].split_n
+   copied from C[j].n, the second half into p with a new block number.
 */
 
 void
-Btree::split_off(struct Cursor * C_, int j, int c, byte * p, byte * q)
+Btree::split_off(Cursor * C_, int j, int c, byte * p, byte * q)
 {
     /* p is C[j].p, q is C[j].split_p */
 
@@ -805,7 +814,7 @@ Btree::split_off(struct Cursor * C_, int j, int c, byte * p, byte * q)
     compress(p);      /* to reset TOTAL_FREE, MAX_FREE */
 }
 
-/* mid_point(B, p) finds the directory entry in c that determines the
+/** mid_point(p) finds the directory entry in c that determines the
    approximate mid point of the data in the block at p.
  */
 
@@ -830,10 +839,12 @@ Btree::mid_point(byte * p)
     return 0; /* Stop compiler complaining about end of method. */
 }
 
-/* add_item_to_block(B, p, kt, c) adds item kt to the block at p. c is the
-   offset in the directory that needs to be expanded to accommodate the new
-   entry for the item. We know before this is called that there is enough room,
-   so it's just a matter of byte shuffling.
+/** add_item_to_block(p, kt, c) adds item kt to the block at p.
+ 
+   c is the offset in the directory that needs to be expanded to
+   accommodate the new entry for the item. We know before this is
+   called that there is enough room, so it's just a matter of byte
+   shuffling.
 */
 
 void
@@ -867,13 +878,14 @@ Btree::add_item_to_block(byte * p, byte * kt, int c)
     SET_TOTAL_FREE(p, new_total);
 }
 
-/* add_item(B, C, kt, j) adds item kt to the block at cursor level C[j]. If
-   there is not enough room the block splits and the item is then added to the
-   appropriate half.
+/* add_item(C, kt, j) adds item kt to the block at cursor level C[j].
+ 
+   If there is not enough room the block splits and the item is then
+   added to the appropriate half.
 */
 
 void
-Btree::add_item(struct Cursor * C, byte * kt, int j)
+Btree::add_item(Cursor * C, byte * kt, int j)
 {
     byte * p = C[j].p;
     int c = C[j].c;
@@ -938,15 +950,16 @@ Btree::add_item(struct Cursor * C, byte * kt, int j)
     }
 }
 
-/* delete_item(B, C, j, repeatedly) is (almost) the converse of add_item. If
-   repeatedly is true, the process repeats at the next level when a block has
-   been completely emptied, freeing the block and taking out the pointer to it.
-   Emptied root blocks are also removed, which reduces the number of levels in
-   the B-tree.
+/* delete_item(C, j, repeatedly) is (almost) the converse of add_item.
+
+   If repeatedly is true, the process repeats at the next level when a
+   block has been completely emptied, freeing the block and taking out
+   the pointer to it.  Emptied root blocks are also removed, which
+   reduces the number of levels in the B-tree.
 */
 
 void
-Btree::delete_item(struct Cursor * C, int j, int repeatedly)
+Btree::delete_item(Cursor * C, int j, int repeatedly)
 {
     byte * p = C[j].p;
     int c = C[j].c;
@@ -997,32 +1010,32 @@ Btree::delete_item(struct Cursor * C, int j, int repeatedly)
 static addcount = 0;
 */
 
-/* add_kt(found, B, C) adds the item (key-tag pair) at B->kt into the B-tree
-   given by B, using cursor C. found == find(B, C) is handed over as a
-   parameter from Btree::add. Btree_alter(B, C) prepares for the alteration to
-   the B-tree. Then there are a number of cases to consider:
+/* add_kt(found, C) adds the item (key-tag pair) at B->kt into the
+   B-tree, using cursor C. found == find(C) is handed over as a
+   parameter from Btree::add. Btree::alter(C) prepares for the
+   alteration to the B-tree. Then there are a number of cases to
+   consider:
 
-      If an item with the same key is in the B-tree (found is true), the new kt
-      replaces it.
+     If an item with the same key is in the B-tree (found is true),
+     the new kt replaces it.
 
-	 If then kt is smaller, or the same size as, the item it replaces, kt
-	 is put in the same place as the item it replaces, and the TOTAL_FREE
-	 measure is reduced.
+     If then kt is smaller, or the same size as, the item it replaces,
+     kt is put in the same place as the item it replaces, and the
+     TOTAL_FREE measure is reduced.
 
-	 If kt is larger than the item it replaces it is put in the MAX_FREE
-	 space if there is room, and the directory entry and space counts are
-	 adjusted accordingly.
+     If kt is larger than the item it replaces it is put in the
+     MAX_FREE space if there is room, and the directory entry and
+     space counts are adjusted accordingly.
 
-	    - But if there is not room we do it the long way: the old item is
-	    deleted with delete_item and kt is added in with add_item.
+     - But if there is not room we do it the long way: the old item is
+     deleted with delete_item and kt is added in with add_item.
 
-      If the key of kt is not in the B-tree (found is false), the new kt is
-      added in with add_item.
-
+     If the key of kt is not in the B-tree (found is false), the new
+     kt is added in with add_item.
 */
 
 int
-Btree::add_kt(int found, struct Cursor * C)
+Btree::add_kt(int found, Cursor * C)
 {
     int components = 0;
 
@@ -1081,9 +1094,9 @@ Btree::add_kt(int found, struct Cursor * C)
     return components;
 }
 
-/* delete_kt(B, C) corresponds to add_kt(B, C), but there are only two cases: if
-   the key is not found nothing is done, and if it is found the corresponding
-   item is deleted with delete_item.
+/* delete_kt() corresponds to add_kt(found, C), but there are only
+   two cases: if the key is not found nothing is done, and if it is
+   found the corresponding item is deleted with delete_item.
 */
 
 int
@@ -1463,12 +1476,12 @@ Btree::read_root()
 	 * the same database. */
 	memset(p, 0, block_size);
 
-	SETC(p, o, 1); o -= C2;        /* number of components in tag */
-	SETC(p, o, 1); o -= K1;        /* component one in key */
-	SETK(p, o, K1 + C2); o -= I2;  /* null key length */
-	SETI(p, o, I3 + 2 * C2);       /* length of the item */
-	SETD(p, DIR_START, o);         /* its directory entry */
-	SET_DIR_END(p, DIR_START + D2);/* the directory size */
+	SETC(p, o, 1); o -= C2;        // number of components in tag
+	SETC(p, o, 1); o -= K1;        // component one in key
+	SETK(p, o, K1 + C2); o -= I2;  // null key length
+	SETI(p, o, I3 + 2 * C2);       // length of the item
+	SETD(p, DIR_START, o);         // its directory entry
+	SET_DIR_END(p, DIR_START + D2);// the directory size
 
 	o -= (DIR_START + D2);
 	SET_MAX_FREE(p, o);
@@ -1476,8 +1489,8 @@ Btree::read_root()
 	SET_LEVEL(p, 0);
 
 	if (!writable) {
-	    /* reading - revision number doesn't matter as long as it's
-	     * not greater than the current one.*/
+	    /* reading - revision number doesn't matter as long as
+	     * it's not greater than the current one. */
 	    SET_REVISION(p, 0);
 	    C[0].n = 0;
 	} else {
@@ -1543,7 +1556,8 @@ Btree::do_open_to_write(const string & name_,
 	throw std::bad_alloc();
     }
 
-    other_base_letter = base_letter == 'A' ? 'B' : 'A'; /* swap for writing */
+    // swap for writing
+    other_base_letter = base_letter == 'A' ? 'B' : 'A';
 
     changed_n = 0;
     changed_c = DIR_START;
@@ -1740,11 +1754,10 @@ Btree::do_open_to_read(const string & name_,
 		       uint4 revision_)
 {
     if (!basic_open(name_, revision_supplied, revision_)) {
-	string message = "Failed to open table to read: ";
+	string message = "Failed to open table for reading";
 	if (error != BTREE_ERROR_NONE) {
+	    message += ": ";
 	    message += Btree_strerror(error);
-	} else {
-	    message += "unknown error";
 	}
 	throw OmOpeningError(message);
     }
@@ -1789,7 +1802,7 @@ AutoPtr<Bcursor> Btree::Bcursor_create()
 }
 
 void
-Btree::force_block_to_cursor(struct Cursor * C_, int j)
+Btree::force_block_to_cursor(Cursor * C_, int j)
 {
     int n = C_[j].n;
     if (n != C[j].n) {
@@ -1800,7 +1813,7 @@ Btree::force_block_to_cursor(struct Cursor * C_, int j)
 }
 
 int
-Btree::prev_for_sequential(struct Btree * B, struct Cursor * C, int /*dummy*/)
+Btree::prev_for_sequential(Btree * B, Cursor * C, int /*dummy*/)
 {
     byte * p = C[0].p;
     int c = C[0].c;
@@ -1826,7 +1839,7 @@ Btree::prev_for_sequential(struct Btree * B, struct Cursor * C, int /*dummy*/)
 }
 
 int
-Btree::next_for_sequential(struct Btree * B, struct Cursor * C, int /*dummy*/)
+Btree::next_for_sequential(Btree * B, Cursor * C, int /*dummy*/)
 {
     byte * p = C[0].p;
     int c = C[0].c;
@@ -1852,7 +1865,7 @@ Btree::next_for_sequential(struct Btree * B, struct Cursor * C, int /*dummy*/)
 }
 
 int
-Btree::prev_default(struct Btree * B, struct Cursor * C, int j)
+Btree::prev_default(Btree * B, Cursor * C, int j)
 {
     byte * p = C[j].p;
     int c = C[j].c;
@@ -1879,7 +1892,7 @@ Btree::prev_default(struct Btree * B, struct Cursor * C, int j)
 }
 
 int
-Btree::next_default(struct Btree * B, struct Cursor * C, int j)
+Btree::next_default(Btree * B, Cursor * C, int j)
 {
     byte * p = C[j].p;
     int c = C[j].c;
@@ -2007,7 +2020,7 @@ static void failure(int n)
 }
 
 void
-Btree::block_check(struct Cursor * C_, int j, int opts)
+Btree::block_check(Cursor * C_, int j, int opts)
 {
     byte * p = C_[j].p;
     int4 n = C_[j].n;
@@ -2087,7 +2100,7 @@ Btree::check(const string & name, const string & opt_string)
 	       B.error, Btree_strerror(B.error).c_str(), name.c_str());
 	exit(1);
     }
-    struct Cursor * C = B.C;
+    Cursor * C = B.C;
 
     int opts = 0;
     for (string::size_type i = 0; i < opt_string.size(); i++) {
