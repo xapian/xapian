@@ -29,12 +29,6 @@
 // ######################################################################
 // Useful display operators
 
-ostream &operator<<(ostream &os, const OmMSetItem &mitem);
-
-ostream &operator<<(ostream &os, const OmMSet &mset);
-
-ostream &operator<<(ostream &os, const OmESetItem &item);
-
 ostream &operator<<(ostream &os, const vector<unsigned int> &ints);
 
 
