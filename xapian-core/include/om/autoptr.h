@@ -48,6 +48,8 @@ class AutoPtr {
 	template <class U>
 	AutoPtr &operator=(AutoPtr<U> &other) throw();
 
+	AutoPtr &operator=(thisAutoPtrRef other) throw();
+
 	~AutoPtr() throw();
 
 	T &operator*() const throw();
@@ -101,6 +103,13 @@ template <class U>
 AutoPtr<T> &AutoPtr<T>::operator=(AutoPtr<U> &other) throw()
 {
     reset(other.release());
+    return *this;
+}
+
+template <class T>
+AutoPtr<T> &AutoPtr<T>::operator=(AutoPtr<T>::thisAutoPtrRef other) throw()
+{
+    reset(other.ap.release());
     return *this;
 }
 

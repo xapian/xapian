@@ -56,6 +56,12 @@ class OmRegexReplaceNode : public OmIndexerNode {
 	    }
 
 	    switch (input->get_type()) {
+		case OmIndexerData::rt_empty:
+		    {
+			// propagate empty result
+			set_output("out", OmIndexerMessage(new OmIndexerData()));
+			return;
+		    }
 		case OmIndexerData::rt_vector:
 		    {
 			OmIndexerMessage output(new OmIndexerData(

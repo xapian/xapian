@@ -1,3 +1,12 @@
+Wed Oct 11 17:58:34 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added OmVectorSplitNode (splits a vector into several messages)
+
+	* Gave AutoPtr an extra assignment operator to avoid extra
+	  variables
+
+	* Nodes now handle empty messages as an "end of data" better.
+
 Wed Oct 11 17:40:36 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Wildcard types which only appear as outputs now work.

@@ -58,6 +58,11 @@ class OmTranslateNode : public OmIndexerNode {
 	    OmIndexerMessage input = get_input_record("in");
 
 	    switch (input->get_type()) {
+		case OmIndexerData::rt_empty:
+		    {
+			set_empty_output("out");
+		    }
+		    break;
 		case OmIndexerData::rt_vector:
 		    {
 			OmIndexerMessage output(new OmIndexerData(

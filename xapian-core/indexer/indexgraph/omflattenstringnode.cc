@@ -34,6 +34,11 @@ class OmFlattenStringNode : public OmIndexerNode {
     private:
 	void calculate() {
 	    OmIndexerMessage input = get_input_record("in");
+	    if (input->is_empty()) {
+		// propagate empty messages
+		set_empty_output("out");
+		return;
+	    }
 
 	    set_output("out", flatten(*input));
 	}

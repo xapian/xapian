@@ -1,4 +1,4 @@
-/* listconcatnode.cc: Implementation of a list concatenation node
+/* omvectorsplitnode.cc: Split a vector into separate messages
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -23,32 +23,36 @@
 #include "om/omindexernode.h"
 #include "node_reg.h"
 
-class OmListConcatNode : public OmIndexerNode {
+class OmVectorSplitNode : public OmIndexerNode {
     public:
-	OmListConcatNode(const OmSettings &config)
-		: OmIndexerNode(config)
+	OmVectorSplitNode(const OmSettings &config)
+		: OmIndexerNode(config),
+		  stored(0), offset(0)
 		{}
     private:
+	OmIndexerMessage stored;
+	int offset;
 	void calculate() {
-	    OmIndexerMessage left = get_input_record("left");
-	    OmIndexerMessage right = get_input_record("right");
-
-	    if (left->is_empty()) {
-		set_output("out", right);
-	    } else {
-		if (!right->is_empty()) {
-		    for (int i=0; i<right->get_vector_length(); ++i) {
-			// FIXME use a multi-append function for efficiency?
-			left->append_element(right->get_element(i));
-		    }
+	    if (!stored.get()) {
+		stored = get_input_record("in");
+		if (stored->get_type() == OmIndexerData::rt_empty) {
+		    set_empty_output("out");
+		    return;
 		}
-		set_output("out", left);
+		offset = 0;
 	    }
+	    if (offset >= stored->get_vector_length()) {
+		set_empty_output("out");
+		stored = OmIndexerMessage(0);
+		return;
+	    }
+	    set_output("out", OmIndexerMessage(new OmIndexerData(stored->get_element(offset))));
+	    ++offset;
+
 	}
 };
 
-NODE_BEGIN(OmListConcatNode, omlistconcat)
-NODE_INPUT("left", "*1", mt_vector)
-NODE_INPUT("right", "*1", mt_vector)
-NODE_OUTPUT("out", "*1", mt_vector)
+NODE_BEGIN(OmVectorSplitNode, omvectorsplit)
+NODE_INPUT("in", "*1", mt_vector)
+NODE_OUTPUT("out", "*2", mt_record)
 NODE_END()

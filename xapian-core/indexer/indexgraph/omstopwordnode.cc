@@ -68,6 +68,10 @@ class OmStopWordNode : public OmIndexerNode {
 	std::set<std::string> stopwords;
 	void calculate() {
 	    OmIndexerMessage input = get_input_record("in");
+	    if (input->is_empty()) {
+		set_empty_output("out");
+		return;
+	    }
 
 	    OmIndexerMessage output(new OmIndexerData(
 				      std::vector<OmIndexerData>()));
