@@ -1,3 +1,10 @@
+Sat Jul 26 18:31:11 BST 2003  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Reworked logic for finding libxapian.la in
+	  --ltlibs - it may not yet exist in the non-installed case.
+	* m4/xapian.m4: Don't pass --libs when checking if xapian-config
+	  works as it will fail in the non-installed case.
+
 Sat Jul 26 01:25:46 BST 2003  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated.

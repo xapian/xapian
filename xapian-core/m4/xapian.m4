@@ -21,11 +21,14 @@ AC_DEFUN([XO_LIB_XAPIAN],
     ifelse([$2], , :, [$2])
   else
     AC_MSG_CHECKING([$XAPIAN_CONFIG works])
+    dnl check for --ltlibs but not --libs as xapian-config --libs will
+    dnl fail if xapian isn't installed...
+
     dnl run with exec to avoid leaking output on "real" bourne shells
-    if (exec >&5 2>&5 ; $XAPIAN_CONFIG --libs --ltlibs --cxxflags; exit $?) then
+    if (exec >&5 2>&5 ; $XAPIAN_CONFIG --ltlibs --cxxflags; exit $?) then
       AC_MSG_RESULT(yes)
     else
-      AC_MSG_ERROR([\`$XAPIAN_CONFIG --libs --ltlibs --cxxflags' doesn't work, aborting])
+      AC_MSG_ERROR([\`$XAPIAN_CONFIG --ltlibs --cxxflags' doesn't work, aborting])
     fi
 
 dnl If AC_PROG_LIBTOOL (or the deprecated older version AM_PROG_LIBTOOL)

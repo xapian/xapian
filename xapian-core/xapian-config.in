@@ -81,12 +81,19 @@ while test 0 != "$#"; do
 	;;
 
     --ltlibs)
-	for d in "$builddir" "$libdir/" ; do
-	    if test -f "${d}libxapian.la"; then
-		echo "${d}libxapian.la"
-		exit 0
-	    fi
-	done
+    	# check if this is an uninstalled xapian-config
+   	if test -n "$builddir" -a -f "${builddir}Makefile" ; then
+	    # don't check if libxapian.la exists yet - it won't unless
+	    # the xapian-core tree has been built!
+	    echo "${builddir}libxapian.la"
+	    exit 0
+	fi
+
+	if test -f "$libdir/libxapian.la"; then
+	    echo "$libdir/libxapian.la"
+	    exit 0
+	fi
+
 	echo "$0: Can't find libxapian.la to link against." 1>&2
 	exit 1
 	;;
