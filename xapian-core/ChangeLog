@@ -1,3 +1,7 @@
+Mon Dec 18 09:41:54 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added apitest_space.txt to the Makefile.am
+
 Sun Dec 17 16:15:03 GMT 2000 Olly Betts
 
 	* Replaced all API uses of om_termname_list with OmTermIterator.
