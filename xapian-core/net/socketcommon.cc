@@ -385,13 +385,23 @@ OmSocketLineBuf::do_readline()
 	    if (errno == EAGAIN) {
 		continue;
 	    } else {
-		throw OmNetworkError(std::string("select:") = strerror(errno));
+		throw OmNetworkError(std::string("select:") + strerror(errno));
 	    }
 	} else if (retval == 0) {
 	    continue;
 	}
 
 	ssize_t received = read(readfd, buf, sizeof(buf) - 1);
+
+	if (received < 0) {
+	    if (errno == EAGAIN) {
+		continue;
+	    } else {
+		throw OmNetworkError(std::string("read:") + strerror(errno));
+	    }
+	} else if (retval == 0) {
+	    continue;
+	}
 
 	buffer += std::string(buf, buf + received);
     }

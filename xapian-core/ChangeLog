@@ -1,3 +1,7 @@
+Thu Aug 24 15:53:50 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed potential core-dump bug in OmSocketLineBuf
+
 Thu Aug 24 15:04:04 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Various modifications to quartz database: compiles again.
