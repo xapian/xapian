@@ -1,3 +1,7 @@
+Fri Sep 29 11:40:04 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added omregexfilternode
+
 Fri Sep 29 10:35:10 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Removed testnodes.h, which is obsolete and broke includetest.

@@ -134,6 +134,6 @@ NODE_OUTPUT("out", "string", mt_string)
 NODE_END()
 
 NODE_BEGIN(OmRegexReplaceNode, omregexreplacelist)
-NODE_INPUT("in", "words", mt_vector)
-NODE_OUTPUT("out", "words", mt_vector)
+NODE_INPUT("in", "strings", mt_vector)
+NODE_OUTPUT("out", "strings", mt_vector)
 NODE_END()
