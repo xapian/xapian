@@ -45,4 +45,4 @@ fi
 
 AC_OUTPUT(Makefile stemmer/Makefile matcher/Makefile tests/Makefile
  backends/da/Makefile backends/sleepy/Makefile backends/multi/Makefile
- backends/Makefile include/Makefile)
+ backends/Makefile include/Makefile ferretfx/Makefile)

@@ -1,8 +1,8 @@
-## Process this file with automake to produce Makefile.in
+### Process this file with automake to produce Makefile.in
 
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
-SUBDIRS = include backends matcher stemmer . tests #gui
+SUBDIRS = include backends matcher stemmer . tests ferretfx #gui
 
 lib_LTLIBRARIES = libom.la
 
