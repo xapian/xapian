@@ -106,8 +106,10 @@ bool test_absentterm1();
 bool test_absentterm2();
 // test behaviour when creating a query from an empty vector
 bool test_emptyquerypart1();
-// test that a multidb query returns correct docids
+// test that a multidb with 2 dbs query returns correct docids
 bool test_multidb3();
+// test that a multidb with 3 dbs query returns correct docids
+bool test_multidb4();
 
 test_desc tests[] = {
     {"trivial",            test_trivial},
@@ -148,6 +150,7 @@ test_desc tests[] = {
     {"absentterm2",	   test_absentterm2},
     {"emptyquerypart1",    test_emptyquerypart1},
     {"multidb3",           test_multidb3},
+    {"multidb4",           test_multidb4},
     {0, 0}
 };
 
@@ -1642,6 +1645,63 @@ bool test_multidb3()
     expected_docs.push_back(2);
     expected_docs.push_back(3);
     expected_docs.push_back(7);
+    
+    if (mymset.items.size() != expected_docs.size()) {
+	if (verbose) {
+	    cout << "Match set is of wrong size: was " <<
+		    mymset.items.size() << " - expected " <<
+		    expected_docs.size() << endl;
+	}
+	success = false;
+    } else {
+	vector<om_docid>::const_iterator i;
+	vector<OmMSetItem>::const_iterator j;
+	for (i = expected_docs.begin(), j = mymset.items.begin();
+	     i != expected_docs.end() && j != mymset.items.end();
+	     i++, j++) {
+	    if (*i != j->did) {
+		success = false;
+		if (verbose) {
+		    cout << "Match set didn't contain expected result:" << endl;
+		    cout << "Found docid " << j->did << " expected " << *i <<endl;
+		}
+	    }
+	}
+    }
+    if (!success && verbose) {
+	cout << "Full mset was: " << mymset << endl;
+    }
+    return success;
+}
+
+bool test_multidb4()
+{
+    bool success = true;
+    OmDatabaseGroup mydb;
+    vector<string> dbargs;
+    dbargs.push_back(datadir + "/apitest_simpledata.txt");
+    mydb.add_database("inmemory", dbargs);
+    dbargs[0] = datadir + "/apitest_simpledata2.txt";
+    mydb.add_database("inmemory", dbargs);
+    dbargs[0] = datadir + "/apitest_termorder.txt";
+    mydb.add_database("inmemory", dbargs);
+    OmEnquire enquire(mydb);
+
+    // make a query
+    OmQuery myquery(OM_MOP_OR,
+		    OmQuery("inmemory"),
+		    OmQuery("word"));
+    myquery.set_bool(true);
+    enquire.set_query(myquery);
+
+    // retrieve the top ten results
+    OmMSet mymset = enquire.get_mset(0, 10);
+
+    vector<om_docid> expected_docs;
+    expected_docs.push_back(2);
+    expected_docs.push_back(3);
+    expected_docs.push_back(4);
+    expected_docs.push_back(10);
     
     if (mymset.items.size() != expected_docs.size()) {
 	if (verbose) {
