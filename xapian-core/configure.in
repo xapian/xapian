@@ -170,6 +170,10 @@ else
   AC_CHECK_FUNC(socketpair, , AC_CHECK_LIB(socket, socketpair))
   if test $ac_cv_func_socketpair = no ; then
     build_remote=false
+  else
+    dnl Add -lnsl to LDFLAGS if needed (eg Solaris)
+    AC_SEARCH_LIBS(gethostbyname, nsl, [], build_remote=false)
+    AC_SEARCH_LIBS(gethostbyaddr, nsl, [], build_remote=false)
   fi
 fi
 
@@ -215,9 +219,6 @@ AC_DEFINE(MUS_BUILD_BACKEND_INMEMORY,,
 fi
 
 if test true = "$build_remote"; then
-  dnl Add -lnsl to $LDFLAGS if needed (eg Solaris)
-  RJB_FIND_GETHOSTENT
-
   AC_DEFINE(MUS_BUILD_BACKEND_REMOTE,,
     [Define if you want to build the remote database backend])
 fi
