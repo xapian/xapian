@@ -424,6 +424,7 @@ Btree::block_to_cursor(Cursor * C_, int j, uint4 n)
 
     // FIXME: only needs to be done in write mode
     if (C_[j].rewrite) {
+	Assert(writable);
 	Assert(C == C_);
 	write_block(C_[j].n, p);
 	C_[j].rewrite = false;
@@ -664,38 +665,38 @@ static void form_null_key(byte * b, uint4 n)
  *  and construct a new one.
  */
 void
-Btree::split_root(int j)
+Btree::split_root()
 {
-    DEBUGCALL(DB, void, "Btree::split_root", j);
+    DEBUGCALL(DB, void, "Btree::split_root", "");
     /* gain a level */
-    level++;
+    ++level;
 
-    /* check level overflow */
-    AssertNe(level, BTREE_CURSOR_LEVELS);
+    /* check level overflow - this isn't something that should ever happen
+     * but deserves more than an Assert()... */
+    if (level == BTREE_CURSOR_LEVELS) abort();
 
     byte * q = zeroed_new(block_size);
     if (q == 0) {
 	throw std::bad_alloc();
     }
-    C[j].p = q;
-    C_split[j].p = zeroed_new(block_size);
-    if (C_split[j].p == 0) {
+    C[level].p = q;
+    C_split[level].p = zeroed_new(block_size);
+    if (C_split[level].p == 0) {
 	throw std::bad_alloc();
     }
-    C[j].c = DIR_START;
-    C[j].n = base.next_free_block();
-    C[j].rewrite = true;
+    C[level].c = DIR_START;
+    C[level].n = base.next_free_block();
+    C[level].rewrite = true;
     SET_REVISION(q, next_revision);
-    SET_LEVEL(q, j);
+    SET_LEVEL(q, level);
     SET_DIR_END(q, DIR_START);
     compress(q);   /* to reset TOTAL_FREE, MAX_FREE */
 
     /* form a null key in b with a pointer to the old root */
-
-    uint4 old_root = C_split[j - 1].n;
+    uint4 old_root = C_split[level - 1].n;
     byte b[10]; /* 7 is exact */
     form_null_key(b, old_root);
-    add_item(b, j);
+    add_item(b, level);
 }
 
 /** Make an item with key newkey.  Key is optionally truncated to minimal key
@@ -760,9 +761,10 @@ Btree::enter_key(int j, byte * prevkey, byte * newkey)
     Assert(writable);
     Assert(compare_keys(prevkey, newkey) < 0);
     Assert(j >= 1);
-    if (j > level) split_root(j);
-
-    /*  byte * p = C[j - 1].p;  -- see below */
+    if (j > level) {
+	Assert(j == level + 1);
+	split_root();
+    }
 
     uint4 blocknumber = C[j - 1].n;
 
@@ -773,17 +775,18 @@ Btree::enter_key(int j, byte * prevkey, byte * newkey)
 
     /* when j > 1 we can make the first key of block p null, but is it worth it?
        Other redundant keys still creep in. The code to do it is commented out
-here:
-     */
+       here:
+    */
     /*
        if (j > 1) {
+	   byte * p = C[j - 1].p;
 	   int newkey_len = GETK(newkey, 0);
 	   uint4 n = get_int4(newkey, newkey_len);
 	   int new_total_free = TOTAL_FREE(p) + (newkey_len - K1);
 	   form_null_key(newkey - I2, n);
 	   SET_TOTAL_FREE(p, new_total_free);
        }
-     */
+    */
 
     C[j].c = find_in_block(C[j].p, b + I2, 0, 0) + D2;
     C[j].rewrite = true; /* a subtle point: this *is* required. */
@@ -1163,6 +1166,7 @@ void Btree::form_key(const string & key)
 bool
 Btree::add(const string &key, const string &tag)
 {
+    DEBUGCALL(DB, bool, "Btree::add", key << ", " << tag);
     Assert(writable);
 
     form_key(key);
@@ -1185,7 +1189,7 @@ Btree::add(const string &key, const string &tag)
     /* FIXME: sort out this error higher up and turn this into
      * an assert.
      */
-    if (m >= BYTE_PAIR_RANGE) return false;
+    if (m >= BYTE_PAIR_RANGE) RETURN(false);
 
     int n = 0; // initialise to shut off warning
 				      // - and there will be n to delete
@@ -1214,9 +1218,9 @@ Btree::add(const string &key, const string &tag)
 	SETC(kt, ck, i);
 	delete_kt();
     }
-    if (replacement) return false;
+    if (replacement) RETURN(false);
     item_count++;
-    return true;
+    RETURN(true);
 }
 
 /* Btree::del(key) returns false if the key is not in the B-tree,
@@ -1228,13 +1232,14 @@ Btree::add(const string &key, const string &tag)
 bool
 Btree::del(const string &key)
 {
+    DEBUGCALL(DB, bool, "Btree::del", key);
     Assert(writable);
 
-    if (key.empty()) return false;
+    if (key.empty()) RETURN(false);
     form_key(key);
 
     int n = delete_kt();  /* there are n items to delete */
-    if (n <= 0) return false;
+    if (n <= 0) RETURN(false);
 
     for (int i = 2; i <= n; i++) {
 	int c = GETK(kt, I2) + I2 - C2;
@@ -1244,21 +1249,23 @@ Btree::del(const string &key)
     }
 
     item_count--;
-    return true;
+    RETURN(true);
 }
 
 bool
 Btree::find_key(const string &key)
 {
+    DEBUGCALL(DB, bool, "Btree::find_key", key);
     form_key(key);
-    return find(C);
+    RETURN(find(C));
 }
 
 bool
 Btree::find_tag(const string &key, string * tag)
 {
+    DEBUGCALL(DB, bool, "Btree::find_key", key << ", &tag");
     form_key(key);
-    if (!find(C)) return false;
+    if (!find(C)) RETURN(false);
 
     int n = components_of(C[0].p, C[0].c);
 				    /* n components to join */
@@ -1287,7 +1294,7 @@ Btree::find_tag(const string &key, string * tag)
 	p = item_of(C[0].p, C[0].c);
     }
 
-    return true;
+    RETURN(true);
 }
 
 void
@@ -1520,6 +1527,7 @@ Btree::do_open_to_write(const string & name_,
 void
 Btree::open_to_write(const string & name_)
 {
+    DEBUGCALL(DB, void, "Btree::open_to_write", name_);
     // Any errors are thrown if revision_supplied is false
     (void)do_open_to_write(name_, false, 0);
 }
@@ -1527,7 +1535,8 @@ Btree::open_to_write(const string & name_)
 bool
 Btree::open_to_write(const string & name_, uint4 n)
 {
-    return do_open_to_write(name_, true, n);
+    DEBUGCALL(DB, bool, "Btree::open_to_write", name_ << ", " << n);
+    RETURN(do_open_to_write(name_, true, n));
 }
 
 Btree::Btree()
@@ -1556,6 +1565,7 @@ Btree::Btree()
 	  writable(false),
 	  dont_close_handle(false)
 {
+    DEBUGCALL(DB, void, "Btree::Btree", "");
 }
 
 /** Delete file, throwing an error if can't delete it (but not if it
@@ -1574,6 +1584,7 @@ sys_unlink_if_exists(const string & filename)
 void
 Btree::erase(const string & tablename)
 {
+    DEBUGCALL_STATIC(DB, void, "Btree::erase", tablename);
     sys_unlink_if_exists(tablename + "DB");
     sys_unlink_if_exists(tablename + "baseA");
     sys_unlink_if_exists(tablename + "baseB");
@@ -1582,6 +1593,7 @@ Btree::erase(const string & tablename)
 void
 Btree::create(const string &name_, int block_size)
 {
+    DEBUGCALL_STATIC(DB, void, "Btree::create", name_ << ", " << block_size);
     if (block_size > BYTE_PAIR_RANGE) {
 	/* block size too large (64K maximum) */
 	throw Xapian::InvalidArgumentError("Btree block size too large");
@@ -1616,6 +1628,8 @@ Btree::create(const string &name_, int block_size)
 }
 
 Btree::~Btree() {
+    DEBUGCALL(DB, void, "Btree::~Btree", "");
+
     if (handle != -1) {
 	// If an error occurs here, we just ignore it, since we're just
 	// trying to free everything.
@@ -1734,12 +1748,14 @@ Btree::do_open_to_read(const string & name_,
 void
 Btree::open_to_read(const string & name_)
 {
+    DEBUGCALL(DB, void, "Btree::open_to_read", name_);
     do_open_to_read(name_, false, 0);
 }
 
 void
 Btree::open_to_read(const string & name_, uint4 n)
 {
+    DEBUGCALL(DB, void, "Btree::open_to_read", name_ << ", " << n);
     do_open_to_read(name_, true, n);
 }
 

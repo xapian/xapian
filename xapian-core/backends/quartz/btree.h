@@ -116,9 +116,6 @@ class Btree {
 	/** block size of the B tree in bytes */
 	int block_size;
 
-	/** the last used block of B->bit_map0 */
-	/*uint4 last_block; */
-
     protected:
 
 	/** Perform the opening operation to read.
@@ -153,7 +150,7 @@ class Btree {
 	void delete_item(int j, bool repeatedly);
 	int add_kt(bool found);
 	void read_root();
-	void split_root(int j);
+	void split_root();
 	void make_index_item(byte * result, unsigned int result_len,
 			     const byte * prevkey, const byte * newkey,
 			     const uint4 blocknumber, bool truncate) const;
