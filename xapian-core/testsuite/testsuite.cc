@@ -191,7 +191,7 @@ test_driver::runtest(const test_desc *test)
 	}
     } catch (OmError &err) {
 	if (verbose) {
-	    out << "OmError exception: " << err.get_msg() << endl;
+	    out << err.get_type() << " exception: " << err.get_msg() << endl;
 	}
 	success = false;
     } catch (...) {
