@@ -502,8 +502,13 @@ QueryParser::parse_query(const string &q_)
     
     for ( ; i != q_.end(); ++i) {
 	int ch = (unsigned char)*i;
+	if (ch < 32 || ch == 127) ch = ' ';
 	int cache = 0;
 	// Transliterate accented characters in step with what the indexers do
+	// FIXME: This means that N&Oacute;T in a query is converted to NOT
+	// which is taken as a boolean operator - we probably don't want to
+	// do this here.  However, we probably do want to transliterate &mdash;
+	// to a "-", etc.
 	switch (ch) {
 #include "symboltab.h"
 	}

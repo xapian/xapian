@@ -1,3 +1,4 @@
+case 160: ch = ' '; break;
 case 173: ch = '-'; break;
 case 192: ch = 'A'; break;
 case 193: ch = 'A'; break;

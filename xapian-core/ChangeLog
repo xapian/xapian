@@ -1,3 +1,9 @@
+Thu Jun 19 14:50:49 BST 2003  Olly Betts <olly@survex.com>
+
+	* extra/queryparser.yy,extra/symboltab.h: Force control characters to
+	  spaces; Added note that accent normalisation is perhaps done at the
+	  wrong time...
+
 Thu Jun 19 14:40:36 BST 2003  Olly Betts <olly@survex.com>
 
 	* extra/queryparsertest.cc: Added test for control characters.
