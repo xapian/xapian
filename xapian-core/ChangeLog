@@ -1,3 +1,7 @@
+Thu Dec 05 23:28:29 GMT 2002  Olly Betts <olly@survex.com>
+
+	* include/om/omdatabase.h: Added missing "std::".
+
 Thu Dec 05 23:27:57 GMT 2002  Olly Betts <olly@survex.com>
 
 	* docs/remote.html: Updated from OmSettings to factory functions.

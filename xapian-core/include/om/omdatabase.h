@@ -473,7 +473,7 @@ OmDatabase OmMuscat36DA__open(const std::string &R, const std::string &T, const 
  * @param DB filename of the database btree file
  * @param cache_size how many blocks to cache
  */
-OmDatabase OmMuscat36DB__open(const string &DB, size_t cache_size = 30);
+OmDatabase OmMuscat36DB__open(const std::string &DB, size_t cache_size = 30);
 
 /** Open a Muscat 3.6 DB database.
  *
@@ -484,7 +484,7 @@ OmDatabase OmMuscat36DB__open(const string &DB, size_t cache_size = 30);
  * @param values filename of the values file
  * @param cache_size how many blocks to cache (default 30).
  */
-OmDatabase OmMuscat36DB__open(const string &DB, const string &values = "", size_t cache_size = 30);
+OmDatabase OmMuscat36DB__open(const std::string &DB, const std::string &values = "", size_t cache_size = 30);
 
 /** Open a remote database (using a program).
  *
@@ -498,7 +498,7 @@ OmDatabase OmMuscat36DB__open(const string &DB, const string &values = "", size_
  *  exception will be thrown.  The default if not specified is 10000ms
  *  (10 seconds).
  */
-OmDatabase OmRemote__open(const string &program, const string &args,
+OmDatabase OmRemote__open(const std::string &program, const std::string &args,
 	unsigned int timeout = 10000);
 
 /** Open a remote database (using a TCP connection).
@@ -518,7 +518,7 @@ OmDatabase OmRemote__open(const string &program, const string &args,
  *  is to use the same value given for timeout.
  */
 OmDatabase
-OmRemote__open(const string &host, unsigned int port,
+OmRemote__open(const std::string &host, unsigned int port,
 	unsigned int timeout = 10000, unsigned int connect_timeout = 0);
 
 #endif /* OM_HGUARD_OMDATABASE_H */
