@@ -32,4 +32,9 @@ class OpeningError : public OmError {
         OpeningError(string msg) : OmError(msg) {};
 };
 
+class AssertionFailed : public OmError {
+    public:
+        AssertionFailed(string msg) : OmError(msg + " - assertion failed") {};
+};
+
 #endif /* _error_h_ */

@@ -3,6 +3,8 @@
 #ifndef _da_database_h_
 #define _da_database_h_
 
+#include "omassert.h"
+
 #include "database.h"
 #include "daread.h"
 
@@ -30,13 +32,14 @@ class DAPostList : public virtual PostList {
 inline doccount
 DAPostList::get_termfreq() const
 {
+    Assert(!at_end());
     return termfreq;
 }
 
 inline docid
 DAPostList::get_docid() const
 {
-    if(at_end()) throw OmError("Attempt to access beyond end of postlist.");
+    Assert(!at_end());
     return postlist->Doc;
 }
 

@@ -34,7 +34,7 @@ DAPostList::~DAPostList()
 /* This is the biggie */
 weight DAPostList::get_weight() const
 {
-    if(at_end()) throw OmError("Attempt to access beyond end of postlist.");
+    Assert(!at_end());
     doccount wdf;
     weight wt;
 
@@ -57,13 +57,13 @@ weight DAPostList::get_weight() const
 
 void DAPostList::next()
 {
-    if(at_end()) throw OmError("Attempt to access beyond end of postlist.");
+    Assert(!at_end());
     DAreadpostings(postlist, 0, 0);
 }
 
 void DAPostList::skip_to(docid id)
 {
-    if(at_end()) throw OmError("Attempt to access beyond end of postlist.");
+    Assert(!at_end());
     DAreadpostings(postlist, 0, id);
 }
 
@@ -84,7 +84,7 @@ DATermList::~DATermList()
 
 termid DATermList::get_termid()
 {
-    if(at_end()) throw OmError("Attempt to access beyond end of termlist.");
+    Assert(!at_end());
 
     char *term = (char *)tvec->term;
 
@@ -167,7 +167,21 @@ DADatabase::close()
 
 PostList * DADatabase::open_post_list(termid id)
 {
-    if(!opened) throw OmError("DADatabase not opened.");
+    Assert(opened);
+
+    termname name = term_id_to_name(id);
+
+    int len = name.length();
+    if(len > 255) throw RangeError("Termid not found");
+    byte * k = (byte *) malloc(len + 1);
+    if(k == NULL) throw OmError(strerror(ENOMEM));
+    k[0] = len + 1;
+    name.copy((char*)(k + 1), len);
+
+    struct terminfo ti;
+    int found = DAterm(k, &ti, DA_t);
+
+    if(found == 0) throw RangeError("Termid not found");
 
     struct postings * postlist;
     //Assert(id > 0 && id <= termvec.size())
@@ -179,7 +193,7 @@ PostList * DADatabase::open_post_list(termid id)
 
 TermList * DADatabase::open_term_list(docid id)
 {
-    if(!opened) throw OmError("DADatabase not opened.");
+    Assert(opened);
 
     struct termvec *tv = maketermvec();
     int found = DAgettermvec(DA_r, id, tv);
@@ -195,8 +209,8 @@ TermList * DADatabase::open_term_list(docid id)
 termid
 DADatabase::term_name_to_id(termname name)
 {
+    Assert(opened);
     printf("Looking up term `%s': ", name.c_str());
-    if(!opened) throw OmError("DADatabase not opened.");
 
     map<termname,termid>::iterator p = termidmap.find(name);
 
@@ -231,7 +245,7 @@ DADatabase::term_name_to_id(termname name)
 termname
 DADatabase::term_id_to_name(termid id)
 {
-    if(!opened) throw OmError("DADatabase not opened.");
+    Assert(opened);
     if (id <= 0 || id > termvec.size()) throw RangeError("invalid termid");
     printf("Looking up termid %d: name = `%s'\n", id, termvec[id - 1].name.c_str());
     return termvec[id - 1].name;
