@@ -259,11 +259,16 @@ Passage retrieval.
 Clustering algorithms.
 
 </todoitem>
+<todoitem priority="L" difficulty="" owner="" area="Tests" release="">
+
+Redo machinery in InMemory backend to allow multierrhandler1 to work.
+Probably leave until user database backends are possible, then do it
+by subclassing InMemory...
+
+</todoitem>
 <todoitem priority="H" difficulty="" owner="Olly" area="" release="0.7">
 
-Finish off loose ends from OmSettings removal.  These are:
-stub databases not working; machinery in InMemory backend
-to allow multierrhandler1 to work; sort out final names for factory functions.
+Sort out final names for database factory functions.
 
 </todoitem>
 <todoitem priority="H" difficulty="" owner="Olly" area="" release="0.7">

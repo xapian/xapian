@@ -521,4 +521,14 @@ OmDatabase
 OmRemote__open(const std::string &host, unsigned int port,
 	unsigned int timeout = 10000, unsigned int connect_timeout = 0);
 
+/** Open a stub database.
+ *
+ * This opens a file which contains types and serialised parameters for one
+ * or more databases.
+ *
+ * @param file the stub database file
+ */
+OmDatabase
+OmStub__open(const std::string &file);
+
 #endif /* OM_HGUARD_OMDATABASE_H */

@@ -333,17 +333,23 @@ static bool test_stubdb1()
 {
     ofstream out("stubdb1");
     TEST(out.is_open());
-    out << "backend=remote\n"
-	   "remote_type=prog\n"
-	   "remote_program=../netprogs/omprogsrv\n"
-	   "remote_args=" << backendmanager.get_datadir() << " apitest_simpledata\n";
+    out << "remote :../netprogs/omprogsrv " << backendmanager.get_datadir() << " apitest_simpledata\n";
     out.close();
 
-    OmDatabase db = OmAuto__open("stubdb1");
-    OmEnquire enquire(db);
-    OmQuery myquery("word");
-    enquire.set_query(myquery);
-    enquire.get_mset(0, 10);
+    {
+	OmDatabase db = OmStub__open("stubdb1");
+	OmEnquire enquire(db);
+	OmQuery myquery("word");
+	enquire.set_query(myquery);
+	enquire.get_mset(0, 10);
+    }
+    {
+	OmDatabase db = OmAuto__open("stubdb1");
+	OmEnquire enquire(db);
+	OmQuery myquery("word");
+	enquire.set_query(myquery);
+	enquire.get_mset(0, 10);
+    }
 
     unlink("stubdb1");
 
@@ -3158,7 +3164,7 @@ test_desc localdb_tests[] = {
 
 test_desc remotedb_tests[] = {
 // FIXME:    {"multierrhandler1",   test_multierrhandler1},
-// FIXME:    {"stubdb1",		   test_stubdb1},
+    {"stubdb1",		   test_stubdb1},
     {"keepalive1",	   test_keepalive1},
     {"termstats",	   test_termstats},
     {0, 0}

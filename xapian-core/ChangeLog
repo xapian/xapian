@@ -1,3 +1,10 @@
+Wed Dec 11 20:49:11 GMT 2002  Olly Betts <olly@survex.com>
+
+	* api/omdatabaseinternal.cc,include/om/omdatabase.h,tests/api_db.cc:
+	  Reimplemented stub databases in the new scheme of things.
+	* backends/inmemory/: fully disabled inmemory_errornext and
+	  inmemory_abortnext code.
+
 Tue Dec 10 13:47:44 GMT 2002  Olly Betts <olly@survex.com>
 
 	* HACKING: Added note that Bison 1.50 seems to work with Xapian's

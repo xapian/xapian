@@ -241,11 +241,13 @@ class InMemoryDatabase : public Database {
 	//@}
 
     public:
+#if 0
 	/** Hack put in to cause an error when calling next, for testing
 	 *  purposes.
 	 */
 	int error_in_next;
 	int abort_in_next;
+#endif
 
 	/** Create and open an in-memory database.
 	 *
@@ -309,6 +311,7 @@ InMemoryPostList::get_docid() const
 inline PostList *
 InMemoryPostList::next(om_weight /*w_min*/)
 {
+#if 0
     if (db->error_in_next) {
 	// Nasty cast, but this is only in testcase code anyway.
 	(const_cast<InMemoryDatabase *>(db.get()))->error_in_next--;
@@ -321,6 +324,7 @@ InMemoryPostList::next(om_weight /*w_min*/)
 	if (db->abort_in_next == 0)
 	    abort();
     }
+#endif
 
     if (started) {
 	Assert(!at_end());

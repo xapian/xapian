@@ -38,8 +38,9 @@
 #include "omdebug.h"
 #include "om/omoutput.h"
 #include <vector>
+#include <fstream>
 
-using std::vector;
+using namespace std;
 
 // Include headers for all the enabled database backends
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
@@ -126,76 +127,80 @@ OmRemote__open(const string &host, unsigned int port,
 }
 #endif
 
-#if 0
-// auto da db inmemory remote quartz
-static string
-read_file(const string path)
+OmDatabase
+OmStub__open(const string &file)
 {
-    FILE *stubfd = fopen(path.c_str(), "r");
-    if (stubfd == 0) {
-	throw OmOpeningError("Can't open stub database file: " + path);
-    }
-
-    struct stat st;
-    if (fstat(fileno(stubfd), &st) != 0 || !S_ISREG(st.st_mode)) {
-	throw OmOpeningError("Can't get size of stub database file: " + path);
-    }
-    char *buf = (char*)malloc(st.st_size);
-    if (buf == 0) { 
-	throw OmOpeningError("Can't allocate space to read stub database file: "
-			     + path);
-    }
-
-    int bytes = fread(buf, 1, st.st_size, stubfd);
-    if (bytes != st.st_size) {
-	throw OmOpeningError("Can't read stub database file: " + path);
-    }
-    string result = string(buf, st.st_size);
-    free(buf);
-    return result;
-}
-
-static void
-read_stub_database(OmSettings & params, bool /*readonly*/)
-{
-    // Check validity of parameters
-    string buf = read_file(params.get("auto_dir"));
-
-    string::size_type linestart = 0;
-    string::size_type lineend = 0;
-    int linenum = 0;
-    while (linestart != buf.size()) {
-	lineend = buf.find_first_of("\n\r", linestart);
-	if (lineend == string::npos) lineend = buf.size();
-	linenum++;
-
-	string::size_type eqpos;
-	eqpos = buf.find('=', linestart);
-	if (eqpos >= lineend) {
-	    throw OmOpeningError("Invalid entry in stub database file, at line " + om_tostring(linenum));
-	}
-	params.set(buf.substr(linestart, eqpos - linestart),
-		   buf.substr(eqpos + 1, lineend - eqpos - 1));
-	linestart = buf.find_first_not_of("\n\r", lineend);
-	if (linestart == string::npos) linestart = buf.size();
-    }
-}
+    // A stub database is a text file with one or more lines of this format:
+    // <dbtype> <serialised db object>
+    ifstream stub(file.c_str());
+    OmDatabase db;
+    string line;
+    int line_no = 1;
+    bool ok = false;
+    while (getline(stub, line)) {
+	string::size_type space = line.find(' ');
+	if (space != string::npos) {
+	    string type = line.substr(0, space);
+	    line.erase(0, space + 1);
+	    if (type == "auto") {
+		db.add_database(OmAuto__open(line));
+		ok = true;
+#ifdef MUS_BUILD_BACKEND_QUARTZ
+	    } else if (type == "quartz") {
+		db.add_database(OmQuartz__open(line));
+		ok = true;
 #endif
+#ifdef MUS_BUILD_BACKEND_REMOTE
+	    } else if (type == "remote") {
+		string::size_type colon = line.find(':');
+		if (colon == 0) {
+		    // prog
+		    // FIXME: timeouts
+		    // FIXME: Is prog actually useful beyond testing?
+		    // Is it a security risk?
+		    space = line.find(' ');
+		    string args;
+		    if (space != string::npos) {
+			args = line.substr(space + 1);
+			line = line.substr(1, space - 1);
+		    } else {
+			line.erase(0, 1);
+		    }
+		    db.add_database(OmRemote__open(line, args));
+		    ok = true;
+		} else if (colon != string::npos) {
+		    // tcp
+		    // FIXME: timeouts
+		    unsigned int port = atoi(line.c_str() + colon);
+		    line.erase(colon);
+		    db.add_database(OmRemote__open(line, port));
+		    ok = true;
+		}
+#endif
+	    }
+	    // FIXME: da and db too, but I'm too slack to do those right now!
+	}
+	if (!ok) break;
+	++line_no;
+    }
+    if (!ok) {
+	// Don't include the line itself - that might help an attacker
+	// by revealing part of a sensitive file's contents if they can
+	// arrange it to be read as a stub database.  The line number is
+	// enough information to identify the problem line.
+	throw OmOpeningError("Bad line " + om_tostring(line_no) + " in stub database file `" + file + "'");
+    }
+    return db;
+}
 
 OmDatabase
 OmAuto__open(const string &path)
 {
-// FIXME : sort out stub databases - their current format is rather
-// angled towards the OmSettings approach.  Need to think whether all
-// the flexibility is worth preserving, or if we actually just need to
-// stub remote databases...
-#if 0
     // Check for path actually being a file - if so, assume it to be
     // a stub database.
     if (file_exists(path)) {
-	read_stub_database(myparams, readonly);
+	return OmStub__open(path);
     }
-#endif
 
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
     if (file_exists(path + "/R") && file_exists(path + "/T")) {
@@ -230,18 +235,6 @@ OmAuto__open(const string &path)
 OmWritableDatabase
 OmAuto__open(const std::string &path, int action)
 {
-// FIXME : sort out stub databases - their current format is rather
-// angled towards the OmSettings approach.  Need to think whether all
-// the flexibility is worth preserving, or if we actually just need to
-// stub remote databases...
-#if 0
-    // Check for path actually being a file - if so, assume it to be
-    // a stub database.
-    if (file_exists(path)) {
-	read_stub_database(myparams, readonly);
-    }
-#endif
-
     // There's only quartz which is writable at present - if more are added
     // then this code needs to look at action and perhaps autodetect.
     return OmQuartz__open(path, action);

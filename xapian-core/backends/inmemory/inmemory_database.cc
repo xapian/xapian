@@ -75,11 +75,13 @@ InMemoryPostList::get_wdf() const
 ///////////////////////////
 
 InMemoryDatabase::InMemoryDatabase()
-	: totdocs(0), totlen(0), error_in_next(0), abort_in_next(0)
+	: totdocs(0), totlen(0)
 {
+#if 0
     // FIXME: sort out his rather nasty error faking stuff
     //error_in_next = params.get_int("inmemory_errornext", 0);
     //abort_in_next = params.get_int("inmemory_abortnext", 0);
+#endif
 }
 
 InMemoryDatabase::~InMemoryDatabase()
