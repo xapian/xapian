@@ -17,9 +17,9 @@ Mon Nov 27 18:20:42 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 Mon Nov 27 18:08:35 GMT 2000 Olly Betts
 
-	* A RefCntPtr now copes with being assigned to (used to delete the
-	  underlying object if the reference count was 1).  Added regression
-	  test (refcnt2).
+	* A RefCntPtr now copes with being assigned to itself (used to
+	  delete the underlying object if the reference count was 1).  Added
+	  regression test (refcnt2).
 
 	* Now overwrite pointer inside RefCntPtr before deleting the pointed
 	  to object so there's no window where another thread can access the
