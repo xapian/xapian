@@ -44,7 +44,7 @@ auto_ptr<OmLock> outputmutex;
     OmLockSentry sentry(*outputmutex); \
     om_ostringstream os; \
     os << a; \
-    fprintf(stdout, "%s", os.str()); \
+    fprintf(stdout, "%s", os.str().c_str()); \
 }
 
 static string database_path;
