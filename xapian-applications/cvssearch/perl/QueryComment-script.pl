@@ -28,6 +28,7 @@ my $match = "./MatchComment.cgi";
 my $top = "./TopComment.cgi";
 my $querycomment = "./QueryComment.cgi";
 my $source = "./SourceComment.cgi";
+my $related = "./CommitSearch.cgi";
 my $cvscompare ="./Compare.cgi";
 my $cvsquery = "./cvsquerydb";
 my $ctrlA = chr(01);
@@ -88,7 +89,7 @@ sub commit {
 <frameset rows=\"90, 45%, *\">
 	<frame name=\"t\" src=$top$passparam>
     <frame name=\"m\" src=$match$passparam>
-    <frame name=\"s\" src=$source?root=$root&pkg=$pkg&fileid=$fileid&revision=$revision&symbol=$symbol>
+    <frame name=\"s\" src=$related?query=$pkg\@$id%20in:$pkg&root=$root>
 </frameset>
 <noframes>
 	<body bgcolor=\"#FFFFF0\">

@@ -13,6 +13,7 @@ my $cvsdata = Cvssearch::get_cvsdata();
 my $ctrlA = chr(01);
 my $ctrlB = chr(02);
 my $ctrlC = chr(03);
+my $related = "./CommitSearch.cgi";
 my $cvscompare = "./Compare.cgi";
 my $cvsquery = "./cvsquerydb";
 my $querycomment = "./QueryComment.cgi";
@@ -47,7 +48,10 @@ if(param()){
     print "<b>Up to <a href=\"$cvscompare?root=$root\" target=_top>[$cvsroot]</a> ";
     print "<a href=\"$cvscompare?root=$root&pkg=$pkg\" target=\"s\">[$pkg]</a></b></td>\n";
     print "<td align=right><a href=\"./Query.cgi\" target=_top>Search Again</a></td>\n";
-    print "</tr></table>\n";
+    print "<tr></tr>\n";
+    print "<td align=left><b>Similar Commits in [<a href=\"$related?query=$pkg\@$commit_id%20in:$pkg&root=$root\" target=s>$pkg</a> / <a href=\"$related?query=$pkg\@$commit_id&root=$root\" target=s>All Packages</a>]</b></td>\n";
+    print "</tr>\n";
+    print "</table>\n";
 
     # ----------------------------------------
     # print cvs comment

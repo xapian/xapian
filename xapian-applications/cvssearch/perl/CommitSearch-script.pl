@@ -81,7 +81,7 @@ if(param()){
 	# print heading and beginning of table
 	#----------------------------------------
 	print "<table width=100%><tr><td><h1>Commits for <font color=black> $query $symbol</font></h1></td>";
-	print "<td align=right><a href=\"./Query.cgi\">Search Again</a></td></tr></table>";
+	print "<td align=right><a href=\"./Query.cgi\" target=_top>Search Again</a></td></tr></table>";
 
 	print <<_HTML_;
 	<table cellSpacing=0 cellPadding=2 width="100%" border=0>
@@ -154,7 +154,7 @@ print STDERR "QUERY IS -$query-\n";
                  print " valign=top>";
               print "<td><pre>$key</pre></td>";
 
-              print "<td><pre>[<a href=\"./QueryComment.cgi?pkg=$key&id=$val&symbol=$urlsymbol&root=$root\">code</a>/<a href=\"./CommitSearch.cgi?query=$key\@$val&root=$root\">similar</a>]</pre></td>";
+              print "<td><pre>[<a href=\"./QueryComment.cgi?pkg=$key&id=$val&symbol=$urlsymbol&root=$root\" target=_top>code</a>/<a href=\"./CommitSearch.cgi?query=$key\@$val&root=$root\">similar</a>]</pre></td>";
 
               print "<td><pre>$curcomments</pre></td>";
 
