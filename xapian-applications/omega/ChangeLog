@@ -1,3 +1,15 @@
+Wed Jun 12 23:51:11 BST 2002  Olly Betts <olly@survex.com>
+
+	* Added an alternative test mode - you can now pass parameters as
+	  command line arguments, which is more convenient for repeating
+	  the same test query, and for automated testing, e.g.:
+	  
+	    omega 'P=information retrieval' DB=papers
+	  
+	  If the first parameter starts with a "-" and doesn't contain an
+	  "=", omega now outputs the version string and stops (to gracefully
+	  handle "omega --version" and "omega --help".
+
 Wed Jun 12 23:39:20 BST 2002  Olly Betts <olly@survex.com>
 
 	* omindex.cc: removed OLD_PREFIXES code - shout if you were using it.

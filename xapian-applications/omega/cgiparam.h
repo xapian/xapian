@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +22,9 @@
  */
 
 typedef multimap<string, string>::const_iterator MCI;
+
+/* decode the query from NAME=VALUE pairs given on the command line */
+extern void decode_argv(char **argv);
 
 /* decode the query from stdin as "NAME=VALUE" pairs */
 extern void decode_test();

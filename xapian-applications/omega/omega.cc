@@ -4,6 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -131,11 +132,20 @@ main2(int argc, char *argv[])
 
     method = getenv("REQUEST_METHOD");
     if (method == NULL) {
-	// Seems we're running from the command line so print a version number
-	// and allow a query to be entered for testing
-	cout << PROGRAM_NAME" - "PACKAGE" "VERSION" (compiled "__DATE__" "__TIME__")\n"
-	        "Enter NAME=VALUE lines, end with blank line\n";
-        decode_test();
+	if (argc > 1 && (argv[1][0] != '-' || strchr(argv[1], '='))) {
+	    // omega 'P=information retrieval' DB=papers
+	    // check for a leading '-' on the first arg so "omega --version",
+	    // "omega --help", and similar take the next branch
+	    decode_argv(argv + 1);
+	} else {
+	    // Seems we're running from the command line so give version
+	    // and allow a query to be entered for testing
+	    cout << PROGRAM_NAME" - "PACKAGE" "VERSION" "
+		"(compiled "__DATE__" "__TIME__")\n";
+	    if (argc > 1) exit(0);
+	    cout << "Enter NAME=VALUE lines, end with blank line\n";
+	    decode_test();
+	}
     } else {
 	cout << "Content-type: text/html\n\n";
 	if (*method == 'P')

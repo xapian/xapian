@@ -4,6 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -73,6 +74,21 @@ add_param(string name, string val)
     i = name.find(' ');
     if (i != string::npos) name = name.substr(0, i);
     cgi_params.insert(make_pair(name, val));
+}
+
+void
+decode_argv(char **argv)
+{
+    cgi_params.clear();
+    while (*argv) {
+	char *p = strchr(*argv, '=');
+	if (p) {
+	    add_param(string(*argv, p), p + 1);
+	} else {
+	    add_param(*argv, "");
+	}
+	++argv;
+    }
 }
 
 void
