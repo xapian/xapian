@@ -40,20 +40,13 @@ public class SimpleSearch {
         String dbpath = args[0];
 
         // turn the remaining command-line arguments into our query
-        // it is important to note that the QueryParser uses
-        // an implicit OR between each query term when no boolean operator
-        // is specified
-        StringBuffer sb = new StringBuffer();
-        for (int x = 1; x < args.length; x++) {
-            sb.append(args[x]).append(" ");
+	Query query = new Query(args[1]);
+        for (int x = 2; x < args.length; x++) {
+	    query = new Query(Query.OP_OR, query, new Query(args[x]));
         }
 
-        // NOTE:  Query.parse() forces the input query to lower-case.
-        // TODO: good or bad?  it's good for me, but probably bad for the rest of the world
-        Query query = Query.parse(sb.toString());
-
         // open the specified database
-        Database db = Xapian.Auto.open(dbpath);
+        Database db = new Database(dbpath);
 
         // and query the database
         Enquire enquire = new Enquire(db);

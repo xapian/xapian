@@ -50,6 +50,12 @@ public class Database {
         _createdfrom = db;
     }
 
+    public Database(String path) throws XapianError {
+        if (path == null)
+            throw new IllegalArgumentException("path cannot be null");
+        id = XapianJNI.database_new(path);
+    }
+
     public void addDatabase(Database db) throws XapianError {
         XapianJNI.database_add_database(id, db.id);
 
@@ -74,6 +80,10 @@ public class Database {
 
     public int getDocCount() throws XapianError {
         return XapianJNI.database_get_doccount(id);
+    }
+
+    public long getLastDocID() throws XapianError {
+        return XapianJNI.database_get_lastdocid(id);
     }
 
     public double getAverageLength() throws XapianError {

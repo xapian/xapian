@@ -27,8 +27,8 @@ package org.xapian;
 
 import org.xapian.errors.XapianError;
 import org.xapian.errors.XapianRuntimeError;
-import org.xapian.query_parser.ParseException;
-import org.xapian.query_parser.QueryParser;
+//import org.xapian.query_parser.ParseException;
+//import org.xapian.query_parser.QueryParser;
 
 import java.io.StringReader;
 
@@ -49,7 +49,7 @@ public class Query {
 
     private String _nativeStuff;
     private String _nativeOperator;
-
+/*
     public static Query parse(String query) throws ParseException, XapianError {
         if (query == null || query.trim().length() == 0)
             throw new ParseException("Empty Queries are not allowed");
@@ -62,7 +62,7 @@ public class Query {
         q.setNativeOperator(parser.getNativeOperator());
         return q;
     }
-
+*/
     private static final void validateOperator(int op) throws IllegalArgumentException {
         if (op < 1 || op > 10)
             throw new IllegalArgumentException("operator " + op + " is not valid");

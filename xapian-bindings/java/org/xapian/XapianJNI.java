@@ -50,10 +50,10 @@ public class XapianJNI {
     public static final int DB_CREATE_OR_OVERWRITE = 3;
     public static final int DB_OPEN = 4;
 
-    /* Returns id of a Xapian::Database */
+    /* Returns id of a Xapian::Database (deprecated) */
     public static native long auto_open(String path) throws XapianError;
 
-    /* Returns id of a Xapian::WritableDatabase */
+    /* Returns id of a Xapian::WritableDatabase (deprecated) */
     public static native long auto_open(String path, int mode) throws XapianError;
 
     /* Returns id of a Xapian::Database */
@@ -143,6 +143,8 @@ public class XapianJNI {
     public static native long database_allterms_end(long dbid) throws XapianError;
 
     public static native int database_get_doccount(long dbid) throws XapianError;
+
+    public static native long database_get_lastdocid(long dbid) throws XapianError;
 
     public static native double database_get_avlength(long dbid) throws XapianError;
 
@@ -279,6 +281,8 @@ public class XapianJNI {
     public static native int msetiterator_get_percent(long msetiteratorid) throws XapianError;
 
     public static native String msetiterator_get_description(long msetiteratorid) throws XapianError;
+
+    public static native void msetiterator_prev(long msetiteratorid) throws XapianError;
 
     public static native void msetiterator_next(long msetiteratorid) throws XapianError;
 
@@ -420,6 +424,8 @@ public class XapianJNI {
 
     // esetiterator functions
     public static native long esetiterator_new() throws XapianError;
+
+    public static native void esetiterator_prev(long esetiteratorid) throws XapianError;
 
     public static native void esetiterator_next(long esetiteratorid) throws XapianError;
 

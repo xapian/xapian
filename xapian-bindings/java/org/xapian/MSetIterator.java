@@ -108,6 +108,17 @@ public class MSetIterator implements Iterator {
         }
     }
 
+    public Object prev() {
+        try {
+            XapianJNI.msetiterator_prev(id);
+            _pos--;
+
+            return this;
+        } catch (XapianError xe) {
+            throw new XapianRuntimeError(xe);
+        }
+    }
+
     public void remove() {
         // hmm, if we were smart, we could support this
         // all we need is the database_id from which we were created

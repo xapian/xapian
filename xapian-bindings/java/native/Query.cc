@@ -109,7 +109,7 @@ JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_query_1get_1description (JNI
 JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_query_1is_1empty (JNIEnv *env, jclass clazz, jlong qid) {
     TRY
         Query *q = _query->get(qid);
-        return q->is_empty();
+        return q->empty();
     CATCH(false)
 }
 

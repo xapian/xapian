@@ -85,7 +85,14 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_msetiterator_1get_1db_1docid (
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_msetiterator_1next (JNIEnv *env, jclass clazz, jlong msetiteratorid) {
     TRY
         MSetIterator *itr = _msetiterator->get(msetiteratorid);
-        (*itr)++;
+        ++(*itr);
+    CATCH(;)
+}
+
+JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_msetiterator_1prev (JNIEnv *env, jclass clazz, jlong msetiteratorid) {
+    TRY
+        MSetIterator *itr = _msetiterator->get(msetiteratorid);
+        --(*itr);
     CATCH(;)
 }
 

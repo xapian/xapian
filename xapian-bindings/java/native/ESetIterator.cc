@@ -38,10 +38,18 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_esetiterator_1new (JNIEnv *env
         return _esetiterator->put(itr);
     CATCH(-1)
 }
+
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_esetiterator_1next (JNIEnv *env, jclass clazz, jlong esetiteratorid) {
     TRY
         ESetIterator *itr = _esetiterator->get(esetiteratorid);
-        (*itr)++;
+        ++(*itr);
+    CATCH(;)
+}
+
+JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_esetiterator_1prev (JNIEnv *env, jclass clazz, jlong esetiteratorid) {
+    TRY
+        ESetIterator *itr = _esetiterator->get(esetiteratorid);
+        --(*itr);
     CATCH(;)
 }
 

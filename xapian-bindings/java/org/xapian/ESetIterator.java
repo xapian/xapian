@@ -60,6 +60,15 @@ public class ESetIterator implements Iterator {
         }
     }
 
+    public Object prev() {
+        try {
+            XapianJNI.esetiterator_prev(id);
+            return this;
+        } catch (XapianError xe) {
+            throw new XapianRuntimeError(xe);
+        }
+    }
+
     public void remove() {
         throw new UnsupportedOperationException("ESetIterator does not support remove()");
     }

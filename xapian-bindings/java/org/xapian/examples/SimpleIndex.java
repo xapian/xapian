@@ -41,7 +41,7 @@ public class SimpleIndex {
 
         // create or *overwrite an existing* Xapian (quartz) database
         String dbpath = args[0];
-        WritableDatabase db = Xapian.Auto.open(dbpath, Xapian.DB_CREATE_OR_OVERWRITE);
+        WritableDatabase db = new WritableDatabase(dbpath, Xapian.DB_CREATE_OR_OVERWRITE);
 
         // walk through remaining command-line arguments and
         // add each argument as a single to term to a new document.

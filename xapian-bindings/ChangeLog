@@ -1,3 +1,20 @@
+Mon Feb 21 05:16:28 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/.cvsignore,java/SmokeTest.java,java/native/,java/org/xapian/,
+	  java/org/xapian/errors/,java/org/xapian/examples/:
+	  Added missing .java sources and removed unused ones; Added java
+	  smoketest (not yet run automatically); Added .cvsignore files for
+	  generated files; Updated to use new ctors for Database and
+	  WritableDatabase which replace Auto::open(); Wrap
+	  Database::get_lastdocid(); Wrap ESetIterator::prev() and
+	  MSetIterator::prev(); Fixed glitches in automake build system;
+	  Prefer Query::empty() to Query::is_empty(); Wrap InMemory::open();
+	  Disable Eric's QueryParser - for consistency we should wrap the
+	  C++ version by default; Removed forced flush() from
+	  WritableDatabase::delete_document() wrapper.
+	* java/org/xapian/examples/SimpleSearch.java: tweaked to be more like
+	  the C++ version.
+
 Mon Feb 21 05:02:30 GMT 2005  Olly Betts <olly@survex.com>
 
 	* java/README: Need . in -classpath.

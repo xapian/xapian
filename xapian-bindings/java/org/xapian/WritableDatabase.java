@@ -38,6 +38,10 @@ public class WritableDatabase extends Database {
         super(XapianJNI.writabledatabase_new());
     }
 
+    public WritableDatabase(String path, int mode) throws XapianError {
+        super(XapianJNI.writabledatabase_new(path, mode));
+    }
+
     public void flush() throws XapianError, DatabaseError {
         XapianJNI.writabledatabase_flush(id);
     }
@@ -60,7 +64,6 @@ public class WritableDatabase extends Database {
 
     public void deleteDocument(long docid) throws XapianError, DatabaseError {
         XapianJNI.writabledatabase_delete_document(id, docid);
-        flush();
     }
 
     public void replaceDocument(long which_docid, Document newdoc) throws XapianError, DatabaseError {

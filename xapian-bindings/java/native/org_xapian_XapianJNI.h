@@ -225,6 +225,14 @@ JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_database_1get_1doccount
 
 /*
  * Class:     org_xapian_XapianJNI
+ * Method:    database_get_lastdocid
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_database_1get_1lastdocid
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     org_xapian_XapianJNI
  * Method:    database_get_avlength
  * Signature: (J)D
  */

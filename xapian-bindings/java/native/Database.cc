@@ -42,7 +42,7 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_database_1new__ (JNIEnv *env, 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_database_1new__Ljava_lang_String_2 (JNIEnv *env, jclass clazz, jstring path) {
     TRY
         const char *c_path = env->GetStringUTFChars(path, 0);
-        Database *db = new Database(Auto::open(c_path));
+        Database *db = new Database(c_path);
         env->ReleaseStringUTFChars(path, c_path);
         return _database->put(db);
     CATCH(-1)
@@ -143,6 +143,13 @@ JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_database_1get_1doccount (JNIEnv
     TRY
         Database *db = (Database *) _database->get(dbid);
         return db->get_doccount();
+    CATCH(-1)
+}
+
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_database_1get_1lastdocid (JNIEnv *env, jclass clazz, jlong dbid) {
+    TRY
+        Database *db = (Database *) _database->get(dbid);
+        return db->get_lastdocid();
     CATCH(-1)
 }
 

@@ -39,10 +39,16 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_writabledatabase_1new__ (JNIEn
     CATCH(-1)
 }
 
+
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_inmemory_1open (JNIEnv *, jclass) {
+    WritableDatabase *db = new WritableDatabase(InMemory::open());
+    return _database->put(db);
+}
+
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_writabledatabase_1new__Ljava_lang_String_2I(JNIEnv *env, jclass clazz, jstring path, jint mode) {
     TRY
         const char *c_path = env->GetStringUTFChars(path, 0);
-        WritableDatabase *db = new WritableDatabase(Auto::open(c_path, mode));
+        WritableDatabase *db = new WritableDatabase(c_path, mode);
         env->ReleaseStringUTFChars(path, c_path);
         return _database->put(db);
     CATCH(-1)

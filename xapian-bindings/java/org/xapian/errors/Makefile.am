@@ -2,24 +2,24 @@ SUFFIXES = .java .class
 
 EXTRA_DIST = AssertionError.java DatabaseCorruptError.java DatabaseError.java\
  DatabaseLockError.java DatabaseModifiedError.java DatabaseOpeningError.java\
- DataFlowError.java DocNotFoundError.java FeatureUnavailableError.java\
+ DocNotFoundError.java FeatureUnavailableError.java\
  InternalError.java InvalidArgumentError.java InvalidDataError.java\
- InvalidOperationError.java InvalidResultError.java LogicError.java\
+ InvalidOperationError.java LogicError.java\
  NetworkError.java NetworkTimeoutError.java RangeError.java RuntimeError.java\
- TypeError.java UnimplementedError.java XapianError.java XapianRuntimeError.java
+ UnimplementedError.java XapianError.java XapianRuntimeError.java
 
 XAPIAN_CLASS_FILES = AssertionError.class DatabaseCorruptError.class\
  DatabaseError.class DatabaseLockError.class DatabaseModifiedError.class\
- DatabaseOpeningError.class DataFlowError.class DocNotFoundError.class\
+ DatabaseOpeningError.class DocNotFoundError.class\
  FeatureUnavailableError.class InternalError.class InvalidArgumentError.class\
- InvalidDataError.class InvalidOperationError.class InvalidResultError.class\
+ InvalidDataError.class InvalidOperationError.class\
  LogicError.class NetworkError.class NetworkTimeoutError.class RangeError.class\
- RuntimeError.class TypeError.class UnimplementedError.class XapianError.class\
+ RuntimeError.class UnimplementedError.class XapianError.class\
  XapianRuntimeError.class
 
 all: $(XAPIAN_CLASS_FILES)
 
 .java.class:
-	$(JAVAC) -classpath $(srcdir):. -d . $<
+	$(JAVAC) -classpath $(srcdir)/../../..:../../.. -d ../../.. $<
 
 CLEANFILES = $(XAPIAN_CLASS_FILES)

@@ -3,3 +3,4 @@ Makefile
 .deps
 .libs
 *.lo
+libxapian_jni.la
