@@ -1,3 +1,11 @@
+Fri Jun  2 18:05:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Don't use terms with zero length names (ie, "") in the test
+	  databases.
+
+	* Add checks to API to complain about zero length termnames, and
+	  assertions elsewhere in the code.
+
 Fri Jun  2 18:00:25 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added a text file explaining how to do distributed searches.
