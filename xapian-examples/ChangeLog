@@ -1,3 +1,7 @@
+Wed Sep 20 16:09:35 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Declare this to be version 0.3.1
+
 Tue Sep 19 16:19:07 BST 2000 Olly Betts
 
 	* omega: Improved output when using lynx; added link to
