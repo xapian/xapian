@@ -67,23 +67,25 @@ run the program to be checked with valgrind, e.g.:
 
 To enable profiling for gprof (was --enable-profiling):
 
-  env CFLAGS=-pg CXXFLAGS=-pg LDFLAGS=-pg ./configure
+  ./configure CFLAGS=-pg CXXFLAGS=-pg LDFLAGS=-pg
 
 To use Purify (was --enable-purify):
 
-  env CXXLD='purify c++' CCLD='purify cc' ./configure --disable-shared
+  ./configure CXXLD='purify c++' CCLD='purify cc' --disable-shared
 
 To use Insure (was --enable-insure):
 
-  env CXX=insure CC=insure ./configure
+  ./configure CXX=insure CC=insure
 
 Building from CVS:
 ==================
 
 The CVS repository does not contain any automatically generated files
-(such as configure and Makefile.in's).  Because of this, you need to run
-several programs to build these files, before you can run the normal
-build process.
+(such as configure, Makefile.in, Bison generated sources, etc) because
+experience shows it's best to keep these out of version control.  This
+means that if you check the sources out of CVS, before you can successfully
+run the normal build process you'll need to have several programs installed
+so these files can be generated.
 
 At the time of writing, these programs are autoconf, automake, libtool,
 and GNU bison.  Some older versions of these programs may not work correctly:
@@ -98,10 +100,11 @@ at the time of writing, the versions known to work are:
 		causes it to emit spurious warnings: this is fixed in automake
 		1.6.1.  A quick check found no problems using automake 1.7.
 		
-	Autoconf version 2.54 needed for automake 1.6.3.  2.50 Needed for many
-		things.
+	Autoconf version 2.54 is required by automake 1.6.3; autoconf 2.50 is
+		needed for many reasons anyway.
 		
-	ltmain.sh (GNU libtool) 1.3.3
+	ltmain.sh (GNU libtool) 1.4.2 (1.3.3 used to work, and may still, but
+		we've not tried it recently).
 
 	GNU Bison version 1.35
 		Bison versions 1.31 to 1.34 don't handle parsequery.yy - for
@@ -127,6 +130,30 @@ these in the ACLOCAL_FLAGS environment variable.
 
 There is a good overview of the GNU autotools at
 <http://sources.redhat.com/autobook/>.
+
+Use of C++ Features:
+====================
+
+* STL:  We decided early on to embrace the C++ STL.  Some older compilers
+  don't include full support for this.  In some cases, we work can work around
+  this (stringstream vs strstream, providing our own auto_ptr implementation).
+  In others, users will either have to upgrade to a more compliant compiler, or
+  use another STL implementation such as STLPort (http://www.stlport.org/).
+
+* RTTI (dynamic_cast<>, typeid, etc):  Needing to use RTTI features in the
+  library is most likely a sign of a design flaw, and you should avoid use
+  of these features.  Where necessary, you can use a technique similar to
+  Database::as_networkdatabase() to replace dynamic_cast<>.
+
+* Exceptions:  In hindsight, throwing exceptions in the library seems to have
+  been a poor design decision.  GCC on Solaris can't cope with exceptions in
+  shared libraries, and we've also had test failures on other platforms which
+  only occur with shared libraries - possibly with a similar cause.  We intend
+  to investigate modifying the library to return error codes internally, and
+  then offering the user the choice of exception throwing or error code
+  returning API methods (with the exception being thrown by an inlined wrapper
+  in the externally visible header files).  With this in mind, please don't
+  complicate the internal handling of exceptions...
 
 Miscellaneous Portability Issues:
 =================================
@@ -157,7 +184,8 @@ If using GCC 3.0 or newer, you should consider configure-ing with:
 
 when doing development work on Xapian.  This promotes warnings to errors,
 and should ensure you don't introduce warnings.  If you find out how to
-do the same with other compilers, please add a note here.
+do the same with other compilers, please add a note here, or tell us so
+that we can add a note.
 
 Makefile Portability:
 =====================
@@ -228,7 +256,9 @@ Here's an incomplete list of things to avoid:
   	$PERL script.pl > foo.tmp
 	mv foo.tmp foo.cc
 
-  The makefiles haven't all been modified to avoid this problem (FIXME).
+  Alternatively, pass the output filename to the script and make sure you
+  delete the output on error, or SIGINT.  Some makefiles or scripts still
+  need modifying to avoid this problem (FIXME).
 
 And lastly a style point - using "@" to suppress outputing of commands being
 executed removes choice from the user - they may want to see what commands
