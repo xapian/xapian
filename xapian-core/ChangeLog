@@ -1,3 +1,7 @@
+Wed Feb  9 14:52:54 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Rename all exception classes to have names ending in Error
+
 Wed Feb  9 14:48:48 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added and implemented get_doc_data in OmEnquire

@@ -26,7 +26,7 @@ DatabaseBuilder::create(const DatabaseBuilderParams & params)
     // Create database of correct type, and 
     switch(params.type) {
 	case OM_DBTYPE_NULL:
-	    throw OmInvalidArgument("Unspecified database type");
+	    throw OmInvalidArgumentError("Unspecified database type");
 	    break;
 	case OM_DBTYPE_DA:
 #ifdef MUS_BUILD_BACKEND_DA
@@ -49,7 +49,7 @@ DatabaseBuilder::create(const DatabaseBuilderParams & params)
 #endif
 	    break;
 	default:
-	    throw OmInvalidArgument("Unknown database type");
+	    throw OmInvalidArgumentError("Unknown database type");
     }
 
     // Check that we have a database

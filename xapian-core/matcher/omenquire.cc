@@ -82,7 +82,7 @@ OmQuery::OmQuery(om_queryop op_, const OmQuery &left, const OmQuery &right)
 	: isnull(false), isbool(false), op(op_)
 {
     if (op == OM_MOP_LEAF) {
-    	throw OmInvalidArgument("Invalid query operation");
+    	throw OmInvalidArgumentError("Invalid query operation");
     }
     // Handle null sub-queries.
     // See documentation for table for result of operations when one of the
@@ -124,7 +124,7 @@ OmQuery::OmQuery(om_queryop op_, const OmQuery &left, const OmQuery &right)
 		    initialise_from_copy(left);
 		} else {
 		    if (!right.isnull) {
-		        throw OmInvalidArgument("AND NOT can't have a null LHS");
+		        throw OmInvalidArgumentError("AND NOT can't have a null LHS");
 		    } else isnull = true;
 		}
 		break;
@@ -132,7 +132,7 @@ OmQuery::OmQuery(om_queryop op_, const OmQuery &left, const OmQuery &right)
 		if (left.isnull && right.isnull) {
 		    isnull = true;
 		} else {
-		    throw OmInvalidArgument("XOR can't have one null argument");
+		    throw OmInvalidArgumentError("XOR can't have one null argument");
 		}
 		break;
 	    case OM_MOP_LEAF:
@@ -258,7 +258,7 @@ OmQuery::initialise_from_vector(const vector<OmQuery>::const_iterator qbegin,
 				const vector<OmQuery>::const_iterator qend)
 {
     if ((op != OM_MOP_AND) && (op != OM_MOP_OR)) {
-    	throw OmInvalidArgument("Vector query op must be AND or OR");
+    	throw OmInvalidArgumentError("Vector query op must be AND or OR");
     }
 
     vector<OmQuery>::const_iterator i;
@@ -283,7 +283,7 @@ OmQuery::initialise_from_vector(const vector<OmQuery *>::const_iterator qbegin,
 				const vector<OmQuery *>::const_iterator qend)
 {
     if ((op != OM_MOP_AND) && (op != OM_MOP_OR)) {
-    	throw OmInvalidArgument("Vector query op must be AND or OR");
+    	throw OmInvalidArgumentError("Vector query op must be AND or OR");
     }
 
     vector<OmQuery *>::const_iterator i;
@@ -452,7 +452,7 @@ OmEnquireInternal::open_database()
 {
     if(database == 0) {
 	if(dbparams.size() == 0) {
-	    throw OmInvalidArgument("Must specify at least one database");
+	    throw OmInvalidArgumentError("Must specify at least one database");
 	} else if(dbparams.size() == 1) {
 	    database = DatabaseBuilder::create(dbparams.front());
 	} else {
@@ -482,7 +482,7 @@ OmEnquireInternal::set_query(const OmQuery &query_)
 	query = 0;
     }
     if (query_.is_null()) {
-        throw OmInvalidArgument("Query must not be null");
+        throw OmInvalidArgumentError("Query must not be null");
     }
     query = new OmQuery(query_);
 }

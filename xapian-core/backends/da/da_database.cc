@@ -26,6 +26,7 @@
 #include <vector>
 #include <algorithm>
 
+#include "utils.h"
 #include "database.h"
 #include "dbpostlist.h"
 #include "termlist.h"
@@ -196,7 +197,8 @@ DADatabase::open_term_list(om_docid did) const
 
     if(found == 0) {
 	losetermvec(tv);
-	throw OmRangeError("Docid not found");
+	throw OmDocNotFoundError(string("Docid ") + inttostring(did) +
+				 string(" not found"));
     }
 
     openterms(tv);
@@ -215,7 +217,8 @@ DADatabase::get_record(om_docid did) const
 
     if(found == 0) {
 	loserecord(r);
-	throw OmRangeError("Docid not found");
+	throw OmDocNotFoundError(string("Docid ") + inttostring(did) +
+				 string(" not found"));
     }
 
     return r;

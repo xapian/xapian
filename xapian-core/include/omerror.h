@@ -28,65 +28,81 @@
 
 #include "omtypes.h"
 
-/// Base class for all errors re
+/// Base class for all errors reported
 class OmError {
     private:
         string msg;
 
-	// assignment operator private and unimplemented
+	/// assignment operator private and unimplemented
 	void operator=(const OmError &copyme);
     protected:
-    	// constructors are protected, since they can only
-	// be used by derived classes anyway.
+    	/** constructors are protected, since they can only
+	 * be used by derived classes anyway.
+	 */
         OmError(const string &error_msg) : msg(error_msg) { }
 	OmError(const OmError &copyme) : msg(copyme.msg) {}
     public:
+	/** Return a message describing the error.  This is in a human
+	 *  readable form.
+	 */
         string get_msg()
         {
             return msg;
         }
 
-        // forbid instantiations of OmError (as opposed to subclasses)
+        /// Instantiations of OmError (as opposed to subclasses) are forbidden
 	virtual ~OmError() = 0;
 };
 
+
 inline OmError::~OmError() {}
 
-// An exception derived from OmLogicError is thrown when a misuse
-// of the API is detected.
+/** An exception derived from OmLogicError is thrown when a misuse
+ *  of the API is detected.
+ *  @memo Base class for errors due to programming errors.
+ */
 class OmLogicError : public OmError {
     protected:
         OmLogicError(const string &msg) : OmError(msg) {};
 };
 
-// An exception derived from OmRuntimeError is thrown when an
-// error is caused by problems with the data or environment rather
-// than a programming mistake.
+/** An exception derived from OmRuntimeError is thrown when an
+ *  error is caused by problems with the data or environment rather
+ *  than a programming mistake.
+ *  @memo Base class for errors due to run time problems.
+ */
 class OmRuntimeError : public OmError {
     protected:
         OmRuntimeError(const string &msg) : OmError(msg) {};
 };
 
-class OmRangeError : public OmLogicError {
+/** Thrown if an internal consistency check fails.
+ *  This represents a bug in Muscat. */
+class OmAssertionError : public OmLogicError {
     public:
-	OmRangeError(const string &msg) : OmLogicError(msg) {};
+	OmAssertionError(const string &msg)
+		: OmLogicError(msg + " - assertion failed") {};
 };
 
-class OmAssertionFailed : public OmLogicError {
+/** Thrown when an attempt to use an unimplemented feature is made. */
+class OmUnimplementedError : public OmLogicError {
     public:
-        OmAssertionFailed(const string &msg) : OmLogicError(msg + " - assertion failed") {};
+        OmUnimplementedError(const string &msg) : OmLogicError(msg) {};
 };
 
-class OmUnimplemented : public OmLogicError {
+/** Thrown when an invalid argument is supplied to the API. */
+class OmInvalidArgumentError : public OmLogicError {
     public:
-        OmUnimplemented(const string &msg) : OmLogicError(msg) {};
+        OmInvalidArgumentError(const string &msg) : OmLogicError(msg) {};
 };
 
-class OmInvalidArgument : public OmLogicError {
+/** Thrown when an attempt. */
+class OmDocNotFoundError : public OmRuntimeError {
     public:
-        OmInvalidArgument(const string &msg) : OmLogicError(msg) {};
+	OmDocNotFoundError(const string &msg) : OmRuntimeError(msg) {};
 };
 
+/** Thrown when opening a database fails. */
 class OmOpeningError : public OmRuntimeError {
     public:
         OmOpeningError(const string &msg) : OmRuntimeError(msg) {};

@@ -61,13 +61,13 @@ class MultiDatabase : public virtual IRDatabase {
 	IRDocument * open_document(om_docid did) const;
 
 	void make_term(const om_termname &) {
-	    throw OmUnimplemented("DADatabase::make_term() not implemented");
+	    throw OmUnimplementedError("DADatabase::make_term() not implemented");
 	}
 	om_docid make_doc(const om_docname &) {
-	    throw OmUnimplemented("DADatabase::make_doc() not implemented");
+	    throw OmUnimplementedError("DADatabase::make_doc() not implemented");
 	}
 	void make_posting(const om_termname &, unsigned int, unsigned int) {
-	    throw OmUnimplemented("DADatabase::make_posting() not implemented");
+	    throw OmUnimplementedError("DADatabase::make_posting() not implemented");
 	}
 };
 

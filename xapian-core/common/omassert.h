@@ -52,7 +52,7 @@
 #endif /* !MUS_DEBUG */
 
 // NB use an else clause to avoid dangling else damage
-#define AssertParanoid(a) if (a) { } else throw OmAssertionFailed(ASSERT_LOCN(a))
+#define AssertParanoid(a) if (a) { } else throw OmAssertionError(ASSERT_LOCN(a))
 #else /* MUS_DEBUG_PARANOID */
 #define AssertParanoid(a)
 #endif /* MUS_DEBUG_PARANOID */
@@ -60,7 +60,7 @@
 #ifdef MUS_DEBUG
 // Assertions to put in debug builds
 // NB use an else clause to avoid dangling else damage
-#define Assert(a) if (a) { } else throw OmAssertionFailed(ASSERT_LOCN(a))
+#define Assert(a) if (a) { } else throw OmAssertionError(ASSERT_LOCN(a))
 #else
 #define Assert(a)
 #endif
