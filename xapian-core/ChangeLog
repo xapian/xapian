@@ -1,3 +1,8 @@
+Tue Aug  1 18:16:04 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Hacked libtool (actually ltconfig) to support building under
+	  Solaris CC.  Also added an ar wrapper for the same reason.
+
 Tue Aug  1 17:37:57 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Changed even more DebugMsgs with endls into DEBUGLINEs: now

@@ -1,0 +1,39 @@
+#!/bin/sh
+
+if [ "x$1" = "xcru" ]
+then
+  # shift the cru argument off
+  shift
+
+  # make our temp fiddling directory
+  rm -fr .om_ar_temp
+  mkdir .om_ar_temp
+
+  target=$1
+  echo Target is $target
+  shift
+  objs=""
+  for objfile in $@ ; do
+    case $objfile in
+      *.lo)
+        old_objfile=$objfile
+        objfile=`echo $objfile | sed 's/\.lo/\.o/'`
+        echo $old_objfile being renamed to $objfile
+        if [ -f "$objfile" ] ; then
+          mv $objfile .om_ar_temp/
+        fi
+        cp $old_objfile $objfile
+        ;;
+    esac
+    objs="$objs $objfile"
+  done
+  echo CC -xar -o $target $objs
+  CC -G -xar -o $target $objs
+  
+  # move the displaced objects back
+  mv -f .om_ar_temp/* .
+  rmdir .om_ar_temp
+else
+  echo /usr/ccs/bin/ar "$@"
+  exec /usr/ccs/bin/ar "$@"
+fi

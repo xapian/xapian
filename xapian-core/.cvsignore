@@ -16,8 +16,6 @@ config.sub
 depcomp
 install-sh
 libtool
-ltconfig
-ltmain.sh
 missing
 mkinstalldirs
 stamp-h
