@@ -28,6 +28,8 @@
 
 class QuartzDbManager;
 class QuartzModifications;
+#include "quartz_log.h"
+
 #include <memory>
 #include "omlocks.h"
 
@@ -48,9 +50,9 @@ class QuartzDatabase : public IRDatabase {
 	 */
 	auto_ptr<QuartzModifications> modifications;
 
-	/** Name of file to make a note of database modifications in.
+	/** Pointer to object to log modifications.
 	 */
-	string modification_logfile;
+	RefCntPtr<QuartzLog> log;
 
 	/** Flag saying whether we're using transactions or not.
 	 */

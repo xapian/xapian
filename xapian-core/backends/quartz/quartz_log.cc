@@ -1,4 +1,4 @@
-/* quartz_db_manager.cc: Database management for quartz
+/* quartz_log.cc: A logfile for quartz.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,41 +20,42 @@
  * -----END-LICENCE-----
  */
 
-#include "config.h"
+#include "quartz_log.h"
 
-// Needed for macros to specify file modes
-#include <sys/stat.h>
+#include <string.h>
+#include <errno.h>
 
-#include "quartz_db_manager.h"
-
-#include "utils.h"
-#include <om/omerror.h>
-#include <string>
-
-QuartzDbManager::QuartzDbManager(const OmSettings & settings,
-				 bool use_transactions,
-				 bool readonly)
+QuartzLog::QuartzLog(string filename)
+	: fp(0)
 {
-    string db_dir  = settings.get("quartz_dir");
-    string tmp_dir = settings.get("quartz_tmpdir", db_dir);
-
-
-    // set cache size parameters, etc, here.
-
-    // open environment here
-    calc_mode();
-
-    // open tables
-    postlist_table = new QuartzDbTable(readonly);
-    positionlist_table = new QuartzDbTable(readonly);
+    if (!filename.empty()) {
+	fp = fopen(filename.c_str(), "a");
+	if (fp == 0)
+	    throw OmOpeningError("Can't open logfile `" + filename + "': " +
+				 string(strerror(errno)));
+    }
 }
 
-QuartzDbManager::~QuartzDbManager()
+QuartzLog::~QuartzLog()
 {
+    if (fp != 0) {
+	int retval = fclose(fp);
+	if (retval) {
+	    throw OmOpeningError("Error when closing logfile: " +
+				 string(strerror(errno)));
+	}
+    }
+}
+ 
+void
+QuartzLog::make_entry(string entry) const
+{
+    if (fp != 0) {
+	fprintf(fp, "%s\n", entry.c_str());
+	if (fflush(fp)) {
+	    throw OmOpeningError("Error when flushing logfile: " +
+				 string(strerror(errno)));
+	}
+    }
 }
 
-int
-QuartzDbManager::calc_mode()
-{
-    return S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-}

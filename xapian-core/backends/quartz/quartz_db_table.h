@@ -25,6 +25,7 @@
 
 #include "config.h"
 #include "quartz_types.h"
+#include "refcnt.h"
 #include <string>
 #include <map>
 
@@ -124,7 +125,7 @@ operator << (ostream &os, QuartzRevisionNumber obj) {
  *  documentation for QuartzDbKey and QuartzDbTag for details of what
  *  comprises a valid key or tag.
  */
-class QuartzDbTable {
+class QuartzDbTable : public RefCntBase {
     private:
 	/// Copying not allowed
 	QuartzDbTable(const QuartzDbTable &);
@@ -219,6 +220,10 @@ class QuartzDbTable {
 	 *  If an entry is specified with a null pointer for the tag, then
 	 *  the entry will be removed from the database if it exists.  If
 	 *  it does not exist, no action will be taken.
+	 *
+	 *  If an error occurs during the operation, this will be signalled
+	 *  by a return value of false.  The table will be left in an
+	 *  unmodified state.
 	 *
 	 *  @param entries   The key / tag pairs to store in the table.
 	 *

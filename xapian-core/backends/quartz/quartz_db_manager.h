@@ -25,6 +25,7 @@
 
 #include "config.h"
 #include <om/omsettings.h>
+#include "quartz_db_table.h"
 
 /** Class managing the databases used by Quartz.
  *
@@ -42,6 +43,14 @@ class QuartzDbManager {
 	/** Calculate the mode that database files should be created with.
 	 */
 	static int       calc_mode();
+
+	/** Table storing posting lists.
+	 */
+	RefCntPtr<QuartzDbTable> postlist_table;
+
+	/** Table storing position lists.
+	 */
+	RefCntPtr<QuartzDbTable> positionlist_table;
 
 	/** Construct the manager.
 	 */

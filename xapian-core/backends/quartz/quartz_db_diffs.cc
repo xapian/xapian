@@ -24,9 +24,40 @@
 
 #include "quartz_db_diffs.h"
 
-void
+QuartzDbTag *
+QuartzDbDiffs::get_tag(const QuartzDbKey &key)
+{
+    if (changed_entries.have_entry(key)) {
+	return changed_entries.get_tag(key);
+    } else {
+	auto_ptr<QuartzDbTag> tag(new QuartzDbTag);
+	QuartzDbTag * tagptr = tag.get();
+
+	bool found = table->get_exact_entry(key, *tagptr);
+
+	if (found) {
+	    changed_entries.set_tag(key, tag);
+	} else {
+	    tagptr = 0;
+	}
+
+	Assert(changed_entries.get_tag(key) == tagptr);
+	return tagptr;
+    }
+}
+
+bool
 QuartzDbDiffs::apply()
 {
+    bool result;
+    try {
+	result = table->set_entries(changed_entries.get_all_entries());
+    } catch (...) {
+	changed_entries.clear();
+	throw;
+    }
+    changed_entries.clear();
+    return result;
 }
 
 void

@@ -58,12 +58,18 @@
 //                 to the quartz_dir directory.
 //
 QuartzDatabase::QuartzDatabase(const OmSettings & settings, bool readonly)
-	: modifications(0)
+	: modifications(0),
+	  log(0),
+	  use_transactions(false),
+	  readonly(true)
 {
     use_transactions = settings.get_bool("quartz_use_transactions",
 					       false);
 
-    modification_logfile = settings.get("quartz_modification_log", "");
+    string log_filename = settings.get("quartz_modification_log", "");
+    if (!readonly) {
+	log = new QuartzLog(log_filename);
+    }
 
     {
 	auto_ptr<QuartzDbManager> temp(
@@ -94,7 +100,7 @@ QuartzDatabase::do_begin_session(om_timeout timeout)
 				      "database opened readonly.");
     }
     auto_ptr<QuartzModifications> temp(
-	new QuartzModifications(db_manager.get(), modification_logfile));
+	new QuartzModifications(db_manager.get(), log));
     modifications = temp;
 }
 

@@ -1,3 +1,8 @@
+Mon Sep 18 19:13:03 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Various work on Quartz - logfiles, putting general structure in
+	  place, etc.
+
 Mon Sep 18 19:10:23 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Slightly more accurate malloc/realloc implementation

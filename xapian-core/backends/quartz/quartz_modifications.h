@@ -26,7 +26,10 @@
 #include "config.h"
 #include "quartz_db_manager.h"
 #include "quartz_db_diffs.h"
+#include "quartz_log.h"
 #include "om/omindexdoc.h"
+
+#include <stdio.h>
 
 /** Class managing all the modifications made to a Quartz database.
  */
@@ -42,10 +45,9 @@ class QuartzModifications {
 	 */
 	QuartzDbManager * db_manager;
 
-	/** Filename of logfile to write messages about the modifications
-	 *  performed to.
+	/** Log to write messages about the modifications performed to.
 	 */
-	string logfile;
+	RefCntPtr<QuartzLog> log;
 
 	/** Diffs made to the PostList database.
 	 */
@@ -59,24 +61,18 @@ class QuartzModifications {
 	/** Construct the modifications object.
 	 */
 	QuartzModifications(QuartzDbManager * db_manager_,
-			    string logfile_);
+			    RefCntPtr<QuartzLog> log_);
 
 	/** Destroy the modifications.  Any unapplied modifications will
 	 *  be lost.
 	 */
 	~QuartzModifications();
 
-	/** Apply the modifications.  Throws an exception if an error
-	 *  occurs.  If an error occurs, all, none, or some of the
-	 *  modifications may have been applied to the database.
-	 */
-	void apply();
-
 	/** Atomically apply the modifications.  Throws an exception if an
 	 *  error occurs. If an error occurs (eg, any of the modifications
 	 *  fail), the database will be left unaltered.
 	 */
-	void apply_atomic();
+	void apply();
 
 	/** Store the changes needed to add a document in the modifications.
 	 */

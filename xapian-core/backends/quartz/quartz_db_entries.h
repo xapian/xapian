@@ -104,6 +104,13 @@ class QuartzDbEntries {
 	 */
 	void forget_entry(const QuartzDbKey &key);
 
+	/** Removes all the entries from the QuartzDbEntries object.
+	 *
+	 *  This simply removes the entries from the object - it does
+	 *  not correspond to deleting them from the underlying table.
+	 */
+	void clear();
+
 	/** Get all the entries in this object.
 	 *
 	 *  This returns a suitable object to be passed to

@@ -26,6 +26,7 @@
 #include "config.h"
 #include "quartz_db_manager.h"
 #include "quartz_db_entries.h"
+#include "quartz_db_table.h"
 #include "om/omtypes.h"
 #include "om/omindexdoc.h"
 
@@ -42,12 +43,26 @@ class QuartzDbDiffs {
     protected:
 	/** Blocks which have been changed.
 	 */
-	QuartzDbEntries diffs;
+	QuartzDbEntries changed_entries;
+
+	/** Table which blocks come from / get written to.
+	 */
+	RefCntPtr<QuartzDbTable> table;
+
+	/** Get a pointer to the tag for a given key.
+	 *
+	 *  If the tag is not present in the database, or is currently
+	 *  marked for deletion, this will return a null pointer.
+	 *
+	 *  The pointer is owned by the changed_entries object - it may
+	 *  be modified, but must not be deleted.
+	 */
+	QuartzDbTag * get_tag(const QuartzDbKey &key);
 
     public:
 	/** Construct the diffs object.
 	 */
-	QuartzDbDiffs() {}
+	QuartzDbDiffs(RefCntPtr<QuartzDbTable> table_) : table(table_) {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
 	 *
@@ -56,12 +71,24 @@ class QuartzDbDiffs {
 	 */
 	virtual ~QuartzDbDiffs() = 0;
 
-	/** Apply the diffs.  Throws an exception if an error occurs.
+	/** Apply the diffs to the database.
+	 *
+	 *  If an error occurs during the operation, this will be signalled
+	 *  by a return value of false.  The table will be left in an
+	 *  unmodified state.
+	 *
+	 *  After this operation, even if it is unsuccessful, the diffs
+	 *  will be left empty.
+	 *
+	 *  @return true if the operation completed successfully, false
+	 *          otherwise.
 	 */
-	void apply();
+	bool apply();
 };
 
 inline QuartzDbDiffs::~QuartzDbDiffs() {}
+
+
 
 /** Class managing a set of diffs to a Quartz PostList table.
  */
@@ -74,12 +101,13 @@ class QuartzPostListDbDiffs : public QuartzDbDiffs {
     public:
 	/** Construct the diffs object.
 	 *
-	 *  @param db_manager_  The object managing access to databases on
-	 *                      disk.
+	 *  @param table_  The object managing access to the table on disk.
 	 */
-	QuartzPostListDbDiffs(QuartzDbManager * db_manager_)
-		: db_manager(db_manager_) {}
+	QuartzPostListDbDiffs(RefCntPtr<QuartzDbTable> table_)
+		: QuartzDbDiffs(table_) {}
 
+	/** Destroy the diffs.  Any unapplied diffs will be lost.
+	 */
 	~QuartzPostListDbDiffs() {}
 
 	/** Add a posting to the diffs.
@@ -104,12 +132,13 @@ class QuartzPositionListDbDiffs : public QuartzDbDiffs {
     public:
 	/** Construct the diffs object.
 	 *
-	 *  @param db_manager_  The object managing access to databases on
-	 *                      disk.
+	 *  @param table_  The object managing access to the table on disk.
 	 */
-	QuartzPositionListDbDiffs(QuartzDbManager * db_manager_)
-		: db_manager(db_manager_) {}
+	QuartzPositionListDbDiffs(RefCntPtr<QuartzDbTable> table_)
+		: QuartzDbDiffs(table_) {}
 
+	/** Destroy the diffs.  Any unapplied diffs will be lost.
+	 */
 	~QuartzPositionListDbDiffs() {}
 
 	/** Add a posting to the diffs.

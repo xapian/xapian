@@ -30,12 +30,13 @@
 #include <map>
 
 QuartzModifications::QuartzModifications(QuartzDbManager * db_manager_,
-					 string logfile_)
+					 RefCntPtr<QuartzLog> log_)
 	: db_manager(db_manager_),
-	  logfile(logfile_),
-	  postlist_diffs(db_manager_),
-	  positionlist_diffs(db_manager_)
+	  log(log_),
+	  postlist_diffs(db_manager_->postlist_table),
+	  positionlist_diffs(db_manager_->positionlist_table)
 {
+    Assert(log.get() != 0);
 }
 
 QuartzModifications::~QuartzModifications()
@@ -44,11 +45,6 @@ QuartzModifications::~QuartzModifications()
 
 void
 QuartzModifications::apply()
-{
-}
-
-void
-QuartzModifications::apply_atomic()
 {
 }
 

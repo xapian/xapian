@@ -82,6 +82,12 @@ QuartzDbEntries::forget_entry(const QuartzDbKey &key)
     }
 }
 
+void
+QuartzDbEntries::clear()
+{
+    entries.clear();
+}
+
 std::map<QuartzDbKey, QuartzDbTag *> &
 QuartzDbEntries::get_all_entries()
 {

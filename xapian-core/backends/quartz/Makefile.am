@@ -8,14 +8,16 @@ noinst_HEADERS =       quartz_types.h \
 		       quartz_modifications.h \
 		       quartz_db_entries.h \
 		       quartz_db_table.h \
-		       quartz_db_diffs.h
+		       quartz_db_diffs.h \
+		       quartz_log.h
 
 libquartz_la_SOURCES = quartz_database.cc \
                        quartz_db_manager.cc \
 		       quartz_modifications.cc \
 		       quartz_db_entries.cc \
 		       quartz_db_table.cc \
-		       quartz_db_diffs.cc
+		       quartz_db_diffs.cc \
+		       quartz_log.cc
 
 noinst_LTLIBRARIES = libquartz.la
 

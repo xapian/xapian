@@ -1,4 +1,4 @@
-/* quartz_db_manager.cc: Database management for quartz
+/* quartz_log.h: A logfile for quartz.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,41 +20,41 @@
  * -----END-LICENCE-----
  */
 
+#ifndef OM_HGUARD_QUARTZ_LOG_H
+#define OM_HGUARD_QUARTZ_LOG_H
+
 #include "config.h"
-
-// Needed for macros to specify file modes
-#include <sys/stat.h>
-
-#include "quartz_db_manager.h"
-
-#include "utils.h"
-#include <om/omerror.h>
+#include "refcnt.h"
 #include <string>
+#include <stdio.h>
 
-QuartzDbManager::QuartzDbManager(const OmSettings & settings,
-				 bool use_transactions,
-				 bool readonly)
-{
-    string db_dir  = settings.get("quartz_dir");
-    string tmp_dir = settings.get("quartz_tmpdir", db_dir);
+/** Class managing a logfile for quartz.
+ */
+class QuartzLog : public RefCntBase {
+    private:
+	/// Copying not allowed
+	QuartzLog(const QuartzLog &);
 
+	/// Assignment not allowed
+	void operator=(const QuartzLog &);
 
-    // set cache size parameters, etc, here.
+	/** File pointer.
+	 */
+	FILE * fp;
+    public:
+	/** Open the log.
+	 *
+	 *  @param filename  The full filename of the logfile.
+	 */
+	QuartzLog(string filename);
 
-    // open environment here
-    calc_mode();
+	/** Close the log.
+	 */
+	~QuartzLog();
+	 
+	/** Make an entry in the log.
+	 */
+	void make_entry(string entry) const;
+};
 
-    // open tables
-    postlist_table = new QuartzDbTable(readonly);
-    positionlist_table = new QuartzDbTable(readonly);
-}
-
-QuartzDbManager::~QuartzDbManager()
-{
-}
-
-int
-QuartzDbManager::calc_mode()
-{
-    return S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-}
+#endif /* OM_HGUARD_QUARTZ_LOG_H */
