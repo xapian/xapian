@@ -9,6 +9,7 @@
 class OrPostList : public virtual BranchPostList {
     private:
         docid lhead, rhead;
+        void maybe_throw_kid(void);
     public:
 	doccount get_termfreq() const;
 
@@ -33,12 +34,7 @@ OrPostList::get_termfreq() const
 inline docid
 OrPostList::get_docid() const
 {
-    if (!rhead) {
-        return lhead;
-    } else if (!lhead) {
-        return rhead;
-    }
-   
+    Assert(lhead != 0 && rhead != 0); // check we've started
     return min(lhead, rhead);
 }
 
@@ -46,21 +42,17 @@ OrPostList::get_docid() const
 inline weight
 OrPostList::get_weight() const
 {
-    if (!rhead) return l->get_weight();
-   
-    if (!lhead) return r->get_weight();
-
+    Assert(lhead != 0 && rhead != 0); // check we've started
     if (lhead < rhead) return l->get_weight();
-   
     if (lhead > rhead) return r->get_weight();
-
     return l->get_weight() + r->get_weight();
 }
 
 inline bool
 OrPostList::at_end() const
 {
-    return lhead == 0 && rhead == 0;
+    // Can never really happen - OrPostList will throw a child instead
+    return false;
 }
 
 #endif /* _orpostlist_h_ */

@@ -5,14 +5,23 @@
 
 #include "database.h"
 
-#include <stdio.h>
-
 class BranchPostList : public virtual PostList {
     protected:
         PostList *l, *r;
+        void catch_kid(PostList *&kid, PostList **p);
     public:
         virtual ~BranchPostList();
 };
+
+inline void
+BranchPostList::catch_kid(PostList *&kid, PostList **p)
+{
+    PostList *tmp;
+    tmp = kid;
+    kid = *p;
+    *p = NULL;
+    delete tmp;
+}
 
 inline
 BranchPostList::~BranchPostList()

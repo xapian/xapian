@@ -9,7 +9,6 @@
 class AndNotPostList : public virtual BranchPostList {
     private:
         docid lhead, rhead;
-
         void advance_to_next_match();
     public:
 	doccount get_termfreq() const;

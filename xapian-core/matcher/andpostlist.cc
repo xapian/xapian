@@ -8,14 +8,14 @@ AndPostList::advance_to_next_match()
 
     while (lhead != rhead) {
 	if (lhead < rhead) {
-	    l->skip_to(rhead);
+ 	    try { l->skip_to(rhead); } catch (PostList **p) { catch_kid(l, p); }
 	    if (l->at_end()) {
 		head = 0;
 		return;
 	    }
 	    lhead = l->get_docid();	    
 	} else {
-	    r->skip_to(lhead);
+ 	    try { r->skip_to(lhead); } catch (PostList **p) { catch_kid(r, p); }
 	    if (r->at_end()) {
 		head = 0;
 		return;
@@ -40,10 +40,10 @@ AndPostList::next()
 {
     head = 0;
 
-    r->next();
+    try { r->next(); } catch (PostList **p) { catch_kid(r, p); }
     if (r->at_end()) return;
 
-    l->skip_to(r->get_docid());
+    try { l->skip_to(r->get_docid()); } catch (PostList **p) { catch_kid(l, p); }
     if (l->at_end()) return;
 
     advance_to_next_match();
@@ -54,10 +54,10 @@ AndPostList::skip_to(docid id)
 {
     head = 0;
 
-    r->skip_to(id);
+    try { r->skip_to(id); } catch (PostList **p) { catch_kid(r, p); }
     if (r->at_end()) return;
 
-    l->skip_to(r->get_docid());
+    try { l->skip_to(r->get_docid()); } catch (PostList **p) { catch_kid(l, p); }
     if (l->at_end()) return;
 
     advance_to_next_match();

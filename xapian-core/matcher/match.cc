@@ -144,6 +144,7 @@ Match::match(void)
     // FIXME: clean all this up
     // FIXME: partial_sort?
     // FIXME: quicker to just resort whole lot than sort and merge?
+    merger->next(); // move onto first match
     while (!merger->at_end()) {
         weight w = merger->get_weight();
         
@@ -169,7 +170,16 @@ Match::match(void)
 	    }
 	}
         mtotal++;
-        merger->next();
+        try {
+	    merger->next(); 	    
+	}
+        catch (PostList **p) {
+	    PostList *tmp;
+	    tmp = merger;
+	    merger = *p;
+	    *p = NULL;
+	    delete tmp;
+	}
     }
 
     cout << "sorting\n";
