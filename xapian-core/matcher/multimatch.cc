@@ -266,9 +266,9 @@ MultiMatch::prepare_matchers() {
 void
 MultiMatch::match(om_doccount first,
 		  om_doccount maxitems,
-		  vector<OmMSetItem> & mset,
+		  OmMSet & mset,
 		  om_doccount * mbound,
-		  om_weight * greatest_wt,
+		  om_weight * max_attained,
 		  const OmMatchDecider *mdecider)
 {
     Assert((allow_add_singlematch = false) == false);
@@ -277,8 +277,8 @@ MultiMatch::match(om_doccount first,
     if(leaves.size() == 1) {
 	// Only one mset to get - so get it, and block.
 	leaves.front()->prepare_match(false);
-	leaves.front()->get_mset(first, maxitems, mset,
-				 mbound, greatest_wt, mdecider, false);
+	leaves.front()->get_mset(first, maxitems, mset.items,
+				 mbound, max_attained, mdecider, false);
     } else if(leaves.size() > 1) {
 	// Need to merge msets.
 	om_doccount tot_mbound = 0;
@@ -315,7 +315,7 @@ MultiMatch::match(om_doccount first,
 				  &msets_received,
 				  &tot_mbound,
 				  &tot_greatest_wt,
-				  mset,
+				  mset.items,
 				  nowait);
 	    }
 
@@ -327,15 +327,15 @@ MultiMatch::match(om_doccount first,
 
 	// Clear unwanted leading elements.
 	if(first != 0) {
-	    if(mset.size() < first) {
-		mset.clear();
+	    if(mset.items.size() < first) {
+		mset.items.clear();
 	    } else if (first > 0) {
-		mset.erase(mset.begin(), mset.begin() + first);
+		mset.items.erase(mset.items.begin(), mset.items.begin() + first);
 	    }
 	}
 
-	// Set the mbound and greatest_wt appropriately.
-	*mbound      = tot_mbound;
-	*greatest_wt = tot_greatest_wt;
+	// Set the mbound and max_attained appropriately.
+	*mbound       = tot_mbound;
+	*max_attained = tot_greatest_wt;
     }
 }

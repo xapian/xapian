@@ -104,8 +104,10 @@ class MultiMatch
 	 */
 	void prepare_matchers();
 
-	// disallow copies
+	/// Copying is not permitted.
 	MultiMatch(const MultiMatch &);
+
+	/// Assignment is not permitted.
 	void operator=(const MultiMatch &);
     public:
 	/** MultiMatch constructor.
@@ -136,7 +138,7 @@ class MultiMatch
 
 	void match(om_doccount first,
 		   om_doccount maxitems,
-		   vector<OmMSetItem> & mset,
+		   OmMSet & mset,
 		   om_doccount * mbound,
 		   om_weight * greatest_wt,
 		   const OmMatchDecider *mdecider

@@ -370,6 +370,7 @@ void
 NetworkMatch::set_query(const OmQueryInternal *query_)
 {
     database->link->set_query(query_);
+    max_weight_needs_fetch = true;
 }
 
 /// Build the query tree, if it isn't already built.

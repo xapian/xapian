@@ -149,9 +149,7 @@ ProgServer::run()
 	    is >> first >> maxitems;
 	}
 
-	vector<OmMSetItem> mset;
-	om_doccount mbound;
-	om_weight greatest_wt;
+	OmMSet mset;
 
 	cerr << "About to get_mset(" << first
 		<< ", " << maxitems << "..." << endl;
@@ -159,20 +157,20 @@ ProgServer::run()
 	match.match(first,
 		    maxitems,
 		    mset,
-		    &mbound,
-		    &greatest_wt,
+		    &(mset.mbound),
+		    &(mset.max_attained),
 		    0);
 
 	cerr << "done get_mset..." << endl;
 
 	buf.writeline(string("MSETITEMS ") +
-		      inttostring(mset.size()) + " "
+		      inttostring(mset.items.size()) + " "
 		      + doubletostring(match.get_max_weight()));
 
 	cerr << "sent size, maxweight..." << endl;
 
-	for (vector<OmMSetItem>::iterator i=mset.begin();
-	     i != mset.end();
+	for (vector<OmMSetItem>::iterator i=mset.items.begin();
+	     i != mset.items.end();
 	     ++i) {
 	    char charbuf[100];
 	    ostrstream os(charbuf, 100);

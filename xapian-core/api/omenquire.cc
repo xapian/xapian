@@ -233,17 +233,18 @@ OmEnquireInternal::get_mset(om_doccount first,
 
     OmMSet retval;
     // Run query and get results into supplied OmMSet object
-    match.match(first, maxitems, retval.items,
+    match.match(first, maxitems, retval,
 		&(retval.mbound), &(retval.max_attained),
 		mdecider);
 
     // Get max weight for an item in the MSet
     retval.max_possible = match.get_max_weight();
+    retval.firstitem = first;
+
     Assert(!(query->is_bool()) || retval.max_possible == 0);
 
     // Store what the first item requested was, so that this information is
     // kept with the mset.
-    retval.firstitem = first;
 
     return retval;
 }

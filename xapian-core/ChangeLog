@@ -1,3 +1,9 @@
+Tue May  9 11:52:05 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* MultiMatch::match() takes an OmMSet instead of a vector<OmMSetItem>.
+	  Next step is to make all the elements of the MSet get set correctly,
+	  not just the items.
+
 Mon May  8 19:42:48 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Stop MultiMatch going into a tight loop when waiting for sub
