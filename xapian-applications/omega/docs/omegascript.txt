@@ -53,17 +53,17 @@ ${...}
 $allterms{docid}
 	list of all terms matching document
 
-$collapsed
-	number of other documents collapsed into current hit inside $hitlist
-	useful like:
-
-  $if{$ne{$collapsed,0},at least $collapsed hidden results ($value{$cgi{COLLAPSE}})}
-
 $cgi{CGI}
 	lookup the value of a CGI variable
 
 $cgilist{CGI}
 	return a list of all values of a CGI variable
+
+$collapsed
+	number of other documents collapsed into current hit inside $hitlist
+	useful like:
+
+  $if{$ne{$collapsed,0},at least $collapsed hidden results ($value{$cgi{COLLAPSE}})}
 
 $date{TIME_T[,FMT]}
 	convert a time_t to strftime FMT (default: YYYY-MM-DD)

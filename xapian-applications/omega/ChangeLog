@@ -1,3 +1,8 @@
+Wed Feb 23 14:59:46 GMT 2005  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.txt: Moved $collapsed into correct place
+	  alphabetically!
+
 Wed Feb 16 03:46:51 GMT 2005  Olly Betts <olly@survex.com>
 
 	* docs/cgiparams.txt,docs/overview.txt: Improved description of how
