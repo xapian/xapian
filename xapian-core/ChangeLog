@@ -1,3 +1,8 @@
+Sun Sep 05 20:20:01 BST 2004  Olly Betts <olly@survex.com>
+
+	* testsuite/backendmanager.h: Added missing "std::" so code will
+	  compile with GCC >= 3.
+
 Sun Sep 05 13:54:58 BST 2004  Olly Betts <olly@survex.com>
 
 	* testsuite/backendmanager.h: Removed superfulous "BackendManager::".
