@@ -23,7 +23,7 @@
  */
 
 #include <config.h>
-#include "queryparser.h"
+#include <xapian/queryparser.h>
 #include <iostream>
 #include <string>
 
