@@ -4,7 +4,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,16 @@
  * USA
  * -----END-LICENCE-----
  */
+
+/* We need to ensure that this is defined so that the module produced
+   exports get_module() and can be loaded by PHP.  Older versions of PHP 
+   (or maybe SWIG) generate `#include <config.h>' in xapian_wrap.cpp and
+   config.h defines COMPILE_DL_XAPIAN, but newer versions don't do this.
+   util.i gets added after that #include (if it exists) so conditionally
+   defining like this should work with both old and new versions. */
+#ifndef COMPILE_DL_XAPIAN
+#define COMPILE_DL_XAPIAN 1
+#endif
 %}
 
 %pragma(php4) phpinfo="

@@ -1,3 +1,8 @@
+Wed May 19 11:27:42 BST 2004  Olly Betts <olly@survex.com>
+
+	* php4/util.i: Make sure that PHP bindings build a module which
+	  exports get_module() so PHP is able to load it.
+
 Thu May 13 17:57:50 BST 2004  Olly Betts <olly@survex.com>
 
 	* java/native/WritableDatabase.cc,java/native/org_xapian_XapianJNI.h,
