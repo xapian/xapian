@@ -191,9 +191,16 @@ MultiDatabase::open_term_list(docid did) const {
 }
 
 IRDocument *
-MultiDatabase::open_document(docid id) const {
-    throw(OmError("MultiDatabase::open_document not yet implemented"));
-    return NULL;
+MultiDatabase::open_document(docid did) const {
+    Assert(opened);
+    Assert((used = true) == true);
+
+    doccount multiplier = databases.size();
+
+    docid realdid = (did - 1) / multiplier + 1;
+    doccount dbnumber = (did - 1) % multiplier;
+
+    return (*(databases.begin() + dbnumber))->open_document(realdid);
 }
 
 
