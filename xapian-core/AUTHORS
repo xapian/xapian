@@ -2,19 +2,19 @@ Email about this project should be directed first to the
 xapian-discuss mailing list (see <http://www.xapian.org/lists.php>).
 
 Xapian has been developed by many individuals who voluntarily contributed
-their code to the Xapian project. These people are:
+their code to the Xapian project.  These people are:
 
+	Olly Betts <olly@survex.com>
 	Hein Ragas <hragas@users.sourceforge.net>
 	James Aylett <tartarus@users.sourceforge.net>
 	Sam Liddicott <samjam@users.sourceforge.net>
-	Olly Betts <olly@survex.com>
 
 The Xapian project home page is: http://www.xapian.org/
 
-The OmSee code which Xapian has evolved from was developed by a team at
-Brightstation PLC:
+The Open Muscat code which Xapian has evolved from was developed by a team at
+BrightStation PLC:
 
-Brightstation developers:
+BrightStation developers:
 	Richard Boulton
 	Chris Emerson
 	Olly Betts
@@ -27,3 +27,9 @@ Helpful comments, bug reports, small patches:
 	Jonathan Fielder
 	Tom Mortimer
 	Fabrice Colin
+	Arjen van der Meijden
+	Hartmut Honisch
+	Robert Pollak
+	Jim Lynch
+	Kees van Reeuwijk
+	Olivier Galibert
