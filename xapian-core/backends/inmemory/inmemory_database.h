@@ -143,7 +143,7 @@ class TextfileTermList : public virtual TermList {
 	termcount get_approx_size() const;
 
 	weight get_weight() const;
-	termid get_termid() const;
+	termname get_termname() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
@@ -287,11 +287,11 @@ inline weight TextfileTermList::get_weight() const
     return 1.0;  // FIXME
 }
 
-inline termid TextfileTermList::get_termid() const
+inline termname TextfileTermList::get_termname() const
 {
     Assert(started);
     Assert(!at_end());
-    return (*pos).tid;
+    return this_db->term_id_to_name((*pos).tid);
 }
 
 inline termcount TextfileTermList::get_wdf() const
@@ -306,7 +306,7 @@ inline doccount TextfileTermList::get_termfreq() const
     Assert(started);
     Assert(!at_end());
 
-    return this_db->get_termfreq(get_termid());
+    return this_db->get_termfreq((*pos).tid);
 }
 
 inline TermList * TextfileTermList::next()

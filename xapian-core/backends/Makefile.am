@@ -2,4 +2,4 @@
 
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
-SUBDIRS = da sleepy multi textfile .
+SUBDIRS = da sleepy textfile multi .

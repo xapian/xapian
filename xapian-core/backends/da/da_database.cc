@@ -74,19 +74,17 @@ PostList * DAPostList::skip_to(docid id, weight w_min)
 DATermList::DATermList(const DADatabase *db, struct termvec *tv)
 	: have_started(false)
 {
+    // FIXME - read terms as we require them, rather than all at beginning?
     readterms(tv);
     while(tv->term != 0) {
 	char *term = (char *)tv->term;
-	termid id;
-	id = db->term_name_to_id_lazy(string(term + 1, (unsigned)term[0] - 1));
 
 	doccount freq = tv->freq;
-	terms.push_back(DATermListItem(id, tv->wdf, freq));
+	terms.push_back(DATermListItem(string(term + 1, (unsigned)term[0] - 1),
+				       tv->wdf, freq));
 	readterms(tv);
     }
     losetermvec(tv);
-
-    sort(terms.begin(), terms.end());
 
     pos = terms.begin();
 }

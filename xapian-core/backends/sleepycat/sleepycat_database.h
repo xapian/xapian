@@ -34,37 +34,6 @@ class SleepyPostList : public virtual DBPostList {
 	bool       at_end() const;      // True if we're off the end of the list
 };
 
-inline doccount
-SleepyPostList::get_termfreq() const
-{
-    return termfreq;
-}
-
-inline docid
-SleepyPostList::get_docid() const
-{
-    Assert(!at_end());
-    Assert(pos != 0);
-    return data[pos - 1];
-}
-
-inline PostList *
-SleepyPostList::next(weight w_min)
-{
-    Assert(!at_end());
-    pos ++;
-    return NULL;
-}
-
-inline bool
-SleepyPostList::at_end() const
-{
-    if(pos > termfreq) return true;
-    return false;
-}
-
-
-
 
 
 // Termlist - a list of terms indexing a given document
@@ -75,72 +44,22 @@ class SleepyTermList : public virtual TermList {
 	termid *data;
 	termcount terms;
 
-	SleepyTermList(IRDatabase *, termid *, termcount);
+	const SleepyDatabase *db;
+
+	SleepyTermList(const IRDatabase *,
+		       const SleepyDatabase *,
+		       termid *, termcount);
     public:
 	~SleepyTermList();
 	termcount get_approx_size() const;
 
-	weight get_weight() const;  // Gets weight of current termid
-	termid get_termid() const;  // Current termid
+	weight get_weight() const;  // Gets weight of current term
+	termname get_termname() const;  // Current term
 	termcount get_wdf() const;  // Occurences of current term in doc
 	doccount get_termfreq() const;  // Docs indexed by current term
 	TermList * next();
 	bool   at_end() const;
 };
-
-inline termcount
-SleepyTermList::get_approx_size() const
-{
-    return terms;
-}
-
-inline weight
-SleepyTermList::get_weight() const {
-    Assert(!at_end());
-    Assert(pos != 0);
-    return 1.0; // FIXME
-}
-
-inline termid
-SleepyTermList::get_termid() const
-{
-    Assert(!at_end());
-    Assert(pos != 0);
-    return data[pos];
-}
-
-inline termcount
-SleepyTermList::get_wdf() const
-{
-    Assert(!at_end());
-    Assert(pos != 0);
-    return 1;
-}
-
-inline doccount
-SleepyTermList::get_termfreq() const
-{
-    Assert(!at_end());
-    Assert(pos != 0);
-    return 1;
-}   
-
-inline TermList *
-SleepyTermList::next()
-{
-    Assert(!at_end());
-    pos ++;
-    return NULL;
-}
-
-inline bool
-SleepyTermList::at_end() const
-{
-    if(pos > terms) return true;
-    return false;
-}
-
-
 
 
 
@@ -174,6 +93,101 @@ class SleepyDatabase : public virtual IRDatabase {
 
 	const string get_database_path() const;
 };
+
+
+
+///////////////////////////////////////////
+// Inline definitions for SleepyPostList //
+///////////////////////////////////////////
+
+inline doccount
+SleepyPostList::get_termfreq() const
+{
+    return termfreq;
+}
+
+inline docid
+SleepyPostList::get_docid() const
+{
+    Assert(!at_end());
+    Assert(pos != 0);
+    return data[pos - 1];
+}
+
+inline PostList *
+SleepyPostList::next(weight w_min)
+{
+    Assert(!at_end());
+    pos ++;
+    return NULL;
+}
+
+inline bool
+SleepyPostList::at_end() const
+{
+    if(pos > termfreq) return true;
+    return false;
+}
+
+///////////////////////////////////////////
+// Inline definitions for SleepyTermList //
+///////////////////////////////////////////
+
+inline termcount
+SleepyTermList::get_approx_size() const
+{
+    return terms;
+}
+
+inline weight
+SleepyTermList::get_weight() const {
+    Assert(!at_end());
+    Assert(pos != 0);
+    return 1.0; // FIXME
+}
+
+inline termname
+SleepyTermList::get_termname() const
+{
+    Assert(!at_end());
+    Assert(pos != 0);
+    return db->term_id_to_name(data[pos]);
+}
+
+inline termcount
+SleepyTermList::get_wdf() const
+{
+    Assert(!at_end());
+    Assert(pos != 0);
+    return 1;
+}
+
+inline doccount
+SleepyTermList::get_termfreq() const
+{
+    Assert(!at_end());
+    Assert(pos != 0);
+    return 1;
+}   
+
+inline TermList *
+SleepyTermList::next()
+{
+    Assert(!at_end());
+    pos ++;
+    return NULL;
+}
+
+inline bool
+SleepyTermList::at_end() const
+{
+    if(pos > terms) return true;
+    return false;
+}
+
+///////////////////////////////////////////
+// Inline definitions for SleepyDatabase //
+///////////////////////////////////////////
 
 inline doccount
 SleepyDatabase::get_doccount() const

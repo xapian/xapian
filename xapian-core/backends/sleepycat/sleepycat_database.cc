@@ -128,12 +128,15 @@ weight SleepyPostList::get_weight() const {
 // Termlists //
 ///////////////
 
-SleepyTermList::SleepyTermList(IRDatabase *db,
+SleepyTermList::SleepyTermList(const IRDatabase *root_new,
+			       const SleepyDatabase *db_new,
 			       termid *data_new,
 			       termcount terms_new)
-	: pos(0), data(data_new), terms(terms_new)
-{
-}
+	: pos(0),
+	  data(data_new),
+	  terms(terms_new),
+	  db(db_new)
+{ return; }
 
 SleepyTermList::~SleepyTermList() {
     free(data);
@@ -224,6 +227,7 @@ SleepyDatabase::open_term_list(docid did) const {
     }
 
     return new SleepyTermList(root,
+			      this,
 			      (termid *)data.get_data(),
 			      data.get_size() / sizeof(termid));
 }

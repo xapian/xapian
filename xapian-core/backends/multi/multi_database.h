@@ -119,7 +119,7 @@ class MultiTermList : public virtual TermList {
 	termcount get_approx_size() const;
 
 	weight get_weight() const;
-	termid get_termid() const;
+	termname get_termname() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
@@ -154,11 +154,9 @@ MultiTermList::get_weight() const {
     return tl->get_weight();
 }
 
-inline termid MultiTermList::get_termid() const
+inline termname MultiTermList::get_termname() const
 {
-    termid tid = tl->get_termid();
-    // FIXME - inefficient (!!!)
-    return rootdb->term_name_to_id(termdb->term_id_to_name(tid));
+    return tl->get_termname();
 }
 
 inline termcount MultiTermList::get_wdf() const

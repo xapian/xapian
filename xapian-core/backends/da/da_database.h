@@ -75,19 +75,17 @@ DAPostList::at_end() const
 
 class DATermListItem {
     public:
-	termid id;
+	termname tname;
 	termcount wdf;
 	doccount termfreq;
-	DATermListItem(termid id_new,
+
+	DATermListItem(termname tname_new,
 		       termcount wdf_new,
-		       doccount termfreq_new) {
-	    id = id_new;
-	    wdf = wdf_new;
-	    termfreq = termfreq_new;
-	}
-	bool operator< (const DATermListItem& a) const {
-	    return this->id < a.id;
-	}
+		       doccount termfreq_new)
+		: tname(tname_new),
+		  wdf(wdf_new),
+		  termfreq(termfreq_new)
+	{ return; }
 };
  
 class DATermList : public virtual TermList {
@@ -102,8 +100,8 @@ class DATermList : public virtual TermList {
     public:
 	termcount get_approx_size() const;
 
-	weight get_weight() const; // Gets weight of current termid
-	termid get_termid() const;
+	weight get_weight() const; // Gets weight of current term
+	termname get_termname() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
@@ -115,11 +113,11 @@ inline termcount DATermList::get_approx_size() const
     return terms.size();
 }
 
-inline termid DATermList::get_termid() const
+inline termname DATermList::get_termname() const
 {
     Assert(!at_end());
     Assert(have_started);
-    return pos->id;
+    return pos->tname;
 }
 
 inline termcount DATermList::get_wdf() const
