@@ -1,6 +1,8 @@
 
 %{
+
 #include "readquery.h"
+#include <stdio.h>
 
 #define YY_DECL querytok yylex()
 
@@ -8,6 +10,9 @@ querytok qt;
 %}
 
 %option noyywrap
+%option stdinit
+%option never-interactive
+%option nounput
 
 OP_AND		%and
 OP_OR		%or

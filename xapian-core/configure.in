@@ -268,13 +268,13 @@ fi
 dnl extra flags for building with gcc
 if test "$GCC" = yes; then
   changequote(, ) dnl avoid problems with [] in sed expressions
-  CFLAGS=`echo "$CFLAGS -pedantic -Wall -Wunused " | sed "s/-O[0-9]*/${OPT_LEVEL}/"`
+  CFLAGS=`echo "$CFLAGS -ansi -pedantic -Wall -Wunused " | sed "s/-O[0-9]*/${OPT_LEVEL}/"`
   case "$CFLAGS" in
     *${OPT_LEVEL}*) ;;
     *) CFLAGS="$CFLAGS $OPT_LEVEL"
   esac
 
-  CXXFLAGS=`echo "$CXXFLAGS -pedantic -Wall -Wunused -Wno-long-long -fno-gnu-keywords" | sed "s/-O[0-9]*/${OPT_LEVEL}/"`
+  CXXFLAGS=`echo "$CXXFLAGS -ansi -pedantic -Wall -Wunused -Wno-long-long -fno-gnu-keywords" | sed "s/-O[0-9]*/${OPT_LEVEL}/"`
   case "$CXXFLAGS" in
     *${OPT_LEVEL}*) ;;
     *) CXXFLAGS="$CXXFLAGS $OPT_LEVEL"
