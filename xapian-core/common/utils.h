@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -149,10 +149,12 @@ inline int unlink(const string &filename) { return unlink(filename.c_str()); }
 /// Allow system to work directly on C++ strings.
 inline int system(const string &command) { return system(command.c_str()); }
 
+#ifdef HAVE_LINK
 /// Allow link to work directly on C++ strings.
 inline int link(const string &o, const string &n) {
     return link(o.c_str(), n.c_str());
 }
+#endif
 
 /// Allow mkdir to work directly on C++ strings.
 inline int mkdir(const string &filename, mode_t mode) {

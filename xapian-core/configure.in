@@ -291,6 +291,8 @@ AC_CHECK_FUNCS(fsync)
 
 AC_CHECK_FUNCS(pread pwrite)
 
+AC_CHECK_FUNCS(link)
+
 dnl See if we want to use STLport
 RJB_FIND_STLPORT
 

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -471,6 +471,7 @@ QuartzBufferedTableManager::get_database_write_lock()
 	}
 	fdcloser fdclose(tempfd);
 
+#ifdef HAVE_LINK
 	/* Now link(2) the temporary file to the lockfile name.
 	 * If either link() returns 0, or the temporary file has
 	 * link count 2 afterwards, then the lock succeeded.
@@ -502,6 +503,12 @@ QuartzBufferedTableManager::get_database_write_lock()
 		  strerror(link_errno) << ")");
 	DEBUGLINE(DB, "Links in statbuf: " << statbuf.st_nlink);
 	/* also failed */
+#else
+	// win32 doesn't support link() so just rename()
+	if (rename(tempname, lock_name) == 0) {
+	    return;
+	}
+#endif
     }
 }
 
