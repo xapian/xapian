@@ -34,18 +34,27 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-TcpClient::TcpClient(std::string hostname, int port, int msecs_timeout_)
-	: SocketClient(get_remote_socket(hostname, port, msecs_timeout_),
+#include "utils.h"
+
+TcpClient::TcpClient(std::string hostname, int port, int msecs_timeout_, int msecs_timeout_connect_)
+	: SocketClient(get_remote_socket(hostname, port, msecs_timeout_connect_),
 		       msecs_timeout_,
+		       get_tcpcontext(hostname, port),
 		       true)
 {
 
 }
 
+std::string
+TcpClient::get_tcpcontext(std::string hostname, int port)
+{
+    return "remote:tcp(" + hostname + ":" + om_tostring(port) + ")";
+}
+
 int
 TcpClient::get_remote_socket(std::string hostname,
 			     int port,
-			     int msecs_timeout_)
+			     int msecs_timeout_connect_)
 {
     // Note: can't use the msecs_timeout member in SocketClient because this
     // hasn't yet been initialised.
@@ -55,13 +64,13 @@ TcpClient::get_remote_socket(std::string hostname,
 
     if (host == 0) {
 	throw OmNetworkError(std::string("Couldn't resolve host ") +
-			     hostname);
+			     hostname, get_tcpcontext(hostname, port));
     }
 
     int socketfd = socket(PF_INET, SOCK_STREAM, 0);
 
     if (socketfd < 0) {
-	throw OmNetworkError("Couldn't create socket", errno);
+	throw OmNetworkError("Couldn't create socket", get_tcpcontext(hostname, port), errno);
     }
 
     struct sockaddr_in remaddr;
@@ -78,7 +87,7 @@ TcpClient::get_remote_socket(std::string hostname,
 	if (errno != EINPROGRESS) {
 	    int saved_errno = errno; // note down in case close hits an error
 	    close(socketfd);
-	    throw OmNetworkError("Couldn't connect", saved_errno);
+	    throw OmNetworkError("Couldn't connect", get_tcpcontext(hostname, port), saved_errno);
 	}
 
 	// wait for input to be available.
@@ -87,14 +96,14 @@ TcpClient::get_remote_socket(std::string hostname,
 	FD_SET(socketfd, &fdset);
 
 	struct timeval tv;
-	tv.tv_sec = msecs_timeout_ / 1000;
-	tv.tv_usec = msecs_timeout_ % 1000 * 1000;
+	tv.tv_sec = msecs_timeout_connect_ / 1000;
+	tv.tv_usec = msecs_timeout_connect_ % 1000 * 1000;
 
 	retval = select(socketfd + 1, 0, &fdset, 0, &tv);
 	
 	if (retval == 0) {
 	    close(socketfd);
-	    throw OmNetworkTimeoutError("Couldn't connect", ETIMEDOUT);
+	    throw OmNetworkTimeoutError("Couldn't connect", get_tcpcontext(hostname, port), ETIMEDOUT);
 	}
 
 	int err = 0;
@@ -104,11 +113,11 @@ TcpClient::get_remote_socket(std::string hostname,
 	if (retval < 0) {
 	    int saved_errno = errno; // note down in case close hits an error
 	    close(socketfd);
-	    throw OmNetworkError("Couldn't get socket options", saved_errno);
+	    throw OmNetworkError("Couldn't get socket options", get_tcpcontext(hostname, port), saved_errno);
 	}
 	if (err) {
 	    close(socketfd);
-	    throw OmNetworkError("Couldn't connect", err);
+	    throw OmNetworkError("Couldn't connect", get_tcpcontext(hostname, port), err);
 	}
     }
 

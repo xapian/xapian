@@ -68,6 +68,12 @@
  *                       reached for any operation, then an OmNetworkTimeout
  *                       exception will be thrown.  The default if not
  *                       specified is 10000ms (ie 10 seconds)
+ *    - remote_connect_timeout : The timeout in milliseconds used when
+ *                       attempting to connect to a remote server.  If this
+ *                       timeout is reached when attempting to connect, then
+ *                       an OmNetworkTimeout exception wil be thrown.  The
+ *                       default if not specified is to use the value of
+ *                       remote_timeout.
  *
  *  - quartz backend
  *    - quartz_dir : directory containing sleepycat database

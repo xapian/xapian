@@ -49,6 +49,12 @@ NetworkDatabase::NetworkDatabase(const OmSettings & params, bool readonly)
 	throw OmInvalidArgumentError("Negative timeout (" +
 				     om_tostring(timeout) + ") not valid.");
     }
+    int connect_timeout = params.get_int("remote_connect_timeout", timeout);
+    if (connect_timeout < 0) {
+	throw OmInvalidArgumentError("Negative connect timeout (" +
+				     om_tostring(connect_timeout) +
+				     ") not valid.");
+    }
     if (type == "prog") {
 	std::string prog = params.get("remote_program");
 	std::vector<std::string> args = params.get_vector("remote_args");
@@ -59,7 +65,8 @@ NetworkDatabase::NetworkDatabase(const OmSettings & params, bool readonly)
 	std::string server = params.get("remote_server");
 	// FIXME: default port?
 	int port = params.get_int("remote_port");
-	link = RefCntPtr<NetClient>(new TcpClient(server, port, timeout));
+	link = RefCntPtr<NetClient>(new TcpClient(server, port,
+						  timeout, connect_timeout));
     } else {
 	throw OmUnimplementedError(std::string("Network database type ") +
 				   type);

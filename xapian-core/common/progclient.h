@@ -42,6 +42,13 @@ class ProgClient : public SocketClient {
 	/// The process id of the child process.
 	int pid;
 
+	/** Get the context to return with any error messages.
+	 *  Note: this must not be made into a virtual method of the base
+	 *  class, since then it wouldn't work in constructors.
+	 */
+	static std::string get_progcontext(std::string progname,
+					   const std::vector<std::string> &args);
+
 	/** Spawn a program and return a filedescriptor of
 	 *  the local end of a socket to it.
 	 */
@@ -51,11 +58,9 @@ class ProgClient : public SocketClient {
 	/** Constructor.
 	 *
 	 *  @param progname The name of the program to run.
-	 *
 	 *  @param arg	    The arguments to the program to be run.
-	 *
 	 *  @param msecs_timeout_ The timeout value used before throwing
-	 *                        and exception if the remote end is not
+	 *                        an exception if the remote end is not
 	 *                        responding.
 	 */
 	ProgClient(std::string progname,

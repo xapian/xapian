@@ -37,8 +37,22 @@
 ProgClient::ProgClient(std::string progname, const std::vector<std::string> &args, int msecs_timeout_)
 	: SocketClient(get_spawned_socket(progname, args),
 		       msecs_timeout_,
+		       get_progcontext(progname, args),
 		       false /* closing socket our responsibility */)
 {
+}
+
+std::string
+ProgClient::get_progcontext(std::string progname,
+			    const std::vector<std::string> &args)
+{
+    std::string result = "remote:prog(" + progname;
+    for(std::vector<std::string>::const_iterator i = args.begin();
+	i != args.end(); i++) {
+	result += " ";
+	result += *i;
+    }
+    return result;
 }
 
 int
@@ -50,13 +64,13 @@ ProgClient::get_spawned_socket(std::string progname, const std::vector<std::stri
     int sv[2];
 
     if (socketpair(PF_UNIX, SOCK_STREAM, 0, sv) < 0) {
-	throw OmNetworkError(std::string("socketpair:") + strerror(errno));
+	throw OmNetworkError(std::string("socketpair:") + strerror(errno), get_progcontext(progname, args));
     }
 
     pid = fork();
 
     if (pid < 0) {
-	throw OmNetworkError(std::string("fork:") + strerror(errno));
+	throw OmNetworkError(std::string("fork:") + strerror(errno), get_progcontext(progname, args));
     }
 
     if (pid == 0) {

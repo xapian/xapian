@@ -37,7 +37,9 @@ std::string omerror_to_string(const OmError &e)
 	   encode_tname(e.get_msg());
 }
 
-void string_to_omerror(const std::string &except, const std::string &prefix)
+void string_to_omerror(const std::string &except,
+		       const std::string &prefix,
+		       const std::string &mycontext)
 {
     istrstream is(except.c_str());
 
@@ -54,6 +56,10 @@ void string_to_omerror(const std::string &except, const std::string &prefix)
 	type = decode_tname(type);
 	context = decode_tname(context);
 	msg = prefix + decode_tname(msg);
+	if (context.size() != 0 && mycontext.size() != 0) {
+	    msg += ": context was `" + context + "'";
+	    context = mycontext;
+	}
 
 	// FIXME: use a map or something instead.
 	// FIXME: update with new exceptions

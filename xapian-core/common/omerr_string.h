@@ -42,7 +42,13 @@ std::string omerror_to_string(const OmError &e);
  *  @param	except		The string describing the exception to be
  *                              thrown.
  *  @param	prefix		A string to be prepended to the message.
+ *  @param	mycontext	A context to override that in the error
+ *                              string.  The existing context will be
+ *                              appended to the error message (with an
+ *                              explanatory message).
  */
-void string_to_omerror(const std::string &except, const std::string &prefix = "");
+void string_to_omerror(const std::string &except,
+		       const std::string &prefix = "",
+		       const std::string &mycontext = "");
 
 #endif /* OM_HGUARD_OMERR_STRING_H */

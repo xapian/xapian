@@ -38,9 +38,16 @@ class TcpClient : public SocketClient {
 	/** Spawn a program and return a filedescriptor of
 	 *  the local end of a socket to it.
 	 */
-	int get_remote_socket(std::string hostname,
-			      int port,
-			      int msecs_timeout_);
+	static int get_remote_socket(std::string hostname,
+				     int port,
+				     int msecs_timeout_);
+
+	/** Get the context to return with any error messages.
+	 *  Note: this must not be made into a virtual method of the base
+	 *  class, since then it wouldn't work in constructors.
+	 */
+	static std::string get_tcpcontext(std::string hostname,
+					  int port);
 
     public:
 	/** Constructor.
@@ -50,7 +57,8 @@ class TcpClient : public SocketClient {
 	 *  @param msecs_timeout_ The timeout in milliseconds before assuming
 	 *  			the remote end has failed.
 	 */
-	TcpClient(std::string hostname, int port, int msecs_timeout_);
+	TcpClient(std::string hostname, int port,
+		  int msecs_timeout_, int msecs_timeout_connect_);
 
 	/** Destructor. */
 	~TcpClient();

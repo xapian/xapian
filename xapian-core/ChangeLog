@@ -1,3 +1,12 @@
+Wed Nov 29 18:30:10 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add "remote_connect_timeout" parameter to be supplied when opening
+	  a remote database, to specify a separate timeout for the connect
+	  operation to that used once the connection has been opened.
+
+	* Add setting of the context of errors thrown by tcpclient or
+	  progclient, so that the node which failed can be determined.
+
 Wed Nov 29 17:50:03 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Reworked Btree_base::read() a bit so that it's hopefully more

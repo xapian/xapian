@@ -38,6 +38,7 @@
 
 SocketClient::SocketClient(int socketfd_,
 			   int msecs_timeout_,
+			   std::string context_,
 			   bool close_socket_)
 	: socketfd(socketfd_),
 	  close_socket(close_socket_),
@@ -45,19 +46,20 @@ SocketClient::SocketClient(int socketfd_,
 	  conv_state(state_getquery),
 	  remote_stats_valid(false),
 	  global_stats_valid(false),
+	  context(context_),
 	  msecs_timeout(msecs_timeout_)
 {
     // ignore SIGPIPE - we check return values instead, and that
     // way we can easily throw an exception.
     if (signal(SIGPIPE, SIG_IGN) < 0) {
-	throw OmNetworkError("Couldn't install SIGPIPE handler", errno);
+	throw OmNetworkError("Couldn't install SIGPIPE handler", context, errno);
     }
 
     std::string received = do_read();
 
     DEBUGLINE(UNKNOWN, "Read back " << received);
     if (received.substr(0, 3) != "OM ") {
-	throw OmNetworkError("Unknown start of conversation");
+	throw OmNetworkError("Unknown start of conversation", context);
     }
 
     istrstream is(received.c_str() + 3);
@@ -68,7 +70,7 @@ SocketClient::SocketClient(int socketfd_,
     if (version != OM_SOCKET_PROTOCOL_VERSION) {
 	throw OmNetworkError(std::string("Invalid protocol version: found ") +
 			     om_tostring(version) + " expected " +
-			     om_tostring(OM_SOCKET_PROTOCOL_VERSION));
+			     om_tostring(OM_SOCKET_PROTOCOL_VERSION), context);
     }
 }
 
@@ -152,7 +154,7 @@ SocketClient::do_read()
     DEBUGLINE(UNKNOWN, "do_read(): " << retval);
 
     if (retval.substr(0, 1) == "E") {
-	string_to_omerror(retval.substr(1), "REMOTE:");
+	string_to_omerror(retval.substr(1), "REMOTE:", context);
     }
 
     return retval;
@@ -234,7 +236,7 @@ SocketClient::finish_query()
 	    {
 		std::string response = do_read();
 		if (response.substr(0, 1) != "L") {
-		    throw OmNetworkError("Error getting statistics");
+		    throw OmNetworkError("Error getting statistics", context);
 		}
 		remote_stats = string_to_stats(response.substr(1));
 		remote_stats_valid = true;
@@ -296,7 +298,7 @@ SocketClient::get_mset(om_doccount first,
 	case state_getquery:
 	case state_sentquery:
 	case state_sendglobal:
-	    throw OmInvalidArgumentError("get_mset called before global stats given");
+	    throw OmInvalidArgumentError("get_mset called before global stats given", context);
 	    break;
 	case state_getmset:
 
@@ -346,7 +348,7 @@ SocketClient::open_postlist(om_doccount first, om_doccount maxitems,
 	case state_getquery:
 	case state_sentquery:
 	case state_sendglobal:
-	    throw OmInvalidArgumentError("open_postlist called before global stats given");
+	    throw OmInvalidArgumentError("open_postlist called before global stats given", context);
 	    break;
 	case state_getmset:
 
@@ -387,7 +389,7 @@ SocketClient::get_posting(om_docid &did, om_weight &w, OmKey &key)
 	case state_sentquery:
 	case state_sendglobal:
 	case state_getmset:
-	    throw OmInvalidArgumentError("get_posting called too soon");
+	    throw OmInvalidArgumentError("get_posting called too soon", context);
 	    break;
 	case state_getresult: {
 

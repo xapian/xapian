@@ -87,7 +87,11 @@ class SocketClient : public NetClient {
 	 */
 	int get_spawned_socket(std::string progname, std::string arg);
 
-	om_weight minw; // minimum weight we're interested in
+	/// minimum weight we're interested in
+	om_weight minw;
+
+	/// The context to return with any error messages
+	std::string context;
 	
     protected:
 	/** Constructor.  The constructor is protected so that raw instances
@@ -95,20 +99,20 @@ class SocketClient : public NetClient {
 	 *  has code in the constructor to open the socket.
 	 *
 	 *  @param socketfd_  	The socket used for the communications.
-	 *
+	 *  @param msecs_timeout_ The timeout used with the network operations.
+	 *                       Generally an OmNetworkTimeout exception will
+	 *                       be thrown if the remote end doesn't respond
+	 *                       for this length of time (in milliseconds).
+	 *  @param context_     The context to return with any error messages.
 	 *  @param close_socket_ If true (the default), then the SocketClient
 	 *                      destructor will finish the session and close
 	 *                      the socket.  If false, the derived class is
 	 *                      responsible for the socket, which is assumed
 	 *                      to be closed in ~SocketClient.
-	 *
-	 *  @param msecs_timeout_ The timeout used with the network operations.
-	 *                       Generally an OmNetworkTimeout exception will
-	 *                       be thrown if the remote end doesn't respond
-	 *                       for this length of time (in milliseconds).
 	 */
 	SocketClient(int socketfd_,
 		     int msecs_timeout_,
+		     std::string context_,
 		     bool close_socket_ = true);
 
 	/// functions which actually do the work
