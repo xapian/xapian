@@ -1,3 +1,7 @@
+Thu Sep 12 13:38:05 BST 2002  Olly Betts <olly@survex.com>
+
+	* omegascript.vim,omegascript.txt,query.cc: cosmetic tweaks.
+
 Thu Sep  5 14:47:54 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* configure.in: Don't use libtool.  I don't know why I ever thought

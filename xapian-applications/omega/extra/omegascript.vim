@@ -6,7 +6,7 @@
 
 " To install: place this file in ~/.vim/syntax/omegascript.vim
 " and then create or add the following lines, without the "'s commenting
-" them out, to ~/,vim/filetype.vim
+" them out, to ~/.vim/filetype.vim
 "if exists("did_load_filetypes")
 "  finish
 "endif

@@ -185,8 +185,8 @@ $query
 	terms from ADD and X).
 
 $querydescription
-	a very readable description of the internal query executed.  Very
-        useful for debugging; esp. DATE1 & DATE2 debugging
+	a human readable description of the OmQuery object omega builds.
+	Mostly useful for debugging omega itself.
 
 $queryterms
 	list of probabilistic query terms
