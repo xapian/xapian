@@ -39,21 +39,15 @@ QueryParser::parse_query(const string &query)
     return termvec;
 }
 
-termid
+void
 QueryParser::make_term(const termname &tname)
 { 
     map<termname,termid>::const_iterator p = termidmap.find(tname);
 
-    termid tid = 0;
     if (p == termidmap.end()) {
-	tid = termvec.size() + 1;
 	termvec.push_back(QueryTerm(tname));
-	termidmap[tname] = tid;
-    } else {
-	tid = (*p).second;
+	termidmap[tname] = termvec.size();
     }
-
-    return tid;
 }
 
 docid

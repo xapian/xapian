@@ -49,9 +49,9 @@ class QueryParser : public virtual IndexerDestination {
 
 	vector<QueryTerm> parse_query(const string &);
 	
-	termid  make_term(const termname &);
-	docid   make_doc(const docname &);
-	void    make_posting(const termname &, docid, termcount);
+	void  make_term(const termname &);
+	docid make_doc(const docname &);
+	void  make_posting(const termname &, docid, termcount);
 };
 
 #endif /* _query_parser_h_ */
