@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Xapian: Matcher Design Notes</TITLE>
+</HEAD>
+<BODY BGCOLOR="white" TEXT="black">
+
+<H1>Matcher Design Notes</H1>
+
+<P>This document is incomplete at present.  It lacks explanation of the min-heap
+used to keep the best N M-set items (Managing Gigabytes describes this
+technique well), and there's as yet no documentation of sort_bands.
+
+<h2>The PostList Tree</h2>
+
+<P>Pairs of PostLists are merged into a "virtual" PostList.  This process
+is repeated to form a single virtual PostList accessed by the Match
+object behind which hangs a tree of PostLists.
+
+<P>This tree of PostLists is a binary tree.  This is more efficient than
+a n-ary tree in terms of the number of comparisons which need to be performed:
+&lt;insert proof&gt; - proof may only be valid for equal sized posting lists
+without optimisations, in which case there may be a more efficient way to do
+this and we may wish to change the code.
+
+<P>The tree is deliberately built in an uneven way, such that we minimise the
+likely number of
+times a posting has to be passed up a level.  For a group of OR operations,
+the PostLists with fewest entries are furthest down the tree, minimising
+the amount of information needing to be passed up the tree.
+For AND operations the PostLists with most entries are furthest down,
+allowing maximally sized skip_to's to be performed.
+
+<P>There are several types of virtual PostList.  Each type can be treated as
+boolean or probabilistic - the only difference is whether the weights are
+ignored or not.  The types are:
+
+<ul>
+<li> OrPostList: returns documents which match either branch
+
+<li> AndPostList: returns documents which match both branches
+
+<li> XorPostList: returns documents which match one branch or the other but not both
+
+<li> AndNotPostList: returns documents which match the left branch, but not the
+ right (the weight of documents from the right branch is ignored)
+
+<li> AndMaybePostList: returns documents which match the left branch - weights from
+ documents also in the right branch are added in for the probabilistic case
+ ("X ANDMAYBE Y" can be expressed as "+X Y" in Altavista).
+
+<li> FilterPostList: applies the right branch as a boolean filter to the left
+ branch (which is typically a probabilistic query.  Note: same as
+ AndPostList with the right branch weights ignored
+</ul>
+
+<p>[Note: You can use AndNotPostList to apply an inverted boolean filter to a
+probabilistic query]
+
+<p>All the symmetric operators (i.e. OR, AND, XOR) are coding for maximum
+efficiency when the right branch has fewer postings in than the left branch.
+
+<p>There are 2 main optimisations which the best match performs: autoprune and
+operator decay.
+
+<h2>autoprune</h2>
+
+<P>For example, if a branch in the match tree is "A OR B", when A runs out then
+"A OR B" is replaced by "B".  Similar reductions occur for XOR, ANDNOT, and
+ANDMAYBE (if the right branch runs out).  Other operators (AND, FILTER, and
+ANDMAYBE (when the left branch runs out) simply return "at_end" and this is
+dealt with somewhere further up the tree as appropriate.
+
+<P>An autoprune is indicated by the next or skip_to method returning a pointer
+to the PostList object to replace the postlist being read with.
+
+<h2>operator decay</h2>
+
+<P>The matcher tracks the minimum weight needed for a document to make it into
+the m-set (this decreases monotonically as the m-set forms).  This can be
+used to replace on boolean operator with a stricter one.  E.g. consider A OR
+B - when maxweight(A) &lt; minweight and maxweight(B) &lt; minweight then only
+documents matching both A and B can make it into the m-set so we can replace
+the OR with an AND.  Operator decay is flagged using the same mechanism as
+autoprune, by returning the replacement operator from next or skip_to.
+
+<p>Possible decays:
+
+<ul>
+<li> OR -&gt; AND
+<li> OR -&gt; ANDMAYBE
+<li> ANDMAYBE -&gt; AND
+<li> XOR -&gt; ANDNOT
+</ul>
+
+<p>A related optimisation is that the Match object may terminate early if
+maxweight for the whole tree is less than the smallest weight in the mset.
+
+<!-- FOOTER $Author$ $Date$ $Id$ -->
+</BODY>
+</HTML>

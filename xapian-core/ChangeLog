@@ -1,3 +1,9 @@
+Fri Oct 04 18:24:55 BST 2002  Olly Betts <olly@survex.com>
+
+	* docs/: converted all text docs to HTML (except omsettings which will
+	  has odd markup (LaTeX?) and will probably soon be obselete anyway).
+	* docs/todo.xml: updated.
+
 Fri Oct 04 17:18:33 BST 2002  Olly Betts <olly@survex.com>
 
 	* net/socketcommon.cc: Fixed handling of timeouts in the past.

@@ -24,12 +24,6 @@ match numeric docids in another system?)  Currently replace_document() fails
 if the document id doesn't exist already (at least with quartz).
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="Documentation" release="">
-
-Convert text docs to HTML?  Link together docs aimed at those developing
-Xapian itself.
-
-</todoitem>
 <todoitem priority=" " difficulty="" owner="Olly" area="Quartz" release="">
 
 Shouldn't stall just because a stale db_lock exists - instead of just an
@@ -469,7 +463,8 @@ simplifying to just do a probabilistic search, or to use OmQueryParser.
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Olly" area="" release="">
 
-Investigate and find a proper fix for FILTER problem.
+Investigate and find a proper fix for FILTER problem (believe this
+is fixed by fixes to quartz btree stuff).
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Richard" area="" release="">
@@ -527,6 +522,7 @@ implement these with a clone() method, and pass an example one in.  And
 we might as well make built-in weighting objects work the same way rather
 than being a special case.  Backends can be done similarly, though an
 explicit factory is needed as there's more than one class to build.
+Also remove docs/omsettings.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="James" area="" release="">

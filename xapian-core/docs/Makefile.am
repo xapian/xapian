@@ -10,12 +10,13 @@
 SUFFIXES = .eps .dia .png
 
 HTMLDOCS = index.html install.html intro_ir.html overview.html \
- stemming.html porterstem.html quickstart.html quartzdesign.html \
+ stemming.html porterstem.html quickstart.html remote.html \
+ quartzdesign.html matcherdesign.html tests.html \
  bm25.html code_structure.html todo.html todo-release.html \
  quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
 
-# docs for developers
-TEXTDOCS = MatcherDesign OMAims distributed.txt omsettings tests.txt
+# text docs
+TEXTDOCS = omsettings
 
 # Files which should be put in the distribution by automake
 EXTRA_DIST = mkdoc.pl todo2html.pl todo.xml \
