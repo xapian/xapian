@@ -8,6 +8,7 @@
 // (at your option) any later version.
 
 #include <list>
+#include <map>
 
 extern void lowercase_term(om_termname &term);
 extern void lowercase_string(string &term);
@@ -18,7 +19,7 @@ extern void split (const string & text, const string & separators, list<string> 
 
 class Lines {
 
-
+  map< string, list<string> > revision_comment_words;
 
   ifstream *in_comments;
   ifstream *in_code;
@@ -62,9 +63,15 @@ class Lines {
   void Lines::readVector( const string& line, const string& field, vector<string>& field_vector );
     string root;
     string package;
+    
+    void stemWords( const list<string>& words, list<string>& term_list );
+
 public:
   Lines( const string& p, const string& root, const string& package, const string& file_db, const string& file_offset, const string& granularity = "line", bool use_stop_words = true );
   ~Lines();
+
+  void updateRevisionComments( map< string, list<string> >& revision_comment_words );
+
   string currentFile();
   // returns false when there is no next line
   bool ReadNextLine();

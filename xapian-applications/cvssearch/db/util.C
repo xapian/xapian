@@ -538,6 +538,23 @@ void Lines::load_offset_file(  const string& file_offset, vector<string>& files,
     
 }
 
+void Lines::stemWords( const list<string>& words, list<string>& term_list ) {
+    for( list<string>::const_iterator i = words.begin(); i != words.end(); i++ ) {
+     
+      string word = *i;
+    
+      om_termname term = word;
+      lowercase_term(term);
+      term = stemmer->stem_word(term);
+      
+      if ( termStopWords.find(term) == termStopWords.end() ) {
+	//      cerr << "inserting word " << term << endl;
+	terms.insert(term);
+	term_list.push_back(term);
+      }
+    }
+}
+
 #warning "we should be able to specify granularity here:  line/file/app"
 #warning "perhaps we should rename this class"
 #warning "the default should work on a line by line basis"
@@ -627,10 +644,30 @@ string Lines::getData() {
   return data;
 }
 
+void Lines::updateRevisionComments( map< string, list<string> >& rcw ) {
+  for( map< string, list<string > >::iterator i = revision_comment_words.begin(); i != revision_comment_words.end(); i++ ) {
+    if ( rcw[i->first].empty() ) {
+      rcw[ i->first ] = i->second;
+    } else {
+      /**
+#warning "should take out this assert"
+      if ( rcw[i->first] != i->second ) {
+	cerr << "Revision " << i->first << endl;
+	cerr << "rcw size " << rcw[i->first].size() << endl;
+	cerr << "new size " << (i->second).size() << endl;
+	assert(0);
+      }
+      **/
+    }
+  }
+}
+
 // returns false when there is no next line
 bool Lines::ReadNextLine() {
 
   bool changedFiles = false;
+
+  revision_comment_words.clear();
 
   do {
 
@@ -704,6 +741,12 @@ bool Lines::ReadNextLine() {
 
     for( int i = 0; i < comments.size(); i++ ) {
       combined_comments += (" "+comments[i]);
+
+      list<string> words;
+      split( comments[i], " .,:;#%_*+&'\"/!()[]{}<>?-\t\n\002\003", words ); // we get 002 sometimes if ".^B"
+      list<string> term_list;
+      stemWords( words, term_list );
+      revision_comment_words[ revisions[i] ] = term_list;
     }
 
 
@@ -765,22 +808,9 @@ bool Lines::ReadNextLine() {
     }
     //cerr << "data = -" << data << "-" << endl;
   
-
+    stemWords( words, term_list );
   
-    for( list<string>::iterator i = words.begin(); i != words.end(); i++ ) {
-     
-      string word = *i;
-    
-      om_termname term = word;
-      lowercase_term(term);
-      term = stemmer->stem_word(term);
-      
-      if ( termStopWords.find(term) == termStopWords.end() ) {
-	//      cerr << "inserting word " << term << endl;
-	terms.insert(term);
-	term_list.push_back(term);
-      }
-    }
+  
   
     if ( path != "" ) {
       //////////////// now read code symbols
