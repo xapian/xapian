@@ -56,7 +56,7 @@ class SleepyDatabaseInternals {
 
 	SleepyDatabaseInternals();
 	~SleepyDatabaseInternals();
-	void open(const string &, bool);
+	void open(const string & pathname, bool readonly);
 	void close();
 };
 
@@ -269,12 +269,12 @@ SleepyDatabase::open_term_list(docid did) const {
 }
 
 IRDocument *
-SleepyDatabase::open_document(docid id) const {
+SleepyDatabase::open_document(docid did) const {
     Assert(opened);
     throw OmError("SleepyDatabase.open_document() not implemented");
 }
 
-#if 0
+/*
 termid
 SleepyDatabase::add_term(const termname &tname) {
     Assert(opened);
@@ -378,7 +378,7 @@ SleepyDatabase::add(termid tid, docid did, termpos tpos) {
 	throw OmError("PostlistDb error:" + string(e.what()));
     }
 }
-#endif
+*/
 
 /////////////////
 // Term  cache //

@@ -44,12 +44,12 @@ class SleepyList {
 	entry_type *freqs;  // How many things are indexed by this item
 	termpos *positions;
 
-	entry_type readentry(char **, char *); // Read entry
+	entry_type readentry(char ** pos, char * end); // Read entry
     public:
-	SleepyList(Db *);
+	SleepyList(Db * db_new);
 	~SleepyList();
 
-	void open(void *, size_t);
+	void open(void * keydata_new, size_t keylen_new);
 	void add(entry_type id, entry_type wdf);
 	void close();
 };

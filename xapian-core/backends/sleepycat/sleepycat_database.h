@@ -40,7 +40,7 @@ class SleepyPostList : public virtual DBPostList {
 	termname tname;
 	doccount termfreq;
 
-	SleepyPostList(const termname &, docid *, doccount);
+	SleepyPostList(const termname &tn, docid *data_new, doccount tf);
     public:
 	~SleepyPostList();
 
@@ -48,9 +48,11 @@ class SleepyPostList : public virtual DBPostList {
 
 	docid      get_docid() const;   // Current docid
 	weight     get_weight() const;  // Current weight
-        PostList * next(weight);  // Move to next docid
-        PostList * skip_to(docid, weight);  // Skip to next docid >= docid
+        PostList * next(weight w_min);  // Move to next docid
+        PostList * skip_to(docid did, weight w_min);  // Skip to next docid >= docid
 	bool       at_end() const;      // True if we're off the end of the list
+
+	string intro_term_description() const;
 };
 
 
@@ -67,10 +69,10 @@ class SleepyTermList : public virtual DBTermList {
 
 	const SleepyDatabaseTermCache *termcache;
 
-	SleepyTermList(const SleepyDatabaseTermCache *,
-		       termid *,
-		       termcount,
-		       doccount);
+	SleepyTermList(const SleepyDatabaseTermCache *tc_new,
+		       termid *data_new,
+		       termcount terms_new,
+		       doccount dbsize_new);
     public:
 	~SleepyTermList();
 	termcount get_approx_size() const;
@@ -93,8 +95,8 @@ class SleepyDatabaseTermCache {
 	SleepyDatabaseInternals * internals;
 	SleepyDatabaseTermCache(SleepyDatabaseInternals *i) : internals(i) {}
     public:
-	termname term_id_to_name(termid) const;
-	termid term_name_to_id(const termname &) const;
+	termname term_id_to_name(termid tid) const;
+	termid term_name_to_id(const termname & tname) const;
 };
 
 class SleepyDatabase : public virtual IRDatabase {
@@ -105,7 +107,7 @@ class SleepyDatabase : public virtual IRDatabase {
 
 	SleepyDatabaseTermCache * termcache;
 
-	void open(const DatabaseBuilderParams &);
+	void open(const DatabaseBuilderParams & params);
 	SleepyDatabase();
     public:
 	~SleepyDatabase();
@@ -113,12 +115,12 @@ class SleepyDatabase : public virtual IRDatabase {
 	doccount  get_doccount() const;
 	doclength get_avlength() const;
 
-	doccount get_termfreq(const termname &) const;
-	bool term_exists(const termname &) const;
+	doccount get_termfreq(const termname & tname) const;
+	bool term_exists(const termname & tname) const;
 
-	DBPostList * open_post_list(const termname&, RSet *) const;
-	DBTermList * open_term_list(docid) const;
-	IRDocument * open_document(docid) const;
+	DBPostList * open_post_list(const termname& tname, RSet * rset) const;
+	DBTermList * open_term_list(docid did) const;
+	IRDocument * open_document(docid did) const;
 
 	void make_term(const termname &) {
 	    throw OmError("DADatabase::make_term() not implemented");

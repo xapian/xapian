@@ -632,7 +632,7 @@ OmESet
 OmEnquire::get_eset(om_termcount maxitems,
                     const OmRSet & omrset,
 	            const OmExpandOptions * eoptions,
-		    const OmExpandDecider * decider) const
+		    const OmExpandDecider * edecider) const
 {
     OmESet retval;
 
@@ -643,10 +643,10 @@ OmEnquire::get_eset(om_termcount maxitems,
     DebugMsg("rset size is " << rset.get_rsize() << endl);
 
     OmExpandDeciderAlways decider_always;
-    if(decider == 0) decider = &decider_always;
+    if(edecider == 0) edecider = &decider_always;
     
     // FIXME: also set whether or not to use query terms.
-    expand.expand(maxitems, retval, &rset, decider);
+    expand.expand(maxitems, retval, &rset, edecider);
 
     return retval;
 }

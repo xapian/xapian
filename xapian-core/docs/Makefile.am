@@ -14,25 +14,45 @@ CREATED_DOCUMENTS2=apidoc/index.html # sourcedoc/index.html
 
 all-local: apidoc/index.html sourcedoc/index.html
 
-dist-hook: apidoc/index.html
-	mkdir $(distdir)/apidoc
-	if [ -r apidoc/index.html ] ; then \
+clean-local:
+	@if [ -d apidoc ]; then \
+	  echo "removing apidoc/"; $(RM) apidoc/* ; rmdir apidoc ; \
+	fi
+	@if [ -d sourcedoc ]; then \
+	  echo "removing sourcedoc/"; $(RM) sourcedoc/* ; rmdir sourcedoc ; \
+	fi
+
+
+dist-local: apidoc/index.html
+	@echo "Adding API documentation to distribution"
+	@mkdir $(distdir)/apidoc
+	@if [ -r apidoc/index.html ] ; then \
 	  cp apidoc/* $(distdir)/apidoc/ ;\
 	else \
 	  cp $(srcdir)/apidoc/* $(distdir)/apidoc/ ;\
 	fi
 
-install-data-hook: apidoc/index.html
-	mkdir $(DESTDIR)$(datadir)/omuscat/apidoc
-	if [ -r apidoc/index.html ] ; then \
+install-data-local: apidoc/index.html
+	@echo "Installing API documentation"
+	@mkdir $(DESTDIR)$(datadir)/omuscat/apidoc
+	@if [ -r apidoc/index.html ] ; then \
 	  cp apidoc/* $(DESTDIR)$(datadir)/omuscat/apidoc/ ; \
 	else \
 	  cp $(srcdir)/apidoc/* $(DESTDIR)$(datadir)/omuscat/apidoc/ ; \
 	fi
 
+uninstall-local: 
+	@echo "Uninstalling API documentation ($(DESTDIR)$(datadir)/omuscat/apidoc)"
+	@if [ -d $(DESTDIR)$(datadir)/omuscat/apidoc ]; then \
+	  rm -rf $(DESTDIR)$(datadir)/omuscat/apidoc ; \
+	fi
+
 else
-dist-hook:
-install-data-hook:
+all-local:
+clean-local:
+dist-local:
+install-data-local:
+uninstall-local: 
 
 endif
 
