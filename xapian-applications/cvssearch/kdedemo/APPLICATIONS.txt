@@ -236,7 +236,7 @@ kdenonbeta/kgnuplot
 kdenonbeta/khtmlimage
 kdenonbeta/kicq
 kdenonbeta/kimgalleryplugin
-kdeononbeta/kio-rio
+kdenonbeta/kio-rio
 kdenonbeta/kio_lan
 kdenonbeta/kio_napigator
 kdenonbeta/kio_napster
