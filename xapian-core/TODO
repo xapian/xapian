@@ -31,6 +31,9 @@ Priority | Area            | Task
  High    | LocalMatch      | Pass around partially created postlist as an
          |                 | auto_ptr, for exception safety.
 ---------+-----------------+--------------------------------------------------
+ Medium  | OmDatabase      | Make sure that end_session() gets called from
+         |                 | destructor if a session is in progress.
+---------+-----------------+--------------------------------------------------
  Medium  | Exceptions      | Make exceptoins threadsafe: see
 	 |                 | http://metalab.unc.edu/pub/Linux/docs/faqs/SMP-FAQ
 	 |                 | GCC (and EGCS) need existence of exceptions to
