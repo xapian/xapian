@@ -1,3 +1,8 @@
+Sat Aug 21 12:41:43 BST 2004  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.txt: Added note about that $add{$hit,1} gives
+	  the "hit number".
+
 Fri Aug 20 20:28:16 BST 2004  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Link with -lxapianqueryparser, not -lomqueryparser.
