@@ -41,6 +41,15 @@
 #include "omenquire.h"
 
 /* Indexing */
+#include "omindexer.h"
+#include "omindexerbuilder.h"
+#include "omindexercommon.h"
+#include "omindexerdesc.h"
+
+/* Extending the indexing system */
+#include "omindexermessage.h"
+#include "omindexernode.h"
+#include "omnodedescriptor.h"
 
 /* Stemming */
 #include "omstem.h"
