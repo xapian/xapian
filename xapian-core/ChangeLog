@@ -1,3 +1,8 @@
+Fri Nov 03 14:59:48 GMT 2000 Olly Betts
+
+	* MergePostList now reads entries from each postlist in turn unless
+	  USE_MSETPOSTLIST is defined.
+
 Fri Nov 03 14:29:14 GMT 2000 Jon Fielder
 
 	* Added 'TIMING_PATCH' for performance testing of distributed
