@@ -31,6 +31,7 @@ class Match {
         PostList *merger;
 	RSet *rset;
     
+	bool have_added_terms;
         bool recalculate_maxweight;
     public:
         Match(IRDatabase *);
@@ -61,7 +62,7 @@ Match::add_term(const string& termname)
 inline void
 Match::set_rset(RSet *new_rset)
 {
-    // FIXME: Assert(that_weve_not_run_the_query_yet); ???
+    Assert(!have_added_terms);
     rset = new_rset;
 }
 

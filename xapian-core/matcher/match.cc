@@ -25,6 +25,7 @@ class PLPCmpLt {
 };
 
 Match::Match(IRDatabase *database)
+	: have_added_terms(false);
 {
     DB = database;
     max_msize = 1000;
@@ -35,6 +36,7 @@ Match::Match(IRDatabase *database)
 void
 Match::add_term(termid id)
 {
+    Assert((have_added_terms = true) == true);
     // We want to push a null PostList in most (all?) situations
     // for similar reasons to using the muscat3.6 zerofreqs option
     if (id) {
@@ -63,6 +65,7 @@ Match::add_oplist(matchop op, const vector<termname> &terms)
 void
 Match::add_oplist(matchop op, const vector<termid> &ids)
 {
+    Assert((have_added_terms = true) == true);
     Assert(op == OR || op == AND);
     if (op == OR) {
 	// FIXME: try using a heap instead (C++ sect 18.8)?
