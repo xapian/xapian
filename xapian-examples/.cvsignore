@@ -17,3 +17,4 @@ stamp-h.in
 .libs
 libom.la
 om-*.tar.gz
+.cme_cvs*
