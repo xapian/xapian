@@ -313,7 +313,7 @@ long time_sleep(OmLock * lock_ptr)
     TEST_EQUAL(err, 0);
 
     OutputMessage("Creating thread 2" << endl);
-    err = pthread_create(&thread1,
+    err = pthread_create(&thread2,
 			 0,
 			 sleep_thread,
 			 lock_ptr);
