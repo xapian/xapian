@@ -1,3 +1,8 @@
+Tue Oct 23 13:27:12 2001    <tartarus@users.sourceforge.net>
+
+	* Added documentation of the test system (albeit brief). Also
+	  mentioned the autotools book in HACKING.
+
 Tue Oct 23 12:07:59 BST 2001  Olly Betts <olly@survex.com>
 
 	* Updated .cvsignore files.

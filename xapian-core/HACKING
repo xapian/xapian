@@ -93,7 +93,8 @@ You may need to add extra macro directories to the path searched by aclocal
 (which is part of autoconf) - you may do this by specifying these in the
 ACLOCAL_FLAGS environment variable.
 
-See "buildall --help" for more information.
+See "buildall --help" for more information. Alternatively, there is a
+good overview of the GNU autotools at <HTTP://sources.RedHat.com/autobook>.
 
 Submitting Patches:
 ===================
@@ -133,7 +134,8 @@ inline source code documentation that generates the API docs.
  * Make sure all existing tests continue to pass.
 
 If you don't know how to write tests using the Xapian test rig, then
-ask. It's reasonably simple once you've done it once.
+ask. It's reasonably simple once you've done it once. There is a brief
+introduction to the Xapian test system in docs/tests.txt .
 
 2  Make sure the attributions are right
 ---------------------------------------

@@ -1,0 +1,59 @@
+A Brief Guide To Writing Tests That's Probably Slightly Wrong
+-------------------------------------------------------------
+
+Almost all tests live in tests/. (The btree and Quartz backend stuff
+has its own tests for internal consistency, which live in
+backends/quartz/. I'll ignore them.)
+
+The tests mostly use a standard test rig, in testsuite/, which wraps
+each test, reports results, and generally packages things up nicely. I
+think it checks for memory leaks, uncaught exceptions, and so on as
+well. There are some tests written in Perl and bash, which I'll ignore
+also.
+
+Look at indextest.cc, which is fairly simple. It breaks into three
+bits: the tests themselves, at the top, a table of tests at the
+bottom, and a tiny main which basically just sets the test rig in
+motion. It uses the table to figure out what the tests are called, and
+what function to call to run them.
+
+I suspect that the most important test system for most people will be
+the apitests. This also uses the test rig, but instead of letting it
+do the job with a table, it runs each test itself. There are some
+hideous macros going on there. The main() and other bits are in
+apitest.cc, and tests themselves are in various other C++ files
+starting api_. Each one of these will have its own tables for various
+different groups of tests (eg: api_db.cc, which performs tests on the
+API that require a database backend, has basic tests, a few
+specialised groups that only contain one or two tests, tests that
+require a writeable database, tests that require a local database, and
+finally tests that require a remote database.
+
+To add a new api test, figure out what the test will be dependent on
+and put it in the appropriate place (eg: if adding a test for a bug
+that occurs while writing to a database, you want a writeable
+database, so you add a test to api_db.cc and reference it in the
+writabledb_tests table.
+
+Currently, there's api_nodb.cc (no db required, largely testing query
+construction and boundary conditions), api_posdb.cc (db with
+positional information required) and api_db.cc (everything else, with
+lots of subgroups of tests). It's easiest to base a test on an
+existing one.
+
+You'll notice in apitest.cc that it runs all appropriate test groups
+against each backend that is being built. We don't build any of the
+Muscat 3.6 compatibility stuff any more, so we're basically talking
+about inmemory, quartz and remote as backends. If you need to create a
+new test group with different requirements to any current ones, put it
+in the appropriate api_ file (or create a new one, and add it into
+Makefile.am) and remember to add the group to all pertinent backends
+in apitest.cc.
+
+Incidentally, when fixing bugs, it's often better to write the test
+before fixing the bug. Firstly, it's easier to assure yourself that
+the bug is (a) genuine, and (b) fixed, because you see the test go
+from fail to pass, and secondly you're more likely to write the test
+carefully, because once you've fixed something there's often a feeling
+that you should commit it for the good of the world, which tends to
+distract you :-)
