@@ -1,3 +1,9 @@
+Tue May 23 17:51:27 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add a LocalMatch::gather_query_statistics() method, to be called
+	  before building the query tree, so that the tree can be pruned
+	  based on the termweights of some of the probabalistic terms.
+
 Tue May 23 17:34:30 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed max_attain for net backend.

@@ -110,8 +110,12 @@ class LocalMatch : public SingleMatch
 	 */
         bool recalculate_maxweight;
 
+	/// Build the query tree, if it isn't already built.
 	void build_query_tree();
-	
+
+	/// Calculate the statistics for the query
+	void gather_query_statistics();
+
 	/// Make a postlist from a query object
 	PostList * postlist_from_query(const OmQueryInternal * query_);
 

@@ -98,6 +98,8 @@ LocalMatch::LocalMatch(IRDatabase *database_)
 	  do_collapse(false),
 	  mcmp(msetcmp_forward)
 {
+    statssource.my_collection_size_is(database->get_doccount());
+    statssource.my_average_length_is(database->get_avlength());
 }
 
 void
@@ -105,8 +107,6 @@ LocalMatch::link_to_multi(StatsGatherer *gatherer)
 {
     Assert(!is_prepared);
     statssource.connect_to_gatherer(gatherer);
-    statssource.my_collection_size_is(database->get_doccount());
-    statssource.my_average_length_is(database->get_avlength());
 }
 
 LocalMatch::~LocalMatch()
@@ -389,25 +389,34 @@ LocalMatch::set_query(const OmQueryInternal *query_)
     // Remember query
     users_query = *query_;
 
+    gather_query_statistics();
+
     // The query tree must be built here so that the statistics
     // are calculated in time for network matches.
     // Building it later only makes a difference if you set the
     // query more than once anyway.
-    DebugMsg("LocalMatch::set_query() - Building query tree" << endl);
     build_query_tree();
+
     Assert(query != 0);
 }
 
-/// Build the query tree, if it isn't already built.
 void
 LocalMatch::build_query_tree()
 {
     if (query == 0) {
+	DebugMsg("LocalMatch::build_query_tree()" << endl);
 	query = postlist_from_query(&users_query);
+	DebugMsg("LocalMatch::query = (" << query->intro_term_description() <<
+		 ")" << endl);
     }
+}
 
-    DebugMsg("LocalMatch::query = (" << query->intro_term_description() <<
-	     ")" << endl);
+void
+LocalMatch::gather_query_statistics()
+{
+// FIXME: don't want to build the tree until _after_ this method
+build_query_tree();
+    om_termname_list terms = users_query.get_terms();
 
     if (rset.get() != 0) {
 	rset->calculate_stats();
