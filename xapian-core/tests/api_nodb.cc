@@ -110,7 +110,6 @@ static bool test_querylen2()
 static bool test_querylen3()
 {
     // test with an even bigger and strange query
-
     om_termname terms[3] = {
 	"foo",
 	"bar",

@@ -29,7 +29,6 @@
 extern "C" {
 #else
 #include <stdlib.h>
-#include <stdio.h>
 #endif
 
 /* The maximum number of allocations which can be tracked
@@ -39,10 +38,12 @@ extern "C" {
 #define MAX_ALLOCATIONS 1000000
 static const int max_allocations = MAX_ALLOCATIONS;
 
-/* the structure used to describe an allocation
- */
+extern struct allocation_data allocdata;
+
+/* the structure used to describe an allocation */
 struct allocation_info {
     void *p;
+    unsigned long id;    
     size_t size;
 };
 
@@ -50,25 +51,17 @@ struct allocation_info {
 struct allocation_data {
     long num_allocations;
     long allocations_bound;
+    unsigned long id;
     struct allocation_info allocations[MAX_ALLOCATIONS];
 };
 
-#define ALLOC_DATA_INIT { 0, 0 }
+#define ALLOC_DATA_INIT { 0, 0, 0 }
 
 /************ Functions for use of allocator functions **********/
 
-/** Register an allocator to be used with leak-detection.
- */
+/** Register an allocation in the table. */
 void
-register_allocator(const char *name,
-		   struct allocation_data *allocdata);
-
-/** Register an allocation in the table.
- */
-void
-handle_allocation(struct allocation_data *data,
-		       void *address,
-		       size_t size);
+handle_allocation(void *address, size_t size);
 
 enum dealloc_result {
     alloc_ok,
@@ -78,17 +71,22 @@ enum dealloc_result {
 /** Replace an existing allocation in the table.
  */
 enum dealloc_result
-handle_reallocation(struct allocation_data *data,
-		    void *old_address, void *new_address,
-		    size_t size);
+handle_reallocation(void *old_address, void *new_address, size_t size);
 
 /** Remove an entry from the allocation table.  Returns nonzero if something
  *  is wrong (ie alloc_notfound).
  */
 enum dealloc_result
-handle_deallocation(struct allocation_data *data,
-		    void *address);
+handle_deallocation(void *address);
 
+void * checked_malloc(size_t size);
+
+void * checked_calloc(size_t nmemb, size_t size);
+
+void * checked_realloc(void *ptr, size_t size);
+
+void checked_free(void *ptr, const char *msg);
+    
 #ifdef __cplusplus
 }  // from extern "C"
 #endif

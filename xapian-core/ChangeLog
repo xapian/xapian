@@ -1,3 +1,8 @@
+Mon Mar 19 17:17:31 GMT 2001 Olly Betts
+
+	* New simpler implementation of leak detection in testsuite.
+	  Currently doesn't support malloc/calloc/realloc/free.
+
 Mon Mar 19 16:46:16 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Further small modification to omsee-config: will now look in

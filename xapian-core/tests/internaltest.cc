@@ -146,6 +146,8 @@ bool test_testsuite2()
 // test the memory leak tests
 bool test_testsuite3()
 {
+    // Note that duff_new leaks (deliberately), so it'll get run twice.
+    // Bear this in mind if you're trying to debug stuff round here...
     test_desc mytests[] = {
 	{"duff_new", test_duffnew},
 	{0, 0}
@@ -190,7 +192,7 @@ bool test_testsuite4()
     TEST_AND_EXPLAIN(res.succeeded == 0 && res.failed == 1,
 		     "Memory leak checking with malloc()/free() doesn't work");
 
-    // clean up after test_duffnew()
+    // clean up after test_duffmalloc()
     if (duff_malloc_allocation) {
 	free(duff_malloc_allocation);
 	duff_malloc_allocation = 0;

@@ -1,4 +1,4 @@
-#!/bin/sh
+#! /bin/sh
 
 run_prog() {
     preload="../testsuite/malloccheck.so"
@@ -11,31 +11,29 @@ run_prog() {
         preload="../$preload"
     fi
 
-    if test "x$OM_NO_MALLOCCHECK" != "x"
+    if ! test -r "$preload" || test "x$OM_NO_MALLOCCHECK" != "x"
     then
         preload=""
     fi
-    
+
+    # disable malloc checking for now until we fix it to work with
+    # the new leak checking framework
+    preload=""
+
     OM_DTD_PATH="${srcdir}/../indexer/indexgraph/omindexer.dtd"
     export OM_DTD_PATH
-    if test -r "$preload"
+    if test -n "$preload"
     then
         LD_PRELOAD="$preload"
 	export LD_PRELOAD
 	exec $USE_GDB "$@"
     else
-        echo "malloccheck.so not found" >&2
+        #echo "malloccheck.so not found or disabled" >&2
 	exec $USE_GDB "$@"
     fi
 }
 
-# this is a bit of a hack...
-for x in * ; do
-    case "$0" in 
-        *run-$x) run_prog ./"$x" "$@" ;;
-	*) ;;
-    esac
-done
+run_prog ./`echo $0|sed 's!.*run-!!'` "$@"
 
 echo "Failed to find test to run!" >&2
 exit 1

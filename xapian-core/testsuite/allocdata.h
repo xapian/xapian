@@ -29,43 +29,20 @@
 #include <vector>
 
 /// A class encapsulating a snapshot of the allocation state.
-class allocation_snapshot {
-    public:
-	friend allocation_snapshot get_alloc_snapshot();
-	friend void print_alloc_differences(const allocation_snapshot &,
-					    const allocation_snapshot &,
-					    std::ostream &);
-
-	allocation_snapshot(const allocation_snapshot &other)
-		: data(other.data) {};
-	void operator =(const allocation_snapshot &other) {
-	    data = other.data;
-	}
-
-	bool operator==(const allocation_snapshot &other);
-	bool operator!=(const allocation_snapshot &other) {
-	    return !(*this == other);
-	}
-    private:
-	allocation_snapshot(const struct allocator_desc *, int);
-
-	struct snapshot_data {
-	    long num_allocations;
-	    long allocations_bound;
-	};
-
-	std::vector<snapshot_data> data;
-};
+typedef unsigned long allocation_snapshot;
 
 /** Get a snapshot of the current allocation state
  */
 allocation_snapshot get_alloc_snapshot();
 
+/** return true if there's a leak */
+bool
+check_alloc_differences(allocation_snapshot before, allocation_snapshot after);
+
 /** Print out the differences between the before and after allocations
  */
 void
-print_alloc_differences(const allocation_snapshot &before,
-			const allocation_snapshot &after,
+print_alloc_differences(allocation_snapshot before, allocation_snapshot after,
 			std::ostream &out);
 
 #endif /* OM_HGUARD_ALLOCDATA_H */

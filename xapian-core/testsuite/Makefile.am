@@ -10,7 +10,7 @@ noinst_HEADERS = backendmanager.h testsuite.h testutils.h \
 EXTRA_DIST = malloccheck.c malloc_wrapper.sh
 
 libtest_la_SOURCES = testsuite.cc testutils.cc backendmanager.cc \
-		allocdata.cc alloccommon.c textfile_indexer.cc index_utils.cc
+	allocdata.cc alloccommon.c textfile_indexer.cc index_utils.cc
 
 libtest_la_LIBADD = @DL_LIBS@
 
@@ -19,6 +19,6 @@ all-local: malloccheck.so
 
 CLEANFILES=malloccheck.so
 
-malloccheck.so: malloccheck.c alloccommon.lo
-	$(LIBTOOL) $(CC) -shared $< alloccommon.lo -o $@ @DL_LIBS@
+malloccheck.so: malloccheck.c
+	$(LIBTOOL) $(CC) -shared $< -o $@ @DL_LIBS@
 endif
