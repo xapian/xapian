@@ -1,3 +1,8 @@
+Tue Jun  6 12:57:54 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Implemented reading and writing of keys in sleepycat.  All tests
+	  now pass on sleepycat: added this into the default testsuite run.
+
 Tue Jun  6 11:59:39 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added a database to store keys in to sleepycat, and pass those keys

@@ -22,6 +22,7 @@
 
 #include "sleepy_document.h"
 #include <om/omdocument.h>
+#include "utils.h"
 
 SleepyDocument::SleepyDocument(Db * document_db_,
 			       Db * key_db_,
@@ -45,17 +46,28 @@ SleepyDocument::SleepyDocument(Db * document_db_,
     try {
 	int err_num;
 
-	Dbt dbkey(&did, sizeof(did));
-	dbkey.set_flags(DB_DBT_USERMEM);
+	Dbt dbkey1(&did, sizeof(did));
+	dbkey1.set_flags(DB_DBT_USERMEM);
 
-	Dbt dbdata((void *)data.value.data(), data.value.size());
-	dbdata.set_flags(DB_DBT_USERMEM);
+	Dbt dbdata1(const_cast<char *>(data.value.data()), data.value.size());
+	dbdata1.set_flags(DB_DBT_USERMEM);
 
-	// Append to document database - stores new document id in dbkey.
-	err_num = document_db->put(NULL, &dbkey, &dbdata, DB_APPEND);
+	// Append to document database - stores new document id in dbkey1.
+	err_num = document_db->put(0, &dbkey1, &dbdata1, DB_APPEND);
 	Assert(err_num == 0); // Any errors should cause an exception.
 
 	// Store keys
+	map<om_keyno, OmKey>::const_iterator i;
+	for(i = keys.begin(); i != keys.end(); i++) {
+	    string keyno = inttostring(did) + "_" + inttostring(i->first);
+	    Dbt dbkey2(const_cast<char *>(keyno.data()), keyno.size());
+	    Dbt dbdata2(const_cast<char *>(i->second.value.data()),
+			i->second.value.size());
+			
+
+	    err_num = key_db->put(0, &dbkey2, &dbdata2, 0);
+	    Assert(err_num == 0); // Any errors should cause an exception.
+	}
     } catch (DbException e) {
 	throw OmDatabaseError("DocumentDb Error: " + string(e.what()));
     }
@@ -70,7 +82,42 @@ SleepyDocument::get_docid() const
 OmKey
 SleepyDocument::do_get_key(om_keyno keyid) const
 {
-    throw OmUnimplementedError("SleepyDocument::do_get_key() unimplemented");
+    DebugMsg("Looking up key " << keyid << "...");
+    if(keys.find(keyid) != keys.end()) {
+	DebugMsg(" found (value == " << keys[keyid].value << ")" << endl);
+	return keys[keyid];
+    }
+    OmKey result;
+    try {
+	int err_num;
+	string keyno = inttostring(did) + "_" + inttostring(keyid);
+	DebugMsg(" looking in database (for `" << keyno << "') ...");
+
+	Dbt dbkey(const_cast<char *>(keyno.data()), keyno.size());
+
+	Dbt dbdata;
+	dbdata.set_flags(DB_DBT_MALLOC);
+
+	err_num = key_db->get(0, &dbkey, &dbdata, 0);
+	if(err_num == DB_NOTFOUND) {
+	    DebugMsg(" not found" << endl);
+	    keys[keyid] = result;
+	    // Return a null key
+	    return result;
+	}
+
+	result.value = string(reinterpret_cast<char *>(dbdata.get_data()),
+			      dbdata.get_size());
+	free(dbdata.get_data());
+
+	keys[keyid] = result;
+	DebugMsg(" found (value == " << result.value << ")" << endl);
+    } catch (DbException e) {
+	throw OmDatabaseError("Sleepycat database error, when reading key " +
+			      inttostring(keyid) + " from document " +
+			      inttostring(did) + ": " + string(e.what()));
+    }
+    return result;
 }
 
 vector<OmKey>
@@ -86,16 +133,18 @@ SleepyDocument::do_get_data() const
 	try {
 	    int err_num;
 
-	    Dbt dbkey(const_cast<om_docid *>(&did), sizeof(did));
+	    Dbt dbkey(const_cast<om_docid *>(&did),
+		      sizeof(did));
 	    dbkey.set_flags(DB_DBT_USERMEM);
 
 	    Dbt dbdata;
 	    dbdata.set_flags(DB_DBT_MALLOC);
 
-	    err_num = document_db->get(NULL, &dbkey, &dbdata, 0);
+	    err_num = document_db->get(0, &dbkey, &dbdata, 0);
 	    if(err_num == DB_NOTFOUND) throw OmRangeError("Document not found");
 
-	    data.value = string((char *)dbdata.get_data(), dbdata.get_size());
+	    data.value = string(reinterpret_cast<char *>(dbdata.get_data()),
+				dbdata.get_size());
 	    have_data = true;
 
 	    free(dbdata.get_data());
