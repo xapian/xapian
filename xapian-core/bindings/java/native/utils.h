@@ -1,7 +1,7 @@
 #ifndef __utils_h__
 #define __utils_h__
 
-#include "om.h"
+#include "om/om.h"
 
 void    throwNewException (JNIEnv* env, const char* type, const char* msg);
 void    handleNativeError (JNIEnv* env, OmError& err);

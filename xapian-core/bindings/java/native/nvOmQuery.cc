@@ -51,7 +51,7 @@ JNIEXPORT jlong JNICALL Java_com_muscat_om_OmQuery_createNativeObject__Ljava_lan
 /* helper function */
 om_queryop transOp (JNIEnv* env, jstring op) {
     char* op_n = (char*) env->GetStringUTFChars (op, NULL);
-    om_queryop ret = -1;
+    om_queryop ret = OM_MOP_LEAF;
     if (! strcasecmp (op_n, "AND")) 
 	ret = OM_MOP_AND;
     else if (! strcasecmp (op_n, "OR")) 
@@ -67,7 +67,7 @@ om_queryop transOp (JNIEnv* env, jstring op) {
 	
     env->ReleaseStringUTFChars (op, op_n);
 
-    if (ret == -1)
+    if (ret == OM_MOP_LEAF)
 	throwNewException (env, "java/lang/RuntimeException", "invalid query operator name");
 
     return ret;

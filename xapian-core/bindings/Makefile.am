@@ -8,4 +8,8 @@ else
 SWIG_SUBDIRS = 
 endif
 
-SUBDIRS = $(SWIG_SUBDIRS)
+# FIXME: check for java
+#JAVA_SUBDIRS = java
+JAVA_SUBDIRS =
+
+SUBDIRS = $(SWIG_SUBDIRS) $(JAVA_SUBDIRS)

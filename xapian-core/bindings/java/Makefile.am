@@ -1,6 +1,11 @@
-# a list of source files
 
-SRC   = com/muscat/om/OmObject.java			\
+SUBDIRS = native .
+
+# classpath needed for compilation
+
+CLASSPATH    =  $(top_builddir)/bindings/java:$(top_builddir)/bindings/java/classes:/usr/lib/jdk1.1/lib/classes.zip
+
+JSRC  = com/muscat/om/OmObject.java			\
 	com/muscat/om/OmReturnObject.java		\
 	com/muscat/om/OmDatabaseGroup.java		\
 	com/muscat/om/OmEnquire.java			\
@@ -32,32 +37,28 @@ SRC   = com/muscat/om/OmObject.java			\
 	com/muscat/om/OmNetworkError.java		\
 	Test.java					
 
-# classpath needed for compilation
-
-CP    =  .:./classes:/usr/lib/jdk1.1/lib/classes.zip
-
 # where to put the class files
 
-OUT   =  ./classes
+JAVAROOT   =  $(top_builddir)/bindings/java/classes
 
 # the java compiler
 
-JAVAC = jikes +E
+JAVAC = jikes
 
 # generate a list of class files
 
-TARGETS = $(foreach file,$(subst java,class,$(SRC)),$(OUT)/$(file))
+#TARGETS = $(foreach file,$(subst java,class,$(SRC)),$(OUT)/$(file))
 
 # rule to make java -> class
 
-$(OUT)/%.class:	%.java
-		CLASSPATH=$(CP) $(JAVAC) -d $(OUT) $<
+#$(OUT)/%.class:	%.java
+#		CLASSPATH=$(CP) $(JAVAC) -d $(OUT) $<
 
-all:		$(TARGETS)
+#all:		$(TARGETS)
 
-clean:
-		rm -rf classes/*
+#clean:
+#		rm -rf classes/*
 
-install:	all
-		cp -r classes/* /ferret/classes
+#install:	all
+#		cp -r classes/* /ferret/classes
 

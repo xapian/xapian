@@ -1,5 +1,5 @@
-JDKINC  = -I/usr/local/jdk/include -I/usr/local/jdk/include/linux
-OMINC   = -I../../om/common -I../../om/include -I../../om/include/om
+JDKINC  = -I/usr/lib/jdk1.1/include -I/usr/local/jdk1.1/include/linux
+OMINC   = -I../../../common -I../../../include
 #OMLIB   = ../../om/.libs/libomus.a
 OMLIB   = -lomus
 CPP     = g++
