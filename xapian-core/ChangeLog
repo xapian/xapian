@@ -1,3 +1,15 @@
+Thu May 11 16:40:30 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Make OmRefCntBase::ref_count mutable, and ref_increment() and
+	  ref_decrement() into const methods, so that we can have reference
+	  counted access to const objects.
+
+	* Make DATerm and DBTerm objects reference counted, and store
+	  reference count pointers to them in the term cache.  This results
+	  in removing the possibility of open_post_list() having the Term
+	  object it is dealing with deleted from underneath it due to
+	  concurrent access.
+
 Thu May 11 16:38:05 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Made the internals of OmRefCntBase private, and moved

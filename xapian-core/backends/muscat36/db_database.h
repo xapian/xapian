@@ -183,7 +183,7 @@ inline bool DBTermList::at_end() const
 
 
 
-class DBTerm {
+class DBTerm : public OmRefCntBase {
     friend DBDatabase;
     private:
 	DBTerm(struct DB_term_info * ti_,
@@ -241,7 +241,7 @@ class DBDatabase : public IRDatabase {
 
 	FILE * keyfile;
 
-	mutable map<om_termname, DBTerm> termmap;
+	mutable map<om_termname, OmRefCntPtr<const DBTerm> > termmap;
 
 	int heavy_duty;
 
@@ -250,7 +250,7 @@ class DBDatabase : public IRDatabase {
 	DBDatabase(const DBDatabase&);
 
 	// Look up term in database
-	const DBTerm * term_lookup(const om_termname & tname) const;
+	OmRefCntPtr<const DBTerm> term_lookup(const om_termname & tname) const;
 
 	// Get a record
 	struct record * get_record(om_docid did) const;

@@ -20,10 +20,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Urgent  | Chris           | Juggle
 ---------+-----------------+--------------------------------------------------
- High    | Muscat36 Backend| Protect open_post_list() from concurrent access
-         |                 | (might currently end up with a divorced D[AB]term
-	 |                 | object).
----------+-----------------+--------------------------------------------------
  High    | MultiDatabase   | Make MultiDatabase take a set of opened
          |                 | databases, rather than their parameters.
 ---------+-----------------+--------------------------------------------------

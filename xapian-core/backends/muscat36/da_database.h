@@ -184,7 +184,7 @@ inline bool DATermList::at_end() const
 
 
 
-class DATerm {
+class DATerm : public OmRefCntBase {
     friend DADatabase;
     private:
 	DATerm(struct DA_term_info * ti_,
@@ -244,7 +244,7 @@ class DADatabase : public IRDatabase {
 
 	FILE * keyfile;
 
-	mutable map<om_termname, DATerm> termmap;
+	mutable map<om_termname, OmRefCntPtr<const DATerm> > termmap;
 
 	int heavy_duty;
 
@@ -253,7 +253,7 @@ class DADatabase : public IRDatabase {
 	DADatabase(const DADatabase&);
 
 	// Look up term in database
-	const DATerm * term_lookup(const om_termname & tname) const;
+	OmRefCntPtr<const DATerm> term_lookup(const om_termname & tname) const;
 
 	// Get a record
 	struct record * get_record(om_docid did) const;

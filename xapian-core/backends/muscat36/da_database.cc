@@ -228,8 +228,8 @@ LeafPostList *
 DADatabase::open_post_list(const om_termname & tname) const
 {
     // Make sure the term has been looked up
-    const DATerm * the_term = term_lookup(tname);
-    Assert(the_term != NULL);
+    OmRefCntPtr<const DATerm> the_term = term_lookup(tname);
+    Assert(the_term.get() != 0);
 
     struct DA_postings * postlist;
     postlist = DA_open_postings(the_term->get_ti(), DA_t);
@@ -305,14 +305,15 @@ DADatabase::open_document(om_docid did) const
     return new DADocument(this, did, heavy_duty);
 }
 
-const DATerm *
+OmRefCntPtr<const DATerm>
 DADatabase::term_lookup(const om_termname & tname) const
 {
     //DebugMsg("DADatabase::term_lookup(`" << tname.c_str() << "'): ");
 
-    map<om_termname, DATerm>::const_iterator p = termmap.find(tname);
+    map<om_termname, OmRefCntPtr<const DATerm> >::const_iterator p;
+    p = termmap.find(tname);
 
-    const DATerm * the_term = NULL;
+    OmRefCntPtr<const DATerm> the_term;
     if (p == termmap.end()) {
 	string::size_type len = tname.length();
 	if(len > 255) return 0;
@@ -328,14 +329,17 @@ DADatabase::term_lookup(const om_termname & tname) const
 	if(found == 0) {
 	    DebugMsg("Not in collection" << endl);
 	} else {
+	    // FIXME: be a bit nicer on the cache than this
+	    DebugMsg("cache full, wiping");
+	    if(termmap.size() > 500) termmap.clear();
+
 	    DebugMsg("found, adding to cache" << endl);
-	    pair<om_termname, DATerm> termpair(tname, DATerm(&ti, tname));
-	    if(termmap.size() > 100) termmap.clear();
+	    pair<om_termname, OmRefCntPtr<const DATerm> > termpair(tname, new DATerm(&ti, tname));
 	    termmap.insert(termpair);
-	    the_term = &(termmap.find(tname)->second);
+	    the_term = termmap.find(tname)->second;
 	}
     } else {
-	the_term = &((*p).second);
+	the_term = (*p).second;
 	DebugMsg("found in cache" << endl);
     }
     return the_term;
@@ -344,6 +348,6 @@ DADatabase::term_lookup(const om_termname & tname) const
 bool
 DADatabase::term_exists(const om_termname & tname) const
 {
-    if(term_lookup(tname) != NULL) return true;
+    if(term_lookup(tname).get() != 0) return true;
     return false;
 }
