@@ -1,3 +1,7 @@
+Thu Dec  7 14:31:56 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fixes to api_db.cc so that it compiles.
+
 Wed Dec  6 18:50:48 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add test for terms with spaces, newlines, zero bytes, or

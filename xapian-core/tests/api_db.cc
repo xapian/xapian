@@ -881,19 +881,33 @@ static bool test_repeatquery1()
 // test that searching for a term with a space in it works
 static bool test_spaceterm1()
 {
-    OmEnquire enquire(OmDatabase(get_database("apitest_space")));
+    OmEnquire enquire(get_database("apitest_space"));
+    OmMSet mymset;
+    std::vector<OmDocument> docs;
 
     init_simple_enquire(enquire, OmQuery("space man"));
-    TEST(enquire.get_mset(0, 10).items.size(), 1);
-
+    mymset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mymset.items.size(), 1);
+    docs = enquire.get_docs(mymset.items.begin(), mymset.items.end());
+    TEST_EQUAL(docs.size(), 1);
+    
     init_simple_enquire(enquire, OmQuery("new\nline"));
-    TEST(enquire.get_mset(0, 10).items.size(), 1);
+    mymset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mymset.items.size(), 1);
+    docs = enquire.get_docs(mymset.items.begin(), mymset.items.end());
+    TEST_EQUAL(docs.size(), 1);
 
     init_simple_enquire(enquire, OmQuery("back\\slash"));
-    TEST(enquire.get_mset(0, 10).items.size(), 1);
+    mymset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mymset.items.size(), 1);
+    docs = enquire.get_docs(mymset.items.begin(), mymset.items.end());
+    TEST_EQUAL(docs.size(), 1);
 
     init_simple_enquire(enquire, OmQuery(std::string("big\0zero", 8)));
-    TEST(enquire.get_mset(0, 10).items.size(), 1);
+    mymset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mymset.items.size(), 1);
+    docs = enquire.get_docs(mymset.items.begin(), mymset.items.end());
+    TEST_EQUAL(docs.size(), 1);
 
     return true;
 }
@@ -1397,7 +1411,7 @@ static bool test_adddoc1()
     // doc1 should come top, but if term "foo" gets wdf of 1, doc2 will beat it
     // doc3 should beat both
     // Note: all docs have same length
-    doc1.data = std::string("tom");
+    doc1.set_data(std::string("tom"));
     doc1.add_posting("foo", 1);
     doc1.add_posting("foo", 1);
     doc1.add_posting("foo", 1);
@@ -1405,7 +1419,7 @@ static bool test_adddoc1()
     doc1.add_posting("bar", 4);
     db.add_document(doc1);
     
-    doc2.data = std::string("dick");
+    doc2.set_data(std::string("dick"));
     doc2.add_posting("foo", 1);
     doc2.add_posting("foo", 2);
     doc2.add_posting("bar", 3);
@@ -1413,7 +1427,7 @@ static bool test_adddoc1()
     doc2.add_posting("bar", 3);
     db.add_document(doc2);
 
-    doc3.data = std::string("harry");
+    doc3.set_data(std::string("harry"));
     doc3.add_posting("foo", 1);
     doc3.add_posting("foo", 1);
     doc3.add_posting("foo", 2);
@@ -1443,7 +1457,7 @@ static bool test_implicitendsession1()
 
 	OmDocument doc;
 	
-	doc.set_data("top secret");
+	doc.set_data(std::string("top secret"));
 	doc.add_posting("cia", 1);
 	doc.add_posting("nsa", 2);
 	doc.add_posting("fbi", 3);
