@@ -1,3 +1,8 @@
+Sun Feb 22 04:28:18 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Changed --disable-LANGUAGE to be --without-LANGUAGE
+	  (fits better with autoconf's intended usages).
+
 Sun Feb 22 02:41:20 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.in: Added --disable-LANGUAGE options to allow bindings to

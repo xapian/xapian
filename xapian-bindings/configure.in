@@ -19,26 +19,26 @@ AC_PROG_CXX
 dnl Check for libxapian
 XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 
-AC_ARG_ENABLE(swig,
-  [  --disable-swig          disable all bindings which depend on SWIG])
-AC_ARG_ENABLE(python,
-  [  --disable-python        disable Python bindings])
+AC_ARG_WITH(swig,
+  [  --without-swig          disable all bindings which depend on SWIG])
+AC_ARG_WITH(python,
+  [  --without-python        disable Python bindings])
 
-AC_ARG_ENABLE(php,
-  [  --disable-php           disable PHP bindings])
+AC_ARG_WITH(php,
+  [  --without-php           disable PHP bindings])
 
-AC_ARG_ENABLE(tcl,
-  [  --disable-tcl           disable Java bindings])
+AC_ARG_WITH(tcl,
+  [  --without-tcl           disable Java bindings])
 
-AC_ARG_ENABLE(java,
-  [  --disable-java          disable Java bindings])
+AC_ARG_WITH(java,
+  [  --without-java          disable Java bindings])
 
-AC_ARG_ENABLE(guile,
-  [  --disable-guile         disable Guile bindings])
+AC_ARG_WITH(guile,
+  [  --without-guile         disable Guile bindings])
 
 BINDINGS=
 
-if test no != "$enable_swig" ; then
+if test no != "$with_swig" ; then
   dnl Check for swig - this does most of the work for the bindings.
   AC_PATH_PROG(SWIG, swig, [])
   if test -z "$SWIG" ; then
@@ -57,7 +57,7 @@ if test no != "$enable_swig" ; then
      AC_MSG_ERROR([SWIG >= 1.3.14 required (you have $v)]) ;;
   esac
 
-  if test no != "$enable_python" ; then
+  if test no != "$with_python" ; then
     AC_PATH_PROG(PYTHON, python, [])
     if test -n "$PYTHON" ; then
 	PYTHON_INC="`python -c 'import sys;print sys.prefix + "/include/python" + sys.version[[:3]]'`"
@@ -68,7 +68,7 @@ if test no != "$enable_swig" ; then
     fi
   fi
 
-  if test no != "$enable_php" ; then
+  if test no != "$with_php" ; then
     AC_PATH_PROG(PHP_CONFIG, php-config, [])
     if test -n "$PHP_CONFIG" ; then
 	case "`$PHP_CONFIG --version 2> /dev/null`" in
@@ -84,7 +84,7 @@ if test no != "$enable_swig" ; then
     fi
   fi
 
-  if test no != "$enable_tcl" ; then
+  if test no != "$with_tcl" ; then
     AC_PATH_PROG(TCLSH, tclsh, [])
     if test -n "$TCLSH" ;  then
 	if `echo 'if {$tcl_version < 8.0 } { exit 1 }'|$TCLSH 2> /dev/null` ; then
@@ -98,7 +98,7 @@ if test no != "$enable_swig" ; then
     fi
   fi
 
-  if test no != "$enable_guile" ; then
+  if test no != "$with_guile" ; then
     AC_PATH_PROG(GUILE, guile, [])
     dnl FIXME: uncomment once guile is building again... 
     dnl if test -n "$GUILE" ;  then
@@ -109,7 +109,7 @@ if test no != "$enable_swig" ; then
   fi
 fi
 
-if test no != "$enable_java" ; then
+if test no != "$with_java" ; then
   AC_PATH_PROG(JAVA, java, [],
   	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
   AC_PATH_PROG(JAVAC, javac, [],
