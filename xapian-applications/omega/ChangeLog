@@ -1,3 +1,7 @@
+Sat Oct 12 17:05:37 BST 2002  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.5.3.
+
 Wed Oct 09 16:55:56 BST 2002  Olly Betts <olly@survex.com>
 
 	* omega.cc,omega.h,query.cc,docs/{cgiparams.txt,omegascript.txt},
