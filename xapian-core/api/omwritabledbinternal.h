@@ -25,11 +25,11 @@
 
 #include <vector>
 
-#include <om/omindexer.h>
 #include "omlocks.h"
 #include "omrefcnt.h"
 #include "database_builder.h"
 #include "database.h"
+#include "om/omdatabase.h"
 
 /////////////////////////////////////
 // Internals of OmWritableDatabase //

@@ -22,7 +22,6 @@
 
 #include "omassert.h"
 #include "om/omerror.h"
-#include "om/omindexer.h"
 #include "omwritabledbinternal.h"
 
 OmWritableDatabase::OmWritableDatabase(const string & type,
