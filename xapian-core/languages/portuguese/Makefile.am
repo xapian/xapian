@@ -2,7 +2,7 @@
 
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
-INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I..
+INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I${srcdir}/..
 
 noinst_LTLIBRARIES = libportuguese.la
 
