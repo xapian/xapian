@@ -1,6 +1,6 @@
 #include "main.h"
 
-int dlist[64];
+vector<int> dlist;
 int n_dlist = 0;
 
 #include <stdio.h>
@@ -21,8 +21,9 @@ int n_dlist = 0;
 
 #include "cgiparam.h"
 #include "query.h"
+#include "da_database.h"
 
-DADatabase database;
+MultiDatabase database;
 Match *matcher;
 RSet *rset;
 
@@ -148,11 +149,11 @@ static int main2(int argc, char *argv[])
 
     // read t/vars
     string vars_file = db_dir + "/t/vars";
-    std::ifstream in(vars_file.c_str());
-    if (in) {
+    std::ifstream vars_in(vars_file.c_str());
+    if (vars_in) {
 	string line;
-	while (!in.eof()) {
-	    getline(in, line);
+	while (!vars_in.eof()) {
+	    getline(vars_in, line);
 	    if (line[0] != '\'') continue;
 	    size_t i = line.find('\'', 1);
 	    if (i == string::npos) continue;
@@ -165,14 +166,43 @@ static int main2(int argc, char *argv[])
 	    if (j == string::npos) continue;
 	    option[key] = line.substr(i, j - i);
 	}
-	in.close();
+	vars_in.close();
     }
-	
-    database.open(db_dir, 0);
-    matcher = new Match(&database);
-    rset = new RSet(&database);
-    matcher->set_rset(rset);
-       
+
+    // read dlist
+    string dlist_file = db_dir + "/t/dlist";
+    std::ifstream dlist_in(dlist_file.c_str());
+    if (dlist_in) {
+#ifdef DEBUG
+	cout << "Dlist opened" << endl;
+#endif
+	string line;
+	while (!dlist_in.eof()) {
+	    getline(dlist_in, line);
+	    /* da recs /netapp/ferret-data/data-912508010/R terms /netapp/ferret-data/data-912508010/T */
+	    if (line.substr(0, 8) == "da recs ") {
+		string::size_type p = line.find("/data-");
+		if (p != string::npos) {
+		    int db_id = atoi(line.substr(p + 6).c_str());
+		    dlist.push_back(db_id);
+		    string::size_type p2 = line.find_first_not_of(" ", 7);
+		    string::size_type p3 = line.find(" ", p);
+		    string dbpath = line.substr(p2, p3 - 1 - p2);
+#ifdef DEBUG
+		    cout << "Dlist found: path `" << dbpath <<
+			    "', number " << db_id << endl;
+#endif
+		    try {
+			database.open_subdatabase(new DADatabase(),
+						  dbpath, true);
+		    } catch (OmError e) {
+			cout << e.get_msg() << endl;
+		    }
+		}
+	    }
+	}
+	dlist_in.close();
+    }
 #if 0 //def FERRET
      {
 	FILE *f;
@@ -192,6 +222,10 @@ static int main2(int argc, char *argv[])
      }
 #endif
    
+    matcher = new Match(&database);
+    rset = new RSet(&database);
+    matcher->set_rset(rset);
+       
     /* read thousands and decimal separators: e.g. 16<thou>729<dec>8037 */
     
     if (!option["dec_sep"].empty()) dec_sep = option["dec_sep"][0];
