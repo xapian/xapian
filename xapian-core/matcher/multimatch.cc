@@ -79,9 +79,23 @@ MultiMatch::set_query(const OmQueryInternal * query)
 void
 MultiMatch::set_rset(const OmRSet & omrset)
 {
-    for(vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
-	i != leaves.end(); i++) {
-	(*i)->set_rset(omrset);
+    om_doccount number_of_leaves = leaves.size();
+    vector<OmRSet> subrsets(number_of_leaves);
+
+    for (set<om_docid>::const_iterator reldoc = omrset.items.begin();
+	 reldoc != omrset.items.end();
+	 reldoc++) {
+	om_doccount local_docid = ((*reldoc) - 1) / number_of_leaves + 1;
+	om_doccount subdatabase = ((*reldoc) - 1) % number_of_leaves;
+	subrsets[subdatabase].add_document(local_docid);
+    }
+
+    vector<OmRSet>::const_iterator subrset;
+    vector<OmRefCntPtr<SingleMatch> >::iterator leaf;
+    for (leaf = leaves.begin(), subrset = subrsets.begin();
+	 leaf != leaves.end(), subrset != subrsets.end();
+	 leaf++, subrset++) {
+	(*leaf)->set_rset(*subrset);
     }
 
     gatherer->set_global_stats(omrset.items.size());
@@ -134,9 +148,9 @@ MultiMatch::get_max_weight()
 
 void
 MultiMatch::change_docids_to_global(vector<OmMSetItem> & mset,
-				    om_doccount number_of_leaves,
 				    om_doccount leaf_number)
 {
+    om_doccount number_of_leaves = leaves.size();
     vector<OmMSetItem>::iterator mset_item;
     for (mset_item = mset.begin();
 	 mset_item != mset.end();
@@ -202,7 +216,6 @@ MultiMatch::merge_msets(vector<OmMSetItem> &mset,
 
 bool
 MultiMatch::add_next_sub_mset(SingleMatch * leaf,
-			      om_doccount number_of_leaves,
 			      om_doccount leaf_number,
 			      om_doccount lastitem,
 			      const OmMatchDecider *mdecider,
@@ -220,7 +233,7 @@ MultiMatch::add_next_sub_mset(SingleMatch * leaf,
 	    mset.max_attained = sub_mset.max_attained;
 
 	// Merge items
-	change_docids_to_global(sub_mset.items, number_of_leaves, leaf_number);
+	change_docids_to_global(sub_mset.items, leaf_number);
 	merge_msets(mset.items, sub_mset.items, lastitem);
 
 	return true;
@@ -278,7 +291,6 @@ MultiMatch::collect_msets(om_doccount lastitem,
 	    }
 
 	    if (add_next_sub_mset((*leaf).get(),
-				  leaves.size(),
 				  leaf_number,
 				  lastitem,
 				  mdecider,

@@ -1,3 +1,8 @@
+Thu May 18 18:11:16 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* MultiMatch now splits up RSets appropriately for each of its sub
+	  databases, so multimatch stuff works correctly with RSets.
+
 Thu May 18 17:14:52 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Work on testsuite.  Many useful macros produced, tests simplified,

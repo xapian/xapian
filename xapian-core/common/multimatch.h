@@ -57,12 +57,10 @@ class MultiMatch
 	 *  globally, rather than within the sub-match which produced them.
 	 *
 	 *  @param mset              The MSet to alter.
-	 *  @param number_of_leaves  The number of sub-matches that exist.
 	 *  @param leaf_number       The sub-match which this mset comes from.
 	 *  			     (Starting at 1)
 	 */
 	void change_docids_to_global(vector<OmMSetItem> & mset,
-				     om_doccount number_of_leaves,
 				     om_doccount leaf_number);
 
 	/** Return true if the specified key has not been seen before.
@@ -99,7 +97,6 @@ class MultiMatch
 	 *  of parameters.
 	 */
 	bool add_next_sub_mset(SingleMatch * leaf,
-			       om_doccount number_of_leaves,
 			       om_doccount leaf_number,
 			       om_doccount lastitem,
 			       const OmMatchDecider *mdecider,
