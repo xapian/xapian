@@ -86,7 +86,7 @@ QuartzValueManager::add_value(QuartzBufferedTable & table,
 
 	if (this_attrib_no > valueno && !have_added) {
 	    DEBUGLINE(DB, "Adding value (number, value) = (" <<
-		      valueno << ", " << value.value << ")");
+		      valueno << ", " << value << ")");
 	    have_added = true;
 	    newvalue += pack_uint(valueno);
 	    newvalue += pack_string(value);
@@ -97,7 +97,7 @@ QuartzValueManager::add_value(QuartzBufferedTable & table,
     }
     if (!have_added) {
 	DEBUGLINE(DB, "Adding value (number, value) = (" <<
-		  valueno << ", " << value.value << ")");
+		  valueno << ", " << value << ")");
 	have_added = true;
 	newvalue += pack_uint(valueno);
 	newvalue += pack_string(value);

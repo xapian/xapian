@@ -1,3 +1,8 @@
+Tue May 21 15:27:37 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* quartz_values.cc: Small fixes to enable it to compile with debug
+	  turned on.
+
 Fri May 17 14:52:45 BST 2002  Olly Betts <ollybe@ananova.net>
 
 	* OmQueryParser::set_database() method added.
