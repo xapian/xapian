@@ -54,6 +54,8 @@ AndPostList::AndPostList(PostList *left, PostList *right)
 {    
     l = left;
     r = right;
+    lmax = l->get_maxweight();
+    rmax = r->get_maxweight();
     head = 0;
 }
 
