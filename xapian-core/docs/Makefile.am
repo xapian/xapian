@@ -28,7 +28,7 @@ sourcedoc/index.html:
 endif
 
 docdatadir   = ${datadir}/omuscat
-docdata_DATA = ${CREATED_DOCUMENTS1} ${CREATED_DOCUMENTS2}
+docdata_DATA = ${CREATED_DOCUMENTS1} # ${CREATED_DOCUMENTS2}
 
 EXTRA_DIST = MatcherDesign Notes mkdoc.pl.in stemming.txt \
 hacking.html index.html intro.html intro_ir.html
