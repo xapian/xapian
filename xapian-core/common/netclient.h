@@ -69,21 +69,17 @@ class NetClient : public RefCntBase {
 	 *
 	 * @param query_ The query.
 	 * @param moptions_ The match options.
+	 * @param omrset_ The rset.
 	 */
 	virtual void set_query(const OmQueryInternal *query_,
-			       const OmSettings &moptions_) = 0;
+			       const OmSettings &moptions_,
+			       const OmRSet &omrset_) = 0;
 
 	/** Read the remote statistics.
 	 *  Returns true if the call succeeded, or false
 	 *  if the remote end hasn't yet responded.
 	 */
 	virtual bool get_remote_stats(Stats &out) = 0;
-
-	/** Set the rset to be transmitted over the link.
-	 *
-	 * @param rset_  A pointer to the rset object.
-	 */
-	virtual void set_rset(const OmRSet &omrset_) = 0;
 
 	/** Signal to the remote end that this is the end of the query
 	 *  specification phase.

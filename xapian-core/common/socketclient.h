@@ -148,19 +148,13 @@ class SocketClient : public NetClient {
 	 *
 	 * @param query_ The query.
 	 * @param moptions_ The match options.
+	 * @param omrset_ The rset.
 	 */
 	void set_query(const OmQueryInternal *query_,
-		       const OmSettings &moptions_);
-
-	/** Set the query */
-	void set_query(const OmQueryInternal *query_);
+		       const OmSettings &moptions_, const OmRSet &omrset_);
 
 	/** Get the remote stats */
 	bool get_remote_stats(Stats &out);
-
-	/** Set the rset for the match.
-	 */
-	void set_rset(const OmRSet &omrset_);
 
 	/** Signal the end of the query specification phase.
 	 *  Returns true if the operation succeeded, or false

@@ -46,13 +46,12 @@ RemoteSubMatch::RemoteSubMatch(const Database *db_,
     Assert(db);
     statssource = new NetworkStatsSource(gatherer_, db->link);
 
-    db->link->set_query(query, opts);
+    db->link->set_query(query, opts, omrset);
     db->link->register_statssource(statssource);
 
     AutoPtr<RSet> new_rset(new RSet(db, omrset));
     rset = new_rset;
 
-    db->link->set_rset(omrset);
 }
 
 RemoteSubMatch::~RemoteSubMatch()

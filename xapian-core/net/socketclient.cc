@@ -243,11 +243,12 @@ SocketClient::~SocketClient()
 
 void
 SocketClient::set_query(const OmQueryInternal *query_,
-			const OmSettings &moptions_)
+			const OmSettings &moptions_, const OmRSet &omrset_)
 {
     Assert(conv_state == state_getquery);
     query_string = query_->serialise();
     moptions = moptions_;
+    omrset = omrset_;
 }
 
 bool
@@ -434,10 +435,4 @@ SocketClient::get_mset(om_doccount first,
     omrset = OmRSet();
 
     return true;
-}
-
-void
-SocketClient::set_rset(const OmRSet &omrset_)
-{
-    omrset = omrset_;
 }

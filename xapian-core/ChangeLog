@@ -1,3 +1,7 @@
+Thu Oct 12 14:28:21 BST 2000 Olly Betts
+
+	* NetClient: Merged set_rset() into set_query().
+
 Thu Oct 12 12:55:53 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Attributes are now readable.  Partially tested.  Bug fixed in
