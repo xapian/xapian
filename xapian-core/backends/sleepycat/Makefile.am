@@ -1,6 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include @SLEEPYCAT_INCLUDES@
+INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
+           @BERKELEY_2_x_INCLUDES@
 
 noinst_HEADERS = sleepy_list.h \
                  sleepy_postlist.h \
@@ -20,6 +21,6 @@ libsleepy_la_SOURCES = sleepy_list.cc \
                        sleepy_database_internals.cc \
 		       sleepy_document.cc
 
-libsleepy_la_LIBADD = @SLEEPYCAT_LIBS@
+libsleepy_la_LIBADD = @BERKELEY_2_x_LIBS@
 
-libsleepy_la_LDFLAGS = @SLEEPYCAT_LINKFLAGS@
+libsleepy_la_LDFLAGS = @BERKELEY_2_x_LINKFLAGS@
