@@ -18,6 +18,6 @@ AC_DEFUN([TYPE_SOCKLEN_T],
   ac_cv_type_socklen_t=no)
 ])
   if test $ac_cv_type_socklen_t != yes; then
-    AC_DEFINE(socklen_t, int)
+    AC_DEFINE(socklen_t, int, [Define if neither sys/types.h nor sys/socket.h defines socklen_t])
   fi
 ])
