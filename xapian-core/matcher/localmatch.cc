@@ -695,6 +695,7 @@ LocalMatch::get_mset(om_doccount first,
 	// impossible to store document lengths in postlists, so they've
 	// already been retrieved)
         om_weight wt = query->get_weight() +
+//		extra_weight->get_sumextra(query->get_doclength());
 		extra_weight->get_sumextra(database->get_doclength(did));
 	OmMSetItem new_item(wt, did);
         
