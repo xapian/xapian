@@ -101,6 +101,9 @@ M|3| |Backends     | multi backend is unused, except that MultiDatabase class
 -+-+-+-------------+-----------------------------------------------------------
 M|4| |Matcher      | max_or_terms should probably work in a more local way.
 -+-+-+-------------+-----------------------------------------------------------
+M|5| |Matcher      | max_or_terms should not select groups of terms which
+ | | |             | don't match any documents.
+-+-+-+-------------+-----------------------------------------------------------
 L|4| |Matcher      | max_or_terms should probably reduce the querysize by the
  | | |             | number of terms removed - hard to do because max_or_terms
  | | |             | necessarily happens after some term weights have been
