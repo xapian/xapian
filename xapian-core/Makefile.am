@@ -14,7 +14,7 @@ lib_LTLIBRARIES = libomus.la
 
 # This line is present because of a bug in some versions of libtool
 # (exhibited when there are no source files)
-libomus_la_SOURCES =
+libomus_la_SOURCES = dummy.c
 EXTRA_libomus_la_SOURCES =
 
 libomus_la_LIBADD = \
