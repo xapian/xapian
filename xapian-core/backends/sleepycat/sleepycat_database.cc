@@ -74,10 +74,10 @@ SleepyDatabaseInternals::open(const string &pathname, bool readonly)
 	     &dbenv, NULL, &termlist_db);
 
     Db::open(FILENAME_TERMTOID, DB_HASH, flags, mode,
-	     &dbenv, NULL, &termlist_db);
+	     &dbenv, NULL, &termid_db);
 
     Db::open(FILENAME_IDTOTERM, DB_RECNO, flags, mode,
-	     &dbenv, NULL, &termlist_db);
+	     &dbenv, NULL, &termname_db);
 }
 
 inline void
@@ -143,13 +143,23 @@ SleepyDatabase::~SleepyDatabase() {
 void SleepyDatabase::open(const string &pathname, bool readonly) {
     // Open databases
     // FIXME - catch exceptions
-    internals->open(pathname, readonly);
+    try {
+	internals->open(pathname, readonly);
+    }
+    catch (DbException e) {
+	throw (OmError(string("Database error on open: ") + e.what()));
+    }
 }
 
 void SleepyDatabase::close() {
     // Close databases
     // FIXME - catch exceptions
-    internals->close();
+    try {
+	internals->close();
+    }
+    catch (DbException e) {
+	throw (OmError(string("Database error on close: ") + e.what()));
+    }
 }
 
 PostList *
@@ -201,11 +211,94 @@ SleepyDatabase::open_term_list(docid id) const {
 }
 
 termid
-SleepyDatabase::term_name_to_id(const termname &) const {
-    return 1;
+SleepyDatabase::add_term(const termname &tname) {
+    termid newid;
+    newid = term_name_to_id(tname);
+    if(newid) return newid;
+
+    termid id = 0;
+
+    try {
+	// FIXME - currently no transactions
+	Dbt key(&id, sizeof(id));
+	Dbt data((void *)tname.data(), tname.size());
+	int found;
+
+	key.set_flags(DB_DBT_USERMEM);
+
+	// Append to list of terms sorted by id - gets new id
+	found = internals->termname_db->put(NULL, &key, &data, DB_APPEND);
+	Assert(found == 0); // Any errors should cause an exception.
+	
+	// Put in termname to id database
+	found = internals->termid_db->put(NULL, &data, &key, 0);
+	Assert(found == 0); // Any errors should cause an exception.
+    }
+    catch (DbException e) {
+	throw OmError("SleepyDatabase::add_term(): " + string(e.what()));
+    }
+
+    return id;
+}
+
+docid
+SleepyDatabase::add_doc(const docname &dname) {
+    return 0;
+    throw OmError("SleepyDatabase.add_doc() not implemented");
+}
+
+void
+SleepyDatabase::add(termid, docid) {
+    throw OmError("SleepyDatabase.add() not implemented");
+}
+
+termid
+SleepyDatabase::term_name_to_id(const termname &tname) const {
+    Dbt key((void *)tname.c_str(), tname.size());
+    Dbt data;
+    termid id;
+
+    data.set_flags(DB_DBT_USERMEM);
+    data.set_ulen(sizeof(id));
+    data.set_data(&id);
+
+    // Get, no transactions, no flags
+    try {
+	int found = internals->termid_db->get(NULL, &key, &data, 0);
+	if(found == DB_NOTFOUND) return 0;
+
+	// Any other errors should cause an exception.
+	Assert(found == 0);
+    }
+    catch (DbException e) {
+	throw OmError("TermidDb error:" + string(e.what()));
+    }
+
+    if(data.get_size() != sizeof(termid)) {
+	// FIXME - test what _does_ happen if the termname is not the
+	// size of an id.
+	throw OmError("TermidDb: found termname, but data is not a termid.");
+    }
+    return id;
 }
 
 termname
-SleepyDatabase::term_id_to_name(termid) const {
-    return "a";
+SleepyDatabase::term_id_to_name(termid id) const {
+    Dbt key(&id, sizeof(id));
+    Dbt data;
+
+    // Get, no transactions, no flags
+    try {
+	int found = internals->termname_db->get(NULL, &key, &data, 0);
+	if(found == DB_NOTFOUND) throw RangeError("Termid not found");
+
+	// Any other errors should cause an exception.
+	Assert(found == 0);
+    }
+    catch (DbException e) {
+	throw OmError("TermidDb error:" + string(e.what()));
+    }
+
+    termname tname((char *)data.get_data(), data.get_size());
+    return tname;
 }

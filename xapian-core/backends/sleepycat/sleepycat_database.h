@@ -23,7 +23,7 @@ class SleepyPostList : public virtual PostList {
 
 	docid    get_docid() const;    // Current docid
 	weight   get_weight() const;   // Current weight
-	void     next();               // Move next docid
+	PostList * next();             // Move next docid
 	bool     at_end() const;       // True if we're off the end of the list
 };
 
@@ -41,11 +41,12 @@ SleepyPostList::get_docid() const
     return data[pos - 1];
 }
 
-inline void
+inline PostList *
 SleepyPostList::next()
 {
     Assert(!at_end());
     pos ++;
+    return NULL;
 }
 
 inline bool
@@ -73,7 +74,7 @@ class SleepyTermList : public virtual TermList {
 	termid get_termid() const;  // Current termid
 	termcount get_wdf() const;  // Occurences of current term in doc
 	doccount get_termfreq() const;  // Docs indexed by current term
-	void   next();
+	TermList * next();
 	bool   at_end() const;
 };
 
@@ -101,11 +102,12 @@ SleepyTermList::get_termfreq() const
     return 1;
 }   
 
-inline void
+inline TermList *
 SleepyTermList::next()
 {
     Assert(!at_end());
     pos ++;
+    return NULL;
 }
 
 inline bool
@@ -131,15 +133,9 @@ class SleepyDatabase : public virtual IRDatabase {
 	termid term_name_to_id(const termname &) const;
 	termname term_id_to_name(termid) const;
 
-	termid add_term(const termname &) {
-	    throw OmError("SleepyDatabase.add_term() not implemented");
-	}
-	docid add_doc(const docname &) {
-	    throw OmError("SleepyDatabase.add_doc() not implemented");
-	}
-	void add(termid, docid) {
-	    throw OmError("SleepyDatabase.add() not implemented");
-	}
+	termid add_term(const termname &);
+	docid add_doc(const docname &);
+	void add(termid, docid);
 
 	void open(const string &pathname, bool readonly);
 	void close();

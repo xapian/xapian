@@ -222,7 +222,7 @@ DADatabase::term_name_to_id(const termname &name) const
     termid id = 0;
     if (p == termidmap.end()) {
 	int len = name.length();
-	if(len > 255) throw RangeError("Termid not found");
+	if(len > 255) return 0;
 	byte * k = (byte *) malloc(len + 1);
 	if(k == NULL) throw OmError(strerror(ENOMEM));
 	k[0] = len + 1;

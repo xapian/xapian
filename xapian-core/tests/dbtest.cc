@@ -15,8 +15,17 @@ int main(int argc, char *argv[]) {
     docid did;
 
     try {
-	database.open("testdir", 0);
-	tid = database.term_name_to_id("true");
+	database.open("test_sleepy", 0);
+
+	tid = database.add_term("thou");
+	printf("Added term, new tid is %d\n", tid);
+	did = database.add_doc("cheese tasting");
+	printf("Added doc, new did is %d\n", did);
+	
+	tid = database.term_name_to_id("thou");
+	printf("tid is %d\n", tid);
+	termname tname = database.term_id_to_name(tid);
+	printf("tname is `%s'\n", tname.c_str());
 	if(tid == 0) {
 	    printf("Term not found\n");
 	} else {

@@ -83,7 +83,7 @@ class DATermList : public virtual TermList {
 	termid get_termid() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term
-	void   next();
+	TermList * next();
 	bool   at_end() const;
 };
 
@@ -105,10 +105,11 @@ inline doccount DATermList::get_termfreq() const
     return pos->termfreq;
 }
 
-inline void   DATermList::next()
+inline TermList * DATermList::next()
 {
     Assert(!at_end());
     pos++;
+    return NULL;
 }
 
 inline bool   DATermList::at_end() const

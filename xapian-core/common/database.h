@@ -47,7 +47,7 @@ class TermList {
 	virtual termid get_termid() const = 0; // Gets current termid
 	virtual termcount get_wdf() const = 0; // Get wdf of current term
 	virtual doccount get_termfreq() const = 0; // Get num of docs indexed by term
-	virtual void   next() = 0; // Moves to next termid
+	virtual TermList * next() = 0; // Moves to next termid
 	virtual bool   at_end() const = 0; // True if we're off the end of the list
 
         virtual ~TermList() { return; }
