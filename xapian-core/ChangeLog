@@ -1,3 +1,9 @@
+Thu May 18 17:14:52 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Work on testsuite.  Many useful macros produced, tests simplified,
+	  and tests can now report failure by throwing an exception instead
+	  of by returning "false".
+
 Thu May 18 15:08:09 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added test for Rsets in a multimatch.  (Currently fails)

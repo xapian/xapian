@@ -28,21 +28,9 @@
 
 #include "om/om.h"
 #include "testsuite.h"
+#include "testutils.h"
 #include "textfile_indexer.h"
 #include "../indexer/index_utils.h"
-
-class TestFail {
-    public:
-	TestFail(string message_ = "") : message(message_) {}
-	~TestFail() {}
-	string message;
-
-//	ostream & operator<<(ostream &os, const OmMSetItem &mitem);
-};
-
-// Don't bracket a, because it may have <<'s in it
-//#define TESTFAIL(a) { TestFail testfail; testfail << a; throw testfail; }
-#define TESTFAIL(a) { TestFail testfail; cout << a; throw testfail; }
 
 // always succeeds
 bool test_trivial();
@@ -212,130 +200,19 @@ bool weights_are_equal_enough(double a, double b)
     return false;
 }
 
-ostream &
-operator<<(ostream &os, const OmMSetItem &mitem)
-{
-    os << mitem.wt << " " << mitem.did;
-    return os;
-}
-
-ostream &
-operator<<(ostream &os, const OmMSet &mset)
-{
-    copy(mset.items.begin(), mset.items.end(),
-	 ostream_iterator<OmMSetItem>(os, "\n"));
-    return os;
-}
-
-// so that we can print out esets conveniently
-ostream &
-operator<<(ostream &os, const OmESetItem &item)
-{
-    cout << item.tname;
-    return os;
-}
-
-ostream &
-operator<<(ostream &os, const vector<unsigned int> &ints)
-{
-    copy(ints.begin(), ints.end(),
-	 ostream_iterator<unsigned int>(os, ", "));
-    return os;
-}
-
-
-bool mset_range_is_same(const OmMSet &mset1, unsigned int first1,
-                        const OmMSet &mset2, unsigned int first2,
-			unsigned int count)
-{
-    if (mset1.items.size() < first1 + count - 1) {
-	if(verbose)
-	    cout << "mset1 is too small: expected at least " <<
-		    (first1 + count - 1) << " items." << endl;
-	return false;
-    }
-    if (mset2.items.size() < first2 + count - 1) {
-	if(verbose)
-	    cout << "mset2 is too small: expected at least " <<
-		    (first2 + count - 1) << " items." << endl;
-	return false;
-    }
-
-    for (unsigned int i=0; i<count; ++i) {
-        if ((mset1.items[first1+i].wt != mset2.items[first2+i].wt) ||
-	    (mset1.items[first1+i].did != mset2.items[first2+i].did)) {
-	    return false;
-        }
-    }
-    return true;
-}
-
-bool operator==(const OmMSet &first, const OmMSet &second)
-{
-    if ((first.mbound != second.mbound) ||
-	(first.max_possible != second.max_possible) ||
-	(first.items.size() != second.items.size())) {
-         return false;
-    }
-    if(first.items.size() == 0) return true;
-    return mset_range_is_same(first, 0, second, 0, first.items.size());
-}
-
-bool mset_range_is_same_weights(const OmMSet &mset1, unsigned int first1,
-				const OmMSet &mset2, unsigned int first2,
-				unsigned int count)
-{
-    if (mset1.items.size() < first1 + count - 1) {
-	if(verbose)
-	    cout << "mset1 is too small: expected at least " <<
-		    (first1 + count - 1) << " items." << endl;
-	return false;
-    }
-    if (mset2.items.size() < first2 + count - 1) {
-	if(verbose)
-	    cout << "mset2 is too small: expected at least " <<
-		    (first2 + count - 1) << " items." << endl;
-	return false;
-    }
-
-    for (unsigned int i=0; i<count; ++i) {
-	if (mset1.items[first1+i].wt != mset2.items[first2+i].wt) {
-	    return false;
-        }
-    }
-    return true;
-}
 
 void expect_mset_order(OmMSet mset, om_docid *order,
 		       unsigned int ordersize, string mset_name)
 {
+    TEST_AND_EXPLAIN(mset.items.size() >= ordersize,
+		     "Mset " << mset_name << " too small: was " <<
+		     mset << ", expected " <<
+		     vector<om_docid>(order, order + 2) << endl);
     for (unsigned int i = 0; i < ordersize; i++) {
-	if (mset.items.size() <= i) {
-	    TESTFAIL("Mset " << mset_name << " too small: was " <<
-		     mset << ", expected " <<
-		     vector<om_docid>(order, order + 2) << endl);
-	}
-	if (mset.items[i].did != order[i]) {
-	    TESTFAIL("Mset " << mset_name << " has wrong contents: was " <<
-		     mset << ", expected " <<
-		     vector<om_docid>(order, order + 2) << endl);
-	}
-    }
-}
-
-void expect_mset_equal(OmMSet mset1, OmMSet mset2, string names)
-{
-    if (mset1 != mset2) {
-	TESTFAIL("Expected msets " + names + " to be equal: were " <<
-		 mset1 << " and " << mset2 << endl);
-    }
-}
-
-void expect_mset_not_equal(OmMSet mset1, OmMSet mset2, string names)
-{
-    if (mset1 == mset2) {
-	TESTFAIL("Expected msets " + names + " not to be equal: were " <<
-		 mset1 << " and " << mset2 << endl);
+	TEST_AND_EXPLAIN(mset.items[i].did == order[i],
+			 "Mset " << mset_name << " has wrong contents: was " <<
+			 mset << ", expected " <<
+			 vector<om_docid>(order, order + 2) << endl);
     }
 }
 
@@ -1891,38 +1768,20 @@ bool test_rset2()
 
     OmMSet mymset2 = enquire.get_mset(0, 10, &myrset);
 
-    // We should have the same documents turn up, but 1 and 3 should
-    // have higher weights with the RSet.
-    if (mymset1.items.size() != 2 ||
-	mymset2.items.size() != 2) {
-	if (verbose) {
-	    cout << "MSets are of different size: " << endl;
-	    cout << "mset1: " << mymset1 << endl;
-	    cout << "mset2: " << mymset2 << endl;
-	}
-	success = false;
-    }
+    TEST_MSET_SIZE(mymset1, 2);
+    TEST_MSET_SIZE(mymset2, 2);
 
     om_docid order1[] = {1, 2};
     om_docid order2[] = {2, 1};
 
-    try {
-	expect_mset_order(mymset1, order1, 2, "mymset1");
-	expect_mset_order(mymset2, order2, 2, "mymset2");
-    } catch (TestFail & e) {
-	success = false;
-	if (verbose) {
-	    cout << e.message;
-	}
-    }
+    expect_mset_order(mymset1, order1, 2, "mymset1");
+    expect_mset_order(mymset2, order2, 2, "mymset2");
 
     return success;
 }
 
 bool test_rsetmultidb1()
 {
-    bool success = true;
-
     OmWritableDatabase mydb1("inmemory", make_strvec());
     OmWritableDatabase mydb2("inmemory", make_strvec());
     OmWritableDatabase mydb3("inmemory", make_strvec());
@@ -1952,41 +1811,25 @@ bool test_rsetmultidb1()
     OmMSet mymset2a = enquire2.get_mset(0, 10);
     OmMSet mymset2b = enquire2.get_mset(0, 10, &myrset);
 
-    // We should have the same documents turn up, but 1 and 3 should
-    // have higher weights with the RSet.
-    if (mymset1a.items.size() != 2 ||
-	mymset1b.items.size() != 2 ||
-	mymset2a.items.size() != 2 ||
-	mymset2b.items.size() != 2) {
-	if (verbose) {
-	    cout << "MSets are of different size: " << endl;
-	    cout << "mset1 (no rset):   " << mymset1a << endl;
-	    cout << "mset1 (with rset): " << mymset1b << endl;
-	    cout << "mset2 (no rset):   " << mymset2a << endl;
-	    cout << "mset2 (with rset): " << mymset2b << endl;
-	}
-	success = false;
-    }
+    TEST_EQUAL(mymset1a.items.size(), 2);
+    TEST_EQUAL(mymset1b.items.size(), 2);
+    TEST_EQUAL(mymset2a.items.size(), 2);
+    TEST_EQUAL(mymset2b.items.size(), 2);
 
     om_docid order1a[] = {1, 4};
     om_docid order1b[] = {4, 1};
     om_docid order2a[] = {1, 4};
     om_docid order2b[] = {4, 1};
 
-    try {
-	expect_mset_order(mymset1a, order1a, 2, "mymset1a");
-	expect_mset_order(mymset1b, order1b, 2, "mymset1b");
-	expect_mset_order(mymset2a, order2a, 2, "mymset2a");
-	expect_mset_order(mymset2b, order2b, 2, "mymset2b");
-	expect_mset_equal(mymset1a, mymset2a, "mymset1a and mymset2a");
-	expect_mset_equal(mymset1b, mymset2b, "mymset1b and mymset2b");
-	expect_mset_not_equal(mymset1a, mymset1b, "mymset1a and mymset1b");
-    } catch (TestFail & e) {
-	success = false;
-	if (verbose) {
-	    cout << e.message;
-	}
-    }
-    
-    return success;
+    expect_mset_order(mymset1a, order1a, 2, "mymset1a");
+    expect_mset_order(mymset1b, order1b, 2, "mymset1b");
+    expect_mset_order(mymset2a, order2a, 2, "mymset2a");
+    expect_mset_order(mymset2b, order2b, 2, "mymset2b");
+
+    TEST_EQUAL(mymset1a, mymset2a);
+    TEST_EQUAL(mymset1b, mymset2b);
+    TEST_NOT_EQUAL(mymset1a, mymset1b);
+    TEST_NOT_EQUAL(mymset2a, mymset2b);
+
+    return true;
 }

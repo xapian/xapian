@@ -27,16 +27,42 @@
 #include <string>
 #include "om/omerror.h"
 
+/** Class which is thrown when a test case fails.
+ *  This class contains a message, which is displayed to the user if
+ *  the verbose flag is set, which should give helpful information as
+ *  to the cause of the failure.
+ */
+class TestFailure {
+    public:
+	TestFailure(string message_ = "") : message(message_) {}
+	~TestFailure() {}
+	string message;
+
+//	ostream & operator<<(ostream &os, const OmMSetItem &mitem);
+};
+
+/** Macro used to build a TestFailure object and throw it.
+ */
+// Don't bracket a, because it may have <<'s in it
+//#define FAIL_TEST(a) { TestFailure testfail; testfail << a; throw testfail; }
+#define FAIL_TEST(a) { TestFailure testfail; cout << a; throw testfail; }
+
+/// Type for a test function.
 typedef bool (*test_func)();
 
+/// Structure holding a description of a test.
 struct test_desc {
-  char *name;
-  test_func run;
+    /// The name of the test.
+    const char *name;
+
+    /// The function to run to perform the test.
+    test_func run;
 };
 
 // The global verbose flag.  Individual tests may need to get at it.
 extern bool verbose;
 
+/// The test driver.  This class takes care of running the tests.
 class test_driver {
     public:
 	/** main() replacement.  Standard OM test suite programs
@@ -73,7 +99,13 @@ class test_driver {
 	 */
 	result run_test(const string &testname);
 
+	/** If set, this will cause the testsuite to stop executing further
+	 *  tests if any fail.
+	 */
 	void set_abort_on_error(bool aoe_);
+
+	/** If set to true, the testsuite will produce no output whatsoever.
+	 */
 	void set_quiet(bool quiet_);
     private:
 	/** Runs the test function and returns its result.  It will
@@ -107,5 +139,43 @@ inline void test_driver::set_abort_on_error(bool aoe_)
 {
     abort_on_error = aoe_;
 }
+
+#ifndef STRINGIZE
+/** STRINGIZE converts a piece of code to a string, so it can be displayed.
+ * 
+ *  The 2nd level of the stringize definition here is not needed for the use we
+ *  put this to in this file (since we always use it within a macro here) but
+ *  is required in general  (#N doesn't work outside a macro definition)
+ */
+#define STRINGIZE(N) _STRINGIZE(N)
+#define _STRINGIZE(N) #N
+#endif
+
+#ifndef TESTCASE_LOCN
+/// Display the location at which a testcase occured, with an explanation
+#define TESTCASE_LOCN(a) __FILE__":"STRINGIZE(__LINE__)": "STRINGIZE(a)
+#endif
+
+/** Test a condition, and display the test with an extra explanation if
+ *  the condition fails.
+ *  NB: uses an else clause to avoid dangling else damage
+ */
+#define TEST_AND_EXPLAIN(a, b) if (a) { } else \
+                             FAIL_TEST(TESTCASE_LOCN(a) << endl << \
+				       b << endl)
+
+/// Test a condition, without an additional explanation for failure.
+#define TEST(a) TEST_AND_EXPLAIN(a, "")
+
+/// Test for equality of two things.
+#define TEST_EQUAL(a, b) TEST_AND_EXPLAIN(((a) == (b)), \
+	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' to be equal:" \
+	" were " << (a) << " and " << (b) << endl)
+
+/// Test for non-equality of two things.
+#define TEST_NOT_EQUAL(a, b) TEST_AND_EXPLAIN(((a) != (b)), \
+	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' not to be equal:" \
+	" were " << (a) << " and " << (b) << endl)
+
 
 #endif  // OM_HGUARD_TESTSUITE_H

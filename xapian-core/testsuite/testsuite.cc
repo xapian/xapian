@@ -157,6 +157,11 @@ test_driver::runtest(const test_desc *test)
 
     try {
         success = test->run();
+    } catch (TestFailure &fail) {
+	success = false;
+	if (verbose) {
+	    cout << fail.message;
+	}
     } catch (OmError &err) {
 	out << "OmError exception: " << err.get_msg();
 	success = false;
