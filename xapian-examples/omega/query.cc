@@ -135,7 +135,7 @@ run_query()
 	// We could use the value of topdoc as first parameter, but we
 	// need to know the first few items on the mset to fake a
 	// relevance set for topterms
-	mset = enquire->get_mset(0, topdoc + list_size, rset);
+	mset = enquire->get_mset(0, topdoc + hits_per_page, rset);
 	// FIXME - set msetcmp to reverse?
     }
 }
@@ -331,6 +331,7 @@ CMD_filesize,
 CMD_fmt,
 CMD_freqs,
 CMD_hitlist,
+CMD_hitsperpage,
 CMD_html,
 CMD_id,
 CMD_if,
@@ -339,7 +340,6 @@ CMD_lastpage,
 CMD_list,
 CMD_map,
 CMD_max,
-CMD_maxhits,
 CMD_min,
 CMD_msize,
 CMD_ne,
@@ -397,6 +397,7 @@ static struct func_desc func_tab[] = {
 {T(fmt),	0, 0, N, 0, 0 }, // name of current format
 {T(freqs),	0, 0, N, 1, 1 }, // return HTML string listing query terms and frequencies
 {T(hitlist),	N, N, 0, 1, 0 }, // display hitlist using format in argument
+{T(hitsperpage),0, 0, N, 0, 0 }, // hits per page
 {T(html),	1, 1, N, 0, 0 }, // html escape string (<>&)
 {T(id),		0, 0, N, 0, 0 }, // docid of current doc
 {T(if),		2, 3, 1, 0, 0 }, // conditional
@@ -405,13 +406,12 @@ static struct func_desc func_tab[] = {
 {T(list),	2, 5, N, 0, 0 }, // pretty print list
 {T(map),	1, N, 1, 0, 0 }, // map a list into another list
 {T(max),	1, N, N, 0, 0 }, // maximum of a list of values
-{T(maxhits),	0, 0, N, 0, 0 }, // hits per page
 {T(min),	1, N, N, 0, 0 }, // minimum of a list of values
 {T(msize),	0, 0, N, 1, 0 }, // number of matches
 {T(ne), 	2, 2, N, 0, 0 }, // test not equal
 {T(not),	1, 1, N, 0, 0 }, // logical not
 {T(opt),	1, 1, N, 0, 0 }, // lookup an option value
-{T(or),		1, N, 0, 0, 0 }, // logical shorcutting or of a list of values
+{T(or),		1, N, 0, 0, 0 }, // logical shortcutting or of a list of values
 {T(percentage),	0, 0, N, 0, 0 }, // percentage score of current hit
 {T(query),	0, 0, N, 0, 0 }, // query
 {T(queryterms),	0, 0, N, 0, 1 }, // list of query terms
@@ -647,6 +647,9 @@ eval(const string &fmt)
 		for (om_docid m = topdoc; m < last; m++)
 		    value += print_caption(m, args[0]);
 		break;
+	    case CMD_hitsperpage:
+		value = int_to_string(hits_per_page);
+		break;
 	    case CMD_html:
 	        value = html_escape(args[0]);
 		break;
@@ -665,7 +668,7 @@ eval(const string &fmt)
 		break;
 	    case CMD_lastpage:
 		value = int_to_string((mset.get_matches_lower_bound() - 1) /
-				      list_size + 1);
+				      hits_per_page + 1);
 		break;
 	    case CMD_list: {
 		if (!args[0].empty()) {
@@ -732,9 +735,6 @@ eval(const string &fmt)
 		value = int_to_string(val);
 		break;
 	    }
-	    case CMD_maxhits:
-		value = int_to_string(list_size);
-		break;
 	    case CMD_min: {
 		vector<string>::const_iterator i = args.begin();
 		int val = string_to_int(*i++);
@@ -838,7 +838,7 @@ eval(const string &fmt)
 		break;
 	    }
 	    case CMD_thispage:
-		value = int_to_string(topdoc / list_size + 1);
+		value = int_to_string(topdoc / hits_per_page + 1);
 		break;
 	    case CMD_topdoc:
 		// first document on current page of hit list (counting from 0)
@@ -1001,8 +1001,8 @@ ensure_match()
     // FIXME: size()?
     if (topdoc > mset.get_matches_lower_bound()) topdoc = 0;
     
-    if (topdoc + list_size < mset.get_matches_lower_bound())
-	last = topdoc + list_size;
+    if (topdoc + hits_per_page < mset.get_matches_lower_bound())
+	last = topdoc + hits_per_page;
     else
 	last = mset.get_matches_lower_bound();
 }

@@ -1,3 +1,14 @@
+Wed Jan 10 16:49:10 GMT 2001 Olly Betts
+
+	* MAXHITS/maxhits/list_size renamed to
+	  HITSPERPAGE/hitsperpage/hits_per_page.
+
+	* catch by const reference.
+
+	* MATCHOP renamed to DEFAULTOP.
+
+	* Reference to THRESHOLD removed.
+
 Sun Dec 17 16:17:17 GMT 2000 Olly Betts
 
 	* Updated to use OmTermIterator.

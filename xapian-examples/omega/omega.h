@@ -44,7 +44,7 @@ extern OmEnquire * enquire;
 extern OmRSet * rset;
 
 extern om_docid topdoc;
-extern om_docid list_size;
+extern om_docid hits_per_page;
 
 extern map<string, string> option;
 

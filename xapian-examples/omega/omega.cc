@@ -47,7 +47,7 @@ string log_dir = "/tmp";
 string fmtname = "query";
 
 om_docid topdoc = 0;
-om_docid list_size = 0;
+om_docid hits_per_page = 0;
 
 static const string muscat_dir = "/usr/omega";
 
@@ -123,13 +123,13 @@ main2(int argc, char *argv[])
 	    decode_get();
     }
 
-    list_size = 0;
-    val = cgi_params.find("MAXHITS");
-    if (val != cgi_params.end()) list_size = atol(val->second.c_str());
-    if (list_size <= 10) {
-	list_size = 10;
-    } else if (list_size >= 1000) {
-	list_size = 1000;
+    hits_per_page = 0;
+    val = cgi_params.find("HITSPERPAGE");
+    if (val != cgi_params.end()) hits_per_page = atol(val->second.c_str());
+    if (hits_per_page <= 10) {
+	hits_per_page = 10;
+    } else if (hits_per_page >= 1000) {
+	hits_per_page = 1000;
     }
 
     OmDatabase omdb;
@@ -164,7 +164,7 @@ main2(int argc, char *argv[])
 	    omdb.add_database(params);
 	}
     }
-    catch (OmError &e) {
+    catch (const OmError &e) {
 	// FIXME: make this more helpful (and use a template?)
 	// odds are it's not a database
 	cout << "<HTML><HEAD>\n"
@@ -177,12 +177,10 @@ main2(int argc, char *argv[])
 	exit(0);
     }
 
-    val = cgi_params.find("MATCHOP");
+    val = cgi_params.find("DEFAULTOP");
     if (val != cgi_params.end()) {
 	if (val->second == "AND" || val->second == "and")
 	    default_op = OmQuery::OP_AND;
-    } else if ((val = cgi_params.find("THRESHOLD")) != cgi_params.end()) {
-	if (atoi(val->second.c_str()) == 100) default_op = OmQuery::OP_AND;
     }
 
     enquire = new OmEnquire(omdb);
@@ -245,7 +243,7 @@ main2(int argc, char *argv[])
    
     got_query_from_morelike:
 
-    /*** set Boolean ***/
+    // set any boolean filters
     g = cgi_params.equal_range("B");
     for (MCI i = g.first; i != g.second; i++) {
 	string v = i->second;
@@ -269,15 +267,15 @@ main2(int argc, char *argv[])
 
 	// Handle next, previous, and page links
 	if (cgi_params.find(">") != cgi_params.end()) {
-	    topdoc += list_size;
+	    topdoc += hits_per_page;
 	} else if (cgi_params.find("<") != cgi_params.end()) {
-	    topdoc -= list_size;
+	    topdoc -= hits_per_page;
 	} else if ((val = cgi_params.find("[")) != cgi_params.end()) {
-	    topdoc = (atol(val->second.c_str()) - 1) * list_size;
+	    topdoc = (atol(val->second.c_str()) - 1) * hits_per_page;
 	}
 
 	// snap topdoc to page boundary
-	topdoc = (topdoc / list_size) * list_size;
+	topdoc = (topdoc / hits_per_page) * hits_per_page;
 	if (topdoc < 0) topdoc = 0;
     
 	// put documents marked as relevant into the rset
@@ -298,7 +296,7 @@ main2(int argc, char *argv[])
 	}
     }
 
-    /*** process commands ***/
+    // process commands
     long matches = do_match();
     if (cgi_params.find("X") != cgi_params.end()) {
 	make_log_entry("add", matches);
@@ -315,10 +313,10 @@ int main(int argc, char *argv[])
     try {
 	return main2(argc, argv);
     }
-    catch (OmError &e) {
+    catch (const OmError &e) {
 	cout << "Exception: " << e.get_msg() << endl;
     }
-    catch (string &s) {
+    catch (const string &s) {
 	cout << "Exception: " << s << endl;
     }
     catch (const char *s) {

@@ -23,14 +23,14 @@ ACTION="$html{$or{$env{SCRIPT_NAME},ompf}}" TARGET="_top">
 <INPUT TYPE=IMAGE VALUE="Search" BORDER=0 WIDTH=56 HEIGHT=56 ALIGN=middle 
 SRC="http://www.euroferret.com/fx-gif/find.gif">
 ${
-<SELECT NAME=MATCHOP>
+<SELECT NAME=DEFAULTOP>
 <OPTION VALUE=or$if{$eq{$defaultop,or}, SELECTED}>Matching any words
 <OPTION VALUE=and$if{$eq{$defaultop,and}, SELECTED}>Matching all words
 </SELECT>
 }
 <hr>
-<INPUT TYPE=radio NAME=MATCHOP VALUE=or$if{$eq{$defaultop,or}, CHECKED}> Matching any words
-<INPUT TYPE=radio NAME=MATCHOP VALUE=and$if{$eq{$defaultop,and}, CHECKED}> Matching all words
+<INPUT TYPE=radio NAME=DEFAULTOP VALUE=or$if{$eq{$defaultop,or}, CHECKED}> Matching any words
+<INPUT TYPE=radio NAME=DEFAULTOP VALUE=and$if{$eq{$defaultop,and}, CHECKED}> Matching all words
 $if{$or{$query,$ne{$msize,0}},
  <hr>
  <table><tr><td bgcolor="#ccffcc">
@@ -44,7 +44,7 @@ $if{$eq{$msize,0},
 $if{$query,No documents match your query},
 
 $if{$ne{$last,$msize},
- $add{$topdoc,1}-$add{$topdoc,$maxhits} of at least $msize matches,
+ $add{$topdoc,1}-$add{$topdoc,$hitsperpage} of at least $msize matches,
  $if{$eq{$topdoc,0},
   All $msize matches,
   $add{$topdoc,1}$if{$ne{$add{$topdoc,1},$msize},-$msize} of exactly $msize matches}
@@ -97,7 +97,7 @@ ${<IMG ALT="" SRC="http://www.euroferret.com/fx-gif/nextoff.gif" HEIGHT=56 WIDTH
 }
 $if{$dbname,<INPUT TYPE=hidden NAME=DB VALUE="$html{$dbname}">
 }$if{$ne{$topdoc,0},<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>
-}$if{$ne{$maxhits,10},<INPUT TYPE=hidden NAME=MAXHITS VALUE=$maxhits>
+}$if{$ne{$hitsperpage,10},<INPUT TYPE=hidden NAME=HITSPERPAGE VALUE=$hitsperpage>
 }$if{$fmt,<INPUT TYPE=hidden NAME=FMT VALUE="$html{$fmt}">
 }$list{$queryterms,<INPUT TYPE=hidden NAME=OLDP VALUE=",.,.">
 }$list{$relevants,<INPUT TYPE=hidden NAME=R VALUE=",.,">
