@@ -1,3 +1,8 @@
+Tue Sep 19 12:40:21 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add CME_FIND_HSTRERROR to acinclude.m4, by adding it to lists in
+	  buildall and configure.in.
+
 Tue Sep 19 12:11:58 BST 2000 Olly Betts
 
 	* More work on tests.
