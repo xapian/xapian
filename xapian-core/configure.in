@@ -42,10 +42,12 @@ dnl Checks for doc.  (Diagrams in the documentation)
 AC_PATH_PROG(DOT_PATH, dot)
 if test -n "$DOT_PATH" ; then
   DOXYGEN_HAVE_DOT=YES
+  DOXYGEN_DOT_PATH=`echo "$DOT_PATH" | sed "s/\/dot$//"`
 else
   DOXYGEN_HAVE_DOT=NO
 fi
 AC_SUBST(DOXYGEN_HAVE_DOT)
+AC_SUBST(DOXYGEN_DOT_PATH)
 
 dnl Check for latex. (Needed to make some more of the documentation)
 AC_PATH_PROG(LATEX_PATH, latex)

@@ -119,7 +119,7 @@ COLLABORATION_GRAPH   = YES
 INCLUDE_GRAPH         = YES
 INCLUDED_BY_GRAPH     = YES
 GRAPHICAL_HIERARCHY   = YES
-DOT_PATH              = @DOT_PATH@
+DOT_PATH              = @DOXYGEN_DOT_PATH@
 MAX_DOT_GRAPH_WIDTH   = 800
 MAX_DOT_GRAPH_HEIGHT  = 1024
 #---------------------------------------------------------------------------
