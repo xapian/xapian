@@ -1,3 +1,17 @@
+Wed Jun 16 02:05:07 BST 2004  Richard Boulton <richard@tartarus.org>
+ 
+ 	* matcher/multimatch.cc: When collapsing, keep track of the number
+ 	  of collapses performed, and use this information to modify the
+ 	  bounds and estimate of the number of matches.
+ 	* tests/api_db.cc: Added tests for this.
+ 	* include/xapian/enquire.h: Update documentation comments for
+ 	  MSet::get_matches_*() functions to make clear that collapsing and
+ 	  cutoffs are taken into account.  (Previously, the most likely
+ 	  interpretation of the comments was that they wouldn't be taken
+ 	  into account, but the implementation was that percentage cutoffs
+ 	  were taken into account.)  Due to this ambiguity, I think it is
+ 	  reasonable to say this isn't an API change.
+ 
 Wed Jun 16 01:55:29 BST 2004  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Rearranged code so that the behaviour can

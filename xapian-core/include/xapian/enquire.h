@@ -130,7 +130,10 @@ class MSet {
 	Xapian::doccount get_firstitem() const;
 
 	/** A lower bound on the number of documents in the database which
-	 *  have a weight greater than zero.
+	 *  match the query.
+	 *
+	 *  This figure takes into account collapsing of duplicates,
+	 *  and weighting cutoff values.
 	 *
 	 *  This number is usually considerably less than the actual number
 	 *  of documents which match the query.
@@ -138,7 +141,10 @@ class MSet {
 	Xapian::doccount get_matches_lower_bound() const;
 
 	/** An estimate for the number of documents in the database which
-	 *  have a weight greater than zero.
+	 *  match the query.
+	 *
+	 *  This figure takes into account collapsing of duplicates,
+	 *  and weighting cutoff values.
 	 *
 	 *  This value is returned because there is sometimes a request to
 	 *  display such information.  However, our experience is that
@@ -148,8 +154,11 @@ class MSet {
 	 */
 	Xapian::doccount get_matches_estimated() const;
 
-	/** An upper bound on the number of documents in the database with
-	 *  a weight greater than zero.
+	/** An upper bound on the number of documents in the database which
+	 *  match the query.
+	 *
+	 *  This figure takes into account collapsing of duplicates,
+	 *  and weighting cutoff values.
 	 *
 	 *  This number is usually considerably greater than the actual
 	 *  number of documents which match the query.

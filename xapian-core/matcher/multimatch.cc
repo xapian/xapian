@@ -431,11 +431,19 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Xapian::doccount matches_upper_bound = pl->get_termfreq_max();
     Xapian::doccount matches_lower_bound = pl->get_termfreq_min();
     Xapian::doccount matches_estimated   = pl->get_termfreq_est();
+    Xapian::doccount duplicates_found = 0;
+    Xapian::doccount documents_considered = 0;
 
     // Check if any results have been asked for (might just be wanting
     // maxweight)
     if (maxitems == 0) {
 	delete pl;
+	if (collapse_key != Xapian::valueno(-1)) {
+	    // Lower bound must be set to no more than 1, since it's possible that
+	    // all hits will be collapsed to a single hit.
+	    if (matches_lower_bound > 1) matches_lower_bound = 1;
+	}
+
 	mset = Xapian::MSet(new Xapian::MSet::Internal(
 					   first,
 					   matches_upper_bound,
@@ -550,6 +558,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	}
 
 	bool pushback = true;
+	documents_considered++;
 
 	// Perform collapsing on key if requested.
 	if (collapse_key != Xapian::valueno(-1)) {
@@ -567,6 +576,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    collapse_tab.insert(make_pair(new_item.collapse_key,
 					make_pair(new_item, Xapian::weight(0))));
 		} else {
+		    duplicates_found++;
 		    const Xapian::Internal::MSetItem &old_item = oldkey->second.first;
 		    // FIXME: what about sort_bands == 1 case here?
 		    if (mcmp(old_item, new_item)) {
@@ -845,7 +855,30 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	Assert(matches_estimated >= matches_lower_bound);
 	Assert(matches_estimated <= matches_upper_bound);
 
-	if (!percent_cutoff) {
+	if (collapse_key != Xapian::valueno(-1)) {
+	    // Lower bound must be set to no more than the number of collapse
+	    // values we've got, since it's possible that all further hits
+	    // will be collapsed to a single value.
+	    matches_lower_bound = collapse_tab.size();
+
+	    // The estimate for the number of hits can be modified by
+	    // multiplying it by the rate at which we've been finding
+	    // duplicates.
+	    if (documents_considered > 0) {
+		double collapse_rate =
+			double(duplicates_found) / double(documents_considered);
+		matches_estimated -=
+			(Xapian::doccount)(double(matches_estimated) *
+					   collapse_rate);
+	    }
+
+	    // We can safely reduce the upper bound by the number of
+	    // duplicates we've seen.
+	    matches_upper_bound -= duplicates_found;
+
+	    matches_estimated = max(matches_estimated, matches_lower_bound);
+	    matches_estimated = min(matches_estimated, matches_upper_bound);
+	} else if (!percent_cutoff) {
 	    Assert(docs_matched <= matches_upper_bound);
 	    if (docs_matched > matches_lower_bound)
 		matches_lower_bound = docs_matched;

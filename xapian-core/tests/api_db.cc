@@ -1173,6 +1173,88 @@ static bool test_collapsekey2()
     return true;
 }
 
+// tests that collapse-on-key modifies the predicted bounds for the number of
+// matches appropriately.
+static bool test_collapsekey3()
+{
+    Xapian::Enquire enquire(get_simple_database());
+    init_simple_enquire(enquire);
+
+    Xapian::MSet mymset1 = enquire.get_mset(0, 3);
+
+    for (Xapian::valueno value_no = 1; value_no < 7; ++value_no) {
+	enquire.set_collapse_key(value_no);
+	Xapian::MSet mymset = enquire.get_mset(0, 3);
+
+	TEST_AND_EXPLAIN(mymset1.get_matches_lower_bound() > mymset.get_matches_lower_bound(),
+			 "Lower bound was not lower when performing collapse: don't know whether it worked.");
+	TEST_AND_EXPLAIN(mymset1.get_matches_upper_bound() > mymset.get_matches_upper_bound(),
+			 "Upper bound was not lower when performing collapse: don't know whether it worked.");
+
+	map<string, Xapian::docid> values;
+	Xapian::MSetIterator i = mymset.begin();
+	for ( ; i != mymset.end(); ++i) {
+	    string value = i.get_document().get_value(value_no);
+	    TEST(values[value] == 0 || value == "");
+	    values[value] = *i;
+	}
+    }
+
+    // Test that, if no duplicates are found (eg, by collapsing on key 1000,
+    // which has no entries), the upper bound stays the same, but the lower
+    // bound drops.
+    {
+        Xapian::valueno value_no = 1000;
+	enquire.set_collapse_key(value_no);
+	Xapian::MSet mymset = enquire.get_mset(0, 3);
+
+	TEST_AND_EXPLAIN(mymset1.get_matches_lower_bound() > mymset.get_matches_lower_bound(),
+			 "Lower bound was not lower when performing collapse: don't know whether it worked.");
+	TEST_AND_EXPLAIN(mymset1.get_matches_upper_bound() == mymset.get_matches_upper_bound(),
+			 "Upper bound was not equal when collapse turned on, but no duplicates found.");
+
+	map<string, Xapian::docid> values;
+	Xapian::MSetIterator i = mymset.begin();
+	for ( ; i != mymset.end(); ++i) {
+	    string value = i.get_document().get_value(value_no);
+	    TEST(values[value] == 0 || value == "");
+	    values[value] = *i;
+	}
+    }
+
+    return true;
+}
+
+// tests that collapse-on-key modifies the predicted bounds for the number of
+// matches appropriately even when no results are requested.
+static bool test_collapsekey4()
+{
+    Xapian::Enquire enquire(get_simple_database());
+    init_simple_enquire(enquire);
+
+    Xapian::MSet mymset1 = enquire.get_mset(0, 0);
+
+    for (Xapian::valueno value_no = 1; value_no < 7; ++value_no) {
+	enquire.set_collapse_key(value_no);
+	Xapian::MSet mymset = enquire.get_mset(0, 0);
+
+	TEST_AND_EXPLAIN(mymset.get_matches_lower_bound() == 1,
+			 "Lower bound was not 1 when performing collapse but not asking for any results.");
+	TEST_AND_EXPLAIN(mymset1.get_matches_upper_bound() == mymset.get_matches_upper_bound(),
+			 "Upper bound was changed when performing collapse but not asking for any results.");
+
+	map<string, Xapian::docid> values;
+	Xapian::MSetIterator i = mymset.begin();
+	for ( ; i != mymset.end(); ++i) {
+	    string value = i.get_document().get_value(value_no);
+	    TEST(values[value] == 0 || value == "");
+	    values[value] = *i;
+	}
+    }
+
+    return true;
+}
+
 // tests a reversed boolean query
 static bool test_reversebool1()
 {
@@ -3299,6 +3381,8 @@ test_desc db_tests[] = {
 /// The tests which require a database which supports values > 0 sensibly
 test_desc multivalue_tests[] = {
     {"collapsekey1",	   test_collapsekey1},
+    {"collapsekey3",	   test_collapsekey3},
+    {"collapsekey4",	   test_collapsekey4},
     {0, 0}
 };
 
