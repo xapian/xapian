@@ -7,6 +7,8 @@ AndPostList::process_next_or_skip_to(weight w_min, PostList *ret)
     handle_prune(r, ret);
     if (r->at_end()) return;
 
+    // r has just been advanced by next or skip_to so must be > head
+    // (and head is the current position of l)
     handle_prune(l, l->skip_to(r->get_docid(), w_min));
     if (l->at_end()) return;
 
@@ -43,15 +45,6 @@ AndPostList::AndPostList(PostList *left, PostList *right, Match *root_)
     head = 0;
 }
 
-// left and right are already running so just move them into sync
-// FIXME: rename process_next_or_skip_to to this?
-PostList *
-AndPostList::flying_start(weight w_min)
-{    
-    process_next_or_skip_to(w_min, NULL);
-    return NULL;
-}
-
 PostList *
 AndPostList::next(weight w_min)
 {
@@ -62,6 +55,6 @@ AndPostList::next(weight w_min)
 PostList *
 AndPostList::skip_to(docid id, weight w_min)
 {
-    process_next_or_skip_to(w_min, r->skip_to(id, w_min));
+    if (id > head) process_next_or_skip_to(w_min, r->skip_to(id, w_min));
     return NULL;
 }

@@ -1,7 +1,6 @@
 #include "orpostlist.h"
 #include "andpostlist.h"
 #include "andmaybepostlist.h"
-#include <stdio.h>
 
 OrPostList::OrPostList(PostList *left, PostList *right, Match *root_)
 {
@@ -80,22 +79,30 @@ OrPostList::skip_to(docid id, weight w_min)
     if (w_min > minmax) {
 	// we can replace the OR with another operator
 	PostList *ret;
+	PostList *ret2;
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
-		printf("OR -> AND (in skip_to)\n");
+		cout << "OR -> AND (in skip_to)\n";
 		ret = new AndPostList(l, r, root);
+		id = max(id, max(lhead, rhead));
+		ret2 = ret->skip_to(id, w_min);
 	    } else {
-		printf("OR -> AND MAYBE (in skip_to) (1)\n");
-		ret = new AndMaybePostList(r, l, root);
+		cout << "OR -> AND MAYBE (in skip_to) (1)\n";
+		AndMaybePostList *ret3 = new AndMaybePostList(r, l, root);
+		id = max(id, rhead);
+		ret2 = ret3->sync_and_skip_to(id, w_min, rhead, lhead);
+		ret = ret3;
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
-	    printf("OR -> AND MAYBE (in skip_to) (2)\n");
-	    ret = new AndMaybePostList(l, r, root);
+	    cout << "OR -> AND MAYBE (in skip_to) (2)\n";
+	    AndMaybePostList *ret3 = new AndMaybePostList(l, r, root);
+	    id = max(id, lhead);
+	    ret2 = ret3->sync_and_skip_to(id, w_min, lhead, rhead);
+	    ret = ret3;
 	}
 		
-	PostList *ret2 = ret->skip_to(id, w_min);
 	l = r = NULL;
 	if (ret2) {
 	    delete ret;
@@ -104,17 +111,22 @@ OrPostList::skip_to(docid id, weight w_min)
 	return ret;
     }
 
-    handle_prune(l, l->skip_to(id, w_min));
-    bool ldry = l->at_end();
-
-    handle_prune(r, r->skip_to(id, w_min));
-
-    if (r->at_end()) {
-	PostList *ret = l;
-	l = NULL;
-	return ret;
+    bool ldry = false;
+    if (lhead < id) {
+	handle_prune(l, l->skip_to(id, w_min));
+	ldry = l->at_end();
     }
-    rhead = r->get_docid();
+
+    if (rhead < id) {
+	handle_prune(r, r->skip_to(id, w_min));
+
+	if (r->at_end()) {
+	    PostList *ret = l;
+	    l = NULL;
+	    return ret;
+	}
+	rhead = r->get_docid();
+    }
 
     if (!ldry) {
 	lhead = l->get_docid();

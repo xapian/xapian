@@ -23,7 +23,6 @@ class AndPostList : public virtual BranchPostList {
     
 	PostList *next(weight w_min);
 	PostList *skip_to(docid, weight w_min);
-        PostList *flying_start(weight w_min);
 	bool   at_end() const;
 
         AndPostList(PostList *l, PostList *r, Match *root_);
