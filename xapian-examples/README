@@ -14,8 +14,7 @@ Note that you shouldn't specify relative directories in the
 --with-libomus-uninst* parameters.
 
 Once configure has run successfully, simply running "make" in the top-level
-directory should build the examples.  Note that the "ferretfx" example is
-currently disabled, and won't compile.
+directory should build the examples.
 
 Developers
 ==========
