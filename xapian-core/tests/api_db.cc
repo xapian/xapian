@@ -937,7 +937,7 @@ static bool test_spaceterms1()
     docs = enquire.get_docs(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
-    for (int key_no = 0; key_no < 7; ++key_no) {
+    for (int key_no = 1; key_no < 7; ++key_no) {
 	OmKey key = enquire.get_doc(mymset.begin()).get_key(key_no);
 	TEST_NOT_EQUAL(key.value, "");
     }
@@ -948,7 +948,7 @@ static bool test_spaceterms1()
     docs = enquire.get_docs(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
-    for (int key_no = 0; key_no < 7; ++key_no) {
+    for (int key_no = 1; key_no < 7; ++key_no) {
 	OmKey key = enquire.get_doc(mymset.begin()).get_key(key_no);
 	TEST_NOT_EQUAL(key.value, "");
 	if (key_no == 0) {
@@ -980,6 +980,15 @@ static bool test_specialterms1()
     docs = enquire.get_docs(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
+    for (int key_no = 0; key_no < 7; ++key_no) {
+	OmKey key = enquire.get_doc(mymset.begin()).get_key(key_no);
+	TEST_NOT_EQUAL(key.value, "");
+	if (key_no == 0) {
+	    TEST(key.value.size() > 262);
+	    TEST_EQUAL((unsigned char)(key.value[261]), 255);
+	}
+    }
+    
     init_simple_enquire(enquire,
 			OmQuery(stemmer.stem_word(std::string("big\0zero", 8))));
     mymset = enquire.get_mset(0, 10);
