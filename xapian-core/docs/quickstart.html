@@ -265,14 +265,63 @@ The code to open a database for writing is, then:
 
 <H3>Preparing the new document</H3>
 
+<P>
+Now that we have the database open, we need to prepare a document to put
+in it.  This is done by creating an OmDocumentContents struct, filling
+this with data, and then giving it to the database.
+</P>
+
+<P>
+The first step, then, is to create the document:
+</P>
 <PRE>
-    // Make the document
     OmDocumentContents newdocument;
+</PRE>
 
-    // Put the data in the document
+<P>
+Next, we associate some data with the document.  The meaning of this data
+is entirely user-defined, and is typically structured in some manner to
+contain information such as a URL pointing to the source of the data, and
+some text which is to be displayed when returning the document as a result
+of a search.
+</P>
+<P>
+For our example, we shall simply store the second parameter given on the
+command line in the data field:
+</P>
+<PRE>
     newdocument.data = string(argv[2]);
+</PRE>
 
-    // Put the terms into the document
+<P>
+The next step is to put the terms which are to be used when searching for
+the document into the OmDocumentContents struct.
+The members of the OmDocumentContents struct are all public, so can be
+accessed directly, but there are also some convenience methods to help
+with the process of filling the struct.
+</P>
+<P>
+We shall use the <CODE>add_posting()</CODE> method, which adds an
+occurrence of a term to the struct.  The first parameter is the
+&quot;<EM>termname</EM>&quot;, which is a string defining the term.  This
+string can be anything, as long as the same string is always used to refer
+to the same term.  The string will often be the (possibly stemmed) text
+of the term, but might be in a compressed, or even hashed, form.
+In general, there is no upper limit to the length of a termname, but some
+database methods may impose their own limits.
+</P>
+<P>
+The second parameter is the position at which the term occurs within the
+document.  These positions start at 1.  This information is used for
+some search features such as phrase matching or passage retrieval, but
+is not essential to the search.
+</P>
+
+<P>
+We add postings for terms with the termname given as each of the remaining 
+command line parameters:
+</P>
+<PRE>
     for(int i = 3; i &lt; argc; i++) {
         newdocument.add_posting(argv[i], i - 2);
     }
