@@ -1,7 +1,0 @@
-Makefile.am is part of the xapian make system.  It's consequences
-populate the xapian subdir which is ready for the php make system; 
-suitable for running phpize in directly.
-
-No decision yet made on whether the php build should be able to
-find non-installed libraries.
-

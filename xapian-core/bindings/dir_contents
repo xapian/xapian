@@ -1,5 +1,0 @@
-<Directory>bindings</Directory>
-
-<Description>
-Bindings allowing Xapian to be used from languages other than C++.
-</Description>

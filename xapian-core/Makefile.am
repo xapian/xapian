@@ -9,19 +9,15 @@ remote_subdirs = net
 LIBNET_LA = net/libnet.la
 endif
 
-if BUILD_BINDINGS
-bindings_subdirs = bindings
-endif
-
 # Order is relvant: when building, tests must be at end
 # When installing, should install script and m4 stuff last, in case of failure
 SUBDIRS = include getopt autoconf common \
           api backends matcher languages $(remote_subdirs) \
-	  . bin m4 docs testsuite tests extra $(bindings_subdirs)
+	  . bin m4 docs testsuite tests extra
 
 DIST_SUBDIRS = include getopt autoconf common \
                api backends matcher languages net \
-	       . bin m4 docs testsuite tests extra bindings
+	       . bin m4 docs testsuite tests extra
 
 bin_SCRIPTS = xapian-config
 

@@ -1,3 +1,13 @@
+Thu Jul 10 00:28:25 BST 2003  Olly Betts <olly@survex.com>
+
+	* HACKING,Makefile.am,configure.in,bindings/.cvsignore,
+	  bindings/Makefile.am,bindings/dir_contents,bindings/guile/.cvsignore,
+	  bindings/guile/Makefile.am,bindings/php4/.cvsignore,
+	  bindings/php4/ABOUT,bindings/php4/Makefile.am,bindings/python/,
+	  bindings/swig/,bindings/tcl8/.cvsignore,bindings/tcl8/Makefile.am,
+	  docs/todo.xml: Removed bindings - they'll shortly reappear in a
+	  separate module named xapian-bindings.
+
 Thu Jul 10 00:03:04 BST 2003  Olly Betts <olly@survex.com>
 
 	* bindings/swig/om_util_perl5.i: Removed.

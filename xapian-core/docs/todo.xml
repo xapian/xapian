@@ -81,9 +81,9 @@ Write (speed) performance test suite.
 
 Check for zero byte cleanness wherever strings are used.  There are a
 number of c_str()s in the code, but I believe all in the core library
-(excluding the bindings) are harmless at 2002-04-29.  There may be other zero
+are harmless at 2002-04-29.  There may be other zero
 byte issues though.  xapian-applications/dbtools also uses c_str() where it
-should probably use data() and length().
+should probably use data() and length().  xapian-bindings hasn't been checked.
 
 </todoitem>
 <todoitem priority="M" difficulty="4" owner="" area="General" release="1.0">

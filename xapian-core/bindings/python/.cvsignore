@@ -1,9 +1,0 @@
-.*.swp
-*.lo
-Makefile.in
-Makefile
-.deps
-.libs
-xapian.py
-xapian_wrap.cc
-_xapian.la
