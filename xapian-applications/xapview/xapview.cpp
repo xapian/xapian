@@ -40,6 +40,13 @@
 #include <memory>
 #include <vector>
 
+// C prototypes for callback functions which have to have C style naming.
+extern "C" {
+    void on_query_changed(GtkEditable*,gpointer);
+    void on_results_selection(GtkCList*,gint,gint,GdkEventButton*,gpointer);
+}
+
+
 // FIXME: these 2 copied from om/indexer/index_utils.cc
 static void
 lowercase_term(om_termname &term)
@@ -229,7 +236,7 @@ static void do_topterms() {
 }
 
 void
-on_results_selection(GtkWidget *widget,
+on_results_selection(GtkCList *clist,
 		     gint row,
 		     gint column,
 		     GdkEventButton *event,
@@ -240,8 +247,9 @@ on_results_selection(GtkWidget *widget,
 }
 
 void
-on_query_changed(GtkWidget *widget, gpointer user_data) {
-    GtkEditable *textbox = GTK_EDITABLE(widget);
+on_query_changed(GtkEditable *editable, gpointer user_data)
+{
+    GtkEditable *textbox = editable;
     char *tmp = gtk_editable_get_chars( textbox, 0, -1);
     querystring = std::string(tmp);
     g_free(tmp);
@@ -261,7 +269,7 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	    select_characters(word);
 	    lowercase_term(word);
 	    word = stemmer.stem_word(word);
-	    if (omquery.is_defined()) {
+	    if (!omquery.is_empty()) {
 		omquery = OmQuery(OmQuery::OP_OR, omquery, OmQuery(word, 1, position++));
 	    } else {
 		omquery = OmQuery(word, 1, position++);
