@@ -59,6 +59,9 @@ dnl Checks for library functions.
 AC_FUNC_MEMCMP
 AC_CHECK_FUNCS(strerror)
 
+dnl Add -lsocket to $LDFLAGS if needed (eg Solaris)
+CME_FIND_SOCKETPAIR
+
 dnl Check for sleepycat library.
 dnl FIXME - check for C++ version
 
@@ -309,9 +312,6 @@ AC_TRY_COMPILE(,[return 0],
 		[echo no; CXXFLAGS="$SAVED_CXXFLAGS"])
 unset SAVED_CXXFLAGS
 AC_LANG_RESTORE
-
-dnl Add -lsocket to $LDFLAGS if needed (eg Solaris)
-CME_FIND_SOCKETPAIR
 
 if test "$use_debug" = yes; then
   OPT_LEVEL=""
