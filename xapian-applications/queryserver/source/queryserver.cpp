@@ -278,24 +278,11 @@ serve_client(int sock)
                 dbname = decoded_value;
             } else if (i->first == "query") {
                 try {
-                    // Parse, taking note of any structure.
                     probquery = qp.parse_query(decoded_value);
                 } catch(...) {
-                    // Try again, but first replace all non-alphanumeric
-                    // characters with spaces.
-                    while(true) {
-                        std::string::size_type i;
-                        i = decoded_value.find_first_not_of("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.@ ");
-                        if (i == std::string::npos) break;
-                        decoded_value[i] = ' ';
-                    }
-                    try {
-                        probquery = qp.parse_query(decoded_value);
-                    } catch(...) {
-                        fprintf(stderr, "Error: cannot parse query: `%s'\n",
-                                decoded_value.c_str());
-                        return;
-                    }
+                    fprintf(stderr, "Error: cannot parse query: `%s'\n",
+                            decoded_value.c_str());
+                    return;
                 }
             } else if (i->first == "prefix") {
                 prefix = decoded_value;

@@ -1,3 +1,9 @@
+Wed May 19 16:27:46 BST 2004  Richard Boulton <richard@tartarus.org>
+
+        * Remove the code to strip non-alnums and reprocess the query in
+          case of a failure to parse a query - this is now implemented in
+          the queryparser itself.
+
 Tue May 11 17:15:34 BST 2004  Richard Boulton <richard@tartarus.org>
 
         * If the queryserver can't parse a query, strip out all special
