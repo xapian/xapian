@@ -1,3 +1,7 @@
+Mon Feb 21 20:06:19 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/README: Added list of unwrapped methods and classes.
+
 Mon Feb 21 20:03:06 GMT 2005  Olly Betts <olly@survex.com>
 
 	* java/.cvsignore: Add "built" directory.
