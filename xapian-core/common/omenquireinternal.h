@@ -34,6 +34,43 @@
 
 class OmErrorHandler;
 
+/** An item in the ESet.
+ *  This item contains the termname, and the weight calculated for
+ *  the document.
+ */
+class OmESetItem {
+    public:
+	OmESetItem(om_weight wt_, om_termname tname_)
+		: wt(wt_), tname(tname_) {}
+	/// Weight calculated.
+	om_weight wt;
+	/// Term suggested.
+	om_termname tname;
+	
+	/** Returns a string representing the eset item.
+	 *  Introspection method.
+	 */
+	std::string get_description() const;
+};
+
+class OmESetIterator::Internal {
+    private:
+	friend class OmESetIterator; // allow access to it
+        friend bool operator==(const OmESetIterator &a, const OmESetIterator &b);
+
+	std::vector<OmESetItem>::const_iterator it;
+	std::vector<OmESetItem>::const_iterator end;
+    
+    public:
+        Internal(std::vector<OmESetItem>::const_iterator it_,
+		 std::vector<OmESetItem>::const_iterator end_)
+	    : it(it_), end(end_)
+	{ }
+
+        Internal(const Internal &other) : it(other.it), end(other.end)
+	{ }
+};
+
 /** Internals of enquire system.
  *  This allows the implementation of OmEnquire to be hidden, allows
  *  cleaner pthread locking by separating the API calls from the internals,
@@ -91,6 +128,30 @@ class OmEnquire::Internal {
 
 	om_termname_list get_matching_terms(om_docid did) const;
 	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
+	std::string get_description() const;
+};
+
+class OmExpand;
+
+class OmESet::Internal {
+    friend class OmESet;
+    friend class OmExpand;
+    private:
+	/// A list of items comprising the (selected part of the) eset.
+	std::vector<OmESetItem> items;
+
+	/** A lower bound on the number of terms which are in the full
+	 *  set of results of the expand.  This will be greater than or
+	 *  equal to items.size()
+	 */
+	om_termcount ebound;
+
+    public:
+	Internal() : ebound(0) {}
+
+	/** Returns a string representing the eset.
+	 *  Introspection method.
+	 */
 	std::string get_description() const;
 };
 

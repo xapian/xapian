@@ -199,7 +199,7 @@ SocketServer::run()
 }
 
 static OmLineBuf *snooper_buf; // FIXME FIXME FIXME
-static snooper_do_collapse;
+static bool snooper_do_collapse;
 
 void
 match_snooper(const OmMSetItem &i)

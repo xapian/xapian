@@ -353,7 +353,7 @@ SocketClient::open_postlist(om_doccount first, om_doccount maxitems,
 	case state_sendglobal:
 	    throw OmInvalidArgumentError("open_postlist called before global stats given", context);
 	    break;
-	case state_getmset:
+	case state_getmset: {
 
 	    // Message 5 (see README_progprotocol.txt)
 	    do_write("G" + stats_to_string(global_stats) + '\n' +
@@ -377,6 +377,9 @@ SocketClient::open_postlist(om_doccount first, om_doccount maxitems,
 	    Assert(!message.empty() && message[0] == 'O');
 	    term_info = string_to_ommset_termfreqwts(message.substr(1));
 	    conv_state = state_getresult;
+	}
+	case state_getresult: // avoid compiler warning
+	    break;
     } // switch (conv_state)
     RETURN(false);
 }

@@ -225,28 +225,130 @@ OmESetItem::get_description() const
 // Methods for OmESet //
 ////////////////////////
 
+OmESet::OmESet() : internal(new OmESet::Internal()) {}
+
+om_termcount
+OmESet::get_ebound() const
+{
+    return internal->ebound;
+}
+
+om_termcount
+OmESet::size() const
+{
+    return internal->items.size();
+}
+
+OmESetIterator
+OmESet::begin() const
+{
+    return OmESetIterator(new OmESetIterator::Internal(internal->items.begin(),
+						       internal->items.end()));
+}
+
+OmESetIterator
+OmESet::end() const
+{
+    return OmESetIterator(NULL);
+}
+
 std::string
 OmESet::get_description() const
 {
     DEBUGCALL(INTRO, std::string, "OmESet::get_description", "");
-    std::string description;
+    RETURN("OmESet(" + internal->get_description() + ")");
+}
 
-    description = "ebound=" + om_tostring(ebound);
+//////////////////////////////////
+// Methods for OmESet::Internal //
+//////////////////////////////////
+
+std::string
+OmESet::Internal::get_description() const
+{
+    DEBUGCALL(INTRO, std::string, "OmESet::Internal::get_description", "");
+    std::string description = "ebound=" + om_tostring(ebound);
 
     for (std::vector<OmESetItem>::const_iterator i = items.begin();
 	 i != items.end();
 	 i++) {
-	if (description != "") description += ", ";
-	description += i->get_description();
+	description += ", " + i->get_description();
     }
 
-    description = "OmESet(" + description + ")";
-    RETURN(description);
+    RETURN("OmESet::Internal(" + description + ")");
 }
 
-///////////////////////////////////
+// OmESetIterator
+
+OmESetIterator::OmESetIterator(Internal *internal_) : internal(internal_)
+{
+}
+
+OmESetIterator::~OmESetIterator()
+{
+    delete internal;
+}
+
+OmESetIterator::OmESetIterator(const OmESetIterator &other)
+    : internal(new OmESetIterator::Internal(*(other.internal)))
+{
+}
+
+void
+OmESetIterator::operator=(const OmESetIterator &other)
+{
+    internal->it = other.internal->it;
+    internal->end = other.internal->end;
+}
+
+OmESetIterator &
+OmESetIterator::operator++()
+{
+    ++internal->it;
+    if (internal->it == internal->end) {
+	delete internal;
+	internal = NULL;
+    }
+    return *this;
+}
+
+void
+OmESetIterator::operator++(int)
+{
+    ++internal->it;
+    if (internal->it == internal->end) {
+	delete internal;
+	internal = NULL;
+    }
+}
+
+const om_termname &
+OmESetIterator::operator *() const
+{
+    return internal->it->tname;
+}
+
+om_weight
+OmESetIterator::get_weight() const
+{
+    return internal->it->wt;
+}
+
+std::string
+OmESetIterator::get_description() const
+{
+    return "OmESetIterator()"; // FIXME
+}
+
+bool
+operator==(const OmESetIterator &a, const OmESetIterator &b)
+{
+    return (a.internal->it == b.internal->it);
+}
+
+/////////////////////////////////////
 // Methods for OmEnquire::Internal //
-///////////////////////////////////
+/////////////////////////////////////
 
 OmEnquire::Internal::Internal(const OmDatabase &db_,
 				     OmErrorHandler * errorhandler_)

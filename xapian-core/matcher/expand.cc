@@ -31,12 +31,14 @@
 #include "omdatabaseinterface.h"
 #include "../api/omdatabaseinternal.h"
 
+#include "omenquireinternal.h"
+
 class OmESetCmp {
     public:
         bool operator()(const OmESetItem &a, const OmESetItem &b) {
-	    if (a.get_weight() > b.get_weight()) return true;
-	    if (a.get_weight() != b.get_weight()) return false;
-	    return a.get_termname() > b.get_termname();
+	    if (a.wt > b.wt) return true;
+	    if (a.wt != b.wt) return false;
+	    return a.tname > b.tname;
         }
 };
 
@@ -116,8 +118,8 @@ OmExpand::expand(om_termcount max_esize,
 		 const OmExpandDecider * decider,
 		 bool use_exact_termfreq)
 {
-    eset.items.clear();
-    eset.ebound = 0;
+    eset.internal->items.clear();
+    eset.internal->ebound = 0;
 
     DEBUGLINE(EXPAND, "OmExpand::expand()");
     if (rset->get_rsize() == 0 || max_esize == 0)
@@ -147,50 +149,50 @@ OmExpand::expand(om_termcount max_esize,
 
 	om_termname tname = merger->get_termname();
 	if((*decider)(tname)) {
-	    eset.ebound++;
+	    eset.internal->ebound++;
 
 	    OmExpandBits ebits = merger->get_weighting();
 	    om_weight wt = ewt.get_weight(ebits, tname);
 
 	    if (wt > w_min) {
-		eset.items.push_back(OmESetItem(wt, tname));
+		eset.internal->items.push_back(OmESetItem(wt, tname));
 
 		// FIXME: find balance between larger size for more efficient
 		// nth_element and smaller size for better w_min optimisations
-		if (eset.items.size() == max_esize * 2) {
+		if (eset.internal->items.size() == max_esize * 2) {
 		    // find last element we care about
 		    DEBUGLINE(EXPAND, "finding nth");
-		    std::nth_element(eset.items.begin(),
-				eset.items.begin() + max_esize - 1,
-				eset.items.end(),
+		    std::nth_element(eset.internal->items.begin(),
+				eset.internal->items.begin() + max_esize - 1,
+				eset.internal->items.end(),
 				OmESetCmp());
 		    // erase elements which don't make the grade
-		    eset.items.erase(eset.items.begin() + max_esize,
-				     eset.items.end());
-		    w_min = eset.items.back().wt;
-		    DEBUGLINE(EXPAND, "eset size = " << eset.items.size());
+		    eset.internal->items.erase(eset.internal->items.begin() + max_esize,
+				     eset.internal->items.end());
+		    w_min = eset.internal->items.back().wt;
+		    DEBUGLINE(EXPAND, "eset size = " << eset.internal->items.size());
 		}
 	    }
 	}
     }
 
-    if (eset.items.size() > max_esize) {
+    if (eset.internal->items.size() > max_esize) {
 	// find last element we care about
 	DEBUGLINE(EXPAND, "finding nth");
-	std::nth_element(eset.items.begin(),
-		    eset.items.begin() + max_esize - 1,
-		    eset.items.end(), OmESetCmp());
+	std::nth_element(eset.internal->items.begin(),
+		    eset.internal->items.begin() + max_esize - 1,
+		    eset.internal->items.end(), OmESetCmp());
 	// erase elements which don't make the grade
-	eset.items.erase(eset.items.begin() + max_esize, eset.items.end());
+	eset.internal->items.erase(eset.internal->items.begin() + max_esize, eset.internal->items.end());
     }
     DEBUGLINE(EXPAND, "sorting");
 
     // Need a stable sort, but this is provided by comparison operator
-    std::sort(eset.items.begin(), eset.items.end(), OmESetCmp());
+    std::sort(eset.internal->items.begin(), eset.internal->items.end(), OmESetCmp());
 
-    DEBUGLINE(EXPAND, "esize = " << eset.items.size() << ", ebound = " << eset.ebound);
-    if (eset.items.size()) {
-	DEBUGLINE(EXPAND, "max weight in eset = " << eset.items.front().wt
-		 << ", min weight in eset = " << eset.items.back().wt);
+    DEBUGLINE(EXPAND, "esize = " << eset.internal->items.size() << ", ebound = " << eset.internal->ebound);
+    if (eset.internal->items.size()) {
+	DEBUGLINE(EXPAND, "max weight in eset = " << eset.internal->items.front().wt
+		 << ", min weight in eset = " << eset.internal->items.back().wt);
     }
 }

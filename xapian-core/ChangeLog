@@ -1,3 +1,11 @@
+Sun Dec 10 16:55:17 GMT 2000 Olly Betts
+
+	* OmESetItem is dead - long live OmESetIterator!
+
+	* net/socketclient.cc: fixed compiler warning.
+
+	* net/socketserver.cc: fixed compiler warning.
+
 Sun Dec 10 13:29:15 GMT 2000 Olly Betts
 
 	* Started to encapsulate OmESet/OmESetItem interface.  Interface is

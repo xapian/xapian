@@ -464,7 +464,7 @@ static bool test_expandfunctor1()
     unsigned int neweset_size = 0;
     OmESetIterator i = myeset_orig.begin();
     for ( ; i != myeset_orig.end(); ++i) {
-        if (myfunctor(i->get_termname())) neweset_size++;
+        if (myfunctor(*i)) neweset_size++;
     }
     OmESet myeset = enquire.get_eset(neweset_size, myrset, 0, &myfunctor);
 
@@ -486,18 +486,17 @@ static bool test_expandfunctor1()
     OmESetIterator filt = myeset.begin();
     for (; orig != myeset_orig.end() && filt != myeset.end(); ++orig, ++filt) {
 	// skip over items that shouldn't be in myeset
-	while (orig != myeset_orig.end() && !myfunctor(orig->get_termname())) {
+	while (orig != myeset_orig.end() && !myfunctor(*orig)) {
 	    ++orig;
 	}
 
-	TEST_AND_EXPLAIN(orig->get_termname() == filt->get_termname() &&
-			 orig->get_weight() == filt->get_weight(),
-			 "Mismatch in items " << orig->get_termname()
-			 << " vs. " << filt->get_termname()
+	TEST_AND_EXPLAIN(*orig == *filt &&
+			 orig.get_weight() == filt.get_weight(),
+			 "Mismatch in items " << *orig << " vs. " << *filt
 			 << " after filtering");
     }
 
-    while (orig != myeset_orig.end() && !myfunctor(orig->get_termname())) {
+    while (orig != myeset_orig.end() && !myfunctor(*orig)) {
 	++orig;
     }
 
@@ -615,7 +614,7 @@ static bool test_allowqterms1()
     OmESet myeset = enquire.get_eset(1000, myrset, &eopt);
     OmESetIterator i = myeset.begin();
     for ( ; i != myeset.end(); ++i) {
-        TEST_NOT_EQUAL(i->get_termname(), "thi");
+        TEST_NOT_EQUAL(*i, "thi");
     }
 
     return true;
@@ -1225,8 +1224,8 @@ static bool test_termlisttermfreq1()
     {
 	OmESetIterator i = eset1.begin();
 	for ( ; i != eset1.end(); i++) {
-	    if (i->get_termname() == theterm) {
-		wt1 = i->get_weight();
+	    if (*i == theterm) {
+		wt1 = i.get_weight();
 		break;
 	    }
 	}
@@ -1234,8 +1233,8 @@ static bool test_termlisttermfreq1()
     {
 	OmESetIterator i = eset2.begin();
 	for ( ; i != eset2.end(); i++) {
-	    if (i->get_termname() == theterm) {
-		wt2 = i->get_weight();
+	    if (*i == theterm) {
+		wt2 = i.get_weight();
 		break;
 	    }
 	}
@@ -1289,9 +1288,9 @@ static bool test_multiexpand1()
     bool all_iwts_equal_jwts = true;
     for ( ; i != eset1.end(), j != eset2.end(), k != eset3.end();
 	 i++, j++, k++) {
-	if (i->get_weight() != j->get_weight()) all_iwts_equal_jwts = false;
-	TEST_EQUAL(i->get_weight(), k->get_weight());
-	TEST_EQUAL(i->get_termname(), k->get_termname());
+	if (i.get_weight() != j.get_weight()) all_iwts_equal_jwts = false;
+	TEST_EQUAL(i.get_weight(), k.get_weight());
+	TEST_EQUAL(*i, *k);
     }
     TEST(!all_iwts_equal_jwts);
     return true;

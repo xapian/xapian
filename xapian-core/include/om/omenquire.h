@@ -232,66 +232,87 @@ class OmMSet {
 	std::string get_description() const;
 };
 
-///////////////////////////////////////////////////////////////////
-// OmESet class
-// =============
-// Representation a set of expand terms
-
-/** An item in the ESet.
- *  This item contains the termname, and the weight calculated for
- *  the document.
- */
-class OmESetItem {
-    friend class OmExpand;
+class OmESetIterator {
     private:
-	OmESetItem(om_weight wt_, om_termname tname_)
-		: wt(wt_), tname(tname_) {}
-	/// Weight calculated.
-	om_weight wt;
-	/// Term suggested.
-	om_termname tname;
+	friend class OmESet; // So OmESet can construct us
+
+	class Internal;
+
+	Internal *internal; // reference counted internals
+
+        friend bool operator==(const OmESetIterator &a, const OmESetIterator &b);
+
+	OmESetIterator(Internal *internal_);
 
     public:
-	/// Weight calculated.
-	om_weight get_weight() const { return wt; }
+        ~OmESetIterator();
 
-	/// Term suggested.
-	om_termname get_termname() const { return tname; }
-	
-	/** Returns a string representing the eset item.
+	/// Copying is allowed (and is cheap).
+	OmESetIterator(const OmESetIterator &other);
+
+        /// Assignment is allowed (and is cheap).
+	void operator=(const OmESetIterator &other);
+
+	OmESetIterator & operator++();
+
+	void operator++(int);
+
+	/// Get the term for the current position
+	const om_termname & operator *() const;
+
+	/// Get the weight of the term at the current position
+        om_weight get_weight() const;
+
+	/** Returns a string describing this object.
 	 *  Introspection method.
 	 */
 	std::string get_description() const;
+
+	/// Allow use as an STL iterator
+	//@{	
+	typedef std::input_iterator_tag iterator_category;
+	// FIXME: these are almost certainly wrong:
+	typedef om_docid value_type;
+	typedef om_docid difference_type;
+	typedef om_docid * pointer;
+	typedef om_docid & reference;
+	//@}
 };
 
-typedef	std::vector<OmESetItem>::const_iterator OmESetIterator;
+class OmESetIterator;
 
-/** Class representing an ESet.
+inline bool operator!=(const OmESetIterator &a,
+		       const OmESetIterator &b)
+{
+    return !(a == b);
+}
+
+/** Class representing a set of expand terms (an ESet).  The ESet is
+ *  ordered so it's not really a set in the mathematical sense.
  *  This set represents the results of an expand operation, which can be
  *  performed by OmEnquire::get_eset().
  */
 class OmESet {
     friend class OmExpand;
     private:
-	/// A list of items comprising the (selected part of the) eset.
-	std::vector<OmESetItem> items;
+	class Internal;
+	
+	Internal *internal; // reference counted internals
+
+    public:
+	OmESet();
 
 	/** A lower bound on the number of terms which are in the full
 	 *  set of results of the expand.  This will be greater than or
-	 *  equal to items.size()
+	 *  equal to size()
 	 */
-	om_termcount ebound;
+	om_termcount get_ebound() const;
 
-    public:
-	OmESet() : ebound(0) {}
+	om_termcount size() const;
 
-	om_termcount get_ebound() const { return ebound; }
+	OmESetIterator begin() const;
 
-	om_termcount size() const { return items.size(); }
-
-	OmESetIterator begin() const { return items.begin(); }
-
-	OmESetIterator end() const { return items.end(); }
+	OmESetIterator end() const;
 
 	/** Returns a string representing the eset.
 	 *  Introspection method.
