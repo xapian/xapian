@@ -1,3 +1,8 @@
+Fri Jan 12 12:52:57 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Turn debugging off in btree.cc: accidentally committed a version
+	  with lots of verbose debugging on.
+
 Fri Jan 12 11:16:17 GMT 2001 Olly Betts
 
 	* glibc 2.2 needs `#define _GNU_SOURCE' to give us RTLD_NEXT.

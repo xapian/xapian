@@ -48,8 +48,8 @@
 #include <string>
 #include <algorithm>  // for std::min()
 
-#define BTREE_DEBUG_FULL 1
-//#undef BTREE_DEBUG_FULL
+//#define BTREE_DEBUG_FULL 1
+#undef BTREE_DEBUG_FULL
 
 #ifdef BTREE_DEBUG_FULL
 /*------debugging aids from here--------*/
