@@ -713,7 +713,7 @@ sub derive_change_log ()
     print LOG_OUT $ChangeLog_Header;
 
     if ($XML_Output) {
-      print LOG_OUT "<?xml version=\"1.0\"?>\n\n"
+	print LOG_OUT "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n\n" 
           . "<changelog xmlns=\"http://www.red-bean.com/xmlns/cvs2cl/\">\n\n";
     }
 
