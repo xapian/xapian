@@ -64,6 +64,10 @@ om_queryop transOp (JNIEnv* env, jstring op) {
 	ret = OM_MOP_AND_MAYBE;
     else if (! strcasecmp (op_n, "FILTER")) 
 	ret = OM_MOP_FILTER;
+    else if (! strcasecmp (op_n, "NEAR"))
+	ret = OM_MOP_NEAR;
+    else if (! strcasecmp (op_n, "PHRASE"))
+	ret = OM_MOP_PHRASE;
 	
     env->ReleaseStringUTFChars (op, op_n);
 
@@ -93,10 +97,10 @@ JNIEXPORT jlong JNICALL Java_com_muscat_om_OmQuery_createNativeObject__Ljava_lan
 /*
  * Class:     com_muscat_om_OmQuery
  * Method:    createNativeObject
- * Signature: (Ljava/lang/String;[Ljava/lang/String;)J
+ * Signature: (Ljava/lang/String;[Ljava/lang/String;I)J
  */
-JNIEXPORT jlong JNICALL Java_com_muscat_om_OmQuery_createNativeObject__Ljava_lang_String_2_3Ljava_lang_String_2
-  (JNIEnv *env, jobject obj, jstring op, jobjectArray terms)
+JNIEXPORT jlong JNICALL Java_com_muscat_om_OmQuery_createNativeObject__Ljava_lang_String_2_3Ljava_lang_String_2I
+  (JNIEnv *env, jobject obj, jstring op, jobjectArray terms, jint window)
 {
 
     vector<om_termname> terms_n;
@@ -109,7 +113,8 @@ JNIEXPORT jlong JNICALL Java_com_muscat_om_OmQuery_createNativeObject__Ljava_lan
     
     om_queryop op_n = transOp (env, op);
     
-    return (jlong) new OmQuery (op_n, terms_n.begin(), terms_n.end());
+    return (jlong) new OmQuery (op_n, terms_n.begin(),
+				terms_n.end(), (om_termpos)window);
 }
 
 /*

@@ -26,11 +26,17 @@ public class OmQuery extends OmObject {
     }
     protected native long createNativeObject (String op, OmQuery left, OmQuery right);
 
-    /** A query consisting of individual terms op'd together */
+    /** A query consisting of individual terms op'd together (with window
+     *  parameter defaulted)
+     */
     public OmQuery (String op, String[] terms) throws OmError {
-	nativePtr = createNativeObject (op, terms);
+        this(op, terms, 0);
     }
-    protected native long createNativeObject (String op, String[] terms);
+    /** A query consisting of individual terms op'd together */
+    public OmQuery (String op, String[] terms, int window) throws OmError {
+	nativePtr = createNativeObject (op, terms, window);
+    }
+    protected native long createNativeObject (String op, String[] terms, int window);
 
     /** get terms in query */
     public native String[] get_terms ();

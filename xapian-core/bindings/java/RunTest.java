@@ -25,6 +25,7 @@ import java.io.*;
 
 public class RunTest {
     public static void main (String[] args) throws Throwable {
+    	// First some quick playing with stemmers and queries.
     	OmStem foo = new OmStem("english");
 
 	System.out.println(foo.stem_word("giraffe"));
@@ -35,5 +36,23 @@ public class RunTest {
 	String[] baz_ = { "giraff", "lion" };
 	OmQuery baz = new OmQuery("FILTER", baz_);
 	System.out.println(baz.get_description());
+
+	baz = new OmQuery("NEAR", baz_, 3);
+	System.out.println(baz.get_description());
+
+	OmQuery myquery = new OmQuery("OR",
+				      new OmQuery("AND",
+				                  new OmQuery("one", 1, 1),
+						  new OmQuery("three", 1, 3)),
+				      new OmQuery("OR",
+				                  new OmQuery("four", 1, 4),
+						  new OmQuery("two", 1, 2)));
+
+	String[] terms = myquery.get_terms();
+	System.out.print("terms = ");
+	for (int i=0; i<terms.length; ++i) {
+	    System.out.print(terms[i] + " ");
+	}
+	System.out.println("");
     }
 }
