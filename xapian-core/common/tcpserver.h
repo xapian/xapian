@@ -74,6 +74,11 @@ class TcpServer {
 	/** Handle one incoming connection and stop.
 	 */
 	void run_once();
+	
+	/** Signal handlers
+	 */
+	static void on_SIGTERM(int);
+	static void on_SIGCLD(int);
 };
 
 #endif  /* OM_HGUARD_TCPGSERVER_H */

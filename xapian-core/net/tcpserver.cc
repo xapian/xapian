@@ -21,6 +21,8 @@
  */
 
 #include "config.h"
+// need _POSIX_SOURCE to get kill() on Linux
+#define _POSIX_SOURCE 1
 #include "tcpserver.h"
 #include "database.h"
 #include "stats.h"
@@ -37,7 +39,10 @@
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <netdb.h>
+#include <signal.h>
+#include <sys/wait.h>
 
 /// The TcpServer constructor, taking a database and a listening port.
 TcpServer::TcpServer(OmRefCntPtr<MultiDatabase> db_,
@@ -105,6 +110,7 @@ TcpServer::get_connected_socket()
 {
     struct sockaddr_in remote_address;
     socklen_t remote_address_size = sizeof(remote_address);
+    // accept connections
     int con_socket = accept(listen_socket,
 			    reinterpret_cast<sockaddr *>(&remote_address),
 			    &remote_address_size);
@@ -117,7 +123,6 @@ TcpServer::get_connected_socket()
 	throw OmNetworkError("accept: unexpected remote address size");
     }
 
-    // Note: this bit is probably not threadsafe.
     struct in_addr address = remote_address.sin_addr;
     struct hostent *hent = gethostbyaddr(reinterpret_cast<char *>(&address),
 					 sizeof(address),
@@ -130,7 +135,7 @@ TcpServer::get_connected_socket()
     }
 
     cout << "Connection from " << hent->h_name << ", port " <<
-	    remote_address.sin_port << "\n";
+	    remote_address.sin_port << endl;
 
     return con_socket;
 }
@@ -143,20 +148,69 @@ TcpServer::~TcpServer()
 void
 TcpServer::run_once()
 {
-    SocketServer sserv(db, get_connected_socket());
-
-    sserv.run();
+    int connected_socket=get_connected_socket();
+    int pid = fork();
+    if (pid==0) {
+	// child code
+	close(listen_socket);
+	SocketServer sserv(db, connected_socket);
+	sserv.run();
+	cout << "Closing connection.\n";
+	close(connected_socket);
+	exit(0);
+    } else if (pid > 0) {
+	// parent code
+	close(connected_socket);
+    } else {
+	// fork() failed
+	std::string errormsg = std::string("fork():") + strerror(errno);
+	close(connected_socket);
+	throw OmNetworkError(errormsg);
+    }
 }
 
 void
 TcpServer::run()
 {
+    // set up signal handlers
+#ifndef HAVE_WAITPID
+    signal(SIGCLD,SIG_IGN);
+#else
+    signal(SIGCLD,on_SIGCLD);
+#endif
+    signal(SIGTERM, on_SIGTERM);
     while (1) {
 	try {
 	    run_once();
+	} catch (OmError &err) {
+	    // FIXME: better error handling.
+	    std::cerr << "Caught " << err.get_type()
+		      << ": " << err.get_msg() << endl;
 	} catch (...) {
 	    // FIXME: better error handling.
-	    std::cerr << "Caught exception." << "\n";
+	    std::cerr << "Caught exception." << endl;
 	}
     }
+}
+
+//////////////////////////////////////////////////////////////
+void
+TcpServer::on_SIGTERM (int sig)
+{
+    signal (SIGTERM, SIG_DFL);
+    /* terminate all processes in my process group */
+#ifdef HAVE_KILLPG
+    killpg(0, SIGTERM);
+#else
+    kill(0, SIGTERM);
+#endif
+    exit (0);
+}
+
+//////////////////////////////////////////////////////////////
+void 
+TcpServer::on_SIGCLD (int sig)
+{    
+    int status;
+    while (waitpid(-1, &status, WNOHANG) > 0);
 }

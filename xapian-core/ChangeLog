@@ -1,3 +1,8 @@
+Tue Aug 15 15:19:45 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Incorporated Jon Fielder's patches to TcpServer - it's now a
+	  forking server rather than serving connections one at a time.
+
 Tue Aug 15 14:47:06 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Link quartz database into DatabaseBuilder and testsuite.  Now
