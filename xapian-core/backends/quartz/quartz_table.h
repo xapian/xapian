@@ -52,9 +52,23 @@ class QuartzCursor {
 	/// Destroy the cursor
 	~QuartzCursor() { Bcursor_lose(cursor); }
 
-	/** Current tag.
+	/** Iterator in buffered table.
+	 *
+	 *  FIXME: This item only used by buffered tables.
 	 */
-	QuartzDbTag tag;
+	QuartzTableEntries::items::const_iterator iter;
+
+	/** Current key.
+	 *
+	 *  FIXME: This item only used by buffered tables.
+	 */
+	QuartzDbKey current_key;
+
+	/** Current tag.
+	 *
+	 *  FIXME: This item only used by buffered tables.
+	 */
+	QuartzDbTag current_tag;
 
 	/** Whether the cursor is positioned at a valid entry.
 	 */

@@ -27,6 +27,8 @@
 
 QuartzTableEntries::QuartzTableEntries()
 {
+    QuartzDbKey key;
+    entries[key] = 0;
 }
 
 QuartzTableEntries::~QuartzTableEntries()
@@ -38,7 +40,7 @@ QuartzDbTag *
 QuartzTableEntries::get_tag(const QuartzDbKey &key)
 {
     Assert(key.value != "");
-    std::map<QuartzDbKey, QuartzDbTag *>::iterator i = entries.find(key);
+    items::iterator i = entries.find(key);
     Assert(i != entries.end());
     return i->second;
 }
@@ -46,6 +48,7 @@ QuartzTableEntries::get_tag(const QuartzDbKey &key)
 const QuartzDbTag *
 QuartzTableEntries::get_tag(const QuartzDbKey &key) const
 {
+    Assert(key.value != "");
     return const_cast<QuartzTableEntries *>(this)->get_tag(key);
 }
 
@@ -54,6 +57,42 @@ QuartzTableEntries::have_entry(const QuartzDbKey &key) const
 {
     Assert(key.value != "");
     return (entries.find(key) != entries.end());
+}
+
+QuartzTableEntries::items::const_iterator
+QuartzTableEntries::get_iterator(const QuartzDbKey & key) const
+{
+    Assert(key.value != "");
+    items::const_iterator result = entries.lower_bound(key);
+
+    if (result != entries.end() && result->first.value == key.value) {
+	// Exact match
+	return result;
+    }
+
+    // There should always be at least the null entry before this match.
+    Assert (result != entries.begin());
+
+    // Point to match _before_ that searched for.
+    result--;
+
+    return result;
+}
+
+bool
+QuartzTableEntries::get_item_and_advance(items::const_iterator iter,
+					 const QuartzDbKey ** keyptr,
+					 const QuartzDbTag ** tagptr) const
+{
+    if (iter == entries.end()) {
+	return false;
+    }
+
+    *keyptr = &(iter->first);
+    *tagptr = iter->second;
+
+    iter++;
+    return true;
 }
 
 bool
@@ -66,7 +105,7 @@ void
 QuartzTableEntries::set_tag(const QuartzDbKey &key, AutoPtr<QuartzDbTag> tag)
 {
     Assert(key.value != "");
-    std::map<QuartzDbKey, QuartzDbTag *>::iterator i = entries.find(key);
+    items::iterator i = entries.find(key);
 
     if (i == entries.end()) {
 	entries[key] = tag.get();
@@ -80,15 +119,17 @@ QuartzTableEntries::set_tag(const QuartzDbKey &key, AutoPtr<QuartzDbTag> tag)
 void
 QuartzTableEntries::clear()
 {
-    std::map<QuartzDbKey, QuartzDbTag *>::iterator i;
+    items::iterator i;
     for (i = entries.begin(); i != entries.end(); i++) {
 	delete (i->second);
 	i->second = 0;
     }
     entries.clear();
+    QuartzDbKey key;
+    entries[key] = 0;
 }
 
-std::map<QuartzDbKey, QuartzDbTag *> &
+QuartzTableEntries::items &
 QuartzTableEntries::get_all_entries()
 {
     return entries;

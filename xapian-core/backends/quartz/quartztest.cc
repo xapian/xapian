@@ -153,11 +153,19 @@ static void check_table_values_empty(QuartzDiskTable & table)
 #endif
 }
 
+static void unlink_table(const string & path)
+{
+    unlink((path + "DB").c_str());
+    unlink((path + "baseA").c_str());
+    unlink((path + "baseB").c_str());
+    unlink((path + "bitmapA").c_str());
+    unlink((path + "bitmapB").c_str());
+}
+
 /// Test making and playing with a QuartzDiskTable
 static bool test_disktable1()
 {
-    unlink("./test_dbtable1_data_1");
-    unlink("./test_dbtable1_data_2");
+    unlink_table("./test_dbtable1_");
     {
 	QuartzDiskTable table0("./test_dbtable1_", true, 0);
 	TEST_EXCEPTION(OmOpeningError, table0.open());
@@ -335,8 +343,7 @@ static bool test_tableentries1()
 /// Test making and playing with a QuartzBufferedTable
 static bool test_bufftable1()
 {
-    unlink("./test_bufftable1_data_1");
-    unlink("./test_bufftable1_data_2");
+    unlink_table("test_bufftable1_");
     QuartzDiskTable disktable1("./test_bufftable1_", false, 8192);
     disktable1.open();
     QuartzBufferedTable bufftable1(&disktable1);
@@ -400,8 +407,7 @@ static bool test_bufftable1()
 /// Test making and playing with a QuartzBufferedTable
 static bool test_bufftable2()
 {
-    unlink("./test_bufftable2_data_1");
-    unlink("./test_bufftable2_data_2");
+    unlink_table("test_bufftable2_");
     quartz_revision_number_t new_revision;
     quartz_revision_number_t old_revision;
     {
@@ -445,7 +451,7 @@ static bool test_bufftable2()
 	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
 
 	key.value = "foo";
-	tag.value = "";
+	tag.value = "bar";
 	AutoPtr<QuartzCursor> cursor(bufftable.make_cursor());
 	TEST(!bufftable.get_nearest_entry(key, tag, *cursor));
 	TEST_EQUAL(key.value, "");
@@ -562,8 +568,7 @@ static bool test_bufftable2()
 /// Test QuartzCursors
 static bool test_cursor1()
 {
-    unlink("./test_cursor1_data_1");
-    unlink("./test_cursor1_data_2");
+    unlink_table("./test_cursor1_");
 
     QuartzDbKey key;
     QuartzDbTag tag;

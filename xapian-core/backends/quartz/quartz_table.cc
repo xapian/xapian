@@ -140,7 +140,7 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 	return false;
     }
 
-    Assert(btree_for_writing->revision_number = revision);
+    AssertEq(btree_for_writing->revision_number, revision);
 
     btree_for_reading = Btree_open_to_read_revision(path.c_str(),
 				btree_for_writing->revision_number);
@@ -151,7 +151,7 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 	return false;
     }
 
-    Assert(btree_for_reading->revision_number = revision);
+    AssertEq(btree_for_reading->revision_number, revision);
 
     opened = true;
     return true;
@@ -202,13 +202,21 @@ QuartzDiskTable::get_nearest_entry(QuartzDbKey &key,
     Assert(!(key.value.empty()));
 
     int found = Bcursor_find_key(cursor.cursor, key.value.data(), key.value.size());
+    // FIXME: check for errors
 
     Btree_item * item = Btree_item_create();
-    cursor.is_positioned = Bcursor_get_tag(cursor.cursor, item);
+    // FIXME: check for errors
 
-    // FIXME: unwanted copy
+    int err = Bcursor_get_key(cursor.cursor, item);
+    Assert(err != 0); // Must be positioned
+    // FIXME: check for errors
+
+    cursor.is_positioned = Bcursor_get_tag(cursor.cursor, item);
+    // FIXME: check for errors
+
+    // FIXME: unwanted copies
+    key.value = string(reinterpret_cast<char *>(item->key), item->key_len);
     tag.value = string(reinterpret_cast<char *>(item->tag), item->tag_len);
-    Assert(key.value == string(reinterpret_cast<char *>(item->key), item->key_len));
 
     Btree_item_lose(item);
 
@@ -345,7 +353,7 @@ QuartzBufferedTable::apply(quartz_revision_number_t new_revision)
 	throw;
     }
     changed_entries.clear();
-    Assert(entry_count == disktable->get_entry_count());
+    AssertEq(entry_count, disktable->get_entry_count());
     return result;
 }
 
@@ -375,7 +383,7 @@ QuartzBufferedTable::get_tag(const QuartzDbKey &key)
 
 	if (found) {
 	    changed_entries.set_tag(key, tag);
-	    Assert(changed_entries.get_tag(key) == tagptr);
+	    AssertEq(changed_entries.get_tag(key), tagptr);
 	} else {
 	    tagptr = 0;
 	}
@@ -399,7 +407,7 @@ QuartzBufferedTable::get_or_make_tag(const QuartzDbKey &key)
 	    changed_entries.set_tag(key, tag);
 	    entry_count += 1;
 
-	    Assert(changed_entries.get_tag(key) == tagptr);
+	    AssertEq(changed_entries.get_tag(key), tagptr);
 	    Assert(tag.get() == 0);
 
 	    return tagptr;
@@ -421,7 +429,7 @@ QuartzBufferedTable::get_or_make_tag(const QuartzDbKey &key)
 	entry_count += 1;
     }
     Assert(changed_entries.have_entry(key));
-    Assert(changed_entries.get_tag(key) == tagptr);
+    AssertEq(changed_entries.get_tag(key), tagptr);
     Assert(tag.get() == 0);
 
     return tagptr;
@@ -455,8 +463,58 @@ QuartzBufferedTable::get_nearest_entry(QuartzDbKey &key,
 				       QuartzDbTag &tag,
 				       QuartzCursor &cursor) const
 {
-    // FIXME: look up in changed_entries too.
-    return disktable->get_nearest_entry(key, tag, cursor);
+    Assert(key.value != "");
+
+    // Whether we have an exact match.
+    bool have_exact;
+
+    // Set disktable part of cursor.
+    cursor.current_key = key;
+    have_exact = disktable->get_nearest_entry(cursor.current_key,
+					      cursor.current_tag,
+					      cursor);
+    Assert(have_exact || key.value != cursor.current_key.value);
+
+    // Set and read changed_entries part of cursor.
+    cursor.iter = changed_entries.get_iterator(key);
+
+    const QuartzDbKey * keyptr;
+    const QuartzDbTag * tagptr;
+
+    // We should have an item, even if it's just the initial null item
+    Assert(changed_entries.get_item_and_advance(cursor.iter, &keyptr, &tagptr));
+
+    if (keyptr->value == key.value) {
+	// Have an exact match in changed entries => this is the one to use
+	have_exact = true;
+	key = *keyptr;
+	tag = *tagptr;
+    } else {
+	Assert(*keyptr < key);
+	// We use whichever match is greater
+	if (*keyptr > cursor.current_key) {
+	    Assert(!have_exact);
+	    key = *keyptr;
+	    tag = *tagptr;
+	    // Advance the disktable part, not caring whether it now points
+	    // to an entry, but if it does it must be an entry > key asked
+	    // for and therefore > key found.
+	    disktable->get_next_entry(cursor.current_key,
+				      cursor.current_tag,
+				      cursor);
+
+	} else {
+	    Assert(have_exact || key.value != cursor.current_key.value);
+	    key = cursor.current_key;
+	    tag = cursor.current_tag;
+	    // Advance iterator, not caring whether it now points
+	    // to an entry, but if it does it must be an entry > key asked
+	    // for and therefore > key found.
+	    changed_entries.get_item_and_advance(cursor.iter, &keyptr, &tagptr);
+	}
+    }
+
+    return have_exact;
 }
 
 bool
@@ -464,6 +522,18 @@ QuartzBufferedTable::get_next_entry(QuartzDbKey &key,
 				    QuartzDbTag &tag,
 				    QuartzCursor &cursor) const
 {
+    bool have_entry;
+
+    have_entry = disktable->get_next_entry(cursor.current_key,
+					   cursor.current_tag,
+					   cursor);
+
+    if (have_entry) {
+	key = cursor.current_key;
+	tag = cursor.current_tag;
+    }
+
+    return have_entry;
 }
 
 bool

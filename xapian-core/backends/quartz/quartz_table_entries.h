@@ -73,6 +73,8 @@ struct QuartzDbKey {
  *  or to cache entries read from the table.
  */
 class QuartzTableEntries {
+    public:
+	typedef std::map<QuartzDbKey, QuartzDbTag *> items;
     private:
 	/// Copying not allowed
 	QuartzTableEntries(const QuartzTableEntries &);
@@ -81,7 +83,7 @@ class QuartzTableEntries {
 	void operator=(const QuartzTableEntries &);
 
 	/// The entries stored in this object
-	std::map<QuartzDbKey, QuartzDbTag *> entries;
+	items entries;
 
     public:
 
@@ -120,6 +122,40 @@ class QuartzTableEntries {
 	 */
 	bool have_entry(const QuartzDbKey &key) const;
 
+	/** Get an iterator to the item specified if it exists.
+	 *  If it doesn't exist, the iterator points to the first item
+	 *  which does exist which is before that specified.
+	 *  If there are no items before that specified, it points to the
+	 *  first item.
+	 *
+	 *  @param key  The key to look for an item at or before.
+	 *
+	 *  @return  The iterator.
+	 */
+	items::const_iterator get_iterator(const QuartzDbKey & key) const;
+
+	/** Get the item pointed to by the iterator, and then advance the
+	 *  iterator.
+	 *
+	 *  If the iterator doesn't point to an item, the keyptr and tagptr
+	 *  are unmodified.
+	 *
+	 *  @param iterator  The iterator.
+	 *  @param keyptr    A pointer to a pointer to a key, which is set
+	 *                   to point to the item's key.  The key pointed
+	 *                   to is owned by the QuartzTableEntries object,
+	 *                   and must not be deleted.
+	 *  @param tagptr    A pointer to a pointer to a tag, which is set
+	 *                   to point to the item's tag.  The tag pointed
+	 *                   to is owned by the QuartzTableEntries object,
+	 *                   and must not be deleted.
+	 *
+	 *  @return true if the iterator pointed to an item, false if not.
+	 */
+	bool get_item_and_advance(items::const_iterator iter,
+				  const QuartzDbKey ** keyptr,
+				  const QuartzDbTag ** tagptr) const;
+
 	/** Return whether there are any entries stored in this object.
 	 *
 	 *  @return true if the object stores no entries, false otherwise.
@@ -153,7 +189,7 @@ class QuartzTableEntries {
 	 *  This returns a suitable object to be passed to
 	 *  QuartzDiskTable::set_entries()
 	 */
-	std::map<QuartzDbKey, QuartzDbTag *> & get_all_entries();
+	items & get_all_entries();
 };
 
 #endif /* OM_HGUARD_QUARTZ_TABLE_ENTRIES_H */
