@@ -64,14 +64,14 @@ PERL = @PERL@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
 
-bin_PROGRAMS = cvssearch
-bin_SCRIPTS = cvssearch-script
-EXTRA_DIST = cvssearch-script.pl
+bin_PROGRAMS = map
+bin_SCRIPTS = map-script
+EXTRA_DIST = map-script.pl
 
 SUBDIRS = process range diff  aligned_diff alignment cvs_parser map_algorithm
 INCLUDES = $(foreach dir, $(SUBDIRS), -I$(dir))
-cvssearch_SOURCES = cvssearch.cpp  collection.h  virtual_iostream.h  virtual_istream.h  virtual_ostream.h
-cvssearch_LDADD = $(foreach dir, $(SUBDIRS), ./$(dir)/lib$(dir).a)               -lm $(foreach dir, $(SUBDIRS), ./$(dir)/lib$(dir).a)
+map_SOURCES = map.cpp  collection.h  virtual_iostream.h  virtual_istream.h  virtual_ostream.h
+map_LDADD = $(foreach dir, $(SUBDIRS), ./$(dir)/lib$(dir).a)               -lm $(foreach dir, $(SUBDIRS), ./$(dir)/lib$(dir).a)
 
 CXXFLAGS = -O3 -DINLINE -DNDEBUG -Wall
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -83,10 +83,10 @@ DEFS = @DEFS@ -I. -I$(srcdir)
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-cvssearch_OBJECTS =  cvssearch.o
-cvssearch_DEPENDENCIES =  $(foreach dir, $(SUBDIRS), \
-./$(dir)/lib$(dir).a) $(foreach dir, $(SUBDIRS), ./$(dir)/lib$(dir).a)
-cvssearch_LDFLAGS = 
+map_OBJECTS =  map.o
+map_DEPENDENCIES =  $(foreach dir, $(SUBDIRS), ./$(dir)/lib$(dir).a) \
+$(foreach dir, $(SUBDIRS), ./$(dir)/lib$(dir).a)
+map_LDFLAGS = 
 SCRIPTS =  $(bin_SCRIPTS)
 
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -103,9 +103,9 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/cvssearch.P
-SOURCES = $(cvssearch_SOURCES)
-OBJECTS = $(cvssearch_OBJECTS)
+DEP_FILES =  .deps/map.P
+SOURCES = $(map_SOURCES)
+OBJECTS = $(map_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -159,9 +159,9 @@ distclean-compile:
 
 maintainer-clean-compile:
 
-cvssearch: $(cvssearch_OBJECTS) $(cvssearch_DEPENDENCIES)
-	@rm -f cvssearch
-	$(CXXLINK) $(cvssearch_LDFLAGS) $(cvssearch_OBJECTS) $(cvssearch_LDADD) $(LIBS)
+map: $(map_OBJECTS) $(map_DEPENDENCIES)
+	@rm -f map
+	$(CXXLINK) $(map_LDFLAGS) $(map_OBJECTS) $(map_LDADD) $(LIBS)
 
 install-binSCRIPTS: $(bin_SCRIPTS)
 	@$(NORMAL_INSTALL)
@@ -433,12 +433,12 @@ all-redirect all-am all installdirs-am installdirs mostlyclean-generic \
 distclean-generic clean-generic maintainer-clean-generic clean \
 mostlyclean distclean maintainer-clean
 
-cvssearch-script : $(srcdir)/cvssearch-script.pl
-	$(PERL) -c cvssearch-script.pl
-	rm -rf cvssearch-script
-	echo "#! " $(PERL) > cvssearch-script
-	cat $(srcdir)/cvssearch-script.pl >> cvssearch-script
-	chmod ugo+x cvssearch-script
+map-script : $(srcdir)/map-script.pl
+	$(PERL) -c map-script.pl
+	rm -rf map-script
+	echo "#! " $(PERL) > map-script
+	cat $(srcdir)/map-script.pl >> map-script
+	chmod ugo+x map-script
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
