@@ -72,13 +72,20 @@ OmMatchOptions::set_sort_forward(bool forward_)
     sort_forward = forward_;
 }
 
-void OmMatchOptions::set_percentage_cutoff(int percent_)
+void
+OmMatchOptions::set_percentage_cutoff(int percent_)
 {
     if (percent_ >=0 && percent_ <= 100) {
         percent_cutoff = percent_;
     } else {
         throw OmInvalidArgumentError("Percent cutoff must be in 0..100");
     }
+}
+
+void
+OmMatchOptions::set_max_or_terms(om_termcount max_)
+{
+    max_or_terms = max_;
 }
 
 

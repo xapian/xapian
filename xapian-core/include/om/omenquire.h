@@ -157,8 +157,9 @@ class OmQuery {
 ///////////////////////////////////////////////////////////////////
 // OmMatchOptions class
 // ====================
-/// Used to specify options for running a query
 
+/** Class used to specify options for running a query.
+ */
 class OmMatchOptions {
     friend OmEnquireInternal;
     private:
@@ -179,21 +180,14 @@ class OmMatchOptions {
 
 	/** Minimum percentage score for returned documents.
 	 *  If a document has a lower percentage score than this, it
-	 *  will 
+	 *  will not appear in the results.
 	 */
 	int percent_cutoff;
 
 	/** Maximum number of terms which will be used if the query
 	 *  contains a large number of terms which are ORed together.
 	 *
-	 *  The terms will be sorted according to termweight, and only
-	 *  the top terms will be used.  Parts of the query which
-	 *  do not involve terms ORed together will be unaffected by this
-	 *  option.
-	 *
-	 *  If this is set to zero, all terms will be used.
-	 *
-	 *  This defaults to zero.
+	 *  See set_max_or_terms() for more details.
 	 */
 	om_termcount max_or_terms;
     public:
@@ -226,6 +220,23 @@ class OmMatchOptions {
 	 *  an OmInvalidArgumentError will be thrown.
 	 */
 	void set_percentage_cutoff(int percent_);
+
+	/** Set the maximum number of terms which will be used if the query
+	 *  contains a large number of terms which are ORed together.
+	 *
+	 *  The terms will be sorted according to termweight, and only
+	 *  the top terms will be used.  Parts of the query which
+	 *  do not involve terms ORed together will be unaffected by this
+	 *  option.
+	 *
+	 *  This enables a query to be set which represents a document,
+	 *  and only the elite set of terms which best distinguish that
+	 *  document to be used to find similar documents, resulting in
+	 *  a performance improvement.
+	 *
+	 *  If this is set to the default of zero, all terms will be used.
+	 */
+	void set_max_or_terms(om_termcount max_);
 };
 
 /** Base class for matcher decision functor.
