@@ -4,7 +4,7 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 INCLUDES = -I$(top_srcdir)/include
 
-include_HEADERS = match.h orpostlist.h andpostlist.h andnotpostlist.h \
+include_HEADERS = orpostlist.h andpostlist.h andnotpostlist.h \
  andmaybepostlist.h xorpostlist.h branchpostlist.h filterpostlist.h
 
 noinst_LTLIBRARIES = libmatcher.la

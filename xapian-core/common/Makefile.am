@@ -3,5 +3,5 @@
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 include_HEADERS = database.h omtypes.h error.h omassert.h \
- irdocument.h irweight.h \
+ irdocument.h irweight.h match.h stem.h \
  da_database.h daread.h sleepy_database.h multi_database.h
