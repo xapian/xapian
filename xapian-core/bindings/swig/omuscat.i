@@ -68,6 +68,20 @@ class OmQuery {
 	om_termname_list get_terms() const;
 };
 
+// TODO: OmMatchOptions
+// TODO: OmMatchDecider
+// TODO: OmExpandOptions
+// TODO: OmExpandDecider
+// TODO: OmRSet
+// TODO: OmESet
+// TODO: OmBatchEnquire
+// TODO: OmSettings
+// TODO: OmData?
+// TODO: OmKey?
+// TODO: OmDocument
+// TODO: OmDatabase
+// TODO: OmWritableDatabase
+
 class OmDatabaseGroup {
     public:
     	OmDatabaseGroup();
@@ -83,10 +97,14 @@ class OmEnquire {
 	~OmEnquire();
 
 	void set_query(const OmQuery &query);
-	
+
 	// FIXME: add other parameters too.
 	OmMSet get_mset(om_doccount first,
 			om_doccount maxitems);
+
+	// TODO: get_eset()
+	// TODO: get_doc()
+	// TODO: get_matching_terms()
 }
 
 class OmMSet {
