@@ -69,6 +69,11 @@ class OmStem {
 	 *  not required for this operation.
 	 */  
 	static vector<string> get_available_languages();
+
+	/** Returns a string representing the omstem object.
+	 *  Introspection method.
+	 */
+	string get_description() const;
 };
 
 #endif

@@ -1,3 +1,7 @@
+Mon Jul  3 18:39:29 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add introspection to OmStem.
+
 Mon Jul  3 17:32:51 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed a bug in apitest - the nullquery1() test was in the wrong

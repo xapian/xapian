@@ -53,6 +53,22 @@ enum stemmer_language {
     STEMLANG_PORTER
 };
 
+/** The names of the languages.
+ *  This list must be in the same order as enum stemmer_language.
+ */
+static const char * language_names[] = {
+    "",
+    "dutch",
+    "english",
+    "french",
+    "german",
+    "italian",
+    "portuguese",
+    "spanish",
+    "swedish",
+    "english_porter"
+};
+
 /** The mapping from language strings to language codes.
  *  This list must be in alphabetic order. */
 static const StringAndValue language_strings[] = {
@@ -60,6 +76,7 @@ static const StringAndValue language_strings[] = {
     {"dutch",		STEMLANG_DUTCH},
     {"en",		STEMLANG_ENGLISH},
     {"english",		STEMLANG_ENGLISH},
+    {"english_porter",	STEMLANG_PORTER},
     {"es",		STEMLANG_SPANISH},
     {"fr",		STEMLANG_FRENCH},
     {"french",		STEMLANG_FRENCH},
@@ -88,11 +105,17 @@ class OmStem::Internal {
 	 */
 	Internal(string language);
 
+	/** Destructor.
+	 */
 	~Internal();
 
 	/** Protection against concurrent access.
 	 */
 	OmLock mutex;
+
+	/** The code representing the language being stemmed.
+	 */
+	enum stemmer_language langcode;
 
 	/** Stem the given word.
 	 */
@@ -117,7 +140,7 @@ class OmStem::Internal {
 
 	/** Return a Stemmer object pointer given a language type.
 	 */
-	void set_language(stemmer_language lang);
+	void set_language(stemmer_language langcode);
 
 	/** Return a stemmer_language enum value from a language
 	 *  string.
@@ -128,12 +151,12 @@ class OmStem::Internal {
 OmStem::Internal::Internal(string language)
 	: stemmer_data(0)
 {
-    stemmer_language lang = get_stemtype(language);
-    if (lang == STEMLANG_NULL) {
+    langcode = get_stemtype(language);
+    if (langcode == STEMLANG_NULL) {
         // FIXME: use a separate InvalidLanguage exception?
         throw OmInvalidArgumentError("Unknown language specified");
     }
-    set_language(lang);
+    set_language(langcode);
 }
 
 OmStem::Internal::~Internal()
@@ -144,13 +167,13 @@ OmStem::Internal::~Internal()
 }
 
 void
-OmStem::Internal::set_language(stemmer_language lang)
+OmStem::Internal::set_language(stemmer_language langcode)
 {
     if(stemmer_data != 0) {
 	stemmer_closedown(stemmer_data);
     }
     stemmer_setup = 0;
-    switch(lang) {
+    switch(langcode) {
 	case STEMLANG_DUTCH:
 	    stemmer_setup = setup_dutch_stemmer;
 	    stemmer_stem = dutch_stem;
@@ -258,6 +281,21 @@ OmStem::stem_word(string word) const
 vector<string>
 OmStem::get_available_languages()
 {
-    // FIXME
-    throw OmUnimplementedError("OmStem::get_available_languages() unimplemented");
+    vector<string> languages;
+
+    const char ** pos;
+    for (pos = language_names;
+	 pos != language_names + sizeof(language_names);
+	 pos++) {
+	languages.push_back(*pos);
+    }
+
+    return languages;
 }
+
+string
+OmStem::get_description() const
+{
+    return "OmStem(" + string(language_names[internal->langcode]) + ")";
+}
+

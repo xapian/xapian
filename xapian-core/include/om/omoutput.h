@@ -56,6 +56,9 @@ OUTPUT_FUNCTION(OmBatchEnquire);
 OUTPUT_FUNCTION(OmDocumentTerm);
 OUTPUT_FUNCTION(OmDocumentContents);
 
+#include "omstem.h"
+OUTPUT_FUNCTION(OmStem);
+
 inline ostream &
 operator<<(ostream & os, const om_termname_list & obj) {
     os << "om_termname_list(";
