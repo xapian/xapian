@@ -21,6 +21,7 @@ lines_db::lines_db(const string & src,
      _db_file(db_file)
 {
     file_id = 0;
+    current_fn = "";
 }
 
 lines_db::~lines_db() {
@@ -44,6 +45,7 @@ bool lines_db::readNextLine() {
     } else if (_db_file.get_revision(++file_id, line_no = 1, revisions) == 0) {
         if (_db_file.get_filename(file_id, current_fn) == 0)
         {
+            cerr << "... " << message << " " << current_fn << endl;
             current_fn = convert(package, '_', '/') + "/" + current_fn;
             if ( in_code != 0 ) {
                 delete in_code;
