@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -72,20 +72,15 @@ mset_range_is_same(const Xapian::MSet &mset1, unsigned int first1,
 		     "mset2 is too small: expected at least " <<
 		     (first2 + count - 1) << " items.");
 
-    Xapian::MSetIterator i = mset1.begin();
-    for (unsigned int k = 0; k < first1; ++k) {
-	++i;
-    }
-
-    Xapian::MSetIterator j = mset2.begin();
-    for (unsigned int k = 0; k < first2; ++k) {
-	++j;
-    }
+    Xapian::MSetIterator i = mset1[first1];
+    Xapian::MSetIterator j = mset2[first2];
 
     for (unsigned int l = 0; l < count; ++l) {
 	if (*i != *j || i.get_weight() != j.get_weight()) {
 	    return false;
 	}
+	++i;
+	++j;
     }
     return true;
 }
@@ -103,20 +98,15 @@ mset_range_is_same_weights(const Xapian::MSet &mset1, unsigned int first1,
 		     "mset2 is too small: expected at least " <<
 		     (first2 + count - 1) << " items." << endl);
 
-    Xapian::MSetIterator i = mset1.begin();
-    for (unsigned int k = 0; k < first1; ++k) {
-	++i;
-    }
+    Xapian::MSetIterator i = mset1[first1];
+    Xapian::MSetIterator j = mset2[first2];
 
-    Xapian::MSetIterator j = mset2.begin();
-    for (unsigned int k = 0; k < first2; ++k) {
-	++j;
-    }
-	
     for (unsigned int l = 0; l < count; ++l) {
 	if (i.get_weight() != j.get_weight()) {
 	    return false;
 	}
+	++i;
+	++j;
     }
     return true;
 }
