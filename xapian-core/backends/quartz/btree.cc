@@ -37,6 +37,8 @@
 
 #include "btree.h"
 
+#include "omassert.h"
+
 #define true 1
 #define false 0
 
@@ -194,15 +196,6 @@ static void report_cursor(int N, struct Btree * B, struct Cursor * C)
 
 ------to here--------*/
 
-/* There are a few consistency checks around the code which are unnecessary
-   (assuming the code is correct), but which are cheap, and so have been left
-   in.
-*/
-
-static void inconsistency(int n)
-{  fprintf(stderr, "bug revealed at code point %d\n", n); exit(1);
-}
-
 /* Input/output is defined with calls to the basic Unix system interface: */
 
 static int valid_handle(int h) { return h >= 0; }
@@ -351,7 +344,9 @@ static int next_free_block(struct Btree * B)
 
 static void read_block(struct Btree * B, int4 n, byte * p)
 {
-    if (n < 0 || n > B->bit_map_size * CHAR_BIT) inconsistency(1 /* n out of range */);
+    /* Check that n is in range. */
+    Assert(n >= 0 && n < B->bit_map_size * CHAR_BIT);
+
     if (! sys_read_block(B->handle, B->block_size, n, p))
     {  /* failure to read a block */
        B->error = BTREE_ERROR_DB_READ;
@@ -362,13 +357,14 @@ static void read_block(struct Btree * B, int4 n, byte * p)
 
 static void write_block(struct Btree * B, int4 n, byte * p)
 {
-    if (n < 0 || n > B->bit_map_size * CHAR_BIT) inconsistency(2 /* n out of range */);
+    /* Check that n is in range. */
+    Assert(n >= 0 && n < B->bit_map_size * CHAR_BIT);
 
-#if 0
-    /* take these out - they're a bit more expensive */
-    if (! block_free_at_start(B, n)) inconsistency(3 /* write to non-free */);
-    if (REVISION(p) != B->next_revision) inconsistency(4 /* bad write revision */);
-#endif
+    /* don't write to non-free */;
+    AssertParanoid(block_free_at_start(B, n));
+
+    /* write revision is okay */
+    AssertParanoid(REVISION(p) == B->next_revision);
 
     if (! sys_write_block(B->handle, B->block_size, n, p))
         B->error = BTREE_ERROR_DB_WRITE;
@@ -437,7 +433,7 @@ static void block_to_cursor(struct Btree * B, struct Cursor * C, int j, int4 n)
             return;
         }
     }
-    if (j != LEVEL(p)) inconsistency(5 /*j ne lev b */);
+    Assert(j == LEVEL(p));
 }
 
 /* set_block_given_by(p, c, n) finds the item at block address p, directory
@@ -678,31 +674,32 @@ static void add_item(struct Btree * B, struct Cursor * C, byte * kt, int j);
 
 static void enter_key(struct Btree * B, struct Cursor * C, int j, byte * kq, byte * kp)
 {
-    if (j > B->level)
-    {   /* gain a level */
-        B->level ++;
-        if (B->level == BTREE_CURSOR_LEVELS) inconsistency(6 /* level overflow */);
-        {   byte * q = calloc(B->block_size, 1);      /*?*/
-            if (q == 0) { B->error = BTREE_ERROR_SPACE; return; }
-            C[j].p = q;
-            C[j].split_p = calloc(B->block_size, 1);  /*?*/
-            if (C[j].split_p == 0) { B->error = BTREE_ERROR_SPACE; return; }
-            C[j].c = DIR_START;
-            C[j].n = next_free_block(B);
-            C[j].rewrite = true;
-            SET_REVISION(q, B->next_revision);
-            SET_LEVEL(q, j);
-            SET_DIR_END(q, DIR_START);
-            compress(B, q);   /* to reset TOTAL_FREE, MAX_FREE */
+    if (j > B->level) {
+	/* gain a level */
+	B->level ++;
 
-            /* form a null key in b with a pointer to the old root */
+	/* check level overflow */
+	Assert(B->level != BTREE_CURSOR_LEVELS);
 
-            {   int4 old_root = C[j - 1].split_n;
-                byte b[10]; /* 7 is exact */
-                form_null_key(b, old_root);
-                add_item(B, C, b, j);
-            }
-        }
+	byte * q = calloc(B->block_size, 1);      /*?*/
+	if (q == 0) { B->error = BTREE_ERROR_SPACE; return; }
+	C[j].p = q;
+	C[j].split_p = calloc(B->block_size, 1);  /*?*/
+	if (C[j].split_p == 0) { B->error = BTREE_ERROR_SPACE; return; }
+	C[j].c = DIR_START;
+	C[j].n = next_free_block(B);
+	C[j].rewrite = true;
+	SET_REVISION(q, B->next_revision);
+	SET_LEVEL(q, j);
+	SET_DIR_END(q, DIR_START);
+	compress(B, q);   /* to reset TOTAL_FREE, MAX_FREE */
+
+	/* form a null key in b with a pointer to the old root */
+
+	int4 old_root = C[j - 1].split_n;
+	byte b[10]; /* 7 is exact */
+	form_null_key(b, old_root);
+	add_item(B, C, b, j);
     }
     {   /*  byte * p = C[j - 1].p;  -- see below */
 
@@ -786,7 +783,10 @@ static int mid_point(struct Btree * B, byte * p)
             return c + D2;
         }
     }
-    inconsistency(7 /* falling out of mid_point */);
+
+    /* falling out of mid_point */
+    Assert(false);
+    return 0; /* Stop compiler complaining about end of method. */
 }
 
 /* add_item_to_block(B, p, kt, c) adds item kt to the block at p. c is the
@@ -803,13 +803,15 @@ static void add_item_to_block(struct Btree * B, byte * p, byte * kt, int c)
     int new_total = TOTAL_FREE(p) - needed;
     int new_max = MAX_FREE(p) - needed;
 
-    if (new_total < 0) inconsistency(8 /* new_total < 0 */);
+    Assert(new_total >= 0);
+
     if (new_max < 0)
     {   compress(B, p);
         new_max = MAX_FREE(p) - needed;
-        if (new_max < 0) inconsistency(9 /* new_max < 0 */);
+	Assert(new_max >= 0);
     }
-    if (dir_end < c) inconsistency(10 /* dir_end < c */);
+    Assert(dir_end >= c);
+
     memmove(p + c + D2, p + c, dir_end - c);
     dir_end += D2; SET_DIR_END(p, dir_end);
     {   int o = dir_end + new_max;
@@ -1219,7 +1221,8 @@ extern int Btree_find_tag(struct Btree * B, byte * key, int key_len, struct Btre
         }
         while(true)
         {
-            if (o + l > item->tag_size) inconsistency(11 /* tag_size error 1 */);
+	    Assert(o + l <= item->tag_size);
+
             memmove(item->tag + o, p + cd, l); o += l;
             if (i == n) break;
             i++; SETC(kt, ck, i);
@@ -1829,7 +1832,8 @@ extern int Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * item)
         }
         for (i = 1; i <= n; i++)
         {
-            if (o + l > item->tag_size) inconsistency(12 /* tag size error 2 */);
+	    Assert(o + l <= item->tag_size);
+
             memmove(item->tag + o, p + cd, l); o += l;
             BC->positioned = B->next(B, C, 0);
 
