@@ -78,7 +78,7 @@ DATermList::DATermList(DADatabase *db, struct termvec *tv)
 	char *term = (char *)tv->term;
 	termid id;
 	// FIXME - Next line is inefficient - checks for term in term list
-	id = db->term_name_to_id(string(term + 1, (unsigned)term[0]));
+	id = db->term_name_to_id(string(term + 1, (unsigned)term[0] - 1));
 	ids.push_back(id);
 	readterms(tv);
     }
@@ -177,7 +177,7 @@ termid
 DADatabase::term_name_to_id(const termname &name)
 {
     Assert(opened);
-    printf("Looking up term `%s': ", name.c_str());
+    //printf("Looking up term `%s': ", name.c_str());
 
     map<termname,termid>::iterator p = termidmap.find(name);
 
@@ -192,19 +192,20 @@ DADatabase::term_name_to_id(const termname &name)
 
 	struct terminfo ti;
 	int found = DAterm(k, &ti, DA_t);
+	printf("Freq %d\n", ti.freq);
 	free(k);
 
 	if(found == 0) {
-	    printf("Not in collection\n");
+	    //printf("Not in collection\n");
 	} else {
 	    id = termvec.size() + 1;
-	    printf("Adding as ID %d\n", id);
+	    //printf("Adding as ID %d\n", id);
 	    termvec.push_back(DATerm(&ti, name));
 	    termidmap[name] = id;
 	}
     } else {
 	id = (*p).second;
-	printf("found, ID %d\n", id);
+	//printf("found, ID %d\n", id);
     }
     return id;
 }
