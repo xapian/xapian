@@ -624,7 +624,7 @@ sub printTips{
 #	print "<b class=blue>Tips</font></b>\n";
 	print "<ul>\n";
 	print "<li>use <tt class=orange>in:</tt> at the end of keywords to select package to seach in. For example, \n";
-	print "<br><tt class=orange>menu in:kdebase/konqueror;kdepime/korganizer</tt> \n";
+	print "<br><tt class=orange>menu in:kdebase/konqueror;kdepim/korganizer</tt> \n";
 	print "<br>searches for menu under kdebase/konqueror and kdepim/korganizer, default searches for keywords under all packages.\n";
 	print "<li>Keywords are not case-sensitive and stemmed. (e.g. searching for 'fishes' will match 'FISH', 'fishes', 'fishing'...)\n";
 	print "<li>Results are ranked with the objective of matching as large a fraction of the keywords as possible.  \n";
