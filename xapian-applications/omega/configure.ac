@@ -1,0 +1,116 @@
+dnl Process this file with autoconf (version 2.50 or greater) to produce a
+dnl configure script.
+AC_INIT(omega.cc)
+AM_INIT_AUTOMAKE(omega, 0.4.1-cvs)
+AM_CONFIG_HEADER(config.h)
+
+dnl Add parameters for aclocal
+dnl (This must come after AM_INIT_AUTOMAKE, since it modifies ACLOCAL)
+ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_YACC
+
+dnl Use libtool to manage our libraries
+AM_PROG_LIBTOOL
+
+dnl Check for libxapian
+OM_PATH_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
+
+dnl Check for libxml or libxml2.  We do this by looking for xml-config.
+AC_PATH_PROG(XML_CONFIG_PATH, xml2-config)
+if test -n "$XML_CONFIG_PATH" ; then
+  HAVE_LIBXML2=yes
+  AC_DEFINE(HAVE_LIBXML2,, [ Define if libxml2 is available.])
+else
+  HAVE_LIBXML2=no
+  AC_PATH_PROG(XML_CONFIG_PATH, xml-config)
+fi
+if test -n "$XML_CONFIG_PATH" ; then
+  AC_DEFINE(HAVE_LIBXML,, [ Define if libxml or libxml2 is available.])
+fi
+AM_CONDITIONAL(HAVE_LIBXML2, test "x$HAVE_LIBXML2" = xyes)
+
+if test -n "$XML_CONFIG_PATH"
+then
+    AC_MSG_CHECKING([libxml flags])
+    LIBXML_CFLAGS=`$XML_CONFIG_PATH --cflags`
+    LIBXML_LIBS=`$XML_CONFIG_PATH --libs`
+
+    AC_LANG_SAVE
+    AC_LANG_C
+    SAVE_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS $LIBXML_CFLAGS"
+    AC_TRY_COMPILE([
+#include <parser.h>
+#include <valid.h>
+], [ xmlValidCtxt ctxt;
+     xmlDocPtr doc;
+     xmlValidateDocument(&ctxt, doc);
+     ], [have_libxml_valid=yes], [have_libxml_valid=no])
+    CFLAGS="$SAVE_CFLAGS"
+    AC_LANG_RESTORE
+    AC_MSG_RESULT("$LIBXML_CFLAGS")
+fi
+AC_SUBST(LIBXML_CFLAGS)
+AC_SUBST(LIBXML_LIBS)
+if test "x$have_libxml_valid" = "xyes"; then
+AC_DEFINE(HAVE_LIBXML_VALID,,
+	  [ Define if libxml has validation available ])
+else
+AC_MSG_WARN(libxml doesn't have xmlValidateDocument: disabling validation.)
+fi
+
+dnl *************************
+dnl * Set debugging options *
+dnl *************************
+
+dnl Work out what debugging we want
+
+AC_ARG_ENABLE(debug,
+[  --enable-debug          Turn on debugging (no|yes)(default=no)],
+[case "${enableval}" in
+  yes) use_debug=yes ;;
+  no)  use_debug=no ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
+esac], [use_debug=no])
+
+dnl Now set appropriate defines
+
+dnl Clear -g flag
+CFLAGS=`echo " $CFLAGS " | sed 's/[ 	][ 	]*/  /g' | sed 's/ -g / /g'`
+CXXFLAGS=`echo " $CXXFLAGS " | sed 's/[ 	][ 	]*/  /g' | sed 's/ -g / /g'`
+
+if test "$use_debug" = yes; then
+CFLAGS="$CFLAGS -g";
+CXXFLAGS="$CXXFLAGS -g";
+fi
+
+dnl ******************************
+dnl * Set special compiler flags *
+dnl ******************************
+
+dnl extra flags for building with gcc
+if test "$GCC" = yes; then
+  changequote(, ) dnl avoid problems with [] in sed expressions
+  CFLAGS=`echo "$CFLAGS -pedantic -Wall -Wunused -Wno-long-long" | sed 's/-O[0-9]*/-O6/'`
+  case "$CFLAGS" in
+    *-O6*) ;;
+    *) CFLAGS="$CFLAGS -O6"
+  esac
+
+  CXXFLAGS=`echo "$CXXFLAGS -pedantic -Wall -Wunused -Wno-long-long -fno-gnu-keywords" | sed 's/-O[0-9]*/-O6/'`
+  case "$CXXFLAGS" in
+    *-O6*) ;;
+    *) CXXFLAGS="$CXXFLAGS -O6"
+  esac
+  changequote([, ])
+fi
+
+dnl **************************
+dnl * Build the output files *
+dnl **************************
+
+AC_OUTPUT([Makefile])
