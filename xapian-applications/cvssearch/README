@@ -170,16 +170,14 @@ To search the database, use the URL
 To see how code alignment works, use the URL
    http://<Your Domain Name>/<your cgi-bin dir>/Compare.cgi
 
-[FIX ME] what if kdebase and kdebase/konqueror are both built.. 
-         will it search for both?
-
-
 
 Security & File Permissions
 ===========================
 
 * the user to build the database must have read and write access to the 
-  repository.
+  repository. a cache directory with world read/write access is created
+  to store temporary files duing query time. [ this file may be cleaned from 
+  time to time ]
 
 * the user the server uses to run the cgi-script 
   must have read/execute access to the scripts/executables,
@@ -191,10 +189,6 @@ Security & File Permissions
 
 * to use Query.cgi, There will be a cache directory created under your 
   cgi-bin directory that has public read/write access.
-
-[FIX ME] to create the cache directory also require cgi-bin to have public
-         read/write access.. => need to move the cache directory to 
-         somewhere else like /tmp/cvscache. (cache may be used else where)
 
 
 Directory structure
