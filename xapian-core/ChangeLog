@@ -1,3 +1,21 @@
+Wed Sep  6 15:43:31 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Outputs other than "out" can be used for the output of the whole
+	  network.
+
+	* Added <param> tags to pass configuration info to nodes from the
+	  XML description.  OmIndexerNode::get_config_string() actually
+	  implemented, plus OmIndexerNode constructor now takes an
+	  OmSettings.
+	
+	* OmIndexerNode methods set_output_{string,int,double,record} renamed
+	  to overloaded set_output.
+	
+	* New Record constructor for initialising from a vector, along with
+	  accessor functions get_vector_length() and operator[].  The
+	  stream insertion operator uses these to recursively print out the
+	  values.
+	
 Wed Sep 06 13:34:24 BST 2000 Olly Betts
 
 	* Opening a termlist for a document which is not present now always

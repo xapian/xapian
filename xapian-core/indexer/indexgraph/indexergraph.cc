@@ -29,8 +29,8 @@
 class OmIndexerStartNode : public OmIndexerNode
 {
     public:
-	static OmIndexerNode *create(const OmSettings &) {
-	    return new OmIndexerStartNode();
+	static OmIndexerNode *create(const OmSettings &settings) {
+	    return new OmIndexerStartNode(settings);
 	}
 
 	void set_message(Message msg) {
@@ -38,8 +38,10 @@ class OmIndexerStartNode : public OmIndexerNode
 	    message = msg;
 	};
     private:
+	OmIndexerStartNode(const OmSettings &settings)
+		: OmIndexerNode(settings) {}
 	void calculate() {
-	    set_output_record("out", message);
+	    set_output("out", message);
 	}
 
 	Message message;
@@ -103,14 +105,15 @@ OmIndexerBuilder::get_xmltree_from_string(const std::string &xmldesc)
 }
 
 OmIndexerNode *
-OmIndexerBuilder::make_node(const std::string &type)
+OmIndexerBuilder::make_node(const std::string &type,
+			    const OmSettings &config)
 {
     std::map<std::string, node_desc>::const_iterator i;
     i = nodetypes.find(type);
     if (i == nodetypes.end()) {
 	throw OmInvalidArgumentError(std::string("Unknown node type ") + type);
     } else {
-	return i->second.create(OmSettings());
+	return i->second.create(config);
     }
 }
 
@@ -145,7 +148,7 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
     //cout << "root name is " << rootname << endl;
     std::map<std::string, std::string> types;
     
-    indexer->nodemap["START"] = make_node("START");
+    indexer->nodemap["START"] = make_node("START", OmSettings());
     indexer->start = dynamic_cast<OmIndexerStartNode *>(indexer->nodemap["START"]);
     types["START"] = "START";
     
@@ -159,17 +162,24 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 	    if (indexer->nodemap.find(node_attrs["id"]) != indexer->nodemap.end()) {
 		throw "Duplicate node id!";
 	    }
-	    OmIndexerNode *newnode = make_node(node_attrs["type"]);
+	    xmlNodePtr child = node->childs;
+	    OmSettings config;
+	    while (child != 0 &&
+		   std::string((char *)child->name) == "param") {
+		// FIXME: this map should be a typedef...
+		std::map<std::string, std::string> param_attrs(attr_to_map(child->properties));
+		config.set(param_attrs["name"], param_attrs["value"]);
+		child = child->next;
+	    }
+	    OmIndexerNode *newnode = make_node(node_attrs["type"], config);
 	    types[node_attrs["id"]] = node_attrs["type"];
 	    indexer->nodemap[node_attrs["id"]] = newnode;
 	    // connect the inputs
-	    for (xmlNodePtr input = node->childs;
-		 input != 0;
-		 input = input->next) {
-		if (std::string((char *)input->name) != "input") {
+	    while (child != 0) {
+		if (std::string((char *)child->name) != "input") {
 		    throw "Expected input";
 		}
-		std::map<std::string, std::string> input_attrs(attr_to_map(input->properties));
+		std::map<std::string, std::string> input_attrs(attr_to_map(child->properties));
 		OmIndexer::NodeMap::const_iterator i =
 			indexer->nodemap.find(input_attrs["node"]);
 		if (i == indexer->nodemap.end()) {
@@ -183,6 +193,8 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 		newnode->connect_input(input_attrs["name"],
 				       i->second,
 				       input_attrs["out_name"]);
+
+		child = child->next;
 	    }
 	} else if (type == "output") {
 	    std::map<std::string, std::string> attrs(attr_to_map(node->properties));
@@ -192,6 +204,7 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 		throw "bad node";
 	    }
 	    indexer->final = i->second;
+	    indexer->final_out = attrs["out_name"];
 	} else {
 	    throw "Unknown tag";
 	}
@@ -275,7 +288,7 @@ OmIndexerBuilder::get_inputcon(const std::string &nodetype,
 Message
 OmIndexer::get_output()
 {
-    return final->get_output_record("out");
+    return final->get_output_record(final_out);
 }
 
 void

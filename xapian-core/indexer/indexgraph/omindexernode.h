@@ -28,6 +28,7 @@
 #include <map>
 #include <vector>
 #include "deleter_map.h"
+#include "om/omsettings.h"
 
 /** The possible physical types a message can have. */
 enum OmIndexerMessageType {
@@ -60,7 +61,9 @@ class Record {
 	Record(const std::string &name_, double value);
 	/** Constructor: create a string record */
 	Record(const std::string &name_, const std::string &value);
-	// FIXME: add constructors for the non-empty types too!
+	/** Constructor: create a vector record */
+	Record(const std::string &name, const std::vector<Record> &value);
+
 	/** Copy constructor */
 	Record(const Record &other);
 	/** Assignment operator */
@@ -92,6 +95,19 @@ class Record {
 	 *  Will throw an exception if this message is of another type.
 	 */
 	std::string get_string() const;
+
+	/** Return the length of the vector in this message.
+	 *  Will throw an exception if this message is not a vector.
+	 */
+	int get_vector_length() const;
+
+	/** Return a reference to a given element in a vector.
+	 *  Will throw an exception if this message is not a vector,
+	 *  or if the offset is out of range.
+	 *
+	 *  @param offset	The (zero-based) offset into the vector.
+	 */
+	const Record &operator[](unsigned int offset) const;
 
 	/** Give this record an integer value
 	 */
@@ -174,7 +190,7 @@ class OmIndexerNode {
     protected:
 	/* *** Protected interface for node implementations *** */
 	/** Constructor */
-	OmIndexerNode();
+	OmIndexerNode(const OmSettings &settings_);
 
 	/** This function is called when this node's outputs are needed.
 	 *  It must calculate all the outputs using whichever
@@ -205,16 +221,16 @@ class OmIndexerNode {
 	 *
 	 *  @param value	The value to provide to the input.
 	 */
-	void set_output_int(const std::string &output_name, int value);
-	void set_output_double(const std::string &output_name, double value);
-	void set_output_string(const std::string &output_name,
-			       const std::string &value);
-	void set_output_record(const std::string &output_name, Message value);
+	void set_output(const std::string &output_name, int value);
+	void set_output(const std::string &output_name, double value);
+	void set_output(const std::string &output_name,
+			const std::string &value);
+	void set_output(const std::string &output_name, Message value);
 
 	/* The implementation's interface to the configuration data. */
 
 	/** Return the current value of a given configuration parameter. */
-	std::string get_config_string(const std::string &key);
+	std::string get_config_string(const std::string &key) const;
 
 	/** This function may be overridden by a node implementation if it
 	 *  needs to be informed of configuration changes (rather than just
@@ -260,6 +276,9 @@ class OmIndexerNode {
 
 	/** The table of inputs */
 	std::map<std::string, input_desc> inputs;
+
+	/** The configuration strings */
+	OmSettings settings;
 
 	/** Calculate outputs if needed
 	 *  @param output_name  The output currently needed.  If this

@@ -27,11 +27,11 @@
 
 class ReverseNode : public OmIndexerNode {
     public:
-	static OmIndexerNode *create(const OmSettings &) {
-	    return new ReverseNode();
+	static OmIndexerNode *create(const OmSettings &settings) {
+	    return new ReverseNode(settings);
 	}
     private:
-	ReverseNode() {};
+	ReverseNode(const OmSettings &settings) : OmIndexerNode(settings) {};
 	static std::string reverse_string(std::string s) {
 	    std::string result(s);
 	    std::string::size_type len = result.length();
@@ -49,17 +49,17 @@ class ReverseNode : public OmIndexerNode {
 	    std::string out(in);
 	    out = reverse_string(in);
 
-	    set_output_string("out", out);
+	    set_output("out", out);
 	}
 };
 
 class SplitNode : public OmIndexerNode {
     public:
 	static OmIndexerNode *create(const OmSettings &config) {
-	    return new SplitNode();
+	    return new SplitNode(config);
 	}
     private:
-	SplitNode() {};
+	SplitNode(const OmSettings &settings) : OmIndexerNode(settings) {};
 
 	void calculate() {
 	    Message msg = get_input_record("in");
@@ -68,25 +68,25 @@ class SplitNode : public OmIndexerNode {
 
 	    Message temp2(new Record(msg->get_name() + "2",
 				     msg->get_string() + "2"));
-	    set_output_record("out1", temp1);
-	    set_output_record("out2", temp2);
+	    set_output("out1", temp1);
+	    set_output("out2", temp2);
 	}
 };
 
 class ConcatNode : public OmIndexerNode {
     public:
 	static OmIndexerNode *create(const OmSettings &config) {
-	    return new ConcatNode();
+	    return new ConcatNode(config);
 	}
     private:
-	ConcatNode() {};
+	ConcatNode(const OmSettings &settings) : OmIndexerNode(settings) {};
 	void calculate() {
 	    std::string in1 = get_input_string("in1");
 	    std::string in2 = get_input_string("in2");
 
 	    std::string out = in1 + in2;
 
-	    set_output_string("out", out);
+	    set_output("out", out);
 	}
 };
 

@@ -64,6 +64,9 @@ class OmIndexer {
 	/** The final node (which produces the final results) */
 	OmIndexerNode *final;
 
+	/** The name of the output from final which produces the final results */
+	std::string final_out;
+
 	/** The start node */
 	OmIndexerStartNode *start;
 };
@@ -190,7 +193,8 @@ class OmIndexerBuilder {
 	 *
 	 *  @param type  The node type.
 	 */
-	OmIndexerNode *make_node(const std::string &type);
+	OmIndexerNode *make_node(const std::string &type,
+				 const OmSettings &config);
 
 	/** Node descriptor */
 	struct node_desc {

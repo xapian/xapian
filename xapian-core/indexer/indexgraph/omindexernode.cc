@@ -136,7 +136,8 @@ OmIndexerNode::calculate_if_needed(const std::string &output_name)
     }
 }
 
-OmIndexerNode::OmIndexerNode()
+OmIndexerNode::OmIndexerNode(const OmSettings &settings_)
+	: settings(settings_)
 {
 }
 
@@ -169,6 +170,19 @@ Record::Record(const std::string &name_, const std::string &value_)
 	: name(name_), type(rt_string)
 {
     u.string_val = new std::string(value_);
+}
+
+Record::Record(const std::string &name_,
+	       const std::vector<Record> &value)
+	: name(name_), type(rt_vector)
+{
+    u.vector_val = new std::vector<Record>(value.size());
+    try {
+	copy(value.begin(), value.end(), u.vector_val->begin());
+    } catch (...) {
+	delete u.vector_val;
+	throw;
+    }
 }
 
 Record::Record(const Record &other)
@@ -322,6 +336,27 @@ Record::get_string() const
     return *u.string_val;
 }
 
+int
+Record::get_vector_length() const
+{
+    if (type != rt_vector) {
+	throw OmTypeError("Record::get_vector_length() called for non-vector value");
+    }
+    return u.vector_val->size();
+}
+
+const Record &
+Record::operator[](unsigned int offset) const
+{
+    if (type != rt_vector) {
+	throw OmTypeError("Record::get_vector_length() called for non-vector value");
+    }
+    if (offset > u.vector_val->size()) {
+	throw OmRangeError("Access to non-existant element of vector record");
+    }
+    return (*u.vector_val)[offset];
+}
+
 void
 OmIndexerNode::connect_input(const std::string &input_name,
 			     OmIndexerNode *other_node,
@@ -334,7 +369,7 @@ OmIndexerNode::connect_input(const std::string &input_name,
     inputs[input_name] = con;
 }
 
-void OmIndexerNode::set_output_record(const std::string &output_name,
+void OmIndexerNode::set_output(const std::string &output_name,
 				      Message value)
 {
     /*cout << "Setting output \"" << output_name
@@ -343,7 +378,7 @@ void OmIndexerNode::set_output_record(const std::string &output_name,
     outputs_record[output_name] = new Message(value);
 }
 
-void OmIndexerNode::set_output_string(const std::string &output_name,
+void OmIndexerNode::set_output(const std::string &output_name,
 				      const std::string &value)
 {
     /*cout << "Setting output \"" << output_name
@@ -353,7 +388,7 @@ void OmIndexerNode::set_output_string(const std::string &output_name,
     outputs_record[output_name] = new Message(mess);
 }
 
-void OmIndexerNode::set_output_int(const std::string &output_name,
+void OmIndexerNode::set_output(const std::string &output_name,
 				   int value)
 {
     /*cout << "Setting output \"" << output_name
@@ -363,7 +398,7 @@ void OmIndexerNode::set_output_int(const std::string &output_name,
     outputs_record[output_name] = new Message(mess);
 }
 
-void OmIndexerNode::set_output_double(const std::string &output_name,
+void OmIndexerNode::set_output(const std::string &output_name,
 				      double value)
 {
     /*cout << "Setting output \"" << output_name
@@ -371,6 +406,11 @@ void OmIndexerNode::set_output_double(const std::string &output_name,
     // TODO: check that it isn't already set?
     Message mess(new Record("double", value));
     outputs_record[output_name] = new Message(mess);
+}
+std::string
+OmIndexerNode::get_config_string(const std::string &key) const
+{
+    return settings.get(key);
 }
 
 Message OmIndexerNode::get_input_record(const std::string &input_name)
@@ -442,8 +482,14 @@ std::ostream &operator<<(std::ostream &os, const Record &record)
 	    os << "string}: " << record.get_name() << "=" << record.get_string();
 	    break;
 	case Record::rt_vector:
-	    // FIXME: implement this
-	    os << "vector}: length " << record.get_name() << "=..."/* << record.u.vector_val->size()*/;
+	    os << "vector}: " << record.get_name() << "= [ ";
+	    for (int i=0; i<record.get_vector_length(); ++i) {
+		if (i > 0) {
+		    os << ", ";
+		}
+		os << record[i];
+	    }
+	    os << " ]";
 	    break;
     }
     return os;
