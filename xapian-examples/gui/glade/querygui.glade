@@ -10,7 +10,7 @@
   <language>C</language>
   <gnome_support>True</gnome_support>
   <gettext_support>True</gettext_support>
-  <use_widget_names>False</use_widget_names>
+  <use_widget_names>True</use_widget_names>
   <output_main_file>True</output_main_file>
   <output_support_files>True</output_support_files>
   <output_build_files>True</output_build_files>
