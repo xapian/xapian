@@ -610,32 +610,22 @@ main(int argc, char **argv)
     // Catch any OmError exceptions thrown
     try {
 	// Make the database
-	OmSettings settings;
-	std::string logfile(argv[1]);
-	logfile += "/log";
-	settings.set("backend", "quartz");
-	settings.set("quartz_dir", argv[1]);
-	if (!quiet) {
-	    settings.set("quartz_logfile", logfile);
-	}
-	if (!update_db) {
-	    settings.set("database_create", true);
-	    settings.set("database_allow_overwrite", true);
-	}
 	// Sleep and retry if we get an OmDatabaseLockError - this just means
 	// that another process is updating the database
-	OmWritableDatabase *try_db = NULL;
+	OmWritableDatabase database;
 	while (true) {
 	    try {
-		try_db = new OmWritableDatabase(settings);
+		if (update_db) {
+		    database = OmAuto__open(argv[1], OM_DB_CREATE_OR_OPEN);
+		} else {
+		    database = OmAuto__open(argv[1], OM_DB_CREATE_OR_OVERWRITE);
+		}
 		break;
 	    } catch (const OmDatabaseLockError &error) {
 		cout << "Database locked ... retrying" << endl;
 		sleep(1);
 	    }
 	}
-	OmWritableDatabase database(*try_db);
-	delete try_db;
 	OmStem stemmer("english"); 
 
 	addcount = 0;
@@ -657,14 +647,11 @@ main(int argc, char **argv)
 
 	cout << "records (added, replaced, deleted) = (" << addcount <<
 		", " << repcount << ", " << delcount << ")" << endl;
-    }
-    catch (const OmError &error) {
+    } catch (const OmError &error) {
 	cout << "Exception: "  << error.get_msg() << endl;
 	exit(1);
-    }
-    catch (...) {
+    } catch (...) {
 	cout << "Unknown Exception" << endl;
 	exit(1);
     }
-    return 0;
 }

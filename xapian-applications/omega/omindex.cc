@@ -61,7 +61,7 @@ static string dbpath;
 static string root;
 static string indexroot;
 static string baseurl;
-static OmWritableDatabase *db;
+static OmWritableDatabase db;
 
 // Put a limit on the size of terms to help prevent the index being bloated
 // by useless junk terms
@@ -227,7 +227,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 
     cout << "Indexing \"" << url << "\" as " << mimetype << " ... ";
 
-    if (dupes==DUPE_ignore && db->term_exists("U" + baseurl + url)) {
+    if (dupes==DUPE_ignore && db.term_exists("U" + baseurl + url)) {
 	cout << "duplicate. Ignored." << endl;
 	return;
     }
@@ -382,23 +382,23 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
     newdocument.add_term_nopos("Y" + string(buf)); // Year (YYYY)
     newdocument.add_term_nopos("U" + baseurl + url); // Url
 
-    if (dupes==DUPE_replace && db->term_exists("U" + baseurl + url)) {
+    if (dupes==DUPE_replace && db.term_exists("U" + baseurl + url)) {
 	// This document has already been indexed - update!
 	try {
-	    auto_ptr<OmEnquire> enq = auto_ptr<OmEnquire>(new OmEnquire(*db));
+	    auto_ptr<OmEnquire> enq = auto_ptr<OmEnquire>(new OmEnquire(db));
 	    enq->set_query(OmQuery("U" + baseurl + url));
 	    OmMSet mset = enq->get_mset(0, 1);
 	    try {
-		db->replace_document(*mset[0], newdocument);
+		db.replace_document(*mset[0], newdocument);
 	    } catch (...) {
 	    }
 	} catch (...) {
-	    db->add_document(newdocument);
+	    db.add_document(newdocument);
 	    cout << "(failed re-seek) ";
 	}
 	cout << "duplicate. Re-indexed." << endl;
     } else {
-	db->add_document(newdocument);
+	db.add_document(newdocument);
 	cout << "done." << endl;
     }
 }
@@ -586,32 +586,19 @@ main(int argc, char **argv)
 	indexroot = ""; // index the whole of root
     }
 
-    OmSettings params;
-    params.set("backend", "quartz");
-    params.set("quartz_dir", dbpath);
     try {
-	try {
-	    db = new OmWritableDatabase(params);
-	} catch (OmOpeningError& error) {
-	    params.set("database_create", true);
-	    db = new OmWritableDatabase(params);
-	}
+	db = OmWritableDatabase(OmAuto__open(dbpath, OM_DB_CREATE_OR_OPEN));
 	index_directory("/", mime_map);
-	//      db->reopen(); // Ensure we're up to date
-	//      cout << "\n\nNow we have " << db->get_doccount() << " documents.\n";
-	delete db;
-    }
-    catch (const OmError &e) {
+	//      db.reopen(); // Ensure we're up to date
+	//      cout << "\n\nNow we have " << db.get_doccount() << " documents.\n";
+	db.flush();
+    } catch (const OmError &e) {
 	cout << "Exception: " << e.get_msg() << endl;
-    }
-    catch (const string &s) {
+    } catch (const string &s) {
 	cout << "Exception: " << s << endl;
-    }
-    catch (const char *s) {
+    } catch (const char *s) {
 	cout << "Exception: " << s << endl;
-    }
-    catch (...) {
+    } catch (...) {
 	cout << "Caught unknown exception" << endl;
     }
-    return 0;   
 }

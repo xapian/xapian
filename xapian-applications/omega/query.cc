@@ -117,7 +117,7 @@ set_probabilistic(const string &newp, const string &oldp)
 			    option["all_stem"] == "true",
 			    new MyStopper()); 
     qp.set_default_op(default_op);
-    if (omdb) qp.set_database(*omdb);
+    qp.set_database(omdb);
     try {
 	query = qp.parse_query(raw_prob);
     }
@@ -987,18 +987,17 @@ eval(const string &fmt, const vector<string> &param)
 		value = int_to_string(total);
 		break;
 	    }
-	    case CMD_allterms:
-		if (omdb) {
-		    // list of all terms indexing document
-		    int id = q0;
-		    if (!args.empty()) id = string_to_int(args[0]);
-		    OmTermIterator term = omdb->termlist_begin(id);
-		    for ( ; term != omdb->termlist_end(id); term++)
-			value = value + *term + '\t';
+	    case CMD_allterms: {
+		// list of all terms indexing document
+		int id = q0;
+		if (!args.empty()) id = string_to_int(args[0]);
+		OmTermIterator term = omdb.termlist_begin(id);
+		for ( ; term != omdb.termlist_end(id); term++)
+		    value = value + *term + '\t';
 
-		    if (!value.empty()) value.erase(value.size() - 1);
-		}
+		if (!value.empty()) value.erase(value.size() - 1);
 		break;
+	    }
 	    case CMD_and: {
 		value = "true";
 		for (vector<string>::const_iterator i = args.begin();
@@ -1079,7 +1078,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_error:
-		if (error_msg.empty() && omdb == NULL) {
+		if (error_msg.empty() && enquire == NULL) {
 		    error_msg = "Database `" + dbname + "' couldn't be opened"; 
 		}
 		value = error_msg;
@@ -1111,12 +1110,10 @@ eval(const string &fmt, const vector<string> &param)
 		value = fmtname;
 		break;
 	    case CMD_freq: 
-		if (omdb) {
-		    try {
-			value = int_to_string(mset.get_termfreq(args[0]));
-		    } catch (...) {
-			value = int_to_string(omdb->get_termfreq(args[0]));
-		    }
+		try {
+		    value = int_to_string(mset.get_termfreq(args[0]));
+		} catch (...) {
+		    value = int_to_string(omdb.get_termfreq(args[0]));
 		}
 		break;
 	    case CMD_freqs:
@@ -1401,13 +1398,12 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		break;
 	    }
-	    case CMD_record:
-		if (omdb) {
-		    int id = q0;
-		    if (!args.empty()) id = string_to_int(args[0]);
-		    value = omdb->get_document(id).get_data();
-		}
+	    case CMD_record: {
+		int id = q0;
+		if (!args.empty()) id = string_to_int(args[0]);
+		value = omdb.get_document(id).get_data();
 		break;
+	    }
 	    case CMD_relevant: {
 		// document id if relevant; empty otherwise
 		int id = q0;
@@ -1514,7 +1510,7 @@ eval(const string &fmt, const vector<string> &param)
 
 		    // List of expand terms
 		    OmESet eset;
-		    ExpandDeciderOmega decider(*omdb);
+		    ExpandDeciderOmega decider(omdb);
 
 		    if (!rset->empty()) {
 			eset = enquire->get_eset(howmany, *rset, &decider);
@@ -1625,7 +1621,7 @@ pretty_term(const string & term)
 
     // If the term wasn't indexed unstemmed, it's probably a non-term
     // e.g. "litr" - the stem of "litre"
-    if (!omdb->term_exists('R' + term))
+    if (!omdb.term_exists('R' + term))
 	return term + '.';
 
     if (!stemmer)
@@ -1658,7 +1654,7 @@ print_caption(const string &fmt, const vector<string> &param)
 
     percent = mset.convert_to_percent(mset[hit_no]);
 
-    OmDocument doc = omdb->get_document(q0);
+    OmDocument doc = omdb.get_document(q0);
     string text = doc.get_data();
 
     // parse record

@@ -40,7 +40,7 @@ extern string dbname;
 extern string fmtname;
 extern string filters;
 
-extern OmDatabase * omdb;
+extern OmDatabase omdb;
 extern OmEnquire * enquire;
 extern OmRSet * rset;
 

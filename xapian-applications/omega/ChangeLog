@@ -1,8 +1,13 @@
+Wed Dec 04 18:42:51 GMT 2002  Olly Betts <olly@survex.com>
+
+	* omega.cc,omega.h,omindex.cc,query.cc,scriptindex.cc:
+	  Updated in line with OmSettings related changes to the API.
+
 Wed Dec 04 17:13:43 GMT 2002  Olly Betts <olly@survex.com>
 
-	* query.cc: Fixed $dbname to return "default" for
-	  the default database, rather than "" - this fixes paging in searches
-	  of the default database.
+	* query.cc: Fixed $dbname to return "default" for the default
+	  database, rather than "" - this fixes paging in searches of the
+	  default database.
 	* templates/query: Removed xDEFAULTOP hidden field which is no longer
 	  used.
 

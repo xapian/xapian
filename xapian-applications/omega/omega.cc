@@ -42,7 +42,7 @@
 using namespace std;
 
 OmEnquire * enquire;
-OmDatabase * omdb;
+OmDatabase omdb;
 OmRSet * rset;
 
 map<string, string> option;
@@ -165,7 +165,6 @@ main2(int argc, char *argv[])
 	hits_per_page = 1000;
     }
 
-    omdb = new OmDatabase();
     try {
 	// get database(s) to search
 	dbname = "";
@@ -181,25 +180,18 @@ main2(int argc, char *argv[])
 			// Translate DB parameter to path of database directory
 			if (!dbname.empty()) dbname += '/';
 			dbname += *i;
-			OmSettings params;          
-			params.set("backend", "auto");
-			params.set("auto_dir", map_dbname_to_dir(*i));
-			omdb->add_database(params);
+			omdb.add_database(OmAuto__open(map_dbname_to_dir(*i)));
 		    }
 		}
 	    }
 	}
 	if (dbname.empty()) {
 	    dbname = default_dbname;
-	    OmSettings params;          
-	    params.set("backend", "auto");
-	    params.set("auto_dir", map_dbname_to_dir(dbname));
-	    omdb->add_database(params);
+	    omdb.add_database(OmAuto__open(map_dbname_to_dir(dbname)));
 	}
-	enquire = new OmEnquire(*omdb);
+	enquire = new OmEnquire(omdb);
     }
     catch (const OmError &e) {
-	omdb = NULL;
 	enquire = NULL;
     }
 
@@ -223,15 +215,15 @@ main2(int argc, char *argv[])
 	if (docid == 0) {
 	    // Assume it's MORELIKE=Quid1138 and that Quid1138 is a UID
 	    // from an external source - we just find the correspond docid
-	    OmPostListIterator p = omdb->postlist_begin(val->second);
-	    if (p != omdb->postlist_end(val->second)) docid = *p;
+	    OmPostListIterator p = omdb.postlist_begin(val->second);
+	    if (p != omdb.postlist_end(val->second)) docid = *p;
 	}
 	
 	if (docid != 0) {
 	    OmRSet tmprset;
 	    tmprset.add_document(docid);
 
-	    ExpandDeciderOmega decider(*omdb);
+	    ExpandDeciderOmega decider(omdb);
 	    OmESet eset(enquire->get_eset(6, tmprset, &decider));
 	    for (OmESetIterator i = eset.begin(); i != eset.end(); i++) {
 		if ((*i).empty()) continue;
