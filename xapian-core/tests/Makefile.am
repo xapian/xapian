@@ -36,7 +36,7 @@ internaltest_SOURCES = internaltest.cc
 internaltest_LDADD = ../testsuite/libtest.la ../libxapian.la
 
 btreetest_CXXFLAGS = -I$(top_srcdir)/backends/quartz
-btreetest_SOURCES = btreetest.cc $(top_srcdir)/backends/quartz/btreecheck.cc
+btreetest_SOURCES = btreetest.cc
 btreetest_LDADD = ../testsuite/libtest.la ../backends/quartz/libbtreecheck.la \
 	../libxapian.la
 
