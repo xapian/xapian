@@ -58,18 +58,18 @@ char *fmtstr =
 "<INPUT TYPE=checkbox NAME=R VALUE=$id$if{$relevant, CHECKED}>"
 "</TD></TR></TABLE></TD>\n"
 "<TD>\n"
-"<B><A HREF=\"$url{$field{url}}\">"
+"<B><A HREF=\"$field{url}\">"
 "$html{$or{$field{caption},$field{url},Untitled}}"
 "</A></B><BR>\n"
 "$html{$field{sample}}$if{$field{sample},...}"
 "<BR>\n"
-"<A HREF=\"$url{$field{url}}\">$html{$field{url}}</A><BR>\n"
+"<A HREF=\"$field{url}\">$html{$field{url}}</A><BR>\n"
 "<small>Language: <b>$html{$or{$field{language},unknown}}</b>\n"
 "Size: <b>"
 "$html{$or{$filesize{$field{size}},unknown}}"
 "</b>\n"		       
 "Last modified: <b>$html{$or{$date{$field{modified}},unknown}}</b>\n"
-"<br>$percentage% relevant, matching: <i>$html{$list{$terms, , and }}</i></small>\n"
+"<br>$percentage% relevant, matching: <i>$html{$list{$terms, ,</i> and <i>}}</i></small>\n"
 "</TD></TR>\n";
 
 char *pagefmtstr =
@@ -108,7 +108,8 @@ char *pagefmtstr =
 "$hitlist\n"
 "</table>\n"
 //\PAGES.G
-"$ifneq{$cgi{DB},default,<INPUT TYPE=hidden NAME=DB VALUE=\"$html{$cgi{DB}}\">}\n"
+// FIXME: what if multiple DB parameters?
+"$if{$cgi{DB},<INPUT TYPE=hidden NAME=DB VALUE=\"$html{$cgi{DB}}\">}\n"
 "$if{$topdoc,<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>}\n"
 "$ifneq{$maxhits,10,<INPUT TYPE=hidden NAME=MAXHITS VALUE=$maxhits>}\n"
 "$if{$fmt,<INPUT TYPE=hidden NAME=FMT VALUE=\"$html{$fmt}\">}\n"
@@ -677,7 +678,7 @@ eval(const string &fmt)
 		}
 #endif
 		ensure_match();		
-		for (om_docid m = topdoc; m <= last; m++)
+		for (om_docid m = topdoc; m < last; m++)
 		    value += print_caption(m);
 
 		ok = true;
@@ -719,7 +720,7 @@ eval(const string &fmt)
 	    if (var == "lastpage") {
 		ensure_match();		
 		// "true" if last page, empty otherwise
-		if (last >= mset.mbound - 1) value = "true";
+		if (last >= mset.mbound) value = "true";
 		ok = true;
 		break;
 	    }
@@ -1009,7 +1010,7 @@ print_caption(om_docid m)
     int arg[3];
     bool print = false;
     arg[0] = topdoc + 1;
-    arg[1] = last + 1;
+    arg[1] = last;
     arg[2] = mset.mbound;
     string text = string(yytext + 6, yyleng - 6);
     /* We're doing:
@@ -1036,7 +1037,7 @@ print_caption(om_docid m)
 	 * we got exactly MLIMIT hits, this will misreport... */
 	/* FIXME: could use Mike Gatford's "1001" trick */
 	if (0 < mset.mbound && mset.mbound != MLIMIT &&
-	    (topdoc == 0 && last + 1 == mset.mbound)) {	       
+	    (topdoc == 0 && last == mset.mbound)) {	       
 	    arg[0] = mset.mbound;
 	    print = true;
 	}
@@ -1047,7 +1048,7 @@ print_caption(om_docid m)
 	 * we got exactly MLIMIT hits, this will misreport... */
 	/* FIXME: could use Mike Gatford's "1001" trick */
 	if (0 < mset.mbound && mset.mbound != MLIMIT &&
-	    !(topdoc == 0 && last + 1 == mset.mbound)) print = true;
+	    !(topdoc == 0 && last == mset.mbound)) print = true;
 	break;
     }
     if (print) cout << pretty_sprintf(text.c_str(), arg);
@@ -1101,7 +1102,7 @@ ensure_match()
     if (topdoc > mset.mbound) topdoc = 0;
     
     if (topdoc + list_size < mset.mbound)
-	last = topdoc + list_size - 1;
+	last = topdoc + list_size;
     else
-	last = mset.mbound - 1;
+	last = mset.mbound;
 }
