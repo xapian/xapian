@@ -821,19 +821,6 @@ OmEnquireInternal::open_database() const
     }
 }
 
-#if 0
-// Add a new database to list.  If database already opened, close it.
-inline void
-OmEnquireInternal::add_database(const DatabaseBuilderParams & newdb)
-{
-    if(database != 0) {
-	delete database;
-	database = 0;
-    }
-    dbparams.push_back(newdb);
-}
-#endif
-
 inline void
 OmEnquireInternal::set_query(const OmQuery &query_)
 {
@@ -1075,16 +1062,6 @@ OmEnquire::~OmEnquire()
 //////////////////
 // Set database //
 //////////////////
-
-#if 0
-void
-OmEnquire::add_database(const string & type,
-			const vector<string> & params)
-{
-    OmLockSentry locksentry(internal->mutex);
-    internal->add_database(type, params);
-}
-#endif
 
 void
 OmEnquire::set_query(const OmQuery & query_)
