@@ -5,7 +5,8 @@ DVIPS = @DVIPS_PATH@
 LATEX = @LATEX_PATH@
 
 HTMLFILES = index.html intro.html intro_ir.html userman.html \
-        stemming.html porterstem.html using_stemmers.html quickstart.html
+        stemming.html porterstem.html using_stemmers.html quickstart.html \
+	quartzdesign.html
 
 # Files which should be put in the distribution by automake
 EXTRA_DIST = mkdoc.pl.in todo2html.pl.in todo.xml \
