@@ -1,3 +1,8 @@
+Wed Nov 17 16:29:55 GMT 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Index Wordperfect documents with wpd2text, if available.
+	* docs/overview.txt: Document this.
+
 Wed Nov 17 15:12:08 GMT 2004  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Index MS Word documents with antiword, if available.

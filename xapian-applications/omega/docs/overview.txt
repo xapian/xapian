@@ -170,11 +170,12 @@ Currently omindex can index:
 * HTML (.html, .htm, .shtml)
 * PHP (.php) - our HTML parser knows to ignore PHP code
 * text files (.txt, .text)
-* PDF (.pdf) if pdftotext is available
+* PDF (.pdf) if pdftotext is available (comes with xpdf)
 * PostScript (.ps, .eps, .ai) if pstotext is available
 * OpenOffice/StarOffice documents (.sxc, .stc, .sxd, .std, .sxi, .sti, .sxm,
   .sxw, .sxg, .stw) if unzip is available
 * MS Word documents (.doc) if antiword is available
+* Wordperfect documents (.wpd) if wpd2text is available (comes with libwpd)
 
 If you have additional extensions that represent one of these types, you need
 to add an additional MIME mapping using the --mime-type option. For instance:
@@ -201,6 +202,7 @@ of:
     application/vnd.sun.xml.writer
     application/vnd.sun.xml.writer.global
     application/vnd.sun.xml.writer.template
+    application/vnd.wordperfect
 
 --duplicates configures how omindex handles duplicates (detected on
 URL). 'ignore' means to ignore a document if it already appears to be
