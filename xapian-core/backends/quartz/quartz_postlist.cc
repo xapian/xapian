@@ -485,6 +485,12 @@ QuartzPostList::skip_to(om_docid desired_did, om_weight w_min)
     if (desired_did <= did) RETURN(NULL);
 
     move_to(desired_did);
+
+    DEBUGLINE(DB, string("Skipped to ") <<
+	      (is_at_end ? string("end.") : string("docid, wdf, doclength = ") +
+	       om_tostring(did) + ", " + om_tostring(wdf) + ", " +
+	       om_tostring(doclength) + "."));
+    
     RETURN(NULL);
 }
 
