@@ -153,7 +153,9 @@ Database::add_document(const OmDocumentContents & document,
 	}
 	throw;
     }
-    do_end_session();
+    if (implicit_session) {
+	do_end_session();
+    }
 
     return did;
 }
@@ -181,7 +183,9 @@ Database::delete_document(om_docid did, om_timeout timeout)
 	}
 	throw;
     }
-    do_end_session();
+    if (implicit_session) {
+	do_end_session();
+    }
 }
 
 void
@@ -209,7 +213,9 @@ Database::replace_document(om_docid did,
 	}
 	throw;
     }
-    do_end_session();
+    if (implicit_session) {
+	do_end_session();
+    }
 }
 
 OmDocumentContents
