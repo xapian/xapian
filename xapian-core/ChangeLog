@@ -1,3 +1,9 @@
+Tue Feb 29 10:49:54 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed apitest following the stemming changes
+
+	* Fixed a bug which broke query length calculation
+
 Mon Feb 28 17:26:01 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added a test for the query collapsing, along with a fix.

@@ -322,7 +322,7 @@ OmQueryInternal::OmQueryInternal(const om_termname & tname_,
 		 om_termcount wqf_,
 		 om_termpos term_pos_)
 	: isdefined(true), isbool(false), op(OM_MOP_LEAF),
-	qlen(wqf), tname(tname_), term_pos(term_pos_), wqf(wqf_)
+	qlen(wqf_), tname(tname_), term_pos(term_pos_), wqf(wqf_)
 {}
 
 OmQueryInternal::OmQueryInternal(om_queryop op_,

@@ -55,8 +55,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Low     | Matcher         | Test implementation of BM25 weight
 ---------+-----------------+--------------------------------------------------
- Low	 |CStemming	   | "one" should probably stem to "one", not "on"
----------+-----------------+--------------------------------------------------
  Low     | Website         | Put TeX documentation on website.
 ---------+-----------------+--------------------------------------------------
  Low     | Documentation   | Merge output of mkdoc.pl with doc++ output. 

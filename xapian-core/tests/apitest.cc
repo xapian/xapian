@@ -999,7 +999,7 @@ bool test_getmterms1()
     bool success = true;
     
     static string answers[4] = {
-	"on",  // FIXME: "one" shouldn't stem to "on"
+	"one",
 	"two",
 	"three",
 	"four"
@@ -1013,9 +1013,7 @@ bool test_getmterms1()
 
     OmQuery myquery(OM_MOP_OR,
 	    OmQuery(OM_MOP_AND,
-		    OmQuery("on", 1, 1), // FIXME: "on" is the stemmed
-		    			 // form of "one".  Probably
-					 // shouldn't be.
+		    OmQuery("one", 1, 1),
 		    OmQuery("three", 1, 3)),
 	    OmQuery(OM_MOP_OR,
 		    OmQuery("four", 1, 4),
