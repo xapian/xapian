@@ -1,3 +1,9 @@
+Fri Oct 04 22:34:12 BST 2002  Olly Betts <olly@survex.com>
+
+	* PLATFORMS,testsuite/testutils.h: Code to spot mishandled exceptions
+	  doesn't always work - noted this in PLATFORMS, and tweaked the code
+	  a little.
+
 Fri Oct 04 19:08:08 BST 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/.cvsignore: Added quartzcheck.

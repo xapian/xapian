@@ -88,12 +88,13 @@ void test_mset_order_equal(const OmMSet &mset1, const OmMSet &mset2);
 
 /// Check that a piece of code throws an expected exception
 #define TEST_EXCEPTION(a,b) do {\
+	try{\
 	if (verbose) tout << "Expecting exception "STRINGIZE(a) << endl;\
 	try {b;FAIL_TEST(TESTCASE_LOCN(Expected #a));}\
 	catch(const a &e){\
 	if (verbose) tout << "Caught expected "STRINGIZE(a)" exception: " << e.get_msg() << endl;\
-	}\
-	catch(const OmError &e){\
+	}}\
+	catch(OmError &e){\
 	const char *name = typeid(e).name();\
 	if (strcmp(name, STRINGIZE(a)) == 0){\
 	tout << "COMPILER EXCEPTION HANDLING IS BROKEN!!!" << endl;\

@@ -4,12 +4,14 @@ have reported back to us about.  It will probably work on many more platforms
 we've not tested it ourselves and nobody has reported to us that it works.
 
 A general note about GCC 2.95 - on many platforms, certain tests (deldoc1
-notably) would fail with OMEXCEPT - investigation reveals that the correct
+notably) may fail with OMEXCEPT - investigation reveals that the correct
 exception is being thrown, but is leaking through the catch block somehow.
-Adding tracing code often makes the test pass.  We believe this is a code
+Adding tracing code often makes the test pass!  We believe this is a code
 generation problem or similar - it's never been reported with GCC 3.0 or
 newer.  The testsuite framework now uses RTTI (Run Time Type Information)
-to detect mishandled exceptions and doesn't count them as failures:
+to attempt to detect mishandled exceptions and ignore them.  This isn't
+totally effective, and the table below ignores test failures due to OMEXCEPT
+which investigation shows are due to mishandled exceptions.
 
 Arch  | Platform                       |Version|Status| Notes / requirements
 ------+--------------------------------+-------+------+------------------------
@@ -17,7 +19,7 @@ x86   | Linux 2.4 Debian 3.0 GCC 2.95.4| 0.5.1 |Passed|
 x86   | Linux 2.4 Debian 3.0 GCC 3.0   | 0.5.0 |Passed|
 x86   | Linux 2.2 Debian 2.2 GCC 2.95.4| 0.5.0 |Passed|
 x86   |*Linux 2.4 Debian 2.2 GCC 2.95.4| 0.5.1 |Passed|
-x86   |*Linux 2.4 RedHat 7.3 GCC 2.96  | 0.5.1+|Passed| [3]
+x86   |*Linux 2.4 RedHat 7.3 GCC 2.96  | 0.5.1+|Passed|
 x86   | Linux 2.4 RedHat 7.3 GCC 3.1   | 0.5.0 |Passed| from Jan Algermissen
 x86   |*FreeBSD 4.5                    | 0.5.1 |Passed| [1]
 x86   |!OpenBSD 3.0 GCC 2.95.3	       | 0.5.0 |Passed|
@@ -40,7 +42,3 @@ ppc   |*Darwin 5.4 - OS X 10.1         | 0.5.0 |Failed| [2] All tests fail
 [1] ./configure spits many warnings but apparently succeeds.
 
 [2] Must be compiled as a static library (--disable-shared).
-
-[3] multierrhandler1 fails on remote backend unless you configure with
---disable-shared or --disable-remote-backend.  The code this uses casts
-away const-ness which might cause problems...
