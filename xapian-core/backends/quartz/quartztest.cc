@@ -1194,7 +1194,7 @@ static bool test_adddoc2()
     document_in2.add_posting("foobar", 1);
     document_in2.add_posting("falling", 2);
     {
-	OmWritableDatabase database = OmQuartz__open(dbdir, true);
+	OmWritableDatabase database = OmQuartz__open(dbdir, OM_DB_CREATE);
 
 	TEST_EQUAL(database.get_doccount(), 0);
 	TEST_EQUAL(database.get_avlength(), 0);
@@ -1920,9 +1920,9 @@ static bool test_writelock1()
     deletedir(dbname);
     makedir(dbname);
 
-    OmWritableDatabase writer = OmQuartz__open(dbname, true);
+    OmWritableDatabase writer = OmQuartz__open(dbname, OM_DB_CREATE);
     TEST_EXCEPTION(OmDatabaseLockError, 
-	OmWritableDatabase writer2 = OmQuartz__open(dbname, false));
+	OmWritableDatabase writer2 = OmQuartz__open(dbname, OM_DB_OPEN));
     return true;
 }
 

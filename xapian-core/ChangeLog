@@ -1,3 +1,8 @@
+Sat Dec 07 20:17:42 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartztest.cc: Fixed parameters passed to
+	  OmQuartz__open().
+
 Sat Dec 07 16:41:25 GMT 2002  Olly Betts <olly@survex.com>
 
 	* docs/tests.html,testsuite/testsuite.cc: The testsuite won't install
