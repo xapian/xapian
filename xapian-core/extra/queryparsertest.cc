@@ -23,7 +23,7 @@
  */
 
 #include <config.h>
-#include "omparsequery.h"
+#include "queryparser.h"
 #include <iostream>
 #include <string>
 
@@ -53,7 +53,7 @@ static test tests[] = {
 int
 main(void)
 {
-    OmQueryParser qp;
+    Xapian::QueryParser qp;
     qp.set_stemming_options("english");
     qp.prefixes.insert(pair<string, string>("author", "A"));
     test *p = tests;

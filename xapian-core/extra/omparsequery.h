@@ -1,9 +1,8 @@
-/* parsequery.h: parser for omega query strings
+/* omparsequery.h: Map old omparsequery.h names to new Xapian names to allow
+ * old applications to be compiled unmodified.
  *
  * ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,68 +21,13 @@
  * -----END-LICENCE-----
  */
 
-#ifndef XAPIAN_INCLUDED_PARSEQUERY_H
-#define XAPIAN_INCLUDED_PARSEQUERY_H
+#ifndef XAPIAN_INCLUDED_OMPARSEQUERY_H
+#define XAPIAN_INCLUDED_OMPARSEQUERY_H
 
-#include <xapian.h>
+#include <om/om.h>
+#include <xapian/queryparser.h>
 
-#include <list>
-#include <map>
-#include <string>
-
-class OmStopper {
-    public:
-	virtual bool operator()(const std::string &/*term*/) {
-	    return false;
-	}
-};
-
-class OmQueryParser {
-    private:
-	// Prevent copying
-	OmQueryParser(const OmQueryParser &);
-	OmQueryParser & operator=(const OmQueryParser &);
-    
-    public:
-	OmQueryParser() : default_op(Xapian::Query::OP_OR), stop(NULL), stemmer(NULL),
-		stem(true), stem_all(false)
-	{
-	    set_stemming_options("english");
-	}
-	
-	void set_stemming_options(const std::string &lang,
-				  bool stem_all_ = false,
-				  OmStopper *stop_ = NULL);
-	
-	void set_default_op(Xapian::Query::op default_op_) {
-	    default_op = default_op_;
-	}
-
-	void set_database(const Xapian::Database &db_) {
-	    db = db_;
-	}
-
-	Xapian::Query parse_query(const std::string &q);
-	
-	std::list<std::string> termlist;
-	std::list<std::string> stoplist;
-
-	std::multimap<std::string, std::string> unstem;
-
-	// Map "from" -> "A" ; "subject" -> "C" ; "newsgroups" -> "G" ;
-	// "foobar" -> "XFOO"
-	std::map<std::string, std::string> prefixes;
-
-	// don't touch these - FIXME: make private and use friend...
-	Xapian::Query::op default_op;
-
-	OmStopper *stop;
-
-	Xapian::Stem *stemmer;
-
-	bool stem, stem_all;
-
-	Xapian::Database db;
-};
+#define OmStopper Xapian::Stopper
+#define OmQueryParser Xapian::QueryParser
 
 #endif /* XAPIAN_INCLUDED_PARSEQUERY_H */

@@ -1,4 +1,4 @@
-/* parsequery.yy: parser for omega query strings
+/* queryparser.yy: parser for omega-like query strings
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -48,7 +48,7 @@ class U {
 
 #define YYSTYPE U
 
-#include "omparsequery.h"
+#include "queryparser.h"
 
 static int yyparse();
 static int yyerror(const char *s);
@@ -56,7 +56,7 @@ static int yylex();
 
 static Xapian::Query query;
 
-static OmQueryParser *qp;
+static Xapian::QueryParser *qp;
 static string q;
 %}
 
@@ -180,12 +180,12 @@ nearphr:  TERM NEAR TERM	{ $$.v.push_back($1.q); $$.v.push_back($3.q); }
 
 static string::iterator qptr;
 static int pending_token;
-static om_termpos termpos;
+static om_termpos term_pos;
 static string prefix;
 
 void
-OmQueryParser::set_stemming_options(const string &lang, bool stem_all_,
-				  OmStopper * stop_)
+Xapian::QueryParser::set_stemming_options(const string &lang, bool stem_all_,
+					  Xapian::Stopper * stop_)
 {
     if (stop) delete stop;
     stop = stop_;
@@ -391,7 +391,7 @@ more_term:
 	    term = prefix + term;
 	    prefix = "";
 	}
-	yylval = U(Xapian::Query(term, 1, termpos++));
+	yylval = U(Xapian::Query(term, 1, term_pos++));
 	qp->termlist.push_back(term);
 	qp->unstem.insert(make_pair(term, original_term));
 	return TERM;
@@ -425,12 +425,12 @@ yyerror(const char *s)
 }
 
 Xapian::Query
-OmQueryParser::parse_query(const string &q_)
+Xapian::QueryParser::parse_query(const string &q_)
 {
     qp = this;
     q = q_;
     pending_token = 0;
-    termpos = 1;
+    term_pos = 1;
     prefix = "";
     qptr = q.begin();
     if (yyparse() == 1) {

@@ -1,3 +1,7 @@
+Wed May 28 20:24:32 BST 2003  Olly Betts <olly@survex.com>
+
+	* extra/: OmQueryParser -> Xapian::QueryParser, etc.
+
 Wed May 28 20:03:48 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/omdocument.cc: Removed include of defunct header

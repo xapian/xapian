@@ -4,6 +4,6 @@ Makefile.in
 Makefile
 .deps
 .libs
-parsequery.cc
-parsequerytest
+queryparser.cc
+queryparsertest
 libomqueryparser.la
