@@ -45,7 +45,11 @@ main(int argc, char *argv[])
     
     std::vector<om_docid> recnos;
     std::vector<om_termname> terms;
-    string dbdir;
+    std::vector<string> dbs;
+
+    char separator = ' ';
+
+    bool verbose = false;
 
     bool syntax_error = false;
     while (argc && argv[0][0] == '-') {
@@ -58,31 +62,53 @@ main(int argc, char *argv[])
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "-d") == 0) {
-	    dbdir = argv[1];
+	    // provided for backward compatibility
+	    dbs.push_back(argv[1]);
 	    argc -= 2;
 	    argv += 2;
+	} else if (strcmp(argv[0], "-1") == 0) {
+	    separator = '\n';
+	    argc--;
+	    argv++;
+	} else if (strcmp(argv[0], "-v") == 0) {
+	    verbose = true;
+	    argc--;
+	    argv++;
 	} else {
 	    syntax_error = true;
 	    break;
 	}
     }
 
+    while (argc && *argv[0] != '-') {
+	dbs.push_back(*argv);
+	argc--;
+	argv++;
+    }
+
     if (syntax_error || argc != 0 || (recnos.empty() && terms.empty())) {
-	cout << "Syntax:\t" << progname << " <options>\n" <<
-		"\t-d <db>               to specify database\n" <<
-		"\t-r <recno>            for termlist\n" <<
-		"\t-t <term>             for posting list\n" <<
-		"\t-t <term> -r <recno>  for position list\n";
+	cout << "Syntax:\t" << progname << " <options> <database>...\n"
+		"\t-r <recno>            for termlist(s)\n"
+		"\t-t <term>             for posting list(s)\n"
+		"\t-t <term> -r <recno>  for position list(s)\n"
+		"\t-1                    output one list entry per line\n"
+		"\t-v                    extra info (wdf len for postlist; wdf termfreq for termlist)\n";
 	exit(1);
     }
 
     sort(recnos.begin(), recnos.end());
     
     try {
-	OmSettings params;
-	params.set("backend", "auto");
-	params.set("auto_dir", dbdir);
-	OmDatabase db(params);
+	OmDatabase db;
+	{
+	    std::vector<string>::const_iterator i;
+	    for (i = dbs.begin(); i != dbs.end(); i++) {
+		OmSettings params;
+		params.set("backend", "auto");
+		params.set("auto_dir", *i);
+		db.add_database(params);
+	    }
+	}
 
 	if (terms.empty()) {
 	    // Display termlists
@@ -92,7 +118,11 @@ main(int argc, char *argv[])
 		OmTermListIterator tend = db.termlist_end(*i);
 		cout << "Term List for record #" << *i << ':';
 		while (t != tend) {
-		    cout << '\n' << *t;
+		    cout << separator << *t;
+		    if (verbose) {
+			cout << ' ' << t.get_wdf()
+			     << ' ' << t.get_termfreq();
+		    }
 		    t++;
 		}
 		cout << endl;
@@ -117,7 +147,11 @@ main(int argc, char *argv[])
 		    // Display posting list
 		    cout << "Posting List for term `" << term << "':";
 		    while (p != pend) {
-			cout << '\n' << *p;
+			cout << separator << *p;
+			if (verbose) {
+			    cout << ' ' << p.get_wdf()
+				 << ' ' << p.get_doclength();
+			}
 			p++;
 		    }
 		    cout << endl;
@@ -136,7 +170,7 @@ main(int argc, char *argv[])
 				OmPositionListIterator pos = p.positionlist_begin();
 				OmPositionListIterator posend = p.positionlist_end();
 				while (pos != posend) {
-				    cout << '\n' << *pos;
+				    cout << separator << *pos;
 				    pos++;
 				}
 				cout << endl;

@@ -93,10 +93,9 @@ LeafPostList *
 OmDatabase::Internal::open_post_list(const om_termname & tname,
 				     const OmDatabase &db) const
 {
-    // FIXME should we special case?  term_exists does quite a bit of extra
-    // work in the (common) case when the term does exist...
-    if (db.term_exists(tname)) return new EmptyPostList();
-    
+    // Don't bother checking that the term exists first.  If it does, we
+    // just end up doing more work, and if it doesn't, we save very little
+    // work.
     std::vector<LeafPostList *> pls;
     try {
 	std::vector<RefCntPtr<Database> >::const_iterator i;

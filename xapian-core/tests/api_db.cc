@@ -1474,8 +1474,11 @@ static bool test_termlist4()
 static bool test_postlist1()
 {
     OmDatabase db(get_database("apitest_simpledata"));
+
     TEST_EXCEPTION(OmInvalidArgumentError, db.postlist_begin(""));
+
     TEST_EQUAL(db.postlist_begin("rosebud"), db.postlist_end("rosebud"));
+
     string s = "let_us_see_if_we_can_break_it_with_a_really_really_long_term.";
     s += s;
     s += s;
@@ -1486,6 +1489,10 @@ static bool test_postlist1()
     s += s;
     s += s;
     TEST_EQUAL(db.postlist_begin(s), db.postlist_end(s));
+
+    // a regression test (no, really)
+    TEST_NOT_EQUAL(db.postlist_begin("a"), db.postlist_end("a"));
+
     return true;
 }
 

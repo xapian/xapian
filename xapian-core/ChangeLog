@@ -1,3 +1,13 @@
+Thu Oct 05 13:30:49 BST 2000 Olly Betts
+
+	* OmPostListIterator: added get_doclength() and get_wdf() methods;
+	  fixed reversed conditional that stopped OmPostListIterator-s from
+	  working and added regression test.
+
+	* delve: extra info can be output for postlists and termlists (-v);
+	  can output one list per line or one item per line (-1); can take
+	  several database(s).
+
 Wed Oct 04 18:20:12 BST 2000 Olly Betts
 
 	* Merged branch_newmatcher back into HEAD - branch ChangeLog

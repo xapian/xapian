@@ -63,6 +63,10 @@ class OmPostListIterator {
 	// extra method, not required for an input_iterator
 	void skip_to(om_docid did);
 
+// need to set a weight object for this...	om_weight get_weight() const;
+	om_doclength get_doclength() const;
+        om_termcount get_wdf() const;
+
     	// allow iteration of positionlist for current term
 	OmPositionListIterator positionlist_begin();
 

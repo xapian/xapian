@@ -56,14 +56,16 @@ OmPostListIterator::operator=(const OmPostListIterator &other)
 }
 
 const om_docid
-OmPostListIterator::operator *() {
+OmPostListIterator::operator *()
+{
     DEBUGAPICALL(om_docid, "OmPostListIterator::operator*", "");
     om_docid result = internal->postlist->get_docid();
     RETURN(result);
 }
 
 OmPostListIterator &
-OmPostListIterator::operator++() { 
+OmPostListIterator::operator++()
+{
     DEBUGAPICALL(OmPostListIterator &, "OmPostListIterator::operator++", "");
     PostList *p = internal->postlist->next();
     if (p) internal->postlist = p; // handle prune
@@ -71,7 +73,8 @@ OmPostListIterator::operator++() {
 }
 
 void
-OmPostListIterator::operator++(int) {
+OmPostListIterator::operator++(int)
+{
     DEBUGAPICALL(void, "OmPostListIterator::operator++", "int");
     PostList *p = internal->postlist->next();
     if (p) internal->postlist = p; // handle prune
@@ -79,11 +82,34 @@ OmPostListIterator::operator++(int) {
 
 // extra method, not required to be an input_iterator
 void
-OmPostListIterator::skip_to(om_docid did) {
+OmPostListIterator::skip_to(om_docid did)
+{
     DEBUGAPICALL(void, "OmPostListIterator::skip_to", did);
     PostList *p = internal->postlist->skip_to(did, 0);
     if (p) internal->postlist = p; // handle prune
 }    
+
+// need to set IRWeight object for this to work
+//om_weight
+//OmPostListIterator::get_weight() const
+//{
+//    DEBUGAPICALL(om_weight, "OmPostListIterator::get_weight", "");
+//    RETURN(internal->postlist->get_weight());
+//}
+    
+om_doclength
+OmPostListIterator::get_doclength() const
+{
+    DEBUGAPICALL(om_doclength, "OmPostListIterator::get_doclength", "");
+    RETURN(internal->postlist->get_doclength());
+}
+
+om_termcount
+OmPostListIterator::get_wdf() const
+{
+    DEBUGAPICALL(om_termcount, "OmPostListIterator::get_wdf", "");
+    RETURN(internal->postlist->get_wdf());
+}
 
 OmPositionListIterator
 OmPostListIterator::positionlist_begin()
