@@ -52,10 +52,10 @@ class OmPositionListIterator {
 
 	OmPositionListIterator & operator++();
 
-	OmPositionListIterator operator++(int);
+	void operator++(int);
 
 	// extra method, not required for an input_iterator
-	OmPositionListIterator skip_to(om_termpos pos);
+	void skip_to(om_termpos pos);
 
 	/** Returns a string describing this object.
 	 *  Introspection method.

@@ -118,6 +118,6 @@ NetworkTermList::next()
 bool
 NetworkTermList::at_end() const
 {
-    if(current_position != items.end()) return false;
-    return true;
+    Assert(started);
+    return (current_position == items.end());
 }

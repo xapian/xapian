@@ -1,3 +1,16 @@
+Wed Sep 20 13:02:22 BST 2000 Olly Betts
+
+	* *PostList: Put back in Assert-s re at_end() not being valid before
+	  next() or skip_to().
+
+	* OmPositionListIterator: postincrement and skip_to now return void.
+
+	* Added DEBUGAPICALL to OmDocumentTerm, OmDocumentContents,
+	  OmSettings, OmPositionListIterator, OmTermListIterator.
+
+	* Some work on getting Java auto-translation of apitest to work
+	  again [actually checked in with previous changes].
+
 Wed Sep 20 11:53:16 BST 2000 Olly Betts
 
 	* Disabled special casing of postlists with termfreq == 0 when

@@ -96,16 +96,19 @@ class OmSettings::Internal {
 OmSettings::OmSettings()
 	: internal(new OmSettings::Internal())
 {
+    DEBUGAPICALL(void, "OmSettings::OmSettings", "");
 }
 
 OmSettings::OmSettings(const OmSettings &other)
 	: internal(new OmSettings::Internal(*other.internal))
 {
+    DEBUGAPICALL(void, "OmSettings::OmSettings", other);
 }
 
 void
 OmSettings::operator=(const OmSettings &other)
 {
+    DEBUGAPICALL(void, "OmSettings::operator=", other);
     OmSettings temp(other);
 
     swap(internal, temp.internal);
@@ -115,36 +118,42 @@ OmSettings::operator=(const OmSettings &other)
 
 OmSettings::~OmSettings()
 {
+    DEBUGAPICALL(void, "OmSettings::~OmSettings", "");
     delete internal;
 }
 
 void
 OmSettings::set(const string &key, const string &value)
 {
+    DEBUGAPICALL(void, "OmSettings::set", key << ", " << value);
     internal->set(key, value);
 }
 
 void
 OmSettings::set(const string &key, const char *value)
 {
+    DEBUGAPICALL(void, "OmSettings::set", key << ", " << value);
     internal->set(key, value);
 }
 
 void
 OmSettings::set(const string &key, int value)
 {
+    DEBUGAPICALL(void, "OmSettings::set", key << ", " << value);
     internal->set(key, om_tostring(value));
 }
 
 void
 OmSettings::set(const string &key, double value)
 {
+    DEBUGAPICALL(void, "OmSettings::set", key << ", " << value);
     internal->set(key, om_tostring(value));
 }
 
 void
 OmSettings::set(const string &key, bool value)
 {
+    DEBUGAPICALL(void, "OmSettings::set", key << ", " << value);
     internal->set(key, value ? "1" : "");
 }
 
@@ -152,6 +161,7 @@ void
 OmSettings::set(const string &key, vector<string>::const_iterator begin,
 		      vector<string>::const_iterator end)
 {
+    DEBUGAPICALL(void, "OmSettings::set", key << ", " << begin << ", " << end);
     string s;
     while (true) {
 	s += *begin;
@@ -165,81 +175,90 @@ OmSettings::set(const string &key, vector<string>::const_iterator begin,
 string
 OmSettings::get(const string &key) const
 {
-    return internal->get(key);
+    DEBUGAPICALL(string, "OmSettings::get", key);
+    RETURN(internal->get(key));
 }
 
 bool
 OmSettings::get_bool(const string &key) const
 {
+    DEBUGAPICALL(bool, "OmSettings::get_bool", key);
     string s = internal->get(key);
-    return !(s.empty() || s == "0");
+    RETURN(!(s.empty() || s == "0"));
 }
 
 int
 OmSettings::get_int(const string &key) const
 {
+    DEBUGAPICALL(int, "OmSettings::get_int", key);
     string s = internal->get(key);
     int res;
     sscanf(s.c_str(), "%d", &res);
-    return res;
+    RETURN(res);
 }
 
 double
 OmSettings::get_real(const string &key) const
 {
+    DEBUGAPICALL(double, "OmSettings::get_real", key);
     string s = internal->get(key);
     double res;
     sscanf(s.c_str(), "%lf", &res);
-    return res;
+    RETURN(res);
 }
 
 string
 OmSettings::get(const string &key, string def) const
 {
+    DEBUGAPICALL(string, "OmSettings::get", key << ", " << def);
     try {
-	return internal->get(key);
+	RETURN(internal->get(key));
     }
     catch (const OmRangeError &e) {
-	return def;
+	RETURN(def);
     }
 }
 
 bool
 OmSettings::get_bool(const string &key, bool def) const
 {
+    DEBUGAPICALL(bool, "OmSettings::get_bool", key << ", " << def);
     try {
-	return get_bool(key);
+	RETURN(get_bool(key));
     }
     catch (const OmRangeError &e) {
-	return def;
+	RETURN(def);
     }
 }
 
 int
 OmSettings::get_int(const string &key, int def) const
 {
+    DEBUGAPICALL(int, "OmSettings::get_int", key << ", " << def);
     try {
-	return get_int(key);
+	RETURN(get_int(key));
     }
     catch (const OmRangeError &e) {
-	return def;
+	RETURN(def);
     }
 }
 
 double
 OmSettings::get_real(const string &key, double def) const
 {
+    DEBUGAPICALL(double, "OmSettings::get_real", key << ", " << def);
     try {
-	return get_real(key);
+	RETURN(get_real(key));
     }
     catch (const OmRangeError &e) {
-	return def;
+	RETURN(def);
     }
 }
 
 vector<string>
 OmSettings::get_vector(const string &key) const
 {
+    DEBUGAPICALL(vector<string>, "OmSettings::get_vector", key);
     string s = internal->get(key);
     string::size_type p = 0, q;
     vector<string> v;
@@ -249,7 +268,7 @@ OmSettings::get_vector(const string &key) const
 	if (q == string::npos) break;
 	p = q + 1;
     }
-    return v;
+    RETURN(v);
 }
 
 std::string

@@ -25,31 +25,39 @@
 #include "positionlist.h"
 #include "omdebug.h"
 
-OmPositionListIterator::~OmPositionListIterator() { }
+OmPositionListIterator::~OmPositionListIterator()
+{
+    DEBUGAPICALL(void, "OmPositionListIterator::~OmPositionListIterator", "");
+}
 
 const om_termpos
-OmPositionListIterator::operator *() {
-    return internal->positionlist->get_position();
+OmPositionListIterator::operator *()
+{
+    DEBUGAPICALL(om_termpos, "OmPositionListIterator::operator*", "");
+    RETURN(internal->positionlist->get_position());
 }
 
 OmPositionListIterator &
-OmPositionListIterator::operator++() { 
+OmPositionListIterator::operator++()
+{
+    DEBUGAPICALL(OmPositionListIterator &, "OmPositionListIterator::operator++", "");
     internal->positionlist->next();
-    return *this;
+    RETURN(*this);
 }
 
-OmPositionListIterator
-OmPositionListIterator::operator++(int) {
+void
+OmPositionListIterator::operator++(int)
+{
+    DEBUGAPICALL(void, "OmPositionListIterator::operator++(int)", "");
     internal->positionlist->next();
-    return *this;
 }
 
 // extra method, not required to be an input_iterator
-OmPositionListIterator
+void
 OmPositionListIterator::skip_to(om_termpos pos)
 {
+    DEBUGAPICALL(void, "OmPositionListIterator::skip_to", pos);
     internal->positionlist->skip_to(pos);
-    return *this;
 }    
 
 std::string

@@ -26,18 +26,21 @@
 #include "omdebug.h"
 
 OmTermListIterator::~OmTermListIterator() {
+    DEBUGAPICALL(void, "OmTermListIterator::~OmTermListIterator", "");
     delete internal;
 }
 
 OmTermListIterator::OmTermListIterator(const OmTermListIterator &other)
     : internal(NULL)
 {
+    DEBUGAPICALL(void, "OmTermListIterator::OmTermListIterator", other);
     if (other.internal) internal = new Internal(*(other.internal));
 }
 
 void
 OmTermListIterator::operator=(const OmTermListIterator &other)
 {
+    DEBUGAPICALL(void, "OmTermListIterator::operator=", other);
     if (this == &other) {
 	DEBUGLINE(API, "OmTermListIterator assigned to itself");
 	return;
@@ -51,24 +54,32 @@ OmTermListIterator::operator=(const OmTermListIterator &other)
 }
 
 const om_termname
-OmTermListIterator::operator *() {
-    return internal->termlist->get_termname();
+OmTermListIterator::operator *()
+{
+    DEBUGAPICALL(om_termname, "OmTermListIterator::operator*", "");
+    RETURN(internal->termlist->get_termname());
 }
 
 OmTermListIterator &
-OmTermListIterator::operator++() { 
+OmTermListIterator::operator++()
+{
+    DEBUGAPICALL(OmTermListIterator &, "OmTermListIterator::operator++", "");
     internal->termlist->next();
-    return *this;
+    RETURN(*this);
 }
 
 void
-OmTermListIterator::operator++(int) {
+OmTermListIterator::operator++(int)
+{
+    DEBUGAPICALL(void, "OmTermListIterator::operator++(int)", "");
     internal->termlist->next();
 }
 
 // extra method, not required to be an input_iterator
 void
-OmTermListIterator::skip_to(const om_termname & tname) {
+OmTermListIterator::skip_to(const om_termname & tname)
+{
+    DEBUGAPICALL(void, "OmTermListIterator::skip_to", tname);
     while (!internal->termlist->at_end() &&
 	   internal->termlist->get_termname() < tname)
 	internal->termlist->next();

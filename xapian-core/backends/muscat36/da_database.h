@@ -107,12 +107,9 @@ DAPostList::get_wdf() const
 inline bool
 DAPostList::at_end() const
 {
-    if (currdoc == MAXINT) {
-	DEBUGLINE(DB, "DAPostList::at_end() = true");
-	return true;
-    }
-    DEBUGLINE(DB, "DAPostList::at_end() = false");
-    return false;
+    DEBUGCALL(DB, bool, "DAPostList::at_end()", "");
+    Assert(currdoc != 0);
+    RETURN(currdoc == MAXINT);
 }
 
 inline std::string
@@ -198,11 +195,9 @@ inline TermList * DATermList::next()
 
 inline bool DATermList::at_end() const
 {
-    if(pos == terms.end()) {
-	DEBUGLINE(DB, "TERMLIST " << this << " ENDED ");
-	return true;
-    }
-    return false;
+    DEBUGCALL(DB, bool, "DATermList::at_end()", "");
+    Assert(have_started);
+    RETURN(pos == terms.end());
 }
 
 

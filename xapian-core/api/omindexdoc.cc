@@ -23,6 +23,7 @@
 #include "utils.h"
 #include "om/omerror.h"
 #include "om/omindexdoc.h"
+#include "omdebug.h"
 #include <algorithm>
 
 OmDocumentTerm::OmDocumentTerm(const om_termname & tname_,
@@ -31,6 +32,7 @@ OmDocumentTerm::OmDocumentTerm(const om_termname & tname_,
 	  wdf(0),
 	  termfreq(0)
 {
+    DEBUGAPICALL(void, "OmDocumentTerm::OmDocumentTerm", tname_ << ", " << tpos);
     add_posting(tpos);
 }
 
@@ -38,6 +40,7 @@ OmDocumentTerm::OmDocumentTerm(const om_termname & tname_,
 void
 OmDocumentTerm::add_posting(om_termpos tpos)
 {
+    DEBUGAPICALL(void, "OmDocumentTerm::add_posting", tpos);
     wdf++;
     if (tpos == 0) return;
     
@@ -59,6 +62,7 @@ OmDocumentTerm::add_posting(om_termpos tpos)
 std::string
 OmDocumentTerm::get_description() const
 {
+    DEBUGAPICALL(std::string, "OmDocumentTerm::get_description", "");
     std::string description;
 
     description = "OmDocumentTerm(" + tname +
@@ -66,13 +70,14 @@ OmDocumentTerm::get_description() const
 	    ", termfreq = " + om_tostring(termfreq) +
 	    ", positions[" + om_tostring(positions.size()) + "]" +
 	    ")";
-    return description;
+    RETURN(description);
 }
 
 
 void
 OmDocumentContents::add_posting(const om_termname & tname, om_termpos tpos)
 {
+    DEBUGAPICALL(void, "OmDocumentContents::add_posting", tname << ", " << tpos);
     std::map<om_termname, OmDocumentTerm>::iterator documentterm;
     documentterm = terms.find(tname);
 
@@ -86,6 +91,7 @@ OmDocumentContents::add_posting(const om_termname & tname, om_termpos tpos)
 std::string
 OmDocumentContents::get_description() const
 {
+    DEBUGAPICALL(std::string, "OmDocumentContents::get_description", "");
     std::string description;
 
     description = "OmDocumentContents(" +
@@ -93,5 +99,5 @@ OmDocumentContents::get_description() const
 	    ", keys[" + om_tostring(keys.size()) + "]" +
 	    ", terms[" + om_tostring(terms.size()) + "]" +
 	    ")";
-    return description;
+    RETURN(description);
 }
