@@ -1,11 +1,11 @@
-xapian-core (0.8-8) unstable; urgency=low
+xapian-core (0.8.0-8) unstable; urgency=low
 
   * Fix minor bugs in debian/rules (trailing backslashes, and missing -p
     from mkdir)
 
  -- Richard Boulton <richard@tartarus.org>  Wed, 19 May 2004 13:33:02 +0100
 
-xapian-core (0.8-7) unstable; urgency=low
+xapian-core (0.8.0-7) unstable; urgency=low
 
   * Perform build in a subdirectory.  This is neater, and will also make it
     easier to perform a differently configured build to produce a debug
@@ -13,14 +13,14 @@ xapian-core (0.8-7) unstable; urgency=low
 
  -- Richard Boulton <richard@tartarus.org>  Wed, 19 May 2004 12:13:45 +0100
 
-xapian-core (0.8-6) unstable; urgency=low
+xapian-core (0.8.0-6) unstable; urgency=low
 
   * debian/rules,debian/control.in: Remove queryparser packages - merge
     them into the main library package.
 
  -- Richard Boulton <richard@tartarus.org>  Wed, 19 May 2004 01:44:58 +0100
 
-xapian-core (0.8-5) unstable; urgency=low
+xapian-core (0.8.0-5) unstable; urgency=low
 
   * debian/rules: Add --list-missing back to dh_install.
   * debian/control.in: Remove build depend on graphviz, and add TODO item
@@ -30,7 +30,7 @@ xapian-core (0.8-5) unstable; urgency=low
   
  -- Richard Boulton <richard@tartarus.org>  Wed, 12 May 2004 11:59:42 +0100
 
-xapian-core (0.8-4) unstable; urgency=low
+xapian-core (0.8.0-4) unstable; urgency=low
 
   * xapian-doc: Correct Recommends field to point to libxapian-dev, not
     libxapian2-dev, and to libxapian-queryparser-dev not
@@ -38,7 +38,7 @@ xapian-core (0.8-4) unstable; urgency=low
 
  -- Richard Boulton <richard@tartarus.org>  Wed, 12 May 2004 10:36:16 +0100
 
-xapian-core (0.8-3) unstable; urgency=low
+xapian-core (0.8.0-3) unstable; urgency=low
 
   * Remove empty maintainer scripts, allowing debhelper to make them.
   * Add rules to make symlinks to config.guess and config.sub, and added
@@ -49,7 +49,7 @@ xapian-core (0.8-3) unstable; urgency=low
 
  -- Richard Boulton <richard@tartarus.org>  Wed, 12 May 2004 09:48:34 +0100
 
-xapian-core (0.8-2) unstable; urgency=low
+xapian-core (0.8.0-2) unstable; urgency=low
 
   * Fixed postinst, postrm, and prerm scripts to have a #!/bin/sh line, so
     they actually work.
@@ -57,7 +57,7 @@ xapian-core (0.8-2) unstable; urgency=low
 
  -- Richard Boulton <richard@tartarus.org>  Tue, 11 May 2004 17:00:03 +0100
 
-xapian-core (0.8-1) unstable; urgency=low
+xapian-core (0.8.0-1) unstable; urgency=low
 
   * Initial release, from upstream source snapshot.
 
