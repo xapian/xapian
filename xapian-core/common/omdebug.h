@@ -38,7 +38,6 @@
 #include <vector>
 #include <strstream.h>
 
-class OmLock;
 #include "omlocks.h"
 
 /** The types of debug output.  These are specified within a DEBUGMSG in

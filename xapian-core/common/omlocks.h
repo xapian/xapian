@@ -24,7 +24,7 @@
 #define OM_HGUARD_OMLOCKS_H
 
 #include "config.h"
-#include "omdebug.h"
+#include "omassert.h"
 
 #ifdef MUS_USE_PTHREAD
 

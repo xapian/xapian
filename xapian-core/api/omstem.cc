@@ -23,6 +23,8 @@
 #include "config.h"
 #include <string>
 
+#include "omdebug.h"
+#include <om/omoutput.h>
 #include <om/omstem.h>
 #include "utils.h"
 #include "omlocks.h"
@@ -257,16 +259,19 @@ OmStem::Internal::stem_word(string word) const
 OmStem::OmStem(string language)
 	: internal(0)
 {
+    DEBUGAPICALL("OmStem::OmStem", language);
     internal = new OmStem::Internal(language);
 }
 
 OmStem::~OmStem()
 {
+    DEBUGAPICALL("OmStem::~OmStem", "");
     delete internal;
 }
 
 OmStem::OmStem(const OmStem &other)
 {
+    DEBUGAPICALL("OmStem::OmStem", other);
     // FIXME
     throw OmUnimplementedError("OmStem::OmStem(const OmStem &) unimplemented");
 }
@@ -274,6 +279,7 @@ OmStem::OmStem(const OmStem &other)
 void
 OmStem::operator=(const OmStem &other)
 {
+    DEBUGAPICALL("OmStem::operator=", other);
     // FIXME
     OmLockSentry locksentry(internal->mutex); // or some kind of lock, anyway
     throw OmUnimplementedError("OmStem::operator=() unimplemented");
@@ -282,13 +288,16 @@ OmStem::operator=(const OmStem &other)
 string
 OmStem::stem_word(string word) const
 {
+    DEBUGAPICALL("OmStem::stem_word", word);
     OmLockSentry locksentry(internal->mutex);
+    DEBUGAPIRETURN(internal->stem_word(word));
     return internal->stem_word(word);
 }
 
 vector<string>
 OmStem::get_available_languages()
 {
+    DEBUGAPICALL("OmStem::get_available_languages", "");
     vector<string> languages;
 
     const char ** pos;
@@ -298,12 +307,17 @@ OmStem::get_available_languages()
 	languages.push_back(*pos);
     }
 
+    DEBUGAPIRETURN("vector of languages");
     return languages;
 }
 
 string
 OmStem::get_description() const
 {
-    return "OmStem(" + string(language_names[internal->langcode]) + ")";
+    DEBUGAPICALL("OmStem::get_description", "");
+    string description =
+	    "OmStem(" + string(language_names[internal->langcode]) + ")";
+    DEBUGAPIRETURN(description);
+    return description;
 }
 

@@ -26,7 +26,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "omdebug.h"
 
 // Convert an integer to a string
 string om_inttostring(int a);
