@@ -215,6 +215,13 @@ H	hostname of site (if supplied - this term won't exist if you
 	index a site with base URL '/press', for instance)
 P	path of site (ie: the rest of the site base URL)
 D	date (numeric format: YYYYMMDD)
+        date can also have the magical form "latest" answering to the
+        indexed term "Dlatest" which always matches any date restricted 
+        search; thus you can index with Dlatest proxy documents which
+        represent highly dynamic pages which are always up to date.
+        You will probably also want to pick a suitable large MODTIME
+        internal field value so this appears near the top of any sorts
+        you do.
 W	"weak" (approximately 10 day intervals, taken as YYYYMMD from
 	the D term, and changing the last digit to a '2' if it's a '3')
 M	month (numeric format: YYYYMM)
