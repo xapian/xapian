@@ -1,3 +1,7 @@
+Fri Dec  1 17:21:07 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Another minor fix to work with STLport.
+
 Fri Dec  1 17:01:02 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add std::'s and similar to fix compilation with STLport.
