@@ -25,6 +25,9 @@
 
 #include "database.h"
 
+class QuartzDBManager;
+#include <memory>
+
 /** A backend designed for efficient indexing and retrieval, using
  *  compressed posting lists and the Berkeley database library (version
  *  3.1).
@@ -34,11 +37,9 @@
 class QuartzDatabase : public IRDatabase {
     friend class DatabaseBuilder;
     private:
-	class Internals;
-
-	/** Pointer to internal data.
+	/** Pointer to database manager.
 	 */
-	Internals * internals;
+	auto_ptr<QuartzDBManager> db_manager;
 
 	/** Create and open a quartz database.
 	 *

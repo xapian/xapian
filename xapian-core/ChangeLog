@@ -1,3 +1,8 @@
+Thu Aug 17 16:58:12 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added QuartzDBManager, to manage the databases files and
+	  environments in use.
+
 Thu Aug 17 16:46:00 BST 2000 Olly Betts
 
 	* A few tweaks to NetworkMatch
