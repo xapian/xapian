@@ -33,6 +33,15 @@
 #include <algorithm>
 #include <map>
 
+/** This clump of defines is for compatibility across libxml1 and 2.
+ *  libxml2 and later versions of libxml1 should have these already.
+ *  These should work for earlier libxml1 versions.
+ */
+#ifndef xmlChildrenNode
+#define xmlChildrenNode childs
+#define xmlRootNode root
+#endif
+
 /** A trivial "smart pointer" which calls xmlFreeDoc when going out of
  *  scope.
  */

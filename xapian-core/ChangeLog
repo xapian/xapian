@@ -1,3 +1,7 @@
+Tue Jan 16 11:51:25 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added compatibility bits for early libxml1 versions.
+
 Mon Jan 15 18:18:01 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Removed use of hstrerror, which isn't portable.
