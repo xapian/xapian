@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
-libomseekincludedir = $(includedir)/om
-libomseekinclude_HEADERS = om.h \
+libxapianincludedir = $(includedir)/om
+libxapianinclude_HEADERS = om.h \
 omstem.h \
 omerror.h omerrortypes.h omerrorhandler.h omtypes.h omenquire.h omquery.h \
 omdocument.h omdatabase.h omsettings.h omoutput.h \

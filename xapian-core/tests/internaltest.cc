@@ -1,4 +1,4 @@
-/* internaltest.cc: test of the Omseek internals
+/* internaltest.cc: test of the Xapian internals
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC

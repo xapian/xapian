@@ -19,7 +19,7 @@
  * USA
  * -----END-LICENCE-----
  */
-/* Version 2: see http://omseek.sourceforge.net/ for further information */
+/* Version 2: see http://xapian.sourceforge.net/ for further information */
 
 #ifndef OM_HGUARD_STEM_FRENCH_H
 #define OM_HGUARD_STEM_FRENCH_H

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from omsee import *
+from xapian import *
 from apitest import *
 
 foo = OmStem("english")

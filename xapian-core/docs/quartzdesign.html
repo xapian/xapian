@@ -16,18 +16,18 @@ this document (ie, before 20th October), and this document is out of
 date if the code was written after this document.  If you find such
 inconsistencies, especially this document being out of date, please
 alert us to the problem using the discussion mailing list, at
-&lt;omseek-discuss@lists.sourceforge.net&gt;.
+&lt;xapian-discuss@lists.sourceforge.net&gt;.
 <p>
 Once the Quartz backend is stable, this comment should go away.
 
 <h2>Why Quartz?</h2>
 
 <em>
-What is this thing called Quartz?  How does it fit in with the Omseek
+What is this thing called Quartz?  How does it fit in with the Xapian
 library?</em>
 <p>
-Omseek can access information stored in various different formats,
-some of which are legacy formats which can be read by Omseek but not
+Xapian can access information stored in various different formats,
+some of which are legacy formats which can be read by Xapian but not
 written to (for example, the Muscat 3.6 formats &quot;DA&quot; and
 &quot;DB&quot;), some of which are essentially testing formats (such as the
 InMemory format), and some which are experimental formats (such as the
@@ -59,7 +59,7 @@ which draws from all our past experience to satisfy the following criteria:
 </ul>
 
 <p>
-Different backends can be optionally compiled into the Omseek library
+Different backends can be optionally compiled into the Xapian library
 (by specifying appropriate options to the configure script).  At the moment,
 Quartz is not compiled by default since it is incomplete, but eventually it
 will become a standard backend, included in all builds (unless explicitly

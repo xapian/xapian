@@ -1,5 +1,5 @@
 %{
-/* om_util.i: the Omsee scripting interface helpers.
+/* om_util.i: the Xapian scripting interface helpers.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -64,7 +64,7 @@
 		       string("OmInvalidResultError: ") + e.get_msg());
     } catch (...) {
         OMSWIG_exception(SWIG_UnknownError,
-			 string("unknown error in Omsee"));
+			 string("unknown error in Xapian"));
     }
 }
 

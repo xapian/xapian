@@ -63,13 +63,13 @@ native_sources = nvOmEnquire.lo			\
 	nvOmSettings.lo			\
 	utils.lo
 
-all-local: headers libomusjava.so
+all-local: headers libxapianjava.so
 
-libomusjava.so: $(native_sources) ../../../libomus.la
+libxapianjava.so: $(native_sources) ../../../libxapian.la
 	$(LIBTOOL) $(CXX) -shared $^ -o $@
 
 #all:	$(MODS)
-#	$(CPP) -shared -O3 -o libomusjava.so -lpthread $(MODS) $(OMLIB)
+#	$(CPP) -shared -O3 -o libxapianjava.so -lpthread $(MODS) $(OMLIB)
 
 #.cc.o:
 #	$(CPP) -fPIC -Wall -g $(JDKINC) $(OMINC) -c $<

@@ -1,4 +1,4 @@
-/* RunTest.java: test class for Omsee java bindings.
+/* RunTest.java: test class for Xapian java bindings.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC

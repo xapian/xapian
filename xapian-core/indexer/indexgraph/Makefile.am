@@ -18,7 +18,7 @@ noinst_LTLIBRARIES = libindexgraph.la
 #
 #nodetest_SOURCES = nodetest.cc
 #
-#nodetest_LDADD = ../../libomseek.la
+#nodetest_LDADD = ../../libxapian.la
 
 if HAVE_REGEX
 REGEX_NODES = omregexreplacenode.cc omregexsplitnode.cc \

@@ -1,5 +1,5 @@
 <Directory>indexer/indexgraph</Directory>
 
 <Description>
-This directory contains the Omseek indexer framework.
+This directory contains the Xapian indexer framework.
 </Description>

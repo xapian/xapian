@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from omsee import *
+from xapian import *
 
 def get_simple_database():
     mydb = OmDatabase({ "backend": "sleepycat",

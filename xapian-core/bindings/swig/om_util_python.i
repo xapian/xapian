@@ -1,5 +1,5 @@
 %{
-/* om_util_python.i: the Omsee scripting python interface helpers.
+/* om_util_python.i: the Xapian scripting python interface helpers.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC

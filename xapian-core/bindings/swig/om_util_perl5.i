@@ -1,5 +1,5 @@
 %{
-/* om_util_perl5.i: the Omsee scripting interface helpers.
+/* om_util_perl5.i: the Xapian scripting interface helpers.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC

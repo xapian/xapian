@@ -2,7 +2,7 @@
 
 <Description>
 This directory contains the externally visible header files which are
-needed to link applications against Omseek.
+needed to link applications against Xapian.
 
 Internal header files are kept in the "common" directory.
 </Description>

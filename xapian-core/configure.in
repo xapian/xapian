@@ -5,9 +5,9 @@ AC_PREREQ(2.13)
 AC_INIT(common/database.h)
 AC_CONFIG_AUX_DIR(autoconf)
 
-LIBOMUS_VERSION=0.4.1
+LIBXAPIAN_VERSION=0.4.1
 
-AM_INIT_AUTOMAKE(om, ${LIBOMUS_VERSION}-cvs)
+AM_INIT_AUTOMAKE(om, ${LIBXAPIAN_VERSION}-cvs)
 AM_CONFIG_HEADER(config.h)
 
 dnl Add parameters for aclocal
@@ -616,7 +616,7 @@ AC_OUTPUT(
  autoconf/Makefile
  net/Makefile
  netprogs/Makefile
- omseek-config.nodep
+ xapian-config.nodep
  docs/mkdoc.pl
  docs/todo2html.pl
  docs/doxygen_api_conf

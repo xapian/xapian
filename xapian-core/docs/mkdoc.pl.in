@@ -121,11 +121,11 @@ sub output_html() {
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>Omseek: Code structure</TITLE>
+<TITLE>Xapian: Code structure</TITLE>
 </HEAD>
 <BODY BGCOLOR="white">
 This documentation was automatically generated, and corresponds to version
-@VERSION@ of Omseek.
+@VERSION@ of Xapian.
 <HR>
 EOF
 

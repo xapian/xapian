@@ -1,6 +1,6 @@
 <Directory>bindings</Directory>
 
 <Description>
-This directory contains everything needed to create libomus bindings
+This directory contains everything needed to create libxapian bindings
 for languages other than C++.
 </Description>

@@ -50,7 +50,7 @@ sub preamble {
     return <<PREAMBLE
 import sys
 import os
-from omsee import *
+from xapian import *
 import apitest_helpers
 from apitest_helpers import *
 

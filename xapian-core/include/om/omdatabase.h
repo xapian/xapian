@@ -266,7 +266,7 @@ class OmWritableDatabase : public OmDatabase {
 	 *  For efficiency reasons, when performing multiple updates to a
 	 *  database it is best (indeed, almost essential) to make as many
 	 *  modifications as memory will permit in a single pass through
-	 *  the database.  To ensure this, Omseek performs modifications in
+	 *  the database.  To ensure this, Xapian performs modifications in
 	 *  "sessions".  Sessions are begun and ended implicitly, when the
 	 *  database is first modified, or closed.
 	 *
@@ -306,7 +306,7 @@ class OmWritableDatabase : public OmDatabase {
 
 	/** Begin a transaction.
 	 *
-	 *  For the purposes of Omseek, a transaction is a group of
+	 *  For the purposes of Xapian, a transaction is a group of
 	 *  modifications to the database which are grouped together such
 	 *  that either all or none of them will succeed.  Even in the case
 	 *  of a power failure, this characteristic should be preserved (as

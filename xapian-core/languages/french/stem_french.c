@@ -581,7 +581,7 @@ extern const char * french_stem(void * z_, const char * q, int i0, int i1)
     }
 
     /* POINT A:
-       move into p, translating accents. This block depends on the Omsee
+       move into p, translating accents. This block depends on the Xapian
        accent representation scheme, and will need to be rewritten
        for alternative schemes.
     */

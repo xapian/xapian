@@ -1,16 +1,17 @@
 Email about this project should be directed first to the
-omseek-discuss mailing list (see
-<http://lists.sourceforge.net/mailman/listinfo/omseek-discuss>).
+xapian-discuss mailing list (see
+<http://lists.sourceforge.net/mailman/listinfo/xapian-discuss>).
 
-Omseek has been developed by many individuals who voluntarily contributed
-their code to the Omseek project. These people are:
+Xapian has been developed by many individuals who voluntarily contributed
+their code to the Xapian project. These people are:
 	Hein Ragas <hragas@users.sourceforge.net>
 	James Aylett <tartarus@users.sourceforge.net>
+	Sam Liddicott <samjam@users.sourceforge.net>
 
-The Omseek project makes use of the Sourceforge infrastructure. Visit the
-Omseek project webpage at http://sourceforge.net/projects/omseek/
+The Xapian project makes use of the Sourceforge infrastructure. Visit the
+Xapian project webpage at http://sourceforge.net/projects/xapian/
 
-Prior to moving to SourceForge, the Omseek codebase was developed by a
+Prior to moving to SourceForge, the Xapian codebase was developed by a
 team at Brightstation PLC:
 
 Brightstation developers:

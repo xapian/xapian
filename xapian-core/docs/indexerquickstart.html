@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>Omseek Indexing: Quickstart</TITLE>
+<TITLE>Xapian Indexing: Quickstart</TITLE>
 </HEAD>
 <BODY BGCOLOR="white">
 
@@ -9,7 +9,7 @@
 
 <P>
 This document is a short introduction to the graph-based indexing facilities
-of Omseek.  For an introduction to the basic facilities of OM, see
+of Xapian.  For an introduction to the basic facilities of OM, see
 <a href="quickstart.html">quickstart.html</a>.  This document assumes that
 you've read that first.
 </P>
@@ -19,7 +19,7 @@ you've read that first.
 
 <P>
 Before following the steps outlined in this document, you will need to have
-the Omseek library installed on your system.  See <a href="quickstart.html"
+the Xapian library installed on your system.  See <a href="quickstart.html"
 >quickstart.html</a> for details.
 </P>
 <P>
@@ -50,7 +50,7 @@ for storing in the database.
 <H3>The old way</H3>
 
 <P>
-In traditional Omseek, the indexing is done by a script written in a
+In traditional Xapian, the indexing is done by a script written in a
 special text processing language.
 <!--FIXME: say more here-->
 </P>
@@ -58,7 +58,7 @@ special text processing language.
 <H3>The new way</H3>
 
 <P>
-Omseek provides a new way to build an indexer based on a group of
+Xapian provides a new way to build an indexer based on a group of
 co-operating nodes joined together into a network.  Each node is a unit
 with some inputs and some outputs.  Each input is connected to the
 output of node higher up in the network.  Once the network is constructed
@@ -108,7 +108,7 @@ the filename of the file to index.  We'll describe indexerfile.cc first.
 <H3>The indexing program itself</H3>
 <P>
 Most of the content of indexfile.cc is similar to the examples from the
-Omseek <a href="quickstart.html">quickstart document</a>.  We'll
+Xapian <a href="quickstart.html">quickstart document</a>.  We'll
 only discuss the new parts here.
 </P>
 <H3>Options parsing</H3>
@@ -233,7 +233,7 @@ to look at the indexing script itself, in indexfile.xml.
 
 <P>
 The file format is described by the XML DTD omindexer.dtd, which should
-be installed with the Omseek library.  At the time of writing there
+be installed with the Xapian library.  At the time of writing there
 are no graphical or other tools to generate indexer descriptions - it
 must be written by hand.  In future this should no longer be the case.
 </P><P>
@@ -477,7 +477,7 @@ described in <a href="quickstart.html">quickstart.html</a>.
 <P>
 Once we have compiled the example indexer, we can build up a simple database as
 follows.  Note that we must first create a directory for the database files to
-live in; although Omseek will create new empty database files if they do not
+live in; although Xapian will create new empty database files if they do not
 yet exist, it will not create a new directory for them.
 <PRE>
 $ mkdir mydb
@@ -505,11 +505,11 @@ comments in the source code by
 <EM><A HREF="http://www.stack.nl/~dimitri/doxygen/index.html">Doxygen</A></EM>.
 This is distributed together with the source code packages, but in the
 event that you do not have a this there is a
-<A HREF="http://omseek.sourceforge.net/apidoc/index.html">copy</A>
+<A HREF="http://xapian.sourceforge.net/apidoc/index.html">copy</A>
 available on our website.
 </LI></UL>
 
-For those interested in how Omseek works internally, there is also
+For those interested in how Xapian works internally, there is also
 automatically extracted documentation of the full source code, which can be built by running
 <PRE>
     make doxygen_docs

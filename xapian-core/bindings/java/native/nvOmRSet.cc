@@ -3,7 +3,7 @@
 #include <set>
 #include <iostream>
 
-// Omsee includes
+// Xapian includes
 #include "om/om.h"
 #include "om/omenquire.h"
 

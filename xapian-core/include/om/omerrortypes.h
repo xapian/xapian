@@ -43,7 +43,7 @@ DEFINE_ERROR_BASECLASS(OmLogicError, OmError);
 DEFINE_ERROR_BASECLASS(OmRuntimeError, OmError);
 
 /** Thrown if an internal consistency check fails.
- *  This represents a bug in Omseek. */
+ *  This represents a bug in Xapian. */
 DEFINE_ERROR_CLASS(OmAssertionError, OmLogicError);
 
 /** Thrown when an attempt to use an unimplemented feature is made. */

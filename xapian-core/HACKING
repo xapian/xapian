@@ -1,9 +1,9 @@
-Instructions for hacking on Omseek
+Instructions for hacking on Xapian
 ==================================
 
 This file is aimed to help developers get started with working on
-Omseek. The Omseek SourceForge project page is at
-<http://sourceforge.net/projects/omseek/>, and contains various tools
+Xapian. The Xapian SourceForge project page is at
+<http://sourceforge.net/projects/xapian/>, and contains various tools
 that help support us.
 
 Extra options to give to configure:
@@ -12,7 +12,7 @@ Extra options to give to configure:
 Note: Non-developer configure options are described in INSTALL
 
 You will probably want to use some of these if you're going to be developing
-Omseek.
+Xapian.
 
 --enable-debug
 	This enables compiling of assertion code, to produce warnings if
@@ -98,11 +98,11 @@ See "buildall --help" for more information.
 Submitting Patches:
 ===================
 
-If you have a patch to fix a problem in Omseek, or to add a new
+If you have a patch to fix a problem in Xapian, or to add a new
 feature, feel free to submit it to us via the SourceForge patch
 management system. Any major changes should be discussed on the
-omseek-devel mailing list first (see
-<http://lists.sourceforge.net/mailman/listinfo/omseek-devel>
+xapian-devel mailing list first (see
+<http://lists.sourceforge.net/mailman/listinfo/xapian-devel>
 
 We find patches generated with "diff -puN" easiest to read.  If you are
 working from a CVS copy of the code, you can use "cvs diff -puN" to generate
@@ -132,7 +132,7 @@ inline source code documentation that generates the API docs.
    fails on the existing code and succeeds after your changes.
  * Make sure all existing tests continue to pass.
 
-If you don't know how to write tests using the Omseek test rig, then
+If you don't know how to write tests using the Xapian test rig, then
 ask. It's reasonably simple once you've done it once.
 
 2  Make sure the attributions are right

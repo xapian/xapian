@@ -84,11 +84,11 @@ if ($ARGV[0] eq '--text') {
 <META NAME="Created" CONTENT="17/10/00">
 <META NAME="Created By" CONTENT="|l|e|n|s|i|s|">
 <META NAME="Resource Type" CONTENT="Document">
-<META NAME="Copyright" CONTENT="(c)2001 omseek">
-<META NAME="Description" CONTENT="OMSEEK developers zone to do list">
-<META NAME="Keywords" CONTENT="OMSEEK to do list required tasks">
-<TITLE>omseek developers zone - to do list</TITLE>
-<!--LINK rel=stylesheet type="text/css" HREF="omseekweb.css"-->
+<META NAME="Copyright" CONTENT="(c)2001 xapian">
+<META NAME="Description" CONTENT="XAPIAN developers zone to do list">
+<META NAME="Keywords" CONTENT="XAPIAN to do list required tasks">
+<TITLE>xapian developers zone - to do list</TITLE>
+<!--LINK rel=stylesheet type="text/css" HREF="xapianweb.css"-->
 </HEAD>
 
 <!--#set var="menupos_1" value="developers" -->

@@ -1,6 +1,6 @@
-%module omsee
+%module xapian
 %{
-/* omsee.i: the Omsee scripting interface.
+/* xapian.i: the Xapian scripting interface.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC

@@ -1,13 +1,13 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>Omseek: Using the stemming algorithms</TITLE>
+<TITLE>Xapian: Using the stemming algorithms</TITLE>
 </HEAD>
 <BODY BGCOLOR="white">
 
 <H1>Using the stemming algorithms</H1>
 
-The stemming algorithms are designed to be part of our Omseek search engine,
+The stemming algorithms are designed to be part of our Xapian search engine,
 but can also be used as standalone pieces of code.  They are implemented,
 and have an interface in, the C programming language.
 
@@ -106,14 +106,14 @@ We will probably move over to a Unicode reresentation of accented letters
 in the future, so the scheme outlined below may be regarded as provisional.
 
 (Note that, at present, the stemming algorithms are the only part of the
- Omseek search engine which has any dependence on character representation.)
+ Xapian search engine which has any dependence on character representation.)
 <P>
 The word to be be stemmed must be entirely in lower case.
 <P>
 Accents are represented as L^A where L is the letter and A the accent. This
 is unusual, but very convenient.
 <p>
-    The full Omseek scheme for accents (just for the record) is as follows:
+    The full Xapian scheme for accents (just for the record) is as follows:
 
 <pre>
        coding    common name                placing      occurs in:

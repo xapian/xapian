@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-// Omsee includes
+// Xapian includes
 #include "om/om.h"
 
 // JNI includes

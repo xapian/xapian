@@ -1,4 +1,4 @@
-/* apitest.cc: tests the Omseek API
+/* apitest.cc: tests the Xapian API
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC

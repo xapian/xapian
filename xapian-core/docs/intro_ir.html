@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>Omseek: Introduction to information retrieval</TITLE>
+<TITLE>Xapian: Introduction to information retrieval</TITLE>
 </HEAD>
 <BODY BGCOLOR="white">
 
@@ -49,11 +49,11 @@ a little too vague for this very important concept.)
 
 At a simple level a computerized IR system puts the terms in a direct access,
 or <EM>index</EM> file. A term can be looked up and its posting list found. But as
-we will see later, a term in Omseek can be constructed from other terms, and
+we will see later, a term in Xapian can be constructed from other terms, and
 we should distinguish between an <EM>index entry</EM>, which is a term actually held
 in an index, and a <EM>term</EM>, which may be composed of index entries. A two word
 term, `dental hygiene' for example, might be an index entry, or it might be
-constructed out of the two index entries `dental' and `hygiene'. In Omseek
+constructed out of the two index entries `dental' and `hygiene'. In Xapian
 you can do it either way.
 <P>
 
@@ -62,7 +62,7 @@ the document itself. To keep things simple, a posting list can be thought
 of as a list of numbers, and term list as either a list of strings, or a list
 of numbers.
 
-<H2>Omseek's context within IR</H2>
+<H2>Xapian's context within IR</H2>
 
 In the beginning IR was dominated by Boolean retrieval, described in the next
 section. This could be called the antediluvian period, or generation zero.
@@ -77,7 +77,7 @@ of IR, but interesting as this new work is, it has not as yet led to results
 that offer improvements for the IR system builder.
 
 <P>
-Omseek is firmly placed as a system that implements, or tries to implement,
+Xapian is firmly placed as a system that implements, or tries to implement,
 the probabilistic IR model. (We say `tries' because sometimes implementation
 efficiency and theoretical complexity demand certain short-cuts.)
 
@@ -134,7 +134,7 @@ confidence, despite the continued survival of so many purely Boolean IR
 systems.)
 
 <P>
-Omseek provides Boolean retrieval, with expressions of arbitrary complexity,
+Xapian provides Boolean retrieval, with expressions of arbitrary complexity,
 and they can either be used by themeselves, or, more usefully, to create a
 subset of the whole document collection within which the probabilistic query,
 described below, operates. In this style the Boolean query defines a window
@@ -288,7 +288,7 @@ form
 </PRE>
 
 with the reassurance that this has "some theoretical justification". This is
-the form of the term weighting formula used in Omseek.
+the form of the term weighting formula used in Xapian.
 <P>
 Note that n is dependent on the term, t, and R on the query, <I>Q</I>, while r
 depends both on t and <I>Q</I>. N is constant, at least until the IR system changes.
@@ -303,7 +303,7 @@ records are found relevant by the user they can be used as a working set for
 <I>R</I> from which the weights w(t) can be derived, and these new weights can be
 used to improve the processing of the query.
 <P>
-In fact in the Omseek software <I>R</I> tends to mean not the complete set of
+In fact in the Xapian software <I>R</I> tends to mean not the complete set of
 relevant documents, which indeed can rarely be discovered, but a small set of
 documents which have been judged as relevant.
 <P>
@@ -319,13 +319,13 @@ This is approximately log((N - n)/n). Or log(N/n), since n is usually small
 compared with N. This is called inverse logarithmic weighting, and has been
 used in IR for many decades, quite independently of the probabilistic theory
 which underpins it. Weights of this form are in fact the starting point in
-Omseek when no relevance information is present.
+Xapian when no relevance information is present.
 <P>
 The number n incidentally is often called the <EM>frequency</EM> of a term. We prefer
 the phrase <EM>collection frequency</EM>, or cf, to distinguish it from wdf and wdq
 introduced below.
 <P>
-In extreme cases w(t) can be negative. In Omseek negative values are
+In extreme cases w(t) can be negative. In Xapian negative values are
 disallowed, and simply replaced by a small positive value.
 
 
@@ -353,7 +353,7 @@ t, or the <EM>wdp</EM> information of t.
 <P>
 The <EM>within-document frequency</EM>, or <EM>wdf</EM>, of a term t in D is the number of
 times it is pulled out of D in the indexing process. Usually this is the size
-of the wdp vector, but in Omseek it can exceed it, since we can take the
+of the wdp vector, but in Xapian it can exceed it, since we can take the
 liberty of passing over the same portion of text more than once and so,
 either deliberately or inadvertently, pulling out the same index term several
 times.
@@ -365,7 +365,7 @@ its length as k.
 The <EM>normalised document length</EM>, or <EM>ndl</EM>, is then k divided by the average
 length of the documents in the IR system. So the average length document has
 ndl equal to 1, short documents are less than 1, long documents greater than
-1. We have found that very small ndl values create problems, so Omseek
+1. We have found that very small ndl values create problems, so Xapian
 actually allows for a non-zero minimum value for the ndl.
 
 <P>
@@ -375,7 +375,7 @@ already in the IR system, or by an indexing process very similar to the one
 used to add documents into the whole IR system. This corresponds to a user
 saying "give me other documents like this one". One can therefore attach a
 similar meaning to within-query position information, within-query frequency,
-and normalised query length, or wqp, wqf and nql. Omseek does not however
+and normalised query length, or wqp, wqf and nql. Xapian does not however
 currently use the concept of wqp.
 
 
@@ -425,7 +425,7 @@ And according to the probabilistic model, the documents D<sub>0</sub>, D<sub>1</
 ranked by decreasing order of probability of relevance. So D<sub>0</sub> has highest
 probability of being relevant, then D<sub>1</sub> and so on.
 <P>
-Omseek creates the <I>M</I> set from the posting lists of the terms
+Xapian creates the <I>M</I> set from the posting lists of the terms
 of the query. This is the central operation of any IR system, and will be
 familiar to anyone who has used one of the Internet's major search engines,
 where the query is what you type in the query box, and the resulting hit list
@@ -461,7 +461,7 @@ source release.
 
 <H2>Using the weights: the <I>E</I> set</H2>
 
-But as well as ranking documents, Omseek can rank terms, and this is most
+But as well as ranking documents, Xapian can rank terms, and this is most
 important. The higher up the ranking the term is, the more likely it is
 to act as a good differentiator between relevant and non-relevant documents.
 It is therefore a candidate for adding back into the query. Terms from this
@@ -519,7 +519,7 @@ document marked relevant.
 <H2>The progress of a query</H2>
 
 We want to stress than even without the fancy notions of a relevance set,
-query expansion, inproved term weights and reranking, Omseek is still a very
+query expansion, inproved term weights and reranking, Xapian is still a very
 useful IR tool. You do not need to use the full capabilities of the software
 to get benefit from it. But in the general case, the IR model it supports is
 as follows:

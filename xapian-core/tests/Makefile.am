@@ -54,25 +54,25 @@ endif
 noinst_HEADERS = apitest.h api_nodb.h api_posdb.h api_db.h
 
 threadtest_SOURCES = threadtest.cc
-threadtest_LDADD = ../testsuite/libtest.la ../libomseek.la
+threadtest_LDADD = ../testsuite/libtest.la ../libxapian.la
 
 apitest_SOURCES = apitest.cc api_nodb.cc api_posdb.cc api_db.cc
-apitest_LDADD = ../testsuite/libtest.la ../libomseek.la
+apitest_LDADD = ../testsuite/libtest.la ../libxapian.la
 
 stemtest_SOURCES = stemtest.cc
-stemtest_LDADD = ../libomseek.la
+stemtest_LDADD = ../libxapian.la
 
 internaltest_SOURCES = internaltest.cc
-internaltest_LDADD = ../testsuite/libtest.la ../libomseek.la
+internaltest_LDADD = ../testsuite/libtest.la ../libxapian.la
 ## Note: the next variable is not understood by automake:
 ## we supply our own rule in this file.
 internaltest_CXXFLAGS = $(INTERNALTEST_CXXFLAGS)
 
 indextest_SOURCES = indextest.cc
-indextest_LDADD = ../testsuite/libtest.la ../libomseek.la
+indextest_LDADD = ../testsuite/libtest.la ../libxapian.la
 
 delve_SOURCES = delve.cc
-delve_LDADD = ../libomseek.la
+delve_LDADD = ../libxapian.la
 
 ## Distribute test data:
 EXTRA_DIST = testdata/apitest_onedoc.txt \

@@ -152,13 +152,13 @@ class Database : public RefCntBase {
 	/** Return the average length of a document in this (sub) database.
 	 *
 	 *  See Database::get_doclength() for the meaning of document
-	 *  length within Omseek.
+	 *  length within Xapian.
 	 */
 	virtual om_doclength get_avlength() const = 0;
 
 	/** Get the length of a given document.
 	 *
-	 *  Document length, for the purposes of Omseek, is defined to be
+	 *  Document length, for the purposes of Xapian, is defined to be
 	 *  the number of instances of terms within a document.  Expressed
 	 *  differently, the sum of the within document frequencies over
 	 *  all the terms in the document.

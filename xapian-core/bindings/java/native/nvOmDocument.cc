@@ -1,7 +1,7 @@
 // C++ includes
 #include <string>
 
-// Omsee includes
+// Xapian includes
 #include "om/om.h"
 #include "om/omdocument.h"
 

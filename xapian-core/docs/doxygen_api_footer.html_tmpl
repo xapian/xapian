@@ -1,6 +1,6 @@
 <hr>
 <address><small>
-Documentation for Omseek (version $projectnumber).<br>
+Documentation for Xapian (version $projectnumber).<br>
 Generated on $date by
 <a href="http://www.stack.nl/~dimitri/doxygen/index.html">Doxygen $doxygenversion</a>.
 </small></address>

@@ -24,19 +24,19 @@ DIST_SUBDIRS = include testsuite autoconf common \
                api backends matcher languages net \
 	       indexer  . m4 docs netprogs tests bindings extra
 
-bin_SCRIPTS=omseek-config
+bin_SCRIPTS=xapian-config
 
-CLEANFILES=TODO omseek-config
+CLEANFILES=TODO xapian-config
 
 EXTRA_DIST = Makefile_common.am ChangeLog buildall HACKING PLATFORMS \
              ar-wrapper-solaris TODO TODO.release
 
-lib_LTLIBRARIES = libomseek.la
+lib_LTLIBRARIES = libxapian.la
 
 # This line is present because of a bug in some versions of libtool
 # (exhibited when there are no source files)
-libomseek_la_SOURCES = dummy.c
-EXTRA_libomseek_la_SOURCES =
+libxapian_la_SOURCES = dummy.c
+EXTRA_libxapian_la_SOURCES =
 
 TODO: ./docs/todo2html.pl $(top_srcdir)/docs/todo.xml $(top_srcdir)/docs/todo2html.pl.in
 if HAVE_PERL_XML_AND_TEXT
@@ -64,9 +64,9 @@ acinclude.m4: autoconf/acinclude.m4
 	cp autoconf/acinclude.m4 acinclude.m4
 
 # doesn't really work as we'd hope as we get to play with the mangled symbols
-libomseek_la_LDFLAGS = -export-symbols-regex 'Om[A-Z]'
+libxapian_la_LDFLAGS = -export-symbols-regex 'Om[A-Z]'
 
-libomseek_la_LIBADD = \
+libxapian_la_LIBADD = \
  common/libcommon.la \
  backends/libbackend.la \
  matcher/libmatcher.la \
@@ -75,8 +75,8 @@ libomseek_la_LIBADD = \
  api/libapi.la \
  $(LIB_REMOTE1)
 
-omseek-config: omseek-config.nodep libomseek.la
+xapian-config: xapian-config.nodep libxapian.la
 	@echo "Creating $@"
 	@export dependency_libs; \
-	. $(top_builddir)/libomseek.la ; \
+	. $(top_builddir)/libxapian.la ; \
 	cat $< | sed "s%@dependency_libs@%$${dependency_libs}%" > $@
