@@ -244,7 +244,8 @@ class Item {
     const byte *p;
 public:
     Item(const byte * p_, int c) : p(p_ + GETD(p_, c)) { }
-    const byte * item_of() const { return p; }
+    const byte * get_address() const { return p; }
+    int size() const { return GETI(p, 0); }
     int component_of() const {
 	return GETC(p, GETK(p, I2) + I2 - C2);
     }
@@ -255,21 +256,21 @@ public:
     void append_chunk(string * tag) const {
 	/* number of bytes to extract from current component */
 	int cd = GETK(p, I2) + I2 + C2;
-	int l = GETI(p, 0) - cd;
+	int l = size() - cd;
 	tag->append(reinterpret_cast<const char *>(p + cd), l);
     }
     /** Get this item's tag as a block number (this block should not be at
      *  level 0).
      */
     uint4 block_given_by() const {
-	return get_int4(p, GETI(p, 0) - BYTES_PER_BLOCK_NUMBER);
+	return get_int4(p, size() - BYTES_PER_BLOCK_NUMBER);
     }
     /** Set this item's tag to point to block n (this block should not be at
      *  level 0).
      */
     void set_block_given_by(uint4 n) {
 	// FIXME: sort out constness of p
-	set_int4(const_cast<byte*>(p), GETI(p, 0) - BYTES_PER_BLOCK_NUMBER, n);
+	set_int4(const_cast<byte*>(p), size() - BYTES_PER_BLOCK_NUMBER, n);
     }
 };
 

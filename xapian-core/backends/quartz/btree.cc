@@ -582,10 +582,10 @@ Btree::compress(byte * p)
     byte * b = buffer;
     int dir_end = DIR_END(p);
     for (int c = DIR_START; c < dir_end; c += D2) {
-	int o = GETD(p, c);
-	int l = GETI(p, o);
+	Item item(p, c);
+	int l = item.size();
 	e -= l;
-	memmove(b + e, p + o, l);
+	memmove(b + e, item.get_address(), l);
 	SETD(p, c, e);  /* reform in b */
     }
     memmove(p + e, b + e, block_size - e);  /* copy back */
@@ -723,8 +723,7 @@ Btree::mid_point(byte * p)
     int dir_end = DIR_END(p);
     int size = block_size - TOTAL_FREE(p) - dir_end;
     for (int c = DIR_START; c < dir_end; c += D2) {
-	int o = GETD(p, c);
-	int l = GETI(p, o);
+	int l = Item(p, c).size();
 	n += 2 * l;
 	if (n >= size) {
 	    if (l < n - size) return c;
@@ -879,8 +878,7 @@ Btree::delete_item(int j, bool repeatedly)
     Assert(writable);
     byte * p = C[j].p;
     int c = C[j].c;
-    int o = GETD(p, c);              /* offset of item to be deleted */
-    int kt_len = GETI(p, o);         /* - and its length */
+    int kt_len = Item(p, c).size(); /* size of the item to be deleted */
     int dir_end = DIR_END(p) - D2;   /* directory length will go down by 2 bytes */
 
     memmove(p + c, p + c + D2, dir_end - c);
@@ -966,21 +964,21 @@ Btree::add_kt(bool found)
 
 	byte * p = C[0].p;
 	int c = C[0].c;
-	int o = GETD(p, c);
+	Item item(p, c);
 	int kt_size = GETI(kt, 0);
-	int needed = kt_size - GETI(p, o);
+	int needed = kt_size - item.size();
 
 	components = Item(p, c).components_of();
 
 	if (needed <= 0) {
 	    /* simple replacement */
-	    memmove(p + o, kt, kt_size);
+	    memmove(const_cast<byte *>(item.get_address()), kt, kt_size);
 	    SET_TOTAL_FREE(p, TOTAL_FREE(p) - needed);
 	} else {
 	    /* new item into the block's freespace */
 	    int new_max = MAX_FREE(p) - kt_size;
 	    if (new_max >= 0) {
-		o = DIR_END(p) + new_max;
+		int o = DIR_END(p) + new_max;
 		memmove(p + o, kt, kt_size);
 		SETD(p, c, o);
 		SET_MAX_FREE(p, new_max);

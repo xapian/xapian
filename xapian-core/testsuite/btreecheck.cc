@@ -59,15 +59,15 @@ void BtreeCheck::print_key(const byte * p, int c, int j) const
 
 void BtreeCheck::print_tag(const byte * p, int c, int j) const
 {
-    int o = GETD(p, c);
-    int o_tag = o + I2 + GETK(p, o + I2);
-    int l = o + GETI(p, o) - o_tag;
-
+    Item item(p, c);
+    string tag;
+    item.append_chunk(&tag);
     if (j == 0) {
-	out << "/" << GETC(p, o_tag);
-	print_bytes(l - C2, p + o_tag + C2);
-    } else
-	out << "--> [" << get_int4(p, o_tag) << ']';
+	out << "/" << item.components_of() << tag;
+    } else {
+	out << "--> [" << get_int4(reinterpret_cast<const byte*>(tag.data()), 0)
+	    << ']';
+    }
 }
 
 void BtreeCheck::report_block_full(int m, int n, const byte * p) const
