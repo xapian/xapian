@@ -1,3 +1,8 @@
+Tue Nov 21 17:19:38 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Modified QuartzPostList::delete_entry() so that it updates the
+	  counts, even though it doesn't actually delete the entry yet.
+
 Tue Nov 21 15:35:47 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Made the testsuite more colourful.

@@ -29,9 +29,7 @@
 // Static functions
 
 /// Make a key for accessing the postlist.
-static void make_key(const om_termname & tname,
-	      om_docid did,
-	      QuartzDbKey & key)
+static void make_key(const om_termname & tname, om_docid did, QuartzDbKey & key)
 {
     key.value = pack_string(tname);
     key.value += pack_uint_preserving_sort(did);
@@ -653,8 +651,103 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
 void
 QuartzPostList::delete_entry(QuartzBufferedTable * bufftable,
 			     const om_termname & tname,
-			     om_docid did)
+			     om_docid did_to_delete)
 {
-    throw OmUnimplementedError("QuartzPostList::delete_entry() not yet implemented");
+    DEBUGCALL_STATIC(DB, void, "QuartzPostList::delete_entry",
+		     bufftable << ", " <<
+		     tname << ", " <<
+		     did_to_delete);
+
+    // Get chunk containing entry
+    QuartzDbKey key;
+    make_key(tname, did_to_delete, key);
+    AutoPtr<QuartzCursor> cursor(bufftable->cursor_get());
+
+    cursor->find_entry(key);
+    Assert(!cursor->after_end());
+
+    const char * keypos = cursor->current_key.value.data();
+    const char * keyend = keypos + cursor->current_key.value.size();
+    std::string tname_in_key;
+
+    // Read the termname.
+    if (keypos != keyend)
+	if (!unpack_string(&keypos, keyend, tname_in_key))
+	    report_read_error(keypos);
+
+    if (tname_in_key != tname) {
+	// This should only happen if the postlist doesn't exist at all.
+	return;
+    } else {
+	bool is_first_chunk = (keypos == keyend);
+
+	// Get the appropriate tag and set pointers to iterate through it
+	QuartzDbTag * tag = bufftable->get_or_make_tag(cursor->current_key);
+	Assert(tag != 0);
+	Assert(tag->value.size() != 0);
+	const char * tagpos = tag->value.data();
+	const char * tagend = tagpos + tag->value.size();
+
+	// Get the first document ID in the chunk.
+	om_docid first_did_in_chunk;
+	if (is_first_chunk) {
+	    read_start_of_first_chunk(&tagpos, tagend,
+				      0, 0, &first_did_in_chunk);
+	} else {
+	    if (!unpack_uint_preserving_sort(&keypos, keyend,
+					     &first_did_in_chunk))
+		report_read_error(keypos);
+	}
+
+	// Read the chunk header
+	bool is_last_chunk;
+	om_docid last_did_in_chunk;
+	unsigned int start_of_chunk_header = tagpos - tag->value.data();
+	read_start_of_chunk(&tagpos, tagend, first_did_in_chunk,
+			    &is_last_chunk, &last_did_in_chunk);
+	unsigned int end_of_chunk_header = tagpos - tag->value.data();
+
+	// Read first wdf and length
+	om_termcount wdf;
+	quartz_doclen_t doclength;
+	read_wdf_and_length(&tagpos, tagend, &wdf, &doclength);
+
+	// Check if item is in the chunk's range
+	if (last_did_in_chunk < did_to_delete) return; // Entry not in range
+
+	// Find item to delete
+	om_docid currdid = first_did_in_chunk;
+	om_docid prevdid = currdid;
+	unsigned int start_of_item;
+
+	while (currdid < did_to_delete) {
+	    start_of_item = tagpos - tag->value.data();
+	    prevdid = currdid;
+
+	    read_did_increase(&tagpos, tagend, &currdid);
+	    read_wdf_and_length(&tagpos, tagend, &wdf, &doclength);
+
+	    // Either not at last doc in chunk, or tagpos == tagend, but not
+	    // both.
+	    Assert(currdid <= last_did_in_chunk);
+	    Assert(currdid < last_did_in_chunk || tagpos == tagend);
+	    Assert(tagpos != tagend || currdid == last_did_in_chunk);
+	}
+
+	unsigned int end_of_item = tagpos - tag->value.data();
+
+	// Delete item
+	// FIXME: implement
+	
+	// Sort out chunk header
+	write_start_of_chunk(tag->value,
+			     start_of_chunk_header,
+			     end_of_chunk_header,
+			     is_last_chunk,
+			     first_did_in_chunk,
+			     last_did_in_chunk);
+
+	adjust_counts(bufftable, tname, 0, 1, 0, wdf);
+    }
 }
 
