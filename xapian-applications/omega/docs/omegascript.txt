@@ -96,7 +96,7 @@ $error
 
 $field{NAME}
 	lookup field in record.  If multiple instances of field exist the
-	values are returned tab separated; which means you can pass the
+	field values are returned tab separated; which means you can pass the
 	results to $map; e.g.
           $map{$field{keywords},<b>$html{$_}</b><br>}
 

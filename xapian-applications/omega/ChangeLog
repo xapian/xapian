@@ -1,3 +1,7 @@
+Tue Apr 05 23:34:36 BST 2005  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.txt: Clarify $field description slightly.
+
 Tue Apr 05 23:33:33 BST 2005  Olly Betts <olly@survex.com>
 
 	* indextext.h: Add typedefs to allow AccentNormalisingItor to be used
