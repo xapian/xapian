@@ -36,6 +36,8 @@ class SleepyDatabaseInternals;
 /** A database using the sleepycat database library.
  *  This currently uses the C++ interface, version 2.2.6, but may work
  *  with other versions.
+ *
+ *  Sleepycat is available from http://www.sleepycat.com/
  */
 class SleepyDatabase : public IRDatabase {
     friend class DatabaseBuilder;
