@@ -1,3 +1,7 @@
+Tue Jul  8 20:59:08 2003  James Aylett  <james@tartarus.org>
+
+	* common/utils.h: missing #include <ctype.h>
+
 Tue Jul  8 18:06:23 2003  James Aylett  <james@tartarus.org>
 
 	* bindings/swig/xapian.i: over-enthusiastic automatic
