@@ -46,6 +46,16 @@
 #include "htmlparse.h"
 #include "indextext.h"
 
+#ifndef O_STREAMING
+# ifdef __linux__
+// This is the value used by rml's O_STREAMING patch for 2.4.
+#  define O_STREAMING	04000000
+# else
+// Define as 0 otherwise, so we don't need ifdefs in the code.
+#  define O_STREAMING	0
+# endif
+#endif
+
 using namespace std;
 
 #define OMINDEX "omindex"
@@ -271,7 +281,7 @@ file_to_string(const string &file)
 {
     string out;
     struct stat st;
-    int fd = open(file.c_str(), O_RDONLY);
+    int fd = open(file.c_str(), O_RDONLY|O_STREAMING);
     if (fd == -1) throw ReadError();
     if (fstat(fd, &st) == -1 || !S_ISREG(st.st_mode)) {
 	close(fd);
@@ -279,6 +289,9 @@ file_to_string(const string &file)
     }
 
     if (st.st_size > 0) {
+#ifdef HAVE_POSIX_FADVISE
+	posix_fadvise(fd, 0, 0, POSIX_FADV_NOREUSE);
+#endif
 	out.reserve(st.st_size);
 	char blk[4096];
 	while (true) {

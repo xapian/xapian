@@ -1,3 +1,10 @@
+Fri Apr 02 16:09:03 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.in,omindex.cc: Use O_STREAMING and/or posix_fadvise()
+	  when reading files to be indexed (if available).  This helps to
+	  keep the Xapian database in cache, and greatly improve indexing
+	  throughput.
+
 Tue Mar 30 00:06:15 BST 2004  Olly Betts <olly@survex.com>
 
 	* NEWS: We're now putting omega news here rather than in xapian-core

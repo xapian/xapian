@@ -24,6 +24,8 @@ if test $ac_cv_func_ftime = yes ; then
     AC_DEFINE(FTIME_RETURNS_VOID, 1, [Define if ftime returns void]))
 fi
 
+AC_CHECK_FUNCS(posix_fadvise)
+
 dnl mingw has _snprintf
 AC_CHECK_FUNCS(snprintf _snprintf)
 if test $ac_cv_func_snprintf$ac_cv_func__snprintf = noyes ; then
