@@ -43,6 +43,12 @@ M|5| |Exceptions   | Make exceptions threadsafe: see
  | | |             | be protected by a mutex - will need to cope with
  | | |             | exception being copied.
 -+-+-+-------------+-----------------------------------------------------------
+M|3| |OmDocument   | Remove termfreq element from OmDocumentContents - not
+ | | |             | meaningful in some places where this is used (for example
+ | | |             | OmDatabase::add_document()).  Perhaps we need two
+ | | |             | different types of OmDocumentContents, or perhaps this
+ | | |             | can just go totally.
+-+-+-+-------------+-----------------------------------------------------------
 M|3| |Documentation| Patch doxygen, so that todo items in the body of
  | | |             | methods get displayed.
 -+-+-+-------------+-----------------------------------------------------------

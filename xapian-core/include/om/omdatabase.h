@@ -444,6 +444,11 @@ class OmWritableDatabase : public OmDatabase {
 	 *  session will be created for the duration of the method.
 	 *  Again, see begin_session() for more notes on sessions.
 	 *
+	 *  Note that the termfreq field in the OmDocumentContents
+	 *  passed to this method is irrelevant in this context, and
+	 *  will be ignored.  (FIXME: it probably shouldn't be in the
+	 *  structure.)
+	 *
 	 *  @param document The new document to be added.
 	 *
 	 *  @param timeout  The timeout parameter to pass to begin_session()
