@@ -56,7 +56,7 @@ OmPostListIterator::operator=(const OmPostListIterator &other)
 }
 
 const om_docid
-OmPostListIterator::operator *()
+OmPostListIterator::operator *() const
 {
     DEBUGAPICALL(om_docid, "OmPostListIterator::operator*", "");
     om_docid result = internal->postlist->get_docid();

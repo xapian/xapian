@@ -371,7 +371,7 @@ OmWritableDatabase::get_document(om_docid did) const
     if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
     // create our own RefCntPtr in case another thread assigns a new ptr
     RefCntPtr<Database> database = internal->databases[0];
-    RETURN(OmDocument(new OmDocument::Internal(database->open_document(did), this, did)));
+    RETURN(OmDocument(new OmDocument::Internal(database->open_document(did), *this, did)));
 }
 
 std::string

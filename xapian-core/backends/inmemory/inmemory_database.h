@@ -217,7 +217,7 @@ class InMemoryDatabase : public Database {
 	void make_term(const om_termname & tname);
 
 	om_docid make_doc(const OmData & docdata);
-	void add_keys(om_docid did, const OmDocument::document_keys &keys_);
+	void add_keys(om_docid did, const std::map<om_keyno, OmKey> &keys_);
 
 	void make_posting(const om_termname & tname,
 			  om_docid did,
@@ -238,7 +238,6 @@ class InMemoryDatabase : public Database {
 	om_docid do_add_document(const OmDocument & document);
 	void do_delete_document(om_docid did);
 	void do_replace_document(om_docid did, const OmDocument & document);
-	OmDocument do_get_document(om_docid did);
 	//@}
 
     public:

@@ -374,13 +374,6 @@ class DADatabase : public Database {
 
 	//@}
 
-	/** Get a document from the database.
-	 *  FIXME: implement this method.
-	 */
-	OmDocument do_get_document(om_docid did) {
-	    throw OmUnimplementedError(
-		"DADatabase::get_document() not yet implemented");
-	}
 };
 
 #endif /* OM_HGUARD_DA_DATABASE_H */

@@ -200,12 +200,6 @@ SleepycatDatabase::do_replace_document(om_docid did,
     throw OmUnimplementedError("SleepycatDatabase::do_replace_document() not implemented");  
 }
 
-OmDocument
-SleepycatDatabase::do_get_document(om_docid did)
-{
-    throw OmUnimplementedError("SleepycatDatabase::do_get_document() not implemented");  
-}
-
 om_docid
 SleepycatDatabase::do_add_document(const OmDocument & document)
 {

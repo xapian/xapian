@@ -43,10 +43,10 @@ OmIndexer::get_raw_output()
     return internal->final->get_output_record(internal->final_out);
 }
 
-static OmDocument::document_keys
+static std::map<om_keyno, OmKey>
 extract_keys(const OmIndexerData &vec)
 {
-    OmDocument::document_keys keys;
+    std::map<om_keyno, OmKey> keys;
     // vec[0] has the string "keylist"
     for (int i=1; i<vec.get_vector_length(); ++i) {
 	const OmIndexerData &key = vec[i];

@@ -26,6 +26,8 @@
 #include "document.h"
 #include "omdocumentinternal.h"
 #include "omtermlistiteratorinternal.h"
+#include "omkeylistiteratorinternal.h"
+#include <algorithm>
 
 //////////////////////////////////
 // implementation of OmDocument //

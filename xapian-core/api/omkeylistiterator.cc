@@ -53,10 +53,10 @@ OmKeyListIterator::operator=(const OmKeyListIterator &other)
 }
 
 OmKey
-OmKeyListIterator::operator *()
+OmKeyListIterator::operator *() const
 {
     DEBUGAPICALL(OmKey, "OmKeyListIterator::operator*", "");
-    RETURN(internal->it->second));
+    RETURN(internal->it->second);
 }
 
 OmKeyListIterator &

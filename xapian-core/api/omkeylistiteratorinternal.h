@@ -25,6 +25,7 @@
 
 #include "om/omkeylistiterator.h"
 #include "om/omdocument.h"
+#include <map>
 
 class OmKeyListIterator::Internal {
     private:
@@ -34,7 +35,7 @@ class OmKeyListIterator::Internal {
 	std::map<om_keyno, OmKey>::const_iterator it;
     
     public:
-        Internal(OmDocument::document_keys::const_iterator it_) : it(it_)
+        Internal(std::map<om_keyno, OmKey>::const_iterator it_) : it(it_)
 	{ }
 
         Internal(const Internal &other) : it(other.it)

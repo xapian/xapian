@@ -181,23 +181,12 @@ QuartzDatabase::do_replace_document(om_docid did,
 }
 
 OmDocument
-QuartzDatabase::do_get_document(om_docid did)
-{
-    OmLockSentry sentry(quartz_mutex);
-
-    QuartzDatabase::RefCntPtrToThis tmp;
-    RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
-
-    return do_get_document_internal(did, ptrtothis);
-}
-
-OmDocument
 QuartzDatabase::do_get_document_internal(om_docid did,
 					 RefCntPtr<const Database> ptrtothis)
 {
     Assert(did != 0);
 
-    OmDocumentContents document;
+    OmDocument document;
 
     document.data = QuartzRecordManager::get_record(
 		*(tables->get_record_table()), did);
@@ -627,17 +616,6 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
     // persist in memory, and eventually get written to disk.
 
     throw OmUnimplementedError("QuartzWritableDatabase::do_replace_document() not yet implemented");
-}
-
-OmDocument
-QuartzWritableDatabase::do_get_document(om_docid did)
-{
-    OmLockSentry sentry(database_ro.quartz_mutex);
-
-    QuartzDatabase::RefCntPtrToThis tmp;
-    RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
-
-    return database_ro.do_get_document_internal(did, ptrtothis);
 }
 
 om_doccount 

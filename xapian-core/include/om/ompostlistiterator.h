@@ -66,7 +66,7 @@ class OmPostListIterator {
 // om_weight get_weight() const;
 
 	/// Get the document id at the current position in the postlist.
-	om_docid operator *() const;
+	const om_docid operator *() const;
 
 	/** Get the length of the document at the current position in the
 	 *  postlist.

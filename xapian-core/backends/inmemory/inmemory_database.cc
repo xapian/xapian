@@ -135,7 +135,7 @@ InMemoryDatabase::open_position_list(om_docid did,
 
 void
 InMemoryDatabase::add_keys(om_docid did,
-			   const OmDocument::document_keys &keys_)
+			   const std::map<om_keyno, OmKey> &keys_)
 {
     Assert(keylists.size() == did - 1);
     keylists.push_back(keys_);
@@ -188,31 +188,35 @@ InMemoryDatabase::do_replace_document(om_docid did,
     throw OmUnimplementedError("InMemoryDatabase::do_replace_document() not implemented");  
 }
 
-OmDocument
-InMemoryDatabase::do_get_document(om_docid did)
-{
-    throw OmUnimplementedError("InMemoryDatabase::do_get_document() not implemented");  
-}
-
 om_docid
 InMemoryDatabase::do_add_document(const OmDocument & document)
 {
-    om_docid did = make_doc(document.data);
-    add_keys(did, document.keys);
+    om_docid did = make_doc(document.get_data());
+ 
+    {
+	std::map<om_keyno, OmKey> keys;
+	OmKeyListIterator k = document.keylist_begin();
+	OmKeyListIterator k_end = document.keylist_end();
+	for ( ; k != k_end; ++k) {
+	    keys.insert(std::make_pair(k.get_keyno(), *k));
+	}
+	add_keys(did, keys);
+    }
 
-    OmDocument::document_terms::const_iterator i;
-    for(i = document.terms.begin(); i != document.terms.end(); i++) {
-	const OmDocumentTerm & t = i->second;
-	make_term(t.tname);
+    OmTermListIterator i = document.termlist_begin();
+    OmTermListIterator i_end = document.termlist_end();
+    for ( ; i != i_end; ++i) {
+	make_term(*i);
 
-	OmDocumentTerm::term_positions::const_iterator j;
-	for (j = t.positions.begin(); j != t.positions.end(); j++) {
-	    make_posting(t.tname, did, *j, t.wdf);
+	OmPositionListIterator j = i.positionlist_begin();
+	OmPositionListIterator j_end = i.positionlist_end();
+	for ( ; j != j_end; ++j) {
+	    make_posting(*i, did, *j, i.get_wdf());
 	}
 
 	Assert(did > 0 && did <= doclengths.size());
-	doclengths[did - 1] += t.wdf;
-	totlen += t.wdf;
+	doclengths[did - 1] += i.get_wdf();
+	totlen += i.get_wdf();
     }
 
     return did;

@@ -101,14 +101,6 @@ class NetworkDatabase : public Database {
 
 	//@}
 
-	/** Get a document from the database.
-	 *  FIXME: implement this method.
-	 */
-	OmDocument do_get_document(om_docid did) {
-	    throw OmUnimplementedError(
-		"NetworkDatabase::get_document() not yet implemented");
-	}
-
     public:
 	~NetworkDatabase();
 

@@ -365,13 +365,6 @@ class DBDatabase : public Database {
 
 	//@}
 
-	/** Get a document from the database.
-	 *  FIXME: implement this method.
-	 */
-	OmDocument do_get_document(om_docid did) {
-	    throw OmUnimplementedError(
-		"DBDatabase::get_document() not yet implemented");
-	}
 };
 
 #endif /* OM_HGUARD_DB_DATABASE_H */

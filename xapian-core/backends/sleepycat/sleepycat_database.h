@@ -112,7 +112,6 @@ class SleepycatDatabase : public Database {
 	om_docid do_add_document(const OmDocument & document);
 	void do_delete_document(om_docid did);
 	void do_replace_document(om_docid did, const OmDocument & document);
-	OmDocument do_get_document(om_docid did);
 	//@}
 
     public:

@@ -1,3 +1,7 @@
+Wed Dec 06 16:35:34 GMT 2000 Olly Betts
+
+	* Fixed up lots of build errors.
+
 Wed Dec 06 14:56:59 GMT 2000 Olly Betts
 
 	* Begin the long job of replacing OmDocumentContents with

@@ -64,7 +64,6 @@ class QuartzDatabase : public Database {
 	virtual void do_delete_document(om_docid did);
 	virtual void do_replace_document(om_docid did,
 					 const OmDocument & document);
-	virtual OmDocument do_get_document(om_docid did);
 	//@}
 
 	/// Implementation of do_get_document()
