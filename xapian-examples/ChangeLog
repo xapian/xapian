@@ -1,3 +1,7 @@
+Fri Aug 08 01:39:21 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.7.3.
+
 Fri Aug 01 15:37:40 BST 2003  Olly Betts <olly@survex.com>
 
 	* msearch.cc: Quick fix to get mingw building going.
