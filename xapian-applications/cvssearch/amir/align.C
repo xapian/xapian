@@ -11,7 +11,7 @@
 
 #define GNU_DIFF_MARKER_COL 64
 #define DIFF_OUTPUT "/tmp/diff_output"
-#define DEBUG_MODE 1
+#define DEBUG_MODE 0
 
 #include <string>
 #include <vector>
@@ -85,7 +85,8 @@ public:
     return V[ S.size()][ T.size() ];
   }
 
-  void reconstruct() {
+  string reconstruct() { // returns markerSequence;
+
     // comes up with one alignment, not necessarily
     // all alignments
 
@@ -94,6 +95,8 @@ public:
 
     list<string> s;
     list<string> t;
+
+    string markerSequence;
 
     while ( i >0 || j > 0 ) {
 
@@ -105,15 +108,24 @@ public:
 	t.push_front( T[j] );
 	i--;
 	j--;
+
+	markerSequence = '|' + markerSequence;
+
       } else if ( i>0 && v == V[i-1][j] + S.score(S[i], T.space()) ) {
 	s.push_front( S[i] );
 	t.push_front( "$" );
 	i--;
+
+	markerSequence = '<' + markerSequence;
+
       } else {
 	assert( v == V[i][j-1] + S.score(S.space(), T[j] )) ;
 	s.push_front( "$" );
 	t.push_front( T[j] );
 	j--;
+
+	markerSequence = '>' + markerSequence;
+
       }
 
     }
@@ -126,7 +138,8 @@ public:
       is++;
       it++;
     }
-    
+   
+    return markerSequence;
   }
 
 };
@@ -265,6 +278,8 @@ void processDiffOutput( const string& f, LineSequence& l1, LineSequence& l2 ) {
 
   int blockStart1 = 0;
   int blockStart2 = 0;
+
+  string markerSequence;
   
   while ( ! in.eof() ) {
     string line;
@@ -281,7 +296,7 @@ void processDiffOutput( const string& f, LineSequence& l1, LineSequence& l2 ) {
       foundChangeMarker = true;
     }
     if ( marker == '|' || marker == '<' || marker == '>' ) {
-
+      markerSequence += marker;
       if ( marker == '|' ) {
 	blockSize1++;
 	blockSize2++;
@@ -296,12 +311,19 @@ void processDiffOutput( const string& f, LineSequence& l1, LineSequence& l2 ) {
 	blockStart1 = line_num_1;
 	blockStart2 = line_num_2;
       }
-    } else {
+    } else { // didn't find |, <, or >
+      assert( marker == 0 || marker == ' ' );
       if ( foundChangeMarker ) {
 	assert( blockSize1 > 0 );
 	assert( blockSize2 > 0 );
 
 	if ( DEBUG_MODE ) cerr << "\n\n\n*********** Found change block at lines " << blockStart1 << " and " << blockStart2 << endl;
+	if ( DEBUG_MODE ) cerr << "..marker sequence " << endl;
+	if ( DEBUG_MODE) {
+	  for (int i = 0; i < markerSequence.length(); i++ ) {
+	    cerr << "..." << markerSequence[i] << endl;
+	  }
+	}
 
 	LineSequence b1, b2;
 
@@ -322,14 +344,60 @@ void processDiffOutput( const string& f, LineSequence& l1, LineSequence& l2 ) {
 	Alignment<LineSequence> alignment( b1, b2 );
 	alignment.findOptimalAlignment( );
 	if ( DEBUG_MODE ) cerr << "*** optimal alignment value is " << alignment.optimalAlignmentValue() << endl;
-	alignment.reconstruct();
+	string marker_seq = alignment.reconstruct();
 
+	cout << "marker sequence from alignment:  " << marker_seq << endl;
+
+      } else {
+	if ( !markerSequence.empty() ) {
+	  if ( DEBUG_MODE ) cerr << "\n\n******* Didn't find change marker in block" << endl;
+
+	  // right now we don't handle both < and >
+	  bool foundLess = false;
+	  bool foundGreater = false;
+	  for (int i = 0; i < markerSequence.length(); i++ ) {
+	    //	    cerr << "..." << markerSequence[i] << endl;
+	    if ( markerSequence[i] == '<' ) {
+	      foundLess = true;
+	    } else {
+	      foundGreater = true;
+	    }
+	  }
+
+	  assert( !foundLess || !foundGreater );
+	  assert( foundLess || foundGreater );
+
+	  int lineno1 = blockStart1;
+	  int lineno2 = blockStart2;
+
+	  if ( markerSequence[0] == '<' ) {
+	    // delete line from file 1
+	    if ( markerSequence.length() == 1 ) {
+	      cout << lineno1 << "d" << (lineno2-1) << endl;
+	    } else {
+	      cout << lineno1 << "," << (lineno1 + markerSequence.length()-1) << "d" << (lineno2-1) << endl;
+	    }
+	    //	    lineno1++;
+	  } else {
+	    // '>'
+	    // add line to file 1	    
+	    if ( markerSequence.length() == 1 ) {
+	      cout << (lineno1-1) << "a" << lineno2 << endl;
+	    } else {
+	      cout << (lineno1-1) << "a" << lineno2 << "," << (lineno2 + markerSequence.length()-1)  << endl;
+	    }
+	    
+	    //	    lineno2++;
+	  }
+	  
+	}
       }
       blockStart1 = 0;
       blockStart2 = 0;
       blockSize1 = 0;
       blockSize2 = 0;
       foundChangeMarker = false;
+      markerSequence = "";
     }
 
     if ( marker != '|' && marker != ' ' && marker != 0 ) {
