@@ -186,6 +186,7 @@ cd ${SRCDIR}
 if [ "x${SRCDIR}" != "x." ] ; then
   display "${PROGNAME}: changed to source directory, `pwd`"
 fi
+run libtoolize --automake
 run aclocal $ACLOCAL_FLAGS
 run autoheader
 run autoconf
