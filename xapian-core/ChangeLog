@@ -1,3 +1,7 @@
+Thu Jul 03 23:29:06 BST 2003  Olly Betts <olly@survex.com>
+
+	* NEWS,PLATFORMS,configure.in: Version 0.7.0.
+
 Thu Jul 03 22:57:22 BST 2003  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated (Linux GCC 2.95 and Linux to mingw cross).

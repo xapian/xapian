@@ -1,4 +1,4 @@
-Xapian 0.7.0 (2003-07-??):
+Xapian 0.7.0 (2003-07-03):
 
 API:
 
@@ -88,7 +88,7 @@ build system:
   install Xapian with a different prefix to the one it was configured with,
   yet these options give the impression you can.
 
-misc:
+miscellaneous:
 
 * Fixed sending debug output to a file with XAPIAN_DEBUG_LOG with a value which
   didn't contain "%%" (%% expands to the current PID).
