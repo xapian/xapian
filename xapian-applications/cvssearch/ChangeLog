@@ -1,3 +1,7 @@
+Sat Mar 27 15:07:53 GMT 2004  Olly Betts <olly@survex.com>
+
+	* db/: Removed lots of source files which are no longer used.
+
 Sat Mar 27 13:38:30 GMT 2004  Olly Betts <olly@survex.com>
 
 	* db/: Read the output from ctags using a pipe, which fixes a case of
