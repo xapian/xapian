@@ -1,7 +1,4 @@
-Xapian-core 0.8.1 (2004-06-2X):
-
-Up to:
-Sun Jun 27 23:37:01 BST 2004  Olly Betts <olly@survex.com>
+Xapian-core 0.8.1 (2004-06-30):
 
 API:
 
@@ -11,7 +8,7 @@ API:
 
 * Xapian::MSet::get_matches_*() methods now take collapsing into account, and
   the documentation has been clarified to state explicitly that collapsing and
-  cutoffs are taken into account.
+  cutoffs are taken into account (bug#31).
 
 * Xapian::MSet: Need to adjust index by firstitem when indexing into items
   (bug#28).
@@ -39,6 +36,9 @@ testsuite:
 
 * remotetest: Use 127.0.0.1 instead of localhost so that tcpmatch1 doesn't fail
   just because the network setup is broken.
+
+* apitest: Make emptyquery1 check that Query("") causes an InvalidArgumentError
+  exception.
 
 quartz backend:
 
@@ -128,10 +128,6 @@ documentation:
   "currently being addressed for Xapian 0.8" as it's now been addressed!  Also
   reworded to remove use of first person (it was originally a message sent to
   the mailing list).
-
-packaging:
-
-* debian/: Added basic Debian packaging.
 
 Xapian-core 0.8.0 (2004-04-19):
 

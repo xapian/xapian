@@ -521,6 +521,7 @@ Currently incomplete, but these jobs are amongst those that need doing:
   http://www.xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian
 
 * Move any bugs fixed by this release from "RESOLVED FIXED" -> "CLOSED"
+  http://www.xapian.org/cgi-bin/bugzilla/buglist.cgi?bug_status=RESOLVED&resolution=FIXED
 
 * Update the NEWS files using information from the ChangeLog files
 
