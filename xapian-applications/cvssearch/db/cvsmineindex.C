@@ -35,8 +35,6 @@
 
 
 
-#define ONLY_Q_AND_K_CLASSES 1
-
 
 #warning "requires ctags from http://ctags.sourceforge.net/"
 #warning "should generate unique file for tags"
@@ -118,56 +116,19 @@ void writeOMDatabase( const string& database_dir,
     OmDocument newdocument;
     int pos = 1;
 
+    // add terms for indexing
+    set<string> added;
     for( list<string>::iterator w = W.begin(); w != W.end(); w++ ) {
-      //	cerr << "..." << (*w) << endl;
-	
+      if ( added.find(*w) != added.end() ) {
+	continue; // added already, save some space by skipping
+      }
       newdocument.add_posting(*w, pos++); 
+      added.insert(*w);
     }
 
-    //      cerr << "Symbol string is:  " << symbol_string << endl;
-
-    // put transaction contents in data
-    newdocument.set_data(  symbol_string );
-
-    database.add_document(newdocument);
-
-  }
-    
-    
-}
-
-void writeOMDatabase2( const string& database_dir,
-		      map< string, set<string> >& comment_symbols, 
-		      map< string, set<string> >& comment_words ) {
-  
-  system( ("rm -rf " + database_dir).c_str() );
-  system(("mkdir " + database_dir).c_str());
-
-  OmSettings db_parameters;
-  db_parameters.set("backend", "quartz");
-  db_parameters.set("quartz_dir", database_dir);
-  db_parameters.set("database_create", true);
-  OmWritableDatabase database(db_parameters); // open database 
-    
-  for( map< string, set<string > >::iterator i = comment_symbols.begin(); i != comment_symbols.end(); i++ ) {
-    string cmt = i->first;
-
-    set<string> symbols = i->second;
-    string symbol_string;
+    // add symbols for indexing (symbols get a $ prefix to distinguish them from terms)
     for( set<string>::iterator j = symbols.begin(); j != symbols.end(); j++ ) {
-      symbol_string = symbol_string + (*j) + " ";
-    }
-
-    //      cerr << "Looking at comment " << cmt << endl;
-    set<string> W = comment_words[cmt];
-      
-    OmDocument newdocument;
-    int pos = 1;
-
-    for( set<string>::iterator w = W.begin(); w != W.end(); w++ ) {
-      //	cerr << "..." << (*w) << endl;
-	
-      newdocument.add_posting(*w, pos++); 
+      newdocument.add_posting("$"+(*j), pos++); 
     }
 
     //      cerr << "Symbol string is:  " << symbol_string << endl;
@@ -181,7 +142,6 @@ void writeOMDatabase2( const string& database_dir,
     
     
 }
-
 
 int main(int argc, char *argv[]) {
 
@@ -360,15 +320,7 @@ int main(int argc, char *argv[]) {
 
 	    if ( lib_symbols.find(*s) != lib_symbols.end() ) {
 
-	      if ( ONLY_Q_AND_K_CLASSES ) {
-		if ( s->find("()") == -1 && s->find("K") != 0 && s->find("Q") != 0 ) {
-		  continue;
-		}
-	      }
-	      
 	      comment_symbols[ i->second].insert(*s);
-	      //	    cerr << "..." << (*s) << endl;
-
 
 	    } 
 	  }
@@ -463,9 +415,11 @@ int main(int argc, char *argv[]) {
 		     comment_words );
 
 
+/***
     writeOMDatabase2( cvsdata + "/root0/db/mining.om2", 
 		     comment_symbols,
 		     comment_symbols );
+**/
   
     
   } catch(OmError & error) {
