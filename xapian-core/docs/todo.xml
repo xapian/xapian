@@ -99,7 +99,8 @@ Make all errors return a context if appropriate.
 </todoitem>
 <todoitem priority="M" difficulty="5" owner="James" area="Porting" release="1.0">
 
-Produce Microsoft Windows version, probably cross-compiling to mingw.
+Produce Microsoft Windows version, probably cross-compiling to mingw.  0.6.5
+can be built with a mingw cross-compiler.  Test suite not tried.
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Matcher" release="">
@@ -128,9 +129,9 @@ Make exceptions work with shared libs on solaris / find an alternative. (gcc
 </todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="Xapian::Query" release="1.0">
 
-Move all serialisation of Xapian::Query into Xapian::Query (out of socketcommon.cc and
-localmatch): modification of omquery requires changes in 3 separate parts
-of the code, at present.
+Move all serialisation of Xapian::Query into Xapian::Query (out of
+socketcommon.cc and localmatch): modification of omquery requires
+changes in 3 separate parts of the code, at present.
 
 </todoitem>
 <todoitem priority="M" difficulty="5" owner="Olly" area="Documentation" release="1.0">
@@ -155,7 +156,8 @@ Will need approximation schemes for determining the term frequency.
 <todoitem priority="M" difficulty="5" owner="" area="Documentation" release="">
 
 Document backend API (database, postlist, termlist, document, etc) in same
-way as enquire API.
+way as enquire API.  Eventually we want backends to be "user"-definable in
+the same way weighting objects are.
 
 </todoitem>
 <todoitem priority="M" difficulty="4" owner="" area="Matcher" release="">
@@ -237,7 +239,7 @@ Audit for exception safety.
 </todoitem>
 <todoitem priority="L" difficulty="3" owner="" area="API" release="">
 
-Re-implement OmBatchEnquire, and add back into the system.
+Re-implement Xapian::BatchEnquire, and add back into the system.
 
 </todoitem>
 <todoitem priority="L" difficulty="5" owner="" area="Positional" release="">
@@ -374,9 +376,13 @@ indexgraph -> extra (needs to build as a support library?)  [James
 expressed an interest in this as dbtools needs it]
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
+<todoitem priority=" " difficulty="" owner="" area="omega" release="">
 
 Should Omega have a make static target?  Or just document configure runes?
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="omega" release="">
+
 Need some more stuff in
 omindex (--add-term, --add-field) IMHO. Also could do with more
 fields as standard, and probably support for subsite as key for
@@ -404,7 +410,8 @@ a little fiddly in some languages I believe.
 Fix up examples and make sure they are actually instructive.  Add a comment
 to each describing what it demonstrates.
 I've made a start.  delve is a reasonable example.  msearch probably needs
-simplifying to just do a probabilistic search, or to use OmQueryParser.
+simplifying to just do a probabilistic search, or to use
+Xapian::QueryParser.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="James" area="" release="*">
@@ -470,7 +477,7 @@ makes some good points which ought to be more widely aired.
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Olly" area="" release="">
 
-Sort out some sort of framework for stopwording (OmStopper class?)  Should
+Sort out some sort of framework for stopwording (Xapian::Stopper class?)  Should
 it use static lists (compiled in, perhaps using gperf) or dynamically load
 lists?  Stopword lists should be fine tunable in general, so probably the
 latter...
@@ -495,18 +502,12 @@ Ability to run a postlist backwards - it's chunked, so this is feasible
 can add articles in date order and search backwards to do "sort by date".
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
+<todoitem priority=" " difficulty="" owner="" area="omega" release="">
 
-Date -&gt; terms in scriptindex
+Allow other date formats in START and END of daterange.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="omega" release="">
-
-Rename DATE1/DATE2/DAYSMINUS to better names?  START/END/SPAN?
-Allow other date formats in DATE1 and DATE2.
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
 
 Enhance $def: $def{NAME, [min, max, eval, ensure, cache], ...} ?
 
@@ -517,7 +518,7 @@ Use AC_ARG_VAR in configure if there are any precious env vars not saved by
 default.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
+<todoitem priority=" " difficulty="" owner="" area="remote backend" release="">
 
 sort_bands vs. remote backend doesn't currently work.  Can we get it to?
 
@@ -538,7 +539,7 @@ no weighting? params for bias? abuse term wdf instead of keys?
 Stopwording?  Improve?  Support in Xapian itself?
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
+<todoitem priority=" " difficulty="" owner="" area="tests" release="">
 
 Make test suite more uniform in structure.
 
@@ -564,17 +565,18 @@ it's correct.  Perhaps reimplement.  Or write a naive implementation and
 compare the results of the two on a large test set.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
+<todoitem priority=" " difficulty="" owner="" area="" release="1.0">
 
-Tidy up internal class naming...
+Tidy up internal class naming.  All internal classes should be in a namespace
+too...
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
+<todoitem priority=" " difficulty="" owner="" area="omega" release="">
 
 omega - $field -> $fields; add new $field to just return first?
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
+<todoitem priority=" " difficulty="" owner="" area="delve" release="">
 
 delve: show_docdata: different layout for showing several docs
 
@@ -590,11 +592,6 @@ just like matcher was changed a while ago.
 Build test harness to check consistency by composing random queries
 and checking the results.  Already sanity check mset size and sorting.
 Add checks for %age cutoffs from 0 - 100%, bool filters.
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
-
-omega: split date code into separate file.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">
@@ -618,7 +615,7 @@ Try to reduce unnecessary inclusion of headers - sometimes just saying
 where applicable (TC++PL 3ed 8.2.7).
 
 </todoitem>
-<todoitem priority="" difficulty="" owner="" area="" release="">
+<todoitem priority="" difficulty="" owner="" area="tests" release="">
 
 Sort out tests of test harness again.
 
