@@ -90,10 +90,10 @@ main(int argc, char *argv[])
     while ((c = getopt(argc, argv, "r:t:1v")) != EOF) {
 	switch (c) {
 	    case 'r':
-		recnos.push_back(atoi(argv[optind]));
+		recnos.push_back(atoi(optarg));
 		break;
 	    case 't':
-		terms.push_back(argv[optind]);
+		terms.push_back(optarg);
 		break;
 	    case '1':
 		separator = '\n';

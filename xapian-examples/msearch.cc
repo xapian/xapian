@@ -62,22 +62,22 @@ main(int argc, char *argv[])
     while ((c = getopt_long(argc, argv, "", opts, NULL)) != EOF) {
 	switch (c) {
 	    case 'c':
-		msize = atoi(argv[optind]);
+		msize = atoi(optarg);
 		break;
 	    case 'f':
-		mfirst = atoi(argv[optind]);
+		mfirst = atoi(optarg);
 		break;
 	    case 'k':
-		collapse_key = atoi(argv[optind]);
+		collapse_key = atoi(optarg);
 		break;
 	    case 'r': {
 		OmSettings *params = new OmSettings;
 		params->set("backend", "remote");
 		params->set("remote_type", "tcp");
-		char *p = strchr(argv[optind], ':');
+		char *p = strchr(optarg, ':');
 		if (p) {
 		    *p = '\0';
-		    params->set("remote_server", argv[optind]);
+		    params->set("remote_server", optarg);
 		    params->set("remote_port", p + 1);
 		    dbs.push_back(params);
 		} else {
@@ -88,7 +88,7 @@ main(int argc, char *argv[])
 	    case 'd': {
 		OmSettings *params = new OmSettings;
 		params->set("backend", "auto");
-		params->set("auto_dir", argv[optind]);
+		params->set("auto_dir", optarg);
 		dbs.push_back(params);
 		break;
 	    }
@@ -108,7 +108,7 @@ main(int argc, char *argv[])
 		default_op = OmQuery::OP_AND;
 		break;
 	    case 'R':
-		rset.add_document(atoi(argv[optind]));
+		rset.add_document(atoi(optarg));
 		break;
 	    default:
 		syntax_error = true;
