@@ -1175,6 +1175,14 @@ static bool test_postlist1()
     return true;
 }
 
+/// Test playing with a positionlist1
+static bool test_positionlist1()
+{
+    // Test skip_to in particular.
+    return false;
+}
+
+
 // ================================
 // ========= END OF TESTS =========
 // ================================
@@ -1200,6 +1208,7 @@ test_desc tests[] = {
     {"quartzunpackint1",	test_unpackint1},
     {"quartzbtree1",		test_btree1},
     {"quartzpostlist1",		test_postlist1},
+    {"quartzpositionlist1",	test_positionlist1},
     {0, 0}
 };
 
