@@ -116,5 +116,6 @@ int main(int argc, char *argv[])
 	}
 	para += line;
     }
+    delete database;
     return 0;
 }
