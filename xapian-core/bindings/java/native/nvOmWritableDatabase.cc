@@ -71,13 +71,13 @@ JNIEXPORT void JNICALL Java_com_muscat_om_OmWritableDatabase_end_1session
 /*
  * Class:     com_muscat_om_OmWritableDatabase
  * Method:    add_document
- * Signature: (Lcom/muscat/om/OmDocumentContents;)I
+ * Signature: (Lcom/muscat/om/OmDocument;)I
  */
 JNIEXPORT jint JNICALL Java_com_muscat_om_OmWritableDatabase_add_1document
   (JNIEnv *env, jobject obj, jobject document)
 {
     OmWritableDatabase *db = (OmWritableDatabase *) tryGetLongField (env, obj, "nativePtr");
-    OmDocumentContents *doc = (OmDocumentContents *) tryGetLongField (env, document, "nativePtr");
+    OmDocument *doc = (OmDocument *) tryGetLongField (env, document, "nativePtr");
     try {
 //	cerr << db->get_description() << endl;
 //	cerr << doc->get_description() << endl;

@@ -24,7 +24,7 @@
 #define OM_HGUARD_OMDATABASE_H
 
 #include <vector>
-#include "omindexdoc.h"
+#include "omdocument.h"
 #include "omsettings.h"
 #include "ompostlistiterator.h"
 #include "omtermlistiterator.h"
@@ -436,7 +436,7 @@ class OmWritableDatabase : public OmDatabase {
 	 *  session will be created for the duration of the method.
 	 *  Again, see begin_session() for more notes on sessions.
 	 *
-	 *  Note that the termfreq field in the OmDocumentContents
+	 *  Note that the termfreq field in the OmDocument
 	 *  passed to this method is irrelevant in this context, and
 	 *  will be ignored.  (FIXME: it probably shouldn't be in the
 	 *  structure.)
@@ -459,7 +459,7 @@ class OmWritableDatabase : public OmDatabase {
 	 *  @exception OmDatabaseLockError will be thrown if a lock couldn't
 	 *             be acquired or subsequently released on the database.
 	 */
-	om_docid add_document(const OmDocumentContents & document,
+	om_docid add_document(const OmDocument & document,
 			      om_timeout timeout = 0);
 
 	/** Delete a document in the database.
@@ -470,14 +470,13 @@ class OmWritableDatabase : public OmDatabase {
 	/** Replace a given document in the database.
 	 *  FIXME: document more.
 	 */
-	void replace_document(om_docid did,
-			      const OmDocumentContents & document,
+	void replace_document(om_docid did, const OmDocument & document,
 			      om_timeout timeout = 0);
 
 	/** Get a document from the database.
 	 *  FIXME: document more.
 	 */
-	OmDocumentContents get_document(om_docid did) const;
+	OmDocument get_document(om_docid did) const;
 
 	/** Returns a string representing the database object.
 	 *  Introspection method.

@@ -60,15 +60,15 @@ class QuartzDatabase : public Database {
 	virtual void do_commit_transaction();
 	virtual void do_cancel_transaction();
 
-	virtual om_docid do_add_document(const OmDocumentContents & document);
+	virtual om_docid do_add_document(const OmDocument & document);
 	virtual void do_delete_document(om_docid did);
 	virtual void do_replace_document(om_docid did,
-					 const OmDocumentContents & document);
-	virtual OmDocumentContents do_get_document(om_docid did);
+					 const OmDocument & document);
+	virtual OmDocument do_get_document(om_docid did);
 	//@}
 
 	/// Implementation of do_get_document()
-	OmDocumentContents do_get_document_internal(om_docid did,
+	OmDocument do_get_document_internal(om_docid did,
 					 RefCntPtr<const Database> ptrtothis);
 
 	/// Implementation of get_avlength()
@@ -158,11 +158,11 @@ class QuartzWritableDatabase : public Database {
 	virtual void do_commit_transaction();
 	virtual void do_cancel_transaction();
 
-	virtual om_docid do_add_document(const OmDocumentContents & document);
+	virtual om_docid do_add_document(const OmDocument & document);
 	virtual void do_delete_document(om_docid did);
 	virtual void do_replace_document(om_docid did,
-					 const OmDocumentContents & document);
-	virtual OmDocumentContents do_get_document(om_docid did);
+					 const OmDocument & document);
+	virtual OmDocument do_get_document(om_docid did);
 	//@}
 
     public:

@@ -43,10 +43,10 @@ OmIndexer::get_raw_output()
     return internal->final->get_output_record(internal->final_out);
 }
 
-static OmDocumentContents::document_keys
+static OmDocument::document_keys
 extract_keys(const OmIndexerData &vec)
 {
-    OmDocumentContents::document_keys keys;
+    OmDocument::document_keys keys;
     // vec[0] has the string "keylist"
     for (int i=1; i<vec.get_vector_length(); ++i) {
 	const OmIndexerData &key = vec[i];
@@ -56,10 +56,10 @@ extract_keys(const OmIndexerData &vec)
     return keys;
 }
 
-static OmDocumentContents::document_terms
+static OmDocument::document_terms
 extract_terms(const OmIndexerData &vec)
 {
-    OmDocumentContents::document_terms terms;
+    OmDocument::document_terms terms;
     // vec[0] has the string "keylist"
     for (int i=1; i<vec.get_vector_length(); ++i) {
 	const OmIndexerData &term = vec[i];
@@ -77,14 +77,14 @@ extract_terms(const OmIndexerData &vec)
     return terms;
 }
 
-OmDocumentContents
+OmDocument
 OmIndexer::get_output()
 {
     bool have_data = false;
     bool have_keys = false;
     bool have_terms = false;
 
-    OmDocumentContents contents;
+    OmDocument contents;
 
     OmIndexerMessage mess =
 	    internal->final->get_output_record(internal->final_out);
@@ -98,7 +98,7 @@ OmIndexer::get_output()
 	    if (have_data) {
 		throw OmInvalidDataError("Output message invalid: more than one string data field found");
 	    }
-	    contents.data.value = dat.get_string();
+	    contents.set_data(dat.get_string());
 	    have_data = true;
 	} else if (dat.get_type() == OmIndexerData::rt_vector) {
 	    // FIXME: check that there are enough elements

@@ -27,7 +27,7 @@
 #include "om/autoptr.h"
 
 #include "om/omtypes.h"
-#include "om/omindexdoc.h"
+#include "om/omdocument.h"
 
 /** A source of data for indexing (eg, a file)
  */
@@ -60,7 +60,7 @@ class IndexerDestination {
 	 *  The destination may return a document ID, but this will be ignored
 	 *  by the indexer.
 	 */
-	virtual om_docid add_document(const struct OmDocumentContents & document) = 0;
+	virtual om_docid add_document(const OmDocument & document) = 0;
 };
 
 /** A way to generate terms from sources

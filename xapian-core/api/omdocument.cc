@@ -35,6 +35,10 @@ OmDocument::OmDocument(OmDocument::Internal *internal_) : internal(internal_)
 {
 }
 
+OmDocument::OmDocument() : internal(new OmDocument::Internal)
+{
+}
+
 OmKey
 OmDocument::get_key(om_keyno key) const
 {
@@ -95,7 +99,7 @@ OmDocument::get_description() const
 {
     // FIXME - return document contents
     return "OmDocument()";
-//    description = "OmDocumentContents(" +
+//    description = "OmDocument(" +
 //	    data.get_description() +
 //	    ", keys[" + om_tostring(keys.size()) + "]" +
 //	    ", terms[" + om_tostring(terms.size()) + "]" +
@@ -141,6 +145,9 @@ void
 OmDocument::add_posting(const om_termname & tname, om_termpos tpos)
 {
     DEBUGAPICALL(void, "OmDocument::add_posting", tname << ", " << tpos);
+    if (tname.empty()) {
+	throw OmInvalidArgumentError("Empty termnames aren't allowed.");
+    }
     // FIXME: need to lock here...
     if (!internal->terms_here) {
 	OmTermListIterator t = termlist_begin();
@@ -239,4 +246,76 @@ OmDocument::termlist_end() const
 									 internal->did)));	   
     }
     RETURN(OmTermListIterator(NULL));
+}
+
+OmKeyListIterator
+OmDocument::keylist_begin() const
+{
+    DEBUGAPICALL(OmKeyListIterator, "OmDocument::keylist_begin", "");
+    // FIXME: need to lock here...
+    if (!internal->keys_here) {
+	internal->keys = internal->ptr->get_all_keys();
+	internal->keys_here = true;
+    }
+    RETURN(OmKeyListIterator(new OmKeyListIterator::Internal(internal->keys.begin())));
+}
+
+OmKeyListIterator
+OmDocument::keylist_end() const
+{
+    DEBUGAPICALL(OmKeyListIterator, "OmDocument::keylist_end", "");
+    // FIXME: need to lock here...
+    if (!internal->keys_here) {
+	internal->keys = internal->ptr->get_all_keys();
+	internal->keys_here = true;
+    }
+    RETURN(OmKeyListIterator(new OmKeyListIterator::Internal(internal->keys.end())));
+}
+
+OmDocumentTerm::OmDocumentTerm(const om_termname & tname_,
+			       om_termpos tpos)
+	: tname(tname_),
+	  wdf(0),
+	  termfreq(0)
+{
+    DEBUGAPICALL(void, "OmDocumentTerm::OmDocumentTerm", tname_ << ", " << tpos);
+    add_posting(tpos);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void
+OmDocumentTerm::add_posting(om_termpos tpos)
+{
+    DEBUGAPICALL(void, "OmDocumentTerm::add_posting", tpos);
+    wdf++;
+    if (tpos == 0) return;
+    
+    // We generally expect term positions to be added in approximately
+    // increasing order, so check the end first
+    om_termpos last = positions.empty() ? 0 : positions.back();
+    if (tpos > last) {
+	positions.push_back(tpos);
+	return;
+    }
+
+    std::vector<om_termpos>::iterator i;
+    i = std::lower_bound(positions.begin(), positions.end(), tpos);
+    if (i == positions.end() || *i != tpos) {
+	positions.insert(i, tpos);
+    }
+}
+
+std::string
+OmDocumentTerm::get_description() const
+{
+    DEBUGCALL(INTRO, std::string, "OmDocumentTerm::get_description", "");
+    std::string description;
+
+    description = "OmDocumentTerm(" + tname +
+	    ", wdf = " + om_tostring(wdf) +
+	    ", termfreq = " + om_tostring(termfreq) +
+	    ", positions[" + om_tostring(positions.size()) + "]" +
+	    ")";
+    RETURN(description);
 }

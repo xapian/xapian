@@ -26,54 +26,6 @@
 #include "omdebug.h"
 #include <algorithm>
 
-OmDocumentTerm::OmDocumentTerm(const om_termname & tname_,
-			       om_termpos tpos)
-	: tname(tname_),
-	  wdf(0),
-	  termfreq(0)
-{
-    DEBUGAPICALL(void, "OmDocumentTerm::OmDocumentTerm", tname_ << ", " << tpos);
-    add_posting(tpos);
-}
-
-
-void
-OmDocumentTerm::add_posting(om_termpos tpos)
-{
-    DEBUGAPICALL(void, "OmDocumentTerm::add_posting", tpos);
-    wdf++;
-    if (tpos == 0) return;
-    
-    // We generally expect term positions to be added in approximately
-    // increasing order, so check the end first
-    om_termpos last = positions.empty() ? 0 : positions.back();
-    if (tpos > last) {
-	positions.push_back(tpos);
-	return;
-    }
-
-    std::vector<om_termpos>::iterator i;
-    i = std::lower_bound(positions.begin(), positions.end(), tpos);
-    if (i == positions.end() || *i != tpos) {
-	positions.insert(i, tpos);
-    }
-}
-
-std::string
-OmDocumentTerm::get_description() const
-{
-    DEBUGCALL(INTRO, std::string, "OmDocumentTerm::get_description", "");
-    std::string description;
-
-    description = "OmDocumentTerm(" + tname +
-	    ", wdf = " + om_tostring(wdf) +
-	    ", termfreq = " + om_tostring(termfreq) +
-	    ", positions[" + om_tostring(positions.size()) + "]" +
-	    ")";
-    RETURN(description);
-}
-
-
 void
 OmDocumentContents::add_posting(const om_termname & tname, om_termpos tpos)
 {

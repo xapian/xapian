@@ -27,7 +27,7 @@
 #include "om/omtypes.h"
 #include "positionlist.h"
 #include <string>
-#include "om/omindexdoc.h"
+#include "om/omdocument.h"
 #include "quartz_table_entries.h"
 
 class QuartzTable;

@@ -193,11 +193,10 @@ class QuartzTermList : public LeafTermList {
 	 *         while storing term frequencies.
 	 *  @param 
 	 */
-	static void set_entries(QuartzBufferedTable * table,
-			om_docid did,
-			const OmDocumentContents::document_terms & terms,
-			quartz_doclen_t doclen,
-			bool store_termfreqs);
+	static void
+	set_entries(QuartzBufferedTable * table, om_docid did,
+		    OmTermListIterator t_begin, OmTermListIterator t_end,
+		    quartz_doclen_t doclen, bool store_termfreqs);
 
 	/** Clear the termlist.  After this call, the termlist for the
 	 *  specified document ID will not exist.

@@ -933,7 +933,7 @@ static bool test_adddoc1()
     database->begin_session(0);
     TEST_EQUAL(database->get_doccount(), 0);
     TEST_EQUAL(database->get_avlength(), 0);
-    OmDocumentContents document;
+    OmDocument document;
     om_docid did;
 
     did = database->add_document(document);
@@ -995,16 +995,16 @@ static bool test_adddoc2()
     settings.set("backend", "quartz");
 
     om_docid did;
-    OmDocumentContents document_in;
-    document_in.data.value = "Foobar rising";
-    document_in.keys[7] = OmKey("Key7");
-    document_in.keys[13] = OmKey("Key13");
+    OmDocument document_in;
+    document_in.set_data("Foobar rising");
+    document_in.add_key(7, OmKey("Key7"));
+    document_in.add_key(13, "Key13");
     document_in.add_posting("foobar", 1);
     document_in.add_posting("rising", 2);
     document_in.add_posting("foobar", 3);
 
-    OmDocumentContents document_in2;
-    document_in2.data.value = "Foobar falling";
+    OmDocument document_in2;
+    document_in2.set_data("Foobar falling");
     document_in2.add_posting("foobar", 1);
     document_in2.add_posting("falling", 2);
     {
@@ -1062,14 +1062,14 @@ static bool test_adddoc2()
     {
 	settings.set("quartz_logfile", tmpdir + "log_adddoc2_ro");
 	RefCntPtr<Database> database = DatabaseBuilder::create(settings, true);
-	OmDocumentContents document_out = database->get_document(did);
+	OmDocument document_out = database->get_document(did);
 
 	TEST_EQUAL(document_in.data.value, document_out.data.value);
 	TEST_EQUAL(document_in.keys.size(), document_out.keys.size());
 	TEST_EQUAL(document_in.terms.size(), document_out.terms.size());
 
 	{
-	    OmDocumentContents::document_keys::const_iterator i,j;
+	    OmDocument::document_keys::const_iterator i,j;
 	    for (i = document_in.keys.begin(), j = document_out.keys.begin();
 		 i != document_in.keys.end();
 		 i++, j++) {
@@ -1078,7 +1078,7 @@ static bool test_adddoc2()
 	    }
 	}
 	{
-	    OmDocumentContents::document_terms::const_iterator i,j;
+	    OmDocument::document_terms::const_iterator i,j;
 	    for (i = document_in.terms.begin(), j = document_out.terms.begin();
 		 i != document_in.terms.end();
 		 i++, j++) {
@@ -1643,10 +1643,10 @@ static bool test_overwrite2()
     settings.set("quartz_dir", dbname);
     OmWritableDatabase writer(settings);
 
-    OmDocumentContents document_in;
-    document_in.data.value = "Foobar rising";
-    document_in.keys[7] = OmKey("Key7");
-    document_in.keys[13] = OmKey("Key13");
+    OmDocument document_in;
+    document_in.set_data("Foobar rising");
+    document_in.add_key(7, OmKey("Key7"));
+    document_in.add_key(13, OmKey("Key13"));
     document_in.add_posting("foobar", 1);
     document_in.add_posting("rising", 2);
     document_in.add_posting("foobar", 3);

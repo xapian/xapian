@@ -195,19 +195,19 @@ SleepycatDatabase::do_delete_document(om_docid did)
 
 void
 SleepycatDatabase::do_replace_document(om_docid did,
-			 const OmDocumentContents & document)
+				       const OmDocument & document)
 {
     throw OmUnimplementedError("SleepycatDatabase::do_replace_document() not implemented");  
 }
 
-OmDocumentContents
+OmDocument
 SleepycatDatabase::do_get_document(om_docid did)
 {
     throw OmUnimplementedError("SleepycatDatabase::do_get_document() not implemented");  
 }
 
 om_docid
-SleepycatDatabase::do_add_document(const struct OmDocumentContents & document)
+SleepycatDatabase::do_add_document(const OmDocument & document)
 {
     // Remember whether database was already locked, so we can leave it
     // in the lock state we found it in.
@@ -224,12 +224,15 @@ SleepycatDatabase::do_add_document(const struct OmDocumentContents & document)
 
     // Build list of terms, sorted by termID
     std::map<om_termid, OmDocumentTerm> terms;
-    OmDocumentContents::document_terms::const_iterator i;
-    for(i = document.terms.begin(); i != document.terms.end(); i++) {
-	Assert(i->second.tname.size() != 0);
-	om_termid tid = termcache->assign_new_termid(i->second.tname);
-	terms.insert(std::make_pair(tid, i->second));
-	doclength += i->second.wdf;
+    {
+	OmTermListIterator i = document.termlist_begin();
+	OmTermListIterator i_end = document.termlist_end();
+	for ( ; i != i_end; i++) {
+	    Assert(!(*i).empty());
+	    om_termid tid = termcache->assign_new_termid(*i);
+	    terms.insert(std::make_pair(tid, *i));
+	    doclength += i.get_wdf();
+	}
     }
 
     // Add this document to the postlist for each of its terms
@@ -286,10 +289,10 @@ SleepycatDatabase::add_entry_to_postlist(om_termid tid,
 }
 
 om_docid
-SleepycatDatabase::make_new_document(const OmDocumentContents & doccontents)
+SleepycatDatabase::make_new_document(const OmDocument & doc)
 {
     SleepycatDocument document(this, internals->document_db, internals->key_db,
-			       doccontents);
+			       doc);
     return document.get_docid();
 }
 

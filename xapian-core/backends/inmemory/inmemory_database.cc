@@ -135,7 +135,7 @@ InMemoryDatabase::open_position_list(om_docid did,
 
 void
 InMemoryDatabase::add_keys(om_docid did,
-	      const OmDocumentContents::document_keys &keys_)
+			   const OmDocument::document_keys &keys_)
 {
     Assert(keylists.size() == did - 1);
     keylists.push_back(keys_);
@@ -183,24 +183,24 @@ InMemoryDatabase::do_delete_document(om_docid did)
 
 void
 InMemoryDatabase::do_replace_document(om_docid did,
-			 const OmDocumentContents & document)
+				      const OmDocument & document)
 {
     throw OmUnimplementedError("InMemoryDatabase::do_replace_document() not implemented");  
 }
 
-OmDocumentContents
+OmDocument
 InMemoryDatabase::do_get_document(om_docid did)
 {
     throw OmUnimplementedError("InMemoryDatabase::do_get_document() not implemented");  
 }
 
 om_docid
-InMemoryDatabase::do_add_document(const struct OmDocumentContents & document)
+InMemoryDatabase::do_add_document(const OmDocument & document)
 {
     om_docid did = make_doc(document.data);
     add_keys(did, document.keys);
 
-    OmDocumentContents::document_terms::const_iterator i;
+    OmDocument::document_terms::const_iterator i;
     for(i = document.terms.begin(); i != document.terms.end(); i++) {
 	const OmDocumentTerm & t = i->second;
 	make_term(t.tname);

@@ -35,13 +35,13 @@
 #include "backendmanager.h"
 #include "omdebug.h"
 
-OmDocumentContents
+OmDocument
 string_to_document(std::string paragraph)
 {
     OmStem stemmer("english");
 
-    OmDocumentContents document;
-    document.data = OmData(paragraph);
+    OmDocument document;
+    document.set_data(OmData(paragraph));
     om_termcount position = 1;
 
     for (om_keyno i=1; i<=10; ++i) {
@@ -50,7 +50,7 @@ string_to_document(std::string paragraph)
 	} else {
 	    OmKey key;
 	    key.value = paragraph.substr(i, 1);
-	    document.keys[i] = key;
+	    document.add_key(i, key);
 	}
     }
 
@@ -108,17 +108,19 @@ index_files_to_m36(const std::string &prog, const std::string &dbdir,
 	while (*from) {
 	    std::string para;
 	    get_paragraph(*from, para);
-	    OmDocumentContents doc = string_to_document(para);
-	    out << "#RSTART#\n" << doc.data.value << "\n#REND#\n#TSTART#\n";
-	    OmDocumentContents::document_terms::const_iterator i;
-	    for (i = doc.terms.begin(); i != doc.terms.end(); i++) {
-		out << i->second.tname << std::endl;
+	    OmDocument doc = string_to_document(para);
+	    out << "#RSTART#\n" << doc.get_data() << "\n#REND#\n#TSTART#\n";
+	    {
+		OmTermListIterator i = doc.termlist_begin();
+		OmTermListIterator i_end = doc.termlist_end();
+		for ( ; i != i_end; ++i) {
+		    out << *i << std::endl;
+		}
 	    }
 	    out << "#TEND#\n";
-	    OmDocumentContents::document_keys::const_iterator key_i;
-	    key_i = doc.keys.begin();
+	    OmKeyListIterator key_i = doc.keylist_begin();
 	    std::string key = std::string("\0\0\0\0\0\0\0", 8);
-	    if (key_i != doc.keys.end()) key = key_i->second.value + key;
+	    if (key_i != doc.keylist_end()) key = (*key_i).value + key;
 	    key = key.substr(0, 8);
 	    keys << key;
 	}

@@ -2,40 +2,40 @@
 #include "om/om.h"
 
 // JNI includes
-#include "com_muscat_om_OmDocumentContents.h"
+#include "com_muscat_om_OmDocument.h"
 #include "utils.h"
 
 /*
- * Class:     com_muscat_om_OmDocumentContents
+ * Class:     com_muscat_om_OmDocument
  * Method:    createNativeObject
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_muscat_om_OmDocumentContents_createNativeObject
+JNIEXPORT jlong JNICALL Java_com_muscat_om_OmDocument_createNativeObject
   (JNIEnv *env, jobject obj)
 {
-    return (jlong) new OmDocumentContents();
+    return (jlong) new OmDocument();
 }
 
 /*
- * Class:     com_muscat_om_OmDocumentContents
+ * Class:     com_muscat_om_OmDocument
  * Method:    deleteNativeObject
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_com_muscat_om_OmDocumentContents_deleteNativeObject
+JNIEXPORT void JNICALL Java_com_muscat_om_OmDocument_deleteNativeObject
   (JNIEnv *env, jobject obj)
 {
-    delete (OmDocumentContents *) tryGetLongField(env, obj, "nativePtr");
+    delete (OmDocument *) tryGetLongField(env, obj, "nativePtr");
 }
 
 /*
- * Class:     com_muscat_om_OmDocumentContents
+ * Class:     com_muscat_om_OmDocument
  * Method:    set_data
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_com_muscat_om_OmDocumentContents_set_1data
+JNIEXPORT void JNICALL Java_com_muscat_om_OmDocument_set_1data
   (JNIEnv *env, jobject obj, jstring data)
 {
-    OmDocumentContents *contents = (OmDocumentContents *)tryGetLongField(env, obj, "nativePtr");
+    OmDocument *contents = (OmDocument *)tryGetLongField(env, obj, "nativePtr");
 
     std::string data_n = getStringValue(env, data);
 
@@ -43,14 +43,14 @@ JNIEXPORT void JNICALL Java_com_muscat_om_OmDocumentContents_set_1data
 }
 
 /*
- * Class:     com_muscat_om_OmDocumentContents
+ * Class:     com_muscat_om_OmDocument
  * Method:    add_key
  * Signature: (ILjava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_com_muscat_om_OmDocumentContents_add_1key
+JNIEXPORT void JNICALL Java_com_muscat_om_OmDocument_add_1key
   (JNIEnv *env, jobject obj, jint keyno, jstring value)
 {
-    OmDocumentContents *contents = (OmDocumentContents *)tryGetLongField(env, obj, "nativePtr");
+    OmDocument *contents = (OmDocument *)tryGetLongField(env, obj, "nativePtr");
 
     std::string value_n = getStringValue(env, value);
 
@@ -58,14 +58,14 @@ JNIEXPORT void JNICALL Java_com_muscat_om_OmDocumentContents_add_1key
 }
 
 /*
- * Class:     com_muscat_om_OmDocumentContents
+ * Class:     com_muscat_om_OmDocument
  * Method:    add_posting
  * Signature: (Ljava/lang/String;I)V
  */
-JNIEXPORT void JNICALL Java_com_muscat_om_OmDocumentContents_add_1posting
+JNIEXPORT void JNICALL Java_com_muscat_om_OmDocument_add_1posting
   (JNIEnv *env, jobject obj, jstring tname, jint tpos)
 {
-    OmDocumentContents *contents = (OmDocumentContents *)tryGetLongField(env, obj, "nativePtr");
+    OmDocument *contents = (OmDocument *)tryGetLongField(env, obj, "nativePtr");
 
     std::string tname_n = getStringValue(env, tname);
 
@@ -73,14 +73,14 @@ JNIEXPORT void JNICALL Java_com_muscat_om_OmDocumentContents_add_1posting
 }
 
 /*
- * Class:     com_muscat_om_OmDocumentContents
+ * Class:     com_muscat_om_OmDocument
  * Method:    get_description
  * Signature: ()Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_muscat_om_OmDocumentContents_get_1description
+JNIEXPORT jstring JNICALL Java_com_muscat_om_OmDocument_get_1description
   (JNIEnv *env, jobject obj)
 {
-    OmDocumentContents* contents = (OmDocumentContents*) tryGetLongField (env, obj, "nativePtr");
+    OmDocument* contents = (OmDocument*) tryGetLongField (env, obj, "nativePtr");
     try {
 	return env->NewStringUTF (contents->get_description().c_str());
     }

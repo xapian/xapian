@@ -30,7 +30,6 @@
 #include <db_cxx.h>
 #include <map>
 #include <om/omdocument.h>
-#include <om/omindexdoc.h>
 
 /** A document in a sleepycat Database.
  */
@@ -82,7 +81,7 @@ class SleepycatDocument : public Document {
 	 *             accessed.
 	 */
 	SleepycatDocument(const Database *database_, Db * document_db_,
-			  Db * key_db_, const OmDocumentContents & document_);
+			  Db * key_db_, const OmDocument & document_);
 
 	/// Copying is not permitted
 	SleepycatDocument(const SleepycatDocument &);

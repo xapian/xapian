@@ -70,6 +70,10 @@ class OmDocument::Internal {
 		: ptr(other.ptr), data_here(other.data_here),
 		  keys_here(other.keys_here), terms_here(other.terms_here) {}
 
+	Internal()
+		: ptr(NULL), data_here(true), keys_here(true), terms_here(true)
+	{}
+
 	/** Add an occurrence of a term to the document.
 	 *
 	 *  Multiple occurrences of the term at the same position are represented

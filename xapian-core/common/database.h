@@ -26,7 +26,7 @@
 #include "om/omtypes.h"
 
 #include "database_builder.h"
-#include "om/omindexdoc.h"
+#include "om/omdocument.h"
 #include "refcnt.h"
 #include "omlocks.h"
 #include "emptypostlist.h"
@@ -77,18 +77,14 @@ class Database : public RefCntBase {
 	virtual void do_cancel_transaction() = 0;
 
 	/// Virtual method providing implementation of add_document();
-	virtual om_docid do_add_document(
-		const OmDocumentContents & document) = 0;
+	virtual om_docid do_add_document(const OmDocument & document) = 0;
 
 	/// Virtual method providing implementation of delete_document();
 	virtual void do_delete_document(om_docid did) = 0;
 
 	/// Virtual method providing implementation of replace_document();
 	virtual void do_replace_document(om_docid did,
-		const OmDocumentContents & document) = 0;
-
-	/// Virtual method providing implementation of get_document();
-	virtual OmDocumentContents do_get_document(om_docid did) = 0;
+					 const OmDocument & document) = 0;
 
     protected:
     	/** Create a database - called only by derived classes.
@@ -142,7 +138,7 @@ class Database : public RefCntBase {
 
 	/** Return the number of docs in this (sub) database.
 	 */
-	virtual om_doccount  get_doccount() const = 0;
+	virtual om_doccount get_doccount() const = 0;
 
 	/** Return the average length of a document in this (sub) database.
 	 *
@@ -309,7 +305,7 @@ class Database : public RefCntBase {
 	 *
 	 *  See OmWritableDatabase::add_document() for more information.
 	 */
-	om_docid add_document(const OmDocumentContents & document,
+	om_docid add_document(const OmDocument & document,
 			      om_timeout timeout = 0);
 
 	/** Delete a document in the database.
@@ -322,15 +318,8 @@ class Database : public RefCntBase {
 	 *
 	 *  See OmWritableDatabase::replace_document() for more information.
 	 */
-	void replace_document(om_docid did,
-			      const OmDocumentContents & document,
+	void replace_document(om_docid did, const OmDocument & document,
 			      om_timeout timeout = 0);
-
-	/** Get a document from the database.
-	 *
-	 *  See OmWritableDatabase::get_document() for more information.
-	 */
-	OmDocumentContents get_document(om_docid did);
 
 	/** Request and later collect a document from the database.
 	 *  Multiple documents can be requested with request_document(),

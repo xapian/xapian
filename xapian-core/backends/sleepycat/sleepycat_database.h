@@ -86,7 +86,7 @@ class SleepycatDatabase : public Database {
 	 *
 	 *  @return The newly allocated document ID.
 	 */
-	om_docid make_new_document(const struct OmDocumentContents & document);
+	om_docid make_new_document(const OmDocument & document);
 
 	/** Make a new termlist.
 	 *
@@ -109,11 +109,10 @@ class SleepycatDatabase : public Database {
 	void do_commit_transaction();
 	void do_cancel_transaction();
 
-	om_docid do_add_document(const OmDocumentContents & document);
+	om_docid do_add_document(const OmDocument & document);
 	void do_delete_document(om_docid did);
-	void do_replace_document(om_docid did,
-				 const OmDocumentContents & document);
-	OmDocumentContents do_get_document(om_docid did);
+	void do_replace_document(om_docid did, const OmDocument & document);
+	OmDocument do_get_document(om_docid did);
 	//@}
 
     public:

@@ -26,7 +26,7 @@
 #include <string>
 
 #include <om/omindexermessage.h>
-#include <om/omindexdoc.h>
+#include <om/omdocument.h>
 
 class OmIndexer {
     public:
@@ -47,7 +47,7 @@ class OmIndexer {
 
 	/** Get the output document contents.
 	 */
-	OmDocumentContents get_output();
+	OmDocument get_output();
 
 	/** Get the output as an OmIndexerMessage
 	 */

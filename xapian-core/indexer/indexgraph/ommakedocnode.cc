@@ -1,5 +1,5 @@
 /* ommakedocnode.cc: Node to combine parts of a document into a suitable
- *                   form for turning into an OmDocumentContents.
+ *                   form for turning into an OmDocument.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC

@@ -57,34 +57,34 @@ class NetworkDatabase : public Database {
 	void do_begin_session(om_timeout timeout) {
 	    throw OmUnimplementedError(
 		"NetworkDatabase::begin_session() not implemented: readonly database type");
-	};
+	}
 
 	void do_end_session() {
 	    throw OmUnimplementedError(
 		"NetworkDatabase::do_end_session() not implemented: readonly database type");
-	};
+	}
 
 	void do_flush() {
 	    throw OmUnimplementedError(
 		"NetworkDatabase::flush() not implemented: readonly database type");
-	};
+	}
 
 	void do_begin_transaction() {
 	    throw OmUnimplementedError(
 		"NetworkDatabase::begin_transaction() not implemented: readonly database type");
-	};
+	}
 
 	void do_commit_transaction() {
 	    throw OmUnimplementedError(
 		"NetworkDatabase::commit_transaction() not implemented: readonly database type");
-	};
+	}
 
 	void do_cancel_transaction() {
 	    throw OmUnimplementedError(
 		"NetworkDatabase::cancel_transaction() not implemented: readonly database type");
-	};
+	}
 
-	om_docid do_add_document(const struct OmDocumentContents & document) {
+	om_docid do_add_document(const OmDocument & document) {
 	    throw OmUnimplementedError(
 		"NetworkDatabase::add_document() not implemented: readonly database type");
 	}
@@ -92,23 +92,22 @@ class NetworkDatabase : public Database {
 	void do_delete_document(om_docid did) {
 	    throw OmUnimplementedError(
 		"NetworkDatabase::delete_document() not implemented: readonly database type");
-	};
+	}
 
-	void do_replace_document(om_docid did,
-				 const OmDocumentContents & document) {
+	void do_replace_document(om_docid did, const OmDocument & document) {
 	    throw OmUnimplementedError(
 		"NetworkDatabase::replace_document() not implemented: readonly database type");
-	};
+	}
 
 	//@}
 
 	/** Get a document from the database.
 	 *  FIXME: implement this method.
 	 */
-	OmDocumentContents do_get_document(om_docid did) {
+	OmDocument do_get_document(om_docid did) {
 	    throw OmUnimplementedError(
 		"NetworkDatabase::get_document() not yet implemented");
-	};
+	}
 
     public:
 	~NetworkDatabase();

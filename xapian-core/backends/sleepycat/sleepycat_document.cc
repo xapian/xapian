@@ -36,11 +36,18 @@ SleepycatDocument::SleepycatDocument(const Database *database_,
 
 SleepycatDocument::SleepycatDocument(const Database *database_,
 				     Db * document_db_, Db * key_db_,
-				     const OmDocumentContents & document_)
+				     const OmDocument & doc)
 	: Document(database_, 0), document_db(document_db_),
-	  key_db(key_db_), data(document_.data), have_data(true),
-	  keys(document_.keys)
+	  key_db(key_db_), data(doc.get_data()), have_data(true)
 {
+    {
+	OmKeyListIterator i = doc.keylist_begin();
+	OmKeyListIterator i_end = doc.keylist_end();
+	for ( ; i != i_end; ++i) {
+	    keys.insert(std::make_pair(i.get_keyno(), *i));
+	}
+    }
+
     try {
 	int err_num;
 
@@ -66,7 +73,7 @@ SleepycatDocument::SleepycatDocument(const Database *database_,
 	    err_num = key_db->put(0, &dbkey2, &dbdata2, 0);
 	    Assert(err_num == 0); // Any errors should cause an exception.
 	}
-    } catch (DbException e) {
+    } catch (const DbException &e) {
 	throw OmDatabaseError("DocumentDb Error: " + std::string(e.what()));
     }
 }
@@ -81,7 +88,7 @@ OmKey
 SleepycatDocument::do_get_key(om_keyno keyid) const
 {
     DebugMsg("Looking up key " << keyid << "...");
-    if(keys.find(keyid) != keys.end()) {
+    if (keys.find(keyid) != keys.end()) {
 	DEBUGLINE(DB, " found (value == " << keys[keyid].value << ")");
 	return keys[keyid];
     }
@@ -110,7 +117,7 @@ SleepycatDocument::do_get_key(om_keyno keyid) const
 
 	keys[keyid] = result;
 	DEBUGLINE(DB, " found (value == " << result.value << ")");
-    } catch (DbException e) {
+    } catch (const DbException &e) {
 	throw OmDatabaseError("Sleepycat database error, when reading key " +
 			      om_tostring(keyid) + " from document " +
 			      om_tostring(did) + ": " + std::string(e.what()));
@@ -171,11 +178,11 @@ SleepycatDocument::do_get_all_keys() const
 	    dbcurs = 0;
 	    temp->close();
 	}
-    } catch (DbException e) {
+    } catch (const DbException &e) {
 	if(dbcurs != 0) {
 	    try {
 		dbcurs->close();
-	    } catch (DbException e) {
+	    } catch (const DbException &e) {
 		// Ignore secondary error.
 	    }
 	    dbcurs = 0;
@@ -209,7 +216,7 @@ SleepycatDocument::do_get_data() const
 	    have_data = true;
 
 	    free(dbdata.get_data());
-	} catch (DbException e) {
+	} catch (const DbException &e) {
 	    throw OmDatabaseError("DocumentDb error :" + std::string(e.what()));
 	}
     }

@@ -279,13 +279,8 @@ void
 OmWritableDatabase::begin_session(om_timeout timeout)
 {
     DEBUGAPICALL(void, "OmWritableDatabase::begin_session", timeout);
-    // Get the pointer while locked, in case someone is assigning to it.
-    Database * database;
-    {
-	OmLockSentry locksentry(internal->mutex);
-	database = internal->databases[0].get();
-    }
-
+    // create our own RefCntPtr in case another thread assigns a new ptr
+    RefCntPtr<Database> database = internal->databases[0];
     database->begin_session(timeout);
 }
 
@@ -293,13 +288,8 @@ void
 OmWritableDatabase::end_session()
 {
     DEBUGAPICALL(void, "OmWritableDatabase::end_session", "");
-    // Get the pointer while locked, in case someone is assigning to it.
-    Database * database;
-    {
-	OmLockSentry locksentry(internal->mutex);
-	database = internal->databases[0].get();
-    }
-
+    // create our own RefCntPtr in case another thread assigns a new ptr
+    RefCntPtr<Database> database = internal->databases[0];
     database->end_session();
 }
 
@@ -307,13 +297,8 @@ void
 OmWritableDatabase::flush()
 {
     DEBUGAPICALL(void, "OmWritableDatabase::flush", "");
-    // Get the pointer while locked, in case someone is assigning to it.
-    Database * database;
-    {
-	OmLockSentry locksentry(internal->mutex);
-	database = internal->databases[0].get();
-    }
-
+    // create our own RefCntPtr in case another thread assigns a new ptr
+    RefCntPtr<Database> database = internal->databases[0];
     database->flush();
 }
 
@@ -321,13 +306,8 @@ void
 OmWritableDatabase::begin_transaction()
 {
     DEBUGAPICALL(void, "OmWritableDatabase::begin_transaction", "");
-    // Get the pointer while locked, in case someone is assigning to it.
-    Database * database;
-    {
-	OmLockSentry locksentry(internal->mutex);
-	database = internal->databases[0].get();
-    }
-
+    // create our own RefCntPtr in case another thread assigns a new ptr
+    RefCntPtr<Database> database = internal->databases[0];
     database->begin_transaction();
 }
 
@@ -335,13 +315,8 @@ void
 OmWritableDatabase::commit_transaction()
 {
     DEBUGAPICALL(void, "OmWritableDatabase::commit_transaction", "");
-    // Get the pointer while locked, in case someone is assigning to it.
-    Database * database;
-    {
-	OmLockSentry locksentry(internal->mutex);
-	database = internal->databases[0].get();
-    }
-
+    // create our own RefCntPtr in case another thread assigns a new ptr
+    RefCntPtr<Database> database = internal->databases[0];
     database->commit_transaction();
 }
 
@@ -349,39 +324,20 @@ void
 OmWritableDatabase::cancel_transaction()
 {
     DEBUGAPICALL(void, "OmWritableDatabase::cancel_transaction", "");
-    // Get the pointer while locked, in case someone is assigning to it.
-    Database * database;
-    {
-	OmLockSentry locksentry(internal->mutex);
-	database = internal->databases[0].get();
-    }
-
+    // create our own RefCntPtr in case another thread assigns a new ptr
+    RefCntPtr<Database> database = internal->databases[0];
     database->cancel_transaction();
 }
 
 
 om_docid
-OmWritableDatabase::add_document(const OmDocumentContents & document,
+OmWritableDatabase::add_document(const OmDocument & document,
 				 om_timeout timeout)
 {
     DEBUGAPICALL(om_docid, "OmWritableDatabase::add_document",
-	       document << ", " << timeout);
-    // Check the validity of the document
-    OmDocumentContents::document_terms::const_iterator i;
-    for(i = document.terms.begin(); i != document.terms.end(); i++) {
-	if(i->second.tname.size() == 0) {
-	    throw OmInvalidArgumentError(
-		"Cannot add termnames of zero length to the database.");
-	}
-    }
-
-    // Get the pointer while locked, in case someone is assigning to it.
-    Database * database;
-    {
-	OmLockSentry locksentry(internal->mutex);
-	database = internal->databases[0].get();
-    }
-
+		 document << ", " << timeout);
+    // create our own RefCntPtr in case another thread assigns a new ptr
+    RefCntPtr<Database> database = internal->databases[0];
     RETURN(database->add_document(document, timeout));
 }
 
@@ -391,47 +347,31 @@ OmWritableDatabase::delete_document(om_docid did, om_timeout timeout)
     DEBUGAPICALL(void, "OmWritableDatabase::delete_document",
 		 did << ", " << timeout);
     if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
-    // Get the pointer while locked, in case someone is assigning to it.
-    Database * database;
-    {
-	OmLockSentry locksentry(internal->mutex);
-	database = internal->databases[0].get();
-    }
-
+    // create our own RefCntPtr in case another thread assigns a new ptr
+    RefCntPtr<Database> database = internal->databases[0];
     database->delete_document(did, timeout);
 }
 
 void
-OmWritableDatabase::replace_document(om_docid did,
-				     const OmDocumentContents & document,
+OmWritableDatabase::replace_document(om_docid did, const OmDocument & document,
 				     om_timeout timeout)
 {
     DEBUGAPICALL(void, "OmWritableDatabase::replace_document",
 		 did << ", " << document << ", " << timeout);
     if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
-    // Get the pointer while locked, in case someone is assigning to it.
-    Database * database;
-    {
-	OmLockSentry locksentry(internal->mutex);
-	database = internal->databases[0].get();
-    }
-
+    // create our own RefCntPtr in case another thread assigns a new ptr
+    RefCntPtr<Database> database = internal->databases[0];
     database->replace_document(did, document, timeout);
 }
 
-OmDocumentContents
+OmDocument
 OmWritableDatabase::get_document(om_docid did) const
 {
-    DEBUGAPICALL(OmDocumentContents, "OmWritableDatabase::get_document", did);
+    DEBUGAPICALL(OmDocument, "OmWritableDatabase::get_document", did);
     if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
-    // Get the pointer while locked, in case someone is assigning to it.
-    Database * database;
-    {
-	OmLockSentry locksentry(internal->mutex);
-	database = internal->databases[0].get();
-    }
-
-    RETURN(database->get_document(did));
+    // create our own RefCntPtr in case another thread assigns a new ptr
+    RefCntPtr<Database> database = internal->databases[0];
+    RETURN(OmDocument(new OmDocument::Internal(database->open_document(did), this, did)));
 }
 
 std::string

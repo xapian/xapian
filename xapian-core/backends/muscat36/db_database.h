@@ -321,34 +321,34 @@ class DBDatabase : public Database {
 	void do_begin_session(om_timeout timeout) {
 	    throw OmUnimplementedError(
 		"DBDatabase::begin_session() not implemented: readonly database type");
-	};
+	}
 
 	void do_end_session() {
 	    throw OmUnimplementedError(
 		"DBDatabase::do_end_session() not implemented: readonly database type");
-	};
+	}
 
 	void do_flush() {
 	    throw OmUnimplementedError(
 		"DBDatabase::flush() not implemented: readonly database type");
-	};
+	}
 
 	void do_begin_transaction() {
 	    throw OmUnimplementedError(
 		"DBDatabase::begin_transaction() not implemented: readonly database type");
-	};
+	}
 
 	void do_commit_transaction() {
 	    throw OmUnimplementedError(
 		"DBDatabase::commit_transaction() not implemented: readonly database type");
-	};
+	}
 
 	void do_cancel_transaction() {
 	    throw OmUnimplementedError(
 		"DBDatabase::cancel_transaction() not implemented: readonly database type");
-	};
+	}
 
-	om_docid do_add_document(const struct OmDocumentContents & document) {
+	om_docid do_add_document(const OmDocument & document) {
 	    throw OmUnimplementedError(
 		"DBDatabase::add_document() not implemented: readonly database type");
 	}
@@ -356,23 +356,22 @@ class DBDatabase : public Database {
 	void do_delete_document(om_docid did) {
 	    throw OmUnimplementedError(
 		"DBDatabase::delete_document() not implemented: readonly database type");
-	};
+	}
 
-	void do_replace_document(om_docid did,
-				 const OmDocumentContents & document) {
+	void do_replace_document(om_docid did, const OmDocument & document) {
 	    throw OmUnimplementedError(
 		"DBDatabase::replace_document() not implemented: readonly database type");
-	};
+	}
 
 	//@}
 
 	/** Get a document from the database.
 	 *  FIXME: implement this method.
 	 */
-	OmDocumentContents do_get_document(om_docid did) {
+	OmDocument do_get_document(om_docid did) {
 	    throw OmUnimplementedError(
 		"DBDatabase::get_document() not yet implemented");
-	};
+	}
 };
 
 #endif /* OM_HGUARD_DB_DATABASE_H */

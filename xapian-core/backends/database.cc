@@ -128,8 +128,7 @@ Database::cancel_transaction()
 }
 
 om_docid
-Database::add_document(const OmDocumentContents & document,
-			 om_timeout timeout)
+Database::add_document(const OmDocument & document, om_timeout timeout)
 {
     OmLockSentry sentry(mutex);
 
@@ -189,9 +188,8 @@ Database::delete_document(om_docid did, om_timeout timeout)
 }
 
 void
-Database::replace_document(om_docid did,
-			     const OmDocumentContents & document,
-			     om_timeout timeout)
+Database::replace_document(om_docid did, const OmDocument & document,
+			   om_timeout timeout)
 {
     OmLockSentry sentry(mutex);
 
@@ -216,10 +214,4 @@ Database::replace_document(om_docid did,
     if (implicit_session) {
 	do_end_session();
     }
-}
-
-OmDocumentContents
-Database::get_document(om_docid did)
-{
-    return do_get_document(did);
 }

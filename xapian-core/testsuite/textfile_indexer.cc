@@ -40,8 +40,7 @@ TextfileIndexerSource::get_stream() const
     AutoPtr<std::istream> from(new std::ifstream(filename.c_str()));
     if(!*from) throw OmOpeningError("Cannot open file " + filename + " for indexing");
     return from;
-};
-
+}
 
 void
 TextfileIndexer::add_source(const IndexerSource & source)
@@ -50,20 +49,16 @@ TextfileIndexer::add_source(const IndexerSource & source)
     AutoPtr<std::istream> from(source.get_stream());
 
     // Read lines, each paragraph is a document, split lines into words,
-    // each word is a term
-    // FIXME - This is just a temporary hack - we want to make a toolkit
-    // of indexing "bits" and allow the user to specify how to put them
-    // together.
+    // each word is a term.  Only used in the test suite.
 
     OmStem stemmer("english");
 
     while(*from) {
 	std::string para;
 	get_paragraph(*from, para);
-	//get_a_line(*from, para);
 
-	OmDocumentContents document;
-	document.data = OmData(para);
+	OmDocument document;
+	document.set_data(OmData(para));
 	om_termcount position = 1;
 
 	std::string::size_type spacepos;

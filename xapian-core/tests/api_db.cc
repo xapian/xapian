@@ -1372,7 +1372,7 @@ static bool test_adddoc1()
 {
     OmWritableDatabase db = get_writable_database("");
 
-    OmDocumentContents doc1, doc2, doc3;
+    OmDocument doc1, doc2, doc3;
 
     // doc1 should come top, but if term "foo" gets wdf of 1, doc2 will beat it
     // doc3 should beat both
@@ -1421,9 +1421,9 @@ static bool test_implicitendsession1()
 
 	db.begin_session();
 
-	OmDocumentContents doc;
+	OmDocument doc;
 	
-	doc.data = std::string("top secret");
+	doc.set_data("top secret");
 	doc.add_posting("cia", 1);
 	doc.add_posting("nsa", 2);
 	doc.add_posting("fbi", 3);
