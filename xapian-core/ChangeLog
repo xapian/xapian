@@ -1,3 +1,8 @@
+Tue Aug 24 10:24:30 BST 2004  Olly Betts <olly@survex.com>
+
+	* HACKING: Noted automake 1.8 may be problematic.  Tweaked list of
+	  release tasks.
+
 Tue Aug 24 10:16:38 BST 2004  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: If a matchdecider is specified and no matches

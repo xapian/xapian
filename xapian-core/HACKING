@@ -20,7 +20,7 @@ Xapian.
 	the system of debugging symbols.
 
 --enable-debug=partial
-        This option enables debugging symbols, and some assertions.  It does
+	This option enables debugging symbols, and some assertions.  It does
 	not enable verbose debugging messages or very expensive assertions.
 
 --enable-debug-verbose
@@ -111,7 +111,7 @@ Building from CVS:
 
 If you're building code from CVS, you'll want to configure with:
 
-./configure --enable-maintainer-mode 
+./configure --enable-maintainer-mode
 
 This will be done for you if you use the top-level bootstrap and then run the
 top-level configure this produces (see below for more information about this).
@@ -136,12 +136,13 @@ at the time of writing, the versions known to work are:
 		with "make dist" in a VPATH build, and doesn't support
 		AM_CFLAGS/AM_CXXFLAGS.  Note that automake 1.6 has a bug which
 		causes it to emit spurious warnings: this is fixed in automake
-		1.6.1.  Automake 1.7 works too.
-		
+		1.6.1.  Automake 1.7 works too.  Automake 1.8 has been reported
+		to be problematic.
+
 	Autoconf version 2.54
 		This version is required by automake 1.6.3; autoconf 2.50 is
 		needed for many reasons anyway.
-		
+
 	GNU libtool 1.5
 		libtool 1.5 is the first version to properly support linking
 		C++ libraries.  Also libtool 1.4.2 doesn't seem to support
@@ -302,7 +303,7 @@ Here's an incomplete list of things to avoid:
   of use, and these are implemented to work with any make.  See the automake
   manual for details, and a few caveats.
 
-* The list of portable utilities is: 
+* The list of portable utilities is:
     cat cmp cp diff echo egrep expr false grep install-info
     ln ls mkdir mv pwd rm rmdir sed sleep sort tar test touch true
   Note that versions of these (GNU versions in particular) support switches
@@ -329,12 +330,12 @@ Here's an incomplete list of things to avoid:
   up-to-date.  So this is bad:
 
   foo.cc: script.pl
-  	$PERL script.pl > foo.cc
+	$PERL script.pl > foo.cc
 
   This is better:
 
   foo.cc: script.pl
-  	$PERL script.pl > foo.tmp
+	$PERL script.pl > foo.tmp
 	mv foo.tmp foo.cc
 
   Alternatively, pass the output filename to the script and make sure you
@@ -480,14 +481,14 @@ of the prefix form as described by Joe Buck on the gcc mailing list
 
     class some_iterator {
     public:
-        // ...
-        some_iterator& operator++();
-    
-        some_iterator operator++(int) {
-    	some_iterator tmp = *this;
-    	operator++();
-    	return tmp;
-        }
+	// ...
+	some_iterator& operator++();
+
+	some_iterator operator++(int) {
+	    some_iterator tmp = *this;
+	    operator++();
+	    return tmp;
+	}
     };
 
     The compiler is allowed to assume that the copy constructor only does
@@ -495,7 +496,7 @@ of the prefix form as described by Joe Buck on the gcc mailing list
     in this case should be that, for some_iterator above, using the
     postfix operator without using the result should give code equivalent
     to using the prefix operator.
-    
+
     Now, for the currently released GCC, you'll find that the dead uses
     of tmp are only completely optimized away if tmp has only one data
     member that can fit in a register.  tree-ssa (now in the trunk) does
@@ -509,7 +510,7 @@ only one data member which fits in a register.
 How to make a release
 =====================
 
-Currently incomplete, but these jobs are amongst those that need doing:
+This is a (hopefully complete) list of the jobs which need doing:
 
 * Update the PLATFORMS file.  Don't forget to use reports from the tinderbox:
   http://www.oligarchy.co.uk/tinderbox/xapian/status.html
@@ -533,7 +534,7 @@ Currently incomplete, but these jobs are amongst those that need doing:
 
   xapian-maintainer-tools/cvs-tag-release 0.8.1
 
-* Update the website - download.php and news.php
+* Update the website - download.php in CVS module www.xapian.org
 
 * Run the website building script
 
