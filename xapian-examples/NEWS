@@ -1,4 +1,11 @@
-Xapian-examples 0.8.0 (2004-04-19):
+xapian-examples 0.8.1 (2004-06-30):
+
+* copydatabase: Make use of new get_lastdocid() method.
+
+* copydatabase: Output an extra space after the progress report so that we
+  don't get "... docs to goooo"!
+
+xapian-examples 0.8.0 (2004-04-19):
 
 * delve: `delve -v DATABASE' now reports the number of terms.
 

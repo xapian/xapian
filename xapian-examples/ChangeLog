@@ -1,3 +1,7 @@
+Wed Jun 30 18:11:06 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.in: Version 0.8.1.
+
 Wed Jun 30 15:03:33 BST 2004  Olly Betts <olly@survex.com>
 
 	* copydatabase.cc: Make use of new get_lastdocid() method; output
