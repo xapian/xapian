@@ -1,3 +1,8 @@
+Fri Oct 13 13:47:32 BST 2000 Olly Betts
+
+	* backends/quartz/Makefile.am: Commented out quartz_termlist.cc as
+	  it's not yet in cvs and is blocking nightly snapshots.
+
 Thu Oct 12 16:55:42 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Convert statssource pointer in LocalSubMatch into an AutoPtr, to

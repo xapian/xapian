@@ -19,13 +19,16 @@ libquartz_la_SOURCES = quartz_database.cc \
                        quartz_table_manager.cc \
 		       quartz_table_entries.cc \
 		       quartz_table.cc \
-		       quartz_termlist.cc \
 		       quartz_record.cc \
 		       quartz_attributes.cc \
 		       quartz_utils.cc \
 		       quartz_log.cc
 #		       quartz_postlist.cc \
 #		       quartz_positionlist.cc \
+
+# was after quartz_table.cc - richard failed to cvs add this so removed for
+# now so snapshots work until he gets back
+#		       quartz_termlist.cc \
 
 noinst_LTLIBRARIES = libquartz.la
 
