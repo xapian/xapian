@@ -7,3 +7,6 @@ libxapian-queryparser1.postrm
 libxapian2.install
 libxapian2.postinst
 libxapian2.postrm
+libxapian3.install
+libxapian3.postinst
+libxapian3.postrm
