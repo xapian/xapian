@@ -213,7 +213,7 @@ LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists,
 // Operation must be either AND or OR.
 // Optimise query by building tree carefully.
 PostList *
-LocalSubMatch::postlist_from_queries(OmQuery::op op,
+LocalSubMatch::postlist_from_queries(OmQuery::Internal::op_t op,
 				     const std::vector<OmQuery::Internal *> &queries,
 				     om_termcount window,
 				     MultiMatch *matcher)
@@ -307,7 +307,7 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
     Assert(query->isdefined);
 
     switch (query->op) {
-	case OmQuery::OP_LEAF: {
+	case OmQuery::Internal::OP_LEAF: {
 	    // Make a postlist for a single term
 	    Assert(query->subqs.size() == 0);
 	    OmMSet::Internal::Data::TermFreqAndWeight info;

@@ -233,7 +233,7 @@ OmQuery::Internal::serialise() const
 	result = "%B";
     }
     result += qlens;
-    if (op == OmQuery::OP_LEAF) {
+    if (op == OmQuery::Internal::OP_LEAF) {
 	result += "%T" + encode_tname(tname) + ' ' + om_tostring(term_pos);
 	if (wqf != 1) result += ',' + om_tostring(wqf);
     } else {
@@ -244,7 +244,7 @@ OmQuery::Internal::serialise() const
 	    result += (*i)->serialise() + " ";
 	}
 	switch (op) {
-	    case OmQuery::OP_LEAF:
+	    case OmQuery::Internal::OP_LEAF:
 		Assert(false);
 		break;
 	    case OmQuery::OP_AND:
@@ -284,7 +284,7 @@ OmQuery::Internal::get_description() const
     if(!isdefined) return "<NULL>";
     std::string opstr;
     switch(op) {
-	case OmQuery::OP_LEAF:
+	case OmQuery::Internal::OP_LEAF:
 	    return tname;
 	    break;
 	case OmQuery::OP_AND:
@@ -343,7 +343,7 @@ OmQuery::Internal::accumulate_terms(
 {
     Assert(isdefined);
 
-    if (op == OmQuery::OP_LEAF) {
+    if (op == OmQuery::Internal::OP_LEAF) {
         // We're a leaf, so just return our term.
         terms.push_back(std::make_pair(tname, term_pos));
     } else {
@@ -447,7 +447,7 @@ OmQuery::Internal::Internal(const OmQuery::Internal &copyme)
 OmQuery::Internal::Internal(const om_termname & tname_,
 		 om_termcount wqf_,
 		 om_termpos term_pos_)
-	: isdefined(true), isbool(false), op(OmQuery::OP_LEAF),
+	: isdefined(true), isbool(false), op(OmQuery::Internal::OP_LEAF),
 	qlen(wqf_), tname(tname_), term_pos(term_pos_), wqf(wqf_)
 {
     if(tname.size() == 0) {
@@ -455,13 +455,13 @@ OmQuery::Internal::Internal(const om_termname & tname_,
     }
 }
 
-OmQuery::Internal::Internal(OmQuery::op op_,
-				 OmQuery::Internal &left,
-				 OmQuery::Internal &right)
+OmQuery::Internal::Internal(op_t op_,
+			    OmQuery::Internal &left,
+			    OmQuery::Internal &right)
 	: isdefined(true), isbool(false), op(op_),
 	  qlen(left.qlen + right.qlen)
 {
-    if (op == OmQuery::OP_LEAF) {
+    if (op == OmQuery::Internal::OP_LEAF) {
     	throw OmInvalidArgumentError("Invalid query operation");
     }
 
@@ -532,7 +532,7 @@ OmQuery::Internal::Internal(OmQuery::op op_,
 		    throw OmInvalidArgumentError("XOR can't have one undefined argument");
 		}
 		break;
-	    case OmQuery::OP_LEAF:
+	    case OmQuery::Internal::OP_LEAF:
 	    case OmQuery::OP_NEAR:
 	    case OmQuery::OP_PHRASE:
 		Assert(false); // Shouldn't have got this far
@@ -578,7 +578,7 @@ OmQuery::Internal::Internal(OmQuery::op op_,
     }
 }
 
-OmQuery::Internal::Internal(OmQuery::op op_,
+OmQuery::Internal::Internal(op_t op_,
 		 const std::vector<OmQuery::Internal *>::const_iterator qbegin,
 		 const std::vector<OmQuery::Internal *>::const_iterator qend,
 		 om_termpos window_)
@@ -588,7 +588,7 @@ OmQuery::Internal::Internal(OmQuery::op op_,
     collapse_subqs();
 }
 
-OmQuery::Internal::Internal(OmQuery::op op_,
+OmQuery::Internal::Internal(op_t op_,
 		 const std::vector<om_termname>::const_iterator tbegin,
 		 const std::vector<om_termname>::const_iterator tend,
 		 om_termpos window_)
@@ -636,7 +636,7 @@ OmQuery::Internal::initialise_from_copy(const OmQuery::Internal &copyme)
     isbool = copyme.isbool;
     op = copyme.op;
     qlen = copyme.qlen;
-    if(op == OmQuery::OP_LEAF) {
+    if(op == OmQuery::Internal::OP_LEAF) {
 	tname = copyme.tname;
 	term_pos = copyme.term_pos;
 	wqf = copyme.wqf;
@@ -681,8 +681,8 @@ OmQuery::Internal::initialise_from_vector(
 		throw OmInvalidArgumentError("AND_NOT, XOR, AND_MAYBE, FILTER must have exactly two subqueries.");
 	    }
 	    break;
-	case OmQuery::OP_LEAF:
-	    throw OmInvalidArgumentError("LEAF queries from vectors invalid");
+	case OmQuery::Internal::OP_LEAF:
+	    Assert(false);
     }
     window = window_;
     qlen = 0;
@@ -699,10 +699,10 @@ OmQuery::Internal::initialise_from_vector(
 
     if (distribute) {
 	for (i = qbegin; i != qend; i++) {
-	    if ((*i)->isdefined && (*i)->op != OmQuery::OP_LEAF) break;
+	    if ((*i)->isdefined && (*i)->op != OmQuery::Internal::OP_LEAF) break;
 	}
 	if (i != qend) {
-	    OmQuery::op newop = (*i)->op;
+	    op_t newop = (*i)->op;
 	    if (newop == OmQuery::OP_NEAR || newop == OmQuery::OP_PHRASE) {
 		// FIXME: A PHRASE (B PHRASE C) -> (A PHRASE B) AND (B PHRASE C)?
 		throw OmUnimplementedError("Can't use NEAR/PHRASE with a subexpression containing NEAR or PHRASE");
@@ -787,7 +787,7 @@ void OmQuery::Internal::collapse_subqs()
 	subqtable sqtab;
 	subquery_list::iterator sq = subqs.begin();
 	while (sq != subqs.end()) {
-	    if ((*sq)->op == OmQuery::OP_LEAF) {
+	    if ((*sq)->op == OmQuery::Internal::OP_LEAF) {
 		subqtable::key_type key(std::make_pair((*sq)->term_pos,
 						  (*sq)->tname));
 		subqtable::iterator s = sqtab.find(key);

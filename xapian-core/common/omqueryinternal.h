@@ -41,13 +41,17 @@ class OmQuery::Internal {
     friend class MultiMatch;
     friend class LocalSubMatch;
     public:
+        static const int OP_LEAF = -1;
     	OmLock mutex;
     private:
 	bool isdefined;
 	bool isbool;
 
+	/// Type storing the operation
+	typedef int op_t;
+
 	/// Operation to be performed at this node
-	OmQuery::op op;
+	op_t op;
 
 	/// The container type for storing pointers to subqueries
 	typedef std::vector<OmQuery::Internal *> subquery_list;
@@ -109,20 +113,20 @@ class OmQuery::Internal {
 		 om_termpos term_pos_ = 0);
 
 	/** A query consisting of two subqueries, opp-ed together. */
-	Internal(OmQuery::op op_,
+	Internal(op_t op_,
 		 OmQuery::Internal & left,
 		 OmQuery::Internal & right);
 
 	/** A vector of pointers to OmQuery::Internal-s, merged together with
 	 *  specified operator.  (Takes begin and end iterators).
 	 *  The only operators allowed are AND, OR, NEAR, and PHRASE. */
-	Internal(OmQuery::op op_,
+	Internal(op_t op_,
 		 const std::vector<OmQuery::Internal*>::const_iterator qbegin,
 		 const std::vector<OmQuery::Internal*>::const_iterator qend,
 		 om_termpos window = 0);
 
 	/** As before, except subqueries are all individual terms. */
-	Internal(OmQuery::op op_,
+	Internal(op_t op_,
 		 const std::vector<om_termname>::const_iterator tbegin,
 		 const std::vector<om_termname>::const_iterator tend,
 		 om_termpos window = 0);

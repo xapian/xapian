@@ -41,6 +41,7 @@
 
 /* Searching */
 #include "omenquire.h"
+#include "omquery.h"
 
 /* Indexing */
 #include "omindexer.h"

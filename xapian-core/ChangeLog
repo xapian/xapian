@@ -1,3 +1,12 @@
+Fri Jan 26 15:46:42 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Move OmQuery::OP_LEAF out of public visibility, by taking it out
+	  of the enum, making it a static const member of OmQuery::Internal,
+	  and introducing an OmQuery::Internal::op_t to store query
+	  operators in internally.  We lose the ability for the compiler to
+	  warn us if we forget to check for a particular operator in a
+	  switch statement, but this can't really be avoided.
+
 Fri Jan 26 13:49:33 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Added get_output_{node,pad} to OmIndexerDesc

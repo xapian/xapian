@@ -83,7 +83,7 @@ class LocalSubMatch : public SubMatch {
 				 MultiMatch *matcher);
 
 	/// Make a postlist from a vector of query objects (AND or OR)
-	PostList *postlist_from_queries(OmQuery::op op,
+	PostList *postlist_from_queries(OmQuery::Internal::op_t op,
 				const std::vector<OmQuery::Internal *> & queries,
 				om_termcount window, MultiMatch *matcher);
 

@@ -40,14 +40,18 @@ OUTPUT_FUNCTION(OmData)
 OUTPUT_FUNCTION(OmKey)
 OUTPUT_FUNCTION(OmDocument)
 
-#include "omenquire.h"
+#include "omquery.h"
 OUTPUT_FUNCTION(OmQuery)
+
+#include "omenquire.h"
 OUTPUT_FUNCTION(OmRSet)
 OUTPUT_FUNCTION(OmMSetIterator)
 OUTPUT_FUNCTION(OmMSet)
 OUTPUT_FUNCTION(OmESetIterator)
 OUTPUT_FUNCTION(OmESet)
 OUTPUT_FUNCTION(OmEnquire)
+
+//#include "ombatchenquire.h"
 //OUTPUT_FUNCTION(OmBatchEnquire)
 
 #include "omstem.h"
