@@ -74,12 +74,12 @@ doxygen_api_conf: $(top_srcdir)/configure.ac
 doxygen_full_conf: $(top_srcdir)/configure.ac
 
 if MAINTAINER_MODE
-# depend on configure.ac so we rebuild if VERSION changes
+# Depend on configure.ac so we rebuild if VERSION changes.
 code_structure.html: mkdoc.pl $(top_srcdir)/configure.ac
 	$(PERL) $(srcdir)/mkdoc.pl "$(VERSION)" $(top_srcdir) $@
 
 # We run into problems with line length limits in older sed implementations
-# (e.g. on Solaris) so use $T instead of $(top_srcdir) in APIDOC_SRC, etc
+# (e.g. on Solaris) so use $T instead of $(top_srcdir) in APIDOC_SRC, etc.
 T=$(top_srcdir)
 
 apidoc/html/index.html: $(top_srcdir)/configure.ac \
@@ -90,13 +90,12 @@ apidoc/html/index.html: $(top_srcdir)/configure.ac \
 	rm -rf apidoc
 	top_srcdir=$(top_srcdir) $(DOXYGEN) doxygen_api_conf
 
-# make refman.ps sometimes fails for no obvious reason on the first attempt.
+# "make refman.ps" sometimes fails for no obvious reason on the first attempt.
 # Repeating the command works, so just do that!
 apidoc.ps: apidoc/html/index.html
-	cd apidoc/latex && (make refman.ps;make refman.ps) && mv refman.ps ../../apidoc.ps
+	cd apidoc/latex && (make refman.ps;make refman.ps)
+	mv apidoc/latex/refman.ps apidoc.ps
 
-# make refman.ps sometimes fails for no obvious reason on the first attempt.
-# Repeating the command works, so just do that!
 sourcedoc/html/index.html: $(top_srcdir)/configure.ac \
 		$(srcdir)/doxygen_full_header.html_tmpl \
 		$(srcdir)/doxygen_full_footer.html_tmpl \
@@ -106,8 +105,11 @@ sourcedoc/html/index.html: $(top_srcdir)/configure.ac \
 	rm -rf sourcedoc
 	top_srcdir=$(top_srcdir) $(DOXYGEN) doxygen_full_conf
 
+# "make refman.ps" sometimes fails for no obvious reason on the first attempt.
+# Repeating the command works, so just do that!
 sourcedoc.ps: sourcedoc/html/index.html
-	cd sourcedoc/latex && (make refman.ps;make refman.ps) && mv refman.ps ../../sourcedoc.ps
+	cd sourcedoc/latex && (make refman.ps;make refman.ps)
+	mv sourcedoc/latex/refman.ps sourcedoc.ps
 endif
 
 # We used to do: $(LATEX) "\scrollmode\input" refman.tex
