@@ -225,7 +225,7 @@ class MultiDatabase : public virtual IRDatabase {
 
         // Introspection methods
 	IRDatabase * get_database_of_doc(docid id) const;
-	const string & get_database_path() const { return ""; }
+	const string get_database_path() const { return ""; }
 };
 
 inline doccount

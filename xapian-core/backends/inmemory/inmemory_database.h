@@ -194,7 +194,7 @@ class TextfileDatabase : public virtual IRDatabase,
 	docid make_doc(const docname &);
 	void make_posting(termid, docid, termcount);
 
-	const string & get_database_path() const;
+	const string get_database_path() const;
 };
 
 

@@ -46,7 +46,7 @@ class IRDatabase {
 	virtual IRDocument * open_document(docid id) const = 0;
 
 	// Introspection methods
-	virtual const string & get_database_path() const = 0;
+	virtual const string get_database_path() const = 0;
 };
 
 #endif /* _database_h_ */

@@ -223,7 +223,7 @@ class DADatabase : public virtual IRDatabase {
 	TermList * open_term_list(docid id) const;
 	IRDocument * open_document(docid id) const;
 
-	const string & get_database_path() const;
+	const string get_database_path() const;
 };
 
 inline doccount
@@ -249,7 +249,7 @@ DADatabase::term_id_to_name(termid id) const
     return termvec[id - 1].name;
 }
 
-inline const string &
+inline const string
 DADatabase::get_database_path() const {
     Assert(opened);
     return path;

@@ -152,7 +152,7 @@ class SleepyDatabase : public virtual IRDatabase {
 	TermList * open_term_list(docid id) const;
 	IRDocument * open_document(docid id) const;
 
-	const string & get_database_path() const;
+	const string get_database_path() const;
 };
 
 inline doccount
@@ -169,7 +169,7 @@ SleepyDatabase::get_avlength() const
     return 1;
 }
 
-inline const string &
+inline const string
 SleepyDatabase::get_database_path() const {
     Assert(opened);
     return path;
