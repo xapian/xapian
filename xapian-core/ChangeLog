@@ -1,3 +1,8 @@
+Thu Jun 27 12:10:37 BST 2002  Olly Betts <olly@survex.com>
+
+	* apitest: doesn't directly use anything from utils.h, so don't
+	  #include it.
+
 Thu Jun 27 12:05:53 BST 2002  Olly Betts <olly@survex.com>
 
 	* Removed includetest - it was useful early in development, but isn't
