@@ -76,8 +76,7 @@ OrPostList::skip_to(docid id, weight w_min)
 {
     if (w_min > minmax) {
 	// we can replace the OR with another operator
-	PostList *ret;
-	PostList *ret2;
+	PostList *ret, *ret2;
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
 		cout << "OR -> AND (in skip_to)\n";

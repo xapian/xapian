@@ -103,8 +103,7 @@ XorPostList::skip_to(docid id, weight w_min)
 {
     if (w_min > minmax) {
 	// we can replace the XOR with another operator (or run dry)
-	PostList *ret;
-	PostList *ret2;
+	PostList *ret, *ret2;
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
 		cout << "XOR drops below w_min\n";
