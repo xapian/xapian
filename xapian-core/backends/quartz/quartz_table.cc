@@ -463,8 +463,21 @@ QuartzDiskTable::set_entry(const string & key)
 
     // delete entry
     DEBUGLINE(DB, "Deleting entry from disk table.");
-    int result = btree_for_writing->del(key);
-    (void)result; // FIXME: Check result
+
+    // FIXME: don't want tag - just want to know if key is already present
+    // FIXME: don't want to have to check that key exists before deleting
+    // - advertised interface of btree->del is that it will work ok if
+    // a key doesn't exist, but this doesn't appear to be true: I get errors
+    // when attempting to reopen a table which has had non existent entries
+    // deleted.
+    string tag;
+    if (get_exact_entry(key, tag)) {
+	int result = btree_for_writing->del(key);
+	DEBUGLINE(DB, "Result of delete: " << result);
+	(void)result; // FIXME: Check result
+    } else {
+	DEBUGLINE(DB, "key is not present");
+    }
 }
 
 void

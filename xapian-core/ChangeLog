@@ -1,3 +1,11 @@
+Mon Aug 12 01:13:55 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* quartz_table.cc: Check that a key exists before calling
+	  Btree::del() - there seems to be a bug in the btree code
+	  causing a failure when deleting keys if they don't exist.
+	  This work around appears to make things work correctly, but
+	  won't be terribly efficient.
+
 Mon Aug 12 00:09:21 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* quartz_table_manager.cc: When unable to apply modifications,
