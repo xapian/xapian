@@ -201,41 +201,13 @@ SocketServer::run()
 static OmLineBuf *snooper_buf; // FIXME FIXME FIXME
 static snooper_do_collapse;
 
-om_docid
-match_snooper(const OmMSetItem &i, om_weight &w_min)
+void
+match_snooper(const OmMSetItem &i)
 {
-    om_docid new_did = 0;
-    while (snooper_buf->data_waiting()) {
-	std::string m = snooper_buf->readline(0);
-	switch (m.empty() ? 0 : m[0]) {
-	    case 'm': {
-		// min weight has dropped
-		istrstream is(m.c_str() + 1);
-		om_weight w;
-		is >> w;
-		if (w < w_min) w_min = w;
-		DEBUGLINE(UNKNOWN, "w_min now " << w_min);
-		break;
-	    }
-	    case 'S': {
-		// skip to
-		istrstream is(m.c_str() + 1);
-		is >> new_did;
-		DEBUGLINE(UNKNOWN, "skip_to now " << new_did);
-		break;
-	    }
-	    default:
-	    Assert(false);
-	}
-    }
-    if (i.did >= new_did && i.wt >= w_min) {
-        std::string msg = om_tostring(i.did);
-	if (i.wt != 0) msg += " " + om_tostring(i.wt);
-	if (snooper_do_collapse) msg += ";" + omkey_to_string(i.collapse_key);
-	snooper_buf->writeline(msg);
-	return 0;
-    }
-    return (new_did > i.did + 1 ? new_did : 0);
+    std::string msg = om_tostring(i.did);
+    if (i.wt != 0) msg += " " + om_tostring(i.wt);
+    if (snooper_do_collapse) msg += ";" + omkey_to_string(i.collapse_key);
+    snooper_buf->writeline(msg);
 }
 
 void

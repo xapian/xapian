@@ -206,7 +206,7 @@ void
 MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		     OmMSet & mset, const OmMatchDecider *mdecider,
 		     OmErrorHandler * errorhandler,
-		     om_docid (*snooper)(const OmMSetItem &, om_weight &w_min))
+		     void (*snooper)(const OmMSetItem &))
 {
     std::map<om_termname, OmMSet::TermFreqAndWeight> termfreqandwts;
     PostList *pl = get_postlist(first, maxitems, termfreqandwts, errorhandler);
@@ -218,7 +218,7 @@ MultiMatch::get_mset_2(PostList *pl,
 		       std::map<om_termname, OmMSet::TermFreqAndWeight> & termfreqandwts,
 		       om_doccount first, om_doccount maxitems,
 		       OmMSet & mset, const OmMatchDecider *mdecider,
-		       om_docid (*snooper)(const OmMSetItem &, om_weight &w_min))
+		       void (*snooper)(const OmMSetItem &))
 {
     DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
 
@@ -349,15 +349,7 @@ MultiMatch::get_mset_2(PostList *pl,
 	    // Keep a track of the greatest weight we've seen.
 	    if (wt > greatest_wt) greatest_wt = wt;
 
-	    if (snooper) {
-		om_weight wmin = 0;
-		om_docid new_did = snooper(new_item, wmin);
-		if (new_did) abort();
-		if (wmin > 0) {
-		    min_item.wt = wmin;
-		    goto skipped2;
-		}
-	    }
+	    if (snooper) snooper(new_item);
 	}
     }
     
@@ -395,8 +387,6 @@ MultiMatch::get_mset_2(PostList *pl,
 		}
 	    }
 	    
-	    skipped2:
-
 	    if (pl->at_end()) break;
 	    
 	    mbound++;
@@ -474,6 +464,8 @@ MultiMatch::get_mset_2(PostList *pl,
 	    // Keep a track of the greatest weight we've seen.
 	    if (wt > greatest_wt) greatest_wt = wt;
 
+	    if (snooper) snooper(new_item);
+	    
 	    // FIXME: find balance between larger size for more efficient
 	    // nth_element and smaller size for better minimum weight
 	    // optimisations
@@ -484,16 +476,8 @@ MultiMatch::get_mset_2(PostList *pl,
 				 items.end(), mcmp);
 		// erase elements which don't make the grade
 		items.erase(items.begin() + max_msize, items.end());
-		if (mcmp(items.back(), min_item)) min_item = items.back();
+		min_item = items.back();
 		DEBUGLINE(MATCH, "mset size = " << items.size());
-	    }
-	    if (snooper) {
-		om_weight wmin = min_item.wt;
-		om_docid new_did = snooper(new_item, wmin);
-		if (new_did) abort();
-		if (wmin > min_item.wt) {
-		    min_item.wt = wmin;
-		}
 	    }
 	}
     }
@@ -533,15 +517,7 @@ MultiMatch::get_mset_2(PostList *pl,
 	DEBUGLINE(MATCH, "max weight in mset = " << items[0].wt <<
 		  ", min weight in mset = " << items.back().wt);
     }
-    
-    std::vector<OmMSetItem>::iterator r;
-    for (r = items.begin(); r != items.end(); r++) {
-	if (items.back().wt < min_item.wt) {
-	    items.erase(r, items.end());
-	    break;
-	}
-    }
-    
+
     mset = OmMSet(first, mbound, max_weight, greatest_wt, items,
 		  termfreqandwts);
 }

@@ -395,7 +395,7 @@ OmSocketLineBuf::do_readline(int msecs_timeout)
 	tv.tv_sec = end_time - curr_time;
 	tv.tv_usec = end_time_usecs;
 
-	int retval = select(readfd + 1, &fdset, 0, 0, &tv);
+	int retval = select(readfd + 1, &fdset, 0, &fdset, &tv);
 
 	if (retval < 0) {
 	    if (errno == EAGAIN) {
