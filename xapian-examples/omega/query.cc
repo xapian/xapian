@@ -136,11 +136,12 @@ run_query()
 						     and_vec.end()));
 		        break;
 		}
-		if (over) break;
+		if (over)
+		    break;
 		and_vec.clear();
-		and_vec.push_back(i->second);
 		current = i->first;
 	    }
+	    and_vec.push_back(i->second);
 	}
 	
 	query = OmQuery(OmQuery::OP_FILTER,
