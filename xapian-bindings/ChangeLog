@@ -1,3 +1,9 @@
+Tue Sep 28 20:33:21 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: The guile bindings do now build (though I don't
+	  know guile so can't test them), so enable the guile detection
+	  machinery in configure.
+
 Tue Sep 28 19:32:33 BST 2004  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: Add op.cs to XAPIAN_SWIG_CS_SRCS.

@@ -152,12 +152,11 @@ if test no != "$with_swig" ; then
 
   if test no != "$with_guile" ; then
     AC_PATH_PROG(GUILE, guile, [])
-    dnl FIXME: uncomment once guile is building again... 
-    dnl if test -n "$GUILE" ;  then
+    if test -n "$GUILE" ;  then
 	dnl test guile version?
 	dnl any paths?
-	dnl BINDINGS="$BINDINGS guile"
-    dnl fi
+	BINDINGS="$BINDINGS guile"
+    fi
   fi
 
   if test no != "$with_csharp" ; then
