@@ -1,6 +1,26 @@
 use strict;
 use Cvssearch;
 
+sub usage() {
+    print << "EOF";
+cvsbuilddb 1.0 (2001-2-22)
+Usage $0 [Options]
+        
+Options:
+  -d CVSROOT           specify the \$CVSROOT variable.
+                       if this flag is not used. default \$CVSROOT is used.
+  -t file_types        specify file types of interest. e.g. -t "html java"
+                       will only do the line mapping for files with extension
+                       .html and .java; default types include: c cc cpp C h.
+  modules              a list of modules to built, e.g. koffice/kword  kdebase/konqueror
+  -comp                simulates the comparison between the two alignment implementations,
+                       no databases will be written.
+  -f app.list          a file containing a list of modules
+  -h                   print out this message
+EOF
+exit 0;
+}
+
 # ------------------------------------------------------------
 # check for existence of programs used in this script
 # if not found, exit.
@@ -77,6 +97,7 @@ if(($cvscache ne "") && (not (-d $cvscache))) {
     system ("chmod o+rwx $cvscache");
 }
 
+
 # ----------------------------------------
 # dump the $CVSDATA variable to a file
 # ----------------------------------------
@@ -142,7 +163,6 @@ if ($cvsroot eq "") {
     # ----------------------------------------
     print STDERR "WARNING: \$CVSROOT not set or not specified using -d flag!\n";
     usage();
-    exit(1);    
 }
 
 # ----------------------------------------
@@ -222,7 +242,7 @@ sub cvsbuild {
             # do cvsmap and cvsindex
             # ----------------------------------------
             if ($found_files) {
-                my $prefix_path = "$pwd/$cvsdata/$root/db/$app_name";
+                my $prefix_path = "$cvsdata/$root/db/$app_name";
                 if ($comp_mode) {
                     chdir ("$cvsdata/$root/src");
                     system ("$cvsmap -d $cvsroot".
@@ -291,12 +311,14 @@ sub cvsbuild {
                     my ($entries, $authors, $cvs_words) = 
                       Cvssearch::cvs_stat ($pwd, "$cvsdata/$root/src", $app_path);
                     
+                    chdir ("$cvsdata/$root/src");
                     open(LIST, "<$list_file") || die "cannot read from  $list_file: $!\n";
                     while (<LIST>) {
                           chomp;
                           $code_words += Cvssearch::code_comment_counter ($_);
                       }
                     close(LIST);
+                    chdir ("$pwd");
 
                     open(STAT, ">>$prefix_path.st") || die "cannot append to statistics file\n";
                     print STAT "total   # words of code comment :\t$code_words words\n";
@@ -323,25 +345,5 @@ sub cvsbuild {
             }
         }
     }
-}
-
-sub usage() {
-    print << "EOF";
-cvsbuilddb 1.0 (2001-2-22)
-Usage $0 [Options]
-        
-Options:
-  -d CVSROOT           specify the \$CVSROOT variable.
-                       if this flag is not used. default \$CVSROOT is used.
-  -t file_types        specify file types of interest. e.g. -t "html java"
-                       will only do the line mapping for files with extension
-                       .html and .java; default types include: c cc cpp C h.
-  modules              a list of modules to built, e.g. koffice/kword  kdebase/konqueror
-  -comp                simulates the comparison between the two alignment implementations,
-                       no databases will be written.
-  -f app.list          a file containing a list of modules
-  -h                   print out this message
-EOF
-exit 0;
 }
 

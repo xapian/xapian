@@ -15,7 +15,7 @@ EXTRA_DIST = cvsbuild-script.pl cvsupdate-script.pl cvsquery-script.pl \
 define build-perl-script
 $(PERL) -I $(srcdir) -c $(firstword $^)
 rm -rf $@
-echo "#!" $(PERL) > $@
+echo "#!" $(PERL) " -w" > $@
 cat $(firstword $^) >> $@
 chmod ugo+rx $@
 endef

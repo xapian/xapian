@@ -5,7 +5,7 @@ use strict;
 # ----------------------------------------
 # symbols to export by default
 # ----------------------------------------
-my @EXPORT = qw(read_cvsroot_dir, read_root_dir, strip_last_slash, get_cvsdata, get_cvs_stat, code_comment_counter);
+my @EXPORT = qw(read_cvsroot_dir read_root_dir strip_last_slash get_cvsdata get_cvs_stat code_comment_counter);
 
 
 
@@ -14,26 +14,28 @@ sub get_cvsdata {
     # see if $CVSDATA is set
     # ----------------------------------------
     my $found = 0;
-    my $cvsdata;
+    my $cvsdata = "";
+    
+    if ($ENV{"CVSDATA"}) {
+        $cvsdata = $ENV{"CVSDATA"};
+    }
 
-    $cvsdata = $ENV{"CVSDATA"};
-
-    if (0) {
-    } elsif ($cvsdata ne "") {
+    if (! $cvsdata) {
         # ----------------------------------------
         # environment is set
         # ----------------------------------------
-    } elsif (-e "cvssearch.conf") {
-        open (CVSSEARCHCONF, "<cvssearch.conf") || die "cannot read from cvssearch.conf: $!";
-        while (<CVSSEARCHCONF>) {
-            chomp;
-            my @fields = split(/\ /);
-            if ($fields[0] eq "CVSDATA") {
-                $cvsdata = $fields[1];
-                $ENV{"CVSDATA"} = $cvsdata;
+        if (-e "cvssearch.conf") {
+            open (CVSSEARCHCONF, "<cvssearch.conf") || die "cannot read from cvssearch.conf: $!";
+            while (<CVSSEARCHCONF>) {
+                chomp;
+                my @fields = split(/\ /);
+                if ($fields[0] eq "CVSDATA") {
+                    $cvsdata = $fields[1];
+                    $ENV{"CVSDATA"} = $cvsdata;
+                }
             }
+            close (CVSSEARCHCONF);
         }
-        close (CVSSEARCHCONF);
     }
     if (substr($cvsdata, 0, 1) ne "/") {
         # relative path
@@ -152,7 +154,7 @@ sub strip_last_slash {
 #-------------------------------------------
 sub encode{
 	my ($string) = @_;
-	$string =~ s/ /+/g, $string;
+	$string =~ s/ /+/g;
 	$string =~ s/([^a-zA-Z0-9])/'%'.unpack("H*",$1)/eg;
 	return $string;
 }
@@ -266,23 +268,26 @@ sub code_comment_counter {
     my $temp = "";
     my $word_count = 0;
 
+
     my ($file) = @_;
-    open (MYFILE, "<$file");
-    while (<MYFILE>) {
-        chomp;
-        $line = $_;
-        if (m/\/\/(.*)/) {
-            my @words = split(/\s/, $1);
-            $word_count += $#words;
+    if (-e "$file") {
+        open (MYFILE, "<$file");
+        while (<MYFILE>) {
+            chomp;
+            $line = $_;
+            if (m/\/\/(.*)/) {
+                my @words = split(/\s/, $1);
+                $word_count += $#words;
+            }
+            $temp .= $line;
+            $temp .= " ";
         }
-        $temp .= $line;
-        $temp .= " ";
+        close(MYFILE);
+        while ($temp =~ s#(/\*(.*?)\*/)##) {
+               my @words = split(/\s/, $1);
+               $word_count += $#words;
+           }
     }
-    close(MYFILE);
-    while ($temp =~ s#(/\*(.*?)\*/)##) {
-           my @words = split(/\s/, $1);
-           $word_count += $#words;
-       }
     return $word_count;
 }
 
