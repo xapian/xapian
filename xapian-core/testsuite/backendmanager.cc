@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,56 +39,6 @@
 
 using namespace std;
 
-static Xapian::Document
-string_to_document(string paragraph)
-{
-    Xapian::Stem stemmer("english");
-
-    Xapian::Document document;
-    document.set_data(paragraph);
-    Xapian::termcount position = 1;
-
-    for (Xapian::valueno i = 1; i <= 10; ++i) {
-	if (i >= paragraph.length()) break;
-	string value = paragraph.substr(i, 1);
-	document.add_value(i, value);
-    }
-
-    {
-	/* We need a value which will be useful for collapsing with DA
-	 * databases, where only the first 8 bytes of value 0 count.
-	 */
-	string value;
-
-	value = paragraph[2];
-
-	value += string("\0\0\0 \1\t", 6);
-
-	for (int k = 0; k < 256; k++) {
-	    value += char(k);
-	}
-	value += paragraph;
-	document.add_value(0, value);
-    }
-
-    string::size_type spacepos;
-    string word;
-    while ((spacepos = paragraph.find_first_not_of(" \t\n")) != string::npos) {
-	if (spacepos) paragraph.erase(0, spacepos);
-	spacepos = paragraph.find_first_of(" \t\n");
-	word = paragraph.substr(0, spacepos);
-	select_characters(word, "");
-	lowercase_term(word);
-	word = stemmer.stem_word(word);
-	if (!word.empty()) {
-	    document.add_posting(word, position++);
-	}
-	paragraph.erase(0, spacepos);
-    }
-
-    return document;
-}
-
 static void
 index_files_to_database(Xapian::WritableDatabase & database,
                         const vector<string> & paths)
@@ -102,9 +52,7 @@ index_files_to_database(Xapian::WritableDatabase & database,
 		    " for indexing");
 
 	while (from) {
-	    string para;
-	    get_paragraph(from, para);
-	    database.add_document(string_to_document(para));
+	    database.add_document(document_from_stream(from));
 	}
     }
 }
@@ -128,9 +76,7 @@ index_files_to_m36(const string &prog, const string &dbdir,
 		    " for indexing");
 
 	while (from) {
-	    string para;
-	    get_paragraph(from, para);
-	    Xapian::Document doc = string_to_document(para);
+	    Xapian::Document doc = document_from_stream(from);
 	    out << "#RSTART#\n" << doc.get_data() << "\n#REND#\n#TSTART#\n";
 	    {
 		Xapian::TermIterator i = doc.termlist_begin();

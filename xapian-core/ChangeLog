@@ -1,3 +1,13 @@
+Thu Mar 10 01:48:20 GMT 2005  Olly Betts <olly@survex.com>
+
+	* testsuite/backendmanager.cc,testsuite/index_utils.cc,
+	  testsuite/index_utils.h: Rewrite of index_utils code, removing
+	  unused and unusual features.
+	* tests/testdata/: Cleaned up data for apitest now that paragraphs
+	  don't have the odd minimum number of lines!
+	* tests/testdata/apitest_space.txt: New index_utils code has C-like
+	  \ escapes for control characters rather than ^ escapes.
+
 Wed Mar 09 22:04:08 GMT 2005  Olly Betts <olly@survex.com>
 
 	* common/utils.h: Added C_isxdigit and C_isnotxdigit.

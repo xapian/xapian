@@ -1,12 +1,11 @@
-/* index_utils.h
+/* index_utils.h - utility functions for indexing testcase data
  *
- * ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright (C) 2005 Olly Betts
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,22 +14,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- * USA
- * -----END-LICENCE-----
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef OM_HGUARD_INDEX_UTILS_H
-#define OM_HGUARD_INDEX_UTILS_H
+#ifndef XAPIAN_HGUARD_INDEX_UTILS_H
+#define XAPIAN_HGUARD_INDEX_UTILS_H
 
 #include <iosfwd>
-#include <string>
+#include <xapian.h>
 
-using namespace std;
+Xapian::Document document_from_stream(std::istream &from);
+std::string munge_term(const std::string &term);
 
-void lowercase_term(string &);
-void select_characters(string &term, const std::string & keep);
-void get_paragraph(std::istream &input, std::string &para);
-void get_a_line(std::istream &input, std::string &line);
-
-#endif /* OM_HGUARD_INDEX_UTILS_H */
+#endif /* XAPIAN_HGUARD_INDEX_UTILS_H */
