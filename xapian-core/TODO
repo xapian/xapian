@@ -171,7 +171,7 @@ Priority | Area            | Task
 	 |                 | objects (currently strings so this happens, but
 	 |                 | may not stay that way) and ExpandBits)
 ---------+-----------------+--------------------------------------------------
- VeryLow | API		   | Do allow boolean subqueries in OmQuery
+ Verylow | API		   | Do allow boolean subqueries in OmQuery
          |                 | constructors, where it makes sense.
 ---------+-----------------+--------------------------------------------------
  Dubious | Weighting       | Allow for a non-zero minimum value for the ndl
