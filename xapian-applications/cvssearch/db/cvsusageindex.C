@@ -22,6 +22,7 @@
 #warning "requires ctags from http://ctags.sourceforge.net/"
 #warning "should generate unique file for tags"
 #warning "ctags contains inheritance information; this can help if (t,S) does not occur in class declaration say or where member variable is declared"
+#warning "requires omsee 0.4.1"
 
 // ctags options
 //  want classes
@@ -84,6 +85,8 @@
 void usage(char * prog_name);
 const string database = "db";
 
+#define SKIP_CLASSES 0 
+
 void writeDatabase( const string& database_dir, map<string, int>& app_symbol_count, map<string, list<string> >& app_symbol_terms ) {
 
   cerr << "... removing directory " << database_dir << " (if it already exists)" << endl;
@@ -102,12 +105,15 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
 
   // code which accesses Omsee
 
+#if !SKIP_CLASSES
   OmSettings db_parameters_classes;
   db_parameters_classes.set("backend", "quartz");
   db_parameters_classes.set("quartz_dir", database_dir+"_c");
   OmWritableDatabase database_classes(db_parameters_classes); // open database
 
   database_classes.begin_session();
+#endif
+
 
   OmSettings db_parameters_functions;
   db_parameters_functions.set("backend", "quartz");
@@ -133,17 +139,18 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
       }
     } else {
       c_count++;
-
+#if !SKIP_CLASSES
       if ( c_count % FLUSH_RATE == 0 ) {
 	cerr << "*** FLUSHING CLASSES" << endl;
 	database_classes.flush();
       }
+#endif
 
     }
 
 
 
-    cerr <<"*** Symbol " << symbol << " has count " << count << endl;
+    //    cerr <<"*** Symbol " << symbol << " has count " << count << endl;
     list<string> words = app_symbol_terms[symbol];
 
     OmDocumentContents newdocument;
@@ -162,19 +169,21 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
     newdocument.data = string(str);
 
     if ( isFunction ) {
+      //      cerr << "Data -" << newdocument.data << "- with # words = " << pos << endl;
       database_functions.add_document(newdocument);
     } else {
+#if !SKIP_CLASSES
       database_classes.add_document(newdocument);
+#endif
     }
   }
 
 
-#warning "seg faults"
   database_functions.end_session();
+#if !SKIP_CLASSES
   database_classes.end_session();
+#endif
 
-  //  database_functions.flush();
-  //  database_classes.flush();
   cerr << "Done!" << endl;
 }
 
@@ -381,6 +390,8 @@ int main(int argc, char *argv[]) {
 	lines_read++;
       } // while
 
+
+      cerr << "Writing " << database_dir << endl;
 	/// write out results to omsee
       writeDatabase( database_dir, app_symbol_count, app_symbol_terms );
 	
@@ -389,6 +400,7 @@ int main(int argc, char *argv[]) {
     } // for packages
 
     /// write out results to omsee
+    cerr << "Writing global" << endl;
     writeDatabase( "global.om", lib_symbol_count, lib_symbol_terms );
 
   } catch(OmError & error) {

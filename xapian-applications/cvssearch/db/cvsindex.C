@@ -33,6 +33,8 @@
 
 #define FLUSH_RATE 50
 
+#warning "should use omsee-0.4.1 or later"
+
 void usage(char * prog_name);
 const string database = "db";
 
