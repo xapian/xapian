@@ -45,37 +45,24 @@
 // --kind-long=yes (verbose tag descriptions)
 // from this, ignore all entries with access:private
 
-#define USE_STOP_LIST false
+// /tmp is small, so we use /tmp
 
-// /tmp is small, so we use /home/amichail/temp
+#define TEMP "/tmp"
 
 // support C/C++/Java for now
-#define CTAGS_FLAGS "-R --c-types=cfsuAC --java-types=cimAC --kind-long=yes -f/home/amichail/temp/tags"
+
+// ctags 5.0 flags (see http://ctags.sourceforge.net/ctags.html)
+//
+#define CTAGS_FLAGS "-R --fields=aiK --extra=q --c-types=cfsu --java-types=cim --kind-long=yes -f" TEMP "/tags"
 
 
 //
 // Reasoning for looking at symbols in the most recent copy and
 // not on a commit by commit basis in previous versions:
 //
-//  code symbols change over time but not the domain concepts
-//  we describe them by in comments
+//    code symbols change over time but not the domain concepts
+//    we describe them by in comments
 //
-
-// if in file mode, this is the minimum # files
-// 15 is reasonable but takes a while
-
-
-#define MIN_SUPP 1
-#define MIN_SURPRISE 0.0
-
-// if true, counts files.
-// however, still requires line pairing of comment term, code symbol
-
-// app count not exactly correct because files not handled
-// in order of app exactly but also by order of extension
-// (e.g., .h, .cc, .C, .cpp, etc.), so some apps may contribute
-// 2 or 3 to the count
-
 
 #include <db_cxx.h>
 #include <fstream.h>
@@ -167,20 +154,7 @@ int main(int argc, char *argv[]) {
 
   // for each package, we process it seperately
 
-  string cvsdata;
-  char *s = getenv("CVSDATA");
-  if ( s==0 ) {
-    cerr <<" Warning:  $CVSDATA not set!." << endl;
-    exit(1);
-  } else {
-    cvsdata = s;
-    // strip trailing / if any
-    if ( cvsdata[cvsdata.length()-1] == '/' ) {
-      cvsdata = cvsdata.substr( 0, cvsdata.length()-1 );
-    }
-    //       cerr << "$CVSDATA = " << cvsdata << endl;
-  }
-
+  string cvsdata = get_cvsdata();
 
   // get list of packages to process from file
 
@@ -205,25 +179,21 @@ int main(int argc, char *argv[]) {
   
 
 
-  // get libraries if any
-  system("rm -f /home/amichail/temp/tags"); 
+  // get libraries if any from cmd line
+  system("rm -f " TEMP "/tags"); 
+
   for( int i = 1; i < argc; i++ ) {
     string dir = argv[i];
-      
-      
-    cerr << "Running ctags on " << dir << endl;
+    cerr << "...running ctags on library " << dir << endl;
     string cmd = string("ctags -a ") + string(CTAGS_FLAGS) + " " + dir; // append mode
-    cerr << "Invoking " << cmd << endl;
+    cerr << "...invoking " << cmd << endl;
     system(cmd.c_str());
-    cerr << "Done" << endl;
   }
   
-  readTags( "/home/amichail/temp/tags", lib_symbols );
+  cerr << "...reading library tags" << endl;
+  readTags( TEMP "/tags", lib_symbols );
   
-
-
-
-
+  exit(-1);
 
 
   map< string, list<string> > lib_symbol_terms; // accumulated from all its points of usage
@@ -262,7 +232,7 @@ int main(int argc, char *argv[]) {
       package_path = string(package, 0, p);
       
       cerr << "package -" << package_name << "-" << endl;
-      system("rm -f /home/amichail/temp/tags");
+      system("rm -f " TEMP "/tags" );
 
       cerr << "Running ctags on " << package_path << endl;
       string fullpath = cvsdata +"/" + package_path;
@@ -278,7 +248,7 @@ int main(int argc, char *argv[]) {
 
       set<string> app_symbols;
       map<string, int> lib_symbol_app_count;
-      readTags( "/home/amichail/temp/tags", app_symbols );
+      readTags( TEMP "/tags", app_symbols );
 
 
 
