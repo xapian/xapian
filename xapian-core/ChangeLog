@@ -1,3 +1,18 @@
+Wed Apr 11 09:06:37 BST 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Implemented deleting of items from postlists, and added some
+	  tests to check that it works properly.
+	
+	* Fixed a potential memory leak in QuartzPostList if an exception
+	  was thrown from the constructor.
+
+	* BackendManager now sets the quartz_logfile setting, to make
+	  the logs available from the testsuite.
+
+	* Added mention of quartz_logfile to docs/omsettings
+
+	* Removed a bad assert from InMemoryDatabase::get_doclength()
+
 Mon Apr  9 21:48:18 BST 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Added #include <cmath> to testutils.cc

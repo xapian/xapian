@@ -46,6 +46,8 @@
 
   - quartz backend
     - quartz_dir : directory containing quartz database
+    - quartz_logfile : the name of a file in which to log various Quartz
+    			events to.
 
   - match options
     - match_collapse_key : key number to collapse on - duplicates mset

@@ -409,6 +409,7 @@ BackendManager::do_getwritedb_quartz(const std::vector<std::string> &dbnames,
     OmSettings params;
     params.set("backend", "quartz");
     params.set("quartz_dir", dbdir);
+    params.set("quartz_logfile", dbdir + "/logfile");
     if (files_exist(change_names_to_paths(dbnames))) {
 	if (create_dir_if_needed(dbdir)) {
 	    // directory was created, so do the indexing.

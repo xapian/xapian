@@ -57,7 +57,7 @@ class QuartzPostList : public LeafPostList {
 
 
 	/// Cursor pointing to current chunk of postlist. 
-	QuartzCursor * cursor;
+	AutoPtr<QuartzCursor> cursor;
 
 	/// True if this is the last chunk.
 	bool is_last_chunk;

@@ -503,7 +503,6 @@ InMemoryDatabase::get_collection_freq(const om_termname &tname) const
 inline om_doclength
 InMemoryDatabase::get_doclength(om_docid did) const
 {
-    Assert(did > 0 && did <= termlists.size());
     if (!doc_exists(did)) {
 	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
 				 std::string(" not found"));

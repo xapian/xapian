@@ -501,6 +501,7 @@ QuartzBufferedTable::~QuartzBufferedTable()
 void
 QuartzBufferedTable::write_internal()
 {
+    DEBUGCALL(DB, void, "QuartzBufferedTable::write_internal", "");
     try {
 	QuartzTableEntries::items & entries = changed_entries.get_all_entries();
 	std::map<QuartzDbKey, QuartzDbTag *>::iterator entry;
@@ -510,6 +511,7 @@ QuartzBufferedTable::write_internal()
 	for (entry++;
 	     entry != changed_entries.get_all_entries().end();
 	     entry++) {
+	    DEBUGLINE(DB, "QuartzBufferedTable::write_internal(): setting key " << hex_encode(entry->first.value) << " to " << ((entry->second)? (hex_encode(entry->second->value)) : std::string("<NULL>")));
 	    disktable->set_entry(entry->first, entry->second);
 	    delete entry->second;
 	    entry->second = 0;

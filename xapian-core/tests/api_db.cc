@@ -2429,6 +2429,220 @@ static bool test_deldoc1()
     return true;
 }
 
+// tests that deletion and updating of documents works as expected
+static bool test_deldoc2()
+{
+    OmWritableDatabase db = get_writable_database("");
+
+    OmDocument doc1;
+
+    doc1.add_posting("one", 1);
+    doc1.add_posting("two", 2);
+    doc1.add_posting("two", 3);
+    om_docid did;
+
+    did = db.add_document(doc1);
+    TEST_EQUAL(did, 1);
+
+    doc1.remove_term("one");
+    doc1.add_posting("three", 4);
+
+    db.add_document(doc1);
+
+    doc1.add_posting("one", 7);
+    doc1.remove_term("two");
+
+    db.add_document(doc1);
+
+    db.flush();
+
+    db.reopen();
+
+    db.delete_document(1);
+    db.delete_document(2);
+    db.delete_document(3);
+
+    db.flush();
+
+    db.reopen();
+
+    TEST_EQUAL(db.postlist_begin("one"), db.postlist_end("one"));
+    TEST_EQUAL(db.postlist_begin("two"), db.postlist_end("two"));
+    TEST_EQUAL(db.postlist_begin("three"), db.postlist_end("three"));
+
+    TEST_EXCEPTION(OmDocNotFoundError, db.termlist_begin(1));
+    TEST_EXCEPTION(OmDocNotFoundError, db.termlist_begin(2));
+    TEST_EXCEPTION(OmDocNotFoundError, db.termlist_begin(3));
+    TEST_EXCEPTION(OmDocNotFoundError, db.termlist_begin(4));
+    
+    // test positionlist_{begin,end}?
+
+    TEST_EQUAL(db.get_doccount(), 0);
+    TEST_EQUAL(db.get_avlength(), 0);
+    TEST_EQUAL(db.get_termfreq("one"), 0);
+    TEST_EQUAL(db.get_termfreq("two"), 0);
+    TEST_EQUAL(db.get_termfreq("three"), 0);
+
+    TEST_EQUAL(db.term_exists("one"), false);
+    TEST_EQUAL(db.term_exists("two"), false);
+    TEST_EQUAL(db.term_exists("three"), false);
+
+    TEST_EQUAL(db.get_collection_freq("one"), 0);
+    TEST_EQUAL(db.get_collection_freq("two"), 0);
+    TEST_EQUAL(db.get_collection_freq("three"), 0);
+
+    TEST_EXCEPTION(OmDocNotFoundError, db.get_doclength(1));
+    TEST_EXCEPTION(OmDocNotFoundError, db.get_doclength(2));
+    TEST_EXCEPTION(OmDocNotFoundError, db.get_doclength(3));
+
+    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(1));
+    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(2));
+    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(3));
+
+    TEST_EQUAL(db.allterms_begin(), db.allterms_end());
+
+    return true;
+}
+
+// another test of deletion of documents, a cut-down version of deldoc2
+static bool test_deldoc3()
+{
+    OmWritableDatabase db = get_writable_database("");
+
+    OmDocument doc1;
+
+    doc1.add_posting("one", 1);
+
+    om_docid did = db.add_document(doc1);
+    TEST_EQUAL(did, 1);
+
+    db.flush();
+
+    db.reopen();
+
+    db.delete_document(1);
+
+    db.flush();
+
+    db.reopen();
+
+    TEST_EQUAL(db.postlist_begin("one"), db.postlist_end("one"));
+
+    TEST_EXCEPTION(OmDocNotFoundError, db.termlist_begin(1));
+    TEST_EXCEPTION(OmDocNotFoundError, db.termlist_begin(2));
+    
+    // test positionlist_{begin,end}?
+
+    TEST_EQUAL(db.get_doccount(), 0);
+    TEST_EQUAL(db.get_avlength(), 0);
+    TEST_EQUAL(db.get_termfreq("one"), 0);
+
+    TEST_EQUAL(db.term_exists("one"), false);
+
+    TEST_EQUAL(db.get_collection_freq("one"), 0);
+
+    TEST_EXCEPTION(OmDocNotFoundError, db.get_doclength(1));
+    TEST_EXCEPTION(OmDocNotFoundError, db.get_doclength(2));
+
+    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(1));
+    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(2));
+
+    TEST_EQUAL(db.allterms_begin(), db.allterms_end());
+
+    return true;
+}
+
+// tests that deletion and updating of (lots of) documents works as expected
+static bool test_deldoc4()
+{
+    OmWritableDatabase db = get_writable_database("");
+
+    OmDocument doc1;
+
+    doc1.add_posting("one", 1);
+    doc1.add_posting("two", 2);
+    doc1.add_posting("two", 3);
+
+    OmDocument doc2 = doc1;
+    doc2.remove_term("one");
+    doc2.add_posting("three", 4);
+
+    OmDocument doc3 = doc2;
+    doc3.add_posting("one", 7);
+    doc3.remove_term("two");
+
+    const int maxdoc = 1000 * 3;
+    om_docid did;
+    for (unsigned int i=0; i<maxdoc / 3; ++i) {
+	did = db.add_document(doc1);
+	TEST_EQUAL(did, i*3+1);
+	did = db.add_document(doc2);
+	TEST_EQUAL(did, i*3+2);
+	did = db.add_document(doc3);
+	TEST_EQUAL(did, i*3+3);
+
+	bool is_power_of_two = false;
+	unsigned int temp = i;
+	int count = 0;
+	while (temp > 0) {
+	    int next = temp >> 1;
+	    if (next == 0) {
+		is_power_of_two = (temp << count) == i;
+		break;
+	    }
+	    count++;
+	    temp = next;
+	}
+	if (is_power_of_two) {
+	    db.flush();
+	    db.reopen();
+	}
+    }
+    db.flush();
+    db.reopen();
+
+    /* delete the documents in a peculiar order */
+    for (unsigned int i=0; i < (maxdoc/3); i++) {
+	db.delete_document(maxdoc - i);
+	db.delete_document(maxdoc/3 + i + 1);
+	db.delete_document(i+1);
+    }
+
+    db.flush();
+
+    db.reopen();
+
+    TEST_EQUAL(db.postlist_begin("one"), db.postlist_end("one"));
+    TEST_EQUAL(db.postlist_begin("two"), db.postlist_end("two"));
+    TEST_EQUAL(db.postlist_begin("three"), db.postlist_end("three"));
+
+    for (int i=1; i<=maxdoc; ++i) {
+	TEST_EXCEPTION(OmDocNotFoundError, db.termlist_begin(i));
+	TEST_EXCEPTION(OmDocNotFoundError, db.get_doclength(i));
+	TEST_EXCEPTION(OmDocNotFoundError, db.get_document(i));
+    }
+    
+    // test positionlist_{begin,end}?
+
+    TEST_EQUAL(db.get_doccount(), 0);
+    TEST_EQUAL(db.get_avlength(), 0);
+    TEST_EQUAL(db.get_termfreq("one"), 0);
+    TEST_EQUAL(db.get_termfreq("two"), 0);
+    TEST_EQUAL(db.get_termfreq("three"), 0);
+
+    TEST_EQUAL(db.term_exists("one"), false);
+    TEST_EQUAL(db.term_exists("two"), false);
+    TEST_EQUAL(db.term_exists("three"), false);
+
+    TEST_EQUAL(db.get_collection_freq("one"), 0);
+    TEST_EQUAL(db.get_collection_freq("two"), 0);
+    TEST_EQUAL(db.get_collection_freq("three"), 0);
+
+    TEST_EQUAL(db.allterms_begin(), db.allterms_end());
+
+    return true;
+}
+
 // tests that wqf affects the document weights
 static bool test_wqf1()
 {
@@ -2791,6 +3005,9 @@ test_desc writabledb_tests[] = {
     {"implicitendsession1",test_implicitendsession1},
     {"databaseassign1",	   test_databaseassign1},
     {"deldoc1",		   test_deldoc1},
+    {"deldoc2",		   test_deldoc2},
+    {"deldoc3",		   test_deldoc3},
+    {"deldoc4",		   test_deldoc4},
     {0, 0}
 };
 
