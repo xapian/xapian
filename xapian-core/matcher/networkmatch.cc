@@ -117,3 +117,15 @@ RemoteSubMatch::prepare_match(bool nowait)
     }
     return true;
 }
+
+void
+RemoteSubMatch::start_match(om_doccount maxitems)
+{
+    Assert(is_prepared);
+    db->link->send_global_stats(*(gatherer->get_stats()));
+    OmMSet mset;
+    bool res = db->link->get_mset(0, maxitems, mset);
+    // FIXME: improve this
+    // link should always return false for first call to get_mset
+    Assert(res == false);
+}

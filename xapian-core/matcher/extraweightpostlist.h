@@ -42,6 +42,10 @@ class ExtraWeightPostList : public PostList {
 	    return pl->get_weight() + wt->get_sumextra(pl->get_doclength());
 	}
 
+	const OmKey * get_collapse_key() const {
+	    return pl->get_collapse_key();
+	}
+
 	om_weight get_maxweight() const {
 	    return pl->get_maxweight() + max_weight;
 	}

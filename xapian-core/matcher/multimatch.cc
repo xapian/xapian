@@ -155,6 +155,13 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 {
     Assert(!leaves.empty());
 
+    {
+	std::vector<RefCntPtr<SubMatch> >::iterator leaf;
+	for (leaf = leaves.begin(); leaf != leaves.end(); leaf++) {
+	    (*leaf)->start_match(first + maxitems);
+	}
+    }
+    
     PostList *pl;
     if (leaves.size() == 1) {
 	// Only one mset to get - so get it
@@ -269,6 +276,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	RefCntPtr<LeafDocument> irdoc;
 
 	// Use the decision functor if any.
+	// FIXME: if results are from MSetPostList then we can omit this
+	// step
 	if (mdecider != NULL) {
 	    if (irdoc.get() == 0) {
 		RefCntPtr<LeafDocument> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
@@ -280,11 +289,16 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
 	// Perform collapsing on key if requested.
 	if (do_collapse) {
-	    if (irdoc.get() == 0) {
-		RefCntPtr<LeafDocument> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
-		irdoc = temp;
+	    const OmKey *key = pl->get_collapse_key();
+	    if (key) {
+		new_item.collapse_key = *key;
+	    } else {
+		if (irdoc.get() == 0) {
+		    RefCntPtr<LeafDocument> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
+		    irdoc = temp;
+		}
+		new_item.collapse_key = irdoc.get()->get_key(collapse_key);
 	    }
-	    new_item.collapse_key = irdoc.get()->get_key(collapse_key);
 	    if (!perform_collapse(items, collapse_tab, did, new_item, min_item))
 		continue;
 	}
@@ -374,7 +388,7 @@ MultiMatch::perform_collapse(std::vector<OmMSetItem> &mset,
     if (oldkey == collapse_tab.end()) {
 	DEBUGLINE(MATCH, "collapsem: new key: " << new_item.collapse_key.value);
 	// Key not been seen before
-	collapse_tab.insert(std::pair<OmKey, OmMSetItem>(new_item.collapse_key, new_item));
+	collapse_tab.insert(std::make_pair(new_item.collapse_key, new_item));
     } else {
 	const OmMSetItem olditem = (*oldkey).second;
 	if (mcmp(olditem, new_item)) {

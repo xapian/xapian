@@ -119,6 +119,9 @@ class SubMatch : public RefCntBase {
 	 */
 	virtual bool prepare_match(bool nowait) = 0;
 
+	/// Start the remote match going
+	virtual void start_match(om_doccount maxitems) { }
+	
 	virtual PostList * get_postlist(om_doccount maxitems, MultiMatch *matcher) = 0;
 
 	virtual LeafDocument * open_document(om_docid did) const = 0;

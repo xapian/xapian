@@ -41,6 +41,8 @@ class MergePostList : public PostList {
 
 	om_docid  get_docid() const;
 	om_weight get_weight() const;
+	const OmKey * get_collapse_key() const;
+
 	om_weight get_maxweight() const;
 
         om_weight recalc_maxweight();
@@ -89,6 +91,13 @@ MergePostList::get_weight() const
 {
     Assert(current != -1);
     return plists[current]->get_weight();
+}
+
+inline const OmKey *
+MergePostList::get_collapse_key() const
+{
+    Assert(current != -1);
+    return plists[current]->get_collapse_key();
 }
 
 inline om_weight

@@ -370,6 +370,7 @@ SocketClient::get_mset(om_doccount first,
 		do_write(message);
 	    }
 	    conv_state = state_getresult;
+	    return false; // FIXME icky
 
 	    // fall through...
 	case state_getresult:

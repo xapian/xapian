@@ -40,6 +40,8 @@ class MSetPostList : public PostList {
 
 	om_docid  get_docid() const;
 	om_weight get_weight() const;
+	const OmKey * get_collapse_key() const;
+
 	om_weight get_maxweight() const;
 
         om_weight recalc_maxweight();
@@ -88,6 +90,13 @@ MSetPostList::get_weight() const
 {
     Assert(current != -1);
     return mset.items[current].wt;
+}
+
+inline const OmKey *
+MSetPostList::get_collapse_key() const
+{
+    Assert(current != -1);
+    return &(mset.items[current].collapse_key);
 }
 
 inline om_weight
