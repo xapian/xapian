@@ -1,5 +1,5 @@
 <todo>
-<todoitem priority="H" difficulty="2" owner="" area="LocalMatch">
+<todoitem priority="H" difficulty="2" owner="" area="Matcher">
 
 Pass around partially created postlist as an auto_ptr, for exception safety.
 
@@ -56,7 +56,7 @@ optimisations for the case of negative term weights.
 Patch doxygen, so that todo items in the body of methods get displayed.
 
 </todoitem>
-<todoitem priority="M" difficulty="4" owner="" area="LocalMatch">
+<todoitem priority="M" difficulty="4" owner="" area="Matcher">
 
 Test performance when nth_element is run more or less frequently, to see
 what is best.
@@ -128,12 +128,6 @@ Autodetect heavy-duty vs flimsy (3 byte vs 2 byte)
 Treat FILTER and AND as equivalent from the point of view of building
 optimal AND trees.  Also add a variant on FilterPostList where the left
 branch is boolean and the right probabilistic.
-
-</todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Backends">
-
-multi backend is unused, except that MultiDatabase class is abused as a
-smart IRDatabase container.
 
 </todoitem>
 <todoitem priority="M" difficulty="4" owner="" area="Matcher">
