@@ -14,5 +14,5 @@ stamp-h
 stamp-h.in
 .deps
 .libs
-libom.la
+libomus.la
 om-*.tar.gz
