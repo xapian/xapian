@@ -6,7 +6,7 @@ my $pwd = `pwd`;
 chomp $pwd;
 
 my $cvsdata = Cvssearch::get_cvsdata();
-my $cvscompare = "$pwd/Compare.cgi";
+my $cvscompare = "./Compare.cgi";
 my $cvsquery = "$pwd/cvsquerydb";
 my $cvsbuild = "$pwd/cvsbuilddb";
 my $cvsmap = "$pwd/cvsmap";

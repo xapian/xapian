@@ -1,6 +1,13 @@
 #-------------------------------------------------------------------
 # some stuff about cvssearch
-# This produces a file with source code and matched lines highlighted.
+# This produces a html query interface for cvssearch
+#
+# Structure:
+# 1. Calls $cvssearch - interface to omsee - for query matches
+# 2. grep source files for query words
+# 3. sorts and rank query matches as per file
+# 4. finds context matched by calling on $query
+# 5. Displays results, linking them to QueryFile.cgi
 #
 # Author: Annie - anniec@cse.unsw.edu.au
 # Date: Feb 16 2001
@@ -80,7 +87,7 @@ if(param()){
 		$line = $_;
 		$line = Entities::encode_entities($line);
 		print "<tr>";
-		print "<td><a name=$i><pre>$i:</td>";
+		print "<a name=$i><td><pre>$i:</td>";
 		if($lineMAPweight{$i}){
 			$weight = $lineMAPweight{$i};
 			$color = Cvssearch::get_color($weight, 150);

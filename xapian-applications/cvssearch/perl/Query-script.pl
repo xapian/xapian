@@ -29,7 +29,7 @@ $cvsupdate = "./cvsupdatedb";
 $CVSROOTS = "$CVSDATA/CVSROOTS";
 $all = "All";
 $queryfile = "Queryfile.cgi";
-$cache = "/tmp/cache"; #where dump is written to
+$cache = "cache"; #where dump is written to
 
 #---------------------------------------------
 # global mappigns defind in the script
@@ -85,7 +85,7 @@ _STYLE_
 #print "<pre>";
 #$output1 = `ls -la /tmp/cache`;
 #print $output1;
-#$output2 = `rm -rf /tmp/cache`;
+$output2 = `rm -rf /tmp/cache`;
 #print $output2;
 #print "</pre>";
 #----------------------------------------
@@ -105,7 +105,7 @@ print <<_HTML_;
 <table width=100%>
 <tr valign=bottom><td>
 <a href="http://www.cse.unsw.edu.au/~amichail/cvssearch">
-<img border=0 src="./logo.png"></a>
+<img border=0 src="http://www.cse.unsw.edu.au/~anniec/images/logo.png"></a>
 </td><td align=right>
 <form action=./Query.cgi>
 <b>Enter keyword(s) to search for: </b><input type=text size=45 name=query value="$query">
@@ -285,9 +285,27 @@ if($query && ($query ne "")){
 	
 	$files = join ' ', (values idMAPfile);
 	#print "<p>grep -I -i -n -H '$grepquery' $files | head -$num_matches";
+	#@grepmatches = `grep -I -i -n -H '$grepquery' $files | head -$num_matches`;
+	
+	# this tries to do "and" instead of "or"
 	$tmpgrep = $grepquery;
-	#$tmpgrep =~ s/|/\\|/g;
-	@grepmatches = `grep -I -i -n -H '$tmpgrep' $files | head -$num_matches`;
+	@tmpgrep = split / /, $stemquery;
+	#$tmpgrep =~ s/\|/\\|/g;
+	$first = shift @tmpgrep;
+	#print "<pre>";
+	#print $first;
+	#@grepmatches = `grep -I -i -n -H '$tmpgrep' $files | head -$num_matches`;
+	@grepmatches = `grep -I -i -n -H '$first' $files`;
+	#print @grepmatches;
+	foreach (@tmpgrep){
+		#print $_;
+		@grepmatches = grep '$_', @grepmatches; 
+		#print @grepmatches;
+	}
+	#print "</pre>";
+	if($#grepmatches > $num_matches){
+		@grepmatches = @grepmatches[0..$num_matches];
+	}
 
 	#print "<p>finished grep\n";#DEBUG
 	#print "<p>grep result: @grepmatches";#debug
@@ -545,6 +563,8 @@ if($query && ($query ne "")){
 	print "</font>";
 	close STORE;
 	system("chmod 777 $cache/$storefile");
+	$ls = `ls -la $cache`;
+	print "<pre>$ls</pre>";
 
 }
 
@@ -624,7 +644,7 @@ sub printTips{
 #	print "<b class=blue>Tips</font></b>\n";
 	print "<ul>\n";
 	print "<li>use <tt class=orange>in:</tt> at the end of keywords to select package to seach in. For example, \n";
-	print "<br><tt class=orange>menu in:kdebase/konqueror;kdepim/korganizer</tt> \n";
+	print "<br><tt class=orange>menu in:kdebase/konqueror;kdepime/korganizer</tt> \n";
 	print "<br>searches for menu under kdebase/konqueror and kdepim/korganizer, default searches for keywords under all packages.\n";
 	print "<li>Keywords are not case-sensitive and stemmed. (e.g. searching for 'fishes' will match 'FISH', 'fishes', 'fishing'...)\n";
 	print "<li>Results are ranked with the objective of matching as large a fraction of the keywords as possible.  \n";

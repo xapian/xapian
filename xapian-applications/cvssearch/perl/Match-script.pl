@@ -3,10 +3,6 @@
 # This produces a html with matched lines only and it's revision 
 # information.
 #
-# Features include comments popups on mouseover, stick/unstick on click,
-# color coding, separate column for each revision,
-# bold revisions with query matches, bold grep matches
-#
 # Author: Annie - anniec@cse.unsw.edu.au
 # Date: Feb 16 2001
 #-------------------------------------------------------------------
@@ -48,6 +44,7 @@ close (OUTPUT);
 #---------------
 # style sheet
 #---------------
+#td {white-space:pre;font-family:"fixed"}
 print <<_STYLE_;
 
 <STYLE TYPE=text/css>
@@ -104,6 +101,10 @@ if(param()){
 	($root, $db, $fileid) = split / /, $id;
 	$querystr = "$cvsquery $root $db";
 	@revs = split /\s/, $revs;
+	$first = shift @revs;
+	if($first ne "grep"){
+		push @revs, $first;
+	}
 	foreach(@revs){
 		$querystr .= " -c $fileid $_";
 	}
@@ -170,13 +171,14 @@ if(param()){
 		if($lineMAPinfo{$i}){
 			$line = Entities::encode_entities($line);
 			print "<tr>";
-			print "<td><a name=$i><pre>$i:</td>";
+			print "<a name=$i><td><pre>$i:</td>";
 			$info = $lineMAPinfo{$i};
 			@info = split / /, $info;
 			$weight = shift @info;
 			
 			#print revs, in the column it belongs to
 			print "<td><pre>";
+			#print "<td class=pre>";
 			$flag = 1;
 			for($j=0;$j<$#revs+1;$j++){
 				$toprev = $revs[$j];

@@ -29,7 +29,7 @@ my $mask = umask "0002";
 my $comp_mode = 0;
 my $cvsdata = Cvssearch::get_cvsdata();
 my $cvsroot = $ENV{"CVSROOT"};
-
+my $cvscache = "cache";
 my @file_types= qw(cc h cpp c C java);
 my $file_types_string;
 my @modules;
@@ -66,7 +66,14 @@ if(($cvsdata ne "") && (not (-d $cvsdata))) {
     # the directory should be publically readable
     # and executable
     # ----------------------------------------
-    mkdir ("$cvsdata",0777) || die " cannot mkdir $cvsdata: $!";
+    mkdir ("$cvsdata",0777) || die "cannot mkdir $cvsdata: $!";
+}
+
+# ------------------------------------------------------------
+# path where all temp files are created during query time.
+# ------------------------------------------------------------
+if(($cvscache ne "") && (not (-d $cvscache))) {
+    mkdir ("$cvscache", 0777) || die "cannot mmkdir $cvscache: $!";
 }
 
 # ----------------------------------------

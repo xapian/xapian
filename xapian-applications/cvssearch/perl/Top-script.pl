@@ -1,6 +1,7 @@
+#!/usr/bin/perl
 #-------------------------------------------------------------------
 # some stuff about cvssearch
-# This produces Header for matched files with the filename
+# This produces Header for matched files
 #
 # Author: Annie - anniec@cse.unsw.edu.au
 # Date: Feb 16 2001
