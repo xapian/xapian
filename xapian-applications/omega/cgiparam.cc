@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,18 +40,38 @@ add_param(string name, string val)
     if (i > 2 && name[i - 2] == '.') {
 	// An image button called B gives B.x and B.y parameters with the
 	// coordinates of the click.  We throw away the ".y" one and trim
-	// ".x" from the other
+	// ".x" from the other.
 	if (name[i - 1] == 'y') return;
-	if (name[i - 1] == 'x')
+	if (name[i - 1] == 'x') {
 	    name = name.substr(0, i - 2);
+	    // For an image button, the value of the CGI parameter is the
+	    // coordinate of the click within the image - this is meaningless
+	    // to us, so instead we turn "[ 2 ].x=NNN" into "[ 2 ]=2 ]", then
+	    // below that gets turned into "[=2 ]".  The trailing non-numeric
+	    // characters are ignored by atoi().
+	    i = name.find(' ');
+	    if (i != string::npos)
+		val = name.substr(i + 1);
+	    else {
+		i = name.find_first_not_of("0123456789");
+		if (i == string::npos) {
+		    // For image buttons with entirely numeric names, make the
+		    // value the name, and the name "#" - e.g. "2.x=NNN" becomes
+		    // "#=2".
+		    val = name;
+		    name = '#';
+		} else {
+		    // Otherwise we just copy the name into the value, so
+		    // ">.x=NNN" becomes ">=>".
+		    val = name;
+		}
+	    }
+	}
     }
-    // SJA: we don't do this, because we want to use IMAGE buttons
-    // not just SUBMIT. With them, we don't get NAME=VALUE, only
-    // VALUE.x=FOO and VALUE.y=BAR (the latter of which we discard).
-    // See omega.cc for the other side of this hairyness.
-    // Truncate at first space - convert `[ page two ]=2' into `[=2'
-//    i = name.find(' ');
-//    if (i != string::npos) name = name.substr(0, i);
+    // Truncate at first space - convert `[ page two ]=2'
+    // into `[=2'
+    i = name.find(' ');
+    if (i != string::npos) name = name.substr(0, i);
     cgi_params.insert(make_pair(name, val));
 }
 

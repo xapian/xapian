@@ -1,3 +1,8 @@
+Thu Nov 22 13:02:17 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Herded escaped CGI parameter maingling code back into cgiparam.cc;
+	  added special handling for  numeric image button names.
+
 Thu Nov 22 12:55:00 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Fixed $nice to put the comma (or dot) in the right place.

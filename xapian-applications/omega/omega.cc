@@ -99,13 +99,6 @@ map_dbname_to_dir(const string &dbname)
     return database_dir + dbname;
 }
 
-// Predicate used with find_if() so if there isn't a CGI parameter
-// '[' we can just find the first one that _starts_ with '['.
-bool pred_page_jump(multimap<string, string>::value_type& t)
-{
-    return (t.first.c_str()[0]=='[');
-}
-
 static int
 main2(int argc, char *argv[])
 {
@@ -289,12 +282,9 @@ main2(int argc, char *argv[])
 	    topdoc += hits_per_page;
 	} else if (cgi_params.find("<") != cgi_params.end()) {
 	    topdoc -= hits_per_page;
-	} else if ((val = cgi_params.find("[")) != cgi_params.end()) {
+	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
+		   (val = cgi_params.find("#")) != cgi_params.end()) {
 	    topdoc = (atol(val->second.c_str()) - 1) * hits_per_page;
-	} else if ((val = find_if(cgi_params.begin(), cgi_params.end(),
-				  pred_page_jump)) != cgi_params.end()) {
-	    string t = string(val->first,1);
-	    topdoc = (atol(t.c_str()) - 1) * hits_per_page;
 	}
 
 	// snap topdoc to page boundary
