@@ -57,7 +57,7 @@ template<class T>
 void
 alignment<T>::find_optimal_alignment(bool hash_result) 
 {
-/*    if (hash_result) {
+    if (hash_result) {
         unsigned int s1 = _source_offset, s2 = S.size() + _source_offset, d1= _dest_offset, d2 = D.size() + _dest_offset;
         if (0) {
         } else if (d2 == _dest_offset) {
@@ -71,7 +71,7 @@ alignment<T>::find_optimal_alignment(bool hash_result)
             return;
         }
     }
-*/
+
     for(unsigned int i = 1; i <= S.size(); i++ ) {
         V[i][0] = V[i-1][0] + S.score( S[i], S.space() );
     }

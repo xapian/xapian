@@ -82,7 +82,6 @@ diff::operator==(const diff & r) const
 void
 diff::align_top() 
 {
-    if (!_aligned)
     {
         // ----------------------------------------
         // because the diff entry are read in
@@ -110,13 +109,13 @@ diff::align_top()
             }
             offset += _entries[i].size();
         }
+        _aligned = true;
     }
 }
 
 void
 diff::unalign_top() 
 {
-    if (_aligned)
     {
         // ----------------------------------------
         // because the diff entry are read in
@@ -142,7 +141,7 @@ diff::unalign_top()
             {
                 cerr << e;
             }
-        offset += _entries[i].size();
+            offset += _entries[i].size();
         }
     }
 }

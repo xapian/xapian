@@ -45,6 +45,7 @@ html_comparer::html_comparer(const vector<unsigned int> & input1,
       _pathname(pathname),
       _diff(diff)
 {
+
     p0 = p1 = p2 = 0;
     ostrstream ost0;
     ost0 << scvs_update << "-r" << revision0
@@ -63,6 +64,16 @@ html_comparer::html_comparer(const vector<unsigned int> & input1,
     p2 = new process(ost2.str());
 
     _diff.unalign_top();
+
+    for (unsigned int  i = 0; i < _input1.size(); ++i)
+    {
+        cerr << "input1[" << i << "]=" << _input1[i] << "\t" << "input2[" << i << "]=" << _input2[i] << "\t" << endl;
+    }
+    
+    for (unsigned int i = 0; i < _diff.size(); ++i ) 
+    {
+        cerr << "diff[" << i << "]" << _diff[i] << endl;
+    }
 }
 
 html_comparer::~html_comparer()
@@ -295,8 +306,22 @@ html_comparer::write(ostream & os) const
             // we want to print a line in the final version that
             // matches an earlier line in the later version.
             // ----------------------------------------
+            if(!(_input2[index0] == 0 || _input2[index0] >= index2)) 
+            {
+                cerr << index0 << " " << select0 << endl;
+                cerr << index1 << " " << select1 << endl;
+                cerr << index2 << " " << select2 << endl;
+            }
+            if(!(_input1[index0] == 0 || _input1[index0] >= index1))
+            {
+                cerr << index0 << " " << select0 << endl;
+                cerr << index1 << " " << select1 << endl;
+                cerr << index2 << " " << select2 << endl;
+
+            }
             assert(_input2[index0] == 0 || _input2[index0] >= index2);
             assert(_input1[index0] == 0 || _input1[index0] >= index1);
+            
             // ----------------------------------------
             // _input2[index0] gives the line # of later version
             // that matches line index0 of the latest version.
@@ -394,7 +419,7 @@ html_comparer::write(ostream & os) const
                     write_line(os,
                                select0, index0, false,
                                select1, index1, true,
-                               select2, index2, false,
+                               select2, index2, true,
                                diff_index);
                 }
             }
@@ -529,12 +554,12 @@ html_comparer::style(ostream & os) const
     os << "<STYLE TYPE-\"type/css\">" << endl;
     os << "BODY  {background-color:#EEEEEE;}" << endl;
     os << "TABLE {background-color:#FFFFFF;}" << endl;
-    os << "TD    {font-family:fixed;white-space:pre; nowrap:1; overflow:hidden}" << endl;
-    os << ".s {background-color:yellow;}" << endl;
+    os << "TD    {font-family:fixed;white-space:pre; overflow:hidden;}" << endl;
+    os << ".s {background-color:#3366CC; color:#FFFFFF;}" << endl;
     os << ".a {background-color:#CCCCFF;}" << endl;
     os << ".c {background-color:#99FF99;}" << endl;
     os << ".d {background-color:#FF9999;}" << endl;
-    os << ".n {background-color:#CCCCCC;}" << endl;
+    os << ".n {background-color:#EEEEEE;}" << endl;
     os << "</STYLE>" << endl;
     return os;
 }
