@@ -19,7 +19,7 @@ AndNotPostList::advance_to_next_match(weight w_min, PostList *ret)
 	    }
 	    lhead = l->get_docid();
 	}		
-	handle_prune(r, r->skip_to(lhead, w_min));
+	handle_prune(r, r->skip_to(lhead, 0));
 	if (r->at_end()) {
 	    ret = l;
 	    l = NULL;

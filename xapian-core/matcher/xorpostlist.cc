@@ -1,6 +1,9 @@
 #include "xorpostlist.h"
 #include "andnotpostlist.h"
 
+// for XOR we just pass w_min through unchanged since both branches matching
+// doesn't cause a match
+
 inline PostList *
 XorPostList::advance_to_next_match(weight w_min)
 {

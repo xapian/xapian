@@ -9,7 +9,7 @@ AndPostList::process_next_or_skip_to(weight w_min, PostList *ret)
 
     // r has just been advanced by next or skip_to so must be > head
     // (and head is the current position of l)
-    handle_prune(l, l->skip_to(r->get_docid(), w_min));
+    handle_prune(l, l->skip_to(r->get_docid(), w_min - rmax));
     if (l->at_end()) return;
 
     docid lhead = l->get_docid();
@@ -17,14 +17,15 @@ AndPostList::process_next_or_skip_to(weight w_min, PostList *ret)
 
     while (lhead != rhead) {
 	if (lhead < rhead) {
-	    handle_prune(l, l->skip_to(rhead, w_min));
+	    // FIXME: CSE these values?
+	    handle_prune(l, l->skip_to(rhead, w_min - rmax));
 	    if (l->at_end()) {
 		head = 0;
 		return;
 	    }
 	    lhead = l->get_docid();	    
 	} else {
-	    handle_prune(r, r->skip_to(lhead, w_min));
+	    handle_prune(r, r->skip_to(lhead, w_min - lmax));
 	    if (r->at_end()) {
 		head = 0;
 		return;
@@ -55,13 +56,13 @@ AndPostList::AndPostList(PostList *left, PostList *right, Match *root_,
 PostList *
 AndPostList::next(weight w_min)
 {
-    process_next_or_skip_to(w_min, r->next(w_min));
+    process_next_or_skip_to(w_min, r->next(w_min - lmax));
     return NULL;
 }
 
 PostList *
 AndPostList::skip_to(docid id, weight w_min)
 {
-    if (id > head) process_next_or_skip_to(w_min, r->skip_to(id, w_min));
+    if (id > head) process_next_or_skip_to(w_min, r->skip_to(id, w_min - lmax));
     return NULL;
 }

@@ -14,7 +14,7 @@ AndMaybePostList::process_next_or_skip_to(weight w_min, PostList *ret)
     lhead = l->get_docid();
     if (lhead <= rhead) return NULL;
     
-    handle_prune(r, r->skip_to(lhead, w_min));
+    handle_prune(r, r->skip_to(lhead, w_min - lmax));
     if (r->at_end()) {
 	PostList *ret = l;
 	l = NULL;
@@ -55,7 +55,7 @@ AndMaybePostList::next(weight w_min)
 	}
 	return ret;
     }
-    return process_next_or_skip_to(w_min, l->next(w_min));
+    return process_next_or_skip_to(w_min, l->next(w_min - rmax));
 }
 
 PostList *
@@ -87,5 +87,5 @@ AndMaybePostList::skip_to(docid id, weight w_min)
     // exit if we're already past the skip point (or at it)
     if (id <= lhead) return NULL;
 
-    return process_next_or_skip_to(w_min, l->skip_to(id, w_min));
+    return process_next_or_skip_to(w_min, l->skip_to(id, w_min - rmax));
 }
