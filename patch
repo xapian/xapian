@@ -1,0 +1,354 @@
+diff -u -N python/docs/examples.orig/Makefile.am python/docs/examples/Makefile.am
+--- python/docs/examples.orig/Makefile.am	Tue Jun 29 15:11:47 2004
++++ python/docs/examples/Makefile.am	Tue Jun 29 15:11:59 2004
+@@ -1,4 +1,4 @@
+ ## Process this file with automake to produce Makefile.in
+ 
+ docdatadir = $(datadir)/doc/@PACKAGE@/python/examples
+-docdata_DATA = simplesearch.py simpleindex.py simpleexpand.py simplematchdecider.py
++dist_docdata_DATA = simplesearch.py simpleindex.py simpleexpand.py simplematchdecider.py
+diff -u -N python/docs/examples.orig/simpleexpand.py python/docs/examples/simpleexpand.py
+--- python/docs/examples.orig/simpleexpand.py	Thu Jan  1 01:00:00 1970
++++ python/docs/examples/simpleexpand.py	Tue Jun 29 15:12:00 2004
+@@ -0,0 +1,97 @@
++#!/usr/bin/env python
++#
++# $Id$
++# Simple command-line query expand program
++#
++# ----START-LICENCE----
++# Copyright 2003 James Aylett
++#
++# This program is free software; you can redistribute it and/or
++# modify it under the terms of the GNU General Public License as
++# published by the Free Software Foundation; either version 2 of the
++# License, or (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program; if not, write to the Free Software
++# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
++# USA
++# -----END-LICENCE-----
++
++import sys
++import xapian
++
++MAX_PROB_TERM_LENGTH = 64
++
++if len(sys.argv) < 3:
++    print >> sys.stderr, "usage: %s <path to database> [<search terms>] [-- <relevant docids>]" % sys.argv[0]
++    sys.exit(1)
++
++try:
++    database = xapian.open(sys.argv[1])
++
++    enquire = xapian.Enquire(database)
++    stemmer = xapian.Stem("english")
++#    subqs = []
++    topquery = None
++    index = 2
++    while index < len(sys.argv):
++        term = sys.argv[index]
++        if term=='--':
++            # passed marker, move to relevant docids
++            index += 1
++            break
++        nextquery = xapian.Query(stemmer.stem_word(term.lower()))
++        if topquery==None:
++            topquery = nextquery
++        else:
++            topquery = xapian.Query(xapian.Query.OP_OR, topquery, nextquery)
++#        subqs.append(xapian.Query(term))
++        index += 1
++#    query = xapian.Query(xapian.Query.OP_OR, subqs)
++    query = topquery
++
++    # Prepare relevant document set (RSet)
++    reldocs = xapian.RSet()
++    if index<len(sys.argv):
++        for index in xrange(index,len(sys.argv)):
++            rdid = int(sys.argv[index])
++            if rdid!=0:
++                reldocs.add_document(rdid)
++
++    matches = xapian.MSet()
++    if query!=None:
++        print "Performing query `%s' against rset `%s'" % (query.get_description(),reldocs.get_description())
++
++        enquire.set_query(query)
++        matches = enquire.get_mset(0, 10, reldocs)
++
++        print "%i results found" % matches.get_matches_estimated()
++        for match in matches:
++            print "ID %i %i%% [%s]" % (match[xapian.MSET_DID], match[xapian.MSET_PERCENT], match[xapian.MSET_DOCUMENT].get_data())
++
++    # Put the top 5 (at most) docs into the rset if rset is empty
++    if reldocs.is_empty():
++        i = matches.begin()
++        for j in xrange(1, 5):
++            reldocs.add_document(i.get_docid())
++            i.next()
++            if i == matches.end():
++                break
++
++    # Get the suggested expand terms
++    eterms = enquire.get_eset(10, reldocs)
++    print "%i suggested additional terms" % eterms.size()
++    k = eterms.begin()
++    while k!=eterms.end():
++        print "Term `%s'\t (weight %i)" % (k.get_termname(), k.get_weight())
++        k.next()
++
++except:
++    # FIXME: exception message
++    print >> sys.stderr, "Exception"
++    raise
+diff -u -N python/docs/examples.orig/simpleindex.py python/docs/examples/simpleindex.py
+--- python/docs/examples.orig/simpleindex.py	Thu Jan  1 01:00:00 1970
++++ python/docs/examples/simpleindex.py	Tue Jun 29 15:12:00 2004
+@@ -0,0 +1,92 @@
++#!/usr/bin/env python
++#
++# $Id$
++# Index each paragraph in a textfile as a document
++#
++# ----START-LICENCE----
++# Copyright 2003 James Aylett
++#
++# This program is free software; you can redistribute it and/or
++# modify it under the terms of the GNU General Public License as
++# published by the Free Software Foundation; either version 2 of the
++# License, or (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program; if not, write to the Free Software
++# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
++# USA
++# -----END-LICENCE-----
++
++import sys
++import xapian
++import string
++
++MAX_PROB_TERM_LENGTH = 64
++
++def p_alnum(c):
++    return (c in string.ascii_letters or c in string.digits)
++
++def p_notalnum(c):
++    return not p_alnum(c)
++
++def p_notplusminus(c):
++    return c != '+' and c != '-'
++
++def find_p(string, start, predicate):
++    while start<len(string) and not predicate(string[start]):
++        start += 1
++    return start
++
++if len(sys.argv) != 2:
++    print >> sys.stderr, "usage: %s <path to database>" % sys.argv[0]
++    sys.exit(1)
++
++try:
++    database = xapian.open(sys.argv[1], xapian.DB_CREATE_OR_OPEN)
++
++    stemmer = xapian.Stem("english")
++    para = ''
++    try:
++        for line in sys.stdin:
++            line = string.rstrip(line)
++            if line=='':
++                if para!='':
++                    doc = xapian.Document()
++                    doc.set_data(para)
++                    pos = 0
++                    # At each point, find the next alnum character (i), then
++                    # find the first non-alnum character after that (j). Find
++                    # the first non-plusminus character after that (k), and if
++                    # k is non-alnum (or is off the end of the para), set j=k.
++                    # The term generation string is [i,j), so len = j-i
++                    i = 0
++                    j = 0
++                    while i<len(para):
++                        i = find_p(para, j, p_alnum)
++                        j = find_p(para, i, p_notalnum)
++                        k = find_p(para, j, p_notplusminus)
++                        if k==len(para) or not p_alnum(para[k]):
++                            j = k
++                        if (j-i) <= MAX_PROB_TERM_LENGTH and j>i:
++                            term = stemmer.stem_word(string.lower(para[i:j]))
++                            doc.add_posting(term, pos)
++                            pos += 1
++                        i = j
++                    database.add_document(doc)
++                    para = ''
++            else:
++                if para!='':
++                    para += ' '
++                para += line
++    except StopIteration:
++        pass
++
++except:
++    # FIXME: exception message
++    print >> sys.stderr, "Exception"
++    raise
+diff -u -N python/docs/examples.orig/simplematchdecider.py python/docs/examples/simplematchdecider.py
+--- python/docs/examples.orig/simplematchdecider.py	Thu Jan  1 01:00:00 1970
++++ python/docs/examples/simplematchdecider.py	Tue Jun 29 15:12:01 2004
+@@ -0,0 +1,78 @@
++#!/usr/bin/env python
++#
++# $Id$
++# Simple command-line match decider example
++#
++# ----START-LICENCE----
++# Copyright 2003 James Aylett
++#
++# This program is free software; you can redistribute it and/or
++# modify it under the terms of the GNU General Public License as
++# published by the Free Software Foundation; either version 2 of the
++# License, or (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program; if not, write to the Free Software
++# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
++# USA
++# -----END-LICENCE-----
++
++import sys
++import xapian
++
++MAX_PROB_TERM_LENGTH = 64
++
++if len(sys.argv) < 4:
++    print >> sys.stderr, "usage: %s <path to database> <avoid-term> <search terms>" % sys.argv[0]
++    sys.exit(1)
++
++class mymatcher(xapian.MatchDecider):
++    def __init__(self, avoidterm):
++        xapian.MatchDecider.__init__(self)
++        self.avoidterm = avoidterm
++        
++    def __call__(self, doc):
++#        print "Called on document '%s'" % doc.get_description()
++        ti = doc.termlist_begin()
++        while ti!=doc.termlist_end():
++#            print "Term '%s' (we are '%s')" % (ti.get_term(), self.avoidterm)
++            if ti.get_term()==self.avoidterm:
++                return 0
++            ti.next()
++        return 1
++
++try:
++    database = xapian.open(sys.argv[1])
++
++    enquire = xapian.Enquire(database)
++    stemmer = xapian.Stem("english")
++#    subqs = []
++    topquery = None
++    for term in sys.argv[3:]:
++        nextquery = xapian.Query(stemmer.stem_word(term.lower()))
++        if topquery==None:
++            topquery = nextquery
++        else:
++            topquery = xapian.Query(xapian.Query.OP_OR, topquery, nextquery)
++#        subqs.append(xapian.Query(term))
++#    query = xapian.Query(xapian.Query.OP_OR, subqs)
++    query = topquery
++    print "Performing query `%s'" % query.get_description()
++
++    enquire.set_query(query)
++    matcher = mymatcher(sys.argv[2])
++    matches = enquire.get_mset(0, 10, None, matcher)
++
++    print "%i results found" % matches.get_matches_estimated()
++    for match in matches:
++        print "ID %i %i%% [%s]" % (match[xapian.MSET_DID], match[xapian.MSET_PERCENT], match[xapian.MSET_DOCUMENT].get_data())
++
++except:
++    # FIXME: exception message
++    print >> sys.stderr, "Exception"
++    raise
+diff -u -N python/docs/examples.orig/simplesearch.py python/docs/examples/simplesearch.py
+--- python/docs/examples.orig/simplesearch.py	Thu Jan  1 01:00:00 1970
++++ python/docs/examples/simplesearch.py	Tue Jun 29 15:12:02 2004
+@@ -0,0 +1,62 @@
++#!/usr/bin/env python
++#
++# $Id$
++# Simple command-line search program
++#
++# ----START-LICENCE----
++# Copyright 2003 James Aylett
++#
++# This program is free software; you can redistribute it and/or
++# modify it under the terms of the GNU General Public License as
++# published by the Free Software Foundation; either version 2 of the
++# License, or (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program; if not, write to the Free Software
++# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
++# USA
++# -----END-LICENCE-----
++
++import sys
++import xapian
++
++MAX_PROB_TERM_LENGTH = 64
++
++if len(sys.argv) < 3:
++    print >> sys.stderr, "usage: %s <path to database> <search terms>" % sys.argv[0]
++    sys.exit(1)
++
++try:
++    database = xapian.open(sys.argv[1])
++
++    enquire = xapian.Enquire(database)
++    stemmer = xapian.Stem("english")
++#    subqs = []
++    topquery = None
++    for term in sys.argv[2:]:
++        nextquery = xapian.Query(stemmer.stem_word(term.lower()))
++        if topquery==None:
++            topquery = nextquery
++        else:
++            topquery = xapian.Query(xapian.Query.OP_OR, topquery, nextquery)
++#        subqs.append(xapian.Query(term))
++#    query = xapian.Query(xapian.Query.OP_OR, subqs)
++    query = topquery
++    print "Performing query `%s'" % query.get_description()
++
++    enquire.set_query(query)
++    matches = enquire.get_mset(0, 10)
++
++    print "%i results found" % matches.get_matches_estimated()
++    for match in matches:
++        print "ID %i %i%% [%s]" % (match[xapian.MSET_DID], match[xapian.MSET_PERCENT], match[xapian.MSET_DOCUMENT].get_data())
++
++except:
++    # FIXME: exception message
++    print >> sys.stderr, "Exception"
++    raise
