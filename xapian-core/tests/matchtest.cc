@@ -36,6 +36,12 @@ int main(int argc, char *argv[]) {
 		    } else {
 			printf("Failed to add boolean OR\n");
 		    }
+		} else if (term == "NOT") {
+		    if (match.add_bandnot()) {
+			printf("Added boolean ANDNOT\n");
+		    } else {
+			printf("Failed to add boolean ANDNOT\n");
+		    }
 		} else if (term == "AND") {
 		    if (match.add_band()) {
 			printf("Added boolean AND\n");

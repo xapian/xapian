@@ -2,6 +2,7 @@
 #include "mergedpostlist.h"
 #include "andpostlist.h"
 #include "orpostlist.h"
+#include "andnotpostlist.h"
 
 #include <algorithm>
 
@@ -68,6 +69,22 @@ Match::add_bor()
     return true;
 }
 
+bool
+Match::add_bandnot()
+{
+    if(bq.size() < 2) return false;
+    PostList *left, *right;
+
+    left = bq.top();
+    bq.pop();
+    right = bq.top();
+    bq.pop();
+    bq.push(new AndNotPostList(left, right));
+
+    return true;
+}
+
+
 class MSetItem {
     public:
         weight w;
@@ -91,6 +108,7 @@ Match::match(void)
     if (pq.empty()) return; // No terms in query
 
     if (bq.size() > 1) return; // Partially constructed boolean query
+
     if (bq.size() == 1) {
 	boolmerger = bq.top();
 	// bq.top() is a boolean query merged postlist
