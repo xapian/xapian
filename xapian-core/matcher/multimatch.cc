@@ -540,9 +540,6 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 				      OmMSetCmp>(items.begin(), items.end(),
 						 mcmp);
 			items.pop_back();
-			// Correct doc count by pretending we never considered
-			// the documents we are now removing...
-			docs_matched--;
 		    }
 	        }
 	    }
@@ -587,9 +584,6 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		std::pop_heap<std::vector<OmMSetItem>::iterator,
 			      OmMSetCmp>(items.begin(), items.end(), mcmp);
 		items.pop_back();
-		// Correct doc count by pretending we never considered
-		// the documents we are now removing...
-		docs_matched--;
 	    }
 	}
 	percent_scale *= 100.0;
@@ -602,12 +596,17 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	matches_lower_bound = matches_upper_bound = matches_estimated
 	    = items.size();
     } else if (percent_cutoff) {
-	// FIXME: improve match estimates
-	matches_estimated -= matches_lower_bound;
+	// another approach: om_doccount new_est = items.size() * (1 - percent_factor) / (1 - min_item.wt / greatest_wt);
+	om_doccount new_est = (1 - percent_factor) * matches_estimated;
+	matches_estimated = std::max(new_est, items.size());
+	// and another: items.size() + (1 - greatest_wt * percent_factor / min_item.wt) * (matches_estimated - items.size());
+	
+	// Very likely an underestimate, but we can't really do better without
+	// checking further matches...  Only possibility would be to track how
+	// many docs made the min weight test but didn't make the candidate set#
+	// since the last greatest_wt change, which we could use if the top
+	// documents matched all the prob terms.
 	matches_lower_bound = items.size();
-	// + <docs considered since last greatest_wt change>
-	matches_estimated += matches_lower_bound;
-	// base matches_estimated on percentage?
 	// matches_upper_bound can't be improved
     }
 

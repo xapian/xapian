@@ -1,3 +1,7 @@
+Mon Dec 17 16:44:31 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Improved matches_estimated when a percent_cutoff is in effect.
+
 Sun Dec 16 18:09:28 GMT 2001  Olly Betts <olly@survex.com>
 
 	* You can now register a match decider functor by name with an
