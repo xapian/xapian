@@ -29,6 +29,7 @@
 #include "ompostlistiterator.h"
 #include "omtermlistiterator.h"
 #include "ompositionlistiterator.h"
+#include "omalltermsiterator.h"
 
 class OmWritableDatabase;
 
@@ -160,6 +161,11 @@ class OmDatabase {
 
 	OmPositionListIterator positionlist_begin(om_docid did, const om_termname &tname) const;
 	OmPositionListIterator positionlist_end(om_docid did, const om_termname &tname) const;
+
+	/** Return iterators into a list of all terms in the database.
+	 */
+	OmAllTermsIterator allterms_begin() const;
+	OmAllTermsIterator allterms_end() const;
 
 	om_doccount get_doccount() const;
 	om_doclength get_avlength() const;

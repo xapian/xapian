@@ -25,6 +25,7 @@
 #include "omdebug.h"
 #include "inmemory_database.h"
 #include "inmemory_document.h"
+#include "inmemory_alltermslist.h"
 
 #include <string>
 #include <vector>
@@ -282,4 +283,14 @@ InMemoryDatabase::term_exists(const om_termname & tname) const
     }
     //DebugMsg("found" << endl);
     return true;
+}
+
+RefCntPtr<AllTermsList>
+InMemoryDatabase::open_allterms() const
+{
+    return new InMemoryAllTermsList(postlists.begin(),
+				    postlists.end(),
+				    &postlists,
+				    RefCntPtr<const InMemoryDatabase>(RefCntPtrToThis(),
+								      this));
 }

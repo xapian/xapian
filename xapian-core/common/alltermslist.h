@@ -1,0 +1,69 @@
+/* alltermslist.h
+ *
+ * ----START-LICENCE----
+ * Copyright 1999,2000 BrightStation PLC
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ * -----END-LICENCE-----
+ */
+
+#ifndef OM_HGUARD_ALLTERMSLIST_H
+#define OM_HGUARD_ALLTERMSLIST_H
+
+#include "om/omtypes.h"
+#include "om/omerror.h"
+#include "refcnt.h"
+
+/** Abstract base class for alltermslists. */
+class AllTermsList : public RefCntBase
+{
+    private:
+	/// Copying is not allowed.
+	AllTermsList(const AllTermsList &);
+
+	/// Assignment is not allowed.
+	void operator=(const AllTermsList &);
+    public:
+	/// Standard constructor for base class.
+	AllTermsList() {}
+
+	/// Standard destructor for base class.
+	virtual ~AllTermsList() { return; }
+
+	// Gets current termname
+	virtual const om_termname get_termname() const = 0;
+
+	// Get num of docs indexed by term
+	virtual om_doccount get_termfreq() const = 0;
+
+	// Get num of docs indexed by term
+	virtual om_termcount get_collection_freq() const = 0;
+
+	/** Skip to the given term.  Returns false if the term wasn't
+	 *  found.  In this case will be positioned on the term just
+	 *  after tname in the database.  This could be after the end!
+	 */
+	virtual bool skip_to(const om_termname &tname) = 0;
+
+	/** next() causes the AllTermsList to move to the next term in the list.
+	 */
+	virtual bool next() = 0;
+
+	// True if we're off the end of the list
+	virtual bool at_end() const = 0;
+};
+
+#endif /* OM_HGUARD_ALLTERMSLIST_H */

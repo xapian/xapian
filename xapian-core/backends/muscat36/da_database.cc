@@ -426,3 +426,9 @@ DADatabase::term_exists(const om_termname & tname) const
     if(term_lookup(tname).get() != 0) return true;
     return false;
 }
+
+RefCntPtr<AllTermsList>
+DADatabase::open_allterms() const
+{
+    throw OmUnimplementedError("open_allterms() not implemented yet");
+}

@@ -312,3 +312,9 @@ SleepycatDatabase::make_new_termlist(om_docid did,
 	mylist.add_item(myitem);
     }
 }
+
+RefCntPtr<AllTermsList>
+SleepycatDatabase::open_allterms() const
+{
+    throw OmUnimplementedError("open_allterms() not implemented yet");
+}

@@ -33,6 +33,8 @@
 #include "database.h"
 #include "om/omdatabase.h"
 
+class AllTermsList;
+
 /////////////////////////////
 // Internals of OmDatabase //
 /////////////////////////////
@@ -85,6 +87,8 @@ class OmDatabase::Internal {
 				     const OmDatabase &db) const;
 
 	LeafTermList *open_term_list(om_docid did, const OmDatabase &db) const;
+
+	RefCntPtr<AllTermsList> open_allterms(const OmDatabase &db) const;
 
 	Document *open_document(om_docid did) const;
 

@@ -438,3 +438,8 @@ DBDatabase::term_lookup(const om_termname & tname) const
     return the_term;
 }
 
+RefCntPtr<AllTermsList>
+DBDatabase::open_allterms() const
+{
+    throw OmUnimplementedError("open_allterms() not implemented yet");
+}

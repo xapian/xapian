@@ -30,6 +30,7 @@
 #include "refcnt.h"
 #include "omlocks.h"
 #include "emptypostlist.h"
+#include "alltermslist.h"
 
 class Document;
 class LeafPostList;
@@ -234,6 +235,16 @@ class Database : public RefCntBase {
 	 *                use.
 	 */
 	virtual LeafTermList * open_term_list(om_docid did) const = 0;
+
+	/** Open an allterms list.
+	 *
+	 *  This is a list of all the terms in the database
+	 *
+	 *  @return       A pointer to the newly created allterms list.
+	 *                This object must be deleted by the caller after
+	 *                use.
+	 */
+	virtual RefCntPtr<AllTermsList> open_allterms() const = 0;
 
 	/** Open a position list for the given term in the given document.
 	 *

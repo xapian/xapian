@@ -322,6 +322,11 @@ QuartzDatabase::do_reopen()
     tables->reopen();
 }
 
+RefCntPtr<AllTermsList>
+QuartzDatabase::open_allterms() const
+{
+    throw OmUnimplementedError("open_allterms() not implemented yet");
+}
 
 
 QuartzWritableDatabase::QuartzWritableDatabase(const OmSettings & settings)
@@ -676,3 +681,8 @@ QuartzWritableDatabase::do_reopen()
     /* Do nothing - we're the only writer, and so must be up to date. */
 }
 
+RefCntPtr<AllTermsList>
+QuartzWritableDatabase::open_allterms() const
+{
+    throw OmUnimplementedError("open_allterms() not implemented yet");
+}

@@ -16,7 +16,8 @@ noinst_HEADERS = \
  socketcommon.h positionlist.h tcpclient.h \
  tcpserver.h omerr_string.h omdebug.h omlinebuf.h omstringstream.h \
  inmemory_positionlist.h omenquireinternal.h emptypostlist.h \
- omdocumentinternal.h omdatabaseinterface.h autoptr.h
+ omdocumentinternal.h omdatabaseinterface.h autoptr.h \
+ alltermslist.h emptyalltermslist.h multialltermslist.h
 
 noinst_LTLIBRARIES = libcommon.la
 

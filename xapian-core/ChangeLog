@@ -1,3 +1,9 @@
+Fri Dec 15 18:54:10 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Implemented OmAllTermsIterator interface in API.  It works for
+	  inmemory - the rest haven't been implemented yet.  The test
+	  is commented out.
+
 Fri Dec 15 15:47:53 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Updated TODO.

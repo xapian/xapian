@@ -965,6 +965,42 @@ static bool test_spaceterms1()
 
     return true;
 }
+
+// test that iterating through all terms in a database works.
+static bool test_allterms1()
+{
+    OmDatabase db(get_database("apitest_allterms"));
+    OmAllTermsIterator ati = db.allterms_begin();
+    TEST(ati != db.allterms_end());
+    TEST(*ati == "one");
+    TEST(ati.get_termfreq() == 1);
+
+    OmAllTermsIterator ati2 = ati;
+
+    ati++;
+    TEST(ati != db.allterms_end());
+    TEST(*ati == "three");
+    TEST(ati.get_termfreq() == 3);
+
+    TEST(ati2 != db.allterms_end());
+    TEST(*ati2 == "one");
+    TEST(ati2.get_termfreq() == 1);
+
+    ++ati;
+    ++ati2;
+    TEST(ati != db.allterms_end());
+    TEST(*ati == "two");
+    TEST(ati.get_termfreq() == 2);
+
+    TEST(ati2 != db.allterms_end());
+    TEST(*ati2 == "three");
+    TEST(ati2.get_termfreq() == 3);
+
+    ati++;
+    TEST(ati == db.allterms_end());
+
+    return true;
+}
     
 // test that searching for a term with a special characters in it works
 static bool test_specialterms1()
@@ -1846,6 +1882,7 @@ test_desc db_tests[] = {
     {"termlist4",	   test_termlist4},
     {"puncterms1",	   test_puncterms1},
     {"spaceterms1",	   test_spaceterms1},
+//    {"allterms1",	   test_allterms1},
     {0, 0}
 };
 

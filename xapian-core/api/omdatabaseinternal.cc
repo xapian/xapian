@@ -24,6 +24,9 @@
 #include "utils.h"
 #include "omlocks.h"
 #include "omdatabaseinternal.h"
+#include "alltermslist.h"
+#include "emptyalltermslist.h"
+#include "multialltermslist.h"
 
 #include "../backends/multi/multi_postlist.h"
 #include "../backends/multi/multi_termlist.h"
@@ -141,4 +144,24 @@ OmDatabase::Internal::open_position_list(om_docid did,
 
     // FIXME: databases should return these positionlists as AutoPtrs
     return AutoPtr<PositionList>(databases[dbnumber]->open_position_list(realdid, tname));
+}
+
+RefCntPtr<AllTermsList>
+OmDatabase::Internal::open_allterms(const OmDatabase &db) const
+{
+    if (databases.size() == 0) {
+	return new EmptyAllTermsList();
+    } else {
+	std::vector<RefCntPtr<AllTermsList> > lists;
+
+	std::vector<RefCntPtr<Database> >::const_iterator i;
+	for (i=databases.begin(); i!=databases.end(); ++i) {
+	    lists.push_back((*i)->open_allterms());
+	}
+	if (lists.size() == 1) {
+	    return lists[0];
+	} else {
+	    return RefCntPtr<AllTermsList>(new MultiAllTermsList(lists));
+	}
+    }
 }

@@ -35,7 +35,7 @@
 #include "leafpostlist.h"
 #include "termlist.h"
 #include "database.h"
-
+#include "alltermslist.h"
 
 // FIXME - try and sort it out so that we don't need to include this.
 #include "daread.h"
@@ -323,6 +323,7 @@ class DADatabase : public Database {
 	Document * open_document(om_docid did) const;
 	AutoPtr<PositionList> open_position_list(om_docid did,
 					  const om_termname & tname) const;
+	RefCntPtr<AllTermsList> open_allterms() const;
 
 	//@{
 	/** DADatabase is a readonly database type, and thus this method is

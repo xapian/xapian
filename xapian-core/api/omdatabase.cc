@@ -29,6 +29,8 @@
 #include "omtermlistiteratorinternal.h"
 #include "om/ompositionlistiterator.h"
 #include "ompositionlistiteratorinternal.h"
+#include "om/omalltermsiterator.h"
+#include "omalltermsiteratorinternal.h"
 #include "om/omoutput.h"
 
 OmDatabase::OmDatabase()
@@ -155,6 +157,22 @@ OmDatabase::termlist_end(om_docid did) const
     DEBUGAPICALL(OmTermListIterator, "OmDatabase::termlist_end", did);
     if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
     RETURN(OmTermListIterator(NULL));
+}
+
+OmAllTermsIterator
+OmDatabase::allterms_begin() const
+{
+    DEBUGAPICALL(OmAllTermsIterator, "OmDatabase::allterms_begin", "");
+
+    RETURN(OmAllTermsIterator(new OmAllTermsIterator::Internal(internal->open_allterms(*this),
+							       *this)));
+}
+
+OmAllTermsIterator
+OmDatabase::allterms_end() const
+{
+    DEBUGAPICALL(OmAllTermsIterator, "OmDatabase::allterms_end", "");
+    RETURN(OmAllTermsIterator(NULL));
 }
 
 OmPositionListIterator
