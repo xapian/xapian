@@ -10,7 +10,7 @@ Match::add_pterm(const string& termname)
    
     PostListIterator *plist = new PostListIterator;
     plist->open(id);
-    DB.postlist.push_back(plist);
+    postlist.push_back(plist);
 }
 
 void
@@ -23,8 +23,8 @@ Match::match(void)
     while (more) {
         more = false;
        
-        list<PostListIterator*>::iterator i = DB.postlist.begin();
-        list<PostListIterator*>::iterator end = DB.postlist.end();
+        list<PostListIterator*>::iterator i = postlist.begin();
+        list<PostListIterator*>::iterator end = postlist.end();
         while (i != end) {
 	    PostListIterator *plist = *i;
             if (!plist->at_end()) {
@@ -33,11 +33,11 @@ Match::match(void)
 	        m[d]++;
                 plist->next();
 	    } else {
-	        // FIXME: i.erase();
+	        // i.erase();
 	    }
             i++;
 	}
-        more = DB.postlist.size() > 0;
+        more = postlist.size() > 0;
     }
 
     map<docid,weight>::iterator i = m.begin();

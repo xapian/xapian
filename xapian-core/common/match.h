@@ -5,7 +5,9 @@ typedef unsigned int weight;
 class Match {
     private:
         IRDatabase DB;
-        vector<PostListIterator> postlist;
+
+	list<PostListIterator*> postlist;
+	list<TermListIterator*> termlist;
 
     public:
         int add_pterm(const string&);
