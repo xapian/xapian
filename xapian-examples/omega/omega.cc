@@ -269,8 +269,7 @@ int main(int argc, char *argv[]) {
 
     /*** get database name ***/
     db_name = GetEntry("DB");
-    /* if no DB specified, use "ferret" if exe leafname matches "ferret*" */
-    if (db_name == NULL) db_name = "ferret";
+    if (db_name == NULL) db_name = "ompf";
 #ifdef META
     ssi = 0;
 #else
