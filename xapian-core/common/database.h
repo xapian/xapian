@@ -4,6 +4,11 @@
 #ifndef _database_h_
 #define _database_h_
 
+#include <map>
+#include <vector>
+#include "postlist.h"
+#include "termlist.h"
+
 #include <string>
 
 #include "omtypes.h"
