@@ -60,14 +60,14 @@ int main(int argc, char *argv[])
 
 static int main2(int argc, char *argv[])
 {
-    int n;
     string big_buf;
     docid list_size;
     bool more = false;
     int      is_old;
     docid topdoc = 0;
     char     *method;
-    char     *val;
+    multimap<string, string>::const_iterator val;
+    multimap<string, string>::const_iterator notfound = cgi_params.end();
     
     setvbuf(stdout, NULL, _IOLBF, 0);
       
@@ -96,33 +96,36 @@ static int main2(int argc, char *argv[])
         decode_get();
 
     list_size = 0;
-    if ((val = GetEntry ("MAXHITS")) != NULL) list_size = atol(val);
+    val = cgi_params.find("MAXHITS");
+    if (val != notfound) list_size = atol(val->second.c_str());
     if (list_size <= 10) {
 	list_size = 10;
     } else if (list_size >= 1000) {
 	list_size = 1000;
     }
 
-    if ((val = GetEntry("TOPDOC")) != NULL) topdoc = atol(val);
+    val = cgi_params.find("TOPDOC");
+    if (val != notfound) topdoc = atol(val->second.c_str());
 
     // Handle NEXT and PREVIOUS page
-    if ((val = GetEntry(">")) != NULL) {
-       topdoc += list_size;
-    } else if ((val = GetEntry("<")) != NULL) {
-       topdoc -= list_size;
-    } else if ((val = GetEntry("F")) != NULL) {
-       topdoc = atol(val);
+    if (cgi_params.find(">") != notfound) {
+	topdoc += list_size;
+    } else if (cgi_params.find("<") != notfound) {
+	topdoc -= list_size;
+    } else if ((val = cgi_params.find("F")) != notfound) {
+	topdoc = atol(val->second.c_str());
     }
 
     topdoc = (topdoc / list_size) * list_size;
     if (topdoc < 0) topdoc = 0;
     
-    /*** get database name ***/
-    val = GetEntry("DB");
-    if (val != NULL)
-	db_name = val;
-    else
+    // get database name
+    val = cgi_params.find("DB");
+    if (val != notfound) {
+	db_name = val->second;
+    } else {
 	db_name = default_db_name;
+    }
 #ifdef META
     ssi = false;
 #else
@@ -194,18 +197,20 @@ static int main2(int argc, char *argv[])
     
     if (!option["dec_sep"].empty()) dec_sep = option["dec_sep"][0];
     if (!option["thou_sep"].empty()) thou_sep = option["thou_sep"][0];
-   
-    if ((val = GetEntry("MATCHOP")) != NULL) {
-	if (strcmp(val, "AND") == 0 || strcmp(val, "and") == 0) op = AND;
-    } else if ((val = GetEntry("THRESHOLD")) != NULL) {
-	if (atoi(val) == 100) op = AND;
+
+    val = cgi_params.find("MATCHOP");
+    if (val != notfound) {
+	if (val->second == "AND" || val->second == "and") op = AND;
+    } else if ((val = cgi_params.find("THRESHOLD")) != notfound) {
+	if (atoi(val->second.c_str()) == 100) op = AND;
     }
 
     big_buf = "";
 
 #if 0 // FIXME def FERRET
-    if ((val = GetEntry("MORELIKE")) != NULL) {
-       int doc = atol(val);
+    val = cgi_params.find("MORELIKE");
+    if (val != notfound) {
+       int doc = atol(val->second.c_str());
        
        Give_Muscatf("rel %ld", doc);
        Ignore_Muscat();
@@ -225,8 +230,9 @@ static int main2(int argc, char *argv[])
        if (more) goto got_query_from_morelike;
     }
 
-    if ((val = GetEntry("IDSPISPOPD")) != NULL) {
-       int doc = atol(val);
+    val = cgi_params.find("IDSPISPOPD");
+    if (val != notfound) {
+       int doc = atol(val->second.c_str());
 
 	cout << "<b>Clunk<b> ... <i>god mode engaged!</i><hr>\n"
 	        "Raw record #" << doc << ":<br>\n";
@@ -396,55 +402,63 @@ static int main2(int argc, char *argv[])
     }
 #endif
       
-    /*** collect the prob fields ***/   
-    val = FirstEntry("P", &n);
-    while (val) {
-	if (*val) {
+    // collect the prob fields
+    typedef multimap<string, string>::const_iterator MCI;
+    pair<MCI, MCI> g = cgi_params.equal_range("P");
+    for (MCI i = g.first; i != g.second; i++) {
+	string v = i->second;
+	if (!v.empty()) {
 	    if (more) big_buf += ' ';
-	    big_buf += val;
+	    big_buf += v;
 	    more = true;
 	}
-	val = NextEntry("P", &n);
     }
 
-    /*** add expand terms ? **/
-    if (GetEntry("ADD") != NULL) {
-       val = FirstEntry("X", &n);
-       while (val) {
-	   if (more) big_buf += ' ';
-	   big_buf += val;
-	   more = true;
-	   val = NextEntry("X", &n);
-       }
+    // add expand/topterms terms if appropriate
+    if (cgi_params.find("ADD") != notfound) {
+	g = cgi_params.equal_range("X");
+	for (MCI i = g.first; i != g.second; i++) {
+	    string v = i->second;
+	    if (!v.empty()) {
+		if (more) big_buf += ' ';
+		big_buf += v;
+		more = true;
+	    }
+	}
     }
    
 #if 0 // FIXME def FERRET
-   got_query_from_morelike:
+    got_query_from_morelike:
 #endif
 
     /*** set Boolean ***/
-    val = FirstEntry("B", &n);
-    while (val != NULL) {
-       /* we'll definitely get empty B fields from "-ALL-" options */
-       if (isalnum(val[0])) add_bterm(val);
-       val = NextEntry("B", &n);
+    g = cgi_params.equal_range("B");
+    for (MCI i = g.first; i != g.second; i++) {
+	string v = i->second;
+        // we'll definitely get empty B fields from "-ALL-" options
+	if (!v.empty() && isalnum(v[0])) add_bterm(v);
     }
 
-    if ((val = GetEntry("FMT")) != NULL && *val) {
-       if (strlen(val) <= 10) {
-	  char *p = val;	  
-	  while (islower(*p)) p++;
-	  if (*p == '\0') {
-	     fmt = val;
-	     fmtfile = "t/fmt." + fmt;
-	  }
-       }       
+    val = cgi_params.find("FMT");
+    if (val != notfound) {
+	string v = val->second;
+	if (!v.empty()) {
+	    size_t i = v.find_first_not_of("abcdefghijklmnopqrstuvwxyz");
+	    if (i == string::npos) {
+		fmt = v;
+		fmtfile = "t/fmt." + fmt;
+	    }
+	}
     }
    
     /*** get old prob query (if any) ***/
-    val = GetEntry("OLDP");
-    is_old = set_probabilistic(big_buf, val?val:"");
-    if (!val) is_old = 1; /** not really, but it should work **/
+    val = cgi_params.find("OLDP");
+    if (val == notfound) {
+	set_probabilistic(big_buf, "");
+	is_old = 1; // not really, but it should work
+    } else {
+	is_old = set_probabilistic(big_buf, val->second);
+    }
 
     /* if query has changed, force first page of hits */
     if (is_old < 1) topdoc = 0;
@@ -452,33 +466,35 @@ static int main2(int argc, char *argv[])
     ticked.clear();
     if (is_old != 0) {
 	// set up the R-set
-	val = FirstEntry("R", &n);
-	while (val != NULL) {
-	    docid d = atoi(val);
-	    if (d) {
-		rset->add_document(d);
-		ticked[d] = true;
+	g = cgi_params.equal_range("R");
+	for (MCI i = g.first; i != g.second; i++) {
+	    string v = i->second;
+	    if (!v.empty()) {
+		docid d = atoi(v.c_str());
+		if (d) {
+		    rset->add_document(d);
+		    ticked[d] = true;
+		}
 	    }
-	    val = NextEntry("R", &n);
 	}
     }
 
     /*** process commands ***/
     long matches = do_match(topdoc, list_size);
-    if (GetEntry("X")) {
+    if (cgi_params.find("X") != notfound) {
 	make_log_entry("add", matches);
 #if 0 // def FERRET
-    } else if (GetEntry("MORELIKE")) {
+    } else if (cgi_params.find("MORELIKE") != notfound) {
 	make_log_entry("morelike", matches);
 #endif
-    } else if (big_buf[0]) {
+    } else if (!big_buf.empty()) {
 	make_log_entry("query", matches);
     }
     // Stick a newline on so we can add the line to the logfile with
     // one call to write (which should be atomic)
     big_buf += '\n';
     make_query_log_entry(big_buf);
-   
+
     return 0;
 }
 
