@@ -1,3 +1,8 @@
+Tue May 27 02:43:32 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/Makefile.am: Removed -I referencing testsuite
+	  directory.
+
 Tue May 27 02:39:43 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/,docs/tests.html,tests/: Moved quartztest and
