@@ -36,10 +36,9 @@ extern FILE *page_fopen(const string &page);
 extern string db_name;
 extern string fmt, fmtfile;
 
-extern IRDatabase *database;
-extern Match *matcher;
-extern vector<MSetItem> mset;
-extern RSet *rset;
+extern OMEnquire * enquire;
+extern OMMSet * mset;
+extern OMRSet * rset;
 
 extern map<string, string> option;
 
@@ -49,6 +48,7 @@ extern const string default_db_name;
 extern vector<int> dlist;
 #endif
 
+#if 0
 class ExpandDeciderFerret : public virtual ExpandDecider {
     public:
 	bool want_term(const termname& tname) const {
@@ -66,3 +66,4 @@ class ExpandDeciderFerret : public virtual ExpandDecider {
 	    return true;
 	}
 };
+#endif

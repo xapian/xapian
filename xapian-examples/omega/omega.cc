@@ -44,10 +44,9 @@ int n_dlist = 0;
 #include "cgiparam.h"
 #include "query.h"
 
-IRDatabase *database = NULL;
-Match *matcher;
-vector<MSetItem> mset;
-RSet *rset;
+OMEnquire * enquire;
+OMMSet * mset;
+OMRSet * rset;
 
 map<string, string> option;
 
@@ -194,58 +193,54 @@ static int main2(int argc, char *argv[])
 	vars_in.close();
     }
 
+    // Open enquire system
+    enquire = new OMEnquire();
+
     // read dlist
-    string dlist_file = db_dir + "/t/dlist";
-    std::ifstream dlist_in(dlist_file.c_str());
-    if (dlist_in) {
+    try {
+	string dlist_file = db_dir + "/t/dlist";
+	std::ifstream dlist_in(dlist_file.c_str());
+	if (dlist_in) {
 #ifdef DEBUG
-	cout << "Dlist file opened" << endl;
+	    cout << "Dlist file opened" << endl;
 #endif
-	DatabaseBuilderParams dbparams(OM_DBTYPE_MULTI);
-	string line;
-	while (!dlist_in.eof()) {
-	    getline(dlist_in, line);
-	    /* da recs /netapp/ferret-data/data-912508010/R terms /netapp/ferret-data/data-912508010/T */
-	    if (line.substr(0, 8) == "da recs ") {
-		string::size_type p = line.find("/data-");
-		if (p != string::npos) {
-		    int db_id = atoi(line.substr(p + 6).c_str());
-		    dlist.push_back(db_id);
-		    string::size_type p2 = line.find_first_not_of(" ", 7);
-		    string::size_type p3 = line.find(" ", p);
-		    string dbpath = line.substr(p2, p3 - 1 - p2);
+	    string line;
+	    while (!dlist_in.eof()) {
+		getline(dlist_in, line);
+		/* da recs /netapp/ferret-data/data-912508010/R terms /netapp/ferret-data/data-912508010/T */
+		if (line.substr(0, 8) == "da recs ") {
+		    string::size_type p = line.find("/data-");
+		    if (p != string::npos) {
+			int db_id = atoi(line.substr(p + 6).c_str());
+			dlist.push_back(db_id);
+			string::size_type p2 = line.find_first_not_of(" ", 7);
+			string::size_type p3 = line.find(" ", p);
+			string dbpath = line.substr(p2, p3 - 1 - p2);
 #ifdef DEBUG
-		    cout << "Dlist found: path `" << dbpath <<
-			    "', number " << db_id << endl;
+			cout << "Dlist found: path `" << dbpath <<
+			"', number " << db_id << endl;
 #endif
-		    DatabaseBuilderParams subparams(OM_DBTYPE_DA);
-		    subparams.paths.push_back(dbpath);
-		    dbparams.subdbs.push_back(subparams);
+			vector<string> args;
+			args.push_back(dbpath);
+			enquire->add_database("da_flimsy", args);
+		    }
 		}
 	    }
-	}
-	dlist_in.close();
-	try {
-	    database = DatabaseBuilder::create(dbparams);
-	} catch (OmError e) {
-	    cout << e.get_msg() << endl;
-	}
-    } else {
+	    dlist_in.close();
+	} else {
 #ifdef DEBUG
-	cout << "Opening DA database " << db_dir << endl;
+	    cout << "Opening DA database " << db_dir << endl;
 #endif
-	DatabaseBuilderParams dbparams(OM_DBTYPE_DA);
-	dbparams.paths.push_back(db_dir);
-	try {
-	    database = DatabaseBuilder::create(dbparams);
-	} catch (OmError e) {
-	    cout << e.get_msg() << endl;
+	    vector<string> args;
+	    args.push_back(db_dir);
+	    enquire->add_database("da_flimsy", args);
 	}
+    } catch (OmError e) {
+	cout << e.get_msg() << endl;
     }
    
-    matcher = new Match(database);
-    rset = new RSet(database);
-    matcher->set_rset(rset);
+    // Create rset to put relevant items in.
+    rset = new OMRSet();
        
     /* read thousands and decimal separators: e.g. 16<thou>729<dec>8037 */
     
@@ -254,27 +249,27 @@ static int main2(int argc, char *argv[])
 
     val = cgi_params.find("MATCHOP");
     if (val != notfound) {
-	if (val->second == "AND" || val->second == "and") op = MOP_AND;
+	if (val->second == "AND" || val->second == "and") op = OM_MOP_AND;
     } else if ((val = cgi_params.find("THRESHOLD")) != notfound) {
-	if (atoi(val->second.c_str()) == 100) op = MOP_AND;
+	if (atoi(val->second.c_str()) == 100) op = OM_MOP_AND;
     }
 
     big_buf = "";
 
     val = cgi_params.find("MORELIKE");
     if (val != notfound) {
-       int doc = atol(val->second.c_str());
+	int doc = atol(val->second.c_str());
        
-	Expand topterms(database);
+	OMESet topterms;
+	OMRSet tmprset;
 
-	RSet tmp(database);
-	tmp.add_document(doc);
+	tmprset.add_document(doc);
 	ExpandDeciderFerret decider;
-	topterms.expand(&tmp, &decider);
+	enquire->get_eset(topterms, tmprset, decider);
 
 	int c = 0;
-	vector<ESetItem>::const_iterator i;
-	for (i = topterms.eset.begin(); i != topterms.eset.end(); i++) {
+	vector<OMESetItem>::const_iterator i;
+	for (i = topterms.items.begin(); i != topterms.items.end(); i++) {
 	    string term = i->tname;
 	    if (term.empty()) continue;
 	    if (more) big_buf += ' ';

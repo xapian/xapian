@@ -35,7 +35,7 @@ extern void do_picker(char prefix, const char **opts);
 
 extern char dec_sep, thou_sep;
 
-extern matchop op;
+extern om_queryop op;
 
 extern string gif_dir;
 

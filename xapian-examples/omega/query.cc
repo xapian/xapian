@@ -205,8 +205,9 @@ run_query(doccount first, doccount maxhits)
     // FIXME: use the value of first as first parameter: don't bother sorting
     // first ``first'' items (but don't get given them either, so need to
     // alter code elsewhere to understand this)
-    matcher->match(0, first + maxhits, mset, msetcmp_reverse, &mtotal);
-    msize = mtotal;
+    enquire->set_rset(rset);
+    enquire->get_mset(mset, 0, first + maxhits); // FIXME - set msetcmp to reverse
+    msize = mset.mbound;
     cout << "Ran query: msize = " << msize << "; " << endl;
 }
 
