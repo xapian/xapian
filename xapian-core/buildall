@@ -1,8 +1,10 @@
 #!/bin/sh
-# cvscompile - run everything needed to configure and build the system from
+# buildall - run everything needed to configure and build the system from
 # a CVS checkout.
-# 
+#
+# ----START-LICENCE----
 # Copyright 1999 Dialog Corporation
+# -----END-LICENCE-----
 
 # Set this to be the name of your package
 PACKAGE="Muscat"
@@ -83,8 +85,8 @@ if [ "x$*" = "x--help" ] ; then
   display
   display "Options:"
   display "  --help            Display this message"
-  display "  --version         Display cvscompile version number (${VERSION})"
-  display "  --quiet           Don't report on progress of cvscompile"
+  display "  --version         Display ${PROGNAME} version number (${VERSION})"
+  display "  --quiet           Don't report on progress of ${PROGNAME}"
   display "  --no-make          Don't run make after configuring"
   display "  --                Mark end of options: all further arguments will be passed"
   display "                    to configure"
