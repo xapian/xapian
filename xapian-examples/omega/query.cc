@@ -715,7 +715,7 @@ eval(const string &fmt)
 			std::string::size_type i = 0;
 			while (++i < args.size() - 1)
 			    value = value + args[i] + item;
-			value += args[args.size() - 1];
+			value += args.back();
 			if (split2 == string::npos) break;
 			split = split2 + 1;
 		    }
