@@ -1,4 +1,4 @@
-// cvsmine.C
+// cvsmineindex.C
 //
 // (c) 2001 Amir Michail (amir@users.sourceforge.net)
 
@@ -153,7 +153,7 @@ int main(int argc, char *argv[]) {
   // get list of packages to process from file
 
   set<string> lib_symbols;
-  map<string, string > lib_symbol_tag;
+  map<string, set<string> > lib_symbol_parents;
 
   set<string> packages;
 
@@ -187,7 +187,7 @@ int main(int argc, char *argv[]) {
   }
   
   cerr << "...reading library tags" << endl;
-  readTags( TEMP "/tags", lib_symbols, lib_symbol_tag );
+  readTags( TEMP "/tags", lib_symbols, lib_symbol_parents );
 
   // might be easier to just maintain something like:  file:revision
   // that we way do not duplicate comments
@@ -242,15 +242,25 @@ int main(int argc, char *argv[]) {
       //      cerr << "Running ctags on " << package_path << endl;
       string fullpath = cvsdata +"/root0/src/" + package_path;
       string cmd = string("ctags ") + string(CTAGS_FLAGS) + " " + fullpath;
-      //cerr << "Invoking " << cmd << endl;
-      //      system(cmd.c_str());
-      //      cerr << "Done" << endl;
-
-
+      cerr << "Invoking " << cmd << endl;
+      system(cmd.c_str());
+      
       set<string> app_symbols;
-      map< string, string > app_symbol_tag;
+      map<string, set<string> > app_symbol_parents;
+      cerr << "... reading application tags" << endl;
+      readTags( TEMP "/tags", app_symbols, app_symbol_parents );
 
-      //      readTags( TEMP "/tags", app_symbols, app_symbol_tag );
+#if 0      
+      for( set<string>::iterator s = app_symbols.begin(); s != app_symbols.end(); s++ ) {
+	cerr << (*s) << endl;
+	set<string> parents = app_symbol_parents[*s];
+	for( set<string>::iterator p = parents.begin(); p != parents.end(); p++ ) {
+	  cerr << "... has parent " << (*p) << endl;
+	}
+      }
+#endif
+      
+
 
       // change / to _ in package
       for( int i = 0; i < package_path.length(); i++ ) {
@@ -322,7 +332,19 @@ int main(int argc, char *argv[]) {
 
 	      comment_symbols[ i->second].insert(*s);
 
-	    } 
+	    } else {
+	      // this symbol is not in the library, so let's see if its parents are;
+	      // if so, we add every such parent
+
+	      set<string> parents = app_symbol_parents[*s];
+	      for( set<string>::iterator p = parents.begin(); p != parents.end(); p++ ) {
+		if ( lib_symbols.find(*p) != lib_symbols.end() ) {
+		  //		  cerr << *s << " ... adding its parent " << *p << endl;
+		  comment_symbols[ i->second].insert(*p);
+		}
+	      }
+	    }	    
+
 	  }
 
 	}
@@ -414,14 +436,6 @@ int main(int argc, char *argv[]) {
 		     comment_symbols,
 		     comment_words );
 
-
-/***
-    writeOMDatabase2( cvsdata + "/root0/db/mining.om2", 
-		     comment_symbols,
-		     comment_symbols );
-**/
-  
-    
   } catch(OmError & error) {
     cerr << "OMSEE Exception: " << error.get_msg() << endl;
   } catch( DbException& e ) {
