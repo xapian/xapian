@@ -1,3 +1,7 @@
+Tue Nov 21 14:29:46 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Removed a rogue semi-colon introduced with the RTLD_DEFAULT fix.
+
 Tue Nov 21 14:16:21 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Made the Btree opening functions member functions (as before,

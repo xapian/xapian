@@ -42,7 +42,7 @@
 
 /* In some systems <dlfcn.h> doesn't define RTLD_DEFAULT */
 #ifndef RTLD_DEFAULT
-#define RTLD_DEFAULT (void *)0;
+#define RTLD_DEFAULT (void *)0
 #endif
 
 #include <stdlib.h>
