@@ -26,20 +26,21 @@
 #ifdef MUS_DEBUG_VERBOSE
 
 #include "omdebug.h"
+#include "utils.h"
 
 OmDebug om_debug;
 
-#include <fcntl.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <unistd.h>
 #include <string>
-#include <fstream>
+#include <iostream>
 
-#define OM_ENV_DEBUG_FILE  "OM_DEBUG_FILE"
-#define OM_ENV_DEBUG_TYPES "OM_DEBUG_TYPES"
+using namespace std;
 
-OmDebug::OmDebug() : initialised(false), fd(2)
+#define OM_ENV_DEBUG_LOG   "OM_DEBUG_LOG"
+#define OM_ENV_DEBUG_FLAGS "OM_DEBUG_FLAGS"
+
+OmDebug::OmDebug() : initialised(false), wanted_types(0), fd(2)
 {
     // Can't do much in this constructor, because on Solaris the contents get
     // wiped just before the start of main().
@@ -47,61 +48,40 @@ OmDebug::OmDebug() : initialised(false), fd(2)
 
 OmDebug::~OmDebug()
 {
-    display_message(OM_DEBUG_UNKNOWN,
-		    std::string("Om debugging version, closing down\n"));
+    display_message(OM_DEBUG_UNKNOWN, "Om debugging version, closing down\n");
     initialised = false;
-}
-
-void
-OmDebug::open_output()
-{
-    const char * filename = getenv(OM_ENV_DEBUG_FILE);
-    if (filename != 0) {
-	std::string s;
-	const char *p = strstr(filename, "%%");
-	if (p) {
-	    s = std::string(filename, p) + om_tostring(getpid()) + std::string(p + 2);
-	    filename = s.c_str();
-	}
-	    
-	fd = open(filename, O_CREAT | O_SYNC | O_APPEND);
-	
-	if (fd == -1) {
-	    fd = 2;
-	    fprintf(stderr, "Can't open requested debug file `%s' - using stderr.\n",
-		    filename);
-	    fflush(stderr);
-	}
-    }
-}
-
-void
-OmDebug::select_types()
-{
-    char * typestring = getenv(OM_ENV_DEBUG_TYPES);
-    if (typestring != 0) {
-	unsigned int types = atoi(typestring);
-	for (int i=0; i<OM_DEBUG_NUMTYPES; ++i) {
-	    if(types & 1) {
-		unwanted_types.push_back(false);
-	    } else {
-		unwanted_types.push_back(true);
-	    }
-	    types = types >> 1;
-	}
-    }
 }
 
 void
 OmDebug::initialise()
 {
     if (!initialised) {
+	initialised = true;
 	// We get this as soon as we can - possible race condition exists here
 	// if the initialise() method is not explicitly called.
-	select_types(); open_output(); initialised = true;
+	char * typestring = getenv(OM_ENV_DEBUG_FLAGS);
+	if (!typestring) typestring = getenv("OM_DEBUG_TYPES"); // Old name
+	if (typestring) wanted_types = atoi(typestring);
 
-	display_message(OM_DEBUG_UNKNOWN,
-			std::string("Om debugging version, initialised\n"));
+	const char * filename = getenv(OM_ENV_DEBUG_LOG);
+	if (!filename) filename = getenv("OM_DEBUG_FILE"); // Old name
+	if (filename) {
+	    string s = filename;
+	    string::size_type token = s.find("%%");
+	    if (token) {
+		s.replace(token, 2, om_tostring(getpid()));
+	    }
+
+	    fd = open(s, O_CREAT | O_SYNC | O_APPEND, 0644);
+
+	    if (fd == -1) {
+		fd = 2;
+		cerr << "Can't open requested debug log `" << s
+		    << "' - using stderr." << endl;
+	    }
+	}
+
+	display_message(OM_DEBUG_UNKNOWN, "Om debugging version, initialised\n");
     }
 }
 
@@ -109,23 +89,13 @@ bool
 OmDebug::want_type(enum om_debug_types type)
 {
     initialise();
-
-    if (unwanted_types.size() == 0) {
-	return false;
-    }
-    if (unwanted_types.size() > static_cast<unsigned int>(type) &&
-	unwanted_types[type] == false) {
-	return true;
-    }
-    return false;
+    return (wanted_types >> type) & 1;
 }
 
 void
-OmDebug::display_message(enum om_debug_types type, std::string msg)
+OmDebug::display_message(enum om_debug_types type, string msg)
 {
-    initialise();
     if (!want_type(type)) return;
-
     char buf[20];
     sprintf(buf, "{%d}", type);
     msg = buf + msg;

@@ -105,23 +105,15 @@ class OmDebug {
 	/// Assignment not allowed
 	void operator=(OmDebug &);
 
-	/** List of types unwanted.
-	 *
-	 *  If an item is present and has the value of true, messages of
-	 *  the corresponding type will be suppressed.  If an item is not
-	 *  present, or is false, messages of the corresponding type will
-	 *  be displayed.
-	 */
-	std::vector<bool> unwanted_types;
-
-	/// Open the output stream
-	void open_output();
-
-	/// Initialise the list of types wanted
-	void select_types();
-
 	/// Whether the object has been initialised
 	bool initialised;
+
+	/** Bitmap of types of log message to output.
+	 *
+	 *  If a bit is unset, messages of the corresponding type will be
+	 *  suppressed.
+	 */
+	unsigned int wanted_types;
 
 	/// file descriptor to send debug output to.
 	int fd;

@@ -1,3 +1,11 @@
+Fri Dec 06 23:01:08 GMT 2002  Olly Betts <olly@survex.com>
+
+	* common/omdebug.cc,common/omdebug.h: Fixed permissions on newly
+	  created log file (was getting 000!); Simplified class internals;
+	  Renamed env vars: OM_DEBUG_FILE is now XAPIAN_DEBUG_LOG,
+	  OM_DEBUG_TYPES is now XAPIAN_DEBUG_FLAGS (old versions still work
+	  for now).
+
 Fri Dec 06 22:58:57 GMT 2002  Olly Betts <olly@survex.com>
 
 	* testsuite/testsuite.cc: Fixed so running "gdb .libs/apitest"
