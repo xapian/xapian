@@ -60,6 +60,7 @@ AC_CHECK_FUNCS(strerror)
 dnl Check for sleepycat library.
 dnl FIXME - just assume that we don't have it, for now
 have_berkleydb=no
+have_berkleydb=yes
 
 dnl ***************************
 dnl * Select modules to build *
@@ -76,12 +77,12 @@ AC_ARG_ENABLE(backend_muscat36,
 esac],[build_muscat36=true])
 
 AC_ARG_ENABLE(backend_sleepy,
-[  --enable-backend-sleepy Enable the sleepycat database backend (default=yes)],
+[  --enable-backend-sleepy Enable the sleepycat database backend (default=no)],
 [case "${enableval}" in
   yes) build_sleepy=true ;;
   no)  build_sleepy=false ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-sleepy) ;;
-esac],[build_sleepy=true])
+esac],[build_sleepy=false])
 
 AC_ARG_ENABLE(backend_inmemory,
 [  --enable-backend-inmemory Enable the inmemory database backend (default=yes)],
