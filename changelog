@@ -1,3 +1,13 @@
+xapian-core (0.8.5-1) unstable; urgency=low
+
+  * New upstream release.
+  * xapian-config: --libs output fixed to not include libxapian.la
+  * quartzcompact: Added --no-full / -n option to disable full compaction,
+    fix largefile support, slight increase in compaction efficiency, slight
+    change in statistics reporting formatting.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed,  5 Jan 2005 11:42:51 +0000
+
 xapian-core (0.8.4-1) unstable; urgency=low
 
   * New upstream release.
