@@ -65,10 +65,10 @@ PERL = @PERL@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
 
-bin_SCRIPTS = cvsbuilddb cvsupdatedb cvsquerydb 	cvscompare.cgi cvsstat 	Match.cgi Query.cgi Queryfile.cgi Source.cgi         cvs_comment_extractor code_comment_extractor cvs2cl 	popup.js utility.js 	cvssearch.pm Entities.pm
+bin_SCRIPTS = cvsbuilddb cvsupdatedb cvsquerydb	    Compare.cgi 	Match.cgi Query.cgi Queryfile.cgi Source.cgi     cvs2cl 	popup.js utility.js 	Cvssearch.pm Entities.pm
 
 
-EXTRA_DIST = cvsbuild-script.pl cvsupdate-script.pl cvsquery-script.pl 	cvscompare-script.pl cvsstat-script.pl 	Match-script.pl Query-script.pl Queryfile-script.pl Source-script.pl         cvs_comment_extractor.pl code_comment_extractor.pl cvs2cl.pl 	popup.js utility.js         cvssearch.pm Entities.pm
+EXTRA_DIST = cvsbuild-script.pl cvsupdate-script.pl cvsquery-script.pl 	Compare-script.pl 	Match-script.pl Query-script.pl Queryfile-script.pl Source-script.pl     cvs2cl.pl 	popup.js utility.js 	Cvssearch.pm Entities.pm
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
@@ -208,37 +208,34 @@ cvs2cl: $(srcdir)/cvs2cl.pl
 	cat $(firstword $^) >> $@
 	chmod ugo+rx $@
 
-cvsstat: $(srcdir)/cvsstat-script.pl $(srcdir)/cvssearch.pm
+# ----------------------------------------
+# building databases
+# ----------------------------------------
+cvsbuilddb: $(srcdir)/cvsbuild-script.pl 
 	$(build-perl-script)
 
-cvsbuilddb: $(srcdir)/cvsbuild-script.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
+cvsupdatedb: $(srcdir)/cvsupdate-script.pl 
 	$(build-perl-script)
 
-cvsupdatedb: $(srcdir)/cvsupdate-script.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
+cvsquerydb: $(srcdir)/cvsquery-script.pl 
 	$(build-perl-script)
 
-cvsquerydb: $(srcdir)/cvsquery-script.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
+# ----------------------------------------
+# cgi-scripts
+# ----------------------------------------
+Compare.cgi: $(srcdir)/Compare-script.pl 
 	$(build-perl-script)
 
-cvscompare.cgi: $(srcdir)/cvscompare-script.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
+Match.cgi:$(srcdir)/Match-script.pl 
 	$(build-perl-script)
 
-Match.cgi:$(srcdir)/Match-script.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
+Query.cgi:$(srcdir)/Query-script.pl 
 	$(build-perl-script)
 
-Query.cgi:$(srcdir)/Query-script.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
+Queryfile.cgi:$(srcdir)/Queryfile-script.pl 
 	$(build-perl-script)
 
-Queryfile.cgi:$(srcdir)/Queryfile-script.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
-	$(build-perl-script)
-
-Source.cgi:$(srcdir)/Source-script.pl $(srcdir)/Entities.pm $(srcdir)/cvssearch.pm
-	$(build-perl-script)
-
-cvs_comment_extractor: $(srcdir)/cvs_comment_extractor.pl
-	$(build-perl-script)
-
-code_comment_extractor: $(srcdir)/code_comment_extractor.pl
+Source.cgi:$(srcdir)/Source-script.pl 
 	$(build-perl-script)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

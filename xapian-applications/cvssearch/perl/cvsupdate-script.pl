@@ -17,9 +17,9 @@
 # Date: Feb 17 2001
 #------------------------------------------------------------------------
 
-use cvssearch;
+use Cvssearch;
 
-$cvsdata = &cvssearch::get_cvsdata(); # path where database content file is stored
+$cvsdata = Cvssearch::get_cvsdata(); # path where database content file is stored
 $filename = "dbcontent"; # file containing database built
 $root = shift @ARGV;
 
@@ -32,7 +32,10 @@ if($cvsdata){
 
 if(-d "$cvsdata/$root") {
     if($ARGV[0] eq "-r"){ # remove database
-        @files = `cat $path`;
+        my @files;
+        if (-e $path) {
+            @files = `cat $path`;
+        }
         open FILE, ">$path";
         foreach (@files){
             if("$ARGV[1]\n" ne $_){
@@ -43,15 +46,24 @@ if(-d "$cvsdata/$root") {
         }
         close FILE;
     }elsif($ARGV[0] eq "-f"){ # find database
-        @bestmatches = `grep $ARGV[1]\$ $path`; # match filepath from the end
+        my @bestmatches;
+
+        if (-e $path) {
+            @bestmatches = `grep $ARGV[1]\$ $path`; # match filepath from the end
+        }
+
         if(@bestmatches){
             print @bestmatches;
         }else{ #find everything below it
             if ($ARGV[1] eq "."){#whole repository
-                @all = `cat path`;
-                print @all;	
+                if (-e $path) {
+                    @all = `cat path`;
+                    print @all;	
+                }
             }else{
-                @secmatches = `grep $ARGV[1] $path`;
+                if (-e $path) {
+                    @secmatches = `grep $ARGV[1] $path`;
+                }
                 print @secmatches;
             }
         }

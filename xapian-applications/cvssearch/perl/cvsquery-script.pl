@@ -1,19 +1,17 @@
-# -* perl *-
-
 use strict;
-use cvssearch;
+use Cvssearch;
 
 my $cvsquery = "./cvsquery";
-my $cvsdata = &cvssearch::get_cvsdata();
+my $cvsdata = Cvssearch::get_cvsdata();
 my $cvsroot_dir;
 
 # ------------------------------------------------------------
 # path where all our files are stored.
 # if $cvsdata is not set, use current directory instead.
 # ------------------------------------------------------------
-if($cvsdata) {
-}else{
-    print STDERR "WARNING: \$CVSDATA not set!\n";
+if($cvsdata eq "") {
+    print STDERR "WARNING: \$CVSDATA not set and \n";
+    print STDERR "cvssearch.conf is not created. !\n";
     exit(1);
 }
 
@@ -36,7 +34,7 @@ sub usage()
 {
 print << "EOF";
 cvsquery-script 0.1 (2001-2-26)
-Usage: cvsquery-script root package [Options] [Options] ...
+Usage: cvsquerydb root package [Options] [Options] ...
 
 Options:
   -h                     print out this message

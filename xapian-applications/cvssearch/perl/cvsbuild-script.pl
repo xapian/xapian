@@ -1,5 +1,5 @@
 use strict;
-use cvssearch;
+use Cvssearch;
 
 # ------------------------------------------------------------
 # check for existence of programs used in this script
@@ -32,19 +32,40 @@ if (not (-x $cvsmap)) {
 
 my $mask = umask "0002";
 my $comp_mode = 0;
-my $cvsdata = &cvssearch::get_cvsdata();
-my $cvsroot = &cvssearch::strip_last_slash($ENV{"CVSROOT"});
+my $cvsdata = Cvssearch::get_cvsdata();
+my $cvsroot = $ENV{"CVSROOT"};
 
 my @file_types= qw(cc h cpp c C java);
 my $file_types_string;
 my @modules;
 
+$cvsroot = Cvssearch::strip_last_slash($cvsroot);
+
+# ------------------------------------------------------------
+# tried to get $CVSDATA and failed
+# warn user about it and exit
+# ------------------------------------------------------------
+if ($cvsdata eq "") {
+    print STDERR "Warning: an environment variable \$CVSDATA\n";
+    print STDERR "is not set, nor can the value be read from\n";
+    print STDERR "a configuration file.\n";
+    print STDERR "please export the environment variable\n";
+    print STDERR "\$CVSDATA and try again\n";
+    exit(1);
+}
+
+# ------------------------------------------------------------
+# check if user indeed wants to do something
+# ------------------------------------------------------------
+if ($#ARGV < 0) {
+    usage();
+}
 
 # ------------------------------------------------------------
 # path where all our files are stored.
+# if not there, create it.
 # ------------------------------------------------------------
-if($cvsdata eq "") {
-} elsif (not (-d $cvsdata)) {
+if(($cvsdata ne "") && (not (-d $cvsdata))) {
     # ----------------------------------------
     # cause the umask is set to 002
     # the directory should be publically readable
@@ -53,20 +74,17 @@ if($cvsdata eq "") {
     mkdir ("$cvsdata",0777) || die " cannot mkdir $cvsdata: $!";
 }
 
-if ($#ARGV < 0) {
-    usage();
-}
-
-my $i = 0;
-
-if (-d $cvsdata) {
-} else {
-   mkdir ("$cvsdata",0777) || die " cannot mkdir $cvsdata.db: $!";
-}
+# ----------------------------------------
+# dump the $CVSDATA variable to a file
+# ----------------------------------------
+open (CVSSEARCHCONF, ">cvssearch.conf") || die "cannot create cvssearch.conf file: $!";
+print CVSSEARCHCONF "CVSDATA $cvsdata\n";
+close CVSSEARCHCONF;
 
 # ----------------------------------------
 # parse command line arguments
 # ----------------------------------------
+my $i;
 while ($i<=$#ARGV) {
     if (0) {
     } elsif ($ARGV[$i] eq "-d") {
@@ -75,7 +93,7 @@ while ($i<=$#ARGV) {
         # the repository
         # ----------------------------------------
         $i++;
-        $cvsroot = &cvssearch::strip_last_slash($ARGV[$i]);
+        $cvsroot = &Cvssearch::strip_last_slash($ARGV[$i]);
         $i++;
     } elsif ($ARGV[$i] eq "-t") {
         # ----------------------------------------
@@ -133,7 +151,7 @@ cvsbuild();
 sub cvsbuild {
     my $list_file="$cvsdata/.list";
 
-    my $root =&cvssearch::read_root_dir($cvsroot, $cvsdata);
+    my $root =&Cvssearch::read_root_dir($cvsroot, $cvsdata);
     
     # ----------------------------------------
     # clear temp files
@@ -149,7 +167,7 @@ sub cvsbuild {
         # #app_name=kdebase_konqueror where all 
         # /=_.
         # ----------------------------------------
-        my $app_path = &cvssearch::strip_last_slash ($_);
+        my $app_path = &Cvssearch::strip_last_slash ($_);
         my $app_name = $app_path; 
        
         $app_name =~tr/\//\_/;
@@ -264,14 +282,12 @@ sub cvsbuild {
 
                     my $pwd = `pwd`;
                     chomp $pwd;
-                    my ($entries, $authors, $cvs_words) = &cvssearch::get_cvs_stat($pwd, "$cvsdata/$root/src", $app_path);
+                    my ($entries, $authors, $cvs_words) = &Cvssearch::cvs_stat ($pwd, "$cvsdata/$root/src", $app_path);
                     
-                    open(LIST, "<$list_file") || die "cannot create temporary file list\n";
+                    open(LIST, "<$list_file") || die "cannot read from  $list_file: $!\n";
                     while (<LIST>) {
                           chomp;
-                          my $output = `./code_comment_extractor $_|wc -c`;
-	                  chomp($output);
-                          $code_words += (0 + $output);
+                          $code_words += Cvssearch::code_comment_counter ($_);
                     }
                     close(LIST);
 
