@@ -2,18 +2,72 @@
 
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
+HTMLFILES = index.html intro.html intro_ir.html userman.html \
+        stemming.html porterstem.html using_stemmers.html
+
+# Files which should be put in the distribution by automake
+EXTRA_DIST = mkdoc.pl.in $(HTMLFILES) \
+        MatcherDesign Notes stemming.txt
+
+# Things to do if have perl installed
 if HAVE_PERL
-
 CREATED_DOCUMENTS1=code_structure.html
-
 endif
 
+# Things to do if have doc++ installed
 if HAVE_DOCPP
-
-CREATED_DOCUMENTS2=apidoc/index.html # sourcedoc/index.html
-
 all-local: apidoc/index.html sourcedoc/index.html
+dist-hook: apidoc/index.html apidoc-dist
+install-data-local: apidoc/index.html apidoc-install
+else
+all-local:
+dist-hook: apidoc-dist
+install-data-local: apidoc-install
+endif
 
+# Data to install, in the usual automake way
+docdatadir   = $(datadir)/omuscat
+docdata_DATA = $(CREATED_DOCUMENTS1) $(HTMLFILES)
+
+#########################################
+# How to put apidoc in the distribution #
+#########################################
+apidoc-dist:
+	@if [ -r apidoc/index.html ] ; then \
+	  echo "Adding API documentation to distribution" ; \
+	  $(mkinstalldirs) $(distdir)/apidoc ; \
+	  cp apidoc/* $(distdir)/apidoc/ ; \
+	else \
+	  if [ -r $(srcdir)/apidoc/index.html ] ; then \
+	    echo "Adding API documentation to distribution" ; \
+	    $(mkinstalldirs) $(distdir)/apidoc ; \
+	    cp $(srcdir)/apidoc/* $(distdir)/apidoc/ ; \
+	  else \
+	    echo "Skipping API documentation from distribution: can't build" ; \
+	  fi \
+	fi
+
+#########################
+# How to install apidoc #
+#########################
+apidoc-install:
+	@if [ -r apidoc/index.html ] ; then \
+	  echo "Installing API documentation" ; \
+	  $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc ; \
+	  $(INSTALL_DATA) apidoc/* $(DESTDIR)$(docdatadir)/apidoc/ ; \
+	else \
+	  if [ -r $(srcdir)/apidoc/index.html ] ; then \
+	    echo "Installing API documentation" ; \
+	    $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc ; \
+	    $(INSTALL_DATA) $(srcdir)/apidoc/* $(DESTDIR)$(docdatadir)/apidoc/ ; \
+	  else \
+	    echo "NOT installing API documentation: not present, and can't generate" ; \
+	  fi \
+	fi
+
+###############################
+# How to clean up local files #
+###############################
 clean-local:
 	@if [ -d apidoc ]; then \
 	  echo "removing apidoc/"; $(RM) apidoc/* ; rmdir apidoc ; \
@@ -22,45 +76,14 @@ clean-local:
 	  echo "removing sourcedoc/"; $(RM) sourcedoc/* ; rmdir sourcedoc ; \
 	fi
 
-
-dist-local: apidoc/index.html
-	@echo "Adding API documentation to distribution"
-	@mkdir $(distdir)/apidoc
-	@if [ -r apidoc/index.html ] ; then \
-	  cp apidoc/* $(distdir)/apidoc/ ;\
-	else \
-	  cp $(srcdir)/apidoc/* $(distdir)/apidoc/ ;\
-	fi
-
-install-data-local: apidoc/index.html
-	@echo "Installing API documentation"
-	@mkdir $(DESTDIR)$(datadir)/omuscat/apidoc
-	@if [ -r apidoc/index.html ] ; then \
-	  cp apidoc/* $(DESTDIR)$(datadir)/omuscat/apidoc/ ; \
-	else \
-	  cp $(srcdir)/apidoc/* $(DESTDIR)$(datadir)/omuscat/apidoc/ ; \
-	fi
-
+################################
+# How to uninstall local files #
+################################
 uninstall-local: 
-	@echo "Uninstalling API documentation ($(DESTDIR)$(datadir)/omuscat/apidoc)"
-	@if [ -d $(DESTDIR)$(datadir)/omuscat/apidoc ]; then \
-	  rm -rf $(DESTDIR)$(datadir)/omuscat/apidoc ; \
+	@echo "Uninstalling API documentation ($(DESTDIR)$(docdatadir)/apidoc)"
+	@if [ -d $(DESTDIR)$(docdatadir)/apidoc ]; then \
+	  rm -rf $(DESTDIR)$(docdatadir)/apidoc ; \
 	fi
-
-else
-all-local:
-clean-local:
-dist-local:
-install-data-local:
-uninstall-local: 
-
-endif
-
-docdatadir   = $(datadir)/omuscat
-docdata_DATA = $(CREATED_DOCUMENTS1)
-
-EXTRA_DIST = MatcherDesign Notes mkdoc.pl.in stemming.txt \
-hacking.html index.html intro.html intro_ir.html
 
 ###############
 # Extra rules #
