@@ -1,4 +1,9 @@
 <Directory>backends/sleepy</Directory>
 
 <Description>
+This backend is an experimenat to determine the feasibility of
+using the Berkley database library to store posting lists and
+termlists.  It is currently out of date, and is also not
+configured and built by default.  It should compile, but does
+nothing useful at present.
 </Description>
