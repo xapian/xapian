@@ -27,6 +27,9 @@
 #include "omtypes.h"
 #include "omerror.h"
 
+/* Settings/Options */
+#include "omsettings.h"
+
 /* Data access */
 #include "omdocument.h"
 #include "omdatabase.h"

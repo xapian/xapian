@@ -1,3 +1,8 @@
+Tue May 30 14:05:10 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* New class OmSettings for "global" options.  Not yet implemented
+	  or used.
+
 Fri May 26 11:58:24 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Hopefully better detection of Sleepy C++ bits.
