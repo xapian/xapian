@@ -381,6 +381,8 @@ bool test_sleepypack1()
     return success;
 }
 
+#endif
+
 bool
 test_omsettings1()
 {
@@ -473,4 +475,3 @@ test_omsettings3()
     return success;
 }
 
-#endif
