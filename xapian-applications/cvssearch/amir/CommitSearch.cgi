@@ -15,7 +15,7 @@ use Entities;
 #-------------------
 $CVSDATA = &Cvssearch::get_cvsdata(); # path where database content file is stored
 $cvsmine = "./cvscommitsearch";
-$num_query = "100"; # to get 100 matches
+$num_query = "10000"; # to get 100 matches
 $cvsquery = "./cvsquerydb";
 $own = "./CommitSearch.cgi"; # name of this script
 

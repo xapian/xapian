@@ -115,8 +115,8 @@ print <<_HTML_;
 <tr valign=bottom><td>
 <a href="http://cvssearch.sourceforge.net">
 <img border=0 src="Logo.cgi"></a>
-<br><a href="./Compare.cgi">[Browse Database Contents]</a>   
-&nbsp;<a href="./PatternBrowser.cgi">[Browse Classes & Functions]</a>
+<br><a href="./Compare.cgi">[Browse Files/Commits]</a>   
+&nbsp;<a href="./PatternBrowser.cgi">[Browse Library Class/Function Usage Patterns]</a>
 </td><td align=right>
 <form action=./Query.cgi>
 <b>Enter keyword(s) to search for: </b><input type=text size=45 name=query value="$query">
@@ -142,8 +142,8 @@ print <<_HTML_;
 </select><p>
 <b>Search for: </b><select name=searchmode>
 <option value=m>Commits</option>
-<option value=f>Files</option>
-<option value=c>Library Classes/Functions</option>
+<option value=c>Library Class/Function Usage</option>
+<option value=f>Files (slow for global searches)</option>
 </select>&nbsp;<input type=submit value="Search"></form>
 </td></tr></table>
 _HTML_
@@ -639,8 +639,7 @@ print <<_HTML_;
 <ul>
 <li>Use <tt class=orange>in:</tt> at the end of keywords to select package to search in. For example,
 <br><tt class=orange>menu in:kdebase/konqueror;kdepim/korganizer</tt>
-<br>searches for menu under kdebase/konqueror and kdepim/korganizer; default searches for keywords under all packages.  
-<br>It does not have to be full path, for example, you can use in:kword instead of in:koffice/kword, however you cannot use in:kwo.
+<br>searches for menu under kdebase/konqueror and kdepim/korganizer; default searches for keywords under all packages. <br>It does not have to be full path, for example, you can use <tt class=orange>in:kword</tt> instead of <tt class=orange>in:koffice/kword</tt>, however you cannot use <tt class=orange>in:kwo</tt>.
 <li>Keywords are not case-sensitive and stemmed. (e.g. searching for 'fishes' will match 'FISH', 'fishes', 'fishing'...)
 </ul>
 </body>
