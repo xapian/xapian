@@ -1,3 +1,8 @@
+Tue Apr 05 00:41:45 BST 2005  Olly Betts <olly@survex.com>
+
+	* debian/.cvsignore,.cvsignore: Remove .cvsignore files, as they're
+	  not used by SVN.
+
 Mon Mar 21 16:43:07 GMT 2005  Richard Boulton <richard@tartarus.org>
 
 	* templates/opensearch: Add new template to implement basic
