@@ -112,6 +112,9 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Medium  | Sleepycat       | Implement termlists, keys, and collection stats.
 ---------+-----------------+--------------------------------------------------
+ Medium  | API             | Test OmMSet::get_termfreq() and
+         |                 | OmMSet::get_termweight().
+---------+-----------------+--------------------------------------------------
  Medium  | MultiMatch      | Check that MultiMatch::get_max_weight()
          |                 | returns correct value in case where some of the
 	 |                 | query terms are not present in some of the sub
