@@ -48,6 +48,10 @@ forward_range_map_algorithm::parse_diff_entry(const cvs_log_entry & log_entry, c
         switch (diff_entry.type())
         {
         case e_add:
+            // ----------------------------------------
+            // end_itr -> first element that ends at or
+            // begin_range
+            // ----------------------------------------
             end_itr = _end_entries.lower_bound(&begin_range);
             ++_searches;
             while (end_itr!= _end_entries.end())
