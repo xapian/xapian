@@ -4,4 +4,4 @@ Makefile.in
 Makefile
 .deps
 .libs
-libnetdb.la
+libremote.la

@@ -33,7 +33,7 @@ endif
 
 if BUILD_BACKEND_REMOTE
 BUILDSUBDIR_REMOTE = net
-LIBADD_REMOTE = net/libnetdb.la
+LIBADD_REMOTE = net/libremote.la
 endif
 
 SUBDIRS = $(BUILDSUBDIR_MUSCAT36) \

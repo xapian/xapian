@@ -7,7 +7,7 @@ AUTOMAKE_OPTIONS = 1.6.3
 if BUILD_BACKEND_REMOTE
 BUILDSUBDIR_REMOTE1 = net
 BUILDSUBDIR_REMOTE2 = netprogs
-LIB_REMOTE1 = net/libnet.la
+LIBNET_LA = net/libnet.la
 endif
 
 # Order is relvant: when building, tests must be at end
@@ -45,7 +45,7 @@ libxapian_la_LIBADD = \
  matcher/libmatcher.la \
  languages/liblanguages.la \
  api/libapi.la \
- $(LIB_REMOTE1)
+ $(LIBNET_LA)
 
 xapian-config: xapian-config.nodep libxapian.la
 	@echo "Creating $@"

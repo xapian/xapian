@@ -5,9 +5,7 @@ Makefile
 .deps
 .libs
 .quartz
-libnet.la
 readquery.cc
-omnetclient
 nettest
 omprogsrv
 omtcpsrv
