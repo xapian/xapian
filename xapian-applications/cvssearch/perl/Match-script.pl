@@ -186,6 +186,27 @@ if(param()){
 				$flag *= -1;
 				foreach (@info){
 					if($toprev eq $_){
+#						$currev = $_;
+#						$color = $revMAPcolor{$currev};
+#						$ch = &toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
+#						print "<span style=\"background-color:$color\">";
+#						print "<a href=# \n";
+#						print "onclick=\"locking('$ch', event);return false;\"\n";
+#						print "onmouseover=\"return !showPopup('$ch', event);\"\n";
+#						print "onmouseout=\"hideCurrentPopup(); return false;\"\n";
+#						print ">";
+#						if($revMAPmatch{$currev}){
+#							print "<b>C</b>";
+#						}elsif($currev eq "grep"){
+#							print "<b>G</b>";
+#						}else{
+#							print "C";
+#						}
+#						print "</a></span>";
+#						$found = 1;
+
+						if($revMAPmatch{$currev}){
+
 						$currev = $_;
 						$color = $revMAPcolor{$currev};
 						$ch = &toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
@@ -195,15 +216,28 @@ if(param()){
 						print "onmouseover=\"return !showPopup('$ch', event);\"\n";
 						print "onmouseout=\"hideCurrentPopup(); return false;\"\n";
 						print ">";
-						if($revMAPmatch{$currev}){
-							print "<b>R</b>";
-						}elsif($currev eq "grep"){
-							print "<b>G</b>";
-						}else{
-							print "R";
-						}
+
+							print "<b>C</b>";
 						print "</a></span>";
 						$found = 1;
+
+						}elsif($currev eq "grep"){
+
+						$currev = $_;
+						$color = $revMAPcolor{$currev};
+						$ch = &toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
+						print "<span style=\"background-color:$color\">";
+						print "<a href=# \n";
+						print "onclick=\"locking('$ch', event);return false;\"\n";
+						print "onmouseover=\"return !showPopup('$ch', event);\"\n";
+						print "onmouseout=\"hideCurrentPopup(); return false;\"\n";
+						print ">";
+
+							print "<b>G</b>";
+						print "</a></span>";
+
+						$found = 1;
+						}
 					}
 					last if $toprev eq $currev;
 				}

@@ -291,7 +291,7 @@ if($query && ($query ne "")){
 	$tmpgrep = $grepquery;
 	@tmpgrep = split / /, $stemquery;
 	#$tmpgrep =~ s/\|/\\|/g;
-	$first = shift @tmpgrep;
+	#$first = shift @tmpgrep;
 	#print "<pre>";
 	#print $first;
 	#@grepmatches = `grep -I -i -n -H '$tmpgrep' $files | head -$num_matches`;
