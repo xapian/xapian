@@ -21,9 +21,16 @@
  * -----END-LICENCE-----
  */
 
+#include "config.h"
+
+#ifdef HAVE_SSTREAM
+#include <sstream>
+using std::istringstream;
+#else
+#include <strstream.h>
+#endif
 #include <string>
 #include <vector>
-#include <strstream.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -116,8 +123,11 @@ Stats
 string_to_stats(const std::string &s)
 {
     Stats stat;
-
+#ifdef HAVE_SSTREAM
+    istringstream is(s);
+#else
     istrstream is(s.data(), s.length());
+#endif
 
     is >> stat.collection_size;
     is >> stat.rset_size;
@@ -554,7 +564,11 @@ moptions_to_string(const OmSettings &moptions)
 OmSettings
 string_to_moptions(const std::string &s)
 {
+#ifdef HAVE_SSTREAM
+    istringstream is(s);
+#else
     istrstream is(s.data(), s.length());
+#endif
 
     OmSettings mopt;
     bool sort_forward;
@@ -705,7 +719,11 @@ string_to_ommsetitems(const std::string &s_)
 OmMSet
 string_to_ommset(const std::string &s)
 {
+#ifdef HAVE_SSTREAM
+    istringstream is(s);
+#else
     istrstream is(s.data(), s.length());
+#endif
 
     om_doccount firstitem;
     om_doccount matches_lower_bound;
@@ -763,7 +781,11 @@ std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight>
 string_to_ommset_termfreqwts(const std::string &s)
 {
     std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> result;
+#ifdef HAVE_SSTREAM
+    istringstream is(s);
+#else
     istrstream is(s.data(), s.length());
+#endif
 
     om_termname term;
     while (is >> term) {
@@ -798,7 +820,11 @@ string_to_omrset(const std::string &s)
     om_docid did;
     int numitems;
 
+#ifdef HAVE_SSTREAM
+    istringstream is(s);
+#else
     istrstream is(s.data(), s.length());
+#endif
 
     is >> numitems;
 

@@ -26,7 +26,7 @@
 #include <string>
 #include <typeinfo>
 #include <algorithm>
-#include <strstream.h>
+
 #include "getopt.h"
 
 #include "database.h"
@@ -117,8 +117,8 @@ int main(int argc, char *argv[]) {
     }
     
     if (port <= 0 || port >= 65536) {
-      cerr << "Error: must specify a valid port number (between 1 and 65535). We actually got " << (port)
-	     << endl;
+	cerr << "Error: must specify a valid port number (between 1 and 65535)."
+		" We actually got " << (port) << endl;
 	exit(1);
     }
     

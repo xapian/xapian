@@ -1,6 +1,13 @@
+Tue Apr 23 18:21:03 BST 2002  Olly Betts <olly@survex.com>
+
+	* Tried compiling with GCC 3.1 prerelease snapshot and fixed various
+	  STL-related warnings (mostly uses of istrstream).
+
+	* Fixed usage of AM_CFLAGS and AM_CXXFLAGS.
+
 Tue Apr 23 15:48:36 BST 2002  Olly Betts <olly@survex.com>
 
-	* Updated buildall (and had to tweak it again, sigh). 
+	* Updated buildall (and had to tweak it again, sigh).
 
 Tue Apr 23 14:21:01 BST 2002  Sam Liddicott <sam@ananova.com>
 

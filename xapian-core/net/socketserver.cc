@@ -35,11 +35,16 @@
 #include "omdebug.h"
 #include "autoptr.h"
 #include "../api/omdatabaseinternal.h"
-#include <strstream.h>
 #include <signal.h>
 #include <cerrno>
 #include <cstring>
 #include <unistd.h>
+#ifdef HAVE_SSTREAM
+#include <sstream>
+using std::istringstream;
+#else
+#include <strstream.h>
+#endif
 #ifdef TIMING_PATCH
 #include <sys/time.h>
 
@@ -289,7 +294,11 @@ SocketServer::run_match(const std::string &firstmessage)
     om_doccount maxitems;
     {
 	// extract first,maxitems
-	istrstream is(message.c_str());
+#ifdef HAVE_SSTREAM
+	istringstream is(message);
+#else
+	istrstream is(message.data(), message.length());
+#endif
 	is >> first >> maxitems;
     }
 

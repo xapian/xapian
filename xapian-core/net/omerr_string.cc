@@ -21,31 +21,43 @@
  * -----END-LICENCE-----
  */
 
+#include "config.h"
+
+#ifdef HAVE_SSTREAM
+#include <sstream>
+using std::istringstream;
+#else
+#include <strstream.h>
+#endif
 #include <typeinfo>
 #include <string>
+using std::string;
 #include <map>
-#include <strstream.h>
 #include "om/omerror.h"
 #include "omerr_string.h"
 #include "omdebug.h"
 #include "netutils.h"
 
-std::string omerror_to_string(const OmError &e)
+string omerror_to_string(const OmError &e)
 {
     return encode_tname(e.get_type()) + " " +
 	   encode_tname(e.get_context()) + " " +
 	   encode_tname(e.get_msg());
 }
 
-void string_to_omerror(const std::string &except,
-		       const std::string &prefix,
-		       const std::string &mycontext)
+void string_to_omerror(const string &except,
+		       const string &prefix,
+		       const string &mycontext)
 {
-    istrstream is(except.c_str());
+#ifdef HAVE_SSTREAM
+    istringstream is(except);
+#else
+    istrstream is(except.data(), except.length());
+#endif
 
-    std::string type;
-    std::string context;
-    std::string msg;
+    string type;
+    string context;
+    string msg;
 
     is >> type;
     if (type == "UNKNOWN") {

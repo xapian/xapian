@@ -22,13 +22,14 @@
  */
 
 #include <iostream>
+using std::cout;
+using std::cerr;
+using std::endl;
 #include <iomanip>
 #include <string>
 #include <typeinfo>
 #include "autoptr.h"
 #include <algorithm>
-#include <strstream.h>
-#include <iomanip.h>
 #include "database_builder.h"
 #include "om/omerror.h"
 #include "om/omenquire.h"

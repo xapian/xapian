@@ -21,13 +21,6 @@
  */
 
 #include "progserver.h"
-#include "database.h"
-#include "stats.h"
-#include "netutils.h"
-#include "socketcommon.h"
-#include "utils.h"
-#include <unistd.h>
-#include <strstream.h>
 
 /// The ProgServer constructor, taking two filedescriptors and a database.
 ProgServer::ProgServer(OmDatabase db_,

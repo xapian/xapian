@@ -20,11 +20,10 @@
  * -----END-LICENCE-----
  */
 
-#include "omparsequery.h"
-#include <strstream.h>
-
 #include <iostream>
 using std::cout;
+#include <string>
+using std::string;
 
 typedef struct {
     const char *query;
@@ -45,15 +44,13 @@ static test tests[] = {
 int
 main(void)
 {
-    std::string parsed;
     OmQueryParser qp;
     qp.set_stemming_options("english");
-    // Use ostrstream (because ostringstream often doesn't exist)
     test *p = tests;
     int succeed = 0, fail = 0;
     while (p->query) {
-	parsed = qp.parse_query(p->query).get_description();
-	std::string expect = std::string("OmQuery(") + p->expect + ')';
+	string parsed = qp.parse_query(p->query).get_description();
+	string expect = string("OmQuery(") + p->expect + ')';
 	if (parsed == expect) {
 	    succeed++;
 	} else {

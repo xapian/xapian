@@ -35,11 +35,20 @@
 #include <signal.h>
 #include <cstdio>
 #include <cerrno>
+#ifdef HAVE_SSTREAM
+#include <sstream>
+using std::istringstream;
+#else
 #include <strstream.h>
+#endif
+#include <string>
+using std::string;
+#include <vector>
+using std::vector;
 
 SocketClient::SocketClient(int socketfd_,
 			   int msecs_timeout_,
-			   std::string context_,
+			   string context_,
 			   bool close_socket_)
 	: socketfd(socketfd_),
 	  close_socket(close_socket_),
@@ -57,20 +66,24 @@ SocketClient::SocketClient(int socketfd_,
 	throw OmNetworkError("Couldn't install SIGPIPE handler", context, errno);
     }
 
-    std::string received = do_read();
+    string received = do_read();
 
     DEBUGLINE(UNKNOWN, "Read back " << received);
     if (received.substr(0, 3) != "OM ") {
 	throw OmNetworkError("Unknown start of conversation", context);
     }
 
+#ifdef HAVE_SSTREAM
+    istringstream is(received.c_str() + 3);
+#else
     istrstream is(received.c_str() + 3);
+#endif
 
     int version;
     is >> version >> doccount >> avlength;
 
     if (version != OM_SOCKET_PROTOCOL_VERSION) {
-	throw OmNetworkError(std::string("Invalid protocol version: found ") +
+	throw OmNetworkError(string("Invalid protocol version: found ") +
 			     om_tostring(version) + " expected " +
 			     om_tostring(OM_SOCKET_PROTOCOL_VERSION), context);
     }
@@ -80,8 +93,8 @@ void
 SocketClient::keep_alive()
 {
     get_requested_docs();  // avoid confusing the protocol
-    do_write(std::string("K"));
-    std::string message = do_read();
+    do_write(string("K"));
+    string message = do_read();
     // ignore message
 }
 
@@ -118,11 +131,15 @@ SocketClient::close_end_time()
 }
 
 NetClient::TermListItem
-string_to_tlistitem(const std::string &s)
+string_to_tlistitem(const string &s)
 {
-    istrstream is(s.c_str());
+#ifdef HAVE_SSTREAM
+    istringstream is(s);
+#else
+    istrstream is(s.data(), s.length());
+#endif
     NetClient::TermListItem item;
-    std::string tencoded;
+    string tencoded;
 
     is >> item.wdf >> item.termfreq >> tencoded;
     item.tname = decode_tname(tencoded);
@@ -132,16 +149,16 @@ string_to_tlistitem(const std::string &s)
 
 void
 SocketClient::get_tlist(om_docid did,
-			std::vector<NetClient::TermListItem> &items) {
+			vector<NetClient::TermListItem> &items) {
     /* avoid confusing the protocol if there are requested documents
      * being returned.
      */
     get_requested_docs();
-    do_write(std::string("T") + om_tostring(did));
+    do_write(string("T") + om_tostring(did));
 
     TimerSentry timersentry(this);
     while (1) {
-	std::string message = do_read();
+	string message = do_read();
 	if (message == "Z") break;
 	items.push_back(string_to_tlistitem(message));
     }
@@ -155,7 +172,7 @@ SocketClient::request_doc(om_docid did)
 	/* This document has been requested already - just count it again. */
 	(i->second)++;
     } else {
-	do_write(std::string("D") + om_tostring(did));
+	do_write(string("D") + om_tostring(did));
 	requested_docs.push_back(did);
 	request_count[did] = 1;
     }
@@ -173,16 +190,20 @@ SocketClient::get_requested_docs()
 	cached_doc &cdoc = collected_docs[cdid];
 
 	// FIXME check did is correct?
-	std::string message = do_read();
+	string message = do_read();
 	Assert(!message.empty() && message[0] == 'O');
 	cdoc.data = decode_tname(message.substr(1));
 
 	while (1) {
-	    std::string message = do_read();
+	    string message = do_read();
 	    if (message == "Z") break;
-	    istrstream is(message.c_str());
+#ifdef HAVE_SSTREAM
+	    istringstream is(message);
+#else
+	    istrstream is(message.data(), message.length());
+#endif
 	    om_keyno keyno;
-	    std::string omkey;
+	    string omkey;
 	    is >> keyno >> omkey;
 	    cdoc.keys[keyno] = string_to_omkey(omkey);
 	}
@@ -195,7 +216,7 @@ SocketClient::get_requested_docs()
 }
 
 void
-SocketClient::collect_doc(om_docid did, std::string &doc,
+SocketClient::collect_doc(om_docid did, string &doc,
 			  std::map<om_keyno, OmKey> &keys)
 {
     /* First check that the data isn't in our temporary cache */
@@ -250,7 +271,7 @@ SocketClient::collect_doc(om_docid did, std::string &doc,
 
 void
 SocketClient::get_doc(om_docid did,
-		      std::string &doc,
+		      string &doc,
 		      std::map<om_keyno, OmKey> &keys)
 {
     request_doc(did);
@@ -269,10 +290,10 @@ SocketClient::get_avlength()
     return avlength;
 }
 
-std::string
+string
 SocketClient::do_read()
 {
-    std::string retval;
+    string retval;
     if (end_time_set) {
 	retval = buf.readline(end_time);
     } else {
@@ -290,7 +311,7 @@ SocketClient::do_read()
 }
 
 void
-SocketClient::do_write(std::string data)
+SocketClient::do_write(string data)
 {
     DEBUGLINE(UNKNOWN, "do_write(): " << data.substr(0, data.find_last_of('\n')));
     if (end_time_set) {
@@ -302,12 +323,12 @@ SocketClient::do_write(std::string data)
 }
 
 void
-SocketClient::write_data(std::string msg)
+SocketClient::write_data(string msg)
 {
     do_write(msg);
 }
 
-std::string
+string
 SocketClient::read_data()
 {
     return do_read();
@@ -384,7 +405,7 @@ SocketClient::finish_query()
 	    }
 
 	    {
-		std::string response = do_read();
+		string response = do_read();
 		if (response[0] != 'L') {
 		    throw OmNetworkError("Error getting statistics", context);
 		}
@@ -473,7 +494,7 @@ SocketClient::get_mset(om_doccount first,
 
 	    // Message 6
 	    {
-		std::string response = do_read();
+		string response = do_read();
 		Assert(!response.empty() && response[0] == 'O');
 		mset = string_to_ommset(response.substr(1));
 	    }
@@ -516,7 +537,7 @@ SocketClient::get_posting(om_docid &did, om_weight &w, OmKey &key)
 	    }
 	
 	    DEBUGLINE(MATCH, "data is waiting");
-	    std::string message = do_read();
+	    string message = do_read();
 	    DEBUGLINE(MATCH, "read `" << message << "'");
 	    if (message == "Z") {
 		did = 0;
@@ -532,10 +553,14 @@ SocketClient::get_posting(om_docid &did, om_weight &w, OmKey &key)
 		omrset = OmRSet();
 	    } else {
 		did = atoi(message.c_str());
-		std::string::size_type i = message.find(';');
-		std::string::size_type j = message.find(' ');
+		string::size_type i = message.find(';');
+		string::size_type j = message.find(' ');
 		if (j != message.npos && (i == message.npos || j < i)) {
+#ifdef HAVE_SSTREAM
+		    istringstream is(message.substr(j + 1, i - j - 1));
+#else
 		    istrstream is(message.substr(j + 1, i - j - 1).c_str());
+#endif
 		    is >> w;
 		} else {
 		    w = 0;

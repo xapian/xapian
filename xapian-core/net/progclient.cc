@@ -26,15 +26,19 @@
 #include "utils.h"
 #include "netutils.h"
 
+#include <string>
+using std::string;
+#include <vector>
+using std::vector;
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
 #include <cstdio>
 #include <cerrno>
-#include <strstream.h>
 
-ProgClient::ProgClient(std::string progname, const std::string &args, int msecs_timeout_)
+ProgClient::ProgClient(string progname, const string &args, int msecs_timeout_)
 	: SocketClient(get_spawned_socket(progname, args),
 		       msecs_timeout_,
 		       get_progcontext(progname, args),
@@ -42,16 +46,16 @@ ProgClient::ProgClient(std::string progname, const std::string &args, int msecs_
 {
 }
 
-std::string
-ProgClient::get_progcontext(std::string progname,
-			    const std::string &args)
+string
+ProgClient::get_progcontext(string progname,
+			    const string &args)
 {
-    std::string result = "remote:prog(" + progname + " " + args;
+    string result = "remote:prog(" + progname + " " + args;
     return result;
 }
 
 int
-ProgClient::get_spawned_socket(std::string progname, const std::string &args)
+ProgClient::get_spawned_socket(string progname, const string &args)
 {
     /* socketpair() returns two sockets.  We keep sv[0] and give
      * sv[1] to the child process.
@@ -59,13 +63,13 @@ ProgClient::get_spawned_socket(std::string progname, const std::string &args)
     int sv[2];
 
     if (socketpair(PF_UNIX, SOCK_STREAM, 0, sv) < 0) {
-	throw OmNetworkError(std::string("socketpair:") + strerror(errno), get_progcontext(progname, args));
+	throw OmNetworkError(string("socketpair:") + strerror(errno), get_progcontext(progname, args));
     }
 
     pid = fork();
 
     if (pid < 0) {
-	throw OmNetworkError(std::string("fork:") + strerror(errno), get_progcontext(progname, args));
+	throw OmNetworkError(string("fork:") + strerror(errno), get_progcontext(progname, args));
     }
 
     if (pid == 0) {
@@ -86,7 +90,7 @@ ProgClient::get_spawned_socket(std::string progname, const std::string &args)
 	    close(i);
 	}
 
-	std::vector<std::string> argvec;
+	vector<string> argvec;
 	split_words(args, argvec);
 
 	// In theory, a potential memory leak here.
@@ -94,7 +98,7 @@ ProgClient::get_spawned_socket(std::string progname, const std::string &args)
 	const char **new_argv = new const char *[argvec.size() + 2];
 
 	new_argv[0] = progname.c_str();
-	for (std::vector<std::string>::size_type i=0;
+	for (vector<string>::size_type i=0;
 	     i<argvec.size();
 	     ++i) {
 	    new_argv[i+1] = argvec[i].c_str();
