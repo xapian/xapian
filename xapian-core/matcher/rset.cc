@@ -36,8 +36,8 @@ RSet::calculate_stats()
 	 doc != documents.end();
 	 doc++) {
 	DebugMsg("document " << doc->did << " [ ");
-	auto_ptr<TermList> tl;
-	tl = auto_ptr<TermList>(root->open_term_list(doc->did));
+	auto_ptr<TermList> tl =
+	    auto_ptr<TermList>(root->open_term_list(doc->did));
 	tl->next();
 	while(!(tl->at_end())) {
 	    // FIXME - can this lookup be done faster?
