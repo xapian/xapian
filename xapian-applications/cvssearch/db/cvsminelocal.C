@@ -52,7 +52,7 @@ Some queries to try:
 
 #warning "requires ctags from http://ctags.sourceforge.net/"
 #warning "should generate unique file for tags"
-#warning "ctags contains inheritance information"
+#warning "ctags contains inheritance information; this can help if (t,S) does not occur in class declaration say or where member variable is declared"
 
 // ctags options
 //  want classes
@@ -99,6 +99,7 @@ Some queries to try:
 
 
 #include <om/om.h>
+#include <db_cxx.h>
 #include <fstream.h>
 #include <stdio.h>
 #include <string>
@@ -239,7 +240,7 @@ int main(int argc, char *argv[]) {
 
 
 
-      map< pair<string, string>, int > rule_support;
+      map< pair<string, string>, set<string> > rule_support;
       
       { // pass 2
 	cerr << "PASS 2" << endl;
@@ -265,7 +266,7 @@ int main(int argc, char *argv[]) {
 
 		if ( symbol_count[*s] >= MIN_SUPP ) {
 
-		  rule_support[ make_pair( *t, *s ) ]++;
+		  rule_support[ make_pair( *t, *s ) ].insert( lines.getData() );
 
 		}
 	      }
@@ -279,13 +280,22 @@ int main(int argc, char *argv[]) {
       cerr << "*** lines read " << lines_read << endl;
 
 
+      // write results to two database files
+
+      Db dbclasses(0,0), dbfunctions(0,0);
+      
+      dbclasses.open( (cvsdata+"/"+package+".classes").c_str() , 0 , DB_HASH, DB_CREATE, 0);
+      dbfunctions.open( (cvsdata+"/"+package+".functions").c_str() , 0 , DB_HASH, DB_CREATE, 0);
+      
+
       /////// we have term_count, symbol_count, rule_support (term=>symbol)
 
       string prev_term = "";
-      map< double, set<string> > results;
+      string entryclasses;
+      string entryfunctions;
       // print out rules
-      for ( map< pair<string, string>, int >::iterator r = rule_support.begin(); r != rule_support.end(); r++ ) {
-	int supp = (r->second);
+      for ( map< pair<string, string>, set<string> >::iterator r = rule_support.begin(); r != rule_support.end(); r++ ) {
+	int supp = (r->second).size();
 	string ant = (r->first).first;
 	string con = (r->first).second;
 
@@ -319,7 +329,10 @@ int main(int argc, char *argv[]) {
 	  // What happens if you search multiple applications?  What rules
 	  // should we show?
 	  //
-	  // cvslocalpatterns < APPS.txt 10 10 query words 
+	  // cvslocalpatterns < APPS.txt 10 10 term 
+	  //
+	  // cvspatterns --local --classes < APPS.txt 10 term
+	  // cvspatterns --global --classes 10 term
 	  //
 	  // (max # classes, max # functions)
 	  //
@@ -343,20 +356,37 @@ int main(int argc, char *argv[]) {
 	  //              0.443 17:87 kdepim/korganizer:1.12 1.2
 	  //              0.453 18:87 kdepim/korganizer:1.13 1.4 1.1
 	  //
+	  // What database files do we need to generate all this?
+	  //
+	  // For app X, say we have:
+	  //   term -> 
+	  //       KMainWindow\n15:80 kdepim/korganizer:1.8 1.3 1.1\n0.454 16:80 kdepim/korganizer:1.8 1.3
+	  //  For each app, you store files:
+	  //
+	  //   
+	  // Basically, we just need two databases.  X.classes and X.functions
+	  //
 	  // 
-	  
 
 
-	  cerr << "RANKED ********* " << prev_term << endl;
-	  for( map<double, set<string> >::iterator i = results.begin(); i != results.end(); i++ ) {
-	    set<string> S = i->second;
-	    for ( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
-	      cerr << "RANKED " << *s << " product = " << -(i->first) << endl;
-	    }
+	  cerr << "*** ENTRY FOR " << prev_term << endl << entryclasses << entryfunctions << endl;
+
+	  if ( entryclasses != "" ) {
+	    Dbt key( (void*) prev_term.c_str(), prev_term.length()+1);
+	    Dbt data( (void*) entryclasses.c_str(), entryclasses.length()+1);
+	    dbclasses.put( 0, &key, &data, DB_NOOVERWRITE );	  
 	  }
+	  if ( entryfunctions != "" ) {
+	    Dbt key( (void*) prev_term.c_str(), prev_term.length()+1);
+	    Dbt data( (void*) entryfunctions.c_str(), entryfunctions.length()+1);
+	    dbfunctions.put( 0, &key, &data, DB_NOOVERWRITE );	  
+	  }
+	    
 	  prev_term = ant;
-	  results.clear();
+	  entryclasses = "";
+	  entryfunctions = "";
 	}
+
 
 	
 	if ( supp >= MIN_SUPP ) {
@@ -367,28 +397,65 @@ int main(int argc, char *argv[]) {
 
 	  double surprise = (conf / con_conf ) * (double)supp; // log(1.1+(double)supp);
 
+	  bool isFunction = ( con.find("()") != -1 );
+
+	  static char str[256];
+	  sprintf(str, "%f", surprise);
+	  
+	  if ( isFunction ) {
+	    entryfunctions += string(str) + " " + con;
+	  } else {
+	    entryclasses += string(str) + " " + con;
+	  }
+
 	  if ( surprise >= MIN_SURPRISE ) {
-	    cerr << ant << " => " << con << " has conf " << conf << " and support " << supp << " with con conf " << con_conf << endl;
-#warning "uses product of surprise and supp"	   
-	    results[-surprise].insert(ant + " => " + con);
+	    //	    cerr << ant << " => " << con << " has conf " << conf << " and support " << supp << " with con conf " << con_conf << endl;
+	    //	    results[-surprise].insert(ant + " => " + con);
+
+	    // we can dump everything to the database at this point
+	    // database depends on whether we have a class or a function
+
+
+	    set<string> L = r->second;
+	    for( set<string>::iterator l = L.begin(); l != L.end(); l++ ) {
+	      //	      cerr << "..." << surprise << " " << (*l) << endl;
+	      if ( isFunction ) {
+		entryfunctions += " " + (*l);
+	      } else {
+		entryclasses += " " + (*l);
+	      }
+	    }
+	  }
+	  if ( isFunction ) {
+	    entryfunctions += "\n";
+	  } else {
+	    entryclasses += "\n";
 	  }
 	}
       }
-      cerr << "RANKED ********* " << prev_term << endl;
-      for( map<double, set<string> >::iterator i = results.begin(); i != results.end(); i++ ) {
-	set<string> S = i->second;
-	for ( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
-	  cerr << "RANKED " << *s << " product = " << -(i->first) << endl;
-	}
+
+      cerr << "*** ENTRY FOR " << prev_term << endl << entryclasses << entryfunctions << endl;
+      if ( entryclasses != "" ) {
+	Dbt key( (void*) prev_term.c_str(), prev_term.length()+1);
+	Dbt data( (void*) entryclasses.c_str(), entryclasses.length()+1);
+	dbclasses.put( 0, &key, &data, DB_NOOVERWRITE );	  
+      }
+      if ( entryfunctions != "" ) {
+	Dbt key( (void*) prev_term.c_str(), prev_term.length()+1);
+	Dbt data( (void*) entryfunctions.c_str(), entryfunctions.length()+1);
+	dbfunctions.put( 0, &key, &data, DB_NOOVERWRITE );	  
       }
 
+      dbclasses.close(0);
+      dbfunctions.close(0);
 
 
-    }
-    catch(OmError & error) {
+    } catch(OmError& error) {
       cerr << "OMSEE Exception: " << error.get_msg() << endl;
+    } catch( DbException& e ) {
+      cerr << "Exception:  " << e.what() << endl;     
     } 
 
-  }
+  } // for packages
   
 }
