@@ -1,6 +1,6 @@
 Tue Sep  2 17:01:08 BST 2003  James Aylett  <james@tartarus.org>
 
-	* xapian.i: using namesoace std in SWIG parsed segment to sort out
+	* xapian.i: using namespace std in SWIG parsed segment to sort out
 	  typemaps
 
 Fri Aug 08 21:36:20 BST 2003  Olly Betts <olly@survex.com>
