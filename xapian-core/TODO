@@ -88,8 +88,6 @@ M|3| |Databases    | Make references to muscat36/m36 consistent (may require
 -+-+-+-------------+-----------------------------------------------------------
 M|5| |DA backend   | Autodetect heavy-duty vs flimsy (3 byte vs 2 byte)
 -+-+-+-------------+-----------------------------------------------------------
-M|3| |Website      | Consider changing from cvsweb to viewcvs
--+-+-+-------------+-----------------------------------------------------------
 M|4| |Matcher      | Treat FILTER and AND as equivalent from the point of view
  | | |             | of building optimal AND trees.  Also add a variant on
  | | |             | FilterPostList where the left branch is boolean and the
