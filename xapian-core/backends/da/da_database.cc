@@ -43,7 +43,7 @@ weight DAPostList::get_weight() const
 //    printf("(wdf, termweight)  = (%4d, %4.2f)", wdf, termweight);
 
     const double k = 1;
-    // FIXME - precalculate this freq score for several values of wt - may
+    // FIXME - precalculate this freq score for several values of wdf - may
     // remove much computation.
     wt = (double) wdf / (k + wdf);
 //    printf("(freq score %4.2f)", wt);
