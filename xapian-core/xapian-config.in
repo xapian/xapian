@@ -131,9 +131,9 @@ while test 0 != "$#"; do
 	L=
 	test /usr/lib != "$libdir" && L="-L$libdir "
 	D=
-	eval `grep ^dependency_libs= "$libdir/libxapianqueryparser.la"`
+	eval `grep ^dependency_libs= "$libdir/libxapianqueryparser.la"|sed 's/\([= ]\)[^ ]*libxapian.la\>/\1/'`
 	test -n "$dependency_libs" && D=" $dependency_libs"
-	eval `grep ^dependency_libs= "$libdir/libxapian.la"|sed 's/\([= ]\)[^ ]*libxapian.la\>/\1/'`
+	eval `grep ^dependency_libs= "$libdir/libxapian.la"`
 	test -n "$dependency_libs" && D="$D $dependency_libs"
 	echo "$F$L-lxapianqueryparser -lxapian$D"
 	;;
