@@ -1,3 +1,7 @@
+Tue May 14 12:37:49 BST 2002  Olly Betts <olly@survex.com>
+
+	* omindex.cc: cleaned up a little. 
+
 Tue May 14 11:24:42 BST 2002  Olly Betts <olly@survex.com>
 
 	* Fixed config.h inclusion; using std::*.
