@@ -477,7 +477,9 @@ class OmEnquireInternal {
 	IRDatabase * database;
 	vector<DatabaseBuilderParams> dbparams;
 	
-	// This is mutable so that it can be replaced by an optimised version.
+	/* This may need to be mutable in future so that it can be
+	 * replaced by an optimised version.
+	 */
 	OmQuery * query;
 
 	OmEnquireInternal();
