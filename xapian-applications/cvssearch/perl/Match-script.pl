@@ -78,7 +78,11 @@ if(param()){
 	if (!$found){
 		&error("Page expired");
 	}
+
+
 	@entries = split /\n/, $found;
+    print STDERR "entries: @entries\n";
+
 	$query = shift @entries;#query
 	$stemquery = shift @entries;#stemquery
 	$grepquery = shift @entries;
@@ -100,6 +104,8 @@ if(param()){
 	
 	($root, $db, $fileid) = split / /, $id;
 	$querystr = "$cvsquery $root $db";
+
+    print STDERR "REVS $revs\n";
 	@revs = split /\s/, $revs;
 	$first = shift @revs;
 	if($first ne "grep"){
@@ -124,7 +130,10 @@ if(param()){
 		$curcomment = $comments[$i];
 		chomp $curcomment;
 		$curcomment = Entities::encode_entities($curcomment);
-		if($curcomment =~/$grepquery/){
+        print STDERR "COMMENT $curcomment\n";
+        print STDERR "QUERY $grepquery\n";
+		if($curcomment =~/$grepquery/i){
+            print STDERR "MATCH $currev\n";
 			$revMAPmatch{$currev} = $currev;
 			$curcomment = &highlightquery($curcomment);
 		}
@@ -141,6 +150,8 @@ if(param()){
 	#filename
 	&filename($stemquery);
 	my @newrevs;
+    print STDERR "# of revs $#revs @revs\n";
+
 	foreach (@revs) {
 		if($revMAPmatch{$_}){
 			@newrevs = (@newrevs, $_);
@@ -149,9 +160,10 @@ if(param()){
 		}
 	}
 	@revs = @newrevs;
-
-	@colors = Cvssearch::getSpectrum($#revs+1);
-	print "<pre>";
+    @revs = sort {&cmp_cvs_version($a, $b)} @revs;
+    print STDERR "# of revs $#revs\n";
+    @colors = Cvssearch::getSpectrum($#revs+1);
+    print "<pre>";
 
 	foreach ($i=0;$i<$#revs+1;$i++){
 		$revMAPcolor{$revs[$i]} = $colors[$i];
@@ -240,7 +252,9 @@ if(param()){
 #			print "<td bgcolor=$color><pre><a href=\"$source$passparam#$i\" target=source>$line</a></td></tr>\n";
 		}
 		if ($lineMAPinfo{$i+1} > $lineMAPinfo{$i}) {
-			print "<tr><td style=\"font-size:2pt;\">a </td></tr>";
+			print "<tr></tr>";
+			print "<tr></tr>";
+			print "<tr></tr>";
 		}
 		$i++;
 	}
@@ -307,4 +321,37 @@ sub error{
 	($mesg) = @_;
 	print "<p><b class=red>$mesg</b>";
 	exit(0);
+}
+
+### This function will be passed to the standard
+### perl sort function for sort the cvs versions.
+### ie. 1.10 is later than l.9
+sub cmp_cvs_version
+{
+    my $first = $_[0];
+    my $second = $_[1];
+
+    my @first = split(/\./, $first);
+    my @second = split(/\./, $second);
+    
+    my $size = $#first;
+    $size = $#second if ($#first > $#second); 
+
+    for (my $i=0; $i<=$size; $i++) {
+        if ($first[$i]>$second[$i]) {
+            return 1;
+        } elsif ($first[$i]<$second[$i]) {
+            return -1;
+        } else {
+            next;
+        }
+    }
+    
+    if ($#first > $#second) {
+        return 1;
+    } elsif ($#first < $#second) {
+        return -1;
+    } else {
+        return 0;
+    }
 }

@@ -409,6 +409,10 @@ sub getSpectrum{
 	my $r; my $g; my $b;
 	my $curcolor; my @colors; my $i;
 	my $curstep; my $range; my $mod;
+    if ($num == 0) {
+        return;
+    }
+
 	my $step = (255*6)/$num;
 	for($i=0;$i<$num;$i++){
 		$curstep = $step*$i;
