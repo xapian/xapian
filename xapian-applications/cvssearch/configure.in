@@ -12,4 +12,5 @@ AC_OUTPUT(Makefile              \
      map/diff/Makefile          \
      map/map_algorithm/Makefile \
      map/process/Makefile       \
-     map/range/Makefile)
+     map/range/Makefile         \
+     db/Makefile )
