@@ -45,7 +45,7 @@ class QuartzDocument : public Document {
 		       QuartzTable *record_table_,
 		       om_docid did_, bool lazy);
 
-	// Stop copying
+	// Prevent copying
 	QuartzDocument(const QuartzDocument &);
 	QuartzDocument & operator = (const QuartzDocument &);
     public:

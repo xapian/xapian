@@ -30,15 +30,15 @@
 #include "utils.h"
 
 void
-QuartzTermList::set_entries(QuartzBufferedTable * table,
+QuartzTermList::set_entries(QuartzBufferedTable * table_,
 			    om_docid did,
 			    OmTermIterator t,
 			    const OmTermIterator &t_end,
 			    quartz_doclen_t doclen_,
 			    bool store_termfreqs)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzTermList::set_entries", table << ", " << did << ", " << t << ", " << t_end << ", " << doclen_ << ", " << store_termfreqs);
-    QuartzDbTag * tag = table->get_or_make_tag(quartz_docid_to_key(did));
+    DEBUGCALL_STATIC(DB, void, "QuartzTermList::set_entries", table_ << ", " << did << ", " << t << ", " << t_end << ", " << doclen_ << ", " << store_termfreqs);
+    QuartzDbTag * tag = table_->get_or_make_tag(quartz_docid_to_key(did));
 
     tag->value = "";
     unsigned int size = 0;
@@ -57,10 +57,10 @@ QuartzTermList::set_entries(QuartzBufferedTable * table,
 }
 
 void
-QuartzTermList::delete_termlist(QuartzBufferedTable * table, om_docid did)
+QuartzTermList::delete_termlist(QuartzBufferedTable * table_, om_docid did)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzTermList::delete_termlist", table << ", " << did);
-    table->delete_tag(quartz_docid_to_key(did));
+    DEBUGCALL_STATIC(DB, void, "QuartzTermList::delete_termlist", table_ << ", " << did);
+    table_->delete_tag(quartz_docid_to_key(did));
 }
 
 

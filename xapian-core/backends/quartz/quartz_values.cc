@@ -37,6 +37,7 @@ QuartzValueManager::make_key(QuartzDbKey & key,
 				om_valueno valueno)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzValueManager::make_key", "QuartzDbKey(" << key.value << "), " << did << ", " << valueno);
+    (void)valueno; // no warning
     key.value = pack_uint(did);
 }
 

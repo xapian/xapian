@@ -112,10 +112,9 @@ class QuartzTermList : public LeafTermList {
 	 *         databases (which are probably generated from dumps of
 	 *         dynamic databases) - updating cannot be done efficiently
 	 *         while storing term frequencies.
-	 *  @param 
 	 */
 	static void
-	set_entries(QuartzBufferedTable * table, om_docid did,
+	set_entries(QuartzBufferedTable * table_, om_docid did,
 		    OmTermIterator t, const OmTermIterator &t_end,
 		    quartz_doclen_t doclen, bool store_termfreqs);
 

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,7 +38,7 @@ class Btree_base {
 	 *  @param name			The base filename name
 	 *  @param ch			The suffix
 	 */
-	Btree_base(const std::string &name_, char ch);
+	Btree_base(const string &name_, char ch);
 
 	/** Copy constructor */
 	Btree_base(const Btree_base &other);
@@ -55,8 +56,7 @@ class Btree_base {
 	 *
 	 *  @return	true if the read succeeded, or false otherwise.
 	 */
-	bool read(const std::string &name, char ch,
-		  std::string &err_msg);
+	bool read(const string &name, char ch, string &err_msg);
 
 	uint4 get_revision();
 	uint4 get_block_size();
@@ -77,7 +77,7 @@ class Btree_base {
 	void set_sequential(bool sequential_);
 
 	/** Write the btree base file to disk. */
-	void write_to_file(const std::string &filename);
+	void write_to_file(const string &filename);
 
 	/* Methods dealing with the bitmap */
 	/** true iff block n was free at the start of the transaction on
@@ -92,7 +92,7 @@ class Btree_base {
 	bool block_free_now(int4 n);
 
 	void calculate_last_block();
-	
+
 	/* Only used with fake root blocks */
 	void clear_bit_map();
 
@@ -100,8 +100,8 @@ class Btree_base {
 	bool is_empty() const;
 
 	void swap(Btree_base &other);
-    private:
 
+    private:
 	/** private assignment operator - you probably want swap() instead */
 	void operator=(const Btree_base &other);
 
@@ -109,16 +109,16 @@ class Btree_base {
 
 	/** Do most of the error handling from unpack_uint() */
 	bool do_unpack_uint(const char **start, const char *end,
-			 uint4 *dest, std::string &err_msg,
-			 const std::string &basename,
-			 const char *varname);
+			    uint4 *dest, string &err_msg,
+			    const string &basename,
+			    const char *varname);
 
 	/** Do most of the error handling from unpack_uint(),
 	 *  with conversion to signed int.
 	 */
 	bool do_unpack_int(const char **start, const char *end,
-			   int4 *dest, std::string &err_msg,
-			   const std::string &basename,
+			   int4 *dest, string &err_msg,
+			   const string &basename,
 			   const char *varname);
 
 	/* Decoded values from the base file follow */
@@ -143,8 +143,6 @@ class Btree_base {
 
 	/** the current state of the bit map of blocks */
 	byte *bit_map;
-
 };
 
 #endif /* OM_HGUARD_BTREE_BASE_H */
-
