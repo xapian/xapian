@@ -20,6 +20,9 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Urgent  | Chris           | Juggle
 ---------+-----------------+--------------------------------------------------
+ High    | MultiDatabase   | Has an infinitely growing "cache": will use
+         |                 | arbitrary amounts of memory.
+---------+-----------------+--------------------------------------------------
  High    | API             | Make OmDatabase object, which OmWritableDatabase
          |                 | (and OmDatabaseGroup ?) inherit from.
 ---------+-----------------+--------------------------------------------------
