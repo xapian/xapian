@@ -6,15 +6,20 @@
 
 <center><h1>
                How to make stemming algorithms
-</center></h1>
+</h1></center>
 
-Our hope is that by open sourcing stemming algorithms for English, French,
+At present, Xapian has stemming algorithms for English, French,
 Spanish, Italian, Portuguese, German, Dutch, Swedish and (most recently) Danish
-and Norwegian, we can encourage the development of similar algorithms for other
-languages. A stemming algorithm for Russian we hope to release later, but we lack
-algorithms for Finnish, Czech, Polish, etc.<p>
+and Norwegian.<p>
 
+We intend to move from using these to using the
+<A HREF="http://snowball.sourceforge.net/">Snowball Stemmers</A> which are
+written and maintained by Martin Porter (who originally wrote the Xapian
+stemmers).  Snowball supports all the languages Xapian already does and
+additionally has a Russian stemmer.<p>
 
+We'd like to add stemmers for other languages too - see the Snowball site for
+information on how to contribute.<p>
 
 <h2>What is a stemming algorithm?</h2>
 
@@ -30,7 +35,7 @@ variant forms of a word are reduced to a common form, for example,
 <pre>
     connection
     connections
-    connective          --->   connect
+    connective          ---&gt;   connect
     connected
     connecting
 </pre>
@@ -123,20 +128,20 @@ state table, which can be followed in devising the algorithm. In Latin
 derived languages, there is a state table of morphological endings that
 roughly looks like this:
 <pre>
-   -IC (adj) -+->  -ATION (noun)
-              +->  -ITY (noun)
-              +->  -MENT (adv)
-              \->  -AT (verb)     -+->   -IV (adj)    -+->   -ITY (noun)
-                                   |                   \->   -MENT (adv)
-                                   \->   -OR (noun)
+   -IC (adj) -+-&gt;  -ATION (noun)
+              +-&gt;  -ITY (noun)
+              +-&gt;  -MENT (adv)
+              \-&gt;  -AT (verb)     -+-&gt;   -IV (adj)    -+-&gt;   -ITY (noun)
+                                   |                   \-&gt;   -MENT (adv)
+                                   \-&gt;   -OR (noun)
 
- -ABLE (adj) -+->  -ITY (noun)
-              \->  -MENT (adv)
+ -ABLE (adj) -+-&gt;  -ITY (noun)
+              \-&gt;  -MENT (adv)
 
-  -OUS (adj) --->  -MENT (adv)
+  -OUS (adj) ---&gt;  -MENT (adv)
 </pre>
 The ending forms take different values in different languages. In French, -OR
-becomes `-eur' (m.) or `-rice' (f.), -AT disappears into the inifinitive form
+becomes `-eur' (m.) or `-rice' (f.), -AT disappears into the infinitive form
 of a verb. In English, -MENT becomes `-ly', and then one can recognise,
 <pre>
    -IC-ATION   fortification
@@ -145,7 +150,7 @@ of a verb. In English, -MENT becomes `-ly', and then one can recognise,
    -AT-IV      contemplative
    -AT-OR      conspirator
    -IV-ITY     relativity
-   -IV-MENT    instictively
+   -IV-MENT    instinctively
    -ABLE-ITY   incapability
    -ABLE-MENT  charitably
    -OUS-MENT   famously

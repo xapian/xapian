@@ -29,13 +29,13 @@ For instructions on obtaining and installing Xapian, read the
 <A HREF="intro.html">Introduction</A> document.
 </P>
 <P>
-You will also need a reasonably recent C++ compiler.  We currently use GCC
-version 2.95.2, but any reasonably ANSI compilant C++ compiler should have
-a decent chance of successfully compiling the code.
+You will also need a reasonably recent C++ compiler.  You'll need one
+which supports most of the ISO C++ standard.  If using GCC, 2.95 is the
+very minimum requirement - 3.0 or later is better.
 </P>
 <P>
 In addition, to run the examples, you will need a version of Xapian compiled
-with support for the "quartz" database access method (this is enabled
+with support for the "quartz" database access method (which is enabled
 by default).
 </P>
 
@@ -100,6 +100,7 @@ FIXME: to be written.
 </P>
 -->
 
+<!-- FIXME: doesn't belong in the quickstart section at all!
 <H3><A NAME="da_databases">DA databases</A></H3>
 
 <P>
@@ -130,6 +131,7 @@ or from data unloaded from a quartz (or other format) database.
 You can search a DA database in exactly the same way as you would search a
 quartz database (see the <A HREF="#searcher">example searcher</A>).
 </P>
+-->
 
 <HR>
 <H2><A NAME="indexer">An example indexer</A></H2>
@@ -177,7 +179,7 @@ terms will be assumed to occur at successive positions in the document.
 The validity of a command line can therefore be checked very simply by
 ensuring that there are at least 3 parameters:
 <PRE>
-    if(argc &lt; 4) {
+    if (argc &lt; 4) {
         cout &lt;&lt; "usage: " &lt;&lt; argv[0] &lt;&lt;
 	        " &lt;path to database&gt; &lt;document data&gt; &lt;document terms&gt;" &lt;&lt; endl;
         exit(1);
@@ -209,7 +211,7 @@ code:
     try {
         <B>[code which accesses Xapian]</B>
     }
-    catch(OmError &amp; error) {
+    catch (const OmError &amp; error) {
         cout &lt;&lt; "Exception: " &lt;&lt; error.get_msg() &lt;&lt; endl;
     }
 </PRE>
@@ -448,7 +450,7 @@ constructor, which is a handy shortcut if you only want to search one database:
 All searches across databases by Xapian are performed within the context of
 an &quot;<EM>Enquire</EM>&quot; session.  This session is represented by an
 <CODE>OmEnquire</CODE> object, and is across a specified collection of
-databases.  To change the database collection, it is neccessary to open a
+databases.  To change the database collection, it is necessary to open a
 new enquire session, by creating a new <CODE>OmEnquire</CODE> object.
 <PRE>
     OmEnquire enquire(databases);
@@ -482,14 +484,14 @@ the next step is to construct one from our query terms.
 By an amazing coincidence, there is a constructor ready to take our vector
 of terms and create an <CODE>OmQuery</CODE> object from it.
 <PRE>
-    OmQuery query(OM_MOP_OR, queryterms.begin(), queryterms.end());
+    OmQuery query(OmQuery::OP_OR, queryterms.begin(), queryterms.end());
 </PRE>
 </P>
 
 <P>
 You will notice that we had to specify an operation to be performed on
-the terms (the <CODE>OM_MOP_OR</CODE> parameter).  If you're interested,
-MOP stands for &quot;Match OPeration&quot;.  Queries in Xapian are actually
+the terms (the <CODE>OmQuery::OP_OR</CODE> parameter).
+Queries in Xapian are actually
 fairly complex things: a full range of boolean operations can be applied to
 queries to restrict the result set, and probabilistic weightings are then
 applied to order the results by relevance.  By specifying the OR operation,

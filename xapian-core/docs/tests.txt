@@ -8,7 +8,7 @@ Contents
 A Brief Guide to Running Tests
 ------------------------------
 
-After a successful "make", try "make check".  If you set the enviornment
+After a successful "make", try "make check".  If you set the environment
 variable OM_TEST_BACKEND, apitest will only run with that backend.
 
 Individual test programs can be run with the name of a test (if the number
@@ -46,12 +46,12 @@ bits are in apitest.cc, and tests themselves are in various other C++ files
 starting api_. Each one of these has its own tables for various different
 groups of tests (eg: api_db.cc, which performs tests on the API that require a
 database backend, has basic tests, a few specialised groups that only contain
-one or two tests, tests that require a writeable database, tests that require a
+one or two tests, tests that require a writable database, tests that require a
 local database, and finally tests that require a remote database).
 
 To add a new api test, figure out what the test will be dependent on
 and put it in the appropriate place (eg: if adding a test for a bug
-that occurs while writing to a database, you want a writeable
+that occurs while writing to a database, you want a writable
 database, so you add a test to api_db.cc and reference it in the
 writabledb_tests table).
 

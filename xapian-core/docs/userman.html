@@ -197,8 +197,8 @@ This takes several parameters.
 </TD></TR>
 <TR><TD VALIGN="top"><B>da_flimsy</B></TD><TD>
 <P>
-This is a proprietory, legacy format, holding a database in a
-non-updatable form (ie, the database can't be altered, it is built
+This is a proprietary, legacy format, holding a database in a
+non-updateable form (ie, the database can't be altered, it is built
 from an existing database).  We support read-only access to this,
 and it is thus unlikely to be useful outside our company.
 </P><P>
@@ -226,8 +226,8 @@ It takes the same parameters as da_flimsy.
 </TD></TR>
 <TR><TD VALIGN="top"><B>db_flimsy</B></TD><TD>
 <P>
-This is a proprietory, legacy format, holding a database in a dynamically
-updatable form (ie, the database can be altered while queries are being
+This is a proprietary, legacy format, holding a database in a dynamically
+updateable form (ie, the database can be altered while queries are being
 performed on it.)  We support read-only access to this,
 and it is thus unlikely to be useful outside our company.
 </P><P>
@@ -252,7 +252,7 @@ It takes the same parameters as db_flimsy.
 <TR><TD VALIGN="top"><B>inmemory</B></TD><TD>
 This type is a database held entirely in memory.
 It is really intended to be used for testing purposes only, but may
-occassionally prove useful for building up temporary small databases.
+occasionally prove useful for building up temporary small databases.
 <BR>
 It takes no parameters at all, except for some undocumented parameters
 which cause special effects for testing.
@@ -371,7 +371,7 @@ as previously described).
 </P>
 <P>
 Note also that the results of <CODE>OmQuery(tname, 2)</CODE> and
-<CODE>OmQuery(OM_MOP_OR, OmQuery(tname), OmQuery(tname))</CODE>
+<CODE>OmQuery(OmQuery::OP_OR, OmQuery(tname), OmQuery(tname))</CODE>
 are exactly equivalent.
 </P>
 
@@ -391,39 +391,39 @@ OmQuery(om_queryop op_,
         const OmQuery &amp; right)
 </PRE>
 <P>
-The two most commonly used operators are <CODE>OM_MOP_AND</CODE> and
-<CODE>OM_MOP_OR</CODE>, which enable us to construct boolean queries made
+The two most commonly used operators are <CODE>OmQuery::OP_AND</CODE> and
+<CODE>OmQuery::OP_OR</CODE>, which enable us to construct boolean queries made
 up from the usual AND and OR operations. But in addition to this, a
 probabilistic query in its simplest form, where we have a list of terms
 which give rise to weights that need to be added together, is also made up
-from a set of terms joined together with <CODE>OM_MOP_OR</CODE>.
+from a set of terms joined together with <CODE>OmQuery::OP_OR</CODE>.
 </P>
 <P>
 The full set of available <CODE>om_queryop</CODE> operators is:
 <TABLE>
 <TR><TD VALIGN="top">
-OM_MOP_AND
+OmQuery::OP_AND
 </TD><TD>
 Return documents returned by both subqueries.
 </TD></TR><TR><TD VALIGN="top">
-OM_MOP_OR
+OmQuery::OP_OR
 </TD><TD>
 Return documents returned by either subquery.
 </TD></TR><TR><TD VALIGN="top">
-OM_MOP_AND_NOT
+OmQuery::OP_AND_NOT
 </TD><TD>
 Return documents returned by the left subquery but not the right subquery.
 </TD></TR><TR><TD VALIGN="top">
-OM_MOP_FILTER
+OmQuery::OP_FILTER
 </TD><TD>
-As OM_MOP_AND, but use only weights from left subquery.
+As OmQuery::OP_AND, but use only weights from left subquery.
 </TD></TR><TR><TD VALIGN="top">
-OM_MOP_AND_MAYBE
+OmQuery::OP_AND_MAYBE
 </TD><TD>
 Return documents returned by the left subquery, but adding
 document weights from both subqueries.
 </TD></TR><TR><TD VALIGN="top">
-OM_MOP_XOR
+OmQuery::OP_XOR
 </TD><TD>
 Return documents returned by one subquery only.
 </TD></TR>
@@ -469,12 +469,12 @@ term t to the total score for document D, and it is given by,
 <P>
 A query can be thought of as a tree structure. At each node is
 an <CODE>om_queryop</CODE> operator, and on the left and right branch are two other queries.
-At each leaf node is a term, t, tranmitting documents and scores, D and
+At each leaf node is a term, t, transmitting documents and scores, D and
 w<sub>D</sub>(t),
 up the tree.
 </P>
 <P>
-An OM_MOP_OR node transmits documents from both branches up the tree, summing the scores
+An OmQuery::OP_OR node transmits documents from both branches up the tree, summing the scores
 when a document is found in both the left and right branch. For example,
 
 <PRE>
@@ -482,7 +482,7 @@ when a document is found in both the left and right branch. For example,
                            scores    7.3  4.1   3.2  7.6   3.8   4.7 ...
                              |
                              |
-                         OM_MOP_OR
+                      OmQuery::OP_OR
                          /       \
                         /         \
                        /           \
@@ -491,7 +491,7 @@ when a document is found in both the left and right branch. For example,
    scores  3.1 3.2  3.1  3.8 ...    4.2 4.1 4.5  4.7 ...
 </PRE>
 
-An OM_MOP_AND node transmits only the documents found on both branches up the tree,
+An OmQuery::OP_AND node transmits only the documents found on both branches up the tree,
 again summing the scores,
 
 <PRE>
@@ -499,7 +499,7 @@ again summing the scores,
                            scores    7.3  7.6  ...
                              |
                              |
-                         OM_MOP_AND
+                      OmQuery::OP_AND
                          /       \
                         /         \
                        /           \
@@ -508,7 +508,7 @@ again summing the scores,
    scores  3.1 3.2  3.1  3.8 ...    4.2 4.1 4.5  4.7 ...
 </PRE>
 
-An OM_MOP_AND_NOT node transmits up the tree the documents on the left branch which are
+An OmQuery::OP_AND_NOT node transmits up the tree the documents on the left branch which are
 not on the right branch. The scores are taken from the left branch. For example,
 again summing the scores,
 
@@ -517,7 +517,7 @@ again summing the scores,
                            scores    3.2  3.8 ...
                              |
                              |
-                         OM_MOP_AND_NOT
+                    OmQuery::OP_AND_NOT
                          /       \
                         /         \
                        /           \
@@ -526,7 +526,7 @@ again summing the scores,
    scores  3.1 3.2  3.1  3.8 ...    4.2 4.1 4.5  4.7 ...
 </PRE>
 
-An OM_MOP_MAYBE node transmits the documents up the tree from the left branch only,
+An OmQuery::OP_MAYBE node transmits the documents up the tree from the left branch only,
 but adds in the score from the right branch for documents which occur on both branches.
 For example,
 
@@ -535,7 +535,7 @@ For example,
                            scores    7.3  3.2  7.6  3.8 ...
                              |
                              |
-                         OM_MOP_AND_MAYBE
+                         OmQuery::OP_AND_MAYBE
                          /       \
                         /         \
                        /           \
@@ -544,7 +544,7 @@ For example,
    scores  3.1 3.2  3.1  3.8 ...    4.2 4.1 4.5  4.7 ...
 </PRE>
 
-OM_MOP_FILTER is like OM_MOP_AND, but weights are only transmitted from the left branch.
+OmQuery::OP_FILTER is like OmQuery::OP_AND, but weights are only transmitted from the left branch.
 For example,
 
 <PRE>
@@ -552,7 +552,7 @@ For example,
                            scores    3.1  3.1  ...
                              |
                              |
-                         OM_MOP_FILTER
+                    OmQuery::OP_FILTER
                          /       \
                         /         \
                        /           \
@@ -560,7 +560,7 @@ For example,
    docs     1   12   16   17         1   8   16   18
    scores  3.1 3.2  3.1  3.8 ...    4.2 4.1 4.5  4.7 ...
 </PRE>
-OM_MOP_XOR is like OM_MOP_OR, but documents on both left and right branches are not
+OmQuery::OP_XOR is like OmQuery::OP_OR, but documents on both left and right branches are not
 transmitted up the tree. For example,
 
 <PRE>
@@ -568,7 +568,7 @@ transmitted up the tree. For example,
                            scores    4.1   3.2  3.8   4.7 ...
                              |
                              |
-                         OM_MOP_XOR
+                      OmQuery::OP_XOR
                          /       \
                         /         \
                        /           \
@@ -576,8 +576,8 @@ transmitted up the tree. For example,
    docs     1   12   16   17         1   8   16   18
    scores  3.1 3.2  3.1  3.8 ...    4.2 4.1 4.5  4.7 ...
 </PRE>
-OM_MOP_XOR is used internally, but we have not found a plausible use for it in query
-contruction, so it will not be mentioned again.
+OmQuery::OP_XOR is used internally, but we have not found a plausible use for it in query
+construction, so it will not be mentioned again.
 </P>
 <P>
 A query can therefore be thought of as a process for generating an M set from the terms at
@@ -595,17 +595,17 @@ precise way in which the query is built up is therefore of little importance.
 
 <H3>Using queries</H3>
 
-A plain probabilistic query is created by connecting terms together with OM_MOP_OR
+A plain probabilistic query is created by connecting terms together with OmQuery::OP_OR
 operators. For example,
 
 <PRE>
     OmQuery query();   // undefined query; see next section
 
-    query = OmQuery(OM_MOP_OR, query, OmQuery("regulation"));
-    query = OmQuery(OM_MOP_OR, query, OmQuery("import"));
-    query = OmQuery(OM_MOP_OR, query, OmQuery("export"));
-    query = OmQuery(OM_MOP_OR, query, OmQuery("canned"));
-    query = OmQuery(OM_MOP_OR, query, OmQuery("fish"));
+    query = OmQuery(OmQuery::OP_OR, query, OmQuery("regulation"));
+    query = OmQuery(OmQuery::OP_OR, query, OmQuery("import"));
+    query = OmQuery(OmQuery::OP_OR, query, OmQuery("export"));
+    query = OmQuery(OmQuery::OP_OR, query, OmQuery("canned"));
+    query = OmQuery(OmQuery::OP_OR, query, OmQuery("fish"));
 
 </PRE>
 
@@ -623,7 +623,7 @@ construction:
     terms.push_back("canned");
     terms.push_back("fish");
 
-    OmQuery query(OM_MOP_OR, terms.begin(), terms.end());
+    OmQuery query(OmQuery::OP_OR, terms.begin(), terms.end());
 </PRE>
 
 Suppose now we have this Boolean query,
@@ -634,29 +634,29 @@ Suppose now we have this Boolean query,
 This could be built up as bquery like this,
 
 <PRE>
-    OmQuery bquery1(OM_MOP_AND_NOT, "EEC", "France");
+    OmQuery bquery1(OmQuery::OP_AND_NOT, "EEC", "France");
 
     OmQuery bquery2("1989");
-    bquery2 = OmQuery(OM_MOP_OR, bquery2, "1991");
-    bquery2 = OmQuery(OM_MOP_OR, bquery2, "1992");
+    bquery2 = OmQuery(OmQuery::OP_OR, bquery2, "1991");
+    bquery2 = OmQuery(OmQuery::OP_OR, bquery2, "1992");
 
     OmQuery bquery3("Corporate Law");
 
-    OmQuery bquery(OM_MOP_AND, bquery1, OmQuery(OM_MOP_AND(bquery2, bquery3)));
+    OmQuery bquery(OmQuery::OP_AND, bquery1, OmQuery(OmQuery::OP_AND(bquery2, bquery3)));
 </PRE>
 
 and this can be attached as a filter to <code>query</code> to run the
 probabilistic query with a Boolean filter,
 
 <PRE>
-    query = OmQuery(OM_MOP_FILTER, query, bquery);
+    query = OmQuery(OmQuery::OP_FILTER, query, bquery);
 </PRE>
 
 This is the general technique for processing boolean queries, so to run a
 pure boolean query, attach it as a filter to an undefined query:
 
 <PRE>
-    bquery = OmQuery(OM_MOP_FILTER, OmQuery(), bquery);
+    bquery = OmQuery(OmQuery::OP_FILTER, OmQuery(), bquery);
     // bquery will now run as a pure boolean
 </PRE>
 
@@ -685,13 +685,13 @@ the corresponding query can be set up by,
     normal_terms.push_back("import");
     normal_terms.push_back("export");
 
-    OmQuery query(OM_MOP_AND_MAYBE,
-                  OmQuery(OM_MOP_AND, plus_terms.begin(), plus_terms.end());
-                  OmQuery(OM_MOP_OR, normal_terms.begin(), normal_terms.end()));
+    OmQuery query(OmQuery::OP_AND_MAYBE,
+                  OmQuery(OmQuery::OP_AND, plus_terms.begin(), plus_terms.end());
+                  OmQuery(OmQuery::OP_OR, normal_terms.begin(), normal_terms.end()));
 
-    query = OmQuery(OM_MOP_AND_NOT,
+    query = OmQuery(OmQuery::OP_AND_NOT,
                     query,
-                    OmQuery(OM_MOP_OR, minus_terms.begin(), minus_terms.end()));
+                    OmQuery(OmQuery::OP_OR, minus_terms.begin(), minus_terms.end()));
 </PRE>
 
 <H3>Undefined queries</H3>
@@ -717,13 +717,13 @@ as follows:
 Make the desired query, as described above.
 For example, putting it in <CODE>query</CODE>:
 example:<PRE>
-OmQuery query(OM_MOP_AND_NOT, OmQuery("cheese"), OmQuery("bread"));
+OmQuery query(OmQuery::OP_AND_NOT, OmQuery("cheese"), OmQuery("bread"));
 </PRE>
 </LI><LI>
 Make a pure boolean query, by filtering a null query with the boolean query.
 For example:
 <PRE>
-OmQuery boolquery(OM_MOP_FILTER, OmQuery(), query);
+OmQuery boolquery(OmQuery::OP_FILTER, OmQuery(), query);
 </PRE>
 </LI></UL>
 
@@ -736,7 +736,7 @@ each document in the result set will have a weight of 0.
 <P>
 The OmEnquire class does not require that a method be called in order to
 perform the query.  Rather, you simply ask for the results of a query,
-and it will perform whatever calculations are neccessary to provide the
+and it will perform whatever calculations are necessary to provide the
 answer:
 </P>
 <PRE>

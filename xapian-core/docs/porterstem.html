@@ -20,7 +20,7 @@ useful in the field of information retrieval. In a typical IR environment,
 one has a collection of documents, each described by the words in the
 document title and possibly by words in the document abstract. Ignoring the
 issue of precisely where the words originate, we can say that a document is
-represented by a vetor of words, or <i>terms</i>. Terms with a common stem will
+represented by a vector of words, or <i>terms</i>. Terms with a common stem will
 usually have similar meanings, for example:
 <pre>
         CONNECT
@@ -43,7 +43,7 @@ list is being used, and of course on the purpose for which the suffix
 stripping is being done. Assuming that one is not making use of a stem
 dictionary, and that the purpose of the task is to improve IR performance,
 the suffix stripping program will usually be given an explicit list of
-siffixes, and, with each suffix, the criterion under which it may be removed
+suffixes, and, with each suffix, the criterion under which it may be removed
 from a word to leave a valid stem. This is the approach adopted here. The
 main merits of the present program are that it is small (less than 400 lines
 of BCPL), fast (it will process a vocabulary of 10,000 different words in
@@ -92,7 +92,7 @@ program where the addition of more rules to increase the performance in one
 area of the vocabulary causes an equal degradation of performance elsewhere.
 Unless this phenomenon is noticed in time, it is very easy for the program
 to become much more complex than is really necessary. It is also easy to
-give undue emphasis to cases which appear to be important, but which turn ut
+give undue emphasis to cases which appear to be important, but which turn out
 to be rather rare. For example, cases in which the root of a word changes
 with the addition of a suffix, as in DECEIVE/DECEPTION, RESUME/RESUMPTION,
 INDEX/INDICES occur much more rarely in real vocabularies than one might at
@@ -105,7 +105,7 @@ improvement in retrieval performance when compared with a very much more
 elaborate program which has been in use in IR research in Cambridge since
 1971<sup>(2,6)</sup>. The test was done as follows: the words of the titles and
 abstracts in the documents were passed through the earlier suffix stripping
-system, and the resultis stems were used to index the documents. The words
+system, and the result is stems were used to index the documents. The words
 of the queries were reduced to stems in the same way, and the documents were
 ranked for each query using term coordination matching of query against
 document. From these rankings, recall and precision values were obtained
@@ -128,7 +128,7 @@ results were as follows:
           90      24.59         90      25.85
          100      24.59        100      25.85
 </pre>
-Cleary, the performance is not very different. The important point is that
+Clearly, the performance is not very different. The important point is that
 the earlier, more elaborate system certainly performs no better than the
 present, simple system.<p>
 
@@ -137,7 +137,7 @@ present, simple system.<p>
 <h2>2. The Algorithm</h2>
 
 To present the suffix stripping algorithm in its entirety we will need a few
-difinitions.<p>
+definitions.<p>
 
 A <i>consonant</i> in a word is a letter other than A, E, I, O or U, and other
 than Y preceded by a consonant. (The fact that the term `consonant' is
@@ -204,7 +204,7 @@ tests for a stem with m>1 ending in S or T, while
 <pre>
     (*d and not (*L or *S or *Z))
 </pre>
-tests for a stem ending witha double consonant other than L, S or Z.
+tests for a stem ending with a double consonant other than L, S or Z.
 Elaborate conditions like this are required only rarely.<p>
 
 In a set of rules written beneath each other, only one is obeyed, and this
@@ -390,7 +390,7 @@ The resulting vocabulary of stems contained 6370 distinct entries. Thus the
 suffix stripping process reduced the size of the vocabulary by about one
 third.<p>
 
-<h2>Referencies</h2>
+<h2>References</h2>
 
 1.  LOVINS, J.B. Development of a Stemming Algorithm. <i>Mechanical
     Translation and computation Linguistics</i>. <b>11</b> (1) March 1968 pp

@@ -1,8 +1,10 @@
   The settings available for use in an OmSettings object are:
 
   - general
-    - backend : database backend type - current backends are: auto, da, db,
-      inmemory, remote, and quartz
+    - backend : database backend type - current backends are: auto,
+      inmemory, remote, and quartz.  There are optional da and db backends for
+      read-only access to databases built with Muscat 3.6 which aren't built by
+      default (configure with --enable-backend-muscat36 to enable them).
     - database_create : boolean, true if a new database should be created.
       Default is false.
     - database_allow_overwrite : boolean.  This has no effect unless

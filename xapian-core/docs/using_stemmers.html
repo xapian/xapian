@@ -65,7 +65,7 @@ For example,
 
 <H2>Using the other stemming algorithms</H2>
 
-The other stemming algorithms can be invoked by subsituting in
+The other stemming algorithms can be invoked by substituting in
 place of &quot;english&quot; above one of the words:
 <UL><LI>
 danish
@@ -102,7 +102,7 @@ For background on the English stemmer, see Porter's paper of 1980,
 
 <H2>Text representation: letters and accents</H2>
 
-We will probably move over to a Unicode reresentation of accented letters
+We will probably move over to a Unicode representation of accented letters
 in the future, so the scheme outlined below may be regarded as provisional.
 
 (Note that, at present, the stemming algorithms are the only part of the
@@ -155,7 +155,7 @@ this mapping of letter-accent combinations to upper case letters:
         G      e^g   (e grave)
         E      e^h   (e circumflex)
         I      i^h   (i circumflex)
-        U      u^h   (u cicumflex)
+        U      u^h   (u circumflex)
         J      i^u   (i trema, or diaeresis)
 </pre>
 This table is declared in stem_french.c, with similar tables for the other

@@ -25,7 +25,7 @@ collection of fossils held in a big museum collection, and the terms could be
 morphological characteristics of the fossils. Or the documents could be tunes,
 and the terms could then be phrases of notes that occur in the tunes.
 <P>
-If, in an IR system, a document, D, is decribed by a term, t, t is said to
+If, in an IR system, a document, D, is described by a term, t, t is said to
 <EM>index</EM> D, and we can write,
 <PRE>
             t -&gt; D
@@ -47,7 +47,7 @@ the <EM>posting list</EM> of t. (`Document list' would be more consistent, but s
 a little too vague for this very important concept.)
 <P>
 
-At a simple level a computerized IR system puts the terms in a direct access,
+At a simple level a computerised IR system puts the terms in a direct access,
 or <EM>index</EM> file. A term can be looked up and its posting list found. But as
 we will see later, a term in Xapian can be constructed from other terms, and
 we should distinguish between an <EM>index entry</EM>, which is a term actually held
@@ -98,7 +98,7 @@ jungle of possibilities when designing IR software.
 
 In simple cases the model reduces to simple formulae in general use, so don't
 be alarmed by the apparent complexity of the equations below.
-We need them for a full undetanding of the general case.
+We need them for a full understanding of the general case.
 
 <H2>Boolean retrieval</H2>
 
@@ -135,10 +135,10 @@ systems.)
 
 <P>
 Xapian provides Boolean retrieval, with expressions of arbitrary complexity,
-and they can either be used by themeselves, or, more usefully, to create a
+and they can either be used by themselves, or, more usefully, to create a
 subset of the whole document collection within which the probabilistic query,
 described below, operates. In this style the Boolean query defines a window
-onto the document collection, and the probabilitstic query restricts what the
+onto the document collection, and the probabilistic query restricts what the
 user sees to documents inside that window.
 
 <H2>Relevance and the idea of a query</H2>
@@ -238,7 +238,7 @@ an unimportant term. The formula is,
 </PRE>
 
 (The base of the logarithm doesn't matter, but we can suppose it is e.) p is
-the probability that t indexes a relevant document, and q the probablility
+the probability that t indexes a relevant document, and q the probability
 that t indexes a non-relevant document. And of course, 1 - p is the
 probability that t does not index a relevant document, and 1 - q the
 probability that t does not index a non-relevant document. More mathematically,
@@ -348,7 +348,7 @@ The relation between words and terms need not be a simple one. A single term
 than one term. Nevertheless, if a term derives from words w<sub>9</sub>, w<sub>38</sub>, w<sub>97</sub> and
 w<sub>221</sub> in the indexing process, we can say that the term `occurs' in D at
 positions 9, 38, 97 and 221, and so for each term a document may have a
-vector of postional information. These are the <EM>within-document positions</EM> of
+vector of positional information. These are the <EM>within-document positions</EM> of
 t, or the <EM>wdp</EM> information of t.
 <P>
 The <EM>within-document frequency</EM>, or <EM>wdf</EM>, of a term t in D is the number of
@@ -508,7 +508,7 @@ One can if fact try to generalise it to
             t -&gt; D, D in <I>R</I>
 </PRE>
 
-The K here being not necessaily th same as the one used in forming the <I>M</I> set.
+The K here being not necessarily th same as the one used in forming the <I>M</I> set.
 <P>
 This reduces to W(t) = r w(t) when K = 0. Certainly this form can be
 recommended in the very common case where r = 1, that is, we have a single
@@ -519,7 +519,7 @@ document marked relevant.
 <H2>The progress of a query</H2>
 
 We want to stress than even without the fancy notions of a relevance set,
-query expansion, inproved term weights and reranking, Xapian is still a very
+query expansion, improved term weights and reranking, Xapian is still a very
 useful IR tool. You do not need to use the full capabilities of the software
 to get benefit from it. But in the general case, the IR model it supports is
 as follows:
