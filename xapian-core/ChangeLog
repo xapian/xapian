@@ -1,3 +1,9 @@
+Mon Sep 16 18:09:29 BST 2002  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: don't run consistency1 test on the remote backend
+	  - it's particularly slow with that, and testing it there doesn't
+	  actually improve the test coverage really.
+
 Mon Sep 16 17:15:46 BST 2002  Olly Betts <olly@survex.com>
 
 	* configure.in,docs/Makefile.am: Added workaround for pattern length
@@ -25,14 +31,14 @@ Mon Sep 16 04:19:54 BST 2002  Olly Betts <olly@survex.com>
 	  include/om/om.h.in: When building the library with GCC, generate
 	  include/om/om.h with preprocessor code to check that any version
 	  of GCC used to build applications has a matching C++ ABI.
-	  
+	
 	  This means that users get a nice explanatory error message rather
 	  than a confusing link failure (or worse a program which builds
 	  but crashes).  Another benefit is that the check happens near the
 	  start of compilation of the first source file which uses Xapian
 	  in the user's application, rather than during the first attempt
 	  to link with Xapian.
-	  
+	
 Sun Sep 15 01:42:19 BST 2002  Olly Betts <olly@survex.com>
 
 	* net/tcpserver.cc: Solved std mystery - "using namespace std;" was
@@ -159,7 +165,7 @@ Mon Sep 09 02:26:36 BST 2002  Olly Betts <olly@survex.com>
 	* Documentation updates: move suggested books into intro_ir.html
 	  and added URL for citeseer reference Richard posted to mailing
 	  list recently; clarified wording in a couple of places.
-	  
+	
 Sat Sep  7 12:52:12 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* docs: fixed references to OmDocumentContents (now OmDocument)
@@ -224,12 +230,12 @@ Mon Jul 22 14:07:18 BST 2002  Sam Liddicott <sam@ananova.com>
 Mon Jul 22 13:28:09 BST 2002  Sam Liddicott <sam@ananova.com>
 
 	* Add buildprereq to package
-	  Add quartzcheck which runs btree::check to backends 
+	  Add quartzcheck which runs btree::check to backends
 
 Tue Jul 16 09:44:56 BST 2002  Sam Liddicott <sam@ananova.com>
 
 	* Fix banding problem; bands are now based on the percentage
-	  not the weight, and using integer maths to avoid problems 
+	  not the weight, and using integer maths to avoid problems
 	  with ceil() rounding up supposed integers which are really
 	  slightly larger due to precision errors
 
@@ -327,7 +333,7 @@ Thu Jun 27 13:13:37 BST 2002  Olly Betts <olly@survex.com>
 	  install them; "make dist" will now fail if a tool needed to build
 	  docs is missing; removed last vestiges of Doc++ support;
 	  doc/Makefile no longer uses include (include isn't portable);
-	  improved doc/tests.txt. 
+	  improved doc/tests.txt.
 
 Thu Jun 27 12:10:37 BST 2002  Olly Betts <olly@survex.com>
 
@@ -520,7 +526,7 @@ Fri May 24 11:46:50 BST 2002  Sam Liddicott <sam@ananova.com>
 	* Now support get_matching_terms via swig
 	  I'm not sure how to generally map iterators to php but in
 	  cases where we know only a small number of items exist
-	  to be iterated over it makes sense to return them as a 
+	  to be iterated over it makes sense to return them as a
 	  php array
 
 Tue May 21 15:28:40 BST 2002  Richard Boulton <richard@tartarus.org>

@@ -3055,7 +3055,6 @@ test_desc db_tests[] = {
     {"xor1",		   test_xor1},
     {"getdoc1",		   test_getdoc1},
     {"emptyop1",	   test_emptyop1},
-    {"consistency1",	   test_consistency1},
     {0, 0}
 };
 
@@ -3127,6 +3126,10 @@ test_desc localdb_tests[] = {
     {"postlist5",	   test_postlist5},
     {"postlist6",	   test_postlist6},
     {"termstats",	   test_termstats},
+    // consistency1 will run on the remote backend, but it's particularly slow
+    // with that, and testing it there doesn't actually improve the test
+    // coverage really.
+    {"consistency1",	   test_consistency1},
     {0, 0}
 };
 
