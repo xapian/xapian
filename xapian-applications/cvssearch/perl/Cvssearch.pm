@@ -530,6 +530,7 @@ sub print_style_sheet {
     print ".d {background-color:#FF9999;}\n";
     print ".n {background-color:#EEEEEE;}\n";
     print ".g {background-color:#dddddd;}\n";
+
     print ".popupLink { color: blue; outline: none;}\n";
     print ".popup { position:absolute; visibility:hidden; color:white;background-color:#3366cc;";
     print "layer-background-color:#3366cc;border:2px solid orange; padding: 3px; z-index: 10;}\n";

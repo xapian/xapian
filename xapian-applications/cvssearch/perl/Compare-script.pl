@@ -7,8 +7,10 @@ chomp $pwd;
 
 my $cvsdata = Cvssearch::get_cvsdata();
 my $cvscompare = "./Compare.cgi";
+my $cvscomment = "./QueryComment.cgi";
 my $cvsquery = "$pwd/cvsquerydb";
 my $cvsbuild = "$pwd/cvsbuilddb";
+
 my $cvsmap = "$pwd/cvsmap";
 my $ctrlA = chr(01);
 my $ctrlB = chr(02);
@@ -134,15 +136,17 @@ sub compare_root_index() {
     # ----------------------------------------
     print "<h1 align=center>Repository $cvsroot</h1>\n";
     open (DBCONTENT, "<$cvsdata/$root/dbcontent");
-    print "<table  width=\"100%\" border=0 cellspacing=1 cellpadding=2>\n";
-    print "<tr><td class=\"s\">Package</td></tr>\n";
+    print "<table  width=100% align=center border=0 cellspacing=1 cellpadding=2>\n";
+    print "<tr><td colspan=3 class=s>Package</td></tr>\n";
     my $i = 0;
     while (<DBCONTENT>) {
         chomp;
         my $pkg = $_;
         $pkg =~tr/\_/\//;
         print "<tr>\n";
-        print "<td $class[$i%2]><a href=\"$cvscompare?root=$root&pkg=$pkg\">$pkg</a></td>";
+        print "<td $class[$i%2]>$pkg</td>";
+        print "<td $class[$i%2]><a href=\"$cvscompare?root=$root&pkg=$pkg\">grouped by file</a></td>";
+        print "<td $class[$i%2]><a href=\"$cvscomment?root=$root&pkg=$pkg\">grouped by commit</a></td>";
         print "</tr>\n";
         $i++;
     }
@@ -218,7 +222,7 @@ sub compare_pkg_index {
                 } elsif ($#fieldss == 1) {
                     $comment= $fieldss[1];
                 } elsif ($#fieldss == 0) {
-                    $comment="*** empty log message ***";
+                    $comment="[no log message]";
                 }
             }
         } elsif (/$ctrlA/) {

@@ -9,17 +9,19 @@
 use strict;
 use CGI ':all';
 use Cvssearch;
+my $cvsdata = Cvssearch::get_cvsdata();
 my $ctrlA = chr(01);
 my $ctrlB = chr(02);
 my $ctrlC = chr(03);
-
+my $cvscompare = "./Compare.cgi";
 my $cvsquery = "./cvsquerydb";
+my $querycomment = "./QueryComment.cgi";
 
 #-------------
 # start html
 #-------------
 
-print "Content-type:text/html\n\n";
+print header;
 print "<html>\n";
 print "<head>\n";
 
@@ -35,10 +37,15 @@ if(param()){
     my $commit_id = param("id");
     my $root = param("root");
     my $pkg = param("pkg");
+    my $cvsroot = Cvssearch::read_cvsroot_dir($root, $cvsdata);
+
     print "<body>\n";
     print "<table  width=\"100%\" border=0 cellspacing=1 cellpadding=2>\n";
     print "<tr>\n";
-    print "<td align=left><a href=\"./Compare.cgi?root=$root&pkg=$pkg\" target=\"s\"><b>$pkg</b></a></td>\n";
+
+    print "<td align=left>";
+    print "<b>Up to <a href=\"$cvscompare?root=$root\" target=_top>[$cvsroot]</a> ";
+    print "<a href=\"$querycomment?root=$root&pkg=$pkg\" target=\"s\">[$pkg]</a></b></td>\n";
     print "<td align=right><a href=\"./Query.cgi\" target=_top>Search Again</a></td>\n";
     print "</tr></table>\n";
 
