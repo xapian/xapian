@@ -42,9 +42,7 @@ class DBPostList : public virtual PostList {
 	DBPostList() : ir_wt(NULL) { return; }
 
 	~DBPostList() {
-	    cout << "Deleting DBPostlist" << endl;
 	    if(ir_wt) {
-		cout << "Deleting DBPostlist.ir_wt" << endl;
 		delete ir_wt;
 	    }
 	    return;
@@ -59,7 +57,6 @@ inline void
 DBPostList::set_termweight(const IRWeight * wt)
 {
     if(ir_wt) {
-	cout << "Deleting DBPostlist.ir_wt -- for replacement" << endl;
 	delete ir_wt;
     }
     ir_wt = wt;
