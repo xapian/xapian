@@ -1540,28 +1540,19 @@ static bool test_adddoc1()
     return true;    
 }
 
-// tests that database destructors end_session if it isn't done explicitly
+// tests that database destructors flush if it isn't done explicitly
 static bool test_implicitendsession1()
 {
-    try {
-	OmWritableDatabase db = get_writable_database("");
+    OmWritableDatabase db = get_writable_database("");
 
-	db.begin_session();
+    OmDocument doc;
 
-	OmDocument doc;
-	
-	doc.set_data(std::string("top secret"));
-	doc.add_posting("cia", 1);
-	doc.add_posting("nsa", 2);
-	doc.add_posting("fbi", 3);
-	db.add_document(doc);
-    }
-    catch (...) {
-	// in a debug build, an assertion in OmWritableDatabase's destructor
-	// will fail at the end of the try block if the backend doesn't
-	// implicitly call end_session()
-	throw;
-    }
+    doc.set_data(std::string("top secret"));
+    doc.add_posting("cia", 1);
+    doc.add_posting("nsa", 2);
+    doc.add_posting("fbi", 3);
+    db.add_document(doc);
+
     return true;
 }
 
