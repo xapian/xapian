@@ -24,7 +24,7 @@
 #define OM_HGUARD_INDEXER_H
 
 #include <iostream>
-#include <memory>
+#include "autoptr.h"
 
 #include "om/omtypes.h"
 #include "om/omindexdoc.h"
@@ -39,7 +39,7 @@ class IndexerSource {
 	void operator=(const IndexerSource &);
     public:
 	// Get the stream of data
-	virtual std::auto_ptr<std::istream> get_stream() const = 0;
+	virtual AutoPtr<std::istream> get_stream() const = 0;
 	IndexerSource() {}
 	virtual ~IndexerSource() {}
 };

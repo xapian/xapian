@@ -24,7 +24,6 @@
 #include <iomanip>
 #include <string>
 #include <typeinfo>
-#include <memory>
 #include <algorithm>
 #include <strstream.h>
 #include <iomanip.h>

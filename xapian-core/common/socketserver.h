@@ -30,7 +30,7 @@
 #include "socketcommon.h"
 #include "networkstats.h"
 #include "omlinebuf.h"
-#include <memory>
+#include "autoptr.h"
 
 /** The base class of the network server object.
  *  A NetServer object is used by server programs to take care
@@ -54,7 +54,7 @@ class SocketServer : public NetServer {
 	int msecs_timeout;
 
 	/// The line buffer for doing the actual I/O
-	std::auto_ptr<OmLineBuf> buf;
+	AutoPtr<OmLineBuf> buf;
 
 	/// The various states of the conversation we can be in
 	enum conv_states {
@@ -107,7 +107,7 @@ class SocketServer : public NetServer {
 	 *  @param buffer	OmLineBuf already connected to remote end.
 	 */
 	SocketServer(RefCntPtr<MultiDatabase> db,
-		     std::auto_ptr<OmLineBuf> buffer,
+		     AutoPtr<OmLineBuf> buffer,
 		     int msecs_timeout_ = 10000);
 
 	/** Destructor. */

@@ -23,7 +23,7 @@
 #include "config.h"
 #include <fstream>
 #include <string>
-#include <memory>
+#include "autoptr.h"
 #include <map>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -80,7 +80,7 @@ index_files_to_database(OmWritableDatabase & database,
 	 p != paths.end();
 	 p++) {
 	TextfileIndexerSource source(*p);
-	std::auto_ptr<std::istream> from(source.get_stream());
+	AutoPtr<std::istream> from(source.get_stream());
 
 	while(*from) {
 	    std::string para;
@@ -103,7 +103,7 @@ index_files_to_m36(const string &prog, const string &dbdir,
 	 p != paths.end();
 	 p++) {
 	TextfileIndexerSource source(*p);
-	std::auto_ptr<std::istream> from(source.get_stream());
+	AutoPtr<std::istream> from(source.get_stream());
 
 	while (*from) {
 	    std::string para;

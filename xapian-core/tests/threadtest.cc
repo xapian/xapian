@@ -42,8 +42,8 @@ using std::cerr;
 using std::endl;
 
 #include "omlocks.h"
-#include <memory>
-std::auto_ptr<OmLock> outputmutex;
+#include "autoptr.h"
+AutoPtr<OmLock> outputmutex;
 
 void
 OutputMessage(std::string msg) {
@@ -381,7 +381,7 @@ test_desc tests[] = {
 int main(int argc, char *argv[])
 {
     {
-	std::auto_ptr<OmLock> temp(new OmLock());
+	AutoPtr<OmLock> temp(new OmLock());
 	outputmutex = temp;
     }
     if (argc < 4) {

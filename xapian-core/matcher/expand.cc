@@ -27,7 +27,7 @@
 #include "omdebug.h"
 
 #include <algorithm>
-#include <memory>
+#include "autoptr.h"
 
 class OmESetCmp {
     public:
@@ -45,7 +45,7 @@ class TLPCmpGt {
 	}
 };
 
-auto_ptr<TermList>
+AutoPtr<TermList>
 OmExpand::build_tree(const RSet *rset, const OmExpandWeight *ewt)
 {
     // Put items in priority queue, such that items with greatest size
@@ -60,14 +60,14 @@ OmExpand::build_tree(const RSet *rset, const OmExpandWeight *ewt)
 	for (i = rset->documents.begin();
 	     i != rset->documents.end();
 	     i++) {
-	    auto_ptr<LeafTermList> tl(database->open_term_list((*i).did));
+	    AutoPtr<LeafTermList> tl(database->open_term_list((*i).did));
 	    tl->set_weighting(ewt);
 	    pq.push(tl.get());
 	    tl.release();
 	}
 
 	if (pq.empty()) {
-	    return auto_ptr<TermList>(0);
+	    return AutoPtr<TermList>(0);
 	}
 
 	// Build a tree balanced by the term frequencies
@@ -77,7 +77,7 @@ OmExpand::build_tree(const RSet *rset, const OmExpandWeight *ewt)
 	// get "pulled" through, reducing the amount of work done which
 	// speeds things up.
 	while (true) {
-	    auto_ptr<TermList> tl(pq.top());
+	    AutoPtr<TermList> tl(pq.top());
 	    pq.pop();
 
 	    DEBUGLINE(EXPAND,
@@ -87,7 +87,7 @@ OmExpand::build_tree(const RSet *rset, const OmExpandWeight *ewt)
 	    }
 
 	    // NB right is always <= left - we can use this to optimise
-	    auto_ptr<OrTermList> newtl(new OrTermList(pq.top(), tl.get()));
+	    AutoPtr<OrTermList> newtl(new OrTermList(pq.top(), tl.get()));
 	    tl.release();
 	    pq.pop();
 	    pq.push(newtl.get());
@@ -121,7 +121,7 @@ OmExpand::expand(om_termcount max_esize,
     // Start weighting scheme
     OmExpandWeight ewt(database, rset->get_rsize(), use_exact_termfreq);
 
-    auto_ptr<TermList> merger(build_tree(rset, &ewt));
+    AutoPtr<TermList> merger(build_tree(rset, &ewt));
     if(merger.get() == 0) return;
 
     DEBUGLINE(EXPAND, "ewt.get_maxweight() = " << ewt.get_maxweight());
@@ -130,7 +130,7 @@ OmExpand::expand(om_termcount max_esize,
 	    TermList *ret = merger->next();
 	    if (ret) {
 		DEBUGLINE(EXPAND, "*** REPLACING ROOT");
-		auto_ptr<TermList> newmerger(ret);
+		AutoPtr<TermList> newmerger(ret);
 		merger = newmerger;
 	    }
 	}

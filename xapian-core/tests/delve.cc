@@ -30,7 +30,6 @@
 
 #include <vector>
 #include <stack>
-#include <memory>
 #include <algorithm>
 
 using std::string;

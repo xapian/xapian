@@ -25,7 +25,7 @@
 #include "stats.h"
 #include "omdebug.h"
 
-#include <memory>
+#include "autoptr.h"
 
 void
 RSet::calculate_stats()
@@ -37,8 +37,8 @@ RSet::calculate_stats()
 	 doc != documents.end();
 	 doc++) {
 	DEBUGLINE(WTCALC, "document " << doc->did << " [ ");
-	std::auto_ptr<TermList> tl =
-	    std::auto_ptr<TermList>(root->open_term_list(doc->did));
+	AutoPtr<TermList> tl =
+	    AutoPtr<TermList>(root->open_term_list(doc->did));
 	tl->next();
 	while(!(tl->at_end())) {
 	    // FIXME - can this lookup be done faster?

@@ -28,7 +28,7 @@
 #include "refcnt.h"
 
 #include <vector>
-#include <memory>  // auto_ptr
+#include "autoptr.h"  // auto_ptr
 
 class MultiDatabase;
 class SingleMatch;
@@ -45,7 +45,7 @@ class MultiMatch
 	const MultiDatabase * multi_database;
 
 	/// stats gatherer
-	std::auto_ptr<StatsGatherer> gatherer;
+	AutoPtr<StatsGatherer> gatherer;
 
 	/// Comparison functor for sorting MSet
 	OmMSetCmp mcmp;
@@ -167,8 +167,8 @@ class MultiMatch
 		   const OmQueryInternal * query,
 		   const OmRSet & omrset,
 		   const OmSettings & moptions,
-		   std::auto_ptr<StatsGatherer> gatherer_
-		       = std::auto_ptr<StatsGatherer>(new LocalStatsGatherer()));
+		   AutoPtr<StatsGatherer> gatherer_
+		       = AutoPtr<StatsGatherer>(new LocalStatsGatherer()));
 	~MultiMatch();
 
 	void get_mset(om_doccount first, om_doccount maxitems,

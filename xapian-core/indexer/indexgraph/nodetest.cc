@@ -48,7 +48,7 @@ int main() {
 	    ndesc.add_output("out", "string", mt_string);
 	    builder.register_node_type(ndesc);
 	}
-	auto_ptr<OmIndexer> indexer = builder.build_from_file("test.xml");
+	AutoPtr<OmIndexer> indexer = builder.build_from_file("test.xml");
 	Message msg(new Record("foo", "bar"));
 	indexer->set_input(msg);
 	Message result = indexer->get_output();

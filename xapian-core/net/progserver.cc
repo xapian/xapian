@@ -28,7 +28,6 @@
 #include "socketcommon.h"
 #include "utils.h"
 #include <unistd.h>
-#include <memory>
 #include <strstream.h>
 
 /// The ProgServer constructor, taking two filedescriptors and a database.

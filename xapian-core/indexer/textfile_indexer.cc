@@ -28,18 +28,17 @@
 #include <fstream>
 #include <cstdlib>
 #include <string>
-#include <memory>
+#include "autoptr.h"
 
 TextfileIndexerSource::TextfileIndexerSource(const std::string & fname)
 	: filename(fname)
 { return; }
 
-std::auto_ptr<std::istream>
+AutoPtr<std::istream>
 TextfileIndexerSource::get_stream() const
 {
-    std::auto_ptr<std::istream> from(new std::ifstream(filename.c_str()));
+    AutoPtr<std::istream> from(new std::ifstream(filename.c_str()));
     if(!*from) throw OmOpeningError("Cannot open file " + filename + " for indexing");
-    // FIXME: return an auto_ptr here
     return from;
 };
 
@@ -48,7 +47,7 @@ void
 TextfileIndexer::add_source(const IndexerSource & source)
 {
     Assert(dest != NULL);
-    std::auto_ptr<std::istream> from(source.get_stream());
+    AutoPtr<std::istream> from(source.get_stream());
 
     // Read lines, each paragraph is a document, split lines into words,
     // each word is a term

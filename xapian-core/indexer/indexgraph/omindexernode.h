@@ -24,7 +24,7 @@
 #define OM_HGUARD_OMINDEXERNODE_H
 
 #include <string>
-#include <memory>
+#include "autoptr.h"
 #include <map>
 #include <vector>
 #include "deleter_map.h"
@@ -160,7 +160,7 @@ class Record {
 	void swap(Record &other);
 };
 
-typedef auto_ptr<Record> Message;
+typedef AutoPtr<Record> Message;
 
 std::ostream &operator<<(std::ostream &os, const Message &message);
 std::ostream &operator<<(std::ostream &os, const Record &record);

@@ -27,7 +27,7 @@
 #include "database.h"
 #include "multi_database.h"
 #include "socketcommon.h"
-#include <memory>
+#include "autoptr.h"
 
 /** A TCP server class, which uses SocketServer.
  */

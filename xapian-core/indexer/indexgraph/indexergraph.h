@@ -30,6 +30,7 @@
 #include <string>
 #include <map>
 #include <parser.h>
+#include "autoptr.h"
 #include "omindexernode.h"
 #include "om/omsettings.h"
 #include "deleter_map.h"
@@ -158,13 +159,13 @@ class OmIndexerBuilder {
 	 *  @param filename	The name of the file describing the indexer
 	 *                      network.
 	 */
-	auto_ptr<OmIndexer> build_from_file(std::string filename);
+	AutoPtr<OmIndexer> build_from_file(std::string filename);
 
 	/** Build an indexer from an XML string
 	 *  
 	 *  @param xmldesc	The string describing the indexer network.
 	 */
-	auto_ptr<OmIndexer> build_from_string(std::string xmldesc);
+	AutoPtr<OmIndexer> build_from_string(std::string xmldesc);
 
 	/** Register a new node type */
 	void register_node_type(const OmNodeDescriptor &nodedesc);

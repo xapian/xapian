@@ -43,7 +43,7 @@ MultiMatch::MultiMatch(const MultiDatabase * multi_database_,
 		       const OmQueryInternal * query,
 		       const OmRSet & omrset,
 		       const OmSettings & moptions,
-		       std::auto_ptr<StatsGatherer> gatherer_)
+		       AutoPtr<StatsGatherer> gatherer_)
 	: multi_database(multi_database_),
 	  gatherer(gatherer_),
 	  mcmp(msetcmp_forward)

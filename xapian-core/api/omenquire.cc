@@ -41,7 +41,7 @@
 #include "utils.h"
 
 #include <vector>
-#include <memory>
+#include "autoptr.h"
 #include <algorithm>
 #include <math.h>
 
@@ -352,15 +352,15 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
     /* The auto_ptrs will clean up any dynamically allocated
      * expand deciders automatically.
      */
-    std::auto_ptr<OmExpandDecider> decider_noquery;
-    std::auto_ptr<OmExpandDecider> decider_andnoquery;
+    AutoPtr<OmExpandDecider> decider_noquery;
+    AutoPtr<OmExpandDecider> decider_andnoquery;
 
     if (query != 0 && !eoptions->get_bool("expand_use_query_terms", false)) {
-	std::auto_ptr<OmExpandDecider> temp1(
+	AutoPtr<OmExpandDecider> temp1(
 	    new OmExpandDeciderFilterTerms(query->get_terms()));
         decider_noquery = temp1;
 
-	std::auto_ptr<OmExpandDecider> temp2(
+	AutoPtr<OmExpandDecider> temp2(
 	    new OmExpandDeciderAnd(decider_noquery.get(),
 				   edecider));
 	decider_andnoquery = temp2;
@@ -471,7 +471,7 @@ OmEnquireInternal::calc_matching_terms(om_docid did) const
 	tmap[*i] = index++;
     }
 
-    std::auto_ptr<TermList> docterms(database->open_term_list(did));
+    AutoPtr<TermList> docterms(database->open_term_list(did));
 
     /* next() must be called on a TermList before you can
      * do anything else with it.

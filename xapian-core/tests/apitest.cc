@@ -23,7 +23,6 @@
 #include "config.h"
 #include <iostream>
 #include <string>
-#include <memory>
 #include <map>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -36,7 +35,6 @@ using std::vector;
 using std::string;
 using std::ostream_iterator;
 using std::map;
-using std::auto_ptr;
 using std::max;
 using std::ostream;
 

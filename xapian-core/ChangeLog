@@ -1,3 +1,7 @@
+Wed Sep 20 15:48:22 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Changed std::auto_ptr to AutoPtr everywhere except Quartz
+
 Wed Sep 20 14:27:55 BST 2000 Olly Betts
 
 	* IRDatabase renamed to just plain ol' Database.

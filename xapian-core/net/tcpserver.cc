@@ -34,7 +34,6 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
-#include <memory>
 #include <netinet/in_systm.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>

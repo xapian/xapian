@@ -29,7 +29,7 @@
 #include "multimatch.h"
 #include "socketcommon.h"
 #include "networkstats.h"
-#include <memory>
+#include "autoptr.h"
 
 /** The base class of the network server object.
  *  A NetServer object is used by server programs to take care

@@ -32,7 +32,7 @@
 #include "omstringstream.h"
 
 #ifdef MUS_DEBUG_VERBOSE
-#include <memory>
+#include "autoptr.h"
 #include <vector>
 #include <stdio.h>
 

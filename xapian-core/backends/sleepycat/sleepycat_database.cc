@@ -46,15 +46,10 @@
 #include "om/omerror.h"
 
 SleepycatDatabase::SleepycatDatabase(const OmSettings &params, bool readonly)
+	: internals(new SleepycatDatabaseInternals()),
+	termcache(new SleepycatDatabaseTermCache(internals.get()))
 {
     string path = params.get("sleepycat_dir");
-
-    // FIXME: misuse of auto_ptr - should be refcnt
-    std::auto_ptr<SleepycatDatabaseInternals> tempptr1(new SleepycatDatabaseInternals());
-    internals = tempptr1;
-    std::auto_ptr<SleepycatDatabaseTermCache>
-	tempptr2(new SleepycatDatabaseTermCache(internals.get()));
-    termcache = tempptr2;
 
     // Open database with specified path
     // May throw an OmOpeningError exception
@@ -98,7 +93,7 @@ SleepycatDatabase::get_avlength() const
 om_doclength
 SleepycatDatabase::get_doclength(om_docid did) const
 {
-    std::auto_ptr<SleepycatTermList> tl(
+    AutoPtr<SleepycatTermList> tl(
 	new SleepycatTermList(did, RefCntPtr<const SleepycatDatabase>(RefCntPtrToThis(), this),
 			      internals.get(), termcache.get()));
     return tl->get_doclength();

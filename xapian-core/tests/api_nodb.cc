@@ -24,6 +24,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "autoptr.h"
 
 using std::cout;
 using std::endl;
@@ -122,10 +123,10 @@ static bool test_querylen3()
     vector<OmQuery> v2(queries, queries + 3);
     vector<OmQuery *> v3;
 
-    auto_ptr<OmQuery> dynquery1(new OmQuery(OmQuery::OP_AND,
+    AutoPtr<OmQuery> dynquery1(new OmQuery(OmQuery::OP_AND,
 					    std::string("ball"),
 					    std::string("club")));
-    auto_ptr<OmQuery> dynquery2(new OmQuery("ring"));
+    AutoPtr<OmQuery> dynquery2(new OmQuery("ring"));
     v3.push_back(dynquery1.get());
     v3.push_back(dynquery2.get());
 

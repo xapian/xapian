@@ -36,7 +36,7 @@ class PostList;
 
 #include <vector>
 #include <map>
-#include <memory>
+#include "autoptr.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // Comparison functions to determine the order of elements in the MSet
@@ -67,7 +67,7 @@ class LocalMatch : public SingleMatch
 	std::vector<IRWeight *> weights;
 
 	/// RSet to be used (affects weightings)
-	std::auto_ptr<RSet> rset;
+	AutoPtr<RSet> rset;
 
 	/// Stored match options object
 	OmSettings mopts;

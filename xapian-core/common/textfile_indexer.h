@@ -24,14 +24,14 @@
 #define OM_HGUARD_TEXTFILE_INDEXER_H
 
 #include "indexer.h"
-#include <memory>
+#include "autoptr.h"
 
 class TextfileIndexerSource : public IndexerSource {
     private:
 	std::string filename;
     public:
 	TextfileIndexerSource(const std::string & fname);
-	std::auto_ptr<std::istream> get_stream() const;
+	AutoPtr<std::istream> get_stream() const;
 };
 
 class TextfileIndexer : public Indexer {

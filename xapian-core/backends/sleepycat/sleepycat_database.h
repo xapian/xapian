@@ -27,7 +27,7 @@
 #ifdef MUS_BUILD_BACKEND_SLEEPYCAT
 
 #include <stdlib.h>
-#include <memory>
+#include "autoptr.h"
 #include "database.h"
 #include "om/omerror.h"
 #include "om/omdocument.h"
@@ -44,9 +44,9 @@ class SleepycatDatabaseInternals;
 class SleepycatDatabase : public Database {
     friend class DatabaseBuilder;
     private:
-	std::auto_ptr<SleepycatDatabaseInternals> internals;
+	AutoPtr<SleepycatDatabaseInternals> internals;
 
-	std::auto_ptr<SleepycatDatabaseTermCache> termcache;
+	AutoPtr<SleepycatDatabaseTermCache> termcache;
 
 	/** Create and open a sleepycat database.
 	 *

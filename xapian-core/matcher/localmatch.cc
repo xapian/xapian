@@ -44,7 +44,7 @@
 #include "irweight.h"
 
 #include <algorithm>
-#include <memory>
+#include "autoptr.h"
 #include <queue>
 
 /////////////////////////////////////////////
@@ -273,7 +273,7 @@ LocalMatch::mk_weight(om_termname tname_, om_termcount wqf_)
     wt->set_stats(&statssource, querysize, wqf_, tname_);
 #ifdef MUS_DEBUG_PARANOID
     if (!tname_.empty()) {
-	auto_ptr<IRWeight> extra_weight(mk_weight());
+	AutoPtr<IRWeight> extra_weight(mk_weight());
 	// Check that max_extra weight is really right
 	AssertEqDouble(wt->get_maxextra(), extra_weight->get_maxextra());
     }
@@ -320,7 +320,7 @@ LocalMatch::set_rset(const OmRSet & omrset)
 {
     Assert(!is_prepared);
     // database
-    std::auto_ptr<RSet> new_rset(new RSet(database, omrset));
+    AutoPtr<RSet> new_rset(new RSet(database, omrset));
     rset = new_rset;
 }
 

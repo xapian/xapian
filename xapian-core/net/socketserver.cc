@@ -33,7 +33,7 @@
 #include "termlist.h"
 #include "document.h"
 #include "omdebug.h"
-#include <memory>
+#include "autoptr.h"
 #include <strstream.h>
 #include <signal.h>
 #include <cerrno>
@@ -67,7 +67,7 @@ SocketServer::SocketServer(RefCntPtr<MultiDatabase> db_,
 }
 
 SocketServer::SocketServer(RefCntPtr<MultiDatabase> db_,
-			   std::auto_ptr<OmLineBuf> buf_,
+			   AutoPtr<OmLineBuf> buf_,
 			   int msecs_timeout_)
 	: db(db_),
 	  readfd(-1),
@@ -181,7 +181,7 @@ SocketServer::run_match(const std::string &firstmessage)
 		     &query,
 		     omrset,
 		     moptions,
-		     std::auto_ptr<StatsGatherer>(gatherer =
+		     AutoPtr<StatsGatherer>(gatherer =
 					     new NetworkStatsGatherer(this)));
 
 #if 0
@@ -252,7 +252,7 @@ SocketServer::run_gettermlist(const std::string &firstmessage)
 
     om_docid did = atoi(message.c_str() + 9);
 
-    std::auto_ptr<LeafTermList> tl(db->open_term_list(did));
+    AutoPtr<LeafTermList> tl(db->open_term_list(did));
 
     tl->next();
 
@@ -280,7 +280,7 @@ SocketServer::run_getdocument(const std::string &firstmessage)
 
     om_docid did = atoi(message.c_str() + 7);
 
-    std::auto_ptr<LeafDocument> doc(db->open_document(did));
+    AutoPtr<LeafDocument> doc(db->open_document(did));
 
     buf->writeline(std::string("DOC ") + encode_tname(doc->get_data().value));
 

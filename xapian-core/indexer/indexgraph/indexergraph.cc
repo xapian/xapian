@@ -58,23 +58,23 @@ OmIndexer::~OmIndexer()
 {
 }
 
-auto_ptr<OmIndexer>
+AutoPtr<OmIndexer>
 OmIndexerBuilder::build_from_file(std::string filename)
 {
     xmlDocPtr doc = get_xmltree_from_file(filename);
 
-    auto_ptr<OmIndexer> indexer(new OmIndexer());
+    AutoPtr<OmIndexer> indexer(new OmIndexer());
     build_graph(indexer.get(), doc);
 
     return indexer;
 }
 
-auto_ptr<OmIndexer>
+AutoPtr<OmIndexer>
 OmIndexerBuilder::build_from_string(std::string filename)
 {
     xmlDocPtr doc = get_xmltree_from_string(filename);
 
-    auto_ptr<OmIndexer> indexer(new OmIndexer());
+    AutoPtr<OmIndexer> indexer(new OmIndexer());
     build_graph(indexer.get(), doc);
 
     return indexer;

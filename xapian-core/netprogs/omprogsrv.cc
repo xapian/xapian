@@ -24,7 +24,7 @@
 #include <iomanip>
 #include <string>
 #include <typeinfo>
-#include <memory>
+#include "autoptr.h"
 #include <algorithm>
 #include <strstream.h>
 #include <iomanip.h>
@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
 
 	std::vector<Database> dbs;
 	dbs.push_back(DatabaseBuilder::create(param));
-	auto_ptr<Database> db(DatabaseBuilder::create(dbs));
+	AutoPtr<Database> db(DatabaseBuilder::create(dbs));
 	RefCntPtr<MultiDatabase> mdb(dynamic_cast<MultiDatabase *>(db.get()));
 	if (!mdb.get()) {
 	    throw OmDatabaseError("Invalid database");
