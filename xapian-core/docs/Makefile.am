@@ -34,75 +34,58 @@ all-dvi:
 all-ps:
 endif
 
-# Things to do if have doc++ installed
-if HAVE_DOCPP
-#all-local: apidoc/index.html sourcedoc/index.html all-dvi all-ps
-dist-hook: all-local apidoc-dist
-install-data-local: all-local apidoc-install
+# Things to do if have doxygen installed 
+if HAVE_DOXYGEN
+all-local: # doxygen_docs
+dist-hook: doxygen_docs doxygen_dist
+install-data-local: doxygen_docs doxygen_install
 else
 all-local:
-dist-hook: apidoc-dist
-install-data-local: apidoc-install
+dist-hook: doxygen_dist
+install-data-local: doxygen_install
 endif
 
 # Data to install, in the usual automake way
 docdatadir   = $(datadir)/omuscat
 docdata_DATA = $(CREATED_DOCUMENTS1) $(HTMLFILES)
 
-#########################################
-# How to put apidoc in the distribution #
-#########################################
-apidoc-dist: apidoc-html-dist apidoc-dvi-dist
+###############################################
+# How to put doxygen docs in the distribution #
+###############################################
+doxygen_dist: doxygen_html_dist
 
-apidoc-dvi-dist:
-	@if [ -r apidoc.dvi ] ; then \
-	  echo "Adding API DVI documentation to distribution" ; \
-	  cp apidoc.dvi $(distdir)/ ; \
-	else \
-	  if [ -r $(srcdir)/apidoc.dvi ] ; then \
-	    echo "Adding API DVI documentation to distribution" ; \
-	    cp $(srcdir)/apidoc.dvi $(distdir)/ ; \
-	  else \
-	    echo "Skipping API DVI documentation from distribution: can't build" ; \
-	  fi \
-	fi
-
-apidoc-html-dist:
-	@if [ -r apidoc/index.html ] ; then \
-	  echo "Adding API HTML documentation to distribution" ; \
+doxygen_html_dist:
+	@if [ -r apidoc/html/index.html ] ; then \
+	  echo "Adding API documentation to distribution" ; \
 	  $(mkinstalldirs) $(distdir)/apidoc ; \
-	  cp apidoc/* $(distdir)/apidoc/ ; \
+	  cp -a apidoc/* $(distdir)/apidoc/ ; \
 	else \
-	  if [ -r $(srcdir)/apidoc/index.html ] ; then \
-	    echo "Adding API HTML documentation to distribution" ; \
-	    $(mkinstalldirs) $(distdir)/apidoc ; \
-	    cp $(srcdir)/apidoc/* $(distdir)/apidoc/ ; \
-	  else \
-	    echo "Skipping API HTML documentation from distribution: can't build" ; \
-	  fi \
+	  echo "Skipping API documentation from distribution: can't build" ; \
 	fi
 
 #########################
 # How to install apidoc #
 #########################
-apidoc-install: apidoc-html-install apidoc-dvi-install
+doxygen_install: doxygen_html_install
 
-apidoc-html-install:
-	@if [ -r apidoc/index.html ] ; then \
+doxygen_html_install:
+	@if [ -r apidoc/html/index.html ] ; then \
 	  echo "Installing API HTML documentation" ; \
 	  $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc ; \
-	  $(INSTALL_DATA) apidoc/* $(DESTDIR)$(docdatadir)/apidoc/ ; \
+	  $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc/html ; \
+	  $(INSTALL_DATA) apidoc/html/* $(DESTDIR)$(docdatadir)/apidoc/html ; \
 	else \
-	  if [ -r $(srcdir)/apidoc/index.html ] ; then \
+	  if [ -r $(srcdir)/apidoc/html/index.html ] ; then \
 	    echo "Installing API HTML documentation" ; \
 	    $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc ; \
-	    $(INSTALL_DATA) $(srcdir)/apidoc/* $(DESTDIR)$(docdatadir)/apidoc/ ; \
+	    $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc/html ; \
+	    $(INSTALL_DATA) $(srcdir)/apidoc/html/* $(DESTDIR)$(docdatadir)/apidoc/html ; \
 	  else \
 	    echo "NOT installing API HTML documentation: not present, and can't generate" ; \
 	  fi \
 	fi
 
-apidoc-dvi-install:
+doxygen_dvi_install:
 	@if [ -r apidoc.dvi ] ; then \
 	  echo "Installing API DVI documentation" ; \
 	  $(INSTALL_DATA) apidoc.dvi $(DESTDIR)$(docdatadir)/ ; \
@@ -119,27 +102,21 @@ apidoc-dvi-install:
 # How to clean up local files #
 ###############################
 clean-local:
-	@if [ -d doxygen_api ]; then \
-	  echo "removing doxygen_api/"; \
-	  $(RM) -r doxygen_api/* ; rmdir doxygen_api ; \
-	fi
-	@if [ -d doxygen_full ]; then \
-	  echo "removing doxygen_full/"; \
-	  $(RM) -r doxygen_full/* ; rmdir doxygen_full ; \
-	fi
-
 	@if [ -d apidoc ]; then \
-	  echo "removing apidoc/"; $(RM) apidoc/* ; rmdir apidoc ; \
-	fi
-	@if [ -r apidoc.tex ]; then \
-	  echo "removing apidoc.*"; $(RM) apidoc.* ; \
+	  echo "removing apidoc/"; \
+	  $(RM) -r apidoc/* ; rmdir apidoc ; \
 	fi
 	@if [ -d sourcedoc ]; then \
-	  echo "removing sourcedoc/"; $(RM) sourcedoc/* ; rmdir sourcedoc ; \
+	  echo "removing sourcedoc/"; \
+	  $(RM) -r sourcedoc/* ; rmdir sourcedoc ; \
 	fi
-	@if [ -r sourcedoc.tex ]; then \
-	  echo "removing sourcedoc.*"; $(RM) sourcedoc.* ; \
+	@if [ -r doxygen_api_conf ]; then \
+	  echo "removing doxygen_api_conf"; $(RM) doxygen_api_conf ; \
 	fi
+	@if [ -r doxygen_full_conf ]; then \
+	  echo "removing doxygen_full_conf"; $(RM) doxygen_full_conf ; \
+	fi
+
 	@if [ -r code_structure.html ]; then \
 	  echo "removing code_structure.html"; $(RM) code_structure.html ; \
 	fi
@@ -220,35 +197,35 @@ SOURCEDOC_SRC = `find $(top_srcdir) \( \( -name \*.h -or -name \*.cc -or -name \
 
 .FORCE: doxygen_docs
 
-doxygen_docs: doxygen_api/html/index.html doxygen_full/html/index.html
+doxygen_docs: apidoc/html/index.html sourcedoc/html/index.html
 
-doxygen_api/html/index.html: doxygen_api_conf
+apidoc/html/index.html: doxygen_api_conf
 	@echo "Generating API documentation with doxygen"
 	@top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) doxygen doxygen_api_conf
 
-doxygen_full/html/index.html: doxygen_full_conf
+sourcedoc/html/index.html: doxygen_full_conf
 	@echo "Generating full source documentation with doxygen"
 	@top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) doxygen doxygen_full_conf
 
-apidoc/index.html:
-	@echo "Generating HTML documentation for API"
-	@depends="$(APIDOC_SRC)"; destfile=".deps-apidoc-html"; $(GENDEPS)
-	@doc++ $(DOCPPFLAGS) --dir apidoc $(APIDOC_SRC)
-
-apidoc.tex:
-	@echo "Generating LaTeX documentation for API"
-	@depends="$(APIDOC_SRC)"; destfile=".deps-apidoc-tex"; $(GENDEPS)
-	@doc++ -t $(DOCPPFLAGS) --output $@ $(APIDOC_SRC)
-
-sourcedoc/index.html:
-	@echo "Generating HTML documentation for full source"
-	@depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-html"; $(GENDEPS)
-	@doc++ $(DOCPPFLAGS) --all --private --dir sourcedoc $(SOURCEDOC_SRC)
-
-sourcedoc.tex:
-	@echo "Generating LaTeX documentation for full source"
-	@depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-tex"; $(GENDEPS)
-	@doc++ -t $(DOCPPFLAGS) --private --output $@ $(SOURCEDOC_SRC)
+## apidoc/index.html:
+## 	@echo "Generating HTML documentation for API"
+## 	@depends="$(APIDOC_SRC)"; destfile=".deps-apidoc-html"; $(GENDEPS)
+## 	@doc++ $(DOCPPFLAGS) --dir apidoc $(APIDOC_SRC)
+## 
+## apidoc.tex:
+## 	@echo "Generating LaTeX documentation for API"
+## 	@depends="$(APIDOC_SRC)"; destfile=".deps-apidoc-tex"; $(GENDEPS)
+## 	@doc++ -t $(DOCPPFLAGS) --output $@ $(APIDOC_SRC)
+## 
+## sourcedoc/index.html:
+## 	@echo "Generating HTML documentation for full source"
+## 	@depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-html"; $(GENDEPS)
+## 	@doc++ $(DOCPPFLAGS) --all --private --dir sourcedoc $(SOURCEDOC_SRC)
+## 
+## sourcedoc.tex:
+## 	@echo "Generating LaTeX documentation for full source"
+## 	@depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-tex"; $(GENDEPS)
+## 	@doc++ -t $(DOCPPFLAGS) --private --output $@ $(SOURCEDOC_SRC)
 
 ##################################
 # Generate images from dia files #

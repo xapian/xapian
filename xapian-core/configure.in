@@ -25,10 +25,16 @@ AC_PATH_PROG(LATEX_PATH, latex)
 AM_CONDITIONAL(HAVE_LATEX, test -n "$LATEX_PATH")
 AC_SUBST(LATEX_PATH)
 
-dnl Check for doc++. (Needed to make some more of the documentation)
-AC_PATH_PROG(DOCPP_PATH, doc++)
-AM_CONDITIONAL(HAVE_DOCPP, test -n "$DOCPP_PATH")
-AC_SUBST(DOCPP_PATH)
+dnl Doc++ is no longer used.
+dnl dnl Check for doc++. (Needed to make some more of the documentation)
+dnl AC_PATH_PROG(DOCPP_PATH, doc++)
+dnl AM_CONDITIONAL(HAVE_DOCPP, test -n "$DOCPP_PATH")
+dnl AC_SUBST(DOCPP_PATH)
+
+dnl Check for doxygen. (Needed to make some more of the documentation)
+AC_PATH_PROG(DOXYGEN_PATH, doxygen)
+AM_CONDITIONAL(HAVE_DOXYGEN, test -n "$DOXYGEN_PATH")
+AC_SUBST(DOXYGEN_PATH)
 
 dnl Check for dvips. (Needed to make some more of the documentation)
 AC_PATH_PROG(DVIPS_PATH, dvips)
