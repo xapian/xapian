@@ -158,6 +158,17 @@ next_char()
    return q[qptr++];
 }
 
+// FIXME: copied from om/indexer/index_utils.cc
+static void
+lowercase_term(om_termname &term)
+{
+    om_termname::iterator i = term.begin();
+    while(i != term.end()) {
+	*i = tolower(*i);
+	i++;
+    }
+}
+
 int
 yylex()
 {
@@ -211,6 +222,7 @@ yylex()
         } else if (term == "NEAR") {
 	    return NEAR;
         }
+	lowercase_term(term);
 	if (stem_term) term = stemmer->stem_word(term);
 	yylval = U(OmQuery(term, 1, termpos++));
 	qp->termlist.push_back(term);
