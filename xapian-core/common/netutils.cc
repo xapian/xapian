@@ -67,7 +67,8 @@ decode_tname(const std::string &tcode)
     for (i = tcode.begin(); i != tcode.end(); ++i) {
 	int offset = 0;
 	unsigned char max = 126;
-	switch (*i) {
+	unsigned char ch = *i;
+	switch (ch) {
 	    case 33:
 		offset = -36;
 		max = 71;
@@ -84,11 +85,11 @@ decode_tname(const std::string &tcode)
 	if (offset) {
 	    unsigned char ch2 = *++i;
 	    if (i == tcode.end() || ch2 < 36 || ch2 > max)
-		throw Xapian::NetworkError("Invalid encoded string in network communication: `" + tcode + "': unexpected character `" + ch2 + "' following " + ch);
+		throw Xapian::NetworkError("Invalid encoded string in network communication: `" + tcode + "': unexpected character `" + char(ch2) + "' following " + char(ch));
 	    result += char(ch2 + offset);
 	} else {
 	    if (ch < 36 || ch > max)
-		throw Xapian::NetworkError("Invalid encoded string in network communication: `" + tcode + "': unexpected character `" + ch + "'");
+		throw Xapian::NetworkError("Invalid encoded string in network communication: `" + tcode + "': unexpected character `" + char(ch) + "'");
 	    result += char(ch);
 	}
     }

@@ -1,3 +1,7 @@
+Mon Nov 01 01:12:43 GMT 2004  Olly Betts <olly@survex.com>
+
+	* common/netutils.cc: Fixed to compile.
+
 Mon Nov 01 01:06:13 GMT 2004  Olly Betts <olly@survex.com>
 
 	* common/Makefile.am,common/netutils.cc,common/netutils.h:
