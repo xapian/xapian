@@ -1,3 +1,7 @@
+Sat Jul 06 13:04:45 BST 2002  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: Run latex twice to get forward references resolved.
+
 Fri Jul 05 18:23:08 BST 2002  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: better (perhaps even completely correct) fix
