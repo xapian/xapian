@@ -57,6 +57,8 @@ bool test_msetmaxitems1();
 // tests that when specifiying maxitems to get_eset, no more than
 // that are returned.
 bool test_expandmaxitems1();
+// tests that a pure boolean query has all weights set to 1
+bool test_boolquery1();
 
 om_test tests[] = {
     {"trivial",            test_trivial},
@@ -70,6 +72,7 @@ om_test tests[] = {
     {"nullquery1",	   test_nullquery1},
     {"msetmaxitems1",      test_msetmaxitems1},
     {"expandmaxitems1",    test_expandmaxitems1},
+    {"boolquery1",         test_boolquery1},
     {0, 0}
 };
 
@@ -421,4 +424,36 @@ bool test_expandmaxitems1()
     enquire.get_eset(myeset, 1, myrset);
 
     return (myeset.items.size() == 1);
+}
+
+bool test_boolquery1()
+{
+    bool success = true;
+    OMQuery myboolquery(OMQuery(OM_MOP_FILTER,
+				OMQuery(),
+				OMQuery("thi")));
+    OMMSet mymset;
+    do_get_simple_query_mset(mymset, myboolquery);
+
+    if (mymset.max_weight != 1) {
+        success = false;
+	if (verbose) {
+	    cout << "Max weight in mset is " << mymset.max_weight << endl;
+	}
+    } else {
+        for (unsigned int i = 0; i<mymset.items.size(); ++i) {
+	   if (mymset.items[i].wt != 1) {
+	       success = false;
+	       if (verbose) {
+	           cout << "Item " << i
+		        << " in mset has weight "
+			<< mymset.items[i].wt
+			<< ", should be 1." << endl;
+	       }
+	       break;
+	   }
+	}
+    }
+
+    return success;
 }

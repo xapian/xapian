@@ -1,3 +1,7 @@
+Mon Feb  7 17:37:52 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added a test of boolean-only queries to apitest, which fails.
+
 Mon Feb  7 15:56:43 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Improved exception hierarchy:
