@@ -139,7 +139,7 @@ quartz database (see the <A HREF="#searcher">example searcher</A>).
 <P>
 We now present sample code for an indexer. This is deliberately
 simplified to make it easy to follow. You can also read it in <A
-HREF="simpleindex.cc.html">an HTML formatted version</A>.
+HREF="quickstartindex.cc.html">an HTML formatted version</A>.
 </P>
 <P>
 The &quot;indexer&quot; presented here is simply a small program which
@@ -354,7 +354,7 @@ the <A HREF="userman.html">user manual</A>.
 <P>
 Now we show the code for a simple searcher, which will search the
 database built by the indexer above. Again, you can read <A
-HREF="simplesearch.cc.html">an HTML formatted version</A>.
+HREF="quickstartsearch.cc.html">an HTML formatted version</A>.
 </P>
 <P>
 The &quot;searcher&quot; presented here is, like the &quot;indexer&quot;,
@@ -366,7 +366,7 @@ represented by those terms and displays a ranked list of matching documents.
 <H3>Setting up</H3>
 
 <P>
-Just like &quot;simpleindex&quot;, we have a single-function example.
+Just like &quot;quickstartindex&quot;, we have a single-function example.
 So we include the Xapian header file, and begin:
 </P>
 <PRE>
@@ -614,13 +614,13 @@ be the flags to pass to the compiler and linker, respectively.
 If you don't use GNU autoconf, don't worry about this.
 </P>
 
-<H3>Compiling the simple examples</H3>
+<H3>Compiling the quickstart examples</H3>
 Once you know the compilation flags, compilation is a simple matter of
 invoking the compiler!  For our example, we could compile the two
-utilities (simpleindex and simplesearch) with the commands:
+utilities (quickstartindex and quickstartsearch) with the commands:
 <PRE>
-c++ simpleindex.cc `xapian-config --libs --cflags` -o simpleindex
-c++ simplesearch.cc `xapian-config --libs --cflags` -o simplesearch
+c++ quickstartindex.cc `xapian-config --libs --cflags` -o quickstartindex
+c++ quickstartsearch.cc `xapian-config --libs --cflags` -o quickstartsearch
 </PRE>
 
 <HR>
@@ -634,10 +634,10 @@ database files if they do not yet exist, it will not create a new
 directory for them.
 <PRE>
 $ mkdir proverbs
-$ ./simpleindex proverbs \
+$ ./quickstartindex proverbs \
 &gt; "people who live in glass houses should not throw stones" \
 &gt; people live glass house stone
-$ ./simpleindex proverbs \
+$ ./quickstartindex proverbs \
 &gt; "Don't look a gift horse in the mouth" \
 &gt; look gift horse mouth
 </PRE>
@@ -659,10 +659,10 @@ blocks, and will behave much better for large databases.
 </P>
 
 <P>
-We can at last perform searches over the database using the simplesearch
+We can at last perform searches over the database using the quickstartsearch
 program.
 <PRE>
-$ ./simplesearch proverbs look
+$ ./quickstartsearch proverbs look
 Performing query `look'
 1 results found
 Document ID 2   50% [Don't look a gift horse in the mouth]
