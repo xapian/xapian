@@ -9,7 +9,7 @@ INCLUDES =
 # cvs_revision_line_db.C cvs_revision_line_db.h \
 # cvs_revision_less.h
 
-bin_PROGRAMS = cvsindex cvssearch cvscomments cvssymbolcount cvscountsymbols cvsmine # cvsquery 
+bin_PROGRAMS = cvsindex cvssearch cvscomments cvssymbolcount cvscountsymbols cvsmine cvseval # cvsquery 
 
 #cvsquery_SOURCES = cvsquery.C
 #cvsquery_LDADD = libcvs_db.a -ldb_cxx libcvs_db.a
@@ -32,8 +32,8 @@ cvscountsymbols_LDADD = -ldb_cxx -lomus
 cvsmine_SOURCES = util.h util.C cvsmine.C
 cvsmine_LDADD = -lomus -ldb_cxx
 
-#cvseval_SOURCES = util.h util.C cvseval.C
-#cvseval_LDADD = -lomus -ldb_cxx
+cvseval_SOURCES = util.h util.C cvseval.C
+cvseval_LDADD = -lomus -ldb_cxx
 
 CXXFLAGS = -O3 -DINLINE -Wall
 

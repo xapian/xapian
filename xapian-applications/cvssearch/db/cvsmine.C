@@ -15,6 +15,43 @@
 //
 //  Generates package1.count package2.count ...
 
+/***********
+
+KWord seems easiest to test.
+
+Some queries to try:
+
+    *  Normal editing and formatting (fonts, colors, attributes, super/sub script, etc.)
+    * Paragraph styles (alignment, spacings, indentations, default font, etc.)
+    * Stylist to edit, add, remove and update paragraph styles. There are predefined ones like Standard Text, Header 1 - 3, Bullet List, Ordered List, etc.
+    * Frame orientation (for DTP you can insert multiple frames and connect/disconnect some of them, which means defining a text flow)
+    * Multiple columns
+    * Inserting Tables
+    * Inserting Pictures
+    * Embedding other KOffice parts
+    * In-Place formula editor
+    * Letting text of one (text)frame run around another frame(s)
+    * Headers/Footers
+    * Endnotes
+    * Numbering of chapters
+    * Automatic generation of Table of Contents
+    * Inserting Predefined variables (Date, Time, Page Number, etc.)
+    * Inserting and defining custom variables
+    * Generating serial letters
+    * Autocorrection
+    * Spell checking (uses ISpell)
+    * Document structure viewer
+    * Templates
+    * Creating own Templates
+
+
+************/
+
+
+
+
+
+
 #warning "requires ctags from http://ctags.sourceforge.net/"
 #warning "should use CVSDATA" 
 #warning "should generate unique file for tags"
@@ -29,6 +66,9 @@
 // --c-types=cfsuAC 
 // --kind-long=yes (verbose tag descriptions)
 // from this, ignore all entries with access:private
+
+#define GRANULARITY "line"
+#define USE_STOP_LIST false
 
 // /tmp is small, so we use /home/amichail/temp
 #define CTAGS_FLAGS "-a -R --c-types=cfsuAC --kind-long=yes -f/home/amichail/temp/tags"
@@ -56,8 +96,7 @@
 // should be 2.0
 #define MIN_SURPRISE 0.0
 
-
-#define LOCAL_MODE 1
+#define SKIP_FUNCTIONS true
 
 
 // if true, counts files.
@@ -68,11 +107,8 @@
 // (e.g., .h, .cc, .C, .cpp, etc.), so some apps may contribute
 // 2 or 3 to the count
 
-#define COUNT_FUNCTION_SYMBOLS_ONLY 0
-#define COUNT_KDE_CLASSES_ONLY 0
 
 #include <om/om.h>
-#include <db_cxx.h>
 #include <fstream.h>
 #include <stdio.h>
 #include <string>
@@ -84,12 +120,10 @@
 
 #include "util.h"
 
-// given a path, extract the application
-string extractApp( const string& s ) {
 
-#if LOCAL_MODE
-  return s; // returns file as is for local mode
-#endif
+/**
+
+string extractApp( const string& s ) {
 
   if ( s == "" ) {
     return s;
@@ -123,6 +157,8 @@ string extractApp( const string& s ) {
   return sub;
 
 }
+
+**/
 
 void readTags( const string& fn, set<string>& S ) {
   ifstream in(fn.c_str());
@@ -177,24 +213,21 @@ int main(int argc, char *argv[]) {
 
     cerr << "package -" << package << "-" << endl;
 
-    // remove count file if it exists already
-
-    cerr << "... removing count file " << package << " (if it already exists)" << endl;
-    system( ("rm -rf " + package + ".count").c_str() );
-
     string file_db = package + ".db";
     string file_offset = package +".offset";
 
-    map<string, set<string> > symbol_count;
-    map<string, set<string> > term_count;
-    set<string> apps;
+    map<string, int> symbol_count;
+    map<string, int> term_count;
+    //    set<string> apps;
+
+    int lines_read = 0;
 
     try {
 
       { // pass 1
 	cerr << "PASS 1" << endl;
-	Lines lines( codepath, package, file_db, file_offset );
-	int lines_read = 0;
+	Lines lines( codepath, package, file_db, file_offset, GRANULARITY, USE_STOP_LIST ); // file level granularity
+	lines_read = 0;
 	string prev_file = "";
 	while ( lines.ReadNextLine() && lines_read < MAX_LINES ) {
 
@@ -209,29 +242,15 @@ int main(int argc, char *argv[]) {
 	  set<string> terms = lines.getCommentTerms();
 	  set<string> symbols = lines.getCodeSymbols();
 
-	  string app = extractApp( lines.currentFile() );
-	  //	  cerr << lines.currentFile() << " => " << app << endl;
-
-	  apps.insert(app);
+	  //	  string app = extractApp( lines.currentFile() );
+	  //	  apps.insert(app);
 
 	  for( set<string>::iterator i = terms.begin(); i != terms.end(); i++ ) {
-	      term_count[*i].insert(app);
+	      term_count[*i]++;
 	  }
 
 	  for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
-#if COUNT_FUNCTION_SYMBOLS_ONLY
-	    if ( i->find("()") == -1 ) {
-	      continue;
-	    }
-#endif
-
-#if COUNT_KDE_CLASSES_ONLY
-	    if ( i-> find("()") == -1 && (*i)[0] != 'Q' && (*i)[0] != 'K' ) {
-	      continue;
-	    }
-#endif
-	    symbol_count[*i].insert(app);
-
+	    symbol_count[*i]++;
 	  }
 	  lines_read++;
 	} // while
@@ -250,44 +269,33 @@ int main(int argc, char *argv[]) {
 
 
 
-      map< pair<string, string>, set<string> > rule_support;
+      map< pair<string, string>, int > rule_support;
       
       { // pass 2
 	cerr << "PASS 2" << endl;
-	Lines lines( codepath, package, file_db, file_offset );
+	Lines lines( codepath, package, file_db, file_offset, GRANULARITY, USE_STOP_LIST );
 	
-	int lines_read = 0;
+	lines_read = 0;
 
 	while ( lines.ReadNextLine() && lines_read < MAX_LINES ) {
 
 	  set<string> terms = lines.getCommentTerms();
 	  set<string> symbols = lines.getCodeSymbols();
 	  
-	  string app = extractApp( lines.currentFile() );
+	  //	  string app = extractApp( lines.currentFile() );
 
 
 	  for( set<string>::iterator t = terms.begin(); t != terms.end(); t++ ) {
-	    if ( term_count[*t].size() >= MIN_SUPP ) {
+	    if ( term_count[*t] >= MIN_SUPP ) {
 	      for ( set<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
-
-#if COUNT_FUNCTION_SYMBOLS_ONLY
-		if ( s->find("()") == -1 ) {
-		  continue;
-		}
-#endif
-#if COUNT_KDE_CLASSES_ONLY
-		if ( s-> find("()") == -1 && (*s)[0] != 'Q' && (*s)[0] != 'K' ) {
-		  continue;
-		}
-#endif
 
 		if ( defined_symbols.find(*s) == defined_symbols.end() ) {
 		  continue;
 		}
 
-		if ( symbol_count[*s].size() >= MIN_SUPP ) {
+		if ( symbol_count[*s] >= MIN_SUPP ) {
 
-		  rule_support[ make_pair( *t, *s ) ].insert(app);
+		  rule_support[ make_pair( *t, *s ) ]++;
 
 		}
 	      }
@@ -298,25 +306,30 @@ int main(int argc, char *argv[]) {
 	} // while
       }
 
+cerr << "*** lines read " << lines_read << endl;
 
 
-      cerr << "TOTAL APPS = " << apps.size() << endl;
+      /////// we have term_count, symbol_count, rule_support (term=>symbol)
 
       string prev_term = "";
       map< double, set<string> > results;
       // print out rules
-      for ( map< pair<string, string>, set<string> >::iterator r = rule_support.begin(); r != rule_support.end(); r++ ) {
-	int supp = (r->second).size();
+      for ( map< pair<string, string>, int >::iterator r = rule_support.begin(); r != rule_support.end(); r++ ) {
+	int supp = (r->second);
 	string ant = (r->first).first;
 	string con = (r->first).second;
 
-	if ( ant != prev_term ) {
+	if ( SKIP_FUNCTIONS && con.find("()") != -1 ) {
+	  continue;
+	}
+
+	if ( ant != prev_term ) { 
 	  // print out results in sorted order
-	  cerr << "********* " << prev_term << endl;
+	  cerr << "RANKED ********* " << prev_term << endl;
 	  for( map<double, set<string> >::iterator i = results.begin(); i != results.end(); i++ ) {
 	    set<string> S = i->second;
 	    for ( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
-	      cerr << *s << " product = " << -(i->first) << endl;
+	      cerr << "RANKED " << *s << " product = " << -(i->first) << endl;
 	    }
 	  }
 	  prev_term = ant;
@@ -326,108 +339,26 @@ int main(int argc, char *argv[]) {
 	
 	if ( supp >= MIN_SUPP ) {
 
-	  double conf = 100.0*(double)supp / (double)term_count[ant].size();
+	  double con_conf = 100.0*(double)symbol_count[con] / (double)lines_read;
 
-	  // we divide the confidence by the % of applications that contain
-	  // the consequent in *some* line but yet do not contain
-	  // both ant & con at the same time in *any* line.
+	  double conf = 100.0*(double)supp / (double)term_count[ant];
 
-	  //
-	  // This doesn't really work because the consequent may only
-	  // occur in that one application, so the penalty would be zero!
-	  // We can kind of get around this by requiring some minimum support
-	  // of 5 say.  Another way is to multiply surprise by support if we can
-	  // get rid of the inf thing.
-	  
-
-
-
-
-	  // how to compute?
-
-	  // for each entry that we compute, we can keep a list of applications
-	  // that support it
-	  //
-	  // given a consequent, we need to know all apps that contain that consequent
-	  //
-	  // we can keep track of all apps supporting both ant & con, from this,
-	  // we can get a list of all apps that never contain ant & con in the same line
-	  //
-	  // we simply intersect thse two lists to get our count of applications
-	  // that contain the consequent in some line but yet do not contain
-	  // both ant & con at the same time in *any* line.
-	  //
-	  // So, basically we need to keep lists of applications for each symbol
-	  // and for each (term, symbol) pair.
-	  //
-	  // How much memory does this take?  Right now we do not keep track of any lists.
-	  //
-	  // 
-	
-	  set<string> S1 = symbol_count[con]; // apps containing consequent
-	  
-	  // compute apps that do not contain a line with both ant & con
-	  set<string> X = r->second; // apps for this rule
-
-	  // compute apps - X
-	  set<string> XP;
-	  set_difference( apps.begin(), apps.end(),
-			  X.begin(), X.end(),
-			  inserter(XP, XP.begin()) );
-
-
-	  // intersect XP with S1
-	  
-	  set<string> R;
-	  set_intersection( XP.begin(), XP.end(),
-			    S1.begin(), S1.end(),
-			    inserter(R, R.begin()) );
-
-#warning "penalty could be zero resulting in division by zero"
-	  double penalty = 100.0*(double)R.size() / (double)apps.size();
-	  //	  penalty = sqrt(1.1 + penalty); // penalty was too severe, also don't want zero
-	  
-	  double surprise = conf / penalty; // / con_usage;
-
-	  // multiplying by support is important since that takes
-	  // into account the importance of the relationship... perhaps
-	  // should only multiply by support of consequent
+	  double surprise = (conf / con_conf ) * (double)supp; // log(1.1+(double)supp);
 
 	  if ( surprise >= MIN_SURPRISE ) {
-	    //	    cerr << ant << " [ " << (supp*surprise) << "] " << " => " << con << " with conf " << conf << "% and support " << supp << " and surprise = " << surprise << " ** product " << (supp*surprise) << endl;
-	    //	    results[-supp*surprise].insert(ant + " => " + con);
-	    cerr << ant << " => " << con << " has conf " << conf << " and support " << supp << " and penalty " << penalty << " and surprise " << surprise << endl;
+	    cerr << ant << " => " << con << " has conf " << conf << " and support " << supp << " with con conf " << con_conf << endl;
 #warning "uses product of surprise and supp"	   
-	    results[-surprise*supp].insert(ant + " => " + con);
+	    results[-surprise].insert(ant + " => " + con);
 	  }
 	}
-
-
       }
-
-      
-
-
-#if 0
-      /////// write out symbol counts
-      cerr << "...writing out results" << endl;
-      Db db(0, 0);
-      db.open((package+".count").c_str(), 0, DB_HASH, DB_CREATE, 0 );
-      for( map<string, int>::iterator i = symbol_count.begin(); i != symbol_count.end(); i++ ) {
-	string symbol = i->first;
-	static char str[4096];
-	sprintf(str, "%d", i->second);
-	string num = str;
-	Dbt key( (void*) symbol.c_str(),
-		 symbol.length()+1 ); // include 0 at end
-	Dbt data( (void*) num.c_str(),
-		  num.length()+1 ); // include 0 at end
-	db.put( 0, &key, &data, DB_NOOVERWRITE );           
+      cerr << "RANKED ********* " << prev_term << endl;
+      for( map<double, set<string> >::iterator i = results.begin(); i != results.end(); i++ ) {
+	set<string> S = i->second;
+	for ( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
+	  cerr << "RANKED " << *s << " product = " << -(i->first) << endl;
+	}
       }
-      db.close(0);
-      cerr << "Done!" << endl;
-#endif
-
 
 
 
@@ -435,9 +366,6 @@ int main(int argc, char *argv[]) {
     catch(OmError & error) {
       cerr << "OMSEE Exception: " << error.get_msg() << endl;
     } 
-    catch (DbException& e ) {
-      cerr << "SleepyCat Exception: " << e.what() << endl;
-    }
 
   }
   

@@ -537,8 +537,15 @@ void Lines::load_offset_file(  const string& file_offset, vector<string>& files,
     
 }
 
-Lines::Lines( const string& p, const string& pkg, const string& file_db, const string& file_offset, bool use_stop_words ) {
+#warning "we should be able to specify granularity here:  line/file/app"
+#warning "perhaps we should rename this class"
+#warning "the default should work on a line by line basis"
+Lines::Lines( const string& p, const string& pkg, const string& file_db, const string& file_offset, const string& gran, bool use_stop_words ) {
   
+  granularity = gran;
+
+  cerr << "** granularity " << granularity << endl;
+
   path = p;
 
   package = pkg;
@@ -621,172 +628,247 @@ string Lines::getData() {
 
 // returns false when there is no next line
 bool Lines::ReadNextLine() {
-  
-  terms.clear();
-  term_list.clear();
-  symbols.clear();
-  data = "";
-  
-  if ( in_comments->eof() ) {
-    return false;
-  }
-  
-  line_no++;
+
+  bool changedFiles = false;
+
+  do {
+
+    if ( granularity == "line" ) {
+      terms.clear();
+      term_list.clear();
+      symbols.clear();
+      data = "";
+    }
     
-  string line;
-  string l;
-  for(;;) {
-    if ( getline( *in_comments, l, '\n' ).eof() ) {
-      if ( l == "" ) {
-	return false;
+    // if in file mode, this call returns okay, but the one after it should
+    // fail
+    if ( in_comments->eof() ) {
+      goto eof_found;
+    }
+  
+    line_no++;
+    
+    string line;
+    string l;
+    for(;;) {
+      if ( getline( *in_comments, l, '\n' ).eof() ) {
+	assert( l == "" );
+	goto eof_found;
+      }
+
+      if ( line != "" ) {
+	line += "\n";
+      }
+      line += l;
+      if ( l.length() >=2 && l[l.length()-2] == '\003' && l[l.length()-1] == '\002' ) {
+	break;
       }
     }
 
-    if ( line != "" ) {
-      line += "\n";
-    }
-    line += l;
-    if ( l.length() >=2 && l[l.length()-2] == '\003' && l[l.length()-1] == '\002' ) {
-      break;
-    }
-  }
+    //cerr << line << endl;
 
-  //cerr << line << endl;
+    // the line contains this information:
 
-  // the line contains this information:
+    // file #
+    // followed by a list of:
+    //  ^Crevision ...
+    //  ^Cdate ...
+    //  ^Cauthor...
+    //  ^Clines...
+    //  ^Ccomments...
 
-  // file #
-  // followed by a list of:
-  //  ^Crevision ...
-  //  ^Cdate ...
-  //  ^Cauthor...
-  //  ^Clines...
-  //  ^Ccomments...
-
-  int file_no = 0;
-  vector<string> revisions;
-  vector<string> dates;
-  vector<string> authors;
-  vector<string> lines;
-  vector<string> comments;
-  string combined_comments;
+    int file_no = 0;
+    vector<string> revisions;
+    vector<string> dates;
+    vector<string> authors;
+    vector<string> lines;
+    vector<string> comments;
+    string combined_comments;
 
   
 
-  string idstr = string( line, 0, line.find(" ") );
-  file_no = atoi(idstr.c_str());
+    string idstr = string( line, 0, line.find(" ") );
+    file_no = atoi(idstr.c_str());
 
-  readVector(line, "revision", revisions);
-  readVector(line, "date", dates);
-  readVector(line, "author", authors);
-  readVector(line, "lines", lines);
-  readVector(line, "comments", comments);
+    readVector(line, "revision", revisions);
+    readVector(line, "date", dates);
+    readVector(line, "author", authors);
+    readVector(line, "lines", lines);
+    readVector(line, "comments", comments);
 
-  assert( revisions.size() == dates.size() );
-  assert( revisions.size() == authors.size() );
-  assert( revisions.size() == lines.size() );
-  assert( revisions.size() == comments.size() );
+    assert( revisions.size() == dates.size() );
+    assert( revisions.size() == authors.size() );
+    assert( revisions.size() == lines.size() );
+    assert( revisions.size() == comments.size() );
 
-  for( int i = 0; i < comments.size(); i++ ) {
-    combined_comments += (" "+comments[i]);
-  }
+    for( int i = 0; i < comments.size(); i++ ) {
+      combined_comments += (" "+comments[i]);
+    }
 
 
-  /***
-  if ( revisions.size() > 1 ) {
-    cerr << "FOUND " << revisions.size() << endl;
+    // break up line into words
+  
+    list<string> words;
+    split( combined_comments, " .,:;#%_*+&'\"/!()[]{}<>?-\t\n\002\003", words ); // we get 002 sometimes if ".^B"
+  
+    string fn = files[file_no-1];
+    if ( fn != current_fn ) {
+      changedFiles = true;
+
+
+      file_count++;
+
+      current_fn = fn;
+      cerr << "... processing " << current_fn << endl;
+
+      if ( granularity == "file" ) {
+	terms_return = terms;
+	symbols_return = symbols;
+	term_list_return = term_list;
+	terms.clear();
+	symbols.clear();
+	term_list.clear();
+      }
+
+      int offset = atoi(offsets[file_no-1].c_str());
+      if( line_no != offset ) {
+	cerr << "found line_no = " << line_no << endl;
+	cerr << "found offset = " << offset << endl;
+	assert( line_no == offset );
+      }
+      current_offset = offset;
+
+      if ( in_code != 0 ) {
+	delete in_code;
+      }
+      if ( path != "" ) {
+	in_code = new ifstream( (path + "/"  + current_fn).c_str() );
+      }
+      
+    }
+
+    // build data string
+    static char str[4096];
+    sprintf(str, "%d:%d", (line_no-current_offset+1), file_no );
+    data = string(str) +" " + package + ":";
+  
     for(int i = revisions.size()-1; i >=0; i-- ) {
-      cerr << "..." << revisions[i] << endl;
-    } 
-    cerr << combined_comments << endl;
-  }
-  **/
-
-  // break up line into words
-  
-  list<string> words;
-  split( combined_comments, " .,:;&'\"/!()[]{}<>?-\t\n\002\003", words ); // we get 002 sometimes if ".^B"
-  
-  //  int file_no = atoi(  words.front().c_str() );
-  
-  string fn = files[file_no-1];
-  if ( fn != current_fn ) {
-    file_count++;
-
-    current_fn = fn;
-    cerr << "... processing " << current_fn << endl;
-
-    int offset = atoi(offsets[file_no-1].c_str());
-    if( line_no != offset ) {
-      cerr << "found line_no = " << line_no << endl;
-      cerr << "found offset = " << offset << endl;
-      assert( line_no == offset );
+      data += revisions[i];
+      if ( i > 0 ) {
+	data += " ";
+      }
     }
-    current_offset = offset;
-
-    if ( in_code != 0 ) {
-      delete in_code;
-    }
-    if ( path != "" ) {
-      in_code = new ifstream( (path + "/"  + current_fn).c_str() );
-    }
-      
-  }
-
-  // build data string
-  static char str[4096];
-  sprintf(str, "%d:%d", (line_no-current_offset+1), file_no );
-  data = string(str) +" " + package + ":";
-  
-  for(int i = revisions.size()-1; i >=0; i-- ) {
-    data += revisions[i];
-    if ( i > 0 ) {
-      data += " ";
-    }
-  }
-  //cerr << "data = -" << data << "-" << endl;
+    //cerr << "data = -" << data << "-" << endl;
   
 
   
-  for( list<string>::iterator i = words.begin(); i != words.end(); i++ ) {
+    for( list<string>::iterator i = words.begin(); i != words.end(); i++ ) {
      
-    string word = *i;
+      string word = *i;
     
-    om_termname term = word;
-    lowercase_term(term);
-    term = stemmer->stem_word(term);
+      om_termname term = word;
+      lowercase_term(term);
+      term = stemmer->stem_word(term);
       
-    if ( termStopWords.find(term) == termStopWords.end() ) {
-      //      cerr << "inserting word " << term << endl;
-      terms.insert(term);
-      term_list.push_back(term);
+      if ( termStopWords.find(term) == termStopWords.end() ) {
+	//      cerr << "inserting word " << term << endl;
+	terms.insert(term);
+	term_list.push_back(term);
+      }
     }
-  }
   
-  if ( path != "" ) {
-    //////////////// now read code symbols
-    line = "";
-    getline( *in_code, line, '\n' );
-    code_line = line;
-    extractSymbols( line );
-  }
+    if ( path != "" ) {
+      //////////////// now read code symbols
+      line = "";
+      getline( *in_code, line, '\n' );
+      code_line = line;
+      extractSymbols( line );
+    }
+
+  } while (!changedFiles && granularity != "line" );
+
+  if ( granularity == "line" ) {
+    terms_return = terms;
+    symbols_return = symbols;
+    term_list_return = term_list;
+  } 
 
   return true;
+
+ eof_found: ;
+
+  if ( granularity == "line" ) {
+    return false;
+  }
+
+  // a bit tricker in file granularity
+  if ( !terms.empty() || !symbols.empty() || !term_list.empty() ) {
+    terms_return = terms;
+    symbols_return = symbols;
+    term_list_return = term_list;
+    terms.clear();
+    symbols.clear();
+    term_list.clear();
+    return true;
+  }
+  return false; // second time files
 }
 
 string Lines::getCodeLine() {
+  assert( granularity == "line" );
   return code_line;
 }
 
 set<string> Lines::getCommentTerms() {
-  return terms;
+  return terms_return;
 }
  
 set<string> Lines::getCodeSymbols() {
   assert( path != "" );
-  return symbols;
+  return symbols_return;
 }
 
 list<string> Lines::getTermList() {
-  return term_list;
+  return term_list_return;
+}
+
+#warning "doesn't handle all upper case yet"
+set<string> Lines::getCodeSymbolTerms() {
+  // computed here, since may not be required by some apps
+  
+  set<string> code_terms;
+ 
+  for( set<string>::iterator s = symbols_return.begin(); s != symbols_return.end(); s++ ) {
+ 
+    string w = "";
+    for( string::const_iterator c = s->begin(); c != s->end(); c++ ) {
+    
+      if ( (*c) == '(' || (*c) == ')' ) {
+	continue;
+      }
+
+      if ( ((*c) >= 'A' && (*c) <= 'Z') || (*c) == '_' ) {
+	if ( w != "" ) {
+	  lowercase_string(w);
+	  w = stemmer->stem_word(w);
+	  //		  cerr << "........inserting " << w << endl;
+	  code_terms.insert(w);
+	  w = "";
+	}
+      }
+    if ( (*c) != '_' ) {
+      w += (*c);
+    }
+    
+    }
+    if ( w != "" ) {
+      lowercase_string(w);
+      w = stemmer->stem_word(w);
+      //	      cerr << "........inserting " << w << endl;
+      code_terms.insert(w);
+    }
+  
+  }
+
+  return code_terms;
 }
