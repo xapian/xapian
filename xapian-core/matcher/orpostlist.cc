@@ -50,27 +50,16 @@ OrPostList::next(weight w_min)
 
     if (lhead <= rhead) {
         if (lhead == rhead) rnext = true;
-
-	PostList *ret;
-	ret = l->next(w_min);
-        if (ret) {
-	    delete l;
-	    l = ret;
-	}
+        handle_prune(l, l->next(w_min));
 	if (l->at_end()) ldry = true;
     } else {
 	rnext = true;
     }
 
     if (rnext) {
-	PostList *ret;
-	ret = r->next(w_min);
-        if (ret) {
-	    delete r;
-	    r = ret;
-	}
+        handle_prune(r, r->next(w_min));
         if (r->at_end()) {
-	    ret = l;
+	    PostList *ret = l;
 	    l = NULL;
 	    return ret;
 	}
@@ -117,23 +106,13 @@ OrPostList::skip_to(docid id, weight w_min)
 	return ret;
     }
 
-    bool ldry;
-    PostList *ret;
+    handle_prune(l, l->skip_to(id, w_min));
+    bool ldry = l->at_end();
 
-    ret = l->skip_to(id, w_min);
-    if (ret) {
-	delete l;
-	l = ret;
-    }
-    ldry = l->at_end();
+    handle_prune(r, r->skip_to(id, w_min));
 
-    ret = r->skip_to(id, w_min);
-    if (ret) {
-	delete r;
-	r = ret;
-    }
     if (r->at_end()) {
-	ret = l;
+	PostList *ret = l;
 	l = NULL;
 	return ret;
     }
@@ -144,7 +123,7 @@ OrPostList::skip_to(docid id, weight w_min)
 	return NULL;
     }
     
-    ret = r;
+    PostList *ret = r;
     r = NULL;
     return ret;
 }

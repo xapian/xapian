@@ -29,26 +29,16 @@ AndMaybePostList::next(weight w_min)
     }
 
     if (lhead == rhead) {
-	PostList *ret;
-	ret = r->next(w_min);
-        if (ret) {
-	    delete r;
-	    r = ret;
-	}
+	handle_prune(r, r->next(w_min));
         if (r->at_end()) {
-	    ret = l;
+	    PostList *ret = l;
 	    l = NULL;
 	    return ret;
 	}
 	rhead = r->get_docid();
     }
     
-    PostList *ret;
-    ret = l->next(w_min);
-    if (ret) {
-	delete l;
-	l = ret;
-    }
+    handle_prune(l, l->next(w_min));
     if (!l->at_end()) {
 	lhead = l->get_docid();	
     } else {
@@ -75,12 +65,7 @@ AndMaybePostList::skip_to(docid id, weight w_min)
 	return ret;
     }
 
-    PostList *ret;
-    ret = l->skip_to(id, w_min);
-    if (ret) {
-	delete l;
-	l = ret;
-    }
+    handle_prune(l, l->skip_to(id, w_min));
     if (l->at_end()) {
 	// once l is over, so is the AND MAYBE
 	lhead = 0;
@@ -93,13 +78,9 @@ AndMaybePostList::skip_to(docid id, weight w_min)
     lhead = l->get_docid();
     
     if (rskip) {
-	ret = r->skip_to(lhead, w_min);
-        if (ret) {
-	    delete r;
-	    r = ret;
-	}
+	handle_prune(r, r->skip_to(lhead, w_min));
         if (r->at_end()) {
-	    ret = l;
+	    PostList *ret = l;
 	    l = NULL;
 	    return ret;
 	}

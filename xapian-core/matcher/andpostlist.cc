@@ -4,17 +4,10 @@ inline void
 AndPostList::process_next_or_skip_to(weight w_min, PostList *ret)
 {
     head = 0;
-    if (ret) {
-	delete r;
-	r = ret;
-    }
+    handle_prune(r, ret);
     if (r->at_end()) return;
 
-    ret = l->skip_to(r->get_docid(), w_min);
-    if (ret) {
-	delete l;
-	l = ret;
-    }
+    handle_prune(l, l->skip_to(r->get_docid(), w_min));
     if (l->at_end()) return;
 
     docid lhead = l->get_docid();
@@ -22,22 +15,14 @@ AndPostList::process_next_or_skip_to(weight w_min, PostList *ret)
 
     while (lhead != rhead) {
 	if (lhead < rhead) {
-	    PostList *ret = l->skip_to(rhead, w_min);
-	    if (ret) {
-		delete l;
-	        l = ret;
-	    }
+	    handle_prune(l, l->skip_to(rhead, w_min));
 	    if (l->at_end()) {
 		head = 0;
 		return;
 	    }
 	    lhead = l->get_docid();	    
 	} else {
-	    PostList *ret = r->skip_to(lhead, w_min);
-	    if (ret) {
-		delete r;
-		r = ret;
-	    }
+	    handle_prune(r, r->skip_to(lhead, w_min));
 	    if (r->at_end()) {
 		head = 0;
 		return;

@@ -3,10 +3,7 @@
 inline PostList *
 AndNotPostList::advance_to_next_match(weight w_min, PostList *ret)
 {
-    if (ret) {
-	delete l;
-	l = ret;
-    }    
+    handle_prune(l, ret);
     if (l->at_end()) {
 	lhead = 0;
 	return NULL;
@@ -15,22 +12,14 @@ AndNotPostList::advance_to_next_match(weight w_min, PostList *ret)
 
     while (rhead <= lhead) {
 	if (lhead == rhead) {
-	    ret = l->next(w_min);
-	    if (ret) {
-		delete l;
-		l = ret;
-	    }
+	    handle_prune(l, l->next(w_min));
 	    if (l->at_end()) {
 		lhead = 0;
 		return NULL;
 	    }
 	    lhead = l->get_docid();
 	}		
-	ret = r->skip_to(lhead, w_min);
-	if (ret) {
-	    delete r;
-	    r = ret;
-	}
+	handle_prune(r, r->skip_to(lhead, w_min));
 	if (r->at_end()) {
 	    ret = l;
 	    l = NULL;
