@@ -3,6 +3,8 @@
 #include <stdio.h>
 
 #include "omassert.h"
+#include "multi_postlist.h"
+#include "multi_termlist.h"
 #include "multi_database.h"
 #include "database_builder.h"
 

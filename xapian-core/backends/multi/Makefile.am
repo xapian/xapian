@@ -4,7 +4,7 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 INCLUDES = -I$(top_srcdir)/include
 
-noinst_HEADERS = multi_database.h
+noinst_HEADERS = multi_postlist.h multi_termlist.h multi_database.h
 
 noinst_LTLIBRARIES = libmulti.la
 
