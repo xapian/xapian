@@ -25,7 +25,8 @@ bin_SCRIPTS = xapian-config
 
 CLEANFILES = xapian-config
 
-EXTRA_DIST = ChangeLog HACKING PLATFORMS xapian.spec m4/xapian.m4 \
+EXTRA_DIST = ChangeLog ChangeLog.examples HACKING PLATFORMS xapian.spec \
+ m4/xapian.m4 \
  autoconf/rjb_find_stlport.m4 autoconf/definedir.m4 autoconf/type_socklen_t.m4
 
 

@@ -1,3 +1,9 @@
+Tue Apr 05 12:55:52 BST 2005  Olly Betts <olly@survex.com>
+
+	* ChangeLog.examples,Makefile.am,examples/ChangeLog: Move
+	  xapian-examples ChangeLog to ChangeLog.examples in the top-level
+	  and include in the tarball.
+
 Tue Apr 05 02:18:08 BST 2005  Olly Betts <olly@survex.com>
 
 	* examples/dir_contents,examples/README: Converted xapian-examples
