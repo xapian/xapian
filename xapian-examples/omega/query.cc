@@ -135,12 +135,8 @@ int set_probabilistic(const string &newp, const string &oldp) {
     parse_prob(raw_prob);
 
     is_old = is_old_query(oldp);
-    
-    /* clear relevance set if query has changed */
-    if (!is_old) {
-	// FIXME Give_Muscat("delrels r0-*");
-    }
-    
+
+#if 0
     if (!new_terms.empty()) {
 	// now we constuct the query:
 	// ((plusterm_1 AND ... AND plusterm_n) ANDMAYBE
@@ -159,7 +155,8 @@ int set_probabilistic(const string &newp, const string &oldp) {
 	    }
 	}
     }
-   
+#endif
+    
     return is_old;
 }
 
@@ -217,6 +214,26 @@ run_query(void)
 long
 do_match(long int first_hit, long int list_size)
 {
+#if 1
+    if (!new_terms.empty()) {
+	// now we constuct the query:
+	// ((plusterm_1 AND ... AND plusterm_n) ANDMAYBE
+	//  (term_1 OR ... OR term_m)) ANDNOT
+	// (minusterm_1 OR ... OR minusterm_p)
+	if (!pluses.empty()) matcher->add_oplist(AND, pluses);
+	if (!normals.empty()) {
+	    matcher->add_oplist(op, normals);
+	    if (!pluses.empty()) matcher->add_op(AND_MAYBE);
+	}       
+	if (!minuses.empty()) {
+	    matcher->add_oplist(OR, minuses);
+	    if (!matcher->add_op(AND_NOT)) {
+		cout << "Don't be so negative\n" << endl; // FIXME
+		exit(0);
+	    }
+	}
+    }
+#endif
     print_query_page("query", first_hit, list_size);
     return msize;
 }

@@ -25,6 +25,7 @@ int n_dlist = 0;
 
 DADatabase database;
 Match *matcher;
+RSet *rset;
 
 map<string, string> option;
 
@@ -154,7 +155,9 @@ static int main2(int argc, char *argv[])
     in.close();
 	
     database.open(db_dir, 0);
-    matcher = new Match(&database);       
+    matcher = new Match(&database);
+    rset = new RSet(&database);
+    matcher->set_rset(rset);
        
 #if 0 //def FERRET
      {
@@ -423,17 +426,6 @@ static int main2(int argc, char *argv[])
        val = NextEntry( "B", &n );
     }
 
-#if 0
-    /* set R-set now, so that term weights don't change - otherwise
-     * it's a nightmare trying to work out weights for plus/minus */
-    val = FirstEntry("R", &n);
-    while (val != NULL) {
-       Give_Muscatf("rel %s", val);
-       Ignore_Muscat();
-       val = NextEntry("R", &n);
-    }
-#endif
-
     if ((val = GetEntry("FMT")) != NULL && *val) {
        if (strlen(val) <= 10) {
 	  char *p = val;	  
@@ -445,19 +437,29 @@ static int main2(int argc, char *argv[])
        }       
     }
    
-    {
-       /*** get old prob query (if any) ***/
-       val = GetEntry("OLDP");
-       is_old = set_probabilistic(big_buf, val?val:"");
-       if (!val) is_old = 1; /** not really, but it should work **/
-    }
+    /*** get old prob query (if any) ***/
+    val = GetEntry("OLDP");
+    is_old = set_probabilistic(big_buf, val?val:"");
+    if (!val) is_old = 1; /** not really, but it should work **/
 
     /* if query has changed, force first page of hits */
     if (is_old < 1) topdoc = 0;
 
+#if 1
+    if (is_old != 0) {
+	// set up the R-set
+	val = FirstEntry("R", &n);
+	while (val != NULL) {
+	    docid d = atoi(val);
+	    if (d) rset->add_document(d);
+	    val = NextEntry("R", &n);
+	}
+    }
+#endif
+
     /*** process commands ***/
     if (1) {
-        long matches = do_match( topdoc, list_size );
+        long matches = do_match(topdoc, list_size);
 	if (GetEntry("X")) {
 	    make_log_entry("add", matches);
 #if 0 // def FERRET

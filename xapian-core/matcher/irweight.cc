@@ -25,6 +25,7 @@ IRWeight::calc_termweight() const
 
     weight tw = 0;
     doccount rsize;
+    cout << "rset = " << (void*)rset << endl;
     if(rset != NULL && (rsize = rset->get_rsize()) != 0) {
 	doccount rtermfreq = rset->get_reltermfreq(tid);
 

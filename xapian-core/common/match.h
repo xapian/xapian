@@ -29,7 +29,7 @@ class Match {
 	stack<PostList *> q;
 
         PostList *merger;
-	RSet rset;
+	RSet *rset;
     
         bool recalculate_maxweight;
     public:
@@ -42,6 +42,7 @@ class Match {
 
         void match();
         void set_max_msize(doccount n);
+        void set_rset(RSet *new_rset);
         weight get_max_weight();
         void set_min_weight_percent(int pcent);
         void recalc_maxweight();
@@ -55,6 +56,13 @@ inline void
 Match::add_term(const string& termname)
 {
     Match::add_term(DB->term_name_to_id(termname));
+}
+
+inline void
+Match::set_rset(RSet *new_rset)
+{
+    // FIXME: Assert(that_weve_not_run_the_query_yet); ???
+    rset = new_rset;
 }
 
 inline void

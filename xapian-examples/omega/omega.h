@@ -7,6 +7,7 @@
 #include "match.h"
 #include "stem.h"
 #include "da_database.h"
+#include "rset.h"
 
 #include "config.h"
 #define FX_VERSION_STRING "1.4 24/02/1998 (" PACKAGE "-" VERSION ")"
@@ -18,6 +19,7 @@ extern string fmt, fmtfile;
 
 extern DADatabase database;
 extern Match *matcher;
+extern RSet *rset;
 
 extern map<string, string> option;
 
