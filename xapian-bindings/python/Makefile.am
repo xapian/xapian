@@ -31,3 +31,10 @@ xapian.pyc: xapian.py
 	PYTHONPATH=.:.libs $(PYTHON) -c "import xapian"
 
 CLEANFILES = $(BUILT_SOURCES) xapian.py xapian.pyc
+
+TESTS_ENVIRONMENT = PYTHONPATH=.:.libs $(PYTHON)
+
+## Test programs to be run
+TESTS = smoketest.py
+
+EXTRA_DIST = $(TESTS)

@@ -1,3 +1,9 @@
+Wed Sep 08 20:39:03 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am,python/smoketest.py: Added a simple testcase
+	  to at least ensure the python bindings can be initialise and
+	  some simple operations work.
+
 Wed Sep 08 15:23:38 BST 2004  Olly Betts <olly@survex.com>
 
 	* xapian.i: Remove renaming of empty() methods to is_empty().
