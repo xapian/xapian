@@ -1,4 +1,3 @@
-.cme_cvs*
 .*.swp
 *.lo
 Makefile.in

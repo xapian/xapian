@@ -1,4 +1,3 @@
-.cme_cvs*
 .*.swp
 *.lo
 Makefile
@@ -16,9 +15,9 @@ stamp-h
 stamp-h.in
 .deps
 .libs
-omseek-config
-omseek-config.nodep
-libomseek.la
+xapian-config
+xapian-config.nodep
+libxapian.la
 om-*.tar.gz
 TODO
 TODO.release

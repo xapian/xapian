@@ -1,3 +1,7 @@
+Tue Oct 23 12:07:59 BST 2001  Olly Betts <olly@survex.com>
+
+	* Updated .cvsignore files.
+
 Tue Oct 23 11:29:47 BST 2001  Olly Betts <olly@survex.com>
 
 	* Code tidying while investigating sporadic fails from quartztest.
