@@ -1,3 +1,8 @@
+Tue Mar 30 00:06:15 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: We're now putting omega news here rather than in xapian-core
+	  so composed draft version for the forthcoming 0.8.0 release.
+
 Tue Mar 29 23:56:27 BST 2004  Olly Betts <olly@survex.com>
 
 	* templates/xml: Remove unused OmegaScript code:
