@@ -1,3 +1,13 @@
+Wed Nov 03 14:55:29 GMT 2004  Olly Betts <olly@survex.com>
+
+	* bin/omtcpsrv.cc,bin/quartzdump.cc,common/Makefile.am,common/getopt.h,
+	  common/gnu_getopt.h,getopt/,testsuite/testsuite.cc: Major overhaul
+	  of getopt use.  Move from getopt(), getopt_long(), getopt_long_only()
+	  to gnu_getopt(), etc so we don't need to dance around avoiding
+	  clashes with getopt() stuff in system headers.  The new gnu_getopt.h
+	  header is cruft free and hopefully won't trip up assorted compilers
+	  or platforms.
+
 Wed Nov 03 14:53:39 GMT 2004  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am: quartztest doesn't use getopt directly, so no

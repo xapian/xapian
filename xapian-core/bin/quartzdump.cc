@@ -33,7 +33,7 @@
 #include <ctype.h>
 
 #include "autoptr.h"
-#include "getopt.h"
+#include "gnu_getopt.h"
 
 using namespace std;
 
@@ -76,7 +76,7 @@ main(int argc, char *argv[])
     };
 
     int c;
-    while ((c = getopt_long(argc, argv, "r:s:e:", long_opts, 0)) != EOF) {
+    while ((c = gnu_getopt_long(argc, argv, "r:s:e:", long_opts, 0)) != EOF) {
         switch (c) {
             case 'r':
 		revnum = atoi(optarg);

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +27,7 @@
 #include <iomanip>
 #include <string>
 
-#include "getopt.h"
+#include "gnu_getopt.h"
 
 #include "database.h"
 #include <xapian/error.h>
@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
     };
 
     int c;
-    while ((c = getopt_long(argc, argv, "p:a:i:t:oq", opts, NULL)) != EOF) {
+    while ((c = gnu_getopt_long(argc, argv, "p:a:i:t:oq", opts, NULL)) != EOF) {
 	switch (c) {
 	    case 'p':
                 port = atoi(optarg);

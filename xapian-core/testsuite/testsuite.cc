@@ -36,7 +36,7 @@
 
 #include <stdlib.h>
 
-#include "getopt.h"
+#include "gnu_getopt.h"
 
 #include <setjmp.h>
 #include <signal.h>
@@ -539,7 +539,8 @@ test_driver::parse_command_line(int argc, char **argv)
     }
 
     int c;
-    while ((c = getopt_long(argc, argv, opts.c_str(), long_opts, 0)) != EOF) {
+    while ((c = gnu_getopt_long(argc, argv, opts.c_str(), long_opts, 0)) != EOF)
+    {
 	switch (c) {
 	    case 'v':
 		verbose = true;
@@ -555,7 +556,7 @@ test_driver::parse_command_line(int argc, char **argv)
 		    break;
 		}
 		// -h or unrecognised option
-	    	usage();
+		usage();
 		return; // usage() doesn't return ...
 	    }
 	}

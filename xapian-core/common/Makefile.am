@@ -17,7 +17,7 @@ noinst_HEADERS = \
  inmemory_positionlist.h omenquireinternal.h emptypostlist.h \
  autoptr.h \
  alltermslist.h multialltermslist.h \
- deleter_vector.h getopt.h
+ deleter_vector.h gnu_getopt.h
 
 noinst_LTLIBRARIES = libcommon.la
 
