@@ -81,13 +81,60 @@ OMQuery::OMQuery(om_queryop _op, const OMQuery &query1, const OMQuery &query2)
 {
     Assert(op != OM_MOP_LEAF); // FIXME throw exception rather than Assert
     // FIXME; if sub query has same op, which is OR or AND, add to list
-    
-    // Sub queries may not be null
-    Assert(!query1.isnull); // FIXME Throw exception rather than Assert
-    Assert(!query2.isnull); // FIXME Throw exception rather than Assert
-
-    subqs.push_back(new OMQuery(query1));
-    subqs.push_back(new OMQuery(query2));
+ 
+    // Handle null sub-queries.
+    // Table for result of operations when one of the operands is null:
+    //
+    //            | a,b                    | a,0 | 0,b | 0,0 |
+    // -----------+------------------------+-----+-----+-----+
+    // OR         | a or b                 |  a  |  b  |  0  |
+    // AND        | a and b                |  a  |  b  |  0  |
+    // FILTER     | a and b                |  a  |  b  |  0  |
+    // AND_MAYBE  | a (weights from b)     |  a  |  0  |  0  |
+    // AND_NOT    | a but not b            |  a  | n/a |  0  |
+    // XOR        | (a or b) not (a and b) | n/a | n/a |  0  |
+    // -----------+------------------------+-----+-----+-----+
+    if(query1.isnull || query2.isnull) {
+	switch (op) {
+	    case OM_MOP_OR:
+	    case OM_MOP_AND:
+	    case OM_MOP_FILTER:
+		if (!query1.isnull) {
+		    initialise_from_copy(query1);
+		} else {
+		    if (!query2.isnull) initialise_from_copy(query2);
+		    else isnull = true;
+		}
+		break;
+	    case OM_MOP_AND_MAYBE:
+		if (!query1.isnull) {
+		    initialise_from_copy(query1);
+		} else {
+		    isnull = true;
+		}
+		break;
+	    case OM_MOP_AND_NOT:
+		if (!query1.isnull) {
+		    initialise_from_copy(query1);
+		} else {
+		    if (!query2.isnull) Assert(false); // FIXME: throw exception
+		    else isnull = true;
+		}
+		break;
+	    case OM_MOP_XOR:
+		if (query1.isnull && query2.isnull) {
+		    isnull = true;
+		} else {
+		    Assert(false); // FIXME: throw exception
+		}
+		break;
+	    case OM_MOP_LEAF:
+		Assert(false); // Shouldn't have got this far
+	}
+    } else {
+	subqs.push_back(new OMQuery(query1));
+	subqs.push_back(new OMQuery(query2));
+    }
 }
 
 OMQuery::OMQuery(om_queryop _op,
@@ -169,18 +216,20 @@ OMQuery::initialise_from_vector(const vector<OMQuery>::const_iterator qbegin,
 				const vector<OMQuery>::const_iterator qend)
 {
     Assert(op == OM_MOP_AND || op == OM_MOP_OR); // FIXME throw exception rather than Assert
-    if(qbegin == qend) {
-	Assert(false); // FIXME throw exception rather than Assert
-    } else if(qbegin + 1 == qend) {
-	// Copy into self
-	Assert(!qbegin->isnull); // FIXME Throw exception rather than Assert
-	initialise_from_copy(*qbegin);
-    } else {
-	vector<OMQuery>::const_iterator i;
-	for(i = qbegin; i != qend; i++) {
-	    Assert(!i->isnull); // FIXME Throw exception rather than Assert
-	    subqs.push_back(new OMQuery(*i));
-	}
+
+    vector<OMQuery>::const_iterator i;
+    for(i = qbegin; i != qend; i++) {
+	if(!i->isnull) subqs.push_back(new OMQuery(*i));
+    }
+
+    if(subqs.size() == 0) {
+	isnull = true;
+    } else if(subqs.size() == 1) {
+	// Should just have copied into self
+	OMQuery * copyme = subqs[0];
+	subqs.clear();
+	initialise_from_copy(*copyme);
+	delete copyme;
     }
 }
 
@@ -190,18 +239,20 @@ OMQuery::initialise_from_vector(const vector<OMQuery *>::const_iterator qbegin,
 				const vector<OMQuery *>::const_iterator qend)
 {
     Assert(op == OM_MOP_AND || op == OM_MOP_OR); // FIXME throw exception rather than Assert
-    if(qbegin == qend) {
-	Assert(false); // FIXME throw exception rather than Assert
-    } else if(qbegin + 1 == qend) {
-	// Copy into self
-	Assert(!(*qbegin)->isnull); // FIXME Throw exception rather than Assert
-	initialise_from_copy(**qbegin);
-    } else {
-	vector<OMQuery *>::const_iterator i;
-	for(i = qbegin; i != qend; i++) {
-	    Assert(!(*i)->isnull); // FIXME Throw exception rather than Assert
-	    subqs.push_back(new OMQuery(**i));
-	}
+
+    vector<OMQuery *>::const_iterator i;
+    for(i = qbegin; i != qend; i++) {
+	if(!(*i)->isnull) subqs.push_back(new OMQuery(**i));
+    }
+
+    if(subqs.size() == 0) {
+	isnull = true;
+    } else if(subqs.size() == 1) {
+	// Should just have copied into self
+	OMQuery * copyme = subqs[0];
+	subqs.clear();
+	initialise_from_copy(*copyme);
+	delete copyme;
     }
 }
 

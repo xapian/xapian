@@ -223,6 +223,7 @@ OMMatch::postlist_from_query(const OMQuery *qu)
 {
     PostList *pl = NULL;
     cout << "Op:" << qu->op << " Size:" << qu->subqs.size() << endl;
+    Assert(!qu->isnull); // FIXME Throw exception, rather than assert
     switch (qu->op) {
 	case OM_MOP_LEAF:
 	    // Make a postlist for a single term
@@ -241,7 +242,7 @@ OMMatch::postlist_from_query(const OMQuery *qu)
 	    break;
 	case OM_MOP_AND:
 	case OM_MOP_OR:
-	    // Build a tree of postlists for 
+	    // Build a tree of postlists for AND or OR
 	    pl = postlist_from_queries(qu->op, qu->subqs);
 	    break;
 	case OM_MOP_FILTER:
