@@ -566,7 +566,9 @@ if($query && ($query ne "")){
 #--------------
 print <<_HTML_;
 <p>
-<b class=orange>Please send all bugs/comments to <a href="mailto:cvssearch\@cse.unsw.edu.au">cvssearch\@cse.unsw.edu.au</a>
+<b class=orange>Please send all bugs/comments to <a href="mailto:cvssearch\@cse.unsw.edu.au">cvssearch\@cse.unsw.edu.au</a>.
+<br>
+CVSSearch is under the GPL; the main project page is <a href="http://cvssearch.sourceforge.net">http://cvssearch.sourceforge.net</a>.
 _HTML_
 
 #--------------------------
