@@ -1,3 +1,10 @@
+Tue Dec 12 18:33:12 GMT 2000 Olly Betts
+
+	* OmMSet::get_docs() now takes sane parameters.
+
+	* Various test programs updated to nearly work with new OmMSet
+	  interface.
+
 Tue Dec 12 17:18:33 GMT 2000 Olly Betts
 
 	* Finished cleaning up OmMSet; updated TODO to reflect this.

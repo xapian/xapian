@@ -78,9 +78,9 @@ void test_mset_order_equal(const OmMSet &mset1, const OmMSet &mset2);
 // Useful test macros
 
 /// Check size of mset is as expected
-#define TEST_MSET_SIZE(a, b) TEST_AND_EXPLAIN(((a).items.size() == (b)), \
+#define TEST_MSET_SIZE(a, b) TEST_AND_EXPLAIN(((a).size() == (b)), \
 	"MSet `"STRINGIZE(a)"' is not of expected size: was `" << \
-	(a).items.size() << "' expected `" << (b) << "':\n" << \
+	(a).size() << "' expected `" << (b) << "':\n" << \
 	"Full mset was:\n" << (a))
 
 /// Check that a piece of code throws an expected exception

@@ -180,9 +180,8 @@ class OmEnquire::Internal {
 	const OmDocument get_doc(om_docid did) const;
 	const OmDocument get_doc(const OmMSetIterator &it) const;
 
-	const std::vector<OmDocument> get_docs(
-		std::vector<OmMSetIterator>::const_iterator begin,
-		std::vector<OmMSetIterator>::const_iterator end) const;
+	const std::vector<OmDocument> get_docs(const OmMSetIterator & begin,
+					       const OmMSetIterator & end) const;
 
 	om_termname_list get_matching_terms(om_docid did) const;
 	om_termname_list get_matching_terms(const OmMSetIterator &it) const;

@@ -697,29 +697,28 @@ OmEnquire::Internal::get_doc(const OmMSetIterator &it) const
 }
 
 const std::vector<OmDocument>
-OmEnquire::Internal::get_docs(std::vector<OmMSetIterator>::const_iterator begin,
-			      std::vector<OmMSetIterator>::const_iterator end) const
+OmEnquire::Internal::get_docs(const OmMSetIterator &begin,
+			      const OmMSetIterator &end) const
 {
     OmLockSentry locksentry(mutex);
 
     OmDatabase::Internal * internal = OmDatabase::InternalInterface::get(db);
     unsigned int multiplier = internal->databases.size();
 
-    std::vector<OmMSetIterator>::const_iterator i;
-    for (i = begin; i != end; i++) {
-	om_docid realdid = (**i - 1) / multiplier + 1;
-	om_doccount dbnumber = (**i - 1) % multiplier;
+    for (OmMSetIterator i = begin; i != end; i++) {
+	om_docid realdid = (*i - 1) / multiplier + 1;
+	om_doccount dbnumber = (*i - 1) % multiplier;
 	
 	internal->databases[dbnumber]->request_document(realdid);
     }
 
     std::vector<OmDocument> docs;
-    for (i = begin; i != end; i++) {
-	om_docid realdid = (**i - 1) / multiplier + 1;
-	om_doccount dbnumber = (**i - 1) % multiplier;
+    for (OmMSetIterator i = begin; i != end; i++) {
+	om_docid realdid = (*i - 1) / multiplier + 1;
+	om_doccount dbnumber = (*i - 1) % multiplier;
 	
 	Document *doc = internal->databases[dbnumber]->collect_document(realdid);
-	docs.push_back(OmDocument(new OmDocument::Internal(doc, db, **i)));
+	docs.push_back(OmDocument(new OmDocument::Internal(doc, db, *i)));
     }
 
     return docs;
@@ -936,8 +935,8 @@ OmEnquire::get_doc(const OmMSetIterator &it) const
 }
 
 const std::vector<OmDocument>
-OmEnquire::get_docs(std::vector<OmMSetIterator>::const_iterator begin,
-		    std::vector<OmMSetIterator>::const_iterator end) const
+OmEnquire::get_docs(const OmMSetIterator &begin,
+		    const OmMSetIterator &end) const
 {
     DEBUGAPICALL(const std::vector<OmDocument>,
 		 "OmEnquire::get_docs", begin << ", " << end);

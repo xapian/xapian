@@ -582,9 +582,8 @@ class OmEnquire {
 	 *  @exception OmDocNotFoundError  The document specified could not
 	 *  be found in the database.
 	 */
-	const std::vector<OmDocument> get_docs(
-		std::vector<OmMSetIterator>::const_iterator begin,
-		std::vector<OmMSetIterator>::const_iterator end) const;
+	const std::vector<OmDocument> get_docs(const OmMSetIterator &begin,
+					       const OmMSetIterator &end) const;
 
 	/** Get terms which match a given document, by document id.
 	 *
