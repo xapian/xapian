@@ -8,8 +8,7 @@ Bindings for the following languages should be fully functional and ready
 for real world use:
 
 Java		Java bindings (built using JNI) contributed by Eric B. Ridge.
-		These are currently missing wrappers for API changes in Xapian
-		0.8.2 and later.
+		See java/README for Java binding specific information.
 Perl		Perl XS bindings contributed by Alex Bowley are available
 		from CPAN (module Search::Xapian).
 PHP4		Requires PHP 4.
