@@ -1,3 +1,7 @@
+Wed Mar 24 14:09:32 GMT 2004  Olly Betts <olly@survex.com>
+
+	* perl/Entities.pm: Fixed typo in comment.
+
 Wed Mar 24 13:41:33 GMT 2004  Olly Betts <olly@survex.com>
 
 	* perl/00_README: Corrected the cat command in-line with the

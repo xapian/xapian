@@ -192,7 +192,7 @@ while (my($entity, $char) = each(%entity2char)) {
     $char2entity{$char} = "&$entity;";
 }
 
-# Fill inn missing entities
+# Fill in missing entities
 for (0 .. 255) {
     next if exists $char2entity{chr($_)};
     $char2entity{chr($_)} = "&#$_;";
