@@ -52,6 +52,11 @@ int main(int argc, char *argv[]) {
 	exit(-1);
     }
 
+    /* variables needed in both try/catch blocks */
+    OmDatabase dbgrp;
+    unsigned int timeout = 30000;
+
+    /* Trap exceptions related to setting up the database */
     try {
 	// open the database to return results
 	BackendManager backendmanager;
@@ -59,8 +64,6 @@ int main(int argc, char *argv[]) {
 	backendmanager.set_dbtype("inmemory");
 
 	std::vector<std::string> paths;
-
-	unsigned int timeout = 30000;
 
 	for (int i=2; i<argc; ++i) {
 	    std::string arg = argv[i];
@@ -78,12 +81,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	OmDatabase db = backendmanager.get_database(paths);
-	OmDatabase dbgrp;
 	dbgrp.add_database(db);
-
-	ProgServer server(dbgrp, 0, 1, timeout, timeout);
-
-	server.run();
     } catch (OmError &e) {
 	/*
 	cerr << "OmError exception (" << typeid(e).name()
@@ -95,6 +93,24 @@ int main(int argc, char *argv[]) {
 	cerr << "Caught exception" << endl;
 	 */
 	cout << "EUNKNOWN" << endl;
+    }
+
+    /* Catch exceptions from running the server, but don't pass them
+     * on to the remote end, as SocketServer will do that itself.
+     */
+    try {
+	ProgServer server(dbgrp, 0, 1, timeout, timeout);
+
+	server.run();
+    } catch (OmError &e) {
+	/*
+	cerr << "OmError exception (" << typeid(e).name()
+	     << "): " << e.get_msg() << endl;
+	 */
+    } catch (...) {
+	/*
+	cerr << "Caught unknown exception" << endl;
+	 */
     }
 }
 

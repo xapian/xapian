@@ -121,81 +121,80 @@ SocketServer::get_global_stats()
 void
 SocketServer::run()
 {
-    try {
 #ifdef TIMING_PATCH
-	struct timeval stp, etp;
-	uint64_t time = 0;
-	uint64_t total = 0;
-	uint64_t totalidle = 0;
-	int returnval = 0;
+    struct timeval stp, etp;
+    uint64_t time = 0;
+    uint64_t total = 0;
+    uint64_t totalidle = 0;
+    int returnval = 0;
 #endif /* TIMING_PATCH */
-	while (1) {
-	    try {
-		std::string message;
+    while (1) {
+	try {
+	    std::string message;
 
-		// Message 3 (see README_progprotocol.txt)
+	    // Message 3 (see README_progprotocol.txt)
 #ifdef TIMING_PATCH
-		returnval = gettimeofday(&stp, NULL);
+	    returnval = gettimeofday(&stp, NULL);
 #endif /* TIMING_PATCH */
-		message = readline(msecs_idle_timeout);
+	    message = readline(msecs_idle_timeout);
 #ifndef TIMING_PATCH
 
 #else /* TIMING_PATCH */
-		returnval = gettimeofday(&etp, NULL);
-		time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
-		totalidle += time;
+	    returnval = gettimeofday(&etp, NULL);
+	    time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
+	    totalidle += time;
 #endif /* TIMING_PATCH */
-		switch (message.empty() ? '\0' : message[0]) {
+	    switch (message.empty() ? '\0' : message[0]) {
 #ifndef TIMING_PATCH
-		    case 'Q': run_match(message.substr(1)); break;
-		    case 'T': run_gettermlist(message.substr(1)); break;
-		    case 'D': run_getdocument(message.substr(1)); break;
-		    case 'K': run_keepalive(message.substr(1)); break;
+		case 'Q': run_match(message.substr(1)); break;
+		case 'T': run_gettermlist(message.substr(1)); break;
+		case 'D': run_getdocument(message.substr(1)); break;
+		case 'K': run_keepalive(message.substr(1)); break;
 #else /* TIMING_PATCH */
-		    case 'Q': {
-				  returnval = gettimeofday(&stp, NULL);
-				  run_match(message.substr(1));
-				  returnval = gettimeofday(&etp, NULL);
-				  time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
-				  total += time;
-				  if (timing) cout << "Match time = " << time << " usecs. (socketserver.cc)\n";
-			      }
-			      break;
-		    case 'T': {
-				  returnval = gettimeofday(&stp, NULL);
-				  run_gettermlist(message.substr(1));
-				  returnval = gettimeofday(&etp, NULL);
-				  time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
-				  total += time;
-				  if (timing) cout << "Get Term List time = " << time << " usecs. (socketserver.cc)\n";
-			      }
-			      break;
-		    case 'D': {
-				  returnval = gettimeofday(&stp, NULL);
-				  run_getdocument(message.substr(1));
-				  gettimeofday(&etp, NULL);
-				  time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
-				  total += time;
-				  if (timing) cout << "Get Doc time = " << time << " usecs. (socketserver.cc)\n";
-			      }
-			      break;
-		    case 'K': {
-				  returnval = gettimeofday(&stp, NULL);
-				  run_keepalive(message.substr(1));
-				  gettimeofday(&etp, NULL);
-				  time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
-				  total += time;
-				  if (timing) cout << "Keep-alive time = " << time << " usecs. (socketserver.cc)\n";
-			      }
-			      break;
+		case 'Q': {
+			      returnval = gettimeofday(&stp, NULL);
+			      run_match(message.substr(1));
+			      returnval = gettimeofday(&etp, NULL);
+			      time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
+			      total += time;
+			      if (timing) cout << "Match time = " << time << " usecs. (socketserver.cc)\n";
+			  }
+			  break;
+		case 'T': {
+			      returnval = gettimeofday(&stp, NULL);
+			      run_gettermlist(message.substr(1));
+			      returnval = gettimeofday(&etp, NULL);
+			      time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
+			      total += time;
+			      if (timing) cout << "Get Term List time = " << time << " usecs. (socketserver.cc)\n";
+			  }
+			  break;
+		case 'D': {
+			      returnval = gettimeofday(&stp, NULL);
+			      run_getdocument(message.substr(1));
+			      gettimeofday(&etp, NULL);
+			      time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
+			      total += time;
+			      if (timing) cout << "Get Doc time = " << time << " usecs. (socketserver.cc)\n";
+			  }
+			  break;
+		case 'K': {
+			      returnval = gettimeofday(&stp, NULL);
+			      run_keepalive(message.substr(1));
+			      gettimeofday(&etp, NULL);
+			      time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
+			      total += time;
+			      if (timing) cout << "Keep-alive time = " << time << " usecs. (socketserver.cc)\n";
+			  }
+			  break;
 #endif /* TIMING_PATCH */
-		    case 'm': break; // ignore min weight message left over from postlist
-		    case 'S': break; // ignore skip_to message left over from postlist
-		    default:
-			      throw OmInvalidArgumentError(std::string("Unexpected message:") +
-							   message);
-		}
-	    } catch (const SocketServerFinished &) {
+		case 'm': break; // ignore min weight message left over from postlist
+		case 'S': break; // ignore skip_to message left over from postlist
+		default:
+			  throw OmInvalidArgumentError(std::string("Unexpected message:") +
+						       message);
+	    }
+	} catch (const SocketServerFinished &) {
 		// received close message, just return.
 #ifdef TIMING_PATCH
 		if (timing) {
@@ -204,18 +203,22 @@ SocketServer::run()
 		}
 #endif
 		return;
-	    }
+	} catch (const OmNetworkError &e) {
+	    // _Don't_ send network errors over, since they're likely
+	    // to have been caused by an error talking to the other end.
+	    // (This isn't necessarily true with cascaded remote
+	    // databases, though...)
+	    throw;
+	} catch (const OmError &e) {
+	    /* Pass the error across the link, and continue. */
+	    writeline(std::string("E") + omerror_to_string(e));
+	} catch (...) {
+	    /* Do what we can reporting the error, and then propagate
+	     * the exception.
+	     */
+	    writeline(std::string("EUNKNOWN"));
+	    throw;
 	}
-    } catch (const OmNetworkError &e) {
-	// _Don't_ send network errors over, since they're likely to have
-	// been caused by an error talking to the other end.
-	throw;
-    } catch (const OmError &e) {
-	writeline(std::string("E") + omerror_to_string(e));
-	throw;
-    } catch (...) {
-	writeline(std::string("EUNKNOWN"));
-	throw;
     }
 }
 

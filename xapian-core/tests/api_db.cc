@@ -2357,6 +2357,9 @@ static bool test_termlist1()
 		   OmTermIterator t = db.termlist_begin(0));
     TEST_EXCEPTION(OmDocNotFoundError,
 		   OmTermIterator t = db.termlist_begin(2));
+    /* Cause the database to be used properly, showing up problems
+     * with the link being in a bad state.  CME */
+    OmTermIterator temp = db.termlist_begin(1);
     TEST_EXCEPTION(OmDocNotFoundError,
 		   OmTermIterator t = db.termlist_begin(999999999));
     return true;
