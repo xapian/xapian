@@ -52,21 +52,7 @@ class OmSettings::Internal {
 	/// The actual data (or ref-counted pointer to it)
 	OmRefCntPtr<OmSettingsData> data;
     public:
-	/** Create a settings internal object.
-	 *
-	 *  @param is_default If true, this is the default settings
-	 *                    object.  If false, then settings are
-	 *                    copied from the default object.  Only
-	 *                    the first settings object should have
-	 *                    this argument as true.
-	 */
-	Internal(bool is_default = false);
-
-	// Debugging variable
-	static bool made_default;
-
-	// The default data
-	static OmRefCntPtr<OmSettingsData> default_data;
+	Internal();
 
 	/** Copy constructor.
 	 *  The copies are reference-counted, so copies are relatively
@@ -96,10 +82,6 @@ class OmSettings::Internal {
 	 */
 	string get_value(const string &key) const;
 };
-
-bool OmSettings::Internal::made_default = false;
-
-OmRefCntPtr<OmSettingsData> OmSettings::Internal::default_data = 0;
 
 ////////////////////////////////////////////////////////////////
 // OmSettings methods
@@ -135,29 +117,52 @@ OmSettings::set_value(const string &key, const string &value)
     internal->set_value(key, value);
 }
 
+void
+OmSettings::set_value(const string &key, int value)
+{
+    char buf[64];
+    sprintf(buf, "%d", value);
+    internal->set_value(key, string(buf));
+}
+
+void
+OmSettings::set_value(const string &key, double value)
+{
+    char buf[64];
+    sprintf(buf, "%20g", value);
+    internal->set_value(key, string(buf));
+}
+
 string
-OmSettings::get_value(const string &key) const
+OmSettings::get_value_string(const string &key) const
 {
     return internal->get_value(key);
+}
+
+int
+OmSettings::get_value_int(const string &key) const
+{
+    string s = internal->get_value(key);
+    int res;
+    sscanf(s.c_str(), "%d", &res);
+    return res;
+}
+
+double
+OmSettings::get_value_real(const string &key) const
+{
+    string s = internal->get_value(key);
+    double res;
+    sscanf(s.c_str(), "%lf", &res);
+    return res;
 }
 
 ////////////////////////////////////////////////////////////////
 // OmSettings::Internal methods
 
-OmSettings::Internal::Internal(bool is_default)
-	: data(0)
+OmSettings::Internal::Internal()
+	: mutex(), data()
 {
-    if (is_default) {
-	Assert(!made_default);
-	default_data = OmRefCntPtr<OmSettingsData>(new OmSettingsData());
-	default_data->values["net.timeout"] = om_tostring(10);
-	data = default_data;
-	made_default = true;
-    } else {
-	// else copy the default settings
-	Assert(made_default);
-	data = default_data;
-    }
 }
 
 OmSettings::Internal::Internal(const OmSettings::Internal &other)
@@ -201,10 +206,3 @@ OmSettings::Internal::get_value(const string &key) const
     }
     return i->second;
 }
-
-OmSettings::OmSettings(bool is_default)
-	: internal(new Internal(true))
-{
-}
-
-OmSettings const OmSettings::default_settings(true);

@@ -1,3 +1,8 @@
+Mon Aug 14 15:13:00 BST 2000 Olly Betts
+
+	* Removed default stuff from OmSettings and added methods to read and
+	  write integer and real values.
+
 Mon Aug 14 12:36:01 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added directory and build stuff for new backend - quartz.  Not

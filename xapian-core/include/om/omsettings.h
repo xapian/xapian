@@ -37,19 +37,7 @@ class OmSettings {
 	/// Internal implementation
 	Internal *internal;
 
-	/// Constructor used internally.
-	OmSettings(bool is_default);
-
     public:
-	/** The default settings object.
-	 *
-	 *  This object can be used when the default settings do not
-	 *  need to be modified.
-	 *  The values in the default object are the initial values of
-	 *  any freshly constructed OmSettings object.
-	 */
-	static const OmSettings default_settings;
-
 	/** Create a settings object.
 	 */
 	OmSettings();
@@ -75,13 +63,45 @@ class OmSettings {
 	 */
 	void set_value(const std::string &key, const std::string &value);
 
-	/** Get a setting value.
+	/** Set an option value to an integer.
+	 *
+	 *  @param key   The name of the option as a string.
+	 *
+	 *  @param value The value to set the option to.
+	 */
+	void set_value(const std::string &key, int value);
+
+	/** Set an option value to a real number.
+	 *
+	 *  @param key   The name of the option as a string.
+	 *
+	 *  @param value The value to set the option to.
+	 */
+	void set_value(const std::string &key, double value);
+
+	/** Get a setting value as a string.
 	 *
 	 *  @param key	 The key corresponding to the value to retrieve.
 	 *
 	 *  @exception   OmRangeError will be thrown for an invalid key.
 	 */
-	std::string get_value(const std::string &key) const;
+	std::string get_value_string(const std::string &key) const;
+
+	/** Get a setting value as an integer.
+	 *
+	 *  @param key	 The key corresponding to the value to retrieve.
+	 *
+	 *  @exception   OmRangeError will be thrown for an invalid key.
+	 */
+	int get_value_int(const std::string &key) const;
+
+	/** Get a setting value as an real number.
+	 *
+	 *  @param key	 The key corresponding to the value to retrieve.
+	 *
+	 *  @exception   OmRangeError will be thrown for an invalid key.
+	 */
+	double get_value_real(const std::string &key) const;
 };
 
 #endif // OM_HGUARD_OMSETTINGS_H
