@@ -1,3 +1,14 @@
+Mon Mar 19 15:57:18 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Update omsee-config to work when a prefix is specified that
+	  points directly to the directory with the library, rather than
+	  expecting the library to be in a subdir "libs/".  (libs/ is
+	  still used if it exists).
+
+	* Update omsee.m4, to use omsee-config even when using an
+	  uninstalled version of omsee.  This in turn fixes problems using
+	  uninstalled versions of omsee with STLport.
+
 Fri Mar 16 18:14:52 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Updated licenses, to include year 2001.

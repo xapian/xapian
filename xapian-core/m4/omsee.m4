@@ -70,8 +70,8 @@ if test "x$OMSEE_UNINST" = "xno"; then
   else
     if $OMSEE_CONFIG --check; then
       AC_MSG_RESULT(yes)
-      OMSEE_CFLAGS=`$OMSEE_CONFIG --cflags $module_args`
-      OMSEE_LIBS=`$OMSEE_CONFIG --libs $module_args`
+      OMSEE_CFLAGS=`$OMSEE_CONFIG --cflags`
+      OMSEE_LIBS=`$OMSEE_CONFIG --libs`
       ifelse([$1], , :, [$1])
     else
       AC_MSG_RESULT(bad installation)
@@ -84,8 +84,19 @@ else
   if test "x$OMSEE_UNINST_EXEC" = "xno"; then
     OMSEE_UNINST_EXEC=$OMSEE_UNINST
   fi
-  OMSEE_CFLAGS="-I$OMSEE_UNINST/include -I$OMSEE_UNINST/common"
-  OMSEE_LIBS="$OMSEE_UNINST_EXEC/libomsee.la"
+  OMSEE_CONFIG_TMP="$OMSEE_UNINST_EXEC/omsee-config"
+  if test -x "$OMSEE_CONFIG_TMP"; then
+    : ;
+  else
+    cp $OMSEE_CONFIG_TMP .omsee-config_tmp
+    OMSEE_CONFIG_TMP=./.omsee-config_tmp
+    chmod +x .omsee-config_tmp
+  fi
+  OMSEE_CFLAGS=`$OMSEE_CONFIG_TMP --prefix=$OMSEE_UNINST --exec-prefix=$OMSEE_UNINST_EXEC --cflags`
+  OMSEE_LIBS=`$OMSEE_CONFIG_TMP --prefix=$OMSEE_UNINST --exec-prefix=$OMSEE_UNINST_EXEC --libs`
+  if test -x ".omsee-config_tmp"; then
+    rm -f .omsee-config_tmp;
+  fi
 fi
 
 AC_SUBST(OMSEE_CFLAGS)

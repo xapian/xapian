@@ -93,17 +93,25 @@ while test $# -gt 0; do
 done
 
 if test "$prefix_set" = "true"; then
-    includedir=${prefix}/include
-    libdir=${prefix}/lib
+    includedir=${prefix}
+    libdir=${prefix}
 fi
 
 if test "$exec_prefix_set" = "true"; then
     if test "$prefix_set" = "true"; then
-	libdir=${exec_prefix}/lib
+	libdir=${exec_prefix}
     else
 	usage 1 1>&2
 	exit 1
     fi
+fi
+
+if test -d "${includedir}/include"; then
+  includedir="${includedir}/include"
+fi
+
+if test -d "${libdir}/lib"; then
+  libdir="${libdir}/lib"
 fi
 
 if test "$echo_cflags" = "yes"; then
