@@ -77,6 +77,7 @@ PostList * DBPostList::next(om_weight w_min)
     return NULL;
 }
 
+#if 0
 PostList * DBPostList::skip_to(om_docid did, om_weight w_min)
 {
     Assert(currdoc == 0 || !at_end());
@@ -96,6 +97,19 @@ PostList * DBPostList::skip_to(om_docid did, om_weight w_min)
 	      "): new docid = " << currdoc);
     return NULL;
 }
+#else
+PostList * DBPostList::skip_to(om_docid did, om_weight w_min)
+{
+    Assert(currdoc == 0 || !at_end());
+    Assert(did >= currdoc);
+    DEBUGLINE(DB, "DBPostList::skip_to(" << did << ", " << w_min <<
+	      "): current docid = " << currdoc);
+    DEBUGLINE(DB, "using repeated nexts to implement skip_to as bug work-around. FIXME");
+    if (currdoc == 0) next(w_min);
+    while(!at_end() && currdoc < did) { next(w_min); }
+    return NULL;
+}
+#endif
 
 PositionList *
 DBPostList::get_position_list()

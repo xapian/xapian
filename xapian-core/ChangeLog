@@ -1,3 +1,8 @@
+Fri Sep  8 17:31:28 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Change implementation of DBPostList::skip_to to repeatedly call
+	  next(), as temporary work around for a bug.
+
 Fri Sep 08 16:41:17 BST 2000 Olly Betts
 
 	* Om*Iterator ought to now work as STL iterators; added test termlist2
