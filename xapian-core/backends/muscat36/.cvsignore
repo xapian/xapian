@@ -4,4 +4,4 @@ Makefile.in
 Makefile
 .deps
 .libs
-libda.la
+libmuscat36.la

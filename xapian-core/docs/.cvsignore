@@ -2,8 +2,10 @@
 Makefile.in
 Makefile
 .deps
-.deps-apidoc
-.deps-sourcedoc
+.deps-apidoc-html
+.deps-apidoc-tex
+.deps-sourcedoc-html
+.deps-sourcedoc-tex
 code_structure.html
 mkdoc.pl
 sourcedoc
