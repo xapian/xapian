@@ -94,7 +94,7 @@ dnl AC_SUBST(DOCPP_PATH)
 
 dnl Check for doxygen. (Needed to make some more of the documentation)
 AC_PATH_PROG(DOXYGEN_PATH, doxygen, missing)
-AM_CONDITIONAL(HAVE_DOXYGEN, test "$DOXYGEN_PATH" = missing)
+AM_CONDITIONAL(HAVE_DOXYGEN, test "x$DOXYGEN_PATH" != xmissing)
 AC_SUBST(DOXYGEN_PATH)
 
 dnl Check for dvips. (Needed to make some more of the documentation)

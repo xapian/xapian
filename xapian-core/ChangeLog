@@ -1,3 +1,8 @@
+Fri Sep  1 12:57:59 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Correct sense of test for presence of doxygen.  How we never
+	  noticed this before eludes me...
+
 Fri Sep 01 11:20:03 BST 2000 Olly Betts
 
 	* Moved some test helper functions from apitest.cc to testsuite.cc.
