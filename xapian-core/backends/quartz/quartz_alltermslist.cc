@@ -123,11 +123,16 @@ QuartzAllTermsList::skip_to(const om_termname &tname)
 
     bool result = pl_cursor->find_entry(key);
 
-    DEBUGLINE(DB, "QuartzAllTermList[" << this << "]::skip_to(): key is " <<
-	      pl_cursor->current_key.value);
-
-    is_at_end = pl_cursor->after_end();
-
+    if (!result) {
+	if (pl_cursor->after_end()) {
+	    is_at_end = true;
+	} else {
+	    next();
+	}
+    } else {
+	DEBUGLINE(DB, "QuartzAllTermList[" << this << "]::skip_to(): key is " <<
+		  pl_cursor->current_key.value);
+    }
     return NULL;
 }
 

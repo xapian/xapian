@@ -1,3 +1,7 @@
+Fri Jan 12 13:18:07 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed skip_to() in QuartzAllTermsList
+
 Fri Jan 12 12:52:57 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Turn debugging off in btree.cc: accidentally committed a version
