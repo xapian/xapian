@@ -1,3 +1,8 @@
+Sun Nov 07 15:01:23 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,include/xapian/version.h.in: Terminating lines with 'N'
+	  makes Sun's C++ unhappy.  Try ',' instead.
+
 Sun Nov 07 03:54:42 GMT 2004  Olly Betts <olly@survex.com>
 
 	* tests/api_nodb.cc: Added test_weight1 which tests the built-in
