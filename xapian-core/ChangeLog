@@ -1,3 +1,8 @@
+Wed Jun 04 02:51:56 BST 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Build testsuite later - it now doesn't need to be built
+	  until just before tests.
+
 Wed Jun 04 02:43:08 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/muscat36/: Split up spec into comments in the appropriate
