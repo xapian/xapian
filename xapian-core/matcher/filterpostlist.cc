@@ -1,4 +1,4 @@
-/* filterpostlist.h: apply a boolean posting list as a filter to a
+/* filterpostlist.cc: apply a boolean posting list as a filter to a
  * probabilistic posting list
  *
  * ----START-LICENCE----
@@ -21,26 +21,29 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_FILTERPOSTLIST_H
-#define OM_HGUARD_FILTERPOSTLIST_H
+#include "filterpostlist.h"
 
-#include "database.h"
-#include "andpostlist.h"
+om_weight
+FilterPostList::get_weight() const
+{
+    return l->get_weight();
+}
 
-// FilterPostList(probabilistic, boolean)
-// AntiFilterPostList(probabilistic, boolean)
+om_weight
+FilterPostList::get_maxweight() const
+{
+    return l->get_maxweight();
+}
 
-class FilterPostList : public AndPostList {
-    public:
-	om_weight get_weight() const;
-	om_weight get_maxweight() const;
+om_weight
+FilterPostList::recalc_maxweight()
+{
+    return l->recalc_maxweight();    
+}
 
-        om_weight recalc_maxweight();
-
-	string intro_term_description() const;
-
-        FilterPostList(PostList *l, PostList *r, LeafMatch *matcher_) :
-            AndPostList(l, r, matcher_) {};
-};
-
-#endif /* OM_HGUARD_FILTERPOSTLIST_H */
+string
+FilterPostList::intro_term_description() const
+{
+    return "(" + l->intro_term_description() + " Filter " +
+	    r->intro_term_description() + ")";
+}
