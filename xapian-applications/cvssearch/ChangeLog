@@ -1,3 +1,8 @@
+Fri Dec 17 01:42:25 GMT 2004  Olly Betts <olly@survex.com>
+
+	* perl/MatchComment-script.pl,perl/MatchFile-script.pl: Don't use
+	  OUTPUT as a filehandle for a file we're *reading*.
+
 Fri Dec 17 01:38:17 GMT 2004  Olly Betts <olly@survex.com>
 
 	* perl/: Regularise "Content-Type:" headers.

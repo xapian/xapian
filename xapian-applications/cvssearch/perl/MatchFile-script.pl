@@ -51,19 +51,18 @@ print "<head>\n";
 # ----------------------------------------
 # print javascript for popups
 # ----------------------------------------
-open (OUTPUT, "<./popup.js");
-print <OUTPUT>;
-close (OUTPUT);
+open JS, "popup.js";
+print <JS>;
+close JS;
+
 # ----------------------------------------
 # parse parameters
 # ----------------------------------------
-if(param()){
+if (param()) {
     parse_input();
     query();
     print_html();
 }
-
-
 
 sub print_javascript {
     my ($root, $pkg, $fileid) = @_;

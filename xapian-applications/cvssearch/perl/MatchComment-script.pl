@@ -198,10 +198,10 @@ sub print_javascript {
 # ----------------------------------------
 # print javascript for popups
 # ----------------------------------------
-open (OUTPUT, "<./popup.js");
-print <OUTPUT>;
-close (OUTPUT);
-    
+open JS, "popup.js";
+print <JS>;
+close JS;
+
     print <<_SCRIPT_;
 <script language="JavaScript">
 
