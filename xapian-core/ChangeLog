@@ -1,3 +1,8 @@
+Sun Nov 07 02:24:17 GMT 2004  Olly Betts <olly@survex.com>
+
+	* HACKING: Note that C++ style casts are preferable to C style casts;
+	  Improve wording in a few places.
+
 Sun Nov 07 01:05:58 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc,backends/quartz/btree_util.h,
