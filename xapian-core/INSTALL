@@ -16,10 +16,15 @@ Compilers:
 We aim to support compilation with any C++ compiler which supports ISO C++,
 or a reasonable approximation to it.
 
-If you're using GCC, we recommend GCC 3.0 or later rather than GCC 2.95,
-as the C++ compiler is much improved in 3.0.  EGCS or any other GCC version
-prior to GCC 2.95 is unlikely to work due to lack of support for certain C++
-features.
+If you're using GCC, we recommend GCC 3.0 or better still GCC 3.1.
+
+The C++ support has improved a lot since GCC 2.95, and you may experience
+spurious warning messages or even Internal Compiler Errors if you try to use
+2.95.  The "GCC 2.96" supplied by Redhat is also best avoided.  It's actually
+based on a snapshot of GCC somewhere between 2.95 and 3.0.
+
+Even older GCC compilers (including EGCS) are most unlikely to work at all
+due to lack of support for various C++ features which Xapian uses.
 
 Options to give to configure:
 =============================

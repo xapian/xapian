@@ -10,7 +10,7 @@ VERY PROVISIONAL - HACKED TOGETHER OUT OF ChangeLog AND MY MEMORY...
   Added "xapian-applications" which contains sample applications.
 
 * OmData and OmKey removed - methods which used them now just take and return
-  strings.
+  STL strings.
 
 * Terminology change - "keys" are now known as "values", except when actually
   being used as a "key" - e.g. "match_collapse_key".
@@ -26,7 +26,7 @@ VERY PROVISIONAL - HACKED TOGETHER OUT OF ChangeLog AND MY MEMORY...
   
 * Cleaner build system.  Support for largefiles (>2G).  Builds as cleanly
   as we can achieve with GCC 2.95.* (some bogus warnings); Builds cleanly with
-  GCC 3.0, and with GCC 3.1 snapshots.
+  GCC 3.0 and 3.1.
 
 * xapian-config no longer support "--uninst".  It's hard to make this
   work reliably, and the effort is better expended elsewhere.  Configure with
@@ -108,6 +108,4 @@ VERY PROVISIONAL - HACKED TOGETHER OUT OF ChangeLog AND MY MEMORY...
   OmMSet::matches_{lower_bound,estimated,upper_bound}, giving more
   useful information.
 
-* Fix bug in expander due to nth_element being called on the wrong
-  element.  This is the counterpoint of the bug fixed on Nov 24th
-  with the matcher.
+* Fix bug in expander due to nth_element being called on the wrong element.

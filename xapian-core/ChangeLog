@@ -1,3 +1,12 @@
+Fri May 17 14:49:54 BST 2002  Olly Betts <ollybe@ananova.net>
+
+	* INSTALL: GCC 3.1 release version works, so noted this.
+
+	* HACKING: Added note about warning-free compilation being desirable
+	  and suggesting using "./configure CFLAGS=-Werror" to promote this.
+
+	* NEWS: Minor updates.
+
 Thu May 16 16:57:42 BST 2002  Olly Betts <ollybe@ananova.net>
 
 	* Minor tweaks to get a warning-less compile with GCC 3.1.

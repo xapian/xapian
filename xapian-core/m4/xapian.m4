@@ -8,7 +8,7 @@ dnl
 AC_DEFUN(OM_PATH_XAPIAN,
 [dnl Get the cxxflags and libraries from the xapian-config script
 AC_ARG_WITH(xapian-config,
-[  --with-xapian-config   Location of xapian-config],
+[  --with-xapian-config    Location of xapian-config],
 XAPIAN_CONFIG="$withval")
 
 if test -z "$XAPIAN_CONFIG"; then

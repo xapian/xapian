@@ -141,6 +141,21 @@ Any C++ file which wants to "#include <fcntl.h>" should instead '#include
 "utils.h"'.  The open call this defines will also take a C++ string (or you can
 pass a char* which it will convert to a C++ string for you).
 
+Warning Free Compilation:
+-------------------------
+
+Compiling without warnings on every platform is our goal, though it's not
+always possible to achieve.  For example, GCC 2.95 produces a few bogus
+warnings (e.g. about not returning a value from a non-void function).
+
+If using GCC 3.0 or newer, you should consider configure-ing with:
+
+./configure CFLAGS=-Werror
+
+when doing development work on Xapian.  This promotes warnings to errors,
+and should ensure you don't introduce warnings.  If you find out how to
+do the same with other compilers, note it here.
+
 Makefile Portability:
 =====================
 
@@ -186,7 +201,9 @@ Here's an incomplete list of things to avoid:
     http://sources.redhat.com/autobook/
 
 * Don't use "include" - it's not present in BSD make (at least some versions
-  have ".include" instead, but that doesn't really seem to help...)
+  have ".include" instead, but that doesn't really seem to help...)  Automake
+  provides a configure-time include, which may provide a replacement for some
+  uses of "include".
 
 And lastly a style point - using "@" to suppress outputing of commands being
 executed removes choice from the user - they may want to see what commands
