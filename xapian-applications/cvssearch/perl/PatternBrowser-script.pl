@@ -48,8 +48,7 @@ $modeMAPhtml{"<=>"} = "&lt;=&gt;";
 #-------------
 
 print "Content-Type: text/html\n\n";
-print "<html>\n";
-print "<head>\n";
+print "<html><head>\n";
 print "<title>CVSSearch : Library Classes/Functions Search</title>\n";
 
 #---------------
@@ -71,14 +70,14 @@ my $root = Cvssearch::sanitise_root(param("root"));
 $mode = &Cvssearch::decode(param("mode"));
 
 # set default mode to <=>
-if(!$mode){
-	$mode = "<=>";
+if (!$mode) {
+    $mode = "<=>";
 }
 	
 #-----------------------------------
 # print headings and forms
 #-----------------------------------
-print "<table width=100%><tr><td><h1>Browse Classes & Functions</h1></td>";
+print "<table width=100%><tr><td><h1>Browse Classes &amp; Functions</h1></td>";
 print "<td align=right><a href=./Query.cgi>Search Again</a></td></tr></table>\n";
 
 # print roots form
