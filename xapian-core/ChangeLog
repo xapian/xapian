@@ -1,3 +1,8 @@
+Sun Oct 26 20:18:24 GMT 2003  Olly Betts <olly@survex.com>
+
+	* bin/quartzcompact.cc: Fix the name that the meta file gets copied
+	  to (was /path/to/dbdirmeta rather than /path/to/dbdir/meta).
+
 Tue Oct 21 22:26:51 BST 2003  Olly Betts <olly@survex.com>
 
 	* extra/Makefile.am: Backed out previous change - the original rule

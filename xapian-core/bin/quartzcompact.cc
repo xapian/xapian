@@ -118,9 +118,11 @@ main(int argc, char **argv)
 		metaout.write(buf, metain.gcount());
 	    }
 	}
-	if (rename(dest.c_str(), (string(destdir) + "meta").c_str()) == -1) {
+	string meta = destdir;
+	meta += "/meta";
+	if (rename(dest.c_str(), meta.c_str()) == -1) {
 	    cerr << argv[0] << ": couldn't rename `" << dest << "' to `"
-		 << destdir << "meta': " << strerror(errno) << endl;
+		 << meta << "': " << strerror(errno) << endl;
 	    exit(1);
 	}
     } catch (const Xapian::Error &error) {
