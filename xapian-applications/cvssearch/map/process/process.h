@@ -35,7 +35,6 @@ class process
 {
 private:
     istream * _output;
-    FILE *_fout;
 public:
     /**
      * constructor.

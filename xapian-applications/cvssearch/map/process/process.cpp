@@ -24,22 +24,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <ext/stdio_filebuf.h>
-
+ 
 #include "process.h"
+#include "pstream.h"
 
 process::process(const string & command)
 {
-    _fout = popen(command.c_str(), "r");
-    if (_fout != NULL)
-    {
-	filebuf * fb = new __gnu_cxx::stdio_filebuf<char>(_fout, ios::in);
-        _output = new istream(fb);
-    }
+    _output = new redi::ipstream(command.c_str());
 }
 
 process::~process()
 {
-    pclose(_fout);
     delete _output;
 }
