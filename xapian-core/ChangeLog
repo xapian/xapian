@@ -1,3 +1,9 @@
+Wed Mar 02 03:18:30 GMT 2005  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_values.cc: Values are stored in sorted order
+	  so we can stop unpacking the list once we get to one after the one
+	  we're looking for.
+
 Wed Mar 02 02:59:23 GMT 2005  Olly Betts <olly@survex.com>
 
 	* bin/quartzcheck.cc: Now checks the structure of all the tables, not
