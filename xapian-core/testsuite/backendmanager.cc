@@ -380,7 +380,7 @@ BackendManager::do_getdb_quartz(const vector<string> &dbnames, bool writable)
     if (files_exist(change_names_to_paths(dbnames))) {
 	if (create_dir_if_needed(dbdir)) {
 	    // directory was created, so do the indexing.
-	    OmWritableDatabase db(OmQuartz__open(dbdir, true));
+	    OmWritableDatabase db(OmQuartz__open(dbdir, OM_DB_CREATE));
 	    index_files_to_database(db, change_names_to_paths(dbnames));
 	}
     }
@@ -413,11 +413,11 @@ BackendManager::do_getwritedb_quartz(const vector<string> &dbnames,
 	if (create_dir_if_needed(dbdir)) {
 	    system(string("touch ") + dbdir + "/log");
 	    // directory was created, so do the indexing.
-	    OmWritableDatabase db(OmQuartz__open(dbdir, true));
+	    OmWritableDatabase db(OmQuartz__open(dbdir, OM_DB_CREATE));
 	    index_files_to_database(db, change_names_to_paths(dbnames));
 	}
     }
-    return OmQuartz__open(dbdir, false);
+    return OmQuartz__open(dbdir, OM_DB_OPEN);
 }
 
 OmDatabase
