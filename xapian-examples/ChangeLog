@@ -1,3 +1,7 @@
+Wed Jun 21 18:06:00 BST 2000 Olly Betts
+
+	* ferretfx: should now display matching terms correctly
+
 Tue Jun 20 14:29:29 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Don't need omassert.h either.  Fixed ECHO to use abort() rather

@@ -634,29 +634,12 @@ print_caption(long int m)
 	 case 'P':
 	    cout << percent << '%';
 	    break;
-#if 0 // FIXME:
 	 case 'T': {
 	     // Store the matching terms in a vector and then sort by the
 	     // value of matching_map[] so that they come back in the same
 	     // order as in the query.
-	     vector<om_termname> matching_terms;
-	     TermList *terms = database->open_term_list(q0);
-	     terms->next();
-	     while (!terms->at_end()) {
-		 termname term = terms->get_termname();
-		 map<termname, int>::const_iterator i = matching_map.find(term);
-		 if (i != matching_map.end()) {
-		     matching_terms.push_back(term);
-		 }
-		 terms->next();
-	     }
-	     delete terms;
-
-	     sort(matching_terms.begin(),
-		  matching_terms.end(),
-		  MatchingTermCmp());
-
-	     vector<termname>::const_iterator term = matching_terms.begin();
+	     om_termname_list matching_terms = enquire->get_matching_terms(q0);
+	     list<om_termname>::const_iterator term = matching_terms.begin();
 	     bool comma = false;
 	     while (term != matching_terms.end()) {
 #ifdef META
@@ -673,7 +656,6 @@ print_caption(long int m)
 	     }
 	     break;
 	  }
-#endif
 	  case 'G': /* score Gif */
 	     cout << "/fx-gif/score-" << percent / 10 << ".gif";
 	     break;
