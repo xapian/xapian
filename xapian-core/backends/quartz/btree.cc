@@ -461,8 +461,8 @@ Btree::set_overwritten()
 void
 Btree::block_to_cursor(Cursor * C_, int j, uint4 n)
 {
-    byte * p = C_[j].p;
     if (n == C_[j].n) return;
+    byte * p = C_[j].p;
 
     // FIXME: only needs to be done in write mode
     if (C_[j].rewrite) {
