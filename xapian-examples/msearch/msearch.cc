@@ -143,6 +143,7 @@ main(int argc, char *argv[])
 		"\t--mfirst <first mitem to return>\n" <<
 		"\t--key <key to collapse mset on>\n" <<
 		"\t--[da-flimsy|da-heavy|db-flimsy|db-heavy] DIRECTORY\n" <<
+		"\t--sleepycat DIRECTORY\n" <<
 		"\t--im INMEMORY\n" <<
 		"\t--rel DOCID\n" <<
 		"\t--multidb\n" <<
@@ -206,7 +207,12 @@ main(int argc, char *argv[])
 			boolop = OM_MOP_AND_NOT;
 			doop = true;
 		    }
-		    if(doop) {
+// FIXME: NEAR (and PHRASE) take a window size and multiple terms
+//		    else if (term == "NEAR") {
+//			boolop = OM_MOP_NEAR;
+//			doop = true;
+//		    }
+		    if (doop) {
 			Assert(boolquery.size() >= 2);
 			OmQuery boolq_right(boolquery.top());
 			boolquery.pop();
