@@ -24,10 +24,11 @@ class Expand {
         termcount max_esize;
 
         bool recalculate_maxweight;
+	TermList * build_tree(const RSet *rset);
     public:
         Expand(IRDatabase *);
 
-        void expand(RSet *);
+        void expand(const RSet *);
 
         vector<ESetItem> eset;
 	termcount etotal;

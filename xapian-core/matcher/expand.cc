@@ -4,6 +4,7 @@
 #include "expand.h"
 #include "rset.h"
 #include "database.h"
+#include "ortermlist.h"
 
 #include <algorithm>
 
@@ -14,26 +15,63 @@ class ESetCmp {
         }
 };
 
+class TLPCmpGt {
+    public:
+	bool operator()(const TermList *a, const TermList *b) {
+	    return a->get_approx_size() > b->get_approx_size();
+	}
+};
+
+TermList *
+Expand::build_tree(const RSet *rset)
+{
+    // FIXME: try using a heap instead (C++ sect 18.8)?
+    priority_queue<TermList*, vector<TermList*>, TLPCmpGt> pq;
+    vector<RSetItem>::const_iterator i;
+    for (i = rset->documents.begin();
+	 i != rset->documents.end();
+	 i++) {
+	pq.push(database->open_term_list((*i).did));
+    }
+
+    // Build a tree balanced by the term frequencies
+    // (similar to building a huffman encoding tree).
+    //
+    // This scheme reduces the number of objects common terms
+    // get "pulled" through, reducing the amount of work done which
+    // speeds things up.
+    if (pq.empty()) {
+	// return new EmptyTermList(); FIXME - do this
+	return NULL;
+    }
+
+    while (true) {
+	TermList *p = pq.top();
+	pq.pop();
+	if (pq.empty()) {
+	    return p;              
+	}
+	// NB right is always <= left - we can use this to optimise
+	p = new OrTermList(pq.top(), p);
+	// p = new OrTermList(pq.top(), p, this); FIXME - for optimising
+	pq.pop();
+	pq.push(p);
+    }
+}
+
 void
-Expand::expand(RSet *rset)
+Expand::expand(const RSet *rset)
 {    
     eset.clear();
     etotal = 0;
 
     if (rset->get_rsize() == 0) return; // No query
 
-    TermList *merger = NULL;
-
     weight w_min = 0;
-    vector<TermList *> termlists;
+
+    TermList *merger = Expand::build_tree(rset);
 
 #if 0
-    // FIXME: option to specify default operator? e.g. combine all remaining
-    // terms with AND
-    while (q.size() > 1) add_op(OR);
-
-    merger = q.top();
-
     recalculate_maxweight = false;
 
     while (1) {

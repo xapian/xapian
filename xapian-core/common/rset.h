@@ -17,12 +17,13 @@ class RSetItem {
 
 class RSet {
     private:
-	vector<RSetItem> documents;
 	IRDatabase *root;
 
 	mutable map<termid, doccount> reltermfreqs;
 	mutable bool initialised_reltermfreqs;
     public:
+	vector<RSetItem> documents; // FIXME - should be encapsulated
+
 	RSet(IRDatabase *root_new)
 		: root(root_new), initialised_reltermfreqs(false) { return; }
 	void add_document(docid did);

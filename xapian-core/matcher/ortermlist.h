@@ -11,6 +11,8 @@ class OrTermList : public virtual BranchTermList {
         termid lhead, rhead;
 //        weight lmax, rmax, minmax;
     public:
+	termcount get_approx_size() const;
+
 	termid get_termid() const;
         termcount get_wdf() const;
         doccount get_termfreq() const;
