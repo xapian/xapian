@@ -20,7 +20,7 @@ SUBDIRS = include getopt testsuite autoconf common \
 
 DIST_SUBDIRS = include testsuite autoconf common \
                api backends matcher languages net \
-	       . m4 docs netprogs tests extra
+	       . m4 docs netprogs tests extra getopt
 # Disabled for now: bindings
 
 bin_SCRIPTS = xapian-config
