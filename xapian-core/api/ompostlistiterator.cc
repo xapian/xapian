@@ -177,7 +177,7 @@ OmPostListIterator::get_description() const
     if (internal == 0) {
 	desc << "END";
     } else {
-// FIXME:	desc << internal->postlist->get_docid();
+	desc << internal->postlist->get_description();
     }
     desc << "])";
     RETURN(desc.str());

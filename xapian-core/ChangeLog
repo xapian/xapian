@@ -1,3 +1,8 @@
+Thu Dec 20 13:09:51 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Better OmPostListIterator::get_description() (call get_description
+	  on internal->postlist).
+
 Thu Dec 20 12:42:55 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Fixed assorted problems with omtcpsrv and co from recent change.
