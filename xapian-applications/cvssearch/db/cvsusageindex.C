@@ -74,7 +74,7 @@
 
 // ctags 5.0 flags (see http://ctags.sourceforge.net/ctags.html)
 //
-#define CTAGS_FLAGS "-R -n --file-scope=no --fields=aiK --extra=q --c-types=cfsu --java-types=cim -f" TEMP "/tags"
+#define CTAGS_FLAGS "-R -n --file-scope=no --fields=aiKs --c-types=cfsu --java-types=cim -f" TEMP "/tags"
 
 
 //
@@ -362,10 +362,12 @@ int main(int argc, char *argv[]) {
 	if ( app_symbol_tag.find( ost.str() ) != app_symbol_tag.end() ) {
 	  string f = app_symbol_tag[ost.str()];
 #warning "need to be careful with one line functions since they only have one tag"
-	  cerr << "FOUND FUNCTION " << current_function << " at line " << line_no << endl;
+	  cerr << "FOUND FUNCTION " << f << " at line " << line_no << endl;
 
 	  if ( f == current_function ) {
 	    current_function = ""; // end tag
+	  } else {
+	    current_function = f;
 	  }
 	}
 	ost.freeze(0);

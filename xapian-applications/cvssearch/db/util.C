@@ -459,7 +459,7 @@ void readTags( const string& fn, set<string>& S,
       continue;
     }
     //    cerr << "FOUND -" << s << "-" << endl;
-    bool function = (s.find("\tfunction\t") != string::npos) || (s.find("\tfunction")+string("\tfunction").length() == s.length()) || (s.find("\tmethod\t") != string::npos ) || (s.find("\tmember")+string("\tmember").length() == s.length() );
+    bool function = (s.find("\tfunction\t") != string::npos) || (s.find("\tfunction")+string("\tfunction").length() == s.length()) || (s.find("\tmethod\t") != string::npos ) || ( s.find("\tmember\t") != string::npos ) || (s.find("\tmember")+string("\tmember").length() == s.length() );
 #warning "should we look for member not method?"
 
     string symbol = s.substr( 0, s.find("\t") );
@@ -481,6 +481,15 @@ void readTags( const string& fn, set<string>& S,
 
       //      cerr << "-" << s << "-" << endl;
 
+      int k1 = s.find("\tclass:")+7;
+      int k2 = s.length()-1;
+      for( int i = k1; i <= k2; i++ ) {
+	if ( s[i] == '\t' ) {
+	  k2 = i-1;
+	  break;
+	}
+      }
+      string klass = s.substr( k1, k2-k1+1 );
 
       int j = s.find(";\"\t")-1;
       assert(j>0);
@@ -501,7 +510,7 @@ void readTags( const string& fn, set<string>& S,
       //      int l = atoi( s.substr(i,j-i+1).c_str() );
 
       //      cerr << "-" << l << "-" << endl;
-      tag[ s.substr(i,j-i+1)] = osymbol + "()";
+      tag[ s.substr(i,j-i+1)] = klass+"::"+osymbol + "()";
       
 
     }
