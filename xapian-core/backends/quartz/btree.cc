@@ -244,8 +244,6 @@ static void sys_unlink(const string &filename)
 void
 Btree::read_block(uint4 n, byte * p)
 {
-    /* Check that n is in range. */
-    Assert(n >= 0);
     /* Use the base bit_map_size not the bitmap's size, because
      * the latter is uninitialised in readonly mode.
      */
@@ -316,7 +314,6 @@ void
 Btree::write_block(uint4 n, const byte * p)
 {
     /* Check that n is in range. */
-    Assert(n >= 0);
     Assert(n / CHAR_BIT < base.get_bit_map_size());
 
     /* don't write to non-free */;
@@ -1686,23 +1683,17 @@ Btree::commit(uint4 revision)
 
     write_base();
 
-    revision_number = 0;
-    item_count = 0;
-    other_revision_number = 0;
-    both_bases = false;
-    base_letter = 'A';
-    sequential = true;
-    root = 0;
-    next_revision = 0;
     {
-    Btree_base dummy;
-    base.swap(dummy);
+	int tmp = base_letter;
+	base_letter = other_base_letter;
+	other_base_letter = tmp;
     }
-    other_base_letter = 0;
+    both_bases = true;
+    other_revision_number = revision_number;
+    revision_number = revision;
+    root = C[level].n;
+
     overwritten = false;
-    seq_count = 0;
-    changed_n = 0;
-    changed_c = 0;
     Btree_modified = false;
 
     prev_ptr = &Btree::prev_default;
@@ -1715,107 +1706,27 @@ Btree::commit(uint4 revision)
 	C[i].rewrite = false;
     }
  
-    int ch = 'X'; /* will be 'A' or 'B' */
-
     {
+	Btree_base new_base;
+	base.swap(new_base);
+
 	string err_msg;
-	vector<char> basenames;
-	basenames.push_back('A');
-	basenames.push_back('B');
-
-	vector<Btree_base> bases(basenames.size());
-	vector<bool> base_ok(basenames.size());
-
-	for (size_t i = 0; i < basenames.size(); ++i) {
-	    base_ok[i] = bases[i].read(name, basenames[i], err_msg);
-	}
-
-	// FIXME: assumption that there are only two bases
-	if (base_ok[0] && base_ok[1]) both_bases = true;
-	if (!base_ok[0] && !base_ok[1]) {
+	if (!base.read(name, base_letter, err_msg)) {
 	    string message = "Error opening table `";
 	    message += name;
 	    message += "':\n";
 	    message += err_msg;
 	    throw Xapian::DatabaseOpeningError(message);
 	}
-
-	{
-	    bool found_revision = false;
-	    for (size_t i = 0; i < basenames.size(); ++i) {
-		if (base_ok[i] && bases[i].get_revision() == revision) {
-		    ch = basenames[i];
-		    found_revision = true;
-		    break;
-		}
-	    }
-	    if (!found_revision) {
-		/* Couldn't open the revision that was asked for.
-		 * This shouldn't throw an exception, but should just return
-		 * 0 to upper levels.
-		 */
-		// FIXME: QuartzTable:: close();
-		// Can't open this revision - throw an exception.
-		throw Xapian::DatabaseError("Can't open the revision we've just written (" +
-			om_tostring(revision) + ")");
-	    }
-	}
-
-	Btree_base *basep = 0;
-	Btree_base *other_base = 0;
-
-	for (size_t i = 0; i < basenames.size(); ++i) {
-	    DEBUGLINE(UNKNOWN, "Checking (ch == " << ch << ") against "
-		      "basenames[" << i << "] == " << basenames[i]);
-	    DEBUGLINE(UNKNOWN, "bases[" << i << "].get_revision() == " <<
-		      bases[i].get_revision());
-	    DEBUGLINE(UNKNOWN, "base_ok[" << i << "] == " << base_ok[i]);
-	    if (ch == basenames[i]) {
-		basep = &bases[i];
-
-		// FIXME: assuming only two bases for other_base
-		size_t otherbase_num = 1-i;
-		if (base_ok[otherbase_num]) {
-		    other_base = &bases[otherbase_num];
-		}
-		break;
-	    }
-	}
-	Assert(basep);
-
-	/* basep now points to the most recent base block */
-
-	/* Avoid copying the bitmap etc. - swap contents with the base
-	 * object in the vector, since it'll be destroyed anyway soon.
-	 */
-	base.swap(*basep);
-
-	revision_number =  base.get_revision();
-	root =             base.get_root();
-	//bit_map_size =     basep->get_bit_map_size();
-	item_count =       base.get_item_count();
-	sequential =       base.get_sequential();
-
-	if (other_base != 0) {
-	    other_revision_number = other_base->get_revision();
-	}
     }
 
-    /* ready to open the main file */
-
-    base_letter = ch;
     next_revision = revision_number + 1;
 
     read_root();
 
-    // swap for writing
-    other_base_letter = base_letter == 'A' ? 'B' : 'A';
-
     changed_n = 0;
     changed_c = DIR_START;
     seq_count = SEQ_START_POINT;
-
-    AssertEq(revision_number, revision);
 }
 
 /************ B-tree reading ************/
