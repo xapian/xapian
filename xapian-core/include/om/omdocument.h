@@ -51,20 +51,24 @@ class OmKey {
 /// A document in the database - holds keys and records
 class OmDocument {
     private:
-	// copies are not allowed
-	OmDocument(const OmDocument &);
-	void operator=(const OmDocument &);
+	class Internal;
+	Internal *internal;
+
     public:
+	// only used by internal classes
+	explicit OmDocument(const Internal *internal_);
+
 	/// Get key by number (>= 0)
-	virtual OmKey get_key(om_keyno) const = 0;
+	OmKey get_key(om_keyno key) const;
 	
 	/// Get data stored in document.
 	/// This can be expensive, and shouldn't normally be used
 	/// in a match decider functor.
-	virtual OmData get_data() const = 0;     
+	OmData get_data() const;     
 
-	OmDocument() {};
-	virtual ~OmDocument() {}
+	void operator=(const OmDocument &other);
+	OmDocument(const OmDocument &other);
+	~OmDocument();
 };
 
 #endif  // OM_HGUARD_OMDOCUMENT_H

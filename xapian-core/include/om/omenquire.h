@@ -565,9 +565,8 @@ class OmEnquire {
 
 	/** @memo Get the document info by document id.
 	 *
-	 *  @doc This method returns a pointer to an OmDocument object
-	 *  which provides the information about a document.  The caller
-	 *  must delete this object when finished.
+	 *  @doc This method returns an OmDocument object
+	 *  which provides the information about a document.
 	 *
 	 *  It is possible for the document to have been removed from the
 	 *  database between the time it is returned in an mset, and the
@@ -581,21 +580,19 @@ class OmEnquire {
 	 *
 	 *  @param did   The document id for which to retrieve the data.
 	 *
-	 *  @return      A pointer to an OmDocument object containing the
-	 *  document data, which must be deleted by the caller.
+	 *  @return      An OmDocument object containing the document data
 	 *
 	 *  @exception OmInvalidArgumentError  See class documentation.
 	 *  @exception OmOpeningError          See class documentation.
 	 *  @exception OmDocNotFoundError      The document specified could not
 	 *                                     be found in the database.
 	 */
-	const OmDocument *get_doc(om_docid did) const;
+	const OmDocument get_doc(om_docid did) const;
 
 	/** @memo Get the document info by match set item.
 	 *
-	 *  @doc This method returns a pointer to an OmDocument object
-	 *  which provides the information about a document.  The caller
-	 *  must delete this object when finished.
+	 *  @doc This method returns an OmDocument object
+	 *  which provides the information about a document.
 	 *
 	 *  If the underlying database has suitable support, using this call
 	 *  (rather than passing an om_docid) will enable the system to
@@ -604,15 +601,15 @@ class OmEnquire {
 	 *
 	 *  @param mitem   The item for which to retrieve the data.
 	 *
-	 *  @return      A pointer to an OmDocument object containing the
-	 *  document data, which must be deleted by the caller.
+	 *  @return      An OmDocument object containing the
+	 *  document data.
 	 *
 	 *  @exception OmInvalidArgumentError  See class documentation.
 	 *  @exception OmOpeningError          See class documentation.
 	 *  @exception OmDocNotFoundError  The document specified could not
 	 *  be found in the database.
 	 */
-	const OmDocument *get_doc(const OmMSetItem &mitem) const;
+	const OmDocument get_doc(const OmMSetItem &mitem) const;
 
 
 	/** @memo Get terms which match a given document, by document id.
@@ -755,13 +752,13 @@ class OmBatchEnquire {
 	 *
 	 *  @doc See OmEnquire::get_doc for details.
 	 */
-	const OmDocument *get_doc(om_docid did) const;
+	const OmDocument get_doc(om_docid did) const;
 
 	/** @memo Get the document info by match set item.
 	 *
 	 *  @doc See OmEnquire::get_doc for details
 	 */
-	const OmDocument *get_doc(const OmMSetItem &mitem) const;
+	const OmDocument get_doc(const OmMSetItem &mitem) const;
 
 
 	/** @memo Get terms which match a given document, by document id.
