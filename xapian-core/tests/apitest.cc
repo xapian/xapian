@@ -1803,13 +1803,15 @@ bool test_rsetmultidb1()
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
 
-    OmRSet myrset;
-    myrset.add_document(4);
+    OmRSet myrset1;
+    OmRSet myrset2;
+    myrset1.add_document(4);
+    myrset2.add_document(2);
 
     OmMSet mymset1a = enquire1.get_mset(0, 10);
-    OmMSet mymset1b = enquire1.get_mset(0, 10, &myrset);
+    OmMSet mymset1b = enquire1.get_mset(0, 10, &myrset1);
     OmMSet mymset2a = enquire2.get_mset(0, 10);
-    OmMSet mymset2b = enquire2.get_mset(0, 10, &myrset);
+    OmMSet mymset2b = enquire2.get_mset(0, 10, &myrset2);
 
     TEST_EQUAL(mymset1a.items.size(), 2);
     TEST_EQUAL(mymset1b.items.size(), 2);
@@ -1818,8 +1820,8 @@ bool test_rsetmultidb1()
 
     om_docid order1a[] = {1, 4};
     om_docid order1b[] = {4, 1};
-    om_docid order2a[] = {1, 4};
-    om_docid order2b[] = {4, 1};
+    om_docid order2a[] = {1, 2};
+    om_docid order2b[] = {2, 1};
 
     expect_mset_order(mymset1a, order1a, 2, "mymset1a");
     expect_mset_order(mymset1b, order1b, 2, "mymset1b");
