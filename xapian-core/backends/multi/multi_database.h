@@ -71,7 +71,9 @@ inline doccount
 MultiPostList::get_termfreq() const
 {
     if(freq_initialised) return termfreq;
-    printf("Calculating multiple term frequencies\n");
+#ifdef DEBUG
+    cout << "Calculating multiple term frequencies" << endl;
+#endif /* DEBUG */
 
     // Calculate and remember the termfreq
     list<MultiPostListInternal>::const_iterator i = postlists.begin();
@@ -90,7 +92,9 @@ MultiPostList::get_docid() const
 {
     Assert(!at_end());
     Assert(currdoc != 0);
-    //printf("%p:DocID %d\n", this, currdoc);
+#ifdef DEBUG
+    //cout << this << ":DocID " << currdoc << endl;
+#endif /* DEBUG */
     return currdoc;
 }
 
@@ -135,7 +139,10 @@ inline MultiTermList::MultiTermList(TermList *tl_new,
 {
     termfreq_factor = ((double)(rootdb->get_doccount())) /
 		      (termdb->get_doccount());
-printf("Approximation factor for termfrequency: %f\n", termfreq_factor);
+#ifdef DEBUG
+    cout << "Approximation factor for termfrequency: " <<
+	    termfreq_factor << endl;
+#endif /* DEBUG */
 }
 
 inline MultiTermList::~MultiTermList()

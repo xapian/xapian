@@ -149,7 +149,9 @@ inline bool DATermList::at_end() const
 {
     Assert(have_started);
     if(pos == terms.end()) {
+#ifdef DEBUG
 	cout << "TERMLIST " << this << " ENDED " << endl;
+#endif
 	return true;
     }
     return false;
