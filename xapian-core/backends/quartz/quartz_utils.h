@@ -39,8 +39,8 @@ typedef long long           om_int64;
  *
  *  @param src       A pointer to a pointer to the data to read.  The
  *                   character pointer will be updated to point to the
- *                   next character to read, or 0 if no more data is to be
- *                   read.
+ *                   next character to read, or 0 if the method ran out of
+ *                   data.  (It is only set to 0 in case of an error).
  *  @param src_end   A pointer to the byte after the end of the data to
  *                   read the integer from.
  *  @param resultptr A pointer to a place to store the result.  If an
@@ -102,33 +102,6 @@ unpack_uint(const char ** src,
 	    return true;
 	}
     }
-}
-
-/** Skip over an unsigned integer.
- *
- *  @param src       A pointer to a pointer to the data to read.  The
- *                   character pointer will be updated to point to the
- *                   next character to read, or 0 if no more data is to be
- *                   read.
- *  @param src_end   A pointer to the byte after the end of the data to
- *                   read the integer from.
- *
- *  @return True if successfully skipped, false if ran out of data.
- */
-inline bool
-skip_uint(const char ** src,
-	  const char * src_end)
-{
-    while((*src) != src_end) {
-	om_byte part = static_cast<om_byte> (**src);
-	(*src)++;
-
-	if ((part & 0x80) == 0) {
-	    return true;
-	}
-    }
-    *src = 0;
-    return false;
 }
 
 
