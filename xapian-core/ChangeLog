@@ -1,3 +1,7 @@
+Mon Feb 14 13:37:56 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added tests for OmExpandOptions and OmMSet.max_attained
+
 Fri Feb 11 18:40:39 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed the percent cutoff test in apitest.

@@ -69,6 +69,10 @@ bool test_expandfunctor1();
 bool test_matchfunctor1();
 // tests the percent cutoff option
 bool test_pctcutoff1();
+// tests the allow query terms expand option
+bool test_allowqterms1();
+// tests that the MSet max_attained works
+bool test_maxattain1();
 
 om_test tests[] = {
     {"trivial",            test_trivial},
@@ -88,6 +92,8 @@ om_test tests[] = {
     {"expandfunctor1",	   test_expandfunctor1},
     {"matchfunctor1",	   test_matchfunctor1},
     {"pctcutoff1",	   test_pctcutoff1},
+    {"allowqterms1",       test_allowqterms1},
+    {"maxattain1",         test_maxattain1},
     {0, 0}
 };
 
@@ -681,6 +687,61 @@ bool test_pctcutoff1()
 		break;
 	    }
 	}
+    }
+
+    return success;
+}
+
+bool test_allowqterms1()
+{
+    bool success = true;
+
+    OmEnquire enquire;
+    init_simple_enquire(enquire);
+
+    OmMSet mymset = enquire.get_mset(0, 10);
+    OmRSet myrset;
+    myrset.add_document(mymset.items[0].did);
+    myrset.add_document(mymset.items[1].did);
+
+    OmExpandOptions eopt;
+    eopt.use_query_terms(false);
+
+    OmESet myeset = enquire.get_eset(1000, myrset, &eopt);
+
+    for (unsigned i=0; i<myeset.items.size(); ++i) {
+        if (myeset.items[i].tname == "thi") {
+	    success = false;
+	    if (verbose) {
+	        cout << "Found query term `"
+		     << myeset.items[i].tname
+		     << "' in expand set" << endl;
+	    }
+	    break;
+	}
+    }
+
+    return success;
+}
+
+bool test_maxattain1()
+{
+    bool success = true;
+
+    OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"), 100, 0);
+    
+    om_weight mymax = 0;
+    for (unsigned i=0; i<mymset.items.size(); ++i) {
+        if (mymset.items[i].wt > mymax) {
+	    mymax = mymset.items[i].wt;
+	}
+    }
+    if (mymax != mymset.max_attained) {
+        success = false;
+	if (verbose) {
+	    cout << "Max weight in MSet is " << mymax
+	         << ", max_attained = " << mymset.max_attained << endl;
+        }
     }
 
     return success;
