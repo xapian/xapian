@@ -1,7 +1,0 @@
-This directory contains example programs which can be compiled against
-Xapian.  These programs are intended to be a good starting point for those
-trying to get acquainted with the Xapian API.
-
-Run "./configure" to configure the examples, then run "make" to build them
-all.  They can be installed by running "make install" (as root unless you
-run configure with a --prefix argument).
