@@ -37,6 +37,7 @@ OmPositionListIterator::OmPositionListIterator(Internal *internal_)
 OmPositionListIterator::~OmPositionListIterator()
 {
     DEBUGAPICALL(void, "OmPositionListIterator::~OmPositionListIterator", "");
+    delete internal;
 }
 
 OmPositionListIterator::OmPositionListIterator(const OmPositionListIterator &other)
