@@ -7,10 +7,12 @@ quartz_bin_programs = quartzcheck quartzcompact quartzdump
 endif
 
 if BUILD_BACKEND_REMOTE
-remote_bin_programs = omprogsrv omtcpsrv
+remote_bin_programs = omtcpsrv
+remote_check_programs = omprogsrv
 endif
 
 bin_PROGRAMS = $(quartz_bin_programs) $(remote_bin_programs)
+check_PROGRAMS = $(remote_check_programs)
 
 quartzcheck_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzcheck_SOURCES = quartzcheck.cc $(top_srcdir)/backends/quartz/btreecheck.cc
