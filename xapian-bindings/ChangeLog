@@ -1,3 +1,10 @@
+Fri Sep 03 18:14:15 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Fixed to remove _xapian.la after it is installed
+	  (preventing it being installed is really hard to do).  And
+	  xapian.py and xapian.pyc aren't BUILT_SOURCES so just put them
+	  directly in CLEANFILES.
+
 Fri Sep 03 13:04:42 BST 2004  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Byte compile the python code and install that

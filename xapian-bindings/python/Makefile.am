@@ -11,11 +11,9 @@ pylib_SCRIPTS = xapian.py xapian.pyc
 pylib_LTLIBRARIES = _xapian.la
 
 # Remove the .la file - _xapian.la is never linked against (it's a module)
-# and Python doesn't use libltdl.
-# FIXME: -hook seems to execute first, not after everything else as the
-# automake manual says it does, so (ab)use install-exec-local instead.
-# Investigate and report to automake developers...
-install-exec-local:
+# and Python doesn't use libltdl.  Note that the library gets install by
+# install-data, so that's where we need to hook.
+install-data-hook:
 	rm -f $(DESTDIR)$(pylibdir)/_xapian.la
 
 AM_CPPFLAGS = -I@PYTHON_INC@
@@ -25,7 +23,7 @@ _xapian_la_LDFLAGS = -avoid-version -module
 nodist__xapian_la_SOURCES = xapian_wrap.cc
 _xapian_la_LIBADD = $(XAPIAN_LIBS)
 
-BUILT_SOURCES = xapian_wrap.cc xapian.py xapian.pyc
+BUILT_SOURCES = xapian_wrap.cc
 
 xapian_wrap.cc xapian.py: ../xapian.i util.i extra.i
 	$(SWIG) -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -python -shadow -o $@ $(srcdir)/../xapian.i
@@ -33,4 +31,4 @@ xapian_wrap.cc xapian.py: ../xapian.i util.i extra.i
 xapian.pyc: xapian.py
 	PYTHONPATH=.:.libs $(PYTHON) -c "import xapian"
 
-CLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = $(BUILT_SOURCES) xapian.py xapian.pyc
