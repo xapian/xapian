@@ -657,6 +657,9 @@ main(int argc, char **argv)
     } catch (const Xapian::Error &error) {
 	cout << "Exception: " << error.get_msg() << endl;
 	exit(1);
+    } catch (const std::bad_alloc &) {
+	cout << "Exception: std::bad_alloc" << endl;
+	exit(1);
     } catch (...) {
 	cout << "Unknown Exception" << endl;
 	exit(1);
