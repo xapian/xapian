@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -169,8 +170,7 @@ class OmEnquire::Internal::Data : public RefCntBase {
 
 	std::map<std::string, const OmMatchDecider *> mdecider_map;
 
-	Data(const OmDatabase &databases,
-	     OmErrorHandler * errorhandler_);
+	Data(const OmDatabase &databases, OmErrorHandler * errorhandler_);
 	~Data();
 
 	/** Request a document from the database.
@@ -190,7 +190,9 @@ class OmEnquire::Internal::Data : public RefCntBase {
 			const OmMatchDecider *mdecider) const;
 	OmESet get_eset(om_termcount maxitems,
 			const OmRSet & omrset,
-			const OmSettings *eoptions,
+			bool exclude_query_terms,
+			bool use_exact_termfreq,
+			double k,
 			const OmExpandDecider *edecider) const;
 
 	OmTermIterator get_matching_terms(om_docid did) const;

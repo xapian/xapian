@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -600,7 +601,13 @@ class OmEnquire {
 	 *  @param maxitems  the maximum number of items to return.
 	 *  @param omrset    the relevance set to use when performing
 	 *                   the expand operation.
-	 *  @param eoptions  options to use when performing the expand.
+	 *  @param use_query_terms query terms may be returned from expand
+	 *  @param use_exact_termfreq for multi dbs, calculate the exact
+	 *		     termfreq; otherwise an approximation is used
+	 *		     which can greatly improve efficiency, but still
+	 *		     returns good results.
+	 *  @param k	     the parameter k in the query expansion algorithm
+	 *  		     (default is 1.0)
 	 *  @param edecider  a decision functor to use to decide whether a
 	 *                   given term should be put in the ESet
 	 *
@@ -612,8 +619,38 @@ class OmEnquire {
 	 */
 	OmESet get_eset(om_termcount maxitems,
 			const OmRSet & omrset,
-			const OmSettings * eoptions = 0,
+			bool exclude_query_terms = true,
+			bool use_exact_termfreq = false,
+			double k = 1.0,
 			const OmExpandDecider * edecider = 0) const;
+
+	/** Get the expand set for the given rset.
+	 *
+	 *  @param maxitems  the maximum number of items to return.
+	 *  @param omrset    the relevance set to use when performing
+	 *                   the expand operation.
+	 *  @param edecider  a decision functor to use to decide whether a
+	 *                   given term should be put in the ESet
+	 *
+	 *  @return          An OmESet object containing the results of the
+	 *                   expand.
+	 *
+	 *  @exception OmInvalidArgumentError  See class documentation.
+	 *  @exception OmOpeningError          See class documentation.
+	 */
+	inline OmESet get_eset(om_termcount maxitems, const OmRSet & omrset,
+			       const OmExpandDecider * edecider) const {
+	    return get_eset(maxitems, omrset, true, false, 1.0, edecider);
+	}
+
+	// This is needed as otherwise the first overloaded method is
+	// used (since X* matches bool...)
+	inline OmESet get_eset(om_termcount, const OmRSet &, OmSettings *,
+			       OmExpandDecider *dummy = 0) const {
+	    (void)dummy;
+	    throw "You need to update this call to OmEnquire::get_eset() "
+		  "- it no longer takes an OmSettings * parameter";
+	}
 
 	/** Get terms which match a given document, by document id.
 	 *

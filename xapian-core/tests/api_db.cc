@@ -617,7 +617,7 @@ static bool test_expandfunctor1()
     for ( ; j != myeset_orig.end(); ++j) {
         if (myfunctor(*j)) neweset_size++;
     }
-    OmESet myeset = enquire.get_eset(neweset_size, myrset, 0, &myfunctor);
+    OmESet myeset = enquire.get_eset(neweset_size, myrset, &myfunctor);
 
 #if 0
     // Compare myeset with the hand-filtered version of myeset_orig.
@@ -768,10 +768,7 @@ static bool test_esetiterator1()
     myrset.add_document(*i);
     myrset.add_document(*(++i));
 
-    OmSettings eopt;
-    eopt.set("expand_use_query_terms", false);
-
-    OmESet myeset = enquire.get_eset(2, myrset, &eopt);
+    OmESet myeset = enquire.get_eset(2, myrset);
     OmESetIterator j;
     j = myeset.begin();
     OmESetIterator k = myeset.end();
@@ -821,10 +818,7 @@ static bool test_esetiterator2()
     myrset.add_document(*i);
     myrset.add_document(*(++i));
 
-    OmSettings eopt;
-    eopt.set("expand_use_query_terms", false);
-
-    OmESet myeset = enquire.get_eset(0, myrset, &eopt);
+    OmESet myeset = enquire.get_eset(0, myrset);
     OmESetIterator j = myeset.begin();
     OmESetIterator k = myeset.end();
     OmESetIterator l(j);
@@ -1038,15 +1032,18 @@ static bool test_allowqterms1()
     myrset.add_document(*i);
     myrset.add_document(*(++i));
 
-    OmSettings eopt;
-    eopt.set("expand_use_query_terms", false);
-
-    OmESet myeset = enquire.get_eset(1000, myrset, &eopt);
+    OmESet myeset = enquire.get_eset(1000, myrset);
     OmESetIterator j = myeset.begin();
     for ( ; j != myeset.end(); ++j) {
         TEST_NOT_EQUAL(*j, "this");
     }
 
+    OmESet myeset2 = enquire.get_eset(1000, myrset, false);
+    j = myeset2.begin();
+    for ( ; j != myeset2.end(); ++j) {
+        if (*j == "this") break;
+    }
+    TEST(j != myeset2.end());
     return true;
 }
 
@@ -2007,10 +2004,8 @@ static bool test_multiexpand1()
     // This is the multi database with approximation
     OmESet eset2 = enquire2.get_eset(1000, rset2);
 
-    OmSettings eopts;
-    eopts.set("expand_use_exact_termfreq", true);
     // This is the multi database without approximation
-    OmESet eset3 = enquire2.get_eset(1000, rset2, &eopts);
+    OmESet eset3 = enquire2.get_eset(1000, rset2, true, true);
 
     TEST_EQUAL(eset1.size(), eset2.size());
     TEST_EQUAL(eset1.size(), eset3.size());
@@ -2019,12 +2014,17 @@ static bool test_multiexpand1()
     OmESetIterator j = eset2.begin();
     OmESetIterator k = eset3.begin();
     bool all_iwts_equal_jwts = true;
-    for ( ; i != eset1.end(), j != eset2.end(), k != eset3.end();
-	 i++, j++, k++) {
+    while (i != eset1.end() && j != eset2.end() && k != eset3.end()) {
 	if (i.get_weight() != j.get_weight()) all_iwts_equal_jwts = false;
 	TEST_EQUAL(i.get_weight(), k.get_weight());
 	TEST_EQUAL(*i, *k);
+	++i;
+	++j;
+	++k;
     }
+    TEST(i == eset1.end());
+    TEST(j == eset2.end());
+    TEST(k == eset3.end());
     TEST(!all_iwts_equal_jwts);
     return true;
 }

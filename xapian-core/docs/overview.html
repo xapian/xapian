@@ -945,8 +945,13 @@ terms, together with their weights, may be returned by:
 <PRE>
 OmESet OmEnquire::<A HREF="apidoc/html/class_OmEnquire.html">get_eset</A>(om_termcount maxitems,
                            const OmRSet &amp; omrset,
-                           const OmExpandOptions * eoptions = 0,
-                           const OmExpandDecider * edecider = 0) const
+			   bool exclude_query_terms = true,
+			   bool use_exact_termfreq = false,
+			   double k = 1.0,
+			   const OmExpandDecider * edecider = 0) const;
+OmESet OmEnquire::<A HREF="apidoc/html/class_OmEnquire.html">get_eset</A>(om_termcount maxitems,
+                           const OmRSet &amp; omrset,
+                           const OmExpandDecider * edecider) const
 </PRE>
 </P>
 <P>
@@ -959,19 +964,21 @@ The expand terms are returned in sorted weight order in an
 <A HREF="apidoc/html/class_OmESet.html"><CODE>OmESet</CODE></A> item.
 </P>
 
-<H3>Expand options</H3>
+<H3>exclude_query_terms</H3>
 <P>
-Options to be used when performing the expand may be set using an
-<A HREF="apidoc/html/class_OmExpandOptions.html"><CODE>OmExpandOptions</CODE></A>.
+By default terms which are already in the query will never be returned by
+<CODE>get_eset()</CODE>.  If <CODE>exclude_query_terms</CODE> is
+<CODE>false</CODE>) then query terms may be returned.
 </P>
+
+<H3>use_exact_termfreq</H3>
 <P>
-Currently, there is only one such option:
-<PRE>
-use_query_terms(bool allow_query_terms_)
-</PRE>
-If <CODE>allow_query_terms_</CODE> is <CODE>true</CODE>, terms which are
-already in the query will be returned by <CODE>get_eset()</CODE>.<BR>
-The default is <CODE>false</CODE>.
+By default, Xapian uses an approximation to the term frequency when
+<CODE>get_eset()</CODE> is called when searching over multiple databases.
+This approximation improves performance, and usually still returns good
+results.  If you're willing to pay the performance penalty, you can
+get Xapian to calculate the exact term frequencies by passing <CODE>true</CODE>
+for <CODE>use_exact_termfreq</CODE>.
 </P>
 
 <H3>Expand decision functors</H3>

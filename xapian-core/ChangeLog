@@ -1,3 +1,11 @@
+Thu Nov 28 20:15:47 GMT 2002  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/omenquireinternal.h,docs/omsettings,
+	  docs/overview.html,include/om/omenquire.h,tests/api_db.cc:
+	  No longer use OmSettings in OmEnquire::get_eset(); fixed
+	  reversed sense of use_query_terms (and fixed reversed sense
+	  test in apitest which meant this wasn't spotted).
+
 Thu Nov 28 20:14:54 GMT 2002  Olly Betts <olly@survex.com>
 
 	* docs/index.html: Link to annotated class lists in doxygen generated

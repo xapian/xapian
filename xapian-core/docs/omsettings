@@ -125,12 +125,3 @@
                      document frequency and document length - any positive
                      number, 0 being wdf and doc length not used.  Default
                      is 1.
-
-  - expand options:
-    - expand_use_query_terms : If false, terms already in the query will be
-      not be returned in the ESet; if true, they can be. (default false)
-    - expand_use_exact_termfreq : If true then term frequencies will be
-      calculated exactly; if true, an approximation may be used which can
-      greatly improve efficiency. The approximation only applies when
-      multiple databases are searched together. (default false)
-    - expand_k : value of k parameter used in expand

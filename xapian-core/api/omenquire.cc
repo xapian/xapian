@@ -871,19 +871,14 @@ OmEnquire::Internal::Data::Data(const OmDatabase &db_,
 
 OmEnquire::Internal::Data::~Data()
 {
-    if(query != 0) {
-	delete query;
-	query = 0;
-    }
+    delete query;
+    query = 0;
 }
 
 void
 OmEnquire::Internal::Data::set_query(const OmQuery &query_)
 {
-    if (query) {
-	delete query;
-	query = 0;
-    }
+    delete query;
     query = new OmQuery(query_);
 }
 
@@ -946,15 +941,12 @@ OmEnquire::Internal::Data::get_mset(om_doccount first,
 OmESet
 OmEnquire::Internal::Data::get_eset(om_termcount maxitems,
                     const OmRSet & omrset,
-	            const OmSettings * eoptions,
+		    bool exclude_query_terms,
+		    bool use_exact_termfreq,
+		    double k,
 		    const OmExpandDecider * edecider) const
 {
     OmESet retval;
-
-    OmSettings defeoptions;
-    if (eoptions == 0) {
-        eoptions = &defeoptions;
-    }
 
     // FIXME: make expand and rset take a refcntptr
     OmExpand expand(db);
@@ -969,7 +961,7 @@ OmEnquire::Internal::Data::get_eset(om_termcount maxitems,
     AutoPtr<OmExpandDecider> decider_andnoquery;
     OmExpandDeciderAlways decider_always;
 
-    if (query != 0 && !eoptions->get_bool("expand_use_query_terms", false)) {
+    if (query != 0 && exclude_query_terms) {
 	AutoPtr<OmExpandDecider> temp1(
 	    new OmExpandDeciderFilterTerms(query->get_terms_begin(),
 					   query->get_terms_end()));
@@ -977,8 +969,7 @@ OmEnquire::Internal::Data::get_eset(om_termcount maxitems,
 
 	if (edecider) {
 	    AutoPtr<OmExpandDecider> temp2(
-	      new OmExpandDeciderAnd(decider_noquery.get(),
-				     edecider));
+		new OmExpandDeciderAnd(decider_noquery.get(), edecider));
 	    decider_andnoquery = temp2;
 	    edecider = decider_andnoquery.get();
 	} else {
@@ -988,9 +979,7 @@ OmEnquire::Internal::Data::get_eset(om_termcount maxitems,
 	edecider = &decider_always;
     }
 
-    expand.expand(maxitems, retval, &rset, edecider,
-		  eoptions->get_bool("expand_use_exact_termfreq", false),
-		  eoptions->get_real("expand_k", 1.0) );
+    expand.expand(maxitems, retval, &rset, edecider, use_exact_termfreq, k);
 
     return retval;
 }
@@ -1189,22 +1178,20 @@ OmEnquire::get_mset(om_doccount first,
 }
 
 OmESet
-OmEnquire::get_eset(om_termcount maxitems,
-                    const OmRSet & omrset,
-	            const OmSettings * eoptions,
+OmEnquire::get_eset(om_termcount maxitems, const OmRSet & omrset,
+		    bool exclude_query_terms, bool use_exact_termfreq, double k,
 		    const OmExpandDecider * edecider) const
 {
     // FIXME: display contents of pointer params and omrset, if they're not
     // null.
-    DEBUGAPICALL(OmESet, "OmEnquire::get_eset",
-		 maxitems << ", " <<
-		 omrset << ", " <<
-		 eoptions << ", " <<
-		 edecider);
+    DEBUGAPICALL(OmESet, "OmEnquire::get_eset", maxitems << ", " <<
+		 omrset << ", " << exclude_query_terms << ", " <<
+		 use_exact_termfreq << ", " << k << ", " << edecider);
 
     try {
 	// FIXME: this copies the eset too much: pass it in by reference?
-	RETURN(internal->data->get_eset(maxitems, omrset, eoptions, edecider));
+	RETURN(internal->data->get_eset(maxitems, omrset, exclude_query_terms,
+	       use_exact_termfreq, k, edecider));
     } catch (OmError & e) {
 	if (internal->data->errorhandler) (*internal->data->errorhandler)(e);
 	throw;
