@@ -117,6 +117,7 @@ int main(int argc, char *argv[])
     RUNTESTS("inmemory", localpositionaldb);
     RUNTESTS("inmemory", doclendb);
     RUNTESTS("inmemory", allterms);
+    RUNTESTS("inmemory", multikey);
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_QUARTZ)
@@ -129,6 +130,7 @@ int main(int argc, char *argv[])
     RUNTESTS("quartz", doclendb);
     RUNTESTS("quartz", collfreq);
     RUNTESTS("quartz", allterms);
+    RUNTESTS("quartz", multikey);
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_SLEEPYCAT)
@@ -138,6 +140,7 @@ int main(int argc, char *argv[])
     RUNTESTS("sleepycat", localdb);
     RUNTESTS("sleepycat", positionaldb);
     RUNTESTS("sleepycat", doclendb);
+    RUNTESTS("sleepycat", multikey);
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_REMOTE)
@@ -146,6 +149,7 @@ int main(int argc, char *argv[])
     RUNTESTS("remote", remotedb);
     RUNTESTS("remote", positionaldb);
     RUNTESTS("remote", doclendb);
+    RUNTESTS("remote", multikey);
 #endif
 
 #if 1 && defined(MUS_BUILD_BACKEND_MUSCAT36)
@@ -154,19 +158,23 @@ int main(int argc, char *argv[])
 	RUNTESTS("da", db);
 	RUNTESTS("da", localdb);
 	RUNTESTS("da", allterms);
+	RUNTESTS("da", mus36);
     }
     if (file_exists("../../makeda/makeDAflimsy")) {
 	RUNTESTS("daflimsy", db);
 	RUNTESTS("daflimsy", localdb);
 	RUNTESTS("daflimsy", allterms);
+	RUNTESTS("daflimsy", mus36);
     }
     if (file_exists("../../makeda/makeDB")) {
 	RUNTESTS("db", db);
 	RUNTESTS("db", localdb);
+	RUNTESTS("db", mus36);
     }
     if (file_exists("../../makeda/makeDBflimsy")) {
 	RUNTESTS("dbflimsy", db);
 	RUNTESTS("dbflimsy", localdb);
+	RUNTESTS("dbflimsy", mus36);
     }
 #endif
 

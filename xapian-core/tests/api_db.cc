@@ -894,6 +894,35 @@ static bool test_collapsekey1()
     return true;
 }
 
+// tests the collapse-on-key for DA databases
+static bool test_collapsekey2()
+{
+    OmEnquire enquire(get_simple_database());
+    init_simple_enquire(enquire);
+
+    OmSettings mymopt;
+
+    OmMSet mymset1 = enquire.get_mset(0, 100, 0, &mymopt);
+    om_doccount mymsize1 = mymset1.size();
+
+    const int key_no = 0;
+    mymopt.set("match_collapse_key", key_no);
+    OmMSet mymset = enquire.get_mset(0, 100, 0, &mymopt);
+
+    TEST_AND_EXPLAIN(mymsize1 > mymset.size(),
+		     "Had no fewer items when performing collapse: don't know whether it worked.");
+
+    std::map<string, om_docid> keys;
+    OmMSetIterator i = mymset.begin();
+    for ( ; i != mymset.end(); ++i) {
+	OmKey key = i.get_document().get_key(key_no);
+	TEST(keys[key.value] == 0 || key.value == "");
+	keys[key.value] = *i;
+    }
+
+    return true;
+}
+
 // tests a reversed boolean query
 static bool test_reversebool1()
 {
@@ -1375,10 +1404,10 @@ static bool test_specialterms1()
 	OmKey key = mymset.begin().get_document().get_key(key_no);
 	TEST_NOT_EQUAL(key.value, "");
 	if (key_no == 0) {
-	    TEST(key.value.size() > 262);
-	    TEST_EQUAL((unsigned char)(key.value[261]), 255);
+	    TEST(key.value.size() > 263);
+	    TEST_EQUAL((unsigned char)(key.value[262]), 255);
 	    for (int k = 0; k < 256; k++) {
-		TEST_EQUAL((unsigned char)(key.value[k+6]), k);
+		TEST_EQUAL((unsigned char)(key.value[k+7]), k);
 	    }
 	}
     }
@@ -2431,7 +2460,6 @@ test_desc db_tests[] = {
     {"cutoff1",		   test_cutoff1},
     {"allowqterms1",       test_allowqterms1},
     {"maxattain1",         test_maxattain1},
-    {"collapsekey1",	   test_collapsekey1},
     {"reversebool1",	   test_reversebool1},
     {"reversebool2",	   test_reversebool2},
     {"getmterms1",	   test_getmterms1},
@@ -2464,6 +2492,17 @@ test_desc db_tests[] = {
     {"termlist4",	   test_termlist4},
     {"puncterms1",	   test_puncterms1},
     {"spaceterms1",	   test_spaceterms1},
+    {0, 0}
+};
+
+/// The tests which require a database which supports keys > 0 sensibly
+test_desc multikey_tests[] = {
+    {"collapsekey1",	   test_collapsekey1},
+    {0, 0}
+};
+
+test_desc mus36_tests[] = {
+    {"collapsekey2",       test_collapsekey2},
     {0, 0}
 };
 

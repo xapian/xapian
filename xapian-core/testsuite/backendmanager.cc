@@ -55,7 +55,14 @@ string_to_document(std::string paragraph)
     }
     {
 	OmKey key;
-	key.value = std::string("\0\0\0 \1\t", 6);
+
+	/* We need a key which will be useful for collapsing with DA
+	 * databases, where only the first 8 bytes of key 0 count.
+	 */
+	key.value = paragraph[2];
+
+	key.value += std::string("\0\0\0 \1\t", 6);
+
 	for (int k = 0; k < 256; k++) {
 	    key.value += (char)(k);
 	}
@@ -456,7 +463,6 @@ BackendManager::getdb_network(const std::vector<std::string> &dbnames)
 	    if (i == dbnames.end()) {
 		throw OmInvalidArgumentError("Missing timeout parameter");
 	    }
-	    unsigned int timeout = atoi((*i).c_str());
 	    args += " -t" + *i;
 	} else {
 	    args += " ";

@@ -1,3 +1,12 @@
+Mon Feb 19 13:52:23 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Added new test collapsekey2 designed to work with muscat36
+	  databases, which have different key handling.  Added two new
+	  categories of tests to cope with this.
+	
+	* Adjusted BackendManager's key generation, and updated
+	  test_specialchars1() accordingly.
+
 Fri Feb 16 17:26:59 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Implemented a test for keep-alives

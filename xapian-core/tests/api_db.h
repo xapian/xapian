@@ -26,12 +26,14 @@
 #include "testsuite.h"
 
 extern test_desc db_tests[];
+extern test_desc mus36_tests[];
 extern test_desc specchar_tests[];
 extern test_desc doclendb_tests[];
 extern test_desc collfreq_tests[];
 extern test_desc writabledb_tests[];
 extern test_desc localdb_tests[];
 extern test_desc remotedb_tests[];
+extern test_desc multikey_tests[];
 
 // FIXME: should implement for other databases
 extern test_desc allterms_tests[];
