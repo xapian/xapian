@@ -1,3 +1,7 @@
+Tue Jun 20 15:51:00 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added a test for basic exception handling.
+
 Tue Jun 20 14:53:28 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* The lex parser used for queries should no longer interfere

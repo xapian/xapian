@@ -59,6 +59,17 @@ bool test_alwaysfail()
     return false;
 }
 
+bool test_except1()
+{
+    bool success = false;
+    try {
+	throw 1;
+    } catch (int) {
+	success = true;
+    }
+    return success;
+}
+
 char *duff_allocation = 0;
 
 bool test_duffnew()
@@ -470,6 +481,7 @@ test_omsettings3()
 
 /// The lists of tests to perform
 test_desc tests[] = {
+    {"except1",			test_except1},
     {"testsuite1",		test_testsuite1},
     {"testsuite2",		test_testsuite2},
     {"testsuite3",		test_testsuite3},
