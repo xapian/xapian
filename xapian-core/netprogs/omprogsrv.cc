@@ -37,6 +37,8 @@
 #include "netutils.h"
 #include "progserver.h"
 #include "omerr_string.h"
+#include "omdatabaseinterface.h"
+#include "backendmanager.h"
 
 int main(int argc, char *argv[]) {
     string message;
@@ -55,10 +57,20 @@ int main(int argc, char *argv[]) {
 
     try {
 	// open the database to return results
-	DatabaseBuilderParams param(OM_DBTYPE_INMEMORY);
+	BackendManager backendmanager;
+	backendmanager.set_dbtype("inmemory");
+
+	vector<string> paths;
 	for (int i=1; i<argc; ++i) {
-	    param.paths.push_back(argv[i]);
+	    paths.push_back(argv[i]);
 	}
+
+	OmDatabase db = backendmanager.get_database(paths);
+	OmDatabaseGroup dbgrp;
+	dbgrp.add_database(db);
+
+#if 0
+	DatabaseBuilderParams param(OM_DBTYPE_INMEMORY);
 
 	DatabaseBuilderParams mparam(OM_DBTYPE_MULTI);
 	mparam.subdbs.push_back(param);
@@ -70,8 +82,11 @@ int main(int argc, char *argv[]) {
 	    // db no longer should have ownership
 	    db.release();
 	}
+#endif
 
-	ProgServer server(mdb, 0, 1);
+	OmRefCntPtr<MultiDatabase> multidb;
+	multidb = OmDatabaseGroup::InternalInterface::get_multidatabase(dbgrp);
+	ProgServer server(multidb, 0, 1);
 
 	server.run();
     } catch (OmError &e) {

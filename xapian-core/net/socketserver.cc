@@ -41,10 +41,11 @@
 
 /// The SocketServer constructor, taking two filedescriptors and a database.
 SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
-		       int readfd_,
-		       int writefd_)
-	: db(db_), readfd(readfd_),
-	  writefd((writefd_ == -1)?readfd_ : writefd_),
+			   int readfd_,
+			   int writefd_)
+	: db(db_),
+	  readfd(readfd_),
+	  writefd((writefd_ == -1) ? readfd_ : writefd_),
 	  buf(readfd, writefd),
 	  conversation_state(conv_ready),
 	  gatherer(0),
@@ -305,6 +306,7 @@ SocketServer::run_getdocument(const string &firstmessage)
 		inttostring(i->first) + " " +
 		omkey_to_string(i->second);
 	buf.writeline(item);
+	++i;
     }
 
     buf.writeline("END");
