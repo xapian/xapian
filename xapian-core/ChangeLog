@@ -1,3 +1,7 @@
+Tue Nov 28 18:34:57 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Btree bitmap now merged with base - one object, one file.
+
 Tue Nov 28 17:13:56 GMT 2000 Olly Betts
 
 	* Added OmDocument::set_data()

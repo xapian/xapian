@@ -52,7 +52,7 @@
  * HAVE_FAKEROOT
  * REVISION2	A second copy of the revision number, for consistency checks.
  */
-#define CURR_FORMAT 1U
+#define CURR_FORMAT 2U
 
 #if 0
 
@@ -82,7 +82,10 @@ Btree_base::Btree_base()
 	  bit_map_size(0),
 	  item_count(0),
 	  last_block(0),
-	  have_fakeroot(false)
+	  have_fakeroot(false),
+	  bit_map_low(0),
+	  bit_map0(0),
+	  bit_map(0)
 {
 }
 
@@ -110,25 +113,45 @@ Btree_base::Btree_base(const Btree_base &other)
 	  bit_map_size(other.bit_map_size),
 	  item_count(other.item_count),
 	  last_block(other.last_block),
-	  have_fakeroot(other.have_fakeroot)
+	  have_fakeroot(other.have_fakeroot),
+	  bit_map_low(other.bit_map_low),
+	  bit_map0(0),
+	  bit_map(0)
 {
+    try {
+	bit_map0 = new byte[bit_map_size];
+	bit_map = new byte[bit_map_size];
+
+	memmove(bit_map0, other.bit_map0, bit_map_size);
+	memmove(bit_map, other.bit_map, bit_map_size);
+    } catch (...) {
+	delete [] bit_map0;
+	delete [] bit_map;
+    }
 }
 
 void
-Btree_base::operator=(const Btree_base &other)
+Btree_base::swap(Btree_base &other)
 {
-    revision = other.revision;
-    block_size = other.block_size;
-    root = other.root;
-    level = other.level;
-    bit_map_size = other.bit_map_size;
-    item_count = other.item_count;
-    last_block = other.last_block;
-    have_fakeroot = other.have_fakeroot;
+    std::swap(revision, other.revision);
+    std::swap(block_size, other.block_size);
+    std::swap(root, other.root);
+    std::swap(level, other.level);
+    std::swap(bit_map_size, other.bit_map_size);
+    std::swap(item_count, other.item_count);
+    std::swap(last_block, other.last_block);
+    std::swap(have_fakeroot, other.have_fakeroot);
+    std::swap(bit_map_low, other.bit_map_low);
+    std::swap(bit_map0, other.bit_map0);
+    std::swap(bit_map, other.bit_map);
 }
 
 Btree_base::~Btree_base()
 {
+    delete [] bit_map;
+    bit_map = 0;
+    delete [] bit_map0;
+    bit_map0 = 0;
 }
 
 bool
@@ -206,12 +229,32 @@ Btree_base::read(const std::string & name, char ch, std::string &err_msg)
     }
     have_fakeroot = temp_have_fakeroot;
 
+    /* Read the bitmap */
+    if (end - start <= bit_map_size) {
+	err_msg += "Not enough space for bitmap in base file " +
+		name + "base" + ch + "\n";
+	return false;
+    }
+
+    /* It's ok to delete a zero pointer */
+    delete [] bit_map0;
+    bit_map0 = 0;
+    delete [] bit_map;
+    bit_map = 0;
+
+    bit_map0 = new byte[bit_map_size];
+    bit_map = new byte[bit_map_size];
+    memmove(bit_map0, start, bit_map_size);
+    memmove(bit_map, bit_map0, bit_map_size);
+    start += bit_map_size;
+
     uint4 revision2;
     if (!unpack_uint(&start, end, &revision2)) {
 	err_msg += "Couldn't read revision2 from base file " +
 	name + "base" + ch + "\n";
 	return false;
     }
+
     if (revision != revision2) {
 	err_msg += "Revision number mismatch in " +
 		name + "base" + ch + ": " +
@@ -295,21 +338,9 @@ Btree_base::set_level(int4 level_)
 }
 
 void
-Btree_base::set_bit_map_size(int4 bit_map_size_)
-{
-    bit_map_size = bit_map_size_;
-}
-
-void
 Btree_base::set_item_count(int4 item_count_)
 {
     item_count = item_count_;
-}
-
-void
-Btree_base::set_last_block(int4 last_block_)
-{
-    last_block = last_block_;
 }
 
 void
@@ -321,6 +352,8 @@ Btree_base::set_have_fakeroot(bool have_fakeroot_)
 void
 Btree_base::write_to_file(const std::string &filename)
 {
+    calculate_last_block();
+
     std::string buf;
     buf += pack_uint(revision);
     buf += pack_uint(CURR_FORMAT);
@@ -331,6 +364,7 @@ Btree_base::write_to_file(const std::string &filename)
     buf += pack_uint(static_cast<uint4>(item_count));
     buf += pack_uint(static_cast<uint4>(last_block));
     buf += pack_uint(have_fakeroot);
+    buf.append(reinterpret_cast<const char *>(bit_map), bit_map_size);
     buf += pack_uint(revision);  // REVISION2
 
     int h = sys_open_to_write(filename);
@@ -339,4 +373,159 @@ Btree_base::write_to_file(const std::string &filename)
     sys_write_bytes(h, buf.length(),
 		    reinterpret_cast<const byte *>(buf.data()));
     sys_flush(h);
+}
+
+/*
+   block_free_at_start(B, n) is true iff (if and only if) block n was free at
+   the start of the transaction on the B-tree.
+*/
+
+bool
+Btree_base::block_free_at_start(int4 n) const
+{
+    int i = n / CHAR_BIT;
+    int bit = 0x1 << n % CHAR_BIT;
+    return (bit_map0[i] & bit) == 0;
+}
+
+/* free_block(B, n) causes block n to be marked free in the bit map.
+   B->bit_map_low is the lowest byte in the bit map known to have a free bit
+   set. Searching starts from there when looking for a free block.
+*/
+
+void
+Btree_base::free_block(int4 n)
+{
+    int i = n / CHAR_BIT;
+    int bit = 0x1 << n % CHAR_BIT;
+    bit_map[i] &= ~ bit;
+
+    if (bit_map_low > i &&
+       (bit_map0[i] & bit) == 0) /* free at start */
+        bit_map_low = i;
+}
+
+/* extend(B) increases the size of the two bit maps in an obvious way.
+   The bitmap file grows and shrinks as the DB file grows and shrinks in
+   internal usage. But the DB file itself does not reduce in size, no matter
+   how many blocks are freed.
+*/
+
+#define BIT_MAP_INC 1000
+    /* increase the bit map by this number of bytes if it overflows */
+
+void
+Btree_base::extend_bit_map()
+{
+    int n = bit_map_size + BIT_MAP_INC;
+    byte *new_bit_map0 = 0;
+    byte *new_bit_map = 0;
+
+    try {
+	new_bit_map0 = new byte[n];
+	new_bit_map = new byte[n];
+
+	memmove(new_bit_map0, bit_map0, bit_map_size);
+	memmove(new_bit_map, bit_map, bit_map_size);
+
+        for (int i = bit_map_size; i < n; i++)
+        {
+	    new_bit_map0[i] = 0;
+            new_bit_map[i] = 0;
+        }
+    } catch (...) {
+	delete [] new_bit_map0;
+	delete [] new_bit_map;
+	throw;
+    }
+    delete [] bit_map0;
+    bit_map0 = new_bit_map0;
+    delete [] bit_map;
+    bit_map = new_bit_map;
+    bit_map_size = n;
+}
+
+/* next_free_block(B) returns the number of the next available free block in
+   the bitmap, marking it as 'in use' before returning. More precisely, we get
+   a block that is both free now (in bit_map) and was free at the beginning of
+   the transaction on the B-tree (in bit_map0).
+
+   Starting at bit_map_low we go up byte at a time until we find a byte with a
+   free (zero) bit, and then go up that byte bit at a time. If the bit map has
+   no free bits it is extended so that it will have.
+*/
+
+int
+Btree_base::next_free_block()
+{
+    int4 i;
+    int x;
+    for (i = bit_map_low;; i++)
+    {  
+	if (i >= bit_map_size) {
+	    extend_bit_map();
+	}
+        x = bit_map0[i] | bit_map[i];
+        if (x != UCHAR_MAX) break;
+    }
+    int4 n = i * CHAR_BIT;
+    int d = 0x1;
+    while ((x & d) != 0) { d <<= 1; n++; }
+    bit_map[i] |= d;   /* set as 'in use' */
+    bit_map_low = i;
+    return n;
+}
+
+bool
+Btree_base::block_free_now(int4 n)
+{
+    int4 i = n / CHAR_BIT;
+    int bit = 0x1 << n % CHAR_BIT;
+    return (bit_map[i] & bit) == 0;
+}
+
+void
+Btree_base::calculate_last_block()
+{
+    if (bit_map_size == 0) {
+	last_block = 0;
+	return;
+    }
+    int i = bit_map_size - 1;
+    while (bit_map[i] == 0 && i > 0) {
+	i--;
+    }
+    bit_map_size = i + 1;
+
+    int x = bit_map[i];
+
+    /* Check for when there are no blocks */
+    if (x == 0) {
+	last_block = 0;
+	return;
+    }
+    int4 n = (i + 1) * CHAR_BIT - 1;
+    int d = 0x1 << (CHAR_BIT - 1);
+    while ((x & d) == 0) { d >>= 1; n--; }
+
+    last_block = n;
+}
+
+bool
+Btree_base::is_empty() const
+{
+    for (int i = 0; i < bit_map_size; i++) {
+	if (bit_map[i] != 0) {
+	    return false;
+	}
+    }
+    return true;
+}
+
+void
+Btree_base::clear_bit_map()
+{
+    for (int i=0; i<bit_map_size; ++i) {
+	bit_map[i] = 0;
+    }
 }

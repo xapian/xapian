@@ -20,8 +20,7 @@ noinst_HEADERS =       quartz_types.h \
 		       bcursor.h \
 		       btree_types.h \
 		       btree_util.h \
-		       btree_base.h \
-		       btree_bitmap.h
+		       btree_base.h
 
 libquartz_la_SOURCES = quartz_database.cc \
                        quartz_table_manager.cc \
@@ -38,8 +37,7 @@ libquartz_la_SOURCES = quartz_database.cc \
 		       quartz_document.cc \
 		       btree.cc \
 		       bcursor.cc \
-		       btree_base.cc \
-		       btree_bitmap.cc
+		       btree_base.cc
 
 
 noinst_LTLIBRARIES = libquartz.la

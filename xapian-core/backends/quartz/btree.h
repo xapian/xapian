@@ -26,7 +26,6 @@
 #include <string>
 #include "btree_types.h"
 #include "btree_base.h"
-#include "btree_bitmap.h"
 #include "bcursor.h"
 
 #define BTREE_CURSOR_LEVELS 10
@@ -115,7 +114,7 @@ class Btree {
 	int base_letter;
 
 	/** the last used block of B->bit_map0 */
-	int4 last_block;
+	/*int4 last_block; */
 
     private:
 
@@ -140,11 +139,6 @@ class Btree {
 
 	bool find(Cursor *C_);
 	int delete_kt();
-	// these four moved to btree_bitmap
-	//bool block_free_at_start(int4 n);
-	//void free_block(int4 n);
-	//void extend_bit_map();
-	//int next_free_block();
 	void read_block(int4 n, byte *p);
 	void write_block(int4 n, const byte *p);
 	void set_overwritten();
@@ -158,7 +152,6 @@ class Btree {
 	void add_item(Cursor *C, byte *kt, int j);
 	void delete_item(Cursor *C, int j, int repeatedly);
 	int add_kt(int found, Cursor *C);
-	int write_bit_map();
 	int write_base();
 	void read_root();
 	void force_block_to_cursor(Cursor *C_, int j);
@@ -175,7 +168,6 @@ class Btree {
 	byte * kt;            /* buffer of size B->block_size for making up key-tag items */
 	byte * buffer;        /* buffer of size block_size for reforming blocks */
 	uint4 next_revision;  /* 1 + revision number of the opened B-tree */
-	Btree_bitmap bitmap;
 	Btree_base base;          /* for writing back as file baseA or baseB */
 	char other_base_letter;/* - and the value 'B' or 'A' of the next base */
 
