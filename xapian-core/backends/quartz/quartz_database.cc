@@ -46,6 +46,7 @@
 #include "quartz_document.h"
 #include "quartz_alltermslist.h"
 
+#include <list>
 #include <string>
 
 using namespace std;
@@ -289,7 +290,6 @@ QuartzWritableDatabase::QuartzWritableDatabase(const string &dir, int action,
 					       int block_size)
 	: buffered_tables(new QuartzBufferedTableManager(dir, action,
 							 block_size)),
-	  changecount(0),
 	  totlen_added(0),
 	  totlen_removed(0),
 	  freq_deltas(),
@@ -321,7 +321,6 @@ QuartzWritableDatabase::do_begin_session()
     DEBUGCALL(DB, void, "QuartzWritableDatabase::do_begin_session", "");
     Assert(buffered_tables != 0);
 
-    changecount = 0;
     // FIXME - get a write lock on the database
 }
 
@@ -387,8 +386,6 @@ QuartzWritableDatabase::do_flush_const() const
     freq_deltas.clear();
     doclens.clear();
     mod_plists.clear();
-
-    changecount = 0;
 }
 
 void
@@ -505,15 +502,22 @@ QuartzWritableDatabase::do_add_document(const Xapian::Document & document)
 	freq_deltas.clear();
 	doclens.clear();
 	mod_plists.clear();
-
-	changecount = 0;
 	throw;
     }
 
     // FIXME: this should be configurable
     // FIXME: this should be done by checking memory usage, not the number of
     // changes.
-    if (++changecount >= 1000) {
+    // We could also look at:
+    // * mod_plists.size()
+    // * doclens.size()
+    // * freq_deltas.size()
+    //
+    // cout << "+++ mod_plists.size() " << mod_plists.size() <<
+    //     ", doclens.size() " << doclens.size() <<
+    //	   ", totlen_added + totlen_removed " << totlen_added + totlen_removed
+    //	   << ", freq_deltas.size() " << freq_deltas.size() << endl;
+    if (totlen_added + totlen_removed >= 1000) {
 	do_flush();
     }
 
@@ -611,15 +615,11 @@ QuartzWritableDatabase::do_delete_document(Xapian::docid did)
 	freq_deltas.clear();
 	doclens.clear();
 	mod_plists.clear();
-
-	changecount = 0;
 	throw;
     }
 
-    // FIXME: this should be configurable
-    // FIXME: this should be done by checking memory usage, not the number of
-    // changes.
-    if (++changecount > 1000) {
+    // FIXME: this should be configurable and/or different - see above.
+    if (totlen_added + totlen_removed >= 1000) {
 	do_flush();
     }
 }
@@ -792,15 +792,11 @@ QuartzWritableDatabase::do_replace_document(Xapian::docid did,
 	freq_deltas.clear();
 	doclens.clear();
 	mod_plists.clear();
-
-	changecount = 0;
 	throw;
     }
 
-    // FIXME: this should be configurable
-    // FIXME: this should be done by checking memory usage, not the number of
-    // changes.
-    if (++changecount > 1000) {
+    // FIXME: this should be configurable and/or different - see above.
+    if (totlen_added + totlen_removed >= 1000) {
 	do_flush();
     }
 }
