@@ -1,3 +1,7 @@
+Tue Apr 05 00:43:38 BST 2005  Olly Betts <olly@survex.com>
+
+	* .cvsignore: Remove .cvsignore files, as they're not used by SVN.
+
 Sun Aug 22 14:03:31 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,configure.in: Renamed configure.in to configure.ac.
