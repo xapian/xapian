@@ -1,6 +1,3 @@
-SUBDIRS = 
-INCLUDES =
-
 lib_LIBRARIES = libcvs_db.a
 libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C  cvs_line_db.C \
  cvs_comment_db.h     cvs_db.h       cvs_file_revision_db.h  cvs_line_db.h \
