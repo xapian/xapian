@@ -25,6 +25,7 @@
  */
 #undef list
 #include "om/om.h"
+#include <om/omparsequery.h>
 #include <string>
 #include <vector>
 
@@ -60,26 +61,11 @@ class OmDocument {
   public:
     ~OmDocument();
 
-    // OmKey is a string as far as scripting languages see them.
-    OmKey get_key(om_keyno key) const;
-    %addmethods {
-      std::string get_data() {
-        return (self->get_data());
-      }
-    }
+    string get_value(om_valueno value) const;
+    string get_data() const;
 
+    void add_value(int valueno, string value);
     void set_data(string data_);
-
-    /** Type to store keys in. */
-//    typedef map<om_keyno, OmKey> document_keys;
-
-    /** The keys associated with this document. */
-//    document_keys keys;
-    %addmethods {
-	void add_key(int keyno, string value) {
-	    self->add_key(keyno, OmKey(value));
-	}
-    }
 
     // TODO: sort out access to the maps somehow.
     /** Type to store terms in. */
@@ -112,7 +98,7 @@ class OmMSet {
 	om_doccount get_firstitem() const;
 	om_weight get_max_possible();
 	om_weight get_max_attained();
-	%addmethods {
+	%extend {
 	  const OmDocument get_document(om_doccount i) {
 	    return ((*self)[i]).get_document();
  	  }
@@ -122,7 +108,7 @@ class OmMSet {
 
 //	%readonly
 	/* Each language-specific part should include something like:
-	 * %addmethods OmMSet {
+	 * %extend OmMSet {
 	 *     %readonly
 	 *     LangListType items;
 	 * }
@@ -151,7 +137,7 @@ class OmESet {
 	om_termcount size() const;
 	%name(is_empty) om_termcount empty() const;
 	/* Each language-specific part should include something like:
-	 * %addmethods OmESet {
+	 * %extend OmESet {
 	 *     %readonly
 	 *     LangListType items;
 	 * }
@@ -173,7 +159,7 @@ class OmQuery {
         %name(OmQueryTerm) OmQuery(const string &tname,
 				   om_termcount wqf = 1,
 				   om_termpos term_pos = 0);
-	%addmethods {
+	%extend {
             /** Constructs a query from a set of queries merged with the specified operator */
 	    %name (OmQueryList) OmQuery(om_queryop op,
 	    	    const vector<OmQuery *> *subqs,
@@ -232,11 +218,12 @@ struct OmDocumentTerm {
 class OmDatabase {
     public:
 	OmDatabase(const OmSettings &params);
+	%name(emptyOmDatabase) OmDatabase();
 	virtual ~OmDatabase();
 
 	%name(add_dbargs) void add_database(const OmSettings &params);
-	
 	void add_database(const OmDatabase & database);
+
 	OmDocument get_document(om_docid did);
 	string get_description() const;
 	void reopen();
@@ -249,6 +236,7 @@ class OmDatabase {
 	void keep_alive();
 	// SAMFIX still need term, postlist, positionlist and allterms iterators
 };
+
 
 class OmWritableDatabase : public OmDatabase {
     public:
@@ -292,5 +280,12 @@ class OmEnquire {
 	string get_description() const;
 };
 
+class OmQueryParser {
+  public:
+  OmQueryParser();
+  void set_stemming_options(const string &lang, bool stem_all_ = false,
+                                  OmStopper *stop_ = NULL);
 
-
+  void set_default_op(OmQuery::op default_op_);
+  OmQuery parse_query(const string &q);
+};

@@ -40,13 +40,13 @@
     ulong idx;
     zval ** hash=$input;
     HashTable *ar = HASH_OF(*hash);
-    HashPosition *pos;  // so we don't disturb the hash's native position
-    for (zend_hash_internal_pointer_reset_ex(ar, pos);
-         zend_hash_get_current_data_ex(ar, (void **)&value, pos) == SUCCESS;
-         zend_hash_move_forward_ex(ar,pos)) {
+    HashPosition pos;  // so we don't disturb the hash's native position
+    for (zend_hash_internal_pointer_reset_ex(ar, &pos);
+         zend_hash_get_current_data_ex(ar, (void **)&value, &pos) == SUCCESS;
+         zend_hash_move_forward_ex(ar,&pos)) {
       SEPARATE_ZVAL(value);
       convert_to_string_ex(value);
-      int type = zend_hash_get_current_key_ex(ar, &key, 0, &idx, 0, pos);
+      int type = zend_hash_get_current_key_ex(ar, &key, 0, &idx, 0, &pos);
       if (type == HASH_KEY_IS_STRING) $1->set(key,Z_STRVAL_PP(value));
     }
   // when this scope closes only $1 will be left
