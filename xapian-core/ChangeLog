@@ -1,3 +1,8 @@
+Sat Aug 14 15:30:30 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Implemented Btree::cancel directly rather
+	  than closing and reopening the Btree.
+
 Sat Aug 14 14:46:43 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/,bin/quartzcheck.cc,bin/quartzcompact.cc,

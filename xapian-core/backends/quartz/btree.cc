@@ -1766,11 +1766,37 @@ Btree::cancel()
     DEBUGCALL(DB, void, "Btree::cancel", "");
     Assert(writable);
 
-    if (Btree_modified) {
-	// FIXME : this could be done without closing and reopening the Btrees
-	// filedescriptors, etc.
-	open();
+    if (!Btree_modified) return;
+
+    string err_msg;
+    if (!base.read(name, base_letter, err_msg)) {
+	throw Xapian::DatabaseCorruptError("Couldn't reread base " + base_letter);
     }
+
+    revision_number =  base.get_revision();
+    block_size =       base.get_block_size();
+    root =             base.get_root();
+    level =            base.get_level();
+    //bit_map_size =     basep->get_bit_map_size();
+    item_count =       base.get_item_count();
+    faked_root_block = base.get_have_fakeroot();
+    sequential =       base.get_sequential();
+
+    other_revision_number = 0;
+
+    next_revision = revision_number + 1;
+
+    prev_ptr = &Btree::prev_default;
+    next_ptr = &Btree::next_default;
+
+    for (int j = 0; j <= level; j++) {
+	C[j].n = BLK_UNUSED;
+    }
+    read_root();
+
+    changed_n = 0;
+    changed_c = DIR_START;
+    seq_count = SEQ_START_POINT;
 }
 
 /************ B-tree reading ************/
