@@ -1,3 +1,7 @@
+Sun Sep 22 03:53:35 BST 2002  Olly Betts <olly@survex.com>
+
+	* templates/query: Updated xapian url to http://www.xapian.org/
+
 Fri Sep 20 15:36:35 BST 2002  Olly Betts <olly@survex.com>
 
 	* configure.in: Version 0.5.0.

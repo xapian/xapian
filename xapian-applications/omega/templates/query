@@ -118,6 +118,6 @@ $if{$cgi{DEFAULTOP},<INPUT TYPE=hidden NAME=xDEFAULTOP VALUE="$html{$cgi{DEFAULT
 $list{$relevants,<INPUT TYPE=hidden NAME=R VALUE=",.,">}
 $if{$cgi{THRESHOLD},<INPUT TYPE=hidden NAME=THRESHOLD VALUE="$html{$cgi{THRESHOLD}}">}
 </FORM>
-<hr><div align=right><i><small><a href="http://xapian.sourceforge.net/">$html{$version}</a></small></i></div>
+<hr><div align=right><i><small><a href="http://www.xapian.org/">$html{$version}</a></small></i></div>
 </body>
 </html>
