@@ -673,6 +673,7 @@ AC_OUTPUT(
  api/Makefile
  indexer/Makefile
  indexer/indexgraph/Makefile
+ indexer/indexgraph/make_register.pl
  tests/Makefile
  docs/Makefile
  m4/Makefile
@@ -698,7 +699,8 @@ AC_OUTPUT(
  bindings/java/native/Makefile
 ,
  for a in docs/mkdoc.pl docs/todo2html.pl tests/stemtest.pl \
-          tests/findheaders.pl bindings/java/apitest_to_java.pl ; do
+          tests/findheaders.pl bindings/java/apitest_to_java.pl \
+	  indexer/indexgraph/make_register.pl ; do
      test -r $a && chmod +x $a
  done
 )

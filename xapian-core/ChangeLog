@@ -1,3 +1,8 @@
+Fri Sep 22 18:19:13 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Now have a scheme for registering all the core indexer nodes
+	  semi-automatically.
+
 Fri Sep 22 14:59:20 BST 2000 Olly Betts
 
 	* Tiny tweak to threadtest.

@@ -23,20 +23,18 @@
 #include "omindexernode.h"
 #include "om/omstem.h"
 #include "om/omerror.h"
+#include "node_reg.h"
 
 class OmStemmerNode : public OmIndexerNode {
     public:
-	static OmIndexerNode *create(const OmSettings &config) {
-	    return new OmStemmerNode(config);
-	}
-    private:
-	std::string language;
-	bool language_from_config;
 	OmStemmerNode(const OmSettings &config)
 		: OmIndexerNode(config),
 		  language(config.get("language", "")),
 		  language_from_config(language.length() > 0)
 	{ }
+    private:
+	std::string language;
+	bool language_from_config;
 	void calculate() {
 	    OmIndexerMessage input = get_input_record("in");
 
@@ -57,13 +55,7 @@ class OmStemmerNode : public OmIndexerNode {
 	}
 };
 
-#if 0
-	{
-	// FIXME: generalise into configurable stemmer
-	    OmNodeDescriptor ndesc("englishstemmer",
-				   &EnglishStemmerNode::create);
-	    ndesc.add_input("in", "words", mt_vector);
-	    ndesc.add_output("out", "words", mt_vector);
-	    builder.register_node_type(ndesc);
-	}
-#endif
+NODE_BEGIN(OmStemmerNode, omstemmer)
+NODE_INPUT("in", "words", mt_vector)
+NODE_OUTPUT("out", "words", mt_vector)
+NODE_END()

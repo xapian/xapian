@@ -23,6 +23,7 @@
 #include "omindexernode.h"
 #include "indexergraph.h"
 #include "om/omerror.h"
+#include "register_core.h"
 #include <parser.h>  // libxml
 #ifdef HAVE_LIBXML_VALID
 #include <valid.h>
@@ -360,6 +361,8 @@ OmIndexerBuilder::OmIndexerBuilder()
     OmNodeDescriptor ndesc("START", &OmIndexerStartNode::create);
     ndesc.add_output("out", "mystr", mt_record);
     register_node_type(ndesc);
+
+    register_core_nodes(*this);
 }
 
 void

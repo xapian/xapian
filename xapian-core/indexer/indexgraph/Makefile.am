@@ -12,7 +12,10 @@ noinst_LTLIBRARIES = libindexgraph.la
 #
 #nodetest_LDADD = libindexgraph.la ../../libomus.la
 
-libindexgraph_la_SOURCES = indexergraph.cc omindexernode.cc omstemmernode.cc
+INDEXERNODES = omstemmernode.cc
+
+libindexgraph_la_SOURCES = indexergraph.cc omindexernode.cc \
+	do_registration.cc $(INDEXERNODES)
 
 omstemmernode.lo: omstemmernode.cc
 	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<
@@ -28,5 +31,11 @@ nodetest.lo: nodetest.cc
 
 nodetest.o: nodetest.cc
 	$(CXXCOMPILE) @LIBXML_CFLAGS@ -c $<
+
+do_registration.cc: $(INDEXERNODES) make_register.pl
+	./make_register.pl $(INDEXERNODES) > $@
+
+do_registration.lo: do_registration.cc
+	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<
 
 libindexgraph_la_LIBADD = @LIBXML_LIBS@
