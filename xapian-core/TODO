@@ -22,6 +22,8 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    | Documentation   | Write more and more API documentation
 ---------+-----------------+--------------------------------------------------
+ High    |RDocumentation   | Document muscat36 access methods.
+---------+-----------------+--------------------------------------------------
  Medium  |CDocumentation   | Write docs for pthreads stuff
 ---------+-----------------+--------------------------------------------------
  Medium  | Documentation   | Document backend API (database, postlist,
