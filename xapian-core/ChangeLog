@@ -1,3 +1,8 @@
+Mon Dec 18 13:52:53 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Move creation of first key in a quartz postlist into a named
+	  function (was scattered through the code).
+
 Mon Dec 18 11:19:53 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Update todo.xml

@@ -35,6 +35,11 @@ static void make_key(const om_termname & tname, om_docid did, QuartzDbKey & key)
     key.value += pack_uint_preserving_sort(did);
 }
 
+static void make_key(const om_termname & tname, QuartzDbKey & key)
+{
+    key.value = pack_string(tname);
+}
+
 /** Make the data to go at the start of the very first chunk.
  */
 static inline std::string make_start_of_first_chunk(om_termcount entries,
@@ -68,7 +73,7 @@ static void new_postlist(QuartzBufferedTable * bufftable,
 			 om_termcount new_doclen)
 {
     QuartzDbKey key;
-    key.value = pack_string(tname);
+    make_key(tname, key);
     QuartzDbTag * tag = bufftable->get_or_make_tag(key);
     Assert(tag != 0);
     Assert(tag->value.size() == 0);
@@ -147,7 +152,7 @@ static void adjust_counts(QuartzBufferedTable * bufftable,
 			  om_termcount collection_freq_decrease)
 {
     QuartzDbKey key;
-    key.value = pack_string(tname);
+    make_key(tname, key);
     QuartzDbTag * tag = bufftable->get_or_make_tag(key);
     Assert(tag != 0);
     Assert(tag->value.size() != 0);
@@ -279,7 +284,7 @@ QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
 	      this_db_.get() << ", " << table_ << ", " <<
 	      positiontable_ << ", " << tname_);
     QuartzDbKey key;
-    key.value = pack_string(tname);
+    make_key(tname, key);
     int found = cursor->find_entry(key);
     if (!found) {
 	number_of_entries = 0;
