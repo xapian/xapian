@@ -1,4 +1,7 @@
-all: simplecreate simpleindex simplesearch simpleexpand
+all: simplecreate simpleindex simplesearch simpleexpand indexnasty
+
+indexnasty: indexnasty.cc
+	$(CXX) $< `omseek-config --libs --cflags` -o $@
 
 simplecreate: simplecreate.cc
 	$(CXX) $< `omseek-config --libs --cflags` -o $@
