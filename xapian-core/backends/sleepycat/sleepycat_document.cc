@@ -66,7 +66,7 @@ SleepyDocument::get_docid() const
 OmKey
 SleepyDocument::do_get_key(om_keyno keyid) const
 {
-    Assert(false);
+    throw OmUnimplementedError("SleepyDocument::do_get_key() unimplemented");
 }
 
 OmData
