@@ -81,10 +81,11 @@ doxygen_full_conf: $(top_srcdir)/configure.in
 # the situation where this matters and then use find -newer to check the
 # dependencies ourselves!
 
-code_structure.html: mkdoc.pl
+# depend on configure.in so we rebuild if VERSION changes
+code_structure.html: mkdoc.pl $(top_srcdir)/configure.in
 	if test -f "$(srcdir)/code_structure.html" && \
 	   test ! -f code_structure.html && \
-	   test -z "`find $(srcdir)/mkdoc.pl -newer $(srcdir)/code_structure.html -print`" ; then \
+	   test -z "`find $(srcdir)/mkdoc.pl $(top_srcdir)/configure.in -newer $(srcdir)/code_structure.html -print`" ; then \
 	    echo Not rebuilding code_structure.html despite make with crude VPATH ;\
 	else \
 	    $(PERL) $(srcdir)/mkdoc.pl "$(VERSION)" $(top_srcdir) $@ ;\
@@ -121,6 +122,7 @@ apidoc/html/index.html: $(top_srcdir)/configure.in \
 	   test -z "`find $(top_srcdir)/configure.in $(srcdir)/doxygen_api_header.html_tmpl $(srcdir)/doxygen_api_footer.html_tmpl $(srcdir)/doxygen_api_conf.in $(APIDOC_SRC) -newer $(srcdir)/apidoc/html/index.html -print`" ; then \
 	    echo Not rebuilding apidoc/html/index.html despite make with crude VPATH ;\
 	else \
+	    rm -rf apidoc ;\
 	    top_srcdir=$(top_srcdir) $(DOXYGEN) doxygen_api_conf ;\
 	fi
 
@@ -145,6 +147,7 @@ sourcedoc/html/index.html: $(top_srcdir)/configure.in \
 	   test -z "`find $(top_srcdir)/configure.in $(srcdir)/doxygen_full_header.html_tmpl $(srcdir)/doxygen_full_footer.html_tmpl $(srcdir)/doxygen_full_conf.in $(SOURCEDOC_CC_SRC) $(SOURCEDOC_C_SRC) $(SOURCEDOC_H_SRC) $(APIDOC_SRC) -newer $(srcdir)/sourcedoc/html/index.html -print`" ; then \
 	    echo Not rebuilding sourcedoc/html/index.html despite make with crude VPATH ;\
 	else \
+	    rm -rf sourcedoc ;\
 	    top_srcdir=$(top_srcdir) $(DOXYGEN) doxygen_full_conf ;\
 	fi
 
