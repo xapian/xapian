@@ -1,3 +1,7 @@
+Tue Dec 18 14:32:32 2001  James Aylett  <tartarus@users.sourceforge.net>
+
+	* Use xapian.org not sourceforge for schemas
+
 Mon Dec 17 18:47:08 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Cured problems with string('x') caused by overzealous search
