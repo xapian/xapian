@@ -1,3 +1,9 @@
+Tue Dec 24 05:48:06 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc: Fixed double setting of position
+	  list when updating a document with term position information.  The
+	  behaviour before was correct, just inefficient.
+
 Mon Dec 23 04:44:46 GMT 2002  Olly Betts <olly@survex.com>
 
 	* docs/todo.xml: Updated.

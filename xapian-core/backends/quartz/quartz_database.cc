@@ -613,22 +613,26 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
             while (!termlist.at_end() && tNewIter != document.termlist_end()) {
               om_termname tname = termlist.get_termname();
               if (tname < (*tNewIter)) {
-                // Deleted term exists in the old termlist, but not in the new one.
+		// Deleted term exists in the old termlist, but not in the new
+		// one.
                 delTerms.push_back(tname);
                 termlist.next();
               } else {
                 if (tname > (*tNewIter)) {
-                  // Added term does not exist in the old termlist, but it does in the new one.
+		  // Added term does not exist in the old termlist, but it does
+		  // in the new one.
                   addTerms.push_back((*tNewIter));
                 } else {
-                  // Terms are equal, but perhaps its positionlist has been modified. Record it, and skip to the next.
+		  // Terms are equal, but perhaps its positionlist has been
+		  // modified. Record it, and skip to the next.
                   posTerms.push_back(tname);
                   termlist.next();
                 }
 		++tNewIter;
               }
             }
-            // One of the lists (or both!) has been processed. Check if any of the iterators are not at the end.
+	    // One of the lists (or both!) has been processed. Check if any of
+	    // the iterators are not at the end.
             while (!termlist.at_end()) {
               // Any term left in the old list must be removed.
               om_termname tname = termlist.get_termname();
@@ -640,7 +644,8 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
               addTerms.push_back((*tNewIter));
               ++tNewIter;
             }
-            // We now know which terms to add and which to remove. Let's get to work!
+	    // We now know which terms to add and which to remove. Let's get to
+	    // work!
             // Delete the terms on our "hitlist"...
             vector<om_termname>::iterator vIter = delTerms.begin();
             while (vIter != delTerms.end()) {
@@ -677,40 +682,39 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 		}
                 ++vIter;
 	    }
-            // Finally, update the positionlist of terms that are not new or removed.
+	    // Finally, update the positionlist of terms that are not new or
+	    // removed.
             vIter = posTerms.begin();
             while (vIter != posTerms.end()) {
                 OmTermIterator tIter = document.termlist_begin();
                 tIter.skip_to((*vIter));
                 if (tIter.positionlist_begin() == tIter.positionlist_end()) {
-                  // In the new document, this term does not have any positions associated with it
+		  // In the new document, this term does not have any positions
+		  // associated with it
                   QuartzPositionList qpl;
                   qpl.read_data(buffered_tables->get_positionlist_table(), did, *tIter);
                   if (qpl.get_size() != 0) {
-                    // But there are positions associated with this term in the index. Delete the positionlist.
+		    // But there are positions associated with this term in the
+		    // index. Delete the positionlist.
                     QuartzPositionList::delete_positionlist(buffered_tables->get_positionlist_table(), did, *tIter);
                   }
                 } else {
-                  // In the new document, this term has positions associated with it. Check whether we need to re-create
-                  //   the positionlist.
+		  // In the new document, this term has positions associated
+		  // with it. Check whether we need to re-create the
+		  // positionlist.
                   QuartzPositionList qpl;
                   qpl.read_data(buffered_tables->get_positionlist_table(), did, *tIter);
                   qpl.next();
                   OmPositionListIterator pIter = tIter.positionlist_begin();
                   while (!qpl.at_end() && pIter != tIter.positionlist_end()) {
-                    if (qpl.get_current_pos() != (*pIter)) {
-                      // Position lists do not match, so create a new one.
-  		      QuartzPositionList::set_positionlist(
-		        buffered_tables->get_positionlist_table(), did,
-		        *tIter, tIter.positionlist_begin(), tIter.positionlist_end());
-                      break;
-                    }
+		    if (qpl.get_current_pos() != (*pIter)) break;
                     qpl.next();
                     ++pIter;
                   }
                   if (!qpl.at_end() || pIter != tIter.positionlist_end()) {
-                    // One of the position lists has not reached yet the end -- which means they are different. Create a
-                    //   new posisitionlist based on the one in the new OmDocument.
+		    // One of the position lists has not reached yet the end --
+		    // which means they are different. Create a new
+		    // positionlist based on the one in the new OmDocument.
   		    QuartzPositionList::set_positionlist(
 		      buffered_tables->get_positionlist_table(), did,
 		      *tIter, tIter.positionlist_begin(), tIter.positionlist_end());
