@@ -1,3 +1,8 @@
+Wed Mar 24 18:58:12 GMT 2004  Olly Betts <olly@survex.com>
+
+	* perl/Logo-script.pl: The content type header is `Content-Type:' not
+	  `Context:'!
+
 Wed Mar 24 14:09:59 GMT 2004  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Documented sources taken from elsewhere.
