@@ -1,3 +1,8 @@
+Fri Aug  8 12:26:45 BST 2003  Richard Boulton <richard@tartarus.org>
+
+	* configure.in: Check for absence of SWIG, and report error more
+	  nicely if so.
+
 Sat Jul 26 21:04:06 BST 2003  Olly Betts <olly@survex.com>
 
 	* php4/Makefile.am: lib omqueryparser is now xapianqueryparser.
