@@ -205,7 +205,7 @@ class Document {
     string get_data() const;
     void set_data(const string & data);
 
-    void add_posting(const string & tname, termpos tpos = 0, termcount wdfinc=1);
+    void add_posting(const string & tname, termpos tpos, termcount wdfinc=1);
     void add_term(const string & tname, termcount wdfinc = 1);
     // For compatibility with older code.
     void add_term_nopos(const string & tname, termcount wdfinc = 1);

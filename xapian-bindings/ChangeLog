@@ -1,3 +1,7 @@
+Wed Nov 10 01:47:33 GMT 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Second argument to Document::add_posting() isn't optional.
+
 Tue Nov 09 03:06:56 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,csharp/Makefile.am,guile/Makefile.am,
