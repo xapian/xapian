@@ -1898,6 +1898,43 @@ bool test_near1()
     return true;
 }
 
+/// Simple test of PHRASE
+bool test_phrase1()
+{
+    OmDatabase mydb(get_database("apitest_simpledata"));
+    OmEnquire enquire(make_dbgrp(&mydb));
+    OmStem stemmer("english");
+
+    // make a query
+    vector<OmQuery> subqs;
+    subqs.push_back(OmQuery(stemmer.stem_word("this")));
+    subqs.push_back(OmQuery(stemmer.stem_word("paragraph")));
+    OmQuery myquery(OM_MOP_PHRASE, subqs.begin(), subqs.end(), 2);
+
+    enquire.set_query(myquery);
+
+    try {
+	// retrieve the top ten results
+	OmMSet mymset = enquire.get_mset(0, 10);
+	vector<om_docid> expected_docs;
+	expected_docs.push_back(3);
+	expected_docs.push_back(1);
+	expected_docs.push_back(2);
+    
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+    }
+    catch (OmUnimplementedError &err) {
+	if (err.get_msg() !=
+	    "InMemoryPostList::get_position_list() unimplemented" &&
+	    err.get_msg() !=
+	    "REMOTE: InMemoryPostList::get_position_list() unimplemented") {
+	    cout << "!!!" << err.get_msg() << "!!!\n";
+	    throw; // FIXME: ickity-ick
+	}
+    }
+
+    return true;
+}
 
 
 
@@ -1945,6 +1982,7 @@ test_desc db_tests[] = {
     {"termlisttermfreq",   test_termlisttermfreq},
     {"multiexpand1",       test_multiexpand1},
     {"near1",		   test_near1},
+    {"phrase1",		   test_near1},
     {0, 0}
 };
 
