@@ -1354,14 +1354,14 @@ bool test_subqcollapse1()
     OmQuery myquery2(OM_MOP_AND, vec2.begin(), vec2.end());
     string desc2 = myquery2.get_description();
 
-    if(desc1 != "OmQuery(wibble OR wobble OR jelly OR belly)") {
+    if(desc1 != "OmQuery((wibble OR wobble OR jelly OR belly))") {
 	success = false;
 	if(verbose)
 	    cout << "Failed to correctly collapse query: got `" <<
 		    desc1 << "'" << endl;
     }
 
-    if(desc2 != "OmQuery(jelly AND belly AND wibble AND wobble)") {
+    if(desc2 != "OmQuery((jelly AND belly AND wibble AND wobble))") {
 	success = false;
 	if(verbose)
 	    cout << "Failed to correctly collapse query: got `" <<
