@@ -1,21 +1,15 @@
 Omega overview
 ==============
 
-Omega splits into two parts: omindex, for creating and maintaining an
-index of your website(s), and omega, the CGI program that allows
-searching that index via a web interface.
+Omega operates on a set of databases.  Each database is created and updated
+separately using either omindex or scriptindex.  You can search these databases
+(or any other Xapian database with suitable contents) via a web front-end
+provided by omega, a CGI application.  A search can also be done over a
+more than one database at once.
 
-The CGI program's parameters are documented in cgiparams.txt, and
-OmegaScript, the language it uses to define its web interface, is
-documented in omegascript.txt.
-
-
-Worldview
-=========
-
-Omega operates on a set of databases. This allows you to aggregate
-results from multiple websites together in one search. Each database
-must be created and maintained separately using omindex.
+The CGI program's parameters are documented in cgiparams.txt, and OmegaScript,
+the language used to define its web interface, is documented in
+omegascript.txt.
 
 
 Term construction
@@ -27,7 +21,7 @@ those used for boolean filtering (the CGI parameter 'B'). Boolean
 terms start with an initial capital letter denoting the 'group' of the
 term (eg: 'M' for MIME type), while probabilistic terms are all
 lower-case, and are also stemmed before adding to the
-postlist. (Currently the stemmer is the English one and cannot be
+database. (Currently the stemmer is the English one and cannot be
 configured without editing the source code.)
 
 The two term types are used as follows when building the query:
@@ -215,18 +209,19 @@ H	hostname of site (if supplied - this term won't exist if you
 	index a site with base URL '/press', for instance)
 P	path of site (ie: the rest of the site base URL)
 D	date (numeric format: YYYYMMDD)
-        date can also have the magical form "latest" answering to the
-        indexed term "Dlatest" which always matches any date restricted 
-        search; thus you can index with Dlatest proxy documents which
-        represent highly dynamic pages which are always up to date.
-        You will probably also want to pick a suitable large MODTIME
-        internal field value so this appears near the top of any sorts
-        you do.
+	date can also have the magical form "latest" - a document indexed
+	by the term Dlatest matches any date-range without an end date.
+	You can index dynamic documents which are always up to date
+	with Dlatest and they'll match as expected.  (If you use sort by date,
+	you'll probably also want to set the value containing the timestamp to
+	a "max" value so dynamic documents match a date in the far future).
 W	"weak" (approximately 10 day intervals, taken as YYYYMMD from
 	the D term, and changing the last digit to a '2' if it's a '3')
 M	month (numeric format: YYYYMM)
 Y	year (four digits)
-U	full URL of indexed document
+U	full URL of indexed document - if the resulting term would be > 240
+	characters, a hashing scheme is used to prevent omindex overflowing
+	the Xapian term length limit.
 
 
 omega configuration

@@ -1,3 +1,8 @@
+Tue Jun 24 00:45:28 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/overview.txt: Added note about hashing of long URL terms and
+	  reworked structure a little.
+
 Mon Jun 23 21:11:41 BST 2003  Olly Betts <olly@survex.com>
 
 	* bootstrap: Check for Bison 1.875 which doesn't work with Xapian.
