@@ -1,3 +1,8 @@
+Fri May 17 15:03:38 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* Add -k parameter to delve, to display the list of values for all
+	  documents being inspected.
+
 Fri May 17 14:45:28 BST 2002  Olly Betts <ollybe@ananova.net>
 
 	* .cvsignore: Updated.

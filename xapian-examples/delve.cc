@@ -36,6 +36,7 @@ using std::endl;
 static char separator = ' ';
 
 static bool verbose = false;
+static bool showvalues = false;
 
 static void
 syntax(const char *progname)
@@ -45,6 +46,7 @@ syntax(const char *progname)
 	"\t-t <term>             for posting list(s)\n"
 	"\t-t <term> -r <recno>  for position list(s)\n"
 	"\t-1                    output one list entry per line\n"
+	"\t-k                    output values for each document referred to\n"
 	"\t-v                    extra info (wdf and len for postlist;\n"
 	"\t\t\t\twdf termfreq for termlist)\n";
     exit(1);
@@ -56,6 +58,26 @@ show_db_stats(OmDatabase &db)
     // just display a few database stats
     cout << "number of documents = " << db.get_doccount() << endl;
     cout << "average document length = " << db.get_avlength() << endl;
+}
+
+static void
+show_values(OmDatabase &db,
+	    std::vector<om_docid>::const_iterator i,
+	    std::vector<om_docid>::const_iterator end)
+{
+    // Display values
+    while (i != end) {
+	OmDocument doc = db.get_document(*i);
+	OmValueIterator v = doc.values_begin();
+	OmValueIterator vend = doc.values_end();
+	cout << "Values for record #" << *i << ':';
+	while (v != vend) {
+	    cout << separator << v.get_valueno() << ':' << *v;
+	    ++v;
+	}
+	cout << endl;
+	++i;
+    }
 }
 
 static void
@@ -87,7 +109,7 @@ main(int argc, char *argv[])
     std::vector<string> dbs;
 
     int c;
-    while ((c = getopt(argc, argv, "r:t:1v")) != EOF) {
+    while ((c = getopt(argc, argv, "r:t:1vk")) != EOF) {
 	switch (c) {
 	    case 'r':
 		recnos.push_back(atoi(optarg));
@@ -97,6 +119,9 @@ main(int argc, char *argv[])
 		break;
 	    case '1':
 		separator = '\n';
+		break;
+	    case 'k':
+		showvalues = true;
 		break;
 	    case 'v':
 		verbose = true;
@@ -131,6 +156,10 @@ main(int argc, char *argv[])
 	if (terms.empty() && recnos.empty()) {
 	    show_db_stats(db);
 	    return 0;
+	}
+
+	if (!recnos.empty() && showvalues) {
+	    show_values(db, recnos.begin(), recnos.end());
 	}
 
 	if (terms.empty()) {
