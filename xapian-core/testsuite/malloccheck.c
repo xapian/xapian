@@ -103,7 +103,9 @@ malloc(size_t size)
     CHECK_SYMBOLS;
 
     result = real_malloc(size);
-    handle_allocation(&malloc_allocdata, result, size);
+    if (result) {
+	handle_allocation(&malloc_allocdata, result, size);
+    }
     return result;
 }
 
@@ -129,7 +131,7 @@ free(void *ptr)
 	fprintf(stderr,
 		"free()ing memory at %p which wasn't malloc()ed!\n",
 		ptr);
-	//abort();
+	abort();
     }
     real_free(ptr);
 }
@@ -141,12 +143,27 @@ realloc(void *ptr, size_t size)
     CHECK_SYMBOLS;
 
     result = real_realloc(ptr, size);
-    if (ptr != 0 && handle_reallocation(&malloc_allocdata,
+    if (ptr == 0 && size > 0) {
+	// equivalent to malloc(size)
+	if (result) {
+	    handle_allocation(&malloc_allocdata,
+			      result, size);
+	}
+    } else if (size == 0) {
+	if (ptr != 0) {
+	    // equivalent to free(ptr)
+	    if (handle_deallocation(&malloc_allocdata, ptr) != alloc_ok) {
+		fprintf(stderr,
+			"realloc()ing memory at %p to 0 which wasn't malloc()ed!\n",
+			ptr, size);
+	    }
+	}
+    } else if (handle_reallocation(&malloc_allocdata,
 					ptr, result, size) != alloc_ok) {
 	fprintf(stderr,
 		"realloc()ing memory at %p to %d which wasn't malloc()ed!\n",
 		ptr, size);
-	//abort();
+	abort();
     }
     return result;
 }
