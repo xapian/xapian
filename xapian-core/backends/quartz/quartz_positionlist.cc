@@ -30,6 +30,9 @@ QuartzPositionList::read_data(const QuartzTable * table,
 			      om_docid did,
 			      const om_termname & tname)
 {
+    DEBUGCALL(DB, void, "QuartzPositionList::read_data",
+	      table << ", " << did << ", " << tname);
+
     QuartzDbKey key;
     QuartzDbTag tag;
     make_key(did, tname, key);
@@ -45,6 +48,7 @@ QuartzPositionList::read_data(const QuartzTable * table,
     pos = data.data();
     end = pos + data.size();
     is_at_end = false;
+    have_started = false;
 
     bool success = unpack_uint(&pos, end, &number_of_entries);
     if (! success) {
@@ -82,15 +86,27 @@ QuartzPositionList::next_internal()
 void
 QuartzPositionList::next()
 {
+    DEBUGCALL(DB, void, "QuartzPositionList::next", "");
     Assert(!is_at_end);
     next_internal();
+    have_started = true;
+    DEBUGLINE(DB, string("QuartzPositionList - moved to ") <<
+	      (is_at_end ? string("end.") : string("position = ") +
+	       om_tostring(current_pos) + "."));
 }
 
 void
 QuartzPositionList::skip_to(om_termpos termpos)
 {
-    if (pos == data.data()) next_internal();
+    DEBUGCALL(DB, void, "QuartzPositionList::skip_to", termpos);
+    if (!have_started) {
+	next_internal();
+	have_started = true;
+    }
     while(!is_at_end && current_pos < termpos) next_internal();
+    DEBUGLINE(DB, string("QuartzPositionList - skipped to ") <<
+	      (is_at_end ? string("end.") : string("position = ") +
+	       om_tostring(current_pos) + "."));
 }
 
 void

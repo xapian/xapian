@@ -51,6 +51,9 @@ class QuartzPositionList : public PositionList {
 	/// Whether we've run off the end of the list yet.
 	bool is_at_end;
 
+	/// Whether we've started iterating yet.
+	bool have_started;
+
 	/// The current position.
 	om_termpos current_pos;
 	
@@ -73,7 +76,7 @@ class QuartzPositionList : public PositionList {
 
     public:
         /// Default constructor.
-        QuartzPositionList() {}
+        QuartzPositionList() : have_started(false) {}
 
         /// Destructor.
         ~QuartzPositionList() { return; }
@@ -84,10 +87,17 @@ class QuartzPositionList : public PositionList {
 		       const om_termname & tname);
 
         /// Gets size of position list.
-        om_termcount get_size() const { return number_of_entries; }
+        om_termcount get_size() const {
+	    DEBUGCALL(DB, om_termcount, "QuartzPositionList::get_size", "");
+	    RETURN(number_of_entries);
+	}
 
         /// Gets current position.
-        om_termpos get_position() const { return current_pos; }
+        om_termpos get_position() const {
+	    Assert(have_started);
+	    DEBUGCALL(DB, om_termpos, "QuartzPositionList::get_position", "");
+	    RETURN(current_pos);
+	}
 
         /** Move to the next item in the list.
          *  Either next() or skip_to() must be called before any other
@@ -102,7 +112,10 @@ class QuartzPositionList : public PositionList {
         void skip_to(om_termpos termpos);
 
         /// True if we're off the end of the list
-        bool at_end() const { return is_at_end; }
+        bool at_end() const {
+	    DEBUGCALL(DB, bool, "QuartzPositionList::at_end", "");
+	    RETURN(is_at_end);
+	}
 
 	/// Set the position list for the given docid and termname
 	static void set_positionlist(QuartzBufferedTable * table,
