@@ -239,7 +239,7 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 
     // Create database if needed
     // FIXME: use btree library to check if table exists yet.
-    if (!file_exists(path + "/DB")) {
+    if (!file_exists(path + "DB")) {
 	if (!Btree_create(path.c_str(), blocksize)) {
 	// FIXME: check for errors
 	    // FIXME: explain why
