@@ -64,8 +64,8 @@ class OmMakeRangeNode : public OmIndexerNode {
 	    }
 	}
 	void calculate() {
-	    std::vector<OmIndexerMessage> empty;
-	    OmIndexerMessage ints(empty);
+	    OmIndexerMessage ints;
+	    ints.set_vector();
 	    for (size_t i=0; i<count; ++i) {
 		ints.append_element(static_cast<int>(first + i*step));
 	    }

@@ -73,12 +73,12 @@ class OmTermlistAddNode : public OmIndexerNode {
 	}
 
 	OmIndexerMessage make_term(const OmIndexerMessage &word, int pos) {
-	    std::vector<OmIndexerMessage> empty;
-	    OmIndexerMessage retval(empty);
+	    OmIndexerMessage retval;
 	    retval.append_element(word);
 	    retval.append_element(1);  // wdf
 	    retval.append_element(1);  // termfreq
-	    OmIndexerMessage positions(empty);
+	    OmIndexerMessage positions;
+	    positions.set_vector();
 	    positions.append_element(pos);
 	    retval.append_element(positions);
 

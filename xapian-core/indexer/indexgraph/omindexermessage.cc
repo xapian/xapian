@@ -115,12 +115,6 @@ OmIndexerMessage::Internal::Internal(const std::string &value_)
     u.string_val = new std::string(value_);
 }
 
-OmIndexerMessage::OmIndexerMessage(const std::vector<OmIndexerMessage> &value)
-	: internal(new Internal(value))
-{
-    internal->ref_start();
-}
-
 OmIndexerMessage::Internal::Internal(const std::vector<OmIndexerMessage> &value)
 	: type(rt_vector)
 {
@@ -377,6 +371,7 @@ OmIndexerMessage::eat_element(OmIndexerMessage &element)
 	throw OmTypeError("OmIndexerMessage::append_element() called for non-vector value");
     }
     copy_on_write();
+    element.copy_on_write();
     size_t offset = internal->u.vector_val->size();
     internal->u.vector_val->resize(offset + 1);
     (*internal->u.vector_val)[offset].swap(element);
@@ -392,6 +387,7 @@ OmIndexerMessage::eat_list(OmIndexerMessage &list)
 	throw OmTypeError("OmIndexerMessage::eat_list() called with non-vector argument");
     }
     copy_on_write();
+    list.copy_on_write();
     size_t offset = internal->u.vector_val->size();
     size_t othersize = list.internal->u.vector_val->size();
     size_t newsize = offset + othersize;
@@ -437,22 +433,14 @@ void OmIndexerMessage::set_string(const std::string &value)
     internal->type = rt_string;
 }
 
-void OmIndexerMessage::set_vector(std::vector<OmIndexerMessage>::const_iterator begin,
-			       std::vector<OmIndexerMessage>::const_iterator end)
+void OmIndexerMessage::set_vector()
 {
     copy_on_write();
     internal->destroy_val();
 
-    // set the string first, since it may throw an exception,
+    // set the vector first, since it may throw an exception,
     // which would be bad if we tried to delete the value later.
-    size_t numelems = end - begin;
-    internal->u.vector_val = new std::vector<OmIndexerMessage>(numelems);
-    try {
-	std::copy(begin, end, internal->u.vector_val->begin());
-    } catch (...) {
-	delete internal->u.vector_val;
-	throw;
-    }
+    internal->u.vector_val = new std::vector<OmIndexerMessage>();
     internal->type = rt_vector;
 }
 

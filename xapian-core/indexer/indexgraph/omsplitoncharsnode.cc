@@ -132,8 +132,8 @@ class OmSplitOnCharsNode : public OmIndexerNode {
 		init_isword(get_input_string("wordchars"));
 	    }
 
-	    std::vector<OmIndexerMessage> empty;
-	    OmIndexerMessage output(empty);
+	    OmIndexerMessage output;
+	    output.set_vector();
 
 	    // current position in input string
 	    std::string::size_type pos = 0;

@@ -24,7 +24,6 @@
 #define OM_HGUARD_OMINDEXERMESSAGE_H
 
 #include <string>
-#include <vector>
 #include <om/omindexercommon.h>
 
 /** OmIndexerMessage is a basic message element.  More complex message may
@@ -42,7 +41,7 @@ class OmIndexerMessage {
 	    rt_vector
 	};
 
-	typedef std::vector<OmIndexerMessage>::size_type size_type;
+	typedef unsigned int size_type;
 
 	/** Constructor: create an empty record */
 	OmIndexerMessage();
@@ -52,8 +51,6 @@ class OmIndexerMessage {
 	OmIndexerMessage(double value);
 	/** Constructor: create a string record */
 	OmIndexerMessage(const std::string &value);
-	/** Constructor: create a vector record */
-	OmIndexerMessage(const std::vector<OmIndexerMessage> &value);
 
 	/** Copy constructor */
 	OmIndexerMessage(const OmIndexerMessage &other);
@@ -164,10 +161,15 @@ class OmIndexerMessage {
 	 */
 	void set_string(const std::string &value);
 
-	/** Give this record a vector value
+	/** Give this record a blank vector value
 	 */
-	void set_vector(std::vector<OmIndexerMessage>::const_iterator begin,
-			std::vector<OmIndexerMessage>::const_iterator end);
+	void set_vector();
+
+	/** Give this record a vector value containing the elements
+	 *  from the iterator start to the element before end.
+	 */
+	template <class Iterator>
+	void set_vector(Iterator start, Iterator end);
 
 	/** Return a human-readable string describing the message */
 	std::string get_description() const;
@@ -188,5 +190,20 @@ class OmIndexerMessage {
 	/** Internal function used to do a copy when needed. */
 	void copy_on_write();
 };
+
+/** Implementation of set_vector(start, end) */
+template <class Iterator>
+void
+OmIndexerMessage::set_vector(Iterator start, Iterator end)
+{
+    /* become an empty vector */
+    set_vector();
+
+    /* Add all the elements */
+    while (start != end) {
+	append_element(*start);
+	++start;
+    }
+}
 
 #endif /* OM_HGUARD_OMINDEXERMESSAGE_H */

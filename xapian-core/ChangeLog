@@ -1,3 +1,10 @@
+Thu Jan 18 17:31:55 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Removed mentions of std::vector from OmIndexerMessage, and
+	  updated the relevant bits.
+
+	* Fixed a bug with the copy-on-write parts of OmIndexerMessage.
+
 Thu Jan 18 17:09:43 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix to btreetest.cc: shouldn't fail if test data files are not

@@ -100,8 +100,8 @@ class OmRegexMatchNode : public OmIndexerNode {
 		    break;
 		case OmIndexerMessage::rt_vector:
 		    {
-			std::vector<OmIndexerMessage> empty;
-			OmIndexerMessage output(empty);
+			OmIndexerMessage output;
+			output.set_vector();
 
 			for (size_t i=0; i<input.get_vector_length(); ++i) {
 			    std::string orig = input.get_element(i).get_string();
@@ -118,8 +118,8 @@ class OmRegexMatchNode : public OmIndexerNode {
 	    }
 	}
 	OmIndexerMessage do_getmatches(const std::string &s) {
-	    std::vector<OmIndexerMessage> empty;
-	    OmIndexerMessage results(empty);
+	    OmIndexerMessage results;
+	    results.set_vector();
 
 	    if (regex.matches(s)) {
 		DEBUGLINE(INDEXER, "Regex `" << regex.get_pattern()

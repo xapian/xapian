@@ -45,8 +45,8 @@ class OmNewKeylistNode : public OmIndexerNode {
 	}
     private:
 	void calculate() {
-	    std::vector<OmIndexerMessage> empty;
-	    OmIndexerMessage terms(empty);
+	    OmIndexerMessage terms;
+	    terms.set_vector();
 	    terms.append_element(std::string("keylist"));
 	    set_output("out", terms);
 	}

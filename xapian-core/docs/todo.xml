@@ -71,9 +71,6 @@ OmStem::get_available_languages()
 OmSettings::set() [vector]
 OmSettings::get_vector()
 OmIndexerNode::get_config_vector()
-OmIndexerMessage::size_type
-OmIndexerMessage::OmIndexerMessage()
-OmIndexerMessage::set_vector()
 OmIndexerDesc::nodes
 OmIndexerBuilder::NodeType
 

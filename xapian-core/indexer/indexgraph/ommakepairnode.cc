@@ -48,8 +48,8 @@ class OmMakePairNode : public OmIndexerNode {
 	    OmIndexerMessage left = get_input_record("left");
 	    OmIndexerMessage right = get_input_record("right");
 
-	    std::vector<OmIndexerMessage> empty;
-	    OmIndexerMessage out(empty);
+	    OmIndexerMessage out;
+	    out.set_vector();
 
 	    out.append_element(left);
 	    out.append_element(right);

@@ -89,8 +89,8 @@ class OmRegexSplitNode : public OmIndexerNode {
 		regex.set(get_input_string("regex"));
 	    }
 
-	    std::vector<OmIndexerMessage> empty;
-	    OmIndexerMessage output(empty);
+	    OmIndexerMessage output;
+	    output.set_vector();
 
 	    /* There's a problem if we have an expression which can
 	     * match a null string (eg " *") - we never get anywhere

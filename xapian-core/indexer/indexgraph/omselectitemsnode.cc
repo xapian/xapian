@@ -81,8 +81,8 @@ class OmSelectItemsNode : public OmIndexerNode {
 	    request_inputs();
 	    OmIndexerMessage input = get_input_record("in");
 
-	    std::vector<OmIndexerMessage> empty;
-	    OmIndexerMessage output(empty);
+	    OmIndexerMessage output;
+	    output.set_vector();
 
 	    vector<int>::const_iterator i;
 	    for (i = items.begin();

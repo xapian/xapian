@@ -90,8 +90,8 @@ class OmStopWordNode : public OmIndexerNode {
 		return;
 	    }
 
-	    std::vector<OmIndexerMessage> empty;
-	    OmIndexerMessage output(empty);
+	    OmIndexerMessage output;
+	    output.set_vector();
 
 	    for (size_t i=0; i<input.get_vector_length(); ++i) {
 	        std::string word = input.get_element(i).get_string();

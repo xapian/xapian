@@ -113,8 +113,8 @@ class OmTranslateNode : public OmIndexerNode {
 		    break;
 		case OmIndexerMessage::rt_vector:
 		    {
-			std::vector<OmIndexerMessage> empty;
-			OmIndexerMessage output(empty);
+			OmIndexerMessage output;
+			output.set_vector();
 
 			for (size_t i=0; i<input.get_vector_length(); ++i) {
 			    std::string orig = input.get_element(i).get_string();

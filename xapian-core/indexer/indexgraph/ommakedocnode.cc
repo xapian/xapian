@@ -58,8 +58,8 @@ class OmMakeDocNode : public OmIndexerNode {
 	    OmIndexerMessage terms = get_input_record("terms");
 	    OmIndexerMessage keys = get_input_record("keys");
 
-	    std::vector<OmIndexerMessage> empty;
-	    OmIndexerMessage output(empty);
+	    OmIndexerMessage output;
+	    output.set_vector();
 	    output.append_element(data);
 	    output.append_element(terms);
 	    output.append_element(keys);
