@@ -781,6 +781,11 @@ class OmBatchEnquire {
 	     *  0 for no decision functor.
 	     */
 	    const OmMatchDecider * mdecider;
+
+	    /// Default constructor
+	    query_desc() :
+		    first(0), maxitems(10), omrset(0), moptions(0), mdecider(0)
+		    {}
 	};
 
 	/** Type used to store a batch of queries to be performed.

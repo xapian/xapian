@@ -1,3 +1,8 @@
+Wed Sep 13 15:34:18 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* OmBatchEnquire::query_desc now initialised its elements to values
+	  which will avoid random segfaults in unwary user code.
+
 Wed Sep 13 15:33:35 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Some changes to Python (and general SWIG) bindings to support 
