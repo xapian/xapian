@@ -27,6 +27,8 @@
 #include "ompostlistiteratorinternal.h"
 #include "om/omtermlistiterator.h"
 #include "omtermlistiteratorinternal.h"
+#include "om/ompositionlistiterator.h"
+#include "ompositionlistiteratorinternal.h"
 #include "om/omoutput.h"
 
 OmDatabase::OmDatabase()
@@ -141,6 +143,24 @@ OmDatabase::termlist_end(om_docid did) const
 {
     DEBUGAPICALL(OmTermListIterator, "OmDatabase::termlist_end", did);
     RETURN(OmTermListIterator(NULL));
+}
+
+OmPositionListIterator
+OmDatabase::positionlist_begin(om_docid did, const om_termname &tname) const
+{
+    DEBUGAPICALL(OmPositionListIterator, "OmDatabase::positionlist_begin",
+		 did << ", " << tname);
+    throw OmUnimplementedError("positionlist_begin() needs backends to support get_position_list on databases");
+    //RETURN(OmPositionListIterator(new OmPositionListIterator::Internal( ... )));
+}
+
+OmPositionListIterator
+OmDatabase::positionlist_end(om_docid did, const om_termname &tname) const
+{
+    DEBUGAPICALL(OmPositionListIterator, "OmDatabase::positionlist_end",
+		 did << ", " << tname);
+    throw OmUnimplementedError("positionlist_end() needs backends to support get_position_list on databases");
+    RETURN(OmPositionListIterator(NULL));
 }
 
 std::string

@@ -31,6 +31,7 @@ class OmDatabase;
 class OmPositionListIterator {
     private:
 	friend class OmPostListIterator; // So OmPostListIterator can construct us
+	friend class OmDatabase; // So OmDatabase can construct us
 
 	class Internal;
 

@@ -186,6 +186,7 @@ Audit for exception safety.
 <todoitem priority="L" difficulty="4" owner="R" area="Positional">
 
 Add a get_position_list() method to databases.
+Change OmDatabase::positionlist_{begin,end} to use it.
 
 </todoitem>
 <todoitem priority="L" difficulty="3" owner="" area="Weighting">
