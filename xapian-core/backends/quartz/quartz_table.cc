@@ -258,6 +258,13 @@ QuartzDiskTable::get_nearest_entry(QuartzDbKey &key,
 }
 
 bool
+QuartzDiskTable::get_next_entry(QuartzDbKey &key,
+				QuartzDbTag &tag,
+				QuartzCursor &cursor) const
+{
+}
+
+bool
 QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const
 {
     Assert(!(key.value.empty()));
@@ -458,6 +465,13 @@ QuartzBufferedTable::get_nearest_entry(QuartzDbKey &key,
 {
     // FIXME: look up in changed_entries too.
     return disktable->get_nearest_entry(key, tag, cursor);
+}
+
+bool
+QuartzBufferedTable::get_next_entry(QuartzDbKey &key,
+				    QuartzDbTag &tag,
+				    QuartzCursor &cursor) const
+{
 }
 
 bool

@@ -32,7 +32,7 @@ if HAVE_PERL_XML
 	@./docs/todo2html.pl --text $(top_srcdir)/docs/todo.xml > TODO
 else
 	@echo "Can't generate TODO: need Perl XML module."
-	@exit 1
+	@exit 0
 endif
 
 acinclude.m4: autoconf/acinclude.m4

@@ -1,3 +1,8 @@
+Mon Oct 16 16:42:17 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added dummy implementation of get_next_entry() in quartz_table.cc
+	  so that builds may proceed.
+
 Mon Oct 16 15:46:31 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added cursor operations to QuartzTable, so that we can move through
