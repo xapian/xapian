@@ -29,7 +29,8 @@ Priority | Area            | Task
  High    |CDistribution    | Add support for RSets, and any match options
          |                 | which make sense over a net link
 ---------+-----------------+--------------------------------------------------
- High    |CDistribution    | Write a network server version
+ High    |CDistribution    | Make the network server better (multithreaded
+         |                 | etc.).
 ---------+-----------------+--------------------------------------------------
  High    |CDistribution    | Make timeouts configurable with a sensible
          |                 | default.
