@@ -242,7 +242,10 @@ class OmMatchOptions {
 	 */
 	void set_max_or_terms(om_termcount max_);
 
-	/** Get 
+	/** Get appropriate comparator object.
+	 *  This returns an object which can be used to compare two
+	 *  OmMSetItems and decide which comes first: this is used by
+	 *  the matcher to sort the results of a search.
 	 */
 	OmMSetCmp get_sort_comparator() const;
 };
