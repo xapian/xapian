@@ -1,3 +1,12 @@
+Mon Aug 12 00:09:21 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* quartz_table_manager.cc: When unable to apply modifications,
+	  call cancel on the buffered table after reopening disk table
+	  at old revision - otherwise, the entry count gets messed up.
+	* quartz_table.cc, quartz_database.cc: Improve debugging and
+	  error reporting: I'm trying to work out why the failure Olly
+	  reported is occurring.
+
 Sat Aug 10 15:12:42 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* Fixed missing include in quartzcheck.cc

@@ -161,6 +161,7 @@ QuartzDatabase::do_cancel_transaction()
 om_docid
 QuartzDatabase::do_add_document(const OmDocument & /*document*/)
 {
+    DEBUGCALL(DB, om_docid, "QuartzDatabase::do_add_document", "");
     Assert(false);
     RETURN(0);
 }

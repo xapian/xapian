@@ -343,7 +343,7 @@ QuartzDiskTableManager::set_revision_number(quartz_revision_number_t new_revisio
     positionlist_table.apply(new_revision);
     termlist_table    .apply(new_revision);
     lexicon_table     .apply(new_revision);
-    value_table   .apply(new_revision);
+    value_table       .apply(new_revision);
     record_table      .apply(new_revision);
 }
 
@@ -534,7 +534,6 @@ QuartzBufferedTableManager::apply()
     } catch (...) {
 	// Modifications failed.  Wipe all the modifications from memory.
 	disktables.log->make_entry("Attempted modifications failed.  Wiping partial modifications.");
-	cancel();
 	
 	// Reopen tables with old revision number, 
 	disktables.log->make_entry("Reopening tables without modifications: old revision is " + om_tostring(old_revision) + ".");
@@ -547,6 +546,10 @@ QuartzBufferedTableManager::apply()
 
 	try {
 	    disktables.set_revision_number(new_revision);
+
+	    // This cancel() causes any buffered changes to be thrown away,
+	    // and the buffer to be reinitialised with the old entry count.
+	    cancel();
 	} catch (OmError & e) {
 	    disktables.log->make_entry("Setting revision number failed: " +
 				       e.get_type() + ": " +

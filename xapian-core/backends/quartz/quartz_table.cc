@@ -216,6 +216,7 @@ void
 QuartzDiskTable::open()
 {
     DEBUGCALL(DB, void, "QuartzDiskTable::open", "");
+    DEBUGLINE(DB, "opening at path " << path);
     close();
 
     if (readonly) {
@@ -268,30 +269,48 @@ bool
 QuartzDiskTable::open(quartz_revision_number_t revision)
 {
     DEBUGCALL(DB, bool, "QuartzDiskTable::open", revision);
+    DEBUGLINE(DB, "opening for particular revision at path " << path);
     close();
 
     if (readonly) {
 	btree_for_reading = new Btree();
-	// FIXME: check for errors
 	if (!btree_for_reading->open_to_read(path, revision) ||
 	    btree_for_reading->error) {
-	    // FIXME: throw an exception if it's not just this revision which
-	    // is unopenable.
+	    Btree_errors errorcode = btree_for_reading->error;
+	    string errormsg = "Can't open database at '" + path +
+		    "' at revision number " + om_tostring(revision) +
+		    " for reading";
 	    close();
-	    RETURN(false);
+	    if (errorcode) {
+		// Can't open at all - throw an exception
+		throw OmOpeningError(errormsg + ": " +
+				     Btree_strerror(errorcode));
+	    } else {
+		// Can't open this revision - return an error
+		DEBUGLINE(DB, errormsg);
+		RETURN(false);
+	    }
 	}
 	opened = true;
 	RETURN(true);
     }
 
     btree_for_writing = new Btree();
-    // FIXME: check for errors
     if (!btree_for_writing->open_to_write(path, revision) ||
 	btree_for_writing->error) {
-	// FIXME: throw an exception if it's not just this revision which
-	// is unopenable.
+	Btree_errors errorcode = btree_for_writing->error;
+	string errormsg = "Can't open database at '" + path +
+		"' at revision number " + om_tostring(revision) +
+		" for writing";
 	close();
-	RETURN(false);
+	if (errorcode) {
+	    // Can't open at all - throw an exception
+	    throw OmOpeningError(errormsg + ": " + Btree_strerror(errorcode));
+	} else {
+	    // Can't open this revision - return an error
+	    DEBUGLINE(DB, errormsg);
+	    RETURN(false);
+	}
     }
 
     AssertEq(btree_for_writing->revision_number, revision);
@@ -301,10 +320,19 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
     if (!btree_for_reading->open_to_read(path,
 					 btree_for_writing->revision_number) ||
 	btree_for_reading->error) {
-	// FIXME: throw an exception if it's not just this revision which
-	// is unopenable.
+	Btree_errors errorcode = btree_for_reading->error;
+	string errormsg = "Can't open database at '" + path +
+		"' at revision number " + om_tostring(revision) +
+		" for reading";
 	close();
-	RETURN(false);
+	if (errorcode == BTREE_ERROR_REVISION) {
+	    // Can't open at all - throw an exception
+	    throw OmOpeningError(errormsg + ": " + Btree_strerror(errorcode));
+	} else {
+	    // Can't open this revision - return an error
+	    DEBUGLINE(DB, errormsg);
+	    RETURN(false);
+	}
     }
 
     AssertEq(btree_for_reading->revision_number, revision);
@@ -410,6 +438,7 @@ QuartzDiskTable::set_entry(const string & key, const string & tag)
     }
 
     // add entry
+    DEBUGLINE(DB, "Adding entry to disk table.");
     int result = btree_for_writing->add(key, tag);
     (void)result; // FIXME: Check result
 }
@@ -433,6 +462,7 @@ QuartzDiskTable::set_entry(const string & key)
     }
 
     // delete entry
+    DEBUGLINE(DB, "Deleting entry from disk table.");
     int result = btree_for_writing->del(key);
     (void)result; // FIXME: Check result
 }
@@ -462,6 +492,8 @@ QuartzDiskTable::apply(quartz_revision_number_t new_revision)
 
     // Reopen table
     if (!open(new_revision)) {
+	DEBUGLINE(DB, "Failed to open new revision (" << new_revision <<
+		  ") of disktable at path `" << path << "'");
 	throw OmDatabaseError("Can't open the revision we've just written (" +
 			      om_tostring(new_revision) + ") for table at `" +
 			      path + "'");
@@ -499,7 +531,7 @@ QuartzBufferedTable::write_internal()
 	for (entry++;
 	     entry != changed_entries.get_all_entries().end();
 	     entry++) {
-	    DEBUGLINE(DB, "QuartzBufferedTable::write_internal(): setting key " << hex_encode(entry->first) << " to " << ((entry->second)? (hex_encode(entry->second->value)) : string("<NULL>")));
+	    DEBUGLINE(DB, "QuartzBufferedTable::write_internal(): setting key " << hex_encode(entry->first) << " to " << ((entry->second)? (hex_encode(*(entry->second))) : string("<NULL>")));
 	    if (entry->second) {
 		disktable->set_entry(entry->first, *(entry->second));
 		delete entry->second;
@@ -595,10 +627,8 @@ QuartzBufferedTable::get_or_make_tag(const string &key)
     bool found = disktable->get_exact_entry(key, *tag);
 
     changed_entries.set_tag(key, tag);
-    if (found && tagptr == 0) {
-	Assert(entry_count != 0);
-	entry_count -= 1;
-    } else if (!found && tagptr != 0) {
+    if (!found) {
+	DEBUGLINE(DB, "QuartzBufferedTable::get_or_make_tag - increasing entry_count - '" << key << "' added");
 	entry_count += 1;
     }
     Assert(changed_entries.have_entry(key));
@@ -614,7 +644,10 @@ QuartzBufferedTable::delete_tag(const string &key)
     DEBUGCALL(DB, void, "QuartzBufferedTable::delete_tag", key);
     // This reads the tag to check if it currently exists, so we can keep
     // track of the number of entries in the table.
-    if (have_tag(key)) entry_count -= 1;
+    if (have_tag(key)) {
+	DEBUGLINE(DB, "");
+	entry_count -= 1;
+    }
     changed_entries.set_tag(key, AutoPtr<string>(0));
 }
 
