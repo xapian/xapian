@@ -4,6 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -62,7 +63,10 @@ static string indexroot;
 static string baseurl;
 static OmWritableDatabase *db;
 
-// FIXME: these 2 copied from om/indexer/index_utils.cc
+// Put a limit on the size of terms to help prevent the index being bloated
+// by useless junk terms
+const static unsigned int MAX_PROB_TERM_LENGTH = 64;
+
 static void
 lowercase_term(om_termname &term)
 {
@@ -202,13 +206,15 @@ moreterm:
 	    if (k == s.end() || !isalnum(*k)) j = k;
 	    term = s.substr(i - s.begin(), j - i);
 	}
-        lowercase_term(term);
-        if (isupper(*i) || isdigit(*i)) {
-	    doc.add_posting('R' + term, pos);
-        }
- 
-        term = stemmer.stem_word(term);
-        doc.add_posting(term, pos++);
+	if (term.length() <= MAX_PROB_TERM_LENGTH) {
+	    lowercase_term(term);
+	    if (isupper(*i) || isdigit(*i)) {
+		doc.add_posting('R' + term, pos);
+	    }
+
+	    term = stemmer.stem_word(term);
+	    doc.add_posting(term, pos++);
+	}
     }
     return pos;
 }                           

@@ -45,6 +45,10 @@ static int addcount;
 static int repcount;
 static int delcount;
 
+// Put a limit on the size of terms to help prevent the index being bloated
+// by useless junk terms
+const static unsigned int MAX_PROB_TERM_LENGTH = 64;
+
 class MyHtmlParser : public HtmlParser {
     public:
     	string dump;
@@ -301,24 +305,27 @@ moreterm:
 	    if (k == s.end() || !isalnum(*k)) j = k;
 	    term = s.substr(i - s.begin(), j - i);
 	}
-        lowercase_term(term);
-        if (isupper(*i) || isdigit(*i)) {
-	    if (pos != static_cast<om_termpos>(-1)
-		// Not in GCC 2.95.2 numeric_limits<om_termpos>::max()
-		) {
-		doc.add_posting('R' + term, pos, wdfinc);
-	    } else {
-		doc.add_term_nopos('R' + term, wdfinc);
+
+	if (term.length() <= MAX_PROB_TERM_LENGTH) {
+	    lowercase_term(term);
+	    if (isupper(*i) || isdigit(*i)) {
+		if (pos != static_cast<om_termpos>(-1)
+			// Not in GCC 2.95.2 numeric_limits<om_termpos>::max()
+		   ) {
+		    doc.add_posting('R' + term, pos, wdfinc);
+		} else {
+		    doc.add_term_nopos('R' + term, wdfinc);
+		}
 	    }
-        }
- 
-        term = stemmer.stem_word(term);
-	if (pos != static_cast<om_termpos>(-1)
-	    // Not in GCC 2.95.2 numeric_limits<om_termpos>::max()
-	    ) {
-	    doc.add_posting(term, pos++, wdfinc);
-	} else {
-	    doc.add_term_nopos(term, wdfinc);
+
+	    term = stemmer.stem_word(term);
+	    if (pos != static_cast<om_termpos>(-1)
+		    // Not in GCC 2.95.2 numeric_limits<om_termpos>::max()
+	       ) {
+		doc.add_posting(term, pos++, wdfinc);
+	    } else {
+		doc.add_term_nopos(term, wdfinc);
+	    }
 	}
     }
     return pos;
