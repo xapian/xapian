@@ -161,6 +161,9 @@ class LocalMatch : public SingleMatch
 	// disallow copies
 	LocalMatch(const LocalMatch &);
 	void operator=(const LocalMatch &);
+
+	PostList * build_and_tree(vector<PostListAndTermWeight> &postlists);
+	PostList * build_or_tree(vector<PostListAndTermWeight> &postlists);
     public:
         LocalMatch(IRDatabase * database_);
         ~LocalMatch();

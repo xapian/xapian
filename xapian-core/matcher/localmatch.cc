@@ -116,6 +116,89 @@ bool msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b) {
     return false;
 }
 
+
+
+PostList *
+LocalMatch::build_and_tree(vector<PostListAndTermWeight> &postlists)
+{
+    // Build nice tree for AND-ed terms
+    // SORT list into ascending freq order
+    // AND last two elements, then AND with each subsequent element
+	
+    vector<PostListAndTermWeight>::const_iterator i;
+    for (i = postlists.begin(); i != postlists.end(); i++) {
+	if (i->postlist->get_termfreq() == 0) {
+	    // a zero freq term => the AND has zero freq
+	    vector<PostListAndTermWeight>::const_iterator j;
+	    for (j = postlists.begin(); j != postlists.end(); j++)
+		delete j->postlist;
+	    postlists.clear();
+	    break;
+	}
+    }
+
+    if (postlists.empty()) return new EmptyPostList();
+    
+    stable_sort(postlists.begin(), postlists.end(), PLPCmpLt());
+    
+    PostList *pl = postlists.back().postlist;
+    postlists.pop_back();
+    while (!postlists.empty()) {
+	// NB right is always <= left - we use this to optimise.
+	pl = new AndPostList(postlists.back().postlist, pl, this);
+	postlists.pop_back();
+    }
+    return pl;
+}
+
+PostList *
+LocalMatch::build_or_tree(vector<PostListAndTermWeight> &postlists)
+{
+    // Build nice tree for OR-ed postlists
+    // Want postlists with most entries to be at top of tree, to reduce
+    // average number of nodes an entry gets "pulled" through.
+    //
+    // Put postlists into a priority queue, such that those with greatest
+    // term frequency are returned first.
+    // FIXME: try using a heap instead (C++ sect 18.8)?
+
+    priority_queue<PostList *, vector<PostList *>, PLPCmpGt> pq;
+    vector<PostListAndTermWeight>::const_iterator i;
+    for (i = postlists.begin(); i != postlists.end(); i++) {
+	// for an OR, we can just ignore zero freq terms
+	if (i->postlist == 0) {
+	    // This shouldn't happen, but would mean that a postlist
+	    // didn't get opened.  Might as well try and recover.
+	} else if (i->postlist->get_termfreq() == 0) {
+	    delete i->postlist;
+	} else {
+	    pq.push(i->postlist);
+	}
+    }
+    postlists.clear();
+
+    // If none of the postlists had any entries, return an EmptyPostList.
+    if (pq.empty()) return new EmptyPostList();
+
+    // Build a tree balanced by the term frequencies
+    // (similar to building a huffman encoding tree).
+    //
+    // This scheme reduces the number of objects common terms
+    // get "pulled" through, reducing the amount of work done which
+    // speeds things up.
+    while (true) {
+	PostList *pl = pq.top();
+	pq.pop();
+	if (pq.empty()) return pl;
+	// NB right is always <= left - we can use this to optimise
+	pl = new OrPostList(pq.top(), pl, this);
+	pq.pop();
+	pq.push(pl);
+    }
+}
+
+
+
 ////////////////////////////////////
 // Initialisation and cleaning up //
 ////////////////////////////////////
@@ -262,106 +345,33 @@ LocalMatch::postlist_from_queries(om_queryop op,
     }
 
     // Build tree
-    if (op == OM_MOP_OR) {
-	// Select top terms
-	if(max_or_terms != 0) {
-	    DebugMsg("Selecting top " << max_or_terms << " terms, out of " <<
-		     postlists.size() << "." << endl);
-	    if(postlists.size() > max_or_terms) {
-		nth_element(postlists.begin(),
-			    postlists.begin() + max_or_terms,
-			    postlists.end(),
-			    PlCmpGtTermWt());
-		DebugMsg("Discarding " << (postlists.size() - max_or_terms) <<
-			 " terms." << endl);
-		
-		vector<PostListAndTermWeight>::const_iterator i;
-		for (i = postlists.begin() + max_or_terms;
-		     i != postlists.end();
-		     i++) {
-		    delete i->postlist;
-		}
-		postlists.erase(postlists.begin() + max_or_terms,
-				postlists.end());
-	    }
-	}
-
-	// Build nice tree for OR-ed postlists
-	// Want postlists with most entries to be at top of tree, to reduce
-	// average number of nodes an entry gets "pulled" through.
-	//
-	// Put postlists into a priority queue, such that those with greatest
-	// term frequency are returned first.
-	// FIXME: try using a heap instead (C++ sect 18.8)?
-
-	priority_queue<PostList *, vector<PostList *>, PLPCmpGt> pq;
-	vector<PostListAndTermWeight>::const_iterator i;
-	for (i = postlists.begin(); i != postlists.end(); i++) {
-	    // for an OR, we can just ignore zero freq terms
-	    if(i->postlist == 0) {
-		// This shouldn't happen, but would mean that a postlist
-		// didn't get opened.  Might as well try and recover.
-	    } else if(i->postlist->get_termfreq() == 0) {
-		delete i->postlist;
-	    } else {
-		pq.push(i->postlist);
-	    }
-	}
-
-	// If none of the postlists had any entries, return an EmptyPostList.
-	if (pq.empty()) {
-	    return new EmptyPostList();
-	}
-
-	// Build a tree balanced by the term frequencies
-	// (similar to building a huffman encoding tree).
-	//
-	// This scheme reduces the number of objects common terms
-	// get "pulled" through, reducing the amount of work done which
-	// speeds things up.
-	while (true) {
-	    PostList *pl = pq.top();
-	    pq.pop();
-	    if (pq.empty()) {
-		return pl;
-	    }
-	    // NB right is always <= left - we can use this to optimise
-	    pl = new OrPostList(pq.top(), pl, this);
-	    pq.pop();
-	    pq.push(pl);
-	}
-    } else {
-	// Build nice tree for AND-ed terms
-	// SORT list into ascending freq order
-	// AND last two elements, then AND with each subsequent element
-	
-	vector<PostListAndTermWeight>::const_iterator i;
-	for (i = postlists.begin(); i != postlists.end(); i++) {
-	    if(i->postlist->get_termfreq() == 0) {
-		// a zero freq term => the AND has zero freq
-		vector<PostListAndTermWeight>::const_iterator j;
-		for (j = postlists.begin(); j != postlists.end(); j++)
-		    delete j->postlist;
-		postlists.clear();
-		break;
-	    }
-	}
-
-	if (postlists.empty()) {
-	    return new EmptyPostList();
-	}
-
-	stable_sort(postlists.begin(), postlists.end(), PLPCmpLt());
-
-	PostList *pl = postlists.back().postlist;
-	postlists.pop_back();
-	while (!postlists.empty()) {
-	    // NB right is always <= left - we use this to optimise.
-	    pl = new AndPostList(postlists.back().postlist, pl, this);
-	    postlists.pop_back();
-	}
-	return pl;
+    if (op == OM_MOP_AND) {
+	return build_and_tree(postlists);
     }
+
+    // OK, it's an OR then...
+    
+    // Select top terms
+    if(max_or_terms != 0) {
+	DebugMsg("Selecting top " << max_or_terms << " terms, out of " <<
+		 postlists.size() << "." << endl);
+	if(postlists.size() > max_or_terms) {
+	    nth_element(postlists.begin(), postlists.begin() + max_or_terms,
+			postlists.end(), PlCmpGtTermWt());
+	    DebugMsg("Discarding " << (postlists.size() - max_or_terms) <<
+		     " terms." << endl);
+	    
+	    vector<PostListAndTermWeight>::const_iterator i;
+	    for (i = postlists.begin() + max_or_terms;
+		 i != postlists.end(); i++) {
+		delete i->postlist;
+	    }
+	    postlists.erase(postlists.begin() + max_or_terms,
+			    postlists.end());
+	}
+    }
+
+    return build_or_tree(postlists);
 }
 
 // Make a postlist from a query object - this is called recursively down
