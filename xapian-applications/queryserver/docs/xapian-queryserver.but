@@ -120,24 +120,51 @@ to the server and retrieve the results.
 
 \dt \c{Enquiry::setDbName($dbname)}
 
-\dd FIXME
+\dd This function sets the name of the database which the query should be
+    evaluated against.  The database name may not include any \q{\cw{/}} or
+    \q{\cw{..}} character sequences, since the server will reject any such
+    names for security reasons.
 
 \dt \c{Enquiry::setQuery($query)}
 
-\dd FIXME
+\dd This function sets the query which will be evaluated.  The query will be
+    passed to the server verbatim, and will be parsed and evaluated by the
+    server.
 
 \dt \c{Enquiry::addFilter($prefix, $filter)}
 
-\dd FIXME
+\dd This function adds a filter to the query.  The \c{$prefix} parameter
+    specifies the category of the filter, and the \c{$filter} parameter
+    specifies the value that must be present in that category for the filter
+    to pass.  Note that the \c{$filter} parameter is not parsed at all - in
+    particular it is not split into multiple terms.  For the filter to match,
+    the filter term must exist verbatim in the database.
+
+    \lcont{
+    Multiple filters may be applied to a query.  They combine such that a
+    document will be returned only if it matches at least one filter in
+    each category.
+
+    For example, suppose a database was created using the prefix \q{\cw{T}} to
+    store a filetype field, and \q{\cw{P}} to store a protocol field, and
+    three filters were added as follows:
+
+    \c $enquiry->addFilter("T", "mp3");
+    \c $enquiry->addFilter("T", "ogg");
+    \c $enquiry->addFilter("P", "http");
+
+    The combined filter would match documents whose type field was \c{mp3} OR
+    \c{ogg}, but only if the protocol field was \c{http}.
+
+    Filters have no effect on the ordering of the results of a query.
+    }
 
 \dt \c{Enquiry::perform($firstdoc, $maxitems)}
 
-\dd FIXME
-
-\dt \c{Enquiry::perform($firstdoc, $maxitems)}
-
-\dd FIXME
-
+\dd This function causes the query which has been built up in the \c{Enquiry}
+    object to be sent over the socket, evaluated against the database named
+    by \c{Enquiry::setDbName()}, and returns the results as a \c{Result}
+    object (see \k{client-php-result}).
 
 \S1{client-php-result} The \cw{Result} class
 
@@ -264,7 +291,14 @@ The communications protocol is intentionally kept extremely simple.  A
 conversation consists of exactly two messages, and is always initiated by the
 client.
 
+Much of the data passed over the protocol is Base64 encoded - this avoids
+problems with communications channels dealing badly with certain character
+codes.
+
 \S0{protocol-request} Client request
+
+FIXME - document.
 
 \S0{protocol-response} Server response
 
+FIXME - document.

@@ -1,3 +1,8 @@
+Tue Apr 27 22:53:41 BST 2004  Richard Boulton <richard@tartarus.org>
+
+        * docs/xapian-queryserver.but: Finish documenting the PHP client.
+          Only remaining section is the protocol description appendix.
+
 Tue Apr 27 22:11:25 BST 2004  Richard Boulton <richard@tartarus.org>
 
         * clients/index.php: Reformat to match the example in the manual.

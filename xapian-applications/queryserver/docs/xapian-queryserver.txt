@@ -128,23 +128,51 @@ Chapter 3: Clients
 
        `Enquiry::setDbName($dbname)'
 
-           FIXME
+           This function sets the name of the database which the query
+           should be evaluated against. The database name may not include
+           any `/' or `..' character sequences, since the server will
+           reject any such names for security reasons.
 
        `Enquiry::setQuery($query)'
 
-           FIXME
+           This function sets the query which will be evaluated. The query
+           will be passed to the server verbatim, and will be parsed and
+           evaluated by the server.
 
        `Enquiry::addFilter($prefix, $filter)'
 
-           FIXME
+           This function adds a filter to the query. The `$prefix'
+           parameter specifies the category of the filter, and the
+           `$filter' parameter specifies the value that must be present in
+           that category for the filter to pass. Note that the `$filter'
+           parameter is not parsed at all - in particular it is not split
+           into multiple terms. For the filter to match, the filter term
+           must exist verbatim in the database.
+
+           Multiple filters may be applied to a query. They combine such
+           that a document will be returned only if it matches at least one
+           filter in each category.
+
+           For example, suppose a database was created using the prefix `T'
+           to store a filetype field, and `P' to store a protocol field,
+           and three filters were added as follows:
+
+             $enquiry->addFilter("T", "mp3");
+             $enquiry->addFilter("T", "ogg");
+             $enquiry->addFilter("P", "http");
+
+           The combined filter would match documents whose type field was
+           `mp3' OR `ogg', but only if the protocol field was `http'.
+
+           Filters have no effect on the ordering of the results of a
+           query.
 
        `Enquiry::perform($firstdoc, $maxitems)'
 
-           FIXME
-
-       `Enquiry::perform($firstdoc, $maxitems)'
-
-           FIXME
+           This function causes the query which has been built up in the
+           `Enquiry' object to be sent over the socket, evaluated against
+           the database named by `Enquiry::setDbName()', and returns the
+           results as a `Result' object (see section 3.1.2).
 
  3.1.2 The Result class
 
@@ -269,9 +297,17 @@ Appendix A: Communications protocol
        A conversation consists of exactly two messages, and is always
        initiated by the client.
 
+       Much of the data passed over the protocol is Base64 encoded - this
+       avoids problems with communications channels dealing badly with
+       certain character codes.
+
    A.1 Client request
 
+       FIXME - document.
+
    A.2 Server response
+
+       FIXME - document.
 
 Appendix B: man pages
 ---------------------
