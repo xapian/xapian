@@ -138,4 +138,6 @@ class Match
 			  ) = 0;
 };
 
+inline Match::~Match() {}
+
 #endif /* OM_HGUARD_MATCH_H */
