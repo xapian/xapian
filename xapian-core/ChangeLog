@@ -1,10 +1,5 @@
 Wed Aug 23 11:28:00 BST 2000 Olly Betts
 
-	* OmDatabase::is_writable() made protected rather than private so
-	  OmWritableDatabase no longer needs to be a friend class.
-
-Wed Aug 23 11:28:00 BST 2000 Olly Betts
-
 	* omsettings.h: added list of valid backends to doc comment.
 
 Tue Aug 22 19:02:14 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>

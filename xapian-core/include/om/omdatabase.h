@@ -37,10 +37,26 @@ class OmDatabaseGroup;
 /** This class is used to access a database.
  */
 class OmDatabase {
+    /** OmWritableDatabase is a friend so that it can call is_writable().
+     */
+    friend OmWritableDatabase;
+
     /** OmDatabaseGroup is a friend so that it can access the internals
      *  to extract the database pointer.
      */
     friend OmDatabaseGroup;
+
+    private:
+	/** Check whether this is a writable database.
+	 *
+	 *  This is used to check that an assignment to an OmWritableDatabase
+	 *  is valid.
+	 *
+	 *  @return true if the database is writable, false otherwise.
+	 *               This always returns false for an instance of
+	 *               OmDatabase (as opposed to an instance of a subclass).
+	 */
+	virtual bool is_writable() const { return false; }
 
     protected:
 	class Internal;
@@ -66,17 +82,6 @@ class OmDatabase {
 	 *
 	 */
 	OmDatabase(const OmSettings &params, bool readonly);
-
-	/** Check whether this is a writable database.
-	 *
-	 *  This is used to check that an assignment to an OmWritableDatabase
-	 *  is valid.
-	 *
-	 *  @return true if the database is writable, false otherwise.
-	 *               This always returns false for an instance of
-	 *               OmDatabase (as opposed to an instance of a subclass).
-	 */
-	virtual bool is_writable() const { return false; }
 
     public:
 	/** Open a database.
