@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,8 +36,15 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#ifdef HAVE_SYS_UTSNAME_H
 #include <sys/utsname.h>
+#endif
 #include <cerrno>
+
+#ifndef HAVE_GETPID
+#include <windows.h>
+#define getpid() GetCurrentProcessId()
+#endif
 
 using std::string;
 
@@ -459,14 +466,24 @@ void
 QuartzBufferedTableManager::get_database_write_lock()
 {
     DEBUGCALL(DB, void, "QuartzBufferedTableManager::get_database_write_lock", "");
-    // FIXME:: have a backoff strategy
+    // FIXME:: have a backoff strategy to avoid stalling on a stale lockfile
+#ifdef HAVE_SYS_UTSNAME_H
+    const char *hostname;
     struct utsname host;
     if (!uname(&host)) {
 	host.nodename[0] = '\0';
     }
-    string tempname = lock_name + ".tmp."
-	    + om_tostring(getpid()) + "." +
-	    host.nodename + "." +
+    hostname = host.nodename;
+#elif defined(HAVE_GETHOSTNAME)
+    char hostname[256];
+    if (gethostname(hostname, sizeof hostname) == -1) {
+	*hostname = '\0';
+    }
+#else
+    const char *hostname = "";
+#endif
+    string tempname = lock_name + ".tmp." + om_tostring(getpid()) + "." +
+	    hostname + "." +
 	    om_tostring(reinterpret_cast<long>(this)); /* should work within
 							  one process too! */
     DEBUGLINE(DB, "Temporary file " << tempname << " created");

@@ -154,7 +154,9 @@ handle_sig(int signum_)
     signal(SIGSEGV, SIG_DFL);
     signal(SIGFPE, SIG_DFL);
     signal(SIGILL, SIG_DFL);
+#ifdef SIGBUS
     signal(SIGBUS, SIG_DFL);
+#endif
 #ifdef SIGSTKFLT
     signal(SIGSTKFLT, SIG_DFL);
 #endif
@@ -172,7 +174,9 @@ class SignalRedirector {
 	signal(SIGSEGV, handle_sig);
 	signal(SIGFPE, handle_sig);
 	signal(SIGILL, handle_sig);
+#ifdef SIGBUS
 	signal(SIGBUS, handle_sig);
+#endif
 #ifdef SIGSTKFLT
 	signal(SIGSTKFLT, handle_sig);
 #endif
@@ -182,7 +186,9 @@ class SignalRedirector {
 	    signal(SIGSEGV, SIG_DFL);
 	    signal(SIGFPE, SIG_DFL);
 	    signal(SIGILL, SIG_DFL);
+#ifdef SIGBUS
 	    signal(SIGBUS, SIG_DFL);
+#endif
 #ifdef SIGSTKFLT
 	    signal(SIGSTKFLT, SIG_DFL);
 #endif
@@ -268,7 +274,9 @@ test_driver::runtest(const test_desc *test)
 		case SIGSEGV: sig = "SIGSEGV"; break;
 		case SIGFPE: sig = "SIGFPE"; break;
 		case SIGILL: sig = "SIGILL"; break;
+#ifdef SIGBUS
 		case SIGBUS: sig = "SIGBUS"; break;
+#endif
 #ifdef SIGSTKFLT
 		case SIGSTKFLT: sig = "SIGSTKFLT"; break;
 #endif

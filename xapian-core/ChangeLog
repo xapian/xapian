@@ -1,3 +1,9 @@
+Tue Apr 08 16:09:11 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/quartz_log.cc,
+	  backends/quartz/quartz_table_manager.cc,testsuite/testsuite.cc:
+	  Some fixes for building with Linux to mingw cross-compiler.
+
 Tue Apr 08 02:26:51 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btreetest.cc: If we don't have <sstream> and so are
