@@ -13,7 +13,7 @@ noinst_HEADERS = \
  utils.h omlocks.h omqueryinternal.h omrefcnt.h \
  omdocumentparams.h document.h networkmatch.h \
  netclient.h progclient.h multi_database.h net_database.h \
- netutils.h
+ netutils.h document_contents.h
 
 noinst_LTLIBRARIES = libcommon.la
 

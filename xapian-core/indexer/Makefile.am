@@ -8,4 +8,5 @@ noinst_HEADERS = index_utils.h
 
 noinst_LTLIBRARIES = libindexer.la
 
-libindexer_la_SOURCES = textfile_indexer.cc index_utils.cc query_parser.cc
+libindexer_la_SOURCES = textfile_indexer.cc index_utils.cc query_parser.cc \
+	document_contents.cc
