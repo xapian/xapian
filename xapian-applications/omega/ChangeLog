@@ -1,3 +1,7 @@
+Thu Apr 15 01:43:51 BST 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Another stab at _POSIX_SOURCE...
+
 Thu Apr 15 01:25:29 BST 2004  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Added a missing underscore (_POSIX_SOURCE not
