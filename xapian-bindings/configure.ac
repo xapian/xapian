@@ -169,9 +169,6 @@ if test no != "$with_swig" ; then
       fi
       BINDINGS="$BINDINGS csharp"
     fi
-
-    AC_SUBST(GACUTIL)
-    AC_SUBST(CSC)
   fi
 fi
 
