@@ -156,6 +156,8 @@ int main(unsigned int argc, char *argv[]) {
     // ----------------------------------------
     // commit_symbols[commit_id] -> code symbols.
     // commit_words  [commit_id] -> stemmed words.
+
+    set<unsigned int> commit_id_set;
     map<unsigned int, set <string> > commit_symbols;
     map<unsigned int, list<string> > commit_words;
 
@@ -271,6 +273,8 @@ int main(unsigned int argc, char *argv[]) {
                 
                 for(i = revisions.begin(); i != revisions.end(); ++i ) {
                     if (db_file.get_commit(fileid, i->first, commitid) == 0) {
+
+                        commit_id_set.insert( commitid+offset );
                         // ----------------------------------------
                         // have we entered info for this commit ?
                         // ----------------------------------------
@@ -328,7 +332,7 @@ int main(unsigned int argc, char *argv[]) {
         // transactions are in commit_symbols
         // ----------------------------------------
         ofstream out((mining_path + ".count").c_str());
-        out << commit_symbols.size() << endl;
+        out << commit_id_set.size() << endl; //commit_symbols.size() << endl;
         out.close();
         
         // ----------------------------------------
