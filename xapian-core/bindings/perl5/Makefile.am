@@ -29,8 +29,4 @@ omstem.so: omstem_wrap.o
 	$(CXX) -shared $< -o $@
 
 omuscat.so: omuscat_wrap.o
-	$(CXX) -shared $< -o $@
-
-
-
-
+	$(LIBTOOL) $(CXX) --mode=link -shared $< ../../libomus.la -o $@

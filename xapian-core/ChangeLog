@@ -1,3 +1,13 @@
+Thu Jun  8 16:28:07 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Perl5 and Python now both have more-or-less working OmQuery
+	  interface.
+	
+	* Both interfaces can be built from the Makefiles (still more work
+	  getting it working properly with automake and autoconf.
+	
+	* The "perl" directory has been renamed to "perl5".
+
 Thu Jun  8 14:43:51 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Create an OmDebug object to manage debug messages.  This allows

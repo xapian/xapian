@@ -28,4 +28,4 @@ omstemc.so: omstem_wrap.o
 	$(CXX) -shared $< -o $@
 
 omuscatc.so: omuscat_wrap.o
-	$(CXX) -shared $< -o $@
+	$(LIBTOOL) $(CXX) -shared $< ../../libomus.la -o $@

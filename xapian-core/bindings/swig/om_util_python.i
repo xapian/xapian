@@ -96,4 +96,6 @@
         PyList_Append($target, PyString_FromString(i->c_str()));
 	++i;
     }
+    delete $source;
+    $source = 0;
 }

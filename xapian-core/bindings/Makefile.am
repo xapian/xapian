@@ -4,4 +4,4 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
-SUBDIRS = python perl
+SUBDIRS = python perl5

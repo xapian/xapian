@@ -63,3 +63,23 @@
     }
     $target = &v;
 }
+
+%typemap(perl5, out) om_termname_list {
+    int len = $source->size();
+    SV **svs = new SV *[len];
+
+    om_termname_list::const_iterator tn = $source->begin();
+    for (int i=0; i<len; ++tn, ++i) {
+        svs[i] = sv_newmortal();
+	sv_setpvn((SV*)svs[i], tn->c_str(), tn->length());
+    }
+    AV *myav = av_make(len, svs);
+
+    //delete [] svs;
+    //delete $source;
+    $source = 0;
+
+    $target = newRV((SV *)myav);
+    sv_2mortal($target);
+    argvi++;
+}
