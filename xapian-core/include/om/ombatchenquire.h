@@ -39,7 +39,7 @@
 
 /** This class provides an interface to submit batches of queries.
  *
- *  FIXME: this class is currently deprecated, and not supported by omsee.
+ *  FIXME: this class is currently deprecated, and not supported by Omseek.
  *
  *  Using this class will be no more expensive than simply using an
  *  OmEnquire object multiple times, and this is how it is currently
