@@ -49,35 +49,35 @@ class DAPostList : public virtual DBPostList {
     friend class DADatabase;
     private:
 	struct postings * postlist;
-	docid  currdoc;
+	om_docid  currdoc;
 
-	termname tname;
-	doccount termfreq;
+	om_termname tname;
+	om_doccount termfreq;
 
-	DAPostList(const termname & tname_,
+	DAPostList(const om_termname & tname_,
 		   struct postings * postlist_,
-		   doccount termfreq_);
+		   om_doccount termfreq_);
     public:
 	~DAPostList();
 
-	doccount get_termfreq() const;
+	om_doccount get_termfreq() const;
 
-	docid  get_docid() const;     // Gets current docid
-	weight get_weight() const;    // Gets current weight
-	PostList *next(weight w_min);          // Moves to next docid
-	PostList *skip_to(docid did, weight w_min);  // Moves to next docid >= specified docid
+	om_docid  get_docid() const;     // Gets current docid
+	om_weight get_weight() const;    // Gets current weight
+	PostList *next(om_weight w_min);          // Moves to next docid
+	PostList *skip_to(om_docid did, om_weight w_min);  // Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
 
 	string intro_term_description() const;
 };
 
-inline doccount
+inline om_doccount
 DAPostList::get_termfreq() const
 {
     return termfreq;
 }
 
-inline docid
+inline om_docid
 DAPostList::get_docid() const
 {
     Assert(!at_end());
@@ -103,13 +103,13 @@ DAPostList::intro_term_description() const
 
 class DATermListItem {
     public:
-	termname tname;
-	termcount wdf;
-	doccount termfreq;
+	om_termname tname;
+	om_termcount wdf;
+	om_doccount termfreq;
 
-	DATermListItem(termname tname_,
-		       termcount wdf_,
-		       doccount termfreq_)
+	DATermListItem(om_termname tname_,
+		       om_termcount wdf_,
+		       om_doccount termfreq_)
 		: tname(tname_),
 		  wdf(wdf_),
 		  termfreq(termfreq_)
@@ -122,40 +122,40 @@ class DATermList : public virtual DBTermList {
 	vector<DATermListItem>::iterator pos;
 	vector<DATermListItem> terms;
 	bool have_started;
-	doccount dbsize;
+	om_doccount dbsize;
 
-	DATermList(struct termvec *tv, doccount dbsize_);
+	DATermList(struct termvec *tv, om_doccount dbsize_);
     public:
-	termcount get_approx_size() const;
+	om_termcount get_approx_size() const;
 
 	OMExpandBits get_weighting() const; // Gets weight info of current term
-	const termname get_termname() const;
-	termcount get_wdf() const; // Number of occurences of term in current doc
-	doccount get_termfreq() const;  // Number of docs indexed by term
+	const om_termname get_termname() const;
+	om_termcount get_wdf() const; // Number of occurences of term in current doc
+	om_doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
 	bool   at_end() const;
 };
 
-inline termcount DATermList::get_approx_size() const
+inline om_termcount DATermList::get_approx_size() const
 {
     return terms.size();
 }
 
-inline const termname DATermList::get_termname() const
+inline const om_termname DATermList::get_termname() const
 {
     Assert(!at_end());
     Assert(have_started);
     return pos->tname;
 }
 
-inline termcount DATermList::get_wdf() const
+inline om_termcount DATermList::get_wdf() const
 {
     Assert(!at_end());
     Assert(have_started);
     return pos->wdf;
 }
 
-inline doccount DATermList::get_termfreq() const
+inline om_doccount DATermList::get_termfreq() const
 {
     Assert(!at_end());
     Assert(have_started);
@@ -190,7 +190,7 @@ class DATerm {
     friend DADatabase;
     private:
 	DATerm(struct terminfo * ti_,
-	       termname tname_,
+	       om_termname tname_,
 	       struct DAfile * DA_t_ = NULL);
         struct terminfo * get_ti() const;
 
@@ -198,12 +198,12 @@ class DATerm {
         mutable struct terminfo ti;
         mutable struct DAfile * DA_t;
     public:
-	termname tname;
+	om_termname tname;
 };
 
 inline
 DATerm::DATerm(struct terminfo * ti_,
-	       termname tname_,
+	       om_termname tname_,
 	       struct DAfile * DA_t_)
 	: terminfo_initialised(false)
 {
@@ -244,63 +244,63 @@ class DADatabase : public virtual IRDatabase {
 	struct DAfile * DA_r;
 	struct DAfile * DA_t;
 
-	mutable map<termname, DATerm> termmap;
+	mutable map<om_termname, DATerm> termmap;
 
 	// Stop copy / assignment being allowed
 	DADatabase& operator=(const DADatabase&);
 	DADatabase(const DADatabase&);
 
 	// Look up term in database
-	const DATerm * term_lookup(const termname & tname) const;
+	const DATerm * term_lookup(const om_termname & tname) const;
 
 	// Get a record
-	struct record * get_record(docid did) const;
+	struct record * get_record(om_docid did) const;
 
 	DADatabase();
 	void open(const DatabaseBuilderParams & params);
     public:
 	~DADatabase();
 
-	doccount  get_doccount() const;
-	doclength get_avlength() const;
+	om_doccount  get_doccount() const;
+	om_doclength get_avlength() const;
 
-	doccount get_termfreq(const termname & tname) const;
-	bool term_exists(const termname & tname) const;
+	om_doccount get_termfreq(const om_termname & tname) const;
+	bool term_exists(const om_termname & tname) const;
 
-	DBPostList * open_post_list(const termname & tname, RSet * rset) const;
-	DBTermList * open_term_list(docid did) const;
-	IRDocument * open_document(docid did) const;
+	DBPostList * open_post_list(const om_termname & tname, RSet * rset) const;
+	DBTermList * open_term_list(om_docid did) const;
+	IRDocument * open_document(om_docid did) const;
 
-	void make_term(const termname & tname) {
+	void make_term(const om_termname & tname) {
 	    throw OmUnimplemented("DADatabase::make_term() not implemented");
 	}
-	docid make_doc(const docname & ) {
+	om_docid make_doc(const om_docname & ) {
 	    throw OmUnimplemented("DADatabase::make_doc() not implemented");
 	}
-	void make_posting(const termname &, unsigned int, unsigned int) {
+	void make_posting(const om_termname &, unsigned int, unsigned int) {
 	    throw OmUnimplemented("DADatabase::make_posting() not implemented");
 	}
 };
 
-inline doccount
+inline om_doccount
 DADatabase::get_doccount() const
 {
     Assert(opened);
     return DA_r->itemcount;
 }
 
-inline doclength
+inline om_doclength
 DADatabase::get_avlength() const
 {
     Assert(opened);
     return 1;
 }
 
-inline doccount
-DADatabase::get_termfreq(const termname & tname) const
+inline om_doccount
+DADatabase::get_termfreq(const om_termname & tname) const
 {
     PostList *pl = open_post_list(tname, NULL);
-    doccount freq = 0;
+    om_doccount freq = 0;
     if(pl) freq = pl->get_termfreq();
     delete pl;
     return freq;

@@ -42,7 +42,7 @@ class IRData {
 class IRDocument {
     private:
     public:
-	virtual IRKey get_key(keyno) const = 0;  // Get key by number (>= 0)
+	virtual IRKey get_key(om_keyno) const = 0;  // Get key by number (>= 0)
 	virtual IRData get_data() const = 0;     // Get data stored in document
 };
 

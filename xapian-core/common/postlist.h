@@ -40,9 +40,9 @@ class PostList
 	// These may be called at any point
 
 	// (Upper bound on) Number of docs indexed by term
-	virtual doccount get_termfreq() const = 0;
+	virtual om_doccount get_termfreq() const = 0;
 	// Gets max weight
-        virtual weight get_maxweight() const = 0;
+        virtual om_weight get_maxweight() const = 0;
 
 	///////////////////////////////////////////////////////////////////
 	// Information about the current item
@@ -50,11 +50,11 @@ class PostList
 	// These may only be called after a next() or a skip_to(),
 	// and before at_end() returns true (or would do were it to be called)
 
-	virtual docid  get_docid() const = 0;
-	virtual weight get_weight() const = 0;
+	virtual om_docid  get_docid() const = 0;
+	virtual om_weight get_weight() const = 0;
 
 	// recalculate weights (used when tree has been autopruned)
-        virtual weight recalc_maxweight() = 0;
+        virtual om_weight recalc_maxweight() = 0;
 
 
 	///////////////////////////////////////////////////////////////////
@@ -67,10 +67,10 @@ class PostList
 	// away anyway without calculating the weight.
 
 	// Move to next docid
-	virtual PostList *next(weight w_min) = 0;
+	virtual PostList *next(om_weight w_min) = 0;
 
 	// Moves to next docid >= specified docid
-	virtual PostList *skip_to(docid, weight w_min) = 0;
+	virtual PostList *skip_to(om_docid, om_weight w_min) = 0;
 
 	// Returns true if we're off the end of the list
 	virtual bool   at_end() const = 0;

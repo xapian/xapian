@@ -37,7 +37,7 @@ class InMemoryDocument : public virtual IRDocument {
 	InMemoryDocument(const InMemoryDocument &);
 	InMemoryDocument & operator = (const InMemoryDocument &);
     public:
-	IRKey get_key(keyno keyid) const;
+	IRKey get_key(om_keyno keyid) const;
 	IRData get_data() const;
 };
 

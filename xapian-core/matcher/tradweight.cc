@@ -37,15 +37,15 @@ TradWeight::calc_termweight() const
 {
     Assert(initialised);
 
-    doccount dbsize = root->get_doccount();
+    om_doccount dbsize = root->get_doccount();
     lenpart = k / root->get_avlength();
 
     DebugMsg("Statistics: N=" << dbsize << " n_t=" << termfreq);
 
-    weight tw = 0;
-    doccount rsize;
+    om_weight tw = 0;
+    om_doccount rsize;
     if(rset != NULL && (rsize = rset->get_rsize()) != 0) {
-	doccount rtermfreq = rset->get_reltermfreq(tname);
+	om_doccount rtermfreq = rset->get_reltermfreq(tname);
 
 	DebugMsg(" R=" << rsize << " r_t=" << rtermfreq);
 
@@ -71,19 +71,19 @@ TradWeight::calc_termweight() const
     weight_calculated = true;
 }
 
-weight
-TradWeight::get_weight(doccount wdf, doclength len) const
+om_weight
+TradWeight::get_weight(om_doccount wdf, om_doclength len) const
 {
     if(!weight_calculated) calc_termweight();
 
-    weight wt = (double) wdf / (len * lenpart + wdf);
+    om_weight wt = (double) wdf / (len * lenpart + wdf);
 
     wt *= termweight;
 
     return wt;
 }
 
-weight
+om_weight
 TradWeight::get_maxweight() const
 {   
     if(!weight_calculated) calc_termweight();

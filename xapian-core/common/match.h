@@ -49,7 +49,7 @@ class OMMatch
         IRDatabase *database;
 
         int min_weight_percent;
-        weight max_weight;
+        om_weight max_weight;
 
 	PostList * query;
 	vector<IRWeight *> weights;
@@ -57,7 +57,7 @@ class OMMatch
 	RSet *rset;         // RSet to be used (affects weightings)
 
 	bool do_collapse;   // Whether to perform collapse operation
-	keyno collapse_key; // Key to collapse on, if desired
+	om_keyno collapse_key; // Key to collapse on, if desired
 
 	bool have_added_terms;
         bool recalculate_maxweight;
@@ -69,7 +69,7 @@ class OMMatch
 	PostList * postlist_from_queries(om_queryop, const vector<OMQuery *> &);
 
 	// Open a postlist
-	DBPostList * mk_postlist(const termname& tname,
+	DBPostList * mk_postlist(const om_termname& tname,
 				 RSet * rset);
     public:
         OMMatch(IRDatabase *);
@@ -96,7 +96,7 @@ class OMMatch
 	// Add a key number to collapse by.  Each key value will appear only
 	// once in the result set.  Collapsing can only be done on one key
 	// number.
-	void set_collapse_key(keyno);
+	void set_collapse_key(om_keyno);
 
 	// Remove the collapse key
 	void set_no_collapse();
@@ -106,7 +106,7 @@ class OMMatch
 	// ============================
 
 	// Get an upper bound on the possible weights (unlikely to be attained)
-        weight get_max_weight();
+        om_weight get_max_weight();
 
 	// Perform the match operation, and get the matching items.
 	// Also returns a lower bound on the number of matching records in
@@ -119,15 +119,15 @@ class OMMatch
 	// causes them to worry about the large number of results, rather
 	// than how useful those at the top of the mset are, and is thus
 	// undesirable.
-	void match(doccount first,         // First item to return (start at 0)
-		   doccount maxitems,      // Maximum number of items to return
+	void match(om_doccount first,      // First item to return (start at 0)
+		   om_doccount maxitems,   // Maximum number of items to return
 		   vector<OMMSetItem> &,   // Results will be put in this vector
 		   mset_cmp,               // Comparison operator to sort by
-		   doccount *);            // Mbound will returned here
+		   om_doccount *);            // Mbound will returned here
 
 	// Do a boolean only match
-	void boolmatch(doccount first,     // First item to return (start at 0)
-		       doccount maxitems,  // Maximum number of items to return
+	void boolmatch(om_doccount first,     // First item to return (start at 0)
+		       om_doccount maxitems,  // Maximum number of items to return
 		       vector<OMMSetItem> &); // Results
 
 	///////////////////////////////////////////////////////////////////
@@ -144,7 +144,7 @@ class OMMatch
 ///////////////////////////////
 
 inline void
-OMMatch::set_collapse_key(keyno key)
+OMMatch::set_collapse_key(om_keyno key)
 {
     do_collapse = true;
     collapse_key = key;
@@ -170,7 +170,7 @@ OMMatch::set_min_weight_percent(int pcent)
     min_weight_percent = pcent;
 }
 
-inline weight
+inline om_weight
 OMMatch::get_max_weight()
 {
     return max_weight;

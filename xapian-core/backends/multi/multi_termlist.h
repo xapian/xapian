@@ -45,12 +45,12 @@ class MultiTermList : public virtual DBTermList {
     public:
 	void set_weighting(const OMExpandWeight *wt_new);
 
-	termcount get_approx_size() const;
+	om_termcount get_approx_size() const;
 
 	OMExpandBits get_weighting() const; // Gets weight info of current term
-	const termname get_termname() const;
-	termcount get_wdf() const; // Number of occurences of term in current doc
-	doccount get_termfreq() const;  // Number of docs indexed by term
+	const om_termname get_termname() const;
+	om_termcount get_wdf() const; // Number of occurences of term in current doc
+	om_doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
 	bool   at_end() const;
 
@@ -75,7 +75,7 @@ inline MultiTermList::~MultiTermList()
     delete tl;
 }
 
-inline termcount
+inline om_termcount
 MultiTermList::get_approx_size() const
 {
     return tl->get_approx_size();
@@ -96,21 +96,21 @@ MultiTermList::get_weighting() const {
     return tl->get_weighting();
 }
 
-inline const termname
+inline const om_termname
 MultiTermList::get_termname() const
 {
     return tl->get_termname();
 }
 
-inline termcount MultiTermList::get_wdf() const
+inline om_termcount MultiTermList::get_wdf() const
 {
     return tl->get_wdf();
 }
 
-inline doccount MultiTermList::get_termfreq() const
+inline om_doccount MultiTermList::get_termfreq() const
 {
     // Approximate term frequency
-    return (doccount) (tl->get_termfreq() * termfreq_factor);
+    return (om_doccount) (tl->get_termfreq() * termfreq_factor);
 }
 
 inline TermList * MultiTermList::next()

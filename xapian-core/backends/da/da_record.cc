@@ -32,7 +32,7 @@ DADocument::~DADocument()
 }
 
 IRKey
-DADocument::get_key(keyno keyid) const
+DADocument::get_key(om_keyno keyid) const
 {
     cout << "Asked for keyno " << keyid;
     IRKey key;

@@ -30,19 +30,19 @@ class OMMatch;
 
 class OrPostList : public virtual BranchPostList {
     private:
-        docid lhead, rhead;
-        weight lmax, rmax, minmax;
+        om_docid lhead, rhead;
+        om_weight lmax, rmax, minmax;
     public:
-	doccount get_termfreq() const;
+	om_doccount get_termfreq() const;
 
-	docid  get_docid() const;
-	weight get_weight() const;
-	weight get_maxweight() const;
+	om_docid  get_docid() const;
+	om_weight get_weight() const;
+	om_weight get_maxweight() const;
 
-        weight recalc_maxweight();
+        om_weight recalc_maxweight();
 
-	PostList *next(weight w_min);
-	PostList *skip_to(docid, weight w_min);
+	PostList *next(om_weight w_min);
+	PostList *skip_to(om_docid, om_weight w_min);
 	bool   at_end() const;
 
 	string intro_term_description() const;
@@ -50,7 +50,7 @@ class OrPostList : public virtual BranchPostList {
         OrPostList(PostList *, PostList *, OMMatch *);
 };
 
-inline doccount
+inline om_doccount
 OrPostList::get_termfreq() const
 {
     // this is actually the maximum possible frequency for the union of
@@ -58,7 +58,7 @@ OrPostList::get_termfreq() const
     return l->get_termfreq() + r->get_termfreq();
 }
 
-inline docid
+inline om_docid
 OrPostList::get_docid() const
 {
     Assert(lhead != 0 && rhead != 0); // check we've started
@@ -66,7 +66,7 @@ OrPostList::get_docid() const
 }
 
 // only called if we are doing a probabilistic OR
-inline weight
+inline om_weight
 OrPostList::get_weight() const
 {
     Assert(lhead != 0 && rhead != 0); // check we've started
@@ -76,13 +76,13 @@ OrPostList::get_weight() const
 }
 
 // only called if we are doing a probabilistic operation
-inline weight
+inline om_weight
 OrPostList::get_maxweight() const
 {
     return lmax + rmax;
 }
 
-inline weight
+inline om_weight
 OrPostList::recalc_maxweight()
 {
     lmax = l->recalc_maxweight();

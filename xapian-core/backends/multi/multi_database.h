@@ -33,12 +33,12 @@
 class MultiDatabase : public virtual IRDatabase {
     friend class DatabaseBuilder;
     private:
-	mutable set<termname> terms;
+	mutable set<om_termname> terms;
 
 	vector<IRDatabase *> databases;
 
 	mutable bool length_initialised;
-	mutable doclength avlength;
+	mutable om_doclength avlength;
 
 	bool opened; // Whether we have opened the database (ie, added a subDB)
 	mutable bool used;// Have we used the database (if so, can't add more DBs)
@@ -50,35 +50,35 @@ class MultiDatabase : public virtual IRDatabase {
 
 	void set_root(IRDatabase * db);
 
-	doccount  get_doccount() const;
-	doclength get_avlength() const;
+	om_doccount  get_doccount() const;
+	om_doclength get_avlength() const;
 
-	doccount get_termfreq(const termname & tname) const;
-	bool term_exists(const termname & tname) const;
+	om_doccount get_termfreq(const om_termname & tname) const;
+	bool term_exists(const om_termname & tname) const;
 
-	DBPostList * open_post_list(const termname & tname, RSet * rset) const;
-	DBTermList * open_term_list(docid did) const;
-	IRDocument * open_document(docid did) const;
+	DBPostList * open_post_list(const om_termname & tname, RSet * rset) const;
+	DBTermList * open_term_list(om_docid did) const;
+	IRDocument * open_document(om_docid did) const;
 
-	void make_term(const termname &) {
+	void make_term(const om_termname &) {
 	    throw OmUnimplemented("DADatabase::make_term() not implemented");
 	}
-	docid make_doc(const docname &) {
+	om_docid make_doc(const om_docname &) {
 	    throw OmUnimplemented("DADatabase::make_doc() not implemented");
 	}
-	void make_posting(const termname &, unsigned int, unsigned int) {
+	void make_posting(const om_termname &, unsigned int, unsigned int) {
 	    throw OmUnimplemented("DADatabase::make_posting() not implemented");
 	}
 };
 
-inline doccount
+inline om_doccount
 MultiDatabase::get_doccount() const
 {
     // FIXME - lazy evaluation?
     Assert(opened);
     Assert((used = true) == true);
 
-    doccount docs = 0;
+    om_doccount docs = 0;
 
     vector<IRDatabase *>::const_iterator i = databases.begin();
     while(i != databases.end()) {
@@ -89,7 +89,7 @@ MultiDatabase::get_doccount() const
     return docs;
 }
 
-inline doclength
+inline om_doclength
 MultiDatabase::get_avlength() const
 {
     // FIXME - lazy evaluation?
@@ -97,12 +97,12 @@ MultiDatabase::get_avlength() const
     Assert((used = true) == true);
 
     if(!length_initialised) {
-	doccount docs = 0;
-	doclength totlen = 0;
+	om_doccount docs = 0;
+	om_doclength totlen = 0;
 
 	vector<IRDatabase *>::const_iterator i = databases.begin(); 
 	while(i != databases.end()) {
-	    doccount db_doccount = (*i)->get_doccount();
+	    om_doccount db_doccount = (*i)->get_doccount();
 	    docs += db_doccount;
 	    totlen += (*i)->get_avlength() * db_doccount;
 	    i++;
@@ -115,12 +115,12 @@ MultiDatabase::get_avlength() const
     return avlength;
 }
 
-inline doccount
-MultiDatabase::get_termfreq(const termname & tname) const
+inline om_doccount
+MultiDatabase::get_termfreq(const om_termname & tname) const
 {
     if(!term_exists(tname)) return 0;
     PostList *pl = open_post_list(tname, NULL);
-    doccount freq = 0;
+    om_doccount freq = 0;
     if(pl) freq = pl->get_termfreq();
     delete pl;
     return freq;

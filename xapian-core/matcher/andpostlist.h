@@ -28,22 +28,22 @@
 
 class AndPostList : public virtual BranchPostList {
     private:
-        docid head;
-        weight lmax, rmax;
+        om_docid head;
+        om_weight lmax, rmax;
 
-        void process_next_or_skip_to(weight w_min, PostList *ret);
+        void process_next_or_skip_to(om_weight w_min, PostList *ret);
     public:
-	doccount get_termfreq() const;
+	om_doccount get_termfreq() const;
 
-	docid  get_docid() const;
-	weight get_weight() const;
-	weight get_maxweight() const;
+	om_docid  get_docid() const;
+	om_weight get_weight() const;
+	om_weight get_maxweight() const;
 
-        weight init_maxweight();
-        weight recalc_maxweight();
+        om_weight init_maxweight();
+        om_weight recalc_maxweight();
     
-	PostList *next(weight w_min);
-	PostList *skip_to(docid did, weight w_min);
+	PostList *next(om_weight w_min);
+	PostList *skip_to(om_docid did, om_weight w_min);
 	bool   at_end() const;
 
 	string intro_term_description() const;
@@ -54,7 +54,7 @@ class AndPostList : public virtual BranchPostList {
 		    bool replacement = false);
 };
 
-inline doccount
+inline om_doccount
 AndPostList::get_termfreq() const
 {
     // this is actually the maximum possible frequency for the intersection of
@@ -62,27 +62,27 @@ AndPostList::get_termfreq() const
     return min(l->get_termfreq(), r->get_termfreq());
 }
 
-inline docid
+inline om_docid
 AndPostList::get_docid() const
 {
     return head;
 }
 
 // only called if we are doing a probabilistic AND
-inline weight
+inline om_weight
 AndPostList::get_weight() const
 {
     return l->get_weight() + r->get_weight();
 }
 
 // only called if we are doing a probabilistic operation
-inline weight
+inline om_weight
 AndPostList::get_maxweight() const
 {
     return lmax + rmax;
 }
 
-inline weight
+inline om_weight
 AndPostList::recalc_maxweight()
 {
     lmax = l->recalc_maxweight();

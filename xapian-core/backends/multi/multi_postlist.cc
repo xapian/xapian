@@ -51,11 +51,11 @@ MultiPostList::~MultiPostList()
     }
 }
 
-weight MultiPostList::get_weight() const
+om_weight MultiPostList::get_weight() const
 {
     Assert(freq_initialised);
 
-    weight wt = 0;
+    om_weight wt = 0;
     list<MultiPostListInternal>::const_iterator i = postlists.begin();
     while(i != postlists.end()) {
 	if((*i).currdoc == currdoc)
@@ -65,7 +65,7 @@ weight MultiPostList::get_weight() const
     return wt;
 }
 
-PostList * MultiPostList::next(weight w_min)
+PostList * MultiPostList::next(om_weight w_min)
 {
     Assert(!at_end());
 
@@ -96,7 +96,7 @@ PostList * MultiPostList::next(weight w_min)
     }
 
     i = postlists.begin();
-    docid newdoc = (*i).currdoc;
+    om_docid newdoc = (*i).currdoc;
     for(i++; i != postlists.end(); i++) {
 	// Check if it might be the newdoc
 	if((*i).currdoc < newdoc) newdoc = (*i).currdoc;
@@ -110,7 +110,7 @@ PostList * MultiPostList::next(weight w_min)
 // FIXME - write implementation to use skip_to methods of sub-postlists
 // for greater efficiency
 PostList *
-MultiPostList::skip_to(docid did, weight w_min)
+MultiPostList::skip_to(om_docid did, om_weight w_min)
 {
     Assert(!at_end());
     while (!at_end() && currdoc < did) {

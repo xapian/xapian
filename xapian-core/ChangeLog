@@ -1,3 +1,7 @@
+Mon Feb  7 19:17:25 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Prefix all the types in omtypes.h with "om_".
+
 Mon Feb  7 17:37:52 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added a test of boolean-only queries to apitest, which fails.

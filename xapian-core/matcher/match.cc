@@ -105,7 +105,7 @@ OMMatch::~OMMatch()
 }
 
 DBPostList *
-OMMatch::mk_postlist(const termname& tname, RSet * rset)
+OMMatch::mk_postlist(const om_termname& tname, RSet * rset)
 {
     // FIXME - this should be centralised into a postlist factory
     DBPostList * pl = database->open_post_list(tname, rset);
@@ -311,8 +311,8 @@ OMMatch::recalc_maxweight()
 
 // This is the method which runs the query, generating the M set
 void
-OMMatch::match(doccount first, doccount maxitems,
-	       vector<OMMSetItem> &mset, mset_cmp cmp,  doccount *mbound)
+OMMatch::match(om_doccount first, om_doccount maxitems,
+	       vector<OMMSetItem> &mset, mset_cmp cmp,  om_doccount *mbound)
 {
     // Prepare query
     *mbound = 0;
@@ -325,12 +325,12 @@ OMMatch::match(doccount first, doccount maxitems,
 
     DebugMsg("match.match(" << query->intro_term_description() << ")" << endl);
 
-    weight w_min = 0;
+    om_weight w_min = 0;
     if (min_weight_percent >= 0) w_min = min_weight_percent * max_weight / 100;
 
-    doccount max_msize = first + maxitems;
+    om_doccount max_msize = first + maxitems;
 
-    weight w_max = max_weight;
+    om_weight w_max = max_weight;
     recalculate_maxweight = false;
 
     map<IRKey, OMMSetItem> collapse_table;
@@ -369,10 +369,10 @@ OMMatch::match(doccount first, doccount maxitems,
 
         (*mbound)++;
 	
-        weight w = query->get_weight();
+        om_weight w = query->get_weight();
         
         if (w > w_min) {
-	    docid did = query->get_docid();
+	    om_docid did = query->get_docid();
 	    bool add_item = true;
 	    OMMSetItem mitem(w, did);
 
@@ -399,7 +399,7 @@ OMMatch::match(doccount first, doccount maxitems,
 			    // Old one hasn't fallen out of MSet yet
 			    // Scan through (unsorted) MSet looking for entry
 			    // FIXME: more efficient way that just scanning?
-			    weight olddid = olditem.did;
+			    om_weight olddid = olditem.did;
 			    DebugMsg("collapsem: removing " << olddid << ": " << irkey.value << endl);
 			    vector<OMMSetItem>::iterator i = mset.begin();
 			    for(;;) {
@@ -470,7 +470,7 @@ OMMatch::match(doccount first, doccount maxitems,
 // This method runs the query, generating the M set, but doesn't calcualate
 // any weights (all weights in result are set to 1)
 void
-OMMatch::boolmatch(doccount first, doccount maxitems,
+OMMatch::boolmatch(om_doccount first, om_doccount maxitems,
 		   vector<OMMSetItem> &mset)
 {
     // Prepare query
@@ -481,7 +481,7 @@ OMMatch::boolmatch(doccount first, doccount maxitems,
 
     DebugMsg("match.boolmatch(" << query->intro_term_description() << ")" << endl);
 
-    doccount max_msize = first + maxitems;
+    om_doccount max_msize = first + maxitems;
 
     map<IRKey, OMMSetItem> collapse_table;
 
@@ -497,7 +497,7 @@ OMMatch::boolmatch(doccount first, doccount maxitems,
 
 	if (query->at_end()) break;
 
-	docid did = query->get_docid();
+	om_docid did = query->get_docid();
 	bool add_item = true;
 	OMMSetItem mitem(1.0, did);
 

@@ -49,8 +49,9 @@ operator+(const OMExpandBits &bits1, const OMExpandBits &bits2)
     return sum;
 }
 
-weight
-OMExpandWeight::get_weight(const OMExpandBits &bits, const termname &tname) const
+om_weight
+OMExpandWeight::get_weight(const OMExpandBits &bits,
+			   const om_termname &tname) const
 {
     double termfreq = (double)bits.termfreq;
     if(bits.dbsize != dbsize) {
@@ -78,7 +79,7 @@ OMExpandWeight::get_weight(const OMExpandBits &bits, const termname &tname) cons
 
     double rtermfreq = bits.rtermfreq;
     
-    weight tw;
+    om_weight tw;
     tw = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /
 	    ((rsize - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
 
@@ -103,7 +104,7 @@ OMExpandWeight::get_weight(const OMExpandBits &bits, const termname &tname) cons
 }
 
 // Provide an upper bound on the values which may be returned as weights 
-weight
+om_weight
 OMExpandWeight::get_maxweight() const
 {
     // FIXME - check the maths behind this.

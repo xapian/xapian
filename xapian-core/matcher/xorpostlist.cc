@@ -27,7 +27,7 @@
 // doesn't cause a match
 
 inline PostList *
-XorPostList::advance_to_next_match(weight w_min)
+XorPostList::advance_to_next_match(om_weight w_min)
 {
     while (rhead == lhead) {
 	handle_prune(l, l->next(w_min));
@@ -61,7 +61,7 @@ XorPostList::XorPostList(PostList *left, PostList *right, OMMatch *root_)
 }
 
 PostList *
-XorPostList::next(weight w_min)
+XorPostList::next(om_weight w_min)
 {
     if (w_min > minmax) {
 	// we can replace the XOR with another operator (or run dry)
@@ -124,7 +124,7 @@ XorPostList::next(weight w_min)
 }
 
 PostList *
-XorPostList::skip_to(docid id, weight w_min)
+XorPostList::skip_to(om_docid id, om_weight w_min)
 {
     if (w_min > minmax) {
 	// we can replace the XOR with another operator (or run dry)

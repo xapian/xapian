@@ -34,9 +34,9 @@
 #include "daread.h"
 #include "damuscat.h"
 
-DAPostList::DAPostList(const termname & tname_,
+DAPostList::DAPostList(const om_termname & tname_,
 		       struct postings * postlist_,
-		       doccount termfreq_)
+		       om_doccount termfreq_)
 	: postlist(postlist_), currdoc(0), tname(tname_), termfreq(termfreq_)
 {
 }
@@ -47,7 +47,7 @@ DAPostList::~DAPostList()
 }
 
 /* This is the biggie */
-weight DAPostList::get_weight() const
+om_weight DAPostList::get_weight() const
 {
     Assert(!at_end());
     Assert(currdoc != 0);
@@ -57,23 +57,23 @@ weight DAPostList::get_weight() const
     return ir_wt->get_weight(postlist->wdf, 1.0);
 }
 
-PostList * DAPostList::next(weight w_min)
+PostList * DAPostList::next(om_weight w_min)
 {
     Assert(currdoc == 0 || !at_end());
-    if (currdoc && currdoc < docid(postlist->E)) {	
+    if (currdoc && currdoc < om_docid(postlist->E)) {	
 	currdoc++;
 	return NULL;
     }
     DAreadpostings(postlist, 1, 0);
-    currdoc = docid(postlist->Doc);
+    currdoc = om_docid(postlist->Doc);
     return NULL;
 }
 
-PostList * DAPostList::skip_to(docid did, weight w_min)
+PostList * DAPostList::skip_to(om_docid did, om_weight w_min)
 {
     Assert(currdoc == 0 || !at_end());
     Assert(did >= currdoc);
-    if (currdoc && did <= docid(postlist->E)) {
+    if (currdoc && did <= om_docid(postlist->E)) {
 	// skip_to later in the current range
 	currdoc = did;
 	//cout << "Skip within range " << did << endl;
@@ -81,14 +81,14 @@ PostList * DAPostList::skip_to(docid did, weight w_min)
     }
     //printf("%p:From %d skip_to ", this, currdoc);
     DAreadpostings(postlist, 1, did);
-    currdoc = docid(postlist->Doc);
+    currdoc = om_docid(postlist->Doc);
     //printf("%d - get_id %d\n", did, currdoc);
     return NULL;
 }
 
 
 
-DATermList::DATermList(struct termvec *tv, doccount dbsize_)
+DATermList::DATermList(struct termvec *tv, om_doccount dbsize_)
 	: have_started(false), dbsize(dbsize_)
 {
     // FIXME - read terms as we require them, rather than all at beginning?
@@ -96,7 +96,7 @@ DATermList::DATermList(struct termvec *tv, doccount dbsize_)
     while(tv->term != 0) {
 	char *term = (char *)tv->term;
 
-	doccount freq = tv->freq;
+	om_doccount freq = tv->freq;
 	terms.push_back(DATermListItem(string(term + 1, (unsigned)term[0] - 1),
 				       tv->wdf, freq));
 	readterms(tv);
@@ -170,7 +170,7 @@ DADatabase::open(const DatabaseBuilderParams & params)
 
 // Returns a new posting list, for the postings in this database for given term
 DBPostList *
-DADatabase::open_post_list(const termname & tname, RSet * rset) const
+DADatabase::open_post_list(const om_termname & tname, RSet * rset) const
 {
     Assert(opened);
 
@@ -187,7 +187,7 @@ DADatabase::open_post_list(const termname & tname, RSet * rset) const
 
 // Returns a new term list, for the terms in this database for given document
 DBTermList *
-DADatabase::open_term_list(docid did) const
+DADatabase::open_term_list(om_docid did) const
 {
     Assert(opened);
 
@@ -206,7 +206,7 @@ DADatabase::open_term_list(docid did) const
 }
 
 struct record *
-DADatabase::get_record(docid did) const
+DADatabase::get_record(om_docid did) const
 {
     Assert(opened);
 
@@ -222,7 +222,7 @@ DADatabase::get_record(docid did) const
 }
 
 IRDocument *
-DADatabase::open_document(docid did) const
+DADatabase::open_document(om_docid did) const
 {
     Assert(opened);
 
@@ -230,12 +230,12 @@ DADatabase::open_document(docid did) const
 }
 
 const DATerm *
-DADatabase::term_lookup(const termname & tname) const
+DADatabase::term_lookup(const om_termname & tname) const
 {
     Assert(opened);
     //DebugMsg("DADatabase::term_lookup(`" << tname.c_str() << "'): ");
 
-    map<termname, DATerm>::const_iterator p = termmap.find(tname);
+    map<om_termname, DATerm>::const_iterator p = termmap.find(tname);
 
     const DATerm * the_term = NULL;
     if (p == termmap.end()) {
@@ -254,7 +254,7 @@ DADatabase::term_lookup(const termname & tname) const
 	    DebugMsg("Not in collection" << endl);
 	} else {
 	    DebugMsg("found, adding to cache" << endl);
-	    pair<termname, DATerm> termpair(tname, DATerm(&ti, tname));
+	    pair<om_termname, DATerm> termpair(tname, DATerm(&ti, tname));
 	    termmap.insert(termpair);
 	    the_term = &(termmap.find(tname)->second);
 	}
@@ -266,7 +266,7 @@ DADatabase::term_lookup(const termname & tname) const
 }
 
 bool
-DADatabase::term_exists(const termname & tname) const
+DADatabase::term_exists(const om_termname & tname) const
 {
     if(term_lookup(tname) != NULL) return true;
     return false;

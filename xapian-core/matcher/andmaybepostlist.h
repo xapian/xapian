@@ -32,38 +32,38 @@
 
 class AndMaybePostList : public virtual BranchPostList {
     private:
-        docid lhead, rhead;
-        weight lmax, rmax;
+        om_docid lhead, rhead;
+        om_weight lmax, rmax;
 
-        PostList * process_next_or_skip_to(weight w_min, PostList *ret);
+        PostList * process_next_or_skip_to(om_weight w_min, PostList *ret);
     public:
-	doccount get_termfreq() const;
+	om_doccount get_termfreq() const;
 
-	docid  get_docid() const;
-	weight get_weight() const;
-	weight get_maxweight() const;
+	om_docid  get_docid() const;
+	om_weight get_weight() const;
+	om_weight get_maxweight() const;
 
-        weight init_maxweight();
-        weight recalc_maxweight();
+        om_weight init_maxweight();
+        om_weight recalc_maxweight();
 
-	PostList *next(weight w_min);
-	PostList *skip_to(docid did, weight w_min);
+	PostList *next(om_weight w_min);
+	PostList *skip_to(om_docid did, om_weight w_min);
 	bool   at_end() const;
 
 	string intro_term_description() const;
 
         AndMaybePostList(PostList *left, PostList *right, OMMatch *root_,
-			 docid lh = 0, docid rh = 0);
+			 om_docid lh = 0, om_docid rh = 0);
 };
 
-inline doccount
+inline om_doccount
 AndMaybePostList::get_termfreq() const
 {
     // this is exactly correct
     return l->get_termfreq();
 }
 
-inline docid
+inline om_docid
 AndMaybePostList::get_docid() const
 {
     Assert(lhead != 0 && rhead != 0); // check we've started
@@ -71,7 +71,7 @@ AndMaybePostList::get_docid() const
 }
 
 // only called if we are doing a probabilistic AND MAYBE
-inline weight
+inline om_weight
 AndMaybePostList::get_weight() const
 {
     Assert(lhead != 0 && rhead != 0); // check we've started
@@ -80,13 +80,13 @@ AndMaybePostList::get_weight() const
 }
 
 // only called if we are doing a probabilistic operation
-inline weight
+inline om_weight
 AndMaybePostList::get_maxweight() const
 {
     return lmax + rmax;
 }
 
-inline weight
+inline om_weight
 AndMaybePostList::recalc_maxweight()
 {
     lmax = l->recalc_maxweight();

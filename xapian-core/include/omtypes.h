@@ -23,24 +23,24 @@
 #ifndef _omtypes_h_
 #define _omtypes_h_
 
-typedef unsigned int termid;   // Type for term id's.
-typedef unsigned int docid;    // Type for document id's.  Start at 1.
-typedef unsigned int termpos;  // Type for term positions within documents.  Start at 1.
+typedef unsigned int om_termid;   // Type for term id's.
+typedef unsigned int om_docid;    // Type for document id's.  Start at 1.
+typedef unsigned int om_termpos;  // Type for term positions within documents.  Start at 1.
 
-typedef docid doccount;        // Type for counts of documents
-typedef termid termcount;      // Type for counts of terms (eg, wdf, termfreq)
+typedef om_docid om_doccount;     // Type for counts of documents
+typedef om_termid om_termcount;   // Type for counts of terms (eg, wdf, termfreq)
 
-typedef double doclength;      // Type for (normalised) lengths of documents
-typedef unsigned long long totlength; // Type for sum of lengths of documents
+typedef double om_doclength;      // Type for (normalised) lengths of documents
+typedef unsigned long long om_totlength; // Type for sum of lengths of documents
 
-typedef unsigned int keyno;    // Type for referring to key in document
+typedef unsigned int om_keyno;    // Type for referring to key in document
 
-typedef double weight;
+typedef double om_weight;
 
 #ifdef __cplusplus
 #include <string>
-typedef string termname;
-typedef string docname;
+typedef string om_termname;
+typedef string om_docname;
 #endif
 
 #endif /* _omtypes_h_ */

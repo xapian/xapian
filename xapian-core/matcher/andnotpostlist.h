@@ -28,20 +28,20 @@
 
 class AndNotPostList : public virtual BranchPostList {
     private:
-        docid lhead, rhead;
+        om_docid lhead, rhead;
 
-        PostList *advance_to_next_match(weight w_min, PostList *ret);
+        PostList *advance_to_next_match(om_weight w_min, PostList *ret);
     public:
-	doccount get_termfreq() const;
+	om_doccount get_termfreq() const;
 
-	docid  get_docid() const;
-	weight get_weight() const;
-	weight get_maxweight() const;
+	om_docid  get_docid() const;
+	om_weight get_weight() const;
+	om_weight get_maxweight() const;
 
-        weight recalc_maxweight();
+        om_weight recalc_maxweight();
 
-	PostList *next(weight w_min);
-	PostList *skip_to(docid did, weight w_min);
+	PostList *next(om_weight w_min);
+	PostList *skip_to(om_docid did, om_weight w_min);
 	bool   at_end() const;
 
 	string intro_term_description() const;
@@ -50,37 +50,40 @@ class AndNotPostList : public virtual BranchPostList {
 		       PostList *right,
 		       OMMatch *root_);
 
-        PostList *sync_and_skip_to(docid id, weight w_min, docid lh, docid rh);
+        PostList *sync_and_skip_to(om_docid id,
+				   om_weight w_min,
+				   om_docid lh,
+				   om_docid rh);
 };
 
-inline doccount
+inline om_doccount
 AndNotPostList::get_termfreq() const
 {
     // this is actually the maximum possible frequency
     return l->get_termfreq();
 }
 
-inline docid
+inline om_docid
 AndNotPostList::get_docid() const
 {
     return lhead;
 }
 
 // only called if we are doing a probabilistic AND NOT
-inline weight
+inline om_weight
 AndNotPostList::get_weight() const
 {
     return l->get_weight();
 }
 
 // only called if we are doing a probabilistic AND NOT
-inline weight
+inline om_weight
 AndNotPostList::get_maxweight() const
 {
     return l->get_maxweight();
 }
 
-inline weight
+inline om_weight
 AndNotPostList::recalc_maxweight()
 {
     return l->recalc_maxweight();

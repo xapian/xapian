@@ -25,9 +25,9 @@
 #include <ctype.h>
 #include <cctype>
 
-void lowercase_term(termname &term)
+void lowercase_term(om_termname &term)
 {
-    termname::iterator i = term.begin();
+    om_termname::iterator i = term.begin();
     while(i != term.end()) {
 	*i = tolower(*i);
 	i++;
@@ -36,7 +36,7 @@ void lowercase_term(termname &term)
 
 // Keep only the characters in keep
 // FIXME - make this accept character ranges in "keep"
-void select_characters(termname &term, const string & keep)
+void select_characters(om_termname &term, const string & keep)
 {
     string chars;
     if(keep.size() == 0) {

@@ -40,15 +40,15 @@ class IndexerDestination {
 	/* Place term in database if not already there.
 	 * FIXME - merge into make_posting()?
          */
-	virtual void make_term(const termname &) = 0;
+	virtual void make_term(const om_termname &) = 0;
 
 	/* Add a document to the database, before making the postings.  */
-	virtual docid make_doc(const docname &) = 0;
+	virtual om_docid make_doc(const om_docname &) = 0;
 
 	/* Post an occurrence of a term in a document to a database */
-	virtual void make_posting(const termname & tname,
-                                  docid did,
-				  termpos tpos) = 0;
+	virtual void make_posting(const om_termname & tname,
+                                  om_docid did,
+				  om_termpos tpos) = 0;
 };
 
 // A way to generate terms from sources

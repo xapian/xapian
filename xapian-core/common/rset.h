@@ -32,15 +32,15 @@ class IRDatabase;
 
 class RSetItem {
     public:
-	RSetItem(docid did_new) : did(did_new) { return; }
-	docid did;
+	RSetItem(om_docid did_new) : did(did_new) { return; }
+	om_docid did;
 };
 
 class RSet {
     private:
 	IRDatabase *root;
 
-	mutable map<termname, doccount> reltermfreqs;
+	mutable map<om_termname, om_doccount> reltermfreqs;
 	mutable bool initialised_reltermfreqs;
     public:
 	vector<RSetItem> documents; // FIXME - should be encapsulated
@@ -48,10 +48,10 @@ class RSet {
 	RSet(IRDatabase *root_new);
 	RSet(IRDatabase *root_new, const OMRSet & _rset);
 
-	void add_document(docid did);
-	void will_want_termfreq(termname tname) const;
-	doccount get_rsize() const;
-	doccount get_reltermfreq(termname tname) const;
+	void add_document(om_docid did);
+	void will_want_termfreq(om_termname tname) const;
+	om_doccount get_rsize() const;
+	om_doccount get_reltermfreq(om_termname tname) const;
 };
 
 ///////////////////////////////
@@ -69,28 +69,28 @@ inline
 RSet::RSet(IRDatabase *root_new, const OMRSet & _rset)
 	: root(root_new), initialised_reltermfreqs(false)
 {
-    set<docid>::const_iterator i;
+    set<om_docid>::const_iterator i;
     for(i = _rset.items.begin(); i != _rset.items.end(); i++) {
 	add_document(*i);
     }
 }
 
 inline void
-RSet::add_document(docid did)
+RSet::add_document(om_docid did)
 {
     // FIXME - check that document isn't already in rset
     Assert(!initialised_reltermfreqs);
     documents.push_back(RSetItem(did));
 }
 
-inline doccount
+inline om_doccount
 RSet::get_rsize() const
 {
     return documents.size();
 }
 
 inline void
-RSet::will_want_termfreq(termname tname) const
+RSet::will_want_termfreq(om_termname tname) const
 {
     reltermfreqs[tname] = 0;
 }

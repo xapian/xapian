@@ -40,9 +40,9 @@
 // all the relevant positional information, is a single posting)
 class InMemoryPosting {
     public:
-	docid did;
-	termname tname;
-	vector<termpos> positions; // Sorted list of positions
+	om_docid did;
+	om_termname tname;
+	vector<om_termpos> positions; // Sorted list of positions
 
 	// Merge two postings (same term/doc pair, new positional info)
 	void merge(const InMemoryPosting & post) {
@@ -120,8 +120,8 @@ class InMemoryPostList : public virtual DBPostList {
     private:
 	vector<InMemoryPosting>::const_iterator pos;
 	vector<InMemoryPosting>::const_iterator end;
-	termname tname;
-	doccount termfreq;
+	om_termname tname;
+	om_doccount termfreq;
 	bool started;
 
 	const InMemoryDatabase * this_db;
@@ -129,13 +129,13 @@ class InMemoryPostList : public virtual DBPostList {
 	InMemoryPostList(const InMemoryDatabase * db,
 			 const InMemoryTerm & term);
     public:
-	doccount get_termfreq() const;
+	om_doccount get_termfreq() const;
 
-	docid  get_docid() const;     // Gets current docid
-	weight get_weight() const;    // Gets current weight
-	PostList *next(weight w_min); // Moves to next docid
+	om_docid  get_docid() const;     // Gets current docid
+	om_weight get_weight() const;    // Gets current weight
+	PostList *next(om_weight w_min); // Moves to next docid
 
-	PostList *skip_to(docid did, weight w_min);// Moves to next docid >= specified docid
+	PostList *skip_to(om_docid did, om_weight w_min);// Moves to next docid >= specified docid
 
 	bool   at_end() const;        // True if we're off the end of the list
 
@@ -149,22 +149,22 @@ class InMemoryTermList : public virtual DBTermList {
     private:
 	vector<InMemoryPosting>::const_iterator pos;
 	vector<InMemoryPosting>::const_iterator end;
-	termcount terms;
+	om_termcount terms;
 	bool started;
 
 	const InMemoryDatabase * this_db;
-	doclength norm_len;
+	om_doclength norm_len;
 
 	InMemoryTermList(const InMemoryDatabase * db,
 			 const InMemoryDoc & doc,
-			 doclength len);
+			 om_doclength len);
     public:
-	termcount get_approx_size() const;
+	om_termcount get_approx_size() const;
 
 	OMExpandBits get_weighting() const;
-	const termname get_termname() const;
-	termcount get_wdf() const; // Number of occurences of term in current doc
-	doccount get_termfreq() const;  // Number of docs indexed by term
+	const om_termname get_termname() const;
+	om_termcount get_wdf() const; // Number of occurences of term in current doc
+	om_doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
 	bool   at_end() const;
 };
@@ -174,13 +174,13 @@ class InMemoryTermList : public virtual DBTermList {
 class InMemoryDatabase : public virtual IRDatabase {
     friend class DatabaseBuilder;
     private:
-	map<termname, InMemoryTerm> postlists;
+	map<om_termname, InMemoryTerm> postlists;
 	vector<InMemoryDoc> termlists;
 	vector<string> doclists;
 
-	vector<doclength> doclengths;
+	vector<om_doclength> doclengths;
 
-	totlength totlen;
+	om_totlength totlen;
 
 	bool opened; // Whether we have opened the database
 	bool indexing; // Whether we have started to index to the database
@@ -196,21 +196,23 @@ class InMemoryDatabase : public virtual IRDatabase {
 
 	void set_root(IRDatabase *);
 
-	doccount  get_doccount() const;
-	doclength get_avlength() const;
+	om_doccount  get_doccount() const;
+	om_doclength get_avlength() const;
 
-	doccount get_termfreq(const termname & tname) const;
-	bool term_exists(const termname & tname) const;
+	om_doccount get_termfreq(const om_termname & tname) const;
+	bool term_exists(const om_termname & tname) const;
 
-	DBPostList * open_post_list(const termname & tname, RSet * rset) const;
-	DBTermList * open_term_list(docid did) const;
-	IRDocument * open_document(docid did) const;
+	DBPostList * open_post_list(const om_termname & tname, RSet * rset) const;
+	DBTermList * open_term_list(om_docid did) const;
+	IRDocument * open_document(om_docid did) const;
 
-	doclength get_doclength(docid did) const;
+	om_doclength get_doclength(om_docid did) const;
 
-	void make_term(const termname & tname);
-	docid make_doc(const docname & dname);
-	void make_posting(const termname & tname, docid did, termpos position);
+	void make_term(const om_termname & tname);
+	om_docid make_doc(const om_docname & dname);
+	void make_posting(const om_termname & tname,
+			  om_docid did,
+			  om_termpos position);
 };
 
 
@@ -234,13 +236,13 @@ InMemoryPostList::InMemoryPostList(const InMemoryDatabase * db,
     Assert(pos != end);
 }
 
-inline doccount
+inline om_doccount
 InMemoryPostList::get_termfreq() const
 {
     return termfreq;
 }
 
-inline docid
+inline om_docid
 InMemoryPostList::get_docid() const
 {   
     //DebugMsg(tname << ".get_docid()");
@@ -251,7 +253,7 @@ InMemoryPostList::get_docid() const
 }
 
 inline PostList *
-InMemoryPostList::next(weight w_min)
+InMemoryPostList::next(om_weight w_min)
 {
     //DebugMsg(tname << ".next()" << endl);
     if(started) {
@@ -264,7 +266,7 @@ InMemoryPostList::next(weight w_min)
 }
 
 inline PostList *
-InMemoryPostList::skip_to(docid did, weight w_min)
+InMemoryPostList::skip_to(om_docid did, om_weight w_min)
 {
     //DebugMsg(tname << ".skip_to(" << did << ")" << endl);
     // FIXME - see if we can make more efficient, perhaps using better
@@ -302,7 +304,7 @@ InMemoryPostList::intro_term_description() const
 
 inline InMemoryTermList::InMemoryTermList(const InMemoryDatabase * db,
 					  const InMemoryDoc & doc,
-					  doclength len)
+					  om_doclength len)
 	: pos(doc.terms.begin()),
 	  end(doc.terms.end()),
 	  terms(doc.terms.size()),
@@ -313,7 +315,7 @@ inline InMemoryTermList::InMemoryTermList(const InMemoryDatabase * db,
     return;
 }
 
-inline termcount InMemoryTermList::get_approx_size() const
+inline om_termcount InMemoryTermList::get_approx_size() const
 {
     return terms;
 }
@@ -330,21 +332,21 @@ inline OMExpandBits InMemoryTermList::get_weighting() const
 			this_db->get_doccount());
 }
 
-inline const termname InMemoryTermList::get_termname() const
+inline const om_termname InMemoryTermList::get_termname() const
 {
     Assert(started);
     Assert(!at_end());
     return (*pos).tname;
 }
 
-inline termcount InMemoryTermList::get_wdf() const
+inline om_termcount InMemoryTermList::get_wdf() const
 {
     Assert(started);
     Assert(!at_end());
     return (*pos).positions.size();
 }
 
-inline doccount InMemoryTermList::get_termfreq() const
+inline om_doccount InMemoryTermList::get_termfreq() const
 {
     Assert(started);
     Assert(!at_end());
@@ -377,34 +379,34 @@ inline bool InMemoryTermList::at_end() const
 // Inline function definitions for database //
 //////////////////////////////////////////////
 
-inline doccount
+inline om_doccount
 InMemoryDatabase::get_doccount() const
 {
     Assert(opened);
     return postlists.size();
 }
 
-inline doclength
+inline om_doclength
 InMemoryDatabase::get_avlength() const
 {
     Assert(opened);
-    doccount docs = InMemoryDatabase::get_doccount();
+    om_doccount docs = InMemoryDatabase::get_doccount();
     Assert(docs != 0);
-    return ((doclength) totlen) / docs;
+    return ((om_doclength) totlen) / docs;
 }
 
-inline doccount
-InMemoryDatabase::get_termfreq(const termname & tname) const
+inline om_doccount
+InMemoryDatabase::get_termfreq(const om_termname & tname) const
 {
     Assert(opened);
 
-    map<termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
+    map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if(i == postlists.end()) return 0;
     return i->second.docs.size();
 }
 
-inline doclength
-InMemoryDatabase::get_doclength(docid did) const
+inline om_doclength
+InMemoryDatabase::get_doclength(om_docid did) const
 {
     Assert(opened);
     Assert(did > 0 && did <= termlists.size());

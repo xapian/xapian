@@ -30,14 +30,14 @@
 // BM25 weighting scheme
 class BM25Weight : public virtual IRWeight {
     private:
-	mutable weight termweight;
-	mutable doclength lenpart;
+	mutable om_weight termweight;
+	mutable om_doclength lenpart;
 
 	void calc_termweight() const;
     public:
 	~BM25Weight() { }
-	weight get_weight(doccount wdf, doclength len) const;
-	weight get_maxweight() const;
+	om_weight get_weight(om_doccount wdf, om_doclength len) const;
+	om_weight get_maxweight() const;
 };
 
 #endif /* _bm25weight_h_ */

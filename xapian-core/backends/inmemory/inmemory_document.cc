@@ -27,7 +27,7 @@ InMemoryDocument::InMemoryDocument(const string & doc_)
 { return; }
 
 IRKey
-InMemoryDocument::get_key(keyno keyid) const
+InMemoryDocument::get_key(om_keyno keyid) const
 {
     IRKey key;
     key.value = 0;

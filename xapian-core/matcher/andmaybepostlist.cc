@@ -25,7 +25,7 @@
 #include "omassert.h"
 
 inline PostList *
-AndMaybePostList::process_next_or_skip_to(weight w_min, PostList *ret)
+AndMaybePostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
 {
     handle_prune(l, ret);
     if (l->at_end()) {
@@ -48,7 +48,7 @@ AndMaybePostList::process_next_or_skip_to(weight w_min, PostList *ret)
 }
 
 AndMaybePostList::AndMaybePostList(PostList *left, PostList *right,
-				   OMMatch *root_, docid lh, docid rh)
+				   OMMatch *root_, om_docid lh, om_docid rh)
 {
     root = root_;
     l = left;
@@ -64,7 +64,7 @@ AndMaybePostList::AndMaybePostList(PostList *left, PostList *right,
 }
 
 PostList *
-AndMaybePostList::next(weight w_min)
+AndMaybePostList::next(om_weight w_min)
 {
     if (w_min > lmax) {
 	// we can replace the AND MAYBE with an AND
@@ -83,7 +83,7 @@ AndMaybePostList::next(weight w_min)
 }
 
 PostList *
-AndMaybePostList::skip_to(docid did, weight w_min)
+AndMaybePostList::skip_to(om_docid did, om_weight w_min)
 {
     if (w_min > lmax) {
 	// we can replace the AND MAYBE with an AND

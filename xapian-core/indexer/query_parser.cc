@@ -59,9 +59,9 @@ QueryParser::parse_query(const string &query)
 }
 
 void
-QueryParser::make_term(const termname &tname)
+QueryParser::make_term(const om_termname &tname)
 { 
-    map<termname,termid>::const_iterator p = termidmap.find(tname);
+    map<om_termname,om_termid>::const_iterator p = termidmap.find(tname);
 
     if (p == termidmap.end()) {
 	termvec.push_back(QueryTerm(tname));
@@ -69,17 +69,17 @@ QueryParser::make_term(const termname &tname)
     }
 }
 
-docid
-QueryParser::make_doc(const docname &dname)
+om_docid
+QueryParser::make_doc(const om_docname &dname)
 { return 1; }
 
 void
-QueryParser::make_posting(const termname &tname, docid did, termcount tpos)
+QueryParser::make_posting(const om_termname &tname, om_docid did, om_termcount tpos)
 {
-    map<termname,termid>::const_iterator p = termidmap.find(tname);
+    map<om_termname,om_termid>::const_iterator p = termidmap.find(tname);
     Assert(p != termidmap.end());
 
-    termid tid = (*p).second;
+    om_termid tid = (*p).second;
     Assert(tid > 0 && tid <= termvec.size());
 
     termvec[tid - 1].add_posting(tpos);

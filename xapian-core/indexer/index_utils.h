@@ -24,8 +24,8 @@
 #define _index_utils_h_
 
 #include "omtypes.h"
-void lowercase_term(termname &);
-void select_characters(termname &term, const string & keep);
+void lowercase_term(om_termname &);
+void select_characters(om_termname &term, const string & keep);
 void get_paragraph(istream &input, string &para);
 void get_a_line(istream &input, string &line);
 

@@ -72,7 +72,7 @@ stringToType<om_database_type> stringToTypeMap<om_database_type>::types[] = {
 // Methods for OMQuery //
 /////////////////////////
 
-OMQuery::OMQuery(const termname & tname_)
+OMQuery::OMQuery(const om_termname & tname_)
 	: isnull(false), isbool(false), tname(tname_), op(OM_MOP_LEAF)
 {
 }
@@ -189,12 +189,12 @@ OMQuery::OMQuery(om_queryop op_,
 }
 
 OMQuery::OMQuery(om_queryop op_,
-		 const vector<termname>::const_iterator tbegin,
-		 const vector<termname>::const_iterator tend)
+		 const vector<om_termname>::const_iterator tbegin,
+		 const vector<om_termname>::const_iterator tend)
 	: isnull(false), isbool(false), op(op_)
 {
     vector<OMQuery> subqueries;
-    vector<termname>::const_iterator i;
+    vector<om_termname>::const_iterator i;
     for(i = tbegin; i != tend; i++) {
 	subqueries.push_back(OMQuery(*i));
     }
@@ -348,7 +348,7 @@ OMMatchOptions::OMMatchOptions()
 {}
 
 void
-OMMatchOptions::set_collapse_key(keyno key_)
+OMMatchOptions::set_collapse_key(om_keyno key_)
 {
     do_collapse = true;
     collapse_key = key_;
@@ -492,8 +492,8 @@ OMEnquire::set_query(const OMQuery & query_)
 
 void
 OMEnquire::get_mset(OMMSet &mset,
-                    doccount first,
-                    doccount maxitems,
+                    om_doccount first,
+                    om_doccount maxitems,
                     const OMRSet *omrset,
                     const OMMatchOptions *moptions) const
 {
@@ -537,7 +537,7 @@ OMEnquire::get_mset(OMMSet &mset,
 
 void
 OMEnquire::get_eset(OMESet & eset,
-	            termcount maxitems,
+	            om_termcount maxitems,
                     const OMRSet & omrset,
 	            const OMExpandOptions * eoptions) const
 {

@@ -88,14 +88,14 @@ MultiDatabase::open(const DatabaseBuilderParams & params) {
 }
 
 DBPostList *
-MultiDatabase::open_post_list(const termname & tname, RSet * rset) const
+MultiDatabase::open_post_list(const om_termname & tname, RSet * rset) const
 {
     Assert(opened);
     Assert((used = true) == true);
     Assert(term_exists(tname));
 
-    doccount offset = 1;
-    doccount multiplier = databases.size();
+    om_doccount offset = 1;
+    om_doccount multiplier = databases.size();
 
     list<MultiPostListInternal> pls;
     vector<IRDatabase *>::const_iterator i = databases.begin();
@@ -115,14 +115,14 @@ MultiDatabase::open_post_list(const termname & tname, RSet * rset) const
 }
 
 DBTermList *
-MultiDatabase::open_term_list(docid did) const {
+MultiDatabase::open_term_list(om_docid did) const {
     Assert(opened);
     Assert((used = true) == true);
 
-    doccount multiplier = databases.size();
+    om_doccount multiplier = databases.size();
 
-    docid realdid = (did - 1) / multiplier + 1;
-    doccount dbnumber = (did - 1) % multiplier;
+    om_docid realdid = (did - 1) / multiplier + 1;
+    om_doccount dbnumber = (did - 1) % multiplier;
 
     TermList *newtl;
     newtl = (*(databases.begin() + dbnumber))->open_term_list(realdid);
@@ -130,26 +130,26 @@ MultiDatabase::open_term_list(docid did) const {
 }
 
 IRDocument *
-MultiDatabase::open_document(docid did) const {
+MultiDatabase::open_document(om_docid did) const {
     Assert(opened);
     Assert((used = true) == true);
 
-    doccount multiplier = databases.size();
+    om_doccount multiplier = databases.size();
 
-    docid realdid = (did - 1) / multiplier + 1;
-    doccount dbnumber = (did - 1) % multiplier;
+    om_docid realdid = (did - 1) / multiplier + 1;
+    om_doccount dbnumber = (did - 1) % multiplier;
 
     return (*(databases.begin() + dbnumber))->open_document(realdid);
 }
 
 bool
-MultiDatabase::term_exists(const termname & tname) const
+MultiDatabase::term_exists(const om_termname & tname) const
 {
     Assert(opened);
     Assert((used = true) == true);
 
     //DebugMsg("MultiDatabase::term_exists(`" << tname.c_str() << "'): ");
-    set<termname>::const_iterator p = terms.find(tname);
+    set<om_termname>::const_iterator p = terms.find(tname);
 
     bool found = false;
 

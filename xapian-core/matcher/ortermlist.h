@@ -28,15 +28,15 @@
 
 class OrTermList : public virtual BranchTermList {
     private:
-        termname lhead, rhead;
+        om_termname lhead, rhead;
 	bool started;
     public:
-	termcount get_approx_size() const;
+	om_termcount get_approx_size() const;
 
 	OMExpandBits get_weighting() const;
-	const termname get_termname() const;
-        termcount get_wdf() const;
-        doccount get_termfreq() const;
+	const om_termname get_termname() const;
+        om_termcount get_wdf() const;
+        om_doccount get_termfreq() const;
 
 	TermList *next();
 	bool   at_end() const;
@@ -53,7 +53,7 @@ OrTermList::get_weighting() const
     return l->get_weighting() + r->get_weighting();
 }
 
-inline doccount
+inline om_doccount
 OrTermList::get_termfreq() const
 {
     Assert(started);
@@ -61,7 +61,7 @@ OrTermList::get_termfreq() const
     return r->get_termfreq();
 }
 
-inline const termname
+inline const om_termname
 OrTermList::get_termname() const
 {
     Assert(started);
@@ -69,7 +69,7 @@ OrTermList::get_termname() const
     return r->get_termname();
 }
 
-inline termcount
+inline om_termcount
 OrTermList::get_wdf() const
 {
     Assert(started);
@@ -85,7 +85,7 @@ OrTermList::at_end() const
     return false; // Should have thrown a sub-tree, rather than got to end
 }
 
-inline termcount
+inline om_termcount
 OrTermList::get_approx_size() const
 {
     return l->get_approx_size() + r->get_approx_size();

@@ -23,8 +23,8 @@
 #include "rset.h"
 #include "termlist.h"
 
-doccount
-RSet::get_reltermfreq(termname tname) const
+om_doccount
+RSet::get_reltermfreq(om_termname tname) const
 {
     if(!initialised_reltermfreqs) {
 	vector<RSetItem>::const_iterator doc;
@@ -35,7 +35,7 @@ RSet::get_reltermfreq(termname tname) const
 		// FIXME - can this lookup be done faster?
 		// Store termnamess in a hash for each document, rather than
 		// a list?
-		termname tname_new = tl->get_termname();
+		om_termname tname_new = tl->get_termname();
 		if(reltermfreqs.find(tname_new) != reltermfreqs.end())
 		    reltermfreqs[tname_new] ++;
 		tl->next();

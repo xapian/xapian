@@ -56,7 +56,7 @@ class OMQuery {
 	bool isnull;
 	bool isbool;
 	vector<OMQuery *> subqs;
-	termname tname;
+	om_termname tname;
 	om_queryop op;
 
 	void initialise_from_copy(const OMQuery & copyme);
@@ -66,7 +66,7 @@ class OMQuery {
 				    const vector<OMQuery *>::const_iterator qend);
     public:
 	// A query consisting of a single term
-	OMQuery(const termname & tname_);
+	OMQuery(const om_termname & tname_);
 
 	// A query consisting of two subqueries, opp-ed together
 	OMQuery(om_queryop op_, const OMQuery & left, const OMQuery & right);
@@ -84,8 +84,8 @@ class OMQuery {
 
 	// As before, except subqueries are all individual terms.
 	OMQuery(om_queryop op_,
-		const vector<termname>::const_iterator tbegin,
-		const vector<termname>::const_iterator tend);
+		const vector<om_termname>::const_iterator tbegin,
+		const vector<om_termname>::const_iterator tend);
 
 	// Copy constructor
 	OMQuery(const OMQuery & copyme);
@@ -116,11 +116,11 @@ class OMMatchOptions {
     friend OMEnquire;
     private:
 	bool  do_collapse;
-	keyno collapse_key;
+	om_keyno collapse_key;
 
 	bool  sort_forward;
     public:
-	void set_collapse_key(keyno key_);
+	void set_collapse_key(om_keyno key_);
 	void set_no_collapse();
 	void set_sort_forward(bool forward_ = true);
 	OMMatchOptions();
@@ -146,21 +146,21 @@ class OMExpandOptions {
 class OMRSet {
     private:
     public:
-	set<docid> items;
-	void add_document(docid did);
-	void remove_document(docid did);
+	set<om_docid> items;
+	void add_document(om_docid did);
+	void remove_document(om_docid did);
 };
 
 inline void
-OMRSet::add_document(docid did)
+OMRSet::add_document(om_docid did)
 {
     items.insert(did);
 }
 
 inline void
-OMRSet::remove_document(docid did)
+OMRSet::remove_document(om_docid did)
 {
-    set<docid>::iterator i = items.find(did);
+    set<om_docid>::iterator i = items.find(did);
     if(i != items.end()) items.erase(i);
 }
 
@@ -173,10 +173,10 @@ OMRSet::remove_document(docid did)
 class OMMSetItem {
     friend class OMMatch;
     private:
-	OMMSetItem(weight wt_new, docid did_new) : wt(wt_new), did(did_new) {}
+	OMMSetItem(om_weight wt_new, om_docid did_new) : wt(wt_new), did(did_new) {}
     public:
-	weight wt;
-	docid did;
+	om_weight wt;
+	om_docid did;
 };
 
 // Class representing an MSet
@@ -186,10 +186,10 @@ class OMMSet {
 	OMMSet() : mbound(0) {}
 	// FIXME - implement convert_to_percent
 	int convert_to_percent(const OMMSetItem &) const;
-	int convert_to_percent(weight) const;
+	int convert_to_percent(om_weight) const;
 	vector<OMMSetItem> items;
-	doccount mbound;
-	weight max_weight;
+	om_doccount mbound;
+	om_weight max_weight;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -201,11 +201,11 @@ class OMMSet {
 class OMESetItem {
     friend class OMExpand;
     private:
-	OMESetItem(weight wt_new, termname tname_new)
+	OMESetItem(om_weight wt_new, om_termname tname_new)
 		: wt(wt_new), tname(tname_new) {}
     public:
-	weight wt;
-	termname tname;
+	om_weight wt;
+	om_termname tname;
 };
 
 // Class representing an ESet
@@ -214,7 +214,7 @@ class OMESet {
     public:
 	OMESet() : etotal(0) {}
 	vector<OMESetItem> items;
-	termcount etotal;
+	om_termcount etotal;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -245,14 +245,14 @@ class OMEnquire {
 
 	// Get (a portion of) the match set for the current query
 	void get_mset(OMMSet & mset,
-                      doccount first,
-                      doccount maxitems,
+                      om_doccount first,
+                      om_doccount maxitems,
 		      const OMRSet * omrset = 0,
 	              const OMMatchOptions * moptions = 0) const;
 
 	// Get the expand set for the given rset
 	void get_eset(OMESet & eset,
-                      termcount maxitems,
+                      om_termcount maxitems,
                       const OMRSet & omrset,
                       const OMExpandOptions * eoptions = 0) const;
 };

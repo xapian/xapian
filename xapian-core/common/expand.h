@@ -33,12 +33,12 @@
 
 class OMExpandDecider {
     public:
-	virtual bool want_term(const termname & tname) const = 0;
+	virtual bool want_term(const om_termname & tname) const = 0;
 };
 
 class OMExpandDeciderAlways : public virtual OMExpandDecider {
     public:
-	bool want_term(const termname & tname) const { return true; }
+	bool want_term(const om_termname & tname) const { return true; }
 };
 
 class OMExpand {
@@ -50,7 +50,7 @@ class OMExpand {
     public:
         OMExpand(IRDatabase * database_);
 
-	void expand(termcount max_esize,
+	void expand(om_termcount max_esize,
 		    OMESet & eset,
 		    const RSet * rset,
 		    const OMExpandDecider * decider);

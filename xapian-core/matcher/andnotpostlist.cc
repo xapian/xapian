@@ -23,7 +23,7 @@
 #include "andnotpostlist.h"
 
 inline PostList *
-AndNotPostList::advance_to_next_match(weight w_min, PostList *ret)
+AndNotPostList::advance_to_next_match(om_weight w_min, PostList *ret)
 {
     handle_prune(l, ret);
     if (l->at_end()) {
@@ -61,13 +61,16 @@ AndNotPostList::AndNotPostList(PostList *left, PostList *right, OMMatch *root_)
 }
 
 PostList *
-AndNotPostList::next(weight w_min)
+AndNotPostList::next(om_weight w_min)
 {
     return advance_to_next_match(w_min, l->next(w_min));
 }
 
 PostList *
-AndNotPostList::sync_and_skip_to(docid id, weight w_min, docid lh, docid rh)
+AndNotPostList::sync_and_skip_to(om_docid id,
+				 om_weight w_min,
+				 om_docid lh,
+				 om_docid rh)
 {
     lhead = lh;
     rhead = rh;
@@ -75,7 +78,7 @@ AndNotPostList::sync_and_skip_to(docid id, weight w_min, docid lh, docid rh)
 }
 
 PostList *
-AndNotPostList::skip_to(docid did, weight w_min)
+AndNotPostList::skip_to(om_docid did, om_weight w_min)
 {
     if (did <= lhead) return NULL;
     return advance_to_next_match(w_min, l->skip_to(did, w_min));

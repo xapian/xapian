@@ -30,19 +30,19 @@
 
 class QueryTerm {
     public:
-	termname tname;
-	vector<termcount> positions;
+	om_termname tname;
+	vector<om_termcount> positions;
 	
-	QueryTerm(termname tname_new) : tname(tname_new)  { return; }
+	QueryTerm(om_termname tname_new) : tname(tname_new)  { return; }
 
-	void add_posting(termcount pos) {
+	void add_posting(om_termcount pos) {
 	    // FIXME - inefficient (speed)
 	    // FIXME - inefficient (space, if we don't need the positional info)
 	    positions.push_back(pos);
 	    sort(positions.begin(), positions.end());
 	}
 	
-	termcount get_wqf() {
+	om_termcount get_wqf() {
 	    return positions.size();
 	}
 };
@@ -57,7 +57,7 @@ class QueryParserSource : public virtual IndexerSource {
 
 class QueryParser : public virtual IndexerDestination {
     private:
-	map<termname, termid> termidmap;
+	map<om_termname, om_termid> termidmap;
 	vector<QueryTerm> termvec;
 
 	Indexer *idx;
@@ -68,9 +68,9 @@ class QueryParser : public virtual IndexerDestination {
 
 	vector<QueryTerm> parse_query(const string &);
 	
-	void  make_term(const termname &);
-	docid make_doc(const docname &);
-	void  make_posting(const termname &, docid, termcount);
+	void  make_term(const om_termname &);
+	om_docid make_doc(const om_docname &);
+	void  make_posting(const om_termname &, om_docid, om_termcount);
 };
 
 #endif /* _query_parser_h_ */

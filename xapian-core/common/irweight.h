@@ -33,8 +33,8 @@ class RSet;
 class IRWeight {
     protected:
 	const IRDatabase *root;
-	doccount termfreq;
-	termname tname;
+	om_doccount termfreq;
+	om_termname tname;
 	const RSet * rset;
 
 	bool initialised;
@@ -45,11 +45,11 @@ class IRWeight {
 	IRWeight() : initialised(false), weight_calculated(false) { return; }
 	virtual ~IRWeight() { return; };
 	virtual void set_stats(const IRDatabase * root_,
-			       doccount termfreq_,
-			       termname tname_,
+			       om_doccount termfreq_,
+			       om_termname tname_,
 			       const RSet * rset_);
-	virtual weight get_weight(doccount wdf, doclength len) const = 0;
-	virtual weight get_maxweight() const = 0;
+	virtual om_weight get_weight(om_doccount wdf, om_doclength len) const = 0;
+	virtual om_weight get_maxweight() const = 0;
 };
 
 ///////////////////////////////
@@ -58,8 +58,8 @@ class IRWeight {
 
 inline void
 IRWeight::set_stats(const IRDatabase * root_,
-		    doccount termfreq_,
-		    termname tname_,
+		    om_doccount termfreq_,
+		    om_termname tname_,
 		    const RSet * rset_ = NULL) {
     // Can set stats several times, but can't set them after we've used them
     Assert(!weight_calculated);

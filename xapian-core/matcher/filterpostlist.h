@@ -32,10 +32,10 @@
 
 class FilterPostList : public virtual AndPostList {
     public:
-	weight get_weight() const;
-	weight get_maxweight() const;
+	om_weight get_weight() const;
+	om_weight get_maxweight() const;
 
-        weight recalc_maxweight();
+        om_weight recalc_maxweight();
 
 	string intro_term_description() const;
 
@@ -43,19 +43,19 @@ class FilterPostList : public virtual AndPostList {
             AndPostList(l, r, root) {};
 };
 
-inline weight
+inline om_weight
 FilterPostList::get_weight() const
 {
     return l->get_weight();
 }
 
-inline weight
+inline om_weight
 FilterPostList::get_maxweight() const
 {
     return l->get_maxweight();
 }
 
-inline weight
+inline om_weight
 FilterPostList::recalc_maxweight()
 {
     return l->recalc_maxweight();    

@@ -41,8 +41,8 @@ class DBPostList : public virtual PostList
 	// Sets term weighting formula, and needed information
 	virtual void set_termweight(const IRWeight * wt);
 
-        weight get_maxweight() const;    // Gets max weight
-        weight recalc_maxweight();       // recalculate weights
+        om_weight get_maxweight() const;    // Gets max weight
+        om_weight recalc_maxweight();       // recalculate weights
 };
 
 inline void
@@ -52,14 +52,14 @@ DBPostList::set_termweight(const IRWeight * wt)
 }
 
 // return an upper bound on the termweight
-inline weight
+inline om_weight
 DBPostList::get_maxweight() const
 {
     Assert(ir_wt != NULL);
     return ir_wt->get_maxweight();
 }
 
-inline weight
+inline om_weight
 DBPostList::recalc_maxweight()
 {
     return DBPostList::get_maxweight();

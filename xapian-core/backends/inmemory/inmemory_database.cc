@@ -36,7 +36,7 @@
 // Postlist //
 //////////////
 
-weight
+om_weight
 InMemoryPostList::get_weight() const
 {
     Assert(started);
@@ -93,19 +93,19 @@ InMemoryDatabase::open(const DatabaseBuilderParams & params)
 }
 
 DBPostList *
-InMemoryDatabase::open_post_list(const termname & tname, RSet * rset) const
+InMemoryDatabase::open_post_list(const om_termname & tname, RSet * rset) const
 {
     Assert(opened);
     Assert(term_exists(tname));
 
-    map<termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
+    map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
     Assert(i != postlists.end());
 
     return new InMemoryPostList(this, i->second);
 }
 
 DBTermList *
-InMemoryDatabase::open_term_list(docid did) const
+InMemoryDatabase::open_term_list(om_docid did) const
 {
     Assert(opened);
     Assert(did > 0 && did <= termlists.size());
@@ -114,7 +114,7 @@ InMemoryDatabase::open_term_list(docid did) const
 }
 
 IRDocument *
-InMemoryDatabase::open_document(docid did) const
+InMemoryDatabase::open_document(om_docid did) const
 {
     Assert(opened);
     Assert(did > 0 && did <= doclists.size());
@@ -123,7 +123,7 @@ InMemoryDatabase::open_document(docid did) const
 }
 
 void
-InMemoryDatabase::make_term(const termname & tname)
+InMemoryDatabase::make_term(const om_termname & tname)
 {
     Assert(indexing == true);
     Assert(opened == false);
@@ -131,8 +131,8 @@ InMemoryDatabase::make_term(const termname & tname)
     postlists[tname];  // Initialise, if not already there.
 }
 
-docid
-InMemoryDatabase::make_doc(const docname & dname)
+om_docid
+InMemoryDatabase::make_doc(const om_docname & dname)
 {
     Assert(indexing == true);
     Assert(opened == false);
@@ -146,9 +146,9 @@ InMemoryDatabase::make_doc(const docname & dname)
     return termlists.size();
 }
 
-void InMemoryDatabase::make_posting(const termname & tname,
-				    docid did,
-				    termpos position)
+void InMemoryDatabase::make_posting(const om_termname & tname,
+				    om_docid did,
+				    om_termpos position)
 {
     Assert(indexing == true);
     Assert(opened == false);
@@ -170,12 +170,12 @@ void InMemoryDatabase::make_posting(const termname & tname,
 }
 
 bool
-InMemoryDatabase::term_exists(const termname & tname) const
+InMemoryDatabase::term_exists(const om_termname & tname) const
 {
     Assert(opened);
 
     //DebugMsg("InMemoryDatabase::term_exists(`" << tname.c_str() << "'): ");
-    map<termname, InMemoryTerm>::const_iterator p = postlists.find(tname);
+    map<om_termname, InMemoryTerm>::const_iterator p = postlists.find(tname);
 
     if (p == postlists.end()) {
 	//DebugMsg("not found" << endl);

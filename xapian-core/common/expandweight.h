@@ -34,14 +34,14 @@ class RSet;
 class OMExpandBits {
     friend class OMExpandWeight;
     private:
-	weight multiplier;   // Multiplier to apply to get expand weight
-	doccount rtermfreq; // Number of relevant docs indexed by term
-	doccount termfreq;  // Term frequency (may be within a subset of whole database)
-	doccount dbsize;     // Size of database to which termfreq applies
+	om_weight multiplier;   // Multiplier to apply to get expand weight
+	om_doccount rtermfreq; // Number of relevant docs indexed by term
+	om_doccount termfreq;  // Term frequency (may be within a subset of whole database)
+	om_doccount dbsize;     // Size of database to which termfreq applies
     public:
-	OMExpandBits(weight multiplier_new,
-		   termcount termfreq_new,
-		   doccount dbsize_new)
+	OMExpandBits(om_weight multiplier_new,
+		   om_termcount termfreq_new,
+		   om_doccount dbsize_new)
 		: multiplier(multiplier_new),
 		  rtermfreq(1),
 		  termfreq(termfreq_new),
@@ -55,15 +55,15 @@ class OMExpandBits {
 class OMExpandWeight {
     protected:
 	const IRDatabase *root; // Root database
-	doccount dbsize;        // Size of whole collection
-	doccount rsize;         // Size of RSet
+	om_doccount dbsize;        // Size of whole collection
+	om_doccount rsize;         // Size of RSet
     public:
-	OMExpandWeight(const IRDatabase *root, doccount rsetsize_new);
+	OMExpandWeight(const IRDatabase *root, om_doccount rsetsize_new);
 
-	OMExpandBits get_bits(termcount wdf, doclength len,
-			      doccount termfreq, doccount dbsize) const;
-	weight get_weight(const OMExpandBits &, const termname &) const;
-	weight get_maxweight() const;
+	OMExpandBits get_bits(om_termcount wdf, om_doclength len,
+			      om_doccount termfreq, om_doccount dbsize) const;
+	om_weight get_weight(const OMExpandBits &, const om_termname &) const;
+	om_weight get_maxweight() const;
 };
 
 ///////////////////////////////
@@ -72,7 +72,7 @@ class OMExpandWeight {
 
 inline
 OMExpandWeight::OMExpandWeight(const IRDatabase *root_new,
-			   doccount rsetsize_new)
+			   om_doccount rsetsize_new)
 	: root(root_new),
 	  rsize(rsetsize_new)
 {
@@ -83,12 +83,12 @@ OMExpandWeight::OMExpandWeight(const IRDatabase *root_new,
 const double k = 1;
 
 inline OMExpandBits
-OMExpandWeight::get_bits(termcount wdf,
-		       doclength len,
-		       doccount termfreq,
-		       doccount dbsize) const
+OMExpandWeight::get_bits(om_termcount wdf,
+		       om_doclength len,
+		       om_doccount termfreq,
+		       om_doccount dbsize) const
 {
-    weight multiplier = 1.0;
+    om_weight multiplier = 1.0;
 
     if(wdf > 0) {
 	// FIXME -- use alpha, document importance

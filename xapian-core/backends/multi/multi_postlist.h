@@ -34,14 +34,14 @@
 class MultiPostListInternal {
     public:
 	DBPostList * pl;
-	docid currdoc;
+	om_docid currdoc;
 
-	doccount offset;
-	doccount multiplier;
+	om_doccount offset;
+	om_doccount multiplier;
 
 	MultiPostListInternal(DBPostList * pl_new,
-			      doccount off,
-			      doccount mult)
+			      om_doccount off,
+			      om_doccount mult)
 		: pl(pl_new), currdoc(0), offset(off), multiplier(mult) {}
 };
 
@@ -51,13 +51,13 @@ class MultiPostList : public virtual DBPostList {
 	list<MultiPostListInternal> postlists;
 
 	bool   finished;
-	docid  currdoc;
+	om_docid  currdoc;
 
-	termname tname;
+	om_termname tname;
 	mutable bool freq_initialised;
-	mutable doccount termfreq;
+	mutable om_doccount termfreq;
 
-	weight termweight;
+	om_weight termweight;
 
 	MultiPostList(list<MultiPostListInternal> & pls);
     public:
@@ -65,12 +65,12 @@ class MultiPostList : public virtual DBPostList {
 
 	void set_termweight(const IRWeight * wt); // Sets term weight
 
-	doccount get_termfreq() const;
+	om_doccount get_termfreq() const;
 
-	docid  get_docid() const;     // Gets current docid
-	weight get_weight() const;    // Gets current weight
-	PostList *next(weight w_min);          // Moves to next docid
-	PostList *skip_to(docid did, weight w_min);// Moves to next docid >= specified docid
+	om_docid  get_docid() const;     // Gets current docid
+	om_weight get_weight() const;    // Gets current weight
+	PostList *next(om_weight w_min);          // Moves to next docid
+	PostList *skip_to(om_docid did, om_weight w_min);// Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
 
 	string intro_term_description() const;
@@ -88,7 +88,7 @@ MultiPostList::set_termweight(const IRWeight * wt)
     }
 }
 
-inline doccount
+inline om_doccount
 MultiPostList::get_termfreq() const
 {
     if(freq_initialised) return termfreq;
@@ -108,7 +108,7 @@ MultiPostList::get_termfreq() const
     return termfreq;
 }
 
-inline docid
+inline om_docid
 MultiPostList::get_docid() const
 {
     Assert(!at_end());

@@ -23,7 +23,7 @@
 #include "andpostlist.h"
 
 inline void
-AndPostList::process_next_or_skip_to(weight w_min, PostList *ret)
+AndPostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
 {
     head = 0;
     handle_prune(r, ret);
@@ -34,8 +34,8 @@ AndPostList::process_next_or_skip_to(weight w_min, PostList *ret)
     handle_prune(l, l->skip_to(r->get_docid(), w_min - rmax));
     if (l->at_end()) return;
 
-    docid lhead = l->get_docid();
-    docid rhead = r->get_docid();
+    om_docid lhead = l->get_docid();
+    om_docid rhead = r->get_docid();
 
     while (lhead != rhead) {
 	if (lhead < rhead) {
@@ -76,14 +76,14 @@ AndPostList::AndPostList(PostList *left, PostList *right, OMMatch *root_,
 }
 
 PostList *
-AndPostList::next(weight w_min)
+AndPostList::next(om_weight w_min)
 {
     process_next_or_skip_to(w_min, r->next(w_min - lmax));
     return NULL;
 }
 
 PostList *
-AndPostList::skip_to(docid did, weight w_min)
+AndPostList::skip_to(om_docid did, om_weight w_min)
 {
     if (did > head) process_next_or_skip_to(w_min, r->skip_to(did, w_min - lmax));
     return NULL;

@@ -191,7 +191,7 @@ main(int argc, char *argv[])
 	    for(i = mset.items.begin();
 		i != mset.items.end();
 		i++) {
-		docid did = i->did;
+		om_docid did = i->did;
 #if 0
 		IRDocument *doc = database->open_document(did);
 		IRData data = doc->get_data();

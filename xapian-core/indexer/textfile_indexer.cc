@@ -61,11 +61,11 @@ TextfileIndexer::add_source(const IndexerSource &source)
 	get_paragraph(*from, para);
 	//get_a_line(*from, para);
 	
-	docid did = dest->make_doc(para);
-	termcount position = 1;
+	om_docid did = dest->make_doc(para);
+	om_termcount position = 1;
 
 	string::size_type spacepos;
-	termname word;
+	om_termname word;
 	while((spacepos = para.find_first_not_of(" \t\n")) != string::npos) {
 	    if(spacepos) para = para.erase(0, spacepos);
 	    spacepos = para.find_first_of(" \t\n");

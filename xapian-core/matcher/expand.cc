@@ -88,7 +88,7 @@ OMExpand::build_tree(const RSet *rset, const OMExpandWeight *ewt)
 }
 
 void
-OMExpand::expand(termcount max_esize,
+OMExpand::expand(om_termcount max_esize,
 		 class OMESet & eset,
 		 const RSet * rset,
 		 const OMExpandDecider * decider)
@@ -100,7 +100,7 @@ OMExpand::expand(termcount max_esize,
     if (rset->get_rsize() == 0) return; // No query
     DebugMsg("OMExpand::expand() 2" << endl);
 
-    weight w_min = 0;
+    om_weight w_min = 0;
 
     // Start weighting scheme
     OMExpandWeight ewt(database, rset->get_rsize());
@@ -119,12 +119,12 @@ OMExpand::expand(termcount max_esize,
 
 	if (merger->at_end()) break;
 
-	termname tname = merger->get_termname();
+	om_termname tname = merger->get_termname();
 	if(decider->want_term(tname)) {
 	    eset.etotal++;
 
 	    OMExpandBits ebits = merger->get_weighting();
-	    weight wt = ewt.get_weight(ebits, tname);
+	    om_weight wt = ewt.get_weight(ebits, tname);
 
 	    if (wt > w_min) {
 		eset.items.push_back(OMESetItem(wt, tname));

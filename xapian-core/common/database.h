@@ -61,30 +61,30 @@ class IRDatabase : public virtual IndexerDestination {
 	// ====================
 
 	// Number of docs in the database
-	virtual doccount  get_doccount() const = 0;
+	virtual om_doccount  get_doccount() const = 0;
 	// Average length of a document
-	virtual doclength get_avlength() const = 0;
+	virtual om_doclength get_avlength() const = 0;
 
 	// Number of docs indexed by a given term
-	virtual doccount get_termfreq(const termname &) const = 0;
+	virtual om_doccount get_termfreq(const om_termname &) const = 0;
 
 	// Whether a given term is in the database: functionally equivalent
 	// to (get_termfreq() != 0), but can be considerably more efficient.
-	virtual bool term_exists(const termname &) const = 0;
+	virtual bool term_exists(const om_termname &) const = 0;
 
 	// Data item access methods:
 	// =========================
 
-	virtual DBPostList * open_post_list(const termname&, RSet *) const = 0;
-	virtual DBTermList * open_term_list(docid) const = 0;
-	virtual IRDocument * open_document(docid id) const = 0;
+	virtual DBPostList * open_post_list(const om_termname&, RSet *) const = 0;
+	virtual DBTermList * open_term_list(om_docid) const = 0;
+	virtual IRDocument * open_document(om_docid id) const = 0;
 
 #if 0
 	// Introspection methods:
 	// ======================
 
 	virtual const DatabaseBuilderParams & get_database_params() const = 0;
-	virtual const IRDatabase * get_database_of_doc(docid) const = 0;
+	virtual const IRDatabase * get_database_of_doc(om_docid) const = 0;
 #endif
 };
 
