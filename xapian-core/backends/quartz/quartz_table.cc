@@ -165,8 +165,12 @@ QuartzDiskTable::open()
 	btree_for_reading = Btree_open_to_read(path.c_str());
 	if (btree_for_reading == 0 || btree_for_reading->error) {
 	    // FIXME: explain why
+	    std::string errormsg = "Cannot open table `"+path+"' for reading: ";
+	    if (btree_for_reading)
+		errormsg += om_tostring(btree_for_reading->error) + ", ";
+	    errormsg += strerror(errno);
 	    close();
-	    throw OmOpeningError("Cannot open table `"+path+"' for reading.");
+	    throw OmOpeningError(errormsg);
 	}
 	opened = true;
 	return;
@@ -190,8 +194,12 @@ QuartzDiskTable::open()
 
     if (btree_for_writing == 0 || btree_for_writing->error) {
 	// FIXME: explain why
+	std::string errormsg = "Cannot open table `"+path+"' for writing: ";
+	if (btree_for_writing)
+	    errormsg += om_tostring(btree_for_writing->error) + ", ";
+	errormsg += strerror(errno);
 	close();
-	throw OmOpeningError("Cannot open table `"+path+"' for reading.");
+	throw OmOpeningError(errormsg);
     }
 
     btree_for_reading = Btree_open_to_read_revision(path.c_str(),
@@ -199,9 +207,13 @@ QuartzDiskTable::open()
     // FIXME: check for errors
     if (btree_for_reading == 0 || btree_for_reading->error) {
 	// FIXME: explain why
+	std::string errormsg = "Cannot open table `" + path +
+		"' for reading and writing: ";
+	if (btree_for_reading)
+	    errormsg += om_tostring(btree_for_reading->error) + ", ";
+	errormsg += strerror(errno);
 	close();
-	throw OmOpeningError("Cannot open table `" + path +
-			     "' for reading and writing.");
+	throw OmOpeningError(errormsg);
     }
 
     opened = true;
@@ -264,6 +276,7 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 
 QuartzDiskTable::~QuartzDiskTable()
 {
+    close();
 }
 
 quartz_revision_number_t
