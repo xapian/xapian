@@ -100,12 +100,19 @@ class DATermList : public virtual TermList {
 	// Gets passed current database, for termid lookups, _NOT_ root
 	DATermList(const DADatabase *database, struct termvec *tv);
     public:
+	termcount get_approx_size() const;
+
 	termid get_termid() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
 	bool   at_end() const;
 };
+
+inline termcount DATermList::get_approx_size() const
+{
+    return terms.size();
+}
 
 inline termid DATermList::get_termid() const
 {

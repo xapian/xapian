@@ -58,4 +58,10 @@ OrTermList::at_end() const
     return lhead == 0 && rhead == 0;
 }
 
+inline termcount
+OrTermList::get_approx_size() const
+{
+    return l->get_approx_size() + r->get_approx_size();
+}
+
 #endif /* _ortermlist_h_ */
