@@ -86,7 +86,7 @@ case "`automake --version|sed 's/.* //;q' 2>/dev/null`" in
   ERRMSG="${ERRMSG}Maintainer tool automake not found\\n" ;;
 0.*|1.[0-4]|1.[0-4][^0-9]*)
   ERRMSG="${ERRMSG}Maintainer tool automake needs to be at least version 1.5\\n" ;;
-1.6|1.6[^0-9]*)
+1.6)
   ERRMSG="${ERRMSG}Maintainer tool automake can't be version 1.6 - use 1.5 or at least 1.6.1\\n" ;;
 esac
 case "`libtool --version|sed 's/.* //;q' 2>/dev/null`" in
@@ -112,7 +112,7 @@ case "`aclocal --version|sed 's/.* //;q' 2>/dev/null`" in
   ERRMSG="${ERRMSG}Maintainer tool aclocal (part of automake) not found\\n" ;;
 0.*|1.[0-4]|1.[0-4][^0-9]*)
   ERRMSG="${ERRMSG}Maintainer tool aclocal needs to be from automake at least version 1.5\\n" ;;
-1.6|1.6[^0-9]*)
+1.6)
   ERRMSG="${ERRMSG}Maintainer tool aclocal can't be from automake version 1.6 - use 1.5 or at least 1.6.1\\n" ;;
 esac
 case "`autoheader --version|sed 's/.* //;q'`" in

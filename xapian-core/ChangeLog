@@ -1,7 +1,13 @@
-Wed May 15 11:40:58 BST 2002
-	* SWIG cvs (php4) now writes all output files to the same directory as the
-	* main output file, so need for hacks to move these, also no more 
-	* clobbering our source files when building in the checkout dir
+Wed May 15 13:27:21 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* buildall: Allow use of automake 1.6.1 and later, and CVS
+	  automake (versions 1.6[a-z])
+
+Wed May 15 11:40:58 BST 2002  Sam Liddicott
+
+	* SWIG cvs (php4) now writes all output files to the same directorys
+	  as the main output file, so need for hacks to move these, also no
+	  more clobbering our source files when building in the checkout dir
 
 Tue May 14 21:54:02 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
