@@ -644,6 +644,10 @@ string Lines::getData() {
   return data;
 }
 
+string Lines::getCodeLineData() {
+  return codelinedata;
+}
+
 void Lines::updateRevisionComments( map< string, list<string> >& rcw ) {
   for( map< string, list<string > >::iterator i = revision_comment_words.begin(); i != revision_comment_words.end(); i++ ) {
     if ( rcw[i->first].empty() ) {
@@ -676,6 +680,7 @@ bool Lines::ReadNextLine() {
       term_list.clear();
       symbols.clear();
       data = "";
+      codelinedata = "";
     }
     
     // if in file mode, this call returns okay, but the one after it should
@@ -788,17 +793,19 @@ bool Lines::ReadNextLine() {
       if ( path != "" ) {
 	//	cerr << "Opening " << path << "/" << current_fn << endl;
 	in_code = new ifstream( (path + "/"  + current_fn).c_str() );
-	assert( *in_code );
+	if( ! *in_code ) {
+	  cerr << "** could not open " << path << "/" << current_fn << endl;
+	  assert(0);
+	}
       }
       
     }
 
     // build data string
-    // static char str[4096];
     ostrstream ost;
     ost << (line_no-current_offset + 1) << ":"<< root << " " << package << " " << file_no << ":" << ends;
-    // sprintf(str, "%d:%d", (line_no-current_offset+1), file_no );
-    data = ost.str(); // string(str) +" " + root + " " + package + ":";
+    data = ost.str(); 
+    codelinedata = data;
   
     for(int i = revisions.size()-1; i >=0; i-- ) {
       data += revisions[i];

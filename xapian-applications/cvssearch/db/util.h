@@ -46,6 +46,7 @@ class Lines {
   int file_count;
 
   string data;
+  string codelinedata;
 
   vector<string> files;
   vector<string> offsets;
@@ -80,6 +81,7 @@ public:
   set<string> getCodeSymbols();
   set<string> getCodeSymbolTerms();
   string getData();
+  string getCodeLineData();
   string getCodeLine();
 };
 

@@ -121,11 +121,13 @@ int main(int argc, char *argv[])
     string file_cmt    = package_path + ".cmt";
     string file_offset = package_path + ".offset";
     string database_dir= package_path + ".om";
-
+    string source_file = package_path+".src";
+    
     cerr << "... removing directory " << database_dir << " (if it already exists)" << endl;
     system( ("rm -rf " + package_path +".om2").c_str() );
     system( ("rm -rf " + database_dir).c_str() );
 
+    ofstream src( source_file.c_str() );
         
     try {
       // ----------------------------------------
@@ -151,7 +153,7 @@ int main(int argc, char *argv[])
       // ----------------------------------------
       // no stop words, line granularity
       // ----------------------------------------
-      Lines lines( "", root, package, file_cmt, file_offset, "line", false ); 
+      Lines lines( cvsdata+"/"+root+"/src", root, package, file_cmt, file_offset, "line", false ); 
       string prev_file = "";
       while ( lines.ReadNextLine() ) {
 	if ( lines.currentFile() != prev_file ) {
@@ -166,9 +168,15 @@ int main(int argc, char *argv[])
 
 	}
 
+
 	lines.updateRevisionComments( revision_comment_words );
 	list<string> words = lines.getTermList();
 	string data = lines.getData();
+	string code = lines.getCodeLine();
+	string codelinedata = lines.getCodeLineData();
+
+	src << codelinedata << " " << code << endl;
+
 	// ----------------------------------------
 	// we want to output something like:
 	// 0.453 80 15 kdebase/konqueror:1.8 1.3 1.1
