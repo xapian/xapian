@@ -34,7 +34,7 @@ QuartzRevisionNumber::get_description() const
 
 
 QuartzDbTable::QuartzDbTable(bool readonly_)
-	: revision(-1),
+	: revision(0),
           readonly(readonly_)
 {
 }
