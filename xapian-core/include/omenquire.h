@@ -39,14 +39,26 @@ class OmMatch;           // Class which performs queries
 
 /// Enum of possible query operations
 enum om_queryop {
-    OM_MOP_LEAF,     /// For internal use - must never be specified as parameter
+    /// For internal use - must never be specified as parameter
+    OM_MOP_LEAF,
 
-    OM_MOP_AND,      /// Return iff both subqueries are satisfied
-    OM_MOP_OR,       /// Return if either subquery is satisfied
-    OM_MOP_AND_NOT,  /// Return if left but not right satisfied
-    OM_MOP_XOR,      /// Return if one query satisfied, but not both
-    OM_MOP_AND_MAYBE,/// Return iff left satisfied, but use weights from both
-    OM_MOP_FILTER    /// As AND, but use only weights from left subquery
+    /// Return iff both subqueries are satisfied
+    OM_MOP_AND,
+
+    /// Return if either subquery is satisfied
+    OM_MOP_OR,
+
+    /// Return if left but not right satisfied
+    OM_MOP_AND_NOT,
+
+    /// Return if one query satisfied, but not both
+    OM_MOP_XOR,
+
+    /// Return iff left satisfied, but use weights from both
+    OM_MOP_AND_MAYBE,
+
+    /// As AND, but use only weights from left subquery
+    OM_MOP_FILTER
 };
 
 /** Class representing a query.
@@ -576,7 +588,7 @@ class OmEnquire {
 	 */
 	vector<om_termname> get_matching_terms(om_docid did) const;
 
-	/** @memo Get terms which match a given document by match set item.
+	/** @memo Get terms which match a given document, by match set item.
 	 *
 	 *  @doc
 	 *  This method returns the terms in the current query which match
