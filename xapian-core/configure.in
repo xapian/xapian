@@ -63,10 +63,16 @@ dnl Check for sleepycat library.
 dnl FIXME - check for C++ version
 
 SLEEPYCAT_LIBS=
+SLEEPYCAT_LINKFLAGS=
+
+dnl This should work for the debian package
 AC_CHECK_LIB(db2, db_open, SLEEPYCAT_LIBS=-ldb2++)
+
+dnl This should work for the default installation from sleepycat
 if test "x$SLEEPYCAT_LIBS" = "x"; then
   LDFLAGS_sleepysave=$LDFLAGS
-  LDFLAGS=-L/usr/local/BerkeleyDB/lib/
+  SLEEPYCAT_LINKFLAGS="-L/usr/local/BerkeleyDB/lib/"
+  LDFLAGS="$LDFLAGS $SLEEPYCAT_LINKFLAGS"
   AC_CHECK_LIB(db, db_open, SLEEPYCAT_LIBS=-ldb)
   LDFLAGS=$LDFLAGS_sleepysave
 fi
@@ -75,6 +81,7 @@ have_sleepycat=no
 if test ! "x$SLEEPYCAT_LIBS" = "x"; then
   have_sleepycat=yes
   AC_SUBST(SLEEPYCAT_LIBS)
+  AC_SUBST(SLEEPYCAT_LINKFLAGS)
 fi
 
 dnl ***************************

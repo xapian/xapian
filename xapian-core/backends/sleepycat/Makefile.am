@@ -20,3 +20,5 @@ libsleepy_la_SOURCES = sleepy_list.cc \
                        sleepy_database.cc \
                        sleepy_database_internals.cc
 libsleepy_la_LIBADD = @SLEEPYCAT_LIBS@
+
+libsleepy_la_LDFLAGS = @SLEEPYCAT_LINKFLAGS@
