@@ -1,3 +1,8 @@
+Mon Feb 28 13:36:07 GMT 2005  Olly Betts <olly@survex.com>
+
+	* common/omqueryinternal.h: Removed out-of-date commented out version
+	  of Xapian::Query::Internal.
+
 Mon Feb 28 13:07:42 GMT 2005  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_alltermslist.cc,tests/api_db.cc: Updated (C)
