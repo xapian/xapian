@@ -40,8 +40,6 @@
 static string query;
 static size_t query_index = 0;
 
-static int n_ad_keywords = 0;
-
 // FIXME: transliterate using get_next_char...
 #define YY_INPUT(buf, result, max_size) \
     do { \
@@ -87,14 +85,9 @@ get_next_char(const char **p)
     termtype type = NORMAL;
     int stem, stem_all;
 
-#ifdef FERRET
-    stem = 1;
-    stem_all = 1;
-#else
     stem = !atoi(option["no_stem"].c_str());
     /* stem capitalised words too -- needed for EuroFerret */
     stem_all = atoi(option["all_stem"].c_str());
-#endif
     // FIXME: allow domain:uk in query...
     // don't allow + and & in term then ?
     // or allow +&.-_ ?
@@ -124,13 +117,6 @@ get_next_char(const char **p)
     yyless(qlexleng - 1); // push back whitespace
     for (int i = 0; i < qlexleng - 1; i++) termname += tolower(qlextext[i]);
 
-    if (n_ad_keywords < 4) {
-	// FIXME: && type != MINUS, or pick 4 top +ve weights later?
-	if (n_ad_keywords) ad_keywords += '+';	
-	ad_keywords += termname;
-	n_ad_keywords++;
-    }
-
     check_term(termname, type);
     BEGIN(AFTERTERM);
 }
@@ -138,13 +124,6 @@ get_next_char(const char **p)
 <INITIAL>[A-Za-z0-9][A-Za-z0-9+&]* {
     string termname;
     for (int i = 0; i < qlexleng; i++) termname += tolower(qlextext[i]);
-
-    if (n_ad_keywords < 4) {
-	// FIXME: && type != MINUS, or pick 4 top +ve weights later?
-	if (n_ad_keywords) ad_keywords += '+';	
-	ad_keywords += termname;
-	n_ad_keywords++;
-    }
 
     if (stem && (stem_all || !isupper(qlextext[0])))
         termname = stemmer.stem_word(termname);
@@ -191,32 +170,18 @@ get_next_char(const char **p)
     string termname;
     for (int i = 0; i < qlexleng; i++) termname += tolower(qlextext[i]);
 
-    // FIXME: duplicated code from above
-    if (n_ad_keywords < 4) {
-	// FIXME: && type != MINUS, or pick 4 top +ve weights later?
-	if (n_ad_keywords) ad_keywords += '+';	
-	ad_keywords += termname;
-	n_ad_keywords++;
-    }
-
     quoted_terms.push_back(termname);
 }
 
 %{
-#if 0
     // handle unterminated quotes
     // FIXME: find where to put this...
     if (quoted_terms.size() == 1) {
-	// FIXME: don't always stem...
-	check_term(stemmer.stem_word(quoted_terms[0]), type);
+    	string termname = quoted_terms[0];
+	if (stem) termname = stemmer.stem_word(termname);
+	check_term(termname, type);
     } else {
-	// we only index word pairs, so add a series of pairs for
-	// phrases of more than 2 words
-	for (unsigned int i = 0; i + 1 < quoted_terms.size(); i++) {
-	    string phrase = quoted_terms[i] + " " + quoted_terms[i + 1];
-	    check_term(phrase, type);
-	}
+	// FIXME: add phrase in quoted_terms
     }
     quoted_terms.clear();
-#endif
 %}

@@ -69,10 +69,6 @@ string gif_dir = "/fx-gif";
 
 char thou_sep = ',', dec_sep = '.';
 
-#ifdef FERRET
-string ad_keywords;
-#endif
-
 string query_string;
 
 om_queryop op = OM_MOP_OR; // default matching mode

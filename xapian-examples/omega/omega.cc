@@ -390,10 +390,8 @@ static int main2(int argc, char *argv[])
     long matches = do_match(topdoc, list_size);
     if (cgi_params.find("X") != notfound) {
 	make_log_entry("add", matches);
-#if 0 // def FERRET
     } else if (cgi_params.find("MORELIKE") != notfound) {
 	make_log_entry("morelike", matches);
-#endif
     } else if (!big_buf.empty()) {
 	make_log_entry("query", matches);
     }

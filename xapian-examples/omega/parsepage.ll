@@ -339,63 +339,6 @@ pretty_printf(const char *p, int *a)
     else
 	last = msize - 1;
 }
-\\FER-WHERE {
-    /* ferret countrycode picker */
-    static const char *doms[] = {
-	"ad", "al", "am", "at", "az", "ba", "be", "bg",
-	"by", "ch", "cy", "cz", "de", "dk", "ee", "es",
-	"fi", "fo", "fr", "ge", "gi", "gl",
-	"gr", "hr", "hu", "ie", "is", "it",
-	"li", "lt", "lu", "lv", "mc", "mk", "mt", "mo",
-	"nl", "no", "pl", "pt", "ro", "ru", "se", "si",
-	"sk", "sm", "su", "tr", "ua", "uk+", "va", "yu",
-	NULL /* Now in uk+: "gb", "gg", "im", "je", "uk" */
-    };
-    do_picker('N', doms);
-}
-\\FER-LANG {
-    /* ferret language picker */
-    static const char *langs[] = {
-	"cs", /*"cy",*/ "da", "de", "en", "es", "fi", "fr",
-	"is", "it", "nl", "no", "pl", "pt", "sv",
-	NULL
-    };
-    do_picker('L', langs);
-}
-\\FER-AD {
-    /* ferret advert link (with keywords) */
-    int pageid = time(NULL) - 894000000;
-    int tag = 7533; /* english */
-    if (db_name.length() >= 12) {
-	switch (db_name[8]) {
-	 case 'r':
-	    if (db_name == "ferret.french") tag = 7542;
-	    break;
-	 case 'e':
-	    if (db_name == "ferret.german") tag = 7543;
-	    break;
-	 case 't':
-	    if (db_name == "ferret.italian") tag = 7584;
-	    break;
-	 case 'p':
-	    if (db_name == "ferret.spanish") tag = 7544;
-	    break;
-	 case 'w':
-	    if (db_name == "ferret.swedish") tag = 7545;
-	    break;
-	}
-    }
-    cout << "<A HREF=\"http://adforce.imgis.com/"
-	    "?adlink|44|" << tag << '|' << pageid << "|1|key="
-	 << ad_keywords << "\" TARGET=_top><IMG\n"
-	    "SRC=\"http://adforce.imgis.com/"
-	    "?adserv|44|" << tag << '|' << pageid << "|1|key="
-	 << ad_keywords
-	 << "\" BORDER=0 HEIGHT=60 WIDTH=468 NATURALSIZEFLAG=0 "
-	    "ALIGN=BOTTOM "
-	    "ALT=\"Intelligent access to over 30 million web pages\""
-	    "></A>\n";
-}
 \\FREQS {
 #if 0 // FIXME:
     if (!new_terms_list.empty()) {
