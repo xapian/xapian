@@ -99,7 +99,7 @@ static int do_update(const string & btree_dir,
 	count = process_lines(btree, f);
     }
 
-    btree.commit(btree.revision_number + 1);
+    btree.commit(btree.get_open_revision_number() + 1);
 
     return count;
 }
@@ -158,7 +158,7 @@ static bool test_insertdelete1()
     {
 	Btree btree(btree_dir, true);
 	btree.open();
-	TEST_EQUAL(count, btree.item_count);
+	TEST_EQUAL(count, btree.get_entry_count());
     }
 
     count += do_update(btree_dir, datadir + "ord-");
@@ -166,8 +166,8 @@ static bool test_insertdelete1()
     {
 	Btree btree(btree_dir, true);
 	btree.open();
-	TEST_EQUAL(btree.item_count, 0);
-	TEST_EQUAL(count, btree.item_count);
+	TEST_EQUAL(btree.get_entry_count(), 0);
+	TEST_EQUAL(count, btree.get_entry_count());
     }
 
     return true;
@@ -197,7 +197,7 @@ static bool test_sequent1()
 
     Btree btree(btree_dir, true);
     btree.open();
-    TEST_EQUAL(btree.item_count, 0);
+    TEST_EQUAL(btree.get_entry_count(), 0);
 
     return true;
 }
@@ -214,47 +214,47 @@ static bool test_emptykey1()
 
 	tout << "Setting tag to jam" << endl;
 	btree.add("", "jam");
-	btree.commit(btree.revision_number + 1);
+	btree.commit(btree.get_open_revision_number() + 1);
     }
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
     {
 	Btree btree(btree_dir, false);
 	btree.open();
-	TEST_EQUAL(btree.item_count, 0);
+	TEST_EQUAL(btree.get_entry_count(), 0);
 
 	tout << "Setting tag to marmite" << endl;
 	btree.add("", "marmite");
-	btree.commit(btree.revision_number + 1);
+	btree.commit(btree.get_open_revision_number() + 1);
     }
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
     {
 	Btree btree(btree_dir, false);
 	btree.open();
-	TEST_EQUAL(btree.item_count, 0);
+	TEST_EQUAL(btree.get_entry_count(), 0);
 
 	tout << "Deleting tag" << endl;
 	btree.del("");
-	btree.commit(btree.revision_number + 1);
+	btree.commit(btree.get_open_revision_number() + 1);
     }
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
     {
 	Btree btree(btree_dir, false);
 	btree.open();
-	TEST_EQUAL(btree.item_count, 0);
+	TEST_EQUAL(btree.get_entry_count(), 0);
 
 	tout << "Setting tag to butter" << endl;
 	btree.add("", "butter");
 	btree.add("test", "me");
-	btree.commit(btree.revision_number + 1);
+	btree.commit(btree.get_open_revision_number() + 1);
     }
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
     Btree btree(btree_dir, true);
     btree.open();
-    TEST_EQUAL(btree.item_count, 1);
+    TEST_EQUAL(btree.get_entry_count(), 1);
  
     return true;
 }

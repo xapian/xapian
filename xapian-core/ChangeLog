@@ -1,3 +1,8 @@
+Sun Aug 15 23:48:20 BST 2004  Olly Betts <olly@survex.com>
+
+	* tests/btreetest.cc: item_count -> get_entry_count(); revision_number
+	  -> get_open_revision_number().
+
 Sun Aug 15 23:15:34 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/Makefile.am,backends/inmemory/Makefile.am: Fixed to compile
