@@ -514,6 +514,7 @@ AC_OUTPUT(
  docs/doxygen_api_conf
  docs/doxygen_full_conf
  tests/stemtest.pl
+ tests/apitest_to_java.pl
  bindings/Makefile
  bindings/python/Makefile
  bindings/perl5/Makefile

@@ -1,3 +1,8 @@
+Wed Jul 19 18:14:48 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added a script to convert apitest into other languages.  So far
+	  has a mostly working Java backend.
+
 Wed Jul 19 17:38:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
         * Replace om_inttostring and doubletostring by (overloaded)

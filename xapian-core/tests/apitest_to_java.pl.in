@@ -1,0 +1,306 @@
+#! @PERL_PATH@ -w
+# @configure_input@
+# apitest_to_java.pl is automatically generated from apitest_to_java.pl.in
+# *** Do not edit the generated file ***
+#
+# apitest_to_java.pl.in - automatic test of the stemming functions.
+#
+# ----START-LICENCE----
+# Copyright 1999,2000 BrightStation PLC
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA
+# -----END-LICENCE-----
+
+use strict;
+use Carp;
+
+# FIXME: split into separate files
+package ToJava;
+
+sub new {
+    my $class = shift;
+    return bless { func => ""}, $class;
+}
+
+sub get_value {
+    my $self = shift;
+    return $self->{func};
+}
+
+sub func_start($) {
+    my $self = shift;
+    my $orig = shift;
+    if ($orig =~ /^bool ([a-z0-9_]+)\(\)/) {
+        my $name = $1;
+	$self->{func} = "    public static boolean $name()\n    {\n";
+	$self->{indent_level} = 8;
+	return $self->{func};
+    } else {
+        Carp::croak("Don't understand function header");
+    }
+}
+
+sub map_type($) {
+    my $orig_type = shift;
+    if ($orig_type eq "bool") {
+        return "boolean";
+    } elsif ($orig_type eq "unsigned int") {
+        return "int";
+    } else {
+        return $orig_type;
+    }
+}
+
+sub addtext($) {
+    my ($self, $text) = @_;
+    $self->{func} .= (" " x $self->{indent_level}) . $text;
+}
+
+sub indent() {
+    my $self = shift;
+    $self->{indent_level} += 4;
+}
+
+sub undent() {
+    my $self = shift;
+    $self->{indent_level} -= 4;
+}
+
+sub var_decl($$$) {
+    my ($self, $type, $name, $initialiser) = @_;
+    $type = map_type($type);
+    my $text;
+    if (defined $initialiser) {
+        $text = "$type $name = $initialiser;\n";
+    } else {
+	$text = "$type $name = new $type();\n";
+    }
+    $self->addtext($text);
+    return $text;
+}
+
+sub func_call($$) {
+    my ($self, $func, $args) = @_;
+
+    my $text = "$func($args);\n";
+    $self->addtext($text);
+    return $text;
+}
+
+sub do_if($) {
+    my ($self, $cond) = @_;
+
+    my $text = "if ($cond) {\n";
+    $self->addtext($text);
+    $self->indent();
+    return $text;
+}
+
+sub do_for($$$) {
+    my ($self, $precommand, $cond, $inc) = @_;
+    
+    my $text = "for ($precommand;$cond;$inc) {\n";
+    $self->addtext($text);
+    $self->indent();
+    return $text;
+}
+
+sub close_block() {
+    my $self = shift;
+    my $text = "}\n";
+    $self->undent();
+    $self->addtext($text);
+    return $text;
+}
+
+sub do_blank() {
+    my $self = shift;
+    my $text = "\n";
+    # don't want the indenting here.
+    $self->{func} .= $text;
+    return $text;
+}
+
+sub do_invalid($) {
+    my ($self, $line) = @_;
+    my $text = "#INVALID:$line";
+    $self->addtext($text);
+    return $text;
+}
+
+sub do_return($) {
+    my ($self, $val) = @_;
+    my $text = "return $val;\n";
+    $self->addtext($text);
+    return $text;
+}
+
+sub do_break() {
+    my $self = shift;
+    my $text = "break;\n";
+    $self->addtext($text);
+    return $text;
+}
+
+sub do_comment($) {
+    my ($self, $comment) = @_;
+    my $text = "//$comment\n";
+    $self->addtext($text);
+    return $text;
+}
+
+sub do_cout(@$) {
+    my ($self, $coutargs, $endl) = @_;
+    my $text = ($endl? "System.out.println(" : "System.out.print(");
+    $text .= join(" + ", @$coutargs);
+    $text .= ");\n";
+    $self->addtext($text);
+    return $text;
+}
+
+sub do_postinc($$) {
+    my ($self, $id, $op) = @_;
+    my $text = "$id$op;\n";
+    $self->addtext($text);
+    return $text;
+}
+
+sub do_preinc($$) {
+    my ($self, $arg1, $arg2) = @_;
+    return $self->do_postinc($arg1, $arg2);
+}
+
+sub do_assignment($$) {
+    my ($self, $assignee, $value) = @_;
+    my $text = "$assignee = $value;\n";
+    $self->addtext($text);
+    return $text;
+}
+
+package main;
+
+sub getline() {
+    my $line = <>;
+    return $line;
+}
+
+$main::func_start_regex = '^bool (test_[a-z_]*[0-9]*)\(\) *$';
+#$main::func_start_regex = '^bool test_simplequery1\(\) *$';
+$main::type = "bool|(?:unsigned )?int|Om[A-Z][A-Za-z]+";
+$main::identifier = "[a-zA-Z_0-9]+";
+$main::func = "(?:$main::identifier).$main::identifier";
+$main::commentstart = '(?:\/\/|\/\*)';
+
+while (<>) {
+    chomp;
+    if (/$main::func_start_regex/) {
+        my $name = $1;
+        my $funcdef;
+	eval {
+	    $funcdef = parse_function($_);
+
+	    print $funcdef;
+	};
+	if ($@) {
+	    print STDERR "Parse of $name failed: $@\n";
+	}
+    }
+}
+
+sub parse_function {
+    my $firstline = shift;
+
+    my $interp = new ToJava();
+    print "Found test: $firstline\n";
+    $interp->func_start($firstline);
+    #print "Converted to: " . 
+
+    my $indent = 4;
+
+    if (<> ne "{\n") {
+	Carp::croak "Expected opening block!";
+    }
+    while (defined ($_ = getline())) {
+	my $line = $_;
+	chomp $line;
+	if ($line =~ /^[ \t]*($main::type) ($main::identifier)( = (.*))?;/) {
+	    my ($type, $id, $init) = ($1, $2, $4);
+	    $interp->var_decl($type, $id, $init);
+	} elsif ($line =~ /^[ \t]*($main::type) ($main::identifier)\((.*)\);/) {
+	    my ($type, $id, $init) = ($1, $2, $4);
+	    $interp->var_decl($type, $id, $init);
+	} elsif ($line =~ /^[ \t]*($main::func)\((.*)\);/) {
+	    my ($func, $args) = ($1, $2);
+	    $interp->func_call($func, $args);
+	} elsif ($line =~ /^[ \t]*if \((.*)\) {[ \t]*$/) {
+	    my $cond = $1;
+	    $interp->do_if($cond);
+	    $indent += 4;
+	} elsif ($line =~ /^[ \t]*for \((.*);(.*);(.*)\) {[ \t]*$/) {
+	    my ($precommand, $cond, $inc) = ($1, $2, $3);
+	    $interp->do_for($precommand, $cond, $inc);
+	    $indent += 4;
+	} elsif ($line =~ /^[ \t]*{/) {
+	    $indent -= 4;
+	} elsif ($line =~ /^[ \t]*($main::commentstart)(.*)/) {
+	    my $commenttext = $2;
+	    $interp->do_comment($commenttext);
+	} elsif ($line =~ /}/) {
+	    $indent -= 4;
+	    $interp->close_block();
+	    if ($indent == 0) {
+#		print "End of function.\n";
+		last;
+	    }
+	} elsif ($line =~ /^[ \t]*return (.*);/) {
+# return statement
+	    my $returnval = $1;
+	    $interp->do_return($returnval);
+	} elsif ($line =~ /^[ \t]*break;/) {
+# break statement
+	    $interp->do_break();
+	} elsif ($line =~ /^[ \t]*($main::identifier) = (.*);/) {
+# assignment
+	    my ($var, $value) = ($1, $2);
+	    $interp->do_assignment($var, $value);
+	} elsif ($line =~ /^[ \t]*cout/) {
+# uses of cout are often multiline, so group them together.
+	    while ($line !~ /\;/) {
+		$line .= getline();
+	    }
+	    if ($line !~ /^[ \t]*cout(.*?)(<< endl)?;/s) {
+		print STDERR "bad cout line: $line";
+		Carp::croak "Bad cout line!";
+	    }
+	    my ($coutargs, $endl) = ($1, $2);
+	    my @coutargs = split(/[ \t]*<<[ \t]*/, $coutargs);
+	    shift @coutargs; # remove blank before first <<
+	    $interp->do_cout(\@coutargs, $endl);
+	} elsif ($line =~ /^[ \t]*$/) {
+	    $interp->do_blank();
+	} elsif ($line =~ /^[ \t]*($main::identifier)(\+\+|\-\-);/) {
+	    my ($id, $op) = ($1, $2);
+	    $interp->do_postinc($id, $op);
+	} elsif ($line =~ /^[ \t]*(\+\+|\-\-)($main::identifier);/) {
+	    my ($id, $op) = ($1, $2);
+	    $interp->do_preinc($id, $op);
+	} else {
+	    $interp->do_invalid($line);
+#	    print "# " . $line . "\n";
+	}
+    }
+    return $interp->get_value();
+}
