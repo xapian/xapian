@@ -1,3 +1,7 @@
+Thu Feb 17 16:57:42 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added interface to stemming algorithms to API (OmStem class)
+
 Thu Feb 17 12:00:33 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Header files now get installed in a subdirectory (om/)

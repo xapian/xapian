@@ -37,4 +37,7 @@
 
 /* Indexing */
 
+/* Stemming */
+#include "omstem.h"
+
 #endif /* OM_HGUARD_OM_H */

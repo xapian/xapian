@@ -21,6 +21,7 @@
  */
 
 #include "omassert.h"
+#include "utils.h"
 
 #include "om/omerror.h"
 #include "om/omenquire.h"
@@ -36,32 +37,6 @@
 #include <set>
 #include <memory>
 #include <math.h>
-
-///////////////////////////////////////////////////////////////////
-// Mapping of database types as strings to enum om_database_type //
-///////////////////////////////////////////////////////////////////
-
-template<class X> struct stringToType {
-    string name;
-    X type;
-};
-
-// Note: this just uses a list of entrys, and searches linearly through
-// them.  Could at make this do a binary chop, but probably not worth
-// doing so, unless list gets large.  Only used when openeing a database,
-// after all.
-template<class X> class stringToTypeMap {
-    public:
-	static stringToType<X> types[];
-	static X get_type(string needle) {
-	    stringToType<X>* haystack = types;
-	    while(haystack->name.size() != 0) {
-		if(haystack->name == needle) break;
-		haystack++;
-	    }
-	    return haystack->type;
-	}
-};
 
 // Table of names of database types
 stringToType<om_database_type> stringToTypeMap<om_database_type>::types[] = {

@@ -27,11 +27,11 @@
 
 #include <string>
 
-#include "stemmer.h"
+#include "om/omstem.h"
 
 #define IS_LETTER(ch)  (islower(ch) || (ch) == '^')
 
-void stemfile(Stemmer *stemmer, FILE * f)
+void stemfile(const OmStem &stemmer, FILE * f)
 {
     while(true) {
 	int ch = getc(f);
@@ -50,30 +50,30 @@ void stemfile(Stemmer *stemmer, FILE * f)
 		if (!IS_LETTER(ch)) { ungetc(ch, f); break; }
 	    }
 
-	    cout << stemmer->stem_word(word);
+	    cout << stemmer.stem_word(word);
 	} else putchar(ch);
     }
 }
 
 int main(int argc, char **argv)
 {
-    stemmer_language lang = STEMLANG_ENGLISH;
+    string lang = "english";
     if(argc > 1) {
 	bool noarg = false;
 	if(!strcmp(argv[1], "--dutch")) {
-	    lang = STEMLANG_DUTCH;
+	    lang = "dutch";
 	} else if(!strcmp(argv[1], "--english")) {
-	    lang = STEMLANG_ENGLISH;
+	    lang = "english";
 	} else if(!strcmp(argv[1], "--french")) {
-	    lang = STEMLANG_FRENCH;
+	    lang = "french";
 	} else if(!strcmp(argv[1], "--german")) {
-	    lang = STEMLANG_GERMAN;
+	    lang = "german";
 	} else if(!strcmp(argv[1], "--italian")) {
-	    lang = STEMLANG_ITALIAN;
+	    lang = "italian";
 	} else if(!strcmp(argv[1], "--portuguese")) {
-	    lang = STEMLANG_PORTUGUESE;
+	    lang = "portuguese";
 	} else if(!strcmp(argv[1], "--spanish")) {
-	    lang = STEMLANG_SPANISH;
+	    lang = "spanish";
 	} else {
 	    noarg = true;
 	}
@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 	    argv++;
 	}
     }
-    Stemmer * stemmer = StemmerBuilder::create(lang);
+    OmStem stemmer(lang);
 
     for (int i = 1; i < argc; i++)
     {

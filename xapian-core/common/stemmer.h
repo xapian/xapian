@@ -27,6 +27,7 @@
 #include <string>
 
 enum stemmer_language {
+    STEMLANG_NULL,
     STEMLANG_DUTCH,
     STEMLANG_ENGLISH,
     STEMLANG_FRENCH,
@@ -43,11 +44,6 @@ class Stemmer {
 	virtual ~Stemmer() {};
         virtual string stem_word(const string &) = 0;
 	virtual const char * get_lang() = 0;
-};
-
-class StemmerBuilder {
-    public:
-	static Stemmer * create(stemmer_language lang);
 };
 
 #endif /* OM_HGUARD_STEMMER_H */

@@ -28,4 +28,29 @@
 // Convert an integer to a string
 string inttostring(int a);
 
+///////////////////////////////////////////
+// Mapping of types as strings to enums  //
+///////////////////////////////////////////
+
+template<class X> struct stringToType {
+    string name;
+    X type;
+};
+
+// Note: this just uses a list of entrys, and searches linearly through
+// them.  Could at make this do a binary chop, but probably not worth
+// doing so, unless list gets large.
+template<class X> class stringToTypeMap {
+    public:
+	static stringToType<X> types[];
+	static X get_type(string needle) {
+	    stringToType<X>* haystack = types;
+	    while(haystack->name.size() != 0) {
+		if(haystack->name == needle) break;
+		haystack++;
+	    }
+	    return haystack->type;
+	}
+};
+
 #endif /* OM_HGUARD_UTILS_H */
