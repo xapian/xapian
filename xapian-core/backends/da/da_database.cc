@@ -115,11 +115,11 @@ DADatabase::open(const string &pathname, bool readonly)
     string filename_r = pathname + "/R";
     string filename_t = pathname + "/T";
 
-    DA_r = DAopen((byte *)(filename_r.c_str()), DARECS);
+    DA_r = DAopen(filename_r.c_str(), DARECS);
     if(DA_r == NULL)
 	throw OpeningError(string("When opening ") + filename_r + ": " + strerror(errno));
 
-    DA_t = DAopen((byte *)(filename_t.c_str()), DATERMS);
+    DA_t = DAopen(filename_t.c_str(), DATERMS);
     if(DA_t == NULL) {
 	DAclose(DA_r);
 	DA_r = NULL;
