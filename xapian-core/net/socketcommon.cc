@@ -377,7 +377,7 @@ OmSocketLineBuf::do_readline(int msecs_timeout)
     time_t start_time = time(NULL);
     time_t curr_time;
 
-    while ((curr_time = time(NULL)) <= (start_time + msecs_timeout) &&
+    while ((curr_time = time(NULL)) <= (start_time + (msecs_timeout/1000)) &&
 	   (pos = buffer.find_first_of('\n')) == buffer.npos) {
 	char buf[256];
 
