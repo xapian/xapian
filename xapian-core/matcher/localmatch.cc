@@ -119,7 +119,7 @@ LocalMatch::mk_postlist(const om_termname& tname, RSet * rset)
 {
     // FIXME - this should be centralised into a postlist factory
     LeafPostList * pl = database->open_post_list(tname);
-    if(rset) rset->will_want_termfreq(tname);
+    if(rset) rset->will_want_reltermfreq(tname);
 
     IRWeight * wt = mk_weight(1, tname, rset);
     statssource.my_termfreq_is(tname, pl->get_termfreq());

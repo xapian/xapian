@@ -55,7 +55,7 @@ class RSet {
 	RSet(IRDatabase *root_new, const OmRSet & _rset);
 
 	void add_document(om_docid did);
-	void will_want_termfreq(om_termname tname) const;
+	void will_want_reltermfreq(om_termname tname) const;
 	om_doccount get_rsize() const;
 	om_doccount get_reltermfreq(om_termname tname) const;
 };
@@ -96,7 +96,7 @@ RSet::get_rsize() const
 }
 
 inline void
-RSet::will_want_termfreq(om_termname tname) const
+RSet::will_want_reltermfreq(om_termname tname) const
 {
     reltermfreqs[tname] = 0;
 }
