@@ -1,3 +1,7 @@
+Fri Sep 10 13:13:51 BST 2004  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: Need to ship test data for new test.
+
 Thu Sep 09 21:58:37 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: Extended feature test sortrel1 to check interaction
