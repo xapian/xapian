@@ -190,7 +190,8 @@ dnl **************************
 
 AC_OUTPUT(
  Makefile
- stemmer/Makefile
+ languages/Makefile
+ languages/en/Makefile
  matcher/Makefile
  indexer/Makefile
  backends/Makefile

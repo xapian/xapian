@@ -2,7 +2,7 @@
 
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
-SUBDIRS = include backends matcher stemmer indexer . \
+SUBDIRS = include backends matcher languages indexer . \
           gui ferretfx tests docs
 
 EXTRA_DIST = INSTALL
@@ -16,5 +16,5 @@ libom_la_SOURCES = dummy.c
 libom_la_LIBADD = \
  backends/libbackend.la \
  matcher/libmatcher.la \
- stemmer/libstem.la \
+ languages/liblanguages.la \
  indexer/libindexer.la
