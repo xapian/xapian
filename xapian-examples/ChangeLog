@@ -1,3 +1,7 @@
+Thu Nov  1 19:33:09 GMT 2001  Richard Boulton <richard@tartarus.org>
+
+	* omega/{omindex.cc,query.h}: Small fixes to compile with g++ 3.0
+
 Tue Oct 30 17:38:14 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Fixed msearch to actually work.

@@ -38,6 +38,7 @@
 #include "htmlparse.h"
 
 using std::cout;
+using std::cerr;
 using std::endl;
 
 #define OMINDEX "omindex"
@@ -300,7 +301,7 @@ index_file(const string &url, const string &mimetype)
     if (dupes==DUPE_replace && db->term_exists("U" + baseurl + url)) {
 	// This document has already been indexed - update!
 	try {
-	    auto_ptr<OmEnquire> enq = auto_ptr<OmEnquire>(new OmEnquire(*db));
+	    std::auto_ptr<OmEnquire> enq = std::auto_ptr<OmEnquire>(new OmEnquire(*db));
 	    enq->set_query(OmQuery("U" + baseurl + url));
 	    OmMSet mset = enq->get_mset(0, 1);
 	    try {

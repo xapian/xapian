@@ -47,5 +47,6 @@ extern OmQuery::op default_op;
 extern OmStem *stemmer;
 
 extern string raw_prob;
-extern map<om_docid, bool> ticked;
+extern std::map<om_docid, bool> ticked;
+
 #endif /* QUERY_H */
