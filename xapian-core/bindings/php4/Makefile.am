@@ -6,11 +6,21 @@ SWIG_INCLUDES = $(INCLUDES) -I$(top_srcdir)/bindings/swig/
 EXTRA_DIST = xapian/xapian_wrap.cpp xapian/php_xapian.h xapian.php \
  xapian/Makefile.in xapian/config.m4 xapian/swigphp.h xapian/xapian.cpp
 
-#xapian/phpized: xapian/config.m4 xapian/Makefile.in xapian/swigphp.h xapian/xapian.cpp
-#	: #test -d xapian || mkdir xapian
-#	cd xapian && phpize
-#	touch xapian/phpized
+# This target is not needed for make dist
+xapian: xapian/configure
+	cd xapian && \
+	./configure && \
+	make
 
-xapian/xapian_wrap.cpp xapian/php_xapian.h xapian.php: ../swig/xapian.i ../swig/omstem.i ../swig/om_util.i
+xapian/configure: xapian/config.m4 xapian/Makefile.in xapian/swigphp.h xapian/xapian.cpp
+	for file in $? ; \
+	do \
+	  if [ "`dirname $$file`" != "xapian" ] ; \
+	  then cp $$file xapian ; \
+	  fi ; \
+	done && \
+	cd xapian && phpize
+
+xapian/%_wrap.cpp xapian/php_%.h %.php: ../swig/%.i ../swig/omstem.i ../swig/om_util.i
 	swig $(SWIG_INCLUDES) -c++ -php4 -nosync -shadow \
-	 -o xapian/xapian_wrap.cpp ../swig/xapian.i
+	 -o xapian/%_wrap.cpp ../swig/%.i
