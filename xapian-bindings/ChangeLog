@@ -1,3 +1,8 @@
+Thu May 13 10:41:29 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Test phpize can actually be run, rather than just that
+	  it's a readable file or directory.
+
 Wed May 12 01:52:44 BST 2004  Richard Boulton <richard@tartarus.org>
 
         * configure.in: Revert "test -x" to "test -n", and change

@@ -79,7 +79,12 @@ if test no != "$with_swig" ; then
 	4.*)
 	    PHPIZE="`$PHP_CONFIG --prefix`/bin/phpize"
 	    AC_SUBST(PHPIZE)
-	    if test -r "$PHPIZE" ; then
+	    dnl Try to run "phpize --help" - currently this command exits with
+	    dnl status 1 but allow for that changing to the more sensible
+	    dnl status 0.  If phpize doesn't exist, or isn't an executable
+	    dnl file, the exit status will be something like 126 or 127.
+	    $PHPIZE --help >/dev/null 2>&1
+	    if test "$?" = 1 -o "$?" = 0 ; then
 		BINDINGS="$BINDINGS php4"
 	    fi
 	    ;;
