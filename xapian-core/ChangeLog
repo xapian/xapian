@@ -1,3 +1,8 @@
+Tue Aug 12 12:50:19 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc: Pass 0 for the lexicon/postlist
+	  table when creating a termlist just to find the doc length.
+
 Tue Aug 12 02:08:50 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/maptermlist.h,api/omdocument.cc,common/documentterm.h:

@@ -143,11 +143,7 @@ QuartzDatabase::get_doclength(Xapian::docid did) const
 
     QuartzTermList termlist(0,
 			    tables->get_termlist_table(),
-#ifdef USE_LEXICON               
-			    tables->get_lexicon_table(),
-#else
-			    tables->get_postlist_table(),
-#endif
+			    0, // unused ptr to lexicon/postlist table
 			    did,
 			    0);
     RETURN(termlist.get_doclength());
@@ -256,10 +252,10 @@ QuartzDatabase::open_document(Xapian::docid did, bool lazy) const
     Assert(did != 0);
     Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
 
-    return new QuartzDocument(ptrtothis,
+    RETURN(new QuartzDocument(ptrtothis,
 			      tables->get_value_table(),
 			      tables->get_record_table(),
-			      did, lazy);
+			      did, lazy));
 }
 
 PositionList *
