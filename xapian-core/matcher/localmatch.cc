@@ -254,14 +254,13 @@ LocalMatch::mk_postlist(const om_termname & tname, om_termcount wqf)
 IRWeight *
 LocalMatch::mk_weight(om_termname tname_, om_termcount wqf_)
 {
-    IRWeight * wt = IRWeight::create(actual_weighting);
+    IRWeight * wt = IRWeight::create(actual_weighting, mopts);
     wt->set_stats(&statssource, querysize, wqf_, tname_);
 #ifdef MUS_DEBUG_PARANOID
     if (!tname_.empty()) {
-	IRWeight * extra_weight = mk_weight();
+	auto_ptr<IRWeight> extra_weight(mk_weight());
 	// Check that max_extra weight is really right
 	AssertEqDouble(wt->get_maxextra(), extra_weight->get_maxextra());
-	delete extra_weight;
     }
 #endif /* MUS_DEBUG_PARANOID */
     return wt;
@@ -272,9 +271,11 @@ LocalMatch::mk_weight(om_termname tname_, om_termcount wqf_)
 //
 
 void
-LocalMatch::set_options(const OmSettings & mopts)
+LocalMatch::set_options(const OmSettings & mopts_)
 {
     Assert(!is_prepared);
+
+    mopts = mopts_;
 
     int val = mopts.get_int("match_percent_cutoff", 0);
     if (val > 0) {

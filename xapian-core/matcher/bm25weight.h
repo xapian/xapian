@@ -32,12 +32,31 @@ class BM25Weight : public IRWeight {
 	mutable om_weight termweight;
 	mutable om_doclength lenpart;
 
+	double param_A;
+	double param_B;
+	double param_C;
+	double param_D;
+
 	void calc_termweight() const;
+	BM25Weight(om_weight termweight_,
+		   om_doclength lenpart_,
+		   double param_A_,
+		   double param_B_,
+		   double param_C_,
+		   double param_D_)
+		: termweight(termweight_),
+		  lenpart(lenpart_),
+		  param_A(param_A_),
+		  param_B(param_B_),
+		  param_C(param_C_),
+		  param_D(param_D_)
+		  {}
     public:
 	IRWeight * clone() const {
-	    // FIXME: should copy across settings
-	    return new BM25Weight;
+	    return new BM25Weight(termweight, lenpart, param_A,
+				  param_B, param_C, param_D);
 	}
+	BM25Weight(const OmSettings & opts);
 	~BM25Weight() { }
 	om_weight get_sumpart(om_termcount wdf, om_doclength len) const;
 	om_weight get_maxpart() const;

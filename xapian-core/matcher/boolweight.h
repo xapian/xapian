@@ -29,10 +29,12 @@
 // Boolean weighting scheme (everything gets 0)
 class BoolWeight : public IRWeight {
     private:
+	BoolWeight() {}
     public:
 	IRWeight * clone() const {
 	    return new BoolWeight;
 	}
+	BoolWeight(const OmSettings & opts) { }
 	~BoolWeight() { }
 	om_weight get_sumpart(om_termcount wdf, om_doclength len) const { return 0; }
 	om_weight get_maxpart() const { return 0; }

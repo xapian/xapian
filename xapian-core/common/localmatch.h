@@ -24,6 +24,7 @@
 #define OM_HGUARD_LOCALMATCH_H
 
 #include "om/omenquire.h"
+#include "om/omsettings.h"
 #include "omqueryinternal.h"
 #include "match.h"
 #include "stats.h"
@@ -67,6 +68,9 @@ class LocalMatch : public SingleMatch
 
 	/// RSet to be used (affects weightings)
 	std::auto_ptr<RSet> rset;
+
+	/// Stored match options object
+	OmSettings mopts;
 
 	/// Weighting scheme which has been requested.
 	string requested_weighting;
@@ -149,7 +153,7 @@ class LocalMatch : public SingleMatch
 
         void set_rset(const OmRSet & omrset);
 
-	void set_options(const OmSettings & mopts);
+	void set_options(const OmSettings & mopts_);
 
 	bool prepare_match(bool nowait);
 

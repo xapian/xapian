@@ -24,6 +24,7 @@
 #define OM_HGUARD_IRWEIGHT_H
 
 #include "om/omtypes.h"
+#include "om/omsettings.h"
 #include "omdebug.h"
 
 class IRDatabase;
@@ -50,7 +51,7 @@ class IRWeight {
 	IRWeight() : initialised(false), weight_calculated(false) { return; }
 	virtual ~IRWeight() { return; }
 
-	static IRWeight *create(const string &wt_type);
+	static IRWeight *create(const string &wt_type, const OmSettings & opts);
     
 	/** Return a clone of this weight object.
 	 */

@@ -10,19 +10,19 @@
 map<string, IRWeight *> IRWeight::user_weights;
 
 IRWeight *
-IRWeight::create(const string &wt_type)
+IRWeight::create(const string &wt_type, const OmSettings & opts)
 {
     DEBUGLINE(UNKNOWN, "IRWeight::create(" << wt_type << ")");
     IRWeight * weight = NULL;
 
-    if (wt_type.at(0) != 'x') {
+    if (wt_type.size() == 0 || wt_type.at(0) != 'x') {
 	// Create weight of correct type
 	if (wt_type == "bm25") {
-	    weight = new BM25Weight();
+	    weight = new BM25Weight(opts);
 	} else if (wt_type == "trad") {
-	    weight = new TradWeight();	
+	    weight = new TradWeight(opts);	
 	} else if (wt_type == "bool") {
-	    weight = new BoolWeight();
+	    weight = new BoolWeight(opts);
 	} else {
 	    throw OmInvalidArgumentError("Unknown weighting scheme");
 	}	

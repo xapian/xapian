@@ -29,7 +29,11 @@
 #include "rset.h"
 #include "omdebug.h"
 
-const double k = 1;
+TradWeight::TradWeight(const OmSettings & opts)
+{
+    param_k = opts.get_real("tradweight_k", 1);
+    if(param_k < 0) throw OmInvalidArgumentError("Parameter k in traditional weighting formula must be at least 0.");
+}
 
 // Calculate weights using statistics retrieved from databases
 void
@@ -38,7 +42,7 @@ TradWeight::calc_termweight() const
     Assert(initialised);
 
     om_doccount dbsize = stats->get_total_collection_size();
-    lenpart = k / stats->get_total_average_length();
+    lenpart = param_k / stats->get_total_average_length();
 
     om_doccount termfreq = stats->get_total_termfreq(tname);
 

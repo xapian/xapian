@@ -1,3 +1,8 @@
+Fri Sep 15 18:14:37 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Allow users to set the parameters used in the BM25 and traditional
+	  weighting schemes.  Documented, but not tested.
+
 Fri Sep 15 15:02:49 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Moved todo.xml to docs/
