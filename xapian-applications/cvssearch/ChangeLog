@@ -1,3 +1,8 @@
+Wed Mar 24 13:34:45 GMT 2004  Olly Betts <olly@survex.com>
+
+	* perl/cvscompare-script.pl: Removed - it's an unused old version of 
+	  Compare-script.pl.
+
 Wed Mar 24 13:10:09 GMT 2004  Olly Betts <olly@survex.com>
 
 	* perl/: Fixed warnings from perl -wc.
