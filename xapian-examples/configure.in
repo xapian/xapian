@@ -52,7 +52,7 @@ dnl **************************
 
 AC_OUTPUT(
  Makefile
- mgrep/Makefile
+ msearch/Makefile
  gui/Makefile
  gui/glade/Makefile
  ferretfx/Makefile
