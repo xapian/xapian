@@ -19,12 +19,12 @@ stamp-h1
 stamp-h.in
 .deps
 .libs
-xapian-config
-libxapian.la
-xapian-core-*.tar.gz
 autom4te*.cache
 depcomp
 missing
 mkinstalldirs
 ylwrap
+xapian-config
+libxapian.la
+xapian-core-*.tar.gz
 xapian.spec
