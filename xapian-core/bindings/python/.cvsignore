@@ -5,3 +5,5 @@ Makefile.in
 Makefile
 .deps
 .libs
+apitest_helpers.py
+apitest_to_python.pl

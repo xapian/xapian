@@ -1,3 +1,11 @@
+Mon Aug 14 18:42:05 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Java and SWIG bindings brought up to date with recent changes
+	  to OmWritableDatabase
+
+	* Python version of apitest.cc now has 29 tests converting, of which
+	  21 pass.
+
 Mon Aug 14 15:50:00 BST 2000 Olly Betts
 
 	* MultiDatabase::MultiDatabase(const DatabaseBuilderParams & params)

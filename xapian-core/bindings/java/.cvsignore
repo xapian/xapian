@@ -20,3 +20,4 @@ stamp-h.in
 .libs
 libomus.la
 om-*.tar.gz
+apitest_to_java.pl

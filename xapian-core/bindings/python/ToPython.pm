@@ -31,6 +31,8 @@ BEGIN {
     	"bool" => 1,
 	"int" => 1
     );
+
+    $ToPython::int_type = '(?:(?:unsigned )?int|unsigned|size_t)';
 }
 
 sub new {
@@ -250,6 +252,16 @@ sub do_if($) {
     return $text;
 }
 
+sub do_elsif($) {
+    my ($self, $cond) = @_;
+
+    $self->undent();
+    my $text = "elif ($cond):\n";
+    $self->addtext($text);
+    $self->indent();
+    return $text;
+}
+
 sub do_else() {
     my $self = shift;
 
@@ -340,43 +352,52 @@ sub do_catch($) {
     return $text;
 }
 
-return 1;
-
-__DATA__
-sub do_elsif($) {
-    my ($self, $cond) = @_;
-
-    my $text = "} else if ($cond) {\n";
-    $self->undent();
+sub do_break() {
+    my $self = shift;
+    my $text = "break\n";
     $self->addtext($text);
-    $self->indent();
     return $text;
 }
 
 sub do_for($$$) {
     my ($self, $precommand, $cond, $inc) = @_;
+    my $text;
 
-    if ($precommand =~ /^($apitest_parser::type) ($apitest_parser::identifier.*)/) {
-        my ($type, $rest) = ($1, $2);
-        $precommand = map_type($type) . " $rest"; 
+    # if of form "for (i=0; ...)"...
+    if ($precommand =~ /^$ToPython::int_type ($apitest_parser::identifier) *= *([0-9]+)$/) {
+        my ($indexvar, $initial) = ($1, $2);
+        # and simple increment...
+        if ($inc =~ /^($indexvar\+\+)|(\+\+$indexvar)$/) {
+	    # and simple end test...
+	    if ($cond =~ /^$indexvar *< *($apitest_parser::func\(\)|[0-9]+)$/) {
+	        my $bound = $1;
+	        $text = "for $indexvar in range($initial, $bound):\n";
+	    } else {
+		print STDERR "Bad cond in do_for($precommand, $cond, $inc)\n";
+		die "Problem in do_for";
+	    }
+        } else {
+            print STDERR "Bad increment in do_for($precommand, $cond, $inc)\n";
+	    die "Problem in do_for";
+	}
+    } else {
+        print STDERR "Bad precommand in do_for($precommand, $cond, $inc)\n";
+	die "Problem in do_for";
     }
     
-    my $text = "for ($precommand;$cond;$inc) {\n";
     $self->addtext($text);
     $self->indent();
     return $text;
 }
 
-sub do_break() {
-    my $self = shift;
-    my $text = "break;\n";
-    $self->addtext($text);
-    return $text;
-}
-
 sub do_postinc($$) {
     my ($self, $id, $op) = @_;
-    my $text = "$id$op;\n";
+    my $text;
+    if ($op eq '++') {
+        $text = "$id = $id + 1\n";
+    } else {
+        $text = "$id = $id - 1\n";
+    }
     $self->addtext($text);
     return $text;
 }
@@ -386,3 +407,4 @@ sub do_preinc($$) {
     return $self->do_postinc($arg1, $arg2);
 }
 
+return 1;

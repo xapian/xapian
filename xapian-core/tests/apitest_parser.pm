@@ -24,6 +24,14 @@ package apitest_parser;
 use strict;
 use Carp;
 
+$apitest_parser::verbose = 0;
+
+sub doprint(@) {
+    if ($apitest_parser::verbose) {
+        print @_;
+    }
+}
+
 sub getline() {
     my $line = <STDIN>;
     chomp $line;
@@ -46,8 +54,8 @@ sub getline() {
 
 $apitest_parser::func_start_regex = '^bool (test_[a-z_]*[0-9]*)\(\) *$';
 $apitest_parser::type = "\\b(?:bool|(?:unsigned )?int|unsigned|size_t|Om[A-Z][A-Za-z]+|om_[a-z]+|(?:std::)?string)";
-$apitest_parser::identifier = "(?:[a-zA-Z_0-9]+)";
-$apitest_parser::func = "(?:(?:$apitest_parser::identifier\.)?$apitest_parser::identifier)";
+$apitest_parser::identifier = "(?:\\b[a-zA-Z_0-9]+\\b)";
+$apitest_parser::func = "(?:(?:$apitest_parser::identifier\\.)*$apitest_parser::identifier)";
 $apitest_parser::commentstart = '(?:\/\/|\/\*)';
 
 sub new($) {
@@ -77,7 +85,7 @@ sub parse_function($) {
     my ($self, $firstline) = @_;
     $self->{failed} = 0;
 
-    print "Found test: $firstline\n";
+    doprint "Found test: $firstline\n";
     $self->{interp}->func_start($firstline);
     $self->{indent} = 4;
     #print "Converted to: " . 
@@ -88,7 +96,7 @@ sub parse_function($) {
     while (defined ($_ = getline())) {
 	my $line = $_;
 	my $newline = $self->parse_line($line);
-	last if $newline eq "END"; 
+	last if (defined $newline and $newline eq "END"); 
 	if ($main::verbose) {
 	    $newline = (' ' x $self->{indent}) . $newline;
 	    $newline =~ s/^( *)-=>/-=>$1/;
@@ -145,7 +153,7 @@ sub parse_line($) {
 	    print "-=>$line";
 	    die "Invalid if statement";
 	}
-    } elsif ($line =~ /^for \((.*);(.*);(.*)\) {$/) {
+    } elsif ($line =~ /^for \( *(.*); *(.*); *(.*)\) {$/) {
 	my ($precommand, $cond, $inc) = ($1, $2, $3);
 	$newline = $interp->do_for($precommand, $cond, $inc);
 	$self->{indent} += 4;
@@ -192,7 +200,7 @@ sub parse_line($) {
 	$self->{indent} -= 4;
 	$newline = $interp->close_block();
 	if ($self->{indent} == 0) {
-		print "End of function.\n";
+		doprint "End of function.\n";
 	    return "END";
 	}
     } elsif ($line =~ /^return (.*);/) {

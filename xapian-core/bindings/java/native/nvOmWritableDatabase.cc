@@ -45,15 +45,15 @@ JNIEXPORT void JNICALL Java_com_muscat_om_OmWritableDatabase_deleteNativeObject
 
 /*
  * Class:     com_muscat_om_OmWritableDatabase
- * Method:    lock
+ * Method:    begin_session
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_com_muscat_om_OmWritableDatabase_lock
+JNIEXPORT void JNICALL Java_com_muscat_om_OmWritableDatabase_begin_1session
   (JNIEnv *env, jobject obj, jint timeout)
 {
     OmWritableDatabase *db = (OmWritableDatabase *) tryGetLongField (env, obj, "nativePtr");
     try {
-	db->lock((om_timeout)timeout);
+	db->begin_session((om_timeout)timeout);
     }
     catch (OmError& err) {
 	handleNativeError (env, err);
@@ -62,15 +62,15 @@ JNIEXPORT void JNICALL Java_com_muscat_om_OmWritableDatabase_lock
 
 /*
  * Class:     com_muscat_om_OmWritableDatabase
- * Method:    unlock
+ * Method:    end_session
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_com_muscat_om_OmWritableDatabase_unlock
+JNIEXPORT void JNICALL Java_com_muscat_om_OmWritableDatabase_end_1session
   (JNIEnv *env, jobject obj)
 {
     OmWritableDatabase *db = (OmWritableDatabase *) tryGetLongField (env, obj, "nativePtr");
     try {
-	db->unlock();
+	db->end_session();
     }
     catch (OmError& err) {
 	handleNativeError (env, err);

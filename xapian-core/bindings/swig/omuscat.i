@@ -247,8 +247,9 @@ class OmWritableDatabase : public OmDatabase {
 	void end_session();
 	void flush();
 
-	void begin_transaction(om_timeout timeout = 0);
-	void end_transaction();
+	void begin_transaction();
+	void commit_transaction();
+	void cancel_transaction();
 
 	om_docid add_document(const OmDocumentContents & document,
 			      om_timeout timeout = 0);

@@ -75,7 +75,7 @@ while (<STDIN>) {
 		$failed[$#failed+1] = $name;
 
                 print OUTPUT $parser->make_comment("*** UNTRANSLATED FUNCTION: $name");
-		print STDERR "Parse of $name failed: $@\n";
+		print STDERR "Parse of $name failed: $@\n" if $main::verbose;
 	    }
 	}
     }

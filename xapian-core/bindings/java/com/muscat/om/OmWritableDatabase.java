@@ -12,12 +12,12 @@ public class OmWritableDatabase extends OmDatabase {
     }
     protected native void deleteNativeObject ();
 
-    public void lock() {
-        lock(0);
+    public void begin_session() {
+        begin_session(0);
     }
 
-    public native void lock(int timeout);
-    public native void unlock();
+    public native void begin_session(int timeout);
+    public native void end_session();
 
     public native int add_document(OmDocumentContents document);
 

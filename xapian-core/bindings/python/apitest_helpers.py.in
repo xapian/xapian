@@ -208,3 +208,33 @@ def TEST_EXPECTED_DOCS(mset, *dids):
             print "Match set had unexpected documents:"
 	    print "Got: ", str(got_dids)
 	    print "Expected: ", str(expect)
+
+def floats_are_equal_enough(a, b):
+    import math
+    if math.fabs(a - b) > 1E-5:
+         return 0
+    return 1
+
+def weights_are_equal_enough(a, b):
+    if floats_are_equal_enough(a,b):
+        return 1
+
+    if verbose:
+        print "Got weight of", a, ", expected weight of", b
+
+    return 0
+
+def mset_range_is_same_weights(mset1, first1, mset2, first2, count):
+    TEST_AND_EXPLAIN(len(mset1.items) >= first1 + count - 1,
+                     "mset1 is too small: expected at least " +
+		     str(first1 + count - 1) + " items.\n")
+
+    TEST_AND_EXPLAIN(len(mset2.items) >= first2 + count - 1,
+                     "mset2 is too small: expected at least " +
+		     str(first2 + count - 1) + " items.\n")
+
+    for i in range(count):
+        if mset1.items[first1+i][OMMSET_WT] != mset2.items[first2+i][OMMSET_WT]:
+	    return 0
+
+    return 1
