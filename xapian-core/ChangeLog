@@ -1,3 +1,10 @@
+Thu Apr 11 17:01:44 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* Fixes to work with automake 1.6.1.
+	  I recommend using 1.6.1 rather than 1.6, since this fixes many
+	  bugs in 1.6.  I havn't tested with 1.6 recently, but it is likely
+	  to report problems.
+
 Thu Apr 11 17:25:37 BST 2002  Olly Betts <olly@survex.com>
 
 	* Use GNU getopt.

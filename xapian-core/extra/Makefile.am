@@ -10,5 +10,5 @@ check_PROGRAMS = parsequerytest
 TESTS = parsequerytest
 
 libomqueryparser_la_SOURCES = parsequery.yy
-parsequerytest_SOURCES = parsequerytest.cc parsequery.yy
-parsequerytest_LDADD = ../libxapian.la # ../testsuite/libtest.la
+parsequerytest_SOURCES = parsequerytest.cc
+parsequerytest_LDADD = libomqueryparser.la ../libxapian.la

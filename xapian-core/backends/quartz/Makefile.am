@@ -57,10 +57,11 @@ quartztest_LDADD = libquartz.la \
                    ../../testsuite/libtest.la \
 		   ../../libxapian.la
 
-btreetest_SOURCES = btreetest.cc btree.cc bcursor.cc btree_base.cc
+btreetest_SOURCES = btreetest.cc
 btreetest_LDADD = ../../testsuite/libtest.la \
 		  ../../common/libcommon.la \
-		  ../../api/omerror.lo
+		  ../../api/omerror.lo \
+		  btree.lo bcursor.lo btree_base.lo
 
 quartzdump_SOURCES = quartzdump.cc
 quartzdump_LDADD = libquartz.la \
