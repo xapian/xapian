@@ -4,4 +4,5 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
-SUBDIRS = python perl
+wrap_omstem.c: ../swig/omstem.i
+	swig -c++ -perl ../swig/omstem.i

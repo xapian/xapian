@@ -20,6 +20,7 @@
  * USA
  * -----END-LICENCE-----
  */
+#undef list
 #include "om/omstem.h"
 #include <string>
 %}
@@ -27,6 +28,12 @@
 
 %typemap(python, out) string {
     $target = PyString_FromString(($source)->c_str());
+}
+
+%typemap(perl5, out) string {
+    $target = sv_newmortal();
+    sv_setpv($target, ($source)->c_str());
+    argvi++;
 }
 
 class OmStem {
