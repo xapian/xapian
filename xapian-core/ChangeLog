@@ -1,3 +1,7 @@
+Mon Jun 02 16:25:18 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Fix m4 quoting so that MINOR_VERSION is set correctly.
+
 Mon Jun  2 15:22:30 2003  James Aylett  <james@tartarus.org>
 
 	* bindings/swig/xapian.i: move QueryParser wrapping to use

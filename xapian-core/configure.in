@@ -429,7 +429,7 @@ dnl ], [chmod +x bindings/java/apitest_to_java.pl bindings/python/apitest_to_pyt
 AC_OUTPUT
 
 MAJOR_VERSION="`echo \"$VERSION\"|sed 's/\..*//'`"
-MINOR_VERSION="`echo \"$VERSION\"|sed 's/[^.]*\.//;s/\..*//'`"
+[MINOR_VERSION="`echo \"$VERSION\"|sed 's/[^.]*\.//;s/\..*//'`"]
 dnl for portability, files run through $CXXCPP must have extension .c .cc or .C
 rm -f _xaptmp.cc
 ln -s $srcdir/include/xapian/version.h.in _xaptmp.cc
