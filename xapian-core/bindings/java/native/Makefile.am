@@ -2,8 +2,6 @@ JDKINC = -I/usr/lib/jdk1.1/include -I/usr/local/jdk1.1/include/linux
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include $(JDKINC)
 #CPP     = g++
 
-noinst_OBJECTS = libomusjava.so
-
 JCLAS =	com.muscat.om.OmEnquire				\
 	com.muscat.om.OmDatabaseGroup			\
 	com.muscat.om.OmQuery				\
@@ -21,8 +19,11 @@ JCLAS =	com.muscat.om.OmEnquire				\
 	com.muscat.om.OmExpandDecider			\
 	com.muscat.om.OmPrefixExpandDecider
 
+check_PROGRAMS = dummy
 
-JAVALIB_SOURCE = nvOmEnquire.cc			\
+dummy_SOURCES = dummy.cc
+
+EXTRA_DIST = nvOmEnquire.cc			\
 	nvOmDatabaseGroup.cc		\
 	nvOmQuery.cc 			\
 	nvOmMSet.cc 			\
@@ -39,7 +40,7 @@ JAVALIB_SOURCE = nvOmEnquire.cc			\
 	nvOmPrefixExpandDecider.cc	\
 	utils.cc
 
-libomusjava_so_OBJS = nvOmEnquire.lo			\
+native_sources = nvOmEnquire.lo			\
 	nvOmDatabaseGroup.lo		\
 	nvOmQuery.lo 			\
 	nvOmMSet.lo 			\
@@ -56,8 +57,10 @@ libomusjava_so_OBJS = nvOmEnquire.lo			\
 	nvOmPrefixExpandDecider.lo	\
 	utils.lo
 
-libomusjava.so: $(libomusjava_so_OBJS)
-	$(LIBTOOL) $(CXX) -shared $(libomusjava_so_OBJS) ../../../libomus.la -o $@
+all-local: libomusjava.so
+
+libomusjava.so: $(native_sources)
+	$(LIBTOOL) $(CXX) -shared $^ ../../../libomus.la -o $@
 
 #all:	$(MODS)
 #	$(CPP) -shared -O3 -o libomusjava.so -lpthread $(MODS) $(OMLIB)
