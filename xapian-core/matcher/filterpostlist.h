@@ -37,6 +37,8 @@ class FilterPostList : public virtual AndPostList {
 
         weight recalc_maxweight();
 
+	string intro_term_description() const;
+
         FilterPostList(PostList *l, PostList *r, Match *root) :
             AndPostList(l, r, root) {};
 };

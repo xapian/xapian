@@ -45,6 +45,8 @@ class XorPostList : public virtual BranchPostList {
 	PostList *skip_to(docid, weight w_min);
 	bool   at_end() const;
 
+	string intro_term_description() const;
+
         XorPostList(PostList *, PostList *, Match *);
 };
 

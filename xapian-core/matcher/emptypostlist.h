@@ -38,6 +38,8 @@ class EmptyPostList : public virtual PostList {
 	PostList *next(weight);
 	PostList *skip_to(docid, weight);
 	bool   at_end() const;
+
+	string intro_term_description() const;
 };
 
 inline doccount
