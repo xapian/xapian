@@ -1,3 +1,8 @@
+Mon Jul 21 15:06:59 BST 2003  Richard Boulton <richard@tartarus.org>
+
+	* include/xapian/enquire.h: Fix incorrect documentation comment
+	  for Enquire::set_set_forward().  (Looked like a cut&paste error)
+
 Mon Jul 21 01:10:55 BST 2003  Olly Betts <olly@survex.com>
 
 	* docs/install.html,m4/xapian.m4: Added XO_LIB_XAPIAN to replace

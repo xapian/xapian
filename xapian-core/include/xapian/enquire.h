@@ -654,7 +654,7 @@ class Enquire {
          */
 	void set_collapse_key(Xapian::valueno collapse_key);
 
-        /** Set the collapse key to use for queries.
+        /** Set the order in which to return result documents of equal weight.
          *
 	 * @param sort_forward If true, documents with the same weight will
 	 *	be returned in ascending document order; if false, they will be
