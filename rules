@@ -31,8 +31,27 @@ commonconfflags := \
 	--sysconfdir=/etc \
 	--enable-maintainer-mode
 
+clean:
+	dh_testdir
+	dh_testroot
+	for v in $(PYTHONVERSIONS); do \
+	    set -e; \
+	    rm -rf build-python$$v; \
+	done
+	rm -f config.sub config.guess
+	dh_clean
+	rm -f build-stamp configure-stamp
+
+# The autotools target adds forced build-time dependencies on
+# autotools-dev (for /usr/share/misc/config.*)
+# It's also a .PHONY make target.
+autotools:
+	rm -f config.sub config.guess
+	ln -s /usr/share/misc/config.sub config.sub
+	ln -s /usr/share/misc/config.guess config.guess
+
 configure: debian/control configure-stamp
-configure-stamp:
+configure-stamp: autotools
 	dh_testdir
 
 	for v in $(PYTHONVERSIONS); do \
@@ -78,7 +97,7 @@ install: build
 
 binary: binary-arch binary-indep
 binary-indep: DH_OPTIONS=-i
-binary-indep:
+binary-indep: build install
 	dh_testdir
 	dh_testroot
 	dh_installdocs
@@ -114,14 +133,4 @@ binary-arch: build install
 	dh_md5sums
 	dh_builddeb
 
-clean:
-	dh_testdir
-	dh_testroot
-	for v in $(PYTHONVERSIONS); do \
-	    set -e; \
-	    rm -rf build-python$$v; \
-	done
-	dh_clean
-	rm -f build-stamp configure-stamp
-
-.PHONY: configure build install binary binary-arch binary-indep clean
+.PHONY: clean autotools configure build install binary binary-arch binary-indep
