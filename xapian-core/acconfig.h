@@ -23,5 +23,28 @@
 #ifndef _om_config_h_
 #define _om_config_h_
 @TOP@
+
+/* Define if you want to build DA backend */
+#undef MUS_BUILD_BACKEND_DA
+
+/* Define if you want to build sleepycat backend */
+#undef MUS_BUILD_BACKEND_SLEEPY
+
+/* Define if you want to build inmemory backend */
+#undef MUS_BUILD_BACKEND_INMEMORY
+
+/* Define if you want to build multi database backend */
+#undef MUS_BUILD_BACKEND_MULTI
+
+/* Define if you want debugging to be enabled (will cause some slow down) */
+#undef MUS_DEBUG
+
+/* Define if you want paranoid debugging to be enabled (will cause
+ *   significant slow-down) */
+#undef MUS_DEBUG_PARANOID
+
+/* Define if you want lots of debugging messages */
+#undef MUS_DEBUG_VERBOSE
+
 @BOTTOM@
 #endif /* _om_config_h_ */
