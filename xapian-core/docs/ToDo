@@ -40,6 +40,10 @@ Do same for postlists, termlists, documents, matcher, etc.
 Middle term (within a couple of months)
 ============================
 
+A couple of objects get copied a lot - look into doing copy-on-write for them.
+(Notably term objects (currently strings so this happens, but may not stay
+that way) and ExpandBits)
+
 Write more decision functions to expand - especially one to exclude the
 current query terms.
 
