@@ -249,7 +249,7 @@ with a boolean query.
 </LI></UL>
 There is in fact a subtle difference in these two approaches. In the first,
 the collection statistics for the probabilistic query will be
-determined by the document subset which is got by running the boolean
+determined by the document subset which is obtained by running the boolean
 query. In the second, the collection statistics for the probabilistic
 query are determined by the whole document collection. These differences
 can affect the final result.
@@ -453,7 +453,7 @@ when a document is found in both the left and right branch. For example,
 </PRE>
 
 An OM_MOP_AND node transmits only the documents found on both branches up the tree,
-again summing the scores. For example,
+again summing the scores,
 
 <PRE>
                            docs       1   16
@@ -471,7 +471,7 @@ again summing the scores. For example,
 
 An OM_MOP_AND_NOT node transmits up the tree the documents on the left branch which are
 not on the right branch. The scores are taken from the left branch. For example,
-again summing the scores. For example,
+again summing the scores,
 
 <PRE>
                            docs       12   17
@@ -505,7 +505,7 @@ For example,
    scores  3.1 3.2  3.1  3.8 ...    4.2 4.1 4.5  4.7 ...
 </PRE>
 
-OM_MOP_FILTER is like M_OP_AND, but weights are only transmitted from the left branch.
+OM_MOP_FILTER is like OM_MOP_AND, but weights are only transmitted from the left branch.
 For example,
 
 <PRE>
@@ -521,7 +521,7 @@ For example,
    docs     1   12   16   17         1   8   16   18
    scores  3.1 3.2  3.1  3.8 ...    4.2 4.1 4.5  4.7 ...
 </PRE>
-OM_MOP_XOR is like M_OP_OR, but documents on both left and right branches are not
+OM_MOP_XOR is like OM_MOP_OR, but documents on both left and right branches are not
 transmitted up the tree. For example,
 
 <PRE>
@@ -573,16 +573,17 @@ operators. For example,
 This creates a probabilistic query with terms `regulation', `import', `export', `canned'
 and `fish'.
 <P>
-In fact this style of creation is so common that there is the shortcut contruction:
+In fact this style of creation is so common that there is the shortcut
+construction:
 
 <PRE>
     vector &lt;om_termname&gt; terms;
-
     terms.push_back("regulation");
     terms.push_back("import");
     terms.push_back("export");
     terms.push_back("canned");
     terms.push_back("fish");
+
     OmQuery query(OM_MOP_OR, terms.begin(), terms.end());
 </PRE>
 
@@ -591,35 +592,38 @@ Suppose now we have this Boolean query,
     ('EEC' - 'France') and ('1989' or '1991' or '1992') and 'Corporate Law'
 </PRE>
 
-This can be built up as bquery like this,
+This could be built up as bquery like this,
 
 <PRE>
-    OmQuery bquery("EEC");
-    bquery = OmQuery(OM_MOP_AND_NOT, bquery, "France");
+    OmQuery bquery1(OM_MOP_AND_NOT, "EEC", "France");
+
     OmQuery bquery2("1989");
     bquery2 = OmQuery(OM_MOP_OR, bquery2, "1991");
     bquery2 = OmQuery(OM_MOP_OR, bquery2, "1992");
+
     OmQuery bquery3("Corporate Law");
-    bquery = OmQuery(OM_MOP_AND, b, OmQuery(OM_MOP_AND(bquery2, bquery3)));
+
+    OmQuery bquery(OM_MOP_AND, bquery1, OmQuery(OM_MOP_AND(bquery2, bquery3)));
 </PRE>
 
-and this can be attached as a filter to <code>query</code> to run the probabilistic filter
-with a Boolean query,
+and this can be attached as a filter to <code>query</code> to run the
+probabilistic query with a Boolean filter,
 
 <PRE>
-    query = OmQuery(OM_MOP_FILTER, bquery, query);
+    query = OmQuery(OM_MOP_FILTER, query, bquery);
 </PRE>
 
-This is the general technique for processing boolean queries, so to run a pure boolean
-query, attach is as a filter to and undefined query:
+This is the general technique for processing boolean queries, so to run a
+pure boolean query, attach is as a filter to and undefined query:
 
 <PRE>
-    bquery = OmQuery(OM_MOP_FILTER, bquery, OmQuery());
+    bquery = OmQuery(OM_MOP_FILTER, OmQuery(), bquery);
     // bquery will now run as a pure boolean
 </PRE>
 
-A common requirement in search engine functionality is to run a probabilistic query where
-some terms are required to index all the retrieved documents (`+' terms), and others are required to
+A common requirement in search engine functionality is to run a
+probabilistic query where some terms are required to index all the
+retrieved documents (`+' terms), and others are required to
 index none of the retrieved documents (`-' terms). For example,
 
 <PRE>
@@ -631,20 +635,20 @@ the corresponding query can be set up by,
 <PRE>
     vector &lt;om_termname&gt; plus_terms;
     vector &lt;om_termname&gt; minus_terms;
-    vector &lt;om_termname&gt; terms;
+    vector &lt;om_termname&gt; normal_terms;
 
     plus_terms.push_back("canned");
     plus_terms.push_back("fish");
 
     minus_terms.push_back("japan");
 
-    terms.push_back("regulation");
-    terms.push_back("import");
-    terms.push_back("export");
+    normal_terms.push_back("regulation");
+    normal_terms.push_back("import");
+    normal_terms.push_back("export");
 
     OmQuery query(OM_MOP_AND_MAYBE,
                   OmQuery(OM_MOP_AND, plus_terms.begin(), plus_terms.end());
-                  OmQuery(OM_MOP_OR, terms.begin(), terms.end()));
+                  OmQuery(OM_MOP_OR, normal_terms.begin(), normal_terms.end()));
 
     query = OmQuery(OM_MOP_AND_NOT,
                     query,
@@ -907,7 +911,7 @@ example in the om-examples package.
 
 <HR>
 
-Last modified: 7 Mar 2000 by Martin Porter
+Last modified: 7 Mar 2000 by Richard Boulton
 
 </BODY>
 </HTML>
