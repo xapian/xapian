@@ -46,23 +46,23 @@ static struct DB_pool * find_block(struct DB_file * DB, int n)
     int oldest_j = 0;     /* - and its index in P */
     int j;
     for (j = 0; j < pool_size; j++) {
-	if (P[j].n == n) {
-	    return P + j;
-	}
-	if (P[j].p == NULL) {
-	    byte * b = malloc(DB->block_size);
-	    readda(DB, n, b);
-	    P[j].p = b + HEADER;
-	    P[j].n = n;
-	    return P + j;
-	}
-	{
-	    long int age = DB->clock - P[j].clock;
-	    if (age > oldest) {
-		oldest = age;
-		oldest_j = j;
-	    }
-	}
+    if (P[j].n == n) {
+        return P + j;
+    }
+    if (P[j].p == NULL) {
+        byte * b = malloc(DB->block_size);
+        readda(DB, n, b);
+        P[j].p = b + HEADER;
+        P[j].n = n;
+        return P + j;
+    }
+    {
+        long int age = DB->clock - P[j].clock;
+        if (age > oldest) {
+        oldest = age;
+        oldest_j = j;
+        }
+    }
     }
     readda(DB, n, P[oldest_j].p - HEADER);
     P[oldest_j].n = n;
@@ -230,34 +230,34 @@ extern struct DB_postings *
 DB_open_postings(struct DB_term_info * t, struct DB_file * DB)
 {
     struct DB_postings * q =
-	    (struct DB_postings *) calloc(1, sizeof(struct DB_postings));
+        (struct DB_postings *) calloc(1, sizeof(struct DB_postings));
     MUS_PTHREAD_MUTEX_LOCK(DB->mutex);
     {
-	q->DB = DB;
-	q->cursor = DB_make_cursor(DB);
-	q->buffer_size = 0;
-	q->buffer = NULL;
-	if (DB_find(DB, q->cursor, t->key))
-	{   q->key = (byte *) malloc(t->key[0] + ILEN);
-	    memmove(q->key, t->key, t->key[0]);
-	    q->key[0] += ILEN;
-	    copy_tag(DB, q, 0);
-	    q->i = PWIDTH;
-	    q->freq = -I(q->buffer, 0);
-	    if (q->i == q->lim)            /* the famous bug [41] fix */
-	    {   DB_move_forward(DB, q->cursor);
-		copy_tag(DB, q, ILEN);
-		q->i = 0;
-	    }
-	}
-	else
-	{   q->buffer = (byte *) malloc(PWIDTH);
-	    q->i = 0;
-	    q->freq = 0;
-	    M_put_I(q->buffer, 0, MAXINT);
-	}
-	q->Doc = 0;
-	q->E = 0;
+    q->DB = DB;
+    q->cursor = DB_make_cursor(DB);
+    q->buffer_size = 0;
+    q->buffer = NULL;
+    if (DB_find(DB, q->cursor, t->key))
+    {   q->key = (byte *) malloc(t->key[0] + ILEN);
+        memmove(q->key, t->key, t->key[0]);
+        q->key[0] += ILEN;
+        copy_tag(DB, q, 0);
+        q->i = PWIDTH;
+        q->freq = -I(q->buffer, 0);
+        if (q->i == q->lim)            /* the famous bug [41] fix */
+        {   DB_move_forward(DB, q->cursor);
+            copy_tag(DB, q, ILEN);
+            q->i = 0;
+        }
+    }
+    else
+    {   q->buffer = (byte *) malloc(PWIDTH);
+        q->i = 0;
+        q->freq = 0;
+        M_put_I(q->buffer, 0, MAXINT);
+    }
+    q->Doc = 0;
+    q->E = 0;
     }
     MUS_PTHREAD_MUTEX_UNLOCK(DB->mutex);
     return q;
@@ -275,6 +275,14 @@ static void next_posting_set(struct DB_postings * q, int Z, int skippable)
     {
         M_put_I(q->key, q->key[0] - ILEN, Z);
         DB_find(q->DB, q->cursor, q->key);
+
+        /* bug [82] of Muscat3.6 fixed as follows: */
+
+printf(">>%d %d\n", q->key[0] - ILEN , q->DB->key[0]);
+        if (q->key[0] - ILEN == q->DB->key[0])
+            {  DB_move_forward(q->DB, q->cursor);
+printf("++%d %d\n", q->key[0] - ILEN , q->DB->key[0]);
+            }
     }
     else DB_move_forward(q->DB, q->cursor);
 
@@ -314,10 +322,10 @@ extern void DB_read_postings(struct DB_postings * q, int style, int Z)
     if (q->Doc == MAXINT) return;
 
     if (style > 0) {
-	next_posting(q, Z);
+    next_posting(q, Z);
         if (q->Doc < Z) q->Doc = Z;
     } else {
-	/* interpret ranges */
+    /* interpret ranges */
         q->Doc++;
         if (q->Doc > q->E || q->E < Z) next_posting(q, Z);
     }

@@ -74,7 +74,7 @@ int main(int argc, char * argv[])
    {  struct DB_file * DB;
       struct DB_term_info t;
       byte * b = (byte *) malloc(1000);
-      DB = DB_open(argv[1], 20, x);
+      DB = DB_open(argv[1], 20);
       if (DB == NULL) { printf("Can't open %s\n", argv[1]); exit(1); }
       {   int style;
           for (style = 0; style <= 1; style++)

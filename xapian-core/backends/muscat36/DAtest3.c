@@ -40,26 +40,30 @@ int main(int argc, byte * argv[])
         p = DA_open(argv[1], DA_RECS, x);
         if (p == NULL) { printf("Can't open %s\n", argv[1]); exit(1); }
         tv = M_make_termvec();
-        {   int i; for (i = 1; i <= 1000; i++)
+        {   /* int i; for (i = 0; i <= 150; i++) */
+            int i= 999999999;
             {   printf("CYCLE %d\n", i);
-                if (! DA_get_termvec(p, i, tv)) break;
-                M_open_terms(tv);
-                while(1)
-                {   M_read_terms(tv);
-                    if (!(tv->term)) break;
-                    printkform(tv->term);
-                    if (tv->rel) printf(" r");
-                    if (tv->freq != -1) printf(" freq=%d", tv->freq);
-                    if (tv->wdf != 0) printf(" wdf=%d", tv->wdf);
+                if (! DA_get_termvec(p, i, tv))
+                {   printf("term vec %d absent\n", i);
+                } else
+                {   M_open_terms(tv);
+                    while(1)
+                    {   M_read_terms(tv);
+                        if (!(tv->term)) break;
+                        printkform(tv->term);
+                        if (tv->rel) printf(" r");
+                        if (tv->freq != -1) printf(" freq=%d", tv->freq);
+                        if (tv->wdf != 0) printf(" wdf=%d", tv->wdf);
 
-                    if (tv->termp)
-                    {   byte * p = tv->termp;
-                        int l = L2(p, 0);
-                        int i;
-                        for (i=2; i<l; i = i + LWIDTH(x) + 1)
-                           printf(" %d/%d", LENGTH_OF(p, i, x), p[i + LWIDTH(x)]);
+                        if (tv->termp)
+                        {   byte * p = tv->termp;
+                            int l = L2(p, 0);
+                            int i;
+                            for (i=2; i<l; i = i + LWIDTH(x) + 1)
+                               printf(" %d/%d", LENGTH_OF(p, i, x), p[i + LWIDTH(x)]);
+                        }
+                        printf("\n");
                     }
-                    printf("\n");
                 }
             }
             printf("\n");
