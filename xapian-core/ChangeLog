@@ -1,3 +1,12 @@
+Fri Sep 15 15:02:49 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Moved todo.xml to docs/
+
+	* TODO is now generated from a rule in the root directory
+
+	* TODO and docs/todo.html not generated if XML::Parser isn't
+	  installed.
+
 Fri Sep 15 13:26:16 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added an AC_MSG_WARN if validation is not supported

@@ -68,6 +68,18 @@ AM_CONDITIONAL(HAVE_CPP_ACCESS_BYPASS, test "$FNO_ACCESS_FLAG" = yes)
 dnl Checks for perl.  (Needed to make some of the documentation)
 AC_PATH_PROG(PERL_PATH, perl)
 AM_CONDITIONAL(HAVE_PERL, test -n "$PERL_PATH")
+AC_MSG_CHECKING([for perl XML module...])
+if perl -MXML::Parser -e '' 2>/dev/null
+then
+    have_perl_xml=yes
+else
+    have_perl_xml=no
+fi
+AC_MSG_RESULT("$have_perl_xml")
+if test "$have_perl_xml" = no ; then
+    AC_MSG_WARN([Perl XML module not present; TODO won't be build.])
+fi
+AM_CONDITIONAL(HAVE_PERL_XML, test "$have_perl_xml" = yes)
 AC_SUBST(PERL_PATH)
 
 dnl Checks for dot.  (Diagrams in the documentation)
@@ -120,7 +132,7 @@ fi
 
 if test -n "$XML_CONFIG_PATH"
 then
-    echo "checking libxml flags..."
+    AC_MSG_CHECKING([libxml flags...])
     LIBXML_CFLAGS=`$XML_CONFIG_PATH --cflags`
     LIBXML_LIBS=`$XML_CONFIG_PATH --libs`
 

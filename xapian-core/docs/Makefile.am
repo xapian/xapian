@@ -22,7 +22,11 @@ EXTRA_DIST = mkdoc.pl.in todo2html.pl.in \
 
 # Things to do if have perl installed
 if HAVE_PERL
-CREATED_DOCUMENTS1=code_structure.html todo.html
+CREATED_DOCUMENTS1=code_structure.html
+# and if XML::Parser is installed
+if HAVE_PERL_XML
+CREATED_DOCUMENTS2=todo.html
+endif
 endif
 
 # Things to do if have LaTeX installed
@@ -52,7 +56,7 @@ endif
 
 # Data to install, in the usual automake way
 docdatadir   = $(datadir)/omuscat
-docdata_DATA = $(CREATED_DOCUMENTS1) $(HTMLFILES)
+docdata_DATA = $(CREATED_DOCUMENTS1) $(CREATED_DOCUMENTS2) $(HTMLFILES)
 
 ###############################################
 # How to put doxygen docs in the distribution #
@@ -159,8 +163,7 @@ code_structure.html: mkdoc.pl
 
 todo.html: todo2html.pl
 	@echo "Generating todo list"
-	@./todo2html.pl $(top_srcdir)/todo.xml >todo.html
-	@./todo2html.pl --text $(top_srcdir)/todo.xml > ../TODO
+	@./todo2html.pl $(srcdir)/todo.xml >todo.html
 
 DOCPPFLAGS = --sort --no-java-graphs --c-comments --quantel \
              --upwards-arrows --no-define
