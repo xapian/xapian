@@ -1,3 +1,5 @@
+\title Xapian QueryServer
+
 \C{intro} QueryServer
 
 \S0{whatfor} What is QueryServer for?
@@ -71,7 +73,7 @@ For example the following command runs the queryserver, listening to the socket
 The queryserver should be stopped by sending it a \c{SIG_TERM} signal.  For
 this reason, it is desirable to keep track of the process ID of the server.
 Many systems provide tools to assist with this task - for example, the
-\c{start-stop-daemon} tool on Debian systems.
+\c{start\-stop\-daemon} tool on Debian systems.
 
 \S0{howworks} How the server works
 
@@ -97,7 +99,163 @@ take longer than the maximum time taken to execute a query).
 
 \C{clients} Clients
 
+Currently only a PHP4 client class is available.  However, it should be a
+simple task to write a client for most other scripting languages.
+
 \S0{client-php} PHP4 client
+
+The PHP4 client consists of a single PHP file,
+\q{\cw{xapian\-queryclient.php}}, which should be included from your PHP
+project.  The file defines three classes which are used to compose a query, and
+retrieve the results.
+
+\S1{client-php-enquiry} The \cw{Enquiry} class
+
+The \c{Enquiry} class is used to build up a query, and then to send that query
+to the server and retrieve the results.
+
+\dt \c{Enquiry::Enquiry($socket)}
+
+\dd This is the constructor.  It takes one parameter, which is the location of the socket to be used to talk to \c{xapian\-queryserver}.
+
+\dt \c{Enquiry::setDbName($dbname)}
+
+\dd FIXME
+
+\dt \c{Enquiry::setQuery($query)}
+
+\dd FIXME
+
+\dt \c{Enquiry::addFilter($prefix, $filter)}
+
+\dd FIXME
+
+\dt \c{Enquiry::perform($firstdoc, $maxitems)}
+
+\dd FIXME
+
+\dt \c{Enquiry::perform($firstdoc, $maxitems)}
+
+\dd FIXME
+
+
+\S1{client-php-result} The \cw{Result} class
+
+The \c{Result} class, returned by the Enquiry::perform() method, holds a set
+of results of a query, together with some statistics about the results.
+
+Note that due to optimisations and shortcuts performed by Xapian, the exact
+number of documents matched by the query may not be known, so Xapian provides
+an estimate of the number of matching documents, together with lower and upper
+bounds on the number of matching documents.  The estimate will always lie
+within the bounds.  If and only if the upper bound is equal to the lower bound,
+the estimate may be relied on to be correct.
+
+\dt \c{Result::firstitem}
+
+\dd This member holds the rank of the first hit returned.
+
+\dt \c{Result::items}
+
+\dd This member holds the number of hits stored in the result object.
+
+\dt \c{Result::matches_lower_bound}
+
+\dd This member holds a lower bound on the number of documents matched by the
+    query.
+
+\dt \c{Result::matches_estimated}
+
+\dd This member holds an estimate of the number of documents matched by the
+    query.
+
+\dt \c{Result::matches_upper_bound}
+
+\dd This member holds an upper bound on the number of documents matched by the
+    query.
+
+\dt \c{Result::hits}
+
+\dd This member is an array of \c{Hit} objects (see \k{client-php-hits}).
+    Note that this array is keyed on the rank of the hits - so if:
+
+    \lcont{
+    \c $result\_=\_Enquire::perform(5,10)
+    
+    was called to generate the \c{$result} object (and there were sufficient
+    matching documents), \c{$result\->hits[5]} to \c{$result\->hits[14]} would
+    be valid.
+    }
+
+\S1{client-php-hits} The \cw{Hit} class
+
+The \c{Hit} class holds an individual document resulting from a query.
+
+\dt \c{Hit::rank}
+
+\dd This member holds the rank of the hit.  This starts at 0: \e{ie}, the 
+    top hit resulting from a query has a rank of 0.
+
+\dt \c{Hit::percent}
+
+\dd This member holds the percentage score of the hit.
+
+\dt \c{Hit::data}
+
+\dd This member is an object holding the data stored in the Xapian database
+    for the hit.  The data is assumed to have been held in the format generated
+    by the \c{scriptindex}, or \c{omindex} indexers associated with the
+    \c{omega} Xapian application.  This format is a set of lines, one per
+    field, of the form:
+
+    \lcont{
+    \c fieldname=fielddata
+    \e iiiiiiiiibiiiiiiiii
+    }
+
+\S1{client-php-example} Example
+
+The following example connects to a socket at
+\q{\cw{/tmp/xapian\-queryserver\-socket}}, runs the query \q{\cw{query}} on the
+database called \q{\cw{db}}, retrieves the top 10 results, and displays the
+rank and percentage score of each result.  In addition, the data stored
+in each document is assumed to be of the format:
+
+\c type=<type>
+\c id=<id>
+
+and this data is parsed and displayed.
+
+\c <?
+\c include('xapian-queryclient.php');
+\c 
+\c $enquiry = new Enquiry('/tmp/xapian-queryserver-socket');
+\c 
+\c $enquiry->setDbName('db');
+\c $enquiry->setQuery('query');
+\c $result = $enquiry->perform(0, 10);
+\c 
+\c if ($result != null) {
+\c 
+\c   print "First item returned is of rank: " .
+\c           $result->firstitem . " <br>\n";
+\c   print "Number of items returned is: " .
+\c           $result->items . " <br>\n";
+\c   print "There were at least: " .
+\c           $result->matches_lower_bound . " hits.<br>\n";
+\c   print "There were approximately: " .
+\c           $result->matches_estimated . " hits.<br>\n";
+\c   print "There were no more than: " .
+\c           $result->matches_upper_bound . " hits.<br>\n";
+\c
+\c   foreach ($result->hits as $hit) {
+\c     print "Hit at rank " . $hit->rank .
+\c           ", score " . $hit->percent . "%" .
+\c           " is " . $hit->data->type . "_" . $hit->data->id .
+\c           "<br>\n";
+\c   }
+\c }
+\c ?>
 
 
 \A{protocol} Communications protocol

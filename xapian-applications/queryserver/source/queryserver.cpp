@@ -347,6 +347,8 @@ serve_client(int sock)
             resultstr += Base64::encode(doc.get_data().c_str(), doc.get_data().size());
             resultstr += "\n";
         }
+        if (results.begin() != results.end()) 
+            resultstr += "#\n";
     } catch(...) {
         fprintf(stderr, "Error: unable to format results.\n");
         return;

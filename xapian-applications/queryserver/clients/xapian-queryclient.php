@@ -23,7 +23,7 @@ class Enquiry {
     var $query;
     var $filterlist;
     
-    function Enquiry($socket = '') {
+    function Enquiry($socket) {
         $this->queryserver_socket = $socket;
         $this->dbname = 'default';
         $this->query = '';
