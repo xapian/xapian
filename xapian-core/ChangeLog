@@ -1,3 +1,7 @@
+Fri Jan 26 16:21:09 GMT 2001 Olly Betts
+
+	* indexerxml.cc: Removed some dead code.
+
 Fri Jan 26 16:11:13 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Added omindexerdescinternal.h to the Makefile

@@ -224,24 +224,7 @@ doc_is_valid(xmlDocPtr doc)
     xmlFreeProp(attr);
     attr = 0;
 
-    /*
-    // validate against a known DTD
-    xmlDtdPtr dtdptr = xmlNewDtd(0, "omindexer", NULL, get_dtd_path());
-    if (!dtdptr) {
-	throw OmInternalError(std::string("Couldn't load DTD ")
-			      + xmlChar2string(get_dtd_path()));
-    }
-    */
-
-    bool result = xmlValidateDocument(&ctxt, doc);
-
-    /*
-    if (dtdptr) {
-	xmlFreeDtd(dtdptr);
-    }
-    */
-
-    return result;
+    return xmlValidateDocument(&ctxt, doc);
 #else  // HAVE_LIBXML_VALID
     return true;
 #endif
