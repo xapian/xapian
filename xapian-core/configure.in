@@ -38,6 +38,9 @@ AC_SUBST(DVIPS_PATH)
 dnl Use libtool to manage our libraries
 AM_PROG_LIBTOOL
 
+dnl Shut libtool up
+LIBTOOL="$LIBTOOL --quiet"
+
 dnl Checks for libraries.
 dnl empty action if found - libtool will take care of things
 AC_CHECK_LIB(db, db_open, :)
