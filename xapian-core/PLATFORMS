@@ -51,7 +51,7 @@ x86   |*NetBSD 1.6.1 GCC 2.95.3        | 0.8.5 |Passed| (x86-netbsd1)
 x86   |*OpenBSD 3.4 GCC 2.95.3         | 0.8.3~|Passed|
 x86   |*Solaris 9 GCC 3.3.2            | 0.8.5 |Passed| (x86-solaris1)
 x86   |*Solaris 9 Sun Workshop C++     | 0.8.5 |Passed| (x86-solaris1) [2]
-x86   | Cygwin 1.5.10 GCC 3.3.3 XP sp2 |~0.8.4 |Passed| [10] from Mike Boone
+x86   | Cygwin 1.5.10 GCC 3.3.3 XP sp2 |~0.8.4 |Passed| [4] from Mike Boone
 x86   | MSYS/MingW GCC 3.3.1           |~0.8.0 |Passed| from Hartmut Honisch
 x86   | MinGW 3.1.0                    |~0.8.4 |Passed| from Michael Sisolak
 x86_64|=Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.5 |Passed| (spe189)
@@ -60,18 +60,18 @@ x86_64|*Linux 2.4 SuSE 8.1 GCC 3.2.2   | 0.8.5 |Passed| (amd64-linux1)
 x86_64|=Linux 2.6 SuSE 9 GCC 3.3.3     | 0.8.5 |Passed| (spe190)
 x86_64| Linux 2.6 Debian 3.1 GCC 3.3.5 | 0.8.3~|Passed| from gmane.org
 alpha |*Linux 2.2 Debian 3.0 GCC 2.95.4| 0.8.5 |Passed| (alpha-linux1)
-alpha |*Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.8.4 |Passed| (alpha-linux1) [8]
+alpha |*Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.8.4 |Passed| (alpha-linux1) [6]
 alpha |=Linux 2.4 Debian 3.0 GCC 3.4.1 | 0.8.5 |Passed| (spe142,161)
 alpha |=Linux 2.4 RedHat 7.2 GCC 3.4.1 | 0.8.5 |Passed| (spe144)
 alpha |=FreeBSD 5.2.1 GCC 3.3.3        | 0.8.5 |Passed| (spe149)
-alpha |=DEC OSF 5.1 GCC 3.3            | 0.8.4 |Passwd| (spe207) [11]
+alpha |=DEC OSF 5.1 GCC 3.3            | 0.8.4 |Passwd| (spe207) [8]
 sparc |*Solaris 9 GCC 3.3.2            | 0.8.5 |Passed| (sparc-solaris1) [2]
 sparc |*Solaris 9 Sun Workshop C++     | 0.8.5 |Passed| (sparc-solaris1) [2]
 ppc   |*MacOS X 10.1.4 GCC 2.95.2      | 0.8.4 |Passed| (ppc-osx1) [7]
 ppc   |*MacOS X 10.2.8 GCC 3.1 20020420| 0.8.3~|Passed| (ppc-osx2)
 ppc   |*MacOS X 10.2.8 GCC 3.3         | 0.8.5 |Passed| (ppc-osx2)
 mips  | IRIX 6.5.22 GCC 3.3            |~0.8.0 |Passed| from Jim Lynch
-mips  | IRIX 6.5.22 MIPSpro 7.4        |~0.8.0 |Passed| [6] from Jim Lynch
+mips  | IRIX 6.5.24 MIPSpro 7.4        | 0.8.5~|Passed| from Jim Lynch
 arm   |^Linux 2.4 Debian sid GCC 3.3.3 | 0.8.0~|Passed|
 arm   |@Linux 2.4 Debian sid GCC 3.4.0 | 0.8.0~|Passed|
 hppa64|=Linux 2.4 Debian 3.0 GCC 3.0.4 | 0.8.5 |Passed| (spe170)
@@ -84,8 +84,8 @@ ia64  |=Linux 2.4 RHEL AS3 GCC 3.4.1   | 0.8.5 |Passed| (spe177)
 ia64  |=HP-UX 11.23 GCC 3.4.1          | 0.8.5 |Passed| (spe176)
 ia64  |=HP-UX 11.23 aCC B3910B A.06.00 | 0.8.5 |Passed| (spe176)
 ------+--------------------------------+-------+------+------------------------
-x86   |&Linux cross to mingw GCC 2.95.3| 0.8.5 |Built | [3]
-x86   | Linux cross to DJGPP GCC 2.95.2| 0.8.0 |Built | [3] [4]
+x86   |&Linux cross to mingw GCC 2.95.3| 0.8.5 |Built | [1]
+x86   | Linux cross to DJGPP GCC 2.95.2| 0.8.0 |Built | [1] [3]
 ------+--------------------------------+-------+------+------------------------
 arm   |@Linux 2.4 Debian sid GCC 2.95.4| 0.8.0 |Failed| [5]
 ------+--------------------------------+-------+------+------------------------
@@ -106,7 +106,7 @@ Arch  | Platform                       |Version|Status| Notes / requirements
 ------+--------------------------------+-------+------+------------------------
 x86   |#Linux 2.4 RedHat 7.2 GCC 2.96  | 0.7.3 |Passed| SF CF WebSphere box #2
 x86   | Linux 2.4 RedHat 8.0 GCC 2.96  | 0.7.3 |Passed| from Chris Good
-x86   |!FreeBSD 4.7 GCC 2.95.4         | 0.7.3 |Passed| [1]
+x86   |!FreeBSD 4.7 GCC 2.95.4         | 0.7.3 |Passed| [10]
 x86   | Cygwin v1.5.3-1                | 0.7.3 |Passed| from Eric B. Ridge
 sparc |#Linux 2.4 Debian 3.0 GCC 2.95.4| 0.7.3 |Passed| [2]
 sparc |#Linux 2.4 Debian 3.0 GCC 3.0.4 | 0.7.3 |Passed| [2]
@@ -127,32 +127,32 @@ x86   | Linux 2.4 Debian sid GCC 3.3.1 | 0.7.0 |Passed| from Olly Betts
 
 ~ = Tested version from CVS shortly before this release (or after for ~ suffix)
 
-[1] ./configure emits many warnings (we believe these are harmless):
-mv: [FILE]: set owner/group (was: [USERNO]/[GROUPNO]): Operation not permitted
-(This problem is believed fixed by a newer autoconf, which we use from
-0.8.2 onwards.)
+[1] "make check" won't work for a cross-compiled build!
 
 [2] Must be compiled as a static library (./configure --disable-shared).
 
-[3] "make check" won't work for a cross-compiled build!
-
-[4] Perhaps not a terribly useful platform for Xapian, but an additional test
+[3] Perhaps not a terribly useful platform for Xapian, but an additional test
 of portability.  Remote backend is automatically disabled due to lack of
 socketpair.  Not tried to run the binaries yet.
+
+[4] Fails to build if there are spaces in the full path to the directory.
 
 [5] internaltest fails on exception1 (SEGV) and apitest fails on queryvalid1
 (SEGV).  This appears to be due to buggy handling of nested exceptions on arm
 - you should use GCC 3.3 or newer.
 
-[6] Compiler emits a number of warnings.
+[6] GCC 3.0.4 appears buggy on alpha - you get SEGVs unless you configure with:
+./configure CXXFLAGS=-O0
 
 [7] Lots of harmless link warnings such as:
 /usr/bin/ld: warning unused multiple definitions of symbol _optarg
 "link editor" definition of _optarg in section (__DATA,__common)
 /usr/lib/libSystem.dylib(getopt.o) unused definition of _optarg
 
-[8] GCC 3.0.4 appears buggy on alpha - you get SEGVs unless you configure with:
-./configure CXXFLAGS=-O0
+[8] Debug information exceeds some length limit in the native linker, so
+you must configure without debug: "./configure CXXFLAGS=-O2".  Also the
+generated file queryparser.cc fails to compile, but all the other tests
+pass when run by hand.
 
 [9] Must be compiled with -AA (which configure automatically passes), which
 means your code must also be compiled with -AA.  Compiling with -AP (non
@@ -161,9 +161,7 @@ need to link to Xapian and another library not available in -AA form.  HP
 recommend ISVs to supply libraries in -AA form, so this isn't a likely
 scenario.
 
-[10] Fails to build if there are spaces in the full path to the directory.
-
-[11] Debug information exceeds some length limit in the native linker, so
-you must configure without debug: "./configure CXXFLAGS=-O2".  Also the
-generated file queryparser.cc fails to compile, but all the other tests
-pass when run by hand.
+[10] ./configure emits many warnings (we believe these are harmless):
+mv: [FILE]: set owner/group (was: [USERNO]/[GROUPNO]): Operation not permitted
+(This problem is believed fixed by a newer autoconf, which we use from
+0.8.2 onwards.)
