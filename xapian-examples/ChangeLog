@@ -1,3 +1,9 @@
+Mon May 20 17:58:56 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* createdatabase.cc: Use strerror instead of sys_nerr and 
+	  sys_errlist[].  This is more portable (and actually compiles
+	  on my system).
+
 Mon May 20 15:08:50 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* Make -k parameter display values for all documents in a postlist.

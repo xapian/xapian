@@ -28,6 +28,7 @@
 using namespace std;
 
 #include <errno.h>
+#include <string.h>
 #include <sys/stat.h>
 
 int
@@ -53,13 +54,8 @@ main(int argc, char **argv)
 		    errno = EEXIST;
 	    }
 	    if (errno) {
-		if (errno < sys_nerr && sys_errlist[errno]) {
-		    cerr << argv[0] << ": " << sys_errlist[errno] << " ("
-			 << argv[1] << ")" << endl;
-		} else {
-		    cerr << argv[0] << ": couldn't create directory `"
-			 << argv[1] << "'" << endl;
-		}
+		cerr << argv[0] << ": couldn't create directory `"
+		     << argv[1] << "': " << strerror(errno) << endl;
 		exit(1);
 	    }
 	}
@@ -72,7 +68,7 @@ main(int argc, char **argv)
 	OmWritableDatabase database(settings);
     }
     catch (const OmError &error) {
-	cerr << "Exception: " << error.get_msg() << endl;
+	cerr << argv[0] << ": " << error.get_msg() << endl;
 	exit(1);
     }
     return 0;
