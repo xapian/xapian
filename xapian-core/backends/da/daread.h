@@ -99,7 +99,7 @@ struct termvec
     byte * termp; /* pointer to position info (or 0) */
 };
 
-extern struct DAfile * DAopen(byte * s, int type);
+extern struct DAfile * DAopen(const char * s, int type);
 extern void   DAclose(struct DAfile * p);
 extern int    DAterm(byte * k, struct terminfo * t, struct DAfile * p);
 extern struct postings * DAopenpostings(struct terminfo * t, struct DAfile * p);

@@ -370,7 +370,7 @@ void readda(struct DAfile * q, int n, byte * b)
    printf("Can't read block %d of DA file\n", n); exit(1);
 }
 
-int block_size(filehandle f, byte * s)
+int block_size(filehandle f, const char * s)
 { byte b[40];
   if (X_read(f,b,40) eq 40) switch (W(b,1))
   { case DARECS: case DATERMS: return W(b,2);
@@ -379,12 +379,12 @@ int block_size(filehandle f, byte * s)
   printf("Can't read block size of %s\n",s); exit(1);
 }
 
-extern struct DAfile * DAopen(byte * s, int type)
+extern struct DAfile * DAopen(const char * s, int type)
 {  struct DAfile * p = (struct DAfile *) malloc(sizeof(struct DAfile));
    filehandle q = X_findtoread(s);
    int bsize = block_size(q,s);
    byte * b = malloc(bsize+40);  /* ample */
-   byte * s_type = (type eq DATERMS) ? "term" : "record";
+   const char * s_type = (type eq DATERMS) ? "term" : "record";
    p->locator = q;
    p->blocksize = bsize;
    readda(p,0,b);
