@@ -20,6 +20,8 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Urgent  | Chris           | Juggle
 ---------+-----------------+--------------------------------------------------
+ High    | API             | Rename OmDatabase to OmDatabaseGroup
+---------+-----------------+--------------------------------------------------
  High    | Stemming        | Make a separate package to contain stemming
          | Algorithms      | algorithm stuff (docs, code, stemtest)
 ---------+-----------------+--------------------------------------------------
