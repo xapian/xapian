@@ -909,6 +909,10 @@ class Enquire {
 	TermIterator get_matching_terms_end(const MSetIterator &it) const;
 
 	/** Register a MatchDecider.
+	 *
+	 * @param name  	The name to register this matchdecider as.
+	 * @param mdecider	The matchdecider.  If omitted, then remove
+	 * 			any matchdecider registered with this name.
 	 */
 	void register_match_decider(const std::string &name,
 				    const MatchDecider *mdecider = NULL);
