@@ -166,6 +166,24 @@ void add_bterm(const string &term) {
 extern void
 run_query(void)
 {
+    if (!new_terms.empty()) {
+	// now we constuct the query:
+	// ((plusterm_1 AND ... AND plusterm_n) ANDMAYBE
+	//  (term_1 OR ... OR term_m)) ANDNOT
+	// (minusterm_1 OR ... OR minusterm_p)
+	if (!pluses.empty()) matcher->add_oplist(AND, pluses);
+	if (!normals.empty()) {
+	    matcher->add_oplist(op, normals);
+	    if (!pluses.empty()) matcher->add_op(AND_MAYBE);
+	}       
+	if (!minuses.empty()) {
+	    matcher->add_oplist(OR, minuses);
+	    if (!matcher->add_op(AND_NOT)) {
+		cout << "Don't be so negative\n" << endl; // FIXME
+		exit(0);
+	    }
+	}
+    }
     int bool_terms = 0;
     // add any boolean terms and AND them together
     // FIXME: should OR those with same prefix...
@@ -186,24 +204,6 @@ run_query(void)
 long
 do_match(long int first_hit, long int list_size)
 {
-    if (!new_terms.empty()) {
-	// now we constuct the query:
-	// ((plusterm_1 AND ... AND plusterm_n) ANDMAYBE
-	//  (term_1 OR ... OR term_m)) ANDNOT
-	// (minusterm_1 OR ... OR minusterm_p)
-	if (!pluses.empty()) matcher->add_oplist(AND, pluses);
-	if (!normals.empty()) {
-	    matcher->add_oplist(op, normals);
-	    if (!pluses.empty()) matcher->add_op(AND_MAYBE);
-	}       
-	if (!minuses.empty()) {
-	    matcher->add_oplist(OR, minuses);
-	    if (!matcher->add_op(AND_NOT)) {
-		cout << "Don't be so negative\n" << endl; // FIXME
-		exit(0);
-	    }
-	}
-    }
     print_query_page("query", first_hit, list_size);
     return msize;
 }
