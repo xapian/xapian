@@ -1573,7 +1573,8 @@ extern void Bcursor_lose(struct Bcursor * BC)
 {
     struct Btree * B = BC->B;
     struct Cursor * C = BC->C;
-    int j; for (j = 0; j <= B->shared_level; j++) free(C[j].p);
+    int j; for (j = 0; j < B->shared_level; j++) free(C[j].p);
+                     /*  '<=' here was a bug of 3/11/00  */
     free(BC);
 }
 
