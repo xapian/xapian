@@ -705,7 +705,7 @@ void QuartzPostList::read_number_of_entries(const char ** posptr,
 /** The format of a postlist is:
  *
  *  Split into chunks.  Key for first chunk is the termname (encoded as
- *  length - name).  Key for susequent chunks is the same, followed by the
+ *  length - name).  Key for subsequent chunks is the same, followed by the
  *  document ID of the first document in the chunk (encoded as length of
  *  representation in first byte, and then docid).
  *
