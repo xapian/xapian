@@ -1,3 +1,8 @@
+Tue Oct 19 21:07:06 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Added xapian_wrap.h as a target for the rule
+	  which runs SWIG.
+
 Tue Oct 19 21:05:11 BST 2004  Olly Betts <olly@survex.com>
 
 	* tcl8/Makefile.am: Wrap in a tcl8 namespace "Xapian".

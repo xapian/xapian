@@ -28,7 +28,7 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS)
 
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h
 
-xapian_wrap.cc xapian.py: ../xapian.i util.i extra.i
+xapian_wrap.cc xapian_wrap.h xapian.py: ../xapian.i util.i extra.i
 	$(SWIG) -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -python -shadow @SWIG_PYTHON_FLAGS@ -o xapian_wrap.cc $(srcdir)/../xapian.i
 
 xapian.pyc: xapian.py
