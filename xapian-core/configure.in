@@ -411,21 +411,13 @@ AC_CONFIG_FILES([
  docs/doxygen_api_conf
  docs/doxygen_full_conf
  xapian.spec
-])
+ bindings/Makefile
+ bindings/python/Makefile
+ bindings/guile/Makefile
+ bindings/tcl8/Makefile
+ bindings/php4/Makefile
+ ])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
-dnl AC_CONFIG_FILES([
-dnl bindings/Makefile
-dnl bindings/python/Makefile
-dnl bindings/perl5/Makefile
-dnl bindings/guile/Makefile
-dnl bindings/tcl8/Makefile
-dnl bindings/php4/Makefile
-dnl bindings/java/Makefile
-dnl bindings/java/native/Makefile
-dnl bindings/java/apitest_to_java.pl
-dnl bindings/python/apitest_to_python.pl
-dnl bindings/python/apitest_helpers.py
-dnl ], [chmod +x bindings/java/apitest_to_java.pl bindings/python/apitest_to_python.pl bindings/python/apitest_helpers.py])
 AC_OUTPUT
 
 MAJOR_VERSION="`echo \"$VERSION\"|sed 's/\..*//'`"

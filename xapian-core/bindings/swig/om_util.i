@@ -21,7 +21,7 @@
  * -----END-LICENCE-----
  */
 #undef list
-#include "om/om.h"
+#include "xapian.h"
 #include <string>
 using std::string;
 %}
@@ -37,32 +37,32 @@ using std::string;
 %exception {
     try {
     	$function
-    } catch (OmAssertionError &e) {
+    } catch (Xapian::AssertionError &e) {
         OMSWIG_exception(SWIG_UnknownError,
-		       string("OmAssertion: ") + e.get_msg());
-    } catch (OmUnimplementedError &e) {
+		       string("Assertion: ") + e.get_msg());
+    } catch (Xapian::UnimplementedError &e) {
         OMSWIG_exception(SWIG_UnknownError,
-		       string("OmUnimplemented: ") + e.get_msg());
-    } catch (OmInvalidArgumentError &e) {
+		       string("Unimplemented: ") + e.get_msg());
+    } catch (Xapian::InvalidArgumentError &e) {
         OMSWIG_exception(SWIG_ValueError,e.get_msg());
-    } catch (OmDocNotFoundError &e) {
+    } catch (Xapian::DocNotFoundError &e) {
         OMSWIG_exception(SWIG_RuntimeError,
-		       string("OmDocNotFoundError: ") + e.get_msg());
-    } catch (OmRangeError &e) {
+		       string("DocNotFoundError: ") + e.get_msg());
+    } catch (Xapian::RangeError &e) {
         OMSWIG_exception(SWIG_IndexError,
-		       string("OmRangeError: ") + e.get_msg());
-    } catch (OmInternalError &e) {
+		       string("RangeError: ") + e.get_msg());
+    } catch (Xapian::InternalError &e) {
         OMSWIG_exception(SWIG_UnknownError,
-		       string("OmInternalError: ") + e.get_msg());
-    } catch (OmDatabaseError &e) {
+		       string("InternalError: ") + e.get_msg());
+    } catch (Xapian::DatabaseError &e) {
         OMSWIG_exception(SWIG_IOError,
-		       string("OmDatabaseError: ") + e.get_msg());
-    } catch (OmNetworkError &e) {
+		       string("DatabaseError: ") + e.get_msg());
+    } catch (Xapian::NetworkError &e) {
         OMSWIG_exception(SWIG_IOError,
-		       string("OmNetworkError: ") + e.get_msg());
-    } catch (OmInvalidResultError &e) {
+		       string("NetworkError: ") + e.get_msg());
+    } catch (Xapian::InvalidResultError &e) {
         OMSWIG_exception(SWIG_ValueError,
-		       string("OmInvalidResultError: ") + e.get_msg());
+		       string("InvalidResultError: ") + e.get_msg());
     } catch (...) {
         OMSWIG_exception(SWIG_UnknownError,
 			 string("unknown error in Xapian"));

@@ -1,3 +1,13 @@
+Wed Jun  4 17:19:37 2003  James Aylett  <james@tartarus.org>
+
+	* configure.in, Makefile.am, bindings: build system will build
+	  bindings as part of normal build process.  No longer build
+	  Perl or Java bindings; for Perl, use Search::Xapian; Java will
+	  be replaced with SWIG-based bindings.
+
+	* bindings: bindings now use Xapian:: namespace names rather than
+	  the old Om* ones. Almost all of the API should now be wrapped.
+
 Wed Jun 04 02:52:38 BST 2003  Olly Betts <olly@survex.com>
 
 	* docs/overview.html: Added start of "Design Principles" section.

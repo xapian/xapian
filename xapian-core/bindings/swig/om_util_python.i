@@ -26,91 +26,73 @@
 %}
 %include typemaps.i
 %include stl.i
-/*
-%typemap(python, out) string {
-    $result = PyString_FromString($1.c_str());
-    // typemap out string    delete $1;
-    //    $1 = 0;
-}
 
-%typemap(python, in) const string &(string temp) {
-    if (PyString_Check($input)) {
-	temp = string(PyString_AsString($input),
-		      PyString_Size($input));
-	$1 = &temp;
-    } else {
-        PyErr_SetString(PyExc_TypeError, "string expected");
-	return NULL;
-    }
-}
-*/
 %{
-    class OmPythonProblem {};
-    OmQuery *get_py_omquery(PyObject *obj)
-    {
-	OmQuery *retval = 0;
-	PyObject *mythis = PyDict_GetItemString(((PyInstanceObject *)obj)
-						->in_dict, "this");
-	if (SWIG_ConvertPtr(mythis,
-			    (void **)&retval,
-			    SWIGTYPE_p_OmQuery, 0)) {
-	    //	    cerr << "obj.this: " << PyString_AsString(mythis) << endl;
-	    //	    cerr << "Problem is: " << err << endl;
-	    PyErr_SetString(PyExc_ValueError,
-			    "OmQuery object invalid");
-	    return 0;
-	}
-	return retval;
-    }
-
-    OmRSet *get_py_omrset(PyObject *obj)
-    {
-	OmRSet *retval = 0;
-	if (PyInstance_Check(obj)) {
+    namespace Xapian {
+	class PythonProblem {};
+	Query *get_py_query(PyObject *obj) {
+	    Query *retval = 0;
 	    PyObject *mythis = PyDict_GetItemString(((PyInstanceObject *)obj)
 						    ->in_dict, "this");
 	    if (SWIG_ConvertPtr(mythis,
 				(void **)&retval,
-				SWIGTYPE_p_OmRSet, 0)) {
-		// cerr << "obj.this: " << PyString_AsString(mythis) << endl;
-		// cerr << "Problem is: " << err << endl;
+				SWIGTYPE_p_Xapian__Query, 0)) {
+		//	    cerr << "obj.this: " << PyString_AsString(mythis) << endl;
+		//	    cerr << "Problem is: " << err << endl;
 		PyErr_SetString(PyExc_ValueError,
-				"OmRSet object invalid");
+				"Query object invalid");
 		return 0;
 	    }
+	    return retval;
 	}
-	return retval;
-    }
 
-    OmMatchDecider *get_py_ommatchdecider(PyObject *obj)
-    {
-	OmMatchDecider *retval = 0;
-	if (PyInstance_Check(obj)) {
-	    PyObject *mythis = PyDict_GetItemString(((PyInstanceObject *)obj)
-						    ->in_dict, "this");
-	    if (SWIG_ConvertPtr(mythis, 
-				(void **)&retval,
-				SWIGTYPE_p_OmMatchDecider, 0)) {
-		// cerr << "obj.this: " << PyString_AsString(mythis) << endl;
-		// cerr << "Problem is: " << err << endl;
-		PyErr_SetString(PyExc_ValueError,
-				"OmMatchDecider object invalid");
-		return 0;
+	RSet *get_py_rset(PyObject *obj) {
+	    RSet *retval = 0;
+	    if (PyInstance_Check(obj)) {
+		PyObject *mythis = PyDict_GetItemString(((PyInstanceObject *)obj)
+							->in_dict, "this");
+		if (SWIG_ConvertPtr(mythis,
+				    (void **)&retval,
+				    SWIGTYPE_p_Xapian__RSet, 0)) {
+		    // cerr << "obj.this: " << PyString_AsString(mythis) << endl;
+		    // cerr << "Problem is: " << err << endl;
+		    PyErr_SetString(PyExc_ValueError,
+				    "RSet object invalid");
+		    return 0;
+		}
+	    }
+	    return retval;
+	}
+
+	MatchDecider *get_py_matchdecider(PyObject *obj) {
+	    MatchDecider *retval = 0;
+	    if (PyInstance_Check(obj)) {
+		PyObject *mythis = PyDict_GetItemString(((PyInstanceObject *)obj)
+							->in_dict, "this");
+		if (SWIG_ConvertPtr(mythis, 
+				    (void **)&retval,
+				    SWIGTYPE_p_MatchDecider, 0)) {
+		    // cerr << "obj.this: " << PyString_AsString(mythis) << endl;
+		    // cerr << "Problem is: " << err << endl;
+		    PyErr_SetString(PyExc_ValueError,
+				    "MatchDecider object invalid");
+		    return 0;
+		}
+	    }
+	    return retval;
+	}
+
+	int get_py_int(PyObject *obj) {
+	    if (!PyNumber_Check(obj)) {
+		throw PythonProblem();
+	    } else {
+		return PyInt_AsLong(PyNumber_Int(obj));
 	    }
 	}
-	return retval;
-    }
-
-    int get_py_int(PyObject *obj) {
-	if (!PyNumber_Check(obj)) {
-	    throw OmPythonProblem();
-	} else {
-	    return PyInt_AsLong(PyNumber_Int(obj));
-	}
-    }
+    };
 %}
 
-%typemap(python, in) const vector<OmQuery *> *(vector<OmQuery *> v){
+%typemap(python, in) const vector<Xapian::Query *> *(vector<Xapian::Query *> v){
     if (!PySequence_Check($input)) {
         PyErr_SetString(PyExc_TypeError, "expected list of queries");
         return NULL;
@@ -121,7 +103,7 @@
     for (i=0; i<sz; i++) {
 	obj = PySequence_GetItem($input, i);
 	if (PyInstance_Check(obj)) {
-	    OmQuery *subqp = get_py_omquery(obj);
+	    Xapian::Query *subqp = Xapian::get_py_query(obj);
 	    if (!subqp) {
 		PyErr_SetString(PyExc_TypeError, "expected query");
 		return NULL;
@@ -135,14 +117,14 @@
     }
     $1 = &v;
 }
-
-%typemap(python, out) om_termname_list {
+/*
+%typemap(python, out) termname_list {
     $result = PyList_New(0);
     if ($result == 0) {
 	return NULL;
     }
 
-    om_termname_list::const_iterator i = $1->begin();
+    Xapian::termname_list::const_iterator i = $1->begin();
 
     while (i!= $1->end()) {
         // FIXME: check return values (once we know what they should be)
@@ -152,7 +134,7 @@
     delete $1;
     $1 = 0;
 }
-
+*/
 %typemap(python, in) const vector<string> &(vector<string> v){
     if (!PyList_Check($input)) {
         PyErr_SetString(PyExc_TypeError, "expected list");
@@ -192,14 +174,14 @@
 #define OMESET_TNAME 0
 #define OMESET_WT 1
 
-PyObject *OmMSet_items_get(OmMSet *mset)
+PyObject *Xapian_MSet_items_get(Xapian::MSet *mset)
 {
     PyObject *retval = PyList_New(0);
     if (retval == 0) {
 	return NULL;
     }
 
-    OmMSetIterator i = mset->begin();
+    Xapian::MSetIterator i = mset->begin();
     while (i != mset->end()) {
         PyObject *t = PyTuple_New(4);
 
@@ -214,14 +196,14 @@ PyObject *OmMSet_items_get(OmMSet *mset)
     return retval;
 }
 
-PyObject *OmESet_items_get(OmESet *eset)
+PyObject *Xapian_ESet_items_get(Xapian::ESet *eset)
 {
     PyObject *retval = PyList_New(0);
     if (retval == 0) {
 	return NULL;
     }
 
-    OmESetIterator i = eset->begin();
+    Xapian::ESetIterator i = eset->begin();
     while (i != eset->end()) {
         PyObject *t = PyTuple_New(2);
 
@@ -241,7 +223,7 @@ PyObject *OmESet_items_get(OmESet *eset)
 	return NULL;
     }
 
-    OmMSetIterator i = $1.begin();
+    Xapian::MSetIterator i = $1.begin();
     while (i != $1.end()) {
         PyObject *t = PyTuple_New(2);
 
@@ -253,42 +235,91 @@ PyObject *OmESet_items_get(OmESet *eset)
     }
 %}
 
-
-%extend OmMSet {
-    %immutable;
-    // access to the items array
-    PyObject *items;
-
-    // for comparison
-    int __cmp__(const OmMSet &other) {
-	if (self->get_max_possible() != other.get_max_possible()) {
-	    return (self->get_max_possible() < other.get_max_possible())? -1 : 1;
-	} else if (self->size() != other.size()) {
-	    return (self->size() < other.size())? -1 : 1;
+namespace Xapian {
+    %extend TermIterator {
+	bool __eq__(const TermIterator &other) {
+	    return (*self)==other;
 	}
-
-	for (int i=0; i<self->size(); ++i) {
-	    if ((*self)[i].get_weight() != other[i].get_weight()) {
-		return ((*self)[i].get_weight() < other[i].get_weight())? -1 : 1;
-	    } else if (*(*self)[i] != *other[i]) {
-		return (*(*self)[i] < *other[i])? -1 : 1;
-	    }
+	bool __ne__(const TermIterator &other) {
+	    return (*self)!=other;
 	}
-	return 0;
     }
-    %mutable;
-}
 
-//%apply LangSpecificListType items { PyObject *items }
+    %extend PositionListIterator {
+	bool __eq__(const PositionListIterator &other) {
+	    return (*self)==other;
+	}
+	bool __ne__(const PositionListIterator &other) {
+	    return (*self)!=other;
+	}
+    }
 
-%typemap(python, out) OmKey {
-    $result = PyString_FromString(($1).value.c_str());
-    // typemap out OmKey    delete $1;
-    //    $1 = 0;
-}
+    %extend PostListIterator {
+	bool __eq__(const PostListIterator &other) {
+	    return (*self)==other;
+	}
+	bool __ne__(const PostListIterator &other) {
+	    return (*self)!=other;
+	}
+    }
 
-%extend OmESet {
-    %immutable;
-    PyObject *items;
-    %mutable;
-}
+    %extend ValueIterator {
+	bool __eq__(const ValueIterator &other) {
+	    return (*self)==other;
+	}
+	bool __ne__(const ValueIterator &other) {
+	    return (*self)!=other;
+	}
+    }
+
+    %extend MSetIterator {
+	bool __eq__(const MSetIterator &other) {
+	    return (*self)==other;
+	}
+	bool __ne__(const MSetIterator &other) {
+	    return (*self)!=other;
+	}
+    }
+
+    %extend ESetIterator {
+	bool __eq__(const ESetIterator &other) {
+	    return (*self)==other;
+	}
+	bool __ne__(const ESetIterator &other) {
+	    return (*self)!=other;
+	}
+    }
+
+    %extend MSet {
+	%immutable;
+	// access to the items array
+	PyObject *items;
+
+	// for comparison
+	int __cmp__(const MSet &other) {
+	    if (self->get_max_possible() != other.get_max_possible()) {
+		return (self->get_max_possible() < other.get_max_possible())? -1 : 1;
+	    } else if (self->size() != other.size()) {
+		return (self->size() < other.size())? -1 : 1;
+	    }
+
+	    for (int i=0; i<self->size(); ++i) {
+		if ((*self)[i].get_weight() != other[i].get_weight()) {
+		    return ((*self)[i].get_weight() < other[i].get_weight())? -1 : 1;
+		} else if (*(*self)[i] != *other[i]) {
+		    return (*(*self)[i] < *other[i])? -1 : 1;
+		}
+	    }
+	    return 0;
+	}
+	%mutable;
+    }
+
+    //%apply LangSpecificListType items { PyObject *items }
+
+    %extend ESet {
+	%immutable;
+	PyObject *items;
+	%mutable;
+    }
+};

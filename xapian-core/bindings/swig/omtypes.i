@@ -21,49 +21,49 @@
  */
 
 /// A term id.  Internal use only.
-typedef unsigned int om_termid;
+typedef unsigned int termid;
 
 /** A unique id for a document.
  *  Start at 1.  A value of 0 should never occur.
  */
-typedef unsigned int om_docid;
+typedef unsigned int docid;
 
 /// Type for counts of documents
-typedef om_docid     om_doccount;
+typedef docid     doccount;
 
 /// Type for counts of terms (eg, wdf, wqf, termfreq).
-typedef om_termid    om_termcount;
+typedef termid    termcount;
 
 /** Type for term positions within documents.
  *  These start at 1.  A value of 0 means that the positional information
  *  is not available for that term.
  */
-typedef unsigned int om_termpos;
+typedef unsigned int termpos;
 
 /// Type for (normalised) lengths of documents
-typedef double       om_doclength;
+typedef double       doclength;
 
 /// Type for sum of lengths of documents
-typedef double       om_totlength;
+typedef double       totlength;
 
 /// Type for referring to value in document
-typedef unsigned int om_valueno;
+typedef unsigned int valueno;
 
 /// A calculated weight, for a term or document
-typedef double       om_weight;
+typedef double       weight;
 
 /** Type for specifying a timeout.  This refers to a time in microseconds:
  *  ie. a timeout value of 1000000 corresponds to a timeout of 1 second.
  */
-typedef unsigned int om_timeout;
+typedef unsigned int timeout;
 
 /// A term name.  This is a string representing the term, and will often be the actual text of the term.
-typedef string om_termname;
+typedef string termname;
 
 /// A list of terms.  This is a container of term names.
-//typedef std::list<om_termname> om_termname_list;
+//typedef std::list<termname> termname_list;
 
 /// A document name.  This is used when making a new document.
-typedef std::string om_docname;
+typedef std::string docname;
 
-typedef int	om_percent;
+typedef int	percent;

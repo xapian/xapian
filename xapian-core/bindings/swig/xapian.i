@@ -6,7 +6,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002 James Aylett
+ * Copyright 2002,2003 James Aylett
  * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
@@ -25,8 +25,13 @@
  * USA
  * -----END-LICENCE-----
  */
+
+// ExpandDecider (+ subclasses)			TODO
+// MatchDecider					TODO
+// Weight (+ subclasses)			TODO
+
 #undef list
-#include <om/om.h>
+#include <xapian.h>
 #include <queryparser.h>
 #include <string>
 #include <vector>
@@ -35,282 +40,280 @@
 
 %include "stl.i"
 using namespace std;
-
 %include "om_util.i"
-%include "omtypes.i"
 
-class OmDocument {
+namespace Xapian {
+
+%include "omtypes.i"
+     
+class PositionListIterator {
+  private:
   public:
-    ~OmDocument();
+    PositionListIterator(const PositionListIterator &other);
+    ~PositionListIterator();
+    std::string get_description() const;
+    void skip_to(Xapian::termpos pos);
+    %extend {
+	Xapian::termpos get_termpos() {
+	    return *(*self);
+	}
+	void next() {
+	    (*self)++;
+	}
+	bool equals(const PositionListIterator &other) {
+	    return (*self)==other;
+	}
+    }
+};
+
+class PostListIterator {
+  private:
+  public:
+    PostListIterator(const PostListIterator& other);
+    ~PostListIterator();
+    std::string get_description() const;
+    %extend {
+	Xapian::docid get_docid() {
+	    return *(*self);
+	}
+	void next() {
+	    (*self)++;
+	}
+	bool equals(const PostListIterator &other) {
+	    return (*self)==other;
+	}
+    }
+    void skip_to(docid did);
+    doclength get_doclength() const;
+    termcount get_wdf() const;
+    PositionListIterator positionlist_begin();
+    PositionListIterator positionlist_end();
+};
+
+class TermIterator {
+  public:
+    TermIterator(const TermIterator &other);
+    ~TermIterator();
+    %extend {
+	string get_term() {
+	    return *(*self);
+	}
+	void next() {
+	    (*self)++;
+	}
+	bool equals(const TermIterator& other) {
+	    return (*self)==other;
+	}
+    }
+
+    // extra method, not required for an input_iterator
+    void skip_to(const std::string & tname);
+
+    Xapian::termcount get_wdf() const;
+    Xapian::doccount get_termfreq() const;
+
+    // allow iteration of positionlist for current document
+    PositionListIterator positionlist_begin();
+    PositionListIterator positionlist_end();
+
+    std::string get_description() const;
+};
+
+class ValueIterator {
+  public:
+    ValueIterator(const ValueIterator& other);
+    ~ValueIterator();
+    Xapian::valueno get_valueno();
+    %extend {
+    string get_value() {
+	return *(*self);
+    }
+    void next() {
+	(*self)++;
+    }
+    bool equals(const ValueIterator &other) {
+	return (*self)==other;
+    }
+    }
+
+    std::string get_description() const;
+};
+
+class Document {
+  public:
+    Document();
+    Document(const Document& other);
+    ~Document();
 
     string get_description() const;
-    string get_value(om_valueno value) const;
+    string get_value(valueno value) const;
     string get_data() const;
 
-    void add_value(om_valueno value, string & value);
-    void set_data(string & data);
+    void add_value(valueno value, const string & value);
+    void set_data(const string & data);
 
-    void remove_value(om_valueno value);
+    void remove_value(valueno value);
     void clear_values();
 
-    // FIXME: values iterator
-    /** Type to store values in. */
-//    typedef map<om_valueno, string> document_values;
+    Xapian::termcount termlist_count() const;
+    TermIterator termlist_begin() const;
+    TermIterator termlist_end() const;
 
-    /** The values associated with this document. */
-//    document_values values;
+    Xapian::termcount values_count() const;
+    ValueIterator values_begin() const;
+    ValueIterator values_end() const;
 
-    // FIXME: termlist
-    // TODO: sort out access to the maps somehow.
-    /** Type to store terms in. */
-//    typedef map<string, OmDocumentTerm> document_terms;
-
-    /** The terms (and their frequencies and positions) in this document. */
-//    document_terms terms;
-
-    /** Add an occurrence of a term to the document.
-     *
-     *  Multiple occurrences of the term at the same position are represented
-     *  only once in the positional information, but do increase the wdf.
-     *
-     *  @param tname  The name of the term.
-     *  @param tpos   The position of the term.
-     */
-    void add_posting(const string & tname, om_termpos tpos = 0, om_termcount wdfinc=1);
-
-    void add_term_nopos(const string & tname, om_termcount wdfinc = 1);
-    void remove_posting(const string & tname, om_termpos tpos, om_termcount wdfdec = 1);
+    void add_posting(const string & tname, termpos tpos = 0, termcount wdfinc=1);
+    void add_term_nopos(const string & tname, termcount wdfinc = 1);
+    void remove_posting(const string & tname, termpos tpos, termcount wdfdec = 1);
     void remove_term(const string & tname);
     void clear_terms();
 };
 
-// This will want some hefty perl TIE magic to turn it into a hash of things
-// For now I'm just making sure it works for php
-class OmMSetIterator {
+class MSetIterator {
   public:
-    OmDocument get_document() const;
-    om_percent get_percent() const;
-    om_weight get_weight() const;
-    om_doccount get_rank() const;
+    MSetIterator(const MSetIterator& other);
+    Document get_document() const;
+    percent get_percent() const;
+    doccount get_collapse_count() const;
+    weight get_weight() const;
+    doccount get_rank() const;
     string get_description() const;
   %extend {
-    om_docid get_docid() {
+    docid get_docid() {
       return *(*self);
     }
-    bool next() {
+    void next() {
       (*self)++;
-      return true;
     }
-    /*
-    bool valid() {
-      return ((*self).internal!=NULL);
-    }
-    */
-    bool equals(const OmMSetIterator &other) {
+    bool equals(const MSetIterator &other) {
       return (*self)==other;
     }
   }
 };
 
-// Classes
-//
-// done means the interface is pretty much there
-// FIXME means work yet to do to get all functionality
-// TODO means the class hasn't been wrapped at all yet
-//
-// OmDatabase					FIXME
-// OmWritableDatabase			done
-// OmDocument					FIXME
-// OmEnquire					FIXME
-// OmESet (+ iterator)			done
-// OmExpandDecider (+ subclasses)			TODO
-// OmMatchDecider					TODO
-// OmMSet (+ iterator)			done
-// OmQuery					FIXME
-// OmRSet					FIXME
-
-class OmMSet {
+class MSet {
   public:
-    OmMSet();
-    ~OmMSet();
+    MSet();
+    MSet(const MSet& other);
+    ~MSet();
 
-    om_doccount size() const;
-    om_doccount get_matches_estimated() const;
-    om_doccount get_matches_lower_bound() const;
-    om_doccount get_termfreq(string tname) const;
-    om_weight get_termweight(string tname) const;
-    om_doccount get_firstitem() const;
-    om_weight get_max_possible();
-    om_weight get_max_attained();
-    int convert_to_percent(const OmMSetIterator & item) const;
-    //    bool empty() const;
+    void fetch(MSetIterator& begin, MSetIterator& end) const;
+    void fetch(MSetIterator& item) const;
+    void fetch() const;
+
+    doccount size() const;
+    doccount max_size() const;
+    doccount get_matches_estimated() const;
+    doccount get_matches_lower_bound() const;
+    doccount get_matches_upper_bound() const;
+    doccount get_termfreq(std::string tname) const;
+    weight get_termweight(std::string tname) const;
+    doccount get_firstitem() const;
+    weight get_max_possible();
+    weight get_max_attained();
+    percent convert_to_percent(const MSetIterator & item) const;
+    percent convert_to_percent(weight wt) const; 
     %name(is_empty) bool empty() const;
-    OmMSetIterator begin() const;
-    OmMSetIterator end() const;
-    OmMSetIterator back() const;
+    MSetIterator begin() const;
+    MSetIterator end() const;
+    MSetIterator back() const;
     string get_description() const;
   %extend {
-    OmMSetIterator get_hit(om_doccount i) {
+    MSetIterator get_hit(doccount i) {
       return ((*self)[i]);
     }
-    int convert_weight_to_percent(om_weight wt) const {
-      return (*self).convert_to_percent(wt);
-    }
-    int get_document_percentage(om_doccount i) {
+    int get_document_percentage(doccount i) {
       return (*self).convert_to_percent( ((*self)[i]) );
     }
-    const OmDocument get_document(om_doccount i) {
+    const Document get_document(doccount i) {
       return ((*self)[i]).get_document();
     }
-    const om_docid get_document_id(om_doccount i) {
+    const docid get_document_id(doccount i) {
       return *((*self)[i]);
     }
   }
-
-//	%readonly
-	/* Each language-specific part should include something like:
-	 * %extend OmMSet {
-	 *     %readonly
-	 *     LangListType items;
-	 * }
-	 * and define LangListType OmMSet_items_get(OmMSet *)
-	 */
-
-//	%readwrite
 };
 
-class OmRSet {
+class RSet {
     public:
-	OmRSet();
-
-	// FIXME: may not actually need direct access, but it would
-	// be considerably more consistent ...
-	// TODO: set<om_docid> items;
-	void add_document(om_docid did);
-	void remove_document(om_docid did);
-	//	bool contains(om_docid did);
-	//	%name(is_empty) bool empty() const;
-	//	om_doccount size() const;
+	~RSet();
+	RSet(const RSet& other);
+	void add_document(docid did);
+	void add_document(MSetIterator& i);
+	void remove_document(docid did);
+	void remove_document(MSetIterator& i);
+	bool contains(docid did);
+	bool contains(MSetIterator& i);
+	%name(is_empty) bool empty() const;
+	doccount size() const;
 
         string get_description() const;
 };
 
-class OmESet {
+class ESetIterator {
+  public:
+    ESetIterator(const ESetIterator& other);
+    weight get_weight() const;
+    string get_description() const;
+  %extend {
+    std::string get_std::string() {
+      return *(*self);
+    }
+    void next() {
+      (*self)++;
+    }
+    bool equals(const ESetIterator &other) {
+      return (*self)==other;
+    }
+  }
+};
+
+class ESet {
     public:
-	~OmESet();
-//	%readonly
+        ESet(const ESet& other);
+	~ESet();
         string get_description() const;
-	om_termcount get_ebound() const;
-	om_termcount size() const;
-	%name(is_empty) om_termcount empty() const;
-	/* Each language-specific part should include something like:
-	 * %extend OmESet {
-	 *     %readonly
-	 *     LangListType items;
-	 * }
-	 * and define LangListType OmMSet_items_get(OmMSet *)
-	 */
-//	%readwrite
+	termcount get_ebound() const;
+	termcount size() const;
+	%name(is_empty) termcount empty() const;
+	ESetIterator begin() const;
+	ESetIterator end() const;
 };
 
-class OmQuery {
+class Database {
     public:
-        /** Constructs a query consisting of single term
-         *  @param tname  The name of the term.
-         *  @param wqf  Within-?-frequency.
-         *  @param term_pos  Position of term related to other terms but there aren't any anyway!
-        */
-        OmQuery(const string &tname,
-		om_termcount wqf = 1,
-		om_termpos term_pos = 0);
-        %extend {
-            /** Constructs a query from a set of queries merged with the specified operator */
-	    %name (OmQuery) OmQuery(OmQuery::op op,
-		    const vector<OmQuery *> *subqs,
-		    om_termpos window = 0) {
-		if ((subqs->size() == 2) && (window == 0)) {
-		    return new OmQuery(op, *(*subqs)[0], *(*subqs)[1]);
-		} else {
-		    OmQuery * query=new OmQuery(op, subqs->begin(),subqs->end());
-		    query->set_window(window);
-		    return query;
-		}
-	    }
-	}
-
-        /** Constructs a new empty query object */
-        OmQuery();
-
-	~OmQuery();
-
-	string get_description();
-	bool is_empty() const;
-	void set_window(om_termpos window);
-	void set_elite_set_size(om_termpos size);
-	void set_cutoff(om_weight cutoff);
-	om_termcount get_length() const;
-	om_termcount set_length(om_termcount qlen_);
-
-  enum op {
-    OP_AND = OmQuery::OP_AND,
-    OP_OR = OmQuery::OP_OR,
-    OP_AND_NOT = OmQuery::OP_AND_NOT,
-    OP_XOR = OmQuery::OP_XOR,
-    OP_AND_MAYBE = OmQuery::OP_AND_MAYBE,
-    OP_FILTER = OmQuery::OP_FILTER,
-    OP_NEAR = OmQuery::OP_NEAR,
-    OP_PHRASE = OmQuery::OP_PHRASE
-  };
-
-
-};
-
-// TODO: OmMatchDecider
-
-// TODO: OmExpandDecider
-
-
-#if defined(NOTDEFINED)
-struct OmDocumentTerm {
-    OmDocumentTerm(const string & tname_, om_termpos tpos = 0);
-
-    string tname;
-    om_termcount wdf;
-
-    //TODO: sort out access to term_positions
-    typedef vector<om_termpos> term_positions;
-    term_positions positions;
-    om_doccount termfreq;
-    void add_posting(om_termpos tpos = 0);
-};
-#endif
-
-class OmDatabase {
-    public:
-	OmDatabase(const OmDatabase & database);
-	OmDatabase();
-	virtual ~OmDatabase();
-
-	void add_database(const OmDatabase & database);
-
-	OmDocument get_document(om_docid did);
-	string get_description() const;
+	Database(const Database & database);
+	Database();
+	virtual ~Database();
 	void reopen();
-	om_doccount get_doccount() const;
-	om_doclength get_avlength() const;
-	om_doccount get_termfreq(const std::string &tname) const;
+
+	void add_database(const Database & database);
+
+	Document get_document(docid did);
+	string get_description() const;
+	doccount get_doccount() const;
+	doclength get_avlength() const;
+	doccount get_termfreq(const std::string &tname) const;
 	bool term_exists(const std::string &tname) const;
-	om_termcount get_collection_freq(const std::string &tname) const;
-	om_doclength get_doclength(om_docid docid) const;
+	termcount get_collection_freq(const std::string &tname) const;
+	doclength get_doclength(docid docid) const;
 	void keep_alive();
-	// FIXME still need term, postlist, positionlist and allterms iterators
+
+	PostListIterator postlist_begin(const std::string& tname) const;
+	PostListIterator postlist_end(const std::string& tname) const;
+	TermIterator termlist_begin(docid did) const;
+	TermIterator termlist_end(docid did) const;
+	PositionListIterator positionlist_begin(docid did, const std::string& tname) const;
+	PositionListIterator positionlist_end(docid did, const std::string& tname) const;
+	TermIterator allterms_begin() const;
+	TermIterator allterms_end() const;
 };
 
-
-class OmWritableDatabase : public OmDatabase {
+class WritableDatabase : public Database {
     public:
-	OmWritableDatabase(const OmWritableDatabase & database);
-	virtual ~OmWritableDatabase();
+	WritableDatabase(const WritableDatabase & database);
+	virtual ~WritableDatabase();
 
 	void flush();
 
@@ -318,49 +321,112 @@ class OmWritableDatabase : public OmDatabase {
 	void commit_transaction();
 	void cancel_transaction();
 
-	om_docid add_document(const OmDocument & document);
-	void delete_document(om_docid did);
-	void replace_document(om_docid did, const OmDocument & document);
+	docid add_document(const Document & document);
+	void delete_document(docid did);
+	void replace_document(docid did, const Document & document);
 
-	OmDocument get_document(om_docid did);
 	string get_description() const;
 };
 
-// New-style database constructors (FIXME: these will be renamed)
-extern OmDatabase OmAuto__open(const string & path);
-extern OmWritableDatabase OmAuto__open(const string & path, int action);
+// New-style database constructors
+namespace Auto {
+    Database open(const string & path);
+    WritableDatabase open(const string & path, int action);
+    Database open_stub(const string & path);
+}
 
-const int OM_DB_CREATE_OR_OPEN = 1;
-const int OM_DB_CREATE = 2;
-const int OM_DB_CREATE_OR_OVERWRITE = 3;
-const int OM_DB_OPEN = 4;
+const int DB_CREATE_OR_OPEN = 1;
+const int DB_CREATE = 2;
+const int DB_CREATE_OR_OVERWRITE = 3;
+const int DB_OPEN = 4;
 
-// so we can typemap this to arrays
-//typedef std::list<std::string> om_termname_list;
-
-class OmEnquire {
+class Query {
     public:
-        OmEnquire(const OmDatabase &databases);
-	~OmEnquire();
+        Query(const Query& copyme);
+        Query(const string &tname,
+		termcount wqf = 1,
+		termpos term_pos = 0);
+        %extend {
+            /** Constructs a query from a set of queries merged with the specified operator */
+	    Query(Query::op op,
+		  const vector<Query *> *subqs,
+		  termpos window = 0) {
+		if ((subqs->size() == 2) && (window == 0)) {
+		    return new Xapian::Query(op, *(*subqs)[0], *(*subqs)[1]);
+		} else {
+		    Xapian::Query * query=new Xapian::Query(op, subqs->begin(),subqs->end());
+		    query->set_window(window);
+		    return query;
+		}
+	    }
+	}
 
-	void set_query(const OmQuery &query);
+        /** Constructs a new empty query object */
+        Query();
 
-	OmESet get_eset(om_termcount maxitems,
-			const OmRSet &omrset,
+	~Query();
+
+	string get_description();
+	bool is_empty() const;
+	void set_window(termpos window);
+	void set_elite_set_size(termcount size);
+	void set_cutoff(weight cutoff);
+	termcount get_length() const;
+	termcount set_length(termcount qlen);
+
+	TermIterator get_terms_begin() const;
+	TermIterator get_terms_end() const;
+
+	enum op {
+	    OP_AND,
+	    OP_OR,
+	    OP_AND_NOT,
+	    OP_XOR,
+	    OP_AND_MAYBE,
+	    OP_FILTER,
+	    OP_NEAR,
+	    OP_PHRASE,
+	    OP_WEIGHT_CUTOFF,
+	    OP_ELITE_SET
+	};
+};
+
+class Enquire {
+    public:
+        Enquire(const Database &databases);
+	~Enquire();
+
+	void set_query(const Query &query);
+	const Query& get_query();
+
+	void set_weighting_scheme(const Weight& weight);
+	void set_collapse_key(valueno collapse_key);
+	void set_sort_forward(bool sort_forward);
+	void set_cutoff(int percent_cutoff, weight weight_cutoff=0);
+	void set_sorting(valueno sort_key, int sort_bands);
+	void set_bias(weight bias_weight, time_t bias_halflife);
+
+	ESet get_eset(termcount maxitems,
+			const RSet &omrset,
 			int flags = 0, double k = 1.0,
-			const OmExpandDecider *edecider = 0) const;
+			const ExpandDecider *edecider = 0) const;
 
-	OmMSet get_mset(om_doccount first,
-			om_doccount maxitems,
-			const OmRSet *omrset = 0,
-			const OmMatchDecider *mdecider = 0) const;
+	MSet get_mset(doccount first,
+			doccount maxitems,
+			const RSet *omrset = 0,
+			const MatchDecider *mdecider = 0) const;
 
-	// FIXME: add new methods to set match options...
+	TermIterator get_matching_terms_begin(docid did) const;
+	TermIterator get_matching_terms_end(docid did) const;
+	TermIterator get_matching_terms_begin(const MSetIterator& i) const;
+	TermIterator get_matching_terms_end(const MSetIterator& i) const;
+
+	void register_match_decider(const std::string& name, const MatchDecider* mdecider=NULL);
 
 	%extend {
-		std::list<std::string> get_matching_terms(const OmMSetIterator &hit) const {
+		std::list<std::string> get_matching_terms(const MSetIterator &hit) const {
 		  std::list<std::string> terms;
-		  OmTermIterator term = self->get_matching_terms_begin(hit);
+		  Xapian::TermIterator term = self->get_matching_terms_begin(hit);
 
 		  while (term != self->get_matching_terms_end(hit)) {
 		    // check term was in the typed query so we ignore
@@ -376,18 +442,16 @@ class OmEnquire {
 	string get_description() const;
 };
 
-%{
-using namespace Xapian;
-%}
-
 class QueryParser {
   public:
   QueryParser();
   void set_stemming_options(const string &lang, bool stem_all_ = false,
                                   Stopper *stop_ = NULL);
 
-  void set_default_op(OmQuery::op default_op_);
-  OmQuery parse_query(const string &q);
+  void set_default_op(Query::op default_op_);
+  Query parse_query(const string &q);
+};
+
 };
 
 %include "omstem.i"
