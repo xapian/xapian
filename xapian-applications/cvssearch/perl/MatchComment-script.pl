@@ -35,6 +35,8 @@ if(param()){
     my $root = param("root");
     my $pkg = param("pkg");
     my $symbol = param("symbol");
+### Amir: HACK TO SHOW ALL COMMIT LINES
+    $symbol = "";
 	my $passparam = "?id=$id&root=$root&pkg=$pkg";
 
     my @file_ids;
