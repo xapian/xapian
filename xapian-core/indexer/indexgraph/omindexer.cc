@@ -43,40 +43,6 @@ OmIndexer::get_raw_output()
     return internal->final->get_output_record(internal->final_out);
 }
 
-static std::map<om_keyno, OmKey>
-extract_keys(const OmIndexerData &vec)
-{
-    std::map<om_keyno, OmKey> keys;
-    // vec[0] has the string "keylist"
-    for (int i=1; i<vec.get_vector_length(); ++i) {
-	const OmIndexerData &key = vec[i];
-	keys[key.get_element(0).get_int()] =
-		key.get_element(1).get_string();
-    }
-    return keys;
-}
-
-static OmDocument::document_terms
-extract_terms(const OmIndexerData &vec)
-{
-    OmDocument::document_terms terms;
-    // vec[0] has the string "keylist"
-    for (int i=1; i<vec.get_vector_length(); ++i) {
-	const OmIndexerData &term = vec[i];
-	OmDocumentTerm docterm(term[0].get_string());
-	docterm.wdf = term[1].get_int();
-	docterm.termfreq = term[2].get_int();
-
-	// positions
-	for (int j=0; j<term[3].get_vector_length(); ++j) {
-	    docterm.positions.push_back(term[3][j].get_int());
-	}
-
-	terms.insert(std::make_pair(docterm.tname, docterm));
-    }
-    return terms;
-}
-
 OmDocument
 OmIndexer::get_output()
 {
@@ -113,13 +79,33 @@ OmIndexer::get_output()
 		if (have_keys) {
 		    throw OmInvalidDataError("Output message invalid: more than one keylist found");
 		}
-		contents.keys = extract_keys(dat);
+		// dat[0] has the string "keylist"
+		for (int i = 1; i < dat.get_vector_length(); ++i) {
+		    const OmIndexerData &key = dat[i];
+		    contents.add_key(key.get_element(0).get_int(),
+				     key.get_element(1).get_string());
+		}
 		have_keys = true;
 	    } else if (type == "termlist") {
 		if (have_terms) {
 		    throw OmInvalidDataError("Output message invalid: more than one termlist found");
 		}
-		contents.terms = extract_terms(dat);
+		// dat[0] has the string "termlist"
+		for (int i = 1; i < dat.get_vector_length(); ++i) {
+		    const OmIndexerData &term = dat[i];
+		    om_termname tname = term[0].get_string();
+
+		    // FIXME: these are ignored - stop passing them?
+		    // wdf is calculated by add_posting()
+		    // termfreq isn't meaningful for an indexer
+		    //docterm.wdf = term[1].get_int();
+		    //docterm.termfreq = term[2].get_int();
+
+		    // positions
+		    for (int j=0; j < term[3].get_vector_length(); ++j) {
+			contents.add_posting(tname, term[3][j].get_int());
+		    }
+		}
 		have_terms = true;
 	    } else {
 		throw OmInvalidDataError("Output message invalid: bad vector field in top-level vector");

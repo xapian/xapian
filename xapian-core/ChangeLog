@@ -1,3 +1,7 @@
+Thu Dec 07 16:10:00 GMT 2000 Olly Betts
+
+	* The library now builds, but "make check" still fails.
+
 Thu Dec  7 15:39:19 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fixes to testsuite/index_utils.cc to not segfault.

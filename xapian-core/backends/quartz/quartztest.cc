@@ -1078,7 +1078,7 @@ static bool test_adddoc2()
 	    }
 	}
 	{
-	    OmDocument::document_terms::const_iterator i,j;
+	    std::map<om_termname, OmDocumentTerm>::const_iterator i,j;
 	    for (i = document_in.terms.begin(), j = document_out.terms.begin();
 		 i != document_in.terms.end();
 		 i++, j++) {
