@@ -1,3 +1,7 @@
+Mon Sep 16 17:13:20 BST 2002  Olly Betts <olly@survex.com>
+
+	* include/om/om.h.in: Added explanatory comments for developers.
+
 Mon Sep 16 14:22:48 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* om/om.h needs to be in CLEANFILES or make distcheck fails

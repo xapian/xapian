@@ -24,6 +24,22 @@
 %ifndef OM_HGUARD_OM_H
 %define OM_HGUARD_OM_H
 %
+// When building the library with GCC, generate preprocessor code to check that
+// any version of GCC used to build applications has a matching C++ ABI. This
+// means that users get a nice explanatory error message rather than a
+// confusing link failure (or worse a program which builds but crashes).
+// Another benefit is that the check happens near the start of compilation of
+// the first source file which uses Xapian in the user's application, rather
+// than during the first attempt to link with Xapian.
+//
+// After preprocessing with "g++ -E" or similar (which will expand macros,
+// strip comments such as this block, etc) we remove blank lines and collapse
+// multiple spaces.
+// 
+// In this file, use "%%" when you want a "//" comment, % on a line by itself
+// for a blank line, % at the start of a line for a "#", and % elsewhere
+// for a __ (so e.g. when we want __GXX_ABI_VERSION literally, we write
+// %GXX_ABI_VERSION).
 #define V2(A,B) J2(A,B)
 #define J2(A,B) g++ A##.##B
 #define V3(A,B,C) J3(A,B,C)
