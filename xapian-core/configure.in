@@ -341,7 +341,7 @@ AC_OUTPUT(
  m4/Makefile
  net/Makefile
  netprogs/Makefile
- libomus-config
+ libomus-config.nodep
  docs/mkdoc.pl
  docs/doxygen_api_conf
  docs/doxygen_full_conf

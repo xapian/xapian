@@ -6,6 +6,7 @@
 prefix=@prefix@
 libdir=@exec_prefix@/lib
 includedir=@includedir@
+dependency_libs="@dependency_libs@"
 
 usage()
 {
@@ -81,7 +82,7 @@ if test "$echo_cflags" = "yes"; then
 fi
 
 if test "$echo_libs" = "yes"; then
-    echo -L$libdir -lomus
+    echo -L$libdir -lomus $dependency_libs
 fi
 
 exit 0
