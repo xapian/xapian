@@ -21,7 +21,8 @@
  */
 
 #include "config.h"
-#include "match.h"
+#include "leafmatch.h"
+
 #include "andpostlist.h"
 #include "orpostlist.h"
 #include "xorpostlist.h"
@@ -30,6 +31,7 @@
 #include "filterpostlist.h"
 #include "emptypostlist.h"
 #include "leafpostlist.h"
+
 #include <om/omdocument.h>
 #include "rset.h"
 #include "omqueryinternal.h"
@@ -59,17 +61,6 @@ class PLPCmpLt {
         bool operator()(const PostList *a, const PostList *b) {
             return a->get_termfreq() < b->get_termfreq();
         }
-};
-
-// Compare an OmMSetItem, using a custom function
-class MSetCmp {
-    public:
-	bool (* fn)(const OmMSetItem &a, const OmMSetItem &b);
-	MSetCmp(bool (* fn_)(const OmMSetItem &a, const OmMSetItem &b))
-		: fn(fn_) {}
-	bool operator()(const OmMSetItem &a, const OmMSetItem &b) const {
-	    return fn(a, b);
-	}
 };
 
 // Comparison which sorts equally weighted MSetItems in docid order

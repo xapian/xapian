@@ -1,3 +1,9 @@
+Tue Mar 14 18:46:17 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Match now has the appropriate virtual methods, which are
+	  implemented by LeafMatch, and will be implemented by MultiMatch.
+	  Some work in OmEnquire, so that I can test this.
+
 Tue Mar 14 13:33:43 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Make sure we don't have -g in compile line if debugging is off.

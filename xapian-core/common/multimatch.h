@@ -25,20 +25,43 @@
 
 #include "match.h"
 
-#include <stack>
 #include <vector>
-#include <map>
+
+class LeafMatch;
 
 // Class which encapsulates best match operation
 class MultiMatch : public Match
 {
     private:
+	vector<LeafMatch *> leaves;
+
 	// disallow copies
 	MultiMatch(const MultiMatch &);
 	void operator=(const MultiMatch &);
     public:
-	MultiMatch();
+	MultiMatch(const vector<LeafMatch *> & leaves);
 	~MultiMatch();
+
+	void set_query(const OmQueryInternal * query_);
+	void set_rset(RSet * rset_);
+	void set_min_weight_percent(int pcent);
+	void set_collapse_key(om_keyno key);
+	void set_no_collapse();
+
+	om_weight get_max_weight();
+
+	void match(om_doccount first,
+		   om_doccount maxitems,
+		   vector<OmMSetItem> & mset,
+		   mset_cmp cmp,
+		   om_doccount * mbound,
+		   om_weight * greatest_wt,
+		   const OmMatchDecider *mdecider
+		  );
+
+	void boolmatch(om_doccount first,
+		       om_doccount maxitems,
+		       vector<OmMSetItem> & mset);
 };
 
 ///////////////////////////////

@@ -29,6 +29,7 @@
 
 #include "rset.h"
 #include "leafmatch.h"
+#include "multimatch.h"
 #include "expand.h"
 #include "database.h"
 #include "database_builder.h"
@@ -248,18 +249,29 @@ OmEnquireInternal::get_mset(om_doccount first,
     StatsGatherer gatherer;
 
     // Set Database
-    LeafMatch match(database, &gatherer);
+#if 0
+    vector<LeafMatch *> matchers;
+
+    LeafMatch * temp = new LeafMatch(database, &gatherer);
+    auto_ptr<LeafMatch> submatch(temp);
+    matchers.push_back(temp);
+
+    auto_ptr<Match> match(new MultiMatch(matchers));
+#else
+    auto_ptr<Match> match(new LeafMatch(database, &gatherer));
+#endif
 
     // Set cutoff percent
     if (moptions->percent_cutoff > 0) {
-        match.set_min_weight_percent(moptions->percent_cutoff);
+        match->set_min_weight_percent(moptions->percent_cutoff);
     }
 
     // Set Rset
+    // FIXME: should use an auto_ptr here
     RSet *rset = 0;
     if((omrset != 0) && (omrset->items.size() != 0)) {
 	rset = new RSet(database, *omrset);
-	match.set_rset(rset);
+	match->set_rset(rset);
     }
 
     // FIXME: should be done by top match object.
@@ -271,17 +283,17 @@ OmEnquireInternal::get_mset(om_doccount first,
 
     // Set options
     if(moptions->do_collapse) {
-	match.set_collapse_key(moptions->collapse_key);
+	match->set_collapse_key(moptions->collapse_key);
     }
 
     // Set Query
-    match.set_query(query->internal);
+    match->set_query(query->internal);
 
     OmMSet retval;
 
     // Run query and get results into supplied OmMSet object
     if(query->is_bool()) {
-	match.boolmatch(first, maxitems, retval.items);
+	match->boolmatch(first, maxitems, retval.items);
 	retval.mbound = retval.items.size();
 	retval.max_possible = 1;
 	if(retval.items.size() > 0) {
@@ -290,12 +302,12 @@ OmEnquireInternal::get_mset(om_doccount first,
 	    retval.max_attained = 0;
 	}
     } else {
-	match.match(first, maxitems, retval.items,
+	match->match(first, maxitems, retval.items,
 		    msetcmp_forward, &(retval.mbound), &(retval.max_attained),
 		    mdecider);
 
 	// Get max weight for an item in the MSet
-	retval.max_possible = match.get_max_weight();
+	retval.max_possible = match->get_max_weight();
     }
 
     // Store what the first item requested was, so that this information is
