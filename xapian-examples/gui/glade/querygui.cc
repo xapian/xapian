@@ -286,9 +286,10 @@ on_mainwindow_destroy(GtkWidget *widget,
 
 int main(int argc, char *argv[]) {
     string gladefile = "querygui.glade";
+    enquire = NULL;
     max_msize = 10;
-    list<string> dbnames;
-    list<om_database_type> dbtypes;
+    vector<string> dbtypes;
+    vector<vector<string> > dbargs;
 
     gtk_init(&argc, &argv);
     glade_init();
@@ -304,13 +305,17 @@ int main(int argc, char *argv[]) {
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--da") == 0) {
-	    dbnames.push_back(argv[1]);
-	    dbtypes.push_back(OM_DBTYPE_DA);
+	    dbtypes.push_back("da_flimsy");
+	    vector<string> args;
+	    args.push_back(argv[1]);
+	    dbargs.push_back(args);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--im") == 0) {
-	    dbnames.push_back(argv[1]);
-	    dbtypes.push_back(OM_DBTYPE_INMEMORY);
+	    dbtypes.push_back("inmemory");
+	    vector<string> args;
+	    args.push_back(argv[1]);
+	    dbargs.push_back(args);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--glade") == 0) {
@@ -323,7 +328,7 @@ int main(int argc, char *argv[]) {
 	}
     }
 
-    if (syntax_error || argc >= 1) {
+    if (!dbtypes.size() || syntax_error || argc >= 1) {
 	cout << "Syntax: " << progname << " [options]" << endl;
 	cout << "\t--max-msize <maximum msize>\n";
 	cout << "\t--da <DA directory>\n";
@@ -332,63 +337,44 @@ int main(int argc, char *argv[]) {
 	exit(1);
     }
 
-    if(!dbnames.size()) {
-	dbnames.push_back("/mnt/ivory/disk1/home/richard/textfile");
-	dbtypes.push_back(OM_DBTYPE_INMEMORY);
-    }
-
-    // Prepare to open database
-    DatabaseBuilderParams dbparams;
-    if (dbnames.size() > 1) {
-	dbparams.type = OM_DBTYPE_MULTI;
-
-	list<string>::const_iterator p;
-	list<om_database_type>::const_iterator q;
-	for(p = dbnames.begin(), q = dbtypes.begin();
-	    p != dbnames.end();
-	    p++, q++) {
-	    DatabaseBuilderParams subparams(*q);
-	    subparams.paths.push_back(*p);
-	    dbparams.subdbs.push_back(subparams);
-	}
-    } else {
-	dbparams.type = *(dbtypes.begin());
-	dbparams.paths.push_back(*(dbnames.begin()));
-    }
-
-    // Actually open the database
-    try {
-	database = DatabaseBuilder::create(dbparams);
-    } catch (OmError e) {
-	cout << e.get_msg() << endl;
-	exit(1);
-    }
-
+    // Start enquiry system
     enquire = new OMEnquire();
 
-    GladeXML *xml;
+    // Set Database(s)
+    try {
+	vector<string>::const_iterator p;
+	vector<vector<string> >::const_iterator q;
+	for(p = dbtypes.begin(), q = dbargs.begin();
+	    p != dbtypes.end();
+	    p++, q++) {
+	    enquire->add_database(*p, *q);
+	}
 
-    /* load the interface */
+	GladeXML *xml;
 
-    xml = glade_xml_new(gladefile.c_str(), NULL);
-    if(xml == NULL) {
-	cerr << "Unable to open " << gladefile << endl;
-	return 1;
+	/* load the interface */
+
+	xml = glade_xml_new(gladefile.c_str(), NULL);
+	if(xml == NULL) {
+	    cerr << "Unable to open " << gladefile << endl;
+	    return 1;
+	}
+
+	/* connect the signals in the interface */
+	glade_xml_signal_autoconnect(xml);
+
+	topterms_widget = GTK_CLIST(glade_xml_get_widget(xml, "topterms"));
+	results_widget = GTK_CLIST(glade_xml_get_widget(xml, "results"));
+	result_query = GTK_LABEL(glade_xml_get_widget(xml, "result_query"));
+	result_score = GTK_LABEL(glade_xml_get_widget(xml, "result_score"));
+	result_docid = GTK_LABEL(glade_xml_get_widget(xml, "result_docid"));
+	result_text = GTK_TEXT(glade_xml_get_widget(xml, "result_text"));
+
+	/* start the event loop */
+	gtk_main();
+    } catch (OmError e) {
+	cout << "OMError: " << e.get_msg() << endl;
     }
-
-    /* connect the signals in the interface */
-    glade_xml_signal_autoconnect(xml);
-
-    topterms_widget = GTK_CLIST(glade_xml_get_widget(xml, "topterms"));
-    results_widget = GTK_CLIST(glade_xml_get_widget(xml, "results"));
-    result_query = GTK_LABEL(glade_xml_get_widget(xml, "result_query"));
-    result_score = GTK_LABEL(glade_xml_get_widget(xml, "result_score"));
-    result_docid = GTK_LABEL(glade_xml_get_widget(xml, "result_docid"));
-    result_text = GTK_TEXT(glade_xml_get_widget(xml, "result_text"));
-
-    /* start the event loop */
-    gtk_main();
-
     delete enquire;
     enquire = NULL;
 
