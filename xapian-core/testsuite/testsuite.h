@@ -25,6 +25,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 /** Class which is thrown when a test case fails.
  *  This class contains a message, which is displayed to the user if
@@ -102,11 +103,10 @@ class test_driver {
 	 */
 	result run_tests();
 
-	/** Similar to run_tests() but only run the named test.
-	 *
-	 *  @param testname The name of the test(s) to run.
+	/** Run the tests in the list and return the results
 	 */
-	result run_test(const std::string &testname);
+	result run_tests(std::vector<std::string>::const_iterator b,
+			 std::vector<std::string>::const_iterator e);
 
 	/** If set, this will cause the testsuite to stop executing further
 	 *  tests if any fail.
@@ -135,10 +135,11 @@ class test_driver {
 	 *  it runs test(s) (with runtest()), prints out messages for
 	 *  the user, and tracks the successes and failures.
 	 *
-	 *  @param name  If non-empty, the name of the test(s) to run.
-	 *               If empty, all tests will be run.
+	 *  @param b, e  If b != e, a vector of the test(s) to run.
+	 *               If b == e, all tests will be run.
 	 */
-	result do_run_tests(const std::string &name);
+	result do_run_tests(std::vector<std::string>::const_iterator b,
+			    std::vector<std::string>::const_iterator e);
 
 	// abort tests at the first failure
 	bool abort_on_error;

@@ -339,25 +339,31 @@ test_driver::runtest(const test_desc *test)
     return success;
 }
 
-test_driver::result test_driver::run_tests()
+test_driver::result
+test_driver::run_tests(std::vector<std::string>::const_iterator b,
+		       std::vector<std::string>::const_iterator e)
 {
-    const std::string blank;
-    return do_run_tests(blank);
+    return do_run_tests(b, e);
 }
 
-test_driver::result test_driver::run_test(const std::string &test_name)
+test_driver::result
+test_driver::run_tests()
 {
-    return do_run_tests(test_name);
+    const std::vector<std::string> blank;
+    return do_run_tests(blank.begin(), blank.end());
 }
 
-test_driver::result test_driver::do_run_tests(const std::string &testname)
+test_driver::result
+test_driver::do_run_tests(std::vector<std::string>::const_iterator b,
+			  std::vector<std::string>::const_iterator e)
 {
-    const test_desc *test = tests;
+    std::set<std::string> m(b, e);
+    bool check_name = !m.empty();
+
     test_driver::result result = {0, 0};
 
-    bool check_name = (testname.length() > 0);
-    while ((test->name) != 0) {
-	if ((check_name == false) || (testname == test->name)) {
+    for (const test_desc *test = tests; test->name; test++) {
+	if (!check_name || (m.find(test->name) != m.end())) {
 	    out << "Running test: " << test->name << "...";
 	    out.flush();
 	    bool succeeded = runtest(test);
@@ -373,7 +379,6 @@ test_driver::result test_driver::do_run_tests(const std::string &testname)
 		}
 	    }
 	}
-	++test;
     }
     return result;
 }
@@ -381,7 +386,7 @@ test_driver::result test_driver::do_run_tests(const std::string &testname)
 static void usage(char *progname)
 {
     std::cerr << "Usage: " << progname
-              << " [-v] [-o] [testname]" << std::endl;
+              << " [-v] [-o] [TESTNAME]..." << std::endl;
     exit(1);
 }
 
@@ -394,13 +399,11 @@ int test_driver::main(int argc,
     pthread_mutex_init(&test_driver_mutex, 0);
 #endif // HAVE_LIBPTHREAD
 
-    int c;
-
     test_driver driver(tests);
 
-    std::string one_test_name;
-    bool one_test = false;
+    std::vector<std::string> test_names;
 
+    int c;
     while ((c = getopt(argc, argv, "vo")) != EOF) {
 	switch (c) {
 	    case 'v':
@@ -415,12 +418,9 @@ int test_driver::main(int argc,
 	}
     }
 
-    if (optind == (argc-1)) {
-	one_test = true;
-	one_test_name = argv[argc-1];
-    } else if (optind != (argc)) {
-    	usage(argv[0]);
-	return 1;
+    while (argv[optind]) {
+	test_names.push_back(string(argv[optind]));
+	optind++;
     }
 
     // We need to display something before we start, or the allocation
@@ -432,20 +432,18 @@ int test_driver::main(int argc,
 #endif /* MUS_DEBUG_VERBOSE */
 
     test_driver::result myresult;
-    if (one_test) {
-	myresult = driver.run_test(one_test_name);
-    } else {
-	myresult = driver.run_tests();
-    }
+    myresult = driver.run_tests(test_names.begin(), test_names.end());
 
     if (summary) {
 	*summary = myresult;
     }
 
-    std::cout << argv[0] << " completed test run: "
-         << myresult.succeeded << " tests passed, "
-	 << myresult.failed << " failed."
-	 << std::endl;
+    if (myresult.succeeded != 0 || myresult.failed != 0) {
+	std::cout << argv[0] << " completed test run: "
+	    << myresult.succeeded << " tests passed, "
+	    << myresult.failed << " failed."
+	    << std::endl;
+    }
 
     return (bool)myresult.failed; // if 0, then everything passed
 }
