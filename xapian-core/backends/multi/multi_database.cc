@@ -162,7 +162,7 @@ MultiDatabase::open_post_list(termid tid) const {
     while(i != databases.end()) {
 	termid local_tid = (*i)->term_name_to_id(tname);
 	if(local_tid) {
-	    MultiPostListInternal pl((*i)->open_post_list(tid),
+	    MultiPostListInternal pl((*i)->open_post_list(local_tid),
 				     offset, multiplier);
 	    pls.push_back(pl);
 	}
