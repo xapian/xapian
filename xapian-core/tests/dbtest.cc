@@ -5,8 +5,8 @@ int main(int argc, char *argv[]) {
     ProtoDatabase database;
 
     try {
-	database.open("testdir");
-	database.open_post_list(1);
+	database.open("testdir", 0);
+	database.open_post_list(0);
 	database.close();
     }
     catch (OmError e) {

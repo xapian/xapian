@@ -61,7 +61,7 @@ class IRDatabase {
 	termid term_name_to_id(termname);
 	termname term_id_to_name(termid);
     
-	void open(string);
+	void open(string pathname, bool readonly);
 	void close();
 
 	// Throws RangeError if termid invalid
