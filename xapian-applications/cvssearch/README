@@ -7,10 +7,19 @@ INSTALLATION
 
 * install the latest release of the sleepycat database from
   http://www.sleepycat.com/download.html  
-  enable C++ api with ./configure --enable-cxx
+ 
+  From the dist/ directory, type
+
+    ./configure --enable-cxx
+    make 
+    make install
 
 * install the latest version of omsee from 
   ftp://ftp.omsee.com/pub/unstable/nightly/latest/
+
+  ./configure
+  make 
+  make install
 
 * now configure CVSSearch, compile, and install:
 
