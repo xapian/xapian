@@ -131,6 +131,17 @@ to the server and retrieve the results.
     passed to the server verbatim, and will be parsed and evaluated by the
     server.
 
+\dt \c{Enquiry::setCollapse($keyno)}
+
+\dd This function sets the collapse key to the given numerical value.  The
+    search results will contain only the top ranked hit for each different
+    value held in $keyno.
+
+    \lcont{
+    $keyno may be set to \q{\cw{false}} to unset the collapse key.  This is
+    the default.
+    }
+
 \dt \c{Enquiry::addFilter($prefix, $filter)}
 
 \dd This function adds a filter to the query.  The \c{$prefix} parameter

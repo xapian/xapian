@@ -22,12 +22,18 @@ class Enquiry {
     var $dbname;
     var $query;
     var $filterlist;
+    var $collapsekey;
     
     function Enquiry($socket) {
         $this->queryserver_socket = $socket;
         $this->dbname = 'default';
         $this->query = '';
         $this->filterlist = '';
+        $this->collapsekey = false;
+    }
+
+    function setCollapse($keyno) {
+        $this->collapsekey = $keyno;
     }
 
     function setDbName($dbname) {
@@ -41,6 +47,36 @@ class Enquiry {
     function addFilter($prefix, $filter) {
         $this->filterlist .= "prefix:" . base64_encode($prefix) . "\n";
         $this->filterlist .= "filter:" . base64_encode($filter) . "\n";
+    }
+
+    function _store_keyval(&$hit, &$result, $key, $value) {
+        if ($hit == false) {
+            // Add entry to result object.
+            if ($key == 'firstitem' ||
+                $key == 'matches_lower_bound' ||
+                $key == 'matches_estimated' ||
+                $key == 'matches_upper_bound' ||
+                $key == 'items')
+            {
+                $result->$key = $value;
+            }
+        } else {
+            if ($key == 'docid' ||
+                $key == 'rank' ||
+                $key == 'percent')
+            {
+                $hit->$key = $value;
+            } else if ($key == 'data') {
+                $data = base64_decode($value);
+                $data = explode("\n", trim($data));
+                foreach ($data as $dataitem) {
+                    $eq = strpos($dataitem, '=');
+                    $key = substr($dataitem, 0, $eq);
+                    $value = substr($dataitem, $eq + 1);
+                    $hit->data->$key = $value;
+                }
+            }
+        }
     }
 
     function perform($firstdoc, $maxitems)
@@ -60,6 +96,9 @@ class Enquiry {
         $request .= $this->filterlist;
         $request .= "firstdoc:$firstdoc\n";
         $request .= "maxitems:$maxitems\n";
+        if ($this->collapsekey != false) {
+            $request .= "collapsekey:$this->collapsekey\n";
+	}
         $request .= "\n";
         socket_write($socket, $request);
         //FIXME - check for errors from socket_write
@@ -79,8 +118,14 @@ class Enquiry {
 
         $result = new Result;
         $hit = false;
+        $key = false;
+        $value = false;
         foreach ($lines as $line) {
             if ($line == '#') {
+                if ($key != false) {
+                    $this->_store_keyval($hit, $result, $key, $value);
+                    $key = false;
+                }
                 if ($hit != false) {
                     $result->hits[$hit->rank] = $hit;
                 }
@@ -89,37 +134,19 @@ class Enquiry {
             }
 
             $colon = strpos($line, ':');
-            #print "line:`$line',colon:$colon\n";
-            $key = substr($line, 0, $colon);
-            $value = substr($line, $colon + 1);
-            
-            if ($hit == false) {
-                // Add entry to result object.
-                if ($key == 'firstitem' ||
-                    $key == 'matches_lower_bound' ||
-                    $key == 'matches_estimated' ||
-                    $key == 'matches_upper_bound' ||
-                    $key == 'items')
-                {
-                    $result->$key = $value;
+            if ($colon != false) {
+                if ($key != false) {
+                    $this->_store_keyval($hit, $result, $key, $value);
                 }
+                $key = substr($line, 0, $colon);
+                $value = substr($line, $colon + 1);
             } else {
-                if ($key == 'docid' ||
-                    $key == 'rank' ||
-                    $key == 'percent')
-                {
-                    $hit->$key = $value;
-                } else if ($key == 'data') {
-                    $data = base64_decode($value);
-                    $data = explode("\n", trim($data));
-                    foreach ($data as $dataitem) {
-                        $eq = strpos($dataitem, '=');
-                        $key = substr($dataitem, 0, $eq);
-                        $value = substr($dataitem, $eq + 1);
-                        $hit->data->$key = $value;
-                    }
-                }
+                $value .= $line;
             }
+        }
+        if ($key != false) {
+            $this->_store_keyval($hit, $result, $key, $value);
+            $key = false;
         }
 
         return $result;

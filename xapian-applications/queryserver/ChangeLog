@@ -1,3 +1,10 @@
+Tue May 11 10:22:53 BST 2004  Richard Boulton <richard@tartarus.org>
+
+        * clients/queryclient.php: Fix bug with parsing long data fields,
+          and add setCollapse() method.
+        * docs/xapian-queryserver.but: Document setCollapse() method.
+        * source/queryserver.cpp: Implement collapsekey.
+
 Wed Apr 28 12:02:27 BST 2004  Richard Boulton <richard@tartarus.org>
 
         * docs/: Split protocol description into a separate file, and

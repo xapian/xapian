@@ -139,6 +139,15 @@ Chapter 3: Clients
            will be passed to the server verbatim, and will be parsed and
            evaluated by the server.
 
+       `Enquiry::setCollapse($keyno)'
+
+           This function sets the collapse key to the given numerical
+           value. The search results will contain only the top ranked hit
+           for each different value held in $keyno.
+
+           $keyno may be set to `false' to unset the collapse key. This is
+           the default.
+
        `Enquiry::addFilter($prefix, $filter)'
 
            This function adds a filter to the query. The `$prefix'

@@ -243,6 +243,8 @@ serve_client(int sock)
     std::map<std::string, Xapian::Query> filters;
     Xapian::doccount firstdoc = 0;
     Xapian::doccount maxitems = 10;
+    Xapian::valueno collapsekey = 0;
+    bool have_collapsekey = false;
 
     std::vector<std::pair<std::string, std::string> >::const_iterator i;
     for (i = keyvals.begin(); i != keyvals.end(); i++) {
@@ -252,6 +254,9 @@ serve_client(int sock)
             firstdoc = atoi(i->second.c_str());
         } else if (i->first == "maxitems") {
             maxitems = atoi(i->second.c_str());
+        } else if (i->first == "collapsekey") {
+            collapsekey = atoi(i->second.c_str());
+            have_collapsekey = true;
         } else {
             std::string decoded_value;
             try {
@@ -320,6 +325,9 @@ serve_client(int sock)
     Xapian::Database db = Xapian::Auto::open(dbdir + "/" + dbname);
     Xapian::Enquire enquire(db);
     enquire.set_query(query);
+    if (have_collapsekey) {
+        enquire.set_collapse_key(collapsekey);
+    }
     Xapian::MSet results = enquire.get_mset(firstdoc, maxitems);
     results.fetch();
     
