@@ -35,7 +35,7 @@ RUNMAKE=1
 
 # Details of this script
 PROGNAME="`echo $0 | sed -e 's#^.*/##'`"
-VERSION="0.9"
+VERSION="0.11"
 
 # Little bit of paranoia
 test -z "${PROGNAME}" && PROGNAME="[build script]"
