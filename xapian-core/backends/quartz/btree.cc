@@ -1926,7 +1926,7 @@ extern int Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * item)
             l = GETI(p, 0) - cd;
         }
         item->tag_len = o;
-        return B->overwritten;
+        return BC->positioned;
     }
 }
 
