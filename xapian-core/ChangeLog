@@ -1,3 +1,9 @@
+Fri Jun 11 02:17:05 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc: Fixed bug which meant we
+	  sometimes failed to remove a posting when deleting or replacing
+	  a document.
+
 Fri Jun 11 02:16:16 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_postlist.cc,

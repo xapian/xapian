@@ -1063,10 +1063,14 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 	for ( ; j != i->second.end(); ++j) {
 	    Xapian::docid did = j->first;
 
+next_chunk:
 	    if (from) while (!from->is_at_end()) {
 		Xapian::docid copy_did = from->get_docid();
 		if (copy_did >= did) {
-		    if (copy_did == did) from->next();
+		    if (copy_did == did) {
+			Assert(j->second.first != 'A');
+			from->next();
+		    }
 		    break;
 		}
 		to->append(bufftable, copy_did,
@@ -1078,7 +1082,7 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 		to->flush(bufftable);
 		delete to;
 		max_did = get_chunk(bufftable, tname, did, false, &from, &to);
-		continue;
+		goto next_chunk;
 	    }
 
 	    if (j->second.first != 'D') {
