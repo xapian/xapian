@@ -70,7 +70,8 @@ docdata_DATA = docs/cgiparams.txt \
 	docs/omegascript.txt \
 	docs/overview.txt \
 	docs/quickstart.txt \
-	docs/scriptindex.txt
+	docs/scriptindex.txt \
+	docs/termprefixes.txt
 
 omegadatadir = $(datadir)/omega
 omegadata_DATA = htdig2omega.script

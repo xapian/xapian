@@ -1,3 +1,8 @@
+Thu Feb 24 02:10:09 GMT 2005  Olly Betts <olly@survex.com>
+
+	* Makefile.am,docs/termprefixes.txt: Added a single document covering
+	  all aspects of term prefixes.
+
 Wed Feb 23 14:59:46 GMT 2005  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.txt: Moved $collapsed into correct place
