@@ -1,3 +1,8 @@
+Wed Nov 29 19:46:22 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* In testsuite, report the context of Om exceptions as well as their
+	  type and message.
+
 Wed Nov 29 18:30:10 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add "remote_connect_timeout" parameter to be supplied when opening

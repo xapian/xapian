@@ -301,7 +301,7 @@ test_driver::runtest(const test_desc *test)
 	    out << tout.str();
 	    out << " " << COL_RED << "OMEXCEPT" << COL_RESET;
 	    if (verbose) {
-		out << err.get_type() << " exception: " << err.get_msg() << std::endl;
+		out << err.get_type() << " exception: " << err.get_msg() << " context:" << err.get_context() << std::endl;
 	    }
 	    success = false;
 	} catch (...) {
