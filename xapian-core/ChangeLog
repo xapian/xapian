@@ -1,3 +1,8 @@
+Thu May 25 15:22:10 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* More useful exception message when support for a particular
+	  database type is not compiled in.
+
 Thu May 25 14:33:20 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Socketserver now updated to use the modified MultiMatch

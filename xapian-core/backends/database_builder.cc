@@ -100,7 +100,8 @@ DatabaseBuilder::create(const DatabaseBuilderParams & params)
 
     // Check that we have a database
     if(database == NULL) {
-	throw OmOpeningError("Couldn't create database");
+	throw OmOpeningError("Couldn't create database: support for specified "
+			     "database type not available.");
     }
 
     return database;
