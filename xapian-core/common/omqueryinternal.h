@@ -45,9 +45,6 @@ class OmQueryInternal {
 	bool isdefined;
 	bool isbool;
 
-	// How close terms must be for NEAR or PHRASE
-	om_termcount window;
-
 	/// Operation to be performed at this node
 	om_queryop op;
 
@@ -77,6 +74,11 @@ class OmQueryInternal {
 	 *  each term.
 	 */
 	om_weight max_weight;
+
+	/** How close terms must be for NEAR or PHRASE.
+	 *  To match, all terms must occur in a window of this size.
+	 */
+	om_termcount window;
 
 
 	/// Copy another OmQueryInternal into self.

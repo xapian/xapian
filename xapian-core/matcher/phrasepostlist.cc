@@ -1,4 +1,4 @@
-/* nearpostlist.cc: Return only items where the terms are near each other
+/* phrasepostlist.cc: Return only items where terms are near or form a phrase
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,7 +20,7 @@
  * -----END-LICENCE-----
  */
 
-#include "nearpostlist.h"
+#include "phrasepostlist.h"
 
 #include <algorithm>
 
@@ -73,71 +73,67 @@ class PosListBufferCmpLt {
         }
 };
 
-NearPostList::NearPostList(PostList *source_, om_termpos window_,
-			   vector<PostList *> terms_)
+bool
+NearOrPhrasePostList::test_doc()
 {
-    source = source_;
-    window = window_;
-    terms = terms_;
-}
-
-inline bool NearPostList::do_near(vector<PosListBuffer> &plists,
-				  om_termcount i, om_termcount pos)
-{
-    plists[i].skip_to(pos - window + i);
-    while (1) {
-	om_termcount min = pos;
-	om_termcount max = pos;
-	pos = plists[i].get_position();
-	for (om_termcount j = 0; j < i; j++) {
-	    om_termcount tmp = plists[j].get_position();
-	    if (tmp < min) min = tmp;
-	    if (tmp > max) max = tmp;
-	}
-	if (pos > min + window - i) {
-	    plists[i].pushback(pos);
-	    return false;
-	}
-	if (i + 1 == plists.size() || do_near(plists, i + 1, pos)) {
-	    return true;
-	}
-	plists[i].next();
-    }
-}
-
-inline bool
-NearPostList::terms_near()
-{
-    // check if NEAR criterion is satisfied
+    // check if criterion is satisfied
     vector<PosListBuffer> plists;
+
     vector<PostList *>::iterator i;
     for (i = terms.begin(); i != terms.end(); i++) {
 	plists.push_back(PosListBuffer((*i)->get_position_list()));
     }
+
     sort(plists.begin(), plists.end(), PosListBufferCmpLt());
      
-    while (1) {
-	plists[0].next();
-	if (plists[0].at_end()) return false;	
-	if (do_near(plists, 1, plists[0].get_position())) return true;
-    }
-}
-
-PostList *
-NearPostList::next(om_weight w_min)
-{
+    om_termpos pos;
     do {
-        source->next(w_min);
-    } while (!source->at_end() && !terms_near());
-    return NULL;
+	plists[0].next();
+	if (plists[0].at_end()) return false;
+	pos = plists[0].get_position();
+    } while (!do_test(plists, 1, pos, pos));
+
+    return true;
 }
 
-PostList *
-NearPostList::skip_to(om_docid did, om_weight w_min)
+
+bool
+NearPostList::do_test(vector<PosListBuffer> &plists, om_termcount i,
+		      om_termcount min, om_termcount max)
 {
-    if (did > get_docid()) {
-	source->skip_to(did, w_min);
-        if (!source->at_end() && !terms_near()) this->next(w_min);
+    plists[i].skip_to(max - window + i);
+    while (1) {
+	om_termpos pos = plists[i].get_position();
+	if (pos < min) {
+	    min = pos;
+	} else if (pos > min + window - i) {	    
+	    plists[i].pushback(pos);
+	    return false;
+	}
+	if (i + 1 == plists.size()) return true;
+	if (pos > max) max = pos;
+	if (do_test(plists, i + 1, min, max)) return true;
+	plists[i].next();
     }
-    return NULL;
+}
+
+
+bool
+PhrasePostList::do_test(vector<PosListBuffer> &plists, om_termcount i,
+			om_termcount min, om_termcount max)
+{
+    plists[i].skip_to(max - window + i);
+    while (1) {
+	om_termpos pos = plists[i].get_position();
+	if (pos < min) {
+	    min = pos;
+	} else if (pos > min + window - i) {	    
+	    plists[i].pushback(pos);
+	    return false;
+	}
+	if (i + 1 == plists.size()) return true;
+	if (pos > max) max = pos;
+	if (do_test(plists, i + 1, min, max)) return true;
+	plists[i].next();
+    }
 }

@@ -30,7 +30,7 @@
 #include "andnotpostlist.h"
 #include "andmaybepostlist.h"
 #include "filterpostlist.h"
-#include "nearpostlist.h"
+#include "phrasepostlist.h"
 #include "emptypostlist.h"
 #include "leafpostlist.h"
 

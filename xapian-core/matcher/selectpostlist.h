@@ -1,4 +1,4 @@
-/* nearpostlist.h: Return only items where the terms are near each other
+/* selectpostlist.h: Parent class for classes which only return selected docs
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,31 +20,24 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_NEARPOSTLIST_H
-#define OM_HGUARD_NEARPOSTLIST_H
+#ifndef OM_HGUARD_SELECTPOSTLIST_H
+#define OM_HGUARD_SELECTPOSTLIST_H
 
 #include "database.h"
-#include "andpostlist.h"
+#include "postlist.h"
 #include "omdebug.h"
 
-class PosListBuffer;
-
-/** A postlist comprising several postlists NEARed together.
- *
- *  This postlist returns a posting if and only if it is in all of the
- *  sub-postlists and all the terms occur within a specified distance of
- *  each other somewhere in the document.  The weight for a posting is the
- *  sum of the weights of the sub-postings.
+/** A postlist parent class for classes which only return selected docs
+ *  from a source postlist (e.g. NEAR and PHRASE)
  */
-class NearPostList : public PostList {
-    private:
-        om_termpos window;
-    	PostList *source; // Source of candidate documents
-	vector<PostList *> terms;
+class SelectPostList : public PostList {
+    protected:
+	PostList *source;
 
-        inline bool do_near(vector<PosListBuffer> &plists, om_termcount i,
-			    om_termcount pos);
-    	inline bool terms_near();
+	/** Subclasses should override test_doc() with a method which returns
+	 *  true if a document meets the appropriate criterion, false in not
+	 */
+    	virtual bool test_doc() = 0;
     public:
 	PostList *next(om_weight w_min);
 	PostList *skip_to(om_docid did, om_weight w_min);
@@ -61,16 +54,14 @@ class NearPostList : public PostList {
 
 	string intro_term_description() const;
 
-        NearPostList(PostList *source_, om_termpos window_,
-		     vector<PostList *> terms_);
-        ~NearPostList() { delete source; }
+	SelectPostList(PostList *source_) : source(source_) { }
+        ~SelectPostList() { delete source; }
 };
 
 inline string
-NearPostList::intro_term_description() const
+SelectPostList::intro_term_description() const
 {
-    // FIXME: include window in desc?
-    return "(Near " + source->intro_term_description() + ")";
+    return "(Select " + source->intro_term_description() + ")";
 }
 
-#endif /* OM_HGUARD_NEARPOSTLIST_H */
+#endif /* OM_HGUARD_SELECTPOSTLIST_H */
