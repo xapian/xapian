@@ -31,6 +31,7 @@
 #include <vector>
 #include <pthread.h>
 #include <sys/time.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
@@ -281,6 +282,17 @@ bool test_separatedbs()
     return check_query_threads(search_thread_separatedbs);
 }
 
+void
+mysleep(int secs)
+{
+    struct timeval timeout;
+    timeout.tv_sec = secs;
+    timeout.tv_usec = 0;
+
+    int err = select(0, 0, 0, 0, &timeout);
+    TEST_EQUAL(err, 0);
+}
+    
 void *
 sleep_thread(void * data)
 {
@@ -288,10 +300,9 @@ sleep_thread(void * data)
 
     if(lock) lock->lock();
     OutputMessage("Sleeping" << endl);
-    int err = sleep(2);
+    mysleep(2);
     OutputMessage("Slept" << endl);
     if(lock) lock->unlock();
-    TEST_EQUAL(err, 0);
 
     return 0;
 }
