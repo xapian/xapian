@@ -52,15 +52,6 @@
 /* Define if you want lots of debugging messages */
 #undef MUS_DEBUG_VERBOSE
 
-/* Define if you want error-checking mutexes */
-#undef MUS_MUTEX_ERRCHECK
-
-/* Define if you want pthreads support built in */
-#undef MUS_USE_PTHREAD
-
-/* Define if getopt.h is available */
-#undef HAVE_GETOPT_H
-
 /* Define if <sstream> is available */
 #undef HAVE_SSTREAM
 
@@ -70,38 +61,9 @@
 /* Define if socklen_t is available */
 #undef HAVE_SOCKLEN_T
 
-/* Define if libxml is available */
-#undef HAVE_LIBXML
-
-/* Define if libxml2 is available */
-#undef HAVE_LIBXML2
-
-/* Define if libxml supports validation */
-#undef HAVE_LIBXML_VALID
-
-/* Define if <rxposix.h> is available */
-#undef HAVE_RXPOSIX_H
-
-/* Define if <rx/rxposix.h> is available */
-#undef HAVE_RX_RXPOSIX_H
-
 /* Location of platform independent support files */
 #undef DATADIR
 
 @BOTTOM@
-#ifdef MUS_MUTEX_ERRCHECK
-/* We need _GNU_SOURCE to get the right definitions
- * of pthread_mutexattr_settype() from pthread.h.
- * Ick.
- */
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif /* _GNU_SOURCE */
-#endif /* MUS_MUTEX_ERRCHECK */
-
-#ifndef HAVE_GETOPT_H
-/* needed for Solaris for getopt to be defined in stdlib.h */
-#define __EXTENSIONS__
-#endif /* HAVE_GETOPT_H */
 
 #endif /* OM_HGUARD_CONFIG_H */
