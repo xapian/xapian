@@ -1,3 +1,7 @@
+Tue Nov 06 13:10:15 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Updated .cvsignore.
+
 Tue Nov 06 13:02:04 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Fixed lookup of CGI parameter THRESHOLD.
