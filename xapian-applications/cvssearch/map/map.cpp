@@ -129,14 +129,8 @@ main(unsigned int argc, const char **argv)
     cvs_db_file * pdb_file = 0;
     if (use_db)
     {
-        if (unlink(sfile_db.c_str()) == 0)
-        {
-            pdb_file = new cvs_db_file(sfile_db);
-        } else {
-            string error_msg = "database " + sfile_db + " already exists and cannot be unlinked.";
-            perror(error_msg.c_str());
-            exit(0);
-        }
+        unlink(sfile_db.c_str());
+        pdb_file = new cvs_db_file(sfile_db);
     }
 
     if (input_file == "")
@@ -145,10 +139,15 @@ main(unsigned int argc, const char **argv)
         {
             string command = scvs_log + argv[i++];
             process p = process(command);
+            cout << "RUNNING " << command << endl;
             istream * pis = p.process_output();
             if (pis)
             {
                 cvsmap(*pis, line_fout, offset_fout, pdb_file);
+                if (pdb_file)
+                {
+                   pdb_file->sync();
+                }
             }
         }
     } 
@@ -160,10 +159,15 @@ main(unsigned int argc, const char **argv)
         {
             string command = scvs_log + line;
             process p = process(command);
+            cout << "RUNNING " << command << endl;
             istream * pis = p.process_output();
             if (pis)
             {
                 cvsmap(*pis, line_fout, offset_fout, pdb_file);
+                if (pdb_file)
+                {
+                   pdb_file->sync();
+                }
             }
 
         }
@@ -221,7 +225,9 @@ cvsmap(istream & log_in, ostream & line_out, ostream & offset_out, cvs_db_file *
     {
         map_algorithm * pcollection;
         if (use_line) {
+	    cout << "BEGIN NEW COLLECTION" << endl;
             pcollection = new backward_line_map_algorithm(log, ++file_index, pdb_file);
+	    cout << "END   NEW COLLECTION" << endl;
         } else {
             pcollection = new forward_range_map_algorithm(log, ++file_index, pdb_file);
         }
