@@ -1,3 +1,9 @@
+Sun Aug 22 11:38:55 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/btree_util.h: Adjusted 
+	  some Asserts to check c is within blocksize rather than
+	  65536.  Added a FIXME for those which can't be trivially changed.
+
 Sun Aug 22 10:56:56 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc: No need to force a flush on

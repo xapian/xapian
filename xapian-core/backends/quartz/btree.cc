@@ -1907,7 +1907,7 @@ Btree::prev_default(Cursor * C_, int j)
     byte * p = C_[j].p;
     int c = C_[j].c;
     Assert(c >= DIR_START);
-    Assert(c < 65536);
+    Assert(c < block_size);
     Assert(c <= DIR_END(p));
     if (c == DIR_START) {
 	if (j == level) return false;
@@ -1929,7 +1929,7 @@ Btree::next_default(Cursor * C_, int j)
     int c = C_[j].c;
     Assert(c >= DIR_START);
     c += D2;
-    Assert(c < 65536);
+    Assert(c < block_size);
     // Sometimes c can be DIR_END(p) + 2 here it appears...
     if (c > DIR_END(p)) c = DIR_END(p);
     Assert(c <= DIR_END(p));

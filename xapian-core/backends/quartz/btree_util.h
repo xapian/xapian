@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,9 +41,10 @@
    'long' throughout the code.
 
    FIXME: surely if a signed int cannot hold the full range of two bytes,
-   then the compiler violate ANSI?  Or am I misunderstanding...
+   then the compiler violates ANSI?  Or am I misunderstanding...
 */
 
+// FIXME: 65536 in Asserts below should really be block_size
 inline int
 GETINT1(const byte *p, int c)
 {
