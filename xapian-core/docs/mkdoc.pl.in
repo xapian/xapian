@@ -9,6 +9,8 @@ use strict;
 # Declarations
 sub get_descriptions();
 sub tohtml($);
+sub get_codestruct();
+sub output_html();
 
 # Parse command line parameters
 if($#ARGV < 1 || $#ARGV>2) {

@@ -275,7 +275,7 @@ OmDocument::clear_terms()
 
 om_termcount
 OmDocument::termlist_count() {
-    DEBUGAPICALL(OmTermIterator, "OmDocument::termlist_count", "");
+    DEBUGAPICALL(om_termcount, "OmDocument::termlist_count", "");
 // How equivalent is this line below to the rest?
 //    RETURN(internal->ptr->open_term_list()->get_approx_size());
     if (! internal->terms_here) {
@@ -311,7 +311,7 @@ OmDocument::termlist_end() const
 void
 OmDocument::Internal::need_keylist()
 {
-    DEBUGAPICALL(OmKeyList, "OmDocument::need_keylist", "");
+    DEBUGAPICALL(void, "OmDocument::need_keylist", "");
     // FIXME: need to lock here...
     if (!keys_here) {
         keys = ptr->get_all_keys();
@@ -321,7 +321,7 @@ OmDocument::Internal::need_keylist()
 
 om_termcount
 OmDocument::keylist_count() {
-    DEBUGAPICALL(OmKeyIterator, "OmDocument::keylist_count", "");
+    DEBUGAPICALL(om_termcount, "OmDocument::keylist_count", "");
     internal->need_keylist();
     assert(internal->keys_here);
     RETURN(internal->keys.size());
