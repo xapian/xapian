@@ -487,8 +487,12 @@ PostlistChunkWriter::flush(QuartzBufferedTable *table)
 	    bool is_prev_first_chunk = (keypos == keyend);
 
 	    // Now update the last_chunk
-	    const char *tagpos = cursor->current_tag.data();
-	    const char *tagend = tagpos + cursor->current_tag.size();
+	    string *tag = table->get_or_make_tag(cursor->current_key);
+
+	    Assert(tag != 0);
+	    Assert(tag->size() != 0);
+	    const char *tagpos = tag->data();
+	    const char *tagend = tagpos + tag->size();
 
 	    // Skip first chunk header
 	    Xapian::docid first_did_in_chunk;
@@ -508,7 +512,7 @@ PostlistChunkWriter::flush(QuartzBufferedTable *table)
 	    string::size_type end_of_chunk_header = tagpos - cursor->current_tag.data();
 
 	    // write new is_last flag
-	    write_start_of_chunk(cursor->current_tag,
+	    write_start_of_chunk(*tag,
 				 start_of_chunk_header,
 				 end_of_chunk_header,
 				 true, // is_last_chunk
