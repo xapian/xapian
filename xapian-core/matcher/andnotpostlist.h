@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _andnotpostlist_h_
-#define _andnotpostlist_h_
+#ifndef OM_HGUARD_ANDNOTPOSTLIST_H
+#define OM_HGUARD_ANDNOTPOSTLIST_H
 
 #include "database.h"
 #include "branchpostlist.h"
@@ -102,4 +102,4 @@ AndNotPostList::intro_term_description() const
 	    r->intro_term_description() + ")";
 }
 
-#endif /* _andnotpostlist_h_ */
+#endif /* OM_HGUARD_ANDNOTPOSTLIST_H */

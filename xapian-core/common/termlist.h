@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _termlist_h_
-#define _termlist_h_
+#ifndef OM_HGUARD_TERMLIST_H
+#define OM_HGUARD_TERMLIST_H
 
 #include "omassert.h"
 
@@ -58,4 +58,4 @@ DBTermList::set_weighting(const OmExpandWeight * wt_)
     wt = wt_;
 }
 
-#endif /* _termlist_h_ */
+#endif /* OM_HGUARD_TERMLIST_H */

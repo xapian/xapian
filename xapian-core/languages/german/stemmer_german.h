@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _stemmer_german_h_
-#define _stemmer_german_h_
+#ifndef OM_HGUARD_STEMMER_GERMAN_H
+#define OM_HGUARD_STEMMER_GERMAN_H
 
 #include "stemmer.h"
 #include "stem_german.h"
@@ -57,4 +57,4 @@ StemmerGerman::stem_word(const string & word)
     return string(german_stem(stemmer_data, word.data(), 0, len - 1));
 }
 
-#endif /* _stemmer_german_h_ */
+#endif /* OM_HGUARD_STEMMER_GERMAN_H */

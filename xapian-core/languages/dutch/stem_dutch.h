@@ -21,8 +21,8 @@
  */
 /* Version 1: see http://open.muscat.com/ for further information */
 
-#ifndef _stem_dutch_h_
-#define _stem_dutch_h_
+#ifndef OM_HGUARD_STEM_DUTCH_H
+#define OM_HGUARD_STEM_DUTCH_H
 
 /* Make header file work when included from C++ */
 #ifdef __cplusplus
@@ -60,4 +60,4 @@ extern void closedown_dutch_stemmer(struct dutch_stemmer * z);
 }
 #endif
 
-#endif /* _stem_dutch_h_ */
+#endif /* OM_HGUARD_STEM_DUTCH_H */

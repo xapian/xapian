@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _database_builder_h_
-#define _database_builder_h_
+#ifndef OM_HGUARD_DATABASE_BUILDER_H
+#define OM_HGUARD_DATABASE_BUILDER_H
 
 #include <string>
 #include <vector>
@@ -59,4 +59,4 @@ class DatabaseBuilder {
 	static IRDatabase * create(const DatabaseBuilderParams & params);
 };
 
-#endif /* _database_builder_h_ */
+#endif /* OM_HGUARD_DATABASE_BUILDER_H */

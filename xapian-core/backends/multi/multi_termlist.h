@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _multi_termlist_h_
-#define _multi_termlist_h_
+#ifndef OM_HGUARD_MULTI_TERMLIST_H
+#define OM_HGUARD_MULTI_TERMLIST_H
 
 #include "omassert.h"
 #include "termlist.h"
@@ -123,4 +123,4 @@ inline bool MultiTermList::at_end() const
     return tl->at_end();
 }
 
-#endif /* _multi_termlist_h_ */
+#endif /* OM_HGUARD_MULTI_TERMLIST_H */

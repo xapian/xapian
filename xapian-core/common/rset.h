@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _rset_h_
-#define _rset_h_
+#ifndef OM_HGUARD_RSET_H
+#define OM_HGUARD_RSET_H
 
 #include <vector>
 #include <map>
@@ -95,4 +95,4 @@ RSet::will_want_termfreq(om_termname tname) const
     reltermfreqs[tname] = 0;
 }
 
-#endif /* _rset_h_ */
+#endif /* OM_HGUARD_RSET_H */

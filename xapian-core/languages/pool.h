@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef _pool_h_
-#define _pool_h_
+#ifndef OM_HGUARD_POOL_H
+#define OM_HGUARD_POOL_H
 
 /* Make header file work when included from C++ */
 #ifdef __cplusplus
@@ -44,4 +44,4 @@ extern void free_pool(struct pool * p);
 }
 #endif
 
-#endif /* _pool_h_ */
+#endif /* OM_HGUARD_POOL_H */

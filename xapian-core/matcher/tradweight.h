@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _tradweight_h_
-#define _tradweight_h_
+#ifndef OM_HGUARD_TRADWEIGHT_H
+#define OM_HGUARD_TRADWEIGHT_H
 
 #include "irweight.h"
 #include "omtypes.h"
@@ -40,4 +40,4 @@ class TradWeight : public virtual IRWeight {
 	om_weight get_maxweight() const;
 };
 
-#endif /* _tradweight_h_ */
+#endif /* OM_HGUARD_TRADWEIGHT_H */

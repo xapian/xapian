@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _stemmer_dutch_h_
-#define _stemmer_dutch_h_
+#ifndef OM_HGUARD_STEMMER_DUTCH_H
+#define OM_HGUARD_STEMMER_DUTCH_H
 
 #include "stemmer.h"
 #include "stem_dutch.h"
@@ -57,4 +57,4 @@ StemmerDutch::stem_word(const string & word)
     return string(dutch_stem(stemmer_data, word.data(), 0, len - 1));
 }
 
-#endif /* _stemmer_dutch_h_ */
+#endif /* OM_HGUARD_STEMMER_DUTCH_H */

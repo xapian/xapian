@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _multi_postlist_h_
-#define _multi_postlist_h_
+#ifndef OM_HGUARD_MULTI_POSTLIST_H
+#define OM_HGUARD_MULTI_POSTLIST_H
 
 #include "utils.h"
 #include "omassert.h"
@@ -140,4 +140,4 @@ MultiPostList::intro_term_description() const
     return desc + "]:" + inttostring(get_termfreq());
 }
 
-#endif /* _multi_postlist_h_ */
+#endif /* OM_HGUARD_MULTI_POSTLIST_H */

@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _stemmer_spanish_h_
-#define _stemmer_spanish_h_
+#ifndef OM_HGUARD_STEMMER_SPANISH_H
+#define OM_HGUARD_STEMMER_SPANISH_H
 
 #include "stemmer.h"
 #include "stem_spanish.h"
@@ -57,4 +57,4 @@ StemmerSpanish::stem_word(const string & word)
     return string(spanish_stem(stemmer_data, word.data(), 0, len - 1));
 }
 
-#endif /* _stemmer_spanish_h_ */
+#endif /* OM_HGUARD_STEMMER_SPANISH_H */

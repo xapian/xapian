@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _irdocument_h_
-#define _irdocument_h_
+#ifndef OM_HGUARD_IRDOCUMENT_H
+#define OM_HGUARD_IRDOCUMENT_H
 
 #include "omtypes.h"
 
@@ -46,4 +46,4 @@ class IRDocument {
 	virtual IRData get_data() const = 0;     // Get data stored in document
 };
 
-#endif /* _irdocument_h_ */
+#endif /* OM_HGUARD_IRDOCUMENT_H */

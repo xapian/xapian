@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _sleepy_list_h_
-#define _sleepy_list_h_
+#ifndef OM_HGUARD_SLEEPY_LIST_H
+#define OM_HGUARD_SLEEPY_LIST_H
 
 #include "omassert.h"
 #include <db_cxx.h>
@@ -54,4 +54,4 @@ class SleepyList {
 	void close();
 };
 
-#endif /* _sleepy_list_h_ */
+#endif /* OM_HGUARD_SLEEPY_LIST_H */

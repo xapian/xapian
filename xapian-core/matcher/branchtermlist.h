@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _branchtermlist_h_
-#define _branchtermlist_h_
+#ifndef OM_HGUARD_BRANCHTERMLIST_H
+#define OM_HGUARD_BRANCHTERMLIST_H
 
 #include "termlist.h"
 
@@ -49,4 +49,4 @@ BranchTermList::handle_prune(TermList *&kid, TermList *ret)
     }
 }
 
-#endif /* _branchtermlist_h_ */
+#endif /* OM_HGUARD_BRANCHTERMLIST_H */

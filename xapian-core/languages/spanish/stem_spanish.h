@@ -21,8 +21,8 @@
  */
 /* Version 1: see http://open.muscat.com/ for further information */
 
-#ifndef _stem_spanish_h_
-#define _stem_spanish_h_
+#ifndef OM_HGUARD_STEM_SPANISH_H
+#define OM_HGUARD_STEM_SPANISH_H
 
 /* Make header file work when included from C++ */
 #ifdef __cplusplus
@@ -60,4 +60,4 @@ extern void closedown_spanish_stemmer(struct spanish_stemmer * z);
 }
 #endif
 
-#endif /* _stem_spanish_h_ */
+#endif /* OM_HGUARD_STEM_SPANISH_H */

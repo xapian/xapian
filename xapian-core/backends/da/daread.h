@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _daread_h_
-#define _daread_h_
+#ifndef OM_HGUARD_DAREAD_H
+#define OM_HGUARD_DAREAD_H
 
 /* Make header file work when included from C++ */
 #ifdef __cplusplus
@@ -148,4 +148,4 @@ extern void   readterms(struct termvec * tv);
 }
 #endif
 
-#endif /* daread.h */
+#endif /* OM_HGUARD_DAREAD_H */

@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _om_config_h_
-#define _om_config_h_
+#ifndef OM_HGUARD_OM_CONFIG_H
+#define OM_HGUARD_OM_CONFIG_H
 @TOP@
 
 /* Define if you want to build DA backend */
@@ -47,4 +47,4 @@
 #undef MUS_DEBUG_VERBOSE
 
 @BOTTOM@
-#endif /* _om_config_h_ */
+#endif /* OM_HGUARD_OM_CONFIG_H */

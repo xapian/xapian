@@ -1,3 +1,8 @@
+Wed Feb  9 11:18:48 GMT 2000 Chris emerson <chris.emerson@open.muscat.com>
+
+	* Fixed the header guards (now all caps, should be unique, and don't
+	  start with underscores).
+
 Tue Feb  8 20:04:34 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Changed prefix OM to Om in all class names.

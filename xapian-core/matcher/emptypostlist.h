@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _emptypostlist_h_
-#define _emptypostlist_h_
+#ifndef OM_HGUARD_EMPTYPOSTLIST_H
+#define OM_HGUARD_EMPTYPOSTLIST_H
 
 #include "postlist.h"
 
@@ -99,4 +99,4 @@ EmptyPostList::intro_term_description() const
 	    
 }
 
-#endif /* _emptypostlist_h_ */
+#endif /* OM_HGUARD_EMPTYPOSTLIST_H */

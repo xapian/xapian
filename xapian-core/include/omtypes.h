@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _omtypes_h_
-#define _omtypes_h_
+#ifndef OM_HGUARD_OMTYPES_H
+#define OM_HGUARD_OMTYPES_H
 
 typedef unsigned int om_termid;   // Type for term id's.
 typedef unsigned int om_docid;    // Type for document id's.  Start at 1.
@@ -43,4 +43,4 @@ typedef string om_termname;
 typedef string om_docname;
 #endif
 
-#endif /* _omtypes_h_ */
+#endif /* OM_HGUARD_OMTYPES_H */

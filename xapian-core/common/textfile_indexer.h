@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _textfile_indexer_h_
-#define _textfile_indexer_h_
+#ifndef OM_HGUARD_TEXTFILE_INDEXER_H
+#define OM_HGUARD_TEXTFILE_INDEXER_H
 
 #include "indexer.h"
 
@@ -38,4 +38,4 @@ class TextfileIndexer : public virtual Indexer {
 	void add_source(const IndexerSource & source);
 };
 
-#endif /* _textfile_indexer_h_ */
+#endif /* OM_HGUARD_TEXTFILE_INDEXER_H */

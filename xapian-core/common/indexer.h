@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _indexer_h_
-#define _indexer_h_
+#ifndef OM_HGUARD_INDEXER_H
+#define OM_HGUARD_INDEXER_H
 
 #include <string>
 #include <iostream>
@@ -65,4 +65,4 @@ class Indexer {
 	virtual void add_source(const IndexerSource &) = 0;
 };
 
-#endif /* _indexer_h_ */
+#endif /* OM_HGUARD_INDEXER_H */

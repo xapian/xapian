@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _orpostlist_h_
-#define _orpostlist_h_
+#ifndef OM_HGUARD_ORPOSTLIST_H
+#define OM_HGUARD_ORPOSTLIST_H
 
 #include "branchpostlist.h"
 

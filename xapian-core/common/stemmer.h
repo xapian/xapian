@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _stemmer_h_
-#define _stemmer_h_
+#ifndef OM_HGUARD_STEMMER_H
+#define OM_HGUARD_STEMMER_H
 
 #include "omassert.h"
 #include <string>
@@ -50,4 +50,4 @@ class StemmerBuilder {
 	static Stemmer * create(stemmer_language lang);
 };
 
-#endif /* _stemmer_h_ */
+#endif /* OM_HGUARD_STEMMER_H */

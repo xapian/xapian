@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _sleepy_database_h_
-#define _sleepy_database_h_
+#ifndef OM_HGUARD_SLEEPY_DATABASE_H
+#define OM_HGUARD_SLEEPY_DATABASE_H
 
 #include "utils.h"
 #include "omassert.h"
@@ -281,4 +281,4 @@ SleepyDatabase::term_exists(const termname &tname) const
     return false;
 }
 
-#endif /* _sleepy_database_h_ */
+#endif /* OM_HGUARD_SLEEPY_DATABASE_H */

@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _multi_database_h_
-#define _multi_database_h_
+#ifndef OM_HGUARD_MULTI_DATABASE_H
+#define OM_HGUARD_MULTI_DATABASE_H
 
 #include "omassert.h"
 #include "database.h"
@@ -126,4 +126,4 @@ MultiDatabase::get_termfreq(const om_termname & tname) const
     return freq;
 }
 
-#endif /* _multi_database_h_ */
+#endif /* OM_HGUARD_MULTI_DATABASE_H */

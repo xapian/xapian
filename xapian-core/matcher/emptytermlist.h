@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _emptytermlist_h_
-#define _emptytermlist_h_
+#ifndef OM_HGUARD_EMPTYTERMLIST_H
+#define OM_HGUARD_EMPTYTERMLIST_H
 
 #include "termlist.h"
 
@@ -83,4 +83,4 @@ EmptyTermList::at_end() const
     return true;
 }
 
-#endif /* _emptytermlist_h_ */
+#endif /* OM_HGUARD_EMPTYTERMLIST_H */

@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _dbpostlist_h_
-#define _dbpostlist_h_
+#ifndef OM_HGUARD_DBPOSTLIST_H
+#define OM_HGUARD_DBPOSTLIST_H
 
 #include "postlist.h"
 #include "irweight.h"
@@ -65,4 +65,4 @@ DBPostList::recalc_maxweight()
     return DBPostList::get_maxweight();
 }
 
-#endif /* _dbpostlist_h_ */
+#endif /* OM_HGUARD_DBPOSTLIST_H */

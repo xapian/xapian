@@ -21,8 +21,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _filterpostlist_h_
-#define _filterpostlist_h_
+#ifndef OM_HGUARD_FILTERPOSTLIST_H
+#define OM_HGUARD_FILTERPOSTLIST_H
 
 #include "database.h"
 #include "andpostlist.h"
@@ -68,4 +68,4 @@ FilterPostList::intro_term_description() const
 	    r->intro_term_description() + ")";
 }
 
-#endif /* _filterpostlist_h_ */
+#endif /* OM_HGUARD_FILTERPOSTLIST_H */

@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _postlist_h_
-#define _postlist_h_
+#ifndef OM_HGUARD_POSTLIST_H
+#define OM_HGUARD_POSTLIST_H
 
 #include "omassert.h"
 
@@ -85,4 +85,4 @@ class PostList
 	virtual string intro_term_description() const = 0;
 };
 
-#endif /* _postlist_h_ */
+#endif /* OM_HGUARD_POSTLIST_H */

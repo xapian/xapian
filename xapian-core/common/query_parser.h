@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _query_parser_h_
-#define _query_parser_h_
+#ifndef OM_HGUARD_QUERY_PARSER_H
+#define OM_HGUARD_QUERY_PARSER_H
 
 #include "indexer.h"
 #include <vector>
@@ -75,4 +75,4 @@ class QueryParser : public virtual IndexerDestination {
 			   om_termpos tpos);
 };
 
-#endif /* _query_parser_h_ */
+#endif /* OM_HGUARD_QUERY_PARSER_H */

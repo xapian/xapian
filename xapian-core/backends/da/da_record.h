@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _da_record_h_
-#define _da_record_h_
+#ifndef OM_HGUARD_DA_RECORD_H
+#define OM_HGUARD_DA_RECORD_H
 
 #include "irdocument.h"
 #include "daread.h"
@@ -54,4 +54,4 @@ DADocument::DADocument(const DADatabase * database_, om_docid did_)
 }
 
 
-#endif /* _da_record_h_ */
+#endif /* OM_HGUARD_DA_RECORD_H */

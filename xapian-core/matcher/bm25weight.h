@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _bm25weight_h_
-#define _bm25weight_h_
+#ifndef OM_HGUARD_BM25WEIGHT_H
+#define OM_HGUARD_BM25WEIGHT_H
 
 #include "irweight.h"
 #include "omtypes.h"
@@ -40,4 +40,4 @@ class BM25Weight : public virtual IRWeight {
 	om_weight get_maxweight() const;
 };
 
-#endif /* _bm25weight_h_ */
+#endif /* OM_HGUARD_BM25WEIGHT_H */

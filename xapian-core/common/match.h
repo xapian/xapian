@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _match_h_
-#define _match_h_
+#ifndef OM_HGUARD_MATCH_H
+#define OM_HGUARD_MATCH_H
 
 #include "database.h"
 #include "omassert.h"
@@ -179,4 +179,4 @@ OmMatch::get_max_weight()
     return max_weight;
 }
 
-#endif /* _match_h_ */
+#endif /* OM_HGUARD_MATCH_H */

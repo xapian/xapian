@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _ortermlist_h_
-#define _ortermlist_h_
+#ifndef OM_HGUARD_ORTERMLIST_H
+#define OM_HGUARD_ORTERMLIST_H
 
 #include "database.h"
 #include "branchtermlist.h"
@@ -91,4 +91,4 @@ OrTermList::get_approx_size() const
     return l->get_approx_size() + r->get_approx_size();
 }
 
-#endif /* _ortermlist_h_ */
+#endif /* OM_HGUARD_ORTERMLIST_H */

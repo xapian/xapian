@@ -20,12 +20,12 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _utils_h_
-#define _utils_h_
+#ifndef OM_HGUARD_UTILS_H
+#define OM_HGUARD_UTILS_H
 
 #include <string>
 
 // Convert an integer to a string
 string inttostring(int a);
 
-#endif /* _utils_h_ */
+#endif /* OM_HGUARD_UTILS_H */

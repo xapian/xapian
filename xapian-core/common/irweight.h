@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _irweight_h_
-#define _irweight_h_
+#ifndef OM_HGUARD_IRWEIGHT_H
+#define OM_HGUARD_IRWEIGHT_H
 
 #include "omtypes.h"
 #include "omassert.h"
@@ -71,4 +71,4 @@ IRWeight::set_stats(const IRDatabase * root_,
     initialised = true;
 }
 
-#endif /* _irweight_h_ */
+#endif /* OM_HGUARD_IRWEIGHT_H */

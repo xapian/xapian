@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _xorpostlist_h_
-#define _xorpostlist_h_
+#ifndef OM_HGUARD_XORPOSTLIST_H
+#define OM_HGUARD_XORPOSTLIST_H
 
 #include "database.h"
 #include "branchpostlist.h"
@@ -104,4 +104,4 @@ XorPostList::intro_term_description() const
 	    r->intro_term_description() + ")";
 }
 
-#endif /* _xorpostlist_h_ */
+#endif /* OM_HGUARD_XORPOSTLIST_H */

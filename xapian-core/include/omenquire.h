@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _omenquire_h_
-#define _omenquire_h_
+#ifndef OM_HGUARD_OMENQUIRE_H
+#define OM_HGUARD_OMENQUIRE_H
 
 #include "omtypes.h"
 #include <string>
@@ -343,4 +343,4 @@ class OmEnquire {
 		      const OmExpandDecider * decider = 0) const;
 };
 
-#endif /* _omenquire_h_ */
+#endif /* OM_HGUARD_OMENQUIRE_H */

@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _branchpostlist_h_
-#define _branchpostlist_h_
+#ifndef OM_HGUARD_BRANCHPOSTLIST_H
+#define OM_HGUARD_BRANCHPOSTLIST_H
 
 #include "match.h"
 #include "postlist.h"
@@ -53,4 +53,4 @@ BranchPostList::handle_prune(PostList *&kid, PostList *ret)
     }
 }
 
-#endif /* _branchpostlist_h_ */
+#endif /* OM_HGUARD_BRANCHPOSTLIST_H */

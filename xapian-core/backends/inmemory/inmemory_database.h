@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _inmemory_database_h_
-#define _inmemory_database_h_
+#ifndef OM_HGUARD_INMEMORY_DATABASE_H
+#define OM_HGUARD_INMEMORY_DATABASE_H
 
 #include "omassert.h"
 #include "utils.h"
@@ -414,4 +414,4 @@ InMemoryDatabase::get_doclength(om_docid did) const
     return doclengths[did - 1];
 }
 
-#endif /* _inmemory_database_h_ */
+#endif /* OM_HGUARD_INMEMORY_DATABASE_H */

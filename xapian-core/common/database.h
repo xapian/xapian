@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _database_h_
-#define _database_h_
+#ifndef OM_HGUARD_DATABASE_H
+#define OM_HGUARD_DATABASE_H
 
 #include <string>
 #include "omtypes.h"
@@ -88,4 +88,4 @@ class IRDatabase : public virtual IndexerDestination {
 #endif
 };
 
-#endif /* _database_h_ */
+#endif /* OM_HGUARD_DATABASE_H */

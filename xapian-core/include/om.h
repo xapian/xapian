@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _om_h_
-#define _om_h_
+#ifndef OM_HGUARD_OM_H
+#define OM_HGUARD_OM_H
 
 // FIXME: remove junk bits
 
@@ -37,4 +37,4 @@
 
 /* Indexing */
 
-#endif /* _om_h_ */
+#endif /* OM_HGUARD_OM_H */

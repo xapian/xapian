@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _da_database_h_
-#define _da_database_h_
+#ifndef OM_HGUARD_DA_DATABASE_H
+#define OM_HGUARD_DA_DATABASE_H
 
 #include <map>
 #include <vector>
@@ -306,4 +306,4 @@ DADatabase::get_termfreq(const om_termname & tname) const
     return freq;
 }
 
-#endif /* _da_database_h_ */
+#endif /* OM_HGUARD_DA_DATABASE_H */

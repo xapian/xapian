@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _index_utils_h_
-#define _index_utils_h_
+#ifndef OM_HGUARD_INDEX_UTILS_H
+#define OM_HGUARD_INDEX_UTILS_H
 
 #include "omtypes.h"
 void lowercase_term(om_termname &);
@@ -29,4 +29,4 @@ void select_characters(om_termname &term, const string & keep);
 void get_paragraph(istream &input, string &para);
 void get_a_line(istream &input, string &line);
 
-#endif /* _index_utils_h_ */
+#endif /* OM_HGUARD_INDEX_UTILS_H */

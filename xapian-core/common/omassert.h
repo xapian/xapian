@@ -24,8 +24,8 @@
 // approach the location strings typically don't get thrown away by the
 // compiler.
 
-#ifndef _omassert_h_
-#define _omassert_h_
+#ifndef OM_HGUARD_OMASSERT_H
+#define OM_HGUARD_OMASSERT_H
 
 #include "config.h"
 
@@ -78,4 +78,4 @@
 #define DebugMsg(a)
 #endif
 
-#endif /* _omassert_h_ */
+#endif /* OM_HGUARD_OMASSERT_H */

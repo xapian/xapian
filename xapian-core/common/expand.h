@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _expand_h_
-#define _expand_h_
+#ifndef OM_HGUARD_EXPAND_H
+#define OM_HGUARD_EXPAND_H
 
 #include "database.h"
 #include "termlist.h"
@@ -55,4 +55,4 @@ inline OmExpand::OmExpand(IRDatabase * database_)
 	: database(database_)
 { return; }
 
-#endif /* _expand_h_ */
+#endif /* OM_HGUARD_EXPAND_H */

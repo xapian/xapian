@@ -24,8 +24,8 @@
  */
 
 
-#ifndef _andmaybepostlist_h_
-#define _andmaybepostlist_h_
+#ifndef OM_HGUARD_ANDMAYBEPOSTLIST_H
+#define OM_HGUARD_ANDMAYBEPOSTLIST_H
 
 #include "database.h"
 #include "branchpostlist.h"
@@ -107,4 +107,4 @@ AndMaybePostList::intro_term_description() const
 	    r->intro_term_description() + ")";
 }
 
-#endif /* _andmaybepostlist_h_ */
+#endif /* OM_HGUARD_ANDMAYBEPOSTLIST_H */

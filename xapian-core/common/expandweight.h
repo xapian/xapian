@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _expandweight_h_
-#define _expandweight_h_
+#ifndef OM_HGUARD_EXPANDWEIGHT_H
+#define OM_HGUARD_EXPANDWEIGHT_H
 
 #include "omtypes.h"
 #include "omassert.h"
@@ -106,4 +106,4 @@ OmExpandWeight::get_bits(om_termcount wdf,
     return OmExpandBits(multiplier, termfreq, dbsize);
 }
 
-#endif /* _expandweight_h_ */
+#endif /* OM_HGUARD_EXPANDWEIGHT_H */

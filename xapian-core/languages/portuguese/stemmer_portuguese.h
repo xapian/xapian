@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _stemmer_portuguese_h_
-#define _stemmer_portuguese_h_
+#ifndef OM_HGUARD_STEMMER_PORTUGUESE_H
+#define OM_HGUARD_STEMMER_PORTUGUESE_H
 
 #include "stemmer.h"
 #include "stem_portuguese.h"
@@ -57,4 +57,4 @@ StemmerPortuguese::stem_word(const string & word)
     return string(portuguese_stem(stemmer_data, word.data(), 0, len - 1));
 }
 
-#endif /* _stemmer_portuguese_h_ */
+#endif /* OM_HGUARD_STEMMER_PORTUGUESE_H */

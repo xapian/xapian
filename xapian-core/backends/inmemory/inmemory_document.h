@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _inmemory_document_h_
-#define _inmemory_document_h_
+#ifndef OM_HGUARD_INMEMORY_DOCUMENT_H
+#define OM_HGUARD_INMEMORY_DOCUMENT_H
 
 #include "irdocument.h"
 #include <string>
@@ -41,4 +41,4 @@ class InMemoryDocument : public virtual IRDocument {
 	IRData get_data() const;
 };
 
-#endif /* _inmemory_document_h_ */
+#endif /* OM_HGUARD_INMEMORY_DOCUMENT_H */

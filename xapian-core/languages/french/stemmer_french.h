@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _stemmer_french_h_
-#define _stemmer_french_h_
+#ifndef OM_HGUARD_STEMMER_FRENCH_H
+#define OM_HGUARD_STEMMER_FRENCH_H
 
 #include "stemmer.h"
 #include "stem_french.h"
@@ -57,4 +57,4 @@ StemmerFrench::stem_word(const string & word)
     return string(french_stem(stemmer_data, word.data(), 0, len - 1));
 }
 
-#endif /* _stemmer_french_h_ */
+#endif /* OM_HGUARD_STEMMER_FRENCH_H */
