@@ -4,8 +4,10 @@ AUTOMAKE_OPTIONS = 1.6.3
 
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
 
-pkglibbindir = $(pkglibdir)/bin
-pkglibbin_PROGRAMS = xapian-queryserver
+bin_PROGRAMS = xapian-queryserver
+
+php4dir = $(pkglibdir)/php4
+php4_SCRIPTS = clients/xapian-queryclient.php
 
 # Data to install, in the usual automake way
 docdatadir   = $(datadir)/doc/xapian-queryserver
