@@ -1443,6 +1443,8 @@ Btree::basic_open(const string & name_,
 	throw std::bad_alloc();
     }
 
+    max_item_size = (block_size - DIR_START - BLOCK_CAPACITY * D2) / BLOCK_CAPACITY;
+
     /* ready to open the main file */
 
     base_letter = ch;

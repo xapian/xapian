@@ -1,3 +1,10 @@
+Sat Dec 07 04:48:37 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: max_item_size wasn't being set due to
+	  some over-zealous code pruning.  It was defaulting to 0, and
+	  was causing the code to write off the end of allocated memory
+	  blocks.
+
 Sat Dec 07 03:22:05 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/,matcher/multimatch.cc: Minor code tidying.
