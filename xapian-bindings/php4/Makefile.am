@@ -24,6 +24,6 @@ xapian/configure: xapian/xapian_wrap.cpp xapian/Makefile.in xapian/config.m4 xap
 
 xapian/xapian_wrap.cpp xapian/Makefile.in xapian/config.m4 xapian/php_xapian.h xapian/xapian.php: ../xapian.i util.i extra.i
 	test -d xapian || mkdir xapian
-	$(SWIG) -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -php4 -phpfull -withlibs "xapian xapianqueryparser" -withincs "xapian.h xapian/queryparser.h" -noproxy -o xapian/xapian_wrap.cpp $(srcdir)/../xapian.i
+	$(SWIG) -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -php4 -phpfull -withlibs "xapian xapianqueryparser" -withincs "xapian.h xapian/queryparser.h" -noproxy -o xapian/xapian_wrap.cpp $(srcdir)/../xapian.i
 
 CLEANFILES = $(BUILT_SOURCES)

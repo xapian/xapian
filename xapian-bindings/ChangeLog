@@ -1,3 +1,12 @@
+Tue May 11 18:06:06 BST 2004  Richard Boulton <richard@tartarus.org>
+
+        * guile/Makefile.am,php4/Makefile.am,python/Makefile.am,
+          tcl8/Makefile.am: Add "-I/usr/include" to the swig line.  This is
+          needed when xapian is installed with a prefix of /usr, since
+          "xapian-config --cxxflags" assumes that it doesn't need to emit
+          -I/usr/include in this situation (presumably on the basis that
+          any sane C compiler will already have that on its path).
+
 Tue Apr 20 03:20:22 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.in: Generate Makefiles for new directories under java/.

@@ -16,6 +16,6 @@ xapian_la_LIBADD = $(XAPIAN_LIBS)
 BUILT_SOURCES = xapian_wrap.cc
 
 xapian_wrap.cc: ../xapian.i util.i extra.i
-	$(SWIG) -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -tcl8 -o $@ $(srcdir)/../xapian.i
+	$(SWIG) -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -tcl8 -o $@ $(srcdir)/../xapian.i
 
 CLEANFILES = $(BUILT_SOURCES)
