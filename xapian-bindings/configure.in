@@ -9,7 +9,9 @@ AC_CONFIG_SRCDIR(xapian.i)
 
 AM_CONFIG_HEADER(config.h)
 
-dnl Use libtool to manage our libraries
+dnl Use libtool to manage our libraries, but don't build static libraries as
+dnl the bindings only have a use for dynamic ones.
+AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
 dnl Checks for programs.

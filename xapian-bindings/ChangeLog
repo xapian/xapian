@@ -1,3 +1,8 @@
+Fri Sep 03 13:03:55 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Tell libtool not to build static libraries as the
+	  bindings all need dynamic ones which can be loaded at runtime.
+
 Wed Sep 01 12:07:08 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.in: Require Python >= 2.1 for __cmp__ and __eq__.
