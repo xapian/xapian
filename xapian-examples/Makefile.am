@@ -1,7 +1,7 @@
 ### Process this file with automake to produce Makefile.in
 
-# Need 1.5 for AM_CFLAGS, etc
-AUTOMAKE_OPTIONS = 1.5
+# Need 1.5 for AM_CFLAGS, etc; 1.6.3 for AM_INIT_AUTOMAKE with no args
+AUTOMAKE_OPTIONS = 1.6.3
 
 bin_PROGRAMS = msearch delve createdatabase copydatabase\
 	simpleindex simplesearch simpleexpand

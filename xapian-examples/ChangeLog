@@ -1,3 +1,8 @@
+Wed Oct 02 16:42:33 BST 2002  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.in: require automake 1.6.3 and autoconf 2.54
+	  since xapian-core does anyway, and it neatens configure.in slightly.
+
 Wed Oct 02 16:38:19 BST 2002  Olly Betts <olly@survex.com>
 
 	* configure.in: Version 0.5.1.
