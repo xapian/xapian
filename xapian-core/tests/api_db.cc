@@ -98,7 +98,7 @@ static bool test_termstats()
     return true;
 }
 
-void init_simple_enquire(OmEnquire &enq, const OmQuery &query = OmQuery("thi"))
+void init_simple_enquire(OmEnquire &enq, const OmQuery &query = OmQuery("this"))
 {
     enq.set_query(query);
 }
@@ -173,8 +173,6 @@ static bool test_simplequery2()
 // tests for the right document count for another simple query
 static bool test_simplequery3()
 {
-    // The search is for "thi" rather than "this" because
-    // the index will have stemmed versions of the terms.
     OmMSet mymset = do_get_simple_query_mset(query("this"));
 
     // Check that 6 documents were returned.
@@ -461,13 +459,11 @@ static bool test_multierrhandler1()
 // doesn't make any difference to get_mset().
 static bool test_changequery1()
 {
-    // The search is for "thi" rather than "this" because
-    // the index will have stemmed versions of the terms.
-    // open the database (in this case a simple text file
+    // Open the database (in this case a simple text file
     // we prepared earlier)
     OmEnquire enquire(get_simple_database());
 
-    OmQuery myquery("thi");
+    OmQuery myquery("this");
     // make a simple query
     enquire.set_query(myquery);
 
@@ -509,7 +505,7 @@ static bool test_msetmaxitems1()
     return true;
 }
 
-// tests that when specifiying maxitems to get_eset, no more than
+// tests that when specifying maxitems to get_eset, no more than
 // that are returned.
 static bool test_expandmaxitems1()
 {
@@ -517,6 +513,7 @@ static bool test_expandmaxitems1()
     init_simple_enquire(enquire);
 
     OmMSet mymset = enquire.get_mset(0, 10);
+    tout << "mymset.size() = " << mymset.size() << endl;
     TEST(mymset.size() >= 2);
 
     OmRSet myrset;
@@ -1047,7 +1044,7 @@ static bool test_allowqterms1()
     OmESet myeset = enquire.get_eset(1000, myrset, &eopt);
     OmESetIterator j = myeset.begin();
     for ( ; j != myeset.end(); ++j) {
-        TEST_NOT_EQUAL(*j, "thi");
+        TEST_NOT_EQUAL(*j, "this");
     }
 
     return true;
@@ -1131,7 +1128,7 @@ static bool test_collapsekey2()
 static bool test_reversebool1()
 {
     OmEnquire enquire(get_simple_database());
-    OmQuery query("thi");
+    OmQuery query("this");
     init_simple_enquire(enquire, query);
 
     OmSettings mymopt;
@@ -1180,7 +1177,7 @@ static bool test_reversebool1()
 static bool test_reversebool2()
 {
     OmEnquire enquire(get_simple_database());
-    OmQuery query("thi");
+    OmQuery query("this");
     init_simple_enquire(enquire, query);
 
     OmSettings mymopt;
@@ -1307,9 +1304,9 @@ static bool test_absentfile1()
 static bool test_poscollapse1()
 {
     OmQuery myquery1(OmQuery::OP_OR,
-		     OmQuery("thi", 1, 1),
-		     OmQuery("thi", 1, 1));
-    OmQuery myquery2("thi", 2, 1);
+		     OmQuery("this", 1, 1),
+		     OmQuery("this", 1, 1));
+    OmQuery myquery2("this", 2, 1);
 
     if (verbose) {
 	tout << myquery1.get_description() << "\n";
@@ -1327,7 +1324,7 @@ static bool test_poscollapse1()
 // tests that the collapsing on termpos optimisation gives correct query length
 static bool test_poscollapse2()
 {
-    OmQuery q(OmQuery::OP_OR, OmQuery("thi", 1, 1), OmQuery("thi", 1, 1));
+    OmQuery q(OmQuery::OP_OR, OmQuery("this", 1, 1), OmQuery("this", 1, 1));
     TEST_EQUAL(q.get_length(), 2);
     return true;
 }
@@ -2854,8 +2851,8 @@ static bool test_postlist1()
 static bool test_postlist2()
 {
     OmDatabase db(get_database("apitest_simpledata"));
-    OmPostListIterator p = db.postlist_begin("thi");
-    OmPostListIterator pend = db.postlist_end("thi");
+    OmPostListIterator p = db.postlist_begin("this");
+    OmPostListIterator pend = db.postlist_end("this");
 
     // test operator= creates a copy which compares equal
     OmPostListIterator p_copy = p;
@@ -2867,8 +2864,8 @@ static bool test_postlist2()
 
     std::vector<om_docid> v(p, pend);
 
-    p = db.postlist_begin("thi");
-    pend = db.postlist_end("thi");
+    p = db.postlist_begin("this");
+    pend = db.postlist_end("this");
     std::vector<om_docid>::const_iterator i;
     for (i = v.begin(); i != v.end(); i++) {
 	TEST_NOT_EQUAL(p, pend);
@@ -2883,7 +2880,7 @@ static OmPostListIterator
 test_postlist3_helper()
 {
     OmDatabase db(get_database("apitest_simpledata"));
-    return db.postlist_begin("thi");
+    return db.postlist_begin("this");
 }
 
 // tests that an OmPostListIterator still works when the DB is deleted
@@ -2891,8 +2888,8 @@ static bool test_postlist3()
 {
     OmPostListIterator u = test_postlist3_helper();
     OmDatabase db(get_database("apitest_simpledata"));
-    OmPostListIterator p = db.postlist_begin("thi");
-    OmPostListIterator pend = db.postlist_end("thi");
+    OmPostListIterator p = db.postlist_begin("this");
+    OmPostListIterator pend = db.postlist_end("this");
 
     while (p != pend) {
 	TEST_EQUAL(*p, *u);
@@ -2906,10 +2903,10 @@ static bool test_postlist3()
 static bool test_postlist4()
 {
     OmDatabase db(get_database("apitest_simpledata"));
-    OmPostListIterator i = db.postlist_begin("thi");
+    OmPostListIterator i = db.postlist_begin("this");
     i.skip_to(1);
     i.skip_to(999999999);
-    TEST(i == db.postlist_end("thi"));
+    TEST(i == db.postlist_end("this"));
     return true;
 }
 
@@ -2917,11 +2914,12 @@ static bool test_postlist4()
 static bool test_postlist5()
 {
     OmDatabase db(get_database("apitest_manydocs"));
-    if(db.get_avlength() != 1) // Allow for databases which don't support length
+    // Allow for databases which don't support length
+    if (db.get_avlength() != 1)
 	TEST_EQUAL_DOUBLE(db.get_avlength(), 4);
-    OmPostListIterator i = db.postlist_begin("thi");
+    OmPostListIterator i = db.postlist_begin("this");
     unsigned int j = 1;
-    while(i != db.postlist_end("thi")) {
+    while (i != db.postlist_end("this")) {
 	TEST_EQUAL(*i, j);
 	i++;
 	j++;
@@ -2934,9 +2932,9 @@ static bool test_postlist5()
 static bool test_postlist6()
 {
     OmDatabase db(get_database("apitest_simpledata"));
-    OmPostListIterator i = db.postlist_begin("thi");
-    TEST(i != db.postlist_end("thi"));
-    while(i != db.postlist_end("thi")) {
+    OmPostListIterator i = db.postlist_begin("this");
+    TEST(i != db.postlist_end("this"));
+    while (i != db.postlist_end("this")) {
 	TEST_EQUAL(i.get_doclength(), db.get_doclength(*i));
 	i++;
     }
@@ -2948,7 +2946,7 @@ static bool test_collfreq1()
 {
     OmDatabase db(get_database("apitest_simpledata"));
 
-    TEST_EQUAL(db.get_collection_freq("thi"), 11);
+    TEST_EQUAL(db.get_collection_freq("this"), 11);
     TEST_EQUAL(db.get_collection_freq("first"), 1);
     TEST_EQUAL(db.get_collection_freq("last"), 0);
     TEST_EQUAL(db.get_collection_freq("word"), 9);
@@ -2957,11 +2955,11 @@ static bool test_collfreq1()
     OmDatabase db2(get_database("apitest_simpledata"));
     db2.add_database(get_database("apitest_simpledata2"));
 
-    TEST_EQUAL(db1.get_collection_freq("thi"), 15);
+    TEST_EQUAL(db1.get_collection_freq("this"), 15);
     TEST_EQUAL(db1.get_collection_freq("first"), 1);
     TEST_EQUAL(db1.get_collection_freq("last"), 0);
     TEST_EQUAL(db1.get_collection_freq("word"), 11);
-    TEST_EQUAL(db2.get_collection_freq("thi"), 15);
+    TEST_EQUAL(db2.get_collection_freq("this"), 15);
     TEST_EQUAL(db2.get_collection_freq("first"), 1);
     TEST_EQUAL(db2.get_collection_freq("last"), 0);
     TEST_EQUAL(db2.get_collection_freq("word"), 11);

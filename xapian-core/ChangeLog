@@ -1,3 +1,8 @@
+Sun Oct 13 02:09:00 BST 2002  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Snowball stems "this" to "this" rather than "thi",
+	  so update apitest source to reflect this.
+
 Sun Oct 13 01:03:04 BST 2002  Olly Betts <olly@survex.com>
 
 	* configure.in: Removed references to languages/*/Makefile.
