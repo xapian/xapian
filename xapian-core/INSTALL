@@ -10,6 +10,17 @@ should be:
  3) Run make install to install Xapian
 
 
+Compilers:
+==========
+
+We aim to support compilation with any C++ compiler which supports ISO C++,
+or a reasonable approximation to it.
+
+If you're using GCC, we recommend GCC 3.0 or later rather than GCC 2.95,
+as the C++ compiler is much improved in 3.0.  EGCS or any other GCC version
+prior to GCC 2.95 is unlikely to work due to lack of support for certain C++
+features.
+
 Options to give to configure:
 =============================
 
@@ -47,7 +58,7 @@ To compile with STLport:
 
  1) Download, build, and optionally install STLport.
  2) Configure Xapian, by running ./configure, supplying the following
-    arguments.
+    arguments:
 
     --with-stlport=<path>, where <path> is the path to the STLport
         software.  The directory pointed to by <path> should contain

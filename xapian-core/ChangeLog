@@ -1,3 +1,9 @@
+Thu Apr 11 15:06:15 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated to recommend automake 1.5, noting problem with automake 1.4
+	  and that we'll probably soon insist on 1.5, and later autoconf 2.50.
+	  Also added notes on recommended and usable GCC versions.
+
 Thu Apr 11 14:23:44 BST 2002  Olly Betts <olly@survex.com>
 
 	* Cleaning up build system.
