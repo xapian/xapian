@@ -94,7 +94,7 @@ MultiDatabase::open_post_list(const termname & tname, RSet *rset) const
     return newpl;
 }
 
-TermList *
+DBTermList *
 MultiDatabase::open_term_list(docid did) const {
     Assert(opened);
     Assert((used = true) == true);

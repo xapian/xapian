@@ -50,7 +50,7 @@ class SleepyTermList : public virtual TermList {
 	termcount get_approx_size() const;
 
 	weight get_weight() const;  // Gets weight of current term
-	termname get_termname() const;  // Current term
+	const termname & get_termname() const;  // Current term
 	termcount get_wdf() const;  // Occurences of current term in doc
 	doccount get_termfreq() const;  // Docs indexed by current term
 	TermList * next();
@@ -91,7 +91,7 @@ class SleepyDatabase : public virtual IRDatabase {
 	bool term_exists(const termname &) const;
 
 	DBPostList * open_post_list(const termname&, RSet *) const;
-	TermList * open_term_list(docid) const;
+	DBTermList * open_term_list(docid) const;
 	IRDocument * open_document(docid) const;
 
 	void make_term(const termname &) {
@@ -169,7 +169,7 @@ SleepyTermList::get_weight() const {
     return 1.0; // FIXME
 }
 
-inline termname
+inline const termname &
 SleepyTermList::get_termname() const
 {
     Assert(!at_end());

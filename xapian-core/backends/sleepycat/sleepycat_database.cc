@@ -219,7 +219,7 @@ SleepyDatabase::open_post_list(const termname & tname, RSet *rset) const
 			      data.get_size() / sizeof(docid));
 }
 
-TermList *
+DBTermList *
 SleepyDatabase::open_term_list(docid did) const {
     Assert(opened);
     Dbt key(&did, sizeof(did));

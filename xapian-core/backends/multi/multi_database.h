@@ -37,7 +37,7 @@ class MultiDatabase : public virtual IRDatabase {
 	bool term_exists(const termname &) const;
 
 	DBPostList * open_post_list(const termname&, RSet *) const;
-	TermList * open_term_list(docid id) const;
+	DBTermList * open_term_list(docid id) const;
 	IRDocument * open_document(docid id) const;
 
 	void make_term(const termname &) {
