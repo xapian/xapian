@@ -1,3 +1,12 @@
+Fri Jul 11 14:53:35 BST 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.in: Include code for partly done guile and
+	  tcl8 bindings in the distribution - it may inspire somebody to
+	  finish them off.
+	* guile/Makefile.am,tcl8/Makefile.am: Removed -shadow from swig
+	  invocation.
+	* php4/Makefile.am: Fixed not to build subproject every time.
+
 Fri Jul 11 14:42:42 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Added check for location of Xapian installation.
