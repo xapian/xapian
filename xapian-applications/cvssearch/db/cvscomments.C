@@ -1,4 +1,4 @@
-// cvssearch.C
+// cvscomments.C
 //
 // (c) 2001 Amir Michail (amir@users.sourceforge.net)
 
