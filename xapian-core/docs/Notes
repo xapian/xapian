@@ -2,3 +2,7 @@ Asserts: should be put in place to ensure correct usage.  If the assert isn't
 there, segfaults should not result, unless the condition is specifically
 prohibited in documentation.  Segfaults should not result when reading from
 files, or other data streams, even if Asserts are turned off.
+
+Optimisation:  Consider using hash_map instead of map in various places -
+two possible such locations are i) doing collapsem (in match.cc) and ii)
+in the inmemory databse.
