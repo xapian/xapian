@@ -1,3 +1,103 @@
+Announcing version 0.3.0 of Muscat.
+===================================
+
+This release contains some fairly significant API changes; applications
+will require several modifications to work with this version.
+
+Note that the Java, Perl and Python bindings will not function with this
+release, due to the incompatible API changes: a release containing updated
+versions of these will be made soon.
+
+
+This release is available from the usual place:
+        http://open.muscat.com/download/index.html
+
+As ever, for the most up-to-date documentation, see our online copy at
+	http://open.muscat.com/developer/index.html
+
+
+API modifications:
+
+ * An OmSettings classes is now used to store settings for various other
+   classes.  It stores (name, value) pairs, which avoids library binary
+   compatibility problems when new settings are added.
+
+   The parameters available are documented with the OmSettings class,
+   see the "omsettings.h" header file, or
+   http://open.muscat.com/developer/docs/apidoc/html/class_OmSettings.html
+
+ * OmDataBase, OmWritableDatabase and OmDatabaseGroup now use OmSettings
+   rather than vector<string>.  OmMatchOptions and OmExpandOptions have
+   also been replaced by OmSettings (as has the internal class
+   DatabaseBuilderParams).
+
+   Updating your code should be a very quick job - all the code in
+   om-examples was updated in about 10 minutes.  If you have any problems
+   updating, let us know and we'll try to help.
+
+ * om_queryop is now replaced by OmQuery::op.  
+
+   For example, code should be changed from
+     OmQuery(OM_MOP_OR, "a", "b")
+   to
+     OmQuery(OmQuery::OP_OR, "a", "b")
+
+ * A transaction must now be begun within an explicit session - implicit
+   sessions will only be started for single operations.  As a result,
+   begin_transaction() no longer takes a timeout parameter.
+   
+ * Replaced OmWritableDatabase::end_transaction() by
+   OmWritableDatabase::commit_transaction() and
+   OmWritableDatabase::cancel_transaction().
+
+   Cancelling will prevent the changes within the transaction
+   being applied to the database.
+
+ * const's added in various appropriate places (eg, OmData and OmKey
+   constructors).
+
+ * We now always refer to the sleepycat database backend as "sleepycat",
+   never as "sleepy".  Only externally visible effect is in options to
+   configure.
+
+ * All externally visibile references to "net"/"network" backend now
+   call it "remote".
+
+
+There aren't many new features with this release.  Some of the tasks
+performed include:
+
+ * Work began on the new database type: this is codenamed "quartz".  In
+   the absence of any better suggestions, future database types will be
+   named after rocks.
+
+ * Much of apitest is now translated into Python, for testing the Python
+   bindings.  Most of these tests ran correctly, before Python bindings
+   were broken by the new API. ;-)
+
+ * Many internal tidyups.  Lots of items removed from the TODO list.
+
+ * Nearly possible to have user-defined weighting schemes.
+
+ * Incorporated Jon Fielder's patches to TcpServer - it's now a
+   forking server rather than serving connections one at a time.
+
+ * Improved documentation comments throughout.
+
+ * Added DA format databases to tests performed by apitest.
+
+ * "Difficulty" column added to TODO list!
+
+
+Bugs fixed include:
+
+ * Fixed a bug which could cause a TCP server to loop nastily if
+   an exception were thrown.
+
+ * Fixed wdf handling in inmemory backend.
+
+ 
+
 Announcing version 0.2.1 of Muscat.
 ===================================
 
