@@ -39,8 +39,8 @@
 /* Define if you want to build inmemory backend */
 #undef MUS_BUILD_BACKEND_INMEMORY
 
-/* Define if you want to build multi database backend */
-#undef MUS_BUILD_BACKEND_MULTI
+/* Define if you want to build net database backend */
+#undef MUS_BUILD_BACKEND_NET
 
 /* Define if you want debugging to be enabled (will cause some slow down) */
 #undef MUS_DEBUG

@@ -23,7 +23,10 @@
 #include "config.h"
 #include "multimatch.h"
 #include "match.h"
+#include "networkmatch.h"
+#include "leafmatch.h"
 #include "rset.h"
+#include "multi_database.h"
 
 #include <algorithm>
 
@@ -31,11 +34,49 @@
 // Initialisation and cleaning up //
 ////////////////////////////////////
 
-MultiMatch::MultiMatch()
+MultiMatch::MultiMatch(MultiDatabase *database_)
+	: database(database_)
 #ifdef MUS_DEBUG
-	: allow_add_leafmatch(true)
+	, allow_add_leafmatch(true)
 #endif /* MUS_DEBUG */
 {
+    vector<IRDatabase *>::iterator db;
+    try {
+	for (db = database->databases.begin();
+	     db != database->databases.end();
+	     ++db) {
+	    auto_ptr<SingleMatch> smatch(make_match_from_database(*db));
+	    SingleMatch *temp = smatch.get();
+	    leaves.push_back(temp);
+
+	    // smatch no longer owns the pointer
+	    smatch.release();
+
+	    // do the appropriate linking.
+	    temp->link_to_multi(&gatherer);
+	}
+    } catch (...) {
+	// clean up in case an exception happens above
+        for (vector<SingleMatch *>::iterator i = leaves.begin();
+	     i != leaves.end();
+	     ++i) {
+	    delete *i;
+	}
+    }
+}
+
+auto_ptr<SingleMatch>
+MultiMatch::make_match_from_database(IRDatabase *db)
+{
+    /* There is currently only one special case, for network
+     * databases.
+     */
+    if (db->is_network()) {
+	// this is a NetworkDatabase.  Make a NetworkMatch.
+	return auto_ptr<SingleMatch>(new NetworkMatch(db));
+    } else {
+	return auto_ptr<SingleMatch>(new LeafMatch(db));
+    }
 }
 
 MultiMatch::~MultiMatch()
@@ -46,18 +87,6 @@ MultiMatch::~MultiMatch()
 	 ++i) {
 	delete *i;
     }
-}
-
-void
-MultiMatch::add_singlematch(auto_ptr<SingleMatch> smatch)
-{
-    Assert(allow_add_leafmatch);
-
-    SingleMatch *temp = smatch.get();
-    leaves.push_back(temp);
-    smatch.release(); // the leaves container now owns the pointer.
-
-    temp->link_to_multi(&gatherer);
 }
 
 void

@@ -23,6 +23,7 @@
 
 #include <om/omenquire.h>
 #include "database.h"
+#include "multi_database.h"
 #include "omlocks.h"
 #include <vector>
 #include <memory>
@@ -45,7 +46,7 @@ class OmEnquireInternal {
 	 *  These are specified in the constructor, and are opened lazily,
 	 *  by calling OmEnquireInternal::open_database();
 	 */
-	mutable IRDatabase * database;
+	mutable MultiDatabase * database;
 
 	/** A copy of the OmDatabase object used to specify the database
 	 *  or databases to be used.

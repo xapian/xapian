@@ -198,9 +198,7 @@ OmEnquireInternal::get_mset(om_doccount first,
     }
 
     // Set Database
-    MultiMatch match;
-
-    match.add_singlematch(auto_ptr<SingleMatch>(new LeafMatch(database)));
+    MultiMatch match(database);
 
     // Set cutoff percent
     if (moptions->percent_cutoff > 0) {
@@ -342,12 +340,22 @@ OmEnquireInternal::open_database() const
     if(database == 0) {
 	if(dbdesc.internal->params.size() == 0) {
 	    throw OmInvalidArgumentError("Must specify at least one database");
-	} else if(dbdesc.internal->params.size() == 1) {
-	    database = DatabaseBuilder::create(dbdesc.internal->params.front());
 	} else {
 	    DatabaseBuilderParams multiparams(OM_DBTYPE_MULTI);
 	    multiparams.subdbs = dbdesc.internal->params;
-	    database = DatabaseBuilder::create(multiparams);
+	    auto_ptr<IRDatabase> tempdb(DatabaseBuilder::create(multiparams));
+
+	    // FIXME: we probably need a better way of getting a
+	    // MultiDatabase to avoid the dynamic_cast.
+	    database = dynamic_cast<MultiDatabase *>(tempdb.get());
+	    
+	    if (database == 0) {
+		// it wasn't really a MultiDatabase...
+		Assert(false);
+	    } else {
+		// it was good - don't let the auto_ptr delete it.
+		tempdb.release();
+	    }
 	}
     }
 }

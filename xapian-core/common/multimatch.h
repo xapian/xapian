@@ -29,6 +29,7 @@
 #include <vector>
 #include <memory>  // auto_ptr
 
+class MultiDatabase;
 class SingleMatch;
 
 /** Class for performing a match over multiple leafmatch objects.
@@ -38,6 +39,9 @@ class MultiMatch
     private:
 	/// Vector of the items 
 	vector<SingleMatch *> leaves;
+	
+	/// The database
+	MultiDatabase *database;
 
 	/// stats gatherer
 	StatsGatherer gatherer;
@@ -48,22 +52,23 @@ class MultiMatch
 	bool allow_add_leafmatch;
 #endif /* MUS_DEBUG */
 
+	/// Construct a SingleMatch object from an IRDatabase
+	auto_ptr<SingleMatch> make_match_from_database(IRDatabase *db);
+
 	// disallow copies
 	MultiMatch(const MultiMatch &);
 	void operator=(const MultiMatch &);
     public:
-	MultiMatch();
-	~MultiMatch();
-
-	/** Add a new singlematch object to the multimatch.
+	/** MultiMatch constructor.
 	 *
-	 *  Caller is responsible for ensuring that the leafmatch object
-	 *  pointed to remains valid until the multimatch object is
-	 *  destroyed, and for deallocating the object afterwards.
+	 *  Caller is responsible for ensuring that the MultiDatabase
+	 *  object pointed to remains valid until the multimatch object
+	 *  is destroyed, and for deallocating the object afterwards.
 	 *
-	 *  @param leaf A pointer to the new object to add.
+	 *  @param database_ A pointer to the database to use.
 	 */
-	void add_singlematch(auto_ptr<SingleMatch> smatch);
+	MultiMatch(MultiDatabase *database_);
+	~MultiMatch();
 
 	void set_query(const OmQueryInternal * query);
 	void set_rset(auto_ptr<RSet> rset_);

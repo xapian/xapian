@@ -35,7 +35,8 @@
 #include "sleepy/sleepy_database.h"
 #endif
 #ifdef MUS_BUILD_BACKEND_MULTI
-#include "multi/multi_database.h"
+// multi_database.h is in common/
+#include "multi_database.h"
 #endif
 #ifdef MUS_BUILD_BACKEND_NET
 #include "net/net_database.h"

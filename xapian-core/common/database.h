@@ -84,13 +84,21 @@ class IRDatabase : public IndexerDestination {
 	virtual LeafTermList * open_term_list(om_docid did) const = 0;
 	virtual LeafDocument * open_document(om_docid did) const = 0;
 
-#if 0
 	// Introspection methods:
 	// ======================
+	
+	virtual bool is_network() const;
 
+#if 0
 	virtual const DatabaseBuilderParams & get_database_params() const = 0;
 	virtual const IRDatabase * get_database_of_doc(om_docid) const = 0;
 #endif
 };
+
+/// Default implementation of is_network(): false.
+inline bool IRDatabase::is_network() const
+{
+    return false;
+}
 
 #endif /* OM_HGUARD_DATABASE_H */

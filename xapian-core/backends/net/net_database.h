@@ -71,6 +71,9 @@ class NetworkDatabase : public IRDatabase {
 	void make_posting(const om_termname &, unsigned int, unsigned int) {
 	    throw OmUnimplementedError("NetworkDatabase::make_posting() not implemented");
 	}
+
+	// Introspection methods...
+	bool is_network() const;
 };
 
 inline om_doclength
@@ -113,6 +116,12 @@ NetworkDatabase::get_termfreq(const om_termname & tname) const
     delete pl;
     return freq;
 #endif
+}
+
+inline bool
+NetworkDatabase::is_network() const
+{
+    return true;
 }
 
 #endif /* OM_HGUARD_NET_DATABASE_H */

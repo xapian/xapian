@@ -25,6 +25,7 @@
 
 #include "omassert.h"
 #include "database.h"
+#include "leafpostlist.h"
 #include <stdlib.h>
 #include <set>
 #include <vector>
@@ -32,6 +33,7 @@
 
 class MultiDatabase : public IRDatabase {
     friend class DatabaseBuilder;
+    friend class MultiMatch;
     private:
 	mutable set<om_termname> terms;
 
