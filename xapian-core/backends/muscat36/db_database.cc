@@ -189,6 +189,8 @@ DBDatabase::DBDatabase(const DatabaseBuilderParams & params, int heavy_duty_)
 		throw OmOpeningError(string("When opening ") + filename_k + ": couldn't read magic - got `" + input + "'");
 	    }
 	}
+    } else if(filename_k.size() != 0) {
+	throw OmOpeningError(string("When opening ") + filename_k + ": " + strerror(errno));
     }
 
     return;
