@@ -55,13 +55,13 @@ open_db_group(string database_type, string dlist_path)
 
     FILE * fp = fopen (dlist_path.c_str(), "r");
     TEST_AND_EXPLAIN(fp != 0, "Can't open file `" << dlist_path << "' - " <<
-		     strerror(errno))
-    while(!feof(fp)) {
+		     strerror(errno));
+    while(!feof(fp) && !ferror(fp)) {
 	string database_path;
 	while(1) {
 	    char c;
 	    fread(&c, sizeof(char), 1, fp);
-	    if (feof (fp) || c == '\n') {
+	    if (feof (fp) || ferror (fp) || c == '\n') {
 		break;
 	    }
 	    database_path += string(&c, 1);
@@ -74,6 +74,10 @@ open_db_group(string database_type, string dlist_path)
 	    dbgrp.add_database(db);
 	}
     }
+
+    TEST_AND_EXPLAIN(!ferror(fp), "Error reading dlist file `" <<
+		     dlist_path << "' - " << strerror(errno));
+
     return dbgrp;
 }
 
@@ -94,7 +98,6 @@ search_stuff(OmDatabaseGroup & dbgrp,
 	     vector<OmQuery> & queries,
 	     vector<OmMSet> & results)
 {
-    cout << "OmDatabaseGroup: " << &dbgrp << endl;
     OmEnquire enq(dbgrp);
     search_stuff(enq, queries, results);
 }
@@ -177,7 +180,7 @@ bool check_query_threads(void * (* search_thread)(void *))
 
     struct some_searches mainsearch;
 
-    mainsearch.database_type = "da_heavy";
+    mainsearch.database_type = "da_flimsy";
     mainsearch.database_path = database_path;
 
     mainsearch.dbgrp = open_db_group(mainsearch.database_type,
@@ -271,7 +274,7 @@ int main(int argc, char *argv[])
 {
     if (argc < 4) {
 	cerr << "Usage: " << argv[0] <<
-		" <database path> <queryfile> <threadcount> <options>" << endl;
+		" <dlist path> <queryfile> <threadcount> <options>" << endl;
 	exit (77);
     }
     database_path = argv[1];
