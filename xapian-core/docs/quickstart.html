@@ -357,6 +357,74 @@ The code for this example is also in the examples package, in
 the &quot;<CODE>simple</CODE>&quot; subdirectory.  An HTML formatted
 version is available <A HREF="simplesearch.cc.html">here</A>.
 </P>
+<P>
+The &quot;searcher&quot; presented here is, like the &quot;indexer&quot;,
+simply a small program which takes a path to a database and some search
+terms, performs a probabalistic search for documents represented by
+those terms and displays a ranked list of matching documents
+</P>
+
+<H3>Header files</H3>
+
+<PRE>
+    #include &lt;om/om.h&gt;
+    int main(int argc, char *argv[])
+    {
+</PRE>
+<PRE>
+        // Simplest possible options parsing: we just require two or more
+        // parameters.
+        if(argc &lt; 3) {
+            cout &lt;&lt; "usage: " &lt;&lt; argv[0] &lt;&lt;
+                    " &lt;path to database&gt; &lt;search terms&gt;" &lt;&lt; endl;
+            exit(1);
+        }
+
+        // Catch any OmError exceptions thrown
+        try {
+            // Make the database group
+            OmDatabaseGroup databases;
+            vector&lt;string&gt; parameters;
+            parameters.push_back(argv[1]);
+            databases.add_database("sleepycat", parameters);
+
+            // Start an enquire session
+            OmEnquire enquire(databases);
+
+            // Prepare the query terms
+            vector&lt;om_termname&gt; queryterms;
+            for (int optpos = 2; optpos &lt; argc; optpos++) {
+                queryterms.push_back(argv[optpos]);
+            }
+
+            // Build the query object
+            OmQuery query(OM_MOP_OR, queryterms.begin(), queryterms.end());
+            cout &lt;&lt; "Performing query `" &lt;&lt; query.get_description() &lt;&lt; "'" &lt;&lt; endl;
+
+            // Give the query object to the enquire session
+            enquire.set_query(query);
+
+            // Get the top 10 results of the query
+            OmMSet matches = enquire.get_mset(0, 10);
+
+            // Display the results
+            cout &lt;&lt; matches.items.size() &lt;&lt; " results found" &lt;&lt; endl;
+
+            for (vector&lt;OmMSetItem&gt;::const_iterator i = matches.items.begin();
+                 i != matches.items.end();
+                 i++) {
+                OmDocument doc = enquire.get_doc(*i);
+                cout &lt;&lt; "Document ID " &lt;&lt; i-&gt;did &lt;&lt; "\t" &lt;&lt;
+                        matches.convert_to_percent(*i) &lt;&lt; "% [" &lt;&lt;
+                        doc.get_data().value &lt;&lt; "]" &lt;&lt; endl;
+            }
+        }
+        catch(OmError &error) {
+            cout &lt;&lt; "Exception: "  &lt;&lt; error.get_msg() &lt;&lt; endl;
+        }
+    }
+</PRE>
+
 
 <HR>
 <H2>Compiling</H2>
@@ -403,6 +471,26 @@ c++ simplesearch.cc `libomus-config --libs --cflags` -o simplesearch
 
 <HR>
 <H2>Further documentation</H2>
+
+For more detailed documentation on the API, there are two pieces of
+documentation available.
+<UL><LI>
+The <A HREF="userman.html">user manual</A>, which is designed as an
+introduction to the API.
+</LI>
+<LI>
+An API reference, which is automatically extracted from the extensive
+comments in the source code by
+<EM><A HREF="http://www.stack.nl/~dimitri/doxygen/index.html">Doxygen</A></EM>.
+This is <A HREF="apidoc/html/index.html">distributed</A> together with the
+source code packages, but in the event that you do not have a copy there is
+a copy 
+<A HREF="http://open.muscat.com/developer/docs/apidoc/html/index.html">available</A> 
+on our website.
+</LI></UL>
+
+For those interested in how Muscat works internally, there is also an
+automatically
 
 <!-- FOOTER $Author$ $Date$ $Id$ -->
 </BODY>
