@@ -1,3 +1,8 @@
+Wed Aug  2 13:28:29 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix problem in internaltests checking of the testsuites leak
+	  detection.
+
 Wed Aug  2 12:45:11 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added instructions for compiling with STLport to INSTALL.

@@ -74,10 +74,12 @@ bool test_except1()
 }
 
 char *duff_allocation = 0;
+char *duff_allocation_2 = 0;
 
 bool test_duffnew()
 {
     // make an unfreed allocation
+    duff_allocation_2 = duff_allocation;
     duff_allocation = new char[7];
     return true;
 }
@@ -168,6 +170,8 @@ bool test_testsuite3()
     // clean up after test_duffnew()
     delete duff_allocation;
     duff_allocation = 0;
+    delete duff_allocation_2;
+    duff_allocation_2 = 0;
 
     return success;
 }
