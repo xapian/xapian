@@ -1,3 +1,8 @@
+Sat Nov 06 14:45:31 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Removed unused code which probes for stlport.  We need
+	  to use stlport for everything or nothing anyway.
+
 Fri Nov 05 16:45:12 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: AM_CONFIG_HEADER -> AC_CONFIG_HEADERS; Run tests using

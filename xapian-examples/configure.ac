@@ -51,15 +51,6 @@ if test yes = "$GXX"; then
   AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wno-long-long -fno-gnu-keywords"
 fi
 
-dnl modify flags for building with stlport
-if test yes = "$use_stlport"; then
-  if test yes = "$GXX"; then
-    AM_CXXFLAGS="-nostdinc++ $AM_CXXFLAGS"
-  fi
-  AM_CXXFLAGS="$STLPORT_INCLUDE $AM_CXXFLAGS"
-  LIBS="$STLPORT_LIBS $LIBS"
-fi
-
 AC_SUBST(AM_CXXFLAGS)
 
 dnl **************************
