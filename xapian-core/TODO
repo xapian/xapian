@@ -31,8 +31,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Medium  | API             | Write get_matching_terms method for OmEnquire.
 ---------+-----------------+--------------------------------------------------
- Medium  | Tests           | Test match decision functor
----------+-----------------+--------------------------------------------------
  Medium  | Matcher         | Implement match decision functor
 ---------+-----------------+--------------------------------------------------
  Medium  | Matcher         | Finish implementation of BM25 weight
@@ -46,8 +44,6 @@ Priority | Area            | Task
 	 |                 | when exceptions should be thrown / when error
 	 |                 | condition should be returned.)  Do same for
 	 |                 | postlists, termlists, documents, matcher, etc.
----------+-----------------+--------------------------------------------------
- Medium  | Tests           | Write tests for percentage cutoffs.
 ---------+-----------------+--------------------------------------------------
  Medium  | Tests           | Write tests for collapse M.
 ---------+-----------------+--------------------------------------------------
@@ -87,6 +83,8 @@ Priority | Area            | Task
 	 |                 | information in matcher.
 ---------+-----------------+--------------------------------------------------
  Low     | Backends        | Make the sleepycat database function (at all).
+---------+-----------------+--------------------------------------------------
+ Low     | General         | Audit for exception safety.
 ---------+-----------------+--------------------------------------------------
  Verylow | General         | Improve performance using SIMD instructions
 ---------+-----------------+--------------------------------------------------
