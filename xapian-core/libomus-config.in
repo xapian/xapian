@@ -1,0 +1,84 @@
+#! /bin/sh
+
+prefix=~richard/Working/openmuscat/om
+libs=${prefix}/lib
+cflags=${prefix}/include
+
+usage()
+{
+    cat <<EOF
+Usage: libomus-config [OPTION]
+
+Known values for OPTION are:
+
+  --check		check for existence of libomus
+  --libs		print library linking information
+  --cflags		print pre-processor and compiler flags
+  --help		display this help and exit successfully
+  --version		output version information
+EOF
+
+    exit $1
+}
+
+if test $# -eq 0; then
+    usage 1
+fi
+
+cflags=false
+libs=false
+
+lib_gtk=yes
+
+while test $# -gt 0; do
+    case "$1" in
+    -*=*) optarg=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+    *) optarg= ;;
+    esac
+
+    case "$1" in
+    --prefix=*)
+	prefix=$optarg
+	;;
+
+    --prefix)
+	echo $prefix
+	;;
+
+    --version)
+	echo libomus @VERSION@
+	exit 0
+	;;
+
+    --help)
+	usage 0
+	;;
+
+    --cflags)
+	echo_cflags=yes
+       	;;
+
+    --libs)
+	echo_libs=yes
+       	;;
+
+    --check)
+	;;
+
+    *)
+	usage 1 1>&2
+	exit 1
+	;;
+    esac
+    shift
+done
+
+if test "$echo_cflags" = "yes"; then
+    echo -I$includedir
+fi
+
+if test "$echo_libs" = "yes"; then
+    echo -L$libdir libomus.la
+fi
+
+exit 0
