@@ -21,6 +21,12 @@
  * 
  ********************************************************************************/
 
+#warning "SHOULD SPECIFY INCLUDE DIRECTORIES OF HEADER FILES ONLY"
+#warning "THAT WAY WE DO NOT GET EXTRANEOUS STUFF (e.g., example apps)"
+#warning "EXAMPLE: qt/include and kde/include"
+
+
+
 // if DB_ONLY is false, it looks at cmt files and compares two methods
 #define DB_ONLY 1
 
@@ -152,8 +158,10 @@ int main(unsigned int argc, char *argv[]) {
             cerr << "... invoking " << cmd << endl;
             system(cmd.c_str());
             read_library = true;
+
         }
     }
+
     if (root.length() == 0) {
         usage(argv[0]);
     }
@@ -308,7 +316,7 @@ int main(unsigned int argc, char *argv[]) {
 void
 usage(char * prog_name)
 {
-    cerr << "Usage: " << prog_name << "[Options]" << endl
+    cerr << "Usage: " << prog_name << "[Options] list of library include directories" << endl
          << endl
          << "Options:" << endl
          << "  -f pkg_list_file       a file containing the list of packages to mine" << endl
@@ -546,7 +554,7 @@ get_data(lines & lines,
                 // ----------------------------------------
                 for( set<string>::iterator s = symbols.begin(); s != symbols.end(); ++s ) {
                     if ( lib_symbols.find(*s) != lib_symbols.end() ) {
-                        commit_symbols[commitid+offset].insert(*s);
+			commit_symbols[commitid+offset].insert(*s);
                     } else {
                                 // ----------------------------------------
                                 // this symbol is not in the library, so

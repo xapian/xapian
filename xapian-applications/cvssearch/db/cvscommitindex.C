@@ -23,6 +23,9 @@
 
 
 
+// for some reason, omseek ranking is better with set than list for data mining purposes??
+#warning "USING SET INSTEAD OF LIST FOR INDEX ENTRIES"
+
 #warning "*** USING COMMENT PROFILES"
 
 #warning "*** COMMIT OFFSET FILE SHARED BETWEEN MINE & COMMIT RIGHT NOW!"
@@ -823,6 +826,7 @@ void write_OM_database( const string & database_dir,
       map<unsigned int, list<string> >::const_iterator f = commit_comment_words.find(i->first);
 
 
+      //list<string> words; // words to index by
       set<string> words; // words to index by
 
       assert( f != commit_comment_words.end() );
@@ -831,6 +835,7 @@ void write_OM_database( const string & database_dir,
       const list<string>& comment_words = f->second;
       for( list<string>::const_iterator j = comment_words.begin(); j != comment_words.end(); j++ ) {
 	symbol_string += "+"+(*j) + " "; // comment words have '+' prefix
+	//words.push_back(*j); // index by comment words (stemmed)
 	words.insert(*j); // index by comment words (stemmed)
       }
 
@@ -839,7 +844,8 @@ void write_OM_database( const string & database_dir,
       list<string>::const_iterator j;
       for (j = symbols.begin(); j != symbols.end(); ++j) {
 	symbol_string += (*j) + " ";
-	words.insert(*j); // also index by code words (not stemmed)
+	//words.push_back(*j); // also index by code words (stemmed)
+	words.insert(*j); // also index by code words (stemmed)
       }
 
       // cerr << "DATA = " << symbol_string << endl;
@@ -853,13 +859,15 @@ void write_OM_database( const string & database_dir,
       // ----------------------------------------
 
       if ( words.empty() ) {
+	//words.push_back("EMPTY");
 	words.insert("EMPTY");
       }
 
+      //list<string>::const_iterator w;
       set<string>::const_iterator w;
       for (w = words.begin(); w != words.end(); ++w) {
 	newdocument.add_posting(*w, ++pos);
-	//   cerr << "... index term " << (*w) << endl;
+	   //cerr << "... index term " << (*w) << endl;
       }
 
       /***************

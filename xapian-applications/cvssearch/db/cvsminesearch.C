@@ -9,14 +9,9 @@
 
 #define MIN_SUPPORT 1 
 
+#define USE_IDF 0
 
-
-
-
-
-
-
-
+#define IDF_PRUNE -1
 
 
 
@@ -135,6 +130,18 @@ unsigned int find_symbol_count( Db& db, const string & k ) {
   cerr << "*** Not Found " << k << endl;
   assert(0);
 }
+
+
+
+double compute_idf( Db& db, const string& k, const int N ) {
+  unsigned int count = find_symbol_count( db, k );
+  //  cerr << "compute idf N=" << N << " and count = " << count << " for " << k << endl;
+  double idf = log( (double) N / (double) count - 1 );
+  //cerr << "idf = " << idf << endl;
+  return idf;
+}
+
+
 
 double compute_convinction( unsigned int a_count, 
 			    unsigned int b_count, 
@@ -259,13 +266,34 @@ void generate_rules( Db& db,
 
       }
 
-      string item = prefix + symbol;
+      //      cerr << "symbol " << symbol << " has idf " << compute_idf( db, symbol, total_commit_transactions ) << endl;
 
-      if ( item.find("()") != string::npos ) {
-	function_ranking[ -score ].insert(item);
+
+      if ( compute_idf( db, symbol, total_commit_transactions ) >= IDF_PRUNE ) {
+
+
+
+#if USE_IDF
+#warning "takes IDF into account now!!!"
+	cerr << "changing score of " << symbol << " from " << score << " to ";
+	score = score * compute_idf( db, symbol, total_commit_transactions );
+	cerr << score << " as idf = " << compute_idf( db, symbol, total_commit_transactions ) <<  endl;
+#endif
+
+
+
+	string item = prefix + symbol;
+	
+	if ( item.find("()") != string::npos ) {
+	  function_ranking[ -score ].insert(item);
+	} else {
+	  class_ranking[ -score ].insert(item);
+	}
+
       } else {
-	class_ranking[ -score ].insert(item);
+	//	cerr << "... pruning " << symbol << endl;
       }
+
     }
 }
 
@@ -487,9 +515,10 @@ int main(unsigned int argc, char *argv[]) {
       int commit_id = -1;
       for( list<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
 	if ( isdigit((*s)[0]) ) {
-	  assert( commit_id == -1 );
-	  commit_id = atoi( s->c_str() );
-	  continue;
+	  if ( commit_id == -1 ) { // first number is commit
+	    commit_id = atoi( s->c_str() );
+	    continue;
+	  } 
 	}
 	S.insert(*s);
 	//  cerr << "..." << (*s) << endl;

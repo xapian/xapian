@@ -11,7 +11,16 @@
 #include <math.h>
 #include <algorithm>
 
-
+//
+// Major bug:
+//
+//./cvscommitsearch root0/db/commit.om 10 lyx  
+//
+// yields:
+//
+//  commit 0 in package kmusic/brahms of code size 5534 has score 1.7303  
+// 
+// which appears to be a bit entry
 
 #define OFFSET_FILE "/root0/commit.offset"
 
@@ -760,7 +769,8 @@ int main(unsigned int argc, char *argv[]) {
 
 	if ( query_term_set.find(*w) != query_term_set.end() ) {
 	  // this has infinite convinction
-	  expanded_query_vector[*w] *= 5.0; // 10 times as much for query words
+#warning "2.0 factor for query words"
+	  expanded_query_vector[*w] *= 2.0; 
 	}
 
 	cerr << "word " << *w << " has score " << expanded_query_vector[*w] << endl;
