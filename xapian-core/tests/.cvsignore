@@ -5,6 +5,7 @@ idxtest
 matchtest
 enquiretest
 stemtest
+threadtest
 Makefile.in
 Makefile
 .deps
