@@ -63,6 +63,12 @@ class Btree {
 	 */
 	bool open_to_write(const char *name_, uint4 revision_);
 
+	/** Attempt to commit changes to disk.  Returns
+	 *  BTREE_ERRORS_NONE if successful, otherwise an error.
+	 *  The object should be deleted after this operation.
+	 */
+	Btree_errors commit(uint4 revision);
+
 	/** Create an initial btree structure on disk */
 	static int create(const char *name_, int blocksize);
 

@@ -1665,18 +1665,20 @@ Btree::~Btree() {
 
 extern int Btree_close(struct Btree * B_, uint4 revision)
 {
-    /* Automatically destroy the Btree when exiting by any
-     * means.
-     */
-    AutoPtr<Btree> B(B_);
+    int retval = B_->commit(revision);
+    delete B_;
+    return retval;
+}
 
-    AssertEq(B->error, 0);
-    Assert(!B->overwritten);
+Btree_errors
+Btree::commit(uint4 revision)
+{
+    AssertEq(error, 0);
+    Assert(!overwritten);
 
-    struct Cursor * C = B->C;
     int j;
-    Btree_errors error = BTREE_ERROR_REVISION;
-    if (revision < B->next_revision) {
+    Btree_errors errorval = BTREE_ERROR_REVISION;
+    if (revision < next_revision) {
 	/* FIXME: should Btree_close() throw exceptions (so as it's
 	 * likely to be called from destructors they'll need to catch
 	 * the exception), or return an error value?  (So we need to
@@ -1684,63 +1686,62 @@ extern int Btree_close(struct Btree * B_, uint4 revision)
 	 * I think it should throw an exception, but need to discuss.
 	 *  -CME  2000-11-16
 	 */
-	return error; /* revision too low */
+	return errorval; /* revision too low */
     }
 
-    for (j = B->level; j >= 0; j--)
+    for (j = level; j >= 0; j--)
     {
         if (C[j].rewrite)
-        {   write_block(B.get(), C[j].n, C[j].p);
-            if (B->error) {
-		return error;
+        {   write_block(this, C[j].n, C[j].p);
+            if (error) {
+		return errorval;
 	    }
         }
     }
 
-    error = BTREE_ERROR_DB_CLOSE;
-    if ( ! (sys_flush(B->handle) &&
-            sys_close(B->handle))) {
-	B->handle = -1;
-	return error;
+    errorval = BTREE_ERROR_DB_CLOSE;
+    if ( ! (sys_flush(handle) &&
+            sys_close(handle))) {
+	handle = -1;
+	return errorval;
     }
 
-    error = BTREE_ERROR_BITMAP_WRITE;
-    {   int i = B->bit_map_size - 1;
-        while (B->bit_map[i] == 0 && i > 0) i--;
-        B->bit_map_size = i + 1;
+    errorval = BTREE_ERROR_BITMAP_WRITE;
+    {   int i = bit_map_size - 1;
+        while (bit_map[i] == 0 && i > 0) i--;
+        bit_map_size = i + 1;
 
-        {   int x = B->bit_map[i];
+        {   int x = bit_map[i];
             int4 n = (i + 1) * CHAR_BIT - 1;
             int d = 0x1 << (CHAR_BIT - 1);
             while ((x & d) == 0) { d >>= 1; n--; }
-            B->last_block = n;
+            last_block = n;
         }
     }
 
-    B->faked_root_block &= ! B->Btree_modified; /* still faked? */
-    if (B->faked_root_block) B->bit_map[0] = 0; /* if so, dummy bit map */
+    faked_root_block &= ! Btree_modified; /* still faked? */
+    if (faked_root_block) bit_map[0] = 0; /* if so, dummy bit map */
 
-    if (! write_bit_map(B.get())) {
-	return error;
+    if (! write_bit_map(this)) {
+	return errorval;
     }
 
-    error = BTREE_ERROR_BASE_WRITE;
-    B->base.set_revision(revision);
-    B->base.set_root(C[B->level].n);
-    B->base.set_level(B->level);
-    B->base.set_bit_map_size(B->bit_map_size);
-    B->base.set_item_count(B->item_count);
-    B->base.set_last_block(B->last_block);
-    B->base.set_have_fakeroot(B->faked_root_block);
+    errorval = BTREE_ERROR_BASE_WRITE;
+    base.set_revision(revision);
+    base.set_root(C[level].n);
+    base.set_level(level);
+    base.set_bit_map_size(bit_map_size);
+    base.set_item_count(item_count);
+    base.set_last_block(last_block);
+    base.set_have_fakeroot(faked_root_block);
 
-    if (! write_base(B.get())) {
-	return error;
+    if (! write_base(this)) {
+	return errorval;
     }
 
-    error = BTREE_ERROR_NONE;
+    errorval = BTREE_ERROR_NONE;
 
-    return error;
-    /* B destroyed here */
+    return errorval;
 }
 
 /************ B-tree reading ************/
