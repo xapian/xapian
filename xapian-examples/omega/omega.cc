@@ -103,9 +103,9 @@ static int main2(int argc, char *argv[])
     }
 
     /*** get database name ***/
-    char *tmp = GetEntry("DB");
-    if (tmp != NULL)
-	db_name = tmp;
+    val = GetEntry("DB");
+    if (val != NULL)
+	db_name = val;
     else
 	db_name = default_db_name;
 #ifdef META
