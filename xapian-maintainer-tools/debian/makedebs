@@ -20,23 +20,23 @@
 
 set -e
 
+COMPONENT=unstable
 VERSION='0.8.2'
 DEBVER_CORE='3'
 DEBVER_BINDINGS='2'
 DEBVER_OMEGA='2'
-COMPONENT=stable
 
-# Options to pass to dpkg-buildpackage when building binary packages
+# Options to pass to dpkg-buildpackage when building binary packages.
 BUILDPACKAGE_BIN_OPTS="-us -uc -d -b"
 
-# Location to place the generated apt repository
+# Location of apt repository on www.xapian.org.
 PUBDIR="/usr/data/www/xapian.org/debian"
 
 
 ## Items after this point should not normally need to be modified
 
-# Temporary directory to install core in
-TMPDIR="/tmp/xapian-core$$"
+# Temporary directory to place a built copy of the core library in.
+TMPDIR="/tmp/xapian$$"
 
 ## BEGIN PROCESSING ##
 trap "(rm -rf $TMPDIR;echo \"makedebs failed\")" EXIT
@@ -44,18 +44,13 @@ trap "(rm -rf $TMPDIR;echo \"makedebs failed\")" EXIT
 # Determine the architecture we're building on
 DEB_HOST_ARCH=`dpkg-architecture -qDEB_HOST_ARCH`
 
-# Detect if we're on the machine that Xapian apt repository is held on, and
-# don't use HTTP to get the packages if so.
+# Detect if we're on the machine that Xapian apt repository is held on, so
+# that we don't transfer the packages over the network if we don't need to.
 ONIXION=no
 if [ "x`hostname -f`" == "xixion.tartarus.org" ] ; then
   if [ -r '/usr/data/cvs/xapian' ] ; then
     ONIXION=yes
   fi
-fi
-
-if [ $ONIXION == no ] ; then
-  echo "Not on ixion - network build not yet implemented"
-  exit 1;
 fi
 
 # This variable will be used when we finish support for snapshot packages.
@@ -76,16 +71,35 @@ if [ "x$EXTRA_VERSION_UPSTREAM" == "x" ] ; then
 else
   TARGETDIR="dists/$COMPONENT/snapshot"
 fi
-SRCDIR="$TARGETDIR/source"
 PKGDIR="$TARGETDIR/binary-$DEB_HOST_ARCH"
 POOLDIR="pool/$VERSION"
-mkdir -p "$PUBDIR/$SRCDIR"
-mkdir -p "$PUBDIR/$PKGDIR"
 
 # Calculate location that control files should be found at
-CONTROL_CORE="${PUBDIR}/$POOLDIR/xapian-core_${VERSION}-${DEBVER_CORE}${EXTRA_VERSION_DEBIAN}.dsc"
-CONTROL_BINDINGS="${PUBDIR}/$POOLDIR/xapian-bindings_${VERSION}-${DEBVER_BINDINGS}${EXTRA_VERSION_DEBIAN}.dsc"
-CONTROL_OMEGA="${PUBDIR}/$POOLDIR/xapian-omega_${VERSION}-${DEBVER_OMEGA}${EXTRA_VERSION_DEBIAN}.dsc"
+FILEBASE_CORE="xapian-core_${VERSION}-${DEBVER_CORE}${EXTRA_VERSION_DEBIAN}"
+FILEBASE_BINDINGS="xapian-bindings_${VERSION}-${DEBVER_BINDINGS}${EXTRA_VERSION_DEBIAN}"
+FILEBASE_OMEGA="xapian-omega_${VERSION}-${DEBVER_OMEGA}${EXTRA_VERSION_DEBIAN}"
+
+if [ $ONIXION == yes ] ; then
+  CONTROL_CORE="${PUBDIR}/$POOLDIR/${FILEBASE_CORE}.dsc"
+  CONTROL_BINDINGS="${PUBDIR}/$POOLDIR/${FILEBASE_BINDINGS}.dsc"
+  CONTROL_OMEGA="${PUBDIR}/$POOLDIR/${FILEBASE_OMEGA}.dsc"
+else
+  mkdir -p src
+  scp \
+    www.xapian.org:"${PUBDIR}/$POOLDIR/xapian-core_${VERSION}.orig.tar.gz" \
+    www.xapian.org:"${PUBDIR}/$POOLDIR/${FILEBASE_CORE}.dsc" \
+    www.xapian.org:"${PUBDIR}/$POOLDIR/${FILEBASE_CORE}.diff.gz" \
+    www.xapian.org:"${PUBDIR}/$POOLDIR/xapian-bindings_${VERSION}.orig.tar.gz" \
+    www.xapian.org:"${PUBDIR}/$POOLDIR/${FILEBASE_BINDINGS}.dsc" \
+    www.xapian.org:"${PUBDIR}/$POOLDIR/${FILEBASE_BINDINGS}.diff.gz" \
+    www.xapian.org:"${PUBDIR}/$POOLDIR/xapian-omega_${VERSION}.orig.tar.gz" \
+    www.xapian.org:"${PUBDIR}/$POOLDIR/${FILEBASE_OMEGA}.dsc" \
+    www.xapian.org:"${PUBDIR}/$POOLDIR/${FILEBASE_OMEGA}.diff.gz" \
+    src
+  CONTROL_CORE="src/${FILEBASE_CORE}.dsc"
+  CONTROL_BINDINGS="src/${FILEBASE_BINDINGS}.dsc"
+  CONTROL_OMEGA="src/${FILEBASE_OMEGA}.dsc"
+fi
 
 # Make tarballs, if we don't already have some
 if [ -e ${CONTROL_CORE} -a -e ${CONTROL_BINDINGS} -a -e ${CONTROL_OMEGA} ];
@@ -111,14 +125,14 @@ cd build
   cd xapian-core-${VERSION}
     mkdir -p build-tmp
     cd build-tmp
-      ../configure --prefix=${TMPDIR}
+      ../configure --prefix=${TMPDIR}/core
       make
       make install
     cd ..
   cd ..
   # Add new library to beginning of path.
   export PATH
-  PATH="$TMPDIR/bin:$PATH"
+  PATH="$TMPDIR/core/bin:$PATH"
 
   # Build packages from xapian-bindings
   dpkg-source -x ${CONTROL_BINDINGS}
@@ -156,8 +170,12 @@ cd upload-packages
   rm Override
 cd ..
 
-mkdir -p ${PUBDIR}
-cp -af upload-packages/* ${PUBDIR}
+if [ $ONIXION == yes ] ; thens
+  mkdir -p ${PUBDIR}
+  cp -af upload-packages/* ${PUBDIR}
+else
+  scp -r upload-packages/* ixion.tartarus.org:${PUBDIR}
+fi
 
 trap EXIT
 rm -rf "${TMPDIR}"
