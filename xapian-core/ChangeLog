@@ -1,3 +1,8 @@
+Wed Jun 14 18:07:43 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added test of OmStem::get_available_langs() to apitest: currently
+	  disabled, since this is unimplemented.
+
 Wed Jun 14 17:37:01 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* All classes except Om*Decider now added, although some are

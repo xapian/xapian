@@ -1441,6 +1441,23 @@ bool test_emptyquerypart1()
     return true;
 }
 
+bool test_stemlangs()
+{
+    vector<string> langs;
+    langs = OmStem::get_available_languages();
+
+    if(verbose) {
+	vector<string>::const_iterator i;
+	for(i = langs.begin(); i != langs.end(); i++) {
+	    if (i != langs.begin()) cout << ", ";
+	    cout << *i;
+	}
+	cout << endl;
+    }
+
+    return true;
+}
+
 // test that a multidb with 2 dbs query returns correct docids
 bool test_multidb3()
 {
@@ -1897,6 +1914,7 @@ test_desc nodb_tests[] = {
     {"querylen3",	   test_querylen3},
     {"subqcollapse1",	   test_subqcollapse1},
     {"emptyquerypart1",    test_emptyquerypart1},
+    //{"stemlangs",	   test_stemlangs},
     {0, 0}
 };
 
