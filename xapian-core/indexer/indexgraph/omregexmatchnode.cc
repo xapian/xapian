@@ -25,6 +25,7 @@
 #include "om/omindexernode.h"
 #include "node_reg.h"
 #include <cctype>
+#include "omdebug.h"
 
 class OmRegexMatchNode : public OmIndexerNode {
     public:
@@ -84,13 +85,22 @@ class OmRegexMatchNode : public OmIndexerNode {
 					std::vector<OmIndexerData>()));
 
 	    if (regex.matches(s)) {
+		DEBUGLINE(INDEXER, "Regex `" << regex.get_pattern()
+			  << "' matches `" << s << "'");
 		for (int i=0; i<regex.num_subexprs(); ++i) {
 		    if (regex.submatch_defined(i)) {
-			results->append_element(regex.match_string(i));
+			std::string ms(regex.match_string(i));
+			DEBUGLINE(INDEXER, "Regex submatch: `" << ms << "'");
+			results->append_element(ms);
 		    } else {
-			results->append_element(OmIndexerData());
+			DEBUGLINE(INDEXER, "Regex submatch undefined");
+			results->append_element(OmIndexerData(""));
 		    }
 		}
+	    } else {
+		DEBUGLINE(INDEXER, "Regular expression `"
+			  << regex.get_pattern()
+			  << "' didn't match `" << s << "'");
 	    }
 	    return results;
 	}

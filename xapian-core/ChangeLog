@@ -1,3 +1,13 @@
+Tue Oct 31 16:12:46 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added OmMakePairNode, OmMakePairsNode, OmMakeRangeNode,
+	  OmSelectItemsNode
+	
+	* OmRegexMatchNode uses empty strings rather than empty data
+	  items for unmatched subexpressions.
+
+	* Regex object keeps track of the pattern string
+
 Tue Oct 31 16:12:12 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove argument of Btree_item_create().

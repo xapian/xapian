@@ -33,7 +33,9 @@ INDEXERNODES = omstemmernode.cc omsplitternode.cc omlistconcatnode.cc \
 		omfilereadernode.cc omvectorsplitnode.cc \
 		ommakedocnode.cc omconstantnode.cc omnewtermlistnode.cc \
 		omtermlistaddnode.cc omnewkeylistnode.cc \
-		omkeylistaddnode.cc
+		omkeylistaddnode.cc ommakepairnode.cc \
+		ommakepairsnode.cc ommakerangenode.cc \
+		omselectitemsnode.cc
 
 libindexgraph_la_SOURCES = omindexer.cc omindexermessage.cc \
 	do_registration.cc $(INDEXERNODES) indexerxml.cc \

@@ -70,6 +70,8 @@ class Regex {
 				  0);
 	    if (result == 0) {
 		// success
+		pattern = expr;
+
 		regmatch_size = re.re_nsub + 1;
 		if (regmatches) {
 		    delete [] regmatches;
@@ -83,6 +85,10 @@ class Regex {
 		message += geterrstring(result);
 		throw OmInvalidDataError(message);
 	    }
+	}
+
+	std::string get_pattern() const {
+	    return pattern;
 	}
 
 	bool matches(const std::string &s) {
@@ -150,6 +156,8 @@ class Regex {
 
 	regmatch_t *regmatches;
 	size_t regmatch_size;
+
+	std::string pattern;
 
 	std::string str;
 
