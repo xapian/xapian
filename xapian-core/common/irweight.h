@@ -39,6 +39,7 @@ class IRWeight {
 	const StatsSource *stats;
 
 	om_doclength querysize;
+	om_termcount wqf;
 	om_termname tname;
 
 	bool initialised;
@@ -62,7 +63,7 @@ class IRWeight {
 	 *  @param tname_    Term which this object is associated with.
 	 */
 	virtual void set_stats(const StatsSource * stats_,
-			       om_doclength querysize_,
+			       om_doclength querysize_, om_termcount wqf_,
 			       om_termname tname_);
 
 	/** Get a weight which is part of the sum over terms being performed.
@@ -103,14 +104,14 @@ class IRWeight {
 ///////////////////////////////
 
 inline void
-IRWeight::set_stats(const StatsSource * stats_,
-		    om_doclength querysize_,
-		    om_termname tname_) {
+IRWeight::set_stats(const StatsSource * stats_, om_doclength querysize_,
+		    om_termcount wqf_, om_termname tname_) {
     // Can set stats several times, but can't set them after we've used them
     Assert(!weight_calculated);
 
     stats = stats_;
     querysize = querysize_;
+    wqf = wqf_;
     tname = tname_;
     initialised = true;
 }

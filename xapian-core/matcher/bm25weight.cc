@@ -29,7 +29,7 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
-// const double A = 1; // used with wqf (which we don't do yet)
+const double A = 1;
 const double B = 1;
 const double D = .5;
 const double C = .5;
@@ -74,6 +74,8 @@ BM25Weight::calc_termweight() const
 	tw = tw / 2 + 1;
     }
     tw = log(tw);
+    
+    tw *= (A + 1) * wqf / (A + wqf);
 
     DEBUGLINE(WTCALC, " => termweight = " << tw);
     termweight = tw;

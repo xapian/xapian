@@ -131,7 +131,7 @@ LocalMatch::build_and_tree(std::vector<PostList *> &postlists)
 
     if (postlists.empty()) {
 	EmptyPostList *pl = new EmptyPostList();
-	pl->set_termweight(mk_weight(1, ""));
+	pl->set_termweight(mk_weight(1, 0, ""));
 	return pl;
     }
 
@@ -173,7 +173,7 @@ LocalMatch::build_or_tree(std::vector<PostList *> &postlists)
     // If none of the postlists had any entries, return an EmptyPostList.
     if (pq.empty()) {
 	EmptyPostList *pl = new EmptyPostList();
-	pl->set_termweight(mk_weight(1, ""));
+	pl->set_termweight(mk_weight(1, 0, ""));
 	return pl;
     }
 
@@ -221,17 +221,16 @@ LocalMatch::link_to_multi(StatsGatherer *gatherer)
 }
 
 PostList *
-LocalMatch::mk_postlist(const om_termname & tname)
+LocalMatch::mk_postlist(const om_termname & tname, om_doclength querysize,
+			om_termcount wqf)
 {
-    DEBUGLINE(MATCH, "LocalMatch::mk_postlist(" << tname << ")");
+    DEBUGLINE(MATCH, "LocalMatch::mk_postlist(" << tname << ", " << wqf << ")");
 
     LeafPostList * pl = database->open_post_list(tname);
 
-    // FIXME - query size is currently fixed as 1
-    // FIXME - want to use within query frequency here.
     // FIXME: pass the weight type and the info needed to create it to the
     // postlist instead
-    IRWeight * wt = mk_weight(1, tname);
+    IRWeight * wt = mk_weight(querysize, wqf, tname);
     om_weight term_weight = wt->get_maxpart();
 
     pl->set_termweight(wt);
@@ -248,10 +247,11 @@ LocalMatch::mk_postlist(const om_termname & tname)
 }
 
 IRWeight *
-LocalMatch::mk_weight(om_doclength querysize_, om_termname tname_)
+LocalMatch::mk_weight(om_doclength querysize_, om_termcount wqf_,
+		      om_termname tname_)
 {
     IRWeight * wt = IRWeight::create(actual_weighting);
-    wt->set_stats(&statssource, querysize_, tname_);
+    wt->set_stats(&statssource, querysize_, wqf_, tname_);
     return wt;
 }
 
@@ -381,16 +381,15 @@ LocalMatch::postlist_from_queries(OmQuery::op op,
 PostList *
 LocalMatch::postlist_from_query(const OmQueryInternal *query)
 {
-    // This should be true happen, because we check the
-    // top level of the query, and !isdefined should only
-    // ever occur there.
+    // This should never fail, because isdefined should only be false
+    // at the root of a query tree
     Assert(query->isdefined);
 
     switch (query->op) {
 	case OmQuery::OP_LEAF:
 	    // Make a postlist for a single term
 	    Assert(query->subqs.size() == 0);
-	    return mk_postlist(query->tname);
+	    return mk_postlist(query->tname, query->qlen, query->wqf);
 	case OmQuery::OP_AND:
 	case OmQuery::OP_OR:
 	case OmQuery::OP_PHRASE:
@@ -574,7 +573,7 @@ LocalMatch::get_mset(om_doccount first,
 
     // Extra weight object - used to calculate part of doc weight which
     // doesn't come from the sum.
-    IRWeight * extra_weight = mk_weight(1, "");
+    IRWeight * extra_weight = mk_weight(1, 0, "");
 
     // Max "extra weight" that an item can get (ie, not from the postlist tree).
     om_weight max_extra_weight = extra_weight->get_maxextra();
