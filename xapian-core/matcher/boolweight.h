@@ -31,7 +31,7 @@ class BoolWeight : public IRWeight {
     private:
     public:
 	~BoolWeight() { }
-	om_weight get_sumpart(om_doccount wdf, om_doclength len) const { return 0; }
+	om_weight get_sumpart(om_termcount wdf, om_doclength len) const { return 0; }
 	om_weight get_maxpart() const { return 0; }
 
 	om_weight get_sumextra(om_doclength len) const { return 0; }

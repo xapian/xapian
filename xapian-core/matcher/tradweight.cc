@@ -74,7 +74,7 @@ TradWeight::calc_termweight() const
 }
 
 om_weight
-TradWeight::get_sumpart(om_doccount wdf, om_doclength len) const
+TradWeight::get_sumpart(om_termcount wdf, om_doclength len) const
 {
     if(!weight_calculated) calc_termweight();
 

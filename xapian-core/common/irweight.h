@@ -76,7 +76,7 @@ class IRWeight {
 	 *  @param wdf the within document frequency of the term.
 	 *  @param len the (unnormalised) document length.
 	 */
-	virtual om_weight get_sumpart(om_doccount wdf,
+	virtual om_weight get_sumpart(om_termcount wdf,
 				      om_doclength len) const = 0;
 
 	/** Gets the maximum value that get_sumpart() may return.  This
