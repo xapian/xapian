@@ -377,8 +377,9 @@ static void step_2(struct german_stemmer * z)
 
 
 
-extern const char * german_stem(struct german_stemmer * z, const char * q, int i0, int i1)
+extern const char * german_stem(void * z_, const char * q, int i0, int i1)
 {
+    struct german_stemmer * z = (struct german_stemmer *) z_;
     int p_size = z->p_size;
 
     if (i1 - i0 + 50 > p_size)
@@ -423,17 +424,19 @@ static const char * irregular_forms[] = {
 
 };
 
-extern struct german_stemmer * setup_german_stemmer()
-{   struct german_stemmer * z = (struct german_stemmer *) malloc(sizeof(struct german_stemmer));
+extern void * setup_german_stemmer()
+{
+    struct german_stemmer * z = (struct german_stemmer *) malloc(sizeof(struct german_stemmer));
     z->p = 0; z->p_size = 0;
     z->irregulars = create_pool(irregular_forms);
-    return z;
+    return (void *) z;
 }
 
-extern void closedown_german_stemmer(struct german_stemmer * z)
-{   free_pool(z->irregulars);
+extern void closedown_german_stemmer(void * z_)
+{
+    struct german_stemmer * z = (struct german_stemmer *) z_;
+    free_pool(z->irregulars);
     free(z->p);
     free(z);
 }
-
 

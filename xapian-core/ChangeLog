@@ -1,3 +1,10 @@
+Wed Jun 14 18:08:53 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove compliated class heirarchy for Stemming algorithms: replace
+	  by OmStem::Internal, which has function pointers.  Neccessitated
+	  changing parameters taken by each stemming algorithm to a void *
+	  instead of a specific struct pointer.
+
 Wed Jun 14 18:07:43 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added test of OmStem::get_available_langs() to apitest: currently

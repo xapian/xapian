@@ -27,42 +27,45 @@
 
 #include <vector>
 
-class OmStemInternal;
-
 ///////////////////////////////////////////////////////////////////
 // OmStem class
 // ============
-/** This class privides an interace to the stemming algorithms.
- *
- *  @exception OmInvalidArgumentError will be thrown if an
- *  unknown language is supplied.
- */
 
+/// This class privides an interace to the stemming algorithms.
 class OmStem {
     private:
-        OmStemInternal *internal;
-
-	// disallow copy
-	OmStem(const OmStem &);
-	void operator=(const OmStem &);
+	class Internal;
+        Internal *internal;
     public:
-	/** Create a stemmer object.
+	/** Create a new stemmer object.
 	 *
-	 *  @param language	the string naming the language being used
+	 *  @param language	a string specifying the language being used.
+	 *                      This can either be the english name of the
+	 *                      language, or the two letter ISO 639
+	 *                      (version 1) language code.
 	 *
-	 *  @exception OmInvalidArgumentError  See class documentation.
+	 *  @exception OmInvalidArgumentError will be thrown if an
+	 *  unknown language is supplied.
 	 */
         explicit OmStem(string language);
 
+	/// Standard destructor
 	~OmStem();
+
+	/// Copying is allowed
+	OmStem(const OmStem &);
+
+	/// Assignment is allowed
+	void operator=(const OmStem &);
 
 	/** Stem a word.
 	 *
-	 *  @param word		the word to stem
+	 *  @param word		the word to stem.
+	 *  @return		a stemmed version of the word.
 	 */
 	string stem_word(string word) const;
 
-	/** Ask for a list of available languages.  An OmStem object is
+	/** Return a list of available languages.  An OmStem object is
 	 *  not required for this operation.
 	 */  
 	static vector<string> get_available_languages();

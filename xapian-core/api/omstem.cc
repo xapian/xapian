@@ -23,30 +23,48 @@
 #include "config.h"
 #include <string>
 
-#include "stemmer.h"
 #include <om/omstem.h>
 #include "utils.h"
 #include "omlocks.h"
 
-#include "dutch/stemmer_dutch.h"
-#include "english/stemmer_english.h"
-#include "french/stemmer_french.h"
-#include "german/stemmer_german.h"
-#include "italian/stemmer_italian.h"
-#include "portuguese/stemmer_portuguese.h"
-#include "spanish/stemmer_spanish.h"
+#include "dutch/stem_dutch.h"
+#include "english/stem_english.h"
+#include "french/stem_french.h"
+#include "german/stem_german.h"
+#include "italian/stem_italian.h"
+#include "portuguese/stem_portuguese.h"
+#include "spanish/stem_spanish.h"
 
 ////////////////////////////////////////////////////////////
-// The mapping of language strings to enums
 
+/** The available languages for the stemming algorithms to use. */
+enum stemmer_language {
+    STEMLANG_NULL,
+    STEMLANG_DUTCH,
+    STEMLANG_ENGLISH,
+    STEMLANG_FRENCH,
+    STEMLANG_GERMAN,
+    STEMLANG_ITALIAN,
+    STEMLANG_PORTUGUESE,
+    STEMLANG_SPANISH
+};
+
+/** The mapping from language strings to language codes. */
 stringToType<stemmer_language>
 stringToTypeMap<stemmer_language>::types[] = {
+    {"de",		STEMLANG_GERMAN},
     {"dutch",		STEMLANG_DUTCH},
+    {"en",		STEMLANG_ENGLISH},
     {"english",		STEMLANG_ENGLISH},
+    {"es",		STEMLANG_SPANISH},
+    {"fr",		STEMLANG_FRENCH},
     {"french",		STEMLANG_FRENCH},
     {"german",		STEMLANG_GERMAN},
+    {"it",		STEMLANG_ITALIAN},
     {"italian",		STEMLANG_ITALIAN},
+    {"nl",		STEMLANG_DUTCH},
     {"portuguese",	STEMLANG_PORTUGUESE},
+    {"pt",		STEMLANG_PORTUGUESE},
     {"spanish",		STEMLANG_SPANISH},
     {"",		STEMLANG_NULL}
 };
@@ -56,97 +74,139 @@ stringToTypeMap<stemmer_language>::types[] = {
 // ====================
 // Implementation of the OmStem interface
 
-class OmStemInternal {
+class OmStem::Internal {
     private:
-        Stemmer *stemmer;
+	/** Function pointer to setup the stemmer.
+	 */
+	void * (* stemmer_setup)();
 
+	/** Function pointer to stem a word.
+	 */
+	const char * (* stemmer_stem)(void *, const char *, int, int);
+
+	/** Function pointer to close down the stemmer.
+	 */
+	void (* stemmer_closedown)(void *);
+
+	/** Data used by the stemming algorithm.
+	 */
+	void * stemmer_data;
+	
         /** Return a Stemmer object pointer given a language type.
 	 */
-        Stemmer *create_stemmer(stemmer_language lang);
+        void set_language(stemmer_language lang);
         
 	/** Return a stemmer_language enum value from a language
 	 *  string.
 	 */
 	stemmer_language get_stemtype(string language);
     public:
+    	/** Initialise the state based on the specified language.
+	 */
+	Internal(string language);
+
+	~Internal();
+
+	/** Protection against concurrent access.
+	 */
 	OmLock mutex;
 
-    	/** Initialise the state based on the specified language
-	 */
-    	OmStemInternal(string language);
-
-	/** Stem the given word
+	/** Stem the given word.
 	 */
 	string stem_word(string word) const;
-
-	~OmStemInternal();
 };
 
-OmStemInternal::OmStemInternal(string language) : stemmer(0)
+OmStem::Internal::Internal(string language)
+	: stemmer_data(0)
 {
     stemmer_language lang = get_stemtype(language);
     if (lang == STEMLANG_NULL) {
         // FIXME: use a separate InvalidLanguage exception?
         throw OmInvalidArgumentError("Unknown language specified");
     }
-    stemmer = create_stemmer(lang);
+    set_language(lang);
 }
 
-OmStemInternal::~OmStemInternal()
+OmStem::Internal::~Internal()
 {
-    delete stemmer;
+    if(stemmer_data != 0) {
+	stemmer_closedown(stemmer_data);
+    }
 }
 
-Stemmer *
-OmStemInternal::create_stemmer(stemmer_language lang)
+void
+OmStem::Internal::set_language(stemmer_language lang)
 {
-    Stemmer * stemmer = NULL;
+    if(stemmer_data != 0) {
+	stemmer_closedown(stemmer_data);
+    }
+    stemmer_setup = 0;
     switch(lang) {
 	case STEMLANG_DUTCH:
-		stemmer = new StemmerDutch();
-		break;
+	    stemmer_setup = setup_dutch_stemmer;
+	    stemmer_stem = dutch_stem;
+	    stemmer_closedown = closedown_dutch_stemmer;
+	    break;
 	case STEMLANG_ENGLISH:
-		stemmer = new StemmerEnglish();
-		break;
+	    stemmer_setup = setup_english_stemmer;
+	    stemmer_stem = english_stem;
+	    stemmer_closedown = closedown_english_stemmer;
+	    break;
 	case STEMLANG_FRENCH:
-		stemmer = new StemmerFrench();
-		break;
+	    stemmer_setup = setup_french_stemmer;
+	    stemmer_stem = french_stem;
+	    stemmer_closedown = closedown_french_stemmer;
+	    break;
 	case STEMLANG_GERMAN:
-		stemmer = new StemmerGerman();
-		break;
+	    stemmer_setup = setup_german_stemmer;
+	    stemmer_stem = german_stem;
+	    stemmer_closedown = closedown_german_stemmer;
+	    break;
 	case STEMLANG_ITALIAN:
-		stemmer = new StemmerItalian();
-		break;
+	    stemmer_setup = setup_italian_stemmer;
+	    stemmer_stem = italian_stem;
+	    stemmer_closedown = closedown_italian_stemmer;
+	    break;
 	case STEMLANG_PORTUGUESE:
-		stemmer = new StemmerPortuguese();
-		break;
+	    stemmer_setup = setup_portuguese_stemmer;
+	    stemmer_stem = portuguese_stem;
+	    stemmer_closedown = closedown_portuguese_stemmer;
+	    break;
 	case STEMLANG_SPANISH:
-		stemmer = new StemmerSpanish();
-		break;
+	    stemmer_setup = setup_spanish_stemmer;
+	    stemmer_stem = spanish_stem;
+	    stemmer_closedown = closedown_spanish_stemmer;
+	    break;
 	default:
-		// STEMLANG_NULL shouldn't be passed in here.
-		Assert(false);
-		break;
+	    break;
     }
-    return stemmer;
+    stemmer_data = stemmer_setup();
+    // STEMLANG_NULL shouldn't be passed in here.
+    Assert(stemmer_setup != 0);
 }
 
-stemmer_language OmStemInternal::get_stemtype(string language)
+stemmer_language
+OmStem::Internal::get_stemtype(string language)
 {
     return stringToTypeMap<stemmer_language>::get_type(language);  
 }
 
-string OmStemInternal::stem_word(string word) const {
-    return stemmer->stem_word(word);
+string
+OmStem::Internal::stem_word(string word) const
+{
+    int len = word.length();
+    if(len == 0) return "";
+    return string(stemmer_stem(stemmer_data, word.data(), 0, len - 1));
 }
 
 ///////////////////////
 // Methods of OmStem //
 ///////////////////////
 
-OmStem::OmStem(string language) : internal(0)
+OmStem::OmStem(string language)
+	: internal(0)
 {
-    internal = new OmStemInternal(language);
+    internal = new OmStem::Internal(language);
 }
 
 OmStem::~OmStem()
@@ -154,8 +214,29 @@ OmStem::~OmStem()
     delete internal;
 }
 
+OmStem::OmStem(const OmStem &other)
+{
+    // FIXME
+    throw OmUnimplementedError("OmStem::OmStem(const OmStem &) unimplemented");
+}
+
+void
+OmStem::operator=(const OmStem &other)
+{
+    // FIXME
+    throw OmUnimplementedError("OmStem::operator=() unimplemented");
+}
+
 string
-OmStem::stem_word(string word) const {
+OmStem::stem_word(string word) const
+{
     OmLockSentry locksentry(internal->mutex);
     return internal->stem_word(word);
+}
+
+vector<string>
+OmStem::get_available_languages()
+{
+    // FIXME
+    throw OmUnimplementedError("OmStem::get_available_languages() unimplemented");
 }

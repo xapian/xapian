@@ -559,7 +559,7 @@ static int double_letter(struct french_stemmer * z)
     return false;
 }
 
-/* In french_stem(z, p, i, j), p is a struct french_stemmer pointer, and the
+/* In french_stem(z, p, i, j), z is a struct french_stemmer pointer, and the
    string to be stemmed is from p[i] to p[j] inclusive. Typically i is zero
    and j is the offset to the last character of a string, (p[j+1] == '\0').
    The stemmer return a pointer to the stemmed form of this word in structure
@@ -568,8 +568,10 @@ static int double_letter(struct french_stemmer * z)
 
 #define PAIR(a, b)   ((a)<<8|(b))
 
-extern const char * french_stem(struct french_stemmer * z, const char * q, int i0, int i1)
-{   char * p = z->p;
+extern const char * french_stem(void * z_, const char * q, int i0, int i1)
+{
+    struct french_stemmer * z = (struct french_stemmer *) z_;
+    char * p = z->p;
     int p_size = z->p_size;
     int k = 0;
     if (i1-i0+50 > p_size)
@@ -717,17 +719,20 @@ static const char * irregular_stems[] = {
     0, 0  /* terminator */
 };
 
-extern struct french_stemmer * setup_french_stemmer()
-{  struct french_stemmer * z = (struct french_stemmer *) malloc(sizeof(struct french_stemmer));
-   z->p = 0; z->p_size = 0;
-   z->irregulars = create_pool(irregular_forms);
-   z->irregulars2 = create_pool(irregular_stems);
-   return z;
+extern void * setup_french_stemmer()
+{
+    struct french_stemmer * z = (struct french_stemmer *) malloc(sizeof(struct french_stemmer));
+    z->p = 0; z->p_size = 0;
+    z->irregulars = create_pool(irregular_forms);
+    z->irregulars2 = create_pool(irregular_stems);
+    return (void *) z;
 }
 
-extern void closedown_french_stemmer(struct french_stemmer * z)
-{  free_pool(z->irregulars);
-   free(z->p);
-   free(z);
+extern void closedown_french_stemmer(void * z_)
+{
+    struct french_stemmer * z = (struct french_stemmer *) z_;
+    free_pool(z->irregulars);
+    free(z->p);
+    free(z);
 }
 

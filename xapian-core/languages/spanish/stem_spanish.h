@@ -29,18 +29,16 @@
 extern "C" {
 #endif
 
-struct spanish_stemmer;
+extern void * setup_spanish_stemmer();
 
-extern struct spanish_stemmer * setup_spanish_stemmer();
+extern const char * spanish_stem(void * z, const char * q, int i0, int i1);
 
-extern const char * spanish_stem(struct spanish_stemmer * z, const char * q, int i0, int i1);
-
-extern void closedown_spanish_stemmer(struct spanish_stemmer * z);
+extern void closedown_spanish_stemmer(void * z);
 
 
 /* To set up the stemming process:
 
-       struct spanish_stemmer * z = setup_spanish_stemmer();
+       void * z = setup_spanish_stemmer();
 
    to use it:
 

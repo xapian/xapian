@@ -29,18 +29,16 @@
 extern "C" {
 #endif
 
-struct english_stemmer;
+extern void * setup_english_stemmer();
 
-extern struct english_stemmer * setup_english_stemmer();
+extern const char * english_stem(void * z, const char * q, int i0, int i1);
 
-extern const char * english_stem(struct english_stemmer * z, const char * q, int i0, int i1);
-
-extern void closedown_english_stemmer(struct english_stemmer * z);
+extern void closedown_english_stemmer(void * z);
 
 
 /* To set up the english stemming process:
 
-       struct english_stemmer * z = setup_stemmer();
+       void * z = setup_stemmer();
 
    to use it:
 

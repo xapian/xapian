@@ -29,18 +29,16 @@
 extern "C" {
 #endif
 
-struct french_stemmer;
+extern void * setup_french_stemmer();
 
-extern struct french_stemmer * setup_french_stemmer();
+extern const char * french_stem(void * z, const char * q, int i0, int i1);
 
-extern const char * french_stem(struct french_stemmer * z, const char * q, int i0, int i1);
-
-extern void closedown_french_stemmer(struct french_stemmer * z);
+extern void closedown_french_stemmer(void * z);
 
 
 /* To set up the stemming process:
 
-       struct french_stemmer * z = setup_french_stemmer();
+       void * z = setup_french_stemmer();
 
    to use it:
 

@@ -431,8 +431,9 @@ static void step_5(struct english_stemmer * z)
     if (z->p[z->k] == 'l' && doublec(z, z->k) && m(z) > 1) z->k--;
 }
 
-extern const char * english_stem(struct english_stemmer * z, const char * q, int i0, int i1)
+extern const char * english_stem(void * z_, const char * q, int i0, int i1)
 {
+    struct english_stemmer * z = (struct english_stemmer *) z_;
     int p_size = z->p_size;
 
     if (i1 - i0 + 50 > p_size)
@@ -508,15 +509,18 @@ static const char * irregular_forms[] = {
 
 };
 
-extern struct english_stemmer * setup_english_stemmer()
-{   struct english_stemmer * z = (struct english_stemmer *) malloc(sizeof(struct english_stemmer));
+extern void * setup_english_stemmer()
+{
+    struct english_stemmer * z = (struct english_stemmer *) malloc(sizeof(struct english_stemmer));
     z->p = 0; z->p_size = 0;
     z->irregulars = create_pool(irregular_forms);
-    return z;
+    return (void *) z;
 }
 
-extern void closedown_english_stemmer(struct english_stemmer * z)
-{   free_pool(z->irregulars);
+extern void closedown_english_stemmer(void * z_)
+{
+    struct english_stemmer * z = (struct english_stemmer *) z_;
+    free_pool(z->irregulars);
     free(z->p);
     free(z);
 }

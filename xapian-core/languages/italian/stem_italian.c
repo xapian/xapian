@@ -509,8 +509,10 @@ static void tidy_up(struct italian_stemmer * z)
 
 #define PAIR(a, b)   ((a)<<8|(b))
 
-extern const char * italian_stem(struct italian_stemmer * z, const char * q, int i0, int i1)
-{   char * p = z->p;
+extern const char * italian_stem(void * z_, const char * q, int i0, int i1)
+{
+    struct italian_stemmer * z = (struct italian_stemmer *) z_;
+    char * p = z->p;
     int p_size = z->p_size;
     int k = 0;
     if (i1-i0+50 > p_size)
@@ -632,16 +634,19 @@ static const char * irregular_forms[] = {
   0, 0  /* terminator */
 };
 
-extern struct italian_stemmer * setup_italian_stemmer()
-{  struct italian_stemmer * z = (struct italian_stemmer *) malloc(sizeof(struct italian_stemmer));
-   z->p = 0; z->p_size = 0;
-   z->irregulars = create_pool(irregular_forms);
-   return z;
+extern void * setup_italian_stemmer()
+{
+    struct italian_stemmer * z = (struct italian_stemmer *) malloc(sizeof(struct italian_stemmer));
+    z->p = 0; z->p_size = 0;
+    z->irregulars = create_pool(irregular_forms);
+    return (void *) z;
 }
 
-extern void closedown_italian_stemmer(struct italian_stemmer * z)
-{  free_pool(z->irregulars);
-   free(z->p);
-   free(z);
+extern void closedown_italian_stemmer(void * z_)
+{
+    struct italian_stemmer * z = (struct italian_stemmer *) z_;
+    free_pool(z->irregulars);
+    free(z->p);
+    free(z);
 }
 

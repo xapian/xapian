@@ -29,18 +29,16 @@
 extern "C" {
 #endif
 
-struct dutch_stemmer;
+extern void * setup_dutch_stemmer();
 
-extern struct dutch_stemmer * setup_dutch_stemmer();
+extern const char * dutch_stem(void * z, const char * q, int i0, int i1);
 
-extern const char * dutch_stem(struct dutch_stemmer * z, const char * q, int i0, int i1);
-
-extern void closedown_dutch_stemmer(struct dutch_stemmer * z);
+extern void closedown_dutch_stemmer(void * z);
 
 
 /* To set up the dutch stemming process:
 
-       struct dutch_stemmer * z = setup_dutch_stemmer();
+       void * z = setup_dutch_stemmer();
 
    to use it:
 
