@@ -1,3 +1,8 @@
+Mon Dec 02 01:35:41 GMT 2002  Olly Betts <olly@survex.com>
+
+	* include/om/omdatabase.h: Added documentation comments for all of
+	  the database factory functions.
+
 Sun Dec 01 21:45:49 GMT 2002  Olly Betts <olly@survex.com>
 
 	* include/om: Added \file documentation comments so doxygen

@@ -382,6 +382,13 @@ class OmWritableDatabase : public OmDatabase {
 	std::string get_description() const;
 };
 
+/* It's mostly harmless to provide prototypes for all the backends, even
+ * if they may not all be built in - it means the failure will be at
+ * link time rather than when a file is built.  The main benefit is
+ * simplicity, but this also allows us to easily split the backends into
+ * separate libraries and link the ones we actually use in an application.
+ */
+
 /** Open a database read-only, automatically determining the database
  *  backend to use.
  *
@@ -424,40 +431,81 @@ OmQuartz__open(const std::string &quartz_dir, bool create,
  */
 OmWritableDatabase OmInMemory__open();
 
-#if 0
+/** Open a Muscat 3.6 DA database.
+ *
+ * This opens a DA database with no values file.
+ *
+ * @param R filename of the Record file
+ * @param T filename of the Term file
+ * @param heavy_duty is this database heavy-duty (3 byte lengths) or flimsy (2
+ * byte lengths)
+ */
 OmDatabase OmMuscat36DA__open(const std::string &R, const std::string &T, bool heavy_duty = true);
-OmDatabase OmMuscat36DA__open(const std::string &R, const std::string &T, const std::string &keys, bool heavy_duty = true);
+
+/** Open a Muscat 3.6 DA database.
+ *
+ * This opens a DA database with a values file.
+ *
+ * @param R filename of the Record file
+ * @param T filename of the Term file
+ * @param values filename of the values file
+ * @param heavy_duty is this database heavy-duty (3 byte lengths) or flimsy (2
+ * byte lengths)
+ */
+OmDatabase OmMuscat36DA__open(const std::string &R, const std::string &T, const std::string &values, bool heavy_duty = true);
+
+/** Open a Muscat 3.6 DB database.
+ *
+ * This opens a DB database with no values file.  The backend auto-detects
+ * if the database is heavy-duty or flimsy.
+ *
+ * @param DB filename of the database btree file
+ * @param cache_size how many blocks to cache
+ */
 OmDatabase OmMuscat36DB__open(const string &DB, size_t cache_size = 30);
-OmDatabase OmMuscat36DB__open(const string &DB, const string &keys = "", size_t cache_size = 30);
-#endif
-//     - remote_program : the name of the program to run to act as a server
-//    			 (when remote_type="prog")
-//     - remote_args : the arguments to the program named in remote_program
-//    			 (when remote_type="prog")
-//     - remote_timeout : The timeout in milliseconds used before assuming that
-//                        the remote server has failed.  If this timeout is
-//                        reached for any operation, then an OmNetworkTimeout
-//                        exception will be thrown.  The default if not
-//                        specified is 10000ms (ie 10 seconds)
+
+/** Open a Muscat 3.6 DB database.
+ *
+ * This opens a DB database with a values file.  The backend auto-detects
+ * if the database is heavy-duty or flimsy.
+ *
+ * @param DB filename of the database btree file
+ * @param values filename of the values file
+ * @param cache_size how many blocks to cache (default 30).
+ */
+OmDatabase OmMuscat36DB__open(const string &DB, const string &values = "", size_t cache_size = 30);
+
+/** Open a remote database (using a program).
+ *
+ * This opens a remote database by running a program which it communicates
+ * with on stdin/stdout.
+ *
+ * @param program the program to run
+ * @param arguments the arguments to pass to the program
+ * @param timeout how long to wait for a response (in milliseconds).
+ *  If this timeout is reached for any operation, then an OmNetworkTimeout
+ *  exception will be thrown.  The default if not specified is 10000ms
+ *  (10 seconds).
+ */
 OmDatabase OmRemote__open(const string &program, const string &args,
 	unsigned int timeout = 10000);
 
-//     - remote_server : the name of the host running a tcp server
-//    			 (when remote_type="tcp")
-//     - remote_port : the port on which the tcp server is running
-//    			 (when remote_type="tcp")
-// FIXME: default port?
-//     - remote_timeout : The timeout in milliseconds used before assuming that
-//                        the remote server has failed.  If this timeout is
-//                        reached for any operation, then an OmNetworkTimeout
-//                        exception will be thrown.  The default if not
-//                        specified is 10000ms (ie 10 seconds)
-//     - remote_connect_timeout : The timeout in milliseconds used when
-//                        attempting to connect to a remote server.  If this
-//                        timeout is reached when attempting to connect, then
-//                        an OmNetworkTimeout exception wil be thrown.  The
-//                        default if not specified is to use the value of
-//                        remote_timeout.
+/** Open a remote database (using a TCP connection).
+ *
+ * This opens a remote database by connecting to the specified TCP port on
+ * the specified host.
+ *
+ * @param host the name of the host running a tcp server
+ * @param port the port on which the tcp server is running
+ * @param timeout how long to wait for a response (in milliseconds).
+ *  If this timeout is reached for any operation, then an OmNetworkTimeout
+ *  exception will be thrown.  The default if not specified is 10000ms
+ *  (10 seconds).
+ * @param connect_timeout how long to wait when attempting to connect to
+ *  the server.  If this timeout is reached when attempting to connect, then
+ *  an OmNetworkTimeout exception wil be thrown.  The default if not specified
+ *  is to use the same value given for timeout.
+ */
 OmDatabase
 OmRemote__open(const string &host, unsigned int port,
 	unsigned int timeout = 10000, unsigned int connect_timeout = 0);
