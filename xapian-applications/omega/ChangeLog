@@ -1,3 +1,10 @@
+Fri Dec 14 16:21:07 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Removed restriction on minimum page size (was 10) - for a shopping
+	  type application with images next to each hit, 5 or fewer per page
+	  might be reasonable; even one result per page makes sense for some
+	  applications.
+
 Fri Dec 14 15:37:20 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Added $error to make nicer error reporting possible.

@@ -135,9 +135,9 @@ main2(int argc, char *argv[])
     hits_per_page = 0;
     val = cgi_params.find("HITSPERPAGE");
     if (val != cgi_params.end()) hits_per_page = atol(val->second.c_str());
-    if (hits_per_page <= 10) {
+    if (hits_per_page == 0) {
 	hits_per_page = 10;
-    } else if (hits_per_page >= 1000) {
+    } else if (hits_per_page > 1000) {
 	hits_per_page = 1000;
     }
 
