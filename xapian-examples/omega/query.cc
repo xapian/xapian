@@ -46,9 +46,9 @@ extern void parse_prob(const string&);
 list<om_termname> new_terms_list;
 static set<om_termname> new_terms;
 
-static vector<om_termname> pluses;
-static vector<om_termname> minuses;
-static vector<om_termname> normals;
+static vector<OmQuery *> pluses;
+static vector<OmQuery *> minuses;
+static vector<OmQuery *> normals;
 
 char *fmtstr =
 "<TR><TD VALIGN=top><IMG "
@@ -63,13 +63,11 @@ char *fmtstr =
 "</A></B><BR>\n"
 "$html{$field{sample}}$if{$field{sample},...}"
 "<BR>\n"
-"<A HREF=\"$field{url}\">$html{$field{url}}</A><BR>\n"
-"<small>Language: <b>$html{$or{$field{language},unknown}}</b>\n"
-"Size: <b>"
-"$html{$or{$filesize{$field{size}},unknown}}"
-"</b>\n"		       
-"Last modified: <b>$html{$or{$date{$field{modified}},unknown}}</b>\n"
-"<br>$percentage% relevant, matching: <i>$list{$html{$terms}, ,</i> and <i>}</i></small>\n"
+"<A HREF=\"$field{url}\">$html{$field{url}}</A><br>\n"
+//"<small>Language: <b>$html{$or{$field{language},unknown}}</b>\n"
+//"Size: <b>$html{$or{$filesize{$field{size}},unknown}}</b>\n"		       
+//"Last modified: <b>$html{$or{$date{$field{modified}},unknown}}</b><br>\n"
+"$percentage% relevant, matching: <i>$list{$html{$terms},$. ,</i> and <i>}</i></small>\n"
 "</TD></TR>\n";
 
 char *pagefmtstr =
@@ -89,7 +87,7 @@ char *pagefmtstr =
 "// -->\n"
 "</script>\n"
 "<head>\n"
-"<title>Omega: $msize results for search `$html{$query}'</title>\n"
+"<title>Omega: search for `$html{$query}'</title>\n"
 "</head>\n"
 "<body bgcolor=white>\n"
 "<FORM NAME=P METHOD=GET "
@@ -102,7 +100,13 @@ char *pagefmtstr =
 "$topterms\n"
 "$if{$topterms,<BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>}\n"
 "</td></tr></table>\n"
-"$list{$freqs,<hr>,$. ,<hr>}\n"
+//FIXME: uncomment once $freqs works "$list{$freqs,<hr>,$. ,<hr>}\n"
+"<hr>\n"
+"$ifeq{$msize,0,$if{$queryterms,No documents match your query}}"
+"$ifneq{$msize,0,$if{$lastpage,$ifeq{$topdoc,0,All $msize matches}}}"
+"$ifneq{$msize,0,$if{$lastpage,$ifneq{$topdoc,0,$add{$topdoc,1}-$msize of exactly $msize matches}}}"
+"$ifneq{$msize,0,$ifnot{$lastpage,$add{$topdoc,1}-$add{$topdoc,$maxhits} of at least $msize matches}}"
+"\n"
 "</center>\n"
 "<table>\n"
 "$hitlist\n"
@@ -119,6 +123,8 @@ char *pagefmtstr =
 "<hr><div align=right><i><small>$html{$version}</small></i></div>\n"
 "</body>\n"
 "</html>\n";
+
+// STATLINE -> $if{$or{$ifneq{$msize,0,ok},$queryterms},...}
 
 // lookup in table (e.g. en -> English)
 
@@ -172,19 +178,22 @@ set_probabilistic(const string &newp, const string &oldp)
     return SAME_QUERY;
 }
 
+static om_termpos querypos = 1;
+
 /* if term is in the database, add it to the term list */
 void check_term(const string &name, termtype type) {
     new_terms_list.push_back(name);
     new_terms.insert(name);
+    OmQuery *q = new OmQuery(name, 1, querypos++);
     switch (type) {
      case PLUS:
-	pluses.push_back(name);
+	pluses.push_back(q);
 	break;
      case MINUS:
-	minuses.push_back(name);
+	minuses.push_back(q);
 	break;
      case NORMAL:
-	normals.push_back(name);
+	normals.push_back(q);
 	break;
     }
 }
@@ -542,6 +551,21 @@ eval(const string &fmt)
 	string value;
 	char tmp[20];
 	switch (var[0]) {
+	 case 'a':
+	    if (var == "add") {
+		ok = true;
+		unsigned int total = 0;
+		vector<string>::const_iterator i;
+		for (i = args.begin(); i != args.end(); i++) {
+		    value = eval(*i);
+		    unsigned int i = atoi(value.c_str());
+		    total += i;
+	        }
+		sprintf(tmp, "%u", total);
+		value = tmp;
+		break;
+	    }
+	    break;
 	 case 'c':
 	    if (var == "cgi") {
 		ok = true;
@@ -999,56 +1023,6 @@ print_caption(om_docid m)
 	int c;
 	do c = yyinput(); while (c != '\n' && c != EOF);
     }
-}
-/* limit on mset size (as given in espec) */
-#define MLIMIT 1000 // FIXME: deeply broken
-\\STAT[02as].*$ {
-    ensure_match();
-    int arg[3];
-    bool print = false;
-    arg[0] = topdoc + 1;
-    arg[1] = last;
-    arg[2] = mset.mbound;
-    string text = string(yytext + 6, yyleng - 6);
-    /* We're doing:
-     * \STAT0 none
-     * \STAT2 returning some matches from over n
-     * \STATa returning all matches from n
-     * \STATs returning some (but not all) matches from n
-     * \STATLINE like \HITLINE but enabled when any one of the
-     *        \STATx codes fires
-     */
-    switch (yytext[5]) {
-     case '0': /* followed by string */
-	if (mset.mbound == 0 && !new_terms_list.empty()) cout << text;
-	break;
-     case '2':
-	/* used to be >= - now use an exact compare since MTOTAL
-	 * may have given us the full figure.  If MTOTAL works and
-	 * we got exactly MLIMIT hits, this will misreport... */
-	if (mset.mbound == MLIMIT) print = true;
-	break;
-     case 'a':
-	/* used to be < MLIMIT - now use an exact compare since MTOTAL
-	 * may have given us the full figure.  If MTOTAL works and
-	 * we got exactly MLIMIT hits, this will misreport... */
-	/* FIXME: could use Mike Gatford's "1001" trick */
-	if (0 < mset.mbound && mset.mbound != MLIMIT &&
-	    (topdoc == 0 && last == mset.mbound)) {	       
-	    arg[0] = mset.mbound;
-	    print = true;
-	}
-	break;
-     case 's':
-	/* used to be < MLIMIT - now use an exact compare since MTOTAL
-	 * may have given us the full figure.  If MTOTAL works and
-	 * we got exactly MLIMIT hits, this will misreport... */
-	/* FIXME: could use Mike Gatford's "1001" trick */
-	if (0 < mset.mbound && mset.mbound != MLIMIT &&
-	    !(topdoc == 0 && last == mset.mbound)) print = true;
-	break;
-    }
-    if (print) cout << pretty_sprintf(text.c_str(), arg);
 }
 \\MAXHITS[0-9]+ {
     // item in max hits selector box */
