@@ -41,11 +41,16 @@ class QuartzTermList : public LeafTermList {
 	 *  look up term frequencies in the lexicon if they are not stored
 	 *  in termlists.
 	 */
-	RefCntPtr<const QuartzDatabase> this_db;
+	RefCntPtr<const Database> this_db;
 
 	/** The table holding the termlist.
 	 */
 	const QuartzTable * table;
+
+	/** The table holding the lexicon.
+	 *  (Used when we have to perform a term frequency lookup.
+	 */
+	const QuartzTable * lexicon_table;
 
 
 	/** The data for the (part of the) termlist currently being read.
@@ -176,8 +181,9 @@ class QuartzTermList : public LeafTermList {
 
 	/** Open the termlist for the specified document, for reading.
 	 */
-	QuartzTermList(RefCntPtr<const QuartzDatabase> this_db_,
+	QuartzTermList(RefCntPtr<const Database> this_db_,
 		       const QuartzTable * table_,
+		       const QuartzTable * lexicon_table_,
 		       om_docid did);
 
 	/** Return number of items in termlist.

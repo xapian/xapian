@@ -148,7 +148,7 @@ QuartzLexicon::decrement_termfreq(QuartzBufferedTable * table,
 }
 
 bool
-QuartzLexicon::get_entry(QuartzTable * table,
+QuartzLexicon::get_entry(const QuartzTable * table,
 			 const om_termname & tname,
 			 om_termid * tid,
 			 om_doccount * termfreq)

@@ -22,6 +22,7 @@
 
 #include "om/omerror.h"
 #include "quartz_termlist.h"
+#include "quartz_lexicon.h"
 #include "quartz_utils.h"
 #include "utils.h"
 
@@ -129,11 +130,13 @@ QuartzTermList::delete_termlist(QuartzBufferedTable * table,
 }
 
 
-QuartzTermList::QuartzTermList(RefCntPtr<const QuartzDatabase> this_db_,
+QuartzTermList::QuartzTermList(RefCntPtr<const Database> this_db_,
 			       const QuartzTable * table_,
+			       const QuartzTable * lexicon_table_,
 			       om_docid did)
 	: this_db(this_db_),
 	  table(table_),
+	  lexicon_table(lexicon_table_),
 	  have_finished(false),
 	  current_wdf(0),
 	  has_termfreqs(false),
@@ -199,7 +202,11 @@ QuartzTermList::get_termfreq() const
 {
     if (current_termfreq == 0) {
 	// FIXME: sort out (thread) locking - the database needs to be locked somehow during this call.
-	current_termfreq = this_db->get_termfreq_internal(current_tname);
+	current_termfreq = 0; // If not found, this value will be unchanged.
+	QuartzLexicon::get_entry(lexicon_table,
+				 current_tname,
+				 0,
+				 &current_termfreq);
     }
 
     return current_termfreq;

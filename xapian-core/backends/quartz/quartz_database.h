@@ -68,10 +68,13 @@ class QuartzDatabase : public Database {
 	//@}
 
 	/// Implementation of do_get_document()
-	OmDocumentContents do_get_document_internal(om_docid did);
+	OmDocumentContents do_get_document_internal(om_docid did,
+					 RefCntPtr<const Database> ptrtothis);
 
-	/// Implementation of get_termfreq()
-	om_doccount get_termfreq_internal(const om_termname & tname) const;
+	/// Implementation of open_term_list()
+	LeafTermList * open_term_list_internal(om_docid did,
+				RefCntPtr<const Database> ptrtothis) const;
+
     public:
 	/** Create and open a quartz database.
 	 *

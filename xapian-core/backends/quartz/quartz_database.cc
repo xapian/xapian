@@ -182,11 +182,15 @@ QuartzDatabase::do_get_document(om_docid did)
 {
     OmLockSentry sentry(quartz_mutex);
 
-    return do_get_document_internal(did);
+    QuartzDatabase::RefCntPtrToThis tmp;
+    RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
+
+    return do_get_document_internal(did, ptrtothis);
 }
 
 OmDocumentContents
-QuartzDatabase::do_get_document_internal(om_docid did)
+QuartzDatabase::do_get_document_internal(om_docid did,
+					 RefCntPtr<const Database> ptrtothis)
 {
     OmDocumentContents document;
 
@@ -198,11 +202,10 @@ QuartzDatabase::do_get_document_internal(om_docid did)
 		document.keys,
 		did);
 
-    QuartzDatabase::RefCntPtrToThis tmp;
-    QuartzTermList termlist(
-		RefCntPtr<const QuartzDatabase>(tmp, this),
-		tables->get_termlist_table(),
-		did);
+    QuartzTermList termlist(ptrtothis,
+			    tables->get_termlist_table(),
+			    tables->get_lexicon_table(),
+			    did);
 
     termlist.next();
     while (!termlist.at_end()) {
@@ -244,12 +247,7 @@ om_doccount
 QuartzDatabase::get_termfreq(const om_termname & tname) const
 {
     OmLockSentry sentry(quartz_mutex);
-    return get_termfreq_internal(tname);
-}
 
-om_doccount
-QuartzDatabase::get_termfreq_internal(const om_termname & tname) const
-{
     om_doccount termfreq = 0; // If not found, this value will be unchanged.
     QuartzLexicon::get_entry(tables->get_lexicon_table(),
 			     tname,
@@ -276,14 +274,24 @@ QuartzDatabase::do_open_post_list(const om_termname& tname) const
 }
 
 LeafTermList *
+QuartzDatabase::open_term_list_internal(om_docid did,
+				RefCntPtr<const Database> ptrtothis) const
+{
+    return(new QuartzTermList(ptrtothis,
+			      tables->get_termlist_table(),
+			      tables->get_lexicon_table(),
+			      did));
+}
+
+LeafTermList *
 QuartzDatabase::open_term_list(om_docid did) const
 {
     OmLockSentry sentry(quartz_mutex);
 
-    return(new QuartzTermList(RefCntPtr<const QuartzDatabase>(RefCntPtrToThis(),
-							      this),
-			      tables->get_termlist_table(),
-			      did));
+    RefCntBase::RefCntPtrToThis tmp;
+    RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
+
+    return open_term_list_internal(did, ptrtothis);
 }
 
 LeafDocument *
@@ -447,7 +455,10 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
     OmLockSentry sentry(database_ro.quartz_mutex);
     Assert(buffered_tables != 0);
 
-    OmDocumentContents document(database_ro.do_get_document_internal(did));
+    QuartzDatabase::RefCntPtrToThis tmp;
+    RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
+
+    OmDocumentContents document(database_ro.do_get_document_internal(did, ptrtothis));
 
     OmDocumentContents::document_terms::const_iterator term;
     for (term = document.terms.begin(); term != document.terms.end(); term++) {
@@ -494,7 +505,10 @@ QuartzWritableDatabase::do_get_document(om_docid did)
 {
     OmLockSentry sentry(database_ro.quartz_mutex);
 
-    return database_ro.do_get_document_internal(did);
+    QuartzDatabase::RefCntPtrToThis tmp;
+    RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
+
+    return database_ro.do_get_document_internal(did, ptrtothis);
 }
 
 om_doccount 
@@ -537,7 +551,12 @@ QuartzWritableDatabase::do_open_post_list(const om_termname& tname) const
 LeafTermList *
 QuartzWritableDatabase::open_term_list(om_docid did) const
 {
-    return database_ro.open_term_list(did);
+    OmLockSentry sentry(database_ro.quartz_mutex);
+
+    RefCntBase::RefCntPtrToThis tmp;
+    RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
+
+    return database_ro.open_term_list_internal(did, ptrtothis);
 }
 
 LeafDocument *

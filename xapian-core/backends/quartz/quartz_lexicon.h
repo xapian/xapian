@@ -105,7 +105,7 @@ class QuartzLexicon {
 	 *  @return       true if term was found in lexicon, false
 	 *                otherwise.
 	 */
-	static bool get_entry(QuartzTable * table,
+	static bool get_entry(const QuartzTable * table,
 			      const om_termname & tname,
 			      om_termid * tid,
 			      om_doccount * termfreq);

@@ -1,3 +1,11 @@
+Fri Oct 20 12:55:10 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fixed refcount problem with Quartz - references were being held
+	  to the QuartzDatabase member of a QuartzWritableDatabase.
+	  Restructured to tidy up and avoid this:  QuartzTermLists now hold
+	  a refcount pointer to the appropriate database, and store a
+	  pointer to the lexicon table to use directly if required.
+
 Thu Oct 19 16:47:18 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added a few indexer tests.
