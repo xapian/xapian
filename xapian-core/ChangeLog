@@ -1,3 +1,8 @@
+Tue Jul  8 18:06:23 2003  James Aylett  <james@tartarus.org>
+
+	* bindings/swig/xapian.i: over-enthusiastic automatic
+	  conversion of termname to std::string
+
 Tue Jul 08 17:45:16 BST 2003  Olly Betts <olly@survex.com>
 
 	* common/utils.h: Improved mingw implementation of rmdir().

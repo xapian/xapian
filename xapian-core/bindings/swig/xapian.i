@@ -257,7 +257,7 @@ class ESetIterator {
     weight get_weight() const;
     string get_description() const;
   %extend {
-    std::string get_std::string() {
+    std::string get_termname() {
       return *(*self);
     }
     void next() {
