@@ -29,6 +29,7 @@
 class IRKey {
     public:
 	unsigned int value;  // FIXME TEMPORARY
+	bool operator < (const IRKey &k) const { return(value < k.value); }
 };
 
 // The data in a document
@@ -41,8 +42,8 @@ class IRData {
 class IRDocument {
     private:
     public:
-	virtual IRKey get_key(keyno) const = 0;
-	virtual IRData get_data() const = 0;
+	virtual IRKey get_key(keyno) const = 0;  // Get key by number (>= 0)
+	virtual IRData get_data() const = 0;     // Get data stored in document
 };
 
 #endif /* _irdocument_h_ */
