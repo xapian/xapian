@@ -79,11 +79,9 @@ DatabaseBuilder::create(const DatabaseBuilderParams & params)
 {
     IRDatabase * database = NULL;
 
-    cerr << "*** " << params.type << " ***\n";
     // Convert type into an om_database_type
     om_database_type dbtype =
 	stringToTypeMap<om_database_type>::get_type(params.type);
-    cerr << "*** " << dbtype << " ***\n";
 
     // Create database of correct type, and open it
     switch (dbtype) {

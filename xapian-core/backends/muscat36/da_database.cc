@@ -204,7 +204,7 @@ DADatabase::DADatabase(const DatabaseBuilderParams & params, int heavy_duty_)
 		throw OmOpeningError(string("When opening ") + filename_k + ": couldn't read magic - got `" + input + "'");
 	    }
 	}
-    } else if(filename_k.size() != 0) {
+    } else if(params.paths.size() == 3) {
 	throw OmOpeningError(string("When opening ") + filename_k + ": " + strerror(errno));
     }
 
