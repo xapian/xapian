@@ -1,3 +1,7 @@
+Tue Aug 20 18:02:45 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* docs/quickstart.txt: correct for new(ish) omindex behaviour
+
 Sat Aug 17 13:38:57 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* extra/omegascript.vim: Quick attempt at a vim syntax highlighting

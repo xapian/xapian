@@ -3,7 +3,7 @@ Basic instructions:
 
 1.      Use omindex to build an index of your website:
 
-$ ./omindex DBPATH WEBPATH /
+$ ./omindex --db DBPATH --url / WEBPATH
 
 Where DBPATH is where you want the database, such as
 /var/lib/omega/data/default and WEBPATH is the directory containing
@@ -17,7 +17,7 @@ are - e.g. /var/lib/omega/templates.
 
 3.      Test omega from the command line:
 
-$ /usr/lib/omega/bin/omega 'P=my search terms' HITSPERPAGE=10
+$ ./omega 'P=my search terms' HITSPERPAGE=10
 
 You then get a large-ish HTML file.  This is the test mode - useful for
 checking that everything works independent of your webserver configuration.
