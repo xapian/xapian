@@ -17,8 +17,6 @@ OrPostList::next(weight w_min)
     bool rnext = false;
 
     if (w_min > minmax) {
-	cout << "minmax " << minmax << " lmax " << lmax << " rmax " << rmax
-	     << " w_min " << w_min << endl;
 	// we can replace the OR with another operator
 	PostList *ret;
 	if (w_min > lmax) {
