@@ -12,15 +12,13 @@ int main(int argc, char *argv[]) {
     docid did;
 
     try {
-	DatabaseBuilder dbbuilder;
 	IRDatabase * database;
 #if 1
-	IRSingleDatabase *tmp = dbbuilder.make(OM_DBTYPE_TEXTFILE);
-	tmp->open("textfile", 1);
-	database = tmp;
+	DatabaseBuilderParams dbparams(OM_DBTYPE_TEXTFILE, true);
+	dbparams.paths.push_back("textfile");
+	database = DatabaseBuilder::create(OM_DBTYPE_TEXTFILE);
 #endif
 #if 0
-	MultiDatabase database;
 	database.open_subdatabase(new SleepyDatabase(), "test_sleepy", 0);
 	//database.open_subdatabase(new SleepyDatabase(), "test_sleepy2", 0);
 	//database.open_subdatabase(new DADatabase(), "testdir", 0);
@@ -82,7 +80,7 @@ int main(int argc, char *argv[]) {
 //	DARecord * rec = database.get_document(did);
 //
 //	delete rec;
-	database->close();
+	delete database;
     }
     catch (OmError e) {
 	cout << e.get_msg() << endl;

@@ -74,24 +74,26 @@ main(int argc, char *argv[])
     }
     
     try {
-	DatabaseFactory dbfactory;
 	IRDatabase *database;
 
+	DatabaseBuilderParams dbparams;
 	if (multidb || dbnames.size() > 1) {
-	    IRGroupDatabase *multidb = dbfactory.makegroup(OM_DBGRPTYPE_MULTI);
+	    dbparams.type = OM_DBTYPE_MULTI;
+
 	    list<string>::const_iterator p;
 	    list<om_database_type>::const_iterator q;
 	    for(p = dbnames.begin(), q = dbtypes.begin();
 		p != dbnames.end();
 		p++, q++) {
-		multidb->open(*q, *p, true);
+		DatabaseBuilderParams subparams(*q);
+		subparams.paths.push_back(*p);
+		dbparams.subdbs.push_back(subparams);
 	    }
-	    database = multidb;
 	} else {
-	    IRSingleDatabase *singledb = dbfactory.make(*(dbtypes.begin()));
-	    singledb->open(*(dbnames.begin()), true);
-	    database = singledb;
+	    dbparams.type = *(dbtypes.begin());
+	    dbparams.paths.push_back(*(dbnames.begin()));
 	}
+	database = DatabaseBuilder::create(dbparams);
        
 	RSet rset(database);
 	list<docid>::const_iterator i;
@@ -194,7 +196,6 @@ main(int argc, char *argv[])
 	    }
 	    cout << endl;
 	}
-	database->close();
 	delete database;
     }
     catch (OmError e) {
