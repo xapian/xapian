@@ -3,6 +3,8 @@ from omuscat import *
 import os
 import sys
 
+TestFail = 'TestFail'
+
 def create_dir_if_needed(dirname):
     import os
     import stat
@@ -73,8 +75,8 @@ except:
     print "$srcdir must be set in the environment!"
     raise
 
-def get_database(dbname):
-    return backendmanager.get_database([dbname])
+def get_database(*dbnames):
+    return backendmanager.get_database(dbnames)
 
 def make_dbgrp(*dbs):
     dbgrp = OmDatabaseGroup()
@@ -175,9 +177,34 @@ def string_to_document(paragraph):
 
 def TEST_AND_EXPLAIN(a, b):
     if (not a):
-        raise TestFail()
+        print b
+        raise TestFail
 
 def TEST_EQUAL(a,b):
     TEST_AND_EXPLAIN(a == b,
       "Expected `" + repr(a) + "' and `" + repr(b) + "' to be equal:" +
       " were " + str(a) + " and " + str(b))
+
+def mset_range_is_same(mset1, first1, mset2, first2, count):
+    TEST_AND_EXPLAIN(len(mset1.items) >= first1 + count - 1,
+                     "mset1 is too small: expected at least " + str(first1 + count - 1) + " items.\n")
+
+    TEST_AND_EXPLAIN(len(mset2.items) >= first2 + count - 1,
+                     "mset2 is too small: expected at least " + str(first2 + count - 1) + " items.\n")
+
+    for i in range(count):
+        if (mset1.items[first1+i] != mset2.items[first2+i]):
+	    return 0
+
+    return 1
+
+def TEST_EXPECTED_DOCS(mset, *dids):
+    expect = dids
+    def to_did(item):
+        return item[OMMSET_DID]
+    got_dids = map(to_did, mset.items)
+    if (got_dids != expect):
+        if verbose:
+            print "Match set had unexpected documents:"
+	    print "Got: ", str(got_dids)
+	    print "Expected: ", str(expect)

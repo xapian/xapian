@@ -51,7 +51,6 @@ from omuscat import *
 import apitest_helpers
 from apitest_helpers import *
 
-TestFail = 'TestFail'
 PREAMBLE
 }
 
@@ -160,6 +159,11 @@ sub addtext($) {
     $text =~ s/\.did\b/[OMMSET_DID]/g;
     $text =~ s/\.wt\b/[OMMSET_WT]/g;
     $text =~ s/\.collapse_key\b/[OMMSET_COLLAPSE_KEY]/g;
+    # account for the renaming of some constructors
+    $text =~ s/OmQuery\(\)/OmQueryNull()/g;
+    while ($text =~ s/OmQuery\((OM_MOP[A-Z_]+),(.*)((?:, *[0-9]+)?)\)/OmQueryList($1, ($2)$3)/sg) {};
+    # turn NULL into "NULL"
+    $text =~ s/NULL/"NULL"/g;
 
     $self->{func} .= (" " x $self->{indent_level}) . $text;
 }
@@ -174,13 +178,46 @@ sub undent() {
     $self->{indent_level} -= 4;
 }
 
+sub parens_match($) {
+    my $text = shift;
+
+    my @parens = ();
+    my @chars = split(/[^(){}[\]]*/, $text);
+#    print STDERR "$text -> ", join(',', @chars), "\n";
+    while (@chars) {
+        my $char = shift @chars;
+	if ($char =~ /[({[]/) {
+	    push @parens, $char;
+	} elsif ($char eq "}") {
+	    return 0 if $#parens == -1;
+	    return 0 if pop @parens ne "{";
+	} elsif ($char eq "]") {
+	    return 0 if $#parens == -1;
+	    return 0 if pop @parens ne "[";
+	} elsif ($char eq ")") {
+	    return 1 if (join('', @parens) =~ /^\)*$/) and $#chars == -1;
+	    return 0 if $#parens == -1;
+	    return 0 if pop @parens ne "(";
+	} elsif ($char eq "") {
+	} else {
+	    die "Internal error in parens_match(): got char `$char'";
+	}
+    }
+    return (join('', @parens) =~ /^\)*$/);
+}
+
 sub var_decl($$$) {
     my ($self, $type, $name, $initialiser) = @_;
     my $text;
     if (defined $initialiser) {
-        if ($initialiser =~ /($apitest_parser::func)(\(.*\))$/) {
+        if ($initialiser =~ /^($apitest_parser::func)\((.*)\)$/) {
 	    my ($func, $args) = ($1, $2);
-	    $text = "$name = $func$args\n";
+	    if (&parens_match($args)) {
+		$text = "$name = $func($args)\n";
+	    } else {
+	        # it's a parameter list
+		$text = "$name = $type($func($args))\n"
+	    }
 	} else {
 	    if (exists($ToPython::basic_types{$type})) {
 		$text = "$name = $initialiser\n";

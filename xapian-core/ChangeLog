@@ -1,6 +1,11 @@
+Fri Aug 11 18:42:23 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Yet more Python updates.  17 out of the 20 tests currently
+	  translated into Python pass.
+
 Fri Aug 11 14:14:28 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
-	* More python updates - 9 out of the 20 tests now pass.
+	* More Python updates - 9 out of the 20 tests now pass.
 
 Thu Aug 10 18:05:52 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 

@@ -89,7 +89,7 @@ sub parse_function($) {
 	my $line = $_;
 	my $newline = $self->parse_line($line);
 	last if $newline eq "END"; 
-	if ($apitest_parser::verbose) {
+	if ($main::verbose) {
 	    $newline = (' ' x $self->{indent}) . $newline;
 	    $newline =~ s/^( *)-=>/-=>$1/;
 	    print $newline;

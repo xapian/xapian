@@ -126,13 +126,13 @@
 %}
 
 %typemap(python, in) const vector<OmQuery *> *(vector<OmQuery *> v){
-    if (!PyList_Check($source)) {
-        PyErr_SetString(PyExc_TypeError, "expected list");
+    if (!PySequence_Check($source)) {
+        PyErr_SetString(PyExc_TypeError, "expected list of queries");
         return NULL;
     }
-    int numitems = PyList_Size($source);
-    for (int i=0; i<numitems; ++i) {
-        PyObject *obj = PyList_GetItem($source, i);
+    int i = 0;
+    PyObject *obj;
+    while ((obj = PySequence_GetItem($source, i++)) != NULL) {
 	if (PyInstance_Check(obj)) {
 	    OmQuery *subqp = get_py_omquery(obj);
 	    if (!subqp) {

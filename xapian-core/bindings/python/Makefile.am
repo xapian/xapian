@@ -29,6 +29,6 @@ omuscatc.so: omuscat_wrap.o
 	$(LIBTOOL) $(CXX) -shared $< ../../libomus.la -o $@
 
 apitestfuncs.py: $(top_srcdir)/tests/apitest.cc apitest_to_python.pl \
-		   $(top_srcdir)/tests/apitest_parser.pm $(srcdir)/ToPython.pm
+                 $(top_srcdir)/tests/apitest_parser.pm $(srcdir)/ToPython.pm
 	@PERL_PATH@ -I$(srcdir)/ -I $(top_srcdir)/tests apitest_to_python.pl < $<
 

@@ -314,6 +314,8 @@ class OmMSet {
 
 	int convert_to_percent(om_weight wt) const;
 //	int convert_to_percent(const OmMSetItem & item) const;
+	om_weight get_termfreq(string tname) const;
+	om_doccount get_termweight(string tname) const;
 	%readonly
 	/* Each language-specific part should include something like:
 	 * %addmethods OmMSet {
