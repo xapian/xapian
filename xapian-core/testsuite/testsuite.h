@@ -224,6 +224,11 @@ inline void test_driver::set_abort_on_error(bool aoe_)
 	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' to be equal:" \
 	" were " << (a) << " and " << (b))
 
+#include <float.h> // for DBL_EPSILON
+#define TEST_EQUAL_DOUBLE(a, b) TEST_AND_EXPLAIN((fabs((a) - (b)) < DBL_EPSILON), \
+	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' to be (nearly) equal:" \
+	" were " << (a) << " and " << (b))
+
 /// Test for non-equality of two things.
 #define TEST_NOT_EQUAL(a, b) TEST_AND_EXPLAIN(((a) != (b)), \
 	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' not to be equal:" \
