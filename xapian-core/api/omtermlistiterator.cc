@@ -99,6 +99,20 @@ OmTermListIterator::skip_to(const om_termname & tname)
 	internal->termlist->next();
 }
 
+OmPositionListIterator
+OmTermListIterator::positionlist_begin()
+{
+    DEBUGAPICALL(OmPositionListIterator, "OmTermListIterator::positionlist_begin", "");
+    throw OmUnimplementedError("Can't create a positionlist from a termlist");
+}
+
+OmPositionListIterator
+OmTermListIterator::positionlist_end()
+{
+    DEBUGAPICALL(OmPositionListIterator, "OmTermListIterator::positionlist_end", "");
+    RETURN(OmPositionListIterator(NULL));
+}
+
 std::string
 OmTermListIterator::get_description() const
 {

@@ -27,6 +27,7 @@
 #include "omtypes.h"
 
 class OmDatabase;
+class OmPositionListIterator;
 
 class OmTermListIterator {
     private:
@@ -65,6 +66,10 @@ class OmTermListIterator {
 
 	om_termcount get_wdf() const;
 	om_doccount get_termfreq() const;
+
+    	// allow iteration of positionlist for current document
+	OmPositionListIterator positionlist_begin();
+	OmPositionListIterator positionlist_end();
     
 	/** Returns a string describing this object.
 	 *  Introspection method.

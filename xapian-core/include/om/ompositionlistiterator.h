@@ -26,11 +26,14 @@
 #include <iterator>
 #include "omtypes.h"
 
+class OmPostListIterator;
+class OmTermListIterator;
 class OmDatabase;
 
 class OmPositionListIterator {
     private:
 	friend class OmPostListIterator; // So OmPostListIterator can construct us
+	friend class OmTermListIterator; // So OmTermListIterator can construct us
 	friend class OmDatabase; // So OmDatabase can construct us
 
 	class Internal;

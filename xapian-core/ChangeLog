@@ -1,3 +1,10 @@
+Thu Nov 30 15:51:46 GMT 2000 Olly Betts
+
+	* More work on OmDocument::add_posting().
+
+	* Added OmTermListIterator::positionlist_begin() and
+	  OmTermListIterator::positionlist_end().
+
 Thu Nov 30 14:16:28 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed a prototype bug introduced with the last commit.

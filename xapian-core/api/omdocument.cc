@@ -143,8 +143,12 @@ OmDocument::add_posting(const om_termname & tname, om_termpos tpos)
     DEBUGAPICALL(void, "OmDocument::add_posting", tname << ", " << tpos);
     // FIXME: need to lock here...
     if (!internal->terms_here) {
-	// FIXME: read terms from Document into terms
-	Assert(false);
+	OmTermListIterator t = termlist_begin();
+	OmTermListIterator tend = termlist_end();
+	for ( ; t != tend; t++) {
+	    // FIXME: need to iterate positionlist to get tposes
+	    internal->terms.insert(std::make_pair(*t, OmDocumentTerm(*t, tpos)));
+	}
 	internal->terms_here = true;
     }
     std::map<om_termname, OmDocumentTerm>::iterator i;

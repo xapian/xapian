@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-#ln -s $(find .. -type f -name \*.cc -o -name \*.h -o -name \*.c -print) .
+#ln -s `find .. -type f \( -name \*.cc -o -name \*.h -o -name \*.c \) -print` .
 
 if BUILD_BACKEND_REMOTE
 BUILDSUBDIR_REMOTE1 = net
