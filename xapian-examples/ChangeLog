@@ -1,3 +1,7 @@
+Thu Sep  7 08:33:45 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Correct spelling in Makefile.am: simplexpand -> simpleexpand.cc
+
 Wed Sep 06 11:01:10 BST 2000 Olly Betts
 
 	* omega: weren't distributing omega templates (d'oh!)
