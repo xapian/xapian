@@ -1,3 +1,11 @@
+Fri Sep 15 19:02:48 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added an LD_PRELOADable library to do some malloc() etc checking.
+	  (Currently doesn't yet do leak checking, but does the accounting.)
+	  May not work on non-glibc2 systems.
+
+	* Simplified omerr_tostring so that it uses OmError::get_type().
+
 Fri Sep 15 18:53:31 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix minor bug in newly altered weighting formula, and update tests

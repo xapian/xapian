@@ -32,6 +32,7 @@
 #include <string>
 #include <new>
 #include <cstdio>
+#include "allocdata.h"
 
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
@@ -123,20 +124,7 @@ test_driver::get_srcdir(const string & argv0)
 /* Global data used by the overridden new and delete
  * operators.
  */
-
-// The maximum number of allocations which can be tracked
-static const int max_allocations = 1000000;
-
-// The number of currently unfreed allocations
-static long num_new_allocations = 0;
-// One past the highest used array position
-static long new_allocations_bound = 0;
-// The array of current allocations.
-struct allocation_info {
-    void *p;
-    size_t size;
-};
-static allocation_info new_allocations[max_allocations];
+static struct allocation_data allocdata = ALLOC_DATA_INIT;
 
 /* To help in tracking memory leaks, we can set a trap on a particular
  * memory address being allocated (which would be from the leak reporting
@@ -178,17 +166,7 @@ void *operator new(size_t size) throw(std::bad_alloc) {
 	throw std::bad_alloc();
     }
 
-    if (new_allocations_bound >= max_allocations) {
-	// our array is too small - panic!
-	fprintf(stderr, "Ran out of room for malloc tracking!\n");
-	abort();
-    } else {
-	new_allocations[new_allocations_bound].p = result;
-	new_allocations[new_allocations_bound].size = real_size;
-	++new_allocations_bound;
-
-	++num_new_allocations;
-    }
+    handle_allocation(&allocdata, result, real_size);
 
 #ifdef HAVE_LIBPTHREAD
     pthread_mutex_unlock(&test_driver_mutex);
@@ -205,33 +183,10 @@ void operator delete(void *p) throw() {
     pthread_mutex_lock(&test_driver_mutex);
 #endif // HAVE_LIBPTHREAD
     if (p) {
-	bool found_it = false;
-	for (int i = new_allocations_bound - 1;
-	     i >= 0;
-	     --i) {
-	    if (new_allocations[i].p == p) {
-		new_allocations[i].p = 0;
-		found_it = true;
-
-		// lower new_allocations_bound if possible
-		if (i == (new_allocations_bound - 1)) {
-		    while (new_allocations_bound > 0 &&
-			   new_allocations[new_allocations_bound-1].p == 0) {
-			new_allocations_bound--;
-		    }
-		}
-	    }
-	}
-	if (!found_it) {
-	    // note: we can use C-style I/O, but nothing C++ish in
-	    // case new is needed.
-	    fprintf(stderr,
-		    "Trying to delete %p which wasn't allocated with new\n",
-		    p);
-	    memory_weirdness();
+	if (handle_deallocation(&allocdata, p) != alloc_ok) {
+	    abort();
 	}
 
-	--num_new_allocations;
 	free(p);
     }
 #ifdef HAVE_LIBPTHREAD
@@ -269,8 +224,8 @@ test_driver::runtest(const test_desc *test)
 {
     bool success = true;
 
-    int old_allocations = num_new_allocations;
-    int old_bound = new_allocations_bound;
+    int old_allocations = allocdata.num_allocations;
+    int old_bound = allocdata.allocations_bound;
 
     // This is used to make a note of how many times we've run the test
     int runcount = 0;
@@ -304,18 +259,18 @@ test_driver::runtest(const test_desc *test)
 	    success = false;
 	}
 
-	int after_allocations = num_new_allocations;
-	int after_bound = new_allocations_bound;
+	int after_allocations = allocdata.num_allocations;
+	int after_bound = allocdata.allocations_bound;
 	if (after_allocations != old_allocations) {
 	    if (verbose) {
 		if (after_allocations > old_allocations) {
 		    out << after_allocations - old_allocations
 			    << " extra allocations not freed: ";
 		    for (int i=old_bound; i<after_bound; ++i) {
-			if (new_allocations[i].p != 0) {
+			if (allocdata.allocations[i].p != 0) {
 			    out << hex;
-			    out << new_allocations[i].p << "("
-				    << new_allocations[i].size << ") ";
+			    out << allocdata.allocations[i].p << "("
+				    << allocdata.allocations[i].size << ") ";
 			    out << dec;
 			}
 		    }
@@ -328,8 +283,8 @@ test_driver::runtest(const test_desc *test)
 	    if(runcount < 2 && success) {
 		out << " repeating...";
 		repeat = true;
-		old_allocations = num_new_allocations;
-		old_bound = new_allocations_bound;
+		old_allocations = allocdata.num_allocations;
+		old_bound = allocdata.allocations_bound;
 	    } else {
 		out << " LEAK";
 		success = false;

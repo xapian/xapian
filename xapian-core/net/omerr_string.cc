@@ -29,52 +29,9 @@
 #include "omerr_string.h"
 #include "omdebug.h"
 
-/** A class to convert from an OmError reference to a string description.
- */
-class ErrorMap {
-    private:
-	struct typeinfo_less {
-	    bool operator()(const std::type_info *a,
-                            const std::type_info *b) const {
-		return a->before(*b);
-	    }
-	};
-	typedef std::map<const std::type_info *, std::string, typeinfo_less> tmap;
-	tmap name;
-    public:
-	ErrorMap();
-	std::string to_string(const OmError &e);
-};
-
-ErrorMap emap;
-
 std::string omerror_to_string(const OmError &e)
 {
-    return emap.to_string(e);
-}
-
-ErrorMap::ErrorMap()
-{
-    name[&typeid(OmAssertionError)] = "OmAssertionError";
-    name[&typeid(OmUnimplementedError)] = "OmUnimplementedError";
-    name[&typeid(OmInvalidArgumentError)] = "OmInvalidArgumentError";
-    name[&typeid(OmDocNotFoundError)] = "OmDocNotFoundError";
-    name[&typeid(OmRangeError)] = "OmRangeError";
-    name[&typeid(OmInternalError)] = "OmInternalError";
-    name[&typeid(OmOpeningError)] = "OmOpeningError";
-    name[&typeid(OmDatabaseError)] = "OmDatabaseError";
-    name[&typeid(OmInvalidResultError)] = "OmInvalidResultError";
-}
-
-std::string
-ErrorMap::to_string(const OmError &e) {
-    tmap::const_iterator i = name.find(&typeid(e));
-
-    if (i == name.end()) {
-	return std::string("UNKNOWN OmError " + e.get_msg());
-    } else {
-	return i->second + " " + e.get_msg();
-    }
+    return e.get_type();
 }
 
 void string_to_omerror(const std::string &except, const std::string &prefix)
@@ -87,6 +44,7 @@ void string_to_omerror(const std::string &except, const std::string &prefix)
     std::string msg = prefix + except.substr(type.length());
 
     // FIXME: use a map or something instead.
+    // FIXME: update with new exceptions
     if (type == "OmAssertionError") {
 	throw OmAssertionError(msg);
     } else if (type == "OmUnimplementedError") {
