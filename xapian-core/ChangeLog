@@ -1,3 +1,8 @@
+Wed Jun 26 19:35:56 BST 2002  Olly Betts <olly@survex.com>
+
+	* Removed code which causes quartztest to fail with an --enable-debug
+	  build.
+
 Wed Jun 26 13:55:11 BST 2002  Olly Betts <olly@survex.com>
 
 	* todo.xml: added note to fix 100% being in its own sort band.

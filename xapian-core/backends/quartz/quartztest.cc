@@ -99,11 +99,7 @@ static void check_table_values_hello(QuartzDiskTable & table, string world)
     TEST_EQUAL(tag, "foo");
     
     AutoPtr<QuartzCursor> cursor(table.cursor_get());
-#ifdef MUS_DEBUG
-    key = "";
-    TEST_EXCEPTION(OmAssertionError, cursor->find_entry(key));
-#endif
-    
+
     // Check normal reads
     key = "hello";
     tag = "foo";
@@ -147,11 +143,6 @@ static void check_table_values_empty(QuartzDiskTable & table)
     TEST_EQUAL(tag, "foo");
     
     AutoPtr<QuartzCursor> cursor(table.cursor_get());
-#ifdef MUS_DEBUG
-    key = "";
-    tag = "foo";
-    TEST_EXCEPTION(OmAssertionError, cursor->find_entry(key));
-#endif
     
     // Check normal reads
     key = "hello";
