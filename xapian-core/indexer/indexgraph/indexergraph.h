@@ -85,6 +85,71 @@ class OmIndexer {
 	OmIndexerStartNode *start;
 };
 
+/** A function pointer to a node object creator. */
+typedef OmIndexerNode *(*OmNodeCreator)(const OmSettings &config);
+
+/** The description of an input or output connection. */
+struct OmNodeConnection {
+    OmNodeConnection(std::string name_,
+		   std::string type_,
+		   OmIndexerMessageType phys_type_)
+	    : name(name_), type(type_), phys_type(phys_type_) {}
+    OmNodeConnection(const OmNodeConnection &other)
+	    : name(other.name), type(other.type),
+    phys_type(other.phys_type) {}
+    OmNodeConnection()
+	    : name(""), type("") {}
+
+    /** The name of this input or output */
+    std::string name;
+
+    /** The high-level type of this connection. */
+    std::string type;
+
+    /** The low-level type of this connection. */
+    OmIndexerMessageType phys_type;
+};
+
+/** A description of a new node type */
+class OmNodeDescriptor {
+    public:
+	/** Constructor for node descriptor.
+	 *
+	 *  @param nodename	The name of this node type
+	 *
+	 *  @param creator	The function used to create an instance of
+	 *  			this node.
+	 */
+	OmNodeDescriptor(const std::string &nodename_,
+			 OmNodeCreator creator_);
+
+	/** Add an input description to this node.
+	 *
+	 * @param name		The name of this input.
+	 * @param type		The input type (a string description)
+	 * @param phys_type	The input basic type
+	 */
+	void add_input(const std::string &name,
+		       const std::string &type,
+		       OmIndexerMessageType phys_type);
+
+	/** Add an output description to this node.
+	 *
+	 * @param name		The name of this input.
+	 * @param type		The output type (a string description)
+	 * @param phys_type	The output basic type
+	 */
+	void add_output(const std::string &name,
+			const std::string &type,
+			OmIndexerMessageType phys_type);
+    private:
+	friend class OmIndexerBuilder;
+	std::string nodename;
+	OmNodeCreator creator;
+	std::vector<OmNodeConnection> inputs;
+	std::vector<OmNodeConnection> outputs;
+};
+
 class OmIndexerBuilder {
     public:
 	/** Constructor */
@@ -103,36 +168,8 @@ class OmIndexerBuilder {
 	 */
 	auto_ptr<OmIndexer> build_from_string(std::string xmldesc);
 
-	/** A function pointer to a node object creator. */
-	typedef OmIndexerNode *(*NodeCreator)(const OmSettings &config);
-
-	/** The description of an input or output connection. */
-	struct NodeConnection {
-	    NodeConnection(std::string name_,
-			   std::string type_,
-			   OmIndexerMessageType phys_type_)
-		    : name(name_), type(type_), phys_type(phys_type_) {}
-	    NodeConnection(const NodeConnection &other)
-		    : name(other.name), type(other.type),
-	              phys_type(other.phys_type) {}
-	    NodeConnection()
-		    : name(""), type("") {}
-
-	    /** The name of this input or output */
-	    std::string name;
-
-	    /** The high-level type of this connection. */
-	    std::string type;
-
-	    /** The low-level type of this connection. */
-	    OmIndexerMessageType phys_type;
-	};
-
 	/** Register a new node type */
-	void register_node_type(const std::string &nodename,
-				NodeCreator create,
-				const std::vector<NodeConnection> &inputs,
-				const std::vector<NodeConnection> &outputs);
+	void register_node_type(const OmNodeDescriptor &nodedesc);
 
     private:
 	/** Get the XML parse tree from a file */
@@ -157,13 +194,13 @@ class OmIndexerBuilder {
 	/** Get the descriptor for an output connection for a particular
 	 *  node type.
 	 */
-	NodeConnection get_outputcon(const std::string &nodetype,
+	OmNodeConnection get_outputcon(const std::string &nodetype,
 				     const std::string &output_name);
 
 	/** Get the descriptor for an input connection for a particular
 	 *  node type.
 	 */
-	NodeConnection get_inputcon(const std::string &nodetype,
+	OmNodeConnection get_inputcon(const std::string &nodetype,
 				    const std::string &input_name);
 
 	/** Create a node given a name
@@ -174,9 +211,9 @@ class OmIndexerBuilder {
 
 	/** Node descriptor */
 	struct node_desc {
-	    NodeCreator create;
-	    std::vector<NodeConnection> inputs;
-	    std::vector<NodeConnection> outputs;
+	    OmNodeCreator create;
+	    std::vector<OmNodeConnection> inputs;
+	    std::vector<OmNodeConnection> outputs;
 	};
 
 	/** Node database */

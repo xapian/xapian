@@ -206,8 +206,8 @@ OmIndexerBuilder::typecheck(const std::string &receivertype,
 			    const std::string &sendertype,
 			    const std::string &senderout)
 {
-    NodeConnection sendercon = get_outputcon(sendertype, senderout);
-    NodeConnection receivercon = get_inputcon(receivertype, receiverin);
+    OmNodeConnection sendercon = get_outputcon(sendertype, senderout);
+    OmNodeConnection receivercon = get_inputcon(receivertype, receiverin);
 
     // First check that the physical type is compatible
     if (sendercon.phys_type != receivercon.phys_type) {
@@ -232,7 +232,7 @@ OmIndexerBuilder::typecheck(const std::string &receivertype,
     }
 }
 
-OmIndexerBuilder::NodeConnection
+OmNodeConnection
 OmIndexerBuilder::get_outputcon(const std::string &nodetype,
 				const std::string &output_name)
 {
@@ -242,7 +242,7 @@ OmIndexerBuilder::get_outputcon(const std::string &nodetype,
 	throw OmInvalidArgumentError(std::string("Unknown node type ") +
 				     nodetype);
     }
-    std::vector<NodeConnection>::const_iterator i;
+    std::vector<OmNodeConnection>::const_iterator i;
     for (i=type->second.outputs.begin(); i!= type->second.outputs.end(); ++i) {
 	// FIXME: possibly ought to be a map rather than a vector.
 	if (i->name == output_name) {
@@ -253,7 +253,7 @@ OmIndexerBuilder::get_outputcon(const std::string &nodetype,
 				 nodetype + "[" + output_name + "]");
 }
 
-OmIndexerBuilder::NodeConnection
+OmNodeConnection
 OmIndexerBuilder::get_inputcon(const std::string &nodetype,
 			       const std::string &input_name)
 {
@@ -263,7 +263,7 @@ OmIndexerBuilder::get_inputcon(const std::string &nodetype,
 	throw OmInvalidArgumentError(std::string("Unknown node type ") +
 				     nodetype);
     }
-    std::vector<NodeConnection>::const_iterator i;
+    std::vector<OmNodeConnection>::const_iterator i;
     for (i=type->second.inputs.begin(); i!= type->second.inputs.end(); ++i) {
 	// FIXME: possibly ought to be a map rather than a vector.
 	if (i->name == input_name) {
@@ -288,35 +288,49 @@ OmIndexer::set_input(Message msg)
 
 OmIndexerBuilder::OmIndexerBuilder()
 {
-    std::vector<NodeConnection> outputs;
-    outputs.push_back(OmIndexerBuilder::NodeConnection("out",
-						       "mystr",
-						       mt_record));
-    register_node_type("START",
-		       &OmIndexerStartNode::create,
-		       std::vector<NodeConnection>(),
-		       outputs);
+    OmNodeDescriptor ndesc("START", &OmIndexerStartNode::create);
+    ndesc.add_output("out", "mystr", mt_record);
+    register_node_type(ndesc);
 }
 
 void
-OmIndexerBuilder::register_node_type(const std::string &nodename,
-				     NodeCreator create,
-				     const std::vector<NodeConnection> &inputs,
-				     const std::vector<NodeConnection> &outputs)
+OmIndexerBuilder::register_node_type(const OmNodeDescriptor &ndesc_)
 {
     std::map<std::string, node_desc>::const_iterator i;
-    i = nodetypes.find(nodename);
+    i = nodetypes.find(ndesc_.nodename);
     if (i != nodetypes.end()) {
 	throw OmInvalidArgumentError(string("Attempt to register node type ")
-				     + nodename + ", which already exists.");
+				     + ndesc_.nodename + ", which already exists.");
     }
 
     node_desc ndesc;
-    ndesc.create = create;
-    std::copy(inputs.begin(), inputs.end(),
+    ndesc.create = ndesc_.creator;
+    std::copy(ndesc_.inputs.begin(), ndesc_.inputs.end(),
 	      std::back_inserter(ndesc.inputs));
-    std::copy(outputs.begin(), outputs.end(),
+    std::copy(ndesc_.outputs.begin(), ndesc_.outputs.end(),
 	      std::back_inserter(ndesc.outputs));
 
-    nodetypes[nodename] = ndesc;
+    nodetypes[ndesc_.nodename] = ndesc;
+}
+
+OmNodeDescriptor::OmNodeDescriptor(const std::string &nodename_,
+				   OmNodeCreator creator_)
+	: nodename(nodename_), creator(creator_)
+{
+}
+
+void
+OmNodeDescriptor::add_input(const std::string &name,
+			    const std::string &type,
+			    OmIndexerMessageType phys_type)
+{
+    inputs.push_back(OmNodeConnection(name, type, phys_type));
+}
+
+void
+OmNodeDescriptor::add_output(const std::string &name,
+			    const std::string &type,
+			    OmIndexerMessageType phys_type)
+{
+    outputs.push_back(OmNodeConnection(name, type, phys_type));
 }

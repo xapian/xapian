@@ -29,50 +29,24 @@ int main() {
     try {
 	OmIndexerBuilder builder;
 	{
-	    vector<OmIndexerBuilder::NodeConnection> in;
-	    vector<OmIndexerBuilder::NodeConnection> out;
-	    in.push_back(OmIndexerBuilder::NodeConnection("in",
-							  "ANY",
-							  mt_record));
-	    out.push_back(OmIndexerBuilder::NodeConnection("out1",
-							   "ANY",
-							   mt_record));
-	    out.push_back(OmIndexerBuilder::NodeConnection("out2",
-							   "ANY",
-							   mt_record));
-	    builder.register_node_type("split",
-				       &SplitNode::create,
-				       in,
-				       out);
+	    OmNodeDescriptor ndesc("split", &SplitNode::create);
+	    ndesc.add_input("in", "ANY", mt_record);
+	    ndesc.add_output("out1", "ANY", mt_record);
+	    ndesc.add_output("out2", "ANY", mt_record);
+	    builder.register_node_type(ndesc);
 	}
 	{
-	    vector<OmIndexerBuilder::NodeConnection> in;
-	    vector<OmIndexerBuilder::NodeConnection> out;
-	    in.push_back(OmIndexerBuilder::NodeConnection("in",
-							  "string",
-							  mt_string));
-	    out.push_back(OmIndexerBuilder::NodeConnection("out",
-							   "string",
-							   mt_string));
-	    builder.register_node_type("reverse",
-				       &ReverseNode::create,
-				       in, out);
+	    OmNodeDescriptor ndesc("reverse", &ReverseNode::create);
+	    ndesc.add_input("in", "string", mt_string);
+	    ndesc.add_output("out", "string", mt_string);
+	    builder.register_node_type(ndesc);
 	}
 	{
-	    vector<OmIndexerBuilder::NodeConnection> in;
-	    vector<OmIndexerBuilder::NodeConnection> out;
-	    in.push_back(OmIndexerBuilder::NodeConnection("in1",
-							  "string",
-							  mt_string));
-	    in.push_back(OmIndexerBuilder::NodeConnection("in2",
-							  "string",
-							  mt_string));
-	    out.push_back(OmIndexerBuilder::NodeConnection("out",
-							   "string",
-							   mt_string));
-	    builder.register_node_type("concat",
-				       &ConcatNode::create,
-				       in, out);
+	    OmNodeDescriptor ndesc("concat", &ConcatNode::create);
+	    ndesc.add_input("in1", "string", mt_string);
+	    ndesc.add_input("in2", "string", mt_string);
+	    ndesc.add_output("out", "string", mt_string);
+	    builder.register_node_type(ndesc);
 	}
 	auto_ptr<OmIndexer> indexer = builder.build_from_file("test.xml");
 	Message msg(new Record());

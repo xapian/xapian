@@ -133,6 +133,7 @@ OmIndexerNode::calculate_if_needed(const std::string &output_name)
     i = outputs_record.find(output_name);
 
     if (i == outputs_record.end()) {
+	outputs_record.clear();
 	calculate();
     }
 }

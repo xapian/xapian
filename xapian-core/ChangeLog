@@ -1,3 +1,9 @@
+Mon Sep  4 16:48:51 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Cleaned up the registration of new indexer nodes a bit.
+
+	* Prefixed some of the types with "Om".
+
 Mon Sep 04 14:42:56 BST 2000 Olly Betts
 
 	* Implemented MultiPostList::get_position_list.
