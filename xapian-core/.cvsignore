@@ -1,6 +1,7 @@
 .*.d
 .*.swp
 dbtest
+idxtest
 matchtest
 stemtest
 testdir
