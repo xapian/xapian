@@ -122,9 +122,6 @@ int main(int argc, char *argv[])
 	 << myresult.failed << " failed."
 	 << endl;
 	
-    // FIXME: fussy should be the default, but for the moment
-    // we want distcheck to succeed even though the tests don't
-    // all pass, so that we can get nightly snapshots.
     if (fussy) {
 	return (bool)myresult.failed; // if 0, then everything passed
     } else {
