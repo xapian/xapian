@@ -225,12 +225,12 @@ MultiMatch::boolmatch(om_doccount first,
 	(*(leaves.begin()))->boolmatch(first, maxitems, mset);
     } else if(leaves.size() > 1) {
 	// Need to merge msets.
-	MSetCmp mcmp(cmp);
+	//MSetCmp mcmp(cmp);
 
 	om_doccount lastitem = first + maxitems;
 
 	// Get the first mset
-	(*(leaves.begin()))->match(0, lastitem, mset);
+	(*(leaves.begin()))->boolmatch(0, lastitem, mset);
 
 	if(leaves.size() > 1) {
 	    // Get subsequent msets, and merge each one with the current mset
@@ -255,7 +255,8 @@ MultiMatch::boolmatch(om_doccount first,
 		vector<OmMSetItem>::const_iterator j = sub_mset.begin();
 		while(mset.size() < lastitem &&
 		      i != old_mset.end() && j != sub_mset.end()) {
-		    if(mcmp(*i, *j)) {
+		    //if(mcmp(*i, *j)) { FIXME - define mcmp
+		    if(i->did < j->did) {
 			mset.push_back(*i++);
 		    } else {
 			mset.push_back(*j++);
