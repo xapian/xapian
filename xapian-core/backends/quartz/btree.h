@@ -116,7 +116,6 @@ class Btree {
 	/** the last used block of B->bit_map0 */
 	int4 last_block;
 
-	// FIXME: make these private once operations are member functions.
     private:
 
 	/** Perform the opening operation to read.

@@ -1353,16 +1353,24 @@ Btree::basic_open(const char * name_,
     name = name_;
 
     {
-	std::string err_msg;
-	Btree_base baseA;
-	Btree_base baseB;
-	bool baseA_ok;
-	bool baseB_ok;
-	baseA_ok = baseA.read(name, 'A', err_msg);
-        baseB_ok = baseB.read(name, 'B', err_msg);
+	using std::vector;
+	using std::string;
 
-        if (baseA_ok && baseB_ok) both_bases = true;
-        if (!baseA_ok && !baseB_ok) {
+	std::string err_msg;
+	vector<char> basenames;
+	basenames.push_back('A');
+	basenames.push_back('B');
+
+	vector<Btree_base> bases(basenames.size());
+	vector<bool> base_ok(basenames.size());
+
+	for (size_t i=0; i<basenames.size(); ++i) {
+	    base_ok[i] = bases[i].read(name, basenames[i], err_msg);
+	}
+
+	// FIXME: assumption that there are only two bases
+        if (base_ok[0] && base_ok[1]) both_bases = true;
+        if (!base_ok[0] && !base_ok[0]) {
 	    std::string message = "Error opening table `"; 
 	    message += name_;
 	    message += "': ";
@@ -1371,11 +1379,15 @@ Btree::basic_open(const char * name_,
 	}
 
         if (revision_supplied) {
-	    if (baseA_ok && baseA.get_revision() == revision_) {
-		ch = 'A';
-	    } else if (baseB_ok && baseB.get_revision() == revision_) {
-		ch = 'B';
-	    } else {
+	    bool found_revision = false;
+	    for (size_t i=0; i<basenames.size(); ++i) {
+		if (base_ok[i] && bases[i].get_revision() == revision_) {
+		    ch = basenames[i];
+		    found_revision = true;
+		    break;
+		}
+	    }
+	    if (!found_revision) {
 		/* Couldn't open the revision that was asked for.
 		 * This shouldn't throw an exception, but should just return
 		 * 0 to upper levels.
@@ -1383,26 +1395,44 @@ Btree::basic_open(const char * name_,
 		return false;
 	    }
         } else {
-	    if (!baseA_ok) ch = 'B'; else
-            if (!baseB_ok) ch = 'A'; else
-            ch = baseA.get_revision() > baseB.get_revision() ? 'A' : 'B';
-                                  /* unsigned comparison */
+	    uint4 highest_revision = 0;
+	    for (size_t i=0; i<basenames.size(); ++i) {
+		if (base_ok[i] &&
+		    bases[i].get_revision() >= highest_revision) {
+		    ch = basenames[i];
+		    highest_revision = bases[i].get_revision();
+		}
+	    }
         }
 
-	Btree_base *basep;
-	Btree_base *other_base;
-        if (ch == 'A') {
-	    basep = &baseA;
-	    other_base = baseB_ok?&baseB : 0;
-	} else if (ch == 'B') {
-	    basep = &baseB;
-	    other_base = baseA_ok?&baseA : 0;
-	} else {
+	Btree_base *basep = 0;
+	Btree_base *other_base = 0;
+
+	for (size_t i=0; i<basenames.size(); ++i) {
+	    /*
+	    cerr << "Checking (ch == " << ch << ") against "
+		    "basenames[" << i << "] == " << basenames[i] << endl;
+	    cerr << "bases[i].get_revision() == " << bases[i].get_revision()
+		    << endl;
+	    cerr << "base_ok[i] == " << base_ok[i] << endl;
+	    */
+	    if (ch == basenames[i]) {
+		basep = &bases[i];
+
+		// FIXME: assuming only two bases for other_base
+		size_t otherbase_num = 1-i;
+		if (base_ok[otherbase_num]) {
+		    other_base = &bases[otherbase_num];
+		}
+		break;
+	    }
+	}
+	if (!basep) {
 	    Assert(false);
 	    error = BTREE_ERROR_BASE_READ;
 	}
 
-        /* base now points to the most recent base block */
+        /* basep now points to the most recent base block */
 
         base = *basep;
 
