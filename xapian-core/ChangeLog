@@ -1,3 +1,11 @@
+Thu Sep 19 00:41:53 BST 2002  Olly Betts <olly@survex.com>
+
+	* ar-wrapper-solaris,ltconfig,Makefile.am: libtool 1.4 doesn't use
+	  ltconfig, and that's the only thing that uses ar-wrapper-solaris,
+	  so removed both.  Fairly sure the problem they address was fixed
+	  in libtool so time ago.  Xapian doesn't build with Sun's C++
+	  compiler at the moment anyway, so it's moot for the release.
+
 Thu Sep 19 00:26:37 BST 2002  Olly Betts <olly@survex.com>
 
 	* docs/todo2html.pl: Handle release "*" specially - it indicates

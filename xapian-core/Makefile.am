@@ -25,8 +25,7 @@ bin_SCRIPTS = xapian-config
 
 CLEANFILES = TODO TODO.release xapian-config
 
-EXTRA_DIST = ChangeLog buildall HACKING PLATFORMS \
-             ar-wrapper-solaris TODO TODO.release xapian.spec
+EXTRA_DIST = ChangeLog buildall HACKING PLATFORMS TODO TODO.release xapian.spec
 
 lib_LTLIBRARIES = libxapian.la
 
