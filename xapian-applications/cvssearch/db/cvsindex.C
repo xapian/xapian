@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
       while ( lines.ReadNextLine() ) {
 	if ( lines.currentFile() != prev_file ) {
 	  if ( prev_file != "" ) {	  
-	    writeFileDB( prev_file, package_path, revision_comment_words );
+	    // writeFileDB( prev_file, package_path, revision_comment_words );
 	  }
 	  revision_comment_words.clear();
 
@@ -175,7 +175,8 @@ int main(int argc, char *argv[])
 	string code = lines.getCodeLine();
 	string codelinedata = lines.getCodeLineData();
 
-	src << codelinedata << " " << code << endl;
+	// took out writes to src file
+	//src << codelinedata << " " << code << endl;
 
 	// ----------------------------------------
 	// we want to output something like:
@@ -199,7 +200,7 @@ int main(int argc, char *argv[])
 	database.add_document(newdocument);
       }
       if ( prev_file != "" ) {
-	writeFileDB( prev_file, package_path, revision_comment_words );
+	// writeFileDB( prev_file, package_path, revision_comment_words );
       }
       cerr << "... done!" << endl;
     }
