@@ -1,11 +1,5 @@
-This directory hierarchy contains test data for the Xapian stemming
-algorithms.  The hierarchy is organised into a set of directories,
-one for each stemming algorithm.  The actual stemming data is stored in
-a subdirectory ('data') in each of these directories, as a pair of files:
+This directory contains test data for the Snowball stemming algorithms
+which Xapian uses.  There are 2 files for each language:
 
-  voc.txt  -- A list of words, one per line.
-  voc.st   -- The result of passing these words through the stemming
-              algorithm.
-
-For more information see the Xapian package, available from
-http://www.xapian.org/
+ <language>.voc -- A list of words, one per line.
+ <language>.st  -- The result of stemming each word.
