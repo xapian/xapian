@@ -1,3 +1,8 @@
+Wed Mar 24 13:41:33 GMT 2004  Olly Betts <olly@survex.com>
+
+	* perl/00_README: Corrected the cat command in-line with the
+	  Makefile.am fix from earlier today.
+
 Wed Mar 24 13:38:59 GMT 2004  Olly Betts <olly@survex.com>
 
 	* perl/Compare-script.pl: Whitespace tweaks.

@@ -1,7 +1,7 @@
 say you want to build a file: myfile.cgi in src/perl
 
 1. remove the first line of myfile.cgi (the line containing
-#!/usr/local/bin/perl) and rename the new file as myfile-script.pl (or
+#!/usr/bin/perl) and rename the new file as myfile-script.pl (or
 myfile.pl or whatever you wish to call it, but I will assume you will use
 myfile-script.pl below)
 
@@ -18,7 +18,7 @@ package with the command "make dist"
 
 myfile.cgi: $(srcdir)/myfile-script.pl
 <TAB>$(PERL) -I $(srcdir) -c $(srcdir)/myfile-script.pl
-<TAB>echo "#!$(PERL) -w" | cat $(srcdir)/myfile-script.pl > tmp-$@
+<TAB>echo "#!$(PERL) -w" | cat - $(srcdir)/myfile-script.pl > tmp-$@
 <TAB>chmod ugo+rx tmp-$@
 <TAB>mv -f tmp-$@ $@
 
