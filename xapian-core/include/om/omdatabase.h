@@ -140,6 +140,13 @@ class OmDatabase {
 	 */
 	virtual void operator=(const OmDatabase &other);
 
+	/** Re-open the database.
+	 *  This re-opens the database to the latest available versions.
+	 *  It can be used either to make sure the latest results are
+	 *  returned, or to recover from an OmDatabaseModifiedError.
+	 */
+	void reopen();
+
 	/** Returns a string representing the database object.
 	 *  Introspection method.
 	 */

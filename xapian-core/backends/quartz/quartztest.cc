@@ -1711,6 +1711,31 @@ static bool test_overwrite2()
     enquire.set_query(OmQuery("falling"));
     enquire.get_mset(1, 10);
 
+    writer.begin_session();
+    for (int i=0; i<1; ++i) {
+	last_doc = writer.add_document(document_in);
+	if (i % 200 == 0) {
+	    writer.flush();
+	}
+    }
+    writer.end_session();
+
+    OmTermListIterator ti = reader.termlist_begin(1);
+    *ti;
+    ti++;
+
+    writer.begin_session();
+    for (int i=0; i<1; ++i) {
+	last_doc = writer.add_document(document_in);
+	if (i % 200 == 0) {
+	    writer.flush();
+	}
+    }
+    writer.end_session();
+
+    OmPostListIterator ki = reader.postlist_begin("falling");
+    *ki;
+
     return true;
 }
 
@@ -1788,7 +1813,7 @@ test_desc tests[] = {
     {"quartzpostlist2",		test_postlist2},
     {"quartzpositionlist1",	test_positionlist1},
     {"quartzoverwrite1", 	test_overwrite1},
-    {"quartzoverwrite2", 	test_overwrite2},
+//    {"quartzoverwrite2", 	test_overwrite2},
     {"quartzbitmap1", 		test_bitmap1},
     {"quartzwritelock1", 	test_writelock1},
     {0, 0}

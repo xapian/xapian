@@ -310,12 +310,10 @@ QuartzDiskTableManager::get_record_table()
 }
 
 void
-QuartzDiskTableManager::reopen_after_overwritten()
+QuartzDiskTableManager::reopen()
 {
     if (readonly) {
 	open_tables_consistent();
-    } else {
-	throw OmDatabaseCorruptError("Found overwritten block in writable database");
     }
 }
 
@@ -519,7 +517,6 @@ QuartzBufferedTableManager::get_record_table()
 }
 
 void
-QuartzBufferedTableManager::reopen_after_overwritten()
+QuartzBufferedTableManager::reopen()
 {
-    disktables.reopen_after_overwritten();
 }

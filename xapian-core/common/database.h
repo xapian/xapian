@@ -260,17 +260,11 @@ class Database : public RefCntBase {
 	 */
 	virtual Document * open_document(om_docid did) const = 0;
 
-	/** Recover from an overwritten database.
-	 *  Sometimes a database may get confused if another process or
-	 *  object writes to the database underneath it, causing it to
-	 *  throw an OmDatabaseModifiedError.
-	 *  Calling this method means that it is OK to re-open the tables -
-	 *  ie it can start from fresh without possibly confusing the
-	 *  higher-level code using it.
+	/** do_reopen the database to the latest available revision.
 	 *
 	 *  Some database implementations may do nothing.
 	 */
-	virtual void recover_from_overwritten();
+	virtual void do_reopen();
 
 	//////////////////////////////////////////////////////////////////
 	// Modifying the database:
@@ -367,8 +361,9 @@ inline bool Database::is_network() const
     return false;
 }
 
-inline void Database::recover_from_overwritten()
+inline void Database::do_reopen()
 {
+    /* Default is to do nothing. */
 }
 
 #endif /* OM_HGUARD_DATABASE_H */

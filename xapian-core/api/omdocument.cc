@@ -60,21 +60,7 @@ OmDocument::get_key(om_keyno key) const
     // create our own RefCntPtr in case another thread assigns a new ptr
     RefCntPtr<Document> myptr = internal->ptr;
 
-    // FIXME: un-hardwire the repeat count
-    int tries_left = 100;
-    while (true) {
-	try {
-	    RETURN(myptr->get_key(key));
-	} catch (OmDatabaseModifiedError &e) {
-	    if (--tries_left > 0) {
-		OmDatabase::InternalInterface::get(internal->database)->
-			recover_from_overwritten(internal->did);
-	    } else {
-		// Give up!
-		throw;
-	    }
-	}
-    }
+    RETURN(myptr->get_key(key));
 }
 
 OmData
@@ -85,21 +71,7 @@ OmDocument::get_data() const
     // create our own RefCntPtr in case another thread assigns a new ptr
     RefCntPtr<Document> myptr = internal->ptr;
 
-    // FIXME: un-hardwire the repeat count
-    int tries_left = 100;
-    while (true) {
-	try {
-	    RETURN(myptr->get_data());
-	} catch (OmDatabaseModifiedError &e) {
-	    if (--tries_left > 0) {
-		OmDatabase::InternalInterface::get(internal->database)->
-			recover_from_overwritten(internal->did);
-	    } else {
-		// Give up!
-		throw;
-	    }
-	}
-    }
+    RETURN(myptr->get_data());
 }
 
 void

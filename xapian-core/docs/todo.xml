@@ -25,12 +25,6 @@ Write (speed) performance test suite.
 Write indexer modules.
 
 </todoitem>
-<todoitem priority="H" difficulty="3" owner="" area="Quartz" release="1.0">
-
-Detect and deal with btree overwritten condition.  Write tests to ensure
-this works.
-
-</todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="Iterators" release="1.0">
 
 Write tests for copying iterators: in particular, those with internals which

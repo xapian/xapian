@@ -92,6 +92,14 @@ OmDatabase::~OmDatabase()
 }
 
 void
+OmDatabase::reopen()
+{
+    for (size_t i = 0; i < internal->databases.size(); ++i) {
+	internal->databases[i]->do_reopen();
+    }
+}
+
+void
 OmDatabase::add_database(const OmSettings &params)
 {
     DEBUGAPICALL(void, "OmDatabase::add_database", params);
@@ -136,6 +144,7 @@ OmDatabase::termlist_begin(om_docid did) const
 {
     DEBUGAPICALL(OmTermListIterator, "OmDatabase::termlist_begin", did);
     if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
+
     RETURN(OmTermListIterator(new OmTermListIterator::Internal(internal->open_term_list(did, *this),
 							       *this, did)));
 }

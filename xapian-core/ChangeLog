@@ -1,3 +1,13 @@
+Thu Dec 14 16:21:27 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Removed handling of OmDatabaseModifiedError in the API - it's
+	  up to the users to know what to do.  Disabled quartzoverwrite2
+	  as it's now inappropriate.
+	
+	* Added OmDatabase::reopen() to help them do so.
+
+	* Adjusted todo.xml
+
 Thu Dec 14 14:38:39 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added another quoting regression test.

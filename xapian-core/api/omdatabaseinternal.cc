@@ -141,21 +141,3 @@ OmDatabase::Internal::open_position_list(om_docid did,
 
     return databases[dbnumber]->open_position_list(realdid, tname);
 }
-
-void
-OmDatabase::Internal::recover_from_overwritten(om_docid did)
-{
-    if (did > 0) {
-	unsigned int multiplier = databases.size();
-	Assert(multiplier != 0);
-	om_doccount dbnumber = (did - 1) % multiplier;
-
-	databases[dbnumber]->recover_from_overwritten();
-    } else {
-
-	std::vector<RefCntPtr<Database> >::const_iterator i;
-	for (i=databases.begin(); i!=databases.end(); ++i) {
-	    (*i)->recover_from_overwritten();
-	}
-    }
-}
