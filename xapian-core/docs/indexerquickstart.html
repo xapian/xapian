@@ -103,9 +103,13 @@ The keys generated are:
 </ol>
 
 The data contains just the original filename.
+</P><P>
+The indexing code in this example is almost all described in an XML file
+called indexerfile.xml.  The program code in indexerfile.cc does little
+more than setting up the indexer based on this XML file and passing it
+the filename of the file to index.  We'll describe indexerfile.cc first.
 </P>
 
-<!-- FIXME: beyond this is just part of the original quickstart -->
 <H3>Include header files</H3>
 <P>
 The first requirement in any program using the Muscat library is to
@@ -120,28 +124,23 @@ Our example only has a single function, main(), so next we start that:
 </P>
 <H3>Options parsing</H3>
 <P>
-For this example we do very simple options parsing.  We are going to
-use the core functionality of Muscat of searching for specific terms in the
-database, and we are not going to use any of the extra facilities, such as
-the keys which may be associated with each document.  We are also going to
-store a simple string as the data associated with each document.
+For this example we do very simple options parsing.  We index a single
+file to a database, and don't need anything else.
 </P><P>
 Thus, our command line syntax is:
 <UL><LI>
 <B>Parameter 1</B> - the (possibly relative) path to the database.
 </LI><LI>
-<B>Parameter 2</B> - the string to be stored as the document data.
-</LI><LI>
-<B>Parameters 3 onward</B> - the terms to be stored in the database.  The
-terms will be assumed to occur at successive positions in the document.
+<B>Parameter 2</B> - the name of the file to be indexed.
 </LI></UL>
 </P><P>
 The validity of a command line can therefore be checked very simply by
-ensuring that there are at least 3 parameters:
+ensuring that there are exactly least 3 parameters (including the program
+name):
 <PRE>
-    if(argc &lt; 4) {
+    if(argc != 3) {
         cout &lt;&lt; "usage: " &lt;&lt; argv[0] &lt;&lt;
-	        " &lt;path to database> &lt;document data> &lt;document terms>" &lt;&lt; endl;
+	        " &lt;path to database&gt; &lt;file to index&gt;" &lt;&lt; endl;
         exit(1);
     }
 </PRE>
@@ -214,6 +213,40 @@ The code to open a database for writing is, then:
     OmWritableDatabase database(db_parameters);
 </PRE>
 
+<H3>Preparing the indexer</H3>
+
+<P>
+Setting up the indexer from the description file is very simple.  The
+work is done by an object of the class <CODE>OmIndexerBuilder</CODE>.  
+This object has a built-in library of nodes which can be put into an
+indexer, and provides a way to register user-defined nodes.  The main
+use, though, is to turn a textual description of the indexer into an
+<CODE>OmIndexer</CODE> object which can be used directly.
+</P><P>
+The method of <CODE>OmIndexerBuilder</CODE> which we're interested in
+is <CODE>build_from_file(std::string filename)</CODE>.  The only
+parameter is the name of the file containing the indexer description.
+The method returns an <CODE>AutoPtr</CODE> to an <CODE>OmIndexer</CODE>
+object based on this description.  There are similar methods to use
+when the XML description is in memory, or when the description is
+already in a parsed structure in memory.
+</P><P>
+<CODE>AutoPtr</CODE> is a smart pointer which takes care of destroying
+the object it points to when it goes out of scope, and is very close
+to an implementation of <CODE>auto_ptr</CODE> from the C++ standard
+template library.  Most of the time it can be used just like an
+ordinary pointer, without needing to delete the target when it's no
+longer in use.
+</P><P>
+Here is the code for creating our indexer:
+</P>
+
+<PRE>
+	OmIndexerBuilder builder;
+	AutoPtr&lt;OmIndexer&gt; indexer = builder.build_from_file(&quot;indexfile.xml&quot;);
+</PRE>
+
+<!-- FIXME: below is still from the original quickstart.html -->
 <H3>Preparing the new document</H3>
 
 <P>

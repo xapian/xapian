@@ -1,3 +1,7 @@
+Tue Oct 31 18:18:36 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* More work on the indexer quickstart document.
+
 Tue Oct 31 18:10:49 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Begun changing implementation of QuartzTable to use btree stuff.
