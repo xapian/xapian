@@ -3,4 +3,5 @@
 SUBDIRS = gui msearch omega
 
 EXTRA_DIST = COPYING buildall README \
-simple/README simple/Makefile simple/simpleindex.cc simple/simplesearch.cc
+simple/README simple/Makefile simple/simpleindex.cc \
+              simple/simplexpand.cc simple/simplesearch.cc
