@@ -235,24 +235,22 @@ OmDocument::termlist_begin() const
 {
     DEBUGAPICALL(OmTermListIterator, "OmDocument::termlist_begin", "");
     if (internal->terms_here) {
-	RETURN(OmTermListIteratorMap(new OmTermListIteratorMap::Internal(internal->terms.begin(),
-									 internal->database,
-									 internal->did)));	   
+	RETURN(OmTermListIterator(new OmTermListIterator::Internal(
+		internal->terms.begin(),
+		internal->terms.end(),
+		internal->database,
+		internal->did)));	   
     }
-    RETURN(OmTermListIterator(new OmTermListIterator::Internal(internal->ptr->open_term_list(),
-							       internal->database,
-							       internal->did)));
+    RETURN(OmTermListIterator(new OmTermListIterator::Internal(
+		internal->ptr->open_term_list(),
+		internal->database,
+		internal->did)));
 }
 
 OmTermListIterator
 OmDocument::termlist_end() const
 {
     DEBUGAPICALL(OmTermListIterator, "OmDocument::termlist_end", "");
-    if (internal->terms_here) {
-	RETURN(OmTermListIteratorMap(new OmTermListIteratorMap::Internal(internal->terms.end(),
-									 internal->database,
-									 internal->did)));	   
-    }
     RETURN(OmTermListIterator(NULL));
 }
 

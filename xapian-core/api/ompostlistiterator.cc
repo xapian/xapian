@@ -59,6 +59,7 @@ om_docid
 OmPostListIterator::operator *() const
 {
     DEBUGAPICALL(om_docid, "OmPostListIterator::operator*", "");
+    Assert(internal);
     om_docid result = internal->postlist->get_docid();
     RETURN(result);
 }
@@ -67,8 +68,13 @@ OmPostListIterator &
 OmPostListIterator::operator++()
 {
     DEBUGAPICALL(OmPostListIterator &, "OmPostListIterator::operator++", "");
+    Assert(internal);
     PostList *p = internal->postlist->next();
     if (p) internal->postlist = p; // handle prune
+    if (internal->postlist->at_end()) {
+	delete internal;
+	internal = 0;
+    }
     RETURN(*this);
 }
 
@@ -76,8 +82,13 @@ void
 OmPostListIterator::operator++(int)
 {
     DEBUGAPICALL(void, "OmPostListIterator::operator++", "int");
+    Assert(internal);
     PostList *p = internal->postlist->next();
     if (p) internal->postlist = p; // handle prune
+    if (internal->postlist->at_end()) {
+	delete internal;
+	internal = 0;
+    }
 }
 
 // extra method, not required to be an input_iterator
@@ -85,8 +96,13 @@ void
 OmPostListIterator::skip_to(om_docid did)
 {
     DEBUGAPICALL(void, "OmPostListIterator::skip_to", did);
+    Assert(internal);
     PostList *p = internal->postlist->skip_to(did, 0);
     if (p) internal->postlist = p; // handle prune
+    if (internal->postlist->at_end()) {
+	delete internal;
+	internal = 0;
+    }
 }    
 
 // need to set IRWeight object for this to work
@@ -101,6 +117,7 @@ om_doclength
 OmPostListIterator::get_doclength() const
 {
     DEBUGAPICALL(om_doclength, "OmPostListIterator::get_doclength", "");
+    Assert(internal);
     RETURN(internal->postlist->get_doclength());
 }
 
@@ -108,6 +125,7 @@ om_termcount
 OmPostListIterator::get_wdf() const
 {
     DEBUGAPICALL(om_termcount, "OmPostListIterator::get_wdf", "");
+    Assert(internal);
     RETURN(internal->postlist->get_wdf());
 }
 
@@ -115,6 +133,7 @@ OmPositionListIterator
 OmPostListIterator::positionlist_begin()
 {
     DEBUGAPICALL(OmPositionListIterator, "OmPostListIterator::positionlist_begin", "");
+    Assert(internal);
     RETURN(OmPositionListIterator(new OmPositionListIterator::Internal(internal->postlist->get_position_list())));
 }
 
@@ -122,6 +141,7 @@ OmPositionListIterator
 OmPostListIterator::positionlist_end()
 {
     DEBUGAPICALL(OmPositionListIterator, "OmPostListIterator::positionlist_end", "");
+    Assert(internal);
     RETURN(OmPositionListIterator(NULL));
 }
 
@@ -129,10 +149,11 @@ std::string
 OmPostListIterator::get_description() const
 {
     DEBUGCALL(INTRO, std::string, "OmPostListIterator::get_description", "");
+    Assert(internal);
     /// \todo display contents of the object
     om_ostringstream desc;
     desc << "OmPostListIterator([pos=";
-    if ((internal == 0) || internal->postlist->at_end()) {
+    if (internal == 0) {
 	desc << "END";
     } else {
 	desc << internal->postlist->get_docid();
@@ -145,10 +166,6 @@ bool
 operator==(const OmPostListIterator &a, const OmPostListIterator &b)
 {
     if (a.internal == b.internal) return true;
-    if (a.internal) {
-	if (b.internal) return a.internal->postlist.get() == b.internal->postlist.get();
-	return a.internal->postlist->at_end();
-    }
-    Assert(b.internal); // a.internal is NULL, so b.internal can't be
-    return b.internal->postlist->at_end();
+    if (a.internal == 0 || b.internal == 0) return false;
+    return (a.internal->postlist.get() == b.internal->postlist.get());
 }

@@ -34,6 +34,7 @@ om_termpos
 OmPositionListIterator::operator *() const
 {
     DEBUGAPICALL(om_termpos, "OmPositionListIterator::operator*", "");
+    Assert(internal);
     RETURN(internal->positionlist->get_position());
 }
 
@@ -41,7 +42,12 @@ OmPositionListIterator &
 OmPositionListIterator::operator++()
 {
     DEBUGAPICALL(OmPositionListIterator &, "OmPositionListIterator::operator++", "");
+    Assert(internal);
     internal->positionlist->next();
+    if (internal->positionlist->at_end()) {
+	delete internal;
+	internal = 0;
+    }
     RETURN(*this);
 }
 
@@ -49,7 +55,12 @@ void
 OmPositionListIterator::operator++(int)
 {
     DEBUGAPICALL(void, "OmPositionListIterator::operator++(int)", "");
+    Assert(internal);
     internal->positionlist->next();
+    if (internal->positionlist->at_end()) {
+	delete internal;
+	internal = 0;
+    }
 }
 
 // extra method, not required to be an input_iterator
@@ -57,7 +68,12 @@ void
 OmPositionListIterator::skip_to(om_termpos pos)
 {
     DEBUGAPICALL(void, "OmPositionListIterator::skip_to", pos);
+    Assert(internal);
     internal->positionlist->skip_to(pos);
+    if (internal->positionlist->at_end()) {
+	delete internal;
+	internal = 0;
+    }
 }    
 
 std::string
@@ -72,9 +88,6 @@ bool
 operator==(const OmPositionListIterator &a, const OmPositionListIterator &b)
 {
     if (a.internal == b.internal) return true;
-    if (a.internal) {
-	return !b.internal && a.internal->positionlist->at_end();
-    }
-    Assert(b.internal); // a.internal is NULL, so b.internal can't be
-    return b.internal->positionlist->at_end();
+    if (a.internal == 0 || b.internal == 0) return false;
+    return (a.internal->positionlist == b.internal->positionlist);
 }

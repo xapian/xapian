@@ -1,3 +1,12 @@
+Thu Dec  7 20:02:43 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Removed OmTermListIteratorMap - OmTermListIterator can now be
+	  across either a map or an actual termlist.
+
+	* Om*Iterator classes all now delete internals when reaching end,
+	  freeing resources sooner and making the comparison operators much
+	  simpler.
+
 Thu Dec  7 18:33:03 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Updates to TODO

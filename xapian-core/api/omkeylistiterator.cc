@@ -56,6 +56,7 @@ const OmKey &
 OmKeyListIterator::operator *() const
 {
     DEBUGAPICALL(const OmKey &, "OmKeyListIterator::operator*", "");
+    Assert(internal);
     RETURN(internal->it->second);
 }
 
@@ -63,6 +64,7 @@ const OmKey *
 OmKeyListIterator::operator ->() const
 {
     DEBUGAPICALL(const OmKey *, "OmKeyListIterator::operator->", "");
+    Assert(internal);
     RETURN(&(internal->it->second));
 }
 
@@ -70,6 +72,7 @@ OmKeyListIterator &
 OmKeyListIterator::operator++()
 {
     DEBUGAPICALL(OmKeyListIterator &, "OmKeyListIterator::operator++", "");
+    Assert(internal);
     internal->it++;
     RETURN(*this);
 }
@@ -78,6 +81,7 @@ void
 OmKeyListIterator::operator++(int)
 {
     DEBUGAPICALL(void, "OmKeyListIterator::operator++", "int");
+    Assert(internal);
     internal->it++;
 }
 
@@ -85,6 +89,7 @@ om_keyno
 OmKeyListIterator::get_keyno() const
 {
     DEBUGAPICALL(om_keyno, "OmKeyListIterator::get_keyno", "");
+    Assert(internal);
     RETURN(internal->it->first);
 }
 
@@ -99,5 +104,7 @@ OmKeyListIterator::get_description() const
 bool
 operator==(const OmKeyListIterator &a, const OmKeyListIterator &b)
 {
+    Assert(a.internal);
+    Assert(b.internal);
     return a.internal->it == b.internal->it;    
 }

@@ -35,42 +35,88 @@ class OmTermListIterator::Internal {
 
 	RefCntPtr<TermList> termlist;
 
+	OmDocument::Internal::document_terms::const_iterator it;
+	OmDocument::Internal::document_terms::const_iterator it_end;
+
+	/// Whether we're using the termlist object, or the iterator
+	bool using_termlist;
+
 	OmDatabase database;
 
 	om_docid did;
 
     public:
-        Internal(TermList *termlist_, const OmDatabase &database_,
+        Internal(TermList *termlist_,
+		 const OmDatabase &database_,
 		 om_docid did_)
-	    : termlist(termlist_), database(database_), did(did_)
+		: termlist(termlist_),
+		  using_termlist(true),
+		  database(database_),
+		  did(did_)
 	{
 	    // A TermList starts before the start, iterators start at the start
 	    termlist->next();
 	}
 
-        Internal(const Internal &other) : termlist(other.termlist)
-	{ }
-};
-
-class OmTermListIteratorMap::Internal {
-    private:
-	friend class OmTermListIteratorMap;
-        friend bool operator==(const OmTermListIteratorMap &a, const OmTermListIteratorMap &b);
-
-	OmDocument::Internal::document_terms::const_iterator it;
-
-	OmDatabase database;
-
-	om_docid did;
-
-    public:
-        Internal(const OmDocument::Internal::document_terms::const_iterator &it_,
-		 const OmDatabase &database_, om_docid did_)
-	    : it(it_), database(database_), did(did_)
+	Internal(const OmDocument::Internal::document_terms::const_iterator &it_,
+		 const OmDocument::Internal::document_terms::const_iterator &it_end_,
+		 const OmDatabase &database_,
+		 om_docid did_)
+		: it(it_),
+		  it_end(it_end_),
+		  using_termlist(false),
+		  database(database_),
+		  did(did_)
 	{ }
 
-        Internal(const Internal &other) : it(other.it)
+        Internal(const Internal &other)
+		: termlist(other.termlist),
+		  it(other.it),
+		  it_end(other.it_end),
+		  using_termlist(other.using_termlist),
+		  database(other.database),
+		  did(other.did)
 	{ }
+
+	void next()
+	{
+	    if (using_termlist) termlist->next();
+	    else it++;
+	}
+
+	void skip_to(const om_termname & tname)
+	{
+	    if (using_termlist) {
+		// FIXME: termlists should have a skip_to method and use it
+		// here
+		while (!termlist->at_end() && termlist->get_termname() < tname)
+		    termlist->next();
+	    } else {
+		// FIXME: use map operations to jump to correct position
+		while (it != it_end && it->first < tname)
+		    it++;
+	    }
+	}
+
+	bool at_end()
+	{
+	    if (using_termlist) {
+		return termlist->at_end();
+	    } else {
+		return it == it_end;
+	    }
+	}
+
+	bool operator== (const OmTermListIterator::Internal &other)
+	{
+	    if (using_termlist != other.using_termlist) return false;
+	    if (using_termlist == true) {
+		return (termlist.get() ==
+			other.termlist.get());
+	    } else {
+		return (it == other.it);
+	    }
+	}
 };
 
 #endif /* OM_HGUARD_OMTERMLISTITERATOR_H */
