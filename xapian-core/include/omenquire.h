@@ -348,7 +348,8 @@ class OmMSet {
 	/// A list of items comprising the (selected part of the) mset.
 	vector<OmMSetItem> items;
 
-	/** The index of the first item in the result to put into the mset.
+	/** The index of the first item in the result which was put into the
+	 *  mset.
 	 *  This corresponds to the parameter "first" specified in
 	 *  OmEnquire::get_mset().  A value of 0 corresponds to the highest
 	 *  result being the first item in the mset.
