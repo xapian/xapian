@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -400,7 +401,7 @@ OmSocketLineBuf::attempt_to_read(const OmTime & end_time)
     FD_SET(readfd, &fdset);
 
     OmTime time_diff(end_time - OmTime::now());
-    if (end_time.sec < 0) time_diff = OmTime(0);
+    if (time_diff.sec < 0) time_diff = OmTime(0);
 
     struct timeval tv;
     tv.tv_sec = time_diff.sec;
@@ -511,7 +512,7 @@ OmSocketLineBuf::do_writeline(string s, const OmTime & end_time)
 	FD_SET(writefd, &fdset);
 
 	OmTime time_diff(end_time - OmTime::now());
-	if (end_time.sec < 0) time_diff = OmTime(0);
+	if (time_diff.sec < 0) time_diff = OmTime(0);
 
 	// this should probably go in an outer loop rather than the inner.
 	struct timeval tv;
