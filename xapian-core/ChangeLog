@@ -1,3 +1,7 @@
+Wed May 07 17:24:00 BST 2003  Olly Betts <olly@survex.com>
+
+	* HACKING: Started section of API structure.
+
 Wed May 07 02:16:03 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,common/expand.h,common/omenquireinternal.h,

@@ -380,3 +380,15 @@ introduction to the Xapian test system in docs/tests.html .
 
 Then you can update any patch, bug or feature request items in Bugzilla
 to indicate that they've been dealt with.
+
+API Structure Notes
+===================
+
+We use reference counted pointers for most API classes.  These are implemented
+using Xapian::Internal::RefCntPtr, the implementation of which is exposed for
+efficiency, and because it's unlikely we'll need to change it frequently, if at
+all.
+
+There are a few exceptions, such as MSetIterator and ESetIterator which have an
+exposed implementation.  Tests show this makes a substantial difference to
+speed (it's ~20% faster) in typical cases of iterator use.
