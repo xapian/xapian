@@ -80,6 +80,9 @@
 #ifdef SWIGGUILE
 %include "om_util_guile.i"
 #endif
+#ifdef SWIGPHP4
+%include "om_util_php4.i"
+#endif
 
 %typemap(tcl8, in) const string & (string temp) {
     int len;

@@ -5,6 +5,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -58,13 +59,20 @@ enum om_queryop {
 class OmQuery {
     public:
         string get_description() const;
+	// 
+        /** Constructs a query consisting of single term
+         *  @param tname  The name of the term.
+         *  @param wqf  Within-?-frequency.
+         *  @param term_pos  Position of term related to other terms but there aren't any anyway!
+        */
         %name(OmQueryTerm) OmQuery(const string &tname,
 				   om_termcount wqf = 1,
 				   om_termpos term_pos = 0);
-
+        /** Constructs a new query object */
 	%name(OmQueryNull) OmQuery();
 
 	%addmethods {
+            /** Constructs a query from a set of queries merged with the specified operator */
 	    %name (OmQueryList) OmQuery(om_queryop op,
 	    	    const vector<OmQuery *> *subqs,
 		    om_termpos window = 0) {
@@ -82,8 +90,10 @@ class OmQuery {
 
 	string get_description();
 	bool is_empty() const;
-//	bool is_bool() const;
-//	bool set_bool(bool isbool_);
+	void set_window(om_termpos window);
+	void set_length(om_termpos qlen);
+	void set_elite_set_size(om_termpos size);
+	void set_cutoff(om_weight cutoff);
 	om_termcount get_length() const;
 	om_termcount set_length(om_termcount qlen_);
 //	om_termname_list get_terms() const;
