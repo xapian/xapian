@@ -10,8 +10,7 @@ AC_TRY_LINK(
   [#include <netdb.h>],
   [gethostbyname ("feefifo");],
   AC_MSG_RESULT(none),
-  AC_CHECK_LIB (
-    nsl,
+  AC_CHECK_LIB(nsl,
     gethostbyname,
     AC_MSG_RESULT(-lnsl)
     [LDFLAGS="$LDFLAGS -lnsl "],
