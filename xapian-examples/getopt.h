@@ -1,5 +1,6 @@
 /* Declarations for getopt.
    Copyright (C) 1989,90,91,92,93,94,96,97,98,99 Free Software Foundation, Inc.
+   Copyright (C) 2003 Olly Betts (modified for better C++ compatibility)
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -93,7 +94,7 @@ extern int optopt;
 
 struct option
 {
-# if defined __STDC__ && __STDC__
+# if (defined __STDC__ && __STDC__) || defined(__cplusplus)
   const char *name;
 # else
   char *name;
@@ -137,14 +138,26 @@ struct option
    arguments to the option '\0'.  This behavior is specific to the GNU
    `getopt'.  */
 
-#if defined __STDC__ && __STDC__
+#if (defined __STDC__ && __STDC__) || defined(__cplusplus)
 # ifdef __GNU_LIBRARY__
 /* Many other libraries have conflicting prototypes for getopt, with
    differences in the consts, in stdlib.h.  To avoid compilation
    errors, only prototype getopt for the GNU C library.  */
 extern int getopt (int /*__argc*/, char *const */*__argv*/, const char *__shortopts);
 # else /* not __GNU_LIBRARY__ */
+#  ifdef __cplusplus
+// In C++ "getopt ()" means it takes no argument, which is no good.  This
+// makes use of the fact that internally getopt () and getopt_long () call
+// the same function to actually do the work!
+
+// Include stdlib.h first so we don't mess with any getopt prototype that
+// might be there if stdlib.h is included after this header...
+#include <stdlib.h>
+#define getopt(ARGC, ARGV, OPTSTRING) getopt_long(ARGC, ARGV, OPTSTRING,\
+	(const struct option *) 0, (int *) 0)
+#else
 extern int getopt ();
+#  endif
 # endif /* __GNU_LIBRARY__ */
 
 # ifndef __need_getopt

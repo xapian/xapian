@@ -1,3 +1,7 @@
+Sun Jul 27 16:36:49 BST 2003  Olly Betts <olly@survex.com>
+
+	* getopt.c,getopt.h: Copied getopt tweaks over from xapian-core.
+
 Sat Jul 26 20:04:43 BST 2003  Olly Betts <olly@survex.com>
 
 	* simplesearch.cc: Stem search terms.
