@@ -79,7 +79,7 @@ int sys_open_to_read_no_except(const std::string & name)
     return fd;
 }
 
-static int sys_open_to_read(const std::string & name)
+int sys_open_to_read(const std::string & name)
 {
     int fd = sys_open_to_read_no_except(name);
     if (fd < 0) {
@@ -1676,8 +1676,8 @@ Btree::Btree()
 /** Delete file, throwing an error if can't delete it (but not if it
  *  doesn't exist)
  */
-static void
-delete_file(const std::string & filename)
+void
+sys_unlink_if_exists(const std::string & filename)
 {
     struct stat buf;
     if (stat(filename.c_str(), &buf)) {
@@ -1694,9 +1694,9 @@ delete_file(const std::string & filename)
 void
 Btree::erase(const std::string & tablename)
 {
-    delete_file(tablename + "DB");
-    delete_file(tablename + "baseA");
-    delete_file(tablename + "baseB");
+    sys_unlink_if_exists(tablename + "DB");
+    sys_unlink_if_exists(tablename + "baseA");
+    sys_unlink_if_exists(tablename + "baseB");
 }
  
 void

@@ -27,6 +27,7 @@
 #include "om/omsettings.h"
 #include "quartz_table.h"
 #include "quartz_log.h"
+#include "quartz_metafile.h"
 #include "autoptr.h"
 
 /** Class managing the tables used by a Quartz database.
@@ -94,6 +95,12 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 */
 	bool readonly;
 
+	/** The file describing the Quartz database.
+	 *  This file has information about the format of the database
+	 *  which can't easily be stored in any of the individual tables.
+	 */
+	QuartzMetaFile metafile;
+
 	/** Table storing posting lists.
 	 *
 	 *  Whenever an update is performed, this table is the first to be
@@ -151,6 +158,9 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 *  consistent revision available.
 	 */
 	void open_tables_consistent();
+
+	/// Return the path that the metafile is stored at.
+	std::string metafile_path() const;
 
 	/// Return the path that the record table is stored at.
 	std::string record_path() const;

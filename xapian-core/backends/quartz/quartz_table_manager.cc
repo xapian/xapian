@@ -45,6 +45,7 @@ QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
 					       bool allow_overwrite)
 	: db_dir(db_dir_),
 	  readonly(readonly_),
+	  metafile(metafile_path()),
 	  postlist_table(postlist_path(), readonly, block_size),
 	  positionlist_table(positionlist_path(), readonly, block_size),
 	  termlist_table(termlist_path(), readonly, block_size),
@@ -139,6 +140,7 @@ QuartzDiskTableManager::create_and_open_tables()
 
     // Delete any existing tables
     log->make_entry("Cleaning up database directory at `" + db_dir + "'.");
+    metafile.create();
     postlist_table.erase();
     positionlist_table.erase();
     termlist_table.erase();
@@ -149,6 +151,7 @@ QuartzDiskTableManager::create_and_open_tables()
     log->make_entry("Creating new database at `" + db_dir + "'.");
     // Create postlist_table first, and record_table last.  Existence of
     // record_table is considered to imply existence of the database.
+    metafile.create();
     postlist_table.create();
     positionlist_table.create();
     termlist_table.create();
@@ -159,6 +162,7 @@ QuartzDiskTableManager::create_and_open_tables()
     Assert(database_exists());
 
     log->make_entry("Opening new database at `" + db_dir + "'.");
+    metafile.open();
     record_table.open();
     attribute_table.open();
     lexicon_table.open();
@@ -197,6 +201,7 @@ QuartzDiskTableManager::open_tables_consistent()
     // the same revision as the last time we opened it.
 
     log->make_entry("Opening tables at latest consistent revision");
+    metafile.open();
     record_table.open();
     quartz_revision_number_t revision = record_table.get_open_revision_number();
 
@@ -247,6 +252,12 @@ QuartzDiskTableManager::open_tables_consistent()
 }
 
 std::string
+QuartzDiskTableManager::metafile_path() const
+{
+    return db_dir + "/meta";
+}
+
+std::string
 QuartzDiskTableManager::record_path() const
 {
     return db_dir + "/record_";
@@ -286,6 +297,7 @@ void
 QuartzDiskTableManager::open_tables(quartz_revision_number_t revision)
 {
     log->make_entry("Opening tables at revision " + om_tostring(revision) + ".");
+    metafile.open();
     record_table.open(revision);
     attribute_table.open(revision);
     lexicon_table.open(revision);

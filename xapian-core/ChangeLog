@@ -1,3 +1,13 @@
+Thu Feb  8 17:00:02 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Quartz now has a metafile which for now has a magic string
+	  and a version number.
+	
+	* sys_open_to_read() and delete_file() exported from btree.cc.
+	  The latter was renamed to sys_unlink_if_exists().
+	
+	* Include btree_types.h from btree_util.h
+
 Wed Feb  7 17:33:00 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Fix to InMemory databases: terms can be added even if they

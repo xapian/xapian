@@ -17,6 +17,7 @@ noinst_HEADERS =       quartz_types.h \
 		       quartz_log.h \
 		       quartz_document.h \
 		       quartz_alltermslist.h \
+		       quartz_metafile.h \
 		       btree.h \
 		       bcursor.h \
 		       btree_types.h \
@@ -37,6 +38,7 @@ libquartz_la_SOURCES = quartz_database.cc \
 		       quartz_log.cc \
 		       quartz_document.cc \
 		       quartz_alltermslist.cc \
+		       quartz_metafile.cc \
 		       btree.cc \
 		       bcursor.cc \
 		       btree_base.cc

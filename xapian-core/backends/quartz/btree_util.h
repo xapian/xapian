@@ -23,6 +23,7 @@
 #ifndef OM_HGUARD_BTREE_UTIL_H
 #define OM_HGUARD_BTREE_UTIL_H
 
+#include "btree_types.h"
 /* The unit of access into the DB files is an unsigned char, which is defined
    as 'byte' with a typedef.
 
@@ -211,8 +212,10 @@ inline byte * key_of(byte * p, int c)
 void form_key(struct Btree * B, byte * p, const byte * key, int key_len);
 
 bool valid_handle(int h);
+int sys_open_to_read(const std::string & name);
 int sys_open_to_read_no_except(const std::string & name);
 int sys_open_to_write(const std::string & name);
+void sys_unlink_if_exists(const std::string &filename);
 int sys_close(int h);
 int sys_read_bytes(int h, int n, byte *p);
 std::string sys_read_all_bytes(int h, size_t max);
