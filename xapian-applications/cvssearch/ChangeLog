@@ -1,3 +1,10 @@
+Thu Dec 09 17:50:17 GMT 2004  Olly Betts <olly@survex.com>
+
+	* db/: Factored out duplicated stoplist code into stoplist.C and
+	  stoplist.h; char * parameters -> const char * where appropriate;
+	  local functions -> static; added missing space to usage message;
+	  no need to explicitly flush Xapian db just before closing it.
+
 Thu Dec 09 16:56:56 GMT 2004  Olly Betts <olly@survex.com>
 
 	* README: Fixed a few inaccuracies.
