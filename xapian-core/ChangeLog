@@ -1,3 +1,7 @@
+Wed Apr 06 23:04:15 BST 2005  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Added FIXME comment.
+
 Wed Apr 06 22:52:53 BST 2005  Olly Betts <olly@survex.com>
 
 	* ./: Removed ylwrap from svn:ignore.

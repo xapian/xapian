@@ -707,6 +707,7 @@ prob(P) ::= prob(Q) BOOLEAN_FILTER(T). {
     if (P->filter.empty()) {
 	P->filter = T->as_query_object();
     } else {
+	// FIXME we should OR filters with the same prefix...
 	P->filter = Query(Query::OP_AND, P->filter, T->as_query_object());
     }
     delete T;
