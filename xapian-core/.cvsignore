@@ -5,6 +5,7 @@ aclocal.m4
 Makefile.in
 Makefile
 libomus-config
+libomus-config.nodep
 configure
 config.cache
 config.h
