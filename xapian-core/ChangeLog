@@ -1,3 +1,8 @@
+Thu Dec 20 13:41:41 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Fixed incorrectly classified debug message; fixed compiler warning;
+	  more comments about matches_* with a percent_cutoff.
+
 Thu Dec 20 13:09:51 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Better OmPostListIterator::get_description() (call get_description

@@ -217,8 +217,8 @@ void
 MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		     OmMSet & mset, const OmMatchDecider *mdecider)
 {
-    DEBUGCALL(EXCEPTION, void, "MultiMatch::get_mset",
-	      first << ", " << maxitems << ", ...");
+    DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
+	      << ", ...");
 
     std::map<om_termname,
     	     OmMSet::Internal::Data::TermFreqAndWeight> termfreqandwts;
@@ -597,17 +597,19 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    = items.size();
     } else if (percent_cutoff) {
 	// another approach: om_doccount new_est = items.size() * (1 - percent_factor) / (1 - min_item.wt / greatest_wt);
-	om_doccount new_est = (1 - percent_factor) * matches_estimated;
+	om_doccount new_est = (om_doccount)((1 - percent_factor) *
+					    matches_estimated);
 	matches_estimated = std::max(new_est, items.size());
 	// and another: items.size() + (1 - greatest_wt * percent_factor / min_item.wt) * (matches_estimated - items.size());
 	
 	// Very likely an underestimate, but we can't really do better without
 	// checking further matches...  Only possibility would be to track how
-	// many docs made the min weight test but didn't make the candidate set#
+	// many docs made the min weight test but didn't make the candidate set
 	// since the last greatest_wt change, which we could use if the top
 	// documents matched all the prob terms.
 	matches_lower_bound = items.size();
-	// matches_upper_bound can't be improved
+	// matches_upper_bound could be reduced by the number of documents
+	// which fail the min weight test
     }
 
     DEBUGLINE(MATCH, items.size() << " items in potential mset");
