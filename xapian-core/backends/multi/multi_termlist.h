@@ -11,7 +11,7 @@
 #include <vector>
 #include <list>
 
-class MultiTermList : public virtual TermList {
+class MultiTermList : public virtual DBTermList {
     friend class MultiDatabase;
     private:
 	TermList *tl;
@@ -25,7 +25,7 @@ class MultiTermList : public virtual TermList {
     public:
 	termcount get_approx_size() const;
 
-	weight get_weight() const;
+	ExpandBits get_weighting() const; // Gets weight info of current term
 	const termname & get_termname() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term
@@ -59,9 +59,9 @@ MultiTermList::get_approx_size() const
     return tl->get_approx_size();
 }
 
-inline weight
-MultiTermList::get_weight() const {
-    return tl->get_weight();
+inline ExpandBits
+MultiTermList::get_weighting() const {
+    return tl->get_weighting();
 }
 
 inline const termname &
