@@ -21,7 +21,4 @@ usr/include/xapian/version.h
 usr/lib/libxapian.a
 usr/lib/libxapian.la
 usr/lib/libxapian.so
-usr/lib/libxapianqueryparser.a
-usr/lib/libxapianqueryparser.la
-usr/lib/libxapianqueryparser.so
 usr/share/aclocal
