@@ -380,7 +380,7 @@ int Bcursor_get_key(struct Bcursor * BC, struct Btree_item * kt);
 
         Bcursor_find_key(BC, "", 0); /* must give result 1 */
 
-        while(Btree_next(BC)) {    /* bypassing the null item */
+        while(Bcursor_next(BC)) {    /* bypassing the null item */
             Bcursor_get_key(BC, kt);
             {   int i;
                 for (i = 0; i < kt->key_len; i++)
@@ -528,8 +528,8 @@ Full compaction with revision 1
 
 Retrieval mode is faster when the B-tree has revision number 1 than for higher
 revision numbers. This is because there are no unused blocks in the B-tree and
-the blocks are in a special order, and this enables the Btree_prev and
-Btree_next procedures, and the other procedures which use them implicitly, to
+the blocks are in a special order, and this enables the Bcursor_prev and
+Bcursor_next procedures, and the other procedures which use them implicitly, to
 have more efficient forms.
 
 To make a really fast structure for retrieval therefore, create a new B-tree,
