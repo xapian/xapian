@@ -24,6 +24,9 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    |RDocumentation   | Document muscat36 access methods.
 ---------+-----------------+--------------------------------------------------
+ High    | Stemming        | Make a separate package to contain stemming
+         | Algorithms      | algorithm stuff (docs, code, stemtest)
+---------+-----------------+--------------------------------------------------
  Medium  | Documentation   | Document backend API (database, postlist,
          |                 | termlist, document, etc) in same way as enquire
 	 |                 | API.
@@ -51,9 +54,6 @@ Priority | Area            | Task
  Low     | Documentation   | Merge output of mkdoc.pl with doc++ output. 
 ---------+-----------------+--------------------------------------------------
  Low     | Backends        | Stop d[ba]read from exporting junk symbols
----------+-----------------+--------------------------------------------------
- Low     | Stemming        | Make a separate package to contain stemming
-         | Algorithms      | algorithm stuff (docs, code, stemtest)
 ---------+-----------------+--------------------------------------------------
  Low     | InMemory        | Remove hardcoded reference to an indexer in
          |                 | InMemoryDatabase.  Index to it in the usual way.
