@@ -17,6 +17,7 @@ omega_docs = docs/cgiparams.txt \
 	docs/termprefixes.txt
 
 EXTRA_DIST = templates/query \
+	templates/opensearch \
 	templates/godmode \
 	templates/xml \
 	templates/anyalldropbox \

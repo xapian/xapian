@@ -1,3 +1,9 @@
+Mon Mar 21 16:43:07 GMT 2005  Richard Boulton <richard@tartarus.org>
+
+	* templates/opensearch: Add new template to implement basic
+	  opensearch feeds of search results.
+	* Makefile.am: Include opensearch template in distribution.
+
 Thu Mar 03 02:20:26 GMT 2005  Olly Betts <olly@survex.com>
 
 	* templates/query2: Remove Sam's unfinished rewrite of the query
