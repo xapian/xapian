@@ -1,3 +1,7 @@
+Thu Apr 18 17:44:56 BST 2002  Olly Betts <olly@survex.com>
+
+	* Added poslist1 test as suggested by a TODO entry.
+
 Thu Apr 18 14:17:24 BST 2002  Olly Betts <olly@survex.com>
 
 	* buildall: Removed search for GNU make (as of automake

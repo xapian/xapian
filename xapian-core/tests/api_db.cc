@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -2255,8 +2256,6 @@ static bool test_adddoc2()
     TEST(iter1 == doc1.termlist_end());
     TEST(iter2 == doc2.termlist_end());
 
-
-
     doc2.remove_posting("foo", 1, 5);
     doc2.add_term_nopos("bat", 0);
     doc2.add_term_nopos("bar", 8);
@@ -2358,6 +2357,50 @@ static bool test_adddoc2()
     TEST(iter2 == doc2.termlist_end());
 
     return true;    
+}
+
+static bool test_poslist1()
+{
+    OmWritableDatabase db = get_writable_database("");
+
+    OmDocument doc;
+    doc.add_term_nopos("nopos");
+    om_docid did = db.add_document(doc);
+
+    {
+	// Check what happens when term doesn't exist
+	OmPositionListIterator i = db.positionlist_begin(did, "nosuchterm");
+	// FIXME: shouldn't this throw an exception?
+	// FIXME: also check for bad did...
+    }
+    
+    {
+	OmPositionListIterator i = db.positionlist_begin(did, "nopos");
+	TEST_EQUAL(i, db.positionlist_end(did, "nopos"));
+    }
+    
+    OmDocument doc2 = db.get_document(did);
+   
+    OmTermIterator term = doc2.termlist_begin();
+
+    {
+	OmPositionListIterator i = term.positionlist_begin(); 
+	TEST_EQUAL(i, term.positionlist_end());
+    }
+
+    OmDocument doc3;
+    doc3.add_posting("hadpos", 1);
+    did = db.add_document(doc3);
+
+    OmDocument doc4 = db.get_document(did);
+    doc4.remove_posting("hadpos", 1);
+    db.replace_document(did, doc4);
+   
+    {
+	OmPositionListIterator i = db.positionlist_begin(did, "hadpos");
+	TEST_EQUAL(i, db.positionlist_end(did, "hadpos"));
+    }
+    return true;
 }
 
 // tests that database destructors flush if it isn't done explicitly
@@ -3058,6 +3101,7 @@ test_desc collfreq_tests[] = {
 test_desc writabledb_tests[] = {
     {"adddoc1",		   test_adddoc1},
     {"adddoc2",		   test_adddoc2},
+    {"poslist1",	   test_postlist1},
     {"implicitendsession1",test_implicitendsession1},
     {"databaseassign1",	   test_databaseassign1},
     {"deldoc1",		   test_deldoc1},

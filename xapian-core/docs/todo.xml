@@ -11,22 +11,13 @@ Put Om into its own namespace, to ensure lack of symbol conflicts.
 </todoitem>
 <todoitem priority="H" difficulty="5" owner="C" area="API" release="">
 
-Write bindings for other languages (Java, C, perl, python, etc.). [In
+Write bindings for other languages (Java, C, perl, python, php4, etc.). [In
 progress, apart from C].
 
 </todoitem>
 <todoitem priority="H" difficulty="5" owner="" area="Performance" release="">
 
 Write (speed) performance test suite.
-
-</todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="General" release="1.0">
-
-Check behaviour when positionlists are empty, particularly in quartz.
-Test what happens if:  a positionlist is requested for a term which exists
-but has no positions.  A positionlist is request for a term which does
-not exist at all.  A document is inserted with a positionlist, then modified
-so that there is no positionlist, and then the positionlist is requested.
 
 </todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="General" release="1.0">
