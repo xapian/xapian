@@ -7,12 +7,12 @@ noinst_HEADERS = main.h query.h cgiparam.h symboltab.h
 # include lex/flex generated C++ source
 EXTRA_DIST = parsepage.cc parsequery.cc
 
-INCLUDES = -I$(top_srcdir)/include
+INCLUDES = $(LIBOMUS_CFLAGS)
 
 bin_PROGRAMS = ompf
 
 ompf_SOURCES = main.cc query.cc cgiparam.cc parsepage.ll parsequery.ll
-ompf_LDADD = ../libom.la
+ompf_LDADD = @LIBOMUS_LIBS@
 
 parsequery.cc: parsequery.ll
 	$(SHELL) $(YLWRAP) "$(LEX)" $< lex.qlex.c $@ -- $(AM_LFLAGS) $(LFLAGS)

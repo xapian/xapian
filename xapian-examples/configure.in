@@ -12,8 +12,7 @@ AC_PROG_CC
 AC_PROG_CXX
 AM_PROG_LEX
 
-dnl Turn off shared libraries for now as the make the build take longer
-AC_DISABLE_SHARED
+dnl Use libtool to manage our libraries
 AM_PROG_LIBTOOL
 
 dnl Check for libomus
@@ -55,4 +54,6 @@ AC_OUTPUT(
  Makefile
  mgrep/Makefile
  gui/Makefile
- gui/glade/Makefile)
+ gui/glade/Makefile
+ ferretfx/Makefile
+)

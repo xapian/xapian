@@ -2,6 +2,6 @@
 
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
-SUBDIRS = gui mgrep
+SUBDIRS = gui mgrep ferretfx
 
 EXTRA_DIST = COPYING buildall README
