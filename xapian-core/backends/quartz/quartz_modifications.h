@@ -27,8 +27,6 @@
 
 #include "quartz_db_manager.h"
 
-#include <om/omsettings.h>
-
 /** Class managing modifications made to a Quartz database.
  */
 class QuartzModifications {
