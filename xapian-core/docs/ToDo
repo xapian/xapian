@@ -4,8 +4,6 @@ ToDo items on the coding side.
 Near term (within a fortnight)
 =========================
 
-Make Builder work when some access methods are configured off.
-
 Split database definition files into database/postlist/termlist files.
 Rename TextfileDatabase (to DynamicDatabase?) - indexer is all that is Textfile.
 Remove old references to term_id_to_name() and term_name_to_id().
@@ -15,7 +13,8 @@ Write an Enquire object to make a consistent exported searching interface.
 Make all databases inherit from IndexerDestination.
 Add tags to all files so can add licences easily.
 Expose positional information in postlists in a consistent way.
-Implement phrase searching.
+Make postlists expose positional information (extra methods / get_positionlist() method)
+Implement phrase searching. - AND postlist, scan through positionlist for sequential positions.
 
 Middle term (within a couple of months)
 ============================
@@ -34,4 +33,9 @@ Long term
 =========
 
 Write indexer modules.
+
+Make backends / weighting schemes / indexer modules register themselves
+automatically.  At runtime / linktime?
+(ie, replace current conditional compilation scheme)
+
 Distributed searching (distributed enquire objects).
