@@ -14,7 +14,7 @@ dnl    AC_DEFINE_DIR(PROG_PATH, bindir, [Location of installed binaries])
 dnl
 dnl @author Alexandre Oliva <oliva@lsd.ic.unicamp.br>
 
-AC_DEFUN(AC_DEFINE_DIR, [
+AC_DEFUN([AC_DEFINE_DIR], [
         ac_expanded=`(
             test "x$prefix" = xNONE && prefix="$ac_default_prefix"
             test "x$exec_prefix" = xNONE && exec_prefix="${prefix}"

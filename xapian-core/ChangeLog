@@ -1,3 +1,10 @@
+Fri Sep 03 14:34:00 BST 2004  Olly Betts <olly@survex.com>
+
+	* autoconf/definedir.m4,autoconf/rjb_find_stlport.m4: Quote macro
+	  names to fix warning from newer aclocal.  Removed comments about
+	  future autodetection of stlport, as the user will always need to
+	  decide between the STL supplied with the compiler and stlport.
+
 Thu Sep 02 17:55:33 BST 2004  Olly Betts <olly@survex.com>
 
 	* matcher/andpostlist.cc: Initialise lmax and rmax to 0.  Hopefully
