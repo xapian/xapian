@@ -1,3 +1,12 @@
+Fri May 21 20:31:56 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/,docs/quartzdesign.html,testsuite/btreecheck.cc:
+	  Removed overwritten flag (unused as we throw an exception anyway).
+	  If Btree is writable, throw DatabaseCorruptError if we detect
+	  overwritten.  Make use of bool return types consistent.  Removed
+	  documentation of Btree error codes (the error codes themselves
+	  were removed a month ago).
+
 Thu May 20 03:50:46 BST 2004  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: Remove references to sessions in doxygen

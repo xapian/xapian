@@ -34,8 +34,6 @@ Bcursor::Bcursor(Btree *B_)
 	  B(B_),
 	  level(B_->level)
 {
-    Assert(!B->overwritten);
-
     C = new Cursor[level + 1];
     Cursor * C_of_B = B->C;
 
@@ -60,7 +58,6 @@ Bcursor::~Bcursor()
 bool
 Bcursor::prev()
 {
-    Assert(!B->overwritten);
     Assert(level == B->level);
 
     if (!positioned) return false;
@@ -79,7 +76,6 @@ Bcursor::prev()
 bool
 Bcursor::next()
 {
-    Assert(!B->overwritten);
     Assert(level == B->level);
 
     if (!positioned) return false;
@@ -98,31 +94,29 @@ Bcursor::next()
 bool
 Bcursor::find_key(const string &key)
 {
-    Assert(!B->overwritten);
     Assert(level == B->level);
 
     B->form_key(key);
-    bool found = B->find(C);
-
-    if (B->overwritten) return false;
-
-    if (! found) {
-	if (C[0].c < DIR_START) {
-	    C[0].c = DIR_START;
-	    if (! B->prev(C, 0)) return false;
-	}
-	while (component_of(C[0].p, C[0].c) != 1) {
-	    if (! B->prev(C, 0)) return false;
-	}
+    if (B->find(C)) {
+	positioned = true;
+	return true;
     }
+
+    if (C[0].c < DIR_START) {
+	C[0].c = DIR_START;
+	if (! B->prev(C, 0)) return false;
+    }
+    while (component_of(C[0].p, C[0].c) != 1) {
+	if (! B->prev(C, 0)) return false;
+    }
+
     positioned = true;
-    return found;
+    return false;
 }
 
 bool
 Bcursor::get_key(string * key) const
 {
-    Assert(!B->overwritten);
     Assert(level == B->level);
 
     if (! positioned) return false;
@@ -136,7 +130,6 @@ Bcursor::get_key(string * key) const
 bool
 Bcursor::get_tag(string * tag)
 {
-    Assert(!B->overwritten);
     Assert(level == B->level);
 
     if (!positioned) return false;
@@ -158,10 +151,9 @@ Bcursor::get_tag(string * tag)
 	/* number of bytes to extract from current component */
 	int l = GETI(p, 0) - cd;
 	tag->append(reinterpret_cast<const char *>(p + cd), l);
-	// FIXME Do we need to call B->next(...) on the last pass?
+	// We need to call B->next(...) on the last pass so that the
+	// cursor ends up on the next key.
 	positioned = B->next(C, 0);
-
-	if (B->overwritten) return false;
 
 	p = item_of(C[0].p, C[0].c);
     }

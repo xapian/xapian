@@ -69,7 +69,7 @@
 
 using std::min;
 using std::string;
- 
+
 const string::size_type Btree::max_key_len;
 
 // FIXME: This named constant isn't used everywhere it should be below...
@@ -147,7 +147,7 @@ static int sys_open_for_readwrite(const string & name)
 
 static void sys_write_bytes(int h, int n, const char * p)
 {
-    while (1) {
+    while (true) {
 	ssize_t bytes_written = write(h, p, n);
 	if (bytes_written == n) {
 	    // normal case - write succeeded, so return.
@@ -174,7 +174,7 @@ string sys_read_all_bytes(int h, size_t bytes_to_read)
 {
     ssize_t bytes_read;
     string retval;
-    while (1) {
+    while (true) {
 	char buf[1024];
 	bytes_read = read(h, buf, min(sizeof(buf), bytes_to_read));
 	if (bytes_read > 0) {
@@ -253,7 +253,7 @@ Btree::read_block(uint4 n, byte * p)
 #ifdef HAVE_PREAD
     off_t offset = (off_t)block_size * n;
     int m = block_size;
-    while (1) {
+    while (true) {
 	ssize_t bytes_read = pread(handle, (char *)p, m, offset);
 	// normal case - read succeeded, so return.
 	if (bytes_read == m) return;
@@ -282,7 +282,7 @@ Btree::read_block(uint4 n, byte * p)
     }
 
     int m = block_size;
-    while (1) {
+    while (true) {
 	ssize_t bytes_read = read(handle, (char *)p, m);
 	// normal case - read succeeded, so return.
 	if (bytes_read == m) return;
@@ -384,7 +384,7 @@ Btree::write_block(uint4 n, const byte * p)
        C[j].n  is the number of the block at C[j].p
 
    A look up in the B-tree causes navigation of the blocks starting
-   from the root. In each block, p,  we find an offset, c, to an item
+   from the root. In each block, p, we find an offset, c, to an item
    which gives the number, n, of the block for the next level. This
    leads to an array of values p,c,n which are held inside the cursor.
 
@@ -398,7 +398,9 @@ void
 Btree::set_overwritten()
 {
     DEBUGCALL(DB, void, "Btree::set_overwritten", "");
-    overwritten = true;
+    // If we're writable, there shouldn't be another writer who could cause
+    // overwritten to be flagged, so that's a DatabaseCorruptError.
+    if (writable) throw Xapian::DatabaseCorruptError("Db block overwritten");
     throw Xapian::DatabaseModifiedError("Db block overwritten");
 }
 
@@ -427,7 +429,6 @@ Btree::block_to_cursor(Cursor * C_, int j, uint4 n)
 	C_[j].rewrite = false;
     }
     read_block(n, p);
-    if (overwritten) return;
 
     C_[j].n = n;
     C[j].n = n; /* not necessarily the same (in B-tree read mode) */
@@ -468,7 +469,7 @@ Btree::block_given_by(const byte * p, int c)
 }
 
 /** Btree::alter(); is called when the B-tree is to be altered.
- 
+
    It causes new blocks to be forced for the current set of blocks in
    the cursor.
 
@@ -553,7 +554,7 @@ int Btree::compare_keys(const byte * key1, const byte * key2)
 }
 
 /** find_in_block(p, key, offset, c) searches for the key in the block at p.
- 
+
    offset is D2 for a data block, and 0 for and index block, when the
    first key is dummy and never needs to be tested. What we get is the
    directory entry to the last key <= the key being searched for.
@@ -587,7 +588,7 @@ int Btree::find_in_block(const byte * p, const byte * key, int offset, int c)
 }
 
 /** find(C_) searches for the key of B->kt in the B-tree.
- 
+
    Result is true if found, false otherwise.  When false, the B_tree
    cursor is positioned at the last key in the B-tree <= the search
    key.  Goes to first (null) item in B-tree when key length == 0.
@@ -611,7 +612,6 @@ Btree::find(Cursor * C_)
 #endif /* BTREE_DEBUG_FULL */
 	C_[j].c = c;
 	block_to_cursor(C_, j - 1, block_given_by(p, c));
-	if (overwritten) RETURN(false);
     }
     p = C_[0].p;
     c = find_in_block(p, k, D2, C_[j].c);
@@ -625,7 +625,7 @@ Btree::find(Cursor * C_)
 }
 
 /** compress(p) compresses the block at p by shuffling all the items up to the end.
-   
+
    MAX_FREE(p) is then maximized, and is equal to TOTAL_FREE(p).
 */
 
@@ -741,7 +741,7 @@ void Btree::make_index_item(byte * result, unsigned int result_len,
 }
 
 /** enter_key(j, prevkey, newkey) is called after a block split.
-  
+
    It enters in the block at level C[j] a separating key for the block
    at level C[j - 1]. The key itself is newkey. prevkey is the
    preceding key, and at level 1 newkey can be trimmed down to the
@@ -847,7 +847,7 @@ Btree::mid_point(byte * p)
 }
 
 /** add_item_to_block(p, kt_, c) adds item kt_ to the block at p.
- 
+
    c is the offset in the directory that needs to be expanded to
    accommodate the new entry for the item. We know before this is
    called that there is enough room, so it's just a matter of byte
@@ -906,22 +906,22 @@ Btree::add_item(byte * kt_, int j)
 	byte * q = C_split[j].p;
 	int add_to_upper_half;
 
-        // Prepare to split p. After splitting, the block is in two halves, the
-        // lower half is q, the upper half p again. add_to_upper_half becomes
-        // true when the item gets added to p, false when it gets added to q.
+	// Prepare to split p. After splitting, the block is in two halves, the
+	// lower half is q, the upper half p again. add_to_upper_half becomes
+	// true when the item gets added to p, false when it gets added to q.
 
-        if (seq_count < 0) {
+	if (seq_count < 0) {
 	    // If we're not in sequential mode, we split at the mid point
 	    // of the node.
-            m = mid_point(p);
-            split_off(j, m, p, q);
-            add_to_upper_half = c >= m;
-        } else {
+	    m = mid_point(p);
+	    split_off(j, m, p, q);
+	    add_to_upper_half = c >= m;
+	} else {
 	    // During sequential addition, split at the insert point
-            m = c;
-            split_off(j, m, p, q);
+	    m = c;
+	    split_off(j, m, p, q);
 	    // And add item to lower half if q has room, otherwise upper half
-            add_to_upper_half = TOTAL_FREE(q) < needed;
+	    add_to_upper_half = TOTAL_FREE(q) < needed;
 	}
 
 	if (add_to_upper_half) {
@@ -999,7 +999,6 @@ Btree::delete_item(int j, bool repeatedly)
 	    level--;
 
 	    block_to_cursor(C, level, new_root);
-	    if (overwritten) return;
 
 	    j--;
 	    p = C[j].p;
@@ -1014,7 +1013,7 @@ static addcount = 0;
 
 /** add_kt(found) adds the item (key-tag pair) at B->kt into the
    B-tree, using cursor C.
-   
+
    found == find() is handed over as a parameter from Btree::add.
    Btree::alter() prepares for the alteration to the B-tree. Then
    there are a number of cases to consider:
@@ -1038,12 +1037,10 @@ static addcount = 0;
 */
 
 int
-Btree::add_kt(int found)
+Btree::add_kt(bool found)
 {
     Assert(writable);
     int components = 0;
-
-    if (overwritten) return 0;
 
     /*
     {
@@ -1107,8 +1104,8 @@ int
 Btree::delete_kt()
 {
     Assert(writable);
-    int found = find(C);
-    if (overwritten) return 0;
+
+    bool found = find(C);
 
     int components = 0;
     seq_count = SEQ_START_POINT;
@@ -1180,7 +1177,6 @@ bool
 Btree::add(const string &key, const string &tag)
 {
     Assert(writable);
-    Assert(!overwritten);
 
     form_key(key);
 
@@ -1189,7 +1185,7 @@ Btree::add(const string &key, const string &tag)
     int cd = ct + C2;                 // offset to the tag data
     int L = max_item_size - cd;	      // largest amount of tag data for any tag
     int first_L = L;                  // - amount for tag1
-    int found = find(C);
+    bool found = find(C);
     if (full_compaction && !found) {
 	byte * p = C[0].p;
 	int n = TOTAL_FREE(p) % (max_item_size + D2) - D2 - cd;
@@ -1230,8 +1226,6 @@ Btree::add(const string &key, const string &tag)
     for (i = m + 1; i <= n; i++) {
 	SETC(kt, ck, i);
 	delete_kt();
-
-	if (overwritten) return false;
     }
     if (replacement) return false;
     item_count++;
@@ -1248,7 +1242,6 @@ bool
 Btree::del(const string &key)
 {
     Assert(writable);
-    Assert(!overwritten);
 
     if (key.empty()) return false;
     form_key(key);
@@ -1261,8 +1254,6 @@ Btree::del(const string &key)
 	SETC(kt, c, i);
 
 	delete_kt();
-
-	if (overwritten) return false;
     }
 
     item_count--;
@@ -1272,8 +1263,6 @@ Btree::del(const string &key)
 bool
 Btree::find_key(const string &key)
 {
-    Assert(!overwritten);
-
     form_key(key);
     return find(C);
 }
@@ -1281,8 +1270,6 @@ Btree::find_key(const string &key)
 bool
 Btree::find_tag(const string &key, string * tag)
 {
-    Assert(!overwritten);
-
     form_key(key);
     if (!find(C)) return false;
 
@@ -1293,7 +1280,7 @@ Btree::find_tag(const string &key, string * tag)
     int i = 1;                      /* see below */
 
     byte * p = item_of(C[0].p, C[0].c); /* pointer to current component */
-    
+
     tag->resize(0);
     if (n > 1) {
 	string::size_type space_for_tag = (string::size_type) max_item_size * n;
@@ -1310,11 +1297,9 @@ Btree::find_tag(const string &key, string * tag)
 	SETC(kt, ck, i);
 	find(C);
 
-	if (overwritten) return false;
-
 	p = item_of(C[0].p, C[0].c);
     }
- 
+
     return true;
 }
 
@@ -1322,7 +1307,6 @@ void
 Btree::set_full_compaction(bool parity)
 {
     Assert(writable);
-    Assert(!overwritten);
 
     if (parity) seq_count = 0;
     full_compaction = parity;
@@ -1486,7 +1470,6 @@ Btree::read_root()
     } else {
 	/* using a root block stored on disk */
 	block_to_cursor(C, level, root);
-	if (overwritten) return;
 
 	if (REVISION(C[level].p) >= next_revision) set_overwritten();
 	/* although this is unlikely */
@@ -1577,7 +1560,6 @@ Btree::Btree()
 	  next_revision(0),
 	  base(),
 	  other_base_letter(0),
-	  overwritten(false),
 	  seq_count(0),
 	  changed_n(0),
 	  changed_c(0),
@@ -1667,14 +1649,12 @@ void
 Btree::commit(uint4 revision)
 {
     Assert(writable);
-    Assert(!overwritten);
 
-    int j;
     if (revision < next_revision) {
 	throw Xapian::DatabaseError("New revision too low");
     }
 
-    for (j = level; j >= 0; j--) {
+    for (int j = level; j >= 0; j--) {
 	if (C[j].rewrite) {
 	    write_block(C[j].n, C[j].p);
 	}
@@ -1712,7 +1692,6 @@ Btree::commit(uint4 revision)
     revision_number = revision;
     root = C[level].n;
 
-    overwritten = false;
     Btree_modified = false;
 
     for (int i = 0; i < BTREE_CURSOR_LEVELS; ++i) {
@@ -1721,7 +1700,7 @@ Btree::commit(uint4 revision)
 	C[i].c = -1;
 	C[i].rewrite = false;
     }
- 
+
     base.write_to_file(name + "base" + (char)base_letter);
     base.commit();
 
@@ -1883,7 +1862,6 @@ Btree::prev_for_sequential(Cursor * C_, int /*dummy*/)
 	    if (n == 0) return false;
 	    n--;
 	    read_block(n, p);
-	    if (overwritten) return false;
 	    if (REVISION(p) > 1) {
 		set_overwritten();
 		return false;
@@ -1911,7 +1889,6 @@ Btree::next_for_sequential(Cursor * C_, int /*dummy*/)
 	    n++;
 	    if (n > base.get_last_block()) return false;
 	    read_block(n, p);
-	    if (overwritten) return false;
 	    if (REVISION(p) > 1) {
 		set_overwritten();
 		return false;
@@ -1941,7 +1918,6 @@ Btree::prev_default(Cursor * C_, int j)
     C_[j].c = c;
     if (j > 0) {
 	block_to_cursor(C_, j - 1, block_given_by(p, c));
-	if (overwritten) return false;
     }
     return true;
 }
@@ -1962,7 +1938,6 @@ Btree::next_default(Cursor * C_, int j)
     C_[j].c = c;
     if (j > 0) {
 	block_to_cursor(C_, j - 1, block_given_by(p, c));
-	if (overwritten) return false;
 #ifdef BTREE_DEBUG_FULL
 	printf("Block in Btree:next_default");
 	report_block_full(j - 1, C_[j - 1].n, C_[j - 1].p);

@@ -152,7 +152,7 @@ class Btree {
 	void add_item_to_block(byte *p, byte *kt, int c);
 	void add_item(byte *kt, int j);
 	void delete_item(int j, bool repeatedly);
-	int add_kt(int found);
+	int add_kt(bool found);
 	void read_root();
 	void split_root(int j);
 	void make_index_item(byte * result, unsigned int result_len,
@@ -204,9 +204,6 @@ class Btree {
 
 	/// - and the value 'B' or 'A' of the next base
 	char other_base_letter;
-
-	/** set to true if a parallel overwrite is detected. */
-	bool overwritten;
 
 	/// The path name of the B tree
 	string name;

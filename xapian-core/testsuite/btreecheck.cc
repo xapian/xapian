@@ -167,7 +167,6 @@ BtreeCheck::block_check(Cursor * C_, int j, int opts)
     for (c = DIR_START; c < dir_end; c += D2) {
 	C_[j].c = c;
 	block_to_cursor(C_, j - 1, block_given_by(p, c));
-	if (overwritten) return;
 
 	block_check(C_, j - 1, opts);
 

@@ -1034,14 +1034,12 @@ this never happens.
 <p>
 It is possible to do retrieval while the B-tree is being updated. If the
 updating process overwrites a part of the B-tree required by the retrieval
-process, the flag
+process, then a Xapian::DatabaseModifiedError exception is thrown.
 
-<pre> 
-    bool Btree::overwitten;
-</pre>
-
-is set to true. This may be detected, and suitable action taken. Here is a model
-scheme:
+<p>
+This should be handled, and suitable action taken - either the operation
+aborted, or the Btree reopened at the latest revision and the operation
+retried.  Here is a model scheme:
 
 <pre> 
 static Btree * reopen(Btree * B)
@@ -1051,14 +1049,20 @@ static Btree * reopen(Btree * B)
     // Get the revision number. This will return the correct value, even when
     // B-&gt;overwritten is detected during opening
 
-    delete B;  /* close the B-tree */
-    B = new Btree;
-    B-&gt;open_to_read(s); /* and reopen */
+    while (true) {
+	try {
+	    delete B;  /* close the B-tree */
+	    B = new Btree;
+	    B-&gt;open_to_read(s); /* and reopen */
+	    break;
+	} catch (const Xapian::DatabaseModifiedError &amp;) {
+	}
+    }
 
     if (revision == B-&gt;revision_number) {
         // The revision number ought to have gone up from last time,
         // so if we arrive here, something has gone badly wrong ...
-        printf("Possible database corruption - complain to Xapian\n");
+        printf("Possible database corruption!\n");
         exit(1);
     }
     return B;
@@ -1068,30 +1072,42 @@ static Btree * reopen(Btree * B)
     ....
 
     char * s = "database/";
-    Btree * B = new Btree;
+    Btree * B = 0;
     uint4 revision = 0;
 
-    B-&gt;open_to_read(s);            /* open the B-tree */
+    /* open the B-tree */
+    while (true) {
+	try {
+	    delete B;  /* close the B-tree */
+	    B = new Btree;
+	    B-&gt;open_to_read(s); /* and reopen */
+	    break;
+	} catch (const Xapian::DatabaseModifiedError &amp;) {
+	}
+    }
 
     string t;
-    do {
-	while (B-&gt;overwritten) {
+    while (true) {
+	try {
+	    B-&gt;find_tag("brunel", &amp;t); /* look up some keyword */
+	    break;
+	} catch (const Xapian::DatabaseModifiedError &amp;) {
 	    B = reopen(s);
 	}
-	...
+    }
 
-	B-&gt;find_tag("brunel", &amp;t); /* look up some keyword */
-    } while (B-&gt;overwitten);
     ...
 </pre>
 
-It may happen that B-&gt;overwitten is set to true in updating mode. This would
-mean that there were two updating processes at work. If the code is correct
-this does not need to be tested for, and in any case simultaneous updating is
-an error that cannot generally be trapped in this way.
+If the overwritten condition were detected in updating mode, this would mean
+that there were two updating processes at work, or the database has become
+corrupted somehow.  If this is detected, a Xapian::DatabaseCorruptError is
+thrown.  There's not much which can usefully be done to automatically handle
+this condition.
 
 <p>
-In retrieval mode B-&gt;overwitten should be tested after the following procedures,
+In retrieval mode, the following can cause Xapian::DatabaseModifiedError to
+be thrown:
 
 <pre>
     Btree::open_to_read(name);
@@ -1102,16 +1118,17 @@ In retrieval mode B-&gt;overwitten should be tested after the following procedur
     Bcursor::get_tag(string * tag);
 </pre>
 
-The test is not required after any of the following:
+The following can not:
 
 <pre>
    Bcursor::Bcursor(Btree * B);
    Bcursor::get_key(string * key);
 </pre>
 
-Note particularly that opening the B-tree can set B-&gt;overwritten, and that
-Bcursor::get_key(..) will not set B-&gt;overwritten.
+Note particularly that opening the B-tree can cause it, but
+Bcursor::get_key(..) can't.
 
+<!--
 <h2>Error conditions</h2>
 
 Note: this section is out of date - many methods now return errors in different
@@ -1131,7 +1148,7 @@ Some procedures cannot give an error.  Here is a summary:
 <pre>
     Error method  procedure
     (A)(B)          error condition given by:
-    ---------------------------------------------------
+    ===================================================
         *  n = Btree::find_key(key)
         *  n = Btree::find_tag(key, kt)
         *  n = Btree::add(key, tag)
@@ -1152,57 +1169,7 @@ Some procedures cannot give an error.  Here is a summary:
 
     (A) non-zero result (B) B.error == true
 </pre>
-<!--
-Here are some suitable error tests with the different calls,
-
-<pre>
-    Btree B;
-    B.open_to_write(s);
-    if (B.error) ...
-
-    n = Btree::create("...");
-    if (n) ...
-
-    n = B.delete(key);
-    if (B.error) ...
-</pre>
 -->
-B.error is not cleared after being set true. B.error can, as a side effect,
-set B.overwritten to true, but this should not matter since the test for
-B.error should always be done first. The procedures that give no error can
-still have the test for error (B) applied. Most of these errors
-should be rare, except for creating and opening the Btree, which
-will of course fail when the necessary files cannot be created or found.
-
-<p>
-Errors have a consistent set of values, defined in btree.h. They are:
-
-<pre>
-BTREE_ERROR_BLOCKSIZE     block size too large or too small during creation
-BTREE_ERROR_SPACE         malloc, calloc failure
-
-BTREE_ERROR_BASE_CREATE   For the base files, failure to create
-BTREE_ERROR_BASE_DELETE   - failure to delete
-BTREE_ERROR_BASE_READ     - failure to read
-BTREE_ERROR_BASE_WRITE    - failure to write
-
-BTREE_ERROR_BITMAP_CREATE For the bit map files, failure to create
-BTREE_ERROR_BITMAP_READ   - failure to read
-BTREE_ERROR_BITMAP_WRITE  - failure to write
-
-BTREE_ERROR_DB_CREATE     For the DB file, failure to create
-BTREE_ERROR_DB_OPEN       - failure to open
-BTREE_ERROR_DB_CLOSE      - failure to close
-BTREE_ERROR_DB_READ       - failure to read
-BTREE_ERROR_DB_WRITE      - failure to write
-
-BTREE_ERROR_KEYSIZE       - key_len too large (programmer error)
-BTREE_ERROR_TAGSIZE       - tag_len too large
-
-BTREE_ERROR_REVISION      - rev too small in Btree_close (programmer error)
-</pre>
-
-See 'Keys and tags' above for the upper limit on tag sizes.
 <!-- FOOTER $Author$ $Date$ $Id$ -->
 </BODY>
 </HTML>

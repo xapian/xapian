@@ -70,7 +70,7 @@ QuartzDiskCursor::find_entry(const string &key)
 	// FIXME: check for errors
     }
 
-    int err = cursor->get_key(&current_key);
+    bool err = cursor->get_key(&current_key);
     (void)err; // FIXME: check for errors
 
     is_positioned = cursor->get_tag(&current_tag);
@@ -106,7 +106,7 @@ QuartzDiskCursor::prev()
 {
     DEBUGCALL(DB, void, "QuartzDiskCursor::prev", "");
     Assert(!is_after_end);
-    Assert(current_key.size() != 0);
+    Assert(!current_key.empty());
 
     if (!is_positioned) {
 	// FIXME: want to go to last item in table - this method
@@ -331,8 +331,8 @@ QuartzDiskTable::set_entry(const string & key, const string & tag)
     }
 
     // add entry
-    DEBUGLINE(DB, "Adding entry to disk table");
     bool result = btree_for_writing->add(key, tag);
+    DEBUGLINE(DB, "Result of add: " << result);
     (void)result; // FIXME: Check result
 }
 
@@ -356,25 +356,9 @@ QuartzDiskTable::set_entry(const string & key)
     }
 
     // delete entry
-    DEBUGLINE(DB, "Deleting entry from disk table");
-
-    // FIXME: don't want to have to check that key exists before deleting
-    // - advertised interface of btree->del is that it will work ok if
-    // a key doesn't exist, but this doesn't appear to be true: I get errors
-    // when attempting to reopen a table which has had non existent entries
-    // deleted.
- 
-    // FIXME: avoid having to create a cursor here.
-    Bcursor cursor(btree_for_reading);
-    // FIXME: check for errors
-
-    if (cursor.find_key(key)) {
-	bool result = btree_for_writing->del(key);
-	DEBUGLINE(DB, "Result of delete: " << result);
-	(void)result; // FIXME: Check result
-    } else {
-	DEBUGLINE(DB, "key is not present");
-    }
+    bool result = btree_for_writing->del(key);
+    DEBUGLINE(DB, "Result of delete: " << result);
+    (void)result; // FIXME: Check result
 }
 
 void
@@ -592,7 +576,7 @@ QuartzBufferedCursor::find_entry(const string &key)
 
     // No exact match.  Move backwards until match isn't a deletion.
     while (*keyptr >= diskcursor->current_key && tagptr == 0) {
-	if (keyptr->size() == 0) {
+	if (keyptr->empty()) {
 	    // diskcursor must also point to a null key - we're done.
 	    current_key = "";
 	    current_tag = "";
