@@ -1,3 +1,7 @@
+Thu Jul 06 11:33:00 BST 2000 Olly Betts
+
+	* ferretfx: replacement combined parser for page and hit templates
+
 Tue Jul 04 12:41:00 BST 2000 Olly Betts
 
 	* ferretfx: can now actually search OM databases

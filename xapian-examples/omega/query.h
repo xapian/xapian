@@ -38,16 +38,13 @@
 // EXTENDED_QUERY new query, but based on the old one
 typedef enum { NEW_QUERY, SAME_QUERY, EXTENDED_QUERY } querytype;
 
-void html_escape(const string &str);
+string html_escape(const string &str);
 
 querytype set_probabilistic(const string&, const string&);
-long do_match(long int, long int);
+om_doccount do_match();
 
 void add_bterm(const string &);
 
-extern void run_query(om_doccount first, om_doccount maxhits);
-extern void print_caption(long int);
-extern void print_page_links(char, long int, long int);
 extern void do_picker(char prefix, const char **opts);
 
 extern string dec_sep, thou_sep;
@@ -57,7 +54,7 @@ extern om_queryop op;
 extern string gif_dir;
 
 extern string raw_prob;
-extern long int msize;
+extern om_docid msize;
 extern map<om_docid, bool> ticked;
 extern string query_string;
 extern map<char, string> filter_map;

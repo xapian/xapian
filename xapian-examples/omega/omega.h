@@ -39,6 +39,9 @@ extern OmEnquire * enquire;
 extern OmMSet mset;
 extern OmRSet * rset;
 
+extern om_docid topdoc;
+extern om_docid list_size;
+
 extern map<string, string> option;
 
 extern const string default_db_name;

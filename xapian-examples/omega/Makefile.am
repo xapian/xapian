@@ -3,13 +3,13 @@
 noinst_HEADERS = main.h query.h cgiparam.h symboltab.h
 
 # include lex/flex generated C++ source
-EXTRA_DIST = parsepage.cc parsequery.cc
+EXTRA_DIST = parsequery.cc
 
 INCLUDES = $(LIBOMUS_CFLAGS)
 
 bin_PROGRAMS = ompf
 
-ompf_SOURCES = main.cc query.cc cgiparam.cc parsepage.ll parsequery.ll
+ompf_SOURCES = main.cc query.cc cgiparam.cc parsequery.ll
 ompf_LDADD = @LIBOMUS_LIBS@
 
 parsequery.cc: parsequery.ll

@@ -57,6 +57,9 @@ static string db_dir;
 string fmt;
 string fmtfile = "t/fmt";
 
+om_docid topdoc = 0;
+om_docid list_size = 0;
+
 static const string muscat_dir = "/usr/om";
 
 static int main2(int argc, char *argv[]);
@@ -69,19 +72,21 @@ int main(int argc, char *argv[])
     catch (OmError &e) {
 	cout << "Exception: " << e.get_msg() << endl;
     }
-    catch (...) {
-	cout << "Caught unknown exception" << endl;
+    catch (string &s) {
+	cout << "Exception: " << s << endl;
     }
+    catch (const char *s) {
+	cout << "Exception: " << s << endl;
+    }
+//    catch (...) { cout << "Caught unknown exception" << endl; }
     return 0;
 }
 
 static int main2(int argc, char *argv[])
 {
     string big_buf;
-    om_docid list_size;
     bool more = false;
     int      is_old;
-    om_docid topdoc = 0;
     char     *method;
     multimap<string, string>::const_iterator val;
     typedef multimap<string, string>::const_iterator MCI;
@@ -236,7 +241,7 @@ static int main2(int argc, char *argv[])
 	cout << "<b>Clunk<b> ... <i>god mode engaged!</i><hr>\n"
 	        "Raw record #" << doc << ":<br>\n";
 	
-	html_escape(enquire->get_doc(doc).get_data().value);
+	cout << html_escape(enquire->get_doc(doc).get_data().value);
 	
 	
 	cout << "<hr>\nTerms indexing this record<br>\n"
@@ -381,7 +386,7 @@ static int main2(int argc, char *argv[])
     }
 
     /*** process commands ***/
-    long matches = do_match(topdoc, list_size);
+    long matches = do_match();
     if (cgi_params.find("X") != cgi_params.end()) {
 	make_log_entry("add", matches);
     } else if (cgi_params.find("MORELIKE") != cgi_params.end()) {
