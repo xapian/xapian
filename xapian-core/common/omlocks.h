@@ -51,6 +51,8 @@ class OmLock {
 	}
 	void unlock() const {
 	    int retval = pthread_mutex_unlock(&mutex);
+
+	    // FIXME - remove next line
 	    if(retval != 0) cout << "retval:" << retval << endl;
 		    
 	    Assert(retval == 0);
