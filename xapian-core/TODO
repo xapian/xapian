@@ -22,39 +22,55 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    | Documentation   | Write more and more API documentation
 ---------+-----------------+--------------------------------------------------
+ Medium  |CDocumentation   | Write docs for pthreads stuff
+---------+-----------------+--------------------------------------------------
  Medium  | Documentation   | Document backend API (database, postlist,
          |                 | termlist, document, etc) in same way as enquire
 	 |                 | API.
 ---------+-----------------+--------------------------------------------------
- Medium  | General         | Only use -Wno-long-long if available.
+ Medium  |CGeneral         | Only use -Wno-long-long if available.
 ---------+-----------------+--------------------------------------------------
- Medium  | Positional      | Calculate query length automatically.
+ Medium  |CAPI             | Separate things (eg Locks) out of the public
+         |                 | OmQuery interface
+---------+-----------------+--------------------------------------------------
+ Medium  |CPositional      | Calculate query length automatically.
 ---------+-----------------+--------------------------------------------------
  Medium  | Positional      | Pass within-query-frequency and query length
 	 |                 | information to matcher.
 ---------+-----------------+--------------------------------------------------
- Medium  | API             | Make OmQuery collapse on termpos's in AND's and
+ Medium  |RPositional      | Expose positional information in postlists in a
+	 |                 | consistent way.  (extra methods /
+	 |                 | get_positionlist() method ?)
+---------+-----------------+--------------------------------------------------
+ Medium  |RPositional      | Implement phrase searching. - AND postlist, scan
+	 |                 | through positionlist for sequential positions.
+---------+-----------------+--------------------------------------------------
+ Medium  |CAPI             | Make OmQuery collapse on termpos's in AND's and
          |                 | OR's and other suitable situations, such that
          |                 | results of OmQuery(tname, 2) and
          |                 | OmQuery(OM_MOP_OR, OmQuery(tname),
          |                 | OmQuery(tname)) are exactly equivalent. 
 ---------+-----------------+--------------------------------------------------
- Low     | API		   | Do allow boolean subqueries in OmQuery
+ Low     |cAPI		   | Do allow boolean subqueries in OmQuery
          |                 | constructors, where it makes sense.
+---------+-----------------+--------------------------------------------------
+ Low     |cBackends        | Use pthread locks around inmemory methods
 ---------+-----------------+--------------------------------------------------
  Low     | Backends        | Use pthread locks around database methods
 ---------+-----------------+--------------------------------------------------
  Low     | Matcher         | Test implementation of BM25 weight
 ---------+-----------------+--------------------------------------------------
- Low	 | Stemming	   | "one" should probably stem to "one", not "on"
+ Low	 |CStemming	   | "one" should probably stem to "one", not "on"
 ---------+-----------------+--------------------------------------------------
  Low     | Website         | Put TeX documentation on website.
 ---------+-----------------+--------------------------------------------------
  Low     | Documentation   | Merge output of mkdoc.pl with doc++ output. 
 ---------+-----------------+--------------------------------------------------
- Low     | API             | Add query batch (as wrapper for now)
+ Low     |cAPI             | Add query batch (as wrapper for now)
 ---------+-----------------+--------------------------------------------------
- Low     | Backends        | Stop daread from exporting junk symbols
+ Low     |cAPI             | Separate out an OmDatabase(?) from OmEnquire
+---------+-----------------+--------------------------------------------------
+ Low     | Backends        | Stop d[ba]read from exporting junk symbols
 ---------+-----------------+--------------------------------------------------
  Low     | Stemming        | Make a separate package to contain stemming
          | Algorithms      | algorithm stuff (docs, code, stemtest)
@@ -67,20 +83,16 @@ Priority | Area            | Task
 	 |                 | posting is made and position is already there,
 	 |                 | leave position vector same but increment wdf.
 ---------+-----------------+--------------------------------------------------
- Low     | Positional      | Expose positional information in postlists in a
-	 |                 | consistent way.  (extra methods /
-	 |                 | get_positionlist() method ?)
-         |                 |
----------+-----------------+--------------------------------------------------
- Low     | Positional      | Implement phrase searching. - AND postlist, scan
-	 |                 | through positionlist for sequential positions.
----------+-----------------+--------------------------------------------------
- Low     | Positional      | Use within query frequency and query length
+ Low     |RPositional      | Use within query frequency and query length
 	 |                 | information in matcher.
 ---------+-----------------+--------------------------------------------------
  Low     | Backends        | Make the sleepycat database function (at all).
 ---------+-----------------+--------------------------------------------------
- Low     | General         | Audit for exception safety.
+ Low     |cExamples        | Fix the ferretfx example
+---------+-----------------+--------------------------------------------------
+ Low     |cGeneral         | Audit for exception safety.
+---------+-----------------+--------------------------------------------------
+ Low     |cTODO            | Write some VIM macros to deal with this TODO
 ---------+-----------------+--------------------------------------------------
  Verylow | General         | Improve performance using SIMD instructions
 ---------+-----------------+--------------------------------------------------
