@@ -6,7 +6,7 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_srcdir)/testsu
 
 # These are for internal test - should be removed, and internal test
 # split into bits among the sources.
-INCLUDES += -I/usr/local/BerkeleyDB/include -I/usr/include/db2
+INCLUDES += @SLEEPYCAT_INCLUDES@
 
 if HAVE_PERL
 PERLTESTS = stemtest.pl
@@ -114,7 +114,7 @@ internaltest_dummy.cc:
 	@touch $@
 
 # Build from the file without the _dummy, with the extra flags
-internaltest_dummy.o:
+internaltest_dummy.o: internaltest.cc
 	@$(MAKE) CXXFLAGS="$(CXXFLAGS) $(internaltest_CXXFLAGS)" internaltest.o
 	@mv internaltest.o $@
 internaltest_dummy.lo: internaltest.cc
