@@ -75,7 +75,8 @@ sub expand_dist_subdirs($) {
     while (<M>) {
 	while (s/\\\n$//) { $_ .= <M>; }
 	if (s/^\s*DIST_SUBDIRS\s*=\s*//) {
-	    s/\s*$//;
+	    # remove trailing whitespace and/or comment
+	    s/\s*(?:#.*)?$//;
 	    for (split /\s+/) {
 		next if $_ eq '.';
 		my $d = "$dir/$_";

@@ -1,3 +1,8 @@
+Sat Jul 12 01:11:08 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/mkdoc.pl: Don't choke on a comment at the end of the
+	  DIST_SUBDIRS line in a Makefile.am.
+
 Fri Jul 11 22:00:36 BST 2003  Olly Betts <olly@survex.com>
 
 	* HACKING: Added note about additional tools needed for building a
