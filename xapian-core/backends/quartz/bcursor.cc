@@ -59,7 +59,7 @@ Bcursor::~Bcursor()
     delete [] C;
 }
 
-int
+bool
 Bcursor::prev()
 {
     AssertEq(B->error, 0);
@@ -78,7 +78,7 @@ Bcursor::prev()
     }
 }
 
-int
+bool
 Bcursor::next()
 {
     AssertEq(B->error, 0);
@@ -97,14 +97,14 @@ Bcursor::next()
     }
 }
 
-int
-Bcursor::find_key(const byte * key, unsigned int key_len)
+bool
+Bcursor::find_key(const string &key)
 {
     AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
-    form_key(B, B->kt, key, key_len);
-    int found = B->find(C);
+    form_key(B, B->kt, (const byte *)key.data(), key.size());
+    bool found = B->find(C);
 
     if (B->overwritten) return false;
 
@@ -121,7 +121,7 @@ Bcursor::find_key(const byte * key, unsigned int key_len)
     return found;
 }
 
-int
+bool
 Bcursor::get_key(struct Btree_item * item)
 {
     AssertEq(B->error, 0);
@@ -145,7 +145,7 @@ Bcursor::get_key(struct Btree_item * item)
     return true;
 }
 
-int
+bool
 Bcursor::get_tag(struct Btree_item * item)
 {
     AssertEq(B->error, 0);

@@ -1516,14 +1516,12 @@ static bool test_btree1()
     string key = "foo";
     {
 	AutoPtr<Bcursor> cursor = btree->Bcursor_create();
-	int found = cursor->find_key(reinterpret_cast<const byte *>(key.data()),
-				     key.size());
+	int found = cursor->find_key(key);
 	TEST(!found);
     }
     {
 	AutoPtr<Bcursor> cursor = btree->Bcursor_create();
-	int found = cursor->find_key(reinterpret_cast<const byte *>(key.data()),
-				     key.size());
+	int found = cursor->find_key(key);
 	TEST(!found);
     }
     

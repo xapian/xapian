@@ -25,7 +25,6 @@
 #define OM_HGUARD_BCURSOR_H
 
 #include "btree_types.h"
-#include "autoptr.h"
 
 class Btree;
 
@@ -37,11 +36,11 @@ class Bcursor {
 	/** Destroy a Bcursor */
 	~Bcursor();
 
-	int prev();
-	int next();
-	int find_key(const byte *key, unsigned int key_len);
-	int get_key(Btree_item *item);
-	int get_tag(Btree_item *item);
+	bool prev();
+	bool next();
+	bool find_key(const string &key);
+	bool get_key(Btree_item *item);
+	bool get_tag(Btree_item *item);
 
     private:
 	/** Create a bcursor attached to a Btree. */
@@ -49,7 +48,7 @@ class Bcursor {
 
 	/** false initially, and after the cursor has dropped
 	 *  off either end of the list of items */
-	int positioned;
+	bool positioned;
 		       
 	struct Btree * B;
 	struct Cursor * C;

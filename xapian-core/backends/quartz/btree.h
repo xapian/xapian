@@ -27,6 +27,7 @@
 #include <string>
 using std::string;
 
+#include "autoptr.h"
 #include "btree_types.h"
 #include "btree_base.h"
 #include "bcursor.h"

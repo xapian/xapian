@@ -64,14 +64,10 @@ QuartzDiskCursor::find_entry(const QuartzDbKey &key)
 
     if (key_len > max_key_len) {
 	// Can't find key - too long to possibly be present.
-	(void) cursor->find_key(reinterpret_cast<const byte *>(
-							key.value.data()),
-				max_key_len);
+	(void) cursor->find_key(key.value.substr(0, max_key_len));
 	// FIXME: check for errors
     } else {
-	found = cursor->find_key(reinterpret_cast<const byte *>(
-							key.value.data()),
-				 key_len);
+	found = cursor->find_key(key.value);
 	// FIXME: check for errors
     }
 
@@ -138,9 +134,7 @@ QuartzDiskCursor::prev()
     if (!is_positioned) {
 	// FIXME: want to go to last item in table - this method
 	// should work, but isn't going to be of great efficiency.
-	int found = cursor->find_key(reinterpret_cast<const byte *>(
-				     current_key.value.data()),
-				     current_key.value.size());
+	int found = cursor->find_key(current_key.value);
 	(void)found; // FIXME: check for errors
 	Assert(found);
     } else {
@@ -387,8 +381,7 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
     AutoPtr<Bcursor> cursor = btree_for_reading->Bcursor_create();
     // FIXME: check for errors
 
-    int found = cursor->find_key(reinterpret_cast<const byte *>(key.value.data()),
-				 key.value.size());
+    int found = cursor->find_key(key.value);
     // FIXME: check for errors
 
     if (!found) {

@@ -1,3 +1,8 @@
+Tue Jun 11 18:04:08 BST 2002  Olly Betts <olly@survex.com>
+
+	* More C++ like interfaces (e.g. bool returns, strings rather than
+	  pointer/length pairs).
+
 Tue Jun 11 16:40:08 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* quartz/btree.cc: Fix so that it compiles when BTREE_FULL_DEBUG is on,
