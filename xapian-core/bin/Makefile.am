@@ -22,7 +22,7 @@ quartzcheck_LDADD = @ldflags@ ../testsuite/libbtreecheck.la ../libxapian.la
 
 quartzcompact_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzcompact_SOURCES = quartzcompact.cc
-quartzcompact_LDADD = @ldflags@ ../libxapian.la 
+quartzcompact_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la 
 
 quartzdump_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzdump_SOURCES = quartzdump.cc
