@@ -388,8 +388,6 @@ AC_OUTPUT(
  Makefile
  testsuite/Makefile
  include/Makefile
- include/om/Makefile
- include/xapian/Makefile
  common/Makefile
  backends/Makefile
  backends/muscat36/Makefile
@@ -414,15 +412,18 @@ AC_OUTPUT(
  xapian.spec
 )
 
+MAJOR_VERSION="`echo \"$VERSION\"|sed 's/\..*//'`"
+MINOR_VERSION="`echo \"$VERSION\"|sed 's/[^.]*\.//;s/\..*//'`"
 dnl for portability, files run through $CXXCPP must have extension .c .cc or .C
 rm -f _xaptmp.cc
-ln -s $srcdir/include/om/om.h.in _xaptmp.cc
-$CXXCPP -DVERSION=$VERSION _xaptmp.cc|sed '/^\(# .*\)\?$/d;s/^%$//;s/  */ /g;s!^% !// !;s/^%/#/;s/%/__/g' > include/om/om.h.tmp
+ln -s $srcdir/include/xapian/version.h.in _xaptmp.cc
+$CXXCPP -DVERSION="$VERSION" -DMAJOR_VERSION="$MAJOR_VERSION" -DMINOR_VERSION="$MINOR_VERSION" _xaptmp.cc|sed '/^\(# .*\)\? *$/d;s/^%$//;s/  */ /g;s!^% !// !;s/^%/#/;s/%/__/g' > include/xapian/version.h.tmp
 rm -f _xaptmp.cc
-if cmp include/om/om.h.tmp include/om/om.h >/dev/null 2>&1 ; then
-  rm include/om/om.h.tmp
+if cmp include/xapian/version.h.tmp include/xapian/version.h >/dev/null 2>&1
+then
+  rm include/xapian/version.h.tmp
 else
-  mv include/om/om.h.tmp include/om/om.h
+  mv include/xapian/version.h.tmp include/xapian/version.h
 fi
  
 dnl need to AC_OUTPUT:

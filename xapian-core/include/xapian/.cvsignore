@@ -1,4 +1,2 @@
 .*.swp
-Makefile.in
-Makefile
-.deps
+version.h

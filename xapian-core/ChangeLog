@@ -1,3 +1,11 @@
+Fri Apr 18 19:17:56 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in,include/Makefile.am,include/om/.cvsignore,
+	  include/om/Makefile.am,include/om/om.h,include/om/om.h.in,
+	  include/xapian/.cvsignore,include/xapian/Makefile.am,
+	  include/xapian/dir_contents,include/xapian/version.h.in:
+	  C++ ABI version checking is now done by xapian/version.h.
+
 Fri Apr 18 17:57:21 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in,api/omstem.cc,include/Makefile.am,include/om/om.h.in,
@@ -5042,6 +5050,7 @@ Fri Nov 24 18:27:06 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 Fri Nov 24 15:34:17 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.4.1
+
 
 
 
