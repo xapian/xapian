@@ -1,6 +1,6 @@
-#include "networkmatch.h"
+#include "progclient.h"
 
 int main()
 {
-    NetworkMatch mymatch(0);
+    ProgClient mynet("./omnetclient");
 }

@@ -1,3 +1,13 @@
+Fri Mar 24 17:56:41 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added a NetClient interface for remote matchers
+
+	* Implemented ProgClient as a convenient test implementation
+
+	* Added an OmNetworkError exception class
+
+	* Documentation doesn't get built by default
+
 Fri Mar 24 17:39:37 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added OmDocumentParams class, to provide opaque but clean way

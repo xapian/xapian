@@ -116,6 +116,13 @@ class OmDatabaseError : public OmRuntimeError {
 	OmDatabaseError(const string &msg) : OmRuntimeError(msg) {};
 };
 
+/** thrown when there is a communications problem with
+ *  a remote database.
+ */
+class OmNetworkError : public OmRuntimeError {
+    public:
+	OmNetworkError(const string &msg) : OmRuntimeError(msg) {};
+};
 
 /** Thrown when opening a database fails. */
 class OmOpeningError : public OmDatabaseError {

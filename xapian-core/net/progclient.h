@@ -1,0 +1,71 @@
+/* progclient.h: implementation of NetClient which spawns a program.
+ *
+ * ----START-LICENCE----
+ * Copyright 1999,2000 Dialog Corporation
+ * 
+ * This program is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU General Public License as 
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ * -----END-LICENCE-----
+ */
+
+#ifndef OM_HGUARD_PROGCLIENT_H
+#define OM_HGUARD_PROGCLIENT_H
+
+#include "netclient.h"
+
+/** An implementation of the NetClient interface using a program.
+ *  ProgClient gets a socket by spawning a separate program, rather
+ *  than connecting to a remote machine.
+ */
+class ProgClient : public NetClient {
+    private:
+	// disallow copies
+	ProgClient(const ProgClient &);
+	void operator=(const ProgClient &);
+
+	/// The descriptor of our end of the socket.
+	int socketfd;
+
+	/// buffer for the data being read in
+	string buffer;
+
+	/// functions which actually do the work
+	string do_read();
+	void do_write(string data);
+
+    public:
+	/** Constructor.
+	 *
+	 *  @param progname The name of the program to run.
+	 */
+	ProgClient(string progname);
+
+	/** Destructor. */
+	~ProgClient();
+
+	/** Write some bytes to the process.
+	 */
+	void write_data(string msg);
+
+	/** Read some data from the process.
+	 */
+	string read_data();
+
+	/** Determine if any data is waiting to be read.
+	 */
+	bool data_is_available();
+};
+
+#endif  /* OM_HGUARD_PROGCLIENT_H */

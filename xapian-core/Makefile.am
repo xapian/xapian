@@ -22,6 +22,7 @@ libomus_la_LIBADD = \
  matcher/libmatcher.la \
  languages/liblanguages.la \
  indexer/libindexer.la \
- api/libapi.la
+ api/libapi.la \
+ net/libnet.la
 
 bin_SCRIPTS = libomus-config

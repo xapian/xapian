@@ -36,7 +36,7 @@ endif
 
 # Things to do if have doc++ installed
 if HAVE_DOCPP
-all-local: apidoc/index.html sourcedoc/index.html all-dvi all-ps
+#all-local: apidoc/index.html sourcedoc/index.html all-dvi all-ps
 dist-hook: all-local apidoc-dist
 install-data-local: all-local apidoc-install
 else
