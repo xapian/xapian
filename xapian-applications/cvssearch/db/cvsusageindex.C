@@ -19,8 +19,14 @@
 // should have another command for classes/functions that look
 // at their contents 
 
-#define MAX_FROM_APP 1
+#define MAX_FROM_APP 9999999
 
+// makes things to limit things in this way because symbols
+// could occur in many places.
+
+#define TOTAL_WORDS 500
+#define MAX_WORDS 9999999
+#define MIN_WORDS 1
 
 #warning "requires ctags from http://ctags.sourceforge.net/"
 #warning "should generate unique file for tags"
@@ -41,7 +47,9 @@
 #define USE_STOP_LIST false
 
 // /tmp is small, so we use /home/amichail/temp
-#define CTAGS_FLAGS "-R --c-types=cfsuAC --kind-long=yes -f/home/amichail/temp/tags"
+
+// support C/C++/Java for now
+#define CTAGS_FLAGS "-R --c-types=cfsuAC --java-types=cimAC --kind-long=yes -f/home/amichail/temp/tags"
 
 
 //
@@ -126,36 +134,10 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
 
 
 
-  int f_count = 0;
-  int c_count = 0;
   for( map<string, int>::iterator c = app_symbol_count.begin(); c != app_symbol_count.end(); c++ ) {
     string symbol = c->first;
     int count = c->second;
     bool isFunction = ( symbol.find("()") != -1 );
-
-    if ( isFunction ) {
-      f_count++;
-
-/***
-      if ( f_count % FLUSH_RATE == 0 ) {
-	cerr << "*** FLUSHING FUNCTIONS" << endl;
-	database_functions.flush();
-      }
-***/
-    } else {
-      c_count++;
-#if !SKIP_CLASSES
-/***
-      if ( c_count % FLUSH_RATE == 0 ) {
-	cerr << "*** FLUSHING CLASSES" << endl;
-	database_classes.flush();
-      }
-**/
-#endif
-
-    }
-
-
 
     //    cerr <<"*** Symbol " << symbol << " has count " << count << endl;
     list<string> words = app_symbol_terms[symbol];
@@ -359,6 +341,7 @@ int main(int argc, char *argv[]) {
 
       map< string, list<string> > app_symbol_terms; // accumulated from all its points of usage
       map<string, int> app_symbol_count;
+      map< string, int > contributed_terms;
 
       Lines lines( cvsdata, "", package, file_cmt, file_offset, GRANULARITY, USE_STOP_LIST ); // file level granularity
 
@@ -380,6 +363,39 @@ int main(int argc, char *argv[]) {
 	    }
 	  }
 
+	  if ( terms.size() < MIN_WORDS ) {
+	    /*****
+	    cerr << "** TOO FEW WORDS: ";
+	    for( list<string>::iterator i = terms.begin(); i != terms.end(); i++ ) {
+	      cerr << (*i) << " ";
+	    }
+	    for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
+	      cerr << "SYMBOL " << (*i) << " ";
+	    }
+	    cerr << endl;
+	    *****/
+	    continue; 
+	  }
+
+	  if ( terms.size() > MAX_WORDS ) {
+	    /******
+	    cerr << "** TOO MANY WORDS: ";
+	    for( list<string>::iterator i = terms.begin(); i != terms.end(); i++ ) {
+	      cerr << (*i) << " ";
+	    }
+	    for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
+	      cerr << "SYMBOL " << (*i) << " ";
+	    }
+	    cerr << endl;
+	    ***/
+	    continue; 
+	  }
+
+	  if ( contributed_terms[*i] + terms.size() >= TOTAL_WORDS ) {
+	    //	    cerr << "*** Contributed too many words for " << *i << endl;
+	    continue;
+	  }
+
 	  if ( lib_symbols.find(*i) != lib_symbols.end() ) {
 
 	    if ( lib_symbol_app_count[*i] < MAX_FROM_APP ) {
@@ -388,6 +404,7 @@ int main(int argc, char *argv[]) {
 	      
 	      for( list<string>::iterator t = terms.begin(); t != terms.end(); t++ ) {
 		lib_symbol_terms[*i].push_back(*t);
+		contributed_terms[*i]++;
 	      }
 	      //	      cerr << "** NOT ignoring " << (*i) << endl;
 	      lib_symbol_app_count[*i]++;
