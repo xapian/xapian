@@ -1,3 +1,7 @@
+Tue Mar 23 19:11:19 GMT 2004  Olly Betts <olly@localnet>
+
+	* db/cvs_db.C: Minor tweaks.
+
 Tue Mar 23 18:43:27 GMT 2004  Olly Betts <olly@localnet>
 
 	* map/alignment/Makefile.am: -DINLINE does nothing - removed; use -W

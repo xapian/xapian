@@ -29,11 +29,11 @@ using namespace std;
 int
 cvs_db::open(const string & filename, bool read_only) 
 {
-    int val = 0;
+    if (_opened) return 0;
     string filename1 = filename + _db_index;
-    if (_opened || (val = do_open(filename1, read_only)) == 0)
-    {
-        _opened = true;
+    int val = do_open(filename1, read_only);
+    if (val == 0) {
+	_opened = true;
     }
     return val;
 }
@@ -53,10 +53,10 @@ int
 cvs_db::remove(const string & filename, int flags) 
 {
     try {
-        close();
-        return _db.remove(filename.c_str(), _db_name.c_str(), flags);
+	close();
+	return _db.remove(filename.c_str(), _db_name.c_str(), flags);
     }  catch (DbException& e ) {
-            cerr << "SleepyCat Exception: " << e.what() << endl;
+	cerr << "SleepyCat Exception: " << e.what() << endl;
     }
     return 0;
 }
@@ -64,17 +64,12 @@ cvs_db::remove(const string & filename, int flags)
 int
 cvs_db::sync()
 {
-   int val = 0;
-   try {
-      if (_opened)
-      {
-         val = _db.sync(0);
-      }
-   } catch (DbException &e) {
-        cerr << "SleepyCat Exception: " << e.what() << endl;
-        abort();
-   }
-
-   return val;
+    if (!_opened) return 0;
+    try {
+	return _db.sync(0);
+    } catch (DbException &e) {
+	cerr << "SleepyCat Exception: " << e.what() << endl;
+	abort();
+    }
+    return 0;
 }
-
