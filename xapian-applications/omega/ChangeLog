@@ -1,3 +1,8 @@
+Tue Sep 14 03:00:32 BST 2004  Olly Betts <olly@survex.com>
+
+	* omega.spec.in: Updated URL for sources; include htdig2omega and
+	  htdig2omega.script in the RPM.
+
 Tue Sep 14 02:56:52 BST 2004  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Install htdig2omega.script in ${prefix}/share/omega/
@@ -221,7 +226,7 @@ Sat Feb 21 18:33:15 GMT 2004  Olly Betts <olly@survex.com>
 	* omega.cc,query.cc,docs/omegascript.txt: Added $httpheader
 	  Omegascript to allow arbitrary HTTP headers and alternative
 	  Content-Type headers to be specified.
-	
+
 Sat Feb 14 00:32:06 GMT 2004  Olly Betts <olly@survex.com>
 
 	* query.cc: If the probabilistic query was bad, don't try to run the
@@ -301,7 +306,7 @@ Fri Oct 10 18:06:10 BST 2003  Olly Betts <olly@survex.com>
 	* query.cc: Removed the unfinished code for caching omegascript
 	  command expansions.  Added code to cache $dbsize.  The only other
 	  value correctly marked for caching is already being cached!
- 
+
 Thu Oct 02 15:18:19 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Version 0.7.4.
@@ -404,7 +409,7 @@ Fri Jul 11 12:08:57 BST 2003  Olly Betts <olly@survex.com>
 
 	* omega.cc: If the same database is listed more than once, only search
 	  the first occurrence.
- 
+
 Fri Jul 11 11:57:24 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in,utils.cc: Use snprintf.
@@ -531,7 +536,7 @@ Mon May 26 22:41:26 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Don't use libtool; Use AC_CONFIG_FILES - it's the new
 	  autoconf way!
-			  
+
 Mon May 26 12:12:22 BST 2003  Olly Betts <olly@survex.com>
 
 	* omega.spec.in: Removed %changelog - it hasn't been reliably updated
@@ -623,8 +628,8 @@ Fri Feb 28 09:52:03 GMT 2003 Sam Liddicott <sam.liddicott@orange.co.uk>
 	* Added $collapsed to omegascript to give the number of hits
 	  collapsed into the current hit, eg:
 
-	  $if{$ne{$collapsed,0},$collapsed hidden results 
-	                        ($value{$cgi{COLLAPSE}})}
+	  $if{$ne{$collapsed,0},$collapsed hidden results
+				($value{$cgi{COLLAPSE}})}
 
 	* templates/godmode: removed euro ferret icon reference
 	* templates/godmode: added value dumping, for values from 0-255
@@ -735,7 +740,7 @@ Mon Dec 09 02:55:46 GMT 2002  Olly Betts <olly@survex.com>
 	  This means that you'll see "... of about N matches" less often -
 	  notably it's gone when searching for a single term, which is a
 	  pretty common case.
- 
+
 Sun Dec 08 08:42:47 GMT 2002  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Replaced icky unportable code which set the filename
@@ -746,7 +751,7 @@ Sun Dec 08 06:39:30 GMT 2002  Olly Betts <olly@survex.com>
 	* query.cc,docs/omegascript.txt: Fixed $hitlist to complain if more
 	  than one parameter is passed; $topterms now defaults to 16 terms
 	  rather than 20; $topterms now weeds out terms which stem to the
-	  same as those in the query, or those already in $topterms. 
+	  same as those in the query, or those already in $topterms.
 
 Sun Dec 08 06:36:04 GMT 2002  Olly Betts <olly@survex.com>
 
@@ -872,7 +877,8 @@ Wed Oct 02 17:02:25 BST 2002  Olly Betts <olly@survex.com>
 
 	* configure.in: Version 0.5.1.
 	* Makefile.am,configure.in: require automake 1.6.3 and autoconf 2.54
-	  since xapian-core does anyway, and it neatens configure.in slightly.            
+	  since xapian-core does anyway, and it neatens configure.in slightly.
+
 Wed Oct 02 16:58:39 BST 2002  Olly Betts <olly@survex.com>
 
 	* query.cc,docs/omegascript.txt: Added $hit which gives the m-set
@@ -1009,10 +1015,10 @@ Thu Jul 04 02:11:46 BST 2002  Olly Betts <olly@survex.com>
 	  behaviour is controlled by a simple but powerful script.
 
 	* Makefile.am: tidied up.
-	
+
 	* configfile.cc, docs/quickstart.txt: database and templates default to
 	  being in /var/lib/omega rather than /home/omega.
- 
+
 	* docs/quickstart.txt: describe the new test mode (command line) rather
 	  than the old one (stdin).
 
@@ -1045,9 +1051,9 @@ Wed Jun 12 23:51:11 BST 2002  Olly Betts <olly@survex.com>
 	* Added an alternative test mode - you can now pass parameters as
 	  command line arguments, which is more convenient for repeating
 	  the same test query, and for automated testing, e.g.:
-	  
+
 	    omega 'P=information retrieval' DB=papers
-	  
+
 	  If the first parameter starts with a "-" and doesn't contain an
 	  "=", omega now outputs the version string and stops (to gracefully
 	  handle "omega --version" and "omega --help".
@@ -1075,7 +1081,7 @@ Thu May 16 15:41:14 BST 2002  Sam Liddicott <sam@ananova.com>
 
 Thu May 16 14:53:54 BST 2002  Sam Liddicott <sam@ananova.com>
 
-	* Moved images to a seperate optional package to stop touching 
+	* Moved images to a seperate optional package to stop touching
 	  user's web tree until we work out what to do.  sysadmin can
 	  still install images if he wants and on a redhat box they will
 	  end up in the right place. This will no doubt get revisted later,
@@ -1105,7 +1111,7 @@ Tue May 14 13:08:41 BST 2002  Olly Betts <olly@survex.com>
 
 Tue May 14 12:37:49 BST 2002  Olly Betts <olly@survex.com>
 
-	* omindex.cc: cleaned up a little. 
+	* omindex.cc: cleaned up a little.
 
 Tue May 14 11:24:42 BST 2002  Olly Betts <olly@survex.com>
 
@@ -1151,7 +1157,7 @@ Thu Apr 18 14:37:05 BST 2002  Olly Betts <olly@survex.com>
 
 Wed Apr 17 12:31:18 BST 2002  Olly Betts <olly@survex.com>
 
-	* Removed references to xapian-config uninst options. 
+	* Removed references to xapian-config uninst options.
 
 Fri Apr 12 15:48:33 BST 2002  Olly Betts <olly@survex.com>
 
@@ -1192,7 +1198,7 @@ Mon Feb  4 14:57:36 GMT 2002  Sam Liddicott  <sam@ananova.com>
 Tue Jan 15 16:29:39 GMT 2002  Sam Liddicott  <sam@ananova.com>
 
 	* Fixed date_range_filter for the case where DATE1 and DATE2 don't
-	  share the same MONTH and YEAR and M## terms for intermediate months 
+	  share the same MONTH and YEAR and M## terms for intermediate months
 	  need calculating between the years.
 
 Thu Jan 10 15:39:43 GMT 2002  Sam Liddicott  <sam@ananova.com>
@@ -1382,7 +1388,7 @@ Thu Nov 29 15:24:53 GMT 2001  Olly Betts <olly@survex.com>
 Wed Nov 28 15:45:39 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Fixed clipping of hit page in case when there are a multiple of
-	  HITSPERPAGE matches. 
+	  HITSPERPAGE matches.
 
 Wed Nov 28 14:03:48 GMT 2001  Olly Betts <olly@survex.com>
 
