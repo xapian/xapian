@@ -45,6 +45,9 @@ libindexgraph_la_SOURCES = omindexer.cc omindexermessage.cc \
 indexerxml.lo: indexerxml.cc
 	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<
 
+indexerxml.o: indexerxml.cc
+	$(CXXCOMPILE) @LIBXML_CFLAGS@ -c $<
+
 do_registration.cc: $(INDEXERNODES) make_register.pl
 	srcdir=$(srcdir) ./make_register.pl $(INDEXERNODES) > $@
 

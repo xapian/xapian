@@ -196,6 +196,11 @@ void *operator new(size_t size) throw(std::bad_alloc) {
     return result;
 }
 
+void *operator new[](size_t size) throw (std::bad_alloc)
+{
+    return operator new(size);
+}
+
 /// This method is simply here to be an easy place to set a break point
 void memory_weirdness() {
 }
@@ -217,6 +222,10 @@ void operator delete(void *p) throw() {
 #ifdef HAVE_LIBPTHREAD
     pthread_mutex_unlock(&test_driver_mutex);
 #endif // HAVE_LIBPTHREAD
+}
+
+void operator delete[](void *p) throw() {
+    operator delete(p);
 }
 
 test_driver::test_driver(const test_desc *tests_)

@@ -1,3 +1,10 @@
+Wed Nov 15 14:52:19 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added stub operator new[]() and operator delete[]() to
+	  testsuite.cc.  This has fixed the bizarre reported memory
+	  leaks in indextest - presumably our operator delete() wasn't
+	  being called for delete [] buf.
+
 Wed Nov 15 14:11:21 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed the OMEXCEPT errors from indextest.  There's still a leak.
