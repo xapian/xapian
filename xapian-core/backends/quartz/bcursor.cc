@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +34,6 @@ Bcursor::Bcursor(Btree *B_)
 	  B(B_),
 	  level(B_->level)
 {
-    AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
     C = new Cursor[level + 1];
@@ -61,7 +60,6 @@ Bcursor::~Bcursor()
 bool
 Bcursor::prev()
 {
-    AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
     if (!positioned) return false;
@@ -80,7 +78,6 @@ Bcursor::prev()
 bool
 Bcursor::next()
 {
-    AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
     if (!positioned) return false;
@@ -99,7 +96,6 @@ Bcursor::next()
 bool
 Bcursor::find_key(const string &key)
 {
-    AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
     B->form_key(key);
@@ -123,7 +119,6 @@ Bcursor::find_key(const string &key)
 bool
 Bcursor::get_key(string * key) const
 {
-    AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
     if (! positioned) return false;
@@ -137,7 +132,6 @@ Bcursor::get_key(string * key) const
 bool
 Bcursor::get_tag(string * tag)
 {
-    AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
     if (!positioned) return false;
