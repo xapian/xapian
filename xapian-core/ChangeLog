@@ -1,3 +1,8 @@
+Thu Feb 22 18:14:41 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* OmRegexFilterNode has an output for non-matching strings as
+	  well as matching.  "out" output renamed to "matching".
+
 Thu Feb 22 16:56:33 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Fixed a bug in the fetch() bits: requesting documents at the

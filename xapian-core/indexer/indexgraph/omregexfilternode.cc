@@ -82,20 +82,26 @@ class OmRegexFilterNode : public OmIndexerNode {
 		regex.set(get_input_string("regex"));
 	    }
 
-	    OmIndexerMessage output;
-	    output.set_vector();
+	    OmIndexerMessage matching;
+	    OmIndexerMessage nonmatching;
+	    matching.set_vector();
+	    nonmatching.set_vector();
 
 	    for (size_t i=0; i<input.get_vector_length(); ++i) {
 		std::string orig = input.get_element(i).get_string();
 		if (regex.matches(orig)) {
-		    output.append_element(orig);
+		    matching.append_element(orig);
+		} else {
+		    nonmatching.append_element(orig);
 		}
 	    }
-	    set_output("out", output);
+	    set_output("matching", matching);
+	    set_output("nonmatching", nonmatching);
 	}
 };
 
 NODE_BEGIN(OmRegexFilterNode, omregexfilter)
 NODE_INPUT("in", "strings", mt_vector)
-NODE_OUTPUT("out", "strings", mt_vector)
+NODE_OUTPUT("matching", "strings", mt_vector)
+NODE_OUTPUT("nonmatching", "strings", mt_vector)
 NODE_END()
