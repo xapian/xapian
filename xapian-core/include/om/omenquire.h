@@ -35,6 +35,7 @@
 
 class OmQuery;
 class OmErrorHandler;
+class OmWeight;
 
 /** An iterator pointing to items in an MSet.
  *  This is used for access to individual results of a match.
@@ -570,6 +571,14 @@ class OmEnquire {
 	 */
 	const OmQuery & get_query();
 
+	/** Set the weighting scheme to use for queries.
+	 *
+	 *  @param weight_  the new weighting scheme.  If no weighting scheme
+	 *  		    is specified, the default is BM25 with A=1, B=1,
+	 *  		    C=0, D=0.5, min_normlen=0.5
+	 */
+	void set_weighting_scheme(const OmWeight &weight_);
+
 	/** Get (a portion of) the match set for the current query.
 	 *
 	 *  @param first     the first item in the result set to return.
@@ -724,6 +733,219 @@ class OmEnquire {
 	 *  @return  A string representing the enquire object.
 	 */
 	std::string get_description() const;
+};
+
+/// Abstract base class for weighting schemes
+class OmWeight {
+    friend class OmEnquire; // So OmEnquire can clone us
+    class Internal;
+    private:
+	OmWeight(const OmWeight &);
+	void operator=(OmWeight &);
+
+	/// Return a new weight object of this type.
+	//
+	// Each subclass should implement this as:
+	// virtual OmFooWeight * clone() const {
+	//     return new OmFooWeight(param1, param2);
+	// }
+	virtual OmWeight * clone() const = 0;
+
+    protected:
+	const Internal * internal; // OmWeight::Internal == StatsSource
+	om_doclength querysize;
+	om_termcount wqf;
+	om_termname tname;
+
+    public:
+	OmWeight() { }
+	virtual ~OmWeight() { }
+
+	/** Initialise the weight object with the neccessary stats, or
+	 *  places to get them from.  You shouldn't call this method yourself
+	 *  - it is called by OmEnquire.
+	 *
+	 *  @param internal_  Object to ask for collection statistics.
+	 *  @param querysize_ Query size.
+	 *  @param wqf_       Within query frequency of term this object is
+	 *		      associated with.
+	 *  @param tname_     Term which this object is associated with.
+	 */
+	OmWeight * create(const Internal * internal_, om_doclength querysize_,
+			  om_termcount wqf_, om_termname tname_) {
+	    OmWeight * wt = clone();
+	    wt->internal = internal_;
+	    wt->querysize = querysize_;
+	    wt->wqf = wqf_;
+	    wt->tname = tname_;
+	    return wt;
+	}
+
+	/** Get a weight which is part of the sum over terms being performed.
+	 *  This returns a weight for a given term and document.  These
+	 *  weights are summed to give a total weight for the document.
+	 *
+	 *  @param wdf the within document frequency of the term.
+	 *  @param len the (unnormalised) document length.
+	 */
+	virtual om_weight get_sumpart(om_termcount wdf,
+				      om_doclength len) const = 0;
+
+	/** Gets the maximum value that get_sumpart() may return.  This
+	 *  is used in optimising searches, by having the postlist tree
+	 *  decay appropriately when parts of it can have limited, or no,
+	 *  further effect.
+	 */
+	virtual om_weight get_maxpart() const = 0;
+
+	/** Get an extra weight for a document to add to the sum calculated
+	 *  over the query terms.
+	 *  This returns a weight for a given document, and is used by some
+	 *  weighting schemes to account for influence such as document
+	 *  length.
+	 *
+	 *  @param len the (unnormalised) document length.
+	 */
+	virtual om_weight get_sumextra(om_doclength len) const = 0;
+
+	/** Gets the maximum value that get_sumextra() may return.  This
+	 *  is used in optimising searches.
+	 */
+	virtual om_weight get_maxextra() const = 0;
+
+	/// return false if the weight object doesn't need doclength
+	virtual bool get_sumpart_needs_doclength() const { return true; }
+};
+
+/// Boolean weighting scheme (everything gets 0)
+class BoolWeight : public OmWeight {
+    public:
+	OmWeight * clone() const {
+	    return new BoolWeight;
+	}
+	BoolWeight() { }
+	~BoolWeight() { }
+	om_weight get_sumpart(om_termcount /*wdf*/, om_doclength /*len*/) const { return 0; }
+	om_weight get_maxpart() const { return 0; }
+
+	om_weight get_sumextra(om_doclength /*len*/) const { return 0; }
+	om_weight get_maxextra() const { return 0; }
+
+	bool get_sumpart_needs_doclength() const { return false; }	
+};
+
+/// BM25 weighting scheme
+//
+// BM25 weighting options : The BM25 formula is \f[
+//      \frac{C.s_{q}}{1+L_{d}}+\sum_{t}\frac{(A+1)q_{t}}{A+q_{t}}.\frac{(B+1)f_{t,d}}{B((1-D)+DL_{d})+f_{t,d}}.w_{t}
+// \f] where
+//   - \f$w_{t}\f$ is the termweight of term t
+//   - \f$f_{t,d}\f$ is the within document frequency of term t in document d
+//   - \f$q_{t}\f$ is the within query frequency of term t
+//   - \f$L_{d}\f$ is the normalised length of document d
+//   - \f$s_{q}\f$ is the size of the query
+//   - \f$A\f$, \f$B\f$, \f$C\f$ and \f$D\f$ are user specified parameters
+class BM25Weight : public OmWeight {
+    private:
+	mutable om_weight termweight;
+	mutable om_doclength lenpart;
+	mutable double BD;
+
+	double A, B, C, D;
+	om_doclength min_normlen;
+
+	mutable bool weight_calculated;
+
+	void calc_termweight() const;
+
+    public:
+	/** Construct a BM25 weight.
+	 *
+	 * @param A governs the importance of within query frequency.
+	 * 	          Must be >= 0.  0 means ignore wqf.  Default is 1.
+	 * @param B governs the importance of within document frequency.
+	 * 		  Must be >= 0.  0 means ignore wdf.  Default is 1.
+	 * @param C compensation factor for the high wdf values in
+	 * 		  large documents.  Must be >= 0.  0 means no
+	 * 		  compensation.  Default is 0.
+	 * @param D Relative importance of within document frequency and
+	 * 		  document length.  Must be >= 0 and <= 1.  Default
+	 * 		  is 0.5.
+	 * @param min_normlen specifies a cutoff on the minimum value that
+	 * 		  can be used for a normalised document length -
+	 * 		  smaller values will be forced up to this cutoff.
+	 *		  This prevents very small documents getting a huge
+	 *		  bonus weight.  Default is 0.5.
+	 */ 
+	BM25Weight(double A_, double B_, double C_, double D_,
+		   double min_normlen_)
+		: A(A_), B(B_), C(C_), D(D_), min_normlen(min_normlen_),
+		  weight_calculated(false)
+	{
+	    if (A < 0) throw OmInvalidArgumentError("Parameter A in BM25 weighting formula must be >= 0");
+	    if (B < 0) throw OmInvalidArgumentError("Parameter B in BM25 weighting formula must be >= 0");
+	    if (C < 0) throw OmInvalidArgumentError("Parameter C in BM25 weighting formula must be >= 0");
+	    if (D < 0 || D > 1) throw OmInvalidArgumentError("Parameter D in BM25 weighting formula must be >= 0 and <= 1");
+	}
+	BM25Weight() : A(1), B(1), C(0), D(0.5), min_normlen(0.5),
+		       weight_calculated(false) { }
+
+	OmWeight * clone() const {
+	    return new BM25Weight(A, B, C, D, min_normlen);
+	}
+	~BM25Weight() { }
+	om_weight get_sumpart(om_termcount wdf, om_doclength len) const;
+	om_weight get_maxpart() const;
+
+	om_weight get_sumextra(om_doclength len) const;
+	om_weight get_maxextra() const;
+
+	bool get_sumpart_needs_doclength() const { return (lenpart != 0); }
+};
+
+/// Traditional probabilistic weighting scheme (as used by Muscat 3.6)
+//
+// The Traditional weighting scheme formula is \f[
+//      \sum_{t}\frac{f_{t,d}}{k.L_{d}+f_{t,d}}.w_{t}
+// \f] where
+//   - \f$w_{t}\f$ is the termweight of term t
+//   - \f$f_{t,d}\f$ is the within document frequency of term t in document d
+//   - \f$L_{d}\f$ is the normalised length of document d
+//   - \f$k\f$ is a user specifiable parameter
+//
+// TradWeight is equivalent to BM25Weight(1, 1, 0, k, 0)
+class TradWeight : public OmWeight {
+    private:
+	mutable om_weight termweight;
+	mutable om_doclength lenpart;
+
+	double param_k;
+
+	mutable bool weight_calculated;
+
+	void calc_termweight() const;
+
+	/// Construct a TradWeight
+	//
+	// @param k  parameter governing the importance of within
+        //           document frequency and document length - any positive
+        //           number, 0 being wdf and doc length not used.  Default
+        //           is 1.
+	TradWeight(double k = 1) : param_k(k), weight_calculated(false) {
+	    if (param_k < 0) throw OmInvalidArgumentError("Parameter k in traditional weighting formula must be >= 0");
+	}
+    public:
+	OmWeight * clone() const {
+	    return new TradWeight(param_k);
+	}
+	~TradWeight() { }
+	om_weight get_sumpart(om_termcount wdf, om_doclength len) const;
+	om_weight get_maxpart() const;
+
+	om_weight get_sumextra(om_doclength len) const;
+	om_weight get_maxextra() const;
+
+	bool get_sumpart_needs_doclength() const { return (lenpart != 0); }
 };
 
 #endif /* OM_HGUARD_OMENQUIRE_H */

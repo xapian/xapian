@@ -57,24 +57,15 @@
 
 #include "match.h"
 #include "stats.h"
-#include "irweight.h"
 
 #include <algorithm>
-using std::max;
-using std::make_pair;
-using std::make_heap;
-using std::push_heap;
-using std::pop_heap;
-using std::nth_element;
-using std::sort;
 #include "autoptr.h"
 #include <queue>
 #include <vector>
-using std::vector;
 #include <map>
-using std::map;
 #include <set>
-using std::set;
+
+using namespace std;
 
 class OmErrorHandler;
 
@@ -142,16 +133,16 @@ class MSetSortCmp {
 ////////////////////////////////////
 // Initialisation and cleaning up //
 ////////////////////////////////////
-MultiMatch::MultiMatch(const OmDatabase &db_,
-		       const OmQuery::Internal * query_,
-		       const OmRSet & omrset,
-		       const OmSettings & opts_,
+MultiMatch::MultiMatch(const OmDatabase &db_, const OmQuery::Internal * query_,
+		       const OmRSet & omrset, const OmSettings & opts_,
 		       OmErrorHandler * errorhandler_,
-		       AutoPtr<StatsGatherer> gatherer_)
+		       AutoPtr<StatsGatherer> gatherer_, OmWeight * weight_)
 	: gatherer(gatherer_), db(db_), query(query_), opts(opts_),
-	  mcmp(msetcmp_forward), errorhandler(errorhandler_)
+	  mcmp(msetcmp_forward), errorhandler(errorhandler_), weight(weight_)
 {
-    DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " << omrset << ", " << opts_ << ", " << errorhandler_ << ", [gatherer_]");
+    DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
+	      omrset << ", " << opts_ << ", " << errorhandler_ <<
+	      ", [gatherer_], [weight_]");
     query->validate_query();
 
     om_doccount number_of_leaves = db.internal->databases.size();
@@ -159,7 +150,7 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
 
     set<om_docid>::const_iterator reldoc; 
     for (reldoc = omrset.internal->items.begin();
-	 reldoc != omrset.internal->items.end(); reldoc++) {
+	 reldoc != omrset.internal->items.end(); ++reldoc) {
 	om_doccount local_docid = ((*reldoc) - 1) / number_of_leaves + 1;
 	om_doccount subdatabase = ((*reldoc) - 1) % number_of_leaves;
 	subrsets[subdatabase].add_document(local_docid);
@@ -182,7 +173,7 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
 		smatch = RefCntPtr<SubMatch>(new RemoteSubMatch(netdb, query, *subrset, opts, gatherer.get()));
 	    } else {
 #endif /* MUS_BUILD_BACKEND_REMOTE */
-		smatch = RefCntPtr<SubMatch>(new LocalSubMatch(db, query, *subrset, opts, gatherer.get()));
+		smatch = RefCntPtr<SubMatch>(new LocalSubMatch(db, query, *subrset, opts, gatherer.get(), weight));
 #ifdef MUS_BUILD_BACKEND_REMOTE
 	    }
 #endif /* MUS_BUILD_BACKEND_REMOTE */
@@ -197,7 +188,7 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
 	    }
 	}
 	leaves.push_back(smatch);
-	subrset++;
+	++subrset;
     }
     Assert(subrset == subrsets.end());
 
@@ -223,7 +214,7 @@ MultiMatch::prepare_matchers()
     do {
 	prepared = true;
 	vector<RefCntPtr<SubMatch> >::iterator leaf;
-	for (leaf = leaves.begin(); leaf != leaves.end(); leaf++) {
+	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
 	    try {
 		if (!(*leaf)->prepare_match(nowait)) prepared = false;
 	    } catch (OmError & e) {
@@ -289,7 +280,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // Start matchers
     {
 	vector<RefCntPtr<SubMatch> >::iterator leaf;
-	for (leaf = leaves.begin(); leaf != leaves.end(); leaf++) {
+	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
 	    try {
 		(*leaf)->start_match(first + maxitems);
 	    } catch (OmError & e) {
@@ -309,7 +300,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // Get postlists
     vector<PostList *> postlists;
     vector<RefCntPtr<SubMatch> >::iterator i;
-    for (i = leaves.begin(); i != leaves.end(); i++) {
+    for (i = leaves.begin(); i != leaves.end(); ++i) {
 	// FIXME: errorhandler here? (perhaps not needed if this simply makes a pending postlist)
 	postlists.push_back((*i)->get_postlist(first + maxitems, this));
     }
@@ -322,7 +313,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	Assert(leaves.size() == postlists.size());
 	for (leaf = leaves.begin(), pl_iter = postlists.begin();
 	     leaf != leaves.end();
-	     leaf++, pl_iter++) {
+	     ++leaf, ++pl_iter) {
 	    try {
 		termfreqandwts = (*leaf)->get_term_info();
 		break;
@@ -551,7 +542,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			DEBUGLINE(MATCH, "collapsem: removing " << olddid <<
 				  ": " << new_item.collapse_key);
 			vector<OmMSetItem>::iterator i;
-			for (i = items.begin(); i->did != olddid; i++) {
+			for (i = items.begin(); i->did != olddid; ++i) {
 			    Assert(i != items.end());
 			}
 			*i = new_item;
@@ -570,7 +561,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    
 	// OK, actually add the item to the mset.
 	if (pushback) {
-	    docs_matched++;
+	    ++docs_matched;
 	    if (!sort_bands && items.size() == max_msize - 1) {
 		items.push_back(new_item);
 		is_heap = false;

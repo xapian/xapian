@@ -264,12 +264,11 @@ static bool test_multidb3()
 
     // make a query
     OmQuery myquery = query(OmQuery::OP_OR, "inmemory", "word");
-    OmSettings mopts;
-    mopts.set("match_weighting_scheme", "bool");
+    enquire.set_weighting_scheme(BoolWeight());
     enquire.set_query(myquery);
 
     // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10, 0, &mopts);
+    OmMSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 2, 3, 7);
 
     return true;
@@ -285,12 +284,11 @@ static bool test_multidb4()
 
     // make a query
     OmQuery myquery = query(OmQuery::OP_OR, "inmemory", "word");
-    OmSettings mopts;
-    mopts.set("match_weighting_scheme", "bool");
+    enquire.set_weighting_scheme(BoolWeight());
     enquire.set_query(myquery);
 
     // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10, 0, &mopts);
+    OmMSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 2, 3, 4, 10);
 
     return true;
@@ -305,12 +303,11 @@ static bool test_multidb5()
 
     // make a query
     OmQuery myquery = query(OmQuery::OP_AND, "inmemory", "word");
-    OmSettings mopts;
-    mopts.set("match_weighting_scheme", "bool");
+    enquire.set_weighting_scheme(BoolWeight());
     enquire.set_query(myquery);
 
     // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10, 0, &mopts);
+    OmMSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 2);
 
     return true;
@@ -421,13 +418,12 @@ static bool test_multierrhandler1()
 
 	// make a query
 	OmQuery myquery = query(OmQuery::OP_OR, "inmemory", "word");
-	OmSettings mopts;
-	mopts.set("match_weighting_scheme", "bool");
+	enquire.set_weighting_scheme(BoolWeight());
 	enquire.set_query(myquery);
 
 	tout << "query=" << myquery << "\n";
 	// retrieve the top ten results
-	OmMSet mymset = enquire.get_mset(0, 10, 0, &mopts);
+	OmMSet mymset = enquire.get_mset(0, 10);
 
 	switch (testcount) {
 	    case 0: case 3: case 6: case 9:
@@ -533,12 +529,10 @@ static bool test_boolquery1()
     // we prepared earlier)
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire, myboolquery);
-
-    OmSettings mopts;
-    mopts.set("match_weighting_scheme", "bool");
+    enquire.set_weighting_scheme(BoolWeight());
 
     // retrieve the top results
-    OmMSet mymset = enquire.get_mset(0, 10, 0, &mopts);
+    OmMSet mymset = enquire.get_mset(0, 10);
 
     TEST_NOT_EQUAL(mymset.size(), 0);
     TEST_EQUAL(mymset.get_max_possible(), 0);
@@ -1065,10 +1059,10 @@ static bool test_collapsekey1()
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
-    OmSettings mymopt;
-
-    OmMSet mymset1 = enquire.get_mset(0, 100, 0, &mymopt);
+    OmMSet mymset1 = enquire.get_mset(0, 100);
     om_doccount mymsize1 = mymset1.size();
+
+    OmSettings mymopt;
 
     for (om_valueno value_no = 1; value_no < 7; ++value_no) {
 	mymopt.set("match_collapse_key", (int)value_no);
@@ -1124,13 +1118,13 @@ static bool test_reversebool1()
     OmEnquire enquire(get_simple_database());
     OmQuery query("this");
     init_simple_enquire(enquire, query);
+    enquire.set_weighting_scheme(BoolWeight());
 
-    OmSettings mymopt;
-    mymopt.set("match_weighting_scheme", "bool");
-    OmMSet mymset1 = enquire.get_mset(0, 100, 0, &mymopt);
+    OmMSet mymset1 = enquire.get_mset(0, 100);
     TEST_AND_EXPLAIN(mymset1.size() > 1,
 		     "Mset was too small to test properly");
 
+    OmSettings mymopt;
     mymopt.set("match_sort_forward", true);
     OmMSet mymset2 = enquire.get_mset(0, 100, 0, &mymopt);
     mymopt.set("match_sort_forward", false);
@@ -1173,14 +1167,14 @@ static bool test_reversebool2()
     OmEnquire enquire(get_simple_database());
     OmQuery query("this");
     init_simple_enquire(enquire, query);
+    enquire.set_weighting_scheme(BoolWeight());
 
-    OmSettings mymopt;
-    mymopt.set("match_weighting_scheme", "bool");
-    OmMSet mymset1 = enquire.get_mset(0, 100, 0, &mymopt);
+    OmMSet mymset1 = enquire.get_mset(0, 100);
 
     TEST_AND_EXPLAIN(mymset1.size() > 1,
 		     "Mset was too small to test properly");
 
+    OmSettings mymopt;
     mymopt.set("match_sort_forward", true);
     om_doccount msize = mymset1.size() / 2;
     OmMSet mymset2 = enquire.get_mset(0, msize, 0, &mymopt);
@@ -1427,11 +1421,10 @@ static bool test_xor1()
     terms.push_back(stemmer.stem_word("of"));
 
     OmQuery query(OmQuery::OP_XOR, terms.begin(), terms.end());
-    OmSettings mymopt;
-    mymopt.set("match_weighting_scheme", "bool");
+    enquire.set_weighting_scheme(BoolWeight());
     enquire.set_query(query);
 
-    OmMSet mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    OmMSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 1, 2, 5, 6);
 
     return true;
@@ -1647,12 +1640,11 @@ static bool test_specialterms1()
 static bool test_absentterm1()
 {
     OmEnquire enquire(get_simple_database());
+    enquire.set_weighting_scheme(BoolWeight());
     OmQuery query("frink");
-    OmSettings mymopt;
-    mymopt.set("match_weighting_scheme", "bool");
     init_simple_enquire(enquire, query);
 
-    OmMSet mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    OmMSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset);
 
     return true;

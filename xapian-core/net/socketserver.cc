@@ -36,6 +36,7 @@
 #include "omdebug.h"
 #include "autoptr.h"
 #include "../api/omdatabaseinternal.h"
+#include "om/omenquire.h"
 #include <signal.h>
 #include <cerrno>
 #include <cstring>
@@ -266,8 +267,9 @@ SocketServer::run_match(const string &firstmessage)
     message = readline(msecs_active_timeout);
     OmRSet omrset = string_to_omrset(message);
 
+    BM25Weight wt;
     MultiMatch match(db, &query, omrset, moptions, 0,
-		     AutoPtr<StatsGatherer>(gatherer));
+		     AutoPtr<StatsGatherer>(gatherer), &wt);
 
 #if 0
     DEBUGLINE(UNKNOWN, "Adding artificial delay for statistics");

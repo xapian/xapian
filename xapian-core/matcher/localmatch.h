@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +25,6 @@
 #ifndef OM_HGUARD_LOCALMATCH_H
 #define OM_HGUARD_LOCALMATCH_H
 
-#include "om/omenquire.h"
 #include "om/omsettings.h"
 #include "omqueryinternal.h"
 #include "match.h"
@@ -50,7 +50,7 @@ class LocalSubMatch : public SubMatch {
         LocalSubMatch & operator=(const LocalSubMatch &);
 
 	AutoPtr<StatsSource> statssource;
-	
+
 	bool is_prepared;
 
 	/// Query to be run
@@ -66,6 +66,9 @@ class LocalSubMatch : public SubMatch {
     
 	/// Stored match options object
 	OmSettings opts;
+
+	/// Weighting scheme object
+	OmWeight * wtscheme;
 
 	/// The weights and termfreqs of terms in the query.
 	map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> term_info;
@@ -97,20 +100,17 @@ class LocalSubMatch : public SubMatch {
 	    statssource->my_termfreq_is(tname, db->get_termfreq(tname));
 	}
 
-	/// Make a weight - default argument is used for finding extra_weight
-	OmWeight * mk_weight(const OmQuery::Internal *query = NULL);
-
     public:
 	LocalSubMatch(const Database *db_, const OmQuery::Internal * query,
 		      const OmRSet & omrset, const OmSettings &opts_,
-		      StatsGatherer *gatherer)
+		      StatsGatherer *gatherer, OmWeight *wtscheme_)
 		: statssource(new LocalStatsSource(gatherer)),
 		  is_prepared(false), users_query(*query), db(db_),
-		  querysize(query->qlen), opts(opts_)
+		  querysize(query->qlen), opts(opts_), wtscheme(wtscheme_)
 	{	    
 	    DEBUGCALL(MATCH, void, "LocalSubMatch::LocalSubMatch",
 		      db << ", " << query << ", " << omrset << ", " <<
-		      opts_ << ", " << gatherer << ", ");
+		      opts_ << ", " << gatherer << ", [wtscheme]");
 	    AutoPtr<RSet> new_rset(new RSet(db, omrset));
 	    rset = new_rset;
 

@@ -47,7 +47,7 @@
 
 #include "match.h"
 #include "stats.h"
-#include "irweight.h"
+#include "om/omenquire.h"
 
 #include <algorithm>
 #include "autoptr.h"
@@ -382,14 +382,19 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 	    // Make a postlist for a single term
 	    Assert(query->subqs.size() == 0);
 	    OmMSet::Internal::Data::TermFreqAndWeight info;
-	
-	    // FIXME: pass the weight type and the info needed to create it to the
-	    // postlist instead
+
+	    // FIXME: pass the weight type and the info needed to create it to
+	    // the postlist instead (why?)
 	    OmWeight * wt;
 	    if (is_bool) {
 		wt = new BoolWeight();
 	    } else {
-		wt = mk_weight(query);
+		wt = wtscheme->create(statssource.get(), querysize, query->wqf,
+				      query->tname);
+#ifdef MUS_DEBUG_PARANOID
+		// Check that max_extra weight is really right
+		AssertEqDouble(wt->get_maxextra(), wtscheme->get_maxextra());
+#endif
 	    }
 	    info.termweight = wt->get_maxpart();
 
@@ -469,7 +474,7 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 bool
 LocalSubMatch::prepare_match(bool /*nowait*/)
 {
-    DEBUGCALL(MATCH, bool, "LocalSubMatch::prepare_match", nowait);
+    DEBUGCALL(MATCH, bool, "LocalSubMatch::prepare_match", "/*nowait*/");
     if (!is_prepared) {
 	DEBUGLINE(MATCH, "LocalSubMatch::prepare_match() - Gathering my statistics");
 	OmTermIterator terms = users_query.get_terms();
@@ -495,36 +500,10 @@ LocalSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist", maxitems << ", " << matcher);
     (void)maxitems; // Avoid warning in non-debug build
     PostList *pl = postlist_from_query(&users_query, matcher, false);
-    OmWeight *wt = mk_weight();
     // don't bother with an ExtraWeightPostList if there's no extra weight
     // contribution.
-    if (wt->get_maxextra() == 0) {
-	delete wt;
+    if (wtscheme->get_maxextra() == 0) {
 	RETURN(pl);
     }
-    RETURN(new ExtraWeightPostList(pl, wt, matcher));
-}
-
-
-
-OmWeight *
-LocalSubMatch::mk_weight(const OmQuery::Internal *query_)
-{
-    DEBUGCALL(MATCH, OmWeight *, "LocalSubMatch::mk_weight", query_);
-    om_termname tname = "";
-    om_termcount wqf = 1;
-    if (query_) {
-	tname = query_->tname;
-	wqf = query_->wqf;
-    }
-    OmWeight * wt = OmWeight::create_new(opts);
-    wt->set_stats(statssource.get(), querysize, wqf, tname);
-#ifdef MUS_DEBUG_PARANOID
-    if (!tname.empty()) {
-	AutoPtr<OmWeight> extra_weight(mk_weight());
-	// Check that max_extra weight is really right
-	AssertEqDouble(wt->get_maxextra(), extra_weight->get_maxextra());
-    }
-#endif /* MUS_DEBUG_PARANOID */
-    RETURN(wt);
+    RETURN(new ExtraWeightPostList(pl, wtscheme, matcher));
 }

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -163,29 +164,27 @@ LocalStatsSource::~LocalStatsSource()
 }
 
 void
-StatsSource::perform_request() const
+OmWeight::Internal::perform_request() const
 {
-    DEBUGCALL(MATCH, void, "StatsSource::perform_request", "");
+    DEBUGCALL(MATCH, void, "OmWeight::Internal::perform_request", "");
     Assert(total_stats == 0);
     total_stats = gatherer->get_stats();
     Assert(total_stats != 0);
 
 #ifdef MUS_DEBUG_VERBOSE
-    DEBUGLINE(WTCALC, "StatsSource::perform_request(): stats are:");
+    DEBUGLINE(WTCALC, "OmWeight::Internal::perform_request(): stats are:");
     DEBUGLINE(WTCALC, "  collection_size = " << total_stats->collection_size);
     DEBUGLINE(WTCALC, "  rset_size = "       << total_stats->rset_size);
     DEBUGLINE(WTCALC, "  average_length = "  << total_stats->average_length);
 
-    std::map<om_termname, om_doccount>::const_iterator i;
-    for(i = total_stats->termfreq.begin();
-	i != total_stats->termfreq.end(); i++)
-    {
+    map<om_termname, om_doccount>::const_iterator i;
+    for (i = total_stats->termfreq.begin();
+	 i != total_stats->termfreq.end(); i++) {
 	DEBUGLINE(WTCALC, "  termfreq of `" << i->first <<
 		  "'\tis " << i->second);
     }
-    for(i = total_stats->reltermfreq.begin();
-	i != total_stats->reltermfreq.end(); i++)
-    {
+    for (i = total_stats->reltermfreq.begin();
+	 i != total_stats->reltermfreq.end(); i++) {
 	DEBUGLINE(WTCALC, "  reltermfreq of `" << i->first <<
 		 "'\tis " << i->second);
     }

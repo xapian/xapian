@@ -170,6 +170,8 @@ class OmEnquire::Internal::Data : public RefCntBase {
 
 	std::map<std::string, const OmMatchDecider *> mdecider_map;
 
+	mutable OmWeight * weight; // mutable so get_mset can set default
+
 	Data(const OmDatabase &databases, OmErrorHandler * errorhandler_);
 	~Data();
 

@@ -864,7 +864,7 @@ operator==(const OmMSetIterator &a, const OmMSetIterator &b)
 
 OmEnquire::Internal::Data::Data(const OmDatabase &db_,
 			      OmErrorHandler * errorhandler_)
-  : db(db_), query(0), errorhandler(errorhandler_)
+  : db(db_), query(0), errorhandler(errorhandler_), weight(0)
 {
 }
 
@@ -872,6 +872,8 @@ OmEnquire::Internal::Data::~Data()
 {
     delete query;
     query = 0;
+    delete weight;
+    weight = 0;
 }
 
 void
@@ -916,15 +918,20 @@ OmEnquire::Internal::Data::get_mset(om_doccount first,
 	omrset = &emptyrset;
     }
 
+    if (weight == 0) {
+	weight = new BM25Weight;
+    }
+
     // FIXME: make match take a refcntptr
-    MultiMatch match(db, query->internal, *omrset, *moptions, errorhandler);
+    MultiMatch match(db, query->internal, *omrset, *moptions, errorhandler,
+		     AutoPtr<StatsGatherer>(new LocalStatsGatherer()), weight);
 
     // Run query and get results into supplied OmMSet object
     OmMSet retval;
     match.get_mset(first, maxitems, retval, mdecider);
 
-    Assert(moptions->get("match_weighting_scheme", "bm25") != "bool" ||
-	   retval.get_max_possible() == 0);
+// FIXME:    Assert(moptions->get("match_weighting_scheme", "bm25") != "bool" ||
+//	   retval.get_max_possible() == 0);
 
     // The OmMSet needs to have a pointer to ourselves, so that it can
     // retrieve the documents.  This is set here explicitly to avoid having
@@ -1152,6 +1159,14 @@ OmEnquire::get_query()
 	if (internal->data->errorhandler) (*internal->data->errorhandler)(e);
 	throw;
     }
+}
+
+void
+OmEnquire::set_weighting_scheme(const OmWeight &weight_)
+{
+    DEBUGAPICALL(void, "OmEnquire::set_weighting_scheme", "[OmWeight]");
+    delete internal->data->weight;
+    internal->data->weight = weight_.clone();
 }
 
 OmMSet

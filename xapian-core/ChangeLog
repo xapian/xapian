@@ -1,3 +1,15 @@
+Tue Dec 03 23:26:27 GMT 2002  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,backends/quartz/quartz_postlist.h,common/,
+	  docs/omsettings,docs/todo.xml,include/om/omenquire.h,matcher/,
+	  net/socketcommon.cc,net/socketserver.cc,tests/api_db.cc,
+	  tests/api_posdb.cc: Weighting schemes are now specified by passing
+	  in a weighting object, rather than via OmSetttings.  The weight
+	  class can be sub-classed by the library user to allow them to
+	  specify their own weighting scheme).  Everything works apart
+	  from the remote backend where the weighting scheme type and
+	  parameters aren't passed across the link.
+
 Mon Dec 02 20:12:31 GMT 2002  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated with changes since 0.6.1.

@@ -32,7 +32,6 @@
 #include "match.h"
 #include "stats.h"
 #include "rset.h"
-#include "irweight.h"
 #include "refcnt.h"
 
 #include <vector>

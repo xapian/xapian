@@ -27,8 +27,8 @@
 #include <config.h>
 #include "mergepostlist.h"
 #include "omdebug.h"
+#include "om/omenquire.h"
 #include "om/omerrorhandler.h"
-#include "boolweight.h"
 
 MergePostList::MergePostList(std::vector<PostList *> plists_,
 			     MultiMatch *matcher_,

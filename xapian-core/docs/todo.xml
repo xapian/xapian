@@ -293,16 +293,12 @@ Improve performance using SIMD instructions
 </todoitem>
 <todoitem priority="L" difficulty="" owner="Olly" area="" release="0.7">
 
-Replace all uses of OmSettings.
-The arguments for OmSettings are not as compelling as we
-originally thought, and it has definite drawbacks - one major one being
-that there's no easy way to check for typos which can lead to users of
-the library spending hours trying to sort out a bug which is just a
-typo in an OmSettings value.  Another argument for it was to allow passing
-values to user weighting objects, etc, but I think it's best just to
-implement these with a clone() method, and pass an example one in.  And
-we might as well make built-in weighting objects work the same way rather
-than being a special case.  Also remove docs/omsettings.
+Replace one remaining use of OmSettings (to pass parameters to the matcher).
+The arguments for OmSettings are not as compelling as we originally thought,
+and it has definite drawbacks - one major one being that there's no easy way to
+check for typos which can lead to users of the library spending hours trying to
+sort out a bug which is just a typo in an OmSettings value.  Also remove
+docs/omsettings.
 
 </todoitem>
 <todoitem priority="L" difficulty="4" owner="" area="General" release="0.7">
@@ -311,11 +307,6 @@ Make backends / weighting schemes / indexer modules register themselves
 automatically.  At runtime / linktime? (ie, replace current conditional
 compilation scheme) - actually, we can use sub-classing
 and factory classes to do this more cleanly.
-
-</todoitem>
-<todoitem priority="L" difficulty="4" owner="" area="API" release="0.7">
-
-Allow custom weighting functions.
 
 </todoitem>
 <todoitem priority="V" difficulty="3" owner="" area="Backends" release="">

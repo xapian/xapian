@@ -27,8 +27,8 @@
 
 #include "database.h"
 #include "branchpostlist.h"
+#include "om/omenquire.h"
 #include "om/omerrorhandler.h"
-#include "boolweight.h"
 
 #include "networkmatch.h"
 

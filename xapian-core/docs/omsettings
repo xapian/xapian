@@ -17,8 +17,6 @@
       It is usually only possible to choose an appropriate weight for cutoff
       based on the results of a previous run of the same query; this is thus
       mainly useful for alerting operations.
-    - match_weighting_scheme : Weighting scheme to use; this is one of
-      'bm25', 'trad' or 'bool'.  The default is bm25.
 
   - match_sort_key : value number to reorder on.  Sorting is with a string
       compare.  Higher is better.  If match_sort_key is set, but 
@@ -35,42 +33,3 @@
       given to document with a time now or in the future) - default 10000.
     - match_bias_halflife - the match bias decays exponentially with time -
       this sets the half-life of this decay in seconds (default 2 days).
-      
-  - BM25 weighting options : The BM25 formula is \f[
-      \frac{C.s_{q}}{1+L_{d}}+\sum_{t}\frac{(A+1)q_{t}}{A+q_{t}}.\frac{(B+1)f_{t,d}}{B((1-D)+DL_{d})+f_{t,d}}.w_{t}
-    \f] where
-    \f$w_{t}\f$ is the termweight of term t,
-    \f$f_{t,d}\f$ is the within document frequency of term t in document d,
-    \f$q_{t}\f$ is the within query frequency of term t,
-    \f$L_{d}\f$ is the normalised length of document d,
-    \f$s_{q}\f$ is the size of the query,
-    and \f$A\f$, \f$B\f$, \f$C\f$ and \f$D\f$ are user specified parameters:
-    - bm25weight_A : A parameter governing the importance of within query
-                     frequency - any positive number, 0 being wqf not
-                     used.  Default is 1.
-    - bm25weight_B : A parameter governing the importance of within
-                     document frequency - any positive number, 0 being wdf
-                     not used.  Default is 1.
-    - bm25weight_C : Size of compensation factor for the high wdf values
-                     in large documents - any positive number, 0 being no
-                     compensation.  Default is 0.
-    - bm25weight_D : Relative importance of within document frequency and
-                     document length - any number in range 0 to 1.  Default
-                     is 0.5.
-    - bm25weight_min_normlen : This specifies a cutoff on the minimum value
-		     that can be used for a normalised document length: smaller
-		     values will be forced up to this cutoff.  This prevents
-		     very small documents getting a huge bonus weight.
-
-  - traditional weighting scheme options : The traditional weighting formula
-    is \f[
-      \sum_{t}\frac{f_{t,d}}{k.L_{d}+f_{t,d}}.w_{t}
-    \f] where
-    \f$w_{t}\f$ is the termweight of term t,
-    \f$f_{t,d}\f$ is the within document frequency of term t in document d,
-    \f$L_{d}\f$ is the normalised length of document d,
-    and \f$k\f$ is a user specifyable parameter:
-    - tradweight_k : A parameter governing the importance of within
-                     document frequency and document length - any positive
-                     number, 0 being wdf and doc length not used.  Default
-                     is 1.

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,8 +36,8 @@
 
 class SubMatch;
 class OmErrorHandler;
-
 class SocketServer;
+class OmWeight;
 
 class MultiMatch
 {
@@ -58,6 +59,9 @@ class MultiMatch
 
 	/// ErrorHandler
 	OmErrorHandler * errorhandler;
+
+	/// Weighting scheme
+	OmWeight * weight;
 
 	/** Internal flag to note that w_max needs to be recalculated
 	 *  while query is running.
@@ -92,20 +96,22 @@ class MultiMatch
 	/** MultiMatch constructor.
 	 *
 	 *  @param db_       The database to use.
-	 *
+	 *  @param query     The query
+	 *  @param omrset    The relevance set
+	 *  @param opts_     Settings object for matcher settings
+	 *  @param errorhandler Errorhandler object
 	 *  @param gatherer_ An auto_ptr to a StatsGatherer instance.
 	 *                   The MultiMatch takes ownership of the
-	 *                   StatsGatherer.  This argument is optional;
-	 *                   the default is to use a LocalStatsGatherer,
-	 *                   suitable for non-network use.
+	 *                   StatsGatherer.
+	 *  @param weight_   Weighting scheme
 	 */
 	MultiMatch(const OmDatabase &db_,
 		   const OmQuery::Internal * query,
 		   const OmRSet & omrset,
 		   const OmSettings & opts_,
 		   OmErrorHandler * errorhandler,
-		   AutoPtr<StatsGatherer> gatherer_
-		       = AutoPtr<StatsGatherer>(new LocalStatsGatherer()));
+		   AutoPtr<StatsGatherer> gatherer_,
+		   OmWeight * weight_);
 	~MultiMatch();
 
 	void get_mset(om_doccount first,

@@ -27,14 +27,9 @@
 #include <math.h>
 
 #include "stats.h"
-#include "tradweight.h"
+#include "om/omenquire.h"
 #include "rset.h"
 #include "omdebug.h"
-
-TradWeight::TradWeight(double param_k_) : param_k(param_k_)
-{
-    if (param_k < 0) throw OmInvalidArgumentError("Parameter k in traditional weighting formula must be >= 0");
-}
 
 // Calculate weights using statistics retrieved from databases
 void
@@ -43,17 +38,17 @@ TradWeight::calc_termweight() const
     DEBUGCALL(MATCH, void, "TradWeight::calc_termweight", "");
     Assert(initialised);
 
-    om_doccount dbsize = stats->get_total_collection_size();
-    lenpart = param_k / stats->get_total_average_length();
+    om_doccount dbsize = internal->get_total_collection_size();
+    lenpart = param_k / internal->get_total_average_length();
 
-    om_doccount termfreq = stats->get_total_termfreq(tname);
+    om_doccount termfreq = internal->get_total_termfreq(tname);
 
     DEBUGLINE(WTCALC, "Statistics: N=" << dbsize << " n_t=" << termfreq);
 
     om_weight tw = 0;
-    om_doccount rsize = stats->get_total_rset_size();
+    om_doccount rsize = internal->get_total_rset_size();
     if (rsize != 0) {
-	om_doccount rtermfreq = stats->get_total_reltermfreq(tname);
+	om_doccount rtermfreq = internal->get_total_reltermfreq(tname);
 
 	DEBUGLINE(WTCALC, " R=" << rsize << " r_t=" << rtermfreq);
 

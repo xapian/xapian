@@ -27,7 +27,6 @@
 
 #include <string>
 #include "refcnt.h"
-#include "irweight.h"
 #include "omqueryinternal.h"
 #include "stats.h"
 #include "networkstats.h"

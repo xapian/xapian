@@ -561,7 +561,7 @@ moptions_to_string(const OmSettings &moptions)
     result += ' ';
     result += om_tostring(moptions.get_real("match_cutoff", 0));
     result += ' ';
-    result += moptions.get("match_weighting_scheme", "bm25");
+    result += "dummy"; // FIXME : was the weighting scheme name
 
     return result;
 }
@@ -591,7 +591,7 @@ string_to_moptions(const string &s)
     mopt.set("match_sort_forward", sort_forward);
     mopt.set("match_percent_cutoff", percent_cutoff);
     mopt.set("match_cutoff", cutoff);
-    mopt.set("match_weighting_scheme", weighting_scheme);
+    // FIXME: mopt.set("match_weighting_scheme", weighting_scheme);
     
     Assert(s == moptions_to_string(mopt));
 //    DEBUGLINE(UNKNOWN, "string_to_moptions: mopt " << s << "->"

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -122,11 +123,11 @@ class LocalStatsGatherer : public StatsGatherer {
 /** Statistics source: gathers notifications of statistics which will be
  *  needed, and passes them on in bulk to a StatsGatherer.
  */
-class StatsSource {
+class OmWeight::Internal {
     private:
         // Prevent copying
-        StatsSource(const StatsSource &);
-        StatsSource & operator=(const StatsSource &);
+        Internal(const Internal &);
+        Internal & operator=(const Internal &);
 
     protected:
 	/** The gatherer which we report our information to, and ask
@@ -150,10 +151,11 @@ class StatsSource {
 	void perform_request() const;
     public:
 	/// Constructor
-	StatsSource(StatsGatherer *gatherer_);
+	Internal(StatsGatherer *gatherer_) : gatherer(gatherer_), total_stats(0)
+	{ }
 
 	/// Virtual destructor
-	virtual ~StatsSource();
+	virtual ~Internal() { }
 
 	/// Contribute all the statistics that don't depend on global
 	/// stats.  Used by StatsGatherer.
@@ -213,6 +215,22 @@ class StatsSource {
 	 *  in the collection indexed by the given term.
 	 */
 	om_doccount get_total_reltermfreq(const om_termname & tname) const;
+};
+
+class StatsSource : public OmWeight::Internal {
+    private:
+        // Prevent copying
+        StatsSource(const StatsSource &);
+        StatsSource & operator=(const StatsSource &);
+
+    public:
+	/// Constructor
+	StatsSource(StatsGatherer *gatherer_) : OmWeight::Internal(gatherer_) {
+	    gatherer->add_child(this);
+	}
+	~StatsSource() {
+	    gatherer->remove_child(this);
+	}
 };
 
 /** LocalStatsSource: the StatsSource object which provides methods
@@ -283,24 +301,11 @@ StatsGatherer::set_global_stats(om_doccount rset_size)
 }
 
 ///////////////////////////////////////////////
-// Inline method definitions for StatsSource //
+// Inline method definitions for OmWeight::Internal //
 ///////////////////////////////////////////////
 
 
     
-inline
-StatsSource::StatsSource(StatsGatherer *gatherer_)
-	: gatherer(gatherer_), total_stats(0)
-{
-    gatherer->add_child(this);
-}
-
-inline
-StatsSource::~StatsSource()
-{
-    gatherer->remove_child(this);
-}
-
 inline void
 LocalStatsSource::contrib_my_stats()
 {
@@ -308,7 +313,7 @@ LocalStatsSource::contrib_my_stats()
 }
 
 inline void
-StatsSource::take_my_stats(om_doccount csize, om_doclength avlen)
+OmWeight::Internal::take_my_stats(om_doccount csize, om_doclength avlen)
 {
     Assert(total_stats == 0);
     my_stats.collection_size = csize;
@@ -316,7 +321,7 @@ StatsSource::take_my_stats(om_doccount csize, om_doclength avlen)
 }
 
 inline void
-StatsSource::my_termfreq_is(const om_termname & tname, om_doccount tfreq)
+OmWeight::Internal::my_termfreq_is(const om_termname & tname, om_doccount tfreq)
 {
     Assert(total_stats == 0);
     // Can be called a second time, if a term occurs multiple times in the
@@ -327,7 +332,7 @@ StatsSource::my_termfreq_is(const om_termname & tname, om_doccount tfreq)
 }
 
 inline void
-StatsSource::my_reltermfreq_is(const om_termname & tname, om_doccount rtfreq)
+OmWeight::Internal::my_reltermfreq_is(const om_termname & tname, om_doccount rtfreq)
 {
     Assert(total_stats == 0);
     // Can be called a second time, if a term occurs multiple times in the
@@ -338,28 +343,28 @@ StatsSource::my_reltermfreq_is(const om_termname & tname, om_doccount rtfreq)
 }
 
 inline om_doccount
-StatsSource::get_total_collection_size() const
+OmWeight::Internal::get_total_collection_size() const
 {
     if(total_stats == 0) perform_request();
     return total_stats->collection_size;
 }
 
 inline om_doccount
-StatsSource::get_total_rset_size() const
+OmWeight::Internal::get_total_rset_size() const
 {
     if(total_stats == 0) perform_request();
     return total_stats->rset_size;
 }
 
 inline om_doclength
-StatsSource::get_total_average_length() const
+OmWeight::Internal::get_total_average_length() const
 {
     if(total_stats == 0) perform_request();
     return total_stats->average_length;
 }
 
 inline om_doccount
-StatsSource::get_total_termfreq(const om_termname & tname) const
+OmWeight::Internal::get_total_termfreq(const om_termname & tname) const
 {
     if(total_stats == 0) perform_request();
 
@@ -374,7 +379,7 @@ StatsSource::get_total_termfreq(const om_termname & tname) const
 }
 
 inline om_doccount
-StatsSource::get_total_reltermfreq(const om_termname & tname) const
+OmWeight::Internal::get_total_reltermfreq(const om_termname & tname) const
 {
     if(total_stats == 0) perform_request();
     std::map<om_termname, om_doccount>::const_iterator rtfreq;

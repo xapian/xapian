@@ -26,8 +26,8 @@
 
 #include "match.h"
 #include "emptypostlist.h"
+#include "om/omenquire.h"
 #include "om/omerror.h"
-#include "boolweight.h"
 
 class EmptySubMatch : public SubMatch {
     public:

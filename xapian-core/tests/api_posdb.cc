@@ -44,8 +44,7 @@ static bool test_near1()
     OmDatabase mydb(get_database("apitest_phrase"));
     OmEnquire enquire(make_dbgrp(&mydb));
     OmStem stemmer("english");
-    OmSettings mymopt;
-    mymopt.set("match_weighting_scheme", "bool");
+    enquire.set_weighting_scheme(BoolWeight());
 
     // make a query
     vector<OmQuery> subqs;
@@ -57,7 +56,7 @@ static bool test_near1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    OmMSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset);
 
     subqs.clear();
@@ -68,7 +67,7 @@ static bool test_near1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 3);
 
     subqs.clear();
@@ -79,7 +78,7 @@ static bool test_near1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 1, 3);
 
     subqs.clear();
@@ -90,7 +89,7 @@ static bool test_near1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 1, 3);
 
     subqs.clear();
@@ -101,7 +100,7 @@ static bool test_near1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 1, 2, 3);
 
     subqs.clear();
@@ -113,7 +112,7 @@ static bool test_near1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9);
 
     subqs.clear();
@@ -125,7 +124,7 @@ static bool test_near1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10);
 
     subqs.clear();
@@ -137,7 +136,7 @@ static bool test_near1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11);
 
     subqs.clear();
@@ -149,7 +148,7 @@ static bool test_near1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12);
 
     subqs.clear();
@@ -161,7 +160,7 @@ static bool test_near1()
     enquire.set_query(q);
 
     // retrieve the top twenty results
-    mymset = enquire.get_mset(0, 20, 0, &mymopt);
+    mymset = enquire.get_mset(0, 20);
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
 
     subqs.clear();
@@ -173,7 +172,7 @@ static bool test_near1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 20, 0, &mymopt);
+    mymset = enquire.get_mset(0, 20);
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
 
     subqs.clear();
@@ -186,7 +185,7 @@ static bool test_near1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 20, 0, &mymopt);
+    mymset = enquire.get_mset(0, 20);
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
 
     return true;
@@ -198,8 +197,7 @@ static bool test_near2()
     OmDatabase mydb(get_database("apitest_phrase"));
     OmEnquire enquire(make_dbgrp(&mydb));
     OmStem stemmer("english");
-    OmSettings mymopt;
-    mymopt.set("match_weighting_scheme", "bool");
+    enquire.set_weighting_scheme(BoolWeight());
 
     // make a query
     vector<OmQuery> subqs;
@@ -213,7 +211,7 @@ static bool test_near2()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    OmMSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 1);
 
     subqs.clear();
@@ -226,7 +224,7 @@ static bool test_near2()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 2);
 
     subqs.clear();
@@ -239,7 +237,7 @@ static bool test_near2()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 2);
 
     return true;
@@ -251,8 +249,7 @@ static bool test_phrase1()
     OmDatabase mydb(get_database("apitest_phrase"));
     OmEnquire enquire(make_dbgrp(&mydb));
     OmStem stemmer("english");
-    OmSettings mymopt;
-    mymopt.set("match_weighting_scheme", "bool");
+    enquire.set_weighting_scheme(BoolWeight());
 
     // make a query
     vector<OmQuery> subqs;
@@ -264,7 +261,7 @@ static bool test_phrase1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    OmMSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset);
 
     subqs.clear();
@@ -275,7 +272,7 @@ static bool test_phrase1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset);
 
     subqs.clear();
@@ -286,7 +283,7 @@ static bool test_phrase1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 1);
 
     subqs.clear();
@@ -297,7 +294,7 @@ static bool test_phrase1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 1);
 
     subqs.clear();
@@ -308,7 +305,7 @@ static bool test_phrase1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 1, 2);
 
     subqs.clear();
@@ -320,7 +317,7 @@ static bool test_phrase1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 4);
 
     subqs.clear();
@@ -332,7 +329,7 @@ static bool test_phrase1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 4);
 
     subqs.clear();
@@ -344,7 +341,7 @@ static bool test_phrase1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 4);
 
     subqs.clear();
@@ -356,7 +353,7 @@ static bool test_phrase1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 4);
 
     subqs.clear();
@@ -368,7 +365,7 @@ static bool test_phrase1()
     enquire.set_query(q);
 
     // retrieve the top twenty results
-    mymset = enquire.get_mset(0, 20, 0, &mymopt);
+    mymset = enquire.get_mset(0, 20);
     mset_expect_order(mymset, 4);
 
     subqs.clear();
@@ -380,7 +377,7 @@ static bool test_phrase1()
     enquire.set_query(q);
 
     // retrieve the top 20 results
-    mymset = enquire.get_mset(0, 20, 0, &mymopt);
+    mymset = enquire.get_mset(0, 20);
     mset_expect_order(mymset, 4);
 
     // test really large window size
@@ -393,7 +390,7 @@ static bool test_phrase1()
     enquire.set_query(q);
 
     // retrieve the top 20 results
-    mymset = enquire.get_mset(0, 20, 0, &mymopt);
+    mymset = enquire.get_mset(0, 20);
     mset_expect_order(mymset, 4);
 
     // regression test (was matching doc 15, should fail)
@@ -406,7 +403,7 @@ static bool test_phrase1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset);
 
     // regression test (should match doc 15, make sure still does with fix)
@@ -419,7 +416,7 @@ static bool test_phrase1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 15);
 
     // regression test (phrase matching was getting order wrong when
@@ -432,7 +429,7 @@ static bool test_phrase1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 16);
 
     // regression test (phrase matching was getting order wrong when
@@ -445,7 +442,7 @@ static bool test_phrase1()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 17);
 
     return true;
@@ -457,8 +454,7 @@ static bool test_phrase2()
     OmDatabase mydb(get_database("apitest_phrase"));
     OmEnquire enquire(make_dbgrp(&mydb));
     OmStem stemmer("english");
-    OmSettings mymopt;
-    mymopt.set("match_weighting_scheme", "bool");
+    enquire.set_weighting_scheme(BoolWeight());
 
     // make a query
     vector<OmQuery> subqs;
@@ -472,7 +468,7 @@ static bool test_phrase2()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    OmMSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset);
 
     subqs.clear();
@@ -485,7 +481,7 @@ static bool test_phrase2()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset, 2);
 
     subqs.clear();
@@ -498,7 +494,7 @@ static bool test_phrase2()
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10, 0, &mymopt);
+    mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset);
 
     return true;
