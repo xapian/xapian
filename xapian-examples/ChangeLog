@@ -1,3 +1,7 @@
+Wed Mar 02 03:16:46 GMT 2005  Olly Betts <olly@survex.com>
+
+	* quest.cc: Update to use new QueryParser API.
+
 Thu Dec 23 17:39:48 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,NEWS: Version 0.8.5.
