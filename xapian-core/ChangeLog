@@ -1,3 +1,8 @@
+Tue Aug 15 11:27:04 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added initial (empty) quartz_database.{cc,h} files, so that
+	  distcheck will work again.
+
 Tue Aug 15 11:24:51 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Removed netprogs/omnetclient.cc - unused file.
