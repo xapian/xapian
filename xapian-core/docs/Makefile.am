@@ -19,7 +19,7 @@ if HAVE_PERL
 CREATED_DOCUMENTS1=code_structure.html
 endif
 
-# Things to do if have latex installed
+# Things to do if have LaTeX installed
 if HAVE_LATEX
 all-dvi: apidoc.dvi sourcedoc.dvi
 # Things to do if also have dvips installed
@@ -173,57 +173,58 @@ DOCPPFLAGS = --sort --no-java-graphs --c-comments --quantel \
 # Automatic dependencies for doc++ stuff #
 ##########################################
 
--include .deps-apidoc
--include .deps-sourcedoc
+-include .deps-apidoc-html
+-include .deps-apidoc-tex
+-include .deps-sourcedoc-html
+-include .deps-sourcedoc-tex
 
 distclean-local: clean-local
-	@if [ -e .deps-apidoc ] ; then \
-	  echo "removing .deps-apidoc"; $(RM) .deps-apidoc ; \
+	@if [ -e .deps-apidoc-html ] ; then \
+	  echo "removing .deps-apidoc-html"; $(RM) .deps-apidoc-html ; \
 	fi
-	@if [ -e .deps-sourcedoc ] ; then \
-	  echo "removing .deps-sourcedoc"; $(RM) .deps-sourcedoc ; \
+	@if [ -e .deps-apidoc-tex ] ; then \
+	  echo "removing .deps-apidoc-tex"; $(RM) .deps-apidoc-tex ; \
 	fi
+	@if [ -e .deps-sourcedoc-html ] ; then \
+	  echo "removing .deps-sourcedoc-html"; $(RM) .deps-sourcedoc-html ; \
+	fi
+	@if [ -e .deps-sourcedoc-tex ] ; then \
+	  echo "removing .deps-sourcedoc-tex"; $(RM) .deps-sourcedoc-tex ; \
+	fi
+
+# Cunning piece of code to generate a dependency file (filename in shell
+# variable destfile), for target $@, 
+GENDEPS = \
+echo "$@ : " $$depends > $$destfile ; \
+for p in $$depends ; do \
+  echo $$p | sed -e 's/^\\$$//' -e '/^$$/d' -e '/:$$/d' | \
+  sed -e 's/$$/ :/' >> $$destfile ; \
+done ;
 
 #########################
 # Rules for doc++ stuff #
 #########################
 
-APIDOC_SRCFILES    = `find $(top_srcdir)/include -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
-SOURCEDOC_SRCFILES = `find $(top_srcdir) -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
-
-GENDEPS_APIDOC = \
-@list="$(APIDOC_SRCFILES)" ; \
-echo "apidoc/index.html apidoc.tex : " $$list > .deps-apidoc ; \
-for p in $$list ; do \
-  echo $$p | sed -e 's/^\\$$//' -e '/^$$/d' -e '/:$$/d' | \
-  sed -e 's/$$/ :/' >> .deps-apidoc ; \
-done ;
-
-GENDEPS_SOURCEDOC = \
-@list="$(SOURCEDOC_SRCFILES)" ; \
-echo "sourcedoc/index.html sourcedoc.tex : " $$list > .deps-sourcedoc ; \
-for p in $$list ; do \
-  echo $$p | sed -e 's/^\\$$//' -e '/^$$/d' -e '/:$$/d' | \
-  sed -e 's/$$/ :/' >> .deps-sourcedoc ; \
-done ;
+APIDOC_SRC    = `find $(top_srcdir)/include -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
+SOURCEDOC_SRC = `find $(top_srcdir) -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
 
 apidoc/index.html:
 	@echo "Generating HTML documentation for API"
-	$(GENDEPS_APIDOC)
-	@doc++ $(DOCPPFLAGS) --dir apidoc $(APIDOC_SRCFILES)
+	@depends="$(APIDOC_SRC)"; destfile=".deps-apidoc-html"; $(GENDEPS)
+	@doc++ $(DOCPPFLAGS) --dir apidoc $(APIDOC_SRC)
 
 apidoc.tex:
-	@echo "Generating latex documentation for API"
-	$(GENDEPS_APIDOC)
-	@doc++ -t $(DOCPPFLAGS) --output $@ $(APIDOC_SRCFILES)
+	@echo "Generating LaTeX documentation for API"
+	@depends="$(APIDOC_SRC)"; destfile=".deps-apidoc-tex"; $(GENDEPS)
+	@doc++ -t $(DOCPPFLAGS) --output $@ $(APIDOC_SRC)
 
 sourcedoc/index.html:
 	@echo "Generating HTML documentation for full source"
-	$(GENDEPS_SOURCEDOC)
-	@doc++ $(DOCPPFLAGS) --private --dir sourcedoc $(SOURCEDOC_SRCFILES)
+	@depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-html"; $(GENDEPS)
+	@doc++ $(DOCPPFLAGS) --private --dir sourcedoc $(SOURCEDOC_SRC)
 
 sourcedoc.tex:
-	$(GENDEPS_SOURCEDOC)
-	@echo "Generating latex documentation for full source"
-	@doc++ -t $(DOCPPFLAGS) --private --output $@ $(SOURCEDOC_SRCFILES)
+	@echo "Generating LaTeX documentation for full source"
+	@depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-tex"; $(GENDEPS)
+	@doc++ -t $(DOCPPFLAGS) --private --output $@ $(SOURCEDOC_SRC)
 
