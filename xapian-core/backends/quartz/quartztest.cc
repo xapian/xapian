@@ -404,7 +404,6 @@ static bool test_bufftable2()
 	TEST_EQUAL(bufftable.get_entry_count(), 0);
 
 	QuartzDbKey key;
-	QuartzDbTag tag;
 
 	key.value = "foo1";
 	bufftable.get_or_make_tag(key)->value = "bar1";
@@ -429,13 +428,11 @@ static bool test_bufftable2()
 	TEST_EQUAL(bufftable.get_entry_count(), 3);
 
 	QuartzDbKey key;
-	QuartzDbTag tag;
 
 	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
 	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
 
 	key.value = "foo";
-	tag.value = "bar";
 	AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
 	TEST(!cursor->find_entry(key));
 	TEST_EQUAL(cursor->current_key.value, "");
@@ -482,7 +479,6 @@ static bool test_bufftable2()
 	TEST_EQUAL(bufftable.get_entry_count(), 3);
 
 	QuartzDbKey key;
-	QuartzDbTag tag;
 
 	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
 	TEST_EQUAL(old_revision, disktable.get_open_revision_number());
@@ -509,13 +505,11 @@ static bool test_bufftable2()
 	TEST_EQUAL(bufftable.get_entry_count(), 4);
 
 	QuartzDbKey key;
-	QuartzDbTag tag;
 
 	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
 	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
 
 	key.value = "foo";
-	tag.value = "";
 	AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
 	TEST(!cursor->find_entry(key));
 	TEST_EQUAL(cursor->current_key.value, "");
@@ -560,7 +554,6 @@ static bool test_cursor1()
     unlink_table("./test_cursor1_");
 
     QuartzDbKey key;
-    QuartzDbTag tag;
 
     // Open table and put stuff in it.
     QuartzDiskTable disktable1("./test_cursor1_", false, 8192);
