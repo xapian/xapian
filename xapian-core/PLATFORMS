@@ -3,12 +3,35 @@ have reported back to us about.  It will probably work on many more platforms
 - lack of an entry here shouldn't be assumed to mean it won't work, just that
 nobody has reported to us that it works.
 
-Platform                  | Xapian Version | Result
---------------------------+----------------+-------------------------
-Linux - Debian (Woody)	  | 0.5.0 (almost) | All tests pass
-Linux - Redhat 6.01       | 0.2.0          | All tests pass
-Linux - Debian (Potato)   | 0.2.0          | All tests pass
-Solaris                   | 0.2.0          | Tests pass if compiled as a
-                          |                | static library - problems due
-			  |                | to exceptions if compiled as
-			  |                | shared library.
+Arch  | Platform                 | Xapian Version | Result
+------+--------------------------+----------------+--------------------------
+x86   |   Linux     - Debian 3.0 | 0.5.0 pre      | All tests pass
+x86   |   Linux 2.2 - Debian 2.2 | 2002-05-14 cvs | All tests pass
+x86   | * Linux 2.4 - Debian 2.2 | 2002-05-14 cvs | All tests pass
+sparc | * Linux 2.2 - Debian 2.2 | 2002-05-14 cvs | All tests pass
+x86   | * FreeBSD 4.5            | 2002-05-14 cvs | All tests pass [1] [2]
+sparc | * Solaris 8              | 2002-05-14 cvs | Tests pass if compiled
+      |                          |                | as a static library [1]
+      |                          |                |
+alpha | * Linux 2.2 - Debian 2.2 | 2002-05-14 cvs | Quartz test failures:
+      |                          |                | disktable3, postlist2,
+      |                          |                | overwrite1, bitmap1,
+      |                          |                | consistency1 (SIGFPE)
+      |                          |                | deldoc4 (OMEXCEPT)
+      |                          |                | postlist5 (FAILED)
+ppc   | * Linux 2.4 - Debian 2.2 | 2002-05-14 cvs | Quartz test failures:
+      |                          |                | disktable1 (aborted)
+      |                          |                | Other parts of the
+      |                          |                | test framework fail
+      |                          |                | similarly
+      |                          |                |
+ppc   | * Darwin 5.4 - OS X 10.1 | 2002-05-14 cvs | Link fails [3]
+------+--------------------------+----------------+--------------------------
+
+* = SourceForge CompileFarm machine
+
+[1] Native make cannot cope with all generated Makefiles; use gmake for now
+
+[2] ./configure spits many warnings but apparently succeeds
+
+[3] Seems to fail to link in some required C++ IO library?

@@ -1,3 +1,7 @@
+Tue May 14 21:54:02 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* Updated PLATFORMS file.
+
 Tue May 14 16:48:07 BST 2002  Olly Betts <olly@survex.com>
 
 	* Removed multiple-include protection from config.h - if it's
