@@ -232,12 +232,3 @@ DADatabase::term_name_to_id(const termname &name) const
     }
     return id;
 }
-
-termname
-DADatabase::term_id_to_name(termid id) const
-{
-    Assert(opened);
-    Assert(id > 0 && id <= termvec.size());
-    //printf("Looking up termid %d: name = `%s'\n", id, termvec[id - 1].name.c_str());
-    return termvec[id - 1].name;
-}

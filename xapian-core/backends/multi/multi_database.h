@@ -277,4 +277,13 @@ MultiDatabase::get_avlength() const
     return avlength;
 }
 
+inline termname
+MultiDatabase::term_id_to_name(termid tid) const {
+    Assert(opened);
+    Assert((used = true) == true);
+    Assert(tid > 0 && tid <= termvec.size());
+    //printf("Looking up termid %d: name = `%s'\n", tid, termvec[tid - 1].name.c_str());
+    return termvec[tid - 1].name;
+}
+
 #endif /* _multi_database_h_ */

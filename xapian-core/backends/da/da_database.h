@@ -219,4 +219,13 @@ DADatabase::get_avlength() const
     return 1;
 }
 
+inline termname
+DADatabase::term_id_to_name(termid id) const
+{
+    Assert(opened);
+    Assert(id > 0 && id <= termvec.size());
+    //printf("Looking up termid %d: name = `%s'\n", id, termvec[id - 1].name.c_str());
+    return termvec[id - 1].name;
+}
+
 #endif /* _da_database_h_ */

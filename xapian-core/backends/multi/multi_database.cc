@@ -256,12 +256,3 @@ MultiDatabase::term_name_to_id(const termname &tname) const {
     }
     return tid;
 }
-
-termname
-MultiDatabase::term_id_to_name(termid tid) const {
-    Assert(opened);
-    Assert((used = true) == true);
-    Assert(tid > 0 && tid <= termvec.size());
-    //printf("Looking up termid %d: name = `%s'\n", tid, termvec[tid - 1].name.c_str());
-    return termvec[tid - 1].name;
-}
