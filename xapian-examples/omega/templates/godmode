@@ -1,0 +1,86 @@
+$set{thousand,$.}$set{decimal,.}<html>
+<script language=javascript><!--
+function C(c) {var i, o;
+o = document.P.P.value;
+if (c.checked){
+document.P.P.value = o+" "+c.value;
+} else {
+o = " "+o+" ";i = o.lastIndexOf(" "+c.value+" ");
+if (i!=-1) {
+document.P.P.value =
+o.substring(1,i)+o.substring(i+c.value.length+1,o.length-1);
+}}}
+// -->
+</script>
+<head>
+<title>Omega: search for `$html{$query}'</title>
+</head>
+<body bgcolor=white>
+<b>Clunk<b> ... <i>god mode engaged!</i><hr>
+$select{$id}Raw record #$id:<br>
+$html{$record}
+<hr>
+Terms indexing this record<br>
+<table><tr><th>Term</th><th>Freq</th></tr>
+<FORM NAME=P METHOD=GET ACTION="$env{SCRIPT_NAME}">
+<NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>
+"<SCRIPT> <!--
+document.write('<INPUT NAME=P VALUE=\"\" SIZE=65>')
+// -->
+</SCRIPT>
+<INPUT ALIGN=middle TYPE=image HEIGHT=56 WIDTH=56 BORDER=0 
+SRC="http://www.euroferret.com/fx-gif/find.gif" VALUE=Find>
+<INPUT TYPE=hidden NAME=DB VALUE="$cgi{DB}">
+<!-- dump terms 
+	// for each term
+	      cout << "<tr><td>";
+	      if (isupper(*p)) {
+		  cout << "<input type=checkbox name=B value=\"" << p << "\">";
+	      } else if (strchr(p, ' ')) {
+		  cout << "<input type=checkbox name=X onclick=C(this) "
+		          "value=\"&quot;" << p << "&quot;\">";
+	      } else {
+		  cout << "<input type=checkbox name=X onclick=C(this) "
+		          "value=\"" << p << ".\">";
+	      }
+	      cout << " <A HREF=\"/?DB=" << db_name << "&";
+	      if (isupper(*p)) {
+		  cout << "B=" << p << "\">";
+	      } else if (strchr(p, ' ')) {
+		  char *q = p;
+		  cout << "P=%22";
+		  while (*q) {
+		      if (*q == ' ')
+			  cout << '+';
+		      else
+			  cout << *q;
+		      q++;
+		  }
+		  cout << "%22\">";
+	      } else {
+		  char *q = p;
+		  cout << "P=";
+		  while (*q) {
+		      if (*q == '+')
+			  cout << "%2b";
+		      else if (*q == '&')
+			  cout << "%26";
+		      else
+			  cout << *q;
+		      q++;
+		  }
+		  cout << ".\">";
+	      }
+
+	      cout << "</A></td><td>" << freq << "</td></tr>\n";	
+-->
+<hr>
+Expand terms<br>
+<table><tr><th>Term</th><th>Freq</th></tr>
+<tr><td>
+$map{$topterms{1000},<INPUT TYPE=checkbox NAME=X VALUE=",." onClick="C(this)">&nbsp;,. }
+</td></tr></table>
+</form>
+<hr><div align=right><i><small>$html{$version}</small></i></div>
+</body>
+</html>

@@ -1,3 +1,14 @@
+Sun Jul 09 13:40:00 BST 2000 Olly Betts
+
+	* omindex: added "&quot;" to entity list as stopgap measure; now put
+	  http: urls in index instead of file:
+
+	* omega: page, hit, and "god mode" extracted into template files;
+	  $if* rationalised into just $if plus $ne, $eq, etc.; added $map;
+	  text page links extracted into macro code; $topterms now produces
+	  list can be turned into html with $map; added int_to_string() and
+	  string_to_int()
+
 Sat Jul 08 15:46:00 BST 2000 Olly Betts
 
 	* omega: page links working (needs cleaning up still)

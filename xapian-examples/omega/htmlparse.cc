@@ -54,6 +54,7 @@ HtmlParser::parse_html(const string &body)
 		    else if (code == "lt") val = '<';
 		    else if (code == "gt") val = '>';
 		    else if (code == "nbsp") val = '\xa0';
+		    else if (code == "quot") val = '\"';
 		}
 		if (end < text.size() && text[end] == ';') end++;
 		if (val) {

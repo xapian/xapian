@@ -31,11 +31,27 @@
 
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 
 #include "omega.h"
 #include "query.h"
 #include "cgiparam.h"
+
+static inline int
+string_to_int(const string &s)
+{
+    return atoi(s.c_str());
+}
+
+static inline string
+int_to_string(int i)
+{
+    char buf[20];
+    sprintf(buf, "%d", i);
+    return string(buf);
+}
+
 
 static bool done_query = false;
 static om_docid last = 0;
@@ -50,82 +66,7 @@ static vector<OmQuery *> pluses;
 static vector<OmQuery *> minuses;
 static vector<OmQuery *> normals;
 
-char *fmtstr =
-"<TR><TD VALIGN=top><IMG "
-"SRC=\"http://www.euroferret.com/fx-gif/score-$score.gif\" "
-"ALT=\"$percentage%\" HEIGHT=35 WIDTH=35></TD>\n"
-"<TD VALIGN=top><TABLE BORDER=0 CELLPADDING=1><TR><TD BGCOLOR=\"#ccffcc\">"
-"<INPUT TYPE=checkbox NAME=R VALUE=$id$if{$relevant, CHECKED}>"
-"</TD></TR></TABLE></TD>\n"
-"<TD>\n"
-"<B><A HREF=\"$field{url}\">"
-"$html{$or{$field{caption},$field{url},Untitled}}"
-"</A></B><BR>\n"
-"$html{$field{sample}}$if{$field{sample},...}"
-"<BR>\n"
-"<A HREF=\"$field{url}\">$html{$field{url}}</A><br>\n"
-//"<small>Language: <b>$html{$or{$field{language},unknown}}</b>\n"
-//"Size: <b>$html{$or{$filesize{$field{size}},unknown}}</b>\n"		       
-//"Last modified: <b>$html{$or{$date{$field{modified}},unknown}}</b><br>\n"
-"$percentage% relevant, matching: <i>$list{$html{$terms},$. ,</i> and <i>}</i></small>\n"
-"</TD></TR>\n";
-
-char *pagefmtstr =
-"$set{thousand,$.}$set{decimal,.}"
-"<html>\n"
-"<script language=javascript><!--\n"
-"function C(c) {var i, o;\n"
-"o = document.P.P.value;\n"
-"if (c.checked){\n"
-"document.P.P.value = o+\" \"+c.value;\n"
-"} else {\n"
-"o = \" \"+o+\" \";i = o.lastIndexOf(\" \"+c.value+\" \");\n"
-"if (i!=-1) {\n"
-"document.P.P.value =\n"
-"o.substring(1,i)+o.substring(i+c.value.length+1,o.length-1);\n"
-"}}}\n"
-"// -->\n"
-"</script>\n"
-"<head>\n"
-"<title>Omega: search for `$html{$query}'</title>\n"
-"</head>\n"
-"<body bgcolor=white>\n"
-"<FORM NAME=P METHOD=GET "
-"ACTION=\"$html{$or{$env{SCRIPT_NAME},ompf}}\" TARGET=\"_top\">\n"
-"<center>\n"
-"<INPUT NAME=P VALUE=\"$query\" SIZE=65>\n"
-"<INPUT TYPE=IMAGE VALUE=\"Search\" BORDER=0 WIDTH=56 HEIGHT=56 ALIGN=middle "
-"SRC=\"http://www.euroferret.com/fx-gif/find.gif\">\n"
-"<table><tr><td bgcolor=\"#ccffcc\">\n"
-"$topterms\n"
-"$if{$topterms,<BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>}\n"
-"</td></tr></table>\n"
-//FIXME: uncomment once $freqs works "$list{$freqs,<hr>,$. ,<hr>}\n"
-"<hr>\n"
-"$ifeq{$msize,0,$if{$queryterms,No documents match your query}}"
-"$ifneq{$msize,0,$if{$lastpage,$ifeq{$topdoc,0,All $msize matches}}}"
-"$ifneq{$msize,0,$if{$lastpage,$ifneq{$topdoc,0,$add{$topdoc,1}-$msize of exactly $msize matches}}}"
-"$ifneq{$msize,0,$ifnot{$lastpage,$add{$topdoc,1}-$add{$topdoc,$maxhits} of at least $msize matches}}"
-"\n"
-"</center>\n"
-"<table>\n"
-"$hitlist\n"
-"</table>\n"
-"$pages{T}<br>\n"
-"$pages{G}<br>\n"
-// FIXME: what if multiple DB parameters?
-"$if{$cgi{DB},<INPUT TYPE=hidden NAME=DB VALUE=\"$html{$cgi{DB}}\">}\n"
-"$ifeq{$topdoc,0,<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>}\n"
-"$ifneq{$maxhits,10,<INPUT TYPE=hidden NAME=MAXHITS VALUE=$maxhits>}\n"
-"$if{$fmt,<INPUT TYPE=hidden NAME=FMT VALUE=\"$html{$fmt}\">}\n"
-"$list{$queryterms,<INPUT TYPE=hidden NAME=OLDP VALUE=\",.,.\">}\n"
-"$list{$relevants,<INPUT TYPE=hidden NAME=R VALUE=,><INPUT TYPE=hidden NAME=R VALUE=,>}\n"
-"</FORM>\n"
-"<hr><div align=right><i><small>$html{$version}</small></i></div>\n"
-"</body>\n"
-"</html>\n";
-
-// STATLINE -> $if{$or{$ifneq{$msize,0,ok},$queryterms},...}
+// STATLINE -> $if{$or{$if{$ne{$msize,0},ok},$queryterms},...}
 
 // lookup in table (e.g. en -> English)
 
@@ -136,7 +77,6 @@ map<om_docid, bool> ticked;
 
 string query_string;
 
-// FIXME: wire up to query page
 om_queryop op = OM_MOP_OR; // default matching mode
 
 querytype
@@ -216,23 +156,21 @@ run_query()
 			  OmQuery(OM_MOP_AND,
 				  pluses.begin(),
 				  pluses.end()),
-			  OmQuery(OM_MOP_OR,
+			  OmQuery(op,
 				  normals.begin(),
 				  normals.end())),
 		  OmQuery(OM_MOP_OR,
 			  minuses.begin(),
 			  minuses.end()));
 
-    // a vector is more convenient than a map for constructing
-    // queries.
-    vector<om_termname> filter_vec;
-    for (map<char,string>::const_iterator ft = filter_map.begin();
-	 ft != filter_map.end();
-	 ++ft) {
-	filter_vec.push_back(ft->second);
-    }
+    if (!filter_map.empty()) {
+	// a vector is more convenient than a map for constructing
+	// queries.
+	vector<om_termname> filter_vec;
+	map<char,string>::const_iterator i;
+	for (i = filter_map.begin(); i != filter_map.end(); i++)
+	    filter_vec.push_back(i->second);
 
-    if (!filter_vec.empty()) {
 	query = OmQuery(OM_MOP_FILTER,
 			query,
 			OmQuery(OM_MOP_AND,
@@ -243,8 +181,8 @@ run_query()
     enquire->set_query(query);
 
     // We could use the value of topdoc as first parameter, but we
-    // might need to know the first few items on the mset to fake
-    // a relevance set for topterms
+    // need to know the first few items on the mset to fake a
+    // relevance set for topterms
     mset = enquire->get_mset(0, topdoc + list_size, rset); // FIXME - set msetcmp to reverse
 }
 
@@ -313,8 +251,9 @@ do_picker(char prefix, const char **opts)
     cout << "</SELECT>\n";
 }
 
+// FIXME: we can't easily do this in the macro language...
 static string
-print_page_links(char type)
+print_page_links()
 {
     int page;
     string res;
@@ -323,25 +262,19 @@ print_page_links(char type)
 
     string g = option["gif_dir"];
     option["gif_dir"] = "http://www.muscat.com/fx_gif/oval/";
-    int lastpage = (mset.mbound - 1) / list_size;
+    int lastpage = (mset.mbound - 1) / list_size + 1;
     if (lastpage > 10) lastpage = 10;
-    if (type == 'T') {
-	for (page = 1; page <= lastpage; page++) {
-	    char pagebuf[10];
-	    sprintf(pagebuf, "%d", page);
-	    res = res + "<INPUT TYPE=submit NAME=\"[\" VALUE=" + pagebuf + ">\n";
-	}
-    } else {
+
+    {
 	long int plh, plw, have_selected_page_gifs;
 	// If not specified, don't default plh and plw since the page
 	// gifs may not all be the same size
-	plh = atoi(option["pagelink_height"].c_str());
-        plw = atoi(option["pagelink_width"].c_str());
-        have_selected_page_gifs = atoi(option["selected_pages"].c_str());
+	plh = string_to_int(option["pagelink_height"]);
+        plw = string_to_int(option["pagelink_width"]);
+        have_selected_page_gifs = string_to_int(option["selected_pages"]);
 
         for (page = 1; page <= lastpage; page++) {
-	    char pagebuf[10];
-	    sprintf(pagebuf, "%d", page);
+	    string pagebuf = int_to_string(page);
 	    if (page - 1 == topdoc / list_size) {
 		res += "<IMG SRC=\"" + option["gif_dir"] + "/page-" + pagebuf;
 		if (have_selected_page_gifs) res += 's';
@@ -356,6 +289,7 @@ print_page_links(char type)
 	    res = res + " ALT=" + pagebuf + ">\n";
 	}
     }
+
     option["gif_dir"] = g;
     return res;
 }
@@ -378,7 +312,7 @@ percent_encode(const string &str)
     }
 }
 
-string
+static string
 html_escape(const string &str)
 {
     string res;
@@ -430,33 +364,6 @@ static void print_query_string(const char *after) {
     cout << query_string;
 }
 
-static string
-display_date(const string &date_string)
-{
-    char buf[64] = "";
-    if (date_string.size()) {
-	time_t date = atoi(date_string.c_str());
-	if (date != (time_t)-1) {
-	    struct tm *then;
-	    then = gmtime(&date);
-	    strftime(buf, sizeof buf, "%Y-%m-%d", then);
-	}
-    }
-    return string(buf);
-}
-
-/* return a sane (1-100) percentage value for num/denom */
-static int percentage(double num, double denom) {
-    /* default to 100 so pure boolean queries give 100% not 0%) */
-    long int percent = 100;
-    if (denom) {
-	percent = (long)( (100.0 * num) / denom + 0.5 );
-	if (percent > 100) percent = 100;
-	else if (percent < 1) percent = 1;
-    }
-    return (int)percent;
-}
-
 /* pretty print numbers with thousands separated */
 /* NB only handles %ld and %d with no width or flag specifiers... */
 static string
@@ -491,7 +398,7 @@ static map<string, string> field;
 static om_docid q0;
 static int percent;
 
-static string print_caption(om_docid m);
+static string print_caption(om_docid m, const string &fmt);
 
 static bool relevant_cached = false;
 
@@ -502,6 +409,7 @@ eval(const string &fmt)
     size_t p = 0, q;
     while ((q = fmt.find('$', p)) != string::npos) {
 	res += fmt.substr(p, q - p);
+	size_t code_start = q; // note down for error reporting
 	q++;
 	if (q >= fmt.size()) break;
 	// Magic sequences:
@@ -534,7 +442,8 @@ eval(const string &fmt)
 	    int nest = 1;
 	    while (1) {
 		p = fmt.find_first_of(",{}", p + 1);
-		if (p == string::npos) throw "missing } in " + fmt;
+		if (p == string::npos)
+		    throw "missing } in " + fmt.substr(code_start);
 		if (fmt[p] == '{') {
 		    ++nest;
 		} else {
@@ -550,20 +459,15 @@ eval(const string &fmt)
 
 	bool ok = false;
 	string value;
-	char tmp[20];
 	switch (var[0]) {
 	 case 'a':
 	    if (var == "add") {
 		ok = true;
-		unsigned int total = 0;
+		int total = 0;
 		vector<string>::const_iterator i;
-		for (i = args.begin(); i != args.end(); i++) {
-		    value = eval(*i);
-		    unsigned int i = atoi(value.c_str());
-		    total += i;
-	        }
-		sprintf(tmp, "%u", total);
-		value = tmp;
+		for (i = args.begin(); i != args.end(); i++)
+		    total += string_to_int(eval(*i));
+		value = int_to_string(total);
 		break;
 	    }
 	    break;
@@ -587,7 +491,25 @@ eval(const string &fmt)
 	 case 'd':
 	    if (var == "date") {
 		ok = true;
-		value = display_date(eval(args[0]));
+		value = eval(args[0]);
+		if (value.size()) {
+		    char buf[64] = "";
+		    time_t date = string_to_int(value);
+		    if (date != (time_t)-1) {
+			struct tm *then;
+			then = gmtime(&date);
+			strftime(buf, sizeof buf, "%Y-%m-%d", then);
+		    }
+		    value = buf;
+		}
+		break;
+	    }
+	    if (var == "defaultop") {
+		if (op == OM_MOP_AND) {
+		    value = "and";
+		} else {
+		    value = "or";
+		}
 		break;
 	    }
 	    break;
@@ -597,6 +519,11 @@ eval(const string &fmt)
 		var = eval(args[0]);
 		char *env = getenv(var.c_str());
 		if (env != NULL) value = env;
+		break;
+	    }
+	    if (var == "eq") {
+		ok = true;
+		if (eval(args[0]) == eval(args[1])) value = "true";
 		break;
 	    }
 	    break;
@@ -685,26 +612,18 @@ eval(const string &fmt)
 		    query_string += "&B=";
 		    query_string += i->second;
 		}
-		
-		struct stat st;
-		int fd = open(fmtfile.c_str(), O_RDONLY);
-		if (fd >= 0) {
-		    if (fstat(fd, &st) == 0 && st.st_size) {
-			char *p;
-			p = (char*)malloc(st.st_size + 1);
-			if (p) {
-			    if (read(fd, p, st.st_size) == st.st_size) {
-				p[st.st_size] = '\0';
-				fmtstr = p;
-			    }
-			}
-		    }
-		    close(fd);
-		}
 #endif
-		ensure_match();		
+		ensure_match();
+		// FIXME: really nasty bodge
+		string fmthit;		
+		vector<string>::const_iterator i = args.begin();
+		while (true) {
+		    fmthit += *i;
+		    if (++i == args.end()) break;
+		    fmthit += ',';
+		}
 		for (om_docid m = topdoc; m < last; m++)
-		    value += print_caption(m);
+		    value += print_caption(m, fmthit);
 
 		ok = true;
 		break;
@@ -713,9 +632,7 @@ eval(const string &fmt)
 	 case 'i':
 	    if (var == "id") {
 		// document id
-		sprintf(tmp, "%u", q0);
-		value = tmp;
-		ok = true;
+		value = int_to_string(q0);
 		break;
 	    }
 	    if (var == "if") {
@@ -723,30 +640,11 @@ eval(const string &fmt)
 		if (eval(args[0]).size()) value = eval(args[1]);
 		break;
 	    }
-	    if (var == "ifnot") {
-		ok = true;
-		if (eval(args[0]).size() == 0) value = eval(args[1]);
-		break;
-	    }
-	    if (var == "ifeq") {
-		ok = true;
-		if (eval(args[0]) == eval(args[1]))
-		    value = eval(args[2]);
-		break;
-	    }
-	    if (var == "ifneq") {
-		ok = true;
-		if (eval(args[0]) != eval(args[1]))
-		    value = eval(args[2]);
-		break;
-	    }
 	    break;
 	 case 'l':
-	    if (var == "lastpage") {
-		ensure_match();		
-		// "true" if last page, empty otherwise
-		if (last >= mset.mbound) value = "true";
-		ok = true;
+	    if (var == "last") {
+		ensure_match();
+		value = int_to_string(last);
 		break;
 	    }
 	    if (var == "list") {
@@ -792,15 +690,43 @@ eval(const string &fmt)
 	    if (var == "msize") {
 		ensure_match();		
 		// number of matches
-		sprintf(tmp, "%u", mset.mbound);
-		value = tmp;
-		ok = true;
+		value = int_to_string(mset.mbound);
 		break;
 	    }
 	    if (var == "maxhits") {
-		sprintf(tmp, "%u", list_size);
-		value = tmp;
+		value = int_to_string(list_size);
+		break;
+	    }
+	    if (var == "map") {
 		ok = true;
+		string list = eval(args[0]);
+		size_t i = 0;
+		while (++i < args.size()) args[i] = eval(args[i]);
+		if (list.size()) {
+		    size_t split = 0, split2;
+		    while (1) {
+			split2 = list.find('\t', split);
+			string item = list.substr(split, split2 - split);
+			size_t i = 0;
+			while (++i < args.size() - 1)
+			    value = value + args[i] + item;
+			value += args[args.size() - 1];
+			if (split2 == string::npos) break;
+			split = split2 + 1;
+		    }
+		}
+		break;
+	    }
+	    break;
+	 case 'n':
+	    if (var == "ne") {
+		ok = true;
+		if (eval(args[0]) != eval(args[1])) value = "true";
+		break;
+	    }
+	    if (var == "not") {
+		ok = true;
+		if (eval(args[0]).size() == 0) value = "true";
 		break;
 	    }
 	    break;
@@ -823,16 +749,19 @@ eval(const string &fmt)
 	 case 'p':
 	    if (var == "percentage") {
 		// percentage score
-		sprintf(tmp, "%u", percent);
-		value = tmp;
-		ok = true;
+		value = int_to_string(percent);
 		break;
 	    }
 	    if (var == "pages") {
 		ok = true;
-		value = print_page_links(args[0][0]);
+		value = print_page_links();
 		break;
 	    }
+	    if (var == "pagemax") {
+		value = int_to_string((mset.mbound - 1) / list_size + 1);
+		break;
+	    }
+
 	    break;
 	 case 'q':
 	    if (var == "query") {
@@ -859,6 +788,17 @@ eval(const string &fmt)
 	    }
 	    break;
 	 case 'r':
+	    if (var == "range") {
+		ok = true;
+		int start = atoi(eval(args[0]).c_str());
+		int end = atoi(eval(args[1]).c_str());
+	        while (start <= end) {
+		    value = value + int_to_string(start);
+		    if (start < end) value += '\t';
+		    start++;
+		}
+		break;
+	    }
 	    if (var == "relevant") {
 		ok = true;
 		static string val;
@@ -867,8 +807,7 @@ eval(const string &fmt)
 		    // document id if relevant; empty otherwise
 		    if (ticked[q0]) {
 			ticked[q0] = false; // icky side-effect
-			sprintf(tmp, "%u", q0);
-			val = tmp;
+			val = int_to_string(q0);
 		    } else {
 			val = "";
 		    }
@@ -881,26 +820,32 @@ eval(const string &fmt)
 		ok = true;
 		map <om_docid, bool>::const_iterator i;
 		for (i = ticked.begin(); i != ticked.end(); i++) {
-		    if (i->second) {
-			sprintf(tmp, "%u", i->first);
-			value = value + tmp + '\t';
-		    }
+		    if (i->second) value += int_to_string(i->first) + '\t';
 		}
 		if (value.size()) value.erase(value.size() - 1);
+		break;
+	    }
+	    if (var == "record") {
+		ok = true;		
+		value = enquire->get_doc(q0).get_data().value;
 		break;
 	    }
 	    break;
 	 case 's':
 	    if (var == "score") {
 		// Score (0 to 10)
-		sprintf(tmp, "%u", percent / 10);
-		value = tmp;
-		ok = true;
+		value = int_to_string(percent / 10);
 		break;
 	    }
 	    if (var == "set") {
 		ok = true;
 		option[eval(args[0])] = eval(args[1]);
+		break;
+	    }
+	    if (var == "select") {
+		ok = true;
+		q0 = string_to_int(eval(args[0]));
+		// FIXME: more stuff?
 		break;
 	    }
 	    break;
@@ -919,16 +864,18 @@ eval(const string &fmt)
 	    }
 	    if (var == "topdoc") {
 		// first document on current page of hit list (counting from 0)
-		ok = true;
-		sprintf(tmp, "%u", topdoc);
-		value = tmp;
+		value = int_to_string(topdoc);
 		break;
 	    }
 	    if (var == "topterms") {
 		ok = true;
 		static string val;
-		if (val.size() == 0) {
+		if (val.size() == 0) {		    
 		    ensure_match();
+		    int howmany = 20;
+		    if (args.size() > 0)
+			howmany = string_to_int(eval(args[0]));
+		    if (howmany < 0) howmany = 0;
 		    
 		    // Present a clickable list of expand terms
 		    if (mset.mbound) {
@@ -936,7 +883,7 @@ eval(const string &fmt)
 			ExpandDeciderOmega decider;
 			
 			if (rset->items.size()) {
-			    eset = enquire->get_eset(20, *rset, 0, &decider);
+			    eset = enquire->get_eset(howmany, *rset, 0, &decider);
 			} else {
 			    // invent an rset
 			    OmRSet tmp;
@@ -944,18 +891,15 @@ eval(const string &fmt)
 			    for (int m = min(4, int(mset.mbound) - 1); m >= 0; m--)
 				tmp.add_document(mset.items[m].did);
 			    
-			    eset = enquire->get_eset(20, tmp, 0, &decider);
+			    eset = enquire->get_eset(howmany, tmp, 0, &decider);
 			}
 		    
 			vector<OmESetItem>::const_iterator i;
 			for (i = eset.items.begin();
 			     i != eset.items.end(); i++) {
-			    string tname = i->tname;
-			    val = val
-				+ "<INPUT TYPE=checkbox NAME=X VALUE=\""
-				+ tname + ".\" onClick=\"C(this)\">&nbsp;"
-				+ tname + ". ";			     
+			    val = val + i->tname + '\t';
 			}
+			if (val.size()) val.erase(val.size() - 1);
 		    }
 		}
 		value = val;
@@ -977,7 +921,7 @@ eval(const string &fmt)
 	    }
 	    break;
 	}
-	if (!ok) throw "Unknown variable `" + var + "'";
+	if (!ok && value == "") throw "Unknown variable `" + var + "'";
         res += value;
     }
 	     
@@ -986,12 +930,33 @@ eval(const string &fmt)
 }
 
 static string
-print_caption(om_docid m)
+eval_file(const string &fmtfile)
+{    
+    string fmt;
+    struct stat st;
+    int fd = open(fmtfile.c_str(), O_RDONLY);
+    if (fd >= 0) {
+	if (fstat(fd, &st) == 0 && st.st_size) {
+	    char *p;
+	    p = (char*)malloc(st.st_size);
+	    if (p) {
+		if (read(fd, p, st.st_size) == st.st_size)
+		    fmt = string(p, st.st_size);
+		free(p);
+	    }
+	}
+	close(fd);
+    }
+    return eval(fmt);
+}
+
+static string
+print_caption(om_docid m, const string &fmt)
 {
     relevant_cached = false;
 
     q0 = mset.items[m].did;
-    percent = percentage((double)mset.items[m].wt, mset.max_possible);
+    percent = mset.convert_to_percent(mset.items[m]);
 
     OmDocument doc = enquire->get_doc(q0);
     OmData data = doc.get_data();
@@ -1016,14 +981,18 @@ print_caption(om_docid m)
 	i++;
     }
 
-    return eval(fmtstr);
+    return eval(fmt);
 }
 
 static void
 print_query_page(const string &page)
 {
-    // FIXME: read fmt from file...
-    cout << eval(pagefmtstr);
+    string fnm;
+
+    fnm = db_dir + "-html/"; // FIXME should be "/html/"
+    fnm += page;
+
+    cout << eval_file(fnm);
 }
 
 om_doccount

@@ -75,15 +75,16 @@ MyHtmlParser::closing_tag(const string &text)
 static string root = "/home/httpd/html/open.muscat.com";
 
 static void
-index_file(const string &file)
+index_file(const string &url)
 {
+    string file = root + url;
     std::ifstream in(file.c_str());
     if (!in) {
 	cout << "Can't open \"" << file << "\" - skipping\n";
 	return;
     }
 
-    cout << "Indexing \"" << file << "\"\n";
+    cout << "Indexing \"" << url << "\"\n";
 
     string text;   
     while (!in.eof()) {
@@ -112,7 +113,7 @@ index_file(const string &file)
     if (space != string::npos) sample.erase(space);
 
     // Put the data in the document
-    string record = "url=file:" + file + "\nsample=" + sample;
+    string record = "url=" + url + "\nsample=" + sample;
     if (p.title != "") record = record +"\ncaption=" + p.title;
     newdocument.data = record;
 
@@ -142,27 +143,29 @@ index_directory(const string &dir)
 {
     DIR *d;
     struct dirent *ent;
-    d = opendir(dir.c_str());
+    string path = root + dir;
+    d = opendir(path.c_str());
     if (d == NULL) {
-	cout << "Can't open \"" << dir << "\" - skipping\n";
+	cout << "Can't open directory \"" << path << "\" - skipping\n";
 	return;
     }
     while ((ent = readdir(d)) != NULL) {
 	struct stat statbuf;
 	// ".", "..", and other special files
 	if (ent->d_name[0] == '.') continue;
-	string file = dir + '/' + ent->d_name;
+	string url = dir + '/' + ent->d_name;
+	string file = root + url;
 	if (stat(file.c_str(), &statbuf) == -1) {
 	    cout << "Can't stat \"" << file << "\" - skipping\n";
 	    continue;
 	}
 	if (S_ISDIR(statbuf.st_mode)) {
-	    index_directory(file);
+	    index_directory(url);
 	    continue;
 	}
 	if (S_ISREG(statbuf.st_mode)) {
-	    if (file.substr(file.size() - 5) == ".html")
-		index_file(file);
+	    if (url.substr(url.size() - 5) == ".html")
+		index_file(url);
 	    continue;
 	}
 	cout << "Not a regular file \"" << file << "\" - skipping\n";
@@ -174,7 +177,7 @@ int main() {
     vector<string> parameters;
     parameters.push_back("/usr/om/data/default");
     db = new OmWritableDatabase("sleepycat", parameters);
-    index_directory(root);
+    index_directory("/");
     delete db;
     return 0;   
 }

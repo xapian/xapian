@@ -60,3 +60,5 @@ class ExpandDeciderOmega : public OmExpandDecider {
 	    return true;
 	}
 };
+
+extern string db_dir;

@@ -53,7 +53,7 @@ static void make_log_entry(const string &action, long matches);
 static void make_query_log_entry(const string &buf);
 
 string db_name;
-static string db_dir;
+string db_dir;
 string fmtname;
 string fmtfile = "t/fmt";
 
@@ -78,7 +78,9 @@ int main(int argc, char *argv[])
     catch (const char *s) {
 	cout << "Exception: " << s << endl;
     }
-//    catch (...) { cout << "Caught unknown exception" << endl; }
+    catch (...) {
+	cout << "Caught unknown exception" << endl;
+    }
     return 0;
 }
 
@@ -215,78 +217,7 @@ static int main2(int argc, char *argv[])
     val = cgi_params.find("IDSPISPOPD");
     if (val != cgi_params.end()) {
 	int doc = atol(val->second.c_str());
-	
-	cout << "<b>Clunk<b> ... <i>god mode engaged!</i><hr>\n"
-	        "Raw record #" << doc << ":<br>\n";
-	
-	cout << html_escape(enquire->get_doc(doc).get_data().value);
-	
-	
-	cout << "<hr>\nTerms indexing this record<br>\n"
-	        "<table><tr><th>Term</th><th>Freq</th></tr>\n"
-		"<FORM NAME=P METHOD=GET ACTION=\"/\">\n"
-		"<NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>\n"
-		"<SCRIPT> <!--\n"
-		"document.write('<INPUT NAME=P VALUE=\"\" SIZE=65>')\n"
-		"// -->\n"
-		"</SCRIPT>\n"
-		"<INPUT ALIGN=middle TYPE=image HEIGHT=56 WIDTH=56 BORDER=0 "
-		"SRC=\"http://www.euroferret.com/fx-gif/find.gif\" "
-		"VALUE=Find>\n";
-
-	cout << "<INPUT TYPE=hidden NAME=DB VALUE=" << db_name << ">\n";
-
-	// FIXME: dump terms
-#if 0
-	// for each term
-	      cout << "<tr><td>";
-	      if (isupper(*p)) {
-		  cout << "<input type=checkbox name=B value=\"" << p << "\">";
-	      } else if (strchr(p, ' ')) {
-		  cout << "<input type=checkbox name=X onclick=C(this) "
-		          "value=\"&quot;" << p << "&quot;\">";
-	      } else {
-		  cout << "<input type=checkbox name=X onclick=C(this) "
-		          "value=\"" << p << ".\">";
-	      }
-	      cout << " <A HREF=\"/?DB=" << db_name << "&";
-	      if (isupper(*p)) {
-		  cout << "B=" << p << "\">";
-	      } else if (strchr(p, ' ')) {
-		  char *q = p;
-		  cout << "P=%22";
-		  while (*q) {
-		      if (*q == ' ')
-			  cout << '+';
-		      else
-			  cout << *q;
-		      q++;
-		  }
-		  cout << "%22\">";
-	      } else {
-		  char *q = p;
-		  cout << "P=";
-		  while (*q) {
-		      if (*q == '+')
-			  cout << "%2b";
-		      else if (*q == '&')
-			  cout << "%26";
-		      else
-			  cout << *q;
-		      q++;
-		  }
-		  cout << ".\">";
-	      }
-
-	      cout << "</A></td><td>" << freq << "</td></tr>\n";	
-#endif
-
-	cout << "<hr>\nExpand terms<br>\n"
-	        "<table><tr><th>Term</th><th>Freq</th></tr>\n";
-	// FIXME: generate lots of expand terms for this doc and list them
-
-	cout << "<hr>\n";
-	exit(0);
+	// FIXME: use godmode template
     }
       
     // collect the prob fields
@@ -384,26 +315,6 @@ static string map_dbname_to_dir(const string &db_name) {
 }
 
 /**************************************************************/
-
-/* support function for opening the template html pages */
-extern FILE *page_fopen(const string &page) {
-    FILE *fp;
-    string fnm;
-
-    fnm = db_dir + "-html/"; // FIXME should be "/html/"
-    fnm += page;
-
-    fp = fopen(fnm.c_str(), "r");
-    if (fp) return fp;
-
-    /* Perhaps the filename was truncated to 8.3 by DOS or ISO-9660 */
-    /* No real need to be too clever about this right now ... */
-    if (page == "expand_error")
-	return page_fopen("expand_e");
-
-    cout << "Couldn't open file \"" << fnm << "\"\n";
-    return NULL;
-}
 
 // Logging code
 
