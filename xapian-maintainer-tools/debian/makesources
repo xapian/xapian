@@ -137,7 +137,7 @@ else
   TARGETDIR="dists/$COMPONENT/snapshot"
 fi
 SRCDIR="$TARGETDIR/source"
-POOLDIR="pool"
+POOLDIR="pool/$VERSION"
 mkdir -p "$PUBDIR/$SRCDIR"
 
 # Calculate location that tarballs should be found at
