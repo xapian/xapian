@@ -334,7 +334,7 @@ sub highlightquery{
 #--------------------------------
 sub toChar{
 	my ($word) = @_;
-	$word =~ s/(\d)/@{[chr($1+64)]}/ig;
+	$word =~ s/(\d)/@{[chr($1+65)]}/ig;
 	return $word;
 }
 
