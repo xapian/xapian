@@ -2,6 +2,8 @@
 
 INCLUDES = -I$(top_srcdir)/include -I${top_builddir}/include # -I$(top_srcdir)/testsuite
 
+noinst_HEADERS = symboltab.h
+
 xapianincludedir = $(includedir)/xapian
 omcompatincludedir = $(includedir)/om
 

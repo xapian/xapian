@@ -1,3 +1,7 @@
+Fri Jul 04 18:52:07 BST 2003  Olly Betts <olly@survex.com>
+
+	* extra/Makefile.am: Distribute symboltab.h.
+
 Fri Jul 04 18:04:53 BST 2003  Olly Betts <olly@survex.com>
 
 	* common/Makefile.am: Distribute documentterm.h.
