@@ -1,3 +1,7 @@
+Mon Oct 11 16:32:10 BST 2004  Olly Betts <olly@survex.com>
+
+	* tests/btreetest.cc: Fix memory leaks in test_cursor1.
+
 Mon Oct 11 02:24:50 BST 2004  Olly Betts <olly@survex.com>
 
 	* docs/quartzdesign.html: Use 5 tables in the example for how we keep

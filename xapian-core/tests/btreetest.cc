@@ -953,6 +953,7 @@ static bool test_cursor1()
     TEST_EQUAL(cursor->current_key, "foo3");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar3");
+    delete cursor;
 
     cursor = table_rw.cursor_get();
     TEST(cursor->find_entry("foo25"));
@@ -965,6 +966,7 @@ static bool test_cursor1()
     TEST_EQUAL(cursor->current_key, "foo3");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar3");
+    delete cursor;
 
     cursor = table_rw.cursor_get();
     TEST(!cursor->find_entry("foo26"));
@@ -1020,6 +1022,7 @@ static bool test_cursor1()
     TEST_EQUAL(cursor->current_key, "foo3");
     cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar3");
+    delete cursor;
 
     new_revision += 1;
     table_rw.commit(new_revision);
@@ -1047,6 +1050,7 @@ static bool test_cursor1()
     TEST_EQUAL(cursor->current_tag, "bar2");
 
     table_rw.del("foo25");
+    delete cursor;
 
     cursor = table_rw.cursor_get();
     TEST(!cursor->find_entry("foo25"));
