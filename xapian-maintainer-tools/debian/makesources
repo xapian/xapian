@@ -36,7 +36,7 @@ CVSTAG='v0-8-4'
 
 # CVS tags to use to check out Debian control files
 DEBTAG_CORE='debian0-8-4_1'
-DEBTAG_BINDINGS='debian0-8-4_1'
+DEBTAG_BINDINGS='debian0-8-4_3'
 DEBTAG_OMEGA='debian0-8-4_1'
 
 #CVSTAG=HEAD
