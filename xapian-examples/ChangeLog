@@ -1,3 +1,7 @@
+Tue Aug 24 14:02:45 BST 2004  Olly Betts <olly@survex.com>
+
+	* indexer/: Removed unused indexer example.
+
 Sun Aug 22 13:09:38 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,configure.in: Renamed configure.in to configure.ac.
