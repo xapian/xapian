@@ -565,40 +565,12 @@ static int parse_prob( const char *text, struct term *pTerm ) {
     return got;
 }
 
+static map<char, string> filter_map;
 /**************************************************************/
 void add_bterm( const char *term ) {
     matcher->add_bterm(term);
+    filter_map[term[0]] = string(term);
 }
-
-/**************************************************************/
-static long int trim_msize(long int oldmsize, long int weight_threshold) {
-    /* Takes hits with negative weights off the msize figure. */
-    /* Code snippet originally by Graham Simms, shoehorned into FX by KJM. */
-    long int newmsize;
-    
-    /*** sanity check ***/
-    if (oldmsize == 0) return 0;
-
-    /* if we're using MTOTAL, give up on it now, since we can't binary
-     * chop off the end of the M-set */
-    if (oldmsize > MLIMIT) oldmsize = MLIMIT;
-   
-    newmsize = 0; /* In case none of them meet the threshold. */
-
-#if 0 // FIXME:
-    /* fab newer way */
-    Give_Muscatf("cutoffm byweight %d", weight_threshold);
-    Getfrom_Muscat(&z);
-    check_error(&z);
-    Give_Muscat("msize");
-    Getfrom_Muscat (&z);
-    check_error(&z);
-    newmsize = atol (z.p + 2);
-    /* end fab newer way */
-#endif
-    return newmsize;
-}
-
 
 /**************************************************************/
 static void run_query(void) {
@@ -632,6 +604,10 @@ static void run_query(void) {
 	int t = maxweight * percent_min / 100;
 	if (t > weight_threshold) weight_threshold = t;
 	msize = trim_msize(msize, weight_threshold);
+
+	/* if we're using MTOTAL, give up on it now, since we can't binary
+	 * chop off the end of the M-set */
+	if (oldmsize > MLIMIT) oldmsize = MLIMIT;
 #endif
     }
 
@@ -1041,20 +1017,13 @@ do_picker(char prefix, const char **opts)
    char *t;
    int len;
    char *picker[256];
-#if 0 // FIXME
-   buf[5] = prefix;
 
-   *current = '\0';
-   Give_Muscatf("show q style q prefix '%c'", prefix);
-   while (!Getfrom_Muscat (&z)) {
-      check_error(&z);
-      if (z.p[0] == 'I' && z.p[3] == 'b') {
-	 *current = '\0';
-	 strncat(current, z.p + 6, 255);
-	 do_current = 1;
-      }
+   map <char, string>::const_iterator i = filter_map.find(prefix);
+   if (i != filter_map.end() && i->second.length() > 1) {
+       i->second.copy(current, 256, 1);
+       current[i->second.length() - 1] = '\0';
+       do_current = 1;
    }
-#endif
 
    fputs("<SELECT NAME=B>\n"
 	 "<OPTION VALUE=\"\"", stdout);
@@ -1172,7 +1141,7 @@ static void print_query_page( const char* page, long int first, long int size) {
 			   "%ld\t%ld\t%ld\n", first + 1, last + 1, msize);		    
 		    fputs("relevance\turl\tcaption\tsample\tlanguage\tcountry\thostname\tsize\tlast modified\tmatching\n", stdout);
 #endif
-		     {
+		    {
 			char *p, *q;
 			int ch;
 			
@@ -1191,20 +1160,17 @@ static void print_query_page( const char* page, long int first, long int size) {
 			      *p++ = ch;
 			   }
 			}
-#if 0 // FIXME
 			/* add any boolean terms */
-			Give_Muscat ("show q style q");
-			while (!Getfrom_Muscat (&z)) {
-			   check_error(&z);
-			   if (z.p[0] == 'I' && z.p[3] == 'b') {
-			      strcpy(p, "&B=");
-			      p += 3;
-			      strcpy(p, z.p + 5);
-			      p += strlen(p);
-			   }
+			map <char, string>::const_iterator i;			 
+			for (i = filter_map.begin(); i != filter_map.end(); i++) {
+			    strcpy(p, "&B=");
+			    p[3] = i->first;
+			    p += 4;
+			    i->second.copy(p, 256);
+			    p += i->second.length();			    
 			}
-#endif
-		      }
+			*p = '\0';
+		     }
 
 #ifndef META
 		     {
@@ -1257,7 +1223,9 @@ static void print_query_page( const char* page, long int first, long int size) {
 		    /* Olly's expand on query page idea */
 		    int c = 0;
 		    int rel_hack = 0;
-#if 0 // FIXME
+#if 1 // FIXME
+		      printf("Sorry, we've not implemented relevance feedback yet\n");
+#else
 		    /* see if we have any docs marked as relevant */
 		    Give_Muscat( "show docs style w r0" );
 		    if (!Getfrom_Muscat(&z) && z.p[0] != 'I') {
