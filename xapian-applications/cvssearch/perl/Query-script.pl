@@ -115,7 +115,7 @@ print <<_HTML_;
 <a href="http://cvssearch.sourceforge.net">
 <img border=0 src="Logo.cgi"></a>
 <br><a href="./Compare.cgi">[Browse Files/Commits]</a>   
-&nbsp;<a href="./PatternBrowser.cgi">[Browse Library Class/Function Usage Patterns]</a>
+<br><a href="./PatternBrowser.cgi">[Browse Library Class/Function Usage Patterns]</a>
 </td><td align=right>
 <form action=./Query.cgi>
 <b>Enter keyword(s) to search for: </b><input type=text size=45 name=query value="$query">
