@@ -1,3 +1,8 @@
+Tue Nov 16 02:56:44 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Solaris defines __solaris__ not
+	  __SOLARIS__.
+
 Mon Nov 15 12:40:38 GMT 2004  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: Added new test userweight1 to test user defined

@@ -29,10 +29,10 @@
 #include <sys/types.h>
 extern ssize_t pread(int, void *, size_t, off_t);
 extern ssize_t pwrite(int, const void *, size_t, off_t);
-#elif defined(__SOLARIS__)
-// x86 Solaris always prototypes pread and pwrite anyway, but seems to have
-// a buggy unistd.h which fails to prototype _xmknod (presumably an internal
-// helper function).
+#elif defined(__solaris__)
+// Solaris always prototypes pread and pwrite anyway, but x86 Solaris seems
+// to have a buggy unistd.h which fails to prototype _xmknod (presumably an
+// internal helper function) if _XOPEN_SOURCE is defined.
 #else
 // Need this to get pread and pwrite with GNU libc.
 #if !defined _XOPEN_SOURCE
