@@ -41,10 +41,15 @@ class OmData {
 	string value;
 };
 
-// A key in a document
+/// A key in a document.
 class OmKey {
     public:
-	unsigned int value;  // FIXME TEMPORARY
+	/// The value of a key.
+	// FIXME: The value here should be of variable length (some
+	// backend will have a fixed length requirement, though.)
+	unsigned int value;
+
+	/// Ordering for keys, so they can be stored in STL containers.
 	bool operator < (const OmKey &k) const { return(value < k.value); }
 };
 
