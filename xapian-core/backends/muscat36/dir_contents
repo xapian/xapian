@@ -1,8 +1,8 @@
-<Directory>backends/da</Directory>
+<Directory>backends/muscat36</Directory>
 
 <Description>
-This directory contains the DA backend, used to access (old-style)
-Direct Access databases.
+This directory contains the Muscat36 backend, used to access old-style
+Muscat 3.6 databases.
 
 This backend only supports reading from the database: databases
 can be created with the old Muscat 3.6 software.  We do not plan
