@@ -30,6 +30,21 @@
 #include <errno.h>
 #include "omdebug.h"
 
+static std::string hex_encode(const std::string & input) {
+    const char * table = "0123456789abcdef";
+    std::string result;
+    std::string::const_iterator i = input.begin();
+    for (i = input.begin();
+	 i != input.end();
+	 i++) {
+	result += "\\x";
+	result += table[(*i)/16];
+	result += table[(*i)%16];
+    }
+
+    return result;
+}
+
 bool
 QuartzDiskCursor::find_entry(const QuartzDbKey &key)
 {
@@ -57,8 +72,8 @@ QuartzDiskCursor::find_entry(const QuartzDbKey &key)
     current_tag.value =
 	    string(reinterpret_cast<const char *>(item->tag), item->tag_len);
 
-    DEBUGLINE(DB, "Found entry: key=`" << current_key.value <<
-	      "', tag=`" << current_tag.value << "'");
+    DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key.value) <<
+	      "', tag=`" << hex_encode(current_tag.value) << "'");
 
     Btree_item_lose(item);
 
@@ -91,8 +106,8 @@ QuartzDiskCursor::next()
 
     Btree_item_lose(item);
 
-    DEBUGLINE(DB, "Moved to entry: key=`" << current_key.value <<
-	      "', tag=`" << current_tag.value << "'");
+    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key.value) <<
+	      "', tag=`" << hex_encode(current_tag.value) << "'");
 }
 
 void
@@ -139,8 +154,8 @@ QuartzDiskCursor::prev()
 
     Btree_item_lose(item);
 
-    DEBUGLINE(DB, "Moved to entry: key=`" << current_key.value <<
-	      "', tag=`" << current_tag.value << "'");
+    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key.value) <<
+	      "', tag=`" << hex_encode(current_tag.value) << "'");
 }
 
 
