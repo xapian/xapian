@@ -1,3 +1,7 @@
+Sun Jul 06 11:47:14 BST 2003  Olly Betts <olly@survex.com>
+
+	* common/utils.h: Fixed last check-in to compile.
+
 Sun Jul 06 11:01:03 BST 2003  Olly Betts <olly@survex.com>
 
 	* common/utils.h,tests/btreetest.cc,tests/quartztest.cc,

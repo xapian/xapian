@@ -186,7 +186,7 @@ inline void rmdir(const string &filename) {
     while (p < safefile.size()) {
 	// Don't escape a few safe characters which are common in filenames
 	if (!isalnum(safefile[p]) && strchr("/._-", safefile[p]) == NULL) {
-	    safefile.insert(p, '\\');
+	    safefile.insert(p, "\\");
 	    ++p;
 	}
 	++p;
