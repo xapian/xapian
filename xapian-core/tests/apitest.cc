@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <string>
+#include <memory>
 #include <getopt.h>
 #include "om/om.h"
 
@@ -594,8 +595,8 @@ bool test_expandfunctor1()
 
 class myMatchDecider : public OmMatchDecider {
     public:
-        int operator()(om_docid did) const {
-	    return (did % 2) == 1;
+        int operator()(const OmDocument *doc) const {
+	    return doc->get_key(2).value == 0;
 	}
 };
 
@@ -612,7 +613,8 @@ bool test_matchfunctor1()
     OmMSet mymset = enquire.get_mset(0, 100, 0, 0, &myfunctor);
 
     for (unsigned int i=0; i<mymset.items.size(); ++i) {
-        if (!myfunctor(mymset.items[i].did)) {
+	auto_ptr<const OmDocument> doc(enquire.get_doc(mymset.items[i]));
+        if (!myfunctor(doc.get())) {
 	    success = false;
 	    break;
 	}
