@@ -66,10 +66,9 @@ QuartzPositionList::next_internal()
 	return;
     }
 
-    const char * tmppos = pos;
-    bool success = unpack_uint(&tmppos, end, &current_pos);
+    bool success = unpack_uint(&pos, end, &current_pos);
     if (! success) {
-	if (tmppos == 0) {
+	if (pos == 0) {
 	    // data ran out
 	    throw OmDatabaseCorruptError("Data ran out when reading position list entry.");
 	} else {
@@ -77,6 +76,7 @@ QuartzPositionList::next_internal()
 	    throw OmRangeError("Position list length too large.");
 	}
     }
+    Assert(pos != 0);
     if (pos == data.end()) is_at_end = true;
 }
 
