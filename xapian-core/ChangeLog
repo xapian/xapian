@@ -1,3 +1,7 @@
+Fri Feb 11 16:44:34 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* The api docs now go into the distribution tarball.
+
 Thu Feb 10 18:53:33 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added OmEnquire::get_matching_terms() to the API.

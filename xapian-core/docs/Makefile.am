@@ -10,16 +10,35 @@ endif
 
 if HAVE_DOCPP
 
-CREATED_DOCUMENTS2=apidoc/index.html sourcedoc/index.html
+CREATED_DOCUMENTS2=apidoc/index.html # sourcedoc/index.html
+
+dist-hook: apidoc/index.html
+	mkdir $(distdir)/apidoc
+	if [ -r apidoc/index.html ] ; then \
+	  cp apidoc/* $(distdir)/apidoc/ ;\
+	else \
+	  cp $(srcdir)/apidoc/* $(distdir)/apidoc/ ;\
+	fi
+
+install-data-hook: apidoc/index.html
+	mkdir $(DESTDIR)$(datadir)/omuscat/apidoc
+	if [ -r apidoc/index.html ] ; then \
+	  cp apidoc/* $(DESTDIR)$(datadir)/omuscat/apidoc/ ; \
+	else \
+	  cp $(srcdir)/apidoc/* $(DESTDIR)$(datadir)/omuscat/apidoc/ ; \
+	fi
+
+else
+dist-hook:
+install-data-hook:
 
 endif
 
-docdatadir   = ${datadir}/omuscat
-docdata_DATA = ${CREATED_DOCUMENTS1} # ${CREATED_DOCUMENTS2}
+docdatadir   = $(datadir)/omuscat
+docdata_DATA = $(CREATED_DOCUMENTS1)
 
 EXTRA_DIST = MatcherDesign Notes mkdoc.pl.in stemming.txt \
 hacking.html index.html intro.html intro_ir.html
-
 
 ###############
 # Extra rules #
