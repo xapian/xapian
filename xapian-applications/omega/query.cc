@@ -875,6 +875,8 @@ static struct func_desc func_tab[] = {
 { NULL,{0,      0, 0, 0, 0, 0}}
 };
 
+#undef T // Leaving T defined screws up Sun's C++ compiler!
+
 static vector<string> macros;
 
 static string

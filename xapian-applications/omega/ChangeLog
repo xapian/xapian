@@ -1,3 +1,7 @@
+Tue Sep 30 18:09:30 BST 2003  Olly Betts <olly@survex.com>
+
+	* query.cc: Hopefully the final piece in the Sun C++ puzzle.
+
 Tue Sep 30 00:59:50 BST 2003  Olly Betts <olly@survex.com>
 
 	* query.cc: Cleaned up a recent fix by using clean generic code which
