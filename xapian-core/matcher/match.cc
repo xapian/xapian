@@ -35,6 +35,7 @@
 #include "bm25weight.h"
 
 #include <algorithm>
+#include <memory>
 #include <queue>
 
 /////////////////////////////////////////////
@@ -431,25 +432,26 @@ OmMatch::match(om_doccount first, om_doccount maxitems,
 	    bool add_item = true;
 	    OmMSetItem new_item(w, did);
 
-	    OmDocument * irdoc = 0;
+	    auto_ptr<OmDocument> irdoc;
 	    
 
 	    // Use the decision functor if any.
 	    if (mdecider != 0) {
-		if (irdoc == 0) irdoc = database->open_document(did);
-		add_item = mdecider->operator()(irdoc);
+		if (irdoc.get() == 0) {
+		    irdoc = auto_ptr<OmDocument>(database->open_document(did));
+		}
+		add_item = mdecider->operator()(irdoc.get());
 	    }
 
 	    // Item has high enough weight to go in MSet: do collapse if wanted
 	    if(add_item && do_collapse) {
-		if (irdoc == 0) irdoc = database->open_document(did);
+		if (irdoc.get() == 0) {
+		    irdoc = auto_ptr<OmDocument>(database->open_document(did));
+		}
 		add_item = perform_collapse(mset, collapse_table, did,
 					    new_item, mcmp, min_item,
-					    irdoc);
+					    irdoc.get());
 	    }
-
-	    delete irdoc;
-	    irdoc = 0;
 
 	    if(add_item) {
 		mset.push_back(new_item);
