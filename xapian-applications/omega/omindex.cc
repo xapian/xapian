@@ -220,7 +220,7 @@ make_url_term(const string &url)
     string result = "U" + baseurl + url;
     if (result.length() > MAX_URL_LENGTH) {
 	result = result.substr(0, MAX_URL_LENGTH - HASH_LEN) +
-		hash(result.substr(MAX_URL_LENGTH - HASH_LEN));
+		 hash(result.substr(MAX_URL_LENGTH - HASH_LEN));
 	//printf("Using '%s' as the url term\n", result.c_str());
     }
     return result;
@@ -442,14 +442,16 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
     j = find_if(baseurl.begin(), baseurl.end(), p_notalnum) - baseurl.begin();
     if (j > 0 && baseurl.substr(j, 3) == "://") {
 	j += 3;
-    	string::size_type k = baseurl.find('/', j);
+	string::size_type k = baseurl.find('/', j);
 	if (k == string::npos) {
-	  newdocument.add_term("P/"); // Path
-	  newdocument.add_term("H" + baseurl.substr(j));
+	    newdocument.add_term("P/"); // Path
+	    newdocument.add_term("H" + baseurl.substr(j));
 	} else {
-	  newdocument.add_term("P" + baseurl.substr(k)); // Path
-	  string::const_iterator l = find(baseurl.begin() + j, baseurl.begin() + k, ':');
-	  newdocument.add_term("H" + baseurl.substr(j, l - baseurl.begin() - j)); // Host
+	    newdocument.add_term("P" + baseurl.substr(k)); // Path
+	    string::const_iterator l;
+	    l = find(baseurl.begin() + j, baseurl.begin() + k, ':');
+	    string::size_type host_len = l - baseurl.begin() - j;
+	    newdocument.add_term("H" + baseurl.substr(j, host_len)); // Host
 	}
     } else {
 	newdocument.add_term("P" + baseurl); // Path

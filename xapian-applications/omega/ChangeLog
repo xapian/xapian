@@ -1,3 +1,7 @@
+Sun Apr 11 23:47:33 BST 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Fixed inconsistent indenting.
+
 Sun Apr 11 23:11:51 BST 2004  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Call posix_fadvise with POSIX_FADV_DONTNEED just before
