@@ -25,7 +25,6 @@
 #include "utils.h"
 #include "omdebug.h"
 #include <string.h>
-#include <memory>
 
 SleepycatDocument::SleepycatDocument(Db * document_db_,
 			       Db * key_db_,

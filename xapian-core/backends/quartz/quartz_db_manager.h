@@ -72,6 +72,9 @@ class QuartzDbManager : public RefCntBase {
 	/// Return the path that the record table is stored at.
 	string record_path() const;
 
+	/// Return the path that the attribute table is stored at.
+	string attribute_path() const;
+
 	/// Return the path that the lexicon table is stored at.
 	string lexicon_path() const;
 
@@ -100,9 +103,13 @@ class QuartzDbManager : public RefCntBase {
 	 */
 	RefCntPtr<QuartzDbTable> termlist_table;
 
-	/** Table storing position lists.
+	/** Table storing lexicon.
 	 */
 	RefCntPtr<QuartzDbTable> lexicon_table;
+
+	/** Table storing keys.
+	 */
+	RefCntPtr<QuartzDbTable> attribute_table;
 
 	/** Table storing records.
 	 *

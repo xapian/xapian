@@ -39,7 +39,7 @@ QuartzRevisionNumber::get_description() const
 static void writerevnos(FILE * fp, quartz_revision_number_t * rev1, quartz_revision_number_t * rev2)
 {
     clearerr(fp);
-    fseek(fp, 0, SEEK_SET);
+    Assert(!fseek(fp, 0, SEEK_SET));
 
     size_t bytes;
     bytes = fwrite((void *) rev1, sizeof(quartz_revision_number_t), 1, fp);
@@ -54,7 +54,7 @@ static void writerevnos(FILE * fp, quartz_revision_number_t * rev1, quartz_revis
 static void readrevnos(bool readonly, FILE * fp, quartz_revision_number_t * rev1, quartz_revision_number_t * rev2)
 {
     clearerr(fp);
-    fseek(fp, 0, SEEK_SET);
+    Assert(!fseek(fp, 0, SEEK_SET));
 
     size_t bytes;
     bytes = fread((void *) rev1, sizeof(quartz_revision_number_t), 1, fp);
@@ -69,39 +69,24 @@ static void readrevnos(bool readonly, FILE * fp, quartz_revision_number_t * rev1
 }
 
 QuartzDbTable::QuartzDbTable(string path_,
-			     bool readonly_,
-			     QuartzRevisionNumber revision_)
-	: path(path_),
-          readonly(readonly_),
-	  revision(revision_)
-{
-    string filename = path + "fakefoo";
-    if (readonly) {
-	fp = fopen(filename.c_str(), "r");
-    } else {
-	fp = fopen(filename.c_str(), "a+");
-    }
-    if (fp == 0) {
-	throw OmOpeningError("Can't open Quartz table (" + filename + ")" +
-			     strerror(errno));
-    }
-
-    quartz_revision_number_t rev1 = 0;
-    quartz_revision_number_t rev2 = 0;
-    readrevnos(readonly, fp, &rev1, &rev2);
-
-    if (rev1 != revision.value && rev2 != revision.value) {
-	throw OmOpeningError("Can't open table at revision " +
-			     revision.get_description() + ".");
-    }
-}
-
-QuartzDbTable::QuartzDbTable(string path_,
 			     bool readonly_)
 	: path(path_),
           readonly(readonly_),
 	  revision(0)
 {
+}
+
+bool
+QuartzDbTable::open()
+{
+    // FIXME implement
+}
+
+bool
+QuartzDbTable::open(QuartzRevisionNumber revision_)
+{
+    // FIXME implement
+
     string filename = path + "fakefoo";
     if (readonly) {
 	fp = fopen(filename.c_str(), "r");

@@ -46,6 +46,14 @@ QuartzDbManager::QuartzDbManager(string db_dir_,
 
     // open environment here
 
+    // create tables
+    record_table       = new QuartzDbTable(record_path(), readonly);
+    attribute_table    = new QuartzDbTable(attribute_path(), readonly);
+    lexicon_table      = new QuartzDbTable(lexicon_path(), readonly);
+    termlist_table     = new QuartzDbTable(termlist_path(), readonly);
+    positionlist_table = new QuartzDbTable(positionlist_path(), readonly);
+    postlist_table     = new QuartzDbTable(postlist_path(), readonly);
+    
     // open tables
     if (readonly) {
 	// Can still allow searches even if recovery is needed
@@ -57,6 +65,23 @@ QuartzDbManager::QuartzDbManager(string db_dir_,
 	// Check that there are no more recent versions of tables.  If there
 	// are, perform recovery by writing a new revision number to all
 	// tables.
+	if (record_table->get_open_revision_number() != 
+	    postlist_table->get_latest_revision_number()) {
+	    QuartzRevisionNumber new_revision = get_next_revision_number();
+
+	    log->make_entry("Detected partially applied changes.  Updating "
+			    "all revision numbers to consistent state (" +
+			    new_revision.get_description() + ") to proceed.  "
+			    "This will remove partial changes.");
+	    std::map<QuartzDbKey, QuartzDbTag *> empty_entries;
+	    postlist_table    ->set_entries(empty_entries, new_revision);
+	    positionlist_table->set_entries(empty_entries, new_revision);
+	    termlist_table    ->set_entries(empty_entries, new_revision);
+	    lexicon_table     ->set_entries(empty_entries, new_revision);
+	    attribute_table   ->set_entries(empty_entries, new_revision);
+	    record_table      ->set_entries(empty_entries, new_revision);
+	}
+
     } else {
 	// Get the most recent versions, failing with an OmNeedRecoveryError
 	// if this is not a consistent version.
@@ -73,20 +98,23 @@ void
 QuartzDbManager::open_tables_newest()
 {
     log->make_entry("Opening tables at newest available revision");
-    record_table       = new QuartzDbTable(record_path(), readonly);
-    lexicon_table      = new QuartzDbTable(lexicon_path(), readonly);
-    termlist_table     = new QuartzDbTable(termlist_path(), readonly);
-    positionlist_table = new QuartzDbTable(positionlist_path(), readonly);
-    postlist_table     = new QuartzDbTable(postlist_path(), readonly);
+    record_table->open();
+    attribute_table->open();
+    lexicon_table->open();
+    termlist_table->open();
+    positionlist_table->open();
+    postlist_table->open();
 
     // Check consistency
     QuartzRevisionNumber revision(record_table->get_open_revision_number());
-    if (revision != lexicon_table->get_open_revision_number() ||
+    if (revision != attribute_table->get_open_revision_number() ||
+	revision != lexicon_table->get_open_revision_number() ||
 	revision != termlist_table->get_open_revision_number() ||
 	revision != positionlist_table->get_open_revision_number() ||
 	revision != postlist_table->get_open_revision_number()) {
 	log->make_entry("Revisions are not consistent: have " + 
 			revision.get_description() + ", " +
+			attribute_table->get_open_revision_number().get_description() + ", " +
 			lexicon_table->get_open_revision_number().get_description() + ", " +
 			termlist_table->get_open_revision_number().get_description() + ", " +
 			positionlist_table->get_open_revision_number().get_description() + " and " +
@@ -103,19 +131,57 @@ QuartzDbManager::open_tables_consistent()
     // and hence if a revision is available in it, it should be available
     // in all the other tables (unless they've moved on already).
     //
-    // FIXME: if we find that a table can't open the desired revision, we
-    // should go back and open record_table again, until record_table has
+    // If we find that a table can't open the desired revision, we
+    // go back and open record_table again, until record_table has
     // the same revision as the last time we opened it.
+
     log->make_entry("Opening tables at latest consistent revision");
-    record_table       = new QuartzDbTable(record_path(), readonly);
+    record_table->open();
     QuartzRevisionNumber revision(record_table->get_open_revision_number());
-    log->make_entry("Trying revision " + revision.get_description() + ".");
 
+    bool fully_opened = false;
+    int tries = 100;
+    int tries_left = tries;
+    while (!fully_opened && (tries_left--) > 0) {
+	log->make_entry("Trying revision " + revision.get_description() + ".");
+	
+	bool opened;
+	opened = attribute_table->open(revision);
+	if (opened) opened = lexicon_table->open(revision);
+	if (opened) opened = termlist_table->open(revision);
+	if (opened) opened = positionlist_table->open(revision);
+	if (opened) opened = postlist_table->open(revision);
+	if (opened) {
+	    fully_opened = true;
+	} else {
+	    // Couldn't open consistent revision: two cases possible:
+	    // i)   An update has completed and a second one has begun since
+	    //      record was opened.  This leaves a consistent revision
+	    //      available, but not the one we were trying to open.
+	    // ii)  Tables have become corrupt / have no consistent revision
+	    //      available.  In this case, updates must have ceased.
+	    //
+	    // So, we reopen the record table, and check its revision number,
+	    // if it's changed we try the opening again, otherwise we give up.
+	    //
+	    record_table->open();
+	    QuartzRevisionNumber newrevision(
+		record_table->get_open_revision_number());
+	    if (revision == newrevision) {
+		// Revision number hasn't changed - therefore a second index
+		// sweep hasn't begun and the system must have failed.  Database
+		// is inconsistent.
+		log->make_entry("Cannot open all tables at revision in record table: " + revision.get_description() + ".");
+		throw OmDatabaseCorruptError("Cannot open tables at consistent revisions.");
+	    }
+	}
+    }
 
-    lexicon_table      = new QuartzDbTable(lexicon_path(), readonly, revision);
-    termlist_table     = new QuartzDbTable(termlist_path(), readonly, revision);
-    positionlist_table = new QuartzDbTable(positionlist_path(), readonly, revision);
-    postlist_table     = new QuartzDbTable(postlist_path(), readonly, revision);
+    if (!fully_opened) {
+	log->make_entry("Cannot open all tables in a consistent state - keep changing too fast, giving up after " + om_tostring(tries) + " attempts.");
+	throw OmOpeningError("Cannot open tables at stable revision - changing too fast.");
+    }
+
     log->make_entry("Opened tables at revision " + revision.get_description() + ".");
 }
 
@@ -123,6 +189,12 @@ string
 QuartzDbManager::record_path() const
 {
     return db_dir + "/record_";
+}
+
+string
+QuartzDbManager::attribute_path() const
+{
+    return db_dir + "/attribute_";
 }
 
 string
@@ -153,11 +225,12 @@ void
 QuartzDbManager::open_tables(QuartzRevisionNumber revision)
 {
     log->make_entry("Opening tables at revision " + revision.get_description() + ".");
-    record_table       = new QuartzDbTable(record_path(), readonly, revision);
-    lexicon_table      = new QuartzDbTable(lexicon_path(), readonly, revision);
-    termlist_table     = new QuartzDbTable(termlist_path(), readonly, revision);
-    positionlist_table = new QuartzDbTable(positionlist_path(), readonly, revision);
-    postlist_table     = new QuartzDbTable(postlist_path(), readonly, revision);
+    record_table->open(revision);
+    attribute_table->open(revision);
+    lexicon_table->open(revision);
+    termlist_table->open(revision);
+    positionlist_table->open(revision);
+    postlist_table->open(revision);
     log->make_entry("Opened tables at revision " + revision.get_description() + ".");
 }
 

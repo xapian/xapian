@@ -154,9 +154,9 @@ class QuartzDbTable : public RefCntBase {
 	 */
 	std::map<QuartzDbKey, QuartzDbTag> data;
 
-	// FIXME: just temporary
-	FILE * fp;
-
+	// FIXME: temporary
+	FILE *fp;
+	
 	/** The path at which the table is stored.
 	 */
 	string path;
@@ -170,18 +170,8 @@ class QuartzDbTable : public RefCntBase {
 	QuartzRevisionNumber(revision);
 
     public:
-	/** Open the table.
-	 *
-	 *  @param path_          - Path at which the table is stored.
-	 *  @param readonly_      - whether to open the table for read only
-	 *                          access.
-	 *  @param revision_      - revision number to open.
-	 */
-	QuartzDbTable(string path_,
-		      bool readonly_,
-		      QuartzRevisionNumber revision_);
-
-	/** Open the latest revision of the table.
+	/** Create a new table.  This does not open the table - the open()
+	 *  method must be called before use is made of the table.
 	 *
 	 *  @param path_          - Path at which the table is stored.
 	 *  @param readonly_      - whether to open the table for read only
@@ -193,6 +183,25 @@ class QuartzDbTable : public RefCntBase {
 	/** Close the table.
 	 */
 	~QuartzDbTable();
+
+	/** Open the table at the specified revision.
+	 *
+	 *  @param revision_      - revision number to open.
+	 *
+	 *  @return true if table is successfully opened at desired revision,
+	 *          false if table cannot be opened at desired revision.
+	 *
+	 *  @exception OmDatabaseCorruptError will be thrown if the table is
+	 *             in a corrupt state.
+	 */
+	bool open(QuartzRevisionNumber revision_);
+
+	/** Open the latest revision of the table.
+	 *
+	 *  @exception OmDatabaseCorruptError will be thrown if the table is
+	 *             in a corrupt state.
+	 */
+	void open();
 
 	/** Get an object holding the revision number at which this table
 	 *  is currently open.

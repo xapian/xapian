@@ -64,6 +64,10 @@ class QuartzModifications {
 	 */
 	AutoPtr<QuartzLexiconDiffs> lexicon_diffs;
 
+	/** Diffs made to the Attribute database.
+	 */
+	AutoPtr<QuartzAttributeDiffs> attribute_diffs;
+
 	/** Diffs made to the Record database.
 	 */
 	AutoPtr<QuartzRecordDiffs> record_diffs;

@@ -194,4 +194,21 @@ class QuartzLexiconDiffs : public QuartzDiffs {
 	~QuartzLexiconDiffs() {}
 };
 
+/** Class managing a set of diffs to a Quartz Attribute table.
+ */
+class QuartzAttributeDiffs : public QuartzDiffs {
+    private:
+    public:
+	/** Construct the diffs object.
+	 *
+	 *  @param table_  The object managing access to the table on disk.
+	 */
+	QuartzAttributeDiffs(QuartzDbTable * table_)
+		: QuartzDiffs(table_) {}
+
+	/** Destroy the diffs.  Any unapplied diffs will be lost.
+	 */
+	~QuartzAttributeDiffs() {}
+};
+
 #endif /* OM_HGUARD_QUARTZ_DIFFS_H */

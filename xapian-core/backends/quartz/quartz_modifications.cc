@@ -47,6 +47,7 @@ QuartzModifications::open_diffs()
     positionlist_diffs.reset(new QuartzPositionListDiffs(db_manager->positionlist_table.get()));
     termlist_diffs.reset(new QuartzTermListDiffs(db_manager->termlist_table.get()));
     lexicon_diffs.reset(new QuartzLexiconDiffs(db_manager->lexicon_table.get()));
+    attribute_diffs.reset(new QuartzAttributeDiffs(db_manager->attribute_table.get()));
     record_diffs.reset(new QuartzRecordDiffs(db_manager->record_table.get()));
 }
 
@@ -57,6 +58,7 @@ QuartzModifications::close_diffs()
     positionlist_diffs.reset();
     termlist_diffs.reset();
     lexicon_diffs.reset();
+    attribute_diffs.reset();
     record_diffs.reset();
 }
 
@@ -73,6 +75,7 @@ QuartzModifications::apply()
     if (success) { success = positionlist_diffs->apply(new_revision); }
     if (success) { success = termlist_diffs->apply(new_revision); }
     if (success) { success = lexicon_diffs->apply(new_revision); }
+    if (success) { success = attribute_diffs->apply(new_revision); }
     if (success) { success = record_diffs->apply(new_revision); }
 
     if (!success) {
@@ -94,6 +97,7 @@ QuartzModifications::apply()
 	db_manager->positionlist_table->set_entries(null_entries, new_revision);
 	db_manager->termlist_table->set_entries(null_entries, new_revision);
 	db_manager->lexicon_table->set_entries(null_entries, new_revision);
+	db_manager->attribute_table->set_entries(null_entries, new_revision);
 	db_manager->record_table->set_entries(null_entries, new_revision);
 
 	// Prepare for further modifications.
