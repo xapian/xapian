@@ -41,11 +41,6 @@ Write tests for copying term and postlist iterators.
 Rename keys to attributes.  (OmKey -> OmAttrib / OmAttribute / OmAttr ?)
 
 </todoitem>
-<todoitem priority="M" difficulty="1" owner="" area="DA/DB" release="0.9">
-
-Add get_percent method to OmMSetIterator, as well as get_weight().
-
-</todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="DA/DB" release="1.0">
 
 Add get_all_terms to DA / DB databases.  Needs extra code in dbread.[ch].

@@ -1,3 +1,7 @@
+Tue Jan  9 11:31:26 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove an item from TODO
+
 Tue Jan  9 10:27:35 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add a missing \ in tests/Makefile.am
