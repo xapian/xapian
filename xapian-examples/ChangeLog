@@ -1,3 +1,8 @@
+Fri Jan 12 13:25:11 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove unwanted macros from acinclude.m4, which are part of automake
+	  and should never have gone in there.
+
 Fri Jan 12 13:20:31 GMT 2001 Olly Betts
 
 	* Truncate CGI parameter names at first space.
