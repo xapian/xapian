@@ -1380,6 +1380,28 @@ static bool test_spaceterms1()
     return true;
 }
 
+// test that XOR queries work
+static bool test_xor1()
+{
+    OmEnquire enquire(get_simple_database());
+    init_simple_enquire(enquire);
+    OmStem stemmer("english");
+
+    std::vector<om_termname> terms;
+    terms.push_back(stemmer.stem_word("this"));
+    terms.push_back(stemmer.stem_word("word"));
+    terms.push_back(stemmer.stem_word("of"));
+
+    OmQuery query(OmQuery::OP_XOR, terms.begin(), terms.end());
+    query.set_bool(true);
+    enquire.set_query(query);
+
+    OmMSet mymset = enquire.get_mset(0, 10);
+    mset_expect_order(mymset, 1, 2, 5, 6);
+
+    return true;
+}
+
 // test for keepalives
 static bool test_keepalive1()
 {
@@ -2630,6 +2652,7 @@ test_desc db_tests[] = {
     {"termlist4",	   test_termlist4},
     {"puncterms1",	   test_puncterms1},
     {"spaceterms1",	   test_spaceterms1},
+    {"xor1",		   test_xor1},
     {0, 0}
 };
 

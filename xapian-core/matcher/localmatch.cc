@@ -118,6 +118,52 @@ class CmpMaxOrTerms {
 // empty, else it needs to have all the postlists in (though the order
 // can be different) - this is ultra-icky
 PostList *
+LocalSubMatch::build_xor_tree(std::vector<PostList *> &postlists,
+			      MultiMatch *matcher)
+{
+    // Build nice tree for XOR-ed postlists
+    // Want postlists with most entries to be at top of tree, to reduce
+    // average number of nodes an entry gets "pulled" through.
+    //
+    // Put postlists into a priority queue, such that those with greatest
+    // term frequency are returned first.
+    // FIXME: not certain that this is the best way to organise an XOR tree
+
+    std::priority_queue<PostList *, std::vector<PostList *>, PLPCmpGt> pq;
+    std::vector<PostList *>::const_iterator i;
+    for (i = postlists.begin(); i != postlists.end(); i++) {
+	pq.push(*i);
+    }
+    postlists.clear();
+
+    // If none of the postlists had any entries, return an EmptyPostList.
+    if (pq.empty()) {
+	EmptyPostList *pl = new EmptyPostList();
+	return pl;
+    }
+
+    // Build a tree balanced by the term frequencies
+    // (similar to building a huffman encoding tree).
+    //
+    // This scheme reduces the number of objects common terms
+    // get "pulled" through, reducing the amount of work done which
+    // speeds things up.
+    while (true) {
+	PostList *pl = pq.top();
+	pq.pop();
+	if (pq.empty()) return pl;
+	// NB right is always <= left - we can use this to optimise
+	pl = new XorPostList(pq.top(), pl, matcher, db->get_doccount());
+	pq.pop();
+	pq.push(pl);
+    }
+}
+
+// FIXME: postlists passed by reference and needs to be kept "nice"
+// for NearPostList - so if there's a zero freq term it needs to be
+// empty, else it needs to have all the postlists in (though the order
+// can be different) - this is ultra-icky
+PostList *
 LocalSubMatch::build_and_tree(std::vector<PostList *> &postlists,
 			      MultiMatch *matcher)
 {
@@ -241,7 +287,7 @@ LocalSubMatch::postlist_from_queries(OmQuery::Internal::op_t op,
     // Build tree
     switch (op) {
 	case OmQuery::OP_XOR:
-	    throw OmUnimplementedError("XOR currently not implemented.");
+	    return build_xor_tree(postlists, matcher);
 
 	case OmQuery::OP_AND:
 	    return build_and_tree(postlists, matcher);

@@ -1,3 +1,10 @@
+Wed Mar 14 15:56:20 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Added test for and implementation of multiple XOR queries.
+
+	* Fix small bugs with get_termfreq_est() for xor and andnot
+	  postlists.
+
 Mon Mar  5 16:08:01 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Catch exceptions within the loop in SocketServer - exceptions

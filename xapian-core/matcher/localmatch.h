@@ -75,6 +75,9 @@ class LocalSubMatch : public SubMatch {
 	std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> term_info;
 
 
+	PostList * build_xor_tree(std::vector<PostList *> &postlists,
+				  MultiMatch *matcher);
+
 	PostList * build_and_tree(std::vector<PostList *> &postlists,
 				  MultiMatch *matcher);
 

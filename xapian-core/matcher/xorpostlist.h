@@ -84,11 +84,17 @@ XorPostList::get_termfreq_min() const
     // Min = freq_min(a or b) - freq_max(a and b)
     //     = max(a_min, b_min) - min(a_max, b_max)
     //     = min(b_min - a_max, a_min - b_max)
-    om_doccount termfreq_min =
-	    std::max(r->get_termfreq_min() - l->get_termfreq_max(),
-		     l->get_termfreq_min() - r->get_termfreq_max());
+    om_doccount r_min = r->get_termfreq_min();
+    om_doccount l_min = l->get_termfreq_min();
+    om_doccount r_max = r->get_termfreq_max();
+    om_doccount l_max = l->get_termfreq_max();
+    om_doccount termfreq_min = 0u;
+    if (r_min > l_max)
+	termfreq_min = r_min - l_max;
+    if (l_min > r_max && (l_min - r_max) > termfreq_min)
+	termfreq_min = l_min - r_max;
 
-    return std::max(termfreq_min, 0u);
+    return termfreq_min;
 }
 
 inline om_doccount

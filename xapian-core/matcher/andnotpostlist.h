@@ -84,7 +84,10 @@ inline om_doccount
 AndNotPostList::get_termfreq_min() const
 {
     // Min is when as few docs as possible on left, and maximum are excluded.
-    return std::max(0u, l->get_termfreq_min() - r->get_termfreq_max());
+    om_doccount l_min = l->get_termfreq_min();
+    om_doccount r_max = r->get_termfreq_max();
+    if (l_min > r_max) return l_min - r_max;
+    return 0u;
 }
 
 inline om_doccount
