@@ -1,3 +1,9 @@
+xapian-core (0.8.1-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 30 Jun 2004 20:10:05 +0100
+
 xapian-core (0.8.0-9) unstable; urgency=low
 
   * Remove build dependencies on tools which aren't required if not using
