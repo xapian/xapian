@@ -1,0 +1,14 @@
+.*.swp
+*.lo
+Makefile.in
+Makefile
+.deps
+.libs
+aclocal.m4
+config.h
+config.h.in
+config.log
+config.status
+configure
+stamp-h1
+xapview

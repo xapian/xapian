@@ -1,0 +1,11 @@
+Xapview
+======
+
+Xapview provides a graphical view of a Xapian database, or databases.
+The interface used GTK and libglade, so those must be installed.
+
+The database may be searched, using initial queries and relevance feedback,
+or may simply be browsed.
+
+It is known to work with GTK version 1.2.10 and libglade version 0.17
+

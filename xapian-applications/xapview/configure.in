@@ -1,0 +1,102 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(xapview.cpp)
+AM_INIT_AUTOMAKE(xapview, 0.1-cvs)
+AM_CONFIG_HEADER(config.h)
+
+dnl Add parameters for aclocal
+dnl (This must come after AM_INIT_AUTOMAKE, since it modifies ACLOCAL)
+ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_CXX
+
+dnl Use libtool to manage our libraries
+AC_PROG_LIBTOOL
+
+dnl Check for libxapian
+OM_PATH_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
+
+dnl Checks for gtk / glib / glade
+build_gui=yes
+AM_PATH_GTK(1.2.0, , build_gui=no)
+AM_PATH_GLIB(1.2.0, , build_gui=no)
+AM_PATH_LIBGLADE(, build_gui=no)
+AM_CONDITIONAL(BUILD_GUI, test "X$build_gui" = Xyes)
+
+AC_CHECK_HEADERS([getopt.h],, AC_MSG_ERROR([can't build dbtool without getopt]))
+dnl Check for getopt_long -- FreeBSD has a gnugetopt library
+AC_CHECK_FUNCS([getopt_long],,
+  AC_CHECK_LIB([gnugetopt],[getopt_long],[AC_DEFINE([HAVE_GETOPT_LONG])]))
+
+dnl *************************
+dnl * Set debugging options *
+dnl *************************
+
+dnl Work out what debugging we want
+
+AC_ARG_ENABLE(debug,
+[  --enable-debug          Turn on debugging (no|yes)(default=no)],
+[case "${enableval}" in
+  yes) use_debug=yes ;;
+  no)  use_debug=no ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
+esac], [use_debug=no])
+
+dnl Now set appropriate defines
+
+dnl Clear -g flag
+CFLAGS=`echo " $CFLAGS " | sed 's/[     ][      ]*/  /g' | sed 's/ -g / /g'`
+CXXFLAGS=`echo " $CXXFLAGS " | sed 's/[         ][      ]*/  /g' | sed 's/ -g / /g'`
+
+if test "$use_debug" = yes; then
+CFLAGS="$CFLAGS -g";
+CXXFLAGS="$CXXFLAGS -g";
+AC_DEFINE(MUS_DEBUG,,
+  [Define if you want debugging to be enabled (will cause some slow down)])
+fi
+
+if test "$use_debug" = yes; then
+AC_DEFINE(MUS_DEBUG_VERBOSE,,
+  [Define if you want lots of debugging messages])
+fi
+
+dnl ******************************
+dnl * Set special compiler flags *
+dnl ******************************
+
+dnl extra flags for building with gcc
+if test "$GCC" = yes; then
+  changequote(, ) dnl avoid problems with [] in sed expressions
+  CFLAGS=`echo "$CFLAGS -pedantic -Wall -Wunused -Wno-long-long" | sed 's/-O[0-9]*/-O6/'`
+  case "$CFLAGS" in
+    *-O6*) ;;
+    *) CFLAGS="$CFLAGS -O6"
+  esac
+
+  CXXFLAGS=`echo "$CXXFLAGS -pedantic -Wall -Wunused -Wno-long-long -fno-gnu-keywords" | sed 's/-O[0-9]*/-O6/'`
+  case "$CXXFLAGS" in
+    *-O6*) ;;
+    *) CXXFLAGS="$CXXFLAGS -O6"
+  esac
+  changequote([, ])
+fi
+
+dnl modify flags for building with stlport
+if test "x$use_stlport" = "xyes"; then
+  dnl STLport doesn't work with -ansi (at least, at version 4.0)
+  CXXFLAGS=`echo "$CXXFLAGS" | sed "s/-ansi//"`
+  if test "$GCC" = yes; then
+    CXXFLAGS="-nostdinc++ $CXXFLAGS"
+  fi
+  CXXFLAGS="$STLPORT_INCLUDE $CXXFLAGS"
+  LIBS="$STLPORT_LIBS $LIBS"
+fi
+
+dnl **************************
+dnl * Build the output files *
+dnl **************************
+
+AC_OUTPUT(
+ Makefile
+)
