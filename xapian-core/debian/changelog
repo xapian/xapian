@@ -1,3 +1,16 @@
+xapian-core (0.8.4-1) unstable; urgency=low
+
+  * New upstream release.
+  * API changes: 
+    - Added constructors to Database and WritableDatabase.
+      Auto::open() is now deprecated.
+    - Removed the ability to write a Xapian object to an ostream directly.
+    - Renamed BM25 parameters to match standard naming in papers and elsewhere.
+  * Library version number increased from 3 to 5 due to interface changes.
+  * Some bug and portability fixes.
+
+ -- Richard Boulton <richard@tartarus.org>  Thu,  9 Dec 2004 17:30:31 +0000
+
 xapian-core (0.8.3-1) unstable; urgency=low
 
   * New upstream release.
