@@ -62,7 +62,7 @@
 /////////// TODO:  output commit information along with every time you print
 
 
-/////////// usage
+/////////// usage (IMPORTANT:  prefix class/function names with :)
 
 // (1) no query words, no antecedent or consequent
 //
@@ -109,20 +109,15 @@ int find_symbol_count( Db& db, const string& k ) {
   assert(0);
 }
 
-void generate_rules( Db& db, const string& rule_antecedent, const string& rule_consequent,
+void generate_rules( Db& db, const string& ranking_system, set<string>& query_symbols, 
 		     map<string, int>& relative_item_count,
 		     int transactions_returned,
 		     int total_commit_transactions,
 		     map<double, set<string> >& class_ranking,
 		     map<double, set<string> >& function_ranking ) {
-  
-  string required_symbol;
-  if ( rule_antecedent != "" ) {
-    required_symbol = rule_antecedent;
-  } else {
-    required_symbol = rule_consequent;
-  }
 
+  assert( ranking_system != "" );
+  
   for( map<string, int>::iterator i = relative_item_count.begin(); i != relative_item_count.end(); i++ ) {
 
     string symbol = i->first;
@@ -132,49 +127,62 @@ void generate_rules( Db& db, const string& rule_antecedent, const string& rule_c
       continue;
     }
 
-    if ( required_symbol != "" && symbol == required_symbol ) {
+    if ( query_symbols.find(":"+symbol) != query_symbols.end() ) {
       continue;
     }
 
-    // generate rule of the form a=>b
-    int a_count = 0;
-    int b_count = 0;
-    int not_b_count = 0;
-    int a_and_not_b_count = 0;
+    double score = 0.0; // the higher the better
 
-    int symbol_count = find_symbol_count( db, symbol );
+    if ( ranking_system == "<=>" ) {
 
-    if ( rule_consequent != "" ) {
-      a_count = symbol_count;
-      b_count = transactions_returned;
+	    // use interest measure P(A&B)/(P(A)*P(B)) which is symmetric
+	    int symbol_count = find_symbol_count( db, symbol );
+	    double A_prob = (double) symbol_count / (double) total_commit_transactions;
+            double B_prob = (double) transactions_returned / (double) total_commit_transactions;
+            double A_and_B_prob = (double) a_and_b_count / (double) total_commit_transactions;
+
+	    double interest = A_and_B_prob / ( A_prob * B_prob );
+
+	    score = interest;
+
     } else {
-      // normally, we would be here...
-      a_count = transactions_returned; // if only query terms specified, this case applies also
-      b_count = symbol_count;
+
+	    // generate rule of the form a=>b
+	    int a_count = 0;
+	    int b_count = 0;
+	    int not_b_count = 0;
+	    int a_and_not_b_count = 0;
+
+	    int symbol_count = find_symbol_count( db, symbol );
+
+	    if ( ranking_system == "<=" ) {
+	      a_count = symbol_count;
+	      b_count = transactions_returned;
+	    } else {
+	      // normally, we would be here...
+	      a_count = transactions_returned; // if only query terms specified, this case applies also
+	      b_count = symbol_count;
+	    }
+	    
+	    not_b_count = total_commit_transactions - b_count;
+	    a_and_not_b_count = a_count - a_and_b_count;
+
+	    double a_and_not_b_prob = (double) a_and_not_b_count / (double) total_commit_transactions;
+	    double a_prob = (double) a_count / (double) total_commit_transactions;
+	    double not_b_prob = (double) not_b_count / (double) total_commit_transactions;
+
+	    double convinction = (a_prob * not_b_prob) / ( a_and_not_b_prob );
+
+	    score = convinction; // may be +inf but that's ok
+
     }
-    
-    not_b_count = total_commit_transactions - b_count;
-    a_and_not_b_count = a_count - a_and_b_count;
 
-    double a_and_not_b_prob = (double) a_and_not_b_count / (double) total_commit_transactions;
-    double a_prob = (double) a_count / (double) total_commit_transactions;
-    double not_b_prob = (double) not_b_count / (double) total_commit_transactions;
-
-    double convinction = (a_prob * not_b_prob) / ( a_and_not_b_prob );
-
-    string item;
-    if ( rule_consequent != "" ) {
-      item = "<=";
-    } else {
-      item = "=>";
-    }
-
-    item += symbol;
+    string item = ranking_system + symbol;
 
     if ( item.find("()") != -1 ) {
-      function_ranking[ -convinction ].insert(item);
+      function_ranking[ -score ].insert(item);
     } else {
-      class_ranking[ -convinction ].insert(item);
+      class_ranking[ -score ].insert(item);
     }
 
   }
@@ -308,22 +316,21 @@ int main(int argc, char *argv[]) {
     OmEnquire enquire(database);
          
     vector<om_termname> queryterms;
+    set<string> query_symbols;
          
     OmStem stemmer("english");
 
-    string rule_antecedent = "";
-    string rule_consequent = "";
-         
+    string ranking_system = "";
+
     for (int optpos = qpos; optpos < argc; optpos++) {
 
       string s = argv[optpos];
 
-      if ( s.find("=>") != -1 ) {
-	rule_antecedent = s.substr( 0, s.length()-2 );
-	queryterms.push_back("$"+rule_antecedent);
-      } else if ( s.find("<=") != -1 ) {
-	rule_consequent = s.substr( 0, s.length()-2 );
-	queryterms.push_back("$"+rule_consequent);
+      if ( s.find(":") == 0 ) {
+	queryterms.push_back(s); // symbol, put as is
+        query_symbols.insert(s);
+      } else if ( s == "=>" || s == "<=" || s == "<=>" ) {
+        ranking_system = s;
       } else {
 	om_termname term = s;
 	lowercase_term(term);
@@ -344,7 +351,6 @@ int main(int argc, char *argv[]) {
       matches = enquire.get_mset(0, num_results); 
       cerr <<  matches.size() << " results found" << endl;
     } else {
-      assert( rule_antecedent == "" && rule_consequent == "" );
       map< double, set<string> > function_ranking;
       map< double, set<string> > class_ranking;
       rank_all_items(db, total_commit_transactions, class_ranking, function_ranking);
@@ -383,7 +389,7 @@ int main(int argc, char *argv[]) {
     map< double, set<string> > function_ranking;
     map< double, set<string> > class_ranking;
 
-    generate_rules( db, rule_antecedent, rule_consequent, relative_item_count, 
+    generate_rules( db, ranking_system, query_symbols, relative_item_count, 
 		    transactions_returned.size(),
 		    total_commit_transactions, class_ranking, function_ranking );
 
