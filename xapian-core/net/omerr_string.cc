@@ -1,4 +1,4 @@
-/* omerr_string.cc: utilities to convert OmError exceptions to strings
+/* omerr_string.cc: utilities to convert Xapian::Error exceptions to strings
  *                  and vice versa.
  *
  * ----START-LICENCE----
@@ -34,12 +34,12 @@ using std::istringstream;
 #include <string>
 using std::string;
 #include <map>
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "omerr_string.h"
 #include "omdebug.h"
 #include "netutils.h"
 
-string omerror_to_string(const OmError &e)
+string omerror_to_string(const Xapian::Error &e)
 {
     return encode_tname(e.get_type()) + " " +
 	   encode_tname(e.get_context()) + " " +
@@ -60,7 +60,7 @@ void string_to_omerror(const string &except,
 
     is >> type;
     if (type == "UNKNOWN") {
-	throw OmInternalError("UNKNOWN", context);
+	throw Xapian::InternalError("UNKNOWN", context);
     }
     
     string msg;
@@ -75,9 +75,9 @@ void string_to_omerror(const string &except,
     }
 
 #define DEFINE_ERROR_BASECLASS(a,b)
-#define DEFINE_ERROR_CLASS(a,b) if (type == #a) throw a(msg, context)
-#include "om/omerrortypes.h"
+#define DEFINE_ERROR_CLASS(a,b) if (type == #a) throw Xapian::a(msg, context)
+#include "xapian/errortypes.h"
 
     msg = "Unknown remote exception type `" + type + "', " + msg;
-    throw OmInternalError(msg, context);
+    throw Xapian::InternalError(msg, context);
 }

@@ -74,7 +74,7 @@ DAAllTermsList::get_collection_freq() const
 {
     Assert(started);
     Assert(!is_at_end);
-    throw OmUnimplementedError("Collection frequency is not available in DA databases");
+    throw Xapian::UnimplementedError("Collection frequency is not available in DA databases");
 }
 
 TermList *

@@ -30,7 +30,7 @@
 #include "omdocumentinternal.h"
 #include "omtermlistiteratorinternal.h"
 #include "omvalueiteratorinternal.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "omdatabaseinternal.h"
 #include <algorithm>
 #include <string>
@@ -178,7 +178,7 @@ OmDocument::add_posting(const string & tname,
     DEBUGAPICALL(void, "OmDocument::add_posting",
 		 tname << ", " << tpos << ", " << wdfinc);
     if (tname.empty()) {
-	throw OmInvalidArgumentError("Empty termnames aren't allowed.");
+	throw Xapian::InvalidArgumentError("Empty termnames aren't allowed.");
     }
     internal->read_termlist(termlist_begin(), termlist_end());
 
@@ -201,7 +201,7 @@ OmDocument::add_term_nopos(const string & tname,
 {
     DEBUGAPICALL(void, "OmDocument::add_term_nopos", tname << ", " << wdfinc);
     if (tname.empty()) {
-	throw OmInvalidArgumentError("Empty termnames aren't allowed.");
+	throw Xapian::InvalidArgumentError("Empty termnames aren't allowed.");
     }
     internal->read_termlist(termlist_begin(), termlist_end());
 
@@ -224,14 +224,14 @@ OmDocument::remove_posting(const string & tname,
     DEBUGAPICALL(void, "OmDocument::remove_posting",
 		 tname << ", " << tpos << ", " << wdfdec);
     if (tname.empty()) {
-	throw OmInvalidArgumentError("Empty termnames aren't allowed.");
+	throw Xapian::InvalidArgumentError("Empty termnames aren't allowed.");
     }
     internal->read_termlist(termlist_begin(), termlist_end());
 
     map<string, OmDocumentTerm>::iterator i;
     i = internal->terms.find(tname);
     if (i == internal->terms.end()) {
-	throw OmInvalidArgumentError("Term `" + tname +
+	throw Xapian::InvalidArgumentError("Term `" + tname +
 				     "' is not present in document, in "
 				     "OmDocument::remove_posting()");
     } else {
@@ -252,7 +252,7 @@ OmDocument::remove_term(const string & tname)
     map<string, OmDocumentTerm>::iterator i;
     i = internal->terms.find(tname);
     if (i == internal->terms.end()) {
-	throw OmInvalidArgumentError("Term `" + tname +
+	throw Xapian::InvalidArgumentError("Term `" + tname +
 				     "' is not present in document, in "
 				     "OmDocument::remove_term()");
     } else {
@@ -383,7 +383,7 @@ OmDocumentTerm::remove_position(om_termpos tpos)
     vector<om_termpos>::iterator i;
     i = lower_bound(positions.begin(), positions.end(), tpos);
     if (i == positions.end() || *i != tpos) {
-	throw OmInvalidArgumentError("Position `" + om_tostring(tpos) +
+	throw Xapian::InvalidArgumentError("Position `" + om_tostring(tpos) +
 				     "' not found in list of positions that `" +
 				     tname +
 				     "' occurs at,"

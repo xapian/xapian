@@ -61,7 +61,7 @@ InMemoryAllTermsList::get_collection_freq() const
 {
     Assert(started);
     Assert(!at_end());
-    throw OmUnimplementedError("Collection frequency not implemented in InMemory backend");
+    throw Xapian::UnimplementedError("Collection frequency not implemented in InMemory backend");
 }
 
 TermList *

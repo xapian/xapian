@@ -321,7 +321,7 @@ class QuartzDiskTable : public QuartzTable {
 
 	/** Create the table on disk.
 	 *
-	 *  @exception OmDatabaseCreateError if the table can't be created.
+	 *  @exception Xapian::DatabaseCreateError if the table can't be created.
 	 */
 	void create();
 
@@ -333,9 +333,9 @@ class QuartzDiskTable : public QuartzTable {
 	 *          false if table cannot be opened at desired revision (but
 	 *          table is otherwise consistent)
 	 *
-	 *  @exception OmDatabaseCorruptError will be thrown if the table is
+	 *  @exception Xapian::DatabaseCorruptError will be thrown if the table is
 	 *             in a corrupt state.
-	 *  @exception OmOpeningError will be thrown if the table cannot be
+	 *  @exception Xapian::OpeningError will be thrown if the table cannot be
 	 *             opened (but is not corrupt - eg, permission problems,
 	 *             not present, etc).
 	 */
@@ -343,9 +343,9 @@ class QuartzDiskTable : public QuartzTable {
 
 	/** Open the latest revision of the table.
 	 *
-	 *  @exception OmDatabaseCorruptError will be thrown if the table is
+	 *  @exception Xapian::DatabaseCorruptError will be thrown if the table is
 	 *             in a corrupt state.
-	 *  @exception OmOpeningError will be thrown if the table cannot be
+	 *  @exception Xapian::OpeningError will be thrown if the table cannot be
 	 *             opened (but is not corrupt - eg, permission problems,
 	 *             not present, etc).
 	 */

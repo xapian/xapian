@@ -27,7 +27,7 @@
 #include <iomanip>
 #include <string>
 #include <algorithm>
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "netutils.h"
 #include "progserver.h"
 #include "omerr_string.h"
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
 
 	OmDatabase db = backendmanager.get_database(paths);
 	dbgrp.add_database(db);
-    } catch (const OmError &e) {
+    } catch (const Xapian::Error &e) {
 	cout << 'E' << omerror_to_string(e) << endl;
     } catch (...) {
 	cout << "EUNKNOWN" << endl;

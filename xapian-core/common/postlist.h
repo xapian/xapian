@@ -27,7 +27,7 @@
 #include <string>
 
 #include "om/omtypes.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "refcnt.h"
 
 #include "positionlist.h"
@@ -127,7 +127,7 @@ class PostList : public RefCntBase
 	 *  This is currently only meaningful for a LeafPostList, although
 	 *  in future such things as a "SynonymPostList" may be created and
 	 *  implement this method.  If get_wdf() is called on a postlist
-	 *  which where wdf isn't meaningful then an OmUnimplementedError
+	 *  which where wdf isn't meaningful then an Xapian::UnimplementedError
 	 *  exception will be thrown.
 	 */
         virtual om_termcount get_wdf() const;
@@ -193,13 +193,13 @@ class PostList : public RefCntBase
 inline om_termcount
 PostList::get_wdf() const
 {
-    throw OmUnimplementedError("PostList::get_wdf() unimplemented");
+    throw Xapian::UnimplementedError("PostList::get_wdf() unimplemented");
 }
 
 inline om_termcount
 PostList::get_collection_freq() const
 {
-    throw OmUnimplementedError("PostList::get_collection_freq() unimplemented");
+    throw Xapian::UnimplementedError("PostList::get_collection_freq() unimplemented");
 }
 
 #endif /* OM_HGUARD_POSTLIST_H */

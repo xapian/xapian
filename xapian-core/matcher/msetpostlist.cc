@@ -55,7 +55,7 @@ MSetPostList::skip_to(om_docid did, om_weight w_min)
     (void)w_min;
     // MSetPostList doesn't return documents in docid order, so skip_to
     // isn't a meaningful operation.
-    throw OmInvalidOperationError("MSetPostList doesn't support skip_to");
+    throw Xapian::InvalidOperationError("MSetPostList doesn't support skip_to");
 }
 
 PendingMSetPostList::~PendingMSetPostList()

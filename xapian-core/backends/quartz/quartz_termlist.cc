@@ -23,7 +23,7 @@
  */
 
 #include <config.h>
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "quartz_termlist.h"
 #ifdef USE_LEXICON
 #include "quartz_lexicon.h"
@@ -126,7 +126,7 @@ QuartzTermList::QuartzTermList(RefCntPtr<const Database> this_db_,
     string key(quartz_docid_to_key(did));
 
     if (!table->get_exact_entry(key, termlist_part))
-	throw OmDocNotFoundError("Can't read termlist for document "
+	throw Xapian::DocNotFoundError("Can't read termlist for document "
 				 + om_tostring(did) + ": Not found");
 
     DEBUGLINE(DB, "QuartzTermList::QuartzTermList() - data is `" + termlist_part + "'");
@@ -136,20 +136,20 @@ QuartzTermList::QuartzTermList(RefCntPtr<const Database> this_db_,
 
     // Read doclen
     if (!unpack_uint(&pos, end, &doclen)) {
-	if (pos != 0) throw OmRangeError("doclen out of range.");
-	throw OmDatabaseCorruptError("Unexpected end of data when reading doclen.");
+	if (pos != 0) throw Xapian::RangeError("doclen out of range.");
+	throw Xapian::DatabaseCorruptError("Unexpected end of data when reading doclen.");
     }
 
     // Read termlist_size
     if (!unpack_uint(&pos, end, &termlist_size)) {
-	if (pos != 0) throw OmRangeError("Size of termlist out of range.");
-	throw OmDatabaseCorruptError("Unexpected end of data when reading termlist.");
+	if (pos != 0) throw Xapian::RangeError("Size of termlist out of range.");
+	throw Xapian::DatabaseCorruptError("Unexpected end of data when reading termlist.");
     }
 
     // Read has_termfreqs
     if (!unpack_bool(&pos, end, &has_termfreqs)) {
 	Assert(pos == 0);
-	throw OmDatabaseCorruptError("Unexpected end of data when reading termlist.");
+	throw Xapian::DatabaseCorruptError("Unexpected end of data when reading termlist.");
     }
 }
 
@@ -179,21 +179,21 @@ QuartzTermList::next()
 #ifdef OLD_TERMLIST_FORMAT
     // Read termname
     if (!unpack_string(&pos, end, current_tname)) {
-	if (pos == 0) throw OmDatabaseCorruptError("Unexpected end of data when reading termlist.");
-	throw OmRangeError("Size of termname out of range, in termlist.");
+	if (pos == 0) throw Xapian::DatabaseCorruptError("Unexpected end of data when reading termlist.");
+	throw Xapian::RangeError("Size of termname out of range, in termlist.");
     }
 
     // Read wdf
     if (!unpack_uint(&pos, end, &current_wdf)) {
-	if (pos == 0) throw OmDatabaseCorruptError("Unexpected end of data when reading termlist.");
-	throw OmRangeError("Size of wdf out of range, in termlist.");
+	if (pos == 0) throw Xapian::DatabaseCorruptError("Unexpected end of data when reading termlist.");
+	throw Xapian::RangeError("Size of wdf out of range, in termlist.");
     }
     
     // Read termfreq, if stored
     if (has_termfreqs) {
 	if (!unpack_uint(&pos, end, &current_termfreq)) {
-	    if (pos == 0) throw OmDatabaseCorruptError("Unexpected end of data when reading termlist.");
-	    throw OmRangeError("Size of term frequency out of range, in termlist.");
+	    if (pos == 0) throw Xapian::DatabaseCorruptError("Unexpected end of data when reading termlist.");
+	    throw Xapian::RangeError("Size of term frequency out of range, in termlist.");
 	}
     } else {
 	current_termfreq = 0;
@@ -211,15 +211,15 @@ QuartzTermList::next()
 
     // Read wdf
     if (!unpack_uint(&pos, end, &current_wdf)) {
-	if (pos == 0) throw OmDatabaseCorruptError("Unexpected end of data when reading termlist.");
-	throw OmRangeError("Size of wdf out of range, in termlist.");
+	if (pos == 0) throw Xapian::DatabaseCorruptError("Unexpected end of data when reading termlist.");
+	throw Xapian::RangeError("Size of wdf out of range, in termlist.");
     }
     
     // Read termfreq, if stored
     if (has_termfreqs) {
 	if (!unpack_uint(&pos, end, &current_termfreq)) {
-	    if (pos == 0) throw OmDatabaseCorruptError("Unexpected end of data when reading termlist.");
-	    throw OmRangeError("Size of term frequency out of range, in termlist.");
+	    if (pos == 0) throw Xapian::DatabaseCorruptError("Unexpected end of data when reading termlist.");
+	    throw Xapian::RangeError("Size of term frequency out of range, in termlist.");
 	}
     } else {
 	current_termfreq = 0;

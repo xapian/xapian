@@ -29,12 +29,12 @@
 #include "om/omtypes.h"
 #include "om/omdocument.h"
 #include "om/omdatabase.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include <string>
 #include <time.h> // for time_t
 
 class OmQuery;
-class OmErrorHandler;
+class Xapian::ErrorHandler;
 class OmWeight;
 
 /** An iterator pointing to items in an MSet.
@@ -91,7 +91,7 @@ class OmMSetIterator {
 	 *
 	 *  @return      An OmDocument object containing the document data.
 	 *
-	 *  @exception OmDocNotFoundError  The document specified could not
+	 *  @exception Xapian::DocNotFoundError The document specified could not
 	 *                                 be found in the database.
 	 */
 	OmDocument get_document() const;
@@ -230,7 +230,7 @@ class OmMSet {
 	 *
 	 *  @param tname The term to look for.
 	 *
-	 *  @exception OmInvalidArgumentError is thrown if the term was not
+	 *  @exception Xapian::InvalidArgumentError is thrown if the term was not
 	 *             in the query.
 	 */
 	om_doccount get_termfreq(const std::string &tname) const;
@@ -239,7 +239,7 @@ class OmMSet {
 	 *
 	 *  @param tname The term to look for.
 	 *
-	 *  @exception OmInvalidArgumentError is thrown if the term was not
+	 *  @exception Xapian::InvalidArgumentError is thrown if the term was not
 	 *             in the query.
 	 */
 	om_weight get_termweight(const std::string &tname) const;
@@ -536,12 +536,12 @@ class OmExpandDecider {
  *
  *  Databases are usually opened lazily, so exceptions may not be
  *  thrown where you would expect them to be.  You should catch
- *  OmError exceptions when calling any method in OmEnquire.
+ *  Xapian::Error exceptions when calling any method in OmEnquire.
  *
- *  @exception OmInvalidArgumentError will be thrown if an invalid
+ *  @exception Xapian::InvalidArgumentError will be thrown if an invalid
  *  argument is supplied, for example, an unknown database type.
  *
- *  @exception OmOpeningError will be thrown if the database cannot
+ *  @exception Xapian::OpeningError will be thrown if the database cannot
  *  be opened (for example, a required file cannot be found).
  */
 class OmEnquire {
@@ -568,12 +568,12 @@ class OmEnquire {
 	 *  @param errorhandler_  A pointer to the error handler to use.
 	 *         Ownership of the object pointed to is not assumed by the
 	 *         OmEnquire object - the user should delete the
-	 *         OmErrorHandler object after the OmEnquire object is
+	 *         Xapian::ErrorHandler object after the OmEnquire object is
 	 *         deleted.  To use no error handler, this parameter
 	 *         should be 0.
 	 */
         OmEnquire(const OmDatabase &databases,
-		  OmErrorHandler * errorhandler_ = 0);
+		  Xapian::ErrorHandler * errorhandler_ = 0);
 
 	/** Close the OmEnquire object.
 	 *
@@ -590,15 +590,15 @@ class OmEnquire {
 	 *
 	 *  @param query_  the new query to run.
 	 *
-	 *  @exception OmInvalidArgumentError  See class documentation.
-	 *  @exception OmOpeningError          See class documentation.
+	 *  @exception Xapian::InvalidArgumentError  See class documentation.
+	 *  @exception Xapian::OpeningError          See class documentation.
 	 */
 	void set_query(const OmQuery & query_);
 
 	/** Get the query which has been set.
 	 *  This is only valid after set_query() has been called.
 	 *
-	 *  @exception OmInvalidArgumentError will be thrown if query has
+	 *  @exception Xapian::InvalidArgumentError will be thrown if query has
 	 *             not yet been set.
 	 */
 	const OmQuery & get_query();
@@ -691,8 +691,8 @@ class OmEnquire {
 	 *  @return          An OmMSet object containing the results of the
 	 *                   query.
 	 *
-	 *  @exception OmInvalidArgumentError  See class documentation.
-	 *  @exception OmOpeningError          See class documentation.
+	 *  @exception Xapian::InvalidArgumentError  See class documentation.
+	 *  @exception Xapian::OpeningError          See class documentation.
 	 */
 	OmMSet get_mset(om_doccount first,
                         om_doccount maxitems,
@@ -721,8 +721,8 @@ class OmEnquire {
 	 *  @return          An OmESet object containing the results of the
 	 *                   expand.
 	 *
-	 *  @exception OmInvalidArgumentError  See class documentation.
-	 *  @exception OmOpeningError          See class documentation.
+	 *  @exception Xapian::InvalidArgumentError  See class documentation.
+	 *  @exception Xapian::OpeningError          See class documentation.
 	 */
 	OmESet get_eset(om_termcount maxitems,
 			const OmRSet & omrset,
@@ -741,8 +741,8 @@ class OmEnquire {
 	 *  @return          An OmESet object containing the results of the
 	 *                   expand.
 	 *
-	 *  @exception OmInvalidArgumentError  See class documentation.
-	 *  @exception OmOpeningError          See class documentation.
+	 *  @exception Xapian::InvalidArgumentError  See class documentation.
+	 *  @exception Xapian::OpeningError          See class documentation.
 	 */
 	inline OmESet get_eset(om_termcount maxitems, const OmRSet & omrset,
 			       const OmExpandDecider * edecider) const {
@@ -773,9 +773,9 @@ class OmEnquire {
 	 *                 in the query.  Terms will not occur more than once,
 	 *                 even if they do in the query.
 	 *
-	 *  @exception OmInvalidArgumentError  See class documentation.
-	 *  @exception OmOpeningError          See class documentation.
-	 *  @exception OmDocNotFoundError      The document specified could not
+	 *  @exception Xapian::InvalidArgumentError  See class documentation.
+	 *  @exception Xapian::OpeningError          See class documentation.
+	 *  @exception Xapian::DocNotFoundError      The document specified could not
 	 *                                     be found in the database.
 	 */
 	OmTermIterator get_matching_terms_begin(om_docid did) const;
@@ -801,9 +801,9 @@ class OmEnquire {
 	 *                 in the query.  Terms will not occur more than once,
 	 *                 even if they do in the query.
 	 *
-	 *  @exception OmInvalidArgumentError  See class documentation.
-	 *  @exception OmOpeningError          See class documentation.
-	 *  @exception OmDocNotFoundError      The document specified could not
+	 *  @exception Xapian::InvalidArgumentError  See class documentation.
+	 *  @exception Xapian::OpeningError          See class documentation.
+	 *  @exception Xapian::DocNotFoundError      The document specified could not
 	 *                                     be found in the database.
 	 */
 	OmTermIterator get_matching_terms_begin(const OmMSetIterator &it) const;

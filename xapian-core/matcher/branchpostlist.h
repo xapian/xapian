@@ -67,13 +67,13 @@ class BranchPostList : public PostList {
 
 	/** Most branch postlists won't be able to supply position lists.
 	 *  If read_position_list() is called on such a branch postlist,
-	 *  an OmUnimplementedError exception will be thrown.
+	 *  an Xapian::UnimplementedError exception will be thrown.
 	 */
 	virtual PositionList *read_position_list();
 
 	/** Most branch postlists won't be able to supply position lists.
 	 *  If open_position_list() is called on such a branch postlist,
-	 *  an OmUnimplementedError exception will be thrown.
+	 *  an Xapian::UnimplementedError exception will be thrown.
 	 */
 	virtual AutoPtr<PositionList> open_position_list() const;
 };
@@ -102,13 +102,13 @@ inline PositionList *
 BranchPostList::read_position_list()
 {
     DEBUGCALL(MATCH, PositionList *, "BranchPostList::read_position_list", "");
-    throw OmUnimplementedError("BranchPostList::read_position_list() unimplemented");
+    throw Xapian::UnimplementedError("BranchPostList::read_position_list() unimplemented");
 }
 
 inline AutoPtr<PositionList>
 BranchPostList::open_position_list() const
 {
-    throw OmUnimplementedError("BranchPostList::open_position_list() unimplemented");
+    throw Xapian::UnimplementedError("BranchPostList::open_position_list() unimplemented");
 }
 
 // Helper functions - call next/skip_to on a postlist and handle any

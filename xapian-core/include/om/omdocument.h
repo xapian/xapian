@@ -127,12 +127,12 @@ class OmDocument {
 	 *                   when removing this posting.  The wdf will not go
 	 *                   below the value of 0.
 	 *
-	 *  @exception OmInvalidArgumentError will be thrown if the term is
-	 *  not at the position specified in the position list for this
-	 *  term in this document.
+	 *  @exception Xapian::InvalidArgumentError will be thrown if the term
+	 *  is not at the position specified in the position list for this term
+	 *  in this document.
 	 *
-	 *  @exception OmInvalidArgumentError will be thrown if the term is
-	 *  not in the document
+	 *  @exception Xapian::InvalidArgumentError will be thrown if the term
+	 *  is not in the document
 	 */
 	void remove_posting(const std::string & tname,
 			    om_termpos tpos,
@@ -142,8 +142,8 @@ class OmDocument {
 	 *
 	 *  @param tname  The name of the term.
 	 *
-	 *  @exception OmInvalidArgumentError will be thrown if the term is
-	 *  not in the document
+	 *  @exception Xapian::InvalidArgumentError will be thrown if the term
+	 *  is not in the document
 	 */
 	void remove_term(const std::string & tname);
 

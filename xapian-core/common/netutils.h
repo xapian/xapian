@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 #include "omdebug.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 
 inline std::string
 encode_tname(const std::string &tname)
@@ -72,24 +72,24 @@ decode_tname(const std::string &tcode)
 	    case 33:
 	        i++;
 	        if(i == tcode.end() || (unsigned char)(*i) < 36 || (unsigned char)(*i) > 71)
-		    throw OmNetworkError("Invalid encoded string in network communication: `" + tcode + "': unexpected character `" + *i + "' following !");
+		    throw Xapian::NetworkError("Invalid encoded string in network communication: `" + tcode + "': unexpected character `" + *i + "' following !");
 		result += (char)(*i - 36);
 	        break;
 	    case 34:
 	        i++;
 	        if(i == tcode.end() || (unsigned char)(*i) < 36 || (unsigned char)(*i) > 100)
-		    throw OmNetworkError("Invalid encoded string in network communication: `" + tcode + "': unexpected character `" + *i + "' following \"");
+		    throw Xapian::NetworkError("Invalid encoded string in network communication: `" + tcode + "': unexpected character `" + *i + "' following \"");
 		result += (char)(*i + 91);
 	        break;
 	    case 35:
 	        i++;
 	        if(i == tcode.end() || (unsigned char)(*i) < 36 || (unsigned char)(*i) > 99)
-		    throw OmNetworkError("Invalid encoded string in network communication: `" + tcode + "': unexpected character `" + *i + "' following #");
+		    throw Xapian::NetworkError("Invalid encoded string in network communication: `" + tcode + "': unexpected character `" + *i + "' following #");
 		result += (char)(*i + 156);
 	        break;
 	    default:
 	        if((unsigned char)(*i) < 36 || (unsigned char)(*i) > 126)
-		    throw OmNetworkError("Invalid encoded string in network communication: `" + tcode + "': unexpected character `" + *i + "'");
+		    throw Xapian::NetworkError("Invalid encoded string in network communication: `" + tcode + "': unexpected character `" + *i + "'");
 	        result += *i;
 	}
     }

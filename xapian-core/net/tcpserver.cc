@@ -75,7 +75,7 @@ TcpServer::get_listening_socket(int port)
     int socketfd = socket(PF_INET, SOCK_STREAM, 0);
 
     if (socketfd < 0) {
-	throw OmNetworkError("socket", errno);
+	throw Xapian::NetworkError("socket", errno);
     }
 
     int retval;
@@ -92,7 +92,7 @@ TcpServer::get_listening_socket(int port)
     if (retval < 0) {
 	int saved_errno = errno; // note down in case close hits an error
 	close(socketfd);
-	throw OmNetworkError("setsockopt failed", saved_errno);
+	throw Xapian::NetworkError("setsockopt failed", saved_errno);
     }
 
     struct sockaddr_in addr;
@@ -107,7 +107,7 @@ TcpServer::get_listening_socket(int port)
     if (retval < 0) {
 	int saved_errno = errno; // note down in case close hits an error
 	close(socketfd);
-	throw OmNetworkError("bind failed", saved_errno);
+	throw Xapian::NetworkError("bind failed", saved_errno);
     }
 
     // FIXME: backlog argument should perhaps be larger.
@@ -116,7 +116,7 @@ TcpServer::get_listening_socket(int port)
     if (retval < 0) {
 	int saved_errno = errno; // note down in case close hits an error
 	close(socketfd);
-	throw OmNetworkError("listen failed", saved_errno);
+	throw Xapian::NetworkError("listen failed", saved_errno);
     }
     return socketfd;
 }
@@ -132,11 +132,11 @@ TcpServer::get_connected_socket()
 			    &remote_address_size);
 
     if (con_socket < 0) {
-	throw OmNetworkError("accept failed", errno);
+	throw Xapian::NetworkError("accept failed", errno);
     }
 
     if (remote_address_size != sizeof(remote_address)) {
-	throw OmNetworkError("accept: unexpected remote address size");
+	throw Xapian::NetworkError("accept: unexpected remote address size");
     }
 
     struct in_addr address = remote_address.sin_addr;
@@ -167,7 +167,7 @@ TcpServer::get_connected_socket()
 	    default:
 		errmsg += "Unknown error.";
 	}
-	throw OmNetworkError(errmsg);
+	throw Xapian::NetworkError(errmsg);
     }
 
     if (verbose) {
@@ -214,7 +214,7 @@ TcpServer::run_once()
 			       msecs_idle_timeout, timing);
 #endif /* TIMING_PATCH */
 	    sserv.run();
-	} catch (const OmError &err) {
+	} catch (const Xapian::Error &err) {
 	    cerr << "Got exception " << err.get_type()
 		 << ": " << err.get_msg() << endl;
 	} catch (...) {
@@ -241,7 +241,7 @@ TcpServer::run_once()
 	// fork() failed
 	int saved_errno = errno; // note down in case close hits an error
 	close(connected_socket);
-	throw OmNetworkError("fork failed", saved_errno);
+	throw Xapian::NetworkError("fork failed", saved_errno);
     }
 }
 
@@ -282,10 +282,10 @@ TcpServer::run()
     while (1) {
 	try {
 	    run_once();
-	} catch (const OmDatabaseModifiedError &) {
+	} catch (const Xapian::DatabaseModifiedError &) {
 	    cerr << "Database modified - calling db.reopen()" << endl;
 	    db.reopen();
-	} catch (const OmError &err) {
+	} catch (const Xapian::Error &err) {
 	    // FIXME: better error handling.
 	    cerr << "Caught " << err.get_type()
 		 << ": " << err.get_msg() << endl;

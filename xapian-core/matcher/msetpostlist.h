@@ -164,13 +164,13 @@ inline PositionList *
 MSetPostList::read_position_list()
 {
     DEBUGCALL(MATCH, PositionList *, "MSetPostList::read_position_list", "");
-    throw OmUnimplementedError("MSetPostList::read_position_list() unimplemented");
+    throw Xapian::UnimplementedError("MSetPostList::read_position_list() unimplemented");
 }
 
 inline AutoPtr<PositionList>
 MSetPostList::open_position_list() const
 {
-    throw OmUnimplementedError("MSetPostList::open_position_list() unimplemented");
+    throw Xapian::UnimplementedError("MSetPostList::open_position_list() unimplemented");
 }
 
 class RemoteSubMatch;
@@ -230,7 +230,7 @@ class PendingMSetPostList : public PostList {
 	PostList *skip_to(om_docid /*did*/, om_weight /*w_min*/) {
 	    // MSetPostList doesn't return documents in docid order, so skip_to
 	    // isn't a meaningful operation.
-	    throw OmUnimplementedError("PendingMSetPostList doesn't support skip_to");	    
+	    throw Xapian::UnimplementedError("PendingMSetPostList doesn't support skip_to");	    
 	}
 
 	bool at_end() const { Assert(false); return true; }

@@ -27,13 +27,37 @@
 // Set defines for library version and check C++ ABI versions match
 #include <xapian/version.h>
 
+// Backward compatibility
 #include <string>
 typedef std::string om_termname;
+#define OmStem Xapian::Stem
+#define OmLogicError Xapian::LogicError
+#define OmRuntimeError Xapian::RuntimeError
+#define OmAssertionError Xapian::AssertionError
+#define OmUnimplementedError Xapian::UnimplementedError
+#define OmInvalidArgumentError Xapian::InvalidArgumentError
+#define OmInvalidOperationError Xapian::InvalidOperationError
+#define OmDocNotFoundError Xapian::DocNotFoundError
+#define OmRangeError Xapian::RangeError
+#define OmInternalError Xapian::InternalError
+#define OmDatabaseError Xapian::DatabaseError
+#define OmFeatureUnavailableError Xapian::FeatureUnavailableError
+#define OmNetworkError Xapian::NetworkError
+#define OmNetworkTimeoutError Xapian::NetworkTimeoutError
+#define OmDatabaseCorruptError Xapian::DatabaseCorruptError
+#define OmDatabaseCreateError Xapian::DatabaseCreateError
+#define OmOpeningError Xapian::OpeningError
+#define OmDatabaseLockError Xapian::DatabaseLockError
+#define OmDatabaseModifiedError Xapian::DatabaseModifiedError
+#define OmInvalidResultError Xapian::InvalidResultError
+#define OmTypeError Xapian::TypeError
+#define OmInvalidDataError Xapian::InvalidDataError
+#define OmDataFlowError Xapian::DataFlowError
 
 // Types and exceptions
 #include "om/omtypes.h"
-#include "om/omerror.h"
-#include "om/omerrorhandler.h"
+#include "xapian/error.h"
+#include "xapian/errorhandler.h"
 
 // Data access
 #include "om/omdocument.h"
@@ -49,7 +73,7 @@ typedef std::string om_termname;
 #include "om/omexpanddecider.h"
 
 // Stemming
-#include "om/omstem.h"
+#include "xapian/stem.h"
 
 // Output
 #include "om/omoutput.h"

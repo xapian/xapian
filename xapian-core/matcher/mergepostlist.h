@@ -28,7 +28,7 @@
 #include "database.h"
 #include "branchpostlist.h"
 #include "om/omenquire.h"
-#include "om/omerrorhandler.h"
+#include "xapian/errorhandler.h"
 
 #include "networkmatch.h"
 
@@ -53,7 +53,7 @@ class MergePostList : public PostList {
 	 */
         MultiMatch *matcher;
 
-	OmErrorHandler * errorhandler;
+	Xapian::ErrorHandler * errorhandler;
     public:
 	om_doccount get_termfreq_max() const;
 	om_doccount get_termfreq_min() const;
@@ -83,7 +83,7 @@ class MergePostList : public PostList {
 
         MergePostList(vector<PostList *> plists_,
 		      MultiMatch *matcher,
-		      OmErrorHandler * errorhandler_);
+		      Xapian::ErrorHandler * errorhandler_);
         ~MergePostList();
 };
 
@@ -169,7 +169,7 @@ MergePostList::recalc_maxweight()
 	try {
 	    om_weight w = (*i)->recalc_maxweight();
 	    if (w > w_max) w_max = w;
-	} catch (OmError & e) {
+	} catch (Xapian::Error & e) {
 	    if (errorhandler) {
 		DEBUGLINE(EXCEPTION, "Calling error handler in MergePostList::recalc_maxweight().");
 		(*errorhandler)(e);
@@ -224,13 +224,13 @@ inline PositionList *
 MergePostList::read_position_list()
 {
     DEBUGCALL(MATCH, PositionList *, "MergePostList::read_position_list", "");
-    throw OmUnimplementedError("MergePostList::read_position_list() unimplemented");
+    throw Xapian::UnimplementedError("MergePostList::read_position_list() unimplemented");
 }
 
 inline AutoPtr<PositionList>
 MergePostList::open_position_list() const
 {
-    throw OmUnimplementedError("MergePostList::open_position_list() unimplemented");
+    throw Xapian::UnimplementedError("MergePostList::open_position_list() unimplemented");
 }
 
 #endif /* OM_HGUARD_MERGEPOSTLIST_H */

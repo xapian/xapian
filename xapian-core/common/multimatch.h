@@ -35,7 +35,7 @@
 #include "autoptr.h"  // auto_ptr
 
 class SubMatch;
-class OmErrorHandler;
+class Xapian::ErrorHandler;
 class SocketServer;
 class OmWeight;
 
@@ -69,7 +69,7 @@ class MultiMatch
 	om_weight bias_weight;
 	
 	/// ErrorHandler
-	OmErrorHandler * errorhandler;
+	Xapian::ErrorHandler * errorhandler;
 
 	/// Weighting scheme
 	const OmWeight * weight;
@@ -126,7 +126,7 @@ class MultiMatch
 		   int sort_bands_,
 		   time_t bias_halflife_,
 		   om_weight bias_weight_,
-		   OmErrorHandler * errorhandler,
+		   Xapian::ErrorHandler * errorhandler,
 		   AutoPtr<StatsGatherer> gatherer_,
 		   const OmWeight *wtscheme);
 	~MultiMatch();

@@ -53,8 +53,8 @@ OUTPUT_FUNCTION(OmESetIterator)
 OUTPUT_FUNCTION(OmESet)
 OUTPUT_FUNCTION(OmEnquire)
 
-#include "om/omstem.h"
-OUTPUT_FUNCTION(OmStem)
+#include "xapian/stem.h"
+OUTPUT_FUNCTION(Xapian::Stem)
 
 #include "om/ompostlistiterator.h"
 OUTPUT_FUNCTION(OmPostListIterator)

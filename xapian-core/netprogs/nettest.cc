@@ -233,7 +233,7 @@ static bool test_tcpdead1()
 	enq.set_query(OmQuery("word"));	
 	OmMSet mset(enq.get_mset(0, 10));
     }
-    catch (const OmNetworkError &e) {
+    catch (const Xapian::NetworkError &e) {
 	time_t t2 = time(NULL) - t;
 	if (t2 > 1) {
 	    FAIL_TEST("Client took too long to notice server died (" +

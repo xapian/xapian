@@ -28,11 +28,11 @@
 #include "mergepostlist.h"
 #include "omdebug.h"
 #include "om/omenquire.h"
-#include "om/omerrorhandler.h"
+#include "xapian/errorhandler.h"
 
 MergePostList::MergePostList(std::vector<PostList *> plists_,
 			     MultiMatch *matcher_,
-			     OmErrorHandler * errorhandler_)
+			     Xapian::ErrorHandler * errorhandler_)
 	: plists(plists_), current(-1), matcher(matcher_),
 	  errorhandler(errorhandler_)
 {
@@ -61,7 +61,7 @@ MergePostList::next(om_weight w_min)
 	    next_handling_prune(plists[current], w_min, matcher);
 	    if (!plists[current]->at_end()) break;
 	    current++;
-	} catch (OmError & e) {
+	} catch (Xapian::Error & e) {
 	    if (errorhandler) {
 		DEBUGLINE(EXCEPTION, "Calling error handler in MergePostList::next().");
 		(*errorhandler)(e);
@@ -89,5 +89,5 @@ MergePostList::skip_to(om_docid did, om_weight w_min)
     (void)w_min;
     // MergePostList doesn't return documents in docid order, so skip_to
     // isn't a meaningful operation.
-    throw OmInvalidOperationError("MergePostList doesn't support skip_to");
+    throw Xapian::InvalidOperationError("MergePostList doesn't support skip_to");
 }

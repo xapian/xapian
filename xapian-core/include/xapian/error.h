@@ -1,4 +1,4 @@
-/** \file omerror.h
+/** \file error.h
  * \brief Classes for exception handling.
  */
 /* ----START-LICENCE----
@@ -22,18 +22,20 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OMERROR_H
-#define OM_HGUARD_OMERROR_H
+#ifndef OM_HGUARD_ERROR_H
+#define OM_HGUARD_ERROR_H
 
 #include <string>
 
-class OmErrorHandler;
+namespace Xapian {
+
+class ErrorHandler;
 
 /// Base class for all Xapian-specific errors reported.
 //
-// Instantiations of OmError (as opposed to subclasses) are forbidden.
-class OmError {
-    friend class OmErrorHandler;
+// Instantiations of Xapian::Error (as opposed to subclasses) are forbidden.
+class Error {
+    friend class ErrorHandler;
     private:
 	/// A message explaining the error.
 	std::string msg;
@@ -51,22 +53,18 @@ class OmError {
 	bool has_been_handled;
 
 	/// assignment operator private and unimplemented
-	void operator=(const OmError &copyme);
+	void operator=(const Error &copyme);
+
     protected:
 	/** Constructors are protected, since they can only
 	 *  be used by derived classes anyway.
 	 */
-	OmError(const std::string &msg_,
-		const std::string &context_,
-		const std::string &type_,
-		int errno_value_);
+	Error(const std::string &msg_, const std::string &context_,
+	      const std::string &type_, int errno_value_);
 
-	OmError(const OmError &copyme)
-		: msg(copyme.msg),
-		  context(copyme.context),
-		  type(copyme.type),
-		  errno_value(copyme.errno_value),
-		  has_been_handled(copyme.has_been_handled) {}
+	Error(const Error &o) : msg(o.msg), context(o.context), type(o.type),
+	    errno_value(o.errno_value), has_been_handled(o.has_been_handled) {}
+
     public:
 	/** Return a message describing the error.
 	 *  This is in a human readable form.
@@ -95,10 +93,10 @@ class OmError {
 	}
 
 	/// Destructor
-	virtual ~OmError();
+	virtual ~Error();
 };
 
-inline OmError::~OmError() {}
+inline Error::~Error() {}
 
 #define DEFINE_ERROR_BASECLASS(a, b) \
 class a : public b { \
@@ -128,9 +126,11 @@ class a : public b { \
 	  int errno_value_) : b(msg_, context_, type_, errno_value_) {} \
 }
 
-#include "om/omerrortypes.h"
+#include "xapian/errortypes.h"
 
 #undef DEFINE_ERROR_BASECLASS
 #undef DEFINE_ERROR_CLASS
 
-#endif /* OM_HGUARD_OMERROR_H */
+}
+
+#endif /* OM_HGUARD_ERROR_H */

@@ -29,7 +29,7 @@
 #include "netutils.h"
 #include "socketcommon.h"
 #include "utils.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "omerr_string.h"
 #include "termlist.h"
 #include "document.h"
@@ -79,7 +79,7 @@ SocketServer::SocketServer(OmDatabase db_, int readfd_, int writefd_,
     // ignore SIGPIPE - we check return values instead, and that
     // way we can easily throw an exception.
     if (signal(SIGPIPE, SIG_IGN) < 0) {
-	throw OmNetworkError("Couldn't install SIGPIPE handler", errno);
+	throw Xapian::NetworkError("Couldn't install SIGPIPE handler", errno);
     }
     writeline("OM "STRINGIZE(OM_SOCKET_PROTOCOL_VERSION)" " +
 	      om_tostring(db.get_doccount()) + ' ' +
@@ -236,7 +236,7 @@ SocketServer::run()
 			writeline("t0");
 		    break;
 		default:
-		    throw OmInvalidArgumentError(string("Unexpected message:") +
+		    throw Xapian::InvalidArgumentError(string("Unexpected message:") +
 						       message);
 	    }
 	} catch (const SocketServerFinished &) {
@@ -250,13 +250,13 @@ SocketServer::run()
 	    }
 #endif
 	    return;
-	} catch (const OmNetworkError &e) {
+	} catch (const Xapian::NetworkError &e) {
 	    // _Don't_ send network errors over, since they're likely
 	    // to have been caused by an error talking to the other end.
 	    // (This isn't necessarily true with cascaded remote
 	    // databases, though...)
 	    throw;
-	} catch (const OmError &e) {
+	} catch (const Xapian::Error &e) {
 	    /* Pass the error across the link, and continue. */
 	    writeline(string("E") + omerror_to_string(e));
 	} catch (...) {
@@ -298,7 +298,7 @@ SocketServer::run_match(const string &firstmessage)
     message = readline(msecs_active_timeout);
     map<string, OmWeight *>::const_iterator i = wtschemes.find(message);
     if (i == wtschemes.end()) {
-	throw OmInvalidArgumentError("Weighting scheme " + message + " not registered");
+	throw Xapian::InvalidArgumentError("Weighting scheme " + message + " not registered");
     }
     message = readline(msecs_active_timeout);
     AutoPtr<OmWeight> wt(i->second->unserialise(message));
@@ -323,7 +323,7 @@ SocketServer::run_match(const string &firstmessage)
     message = readline(msecs_active_timeout);
 
     if (message.empty() || message[0] != 'G') {
-	throw OmNetworkError(string("Expected 'G', got ") + message);
+	throw Xapian::NetworkError(string("Expected 'G', got ") + message);
     }
 
     global_stats = string_to_stats(message.substr(1));
@@ -333,7 +333,7 @@ SocketServer::run_match(const string &firstmessage)
     message = readline(msecs_active_timeout);
 
     if (message.empty() || message[0] != 'M') {
-	throw OmNetworkError(string("Expected 'M', got ") + message);
+	throw Xapian::NetworkError(string("Expected 'M', got ") + message);
     }
 
     message = message.substr(1);

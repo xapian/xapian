@@ -37,10 +37,10 @@ class OmWritableDatabase;
  *
  *  This class is used in conjunction with an OmEnquire object.
  *
- *  @exception OmInvalidArgumentError will be thrown if an invalid
+ *  @exception Xapian::InvalidArgumentError will be thrown if an invalid
  *  argument is supplied, for example, an unknown database type.
  *
- *  @exception OmOpeningError may be thrown if the database cannot
+ *  @exception Xapian::OpeningError may be thrown if the database cannot
  *  be opened (for example, a required file cannot be found).
  */
 class OmDatabase {
@@ -88,7 +88,7 @@ class OmDatabase {
 	/** Re-open the database.
 	 *  This re-opens the database(s) to the latest available version(s).
 	 *  It can be used either to make sure the latest results are
-	 *  returned, or to recover from an OmDatabaseModifiedError.
+	 *  returned, or to recover from an Xapian::DatabaseModifiedError.
 	 */
 	void reopen();
 
@@ -179,8 +179,8 @@ class OmDatabase {
 	 *
 	 *  @return      An OmDocument object containing the document data
 	 *
-	 *  @exception OmDocNotFoundError      The document specified could not
-	 *                                     be found in the database.
+	 *  @exception Xapian::DocNotFoundError      The document specified
+	 *		could not be found in the database.
 	 */
 	OmDocument get_document(om_docid did) const;
 };
@@ -251,14 +251,14 @@ class OmWritableDatabase : public OmDatabase {
 	 *  automatically when the database is closed, or when a sufficient
 	 *  number of modifications have been made.
 	 *
-	 *  @exception OmDatabaseError will be thrown if a problem occurs
+	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
 	 *             while modifying the database.
 	 *
-	 *  @exception OmDatabaseCorruptError will be thrown if the
+	 *  @exception Xapian::DatabaseCorruptError will be thrown if the
 	 *             database is in a corrupt state.
 	 *
-	 *  @exception OmDatabaseLockError will be thrown if a lock couldn't
-	 *             be acquired on the database.
+	 *  @exception Xapian::DatabaseLockError will be thrown if a lock
+	 *	       couldn't be acquired on the database.
 	 */
 	void flush();
 
@@ -277,10 +277,10 @@ class OmWritableDatabase : public OmDatabase {
 	 *  A transaction may only be begun within a session, see
 	 *  begin_session().
 	 * 
-	 *  @exception OmUnimplementedError will be thrown if transactions
+	 *  @exception Xapian::UnimplementedError will be thrown if transactions
 	 *             are not available for this database type.
 	 *
-	 *  @exception OmInvalidOperationError will be thrown if this is
+	 *  @exception Xapian::InvalidOperationError will be thrown if this is
 	 *             called at an invalid time, such as when a transaction
 	 *             is already in progress.
 	 */
@@ -300,16 +300,16 @@ class OmWritableDatabase : public OmDatabase {
 	 *  Whatever occurs, after this method the transaction will no
 	 *  longer be in progress.
 	 *
-	 *  @exception OmDatabaseError will be thrown if a problem occurs
+	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
 	 *             while modifying the database.
 	 *
-	 *  @exception OmDatabaseCorruptError will be thrown if the
+	 *  @exception Xapian::DatabaseCorruptError will be thrown if the
 	 *             database is in a corrupt state.
 	 *
-	 *  @exception OmInvalidOperationError will be thrown if a transaction
-	 *             is not currently in progress.
+	 *  @exception Xapian::InvalidOperationError will be thrown if a
+	 *	       transaction is not currently in progress.
 	 *
-	 *  @exception OmUnimplementedError will be thrown if transactions
+	 *  @exception Xapian::UnimplementedError will be thrown if transactions
 	 *             are not available for this database type.
 	 */
 	void commit_transaction();
@@ -320,16 +320,16 @@ class OmWritableDatabase : public OmDatabase {
 	 *  If an error occurs in this method, an exception will be thrown,
 	 *  but the transaction will be cancelled anyway.
 	 *
-	 *  @exception OmDatabaseError will be thrown if a problem occurs
+	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
 	 *             while modifying the database.
 	 *  
-	 *  @exception OmDatabaseCorruptError will be thrown if the
+	 *  @exception Xapian::DatabaseCorruptError will be thrown if the
 	 *             database is in a corrupt state.
 	 *
-	 *  @exception OmInvalidOperationError will be thrown if a transaction
-	 *             is not currently in progress.
+	 *  @exception Xapian::InvalidOperationError will be thrown if a
+	 *	       transaction is not currently in progress.
 	 *
-	 *  @exception OmUnimplementedError will be thrown if transactions
+	 *  @exception Xapian::UnimplementedError will be thrown if transactions
 	 *             are not available for this database type.
 	 */
 	void cancel_transaction();
@@ -354,14 +354,14 @@ class OmWritableDatabase : public OmDatabase {
 	 *
 	 *  @return         The document ID of the newly added document.
 	 *
-	 *  @exception OmDatabaseError will be thrown if a problem occurs
+	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
 	 *             while writing to the database.
 	 *
-	 *  @exception OmDatabaseCorruptError will be thrown if the
+	 *  @exception Xapian::DatabaseCorruptError will be thrown if the
 	 *             database is in a corrupt state.
 	 *
-	 *  @exception OmDatabaseLockError will be thrown if a lock couldn't
-	 *             be acquired or subsequently released on the database.
+	 *  @exception Xapian::DatabaseLockError will be thrown if a lock
+	 *  couldn't be acquired or subsequently released on the database.
 	 */
 	om_docid add_document(const OmDocument & document);
 

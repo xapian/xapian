@@ -225,7 +225,7 @@ Xapian::Stem::Internal::Internal(const string &language)
     stemmer_language langcode_ = get_stemtype(language);
     if (langcode_ == STEMLANG_INVALID) {
         // FIXME: use a separate InvalidLanguage exception?
-        throw OmInvalidArgumentError("Unknown language `" +
+        throw Xapian::InvalidArgumentError("Unknown language `" +
 				     language + "' specified");
     }
     set_language(langcode_);

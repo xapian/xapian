@@ -44,7 +44,7 @@
 
 #include <exception>
 
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "testsuite.h"
 #include "omdebug.h"
 #include "utils.h"
@@ -238,7 +238,7 @@ test_driver::runtest(const test_desc *test)
 		// Rethrow the exception to avoid success/fail
 		// (caught in do_run_tests())
 		throw;
-	    } catch (const OmError &err) {
+	    } catch (const Xapian::Error &err) {
 		string errclass = err.get_type();
 		out << tout.str();
 		tout.str("");

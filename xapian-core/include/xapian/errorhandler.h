@@ -1,4 +1,4 @@
-/** \file omerrorhandler.h
+/** \file errorhandler.h
  *  \brief Classes for handling exceptions.
  */
 /* ----START-LICENCE----
@@ -22,23 +22,23 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OMERRORHANDLER_H
-#define OM_HGUARD_OMERRORHANDLER_H
+#ifndef OM_HGUARD_ERRORHANDLER_H
+#define OM_HGUARD_ERRORHANDLER_H
 
-#include "om/omerror.h"
+#include "xapian/error.h"
 
 /// Error handling class
-class OmErrorHandler {
+class Xapian::ErrorHandler {
     private:
 	/// Assignment is not allowed
-	void operator=(const OmErrorHandler &copyme);
+	void operator=(const Xapian::ErrorHandler &copyme);
 
 	/// Copying is not allowed
-	OmErrorHandler(const OmErrorHandler &copyme);
+	ErrorHandler(const Xapian::ErrorHandler &copyme);
 
 	/** Method called to handle an error.
 	 *
-	 *  This method must be implemented by a subclass of OmErrorHandler,
+	 *  This method must be implemented by a subclass of Xapian::ErrorHandler,
 	 *  and is called when an error occurs.  It should return true if it
 	 *  has handled the error and would like execution to continue as well
 	 *  as possible, or false if it would like execution to stop and the
@@ -52,16 +52,16 @@ class OmErrorHandler {
 	 *  @return  true to continue with operation, false to propagate the
 	 *  error.
 	 */
-	virtual bool handle_error(OmError & error) = 0;
+	virtual bool handle_error(Xapian::Error & error) = 0;
 
     public:
 	/** Standard constructor
 	 */
-        OmErrorHandler() {}
+        ErrorHandler() {}
 
         /** Standard destructor
 	 */
-	virtual ~OmErrorHandler() {}
+	virtual ~ErrorHandler() {}
 
 	/** Method called to handle an error.
 	 *
@@ -70,7 +70,7 @@ class OmErrorHandler {
 	 *
 	 *  @param   error    The error which has occurred.
 	 */
-	void operator()(OmError & error);
+	void operator()(Xapian::Error & error);
 };
 
-#endif /* OM_HGUARD_OMERRORHANDLER_H */
+#endif /* OM_HGUARD_ERRORHANDLER_H */

@@ -24,7 +24,7 @@
 
 #include <config.h>
 #include "socketclient.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "omerr_string.h"
 #include "utils.h"
 #include "netutils.h"
@@ -64,14 +64,14 @@ SocketClient::SocketClient(int socketfd_,
     // ignore SIGPIPE - we check return values instead, and that
     // way we can easily throw an exception.
     if (signal(SIGPIPE, SIG_IGN) < 0) {
-	throw OmNetworkError("Couldn't install SIGPIPE handler", context, errno);
+	throw Xapian::NetworkError("Couldn't install SIGPIPE handler", context, errno);
     }
 
     string received = do_read();
 
     DEBUGLINE(UNKNOWN, "Read back " << received);
     if (received.substr(0, 3) != "OM ") {
-	throw OmNetworkError("Unknown start of conversation", context);
+	throw Xapian::NetworkError("Unknown start of conversation", context);
     }
 
 #ifdef HAVE_SSTREAM
@@ -84,7 +84,7 @@ SocketClient::SocketClient(int socketfd_,
     is >> version >> doccount >> avlength;
 
     if (version != OM_SOCKET_PROTOCOL_VERSION) {
-	throw OmNetworkError(string("Invalid protocol version: found ") +
+	throw Xapian::NetworkError(string("Invalid protocol version: found ") +
 			     om_tostring(version) + " expected " +
 			     om_tostring(OM_SOCKET_PROTOCOL_VERSION), context);
     }
@@ -268,7 +268,7 @@ SocketClient::collect_doc(om_docid did, string &doc,
 	    collected_docs.erase(i);
 	}
     } else {
-	throw OmInternalError("Failed to collect document " +
+	throw Xapian::InternalError("Failed to collect document " +
 			      om_tostring(did) + ", possibly not requested.",
 			      context);
     }
@@ -431,7 +431,7 @@ SocketClient::finish_query()
 	    {
 		string response = do_read();
 		if (response[0] != 'L') {
-		    throw OmNetworkError("Error getting statistics", context);
+		    throw Xapian::NetworkError("Error getting statistics", context);
 		}
 		remote_stats = string_to_stats(response.substr(1));
 		remote_stats_valid = true;
@@ -499,7 +499,7 @@ SocketClient::get_mset(om_doccount first,
 	case state_getquery:
 	case state_sentquery:
 	case state_sendglobal:
-	    throw OmInvalidArgumentError("get_mset called before global stats given", context);
+	    throw Xapian::InvalidArgumentError("get_mset called before global stats given", context);
 	    break;
 	case state_getmset:
 
@@ -550,7 +550,7 @@ SocketClient::get_posting(om_docid &did, om_weight &w, string &value)
 	case state_sentquery:
 	case state_sendglobal:
 	case state_getmset:
-	    throw OmInvalidArgumentError("get_posting called too soon", context);
+	    throw Xapian::InvalidArgumentError("get_posting called too soon", context);
 	    break;
 	case state_getresult: {
 

@@ -26,7 +26,7 @@
 #include <string>
 
 #include "om/omtypes.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "refcnt.h"
 
 using namespace std;

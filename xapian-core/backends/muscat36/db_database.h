@@ -277,7 +277,7 @@ class DBDatabase : public Database {
     public:
 	/** Create and open a DB database.
 	 *
-	 *  @exception OmOpeningError thrown if database can't be opened.
+	 *  @exception Xapian::OpeningError thrown if database can't be opened.
 	 *
 	 *  @param filename Filename of the DB file.
 	 *  @param filename_v Filename of the value file (or "" if none).
@@ -296,7 +296,7 @@ class DBDatabase : public Database {
 
 	om_doccount get_termfreq(const string & tname) const;
 	om_termcount get_collection_freq(const string & /*tname*/) const {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"DBDatabase::get_collection_freq() not implemented: data not stored in database.");
 	}
 	bool term_exists(const string & tname) const;
@@ -313,47 +313,47 @@ class DBDatabase : public Database {
 	 *  not supported: if called an exception will be thrown.
 	 */
 	void do_begin_session() {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"DBDatabase::begin_session() not implemented: readonly database type");
 	}
 
 	void do_end_session() {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"DBDatabase::do_end_session() not implemented: readonly database type");
 	}
 
 	void do_flush() {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"DBDatabase::flush() not implemented: readonly database type");
 	}
 
 	void do_begin_transaction() {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"DBDatabase::begin_transaction() not implemented: readonly database type");
 	}
 
 	void do_commit_transaction() {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"DBDatabase::commit_transaction() not implemented: readonly database type");
 	}
 
 	void do_cancel_transaction() {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"DBDatabase::cancel_transaction() not implemented: readonly database type");
 	}
 
 	om_docid do_add_document(const OmDocument & /*document*/) {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"DBDatabase::add_document() not implemented: readonly database type");
 	}
 
 	void do_delete_document(om_docid /*did*/) {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"DBDatabase::delete_document() not implemented: readonly database type");
 	}
 
 	void do_replace_document(om_docid /*did*/, const OmDocument & /*document*/) {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"DBDatabase::replace_document() not implemented: readonly database type");
 	}
 

@@ -43,7 +43,7 @@ using std::pair;
 #include "omdebug.h"
 
 #include "om/omdocument.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 
 DBPostList::DBPostList(const string & tname_,
 		       struct DB_postings * postlist_,
@@ -163,7 +163,7 @@ DBDatabase::DBDatabase(const string &filename, const string &filename_v,
     // Actually open
     DB = DB_open(filename.c_str(), cache_size);
     if (DB == 0) {
-	throw OmOpeningError(string("When opening ") + filename + ": " + strerror(errno));
+	throw Xapian::OpeningError(string("When opening ") + filename + ": " + strerror(errno));
     }
 
     if (filename_v.empty()) return;
@@ -171,7 +171,7 @@ DBDatabase::DBDatabase(const string &filename, const string &filename_v,
     // Open valuefile
     valuefile = fopen(filename_v.c_str(), "rb");
     if (valuefile == 0) {
-	throw OmOpeningError(string("When opening ") + filename_v +
+	throw Xapian::OpeningError(string("When opening ") + filename_v +
 			     ": " + strerror(errno));
     }
 
@@ -180,11 +180,11 @@ DBDatabase::DBDatabase(const string &filename, const string &filename_v,
 	char input[8];
 	size_t bytes_read = fread(input, 1, 8, valuefile);
 	if (bytes_read < 8) {
-	    throw OmOpeningError(string("When opening ") + filename_v +
+	    throw Xapian::OpeningError(string("When opening ") + filename_v +
 				 ": couldn't read magic - " + strerror(errno));
 	}
 	if (memcmp(input, "omrocks!", 8)) {
-	    throw OmOpeningError(string("When opening ") + filename_v +
+	    throw Xapian::OpeningError(string("When opening ") + filename_v +
 				 ": couldn't read magic - got `" +
 				 input + "'");
 	}
@@ -280,13 +280,13 @@ DBDatabase::do_open_post_list(const string & tname) const
 LeafTermList *
 DBDatabase::open_term_list(om_docid did) const
 {
-    if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
+    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
 
     struct termvec *tv = M_make_termvec();
 
     if (DB_get_termvec(DB, did, tv) == 0) {
 	M_lose_termvec(tv);
-	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
+	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
     }
 
@@ -299,14 +299,14 @@ DBDatabase::open_term_list(om_docid did) const
 struct record *
 DBDatabase::get_record(om_docid did) const
 {
-    if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
+    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
 
     struct record *r = M_make_record();
     int found = DB_get_record(DB, did, r);
 
     if (found == 0) {
 	M_lose_record(r);
-	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
+	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
     }
 
@@ -400,5 +400,5 @@ DBDatabase::term_lookup(const string & tname) const
 TermList *
 DBDatabase::open_allterms() const
 {
-    throw OmUnimplementedError("open_allterms() not implemented yet");
+    throw Xapian::UnimplementedError("open_allterms() not implemented yet");
 }

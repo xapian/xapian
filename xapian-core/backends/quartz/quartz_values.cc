@@ -26,7 +26,7 @@
 #include "quartz_values.h"
 #include "quartz_utils.h"
 #include "utils.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 using std::string;
 using std::make_pair;
 
@@ -49,13 +49,13 @@ QuartzValueManager::unpack_entry(const char ** pos,
 {
     DEBUGCALL_STATIC(DB, void, "QuartzValueManager::unpack_entry", pos << ", " << end << ", " << this_value_no << ", " << this_value);
     if (!unpack_uint(pos, end, this_value_no)) {
-	if (*pos == 0) throw OmDatabaseCorruptError("Incomplete item in value table");
-	else throw OmRangeError("Value number in value table is too large");
+	if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete item in value table");
+	else throw Xapian::RangeError("Value number in value table is too large");
     }
 
     if (!unpack_string(pos, end, this_value)) {
-	if (*pos == 0) throw OmDatabaseCorruptError("Incomplete item in value table");
-	else throw OmRangeError("Item in value table is too large");
+	if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete item in value table");
+	else throw Xapian::RangeError("Item in value table is too large");
     }
 
     DEBUGLINE(DB, "QuartzValueManager::unpack_entry(): value no " <<

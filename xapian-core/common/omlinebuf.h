@@ -29,10 +29,10 @@
 /** The OmLineBuf class is an interface to a line-buffered
  *  stream used by the network backends.
  *
- *  @exception OmNetworkTimeoutError is thrown if a timeout is exceeded
+ *  @exception Xapian::NetworkTimeoutError is thrown if a timeout is exceeded
  *                                   waiting for remote input.
  *
- *  @exception OmNetworkError is thrown for any non-timeout network error,
+ *  @exception Xapian::NetworkError is thrown for any non-timeout network error,
  *                            for example remote closed socket.
  */
 class OmLineBuf {

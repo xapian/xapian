@@ -42,7 +42,7 @@
 
 #include "omassert.h"
 #include "omdebug.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "utils.h"
 
 #include <algorithm>  // for std::min()
@@ -94,7 +94,7 @@ int sys_open_to_read(const string & name)
     if (fd < 0) {
 	string message = string("Couldn't open ")
 		+ name + " to read: " + strerror(errno);
-	throw OmOpeningError(message);
+	throw Xapian::OpeningError(message);
     }
     return fd;
 }
@@ -111,7 +111,7 @@ int sys_open_to_write(const string & name)
     if (fd < 0) {
 	string message = string("Couldn't open ")
 		+ name + " to write: " + strerror(errno);
-	throw OmOpeningError(message);
+	throw Xapian::OpeningError(message);
     }
     return fd;
 }
@@ -122,7 +122,7 @@ static int sys_open_for_readwrite(const string & name)
     if (fd < 0) {
 	string message = string("Couldn't open ")
 		+ name + " read/write: " + strerror(errno);
-	throw OmOpeningError(message);
+	throw Xapian::OpeningError(message);
     }
     return fd;
 }
@@ -133,7 +133,7 @@ static void sys_lseek(int h, off_t offset)
     if (lseek(h, offset, SEEK_SET) == -1) {
 	string message = "Error seeking to block: ";
 	message += strerror(errno);
-	throw OmDatabaseError(message);
+	throw Xapian::DatabaseError(message);
     }
 }
 
@@ -148,10 +148,10 @@ static void sys_write_bytes(int h, int n, const char * p)
 	} else if (bytes_written == -1) {
 	    string message = "Error writing block: ";
 	    message += strerror(errno);
-	    throw OmDatabaseError(message);
+	    throw Xapian::DatabaseError(message);
 	} else if (bytes_written == 0) {
 	    string message = "Error writing block: wrote no data";
-	    throw OmDatabaseError(message);
+	    throw Xapian::DatabaseError(message);
 	} else if (bytes_written < n) {
 	    /* Wrote part of the block, which is not an error.  We should
 	     * continue writing the rest of the block.
@@ -182,7 +182,7 @@ string sys_read_all_bytes(int h, size_t bytes_to_read)
 	} else if (bytes_read == -1) {
 	    string message = "Error reading all bytes: ";
 	    message += strerror(errno);
-	    throw OmDatabaseError(message);
+	    throw Xapian::DatabaseError(message);
 	}
     }
     return retval;
@@ -214,7 +214,7 @@ static void sys_unlink(const string &filename)
 	message += filename;
 	message += ": ";
 	message += strerror(errno);
-	throw OmDatabaseCorruptError(message);
+	throw Xapian::DatabaseCorruptError(message);
     }
 }
 
@@ -302,10 +302,10 @@ Btree::read_block(int4 n, byte * p)
 	if (bytes_read == -1) {
 	    string message = "Error reading block " + om_tostring(n) + ": ";
 	    message += strerror(errno);
-	    throw OmDatabaseError(message);
+	    throw Xapian::DatabaseError(message);
 	} else if (bytes_read == 0) {
 	    string message = "Error reading block " + om_tostring(n) + ": got end of file";
-	    throw OmDatabaseError(message);
+	    throw Xapian::DatabaseError(message);
 	} else if (bytes_read < m) {
 	    /* Read part of the block, which is not an error.  We should
 	     * continue reading the rest of the block.
@@ -395,7 +395,7 @@ Btree::set_overwritten()
     // initial debugging line
     DEBUGLINE(DB, "overwritten set to true");
     overwritten = true;
-    throw OmDatabaseModifiedError("Db block overwritten");
+    throw Xapian::DatabaseModifiedError("Db block overwritten");
 }
 
 /* block_to_cursor(C, j, n) puts block n into position C[j] of cursor
@@ -1359,7 +1359,7 @@ Btree::basic_open(const string & name_,
 	    message += name_;
 	    message += "':\n";
 	    message += err_msg;
-	    throw OmOpeningError(message);
+	    throw Xapian::OpeningError(message);
 	}
 
 	if (revision_supplied) {
@@ -1512,7 +1512,7 @@ Btree::do_open_to_write(const string & name_,
 		message += ": ";
 		message += Btree_strerror(error);
 	    }
-	    throw OmOpeningError(message);
+	    throw Xapian::OpeningError(message);
 	}
 	/* When the revision is supplied, it's not an exceptional
 	 * case when open failed.  We should just return false
@@ -1605,7 +1605,7 @@ sys_unlink_if_exists(const string & filename)
 {
     if (unlink(filename) == -1) {
 	if (errno == ENOENT) return;
-	throw OmDatabaseError("Can't delete file: `" + filename +
+	throw Xapian::DatabaseError("Can't delete file: `" + filename +
 			      "': " + strerror(errno));
     }
 }
@@ -1623,12 +1623,12 @@ Btree::create(const string &name_, int block_size)
 {
     if (block_size > BYTE_PAIR_RANGE) {
 	/* block size too large (64K maximum) */
-	throw OmInvalidArgumentError("Btree block size too large");
+	throw Xapian::InvalidArgumentError("Btree block size too large");
     }
 
     if (block_size < 2048) {
 	/* block size far too small */
-	throw OmInvalidArgumentError("Btree block size too small");
+	throw Xapian::InvalidArgumentError("Btree block size too small");
     }
 
     /* indeed it will need to be a good bit bigger */
@@ -1650,7 +1650,7 @@ Btree::create(const string &name_, int block_size)
 	    if (h == -1 || !sys_close(h)) {
 		string message = "Error creating DB file: ";
 		message += strerror(errno);
-		throw OmOpeningError(message);
+		throw Xapian::OpeningError(message);
 	    }
 	}
     }
@@ -1746,7 +1746,7 @@ Btree::do_open_to_read(const string & name_,
 	    message += ": ";
 	    message += Btree_strerror(error);
 	}
-	throw OmOpeningError(message);
+	throw Xapian::OpeningError(message);
     }
 
     handle = sys_open_to_read(name + "DB");

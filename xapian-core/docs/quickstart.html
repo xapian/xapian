@@ -194,10 +194,10 @@ ensuring that there are at least 3 parameters:
 <P>
 When an error occurs in Xapian it is reported by means of the C++ exception
 mechanism.  All errors in Xapian are derived classes of
-<CODE>OmError</CODE>, so simple error handling can be performed by
+<CODE>Xapian::Error</CODE>, so simple error handling can be performed by
 enclosing all the code in a try-catch block to catch any
-<CODE>OmError</CODE> exceptions.  A (hopefully) helpful message can be
-extracted from the <CODE>OmError</CODE> object by calling its
+<CODE>Xapian::Error</CODE> exceptions.  A (hopefully) helpful message can be
+extracted from the <CODE>Xapian::Error</CODE> object by calling its
 <CODE>get_msg()</CODE> method, which returns a human readable string.
 </P>
 <P>
@@ -206,14 +206,14 @@ try-catch block, since otherwise errors will result in uncaught exceptions;
 this usually results in the execution aborting.
 </P>
 <P>
-Note also that OmError is a virtual base class, and thus can't be copied:
+Note also that Xapian::Error is a virtual base class, and thus can't be copied:
 you must therefore catch exceptions by reference, as in the following example
 code:
 </P>
 <PRE>
     try {
         <B>[code which accesses Xapian]</B>
-    } catch (const OmError &amp; error) {
+    } catch (const Xapian::Error &amp; error) {
         cout &lt;&lt; "Exception: " &lt;&lt; error.get_msg() &lt;&lt; endl;
     }
 </PRE>
@@ -226,7 +226,8 @@ object.  The constructor for this object takes two arguments.
 <OL><LI>
 <B>type</B> - this is a string determining the type of the database to open.
 The possible values for this depend on which backends are compiled into the
-system: if the type is not known an <CODE>OmInvalidArgument</CODE> error will
+system: if the type is not known an <CODE>Xapian::InvalidArgumentError</CODE>
+will
 be thrown.  For this example, we use the &quot;<CODE>quartz</CODE>&quot;
 database type.
 </LI><LI>
@@ -243,7 +244,7 @@ to create an empty database in the specified position will be made.
 </P>
 <P>
 If an error occurs when trying to open a database, or to create a new database,
-an exception, usually of type <CODE>OmOpeningError</CODE>, will be thrown.
+an exception, usually of type <CODE>Xapian::OpeningError</CODE>, will be thrown.
 </P>
 <P>
 The code to open a database for writing is, then:
@@ -404,7 +405,7 @@ Again, this is performed just as it was for the simple indexer.
 <PRE>
     try {
         <B>[code which accesses Xapian]</B>
-    } catch (const OmError &amp; error) {
+    } catch (const Xapian::Error &amp; error) {
         cout &lt;&lt; "Exception: " &lt;&lt; error.get_msg() &lt;&lt; endl;
     }
 </PRE>

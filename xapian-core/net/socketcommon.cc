@@ -146,7 +146,7 @@ string_to_stats(const string &s)
 	} else if (word[0] == 'R') {
 	    is >> stat.reltermfreq[decode_tname(word.substr(1))];
 	} else {
-	    throw OmNetworkError(string("Invalid stats string word: ") + word);
+	    throw Xapian::NetworkError(string("Invalid stats string word: ") + word);
 	}
     }
 
@@ -188,7 +188,7 @@ OmQuery::Internal qfs_readquery()
 	default:
 	    Assert(false);
     }
-    throw OmInvalidArgumentError("Invalid query string: type was `" +
+    throw Xapian::InvalidArgumentError("Invalid query string: type was `" +
 				 om_tostring(qt.type) + '\'');
 }
 
@@ -212,7 +212,7 @@ OmQuery::Internal qfs_readcompound()
 		if (subqs.empty()) {
 		    return OmQuery::Internal();
 		} else {
-		    throw OmInvalidArgumentError("Invalid query string");
+		    throw Xapian::InvalidArgumentError("Invalid query string");
 		}
 		break;
 	    case querytok::NULL_QUERY:
@@ -238,7 +238,7 @@ OmQuery::Internal qfs_readcompound()
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
-			throw OmInvalidArgumentError("Expected %) in query string");
+			throw Xapian::InvalidArgumentError("Expected %) in query string");
 		    }
 		    return qint_from_vector(OmQuery::OP_AND, temp);
 		}
@@ -249,7 +249,7 @@ OmQuery::Internal qfs_readcompound()
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
-			throw OmInvalidArgumentError("Expected %) in query string");
+			throw Xapian::InvalidArgumentError("Expected %) in query string");
 		    }
 		    return qint_from_vector(OmQuery::OP_OR, temp);
 		}
@@ -260,7 +260,7 @@ OmQuery::Internal qfs_readcompound()
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
-			throw OmInvalidArgumentError("Expected %) in query string");
+			throw Xapian::InvalidArgumentError("Expected %) in query string");
 		    }
 		    return qint_from_vector(OmQuery::OP_FILTER, temp);
 		}
@@ -271,7 +271,7 @@ OmQuery::Internal qfs_readcompound()
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
-			throw OmInvalidArgumentError("Expected %) in query string");
+			throw Xapian::InvalidArgumentError("Expected %) in query string");
 		    }
 		    return qint_from_vector(OmQuery::OP_XOR, temp);
 		}
@@ -282,7 +282,7 @@ OmQuery::Internal qfs_readcompound()
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
-			throw OmInvalidArgumentError("Expected %) in query string");
+			throw Xapian::InvalidArgumentError("Expected %) in query string");
 		    }
 		    return qint_from_vector(OmQuery::OP_AND_MAYBE, temp);
 		}
@@ -293,7 +293,7 @@ OmQuery::Internal qfs_readcompound()
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
-			throw OmInvalidArgumentError("Expected %) in query string");
+			throw Xapian::InvalidArgumentError("Expected %) in query string");
 		    }
 		    return qint_from_vector(OmQuery::OP_AND_NOT, temp);
 		}
@@ -304,7 +304,7 @@ OmQuery::Internal qfs_readcompound()
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
-			throw OmInvalidArgumentError("Expected %) in query string");
+			throw Xapian::InvalidArgumentError("Expected %) in query string");
 		    }
 		    OmQuery::Internal qint(qint_from_vector(OmQuery::OP_NEAR, temp));
 		    qint.set_window(qt.window);
@@ -318,7 +318,7 @@ OmQuery::Internal qfs_readcompound()
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
-			throw OmInvalidArgumentError("Expected %) in query string");
+			throw Xapian::InvalidArgumentError("Expected %) in query string");
 		    }
 		    OmQuery::Internal qint(qint_from_vector(OmQuery::OP_PHRASE, temp));
 		    qint.set_window(qt.window);
@@ -329,7 +329,7 @@ OmQuery::Internal qfs_readcompound()
 		{
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
-			throw OmInvalidArgumentError("Expected %) in query string");
+			throw Xapian::InvalidArgumentError("Expected %) in query string");
 		    }
 		    OmQuery::Internal qint(OmQuery::OP_WEIGHT_CUTOFF);
 		    Assert(subqs.size() == 1);
@@ -345,7 +345,7 @@ OmQuery::Internal qfs_readcompound()
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
-			throw OmInvalidArgumentError("Expected %) in query string");
+			throw Xapian::InvalidArgumentError("Expected %) in query string");
 		    }
 		    OmQuery::Internal qint(qint_from_vector(OmQuery::OP_ELITE_SET, temp));
 		    qint.set_elite_set_size(qt.elite_set_size);
@@ -353,7 +353,7 @@ OmQuery::Internal qfs_readcompound()
 		}
 		break;
 	    default:
-		throw OmInvalidArgumentError("Invalid query string");
+		throw Xapian::InvalidArgumentError("Invalid query string");
 	} // switch(qt.type)
     } // while(1)
 }
@@ -363,7 +363,7 @@ OmSocketLineBuf::OmSocketLineBuf(int readfd_, int writefd_, const string & errco
 {
     // set non-blocking flag on reading fd
     if (fcntl(readfd, F_SETFL, O_NONBLOCK) < 0) {
-	throw OmNetworkError("Can't set non-blocking flag on fd", errcontext, errno);
+	throw Xapian::NetworkError("Can't set non-blocking flag on fd", errcontext, errno);
     }
 }
 
@@ -372,7 +372,7 @@ OmSocketLineBuf::OmSocketLineBuf(int fd_, const string & errcontext_)
 {
     // set non-blocking flag on reading fd
     if (fcntl(readfd, F_SETFL, O_NONBLOCK) < 0) {
-	throw OmNetworkError("Can't set non-blocking flag on fd", errcontext, errno);
+	throw Xapian::NetworkError("Can't set non-blocking flag on fd", errcontext, errno);
     }
 }
 
@@ -417,7 +417,7 @@ OmSocketLineBuf::attempt_to_read(const OmTime & end_time)
 	    DEBUGLINE(UNKNOWN, "Got EINTR in select");
 	    return;
 	} else {
-	    throw OmNetworkError(string("select failed (") +
+	    throw Xapian::NetworkError(string("select failed (") +
 				 strerror(errno) + ')',
 				 errcontext, errno);
 	}
@@ -428,7 +428,7 @@ OmSocketLineBuf::attempt_to_read(const OmTime & end_time)
 	    // (especially if we've been waiting on a different node's
 	    // timeout)
 	    DEBUGLINE(UNKNOWN, "timeout reached");
-	    throw OmNetworkTimeoutError("No response from remote end", errcontext);
+	    throw Xapian::NetworkTimeoutError("No response from remote end", errcontext);
 	}
 	return;
     }
@@ -447,15 +447,15 @@ OmSocketLineBuf::attempt_to_read(const OmTime & end_time)
 		// (especially if we've been waiting on a different node's
 		// timeout)
 		DEBUGLINE(UNKNOWN, "read: got EAGAIN, but timeout reached");
-		throw OmNetworkTimeoutError("No response from remote end", errcontext);
+		throw Xapian::NetworkTimeoutError("No response from remote end", errcontext);
 	    }
 	    return;
 	} else {
-	    throw OmNetworkError("read failed", errcontext, errno);
+	    throw Xapian::NetworkError("read failed", errcontext, errno);
 	}
     } else if (received == 0) {
 	DEBUGLINE(UNKNOWN, "read: got 0 bytes");
-	throw OmNetworkError("No response from remote end", errcontext);
+	throw Xapian::NetworkError("No response from remote end", errcontext);
     }
 
     buffer += string(buf, buf + received);
@@ -522,7 +522,7 @@ OmSocketLineBuf::do_writeline(string s, const OmTime & end_time)
 
 	if (retval == 0) {
 	    // select() timed out.
-	    throw OmNetworkTimeoutError("Timeout reached waiting to write data to socket", errcontext);
+	    throw Xapian::NetworkTimeoutError("Timeout reached waiting to write data to socket", errcontext);
 	} else if (retval < 0) {
 	    if (errno == EINTR) {
 		// select interrupted due to signal
@@ -533,14 +533,14 @@ OmSocketLineBuf::do_writeline(string s, const OmTime & end_time)
 		// portable)
 		continue;
 	    }
-	    throw OmNetworkError("Network error waiting for remote", errcontext, errno);
+	    throw Xapian::NetworkError("Network error waiting for remote", errcontext, errno);
 	}
 	// if we got this far, we can fit data down the pipe/socket.
 
 	ssize_t written = write(writefd, s.data(), s.length());
 
 	if (written < 0) {
-	    throw OmNetworkError("write error", errcontext, errno);
+	    throw Xapian::NetworkError("write error", errcontext, errno);
 	}
 
 	s.erase(0, written);
@@ -641,14 +641,14 @@ string_to_ommsetitems(const string &s_)
 	string wt_s, did_s, value_s;
 	string::size_type pos = s.find_first_of(' ');
 	if (pos == s.npos) {
-	    throw OmNetworkError("Invalid msetitem string `" + s + "'");
+	    throw Xapian::NetworkError("Invalid msetitem string `" + s + "'");
 	}
 	wt_s = s.substr(0, pos);
 	s = s.substr(pos + 1);
 
 	pos = s.find_first_of(' ');
 	if (pos == s.npos) {
-	    throw OmNetworkError("Invalid msetitem string `" + s + "'");
+	    throw Xapian::NetworkError("Invalid msetitem string `" + s + "'");
 	}
 	did_s = s.substr(0, pos);
 	s = s.substr(pos + 1);
@@ -696,7 +696,7 @@ string_to_ommset(const string &s)
 	    max_attained >>
 	    msize;
     if (!is) {
-	throw OmNetworkError("Problem reading OmMSet from string");
+	throw Xapian::NetworkError("Problem reading OmMSet from string");
     }
     while (msize > 0) {
 	string s;
@@ -704,7 +704,7 @@ string_to_ommset(const string &s)
 	om_docid did;
 	is >> wt >> did >> s;
 	if (!is) {
-	    throw OmNetworkError("Problem reading OmMSet from string");
+	    throw Xapian::NetworkError("Problem reading OmMSet from string");
 	}
 	items.push_back(OmMSetItem(wt, did, decode_tname(s)));
 	msize--;

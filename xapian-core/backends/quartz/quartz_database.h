@@ -75,7 +75,7 @@ class QuartzDatabase : public Database {
     public:
 	/** Create and open a quartz database.
 	 *
-	 *  @exception OmOpeningError thrown if database can't be opened.
+	 *  @exception Xapian::OpeningError thrown if database can't be opened.
 	 *
 	 *  @param dbdir directory holding quartz tables
 	 */
@@ -151,7 +151,7 @@ class QuartzWritableDatabase : public Database {
     public:
 	/** Create and open a writable quartz database.
 	 *
-	 *  @exception OmOpeningError thrown if database can't be opened.
+	 *  @exception Xapian::OpeningError thrown if database can't be opened.
 	 *
 	 *  @param dir directory holding quartz tables
 	 */

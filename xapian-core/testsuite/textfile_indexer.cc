@@ -23,24 +23,29 @@
 
 #include <config.h>
 #include "omdebug.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "textfile_indexer.h"
-#include "om/omstem.h"
+#include "xapian/stem.h"
 #include "index_utils.h"
 #include <fstream>
 #include <cstdlib>
 #include <string>
 #include "autoptr.h"
 
-TextfileIndexerSource::TextfileIndexerSource(const std::string & fname)
-	: filename(fname)
-{ return; }
+using namespace std;
 
-AutoPtr<std::istream>
+TextfileIndexerSource::TextfileIndexerSource(const string & fname)
+	: filename(fname)
+{
+}
+
+AutoPtr<istream>
 TextfileIndexerSource::get_stream() const
 {
-    AutoPtr<std::istream> from(new std::ifstream(filename.c_str()));
-    if(!*from) throw OmOpeningError("Cannot open file " + filename + " for indexing");
+    AutoPtr<istream> from(new ifstream(filename.c_str()));
+    if (!*from)
+       	throw Xapian::OpeningError("Cannot open file " + filename +
+				   " for indexing");
     return from;
 }
 
@@ -48,25 +53,25 @@ void
 TextfileIndexer::add_source(const IndexerSource & source)
 {
     Assert(dest != NULL);
-    AutoPtr<std::istream> from(source.get_stream());
+    AutoPtr<istream> from(source.get_stream());
 
     // Read lines, each paragraph is a document, split lines into words,
     // each word is a term.  Only used in the test suite.
 
-    OmStem stemmer("english");
+    Xapian::Stem stemmer("english");
 
-    while(*from) {
-	std::string para;
+    while (*from) {
+	string para;
 	get_paragraph(*from, para);
 
 	OmDocument document;
 	document.set_data(para);
 	om_termcount position = 1;
 
-	std::string::size_type spacepos;
+	string::size_type spacepos;
 	string word;
-	while((spacepos = para.find_first_not_of(" \t\n")) != std::string::npos) {
-	    if(spacepos) para = para.erase(0, spacepos);
+	while ((spacepos = para.find_first_not_of(" \t\n")) != string::npos) {
+	    if (spacepos) para = para.erase(0, spacepos);
 	    spacepos = para.find_first_of(" \t\n");
 	    word = para.substr(0, spacepos);
 	    select_characters(word, "");

@@ -91,7 +91,7 @@ struct OmDocumentTerm {
      *
      *  This does not change the value of the wdf.
      *
-     *  @exception OmInvalidArgumentError is thrown if the 
+     *  @exception Xapian::InvalidArgumentError is thrown if the 
      */
     void remove_position(om_termpos tpos);
 

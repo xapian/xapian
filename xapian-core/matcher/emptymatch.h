@@ -27,7 +27,7 @@
 #include "match.h"
 #include "emptypostlist.h"
 #include "om/omenquire.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 
 class EmptySubMatch : public SubMatch {
     public:
@@ -50,11 +50,11 @@ class EmptySubMatch : public SubMatch {
 	}
 
 	Document * open_document(om_docid /*did*/) const {
-	    throw OmInternalError("Attempt to open document from EmptySubMatch should not happen.");
+	    throw Xapian::InternalError("Attempt to open document from EmptySubMatch should not happen.");
 	}
 
 	const std::map<string, OmMSet::Internal::Data::TermFreqAndWeight> get_term_info() const {
-	    throw OmInternalError("EmptySubMatch can't give terminfo.");
+	    throw Xapian::InternalError("EmptySubMatch can't give terminfo.");
 	}
 };
 

@@ -23,7 +23,7 @@
  */
 
 #include <config.h>
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "quartz_table.h"
 #include "quartz_types.h"
 #include <iostream>
@@ -138,7 +138,7 @@ main(int argc, char *argv[])
 		     << hex_encode(cursor->current_tag) << "\n";
 		cursor->next();
 	    }
-	} catch (const OmError &e) {
+	} catch (const Xapian::Error &e) {
 	    cout << "Error: " << e.get_msg() << endl;
 	}
     }

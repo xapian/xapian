@@ -115,7 +115,7 @@ main(int argc, char **argv)
 	    metain.read(buf, sizeof(buf));
 	    metaout.write(buf, metain.gcount());
 	}
-    } catch (const OmError &error) {
+    } catch (const Xapian::Error &error) {
 	cerr << argv[0] << ": " << error.get_msg() << endl;
 	exit(1);
     }

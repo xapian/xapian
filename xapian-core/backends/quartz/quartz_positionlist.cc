@@ -67,10 +67,10 @@ QuartzPositionList::read_data(const QuartzTable * table,
     if (! success) {
 	if (pos == 0) {
 	    // data ran out
-	    throw OmDatabaseCorruptError("Data ran out when reading position list length.");
+	    throw Xapian::DatabaseCorruptError("Data ran out when reading position list length.");
 	} else {
 	    // overflow
-	    throw OmRangeError("Position list length too large.");
+	    throw Xapian::RangeError("Position list length too large.");
 	}
     }
 }
@@ -89,10 +89,10 @@ QuartzPositionList::next_internal()
     if (! success) {
 	if (pos == 0) {
 	    // data ran out
-	    throw OmDatabaseCorruptError("Data ran out when reading position list entry.");
+	    throw Xapian::DatabaseCorruptError("Data ran out when reading position list entry.");
 	} else {
 	    // overflow
-	    throw OmRangeError("Position list length too large.");
+	    throw Xapian::RangeError("Position list length too large.");
 	}
     }
     Assert(pos != 0);

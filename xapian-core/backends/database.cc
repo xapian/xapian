@@ -23,7 +23,7 @@
 
 #include <config.h>
 #include "database.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 
 Database::Database()
 	: session_in_progress(false),
@@ -94,7 +94,7 @@ Database::begin_transaction()
 {
     ensure_session_in_progress();
     if (transaction_in_progress)
-	throw OmInvalidOperationError("Cannot begin transaction - transaction already in progress");
+	throw Xapian::InvalidOperationError("Cannot begin transaction - transaction already in progress");
     do_begin_transaction();
     transaction_in_progress = true;
 }
@@ -103,7 +103,7 @@ void
 Database::commit_transaction()
 {
     if (!transaction_in_progress)
-	throw OmInvalidOperationError("Cannot commit transaction - no transaction currently in progress");
+	throw Xapian::InvalidOperationError("Cannot commit transaction - no transaction currently in progress");
     transaction_in_progress = false;
     Assert(session_in_progress);
     do_commit_transaction();
@@ -113,7 +113,7 @@ void
 Database::cancel_transaction()
 {
     if (!transaction_in_progress)
-	throw OmInvalidOperationError("Cannot cancel transaction - no transaction currently in progress");
+	throw Xapian::InvalidOperationError("Cannot cancel transaction - no transaction currently in progress");
     transaction_in_progress = false;
     Assert(session_in_progress);
     do_cancel_transaction();

@@ -29,7 +29,7 @@
 
 #include <vector>
 
-#include "om/omerror.h"
+#include "xapian/error.h"
 
 NetworkTermList::NetworkTermList(om_doclength /*average_length*/,
 				 om_doccount database_size_,

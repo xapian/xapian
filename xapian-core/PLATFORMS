@@ -9,12 +9,12 @@ output from "uname -a"), compiler and version (e.g. output from g++ -v), and
 any switches you passed to configure.
 
 A general note about GCC 2.95 - on many platforms, certain tests (deldoc1
-notably) used to fail with OmError exceptions - investigation revealed that
-the correct exception is being thrown, but was leaking through the catch block
-somehow.  Adding tracing code often made the test pass!  We believe this is a
-GCC 2.95 bug - it's never been reported with GCC 3.0 or newer.  The testsuite
-framework should now detect such mishandled exceptions, and skip the test in
-progress with an appropriate message.
+notably) used to fail with Xapian::Error exceptions - investigation revealed
+that the correct exception was being thrown, but was leaking through the catch
+block somehow.  Adding tracing code often made the test pass!  We believe this
+is a GCC 2.95 bug - it's never been reported with GCC 3.0 or newer.  The
+testsuite framework should now detect such mishandled exceptions, and skip the
+test in progress with an appropriate message.
 
 Arch  | Platform                       |Version|Status| Notes / requirements
 ------+--------------------------------+-------+------+------------------------

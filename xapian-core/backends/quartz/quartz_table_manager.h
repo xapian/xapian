@@ -160,7 +160,7 @@ class QuartzDiskTableManager : public QuartzTableManager {
 
 	/** Open all tables at most recent consistent revision.
 	 *
-	 *  @exception OmDatabaseCorruptError is thrown if there is no
+	 *  @exception Xapian::DatabaseCorruptError is thrown if there is no
 	 *  consistent revision available.
 	 */
 	void open_tables_consistent();
@@ -202,7 +202,7 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 *                    created.  (ie, opened writable for the first
 	 *                    time).
 	 *
-	 *  @exception OmDatabaseCorruptError is thrown if there is no
+	 *  @exception Xapian::DatabaseCorruptError is thrown if there is no
 	 *             consistent revision available.
 	 */
 	QuartzDiskTableManager(std::string db_dir_, int action,
@@ -215,7 +215,7 @@ class QuartzDiskTableManager : public QuartzTableManager {
 
 	/** Open tables at specified revision number.
 	 *
-	 *  @exception OmInvalidArgumentError is thrown if the specified
+	 *  @exception Xapian::InvalidArgumentError is thrown if the specified
 	 *  revision is not available.
 	 */
 	void open_tables(quartz_revision_number_t revision);
@@ -289,7 +289,7 @@ class QuartzBufferedTableManager : public QuartzTableManager {
 	std::string lock_name;
 
 	/** Get a write lock on the database, or throw an
-	 *  OmDatabaseLockError if failure.
+	 *  Xapian::DatabaseLockError if failure.
 	 */
 	void get_database_write_lock();
 

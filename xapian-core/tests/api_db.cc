@@ -343,11 +343,11 @@ static bool test_stubdb1()
 }
 
 #if 0 // the "force error" mechanism is no longer in place...
-class MyErrorHandler : public OmErrorHandler {
+class MyErrorHandler : public Xapian::ErrorHandler {
     public:
 	int count;
 
-	bool handle_error(OmError & error) {
+	bool handle_error(Xapian::Error & error) {
 	    ++count;
 	    tout << "Error handling caught: " << error.get_type() << ": " <<
 		    error.get_msg() << ", with context `" <<
@@ -1312,7 +1312,7 @@ static bool test_getmterms2()
 // tests that specifying a nonexistent input file throws an exception.
 static bool test_absentfile1()
 {
-    TEST_EXCEPTION(OmOpeningError,
+    TEST_EXCEPTION(Xapian::OpeningError,
 		   OmDatabase mydb(get_database("/this_does_not_exist"));
 		   OmEnquire enquire(make_dbgrp(&mydb));
 		   
@@ -1474,11 +1474,11 @@ static bool test_getdoc1()
 {
     OmDatabase db(get_database("apitest_onedoc"));
     db.get_document(1);
-    TEST_EXCEPTION(OmInvalidArgumentError, db.get_document(0));
-    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(999999999));    
-    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(123456789));
-    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(3));
-    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(2));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_document(0));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(999999999));    
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(123456789));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(3));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
     return true;
 }
 
@@ -1492,7 +1492,7 @@ static bool test_emptyop1()
 
     OmMSet mymset = do_get_simple_query_mset(query1);
     TEST_MSET_SIZE(mymset, 0);
-    TEST_EXCEPTION(OmInvalidArgumentError, enquire.get_matching_terms_begin(1));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, enquire.get_matching_terms_begin(1));
 
     return true;
 }
@@ -1515,7 +1515,7 @@ static bool test_keepalive1()
     /* Test that things break without keepalives */
     sleep(10);
     enquire.set_query(myquery);
-    TEST_EXCEPTION(OmNetworkError,
+    TEST_EXCEPTION(Xapian::NetworkError,
 		   enquire.get_mset(0, 10));
 
     return true;
@@ -2111,7 +2111,7 @@ static bool test_qterminfo1()
     // non-existant terms still have weight
     TEST_NOT_EQUAL(mymset1a.get_termweight(term3), 0);
 
-    TEST_EXCEPTION(OmInvalidArgumentError,
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
 		   mymset1a.get_termfreq("sponge"));
 
     return true;
@@ -2480,7 +2480,7 @@ static bool test_deldoc1()
 
     db.delete_document(1);
 
-    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(1));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(1));
 
     doc1 = db.get_document(2);
     doc1.remove_term("foo");
@@ -2586,10 +2586,10 @@ static bool test_deldoc2()
     TEST_EQUAL(db.postlist_begin("two"), db.postlist_end("two"));
     TEST_EQUAL(db.postlist_begin("three"), db.postlist_end("three"));
 
-    TEST_EXCEPTION(OmDocNotFoundError, db.termlist_begin(1));
-    TEST_EXCEPTION(OmDocNotFoundError, db.termlist_begin(2));
-    TEST_EXCEPTION(OmDocNotFoundError, db.termlist_begin(3));
-    TEST_EXCEPTION(OmDocNotFoundError, db.termlist_begin(4));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(1));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(2));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(3));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(4));
     
     // test positionlist_{begin,end}?
 
@@ -2607,13 +2607,13 @@ static bool test_deldoc2()
     TEST_EQUAL(db.get_collection_freq("two"), 0);
     TEST_EQUAL(db.get_collection_freq("three"), 0);
 
-    TEST_EXCEPTION(OmDocNotFoundError, db.get_doclength(1));
-    TEST_EXCEPTION(OmDocNotFoundError, db.get_doclength(2));
-    TEST_EXCEPTION(OmDocNotFoundError, db.get_doclength(3));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(1));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(2));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(3));
 
-    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(1));
-    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(2));
-    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(3));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(1));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(3));
 
     TEST_EQUAL(db.allterms_begin(), db.allterms_end());
 
@@ -2644,9 +2644,9 @@ static bool test_deldoc3()
 
     TEST_EQUAL(db.postlist_begin("one"), db.postlist_end("one"));
 
-    TEST_EXCEPTION(OmDocNotFoundError, db.termlist_begin(1));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(1));
     (void)&db; // gcc 2.95 seems to miscompile without this!!! - Olly
-    TEST_EXCEPTION(OmDocNotFoundError, db.termlist_begin(2));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(2));
     
     // test positionlist_{begin,end}?
 
@@ -2658,11 +2658,11 @@ static bool test_deldoc3()
 
     TEST_EQUAL(db.get_collection_freq("one"), 0);
 
-    TEST_EXCEPTION(OmDocNotFoundError, db.get_doclength(1));
-    TEST_EXCEPTION(OmDocNotFoundError, db.get_doclength(2));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(1));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(2));
 
-    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(1));
-    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(2));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(1));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
 
     TEST_EQUAL(db.allterms_begin(), db.allterms_end());
 
@@ -2734,9 +2734,9 @@ static bool test_deldoc4()
     TEST_EQUAL(db.postlist_begin("three"), db.postlist_end("three"));
 
     for (int i=1; i<=maxdoc; ++i) {
-	TEST_EXCEPTION(OmDocNotFoundError, db.termlist_begin(i));
-	TEST_EXCEPTION(OmDocNotFoundError, db.get_doclength(i));
-	TEST_EXCEPTION(OmDocNotFoundError, db.get_document(i));
+	TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(i));
+	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(i));
+	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(i));
     }
     
     // test positionlist_{begin,end}?
@@ -2792,14 +2792,14 @@ static bool test_qlen1()
 static bool test_termlist1()
 {
     OmDatabase db(get_database("apitest_onedoc"));
-    TEST_EXCEPTION(OmInvalidArgumentError,
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
 		   OmTermIterator t = db.termlist_begin(0));
-    TEST_EXCEPTION(OmDocNotFoundError,
+    TEST_EXCEPTION(Xapian::DocNotFoundError,
 		   OmTermIterator t = db.termlist_begin(2));
     /* Cause the database to be used properly, showing up problems
      * with the link being in a bad state.  CME */
     OmTermIterator temp = db.termlist_begin(1);
-    TEST_EXCEPTION(OmDocNotFoundError,
+    TEST_EXCEPTION(Xapian::DocNotFoundError,
 		   OmTermIterator t = db.termlist_begin(999999999));
     return true;
 }
@@ -2879,7 +2879,7 @@ static bool test_postlist1()
 {
     OmDatabase db(get_database("apitest_simpledata"));
 
-    TEST_EXCEPTION(OmInvalidArgumentError, db.postlist_begin(""));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.postlist_begin(""));
 
     TEST_EQUAL(db.postlist_begin("rosebud"), db.postlist_end("rosebud"));
 
@@ -3127,7 +3127,7 @@ static bool test_consistency1()
 	    }
 	}
     }
-    catch (const OmNetworkTimeoutError &) {
+    catch (const Xapian::NetworkTimeoutError &) {
 	// consistency1 is a long test - may timeout with the remote backend...
 	SKIP_TEST("Test taking too long");
     }

@@ -237,7 +237,7 @@ BackendManager::set_dbtype(const string &type)
 	do_getdb = &BackendManager::getdb_void;
 	do_getwritedb = &BackendManager::getwritedb_void;
     } else {
-	throw OmInvalidArgumentError(
+	throw Xapian::InvalidArgumentError(
 		"Expected inmemory, quartz, remote, da, db, "
 		"daflimsy, dbflimsy, or void");
     }
@@ -259,13 +259,13 @@ BackendManager::get_datadir(void)
 OmDatabase
 BackendManager::getdb_void(const vector<string> &)
 {
-    throw OmInvalidArgumentError("Attempted to open a disabled database");
+    throw Xapian::InvalidArgumentError("Attempted to open a disabled database");
 }
 
 OmWritableDatabase
 BackendManager::getwritedb_void(const vector<string> &)
 {
-    throw OmInvalidArgumentError("Attempted to open a disabled database");
+    throw Xapian::InvalidArgumentError("Attempted to open a disabled database");
 }
 
 vector<string>
@@ -359,13 +359,14 @@ bool create_dir_if_needed(const string &dirname)
     struct stat sbuf;
     int result = stat(dirname, &sbuf);
     if (result < 0) {
-	if (errno != ENOENT) throw OmOpeningError("Can't stat directory");
+	if (errno != ENOENT) throw Xapian::OpeningError("Can't stat directory");
         if (mkdir(dirname, 0700) < 0) {
-	    throw OmOpeningError("Can't create directory");
+	    throw Xapian::OpeningError("Can't create directory");
 	}
 	return true; // Successfully created a directory.
     }
-    if (!S_ISDIR(sbuf.st_mode)) throw OmOpeningError("Is not a directory.");
+    if (!S_ISDIR(sbuf.st_mode))
+	throw Xapian::OpeningError("Is not a directory.");
     return false; // Already a directory.
 }
 
@@ -457,7 +458,7 @@ BackendManager::getdb_remote(const vector<string> &dbnames)
 	if (*i == "#TIMEOUT#") {
 	    ++i;
 	    if (i == dbnames.end()) {
-		throw OmInvalidArgumentError("Missing timeout parameter");
+		throw Xapian::InvalidArgumentError("Missing timeout parameter");
 	    }
 	    args += " -t" + *i;
 	} else {
@@ -471,7 +472,7 @@ BackendManager::getdb_remote(const vector<string> &dbnames)
 OmWritableDatabase
 BackendManager::getwritedb_remote(const vector<string> &/*dbnames*/)
 {
-    throw OmInvalidArgumentError("Attempted to open writable remote database");
+    throw Xapian::InvalidArgumentError("Attempted to open writable remote database");
 }
 #endif
 
@@ -524,13 +525,13 @@ BackendManager::getdb_daflimsy(const vector<string> &dbnames)
 OmWritableDatabase
 BackendManager::getwritedb_da(const vector<string> &/*dbnames*/)
 {
-    throw OmInvalidArgumentError("Attempted to open writable da database");
+    throw Xapian::InvalidArgumentError("Attempted to open writable da database");
 }
 
 OmWritableDatabase
 BackendManager::getwritedb_daflimsy(const vector<string> &/*dbnames*/)
 {
-    throw OmInvalidArgumentError("Attempted to open writable daflimsy database");
+    throw Xapian::InvalidArgumentError("Attempted to open writable daflimsy database");
 }
 
 OmDatabase
@@ -581,13 +582,13 @@ BackendManager::getdb_dbflimsy(const vector<string> &dbnames)
 OmWritableDatabase
 BackendManager::getwritedb_db(const vector<string> &/*dbnames*/)
 {
-    throw OmInvalidArgumentError("Attempted to open writable db database");
+    throw Xapian::InvalidArgumentError("Attempted to open writable db database");
 }
 
 OmWritableDatabase
 BackendManager::getwritedb_dbflimsy(const vector<string> &/*dbnames*/)
 {
-    throw OmInvalidArgumentError("Attempted to open writable dbflimsy database");
+    throw Xapian::InvalidArgumentError("Attempted to open writable dbflimsy database");
 }
 #endif
 

@@ -26,7 +26,7 @@
 #include "quartz_record.h"
 #include "quartz_utils.h"
 #include "utils.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "omassert.h"
 #include "omdebug.h"
 using std::string;
@@ -43,7 +43,7 @@ QuartzRecordManager::get_record(QuartzTable & table, om_docid did)
     string tag;
 
     if (!table.get_exact_entry(key, tag)) {
-	throw OmDocNotFoundError("Document " + om_tostring(did) + " not found.");
+	throw Xapian::DocNotFoundError("Document " + om_tostring(did) + " not found.");
     }
 
     RETURN(tag);
@@ -79,14 +79,14 @@ QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
 	const char * data = tag->data();
 	const char * end = data + tag->size();
 	if (!unpack_uint(&data, end, &did)) {
-	    throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
+	    throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
 	}
 	if (!unpack_uint_last(&data, end, &totlen)) {
-	    throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
+	    throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
 	}
 	++did;
 	if (did == 0) {
-	    throw OmRangeError("Next document number is out of range.");
+	    throw Xapian::RangeError("Next document number is out of range.");
 	}
     }
     *tag = pack_uint(did);
@@ -137,21 +137,21 @@ QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
 	const char * data = tag->data();
 	const char * end = data + tag->size();
 	if (!unpack_uint(&data, end, &did)) {
-	    throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
+	    throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
 	}
 	if (!unpack_uint_last(&data, end, &totlen)) {
-	    throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
+	    throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
 	}
     }
     
     if (totlen < old_doclen)
-	throw OmDatabaseCorruptError("Total document length is less than claimed old document length");
+	throw Xapian::DatabaseCorruptError("Total document length is less than claimed old document length");
 
     totlen -= old_doclen;
     quartz_totlen_t newlen = totlen + new_doclen;
 
     if (newlen < totlen)
-	throw OmRangeError("New total document length is out of range.");
+	throw Xapian::RangeError("New total document length is out of range.");
 
     *tag = pack_uint(did);
     *tag += pack_uint_last(newlen);
@@ -173,10 +173,10 @@ QuartzRecordManager::get_avlength(QuartzTable & table)
     const char * data = tag.data();
     const char * end = data + tag.size();
     if (!unpack_uint(&data, end, &did)) {
-	throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
+	throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
     }
     if (!unpack_uint_last(&data, end, &totlen)) {
-	throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
+	throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
     }
     RETURN((double)totlen / docs);
 }

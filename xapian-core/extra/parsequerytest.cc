@@ -63,7 +63,7 @@ main(void)
 	string parsed;
 	try {
 	    parsed = qp.parse_query(p->query).get_description();
-	} catch (const OmError &e) {
+	} catch (const Xapian::Error &e) {
 	    parsed = e.get_msg();
 	} catch (const char *s) {
 	    parsed = s;

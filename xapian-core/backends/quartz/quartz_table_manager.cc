@@ -29,7 +29,7 @@
 #include "btree_util.h"
 
 #include "utils.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include <string>
 #include "omdebug.h"
 
@@ -80,7 +80,7 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
     // open tables
     if (action == OM_DB_READONLY) {
 	if (!dbexists) {
-	    throw OmOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
+	    throw Xapian::OpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
 	}
 	// Can still allow searches even if recovery is needed
 	open_tables_consistent();
@@ -88,7 +88,7 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
 	if (dbexists) {
 	    log->make_entry("Old database exists");
 	    if (action == OM_DB_CREATE) {
-		throw OmDatabaseCreateError("Can't create new database at `" +
+		throw Xapian::DatabaseCreateError("Can't create new database at `" +
 			db_dir + "': a database already exists and I was told "
 			"not to overwrite it");
 	    }
@@ -100,7 +100,7 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
 	if (!dbexists) {
 	    // FIXME: if we allow OM_DB_OVERWRITE, check it here
 	    if (action == OM_DB_OPEN) {
-		throw OmOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
+		throw Xapian::OpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
 	    }
 	    create_and_open_tables();
 	    return;
@@ -216,7 +216,7 @@ QuartzDiskTableManager::create_and_open_tables()
 			om_tostring(termlist_table.get_open_revision_number()) + ", " +
 			om_tostring(positionlist_table.get_open_revision_number()) + " and " +
 			om_tostring(postlist_table.get_open_revision_number()));
-	throw OmDatabaseCreateError("Newly created tables are not in consistent state");
+	throw Xapian::DatabaseCreateError("Newly created tables are not in consistent state");
     }
     log->make_entry("Opened tables at revision " + om_tostring(revision));
 }
@@ -273,14 +273,14 @@ QuartzDiskTableManager::open_tables_consistent()
 		// sweep hasn't begun and the system must have failed.  Database
 		// is inconsistent.
 		log->make_entry("Cannot open all tables at revision in record table: " + om_tostring(revision));
-		throw OmDatabaseCorruptError("Cannot open tables at consistent revisions");
+		throw Xapian::DatabaseCorruptError("Cannot open tables at consistent revisions");
 	    }
 	}
     }
 
     if (!fully_opened) {
 	log->make_entry("Cannot open all tables in a consistent state - keep changing too fast, giving up after " + om_tostring(tries) + " attempts");
-	throw OmOpeningError("Cannot open tables at stable revision - changing too fast");
+	throw Xapian::OpeningError("Cannot open tables at stable revision - changing too fast");
     }
 
     log->make_entry("Opened tables at revision " + om_tostring(revision));
@@ -491,13 +491,13 @@ QuartzBufferedTableManager::get_database_write_lock()
     while (true) {
 	num_tries--;
 	if (num_tries < 0) {
-	    throw OmDatabaseLockError("Unable to acquire database write lock "
+	    throw Xapian::DatabaseLockError("Unable to acquire database write lock "
 				      + lock_name);
 	}
 
 	int tempfd = open(tempname, O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
 	if (tempfd < 0) {
-	    throw OmDatabaseLockError("Unable to create " + tempname +
+	    throw Xapian::DatabaseLockError("Unable to create " + tempname +
 				      ": " + strerror(errno),
 				      errno);
 	}
@@ -522,7 +522,7 @@ QuartzBufferedTableManager::get_database_write_lock()
 	int fstat_errno = errno;
 	unlink(tempname);
 	if (statresult != 0) {
-	    throw OmDatabaseLockError("Unable to fstat() temporary file " +
+	    throw Xapian::DatabaseLockError("Unable to fstat() temporary file " +
 				      tempname + " while locking: " +
 				      strerror(fstat_errno));
 	}
@@ -595,11 +595,11 @@ QuartzBufferedTableManager::apply()
 	    // This cancel() causes any buffered changes to be thrown away,
 	    // and the buffer to be reinitialised with the old entry count.
 	    cancel();
-	} catch (const OmError & e) {
+	} catch (const Xapian::Error & e) {
 	    disktables.log->make_entry("Setting revision number failed: " +
 				       e.get_type() + ": " + e.get_msg() + " " +
 				       e.get_context());
-	    throw OmDatabaseError("Modifications failed, and cannot set revision numbers in database to a consistent state");
+	    throw Xapian::DatabaseError("Modifications failed, and cannot set revision numbers in database to a consistent state");
 	}
 	throw;
     }

@@ -60,20 +60,20 @@ through them, and distributed enquiry systems.
 <P>
 Errors in Xapian are all reported by means of exceptions.  All exceptions
 thrown by Xapian will be subclasses of
-<A HREF="apidoc/html/class_OmError.html"><CODE>OmError</CODE></A>.  Note that
-<CODE>OmError</CODE> is an abstract class; thus you must catch exceptions
+<A HREF="apidoc/html/class_Xapian::Error.html"><CODE>Xapian::Error</CODE></A>.  Note that
+<CODE>Xapian::Error</CODE> is an abstract class; thus you must catch exceptions
 by reference rather than by value.
 </P>
 
 <P>
-There are two flavours of error, derived from <CODE>OmError</CODE>:
+There are two flavours of error, derived from <CODE>Xapian::Error</CODE>:
 <UL><LI>
-<A HREF="apidoc/html/class_OmLogicError.html"><CODE>OmLogicError</CODE></A>
+<A HREF="apidoc/html/class_Xapian::LogicError.html"><CODE>Xapian::LogicError</CODE></A>
 - for error conditions due to programming errors, such as a misuse of the
 API.  A finished application should not receive these errors (though it
 would still be sensible to catch them).
 </LI><LI>
-<A HREF="apidoc/html/class_OmRuntimeError.html"><CODE>OmRuntimeError</CODE></A>
+<A HREF="apidoc/html/class_Xapian::RuntimeError.html"><CODE>Xapian::RuntimeError</CODE></A>
 - for error conditions due to run time problems, such as failure to open
 a database.  You must always be ready to cope with such errors.
 </LI></UL>
@@ -84,7 +84,7 @@ Each of these flavours is further subdivided, such that any particular
 error condition can be trapped by catching the appropriate exception.
 If desired, a human readable explanation of the error can be retrieved
 by calling
-<A HREF="apidoc/html/class_OmError.html"><CODE>OmError::get_msg()</CODE></A>.
+<A HREF="apidoc/html/class_Xapian::Error.html"><CODE>Xapian::Error::get_msg()</CODE></A>.
 </P>
 
 <P>

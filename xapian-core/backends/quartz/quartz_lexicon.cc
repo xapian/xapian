@@ -37,7 +37,7 @@ QuartzLexicon::parse_entry(const std::string & data, om_doccount * termfreq)
     const char * end = pos + data.size();
 
     if (!unpack_uint_last(&pos, end, termfreq)) {
-	throw OmRangeError("Size of termfreq out of range, in lexicon.");
+	throw Xapian::RangeError("Size of termfreq out of range, in lexicon.");
     }
 }
 

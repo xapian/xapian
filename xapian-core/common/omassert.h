@@ -31,7 +31,7 @@
 
 
 // Include the definitions of the exceptions we're going to throw
-#include "om/omerror.h"
+#include "xapian/error.h"
 
 // Include utility functions
 #include "utils.h"
@@ -58,7 +58,7 @@
 #endif /* !MUS_DEBUG */
 
 // NB use an else clause to avoid dangling else damage
-#define AssertParanoid(a) if (a) { } else throw OmAssertionError(ASSERT_LOCN(a))
+#define AssertParanoid(a) if (a) { } else throw Xapian::AssertionError(ASSERT_LOCN(a))
 #else /* MUS_DEBUG_PARANOID */
 #define AssertParanoid(a)
 #endif /* MUS_DEBUG_PARANOID */
@@ -67,11 +67,11 @@
 #include <math.h> // for fabs() for AssertEqDouble
 // Assertions to put in debug builds
 // NB use an else clause to avoid dangling else damage
-#define Assert(a) if (a) { } else throw OmAssertionError(ASSERT_LOCN(a))
+#define Assert(a) if (a) { } else throw Xapian::AssertionError(ASSERT_LOCN(a))
 // Keep AssertEqDouble separate so we can use an epsilon test
-#define AssertEqDouble(a,b) if (fabs((a) - (b)) < DBL_EPSILON) { } else throw OmAssertionError(ASSERT_LOCN(a)" - expected equal values: had " + om_tostring(a) + " and " + om_tostring(b))
-#define AssertEq(a,b) if ((a) == (b)) { } else throw OmAssertionError(ASSERT_LOCN(a)" - expected equal values: had " + om_tostring(a) + " and " + om_tostring(b))
-#define AssertNe(a,b) if ((a) != (b)) { } else throw OmAssertionError(ASSERT_LOCN(a)" - expected different values: had " + om_tostring(a))
+#define AssertEqDouble(a,b) if (fabs((a) - (b)) < DBL_EPSILON) { } else throw Xapian::AssertionError(ASSERT_LOCN(a)" - expected equal values: had " + om_tostring(a) + " and " + om_tostring(b))
+#define AssertEq(a,b) if ((a) == (b)) { } else throw Xapian::AssertionError(ASSERT_LOCN(a)" - expected equal values: had " + om_tostring(a) + " and " + om_tostring(b))
+#define AssertNe(a,b) if ((a) != (b)) { } else throw Xapian::AssertionError(ASSERT_LOCN(a)" - expected different values: had " + om_tostring(a))
 #else
 #define Assert(a)
 #define AssertEqDouble(a,b)

@@ -160,16 +160,16 @@ static bool test_queryvalid1()
 {
     vector<OmQuery> v1;
     // Need two arguments
-    TEST_EXCEPTION(OmInvalidArgumentError,
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
 		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
     tout << "ANDNOT () checked" << endl;
     v1.push_back(OmQuery("bad"));
-    TEST_EXCEPTION(OmInvalidArgumentError,
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
 		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
     tout << "ANDNOT (\"bad\") checked" << endl;
     v1.clear();
     v1.push_back(OmQuery());
-    TEST_EXCEPTION(OmInvalidArgumentError,
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
 		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
     tout << "ANDNOT (OmQuery()) checked" << endl;
 

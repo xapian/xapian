@@ -143,10 +143,10 @@ static void report_read_error(const char * position)
 {
     if (position == 0) {
 	// data ran out
-	throw OmDatabaseCorruptError("Data ran out unexpectedly when reading posting list.");
+	throw Xapian::DatabaseCorruptError("Data ran out unexpectedly when reading posting list.");
     }
     // overflow
-    throw OmRangeError("Value in posting list too large.");
+    throw Xapian::RangeError("Value in posting list too large.");
 }
 
 static bool get_tname_from_key(const char **src, const char *end,
@@ -423,17 +423,17 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 
 		// Seek to the next chunk.
 		if (cursor->find_entry(orig_key) != true) {
-		    throw OmDatabaseCorruptError("The key we're working on has disappeared");
+		    throw Xapian::DatabaseCorruptError("The key we're working on has disappeared");
 		}
 
 		cursor->next();
 		if (cursor->after_end()) {
-		    throw OmDatabaseCorruptError("Expected another key but found none");
+		    throw Xapian::DatabaseCorruptError("Expected another key but found none");
 		}
 		const char *kpos = cursor->current_key.data();
 		const char *kend = kpos + cursor->current_key.size();
 		if (!skip_and_check_tname_in_key(&kpos, kend, tname)) {
-		    throw OmDatabaseCorruptError("Expected another key with the same term name but found a different one");
+		    throw Xapian::DatabaseCorruptError("Expected another key with the same term name but found a different one");
 		}
 
 		// Read the new first docid
@@ -485,7 +485,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 		/* Should not find the key we just deleted, but should
 		 * find the previous chunk. */
 		if (cursor->find_entry(orig_key) == true) {
-		    throw OmDatabaseCorruptError("Quartz key not deleted as we expected");
+		    throw Xapian::DatabaseCorruptError("Quartz key not deleted as we expected");
 		}
 		// Make sure this is a chunk with the right term attached.
 		const char * keypos = cursor->current_key.data();
@@ -500,7 +500,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 		}
 
 		if (tname_in_key != tname) {
-		    throw OmDatabaseCorruptError("Couldn't find chunk before delete chunk");
+		    throw Xapian::DatabaseCorruptError("Couldn't find chunk before delete chunk");
 		}
 
 		// FIXME: this was declared locally here - trying to see if we
@@ -583,7 +583,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 	    const char *keypos = orig_key.data();
 	    const char *keyend = keypos + orig_key.size();
 	    if (!skip_and_check_tname_in_key(&keypos, keyend, tname)) {
-		throw OmDatabaseCorruptError("Have invalid key writing to postlist");
+		throw Xapian::DatabaseCorruptError("Have invalid key writing to postlist");
 	    }
 	    om_docid initial_did;
 	    if (!unpack_uint_preserving_sort(&keypos, keyend, &initial_did)) {
@@ -793,7 +793,7 @@ QuartzPostList::next_chunk()
     cursor->next();
     if (cursor->after_end()) {
 	is_at_end = true;
-	throw OmDatabaseCorruptError("Unexpected end of posting list for `" +
+	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for `" +
 				     tname + "'");
     }
     const char * keypos = cursor->current_key.data();
@@ -806,7 +806,7 @@ QuartzPostList::next_chunk()
     }
     if (tname_in_key != tname) {
 	is_at_end = true;
-	throw OmDatabaseCorruptError("Unexpected end of posting list for `" +
+	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for `" +
 				     tname + "'");
     }
 
@@ -815,7 +815,7 @@ QuartzPostList::next_chunk()
 	report_read_error(keypos);
     }
     if (newdid <= did) {
-	throw OmDatabaseCorruptError("Document ID in new chunk of postlist (" +
+	throw Xapian::DatabaseCorruptError("Document ID in new chunk of postlist (" +
 		om_tostring(newdid) +
 		") is not greater than final document ID in previous chunk (" +
 		om_tostring(did) + ")");

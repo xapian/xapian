@@ -52,47 +52,47 @@ class NetworkDatabase : public Database {
 	 *  is not supported: if called an exception will be thrown.
 	 */
 	void do_begin_session() {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"NetworkDatabase::begin_session() not implemented: readonly database type");
 	}
 
 	void do_end_session() {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"NetworkDatabase::do_end_session() not implemented: readonly database type");
 	}
 
 	void do_flush() {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"NetworkDatabase::flush() not implemented: readonly database type");
 	}
 
 	void do_begin_transaction() {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"NetworkDatabase::begin_transaction() not implemented: readonly database type");
 	}
 
 	void do_commit_transaction() {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"NetworkDatabase::commit_transaction() not implemented: readonly database type");
 	}
 
 	void do_cancel_transaction() {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"NetworkDatabase::cancel_transaction() not implemented: readonly database type");
 	}
 
 	om_docid do_add_document(const OmDocument & /*document*/) {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"NetworkDatabase::add_document() not implemented: readonly database type");
 	}
 
 	void do_delete_document(om_docid /*did*/) {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"NetworkDatabase::delete_document() not implemented: readonly database type");
 	}
 
 	void do_replace_document(om_docid /*did*/, const OmDocument & /*document*/) {
-	    throw OmUnimplementedError(
+	    throw Xapian::UnimplementedError(
 		"NetworkDatabase::replace_document() not implemented: readonly database type");
 	}
 
@@ -131,7 +131,7 @@ class NetworkDatabase : public Database {
 inline om_termcount
 NetworkDatabase::get_collection_freq(const string & /*tname*/) const
 {
-    throw OmUnimplementedError("NetworkDatabase::get_collection_freq() not implemented: data not stored in database.");
+    throw Xapian::UnimplementedError("NetworkDatabase::get_collection_freq() not implemented: data not stored in database.");
 }
 
 #endif /* OM_HGUARD_NET_DATABASE_H */

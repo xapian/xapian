@@ -90,7 +90,7 @@ main(int argc, char **argv)
 	} else {
 	    BtreeCheck::check(argv[1], opts);
 	}
-    } catch (const OmError &error) {
+    } catch (const Xapian::Error &error) {
 	cerr << argv[0] << ": " << error.get_msg() << endl;
 	exit(1);
     }

@@ -26,7 +26,7 @@
 #include <string>
 
 #include "om/omtypes.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "refcnt.h"
 #include "expandweight.h"
 
@@ -102,7 +102,7 @@ class TermList : public RefCntBase
 	virtual bool at_end() const = 0;
 
 	virtual OmPositionListIterator positionlist_begin() const {
-	    throw OmInvalidOperationError("positionlist_begin not supported");
+	    throw Xapian::InvalidOperationError("positionlist_begin not supported");
 	}
 };
 

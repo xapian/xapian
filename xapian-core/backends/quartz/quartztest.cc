@@ -25,7 +25,7 @@
 #include <config.h>
 #include "testsuite.h"
 #include "testutils.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 
 #include "quartz_database.h"
 #include "quartz_postlist.h"
@@ -168,8 +168,8 @@ static bool test_disktable1()
     unlink_table(tmpdir + "test_disktable1_");
     {
 	QuartzDiskTable table0(tmpdir + "test_disktable1_", true, 0);
-	TEST_EXCEPTION(OmOpeningError, table0.open());
-	TEST_EXCEPTION(OmOpeningError, table0.open(10));
+	TEST_EXCEPTION(Xapian::OpeningError, table0.open());
+	TEST_EXCEPTION(Xapian::OpeningError, table0.open(10));
     }
     QuartzDiskTable rw_table(tmpdir + "test_disktable1_", false, 8192);
     rw_table.create();
@@ -186,7 +186,7 @@ static bool test_disktable1()
     TEST_EQUAL(rw_table.get_entry_count(), 0);
 
     // Check adding no entries
-    TEST_EXCEPTION(OmInvalidOperationError,
+    TEST_EXCEPTION(Xapian::InvalidOperationError,
 		   ro_table.apply(ro_table.get_latest_revision_number() + 1));
     rw_table.apply(rw_table.get_latest_revision_number() + 1);
 
@@ -203,7 +203,7 @@ static bool test_disktable1()
     key = "hello";
     tag = "world";
     
-    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key, tag));
+    TEST_EXCEPTION(Xapian::InvalidOperationError, ro_table.set_entry(key, tag));
     rw_table.set_entry(key, tag);
     rw_table.apply(rw_table.get_latest_revision_number() + 1);
 
@@ -219,7 +219,7 @@ static bool test_disktable1()
     check_table_values_hello(rw_table, "world");
 
     // Check adding the same entries
-    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key, tag));
+    TEST_EXCEPTION(Xapian::InvalidOperationError, ro_table.set_entry(key, tag));
     rw_table.set_entry(key, tag);
     rw_table.apply(rw_table.get_latest_revision_number() + 1);
 
@@ -238,17 +238,17 @@ static bool test_disktable1()
     key = "";
 #ifdef MUS_DEBUG
     // Empty keys aren't allowed
-    TEST_EXCEPTION(OmAssertionError, ro_table.set_entry(key, tag));
-    TEST_EXCEPTION(OmAssertionError, rw_table.set_entry(key, tag));
+    TEST_EXCEPTION(Xapian::AssertionError, ro_table.set_entry(key, tag));
+    TEST_EXCEPTION(Xapian::AssertionError, rw_table.set_entry(key, tag));
 #else
     // Can't add a key to a read-only table anyway
-    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key, tag));
+    TEST_EXCEPTION(Xapian::InvalidOperationError, ro_table.set_entry(key, tag));
 #endif
 
     // Check changing an entry, to a null tag
     key = "hello";
     tag = "";
-    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key, tag));
+    TEST_EXCEPTION(Xapian::InvalidOperationError, ro_table.set_entry(key, tag));
     rw_table.set_entry(key, tag);
     rw_table.apply(rw_table.get_latest_revision_number() + 1);
 
@@ -265,7 +265,7 @@ static bool test_disktable1()
 
     // Check deleting an entry
     key = "hello";
-    TEST_EXCEPTION(OmInvalidOperationError, ro_table.set_entry(key));
+    TEST_EXCEPTION(Xapian::InvalidOperationError, ro_table.set_entry(key));
     rw_table.set_entry(key);
     rw_table.apply(rw_table.get_latest_revision_number() + 1);
 
@@ -404,14 +404,14 @@ static bool test_tableentries1()
 
 #ifdef MUS_DEBUG
     key1 = "";
-    TEST_EXCEPTION(OmAssertionError, entries.have_entry(key1));
+    TEST_EXCEPTION(Xapian::AssertionError, entries.have_entry(key1));
     {
 	AutoPtr<string> tagptr(new string);
 	*tagptr = "bar";
-	TEST_EXCEPTION(OmAssertionError, entries.set_tag(key1, tagptr));
+	TEST_EXCEPTION(Xapian::AssertionError, entries.set_tag(key1, tagptr));
     }
-    TEST_EXCEPTION(OmAssertionError, entries.have_entry(key1));
-    TEST_EXCEPTION(OmAssertionError, entries.get_tag(key1));
+    TEST_EXCEPTION(Xapian::AssertionError, entries.have_entry(key1));
+    TEST_EXCEPTION(Xapian::AssertionError, entries.get_tag(key1));
 #endif
 
     key1 = "foo";
@@ -1035,7 +1035,7 @@ static bool test_open1()
     string dbdir = tmpdir + "testdb_open1";
     deletedir(dbdir);
     
-    TEST_EXCEPTION(OmOpeningError,
+    TEST_EXCEPTION(Xapian::OpeningError,
 		   RefCntPtr<Database> database_0 = new QuartzDatabase(dbdir));
 
     makedir(dbdir);
@@ -1055,34 +1055,34 @@ static bool test_create1()
     RefCntPtr<Database> db;
 
     // (1) db doesn't exist (no create)
-    TEST_EXCEPTION(OmOpeningError,
+    TEST_EXCEPTION(Xapian::OpeningError,
 		   db = new QuartzDatabase(dbdir));
-    TEST_EXCEPTION(OmOpeningError,
+    TEST_EXCEPTION(Xapian::OpeningError,
 		   db = new QuartzWritableDatabase(dbdir, OM_DB_OPEN, 2048));
 
     // (2) db doesn't exist, basedir doesn't exist (create)
-    TEST_EXCEPTION(OmOpeningError,
+    TEST_EXCEPTION(Xapian::OpeningError,
 		   db = new QuartzDatabase(dbdir));
-    TEST_EXCEPTION(OmOpeningError,
+    TEST_EXCEPTION(Xapian::OpeningError,
 		   db = new QuartzWritableDatabase(dbdir, OM_DB_CREATE, 2048));
 
     makedir(dbdir);
 
     // (3) db doesn't exist, basedir exists (no create)
-    TEST_EXCEPTION(OmOpeningError,
+    TEST_EXCEPTION(Xapian::OpeningError,
 		   db = new QuartzDatabase(dbdir));
-    TEST_EXCEPTION(OmOpeningError,
+    TEST_EXCEPTION(Xapian::OpeningError,
 		   db = new QuartzWritableDatabase(dbdir, OM_DB_OPEN, 2048));
 
     // (4) db doesn't exist, basedir exists (create)
-    TEST_EXCEPTION(OmOpeningError,
+    TEST_EXCEPTION(Xapian::OpeningError,
 		   db = new QuartzDatabase(dbdir));
     db = new QuartzWritableDatabase(dbdir, OM_DB_CREATE, 2048);
     db = new QuartzDatabase(dbdir);
 
     // (5) db exists (create, no overwrite)
     db = new QuartzDatabase(dbdir);
-    TEST_EXCEPTION(OmDatabaseCreateError,
+    TEST_EXCEPTION(Xapian::DatabaseCreateError,
 		   db = new QuartzWritableDatabase(dbdir, OM_DB_CREATE, 2048));
     db = new QuartzDatabase(dbdir);
 
@@ -1777,7 +1777,7 @@ static bool test_overwrite1()
     new_revision = disktable.get_latest_revision_number() + 1;
     bufftable.apply(new_revision);
     TEST(disktable_ro.get_exact_entry(key2, tag));
-    TEST_EXCEPTION(OmDatabaseModifiedError, disktable_ro.get_exact_entry(key, tag));
+    TEST_EXCEPTION(Xapian::DatabaseModifiedError, disktable_ro.get_exact_entry(key, tag));
     //TEST_EQUAL(tag, "bar1");
 
     return true;
@@ -1921,7 +1921,7 @@ static bool test_writelock1()
     makedir(dbname);
 
     OmWritableDatabase writer = OmQuartz__open(dbname, OM_DB_CREATE);
-    TEST_EXCEPTION(OmDatabaseLockError, 
+    TEST_EXCEPTION(Xapian::DatabaseLockError, 
 	OmWritableDatabase writer2 = OmQuartz__open(dbname, OM_DB_OPEN));
     return true;
 }

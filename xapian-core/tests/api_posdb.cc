@@ -536,13 +536,13 @@ static bool test_poslist1()
     pli++;
     TEST(pli == mydb.positionlist_end(2, term));
 
-    TEST_EXCEPTION(OmDocNotFoundError, mydb.positionlist_begin(55, term));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, mydb.positionlist_begin(55, term));
 
     /* FIXME: what exception should be thrown here?  Quartz throws
-     * OmDocNotFoundError, and InMemory throws OmRangeError.
+     * Xapian::DocNotFoundError, and InMemory throws Xapian::RangeError.
      */
-    TEST_EXCEPTION(OmRuntimeError, mydb.positionlist_begin(2, "adskfjadsfa"));
-    TEST_EXCEPTION(OmDocNotFoundError, mydb.positionlist_begin(55, "adskfjadsfa"));
+    TEST_EXCEPTION(Xapian::RuntimeError, mydb.positionlist_begin(2, "adskfjadsfa"));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, mydb.positionlist_begin(55, "adskfjadsfa"));
 
     return true;
 }
@@ -555,13 +555,13 @@ static bool test_poslist2()
     doc.add_term_nopos("nopos");
     om_docid did = db.add_document(doc);
 
-    TEST_EXCEPTION(OmRangeError,
+    TEST_EXCEPTION(Xapian::RangeError,
 	// Check what happens when term doesn't exist
 	OmPositionListIterator i = db.positionlist_begin(did, "nosuchterm");
 	// FIXME: quartz doesn't throw!
     );
 
-    TEST_EXCEPTION(OmDocNotFoundError,
+    TEST_EXCEPTION(Xapian::DocNotFoundError,
         // Check what happens when the document doesn't even exist
         OmPositionListIterator i = db.positionlist_begin(123, "nosuchterm");
 	// FIXME: quartz doesn't throw!
@@ -595,7 +595,7 @@ static bool test_poslist2()
     }
 
     db.delete_document(did);
-    TEST_EXCEPTION(OmDocNotFoundError,
+    TEST_EXCEPTION(Xapian::DocNotFoundError,
         // Check what happens when the document doesn't even exist
 	// (but once did)
 	OmPositionListIterator i = db.positionlist_begin(did, "nosuchterm");

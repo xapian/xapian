@@ -188,7 +188,7 @@ OmStub__open(const string &file)
 	// by revealing part of a sensitive file's contents if they can
 	// arrange it to be read as a stub database.  The line number is
 	// enough information to identify the problem line.
-	throw OmOpeningError("Bad line " + om_tostring(line_no) + " in stub database file `" + file + "'");
+	throw Xapian::OpeningError("Bad line " + om_tostring(line_no) + " in stub database file `" + file + "'");
     }
     return db;
 }
@@ -229,7 +229,7 @@ OmAuto__open(const string &path)
     }
 #endif
 
-    throw OmFeatureUnavailableError("Couldn't detect type of database");
+    throw Xapian::FeatureUnavailableError("Couldn't detect type of database");
 }
 
 OmWritableDatabase

@@ -80,25 +80,25 @@ void QuartzMetaFile::open()
     string data = sys_read_all_bytes(fd, min_metafile_size + 1);
 
     if (data.length() < min_metafile_size) {
-	throw OmDatabaseCorruptError("Quartz metafile " + filename +
+	throw Xapian::DatabaseCorruptError("Quartz metafile " + filename +
 				     " too short; may be truncated.");
     }
 
     if (data.substr(0, metafile_magic.length()) != metafile_magic) {
-	throw OmDatabaseCorruptError("Quartz metafile " + filename +
+	throw Xapian::DatabaseCorruptError("Quartz metafile " + filename +
 				     " is invalid: magic string not found.");
     }
 
     unsigned int version;
     version = decode_version(data.substr(metafile_magic.length(), 4));
     if (version != metafile_version) {
-	throw OmOpeningError("Unknown Quartz metafile version " +
+	throw Xapian::OpeningError("Unknown Quartz metafile version " +
 			     om_tostring(version) + " in " +
 			     filename);
     }
 
     if (data.length() > max_metafile_size) {
-	throw OmDatabaseCorruptError("Quartz metafile " + filename +
+	throw Xapian::DatabaseCorruptError("Quartz metafile " + filename +
 				     " contains extra garbage.");
     }
 }

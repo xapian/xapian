@@ -1,4 +1,4 @@
-/* omerr_string.h: utilities to convert OmError exceptions to strings
+/* omerr_string.h: utilities to convert Xapian::Error exceptions to strings
  *                 and vice versa.
  *
  * ----START-LICENCE----
@@ -27,13 +27,13 @@
 #include <string>
 #include <stdexcept>
 
-#include "om/omerror.h"
+#include "xapian/error.h"
 
-/** Convert an OmError reference into a string which describes it.
+/** Convert an Xapian::Error reference into a string which describes it.
  *
  *  @param e		A reference to the exception to convert.
  */
-std::string omerror_to_string(const OmError &e);
+std::string omerror_to_string(const Xapian::Error &e);
 
 /** Take a string representation of an exception (from omerror_to_string)
  *  and effectively rethrow the exception, optionally with a prefix added

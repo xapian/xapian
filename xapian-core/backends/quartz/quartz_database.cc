@@ -31,7 +31,7 @@
 #include "utils.h"
 #include "omdebug.h"
 #include "autoptr.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "refcnt.h"
 
 #include "quartz_postlist.h"
@@ -81,7 +81,7 @@ void
 QuartzDatabase::do_begin_session()
 {
     DEBUGCALL(DB, void, "QuartzDatabase::do_begin_session", "");
-    throw OmInvalidOperationError(
+    throw Xapian::InvalidOperationError(
 	"Cannot begin a modification session: database opened readonly.");
 }
 
@@ -278,7 +278,7 @@ QuartzDatabase::open_position_list(om_docid did,
 	AutoPtr<LeafTermList> ltl(open_term_list_internal(did, ptrtothis));
 	ltl->skip_to(tname);
 	if (ltl->at_end() || ltl->get_termname() != tname)
-	    throw OmRangeError("Can't open position list: requested term is not present in document.");
+	    throw Xapian::RangeError("Can't open position list: requested term is not present in document.");
     }
 
     return AutoPtr<PositionList>(poslist.release());
@@ -362,21 +362,21 @@ void
 QuartzWritableDatabase::do_begin_transaction()
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase::do_begin_transaction", "");
-    throw OmUnimplementedError("QuartzDatabase::do_begin_transaction() not yet implemented");
+    throw Xapian::UnimplementedError("QuartzDatabase::do_begin_transaction() not yet implemented");
 }
 
 void
 QuartzWritableDatabase::do_commit_transaction()
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase::do_commit_transaction", "");
-    throw OmUnimplementedError("QuartzDatabase::do_commit_transaction() not yet implemented");
+    throw Xapian::UnimplementedError("QuartzDatabase::do_commit_transaction() not yet implemented");
 }
 
 void
 QuartzWritableDatabase::do_cancel_transaction()
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase::do_cancel_transaction", "");
-    throw OmUnimplementedError("QuartzDatabase::do_cancel_transaction() not yet implemented");
+    throw Xapian::UnimplementedError("QuartzDatabase::do_cancel_transaction() not yet implemented");
 }
 
 om_docid
@@ -849,7 +849,7 @@ QuartzWritableDatabase::open_position_list(om_docid did,
 	AutoPtr<LeafTermList> ltl(database_ro.open_term_list_internal(did, ptrtothis));
 	ltl->skip_to(tname);
 	if (ltl->at_end() || ltl->get_termname() != tname)
-	    throw OmRangeError("Can't open position list: requested term is not present in document.");
+	    throw Xapian::RangeError("Can't open position list: requested term is not present in document.");
     }
 
     return AutoPtr<PositionList>(poslist.release());

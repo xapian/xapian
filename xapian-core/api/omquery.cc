@@ -27,7 +27,7 @@
 #include "utils.h"
 #include "netutils.h"
 
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "om/omenquire.h"
 #include "om/omoutput.h"
 
@@ -59,7 +59,7 @@ OmQuery::add_subquery(const OmQuery * subq)
 {
     DEBUGAPICALL(void, "OmQuery::add_subquery", subq);
     if (subq == 0) {
-	throw OmInvalidArgumentError("Pointer to subquery may not be null");
+	throw Xapian::InvalidArgumentError("Pointer to subquery may not be null");
     }
     Assert(internal);
     Assert(subq->internal);

@@ -48,7 +48,7 @@ class Stem {
 	 *                      language, or the two letter ISO 639
 	 *                      (version 1) language code.
 	 *
-	 *  @exception OmInvalidArgumentError will be thrown if an
+	 *  @exception Xapian::InvalidArgumentError will be thrown if an
 	 *  unknown language is supplied.
 	 */
         explicit Stem(const std::string &language);

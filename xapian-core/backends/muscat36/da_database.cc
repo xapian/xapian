@@ -42,7 +42,7 @@ using std::pair;
 #include "omdebug.h"
 
 #include "om/omdocument.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 
 DAPostList::DAPostList(const string & tname_,
 		       struct DA_postings * postlist_,
@@ -145,13 +145,13 @@ DADatabase::DADatabase(const string &filename_r, const string &filename_t,
     // Open database with specified path
     DA_r = DA_open(filename_r.c_str(), DA_RECS, heavy_duty);
     if (DA_r == 0) {
-	throw OmOpeningError("Couldn't open " + filename_r, errno);
+	throw Xapian::OpeningError("Couldn't open " + filename_r, errno);
     }
     DA_t = DA_open(filename_t.c_str(), DA_TERMS, heavy_duty);
     if (DA_t == 0) {
 	DA_close(DA_r);
 	DA_r = 0;
-	throw OmOpeningError("Couldn't open " + filename_t, errno);
+	throw Xapian::OpeningError("Couldn't open " + filename_t, errno);
     }
 
     if (filename_v.empty()) return;
@@ -159,7 +159,7 @@ DADatabase::DADatabase(const string &filename_r, const string &filename_t,
     // Open valuefile
     valuefile = fopen(filename_v.c_str(), "rb");
     if (valuefile == 0) {
-	throw OmOpeningError("Couldn't open " + filename_v, errno);
+	throw Xapian::OpeningError("Couldn't open " + filename_v, errno);
     }
 
     // Check for magic string at beginning of file.
@@ -168,11 +168,11 @@ DADatabase::DADatabase(const string &filename_r, const string &filename_t,
 	errno = 0;
 	size_t bytes_read = fread(input, 1, 8, valuefile);
 	if (bytes_read < 8) {
-	    throw OmOpeningError(string("When opening ") + filename_v +
+	    throw Xapian::OpeningError(string("When opening ") + filename_v +
 				 ": couldn't read magic", errno);
 	}
 	if (memcmp(input, "omrocks!", 8)) {
-	    throw OmOpeningError(string("When opening ") + filename_v +
+	    throw Xapian::OpeningError(string("When opening ") + filename_v +
 				 ": found wrong magic - got `" + input + "'");
 	}
     }
@@ -271,13 +271,13 @@ DADatabase::open_post_list_internal(const string & tname) const
 LeafTermList *
 DADatabase::open_term_list(om_docid did) const
 {
-    if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
+    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
 
     struct termvec *tv = M_make_termvec();
 
     if (DA_get_termvec(DA_r, did, tv) == 0) {
 	M_lose_termvec(tv);
-	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
+	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
     }
 
@@ -290,14 +290,14 @@ DADatabase::open_term_list(om_docid did) const
 struct record *
 DADatabase::get_record(om_docid did) const
 {
-    if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
+    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
 
     struct record *r = M_make_record();
     int found = DA_get_record(DA_r, did, r);
 
     if (found == 0) {
 	M_lose_record(r);
-	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
+	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
     }
 

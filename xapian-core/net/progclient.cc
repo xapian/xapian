@@ -23,7 +23,7 @@
 
 #include <config.h>
 #include "progclient.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "utils.h"
 #include "netutils.h"
 
@@ -64,13 +64,13 @@ ProgClient::get_spawned_socket(string progname, const string &args)
     int sv[2];
 
     if (socketpair(PF_UNIX, SOCK_STREAM, 0, sv) < 0) {
-	throw OmNetworkError(string("socketpair:") + strerror(errno), get_progcontext(progname, args));
+	throw Xapian::NetworkError(string("socketpair:") + strerror(errno), get_progcontext(progname, args));
     }
 
     pid = fork();
 
     if (pid < 0) {
-	throw OmNetworkError(string("fork:") + strerror(errno), get_progcontext(progname, args));
+	throw Xapian::NetworkError(string("fork:") + strerror(errno), get_progcontext(progname, args));
     }
 
     if (pid == 0) {

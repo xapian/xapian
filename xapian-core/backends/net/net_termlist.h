@@ -26,7 +26,7 @@
 #include <string>
 
 #include "om/omtypes.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "termlist.h"
 #include "expandweight.h"
 #include "netclient.h"

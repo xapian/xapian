@@ -21,11 +21,11 @@
  */
 
 #include <config.h>
-#include "om/omerror.h"
-#include "om/omerrorhandler.h"
+#include "xapian/error.h"
+#include "xapian/errorhandler.h"
 #include "omdebug.h"
 
-OmError::OmError(const std::string &msg_,
+Xapian::Error::Error(const std::string &msg_,
 		 const std::string &context_,
 		 const std::string &type_,
 		 int errno_value_)
@@ -37,7 +37,7 @@ OmError::OmError(const std::string &msg_,
 }
 
 void
-OmErrorHandler::operator() (OmError & error)
+Xapian::ErrorHandler::operator() (Xapian::Error & error)
 {
     DEBUGLINE(EXCEPTION, 
 	      "Invoking error handler for: " << error.get_type() << "(" <<
@@ -51,7 +51,6 @@ OmErrorHandler::operator() (OmError & error)
     if (!handle_error(error)) {
 	DEBUGLINE(EXCEPTION, "Error handler: Rethrowing error.");
 	throw error;
-    } else {
-	DEBUGLINE(EXCEPTION, "Error handler: error dealt with, continuing execution if possible.");
     }
+    DEBUGLINE(EXCEPTION, "Error handler: error dealt with, continuing execution if possible.");
 }

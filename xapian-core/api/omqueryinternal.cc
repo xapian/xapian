@@ -28,7 +28,7 @@
 #include "utils.h"
 #include "netutils.h"
 
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "om/omenquire.h"
 #include "om/omoutput.h"
 
@@ -64,7 +64,7 @@ get_min_subqs(OmQuery::Internal::op_t op)
 	    return 2;
 	default:
 	    Assert(false);
-	    throw OmInvalidOperationError("get_min_subqs called with invalid operator type");
+	    throw Xapian::InvalidOperationError("get_min_subqs called with invalid operator type");
     }
 }
 
@@ -90,7 +90,7 @@ get_max_subqs(OmQuery::Internal::op_t op)
 	    return UINT_MAX;
 	default:
 	    Assert(false);
-	    throw OmInvalidOperationError("get_max_subqs called with invalid operator type");
+	    throw Xapian::InvalidOperationError("get_max_subqs called with invalid operator type");
     }
 }
 
@@ -291,7 +291,7 @@ void
 OmQuery::Internal::set_cutoff(double cutoff_)
 {
     if (op != OmQuery::OP_WEIGHT_CUTOFF)
-	throw OmInvalidOperationError("Can only set cutoff parameter for weight or percentage cutoff operators.");
+	throw Xapian::InvalidOperationError("Can only set cutoff parameter for weight or percentage cutoff operators.");
     cutoff = cutoff_;
 }
 
@@ -299,9 +299,9 @@ void
 OmQuery::Internal::set_elite_set_size(om_termcount size_)
 {
     if (op != OmQuery::OP_ELITE_SET)
-	throw OmInvalidOperationError("Can only set elite set size for elite set operator.");
+	throw Xapian::InvalidOperationError("Can only set elite set size for elite set operator.");
     if (size_ == 0)
-	throw OmInvalidArgumentError("Elite set size may not be zero.");
+	throw Xapian::InvalidArgumentError("Elite set size may not be zero.");
     elite_set_size = size_;
 }
 
@@ -455,7 +455,7 @@ OmQuery::Internal::Internal(const string & tname_, om_termcount wqf_,
 	  wqf(wqf_)
 {
     if (tname.empty()) {
-	throw OmInvalidArgumentError("Termnames may not have zero length.");
+	throw Xapian::InvalidArgumentError("Termnames may not have zero length.");
     }
 }
 
@@ -499,7 +499,7 @@ OmQuery::Internal::prevalidate_query() const
     // Check that the number of subqueries is in acceptable limits for this op
     if (subqs.size() < get_min_subqs(op) ||
 	subqs.size() > get_max_subqs(op)) {
-	throw OmInvalidArgumentError("OmQuery: " + get_op_name(op) +
+	throw Xapian::InvalidArgumentError("OmQuery: " + get_op_name(op) +
 		" requires a minimum of " + om_tostring(get_min_subqs(op)) +
 		" and a maximum of " + om_tostring(get_max_subqs(op)) +
 		" sub queries, had " +
@@ -520,7 +520,7 @@ OmQuery::Internal::validate_query() const
 
     // Check that the window size is in acceptable limits
     if (window < get_min_window(op)) {
-	throw OmInvalidArgumentError("OmQuery: " + get_op_name(op) +
+	throw Xapian::InvalidArgumentError("OmQuery: " + get_op_name(op) +
 		" requires a window size of at least " + 
 		om_tostring(get_min_window(op)) + ", had " +
 		om_tostring(window) + ".");
@@ -529,11 +529,11 @@ OmQuery::Internal::validate_query() const
     // Check that the cutoff parameter is in acceptable limits
     // FIXME: flakey and nasty.
     if (cutoff != 0 && op != OmQuery::OP_WEIGHT_CUTOFF) {
-	throw OmInvalidArgumentError("OmQuery: " + get_op_name(op) +
+	throw Xapian::InvalidArgumentError("OmQuery: " + get_op_name(op) +
 		" requires a cutoff of 0");
     }
     if (cutoff < 0) {
-	throw OmInvalidArgumentError("OmQuery: " + get_op_name(op) +
+	throw Xapian::InvalidArgumentError("OmQuery: " + get_op_name(op) +
 		" requires a cutoff of at least 0");
     }
 
@@ -653,7 +653,7 @@ OmQuery::Internal::flatten_subqs()
 	if ((*sq)->op == OmQuery::OP_NEAR ||
 	    (*sq)->op == OmQuery::OP_PHRASE) {
 	    // FIXME: A PHRASE (B PHRASE C) -> (A PHRASE B) AND (B PHRASE C)?
-	    throw OmUnimplementedError("Can't use NEAR/PHRASE with a subexpression containing NEAR or PHRASE");
+	    throw Xapian::UnimplementedError("Can't use NEAR/PHRASE with a subexpression containing NEAR or PHRASE");
 	}
 
 	AutoPtr<OmQuery::Internal> flattenme(*sq);

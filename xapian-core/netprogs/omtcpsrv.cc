@@ -30,7 +30,7 @@
 #include "getopt.h"
 
 #include "database.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "om/omenquire.h"
 #include "tcpserver.h"
 
@@ -135,7 +135,7 @@ int main(int argc, char **argv) {
 	} else {
 	    server.run();
 	}
-    } catch (const OmError &e) {
+    } catch (const Xapian::Error &e) {
 	cerr << e.get_type() << ": " << e.get_msg() << endl;
 	exit(1);
     } catch (const exception &e) {

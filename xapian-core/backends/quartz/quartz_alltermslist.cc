@@ -63,7 +63,7 @@ QuartzAllTermsList::get_termname() const
     DEBUGCALL(DB, string, "QuartzAllTermsList::get_termname", "");
     Assert(started);
     if (is_at_end) {
-	throw OmInvalidArgumentError("Attempt to get termname after end");
+	throw Xapian::InvalidArgumentError("Attempt to get termname after end");
     }
 	    
     const char *start = pl_cursor->current_key.data();
@@ -76,7 +76,7 @@ QuartzAllTermsList::get_termname() const
     DEBUGLINE(DB, "QuartzAllTermsList[" << this
 	      << "]: Failed to read from key: `"
 	      << pl_cursor->current_key << "'");
-    throw OmDatabaseCorruptError("Failed to read the key field from a QuartzCursor's key");
+    throw Xapian::DatabaseCorruptError("Failed to read the key field from a QuartzCursor's key");
 }
 
 void QuartzAllTermsList::get_stats() const
@@ -100,7 +100,7 @@ QuartzAllTermsList::get_termfreq() const
 	get_stats();
 	RETURN(termfreq);
     }
-    throw OmInvalidArgumentError("Attempt to get termfreq after end");
+    throw Xapian::InvalidArgumentError("Attempt to get termfreq after end");
 }
 
 om_termcount
@@ -114,7 +114,7 @@ QuartzAllTermsList::get_collection_freq() const
 	get_stats();
 	RETURN(collection_freq);
     }
-    throw OmInvalidArgumentError("Attempt to get collection_freq after end");
+    throw Xapian::InvalidArgumentError("Attempt to get collection_freq after end");
 }
 
 TermList *

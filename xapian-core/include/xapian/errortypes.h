@@ -1,4 +1,4 @@
-/** \file omerrortypes.h
+/** \file errortypes.h
  *  \brief Exception subclasses
  */
 /* ----START-LICENCE----
@@ -23,7 +23,7 @@
 
 /** This file doesn't have header guards, deliberately.  It should only be
  *  included, by files which know what they're doing with it - this means
- *  omerror.h and some internal source files.
+ *  xapian/error.h and some internal source files.
  */
 
 /** Macros DEFINE_ERROR_BASECLASS and DEFINE_ERROR_CLASS must be defined
@@ -31,84 +31,84 @@
  */
 
 /** Base class for errors due to programming errors.
- *  An exception derived from OmLogicError is thrown when a misuse
+ *  An exception derived from LogicError is thrown when a misuse
  *  of the API is detected.
  */
-DEFINE_ERROR_BASECLASS(OmLogicError, OmError);
+DEFINE_ERROR_BASECLASS(LogicError, Error);
 
 /** Base class for errors due to run time problems.
- *  An exception derived from OmRuntimeError is thrown when an
+ *  An exception derived from RuntimeError is thrown when an
  *  error is caused by problems with the data or environment rather
  *  than a programming mistake.
  */
-DEFINE_ERROR_BASECLASS(OmRuntimeError, OmError);
+DEFINE_ERROR_BASECLASS(RuntimeError, Error);
 
 /** Thrown if an internal consistency check fails.
  *  This represents a bug in Xapian. */
-DEFINE_ERROR_CLASS(OmAssertionError, OmLogicError);
+DEFINE_ERROR_CLASS(AssertionError, LogicError);
 
 /** Thrown when an attempt to use an unimplemented feature is made. */
-DEFINE_ERROR_CLASS(OmUnimplementedError, OmLogicError);
+DEFINE_ERROR_CLASS(UnimplementedError, LogicError);
 
 /** Thrown when an invalid argument is supplied to the API. */
-DEFINE_ERROR_CLASS(OmInvalidArgumentError, OmLogicError);
+DEFINE_ERROR_CLASS(InvalidArgumentError, LogicError);
 
 /** Thrown when API calls are made in an invalid way. */
-DEFINE_ERROR_CLASS(OmInvalidOperationError, OmLogicError);
+DEFINE_ERROR_CLASS(InvalidOperationError, LogicError);
 
 /** Thrown when an attempt is made to access a document which is not in the
  *  database.  This could occur either due to a programming error, or
  *  because the database has changed since running the query. */
-DEFINE_ERROR_CLASS(OmDocNotFoundError, OmRuntimeError);
+DEFINE_ERROR_CLASS(DocNotFoundError, RuntimeError);
 
 /** thrown when an element is out of range. */
-DEFINE_ERROR_CLASS(OmRangeError, OmRuntimeError);
+DEFINE_ERROR_CLASS(RangeError, RuntimeError);
 
 /** thrown when really weird stuff happens.  If this is thrown something
  *  has gone badly wrong.
  */
-DEFINE_ERROR_CLASS(OmInternalError, OmRuntimeError);
+DEFINE_ERROR_CLASS(InternalError, RuntimeError);
 
 /** thrown for miscellaneous database errors. */
-DEFINE_ERROR_CLASS(OmDatabaseError, OmRuntimeError);
+DEFINE_ERROR_CLASS(DatabaseError, RuntimeError);
 
 /** Thrown if a feature is unavailable - usually due to not being compiled
  *  in.*/
-DEFINE_ERROR_CLASS(OmFeatureUnavailableError, OmRuntimeError);
+DEFINE_ERROR_CLASS(FeatureUnavailableError, RuntimeError);
 
 /** thrown when there is a communications problem with
  *  a remote database.
  */
-DEFINE_ERROR_CLASS(OmNetworkError, OmRuntimeError);
+DEFINE_ERROR_CLASS(NetworkError, RuntimeError);
 
 /** Thrown when a network timeout is exceeded
  */
-DEFINE_ERROR_CLASS(OmNetworkTimeoutError, OmNetworkError);
+DEFINE_ERROR_CLASS(NetworkTimeoutError, NetworkError);
 
 /** thrown if the database is corrupt. */
-DEFINE_ERROR_CLASS(OmDatabaseCorruptError, OmDatabaseError);
+DEFINE_ERROR_CLASS(DatabaseCorruptError, DatabaseError);
 
 /** Thrown when creating a database fails. */
-DEFINE_ERROR_CLASS(OmDatabaseCreateError, OmDatabaseError);
+DEFINE_ERROR_CLASS(DatabaseCreateError, DatabaseError);
 
-// FIXME: should be called OmDatabaseOpeningError
+// FIXME: should be called DatabaseOpeningError
 /** Thrown when opening a database fails. */
-DEFINE_ERROR_CLASS(OmOpeningError, OmDatabaseError);
+DEFINE_ERROR_CLASS(OpeningError, DatabaseError);
 
 /** Thrown when gaining a lock on a database fails. */
-DEFINE_ERROR_CLASS(OmDatabaseLockError, OmDatabaseError);
+DEFINE_ERROR_CLASS(DatabaseLockError, DatabaseError);
 
 /** Thrown when a database has been modified whilst being read. */
-DEFINE_ERROR_CLASS(OmDatabaseModifiedError, OmDatabaseError);
+DEFINE_ERROR_CLASS(DatabaseModifiedError, DatabaseError);
 
 /** Thrown when trying to access invalid data. */
-DEFINE_ERROR_CLASS(OmInvalidResultError, OmRuntimeError);
+DEFINE_ERROR_CLASS(InvalidResultError, RuntimeError);
 
 /** Thrown in the indexing system when a type mismatch occurs. */
-DEFINE_ERROR_CLASS(OmTypeError, OmRuntimeError);
+DEFINE_ERROR_CLASS(TypeError, RuntimeError);
 
 /** Thrown when data being worked on is invalid */
-DEFINE_ERROR_CLASS(OmInvalidDataError, OmRuntimeError);
+DEFINE_ERROR_CLASS(InvalidDataError, RuntimeError);
 
 /** Thrown when the indexer detects a data flow error */
-DEFINE_ERROR_CLASS(OmDataFlowError, OmRuntimeError);
+DEFINE_ERROR_CLASS(DataFlowError, RuntimeError);

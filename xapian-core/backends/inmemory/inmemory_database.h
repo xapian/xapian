@@ -252,7 +252,7 @@ class InMemoryDatabase : public Database {
 
 	/** Create and open an in-memory database.
 	 *
-	 *  @exception OmOpeningError thrown if database can't be opened.
+	 *  @exception Xapian::OpeningError thrown if database can't be opened.
 	 *
 	 */
 	InMemoryDatabase();
@@ -317,7 +317,7 @@ InMemoryPostList::next(om_weight /*w_min*/)
 	// Nasty cast, but this is only in testcase code anyway.
 	(const_cast<InMemoryDatabase *>(db.get()))->error_in_next--;
 	if (db->error_in_next == 0)
-	    throw OmDatabaseCorruptError("Fake error - this should only be thrown when testing error handling.");
+	    throw Xapian::DatabaseCorruptError("Fake error - this should only be thrown when testing error handling.");
     }
 
     if (db->abort_in_next) {
@@ -486,7 +486,7 @@ inline om_doclength
 InMemoryDatabase::get_doclength(om_docid did) const
 {
     if (!doc_exists(did)) {
-	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
+	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
     }
     return doclengths[did - 1];

@@ -31,7 +31,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "om/omstem.h"
+#include "xapian/stem.h"
 #include "testsuite.h"
 
 using namespace std;
@@ -40,7 +40,7 @@ static const int JUNKSIZE = 2 * 1048576;
 
 static string language;
 
-static OmStem stemmer("english"); // no default ctor
+static Xapian::Stem stemmer("english"); // no default ctor
 
 static string srcdir;
 
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
     if (val && *val)
 	langs = val;
     else
-	langs = OmStem::get_available_languages();
+	langs = Xapian::Stem::get_available_languages();
 
     string::size_type b = 0;
     while (b != langs.size()) {
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
 	language = langs.substr(a, b - a);
 	while (b < langs.size() && langs[b] == ' ') ++b;
 	cout << "Running tests with " << language << " stemmer..." << endl;
-	stemmer = OmStem(language);
+	stemmer = Xapian::Stem(language);
 	result = max(result, test_driver::main(argc, argv, tests));
     }
     return result;

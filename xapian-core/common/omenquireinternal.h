@@ -33,7 +33,7 @@
 #include <map>
 #include <set>
 
-class OmErrorHandler;
+class Xapian::ErrorHandler;
 class OmTermIterator;
 
 /** An item in the ESet.
@@ -187,13 +187,13 @@ class OmEnquire::Internal::Data : public RefCntBase {
 
 	/** The error handler, if set.  (0 if not set).
 	 */
-	OmErrorHandler * errorhandler;
+	Xapian::ErrorHandler * errorhandler;
 
 	std::map<std::string, const OmMatchDecider *> mdecider_map;
 
 	mutable OmWeight * weight; // mutable so get_mset can set default
 
-	Data(const OmDatabase &databases, OmErrorHandler * errorhandler_);
+	Data(const OmDatabase &databases, Xapian::ErrorHandler * errorhandler_);
 	~Data();
 
 	/** Request a document from the database.

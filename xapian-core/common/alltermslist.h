@@ -27,7 +27,7 @@
 #include <string>
 
 #include "om/omtypes.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "termlist.h"
 
 using namespace std;

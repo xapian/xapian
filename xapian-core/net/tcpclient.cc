@@ -23,7 +23,7 @@
 
 #include <config.h>
 #include "tcpclient.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 
 #include <errno.h>
 #include <netdb.h>
@@ -63,14 +63,14 @@ TcpClient::get_remote_socket(std::string hostname,
     struct hostent *host = gethostbyname(hostname.c_str());
 
     if (host == 0) {
-	throw OmNetworkError(std::string("Couldn't resolve host ") +
+	throw Xapian::NetworkError(std::string("Couldn't resolve host ") +
 			     hostname, get_tcpcontext(hostname, port));
     }
 
     int socketfd = socket(PF_INET, SOCK_STREAM, 0);
 
     if (socketfd < 0) {
-	throw OmNetworkError("Couldn't create socket", get_tcpcontext(hostname, port), errno);
+	throw Xapian::NetworkError("Couldn't create socket", get_tcpcontext(hostname, port), errno);
     }
 
     struct sockaddr_in remaddr;
@@ -87,7 +87,7 @@ TcpClient::get_remote_socket(std::string hostname,
 	if (errno != EINPROGRESS) {
 	    int saved_errno = errno; // note down in case close hits an error
 	    close(socketfd);
-	    throw OmNetworkError("Couldn't connect", get_tcpcontext(hostname, port), saved_errno);
+	    throw Xapian::NetworkError("Couldn't connect", get_tcpcontext(hostname, port), saved_errno);
 	}
 
 	// wait for input to be available.
@@ -103,7 +103,7 @@ TcpClient::get_remote_socket(std::string hostname,
 	
 	if (retval == 0) {
 	    close(socketfd);
-	    throw OmNetworkTimeoutError("Couldn't connect", get_tcpcontext(hostname, port), ETIMEDOUT);
+	    throw Xapian::NetworkTimeoutError("Couldn't connect", get_tcpcontext(hostname, port), ETIMEDOUT);
 	}
 
 	int err = 0;
@@ -116,11 +116,11 @@ TcpClient::get_remote_socket(std::string hostname,
 	if (retval < 0) {
 	    int saved_errno = errno; // note down in case close hits an error
 	    close(socketfd);
-	    throw OmNetworkError("Couldn't get socket options", get_tcpcontext(hostname, port), saved_errno);
+	    throw Xapian::NetworkError("Couldn't get socket options", get_tcpcontext(hostname, port), saved_errno);
 	}
 	if (err) {
 	    close(socketfd);
-	    throw OmNetworkError("Couldn't connect", get_tcpcontext(hostname, port), err);
+	    throw Xapian::NetworkError("Couldn't connect", get_tcpcontext(hostname, port), err);
 	}
     }
 

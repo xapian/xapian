@@ -35,7 +35,7 @@
 #include <map>
 #include <list>
 
-#include "om/omerror.h"
+#include "xapian/error.h"
 
 using std::make_pair;
 
@@ -118,10 +118,10 @@ InMemoryDatabase::doc_exists(om_docid did) const
 LeafTermList *
 InMemoryDatabase::open_term_list(om_docid did) const
 {
-    if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
+    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
     if (!doc_exists(did)) {
 	// FIXME: the docid in this message will be local, not global
-	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
+	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
     }
     return new InMemoryTermList(RefCntPtr<const InMemoryDatabase>(this),
@@ -132,10 +132,10 @@ Document *
 InMemoryDatabase::open_document(om_docid did, bool /*lazy*/) const
 {
     // we're never lazy so ignore that flag
-    if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
+    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
     if (!doc_exists(did)) {
 	// FIXME: the docid in this message will be local, not global
-	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
+	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
     }
     return new InMemoryDocument(this, did, doclists[did - 1],
@@ -147,7 +147,7 @@ InMemoryDatabase::open_position_list(om_docid did,
 				     const string & tname) const
 {
     if (!doc_exists(did)) {
-	throw OmDocNotFoundError("Document id " + om_tostring(did) +
+	throw Xapian::DocNotFoundError("Document id " + om_tostring(did) +
 				 " doesn't exist in inmemory database");
     }
     const InMemoryDoc &doc = termlists[did-1];
@@ -160,7 +160,7 @@ InMemoryDatabase::open_position_list(om_docid did,
 	    return AutoPtr<PositionList>(poslist.release());
 	}
     }
-    throw OmRangeError("No positionlist for term in document.");
+    throw Xapian::RangeError("No positionlist for term in document.");
 }
 
 void
@@ -188,26 +188,26 @@ InMemoryDatabase::do_flush()
 void
 InMemoryDatabase::do_begin_transaction()
 {
-    throw OmUnimplementedError("Transactions not implemented for InMemoryDatabase");
+    throw Xapian::UnimplementedError("Transactions not implemented for InMemoryDatabase");
 }
 
 void
 InMemoryDatabase::do_commit_transaction()
 {
-    throw OmUnimplementedError("Transactions not implemented for InMemoryDatabase");
+    throw Xapian::UnimplementedError("Transactions not implemented for InMemoryDatabase");
 }
 
 void
 InMemoryDatabase::do_cancel_transaction()
 {
-    throw OmUnimplementedError("Transactions not implemented for InMemoryDatabase");
+    throw Xapian::UnimplementedError("Transactions not implemented for InMemoryDatabase");
 }
 
 void
 InMemoryDatabase::do_delete_document(om_docid did)
 {
     if (!doc_exists(did)) {
-	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
+	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
     }
     termlists[did-1].is_valid = false;

@@ -25,7 +25,7 @@
 #include "btree_base.h"
 #include "quartz_utils.h"
 #include "utils.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "omassert.h"
 #include <errno.h>
 using namespace std;
@@ -89,7 +89,7 @@ Btree_base::Btree_base(const string &name_, char ch)
 {
     string err_msg;
     if (!read(name_, ch, err_msg)) {
-	throw OmOpeningError(err_msg);
+	throw Xapian::OpeningError(err_msg);
     }
 }
 

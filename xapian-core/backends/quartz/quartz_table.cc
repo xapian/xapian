@@ -27,7 +27,7 @@
 
 #include "quartz_table.h"
 #include "btree.h"
-#include "om/omerror.h"
+#include "xapian/error.h"
 #include "utils.h"
 #include <string.h> // for strerror
 #include <errno.h>
@@ -216,7 +216,7 @@ QuartzDiskTable::open()
 		errormsg += om_tostring(btree_for_reading->error) + ", ";
 	    errormsg += strerror(errno);
 	    close();
-	    throw OmOpeningError(errormsg);
+	    throw Xapian::OpeningError(errormsg);
 	}
 	opened = true;
 	return;
@@ -231,7 +231,7 @@ QuartzDiskTable::open()
 	errormsg += om_tostring(btree_for_writing->error) + ", ";
 	errormsg += strerror(errno);
 	close();
-	throw OmOpeningError(errormsg);
+	throw Xapian::OpeningError(errormsg);
     }
 
     btree_for_reading = new Btree();
@@ -245,7 +245,7 @@ QuartzDiskTable::open()
 	    errormsg += om_tostring(btree_for_reading->error) + ", ";
 	errormsg += strerror(errno);
 	close();
-	throw OmOpeningError(errormsg);
+	throw Xapian::OpeningError(errormsg);
     }
 
     opened = true;
@@ -269,7 +269,7 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 	    close();
 	    if (errorcode) {
 		// Can't open at all - throw an exception
-		throw OmOpeningError(errormsg + ": " +
+		throw Xapian::OpeningError(errormsg + ": " +
 				     Btree_strerror(errorcode));
 	    }
 	    // Can't open this revision - return an error
@@ -290,7 +290,7 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 	close();
 	if (errorcode) {
 	    // Can't open at all - throw an exception
-	    throw OmOpeningError(errormsg + ": " + Btree_strerror(errorcode));
+	    throw Xapian::OpeningError(errormsg + ": " + Btree_strerror(errorcode));
 	}
 	// Can't open this revision - return an error
 	DEBUGLINE(DB, errormsg);
@@ -310,7 +310,7 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 	close();
 	if (errorcode == BTREE_ERROR_REVISION) {
 	    // Can't open at all - throw an exception
-	    throw OmOpeningError(errormsg + ": " + Btree_strerror(errorcode));
+	    throw Xapian::OpeningError(errormsg + ": " + Btree_strerror(errorcode));
 	}
 	// Can't open this revision - return an error
 	DEBUGLINE(DB, errormsg);
@@ -396,10 +396,10 @@ QuartzDiskTable::set_entry(const string & key, const string & tag)
     Assert(!key.empty());
     Assert(opened);
     if (readonly)
-	throw OmInvalidOperationError("Attempt to modify a readonly table");
+	throw Xapian::InvalidOperationError("Attempt to modify a readonly table");
 
     if (key.size() > Btree::max_key_len) {
-	throw OmInvalidArgumentError(
+	throw Xapian::InvalidArgumentError(
 		"Key too long: length was " +
 		om_tostring(key.size()) +
 		" bytes, maximum length of a key is " + 
@@ -421,10 +421,10 @@ QuartzDiskTable::set_entry(const string & key)
     Assert(!key.empty());
     Assert(opened);
     if (readonly)
-	throw OmInvalidOperationError("Attempt to modify a readonly table");
+	throw Xapian::InvalidOperationError("Attempt to modify a readonly table");
 
     if (key.size() > Btree::max_key_len) {
-	throw OmInvalidArgumentError(
+	throw Xapian::InvalidArgumentError(
 		"Key too long: length was " +
 		om_tostring(key.size()) +
 		" bytes, maximum length of a key is " + 
@@ -460,7 +460,7 @@ QuartzDiskTable::apply(quartz_revision_number_t new_revision)
     DEBUGCALL(DB, void, "QuartzDiskTable::apply", new_revision);
 
     Assert(opened);
-    if (readonly) throw OmInvalidOperationError("Attempt to modify a readonly table");
+    if (readonly) throw Xapian::InvalidOperationError("Attempt to modify a readonly table");
 
     // Close reading table
     Assert(btree_for_reading != 0);
@@ -473,7 +473,7 @@ QuartzDiskTable::apply(quartz_revision_number_t new_revision)
     delete btree_for_writing; 
     btree_for_writing = 0;
     if (errorval) {
-	throw OmDatabaseError("Can't commit new revision: error code " +
+	throw Xapian::DatabaseError("Can't commit new revision: error code " +
 			      om_tostring(errorval));
     }
 
@@ -481,7 +481,7 @@ QuartzDiskTable::apply(quartz_revision_number_t new_revision)
     if (!open(new_revision)) {
 	DEBUGLINE(DB, "Failed to open new revision (" << new_revision <<
 		  ") of disktable at path `" << path << "'");
-	throw OmDatabaseError("Can't open the revision we've just written (" +
+	throw Xapian::DatabaseError("Can't open the revision we've just written (" +
 			      om_tostring(new_revision) + ") for table at `" +
 			      path + "'");
     }
@@ -783,5 +783,5 @@ void
 QuartzBufferedCursor::prev()
 {
     DEBUGCALL(DB, void, "QuartzBufferedCursor::prev", "");
-    throw OmUnimplementedError("QuartzBufferedCursor::prev() not yet implemented");
+    throw Xapian::UnimplementedError("QuartzBufferedCursor::prev() not yet implemented");
 }

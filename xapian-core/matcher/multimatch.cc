@@ -69,7 +69,7 @@
 
 using namespace std;
 
-class OmErrorHandler;
+class Xapian::ErrorHandler;
 
 // Comparison functions to determine the order of elements in the MSet
 // Return true if a should be listed before b
@@ -179,7 +179,7 @@ MultiMatch::MultiMatch(const OmDatabase &db_, const OmQuery::Internal * query_,
 		       int percent_cutoff_, om_weight weight_cutoff_,
 		       bool sort_forward_, om_valueno sort_key_,
 		       int sort_bands_, time_t bias_halflife_,
-		       om_weight bias_weight_, OmErrorHandler * errorhandler_,
+		       om_weight bias_weight_, Xapian::ErrorHandler * errorhandler_,
 		       AutoPtr<StatsGatherer> gatherer_,
 		       const OmWeight * weight_)
 	: gatherer(gatherer_), db(db_), query(query_),
@@ -223,10 +223,10 @@ MultiMatch::MultiMatch(const OmDatabase &db_, const OmQuery::Internal * query_,
 	    const NetworkDatabase *netdb = db->as_networkdatabase();
 	    if (netdb) {
 		if (sort_key != om_valueno(-1) || sort_bands) {
-		    throw OmUnimplementedError("sort_key and sort_bands not supported with remote backend");
+		    throw Xapian::UnimplementedError("sort_key and sort_bands not supported with remote backend");
 		}
 		if (bias_halflife) {
-		    throw OmUnimplementedError("bias_halflife and bias_weight not supported with remote backend");
+		    throw Xapian::UnimplementedError("bias_halflife and bias_weight not supported with remote backend");
 		}
 		smatch = RefCntPtr<SubMatch>(
 			new RemoteSubMatch(netdb, query, *subrset, collapse_key,
@@ -238,7 +238,7 @@ MultiMatch::MultiMatch(const OmDatabase &db_, const OmQuery::Internal * query_,
 #ifdef MUS_BUILD_BACKEND_REMOTE
 	    }
 #endif /* MUS_BUILD_BACKEND_REMOTE */
-	} catch (OmError & e) {
+	} catch (Xapian::Error & e) {
 	    if (errorhandler) {
 		DEBUGLINE(EXCEPTION, "Calling error handler for creation of a SubMatch from a database and query.");
 		(*errorhandler)(e);
@@ -274,7 +274,7 @@ MultiMatch::prepare_matchers()
 	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
 	    try {
 		if (!(*leaf)->prepare_match(nowait)) prepared = false;
-	    } catch (OmError & e) {
+	    } catch (Xapian::Error & e) {
 		if (errorhandler) {
 		    DEBUGLINE(EXCEPTION, "Calling error handler for prepare_match() on a SubMatch.");
 		    (*errorhandler)(e);
@@ -340,7 +340,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
 	    try {
 		(*leaf)->start_match(first + maxitems);
-	    } catch (OmError & e) {
+	    } catch (Xapian::Error & e) {
 		if (errorhandler) {
 		    DEBUGLINE(EXCEPTION, "Calling error handler for "
 			      "start_match() on a SubMatch.");
@@ -374,8 +374,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    try {
 		termfreqandwts = (*leaf)->get_term_info();
 		break;
-	    } catch (OmError & e) {
-		if (e.get_type() == "OmInternalError" &&
+	    } catch (Xapian::Error & e) {
+		if (e.get_type() == "Xapian::InternalError" &&
 		    e.get_msg().substr(0, 13) == "EmptySubMatch") {
 		    DEBUGLINE(MATCH, "leaf is an EmptySubMatch, trying next");
 		} else {
