@@ -21,6 +21,7 @@
 
 
 #include <om/om.h>
+#include <db_cxx.h>
 #include <stdio.h>
 #include <math.h>
 
@@ -71,61 +72,52 @@ int main(int argc, char *argv[]) {
      }
 
      try {
-       // code which accesses Omsee
-       OmDatabase databases;
-
-       for( set<string>::iterator i = packages.begin(); i != packages.end(); i++ ) {
-	 OmSettings db_parameters;
-	 db_parameters.set("backend", "quartz");
-	 db_parameters.set("quartz_dir", cvsdata+"/"+(*i));
-	 databases.add_database(db_parameters); // can search multiple databases at once
-       }
-
-       // start an enquire session
-       OmEnquire enquire(databases);
-
-       vector<om_termname> queryterms;
-       
        OmStem stemmer("english");
 
-       for (int optpos = qpos; optpos < argc; optpos++) {
-	 om_termname term = argv[optpos];
-	 lowercase_term(term);
-	 term = stemmer.stem_word(term);
-	 queryterms.push_back(term);
-	 cout << term;
-	 if ( optpos < argc-1 ) {
-	   cout << " ";
-	 }
-       }
-       cout << endl;
+       assert( qpos == argc-1 );
 
-       OmQuery query(OmQuery::OP_AND, queryterms.begin(), queryterms.end());
-
-       //       cerr << "Performing query `" << query.get_description() << "'" << endl;
-
-       enquire.set_query(query); // copies query object
+       om_termname term = argv[qpos];
+       lowercase_term(term);
+       term = stemmer.stem_word(term);
+       string queryterm = term;
+       cout << term << endl;
 
        int num_results = atoi( argv[npos] );
-       assert( num_results > 0 );
 
-       OmMSet matches = enquire.get_mset(0, num_results); // get top 10 matches
+       bool doFunctions = ( string(argv[0]).find("functions") != -1 );
+       
+       // cycle over all packages
+       for( set<string>::iterator p = packages.begin(); p != packages.end(); p++ ) {
 
-       //       cout << matches.items.size() << " results found" << endl;
+	 string package = *p;
 
-       vector<OmMSetItem>::const_iterator i;
-       for (i = matches.items.begin(); i != matches.items.end(); i++) {
-	 //	 cout << "Document ID " << i->did << "\t";
-	 int sim = matches.convert_to_percent(*i);
-	 cout << sim << " ";
-	 OmDocument doc = enquire.get_doc(*i);
-	 string data = doc.get_data().value;
-	 cout << data << endl; // data includes newline
+	 // change / to _ in package
+	 for( int i = 0; i < package.length(); i++ ) {
+	   if ( package[i] == '/' ) {
+	     package[i] = '_';
+	   }
+	 }
+
+
+	 //	 cerr << "...processing " << package << endl;
+	 Db db(0,0);
+	 if ( doFunctions ) {
+	   db.open( (cvsdata+"/"+package+".functions").c_str(), 0, DB_HASH, DB_RDONLY, 0);
+	 } else {
+	   db.open( (cvsdata +"/"+package+".classes").c_str(), 0, DB_HASH, DB_RDONLY, 0);
+	 }
+
+	 Dbt key((void*) queryterm.c_str(), queryterm.length()+1);
+	 Dbt data;
+	 db.get(0, &key, &data, 0);
+	 cout << (char*)data.get_data();
+
+	 db.close(0);
        }
+       
+    } catch( DbException& e ) {
+      cerr << "Exception:  " << e.what() << endl;     
+    } 
 
-     }
-     catch(OmError & error) {
-       cout << "Exception: " << error.get_msg() << endl;
-     }
      
 }

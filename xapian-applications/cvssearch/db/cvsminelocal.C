@@ -98,7 +98,6 @@ Some queries to try:
 // 2 or 3 to the count
 
 
-#include <om/om.h>
 #include <db_cxx.h>
 #include <fstream.h>
 #include <stdio.h>
@@ -108,6 +107,7 @@ Some queries to try:
 #include <map>
 #include <math.h>
 #include <algorithm>
+#include <om/om.h>
 
 #include "util.h"
 
@@ -450,8 +450,6 @@ int main(int argc, char *argv[]) {
       dbfunctions.close(0);
 
 
-    } catch(OmError& error) {
-      cerr << "OMSEE Exception: " << error.get_msg() << endl;
     } catch( DbException& e ) {
       cerr << "Exception:  " << e.what() << endl;     
     } 
