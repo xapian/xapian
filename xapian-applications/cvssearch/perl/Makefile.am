@@ -2,7 +2,7 @@ bin_SCRIPTS = cvsbuilddb cvsupdatedb cvsquerydb \
 	cvscompare.cgi \
 	Match.cgi Query.cgi Queryfile.cgi Source.cgi \
 	comment_extractor_c comment_extractor_c++ \
-	popup.html popup.js utility.js \
+	popup.js utility.js \
 	cvssearch.pm Entities.pm
 
 EXTRA_DIST = cvsbuild-script.pl cvsupdatedb-script.pl cvsquery-script.pl \
