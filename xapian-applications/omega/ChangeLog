@@ -1,3 +1,7 @@
+Thu Apr 10 03:14:51 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Updated for 0.6.5 release.
+
 Wed Apr 09 13:56:14 BST 2003  Olly Betts <olly@survex.com>
 
 	* omega.cc,query.cc,omega.h,docs/cgiparams.txt: Renamed DATE1, DATE2,
@@ -963,4 +967,5 @@ Mon Nov  5 12:42:26 GMT 2001  Richard Boulton <richard@tartarus.org>
 
 	* Omega moved to new home, from om-examples/omega.
 	  Standalone build system added.
+
 
