@@ -54,9 +54,7 @@ StemmerDutch::stem_word(const string &word)
     int len = word.length();
     if(len == 0) return "";
 
-    char *p = dutch_stem(stemmer_data, word.data(), 0, len - 1);
-
-    return string(p);
+    return string(dutch_stem(stemmer_data, word.data(), 0, len - 1));
 }
 
 #endif /* _stemmer_dutch_h_ */

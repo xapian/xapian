@@ -34,7 +34,7 @@
 Stemmer *
 StemmerBuilder::create(stemmer_language lang)
 {
-    Stemmer * stemmer;
+    Stemmer * stemmer = NULL;
     switch(lang) {
 	case STEMLANG_DUTCH:
 		stemmer = new StemmerDutch();

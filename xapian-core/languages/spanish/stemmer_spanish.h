@@ -54,9 +54,7 @@ StemmerSpanish::stem_word(const string &word)
     int len = word.length();
     if(len == 0) return "";
 
-    char *p = spanish_stem(stemmer_data, word.data(), 0, len - 1);
-
-    return string(p);
+    return string(spanish_stem(stemmer_data, word.data(), 0, len - 1));
 }
 
 #endif /* _stemmer_spanish_h_ */

@@ -54,9 +54,7 @@ StemmerPortuguese::stem_word(const string &word)
     int len = word.length();
     if(len == 0) return "";
 
-    char *p = portuguese_stem(stemmer_data, word.data(), 0, len - 1);
-
-    return string(p);
+    return string(portuguese_stem(stemmer_data, word.data(), 0, len - 1));
 }
 
 #endif /* _stemmer_portuguese_h_ */
