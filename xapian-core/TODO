@@ -180,6 +180,9 @@ Big Jobs
  High    | Matcher         | Distributed searching (distributed enquire
 	 |                 | objects).
 ---------+-----------------+--------------------------------------------------
+ Medium  | API             | Write bindings for other languages (Java, C,
+         |                 | perl, python, etc)
+---------+-----------------+--------------------------------------------------
  Medium  | Indexer         | Write indexer modules.
 ---------+-----------------+--------------------------------------------------
  Medium  | Performance     | Write (speed) performance test suite.
