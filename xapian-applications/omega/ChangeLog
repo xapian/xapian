@@ -1,3 +1,7 @@
+Sat Dec 07 21:04:31 GMT 2002  Olly Betts <olly@survex.com>
+
+	* query.cc: Prefer "while (true)" to "while (1)".
+
 Fri Dec 06 04:41:05 GMT 2002  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Index .php files by default; non-zero return code if

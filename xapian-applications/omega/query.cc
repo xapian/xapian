@@ -120,8 +120,7 @@ set_probabilistic(const string &newp, const string &oldp)
     qp.set_database(omdb);
     try {
 	query = qp.parse_query(raw_prob);
-    }
-    catch (const char *s) {
+    } catch (const char *s) {
 	error_msg = s;
 	return BAD_QUERY;
     }
@@ -477,7 +476,7 @@ percent_encode(const string &str)
 {
     string res;
     const char *p = str.c_str();
-    while (1) {
+    while (true) {
 	char ch = *p++;
 	if (ch == 0) return res;
 	if (ch <= 32 || ch >= 127 || strchr("#%&,/:;<=>?@[\\]^_{|}", ch)) {
@@ -668,7 +667,7 @@ print_query_string(const char *after)
     if (after && strncmp(after, "&B=", 3) == 0) {
 	char prefix = after[3];
 	string::size_type start = 0, amp = 0;
-	while (1) {
+	while (true) {
 	    amp = query_string.find('&', amp);
 	    if (amp == string::npos) {
 		cout << query_string.substr(start);
@@ -937,7 +936,7 @@ eval(const string &fmt, const vector<string> &param)
 	if (fmt[p] == '{') {
 	    q = p + 1;
 	    int nest = 1;
-	    while (1) {
+	    while (true) {
 		p = fmt.find_first_of(",{}", p + 1);
 		if (p == string::npos)
 		    throw "missing } in " + fmt.substr(code_start);
@@ -1282,7 +1281,7 @@ eval(const string &fmt, const vector<string> &param)
 		    string l = args[0], pat = args[1];
 		    vector<string> p(param);
 		    string::size_type i = 0, j;
-		    while (1) {
+		    while (true) {
 			j = l.find('\t', i);
 			string save_loopvar;
 			p[0] = l.substr(i, j - i);
@@ -1439,7 +1438,7 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_setrelevant: {
 		string::size_type i = 0, j;
-	    	while (1) {
+	    	while (true) {
 		    j = args[0].find_first_not_of("0123456789", i);
 	    	    om_docid id = atoi(args[0].substr(i, j - i).c_str());
 		    if (id) {
@@ -1455,7 +1454,7 @@ eval(const string &fmt, const vector<string> &param)
 		string list = args[0], pos = args[1];
 		vector<string> items;
 		string::size_type i = 0, j;
-		while (1) {
+		while (true) {
 		    j = list.find('\t', i);
 		    items.push_back(list.substr(i, j - i));
 		    if (j == string::npos) break;
@@ -1463,7 +1462,7 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		i = 0;
 		bool have_added = false;
-		while (1) {
+		while (true) {
 		    j = pos.find('\t', i);
 		    int item = string_to_int(pos.substr(i, j - i));
 		    if (item >= 0 && item < items.size()) {
@@ -1660,7 +1659,7 @@ print_caption(const string &fmt, const vector<string> &param)
     // parse record
     field.clear();
     string::size_type i = 0;
-    while (1) {
+    while (true) {
 	string::size_type old_i = i;
 	i = text.find('\n', i);
 	string line = text.substr(old_i, i - old_i);
