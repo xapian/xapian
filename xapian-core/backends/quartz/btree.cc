@@ -58,7 +58,7 @@ using std::string;
 #ifdef BTREE_DEBUG_FULL
 /*------debugging aids from here--------*/
 
-static void print_bytes(int n, byte * p);
+static void print_bytes(int n, const byte * p);
 static void print_key(byte * p, int c, int j);
 static void print_tag(byte * p, int c, int j);
 
@@ -1978,6 +1978,8 @@ Btree::next_default(struct Btree * B, struct Cursor * C, int j)
     byte * p = C[j].p;
     int c = C[j].c;
     c += D2;
+    Assert(c >= 0);
+    Assert(c < 65536);
     if (c == DIR_END(p)) {
 	if (j == B->level) return false;
 

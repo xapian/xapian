@@ -1,3 +1,8 @@
+Tue Jun 11 16:40:08 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* quartz/btree.cc: Fix so that it compiles when BTREE_FULL_DEBUG is on,
+	  and added a couple of Assert()s.
+
 Tue Jun 11 13:09:39 BST 2002  Olly Betts <olly@survex.com>
 
 	* Removed a number of btree functions which were simply wrappers for
