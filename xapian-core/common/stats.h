@@ -36,6 +36,9 @@ class Stats {
 	/** Number of relevant documents in the collection. */
 	om_doccount rset_size;
 
+	/** Average length of documents in the collection. */
+	om_doclength average_length;
+
 	/** Map of term frequencies for the collection. */
 	map<om_termname, om_doccount> termfreq;
 
@@ -44,7 +47,9 @@ class Stats {
 
 
 	Stats() : collection_size(0),
-		  rset_size(0) {}
+		  rset_size(0),
+		  average_length(0)
+	{}
 
 	/** Add in the supplied statistics from a sub-database.
 	 */
@@ -114,6 +119,24 @@ class StatsLeaf {
 	/// Constructor: takes the gatherer to talk to.
 	StatsLeaf(StatsGatherer * gatherer_);
 
+	/* ################################################################
+	 * # Give statistics about yourself.  These are used to generate, #
+	 * # or check, the global information.                            #
+	 * ################################################################
+	 */
+
+	/** Set the number of documents in this sub-database.
+	 */
+	void my_collection_size_is(om_doccount csize);
+
+	/** Set the number of relevant documents in this sub-database.
+	 */
+	void my_rset_size_is(om_doccount rsize);
+
+	/** Set the average length of a document in this sub-database.
+	 */
+	void my_average_length_is(om_doclength avlen);
+	
 	/** Set the term frequency in the sub-database which this stats
 	 *  object represents.  This is the number of documents in
 	 *  the sub-database indexed by the given term.
@@ -126,16 +149,35 @@ class StatsLeaf {
 	 */
 	void my_reltermfreq_is(om_termname & tname, om_doccount rtfreq);
 
+
+
+	/* #################################################################
+	 * # Get the statistics back.  The result of each of the following #
+	 * # methods may be an approximation.                              #
+	 * #################################################################
+	 */
+
+	/** Get the number of documents in the whole collection.
+	 */
+	om_doccount get_total_collection_size() const;
+
+	/** Get the number of documents marked relevant in the collection.
+	 */
+	om_doccount get_total_rset_size() const;
+
+	/** Get the average length of documents in the collection.
+	 */
+	om_doclength get_total_average_length() const;
+
 	/** Get the term frequency over the whole collection, for the
 	 *  given term.  This is "n_t", the number of documents in the
-	 *  collection indexed by the given term.  (May be an approximation.)
+	 *  collection indexed by the given term.
 	 */
 	om_doccount get_total_termfreq(om_termname & tname) const;
 
 	/** Get the relevant term-frequency over the whole collection, for
 	 *  the given term.  This is "r_t", the number of relevant documents
-	 *  in the collection indexed by the given term.  (May be an
-	 *  approximation.)
+	 *  in the collection indexed by the given term.
 	 */
 	om_doccount get_total_reltermfreq(om_termname & tname) const;
 };
@@ -147,13 +189,18 @@ class StatsLeaf {
 inline Stats &
 Stats::operator +=(const Stats & inc)
 {
-    // Add the collection size in.
-    collection_size += inc.collection_size;
+    // Set the new collection size and average length.
+    om_doccount new_collection_size = collection_size + inc.collection_size;
+    average_length = (average_length * collection_size +
+		      inc.average_length * inc.collection_size) /
+		     new_collection_size;
+    collection_size = new_collection_size;
 
-    // Rset size is not passed up.
-    Assert(inc.rset_size == 0);
+    // Pass up rset_size.  This is used for checking
+    // FIXME: rset_size currently preset, whoops
+    //rset_size += inc.rset_size;
 
-    // Add termfreqs
+    // Add termfreqs and reltermfreqs
     map<om_termname, om_doccount>::const_iterator i;
     for(i = inc.termfreq.begin(); i != inc.termfreq.end(); i++) {
 	termfreq[i->first] += i->second;
@@ -163,6 +210,10 @@ Stats::operator +=(const Stats & inc)
     }
     return *this;
 }
+
+
+
+
 
 inline
 StatsGatherer::StatsGatherer()
@@ -177,10 +228,35 @@ StatsGatherer::set_global_stats(om_doccount collection_size,
     total_stats.rset_size = rset_size;
 }
 
+
+
+
+
 inline
 StatsLeaf::StatsLeaf(StatsGatherer * gatherer_)
 	: gatherer(gatherer_), total_stats(0)
 {
+}
+
+inline void
+StatsLeaf::my_collection_size_is(om_doccount csize)
+{
+    Assert(total_stats == 0);
+    my_stats.collection_size = csize;
+}
+
+inline void
+StatsLeaf::my_rset_size_is(om_doccount rsize)
+{
+    Assert(total_stats == 0);
+    my_stats.rset_size = rsize;
+}
+
+inline void
+StatsLeaf::my_average_length_is(om_doclength avlen)
+{
+    Assert(total_stats == 0);
+    my_stats.average_length = avlen;
 }
 
 inline void
@@ -197,6 +273,27 @@ StatsLeaf::my_reltermfreq_is(om_termname & tname, om_doccount rtfreq)
     Assert(total_stats == 0);
     Assert(my_stats.reltermfreq.find(tname) == my_stats.reltermfreq.end());
     my_stats.reltermfreq[tname] = rtfreq;
+}
+
+inline om_doccount
+StatsLeaf::get_total_collection_size() const
+{
+    if(total_stats == 0) perform_request();
+    return total_stats->collection_size;
+}
+
+inline om_doccount
+StatsLeaf::get_total_rset_size() const
+{
+    if(total_stats == 0) perform_request();
+    return total_stats->rset_size;
+}
+
+inline om_doclength
+StatsLeaf::get_total_average_length() const
+{
+    if(total_stats == 0) perform_request();
+    return total_stats->average_length;
 }
 
 inline om_doccount
