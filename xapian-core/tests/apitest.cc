@@ -389,7 +389,7 @@ bool test_simplequery2()
 
     // Check the weights
     if (success &&
-	(!weights_are_equal_enough(mymset.items[0].wt, 0.993246) ||
+	(!weights_are_equal_enough(mymset.items[0].wt, 0.820927) ||
 	 !weights_are_equal_enough(mymset.items[1].wt, 0.430207))) {
 	success = false;
     }
@@ -532,6 +532,12 @@ bool test_boolquery1()
 				OmQuery("thi")));
     OmMSet mymset = do_get_simple_query_mset(myboolquery);
 
+    if (mymset.items.size() == 0) {
+	success = false;
+	if (verbose) {
+	    cout << "bool query returned no items" << endl;
+	}
+    }
     if (mymset.max_possible != 1) {
         success = false;
 	if (verbose) {
@@ -913,8 +919,21 @@ bool test_reversebool1()
     mymopt.set_sort_forward(false);
     OmMSet mymset3 = enquire.get_mset(0, 100, 0, &mymopt);
 
+    if(mymset1.items.size() == 0) {
+	if (verbose) cout << "Mset was empty" << endl;
+	return false;
+    }
+
     // mymset1 and mymset2 should be identical
-    if(mymset1.items.size() != mymset2.items.size()) return false;
+    if(mymset1.items.size() != mymset2.items.size()) {
+	if (verbose) {
+	    cout << "mymset1 and mymset2 were of different sizes (" <<
+		    mymset1.items.size() << " and " <<
+		    mymset2.items.size() << ")" << endl;
+	}
+	return false;
+    }
+
     {
 	vector<OmMSetItem>::const_iterator i;
 	vector<OmMSetItem>::const_iterator j;
@@ -934,7 +953,15 @@ bool test_reversebool1()
     }
 
     // mymset1 and mymset3 should be same but reversed
-    if(mymset1.items.size() != mymset3.items.size()) return false;
+    if(mymset1.items.size() != mymset3.items.size()) {
+	if (verbose) {
+	    cout << "mymset1 and mymset2 were of different sizes (" <<
+		    mymset1.items.size() << " and " <<
+		    mymset2.items.size() << ")" << endl;
+	}
+	return false;
+    }
+
     {
 	vector<OmMSetItem>::const_iterator i;
 	vector<OmMSetItem>::reverse_iterator j;
@@ -964,6 +991,17 @@ bool test_reversebool2()
 
     OmMatchOptions mymopt;
     OmMSet mymset1 = enquire.get_mset(0, 100, 0, &mymopt);
+
+    if(mymset1.items.size() == 0) {
+	if (verbose) cout << "Mset was empty" << endl;
+	return false;
+    }
+    if(mymset1.items.size() == 1) {
+	if (verbose) cout << "Mset was too small to test properly" << endl;
+	return false;
+    }
+
+
     mymopt.set_sort_forward();
     om_doccount msize = mymset1.items.size() / 2;
     OmMSet mymset2 = enquire.get_mset(0, msize, 0, &mymopt);
