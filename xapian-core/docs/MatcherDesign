@@ -1,0 +1,64 @@
+Pairs of postinglists are merged into a "virtual" postinglist.  This process
+is repeated to form a single virtual postinglist accessed by the Match
+object behind which hangs a tree of postinglists.
+
+There are several types of virtual postinglist.  Each type can be treated as
+boolean or probabilistic - the only difference is whether the weights are
+ignored or not.  The types are:
+
+OrPostList: returns documents which match either branch
+
+AndPostList: returns documents which match both branches
+
+XorPostList: returns documents which match one branch or the other but not both
+
+AndNotPostList: returns documents which match the left branch, but not the
+ right (the weight of documents from the right branch is ignored)
+
+AndMaybePostList: returns documents which match the left branch - weights from
+ documents also in the right branch are added in for the probabilistic case
+ ("X ANDMAYBE Y" can be expressed as "+X Y" in Altavista).
+
+FilterPostList: applies the right branch as a boolean filter to the left
+ branch (which is typically a probabilistic query.  Note: same as
+ AndPostList with the right branch weights ignored
+
+[Note: You can use AndNotPostList to apply an inverted boolean filter to a
+probabilistic query]
+
+All the symmetric operators (i.e. OR, AND, XOR) are coding for maximum
+efficiency when the right branch has fewer postings in than the left branch.
+
+There are 2 main optimisations which the best match performs: autoprune and
+operator decay.
+
+autoprune:
+
+For example, if a branch in the match tree is "A OR B", when A runs out then
+"A OR B" is replaced by "B".  Similar reductions occur for XOR, ANDNOT, and
+ANDMAYBE (if the right branch runs out).  Other operators (AND, FILTER, and
+ANDMAYBE (when the left branch runs out) simply return "at_end" and this is
+dealt with somewhere further up the tree as appropriate.
+
+An autoprune is indicated by the next or skip_to method returning a pointer
+to the PostList object to replace the postlist being read with.
+
+operator decay:
+
+The matcher tracks the minimum weight needed for a document to make it into
+the m-set (this decreases monotonically as the m-set forms).  This can be
+used to replace on boolean operator with a stricter one.  E.g. consider A OR
+B - when maxweight(A) < minweight and maxweight(B) < minweight then only
+documents matching both A and B can make it into the m-set so we can replace
+the OR with an AND.  Operator decay is flagged using the same mechanism as
+autoprune, by returning the replacement operator from next or skip_to.
+
+Possible decays:
+
+OR -> AND
+OR -> ANDMAYBE
+ANDMAYBE -> AND
+XOR -> ANDNOT
+
+A related optimisation is that the Match object may terminate early if
+maxweight for the whole tree is less than the smallest weight in the mset.
