@@ -4,8 +4,6 @@ Makefile.in
 Makefile
 .deps
 .libs
-.quartz
 readquery.cc
-nettest
 omprogsrv
 omtcpsrv

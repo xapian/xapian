@@ -4,12 +4,17 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_srcdir)/testsu
 
 TESTS_ENVIRONMENT = ./runtest
 
+if BUILD_BACKEND_REMOTE
+remote_check_programs = remotetest
+remote_tests = remotetest$(EXEEXT)
+endif
+
 ## Test programs to be run
-TESTS = apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT)
+TESTS = apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) $(remote_tests)
 
 ## Programs to build
-check_PROGRAMS = apitest internaltest stemtest
-
+check_PROGRAMS = apitest internaltest stemtest $(remote_check_programs)
+    
 ## Sources:
 
 noinst_HEADERS = apitest.h api_nodb.h api_posdb.h api_db.h
@@ -22,6 +27,9 @@ stemtest_LDADD = ../testsuite/libtest.la ../libxapian.la
 
 internaltest_SOURCES = internaltest.cc
 internaltest_LDADD = ../testsuite/libtest.la ../libxapian.la
+
+remotetest_SOURCES = remotetest.cc
+remotetest_LDADD = ../testsuite/libtest.la ../libxapian.la
 
 ## Distribute test data:
 EXTRA_DIST = runtest.in \
@@ -40,4 +48,4 @@ EXTRA_DIST = runtest.in \
 	     testdata/etext.txt
 
 clean-local:
-	rm -rf .quartz
+	rm -rf .da .daflimsy .db .dbflimsy .quartz
