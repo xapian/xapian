@@ -34,6 +34,32 @@ using std::vector;
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <fcntl.h>
+
+// Sun's fcntl.h pollutes the namespace by #define-ing open to open64 when
+// largefile support is enabled (also creat to creat64 but that's not a problem
+// for us).  So we do a little dance to mop up this pollution.  Otherwise we'd
+// have to rename all our open methods.
+inline int fcntl_open(const char *filename, int flags, mode_t mode) {
+    return open(filename, flags, mode);
+}
+
+inline int fcntl_open(const char *filename, int flags) {
+    return open(filename, flags);
+}
+
+#ifdef open
+#undef open
+#endif
+
+inline int open(const string &filename, int flags, mode_t mode) {
+    return fcntl_open(filename.c_str(), flags, mode);
+}
+
+inline int open(const string &filename, int flags) {
+    return fcntl_open(filename.c_str(), flags);
+}
+
 /// Convert an integer to a string
 string om_tostring(int a);
 

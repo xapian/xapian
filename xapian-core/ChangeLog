@@ -1,3 +1,8 @@
+Wed May 08 15:07:01 BST 2002  Olly Betts <olly@survex.com>
+
+	* Added workaround for problems with <fcntl.h> on Solaris when LFS
+	  is enabled.
+
 Wed May 08 13:44:10 BST 2002  Olly Betts <olly@survex.com>
 
 	* Matcher can now sort on a key.  Can be rather slow at present...

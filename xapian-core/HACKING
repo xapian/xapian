@@ -125,6 +125,22 @@ ACLOCAL_FLAGS environment variable.
 See "buildall --help" for more information. Alternatively, there is a
 good overview of the GNU autotools at <http://sources.redhat.com/autobook/>.
 
+Miscellaneous Portability Issues:
+=================================
+
+open() and <fcntl.h>:
+---------------------
+
+No C++ file should explicitly "#include <fcntl.h>".
+
+When largefile support is enabled, Solaris' fcntl.h will "#define open open64"
+which breaks C++ code which has methods called open.  There's a cunning way
+to avoid this problem, which is implemented in common/utils.h.
+
+Any C++ file which wants to "#include <fcntl.h>" should instead '#include
+"utils.h"'.  The open call this defines will also take a C++ string (or you can
+pass a char* which it will convert to a C++ string for you).
+
 Makefile Portability:
 =====================
 

@@ -32,7 +32,7 @@
 #include <stdlib.h>   /* for calloc */
 #include <string.h>   /* for memmove */
 #include <limits.h>   /* for CHAR_BIT */
-#include <fcntl.h>    /* O_RDONLY etc */
+
 #include <errno.h>
 #include "autoptr.h"
 
@@ -43,6 +43,7 @@
 #include "omassert.h"
 #include "omdebug.h"
 #include "om/omerror.h"
+#include "utils.h"
 #include <string>
 #include <algorithm>  // for std::min()
 
@@ -76,7 +77,7 @@ bool valid_handle(int h) { return h >= 0; }
 
 int sys_open_to_read_no_except(const std::string & name)
 {
-    int fd = open(name.c_str(), O_RDONLY, 0666);
+    int fd = open(name, O_RDONLY, 0666);
     return fd;
 }
 
@@ -93,7 +94,7 @@ int sys_open_to_read(const std::string & name)
 
 static int sys_open_to_write_no_except(const std::string & name)
 {
-    int fd = open(name.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    int fd = open(name, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     return fd;
 }
 
@@ -110,7 +111,7 @@ int sys_open_to_write(const std::string & name)
 
 static int sys_open_for_readwrite(const std::string & name)
 {
-    int fd = open(name.c_str(), O_RDWR, 0666);
+    int fd = open(name, O_RDWR, 0666);
     if (fd < 0) {
 	std::string message = std::string("Couldn't open ")
 		+ name + " read/write: " + strerror(errno);

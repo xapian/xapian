@@ -33,9 +33,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
 #include <unistd.h>
-#include <sys/fcntl.h>
 #include <sys/utsname.h>
 #include <cerrno>
 
@@ -453,9 +451,7 @@ QuartzBufferedTableManager::get_database_write_lock()
 				      + lock_name);
 	}
 
-	int tempfd = open(tempname.c_str(),
-			  O_CREAT | O_EXCL,
-			  S_IRUSR | S_IWUSR);
+	int tempfd = open(tempname, O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
 	if (tempfd < 0) {
 	    throw OmDatabaseLockError("Unable to create " + tempname +
 				      ": " + strerror(errno),
