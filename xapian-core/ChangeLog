@@ -1,3 +1,8 @@
+Mon Sep 27 17:33:23 BST 2004  Olly Betts <olly@survex.com>
+
+	* extra/queryparser.yy: Be smarter about when to add a ':' when adding
+	  a term prefix.
+
 Mon Sep 27 16:01:37 BST 2004  Olly Betts <olly@survex.com>
 
 	* docs/scalability.html: Added note warning about benchmarking from

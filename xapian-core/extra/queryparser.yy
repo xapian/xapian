@@ -440,8 +440,11 @@ more_term:
 	if (prefix.empty() && !group_prefix.empty())
 	    prefix = group_prefix.back();
 	if (!prefix.empty()) {
-	    if (prefix.length() > 1 && (isupper(term[0]) || isdigit(term[0]))) {
-		prefix += ':';
+	    if (prefix.length() > 1 && *(prefix.back) != ':') {
+		unsigned char ch = (unsigned char)term[0];
+		if (!isupper(*(prefix.back)) || isupper(ch) || isdigit(ch))) {
+		    prefix += ':';
+		}
 	    }
 	    term = prefix + term;
 	    prefix = "";
