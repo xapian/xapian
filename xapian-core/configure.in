@@ -19,6 +19,10 @@ dnl Checks for perl.  (Needed to make some of the documentation)
 AC_PATH_PROG(PERL, perl)
 AM_CONDITIONAL(HAVE_PERL, test -n "$PERL")
 
+dnl Check for doc++. (Needed to make some more of the documentation)
+AC_PATH_PROG(DOCPP, doc++)
+AM_CONDITIONAL(HAVE_DOCPP, test -n "$DOCPP")
+
 dnl Turn off shared libraries for now as the make the build take longer
 AC_DISABLE_SHARED
 
