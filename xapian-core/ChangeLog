@@ -1,3 +1,10 @@
+Wed Apr 09 13:23:05 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: Install docs in /usr/share/doc/xapian-core to be
+	  FHS compliant.
+	* xapian.spec.in: Package quartzcheck and quartzcompact too; sorted
+	  out docs so they all install in the right place.
+
 Wed Apr 09 01:16:11 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in,backends/quartz/quartz_log.cc,

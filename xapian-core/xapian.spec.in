@@ -33,19 +33,23 @@ Xapian library.
 %setup -q -n %{name}-%{version}
 
 %build
-./configure --prefix=/usr
+%configure
 make
 
 %install
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}
+make
+cd backends/quartz && make quartzcheck quartzcompact
+cd ../..
 make install-strip DESTDIR=%{buildroot}
-# move the docs to the right place
-mkdir -p %{buildroot}/usr/share/doc
-mv %{buildroot}/usr/share/xapian %{buildroot}/usr/share/doc/xapian-%{version}
+# move the docs to the "right" place
+mv %{buildroot}/usr/share/doc/%{name} %{buildroot}/usr/share/doc/%{name}-%{version}
 # Extra binaries
-install -D -m755 netprogs/.libs/omtcpsrv %{buildroot}/usr/bin/omtcpsrv
-install -D -m755 netprogs/.libs/omprogsrv %{buildroot}/usr/bin/omprogsrv
+install -D -m755 netprogs/.libs/omtcpsrv %{buildroot}%{_bindir}/omtcpsrv
+install -D -m755 netprogs/.libs/omprogsrv %{buildroot}%{_bindir}/omprogsrv
+install -D -m755 backends/quartz/.libs/quartzcheck %{buildroot}%{_bindir}/quartzcheck
+install -D -m755 backends/quartz/.libs/quartzcompact %{buildroot}%{_bindir}/quartzcompact
 
 %post -p /sbin/ldconfig
 
@@ -58,6 +62,8 @@ install -D -m755 netprogs/.libs/omprogsrv %{buildroot}/usr/bin/omprogsrv
 %defattr(-, root, root)
 %{_bindir}/omtcpsrv
 %{_bindir}/omprogsrv
+%{_bindir}/quartzcheck
+%{_bindir}/quartzcompact
 %{_libdir}/libomqueryparser.so
 %{_libdir}/libomqueryparser.so.0
 %{_libdir}/libomqueryparser.so.0.0.0
@@ -65,10 +71,13 @@ install -D -m755 netprogs/.libs/omprogsrv %{buildroot}/usr/bin/omprogsrv
 %{_libdir}/libxapian.so.0
 %{_libdir}/libxapian.so.0.0.0
 %doc AUTHORS ChangeLog COPYING NEWS PLATFORMS README
+# HACKING should arguably be in -devel, but then it ends up alone
+# in /usr/share/doc/xapian-core-devel-%{version}
+%doc HACKING
 
 %files devel
 %defattr(-, root, root)
-%docdir /usr/share/doc/xapian-%{version}
+%docdir /usr/share/doc/xapian-core-%{version}
 %{_bindir}/xapian-config
 %{_includedir}/om
 %{_libdir}/libomqueryparser.a
@@ -76,11 +85,13 @@ install -D -m755 netprogs/.libs/omprogsrv %{buildroot}/usr/bin/omprogsrv
 %{_libdir}/libxapian.a
 %{_libdir}/libxapian.la
 /usr/share/aclocal/xapian.m4
-# Put most docs in -devel package
+# Put manual, etc in -devel package
 %{_docdir}
-%doc HACKING
 
 %changelog
+* Wed Apr 09 2003  Olly Betts <olly@survex.com>
+  Further tweaking, partly based on comments from Sam Liddicott
+
 * Mon Mar 31 2003  Olly Betts <olly@survex.com>
   Merged in changes from Fabrice Colin
 

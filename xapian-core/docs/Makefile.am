@@ -29,7 +29,7 @@ EXTRA_DIST = mkdoc.pl \
 all-local: doxygen_api_docs
 
 # Data to install, in the usual automake way
-docdatadir   = $(datadir)/xapian
+docdatadir   = $(datadir)/doc/@PACKAGE@
 docdata_DATA = $(HTMLDOCS) apidoc.ps
 
 dist-hook:
