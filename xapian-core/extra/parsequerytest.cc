@@ -42,6 +42,7 @@ static test tests[] = {
     { "gtk+ -gimp", "(gtk+:(pos=1) AND_NOT gimp:(pos=2))" },
     { "c++ -c--", "(c++:(pos=1) AND_NOT c--:(pos=2))" },
     { "\"c++ standard\"", "(c++:(pos=1) PHRASE 2 standard:(pos=2))" },
+    { "AT&T M&S", "(Rat&t:(pos=1) OR Rm&s:(pos=2))" },
     { NULL, NULL }
 };
 

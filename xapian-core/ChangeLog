@@ -1,3 +1,8 @@
+Tue May 14 13:14:51 BST 2002  Olly Betts <olly@survex.com>
+
+	* Added test case for new "embedded &" rule, and fix problem bug it
+	  revealed.
+
 Tue May 14 13:10:33 BST 2002  Olly Betts <olly@survex.com>
 
 	* Search for <word>&<word> as a single term (e.g. AT&T, M&S, A&P).

@@ -251,7 +251,7 @@ yylex()
     if (isalnum(*qptr)) {
 	string term;
 	bool already_stemmed = !qp->stem;
-	string::iterator term_end;
+	string::iterator term_start = qptr, term_end;
 more_term:
 	term_end = find_if(qptr, q.end(), p_notalnum);
 	if (term_end != q.end()) {
@@ -268,7 +268,7 @@ more_term:
 	    }
 	}
 
-	term = q.substr(qptr - q.begin(), term_end - qptr);
+	term = q.substr(term_start - q.begin(), term_end - term_start);
 	qptr = term_end;
 	if (qptr != q.end()) {
 	    if (*qptr == '.') {
