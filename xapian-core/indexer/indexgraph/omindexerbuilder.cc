@@ -344,6 +344,17 @@ OmIndexerBuilder::Internal::typecheck(type_data &feeder_node,
 			 wildcard,
 			 sendercon.type,
 			 sendercon.phys_type);
+	} else if (sendercon.type.length() > 0 && sendercon.type[0] == '*') {
+	    // handle an un-instantiated output wildcard type
+	    std::string wildcard = sendercon.type;
+	    replace_type(feeder_node.inputs,
+			 wildcard,
+			 receivercon.type,
+			 receivercon.phys_type);
+	    replace_type(feeder_node.outputs,
+			 wildcard,
+			 receivercon.type,
+			 receivercon.phys_type);
 	} else {
 	    throw OmInvalidDataError(std::string("Types of ") + 
 					 feeder_node.node_name +

@@ -1,3 +1,7 @@
+Wed Oct 11 17:40:36 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Wildcard types which only appear as outputs now work.
+
 Wed Oct 11 17:37:57 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added method OmIndexerNode::set_empty_output(), useful as
