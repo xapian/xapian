@@ -32,8 +32,8 @@ cvscountsymbols_LDADD = -ldb_cxx -lomus
 cvsmine_SOURCES = util.h util.C cvsmine.C
 cvsmine_LDADD = -lomus -ldb_cxx
 
-cvseval_SOURCES = util.h util.C cvseval.C
-cvseval_LDADD = -lomus -ldb_cxx
+#cvseval_SOURCES = util.h util.C cvseval.C
+#cvseval_LDADD = -lomus -ldb_cxx
 
 CXXFLAGS = -O3 -DINLINE -Wall
 
