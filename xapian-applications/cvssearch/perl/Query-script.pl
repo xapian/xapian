@@ -102,6 +102,7 @@ print <<_HTML_;
 <tr valign=bottom><td>
 <a href="http://cvssearch.sourceforge.net">
 <img border=0 src="Logo.cgi"></a>
+<a href="./Compare.cgi">Browse Database Contents</a>   
 </td><td align=right>
 <form action=./Query.cgi>
 <b>Enter keyword(s) to search for: </b><input type=text size=45 name=query value="$query">
