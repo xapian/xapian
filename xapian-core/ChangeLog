@@ -1,3 +1,7 @@
+Wed Dec 13 02:49:05 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Implement copy and assignment methods for OmPositionListIterator.
+
 Wed Dec 13 02:37:14 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* ESet and MSet iterators now cope with being copied / assigned when

@@ -47,7 +47,7 @@ class OmPositionListIterator {
     public:
         ~OmPositionListIterator();
 
-	OmPositionListIterator operator=(OmPositionListIterator &o);
+	void operator=(OmPositionListIterator &o);
 	OmPositionListIterator (const OmPositionListIterator &o);
 
 	om_termpos operator *() const;

@@ -39,6 +39,29 @@ OmPositionListIterator::~OmPositionListIterator()
     DEBUGAPICALL(void, "OmPositionListIterator::~OmPositionListIterator", "");
 }
 
+OmPositionListIterator::OmPositionListIterator(const OmPositionListIterator &other)
+	: internal(NULL)
+{
+    DEBUGAPICALL(void, "OmPositionListIterator::OmPositionListIterator", other);
+    if (other.internal) internal = new Internal(*(other.internal));
+}
+
+void
+OmPositionListIterator::operator=(OmPositionListIterator &other)
+{
+    DEBUGAPICALL(void, "OmPositionListIterator::operator=", other);
+    if (this == &other) {
+	DEBUGLINE(API, "OmPositionListIterator assigned to itself");
+	return;
+    }
+
+    Internal * newinternal = NULL;
+    if (other.internal)
+	newinternal = new Internal(*(other.internal));
+    std::swap(internal, newinternal);
+    delete newinternal;
+}
+
 om_termpos
 OmPositionListIterator::operator *() const
 {
