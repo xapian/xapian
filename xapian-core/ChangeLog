@@ -1,3 +1,11 @@
+Tue Oct 24 12:56:22 BST 2000 Olly Betts
+
+	* {skip_to,next}_handling_prune functions added to neaten up
+	  handling of prunes in the postlist tree.
+
+	* matcher now has two stages - one to get the mset full of
+	  candidates and another to continue the match with a full mset.
+
 Sat Oct 21 07:54:53 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added quartzdesign.html document to docs/

@@ -34,14 +34,14 @@ AndNotPostList::advance_to_next_match(om_weight w_min, PostList *ret)
 
     while (rhead <= lhead) {
 	if (lhead == rhead) {
-	    handle_prune(l, l->next(w_min));
+	    next_handling_prune(l, w_min, matcher);
 	    if (l->at_end()) {
 		lhead = 0;
 		return NULL;
 	    }
 	    lhead = l->get_docid();
 	}
-	handle_prune(r, r->skip_to(lhead, 0));
+	skip_to_handling_prune(r, lhead, 0, matcher);
 	if (r->at_end()) {
 	    ret = l;
 	    l = NULL;

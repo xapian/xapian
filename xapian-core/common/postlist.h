@@ -29,8 +29,6 @@
 
 #include "positionlist.h"
 
-class MultiMatch;
-
 /** Abstract base class for postlists. */
 class PostList : public RefCntBase
 {

@@ -60,13 +60,6 @@ class MultiMatch
 	 */
         bool recalculate_w_max;
 
-	/// Internal method to perform the collapse operation
-	bool perform_collapse(std::vector<OmMSetItem> &mset,
-			      std::map<OmKey, OmMSetItem> &collapse_table,
-			      om_docid did,
-			      const OmMSetItem &new_item,
-			      const OmMSetItem &min_item);
-
 	/** Prepare all the sub matchers.
 	 *
 	 *  This calls prepare_match() on all the sub matchers until they

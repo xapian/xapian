@@ -38,30 +38,26 @@ OrPostList::next(om_weight w_min)
 {
     if (w_min > minmax) {
 	// we can replace the OR with another operator
-	PostList *ret, *ret2;
+	PostList *ret;
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
 		DEBUGLINE(MATCH, "OR -> AND");
 		ret = new AndPostList(l, r, matcher, true);
-		ret2 = ret->skip_to(std::max(lhead, rhead) + 1, w_min);
+		skip_to_handling_prune(ret, std::max(lhead, rhead) + 1, w_min);
 	    } else {
 		DEBUGLINE(MATCH, "OR -> AND MAYBE (1)");
 		ret = new AndMaybePostList(r, l, matcher, rhead, lhead);
-		ret2 = ret->next(w_min);
+		next_handling_prune(ret, w_min);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    DEBUGLINE(MATCH, "OR -> AND MAYBE (2)");
 	    ret = new AndMaybePostList(l, r, matcher, lhead, rhead);
-	    ret2 = ret->next(w_min);
+	    next_handling_prune(ret, w_min);
 	}
 
 	l = r = NULL;
-	if (ret2) {
-	    delete ret;
-	    ret = ret2;
-	}
 	return ret;
     }
 
@@ -70,14 +66,14 @@ OrPostList::next(om_weight w_min)
 
     if (lhead <= rhead) {
         if (lhead == rhead) rnext = true;
-        handle_prune(l, l->next(w_min - rmax));
+        next_handling_prune(l, w_min - rmax, matcher);
 	if (l->at_end()) ldry = true;
     } else {
 	rnext = true;
     }
 
     if (rnext) {
-        handle_prune(r, r->next(w_min - lmax));
+        next_handling_prune(r, w_min - lmax, matcher);
         if (r->at_end()) {
 	    PostList *ret = l;
 	    l = NULL;
@@ -120,23 +116,19 @@ OrPostList::skip_to(om_docid did, om_weight w_min)
 	    did = std::max(did, lhead);
 	}
 
-	PostList *ret2 = ret->skip_to(did, w_min);
 	l = r = NULL;
-	if (ret2) {
-	    delete ret;
-	    ret = ret2;
-	}
+	skip_to_handling_prune(ret, did, w_min);
 	return ret;
     }
 
     bool ldry = false;
     if (lhead < did) {
-	handle_prune(l, l->skip_to(did, w_min - rmax));
+	skip_to_handling_prune(l, did, w_min - rmax, matcher);
 	ldry = l->at_end();
     }
 
     if (rhead < did) {
-	handle_prune(r, r->skip_to(did, w_min - lmax));
+	skip_to_handling_prune(r, did, w_min - lmax, matcher);
 
 	if (r->at_end()) {
 	    PostList *ret = l;

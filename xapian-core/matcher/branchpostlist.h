@@ -87,4 +87,35 @@ BranchPostList::get_position_list()
     throw OmUnimplementedError("BranchPostList::get_position_list() unimplemented");
 }
 
+// Helper functions - call next/skip_to on a postlist and handle any
+// resulting prune
+// 
+// Returns true iff a prune was handled, so the caller can recalculate
+// weights etc if necessary
+inline bool
+next_handling_prune(PostList * & pl, om_weight w_min,
+		    MultiMatch *matcher = NULL)
+{
+    PostList *p = pl->next(w_min);
+    if (!p) return false;
+    delete pl;
+    pl = p;
+    // now tell matcher that maximum weights need recalculation.
+    if (matcher) matcher->recalc_maxweight();
+    return true;
+}
+
+inline bool
+skip_to_handling_prune(PostList * & pl, om_docid did, om_weight w_min,
+		       MultiMatch *matcher = NULL)
+{
+    PostList *p = pl->skip_to(did, w_min);
+    if (!p) return false;
+    delete pl;
+    pl = p;
+    // now tell matcher that maximum weights need recalculation.
+    if (matcher) matcher->recalc_maxweight();
+    return true;
+}
+
 #endif /* OM_HGUARD_BRANCHPOSTLIST_H */

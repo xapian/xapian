@@ -37,6 +37,13 @@ class MergePostList : public PostList {
 
 	int current;
 
+	/** The object which is using this postlist to perform
+	 *  a match.  This object needs to be notified when the
+	 *  tree changes such that the maximum weights need to be
+	 *  recalculated.
+	 */
+        MultiMatch *matcher;
+
 	OmErrorHandler * errorhandler;
     public:
 	om_doccount get_termfreq() const;
@@ -63,6 +70,7 @@ class MergePostList : public PostList {
 	virtual PositionList * get_position_list();
 
         MergePostList(std::vector<PostList *> plists_,
+		      MultiMatch *matcher,
 		      OmErrorHandler * errorhandler_);
         ~MergePostList();
 };

@@ -31,8 +31,8 @@ inline PostList *
 XorPostList::advance_to_next_match(om_weight w_min)
 {
     while (rhead == lhead) {
-	handle_prune(l, l->next(w_min));
-	handle_prune(r, r->next(w_min));
+	next_handling_prune(l, w_min, matcher);
+	next_handling_prune(r, w_min, matcher);
 	if (l->at_end()) {
 	    if (r->at_end()) {
 		lhead = 0;
@@ -83,12 +83,8 @@ XorPostList::next(om_weight w_min)
 	    ret = new AndNotPostList(l, r, matcher);
 	}
 
-	PostList *ret2 = ret->next(w_min);
 	l = r = NULL;
-	if (ret2) {
-	    delete ret;
-	    ret = ret2;
-	}
+	next_handling_prune(ret, w_min);
 	return ret;
     }
 
@@ -98,14 +94,14 @@ XorPostList::next(om_weight w_min)
     if (lhead <= rhead) {
 	// lhead == rhead should only happen on first next
         if (lhead == rhead) rnext = true;
-        handle_prune(l, l->next(w_min));
+        next_handling_prune(l, w_min, matcher);
 	if (l->at_end()) ldry = true;
     } else {
 	rnext = true;
     }
 
     if (rnext) {
-        handle_prune(r, r->next(w_min));
+        next_handling_prune(r, w_min, matcher);
         if (r->at_end()) {
 	    PostList *ret = l;
 	    l = NULL;
@@ -162,12 +158,12 @@ XorPostList::skip_to(om_docid did, om_weight w_min)
 
     bool ldry = false;
     if (lhead < did) {
-	handle_prune(l, l->skip_to(did, w_min));
+        skip_to_handling_prune(l, did, w_min, matcher);
 	ldry = l->at_end();
     }
 
     if (rhead < did) {
-	handle_prune(r, r->skip_to(did, w_min));
+        skip_to_handling_prune(r, did, w_min, matcher);
 
 	if (r->at_end()) {
 	    PostList *ret = l;

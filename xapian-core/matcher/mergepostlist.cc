@@ -27,8 +27,10 @@
 #include "om/omerrorhandler.h"
 
 MergePostList::MergePostList(std::vector<PostList *> plists_,
+			     MultiMatch *matcher_,
 			     OmErrorHandler * errorhandler_)
-    : plists(plists_), current(-1), errorhandler(errorhandler_)
+	: plists(plists_), current(-1), matcher(matcher_),
+	  errorhandler(errorhandler_)
 {
     DEBUGCALL(MATCH, void, "MergePostList::MergePostList", "std::vector<PostList *>");
 }
@@ -52,11 +54,7 @@ MergePostList::next(om_weight w_min)
 	// FIXME: should skip over Remote matchers which aren't ready yet
 	// and come back to them later...
 	try {
-	    PostList *pruned_postlist = plists[current]->next(w_min);
-	    if (pruned_postlist) {
-		delete plists[current];
-		plists[current] = pruned_postlist;
-	    }
+	    next_handling_prune(plists[current], w_min, matcher);
 	    if (!plists[current]->at_end()) break;
 	    current++;
 	} catch (OmError & e) {
