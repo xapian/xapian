@@ -1,9 +1,11 @@
+#include <stdio.h>
 #include "process.h"
 #include <string.h>
 #include "xml++.h"
 #include "cvs_db_file.h"
 
-static const string sfilename = "_ChangeLog.xml";
+static const string slogfile  = "_ChangeLog";
+static const string sxmlfile  = slogfile + ".xml";
 static const string sentry    = "entry";
 static const string sfile     = "file";
 static const string smsg      = "msg";
@@ -16,10 +18,31 @@ static void parse_file (const CXmlNode & rNode, const CXmlNode & rMsgNode, unsig
 void parse_change_log (const string & module, const string & cvs2cl_path, cvs_db_file & rdb_file) 
 {
     
-    string command = cvs2cl_path + " --xml -f " + sfilename;
+    string command = cvs2cl_path + " --xml -f " + slogfile;
     system(command.c_str());
     
-    CXmlTree doc(sfilename);
+    FILE *fin = fopen(slogfile.c_str(), "r");
+    FILE *fout= fopen(sxmlfile.c_str(), "w");
+    
+    const int bits = ~0x2F;
+    int ch;
+    // ----------------------------------------
+    // retain all \n, \t, and iso-8859-1 
+    // characters (> 0x2F)
+    // ----------------------------------------
+    while ((ch = getc(fin)) != EOF) {
+        if (0) {
+        } else if (ch & bits) {
+            fputc(ch, fout);
+        } else if (ch == 0x0A) {
+            fputc(ch, fout);
+        } else if (ch == 0x09) {
+            fputc(ch, fout);
+        }
+    }
+    fclose(fin);
+    fclose(fout);
+    CXmlTree doc(sxmlfile);
 
     CXmlNode *pRootNode = doc.root();
     if (pRootNode) {
