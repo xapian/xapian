@@ -1,4 +1,4 @@
-/* btree.c: Btree implementation
+/* btree.cc: Btree implementation
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC

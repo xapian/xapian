@@ -27,7 +27,7 @@ libquartz_la_SOURCES = quartz_database.cc \
 		       quartz_attributes.cc \
 		       quartz_utils.cc \
 		       quartz_log.cc \
-		       btree.c
+		       btree.cc
 #		       quartz_postlist.cc \
 #		       quartz_positionlist.cc \
 
