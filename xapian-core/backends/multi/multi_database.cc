@@ -19,6 +19,8 @@ MultiPostList::MultiPostList(const IRDatabase *db,
 	  freq_initialised(false)
 {
     own_wt.set_stats(db, get_termfreq());
+
+    // Make all the sub-termlists use the same (our) termweight
     set_termweight(&own_wt);
 }
 
@@ -45,15 +47,6 @@ weight MultiPostList::get_weight() const
 	i++;
     }
     return wt;
-}
-
-weight MultiPostList::get_maxweight() const
-{
-    Assert(freq_initialised);
-
-    // Should AssertParanoid that all maxweights are the same
-    
-    return (*postlists.begin()).pl->get_maxweight();
 }
 
 PostList * MultiPostList::next(weight w_min)
