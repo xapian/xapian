@@ -4,7 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -73,7 +73,7 @@ add_param(string name, string val)
     // into `[=2'
     i = name.find(' ');
     if (i != string::npos) name = name.substr(0, i);
-    cgi_params.insert(make_pair(name, val));
+    cgi_params.insert(multimap<string, string>::value_type(name, val));
 }
 
 void
@@ -167,7 +167,7 @@ decode_post()
 void
 decode_get()
 {
-    char *q_str = getenv("QUERY_STRING");
+    const char *q_str = getenv("QUERY_STRING");
     if (!q_str) q_str = ""; // Hmm, sounds like a broken web server
 
     cgi_params.clear();

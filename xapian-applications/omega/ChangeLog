@@ -1,3 +1,7 @@
+Mon Sep 29 17:12:10 BST 2003  Olly Betts <olly@survex.com>
+
+	* cgiparam.cc: Portability fixes for Sun's C++ compiler.
+
 Mon Sep 29 13:26:22 BST 2003  Olly Betts <olly@survex.com>
 
 	* query.cc: Another Sun C++ fix.
