@@ -30,6 +30,10 @@ Priority | Area            | Task
  High    | Sleepy Backend  | Stop SleepyDatabase aborting when an attempt to
          |                 | open in a non existent directory is performed.
 ---------+-----------------+--------------------------------------------------
+ High    | Muscat36 Backend| Protect open_post_list() from concurrent access
+         |                 | (might currently end up with a divorced D[AB]term
+	 |                 | object.
+---------+-----------------+--------------------------------------------------
  Medium  | Databases       | Make parameter checks when opening databases
          |                 | throw OmInvalidArgument errors, rather than
 	 |                 | just be Asserts.
