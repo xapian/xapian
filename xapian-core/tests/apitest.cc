@@ -859,7 +859,7 @@ bool test_reversebool2()
     OmMatchOptions mymopt;
     OmMSet mymset1 = enquire.get_mset(0, 100, 0, &mymopt);
     mymopt.set_sort_forward();
-    om_doccount msize = mymset.items.size() / 2;
+    om_doccount msize = mymset1.items.size() / 2;
     OmMSet mymset2 = enquire.get_mset(0, msize, 0, &mymopt);
     mymopt.set_sort_forward(false);
     OmMSet mymset3 = enquire.get_mset(0, msize, 0, &mymopt);
