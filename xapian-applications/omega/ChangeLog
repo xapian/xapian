@@ -1,3 +1,8 @@
+Sun Apr 18 17:50:35 BST 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: _POSIX_C_SOURCE works better than _POSIX_SOURCE for
+	  making posix_fadvise prototype visible on Linux.
+
 Thu Apr 15 02:05:49 BST 2004  Olly Betts <olly@survex.com>
 
 	* omindex.cc: And another _POSIX_SOURCE attempt!

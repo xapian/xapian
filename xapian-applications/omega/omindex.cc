@@ -25,6 +25,7 @@
 
 #include <config.h>
 
+#define _POSIX_C_SOURCE 200112L // for posix_fadvise from fcntl.h
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -38,7 +39,6 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <string.h>
-#define _POSIX_SOURCE 200112L // for posix_fadvise from fcntl.h
 #include <fcntl.h>
 #include <errno.h>
 
