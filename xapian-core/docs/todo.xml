@@ -20,10 +20,9 @@ progress, apart from C].
 Write (speed) performance test suite.
 
 </todoitem>
-<todoitem priority="M" difficulty="1" owner="" area="Iterators" release="1.0">
+<todoitem priority="M" difficulty="1" owner="" area="Iterators" release="">
 
-Write tests for copying iterators: in particular, those with internals which
-might be null (eg, OmESet::end())
+Write tests for copying term and postlist iterators.
 
 </todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="OmQuery" release="1.0">

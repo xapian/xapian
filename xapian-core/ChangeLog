@@ -1,3 +1,12 @@
+Mon Dec 18 14:33:42 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Implemented tests of msetiterator and esetiterator copying and
+	  assignment.
+
+	* Fix segfault when assigning to [me]setiterator to end.
+
+	* Updated todo.xml
+
 Mon Dec 18 13:52:53 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Move creation of first key in a quartz postlist into a named

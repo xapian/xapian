@@ -508,6 +508,9 @@ OmESetIterator::operator=(const OmESetIterator &other)
     if (other.internal == 0) {
 	delete internal;
 	internal = 0;
+    } else if (internal == 0) {
+	internal = new OmESetIterator::Internal(other.internal->it,
+						other.internal->end);
     } else {
 	OmESetIterator::Internal temp(other.internal->it,
 				      other.internal->end);
@@ -585,6 +588,9 @@ OmMSetIterator::operator=(const OmMSetIterator &other)
     if (other.internal == 0) {
 	delete internal;
 	internal = 0;
+    } else if (internal == 0) {
+	internal = new OmMSetIterator::Internal(other.internal->it,
+						other.internal->end);
     } else {
 	OmMSetIterator::Internal temp(other.internal->it,
 				      other.internal->end);

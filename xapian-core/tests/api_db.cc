@@ -537,23 +537,121 @@ static bool test_matchfunctor1()
     return true;
 }
 
-// tests that mset iterators on empty msets compare equal.
+// tests that mset iterators on msets compare correctly.
 static bool test_msetiterator1()
 {
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
-    OmMSet mymset = enquire.get_mset(0, 0);
+    OmMSet mymset = enquire.get_mset(0, 2);
 
-    OmMSetIterator i = mymset.begin();
-    OmMSetIterator j = mymset.end();
+    OmMSetIterator j = mymset.begin();
+    OmMSetIterator k = mymset.end();
+    OmMSetIterator l(j);
+    OmMSetIterator m(k);
+    OmMSetIterator n = mymset.begin();
+    TEST_NOT_EQUAL(j, k);
+    TEST_NOT_EQUAL(l, m);
+    TEST_EQUAL(k, m);
+    TEST_EQUAL(j, l);
+    TEST_EQUAL(j, j);
+    TEST_EQUAL(k, k);
 
-    TEST_EQUAL(i, j);
+    k = j;
+    TEST_EQUAL(j, k);
+    k++;
+    TEST_NOT_EQUAL(j, k);
+    TEST_NOT_EQUAL(k, l);
+    TEST_NOT_EQUAL(k, m);
+    k++;
+    TEST_NOT_EQUAL(j, k);
+    TEST_NOT_EQUAL(k, l);
+    TEST_EQUAL(k, m);
+    TEST_NOT_EQUAL(n, l);
+
+    n = m;
+    TEST_NOT_EQUAL(n, l);
+    TEST_EQUAL(n, m);
+    TEST_NOT_EQUAL(n, mymset.begin());
+    TEST_EQUAL(n, mymset.end());
 
     return true;
 }
 
 // tests that mset iterators on empty msets compare equal.
+static bool test_msetiterator2()
+{
+    OmEnquire enquire(get_simple_database());
+    init_simple_enquire(enquire);
+    OmMSet mymset = enquire.get_mset(0, 0);
+
+    OmMSetIterator j = mymset.begin();
+    OmMSetIterator k = mymset.end();
+    OmMSetIterator l(j);
+    OmMSetIterator m(k);
+    TEST_EQUAL(j, k);
+    TEST_EQUAL(l, m);
+    TEST_EQUAL(k, m);
+    TEST_EQUAL(j, l);
+    TEST_EQUAL(j, j);
+    TEST_EQUAL(k, k);
+
+    return true;
+}
+
+// tests that eset iterators on empty esets compare equal.
 static bool test_esetiterator1()
+{
+    OmEnquire enquire(get_simple_database());
+    init_simple_enquire(enquire);
+
+    OmMSet mymset = enquire.get_mset(0, 10);
+    TEST(mymset.size() >= 2);
+
+    OmRSet myrset;
+    OmMSetIterator i = mymset.begin();
+    myrset.add_document(*i);
+    myrset.add_document(*(++i));
+
+    OmSettings eopt;
+    eopt.set("expand_use_query_terms", false);
+
+    OmESet myeset = enquire.get_eset(2, myrset, &eopt);
+    OmESetIterator j = myeset.begin();
+    OmESetIterator k = myeset.end();
+    OmESetIterator l(j);
+    OmESetIterator m(k);
+    OmESetIterator n = myeset.begin();
+
+    TEST_NOT_EQUAL(j, k);
+    TEST_NOT_EQUAL(l, m);
+    TEST_EQUAL(k, m);
+    TEST_EQUAL(j, l);
+    TEST_EQUAL(j, j);
+    TEST_EQUAL(k, k);
+
+    k = j;
+    TEST_EQUAL(j, k);
+    k++;
+    TEST_NOT_EQUAL(j, k);
+    TEST_NOT_EQUAL(k, l);
+    TEST_NOT_EQUAL(k, m);
+    k++;
+    TEST_NOT_EQUAL(j, k);
+    TEST_NOT_EQUAL(k, l);
+    TEST_EQUAL(k, m);
+    TEST_NOT_EQUAL(n, l);
+
+    n = m;
+    TEST_NOT_EQUAL(n, l);
+    TEST_EQUAL(n, m);
+    TEST_NOT_EQUAL(n, myeset.begin());
+    TEST_EQUAL(n, myeset.end());
+
+    return true;
+}
+
+// tests that eset iterators on empty esets compare equal.
+static bool test_esetiterator2()
 {
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
@@ -572,7 +670,14 @@ static bool test_esetiterator1()
     OmESet myeset = enquire.get_eset(0, myrset, &eopt);
     OmESetIterator j = myeset.begin();
     OmESetIterator k = myeset.end();
+    OmESetIterator l(j);
+    OmESetIterator m(k);
     TEST_EQUAL(j, k);
+    TEST_EQUAL(l, m);
+    TEST_EQUAL(k, m);
+    TEST_EQUAL(j, l);
+    TEST_EQUAL(j, j);
+    TEST_EQUAL(k, k);
 
     return true;
 }
@@ -1922,7 +2027,9 @@ test_desc writabledb_tests[] = {
 test_desc localdb_tests[] = {
     {"matchfunctor1",	   test_matchfunctor1},
     {"msetiterator1",	   test_msetiterator1},
+    {"msetiterator2",	   test_msetiterator2},
     {"esetiterator1",	   test_esetiterator1},
+    {"esetiterator2",	   test_esetiterator2},
     {"multiexpand1",       test_multiexpand1},
     {"postlist1",	   test_postlist1},
     {"postlist2",	   test_postlist2},
