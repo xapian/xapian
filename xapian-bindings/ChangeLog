@@ -1,3 +1,7 @@
+Wed Sep 08 05:30:58 BST 2004  Olly Betts <olly@survex.com>
+
+	* README: Updated list of languages which SWIG supports.
+
 Wed Sep 08 04:53:07 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Disable tcl8 bindings if the tcl8.X-dev package
