@@ -1044,17 +1044,15 @@ QuartzPostListTable::merge_changes(
 		if (!cursor->find_entry(current_key)) {
 		    throw Xapian::DatabaseCorruptError("The key we're working on has disappeared");
 		}
-		del(current_key);
+		// Important: advance the cursor *before* deleting the
+		// key/tag pair.
+		cursor->del();
 		if (islast) continue;
-		while (true) {
-		    // FIXME: faster to always check is_last flag?  it would
-		    // save reading one key/tag pair...
-		    cursor->next();
-		    if (cursor->after_end()) break;
+		while (!cursor->after_end()) {
 		    const char *kpos = cursor->current_key.data();
 		    const char *kend = kpos + cursor->current_key.size();
 		    if (!check_tname_in_key_lite(&kpos, kend, tname)) break;
-		    del(cursor->current_key);
+		    cursor->del();
 		}
 		continue;
 	    }

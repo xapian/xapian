@@ -33,7 +33,10 @@ class Btree;
 
 /************ B-tree reading ************/
 
+class QuartzCursor;
+
 class Bcursor {
+    friend class QuartzCursor;
     private:
         // Prevent copying
         Bcursor(const Bcursor &);
@@ -145,7 +148,7 @@ class Bcursor {
 	/** false initially, and after the cursor has dropped
 	 *  off either end of the list of items */
 	bool positioned;
-		       
+
 	Btree * B;
 	Cursor * C;
 

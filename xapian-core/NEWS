@@ -17,7 +17,6 @@ up to: Thu Aug 19 14:09:28 BST 2004  Olly Betts <olly@survex.com>
 	  get it read.  This speeds up iterator over all the terms in
 	  a database.  Also commented out QuartzCursor::prev as it's
 	  unused and untested (at least in its latest form).
-  NB This code is currently disabled...
 
 * Fixed to compile when configured with --disable-inmemory (bug #33).
 

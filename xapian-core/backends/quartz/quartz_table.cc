@@ -69,9 +69,6 @@ QuartzCursor::find_entry(const string &key)
     bool err = cursor.get_key(&current_key);
     (void)err; // FIXME: check for errors
     have_read_tag = false;
-    is_positioned = true;
-
-    read_tag(); // FIXME : shouldn't need to call this here
 
     DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key) << "'");
 
@@ -99,7 +96,7 @@ QuartzCursor::next()
     DEBUGCALL(DB, bool, "QuartzCursor::next", "");
     Assert(!is_after_end);
     if (!have_read_tag) {
-	if (!cursor.next()) is_positioned = false;
+	is_positioned = cursor.next();
     }
 
     if (!is_positioned) {
@@ -110,8 +107,6 @@ QuartzCursor::next()
     cursor.get_key(&current_key);
     // FIXME: check for errors
     have_read_tag = false;
-
-    read_tag(); // FIXME : shouldn't need to call this here
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
 }
@@ -144,3 +139,27 @@ QuartzCursor::prev()
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
 }
 #endif
+
+void
+QuartzCursor::del()
+{
+    Assert(!is_after_end);
+    string doomed_key = current_key;
+
+    if (!have_read_tag) {
+	is_positioned = cursor.next();
+    }
+
+    cursor.B->del(current_key);
+
+    if (!is_positioned) {
+	is_after_end = true;
+	return;
+    }
+
+    cursor.get_key(&current_key);
+    // FIXME: check for errors
+    have_read_tag = false;
+
+    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
+}

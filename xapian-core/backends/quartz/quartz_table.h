@@ -130,6 +130,11 @@ class QuartzCursor {
 	 *          table, past the last entry in it, and false otherwise.
 	 */
 	bool after_end() { return is_after_end; }
+
+	/** Delete the current key/tag pair, leaving the cursor on the next
+	 *  entry.
+	 */
+	void del();
 };
 
 #endif /* OM_HGUARD_QUARTZ_TABLE_H */

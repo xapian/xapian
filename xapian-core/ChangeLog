@@ -1,3 +1,10 @@
+Fri Aug 20 13:43:04 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,backends/quartz/: Fixed the problem with "lazy tag reading"
+	  in QuartzCursor and reenable that code.  The problem was with
+	  deleting the current key, so added QuartzCursor::del() which
+	  deletes the current key, leaving the cursor on the next item.
+
 Fri Aug 20 13:04:33 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: Reenabled test allterms2, but with the iterator
