@@ -48,6 +48,12 @@ std::string om_tostring(bool a);
 /// Convert a pointer to a string
 std::string om_tostring(const void * a);
 
+/// Split a string into a vector of strings, using a given separator
+/// character (default space)
+void split_words(std::string text,
+		 std::vector<std::string> &words,
+		 char wspace = ' ');
+
 ///////////////////////////////////////////
 // Mapping of types as strings to enums  //
 ///////////////////////////////////////////

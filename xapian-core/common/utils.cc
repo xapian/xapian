@@ -95,6 +95,19 @@ om_tostring(bool val)
     return val ? "true" : "false";
 }
 
+void split_words(std::string text,
+		 std::vector<std::string> &words,
+		 char ws) {
+    if (text.length() > 0 && text[0] == ws) {
+	text.erase(0, text.find_first_not_of(ws));
+    }
+    while (text.length() > 0) {
+	words.push_back(text.substr(0, text.find_first_of(ws)));
+	text.erase(0, text.find_first_of(ws));
+	text.erase(0, text.find_first_not_of(ws));
+    }
+}
+
 int
 map_string_to_value(const StringAndValue * haystack,
 		    const std::string needle)

@@ -1,3 +1,20 @@
+Fri Jan 19 18:36:15 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Removed get/set vector methods from OmSettings
+
+	* Remote/prog arguments now passed in a string separated be spaces,
+	  not a vector.
+	
+	* split_words() moved from netutils.h to utils.{h,cc}
+
+	* Some unnecessary #include <vector> lines removed from API headers
+
+	* Removed get_config_vector() from OmIndexerNode
+
+	* OmConstantNode no longer handles vector values, and
+	  OmStopWordNode and OmSelectItemsNode use space-separated
+	  values instead.
+
 Thu Jan 18 17:31:55 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Removed mentions of std::vector from OmIndexerMessage, and

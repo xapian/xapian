@@ -110,9 +110,11 @@ class OmIndexerNode::Internal {
 	/** Return the current value of a given configuration parameter. */
 	double get_config_double(const std::string &key) const;
 
+#if 0
 	/** Return the current value of a given configuration parameter. */
 	std::vector<std::string>
 		get_config_vector(const std::string &key) const;
+#endif
     private:
 	/* ********** Private member functions ************/
 	/** Calculate outputs if needed
@@ -473,11 +475,13 @@ OmIndexerNode::get_config_double(const std::string &key) const
     return internal->get_config_double(key);
 }
 
+#if 0
 std::vector<std::string>
 OmIndexerNode::get_config_vector(const std::string &key) const
 {
     return internal->get_config_vector(key);
 }
+#endif
 
 std::string
 OmIndexerNode::Internal::get_config_string(const std::string &key) const
@@ -497,11 +501,13 @@ OmIndexerNode::Internal::get_config_double(const std::string &key) const
     return settings.get_real(key);
 }
 
+#if 0
 std::vector<std::string>
 OmIndexerNode::Internal::get_config_vector(const std::string &key) const
 {
     return settings.get_vector(key);
 }
+#endif
 
 void
 OmIndexerNode::set_config_string(const std::string &key,

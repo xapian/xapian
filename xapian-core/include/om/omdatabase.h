@@ -23,7 +23,6 @@
 #ifndef OM_HGUARD_OMDATABASE_H
 #define OM_HGUARD_OMDATABASE_H
 
-#include <vector>
 #include "omdocument.h"
 #include "omsettings.h"
 #include "ompostlistiterator.h"

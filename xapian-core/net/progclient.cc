@@ -34,7 +34,7 @@
 #include <cerrno>
 #include <strstream.h>
 
-ProgClient::ProgClient(std::string progname, const std::vector<std::string> &args, int msecs_timeout_)
+ProgClient::ProgClient(std::string progname, const std::string &args, int msecs_timeout_)
 	: SocketClient(get_spawned_socket(progname, args),
 		       msecs_timeout_,
 		       get_progcontext(progname, args),
@@ -44,19 +44,14 @@ ProgClient::ProgClient(std::string progname, const std::vector<std::string> &arg
 
 std::string
 ProgClient::get_progcontext(std::string progname,
-			    const std::vector<std::string> &args)
+			    const std::string &args)
 {
-    std::string result = "remote:prog(" + progname;
-    for(std::vector<std::string>::const_iterator i = args.begin();
-	i != args.end(); i++) {
-	result += " ";
-	result += *i;
-    }
+    std::string result = "remote:prog(" + progname + " " + args;
     return result;
 }
 
 int
-ProgClient::get_spawned_socket(std::string progname, const std::vector<std::string> &args)
+ProgClient::get_spawned_socket(std::string progname, const std::string &args)
 {
     /* socketpair() returns two sockets.  We keep sv[0] and give
      * sv[1] to the child process.
@@ -91,17 +86,20 @@ ProgClient::get_spawned_socket(std::string progname, const std::vector<std::stri
 	    close(i);
 	}
 
+	std::vector<std::string> argvec;
+	split_words(args, argvec);
+
 	// In theory, a potential memory leak here.
 	// In practice, we either execvp() or exit().
-	const char **new_argv = new const char *[args.size() + 2];
+	const char **new_argv = new const char *[argvec.size() + 2];
 
 	new_argv[0] = progname.c_str();
 	for (std::vector<std::string>::size_type i=0;
-	     i<args.size();
+	     i<argvec.size();
 	     ++i) {
-	    new_argv[i+1] = args[i].c_str();
+	    new_argv[i+1] = argvec[i].c_str();
 	}
-	new_argv[args.size() + 1] = 0;
+	new_argv[argvec.size() + 1] = 0;
 	execvp(progname.c_str(),
 	       const_cast<char *const *>(new_argv));
 

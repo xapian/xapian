@@ -57,7 +57,7 @@ NetworkDatabase::NetworkDatabase(const OmSettings & params, bool readonly)
     }
     if (type == "prog") {
 	std::string prog = params.get("remote_program");
-	std::vector<std::string> args = params.get_vector("remote_args");
+	std::string args = params.get("remote_args");
 	link = RefCntPtr<NetClient>(new ProgClient(prog, args, timeout));
 	Assert(link.get() != 0);
 	//initialise_link();

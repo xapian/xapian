@@ -23,8 +23,6 @@
 #ifndef OM_HGUARD_OMDOCUMENT_H
 #define OM_HGUARD_OMDOCUMENT_H
 
-#include <vector>
-
 #include <om/omtypes.h>
 #include <om/omtermlistiterator.h>
 #include <om/omkeylistiterator.h>

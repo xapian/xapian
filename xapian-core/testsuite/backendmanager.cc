@@ -448,15 +448,18 @@ OmDatabase
 BackendManager::getdb_network(const std::vector<std::string> &dbnames)
 {
     // run an omprogsrv for now.  Later we should also use omtcpsrv
-    std::vector<std::string> args;
-    args.push_back(datadir);
-    args.insert(args.end(), dbnames.begin(), dbnames.end());
+    std::string args = datadir;
+    std::vector<std::string>::const_iterator i;
+    for (i=dbnames.begin(); i!=dbnames.end(); ++i) {
+	args += " ";
+	args += *i;
+    }
 
     OmSettings params;
     params.set("backend", "remote");
     params.set("remote_type", "prog");
     params.set("remote_program", "../netprogs/omprogsrv");
-    params.set("remote_args", args.begin(), args.end());
+    params.set("remote_args", args);
     OmDatabase db(params);
 
     return db;

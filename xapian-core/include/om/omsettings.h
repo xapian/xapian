@@ -24,7 +24,6 @@
 #define OM_HGUARD_OMSETTINGS_H
 
 #include <string>
-#include <vector>
 
 //////////////////////////////////////////////////////////////////
 // OmSettings class
@@ -99,18 +98,6 @@ class OmSettings {
 	 */
 	void set(const std::string &key, bool value);
 
-	/** Set an option value to a vector of strings.
-	 *
-	 *  @param key   The name of the option as a string.
-	 *
-	 *  @param begin Iterator pointing to start of vector.
-	 *
-	 *  @param end   Iterator pointing to end of vector.
-	 */
-	void set(const std::string &key,
-		 std::vector<std::string>::const_iterator begin,
-		 std::vector<std::string>::const_iterator end);
-
 	/** Get a setting value as a string.
 	 *
 	 *  @param key	 The key corresponding to the value to retrieve.
@@ -166,14 +153,6 @@ class OmSettings {
 	 *  @param key	 The key corresponding to the value to retrieve.
 	 */
 	double get_real(const std::string &key, double def) const;
-
-	/** Get a setting value as a vector of strings.
-	 *
-	 *  @param key	 The key corresponding to the value to retrieve.
-	 *
-	 *  @exception   OmRangeError will be thrown for an invalid key.
-	 */
-	std::vector<std::string> get_vector(const std::string &key) const;
 
 	/** Returns a string representing the database group object.
 	 *  Introspection method.

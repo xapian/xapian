@@ -97,17 +97,4 @@ decode_tname(const std::string &tcode)
     return result;
 }
 
-inline void split_words(std::string text,
-                        std::vector<std::string> &words,
-                        char ws = ' ') {
-    if (text.length() > 0 && text[0] == ws) {
-	text.erase(0, text.find_first_not_of(ws));
-    }
-    while (text.length() > 0) {
-	words.push_back(text.substr(0, text.find_first_of(ws)));
-	text.erase(0, text.find_first_of(ws));
-	text.erase(0, text.find_first_not_of(ws));
-    }
-}
-
 #endif /* OM_HGUARD_NETUTILS_H */

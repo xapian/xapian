@@ -368,6 +368,8 @@ get_config_values(xmlNodePtr node, OmSettings &config)
 		}
 	    }
 	    config.set(name, value);
+#if 0
+FIXME: do something to replace this?
 	} else if (type == "list") {
 	    xmlNodePtr items = node->xmlChildrenNode;
 	    std::vector<std::string> values;
@@ -387,6 +389,7 @@ get_config_values(xmlNodePtr node, OmSettings &config)
 	    config.set(get_prop(node, "name"),
 		       values.begin(),
 		       values.end());
+#endif
 	} else {
 	    throw OmInvalidDataError(std::string("Invalid <param> type `")
 				     + type + "'");

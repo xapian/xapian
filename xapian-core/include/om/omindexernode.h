@@ -130,10 +130,6 @@ class OmIndexerNode {
 	/** Return the current value of a given configuration parameter. */
 	double get_config_double(const std::string &key) const;
 
-	/** Return the current value of a given configuration parameter. */
-	std::vector<std::string>
-		get_config_vector(const std::string &key) const;
-
 	/** This function may be overridden by a node implementation if it
 	 *  needs to be informed of configuration changes (rather than just
 	 *  checking the values from calculate().)

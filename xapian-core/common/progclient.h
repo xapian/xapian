@@ -47,12 +47,12 @@ class ProgClient : public SocketClient {
 	 *  class, since then it wouldn't work in constructors.
 	 */
 	static std::string get_progcontext(std::string progname,
-					   const std::vector<std::string> &args);
+					   const std::string &args);
 
 	/** Spawn a program and return a filedescriptor of
 	 *  the local end of a socket to it.
 	 */
-	int get_spawned_socket(std::string progname, const std::vector<std::string> &args);
+	int get_spawned_socket(std::string progname, const std::string &args);
 
     public:
 	/** Constructor.
@@ -64,7 +64,7 @@ class ProgClient : public SocketClient {
 	 *                        responding.
 	 */
 	ProgClient(std::string progname,
-		   const std::vector<std::string> &arg,
+		   const std::string &arg,
 		   int msecs_timeout_);
 
 	/** Destructor. */

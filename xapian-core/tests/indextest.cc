@@ -344,9 +344,8 @@ bool test_omstopword1()
 
     OmIndexer indexer =
 	    make_indexer_one_node("omstopword", "in", "out",
-	     "<param type='list' name='stopwords'>\n"
-	         "<item value='stop1'/>\n"
-		 "<item value='2stop'/>\n"
+	     "<param type='string' name='stopwords'"
+	         "value='stop1 2stop'>\n"
 	     "</param>\n");
 
     OmIndexerMessage result;

@@ -25,6 +25,7 @@
 #include "node_reg.h"
 #include <vector>
 #include <cstdio>
+#include "utils.h"
 
 using std::vector;
 
@@ -57,7 +58,9 @@ class OmSelectItemsNode : public OmIndexerNode {
 
 	void set_items()
 	{
-	    vector<std::string> sitems = get_config_vector("items");
+	    vector<std::string> sitems;
+	    split_words(get_config_string("items"),
+			sitems);
 
 	    items.clear();
 	    vector<std::string>::const_iterator i;

@@ -38,7 +38,7 @@
  *
  *  Parameters:
  *  	type: A string describing the type of the data.  Can be "string",
- *  		"int", "double", or "list".  The default, if specified,
+ *  		"int", or "double".  The default, if specified,
  *  		is "string".
  *  	value: the constant used for output.
  */
@@ -62,12 +62,6 @@ class OmConstantNode : public OmIndexerNode {
 		value.set_int(get_config_int("value"));
 	    } else if (type == "double") {
 		value.set_double(get_config_double("value"));
-	    } else if (type == "list") {
-		std::vector<std::string> vec = get_config_vector("value");
-		std::vector<OmIndexerMessage> newvec;
-		std::copy(vec.begin(), vec.end(),
-			  back_inserter(newvec));
-		value.set_vector(newvec.begin(), newvec.end());
 	    }
 	}
 

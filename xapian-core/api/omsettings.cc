@@ -158,6 +158,8 @@ OmSettings::set(const std::string &key, bool value)
     internal->set(key, value ? "1" : "");
 }
 
+#if 0  /* Removing vectors from the API.  Perhaps something similar may
+	  go back in one day. */
 void
 OmSettings::set(const std::string &key,
 		std::vector<std::string>::const_iterator begin,
@@ -173,6 +175,7 @@ OmSettings::set(const std::string &key,
     }
     internal->set(key, s);
 }
+#endif
 
 std::string
 OmSettings::get(const std::string &key) const
@@ -214,6 +217,7 @@ OmSettings::get_real(const std::string &key) const
     RETURN(res);
 }
 
+#if 0
 std::vector<std::string>
 OmSettings::get_vector(const std::string &key) const
 {
@@ -230,6 +234,7 @@ OmSettings::get_vector(const std::string &key) const
     }
     RETURN(v);
 }
+#endif
 
 std::string
 OmSettings::get(const std::string &key, std::string def) const

@@ -69,7 +69,8 @@ class OmStopWordNode : public OmIndexerNode {
 		: OmIndexerNode(config)
 	{
 	    try {
-		std::vector<std::string> words(config.get_vector("stopwords"));
+		std::vector<std::string> words;
+		split_stopwords(words, config.get("stopwords"));
 		stopwords.insert(words.begin(), words.end());
 	    } catch (OmRangeError &) {
 		// use the default list of words if not specified
@@ -101,6 +102,34 @@ class OmStopWordNode : public OmIndexerNode {
 	    }
 
 	    set_output("out", output);
+	}
+	void split_stopwords(std::vector<string> &vec,
+			     const std::string &s) {
+	    std::string::const_iterator i = s.begin();
+	    std::string accum;
+	    while (i != s.end()) {
+		switch (*i) {
+		    case ' ':
+			if (accum.length() > 0) {
+			    vec.push_back(accum);
+			    accum.erase();
+			};
+			break;
+		    case '\\':
+			++i;
+			if (i == s.end()) {
+			    throw OmInvalidDataError("Found backslash at end of stopword list");
+			}
+			accum += *i;
+			break;
+		    default:
+			accum += *i;
+		}
+		++i;
+	    }
+	    if (accum.length() > 0) {
+		vec.push_back(accum);
+	    }
 	}
 };
 
