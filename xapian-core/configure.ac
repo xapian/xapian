@@ -147,7 +147,7 @@ AC_PREPROC_IFELSE([#include <stdlib.h>
 dnl Check how to find the hostname: uname() in sys/utsname.h, or gethostname()
 dnl Don't use default includes as inttypes.h is found by Compaq C but not C++
 dnl so it causes all header probes to fail.
-AC_CHECK_HEADERS(sys/utsname.h, [], [], [])
+AC_CHECK_HEADERS(sys/utsname.h, [], [], [ ])
 AC_CHECK_FUNCS(gethostname)
 
 dnl mingw (for instance) lacks ssize_t
@@ -155,9 +155,9 @@ AC_CHECK_TYPE(ssize_t, long)
 
 dnl Check for a stringstream implementation.  (If not present, we roll
 dnl one ourselves).
-AC_CHECK_HEADERS(sstream, [], [], [])
+AC_CHECK_HEADERS(sstream, [], [], [ ])
 dnl Check for a new streams implementation.
-AC_CHECK_HEADERS(streambuf, [], [], [])
+AC_CHECK_HEADERS(streambuf, [], [], [ ])
 
 dnl check for strcasecmp.
 AC_CHECK_FUNCS([strcasecmp])
@@ -203,7 +203,7 @@ dnl	[AC_CHECK_LIB(dl, dlsym, [DL_LIBS="-ldl"])])
 dnl AC_SUBST(DL_LIBS)
 
 dnl Checks for header files.
-AC_CHECK_HEADERS(fcntl.h limits.h, [], [], [])
+AC_CHECK_HEADERS(fcntl.h limits.h, [], [], [ ])
 
 dnl If valgrind is installed and new enough, we use it for leak checking in the
 dnl testsuite.
