@@ -237,7 +237,6 @@ test_driver::runtest(const test_desc *test)
 #define REPORT_FAIL_VG(M) do { \
     if (verbose) { \
 	lseek(LOG_FD_FOR_VG, 0, SEEK_SET); \
-	char buf[1024]; \
 	while (true) { \
 	    ssize_t c = read(LOG_FD_FOR_VG, buf, sizeof(buf)); \
 	    if (c == 0 || (c < 0 && errno != EINTR)) break; \

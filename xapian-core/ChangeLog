@@ -1,3 +1,7 @@
+Sat Apr 10 00:23:13 BST 2004  Olly Betts <olly@survex.com>
+
+	* testsuite/testsuite.cc: Removed a now superfluous line.
+
 Sat Apr 10 00:21:15 BST 2004  Olly Betts <olly@survex.com>
 
 	* testsuite/testsuite.cc: Give a more accurate message if valgrind
