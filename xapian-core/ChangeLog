@@ -1,3 +1,8 @@
+Sat Jan 15 02:45:19 GMT 2005  Olly Betts <olly@survex.com>
+
+	* HACKING: Note that '#include <limits>' isn't supported by GCC 2.95,
+	  and other assorted minor tweaks.
+
 Sat Jan 08 16:09:10 GMT 2005  Olly Betts <olly@survex.com>
 
 	* api/maptermlist.h,backends/inmemory/inmemory_database.h,

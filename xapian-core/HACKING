@@ -2,7 +2,7 @@ Instructions for hacking on Xapian
 ==================================
 
 This file is aimed to help developers get started with working on
-Xapian. The documentation contains a section covering various internal
+Xapian.  The documentation contains a section covering various internal
 aspects of the library - this can also be found on the Xapian website
 <http://www.xapian.org/>.
 
@@ -58,8 +58,8 @@ message you're interested by setting environment variables.  You can:
    you would like to display (the default value is 0, which displays no debug
    messages).  To turn on all types, set it to -1.
 
-If you didn't configure with --enable-debug-verbose, these environment
-variables have no effect.
+These environment only have any effect if you run configure with the
+--enable-debug-verbose option.
 
 Debugging memory allocations
 ============================
@@ -67,8 +67,8 @@ Debugging memory allocations
 The testsuite can make use of valgrind to check for memory leaks and reads
 from uninitialised memory durings tests.  Although valgrind originally was
 specific to x86 Linux, there are now ports to x86 FreeBSD and PowerPC Linux.
-And anyway, Xapian contains very little platform specific code so testing
-with valgrind on one platform still gives good coverage.
+Xapian contains very little platform specific code so testing with valgrind on
+one platform still gives good coverage.
 
 If you have a new enough version of valgrind installed, it's automatically
 detected by configure and used when running the testsuite.  The testsuite runs
@@ -103,11 +103,11 @@ To enable profiling for gprof:
 
   ./configure CXXFLAGS=-pg LDFLAGS=-pg
 
-To use Purify:
+To use Purify (a proprietary tool):
 
   ./configure CXXLD='purify c++' --disable-shared
 
-To use Insure:
+To use Insure (another proprietary tool):
 
   ./configure CXX=insure
 
@@ -158,9 +158,14 @@ at the time of writing, the versions known to work are:
 
 		automake 1.7 works too.
 
-		automake 1.8 doesn't appear to have anything vital to us, but
+		automake 1.8 doesn't appear to add anything vital to us, but
 		there were a lot of fixes between 1.6.3 (the previous version
 		we required) and 1.8.5, so currently we're requiring 1.8.5.
+
+		automake 1.9 was very new when we moved to requiring 1.8.5.
+		It should be more mature now, and the NEWS file suggests it
+		will benefit us with smaller Makefile.ins.  Once we move to
+		this, it will require us to use 2.59.
 
 	GNU libtool 1.5.8
 		libtool 1.5 was the first version to properly support linking
@@ -243,12 +248,16 @@ Use of C++ Features:
 * "using namespace std;" and "using std::XXX;" - it's OK to use these in
   applications, library code, and internal library headers.  But in externally
   visible headers (such as anything included by "#include <xapian.h>") you MUST
-  use explicit "std::" qualifiers - it's not acceptable to pull things from
+  use explicit "std::" qualifiers - it's not acceptable to pull anything from
   namespace std into the namespace of an application which uses Xapian.
 
 * Use C++ style casts (static_cast<>, reinterpret_case<>, and const_cast<>)
   in preference to C style casts.  The syntax is ugly, but they do make the
   intent much clearer which is definitely a good thing.
+
+* "#include <limits>" isn't supported by GCC 2.95 (GCC 3.0 and later seem to
+  support it, so if we stop supporting GCC 2.95 this restriction can be
+  removed).
 
 Miscellaneous Portability Issues:
 =================================
