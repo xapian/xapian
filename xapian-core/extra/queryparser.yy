@@ -527,7 +527,8 @@ more_term:
 static int
 yyerror(const char *s)
 {
-    throw s;
+    s = s; // Not used
+    return 0;
 }
 
 Query
@@ -573,12 +574,31 @@ QueryParser::parse_query(const string &q_)
     term_pos = 1;
     prefix = "";
     qptr = q.begin();
+
     if (yyparse() == 1) {
-	throw "query failed to parse";
+	// Strip out any non-alphanumerics and try to parse again.
+	// FIXME: be smarter about certain non-alphanumerics...
+	string::iterator j = q.begin();
+	while (true) {
+	    j = find_if(j, q.end(), p_notalnum);
+	    if (j == q.end()) break;
+	    *j = ' ';
+	    ++j;
+	}
+
+	pending_token = 0;
+	term_pos = 1;
+	prefix = "";
+	qptr = q.begin();
+
+	if (yyparse() == 1) {
+	    throw "parse error";
+	}
     }
+
     Query res = query;
     query = Query();
-    q = "";
+    q.erase();
     return res;
 }
 

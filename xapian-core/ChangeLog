@@ -1,3 +1,8 @@
+Thu May 13 00:05:45 BST 2004  Olly Betts <olly@survex.com>
+
+	* extra/queryparser.yy,extra/queryparsertest.cc: If we fail to parse
+	  a query, try stripping out non-alphanumerics and reparsing.
+
 Wed May 12 14:32:54 BST 2004  Olly Betts <olly@survex.com>
 
 	* common/omtime.h: Corrected file description.
