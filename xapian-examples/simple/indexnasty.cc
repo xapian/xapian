@@ -30,16 +30,18 @@ A segment consists of multiple single line fields with a header,
 
 <header>=<data>
 
-A head may optionally be prefixed with ~, followed by an optional ':' 
+A head may optionally be prefixed with ~ or *, followed by an optional ':' 
 terminated prefix, followed by am optional field name; 
 
 i.e.
-  [~[prefix:]][fieldname]=
+  [[~|*][prefix:]][fieldname]=
 
 Prefix and fieldname may be null.
 If ~ is specified then the data is stemmed for terms.
+If a * is specified then the prefixed data must be unique and if a record
+already exists with this it is overwritten
 If a prefix is specified then terms are prefixed.
-If neither ~ or a prefix or a : are specified the field is not used for terms
+If neither * or ~ or a prefix or a : are specified the field is not used for terms
 
 If a fieldname is specified then the data is stored as a line in the document
 data field.
@@ -55,7 +57,7 @@ U:=No stem terms , prefix U, no store
 ~:=Stem terms, no prefix, no store
 :=No stem terms, no prefix, no store
 X=No terms, but still store
-
+*Q0:q0=23
 ~:Text=Jack and Jill went up the hill
 
 */
@@ -64,15 +66,15 @@ X=No terms, but still store
 #include <fstream>
 #include <om/om.h>
 
-om_docid IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer);
+static bool IndexNastyFile(string Filepath, OmWritableDatabase &database,
+			   OmStem &stemmer);
 
 int main(int argc, char *argv[])
 {
-    // Simplest possible options parsing: we just require three or more
-    // parameters.
+    // Simplest possible options parsing: we require one or more parameters.
     if(argc < 2) {
-	std::cout << "usage: " << argv[0] <<
-		" <path to database> [<filename>]" <<
+	std::cout << "Usage: " << argv[0] <<
+		" <path to database> [<filename>]..." <<
 		std::endl;
 	exit(1);
     }
@@ -136,21 +138,22 @@ index_text(const string &s, OmDocument &doc, OmStem &stemmer, om_termpos pos)
     return pos;
 }                           
 
-om_docid
-IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer) {
-  if (! Filepath.length()) Filepath="/dev/fd/0";
+static void
+IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer)
+{
+  if (Filepath.empty()) Filepath = "/dev/fd/0";
 
   std::ifstream stream(Filepath.c_str());
 
   if (! stream) {
     std::cout << "Can't open file " << Filepath << std::endl;
-    return 0;
+    return false;
   }
 
   // Make the document
   om_docid docid=0;
   int pending=0;
-  #define MAX_PENDING 10
+#define MAX_PENDING 10
 
   while(! stream.eof()) {
     OmDocument newdocument;
@@ -158,11 +161,12 @@ IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer) {
     string data="";
     int wordcount=0;
     string line;
+    string uniqueterm="";
 
     while (getline(stream,line)) {
       if (! line.length()) break;
 
-      bool stem, term;
+      bool stem, term, unique;
       string prefix="";
       string field="";
       string header;
@@ -178,25 +182,31 @@ IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer) {
         // if header has no : but has not ~ then just store 
 
         if (stem=(header[hindex]=='~')) hindex++;
+        if (unique=(header[hindex]=='*')) hindex++;
 
         // now scan up to colon to get terms prefix
         if (term=( (hcursor=header.find_first_of(":",hindex)) !=string::npos)) {
           prefix=header.substr(hindex,hcursor-hindex);
           field=header.substr(hcursor+1,header.length()-hcursor-1);
         } else { // No ':' 
-          if (term=stem) prefix=header.substr(hindex,header.length()-hindex);
+          if (term=(stem || unique)) prefix=header.substr(hindex,header.length()-hindex);
           else field=header;
         }
 
         cursor++; // skip past '='
         string text=line.substr(cursor,line.length()-cursor);
 
-        if (field.length()) data+=field+"="+text+"\n";
+        if (field.length() && text.length()) data+=field+"="+text+"\n";
 
         // now index field if required
         if (term) {
           if (stem) index_text(text, newdocument, stemmer, wordcount);
-          else newdocument.add_posting(prefix+text,wordcount++);
+          else {
+            if (unique) { // note unique field - only one per document tho!
+	      uniqueterm=prefix+text;
+	    }
+	    if (text.length()) newdocument.add_posting(prefix+text,wordcount++);
+	  }
         }
       } else std::cout << "Bad line: " << cursor << " " << line << std::endl;
     }
@@ -205,6 +215,24 @@ IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer) {
     newdocument.set_data(data);
 
     // Add the document to the database
+    if (uniqueterm.length() && (database.term_exists(uniqueterm))) {
+      try { // nicked from omindex.cc
+	auto_ptr<OmEnquire> enq = auto_ptr<OmEnquire>(new OmEnquire(database));
+	enq->set_query(OmQuery(uniqueterm));
+	OmMSet mset = enq->get_mset(0, 1);
+	try {
+	  database.replace_document(*mset[0], newdocument);
+	  docid=*mset[0];
+	} catch (...) {
+          docid=database.add_document(newdocument);
+	}
+      } catch (...) {
+        docid=database.add_document(newdocument);
+      }
+    } else {
+      docid=database.add_document(newdocument);
+    }
+
 //    if (docid) {
 //      try {
 //        database.replace_document(docid,newdocument);
@@ -213,16 +241,15 @@ IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer) {
 //      }
 //    }
 //    else 
-docid=database.add_document(newdocument);
 
-    if (++pending>MAX_PENDING) {
-      pending=0;
-      database.flush();
-      std::cout << "Flushed" << std::endl;
-    }
+//    if (++pending>MAX_PENDING) {
+//      pending=0;
+//      database.flush();
+//      std::cout << "Flushed" << std::endl;
+//    }
 
-    std::cout << docid << std::endl;
+    std::cout << docid << " " << uniqueterm << std::endl;
   }
 
-  return docid;
+  return true;
 }
