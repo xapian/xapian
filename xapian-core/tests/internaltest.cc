@@ -214,7 +214,8 @@ class test_refcnt : public OmRefCntBase {
 	    }
 	}
 	OmRefCntPtr<const test_refcnt> test() {
-	    return OmRefCntPtr<const test_refcnt>(OmRefCntPtr::BypassRefStart, this);
+	    typedef const test_refcnt c_t; // less typing...
+	    return OmRefCntPtr<c_t>(OmRefCntPtr<c_t>::BypassRefStart(), this);
 	}
 	~test_refcnt() {
 	    deleted = true;
