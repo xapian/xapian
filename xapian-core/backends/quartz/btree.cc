@@ -1412,6 +1412,8 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
 	    latest_revision_number = other_base->get_revision();
 	    if (revision_number > latest_revision_number)
 		latest_revision_number = revision_number;
+	} else {
+	    latest_revision_number = revision_number;
 	}
     }
 

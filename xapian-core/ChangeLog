@@ -1,3 +1,9 @@
+Thu Oct 07 22:51:28 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: An interrupted update could cause any
+	  further updates to fail with "New revision too low" because the
+	  new revision was being calculated incorrectly - fixed.
+
 Wed Oct 06 15:42:31 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc,include/xapian/database.h: Check that any
