@@ -1,66 +1,108 @@
-#! @PERL@
+#! @PERL@ -w
 # @configure_input@
 # mkdoc.pl is automatically generated from mkdoc.pl.in
 # *** Do not edit the generated file ***
 
 # mkdoc.pl.in: generate documentation from source code and associated files.
-# takes two parameters
+use strict;
 
+# Declarations
+sub get_descriptions();
+sub tohtml($);
+
+# Parse command line parameters
 if($#ARGV < 1 || $#ARGV>2) {
   print "usage: mkdoc.pl <source directory> <destination> [webroot]\n";
   exit 1;
 }
 
-$srcdir  = $ARGV[0];
-$dest    = $ARGV[1];
-$webroot = "";
+my $srcdir  = $ARGV[0];
+my $dest    = $ARGV[1];
+my $webroot = "";
 $webroot = $ARGV[2] if($#ARGV == 2);
 
-%descriptions = ();
+my %descriptions = ();
+my %classes = ();
 
-# Assume we have find.  Get all the possible directories.
-$dirs   = `find $srcdir -type d`;
-@dirs   = split(/\n/, $dirs);
+get_descriptions();
+#get_codestruct();
+output_html();
 
-# Read the contents of any dir_contents's we find.
-foreach $dir (@dirs) {
-  next if $dir =~ m/CVS$/;
-  $contentsfile = "$dir/dir_contents";
-  next if ! -r $contentsfile;
-  open(CONTENTSFILE, $contentsfile);
+sub get_descriptions() {
+    # Assume we have find.  Get all the possible directories.
+    my @dirs   = split(/\n/, `find $srcdir -type d`);
 
-  $contents = "";
-  while(<CONTENTSFILE>) { $contents .= $_; }
+    # Read the contents of any dir_contents's we find.
+    my $dir;
+    foreach $dir (@dirs) {
+	next if $dir =~ m/CVS$/;
+	my $contentsfile = "$dir/dir_contents";
+	next if ! -r $contentsfile;
+	open(CONTENTSFILE, $contentsfile);
 
-  # Get directory tag
-  if($contents !~ m#<directory>\s*(.+?)\s*</directory>#is) {
-      print stderr "Skipping $contentsfile: didn't contain a directory tag\n";
-      next;
-  }
-  $directory = "$1";
-  $tagdir = "$srcdir/$directory/";
-  if($directory eq "ROOT") {
-    # Special case for top level dir
-    $tagdir = "$srcdir/";
-  }
-  if("$tagdir" ne $dir . "/") {
-    print stderr "Skipping $contentsfile: incorrect directory tag\n";
-    next;
-  }
+	my $contents = "";
+	while(<CONTENTSFILE>) { $contents .= $_; }
 
-  # Get description tag
-  if($contents !~ m#<description>\s*(.+?)\s*</description>#is) {
-      print stderr "Skipping $contentsfile: didn't contain a description tag\n";
-      next;
-  }
-  $description = "$1";
+        # Get directory tag
+	if($contents !~ m#<directory>\s*(.+?)\s*</directory>#is) {
+	    print STDERR "Skipping $contentsfile: didn't contain a directory tag\n";
+	    next;
+	}
+	my $directory = "$1";
+	my $tagdir = "$srcdir/$directory/";
+	if($directory eq "ROOT") {
+            # Special case for top level dir
+	    $tagdir = "$srcdir/";
+	}
+	if("$tagdir" ne $dir . "/") {
+	    print STDERR "Skipping $contentsfile: incorrect directory tag\n";
+	    next;
+	}
 
-  $descriptions{$directory} = $description;
+        # Get description tag
+	if($contents !~ m#<description>\s*(.+?)\s*</description>#is) {
+	    print STDERR "Skipping $contentsfile: didn't contain a description tag\n";
+	    next;
+	}
+	$descriptions{$directory} = "$1";
+    }
+    close(CONTENTSFILE);
 }
-close(CONTENTSFILE);
 
-sub tohtml() {
-  $html = $_[0];
+sub get_codestruct() {
+    my @files = split(/\n/, `find $srcdir -name \*.cc -or -name \*.c -or -name \*.cpp -or -name \*.h`);
+
+    my $file;
+    foreach $file (@files) {
+	open(CODEFILE, $file);
+	print "$file\n";
+
+	my $contents;
+	while(<CODEFILE>) {
+	    $contents .= $_;
+	}
+
+	my $commentno = 1;
+	while($contents =~ m#(/\*.*?\*/)#s) {
+	    print "comment: `$1'\n";
+	    my $newlines = "";
+	    
+	    $contents = "$`/*$newlines*/$'";
+	}
+	while($contents =~ s#//(.*?)\n#\n#) { print "removing $1\n"}
+	while($contents) {
+	    $contents =~ /\bclass\s+(\w+)\s*(?:|:\s*(.+?)\s*)/;
+	    my $classname = $1;
+	    my $inheritance = "";
+	    $inheritance = $2 if defined $2;
+	    print "$classname-$inheritance\n";
+	}
+    }
+    close(CODEFILE);
+}
+
+sub tohtml($) {
+  my $html = $_[0];
   $html =~ s#>#&gt;#g;
   $html =~ s#<#&lt;#g;
   $html =~ s#"#&quot;#g;
@@ -68,11 +110,12 @@ sub tohtml() {
   return $html;
 }
 
-# Open output
-open(DESTFILE, ">$dest");
+sub output_html() {
+    # Open output
+    open(DESTFILE, ">$dest");
 
-# Print header
-print DESTFILE <<EOF;
+    # Print header
+    print DESTFILE <<EOF;
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
@@ -84,59 +127,67 @@ This documentation was automatically generated, and corresponds to version
 <HR>
 EOF
 
-# Print directory index
-print DESTFILE "<H1>Directory structure index</H1>\n";
-my $level=0;
-foreach $dir (sort keys(%descriptions)) {
-  $newlev = ($dir =~ tr#/##) + 1; # Count the number of /'s in $dir
-  if($level == $newlev) {
-      print DESTFILE "</LI>";
-  }
-  while($level < $newlev) {
-    print DESTFILE "\n" . " " x ($level * 2) . "<UL>";
-    $level++;
-  }
-  while($level > $newlev) {
-    print DESTFILE "</LI>\n" . " " x ($level * 2 - 2) . "</UL>";
-    $level--;
-  }
-  print DESTFILE "\n" . " " x ($level * 2 - 1) .
-		 "<LI><A HREF=\"#$dir\">$dir</A>";
-}
-$newlev=0;
-while($level > $newlev) {
-  print DESTFILE "</LI>\n" . " " x ($level * 2 - 2) . "</UL>";
-  $level--;
-}
-print DESTFILE "\n<HR>\n\n";
-
-# Print directory details
-print DESTFILE "<H1>Directory structure</H1>\n";
-foreach $dir (sort keys(%descriptions)) {
-  print DESTFILE "<A NAME=\"$dir\"></A>";
-  if($webroot) {
-    if($dir eq "ROOT") {
-      print DESTFILE "<A HREF=\"$webroot\">";
-    } else {
-      print DESTFILE "<A HREF=\"$webroot/$dir\">";
+    # Print directory index
+    print DESTFILE "<H1>Directory structure index</H1>\n";
+    my $level=0;
+    my $dir;
+    foreach $dir (sort keys(%descriptions)) {
+	my $newlev = ($dir =~ tr#/##) + 1; # Count the number of /'s in $dir
+	if($level == $newlev) {
+	    print DESTFILE "</LI>";
+	}
+	while($level < $newlev) {
+	    print DESTFILE "\n" . " " x ($level * 2) . "<UL>";
+	    $level++;
+	}
+	while($level > $newlev) {
+	    print DESTFILE "</LI>\n" . " " x ($level * 2 - 2) . "</UL>";
+	    $level--;
+	}
+	print DESTFILE "\n" . " " x ($level * 2 - 1) .
+	"<LI><A HREF=\"#$dir\">$dir</A>";
     }
-    print DESTFILE "<H2>$dir</H2></A>\n\n";
-  } else {
-    print DESTFILE "<H2>$dir</H2>\n\n";
-  }
-  print DESTFILE &tohtml($descriptions{$dir});
-  print DESTFILE "\n\n\n";
-}
+    my $newlev=0;
+    while($level > $newlev) {
+	print DESTFILE "</LI>\n" . " " x ($level * 2 - 2) . "</UL>";
+	$level--;
+    }
+    print DESTFILE "\n<HR>\n\n";
 
-# Print footer
-$date = `date`;
-$date =~ s/\n$//;
-$genby = `whoami`;
-$genby =~ s/\n$//;
-$genby .= '@' . `hostname`;
-$genby =~ s/\n$//;
+    # Print directory details
+    print DESTFILE "<H1>Directory structure</H1>\n";
+    foreach $dir (sort keys(%descriptions)) {
+	print DESTFILE "<A NAME=\"$dir\"></A>";
+	if($webroot) {
+	    if($dir eq "ROOT") {
+		print DESTFILE "<A HREF=\"$webroot\">";
+	    } else {
+		print DESTFILE "<A HREF=\"$webroot/$dir\">";
+	    }
+	    print DESTFILE "<H2>$dir</H2></A>\n\n";
+	} else {
+	    print DESTFILE "<H2>$dir</H2>\n\n";
+	}
+	print DESTFILE &tohtml($descriptions{$dir});
+	print DESTFILE "\n\n\n";
+    }
 
-print DESTFILE <<EOF;
+    # Print class details
+    print DESTFILE "<H1>Class structure</H1>\n";
+    my $class;
+    foreach $class (sort keys(%classes)) {
+	print DESTFILE "$class<BR>\n";
+    }
+
+    # Print footer
+    my $date = `date`;
+    $date =~ s/\n$//;
+    my $genby = `whoami`;
+    $genby =~ s/\n$//;
+    $genby .= '@' . `hostname`;
+    $genby =~ s/\n$//;
+
+    print DESTFILE <<EOF;
 <HR>
 Generated on $date, by $genby
 <P>
@@ -146,5 +197,6 @@ Command line used to generate this documentation:<BR>
 </HTML>
 EOF
 
-# Done
-close DESTFILE;
+    # Done
+    close DESTFILE;
+}
