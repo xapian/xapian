@@ -44,7 +44,10 @@ enum om_queryop_values {
 typedef OmQuery::op om_queryop;
 
 %}
+
 %include "stl.i"
+using namespace std;
+
 %include "om_util.i"
 %include "omstem.i"
 %include "omtypes.i"
@@ -102,8 +105,12 @@ class OmMSetIterator {
     om_docid get_docid() {
       return *(*self);
     }
-    void next() {
-      (*self)++;
+    bool next() {
+      if ((*self).internal) (*self)++;
+      return ((*self).internal!=NULL);
+    }
+    bool valid() {
+      return ((*self).internal!=NULL);
     }
     bool equals(const OmMSetIterator &other) {
       return (*self)==other;
@@ -328,7 +335,6 @@ class OmEnquire {
 		  while (term != self->get_matching_terms_end(hit)) {
 		    // check term was in the typed query so we ignore
 		    // boolean filter terms
-//		    if (termset.find(*term) != termset.end())
 		      terms.push_back(*term);
                     ++term;
 		  }

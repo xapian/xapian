@@ -1,3 +1,10 @@
+Mon May 27 14:28:06 BST 2002  Sam Liddicott <saml@ananova.net>
+
+	* Add crash-protected next() to OmMSetIterator
+	* Add ->valid() method to iterator which returns FALSE if
+	  the iterator has reached the end
+	* Added namespace fixes for latest cvs swig to be released next month
+
 Fri May 24 15:28:18 BST 2002  Sam Liddicott <saml@ananova.net>
 
 	* Took out the string typemaps as swig now has them in stl.i
