@@ -178,7 +178,7 @@ INLINE_INFO          = YES
 # alphabetically by member name. If set to NO the members will appear in
 # declaration order.
 
-SORT_MEMBER_DOCS     = YES
+SORT_MEMBER_DOCS     = NO
 
 # The TAB_SIZE tag can be used to set the number of spaces in a tab.
 # Doxygen uses this value to replace tabs by spaces in code fragments.
