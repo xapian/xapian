@@ -148,11 +148,12 @@ IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer) {
   }
 
   // Make the document
-  OmDocument newdocument;
   om_docid docid=0;
-
+  int pending=0;
+  #define MAX_PENDING 10
 
   while(! stream.eof()) {
+    OmDocument newdocument;
     docid=0;
     string data="";
     int wordcount=0;
@@ -204,14 +205,21 @@ IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer) {
     newdocument.set_data(data);
 
     // Add the document to the database
-    if (docid) {
-      try {
-        database.replace_document(docid,newdocument);
-      } catch (...) {
-        docid=database.add_document(newdocument);
-      }
+//    if (docid) {
+//      try {
+//        database.replace_document(docid,newdocument);
+//      } catch (...) {
+//        docid=database.add_document(newdocument);
+//      }
+//    }
+//    else 
+docid=database.add_document(newdocument);
+
+    if (++pending>MAX_PENDING) {
+      pending=0;
+      database.flush();
+      std::cout << "Flushed" << std::endl;
     }
-    else docid=database.add_document(newdocument);
 
     std::cout << docid << std::endl;
   }
