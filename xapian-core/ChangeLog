@@ -1,3 +1,7 @@
+Mon Dec 09 09:57:42 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/todo.xml: Updated.
+
 Mon Dec 09 07:32:46 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartztest.cc: Corrected name of database used

@@ -1,12 +1,12 @@
 <todo>
-<todoitem priority=" " difficulty="" owner="" area="Matcher" release="">
+<todoitem priority="V" difficulty="" owner="" area="Matcher" release="">
 
 Possible optimisation:  Consider using hash_map instead of map in various
 places - two possible such locations are i) doing collapsem (in
 matcher/multimatch.cc) and ii) in the inmemory database.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="API" release="">
+<todoitem priority="M" difficulty="" owner="Olly" area="API" release="1.0">
 
 Consider default ctors for any API classes which are missing them.
 
@@ -18,23 +18,15 @@ match numeric docids in another system?)  Currently replace_document() fails
 if the document id doesn't exist already (at least with quartz).
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="Quartz" release="">
+<todoitem priority="L" difficulty="" owner="Olly" area="Quartz" release="1.0">
 
 Shouldn't stall just because a stale db_lock exists - instead of just an
 empty file, put the hostname and pid in the file (or use a symlink with the
 info in the target since that can be created atomically) and check the details
 - that way we can spot a stale lock from a process on the same machine.
-Or touch the lock periodically to keep it?
-
-</todoitem>
-<todoitem priority="M" difficulty="" owner="Olly" area="Documentation" release="0.8">
-
-Finish reading through generated docs to ensure they read well in collated form.
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="" area="Bindings" release="">
-
-Check for swig version.
+Or touch the lock periodically to keep it?  Or use fcntl(), except that
+doesn't handle locking within a process, so it needs to be combined with
+another locking scheme.
 
 </todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="Debug" release="">
@@ -141,17 +133,17 @@ Patch doxygen, so that todo items in the body of methods get displayed.
 <todoitem priority="M" difficulty="3" owner="" area="Exceptions" release="">
 
 Make exceptions work with shared libs on solaris / find an alternative. (gcc
-=&gt; DISABLE_SHARED on Solaris)
++ Solaris =&gt; DISABLE_SHARED)
 
 </todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="OmQuery" release="0.8">
+<todoitem priority="M" difficulty="2" owner="" area="OmQuery" release="1.0">
 
 Move all serialisation of OmQuery into OmQuery (out of socketcommon.cc and
 localmatch): modification of omquery requires changes in 3 separate parts
 of the code, at present.
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="Documentation" release="1.0">
+<todoitem priority="M" difficulty="5" owner="Olly" area="Documentation" release="1.0">
 
 Ensure that API documentation covers entirety of API (i.e. that all methods and
 classes in the API have documentation comments) -- see doxygen generated file
@@ -182,7 +174,7 @@ Allow negative relevance judgements?  Will need to check that this doesn't
 cause assumptions to be violated. (eg, unsigned integers going negative.)
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Databases" release="0.8">
+<todoitem priority="M" difficulty="3" owner="" area="Databases" release="1.0">
 
 Change all internal references to net/network backend to remote backend (in
 step with external naming)
@@ -265,11 +257,6 @@ Passage retrieval.
 <todoitem priority="L" difficulty="5" owner="" area="Matcher" release="">
 
 Clustering algorithms.
-
-</todoitem>
-<todoitem priority="V" difficulty="5" owner="" area="General" release="">
-
-Improve performance using SIMD instructions
 
 </todoitem>
 <todoitem priority="H" difficulty="" owner="Olly" area="" release="0.7">
@@ -377,6 +364,8 @@ share some techniques from implementing synonym postlists.
 <todoitem priority=" " difficulty="" owner="" area="" release="">
 
 "make install" on omega should install CGI binary somewhere more helpful
+(improved somewhat - now goes in /usr/lib/omega/lib/omega; RPMs install
+it in cgi-bin directory).
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Olly" area="" release="1.0">
@@ -390,6 +379,11 @@ Language bindings: Python, PHP and Java (Perl and C would be good too).
 All can be done using SWIG, and it's probably easier to do so
 even though some languages (eg Python) have better tools
 available just because it's less overall work.
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="Bindings" release="">
+
+Check for swig version.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="Bindings" release="">
