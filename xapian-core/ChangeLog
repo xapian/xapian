@@ -1,3 +1,7 @@
+Thu Apr 10 18:53:53 BST 2003  Olly Betts <olly@survex.com>
+
+	* .cvsignore: Added config.sub.
+
 Thu Apr 10 02:41:50 BST 2003  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.in: Updated for 0.6.5 release.
@@ -5003,6 +5007,7 @@ Fri Nov 24 18:27:06 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 Fri Nov 24 15:34:17 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.4.1
+
 
 
 
