@@ -7,7 +7,7 @@
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
 
-#define MIN_SUPPORT 5
+#define MIN_SUPPORT 1 
 
 // try convinction instead of interest measure (convinction is directional)
 //
@@ -121,8 +121,38 @@ unsigned int find_symbol_count( Db& db, const string & k ) {
     assert(0);
 }
 
+double compute_convinction( unsigned int a_count, 
+			    unsigned int b_count, 
+                            unsigned int a_and_b_count, 
+	                    unsigned int total_commit_transactions ) {
+
+            unsigned int not_b_count = 0;
+            unsigned int a_and_not_b_count = 0;
+
+            not_b_count = total_commit_transactions - b_count;
+            a_and_not_b_count = a_count - a_and_b_count;
+
+            double a_and_not_b_prob = (double) a_and_not_b_count / (double) total_commit_transactions;
+            double a_prob = (double) a_count / (double) total_commit_transactions;
+            double not_b_prob = (double) not_b_count / (double) total_commit_transactions;
+
+	    double b_prob = (double) b_count / (double) total_commit_transactions;
+
+            double convinction = (a_prob * not_b_prob) / ( a_and_not_b_prob );
+
+//#warning "dividing convinction by prob of consequent"
+  //cerr << "..convinction " << convinction << endl;
+  //cerr << "..prob b " << b_prob << endl;
+
+
+  //convinction = convinction / log(1.0+log(1.0+b_prob));
+
+  return convinction;
+}
+
+
 void generate_rules( Db& db,
-                     const string & ranking_system,
+                     const set<string> & ranking_system,
                      const set<string>& query_symbols,
                      const map<string, int >& relative_item_count,
                      unsigned int transactions_returned,
@@ -130,12 +160,13 @@ void generate_rules( Db& db,
                      map<double, set<string> >& class_ranking,
                      map<double, set<string> >& function_ranking )
 {
-    assert( ranking_system != "" );
+    assert( ! ranking_system.empty() );
 
     for( map<string, int >::const_iterator i = relative_item_count.begin();
          i != relative_item_count.end(); ++i)
     {
         string symbol = i->first;
+//cerr << "Considering " << symbol << endl;
         unsigned int a_and_b_count = i->second;
 
         if ( a_and_b_count < MIN_SUPPORT ) {
@@ -146,9 +177,10 @@ void generate_rules( Db& db,
             continue;
         }
 
-        double score = 0.0; // the higher the better
+        double score = -1.0; // the higher the better
+	string prefix = "";
 
-        if ( ranking_system == "<=>" ) {
+        if ( ranking_system.find( "<=>" ) != ranking_system.end() ) {
 
             // use interest measure P(A&B)/(P(A)*P(B)) which is symmetric
             unsigned int symbol_count = find_symbol_count( db, symbol );
@@ -159,38 +191,60 @@ void generate_rules( Db& db,
             double interest = A_and_B_prob / ( A_prob * B_prob );
 
             score = interest;
+//#warning "taking log of interest now"
+//            score = log( 1.0 + interest );
+            assert( score >= 0.0 );
+	    prefix = "<=>";
 
-        } else {
+        } 
+
+ 
+        if ( ranking_system.find( "=>" ) != ranking_system.end() ) {
+
 
             // generate rule of the form a=>b
             unsigned int a_count = 0;
             unsigned int b_count = 0;
-            unsigned int not_b_count = 0;
-            unsigned int a_and_not_b_count = 0;
             unsigned int symbol_count = find_symbol_count( db, symbol );
 
-            if ( ranking_system == "<=" ) {
-                a_count = symbol_count;
-                b_count = transactions_returned;
-            } else {
                 // normally, we would be here...
                 a_count = transactions_returned; // if only query terms specified, this case applies also
                 b_count = symbol_count;
-            }
 
-            not_b_count = total_commit_transactions - b_count;
-            a_and_not_b_count = a_count - a_and_b_count;
+	    double convinction = compute_convinction( a_count, b_count, a_and_b_count, total_commit_transactions );
 
-            double a_and_not_b_prob = (double) a_and_not_b_count / (double) total_commit_transactions;
-            double a_prob = (double) a_count / (double) total_commit_transactions;
-            double not_b_prob = (double) not_b_count / (double) total_commit_transactions;
+            if ( score < 0.0 ) {
+		score = convinction;
+		prefix = "=>";
+            } else {
+		score = score * convinction;
+		prefix +="*=>";
+	    }
 
-            double convinction = (a_prob * not_b_prob) / ( a_and_not_b_prob );
-
-            score = convinction; // may be +inf but that's ok
         }
 
-        string item = ranking_system + symbol;
+        if ( ranking_system.find( "<=" ) != ranking_system.end() ) {
+            // generate rule of the form a<=b
+            unsigned int a_count = 0;
+            unsigned int b_count = 0;
+            unsigned int symbol_count = find_symbol_count( db, symbol );
+
+                a_count = symbol_count;
+                b_count = transactions_returned;
+
+	    double convinction = compute_convinction( a_count, b_count, a_and_b_count, total_commit_transactions );
+
+            if ( score < 0.0 ) {
+		score = convinction;
+		prefix = "<=";
+            } else {
+		score = score * convinction;
+		prefix += "*<=";
+	    }
+
+        }
+
+        string item = prefix + symbol;
 
         if ( item.find("()") != string::npos ) {
             function_ranking[ -score ].insert(item);
@@ -358,7 +412,7 @@ int main(unsigned int argc, char *argv[]) {
 
         OmStem stemmer("english");
 
-        string ranking_system = "";
+        set<string> ranking_system;
 
         for (unsigned int optpos = qpos; optpos < argc; optpos++) {
 
@@ -368,7 +422,7 @@ int main(unsigned int argc, char *argv[]) {
                 queryterms.push_back(s); // symbol, put as is
                 query_symbols.insert(s); // no stemming, no lc
             } else if ( s == "=>" || s == "<=" || s == "<=>" ) {
-                ranking_system = s;
+                ranking_system.insert(s);
             } else {
                 om_termname term = s;
                 lowercase_term(term);
@@ -428,7 +482,7 @@ int main(unsigned int argc, char *argv[]) {
 
         assert( total_commit_transactions > 0 );
 
-        if ( ranking_system != "" ) {
+        if ( ! ranking_system.empty() ) {
 
                 // the consequent of our rules contains only one item
                 // so we need only count single items

@@ -200,6 +200,10 @@ int main(unsigned int argc, char *argv[]) {
             // "...cvsdata/root0/db/pkg" + ".db/" + pkg.db"
             // ------------------------------------------------------------
             cvs_db_file db_file(package_db_path + ".db/" + package_name + ".db", true);
+
+//              string file_cmt    = package_db_path + ".cmt";
+//              string file_offset = package_db_path + ".offset";
+// lines_cmt lines(root, package_name, file_cmt, file_offset, " mining");
             lines_db lines(root, package_path, " mining", db_file);
             unsigned int count;
 
