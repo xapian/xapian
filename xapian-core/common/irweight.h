@@ -32,9 +32,11 @@ IRWeight::set_stats(const IRDatabase *root_new,
 	  doccount termfreq_new,
 	  termid tid_new,
 	  const RSet *rset_new = NULL) {
-    // Can set stats several times ...
+    // Can set stats several times, but can't set them after we've used them
     Assert(!weight_calculated);
 
+    root = root_new;
+    termfreq = termfreq_new;
     tid = tid_new;
     rset = rset_new;
     initialised = true;
