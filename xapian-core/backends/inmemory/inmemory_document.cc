@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "inmemory_document.h"
 #include "om/omdocument.h"
 

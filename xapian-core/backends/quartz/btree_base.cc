@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "btree_base.h"
 #include "quartz_utils.h"
 #include "utils.h"

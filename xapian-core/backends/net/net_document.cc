@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "net_document.h"
 #include "om/omdocument.h"
 #include "omdebug.h"

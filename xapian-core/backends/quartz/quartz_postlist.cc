@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "omdebug.h"
 #include "quartz_postlist.h"
 #include "quartz_utils.h"

@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "om/omnodeinstanceiterator.h"
 #include "omnodeinstanceiteratorinternal.h"
 #include "omdebug.h"

@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "om/omerror.h"
 #include "quartz_termlist.h"
 #include "quartz_lexicon.h"

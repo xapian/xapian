@@ -24,7 +24,6 @@
 #ifndef OM_HGUARD_INDEXERXML_H
 #define OM_HGUARD_INDEXERXML_H
 
-#include <config.h>
 
 #include <string>
 #include "om/omindexerdesc.h"

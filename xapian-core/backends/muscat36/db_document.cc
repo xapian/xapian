@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "om/omdocument.h"
 #include "db_database.h"
 #include "db_document.h"

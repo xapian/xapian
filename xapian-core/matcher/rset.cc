@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "rset.h"
 #include "stats.h"
 #include "omdebug.h"

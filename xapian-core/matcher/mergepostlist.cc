@@ -23,6 +23,7 @@
 
 // NB don't prune - even with one sublist we still translate docids...
 
+#include <config.h>
 #include "mergepostlist.h"
 #include "omdebug.h"
 #include "om/omerrorhandler.h"

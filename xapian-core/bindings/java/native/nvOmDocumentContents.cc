@@ -1,4 +1,5 @@
 // Xapian includes
+#include <config.h>
 #include "om/om.h"
 
 // JNI includes

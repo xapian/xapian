@@ -1,4 +1,5 @@
 // C++ includes
+#include <config.h>
 #include <string>
 
 // Xapian includes

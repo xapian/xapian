@@ -23,10 +23,10 @@
 #ifndef OM_HGUARD_TESTSUITE_H
 #define OM_HGUARD_TESTSUITE_H
 
+#include "omstringstream.h"
 #include <iostream>
 #include <string>
 #include <vector>
-#include "omstringstream.h"
 
 /** Class which is thrown when a test case fails.
  *  This class contains a message, which is displayed to the user if

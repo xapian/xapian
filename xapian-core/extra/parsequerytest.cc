@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "omparsequery.h"
 #include <iostream>
 using std::cout;

@@ -25,7 +25,6 @@
 #ifndef OM_HGUARD_DELETER_MAP_H
 #define OM_HGUARD_DELETER_MAP_H
 
-#include <config.h>
 
 #include <map>
 

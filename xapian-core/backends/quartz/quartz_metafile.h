@@ -24,7 +24,6 @@
 #ifndef OM_HGUARD_QUARTZ_METAFILE_H
 #define OM_HGUARD_QUARTZ_METAFILE_H
 
-#include <config.h>
 #include <string>
 
 /** A class which encapsulates access to the Quartz meta-file, a

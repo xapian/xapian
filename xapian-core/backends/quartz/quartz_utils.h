@@ -24,7 +24,6 @@
 #ifndef OM_HGUARD_QUARTZ_UTILS_H
 #define OM_HGUARD_QUARTZ_UTILS_H
 
-#include <config.h>
 #include <string>
 
 /// Compile time assert a condition

@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "index_utils.h"
 #include <ctype.h>
 #include <cctype>

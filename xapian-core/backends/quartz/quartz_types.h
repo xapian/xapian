@@ -24,7 +24,6 @@
 #ifndef OM_HGUARD_QUARTZ_TYPES_H
 #define OM_HGUARD_QUARTZ_TYPES_H
 
-#include <config.h>
 
 typedef unsigned int quartz_blocksize_t;
 

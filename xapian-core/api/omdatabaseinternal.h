@@ -24,14 +24,14 @@
 #ifndef OM_HGUARD_OMDATABASEINTERNAL_H
 #define OM_HGUARD_OMDATABASEINTERNAL_H
 
-#include <vector>
-
 #include "om/omenquire.h"
 #include "refcnt.h"
 #include "database_builder.h"
 #include "document.h"
 #include "database.h"
 #include "om/omdatabase.h"
+
+#include <vector>
 
 class AllTermsList;
 

@@ -1,3 +1,4 @@
+#include <config.h>
 #include <string>
 #include <jni.h>
 #include "utils.h"

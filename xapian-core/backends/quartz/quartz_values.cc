@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "quartz_values.h"
 #include "quartz_utils.h"
 #include "utils.h"

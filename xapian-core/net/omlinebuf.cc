@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "omlinebuf.h"
 #include "omtime.h"
 

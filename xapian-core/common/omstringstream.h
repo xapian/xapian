@@ -24,7 +24,6 @@
 #ifndef OM_HGUARD_OMSTRINGSTREAM_H
 #define OM_HGUARD_OMSTRINGSTREAM_H
 
-#include <config.h>
 
 // So that we can use the output functions declared here.
 #include "om/omoutput.h"

@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include <om/om.h>
 
 #include "com_muscat_om_OmSettings.h"

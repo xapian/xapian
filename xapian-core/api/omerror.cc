@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "om/omerror.h"
 #include "om/omerrorhandler.h"
 #include "omdebug.h"

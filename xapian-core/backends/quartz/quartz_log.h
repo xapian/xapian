@@ -24,7 +24,6 @@
 #ifndef OM_HGUARD_QUARTZ_LOG_H
 #define OM_HGUARD_QUARTZ_LOG_H
 
-#include <config.h>
 #include <string>
 #include <stdio.h>
 #include "om/omerror.h"

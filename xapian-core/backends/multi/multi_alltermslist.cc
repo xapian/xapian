@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "multialltermslist.h"
 
 MultiAllTermsList::MultiAllTermsList(const std::vector<TermList *> &lists_)

@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "om/ompositionlistiterator.h"
 #include "ompositionlistiteratorinternal.h"
 #include "positionlist.h"

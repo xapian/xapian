@@ -24,7 +24,6 @@
 #ifndef OM_HGUARD_QUARTZ_POSTLIST_H
 #define OM_HGUARD_QUARTZ_POSTLIST_H
 
-#include <config.h>
 #include "leafpostlist.h"
 #include "om/omtypes.h"
 #include <string>

@@ -22,6 +22,7 @@
  */
 
 %{
+#include <config.h>
 #include <algorithm>
 using std::find;
 #include <vector>

@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "expand.h"
 #include "rset.h"
 #include "ortermlist.h"

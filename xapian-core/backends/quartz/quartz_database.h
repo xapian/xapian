@@ -24,7 +24,6 @@
 #ifndef OM_HGUARD_QUARTZ_DATABASE_H
 #define OM_HGUARD_QUARTZ_DATABASE_H
 
-#include <config.h>
 #include "database.h"
 
 class QuartzTableManager;

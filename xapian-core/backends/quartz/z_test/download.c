@@ -1,4 +1,5 @@
 
+#include <config.h>
 #include <stdio.h>   /* main etc */
 #include "btree.h"
 #include "om/omerror.h"

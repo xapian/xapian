@@ -24,7 +24,6 @@
 #ifndef OM_HGUARD_QUARTZ_TABLE_MANAGER_H
 #define OM_HGUARD_QUARTZ_TABLE_MANAGER_H
 
-#include <config.h>
 #include "om/omsettings.h"
 #include "quartz_table.h"
 #include "quartz_log.h"

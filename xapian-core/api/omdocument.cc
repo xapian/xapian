@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "om/omdocument.h"
 #include "om/omtypes.h"
 #include "refcnt.h"

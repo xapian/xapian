@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "omdebug.h"
 #include "inmemory_positionlist.h"
 

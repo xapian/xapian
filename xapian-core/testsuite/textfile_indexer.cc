@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "omdebug.h"
 #include "om/omerror.h"
 #include "textfile_indexer.h"

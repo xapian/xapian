@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "bcursor.h"
 #include "btree.h"
 #include "btree_util.h"

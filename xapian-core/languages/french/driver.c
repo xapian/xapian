@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include <stdio.h>
 #include <ctype.h>  /* for isupper, islower, toupper, tolower */
 

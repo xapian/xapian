@@ -28,7 +28,6 @@
 #ifndef OM_HGUARD_OMDEBUG_H
 #define OM_HGUARD_OMDEBUG_H
 
-#include <config.h>
 #include "omassert.h"
 #include "omstringstream.h"
 

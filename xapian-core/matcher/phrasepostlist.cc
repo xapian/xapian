@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "phrasepostlist.h"
 #include "positionlist.h"
 

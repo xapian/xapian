@@ -1,3 +1,4 @@
+#include <config.h>
 #include <iostream>
 #include "com_muscat_om_OmEnquire.h"
 

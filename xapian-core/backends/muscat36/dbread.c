@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include <stdio.h>   /* stderr etc */
 #include <stdlib.h>  /* malloc, exit etc */
 #include <string.h>  /* memmove etc */

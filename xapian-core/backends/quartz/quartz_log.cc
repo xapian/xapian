@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "quartz_log.h"
 #include "omdebug.h"
 

@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include <string>
 #include <algorithm> /* swap() */
 #include "om/omindexerdesc.h"

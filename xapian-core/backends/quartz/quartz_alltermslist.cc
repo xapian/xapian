@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "quartz_alltermslist.h"
 #include "quartz_utils.h"
 #include "quartz_postlist.h"

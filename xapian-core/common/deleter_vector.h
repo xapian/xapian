@@ -25,7 +25,6 @@
 #ifndef OM_HGUARD_DELETER_VECTOR_H
 #define OM_HGUARD_DELETER_VECTOR_H
 
-#include <config.h>
 
 #include "omdebug.h"
 #include <vector>

@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include <cstdlib>
 #include "net_database.h"
 #include "net_termlist.h"

@@ -28,7 +28,6 @@
 #ifndef OM_HGUARD_OMASSERT_H
 #define OM_HGUARD_OMASSERT_H
 
-#include <config.h>
 
 // Include the definitions of the exceptions we're going to throw
 #include "om/omerror.h"

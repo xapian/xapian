@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "xorpostlist.h"
 #include "andnotpostlist.h"
 #include "omdebug.h"

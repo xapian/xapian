@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "om/omvalueiterator.h"
 #include "omvalueiteratorinternal.h"
 #include "omdebug.h"

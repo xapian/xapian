@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "inmemory_alltermslist.h"
 
 InMemoryAllTermsList::InMemoryAllTermsList(const std::map<om_termname, InMemoryTerm> *tmap_,

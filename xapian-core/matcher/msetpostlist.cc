@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "msetpostlist.h"
 #include "omdebug.h"
 

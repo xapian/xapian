@@ -25,7 +25,6 @@
 #ifndef OM_HGUARD_QUARTZ_POSITIONLIST_H
 #define OM_HGUARD_QUARTZ_POSITIONLIST_H
 
-#include <config.h>
 #include "om/omtypes.h"
 #include "positionlist.h"
 #include <string>

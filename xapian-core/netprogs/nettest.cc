@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "progclient.h"
 #include "tcpclient.h"
 #include "testsuite.h"

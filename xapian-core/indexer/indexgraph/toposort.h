@@ -23,8 +23,6 @@
 #ifndef OM_HGUARD_TOPOSORT_H
 #define OM_HGUARD_TOPOSORT_H
 
-#include <config.h>
-
 #include <vector>
 
 /** A class for doing topological sorts.  The implementation is based on

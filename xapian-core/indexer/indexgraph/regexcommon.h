@@ -23,8 +23,6 @@
 #ifndef OM_HGUARD_REGEXCOMMON_H
 #define OM_HGUARD_REGEXCOMMON_H
 
-#include <config.h>
-
 extern "C" {
 
 /* This is a grotty workaround for an interaction between rxposix.h

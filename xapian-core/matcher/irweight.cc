@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "irweight.h"
 
 // Include headers for all built-in weight types

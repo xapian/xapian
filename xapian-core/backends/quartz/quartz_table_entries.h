@@ -24,7 +24,6 @@
 #ifndef OM_HGUARD_QUARTZ_TABLE_ENTRIES_H
 #define OM_HGUARD_QUARTZ_TABLE_ENTRIES_H
 
-#include <config.h>
 #include <map>
 #include "autoptr.h"
 #include "quartz_types.h"

@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "progserver.h"
 
 /// The ProgServer constructor, taking two filedescriptors and a database.

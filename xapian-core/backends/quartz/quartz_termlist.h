@@ -24,7 +24,6 @@
 #ifndef OM_HGUARD_QUARTZ_TERMLIST_H
 #define OM_HGUARD_QUARTZ_TERMLIST_H
 
-#include <config.h>
 #include "quartz_table.h"
 #include "om/omtypes.h"
 #include "termlist.h"

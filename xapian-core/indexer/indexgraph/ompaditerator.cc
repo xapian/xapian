@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "om/ompaditerator.h"
 #include "ompaditeratorinternal.h"
 #include "omdebug.h"

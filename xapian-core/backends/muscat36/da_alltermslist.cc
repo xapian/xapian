@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "da_alltermslist.h"
 
 DAAllTermsList::DAAllTermsList(RefCntPtr<const Database> database_,

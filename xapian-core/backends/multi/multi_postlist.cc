@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include <stdio.h>
 
 #include "omdebug.h"

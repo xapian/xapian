@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "register_core.h"
 #include "indexergraph.h"
 #include "om/omindexernode.h"

@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "om/omindexermessage.h"
 #include "om/omerror.h"
 #include "omstringstream.h"

@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "omdebug.h"
 #include "omdatabaseinternal.h"
 #include "omdocumentinternal.h"

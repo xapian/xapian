@@ -22,6 +22,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "filterpostlist.h"
 
 inline void

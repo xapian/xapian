@@ -24,7 +24,6 @@
 #ifndef OM_HGUARD_NET_DATABASE_H
 #define OM_HGUARD_NET_DATABASE_H
 
-#include <config.h>
 #include "autoptr.h"  // auto_ptr
 #include "omdebug.h"
 #include "database.h"

@@ -22,6 +22,7 @@
 
 /* this is for testing the shortcut feature */
 
+#include <config.h>
 #include <stdio.h>   /* main etc */
 #include <stdlib.h>  /* exit etc */
 #include <string.h>  /* memmove, memcmp */

@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "om/omdocument.h"
 #include "omdebug.h"
 #include "quartz_database.h"

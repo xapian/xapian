@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "ortermlist.h"
 
 OrTermList::OrTermList(TermList *left, TermList *right)

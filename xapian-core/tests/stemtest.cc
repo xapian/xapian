@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <getopt.h>

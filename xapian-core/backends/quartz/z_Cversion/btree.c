@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include <stdio.h>
 #include <stdlib.h>   /* for calloc */
 #include <string.h>   /* for memmove */

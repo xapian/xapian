@@ -24,7 +24,6 @@
 #ifndef OM_HGUARD_OMNODEDESCRIPTORINTERNAL_H
 #define OM_HGUARD_OMNODEDESCRIPTORINTERNAL_H
 
-#include <config.h>
 #include <string>
 #include <vector>
 #include "om/omnodedescriptor.h"

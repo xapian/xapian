@@ -1,3 +1,8 @@
+Tue May 14 15:23:20 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* Fixed config.h includes: source definition (ie not header) files
+	  #include <config.h> as their first action.
+
 Tue May 14 14:47:00 BST 2002  Olly Betts <olly@survex.com>
 
 	* Updated todo.

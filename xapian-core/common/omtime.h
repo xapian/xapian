@@ -24,7 +24,6 @@
 #ifndef OM_HGUARD_OMTIME_H
 #define OM_HGUARD_OMTIME_H
 
-#include <config.h>
 
 #ifdef HAVE_GETTIMEOFDAY
 #include <sys/time.h>

@@ -21,6 +21,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "weightcutoffpostlist.h"
 #include "branchpostlist.h"
 

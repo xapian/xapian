@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "om/omnodedescriptor.h"
 #include "omnodedescriptorinternal.h"
 #include "ompaditeratorinternal.h"

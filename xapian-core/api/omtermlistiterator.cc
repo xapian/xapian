@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
 #include "om/omtermlistiterator.h"
 #include "omtermlistiteratorinternal.h"
 #include "termlist.h"
