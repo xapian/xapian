@@ -42,9 +42,10 @@
 #include <sys/wait.h>
 
 /// The TcpServer constructor, taking a database and a listening port.
-TcpServer::TcpServer(OmDatabase db_, int port_, int msecs_timeout_)
+TcpServer::TcpServer(OmDatabase db_, int port_, int msecs_timeout_,
+		     bool verbose_)
 	: port(port_), db(db_), listen_socket(get_listening_socket(port_)),
-	  msecs_timeout(msecs_timeout_)
+	  msecs_timeout(msecs_timeout_), verbose(verbose_)
 {
 
 }
@@ -131,8 +132,10 @@ TcpServer::get_connected_socket()
 			     hstrerror(h_errno));
     }
 
-    cout << "Connection from " << hent->h_name << ", port " <<
+    if (verbose) {
+	cout << "Connection from " << hent->h_name << ", port " <<
 	    remote_address.sin_port << endl;
+    }
 
     return con_socket;
 }
@@ -160,7 +163,7 @@ TcpServer::run_once()
 	    // ignore other exceptions
 	}
 
-	cout << "Closing connection.\n";
+	if (verbose) cout << "Closing connection.\n";
 	close(connected_socket);
 	exit(0);
     } else if (pid > 0) {

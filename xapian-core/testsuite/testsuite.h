@@ -81,6 +81,8 @@ extern bool verbose;
 
 /// The test driver.  This class takes care of running the tests.
 class test_driver {
+    friend void report_totals();
+
     public:
 	/** A structure used to report the summary of tests passed
 	 *  and failed.
@@ -106,13 +108,8 @@ class test_driver {
 	 *  @param  argc	The argument count passed into ::main()
 	 *  @param  argv	The argument list passed into ::main()
 	 *  @param  tests	The array of tests to run.
-	 *  @param  results	An optional pointer used for returning
-	 *                      the results summary.
 	 */
-	static int main(int argc,
-			char *argv[],
-			const test_desc *tests,
-			test_driver::result *summary = 0);
+	static int main(int argc, char *argv[], const test_desc *tests);
 
 	/** The constructor, which sets up the test driver.
 	 *
@@ -143,6 +140,9 @@ class test_driver {
 	 */
 	static string get_srcdir(const string &argv0);
 
+	// running total for a test run
+	static result total;
+
     private:
 	/** Runs the test function and returns its result.  It will
 	 *  also trap exceptions and some memory leaks and force a
@@ -162,6 +162,9 @@ class test_driver {
 	result do_run_tests(std::vector<std::string>::const_iterator b,
 			    std::vector<std::string>::const_iterator e);
 
+	/// print summary of tests passed, failed, and skipped
+	static void report(const test_driver::result &r, const std::string &desc);
+
 	// abort tests at the first failure
 	bool abort_on_error;
 
@@ -170,6 +173,12 @@ class test_driver {
 
 	// the list of tests to run.
 	const test_desc *tests;
+
+	// how many test runs we've done - no summary if just one run
+	static int runs;
+
+	// program name
+	static std::string argv0;
 };
 
 inline void test_driver::set_abort_on_error(bool aoe_)

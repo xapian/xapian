@@ -46,6 +46,8 @@ int main(int argc, char *argv[]) {
 
     bool one_shot = false;
 
+    bool verbose = true;
+
     bool syntax_error = false;
     argv++;
     argc--;
@@ -106,6 +108,10 @@ int main(int argc, char *argv[]) {
 	    one_shot = true;
 	    argc -= 1;
 	    argv += 1;
+	} else if (strcmp(argv[0], "--quiet") == 0) {
+	    verbose = false;
+	    argc -= 1;
+	    argv += 1;
 	} else {
 	    syntax_error = true;
 	    break;
@@ -117,7 +123,9 @@ int main(int argc, char *argv[]) {
 		"\t--[da-flimsy|da-heavy|db|sleepycat] DIRECTORY\n" <<
 		"\t--im INMEMORY\n" <<
 		"\t--port NUM" <<
-		"\t--timeout MSECS" << endl;
+		"\t--timeout MSECS" <<
+		"\t--one-shot" <<
+		"\t--quiet" << endl;
 	exit(1);
     }
 
@@ -126,7 +134,7 @@ int main(int argc, char *argv[]) {
 	exit(1);
     }
 
-    cout << "Opening server on port " << port << "..." << endl;
+    if (verbose) cout << "Opening server on port " << port << "..." << endl;
 
     try {
         OmDatabase mydbs;
@@ -137,7 +145,7 @@ int main(int argc, char *argv[]) {
 	    delete *p;
 	}
 
-	TcpServer server(mydbs, port, msecs_timeout);
+	TcpServer server(mydbs, port, msecs_timeout, verbose);
 
 	if (one_shot) {
 	    server.run_once();

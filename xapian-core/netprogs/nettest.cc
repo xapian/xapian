@@ -126,11 +126,9 @@ bool test_tcpclient1()
     paths.push_back("apitest_simpledata");
     OmDatabase db = backendmanager.get_database(paths);
 
-    std::string command =
-	    std::string("./omtcpsrv --one-shot --sleepycat ") +
-	    ".sleepycat/db=apitest_simpledata" +
-	    " --port 1235 &";
-
+    std::string command = "./omtcpsrv --one-shot --quiet --sleepycat "
+	                  ".sleepycat/db=apitest_simpledata "
+	                  "--port 1235 &";
     system(command.c_str());
 
     sleep(1);
@@ -149,10 +147,9 @@ bool test_tcpmatch1()
     paths.push_back("apitest_simpledata");
     OmDatabase dbremote = backendmanager.get_database(paths);
 
-    std::string command =
-	    std::string("./omtcpsrv --one-shot --sleepycat ") +
-	    ".sleepycat/db=apitest_simpledata" +
-	    " --port 1236 &";
+    std::string command = "./omtcpsrv --one-shot --quiet --sleepycat "
+	                  ".sleepycat/db=apitest_simpledata"
+	                  " --port 1236 &";
     system(command.c_str());
     sleep(1);
 

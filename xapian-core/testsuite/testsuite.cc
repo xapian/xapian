@@ -20,6 +20,11 @@
  * -----END-LICENCE-----
  */
 
+#define COL_RED "\x1b[1m\x1b[31m"
+#define COL_GREEN "\x1b[1m\x1b[32m"
+#define COL_YELLOW "\x1b[1m\x1b[33m"
+#define COL_RESET "\x1b[0m"
+
 #include "config.h"
 #include <iostream>
 
@@ -35,11 +40,11 @@
 #include <dlfcn.h>
 #include "allocdata.h"
 
+#include <stdlib.h>
+
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
-#else // HAVE_GETOPT_H
-#include <stdlib.h>
-#endif // HAVE_GETOPT_H
+#endif
 
 #include <unistd.h> // for chdir
 
@@ -68,6 +73,10 @@ static null_streambuf nullsb;
 
 /// The global verbose flag.
 bool verbose;
+
+int test_driver::runs = 0;
+test_driver::result test_driver::total = {0, 0, 0};
+std::string test_driver::argv0 = "";
 
 void
 test_driver::set_quiet(bool quiet_)
@@ -373,14 +382,46 @@ static void usage(char *progname)
     exit(1);
 }
 
-int test_driver::main(int argc,
-		      char *argv[],
-		      const test_desc *tests,
-		      test_driver::result *summary)
+void
+test_driver::report(const test_driver::result &r, const std::string &desc)
+{
+    if (r.succeeded != 0 || r.failed != 0) {
+	std::cout << argv0 << " " << desc << ": ";
+
+	if (r.failed == 0)
+	    std::cout << "All ";
+
+	std::cout << COL_GREEN << r.succeeded << COL_RESET << " tests passed";
+
+	if (r.failed != 0)
+	    std::cout << ", " << COL_RED << r.failed << COL_RESET << " failed";
+
+	if (r.skipped) {
+	    std::cout << ", " << COL_YELLOW << r.skipped << COL_RESET
+		<< " skipped." << std::endl;
+	} else {
+	    std::cout << "." << std::endl;
+	}
+    }
+}
+
+// call via atexit if there's more than one test run
+static void
+report_totals()
+{
+    test_driver::report(test_driver::total, "total");
+}
+
+int
+test_driver::main(int argc, char *argv[], const test_desc *tests)
 {
 #ifdef HAVE_LIBPTHREAD
     pthread_mutex_init(&test_driver_mutex, 0);
 #endif // HAVE_LIBPTHREAD
+
+    if (runs == 0) argv0 = argv[0];
+    if (runs == 1) atexit(report_totals);
+    runs++;
 
     test_driver driver(tests);
 
@@ -417,20 +458,11 @@ int test_driver::main(int argc,
     test_driver::result myresult;
     myresult = driver.run_tests(test_names.begin(), test_names.end());
 
-    if (summary) {
-	*summary = myresult;
-    }
+    report(myresult, "completed test run");
 
-    if (myresult.succeeded != 0 || myresult.failed != 0) {
-	std::cout << argv[0] << " completed test run: "
-	    << myresult.succeeded << " tests passed, "
-	    << myresult.failed << " failed";
-	if (myresult.skipped) {
-	    std::cout << ", " << myresult.skipped << " skipped." << std::endl;
-	} else {
-	    std::cout << "." << std::endl;
-	}
-    }
+    total.succeeded += myresult.succeeded;
+    total.failed += myresult.failed;
+    total.skipped += myresult.skipped;
 
     return (bool)myresult.failed; // if 0, then everything passed
 }

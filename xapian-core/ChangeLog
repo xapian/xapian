@@ -1,3 +1,7 @@
+Tue Oct 31 14:18:24 GMT 2000 Olly Betts
+
+	* Improved output from test programs.
+
 Tue Oct 31 13:12:15 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Removed QuartzRevisionNumber class - just use the revision number
