@@ -96,24 +96,11 @@ void considerRule( map< double, set< pair<string, string> > >& rules, const stri
   //  cerr << "Considering " << ant << " => " << con << " with supp " << pair_supp << endl;
   //  cerr << "... ant has count " << ant_count << " and con has count " << con_count << endl;
 
-  int importance = pair_supp;
-
   double conf = 100.0*(double)pair_supp / (double)ant_count;
-
   double con_conf = 100.0*(double)con_count / (double) total_transactions;
 
-  double surprise1 = conf / con_conf;
-
-  double surprise2 = conf - con_conf;
-
-  //  cerr << "... conf " << conf << endl;
-  //  cerr << "... con_conf " << con_conf << endl;
-  //  cerr << "... surprise1 " << surprise1 << endl;
-  //  cerr << "... surprise2 " << surprise2 << endl;
-
-  double score = surprise2 * importance; // * importance; // surprise2 * importance;
-
-  rules[ -score ].insert( make_pair( ant, con ) );
+  rules[ conf ].insert( make_pair( ant, con ) );
+  rules[ con_conf ].insert( make_pair( string(""), con ));
 
 }
 
@@ -377,6 +364,7 @@ int main(int argc, char *argv[]) {
     map< string, int > item_count;
 
     // count items
+    cerr << "... counting items" << endl;
     for( map< string, set<string> >::iterator t = comment_symbols.begin(); t != comment_symbols.end(); t++ ) {
       set<string> S = t->second;
       for( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
@@ -387,8 +375,9 @@ int main(int argc, char *argv[]) {
     // count pairs
    map< pair<string, string>, int> pair_count;
 
-   for( list< set<string> >::iterator t = comment_symbols.begin(); t != comment_symbols.end(); t++ ) {
-     set<string> S = *t;
+   cerr << "... counting pairs" << endl;
+   for( map< string, set<string> >::iterator t = comment_symbols.begin(); t != comment_symbols.end(); t++ ) {
+     set<string> S = t->second;
      
      for( set<string>::iterator i1 = S.begin(); i1 != S.end(); i1++) {
        if ( item_count[*i1] < min_supp ) {
@@ -408,23 +397,43 @@ int main(int argc, char *argv[]) {
     
    map< double, set<pair<string, string> > > rules;
 
+   cerr << "... generating rules" << endl;
     // okay, now generate rules
     for( map< pair<string, string >, int>::iterator p = pair_count.begin(); p != pair_count.end(); p++ ) {
-      considerRule( rules, p->first.first, item_count[p->first.first], p->first.second, item_count[p->first.second], p->second, transactions.size() );
-      considerRule( rules, p->first.second, item_count[p->first.second], p->first.first, item_count[p->first.first], p->second, transactions.size() );
+      considerRule( rules, p->first.first, item_count[p->first.first], p->first.second, item_count[p->first.second], p->second, transaction_count );
+      considerRule( rules, p->first.second, item_count[p->first.second], p->first.first, item_count[p->first.first], p->second, transaction_count );
     }
 
+
+    cerr << "... writing out rules" << endl;
+
+    system( ("rm -rf " + cvsdata +"/root0/db/mining.db" ).c_str() );
+    
+    Db dbrules(0,0);
+    dbrules.open( (cvsdata +"/root0/db/mining.db").c_str(),  0 , DB_HASH, DB_CREATE, 0 );
+
     for ( map< double, set< pair< string, string > > >::iterator i = rules.begin(); i != rules.end(); i++ ) {
-      double score = -(i->first);
-      cerr << "*** Score " << score << endl;
+      double conf = (i->first);
       set< pair< string, string> > S = i->second;
       for( set< pair< string, string > >::iterator p = S.begin(); p != S.end(); p++ ) {
 	pair<string, string> pair = *p;
-	cerr << pair.first << " => " << pair.second << endl;
+	string rule_string = pair.first + "=>" + pair.second;
+
+	//	cerr << rule_string << " with conf " << conf << endl;
+	
+	ostrstream ost;
+	ost << conf << ends;
+	string s = ost.str();
+
+	// write to database
+	Dbt key( (void*) rule_string.c_str(), rule_string.length()+1);
+	Dbt data( (void*) s.c_str(), s.length()+1);
+	dbrules.put( 0, &key, &data, DB_NOOVERWRITE );
+	ost.freeze(0);
       }
     }
     
-   
+    dbrules.close(0);
 
     /////// write out OM database
     writeOMDatabase( cvsdata + "/root0/db/mining.om", 
