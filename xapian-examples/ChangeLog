@@ -1,3 +1,9 @@
+Mon Mar 19 17:44:36 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Disable compilation of omindex-config, since it currently depends
+	  on libxml2 which we have no configure checks for.  It should
+	  probably only depend on libxml (1 or 2), anyway.
+
 Mon Mar 19 16:03:21 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Use updated omsee.m4 macro.

@@ -23,10 +23,17 @@
 #include <string>
 #include <map>
 #include <fstream>
+#include <utility>
+#include <list>
+#include <iostream>
+
 #include <unistd.h>
 #include <parser.h>
-#include <pair.h>
-#include <list>
+
+using std::string;
+using std::list;
+using std::pair;
+using std::map;
 
 #define xmlT(x) (reinterpret_cast<const xmlChar*>(x))
 #define toC(x)  (reinterpret_cast<const char*>(x))
@@ -164,7 +171,7 @@ static void read_block(xmlDocPtr doc, xmlNodePtr node, const reader_writer_info*
 				   string("' property for node ") +
 				   reinterpret_cast<const char*>(node->name) + string("'"));
 			}
-			data[i] = string(toC(xmlNodeListGetString(doc, prop->xmlChildrenNode, 1)));
+			data[i] = string(toC(xmlNodeListGetString(doc, prop->children, 1)));
 		    }
 		}
 		prop = prop->next;
@@ -386,13 +393,13 @@ static string make_substitutions(const string& input)
 static void process_template(const string& tpl)
 {    
     string fmt;
-    ifstream str(tpl.c_str());
+    std::ifstream str(tpl.c_str());
     if (!str.is_open()) {
 	throw (string("Couldn't open format template `") + tpl + '\'');
     }
 
     while (!getline(str, fmt).eof()) {
-	cout << make_substitutions(fmt) << endl;
+	std::cout << make_substitutions(fmt) << std::endl;
     }
 
     str.close();
@@ -400,15 +407,15 @@ static void process_template(const string& tpl)
 
 int main(int argc, char* argv[])
 {
-    cout << "Content-type: text/html" << endl << endl;
+    std::cout << "Content-type: text/html" << std::endl << std::endl;
 
     try {
 	read_config_file();
 	process_template(template_file);
     }
     catch (string& msg) {
-	cout << "<html><head><title>Internal Error</title></head></body>" << endl;
-	cout << "<h1>Internal Error</h1><p>" << msg << "</p></body></html>" << endl;
+	std::cout << "<html><head><title>Internal Error</title></head></body>" << std::endl;
+	std::cout << "<h1>Internal Error</h1><p>" << msg << "</p></body></html>" << std::endl;
     }
 
     return 0;
