@@ -1,3 +1,17 @@
+Thu Jan 25 18:47:08 GMT 2001 Olly Betts
+
+	* Fixed various .cvsignore files (omus -> omsee, and
+	  bindings/java/.cvsignore which seemed to have been copied from
+	  the top level one at some point).
+
+	* Fixed bug in OrPostList when used in a pure boolean context
+	  (uninitialised variables).
+
+	* tests/internaltest.cc: removed unused reference to getopt.h.
+
+	* tests/stemtest.pl.in: removed lots of bogus semicolons after
+	  closing braces.
+
 Thu Jan 25 17:53:08 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Turn debugging messages (OM_DEBUG_TYPES) off by default.

@@ -16,9 +16,9 @@ stamp-h
 stamp-h.in
 .deps
 .libs
-libomus-config
-libomus-config.nodep
-libomus.la
+omsee-config
+omsee-config.nodep
+libomsee.la
 om-*.tar.gz
 TODO
 TODO.release

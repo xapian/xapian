@@ -27,12 +27,6 @@
 using std::cout;
 using std::endl;
 
-#ifdef HAVE_GETOPT_H
-#include <getopt.h>
-#else // HAVE_GETOPT_H
-#include <stdlib.h>
-#endif // HAVE_GETOPT_H
-
 #include "om/om.h"
 #include "testsuite.h"
 #include "refcnt.h"

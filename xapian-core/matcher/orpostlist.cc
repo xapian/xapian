@@ -30,9 +30,7 @@ OrPostList::OrPostList(PostList *left_,
 		       MultiMatch *matcher_,
 		       om_doccount dbsize_)
 	: BranchPostList(left_, right_, matcher_),
-	  lhead(0),
-	  rhead(0),
-	  dbsize(dbsize_)
+	  lhead(0), rhead(0), lmax(0), rmax(0), minmax(0), dbsize(dbsize_)
 {
 }
 
