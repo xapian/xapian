@@ -1,3 +1,7 @@
+Sat Oct 30 19:51:10 BST 2004  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Contents of xxx_SOURCES must be literal.
+
 Thu Oct 28 04:45:15 BST 2004  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,csharp/SmokeTest.cs: Added a smoketest.
