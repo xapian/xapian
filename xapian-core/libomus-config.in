@@ -4,7 +4,7 @@
 # generate libomus-config
 
 prefix=@prefix@
-libdir=@exec_prefix@
+libdir=@libdir@
 includedir=@includedir@
 
 usage()
