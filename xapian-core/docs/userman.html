@@ -444,14 +444,17 @@ assigned by the query) will be calculated.  (See &quot;The OmMSet&quot; below).
 <P>
 Query results are returned in an
 <A HREF="apidoc/OmMSet.html"><CODE>OmMSet</CODE></A> object.  The prime
-field in this is <CODE>items</CODE>, which is a list of OmMSet comprising the
+field in this is <CODE>items</CODE>, which is a list of
+<A HREF="apidoc/OmMSetItem.html"><CODE>OmMSetItem</CODE></A>'s
+comprising the
 selected part of the match results.  This list is in descending sorted order
 of relevance (so the most relevant document is first in the list).
-Each OmMSet item contains a document id, and the weight calculated for this
-document.
+Each <CODE>OmMSet</CODE> item contains a document id, and the weight
+calculated for this document.
 </P>
 <P>
-An OmMSet also contains various information about the search result:
+An <CODE>OmMSet</CODE> also contains various information about the search
+result:
 <TABLE>
 <TR><TD VALIGN="top">
 <CODE>firstitem</CODE>
@@ -461,22 +464,38 @@ The index of the first item in the result which was put into the mset.
 <CODE>OmEnquire::get_mset()</CODE>)
 </TD></TR><TR><TD VALIGN="top">
 <CODE>max_attained</CODE>
-</TD><TD>
+</TD><TD VALIGN="top">
 The greatest weight which is attained in the full results of the search.
 </TD></TR><TR><TD VALIGN="top">
 <CODE>max_possible</CODE>
-</TD><TD>
+</TD><TD VALIGN="top">
 The maximum possible weight in the mset. 
 </TD></TR><TR><TD VALIGN="top">
 <CODE>mbound</CODE>
-</TD><TD>
-A lower bound on the number of documents in the database which have a weight greater than zero. 
+</TD><TD VALIGN="top">
+A lower bound on the number of documents in the database which have a weight
+greater than zero.  Note that this value may change if the search is
+recalculated with different values for <CODE>first</CODE> or
+<CODE>max_items<CODE>.
 </TD><TR>
 </TABLE>
 </P>
 <P>
 See the <A HREF="apidoc/OmMSet.html">automatically extracted documentation</A>
 for more details of these fields.
+</P>
+<P>
+The <CODE>OmMSet</CODE> also provides methods for converting the score
+calculated for a given document into a percentage value, suitable for
+displaying to a user.  This may be done using the
+<A HREF="apidoc/OmMSet.html#convert_to_percent"><CODE>convert_to_percent()</CODE></A>
+methods:
+<PRE>
+     int OmMSet::convert_to_percent(const OmMSetItem &amp; item) const 
+     int OmMSet::convert_to_percent(om_weight wt) const 
+</PRE>
+These methods return a value in the range 0 to 100, which will be
+0 if and only if the item did not match the query at all. 
 </P>
 
 <H2>Specifying a relevance set</H2>
@@ -486,18 +505,97 @@ to mark documents as being relevant to the search, and using this information
 to modify the search.  This is supported by means of relevance sets, which
 are simply sets of document id's which are marked as relevant.  These
 are held in <A HREF="apidoc/OmRSet.html"><CODE>OmRSet</CODE></A> objects,
-one of which may optionally be supplied to Muscat when calling
+one of which may optionally be supplied to Muscat in the
+<CODE>omrset</CODE> parameter when calling
 <CODE>OmEnquire::get_mset()</CODE>.
 </P>
 
 <H3>Match options</H3>
 
 <P>
-There are various additional options 
+There are various additional options which may be specified when
+performing the query.  These are specified by passing an
+<A HREF="apidoc/OmMatchOptions.html"><CODE>OmMatchOptions</CODE></A>
+object.  If no such object is passed, the default options will be
+used.  The options are as follows.
+</P>
+<TABLE>
+<TR><TD VALIGN="top">
+<B>collapse key</B>
+</TD><TD VALIGN="top">
+Each document in a database may have a set of numbered keys.   The
+contents of each key is a string of arbitrary length.
+The <CODE>OmMatchOptions::<A HREF="apidoc/OmMatchOptions.html#set_collapse_key">set_collapse_key</A>(om_keyno key_)</CODE>
+method specifies a key number upon which to remove duplicates, and the
+<CODE>OmMatchOptions::<A HREF="apidoc/OmMatchOptions.html#set_collapse_key">set_no_collapse</A>()</CODE>
+method specifies that no duplicate removal should be done.
+Only one duplicate removal key may be specified at any time, and the
+default is to perform no duplicate removal.
+</TD></TR><TR><TD VALIGN="top">
+<B>percentage cutoff</B>
+</TD><TD VALIGN="top">
+It may occasionally be desirable to exclude any documents which have a
+weight less than a given percentage value.  This may be done using
+<CODE>OmMatchOptions::<A HREF="apidoc/OmMatchOptions.html#set_percentage_cutoff">set_percentage_cutoff()</A></CODE>.
+Note that documents rarely score 100 percent, so using
+set_percentage_cutoff(100) will be unlikely to return any documents.
+</TD></TR><TR><TD VALIGN="top">
+<B>sort direction</B>
+</TD><TD VALIGN="top">
+Some weighting functions may frequently result in several documents being
+returned with the same weight.  In this case, by default, the documents
+will be returned in ascending document id order.  This can be changed
+by using 
+<CODE>OmMatchOptions::<A HREF="apidoc/OmMatchOptions.html#set_sort_forward">set_sort_forward()</A></CODE>
+to set the sort direction.  <CODE>set_sort_forward(false)</CODE> may be
+useful, for example, when it would be best to return the newest documents,
+and new documents are being added to the end of the database.
+</TD></TR>
+</TABLE>
+
+<H3>Match decision functors</H3>
+These are not yet implemented.
+
+<H2>Expand - Suggesting new terms for the query</H2>
+<P>
+Muscat also supports the idea of calculating terms to add to the
+query, based on the relevant documents supplied.  A set of such
+terms, together with their weights, may be returned by:
+<PRE>
+OmESet OmEnquire::<A HREF="apidoc/OmEnquire.html#get_eset">get_eset</A>(om_termcount maxitems,
+		           const OmRSet &amp; omrset,
+			   const OmExpandOptions * eoptions = 0,
+			   const OmExpandDecider * edecider = 0) const 
+</PRE>
+</P>
+<P>
+As for <CODE>get_mset</CODE>, up to <CODE>maxitems</CODE> expand terms
+will be returned, with fewer being returned if and only if no more terms
+could be found.
+</P>
+<P>
+The expand terms are returned in sorted weight order in an
+<A HREF="apidoc/OmESet.html"><CODE>OmESet</CODE></A> item.
 </P>
 
-<H2>Suggesting new terms for the query</H2>
+<H3>Expand options</H3>
 <P>
+Options to be used when performing the expand may be set using an
+<A HREF="apidoc/OmExpandOptions.html"><CODE>OmExpandOptions</CODE></A>.
+</P>
+<P>
+Currently, there is only one such option:
+<PRE>
+use_query_terms(bool allow_query_terms_) 
+</PRE>
+If <CODE>allow_query_terms_</CODE> is <CODE>true</CODE>, terms which are
+already in the query will be returned by <CODE>get_eset()</CODE>.<BR>
+The default is <CODE>false</CODE>.
+</P>
+
+<H3>Expand decision functors</H3>
+<P>
+These are not yet documented.
 </P>
 
 <H2>A simple example</H2>
