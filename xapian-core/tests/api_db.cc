@@ -1600,34 +1600,22 @@ static bool test_collfreq1()
     OmDatabase db(get_database("apitest_simpledata"));
 
     TEST_EQUAL(db.get_collection_freq("thi"), 11);
-    TEST_EQUAL(db.postlist_begin("thi").get_collection_freq(), 11);
     TEST_EQUAL(db.get_collection_freq("first"), 1);
-    TEST_EQUAL(db.postlist_begin("first").get_collection_freq(), 1);
     TEST_EQUAL(db.get_collection_freq("last"), 0);
-    TEST_EQUAL(db.postlist_begin("last").get_collection_freq(), 0);
     TEST_EQUAL(db.get_collection_freq("word"), 9);
-    TEST_EQUAL(db.postlist_begin("word").get_collection_freq(), 9);
 
     OmDatabase db1(get_database("apitest_simpledata", "apitest_simpledata2"));
     OmDatabase db2(get_database("apitest_simpledata"));
     db2.add_database(get_database("apitest_simpledata2"));
 
     TEST_EQUAL(db1.get_collection_freq("thi"), 15);
-    TEST_EQUAL(db1.postlist_begin("thi").get_collection_freq(), 15);
     TEST_EQUAL(db1.get_collection_freq("first"), 1);
-    TEST_EQUAL(db1.postlist_begin("first").get_collection_freq(), 1);
     TEST_EQUAL(db1.get_collection_freq("last"), 0);
-    TEST_EQUAL(db1.postlist_begin("last").get_collection_freq(), 0);
     TEST_EQUAL(db1.get_collection_freq("word"), 11);
-    TEST_EQUAL(db1.postlist_begin("word").get_collection_freq(), 11);
     TEST_EQUAL(db2.get_collection_freq("thi"), 15);
-    TEST_EQUAL(db2.postlist_begin("thi").get_collection_freq(), 15);
     TEST_EQUAL(db2.get_collection_freq("first"), 1);
-    TEST_EQUAL(db2.postlist_begin("first").get_collection_freq(), 1);
     TEST_EQUAL(db2.get_collection_freq("last"), 0);
-    TEST_EQUAL(db2.postlist_begin("last").get_collection_freq(), 0);
     TEST_EQUAL(db2.get_collection_freq("word"), 11);
-    TEST_EQUAL(db2.postlist_begin("word").get_collection_freq(), 11);
 
     return true;
 }

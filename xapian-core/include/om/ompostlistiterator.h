@@ -89,15 +89,10 @@ class OmPostListIterator {
 	OmPositionListIterator positionlist_begin();
 	OmPositionListIterator positionlist_end();
 
-	/** Return the number of documents indexed by this term.
-	 */
-	om_doccount get_termfreq() const;
-
-	/** Return the total number of occurrences of the term in the
-	 *  database.  This is equal to the sum of the wdfs of all the
-	 *  items in the postlist.
-	 */
-	om_termcount get_collection_freq() const;
+	// Don't expose these methods here.  A container iterator doesn't
+	// provide a method to find the size of the container...
+	// om_doccount get_termfreq() const;
+	// om_termcount get_collection_freq() const;
 
 	/** Returns a string describing this object.
 	 *  Introspection method.
