@@ -4,7 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1700,7 +1700,7 @@ static bool test_allterms4()
     // 682 was the magic number which started to cause Quartz problems
     for (int c = 0; c < 682; ++c) {
 	Xapian::Document doc;
-	doc.add_term_nopos("foo");
+	doc.add_term("foo");
 	db.add_document(doc); 
     }
     db.flush();
@@ -2392,9 +2392,9 @@ static bool test_adddoc2()
     TEST(iter2 == doc2.termlist_end());
 
     doc2.remove_posting("foo", 1, 5);
-    doc2.add_term_nopos("bat", 0);
-    doc2.add_term_nopos("bar", 8);
-    doc2.add_term_nopos("bag", 0);
+    doc2.add_term("bat", 0);
+    doc2.add_term("bar", 8);
+    doc2.add_term("bag", 0);
     doc2.remove_term("gone");
     doc2.remove_term("fooXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 
@@ -2569,7 +2569,7 @@ static bool test_deldoc1()
     did = db.add_document(doc1);
     TEST_EQUAL(did, 2);
 
-    doc1.add_term_nopos("new", 1);
+    doc1.add_term("new", 1);
     did = db.add_document(doc1);
     TEST_EQUAL(did, 3);
 
@@ -2579,7 +2579,7 @@ static bool test_deldoc1()
 
     doc1 = db.get_document(2);
     doc1.remove_term("foo");
-    doc1.add_term_nopos("fwing");
+    doc1.add_term("fwing");
     db.replace_document(2, doc1);
 
     Xapian::Document doc2 = db.get_document(2);

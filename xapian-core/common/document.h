@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -122,7 +122,7 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	void remove_value(Xapian::valueno);
 	void clear_values();
 	void add_posting(const string &, Xapian::termpos, Xapian::termcount);
-	void add_term_nopos(const string &, Xapian::termcount);
+	void add_term(const string &, Xapian::termcount);
 	void remove_posting(const string &, Xapian::termpos, Xapian::termcount);
 	void remove_term(const string &);
 	void clear_terms();
