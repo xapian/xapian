@@ -202,7 +202,8 @@ QuartzDatabase::get_avlength_internal() const
     // FIXME: probably want to cache this value (but not miss updates)
     om_doccount docs = get_doccount_internal();
     if (docs == 0) RETURN(0);
-    om_totlength totlen = QuartzRecordManager::get_total_length(*(tables->get_record_table()));
+    om_totlength totlen =
+	QuartzRecordManager::get_total_length(*(tables->get_record_table()));
 
     RETURN((double) totlen / docs);
 }
@@ -285,7 +286,8 @@ LeafTermList *
 QuartzDatabase::open_term_list_internal(om_docid did,
 				RefCntPtr<const Database> ptrtothis) const
 {
-    DEBUGCALL(DB, LeafTermList *, "QuartzDatabase::open_term_list_internal", did << ", [ptrtothis]");
+    DEBUGCALL(DB, LeafTermList *, "QuartzDatabase::open_term_list_internal",
+	      did << ", [ptrtothis]");
     Assert(did != 0);
     return(new QuartzTermList(ptrtothis,
 			      tables->get_termlist_table(),
@@ -307,7 +309,8 @@ QuartzDatabase::open_term_list(om_docid did) const
 Document *
 QuartzDatabase::open_document(om_docid did, bool lazy) const
 {
-    DEBUGCALL(DB, Document *, "QuartzDatabase::open_document", did << ", " << lazy);
+    DEBUGCALL(DB, Document *, "QuartzDatabase::open_document",
+	      did << ", " << lazy);
     Assert(did != 0);
     RefCntBase::RefCntPtrToThis tmp;
     RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
@@ -484,22 +487,19 @@ QuartzWritableDatabase::do_add_document(const OmDocument & document)
 		0,
 		new_doclen);
 
-	{
-	    OmTermIterator term = document.termlist_begin();
-	    OmTermIterator term_end = document.termlist_end();    
-	    for ( ; term != term_end; ++term) {
-		QuartzLexicon::increment_termfreq(
-		    buffered_tables->get_lexicon_table(),
-		    *term);
-		QuartzPostList::add_entry(buffered_tables->get_postlist_table(),
-					  *term, did, term.get_wdf(),
-					  new_doclen);
-		if (term.positionlist_begin() != term.positionlist_end())
-		{
-		  QuartzPositionList::set_positionlist(
-		      buffered_tables->get_positionlist_table(), did,
-		      *term, term.positionlist_begin(), term.positionlist_end());
-		}
+	OmTermIterator term = document.termlist_begin();
+	OmTermIterator term_end = document.termlist_end();    
+	for ( ; term != term_end; ++term) {
+	    QuartzLexicon::increment_termfreq(
+		buffered_tables->get_lexicon_table(),
+		*term);
+	    QuartzPostList::add_entry(buffered_tables->get_postlist_table(),
+				      *term, did, term.get_wdf(),
+				      new_doclen);
+	    if (term.positionlist_begin() != term.positionlist_end()) {
+		QuartzPositionList::set_positionlist(
+		    buffered_tables->get_positionlist_table(), did,
+		    *term, term.positionlist_begin(), term.positionlist_end());
 	    }
 	}
 
@@ -509,7 +509,6 @@ QuartzWritableDatabase::do_add_document(const OmDocument & document)
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
 	buffered_tables->cancel();
-
 	throw;
     }
 
@@ -633,8 +632,8 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 	}
 
 	// Set the termlist.
-        // We should detect what terms have been deleted, and which ones have been added. Then we'll add/delete only
-        //   those terms.
+	// We should detect what terms have been deleted, and which ones have
+	// been added. Then we'll add/delete only those terms.
 	quartz_doclen_t old_doclen;
 	{
             vector<om_termname> delTerms;
@@ -776,7 +775,6 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
 	buffered_tables->cancel();
-
 	throw;
     }
 
@@ -845,7 +843,8 @@ QuartzWritableDatabase::do_open_post_list(const om_termname& tname) const
 LeafTermList *
 QuartzWritableDatabase::open_term_list(om_docid did) const
 {
-    DEBUGCALL(DB, LeafTermList *, "QuartzWritableDatabase::open_term_list", did);
+    DEBUGCALL(DB, LeafTermList *, "QuartzWritableDatabase::open_term_list",
+	      did);
     RefCntBase::RefCntPtrToThis tmp;
     RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
 
@@ -855,7 +854,8 @@ QuartzWritableDatabase::open_term_list(om_docid did) const
 Document *
 QuartzWritableDatabase::open_document(om_docid did, bool lazy) const
 {
-    DEBUGCALL(DB, Document *, "QuartzWritableDatabase::open_document", did << ", " << lazy);
+    DEBUGCALL(DB, Document *, "QuartzWritableDatabase::open_document",
+	      did << ", " << lazy);
     Assert(did != 0);
 
     RefCntBase::RefCntPtrToThis tmp;
