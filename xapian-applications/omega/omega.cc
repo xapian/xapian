@@ -87,8 +87,7 @@ int main(int argc, char *argv[])
 try {
     read_config_file();
 
-    string big_buf;
-    bool more = false;
+    string query_string;
     char *method;
     MCI val;
 #ifdef __SUNPRO_CC
@@ -129,22 +128,13 @@ try {
 	    decode_get();
     }
 
-    hits_per_page = 0;
-    val = cgi_params.find("HITSPERPAGE");
-    if (val != cgi_params.end()) hits_per_page = atol(val->second.c_str());
-    if (hits_per_page == 0) {
-	hits_per_page = 10;
-    } else if (hits_per_page > 1000) {
-	hits_per_page = 1000;
-    }
-
     try {
 	// get database(s) to search
 	dbname = "";
 	set<string> seen; // only add a repeated db once
 	g = cgi_params.equal_range("DB");
 	for (MCI i = g.first; i != g.second; ++i) {
-	    string v = i->second;
+	    const string & v = i->second;
 	    if (!v.empty()) {
 		vector<string> dbs = split(v, '/');
 		vector<string>::const_iterator j;
@@ -169,28 +159,38 @@ try {
 	enquire = NULL;
     }
 
+    hits_per_page = 0;
+    val = cgi_params.find("HITSPERPAGE");
+    if (val != cgi_params.end()) hits_per_page = atol(val->second.c_str());
+    if (hits_per_page == 0) {
+	hits_per_page = 10;
+    } else if (hits_per_page > 1000) {
+	hits_per_page = 1000;
+    }
+
     val = cgi_params.find("DEFAULTOP");
     if (val != cgi_params.end()) {
-	if (val->second == "AND" || val->second == "and")
+	const string & v = val->second;
+	if (v == "AND" || v == "and")
 	    default_op = Xapian::Query::OP_AND;
     }
 
-    big_buf = "";
-
     val = cgi_params.find("FMT");
     if (val != cgi_params.end()) {
-	string v = val->second;
+	const string & v = val->second;
 	if (!v.empty()) fmtname = v;
     }
 
+    // Get the probabilistic query.
     val = cgi_params.find("MORELIKE");
     if (enquire && val != cgi_params.end()) {
-	Xapian::docid docid = atol(val->second.c_str());
+	const string & v = val->second;
+	Xapian::docid docid = atol(v.c_str());
 	if (docid == 0) {
 	    // Assume it's MORELIKE=Quid1138 and that Quid1138 is a UID
 	    // from an external source - we just find the correspond docid
-	    Xapian::PostingIterator p = db.postlist_begin(val->second);
-	    if (p != db.postlist_end(val->second)) docid = *p;
+	    Xapian::PostingIterator p = db.postlist_begin(v);
+	    if (p != db.postlist_end(v)) docid = *p;
 	}
 	
 	if (docid != 0) {
@@ -201,46 +201,42 @@ try {
 	    Xapian::ESet eset(enquire->get_eset(6, tmprset, &decider));
 	    for (Xapian::ESetIterator i = eset.begin(); i != eset.end(); i++) {
 		if ((*i).empty()) continue;
-		if (more) big_buf += ' ';
-		big_buf += pretty_term(*i);
-		more = true;
+		if (!query_string.empty()) query_string += ' ';
+		query_string += pretty_term(*i);
 	    }
-	    if (more) goto got_query_from_morelike;
 	}
     }
 
-    // collect the prob fields
-    g = cgi_params.equal_range("P");
-    for (MCI i = g.first; i != g.second; i++) {
-	string v = i->second;
-	if (!v.empty()) {
-	    if (more) big_buf += ' ';
-	    big_buf += v;
-	    more = true;
-	}
-    }
-
-    // add expand/topterms terms if appropriate
-    if (cgi_params.find("ADD") != cgi_params.end()) {
-	g = cgi_params.equal_range("X");
+    if (query_string.empty()) {
+	// collect the prob fields
+	g = cgi_params.equal_range("P");
 	for (MCI i = g.first; i != g.second; i++) {
-	    string v = i->second;
+	    const string & v = i->second;
 	    if (!v.empty()) {
-		if (more) big_buf += ' ';
-		big_buf += v;
-		more = true;
+		if (!query_string.empty()) query_string += ' ';
+		query_string += v;
 	    }
 	}
-    }
-   
-    got_query_from_morelike:
 
-    {
-	// set any boolean filters
-	g = cgi_params.equal_range("B");
+	// add expand/topterms terms if appropriate
+	if (cgi_params.find("ADD") != cgi_params.end()) {
+	    g = cgi_params.equal_range("X");
+	    for (MCI i = g.first; i != g.second; i++) {
+		const string & v = i->second;
+		if (!v.empty()) {
+		    if (!query_string.empty()) query_string += ' ';
+		    query_string += v;
+		}
+	    }
+	}
+    } 
+
+    // set any boolean filters
+    g = cgi_params.equal_range("B");
+    if (g.first != g.second) {
 	vector<string> filter_v;
 	for (MCI i = g.first; i != g.second; i++) {
-	    string v = i->second;
+	    const string & v = i->second;
 	    // we'll definitely get empty B fields from "-ALL-" options
 	    if (!v.empty() && isalnum(v[0])) {
 		add_bterm(v);
@@ -280,22 +276,34 @@ try {
     filters += date_start + filter_sep + date_end + filter_sep + date_span
 	+ (default_op == Xapian::Query::OP_AND ? 'A' : 'O');
 
+    // Percentage relevance cut-off
+    val = cgi_params.find("THRESHOLD");
+    if (val != cgi_params.end()) {
+        threshold = atoi(val->second.c_str());
+        if (threshold < 0) threshold = 0;
+        if (threshold > 100) threshold = 100;
+    }
+
     // collapsing
     val = cgi_params.find("COLLAPSE");
-    if (val != cgi_params.end() && !val->second.empty()) {
-	collapse_key = atoi(val->second.c_str());
-	collapse = true;
-	filters += filter_sep + val->second;
+    if (val != cgi_params.end()) {
+	const string & v = val->second;
+	if (!v.empty()) {
+	    collapse_key = atoi(v.c_str());
+	    collapse = true;
+	    filters += filter_sep + v;
+	}
     }
 
     // sorting
     val = cgi_params.find("SORT");
-    if (val != cgi_params.end()  && !val->second.empty()) {
-	if (val->second[0] == '#') {
+    if (val != cgi_params.end()) {
+	const string & v = val->second;
+	if (v[0] == '#') {
 	    sort_numeric = true;
-	    sort_key = atoi(val->second.c_str() + 1);
+	    sort_key = atoi(v.c_str() + 1);
 	} else {
-	    sort_key = atoi(val->second.c_str());
+	    sort_key = atoi(v.c_str());
 	}
 	sort_bands = 1; // sorting is off unless this is set
 	val = cgi_params.find("SORTBANDS");
@@ -348,7 +356,7 @@ try {
 	discard_rset = false;
 	force_first_page = false;
     }
-    int result = set_probabilistic(big_buf, v);
+    int result = set_probabilistic(query_string, v);
     switch (result) {
 	case BAD_QUERY:
 	    // Hmm, how to handle this...
@@ -429,7 +437,7 @@ try {
 	// put documents marked as relevant into the rset
 	g = cgi_params.equal_range("R");
 	for (MCI i = g.first; i != g.second; i++) {
-	    string v = i->second;
+	    const string & v = i->second;
 	    if (!v.empty()) {
 		vector<string> r = split(v, '.');
 		vector<string>::const_iterator i;
@@ -442,14 +450,6 @@ try {
 		}
 	    }
 	}
-    }
-
-    // Percentage relevance cut-off
-    val = cgi_params.find("THRESHOLD");
-    if (val != cgi_params.end()) {
-        threshold = atoi(val->second.c_str());
-        if (threshold < 0) threshold = 0;
-        if (threshold > 100) threshold = 100;
     }
 
     // process commands

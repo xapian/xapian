@@ -1,3 +1,10 @@
+Thu Oct 16 21:17:01 BST 2003  Olly Betts <olly@survex.com>
+
+	* omega.cc: Renamed `big_buf' to `query_string' and eliminated `more'
+	  flag and use of goto; tidied up order of reading CGI variables; use
+	  const refs to value strings in cgi_params map rather than copying
+	  the strings out.
+
 Sat Oct 11 20:43:04 BST 2003  Olly Betts <olly@survex.com>
 
 	* omega.cc,omega.h,query.cc: Make rset an object rather than a pointer
