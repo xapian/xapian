@@ -401,4 +401,31 @@ Ensure that quartz databases don't have a problem if there is no positional
 information entry available for a term / document combination.
 
 </todoitem>
+<todoitem priority="M" difficulty="3" owner="" area="Matcher" release="">
+
+Add synonym postlists.  Need to be able to take underlying postlists which
+aren't neccessarily just postlists for single terms, and to be able to
+estimate termfrequency of combined postlists.
+
+</todoitem>
+<todoitem priority="M" difficulty="5" owner="" area="Postlists" release="">
+
+Add get_termfreq_exact() methods, for calculating the exact termfreq.  This
+will be particularly useful when trying to do evaluations to check up on the
+approximations being made.
+
+Also, add get_termfreq_better_est() methods, which give an approximation to the
+exact termfreq based on the first N items in the postlist.
+
+This may require adding a reset() method, to move a postlist's position back to the beginning.
+
+</todoitem>
+<todoitem priority="M" difficulty="3" owner="" area="Postlists" release="">
+
+Add OP_FILTER_TERM_WITH_EXACT_WEIGHT query operator (with better name), which
+will perform a restriction of the LHS term based on the RHS query, but use the
+exact termfrequency for the combined term to calculate the weight.  This will
+share some techniques from implementing synonym postlists.
+
+</todoitem>
 </todo>
