@@ -34,10 +34,10 @@ InMemoryDocument::get_key(om_keyno keyid) const
     return key;
 }
 
-IRData
+OmData
 InMemoryDocument::get_data() const
 {
-    IRData data;
+    OmData data;
     data.value = doc;
     return data;
 }

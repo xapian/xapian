@@ -38,7 +38,7 @@ class InMemoryDocument : public virtual IRDocument {
 	InMemoryDocument & operator = (const InMemoryDocument &);
     public:
 	IRKey get_key(om_keyno keyid) const;
-	IRData get_data() const;
+	OmData get_data() const;
 };
 
 #endif /* OM_HGUARD_INMEMORY_DOCUMENT_H */

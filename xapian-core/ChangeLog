@@ -1,4 +1,11 @@
-Wed Feb  9 11:18:48 GMT 2000 Chris emerson <chris.emerson@open.muscat.com>
+Wed Feb  9 14:48:48 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added and implemented get_doc_data in OmEnquire
+
+	* Now get msets and esets by return value rather than reference
+	  argument.
+
+Wed Feb  9 11:18:48 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed the header guards (now all caps, should be unique, and don't
 	  start with underscores).

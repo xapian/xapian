@@ -303,6 +303,17 @@ class OmESet {
 };
 
 ///////////////////////////////////////////////////////////////////
+// OmData class
+// ============
+// Representing the document data
+
+/// The data in a document
+class OmData {
+    public:
+	string value;
+};
+
+///////////////////////////////////////////////////////////////////
 // OmEnquire class
 // ===============
 // This class provides an interface to the information retrieval
@@ -329,18 +340,21 @@ class OmEnquire {
 	void set_query(const OmQuery & query_);
 
 	// Get (a portion of) the match set for the current query
-	void get_mset(OmMSet & mset,
-                      om_doccount first,
-                      om_doccount maxitems,
-		      const OmRSet * omrset = 0,
-	              const OmMatchOptions * moptions = 0) const;
+	OmMSet get_mset(om_doccount first,
+                        om_doccount maxitems,
+			const OmRSet * omrset = 0,
+			const OmMatchOptions * moptions = 0) const;
 
 	// Get the expand set for the given rset
-	void get_eset(OmESet & eset,
-                      om_termcount maxitems,
-                      const OmRSet & omrset,
-                      const OmExpandOptions * eoptions = 0,
-		      const OmExpandDecider * decider = 0) const;
+	OmESet get_eset(om_termcount maxitems,
+			const OmRSet & omrset,
+			const OmExpandOptions * eoptions = 0,
+			const OmExpandDecider * decider = 0) const;
+
+	// Get the document data by document id
+	OmData get_doc_data(om_docid did) const;
+	// Get the document data by match set item
+	OmData get_doc_data(const OmMSetItem &mitem) const;
 };
 
 #endif /* OM_HGUARD_OMENQUIRE_H */

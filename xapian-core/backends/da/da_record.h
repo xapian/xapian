@@ -44,7 +44,7 @@ class DADocument : public virtual IRDocument {
 	~DADocument();
 
 	IRKey get_key(om_keyno keyid) const;
-	IRData get_data() const;
+	OmData get_data() const;
 };
 
 inline

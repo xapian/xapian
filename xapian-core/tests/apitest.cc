@@ -224,8 +224,7 @@ bool test_zerodocid_inmemory()
     enquire.set_query(myquery);
 
     // retrieve the top ten results (we only expect one)
-    OmMSet mymset;
-    enquire.get_mset(mymset, 0, 10);
+    OmMSet mymset = enquire.get_mset(0, 10);
 
     // We've done the query, now check that the result is what
     // we expect (1 document, with non-zero docid)
@@ -254,7 +253,7 @@ void do_get_simple_query_mset(OmMSet &mset, OmQuery query,
     enquire.set_query(query);
 
     // retrieve the top results
-    enquire.get_mset(mset, first, maxitems);
+    mset = enquire.get_mset(first, maxitems);
 }
 
 bool test_simplequery1()
@@ -349,11 +348,9 @@ bool test_multidb1()
 
     // retrieve the top ten results from each method of accessing
     // multiple text files
-    OmMSet mymset1;
-    enquire1.get_mset(mymset1, 0, 10);
+    OmMSet mymset1 = enquire1.get_mset(0, 10);
 
-    OmMSet mymset2;
-    enquire2.get_mset(mymset2, 0, 10);
+    OmMSet mymset2 = enquire2.get_mset(0, 10);
 
     if (mymset1.items.size() != mymset2.items.size()) {
 	if (verbose) {
@@ -383,12 +380,11 @@ bool test_changequery1()
     // make a simple query
     enquire.set_query(myquery);
 
-    OmMSet mset1, mset2;
     // retrieve the top ten results
-    enquire.get_mset(mset1, 0, 10);
+    OmMSet mset1 = enquire.get_mset(0, 10);
 
     myquery = OmQuery("foo");
-    enquire.get_mset(mset2, 0, 10);
+    OmMSet mset2 = enquire.get_mset(0, 10);
 
     // verify that both msets are identical
     if (!(mset1 == mset2)) {
@@ -425,14 +421,12 @@ bool test_expandmaxitems1()
 
     enquire.set_query(OmQuery("thi"));
 
-    OmMSet mymset;
-    enquire.get_mset(mymset, 0, 10);
+    OmMSet mymset = enquire.get_mset(0, 10);
 
-    OmESet myeset;
     OmRSet myrset;
     myrset.add_document(mymset.items[0].did);
     myrset.add_document(mymset.items[1].did);
-    enquire.get_eset(myeset, 1, myrset);
+    OmESet myeset = enquire.get_eset(1, myrset);
 
     return (myeset.items.size() == 1);
 }

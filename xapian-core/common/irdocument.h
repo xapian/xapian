@@ -24,6 +24,7 @@
 #define OM_HGUARD_IRDOCUMENT_H
 
 #include "omtypes.h"
+#include "omenquire.h"
 
 // A key in a document
 class IRKey {
@@ -32,18 +33,12 @@ class IRKey {
 	bool operator < (const IRKey &k) const { return(value < k.value); }
 };
 
-// The data in a document
-class IRData {
-    public:
-	string value;
-};
-
 // A document in the database - holds keys and records
 class IRDocument {
     private:
     public:
 	virtual IRKey get_key(om_keyno) const = 0;  // Get key by number (>= 0)
-	virtual IRData get_data() const = 0;     // Get data stored in document
+	virtual OmData get_data() const = 0;     // Get data stored in document
 };
 
 #endif /* OM_HGUARD_IRDOCUMENT_H */

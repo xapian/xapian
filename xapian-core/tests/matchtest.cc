@@ -183,8 +183,7 @@ main(int argc, char *argv[])
 	OmMatchOptions opts;
 	if(collapse_key != -1) opts.set_collapse_key(collapse_key);
 
-	OmMSet mset;
-	enquire.get_mset(mset, mfirst, msize, &rset, &opts);
+	OmMSet mset = enquire.get_mset(mfirst, msize, &rset, &opts);
 	
 	if (showmset) {
 	    vector<OmMSetItem>::const_iterator i;

@@ -41,11 +41,11 @@ DADocument::get_key(om_keyno keyid) const
     return key;
 }
 
-IRData
+OmData
 DADocument::get_data() const
 {
     if(rec == NULL) rec = database->get_record(did);
-    IRData data;
+    OmData data;
     unsigned char *pos = (unsigned char *)rec->p;
     unsigned int len = LOF(pos, 0);
     data.value = string((char *)pos + LWIDTH + 3, len - LWIDTH - 3);

@@ -528,9 +528,8 @@ OmEnquire::set_query(const OmQuery & query_)
     internal->set_query(query_);
 }
 
-void
-OmEnquire::get_mset(OmMSet &mset,
-                    om_doccount first,
+OmMSet
+OmEnquire::get_mset(om_doccount first,
                     om_doccount maxitems,
                     const OmRSet *omrset,
                     const OmMatchOptions *moptions) const
@@ -563,35 +562,40 @@ OmEnquire::get_mset(OmMSet &mset,
     // Set Query
     match.set_query(internal->query);
 
+    OmMSet retval;
+
     // Run query and get results into supplied OmMSet object
     if(internal->query->is_bool()) {
-	match.boolmatch(first, maxitems, mset.items);
-	mset.mbound = mset.items.size();
-	mset.max_possible = 1;
-	mset.max_attained = 1;
+	match.boolmatch(first, maxitems, retval.items);
+	retval.mbound = retval.items.size();
+	retval.max_possible = 1;
+	retval.max_attained = 1;
     } else {
-	match.match(first, maxitems, mset.items,
-		    msetcmp_forward, &(mset.mbound), &(mset.max_attained));
+	match.match(first, maxitems, retval.items,
+		    msetcmp_forward, &(retval.mbound), &(retval.max_attained));
 
 	// Get max weight for an item in the MSet
-	mset.max_possible = match.get_max_weight();
+	retval.max_possible = match.get_max_weight();
     }
 
     // Store what the first item requested was, so that this information is
     // kept with the mset.
-    mset.firstitem = first;
+    retval.firstitem = first;
 
     // Clear up
     delete rset;
+
+    return retval;
 }
 
-void
-OmEnquire::get_eset(OmESet & eset,
-	            om_termcount maxitems,
+OmESet
+OmEnquire::get_eset(om_termcount maxitems,
                     const OmRSet & omrset,
 	            const OmExpandOptions * eoptions,
 		    const OmExpandDecider * decider) const
 {
+    OmESet retval;
+
     internal->open_database();
     OmExpand expand(internal->database);
     RSet rset(internal->database, omrset);
@@ -602,5 +606,20 @@ OmEnquire::get_eset(OmESet & eset,
     if(decider == 0) decider = &decider_always;
     
     // FIXME: also set whether or not to use query terms.
-    expand.expand(maxitems, eset, &rset, decider);
+    expand.expand(maxitems, retval, &rset, decider);
+
+    return retval;
+}
+
+OmData
+OmEnquire::get_doc_data(om_docid did) const
+{
+   IRDocument *doc = internal->database->open_document(did);
+   return doc->get_data();
+}
+
+OmData
+OmEnquire::get_doc_data(const OmMSetItem &mitem) const
+{
+   return get_doc_data(mitem.did);
 }
