@@ -32,6 +32,7 @@
 #include <om/omenquire.h>
 #include "leafmatch.h"
 #include "omqueryinternal.h"
+#include "readquery.h"
 
 void run_matcher();
 
@@ -64,165 +65,142 @@ void split_words(string text, vector<string> &words) {
 }
 
 /** The query parsing functions...  (interface is query_from_string,
- *  the qfs_* functions are internal.  Error checking is currently
- *  minimal.
+ *  the qfs_* functions are "internal".
  */
 
-char hextochar(char high, char low)
-{
-    int h;
-    if (high >= '0' && high <= '9') {
-	h = high - '0';
-    } else {
-	high = toupper(high);
-	if (high <= 'F' && high >= 'A') {
-	    h = high - 'A' + 10;
-	} else {
-	    Assert(false);
-	}
-    }
-    if (low >= '0' && low <= '9') {
-	h = low - '0';
-    } else {
-	low = toupper(low);
-	if (low <= 'F' && low >= 'A') {
-	    h = low - 'A' + 10;
-	} else {
-	    Assert(false);
-	}
-    }
-    return low + (high << 4);
-}
-
-/// Read a term, from after the %T
-OmQueryInternal *qfs_readterm(string::const_iterator &i,
-			      string::const_iterator end)
-{
-    string tname;
-    // read termname
-    while (*i != ',') {
-	char high = *i++;
-	char low  = *i++;
-	tname += hextochar(high, low);
-    }
-    ++i; // skip comma
-
-    // read wqf
-    om_termcount wqf = 0;
-    while (*i != ',') {
-	wqf *= 10;
-	wqf += (*i++) - '0';
-    }
-
-    // read termpos
-    om_termpos termpos = 0;
-    while (i != end && isdigit(*i)) {
-	termpos *= 10;
-	termpos += (*i++) - '0';
-    }
-
-    return new OmQueryInternal(tname, wqf, termpos);
-}
-
-OmQueryInternal *qfs_readquery(string::const_iterator &i,
-			       string::const_iterator end);
-
-string qfs_readword(string::const_iterator &i,
-		    string::const_iterator end)
-{
-    string result;
-    while (i != end && (isalpha(*i))) {
-	result += *i;
-	++i;
+// A vector converter: vector<OmQueryInternal> to vector<OmQueryInternal *>
+// The original vector is still responsible for destroying the objects.
+vector<OmQueryInternal *>
+convert_subqs(vector<OmQueryInternal> &v) {
+    vector<OmQueryInternal *> result;
+    for (vector<OmQueryInternal>::iterator i=v.begin();
+	 i != v.end();
+	 ++i) {
+	result.push_back(&(*i));
     }
     return result;
 }
-// read a compound term, just after the %(
-// FIXME: leaks like a sieve
-OmQueryInternal *qfs_readcompound(string::const_iterator &i,
-			       string::const_iterator end)
-{
-    vector<OmQueryInternal *> subqs;
-    while ((*i == ' ') || (*i == '%')) {
-	++i;
-    };
-    if (*i == ')') {
-	++i;
-	return new OmQueryInternal();
-    }
 
-    OmQueryInternal *temp;
-    while ((temp = qfs_readquery(i, end))) {
-	subqs.push_back(temp);
-    }
-    string op_string = qfs_readword(i, end);
-    if (op_string == "and") {
-	return new OmQueryInternal(OM_MOP_AND,
-			       subqs.begin(),
-			       subqs.end());
-    } else if (op_string == "or") {
-	return new OmQueryInternal(OM_MOP_OR,
-			       subqs.begin(),
-			       subqs.end());
-    } else if (op_string == "andmaybe") {
-	return new OmQueryInternal(OM_MOP_AND_MAYBE,
-			       *subqs[0],
-			       *subqs[1]);
-    } else if (op_string == "andnot") {
-	return new OmQueryInternal(OM_MOP_AND_NOT,
-			       *subqs[0],
-			       *subqs[1]);
-    } else if (op_string == "xor") {
-	return new OmQueryInternal(OM_MOP_XOR,
-			       *subqs[0],
-			       *subqs[1]);
-    } else if (op_string == "filter") {
-	return new OmQueryInternal(OM_MOP_FILTER,
-			       *subqs[0],
-			       *subqs[1]);
-    } else {
-	return 0;
-    }
+// read a compound term
+OmQueryInternal qfs_readcompound()
+{
+    querytok qt;
+    vector<OmQueryInternal> subqs;
+    while(1) {
+	qt = qfs_gettok();
+	switch (qt.type) {
+	    case querytok::OP_KET:
+		if (subqs.size() == 0) {
+		    return OmQueryInternal();
+		} else {
+		    throw OmInvalidArgumentError("Invalid query string");
+		}
+		break;
+	    case querytok::NULL_QUERY:
+		subqs.push_back(OmQueryInternal());
+		break;
+	    case querytok::TERM:
+		subqs.push_back(OmQueryInternal(qt.tname,
+						qt.wqf,
+						qt.term_pos));
+		break;
+	    case querytok::OP_BRA:
+		subqs.push_back(qfs_readcompound());
+		break;
+	    case querytok::OP_AND:
+		{
+		    vector<OmQueryInternal *> temp =
+			    convert_subqs(subqs);
+		    return OmQueryInternal(OM_MOP_AND,
+					   temp.begin(),
+					   temp.end());
+		}
+		break;
+	    case querytok::OP_OR:
+		{
+		    vector<OmQueryInternal *> temp =
+			    convert_subqs(subqs);
+		    return OmQueryInternal(OM_MOP_OR,
+					   temp.begin(),
+					   temp.end());
+		}
+		break;
+	    case querytok::OP_FILTER:
+		{
+		    vector<OmQueryInternal *> temp =
+			    convert_subqs(subqs);
+		    return OmQueryInternal(OM_MOP_FILTER,
+					   temp.begin(),
+					   temp.end());
+		}
+		break;
+	    case querytok::OP_XOR:
+		{
+		    vector<OmQueryInternal *> temp =
+			    convert_subqs(subqs);
+		    return OmQueryInternal(OM_MOP_XOR,
+					   temp.begin(),
+					   temp.end());
+		}
+		break;
+	    case querytok::OP_ANDMAYBE:
+		{
+		    vector<OmQueryInternal *> temp =
+			    convert_subqs(subqs);
+		    return OmQueryInternal(OM_MOP_AND_MAYBE,
+					   temp.begin(),
+					   temp.end());
+		}
+		break;
+	    case querytok::OP_ANDNOT:
+		{
+		    vector<OmQueryInternal *> temp =
+			    convert_subqs(subqs);
+		    return OmQueryInternal(OM_MOP_AND_NOT,
+					   temp.begin(),
+					   temp.end());
+		}
+		break;
+	    default:
+		throw OmInvalidArgumentError("Invalid query string");
+	} // switch(qt.type)
+    } // while(1)
 }
 
-/// Read a whole query, from just after the %.
-OmQueryInternal *qfs_readquery(string::const_iterator &i,
-			       string::const_iterator end)
+/// Read a whole query
+OmQueryInternal qfs_readquery()
 {
-    switch (*i) {
-	case 'N':  // null query
-	    ++i;
-	    return new OmQueryInternal();
+    querytok qt = qfs_gettok();
+    switch (qt.type) {
+	case querytok::NULL_QUERY:  // null query
+	    return OmQueryInternal();
 	    break;
-	case 'T':
-	    ++i;
-	    return qfs_readterm(i, end);
+	case querytok::TERM:
+	    return OmQueryInternal(qt.tname, qt.wqf, qt.term_pos);
 	    break;
-	case '(':
-	    ++i;
-	    return qfs_readcompound(i, end);
+	case querytok::OP_BRA:
+	    return qfs_readcompound();
 	    break;
-	case 'a': // and, andor, andmaybe
-	case 'f': // filter
-	case 'o': // or
-	case 'x': // xor
-	    // not for us to look at, return
-	    return 0;
 	default:
+	    cout << "Got type " << int(qt.type) << endl;
 	    Assert(false);
     }
-    return 0;
+    throw OmInvalidArgumentError("Invalid query string");
 }
 
-OmQueryInternal *query_from_string(string qs)
+OmQueryInternal query_from_string(string qs)
 {
     Assert(qs.length() > 1);
 
-    string::const_iterator i = qs.begin();
-    Assert(*i == '%');
-    ++i;
+    qfs_start(qs);
     
-    return qfs_readquery(i, qs.end());
+//    cerr << "Reading from query " << qs << endl;
+    OmQueryInternal retval = qfs_readquery();
+    Assert(retval.serialise() == qs);
+
+    qfs_end();
+
+    return retval;
 }
 
 void run_matcher() {
@@ -255,11 +233,11 @@ void run_matcher() {
 	    cout << "OK" << endl;
 	    cout.flush();
 	} else if (words[0] == "SETQUERY") {
-	    OmQueryInternal *temp =
+	    OmQueryInternal temp =
 		    query_from_string(message.substr(9,
 						     message.npos));
-	    leafmatch.set_query(temp);
-	    cerr << "CLIENT QUERY: " << temp->serialise() << endl;
+	    leafmatch.set_query(&temp);
+	    //cerr << "CLIENT QUERY: " << temp.serialise() << endl;
 	    cout << "OK" << endl;
 	    cout.flush();
 	} else {
