@@ -123,14 +123,6 @@ LeafDocument *
 NetworkDatabase::open_document(om_docid did) const
 {
     throw OmUnimplementedError("NetworkDatabase::open_document() not implemented");
-#if 0
-    om_doccount multiplier = databases.size();
-
-    om_docid realdid = (did - 1) / multiplier + 1;
-    om_doccount dbnumber = (did - 1) % multiplier;
-
-    return (*(databases.begin() + dbnumber))->open_document(realdid);
-#endif
 }
 
 om_doclength
