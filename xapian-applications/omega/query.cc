@@ -272,7 +272,7 @@ run_query()
 	
 	// If no probabilistic query is provided then promote the filters
 	// to be THE query instead of filtering an empty query.
-	if (query.is_empty()) {
+	if (query.empty()) {
 	    query = Xapian::Query(Xapian::Query::OP_AND,
 			    filter_vec.begin(),
 			    filter_vec.end());
@@ -293,7 +293,7 @@ run_query()
 
 	// If no probabilistic query is provided then promote the daterange
 	// filter to be THE query instead of filtering an empty query.
-	if (query.is_empty()) {
+	if (query.empty()) {
 	    query = date_filter;
 	} else {
 	    query = Xapian::Query(Xapian::Query::OP_FILTER, query, date_filter);
@@ -348,7 +348,7 @@ run_query()
 	sec = time(NULL);
 	if (sec != (time_t)-1) usec = 0;
 #endif
-	if (!query.is_empty()) {
+	if (!query.empty()) {
 	    enquire->set_query(query);
 	    // We could use the value of topdoc as first parameter, but we
 	    // need to know the first few items on the mset to fake a

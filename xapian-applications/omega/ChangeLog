@@ -1,3 +1,8 @@
+Wed Nov 03 20:15:34 GMT 2004  Olly Betts <olly@survex.com>
+
+	* query.cc: Updated to use Query::empty() instead of
+	  Query::is_empty().
+
 Wed Nov 03 20:12:37 GMT 2004  Olly Betts <olly@survex.com>
 
 	* Makefile.am,getopt.cc,getopt.h,getopt1.cc,gnu_getopt.h,omindex.cc,
