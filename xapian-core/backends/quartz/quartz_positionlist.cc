@@ -49,6 +49,7 @@ QuartzPositionList::read_data(const QuartzTable * table,
     end = pos + data.size();
     is_at_end = false;
     have_started = false;
+    current_pos = 0;
 
     bool success = unpack_uint(&pos, end, &number_of_entries);
     if (! success) {
@@ -70,7 +71,8 @@ QuartzPositionList::next_internal()
 	return;
     }
 
-    bool success = unpack_uint(&pos, end, &current_pos);
+    om_termpos pos_increment;
+    bool success = unpack_uint(&pos, end, &pos_increment);
     if (! success) {
 	if (pos == 0) {
 	    // data ran out
@@ -81,6 +83,7 @@ QuartzPositionList::next_internal()
 	}
     }
     Assert(pos != 0);
+    current_pos += pos_increment;
 }
 
 void
@@ -135,10 +138,12 @@ QuartzPositionList::set_positionlist(QuartzBufferedTable * table,
     tag->value = pack_uint(positions.size());
 
     OmDocumentTerm::term_positions::const_iterator i;
+    om_termpos prevpos = 0;
     for (i = positions.begin();
 	 i != positions.end();
 	 i++) {
-	tag->value += pack_uint(*i);
+	tag->value += pack_uint(*i - prevpos);
+	prevpos = *i;
     }
 }
 

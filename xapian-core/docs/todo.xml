@@ -20,21 +20,26 @@ progress, apart from C].
 Write (speed) performance test suite.
 
 </todoitem>
+<todoitem priority="H" difficulty="5" owner="O" area="API">
+
+Merge OmDocument and OmDocumentContents into a single class, providing
+consistent interface.
+
+</todoitem>
 <todoitem priority="H" difficulty="5" owner="C" area="Indexer">
 
 Write indexer modules.
+
+</todoitem>
+<todoitem priority="M" difficulty="3" owner="" area="Quartz">
+
+Implement deletion and updating of documents.  Test.
 
 </todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="API">
 
 Rename AutoPtr to OmAutoPtr, and autoptr.h to omautoptr.h (or think
 of a suitable alternative scheme for avioding exposing the autoptrs).
-
-</todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="Postlist">
-
-Test ability to retrieve collection frequency, in those databases
-supporting it.
 
 </todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="Matcher">

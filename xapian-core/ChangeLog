@@ -1,3 +1,11 @@
+Wed Nov 22 13:13:20 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Store positionlists in quartz using difference between successive
+	  positions, rather than the raw positions.
+
+	* Update TODO: have written collection frequency tests, and have more
+	  stuff to be doing.
+
 Wed Nov 22 12:25:38 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add missing dependency, so that todo.html gets rebuilt when
