@@ -9,7 +9,7 @@ Package: xapian-omega
 Section: web
 Architecture: any
 Depends: ${shlibs:Depends}
-Suggests: libdbi-perl, unzip, antiword, libwpd7, unrtf
+Suggests: unzip, antiword, libwpd7, unrtf
 Recommends: httpd
 Description: CGI search interface and indexers using Xapian
  This package contains the "omega" CGI application which provides a
@@ -23,6 +23,5 @@ Description: CGI search interface and indexers using Xapian
  with a configuration file specifying actions to be performed on each field,
  and processes the documents into a Xapian database.
  .
- The package also contains the "dbi2omega" script, which dumps an SQL database
- into a file of format suitable for processing by scriptindex.  This script
- requires the libdbi-perl package.
+ The package also contains some example scripts for converting data from
+ different sources into a form suitable for processing with "scriptindex".
