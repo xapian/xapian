@@ -1,3 +1,8 @@
+Mon Nov 22 01:37:13 GMT 2004  Olly Betts <olly@survex.com>
+
+	* common/utils.cc: define NOMINMAX as a cleaner way to prevent
+	  windows.h from polluting the namespace and colliding with ANSI C++.
+
 Sat Nov 20 14:36:43 GMT 2004  Olly Betts <olly@survex.com>
 
 	* tests/runtest.in: --logfile-fd was renamed to --log-fd in valgrind

@@ -31,12 +31,12 @@
 using namespace std;
 
 #ifdef __WIN32__
+// Prevent windows.h from defining min and max macros.
+#define NOMINMAX
 #include <windows.h>
 #ifndef FOF_NOERRORUI
 #define FOF_NOERRORUI 1024
 #endif
-#undef min
-#undef max
 #endif
 
 // This ought to be enough for any of the conversions below.
