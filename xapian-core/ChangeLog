@@ -1,3 +1,7 @@
+Wed Jul 30 17:03:14 BST 2003  Olly Betts <olly@survex.com>
+
+	* common/getopt.h: Another try - the previous one failed on FreeBSD.
+
 Wed Jul 30 15:07:58 BST 2003  Olly Betts <olly@survex.com>
 
 	* common/getopt.h: Another iteration of the getopt C++ prototype fix
