@@ -30,4 +30,6 @@ stemtest_LDADD = ../libomus.la
 
 ## Test data:
 
-EXTRA_DIST = apitest_onedoc.txt apitest_simpledata.txt apitest_simpledata2.txt
+EXTRA_DIST = testdata/apitest_onedoc.txt \
+             testdata/apitest_simpledata.txt \
+             testdata/apitest_simpledata2.txt
