@@ -78,7 +78,7 @@ OmDebug::initialise()
 		s.replace(token, 2, om_tostring(getpid()));
 	    }
 
-	    fd = open(s, O_CREAT | O_SYNC | O_APPEND, 0644);
+	    fd = open(s, O_CREAT | O_WRONLY | O_SYNC | O_APPEND, 0644);
 
 	    if (fd == -1) {
 		fd = 2;

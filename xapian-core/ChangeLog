@@ -1,3 +1,8 @@
+Sun Dec 14 03:38:55 GMT 2003  Olly Betts <olly@survex.com>
+
+	* common/omdebug.cc: Open debug log with flag O_WRONLY so that we can
+	  actually write to it!
+ 
 Mon Dec 08 01:53:24 GMT 2003  Olly Betts <olly@survex.com>
 
 	* HACKING: Update to mention that building from CVS requires 
