@@ -1,3 +1,7 @@
+Sat Dec 14 02:05:59 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/: Updated.
+
 Fri Dec 13 23:43:23 GMT 2002  Olly Betts <olly@survex.com>
 
 	* include/om/om.h.in: Removed bogus // in the middle of a comment.

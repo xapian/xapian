@@ -87,9 +87,9 @@
             <B><FONT color=#a52a2a>for</FONT></B> (OmMSetIterator i = matches.begin();
                  i != matches.end();
                  ++i) {
-                OmDocument doc = i-&gt;get_document();
+                OmDocument doc = i.get_document();
                 cout &lt;&lt; <FONT color=#ff00ff>&quot;Document ID &quot;</FONT> &lt;&lt; *i &lt;&lt; <FONT color=#ff00ff>&quot;</FONT><FONT color=#6a5acd>\t</FONT><FONT color=#ff00ff>&quot;</FONT> &lt;&lt;
-                        i-&gt;get_percent() &lt;&lt; <FONT color=#ff00ff>&quot;% [&quot;</FONT> &lt;&lt;
+                        i.get_percent() &lt;&lt; <FONT color=#ff00ff>&quot;% [&quot;</FONT> &lt;&lt;
                         doc.get_data() &lt;&lt; <FONT color=#ff00ff>&quot;]&quot;</FONT> &lt;&lt; endl;
             }
         }
@@ -100,9 +100,9 @@
             <B><FONT color=#2e8b57>int</FONT></B> j;
             <B><FONT color=#a52a2a>for</FONT></B> (i = matches.begin(),
                  j = <FONT color=#ff00ff>0</FONT>;
-                 (i != matches.()) &amp;&amp; (j &lt; <FONT color=#ff00ff>5</FONT>);
-                 i++, j++) {
-                reldocs.add_document(i-&gt;did);
+                 (i != matches.end()) &amp;&amp; (j &lt; <FONT color=#ff00ff>5</FONT>);
+                 ++i, ++j) {
+                reldocs.add_document(*i);
             }
         }
         
@@ -112,11 +112,11 @@
         <FONT color=#0000ff>// Display the expand terms</FONT>
         cout &lt;&lt; eterms.size() &lt;&lt; <FONT color=#ff00ff>&quot; suggested additional terms&quot;</FONT> &lt;&lt; endl;
 
-        <B><FONT color=#a52a2a>for</FONT></B> (vector&lt;OmESetItem&gt;::const_iterator k = eterms.begin();
+        <B><FONT color=#a52a2a>for</FONT></B> (OmESetIterator k = eterms.begin();
              k != eterms.end();
              ++k) {
             cout &lt;&lt; <FONT color=#ff00ff>&quot;Term `&quot;</FONT> &lt;&lt; *k &lt;&lt; <FONT color=#ff00ff>&quot;'</FONT><FONT color=#6a5acd>\t</FONT><FONT color=#ff00ff> &quot;</FONT> &lt;&lt;
-                    <FONT color=#ff00ff>&quot;(weight &quot;</FONT> &lt;&lt; k-&gt;get_weight() &lt;&lt; <FONT color=#ff00ff>&quot;)&quot;</FONT> &lt;&lt; endl;
+                    <FONT color=#ff00ff>&quot;(weight &quot;</FONT> &lt;&lt; k.get_weight() &lt;&lt; <FONT color=#ff00ff>&quot;)&quot;</FONT> &lt;&lt; endl;
         }
     } <B><FONT color=#a52a2a>catch</FONT></B>(const OmError &amp;error) {
         cout &lt;&lt; <FONT color=#ff00ff>&quot;Exception: &quot;</FONT>  &lt;&lt; error.get_msg() &lt;&lt; endl;
