@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -102,11 +103,6 @@ class TcpServer {
 	/** Handle one incoming connection and stop.
 	 */
 	void run_once();
-	
-	/** Signal handlers
-	 */
-	static void on_SIGTERM(int);
-	static void on_SIGCHLD(int);
 };
 
 #endif  /* OM_HGUARD_TCPSERVER_H */

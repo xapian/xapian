@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -245,6 +245,26 @@ TcpServer::run_once()
     }
 }
 
+extern "C" void
+on_SIGTERM(int /*sig*/)
+{
+    signal(SIGTERM, SIG_DFL);
+    /* terminate all processes in my process group */
+#ifdef HAVE_KILLPG
+    killpg(0, SIGTERM);
+#else
+    kill(0, SIGTERM);
+#endif
+    exit (0);
+}
+
+extern "C" void 
+on_SIGCHLD(int /*sig*/)
+{    
+    int status;
+    while (waitpid(-1, &status, WNOHANG) > 0);
+}
+
 void
 TcpServer::run()
 {
@@ -274,26 +294,4 @@ TcpServer::run()
 	    cerr << "Caught exception." << endl;
 	}
     }
-}
-
-//////////////////////////////////////////////////////////////
-void
-TcpServer::on_SIGTERM (int /*sig*/)
-{
-    signal (SIGTERM, SIG_DFL);
-    /* terminate all processes in my process group */
-#ifdef HAVE_KILLPG
-    killpg(0, SIGTERM);
-#else
-    kill(0, SIGTERM);
-#endif
-    exit (0);
-}
-
-//////////////////////////////////////////////////////////////
-void 
-TcpServer::on_SIGCHLD (int /*sig*/)
-{    
-    int status;
-    while (waitpid(-1, &status, WNOHANG) > 0);
 }

@@ -313,21 +313,6 @@ static bool test_multidb5()
     return true;
 }
 
-class MyErrorHandler : public OmErrorHandler {
-    public:
-	int count;
-
-	bool handle_error(OmError & error) {
-	    ++count;
-	    tout << "Error handling caught: " << error.get_type() << ": " <<
-		    error.get_msg() << ", with context `" <<
-		    error.get_context() << "': count is now " << count << "\n";
-	    return true;
-	}
-
-	MyErrorHandler() : count (0) {}
-};
-
 // check that stubdbs work
 static bool test_stubdb1()
 {
@@ -357,6 +342,21 @@ static bool test_stubdb1()
 }
 
 #if 0 // the "force error" mechanism is no longer in place...
+class MyErrorHandler : public OmErrorHandler {
+    public:
+	int count;
+
+	bool handle_error(OmError & error) {
+	    ++count;
+	    tout << "Error handling caught: " << error.get_type() << ": " <<
+		    error.get_msg() << ", with context `" <<
+		    error.get_context() << "': count is now " << count << "\n";
+	    return true;
+	}
+
+	MyErrorHandler() : count (0) {}
+};
+
 // tests error handler in multimatch().
 static bool test_multierrhandler1()
 {
@@ -1255,6 +1255,7 @@ static bool test_getmterms1()
         for (t = enquire.get_matching_terms_begin(mymset.begin());
 	     t != enquire.get_matching_terms_end(mymset.begin()); ++t) {
             list.push_back(*t);
+	}
     }
 #else
     om_termname_list list(enquire.get_matching_terms_begin(mymset.begin()),
@@ -1296,6 +1297,7 @@ static bool test_getmterms2()
         for (t = enquire.get_matching_terms_begin(mymset.begin());
 	     t != enquire.get_matching_terms_end(mymset.begin()); ++t) {
             list.push_back(*t);
+	}
     }
 #else
     om_termname_list list(enquire.get_matching_terms_begin(mymset.begin()),
