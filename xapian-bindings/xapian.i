@@ -443,6 +443,9 @@ class Enquire {
     string get_description() const;
 };
 
+#ifdef SWIGPYTHON
+%feature("director") Weight;
+#endif
 class Weight {
     public:
 	Weight();
