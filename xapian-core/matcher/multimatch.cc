@@ -361,7 +361,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     Xapian::MSet & mset, const Xapian::MatchDecider *mdecider)
 {
     DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
-	      << ", ...");
+	      << ", " << check_at_least << ", ...");
     if (check_at_least < maxitems) check_at_least = maxitems;
 
     if (!query) {
@@ -937,7 +937,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	// Remove unwanted trailing entries
 	if (maxitems == 0) {
 	    items.clear();
-	} else {
+	} else if (items.size() > first + maxitems) {
 	    if (sort_bands <= 1)
 		nth_element(items.begin(),
 			    items.begin() + first + maxitems,

@@ -1,3 +1,8 @@
+Mon Sep 20 03:16:14 BST 2004  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fixed segfault with check_at_least when there
+	  were no matches.
+
 Sun Sep 19 17:54:52 BST 2004  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,common/omdebug.cc: Fixed to compile with debug
