@@ -200,6 +200,7 @@ BackendManager::set_dbtype(const std::string &type)
 		"Expected inmemory, sleepycat, quartz, remote, da, db, "
 		"daflimsy, dbflimsy, or void");
     }
+    current_type = type;
 }
 
 void
