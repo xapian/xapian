@@ -1,3 +1,8 @@
+Sat Mar 27 17:44:41 GMT 2004  Olly Betts <olly@survex.com>
+
+	* perl/CommitSearch-script.pl: Added "use strict" and fixed code to
+	  match; tidied up indentation.
+
 Sat Mar 27 17:07:17 GMT 2004  Olly Betts <olly@survex.com>
 
 	* perl/Query-script.pl: Fixed to output cvs revisions sorted
