@@ -68,41 +68,22 @@
 //
 //  simply returns most used classes & functions
 //
-// SCORE: % of commits that they are part of
-//
-//  SEE:  rank_all_items 
 
 // (2) no query words, but have antecedent or consequent
 //
 // in this case, we consider rules A => B
 //
-//  SCORE:  log( conf(A=>B) / conf(B) ) x support(A,B)
-//
-//  Here conf(B) and support are computed with respect to the entire commit list.
-//
-//  SEE:  considerRule
 
 // (3) query words, no antecedent or consequent
 //
 // returns classes/functions that tend to be used given the query Q
 //
-// SCORE:  log ((% of commits containing Q) / (% of all commits containing the item)) x support(A,Q)
-//
-// SEE:  rank_single_items
-
 
 // (4) query words, but have antecedent or consequent
 //
-// in this case, we consider rules A => B
+// in this case, we consider rules Q^A => B
 //
-//  SCORE:  log( conf(A=>B) / conf(B) ) x support(A,B)
-//
-//  Here conf(B) is computed with respect to the entire commit list.
-//  support(A,B) is computed only with respect to the commits containing Q.
-//
-//  SEE:  considerRule
-//
-//  NOTE:  We do not require confidence of rule to increase in presence of Q.
+
 
 
 
