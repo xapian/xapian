@@ -54,7 +54,8 @@ QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
 	  table(table_),
 	  tname(tname_),
 	  cursor(table->cursor_get()),
-	  is_at_end(false)
+	  is_at_end(false),
+	  have_started(false)
 {
     QuartzDbKey key;
     key.value = pack_string(tname);
@@ -66,8 +67,6 @@ QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
     }
     pos = cursor->current_tag.value.data();
     end = pos + cursor->current_tag.value.size();
-
-    did = 1;
 
     read_number_of_entries();
     read_first_docid();
@@ -120,10 +119,13 @@ QuartzPostList::read_start_of_chunk()
     // Read whether this is the last chunk
     if (!unpack_bool(&pos, end, &is_last_chunk)) report_read_error(pos);
 
+    // Remember the first document ID
+    first_did_in_chunk = did;
+
     // Read what the final document ID in this chunk is.
     om_docid increase_to_last;
     if (!unpack_uint(&pos, end, &increase_to_last)) report_read_error(pos);
-    last_did_in_chunk = did + increase_to_last;
+    last_did_in_chunk = first_did_in_chunk + increase_to_last;
 }
 
 void
@@ -208,14 +210,80 @@ QuartzPostList::get_position_list()
 PostList *
 QuartzPostList::next(om_weight w_min)
 {
-    if (!next_in_chunk()) next_chunk();
+    if (!have_started) {
+	have_started = true;
+    } else {
+	if (!next_in_chunk()) next_chunk();
+    }
     return NULL;
 }
 
-PostList *
-QuartzPostList::skip_to(om_docid did, om_weight w_min)
+bool
+QuartzPostList::current_chunk_contains(om_docid desired_did)
 {
-    throw OmUnimplementedError("FIXME");
+    if (desired_did >= first_did_in_chunk &&
+	desired_did <= last_did_in_chunk) {
+	return true;
+    } else {
+	return false;
+    }
+}
+
+void
+QuartzPostList::move_to_chunk_containing(om_docid desired_did)
+{
+    throw OmUnimplementedError("QuartzPostList::move_to_chunk_containing() not yet implemented");
+}
+
+bool
+QuartzPostList::move_forward_in_chunk_to_at_least(om_docid desired_did)
+{
+    if (desired_did > last_did_in_chunk) {
+	pos = end;
+	return false;
+    }
+    while (did < desired_did) {
+	// FIXME: perhaps we don't need to decode the wdf and documnet length
+	// for documents we're skipping past.
+	bool at_end_of_chunk = !next_in_chunk();
+	if (at_end_of_chunk) return false;
+    }
+    return true;
+}
+
+PostList *
+QuartzPostList::skip_to(om_docid desired_did, om_weight w_min)
+{
+    // Don't skip back, and don't need to do anthing if already there.
+    if (desired_did <= did) return NULL;
+
+    // We've started now - we're already positioned at start so there's no
+    // need to actually do anything.
+    have_started = true;
+
+    // Move to correct chunk
+    if (!current_chunk_contains(desired_did)) {
+	move_to_chunk_containing(desired_did);
+	if (!current_chunk_contains(desired_did)) {
+	    // Possible, since desired_did might be after end of
+	    // this chunk and before the next.
+	    next_chunk();
+	    // Might be at_end now - this is why we need the test before moving forward in chunk.
+	}
+    }
+
+    // Move to correct position in chunk
+    if (!is_at_end) {
+#ifdef MUS_DEBUG
+	bool have_document =
+#else
+	(void)
+#endif
+		move_forward_in_chunk_to_at_least(desired_did);
+	Assert(have_document);
+    }
+
+    return NULL;
 }
 
 std::string

@@ -60,6 +60,9 @@ class QuartzPostList : public LeafPostList {
 	/// True if this is the last chunk.
 	bool is_last_chunk;
 
+	/// The first document id in this chunk;
+	om_docid first_did_in_chunk;
+
 	/// The last document id in this chunk;
 	om_docid last_did_in_chunk;
 
@@ -82,6 +85,9 @@ class QuartzPostList : public LeafPostList {
 
 	/// Whether we've run off the end of the list yet.
 	bool is_at_end;
+
+	/// Whether we've run off the end of the list yet.
+	bool have_started;
 
 	/// The number of entries in the posting list.
 	om_termcount number_of_entries;
@@ -130,6 +136,39 @@ class QuartzPostList : public LeafPostList {
 	/// Read the wdf and the length of an item.
 	void read_wdf_and_length();
 
+	/** Return true if the given document ID lies in the range covered
+	 *  by the current chunk.  This does not say whether the document ID
+	 *  is actually present.  It will return false if the document ID 
+	 *  is greater than the last document ID in the chunk, even if it is
+	 *  less than the first document ID in the next chunk: it is possible
+	 *  for no chunk to contain a particular document ID.
+	 */
+	bool current_chunk_contains(om_docid desired_did);
+
+	/** Move to chunk containing the specified document ID.
+	 *
+	 *  This moves to the chunk whose starting document ID is
+	 *  <= desired_did, but such that the next chunks starting
+	 *  document ID is > desired_did.
+	 *
+	 *  It is thus possible that current_chunk_contains(desired_did)
+	 *  will return false after this call, since the document ID
+	 *  might lie after the end of this chunk, but before the start
+	 *  of the next chunk.
+	 */
+	void move_to_chunk_containing(om_docid desired_did);
+
+	/** Scan forward in the current chunk for the specified document ID.
+	 *
+	 *  This is particularly efficient if the desired document ID is
+	 *  greater than the last in the chunk - it then skips straight
+	 *  to the end.
+	 *
+	 *  @return true if we moved to a valid document,
+	 *          false if we reached the end of the chunk.
+	 */
+	bool move_forward_in_chunk_to_at_least(om_docid desired_did);
+
 	/// Report an error when reading the posting list.
 	void report_read_error(const char * position);
     public:
@@ -164,7 +203,7 @@ class QuartzPostList : public LeafPostList {
 	PostList * next(om_weight w_min);
 
 	/// Skip to next document with docid >= docid.
-	PostList * skip_to(om_docid did, om_weight w_min);
+	PostList * skip_to(om_docid desired_did, om_weight w_min);
 
 	/// Return true if and only if we're off the end of the list.
 	bool       at_end() const { return is_at_end; }
