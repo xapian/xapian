@@ -109,8 +109,16 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	    docid q0 = matcher.mset[i].id;
 	    IRDocument *doc = database->open_document(q0);
 	    IRData data = doc->get_data();
+	    string message;
+	    if(MultiDatabase *mdb = dynamic_cast<MultiDatabase *>(database)) {
+		message = (mdb->get_database_of_doc(q0))->get_database_path();
+	    } else {
+		message = database->get_database_path();
+	    }
+	    message += " ";
+	    message += data.value;
 	    ResultItemGTK * item = new ResultItemGTK(matcher.mset[i].id,
-		100 * matcher.mset[i].w / maxweight, data.value);
+		100 * matcher.mset[i].w / maxweight, message);
 	    gint index = gtk_clist_append(results, item->data);
 
 	    // Make sure it gets freed when item is removed from result list
