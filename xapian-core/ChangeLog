@@ -1,3 +1,9 @@
+Tue Aug 24 10:16:38 BST 2004  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: If a matchdecider is specified and no matches
+	  are requested, the lower bound on the number of matches must be 0
+	  (since the matchdecider could reject all the matches).
+
 Mon Aug 23 23:03:12 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Improved the "Db block overwritten"

@@ -433,12 +433,16 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Xapian::doccount documents_considered = 0;
 
     // Check if any results have been asked for (might just be wanting
-    // maxweight)
+    // maxweight).
     if (maxitems == 0) {
 	delete pl;
-	if (collapse_key != Xapian::valueno(-1)) {
-	    // Lower bound must be set to no more than 1, since it's possible that
-	    // all hits will be collapsed to a single hit.
+	if (mdecider != NULL) {
+	    // Lower bound must be set to 0 as the match decider could discard
+	    // all hits.
+	    matches_lower_bound = 0;
+	} else if (collapse_key != Xapian::valueno(-1)) {
+	    // Lower bound must be set to no more than 1, since it's possible
+	    // that all hits will be collapsed to a single hit.
 	    if (matches_lower_bound > 1) matches_lower_bound = 1;
 	}
 
