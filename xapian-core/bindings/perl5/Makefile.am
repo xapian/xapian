@@ -12,7 +12,7 @@ target: omuscat.so omuscat.pm
 
 omstem_wrap.cc: ../swig/omstem.i
 	$(SWIG) $(SWIG_INCLUDES) -c++ -perl5 -shadow -o $@ $<
-omuscat_wrap.cc: ../swig/omuscat.i ../swig/om_util.i ../swig/om_util_perl5.i
+omuscat_wrap.cc: ../swig/omuscat.i ../swig/om_util.i ../swig/om_util_perl5.i ../swig/omtypes.i
 	$(SWIG) $(SWIG_INCLUDES) -c++ -perl5 -shadow -o $@ $<
 
 omstem.pm: omstem_wrap.cc

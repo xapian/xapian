@@ -22,7 +22,7 @@ omstem_wrap.o: omstem_wrap.cc
 omuscat_wrap.o: omuscat_wrap.cc
 	$(CXX) $(INCLUDES) $(CXXFLAGS) -c $< -I/usr/include/python1.5/ -o $@
 
-omstemc.so: omstem_wrap.o
+omstemc.so: omstem_wrap.o $(top_builddir)/libomus.la
 	$(CXX) -shared $< -o $@
 
 omuscatc.so: omuscat_wrap.o

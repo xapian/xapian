@@ -46,4 +46,4 @@ $dbgrp->add_database($db);
 $enquire = new OmEnquire($dbgrp);
 
 $enquire->set_query(OmQuery->new_OmQueryTerm("word"));
-print $enquire->get_mset(0, 10)->get_description();
+print $enquire->get_mset(0, 10)->get_description(), "\n";

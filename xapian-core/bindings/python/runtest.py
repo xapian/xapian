@@ -29,7 +29,7 @@ if (terms != [ "one", "two", "three", "four" ]):
 
 dbgrp = OmDatabaseGroup()
 
-dbgrp.add_database("sleepycat", ["/home/cemerson/working/open-muscat/build/om-debug-valis/tests/.sleepy/db=apitest_simpledata="])
+dbgrp.add_dbargs("sleepycat", ["../../tests/.sleepy/db=apitest_simpledata="])
 
 enq = OmEnquire(dbgrp)
 

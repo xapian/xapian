@@ -3,7 +3,7 @@ from omuscat import *
 
 def get_simple_database():
     mydb = OmDatabaseGroup()
-    mydb.add_database("sleepycat", ["/home/cemerson/working/open-muscat/build/om-debug-valis/tests/.sleepy/db=apitest_simpledata="])
+    mydb.add_dbargs("sleepycat", ["../../tests/.sleepy/db=apitest_simpledata="])
     return mydb
 
 def init_simple_enquire(enq, query = OmQuery("thi")):
