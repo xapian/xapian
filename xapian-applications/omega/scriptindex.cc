@@ -47,7 +47,7 @@ static int delcount;
 
 // Put a limit on the size of terms to help prevent the index being bloated
 // by useless junk terms
-const static unsigned int MAX_PROB_TERM_LENGTH = 64;
+static const unsigned int MAX_PROB_TERM_LENGTH = 64;
 
 class MyHtmlParser : public HtmlParser {
     public:
@@ -331,6 +331,7 @@ moreterm:
     return pos;
 }                           
 
+#if 0
 static unsigned int
 hash(const string &s)
 {
@@ -340,6 +341,7 @@ hash(const string &s)
     }
     return h;
 }
+#endif
 
 static bool
 index_file(string filename, OmWritableDatabase &database, OmStem &stemmer)

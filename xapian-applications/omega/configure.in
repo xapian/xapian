@@ -70,8 +70,8 @@ dnl ******************************
 
 dnl extra flags for building with gcc
 if test yes = "$GCC"; then
-  AM_CFLAGS="$AM_CFLAGS -Wall -Wunused -Wno-long-long"
-  AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wunused -Wno-long-long -fno-gnu-keywords"
+  AM_CFLAGS="$AM_CFLAGS -Wall -W -Wno-long-long"
+  AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wno-long-long -fno-gnu-keywords"
 fi
 
 dnl **************************

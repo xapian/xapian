@@ -65,7 +65,7 @@ static OmWritableDatabase *db;
 
 // Put a limit on the size of terms to help prevent the index being bloated
 // by useless junk terms
-const static unsigned int MAX_PROB_TERM_LENGTH = 64;
+static const unsigned int MAX_PROB_TERM_LENGTH = 64;
 
 static void
 lowercase_term(om_termname &term)

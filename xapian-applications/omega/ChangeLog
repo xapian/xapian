@@ -1,3 +1,9 @@
+Wed Nov 27 05:21:00 GMT 2002  Olly Betts <olly@survex.com>
+
+	* configure.in,htmlparse.h,omindex.cc,scriptindex.cc:
+	  Use "-Wall -W" rather than "-Wall -Wunused", and fix the
+	  warnings this reveals.
+
 Wed Nov 27 04:20:13 GMT 2002  Olly Betts <olly@survex.com>
 
 	* Makefile.am,dbi2omega: Added perl script to dump any database
