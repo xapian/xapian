@@ -57,39 +57,93 @@ class Match
 
 	matchop default_op;
    
-        doccount max_msize;
         int min_weight_percent;
         weight max_weight;
 
 	stack<PostList *> query;
 	vector<IRWeight *> weights;
 
-        PostList *merger;
 	RSet *rset;
     
 	bool have_added_terms;
         bool recalculate_maxweight;
+
+	bool query_ready;
+	PostList * build_query();
 
 	DBPostList * mk_postlist(const termname& tname,
 				 RSet * rset);
     public:
         Match(IRDatabase *);
         ~Match();
+
+	///////////////////////////////////////////////////////////////////
+	// Set the terms and operations which comprise the query
+	// =====================================================
+	
+	// Add term to query stack
         void add_term(const termname &);
+
+	// Apply operator to top items on stack
 	bool add_op(matchop op);
+
+	// Add list of terms op'd together to stack
 	void add_oplist(matchop op, const vector<termname>&);
 
-        void match();
+	// Set operator to use for any terms which are left over -
+	// default is MOP_OR
 	void set_default_op(matchop);
-        void set_max_msize(doccount n);
-        void set_rset(RSet *new_rset);
-        weight get_max_weight();
-        void set_min_weight_percent(int pcent);
-        void recalc_maxweight();
 
-        vector<MSetItem> mset;
-        doccount msize;
-        doccount mtotal;
+	///////////////////////////////////////////////////////////////////
+	// Set additional options for performing the query
+	// ===============================================
+
+	// Set relevance information - the RSet object should not be
+	// altered after this call
+        void set_rset(RSet *);
+
+	// Set cutoff at min percentage - defaults to -1, which means no cutoff
+        void set_min_weight_percent(int);
+
+	// Add a key number to collapse by.  Each key value will appear only
+	// once in the result set.
+	//void add_collapse_key(keyno);
+
+	///////////////////////////////////////////////////////////////////
+	// Get information about result
+	// ============================
+
+	// Get an upper bound on the possible weights (unlikely to be attained)
+        weight get_max_weight();
+
+	// Perform the match operation, and get the matching items
+	void match(doccount first,         // First item to return (start at 0)
+		   doccount maxitems,      // Maximum number of items to return
+		   vector<MSetItem> &      // Results will be put in this vector
+		  );
+
+	// Perform the match operation, but also return a lower bound on the
+	// number of matching records in the database.  Because of some of
+	// the optimisations performed, this is likely to be much lower than
+	// the actual number of matching records, but it is expensive to do
+	// the calculation properly.
+	//
+	// It is generally considered that presenting the mtotal to users
+	// causes them to worry about the large number of results, rather
+	// than how useful those at the top of the mset are, and is thus
+	// undesirable.
+	void match(doccount first,         // First item to return (start at 0)
+		   doccount maxitems,      // Maximum number of items to return
+		   vector<MSetItem> &,     // Results will be put in this vector
+		   doccount *);            // Mtotal will returned here
+
+	///////////////////////////////////////////////////////////////////
+	// Miscellaneous
+	// =============
+
+	// Called by postlists to indicate that they've rearranged themselves
+	// and the maxweight now possible is smaller.
+        void recalc_maxweight();
 };
 
 inline void
@@ -102,13 +156,8 @@ inline void
 Match::set_rset(RSet *new_rset)
 {
     Assert(!have_added_terms);
+    query_ready = false;
     rset = new_rset;
-}
-
-inline void
-Match::set_max_msize(doccount n)
-{
-    max_msize = n;
 }
 
 inline void
@@ -120,6 +169,7 @@ Match::set_min_weight_percent(int pcent)
 inline weight
 Match::get_max_weight()
 {
+    (void) build_query();
     return max_weight;
 }
 

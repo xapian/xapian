@@ -76,10 +76,10 @@ class MSetCmp {
 
 Match::Match(IRDatabase *_database)
 	: default_op(MOP_OR),
-	  have_added_terms(false)
+	  have_added_terms(false),
+	  query_ready(false)
 {
     database = _database;
-    max_msize = 1000;
     min_weight_percent = -1;
     rset = NULL;
 }
@@ -114,6 +114,7 @@ Match::mk_postlist(const termname& tname,
 void
 Match::add_term(const termname& tname)
 {
+    query_ready = false;
     Assert((have_added_terms = true) == true);
     // We want to push a null PostList in most (all?) situations
     // for similar reasons to using the muscat3.6 zerofreqs option
@@ -128,6 +129,7 @@ Match::add_term(const termname& tname)
 void
 Match::add_oplist(matchop op, const vector<termname> &terms)
 {
+    query_ready = false;
     Assert((have_added_terms = true) == true);
     Assert(op == MOP_OR || op == MOP_AND);
     if (op == MOP_OR) {
@@ -205,6 +207,7 @@ Match::add_oplist(matchop op, const vector<termname> &terms)
 bool
 Match::add_op(matchop op)
 {
+    query_ready = false;
     if (query.size() < 2) return false;
     PostList *left, *right;
 
@@ -246,37 +249,63 @@ Match::add_op(matchop op)
 void
 Match::recalc_maxweight()
 {
-    // if we don't have a merger, who the hell is telling us to recalc?
-    Assert(merger != NULL);
     recalculate_maxweight = true;
 }
 
-// This is the method which runs the query, generating the M set
-void
-Match::match()
+// Prepare the query for running, if it isn't already ready
+PostList *
+Match::build_query()
 {
-    msize = 0;
-    mtotal = 0;
-    max_weight = 0;
+    if(!query_ready) {
+	query_ready = true;
+	max_weight = 0;
 
-    merger = NULL;
+	if (query.size() == 0) return NULL; // No query
 
-    if (query.size() == 0) return; // No query
+	// Add default operator to all remaining terms.  Unless set with
+	// set_default_op(), the default operator is MOP_OR
+	while (query.size() > 1) add_op(default_op);
 
-    // Add default operator to all remaining terms.  Unless set with
-    // set_default_op(), the default operator is MOP_OR
-    while (query.size() > 1) add_op(default_op);
+	max_weight = query.top()->recalc_maxweight();
+    }
+    return query.top();
+}
 
-    merger = query.top();
+// Convenience wrapper
+void
+Match::match(doccount first, doccount maxitems, vector<MSetItem> &mset)
+{
+    doccount mtotal;
+    match(first, maxitems, mset, &mtotal);
+}
+
+// This is the method which runs the query, generating the M set
+//
+// Note: at the moment, the calculation is performed in the same way
+// whether or not first == 0, but this could be used for optimisations
+// at a later stage.
+void
+Match::match(doccount first, doccount maxitems,
+	     vector<MSetItem> &mset, doccount *mtotal)
+{
+    // Prepare query
+    *mtotal = 0;
+    mset.clear();
+
+    PostList * merger = build_query();
+    if(merger == NULL) return;
 
     DebugMsg("match.match(" << merger->intro_term_description() << ")" << endl);
 
-    weight w_max = max_weight = merger->recalc_maxweight();
+    weight w_min = 0;
+    if (min_weight_percent >= 0) w_min = min_weight_percent * max_weight / 100;
+
+    doccount max_msize = first + maxitems;
+
+    weight w_max = max_weight;
     recalculate_maxweight = false;
 
-    weight w_min = 0;
-    if (min_weight_percent >= 0) w_min = min_weight_percent * max_weight;
-
+    // Perform query
     while (1) {
 	if (recalculate_maxweight) {
 	    recalculate_maxweight = false;
@@ -308,7 +337,7 @@ Match::match()
 
 	if (merger->at_end()) break;
 
-        mtotal++;
+        (*mtotal)++;
 	
         weight w = merger->get_weight();
         
@@ -339,16 +368,25 @@ Match::match()
     }
     DebugMsg("sorting" << endl);
 
+    if(first > 0) {
+	// Remove unwanted leading entries
+	if(mset.size() <= first) {
+	    mset.clear();
+	} else {
+	    DebugMsg("finding " << first << "th" << endl);
+	    nth_element(mset.begin(), mset.begin() + first, mset.end(), MSetCmp());
+	    // erase the leading ``first'' elements
+	    mset.erase(mset.begin(), mset.begin() + first);
+	}
+    }
+
     // Need a stable sort, but this is provided by comparison operator
     sort(mset.begin(), mset.end(), MSetCmp());
 
-    msize = mset.size();
-
-    DebugMsg("msize = " << msize << ", mtotal = " << mtotal << endl);
-    if (msize) {
-	DebugMsg("max weight in mset = " << mset[0].wt
-		 << ", min weight in mset = " << mset[msize - 1].wt << endl);
+    DebugMsg("msize = " << mset.size() << ", mtotal = " << *mtotal << endl);
+    if (mset.size()) {
+	DebugMsg("max weight in mset = " << mset[0].wt <<
+		 ", min weight in mset = " << mset[mset.size() - 1].wt << endl);
     }
     delete merger;
-    merger = NULL;
 }
