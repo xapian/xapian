@@ -8,7 +8,7 @@ Direct Access databases, the inmemory backend holds its databases
 entirely in RAM, and the quartz backend is a fully featured disk based
 backend.
 
-The directory also contains the implementation of DatabaseBuilder
-which creates and opens instances of each type of database, encapsulating
-the differences between backends.
+The directory also contains the implementation of Xapian::Database::Internal
+(the base class for each backend database class) and the factory functions
+which are the public interface for instantiating the database backend classes.
 </Description>

@@ -36,12 +36,12 @@ class QuartzDocument : public Document {
     friend class QuartzDatabase;
     friend class QuartzWritableDatabase;
     private:
-	RefCntPtr<const Database> database;
+	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
 
 	QuartzTable *value_table;
 	QuartzTable *record_table;
 
-	QuartzDocument(RefCntPtr<const Database> database_,
+	QuartzDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
 		       QuartzTable *value_table_,
 		       QuartzTable *record_table_,
 		       om_docid did_, bool lazy);

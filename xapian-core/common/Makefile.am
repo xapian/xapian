@@ -16,7 +16,7 @@ noinst_HEADERS = \
  tcpserver.h omerr_string.h omdebug.h omlinebuf.h omstringstream.h \
  inmemory_positionlist.h omenquireinternal.h emptypostlist.h \
  omdocumentinternal.h autoptr.h \
- alltermslist.h emptyalltermslist.h multialltermslist.h \
+ alltermslist.h multialltermslist.h \
  deleter_vector.h getopt.h
 
 noinst_LTLIBRARIES = libcommon.la

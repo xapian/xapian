@@ -43,10 +43,10 @@ class AllTermsList : public TermList
 	void operator=(const AllTermsList &);
     public:
 	/// Standard constructor for base class.
-	AllTermsList() {}
+	AllTermsList() { }
 
 	/// Standard destructor for base class.
-	virtual ~AllTermsList() {}
+	virtual ~AllTermsList() { }
 
         // Gets size of termlist
 	virtual om_termcount get_approx_size() const = 0;

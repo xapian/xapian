@@ -36,13 +36,12 @@ class PendingMSetPostList;
 /** A network database.  This is a reference to a remote database, and is
  *  mainly used by a RemoteSubMatch object.
  */
-class NetworkDatabase : public Database {
-    friend class DatabaseBuilder;
+class NetworkDatabase : public Xapian::Database::Internal {
     friend class RemoteSubMatch;
     friend class PendingMSetPostList;
     private:
         /// Reference to the network link object
-    	RefCntPtr<NetClient> link;
+    	Xapian::Internal::RefCntPtr<NetClient> link;
 
 	/// Set up the connection, including swapping statistics.
 	void initialise_link();
@@ -99,7 +98,7 @@ class NetworkDatabase : public Database {
 	//@}
 
     public:
-	NetworkDatabase(RefCntPtr<NetClient> link_);
+	NetworkDatabase(Xapian::Internal::RefCntPtr<NetClient> link_);
 
 	~NetworkDatabase();
 

@@ -58,7 +58,7 @@ class OmExpandBits {
  */
 class OmExpandWeight {
     protected:
-	const OmDatabase root; // Root database
+	const Xapian::Database root; // Root database
 	om_doccount dbsize;        // Size of whole collection
 	om_doccount rsize;         // Size of RSet
 
@@ -82,7 +82,7 @@ class OmExpandWeight {
 
     public:
 
-	OmExpandWeight(const OmDatabase &root_,
+	OmExpandWeight(const Xapian::Database &root_,
 		       om_doccount rsetsize_,
 		       bool use_exact_termfreq_,
 		       double expand_k_ );

@@ -122,7 +122,7 @@ NetworkStatsGatherer::fetch_global_stats() const
 }
 
 NetworkStatsSource::NetworkStatsSource(StatsGatherer * gatherer_,
-				       RefCntPtr<NetClient> nclient_)
+				       Xapian::Internal::RefCntPtr<NetClient> nclient_)
 	: Xapian::Weight::Internal(gatherer_), nclient(nclient_),
           have_remote_stats(false)
 {

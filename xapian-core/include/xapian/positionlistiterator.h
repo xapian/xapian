@@ -32,10 +32,9 @@
 #include <xapian/base.h>
 #include <xapian/types.h>
 
-class OmDatabase;
-
 namespace Xapian {
 
+class Database;
 class PostListIterator;
 class TermIterator;
 
@@ -44,7 +43,7 @@ class PositionListIterator {
 	// friend classes which need to be able to construct us
 	friend class PostListIterator;
 	friend class TermIterator;
-	friend class OmDatabase;
+	friend class Database;
 
     public:
 	class Internal;

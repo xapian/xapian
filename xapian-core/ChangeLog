@@ -1,3 +1,10 @@
+Tue May 13 05:08:54 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/,backends/database.cc,backends/dir_contents,backends/inmemory/,
+	  backends/multi/,backends/muscat36/,backends/net/,backends/quartz/,
+	  common/,docs/,extra/omparsequery.h,include/,matcher/,net/,netprogs/,
+	  tests/: OmDatabase -> Xapian::Database, etc.
+
 Tue May 13 05:07:41 BST 2003  Olly Betts <olly@survex.com>
 
 	* NEWS: Corrected spelling: "maintainance" to "maintenance".

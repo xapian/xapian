@@ -90,8 +90,8 @@ class om_ostringstream {
 	return os << (obj->get_description()); \
     }
 
-OSTRINGSTREAMFUNC(OmDatabase)
-OSTRINGSTREAMFUNC(OmWritableDatabase)
+OSTRINGSTREAMFUNC(Xapian::Database)
+OSTRINGSTREAMFUNC(Xapian::WritableDatabase)
 OSTRINGSTREAMFUNC(OmDocument)
 OSTRINGSTREAMFUNC(Xapian::Query)
 OSTRINGSTREAMFUNC(Xapian::RSet)

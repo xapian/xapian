@@ -48,7 +48,7 @@
         <dia:real val="5"/>
       </dia:attribute>
       <dia:attribute name="name">
-        <dia:string>#OmEnquire#</dia:string>
+        <dia:string>#Xapian::Enquire#</dia:string>
       </dia:attribute>
       <dia:attribute name="stereotype">
         <dia:string/>
@@ -74,7 +74,7 @@
             <dia:string>#query#</dia:string>
           </dia:attribute>
           <dia:attribute name="type">
-            <dia:string>#OmQuery#</dia:string>
+            <dia:string>#Xapian::Query#</dia:string>
           </dia:attribute>
           <dia:attribute name="value">
             <dia:string/>
@@ -94,7 +94,7 @@
             <dia:string>#database#</dia:string>
           </dia:attribute>
           <dia:attribute name="type">
-            <dia:string>#OmDatabase#</dia:string>
+            <dia:string>#Xapian::Database#</dia:string>
           </dia:attribute>
           <dia:attribute name="value">
             <dia:string/>
@@ -222,7 +222,7 @@
         <dia:attribute name="text">
           <dia:composite type="text">
             <dia:attribute name="string">
-              <dia:string>#Omquery#</dia:string>
+              <dia:string>#Xapian::Query#</dia:string>
             </dia:attribute>
             <dia:attribute name="font">
               <dia:font name="Helvetica"/>
@@ -298,7 +298,7 @@
         <dia:attribute name="text">
           <dia:composite type="text">
             <dia:attribute name="string">
-              <dia:string>#OmQuery#</dia:string>
+              <dia:string>#Xapian::Query#</dia:string>
             </dia:attribute>
             <dia:attribute name="font">
               <dia:font name="Helvetica"/>
@@ -374,7 +374,7 @@
         <dia:attribute name="text">
           <dia:composite type="text">
             <dia:attribute name="string">
-              <dia:string>#OmQuery#</dia:string>
+              <dia:string>#Xapian::Query#</dia:string>
             </dia:attribute>
             <dia:attribute name="font">
               <dia:font name="Helvetica"/>

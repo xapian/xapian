@@ -43,8 +43,6 @@
 #include "rset.h"
 #include "omqueryinternal.h"
 
-#include "../api/omdatabaseinternal.h"
-
 #include "match.h"
 #include "stats.h"
 #include <xapian/enquire.h>

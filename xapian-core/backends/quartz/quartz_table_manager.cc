@@ -87,19 +87,19 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
     } else {
 	if (dbexists) {
 	    log->make_entry("Old database exists");
-	    if (action == OM_DB_CREATE) {
+	    if (action == Xapian::DB_CREATE) {
 		throw Xapian::DatabaseCreateError("Can't create new database at `" +
 			db_dir + "': a database already exists and I was told "
 			"not to overwrite it");
 	    }
 	    // if we're overwriting, pretend the db doesn't exists
-	    // FIXME: if we allow OM_DB_OVERWRITE, check it here
-	    if (action == OM_DB_CREATE_OR_OVERWRITE) dbexists = false;
+	    // FIXME: if we allow Xapian::DB_OVERWRITE, check it here
+	    if (action == Xapian::DB_CREATE_OR_OVERWRITE) dbexists = false;
 	}
 	
 	if (!dbexists) {
-	    // FIXME: if we allow OM_DB_OVERWRITE, check it here
-	    if (action == OM_DB_OPEN) {
+	    // FIXME: if we allow Xapian::DB_OVERWRITE, check it here
+	    if (action == Xapian::DB_OPEN) {
 		throw Xapian::OpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
 	    }
 	    create_and_open_tables();

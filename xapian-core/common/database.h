@@ -44,18 +44,17 @@ class Xapian::PositionListIterator::Internal;
 typedef Xapian::PositionListIterator::Internal PositionList;
 class NetworkDatabase;
 
+namespace Xapian {
+
 /** Base class for databases.
- *
- *  All classes derived from Database must have DatabaseBuilder as
- *  a friend, so that they can be constructed in a unified way.
  */
-class Database : public RefCntBase {
+class Database::Internal : public Xapian::Internal::RefCntBase {
     private:
 	/// Copies are not allowed.
-	Database(const Database &);
+	Internal(const Internal &);
 
 	/// Assignment is not allowed.
-	void operator=(const Database &);
+	void operator=(const Internal &);
 
 	/// Flag recording whether a session is in progress
 	bool session_in_progress;
@@ -97,7 +96,7 @@ class Database : public RefCntBase {
     protected:
     	/** Create a database - called only by derived classes.
 	 */
-	Database();
+	Internal();
 
 	/** Internal method providing implementation of end_session().
 	 *
@@ -138,7 +137,7 @@ class Database : public RefCntBase {
 	 *  and ending the session, but errors produced by these operations
 	 *  will not be reported.
 	 */
-        virtual ~Database();
+        virtual ~Internal();
 
 	/** Send a keep-alive signal to a remote database, to stop
 	 *  it from timing out.
@@ -155,7 +154,7 @@ class Database : public RefCntBase {
 
 	/** Return the average length of a document in this (sub) database.
 	 *
-	 *  See Database::get_doclength() for the meaning of document
+	 *  See Database::Internal::get_doclength() for the meaning of document
 	 *  length within Xapian.
 	 */
 	virtual om_doclength get_avlength() const = 0;
@@ -284,14 +283,16 @@ class Database : public RefCntBase {
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
-	virtual Document *
+	virtual ::Document *
 	open_document(om_docid did, bool lazy = false) const = 0;
 
 	/** do_reopen the database to the latest available revision.
 	 *
 	 *  Some database implementations may do nothing.
 	 */
-	virtual void do_reopen();
+	virtual void do_reopen() {
+	    /* Default is to do nothing. */
+	}
 
 	//////////////////////////////////////////////////////////////////
 	// Modifying the database:
@@ -299,43 +300,43 @@ class Database : public RefCntBase {
 
 	/** Flush modifications to the database.
 	 *
-	 *  See OmWritableDatabase::flush() for more information.
+	 *  See WritableDatabase::flush() for more information.
 	 */
 	void flush();
 
 	/** Begin a transaction.
 	 *
-	 *  See OmWritableDatabase::begin_transaction() for more information.
+	 *  See WritableDatabase::begin_transaction() for more information.
 	 */
 	void begin_transaction();
 
 	/** Commit a transaction.
 	 *
-	 *  See OmWritableDatabase::commit_transaction() for more information.
+	 *  See WritableDatabase::commit_transaction() for more information.
 	 */
 	void commit_transaction();
 
 	/** Cancel a transaction.
 	 *
-	 *  See OmWritableDatabase::cancel_transaction() for more information.
+	 *  See WritableDatabase::cancel_transaction() for more information.
 	 */
 	void cancel_transaction();
 
 	/** Add a new document to the database.
 	 *
-	 *  See OmWritableDatabase::add_document() for more information.
+	 *  See WritableDatabase::add_document() for more information.
 	 */
 	om_docid add_document(const OmDocument & document);
 
 	/** Delete a document in the database.
 	 *
-	 *  See OmWritableDatabase::delete_document() for more information.
+	 *  See WritableDatabase::delete_document() for more information.
 	 */
 	void delete_document(om_docid did);
 
 	/** Replace a given document in the database.
 	 *
-	 *  See OmWritableDatabase::replace_document() for more information.
+	 *  See WritableDatabase::replace_document() for more information.
 	 */
 	void replace_document(om_docid did, const OmDocument & document);
 
@@ -351,7 +352,7 @@ class Database : public RefCntBase {
 	//@{
 	virtual void request_document(om_docid /*did*/) const { }
 
-	virtual Document * collect_document(om_docid did) const {
+	virtual ::Document * collect_document(om_docid did) const {
 	    return open_document(did);
 	}
 	//@}
@@ -371,9 +372,6 @@ class Database : public RefCntBase {
 	}
 };
 
-inline void Database::do_reopen()
-{
-    /* Default is to do nothing. */
 }
 
 #endif /* OM_HGUARD_DATABASE_H */

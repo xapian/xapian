@@ -33,7 +33,7 @@
 /** Create a QuartzDocument: this is only called by
  *  QuartzDatabase::open_document().
  */
-QuartzDocument::QuartzDocument(RefCntPtr<const Database> database_,
+QuartzDocument::QuartzDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
 			       QuartzTable *value_table_,
 			       QuartzTable *record_table_,
 			       om_docid did_, bool lazy)

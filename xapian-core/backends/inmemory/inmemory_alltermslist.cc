@@ -25,7 +25,7 @@
 #include "inmemory_alltermslist.h"
 
 InMemoryAllTermsList::InMemoryAllTermsList(const std::map<string, InMemoryTerm> *tmap_,
-					   RefCntPtr<const InMemoryDatabase> database_)
+					   Xapian::Internal::RefCntPtr<const InMemoryDatabase> database_)
 	: tmap(tmap_), it(tmap->begin()), database(database_), started(false)
 {
 }

@@ -23,355 +23,403 @@
  */
 
 #include <config.h>
-#include "xapian/error.h"
-#include "omdatabaseinternal.h"
+#include <xapian/error.h>
 #include "omdebug.h"
 #include <xapian/postlistiterator.h>
-#include "xapian/termiterator.h"
+#include <xapian/termiterator.h>
 #include "omtermlistiteratorinternal.h"
-#include "xapian/positionlistiterator.h"
+#include <xapian/positionlistiterator.h>
 #include <xapian/output.h>
+#include "../backends/multi/multi_postlist.h"
+#include "../backends/multi/multi_termlist.h"
+#include "alltermslist.h"
+#include "multialltermslist.h"
 
-OmDatabase::OmDatabase() : internal(new OmDatabase::Internal())
+#include <vector>
+
+using namespace std;
+
+namespace Xapian {
+
+Database::Database()
 {
-    DEBUGAPICALL(void, "OmDatabase::OmDatabase", "");
+    DEBUGAPICALL(void, "Database::Database", "");
 }
 
-OmDatabase::OmDatabase(OmDatabase::Internal *internal_) : internal(internal_)
+Database::Database(Database::Internal *internal_)
 {
-    DEBUGAPICALL(void, "OmDatabase::OmDatabase", "OmDatabase::Internal");
+    DEBUGAPICALL(void, "Database::Database", "Database::Internal");
+    Xapian::Internal::RefCntPtr<Database::Internal> newi(internal_);
+    internal.push_back(newi);
 }
 
-OmDatabase::OmDatabase(const OmDatabase &other)
-	: internal(0)
+Database::Database(const Database &other)
 {
-    DEBUGAPICALL(void, "OmDatabase::OmDatabase", "OmDatabase");
-    internal = new Internal(*(other.internal));
+    DEBUGAPICALL(void, "Database::Database", "Database");
+    internal = other.internal;
 }
 
 void
-OmDatabase::operator=(const OmDatabase &other)
+Database::operator=(const Database &other)
 {
-    DEBUGAPICALL(void, "OmDatabase::operator=", "OmDatabase");
+    DEBUGAPICALL(void, "Database::operator=", "Database");
     if (this == &other) {
-	DEBUGLINE(API, "OmDatabase assigned to itself");
+	DEBUGLINE(API, "Database assigned to itself");
 	return;
     }
 
-    Internal * newinternal = new Internal(*(other.internal));
-    std::swap(internal, newinternal);
-    delete newinternal;
+    internal = other.internal;
 }
 
-OmDatabase::~OmDatabase()
+Database::~Database()
 {
-    DEBUGAPICALL(void, "OmDatabase::~OmDatabase", "");
-    delete internal;
-    internal = 0;
+    DEBUGAPICALL(void, "Database::~Database", "");
 }
 
 void
-OmDatabase::reopen()
+Database::reopen()
 {
-    std::vector<RefCntPtr<Database> >::iterator i;
-    for (i = internal->databases.begin(); i != internal->databases.end(); i++) {
+    std::vector<Xapian::Internal::RefCntPtr<Database::Internal> >::iterator i;
+    for (i = internal.begin(); i != internal.end(); ++i) {
 	(*i)->do_reopen();
     }
 }
 
 void
-OmDatabase::add_database(const OmDatabase & database)
+Database::add_database(const Database & database)
 {
-    DEBUGAPICALL(void, "OmDatabase::add_database", "OmDatabase");
+    DEBUGAPICALL(void, "Database::add_database", "Database");
     if (this == &database) {
-	DEBUGLINE(API, "OmDatabase added to itself");
-	throw Xapian::InvalidArgumentError("Can't add an OmDatabase to itself");
+	DEBUGLINE(API, "Database added to itself");
+	throw Xapian::InvalidArgumentError("Can't add an Database to itself");
 	return;
     }
-    std::vector<RefCntPtr<Database> >::iterator i;
-    for (i = database.internal->databases.begin();
-	 i != database.internal->databases.end(); i++) {
-	internal->add_database(*i);
+    std::vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    for (i = database.internal.begin(); i != database.internal.end(); ++i) {
+	internal.push_back(*i);
     }
 }
 
-Xapian::PostListIterator
-OmDatabase::postlist_begin(const string &tname) const
+PostListIterator
+Database::postlist_begin(const string &tname) const
 {
-    DEBUGAPICALL(Xapian::PostListIterator, "OmDatabase::postlist_begin", tname);
+    DEBUGAPICALL(PostListIterator, "Database::postlist_begin", tname);
     if (tname.empty())
-       	throw Xapian::InvalidArgumentError("Zero length terms are invalid");
-    RETURN(Xapian::PostListIterator(internal->open_post_list(tname, *this)));
+       	throw InvalidArgumentError("Zero length terms are invalid");
+ 
+    // Don't bother checking that the term exists first.  If it does, we
+    // just end up doing more work, and if it doesn't, we save very little
+    // work.
+    vector<LeafPostList *> pls;
+    try {
+	vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+	for (i = internal.begin(); i != internal.end(); ++i) {
+	    pls.push_back((*i)->open_post_list(tname));
+	    pls.back()->next();
+	}
+	Assert(pls.begin() != pls.end());
+    } catch (...) {
+	vector<LeafPostList *>::iterator i;
+	for (i = pls.begin(); i != pls.end(); i++) {
+	    delete *i;
+	    *i = 0;
+	}
+	throw;
+    }
+
+    RETURN(PostListIterator(new MultiPostList(pls, *this)));
 }
 
-Xapian::PostListIterator
-OmDatabase::postlist_end(const string &tname) const
+PostListIterator
+Database::postlist_end(const string &tname) const
 {
-    DEBUGAPICALL(Xapian::PostListIterator, "OmDatabase::postlist_end", tname);
-    if (tname.empty())
-       	throw Xapian::InvalidArgumentError("Zero length terms are invalid");
-    RETURN(Xapian::PostListIterator(NULL));
+    DEBUGAPICALL(PostListIterator, "Database::postlist_end", tname);
+    (void)tname;
+    RETURN(PostListIterator(NULL));
 }
 
-Xapian::TermIterator
-OmDatabase::termlist_begin(om_docid did) const
+TermIterator
+Database::termlist_begin(om_docid did) const
 {
-    DEBUGAPICALL(Xapian::TermIterator, "OmDatabase::termlist_begin", did);
-    if (did == 0) throw Xapian::InvalidArgumentError("Document IDs of 0 are invalid");
+    DEBUGAPICALL(TermIterator, "Database::termlist_begin", did);
+    if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
-    RETURN(Xapian::TermIterator(internal->open_term_list(did, *this)));
+    unsigned int multiplier = internal.size();
+    Assert(multiplier != 0);
+    om_doccount n = (did - 1) % multiplier; // which actual database
+    om_docid m = (did - 1) / multiplier + 1; // real docid in that database
+
+    LeafTermList *tl;
+    tl = new MultiTermList(internal[n]->open_term_list(m), internal[n], *this);
+    RETURN(TermIterator(tl));
 }
 
-Xapian::TermIterator
-OmDatabase::termlist_end(om_docid did) const
+TermIterator
+Database::termlist_end(om_docid did) const
 {
-    DEBUGAPICALL(Xapian::TermIterator, "OmDatabase::termlist_end", did);
-    if (did == 0) throw Xapian::InvalidArgumentError("Document IDs of 0 are invalid");
-    RETURN(Xapian::TermIterator(NULL));
+    DEBUGAPICALL(TermIterator, "Database::termlist_end", did);
+    (void)did;
+    RETURN(TermIterator(NULL));
 }
 
-Xapian::TermIterator
-OmDatabase::allterms_begin() const
+TermIterator
+Database::allterms_begin() const
 {
-    DEBUGAPICALL(Xapian::TermIterator, "OmDatabase::allterms_begin", "");
-    RETURN(Xapian::TermIterator(internal->open_allterms()));
+    DEBUGAPICALL(TermIterator, "Database::allterms_begin", "");
+    if (internal.empty()) RETURN(TermIterator(NULL));
+
+    if (internal.size() == 1)
+	RETURN(TermIterator(internal[0]->open_allterms()));
+ 
+    vector<TermList *> lists;
+
+    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    for (i = internal.begin(); i != internal.end(); ++i) {
+	lists.push_back((*i)->open_allterms());
+    }
+
+    RETURN(TermIterator(new MultiAllTermsList(lists)));
 }
 
-Xapian::TermIterator
-OmDatabase::allterms_end() const
+TermIterator
+Database::allterms_end() const
 {
-    DEBUGAPICALL(Xapian::TermIterator, "OmDatabase::allterms_end", "");
-    RETURN(Xapian::TermIterator(NULL));
+    DEBUGAPICALL(TermIterator, "Database::allterms_end", "");
+    RETURN(TermIterator(NULL));
 }
 
-Xapian::PositionListIterator
-OmDatabase::positionlist_begin(om_docid did, const string &tname) const
+PositionListIterator
+Database::positionlist_begin(om_docid did, const string &tname) const
 {
-    DEBUGAPICALL(Xapian::PositionListIterator, "OmDatabase::positionlist_begin",
+    DEBUGAPICALL(PositionListIterator, "Database::positionlist_begin",
 		 did << ", " << tname);
     if (tname.empty())
-       	throw Xapian::InvalidArgumentError("Zero length terms are invalid");
-    if (did == 0) throw Xapian::InvalidArgumentError("Document IDs of 0 are invalid");
-    RETURN(Xapian::PositionListIterator(internal->open_position_list(did, tname)));
+       	throw InvalidArgumentError("Zero length terms are invalid");
+    if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
+
+    unsigned int multiplier = internal.size();
+    Assert(multiplier != 0);
+    om_doccount n = (did - 1) % multiplier; // which actual database
+    om_docid m = (did - 1) / multiplier + 1; // real docid in that database
+
+    RETURN(PositionListIterator(internal[n]->open_position_list(m, tname)));
 }
 
-Xapian::PositionListIterator
-OmDatabase::positionlist_end(om_docid did, const string &tname) const
+PositionListIterator
+Database::positionlist_end(om_docid did, const string &tname) const
 {
-    DEBUGAPICALL(Xapian::PositionListIterator, "OmDatabase::positionlist_end",
+    DEBUGAPICALL(PositionListIterator, "Database::positionlist_end",
 		 did << ", " << tname);
-    if (tname.empty())
-       	throw Xapian::InvalidArgumentError("Zero length terms are invalid");
-    if (did == 0) throw Xapian::InvalidArgumentError("Document IDs of 0 are invalid");
-    RETURN(Xapian::PositionListIterator(NULL));
+    (void)did;
+    (void)tname;
+    RETURN(PositionListIterator(NULL));
 }
 
 om_doccount
-OmDatabase::get_doccount() const
+Database::get_doccount() const
 {
-    DEBUGAPICALL(om_doccount, "OmDatabase::get_doccount", "");
+    DEBUGAPICALL(om_doccount, "Database::get_doccount", "");
     om_doccount docs = 0;
-    std::vector<RefCntPtr<Database> >::const_iterator i;
-    for (i = internal->databases.begin(); i != internal->databases.end(); i++) {
+    std::vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    for (i = internal.begin(); i != internal.end(); ++i) {
 	docs += (*i)->get_doccount();
     }
     RETURN(docs);
 }
 
 om_doclength
-OmDatabase::get_avlength() const
+Database::get_avlength() const
 {
-    DEBUGAPICALL(om_doclength, "OmDatabase::get_avlength", "");
-    RETURN(internal->get_avlength());
+    DEBUGAPICALL(om_doclength, "Database::get_avlength", "");
+    om_doccount docs = 0;
+    om_doclength totlen = 0;
+
+    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    for (i = internal.begin(); i != internal.end(); ++i) {
+	om_doccount db_doccount = (*i)->get_doccount();
+	docs += db_doccount;
+	totlen += (*i)->get_avlength() * db_doccount;
+    }
+
+    if (docs == 0) RETURN(0.0);
+    RETURN(totlen / docs);
 }
 
 om_doccount
-OmDatabase::get_termfreq(const string & tname) const
+Database::get_termfreq(const string & tname) const
 {
-    DEBUGAPICALL(om_doccount, "OmDatabase::get_termfreq", tname);
+    DEBUGAPICALL(om_doccount, "Database::get_termfreq", tname);
     if (tname.empty())
-	throw Xapian::InvalidArgumentError("Zero length terms are invalid");
+	throw InvalidArgumentError("Zero length terms are invalid");
     om_doccount tf = 0;
-    std::vector<RefCntPtr<Database> >::const_iterator i;
-    for (i = internal->databases.begin(); i != internal->databases.end(); i++) {
+    std::vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    for (i = internal.begin(); i != internal.end(); i++) {
 	tf += (*i)->get_termfreq(tname);
     }
     RETURN(tf);
 }
 
 om_termcount
-OmDatabase::get_collection_freq(const string & tname) const
+Database::get_collection_freq(const string & tname) const
 {
-    DEBUGAPICALL(om_termcount, "OmDatabase::get_collection_freq", tname);
+    DEBUGAPICALL(om_termcount, "Database::get_collection_freq", tname);
     if (tname.empty())
-	throw Xapian::InvalidArgumentError("Zero length terms are invalid");
+	throw InvalidArgumentError("Zero length terms are invalid");
+
     om_termcount cf = 0;
-    std::vector<RefCntPtr<Database> >::const_iterator i;
-    for (i = internal->databases.begin(); i != internal->databases.end(); i++) {
+    std::vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    for (i = internal.begin(); i != internal.end(); i++) {
 	cf += (*i)->get_collection_freq(tname);
     }
     RETURN(cf);
 }
 
 om_doclength
-OmDatabase::get_doclength(om_docid did) const
+Database::get_doclength(om_docid did) const
 {
-    DEBUGAPICALL(om_doclength, "OmDatabase::get_doclength", did);
-    if (did == 0) throw Xapian::InvalidArgumentError("Document IDs of 0 are invalid");
-    unsigned int multiplier = internal->databases.size();
-    om_docid realdid = (did - 1) / multiplier + 1;
-    om_doccount dbnumber = (did - 1) % multiplier;
-    RETURN(internal->databases[dbnumber]->get_doclength(realdid));
+    DEBUGAPICALL(om_doclength, "Database::get_doclength", did);
+    if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
+
+    unsigned int multiplier = internal.size();
+    Assert(multiplier != 0);
+    om_doccount n = (did - 1) % multiplier; // which actual database
+    om_docid m = (did - 1) / multiplier + 1; // real docid in that database
+    RETURN(internal[n]->get_doclength(m));
 }
 
 OmDocument
-OmDatabase::get_document(om_docid did) const
+Database::get_document(om_docid did) const
 {
-    DEBUGAPICALL(OmDocument, "OmDatabase::get_document", did);
-    if (did == 0) throw Xapian::InvalidArgumentError("Document IDs of 0 are invalid");
+    DEBUGAPICALL(OmDocument, "Database::get_document", did);
+    if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
-    unsigned int multiplier = internal->databases.size();
-    om_docid realdid = (did - 1) / multiplier + 1;
-    om_doccount dbnumber = (did - 1) % multiplier;
+    unsigned int multiplier = internal.size();
+    Assert(multiplier != 0);
+    om_doccount n = (did - 1) % multiplier; // which actual database
+    om_docid m = (did - 1) / multiplier + 1; // real docid in that database
 
-    // create our own RefCntPtr in case another thread assigns a new ptr
-    RefCntPtr<Database> database = internal->databases[dbnumber];
-
-    RETURN(OmDocument(new OmDocument::Internal(database->open_document(realdid),
+    RETURN(OmDocument(new OmDocument::Internal(internal[n]->open_document(m),
 					       *this, did)));
 }
 
 bool
-OmDatabase::term_exists(const string & tname) const
+Database::term_exists(const string & tname) const
 {
     if (tname.empty())
-	throw Xapian::InvalidArgumentError("Zero length terms are invalid");
-    std::vector<RefCntPtr<Database> >::const_iterator i;
-    for (i = internal->databases.begin(); i != internal->databases.end(); i++) {
+	throw InvalidArgumentError("Zero length terms are invalid");
+    std::vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    for (i = internal.begin(); i != internal.end(); ++i) {
 	if ((*i)->term_exists(tname)) return true;
     }
     return false;
 }
 
 void
-OmDatabase::keep_alive()
+Database::keep_alive()
 {
-    std::vector<RefCntPtr<Database> >::const_iterator i;
-    for (i = internal->databases.begin(); i != internal->databases.end(); i++) {
+    std::vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    for (i = internal.begin(); i != internal.end(); ++i) {
 	(*i)->keep_alive();
     }
 }
 
 std::string
-OmDatabase::get_description() const
+Database::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "OmDatabase::get_description", "");
+    DEBUGCALL(INTRO, std::string, "Database::get_description", "");
     /// \todo display contents of the database
-    RETURN("OmDatabase()");
+    RETURN("Database()");
 }
 
-OmWritableDatabase::OmWritableDatabase() : OmDatabase()
+WritableDatabase::WritableDatabase() : Database()
 {
-    DEBUGAPICALL(void, "OmWritableDatabase::OmWritableDatabase", "");
+    DEBUGAPICALL(void, "WritableDatabase::WritableDatabase", "");
 }
 
-OmWritableDatabase::OmWritableDatabase(OmDatabase::Internal *internal_)
-	: OmDatabase(internal_)
+WritableDatabase::WritableDatabase(Database::Internal *internal_)
+	: Database(internal_)
 {
-    DEBUGAPICALL(void, "OmWritableDatabase::OmWritableDatabase",
-		 "OmDatabase::Internal");
+    DEBUGAPICALL(void, "WritableDatabase::WritableDatabase",
+		 "Database::Internal");
 }
 
-OmWritableDatabase::OmWritableDatabase(const OmWritableDatabase &other)
-	: OmDatabase(other)
+WritableDatabase::WritableDatabase(const WritableDatabase &other)
+	: Database(other)
 {
-    DEBUGAPICALL(void, "OmWritableDatabase::OmWritableDatabase", "OmWritableDatabase");
-}
-
-void
-OmWritableDatabase::operator=(const OmWritableDatabase &other)
-{
-    DEBUGAPICALL(void, "OmWritableDatabase::operator=", "OmWritableDatabase");
-    OmDatabase::operator=(other);
-}
-
-OmWritableDatabase::~OmWritableDatabase()
-{
-    DEBUGAPICALL(void, "OmWritableDatabase::~OmWritableDatabase", "");
-    // Don't delete internal here - that's OmDatabase's dtor's job
+    DEBUGAPICALL(void, "WritableDatabase::WritableDatabase", "WritableDatabase");
 }
 
 void
-OmWritableDatabase::flush()
+WritableDatabase::operator=(const WritableDatabase &other)
 {
-    DEBUGAPICALL(void, "OmWritableDatabase::flush", "");
-    // create our own RefCntPtr in case another thread assigns a new ptr
-    RefCntPtr<Database> database = internal->databases[0];
-    database->flush();
+    DEBUGAPICALL(void, "WritableDatabase::operator=", "WritableDatabase");
+    Database::operator=(other);
+}
+
+WritableDatabase::~WritableDatabase()
+{
+    DEBUGAPICALL(void, "WritableDatabase::~WritableDatabase", "");
 }
 
 void
-OmWritableDatabase::begin_transaction()
+WritableDatabase::flush()
 {
-    DEBUGAPICALL(void, "OmWritableDatabase::begin_transaction", "");
-    // create our own RefCntPtr in case another thread assigns a new ptr
-    RefCntPtr<Database> database = internal->databases[0];
-    database->begin_transaction();
+    DEBUGAPICALL(void, "WritableDatabase::flush", "");
+    internal[0]->flush();
 }
 
 void
-OmWritableDatabase::commit_transaction()
+WritableDatabase::begin_transaction()
 {
-    DEBUGAPICALL(void, "OmWritableDatabase::commit_transaction", "");
-    // create our own RefCntPtr in case another thread assigns a new ptr
-    RefCntPtr<Database> database = internal->databases[0];
-    database->commit_transaction();
+    DEBUGAPICALL(void, "WritableDatabase::begin_transaction", "");
+    internal[0]->begin_transaction();
 }
 
 void
-OmWritableDatabase::cancel_transaction()
+WritableDatabase::commit_transaction()
 {
-    DEBUGAPICALL(void, "OmWritableDatabase::cancel_transaction", "");
-    // create our own RefCntPtr in case another thread assigns a new ptr
-    RefCntPtr<Database> database = internal->databases[0];
-    database->cancel_transaction();
+    DEBUGAPICALL(void, "WritableDatabase::commit_transaction", "");
+    internal[0]->commit_transaction();
+}
+
+void
+WritableDatabase::cancel_transaction()
+{
+    DEBUGAPICALL(void, "WritableDatabase::cancel_transaction", "");
+    internal[0]->cancel_transaction();
 }
 
 
 om_docid
-OmWritableDatabase::add_document(const OmDocument & document)
+WritableDatabase::add_document(const OmDocument & document)
 {
-    DEBUGAPICALL(om_docid, "OmWritableDatabase::add_document", document);
-    // create our own RefCntPtr in case another thread assigns a new ptr
-    RefCntPtr<Database> database = internal->databases[0];
-    RETURN(database->add_document(document));
+    DEBUGAPICALL(om_docid, "WritableDatabase::add_document", document);
+    RETURN(internal[0]->add_document(document));
 }
 
 void
-OmWritableDatabase::delete_document(om_docid did)
+WritableDatabase::delete_document(om_docid did)
 {
-    DEBUGAPICALL(void, "OmWritableDatabase::delete_document", did);
-    if (did == 0) throw Xapian::InvalidArgumentError("Document IDs of 0 are invalid");
-    // create our own RefCntPtr in case another thread assigns a new ptr
-    RefCntPtr<Database> database = internal->databases[0];
-    database->delete_document(did);
+    DEBUGAPICALL(void, "WritableDatabase::delete_document", did);
+    if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
+    internal[0]->delete_document(did);
 }
 
 void
-OmWritableDatabase::replace_document(om_docid did, const OmDocument & document)
+WritableDatabase::replace_document(om_docid did, const OmDocument & document)
 {
-    DEBUGAPICALL(void, "OmWritableDatabase::replace_document",
+    DEBUGAPICALL(void, "WritableDatabase::replace_document",
 		 did << ", " << document);
-    if (did == 0) throw Xapian::InvalidArgumentError("Document IDs of 0 are invalid");
-    // create our own RefCntPtr in case another thread assigns a new ptr
-    RefCntPtr<Database> database = internal->databases[0];
-    database->replace_document(did, document);
+    if (did == 0) throw Xapian::InvalidArgumentError("Document ID 0 is invalid");
+    internal[0]->replace_document(did, document);
 }
 
 std::string
-OmWritableDatabase::get_description() const
+WritableDatabase::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "OmWritableDatabase::get_description", "");
+    DEBUGCALL(INTRO, std::string, "WritableDatabase::get_description", "");
     /// \todo display contents of the writable database
-    RETURN("OmWritableDatabase()");
+    RETURN("WritableDatabase()");
+}
+
 }

@@ -26,7 +26,7 @@
 #include "inmemory_document.h"
 #include "om/omdocument.h"
 
-InMemoryDocument::InMemoryDocument(const Database *database_,
+InMemoryDocument::InMemoryDocument(const Xapian::Database::Internal *database_,
 				   om_docid did_,
 				   const string & doc_,
 				   const map<om_valueno, string> &values_)

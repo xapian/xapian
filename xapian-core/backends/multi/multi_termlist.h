@@ -33,16 +33,16 @@
 #include <list>
 
 class MultiTermList : public LeafTermList {
-    friend class OmDatabase::Internal;
+    friend class Xapian::Database;
     private:
 	LeafTermList *tl;
-	RefCntPtr<const Database> termdb;
-	const OmDatabase &rootdb;
+	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> termdb;
+	const Xapian::Database &rootdb;
 	double termfreq_factor;
 
 	MultiTermList(LeafTermList * tl_,
-		      const RefCntPtr<const Database> & termdb_,
-		      const OmDatabase &rootdb_);
+		      const Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> & termdb_,
+		      const Xapian::Database &rootdb_);
     public:
 	void set_weighting(const OmExpandWeight *wt_new);
 
@@ -50,7 +50,7 @@ class MultiTermList : public LeafTermList {
 
 	OmExpandBits get_weighting() const; // Gets weight info of current term
 	string get_termname() const;
-	om_termcount get_wdf() const; // Number of occurences of term in current doc
+	om_termcount get_wdf() const; // Number of occurrences of term in current doc
 	om_doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
 	bool   at_end() const;
@@ -59,8 +59,8 @@ class MultiTermList : public LeafTermList {
 };
 
 inline MultiTermList::MultiTermList(LeafTermList * tl_,
-				    const RefCntPtr<const Database> & termdb_,
-				    const OmDatabase &rootdb_)
+				    const Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> & termdb_,
+				    const Xapian::Database &rootdb_)
 	: tl(tl_), termdb(termdb_), rootdb(rootdb_)
 {
     termfreq_factor = ((double)(rootdb.get_doccount())) /

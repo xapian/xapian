@@ -59,7 +59,7 @@ class OmQueryParser {
 	    default_op = default_op_;
 	}
 
-	void set_database(const OmDatabase &db_) {
+	void set_database(const Xapian::Database &db_) {
 	    db = db_;
 	}
 
@@ -83,7 +83,7 @@ class OmQueryParser {
 
 	bool stem, stem_all;
 
-	OmDatabase db;
+	Xapian::Database db;
 };
 
 #endif /* OM_HGUARD_PARSEQUERY_H */

@@ -35,7 +35,6 @@
 #include "document.h"
 #include "omdebug.h"
 #include "autoptr.h"
-#include "../api/omdatabaseinternal.h"
 #include <xapian/enquire.h>
 #include <signal.h>
 #include <cerrno>
@@ -57,7 +56,7 @@ using std::istringstream;
 struct SocketServerFinished { };
 
 /// The SocketServer constructor, taking two filedescriptors and a database.
-SocketServer::SocketServer(OmDatabase db_, int readfd_, int writefd_,
+SocketServer::SocketServer(Xapian::Database db_, int readfd_, int writefd_,
 			   int msecs_active_timeout_, int msecs_idle_timeout_
 #ifdef TIMING_PATCH
 			   , bool timing_
@@ -93,7 +92,7 @@ SocketServer::SocketServer(OmDatabase db_, int readfd_, int writefd_,
     wtschemes[wt->name()] = wt;
 }
 
-SocketServer::SocketServer(OmDatabase db_, AutoPtr<OmLineBuf> buf_,
+SocketServer::SocketServer(Xapian::Database db_, AutoPtr<OmLineBuf> buf_,
 			   int msecs_active_timeout_, int msecs_idle_timeout_
 #ifdef TIMING_PATCH
 			   , bool timing_
@@ -421,7 +420,11 @@ SocketServer::run_getdocument(const string &firstmessage)
 
     om_docid did = atoi(message);
 
-    AutoPtr<Document> doc(db.internal->open_document(did));
+    unsigned int multiplier = db.internal.size();
+    Assert(multiplier != 0);
+    om_doccount n = (did - 1) % multiplier; // which actual database
+    om_docid m = (did - 1) / multiplier + 1; // real docid in that database
+    AutoPtr<Document> doc(db.internal[n]->open_document(m));
 
     writeline("O" + encode_tname(doc->get_data()));
 

@@ -221,22 +221,8 @@ code:
 <H3>Opening the database</H3>
 
 <P>
-In Xapian, a database is opened for writing by creating an OmWritableDatabase
-object.  The constructor for this object takes two arguments.
-<OL><LI>
-<B>type</B> - this is a string determining the type of the database to open.
-The possible values for this depend on which backends are compiled into the
-system: if the type is not known an <CODE>Xapian::InvalidArgumentError</CODE>
-will
-be thrown.  For this example, we use the &quot;<CODE>quartz</CODE>&quot;
-database type.
-</LI><LI>
-<B>parameters</B> - this is a set of parameters to be used to open the
-database, stored in an STL vector. The meaning of the parameters is
-dependent on the database type: for a quartz database there is expected
-to be one and only one argument, which is the path (possibly relative to
-the current directory) of a directory in which the database files reside.
-</LI></OL>
+In Xapian, a database is opened for writing by creating a Xapian::WritableDatabase
+object using a factory function such as Xapian::Quartz::open().
 </P>
 <P>
 If an attempt is made to open a database which doesn't exist, an attempt
@@ -251,7 +237,7 @@ The code to open a database for writing is, then:
 </P>
 
 <PRE>
-    OmWritableDatabase database(OmQuartz__open(argv[1], OM_DB_OPEN));
+    Xapian::WritableDatabase database(Xapian::Quartz::open(argv[1], Xapian::DB_OPEN));
 </PRE>
 
 <H3>Preparing the new document</H3>
@@ -322,7 +308,7 @@ command line parameters:
 
 <P>
 Finally, we can add the document to the database.  This simply involves
-calling <CODE>OmWritableDatabase::add_document()</CODE>, and passing it
+calling <CODE>Xapian::WritableDatabase::add_document()</CODE>, and passing it
 the <CODE>OmDocument</CODE> object:
 </P>
 <PRE>
@@ -419,31 +405,31 @@ system searching across two DA databases and a quartz database.
 </P>
 <P>
 This means that, when we are preparing to search, we create an
-OmDatabase object with one of the database factory functions, passing
+Xapian::Database object with one of the database factory functions, passing
 parameters to specify which database to open.
 </P>
 <PRE>
-    OmDatabase db(OmQuartz__open(argv[1]));
+    Xapian::Database db(Xapian::Quartz::open(argv[1]));
 </PRE>
 <P>
 You can also search multiple database by adding them together using
-<CODE>OmDatabase::add_database</CODE>:
+<CODE>Xapian::Database::add_database</CODE>:
 </P>
 <PRE>
-    OmDatabase databases;
-    databases.add_database(OmQuartz__open(argv[1]));
-    databases.add_database(OmQuartz__open(argv[2]));
+    Xapian::Database databases;
+    databases.add_database(Xapian::Quartz::open(argv[1]));
+    databases.add_database(Xapian::Quartz::open(argv[2]));
 </PRE>
 
 <H3>Starting an enquire session</H3>
 <P>
 All searches across databases by Xapian are performed within the context of
-an &quot;<EM>Enquire</EM>&quot; session.  This session is represented by an
-<CODE>OmEnquire</CODE> object, and is across a specified collection of
+an &quot;<EM>Enquire</EM>&quot; session.  This session is represented by a
+<CODE>Xapian::Enquire</CODE> object, and is across a specified collection of
 databases.  To change the database collection, it is necessary to open a
-new enquire session, by creating a new <CODE>OmEnquire</CODE> object.
+new enquire session, by creating a new <CODE>Xapian::Enquire</CODE> object.
 <PRE>
-    OmEnquire enquire(databases);
+    Xapian::Enquire enquire(databases);
 </PRE>
 </P>
 <P>
@@ -469,18 +455,18 @@ conversion operation, to the terms.
 </P>
 
 <P>
-Queries are represented within Xapian by <CODE>OmQuery</CODE> objects, so
+Queries are represented within Xapian by <CODE>Xapian::Query</CODE> objects, so
 the next step is to construct one from our query terms.
 Conveniently there is a constructor which will take our vector
-of terms and create an <CODE>OmQuery</CODE> object from it.
+of terms and create an <CODE>Xapian::Query</CODE> object from it.
 <PRE>
-    OmQuery query(OmQuery::OP_OR, queryterms.begin(), queryterms.end());
+    Xapian::Query query(Xapian::Query::OP_OR, queryterms.begin(), queryterms.end());
 </PRE>
 </P>
 
 <P>
 You will notice that we had to specify an operation to be performed on
-the terms (the <CODE>OmQuery::OP_OR</CODE> parameter).
+the terms (the <CODE>Xapian::Query::OP_OR</CODE> parameter).
 Queries in Xapian are actually
 fairly complex things: a full range of boolean operations can be applied to
 queries to restrict the result set, and probabilistic weightings are then
@@ -491,7 +477,7 @@ traditional pure probabilistic search.
 
 <P>
 We now print a message out to confirm to the user what the query being
-performed is.  This is done with the <CODE>OmQuery::get_description()</CODE>
+performed is.  This is done with the <CODE>Xapian::Query::get_description()</CODE>
 method, which is mainly included for debugging purposes, and displays
 a string representation of the query.
 </P>
@@ -504,7 +490,7 @@ a string representation of the query.
 <P>
 Now, we are ready to perform the search.  The first step of this is to
 give the query object to the enquire session.  Note that the query is
-copied at this operation, and that changing the OmQuery object after
+copied at this operation, and that changing the Xapian::Query object after
 setting the query with it has no effect.
 </P>
 <PRE>

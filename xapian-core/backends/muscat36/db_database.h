@@ -245,8 +245,7 @@ DBTerm::get_ti() const
     return &ti;
 }
 
-class DBDatabase : public Database {
-    friend class DatabaseBuilder;
+class DBDatabase : public Xapian::Database::Internal {
     friend class DBDocument;
     private:
 	struct DB_file * DB;

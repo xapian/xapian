@@ -30,7 +30,7 @@
 #include <xapian/enquire.h>
 #include "omenquireinternal.h"
 
-class Database;
+class Xapian::Database::Internal;
 class Xapian::Weight::Internal;
 
 /** A relevance set.
@@ -44,17 +44,17 @@ class RSetI {
 	RSetI(const RSetI &);
 	void operator=(const RSetI &);
 
-	// FIXME: should use one or the other (probably OmDatabase)
-	const OmDatabase root;
-	const Database *dbroot;
+	// FIXME: should use one or the other (probably Xapian::Database)
+	const Xapian::Database root;
+	const Xapian::Database::Internal *dbroot;
 
 	std::map<string, om_doccount> reltermfreqs;
 	bool calculated_reltermfreqs;
     public:
 	std::set<Xapian::docid> documents;
 
-	RSetI(const OmDatabase &root_, const Xapian::RSet & rset);
-	RSetI(const Database *dbroot_, const Xapian::RSet & rset);
+	RSetI(const Xapian::Database &root_, const Xapian::RSet & rset);
+	RSetI(const Xapian::Database::Internal *dbroot_, const Xapian::RSet & rset);
 
 	void will_want_reltermfreq(string tname);
 
@@ -71,7 +71,7 @@ class RSetI {
 
 /// Initialise with an Xapian::RSet
 inline
-RSetI::RSetI(const OmDatabase &root_, const Xapian::RSet & rset)
+RSetI::RSetI(const Xapian::Database &root_, const Xapian::RSet & rset)
 	: root(root_), dbroot(NULL), calculated_reltermfreqs(false),
 	  documents(rset.internal->items)
 {
@@ -79,7 +79,7 @@ RSetI::RSetI(const OmDatabase &root_, const Xapian::RSet & rset)
 
 /// Initialise with an Xapian::RSet
 inline
-RSetI::RSetI(const Database *dbroot_, const Xapian::RSet & rset)
+RSetI::RSetI(const Xapian::Database::Internal *dbroot_, const Xapian::RSet & rset)
 	: dbroot(dbroot_), calculated_reltermfreqs(false),
 	  documents(rset.internal->items)
 {

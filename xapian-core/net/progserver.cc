@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +25,7 @@
 #include "progserver.h"
 
 /// The ProgServer constructor, taking two filedescriptors and a database.
-ProgServer::ProgServer(OmDatabase db_,
+ProgServer::ProgServer(Xapian::Database db_,
 		       int readfd_,
 		       int writefd_,
 		       int msecs_active_timeout_,

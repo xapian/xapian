@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,7 +27,7 @@
 
 #include <time.h>
 #include <math.h>
-#include "om/omdatabase.h"
+#include <xapian/database.h>
 #include "postlist.h"
 #include "multimatch.h"
 #include "utils.h"
@@ -41,14 +42,14 @@ class OmBiasFunctor {
     private:
 #ifndef DOCID_BASED
 	time_t now;
-	OmDatabase db;
+	Xapian::Database db;
 #else /* DOCID_BASED */
 	om_docid max_id;
 #endif /* DOCID_BASED */
 	om_weight max_w;
 	double K; // factor in exponential decay
     public:
-	OmBiasFunctor(const OmDatabase &db_, om_weight max_w_, double halflife)
+	OmBiasFunctor(const Xapian::Database &db_, om_weight max_w_, double halflife)
 #ifndef DOCID_BASED
 	    : now(time(NULL)), db(db_), max_w(max_w_),
 	      K(log(0.5) / fabs(halflife)) 
@@ -86,7 +87,7 @@ class BiasPostList : public PostList {
         BiasPostList & operator=(const BiasPostList &);
 
 	PostList *pl;
-	OmDatabase db;
+	Xapian::Database db;
 	OmBiasFunctor *bias;
 	MultiMatch *matcher;
 	om_weight max_bias;
@@ -160,7 +161,7 @@ class BiasPostList : public PostList {
 	    return pl->open_position_list();
 	}
 
-	BiasPostList(PostList *pl_, const OmDatabase &db_, OmBiasFunctor *bias_,
+	BiasPostList(PostList *pl_, const Xapian::Database &db_, OmBiasFunctor *bias_,
 		     MultiMatch *matcher_)
 		: pl(pl_), db(db_), bias(bias_), matcher(matcher_),
 		  max_bias(bias->get_maxweight())

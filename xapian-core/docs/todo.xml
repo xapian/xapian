@@ -114,9 +114,9 @@ Make exceptions work with shared libs on solaris / find an alternative. (gcc
 + Solaris =&gt; DISABLE_SHARED)
 
 </todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="OmQuery" release="1.0">
+<todoitem priority="M" difficulty="2" owner="" area="Xapian::Query" release="1.0">
 
-Move all serialisation of OmQuery into OmQuery (out of socketcommon.cc and
+Move all serialisation of Xapian::Query into Xapian::Query (out of socketcommon.cc and
 localmatch): modification of omquery requires changes in 3 separate parts
 of the code, at present.
 
@@ -259,13 +259,13 @@ copy-on-write for them.  Or perhaps to pass them around more carefully.
 </todoitem>
 <todoitem priority="D" difficulty="3" owner="" area="Exceptions" release="">
 
-Add error handlers to (at least) OmDatabase.  Implement more carefully in
+Add error handlers to (at least) Xapian::Database.  Implement more carefully in
 MergePostlist.
 
 </todoitem>
 <todoitem priority="D" difficulty="3" owner="" area="Decision functors" release="">
 
-Return a sensible value for OmMSet::matches_lower_bound when a decision
+Return a sensible value for Xapian::MSet::matches_lower_bound when a decision
 functor is present.  This has to be the number of documents that the decision
 functor tested and approved, as we know there are at least that many and
 can't know if there are more.  matches_upper_bound can be reduced by the
@@ -276,7 +276,7 @@ Partly done I believe.
 </todoitem>
 <todoitem priority="D" difficulty="3" owner="" area="API" release="">
 
-Do allow boolean subqueries in OmQuery constructors, where
+Do allow boolean subqueries in Xapian::Query constructors, where
 it makes sense (or note in documentation to use FILTER).
 
 </todoitem>
@@ -512,7 +512,7 @@ sort_bands vs. remote backend doesn't currently work.  Can we get it to?
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">
 
-Rejig OmExpandDecider?
+Rejig Xapian::ExpandDecider?
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">

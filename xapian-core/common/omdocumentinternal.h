@@ -116,7 +116,7 @@ class OmDocument::Internal {
 	/// The reference counted pointer to a Document instance
 	RefCntPtr<Document> ptr;
 
-	OmDatabase database;
+	Xapian::Database database;
 
 	om_docid did;
 
@@ -137,12 +137,12 @@ class OmDocument::Internal {
 	/// The terms (and their frequencies and positions) in this document.
 	document_terms terms;
 
-	explicit Internal(Document *ld, const OmDatabase &database_,
+	explicit Internal(Document *ld, const Xapian::Database &database_,
 			  om_docid did_)
 		: ptr(ld), database(database_), did(did_), data_here(false),
 		  values_here(false), terms_here(false) {}
 
-	explicit Internal(RefCntPtr<Document> ptr_, const OmDatabase &database_,
+	explicit Internal(RefCntPtr<Document> ptr_, const Xapian::Database &database_,
 			  om_docid did_)
 	        : ptr(ptr_), database(database_), did(did_), data_here(false),
 		  values_here(false), terms_here(false) {}

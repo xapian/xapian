@@ -75,7 +75,7 @@ class NetClient;
 class NetworkStatsSource : public Xapian::Weight::Internal {
     private:
 	/// The NetClient object used for communications.
-	RefCntPtr<NetClient> nclient;
+	Xapian::Internal::RefCntPtr<NetClient> nclient;
 
 	/// A flag indicating whether or not we have the remote
 	/// statistics yet.
@@ -83,7 +83,7 @@ class NetworkStatsSource : public Xapian::Weight::Internal {
     public:
 	/// Constructor
 	NetworkStatsSource(StatsGatherer * gatherer_,
-			   RefCntPtr<NetClient> nclient_);
+			   Xapian::Internal::RefCntPtr<NetClient> nclient_);
 
 	/// Destructor
 	~NetworkStatsSource();

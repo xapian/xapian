@@ -33,7 +33,7 @@ class InMemoryDocument : public Document {
 	string doc;
 	map<om_valueno, string> values;
 
-	InMemoryDocument(const Database *database_, om_docid did_,
+	InMemoryDocument(const Xapian::Database::Internal *database_, om_docid did_,
 			 const string & doc_,
 			 const map<om_valueno, string> &values_);
 

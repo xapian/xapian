@@ -38,7 +38,7 @@ using std::map;
  *  A NetClient object is used by NetworkMatch to communicate
  *  with remote matching processes.
  */
-class NetClient : public RefCntBase {
+class NetClient : public Xapian::Internal::RefCntBase {
     private:
 	// disallow copies
 	NetClient(const NetClient &);

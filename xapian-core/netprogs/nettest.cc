@@ -54,7 +54,7 @@ static bool test_netmatch1()
     vector<string> paths;
     paths.push_back("apitest_simpledata");
 
-    OmEnquire enq(backendmanager.get_database(paths));
+    Xapian::Enquire enq(backendmanager.get_database(paths));
 
     enq.set_query(Xapian::Query("word"));
 
@@ -70,21 +70,21 @@ static bool test_netmatch1()
 // test a network match with two databases
 static bool test_netmatch2()
 {
-    OmDatabase databases;
+    Xapian::Database databases;
     BackendManager backendmanager;
     backendmanager.set_dbtype("remote");
     backendmanager.set_datadir(datadir);
     vector<string> paths;
 
     paths.push_back("apitest_simpledata");
-    OmDatabase db = backendmanager.get_database(paths);
+    Xapian::Database db = backendmanager.get_database(paths);
     databases.add_database(db);
 
     paths[0] = "apitest_simpledata2";
     db = backendmanager.get_database(paths);
     databases.add_database(db);
 
-    OmEnquire enq(databases);
+    Xapian::Enquire enq(databases);
 
     enq.set_query(Xapian::Query("word"));
 
@@ -106,7 +106,7 @@ static bool test_netexpand1()
     vector<string> paths;
     paths.push_back("apitest_simpledata");
 
-    OmEnquire enq(backendmanager.get_database(paths));
+    Xapian::Enquire enq(backendmanager.get_database(paths));
 
     enq.set_query(Xapian::Query("word"));
 
@@ -134,7 +134,7 @@ static bool test_tcpclient1()
     backendmanager.set_datadir(datadir);
     vector<string> paths;
     paths.push_back("apitest_simpledata");
-    OmDatabase db = backendmanager.get_database(paths);
+    Xapian::Database db = backendmanager.get_database(paths);
 
     string command = "./omtcpsrv --one-shot --quiet --port 1236 "
 	                  ".quartz/db=apitest_simpledata &";
@@ -154,16 +154,16 @@ static bool test_tcpmatch1()
     backendmanager.set_datadir(datadir);
     vector<string> paths;
     paths.push_back("apitest_simpledata");
-    OmDatabase dbremote = backendmanager.get_database(paths);
+    Xapian::Database dbremote = backendmanager.get_database(paths);
 
     string command = "./omtcpsrv --one-shot --quiet --port 1235 "
 	                  ".quartz/db=apitest_simpledata &";
     system(command);
     sleep(3);
 
-    OmDatabase db = OmRemote__open("localhost", 1235);
+    Xapian::Database db = Xapian::Remote::open("localhost", 1235);
 
-    OmEnquire enq(db);
+    Xapian::Enquire enq(db);
 
     enq.set_query(Xapian::Query("word"));
 
@@ -185,7 +185,7 @@ static bool test_tcpdead1()
     backendmanager.set_datadir(datadir);
     vector<string> paths;
     paths.push_back("apitest_simpledata");
-    OmDatabase dbremote = backendmanager.get_database(paths);
+    Xapian::Database dbremote = backendmanager.get_database(paths);
 
     int pid = fork();
     if (pid == 0) {
@@ -213,9 +213,9 @@ static bool test_tcpdead1()
     sleep(3);
 
     // parent code:
-    OmDatabase db(OmRemote__open("localhost", 1237);
+    Xapian::Database db(Xapian::Remote::open("localhost", 1237);
 
-    OmEnquire enq(db);
+    Xapian::Enquire enq(db);
 
     // FIXME: this assumes fork-ed child omtcpsrv process is the pid after
     // the parent

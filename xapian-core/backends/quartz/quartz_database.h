@@ -37,7 +37,7 @@ class QuartzTermList;
 /** A backend designed for efficient indexing and retrieval, using
  *  compressed posting lists and a btree storage scheme.
  */
-class QuartzDatabase : public Database {
+class QuartzDatabase : public Xapian::Database::Internal {
     friend class QuartzWritableDatabase;
     friend class QuartzTermList;
     private:
@@ -66,11 +66,11 @@ class QuartzDatabase : public Database {
 
 	/// Implementation of open_post_list()
 	LeafPostList * open_post_list_internal(const string & tname,
-				RefCntPtr<const Database> ptrtothis) const;
+		Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> ptrtothis) const;
 
 	/// Implementation of open_term_list()
 	LeafTermList * open_term_list_internal(om_docid did,
-				RefCntPtr<const Database> ptrtothis) const;
+		Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> ptrtothis) const;
 
     public:
 	/** Create and open a quartz database.
@@ -110,7 +110,7 @@ class QuartzDatabase : public Database {
 
 /** A writable quartz database.
  */
-class QuartzWritableDatabase : public Database {
+class QuartzWritableDatabase : public Xapian::Database::Internal {
     private:
 	/** Pointer to buffered table manager.
 	 *

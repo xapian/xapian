@@ -50,7 +50,7 @@
 using namespace std;
 
 /// The TcpServer constructor, taking a database and a listening port.
-TcpServer::TcpServer(OmDatabase db_, int port_,
+TcpServer::TcpServer(Xapian::Database db_, int port_,
 		     int msecs_active_timeout_,
 		     int msecs_idle_timeout_,
 #ifndef TIMING_PATCH

@@ -103,7 +103,7 @@ InMemoryDatabase::do_open_post_list(const string & tname) const
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
     Assert(i != postlists.end());
 
-    return new InMemoryPostList(RefCntPtr<const InMemoryDatabase>(this),
+    return new InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase>(this),
 				i->second);
 }
 
@@ -122,7 +122,7 @@ InMemoryDatabase::open_term_list(om_docid did) const
 	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
     }
-    return new InMemoryTermList(RefCntPtr<const InMemoryDatabase>(this), did,
+    return new InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase>(this), did,
 				termlists[did - 1], get_doclength(did));
 }
 
@@ -363,5 +363,5 @@ TermList *
 InMemoryDatabase::open_allterms() const
 {
     return new InMemoryAllTermsList(&postlists,
-				    RefCntPtr<const InMemoryDatabase>(this));
+				    Xapian::Internal::RefCntPtr<const InMemoryDatabase>(this));
 }

@@ -720,7 +720,7 @@ void QuartzPostList::read_number_of_entries(const char ** posptr,
  *  The first chunk begins with the number of entries, then the docid of the
  *  first document, then has the header of a standard chunk.
  */
-QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
+QuartzPostList::QuartzPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
 			       const QuartzTable * table_,
 			       const QuartzTable * positiontable_,
 			       const string & tname_)

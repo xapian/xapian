@@ -1036,12 +1036,12 @@ static bool test_open1()
     deletedir(dbdir);
     
     TEST_EXCEPTION(Xapian::OpeningError,
-		   RefCntPtr<Database> database_0 = new QuartzDatabase(dbdir));
+		   Xapian::Internal::RefCntPtr<Xapian::Database::Internal> database_0 = new QuartzDatabase(dbdir));
 
     makedir(dbdir);
-    RefCntPtr<Database> database_w =
-	    new QuartzWritableDatabase(dbdir, OM_DB_CREATE, 2048);
-    RefCntPtr<Database> database_r = new QuartzDatabase(dbdir);
+    Xapian::Internal::RefCntPtr<Xapian::Database::Internal> database_w =
+	    new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048);
+    Xapian::Internal::RefCntPtr<Xapian::Database::Internal> database_r = new QuartzDatabase(dbdir);
 
     return true;
 }
@@ -1052,19 +1052,19 @@ static bool test_create1()
     string dbdir = tmpdir + "testdb_create1";
     deletedir(dbdir);
 
-    RefCntPtr<Database> db;
+    Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db;
 
     // (1) db doesn't exist (no create)
     TEST_EXCEPTION(Xapian::OpeningError,
 		   db = new QuartzDatabase(dbdir));
     TEST_EXCEPTION(Xapian::OpeningError,
-		   db = new QuartzWritableDatabase(dbdir, OM_DB_OPEN, 2048));
+		   db = new QuartzWritableDatabase(dbdir, Xapian::DB_OPEN, 2048));
 
     // (2) db doesn't exist, basedir doesn't exist (create)
     TEST_EXCEPTION(Xapian::OpeningError,
 		   db = new QuartzDatabase(dbdir));
     TEST_EXCEPTION(Xapian::OpeningError,
-		   db = new QuartzWritableDatabase(dbdir, OM_DB_CREATE, 2048));
+		   db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048));
 
     makedir(dbdir);
 
@@ -1072,27 +1072,27 @@ static bool test_create1()
     TEST_EXCEPTION(Xapian::OpeningError,
 		   db = new QuartzDatabase(dbdir));
     TEST_EXCEPTION(Xapian::OpeningError,
-		   db = new QuartzWritableDatabase(dbdir, OM_DB_OPEN, 2048));
+		   db = new QuartzWritableDatabase(dbdir, Xapian::DB_OPEN, 2048));
 
     // (4) db doesn't exist, basedir exists (create)
     TEST_EXCEPTION(Xapian::OpeningError,
 		   db = new QuartzDatabase(dbdir));
-    db = new QuartzWritableDatabase(dbdir, OM_DB_CREATE, 2048);
+    db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048);
     db = new QuartzDatabase(dbdir);
 
     // (5) db exists (create, no overwrite)
     db = new QuartzDatabase(dbdir);
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
-		   db = new QuartzWritableDatabase(dbdir, OM_DB_CREATE, 2048));
+		   db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048));
     db = new QuartzDatabase(dbdir);
 
     // (6) db exists (no create)
-    db = new QuartzWritableDatabase(dbdir, OM_DB_OPEN, 2048);
+    db = new QuartzWritableDatabase(dbdir, Xapian::DB_OPEN, 2048);
 
     // (7) db exists (create, overwrite)
     db = new QuartzDatabase(dbdir);
     TEST_EQUAL(db->get_doccount(), 0);
-    db = new QuartzWritableDatabase(dbdir, OM_DB_CREATE_OR_OVERWRITE, 2048);
+    db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE_OR_OVERWRITE, 2048);
     TEST_EQUAL(db->get_doccount(), 0);
     OmDocument document_in;
     document_in.set_data("Foobar rising");
@@ -1108,7 +1108,7 @@ static bool test_create1()
 
     // (8) db exists with data (create, overwrite)
     db = new QuartzDatabase(dbdir);
-    db = new QuartzWritableDatabase(dbdir, OM_DB_CREATE_OR_OVERWRITE, 2048);
+    db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE_OR_OVERWRITE, 2048);
     db->add_document(document_in);
     TEST_EQUAL(db->get_doccount(), 1);
 
@@ -1124,7 +1124,7 @@ static bool test_adddoc1()
     deletedir(dbdir);
     makedir(dbdir);
 
-    RefCntPtr<Database> db = new QuartzWritableDatabase(dbdir, OM_DB_CREATE, 2048);
+    Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048);
 
     TEST_EQUAL(db->get_doccount(), 0);
     TEST_EQUAL(db->get_avlength(), 0);
@@ -1136,13 +1136,13 @@ static bool test_adddoc1()
     TEST_EQUAL(did, 1);
     TEST_EQUAL(db->get_avlength(), 0);
     {
-	RefCntPtr<Database> db_readonly = new QuartzDatabase(dbdir);
+	Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_readonly = new QuartzDatabase(dbdir);
 	TEST_EQUAL(db_readonly->get_doccount(), 0);
 	TEST_EQUAL(db_readonly->get_avlength(), 0);
     }
     db->flush();
     {
-	RefCntPtr<Database> db_readonly = new QuartzDatabase(dbdir);
+	Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_readonly = new QuartzDatabase(dbdir);
 	TEST_EQUAL(db_readonly->get_doccount(), 1);
 	TEST_EQUAL(db_readonly->get_avlength(), 0);
     }
@@ -1151,13 +1151,13 @@ static bool test_adddoc1()
     TEST_EQUAL(db->get_doccount(), 0);
     TEST_EQUAL(db->get_avlength(), 0);
     {
-	RefCntPtr<Database> db_readonly = new QuartzDatabase(dbdir);
+	Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_readonly = new QuartzDatabase(dbdir);
 	TEST_EQUAL(db_readonly->get_doccount(), 1);
 	TEST_EQUAL(db_readonly->get_avlength(), 0);
     }
     db->flush();
     {
-	RefCntPtr<Database> db_readonly = new QuartzDatabase(dbdir);
+	Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_readonly = new QuartzDatabase(dbdir);
 	TEST_EQUAL(db_readonly->get_doccount(), 0);
 	TEST_EQUAL(db_readonly->get_avlength(), 0);
     }
@@ -1194,7 +1194,7 @@ static bool test_adddoc2()
     document_in2.add_posting("foobar", 1);
     document_in2.add_posting("falling", 2);
     {
-	OmWritableDatabase database = OmQuartz__open(dbdir, OM_DB_CREATE);
+	Xapian::WritableDatabase database = Xapian::Quartz::open(dbdir, Xapian::DB_CREATE);
 
 	TEST_EQUAL(database.get_doccount(), 0);
 	TEST_EQUAL(database.get_avlength(), 0);
@@ -1246,7 +1246,7 @@ static bool test_adddoc2()
     }
 
     {
-	OmDatabase database = OmQuartz__open(dbdir);
+	Xapian::Database database = Xapian::Quartz::open(dbdir);
 	OmDocument document_out = database.get_document(did);
 
 	TEST_EQUAL(document_in.get_data(), document_out.get_data());
@@ -1474,7 +1474,7 @@ static bool test_postlist1()
     string dbdir = tmpdir + "testdb_postlist1";
     deletedir(dbdir);
     makedir(dbdir);
-    RefCntPtr<Database> db_w = new QuartzWritableDatabase(dbdir, OM_DB_CREATE, 8192);
+    Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_w = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 8192);
 
     QuartzDiskTable disktable(dbdir + "/postlist_", false, 8192);
     disktable.open();
@@ -1532,7 +1532,7 @@ static bool test_postlist2()
     string dbdir = tmpdir + "testdb_postlist2";
     deletedir(dbdir);
     makedir(dbdir);
-    RefCntPtr<Database> db_w = new QuartzWritableDatabase(dbdir, OM_DB_CREATE, 8192);
+    Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_w = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 8192);
 
     QuartzDiskTable disktable(tmpdir + "testdb_postlist2/postlist_", false, 2048);
     disktable.open();
@@ -1795,7 +1795,7 @@ static bool test_overwrite2()
     settings.set("backend", "quartz");
     settings.set("quartz_dir", dbname);
     settings.set("database_create", true);
-    OmWritableDatabase writer(settings);
+    Xapian::WritableDatabase writer(settings);
 
     OmDocument document_in;
     document_in.set_data("Foobar rising");
@@ -1815,7 +1815,7 @@ static bool test_overwrite2()
     }
     writer.flush();
 
-    OmDatabase reader(settings);
+    Xapian::Database reader(settings);
     // FIXME: use reader.get_document() when available.
 
     OmEnquire enquire(reader);
@@ -1920,9 +1920,9 @@ static bool test_writelock1()
     deletedir(dbname);
     makedir(dbname);
 
-    OmWritableDatabase writer = OmQuartz__open(dbname, OM_DB_CREATE);
+    Xapian::WritableDatabase writer = Xapian::Quartz::open(dbname, Xapian::DB_CREATE);
     TEST_EXCEPTION(Xapian::DatabaseLockError, 
-	OmWritableDatabase writer2 = OmQuartz__open(dbname, OM_DB_OPEN));
+	Xapian::WritableDatabase writer2 = Xapian::Quartz::open(dbname, Xapian::DB_OPEN));
     return true;
 }
 

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,7 +41,7 @@ class ProgServer : public SocketServer {
 
     public:
 	/** Default constructor. */
-	ProgServer(OmDatabase db, int readfd_,
+	ProgServer(Xapian::Database db, int readfd_,
 		   int writefd_,
 		   int msecs_active_timeout_ = 10000,
 		   int msecs_idle_timeout_ = 60000);

@@ -1,4 +1,4 @@
-/** \file omdatabase.h
+/** \file database.h
  * \brief API for working with Xapian databases
  */
 /* ----START-LICENCE----
@@ -23,70 +23,70 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OMDATABASE_H
-#define OM_HGUARD_OMDATABASE_H
+#ifndef XAPIAN_INCLUDED_DATABASE_H
+#define XAPIAN_INCLUDED_DATABASE_H
+
+#include <vector>
 
 #include "om/omdocument.h"
+#include <xapian/base.h>
 #include <xapian/termiterator.h>
 #include <xapian/positionlistiterator.h>
 
-class OmWritableDatabase;
-
 namespace Xapian {
-    class PostListIterator;
-}
+    
+class WritableDatabase;
+class PostListIterator;
 
 /** This class is used to access a database, or a set of databases.
  *
- *  This class is used in conjunction with an OmEnquire object.
+ *  This class is used in conjunction with an Enquire object.
  *
- *  @exception Xapian::InvalidArgumentError will be thrown if an invalid
+ *  @exception InvalidArgumentError will be thrown if an invalid
  *  argument is supplied, for example, an unknown database type.
  *
- *  @exception Xapian::OpeningError may be thrown if the database cannot
+ *  @exception OpeningError may be thrown if the database cannot
  *  be opened (for example, a required file cannot be found).
  */
-class OmDatabase {
+class Database {
     public:
 	/** Add an existing database (or group of databases) to those
 	 *  accessed by this object.
 	 *
-	 *  The handle(s) of the database(s) will be copied, so may be deleted
-	 *  or reused by the caller as desired.
-	 *
 	 *  @param database the database(s) to add.
 	 */
-	void add_database(const OmDatabase & database);
+	void add_database(const Database & database);
     
     public:
 	class Internal;
 	/// @internal Reference counted internals.
-	Internal *internal;
+	std::vector<Xapian::Internal::RefCntPtr<Internal> > internal;
 
     public:
-	/** Create an OmDatabase with no databases in.
+	/** Create a Database with no databases in.
 	 */
-	OmDatabase();
+	Database();
 
-	/** @internal Create an OmDatabase given an OmDatabase::Internal.
+	/** @internal Create a Database from its internals.
 	 */
-	OmDatabase(OmDatabase::Internal *internal);
+	Database(Internal *internal);
 
 	/** Destroy this handle on the database.
+	 *
 	 *  If there are no copies of this object remaining, the database
 	 *  will be closed.
 	 */
-	virtual ~OmDatabase();
+	virtual ~Database();
 
         /** Copying is allowed.  The internals are reference counted, so
 	 *  copying is cheap.
 	 */
-	OmDatabase(const OmDatabase &other);
+	Database(const Database &other);
 
         /** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is cheap.
 	 */
-	virtual void operator=(const OmDatabase &other);
+	virtual void operator=(const Database &other);
 
 	/** Re-open the database.
 	 *  This re-opens the database(s) to the latest available version(s).
@@ -104,37 +104,37 @@ class OmDatabase {
 	/** An iterator pointing to the start of the postlist
 	 *  for a given term.
 	 */
-	Xapian::PostListIterator postlist_begin(const std::string &tname) const;
+	PostListIterator postlist_begin(const std::string &tname) const;
 
 	/** Corresponding end iterator to postlist_begin()
 	 */
-	Xapian::PostListIterator postlist_end(const std::string &tname) const;
+	PostListIterator postlist_end(const std::string &tname) const;
 
 	/** An iterator pointing to the start of the termlist
 	 *  for a given document.
 	 */
-	Xapian::TermIterator termlist_begin(om_docid did) const;
+	TermIterator termlist_begin(om_docid did) const;
 	
 	/** Corresponding end iterator to termlist_begin()
 	 */
-	Xapian::TermIterator termlist_end(om_docid did) const;
+	TermIterator termlist_end(om_docid did) const;
 
 	/** An iterator pointing to the start of the position list
 	 *  for a given term in a given document.
 	 */
-	Xapian::PositionListIterator positionlist_begin(om_docid did, const std::string &tname) const;
+	PositionListIterator positionlist_begin(om_docid did, const std::string &tname) const;
 
 	/** Corresponding end iterator to positionlist_begin()
 	 */
-	Xapian::PositionListIterator positionlist_end(om_docid did, const std::string &tname) const;
+	PositionListIterator positionlist_end(om_docid did, const std::string &tname) const;
 
 	/** An iterator which runs across all terms in the database.
 	 */
-	Xapian::TermIterator allterms_begin() const;
+	TermIterator allterms_begin() const;
 
 	/** Corresponding end iterator to allterms_begin()
 	 */
-	Xapian::TermIterator allterms_end() const;
+	TermIterator allterms_end() const;
 
 	/// Get the number of documents in the database.
 	om_doccount get_doccount() const;
@@ -190,7 +190,7 @@ class OmDatabase {
 
 /** This class provides read/write access to a database.
  */
-class OmWritableDatabase : public OmDatabase {
+class WritableDatabase : public Database {
     public:
 	/** Destroy this handle on the database.
 	 *
@@ -198,29 +198,29 @@ class OmWritableDatabase : public OmDatabase {
 	 *  will be closed, and if there are any sessions or transactions
 	 *  in progress these will be ended.
 	 */
-	virtual ~OmWritableDatabase();
+	virtual ~WritableDatabase();
 
-	/** Create an empty OmWritableDatabase.
+	/** Create an empty WritableDatabase.
 	 */
-	OmWritableDatabase();
+	WritableDatabase();
 
-	/** @internal Create an OmWritableDatabase given an OmDatabase::Internal.
+	/** @internal Create an WritableDatabase given its internals.
 	 */
-	OmWritableDatabase(OmDatabase::Internal *internal);
+	WritableDatabase(Database::Internal *internal);
 
         /** Copying is allowed.  The internals are reference counted, so
 	 *  copying is cheap.
 	 */
-	OmWritableDatabase(const OmWritableDatabase &other);
+	WritableDatabase(const WritableDatabase &other);
 
         /** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is cheap.
 	 *
-	 *  Note that only an OmWritableDatabase may be assigned to an
-	 *  OmWritableDatabase: an attempt to assign an OmDatabase will throw
-	 *  an exception.
+	 *  Note that only an WritableDatabase may be assigned to an
+	 *  WritableDatabase: an attempt to assign a Database will throw
+	 *  an exception (FIXME: is this actually possible to do?)
 	 */
-	void operator=(const OmWritableDatabase &other);
+	void operator=(const WritableDatabase &other);
 
 	/** Flush to disk any modifications made to the database.
 	 *
@@ -385,12 +385,12 @@ class OmWritableDatabase : public OmDatabase {
 	std::string get_description() const;
 };
 
-const int OM_DB_CREATE_OR_OPEN = 1;
-const int OM_DB_CREATE = 2;
-const int OM_DB_CREATE_OR_OVERWRITE = 3;
-const int OM_DB_OPEN = 4;
+const int DB_CREATE_OR_OPEN = 1;
+const int DB_CREATE = 2;
+const int DB_CREATE_OR_OVERWRITE = 3;
+const int DB_OPEN = 4;
 // Can't see any sensible use for this one
-// const int OM_DB_OVERWRITE = XXX;
+// const int DB_OVERWRITE = XXX;
 
 /* It's mostly harmless to provide prototypes for all the backends, even
  * if they may not all be built in - it means the failure will be at
@@ -399,52 +399,70 @@ const int OM_DB_OPEN = 4;
  * separate libraries and link the ones we actually use in an application.
  */
 
+namespace Auto {
 /** Open a database read-only, automatically determining the database
  *  backend to use.
  *
  * @param path directory that the database is stored in.
  */
-OmDatabase OmAuto__open(const std::string &path);
+Database open(const std::string &path);
 
 /** Open a database for update, automatically determining the database
  *  backend to use.
  *
  * @param path directory that the database is stored in.
  * @param action one of:
- *  - OM_DB_CREATE_OR_OPEN open for read/write; create if no db exists
- *  - OM_DB_CREATE create new database; fail if db exists
- *  - OM_DB_CREATE_OR_OVERWRITE overwrite existing db; create if none exists
- *  - OM_DB_OPEN open for read/write; fail if no db exists
+ *  - Xapian::DB_CREATE_OR_OPEN open for read/write; create if no db exists
+ *  - Xapian::DB_CREATE create new database; fail if db exists
+ *  - Xapian::DB_CREATE_OR_OVERWRITE overwrite existing db; create if none exists
+ *  - Xapian::DB_OPEN open for read/write; fail if no db exists
  */
-OmWritableDatabase OmAuto__open(const std::string &path, int action);
+WritableDatabase open(const std::string &path, int action);
 
+/** Open a stub database.
+ *
+ * This opens a file which contains types and serialised parameters for one
+ * or more databases.
+ *
+ * @param file the stub database file
+ */
+Database open_stub(const std::string &file);
+
+}
+
+namespace Quartz {
 /** Open a Quartz database read-only.
  *
  * @param dir directory that the database is stored in.
  */
-OmDatabase OmQuartz__open(const std::string &dir);
+Database open(const std::string &dir);
 
 /** Open a Quartz database for update.
  *
  * @param dir directory that the database is stored in.
  * @param action one of:
- *  - OM_DB_CREATE_OR_OPEN open for read/write; create if no db exists
- *  - OM_DB_CREATE create new database; fail if db exists
- *  - OM_DB_CREATE_OR_OVERWRITE overwrite existing db; create if none exists
- *  - OM_DB_OPEN open for read/write; fail if no db exists
+ *  - Xapian::DB_CREATE_OR_OPEN open for read/write; create if no db exists
+ *  - Xapian::DB_CREATE create new database; fail if db exists
+ *  - Xapian::DB_CREATE_OR_OVERWRITE overwrite existing db; create if none exists
+ *  - Xapian::DB_OPEN open for read/write; fail if no db exists
  * @param block_size the size of the blocks to use in
  *                 the tables, in bytes.  Acceptable values are powers of
  *                 two in the range 2048 to 65536.  The default is 8192.
  *                 This setting is only used when creating databases.  If
  *                 the database already exists, it is completely ignored.
  */
-OmWritableDatabase
-OmQuartz__open(const std::string &dir, int action, int block_size = 8192);
+WritableDatabase
+open(const std::string &dir, int action, int block_size = 8192);
 
+}
+
+namespace InMemory {
 /** Open an InMemory database for update.
  */
-OmWritableDatabase OmInMemory__open();
+WritableDatabase open();
+}
 
+namespace Muscat36 {
 /** Open a Muscat 3.6 DA database.
  *
  * This opens a DA database with no values file.
@@ -454,7 +472,7 @@ OmWritableDatabase OmInMemory__open();
  * @param heavy_duty is this database heavy-duty (3 byte lengths) or flimsy (2
  * byte lengths)
  */
-OmDatabase OmMuscat36DA__open(const std::string &R, const std::string &T, bool heavy_duty = true);
+Database open_da(const std::string &R, const std::string &T, bool heavy_duty = true);
 
 /** Open a Muscat 3.6 DA database.
  *
@@ -466,7 +484,7 @@ OmDatabase OmMuscat36DA__open(const std::string &R, const std::string &T, bool h
  * @param heavy_duty is this database heavy-duty (3 byte lengths) or flimsy (2
  * byte lengths)
  */
-OmDatabase OmMuscat36DA__open(const std::string &R, const std::string &T, const std::string &values, bool heavy_duty = true);
+Database open_da(const std::string &R, const std::string &T, const std::string &values, bool heavy_duty = true);
 
 /** Open a Muscat 3.6 DB database.
  *
@@ -476,7 +494,7 @@ OmDatabase OmMuscat36DA__open(const std::string &R, const std::string &T, const 
  * @param DB filename of the database btree file
  * @param cache_size how many blocks to cache
  */
-OmDatabase OmMuscat36DB__open(const std::string &DB, size_t cache_size = 30);
+Database open_db(const std::string &DB, size_t cache_size = 30);
 
 /** Open a Muscat 3.6 DB database.
  *
@@ -487,8 +505,10 @@ OmDatabase OmMuscat36DB__open(const std::string &DB, size_t cache_size = 30);
  * @param values filename of the values file
  * @param cache_size how many blocks to cache (default 30).
  */
-OmDatabase OmMuscat36DB__open(const std::string &DB, const std::string &values = "", size_t cache_size = 30);
+Database open_db(const std::string &DB, const std::string &values = "", size_t cache_size = 30);
+}
 
+namespace Remote {
 /** Open a remote database (using a program).
  *
  * This opens a remote database by running a program which it communicates
@@ -501,7 +521,7 @@ OmDatabase OmMuscat36DB__open(const std::string &DB, const std::string &values =
  *  Xapian::NetworkTimeoutError exception will be thrown.  The default if not
  *  specified is 10000ms (i.e. 10 seconds).
  */
-OmDatabase OmRemote__open(const std::string &program, const std::string &args,
+Database open(const std::string &program, const std::string &args,
 	Xapian::timeout timeout = 10000);
 
 /** Open a remote database (using a TCP connection).
@@ -520,18 +540,11 @@ OmDatabase OmRemote__open(const std::string &program, const std::string &args,
  *  a Xapian::NetworkTimeoutError exception wil be thrown.  The default if not
  *  specified is to use the same value given for timeout.
  */
-OmDatabase
-OmRemote__open(const std::string &host, unsigned int port,
+Database
+open(const std::string &host, unsigned int port,
 	Xapian::timeout timeout = 10000, Xapian::timeout connect_timeout = 0);
+}
 
-/** Open a stub database.
- *
- * This opens a file which contains types and serialised parameters for one
- * or more databases.
- *
- * @param file the stub database file
- */
-OmDatabase
-OmStub__open(const std::string &file);
+}
 
-#endif /* OM_HGUARD_OMDATABASE_H */
+#endif /* XAPIAN_INCLUDED_DATABASE_H */

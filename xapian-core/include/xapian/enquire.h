@@ -28,8 +28,8 @@
 
 #include <xapian/types.h>
 #include "om/omdocument.h"
-#include "om/omdatabase.h"
-#include "xapian/error.h"
+#include <xapian/database.h>
+#include <xapian/error.h>
 #include <string>
 #include <time.h> // for time_t
 
@@ -593,7 +593,7 @@ class Enquire {
 	 *         deleted.  To use no error handler, this parameter
 	 *         should be 0.
 	 */
-        Enquire(const OmDatabase &databases, ErrorHandler * errorhandler_ = 0);
+        Enquire(const Database &databases, ErrorHandler * errorhandler_ = 0);
 
 	/** Close the Xapian::Enquire object.
 	 */

@@ -53,13 +53,13 @@ using std::ostream;
 
 BackendManager backendmanager;
 
-OmDatabase
+Xapian::Database
 get_database(const string &dbname, const string &dbname2)
 {
     return backendmanager.get_database(dbname, dbname2);
 }
 
-OmDatabase
+Xapian::Database
 get_network_database(const string &dbname,
 		     unsigned int timeout)
 {
@@ -70,7 +70,7 @@ get_network_database(const string &dbname,
     return backendmanager.get_database(params);
 }
 
-OmWritableDatabase
+Xapian::WritableDatabase
 get_writable_database(const string &dbname)
 {
     return backendmanager.get_writable_database(dbname);

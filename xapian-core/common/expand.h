@@ -52,13 +52,13 @@ class OmExpand {
 	OmExpand(const OmExpand &);
 	void operator=(const OmExpand &);
 
-	const OmDatabase &db;
+	const Xapian::Database &db;
 
         bool recalculate_maxweight;
 	AutoPtr<TermList> build_tree(const RSetI *rset,
 				     const OmExpandWeight *ewt);
     public:
-        OmExpand(const OmDatabase &db_);
+        OmExpand(const Xapian::Database &db_);
 
 	void expand(om_termcount max_esize,
 		    Xapian::ESet & eset,
@@ -68,7 +68,7 @@ class OmExpand {
 		    double expand_k);
 };
 
-inline OmExpand::OmExpand(const OmDatabase &db_) : db(db_)
+inline OmExpand::OmExpand(const Xapian::Database &db_) : db(db_)
 {
 }
 

@@ -53,7 +53,7 @@ operator+(const OmExpandBits &bits1, const OmExpandBits &bits2)
 }
 
 
-OmExpandWeight::OmExpandWeight(const OmDatabase &root_,
+OmExpandWeight::OmExpandWeight(const Xapian::Database &root_,
 			       om_doccount rsetsize_,
 			       bool use_exact_termfreq_,
 			       double expand_k_ )

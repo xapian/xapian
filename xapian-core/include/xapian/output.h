@@ -35,9 +35,9 @@ operator<<(std::ostream & os, const CLASS & object) { \
     return os << object.get_description(); \
 }
 
-#include "om/omdatabase.h"
-XAPIAN_OUTPUT_FUNCTION(OmDatabase)
-XAPIAN_OUTPUT_FUNCTION(OmWritableDatabase)
+#include <xapian/database.h>
+XAPIAN_OUTPUT_FUNCTION(Xapian::Database)
+XAPIAN_OUTPUT_FUNCTION(Xapian::WritableDatabase)
 
 #include "om/omdocument.h"
 XAPIAN_OUTPUT_FUNCTION(OmDocument)

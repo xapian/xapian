@@ -138,9 +138,9 @@ class InMemoryPostList : public LeafPostList {
 	 */
 	InMemoryPositionList mypositions;
 
-	RefCntPtr<const InMemoryDatabase> db;
+	Xapian::Internal::RefCntPtr<const InMemoryDatabase> db;
 
-	InMemoryPostList(RefCntPtr<const InMemoryDatabase> db,
+	InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db,
 			 const InMemoryTerm & term);
     public:
 	om_doccount get_termfreq() const;
@@ -169,11 +169,11 @@ class InMemoryTermList : public LeafTermList {
 	om_termcount terms;
 	bool started;
 
-	RefCntPtr<const InMemoryDatabase> db;
+	Xapian::Internal::RefCntPtr<const InMemoryDatabase> db;
 	om_docid did;
 	om_doclength document_length;
 
-	InMemoryTermList(RefCntPtr<const InMemoryDatabase> db, om_docid did,
+	InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db, om_docid did,
 			 const InMemoryDoc & doc,
 			 om_doclength len);
     public:
@@ -192,8 +192,7 @@ class InMemoryTermList : public LeafTermList {
  *
  *  This is a prototype database, mainly used for debugging and testing.
  */
-class InMemoryDatabase : public Database {
-    friend class DatabaseBuilder;
+class InMemoryDatabase : public Xapian::Database::Internal {
     private:
 	map<string, InMemoryTerm> postlists;
 	vector<InMemoryDoc> termlists;
@@ -282,7 +281,7 @@ class InMemoryDatabase : public Database {
 //////////////////////////////////////////////
 
 inline
-InMemoryPostList::InMemoryPostList(RefCntPtr<const InMemoryDatabase> db_,
+InMemoryPostList::InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db_,
 				   const InMemoryTerm & term)
 	: pos(term.docs.begin()),
 	  end(term.docs.end()),
@@ -373,7 +372,7 @@ InMemoryPostList::get_description() const
 //////////////////////////////////////////////
 
 inline
-InMemoryTermList::InMemoryTermList(RefCntPtr<const InMemoryDatabase> db_,
+InMemoryTermList::InMemoryTermList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db_,
 				   om_docid did_,
 				   const InMemoryDoc & doc,
 				   om_doclength len)

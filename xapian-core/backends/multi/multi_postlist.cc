@@ -34,7 +34,7 @@
 //////////////
 
 MultiPostList::MultiPostList(std::vector<LeafPostList *> & pls,
-			     const OmDatabase &this_db_)
+			     const Xapian::Database &this_db_)
 	: postlists(pls),
 	  this_db(this_db_),
 	  finished(false),

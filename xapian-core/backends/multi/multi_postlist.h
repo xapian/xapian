@@ -31,11 +31,11 @@
 #include <vector>
 
 class MultiPostList : public LeafPostList {
-    friend class OmDatabase::Internal;
+    friend class Xapian::Database;
     private:
 	std::vector<LeafPostList *> postlists;
 
-	const OmDatabase &this_db;
+	const Xapian::Database &this_db;
 
 	bool   finished;
 	om_docid  currdoc;
@@ -52,7 +52,7 @@ class MultiPostList : public LeafPostList {
 	om_doccount multiplier;
 
 	MultiPostList(std::vector<LeafPostList *> & pls,
-		      const OmDatabase &this_db_);
+		      const Xapian::Database &this_db_);
     public:
 	~MultiPostList();
 

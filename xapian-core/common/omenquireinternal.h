@@ -121,7 +121,7 @@ class MSetItem {
 class Enquire::Internal : public Xapian::Internal::RefCntBase {
     private:
 	/// The database which this enquire object uses.
-	const OmDatabase db;
+	const Xapian::Database db;
 
 	/** The user's query.
 	 *  This may need to be mutable in future so that it can be
@@ -162,7 +162,7 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 
 	mutable Weight * weight; // mutable so get_mset can set default
 
-	Internal(const OmDatabase &databases, ErrorHandler * errorhandler_);
+	Internal(const Xapian::Database &databases, ErrorHandler * errorhandler_);
 	~Internal();
 
 	/** Request a document from the database.

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
     }
 
     /* variables needed in both try/catch blocks */
-    OmDatabase dbgrp;
+    Xapian::Database dbgrp;
     unsigned int timeout = 60000;
 
     /* Trap exceptions related to setting up the database */
@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
 	    paths.push_back(argv[i]);
 	}
 
-	OmDatabase db = backendmanager.get_database(paths);
+	Xapian::Database db = backendmanager.get_database(paths);
 	dbgrp.add_database(db);
     } catch (const Xapian::Error &e) {
 	cout << 'E' << omerror_to_string(e) << endl;

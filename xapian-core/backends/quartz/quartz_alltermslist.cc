@@ -27,7 +27,7 @@
 #include "quartz_utils.h"
 #include "quartz_postlist.h"
 
-QuartzAllTermsList::QuartzAllTermsList(RefCntPtr<const Database> database_,
+QuartzAllTermsList::QuartzAllTermsList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
 				       AutoPtr<QuartzCursor> pl_cursor_,
 				       quartz_tablesize_t size_)
 	: database(database_), pl_cursor(pl_cursor_), size(size_), 

@@ -23,7 +23,6 @@
  */
 
 #include <config.h>
-#include "../api/omdatabaseinternal.h"
 #include "database.h"
 #include "utils.h" // for om_tostring
 #include <xapian/error.h>
@@ -51,80 +50,78 @@ using namespace std;
 #include "tcpclient.h"
 #endif
 
+namespace Xapian {
+
 #ifdef MUS_BUILD_BACKEND_QUARTZ
-OmDatabase
-OmQuartz__open(const string &dir) {
-    return OmDatabase(new OmDatabase::Internal(new QuartzDatabase(dir)));
+Database
+Quartz::open(const string &dir) {
+    return Database(new QuartzDatabase(dir));
 }
 
-OmWritableDatabase
-OmQuartz__open(const string &dir, int action, int block_size) {
-    return OmWritableDatabase(new OmDatabase::Internal(
-	new QuartzWritableDatabase(dir, action, block_size)));
+WritableDatabase
+Quartz::open(const string &dir, int action, int block_size) {
+    return WritableDatabase(new QuartzWritableDatabase(dir, action,
+						       block_size));
 }
 #endif
 
 #ifdef MUS_BUILD_BACKEND_INMEMORY
 // Note: a read-only inmemory database will always be empty, and so there's
 // not much use in allowing one to be created.
-OmWritableDatabase
-OmInMemory__open() {
-    return OmWritableDatabase(new OmDatabase::Internal(new InMemoryDatabase()));
+WritableDatabase
+InMemory::open() {
+    return WritableDatabase(new InMemoryDatabase());
 }
 #endif
 
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
-OmDatabase
-OmMuscat36DA__open(const string &R, const string &T, bool heavy_duty) {
-    return OmDatabase(new OmDatabase::Internal(
-	new DADatabase(R, T, "", heavy_duty)));
+Database
+Muscat36::open_da(const string &R, const string &T, bool heavy_duty) {
+    return Database(new DADatabase(R, T, "", heavy_duty));
 }
 
-OmDatabase
-OmMuscat36DA__open(const string &R, const string &T, const string &keys,
-		   bool heavy_duty) {
-    return OmDatabase(new OmDatabase::Internal(
-	new DADatabase(R, T, keys, heavy_duty)));
+Database
+Muscat36::open_da(const string &R, const string &T, const string &keys,
+		  bool heavy_duty) {
+    return Database(new DADatabase(R, T, keys, heavy_duty));
 }
 
-OmDatabase
-OmMuscat36DB__open(const string &DB, size_t cache_size) {
-    return OmDatabase(new OmDatabase::Internal(
-	new DBDatabase(DB, "", cache_size)));
+Database
+Muscat36::open_db(const string &DB, size_t cache_size) {
+    return Database(new DBDatabase(DB, "", cache_size));
 }
 
-OmDatabase
-OmMuscat36DB__open(const string &DB, const string &keys, size_t cache_size) {
-    return OmDatabase(new OmDatabase::Internal(
-	new DBDatabase(DB, keys, cache_size)));
+Database
+Muscat36::open_db(const string &DB, const string &keys, size_t cache_size) {
+    return Database(new DBDatabase(DB, keys, cache_size));
 }
 #endif
 
 #ifdef MUS_BUILD_BACKEND_REMOTE
-OmDatabase
-OmRemote__open(const string &program, const string &args, unsigned int timeout)
+Database
+Remote::open(const string &program, const string &args, unsigned int timeout)
 {
-    RefCntPtr<NetClient> link(new ProgClient(program, args, timeout));
-    return OmDatabase(new OmDatabase::Internal(new NetworkDatabase(link)));
+    Xapian::Internal::RefCntPtr<NetClient> link(new ProgClient(program, args, timeout));
+    return Database(new NetworkDatabase(link));
 }
 
-OmDatabase
-OmRemote__open(const string &host, unsigned int port,
+Database
+Remote::open(const string &host, unsigned int port,
 	unsigned int timeout, unsigned int connect_timeout)
 {
     if (connect_timeout == 0) connect_timeout = timeout;
-    RefCntPtr<NetClient> link(new TcpClient(host, port, timeout, connect_timeout));
-    return OmDatabase(new OmDatabase::Internal(new NetworkDatabase(link)));
+    Xapian::Internal::RefCntPtr<NetClient> link(new TcpClient(host, port, timeout, connect_timeout));
+    return Database(new NetworkDatabase(link));
 }
 #endif
 
-OmDatabase
-OmStub__open(const string &file)
+Database
+Auto::open_stub(const string &file)
 {
     // A stub database is a text file with one or more lines of this format:
     // <dbtype> <serialised db object>
     ifstream stub(file.c_str());
-    OmDatabase db;
+    Database db;
     string line;
     int line_no = 1;
     bool ok = false;
@@ -134,11 +131,11 @@ OmStub__open(const string &file)
 	    string type = line.substr(0, space);
 	    line.erase(0, space + 1);
 	    if (type == "auto") {
-		db.add_database(OmAuto__open(line));
+		db.add_database(Auto::open(line));
 		ok = true;
 #ifdef MUS_BUILD_BACKEND_QUARTZ
 	    } else if (type == "quartz") {
-		db.add_database(OmQuartz__open(line));
+		db.add_database(Quartz::open(line));
 		ok = true;
 #endif
 #ifdef MUS_BUILD_BACKEND_REMOTE
@@ -157,14 +154,14 @@ OmStub__open(const string &file)
 		    } else {
 			line.erase(0, 1);
 		    }
-		    db.add_database(OmRemote__open(line, args));
+		    db.add_database(Remote::open(line, args));
 		    ok = true;
 		} else if (colon != string::npos) {
 		    // tcp
 		    // FIXME: timeouts
 		    unsigned int port = atoi(line.c_str() + colon);
 		    line.erase(colon);
-		    db.add_database(OmRemote__open(line, port));
+		    db.add_database(Remote::open(line, port));
 		    ok = true;
 		}
 #endif
@@ -181,23 +178,23 @@ OmStub__open(const string &file)
 	// by revealing part of a sensitive file's contents if they can
 	// arrange it to be read as a stub database.  The line number is
 	// enough information to identify the problem line.
-	throw Xapian::OpeningError("Bad line " + om_tostring(line_no) + " in stub database file `" + file + "'");
+	throw OpeningError("Bad line " + om_tostring(line_no) + " in stub database file `" + file + "'");
     }
     return db;
 }
 
-OmDatabase
-OmAuto__open(const string &path)
+Database
+Auto::open(const string &path)
 {
     // Check for path actually being a file - if so, assume it to be
     // a stub database.
     if (file_exists(path)) {
-	return OmStub__open(path);
+	return Auto::open_stub(path);
     }
 
 #ifdef MUS_BUILD_BACKEND_QUARTZ
     if (file_exists(path + "/record_DB")) {
-	return OmQuartz__open(path);
+	return Quartz::open(path);
     }
 #endif
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
@@ -205,41 +202,45 @@ OmAuto__open(const string &path)
 	// can't easily tell flimsy from heavyduty so assume hd
 	string keyfile = path + "/keyfile";
 	if (!file_exists(path + "/keyfile")) keyfile = "";
-	return OmMuscat36DA__open(path + "/R", path + "/T", keyfile, true);
+	return Muscat36::open_da(path + "/R", path + "/T", keyfile, true);
     }
     if (file_exists(path + "/DB")) {
 	string keyfile = path + "/keyfile";
 	if (!file_exists(path + "/keyfile")) keyfile = "";
-	return OmMuscat36DB__open(path + "/DB", keyfile);
+	return Muscat36::open_db(path + "/DB", keyfile);
     }
     if (file_exists(path + "/DB.da")) {
 	string keyfile = path + "/keyfile";
 	if (!file_exists(path + "/keyfile")) keyfile = "";
-	return OmMuscat36DB__open(path + "/DB.da", keyfile);
+	return Muscat36::open_db(path + "/DB.da", keyfile);
     }
 #endif
 
-    throw Xapian::FeatureUnavailableError("Couldn't detect type of database");
+    throw FeatureUnavailableError("Couldn't detect type of database");
 }
 
-OmWritableDatabase
-OmAuto__open(const std::string &path, int action)
+WritableDatabase
+Auto::open(const std::string &path, int action)
 {
+#ifdef MUS_BUILD_BACKEND_QUARTZ
     // Only quartz currently supports disk-based writable databases - if other
     // writable backends are added then this code needs to look at action and
     // perhaps autodetect.
-    return OmQuartz__open(path, action);
+    return Quartz::open(path, action);
+#else
+    throw FeatureUnavailableError("No disk-based writable backend is enabled");
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Database::Database()
+Database::Internal::Internal()
 	: session_in_progress(false),
 	  transaction_in_progress(false)
 {
 }
 
-Database::~Database()
+Database::Internal::~Internal()
 {
     // Can't end_session() here because derived class destructors have already
     // run, and the derived classes therefore don't exist.  Thus, the
@@ -249,14 +250,14 @@ Database::~Database()
 }
 
 void
-Database::keep_alive() const
+Database::Internal::Internal::keep_alive() const
 {
     /* For the normal case of local databases, nothing needs to be done.
      */
 }
 
 void
-Database::ensure_session_in_progress()
+Database::Internal::ensure_session_in_progress()
 {
     if (!session_in_progress) {
 	do_begin_session();
@@ -265,7 +266,7 @@ Database::ensure_session_in_progress()
 }
 
 void
-Database::internal_end_session()
+Database::Internal::internal_end_session()
 {
     if (!session_in_progress) return;
 
@@ -290,7 +291,7 @@ Database::internal_end_session()
 }
 
 void
-Database::flush()
+Database::Internal::flush()
 {
     if (session_in_progress) {
 	do_flush();
@@ -298,52 +299,54 @@ Database::flush()
 }
 
 void
-Database::begin_transaction()
+Database::Internal::begin_transaction()
 {
     ensure_session_in_progress();
     if (transaction_in_progress)
-	throw Xapian::InvalidOperationError("Cannot begin transaction - transaction already in progress");
+	throw InvalidOperationError("Cannot begin transaction - transaction already in progress");
     do_begin_transaction();
     transaction_in_progress = true;
 }
 
 void
-Database::commit_transaction()
+Database::Internal::commit_transaction()
 {
     if (!transaction_in_progress)
-	throw Xapian::InvalidOperationError("Cannot commit transaction - no transaction currently in progress");
+	throw InvalidOperationError("Cannot commit transaction - no transaction currently in progress");
     transaction_in_progress = false;
     Assert(session_in_progress);
     do_commit_transaction();
 }
 
 void
-Database::cancel_transaction()
+Database::Internal::cancel_transaction()
 {
     if (!transaction_in_progress)
-	throw Xapian::InvalidOperationError("Cannot cancel transaction - no transaction currently in progress");
+	throw InvalidOperationError("Cannot cancel transaction - no transaction currently in progress");
     transaction_in_progress = false;
     Assert(session_in_progress);
     do_cancel_transaction();
 }
 
 om_docid
-Database::add_document(const OmDocument & document)
+Database::Internal::add_document(const OmDocument & document)
 {
     ensure_session_in_progress();
     return do_add_document(document);
 }
 
 void
-Database::delete_document(om_docid did)
+Database::Internal::delete_document(om_docid did)
 {
     ensure_session_in_progress();
     do_delete_document(did);
 }
 
 void
-Database::replace_document(om_docid did, const OmDocument & document)
+Database::Internal::replace_document(om_docid did, const OmDocument & document)
 {
     ensure_session_in_progress();
     do_replace_document(did, document);
+}
+
 }

@@ -36,7 +36,7 @@
 // Actual database class //
 ///////////////////////////
 
-NetworkDatabase::NetworkDatabase(RefCntPtr<NetClient> link_) : link(link_)
+NetworkDatabase::NetworkDatabase(Xapian::Internal::RefCntPtr<NetClient> link_) : link(link_)
 {
     Assert(link.get() != 0);
 }
@@ -81,7 +81,7 @@ NetworkDatabase::open_term_list(om_docid did) const {
     vector<NetClient::TermListItem> items;
     link->get_tlist(did, items);
     return new NetworkTermList(get_avlength(), get_doccount(), items,
-			       RefCntPtr<const NetworkDatabase>(this));
+			       Xapian::Internal::RefCntPtr<const NetworkDatabase>(this));
 }
 
 Document *

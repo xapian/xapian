@@ -39,7 +39,7 @@ class TcpServer {
 	int port;
 
 	/// The database we're using.
-	OmDatabase db;
+	Xapian::Database db;
 
 	/// The listening socket
 	int listen_socket;
@@ -81,7 +81,7 @@ class TcpServer {
 	 *  			used while waiting for a request from the
 	 *  			client while idle.
 	 */
-	TcpServer(OmDatabase db_, int port_,
+	TcpServer(Xapian::Database db_, int port_,
 		  int msecs_normal_timeout_ = 10000,
 		  int msecs_idle_timeout_ = 60000,
 #ifndef TIMING_PATCH

@@ -41,8 +41,8 @@ using std::string;
 /// Simple test of NEAR
 static bool test_near1()
 {
-    OmDatabase mydb(get_database("apitest_phrase"));
-    OmEnquire enquire(mydb);
+    Xapian::Database mydb(get_database("apitest_phrase"));
+    Xapian::Enquire enquire(mydb);
     Xapian::Stem stemmer("english");
     enquire.set_weighting_scheme(BoolWeight());
 
@@ -194,8 +194,8 @@ static bool test_near1()
 /// Test NEAR over operators
 static bool test_near2()
 {
-    OmDatabase mydb(get_database("apitest_phrase"));
-    OmEnquire enquire(mydb);
+    Xapian::Database mydb(get_database("apitest_phrase"));
+    Xapian::Enquire enquire(mydb);
     Xapian::Stem stemmer("english");
     enquire.set_weighting_scheme(BoolWeight());
 
@@ -246,8 +246,8 @@ static bool test_near2()
 /// Simple test of PHRASE
 static bool test_phrase1()
 {
-    OmDatabase mydb(get_database("apitest_phrase"));
-    OmEnquire enquire(mydb);
+    Xapian::Database mydb(get_database("apitest_phrase"));
+    Xapian::Enquire enquire(mydb);
     Xapian::Stem stemmer("english");
     enquire.set_weighting_scheme(BoolWeight());
 
@@ -451,8 +451,8 @@ static bool test_phrase1()
 /// Test PHRASE over operators
 static bool test_phrase2()
 {
-    OmDatabase mydb(get_database("apitest_phrase"));
-    OmEnquire enquire(mydb);
+    Xapian::Database mydb(get_database("apitest_phrase"));
+    Xapian::Enquire enquire(mydb);
     Xapian::Stem stemmer("english");
     enquire.set_weighting_scheme(BoolWeight());
 
@@ -503,7 +503,7 @@ static bool test_phrase2()
 /// Test getting position lists from databases
 static bool test_poslist1()
 {
-    OmDatabase mydb(get_database("apitest_poslist"));
+    Xapian::Database mydb(get_database("apitest_poslist"));
 
     Xapian::Stem stemmer("english");
     string term = stemmer.stem_word("sponge");
@@ -549,7 +549,7 @@ static bool test_poslist1()
 
 static bool test_poslist2()
 {
-    OmWritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database("");
 
     OmDocument doc;
     doc.add_term_nopos("nopos");

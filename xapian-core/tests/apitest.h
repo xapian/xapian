@@ -26,12 +26,12 @@
 
 #include "om/om.h"
 
-OmDatabase get_database(const std::string &dbname,
-			const std::string &dbname2 = "");
+Xapian::Database get_database(const std::string &dbname,
+			      const std::string &dbname2 = "");
 
-OmDatabase get_network_database(const std::string &dbname,
-				unsigned int timeout);
+Xapian::Database get_network_database(const std::string &dbname,
+				      unsigned int timeout);
 
-OmWritableDatabase get_writable_database(const std::string &dbname);
+Xapian::WritableDatabase get_writable_database(const std::string &dbname);
 
 #endif /* OM_HGUARD_APITEST_H */

@@ -94,7 +94,7 @@ QuartzTermList::delete_termlist(QuartzBufferedTable * table_, om_docid did)
 }
 
 
-QuartzTermList::QuartzTermList(RefCntPtr<const Database> this_db_,
+QuartzTermList::QuartzTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
 			       const QuartzTable * table_,
 #ifdef USE_LEXICON               
 			       const QuartzTable * lexicon_table_,

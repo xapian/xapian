@@ -45,7 +45,7 @@ class QuartzTermList : public LeafTermList {
 	/** The database we are searching.  This pointer is held so that the
 	 *  database doesn't get deleted before us.
 	 */
-	RefCntPtr<const Database> this_db;
+	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db;
 
 	om_docid did;
 
@@ -138,7 +138,7 @@ class QuartzTermList : public LeafTermList {
 
 	/** Open the termlist for the specified document, for reading.
 	 */
-	QuartzTermList(RefCntPtr<const Database> this_db_,
+	QuartzTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
 		       const QuartzTable * table_,
 		       const QuartzTable * lexicon_table_,
 		       om_docid did_,

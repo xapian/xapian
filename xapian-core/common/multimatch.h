@@ -48,7 +48,7 @@ class MultiMatch
 	/// Vector of the items.  This MUST be destroyed before "gatherer"
 	std::vector<RefCntPtr<SubMatch> > leaves;
 
-	const OmDatabase db;
+	const Xapian::Database db;
 
 	const Xapian::Query::Internal *query;
 
@@ -87,7 +87,7 @@ class MultiMatch
 	void prepare_matchers();
 
 	/// get the collapse key
-	string get_collapse_key(PostList *pl, const OmDatabase &db,
+	string get_collapse_key(PostList *pl, const Xapian::Database &db,
 				om_docid did, om_valueno keyno,
 				RefCntPtr<Document> &doc);
 
@@ -115,7 +115,7 @@ class MultiMatch
 	 *                   StatsGatherer.
 	 *  @param wtischeme Weighting scheme
 	 */
-	MultiMatch(const OmDatabase &db_,
+	MultiMatch(const Xapian::Database &db_,
 		   const Xapian::Query::Internal * query,
 		   const Xapian::RSet & omrset,
 		   om_valueno collapse_key_,

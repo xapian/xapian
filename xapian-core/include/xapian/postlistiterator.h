@@ -32,10 +32,9 @@
 #include <xapian/base.h>
 #include <xapian/types.h>
 
-class OmDatabase;
-
 namespace Xapian {
 
+class Database;
 class PositionListIterator;
 
 class PostListIterator {
@@ -45,7 +44,7 @@ class PostListIterator {
 	Xapian::Internal::RefCntPtr<Internal> internal;
 
     private:
-	friend class OmDatabase; // So OmDatabase can construct us
+	friend class Database; // So Database can construct us
 
 	PostListIterator(Internal *internal_);
 

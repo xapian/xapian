@@ -34,7 +34,7 @@
 NetworkTermList::NetworkTermList(om_doclength /*average_length*/,
 				 om_doccount database_size_,
 				 const std::vector<NetClient::TermListItem> &items_,
-				 RefCntPtr<const NetworkDatabase> this_db_)
+				 Xapian::Internal::RefCntPtr<const NetworkDatabase> this_db_)
 	: items(),
 	  current_position(items.begin()),
 	  started(false),
@@ -44,20 +44,17 @@ NetworkTermList::NetworkTermList(om_doclength /*average_length*/,
     // FIXME: set length
     document_length = 1;
 
-    std::vector<NetClient::TermListItem>::const_iterator i = items_.begin();
-    while (i != items_.end()) {
+    std::vector<NetClient::TermListItem>::const_iterator i;
+    for (i = items_.begin(); i != items_.end(); ++i) {
 	NetworkTermListItem item;
 	item.tname = i->tname;
 	item.termfreq = i->termfreq;
 	item.wdf = i->wdf;
 
 	items.push_back(item);
-	++i;
     }
 
     current_position = items.begin();
-
-    return;
 }
 
 om_termcount
@@ -108,7 +105,7 @@ NetworkTermList::get_termfreq() const
 TermList *
 NetworkTermList::next()
 {
-    if(started) {
+    if (started) {
 	Assert(!at_end());
 	current_position++;
     } else {

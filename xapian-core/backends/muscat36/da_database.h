@@ -255,8 +255,7 @@ DATerm::get_ti() const
 }
 
 /** A DA Database */
-class DADatabase : public Database {
-    friend class DatabaseBuilder;
+class DADatabase : public Xapian::Database::Internal {
     friend class DADocument;
     private:
 	struct DA_file * DA_r;

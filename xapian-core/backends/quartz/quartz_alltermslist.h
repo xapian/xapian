@@ -39,7 +39,7 @@ class QuartzAllTermsList : public AllTermsList
 	void operator=(const QuartzAllTermsList &);
 
 	/// Keep our database around
-	RefCntPtr<const Database> database;
+	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
 
 	/// A cursor pointing at the current term's postlist entry
 	AutoPtr<QuartzCursor> pl_cursor;
@@ -59,7 +59,7 @@ class QuartzAllTermsList : public AllTermsList
 	void get_stats() const;
     public:
 	/// Standard constructor for base class.
-	QuartzAllTermsList(RefCntPtr<const Database> database_,
+	QuartzAllTermsList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
 			   AutoPtr<QuartzCursor> pl_cursor_,
 		       	   quartz_tablesize_t size_);
 

@@ -55,8 +55,6 @@
 #include "rset.h"
 #include "omqueryinternal.h"
 
-#include "../api/omdatabaseinternal.h"
-
 #include "match.h"
 #include "stats.h"
 
@@ -135,13 +133,13 @@ msetcmp_sort_reverse(const Xapian::Internal::MSetItem &a, const Xapian::Internal
 
 class MSetSortCmp {
     private:
-	OmDatabase db;
+	Xapian::Database db;
 	double factor;
 	om_valueno sort_key;
 	bool forward;
 	int bands;
     public:
-	MSetSortCmp(const OmDatabase &db_, int bands_, double percent_scale,
+	MSetSortCmp(const Xapian::Database &db_, int bands_, double percent_scale,
 		    om_valueno sort_key_, bool forward_)
 	    : db(db_), factor(percent_scale * bands_ / 100.0),
 	      sort_key(sort_key_), forward(forward_), bands(bands_) {
@@ -174,7 +172,7 @@ class MSetSortCmp {
 ////////////////////////////////////
 // Initialisation and cleaning up //
 ////////////////////////////////////
-MultiMatch::MultiMatch(const OmDatabase &db_, const Xapian::Query::Internal * query_,
+MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Internal * query_,
 		       const Xapian::RSet & omrset, om_valueno collapse_key_,
 		       int percent_cutoff_, om_weight weight_cutoff_,
 		       bool sort_forward_, om_valueno sort_key_,
@@ -199,7 +197,7 @@ MultiMatch::MultiMatch(const OmDatabase &db_, const Xapian::Query::Internal * qu
 
     query->validate_query();
 
-    om_doccount number_of_leaves = db.internal->databases.size();
+    om_doccount number_of_leaves = db.internal.size();
     vector<Xapian::RSet> subrsets(number_of_leaves);
 
     {
@@ -214,11 +212,10 @@ MultiMatch::MultiMatch(const OmDatabase &db_, const Xapian::Query::Internal * qu
     
     vector<Xapian::RSet>::const_iterator subrset = subrsets.begin();
 
-    vector<RefCntPtr<Database> >::iterator i;
-    for (i = db.internal->databases.begin();
-	 i != db.internal->databases.end(); ++i) {
+    vector<Xapian::Internal::RefCntPtr<Xapian::Database::Internal> >::const_iterator i;
+    for (i = db.internal.begin(); i != db.internal.end(); ++i) {
 	Assert(subrset != subrsets.end());
-	Database *db = (*i).get();
+	Xapian::Database::Internal *db = (*i).get();
 	Assert(db);
 	RefCntPtr<SubMatch> smatch;
 	try {
@@ -298,14 +295,19 @@ MultiMatch::prepare_matchers()
 }
 
 inline string
-MultiMatch::get_collapse_key(PostList *pl, const OmDatabase &db, om_docid did,
+MultiMatch::get_collapse_key(PostList *pl, const Xapian::Database &db, om_docid did,
 			     om_valueno keyno, RefCntPtr<Document> &doc)
 {		      
     DEBUGCALL(MATCH, string, "MultiMatch::get_collapse_key", pl << ", " << db << ", " << did << ", " << keyno << ", [doc]");
     const string *key = pl->get_collapse_key();
     if (key) RETURN(*key);
     if (doc.get() == 0) {
-	RefCntPtr<Document> temp(db.internal->open_document(did));
+	unsigned int multiplier = db.internal.size();
+	Assert(multiplier != 0);
+	om_doccount n = (did - 1) % multiplier; // which actual database
+	om_docid m = (did - 1) / multiplier + 1; // real docid in that database
+
+   	RefCntPtr<Document> temp(db.internal[n]->open_document(m));
 	doc = temp;
     }
     RETURN(doc->get_value(keyno));
@@ -540,7 +542,12 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	// FIXME: if results are from MSetPostList then we can omit this step
 	if (mdecider != NULL) {
 	    if (doc.get() == 0) {
-		RefCntPtr<Document> temp(db.internal->open_document(did));
+		unsigned int multiplier = db.internal.size();
+		Assert(multiplier != 0);
+		om_doccount n = (did - 1) % multiplier; // which actual database
+		om_docid m = (did - 1) / multiplier + 1; // real docid in that database
+
+		RefCntPtr<Document> temp(db.internal[n]->open_document(m));
 		doc = temp;
 	    }
 	    OmDocument mydoc(new OmDocument::Internal(doc, db, did));

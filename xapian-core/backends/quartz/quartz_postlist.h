@@ -40,7 +40,7 @@ class QuartzTable;
 class QuartzCursor;
 class QuartzBufferedTable;
 class QuartzDatabase;
-class Database;
+class Xapian::Database::Internal;
 
 /** A postlist in a quartz database.
  */
@@ -49,7 +49,7 @@ class QuartzPostList : public LeafPostList {
 	/** The database we are searching.  This pointer is held so that the
 	 *  database doesn't get deleted before us.
 	 */
-	RefCntPtr<const Database> this_db;
+	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db;
 
 	/// The table containing the postlist.
 	const QuartzTable * table;
@@ -163,7 +163,7 @@ class QuartzPostList : public LeafPostList {
 
     public:
         /// Default constructor.
-        QuartzPostList(RefCntPtr<const Database> this_db_,
+        QuartzPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
 		       const QuartzTable * table_,
 		       const QuartzTable * positiontable_,
 		       const string & tname);

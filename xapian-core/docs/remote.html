@@ -38,10 +38,10 @@ production use, but is useful for debugging and testing.  The omprogsrv
 program, which is designed to be the program spawned, currently only uses
 text files indexed into inmemory databases.
 
-<P>From the client end, create the database with <code>OmDatabase database(OmRemote__open(<i>program</i>, <i>args</i>));</code> - for example:
+<P>From the client end, create the database with <code>Xapian::Database database(Xapian::Remote::open(<i>program</i>, <i>args</i>));</code> - for example:
 
 <pre>
-OmDatabase database(OmRemote__open("omprogsrv", "file1.txt file2.txt"));
+Xapian::Database database(Xapian::Remote::open("omprogsrv", "file1.txt file2.txt"));
 </pre>
 
 If the program has no path, the PATH environment variable is used.  The
@@ -53,10 +53,10 @@ inmemory database.  Any number can be specified.
 <P>The tcp method uses TCP/IP sockets to connect to a running server on a remote
 (or indeed local) machine.
 
-<P>From the client end, create the database with <code>OmDatabase database(OmRemote__open(<i>host</i>, <i>port</i>));</code> - for example:
+<P>From the client end, create the database with <code>Xapian::Database database(Xapian::Remote::open(<i>host</i>, <i>port</i>));</code> - for example:
 
 <pre>
-OmDatabase database(OmRemote__open("searchserver", 33333));
+Xapian::Database database(Xapian::Remote::open("searchserver", 33333));
 </pre>
 
 The host is the server's hostname, the port is the tcp port on the server to

@@ -32,9 +32,9 @@
 #include <xapian/base.h>
 #include <xapian/types.h>
 
-class OmDatabase;
-
 namespace Xapian {
+
+class Database;
 class PositionListIterator;
 
 /** An iterator pointing to items in a list of terms.
@@ -42,7 +42,7 @@ class PositionListIterator;
 class TermIterator {
     private:
 	// friend classes which need to be able to construct us
-	friend class OmDatabase;
+	friend class Database;
 	friend class Document;
 
     public:

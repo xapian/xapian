@@ -1,4 +1,5 @@
-// om.h: Include all externally visible parts of om
+// om.h: Map old Om names to new Xapian names to allow old applications
+// to be compiled unmodified.
 //
 // ----START-LICENCE----
 // Copyright 1999,2000,2001 BrightStation PLC
@@ -69,7 +70,22 @@ typedef std::string om_termname;
 #define OmWeight Xapian::Weight
 #define OmMatchDecider Xapian::MatchDecider
 #define OmRSet Xapian::RSet
+#define OmDatabase Xapian::Database
+#define OmWritableDatabase Xapian::WritableDatabase
 //#define OmDocument Xapian::Document
+
+#define OmAuto__open Xapian::Auto::open
+#define OmQuartz__open Xapian::Quartz::open
+#define OmInMemory__open Xapian::InMemory::open
+#define OmMuscat36DA__open Xapian::Muscat36::open_da
+#define OmMuscat36DB__open Xapian::Muscat36::open_db
+#define OmRemote__open Xapian::Remote::open
+#define OmStub__open Xapian::Auto::open_stub
+
+#define OM_DB_CREATE_OR_OPEN Xapian::DB_CREATE_OR_OPEN
+#define OM_DB_CREATE Xapian::DB_CREATE
+#define OM_DB_CREATE_OR_OVERWRITE Xapian::DB_CREATE_OR_OVERWRITE
+#define OM_DB_OPEN Xapian::DB_OPEN
 
 #define om_percent Xapian::percent
 #define om_doccount_diff Xapian::doccount_diff
@@ -90,7 +106,7 @@ typedef std::string om_termname;
 
 // Data access
 #include "om/omdocument.h"
-#include "om/omdatabase.h"
+#include <xapian/database.h>
 #include <xapian/postlistiterator.h>
 #include <xapian/positionlistiterator.h>
 #include <xapian/termiterator.h>

@@ -33,7 +33,7 @@
 
 using namespace std;
 
-class Database;
+class Xapian::Database::Internal;
 
 /// A document in the database - holds values, terms, postings, etc
 class Document : public RefCntBase {
@@ -42,7 +42,7 @@ class Document : public RefCntBase {
         Document(const Document &);
         Document & operator=(const Document &);
 
-	const Database *database;
+	const Xapian::Database::Internal *database;
 
     protected:
 	/// The document ID of the document.
@@ -111,14 +111,15 @@ class Document : public RefCntBase {
 	 *  In derived classes, this will typically be a private method, and
 	 *  only be called by database objects of the corresponding type.
 	 */
-	Document(const Database *database_, om_docid did_) :
-	    database(database_), did(did_) { }
+	Document(const Xapian::Database::Internal *database_, om_docid did_)
+	    : database(database_), did(did_) { }
 
 	/** Destructor.
 	 *
 	 *  Note that the database object which created this document must
 	 *  still exist at the time this is called.
 	 */
-	virtual ~Document() { } };
+	virtual ~Document() { }
+};
 
 #endif  // OM_HGUARD_DOCUMENT_H

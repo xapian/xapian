@@ -44,7 +44,7 @@ class SocketServer : public NetServer {
 	void operator=(const SocketServer &);
 
 	/// The database we're associated with
-	OmDatabase db;
+	Xapian::Database db;
 
 	/// The filedescriptors for talking to the remote end.
 	int readfd;
@@ -124,7 +124,7 @@ class SocketServer : public NetServer {
 	 *  			used while waiting for a request from the
 	 *  			client while idle.
 	 */
-	SocketServer(OmDatabase db,
+	SocketServer(Xapian::Database db,
 		     int readfd_,
 		     int writefd_ = -1,
 		     int msecs_active_timeout_ = 10000,
@@ -145,7 +145,7 @@ class SocketServer : public NetServer {
 	 *  			used while waiting for a request from the
 	 *  			client while idle.
 	 */
-	SocketServer(OmDatabase db,
+	SocketServer(Xapian::Database db,
 		     AutoPtr<OmLineBuf> buffer,
 		     int msecs_active_timeout_ = 10000,
 #ifndef TIMING_PATCH

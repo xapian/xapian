@@ -31,7 +31,7 @@
 #include "rset.h"
 
 class Xapian::Weight;
-class Database;
+class Xapian::Database::Internal;
 class Document;
 namespace Xapian {
     class PostListIterator::Internal;
@@ -58,7 +58,7 @@ class LocalSubMatch : public SubMatch {
 	/// Query to be run
 	Xapian::Query::Internal users_query;
 
-	const Database *db;
+	const Xapian::Database::Internal *db;
 
 	/// RSet to be used (affects weightings)
 	AutoPtr<RSetI> rset;
@@ -100,7 +100,7 @@ class LocalSubMatch : public SubMatch {
 	}
 
     public:
-	LocalSubMatch(const Database *db_,
+	LocalSubMatch(const Xapian::Database::Internal *db_,
 		      const Xapian::Query::Internal * query,
 		      const Xapian::RSet & omrset, StatsGatherer *gatherer,
 		      const Xapian::Weight *wtscheme_)

@@ -112,9 +112,9 @@ int main(int argc, char **argv) {
     }
     
     try {
-        OmDatabase mydbs;
+        Xapian::Database mydbs;
 	while (argv[optind]) {
-	    mydbs.add_database(OmAuto__open(argv[optind++]));
+	    mydbs.add_database(Xapian::Auto::open(argv[optind++]));
 	}
 
 	if (verbose) cout << "Opening server on port " << port << "..." << endl;

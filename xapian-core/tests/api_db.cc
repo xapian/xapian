@@ -57,9 +57,9 @@ static bool test_zerodocid1()
     // open the database (in this case a simple text file
     // we prepared earlier)
 
-    OmDatabase mydb(get_database("apitest_onedoc"));
+    Xapian::Database mydb(get_database("apitest_onedoc"));
 
-    OmEnquire enquire(mydb);
+    Xapian::Enquire enquire(mydb);
 
     // make a simple query, with one word in it - "word".
     Xapian::Query myquery("word");
@@ -78,18 +78,18 @@ static bool test_zerodocid1()
     return true;
 }
 
-OmDatabase get_simple_database()
+Xapian::Database get_simple_database()
 {
-    return OmDatabase(get_database("apitest_simpledata"));
+    return Xapian::Database(get_database("apitest_simpledata"));
 }
 
-// tests OmDatabase::get_termfreq() and OmDatabase::term_exists()
+// tests Xapian::Database::get_termfreq() and Xapian::Database::term_exists()
 static bool test_termstats()
 {
     // open the database (in this case a simple text file
     // we prepared earlier)
 
-    OmDatabase db(get_simple_database());
+    Xapian::Database db(get_simple_database());
 
     TEST(!db.term_exists("corn"));
     TEST(db.term_exists("paragraph"));
@@ -99,7 +99,7 @@ static bool test_termstats()
     return true;
 }
 
-void init_simple_enquire(OmEnquire &enq, const Xapian::Query &query = Xapian::Query("this"))
+void init_simple_enquire(Xapian::Enquire &enq, const Xapian::Query &query = Xapian::Query("this"))
 {
     enq.set_query(query);
 }
@@ -135,7 +135,7 @@ Xapian::MSet do_get_simple_query_mset(Xapian::Query query, int maxitems = 10, in
 {
     // open the database (in this case a simple text file
     // we prepared earlier)
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire, query);
 
     // retrieve the top results
@@ -185,8 +185,8 @@ static bool test_simplequery3()
 // tests punctuation is OK in terms in remote queries
 static bool test_puncterms1()
 {
-    OmDatabase db(get_database("apitest_punc"));
-    OmEnquire enquire(db);
+    Xapian::Database db(get_database("apitest_punc"));
+    Xapian::Enquire enquire(db);
 
     Xapian::Query q1("semi;colon");
     enquire.set_query(q1);
@@ -207,12 +207,12 @@ static bool test_puncterms1()
 // tests a query accross multiple databases
 static bool test_multidb1()
 {
-    OmDatabase mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
-    OmEnquire enquire1(mydb1);
+    Xapian::Database mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
+    Xapian::Enquire enquire1(mydb1);
 
-    OmDatabase mydb2(get_database("apitest_simpledata"));
+    Xapian::Database mydb2(get_database("apitest_simpledata"));
     mydb2.add_database(get_database("apitest_simpledata2"));
-    OmEnquire enquire2(mydb2);
+    Xapian::Enquire enquire2(mydb2);
 
     // make a simple query, with one word in it - "word".
     Xapian::Query myquery("word");
@@ -233,13 +233,13 @@ static bool test_multidb1()
 // in one of the two databases
 static bool test_multidb2()
 {
-    OmDatabase mydb1(get_database("apitest_simpledata",
+    Xapian::Database mydb1(get_database("apitest_simpledata",
 				  "apitest_simpledata2"));
-    OmEnquire enquire1(mydb1);
+    Xapian::Enquire enquire1(mydb1);
 
-    OmDatabase mydb2(get_database("apitest_simpledata"));
+    Xapian::Database mydb2(get_database("apitest_simpledata"));
     mydb2.add_database(get_database("apitest_simpledata2"));
-    OmEnquire enquire2(mydb2);
+    Xapian::Enquire enquire2(mydb2);
 
     // make a simple query
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
@@ -259,9 +259,9 @@ static bool test_multidb2()
 // test that a multidb with 2 dbs query returns correct docids
 static bool test_multidb3()
 {
-    OmDatabase mydb2(get_database("apitest_simpledata"));
+    Xapian::Database mydb2(get_database("apitest_simpledata"));
     mydb2.add_database(get_database("apitest_simpledata2"));
-    OmEnquire enquire(mydb2);
+    Xapian::Enquire enquire(mydb2);
 
     // make a query
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
@@ -278,10 +278,10 @@ static bool test_multidb3()
 // test that a multidb with 3 dbs query returns correct docids
 static bool test_multidb4()
 {
-    OmDatabase mydb2(get_database("apitest_simpledata"));
+    Xapian::Database mydb2(get_database("apitest_simpledata"));
     mydb2.add_database(get_database("apitest_simpledata2"));
     mydb2.add_database(get_database("apitest_termorder"));
-    OmEnquire enquire(mydb2);
+    Xapian::Enquire enquire(mydb2);
 
     // make a query
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
@@ -298,9 +298,9 @@ static bool test_multidb4()
 // tests MultiPostList::skip_to().
 static bool test_multidb5()
 {
-    OmDatabase mydb2(get_database("apitest_simpledata"));
+    Xapian::Database mydb2(get_database("apitest_simpledata"));
     mydb2.add_database(get_database("apitest_simpledata2"));
-    OmEnquire enquire(mydb2);
+    Xapian::Enquire enquire(mydb2);
 
     // make a query
     Xapian::Query myquery = query(Xapian::Query::OP_AND, "inmemory", "word");
@@ -323,15 +323,15 @@ static bool test_stubdb1()
     out.close();
 
     {
-	OmDatabase db = OmStub__open("stubdb1");
-	OmEnquire enquire(db);
+	Xapian::Database db = Xapian::Auto::open_stub("stubdb1");
+	Xapian::Enquire enquire(db);
 	Xapian::Query myquery("word");
 	enquire.set_query(myquery);
 	enquire.get_mset(0, 10);
     }
     {
-	OmDatabase db = OmAuto__open("stubdb1");
-	OmEnquire enquire(db);
+	Xapian::Database db = Xapian::Auto::open("stubdb1");
+	Xapian::Enquire enquire(db);
 	Xapian::Query myquery("word");
 	enquire.set_query(myquery);
 	enquire.get_mset(0, 10);
@@ -363,17 +363,17 @@ static bool test_multierrhandler1()
 {
     MyErrorHandler myhandler;
 
-    OmDatabase mydb2(get_database("apitest_simpledata"));
-    OmDatabase mydb3(get_database("apitest_simpledata2"));
+    Xapian::Database mydb2(get_database("apitest_simpledata"));
+    Xapian::Database mydb3(get_database("apitest_simpledata2"));
     int errcount = 1;
     for (int testcount = 0; testcount < 14; testcount ++) {
 	tout << "testcount=" << testcount << "\n";
-	OmDatabase mydb4(get_database("-e", "apitest_termorder"));
-	OmDatabase mydb5(get_network_database("apitest_termorder", 1));
-	OmDatabase mydb6(get_database("-e2", "apitest_termorder"));
-	OmDatabase mydb7(get_database("-e3", "apitest_simpledata"));
+	Xapian::Database mydb4(get_database("-e", "apitest_termorder"));
+	Xapian::Database mydb5(get_network_database("apitest_termorder", 1));
+	Xapian::Database mydb6(get_database("-e2", "apitest_termorder"));
+	Xapian::Database mydb7(get_database("-e3", "apitest_simpledata"));
 
-	OmDatabase dbgrp;
+	Xapian::Database dbgrp;
 	switch (testcount) {
 	    case 0:
 		dbgrp.add_database(mydb2);
@@ -450,7 +450,7 @@ static bool test_multierrhandler1()
 		break;
 	}
 	tout << "db=" << dbgrp << "\n";
-	OmEnquire enquire(dbgrp, &myhandler);
+	Xapian::Enquire enquire(dbgrp, &myhandler);
 
 	// make a query
 	Xapian::Query myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
@@ -491,7 +491,7 @@ static bool test_changequery1()
 {
     // Open the database (in this case a simple text file
     // we prepared earlier)
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
 
     Xapian::Query myquery("this");
     // make a simple query
@@ -539,7 +539,7 @@ static bool test_msetmaxitems1()
 // that are returned.
 static bool test_expandmaxitems1()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     Xapian::MSet mymset = enquire.get_mset(0, 10);
@@ -564,7 +564,7 @@ static bool test_boolquery1()
 
     // open the database (in this case a simple text file
     // we prepared earlier)
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire, myboolquery);
     enquire.set_weighting_scheme(BoolWeight());
 
@@ -626,7 +626,7 @@ class myExpandFunctor : public Xapian::ExpandDecider {
 // tests the expand decision functor
 static bool test_expandfunctor1()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     Xapian::MSet mymset = enquire.get_mset(0, 10);
@@ -697,7 +697,7 @@ class myMatchDecider : public Xapian::MatchDecider {
 static bool test_matchfunctor1()
 {
     // FIXME: check that the functor works both ways.
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     myMatchDecider myfunctor;
@@ -718,7 +718,7 @@ static bool test_matchfunctor1()
 // tests that mset iterators on msets compare correctly.
 static bool test_msetiterator1()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire);
     Xapian::MSet mymset = enquire.get_mset(0, 2);
 
@@ -764,7 +764,7 @@ static bool test_msetiterator1()
 // tests that mset iterators on empty msets compare equal.
 static bool test_msetiterator2()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire);
     Xapian::MSet mymset = enquire.get_mset(0, 0);
 
@@ -785,7 +785,7 @@ static bool test_msetiterator2()
 // tests that eset iterators on empty esets compare equal.
 static bool test_esetiterator1()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     Xapian::MSet mymset = enquire.get_mset(0, 10);
@@ -835,7 +835,7 @@ static bool test_esetiterator1()
 // tests that eset iterators on empty esets compare equal.
 static bool test_esetiterator2()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     Xapian::MSet mymset = enquire.get_mset(0, 10);
@@ -873,7 +873,7 @@ print_mset_weights(const Xapian::MSet &mset)
 // tests the cutoff option
 static bool test_cutoff1()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire, query(Xapian::Query::OP_OR,
 				       "this", "line", "paragraph", "rubbish"));
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);
@@ -927,7 +927,7 @@ static bool test_cutoff1()
 // tests the cutoff option
 static bool test_cutoff2()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     Xapian::Query q = query(Xapian::Query::OP_OR, "this", "line", "paragraph", "rubbish");
     init_simple_enquire(enquire, query(Xapian::Query::OP_OR,
 				       "this", "line", "paragraph", "rubbish"));
@@ -993,7 +993,7 @@ print_mset_percentages(const Xapian::MSet &mset)
 // tests the percent cutoff option
 static bool test_pctcutoff1()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire, query(Xapian::Query::OP_OR,
 				       "this", "line", "paragraph", "rubbish"));
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);
@@ -1047,7 +1047,7 @@ static bool test_pctcutoff1()
 // tests the allow query terms expand option
 static bool test_allowqterms1()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     Xapian::MSet mymset = enquire.get_mset(0, 10);
@@ -1064,7 +1064,7 @@ static bool test_allowqterms1()
         TEST_NOT_EQUAL(*j, "this");
     }
 
-    Xapian::ESet myeset2 = enquire.get_eset(1000, myrset, OmEnquire::include_query_terms);
+    Xapian::ESet myeset2 = enquire.get_eset(1000, myrset, Xapian::Enquire::include_query_terms);
     j = myeset2.begin();
     for ( ; j != myeset2.end(); ++j) {
         if (*j == "this") break;
@@ -1091,7 +1091,7 @@ static bool test_maxattain1()
 // tests the collapse-on-key
 static bool test_collapsekey1()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);
@@ -1119,7 +1119,7 @@ static bool test_collapsekey1()
 // tests the collapse-on-key for DA databases
 static bool test_collapsekey2()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);
@@ -1146,7 +1146,7 @@ static bool test_collapsekey2()
 // tests a reversed boolean query
 static bool test_reversebool1()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     Xapian::Query query("this");
     init_simple_enquire(enquire, query);
     enquire.set_weighting_scheme(BoolWeight());
@@ -1200,7 +1200,7 @@ static bool test_reversebool1()
 // tests a reversed boolean query, where the full mset isn't returned
 static bool test_reversebool2()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     Xapian::Query query("this");
     init_simple_enquire(enquire, query);
     enquire.set_weighting_scheme(BoolWeight());
@@ -1261,8 +1261,8 @@ static bool test_getmterms1()
     answers_list.push_back("three");
     answers_list.push_back("four");
 
-    OmDatabase mydb(get_database("apitest_termorder"));
-    OmEnquire enquire(mydb);
+    Xapian::Database mydb(get_database("apitest_termorder"));
+    Xapian::Enquire enquire(mydb);
 
     Xapian::Query myquery(Xapian::Query::OP_OR,
 	    Xapian::Query(Xapian::Query::OP_AND,
@@ -1303,8 +1303,8 @@ static bool test_getmterms2()
     answers_list.push_back("two");
     answers_list.push_back("three");
 
-    OmDatabase mydb(get_database("apitest_termorder"));
-    OmEnquire enquire(mydb);
+    Xapian::Database mydb(get_database("apitest_termorder"));
+    Xapian::Enquire enquire(mydb);
 
     Xapian::Query myquery(Xapian::Query::OP_OR,
 	    Xapian::Query(Xapian::Query::OP_AND,
@@ -1341,8 +1341,8 @@ static bool test_getmterms2()
 static bool test_absentfile1()
 {
     TEST_EXCEPTION(Xapian::OpeningError,
-		   OmDatabase mydb(get_database("/this_does_not_exist"));
-		   OmEnquire enquire(mydb);
+		   Xapian::Database mydb(get_database("/this_does_not_exist"));
+		   Xapian::Enquire enquire(mydb);
 		   
 		   Xapian::Query myquery("cheese");
 		   enquire.set_query(myquery);
@@ -1383,7 +1383,7 @@ static bool test_poscollapse2()
 // test that running a query twice returns the same results
 static bool test_repeatquery1()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     enquire.set_query(query(Xapian::Query::OP_OR, "this", "word"));
@@ -1398,7 +1398,7 @@ static bool test_repeatquery1()
 // test that prefetching documents works (at least, gives same results)
 static bool test_fetchdocs1()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     enquire.set_query(query(Xapian::Query::OP_OR, "this", "word"));
@@ -1431,7 +1431,7 @@ static bool test_fetchdocs1()
 // test that searching for a term with a space or backslash in it works
 static bool test_spaceterms1()
 {
-    OmEnquire enquire(get_database("apitest_space"));
+    Xapian::Enquire enquire(get_database("apitest_space"));
     Xapian::MSet mymset;
     om_doccount count;
     Xapian::MSetIterator m;
@@ -1478,7 +1478,7 @@ static bool test_spaceterms1()
 // test that XOR queries work
 static bool test_xor1()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire);
     Xapian::Stem stemmer("english");
 
@@ -1497,10 +1497,10 @@ static bool test_xor1()
     return true;
 }
 
-// test OmDatabase::get_document()
+// test Xapian::Database::get_document()
 static bool test_getdoc1()
 {
-    OmDatabase db(get_database("apitest_onedoc"));
+    Xapian::Database db(get_database("apitest_onedoc"));
     db.get_document(1);
     TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_document(0));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(999999999));    
@@ -1513,7 +1513,7 @@ static bool test_getdoc1()
 // test whether operators with no elements work as a null query
 static bool test_emptyop1()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     vector<Xapian::Query> nullvec;
     
     Xapian::Query query1(Xapian::Query::OP_XOR, nullvec.begin(), nullvec.end());
@@ -1528,14 +1528,14 @@ static bool test_emptyop1()
 // test for keepalives
 static bool test_keepalive1()
 {
-    OmDatabase db(get_network_database("apitest_simpledata", 5000));
+    Xapian::Database db(get_network_database("apitest_simpledata", 5000));
 
     /* Test that keep-alives work */
     for (int i=0; i<10; ++i) {
 	sleep(2);
 	db.keep_alive();
     }
-    OmEnquire enquire(db);
+    Xapian::Enquire enquire(db);
     Xapian::Query myquery("word");
     enquire.set_query(myquery);
     enquire.get_mset(0, 10);
@@ -1552,7 +1552,7 @@ static bool test_keepalive1()
 // test that iterating through all terms in a database works.
 static bool test_allterms1()
 {
-    OmDatabase db(get_database("apitest_allterms"));
+    Xapian::Database db(get_database("apitest_allterms"));
     Xapian::TermIterator ati = db.allterms_begin();
     TEST(ati != db.allterms_end());
     TEST(*ati == "one");
@@ -1602,7 +1602,7 @@ static bool test_allterms1()
 // test that iterating through all terms in two databases works.
 static bool test_allterms2()
 {
-    OmDatabase db;
+    Xapian::Database db;
     db.add_database(get_database("apitest_allterms"));
     db.add_database(get_database("apitest_allterms2"));
     Xapian::TermIterator ati = db.allterms_begin();
@@ -1657,7 +1657,7 @@ static bool test_allterms2()
 // test that skip_to sets at_end (regression test)
 static bool test_allterms3()
 {
-    OmDatabase db;
+    Xapian::Database db;
     db.add_database(get_database("apitest_allterms"));
     Xapian::TermIterator ati = db.allterms_begin();
 
@@ -1670,7 +1670,7 @@ static bool test_allterms3()
 // test that searching for a term with a special characters in it works
 static bool test_specialterms1()
 {
-    OmEnquire enquire(get_database("apitest_space"));
+    Xapian::Enquire enquire(get_database("apitest_space"));
     Xapian::MSet mymset;
     om_doccount count;
     Xapian::MSetIterator m;
@@ -1709,7 +1709,7 @@ static bool test_specialterms1()
 // test that searching for a term not in the database fails nicely
 static bool test_absentterm1()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     enquire.set_weighting_scheme(BoolWeight());
     Xapian::Query query("frink");
     init_simple_enquire(enquire, query);
@@ -1723,7 +1723,7 @@ static bool test_absentterm1()
 // as absentterm1, but setting query from a vector of terms
 static bool test_absentterm2()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     vector<string> terms;
     terms.push_back("frink");
 
@@ -1739,8 +1739,8 @@ static bool test_absentterm2()
 // test that rsets do sensible things
 static bool test_rset1()
 {
-    OmDatabase mydb(get_database("apitest_rset"));
-    OmEnquire enquire(mydb);
+    Xapian::Database mydb(get_database("apitest_rset"));
+    Xapian::Enquire enquire(mydb);
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "giraffe", "tiger");
     enquire.set_query(myquery);
 
@@ -1762,8 +1762,8 @@ static bool test_rset1()
 // test that rsets do more sensible things
 static bool test_rset2()
 {
-    OmDatabase mydb(get_database("apitest_rset"));
-    OmEnquire enquire(mydb);
+    Xapian::Database mydb(get_database("apitest_rset"));
+    Xapian::Enquire enquire(mydb);
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "cuddly", "people");
     enquire.set_query(myquery);
 
@@ -1783,12 +1783,12 @@ static bool test_rset2()
 // test that rsets behave correctly with multiDBs
 static bool test_rsetmultidb1()
 {
-    OmDatabase mydb1(get_database("apitest_rset", "apitest_simpledata2"));
-    OmDatabase mydb2(get_database("apitest_rset"));
+    Xapian::Database mydb1(get_database("apitest_rset", "apitest_simpledata2"));
+    Xapian::Database mydb2(get_database("apitest_rset"));
     mydb2.add_database(get_database("apitest_simpledata2"));
 
-    OmEnquire enquire1(mydb1);
-    OmEnquire enquire2(mydb2);
+    Xapian::Enquire enquire1(mydb1);
+    Xapian::Enquire enquire2(mydb2);
 
     Xapian::Query myquery = query(Xapian::Query::OP_OR, "cuddly", "multiple");
 
@@ -1821,12 +1821,12 @@ static bool test_rsetmultidb1()
 // test that rsets behave correctly with multiDBs
 static bool test_rsetmultidb2()
 {
-    OmDatabase mydb1(get_database("apitest_rset", "apitest_simpledata2"));
-    OmDatabase mydb2(get_database("apitest_rset"));
+    Xapian::Database mydb1(get_database("apitest_rset", "apitest_simpledata2"));
+    Xapian::Database mydb2(get_database("apitest_rset"));
     mydb2.add_database(get_database("apitest_simpledata2"));
 
-    OmEnquire enquire1(mydb1);
-    OmEnquire enquire2(mydb2);
+    Xapian::Enquire enquire1(mydb1);
+    Xapian::Enquire enquire2(mydb2);
 
     Xapian::Query myquery = query("is");
 
@@ -1859,7 +1859,7 @@ static bool test_rsetmultidb2()
 // regression tests - used to cause assertion in stats.h to fail
 static bool test_rsetmultidb3()
 {
-    OmEnquire enquire(get_database("apitest_simpledata2"));
+    Xapian::Enquire enquire(get_database("apitest_simpledata2"));
     enquire.set_query(query(Xapian::Query::OP_OR, "cuddly", "people"));
     Xapian::MSet mset = enquire.get_mset(0, 10); // used to fail assertion
     return true;
@@ -1868,8 +1868,8 @@ static bool test_rsetmultidb3()
 /// Simple test of the elite set operator.
 static bool test_eliteset1()
 {
-    OmDatabase mydb(get_database("apitest_simpledata"));
-    OmEnquire enquire(mydb);
+    Xapian::Database mydb(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(mydb);
 
     Xapian::Query myquery1 = query(Xapian::Query::OP_OR, "word");
     myquery1.set_length(2); // so the query lengths are the same
@@ -1891,8 +1891,8 @@ static bool test_eliteset1()
 /// sub-expressions (regression test)
 static bool test_eliteset2()
 {
-    OmDatabase mydb(get_database("apitest_simpledata"));
-    OmEnquire enquire(mydb);
+    Xapian::Database mydb(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(mydb);
 
     Xapian::Query myquery1 = query(Xapian::Query::OP_AND, "word", "search");
 
@@ -1919,11 +1919,11 @@ static bool test_eliteset2()
 /// terms than the threshold
 static bool test_eliteset3()
 {
-    OmDatabase mydb1(get_database("apitest_simpledata"));
-    OmEnquire enquire1(mydb1);
+    Xapian::Database mydb1(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire1(mydb1);
 
-    OmDatabase mydb2(get_database("apitest_simpledata"));
-    OmEnquire enquire2(mydb2);
+    Xapian::Database mydb2(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire2(mydb2);
 
     // make a query
     Xapian::Stem stemmer("english");
@@ -1968,11 +1968,11 @@ static bool test_eliteset3()
 /// Test that elite set doesn't pick terms with 0 frequency
 static bool test_eliteset4()
 {
-    OmDatabase mydb1(get_database("apitest_simpledata"));
-    OmEnquire enquire1(mydb1);
+    Xapian::Database mydb1(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire1(mydb1);
 
-    OmDatabase mydb2(get_database("apitest_simpledata"));
-    OmEnquire enquire2(mydb2);
+    Xapian::Database mydb2(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire2(mydb2);
 
     Xapian::Query myquery1 = query("rubbish");
     Xapian::Query myquery2 = query(Xapian::Query::OP_ELITE_SET, "word", "rubbish", "fibble");
@@ -1994,8 +1994,8 @@ static bool test_eliteset4()
 /// Test that the termfreq returned by termlists is correct.
 static bool test_termlisttermfreq1()
 {
-    OmDatabase mydb(get_database("apitest_simpledata"));
-    OmEnquire enquire(mydb);
+    Xapian::Database mydb(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(mydb);
     Xapian::Stem stemmer("english");
     Xapian::RSet rset1;
     Xapian::RSet rset2;
@@ -2039,12 +2039,12 @@ static bool test_termlisttermfreq1()
 // tests an expand accross multiple databases
 static bool test_multiexpand1()
 {
-    OmDatabase mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
-    OmEnquire enquire1(mydb1);
+    Xapian::Database mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
+    Xapian::Enquire enquire1(mydb1);
 
-    OmDatabase mydb2(get_database("apitest_simpledata"));
+    Xapian::Database mydb2(get_database("apitest_simpledata"));
     mydb2.add_database(get_database("apitest_simpledata2"));
-    OmEnquire enquire2(mydb2);
+    Xapian::Enquire enquire2(mydb2);
 
     // make simple equivalent rsets, with a document from each database in each.
     Xapian::RSet rset1;
@@ -2064,7 +2064,7 @@ static bool test_multiexpand1()
     Xapian::ESet eset2 = enquire2.get_eset(1000, rset2);
 
     // This is the multi database without approximation
-    Xapian::ESet eset3 = enquire2.get_eset(1000, rset2, OmEnquire::use_exact_termfreq);
+    Xapian::ESet eset3 = enquire2.get_eset(1000, rset2, Xapian::Enquire::use_exact_termfreq);
 
     TEST_EQUAL(eset1.size(), eset2.size());
     TEST_EQUAL(eset1.size(), eset3.size());
@@ -2091,12 +2091,12 @@ static bool test_multiexpand1()
 /// Test the termfrequency and termweight info returned for query terms
 static bool test_qterminfo1()
 {
-    OmDatabase mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
-    OmEnquire enquire1(mydb1);
+    Xapian::Database mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
+    Xapian::Enquire enquire1(mydb1);
 
-    OmDatabase mydb2(get_database("apitest_simpledata"));
+    Xapian::Database mydb2(get_database("apitest_simpledata"));
     mydb2.add_database(get_database("apitest_simpledata2"));
-    OmEnquire enquire2(mydb2);
+    Xapian::Enquire enquire2(mydb2);
 
     // make a query
     Xapian::Stem stemmer("english");
@@ -2231,7 +2231,7 @@ static bool test_matches1()
 // the wdf
 static bool test_adddoc1()
 {
-    OmWritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database("");
 
     OmDocument doc1, doc2, doc3;
 
@@ -2264,7 +2264,7 @@ static bool test_adddoc1()
 
     Xapian::Query query("foo");
 
-    OmEnquire enq(db);
+    Xapian::Enquire enq(db);
     enq.set_query(query);
 
     Xapian::MSet mset = enq.get_mset(0, 10);
@@ -2277,7 +2277,7 @@ static bool test_adddoc1()
 // test that removing a posting and removing a term works
 static bool test_adddoc2()
 {
-    OmWritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database("");
 
     OmDocument doc1;
 
@@ -2451,7 +2451,7 @@ static bool test_adddoc2()
 // tests that database destructors flush if it isn't done explicitly
 static bool test_implicitendsession1()
 {
-    OmWritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database("");
 
     OmDocument doc;
 
@@ -2464,16 +2464,16 @@ static bool test_implicitendsession1()
     return true;
 }
 
-// tests that assignment of OmDatabase and OmWritableDatabase work as expected
+// tests that assignment of Xapian::Database and Xapian::WritableDatabase work as expected
 static bool test_databaseassign1()
 {
-    OmWritableDatabase wdb = get_writable_database("");
-    OmDatabase db = get_database("");
-    OmDatabase actually_wdb = wdb;
-    OmWritableDatabase w1(wdb);
+    Xapian::WritableDatabase wdb = get_writable_database("");
+    Xapian::Database db = get_database("");
+    Xapian::Database actually_wdb = wdb;
+    Xapian::WritableDatabase w1(wdb);
     w1 = wdb;
-    OmDatabase d1(wdb);
-    OmDatabase d2(actually_wdb);
+    Xapian::Database d1(wdb);
+    Xapian::Database d2(actually_wdb);
     d2 = wdb;
     d2 = actually_wdb;
     wdb = wdb; // check assign to itself works
@@ -2484,7 +2484,7 @@ static bool test_databaseassign1()
 // tests that deletion and updating of documents works as expected
 static bool test_deldoc1()
 {
-    OmWritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database("");
 
     OmDocument doc1;
 
@@ -2530,7 +2530,7 @@ static bool test_deldoc1()
 
 static bool test_replacedoc()
 {
-    OmWritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database("");
 
     OmDocument doc1;
 
@@ -2576,7 +2576,7 @@ static bool test_replacedoc()
 // tests that deletion and updating of documents works as expected
 static bool test_deldoc2()
 {
-    OmWritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database("");
 
     OmDocument doc1;
 
@@ -2651,7 +2651,7 @@ static bool test_deldoc2()
 // another test of deletion of documents, a cut-down version of deldoc2
 static bool test_deldoc3()
 {
-    OmWritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database("");
 
     OmDocument doc1;
 
@@ -2700,7 +2700,7 @@ static bool test_deldoc3()
 // tests that deletion and updating of (lots of) documents works as expected
 static bool test_deldoc4()
 {
-    OmWritableDatabase db = get_writable_database("");
+    Xapian::WritableDatabase db = get_writable_database("");
 
     OmDocument doc1;
 
@@ -2819,7 +2819,7 @@ static bool test_qlen1()
 // tests that opening a non-existant termlist throws the correct exception
 static bool test_termlist1()
 {
-    OmDatabase db(get_database("apitest_onedoc"));
+    Xapian::Database db(get_database("apitest_onedoc"));
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
 		   Xapian::TermIterator t = db.termlist_begin(0));
     TEST_EXCEPTION(Xapian::DocNotFoundError,
@@ -2835,7 +2835,7 @@ static bool test_termlist1()
 // tests that an Xapian::TermIterator works as an STL iterator
 static bool test_termlist2()
 {
-    OmDatabase db(get_database("apitest_onedoc"));
+    Xapian::Database db(get_database("apitest_onedoc"));
     Xapian::TermIterator t = db.termlist_begin(1);
     Xapian::TermIterator tend = db.termlist_end(1);
 
@@ -2872,7 +2872,7 @@ static bool test_termlist2()
 static Xapian::TermIterator
 test_termlist3_helper()
 {
-    OmDatabase db(get_database("apitest_onedoc"));
+    Xapian::Database db(get_database("apitest_onedoc"));
     return db.termlist_begin(1);
 }
 
@@ -2880,7 +2880,7 @@ test_termlist3_helper()
 static bool test_termlist3()
 {
     Xapian::TermIterator u = test_termlist3_helper();
-    OmDatabase db(get_database("apitest_onedoc"));
+    Xapian::Database db(get_database("apitest_onedoc"));
     Xapian::TermIterator t = db.termlist_begin(1);
     Xapian::TermIterator tend = db.termlist_end(1);
 
@@ -2895,7 +2895,7 @@ static bool test_termlist3()
 // tests skip_to
 static bool test_termlist4()
 {
-    OmDatabase db(get_database("apitest_onedoc"));
+    Xapian::Database db(get_database("apitest_onedoc"));
     Xapian::TermIterator i = db.termlist_begin(1);
     i.skip_to("");
     i.skip_to("\xff");
@@ -2905,7 +2905,7 @@ static bool test_termlist4()
 // tests that opening a non-existant postlist return an empty list
 static bool test_postlist1()
 {
-    OmDatabase db(get_database("apitest_simpledata"));
+    Xapian::Database db(get_database("apitest_simpledata"));
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError, db.postlist_begin(""));
 
@@ -2931,7 +2931,7 @@ static bool test_postlist1()
 // tests that an Xapian::PostListIterator works as an STL iterator
 static bool test_postlist2()
 {
-    OmDatabase db(get_database("apitest_simpledata"));
+    Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::PostListIterator p = db.postlist_begin("this");
     Xapian::PostListIterator pend = db.postlist_end("this");
 
@@ -2968,7 +2968,7 @@ static bool test_postlist2()
 static Xapian::PostListIterator
 test_postlist3_helper()
 {
-    OmDatabase db(get_database("apitest_simpledata"));
+    Xapian::Database db(get_database("apitest_simpledata"));
     return db.postlist_begin("this");
 }
 
@@ -2976,7 +2976,7 @@ test_postlist3_helper()
 static bool test_postlist3()
 {
     Xapian::PostListIterator u = test_postlist3_helper();
-    OmDatabase db(get_database("apitest_simpledata"));
+    Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::PostListIterator p = db.postlist_begin("this");
     Xapian::PostListIterator pend = db.postlist_end("this");
 
@@ -2991,7 +2991,7 @@ static bool test_postlist3()
 // tests skip_to
 static bool test_postlist4()
 {
-    OmDatabase db(get_database("apitest_simpledata"));
+    Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::PostListIterator i = db.postlist_begin("this");
     i.skip_to(1);
     i.skip_to(999999999);
@@ -3002,7 +3002,7 @@ static bool test_postlist4()
 // tests long postlists
 static bool test_postlist5()
 {
-    OmDatabase db(get_database("apitest_manydocs"));
+    Xapian::Database db(get_database("apitest_manydocs"));
     // Allow for databases which don't support length
     if (db.get_avlength() != 1)
 	TEST_EQUAL_DOUBLE(db.get_avlength(), 4);
@@ -3020,7 +3020,7 @@ static bool test_postlist5()
 // tests document length in postlists
 static bool test_postlist6()
 {
-    OmDatabase db(get_database("apitest_simpledata"));
+    Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::PostListIterator i = db.postlist_begin("this");
     TEST(i != db.postlist_end("this"));
     while (i != db.postlist_end("this")) {
@@ -3033,15 +3033,15 @@ static bool test_postlist6()
 // tests collection frequency
 static bool test_collfreq1()
 {
-    OmDatabase db(get_database("apitest_simpledata"));
+    Xapian::Database db(get_database("apitest_simpledata"));
 
     TEST_EQUAL(db.get_collection_freq("this"), 11);
     TEST_EQUAL(db.get_collection_freq("first"), 1);
     TEST_EQUAL(db.get_collection_freq("last"), 0);
     TEST_EQUAL(db.get_collection_freq("word"), 9);
 
-    OmDatabase db1(get_database("apitest_simpledata", "apitest_simpledata2"));
-    OmDatabase db2(get_database("apitest_simpledata"));
+    Xapian::Database db1(get_database("apitest_simpledata", "apitest_simpledata2"));
+    Xapian::Database db2(get_database("apitest_simpledata"));
     db2.add_database(get_database("apitest_simpledata2"));
 
     TEST_EQUAL(db1.get_collection_freq("this"), 15);
@@ -3059,8 +3059,8 @@ static bool test_collfreq1()
 // Regression test for the "more than 100%" sort_bands bug
 static bool test_sortbands1()
 {
-    OmDatabase db(get_database("etext"));
-    OmEnquire enquire(db);
+    Xapian::Database db(get_database("etext"));
+    Xapian::Enquire enquire(db);
     const char * terms[] = {"better", "place", "reader", "without", "would"};
     for (size_t j = 0; j < sizeof(terms) / sizeof(const char *); ++j) {
 	enquire.set_query(Xapian::Query(terms[j]));
@@ -3085,7 +3085,7 @@ static bool test_sortbands1()
 // Regression test for split msets being incorrect when sorting
 static bool test_sortbands2()
 {
-    OmEnquire enquire(get_simple_database());
+    Xapian::Enquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     for (int pass = 1; pass <= 2; ++pass) { 
@@ -3131,8 +3131,8 @@ static bool test_sortbands2()
 // consistency check match - vary mset size and check results agree
 static bool test_consistency1()
 {
-    OmDatabase db(get_database("etext"));
-    OmEnquire enquire(db);
+    Xapian::Database db(get_database("etext"));
+    Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, Xapian::Query("the"), Xapian::Query("sky")));
     om_doccount lots = 214;
     Xapian::MSet bigmset = enquire.get_mset(0, lots);

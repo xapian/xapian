@@ -24,7 +24,6 @@
 
 #include <config.h>
 #include "omdebug.h"
-#include "omdatabaseinternal.h"
 #include "omdocumentinternal.h"
 
 #include <xapian/error.h>
@@ -640,7 +639,7 @@ MSetIterator::get_description() const
 
 // Methods for Xapian::Enquire::Internal
 
-Enquire::Internal::Internal(const OmDatabase &db_,
+Enquire::Internal::Internal(const Xapian::Database &db_,
 			    ErrorHandler * errorhandler_)
   : db(db_), query(0), collapse_key(om_valueno(-1)), sort_forward(true), 
     percent_cutoff(0), weight_cutoff(0), sort_key(om_valueno(-1)),
@@ -786,12 +785,12 @@ void
 Enquire::Internal::request_doc(const Xapian::Internal::MSetItem &item) const
 {
     try {
-	unsigned int multiplier = db.internal->databases.size();
+	unsigned int multiplier = db.internal.size();
 
 	om_docid realdid = (item.did - 1) / multiplier + 1;
 	om_doccount dbnumber = (item.did - 1) % multiplier;
 
-	db.internal->databases[dbnumber]->request_document(realdid);
+	db.internal[dbnumber]->request_document(realdid);
     } catch (Error & e) {
 	if (errorhandler) (*errorhandler)(e);
 	throw;
@@ -802,12 +801,12 @@ OmDocument
 Enquire::Internal::read_doc(const Xapian::Internal::MSetItem &item) const
 {
     try {
-	unsigned int multiplier = db.internal->databases.size();
+	unsigned int multiplier = db.internal.size();
 
 	om_docid realdid = (item.did - 1) / multiplier + 1;
 	om_doccount dbnumber = (item.did - 1) % multiplier;
 
-	::Document *doc = db.internal->databases[dbnumber]->collect_document(realdid);
+	::Document *doc = db.internal[dbnumber]->collect_document(realdid);
 	return OmDocument(new OmDocument::Internal(doc, db, item.did));
     } catch (Error & e) {
 	if (errorhandler) (*errorhandler)(e);
@@ -890,7 +889,7 @@ Enquire::Internal::register_match_decider(const string &name,
 
 // Methods of Xapian::Enquire
 
-Xapian::Enquire::Enquire(const OmDatabase &databases,
+Xapian::Enquire::Enquire(const Xapian::Database &databases,
 			 Xapian::ErrorHandler * errorhandler)
     : internal(new Xapian::Enquire::Internal(databases, errorhandler))
 {

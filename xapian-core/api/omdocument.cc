@@ -31,7 +31,6 @@
 #include "omtermlistiteratorinternal.h"
 #include "omvalueiteratorinternal.h"
 #include "xapian/error.h"
-#include "omdatabaseinternal.h"
 #include <algorithm>
 #include <string>
 

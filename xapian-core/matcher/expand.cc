@@ -31,8 +31,6 @@
 #include <algorithm>
 #include "autoptr.h"
 
-#include "../api/omdatabaseinternal.h"
-
 #include "omenquireinternal.h"
 
 using std::nth_element;
@@ -69,11 +67,11 @@ OmExpand::build_tree(const RSetI *rset, const OmExpandWeight *ewt)
     try {
 	set<Xapian::docid>::const_iterator i;
 	for (i = rset->documents.begin(); i != rset->documents.end(); ++i) {
-	    unsigned int multiplier = db.internal->databases.size();
+	    unsigned int multiplier = db.internal.size();
 	    om_docid realdid = (*i - 1) / multiplier + 1;
 	    om_doccount dbnumber = (*i - 1) % multiplier;
 
-	    AutoPtr<LeafTermList> tl(db.internal->databases[dbnumber]->open_term_list(realdid));
+	    AutoPtr<LeafTermList> tl(db.internal[dbnumber]->open_term_list(realdid));
 	    tl->set_weighting(ewt);
 	    pq.push(tl.get());
 	    tl.release();
