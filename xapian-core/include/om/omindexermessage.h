@@ -174,6 +174,4 @@ class OmIndexerMessage {
 	void copy_on_write();
 };
 
-std::ostream &operator<<(std::ostream &os, const OmIndexerMessage &message);
-
 #endif /* OM_HGUARD_OMINDEXERMESSAGE_H */

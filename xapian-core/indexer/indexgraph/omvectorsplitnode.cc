@@ -43,7 +43,7 @@ class OmVectorSplitNode : public OmIndexerNode {
     public:
 	OmVectorSplitNode(const OmSettings &config)
 		: OmIndexerNode(config),
-		  stored(0), offset(0)
+		  stored(0), stored_valid(false), offset(0)
 		{}
     private:
 	OmIndexerMessage stored;

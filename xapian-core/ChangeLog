@@ -1,3 +1,13 @@
+Fri Dec  8 16:13:36 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added a test for OmIndexerMessage to indextest
+
+	* Added output operator for OmIndexerMessage
+
+	* Fixed a bug introduced into omvectorsplit node
+
+	* Changed couts in indextest.cc to touts.
+
 Fri Dec 08 14:53:24 GMT 2000 Olly Betts
 
 	* quartztest: removed OmDocumentTerm reference so that it'll

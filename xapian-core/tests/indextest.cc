@@ -23,8 +23,6 @@
 #include "config.h"
 #include <iostream>
 #include <string>
-using std::cout;
-using std::endl;
 
 #include "om/om.h"
 #include "om/omindexerbuilder.h"
@@ -78,6 +76,35 @@ bool test_basic3()
     }
 
     return success;
+}
+
+/* Test the copy-on-write behaviour of OmIndexerMessage */
+bool test_omindexermessage1()
+{
+    OmIndexerMessage foo("wibble");
+
+    OmIndexerMessage bar(foo);
+
+    OmIndexerMessage baz;
+    baz = bar;
+
+    TEST(foo.get_string() == "wibble");
+    TEST(bar.get_string() == "wibble");
+    TEST(baz.get_string() == "wibble");
+
+    bar.set_string("wobble");
+
+    TEST(foo.get_string() == "wibble");
+    TEST(bar.get_string() == "wobble");
+    TEST(baz.get_string() == "wibble");
+
+    foo = OmIndexerMessage("wabble");
+
+    TEST(foo.get_string() == "wabble");
+    TEST(bar.get_string() == "wobble");
+    TEST(baz.get_string() == "wibble");
+
+    return true;
 }
 
 class readtwice : public OmIndexerNode {
@@ -167,7 +194,7 @@ bool test_flowcheck1()
 	indexer->set_input(empty);
 	OmIndexerMessage result = indexer->get_raw_output();
 	if (verbose) {
-	    std::cerr << "got output: " << result << endl;
+	    std::cerr << "got output: " << result << '\n';
 	}
     } catch (OmDataFlowError &) {
 	success = true;
@@ -250,7 +277,7 @@ bool test_omstemmer1()
     indexer->set_input(OmIndexerMessage(v));
     result = indexer->get_raw_output();
     if (verbose && result.get_type() != OmIndexerMessage::rt_vector) {
-        cout << "Non-vector result: " << result << endl;
+        tout << "Non-vector result: " << result << '\n';
     }
     if (result.get_vector_length() != v.size()) {
         return false;
@@ -259,6 +286,10 @@ bool test_omstemmer1()
     for (unsigned i=0; i<v.size(); ++i) {
         if (result.get_element(i).get_string() !=
 			stemmer.stem_word(v[i].get_string())) {
+	    tout << "Stemming test failed at element " << i <<
+		    "Got " << result.get_element(i).get_string() <<
+		    ", expected " << stemmer.stem_word(v[i].get_string()) <<
+		    '\n';
 	    return false;
 	}
     }
@@ -287,7 +318,7 @@ bool test_omprefix1()
     indexer->set_input(OmIndexerMessage(v));
     result = indexer->get_raw_output();
     if (verbose && result.get_type() != OmIndexerMessage::rt_vector) {
-        cout << "Non-vector result: " << result << endl;
+        tout << "Non-vector result: " << result << '\n';
     }
     if (result.get_vector_length() != v.size()) {
         return false;
@@ -327,7 +358,7 @@ bool test_omstopword1()
     indexer->set_input(OmIndexerMessage(v));
     result = indexer->get_raw_output();
     if (verbose && result.get_type() != OmIndexerMessage::rt_vector) {
-        cout << "Non-vector result: " << result << endl;
+        tout << "Non-vector result: " << result << '\n';
     }
     if (result.get_vector_length() != v.size() - 2) {
         return false;
@@ -337,7 +368,7 @@ bool test_omstopword1()
         if (result.get_element(i).get_string() !=
 			v[i*2].get_string()) {
 	    if (verbose) {
-		cout << "Result: " << result << endl;
+		tout << "Result: " << result << '\n';
 	    }
 	    return false;
 	}
@@ -369,11 +400,11 @@ bool test_omflattenstring1()
     indexer->set_input(OmIndexerMessage(v));
     result = indexer->get_raw_output();
     if (verbose && result.get_type() != OmIndexerMessage::rt_string) {
-        cout << "Non-string result: " << result << endl;
+        tout << "Non-string result: " << result << '\n';
     }
     if (result.get_string() != "penguinsflyingelephantsnested1nested2") {
 	if (verbose) {
-	    cout << "Bad result: `" << result << "'" << endl;
+	    tout << "Bad result: `" << result << "'" << '\n';
 	}
         return false;
     }
@@ -411,7 +442,7 @@ bool test_omtranslate1()
     indexer->set_input(OmIndexerMessage(v));
     result = indexer->get_raw_output();
     if (verbose && result.get_type() != OmIndexerMessage::rt_vector) {
-        cout << "Non-vector result: " << result << endl;
+        tout << "Non-vector result: " << result << '\n';
     }
     if (result.get_vector_length() != v.size()) {
         return false;
@@ -441,13 +472,13 @@ test_omfilereader1()
     OmIndexerMessage result = indexer->get_raw_output();
 
     if (verbose && result.get_type() != OmIndexerMessage::rt_string) {
-        cout << "Non-string result: " << result << endl;
+        tout << "Non-string result: " << result << '\n';
 	return false;
     }
 
     if (result.get_string() != "correct answer\n") {
 	if (verbose) {
-	    cout << "Got string: `" << result.get_string() << "'" << endl;
+	    tout << "Got string: `" << result.get_string() << "'" << '\n';
 	}
 	return false;
     }
@@ -470,13 +501,13 @@ bool test_omfilereader2()
     OmIndexerMessage result = indexer->get_raw_output();
 
     if (verbose && result.get_type() != OmIndexerMessage::rt_string) {
-        cout << "Non-string result: " << result << endl;
+        tout << "Non-string result: " << result << '\n';
 	return false;
     }
 
     if (result.get_string() != "correct answer\n") {
 	if (verbose) {
-	    cout << "Got string: `" << result.get_string() << "'" << endl;
+	    tout << "Got string: `" << result.get_string() << "'" << '\n';
 	}
 	return false;
     }
@@ -506,11 +537,11 @@ bool test_omvectorsplit1()
     for (size_t i=0; i<v.size(); ++i) {
 	result = indexer->get_raw_output();
 	if (verbose && result.get_type() != OmIndexerMessage::rt_string) {
-	    cout << "Non-string result: " << result << endl;
+	    tout << "Non-string result: " << result << '\n';
 	}
 	if (result.get_string() != v[i].get_string()) {
 	    if (verbose) {
-		cout << "Got " << result << ", expected " << v[i] << endl;
+		tout << "Got " << result << ", expected " << v[i] << '\n';
 	    }
 	    return false;
 	}
@@ -518,7 +549,7 @@ bool test_omvectorsplit1()
     result = indexer->get_raw_output();
     if (result.get_type() != OmIndexerMessage::rt_empty) {
 	if (verbose) {
-	    cout << "Expected empty at end, got: " << result << endl;
+	    tout << "Expected empty at end, got: " << result << '\n';
 	}
 	return false;
     }
@@ -558,7 +589,7 @@ bool test_omlistconcat1()
     indexer->set_input(OmIndexerMessage(v));
     result = indexer->get_raw_output();
     if (verbose && result.get_type() != OmIndexerMessage::rt_vector) {
-        cout << "Non-vector result: " << result << endl;
+        tout << "Non-vector result: " << result << '\n';
     }
     if (result.get_vector_length() != 2*v.size()) {
         return false;
@@ -616,20 +647,20 @@ test_ommakepair1()
     OmIndexerMessage result = indexer->get_raw_output();
     if (result.get_type() != OmIndexerMessage::rt_vector) {
 	if (verbose) {
-	    cout << "Expected pair, got: " << result << endl;
+	    tout << "Expected pair, got: " << result << '\n';
 	}
 	return false;
     }
     if (result.get_vector_length() != 2) {
 	if (verbose) {
-	    cout << "Expected pair, got: " << result << endl;
+	    tout << "Expected pair, got: " << result << '\n';
 	}
 	return false;
     }
     if (result.get_element(0).get_string() != "CAB" ||
 	result.get_element(1).get_string() != "cab") {
 	if (verbose) {
-	    cout << "Expected [ 'CAB', 'cab' ], got: " << result << endl;
+	    tout << "Expected [ 'CAB', 'cab' ], got: " << result << '\n';
 	}
 	return false;
     }
@@ -667,27 +698,27 @@ test_ommakepairs1()
     OmIndexerMessage result = indexer->get_raw_output();
     if (result.get_type() != OmIndexerMessage::rt_vector) {
 	if (verbose) {
-	    cout << "Expected pair, got: " << result << endl;
+	    tout << "Expected pair, got: " << result << '\n';
 	}
 	return false;
     }
     if (result.get_vector_length() != vec.size()) {
 	if (verbose) {
-	    cout << "Expected pair, got: " << result << endl;
+	    tout << "Expected pair, got: " << result << '\n';
 	}
 	return false;
     }
     if (result.get_element(0).get_element(0).get_string() != "CAB" ||
 	result.get_element(0).get_element(1).get_string() != "cab") {
 	if (verbose) {
-	    cout << "Got: " << result << endl;
+	    tout << "Got: " << result << '\n';
 	    }
 	return false;
     }
     if (result.get_element(1).get_element(0).get_string() != "ABC" ||
 	result.get_element(1).get_element(1).get_string() != "abc") {
 	if (verbose) {
-	    cout << "Got: " << result << endl;
+	    tout << "Got: " << result << '\n';
 	    }
 	return false;
     }
@@ -703,6 +734,7 @@ test_desc tests[] = {
     {"basic1",			&test_basic1},
     {"basic2",			&test_basic2},
     {"basic3",			&test_basic3},
+    {"omindexermessage1",	&test_omindexermessage1},
     {"flowcheck1",		&test_flowcheck1},
     {"omsplitter1",		&test_omsplitter1},
     {"omstemmer1",		&test_omstemmer1},
