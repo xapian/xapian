@@ -353,6 +353,14 @@ new database.
 This is the document ID of the newly added document, which is simply a
 handle which can be used to access the document in future.
 </P>
+<P>
+Note that this use of <CODE>add_document()</CODE> is actually fairly
+inefficient: if we had a large database, it would be desirable to group
+as many document additions together as possible, by encapsulating
+them within a session.  For details of this, and of the transaction
+facility for performing sets of database modifications atomically, see
+the <A HREF="userman.html">user manual</A>.
+</P>
 
 <HR>
 <H2><A NAME="searcher">An example searcher</A></H2>
