@@ -39,7 +39,7 @@ class QuartzRecordManager {
 	 */
 	static void initialise(QuartzDiskTable & table,                                                        QuartzRevisionNumber new_revision);
 
-	/** Retrieve a docuement from the table.
+	/** Retrieve a document from the table.
 	 */
 	static OmData get_record(QuartzTable & table,
 				 om_docid did);

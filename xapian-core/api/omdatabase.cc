@@ -135,6 +135,7 @@ OmTermListIterator
 OmDatabase::termlist_begin(om_docid did) const
 {
     DEBUGAPICALL(OmTermListIterator, "OmDatabase::termlist_begin", did);
+    if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
     RETURN(OmTermListIterator(new OmTermListIterator::Internal(internal->open_term_list(did, *this))));
 }
 
@@ -142,6 +143,7 @@ OmTermListIterator
 OmDatabase::termlist_end(om_docid did) const
 {
     DEBUGAPICALL(OmTermListIterator, "OmDatabase::termlist_end", did);
+    if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
     RETURN(OmTermListIterator(NULL));
 }
 
@@ -150,6 +152,8 @@ OmDatabase::positionlist_begin(om_docid did, const om_termname &tname) const
 {
     DEBUGAPICALL(OmPositionListIterator, "OmDatabase::positionlist_begin",
 		 did << ", " << tname);
+    if (tname.empty()) throw OmInvalidArgumentError("Zero length terms are invalid");
+    if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
     throw OmUnimplementedError("positionlist_begin() needs backends to support get_position_list on databases");
     //RETURN(OmPositionListIterator(new OmPositionListIterator::Internal( ... )));
 }
@@ -159,6 +163,8 @@ OmDatabase::positionlist_end(om_docid did, const om_termname &tname) const
 {
     DEBUGAPICALL(OmPositionListIterator, "OmDatabase::positionlist_end",
 		 did << ", " << tname);
+    if (tname.empty()) throw OmInvalidArgumentError("Zero length terms are invalid");
+    if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
     throw OmUnimplementedError("positionlist_end() needs backends to support get_position_list on databases");
     RETURN(OmPositionListIterator(NULL));
 }
@@ -186,6 +192,8 @@ om_doccount
 OmDatabase::get_termfreq(const om_termname & tname) const
 {
     DEBUGAPICALL(om_doccount, "OmDatabase::get_termfreq", tname);
+    if (tname.empty())
+	throw OmInvalidArgumentError("Zero length terms are invalid");
     om_doccount tf = 0;
     std::vector<RefCntPtr<Database> >::const_iterator i;
     for (i = internal->databases.begin(); i != internal->databases.end(); i++) {
@@ -198,6 +206,7 @@ om_doclength
 OmDatabase::get_doclength(om_docid did) const
 {
     DEBUGAPICALL(om_doclength, "OmDatabase::get_doclength", did);
+    if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
     unsigned int multiplier = internal->databases.size();
     om_docid realdid = (did - 1) / multiplier + 1;
     om_doccount dbnumber = (did - 1) % multiplier;
@@ -207,7 +216,8 @@ OmDatabase::get_doclength(om_docid did) const
 bool
 OmDatabase::term_exists(const om_termname & tname) const
 {
-    Assert(tname.size() != 0);
+    if (tname.empty())
+	throw OmInvalidArgumentError("Zero length terms are invalid");
     std::vector<RefCntPtr<Database> >::const_iterator i;
     for (i = internal->databases.begin(); i != internal->databases.end(); i++) {
 	if ((*i)->term_exists(tname)) return true;
@@ -365,6 +375,7 @@ OmWritableDatabase::delete_document(om_docid did, om_timeout timeout)
 {
     DEBUGAPICALL(void, "OmWritableDatabase::delete_document",
 		 did << ", " << timeout);
+    if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
     // Get the pointer while locked, in case someone is assigning to it.
     Database * database;
     {
@@ -382,6 +393,7 @@ OmWritableDatabase::replace_document(om_docid did,
 {
     DEBUGAPICALL(void, "OmWritableDatabase::replace_document",
 		 did << ", " << document << ", " << timeout);
+    if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
     // Get the pointer while locked, in case someone is assigning to it.
     Database * database;
     {
@@ -396,6 +408,7 @@ OmDocumentContents
 OmWritableDatabase::get_document(om_docid did) const
 {
     DEBUGAPICALL(OmDocumentContents, "OmWritableDatabase::get_document", did);
+    if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
     // Get the pointer while locked, in case someone is assigning to it.
     Database * database;
     {

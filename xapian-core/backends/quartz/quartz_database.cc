@@ -192,6 +192,8 @@ OmDocumentContents
 QuartzDatabase::do_get_document_internal(om_docid did,
 					 RefCntPtr<const Database> ptrtothis)
 {
+    Assert(did != 0);
+
     OmDocumentContents document;
 
     document.data = QuartzRecordManager::get_record(
@@ -239,6 +241,7 @@ QuartzDatabase::get_avlength() const
 om_doclength
 QuartzDatabase::get_doclength(om_docid did) const
 {
+    Assert(did != 0);
     OmLockSentry sentry(quartz_mutex);
     throw OmUnimplementedError("QuartzDatabase::get_doclength() not yet implemented");
 }
@@ -277,6 +280,7 @@ LeafTermList *
 QuartzDatabase::open_term_list_internal(om_docid did,
 				RefCntPtr<const Database> ptrtothis) const
 {
+    Assert(did != 0);
     return(new QuartzTermList(ptrtothis,
 			      tables->get_termlist_table(),
 			      tables->get_lexicon_table(),
@@ -286,6 +290,7 @@ QuartzDatabase::open_term_list_internal(om_docid did,
 LeafTermList *
 QuartzDatabase::open_term_list(om_docid did) const
 {
+    Assert(did != 0);
     OmLockSentry sentry(quartz_mutex);
 
     RefCntBase::RefCntPtrToThis tmp;
@@ -297,6 +302,7 @@ QuartzDatabase::open_term_list(om_docid did) const
 LeafDocument *
 QuartzDatabase::open_document(om_docid did) const
 {
+    Assert(did != 0);
     OmLockSentry sentry(quartz_mutex);
     throw OmUnimplementedError("QuartzDatabase::open_document() not yet implemented");
 }
@@ -411,6 +417,7 @@ QuartzWritableDatabase::do_add_document(const OmDocumentContents & document)
 			*(buffered_tables->get_record_table()),
 			document.data,
 			doclen);
+    Assert(did != 0);
 
     // Set the attributes.
     OmDocumentContents::document_keys::const_iterator key;
@@ -452,6 +459,7 @@ QuartzWritableDatabase::do_add_document(const OmDocumentContents & document)
 void
 QuartzWritableDatabase::do_delete_document(om_docid did)
 {
+    Assert(did != 0);
     OmLockSentry sentry(database_ro.quartz_mutex);
     Assert(buffered_tables != 0);
 
@@ -493,6 +501,7 @@ void
 QuartzWritableDatabase::do_replace_document(om_docid did,
 				    const OmDocumentContents & document)
 {
+    Assert(did != 0);
     OmLockSentry sentry(database_ro.quartz_mutex);
 
     Assert(buffered_tables != 0);
