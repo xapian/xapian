@@ -41,7 +41,7 @@ om_termpos
 SleepyPositionList::get_position() const
 {
     Assert(iterating_in_progress);
-    Assert(!at_end);
+    Assert(!at_end());
     return *mypos;
 }
 
