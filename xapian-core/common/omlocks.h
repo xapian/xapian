@@ -30,7 +30,7 @@
 #include "omdebug.h"
 
 #include <pthread.h>
-#include <iostream>
+#include <stdio.h>
 
 #include <errno.h>
 
