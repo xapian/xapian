@@ -116,7 +116,8 @@ OmExpand::expand(om_termcount max_esize,
 		 OmESet & eset,
 		 const RSet * rset,
 		 const OmExpandDecider * decider,
-		 bool use_exact_termfreq)
+		 bool use_exact_termfreq,
+		 double expand_k )
 {
     eset.internal->items.clear();
     eset.internal->ebound = 0;
@@ -129,7 +130,9 @@ OmExpand::expand(om_termcount max_esize,
     om_weight w_min = 0;
 
     // Start weighting scheme
-    OmExpandWeight ewt(db, rset->get_rsize(), use_exact_termfreq);
+    OmExpandWeight ewt(db, rset->get_rsize(), 
+		       use_exact_termfreq,
+		       expand_k );
 
     AutoPtr<TermList> merger(build_tree(rset, &ewt));
     if(merger.get() == 0) return;

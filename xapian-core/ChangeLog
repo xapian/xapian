@@ -1,3 +1,8 @@
+Tue Feb 13 13:57:34 GMT 2001 Andy MacFarlane <andym@omsee.com>
+
+	* Added parameter expand_k in omsettings in order to change
+	  value of weighting in expand process.
+
 Tue Feb 13 13:25:45 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Network timeouts now apply to write() operations as well

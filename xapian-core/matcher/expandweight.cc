@@ -52,10 +52,12 @@ operator+(const OmExpandBits &bits1, const OmExpandBits &bits2)
 
 OmExpandWeight::OmExpandWeight(const OmDatabase &root_,
 			       om_doccount rsetsize_,
-			       bool use_exact_termfreq_)
+			       bool use_exact_termfreq_,
+			       double expand_k_ )
 	: root(root_),
 	  rsize(rsetsize_),
-	  use_exact_termfreq(use_exact_termfreq_)
+	  use_exact_termfreq(use_exact_termfreq_),
+	  expand_k(expand_k_)
 {
     dbsize = root.get_doccount();
     average_length = root.get_avlength();
@@ -81,7 +83,8 @@ OmExpandWeight::get_bits(om_termcount wdf,
 	// FIXME -- use alpha, document importance
 	// FIXME -- lots of repeated calculation here - have a weight for each
 	// termlist, so can cache results?
-	multiplier = (k + 1) * wdf / (k * normalised_length + wdf);
+	multiplier = (expand_k + 1) * wdf / 
+	  (expand_k * normalised_length + wdf);
 	DEBUGLINE(WTCALC, "Using (wdf, normalised_length) = (" << wdf << ", " <<
 		  normalised_length << ") => multiplier = " << multiplier);
     } else {
@@ -137,6 +140,7 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
     DEBUGLINE(WTCALC, " => Term weight = " << tw <<
 	      " Expand weight = " << bits.multiplier * tw);
 
+    //return(rtermfreq * tw);
     return(bits.multiplier * tw);
 }
 

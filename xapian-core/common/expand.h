@@ -57,7 +57,8 @@ class OmExpand {
 		    OmESet & eset,
 		    const RSet * rset,
 		    const OmExpandDecider * decider,
-		    bool use_exact_termfreq);
+		    bool use_exact_termfreq,
+		    double expand_k );
 };
 
 inline OmExpand::OmExpand(const OmDatabase &db_) : db(db_)

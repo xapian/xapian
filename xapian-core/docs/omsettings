@@ -125,3 +125,4 @@
       calculated exactly; if true, an approximation may be used which can
       greatly improve efficiency. The approximation only applies when
       multiple databases are searched together. (default false)
+    - expand_k : value of k parameter used in expand

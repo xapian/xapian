@@ -73,12 +73,16 @@ class OmExpandWeight {
 	 *  collection which that sub-database represents.
 	 */
 	bool use_exact_termfreq;
+
+	/// Parameter used by expand weighting formula
+	double expand_k;
     public:
 
 
 	OmExpandWeight(const OmDatabase &root_,
 		       om_doccount rsetsize_,
-		       bool use_exact_termfreq_);
+		       bool use_exact_termfreq_,
+		       double expand_k_ );
 
 	OmExpandBits get_bits(om_termcount wdf,
 			      om_doclength len,
@@ -89,8 +93,7 @@ class OmExpandWeight {
 			     const om_termname & tname) const;
 
 	om_weight get_maxweight() const;
+	double get_expand_k( void ) { return expand_k; }
 };
-
-const double k = 1;
 
 #endif /* OM_HGUARD_EXPANDWEIGHT_H */

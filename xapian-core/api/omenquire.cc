@@ -983,7 +983,8 @@ OmEnquire::Internal::Data::get_eset(om_termcount maxitems,
     }
 
     expand.expand(maxitems, retval, &rset, edecider,
-		  eoptions->get_bool("expand_use_exact_termfreq", false));
+		  eoptions->get_bool("expand_use_exact_termfreq", false),
+		  eoptions->get_real("expand_k", 1.0) );
 
     return retval;
 }
