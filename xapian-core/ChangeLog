@@ -1,3 +1,8 @@
+Tue Aug 15 20:24:19 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added OmFeatureUnavailableError exception, to be thrown when a
+	  feature is not compiled in, or otherwise unavailable.
+
 Tue Aug 15 15:19:45 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Incorporated Jon Fielder's patches to TcpServer - it's now a

@@ -127,8 +127,9 @@ DEFINE_ERROR_CLASS(OmInternalError, OmRuntimeError);
 /** thrown for miscellaneous database errors. */
 DEFINE_ERROR_CLASS(OmDatabaseError, OmRuntimeError);
 
-/** thrown if the database is corrupt. */
-DEFINE_ERROR_CLASS(OmDatabaseCorruptError, OmRuntimeError);
+/** Thrown if a feature is unavailable - usually due to not being compiled
+ *  in.*/
+DEFINE_ERROR_CLASS(OmFeatureUnavailableError, OmRuntimeError);
 
 /** thrown when there is a communications problem with
  *  a remote database.
@@ -138,6 +139,9 @@ DEFINE_ERROR_CLASS(OmNetworkError, OmRuntimeError);
 /** Thrown when a network timeout is exceeded
  */
 DEFINE_ERROR_CLASS(OmNetworkTimeoutError, OmNetworkError);
+
+/** thrown if the database is corrupt. */
+DEFINE_ERROR_CLASS(OmDatabaseCorruptError, OmDatabaseError);
 
 /** Thrown when opening a database fails. */
 DEFINE_ERROR_CLASS(OmOpeningError, OmDatabaseError);
