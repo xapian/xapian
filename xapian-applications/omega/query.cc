@@ -370,25 +370,24 @@ run_query()
     }
 
     if (enquire) {
-	OmSettings opt;
-	opt.set("match_percent_cutoff", threshold);
+	enquire.set_percent_cutoff(threshold);
         // match_min_hits will be moved into matcher soon
-	opt.set("match_min_hits", int(min_hits));
+	// enquire.set_min_hits(min_hits); or similar...
 
 	// Temporary bodge to allow experimentation with OmBiasFunctor
 	MCI i;
 	i = cgi_params.find("bias_weight");
 	if (i != cgi_params.end()) {
-	    opt.set("match_bias", true);
-	    opt.set("match_bias_weight", atof(i->second.c_str()));
+	    om_weight bias_weight = atof(i->second.c_str());
+	    int half_life = 2 * 24 * 60 * 60; // 2 days
 	    i = cgi_params.find("bias_halflife");
 	    if (i != cgi_params.end()) {
-		opt.set("match_bias_halflife", atof(i->second.c_str()));
+		half_life = atoi(i->second.c_str());
 	    }
+	    enquire.set_bias(bias_weight, half_life);
 	}
 	if (sort_bands) {
-	    opt.set("match_sort_bands", sort_bands);
-	    opt.set("match_sort_key", (int)sort_key);
+	    enquire.set_sorting(sort_key, sort_bands);
 	    // FIXME: ignore sort_numeric for now
 	}
 				
@@ -419,7 +418,7 @@ run_query()
 	// matches or not - then we can avoid offering a "next" button which
 	// leads to an empty page
 	mset = enquire->get_mset(0, topdoc + max(hits_per_page + 1,min_hits),
-				 rset, &opt);
+				 rset);
 	if (usec != -1) {
 #ifdef HAVE_GETTIMEOFDAY
 	    if (gettimeofday(&tv, 0) == 0) {

@@ -1,3 +1,7 @@
+Sat Dec 14 01:10:48 GMT 2002  Olly Betts <olly@survex.com>
+
+	* query.cc: Updated in line with removal of OmSettings.
+
 Wed Dec 11 00:58:49 GMT 2002  Olly Betts <olly@survex.com>
 
 	* configure.in,query.cc,docs/omegascript.txt,templates/query:
