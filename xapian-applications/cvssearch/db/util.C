@@ -80,7 +80,7 @@ bool okSubChar(char c) {
 // returns its parents.
 // ----------------------------------------
 void readTags( const string& fn, set<string>& S, map<string, set<string> >& symbol_parents ) {
-    cerr << "readTags " << fn << endl;
+    cerr << "... readTags " << fn << endl;
     ifstream in(fn.c_str());
     assert (in);
     string s;
@@ -146,7 +146,6 @@ void readTags( const string& fn, set<string>& S, map<string, set<string> >& symb
         S.insert(symbol);
         //      cerr << "** found symbol -" << symbol << "-" << endl;
     }
-    cerr << "read tag finishd" << endl;
     in.close();
 }
 

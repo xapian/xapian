@@ -99,10 +99,13 @@ const string CTAGS_FLAGS = "-R -n --file-scope=no --fields=aiKs --c-types=cfsu -
 static void usage(char * prog_name);
 static void write_OM_database( const string & database_dir,
                                const map<unsigned int, set <string> > & commit_symbols, 
-                               const map<unsigned int, list<string> > & commit_words );
+                               const map<unsigned int, list<string> > & commit_words
+                               );
 
 static void write_DB_database( const string & database_file,
-                               const map<unsigned int, set<string> > & commit_symbols);
+                               const map<unsigned int, set<string> > & commit_symbols
+                               );
+
 static map<string, unsigned int>  write_commit_offset (ostream & os, 
                                                        const string & cvsdata, 
                                                        const string & root, 
@@ -114,7 +117,7 @@ int main(unsigned int argc, char *argv[]) {
     string cvsdata = get_cvsdata();
     string root = "";
     set<string> packages;
-
+    bool read_library = false;
     system( ("rm -f " + CTAGS_OUTPUT).c_str() ); 
     for (unsigned int i = 1; i < argc; ++i)
     {
@@ -132,10 +135,11 @@ int main(unsigned int argc, char *argv[]) {
             // and run ctags on it.
             // ----------------------------------------
             string dir = argv[i];
-            cerr << "...running ctags on library " << dir << endl;
+            cerr << "... running ctags on library " << dir << endl;
             string cmd = string("ctags -a ") + string(CTAGS_FLAGS) + " " + dir; // append mode
-            cerr << "...invoking " << cmd << endl;
+            cerr << "... invoking " << cmd << endl;
             system(cmd.c_str());
+            read_library = true;
         }
     }
     if (root.length() == 0) {
@@ -147,17 +151,14 @@ int main(unsigned int argc, char *argv[]) {
     // ----------------------------------------
     set<string> lib_symbols;
     map<string, set<string> > lib_symbol_parents;
-    cerr << "...reading library tags" << endl;
-    readTags( CTAGS_OUTPUT, lib_symbols, lib_symbol_parents );
-    
-    string package_path;        // e.g. kdebase/konqueror
-    string package_name;        // e.g. kdebase_konqueror
-    string package_db_path;     // e.g. ...cvsdata/root0/db/kdebase_konqueror
-    string package_src_path;    // e.g. ...cvsdata/root0/src/kdebase/konqueror
+    if (read_library) {
+        cerr << "... reading library tags" << endl;
+        readTags( CTAGS_OUTPUT, lib_symbols, lib_symbol_parents );
+    }
         
     // ----------------------------------------
     // This is the key:   It takes a commit id
-    // to all the symbols under that commit.
+    // (global) to all the symbols under that commit.
     // ----------------------------------------
     // commit_symbols[commit_id] -> code symbols.
     // commit_words  [commit_id] -> stemmed words.
@@ -175,17 +176,18 @@ int main(unsigned int argc, char *argv[]) {
         // ----------------------------------------
         set<string>::const_iterator i;
         for ( i = packages.begin(); i != packages.end(); i++ ) {
-            package_path = *i;
-            package_name = convert(package_path, '/', '_');
-            package_db_path  = cvsdata + "/" + root + "/db/" + package_name;
-            package_src_path = cvsdata + "/" + root + "/src/" + package_path;
+            string package_path = *i;                              // e.g. kdebase/konqueror
+            string package_name = convert(package_path, '/', '_'); // e.g. kdebase_konqueror
+            string package_db_path  = cvsdata + "/" + root + "/db/" + package_name; // e.g. ...cvsdata/root0/db/kdebase_konqueror
+            string package_src_path = cvsdata + "/" + root + "/src/" + package_path;// e.g. ...cvsdata/root0/src/kdebase/konqueror
+            unsigned int offset = commit_offsets[*i];
 
             // ----------------------------------------
             // run ctags on that package
             // ----------------------------------------
             system( ("rm -f " + CTAGS_OUTPUT).c_str() );
             string cmd = string("ctags ") + CTAGS_FLAGS + " " + package_src_path;
-            cerr << "...invoking " << cmd << endl;
+            cerr << "... invoking " << cmd << endl;
             system(cmd.c_str());
 
             // ----------------------------------------
@@ -228,7 +230,7 @@ int main(unsigned int argc, char *argv[]) {
             map<string, int> app_symbol_count;
             set<string> found_symbol_before;
             
-            lines_cmt lines    (package_src_path, "", package_name, file_cmt, file_offset, " mining" ); 
+            lines_cmt lines    (cvsdata + "/" + root + "/src/", "", package_name, file_cmt, file_offset, " mining" ); 
             cvs_db_file db_file(package_db_path + ".db/" + package_name + ".db", true);            
             
             // ----------------------------------------
@@ -275,7 +277,7 @@ int main(unsigned int argc, char *argv[]) {
                         // ----------------------------------------
                         // have we entered info for this commit ?
                         // ----------------------------------------
-                        if (commit_words.find(commitid) == commit_words.end()) 
+                        if (commit_words.find(commitid+offset) == commit_words.end()) 
                         {
                             // ----------------------------------------
                             // nope, we have not. so need to set
@@ -284,7 +286,7 @@ int main(unsigned int argc, char *argv[]) {
                             const map<string, list<string> > & terms = lines.getRevisionCommentWords();
                             map<string, list<string> >::const_iterator itr = terms.find(i->first);
                             if (itr != terms.end()) {
-                                commit_words[commitid] = itr->second;
+                                commit_words[commitid+offset] = itr->second;
                             }
                         }
                         // ----------------------------------------
@@ -293,7 +295,7 @@ int main(unsigned int argc, char *argv[]) {
                         // ----------------------------------------
                         for( set<string>::iterator s = symbols.begin(); s != symbols.end(); ++s ) {
                             if ( lib_symbols.find(*s) != lib_symbols.end() ) {
-                                commit_symbols[commitid].insert(*s);
+                                commit_symbols[commitid+offset].insert(*s);
                             } else {
                                 // ----------------------------------------
                                 // this symbol is not in the library, so 
@@ -303,7 +305,7 @@ int main(unsigned int argc, char *argv[]) {
                                 set<string> parents = app_symbol_parents[*s];
                                 for( set<string>::iterator p = parents.begin(); p != parents.end(); ++p ) {
                                     if ( lib_symbols.find(*p) != lib_symbols.end() ) {
-                                        commit_symbols[commitid].insert(*p);
+                                        commit_symbols[commitid+offset].insert(*p);
                                     }
                                 }
                             }
@@ -354,12 +356,15 @@ int main(unsigned int argc, char *argv[]) {
 void
 usage(char * prog_name)
 {
-  cerr << "Usage: " << prog_name << " [Options] ..." << endl
-       << endl
-       << "Options:" << endl
-       << "  -h                     print out this message" << endl
-    ;
-  exit(0);
+    cerr << "Usage: " << prog_name << "[Options]" << endl
+         << endl
+         << "Options:" << endl
+         << "  -f pkg_list_file       a file containing the list of packages to mine" << endl
+         << "  -r root                the root? directory under $CVSDATA where cvssearch information is stored" << endl
+         << "  -h                     prints out this message" << endl
+        ;
+    
+    exit(0);
 }
 
 void write_DB_database( const string & database_file,
@@ -424,8 +429,9 @@ void write_DB_database( const string & database_file,
 
 void write_OM_database( const string & database_dir,
                         const map<unsigned int, set <string> > & commit_symbols, 
-                        const map<unsigned int, list<string> > & commit_words ) {
-    
+                        const map<unsigned int, list<string> > & commit_words
+    ) 
+{
     system( ("rm -rf " + database_dir).c_str() );
     system( ("mkdir " + database_dir).c_str() );
 
@@ -435,18 +441,16 @@ void write_OM_database( const string & database_dir,
     db_parameters.set("database_create", true);
     OmWritableDatabase database(db_parameters); // open database 
     
-    // assert(commit_words.size() == commit_symbols.size());
-
     map<unsigned int, set <string> >::const_iterator i;
     for (i = commit_symbols.begin(); i != commit_symbols.end(); ++i)
     {
         const set<string> & symbols = i->second;
-        string symbol_string;
+        string symbol_string = convert(i->first) + " ";
         set<string>::iterator j;
         for (j = symbols.begin(); j != symbols.end(); ++j) {
             symbol_string += (*j) + " ";
         }
-        cerr << "symbol_string " << symbol_string << endl;
+
         map<unsigned int, list<string> >::const_iterator f = commit_words.find(i->first);
         if (f == commit_words.end()) {
             continue;
@@ -496,7 +500,6 @@ write_commit_offset (ostream & os, const string & cvsdata, const string & root, 
     for (itr = packages.begin(); itr != packages.end(); ++itr) {
         string package_name = convert(*itr, '/', '_');
         string database_path = cvsdata + "/" + root + "/db/" + package_name + ".db/" + package_name + ".db";
-        cerr << "opening " << database_path << endl;
         cvs_db_file db_file(database_path, true);
         unsigned int count;
         if (db_file.get_commit_count(count) == 0) 
