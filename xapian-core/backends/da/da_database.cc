@@ -192,7 +192,6 @@ DADatabase::term_name_to_id(const termname &name)
 
 	struct terminfo ti;
 	int found = DAterm(k, &ti, DA_t);
-	printf("Freq %d\n", ti.freq);
 	free(k);
 
 	if(found == 0) {
