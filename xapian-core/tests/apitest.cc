@@ -163,6 +163,16 @@ string_to_document(string paragraph)
     document.data = OmData(paragraph);
     om_termcount position = 1;
 
+    for (om_keyno i=1; i<=10; ++i) {
+	if (i >= paragraph.length()) {
+	    break;
+	} else {
+	    OmKey key;
+	    key.value = paragraph.substr(i, 1);
+	    document.keys[i] = key;
+	}
+    }
+
     string::size_type spacepos;
     om_termname word;
     while((spacepos = paragraph.find_first_not_of(" \t\n")) != string::npos) {

@@ -1,3 +1,8 @@
+Mon Jun  5 16:12:19 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Updated apitest's indexing to include keys, so the inmemory
+	  tests now all work again.
+
 Mon Jun  5 14:51:56 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* SleepyPostLists now use the document length when calculating weights.
