@@ -198,5 +198,6 @@ void
 QuartzRecordTable::delete_record(Xapian::docid did)
 {
     DEBUGCALL(DB, void, "QuartzRecordTable::delete_record", did);
-    del(quartz_docid_to_key(did));
+    if (!del(quartz_docid_to_key(did)))
+	throw Xapian::DocNotFoundError("Can't delete non-existent document #" + om_tostring(did));
 }
