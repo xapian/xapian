@@ -21,151 +21,120 @@
  */
 
 #include <config.h>
-#include "om/omtermlistiterator.h"
-#include "omtermlistiteratorinternal.h"
+#include "xapian/termiterator.h"
 #include "termlist.h"
 #include "positionlist.h"
 #include "omdebug.h"
 
-OmTermIterator::OmTermIterator()
-	: internal(0)
-{
-}
-
-OmTermIterator::OmTermIterator(Internal *internal_)
+Xapian::TermIterator::TermIterator(Internal *internal_)
 	: internal(internal_)
 {
-    if (internal && internal->at_end()) {
-	delete internal;
-	internal = 0;
+    if (internal.get()) {
+	// A TermList starts before the start, iterators start at the start
+	internal->next();
+	if (internal->at_end()) internal = 0;
     }
 }
 
-OmTermIterator::~OmTermIterator() {
-    DEBUGAPICALL(void, "OmTermIterator::~OmTermIterator", "");
-    delete internal;
+Xapian::TermIterator::~TermIterator() {
+    DEBUGAPICALL(void, "Xapian::TermIterator::~TermIterator", "");
 }
 
-OmTermIterator::OmTermIterator(const OmTermIterator &other)
-    : internal(other.internal ? new Internal(*(other.internal)) : NULL)
+Xapian::TermIterator::TermIterator(const Xapian::TermIterator &other)
+    : internal(other.internal)
 {
-    DEBUGAPICALL(void, "OmTermIterator::OmTermIterator", other);
+    DEBUGAPICALL(void, "Xapian::TermIterator::TermIterator", other);
 }
 
 void
-OmTermIterator::operator=(const OmTermIterator &other)
+Xapian::TermIterator::operator=(const Xapian::TermIterator &other)
 {
-    DEBUGAPICALL(void, "OmTermIterator::operator=", other);
-    if (this == &other) {
-	DEBUGLINE(API, "OmTermIterator assigned to itself");
-	return;
-    }
-
-    Internal * newinternal = NULL;
-    if (other.internal)
-	newinternal = new Internal(*(other.internal));
-    std::swap(internal, newinternal);
-    delete newinternal;
+    DEBUGAPICALL(void, "Xapian::TermIterator::operator=", other);
+    internal = other.internal;
 }
 
 string
-OmTermIterator::operator *() const
+Xapian::TermIterator::operator *() const
 {
-    DEBUGAPICALL(string, "OmTermIterator::operator*", "");
-    Assert(internal);
+    DEBUGAPICALL(string, "Xapian::TermIterator::operator*", "");
+    Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->get_termname());
 }
 
 om_termcount
-OmTermIterator::get_wdf() const
+Xapian::TermIterator::get_wdf() const
 {
-    DEBUGAPICALL(om_termcount, "OmTermIterator::get_wdf", "");
-    Assert(internal);
+    DEBUGAPICALL(om_termcount, "Xapian::TermIterator::get_wdf", "");
+    Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->get_wdf());
 }
 
 om_doccount
-OmTermIterator::get_termfreq() const
+Xapian::TermIterator::get_termfreq() const
 {
-    DEBUGAPICALL(om_doccount, "OmTermIterator::get_termfreq", "");
-    Assert(internal);
+    DEBUGAPICALL(om_doccount, "Xapian::TermIterator::get_termfreq", "");
+    Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->get_termfreq());
 }
 
-OmTermIterator &
-OmTermIterator::operator++()
+Xapian::TermIterator &
+Xapian::TermIterator::operator++()
 {
-    DEBUGAPICALL(OmTermIterator &, "OmTermIterator::operator++", "");
-    Assert(internal);
+    DEBUGAPICALL(Xapian::TermIterator &, "Xapian::TermIterator::operator++", "");
+    Assert(internal.get());
     Assert(!internal->at_end());
     internal->next();
-    if (internal->at_end()) {
-	delete internal;
-	internal = 0;
-    }
+    if (internal->at_end()) internal = 0;
     RETURN(*this);
 }
 
 void
-OmTermIterator::operator++(int)
+Xapian::TermIterator::operator++(int)
 {
-    DEBUGAPICALL(void, "OmTermIterator::operator++(int)", "");
-    Assert(internal);
+    DEBUGAPICALL(void, "Xapian::TermIterator::operator++(int)", "");
+    Assert(internal.get());
     Assert(!internal->at_end());
     internal->next();
-    if (internal->at_end()) {
-	delete internal;
-	internal = 0;
-    }
+    if (internal->at_end()) internal = 0;
 }
 
 // extra method, not required to be an input_iterator
 void
-OmTermIterator::skip_to(const string & tname)
+Xapian::TermIterator::skip_to(const string & tname)
 {
-    DEBUGAPICALL(void, "OmTermIterator::skip_to", tname);
-    if(internal && !internal->at_end()) {
+    DEBUGAPICALL(void, "Xapian::TermIterator::skip_to", tname);
+    if (internal.get()) {
+	Assert(!internal->at_end());
 	internal->skip_to(tname);
-	if (internal->at_end()) {
-	    delete internal;
-	    internal = 0;
-	}
+	if (internal->at_end()) internal = 0;
     }
 }
 
 Xapian::PositionListIterator
-OmTermIterator::positionlist_begin()
+Xapian::TermIterator::positionlist_begin()
 {
-    DEBUGAPICALL(Xapian::PositionListIterator, "OmTermIterator::positionlist_begin", "");
-    Assert(internal);
+    DEBUGAPICALL(Xapian::PositionListIterator, "Xapian::TermIterator::positionlist_begin", "");
+    Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->positionlist_begin());
 }
 
 Xapian::PositionListIterator
-OmTermIterator::positionlist_end()
+Xapian::TermIterator::positionlist_end()
 {
-    DEBUGAPICALL(Xapian::PositionListIterator, "OmTermIterator::positionlist_end", "");
-    Assert(internal);
+    DEBUGAPICALL(Xapian::PositionListIterator, "Xapian::TermIterator::positionlist_end", "");
+    Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(Xapian::PositionListIterator(NULL));
 }
 
 std::string
-OmTermIterator::get_description() const
+Xapian::TermIterator::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "OmTermIterator::get_description", "");
+    DEBUGCALL(INTRO, std::string, "Xapian::TermIterator::get_description", "");
     /// \todo display contents of the object
-    RETURN("OmTermIterator()");
-}
-
-bool
-operator==(const OmTermIterator &a, const OmTermIterator &b)
-{
-    if (a.internal == b.internal) return true;
-    if (a.internal == 0 || b.internal == 0) return false;
-    return (*(a.internal) == *(b.internal));
+    RETURN("Xapian::TermIterator()");
 }

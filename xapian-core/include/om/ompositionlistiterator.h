@@ -30,14 +30,14 @@
 #include "om/omtypes.h"
 
 class OmPostListIterator;
-class OmTermIterator;
+class Xapian::TermIterator;
 class OmDatabase;
 
 class OmPositionListIterator {
     private:
 	// friend classes which need to be able to construct us
 	friend class OmPostListIterator;
-	friend class OmTermIterator;
+	friend class Xapian::TermIterator;
 	friend class OmDatabase;
 
     public:

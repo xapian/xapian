@@ -37,7 +37,8 @@ using namespace std;
 
 class Document;
 class LeafPostList;
-class TermList;
+class Xapian::TermIterator::Internal;
+typedef Xapian::TermIterator::Internal TermList;
 class LeafTermList;
 class Xapian::PositionListIterator::Internal;
 typedef Xapian::PositionListIterator::Internal PositionList;

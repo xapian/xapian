@@ -64,7 +64,7 @@ static bool test_getqterms1()
 #ifdef __SUNPRO_CC
     om_termname_list list;
     {
-        OmTermIterator t;
+        Xapian::TermIterator t;
         for (t = myquery.get_terms_begin(); t != myquery.get_terms_end(); ++t) 
             list.push_back(*t);
     }

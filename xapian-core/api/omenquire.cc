@@ -30,7 +30,7 @@
 #include "xapian/error.h"
 #include "om/omenquire.h"
 #include "om/omoutput.h"
-#include "om/omtermlistiterator.h"
+#include "xapian/termiterator.h"
 #include "xapian/expanddecider.h"
 
 #include "omtermlistiteratorinternal.h"
@@ -50,8 +50,8 @@
 #include <algorithm>
 #include <math.h>
 
-Xapian::ExpandDeciderFilterTerms::ExpandDeciderFilterTerms(OmTermIterator terms,
-						       OmTermIterator termsend)
+Xapian::ExpandDeciderFilterTerms::ExpandDeciderFilterTerms(Xapian::TermIterator terms,
+						       Xapian::TermIterator termsend)
 #ifndef __SUNPRO_CC
     : tset(terms, termsend)
 {
@@ -60,7 +60,7 @@ Xapian::ExpandDeciderFilterTerms::ExpandDeciderFilterTerms(OmTermIterator terms,
 {
     // I'd prefer using an initialiser list for this, but it seems
     // that Solaris' CC doesn't like initialising a set with list
-    // iterators or OmTermIterators.
+    // iterators or Xapian::TermIterators.
     while (terms != termsend) {
         tset.insert(*terms);
 	++terms;
@@ -421,7 +421,8 @@ OmMSet::end() const
 OmMSetIterator
 OmMSet::operator[](om_doccount i) const
 {
-    Assert(0 <= i && i < size());
+    // Don't test 0 <= i - that gives a compiler warning if i is unsigned
+    Assert(0 < (i + 1) && i < size());
     Assert(internal != 0);
     Assert(internal->data.get() != 0);
     return OmMSetIterator(new OmMSetIterator::Internal(
@@ -984,13 +985,13 @@ OmEnquire::Internal::Data::get_eset(om_termcount maxitems,
     return retval;
 }
 
-OmTermIterator
+Xapian::TermIterator
 OmEnquire::Internal::Data::get_matching_terms(om_docid did) const
 {
     return calc_matching_terms(did);
 }
 
-OmTermIterator
+Xapian::TermIterator
 OmEnquire::Internal::Data::get_matching_terms(const OmMSetIterator &it) const
 {
     // FIXME: take advantage of OmMSetIterator to ensure that database
@@ -1061,7 +1062,7 @@ class ByQueryIndexCmp {
     }
 };
 
-OmTermIterator
+Xapian::TermIterator
 OmEnquire::Internal::Data::calc_matching_terms(om_docid did) const
 {
     if (query == 0) {
@@ -1069,8 +1070,8 @@ OmEnquire::Internal::Data::calc_matching_terms(om_docid did) const
     }
 
     // the ordered list of terms in the query.
-    OmTermIterator qt = query->get_terms_begin();
-    OmTermIterator qt_end = query->get_terms_end();
+    Xapian::TermIterator qt = query->get_terms_begin();
+    Xapian::TermIterator qt_end = query->get_terms_end();
 
     // copy the list of query terms into a map for faster access.
     // FIXME: a hash would be faster than a map, if this becomes
@@ -1084,8 +1085,8 @@ OmEnquire::Internal::Data::calc_matching_terms(om_docid did) const
 
     std::vector<string> matching_terms;
 
-    OmTermIterator docterms = db.termlist_begin(did);
-    OmTermIterator docterms_end = db.termlist_end(did);
+    Xapian::TermIterator docterms = db.termlist_begin(did);
+    Xapian::TermIterator docterms_end = db.termlist_end(did);
     while (docterms != docterms_end) {
 	string term = *docterms;
         std::map<string, unsigned int>::iterator t = tmap.find(term);
@@ -1096,9 +1097,8 @@ OmEnquire::Internal::Data::calc_matching_terms(om_docid did) const
     // sort the resulting list by query position.
     sort(matching_terms.begin(), matching_terms.end(), ByQueryIndexCmp(tmap));
 
-    return OmTermIterator(new OmTermIterator::Internal(
-			      new VectorTermList(matching_terms.begin(),
-						 matching_terms.end())));
+    return Xapian::TermIterator(new VectorTermList(matching_terms.begin(),
+						   matching_terms.end()));
 }
 
 void
@@ -1232,10 +1232,10 @@ OmEnquire::get_eset(om_termcount maxitems, const OmRSet & omrset, int flags,
     }
 }
 
-OmTermIterator
+Xapian::TermIterator
 OmEnquire::get_matching_terms_begin(const OmMSetIterator &it) const
 {
-    DEBUGAPICALL(OmTermIterator, "OmEnquire::get_matching_terms", it);
+    DEBUGAPICALL(Xapian::TermIterator, "OmEnquire::get_matching_terms", it);
     try {
 	RETURN(internal->data->get_matching_terms(it));
     } catch (Xapian::Error & e) {
@@ -1244,10 +1244,10 @@ OmEnquire::get_matching_terms_begin(const OmMSetIterator &it) const
     }
 }
 
-OmTermIterator
+Xapian::TermIterator
 OmEnquire::get_matching_terms_begin(om_docid did) const
 {
-    DEBUGAPICALL(OmTermIterator, "OmEnquire::get_matching_terms", did);
+    DEBUGAPICALL(Xapian::TermIterator, "OmEnquire::get_matching_terms", did);
     try {
 	RETURN(internal->data->get_matching_terms(did));
     } catch (Xapian::Error & e) {
@@ -1256,16 +1256,16 @@ OmEnquire::get_matching_terms_begin(om_docid did) const
     }
 }
 
-OmTermIterator
+Xapian::TermIterator
 OmEnquire::get_matching_terms_end(const OmMSetIterator &/*it*/) const
 {
-    return OmTermIterator(NULL);
+    return Xapian::TermIterator(NULL);
 }
 
-OmTermIterator
+Xapian::TermIterator
 OmEnquire::get_matching_terms_end(om_docid /*did*/) const
 {
-    return OmTermIterator(NULL);
+    return Xapian::TermIterator(NULL);
 }
 
 void

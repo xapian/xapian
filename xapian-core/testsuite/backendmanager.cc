@@ -129,8 +129,8 @@ index_files_to_m36(const string &prog, const string &dbdir,
 	    OmDocument doc = string_to_document(para);
 	    out << "#RSTART#\n" << doc.get_data() << "\n#REND#\n#TSTART#\n";
 	    {
-		OmTermIterator i = doc.termlist_begin();
-		OmTermIterator i_end = doc.termlist_end();
+		Xapian::TermIterator i = doc.termlist_begin();
+		Xapian::TermIterator i_end = doc.termlist_end();
 		for ( ; i != i_end; ++i) {
 		    out << *i << endl;
 		}

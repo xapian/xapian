@@ -29,7 +29,7 @@
 #include "om/omtypes.h"
 #endif
 #ifndef OM_HGUARD_OMTERMLISTITERATOR_H
-#include "om/omtermlistiterator.h"
+#include "xapian/termiterator.h"
 #endif
 #include <string>
 
@@ -182,17 +182,17 @@ class OmQuery {
 	 */
 	om_termcount set_length(om_termcount qlen);
 
-	/** Return an OmTermIterator returning all the terms in the query,
+	/** Return an Xapian::TermIterator returning all the terms in the query,
 	 *  in order of termpos.  If multiple terms have the same term
 	 *  position, their order is unspecified.  Duplicates (same term and
 	 *  termpos) will be removed.
 	 */
-	OmTermIterator get_terms_begin() const;
+	Xapian::TermIterator get_terms_begin() const;
 
-	/** Return an OmTermIterator to the end of the list of terms in the
+	/** Return an Xapian::TermIterator to the end of the list of terms in the
 	 *  query.
 	 */
-	OmTermIterator get_terms_end() const;
+	Xapian::TermIterator get_terms_end() const;
 
 	/// Test is the query is empty (i.e. was set using OmQuery() or with
 	//  an empty iterator ctor)

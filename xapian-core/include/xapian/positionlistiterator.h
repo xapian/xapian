@@ -1,5 +1,5 @@
-/** \file omtermlistiterator.h
- * \brief Classes for iterating through term lists
+/** \file positionlistiterator.h
+ * \brief Classes for iterating through position lists
  */
 /* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -22,89 +22,92 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OMTERMLISTITERATOR_H
-#define OM_HGUARD_OMTERMLISTITERATOR_H
+#ifndef OM_HGUARD_POSITIONLISTITERATOR_H
+#define OM_HGUARD_POSITIONLISTITERATOR_H
 
 #include <iterator>
 #include <string>
+
+#include <xapian/base.h>
+
 #include "om/omtypes.h"
 
+class OmPostListIterator;
 class OmDatabase;
-namespace Xapian {
-class PositionListIterator;
-}
 
-/** An iterator pointing to items in a list of terms.
- */
-class OmTermIterator {
+namespace Xapian {
+
+class TermIterator;
+
+class PositionListIterator {
     private:
 	// friend classes which need to be able to construct us
+	friend class OmPostListIterator;
+	friend class TermIterator;
 	friend class OmDatabase;
-	friend class OmDocument;
 
     public:
 	class Internal;
 	/// @internal Reference counted internals.
-	Internal *internal;
+	Xapian::Internal::RefCntPtr<Internal> internal;
 
-        friend bool operator==(const OmTermIterator &a,
-			       const OmTermIterator &b);
+        friend bool operator==(const PositionListIterator &a, const PositionListIterator &b);
 
-    public:
-	// FIXME: better if this was private...
-	OmTermIterator(Internal *internal_);
+	// FIXME: ought to be private
+	PositionListIterator(Internal *internal_);
 
 	/// Default constructor - for declaring an uninitialised iterator
-	OmTermIterator();
+	// PositionListIterator();
 
 	/// Destructor
-        ~OmTermIterator();
+        ~PositionListIterator();
 
         /** Copying is allowed.  The internals are reference counted, so
 	 *  copying is also cheap.
 	 */
-	OmTermIterator(const OmTermIterator &other);
+	PositionListIterator(const PositionListIterator &o);
 
         /** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is also cheap.
 	 */
-	void operator=(const OmTermIterator &other);
+	void operator=(PositionListIterator &o);
 
-	std::string operator *() const;
+	om_termpos operator *() const;
 
-	OmTermIterator & operator++();
+	PositionListIterator & operator++();
 
 	void operator++(int);
 
 	// extra method, not required for an input_iterator
-	void skip_to(const std::string & tname);
+	void skip_to(om_termpos pos);
 
-	om_termcount get_wdf() const;
-	om_doccount get_termfreq() const;
-
-    	// allow iteration of positionlist for current document
-	Xapian::PositionListIterator positionlist_begin();
-	Xapian::PositionListIterator positionlist_end();
-    
 	/** Returns a string describing this object.
 	 *  Introspection method.
 	 */
 	std::string get_description() const;
 
-	/// Allow use as an STL iterator
-	//@{
+	// Allow use as an STL iterator
 	typedef std::input_iterator_tag iterator_category;
-	typedef std::string value_type;
-	typedef om_termcount_diff difference_type;
-	typedef std::string * pointer;
-	typedef std::string & reference;
-	//@}
+	typedef om_termpos value_type;
+	typedef om_termpos_diff difference_type;  // "om_termposcount"
+	typedef om_termpos * pointer;
+	typedef om_termpos & reference;
 };
 
 inline bool
-operator!=(const OmTermIterator &a, const OmTermIterator &b)
+operator==(const PositionListIterator &a,
+	   const PositionListIterator &b)
+{
+    return (a.internal.get() == b.internal.get());
+}
+
+inline bool
+operator!=(const Xapian::PositionListIterator &a,
+	   const Xapian::PositionListIterator &b)
 {
     return !(a == b);
 }
 
-#endif /* OM_HGUARD_OMTERMLISTITERATOR_H */
+}
+
+#endif /* OM_HGUARD_POSITIONLISTITERATOR_H */

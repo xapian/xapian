@@ -47,6 +47,8 @@ class QuartzTermList : public LeafTermList {
 	 */
 	RefCntPtr<const Database> this_db;
 
+	om_docid did;
+
 	/** The table holding the termlist.
 	 */
 	const QuartzTable * table;
@@ -126,7 +128,7 @@ class QuartzTermList : public LeafTermList {
 	 */
 	static void
 	set_entries(QuartzBufferedTable * table_, om_docid did,
-		    OmTermIterator t, const OmTermIterator &t_end,
+		    Xapian::TermIterator t, const Xapian::TermIterator &t_end,
 		    quartz_doclen_t doclen, bool store_termfreqs);
 
 	/** Clear the termlist.  After this call, the termlist for the
@@ -139,7 +141,7 @@ class QuartzTermList : public LeafTermList {
 	QuartzTermList(RefCntPtr<const Database> this_db_,
 		       const QuartzTable * table_,
 		       const QuartzTable * lexicon_table_,
-		       om_docid did,
+		       om_docid did_,
 		       om_doccount doccount_);
 
 	/** Get the length of the document represented by the termlist.
@@ -187,6 +189,8 @@ class QuartzTermList : public LeafTermList {
 	/** Get weighting information for the current term in termlist.
 	 */
 	OmExpandBits get_weighting() const;
+
+	Xapian::PositionListIterator positionlist_begin() const;
 };
 
 #endif /* OM_HGUARD_QUARTZ_TERMLIST_H */

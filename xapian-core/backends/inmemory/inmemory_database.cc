@@ -122,7 +122,7 @@ InMemoryDatabase::open_term_list(om_docid did) const
 	throw Xapian::DocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
     }
-    return new InMemoryTermList(RefCntPtr<const InMemoryDatabase>(this),
+    return new InMemoryTermList(RefCntPtr<const InMemoryDatabase>(this), did,
 				termlists[did - 1], get_doclength(did));
 }
 
@@ -281,8 +281,8 @@ InMemoryDatabase::finish_add_doc(om_docid did, const OmDocument &document)
 	add_values(did, values);
     }
 
-    OmTermIterator i = document.termlist_begin();
-    OmTermIterator i_end = document.termlist_end();
+    Xapian::TermIterator i = document.termlist_begin();
+    Xapian::TermIterator i_end = document.termlist_end();
     for ( ; i != i_end; ++i) {
 	make_term(*i);
 

@@ -28,7 +28,7 @@
 #include "omdebug.h"
 #include "om/ompostlistiterator.h"
 #include "ompostlistiteratorinternal.h"
-#include "om/omtermlistiterator.h"
+#include "xapian/termiterator.h"
 #include "omtermlistiteratorinternal.h"
 #include "xapian/positionlistiterator.h"
 #include "om/omoutput.h"
@@ -114,36 +114,35 @@ OmDatabase::postlist_end(const string &tname) const
     RETURN(OmPostListIterator(NULL));
 }
 
-OmTermIterator
+Xapian::TermIterator
 OmDatabase::termlist_begin(om_docid did) const
 {
-    DEBUGAPICALL(OmTermIterator, "OmDatabase::termlist_begin", did);
+    DEBUGAPICALL(Xapian::TermIterator, "OmDatabase::termlist_begin", did);
     if (did == 0) throw Xapian::InvalidArgumentError("Document IDs of 0 are invalid");
 
-    RETURN(OmTermIterator(new OmTermIterator::Internal(internal->open_term_list(did, *this),
-						       *this, did)));
+    RETURN(Xapian::TermIterator(internal->open_term_list(did, *this)));
 }
 
-OmTermIterator
+Xapian::TermIterator
 OmDatabase::termlist_end(om_docid did) const
 {
-    DEBUGAPICALL(OmTermIterator, "OmDatabase::termlist_end", did);
+    DEBUGAPICALL(Xapian::TermIterator, "OmDatabase::termlist_end", did);
     if (did == 0) throw Xapian::InvalidArgumentError("Document IDs of 0 are invalid");
-    RETURN(OmTermIterator(NULL));
+    RETURN(Xapian::TermIterator(NULL));
 }
 
-OmTermIterator
+Xapian::TermIterator
 OmDatabase::allterms_begin() const
 {
-    DEBUGAPICALL(OmTermIterator, "OmDatabase::allterms_begin", "");
-    RETURN(OmTermIterator(new OmTermIterator::Internal(internal->open_allterms())));
+    DEBUGAPICALL(Xapian::TermIterator, "OmDatabase::allterms_begin", "");
+    RETURN(Xapian::TermIterator(internal->open_allterms()));
 }
 
-OmTermIterator
+Xapian::TermIterator
 OmDatabase::allterms_end() const
 {
-    DEBUGAPICALL(OmTermIterator, "OmDatabase::allterms_end", "");
-    RETURN(OmTermIterator(NULL));
+    DEBUGAPICALL(Xapian::TermIterator, "OmDatabase::allterms_end", "");
+    RETURN(Xapian::TermIterator(NULL));
 }
 
 Xapian::PositionListIterator

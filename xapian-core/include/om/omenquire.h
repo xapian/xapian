@@ -782,10 +782,10 @@ class OmEnquire {
 	 *  @exception Xapian::DocNotFoundError      The document specified could not
 	 *                                     be found in the database.
 	 */
-	OmTermIterator get_matching_terms_begin(om_docid did) const;
+	Xapian::TermIterator get_matching_terms_begin(om_docid did) const;
 
 	/** End iterator corresponding to get_matching_terms_begin() */
-	OmTermIterator get_matching_terms_end(om_docid did) const;
+	Xapian::TermIterator get_matching_terms_end(om_docid did) const;
 
 	/** Get terms which match a given document, by match set item.
 	 *
@@ -810,10 +810,10 @@ class OmEnquire {
 	 *  @exception Xapian::DocNotFoundError      The document specified could not
 	 *                                     be found in the database.
 	 */
-	OmTermIterator get_matching_terms_begin(const OmMSetIterator &it) const;
+	Xapian::TermIterator get_matching_terms_begin(const OmMSetIterator &it) const;
 
 	/** End iterator corresponding to get_matching_terms_begin() */
-	OmTermIterator get_matching_terms_end(const OmMSetIterator &it) const;
+	Xapian::TermIterator get_matching_terms_end(const OmMSetIterator &it) const;
 
 	/** Register an OmMatchDecider.
 	 */

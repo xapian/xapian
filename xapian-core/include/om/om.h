@@ -58,6 +58,7 @@ typedef std::string om_termname;
 #define OmExpandDeciderAnd Xapian::ExpandDeciderAnd
 #define OmExpandDeciderFilterTerms Xapian::ExpandDeciderFilterTerms
 #define OmPositionListIterator Xapian::PositionListIterator
+#define OmTermIterator Xapian::TermIterator
 
 // Types and exceptions
 #include "om/omtypes.h"
@@ -69,7 +70,7 @@ typedef std::string om_termname;
 #include "om/omdatabase.h"
 #include "om/ompostlistiterator.h"
 #include "xapian/positionlistiterator.h"
-#include "om/omtermlistiterator.h"
+#include "xapian/termiterator.h"
 #include "om/omvalueiterator.h"
 
 // Searching

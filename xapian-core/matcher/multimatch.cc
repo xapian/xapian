@@ -379,23 +379,20 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		    e.get_msg().substr(0, 13) == "EmptySubMatch") {
 		    DEBUGLINE(MATCH, "leaf is an EmptySubMatch, trying next");
 		} else {
-		    if (errorhandler) {
-			DEBUGLINE(EXCEPTION, "Calling error handler for "
-				  "get_term_info() on a SubMatch.");
-			(*errorhandler)(e);
-			// Continue match without this sub-match.
-			*leaf = RefCntPtr<SubMatch>(new EmptySubMatch());
+		    if (!errorhandler) throw;
+		    DEBUGLINE(EXCEPTION, "Calling error handler for "
+			      "get_term_info() on a SubMatch.");
+		    (*errorhandler)(e);
+		    // Continue match without this sub-match.
+		    *leaf = RefCntPtr<SubMatch>(new EmptySubMatch());
 
-			AutoPtr<LeafPostList> lpl(new EmptyPostList);
-			// give it a weighting object
-			// FIXME: make it an EmptyWeight instead of BoolWeight
-			lpl->set_termweight(new BoolWeight());
+		    AutoPtr<LeafPostList> lpl(new EmptyPostList);
+		    // give it a weighting object
+		    // FIXME: make it an EmptyWeight instead of BoolWeight
+		    lpl->set_termweight(new BoolWeight());
 
-			delete *pl_iter;
-			*pl_iter = lpl.release();
-		    } else {
-			throw;
-		    }
+		    delete *pl_iter;
+		    *pl_iter = lpl.release();
 		}
 	    }
 	}
@@ -745,8 +742,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	map<string,
 	    OmMSet::Internal::Data::TermFreqAndWeight>::const_iterator i;
 
-	OmTermIterator docterms = db.termlist_begin(best->did);
-        OmTermIterator docterms_end = db.termlist_end(best->did);
+	Xapian::TermIterator docterms = db.termlist_begin(best->did);
+        Xapian::TermIterator docterms_end = db.termlist_end(best->did);
 	while (docterms != docterms_end) {
 	    i = termfreqandwts.find(*docterms);
 	    if (i != termfreqandwts.end()) {
@@ -761,9 +758,11 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    double denom = 0;
 	    for (i = termfreqandwts.begin(); i != termfreqandwts.end(); ++i)
 		denom += i->second.termweight;
+	   
+	    DEBUGLINE(MATCH, "denom = " << denom << " percent_scale = " << percent_scale);
+	    Assert(percent_scale <= denom);
 	    denom *= greatest_wt;
 	    Assert(denom > 0);
-	    Assert(denom <= percent_scale);
 	    percent_scale /= denom;
 	} else {
 	    // If all the terms match, the 2 sums of weights cancel

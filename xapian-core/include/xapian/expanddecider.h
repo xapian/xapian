@@ -37,8 +37,8 @@ class ExpandDeciderFilterTerms : public ExpandDecider {
         /** Constructor, which takes a list of terms which
 	 *  will be filtered out.
 	 */
-        ExpandDeciderFilterTerms(OmTermIterator terms,
-				 OmTermIterator termsend);
+        ExpandDeciderFilterTerms(Xapian::TermIterator terms,
+				 Xapian::TermIterator termsend);
 
         virtual int operator()(const std::string &tname) const;
     private:

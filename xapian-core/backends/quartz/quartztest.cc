@@ -1261,8 +1261,8 @@ static bool test_adddoc2()
 	    }
 	}
 	{
-	    OmTermIterator i(document_in.termlist_begin());
-	    OmTermIterator j(document_out.termlist_begin());
+	    Xapian::TermIterator i(document_in.termlist_begin());
+	    Xapian::TermIterator j(document_out.termlist_begin());
 	    for (; i != document_in.termlist_end(); i++, j++) {
 		TEST_NOT_EQUAL(j, document_out.termlist_end());
 		TEST_EQUAL(*i, *j);
@@ -1870,7 +1870,7 @@ static bool test_overwrite2()
     }
     writer.flush();
 
-    OmTermIterator ti = reader.termlist_begin(1);
+    Xapian::TermIterator ti = reader.termlist_begin(1);
     *ti;
     ti++;
 

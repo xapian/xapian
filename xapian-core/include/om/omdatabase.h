@@ -28,7 +28,7 @@
 
 #include "om/omdocument.h"
 #include "om/ompostlistiterator.h"
-#include "om/omtermlistiterator.h"
+#include "xapian/termiterator.h"
 #include "xapian/positionlistiterator.h"
 
 class OmWritableDatabase;
@@ -110,11 +110,11 @@ class OmDatabase {
 	/** An iterator pointing to the start of the termlist
 	 *  for a given document.
 	 */
-	OmTermIterator termlist_begin(om_docid did) const;
+	Xapian::TermIterator termlist_begin(om_docid did) const;
 	
 	/** Corresponding end iterator to termlist_begin()
 	 */
-	OmTermIterator termlist_end(om_docid did) const;
+	Xapian::TermIterator termlist_end(om_docid did) const;
 
 	/** An iterator pointing to the start of the position list
 	 *  for a given term in a given document.
@@ -127,11 +127,11 @@ class OmDatabase {
 
 	/** An iterator which runs across all terms in the database.
 	 */
-	OmTermIterator allterms_begin() const;
+	Xapian::TermIterator allterms_begin() const;
 
 	/** Corresponding end iterator to allterms_begin()
 	 */
-	OmTermIterator allterms_end() const;
+	Xapian::TermIterator allterms_end() const;
 
 	/// Get the number of documents in the database.
 	om_doccount get_doccount() const;

@@ -152,8 +152,8 @@ OmDocument::clear_values()
 }
 
 void
-OmDocument::Internal::read_termlist(OmTermIterator t,
-				    const OmTermIterator & tend)
+OmDocument::Internal::read_termlist(Xapian::TermIterator t,
+				    const Xapian::TermIterator & tend)
 {
     if (!terms_here) {
 	for ( ; t != tend; t++) {
@@ -284,27 +284,24 @@ OmDocument::termlist_count() {
     RETURN(internal->terms.size());
 }
 
-OmTermIterator
+Xapian::TermIterator
 OmDocument::termlist_begin() const
 {
-    DEBUGAPICALL(OmTermIterator, "OmDocument::termlist_begin", "");
+    DEBUGAPICALL(Xapian::TermIterator, "OmDocument::termlist_begin", "");
     if (internal->terms_here) {
-	RETURN(OmTermIterator(new OmTermIterator::Internal(
+	RETURN(Xapian::TermIterator(
 		new MapTermList(internal->terms.begin(),
 				internal->terms.end(),
-				internal->terms.size()))));
+				internal->terms.size())));
     }
-    RETURN(OmTermIterator(new OmTermIterator::Internal(
-		internal->ptr->open_term_list(),
-		internal->database,
-		internal->did)));
+    RETURN(Xapian::TermIterator(internal->ptr->open_term_list()));
 }
 
-OmTermIterator
+Xapian::TermIterator
 OmDocument::termlist_end() const
 {
-    DEBUGAPICALL(OmTermIterator, "OmDocument::termlist_end", "");
-    RETURN(OmTermIterator(NULL));
+    DEBUGAPICALL(Xapian::TermIterator, "OmDocument::termlist_end", "");
+    RETURN(Xapian::TermIterator(NULL));
 }
 
 void

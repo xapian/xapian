@@ -574,7 +574,7 @@ static bool test_poslist2()
     
     OmDocument doc2 = db.get_document(did);
    
-    OmTermIterator term = doc2.termlist_begin();
+    Xapian::TermIterator term = doc2.termlist_begin();
 
     {
 	Xapian::PositionListIterator i = term.positionlist_begin(); 

@@ -28,7 +28,7 @@
 
 #include <string>
 #include "om/omtypes.h"
-#include "om/omtermlistiterator.h"
+#include "xapian/termiterator.h"
 #include "om/omvalueiterator.h"
 
 /// A document in the database - holds data, values, terms, and postings
@@ -154,10 +154,10 @@ class OmDocument {
 	om_termcount termlist_count();
 
 	/// Iterator for the terms in this document.
-	OmTermIterator termlist_begin() const;
+	Xapian::TermIterator termlist_begin() const;
 
 	/// Equivalent end iterator for termlist_begin().
-	OmTermIterator termlist_end() const;
+	Xapian::TermIterator termlist_end() const;
 
 	/// Count the values in this document.
 	om_termcount values_count();

@@ -214,7 +214,7 @@ class OmQuery::Internal {
 	 *  position, their order is unspecified.  Duplicates (same term and
 	 *  termpos) will be removed.
 	 */
-	OmTermIterator get_terms() const;
+	Xapian::TermIterator get_terms() const;
 	
 	/// Test is the query is empty (i.e. was set using OmQuery() or with
 	//  an empty iterator ctor)

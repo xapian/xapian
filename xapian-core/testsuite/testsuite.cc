@@ -218,7 +218,8 @@ test_driver::runtest(const test_desc *test)
 	tout.str("");
 	SignalRedirector sig; // use object so signal handlers are reset
 	if (!setjmp(jb)) {
-	    if (getenv("XAPIAN_SIG_DFL") == NULL) sig.activate();
+	    static bool catch_signals = (getenv("XAPIAN_SIG_DFL") == NULL);
+	    if (catch_signals) sig.activate();
 	    try {
 		expected_exception = NULL;
 #ifdef HAVE_MEMCHECK_H

@@ -161,7 +161,7 @@ class OmDocument::Internal {
 		: ptr(NULL), data_here(true), values_here(true), terms_here(true)
 	{}
 
-	void read_termlist(OmTermIterator t, const OmTermIterator & tend);
+	void read_termlist(Xapian::TermIterator t, const Xapian::TermIterator & tend);
 
 	/** Returns a string representing the object.
 	 *  Introspection method.

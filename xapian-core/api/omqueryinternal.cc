@@ -32,7 +32,7 @@
 #include "om/omenquire.h"
 #include "om/omoutput.h"
 
-#include "om/omtermlistiterator.h"
+#include "xapian/termiterator.h"
 #include "omtermlistiteratorinternal.h"
 
 #include <vector>
@@ -343,7 +343,7 @@ struct LessByTermpos {
     }
 };
 
-OmTermIterator
+Xapian::TermIterator
 OmQuery::Internal::get_terms() const
 {
     std::vector<std::pair<string, om_termpos> > terms;
@@ -366,9 +366,8 @@ OmQuery::Internal::get_terms() const
 	result.push_back(i->first);
     }
 
-    return OmTermIterator(new OmTermIterator::Internal(
-			      new VectorTermList(result.begin(),
-						 result.end())));
+    return Xapian::TermIterator(new VectorTermList(result.begin(),
+						   result.end()));
 }
 
 // Methods 

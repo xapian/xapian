@@ -39,8 +39,8 @@ using namespace std;
 void
 QuartzTermList::set_entries(QuartzBufferedTable * table_,
 			    om_docid did,
-			    OmTermIterator t,
-			    const OmTermIterator &t_end,
+			    Xapian::TermIterator t,
+			    const Xapian::TermIterator &t_end,
 			    quartz_doclen_t doclen_,
 			    bool store_termfreqs)
 {
@@ -101,20 +101,16 @@ QuartzTermList::QuartzTermList(RefCntPtr<const Database> this_db_,
 #else
 			       const QuartzTable * postlist_table_,
 #endif
-			       om_docid did,
+			       om_docid did_,
 			       om_doccount doccount_)
-	: this_db(this_db_),
-	  table(table_),
+	: this_db(this_db_), did(did_), table(table_),
 #ifdef USE_LEXICON               
 	  lexicon_table(lexicon_table_),
 #else
 	  postlist_table(postlist_table_),
 #endif
-	  have_finished(false),
-	  current_wdf(0),
-	  has_termfreqs(false),
-	  current_termfreq(0),
-	  doccount(doccount_)
+	  have_finished(false), current_wdf(0), has_termfreqs(false),
+	  current_termfreq(0), doccount(doccount_)
 {
 #ifdef USE_LEXICON
     DEBUGCALL(DB, void, "QuartzTermList", "[this_db_], " << table_ << ", "
@@ -281,4 +277,11 @@ QuartzTermList::get_weighting() const
     Assert(wt != NULL);
 
     return wt->get_bits(current_wdf, doclen, get_termfreq(), doccount);
+}
+
+Xapian::PositionListIterator
+QuartzTermList::positionlist_begin() const
+{
+    DEBUGCALL(DB, Xapian::PositionListIterator, "QuartzTermList::positionlist_begin", "");
+    return Xapian::PositionListIterator(this_db->open_position_list(did, current_tname));
 }

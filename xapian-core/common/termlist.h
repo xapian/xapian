@@ -35,20 +35,20 @@ using namespace std;
 class Xapian::PositionListIterator;
 
 /** Abstract base class for termlists. */
-class TermList : public RefCntBase
+class Xapian::TermIterator::Internal : public Xapian::Internal::RefCntBase
 {
     private:
 	/// Copying is not allowed.
-	TermList(const TermList &);
+	Internal(const Internal &);
 
 	/// Assignment is not allowed.
-	void operator=(const TermList &);
+	void operator=(const Internal &);
     public:
 	/// Standard constructor for base class.
-	TermList() {}
+	Internal() {}
 
 	/// Standard destructor for base class.
-	virtual ~TermList() {}
+	virtual ~Internal() {}
 
 	// Gets size of termlist
 	virtual om_termcount get_approx_size() const = 0;
@@ -78,17 +78,17 @@ class TermList : public RefCntBase
 	 *  with P.
 	 *  In LeafTermList, next() will always return NULL.
 	 */
-	virtual TermList * next() = 0;
+	virtual Internal * next() = 0;
 
         /** Skip to the given term.  If the term wasn't
 	 *  found it will be positioned on the term just
 	 *  after tname in the database.  This could be after the end!
 	 */
-	virtual TermList * skip_to(const string &tname) {
+	virtual Internal * skip_to(const string &tname) {
 	    // naive implementation
-	    TermList *p = this;
+	    Internal *p = this;
 	    while (!p->at_end() && p->get_termname() < tname) {
-		TermList *tmp = p->next();
+		Internal *tmp = p->next();
 		if (tmp) {
 		    if (p != this) delete p;
 		    p = tmp;
@@ -105,6 +105,8 @@ class TermList : public RefCntBase
 	    throw Xapian::InvalidOperationError("positionlist_begin not supported");
 	}
 };
+
+typedef Xapian::TermIterator::Internal TermList;
 
 /** Base class for termlists which are at the leaves of the termlist tree,
  *  and thus generate weighting information, rather than merging weighting

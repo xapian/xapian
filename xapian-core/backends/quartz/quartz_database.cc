@@ -389,8 +389,8 @@ QuartzWritableDatabase::do_add_document(const OmDocument & document)
     // Calculate the new document length
     quartz_doclen_t new_doclen = 0;
     {
-	OmTermIterator term = document.termlist_begin();
-	OmTermIterator term_end = document.termlist_end();    
+	Xapian::TermIterator term = document.termlist_begin();
+	Xapian::TermIterator term_end = document.termlist_end();    
 	for ( ; term != term_end; ++term) {
 	    new_doclen += term.get_wdf();
 	}
@@ -428,8 +428,8 @@ QuartzWritableDatabase::do_add_document(const OmDocument & document)
 		0,
 		new_doclen);
 
-	OmTermIterator term = document.termlist_begin();
-	OmTermIterator term_end = document.termlist_end();    
+	Xapian::TermIterator term = document.termlist_begin();
+	Xapian::TermIterator term_end = document.termlist_end();    
 	for ( ; term != term_end; ++term) {
 #ifdef USE_LEXICON
 	    QuartzLexicon::increment_termfreq(
@@ -551,8 +551,8 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
     // Calculate the new document length
     quartz_doclen_t new_doclen = 0;
     {
-	OmTermIterator term = document.termlist_begin();
-	OmTermIterator term_end = document.termlist_end();    
+	Xapian::TermIterator term = document.termlist_begin();
+	Xapian::TermIterator term_end = document.termlist_end();    
 	for ( ; term != term_end; ++term) {
 	    new_doclen += term.get_wdf();
 	}
@@ -604,7 +604,7 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 				    did,
 				    database_ro.get_doccount());
 	    old_doclen = termlist.get_doclength();
-            OmTermIterator tNewIter = document.termlist_begin();
+            Xapian::TermIterator tNewIter = document.termlist_begin();
             termlist.next();
             while (!termlist.at_end() && tNewIter != document.termlist_end()) {
               string tname = termlist.get_termname();
@@ -661,7 +661,7 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
             // Now add the terms that are new...
             vIter = addTerms.begin();
             while (vIter != addTerms.end()) {
-                OmTermIterator tIter = document.termlist_begin();
+                Xapian::TermIterator tIter = document.termlist_begin();
                 tIter.skip_to((*vIter));
 #ifdef USE_LEXICON
 		QuartzLexicon::increment_termfreq(
@@ -682,7 +682,7 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 	    // removed.
             vIter = posTerms.begin();
             while (vIter != posTerms.end()) {
-                OmTermIterator tIter = document.termlist_begin();
+                Xapian::TermIterator tIter = document.termlist_begin();
                 tIter.skip_to((*vIter));
                 if (tIter.positionlist_begin() == tIter.positionlist_end()) {
 		  // In the new document, this term does not have any positions

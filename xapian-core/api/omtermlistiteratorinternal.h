@@ -24,81 +24,24 @@
 #ifndef OM_HGUARD_OMTERMLISTITERATORINTERNAL_H
 #define OM_HGUARD_OMTERMLISTITERATORINTERNAL_H
 
-#include "om/omtermlistiterator.h"
+#include "xapian/termiterator.h"
 #include "termlist.h"
 
 #include "omdocumentinternal.h"
 
 #include "inmemory_positionlist.h"
 
-class OmTermIterator::Internal {
-    private:
-	RefCntPtr<TermList> termlist;
-
-	/// The database to read position lists from.
-	OmDatabase db;
-
-	/// The document ID in the database to read position lists from.
-	om_docid did;
-
-    public:
-        Internal(TermList *termlist_, const OmDatabase &db_, om_docid did_)
-		: termlist(termlist_), db(db_), did(did_)
-	{
-	    // A TermList starts before the start, iterators start at the start
-	    termlist->next();
-	}
-
-        Internal(TermList *termlist_) : termlist(termlist_), did(0)
-	{
-	    // A TermList starts before the start, iterators start at the start
-	    termlist->next();
-	}
-
-	string get_termname() const {	    
-	    return termlist->get_termname();
-	}
-
-	om_termcount get_wdf() const {
-	    return termlist->get_wdf();
-	}
-
-	om_doccount get_termfreq() const {
-	    return termlist->get_termfreq();
-	}
-	
-	Xapian::PositionListIterator positionlist_begin() const {
-	    if (did)
-		return db.positionlist_begin(did, termlist->get_termname());
-	    return termlist->positionlist_begin();
-	}
-
-	void next() {
-	    termlist->next();
-	}
-
-	void skip_to(const string & tname) {
-	    termlist->skip_to(tname);
-	}
-
-	bool at_end() const {
-	    return termlist->at_end();
-	}
-
-	bool operator==(const OmTermIterator::Internal &other) const {
-	    return termlist.get() == other.termlist.get();
-	}
-};
+using namespace std;
 
 class VectorTermList : public TermList {
     private:
-	std::vector<string> terms;
-	std::vector<string>::size_type offset;
+	vector<string> terms;
+	vector<string>::size_type offset;
 	bool before_start;
 
     public:
-	VectorTermList(std::vector<string>::const_iterator begin,
-		       std::vector<string>::const_iterator end)
+	VectorTermList(vector<string>::const_iterator begin,
+		       vector<string>::const_iterator end)
 	    : terms(begin, end), offset(0), before_start(true)
 	{
 	}
@@ -140,7 +83,7 @@ class VectorTermList : public TermList {
 	 */
 	TermList * next() {
 	    Assert(!at_end());
-	    if(before_start)
+	    if (before_start)
 		before_start = false;
 	    else
 		offset++;
@@ -232,4 +175,4 @@ class MapTermList : public TermList {
 	}
 };
 
-#endif /* OM_HGUARD_OMTERMLISTITERATOR_H */
+#endif /* OM_HGUARD_OMTERMLISTITERATORINTERNAL_H */

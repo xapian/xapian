@@ -1252,7 +1252,7 @@ static bool test_getmterms1()
 #ifdef __SUNPRO_CC
     om_termname_list list;
     {
-        OmTermIterator t;
+        Xapian::TermIterator t;
         for (t = enquire.get_matching_terms_begin(mymset.begin());
 	     t != enquire.get_matching_terms_end(mymset.begin()); ++t) {
             list.push_back(*t);
@@ -1294,7 +1294,7 @@ static bool test_getmterms2()
 #ifdef __SUNPRO_CC
     om_termname_list list;
     {
-        OmTermIterator t;
+        Xapian::TermIterator t;
         for (t = enquire.get_matching_terms_begin(mymset.begin());
 	     t != enquire.get_matching_terms_end(mymset.begin()); ++t) {
             list.push_back(*t);
@@ -1525,12 +1525,12 @@ static bool test_keepalive1()
 static bool test_allterms1()
 {
     OmDatabase db(get_database("apitest_allterms"));
-    OmTermIterator ati = db.allterms_begin();
+    Xapian::TermIterator ati = db.allterms_begin();
     TEST(ati != db.allterms_end());
     TEST(*ati == "one");
     TEST(ati.get_termfreq() == 1);
 
-    OmTermIterator ati2 = ati;
+    Xapian::TermIterator ati2 = ati;
 
     ati++;
     TEST(ati != db.allterms_end());
@@ -1577,7 +1577,7 @@ static bool test_allterms2()
     OmDatabase db;
     db.add_database(get_database("apitest_allterms"));
     db.add_database(get_database("apitest_allterms2"));
-    OmTermIterator ati = db.allterms_begin();
+    Xapian::TermIterator ati = db.allterms_begin();
 
     TEST(ati != db.allterms_end());
     TEST(*ati == "five");
@@ -1588,7 +1588,7 @@ static bool test_allterms2()
     TEST(*ati == "four");
     TEST(ati.get_termfreq() == 1);
 
-    OmTermIterator ati2 = ati;
+    Xapian::TermIterator ati2 = ati;
 
     ati++;
     TEST(ati != db.allterms_end());
@@ -1631,7 +1631,7 @@ static bool test_allterms3()
 {
     OmDatabase db;
     db.add_database(get_database("apitest_allterms"));
-    OmTermIterator ati = db.allterms_begin();
+    Xapian::TermIterator ati = db.allterms_begin();
 
     ati.skip_to(string("zzzzzz"));
     TEST(ati == db.allterms_end());
@@ -2267,8 +2267,8 @@ static bool test_adddoc2()
     OmDocument doc2 = db.get_document(did = db.add_document(doc1));
     TEST_EQUAL(did, 1);
 
-    OmTermIterator iter1 = doc1.termlist_begin();
-    OmTermIterator iter2 = doc2.termlist_begin();
+    Xapian::TermIterator iter1 = doc1.termlist_begin();
+    Xapian::TermIterator iter2 = doc2.termlist_begin();
     TEST(iter1 != doc1.termlist_end());
     TEST(iter2 != doc2.termlist_end());
     TEST_EQUAL(*iter1, "bar");
@@ -2488,7 +2488,7 @@ static bool test_deldoc1()
     db.replace_document(2, doc1);
 
     OmDocument doc2 = db.get_document(2);
-    OmTermIterator tit = doc2.termlist_begin();
+    Xapian::TermIterator tit = doc2.termlist_begin();
     TEST_NOT_EQUAL(tit, doc2.termlist_end());
     TEST_EQUAL(*tit, "bar");
     tit++;
@@ -2526,7 +2526,7 @@ static bool test_replacedoc()
     db.replace_document(did, doc2);
 
     OmDocument doc3 = db.get_document(did);
-    OmTermIterator tIter = doc3.termlist_begin();
+    Xapian::TermIterator tIter = doc3.termlist_begin();
     TEST_EQUAL(*tIter, "bar");
     Xapian::PositionListIterator pIter = tIter.positionlist_begin();
     TEST_EQUAL(*pIter, 4);
@@ -2793,30 +2793,30 @@ static bool test_termlist1()
 {
     OmDatabase db(get_database("apitest_onedoc"));
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   OmTermIterator t = db.termlist_begin(0));
+		   Xapian::TermIterator t = db.termlist_begin(0));
     TEST_EXCEPTION(Xapian::DocNotFoundError,
-		   OmTermIterator t = db.termlist_begin(2));
+		   Xapian::TermIterator t = db.termlist_begin(2));
     /* Cause the database to be used properly, showing up problems
      * with the link being in a bad state.  CME */
-    OmTermIterator temp = db.termlist_begin(1);
+    Xapian::TermIterator temp = db.termlist_begin(1);
     TEST_EXCEPTION(Xapian::DocNotFoundError,
-		   OmTermIterator t = db.termlist_begin(999999999));
+		   Xapian::TermIterator t = db.termlist_begin(999999999));
     return true;
 }
 
-// tests that an OmTermIterator works as an STL iterator
+// tests that an Xapian::TermIterator works as an STL iterator
 static bool test_termlist2()
 {
     OmDatabase db(get_database("apitest_onedoc"));
-    OmTermIterator t = db.termlist_begin(1);
-    OmTermIterator tend = db.termlist_end(1);
+    Xapian::TermIterator t = db.termlist_begin(1);
+    Xapian::TermIterator tend = db.termlist_end(1);
 
     // test operator= creates a copy which compares equal
-    OmTermIterator t_copy = t;
+    Xapian::TermIterator t_copy = t;
     TEST_EQUAL(t, t_copy);
 
     // test copy constructor creates a copy which compares equal
-    OmTermIterator t_clone(t);
+    Xapian::TermIterator t_clone(t);
     TEST_EQUAL(t, t_clone);
 
 #ifdef __SUNPRO_CC
@@ -2841,20 +2841,20 @@ static bool test_termlist2()
     return true;
 }
 
-static OmTermIterator
+static Xapian::TermIterator
 test_termlist3_helper()
 {
     OmDatabase db(get_database("apitest_onedoc"));
     return db.termlist_begin(1);
 }
 
-// tests that an OmTermIterator still works when the DB is deleted
+// tests that an Xapian::TermIterator still works when the DB is deleted
 static bool test_termlist3()
 {
-    OmTermIterator u = test_termlist3_helper();
+    Xapian::TermIterator u = test_termlist3_helper();
     OmDatabase db(get_database("apitest_onedoc"));
-    OmTermIterator t = db.termlist_begin(1);
-    OmTermIterator tend = db.termlist_end(1);
+    Xapian::TermIterator t = db.termlist_begin(1);
+    Xapian::TermIterator tend = db.termlist_end(1);
 
     while (t != tend) {
 	TEST_EQUAL(*t, *u);
@@ -2868,7 +2868,7 @@ static bool test_termlist3()
 static bool test_termlist4()
 {
     OmDatabase db(get_database("apitest_onedoc"));
-    OmTermIterator i = db.termlist_begin(1);
+    Xapian::TermIterator i = db.termlist_begin(1);
     i.skip_to("");
     i.skip_to("\xff");
     return true;

@@ -479,8 +479,8 @@ LocalSubMatch::prepare_match(bool /*nowait*/)
     DEBUGCALL(MATCH, bool, "LocalSubMatch::prepare_match", "/*nowait*/");
     if (!is_prepared) {
 	DEBUGLINE(MATCH, "LocalSubMatch::prepare_match() - Gathering my statistics");
-	OmTermIterator terms = users_query.get_terms();
-	OmTermIterator terms_end(NULL);
+	Xapian::TermIterator terms = users_query.get_terms();
+	Xapian::TermIterator terms_end(NULL);
 	for ( ; terms != terms_end; terms++) {
 	    // MULTI
 	    register_term(*terms);

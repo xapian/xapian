@@ -170,9 +170,10 @@ class InMemoryTermList : public LeafTermList {
 	bool started;
 
 	RefCntPtr<const InMemoryDatabase> db;
+	om_docid did;
 	om_doclength document_length;
 
-	InMemoryTermList(RefCntPtr<const InMemoryDatabase> db,
+	InMemoryTermList(RefCntPtr<const InMemoryDatabase> db, om_docid did,
 			 const InMemoryDoc & doc,
 			 om_doclength len);
     public:
@@ -184,6 +185,7 @@ class InMemoryTermList : public LeafTermList {
 	om_doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
 	bool   at_end() const;
+	Xapian::PositionListIterator positionlist_begin() const;
 };
 
 /** A database held entirely in memory.
@@ -372,16 +374,14 @@ InMemoryPostList::get_description() const
 
 inline
 InMemoryTermList::InMemoryTermList(RefCntPtr<const InMemoryDatabase> db_,
+				   om_docid did_,
 				   const InMemoryDoc & doc,
 				   om_doclength len)
-	: pos(doc.terms.begin()),
-	  end(doc.terms.end()),
-	  terms(doc.terms.size()),
-	  started(false),
-	  db(db_)
+	: pos(doc.terms.begin()), end(doc.terms.end()), terms(doc.terms.size()),
+	  started(false), db(db_), did(did_)
 {
     DEBUGLINE(DB, "InMemoryTermList::InMemoryTermList(): " <<
-	          end - pos << " terms starting from " << pos->tname);
+	          terms << " terms starting from " << pos->tname);
     document_length = len;
     return;
 }
@@ -446,6 +446,12 @@ InMemoryTermList::at_end() const
 {
     Assert(started);
     return (pos == end);
+}
+
+inline Xapian::PositionListIterator
+InMemoryTermList::positionlist_begin() const
+{
+    return Xapian::PositionListIterator(db->open_position_list(did, (*pos).tname));
 }
 
 //////////////////////////////////////////////

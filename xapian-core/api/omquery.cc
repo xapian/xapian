@@ -31,7 +31,7 @@
 #include "om/omenquire.h"
 #include "om/omoutput.h"
 
-#include "om/omtermlistiterator.h"
+#include "xapian/termiterator.h"
 #include "omtermlistiteratorinternal.h"
 
 #include <vector>
@@ -202,17 +202,17 @@ om_termcount OmQuery::set_length(om_termcount qlen)
     RETURN(internal->set_length(qlen));
 }
 
-OmTermIterator OmQuery::get_terms_begin() const
+Xapian::TermIterator OmQuery::get_terms_begin() const
 {
-    DEBUGAPICALL(OmTermIterator, "OmQuery::get_terms_begin", "");
+    DEBUGAPICALL(Xapian::TermIterator, "OmQuery::get_terms_begin", "");
     Assert(internal);
     RETURN(internal->get_terms());
 }
 
-OmTermIterator OmQuery::get_terms_end() const
+Xapian::TermIterator OmQuery::get_terms_end() const
 {
-    DEBUGAPICALL(OmTermIterator, "OmQuery::get_terms_end", "");
-    RETURN(OmTermIterator(NULL));
+    DEBUGAPICALL(Xapian::TermIterator, "OmQuery::get_terms_end", "");
+    RETURN(Xapian::TermIterator(NULL));
 }
 	
 bool

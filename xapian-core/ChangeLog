@@ -1,3 +1,9 @@
+Tue Apr 29 18:28:27 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/,backends/,common/,include/,matcher/,net/socketserver.cc,tests/,
+	  testsuite/backendmanager.cc,testsuite/testsuite.cc: OmTermIterator
+	  -> Xapian::TermIterator, etc.
+
 Tue Apr 29 17:39:34 BST 2003  Olly Betts <olly@survex.com>
 
 	* common/omdebug.cc: Setting XAPIAN_DEBUG_LOG caused an exception

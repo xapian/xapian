@@ -398,8 +398,8 @@ SocketServer::run_gettermlist(const string &firstmessage)
 
     om_docid did = atoi(message);
 
-    OmTermIterator tl = db.termlist_begin(did);
-    OmTermIterator tlend = db.termlist_end(did);
+    Xapian::TermIterator tl = db.termlist_begin(did);
+    Xapian::TermIterator tlend = db.termlist_end(did);
 
     while (tl != tlend) {
 	string item = om_tostring(tl.get_wdf());

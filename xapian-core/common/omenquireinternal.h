@@ -34,7 +34,7 @@
 #include <set>
 
 class Xapian::ErrorHandler;
-class OmTermIterator;
+class Xapian::TermIterator;
 
 /** An item in the ESet.
  *  This item contains the termname, and the weight calculated for
@@ -163,7 +163,7 @@ class OmEnquire::Internal::Data : public RefCntBase {
 	/** Calculate the matching terms.
 	 *  This method does the work for get_matching_terms().
 	 */
-	OmTermIterator calc_matching_terms(om_docid did) const;
+	Xapian::TermIterator calc_matching_terms(om_docid did) const;
 
 	/// Copy not allowed
 	Data(const Data &);
@@ -212,8 +212,8 @@ class OmEnquire::Internal::Data : public RefCntBase {
 	OmESet get_eset(om_termcount maxitems, const OmRSet & omrset, int flags,
 			double k, const Xapian::ExpandDecider *edecider) const;
 
-	OmTermIterator get_matching_terms(om_docid did) const;
-	OmTermIterator get_matching_terms(const OmMSetIterator &it) const;
+	Xapian::TermIterator get_matching_terms(om_docid did) const;
+	Xapian::TermIterator get_matching_terms(const OmMSetIterator &it) const;
 
 	void register_match_decider(const std::string &name,
 				    const OmMatchDecider *mdecider);
