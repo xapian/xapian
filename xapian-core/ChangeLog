@@ -1,3 +1,9 @@
+Fri Nov 05 14:41:59 GMT 2004  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Removed a default parameter value from one
+	  variant of open_db so that there's only one candidate for
+	  open_db(string).
+
 Fri Nov 05 14:40:38 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/database.cc: Renamed parameter from keys to values to

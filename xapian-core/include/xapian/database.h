@@ -593,7 +593,7 @@ Database open_db(const std::string &DB, size_t cache_size = 30);
  * @param values filename of the values file
  * @param cache_size how many blocks to cache (default 30).
  */
-Database open_db(const std::string &DB, const std::string &values = "", size_t cache_size = 30);
+Database open_db(const std::string &DB, const std::string &values, size_t cache_size = 30);
 }
 
 namespace Remote {
