@@ -52,7 +52,7 @@ MultiMatch::MultiMatch(MultiDatabase *database_)
 	    // smatch no longer owns the pointer
 	    smatch.release();
 
-	    // do the appropriate linking.
+	    // Link the SingleMatch object to the StatsGatherer
 	    temp->link_to_multi(&gatherer);
 	}
     } catch (...) {
