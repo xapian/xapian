@@ -73,7 +73,7 @@ docdata_DATA = docs/cgiparams.txt \
 	docs/scriptindex.txt
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc
-omega_LDADD = $(XAPIAN_LIBS) -lomqueryparser # -lpcre
+omega_LDADD = $(XAPIAN_LIBS) -lxapianqueryparser # -lpcre
 
 omindex_SOURCES = omindex.cc htmlparse.cc indextext.cc\
  getopt.c getopt1.c

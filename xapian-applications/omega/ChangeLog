@@ -1,3 +1,7 @@
+Fri Aug 20 20:28:16 BST 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Link with -lxapianqueryparser, not -lomqueryparser.
+
 Thu Aug 19 19:13:34 BST 2004  Olly Betts <olly@survex.com>
 
 	* Makefile.am: And actually ship htdig2omega and htdig2omega.script!
