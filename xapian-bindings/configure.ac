@@ -138,7 +138,7 @@ if test no != "$with_swig" ; then
 		BINDINGS="$BINDINGS tcl8"
 		TCL_CPPFLAGS="-I$TCL_INC"
 	    elif test -f "/usr/include/tcl.h" ; then
-		if test `awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' /usr/include/tcl.h` = \"`echo 'puts $tcl_version'|$TCLSH`\" ; then
+		if test x`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' /usr/include/tcl.h` = x\"`echo 'puts $tcl_version'|$TCLSH`\" ; then
 		    BINDINGS="$BINDINGS tcl8"
 		fi
 	    fi
