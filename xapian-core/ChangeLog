@@ -1,3 +1,7 @@
+Sun Jul 27 01:40:39 BST 2003  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Check termfreq in allterms4.
+
 Sun Jul 27 01:39:57 BST 2003  Olly Betts <olly@survex.com>
 
 	* extra/queryparsertest.cc: Fixed for relocated queryparser.h.

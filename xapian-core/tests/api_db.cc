@@ -1688,6 +1688,7 @@ static bool test_allterms4()
 
     Xapian::TermIterator i = db.allterms_begin();
     TEST(*i == "foo");
+    TEST(i.get_termfreq() == 682);
     ++i;
     TEST(i == db.allterms_end());
 
