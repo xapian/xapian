@@ -26,6 +26,7 @@
 #include <string>
 
 #include <om/omindexermessage.h>
+#include <om/omindexdoc.h>
 
 class OmIndexer {
     public:
@@ -44,9 +45,13 @@ class OmIndexer {
 			     const std::string &key,
 			     const std::string &value);
 
-	/** Get the output
+	/** Get the output document contents.
 	 */
-	OmIndexerMessage get_output();
+	AutoPtr<OmDocumentContents> get_output();
+
+	/** Get the output as an OmIndexerMessage
+	 */
+	OmIndexerMessage get_raw_output();
 
 	/** Destructor
 	 */

@@ -1,3 +1,10 @@
+Thu Oct  5 18:28:48 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Renamed OmIndexer::get_output to get_raw_output and added new
+	  get_output returning an OmDocumentContents (not yet implemented)
+
+	* Removed omindexer.h~, which managed to be added to CVS
+
 Thu Oct  5 18:24:02 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added test of QuartzBufferedTable (fails).
