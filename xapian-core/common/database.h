@@ -9,32 +9,30 @@
 #include <string>
 #include <vector>
 
-typedef unsigned int termid;
-typedef unsigned int docid;
-typedef char *termname;
+#include "omtypes.h"
 
-class Error {
+class OmError {
     private:
-	string msg;
+        string msg;
     public:
-        Error(string error_msg)
+        OmError(string error_msg)
         {
-	    msg = error_msg;
+            msg = error_msg;
         }
-	string get_msg()
-	{
-	    return msg;
-	}
+        string get_msg()
+        {
+            return msg;
+        }
 };
 
-class RangeError : public Error {
+class RangeError : public OmError {
     public:
-	RangeError(string msg) : Error(msg) {};
+	RangeError(string msg) : OmError(msg) {};
 };
 
-class OpeningError : public Error {
+class OpeningError : public OmError {
     public:
-        OpeningError(string msg) : Error(msg) {};
+        OpeningError(string msg) : OmError(msg) {};
 };
 
 class PostListIterator {
