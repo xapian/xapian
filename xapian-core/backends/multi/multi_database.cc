@@ -6,13 +6,15 @@
 #include "multi_database.h"
 
 #include <string>
+#include <vector>
 #include <list>
 
 //////////////
 // Postlist //
 //////////////
 
-MultiPostList::MultiPostList(IRDatabase *db, list<MultiPostListInternal> &pls)
+MultiPostList::MultiPostList(const IRDatabase *db,
+			     list<MultiPostListInternal> &pls)
 	: postlists(pls), finished(false), currdoc(0),
 	  freq_initialised(false)
 {
@@ -113,7 +115,7 @@ MultiDatabase::set_root(IRDatabase *db) {
     Assert(!used);
     root = db;
 
-    list<IRDatabase *>::const_iterator i = databases.begin();
+    vector<IRDatabase *>::const_iterator i = databases.begin();
     while(i != databases.end()) {
 	(*i)->set_root(db);
 	i++;
@@ -156,7 +158,7 @@ MultiDatabase::open_post_list(termid tid) const {
     doccount multiplier = databases.size();
 
     list<MultiPostListInternal> pls;
-    list<IRDatabase *>::const_iterator i = databases.begin();
+    vector<IRDatabase *>::const_iterator i = databases.begin();
     while(i != databases.end()) {
 	termid local_tid = (*i)->term_name_to_id(tname);
 	if(local_tid) {
@@ -174,8 +176,18 @@ MultiDatabase::open_post_list(termid tid) const {
 }
 
 TermList *
-MultiDatabase::open_term_list(docid tid) const {
-    throw OmError("MultiDatabase.open_term_list() not implemented");
+MultiDatabase::open_term_list(docid did) const {
+    Assert(opened);
+    Assert((used = true) == true);
+
+    doccount multiplier = databases.size();
+
+    docid realdid = (did - 1) / multiplier + 1;
+    doccount dbnumber = (did - 1) % multiplier;
+
+    TermList *newtl;
+    newtl = (*(databases.begin() + dbnumber))->open_term_list(realdid);
+    return newtl;
 }
 
 termid
@@ -206,7 +218,7 @@ MultiDatabase::term_name_to_id(const termname &tname) const {
 	printf("Looking through sub-databases:");
 	bool found = false;
 
-	list<IRDatabase *>::const_iterator i = databases.begin();
+	vector<IRDatabase *>::const_iterator i = databases.begin();
 	while(i != databases.end()) {
 	    termid thisid = (*i)->term_name_to_id(tname);
 	    if(thisid) {

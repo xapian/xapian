@@ -6,6 +6,7 @@
 #include "omassert.h"
 #include "database.h"
 #include <stdlib.h>
+#include <vector>
 #include <list>
 
 class MultiPostListInternal {
@@ -35,7 +36,7 @@ class MultiPostList : public virtual DBPostList {
 
 	weight termweight;
 
-	MultiPostList(IRDatabase *, list<MultiPostListInternal> &);
+	MultiPostList(const IRDatabase *, list<MultiPostListInternal> &);
     public:
 	~MultiPostList();
 
@@ -122,7 +123,7 @@ class MultiDatabase : public virtual IRDatabase {
 	mutable map<termname, termid> termidmap;
 	mutable vector<MultiTerm> termvec;
 
-	list<IRDatabase *> databases;
+	vector<IRDatabase *> databases;
 
 	mutable bool length_initialised;
 	mutable doclength avlength;
@@ -169,7 +170,7 @@ MultiDatabase::get_doccount() const
 
     doccount docs = 0;
 
-    list<IRDatabase *>::const_iterator i = databases.begin();
+    vector<IRDatabase *>::const_iterator i = databases.begin();
     while(i != databases.end()) {
 	docs += (*i)->get_doccount();
 	i++;
@@ -189,7 +190,7 @@ MultiDatabase::get_avlength() const
 	doccount docs = 0;
 	doclength totlen = 0;
 
-	list<IRDatabase *>::const_iterator i = databases.begin(); 
+	vector<IRDatabase *>::const_iterator i = databases.begin(); 
 	while(i != databases.end()) {
 	    doccount db_doccount = (*i)->get_doccount();
 	    docs += db_doccount;
