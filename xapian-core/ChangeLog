@@ -1,3 +1,8 @@
+Sun Nov 03 22:59:34 GMT 2002  Olly Betts <olly@survex.com>
+
+	* api/omdatabaseinternal.cc: Eliminated entirely superfluous use of
+	  dynamic_cast.
+
 Sun Nov 03 22:46:34 GMT 2002  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc,common/database.h,common/net_database.h:

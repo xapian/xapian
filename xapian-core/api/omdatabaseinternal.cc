@@ -117,10 +117,8 @@ OmDatabase::Internal::open_term_list(om_docid did, const OmDatabase &db) const
     om_docid realdid = (did - 1) / multiplier + 1;
     om_doccount dbnumber = (did - 1) % multiplier;
 
-    TermList *newtl = databases[dbnumber]->open_term_list(realdid);
-    LeafTermList *ltl = dynamic_cast<LeafTermList *>(newtl);
-    Assert(ltl != NULL);
-    return new MultiTermList(ltl, databases[dbnumber], db);
+    return new MultiTermList(databases[dbnumber]->open_term_list(realdid),
+			     databases[dbnumber], db);
 }
 
 Document *
