@@ -1,7 +1,11 @@
-Tue Mar 23 19:25:00 GMT 2004  Olly Betts <olly@survex.com>
+Tue Mar 29 23:56:27 BST 2004  Olly Betts <olly@survex.com>
 
 	* templates/xml: Remove unused OmegaScript code:
 	  `$set{topterms,$or{$ne{$msize,0},$query}}'.
+
+Tue Mar 29 23:55:40 BST 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am: scriptindex needs to link to getopt.c and getopt1.c.
 
 Tue Mar 23 19:20:19 GMT 2004  Olly Betts <olly@survex.com>
 
