@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-# Need 1.5 for AM_CFLAGS, etc; 1.6.3 for AM_INIT_AUTOMAKE with no args
+# Need 1.5 for AM_CXXFLAGS, etc; 1.6.3 for AM_INIT_AUTOMAKE with no args
 # 1.8.5 contains a lot of fixes over 1.6.3
 AUTOMAKE_OPTIONS = 1.8.5
 
@@ -81,9 +81,9 @@ omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc
 omega_LDADD = $(XAPIAN_LIBS) -lxapianqueryparser # -lpcre
 
 omindex_SOURCES = omindex.cc htmlparse.cc indextext.cc\
- getopt.c getopt1.c
+ getopt.cc getopt1.cc
 omindex_LDADD = $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc htmlparse.cc indextext.cc\
- getopt.c getopt1.c
+ getopt.cc getopt1.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)

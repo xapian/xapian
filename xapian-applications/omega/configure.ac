@@ -11,7 +11,6 @@ AC_CONFIG_SRCDIR(omega.cc)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs.
-AC_PROG_CC
 AC_PROG_CXX
 
 dnl Check for time functions.
@@ -88,7 +87,6 @@ dnl ******************************
 
 dnl extra flags for building with gcc
 if test yes = "$GCC"; then
-  AM_CFLAGS="$AM_CFLAGS -Wall -W"
   AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -fno-gnu-keywords"
 fi
 
