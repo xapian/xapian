@@ -210,7 +210,9 @@ handle_sig(int signum_)
     signal(SIGFPE, SIG_DFL);
     signal(SIGILL, SIG_DFL);
     signal(SIGBUS, SIG_DFL);
+#ifdef SIGSTKFLT
     signal(SIGSTKFLT, SIG_DFL);
+#endif
     signum = signum_;
     longjmp(jb, 1);
 }
@@ -237,7 +239,9 @@ test_driver::runtest(const test_desc *test)
 	    signal(SIGFPE, handle_sig);
 	    signal(SIGILL, handle_sig);
 	    signal(SIGBUS, handle_sig);
+#ifdef SIGSTKFLT
 	    signal(SIGSTKFLT, handle_sig);
+#endif
 	    try {
 		success = test->run();
 		if (!success) {
@@ -283,7 +287,9 @@ test_driver::runtest(const test_desc *test)
 	    signal(SIGFPE, SIG_DFL);
 	    signal(SIGILL, SIG_DFL);
 	    signal(SIGBUS, SIG_DFL);
+#ifdef SIGSTKFLT
 	    signal(SIGSTKFLT, SIG_DFL);
+#endif
 	} else {
 	    // caught signal
 	    out << tout.str();
@@ -293,7 +299,9 @@ test_driver::runtest(const test_desc *test)
 		case SIGFPE: sig = "SIGFPE"; break;
 		case SIGILL: sig = "SIGILL"; break;
 		case SIGBUS: sig = "SIGBUS"; break;
+#ifdef SIGSTKFLT
 		case SIGSTKFLT: sig = "SIGSTKFLT"; break;
+#endif
 	    }
     	    out << " " << COL_RED << sig << COL_RESET;
 	    success = false;

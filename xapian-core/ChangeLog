@@ -1,3 +1,7 @@
+Thu Nov 08 18:23:21 GMT 2001  Olly Betts <olly@survex.com>
+
+	* SIGSTKFLT isn't portable, so added #ifdef checks for it.
+
 Wed Nov 07 15:34:29 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Fixed 2 GCC 3.0 warnings in muscat36 backend.
