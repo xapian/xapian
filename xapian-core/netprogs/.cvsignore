@@ -9,3 +9,4 @@ readquery.cc
 omnetclient
 nettest
 omprogsrv
+omtcpsrv
