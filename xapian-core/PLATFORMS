@@ -23,46 +23,46 @@ Two notes about GCC 2.95:
 
 Arch  | Platform                       |Version|Status| Notes / requirements
 ------+--------------------------------+-------+------+------------------------
-x86   |&Linux 2.2 Debian 3.0 GCC 2.95.4| 0.8.3 |Passed|
-x86   |&Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.8.3 |Passed|
+x86   |&Linux 2.2 Debian 3.0 GCC 2.95.4| 0.8.3~|Passed|
+x86   |&Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.8.3~|Passed|
 x86   |&Linux 2.2 Debian 3.0 GCC 3.4pre| 0.8.1 |Passed|
 x86   |&Linux 2.2 Debian 3.0 GCC "3.5" | 0.8.0~|Passed| gcc-3.5-20040327
 x86   | Linux 2.4 Debian sid GCC 2.95.4| 0.8.3 |Passed| from Olly Betts
 x86   | Linux 2.4 Debian sid GCC 3.0.4 | 0.8.0 |Passed| from Olly Betts
 x86   | Linux 2.4 Debian sid GCC 3.2.3 | 0.8.0 |Passed| from Olly Betts
 x86   | Linux 2.4 Debian sid GCC 3.3.3 | 0.8.3 |Passed| from Olly Betts
-x86   |*Linux 2.4 Debian 2.2 GCC 2.95.2|~0.8.2 |Passed|
+x86   |*Linux 2.4 Debian 2.2 GCC 2.95.2| 0.8.3~|Passed|
 x86   | Linux 2.4 RedHat 7.3 GCC 2.96  | 0.8.0 |Passed| from Chris Good
-x86   |*Linux 2.4 RedHat 9.0 GCC 3.2.2 |~0.8.2 |Passed|
-x86   |*Linux 2.4 RedHat AS3 GCC 2.96  | 0.8.3 |Passed|
-x86   |*Linux 2.4 RedHat AS3 GCC 3.2.3 | 0.8.3 |Passed|
+x86   |*Linux 2.4 RedHat 9.0 GCC 3.2.2 | 0.8.3~|Passed|
+x86   |*Linux 2.4 RedHat AS3 GCC 2.96  | 0.8.3~|Passed|
+x86   |*Linux 2.4 RedHat AS3 GCC 3.2.3 | 0.8.3~|Passed|
 x86   | Linux 2.4 Slackw. 9.1 GCC 3.2.3|~0.8.1 |Passed| from tweakers.net
-x86   | Linux 2.6 Debian 3.0 GCC 2.95.4| 0.8.1 |Passed| from gmane.org
-x86   |!FreeBSD 4.8 GCC 2.95.4         | 0.8.3 |Passed|
-x86   |*FreeBSD 4.10 GCC 2.95.4        |~0.8.2 |Passed|
-x86   |*NetBSD 1.6.1 GCC 2.95.3        | 0.8.3 |Passed|
-x86   |*OpenBSD 3.4 GCC 2.95.3         |~0.8.2 |Passed|
-x86   |*Solaris 9 GCC 3.3.2            | 0.8.3 |Passed|
+x86   | Linux 2.6 Debian 3.0 GCC 2.95.4| 0.8.2 |Passed| from gmane.org
+x86   |!FreeBSD 4.8 GCC 2.95.4         | 0.8.3~|Passed|
+x86   |*FreeBSD 4.10 GCC 2.95.4        | 0.8.3~|Passed|
+x86   |*NetBSD 1.6.1 GCC 2.95.3        | 0.8.3~|Passed|
+x86   |*OpenBSD 3.4 GCC 2.95.3         | 0.8.3~|Passed|
+x86   |*Solaris 9 GCC 3.3.2            | 0.8.3~|Passed|
+x86   |*Solaris 9 Sun Workshop C++     | 0.8.3~|Passed| [2]
 x86   | Cygwin v??                     |~0.8.0 |Passed| from Hartmut Honisch 
 x86   | MSYS/MingW GCC 3.3.1           |~0.8.0 |Passed| from Hartmut Honisch
-x86_64|*Linux 2.4 SuSE 8.1 GCC 3.2.2   | 0.8.3 |Passed| [2]
-alpha |*Linux 2.2 Debian 3.0 GCC 2.95.4| 0.8.3 |Passed|
-alpha |*Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.8.3 |Passed| [9]
-sparc |*Solaris 9 GCC 3.3.2            |~0.8.2 |Passed| [2]
-sparc |*Solaris 9 Sun Workshop C++     |~0.8.2 |Passed|
-ppc   |*MacOS X 10.1.4 GCC 2.95.2      |~0.8.2 |Passed| [7]
-ppc   |*MacOS X 10.2.8 GCC 3.1 20020420| 0.8.3 |Passed|
-ppc   |*MacOS X 10.2.8 GCC 3.3         | 0.8.3 |Passed|
+x86_64|*Linux 2.4 SuSE 8.1 GCC 3.2.2   | 0.8.3~|Passed| [2]
+alpha |*Linux 2.2 Debian 3.0 GCC 2.95.4| 0.8.3~|Passed|
+alpha |*Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.8.3~|Passed| [8]
+sparc |*Solaris 9 GCC 3.3.2            | 0.8.3~|Passed| [2]
+sparc |*Solaris 9 Sun Workshop C++     | 0.8.3~|Passed| [2]
+ppc   |*MacOS X 10.1.4 GCC 2.95.2      | 0.8.3~|Passed| [7]
+ppc   |*MacOS X 10.2.8 GCC 3.1 20020420| 0.8.3~|Passed|
+ppc   |*MacOS X 10.2.8 GCC 3.3         | 0.8.3~|Passed|
 mips  | IRIX 6.5.22 GCC 3.3            |~0.8.0 |Passed| from Jim Lynch
 mips  | IRIX 6.5.22 MIPSpro 7.4        |~0.8.0 |Passed| [6] from Jim Lynch
 arm   |^Linux 2.4 Debian sid GCC 3.3.3 | 0.8.0~|Passed|
 arm   |@Linux 2.4 Debian sid GCC 3.4.0 | 0.8.0~|Passed|
 ------+--------------------------------+-------+------+------------------------
-x86   |&Linux cross to mingw GCC 2.95.3| 0.8.3 |Built | [3]
+x86   |&Linux cross to mingw GCC 2.95.3| 0.8.3~|Built | [3]
 x86   | Linux cross to DJGPP GCC 2.95.2| 0.8.0 |Built | [3] [4]
 ------+--------------------------------+-------+------+------------------------
-x86   |*Solaris 9 Sun Workshop C++     | 0.8.3 |Failed| [2] [5]
-arm   |@Linux 2.4 Debian sid GCC 2.95.4| 0.8.0 |Failed| [8]
+arm   |@Linux 2.4 Debian sid GCC 2.95.4| 0.8.0 |Failed| [5]
 ------+--------------------------------+-------+------+------------------------
 
 These are older success reports lacking an update for a more recent Xapian
@@ -109,8 +109,9 @@ mv: [FILE]: set owner/group (was: [USERNO]/[GROUPNO]): Operation not permitted
 of portability.  Remote backend is automatically disabled due to lack of
 socketpair.  Not tried to run the binaries yet.
 
-[5] queryparsertest fails - it seems '\xb7' gets regarded as "isalnum" in
-the queryparser code, although this isn't repeatable in a short test program.
+[5] internaltest fails on exception1 (SEGV) and apitest fails on queryvalid1
+(SEGV).  This appears to be due to buggy handling of nested exceptions on arm
+- you should use GCC 3.3 or newer.
 
 [6] Compiler emits a number of warnings.
 
@@ -119,9 +120,5 @@ the queryparser code, although this isn't repeatable in a short test program.
 "link editor" definition of _optarg in section (__DATA,__common)
 /usr/lib/libSystem.dylib(getopt.o) unused definition of _optarg
 
-[8] internaltest fails on exception1 (SEGV) and apitest fails on queryvalid1
-(SEGV).  This appears to be due to buggy handling of nested exceptions on arm
-- you should use GCC 3.3 or newer.
-
-[9] GCC 3.0.4 appears buggy on alpha - you get SEGVs unless you configure with:
+[8] GCC 3.0.4 appears buggy on alpha - you get SEGVs unless you configure with:
 ./configure CFLAGS=-O0 CXXFLAGS=-O0
