@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
 	    std::string path = argv[1];
 	    params->set_value("backend", "db");
 	    params->set_value("m36_heavyduty", false);
-	    params->set_value("m36_file", path + "/DB");
+	    params->set_value("m36_db_file", path + "/DB");
 	    params->set_value("m36_key_file", path + "/keyfile");
 	    dbs.push_back(params);
 	    argc -= 2;
@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
 	    std::string path = argv[1];
 	    params->set_value("backend", "db");
 	    params->set_value("m36_heavyduty", true);
-	    params->set_value("m36_file", path + "/DB");
+	    params->set_value("m36_db_file", path + "/DB");
 	    params->set_value("m36_key_file", path + "/keyfile");
 	    dbs.push_back(params);
 	    argc -= 2;

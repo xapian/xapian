@@ -101,7 +101,7 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
                 break;
             }
 	    if (file_exists(path + "/DB")) {
-		myparams.set_value("m36_filename", path + "/DB");
+		myparams.set_value("m36_db_file", path + "/DB");
 		// can't easily tell flimsy from heavyduty so assume hd
 		myparams.set_value("m36_heavyduty", true);
                 if (file_exists(path + "/keyfile"))
@@ -110,7 +110,7 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
                 break;
             }
 	    if (file_exists(path + "/DB.da")) {
-		myparams.set_value("m36_filename", path + "/DB.da");
+		myparams.set_value("m36_db_file", path + "/DB.da");
 		// can't easily tell flimsy from heavyduty so assume hd
 		myparams.set_value("m36_heavyduty", true);
                 if (file_exists(path + "/keyfile"))

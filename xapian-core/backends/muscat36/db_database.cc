@@ -144,7 +144,7 @@ DBDatabase::DBDatabase(const OmSettings & params, bool readonly) : DB(0), keyfil
     heavy_duty = params.get_value_bool("m36_heavyduty", true);
 
     // Get the cache_size
-    int cache_size = params.get_value_int("m36_cache_size", 30);
+    int cache_size = params.get_value_int("m36_db_cache_size", 30);
 
     // Actually open
     DB = DB_open(filename.c_str(), cache_size, heavy_duty);
