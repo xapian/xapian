@@ -1,3 +1,7 @@
+Fri Feb 18 13:53:34 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added test for reversed boolean queries.
+
 Thu Feb 17 18:13:24 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added a test for collapsing on a key
