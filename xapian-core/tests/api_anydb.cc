@@ -1047,12 +1047,11 @@ static bool test_eliteset1()
     Xapian::Enquire enquire(mydb);
 
     Xapian::Query myquery1 = query(Xapian::Query::OP_OR, "word");
-    myquery1.set_length(2); // so the query lengths are the same
 
     Xapian::Query myquery2 = query(Xapian::Query::OP_ELITE_SET, 1,
 				   "simple", "word");
 
-    enquire.set_query(myquery1);
+    enquire.set_query(myquery1, 2); // So the query lengths are the same.
     Xapian::MSet mymset1 = enquire.get_mset(0, 10);
 
     enquire.set_query(myquery2);
@@ -1378,12 +1377,11 @@ static bool test_matches1()
 // tests that wqf affects the document weights
 static bool test_wqf1()
 {
-    // both queries have length 2; in q1 word has wqf=2, in q2 word has wqf=1
+    // Both queries have length 2; in q1 word has wqf=2, in q2 word has wqf=1
     Xapian::Query q1("word", 2);
     Xapian::Query q2("word");
-    q2.set_length(2);
     Xapian::MSet mset1 = do_get_simple_query_mset(q1);
-    Xapian::MSet mset2 = do_get_simple_query_mset(q2);
+    Xapian::MSet mset2 = do_get_simple_query_mset(q2, 2);
     // Check the weights
     TEST(mset1.begin().get_weight() > mset2.begin().get_weight());
     return true;
@@ -1394,9 +1392,8 @@ static bool test_qlen1()
 {
     Xapian::Query q1("word");
     Xapian::Query q2("word");
-    q2.set_length(2);
     Xapian::MSet mset1 = do_get_simple_query_mset(q1);
-    Xapian::MSet mset2 = do_get_simple_query_mset(q2);
+    Xapian::MSet mset2 = do_get_simple_query_mset(q2, 2);
     // Check the weights
     //TEST(mset1.begin().get_weight() < mset2.begin().get_weight());
     TEST(mset1.begin().get_weight() == mset2.begin().get_weight());

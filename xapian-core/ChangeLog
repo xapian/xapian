@@ -1,3 +1,7 @@
+Mon Feb 28 23:52:19 GMT 2005  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc: More set_length() changes.
+
 Mon Feb 28 20:31:13 GMT 2005  Olly Betts <olly@survex.com>
 
 	* net/socketclient.cc,net/socketserver.cc,api/omenquire.cc,
