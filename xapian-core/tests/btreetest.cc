@@ -222,7 +222,7 @@ static void check_table_values_empty(Btree & table)
 /// Test playing with a btree
 static bool test_simple1()
 {
-    string path = tmpdir + "/test_simple1_";
+    const string path = tmpdir + "/test_simple1_";
     Btree btree(path, true);
     btree.create(8192);
     btree.open();
@@ -245,7 +245,7 @@ static bool test_simple1()
 /// Test inserting and deleting items from a Btree
 static bool test_insertdelete1()
 {
-    string btree_dir = tmpdir + "/B/";
+    const string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
@@ -275,7 +275,7 @@ static bool test_insertdelete1()
 /// Test sequential addition in a Btree
 static bool test_sequent1()
 {
-    string btree_dir = tmpdir + "/B/";
+    const string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
@@ -303,7 +303,7 @@ static bool test_sequent1()
 
 static bool test_emptykey1()
 {
-    string btree_dir = tmpdir + "/B/";
+    const string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
@@ -361,16 +361,17 @@ static bool test_emptykey1()
 /// Test making and playing with a Btree
 static bool test_table1()
 {
-    unlink_table(tmpdir + "test_table1_");
+    const string tablename = tmpdir + "/test_table1_";
+    unlink_table(tablename);
     {
-	Btree table0(tmpdir + "test_table1_", true);
+	Btree table0(tablename, true);
 	TEST_EXCEPTION(Xapian::DatabaseOpeningError, table0.open());
 	TEST_EXCEPTION(Xapian::DatabaseOpeningError, table0.open(10));
     }
-    Btree rw_table(tmpdir + "test_table1_", false);
+    Btree rw_table(tablename, false);
     rw_table.create(8192);
     rw_table.open();
-    Btree ro_table(tmpdir + "test_table1_", true);
+    Btree ro_table(tablename, true);
     ro_table.open();
 
     quartz_revision_number_t rev1 = ro_table.get_open_revision_number();
@@ -500,25 +501,26 @@ static bool test_table1()
 /// Test making and playing with a Btree
 static bool test_table2()
 {
-    unlink_table(tmpdir + "test_table2_");
+    const string tablename = tmpdir + "/test_table2_";
+    unlink_table(tablename);
 
-    Btree table(tmpdir + "test_table2_", false);
+    Btree table(tablename, false);
     table.create(8192);
     table.open();
-    TEST_EQUAL(get_filesize(tmpdir + "test_table2_DB"), 0);
+    TEST_EQUAL(get_filesize(tmpdir + "/test_table2_DB"), 0);
 
     table.commit(table.get_latest_revision_number() + 1);
-    TEST_EQUAL(get_filesize(tmpdir + "test_table2_DB"), 0);
+    TEST_EQUAL(get_filesize(tmpdir + "/test_table2_DB"), 0);
 
     table.commit(table.get_latest_revision_number() + 1);
-    TEST_EQUAL(get_filesize(tmpdir + "test_table2_DB"), 0);
+    TEST_EQUAL(get_filesize(tmpdir + "/test_table2_DB"), 0);
 
     table.commit(table.get_latest_revision_number() + 1);
-    TEST_EQUAL(get_filesize(tmpdir + "test_table2_DB"), 0);
+    TEST_EQUAL(get_filesize(tmpdir + "/test_table2_DB"), 0);
 
     table.add("foo", "bar");
     table.commit(table.get_latest_revision_number() + 1);
-    TEST_EQUAL(get_filesize(tmpdir + "test_table2_DB"), 8192);
+    TEST_EQUAL(get_filesize(tmpdir + "/test_table2_DB"), 8192);
 
     return true;
 }
@@ -526,9 +528,10 @@ static bool test_table2()
 /// Test making and playing with a Btree
 static bool test_table3()
 {
-    unlink_table(tmpdir + "test_table3_");
+    const string tablename = tmpdir + "/test_table3_";
+    unlink_table(tablename);
 
-    Btree table(tmpdir + "test_table3_", false);
+    Btree table(tablename, false);
     table.create(8192);
     table.open();
 
@@ -573,11 +576,12 @@ static bool test_table3()
 /// Test making and playing with a Btree
 static bool test_table4()
 {
-    unlink_table(tmpdir + "test_table4_");
-    Btree table_rw(tmpdir + "test_table4_", false);
+    const string tablename = tmpdir + "/test_table4_";
+    unlink_table(tablename);
+    Btree table_rw(tablename, false);
     table_rw.create(8192);
     table_rw.open();
-    Btree table_ro(tmpdir + "test_table4_", true);
+    Btree table_ro(tablename, true);
     table_ro.open();
 
     TEST_EQUAL(table_ro.get_entry_count(), 0);
@@ -631,15 +635,16 @@ static bool test_table4()
 /// Test making and playing with a Btree
 static bool test_table5()
 {
-    unlink_table(tmpdir + "test_table5_");
+    const string tablename = tmpdir + "/test_table5_";
+    unlink_table(tablename);
     quartz_revision_number_t new_revision;
     quartz_revision_number_t old_revision;
     {
 	// Open table and add a few documents
-	Btree table_rw(tmpdir + "test_table5_", false);
+	Btree table_rw(tablename, false);
 	table_rw.create(8192);
 	table_rw.open();
-	Btree table_ro(tmpdir + "test_table5_", true);
+	Btree table_ro(tablename, true);
 	table_ro.open();
 
 	TEST_EQUAL(table_ro.get_entry_count(), 0);
@@ -658,9 +663,9 @@ static bool test_table5()
     }
     {
 	// Reopen and check that the documents are still there.
-	Btree table_rw(tmpdir + "test_table5_", false);
+	Btree table_rw(tablename, false);
 	table_rw.open();
-	Btree table_ro(tmpdir + "test_table5_", true);
+	Btree table_ro(tablename, true);
 	table_ro.open();
 
 	TEST_EQUAL(table_ro.get_entry_count(), 3);
@@ -712,9 +717,9 @@ static bool test_table5()
     }
     {
 	// Open old revision
-	Btree table_rw(tmpdir + "test_table5_", false);
+	Btree table_rw(tablename, false);
 	TEST(table_rw.open(old_revision));
-	Btree table_ro(tmpdir + "test_table5_", true);
+	Btree table_ro(tablename, true);
 	table_ro.open(old_revision);
 
 	TEST_EQUAL(table_ro.get_entry_count(), 3);
@@ -742,9 +747,9 @@ static bool test_table5()
     }
     {
 	// Reopen and check that the documents are still there.
-	Btree table_rw(tmpdir + "test_table5_", false);
+	Btree table_rw(tablename, false);
 	table_rw.open();
-	Btree table_ro(tmpdir + "test_table5_", true);
+	Btree table_ro(tablename, true);
 	table_ro.open();
 
 	TEST_EQUAL(table_ro.get_entry_count(), 4);
@@ -790,7 +795,7 @@ static bool test_table5()
     {
 	// Check that opening a nonexistant revision returns false (and doesn't
 	// throw an exception).
-	Btree table_ro(tmpdir + "test_table5_", false);
+	Btree table_ro(tablename, false);
 	TEST(!table_ro.open(new_revision + 10));
     }
 
@@ -800,14 +805,15 @@ static bool test_table5()
 /// Test making and playing with a Btree
 static bool test_table6()
 {
-    unlink_table(tmpdir + "test_table6_");
+    const string tablename = tmpdir + "/test_table6_";
+    unlink_table(tablename);
     quartz_revision_number_t new_revision;
     {
 	// Open table and add a couple of documents
-	Btree table_rw(tmpdir + "test_table6_", false);
+	Btree table_rw(tablename, false);
 	table_rw.create(8192);
 	table_rw.open();
-	Btree table_ro(tmpdir + "test_table6_", true);
+	Btree table_ro(tablename, true);
 	table_ro.open();
 
 	TEST_EQUAL(table_ro.get_entry_count(), 0);
@@ -829,9 +835,9 @@ static bool test_table6()
     }
     {
 	// Reopen and check that the documents are still there.
-	Btree table_rw(tmpdir + "test_table6_", false);
+	Btree table_rw(tablename, false);
 	table_rw.open();
-	Btree table_ro(tmpdir + "test_table6_", true);
+	Btree table_ro(tablename, true);
 	table_ro.open();
 
 	TEST_EQUAL(table_ro.get_entry_count(), 1);
@@ -862,13 +868,14 @@ static bool test_table6()
 /// Test Bcursors
 static bool test_cursor1()
 {
-    unlink_table(tmpdir + "test_cursor1_");
+    const string tablename = tmpdir + "/test_cursor1_";
+    unlink_table(tablename);
 
     // Open table and put stuff in it.
-    Btree table_rw(tmpdir + "test_cursor1_", false);
+    Btree table_rw(tablename, false);
     table_rw.create(8192);
     table_rw.open();
-    Btree table_ro(tmpdir + "test_cursor1_", true);
+    Btree table_ro(tablename, true);
     table_ro.open();
 
     table_rw.add("foo1", "bar1");
@@ -1061,13 +1068,14 @@ static bool test_cursor1()
 /// Regression test for cursors
 static bool test_cursor2()
 {
-    unlink_table(tmpdir + "test_cursor2_");
+    const string tablename = tmpdir + "/test_cursor2_";
+    unlink_table(tablename);
 
     // Open table and put stuff in it.
-    Btree table_rw(tmpdir + "test_cursor2_", false);
+    Btree table_rw(tablename, false);
     table_rw.create(8192);
     table_rw.open();
-    Btree table_ro(tmpdir + "test_cursor2_", true);
+    Btree table_ro(tablename, true);
     table_ro.open();
 
     table_rw.add("a", string(2036, '\x00'));
@@ -1093,14 +1101,15 @@ static bool test_cursor2()
 /// Test making and playing with a Btree
 static bool test_cursor3()
 {
-    unlink_table(tmpdir + "test_cursor3_");
+    const string tablename = tmpdir + "/test_cursor3_";
+    unlink_table(tablename);
     quartz_revision_number_t new_revision;
     {
 	// Open table and add a couple of documents
-	Btree table_rw(tmpdir + "test_cursor3_", false);
+	Btree table_rw(tablename, false);
 	table_rw.create(8192);
 	table_rw.open();
-	Btree table_ro(tmpdir + "test_cursor3_", true);
+	Btree table_ro(tablename, true);
 	table_ro.open();
 
 	TEST_EQUAL(table_ro.get_entry_count(), 0);
@@ -1148,7 +1157,7 @@ static bool test_cursor3()
     }
     {
 	// Reopen and check that the documents are still there.
-	Btree table_ro(tmpdir + "test_cursor3_", false);
+	Btree table_ro(tablename, false);
 	table_ro.open();
 	TEST_EQUAL(table_ro.get_entry_count(), 2);
 
@@ -1177,13 +1186,13 @@ static bool test_cursor3()
 /// Test large bitmap files.
 static bool test_bitmap1()
 {
-    const string dbname = tmpdir + "test_bitmap1_";
-    unlink_table(dbname);
+    const string tablename = tmpdir + "/test_bitmap1_";
+    unlink_table(tablename);
     /* Use a small block size to make it easier to get a large bitmap */
-    Btree table_rw(dbname, false);
+    Btree table_rw(tablename, false);
     table_rw.create(2048);
     table_rw.open();
-    Btree table_ro(dbname, true);
+    Btree table_ro(tablename, true);
     table_ro.open();
 
     quartz_revision_number_t new_revision;
