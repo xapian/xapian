@@ -34,7 +34,11 @@
 class QuartzDatabase : public IRDatabase {
     friend class DatabaseBuilder;
     private:
-	class Internal;
+	class Internals;
+
+	/** Pointer to internal data.
+	 */
+	Internals * internals;
 
 	/** Create and open a quartz database.
 	 *
