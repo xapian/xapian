@@ -507,14 +507,17 @@ QuartzBufferedTable::apply(quartz_revision_number_t new_revision)
 {
     DEBUGCALL(DB, void, "QuartzBufferedTable::apply", new_revision);
     try {
+	// One QuartzEntry to rule them all, One QuartzEntry to find them,
+	// One QuartzEntry to bring them all, and in the backend bind them...
+	map<string, string *> merged;
+
+	
 	QuartzTableEntries::items & entries = changed_entries.get_all_entries();
 	map<string, string *>::iterator entry;
 	entry = entries.begin();
 	Assert(entry != entries.end());
 	// Don't set the null entry.
-	for (++entry;
-	     entry != changed_entries.get_all_entries().end();
-	     ++entry) {
+	for (++entry; entry != entries.end(); ++entry) {
 	    DEBUGLINE(DB, "QuartzBufferedTable::apply(): setting key " << hex_encode(entry->first) << " to " << ((entry->second)? (hex_encode(*(entry->second))) : string("<NULL>")));
 	    if (entry->second) {
 		disktable->set_entry(entry->first, *(entry->second));

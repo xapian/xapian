@@ -1,3 +1,8 @@
+Mon Dec 09 05:10:09 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc,backends/quartz/quartz_table.cc:
+	  More fettling.
+
 Mon Dec 09 04:48:39 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/: Minor code fettle.

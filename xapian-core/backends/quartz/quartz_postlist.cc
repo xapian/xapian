@@ -423,17 +423,17 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 
 		// Seek to the next chunk.
 		if (cursor->find_entry(orig_key) != true) {
-		    throw OmDatabaseCorruptError("The key we're working on has disappeared.");
+		    throw OmDatabaseCorruptError("The key we're working on has disappeared");
 		}
 
 		cursor->next();
 		if (cursor->after_end()) {
-		    throw OmDatabaseCorruptError("Expected another key but found none.");
+		    throw OmDatabaseCorruptError("Expected another key but found none");
 		}
 		const char *kpos = cursor->current_key.data();
 		const char *kend = kpos + cursor->current_key.size();
 		if (!skip_and_check_tname_in_key(&kpos, kend, tname)) {
-		    throw OmDatabaseCorruptError("Expected another key with the same term name but found a different one.");
+		    throw OmDatabaseCorruptError("Expected another key with the same term name but found a different one");
 		}
 
 		// Read the new first docid
@@ -485,7 +485,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 		/* Should not find the key we just deleted, but should
 		 * find the previous chunk. */
 		if (cursor->find_entry(orig_key) == true) {
-		    throw OmDatabaseCorruptError("Quartz key not deleted as we expected.");
+		    throw OmDatabaseCorruptError("Quartz key not deleted as we expected");
 		}
 		// Make sure this is a chunk with the right term attached.
 		const char * keypos = cursor->current_key.data();
@@ -500,7 +500,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 		}
 
 		if (tname_in_key != tname) {
-		    throw OmDatabaseCorruptError("Couldn't find chunk before delete chunk.");
+		    throw OmDatabaseCorruptError("Couldn't find chunk before delete chunk");
 		}
 
 		// FIXME: this was declared locally here - trying to see if we
@@ -764,8 +764,6 @@ QuartzPostList::~QuartzPostList()
     DEBUGCALL(DB, void, "QuartzPostList::~QuartzPostList", "");
 }
 
-
-
 bool
 QuartzPostList::next_in_chunk()
 {
@@ -795,8 +793,8 @@ QuartzPostList::next_chunk()
     cursor->next();
     if (cursor->after_end()) {
 	is_at_end = true;
-	throw OmDatabaseCorruptError("Unexpected end of posting list (for `" +
-				     tname + "'.");
+	throw OmDatabaseCorruptError("Unexpected end of posting list for `" +
+				     tname + "'");
     }
     const char * keypos = cursor->current_key.data();
     const char * keyend = keypos + cursor->current_key.size();
@@ -808,8 +806,8 @@ QuartzPostList::next_chunk()
     }
     if (tname_in_key != tname) {
 	is_at_end = true;
-	throw OmDatabaseCorruptError("Unexpected end of posting list (for `" +
-				     tname + "').");
+	throw OmDatabaseCorruptError("Unexpected end of posting list for `" +
+				     tname + "'");
     }
 
     om_docid newdid;
@@ -820,7 +818,7 @@ QuartzPostList::next_chunk()
 	throw OmDatabaseCorruptError("Document ID in new chunk of postlist (" +
 		om_tostring(newdid) +
 		") is not greater than final document ID in previous chunk (" +
-		om_tostring(did) + ").");
+		om_tostring(did) + ")");
     }
     did = newdid;
 
@@ -871,7 +869,7 @@ QuartzPostList::next(om_weight w_min)
     DEBUGLINE(DB, string("Moved to ") <<
 	      (is_at_end ? string("end.") : string("docid, wdf, doclength = ") +
 	       om_tostring(did) + ", " + om_tostring(wdf) + ", " +
-	       om_tostring(doclength) + "."));
+	       om_tostring(doclength)));
     
     RETURN(NULL);
 }
@@ -883,9 +881,8 @@ QuartzPostList::current_chunk_contains(om_docid desired_did)
     if (desired_did >= first_did_in_chunk &&
 	desired_did <= last_did_in_chunk) {
 	RETURN(true);
-    } else {
-	RETURN(false);
     }
+    RETURN(false);
 }
 
 void
@@ -1115,7 +1112,6 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
 	        from.next();
             }
             to.write_to_disk(bufftable);
-//	    throw OmUnimplementedError("Setting entries only currently implemented at end of postlist.");
 	} else {
 	    // Append
 	    if (tag->size() > chunksize) {
