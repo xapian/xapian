@@ -27,6 +27,7 @@
 #include "database.h"
 
 class QuartzTableManager;
+class QuartzBufferedTableManager;
 class QuartzModifications;
 #include "quartz_log.h"
 
@@ -42,13 +43,16 @@ class QuartzDatabase : public Database {
 	 */
 	OmLock quartz_mutex;
 
-	/** Pointer to database manager.
+	/** Pointer to table manager.
 	 */
-	AutoPtr<QuartzTableManager> table_manager;
+	AutoPtr<QuartzTableManager> tables;
 
-	/** Pointer to database modifications.
+	/** Pointer to buffered table manager.
+	 *
+	 *  This will be null if the database is opened readonly, and will
+	 *  point to the same object as tables otherwise.
 	 */
-	AutoPtr<QuartzModifications> modifications;
+	QuartzBufferedTableManager * buffered_tables;
 
 	/** Flag saying whether we're using transactions or not.
 	 */

@@ -309,3 +309,128 @@ QuartzDiskTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
     return true;
 }
 
+
+
+QuartzBufferedTable::QuartzBufferedTable(QuartzDiskTable * disktable_)
+	: disktable(disktable_),
+	  entry_count(disktable->get_entry_count())
+{
+}
+
+QuartzBufferedTable::~QuartzBufferedTable()
+{
+}
+
+bool
+QuartzBufferedTable::apply(QuartzRevisionNumber new_revision)
+{
+    bool result;
+    try {
+	result = disktable->set_entries(changed_entries.get_all_entries(),
+					new_revision);
+    } catch (...) {
+	changed_entries.clear();
+	throw;
+    }
+    changed_entries.clear();
+    return result;
+}
+
+void
+QuartzBufferedTable::cancel()
+{
+    changed_entries.clear();
+    entry_count = disktable->get_entry_count();
+}
+
+bool
+QuartzBufferedTable::is_modified()
+{
+    return !changed_entries.empty();
+}
+
+QuartzDbTag *
+QuartzBufferedTable::get_tag(const QuartzDbKey &key)
+{
+    if (changed_entries.have_entry(key)) {
+	return changed_entries.get_tag(key);
+    } else {
+	AutoPtr<QuartzDbTag> tag(new QuartzDbTag);
+	QuartzDbTag * tagptr = tag.get();
+
+	bool found = disktable->get_exact_entry(key, *tagptr);
+
+	if (found) {
+	    changed_entries.set_tag(key, tag);
+	    Assert(changed_entries.get_tag(key) == tagptr);
+	} else {
+	    tagptr = 0;
+	}
+
+	return tagptr;
+    }
+}
+
+QuartzDbTag *
+QuartzBufferedTable::get_or_make_tag(const QuartzDbKey &key)
+{
+    if (changed_entries.have_entry(key)) {
+	return changed_entries.get_tag(key);
+    } else {
+	AutoPtr<QuartzDbTag> tag(new QuartzDbTag);
+	QuartzDbTag * tagptr = tag.get();
+
+	bool found = disktable->get_exact_entry(key, *tag);
+
+	changed_entries.set_tag(key, tag);
+	if (found && tagptr == 0) {
+	    Assert(entry_count != 0);
+	    entry_count -= 1;
+	} else if (!found && tagptr != 0) {
+	    entry_count += 1;
+	}
+	Assert(changed_entries.have_entry(key));
+	Assert(changed_entries.get_tag(key) == tagptr);
+	Assert(tag.get() == 0);
+
+	return tagptr;
+    }
+}
+
+void
+QuartzBufferedTable::delete_tag(const QuartzDbKey &key)
+{
+    // This reads the tag to check if it currently exists, so we can keep
+    // track of the number of entries in the table.
+    if (get_tag(key) != 0) {
+	entry_count -= 1;
+    }
+    changed_entries.set_tag(key, AutoPtr<QuartzDbTag>(0));
+}
+
+quartz_tablesize_t
+QuartzBufferedTable::get_entry_count() const
+{
+    return entry_count;
+}
+
+bool
+QuartzBufferedTable::get_nearest_entry(QuartzDbKey &key,
+				       QuartzDbTag & tag) const
+{
+    // FIXME: look up in changed_entries too.
+    return disktable->get_nearest_entry(key, tag);
+}
+
+bool
+QuartzBufferedTable::get_exact_entry(const QuartzDbKey &key,
+				     QuartzDbTag & tag) const
+{
+    if (changed_entries.have_entry(key)) {
+	tag = *(changed_entries.get_tag(key));
+	return true;
+    }
+
+    return disktable->get_exact_entry(key, tag);
+}
+

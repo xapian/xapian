@@ -30,7 +30,7 @@
 
 #include <map>
 
-QuartzModifications::QuartzModifications(QuartzTableManager * table_manager_)
+QuartzModifications::QuartzModifications(QuartzDiskTableManager * table_manager_)
 	: table_manager(table_manager_)
 {
     open_diffs();

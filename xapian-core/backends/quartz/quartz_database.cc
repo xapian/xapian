@@ -72,7 +72,7 @@
 //                 database is allowed.
 //
 QuartzDatabase::QuartzDatabase(const OmSettings & settings, bool readonly)
-	: modifications(0),
+	: buffered_tables(0),
 	  use_transactions(false),
 	  readonly(readonly)
 {
@@ -84,11 +84,20 @@ QuartzDatabase::QuartzDatabase(const OmSettings & settings, bool readonly)
     bool perform_recovery = settings.get_bool("quartz_perform_recovery", false);
 
     // Open database manager
-    table_manager.reset(new QuartzTableManager(db_dir,
-					       tmp_dir,
-					       log_filename,
-					       readonly,
-					       perform_recovery));
+    if (readonly) {
+	tables.reset(new QuartzDiskTableManager(db_dir,
+						tmp_dir,
+						log_filename,
+						readonly,
+						perform_recovery));
+    } else {
+	buffered_tables = new QuartzBufferedTableManager(db_dir,
+							 tmp_dir,
+							 log_filename,
+							 readonly,
+							 perform_recovery);
+	tables.reset(buffered_tables);
+    }
 }
 
 QuartzDatabase::~QuartzDatabase()
@@ -112,8 +121,9 @@ QuartzDatabase::do_begin_session(om_timeout timeout)
 	throw OmInvalidOperationError("Cannot begin a modification session: "
 				      "database opened readonly.");
     }
-    modifications.reset(new QuartzModifications(table_manager.get()));
-    Assert(modifications.get() != 0);
+    Assert(buffered_tables != 0);
+
+    // FIXME - get a write lock on the database
 }
 
 void
@@ -122,9 +132,14 @@ QuartzDatabase::do_end_session()
     OmLockSentry sentry(quartz_mutex);
 
     Assert(!readonly);
-    Assert(modifications.get() != 0);
-    modifications->apply();
-    modifications.reset();
+    Assert(buffered_tables != 0);
+    bool success = buffered_tables->apply();
+
+    // FIXME - release write lock on the database
+
+    if (!success) {
+	throw OmDatabaseError("Unable to modify database - modifications lost.");
+    }
 }
 
 void
@@ -133,8 +148,14 @@ QuartzDatabase::do_flush()
     OmLockSentry sentry(quartz_mutex);
 
     Assert(!readonly);
-    Assert(modifications.get() != 0);
-    modifications->apply();
+    Assert(buffered_tables != 0);
+    buffered_tables->apply();
+
+    bool success = buffered_tables->apply();
+
+    if (!success) {
+	throw OmDatabaseError("Unable to modify database - modifications lost.");   
+    }
 }
 
 
@@ -174,8 +195,9 @@ QuartzDatabase::do_add_document(const OmDocumentContents & document)
 {
     OmLockSentry sentry(quartz_mutex);
 
-    Assert(modifications.get() != 0);
-    return modifications->add_document(document);
+    Assert(buffered_tables != 0);
+    //return modifications->add_document(document);
+    throw OmUnimplementedError("QuartzDatabase::do_add_document() not yet implemented");
 }
 
 void
@@ -183,8 +205,9 @@ QuartzDatabase::do_delete_document(om_docid did)
 {
     OmLockSentry sentry(quartz_mutex);
 
-    Assert(modifications.get() != 0);
-    return modifications->delete_document(did);
+    Assert(buffered_tables != 0);
+    //return modifications->delete_document(did);
+    throw OmUnimplementedError("QuartzDatabase::do_delete_document() not yet implemented");
 }
 
 void
@@ -193,8 +216,9 @@ QuartzDatabase::do_replace_document(om_docid did,
 {
     OmLockSentry sentry(quartz_mutex);
 
-    Assert(modifications.get() != 0);
-    return modifications->replace_document(did, document);
+    Assert(buffered_tables != 0);
+    //return modifications->replace_document(did, document);
+    throw OmUnimplementedError("QuartzDatabase::do_replace_document() not yet implemented");
 }
 
 
@@ -203,10 +227,8 @@ QuartzDatabase::do_get_document(om_docid did)
 {
     OmLockSentry sentry(quartz_mutex);
 
-
     throw OmUnimplementedError("QuartzDatabase::do_get_document() not yet implemented");
 }
-
 
 
 om_doccount 
@@ -216,7 +238,7 @@ QuartzDatabase::get_doccount() const
 
     // FIXME: check that the sizes of these types (om_doccount and
     // quartz_tablesize_t) are compatible.
-    return table_manager->record_table.get_entry_count() - 1;
+    return tables->get_record_table()->get_entry_count() - 1;
 }
 
 om_doclength

@@ -45,7 +45,7 @@ class QuartzModifications {
 
 	/** Pointer to the database manager.
 	 */
-	QuartzTableManager * table_manager;
+	QuartzDiskTableManager * table_manager;
 
 
 	/** Diffs made to the PostList database.
@@ -91,7 +91,7 @@ class QuartzModifications {
 	 *                         constituting the database.
 	 *                      
 	 */
-	QuartzModifications(QuartzTableManager * table_manager_);
+	QuartzModifications(QuartzBufferedTableManager * table_manager_);
 
 	/** Destroy the modifications.  Any unapplied modifications will
 	 *  be lost.

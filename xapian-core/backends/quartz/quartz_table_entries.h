@@ -26,6 +26,7 @@
 #include "config.h"
 #include <map>
 #include "autoptr.h"
+#include "quartz_types.h"
 #include <string>
 
 /** A tag in a quartz table.
@@ -81,6 +82,7 @@ class QuartzTableEntries {
 
 	/// The entries stored in this object
 	std::map<QuartzDbKey, QuartzDbTag *> entries;
+
     public:
 
 	/** Initialise the cache of entries.
@@ -105,7 +107,10 @@ class QuartzTableEntries {
 	 *          pointer.  A null pointer will be returned if the tag
 	 *          is marked for deletion.
 	 */
+	//@{
 	QuartzDbTag * get_tag(const QuartzDbKey &key);
+	const QuartzDbTag * get_tag(const QuartzDbKey &key) const;
+	//@}
 
 	/** Return whether the given entry is stored in this object.
 	 *
@@ -113,13 +118,13 @@ class QuartzTableEntries {
 	 *          is stored as being marked for deletion), false if it is
 	 *          not stored.
 	 */
-	bool have_entry(const QuartzDbKey &key);
+	bool have_entry(const QuartzDbKey &key) const;
 
 	/** Return whether there are any entries stored in this object.
 	 *
 	 *  @return true if the object stores no entries, false otherwise.
 	 */
-	bool empty();
+	bool empty() const;
 
 	/** Set the tag associated with a given key.
 	 *  If a tag is already associated with the key, it is freed and
@@ -135,17 +140,6 @@ class QuartzTableEntries {
 	 *  @param block The block to store.
 	 */
 	void set_tag(const QuartzDbKey &key, AutoPtr<QuartzDbTag> tag);
-
-	/** Removes the specified entry from the QuartzTableEntries object.
-	 *
-	 *  This simply removes the entry from the object - it does not
-	 *  correspond to deleting it from the underlying table.
-	 *
-	 *  If the object is being used as a store for proposed
-	 *  modifications, this corresponds to forgetting any modifications
-	 *  to this entry.
-	 */
-	void forget_entry(const QuartzDbKey &key);
 
 	/** Removes all the entries from the QuartzTableEntries object.
 	 *

@@ -43,15 +43,21 @@ QuartzTableEntries::get_tag(const QuartzDbKey &key)
     return i->second;
 }
 
+const QuartzDbTag *
+QuartzTableEntries::get_tag(const QuartzDbKey &key) const
+{
+    return const_cast<QuartzTableEntries *>(this)->get_tag(key);
+}
+
 bool
-QuartzTableEntries::have_entry(const QuartzDbKey &key)
+QuartzTableEntries::have_entry(const QuartzDbKey &key) const
 {
     Assert(key.value != "");
     return (entries.find(key) != entries.end());
 }
 
 bool
-QuartzTableEntries::empty()
+QuartzTableEntries::empty() const
 {
     return (entries.empty());
 }
@@ -69,18 +75,6 @@ QuartzTableEntries::set_tag(const QuartzDbKey &key, AutoPtr<QuartzDbTag> tag)
 	i->second = tag.get();
     }
     tag.release();
-}
-
-void
-QuartzTableEntries::forget_entry(const QuartzDbKey &key)
-{
-    Assert(key.value != "");
-    std::map<QuartzDbKey, QuartzDbTag *>::iterator i = entries.find(key);
-
-    if (i != entries.end()) {
-	delete (i->second);
-	entries.erase(i);
-    }
 }
 
 void

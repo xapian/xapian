@@ -323,7 +323,6 @@ static bool test_tableentries1()
     }
     TEST_EXCEPTION(OmAssertionError, entries.have_entry(key1));
     TEST_EXCEPTION(OmAssertionError, entries.get_tag(key1));
-    TEST_EXCEPTION(OmAssertionError, entries.forget_entry(key1));
 #endif
 
     key1.value="foo";

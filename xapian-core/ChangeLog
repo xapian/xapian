@@ -1,3 +1,22 @@
+Thu Oct  5 17:51:01 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Made QuartzTable into a base class for QuartzDiskTable and
+	  QuartzBufferedTable.
+
+	* Made QuartzTableManager into a base class for QuartzDiskTableManager
+	  and QuartzBufferedTableManager.
+
+	* Removed QuartzModifications object.  We now use
+	  QuartzBufferedTables to hold changes before committing instead. 
+
+	* QuartzDatabase has a QuartzTableManager object, which is actually
+	  a QuartzBufferedTableManager if the database is writable.
+	  Separate pointer held to access the manager as a buffered manager
+	  in this case.  This means that updates to the database will
+	  immediately be accessible from the same quartz database object
+	  (so searches while indexing will search across all the unflushed
+	  changes too).
+
 Thu Oct 05 16:51:09 BST 2000 Olly Betts
 
 	* get_weight() moved into LeafPostList instead of subclasses and now

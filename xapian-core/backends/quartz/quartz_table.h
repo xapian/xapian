@@ -118,7 +118,7 @@ class QuartzTable {
 
 	/** Return a count of the number of entries in the table.
 	 *
-	 *  @return THe number of entries in the table.
+	 *  @return The number of entries in the table.
 	 */
 	virtual quartz_tablesize_t get_entry_count() const = 0;
 
@@ -161,34 +161,6 @@ class QuartzTable {
 	 */
 	virtual bool get_exact_entry(const QuartzDbKey &key,
 				     QuartzDbTag & tag) const = 0;
-
-	/** Modify the entries in the table.
-	 *
-	 *  Each key / tag pair is added to the table.
-	 *
-	 *  If the key already exists in the table, the existing tag
-	 *  is replaced by the supplied one.
-	 *
-	 *  If an entry is specified with a null pointer for the tag, then
-	 *  the entry will be removed from the table, if it exists.  If
-	 *  it does not exist, no action will be taken.
-	 *
-	 *  If an error occurs during the operation, this will be signalled
-	 *  by a return value of false.  The table will be left in an
-	 *  unmodified state.
-	 *
-	 *  @param entries       The key / tag pairs to store in the table.
-	 *  @param new_revision  The new revision number to store.  This must
-	 *          be greater than the latest revision number (see
-	 *          get_latest_revision_number()), or undefined behaviour will
-	 *          result.  If not specified, the new revision number will be
-	 *          the current one plus 1.
-	 *
-	 *  @return true if the operation completed successfully, false
-	 *          otherwise.
-	 */
-	virtual bool set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
-				 QuartzRevisionNumber new_revision) = 0;
 };
 
 /** Class managing a table in a Quartz database.
@@ -285,14 +257,39 @@ class QuartzDiskTable : public QuartzTable {
 	 */
 	QuartzRevisionNumber get_latest_revision_number() const;
 
+	/** Modify the entries in the table.
+	 *
+	 *  Each key / tag pair is added to the table.
+	 *
+	 *  If the key already exists in the table, the existing tag
+	 *  is replaced by the supplied one.
+	 *
+	 *  If an entry is specified with a null pointer for the tag, then
+	 *  the entry will be removed from the table, if it exists.  If
+	 *  it does not exist, no action will be taken.
+	 *
+	 *  If an error occurs during the operation, this will be signalled
+	 *  by a return value of false.  The table will be left in an
+	 *  unmodified state.
+	 *
+	 *  @param entries       The key / tag pairs to store in the table.
+	 *  @param new_revision  The new revision number to store.  This must
+	 *          be greater than the latest revision number (see
+	 *          get_latest_revision_number()), or undefined behaviour will
+	 *          result.
+	 *
+	 *  @return true if the operation completed successfully, false
+	 *          otherwise.
+	 */
+	bool set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
+			 QuartzRevisionNumber new_revision);
+
 	/** Virtual methods of QuartzTable.
 	 */
 	//@{
 	quartz_tablesize_t get_entry_count() const;
 	bool get_nearest_entry(QuartzDbKey &key, QuartzDbTag & tag) const;
 	bool get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const;
-	bool set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
-			 QuartzRevisionNumber new_revision);
 	//@}
 };
 
@@ -317,12 +314,15 @@ class QuartzBufferedTable : public QuartzTable {
 	 */
 	QuartzTableEntries changed_entries;
 
+	/** Number of entries in the table, including the changed entries.
+	 */
+	quartz_tablesize_t entry_count;
     public:
 	/** Create a new table.  This does not open the table - the open()
 	 *  method must be called before use is made of the table.
 	 *
 	 */
-	QuartzBufferedTable(QuartzDiskTable disktable_);
+	QuartzBufferedTable(QuartzDiskTable * disktable_);
 
 	/** Close the table.
 	 */
@@ -334,10 +334,55 @@ class QuartzBufferedTable : public QuartzTable {
 	 *  by a return value of false.  The table on disk will be left in an
 	 *  unmodified state, and the changes made to it will be lost.
 	 *
+	 *  @param new_revision  The new revision number to store the
+	 *                       modifications under.
+	 *
 	 *  @return true if the operation completed successfully, false
 	 *          otherwise.
 	 */
-	bool apply();
+	bool apply(QuartzRevisionNumber new_revision);
+
+	/** Cancel any outstanding changes.
+	 *
+	 *  This causes any modifications held in memory to be forgotten.
+	 */
+	void cancel();
+
+	/** Determine whether the object contains modifications.
+	 *
+	 *  @return true if the diffs object contains modifications to the
+	 *          database, false if no changes have been made.
+	 */
+	bool is_modified();
+
+	/** Get a pointer to the tag for a given key.
+	 *
+	 *  If the tag is not present in the database, or is currently
+	 *  marked for deletion, this will return a null pointer.
+	 *
+	 *  The pointer is owned by the QuartzBufferedTable (actually, by
+	 *  its changed_entries object) - it may be modified, but must not
+	 *  be deleted.
+	 */
+	QuartzDbTag * get_tag(const QuartzDbKey &key);
+
+	/** Get a pointer to the tag for a given key, creating a new tag if
+	 *  not present.
+	 *
+	 *  This will never return a null pointer.
+	 *
+	 *  The pointer is owned by the QuartzBufferedTable (actually, by
+	 *  its changed_entries object) - it may be modified, but must not
+	 *  be deleted.
+	 */
+	QuartzDbTag * get_or_make_tag(const QuartzDbKey &key);
+
+	/** Remove the tag for a given key.
+	 *
+	 *  This removes the tag for a given key.  If the tag doesn't exist,
+	 *  no action is taken.
+	 */
+	void delete_tag(const QuartzDbKey &key);
 
 	/** Virtual methods of QuartzTable.
 	 */
@@ -345,8 +390,6 @@ class QuartzBufferedTable : public QuartzTable {
 	quartz_tablesize_t get_entry_count() const;
 	bool get_nearest_entry(QuartzDbKey &key, QuartzDbTag & tag) const;
 	bool get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const;
-	bool set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
-			 QuartzRevisionNumber new_revision);
 	//@}
 };
 

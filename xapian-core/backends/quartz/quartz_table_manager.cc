@@ -28,11 +28,11 @@
 #include <om/omerror.h>
 #include <string>
 
-QuartzTableManager::QuartzTableManager(string db_dir_,
-				       string tmp_dir_,
-				       string log_filename,
-				       bool readonly_,
-				       bool perform_recovery)
+QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_,
+					       string tmp_dir_,
+					       string log_filename,
+					       bool readonly_,
+					       bool perform_recovery)
 	: db_dir(db_dir_),
 	  tmp_dir(tmp_dir_),
 	  readonly(readonly_),
@@ -116,13 +116,13 @@ QuartzTableManager::QuartzTableManager(string db_dir_,
     }
 }
 
-QuartzTableManager::~QuartzTableManager()
+QuartzDiskTableManager::~QuartzDiskTableManager()
 {
     log->make_entry("Closing database at `" + db_dir + "'.");
 }
 
 void
-QuartzTableManager::open_tables_newest()
+QuartzDiskTableManager::open_tables_newest()
 {
     log->make_entry("Opening tables at newest available revision");
     record_table.open();
@@ -152,7 +152,7 @@ QuartzTableManager::open_tables_newest()
 }
 
 void
-QuartzTableManager::open_tables_consistent()
+QuartzDiskTableManager::open_tables_consistent()
 {
     // Open record_table first, since it's the last to be written to,
     // and hence if a revision is available in it, it should be available
@@ -213,43 +213,43 @@ QuartzTableManager::open_tables_consistent()
 }
 
 string
-QuartzTableManager::record_path() const
+QuartzDiskTableManager::record_path() const
 {
     return db_dir + "/record_";
 }
 
 string
-QuartzTableManager::attribute_path() const
+QuartzDiskTableManager::attribute_path() const
 {
     return db_dir + "/attribute_";
 }
 
 string
-QuartzTableManager::lexicon_path() const
+QuartzDiskTableManager::lexicon_path() const
 {
     return db_dir + "/lexicon_";
 }
 
 string
-QuartzTableManager::termlist_path() const
+QuartzDiskTableManager::termlist_path() const
 {
     return db_dir + "/termlist_";
 }
 
 string
-QuartzTableManager::positionlist_path() const
+QuartzDiskTableManager::positionlist_path() const
 {
     return db_dir + "/position_";
 }
 
 string
-QuartzTableManager::postlist_path() const
+QuartzDiskTableManager::postlist_path() const
 {
     return db_dir + "/postlist_";
 }
 
 void
-QuartzTableManager::open_tables(QuartzRevisionNumber revision)
+QuartzDiskTableManager::open_tables(QuartzRevisionNumber revision)
 {
     log->make_entry("Opening tables at revision " + revision.get_description() + ".");
     record_table.open(revision);
@@ -262,14 +262,14 @@ QuartzTableManager::open_tables(QuartzRevisionNumber revision)
 }
 
 QuartzRevisionNumber
-QuartzTableManager::get_revision_number() const
+QuartzDiskTableManager::get_revision_number() const
 {
     // We could use any table here, theoretically.
     return postlist_table.get_open_revision_number();
 }
 
 QuartzRevisionNumber
-QuartzTableManager::get_next_revision_number() const
+QuartzDiskTableManager::get_next_revision_number() const
 {
     /* We _must_ use postlist_table here, since it is always the first
      * to be written, and hence will have the greatest available revision
@@ -280,3 +280,173 @@ QuartzTableManager::get_next_revision_number() const
     new_revision.increment();
     return new_revision;
 }
+
+bool
+QuartzDiskTableManager::set_revision_number(QuartzRevisionNumber new_revision)
+{
+    std::map<QuartzDbKey, QuartzDbTag *> null_entries;
+
+    bool success = true;
+    success = success && postlist_table.set_entries(null_entries, new_revision);
+    success = success &&
+	      positionlist_table.set_entries(null_entries, new_revision);
+    success = success && termlist_table.set_entries(null_entries, new_revision);
+    success = success && lexicon_table.set_entries(null_entries, new_revision);
+    success = success &&
+	      attribute_table.set_entries(null_entries, new_revision);
+    success = success && record_table.set_entries(null_entries, new_revision);
+
+    return success;
+}
+
+QuartzDiskTable *
+QuartzDiskTableManager::get_postlist_table()
+{
+    return &postlist_table;
+}
+
+QuartzDiskTable *
+QuartzDiskTableManager::get_positionlist_table()
+{
+    return &positionlist_table;
+}
+
+QuartzDiskTable *
+QuartzDiskTableManager::get_termlist_table()
+{
+    return &termlist_table;
+}
+
+QuartzDiskTable *
+QuartzDiskTableManager::get_lexicon_table()
+{
+    return &lexicon_table;
+}
+
+QuartzDiskTable *
+QuartzDiskTableManager::get_attribute_table()
+{
+    return &attribute_table;
+}
+
+QuartzDiskTable *
+QuartzDiskTableManager::get_record_table()
+{
+    return &record_table;
+}
+
+
+QuartzBufferedTableManager::QuartzBufferedTableManager(string db_dir_,
+						       string tmp_dir_,
+						       string log_filename,
+						       bool readonly_,
+						       bool perform_recovery)
+	: disktables(db_dir_,
+		     tmp_dir_,
+		     log_filename,
+		     readonly_,
+		     perform_recovery),
+	  postlist_buffered_table(disktables.get_postlist_table()),
+	  positionlist_buffered_table(disktables.get_positionlist_table()),
+	  termlist_buffered_table(disktables.get_termlist_table()),
+	  lexicon_buffered_table(disktables.get_lexicon_table()),
+	  attribute_buffered_table(disktables.get_attribute_table()),
+	  record_buffered_table(disktables.get_record_table())
+{
+}
+
+QuartzBufferedTableManager::~QuartzBufferedTableManager()
+{
+}
+
+bool
+QuartzBufferedTableManager::apply()
+{
+    if(!postlist_buffered_table.is_modified() &&
+       !positionlist_buffered_table.is_modified() &&
+       !termlist_buffered_table.is_modified() &&
+       !lexicon_buffered_table.is_modified() &&
+       !attribute_buffered_table.is_modified() &&
+       !record_buffered_table.is_modified()) {
+	disktables.log->make_entry("No modifications to apply.");
+	return true;
+    }
+
+    bool success;
+    QuartzRevisionNumber old_revision(disktables.get_revision_number());
+    QuartzRevisionNumber new_revision(disktables.get_next_revision_number());
+
+    disktables.log->make_entry("Applying modifications.  New revision number is " + new_revision.get_description() + ".");
+
+    success = postlist_buffered_table.apply(new_revision);
+    if (success) { success = positionlist_buffered_table.apply(new_revision); }
+    if (success) { success = termlist_buffered_table.apply(new_revision); }
+    if (success) { success = lexicon_buffered_table.apply(new_revision); }
+    if (success) { success = attribute_buffered_table.apply(new_revision); }
+    if (success) { success = record_buffered_table.apply(new_revision); }
+
+    if (!success) {
+	// Modifications failed.  Wipe all the modifications from memory.
+	disktables.log->make_entry("Attempted modifications failed.  Wiping partial modifications.");
+	postlist_buffered_table.cancel();
+	positionlist_buffered_table.cancel();
+	termlist_buffered_table.cancel();
+	lexicon_buffered_table.cancel();
+	attribute_buffered_table.cancel();
+	record_buffered_table.cancel();
+	
+	// Reopen tables with old revision number, 
+	disktables.log->make_entry("Reopening tables without modifications: old revision is " + old_revision.get_description() + ".");
+	disktables.open_tables(old_revision);
+
+	// Increase revision numbers to new revision number plus one,
+	// writing increased numbers to all tables.
+	new_revision.increment();
+	disktables.log->make_entry("Increasing revision number in all tables to " + new_revision.get_description() + ".");
+
+	if (!disktables.set_revision_number(new_revision)) {
+	    disktables.log->make_entry("Setting revision number failed.  Need recovery.");
+	    throw OmNeedRecoveryError("Quartz - cannot set revision numbers to consistent state.");
+	}
+    } else {
+	disktables.log->make_entry("Modifications succeeded.");
+    }
+    return success;
+}
+
+QuartzBufferedTable *
+QuartzBufferedTableManager::get_postlist_table()
+{
+    return &postlist_buffered_table;
+}
+
+QuartzBufferedTable *
+QuartzBufferedTableManager::get_positionlist_table()
+{
+    return &positionlist_buffered_table;
+}
+
+QuartzBufferedTable *
+QuartzBufferedTableManager::get_termlist_table()
+{
+    return &termlist_buffered_table;
+}
+
+QuartzBufferedTable *
+QuartzBufferedTableManager::get_lexicon_table()
+{
+    return &lexicon_buffered_table;
+}
+
+QuartzBufferedTable *
+QuartzBufferedTableManager::get_attribute_table()
+{
+    return &attribute_buffered_table;
+}
+
+QuartzBufferedTable *
+QuartzBufferedTableManager::get_record_table()
+{
+    return &record_buffered_table;
+}
+
