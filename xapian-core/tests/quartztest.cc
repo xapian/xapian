@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +35,8 @@
 
 #include "autoptr.h"
 
-#include "unistd.h"
+#include <errno.h>
+#include <unistd.h>
 #include <vector>
 #include <algorithm>
 using namespace std;
@@ -57,7 +58,10 @@ static int get_filesize(const string &filename)
 
 static void makedir(const string &filename)
 {
-    mkdir(filename, 0700);
+    if (mkdir(filename, 0700) == -1 && errno != EEXIST) {
+	tout << "Couldn't create directory `" << filename << "' ("
+	     << strerror(errno) << ")";
+    }
 }
 
 static void unlink_table(const string & path)
@@ -2069,7 +2073,7 @@ test_desc tests[] = {
 
 int main(int argc, char **argv)
 {
-    tmpdir = ".quartztmp/";
+    tmpdir = ".quartztmp";
     rmdir(tmpdir);
     makedir(tmpdir);
     test_driver::parse_command_line(argc, argv);

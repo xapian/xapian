@@ -1,3 +1,8 @@
+Thu Mar 04 23:29:28 GMT 2004  Olly Betts <olly@survex.com>
+
+	* tests/btreetest.cc,tests/quartztest.cc: NetBSD mkdir() doesn't cope
+	  with a trailing / on the path - fixed our code to cope with this.
+
 Wed Mar 03 19:14:09 GMT 2004  Olly Betts <olly@survex.com>
 
 	* docs/todo.xml: Updated.

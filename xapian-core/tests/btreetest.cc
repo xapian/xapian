@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,7 +53,10 @@ static string datadir;
 
 static void make_dir(const string & filename)
 {
-    mkdir(filename, 0700);
+    if (mkdir(filename, 0700) == -1 && errno != EEXIST) {
+	tout << "Couldn't create directory `" << filename << "' ("
+	     << strerror(errno) << ")";
+    }
 }
 
 static int process_lines(Btree & btree, ifstream &f)
@@ -103,8 +106,14 @@ static int do_update(const string & btree_dir,
 
 static void do_create(const string & btree_dir, int block_size = 2048)
 {
-    rmdir(btree_dir);
-    make_dir(btree_dir);
+    if (btree_dir.empty()) return;
+
+    // NetBSD mkdir() doesn't cope with a trailing slash.
+    string no_slash = btree_dir;
+    if (no_slash[no_slash.size() - 1] == '/')
+	no_slash.resize(no_slash.size() - 1);
+    rmdir(no_slash);
+    make_dir(no_slash);
 
     Btree::create(btree_dir.c_str(), block_size);
     tout << btree_dir << "/DB created with block size " << block_size << "\n";
