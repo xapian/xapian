@@ -1,3 +1,9 @@
+Wed Sep 08 16:26:15 BST 2004  Olly Betts <olly@survex.com>
+
+	* api/omquery.cc,include/xapian/query.h: Renamed Query::is_empty()
+	  to Query::empty() for consistency.  Keep Query::is_empty() for
+	  now as a deprecated alias.
+
 Wed Sep 08 16:24:44 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/api_wrdb.cc: replace_doc -> replace_doc1; added new test

@@ -209,8 +209,11 @@ class Query {
 	/** Test is the query is empty (i.e. was constructed using
 	 *  the default ctor or with an empty iterator ctor).
 	 */
-	bool is_empty() const;
-		
+	bool empty() const;
+
+	/** Deprecated alias for empty() */
+	bool is_empty() const { return empty(); }
+
 	/** Returns a string representing the query.
 	 *  Introspection method.
 	 */

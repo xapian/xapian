@@ -208,9 +208,9 @@ Xapian::TermIterator Xapian::Query::get_terms_end() const
 }
 	
 bool
-Xapian::Query::is_empty() const
+Xapian::Query::empty() const
 {
-    DEBUGAPICALL(void, "Xapian::Query::is_empty", "");
+    DEBUGAPICALL(void, "Xapian::Query::empty", "");
     return internal.get() == 0;
 }
 
