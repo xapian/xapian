@@ -1,3 +1,9 @@
+xapian-bindings (0.8.4-2) unstable; urgency=low
+
+  * Don't configure with csharp support when building the python packages.
+
+ -- Richard Boulton <richard@tartarus.org>  Fri, 10 Dec 2004 10:15:53 +0000
+
 xapian-bindings (0.8.4-1) unstable; urgency=low
 
   * New upstream release.
