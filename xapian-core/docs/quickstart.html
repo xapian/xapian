@@ -34,11 +34,14 @@ version 2.95.2, but any reasonably ANSI compilant C++ compiler should have
 a decent chance of successfully compiling the code.
 </P>
 <P>
-In addition, to run the examples, you will need a version of Muscat
-compiled with support for the "sleepycat" database access method.  This
-requires a copy of the sleepycat database system library to be installed on
+In addition, to run the examples, you will need a version of Muscat compiled
+with support for the "sleepycat" database access method.  This requires a copy
+of the Berkeley Database library, from Sleepycat software, to be installed on
 your system, and for Muscat to be compiled to use this (by passing the
---enable-backend-sleepy parameter to the configuration script).
+--enable-backend-sleepy parameter to the configuration script).  The sleepycat
+database system is available for most architectures, free for open source
+projects, from
+<A HREF="http://www.sleepycat.com/">http://www.sleepycat.com/</A>
 </P>
 <P>
 If you don't have this library available, there is at the time of writing
@@ -367,8 +370,8 @@ represented by those terms and displays a ranked list of matching documents.
 <H3>Setting up</H3>
 
 <P>
-Just like simpleindex, we have a single function example.  So we include the
-Muscat header file, and begin: 
+Just like &quot;simpleindex&quot;, we have a single-function example.
+So we include the Muscat header file, and begin: 
 </P>
 <PRE>
     #include &lt;om/om.h&gt;
@@ -414,35 +417,64 @@ Again, this is performed just as it was for the simple indexer.
 </PRE>
 
 <H3>Specifying the databases</H3>
+<P>
+</P>
 <PRE>
     // Make the database group
     OmDatabaseGroup databases;
     vector&lt;string&gt; parameters;
     parameters.push_back(argv[1]);
     databases.add_database("sleepycat", parameters);
+</PRE>
 
-    // Start an enquire session
+<H3>Starting an enquire session</H3>
+<P>
+</P>
+<PRE>
     OmEnquire enquire(databases);
+</PRE>
 
+<H3>Preparing a query</H3>
+<PRE>
     // Prepare the query terms
     vector&lt;om_termname&gt; queryterms;
     for (int optpos = 2; optpos &lt; argc; optpos++) {
         queryterms.push_back(argv[optpos]);
     }
-
+</PRE>
+<PRE>
     // Build the query object
     OmQuery query(OM_MOP_OR, queryterms.begin(), queryterms.end());
-    cout &lt;&lt; "Performing query `" &lt;&lt; query.get_description() &lt;&lt; "'" &lt;&lt; endl;
+</PRE>
 
+<P>
+We now print a message out to confirm to the user what the query being
+performed is.  This is done with the <CODE>OmQuery::get_description()</CODE>
+method, which is mainly included for debugging purposes, and displays
+a string representation of the query.
+</P>
+<PRE>
+    cout &lt;&lt; "Performing query `" &lt;&lt; query.get_description() &lt;&lt; "'" &lt;&lt; endl;
+</PRE>
+
+<H3>Performing the query</H3>
+<P>
+</P>
+<PRE>
     // Give the query object to the enquire session
     enquire.set_query(query);
-
+</PRE>
+<PRE>
     // Get the top 10 results of the query
     OmMSet matches = enquire.get_mset(0, 10);
+</PRE>
 
+<H3>Displaying the results of the query</H3>
+<PRE>
     // Display the results
     cout &lt;&lt; matches.items.size() &lt;&lt; " results found" &lt;&lt; endl;
-
+</PRE>
+<PRE>
     for (vector&lt;OmMSetItem&gt;::const_iterator i = matches.items.begin();
          i != matches.items.end();
          i++) {
@@ -455,6 +487,8 @@ Again, this is performed just as it was for the simple indexer.
 
 <HR>
 <H2>Compiling</H2>
+
+Now that we have the code written, all we need to do is compile it!
 
 <H3>Finding the Muscat library</H3>
 
@@ -516,8 +550,16 @@ a copy
 on our website.
 </LI></UL>
 
-For those interested in how Muscat works internally, there is also an
-automatically
+For those interested in how Muscat works internally, there is also
+automatically extracted documentation of the full source code, available
+on our 
+<A HREF="http://open.muscat.com/developer/docs/sourcedoc/html/index.html">website</A>.  You may also build this documentation yourself, if you have Doxygen
+installed, by running
+<PRE>
+    make doxygen_docs
+</PRE>
+from within the <CODE>docs</CODE> subdirectory of the <CODE>om</CODE> source
+tree.
 
 <!-- FOOTER $Author$ $Date$ $Id$ -->
 </BODY>
