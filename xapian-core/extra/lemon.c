@@ -3386,9 +3386,9 @@ int mhflag;     /* Output in makeheaders format if true */
   if( in==0 ) return;
   if( output_filename!=0 ){
     char *tmp = lemp->filename;
-    lemp->filename = output_filename;
     char *ext = strrchr(output_filename, '.');
     if( ext==0 ) ext = ".c";
+    lemp->filename = output_filename;
     out = file_open(lemp,ext,"wb");
     lemp->filename = tmp;
   }else{
@@ -3804,9 +3804,9 @@ struct lemon *lemp;
   else                    prefix = "";
   if( output_header_filename!=0 ){
     char *tmp = lemp->filename;
-    lemp->filename = output_header_filename;
     char *ext = strrchr(output_header_filename, '.');
     if( ext==0 ) ext = ".h";
+    lemp->filename = output_header_filename;
     in = file_open(lemp,ext,"rb");
     lemp->filename = tmp;
   }else{
@@ -3825,9 +3825,9 @@ struct lemon *lemp;
   }
   if( output_header_filename!=0 ){
     char *tmp = lemp->filename;
-    lemp->filename = output_header_filename;
     char *ext = strrchr(output_header_filename, '.');
     if( ext==0 ) ext = ".h";
+    lemp->filename = output_header_filename;
     out = file_open(lemp,ext,"wb");
     lemp->filename = tmp;
   }else{
