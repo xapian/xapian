@@ -1,4 +1,4 @@
-Xapian 0.5.2:
+Xapian 0.5.2 (2002-10-06):
 
 Further improvements to documentation and portability:
 
@@ -13,7 +13,7 @@ Further improvements to documentation and portability:
 * test suite: try to spot mishandled exceptions and stop them causing bogus
   OMEXCEPT failures.
 
-Xapian 0.5.1:
+Xapian 0.5.1 (2002-10-02):
 
 This release fixes features improved documentation and some build system
 portability fixes.
@@ -32,7 +32,7 @@ portability fixes.
 * buildall script is now deprecated - use the new streamlined bootstrap script
   in preference.
 
-Xapian 0.5.0:
+Xapian 0.5.0 (2002-09-20):
 
 The last release of the software that is now known as Xapian was OmSee 0.4.1 on
 November 24th 2000, not far from 2 years ago.
