@@ -61,8 +61,9 @@ static test tests[] = {
     { "\"QSI-161 drivers\"", "(Rqsi:(pos=1) PHRASE 3 R161:(pos=2) PHRASE 3 driver:(pos=3))" },
     { "\"e-cube\" barebone", "((e:(pos=1) PHRASE 2 cube:(pos=2)) OR barebon:(pos=3))" },
     { "\"./httpd: symbol not found: dlopen\"", "(httpd:(pos=1) PHRASE 5 symbol:(pos=2) PHRASE 5 not:(pos=3) PHRASE 5 found:(pos=4) PHRASE 5 dlopen:(pos=5))" },
+    { "ERROR 2003: Can't connect to MySQL server on 'localhost' (10061)",
+      "(Rerror:(pos=1) OR R2003:(pos=2) OR (Rcan:(pos=3) PHRASE 2 t:(pos=4)) OR connect:(pos=5) OR to:(pos=6) OR Rmysql:(pos=7) OR server:(pos=8) OR on:(pos=9) OR localhost:(pos=10) OR R10061:(pos=11))" },
     // These are currently parse errors, but shouldn't be:
-    { "ERROR 2003: Can't connect to MySQL server on 'localhost' (10061)", NULL },
     { "behuizing 19\" inch", NULL },
     { "553 sorry, that domain isn't in my list of allowed rcpthosts (#5.7.1)", NULL },
     { NULL, NULL }

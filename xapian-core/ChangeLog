@@ -1,3 +1,9 @@
+Thu May 29 17:14:04 BST 2003  Olly Betts <olly@survex.com>
+
+	* extra/queryparser.yy,extra/queryparsertest.cc: A phrasemaker isn't
+	  a phrasemaker unless it's preceded by an alphanumeric, "+", or "-";
+	  If a single term is in (), ignore the ().
+
 Thu May 29 16:45:39 BST 2003  Olly Betts <olly@survex.com>
 
 	* extra/queryparser.yy,extra/queryparsertest.cc: Improved handling

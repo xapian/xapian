@@ -132,6 +132,7 @@ probterm: stopterm
 
 ignorehypterm:	  TERM
 		| HYPHEN TERM   { $$ = $2; } /* Ignore leading HYPHEN */
+		| '(' ignorehypterm ')'	{ $$ = $2; }
 ;
 
 stopterm: ignorehypterm	{ string term = *($1.q.get_terms_begin()); 
@@ -416,8 +417,12 @@ more_term:
      case '_': case '/': case '\\': case '@':
      case '\'': case '*':
 	/* these characters generate a phrase search */
-	if (isalnum(*qptr)) return HYPHEN;
-	break;
+	if (!isalnum(*qptr)) break;
+	if (qptr - 1 != q.begin()) {
+	    int prevch = *(qptr - 2);
+	    if (!isalnum(prevch) && prevch != '+' && prevch != '-') break;
+	}
+	return HYPHEN;
      case '(':
 	// Ignore ( at end of query
 	if (qptr == q.end()) return 0;
