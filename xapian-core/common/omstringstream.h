@@ -35,6 +35,7 @@ typedef std::ostringstream om_ostringstream;
 #else // HAVE_SSTREAM
 
 #include <string>
+#include <iostream>
 
 class om_ostringstream {
     public:
@@ -49,12 +50,18 @@ class om_ostringstream {
 
 	/// Add a string to the stringstream
 	om_ostringstream & operator << (const std::string &);
+	om_ostringstream & operator << (const char *);
+	om_ostringstream & operator << (const void *);
+	om_ostringstream & operator << (char);
+	om_ostringstream & operator << (unsigned char);
 	om_ostringstream & operator << (int);
 	om_ostringstream & operator << (unsigned int);
 	om_ostringstream & operator << (long);
 	om_ostringstream & operator << (unsigned long);
 	om_ostringstream & operator << (double);
 	om_ostringstream & operator << (bool);
+
+	om_ostringstream & operator << (ostream& (*)(ostream&));
     private:
 	/// Copies are not allowed.
 	om_ostringstream(const om_ostringstream &);
@@ -70,6 +77,11 @@ class om_ostringstream {
     inline om_ostringstream & \
     operator << (om_ostringstream &os, const X & obj) { \
 	return os << obj.get_description(); \
+    } \
+    inline om_ostringstream & \
+    operator << (om_ostringstream &os, const X * obj) { \
+	if (obj) return os << "<"#X" - NULL>"; \
+	return os << obj->get_description(); \
     }
 
 OSTRINGSTREAMFUNC(OmDatabase);

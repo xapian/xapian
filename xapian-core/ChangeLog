@@ -1,3 +1,10 @@
+Thu Jul 20 15:03:38 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* More work on omstringstream, now understands char *, std::endl and
+	  std::flush and a few new types.
+
+	* Make omlocks include stdio.h
+
 Thu Jul 20 13:01:51 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* stemtest.pl now has new options:

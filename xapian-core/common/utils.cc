@@ -81,6 +81,15 @@ om_tostring(double val)
 }
 
 std::string
+om_tostring(const void * val)
+{
+    char buf[BUFSIZE];
+    int len = snprintf(buf, BUFSIZE, "%p", val);
+    if(len == -1 || len > BUFSIZE) return std::string(buf, BUFSIZE);
+    return std::string(buf, len);
+}
+
+std::string
 om_tostring(bool val)
 {
     return val ? "true" : "false";

@@ -36,9 +36,6 @@
 #include <vector>
 #include <stdio.h>
 
-// for convenience using debugging functions.
-using std::endl;
-
 #ifdef MUS_USE_PTHREAD
 #include <pthread.h>
 #endif /* MUS_USE_PTHREAD */
@@ -168,7 +165,7 @@ extern OmDebug om_debug;
 #define THREAD_INFO
 #endif // HAVE_LIBPTHREAD
 
-#define DEBUGLINE2(a,b) DEBUGMSG2(a, "Om" THREAD_INFO ": " << b << std::endl)
+#define DEBUGLINE2(a,b) DEBUGMSG2(a, "Om" THREAD_INFO ": " << b << '\n')
 
 /** Class to manage printing a message at the start and end of a method call.
  */

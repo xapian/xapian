@@ -523,7 +523,7 @@ test_desc tests[] = {
     {"testsuite3",		test_testsuite3},
 #ifdef HAVE_NO_ACCESS_CONTROL
     {"refcnt1",			test_refcnt1},
-#endif HAVE_NO_ACCESS_CONTROL
+#endif // HAVE_NO_ACCESS_CONTROL
     {"stringcomp1",		test_stringcomp1},
 #ifdef MUS_BUILD_BACKEND_SLEEPY
     {"sleepypack1",		test_sleepypack1},

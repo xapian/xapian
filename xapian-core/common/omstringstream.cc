@@ -46,6 +46,33 @@ om_ostringstream & om_ostringstream::operator << (const std::string & msg)
     return *this;
 }
 
+om_ostringstream & om_ostringstream::operator << (const char * msg)
+{
+    if (msg) {
+	mystring += std::string(msg);
+    } else {
+	mystring += "<NULL>";
+    }
+    return *this;
+}
+
+om_ostringstream & om_ostringstream::operator << (const void * msg)
+{
+    return *this << om_tostring(msg);
+}
+
+om_ostringstream & om_ostringstream::operator << (char msg)
+{
+    mystring += msg;
+    return *this;
+}
+
+om_ostringstream & om_ostringstream::operator << (unsigned char msg)
+{
+    mystring += msg;
+    return *this;
+}
+
 om_ostringstream & om_ostringstream::operator << (int msg) {
     return *this << om_tostring(msg);
 }
@@ -70,5 +97,10 @@ om_ostringstream & om_ostringstream::operator << (bool msg) {
     return *this << om_tostring(msg);
 }
 
+om_ostringstream & om_ostringstream::operator << (ostream& (*msg)(ostream&)) {
+    if (msg == std::endl) return *this << '\n';
+    if (msg == std::flush) return *this;
+    return *this;
+}
 
 #endif // HAVE_SSTREAM

@@ -45,6 +45,9 @@ std::string om_tostring(double a);
 /// Convert a bool to a string
 std::string om_tostring(bool a);
 
+/// Convert a pointer to a string
+std::string om_tostring(const void * a);
+
 ///////////////////////////////////////////
 // Mapping of types as strings to enums  //
 ///////////////////////////////////////////
