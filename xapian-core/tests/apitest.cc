@@ -389,7 +389,13 @@ OmDatabase BackendManager::getdb_sleepy(const string &dbname1,
 OmDatabase BackendManager::getdb_net(const string &dbname1,
 				     const string &dbname2)
 {
-    return getdb_void(dbname1, dbname2);
+    // run an omprogsrv for now.  Later we should also use omtcpsrv
+    OmDatabase db("net",
+		  make_strvec("prog",
+			      "../netprogs/omprogsrv",
+			      datadir_ + dbname1 + ".txt"));
+
+    return db;
 }
 
 OmDatabase BackendManager::get_database(const string &dbname1,
@@ -2061,7 +2067,7 @@ int main(int argc, char *argv[])
 #if 0 && defined(MUS_BUILD_BACKEND_NET)
     backendmanager.set_dbtype("net");
     cout << "Running tests with net backend..." << endl;
-    result = max(result, test_driver::main(argc, argv, tests, &sum_temp));
+    result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
     summary.succeeded += sum_temp.succeeded;
     summary.failed += sum_temp.failed;
 #endif
