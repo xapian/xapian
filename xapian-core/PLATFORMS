@@ -65,9 +65,12 @@ x86   |*Solaris 9 Sun Workshop C++     | 0.8.3 |Failed| [2] [5]
 arm   |@Linux 2.4 Debian sid GCC 2.95.4| 0.8.0 |Failed| [8]
 ------+--------------------------------+-------+------+------------------------
 
-Older success reports lacking an update for a more recent Xapian version
-(typically because the machine in question was upgraded, or we no longer
-have access to it, or the report was from a third party):
+These are older success reports lacking an update for a more recent Xapian
+version (typically because the machine in question was upgraded, or we no
+longer have access to it, or the report was from a third party).  We've
+removed reports prior to 0.7.0 since that's when the Xapian namespace was
+added and some major internal changes were made, so reports for versions prior
+to this are of questionable value.
 
 Arch  | Platform                       |Version|Status| Notes / requirements
 ------+--------------------------------+-------+------+------------------------
@@ -83,21 +86,6 @@ x86   |&Linux 2.2 Debian 3.0 GCC 3.3   | 0.7.2 |Passed|
 ------+--------------------------------+-------+------+------------------------
 x86   | Linux 2.4 Debian sid GCC 3.3.1 | 0.7.0 |Passed| from Olly Betts
 ------+--------------------------------+-------+------+------------------------
-x86   |!Linux 2.4 RedHat 7.1 GCC 3.2.2 | 0.6.5 |Passed| with CXXFLAGS=-Werror
-x86   |!OpenBSD 3.2 GCC 2.95.3         |~0.6.5 |Passed|
-sparc |!Solaris 7 GCC 2.95.3           |~0.6.5 |Passed| [2]
-------+--------------------------------+-------+------+------------------------
-x86   |!OpenBSD 3.0 GCC 2.95.3         | 0.5.3 |Passed|
-------+--------------------------------+-------+------+------------------------
-x86   |#FreeBSD 4.5                    | 0.5.2 |Passed| [1]
-alpha |#Linux 2.2 Debian 2.2           | 0.5.2 |Passed|
-------+--------------------------------+-------+------+------------------------
-sparc |#Linux 2.2 Debian 2.2           | 0.5.1 |Passed|
-ppc   |#Linux 2.4 Debian 2.2           | 0.5.1 |Passed| [2]
-------+--------------------------------+-------+------+------------------------
-x86   | Linux 2.2 Debian 2.2 GCC 2.95.4| 0.5.0 |Passed|
-x86   | Linux 2.4 RedHat 7.3 GCC 3.1   | 0.5.0 |Passed| from Jan Algermissen
-x86   | Solaris 8 GCC 2.95.3           | 0.5.0 |Passed| from Peter Marelas
 
 * = SourceForge CompileFarm machine
 # = SourceForge CompileFarm machine which is no longer available
@@ -121,8 +109,8 @@ mv: [FILE]: set owner/group (was: [USERNO]/[GROUPNO]): Operation not permitted
 of portability.  Remote backend is automatically disabled due to lack of
 socketpair.  Not tried to run the binaries yet.
 
-[5] queryparsertest fails - it seems '\xb7' gets regarded as "isalnum", but
-it doesn't in a short test program.
+[5] queryparsertest fails - it seems '\xb7' gets regarded as "isalnum" in
+the queryparser code, although this isn't repeatable in a short test program.
 
 [6] Compiler emits a number of warnings.
 
