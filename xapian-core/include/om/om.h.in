@@ -39,7 +39,7 @@
 // 
 // In this file, use "% " at the start of a line when you want a "//" comment,
 // % on a line by itself // for a blank line, % at the start of a line with
-// no space after it for a "#", and % elsewhere // for a __ (so e.g. when we
+// no space after it for a "#", and % elsewhere for a __ (so e.g. when we
 // want __GXX_ABI_VERSION literally, we write %GXX_ABI_VERSION).
 #define V2(A,B) J2(A,B)
 #define J2(A,B) g++ A##.##B

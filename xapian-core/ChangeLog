@@ -1,3 +1,7 @@
+Fri Dec 13 23:43:23 GMT 2002  Olly Betts <olly@survex.com>
+
+	* include/om/om.h.in: Removed bogus // in the middle of a comment.
+
 Fri Dec 13 22:17:41 GMT 2002  Olly Betts <olly@survex.com>
 
 	* configure.in,testsuite/testsuite.cc: Added hooks for using valgrind
