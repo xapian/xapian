@@ -1,3 +1,10 @@
+Fri Jul 11 00:53:59 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_table_manager.cc: When asked to create a
+	  quartz database, try to create the directory if it doesn't already
+	  exist.  Then we don't have to do it in every single Xapian program
+	  which wants to create a database...
+
 Fri Jul 11 00:36:00 BST 2003  Olly Betts <olly@survex.com>
 
 	* common/getopt.h: Removed space between \ and newline.

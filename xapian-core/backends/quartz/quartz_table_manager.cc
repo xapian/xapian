@@ -108,6 +108,16 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
 		    throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it was created by a pre-0.6 version of Xapian");
 		throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
 	    }
+
+	    // Create the directory for the database, if it doesn't exist
+	    // already.
+	    struct stat statbuf;
+	    if (stat(db_dir, &statbuf) == -1 ||
+		(!S_ISDIR(statbuf.st_mode) && mkdir(db_dir, 0755) == -1)) {
+		throw Xapian::DatabaseOpeningError("Cannot create directory `"
+						   + db_dir + "'", errno);
+	    }
+
 	    create_and_open_tables();
 	    return;
 	}
