@@ -94,7 +94,7 @@ Priority | Area            | Task
  Medium  | Positional      | Pass within-query-frequency and query length
 	 |                 | information to matcher.
 ---------+-----------------+--------------------------------------------------
- Medium  |RPositional      | Add a get_positionlist() method to databases.
+ Medium  |RPositional      | Add a get_position_list() method to databases.
 ---------+-----------------+--------------------------------------------------
  Medium  | General / API   | Put Om into its own namespace, to ensure lack of
          |                 | symbol conflicts.
@@ -114,11 +114,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Medium  | API             | Test OmMSet::get_termfreq() and
          |                 | OmMSet::get_termweight().
----------+-----------------+--------------------------------------------------
- Medium  | MultiMatch      | Check that MultiMatch::get_max_weight()
-         |                 | returns correct value in case where some of the
-	 |                 | query terms are not present in some of the sub
-	 |                 | databases.
 ---------+-----------------+--------------------------------------------------
  Medium  | Matchers        | Deprecate get_max_weight() - not useful
          |                 | independently of get_mset(), which now returns
@@ -155,8 +150,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Low     |RPositional      | Use within query frequency and query length
 	 |                 | information in matcher.
----------+-----------------+--------------------------------------------------
- Low     |OExamples        | Rework the ferretfx example to be more useful.
 ---------+-----------------+--------------------------------------------------
  Low     |cGeneral         | Audit for exception safety.
 ---------+-----------------+--------------------------------------------------
