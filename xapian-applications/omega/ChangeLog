@@ -1,3 +1,8 @@
+Thu May 29 00:00:28 BST 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am,date.cc,date.h,query.cc: Split code to build a
+	  date range filter into a separate file.
+
 Wed May 28 23:38:02 BST 2003  Olly Betts <olly@survex.com>
 
 	* configfile.cc,configfile.h,omega.cc,omega.conf,query.cc,query.h,

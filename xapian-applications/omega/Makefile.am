@@ -3,7 +3,7 @@
 AUTOMAKE_OPTIONS = 1.6.3
 
 noinst_HEADERS = omega.h query.h cgiparam.h symboltab.h\
- htmlparse.h utils.h configfile.h
+ htmlparse.h utils.h configfile.h date.h
 
 EXTRA_DIST = templates/query \
 	templates/godmode \
@@ -71,7 +71,7 @@ docdata_DATA = docs/cgiparams.txt \
 	docs/quickstart.txt \
 	docs/scriptindex.txt
 
-omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc
+omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc
 omega_LDADD = $(XAPIAN_LIBS) -lomqueryparser # -lpcre
 
 omindex_SOURCES = omindex.cc htmlparse.cc
