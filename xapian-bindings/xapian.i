@@ -261,7 +261,7 @@ class MSet {
     doccount get_firstitem() const;
     weight get_max_possible();
     weight get_max_attained();
-    %name(is_empty) bool empty() const;
+    bool empty() const;
     MSetIterator begin() const;
     MSetIterator end() const;
     MSetIterator back() const;
@@ -299,7 +299,7 @@ class RSet {
 	void remove_document(MSetIterator& i);
 	bool contains(MSetIterator& i);
 #endif
-	%name(is_empty) bool empty() const;
+	bool empty() const;
 	doccount size() const;
 
         string get_description() const;
@@ -330,7 +330,7 @@ class ESet {
         string get_description() const;
 	termcount get_ebound() const;
 	termcount size() const;
-	%name(is_empty) termcount empty() const;
+	termcount empty() const;
 	ESetIterator begin() const;
 	ESetIterator end() const;
 };

@@ -1,3 +1,7 @@
+Wed Sep 08 15:23:38 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Remove renaming of empty() methods to is_empty().
+
 Wed Sep 08 05:34:10 BST 2004  Olly Betts <olly@survex.com>
 
 	* README: Pike support is now in SWIG it seems.
