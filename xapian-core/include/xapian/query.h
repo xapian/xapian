@@ -30,12 +30,7 @@
 #include <vector>
 
 #include <xapian/base.h>
-#ifndef XAPIAN_INCLUDED_TYPES_H
 #include <xapian/types.h>
-#endif
-#ifndef XAPIAN_INCLUDED_TERMITERATOR_H
-#include "xapian/termiterator.h"
-#endif
 
 // FIXME: sort this out so we avoid exposing Xapian::Query::Internal
 // - we need to at present so that the Xapian::Query's template ctors
@@ -45,6 +40,8 @@ class LocalSubMatch;
 class SortPosName;
 
 namespace Xapian {
+
+class TermIterator;
 
 /** Class representing a query.
  * 
@@ -202,12 +199,12 @@ class Query {
 	 *  position, their order is unspecified.  Duplicates (same term and
 	 *  termpos) will be removed.
 	 */
-	Xapian::TermIterator get_terms_begin() const;
+	TermIterator get_terms_begin() const;
 
 	/** Return a Xapian::TermIterator to the end of the list of terms in the
 	 *  query.
 	 */
-	Xapian::TermIterator get_terms_end() const;
+	TermIterator get_terms_end() const;
 
 	/// Test is the query is empty (i.e. was constructed using
 	//  the default ctor or with an empty iterator ctor).

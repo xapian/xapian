@@ -26,17 +26,19 @@
 #ifndef XAPIAN_INCLUDED_DATABASE_H
 #define XAPIAN_INCLUDED_DATABASE_H
 
+#include <string>
 #include <vector>
 
-#include <xapian/document.h>
 #include <xapian/base.h>
-#include <xapian/termiterator.h>
-#include <xapian/positionlistiterator.h>
+#include <xapian/types.h>
 
 namespace Xapian {
     
-class WritableDatabase;
+class Document;
+class PositionListIterator;
 class PostListIterator;
+class TermIterator;
+class WritableDatabase;
 
 /** This class is used to access a database, or a set of databases.
  *

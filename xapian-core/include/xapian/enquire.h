@@ -26,17 +26,20 @@
 #ifndef XAPIAN_INCLUDED_ENQUIRE_H
 #define XAPIAN_INCLUDED_ENQUIRE_H
 
-#include <xapian/types.h>
-#include <xapian/document.h>
-#include <xapian/database.h>
-#include <xapian/error.h>
 #include <string>
 #include <time.h> // for time_t
 
+#include <xapian/base.h>
+#include <xapian/types.h>
+
 namespace Xapian {
-class Query;
+
+class Database;
+class Document;
 class ErrorHandler;
 class MSetIterator;
+class Query;
+class TermIterator;
 class Weight;
 
 /** A match set (MSet).
@@ -809,10 +812,10 @@ class Enquire {
 	 *  @exception Xapian::DocNotFoundError      The document specified could not
 	 *                                     be found in the database.
 	 */
-	Xapian::TermIterator get_matching_terms_begin(om_docid did) const;
+	TermIterator get_matching_terms_begin(om_docid did) const;
 
 	/** End iterator corresponding to get_matching_terms_begin() */
-	Xapian::TermIterator get_matching_terms_end(om_docid did) const;
+	TermIterator get_matching_terms_end(om_docid did) const;
 
 	/** Get terms which match a given document, by match set item.
 	 *
@@ -837,10 +840,10 @@ class Enquire {
 	 *  @exception Xapian::DocNotFoundError      The document specified could not
 	 *                                     be found in the database.
 	 */
-	Xapian::TermIterator get_matching_terms_begin(const MSetIterator &it) const;
+	TermIterator get_matching_terms_begin(const MSetIterator &it) const;
 
 	/** End iterator corresponding to get_matching_terms_begin() */
-	Xapian::TermIterator get_matching_terms_end(const MSetIterator &it) const;
+	TermIterator get_matching_terms_end(const MSetIterator &it) const;
 
 	/** Register a MatchDecider.
 	 */

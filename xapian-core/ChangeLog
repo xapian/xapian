@@ -1,3 +1,9 @@
+Wed May 28 19:23:26 BST 2003  Olly Betts <olly@survex.com>
+
+	* common/omenquireinternal.h,include/xapian/database.h,
+	  include/xapian/enquire.h,include/xapian/query.h: Where possible,
+	  declare classes rather than including headers (in public headers).
+
 Wed May 28 17:32:14 BST 2003  Olly Betts <olly@survex.com>
 
 	* include/xapian/document.h: Just declare "class TermIterator;" rather
