@@ -1,3 +1,9 @@
+Thu Jul 20 11:13:00 BST 2000 Olly Betts
+
+	* omindex: fixed meta robots handling; file reading was losing \n;
+	  fixed segfault on filenames with no extensions; added uncaught
+	  exception catcher
+
 Thu Jul 20 11:07:00 BST 2000 Olly Betts
 
 	* omega/htmlparse.cc: force parameter names to lower case

@@ -65,6 +65,15 @@ MyHtmlParser::process_text(const string &text)
 void
 MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
 {
+#if 0
+    cout << "<" << tag;
+    map<string, string>::const_iterator x;
+    for (x = p.begin(); x != p.end(); x++) {
+	cout << " " << x->first << "=\"" << x->second << "\"";
+    }
+    cout << ">\n";
+#endif
+    
     if (tag == "meta") {
 	map<string, string>::const_iterator i, j;
 	if ((i = p.find("content")) != p.end()) {
@@ -85,7 +94,7 @@ MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
 		    string val = i->second;
 		    decode_entities(val);
 		    lowercase_term(val);
-		    if (val.find("none") != string::npos && 
+		    if (val.find("none") != string::npos ||
 			val.find("noindex") != string::npos) {
 			indexing_allowed = false;
 		    }
@@ -150,11 +159,15 @@ index_file(const string &url, const string &mimetype)
 	while (!in.eof()) {
 	    string line;
 	    getline(in, line);
-	    text += line;
+	    text = text + line + '\n';
 	}
 	in.close();
 	MyHtmlParser p;
 	p.parse_html(text);
+	if (!p.indexing_allowed) {
+	    cout << "Indexing disallowed by meta tag\n";
+	    return;
+	}
 	dump = p.dump;
 	title = p.title;
 	keywords = p.keywords;
@@ -168,7 +181,7 @@ index_file(const string &url, const string &mimetype)
 	while (!in.eof()) {
 	    string line;
 	    getline(in, line);
-	    dump += line;
+	    dump = dump + line + '\n';
 	}
 	in.close();	
     } else if (mimetype == "application/pdf") {
@@ -194,7 +207,7 @@ index_file(const string &url, const string &mimetype)
 	while (!in.eof()) {
 	    string line;
 	    getline(in, line);
-	    dump += line;
+	    dump = dump + line + '\n';
 	}
 	in.close();
     } else if (mimetype == "application/postscript") {
@@ -206,7 +219,7 @@ index_file(const string &url, const string &mimetype)
 	}
 	string tmp = "/tmp/omindex.txt";
 	unlink(tmp.c_str());
-	string cmd = "pstotext " + safefile + " -output " + tmp;
+	string cmd = "pstotext -output " + tmp + ' ' + safefile;
 	if (system(cmd.c_str()) != 0) {
 	    cout << "pstotext failed to extract text from \"" << file << "\" - skipping\n";
 	    return;
@@ -220,7 +233,7 @@ index_file(const string &url, const string &mimetype)
 	while (!in.eof()) {
 	    string line;
 	    getline(in, line);
-	    dump += line;
+	    dump = dump + line + '\n';
 	}
 	in.close();
     }
@@ -281,18 +294,26 @@ index_directory(const string &dir)
 	    continue;
 	}
 	if (S_ISDIR(statbuf.st_mode)) {
-	    index_directory(url);
+	    try {
+		index_directory(url);
+	    }
+	    catch (...) {
+		cout << "Caught unknown exception in index_directory, rethrowing" << endl;
+		throw;
+	    }
 	    continue;
 	}
 	if (S_ISREG(statbuf.st_mode)) {
-	    string ext = url.substr(url.find_last_of('.'));
-	    if (ext == ".html" || ext == ".htm" || ext == ".shtml")
+	    string ext;
+	    string::size_type dot = url.find_last_of('.');
+	    if (dot != string::npos) ext = url.substr(dot + 1);
+	    if (ext == "html" || ext == "htm" || ext == "shtml")
 		index_file(url, "text/html");
-	    else if (ext == ".txt" || ext == ".text")
+	    else if (ext == "txt" || ext == "text")
 		index_file(url, "text/plain");	    
-	    else if (ext == ".pdf")
+	    else if (ext == "pdf")
 		index_file(url, "application/pdf");
-	    else if (ext == ".ps" || ext == ".eps" || ext == ".ai")
+	    else if (ext == "ps" || ext == "eps" || ext == "ai")
 		index_file(url, "application/postscript");	    
 	    continue;
 	}
@@ -313,8 +334,22 @@ main(int argc, char **argv)
     }
     parameters.push_back(argv[1]);
     root = argv[2];
-    db = new OmWritableDatabase("sleepycat", parameters);
-    index_directory(argv[3]);
-    delete db;
+    try {
+	db = new OmWritableDatabase("sleepycat", parameters);
+	index_directory(argv[3]);
+	delete db;
+    }
+    catch (OmError &e) {
+	cout << "Exception: " << e.get_msg() << endl;
+    }
+    catch (string &s) {
+	cout << "Exception: " << s << endl;
+    }
+    catch (const char *s) {
+	cout << "Exception: " << s << endl;
+    }
+    catch (...) {
+	cout << "Caught unknown exception" << endl;
+    }
     return 0;   
 }
