@@ -65,6 +65,17 @@ extern bool verbose;
 /// The test driver.  This class takes care of running the tests.
 class test_driver {
     public:
+	/** A structure used to report the summary of tests passed
+	 *  and failed.
+	 */
+	struct result {
+	    /// The number of tests which succeeded.
+	    unsigned int succeeded;
+
+	    /// The number of tests which failed.
+	    unsigned int failed;
+	};
+
 	/** main() replacement.  Standard OM test suite programs
 	 *  can have a one-liner main() which calls test_driver::main()
 	 *  with argc, argv, and the test array.  This function handles
@@ -75,19 +86,19 @@ class test_driver {
 	 *  @param  argc	The argument count passed into ::main()
 	 *  @param  argv	The argument list passed into ::main()
 	 *  @param  tests	The array of tests to run.
+	 *  @param  results	An optional pointer used for returning
+	 *                      the results summary.
 	 */
-	static int main(int argc, char *argv[], const test_desc *tests);
+	static int main(int argc,
+			char *argv[],
+			const test_desc *tests,
+			test_driver::result *summary = 0);
 
 	/** The constructor, which sets up the test driver.
 	 *
 	 *  @param tests The zero-terminated array of tests to run.
 	 */
 	test_driver(const test_desc *tests_);
-
-	struct result {
-	    unsigned int succeeded;
-	    unsigned int failed;
-	};
 
 	/** Run all the tests supplied and return the results
 	 */

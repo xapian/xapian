@@ -236,7 +236,10 @@ static void usage(char *progname)
     cerr << "Usage: " << progname << " [-v] [-o] [-f] [testname]" << endl;
 }
 
-int test_driver::main(int argc, char *argv[], const test_desc *tests)
+int test_driver::main(int argc,
+		      char *argv[],
+		      const test_desc *tests,
+		      test_driver::result *summary)
 {
     bool fussy = true;
 
@@ -277,6 +280,10 @@ int test_driver::main(int argc, char *argv[], const test_desc *tests)
 	myresult = driver.run_test(one_test_name);
     } else {
 	myresult = driver.run_tests();
+    }
+
+    if (summary) {
+	*summary = myresult;
     }
 
     cout << argv[0] << " finished: "

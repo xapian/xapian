@@ -1,3 +1,7 @@
+Mon May 22 13:44:21 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Slightly improved summary reporting in apitest.
+
 Mon May 22 13:28:26 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed a memory leak in SleepyDatabase (when database doesn't

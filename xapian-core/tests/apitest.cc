@@ -2006,13 +2006,22 @@ int main(int argc, char *argv[])
     datadir_ = std::string(srcdir) + "/testdata/";
 
     int result;
+    test_driver::result summary = {0, 0};
+    test_driver::result sum_temp;
     
     backendmanager.set_dbtype("inmemory");
-    result = test_driver::main(argc, argv, tests);
+    cout << "Running tests with inmemory backend..." << endl;
+    result = test_driver::main(argc, argv, tests, &summary);
 
 #if 0
     backendmanager.set_dbtype("sleepycat");
-    result = max(result, test_driver::main(argc, argv, tests));
+    cout << "Running tests with sleepycat backend..." << endl;
+    result = max(result, test_driver::main(argc, argv, tests, &sum_temp));
+    summary.succeeded += sum_temp.succeeded;
+    summary.failed += sum_temp.failed;
+
+    cout << argv[0] << " total: " << summary.succeeded << " passed, "
+	 << summary.failed << " failed." << endl;
 #endif
 
     return result;
