@@ -15,12 +15,16 @@ check_PROGRAMS = queryparsertest
 TESTS = queryparsertest$(EXEEXT)
 
 # 0:0:0 0.7.2 (and anything before) 
-# 0:1:0 0.7.3
+# 0:1:0 0.7.3 and 0.7.4
 libxapianqueryparser_la_LDFLAGS = -version-info 0:1:0
 
 libxapianqueryparser_la_SOURCES = queryparser.yy
 
 # For backward compatibility
+# 0:0:0 0.7.3 (and anything before) 
+# 0:1:0 0.7.4
+libomqueryparser_la_LDFLAGS = -version-info 0:1:0
+
 libomqueryparser_la_SOURCES = queryparser.yy
 
 queryparsertest_SOURCES = queryparsertest.cc

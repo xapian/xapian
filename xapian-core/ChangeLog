@@ -1,3 +1,7 @@
+Thu Oct 02 14:57:25 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in,extra/Makefile.am: Version 0.7.4.
+
 Thu Oct 02 14:56:36 BST 2003  Olly Betts <olly@survex.com>
 
 	* HACKING: Improved wording in a few places.
