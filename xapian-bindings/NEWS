@@ -1,6 +1,6 @@
 Xapian-bindings 0.8.2 (2004-09-??):
 
-Up to: Fri Sep 03 18:34:21 BST 2004  Olly Betts <olly@survex.com>
+Up to: Thu Sep 09 03:07:43 BST 2004  Olly Betts <olly@survex.com>
 
 General:
 
@@ -9,6 +9,20 @@ General:
 * configure: Added check that the bindings version matches the version of
   the xapian library.
 
+* configure: Check if we're using GCC and only pass GCC specific warning
+  control options if we are.
+
+* configure: When running with GCC, also pass -Wno-uninitialized so the
+  SWIG glue builds without warnings.
+
+* xapian.i: Updated for Query->is_empty() -> Query->empty().
+
+* xapian.i: Remove renaming of empty() methods to is_empty().
+* php4/docs/bindings.html,python/docs/bindings.html: Removed
+  documentation of renaming of empty() methods.
+
+* README: Updated list of languages which SWIG supports.
+
 PHP4:
 
 * Document that the 2 argument form of Xapian::Auto::open() for opening a
@@ -16,7 +30,19 @@ PHP4:
 
 * Include xapian version in output from phpinfo().
 
+* Build the SWIG glue library like we build the others rather than using
+  SWIG's -phpfull option.  This avoids problems with newer automake versions
+  and means we can build against an uninstalled xapian library.
+
 * Corrected documentation to refer to Xapian::DB_* not Xapian::Auto::DB_*.
+  Fixed documentation of how Xapian::Query::OP_* are wrapped.
+
+* Use special SWIG PHP ldflags when linking the PHP glue library.
+
+* simplesearch.py now works with multi-term queries.
+
+* php4/docs/bindings.html: Added documentation on how to install the
+  PHP4 bindings.
 
 Python:
 
@@ -25,6 +51,20 @@ Python:
 * Don't install _xapian.la and _xapian.a.
 
 * Byte compile xapian.py to xapian.pyc and install it.
+
+* Suppress SWIG warning about MatchDecider::operator() director discarding
+  const.
+
+* "make clean" no longer leaves "xapian_wrap.h" behind.
+
+* python/Makefile.am,python/smoketest.py: Added a simple testcase
+  to at least ensure the python bindings can be initialise and
+  some simple operations work.
+
+Tcl8:
+
+* configure: Disable building tcl8 bindings if the tcl8.X-dev package isn't
+  installed.
 
 Xapian-bindings 0.8.1 (2004-06-30):
 
