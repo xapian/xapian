@@ -1,3 +1,9 @@
+Sun Jul 16 11:39:00 BST 2000 Olly Betts
+
+	* omindex: adding indexing of PostScript documents; put mimetype in
+	  a field and add a boolean tag; treat .shtml as text/html; added
+	  crude command line processing
+
 Sat Jul 15 19:57:00 BST 2000 Olly Betts
 
 	* omindex: added META tag handling for HTML

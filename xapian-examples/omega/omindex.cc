@@ -13,7 +13,8 @@
 #include <om/om.h>
 
 // FIXME: these 2 copied from om/indexer/index_utils.cc
-void lowercase_term(om_termname &term)
+static void
+lowercase_term(om_termname &term)
 {
     om_termname::iterator i = term.begin();
     while(i != term.end()) {
@@ -24,7 +25,8 @@ void lowercase_term(om_termname &term)
 
 // Keep only the characters in keep
 // FIXME - make this accept character ranges in "keep"
-void select_characters(om_termname &term, const string & keep)
+static void
+select_characters(om_termname &term, const string & keep)
 {
     string chars;
     if (keep.empty()) {
@@ -128,7 +130,7 @@ static om_termpos index_text(const string &s, OmDocumentContents &doc,
     return pos;
 }
 
-static string root = "/home/httpd/html/open.muscat.com";
+static string root;
 
 static void
 index_file(const string &url, const string &mimetype)
@@ -169,7 +171,7 @@ index_file(const string &url, const string &mimetype)
 	    dump += line;
 	}
 	in.close();	
-    } else if (mimetype == "text/pdf") {
+    } else if (mimetype == "application/pdf") {
 	string safefile = file;
 	string::size_type p = 0;
 	while (p < safefile.size()) {
@@ -187,6 +189,32 @@ index_file(const string &url, const string &mimetype)
 	unlink(tmp.c_str());
 	if (!in) {
 	    cout << "pdftotext failed to extract text from \"" << file << "\" - skipping\n";
+	    return;
+	}
+	while (!in.eof()) {
+	    string line;
+	    getline(in, line);
+	    dump += line;
+	}
+	in.close();
+    } else if (mimetype == "application/postscript") {
+	string safefile = file;
+	string::size_type p = 0;
+	while (p < safefile.size()) {
+	    if (!isalnum(safefile[p])) safefile.insert(p++, "\\");
+            p++;
+	}
+	string tmp = "/tmp/omindex.txt";
+	unlink(tmp.c_str());
+	string cmd = "pstotext " + safefile + " -output " + tmp;
+	if (system(cmd.c_str()) != 0) {
+	    cout << "pstotext failed to extract text from \"" << file << "\" - skipping\n";
+	    return;
+	}
+	std::ifstream in(tmp.c_str());
+	unlink(tmp.c_str());
+	if (!in) {
+	    cout << "pstotext failed to extract text from \"" << file << "\" - skipping\n";
 	    return;
 	}
 	while (!in.eof()) {
@@ -214,7 +242,8 @@ index_file(const string &url, const string &mimetype)
     // Put the data in the document
     OmDocumentContents newdocument;
     string record = "url=" + url + "\nsample=" + sample;
-    if (title != "") record = record +"\ncaption=" + title;
+    if (title != "") record = record + "\ncaption=" + title;
+    record = record + "\ntype=" + mimetype;
     newdocument.data = record;
 
     // Add postings for terms to the document
@@ -222,7 +251,8 @@ index_file(const string &url, const string &mimetype)
     pos = index_text(title, newdocument, stemmer, pos);
     pos = index_text(dump, newdocument, stemmer, pos + 100);
     pos = index_text(keywords, newdocument, stemmer, pos + 100);
-    
+    newdocument.add_posting("M" + mimetype);
+
     // Add the document to the database
     db->add_document(newdocument);
 }
@@ -256,12 +286,14 @@ index_directory(const string &dir)
 	}
 	if (S_ISREG(statbuf.st_mode)) {
 	    string ext = url.substr(url.find_last_of('.'));
-	    if (ext == ".html" || ext == ".htm")
+	    if (ext == ".html" || ext == ".htm" || ext == ".shtml")
 		index_file(url, "text/html");
-	    else if (ext == ".txt")
+	    else if (ext == ".txt" || ext == ".text")
 		index_file(url, "text/plain");	    
 	    else if (ext == ".pdf")
-		index_file(url, "text/pdf");	    
+		index_file(url, "application/pdf");
+	    else if (ext == ".ps" || ext == ".eps" || ext == ".ai")
+		index_file(url, "application/postscript");	    
 	    continue;
 	}
 	cout << "Not a regular file \"" << file << "\" - skipping\n";
@@ -269,11 +301,20 @@ index_directory(const string &dir)
     closedir(d);
 }
 
-int main() {
+int
+main(int argc, char **argv)
+{
     vector<string> parameters;
-    parameters.push_back("/usr/om/data/default");
+    if (argc != 4) {
+	cout << "Syntax: " << argv[0] << " DBDIRECTORY DOCROOT STARTURL\n";
+	cout << "e.g. " << argv[0]
+	     << " /usr/om/data/default /home/httpd/html /\n";
+	exit(1);
+    }
+    parameters.push_back(argv[1]);
+    root = argv[2];
     db = new OmWritableDatabase("sleepycat", parameters);
-    index_directory("/");
+    index_directory(argv[3]);
     delete db;
     return 0;   
 }
