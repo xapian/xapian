@@ -1,3 +1,7 @@
+Sun Jan 05 22:19:56 GMT 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/.cvsignore: Ignore quartzcompact binary.
+
 Sun Jan 05 22:18:57 GMT 2003  Olly Betts <olly@survex.com>
 
 	* extra/parsequerytest.cc: Fixed to build with GCC 2.95.

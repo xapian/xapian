@@ -7,6 +7,7 @@ Makefile
 libquartz.la
 btreetest
 quartzcheck
+quartzcompact
 quartzdump
 quartztest
 .btreetmp
