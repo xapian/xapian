@@ -302,9 +302,15 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	pl = new MergePostList(postlists, this, errorhandler);
     }
 
-#if 0 // FIXME : BiasPostList needs generalising and stuff
-    pl = new BiasPostList(pl, db, new OmBiasFunctor(db), this);
-#endif
+    // FIXME: a temporary bodge to allow this to be used - I'll write
+    // a proper API later, promise - Olly
+    if (opts.get_bool("match_bias", false)) {
+	pl = new BiasPostList(pl, db,
+	       	new OmBiasFunctor(db,
+		    opts.get_real("match_bias_weight", 10000),
+		    opts.get_real("match_bias_halflife", 2 * 24 * 60 * 60)),
+	       	this);
+    }
 
     DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
 

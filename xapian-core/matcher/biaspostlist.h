@@ -30,23 +30,29 @@
 #include "postlist.h"
 #include "multimatch.h"
 
+// DOCID_BASED doesn't require a key lookup so is more efficient
+// and works if documents are added at a reasonably steady rate
+//
+// FIXME: this stuff need extracting so the user can write their
+// own by subclassing a virtual base class...
+
 class OmBiasFunctor {
     private:
 #ifndef DOCID_BASED
 	time_t now;
 	OmDatabase db;
-	om_weight max_w;
 #else /* DOCID_BASED */
 	om_docid max_id;
-	om_weight max_w;
-	PostList *pl;
 #endif /* DOCID_BASED */
+	om_weight max_w;
+	double K; // factor in exponential decay
     public:
-	OmBiasFunctor(const OmDatabase &db_)
+	OmBiasFunctor(const OmDatabase &db_, om_weight max_w_, double halflife)
 #ifndef DOCID_BASED
-	    : now(time(NULL)), db(db_), max_w(10000) {}
+	    : now(time(NULL)), db(db_), max_w(max_w_),
+	      K(-fabs(halflife) * log(2.0)) {}
 #else /* DOCID_BASED */
-	    : max_id(db_.get_doccount()), max_w(7000) {}
+	    : max_id(db_.get_doccount()), max_w(max_w_) {}
 #endif /* DOCID_BASED */
 
 	om_weight get_maxweight() {
@@ -63,10 +69,9 @@ class OmBiasFunctor {
 #endif /* DOCID_BASED */
 	    // the same story but 2 days old gets half the extra weight
 #ifndef DOCID_BASED
-	    return max_w * exp((t - now) * .6931472 / 60 / 60 / 24 / 2);
+	    return max_w * exp(K * (now - t));
 #else /* DOCID_BASED */
-	    // (assumes ~250 docs per day)
-	    return max_w * exp(double(max_id - id) * -0.6931472 / 250 / 2);
+	    return max_w * exp(K * (max_id - id));
 #endif /* DOCID_BASED */
 	}
 };

@@ -69,6 +69,14 @@
     - match_weighting_scheme : Weighting scheme to use; this is one of
       'bm25', 'trad' or 'bool'.  The default is bm25.
 
+  - match bias functor options - NB this is a temporary API for this feature.
+    - match_bias : Default false - set to true to enable the match bias
+      functor.
+    - match_bias_weight : Maximum weight bias functor can add (and which is
+      given to document with a time now or in the future) - default 10000.
+    - match_bias_halflife - the match bias decays exponentially with time -
+      this sets the half-life of this decay in seconds (default 2 days).
+      
   - BM25 weighting options : The BM25 formula is \f[
       \frac{C.s_{q}}{1+L_{d}}+\sum_{t}\frac{(A+1)q_{t}}{A+q_{t}}.\frac{(B+1)f_{t,d}}{B((1-D)+DL_{d})+f_{t,d}}.w_{t}
     \f] where

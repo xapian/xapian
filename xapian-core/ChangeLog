@@ -1,3 +1,7 @@
+Fri Dec 21 15:24:58 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Added a temporary API to allow use of OmBiasFunctor.
+
 Fri Dec 21 12:58:23 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Disable conversion of OR to AND/ANDMAYBE in matcher tree - there's
