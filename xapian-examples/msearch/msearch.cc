@@ -1,4 +1,4 @@
-/* matchtest.cc
+/* msearch.cc
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
