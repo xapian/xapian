@@ -1,10 +1,10 @@
 #! /usr/bin/perl -w
-
 # mkdoc.pl: generate documentation from source code and associated files.
 use strict;
 
 # Declarations
 sub get_descriptions();
+sub expand_dist_subdirs($);
 sub tohtml($);
 sub output_html();
 
@@ -21,25 +21,12 @@ my %descriptions = ();
 my %classes = ();
 
 get_descriptions();
-#get_codestruct();
 output_html();
 
 sub get_descriptions() {
-    # Assume we have find.  Get all the possible directories.
-    my $subdirs;
-    open M, "$srcdir/Makefile.am" or die $!;
-    while (<M>) {
-	while (s/\\\n$//) { $_ .= <M>; }
-	if (s/^\s*DIST_SUBDIRS\s*=\s*//) {
-	    s/\s*$//;
-	    $subdirs = join " ", map {"$srcdir/$_"} split /\s+/;
-	    last;
-        }
-    }
-    close M;
-    die "DIST_SUBDIRS not found in Makefile.am" unless defined $subdirs;
-
-    my @dirs = split(/\n/, `find $subdirs -type d`);
+    # Get all the directories in the dist build tree.
+    my @dirs = expand_dist_subdirs($srcdir);
+    scalar @dirs > 0 or die "DIST_SUBDIRS not found in $srcdir/Makefile.am";
 
     # Read the contents of any dir_contents's we find.
     my $dir;
@@ -47,71 +34,59 @@ sub get_descriptions() {
 	next if $dir =~ m/CVS$/;
 	my $contentsfile = "$dir/dir_contents";
 	next if ! -r $contentsfile;
-	open(CONTENTSFILE, $contentsfile);
+	open CONTENTSFILE, $contentsfile or die "Couldn't open $contentsfile ($!)\n";
 
 	my $contents = "";
-	while(<CONTENTSFILE>) { $contents .= $_; }
+	while (<CONTENTSFILE>) { $contents .= $_; }
+	close CONTENTSFILE;
 
         # Get directory tag
-	if($contents !~ m#<directory>\s*(.+?)\s*</directory>#is) {
+	if ($contents !~ m#<directory>\s*(.+?)\s*</directory>#is) {
 	    print STDERR "Skipping $contentsfile: didn't contain a directory tag\n";
 	    next;
 	}
 	my $directory = $1;
-	my $tagdir = "$srcdir/$directory/";
-	if($directory eq "ROOT") {
-            # Special case for top level dir
-	    $tagdir = "$srcdir/";
+	my $tagdir = "$srcdir/";
+	if ($directory ne "ROOT") {
+	    $tagdir .= "$directory/";
 	}
 	$dir = "$dir/";
 	$dir =~ s!/(?:\./)+!/!g;
 	$tagdir =~ s!/(?:\./)+!/!g;
-	if("$tagdir" ne $dir) {
+	if ("$tagdir" ne $dir) {
 	    print STDERR "Skipping $contentsfile: incorrect directory tag\n";
 	    print STDERR "`$tagdir' != `$dir'\n";
 	    next;
 	}
 
         # Get description tag
-	if($contents !~ m#<description>\s*(.+?)\s*</description>#is) {
+	if ($contents !~ m#<description>\s*(.+?)\s*</description>#is) {
 	    print STDERR "Skipping $contentsfile: didn't contain a description tag\n";
 	    next;
 	}
-	$descriptions{$directory} = "$1";
+	$descriptions{$directory} = $1;
     }
-    close(CONTENTSFILE);
 }
 
-sub get_codestruct() {
-    my @files = split(/\n/, `find $srcdir -name \*.cc -o -name \*.c -o -name \*.cpp -o -name \*.h`);
-
-    my $file;
-    foreach $file (@files) {
-	open(CODEFILE, $file);
-	print "$file\n";
-
-	my $contents;
-	while(<CODEFILE>) {
-	    $contents .= $_;
-	}
-
-	my $commentno = 1;
-	while($contents =~ m#(/\*.*?\*/)#s) {
-	    print "comment: `$1'\n";
-	    my $newlines = "";
-
-	    $contents = "$`/*$newlines*/$'";
-	}
-	while($contents =~ s#//(.*?)\n#\n#) { print "removing $1\n"}
-	while($contents) {
-	    $contents =~ /\bclass\s+(\w+)\s*(?:|:\s*(.+?)\s*)/;
-	    my $classname = $1;
-	    my $inheritance = "";
-	    $inheritance = $2 if defined $2;
-	    print "$classname-$inheritance\n";
-	}
+sub expand_dist_subdirs($) {
+    my $dir = shift;
+    my @result;
+    open M, "$dir/Makefile.am" or die $!;
+    while (<M>) {
+	while (s/\\\n$//) { $_ .= <M>; }
+	if (s/^\s*DIST_SUBDIRS\s*=\s*//) {
+	    s/\s*$//;
+	    for (split /\s+/) {
+		next if $_ eq '.';
+		my $d = "$dir/$_";
+		push @result, $d;
+		push @result, expand_dist_subdirs($d);
+	    }
+	    last;
+        }
     }
-    close(CODEFILE);
+    close M;
+    return @result;
 }
 
 sub tohtml($) {
