@@ -262,6 +262,9 @@ class MSet {
     weight get_max_possible();
     weight get_max_attained();
     bool empty() const;
+  %extend {
+    bool is_empty() const { return self->empty(); }
+  }
     MSetIterator begin() const;
     MSetIterator end() const;
     MSetIterator back() const;
@@ -300,6 +303,9 @@ class RSet {
 	bool contains(MSetIterator& i);
 #endif
 	bool empty() const;
+  %extend {
+	bool is_empty() const { return self->empty(); }
+  }
 	doccount size() const;
 
         string get_description() const;
@@ -331,6 +337,9 @@ class ESet {
 	termcount get_ebound() const;
 	termcount size() const;
 	termcount empty() const;
+  %extend {
+	bool is_empty() const { return self->empty(); }
+  }
 	ESetIterator begin() const;
 	ESetIterator end() const;
 };
