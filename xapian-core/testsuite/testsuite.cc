@@ -298,7 +298,7 @@ test_driver::runtest(const test_desc *test)
 		return SKIP;
 	    } catch (const Xapian::Error &err) {
 		string errclass = err.get_type();
-		if (expected_exception == errclass) {
+		if (expected_exception && expected_exception == errclass) {
 		    out << " " << col_yellow << "C++ FAILED TO CATCH " << errclass << col_reset;
 		    return SKIP;
 		}

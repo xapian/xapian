@@ -1,3 +1,8 @@
+Fri Jul 11 09:37:14 BST 2003  Olly Betts <olly@survex.com>
+
+	* testsuite/testsuite.cc: Fixed dereference of a NULL pointer which
+	  was happening when a test threw an unexpected exception.
+
 Fri Jul 11 09:31:40 BST 2003  Olly Betts <olly@survex.com>
 
 	* testsuite/backendmanager.cc: Backed out incorrect hunk of previous
