@@ -1,3 +1,16 @@
+Tue Aug 22 18:26:00 BST 2000 Olly Betts
+
+	* apitest now tests query length and within query frequency (wqf).
+
+	* Fixed max_or_terms to preserve the query_size when an OR collapses
+	  to just one sub-query.
+
+	* The query length now makes it through to IRWeight (was always
+	  passing 1).
+
+	* remote backend currently fails test qlen1 because the query length
+	  isn't currently passed in the serialisation of an OmQuery.
+
 Tue Aug 22 18:19:16 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add class to hold modified blocks in a quartz DB.  Doesn't compile

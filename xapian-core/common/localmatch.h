@@ -104,6 +104,9 @@ class LocalMatch : public SingleMatch
 	 */
         bool recalculate_w_max;
 
+	/// The size of the query (passed to IRWeight objects)
+	om_doclength querysize;
+
 	/// Calculate the statistics for the query
 	void gather_query_statistics();
 
@@ -117,12 +120,10 @@ class LocalMatch : public SingleMatch
 				om_termcount window);
 
 	/// Open a postlist
-	PostList * mk_postlist(const om_termname & tname,
-			       om_doclength querysize, om_termcount wqf);
+	PostList * mk_postlist(const om_termname & tname, om_termcount wqf);
 
-	/// Make a weight
-	IRWeight * mk_weight(om_doclength querysize_, om_termcount wqf_,
-			     om_termname tname_);
+	/// Make a weight - default arguments are for finding extra_weight
+	IRWeight * mk_weight(om_termname tname_ = "", om_termcount wqf_ = 1);
 
 	/// Internal method to perform the collapse operation
 	bool perform_collapse(std::vector<OmMSetItem> &mset,

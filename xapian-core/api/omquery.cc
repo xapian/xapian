@@ -794,10 +794,13 @@ void OmQueryInternal::collapse_subqs()
 
 	// If we have only one subquery, move it into ourself
 	if (subqs.size() == 1) {
+	    // take care to preserve the query length
+	    om_doclength qlen = get_length();
 	    OmQueryInternal *only_child = *subqs.begin();
 	    subqs.clear();
 	    initialise_from_copy(*only_child);
 	    delete only_child;
+	    set_length(qlen);
 	}
     }
 }

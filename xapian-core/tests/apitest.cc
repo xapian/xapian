@@ -149,8 +149,9 @@ bool weights_are_equal_enough(double a, double b)
 }
 
 
-void expect_mset_order(OmMSet mset, om_docid *order,
-		       unsigned int ordersize, string mset_name)
+static void
+expect_mset_order(const OmMSet &mset, om_docid *order,
+		  unsigned int ordersize, const string &mset_name)
 {
     TEST_AND_EXPLAIN(mset.items.size() >= ordersize,
 		     "Mset " << mset_name << " too small: was " <<
@@ -161,6 +162,25 @@ void expect_mset_order(OmMSet mset, om_docid *order,
 			 "Mset " << mset_name << " has wrong contents: was " <<
 			 mset << ", expected " <<
 			 vector<om_docid>(order, order + 2) << endl);
+    }
+}
+
+
+#define TEST_MSET_ORDER_EQUAL(A, B) \
+	test_mset_order_equal((A), (B), STRINGIZE(A), STRINGIZE(B))
+static void
+test_mset_order_equal(const OmMSet &mset1, const OmMSet &mset2,
+		      const char *mset_name1, const char *mset_name2)
+{
+    TEST_AND_EXPLAIN(mset1.items.size() == mset2.items.size(),
+		     "Msets " << mset_name1 << " and " << mset_name2 <<
+		     "not the same size - " << mset1.items.size() <<
+		     " != " << mset2.items.size() << endl);
+    for (unsigned int i = 0; i < mset1.items.size(); i++) {
+	TEST_AND_EXPLAIN(mset1.items[i].did == mset2.items[i].did,
+			 "Msets " << mset_name1 << " and " << mset_name2 <<
+			 " haave different contents -\n" <<
+			 mset1 << "\n !=\n" << mset2 << endl);
     }
 }
 
@@ -1290,12 +1310,10 @@ bool test_querylen3()
 // tests that the collapsing on termpos optimisation works
 bool test_poscollapse1()
 {
-    bool success = true;
-
-    OmQuery myquery1 = OmQuery(OmQuery::OP_OR,
-			       OmQuery("thi", 1),
-			       OmQuery("thi", 1));
-    OmQuery myquery2 = OmQuery("thi", 2, 1);
+    OmQuery myquery1(OmQuery::OP_OR,
+		     OmQuery("thi", 1, 1),
+		     OmQuery("thi", 1, 1));
+    OmQuery myquery2("thi", 2, 1);
 
     if (verbose) {
 	cout << myquery1.get_description() << endl;
@@ -1305,15 +1323,17 @@ bool test_poscollapse1()
     OmMSet mymset1 = do_get_simple_query_mset(myquery1);
     OmMSet mymset2 = do_get_simple_query_mset(myquery2);
 
-    if (mymset1 != mymset2) {
-	success = false;
+    TEST_EQUAL(mymset1, mymset2);
 
-	if (verbose) {
-	    cout << "MSets different" << endl;
-	}
-    }
+    return true;
+}
 
-    return success;
+// tests that the collapsing on termpos optimisation gives correct query length
+bool test_poscollapse2()
+{
+    OmQuery q(OmQuery::OP_OR, OmQuery("thi", 1, 1), OmQuery("thi", 1, 1));
+    TEST_EQUAL(q.get_length(), 2);
+    return true;
 }
 
 // tests that collapsing of queries includes subqueries
@@ -1739,34 +1759,43 @@ bool test_rsetmultidb2()
     return true;
 }
 
-/// Simple test of the set_max_or_terms() match option.
+/// Simple test of the match_max_or_terms option.
 bool test_maxorterms1()
 {
     OmDatabase mydb(get_database("apitest_simpledata"));
     OmEnquire enquire(make_dbgrp(&mydb));
 
     OmStem stemmer("english");
+
+#if 0
     std::string stemmed_word = stemmer.stem_word("word");
     OmQuery myquery1(stemmed_word);
+#endif
 
     OmQuery myquery2(OmQuery::OP_OR,
-		    OmQuery(stemmer.stem_word("simple")),
-		    OmQuery(stemmer.stem_word("word")));
+		     OmQuery(stemmer.stem_word("simple")),
+		     OmQuery(stemmer.stem_word("word")));
 
+#if 0
     enquire.set_query(myquery1);
     OmMSet mymset1 = enquire.get_mset(0, 10);
+#endif
 
     enquire.set_query(myquery2);
     OmSettings moptions;
     moptions.set("match_max_or_terms", 1);
     OmMSet mymset2 = enquire.get_mset(0, 10, NULL, &moptions);
 
+#if 0
+    // query lengths differ so mset weights not the same (at present)
     TEST_EQUAL(mymset1, mymset2);
+#endif
+    if (!TEST_EXPECTED_DOCS(mymset2, 4, 2)) return false;
 
     return true;
 }
 
-/// Test the set_max_or_terms() match option works if the OR contains
+/// Test the match_max_or_terms option works if the OR contains
 /// sub-expressions (regression test)
 bool test_maxorterms2()
 {
@@ -1793,7 +1822,9 @@ bool test_maxorterms2()
     moptions.set("match_max_or_terms", 1);
     OmMSet mymset2 = enquire.get_mset(0, 10, NULL, &moptions);
 
-    TEST_EQUAL(mymset1, mymset2);
+    // query lengths differ so mset weights not the same (at present)
+    // TEST_EQUAL(mymset1, mymset2);
+    TEST_MSET_ORDER_EQUAL(mymset1, mymset2);
 
     return true;
 }
@@ -2491,6 +2522,31 @@ bool test_implicitendsession()
     return true;
 }
 
+// tests that wqf affects the document weights
+bool test_wqf1()
+{
+    // both queries have length 2; in q1 word has wqf=2, in q2 word has wqf=1
+    OmQuery q1("word", 2);
+    OmQuery q2("word");
+    q2.set_length(2);
+    OmMSet mset1 = do_get_simple_query_mset(q1);
+    OmMSet mset2 = do_get_simple_query_mset(q2);
+    // Check the weights
+    return (mset1.items[0].wt > mset2.items[0].wt);
+}
+
+// tests that query length affects the document weights
+bool test_qlen1()
+{
+    OmQuery q1("word");
+    OmQuery q2("word");
+    q2.set_length(2);
+    OmMSet mset1 = do_get_simple_query_mset(q1);
+    OmMSet mset2 = do_get_simple_query_mset(q2);
+    // Check the weights
+    return (mset1.items[0].wt < mset2.items[0].wt);
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -2536,6 +2592,7 @@ test_desc db_tests[] = {
     {"getmterms1",	   test_getmterms1},
     {"absentfile1",	   test_absentfile1},
     {"poscollapse1",	   test_poscollapse1},
+    {"poscollapse2",	   test_poscollapse2},
     {"batchquery1",	   test_batchquery1},
     {"repeatquery1",	   test_repeatquery1},
     {"absentterm1",	   test_absentterm1},
@@ -2555,6 +2612,8 @@ test_desc db_tests[] = {
     {"qterminfo1",	   test_qterminfo1},
     {"msetzeroitems1",     test_msetzeroitems1},
     {"mbound1",            test_mbound1},
+    {"wqf1",		   test_wqf1},
+    {"qlen1",		   test_qlen1},
     {0, 0}
 };
 
@@ -2597,6 +2656,7 @@ test_desc muscat36da_tests[] = {
     {"getmterms1",	   test_getmterms1},
     {"absentfile1",	   test_absentfile1},
     {"poscollapse1",	   test_poscollapse1},
+    {"poscollapse2",	   test_poscollapse2},
     {"batchquery1",	   test_batchquery1},
     {"repeatquery1",	   test_repeatquery1},
     {"absentterm1",	   test_absentterm1},
@@ -2608,7 +2668,7 @@ test_desc muscat36da_tests[] = {
     {"rsetmultidb1",       test_rsetmultidb1},
 // Mset comes out in wrong order - no document length?
 //    {"rsetmultidb2",       test_rsetmultidb2},
-    {"maxorterms1",        test_maxorterms1},
+//    {"maxorterms1",        test_maxorterms1},
     {"maxorterms2",        test_maxorterms2},
     {"maxorterms3",        test_maxorterms3},
     {"termlisttermfreq",   test_termlisttermfreq},
@@ -2618,6 +2678,8 @@ test_desc muscat36da_tests[] = {
     {"qterminfo1",	   test_qterminfo1},
     {"msetzeroitems1",     test_msetzeroitems1},
     {"mbound1",            test_mbound1},
+    {"wqf1",		   test_wqf1},
+    {"qlen1",		   test_qlen1},
     {0, 0}
 };
 

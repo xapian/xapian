@@ -109,6 +109,11 @@ M|1| |CVS          | CVS tag last snapshot that built OK (so people can cvs
 -+-+-+-------------+-----------------------------------------------------------
 M|3| |Website      | Consider changing from cvsweb to viewcvs
 -+-+-+-------------+-----------------------------------------------------------
+L|4| |Matcher      | max_or_terms should probably reduce the querysize by the
+ | | |             | number of terms removed - hard to do because max_or_terms
+ | | |             | necessarily happens after some term weights have been
+ | | |             | calculated...
+-+-+-+-------------+-----------------------------------------------------------
 L|3| |Purify       | Write autoconf macro to turn on purify support.
  | | |             | Submit to http://peti.cys.de/autoconf-archive/
 -+-+-+-------------+-----------------------------------------------------------
