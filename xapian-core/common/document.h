@@ -28,6 +28,7 @@
 #include <xapian/base.h>
 #include <xapian/types.h>
 #include "termlist.h"
+#include "documentterm.h"
 #include <map>
 #include <string>
 
@@ -35,10 +36,16 @@ using namespace std;
 
 class Xapian::Database::Internal;
 
-class ModifiedDocument;
-
-/// A document in the database - holds values, terms, postings, etc
+/// A document in the database, possibly plus modifications.
 class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
+    friend class Xapian::ValueIterator;
+    public:
+	/// Type to store values in.
+	typedef map<om_valueno, string> document_values;
+
+	/// Type to store terms in.
+	typedef map<string, OmDocumentTerm> document_terms;
+
     private:
         // Prevent copying
         Internal(const Internal &);
@@ -47,12 +54,37 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	/// The database this document is in.
 	const Xapian::Database::Internal *database;
 
+	bool data_here;
+	mutable bool values_here; // FIXME mutable is a hack
+	mutable bool terms_here;
+
+	/// The (user defined) data associated with this document.
+	string data;
+
+	/// The values associated with this document.
+	mutable document_values values; // FIXME mutable is a hack
+
+	/// The value numbers, for use by ValueIterators.
+	mutable vector<om_valueno> value_nos; // FIXME mutable is a hack
+
+	/// The terms (and their frequencies and positions) in this document.
+	mutable document_terms terms;
+
     protected:
 	/// The document ID of the document in that database.
 	//
 	//  If we're using multiple databases together this may not be the
 	//  same as the docid in the combined database.
 	om_docid did;
+
+    private:
+	// Functions for backend to implement
+	virtual string do_get_value(om_valueno /*valueno*/) const { return ""; }
+	virtual map<om_valueno, string> do_get_all_values() const {
+	    map<om_valueno, string> none;
+	    return none;
+	}
+	virtual string do_get_data() const { return ""; }
 
     public:
 	/** Get value by value number.
@@ -71,7 +103,7 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 *  the value is not present in this document, the value's value will
 	 *  be a zero length string
 	 */
-	virtual string get_value(om_valueno valueid) const = 0;
+	string get_value(om_valueno valueid) const;
 
 	/** Get all values for this document
 	 *
@@ -82,21 +114,18 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 *
 	 *  @return   A map of strings containing all the values.
 	 */
-	virtual map<om_valueno, string> get_all_values() const = 0;
+	map<om_valueno, string> get_all_values() const;
 
-	virtual om_valueno values_count() const { Assert(false); return 0; }
-	virtual void add_value(om_valueno, const string &) { Assert(false); }
-	virtual void remove_value(om_valueno) { Assert(false); }
-	virtual void clear_values() { Assert(false); }
-	virtual void add_posting(const string &, om_termpos, om_termcount)
-	{ Assert(false); }
-	virtual void add_term_nopos(const string &, om_termcount)
-	{ Assert(false); }
-	virtual void remove_posting(const string &, om_termpos, om_termcount)
-	{ Assert(false); }
-	virtual void remove_term(const string &) { Assert(false); }
-	virtual void clear_terms() { Assert(false); }
-	virtual om_termcount termlist_count() const { Assert(false); return 0; }
+	om_valueno values_count() const;
+	void add_value(om_valueno, const string &);
+	void remove_value(om_valueno);
+	void clear_values();
+	void add_posting(const string &, om_termpos, om_termcount);
+	void add_term_nopos(const string &, om_termcount);
+	void remove_posting(const string &, om_termpos, om_termcount);
+	void remove_term(const string &);
+	void clear_terms();
+	om_termcount termlist_count() const;
 
 	/** Get data stored in document.
 	 *
@@ -111,9 +140,9 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 *
 	 *  @return       An string containing the data for this document.
 	 */
-	virtual string get_data() const = 0;	
+	string get_data() const;	
 
-	virtual void set_data(const string &) { Assert(false); }
+	void set_data(const string &);
 
 	/** Open a term list.
 	 *
@@ -123,24 +152,15 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
-	virtual TermList * open_term_list() const {
-	    DEBUGCALL(MATCH, TermList *, "Document::Internal::open_term_list", "");
-	    Assert(database);
-	    RETURN(database->open_term_list(did));
-	}
-	
-	virtual Xapian::Document::Internal * modify();
+	TermList * open_term_list() const;
 
-	virtual const ModifiedDocument * valueitor_helper() const
-	{
-	    Assert(false);
-	    return NULL;
-	}
-   
+	void need_values() const;
+	void need_terms() const;
+
 	/** Returns a string representing the object.
 	 *  Introspection method.
 	 */
-	string get_description() const { return "FIXME"; }
+	string get_description() const;
 
 	/** Constructor.
 	 *
@@ -148,9 +168,12 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 *  only be called by database objects of the corresponding type.
 	 */
 	Internal(const Xapian::Database::Internal *database_, om_docid did_)
-	    : database(database_), did(did_) { }
+	    : database(database_), data_here(false), values_here(false),
+	      terms_here(false), did(did_) { }
 
-        Internal() : database(0) { }
+        Internal()
+	    : database(0), data_here(false), values_here(false),
+	      terms_here(false) { }
 
 	/** Destructor.
 	 *

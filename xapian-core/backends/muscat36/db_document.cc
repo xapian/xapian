@@ -42,7 +42,7 @@ DBDocument::~DBDocument()
 }
 
 string
-DBDocument::get_value(om_valueno valueid) const
+DBDocument::do_get_value(om_valueno valueid) const
 {
     if (valueid == 0) return database->get_value(did, valueid);
 
@@ -70,7 +70,7 @@ DBDocument::get_value(om_valueno valueid) const
  *  read from the record, this will not return them.
  */
 map<om_valueno, string>
-DBDocument::get_all_values() const
+DBDocument::do_get_all_values() const
 {
     om_valueno valueid = 0;
     map<om_valueno, string> values;
@@ -83,7 +83,7 @@ DBDocument::get_all_values() const
 
 
 string
-DBDocument::get_data() const
+DBDocument::do_get_data() const
 {
     if (rec == NULL) rec = database->get_record(did);
     unsigned char *pos = (unsigned char *)rec->p;

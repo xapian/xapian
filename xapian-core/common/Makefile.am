@@ -15,7 +15,7 @@ noinst_HEADERS = \
  socketcommon.h positionlist.h tcpclient.h \
  tcpserver.h omerr_string.h omdebug.h omlinebuf.h omstringstream.h \
  inmemory_positionlist.h omenquireinternal.h emptypostlist.h \
- modifieddocument.h autoptr.h \
+ autoptr.h \
  alltermslist.h multialltermslist.h \
  deleter_vector.h getopt.h
 

@@ -51,7 +51,7 @@ DADocument::~DADocument()
  *  value lookup.
  */
 string
-DADocument::get_value(om_valueno valueid) const
+DADocument::do_get_value(om_valueno valueid) const
 {
     if (valueid == 0) return database->get_value(did, valueid);
 
@@ -79,7 +79,7 @@ DADocument::get_value(om_valueno valueid) const
  *  read from the record, this will not return them.
  */
 map<om_valueno, string>
-DADocument::get_all_values() const
+DADocument::do_get_all_values() const
 {
     om_valueno valueid = 0;
     map<om_valueno, string> values;
@@ -96,7 +96,7 @@ DADocument::get_all_values() const
  *  use a value instead, if at all possible.
  */
 string
-DADocument::get_data() const
+DADocument::do_get_data() const
 {
     if (rec == 0) rec = database->get_record(did);
     unsigned char *pos = (unsigned char *)rec->p;

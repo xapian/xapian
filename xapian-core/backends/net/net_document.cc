@@ -35,7 +35,7 @@ NetworkDocument::NetworkDocument(const Xapian::Database::Internal *db_,
 }
 
 string
-NetworkDocument::get_value(om_valueno valueid) const
+NetworkDocument::do_get_value(om_valueno valueid) const
 {
     DEBUGCALL(DB, string, "NetworkDocument::get_value", valueid);
     map<om_valueno, string>::const_iterator k = values.find(valueid);
@@ -44,13 +44,13 @@ NetworkDocument::get_value(om_valueno valueid) const
 }
 
 map<om_valueno, string>
-NetworkDocument::get_all_values() const
+NetworkDocument::do_get_all_values() const
 {
     return values;
 }
 
 string
-NetworkDocument::get_data() const
+NetworkDocument::do_get_data() const
 {
     return doc;
 }

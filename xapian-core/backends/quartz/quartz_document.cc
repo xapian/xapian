@@ -59,9 +59,9 @@ QuartzDocument::~QuartzDocument()
  *  @param valueid	The value number to retrieve.
  */
 string
-QuartzDocument::get_value(om_valueno valueid) const
+QuartzDocument::do_get_value(om_valueno valueid) const
 {
-    DEBUGCALL(DB, string, "QuartzDocument::get_value", valueid);
+    DEBUGCALL(DB, string, "QuartzDocument::do_get_value", valueid);
     string retval;
     QuartzValueManager::get_value(*value_table, retval, did, valueid);
     RETURN(retval);
@@ -70,9 +70,9 @@ QuartzDocument::get_value(om_valueno valueid) const
 /** Retrieve all value values from the database
  */
 map<om_valueno, string>
-QuartzDocument::get_all_values() const
+QuartzDocument::do_get_all_values() const
 {
-    DEBUGCALL(DB, void, "QuartzDocument::get_all_values", "");
+    DEBUGCALL(DB, void, "QuartzDocument::do_get_all_values", "");
     map<om_valueno, string> values;
     QuartzValueManager::get_all_values(*value_table, values, did);
     return values;
@@ -81,8 +81,8 @@ QuartzDocument::get_all_values() const
 /** Retrieve the document data from the database
  */
 string
-QuartzDocument::get_data() const
+QuartzDocument::do_get_data() const
 {
-    DEBUGCALL(DB, string, "QuartzDocument::get_data", "");
+    DEBUGCALL(DB, string, "QuartzDocument::do_get_data", "");
     RETURN(QuartzRecordManager::get_record(*record_table, did));
 }

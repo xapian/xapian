@@ -34,7 +34,7 @@ InMemoryDocument::InMemoryDocument(const Xapian::Database::Internal *db_,
 }
 
 string
-InMemoryDocument::get_value(om_valueno valueid) const
+InMemoryDocument::do_get_value(om_valueno valueid) const
 {
     map<om_valueno, string>::const_iterator k = values.find(valueid);
     if (k == values.end()) return "";
@@ -42,13 +42,13 @@ InMemoryDocument::get_value(om_valueno valueid) const
 }
 
 map<om_valueno, string>
-InMemoryDocument::get_all_values() const
+InMemoryDocument::do_get_all_values() const
 {
     return values;
 }
 
 string
-InMemoryDocument::get_data() const
+InMemoryDocument::do_get_data() const
 {
     return doc;
 }

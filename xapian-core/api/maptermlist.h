@@ -27,20 +27,20 @@
 #include "termlist.h"
 
 #include "inmemory_positionlist.h"
-#include "modifieddocument.h"
+#include "document.h"
 
 using namespace std;
 
 class MapTermList : public TermList {
     private:
-	ModifiedDocument::document_terms::const_iterator it;
-	ModifiedDocument::document_terms::const_iterator it_end;
+	Xapian::Document::Internal::document_terms::const_iterator it;
+	Xapian::Document::Internal::document_terms::const_iterator it_end;
 	om_termcount size;
 	bool started;
 
     public:
-        MapTermList(const ModifiedDocument::document_terms::const_iterator &it_,
-		    const ModifiedDocument::document_terms::const_iterator &it_end_,
+        MapTermList(const Xapian::Document::Internal::document_terms::const_iterator &it_,
+		    const Xapian::Document::Internal::document_terms::const_iterator &it_end_,
 		    om_termcount size_)
 		: it(it_), it_end(it_end_), size(size_), started(false)
 	{ }

@@ -47,9 +47,9 @@ class DADocument : public Xapian::Document::Internal {
     public:
 	~DADocument();
 
-	string get_value(om_valueno valueid) const;
-	map<om_valueno, string> get_all_values() const;
-	string get_data() const;
+	string do_get_value(om_valueno valueid) const;
+	map<om_valueno, string> do_get_all_values() const;
+	string do_get_data() const;
 };
 
 #endif /* OM_HGUARD_DA_DOCUMENT_H */

@@ -1414,7 +1414,7 @@ static bool test_fetchdocs1()
     Xapian::MSetIterator it1 = mymset1.begin();
     Xapian::MSetIterator it2 = mymset2.begin();
 
-    while(it1 != mymset1.end() && it2 != mymset2.end()) {
+    while (it1 != mymset1.end() && it2 != mymset2.end()) {
 	TEST_EQUAL(it1.get_document().get_data(),
 		   it2.get_document().get_data());
 	TEST_NOT_EQUAL(it1.get_document().get_data(), "");
@@ -1501,12 +1501,18 @@ static bool test_xor1()
 static bool test_getdoc1()
 {
     Xapian::Database db(get_database("apitest_onedoc"));
-    db.get_document(1);
+    Xapian::Document doc(db.get_document(1));
     TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_document(0));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(999999999));    
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(123456789));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(3));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
+    // Check that Document works as a handle on modification
+    // (this was broken for the first try at Xapian::Document prior to 0.7).
+    Xapian::Document doc2 = doc;
+    doc.set_data("modified!");
+    TEST_EQUAL(doc.get_data(), "modified!");
+    TEST_EQUAL(doc.get_data(), doc2.get_data());
     return true;
 }
 

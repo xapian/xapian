@@ -23,7 +23,7 @@
 
 #include <config.h>
 #include <xapian/valueiterator.h>
-#include "modifieddocument.h"
+#include "document.h"
 #include "omdebug.h"
 #include "utils.h"
 
@@ -33,7 +33,14 @@ const string &
 ValueIterator::operator *() const
 {
     DEBUGAPICALL(const string &, "ValueIterator::operator*", "");
-    const ModifiedDocument * d = doc.internal->valueitor_helper();
+    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> d(doc.internal);
+    if (d->value_nos.empty()) {
+	d->value_nos.reserve(d->values.size());
+	map<om_valueno, string>::const_iterator i;
+	for (i = d->values.begin(); i != d->values.end(); ++i) {
+	    d->value_nos.push_back(i->first);
+	}
+    }
     Assert(index < d->value_nos.size());
     RETURN(d->values[d->value_nos[index]]);
 }
@@ -42,7 +49,14 @@ const string *
 ValueIterator::operator->() const
 {
     DEBUGAPICALL(const string *, "ValueIterator::operator->", "");
-    const ModifiedDocument * d = doc.internal->valueitor_helper();
+    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> d(doc.internal);
+    if (d->value_nos.empty()) {
+	d->value_nos.reserve(d->values.size());
+	map<om_valueno, string>::const_iterator i;
+	for (i = d->values.begin(); i != d->values.end(); ++i) {
+	    d->value_nos.push_back(i->first);
+	}
+    }
     Assert(index < d->value_nos.size());
     RETURN(&(d->values[d->value_nos[index]]));
 }
@@ -51,7 +65,14 @@ om_valueno
 ValueIterator::get_valueno() const
 {
     DEBUGAPICALL(om_valueno, "ValueIterator::get_valueno", "");
-    const ModifiedDocument * d = doc.internal->valueitor_helper();
+    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> d(doc.internal);
+    if (d->value_nos.empty()) {
+	d->value_nos.reserve(d->values.size());
+	map<om_valueno, string>::const_iterator i;
+	for (i = d->values.begin(); i != d->values.end(); ++i) {
+	    d->value_nos.push_back(i->first);
+	}
+    }
     Assert(index < d->value_nos.size());
     RETURN(d->value_nos[index]);
 }

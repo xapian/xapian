@@ -41,7 +41,7 @@ class Document {
     public:
 	class Internal;
 	/// @internal Reference counted internals.
-	mutable Xapian::Internal::RefCntPtr<Internal> internal;//FIXME mutable is a hack
+	Xapian::Internal::RefCntPtr<Internal> internal;
 
     public:
 	/** @internal Constructor is only used by internal classes.
