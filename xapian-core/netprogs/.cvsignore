@@ -7,3 +7,5 @@ Makefile
 libnet.la
 readquery.cc
 omnetclient
+nettest
+omprogsrv
