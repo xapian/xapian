@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "multi_database.h"
+#include "irdocument.h"
 
 #include "da_database.h"
 #include "match.h"
@@ -9,7 +10,7 @@
 int
 main(int argc, char *argv[])
 {
-    int msize = 0;
+    int msize = 10;
     const char *progname = argv[0];
     const char *dbname = "testdir";
     bool multidb = false;
@@ -120,7 +121,11 @@ main(int argc, char *argv[])
         match.match();
 	
 	for (docid i = 0; i < match.msize; i++) {
-	    cout << match.mset[i].id << "\t";
+	    docid q0 = match.mset[i].id;
+	    IRDocument *doc = database->open_document(q0);
+	    IRData data = doc->get_data();
+	    const char *p = data.value.c_str() + 19;
+	    cout << q0 << ":[" << p << "]\n\n";
 	}
 	cout << endl;
 	database->close();
