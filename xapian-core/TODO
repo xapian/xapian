@@ -40,11 +40,6 @@ Priority | Area            | Task
  Medium  |RPositional      | Implement phrase searching. - AND postlist, scan
 	 |                 | through positionlist for sequential positions.
 ---------+-----------------+--------------------------------------------------
- Low     | API             | Make OmQuery collapse sets of ANDs and ORs
-         |                 | within vectors of subqueries.
-         |                 | (wibble OR wobble OR (jelly OR belly)) =>
-	 |                 | wibble OR wobble OR jelly OR belly
----------+-----------------+--------------------------------------------------
  Low     |cAPI		   | Do allow boolean subqueries in OmQuery
          |                 | constructors, where it makes sense.
 ---------+-----------------+--------------------------------------------------
