@@ -393,7 +393,9 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 				      query->tname);
 #ifdef MUS_DEBUG_PARANOID
 		// Check that max_extra weight is really right
-		AssertEqDouble(wt->get_maxextra(), wtscheme->get_maxextra());
+		AutoPtr<OmWeight> temp_wt(wtscheme->create(statssource.get(),
+					  querysize, 1, ""));
+		AssertEqDouble(wt->get_maxextra(), temp_wt->get_maxextra());
 #endif
 	    }
 	    info.termweight = wt->get_maxpart();
@@ -502,8 +504,10 @@ LocalSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
     PostList *pl = postlist_from_query(&users_query, matcher, false);
     // don't bother with an ExtraWeightPostList if there's no extra weight
     // contribution.
-    if (wtscheme->get_maxextra() == 0) {
+    AutoPtr<OmWeight> extra_wt(wtscheme->create(statssource.get(),
+			       querysize, 1, ""));
+    if (extra_wt->get_maxextra() == 0) {
 	RETURN(pl);
     }
-    RETURN(new ExtraWeightPostList(pl, wtscheme, matcher));
+    RETURN(new ExtraWeightPostList(pl, extra_wt.release(), matcher));
 }

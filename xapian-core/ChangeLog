@@ -1,3 +1,9 @@
+Sat Dec 07 03:20:52 GMT 2002  Olly Betts <olly@survex.com>
+
+	* matcher/localmatch.cc: fixed handling of wtscheme() - we were
+	  trying to use it for the extra weights, and then double
+	  deleting it!
+
 Fri Dec 06 23:05:22 GMT 2002  Olly Betts <olly@survex.com>
 
 	* api/omstem.cc,backends/quartz/,common/omdebug.cc,common/utils.h,
