@@ -42,7 +42,7 @@ enum OmIndexerMessageType {
 /** BasicMessage is a basic message element.  More complex message may
  *  be built up from more of these these.
  */
-class Record {
+class OmIndexerData {
     public:
 	/** The possible types of information stored in the record.
 	 */
@@ -55,23 +55,23 @@ class Record {
 	};
 
 	/** Constructor: create an empty record */
-	Record(const std::string &name_ = std::string(""));
+	OmIndexerData(const std::string &name_ = std::string(""));
 	/** Constructor: create an int record */
-	Record(const std::string &name_, int value);
+	OmIndexerData(const std::string &name_, int value);
 	/** Constructor: create a double record */
-	Record(const std::string &name_, double value);
+	OmIndexerData(const std::string &name_, double value);
 	/** Constructor: create a string record */
-	Record(const std::string &name_, const std::string &value);
+	OmIndexerData(const std::string &name_, const std::string &value);
 	/** Constructor: create a vector record */
-	Record(const std::string &name, const std::vector<Record> &value);
+	OmIndexerData(const std::string &name, const std::vector<OmIndexerData> &value);
 
 	/** Copy constructor */
-	Record(const Record &other);
+	OmIndexerData(const OmIndexerData &other);
 	/** Assignment operator */
-	void operator=(const Record &other);
+	void operator=(const OmIndexerData &other);
 
 	/** Takes care of cleaning up any memory etc. */
-	~Record();
+	~OmIndexerData();
 
 	/** Set the name for this message */
 	void set_name(const std::string &name_);
@@ -108,7 +108,7 @@ class Record {
 	 *
 	 *  @param offset	The (zero-based) offset into the vector.
 	 */
-	const Record &operator[](unsigned int offset) const;
+	const OmIndexerData &operator[](unsigned int offset) const;
 
 	/** Return a reference to a given element in a vector.
 	 *  Will throw an exception if this message is not a vector,
@@ -116,14 +116,14 @@ class Record {
 	 *
 	 *  @param offset	The (zero-based) offset into the vector.
 	 */
-	const Record &get_element(unsigned int offset) const;
+	const OmIndexerData &get_element(unsigned int offset) const;
 
-	/** Append a Record to the vector value.
+	/** Append a OmIndexerData to the vector value.
 	 *  Will throw an exception if this message is not a vector
 	 *
 	 *  @param element	The element to append to this vector.
 	 */
-	void append_element(const Record &element);
+	void append_element(const OmIndexerData &element);
 
 	/** Give this record an integer value
 	 */
@@ -152,18 +152,18 @@ class Record {
 	    int int_val;
 	    double double_val;
 	    std::string *string_val;
-	    std::vector<Record> *vector_val;
+	    std::vector<OmIndexerData> *vector_val;
 	} u;
 
     private:
 	/* atomic exception-safe swap routine */
-	void swap(Record &other);
+	void swap(OmIndexerData &other);
 };
 
-typedef AutoPtr<Record> Message;
+typedef AutoPtr<OmIndexerData> OmIndexerMessage;
 
-std::ostream &operator<<(std::ostream &os, const Message &message);
-std::ostream &operator<<(std::ostream &os, const Record &record);
+std::ostream &operator<<(std::ostream &os, const OmIndexerMessage &message);
+std::ostream &operator<<(std::ostream &os, const OmIndexerData &record);
 
 class OmIndexerNode {
     public:
@@ -194,7 +194,7 @@ class OmIndexerNode {
 	double get_output_double(const std::string &output_name);
 
 	/** Get a Record output */
-	Message get_output_record(const std::string &output_name);
+	OmIndexerMessage get_output_record(const std::string &output_name);
 
 	/** Invalidate the outputs.  When an error occurs, or the network
 	 *  needs to be reset, this function may be called.  It will cause
@@ -223,7 +223,7 @@ class OmIndexerNode {
 	 *
 	 *  @param input_name	The name of the input connection to use.
 	 */
-	Message get_input_record(const std::string &input_name);
+	OmIndexerMessage get_input_record(const std::string &input_name);
 	std::string get_input_string(const std::string &input_name);
 	int get_input_int(const std::string &input_name);
 	double get_input_double(const std::string &input_name);
@@ -241,7 +241,7 @@ class OmIndexerNode {
 	void set_output(const std::string &output_name, double value);
 	void set_output(const std::string &output_name,
 			const std::string &value);
-	void set_output(const std::string &output_name, Message value);
+	void set_output(const std::string &output_name, OmIndexerMessage value);
 
 	/* The implementation's interface to the configuration data. */
 
@@ -261,7 +261,7 @@ class OmIndexerNode {
 	std::map<std::string, output_info_type> output_info;
 
 	/** Message outputs */
-	deleter_map<std::string, Message *> outputs_record;
+	deleter_map<std::string, OmIndexerMessage *> outputs_record;
 #if 0
 	/*
 	We're currently not bothering with separate output buffers,

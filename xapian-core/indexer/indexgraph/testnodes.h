@@ -62,11 +62,11 @@ class SplitNode : public OmIndexerNode {
 	SplitNode(const OmSettings &settings) : OmIndexerNode(settings) {};
 
 	void calculate() {
-	    Message msg = get_input_record("in");
-	    Message temp1(new Record(msg->get_name() + "1",
+	    OmIndexerMessage msg = get_input_record("in");
+	    OmIndexerMessage temp1(new OmIndexerData(msg->get_name() + "1",
 				     msg->get_string() + "1"));
 
-	    Message temp2(new Record(msg->get_name() + "2",
+	    OmIndexerMessage temp2(new OmIndexerData(msg->get_name() + "2",
 				     msg->get_string() + "2"));
 	    set_output("out1", temp1);
 	    set_output("out2", temp2);

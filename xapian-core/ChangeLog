@@ -1,3 +1,7 @@
+Thu Sep 21 15:06:55 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Renamed Record to OmIndexerData and Message to OmIndexerMessage.
+
 Thu Sep 21 13:05:58 BST 2000 Olly Betts
 
 	* Removed unused variable `weights' from LocalMatch class.

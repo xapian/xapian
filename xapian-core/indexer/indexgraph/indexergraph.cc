@@ -36,7 +36,7 @@ class OmIndexerStartNode : public OmIndexerNode
 	    return new OmIndexerStartNode(settings);
 	}
 
-	void set_message(Message msg) {
+	void set_message(OmIndexerMessage msg) {
 	    //cout << "Setting message:" << msg << endl;
 	    message = msg;
 	};
@@ -47,7 +47,7 @@ class OmIndexerStartNode : public OmIndexerNode
 	    set_output("out", message);
 	}
 
-	Message message;
+	OmIndexerMessage message;
 };
 
 OmIndexer::OmIndexer()
@@ -330,14 +330,14 @@ OmIndexerBuilder::get_inputcon(const std::string &nodetype,
 				 nodetype + "[" + input_name + "]");
 }
 
-Message
+OmIndexerMessage
 OmIndexer::get_output()
 {
     return final->get_output_record(final_out);
 }
 
 void
-OmIndexer::set_input(Message msg)
+OmIndexer::set_input(OmIndexerMessage msg)
 {
     start->set_message(msg);
 }

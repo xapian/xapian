@@ -25,14 +25,14 @@
 #include "omdebug.h"
 #include <typeinfo>
 
-Message
+OmIndexerMessage
 OmIndexerNode::get_output_record(const std::string &output_name)
 {
     calculate_if_needed(output_name);
-    deleter_map<std::string, Message *>::iterator i;
+    deleter_map<std::string, OmIndexerMessage *>::iterator i;
     i = outputs_record.find(output_name);
 
-    Message result;
+    OmIndexerMessage result;
 
     // FIXME: check for validity of output_name in debugging code?
 
@@ -54,7 +54,7 @@ int
 OmIndexerNode::get_output_int(const std::string &output_name)
 {
     calculate_if_needed(output_name);
-    deleter_map<std::string, Message *>::iterator i;
+    deleter_map<std::string, OmIndexerMessage *>::iterator i;
     i = outputs_record.find(output_name);
 
     int result;
@@ -66,7 +66,7 @@ OmIndexerNode::get_output_int(const std::string &output_name)
 		output_name + ", which wasn't calculated, from " +
 		typeid(*this).name());
     } else {
-	if ((*i->second)->get_type() != Record::rt_int) {
+	if ((*i->second)->get_type() != OmIndexerData::rt_int) {
 	    throw OmTypeError(std::string("Attempt to convert a non-int output (") + output_name + ") into a int");
 	}
 	result = (*i->second)->get_int();
@@ -79,7 +79,7 @@ double
 OmIndexerNode::get_output_double(const std::string &output_name)
 {
     calculate_if_needed(output_name);
-    deleter_map<std::string, Message *>::iterator i;
+    deleter_map<std::string, OmIndexerMessage *>::iterator i;
     i = outputs_record.find(output_name);
 
     double result;
@@ -91,7 +91,7 @@ OmIndexerNode::get_output_double(const std::string &output_name)
 		output_name + ", which wasn't calculated, from " +
 		typeid(*this).name());
     } else {
-	if ((*i->second)->get_type() != Record::rt_double) {
+	if ((*i->second)->get_type() != OmIndexerData::rt_double) {
 	    throw OmTypeError(std::string("Attempt to convert a non-double output (") + output_name + ") into a double");
 	}
 	result = (*i->second)->get_double();
@@ -104,7 +104,7 @@ std::string
 OmIndexerNode::get_output_string(const std::string &output_name)
 {
     calculate_if_needed(output_name);
-    deleter_map<std::string, Message *>::iterator i;
+    deleter_map<std::string, OmIndexerMessage *>::iterator i;
     i = outputs_record.find(output_name);
 
     std::string result;
@@ -116,7 +116,7 @@ OmIndexerNode::get_output_string(const std::string &output_name)
 		output_name + ", which wasn't calculated, from " +
 		typeid(*this).name());
     } else {
-	if ((*i->second)->get_type() != Record::rt_string) {
+	if ((*i->second)->get_type() != OmIndexerData::rt_string) {
 	    throw OmTypeError(std::string("Attempt to convert a non-string output (") + output_name + ") into a string");
 	}
 	result = (*i->second)->get_string();
@@ -128,7 +128,7 @@ OmIndexerNode::get_output_string(const std::string &output_name)
 void
 OmIndexerNode::calculate_if_needed(const std::string &output_name)
 {
-    deleter_map<std::string, Message *>::iterator i;
+    deleter_map<std::string, OmIndexerMessage *>::iterator i;
     i = outputs_record.find(output_name);
 
     if (i == outputs_record.end()) {
@@ -153,33 +153,33 @@ OmIndexerNode::config_modified(const std::string &key)
 {
 }
 
-Record::Record(const std::string &name_) : name(name_), type(rt_empty)
+OmIndexerData::OmIndexerData(const std::string &name_) : name(name_), type(rt_empty)
 {
 }
 
-Record::Record(const std::string &name_, int value_)
+OmIndexerData::OmIndexerData(const std::string &name_, int value_)
 	: name(name_), type(rt_int)
 {
     u.int_val = value_;
 }
 
-Record::Record(const std::string &name_, double value_)
+OmIndexerData::OmIndexerData(const std::string &name_, double value_)
 	: name(name_), type(rt_double)
 {
     u.double_val = value_;
 }
 
-Record::Record(const std::string &name_, const std::string &value_)
+OmIndexerData::OmIndexerData(const std::string &name_, const std::string &value_)
 	: name(name_), type(rt_string)
 {
     u.string_val = new std::string(value_);
 }
 
-Record::Record(const std::string &name_,
-	       const std::vector<Record> &value)
+OmIndexerData::OmIndexerData(const std::string &name_,
+	       const std::vector<OmIndexerData> &value)
 	: name(name_), type(rt_vector)
 {
-    u.vector_val = new std::vector<Record>(value.size());
+    u.vector_val = new std::vector<OmIndexerData>(value.size());
     try {
 	copy(value.begin(), value.end(), u.vector_val->begin());
     } catch (...) {
@@ -188,7 +188,7 @@ Record::Record(const std::string &name_,
     }
 }
 
-Record::Record(const Record &other)
+OmIndexerData::OmIndexerData(const OmIndexerData &other)
 	: name(other.name), type(other.type)
 {
     switch (type) {
@@ -204,25 +204,25 @@ Record::Record(const Record &other)
 	    u.string_val = new string(*other.u.string_val);
 	    break;
 	case rt_vector:
-	    u.vector_val = new vector<Record>(*other.u.vector_val);
+	    u.vector_val = new vector<OmIndexerData>(*other.u.vector_val);
 	    break;
     }
 }
 
 void
-Record::operator=(const Record &other)
+OmIndexerData::operator=(const OmIndexerData &other)
 {
-    Record temp(other);
+    OmIndexerData temp(other);
     swap(temp);
 }
 
 void
-Record::swap(Record &other) {
+OmIndexerData::swap(OmIndexerData &other) {
     union {
 	int int_val;
 	double double_val;
 	std::string *string_val;
-	std::vector<Record> *vector_val;
+	std::vector<OmIndexerData> *vector_val;
     } tempu;
     switch (other.type) {
 	case rt_empty:
@@ -278,7 +278,7 @@ Record::swap(Record &other) {
     std::swap(type, other.type);
 }
 
-Record::~Record()
+OmIndexerData::~OmIndexerData()
 {
     switch (type) {
 	case rt_empty:
@@ -295,70 +295,70 @@ Record::~Record()
     }
 }
 
-void Record::set_name(const std::string &name_)
+void OmIndexerData::set_name(const std::string &name_)
 {
     name = name_;
 }
 
 std::string
-Record::get_name() const
+OmIndexerData::get_name() const
 {
     return name;
 }
 
-Record::record_type
-Record::get_type() const
+OmIndexerData::record_type
+OmIndexerData::get_type() const
 {
     return type;
 }
 
 int
-Record::get_int() const
+OmIndexerData::get_int() const
 {
     if (type != rt_int) {
-	throw OmTypeError("Record::get_int() called for non-int value");
+	throw OmTypeError("OmIndexerData::get_int() called for non-int value");
     }
     return u.int_val;
 }
 
 double
-Record::get_double() const
+OmIndexerData::get_double() const
 {
     if (type != rt_double) {
-	throw OmTypeError("Record::get_double() called for non-double value");
+	throw OmTypeError("OmIndexerData::get_double() called for non-double value");
     }
     return u.double_val;
 }
 
 std::string
-Record::get_string() const
+OmIndexerData::get_string() const
 {
     if (type != rt_string) {
-	throw OmTypeError("Record::get_string() called for non-string value");
+	throw OmTypeError("OmIndexerData::get_string() called for non-string value");
     }
     return *u.string_val;
 }
 
 int
-Record::get_vector_length() const
+OmIndexerData::get_vector_length() const
 {
     if (type != rt_vector) {
-	throw OmTypeError("Record::get_vector_length() called for non-vector value");
+	throw OmTypeError("OmIndexerData::get_vector_length() called for non-vector value");
     }
     return u.vector_val->size();
 }
 
-const Record &
-Record::operator[](unsigned int offset) const
+const OmIndexerData &
+OmIndexerData::operator[](unsigned int offset) const
 {
     return get_element(offset);
 }
 
-const Record &
-Record::get_element(unsigned int offset) const
+const OmIndexerData &
+OmIndexerData::get_element(unsigned int offset) const
 {
     if (type != rt_vector) {
-	throw OmTypeError("Record::get_vector_length() called for non-vector value");
+	throw OmTypeError("OmIndexerData::get_vector_length() called for non-vector value");
     }
     if (offset > u.vector_val->size()) {
 	throw OmRangeError("Access to non-existant element of vector record");
@@ -367,10 +367,10 @@ Record::get_element(unsigned int offset) const
 }
 
 void
-Record::append_element(const Record &element)
+OmIndexerData::append_element(const OmIndexerData &element)
 {
     if (type != rt_vector) {
-	throw OmTypeError("Record::append_element() called for non-vector value");
+	throw OmTypeError("OmIndexerData::append_element() called for non-vector value");
     }
     u.vector_val->push_back(element);
 }
@@ -388,12 +388,12 @@ OmIndexerNode::connect_input(const std::string &input_name,
 }
 
 void OmIndexerNode::set_output(const std::string &output_name,
-				      Message value)
+				      OmIndexerMessage value)
 {
     /*cout << "Setting output \"" << output_name
 	 << "\" to record:" << value << endl; */
     // TODO: check that it isn't already set?
-    outputs_record[output_name] = new Message(value);
+    outputs_record[output_name] = new OmIndexerMessage(value);
 }
 
 void OmIndexerNode::set_output(const std::string &output_name,
@@ -402,8 +402,8 @@ void OmIndexerNode::set_output(const std::string &output_name,
     /*cout << "Setting output \"" << output_name
 	 << "\" to record:" << value << endl; */
     // TODO: check that it isn't already set?
-    Message mess(new Record("string", value));
-    outputs_record[output_name] = new Message(mess);
+    OmIndexerMessage mess(new OmIndexerData("string", value));
+    outputs_record[output_name] = new OmIndexerMessage(mess);
 }
 
 void OmIndexerNode::set_output(const std::string &output_name,
@@ -412,8 +412,8 @@ void OmIndexerNode::set_output(const std::string &output_name,
     /*cout << "Setting output \"" << output_name
 	 << "\" to record:" << value << endl; */
     // TODO: check that it isn't already set?
-    Message mess(new Record("int", value));
-    outputs_record[output_name] = new Message(mess);
+    OmIndexerMessage mess(new OmIndexerData("int", value));
+    outputs_record[output_name] = new OmIndexerMessage(mess);
 }
 
 void OmIndexerNode::set_output(const std::string &output_name,
@@ -422,8 +422,8 @@ void OmIndexerNode::set_output(const std::string &output_name,
     /*cout << "Setting output \"" << output_name
 	 << "\" to record:" << value << endl; */
     // TODO: check that it isn't already set?
-    Message mess(new Record("double", value));
-    outputs_record[output_name] = new Message(mess);
+    OmIndexerMessage mess(new OmIndexerData("double", value));
+    outputs_record[output_name] = new OmIndexerMessage(mess);
 }
 
 std::string
@@ -440,7 +440,7 @@ OmIndexerNode::set_config_string(const std::string &key,
     config_modified(key);
 }
 
-Message OmIndexerNode::get_input_record(const std::string &input_name)
+OmIndexerMessage OmIndexerNode::get_input_record(const std::string &input_name)
 {
     std::map<std::string, input_desc>::const_iterator i;
     i = inputs.find(input_name);
@@ -493,26 +493,26 @@ double OmIndexerNode::get_input_double(const std::string &input_name)
 }
 
 static void write_record(std::ostream &os,
-			 const Record &record,
+			 const OmIndexerData &record,
 			 bool skip_name = false)
 {
     if (!skip_name) {
 	os << record.get_name() << ":";
     }
     switch (record.get_type()) {
-	case Record::rt_empty:
+	case OmIndexerData::rt_empty:
 	    os << "{empty}";
 	    break;
-	case Record::rt_int:
+	case OmIndexerData::rt_int:
 	    os << record.get_int();
 	    break;
-	case Record::rt_double:
+	case OmIndexerData::rt_double:
 	    os << record.get_double();
 	    break;
-	case Record::rt_string:
+	case OmIndexerData::rt_string:
 	    os << "`" << record.get_string() << "\'";
 	    break;
-	case Record::rt_vector:
+	case OmIndexerData::rt_vector:
 	    os << "[ ";
 	    {
 		std::string last_name;
@@ -530,15 +530,15 @@ static void write_record(std::ostream &os,
     }
 }
 
-std::ostream &operator<<(std::ostream &os, const Record &record)
+std::ostream &operator<<(std::ostream &os, const OmIndexerData &record)
 {
-    os << "Record(";
+    os << "OmIndexerData(";
     write_record(os, record);
     os << ")";
     return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const Message &message)
+std::ostream &operator<<(std::ostream &os, const OmIndexerMessage &message)
 {
     os << *message;
     return os;
@@ -551,7 +551,7 @@ OmIndexerNode::invalidate_outputs()
 }
 
 #if 0
-Message
+OmIndexerMessage
 OmIndexerNode::get_input(std::string input_name)
 {
     std::map<std::string, input_connection>::const_iterator i;
@@ -565,13 +565,13 @@ OmIndexerNode::get_input(std::string input_name)
     return (i->second.node)->get_output(i->second.output_name);
 }
 
-OmOrigNode::OmOrigNode(Message message_)
+OmOrigNode::OmOrigNode(OmIndexerMessage message_)
 	: message(message_)
 {
     add_output("out", &OmOrigNode::get_out);
 }
 
-Message
+OmIndexerMessage
 OmOrigNode::get_out()
 {
     return message;

@@ -43,7 +43,7 @@ class OmIndexer {
 
 	/** Set the input
 	 */
-	void set_input(Message msg);
+	void set_input(OmIndexerMessage msg);
 
 	/** Set a configuration value in a node.
 	 *  Will throw an exception if a non-existant node_id is specified.
@@ -58,7 +58,7 @@ class OmIndexer {
 
 	/** Get the output
 	 */
-	Message get_output();
+	OmIndexerMessage get_output();
 
 	/** Destructor
 	 */

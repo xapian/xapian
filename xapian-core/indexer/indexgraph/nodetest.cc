@@ -49,25 +49,25 @@ int main() {
 	    builder.register_node_type(ndesc);
 	}
 	AutoPtr<OmIndexer> indexer = builder.build_from_file("test.xml");
-	Message msg(new Record("foo", "bar"));
+	OmIndexerMessage msg(new OmIndexerData("foo", "bar"));
 	indexer->set_input(msg);
-	Message result = indexer->get_output();
+	OmIndexerMessage result = indexer->get_output();
 
 	cout << "Name: " << result->get_name() << endl;
 	switch (result->get_type()) {
-	    case Record::rt_int:
+	    case OmIndexerData::rt_int:
 		cout << result->get_int();
 		break;
-	    case Record::rt_double:
+	    case OmIndexerData::rt_double:
 		cout << result->get_double();
 		break;
-	    case Record::rt_string:
+	    case OmIndexerData::rt_string:
 		cout << result->get_string();
 		break;
-	    case Record::rt_vector:
+	    case OmIndexerData::rt_vector:
 		cout << "Vector";
 		break;
-	    case Record::rt_empty:
+	    case OmIndexerData::rt_empty:
 		cout << "Empty";
 		break;
 	};
