@@ -38,9 +38,9 @@ class OmExpandDeciderFilterTerms : public OmExpandDecider {
         OmExpandDeciderFilterTerms(OmTermIterator terms,
 				   OmTermIterator termsend);
 
-        virtual int operator()(const om_termname &tname) const;
+        virtual int operator()(const std::string &tname) const;
     private:
-        std::set<om_termname> tset;
+        std::set<std::string> tset;
 };
 
 /** An expand decision functor which can be used to join two
@@ -55,7 +55,7 @@ class OmExpandDeciderAnd : public OmExpandDecider {
 	OmExpandDeciderAnd(const OmExpandDecider *left_,
 	                   const OmExpandDecider *right_);
 
-	virtual int operator()(const om_termname &tname) const;
+	virtual int operator()(const std::string &tname) const;
 
     private:
         const OmExpandDecider *left;

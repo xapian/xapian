@@ -64,7 +64,7 @@ TextfileIndexer::add_source(const IndexerSource & source)
 	om_termcount position = 1;
 
 	std::string::size_type spacepos;
-	om_termname word;
+	string word;
 	while((spacepos = para.find_first_not_of(" \t\n")) != std::string::npos) {
 	    if(spacepos) para = para.erase(0, spacepos);
 	    spacepos = para.find_first_of(" \t\n");

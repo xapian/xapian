@@ -24,9 +24,13 @@
 #ifndef OM_HGUARD_ALLTERMSLIST_H
 #define OM_HGUARD_ALLTERMSLIST_H
 
+#include <string>
+
 #include "om/omtypes.h"
 #include "om/omerror.h"
 #include "termlist.h"
+
+using namespace std;
 
 // Abstract base class for alltermslists.
 class AllTermsList : public TermList
@@ -58,7 +62,7 @@ class AllTermsList : public TermList
 	}
 
 	// Gets current termname
-	virtual om_termname get_termname() const = 0;
+	virtual string get_termname() const = 0;
 
 	// Get wdf of current term
 	virtual om_termcount get_wdf() const {
@@ -81,7 +85,7 @@ class AllTermsList : public TermList
 	 *  found it will be positioned on the term just
 	 *  after tname in the database.  This could be after the end!
 	 */
-	virtual TermList *skip_to(const om_termname &tname) = 0;
+	virtual TermList *skip_to(const string &tname) = 0;
 
 	// True if we're off the end of the list
 	virtual bool at_end() const = 0;

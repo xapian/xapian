@@ -177,7 +177,7 @@ OmWeight::Internal::perform_request() const
     DEBUGLINE(WTCALC, "  rset_size = "       << total_stats->rset_size);
     DEBUGLINE(WTCALC, "  average_length = "  << total_stats->average_length);
 
-    map<om_termname, om_doccount>::const_iterator i;
+    map<string, om_doccount>::const_iterator i;
     for (i = total_stats->termfreq.begin();
 	 i != total_stats->termfreq.end(); i++) {
 	DEBUGLINE(WTCALC, "  termfreq of `" << i->first <<

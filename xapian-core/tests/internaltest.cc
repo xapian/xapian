@@ -243,7 +243,7 @@ class test_refcnt : public RefCntBase {
 	    }
 	}
 	RefCntPtr<const test_refcnt> test() {
-	    return RefCntPtr<const test_refcnt>(RefCntPtrToThis(), this);
+	    return RefCntPtr<const test_refcnt>(this);
 	}
 	~test_refcnt() {
 	    deleted = true;

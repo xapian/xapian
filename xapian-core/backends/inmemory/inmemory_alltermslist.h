@@ -36,16 +36,16 @@ class InMemoryAllTermsList : public AllTermsList
 	/// Assignment is not allowed.
 	void operator=(const InMemoryAllTermsList &);
 
-	const std::map<om_termname, InMemoryTerm> *tmap;
+	const std::map<string, InMemoryTerm> *tmap;
 
-	std::map<om_termname, InMemoryTerm>::const_iterator it;
+	std::map<string, InMemoryTerm>::const_iterator it;
 
 	RefCntPtr<const InMemoryDatabase> database;
 
 	bool started;
     public:
 	/// Standard constructor for base class.
-	InMemoryAllTermsList(const std::map<om_termname, InMemoryTerm> *tmap_,
+	InMemoryAllTermsList(const std::map<string, InMemoryTerm> *tmap_,
 			     RefCntPtr<const InMemoryDatabase> database_);
 
 	/// Standard destructor for base class.
@@ -55,7 +55,7 @@ class InMemoryAllTermsList : public AllTermsList
 	om_termcount get_approx_size() const;
 
 	// Gets current termname
-	om_termname get_termname() const;
+	string get_termname() const;
 
 	// Get num of docs indexed by term
 	om_doccount get_termfreq() const;
@@ -63,7 +63,7 @@ class InMemoryAllTermsList : public AllTermsList
 	// Get num of docs indexed by term
 	om_termcount get_collection_freq() const;
 
-	TermList * skip_to(const om_termname &tname);
+	TermList * skip_to(const string &tname);
 
 	/** next() causes the AllTermsList to move to the next term in the list.
 	 */

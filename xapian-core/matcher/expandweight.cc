@@ -100,7 +100,7 @@ OmExpandWeight::get_bits(om_termcount wdf,
 
 om_weight
 OmExpandWeight::get_weight(const OmExpandBits &bits,
-			   const om_termname &tname) const
+			   const string &tname) const
 {
     DEBUGCALL(MATCH, om_weight, "OmExpandWeight::get_weight", "[bits], " << tname);
     double termfreq = (double)bits.termfreq;

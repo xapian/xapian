@@ -26,6 +26,7 @@
 #define OM_HGUARD_OMPOSTLISTITERATOR_H
 
 #include <iterator>
+#include <string>
 #include "om/omtypes.h"
 
 class OmDatabase;

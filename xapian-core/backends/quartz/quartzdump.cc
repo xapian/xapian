@@ -61,8 +61,8 @@ main(int argc, char *argv[])
     vector<string> tables;
     quartz_revision_number_t revnum = 0;
     bool use_revno = false;
-    om_termname startterm;
-    om_termname endterm;
+    string startterm;
+    string endterm;
     bool use_endterm = false;
 
     bool syntax_error = false;

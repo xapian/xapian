@@ -65,7 +65,7 @@ class QuartzDatabase : public Database {
 	//@}
 
 	/// Implementation of open_post_list()
-	LeafPostList * open_post_list_internal(const om_termname & tname,
+	LeafPostList * open_post_list_internal(const string & tname,
 				RefCntPtr<const Database> ptrtothis) const;
 
 	/// Implementation of open_term_list()
@@ -95,15 +95,15 @@ class QuartzDatabase : public Database {
 	om_doccount  get_doccount() const;
 	om_doclength get_avlength() const;
 	om_doclength get_doclength(om_docid did) const;
-	om_doccount get_termfreq(const om_termname & tname) const;
-	om_termcount get_collection_freq(const om_termname & tname) const;
-	bool term_exists(const om_termname & tname) const;
+	om_doccount get_termfreq(const string & tname) const;
+	om_termcount get_collection_freq(const string & tname) const;
+	bool term_exists(const string & tname) const;
 
-	LeafPostList * do_open_post_list(const om_termname & tname) const;
+	LeafPostList * do_open_post_list(const string & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
 	Document * open_document(om_docid did, bool lazy = false) const;
 	AutoPtr<PositionList> open_position_list(om_docid did,
-					  const om_termname & tname) const;
+					  const string & tname) const;
 	TermList * open_allterms() const;
 	//@}
 };
@@ -165,15 +165,15 @@ class QuartzWritableDatabase : public Database {
 	om_doccount  get_doccount() const;
 	om_doclength get_avlength() const;
 	om_doclength get_doclength(om_docid did) const;
-	om_doccount get_termfreq(const om_termname & tname) const;
-	om_termcount get_collection_freq(const om_termname & tname) const;
-	bool term_exists(const om_termname & tname) const;
+	om_doccount get_termfreq(const string & tname) const;
+	om_termcount get_collection_freq(const string & tname) const;
+	bool term_exists(const string & tname) const;
 
-	LeafPostList * do_open_post_list(const om_termname & tname) const;
+	LeafPostList * do_open_post_list(const string & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
 	Document * open_document(om_docid did, bool lazy = false) const;
 	AutoPtr<PositionList> open_position_list(om_docid did,
-					  const om_termname & tname) const;
+					  const string & tname) const;
 	TermList * open_allterms() const;
 	//@}
 };

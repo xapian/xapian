@@ -57,10 +57,10 @@ QuartzAllTermsList::get_approx_size() const
     RETURN(size);
 }
 
-om_termname
+string
 QuartzAllTermsList::get_termname() const
 {
-    DEBUGCALL(DB, om_termname, "QuartzAllTermsList::get_termname", "");
+    DEBUGCALL(DB, string, "QuartzAllTermsList::get_termname", "");
     Assert(started);
     if (is_at_end) {
 	throw OmInvalidArgumentError("Attempt to get termname after end");
@@ -118,7 +118,7 @@ QuartzAllTermsList::get_collection_freq() const
 }
 
 TermList *
-QuartzAllTermsList::skip_to(const om_termname &tname)
+QuartzAllTermsList::skip_to(const string &tname)
 {
     DEBUGCALL(DB, TermList *, "QuartzAllTermsList::skip_to", tname);
     DEBUGLINE(DB, "QuartzAllTermList::skip_to(" << tname << ")");

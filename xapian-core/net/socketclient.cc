@@ -296,7 +296,7 @@ SocketClient::get_avlength() const
 }
 
 bool
-SocketClient::term_exists(const om_termname & tname)
+SocketClient::term_exists(const string & tname)
 {
     do_write(string("t") + encode_tname(tname));
     string message = do_read();
@@ -305,7 +305,7 @@ SocketClient::term_exists(const om_termname & tname)
 }
 
 om_doccount
-SocketClient::get_termfreq(const om_termname & tname)
+SocketClient::get_termfreq(const string & tname)
 {
     do_write(string("F") + encode_tname(tname));
     string message = do_read();

@@ -280,7 +280,7 @@ OmDatabase::Internal::get_avlength() const
 }
 
 LeafPostList *
-OmDatabase::Internal::open_post_list(const om_termname & tname,
+OmDatabase::Internal::open_post_list(const string & tname,
 				     const OmDatabase &db) const
 {
     // Don't bother checking that the term exists first.  If it does, we
@@ -331,7 +331,7 @@ OmDatabase::Internal::open_document(om_docid did) const
 
 AutoPtr<PositionList>
 OmDatabase::Internal::open_position_list(om_docid did,
-					 const om_termname &tname) const
+					 const string &tname) const
 {
     unsigned int multiplier = databases.size();
     Assert(multiplier != 0);

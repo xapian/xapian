@@ -25,11 +25,15 @@
 #ifndef OM_HGUARD_DATABASE_H
 #define OM_HGUARD_DATABASE_H
 
+#include <string>
+
 #include "om/omtypes.h"
 
 #include "om/omdocument.h"
 #include "refcnt.h"
 #include "emptypostlist.h"
+
+using namespace std;
 
 class Document;
 class LeafPostList;
@@ -117,7 +121,7 @@ class Database : public RefCntBase {
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
-	virtual LeafPostList * do_open_post_list(const om_termname & tname) const = 0;
+	virtual LeafPostList * do_open_post_list(const string & tname) const = 0;
 
     public:
 	/** Destroy the database.
@@ -173,7 +177,7 @@ class Database : public RefCntBase {
 	 *
 	 *  @param tname  The term whose term frequency is being requested.
 	 */
-	virtual om_doccount get_termfreq(const om_termname & tname) const = 0;
+	virtual om_doccount get_termfreq(const string & tname) const = 0;
 
 	/** Return the total number of occurrences of the given term.  This
 	 *  is the sum of the number of ocurrences of the term in each
@@ -183,7 +187,7 @@ class Database : public RefCntBase {
 	 *  @param tname  The term whose collection frequency is being
 	 *                requested.
 	 */
-	virtual om_termcount get_collection_freq(const om_termname & tname) const = 0;
+	virtual om_termcount get_collection_freq(const string & tname) const = 0;
 
 	/** Check whether a given term is in the database.
 	 *
@@ -199,7 +203,7 @@ class Database : public RefCntBase {
 	 *
 	 *  @param tname  The term whose presence is being checked.
 	 */
-	virtual bool term_exists(const om_termname & tname) const = 0;
+	virtual bool term_exists(const string & tname) const = 0;
 
 	//////////////////////////////////////////////////////////////////
 	// Data item access methods:
@@ -215,7 +219,7 @@ class Database : public RefCntBase {
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
-	LeafPostList * open_post_list(const om_termname & tname) const {
+	LeafPostList * open_post_list(const string & tname) const {
 	    if (!term_exists(tname)) {
 		DEBUGLINE(MATCH, tname + " is not in database.");
 		// Term doesn't exist in this database.  However, we create
@@ -260,7 +264,7 @@ class Database : public RefCntBase {
 	 *                use.
 	 */
 	virtual AutoPtr<PositionList> open_position_list(om_docid did,
-					const om_termname & tname) const = 0;
+					const string & tname) const = 0;
 
 	/** Open a document.
 	 *

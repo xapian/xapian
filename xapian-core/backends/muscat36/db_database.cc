@@ -45,7 +45,7 @@ using std::pair;
 #include "om/omdocument.h"
 #include "om/omerror.h"
 
-DBPostList::DBPostList(const om_termname & tname_,
+DBPostList::DBPostList(const string & tname_,
 		       struct DB_postings * postlist_,
 		       om_doccount termfreq_,
 		       RefCntPtr<const DBDatabase> this_db_)
@@ -238,7 +238,7 @@ DBDatabase::get_doclength(om_docid /*did*/) const
 }
 
 om_doccount
-DBDatabase::get_termfreq(const om_termname & tname) const
+DBDatabase::get_termfreq(const string & tname) const
 {
     if (!term_exists(tname)) return 0;
     LeafPostList *pl = open_post_list_internal(tname);
@@ -249,7 +249,7 @@ DBDatabase::get_termfreq(const om_termname & tname) const
 }
 
 bool
-DBDatabase::term_exists(const om_termname & tname) const
+DBDatabase::term_exists(const string & tname) const
 {
     Assert(tname.size() != 0);
     return (term_lookup(tname).get() != 0);
@@ -257,7 +257,7 @@ DBDatabase::term_exists(const om_termname & tname) const
 
 // Returns a new posting list, for the postings in this database for given term
 LeafPostList *
-DBDatabase::open_post_list_internal(const om_termname & tname) const
+DBDatabase::open_post_list_internal(const string & tname) const
 {
     // Make sure the term has been looked up
     RefCntPtr<const DBTerm> the_term = term_lookup(tname);
@@ -271,7 +271,7 @@ DBDatabase::open_post_list_internal(const om_termname & tname) const
 }
 
 LeafPostList *
-DBDatabase::do_open_post_list(const om_termname & tname) const
+DBDatabase::do_open_post_list(const string & tname) const
 {
     return open_post_list_internal(tname);
 }
@@ -349,18 +349,18 @@ DBDatabase::open_document(om_docid did, bool lazy) const
 
 AutoPtr<PositionList> 
 DBDatabase::open_position_list(om_docid /*did*/,
-			       const om_termname & /*tname*/) const
+			       const string & /*tname*/) const
 {
     // This tells the level above to return begin() = end()
     return AutoPtr<PositionList>(NULL);
 }
 
 RefCntPtr<const DBTerm>
-DBDatabase::term_lookup(const om_termname & tname) const
+DBDatabase::term_lookup(const string & tname) const
 {
     //DEBUGLINE(DB, "DBDatabase::term_lookup(`" << tname.c_str() << "'): ");
 
-    map<om_termname, RefCntPtr<const DBTerm> >::const_iterator p;
+    map<string, RefCntPtr<const DBTerm> >::const_iterator p;
     p = termmap.find(tname);
 
     RefCntPtr<const DBTerm> the_term;
@@ -386,7 +386,7 @@ DBDatabase::term_lookup(const om_termname & tname) const
 	    }
 
 	    DEBUGLINE(DB, "found, adding to cache");
-	    pair<om_termname, RefCntPtr<const DBTerm> > termpair(tname, new DBTerm(&ti, tname));
+	    pair<string, RefCntPtr<const DBTerm> > termpair(tname, new DBTerm(&ti, tname));
 	    termmap.insert(termpair);
 	    the_term = termmap.find(tname)->second;
 	}

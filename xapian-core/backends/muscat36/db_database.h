@@ -48,12 +48,12 @@ class DBPostList : public LeafPostList {
 	struct DB_postings * postlist;
 	om_docid  currdoc;
 
-	om_termname tname;
+	string tname;
 	om_doccount termfreq;
 
 	RefCntPtr<const DBDatabase> this_db; // Just used to keep a reference
 
-	DBPostList(const om_termname & tname_,
+	DBPostList(const string & tname_,
 		   struct DB_postings * postlist_,
 		   om_doccount termfreq_,
 		   RefCntPtr<const DBDatabase> this_db_);
@@ -122,11 +122,11 @@ DBPostList::get_description() const
 
 class DBTermListItem {
     public:
-	om_termname tname;
+	string tname;
 	om_termcount wdf;
 	om_doccount termfreq;
 
-	DBTermListItem(om_termname tname_, om_termcount wdf_,
+	DBTermListItem(string tname_, om_termcount wdf_,
 		       om_doccount termfreq_)
 		: tname(tname_), wdf(wdf_), termfreq(termfreq_) { }
 };
@@ -147,7 +147,7 @@ class DBTermList : public LeafTermList {
 	om_termcount get_approx_size() const;
 
 	OmExpandBits get_weighting() const; // Gets weight info of current term
-	om_termname get_termname() const;
+	string get_termname() const;
 	om_termcount get_wdf() const; // Number of occurences of term in current doc
 	om_doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
@@ -159,7 +159,7 @@ inline om_termcount DBTermList::get_approx_size() const
     return terms.size();
 }
 
-inline om_termname DBTermList::get_termname() const
+inline string DBTermList::get_termname() const
 {
     Assert(!at_end());
     Assert(have_started);
@@ -199,7 +199,7 @@ class DBTerm : public RefCntBase {
     friend class DBDatabase;
     private:
 	DBTerm(struct DB_term_info * ti_,
-	       om_termname tname_,
+	       string tname_,
 	       struct DB_file * DB_ = NULL);
         struct DB_term_info * get_ti() const;
 
@@ -207,12 +207,12 @@ class DBTerm : public RefCntBase {
         mutable struct DB_term_info ti;
         mutable struct DB_file * DB;
     public:
-	om_termname tname;
+	string tname;
 };
 
 inline
 DBTerm::DBTerm(struct DB_term_info * ti_,
-	       om_termname tname_,
+	       string tname_,
 	       struct DB_file * DB_)
 	: terminfo_initialised(false)
 {
@@ -253,14 +253,14 @@ class DBDatabase : public Database {
 
 	FILE * valuefile;
 
-	mutable std::map<om_termname, RefCntPtr<const DBTerm> > termmap;
+	mutable std::map<string, RefCntPtr<const DBTerm> > termmap;
 
 	// Stop copy / assignment being allowed
 	DBDatabase& operator=(const DBDatabase&);
 	DBDatabase(const DBDatabase&);
 
 	// Look up term in database
-	RefCntPtr<const DBTerm> term_lookup(const om_termname & tname) const;
+	RefCntPtr<const DBTerm> term_lookup(const string & tname) const;
 
 	// Get a record
 	struct record * get_record(om_docid did) const;
@@ -272,7 +272,7 @@ class DBDatabase : public Database {
 
 	/** Internal method for opening postlists.
 	 */
-	LeafPostList * open_post_list_internal(const om_termname & tname) const;
+	LeafPostList * open_post_list_internal(const string & tname) const;
 
     public:
 	/** Create and open a DB database.
@@ -294,18 +294,18 @@ class DBDatabase : public Database {
 	om_doclength get_avlength() const;
 	om_doclength get_doclength(om_docid did) const;
 
-	om_doccount get_termfreq(const om_termname & tname) const;
-	om_termcount get_collection_freq(const om_termname & /*tname*/) const {
+	om_doccount get_termfreq(const string & tname) const;
+	om_termcount get_collection_freq(const string & /*tname*/) const {
 	    throw OmUnimplementedError(
 		"DBDatabase::get_collection_freq() not implemented: data not stored in database.");
 	}
-	bool term_exists(const om_termname & tname) const;
+	bool term_exists(const string & tname) const;
 
-	LeafPostList * do_open_post_list(const om_termname & tname) const;
+	LeafPostList * do_open_post_list(const string & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
 	Document * open_document(om_docid did, bool lazy = false) const;
 	AutoPtr<PositionList> open_position_list(om_docid did,
-					  const om_termname & tname) const;
+					  const string & tname) const;
 	TermList * open_allterms() const;
 
 	//@{

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -96,16 +96,16 @@ InMemoryDatabase::~InMemoryDatabase()
 }
 
 LeafPostList *
-InMemoryDatabase::do_open_post_list(const om_termname & tname) const
+InMemoryDatabase::do_open_post_list(const string & tname) const
 {
     if (!term_exists(tname)) {
 	return new EmptyPostList();
     }
 
-    map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
+    map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
     Assert(i != postlists.end());
 
-    return new InMemoryPostList(RefCntPtr<const InMemoryDatabase>(RefCntPtrToThis(), this),
+    return new InMemoryPostList(RefCntPtr<const InMemoryDatabase>(this),
 				i->second);
 }
 
@@ -124,7 +124,7 @@ InMemoryDatabase::open_term_list(om_docid did) const
 	throw OmDocNotFoundError(string("Docid ") + om_tostring(did) +
 				 string(" not found"));
     }
-    return new InMemoryTermList(RefCntPtr<const InMemoryDatabase>(RefCntPtrToThis(), this),
+    return new InMemoryTermList(RefCntPtr<const InMemoryDatabase>(this),
 				termlists[did - 1], get_doclength(did));
 }
 
@@ -144,7 +144,7 @@ InMemoryDatabase::open_document(om_docid did, bool /*lazy*/) const
 
 AutoPtr<PositionList> 
 InMemoryDatabase::open_position_list(om_docid did,
-				     const om_termname & tname) const
+				     const string & tname) const
 {
     if (!doc_exists(did)) {
 	throw OmDocNotFoundError("Document id " + om_tostring(did) +
@@ -221,7 +221,7 @@ InMemoryDatabase::do_delete_document(om_docid did)
     for (i = termlists[did - 1].terms.begin();
 	 i != termlists[did - 1].terms.end();
 	 ++i) {
-	map<om_termname, InMemoryTerm>::iterator t = postlists.find(i->tname);
+	map<string, InMemoryTerm>::iterator t = postlists.find(i->tname);
 	Assert(t != postlists.end());
 	t->second.collection_freq -= i->wdf;
 	vector<InMemoryPosting>::iterator posting = t->second.docs.begin();
@@ -314,7 +314,7 @@ InMemoryDatabase::finish_add_doc(om_docid did, const OmDocument &document)
 }
 
 void
-InMemoryDatabase::make_term(const om_termname & tname)
+InMemoryDatabase::make_term(const string & tname)
 {
     postlists[tname];  // Initialise, if not already there.
 }
@@ -331,7 +331,7 @@ InMemoryDatabase::make_doc(const string & docdata)
     return termlists.size();
 }
 
-void InMemoryDatabase::make_posting(const om_termname & tname,
+void InMemoryDatabase::make_posting(const string & tname,
 				    om_docid did,
 				    om_termpos position,
 				    om_termcount wdf,
@@ -357,7 +357,7 @@ void InMemoryDatabase::make_posting(const om_termname & tname,
 }
 
 bool
-InMemoryDatabase::term_exists(const om_termname & tname) const
+InMemoryDatabase::term_exists(const string & tname) const
 {
     Assert(tname.size() != 0);
     return postlists.find(tname) != postlists.end();
@@ -367,6 +367,5 @@ TermList *
 InMemoryDatabase::open_allterms() const
 {
     return new InMemoryAllTermsList(&postlists,
-				    RefCntPtr<const InMemoryDatabase>(RefCntPtrToThis(),
-								      this));
+				    RefCntPtr<const InMemoryDatabase>(this));
 }

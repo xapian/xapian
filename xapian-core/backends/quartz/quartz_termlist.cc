@@ -240,10 +240,10 @@ QuartzTermList::at_end() const
     RETURN(have_finished);
 }
 
-om_termname
+string
 QuartzTermList::get_termname() const
 {
-    DEBUGCALL(DB, om_termname, "QuartzTermList::get_termname", "");
+    DEBUGCALL(DB, string, "QuartzTermList::get_termname", "");
     RETURN(current_tname);
 }
 

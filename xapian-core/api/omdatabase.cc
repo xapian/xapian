@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -98,7 +98,7 @@ OmDatabase::add_database(const OmDatabase & database)
 }
 
 OmPostListIterator
-OmDatabase::postlist_begin(const om_termname &tname) const
+OmDatabase::postlist_begin(const string &tname) const
 {
     DEBUGAPICALL(OmPostListIterator, "OmDatabase::postlist_begin", tname);
     if (tname.empty())
@@ -107,7 +107,7 @@ OmDatabase::postlist_begin(const om_termname &tname) const
 }
 
 OmPostListIterator
-OmDatabase::postlist_end(const om_termname &tname) const
+OmDatabase::postlist_end(const string &tname) const
 {
     DEBUGAPICALL(OmPostListIterator, "OmDatabase::postlist_end", tname);
     if (tname.empty())
@@ -148,7 +148,7 @@ OmDatabase::allterms_end() const
 }
 
 OmPositionListIterator
-OmDatabase::positionlist_begin(om_docid did, const om_termname &tname) const
+OmDatabase::positionlist_begin(om_docid did, const string &tname) const
 {
     DEBUGAPICALL(OmPositionListIterator, "OmDatabase::positionlist_begin",
 		 did << ", " << tname);
@@ -162,7 +162,7 @@ OmDatabase::positionlist_begin(om_docid did, const om_termname &tname) const
 }
 
 OmPositionListIterator
-OmDatabase::positionlist_end(om_docid did, const om_termname &tname) const
+OmDatabase::positionlist_end(om_docid did, const string &tname) const
 {
     DEBUGAPICALL(OmPositionListIterator, "OmDatabase::positionlist_end",
 		 did << ", " << tname);
@@ -192,7 +192,7 @@ OmDatabase::get_avlength() const
 }
 
 om_doccount
-OmDatabase::get_termfreq(const om_termname & tname) const
+OmDatabase::get_termfreq(const string & tname) const
 {
     DEBUGAPICALL(om_doccount, "OmDatabase::get_termfreq", tname);
     if (tname.empty())
@@ -206,7 +206,7 @@ OmDatabase::get_termfreq(const om_termname & tname) const
 }
 
 om_termcount
-OmDatabase::get_collection_freq(const om_termname & tname) const
+OmDatabase::get_collection_freq(const string & tname) const
 {
     DEBUGAPICALL(om_termcount, "OmDatabase::get_collection_freq", tname);
     if (tname.empty())
@@ -248,7 +248,7 @@ OmDatabase::get_document(om_docid did) const
 }
 
 bool
-OmDatabase::term_exists(const om_termname & tname) const
+OmDatabase::term_exists(const string & tname) const
 {
     if (tname.empty())
 	throw OmInvalidArgumentError("Zero length terms are invalid");

@@ -44,7 +44,7 @@ using std::pair;
 #include "om/omdocument.h"
 #include "om/omerror.h"
 
-DAPostList::DAPostList(const om_termname & tname_,
+DAPostList::DAPostList(const string & tname_,
 		       struct DA_postings * postlist_,
 		       om_doccount termfreq_,
 		       RefCntPtr<const DADatabase> this_db_)
@@ -234,7 +234,7 @@ DADatabase::get_doclength(om_docid /*did*/) const
 }
 
 om_doccount
-DADatabase::get_termfreq(const om_termname & tname) const
+DADatabase::get_termfreq(const string & tname) const
 {
     if (term_lookup(tname).get() == 0) return 0;
 
@@ -247,14 +247,14 @@ DADatabase::get_termfreq(const om_termname & tname) const
 
 // Returns a new posting list, for the postings in this database for given term
 LeafPostList *
-DADatabase::do_open_post_list(const om_termname & tname) const
+DADatabase::do_open_post_list(const string & tname) const
 {
     return open_post_list_internal(tname);
 }
 
 // Returns a new posting list, for the postings in this database for given term
 LeafPostList *
-DADatabase::open_post_list_internal(const om_termname & tname) const
+DADatabase::open_post_list_internal(const string & tname) const
 {
     // Make sure the term has been looked up
     RefCntPtr<const DATerm> the_term = term_lookup(tname);
@@ -339,18 +339,18 @@ DADatabase::open_document(om_docid did, bool lazy) const
 }
 
 AutoPtr<PositionList> 
-DADatabase::open_position_list(om_docid /*did*/, const om_termname & /*tname*/) const
+DADatabase::open_position_list(om_docid /*did*/, const string & /*tname*/) const
 {
     // This tells the level above to return begin() = end()
     return AutoPtr<PositionList>(NULL);
 }
 
 RefCntPtr<const DATerm>
-DADatabase::term_lookup(const om_termname & tname) const
+DADatabase::term_lookup(const string & tname) const
 {
     DEBUGMSG(DB, "DADatabase::term_lookup(`" << tname.c_str() << "'): ");
 
-    map<om_termname, RefCntPtr<const DATerm> >::const_iterator p;
+    map<string, RefCntPtr<const DATerm> >::const_iterator p;
     p = termmap.find(tname);
 
     RefCntPtr<const DATerm> the_term;
@@ -376,7 +376,7 @@ DADatabase::term_lookup(const om_termname & tname) const
 	    }
 
 	    DEBUGLINE(DB, "found, adding to cache");
-	    pair<om_termname, RefCntPtr<const DATerm> > termpair(tname, new DATerm(&ti, tname));
+	    pair<string, RefCntPtr<const DATerm> > termpair(tname, new DATerm(&ti, tname));
 	    termmap.insert(termpair);
 	    the_term = termmap.find(tname)->second;
 	}
@@ -388,7 +388,7 @@ DADatabase::term_lookup(const om_termname & tname) const
 }
 
 bool
-DADatabase::term_exists(const om_termname & tname) const
+DADatabase::term_exists(const string & tname) const
 {
     Assert(tname.size() != 0);
     return (term_lookup(tname).get() != 0);

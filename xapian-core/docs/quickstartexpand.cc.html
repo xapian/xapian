@@ -48,7 +48,7 @@
         OmEnquire enquire(database);
 
         <FONT color=#0000ff>// Prepare the query terms</FONT>
-        vector&lt;om_termname&gt; queryterms;
+        vector&lt;string&gt; queryterms;
         <B><FONT color=#2e8b57>int</FONT></B> optpos;
         <B><FONT color=#a52a2a>for</FONT></B> (optpos = <FONT color=#ff00ff>2</FONT>; optpos &lt; argc; optpos++) {
             <B><FONT color=#a52a2a>if</FONT></B>(string(argv[optpos]) == <FONT color=#ff00ff>&quot;--&quot;</FONT>) {

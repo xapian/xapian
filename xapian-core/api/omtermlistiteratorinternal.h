@@ -56,7 +56,7 @@ class OmTermIterator::Internal {
 	    termlist->next();
 	}
 
-	om_termname get_termname() const {	    
+	string get_termname() const {	    
 	    return termlist->get_termname();
 	}
 
@@ -78,7 +78,7 @@ class OmTermIterator::Internal {
 	    termlist->next();
 	}
 
-	void skip_to(const om_termname & tname) {
+	void skip_to(const string & tname) {
 	    termlist->skip_to(tname);
 	}
 
@@ -93,13 +93,13 @@ class OmTermIterator::Internal {
 
 class VectorTermList : public TermList {
     private:
-	std::vector<om_termname> terms;
-	std::vector<om_termname>::size_type offset;
+	std::vector<string> terms;
+	std::vector<string>::size_type offset;
 	bool before_start;
 
     public:
-	VectorTermList(std::vector<om_termname>::const_iterator begin,
-		       std::vector<om_termname>::const_iterator end)
+	VectorTermList(std::vector<string>::const_iterator begin,
+		       std::vector<string>::const_iterator end)
 	    : terms(begin, end), offset(0), before_start(true)
 	{
 	}
@@ -116,7 +116,7 @@ class VectorTermList : public TermList {
 	}
 	    
 	// Gets current termname
-	om_termname get_termname() const {
+	string get_termname() const {
 	    Assert(!before_start && offset < terms.size());
 	    return terms[offset];
 	}
@@ -148,7 +148,7 @@ class VectorTermList : public TermList {
 	    return NULL;
 	}
 
-	TermList *skip_to(const om_termname &/*tname*/) {
+	TermList *skip_to(const string &/*tname*/) {
 	    Assert(!at_end());
 	    // termlist not ordered
 	    Assert(false);
@@ -191,7 +191,7 @@ class MapTermList : public TermList {
 	}
 	    
 	// Gets current termname
-	om_termname get_termname() const {
+	string get_termname() const {
 	    Assert(started);
 	    Assert(!at_end());
 	    return it->first;

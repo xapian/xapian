@@ -23,6 +23,8 @@
 #ifndef OM_HGUARD_NET_TERMLIST_H
 #define OM_HGUARD_NET_TERMLIST_H
 
+#include <string>
+
 #include "om/omtypes.h"
 #include "om/omerror.h"
 #include "termlist.h"
@@ -30,13 +32,15 @@
 #include "netclient.h"
 #include "net_database.h"
 
+using namespace std;
+
 /** An item in a NetworkTermList.
  */
 class NetworkTermListItem {
     public:
 	/** The "name" of this term.
 	 */
-	om_termname tname;
+	string tname;
 
 	/** The term frequency.
 	 *  This is the number of documents (in the network database)
@@ -60,7 +64,7 @@ class NetworkTermListItem {
 	 *  should also be present (but need not neccessarily agree with
 	 *  the length of the position vector, for various reasons).
 	 */
-	std::vector<om_termpos> positions;
+	vector<om_termpos> positions;
 };
 
 /** A term list for a database on the other side of a network connection.
@@ -72,11 +76,11 @@ class NetworkTermList : public LeafTermList {
     private:
 	/** The list of items comprising the termlist.
 	 */
-	std::vector<NetworkTermListItem> items;
+	vector<NetworkTermListItem> items;
 
 	/** The current position in the list.
 	 */
-	std::vector<NetworkTermListItem>::const_iterator current_position;
+	vector<NetworkTermListItem>::const_iterator current_position;
 
 	/** Whether we have yet started iterating through the list.
 	 */
@@ -107,7 +111,7 @@ class NetworkTermList : public LeafTermList {
 	 */
 	NetworkTermList(om_doclength average_length_,
 			om_doccount  database_size_,
-			const std::vector<NetClient::TermListItem> &items_,
+			const vector<NetClient::TermListItem> &items_,
 			RefCntPtr<const NetworkDatabase> this_db_);
     public:
 
@@ -116,7 +120,7 @@ class NetworkTermList : public LeafTermList {
 	om_termcount get_approx_size() const;
 
 	OmExpandBits get_weighting() const;
-	om_termname get_termname() const;
+	string get_termname() const;
 	om_termcount get_wdf() const;
 	om_doccount get_termfreq() const;
 	TermList * next();

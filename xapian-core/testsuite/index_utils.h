@@ -23,9 +23,13 @@
 #ifndef OM_HGUARD_INDEX_UTILS_H
 #define OM_HGUARD_INDEX_UTILS_H
 
-#include "om/omtypes.h"
-void lowercase_term(om_termname &);
-void select_characters(om_termname &term, const std::string & keep);
+#include <iosfwd>
+#include <string>
+
+using namespace std;
+
+void lowercase_term(string &);
+void select_characters(string &term, const std::string & keep);
 void get_paragraph(std::istream &input, std::string &para);
 void get_a_line(std::istream &input, std::string &line);
 

@@ -68,7 +68,7 @@ OmQuery::add_subquery(const OmQuery * subq)
 
 /// Add a subquery which is a single term
 void
-OmQuery::add_subquery(const om_termname & tname)
+OmQuery::add_subquery(const string & tname)
 {
     DEBUGAPICALL(void, "OmQuery::add_subquery", tname);
     OmQuery::Internal temp(tname);
@@ -104,7 +104,7 @@ OmQuery::abort_construction()
     internal = 0;
 }
 
-OmQuery::OmQuery(const om_termname & tname_,
+OmQuery::OmQuery(const string & tname_,
 		 om_termcount wqf_,
 		 om_termpos term_pos_)
 	: internal(new OmQuery::Internal(tname_, wqf_, term_pos_))

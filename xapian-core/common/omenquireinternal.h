@@ -42,12 +42,12 @@ class OmTermIterator;
  */
 class OmESetItem {
     public:
-	OmESetItem(om_weight wt_, om_termname tname_)
+	OmESetItem(om_weight wt_, string tname_)
 		: wt(wt_), tname(tname_) {}
 	/// Weight calculated.
 	om_weight wt;
 	/// Term suggested.
-	om_termname tname;
+	string tname;
 	
 	/** Returns a string representing the eset item.
 	 *  Introspection method.
@@ -276,7 +276,7 @@ class OmMSet::Internal::Data : public RefCntBase {
 	/** The term frequencies and weights returned by the match process.
 	 *  This map will contain information for each term which was in                 *  the query.
 	 */
-	std::map<om_termname, TermFreqAndWeight> termfreqandwts;
+	std::map<string, TermFreqAndWeight> termfreqandwts;
 
 	/// A list of items comprising the (selected part of the) mset.
 	std::vector<OmMSetItem> items;
@@ -310,7 +310,7 @@ class OmMSet::Internal::Data : public RefCntBase {
 	     om_weight max_possible_,
 	     om_weight max_attained_,
 	     const std::vector<OmMSetItem> &items_,
-	     const std::map<om_termname, TermFreqAndWeight> &termfreqandwts_,
+	     const std::map<string, TermFreqAndWeight> &termfreqandwts_,
 	     om_weight percent_factor_)
 		: percent_factor(percent_factor_),
 		  termfreqandwts(termfreqandwts_),

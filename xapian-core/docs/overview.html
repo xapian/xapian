@@ -359,7 +359,7 @@ This constructor actually takes a couple of extra parameters, which may be
 used to specify positional and frequency information for terms in the query:
 <P>
 <PRE>
-OmQuery(const om_termname &amp; tname_,
+OmQuery(const string &amp; tname_,
         om_termcount wqf_ = 1,
         om_termpos term_pos_ = 0)
 </PRE>
@@ -631,7 +631,7 @@ In fact this style of creation is so common that there is the shortcut
 construction:
 
 <PRE>
-    vector &lt;om_termname&gt; terms;
+    vector &lt;string&gt; terms;
     terms.push_back("regulation");
     terms.push_back("import");
     terms.push_back("export");
@@ -687,9 +687,9 @@ index none of the retrieved documents (`-' terms). For example,
 the corresponding query can be set up by,
 
 <PRE>
-    vector &lt;om_termname&gt; plus_terms;
-    vector &lt;om_termname&gt; minus_terms;
-    vector &lt;om_termname&gt; normal_terms;
+    vector &lt;string&gt; plus_terms;
+    vector &lt;string&gt; minus_terms;
+    vector &lt;string&gt; normal_terms;
 
     plus_terms.push_back("canned");
     plus_terms.push_back("fish");
@@ -981,7 +981,7 @@ in the expand set.  For example, there may be special terms in the
 database with various prefixes, which should be removed from the expand
 set.  This is accomplished by providing a decision functor.  To do this,
 derive a class from <CODE>OmExpandDecider</CODE> and override the
-function operator, <CODE>operator()(const om_termname &amp;)</CODE>.
+function operator, <CODE>operator()(const string &amp;)</CODE>.
 The functor is called with each term before it is added to the set,
 and it may accept (by returning <CODE>true</CODE>) or reject (by returning
 <CODE>false</CODE>) the term as appropriate.

@@ -27,8 +27,6 @@
 
 #include <string>
 
-#include "om/omtypes.h"
-
 class OmErrorHandler;
 
 /// Base class for all Xapian-specific errors reported.

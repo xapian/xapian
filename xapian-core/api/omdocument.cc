@@ -33,9 +33,9 @@
 #include "om/omerror.h"
 #include "omdatabaseinternal.h"
 #include <algorithm>
+#include <string>
 
-using std::make_pair;
-using std::lower_bound;
+using namespace std;
 
 //////////////////////////////////
 // implementation of OmDocument //
@@ -171,7 +171,7 @@ OmDocument::Internal::read_termlist(OmTermIterator t,
 }
 
 void
-OmDocument::add_posting(const om_termname & tname,
+OmDocument::add_posting(const string & tname,
 			om_termpos tpos,
 			om_termcount wdfinc)
 {
@@ -182,7 +182,7 @@ OmDocument::add_posting(const om_termname & tname,
     }
     internal->read_termlist(termlist_begin(), termlist_end());
 
-    map<om_termname, OmDocumentTerm>::iterator i;
+    map<string, OmDocumentTerm>::iterator i;
     i = internal->terms.find(tname);
     if (i == internal->terms.end()) {
 	OmDocumentTerm newterm(tname);
@@ -196,7 +196,7 @@ OmDocument::add_posting(const om_termname & tname,
 }
 
 void
-OmDocument::add_term_nopos(const om_termname & tname,
+OmDocument::add_term_nopos(const string & tname,
 			   om_termcount wdfinc)
 {
     DEBUGAPICALL(void, "OmDocument::add_term_nopos", tname << ", " << wdfinc);
@@ -205,7 +205,7 @@ OmDocument::add_term_nopos(const om_termname & tname,
     }
     internal->read_termlist(termlist_begin(), termlist_end());
 
-    map<om_termname, OmDocumentTerm>::iterator i;
+    map<string, OmDocumentTerm>::iterator i;
     i = internal->terms.find(tname);
     if (i == internal->terms.end()) {
 	OmDocumentTerm newterm(tname);
@@ -217,7 +217,7 @@ OmDocument::add_term_nopos(const om_termname & tname,
 }
 
 void
-OmDocument::remove_posting(const om_termname & tname,
+OmDocument::remove_posting(const string & tname,
 			   om_termpos tpos,
 			   om_termcount wdfdec)
 {
@@ -228,7 +228,7 @@ OmDocument::remove_posting(const om_termname & tname,
     }
     internal->read_termlist(termlist_begin(), termlist_end());
 
-    map<om_termname, OmDocumentTerm>::iterator i;
+    map<string, OmDocumentTerm>::iterator i;
     i = internal->terms.find(tname);
     if (i == internal->terms.end()) {
 	throw OmInvalidArgumentError("Term `" + tname +
@@ -245,11 +245,11 @@ OmDocument::remove_posting(const om_termname & tname,
 }
 
 void
-OmDocument::remove_term(const om_termname & tname)
+OmDocument::remove_term(const string & tname)
 {
     DEBUGAPICALL(void, "OmDocument::remove_term", tname);
     internal->read_termlist(termlist_begin(), termlist_end());
-    map<om_termname, OmDocumentTerm>::iterator i;
+    map<string, OmDocumentTerm>::iterator i;
     i = internal->terms.find(tname);
     if (i == internal->terms.end()) {
 	throw OmInvalidArgumentError("Term `" + tname +
@@ -341,7 +341,7 @@ OmDocument::values_end() const
     RETURN(OmValueIterator(new OmValueIterator::Internal(internal->values.end())));
 }
 
-OmDocumentTerm::OmDocumentTerm(const om_termname & tname_)
+OmDocumentTerm::OmDocumentTerm(const string & tname_)
 	: tname(tname_),
 	  wdf(0),
 	  termfreq(0)

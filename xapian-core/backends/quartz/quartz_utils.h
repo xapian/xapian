@@ -26,7 +26,8 @@
 #define OM_HGUARD_QUARTZ_UTILS_H
 
 #include <string>
-using std::string;
+
+using namespace std;
 
 /// Compile time assert a condition
 #define CASSERT(a) {char assert[(a) ? 1 : -1];(void)assert;}

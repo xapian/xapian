@@ -53,7 +53,7 @@ DAAllTermsList::update_cache()
     termfreq = term.freq;
 }
 
-om_termname
+string
 DAAllTermsList::get_termname() const
 {
     Assert(started);
@@ -78,7 +78,7 @@ DAAllTermsList::get_collection_freq() const
 }
 
 TermList *
-DAAllTermsList::skip_to(const om_termname &tname)
+DAAllTermsList::skip_to(const string &tname)
 {
     started = true;
     std::string kstring;

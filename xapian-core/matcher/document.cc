@@ -22,7 +22,7 @@
  */
 
 #include <config.h>
-#include "om/omtypes.h"
+
 #include "refcnt.h"
 #include "document.h"
 #include "om/omdocument.h"

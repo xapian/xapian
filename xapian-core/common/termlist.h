@@ -23,10 +23,14 @@
 #ifndef OM_HGUARD_TERMLIST_H
 #define OM_HGUARD_TERMLIST_H
 
+#include <string>
+
 #include "om/omtypes.h"
 #include "om/omerror.h"
 #include "refcnt.h"
 #include "expandweight.h"
+
+using namespace std;
 
 class OmPositionListIterator;
 
@@ -53,7 +57,7 @@ class TermList : public RefCntBase
 	virtual OmExpandBits get_weighting() const = 0;
 
 	// Gets current termname
-	virtual om_termname get_termname() const = 0;
+	virtual string get_termname() const = 0;
 
 	// Get wdf of current term
 	virtual om_termcount get_wdf() const = 0;
@@ -80,7 +84,7 @@ class TermList : public RefCntBase
 	 *  found it will be positioned on the term just
 	 *  after tname in the database.  This could be after the end!
 	 */
-	virtual TermList * skip_to(const om_termname &tname) {
+	virtual TermList * skip_to(const string &tname) {
 	    // naive implementation
 	    TermList *p = this;
 	    while (!p->at_end() && p->get_termname() < tname) {

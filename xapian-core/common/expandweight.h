@@ -23,8 +23,12 @@
 #ifndef OM_HGUARD_EXPANDWEIGHT_H
 #define OM_HGUARD_EXPANDWEIGHT_H
 
+#include <string>
+
 #include "om/omtypes.h"
 #include "database.h"
+
+using namespace std;
 
 class RSet;
 
@@ -90,7 +94,7 @@ class OmExpandWeight {
 			      om_doccount dbsize_) const;
 
 	om_weight get_weight(const OmExpandBits & bits,
-			     const om_termname & tname) const;
+			     const string & tname) const;
 
 	om_weight get_maxweight() const;
 };

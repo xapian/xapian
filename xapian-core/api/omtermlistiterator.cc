@@ -69,10 +69,10 @@ OmTermIterator::operator=(const OmTermIterator &other)
     delete newinternal;
 }
 
-om_termname
+string
 OmTermIterator::operator *() const
 {
-    DEBUGAPICALL(om_termname, "OmTermIterator::operator*", "");
+    DEBUGAPICALL(string, "OmTermIterator::operator*", "");
     Assert(internal);
     Assert(!internal->at_end());
     RETURN(internal->get_termname());
@@ -125,7 +125,7 @@ OmTermIterator::operator++(int)
 
 // extra method, not required to be an input_iterator
 void
-OmTermIterator::skip_to(const om_termname & tname)
+OmTermIterator::skip_to(const string & tname)
 {
     DEBUGAPICALL(void, "OmTermIterator::skip_to", tname);
     if(internal && !internal->at_end()) {

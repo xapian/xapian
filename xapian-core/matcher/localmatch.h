@@ -67,7 +67,7 @@ class LocalSubMatch : public SubMatch {
 	const OmWeight * wtscheme;
 
 	/// The weights and termfreqs of terms in the query.
-	map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> term_info;
+	map<string, OmMSet::Internal::Data::TermFreqAndWeight> term_info;
 
 
 	PostList * build_xor_tree(vector<PostList *> &postlists,
@@ -92,7 +92,7 @@ class LocalSubMatch : public SubMatch {
 				      MultiMatch *matcher,
 				      bool is_bool);
 
-	void register_term(const om_termname &tname) {
+	void register_term(const string &tname) {
 	    statssource->my_termfreq_is(tname, db->get_termfreq(tname));
 	}
 
@@ -127,7 +127,7 @@ class LocalSubMatch : public SubMatch {
 	    return db->open_document(did);
 	}
 
-	const map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> get_term_info() const {
+	const map<string, OmMSet::Internal::Data::TermFreqAndWeight> get_term_info() const {
 	    return term_info;
 	}
 };   

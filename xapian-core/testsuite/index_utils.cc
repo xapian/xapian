@@ -27,9 +27,9 @@
 #include <cctype>
 #include <iostream>
 
-void lowercase_term(om_termname &term)
+void lowercase_term(string &term)
 {
-    om_termname::iterator i = term.begin();
+    string::iterator i = term.begin();
     while(i != term.end()) {
 	*i = tolower(*i);
 	i++;
@@ -67,7 +67,7 @@ void lowercase_term(om_termname &term)
 
 // Keep only the characters in keep
 // FIXME - make this accept character ranges in "keep"
-void select_characters(om_termname &term, const std::string & keep)
+void select_characters(string &term, const std::string & keep)
 {
     std::string chars;
     if(keep.size() == 0) {

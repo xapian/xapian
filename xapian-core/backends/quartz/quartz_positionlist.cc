@@ -33,7 +33,7 @@ using std::string;
 void
 QuartzPositionList::read_data(const QuartzTable * table,
 			      om_docid did,
-			      const om_termname & tname)
+			      const string & tname)
 {
     DEBUGCALL(DB, void, "QuartzPositionList::read_data",
 	      table << ", " << did << ", " << tname);
@@ -127,7 +127,7 @@ QuartzPositionList::skip_to(om_termpos termpos)
 
 void
 QuartzPositionList::make_key(om_docid did,
-			     const om_termname & tname,
+			     const string & tname,
 			     string & key)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzPositionList::make_key", did << ", " << tname << ", " << key);
@@ -139,7 +139,7 @@ QuartzPositionList::make_key(om_docid did,
 void
 QuartzPositionList::set_positionlist(QuartzBufferedTable * table,
 			om_docid did,
-			const om_termname & tname,
+			const string & tname,
 			OmPositionListIterator pos,
 			const OmPositionListIterator &pos_end)
 {
@@ -164,7 +164,7 @@ QuartzPositionList::set_positionlist(QuartzBufferedTable * table,
 void
 QuartzPositionList::delete_positionlist(QuartzBufferedTable * table,
 			om_docid did,
-			const om_termname & tname)
+			const string & tname)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzPositionList::delete_positionlist", table << ", " << did << ", " << tname);
     string key;

@@ -130,12 +130,12 @@ probterm: stopterm
 	| PREFIXTERM
 ;
 
-stopterm: TERM		{ om_termname term = *($1.q.get_terms_begin()); 
+stopterm: TERM		{ string term = *($1.q.get_terms_begin()); 
 			  if (qp->stop && (*qp->stop)(term)) {
 			      $$ = U();
 			      qp->stoplist.push_back(term);
 			      // This is ugly - FIXME?
-			      list<om_termname>::iterator i, j;
+			      list<string>::iterator i, j;
 			      i = qp->termlist.begin();
 			      do {
 				  j = i;
@@ -215,9 +215,9 @@ next_char()
 
 // FIXME: copied from om/indexer/index_utils.cc
 static void
-lowercase_term(om_termname &term)
+lowercase_term(string &term)
 {
-    om_termname::iterator i = term.begin();
+    string::iterator i = term.begin();
     while(i != term.end()) {
 	*i = tolower(*i);
 	i++;

@@ -69,7 +69,7 @@ class OmDatabase::Internal {
 	/// get average document length
 	om_doclength get_avlength() const;
 
-	LeafPostList * open_post_list(const om_termname & tname,
+	LeafPostList * open_post_list(const string & tname,
 				      const OmDatabase &db) const;
 
 	LeafTermList * open_term_list(om_docid did, const OmDatabase &db) const;
@@ -79,7 +79,7 @@ class OmDatabase::Internal {
 	Document * open_document(om_docid did) const;
 
 	AutoPtr<PositionList> open_position_list(om_docid did,
-					 const om_termname &tname) const;
+					 const string &tname) const;
 };
 
 #endif // OM_HGUARD_OMDATABASEINTERNAL_H

@@ -28,9 +28,9 @@
 #include "refcnt.h"
 #include "termlist.h"
 #include <map>
-using std::map;
 #include <string>
-using std::string;
+
+using namespace std;
 
 class Database;
 

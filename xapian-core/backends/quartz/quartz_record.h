@@ -25,10 +25,13 @@
 #ifndef OM_HGUARD_QUARTZ_RECORD_H
 #define OM_HGUARD_QUARTZ_RECORD_H
 
+#include <string>
+
 #include "quartz_table.h"
 #include "om/omtypes.h"
 #include "om/omdocument.h"
-using std::string;
+
+using namespace std;
 
 /** A record in a quartz database.
  */

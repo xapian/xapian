@@ -23,7 +23,7 @@
 #include <config.h>
 #include "inmemory_alltermslist.h"
 
-InMemoryAllTermsList::InMemoryAllTermsList(const std::map<om_termname, InMemoryTerm> *tmap_,
+InMemoryAllTermsList::InMemoryAllTermsList(const std::map<string, InMemoryTerm> *tmap_,
 					   RefCntPtr<const InMemoryDatabase> database_)
 	: tmap(tmap_), it(tmap->begin()), database(database_), started(false)
 {
@@ -39,7 +39,7 @@ InMemoryAllTermsList::get_approx_size() const
     return tmap->size();
 }
 
-om_termname
+string
 InMemoryAllTermsList::get_termname() const
 {
     Assert(started);
@@ -65,7 +65,7 @@ InMemoryAllTermsList::get_collection_freq() const
 }
 
 TermList *
-InMemoryAllTermsList::skip_to(const om_termname &tname)
+InMemoryAllTermsList::skip_to(const string &tname)
 {
     started = true;
     // FIXME: might skip backwards - is this a problem?

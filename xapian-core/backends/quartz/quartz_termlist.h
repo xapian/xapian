@@ -25,10 +25,14 @@
 #ifndef OM_HGUARD_QUARTZ_TERMLIST_H
 #define OM_HGUARD_QUARTZ_TERMLIST_H
 
+#include <string>
+
 #include "quartz_table.h"
 #include "om/omtypes.h"
 #include "termlist.h"
 #include "quartz_database.h"
+
+using namespace std;
 
 /** A termlist in a quartz database.
  */
@@ -85,7 +89,7 @@ class QuartzTermList : public LeafTermList {
 	
 	/** Current termname.
 	 */
-	om_termname current_tname;
+	string current_tname;
 
 	/** Current wdf.
 	 */
@@ -167,7 +171,7 @@ class QuartzTermList : public LeafTermList {
 
 	/** Get the current term in the termlist.
 	 */
-	om_termname get_termname() const;
+	string get_termname() const;
 
 	/** Get the within document frequency of the current term.
 	 */

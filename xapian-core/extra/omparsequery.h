@@ -33,7 +33,7 @@
 
 class OmStopper {
     public:
-	virtual bool operator()(const om_termname &/*term*/) {
+	virtual bool operator()(const std::string &/*term*/) {
 	    return false;
 	}
 };
@@ -65,10 +65,10 @@ class OmQueryParser {
 
 	OmQuery parse_query(const std::string &q);
 	
-	std::list<om_termname> termlist;
-	std::list<om_termname> stoplist;
+	std::list<std::string> termlist;
+	std::list<std::string> stoplist;
 
-	std::multimap<om_termname, om_termname> unstem;
+	std::multimap<std::string, std::string> unstem;
 
 	// Map "from" -> "A" ; "subject" -> "C" ; "newsgroups" -> "G" ;
 	// "foobar" -> "XFOO"

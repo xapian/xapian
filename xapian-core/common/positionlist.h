@@ -23,9 +23,13 @@
 #ifndef OM_HGUARD_POSITIONLIST_H
 #define OM_HGUARD_POSITIONLIST_H
 
+#include <string>
+
 #include "om/omtypes.h"
 #include "om/omerror.h"
 #include "refcnt.h"
+
+using namespace std;
 
 /** Abstract base class for position lists. */
 class PositionList : public RefCntBase

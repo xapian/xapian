@@ -39,7 +39,7 @@ class MultiPostList : public LeafPostList {
 	bool   finished;
 	om_docid  currdoc;
 
-	om_termname tname;
+	string tname;
 	mutable bool freq_initialised;
 	mutable om_doccount termfreq;
 

@@ -82,7 +82,7 @@ class RemoteSubMatch : public SubMatch {
 	    return db->open_document(did);
 	}
 
-	const std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> get_term_info() const {
+	const std::map<string, OmMSet::Internal::Data::TermFreqAndWeight> get_term_info() const {
 	    Assert(postlist);
 	    postlist->make_pl();
 	    return postlist->pl->mset.internal->data->termfreqandwts;

@@ -76,7 +76,7 @@ string stats_to_string(const Stats &stats)
     os << stats.collection_size << ' ';
     os << stats.average_length << ' ';
 
-    map<om_termname, om_doccount>::const_iterator i;
+    map<string, om_doccount>::const_iterator i;
 
     for (i=stats.termfreq.begin(); i != stats.termfreq.end(); ++i) {
 	os << 'T' << encode_tname(i->first) << ' ' << i->second << ' ';
@@ -102,7 +102,7 @@ string stats_to_string(const Stats &stats)
     result += om_tostring(stats.average_length);
     result += ' ';
 
-    map<om_termname, om_doccount>::const_iterator i;
+    map<string, om_doccount>::const_iterator i;
 
     for (i = stats.termfreq.begin(); i != stats.termfreq.end(); ++i) {
 	result += 'T';
@@ -585,13 +585,13 @@ ommsetitems_to_string(const vector<OmMSetItem> &ommsetitems)
 }
 
 string
-ommset_termfreqwts_to_string(const map<om_termname,
+ommset_termfreqwts_to_string(const map<string,
 			     OmMSet::Internal::Data::TermFreqAndWeight> &terminfo)
 {
     // encode as term freq weight term2 freq2 weight2 ...
     string result;
 
-    map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight>::const_iterator i;
+    map<string, OmMSet::Internal::Data::TermFreqAndWeight>::const_iterator i;
     for (i = terminfo.begin(); i != terminfo.end(); ++i) {
 	result += encode_tname(i->first);
 	result += " ";
@@ -710,8 +710,8 @@ string_to_ommset(const string &s)
 	msize--;
     }
 
-    map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> terminfo;
-    om_termname term;
+    map<string, OmMSet::Internal::Data::TermFreqAndWeight> terminfo;
+    string term;
     while (is >> term) {
 	OmMSet::Internal::Data::TermFreqAndWeight tfaw;
 	if (!(is >> tfaw.termfreq >> tfaw.termweight)) {
@@ -730,17 +730,17 @@ string_to_ommset(const string &s)
 				       items, terminfo, 0)));
 }
 
-map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight>
+map<string, OmMSet::Internal::Data::TermFreqAndWeight>
 string_to_ommset_termfreqwts(const string &s)
 {
-    map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> result;
+    map<string, OmMSet::Internal::Data::TermFreqAndWeight> result;
 #ifdef HAVE_SSTREAM
     istringstream is(s);
 #else
     istrstream is(s.data(), s.length());
 #endif
 
-    om_termname term;
+    string term;
     while (is >> term) {
 	OmMSet::Internal::Data::TermFreqAndWeight tfaw;
 	if (!(is >> tfaw.termfreq >> tfaw.termweight)) {

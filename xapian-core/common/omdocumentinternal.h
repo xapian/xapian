@@ -24,9 +24,12 @@
 #ifndef OM_HGUARD_OMDOCUMENTINTERNAL_H
 #define OM_HGUARD_OMDOCUMENTINTERNAL_H
 
+#include <string>
 #include "om/omtypes.h"
 #include "refcnt.h"
 #include "document.h"
+
+using namespace std;
 
 /// A term in a document.
 struct OmDocumentTerm {
@@ -34,11 +37,11 @@ struct OmDocumentTerm {
      *
      *  @param tname_ The name of the new term.
      */
-    OmDocumentTerm(const om_termname & tname_);
+    OmDocumentTerm(const string & tname_);
 
     /** The name of this term.
      */
-    om_termname tname;
+    string tname;
 
     /** Within document frequency of the term.
      *  This is the number of occurrences of the term in the document.
@@ -128,7 +131,7 @@ class OmDocument::Internal {
 	document_values values;
 
 	/// Type to store terms in.
-	typedef map<om_termname, OmDocumentTerm> document_terms;
+	typedef map<string, OmDocumentTerm> document_terms;
 
 	/// The terms (and their frequencies and positions) in this document.
 	document_terms terms;

@@ -29,8 +29,12 @@
 #ifndef OM_HGUARD_QUARTZ_LEXICON_H
 #define OM_HGUARD_QUARTZ_LEXICON_H
 
+#include <string>
+
 #include "quartz_table.h"
 #include "om/omtypes.h"
+
+using namespace std;
 
 /** The lexicon in a quartz database.
  *  The lexicon stores an entry for each term in the database.  This entry
@@ -49,12 +53,11 @@ class QuartzLexicon {
 	 *                  term frequency, if the term is found.  If the
 	 *                  pointer is 0, the termfreq read is discarded
 	 */
-	static void parse_entry(const std::string & data,
-				om_doccount * termfreq);
+	static void parse_entry(const string & data, om_doccount * termfreq);
 
 	/** Make an entry to go into the lexicon.
 	 */
-	static void make_entry(std::string & data,
+	static void make_entry(string & data,
 			       om_doccount termfreq);
 
     public:
@@ -68,13 +71,13 @@ class QuartzLexicon {
 	 *  @param tname   The term to add.
 	 */
 	static void increment_termfreq(QuartzBufferedTable * table,
-				       const om_termname & tname);
+				       const string & tname);
 
 	/** Remove an entry from the lexicon.  If the entry
 	 *  doesn't already exist, no action is taken.
 	 */
 	static void decrement_termfreq(QuartzBufferedTable * table,
-				       const om_termname & tname);
+				       const string & tname);
 
 
 	/** Get an entry from the lexicon.
@@ -89,7 +92,7 @@ class QuartzLexicon {
 	 *                otherwise.
 	 */
 	static bool get_entry(const QuartzTable * table,
-			      const om_termname & tname,
+			      const string & tname,
 			      om_doccount * termfreq);
 };
 

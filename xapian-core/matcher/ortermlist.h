@@ -29,13 +29,13 @@
 
 class OrTermList : public BranchTermList {
     private:
-        om_termname lhead, rhead;
+        string lhead, rhead;
 	bool started;
     public:
 	om_termcount get_approx_size() const;
 
 	OmExpandBits get_weighting() const;
-	om_termname get_termname() const;
+	string get_termname() const;
         om_termcount get_wdf() const;
         om_doccount get_termfreq() const;
 
@@ -64,10 +64,10 @@ OrTermList::get_termfreq() const
     return r->get_termfreq();
 }
 
-inline om_termname
+inline string
 OrTermList::get_termname() const
 {
-    DEBUGCALL(MATCH, om_termname, "OrTermList::get_termname", "");
+    DEBUGCALL(MATCH, string, "OrTermList::get_termname", "");
     Assert(started);
     if (lhead < rhead) return l->get_termname();
     return r->get_termname();

@@ -101,11 +101,11 @@ class OmDatabase {
 	/** An iterator pointing to the start of the postlist
 	 *  for a given term.
 	 */
-	OmPostListIterator postlist_begin(const om_termname &tname) const;
+	OmPostListIterator postlist_begin(const std::string &tname) const;
 
 	/** Corresponding end iterator to postlist_begin()
 	 */
-	OmPostListIterator postlist_end(const om_termname &tname) const;
+	OmPostListIterator postlist_end(const std::string &tname) const;
 
 	/** An iterator pointing to the start of the termlist
 	 *  for a given document.
@@ -119,11 +119,11 @@ class OmDatabase {
 	/** An iterator pointing to the start of the position list
 	 *  for a given term in a given document.
 	 */
-	OmPositionListIterator positionlist_begin(om_docid did, const om_termname &tname) const;
+	OmPositionListIterator positionlist_begin(om_docid did, const std::string &tname) const;
 
 	/** Corresponding end iterator to positionlist_begin()
 	 */
-	OmPositionListIterator positionlist_end(om_docid did, const om_termname &tname) const;
+	OmPositionListIterator positionlist_end(om_docid did, const std::string &tname) const;
 
 	/** An iterator which runs across all terms in the database.
 	 */
@@ -140,7 +140,7 @@ class OmDatabase {
 	om_doclength get_avlength() const;
 
 	/// Get the number of documents in the database indexed by a given term.
-	om_doccount get_termfreq(const om_termname & tname) const;
+	om_doccount get_termfreq(const std::string & tname) const;
 
 	/** Check if a given term exists in the database.
 	 *
@@ -148,7 +148,7 @@ class OmDatabase {
 	 *  This is the same as (get_termfreq(tname) != 0), but will often be
 	 *  more efficient.
 	 */
-	bool term_exists(const om_termname & tname) const;
+	bool term_exists(const std::string & tname) const;
 
 	/** Return the total number of occurrences of the given term.
 	 *
@@ -159,7 +159,7 @@ class OmDatabase {
 	 *  @param tname  The term whose collection frequency is being
 	 *  requested.
 	 */
-	om_termcount get_collection_freq(const om_termname & tname) const;
+	om_termcount get_collection_freq(const std::string & tname) const;
 
 	/** Get the length of a document.
 	 */

@@ -155,7 +155,7 @@ OmExpand::expand(om_termcount max_esize,
 
 	if (merger->at_end()) break;
 
-	om_termname tname = merger->get_termname();
+	string tname = merger->get_termname();
 	if ((*decider)(tname)) {
 	    eset.internal->ebound++;
 

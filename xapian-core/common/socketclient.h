@@ -234,10 +234,10 @@ class SocketClient : public NetClient {
 	om_doclength get_avlength() const;
 
 	/// Find out if term exists
-	virtual bool term_exists(const om_termname & tname);
+	virtual bool term_exists(const string & tname);
 
 	/// Find frequency of term
-	virtual om_doccount get_termfreq(const om_termname & tname);
+	virtual om_doccount get_termfreq(const string & tname);
 
 	/** Determine if any data is waiting to be read.
 	 */

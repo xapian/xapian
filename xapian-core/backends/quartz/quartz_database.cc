@@ -4,7 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -155,7 +155,7 @@ QuartzDatabase::get_doclength(om_docid did) const
 }
 
 om_doccount
-QuartzDatabase::get_termfreq(const om_termname & tname) const
+QuartzDatabase::get_termfreq(const string & tname) const
 {
     DEBUGCALL(DB, om_doccount, "QuartzDatabase::get_termfreq", tname);
     Assert(!tname.empty());
@@ -173,7 +173,7 @@ QuartzDatabase::get_termfreq(const om_termname & tname) const
 }
 
 om_termcount
-QuartzDatabase::get_collection_freq(const om_termname & tname) const
+QuartzDatabase::get_collection_freq(const string & tname) const
 {
     DEBUGCALL(DB, om_termcount, "QuartzDatabase::get_collection_freq", tname);
     Assert(!tname.empty());
@@ -185,7 +185,7 @@ QuartzDatabase::get_collection_freq(const om_termname & tname) const
 }
 
 bool
-QuartzDatabase::term_exists(const om_termname & tname) const
+QuartzDatabase::term_exists(const string & tname) const
 {
     DEBUGCALL(DB, bool, "QuartzDatabase::term_exists", tname);
     Assert(!tname.empty());
@@ -203,17 +203,16 @@ QuartzDatabase::term_exists(const om_termname & tname) const
 
 
 LeafPostList *
-QuartzDatabase::do_open_post_list(const om_termname& tname) const
+QuartzDatabase::do_open_post_list(const string& tname) const
 {
     DEBUGCALL(DB, LeafPostList *, "QuartzDatabase::do_open_post_list", tname);
-    RefCntBase::RefCntPtrToThis tmp;
-    RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
+    RefCntPtr<const QuartzDatabase> ptrtothis(this);
 
     RETURN(open_post_list_internal(tname, ptrtothis));
 }
 
 LeafPostList *
-QuartzDatabase::open_post_list_internal(const om_termname& tname,
+QuartzDatabase::open_post_list_internal(const string& tname,
 				RefCntPtr<const Database> ptrtothis) const
 {
     DEBUGCALL(DB, LeafPostList *, "QuartzDatabase::open_post_list_internal", tname << ", [ptrtothis]");
@@ -246,8 +245,7 @@ LeafTermList *
 QuartzDatabase::open_term_list(om_docid did) const
 {
     DEBUGCALL(DB, LeafTermList *, "QuartzDatabase::open_term_list", did);
-    RefCntBase::RefCntPtrToThis tmp;
-    RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
+    RefCntPtr<const QuartzDatabase> ptrtothis(this);
 
     RETURN(open_term_list_internal(did, ptrtothis));
 }
@@ -258,8 +256,7 @@ QuartzDatabase::open_document(om_docid did, bool lazy) const
     DEBUGCALL(DB, Document *, "QuartzDatabase::open_document",
 	      did << ", " << lazy);
     Assert(did != 0);
-    RefCntBase::RefCntPtrToThis tmp;
-    RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
+    RefCntPtr<const QuartzDatabase> ptrtothis(this);
 
     return new QuartzDocument(ptrtothis,
 			      tables->get_value_table(),
@@ -269,15 +266,14 @@ QuartzDatabase::open_document(om_docid did, bool lazy) const
 
 AutoPtr<PositionList> 
 QuartzDatabase::open_position_list(om_docid did,
-				   const om_termname & tname) const
+				   const string & tname) const
 {
     Assert(did != 0);
     AutoPtr<QuartzPositionList> poslist(new QuartzPositionList());
     poslist->read_data(tables->get_positionlist_table(), did, tname);
     if (poslist->get_size() == 0) {
 	// Check that term / document combination exists.
-	RefCntBase::RefCntPtrToThis tmp;
-	RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
+	RefCntPtr<const QuartzDatabase> ptrtothis(this);
 	// If the doc doesn't exist, this will throw OmDocNotFound:
 	AutoPtr<LeafTermList> ltl(open_term_list_internal(did, ptrtothis));
 	ltl->skip_to(tname);
@@ -301,7 +297,7 @@ QuartzDatabase::open_allterms() const
     DEBUGCALL(DB, TermList *, "QuartzDatabase::open_allterms", "");
     QuartzTable *t = tables->get_postlist_table();
     AutoPtr<QuartzCursor> pl_cursor(t->cursor_get());
-    RETURN(new QuartzAllTermsList(RefCntPtr<const QuartzDatabase>(RefCntPtrToThis(), this),
+    RETURN(new QuartzAllTermsList(RefCntPtr<const QuartzDatabase>(this),
 				  pl_cursor, t->get_entry_count()));
 }
 
@@ -478,8 +474,7 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
     Assert(buffered_tables != 0);
 
     try {
-	QuartzDatabase::RefCntPtrToThis tmp;
-	RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
+	RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
 
 	QuartzTermList termlist(ptrtothis,
 				database_ro.tables->get_termlist_table(),
@@ -493,7 +488,7 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
 
 	termlist.next();
 	while (!termlist.at_end()) {
-	    om_termname tname = termlist.get_termname();
+	    string tname = termlist.get_termname();
 	    QuartzPostList::delete_entry(buffered_tables->get_postlist_table(),
 		tname, did);
 	    QuartzPositionList::delete_positionlist(
@@ -590,16 +585,15 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 	// the others.
 	quartz_doclen_t old_doclen;
 	{
-            vector<om_termname> delTerms;
-            vector<om_termname> addTerms;
-            vector<om_termname> posTerms;
+            vector<string> delTerms;
+            vector<string> addTerms;
+            vector<string> posTerms;
 
 	    // First, before we modify the Postlist, we should detect the old
 	    // document length, since we need that to correctly update the
 	    // total length of all documents (which is used to calculate the
 	    // average document length).
-	    QuartzDatabase::RefCntPtrToThis tmp;
-	    RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
+	    RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
 	    QuartzTermList termlist(ptrtothis,
 	  			    database_ro.tables->get_termlist_table(),
 #ifdef USE_LEXICON
@@ -613,7 +607,7 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
             OmTermIterator tNewIter = document.termlist_begin();
             termlist.next();
             while (!termlist.at_end() && tNewIter != document.termlist_end()) {
-              om_termname tname = termlist.get_termname();
+              string tname = termlist.get_termname();
               if (tname < (*tNewIter)) {
 		// Deleted term exists in the old termlist, but not in the new
 		// one.
@@ -637,7 +631,7 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 	    // the iterators are not at the end.
             while (!termlist.at_end()) {
               // Any term left in the old list must be removed.
-              om_termname tname = termlist.get_termname();
+              string tname = termlist.get_termname();
               delTerms.push_back(tname);
               termlist.next();
             }
@@ -649,9 +643,9 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 	    // We now know which terms to add and which to remove. Let's get to
 	    // work!
             // Delete the terms on our "hitlist"...
-            vector<om_termname>::iterator vIter = delTerms.begin();
+            vector<string>::iterator vIter = delTerms.begin();
             while (vIter != delTerms.end()) {
-	        om_termname tname = (*vIter);
+	        string tname = (*vIter);
 	        QuartzPostList::delete_entry(buffered_tables->get_postlist_table(),
 		    tname, did);
 	        QuartzPositionList::delete_positionlist(
@@ -785,21 +779,21 @@ QuartzWritableDatabase::get_doclength(om_docid did) const
 }
 
 om_doccount
-QuartzWritableDatabase::get_termfreq(const om_termname & tname) const
+QuartzWritableDatabase::get_termfreq(const string & tname) const
 {
     DEBUGCALL(DB, om_doccount, "QuartzWritableDatabase::get_termfreq", tname);
     RETURN(database_ro.get_termfreq(tname));
 }
 
 om_termcount
-QuartzWritableDatabase::get_collection_freq(const om_termname & tname) const
+QuartzWritableDatabase::get_collection_freq(const string & tname) const
 {
     DEBUGCALL(DB, om_termcount, "QuartzWritableDatabase::get_collection_freq", tname);
     RETURN(database_ro.get_collection_freq(tname));
 }
 
 bool
-QuartzWritableDatabase::term_exists(const om_termname & tname) const
+QuartzWritableDatabase::term_exists(const string & tname) const
 {
     DEBUGCALL(DB, bool, "QuartzWritableDatabase::term_exists", tname);
     RETURN(database_ro.term_exists(tname));
@@ -807,11 +801,10 @@ QuartzWritableDatabase::term_exists(const om_termname & tname) const
 
 
 LeafPostList *
-QuartzWritableDatabase::do_open_post_list(const om_termname& tname) const
+QuartzWritableDatabase::do_open_post_list(const string& tname) const
 {
     DEBUGCALL(DB, LeafPostList *, "QuartzWritableDatabase::do_open_post_list", tname);
-    RefCntBase::RefCntPtrToThis tmp;
-    RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
+    RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
 
     RETURN(database_ro.open_post_list_internal(tname, ptrtothis));
 }
@@ -821,8 +814,7 @@ QuartzWritableDatabase::open_term_list(om_docid did) const
 {
     DEBUGCALL(DB, LeafTermList *, "QuartzWritableDatabase::open_term_list",
 	      did);
-    RefCntBase::RefCntPtrToThis tmp;
-    RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
+    RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
 
     RETURN(database_ro.open_term_list_internal(did, ptrtothis));
 }
@@ -834,8 +826,7 @@ QuartzWritableDatabase::open_document(om_docid did, bool lazy) const
 	      did << ", " << lazy);
     Assert(did != 0);
 
-    RefCntBase::RefCntPtrToThis tmp;
-    RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
+    RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
 
     RETURN(new QuartzDocument(ptrtothis,
 			      buffered_tables->get_value_table(),
@@ -845,7 +836,7 @@ QuartzWritableDatabase::open_document(om_docid did, bool lazy) const
 
 AutoPtr<PositionList> 
 QuartzWritableDatabase::open_position_list(om_docid did,
-				   const om_termname & tname) const
+				   const string & tname) const
 {
     Assert(did != 0);
 
@@ -853,8 +844,7 @@ QuartzWritableDatabase::open_position_list(om_docid did,
     poslist->read_data(buffered_tables->get_positionlist_table(), did, tname);
     if (poslist->get_size() == 0) {
 	// Check that term / document combination exists.
-	RefCntBase::RefCntPtrToThis tmp;
-	RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
+	RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
 	// If the doc doesn't exist, this will throw OmDocNotFound:
 	AutoPtr<LeafTermList> ltl(database_ro.open_term_list_internal(did, ptrtothis));
 	ltl->skip_to(tname);
@@ -878,6 +868,6 @@ QuartzWritableDatabase::open_allterms() const
     DEBUGCALL(DB, TermList *, "QuartzWritableDatabase::open_allterms", "");
     QuartzTable *t = buffered_tables->get_postlist_table();
     AutoPtr<QuartzCursor> pl_cursor(t->cursor_get());
-    RETURN(new QuartzAllTermsList(RefCntPtr<const QuartzWritableDatabase>(RefCntPtrToThis(), this),
+    RETURN(new QuartzAllTermsList(RefCntPtr<const QuartzWritableDatabase>(this),
 				  pl_cursor, t->get_entry_count()));
 }

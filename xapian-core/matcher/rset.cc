@@ -44,7 +44,7 @@ RSet::calculate_stats()
 		// FIXME - can this lookup be done faster?
 		// Store termnames in a hash for each document, rather than
 		// a list?
-		om_termname tname = tl->get_termname();
+		string tname = tl->get_termname();
 		DEBUGLINE(WTCALC, tname << ", ");
 		if (reltermfreqs.find(tname) != reltermfreqs.end())
 		    reltermfreqs[tname] ++;
@@ -57,7 +57,7 @@ RSet::calculate_stats()
 		// FIXME - can this lookup be done faster?
 		// Store termnames in a hash for each document, rather than
 		// a list?
-		om_termname tname = *tl;
+		string tname = *tl;
 		DEBUGLINE(WTCALC, tname << ", ");
 		if (reltermfreqs.find(tname) != reltermfreqs.end())
 		    reltermfreqs[tname] ++;
@@ -76,7 +76,7 @@ RSet::give_stats_to_statssource(OmWeight::Internal *statssource)
     DEBUGCALL(MATCH, void, "RSet::give_stats_to_statssource", statssource);
     Assert(calculated_reltermfreqs);
 
-    std::map<om_termname, om_doccount>::const_iterator i;
+    std::map<string, om_doccount>::const_iterator i;
     for (i = reltermfreqs.begin(); i != reltermfreqs.end(); i++) {
 	statssource->my_reltermfreq_is(i->first, i->second);
     }

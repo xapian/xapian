@@ -316,7 +316,7 @@ OmQuery::Internal::set_length(om_termcount qlen_)
 /** Private function used to implement get_terms() */
 void
 OmQuery::Internal::accumulate_terms(
-			std::vector<std::pair<om_termname, om_termpos> > &terms) const
+			std::vector<std::pair<string, om_termpos> > &terms) const
 {
     Assert(op != OmQuery::Internal::OP_UNDEF);
 
@@ -333,7 +333,7 @@ OmQuery::Internal::accumulate_terms(
 }
 
 struct LessByTermpos {
-    typedef const std::pair<om_termname, om_termpos> argtype;
+    typedef const std::pair<string, om_termpos> argtype;
     bool operator()(argtype &left, argtype &right) {
 	if (left.second != right.second) {
 	    return left.second < right.second;
@@ -346,7 +346,7 @@ struct LessByTermpos {
 OmTermIterator
 OmQuery::Internal::get_terms() const
 {
-    std::vector<std::pair<om_termname, om_termpos> > terms;
+    std::vector<std::pair<string, om_termpos> > terms;
     if (op != OmQuery::Internal::OP_UNDEF) {
         accumulate_terms(terms);
     }
@@ -355,13 +355,13 @@ OmQuery::Internal::get_terms() const
 
     // remove adjacent duplicates, and return an iterator pointing
     // to just after the last unique element
-    std::vector<std::pair<om_termname, om_termpos> >::iterator newlast =
+    std::vector<std::pair<string, om_termpos> >::iterator newlast =
 	    	unique(terms.begin(), terms.end());
     // and remove the rest...  (See Stroustrup 18.6.3)
     terms.erase(newlast, terms.end());
 
-    std::vector<om_termname> result;
-    std::vector<std::pair<om_termname, om_termpos> >::const_iterator i;
+    std::vector<string> result;
+    std::vector<std::pair<string, om_termpos> >::const_iterator i;
     for (i = terms.begin(); i != terms.end(); ++i) {
 	result.push_back(i->first);
     }
@@ -442,7 +442,7 @@ OmQuery::Internal::Internal(const OmQuery::Internal &copyme)
 //////////////////////////////////////////
 // Methods for making new query objects
 
-OmQuery::Internal::Internal(const om_termname & tname_, om_termcount wqf_,
+OmQuery::Internal::Internal(const string & tname_, om_termcount wqf_,
 		 om_termpos term_pos_)
 	: op(OmQuery::Internal::OP_LEAF),
 	  subqs(),
@@ -557,7 +557,7 @@ OmQuery::Internal::simplify_query()
     // if elite set size is 0, use sqrt of number of subqueries, or a minimum
     // of 10.  Gives a reasonable default.
     if (elite_set_size == 0) {
-	elite_set_size = static_cast<om_termcount>(ceil(sqrt(subqs.size())));
+	elite_set_size = static_cast<om_termcount>(ceil(sqrt(double(subqs.size()))));
 	if (elite_set_size < 10) elite_set_size = 10;
     }
 

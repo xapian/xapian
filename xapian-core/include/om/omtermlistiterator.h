@@ -26,6 +26,7 @@
 #define OM_HGUARD_OMTERMLISTITERATOR_H
 
 #include <iterator>
+#include <string>
 #include "om/omtypes.h"
 
 class OmDatabase;
@@ -67,14 +68,14 @@ class OmTermIterator {
 	 */
 	void operator=(const OmTermIterator &other);
 
-	om_termname operator *() const;
+	std::string operator *() const;
 
 	OmTermIterator & operator++();
 
 	void operator++(int);
 
 	// extra method, not required for an input_iterator
-	void skip_to(const om_termname & tname);
+	void skip_to(const std::string & tname);
 
 	om_termcount get_wdf() const;
 	om_doccount get_termfreq() const;
@@ -91,10 +92,10 @@ class OmTermIterator {
 	/// Allow use as an STL iterator
 	//@{
 	typedef std::input_iterator_tag iterator_category;
-	typedef om_termname value_type;
+	typedef std::string value_type;
 	typedef om_termcount_diff difference_type;
-	typedef om_termname * pointer;
-	typedef om_termname & reference;
+	typedef std::string * pointer;
+	typedef std::string & reference;
 	//@}
 };
 

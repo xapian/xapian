@@ -233,7 +233,7 @@ class OmMSet {
 	 *  @exception OmInvalidArgumentError is thrown if the term was not
 	 *             in the query.
 	 */
-	om_doccount get_termfreq(const om_termname &tname) const;
+	om_doccount get_termfreq(const std::string &tname) const;
 
 	/** Return the term weight of the given query term.
 	 *
@@ -242,7 +242,7 @@ class OmMSet {
 	 *  @exception OmInvalidArgumentError is thrown if the term was not
 	 *             in the query.
 	 */
-	om_weight get_termweight(const om_termname &tname) const;
+	om_weight get_termweight(const std::string &tname) const;
 
 	/** The index of the first item in the result which was put into the
 	 *  mset.
@@ -380,7 +380,7 @@ class OmESetIterator {
 	void operator++(int);
 
 	/// Get the term for the current position
-	const om_termname & operator *() const;
+	const std::string & operator *() const;
 
 	/// Get the weight of the term at the current position
         om_weight get_weight() const;
@@ -393,10 +393,10 @@ class OmESetIterator {
 	/// Allow use as an STL iterator
 	//@{	
 	typedef std::input_iterator_tag iterator_category;
-	typedef om_termname value_type;
+	typedef std::string value_type;
 	typedef om_termcount_diff difference_type;
-	typedef om_termname * pointer;
-	typedef om_termname & reference;
+	typedef std::string * pointer;
+	typedef std::string & reference;
 	//@}
 };
 
@@ -525,7 +525,7 @@ class OmExpandDecider {
     public:
 	/** Decide whether we want this term to be in the expand set.
 	 */
-	virtual int operator()(const om_termname & tname) const = 0;
+	virtual int operator()(const std::string & tname) const = 0;
 
 	/// Destructor.
 	virtual ~OmExpandDecider() {}
@@ -846,7 +846,7 @@ class OmWeight {
 	const Internal * internal; // OmWeight::Internal == StatsSource
 	om_doclength querysize;
 	om_termcount wqf;
-	om_termname tname;
+	std::string tname;
 
     public:
 	OmWeight() { }
@@ -864,7 +864,7 @@ class OmWeight {
 	 *  @param tname_     Term which this object is associated with.
 	 */
 	OmWeight * create(const Internal * internal_, om_doclength querysize_,
-			  om_termcount wqf_, om_termname tname_) const {
+			  om_termcount wqf_, std::string tname_) const {
 	    OmWeight * wt = clone();
 	    wt->internal = internal_;
 	    wt->querysize = querysize_;

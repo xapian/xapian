@@ -28,6 +28,8 @@
 #include <string>
 #include "netutils.h"
 
+using namespace std;
+
 struct querytok {
     enum etype {
 	END,
@@ -49,7 +51,7 @@ struct querytok {
 	ERROR
     } type;
     om_termcount qlen;
-    om_termname tname;
+    string tname;
     om_termcount wqf;
     om_termpos term_pos;
     om_termpos window; // for NEAR and PHRASE
@@ -62,7 +64,7 @@ struct querytok {
 	    : type(static_cast<etype>(type_)) {}
 };
 
-void qfs_start(std::string text);
+void qfs_start(string text);
 querytok qfs_gettok();
 void qfs_end();
 

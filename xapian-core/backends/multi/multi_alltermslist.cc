@@ -73,7 +73,7 @@ MultiAllTermsList::get_approx_size() const
     return size;
 }
 
-om_termname
+string
 MultiAllTermsList::get_termname() const
 {
     Assert(started);
@@ -112,7 +112,7 @@ MultiAllTermsList::get_collection_freq() const
 }
 
 TermList *
-MultiAllTermsList::skip_to(const om_termname &tname)
+MultiAllTermsList::skip_to(const string &tname)
 {
     started = true;
 

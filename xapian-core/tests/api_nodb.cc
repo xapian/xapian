@@ -36,7 +36,7 @@
 
 using namespace std;
 
-typedef list<om_termname> om_termname_list;
+typedef list<string> om_termname_list;
 
 // always succeeds
 static bool test_trivial1()
@@ -110,7 +110,7 @@ static bool test_querylen1()
 static bool test_querylen2()
 {
     // test with an even bigger and strange query
-    om_termname terms[3] = {
+    string terms[3] = {
 	"foo",
 	"bar",
 	"baz"
@@ -122,7 +122,7 @@ static bool test_querylen2()
     };
 
     OmQuery myquery;
-    vector<om_termname> v1(terms, terms + 3);
+    vector<string> v1(terms, terms + 3);
     vector<OmQuery> v2(queries, queries + 3);
     vector<OmQuery *> v3;
     AutoPtr<OmQuery> dynquery1(new OmQuery(OmQuery::OP_AND,
@@ -209,14 +209,14 @@ static bool test_subqcollapse1()
 // test behaviour when creating a query from an empty vector
 static bool test_emptyquerypart1()
 {
-    vector<om_termname> emptyterms;
+    vector<string> emptyterms;
     OmQuery query(OmQuery::OP_OR, emptyterms.begin(), emptyterms.end());
     return true;
 }
 
 static bool test_singlesubq1()
 {
-    vector<om_termname> oneterm;
+    vector<string> oneterm;
     oneterm.push_back("solo");
     OmQuery q_eliteset(OmQuery::OP_ELITE_SET, oneterm.begin(), oneterm.end());
     q_eliteset.set_elite_set_size(1);

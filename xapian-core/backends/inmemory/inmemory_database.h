@@ -30,7 +30,6 @@
 #include "leafpostlist.h"
 #include "termlist.h"
 #include "database.h"
-#include "indexer.h"
 #include <stdlib.h>
 #include <map>
 #include <vector>
@@ -45,7 +44,7 @@ using namespace std;
 class InMemoryPosting {
     public:
 	om_docid did;
-	om_termname tname;
+	string tname;
 	vector<om_termpos> positions; // Sorted vector of positions
 	om_termcount wdf;
 
@@ -130,7 +129,7 @@ class InMemoryPostList : public LeafPostList {
     private:
 	vector<InMemoryPosting>::const_iterator pos;
 	vector<InMemoryPosting>::const_iterator end;
-	om_termname tname;
+	string tname;
 	om_doccount termfreq;
 	bool started;
 
@@ -180,7 +179,7 @@ class InMemoryTermList : public LeafTermList {
 	om_termcount get_approx_size() const;
 
 	OmExpandBits get_weighting() const;
-	om_termname get_termname() const;
+	string get_termname() const;
 	om_termcount get_wdf() const; // Number of occurences of term in current doc
 	om_doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
@@ -194,7 +193,7 @@ class InMemoryTermList : public LeafTermList {
 class InMemoryDatabase : public Database {
     friend class DatabaseBuilder;
     private:
-	map<om_termname, InMemoryTerm> postlists;
+	map<string, InMemoryTerm> postlists;
 	vector<InMemoryDoc> termlists;
 	vector<std::string> doclists;
 	vector<std::map<om_valueno, string> > valuelists;
@@ -211,7 +210,7 @@ class InMemoryDatabase : public Database {
 	InMemoryDatabase& operator=(const InMemoryDatabase &);
 	InMemoryDatabase(const InMemoryDatabase &);
 
-	void make_term(const om_termname & tname);
+	void make_term(const string & tname);
 
 	bool doc_exists(om_docid did) const;
 	om_docid make_doc(const string & docdata);
@@ -220,7 +219,7 @@ class InMemoryDatabase : public Database {
 	void finish_add_doc(om_docid did, const OmDocument &document);
 	void add_values(om_docid did, const map<om_valueno, string> &values_);
 
-	void make_posting(const om_termname & tname,
+	void make_posting(const string & tname,
 			  om_docid did,
 			  om_termpos position,
 			  om_termcount wdf,
@@ -264,15 +263,15 @@ class InMemoryDatabase : public Database {
 	om_doclength get_avlength() const;
 	om_doclength get_doclength(om_docid did) const;
 
-	om_doccount get_termfreq(const om_termname & tname) const;
-	om_termcount get_collection_freq(const om_termname & tname) const;
-	bool term_exists(const om_termname & tname) const;
+	om_doccount get_termfreq(const string & tname) const;
+	om_termcount get_collection_freq(const string & tname) const;
+	bool term_exists(const string & tname) const;
 
-	LeafPostList * do_open_post_list(const om_termname & tname) const;
+	LeafPostList * do_open_post_list(const string & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
 	Document * open_document(om_docid did, bool lazy = false) const;
 	AutoPtr<PositionList> open_position_list(om_docid did,
-					  const om_termname & tname) const;
+					  const string & tname) const;
 	TermList * open_allterms() const;
 };
 
@@ -405,7 +404,7 @@ InMemoryTermList::get_weighting() const
 			db->get_doccount());
 }
 
-inline om_termname
+inline string
 InMemoryTermList::get_termname() const
 {
     Assert(started);
@@ -468,17 +467,17 @@ InMemoryDatabase::get_avlength() const
 }
 
 inline om_doccount
-InMemoryDatabase::get_termfreq(const om_termname & tname) const
+InMemoryDatabase::get_termfreq(const string & tname) const
 {
-    map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
+    map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if (i == postlists.end()) return 0;
     return i->second.docs.size();
 }
 
 inline om_termcount
-InMemoryDatabase::get_collection_freq(const om_termname &tname) const
+InMemoryDatabase::get_collection_freq(const string &tname) const
 {
-    map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
+    map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if (i == postlists.end()) return 0;
     return i->second.collection_freq;
 }

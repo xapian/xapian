@@ -36,7 +36,7 @@
 /** Expand decision functor which always decides to use the term. */
 class OmExpandDeciderAlways : public OmExpandDecider {
     public:
-	int operator()(const om_termname & /*tname*/) const { return true; }
+	int operator()(const string & /*tname*/) const { return true; }
 };
 
 /** Class for performing the expand operation. */

@@ -460,7 +460,7 @@ them in an STL vector.  This is probably the point at which we would want
 to apply a stemming algorithm, or any other desired normalisation and
 conversion operation, to the terms.
 <PRE>
-    vector&lt;om_termname&gt; queryterms;
+    vector&lt;string&gt; queryterms;
     for (int optpos = 2; optpos &lt; argc; optpos++) {
         queryterms.push_back(argv[optpos]);
     }

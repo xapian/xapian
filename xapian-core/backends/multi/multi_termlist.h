@@ -49,7 +49,7 @@ class MultiTermList : public LeafTermList {
 	om_termcount get_approx_size() const;
 
 	OmExpandBits get_weighting() const; // Gets weight info of current term
-	om_termname get_termname() const;
+	string get_termname() const;
 	om_termcount get_wdf() const; // Number of occurences of term in current doc
 	om_doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
@@ -92,7 +92,7 @@ MultiTermList::get_weighting() const {
     return tl->get_weighting();
 }
 
-inline om_termname
+inline string
 MultiTermList::get_termname() const
 {
     return tl->get_termname();

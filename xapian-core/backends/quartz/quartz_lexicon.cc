@@ -50,7 +50,7 @@ QuartzLexicon::make_entry(std::string & data, om_doccount termfreq)
 
 void
 QuartzLexicon::increment_termfreq(QuartzBufferedTable * table,
-				  const om_termname & tname)
+				  const string & tname)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzLexicon::increment_termfreq", table << ", " << tname);
     string * tag = table->get_or_make_tag(tname);
@@ -73,7 +73,7 @@ QuartzLexicon::increment_termfreq(QuartzBufferedTable * table,
 
 void
 QuartzLexicon::decrement_termfreq(QuartzBufferedTable * table,
-				  const om_termname & tname)
+				  const string & tname)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzLexicon::decrement_termfreq",
 		     table << ", " << tname);
@@ -104,7 +104,7 @@ QuartzLexicon::decrement_termfreq(QuartzBufferedTable * table,
 
 bool
 QuartzLexicon::get_entry(const QuartzTable * table,
-			 const om_termname & tname,
+			 const string & tname,
 			 om_doccount * termfreq)
 {
     DEBUGCALL_STATIC(DB, bool, "QuartzLexicon::get_entry",

@@ -26,6 +26,7 @@
 #define OM_HGUARD_OMPOSITIONLISTITERATOR_H
 
 #include <iterator>
+#include <string>
 #include "om/omtypes.h"
 
 class OmPostListIterator;

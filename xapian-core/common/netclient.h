@@ -105,7 +105,7 @@ class NetClient : public RefCntBase {
 
 	/** The structure used to hold a termlist item */
 	struct TermListItem {
-	    om_termname tname;
+	    string tname;
 	    om_doccount termfreq;
 	    om_termcount wdf;
 
@@ -136,10 +136,10 @@ class NetClient : public RefCntBase {
 	virtual om_doclength get_avlength() const = 0;
 
 	/// Find out if term exists
-	virtual bool term_exists(const om_termname & tname) = 0;
+	virtual bool term_exists(const string & tname) = 0;
 
 	/// Find frequency of term
-	virtual om_doccount get_termfreq(const om_termname & tname) = 0;
+	virtual om_doccount get_termfreq(const string & tname) = 0;
 
 	/** Determine if any data is waiting to be read.  */
 	virtual bool data_is_available() = 0;

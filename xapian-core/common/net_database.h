@@ -107,15 +107,15 @@ class NetworkDatabase : public Database {
 	om_doclength get_avlength() const;
 	om_doclength get_doclength(om_docid did) const;
 
-	om_doccount get_termfreq(const om_termname & tname) const;
-	om_termcount get_collection_freq(const om_termname & tname) const;
-	bool term_exists(const om_termname & tname) const;
+	om_doccount get_termfreq(const string & tname) const;
+	om_termcount get_collection_freq(const string & tname) const;
+	bool term_exists(const string & tname) const;
 
-	LeafPostList * do_open_post_list(const om_termname & tname) const;
+	LeafPostList * do_open_post_list(const string & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
 	Document * open_document(om_docid did, bool lazy = false) const;
 	AutoPtr<PositionList> open_position_list(om_docid did,
-					const om_termname & tname) const;
+					const string & tname) const;
 	TermList * open_allterms() const;
 
 	void request_document(om_docid did) const;
@@ -129,7 +129,7 @@ class NetworkDatabase : public Database {
 };
 
 inline om_termcount
-NetworkDatabase::get_collection_freq(const om_termname & /*tname*/) const
+NetworkDatabase::get_collection_freq(const string & /*tname*/) const
 {
     throw OmUnimplementedError("NetworkDatabase::get_collection_freq() not implemented: data not stored in database.");
 }

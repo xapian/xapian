@@ -34,6 +34,8 @@
 #include "deleter_vector.h"
 #endif
 
+using namespace std;
+
 class MultiMatch;
 class LocalSubMatch;
 
@@ -54,7 +56,7 @@ class OmQuery::Internal {
 #ifdef USE_DELETER_VECTOR
 	typedef deleter_vector<OmQuery::Internal *> subquery_list;
 #else
-	typedef std::vector<OmQuery::Internal *> subquery_list;
+	typedef vector<OmQuery::Internal *> subquery_list;
 #endif
 
 	/// Type storing the operation
@@ -84,7 +86,7 @@ class OmQuery::Internal {
 	om_termcount elite_set_size;
 
 	/// Term that this node represents - leaf node only
-	om_termname tname;
+	string tname;
 
 	/// Position in query of this term - leaf node only
 	om_termpos term_pos;
@@ -105,7 +107,7 @@ class OmQuery::Internal {
 	void initialise_from_copy(const OmQuery::Internal & copyme);
 
         void accumulate_terms(
-	    std::vector<std::pair<om_termname, om_termpos> > &terms) const;
+	    vector<pair<string, om_termpos> > &terms) const;
 
 	/** Simplify the query.
 	 *  For example, an AND query with only one subquery would become the
@@ -130,7 +132,7 @@ class OmQuery::Internal {
 
 	/** Get a string describing the given query type.
 	 */
-	static std::string get_op_name(OmQuery::Internal::op_t op);
+	static string get_op_name(OmQuery::Internal::op_t op);
 
 	/** Collapse the subqueryies together if appropriate.
 	 */
@@ -149,7 +151,7 @@ class OmQuery::Internal {
 	void operator=(const OmQuery::Internal & copyme);
 
 	/** A query consisting of a single term. */
-	Internal(const om_termname & tname_, om_termcount wqf_ = 1,
+	Internal(const string & tname_, om_termcount wqf_ = 1,
 		 om_termpos term_pos_ = 0);
 
 	/** Create internals given only the operator. */
@@ -178,12 +180,12 @@ class OmQuery::Internal {
 	/** Return a string in an easily parsed form
 	 *  which contains all the information in a query.
 	 */
-	std::string serialise() const;
+	string serialise() const;
 
 	/** Returns a string representing the query.
 	 * Introspection method.
 	 */
-	std::string get_description() const;
+	string get_description() const;
 
 	/** Set window for NEAR or PHRASE queries */
 	void set_window(om_termpos window);

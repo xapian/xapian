@@ -45,7 +45,7 @@
 
 using namespace std;
 
-typedef list<om_termname> om_termname_list;
+typedef list<string> om_termname_list;
 extern BackendManager backendmanager;
 
 // #######################################################################
@@ -105,12 +105,12 @@ void init_simple_enquire(OmEnquire &enq, const OmQuery &query = OmQuery("this"))
 }
 
 OmQuery
-query(OmQuery::op op, om_termname t1 = "", om_termname t2 = "",
-      om_termname t3 = "", om_termname t4 = "", om_termname t5 = "",
-      om_termname t6 = "", om_termname t7 = "", om_termname t8 = "",
-      om_termname t9 = "", om_termname t10 = "")
+query(OmQuery::op op, string t1 = "", string t2 = "",
+      string t3 = "", string t4 = "", string t5 = "",
+      string t6 = "", string t7 = "", string t8 = "",
+      string t9 = "", string t10 = "")
 {
-    vector<om_termname> v;
+    vector<string> v;
     OmStem stemmer("english");    
     if (!t1.empty()) v.push_back(stemmer.stem_word(t1));
     if (!t2.empty()) v.push_back(stemmer.stem_word(t2));
@@ -126,7 +126,7 @@ query(OmQuery::op op, om_termname t1 = "", om_termname t2 = "",
 }
 
 OmQuery
-query(om_termname t)
+query(string t)
 {
     return OmQuery(OmStem("english").stem_word(t));
 }
@@ -583,9 +583,9 @@ static bool test_topercent1()
 
 class myExpandFunctor : public OmExpandDecider {
     public:
-	int operator()(const om_termname & tname) const {
+	int operator()(const string & tname) const {
 	    unsigned long sum = 0;
-	    for (om_termname::const_iterator i=tname.begin(); i!=tname.end(); ++i) {
+	    for (string::const_iterator i=tname.begin(); i!=tname.end(); ++i) {
 		sum += *i;
 	    }
 //	    if (verbose) {
@@ -1454,7 +1454,7 @@ static bool test_xor1()
     init_simple_enquire(enquire);
     OmStem stemmer("english");
 
-    vector<om_termname> terms;
+    vector<string> terms;
     terms.push_back(stemmer.stem_word("this"));
     terms.push_back(stemmer.stem_word("word"));
     terms.push_back(stemmer.stem_word("of"));
@@ -1633,7 +1633,7 @@ static bool test_allterms3()
     db.add_database(get_database("apitest_allterms"));
     OmTermIterator ati = db.allterms_begin();
 
-    ati.skip_to(om_termname("zzzzzz"));
+    ati.skip_to(string("zzzzzz"));
     TEST(ati == db.allterms_end());
 
     return true;
@@ -1696,7 +1696,7 @@ static bool test_absentterm1()
 static bool test_absentterm2()
 {
     OmEnquire enquire(get_simple_database());
-    vector<om_termname> terms;
+    vector<string> terms;
     terms.push_back("frink");
 
     OmQuery query(OmQuery::OP_OR, terms.begin(), terms.end());
@@ -1904,7 +1904,7 @@ static bool test_eliteset3()
     string term2 = stemmer.stem_word("rubbish");
     string term3 = stemmer.stem_word("banana");
 
-    vector<om_termname> terms;
+    vector<string> terms;
     terms.push_back(term1);
     terms.push_back(term2);
     terms.push_back(term3);
@@ -2820,18 +2820,18 @@ static bool test_termlist2()
     TEST_EQUAL(t, t_clone);
 
 #ifdef __SUNPRO_CC
-    vector<om_termname> v;
+    vector<string> v;
     while (t != tend) {
 	v.push_back(*t);
 	++t;
     }
 #else
-    vector<om_termname> v(t, tend);
+    vector<string> v(t, tend);
 #endif
 
     t = db.termlist_begin(1);    
     tend = db.termlist_end(1);
-    vector<om_termname>::const_iterator i;
+    vector<string>::const_iterator i;
     for (i = v.begin(); i != v.end(); i++) {
 	TEST_NOT_EQUAL(t, tend);
 	TEST_EQUAL(*i, *t);

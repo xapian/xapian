@@ -329,7 +329,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
 	      << ", ...");
 
-    map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> termfreqandwts;
+    map<string, OmMSet::Internal::Data::TermFreqAndWeight> termfreqandwts;
 
     Assert(!leaves.empty());
 
@@ -741,7 +741,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	best = min_element(items.begin(), items.end(), mcmp);
 
 	om_termcount matching_terms = 0;
-	map<om_termname,
+	map<string,
 	    OmMSet::Internal::Data::TermFreqAndWeight>::const_iterator i;
 
 	OmTermIterator docterms = db.termlist_begin(best->did);

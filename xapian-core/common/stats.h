@@ -24,11 +24,15 @@
 #ifndef OM_HGUARD_STATS_H
 #define OM_HGUARD_STATS_H
 
+#include <string>
+
 #include "om/omtypes.h"
 #include "omdebug.h"
 #include "refcnt.h"
 #include <map>
 #include <set>
+
+using namespace std;
 
 /** Class to hold statistics for a given collection. */
 class Stats {
@@ -43,10 +47,10 @@ class Stats {
 	om_doclength average_length;
 
 	/** Map of term frequencies for the collection. */
-	std::map<om_termname, om_doccount> termfreq;
+	std::map<string, om_doccount> termfreq;
 
 	/** Map of relevant term frequencies for the collection. */
-	std::map<om_termname, om_doccount> reltermfreq;
+	std::map<string, om_doccount> reltermfreq;
 
 
 	Stats() : collection_size(0),
@@ -180,13 +184,13 @@ class OmWeight::Internal {
 	 *  object represents.  This is the number of documents in
 	 *  the sub-database indexed by the given term.
 	 */
-	void my_termfreq_is(const om_termname & tname, om_doccount tfreq);
+	void my_termfreq_is(const string & tname, om_doccount tfreq);
 
 	/** Set the relevant term-frequency in the sub-database which this
 	 *  stats object represents.  This is the number of relevant
 	 *  documents in the sub-database indexed by the given term.
 	 */
-	void my_reltermfreq_is(const om_termname & tname, om_doccount rtfreq);
+	void my_reltermfreq_is(const string & tname, om_doccount rtfreq);
 
 
 
@@ -212,13 +216,13 @@ class OmWeight::Internal {
 	 *  given term.  This is "n_t", the number of documents in the
 	 *  collection indexed by the given term.
 	 */
-	om_doccount get_total_termfreq(const om_termname & tname) const;
+	om_doccount get_total_termfreq(const string & tname) const;
 
 	/** Get the relevant term-frequency over the whole collection, for
 	 *  the given term.  This is "r_t", the number of relevant documents
 	 *  in the collection indexed by the given term.
 	 */
-	om_doccount get_total_reltermfreq(const om_termname & tname) const;
+	om_doccount get_total_reltermfreq(const string & tname) const;
 };
 
 /** LocalStatsSource: the OmWeight::Internal object which provides methods
@@ -263,7 +267,7 @@ Stats::operator +=(const Stats & inc)
     Assert(inc.rset_size == 0);
 
     // Add termfreqs and reltermfreqs
-    std::map<om_termname, om_doccount>::const_iterator i;
+    std::map<string, om_doccount>::const_iterator i;
     for(i = inc.termfreq.begin(); i != inc.termfreq.end(); i++) {
 	termfreq[i->first] += i->second;
     }
@@ -309,7 +313,7 @@ OmWeight::Internal::take_my_stats(om_doccount csize, om_doclength avlen)
 }
 
 inline void
-OmWeight::Internal::my_termfreq_is(const om_termname & tname, om_doccount tfreq)
+OmWeight::Internal::my_termfreq_is(const string & tname, om_doccount tfreq)
 {
     Assert(total_stats == 0);
     // Can be called a second time, if a term occurs multiple times in the
@@ -320,7 +324,7 @@ OmWeight::Internal::my_termfreq_is(const om_termname & tname, om_doccount tfreq)
 }
 
 inline void
-OmWeight::Internal::my_reltermfreq_is(const om_termname & tname, om_doccount rtfreq)
+OmWeight::Internal::my_reltermfreq_is(const string & tname, om_doccount rtfreq)
 {
     Assert(total_stats == 0);
     // Can be called a second time, if a term occurs multiple times in the
@@ -352,7 +356,7 @@ OmWeight::Internal::get_total_average_length() const
 }
 
 inline om_doccount
-OmWeight::Internal::get_total_termfreq(const om_termname & tname) const
+OmWeight::Internal::get_total_termfreq(const string & tname) const
 {
     if(total_stats == 0) perform_request();
 
@@ -360,17 +364,17 @@ OmWeight::Internal::get_total_termfreq(const om_termname & tname) const
     // supplied our own ones first.
     Assert(my_stats.termfreq.find(tname) != my_stats.termfreq.end());
 
-    std::map<om_termname, om_doccount>::const_iterator tfreq;
+    std::map<string, om_doccount>::const_iterator tfreq;
     tfreq = total_stats->termfreq.find(tname);
     Assert(tfreq != total_stats->termfreq.end());
     return tfreq->second;
 }
 
 inline om_doccount
-OmWeight::Internal::get_total_reltermfreq(const om_termname & tname) const
+OmWeight::Internal::get_total_reltermfreq(const string & tname) const
 {
     if(total_stats == 0) perform_request();
-    std::map<om_termname, om_doccount>::const_iterator rtfreq;
+    std::map<string, om_doccount>::const_iterator rtfreq;
     rtfreq = total_stats->reltermfreq.find(tname);
     Assert(rtfreq != total_stats->reltermfreq.end());
     return rtfreq->second;

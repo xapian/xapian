@@ -25,13 +25,16 @@
 #ifndef OM_HGUARD_QUARTZ_POSTLIST_H
 #define OM_HGUARD_QUARTZ_POSTLIST_H
 
+#include <string>
+
 #include "leafpostlist.h"
 #include "om/omtypes.h"
-#include <string>
 #include "quartz_table_entries.h"
 #include "omassert.h"
 #include "quartz_types.h"
 #include "quartz_positionlist.h"
+
+using namespace std;
 
 class QuartzTable;
 class QuartzCursor;
@@ -55,7 +58,7 @@ class QuartzPostList : public LeafPostList {
 	const QuartzTable * positiontable;
 
 	/// The termname for this postlist.
-	om_termname tname;
+	string tname;
 
 
 	/// Cursor pointing to current chunk of postlist. 
@@ -163,7 +166,7 @@ class QuartzPostList : public LeafPostList {
         QuartzPostList(RefCntPtr<const Database> this_db_,
 		       const QuartzTable * table_,
 		       const QuartzTable * positiontable_,
-		       const om_termname & tname);
+		       const string & tname);
 
         /// Destructor.
         ~QuartzPostList();
@@ -216,14 +219,14 @@ class QuartzPostList : public LeafPostList {
 
 	/// Insert an entry
 	static void add_entry(QuartzBufferedTable * bufftable,
-			      const om_termname & tname,
+			      const string & tname,
 			      om_docid new_did,
 			      om_termcount new_wdf,
 			      quartz_doclen_t new_doclen);
 
 	/// Delete an entry
 	static void delete_entry(QuartzBufferedTable * bufftable,
-				 const om_termname & tname,
+				 const string & tname,
 				 om_docid did);
 
 	static void read_number_of_entries(const char ** posptr,

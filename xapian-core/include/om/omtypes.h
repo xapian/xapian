@@ -24,6 +24,8 @@
  * -----END-LICENCE-----
  */
 
+/* Keep this file free from C++ style comments (//) so it can be used from C */
+
 #ifndef OM_HGUARD_OMTYPES_H
 #define OM_HGUARD_OMTYPES_H
 
@@ -73,13 +75,5 @@ typedef int	     om_percent;
  *  ie. a timeout value of 1000000 corresponds to a timeout of 1 second.
  */
 typedef unsigned int om_timeout;
-
-#ifdef __cplusplus
-#include <string>
-/** A term name.  This is a string representing the term, and will often be
- *  the actual text of the term.
- */
-typedef std::string om_termname;
-#endif
 
 #endif /* OM_HGUARD_OMTYPES_H */

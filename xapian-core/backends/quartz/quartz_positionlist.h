@@ -32,7 +32,8 @@
 #include "quartz_table_entries.h"
 
 #include <string>
-using std::string;
+
+using namespace std;
 
 class QuartzTable;
 class QuartzBufferedTable;
@@ -75,7 +76,7 @@ class QuartzPositionList : public PositionList {
 
 	/// Make a key for accessing the positionlist.
 	static void make_key(om_docid did,
-			     const om_termname & tname,
+			     const string & tname,
 			     string & key);
 
     public:
@@ -88,7 +89,7 @@ class QuartzPositionList : public PositionList {
         /// Fill list with data, and move the position to the start.
         void read_data(const QuartzTable * table,
 		       om_docid did,
-		       const om_termname & tname);
+		       const string & tname);
 
         /// Gets size of position list.
         om_termcount get_size() const {
@@ -124,14 +125,14 @@ class QuartzPositionList : public PositionList {
 	/// Set the position list for the given docid and termname
 	static void set_positionlist(QuartzBufferedTable * table,
 			om_docid did,
-			const om_termname & tname,
+			const string & tname,
 			OmPositionListIterator pos,
 			const OmPositionListIterator &pos_end);
 
 	/// Delete the position list for the given docid and termname
 	static void delete_positionlist(QuartzBufferedTable * table,
 					om_docid did,
-					const om_termname & tname);
+					const string & tname);
 	/// Return the current position
 	om_termpos get_current_pos() {
 	    return(current_pos);

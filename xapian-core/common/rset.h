@@ -53,7 +53,7 @@ class RSet {
 	const OmDatabase root;
 	const Database *dbroot;
 
-	std::map<om_termname, om_doccount> reltermfreqs;
+	std::map<string, om_doccount> reltermfreqs;
 	bool calculated_reltermfreqs;
     public:
 	std::vector<RSetItem> documents; // FIXME - should be encapsulated
@@ -63,13 +63,13 @@ class RSet {
 	RSet(const Database *dbroot_, const OmRSet & omrset);
 
 	void add_document(om_docid did);
-	void will_want_reltermfreq(om_termname tname);
+	void will_want_reltermfreq(string tname);
 
 	void calculate_stats();
 	void give_stats_to_statssource(OmWeight::Internal *statssource);
 
 	om_doccount get_rsize() const;
-	om_doccount get_reltermfreq(om_termname tname) const;
+	om_doccount get_reltermfreq(string tname) const;
 };
 
 ///////////////////////////////
@@ -115,7 +115,7 @@ RSet::add_document(om_docid did)
 }
 
 inline void
-RSet::will_want_reltermfreq(om_termname tname)
+RSet::will_want_reltermfreq(string tname)
 {
     reltermfreqs[tname] = 0;
 }
@@ -127,11 +127,11 @@ RSet::get_rsize() const
 }
 
 inline om_doccount
-RSet::get_reltermfreq(om_termname tname) const
+RSet::get_reltermfreq(string tname) const
 {
     Assert(calculated_reltermfreqs);
 
-    std::map<om_termname, om_doccount>::const_iterator rfreq;
+    std::map<string, om_doccount>::const_iterator rfreq;
     rfreq = reltermfreqs.find(tname);
     Assert(rfreq != reltermfreqs.end());
 

@@ -31,6 +31,7 @@
 #ifndef OM_HGUARD_OMTERMLISTITERATOR_H
 #include "om/omtermlistiterator.h"
 #endif
+#include <string>
 
 /** Class representing a query.
  *  Queries are represented as a hierarchy of classes.
@@ -116,7 +117,7 @@ class OmQuery {
 	~OmQuery();
 
 	/** A query consisting of a single term. */
-	OmQuery(const om_termname & tname_,
+	OmQuery(const std::string & tname_,
 		om_termcount wqf_ = 1,
 		om_termpos term_pos_ = 0);
 
@@ -134,9 +135,9 @@ class OmQuery {
 
 	/** A query consisting of two termnames opp-ed together. */
 	OmQuery(OmQuery::op op_,
-		const om_termname & left, const om_termname & right);
+		const std::string & left, const std::string & right);
 
-	/** A set of OmQuery's, merged together with specified operator.
+	/** A set of OmQuery-s, merged together with specified operator.
 	 *  (Takes begin and end iterators).
 	 *  AND, OR, NEAR and PHRASE can take any number of subqueries.
 	 *  WEIGHT_CUTOFF takes only one subquery.
@@ -144,7 +145,7 @@ class OmQuery {
 	 *  subqueries.
 	 *
 	 *  The iterators may be to any of OmQuery objects, OmQuery pointers,
-	 *  or om_termname objects (ie, strings).
+	 *  or std::string-s.
 	 */
 	template <class Iterator>
 	OmQuery(OmQuery::op op_, Iterator qbegin, Iterator qend);
@@ -152,7 +153,7 @@ class OmQuery {
 	/** A single OmQuery, modified by a specified operator.
 	 *
 	 *  The subquery may be any of: an OmQuery object, OmQuery pointer,
-	 *  or om_termname.
+	 *  or std::string.
 	 */
 	template <class SubQ>
 	OmQuery(OmQuery::op op_, SubQ q);
@@ -205,7 +206,7 @@ class OmQuery {
     private:
 	void add_subquery(const OmQuery & subq);
 	void add_subquery(const OmQuery * subq);
-	void add_subquery(const om_termname & tname);
+	void add_subquery(const std::string & tname);
 	void start_construction(OmQuery::op op_);
 	void end_construction();
 	void abort_construction();
@@ -245,8 +246,8 @@ OmQuery::OmQuery(OmQuery::op op_, SubQ q) : internal(0)
 
 inline
 OmQuery::OmQuery(OmQuery::op op_,
-		 const om_termname & left,
-		 const om_termname & right) : internal(0)
+		 const std::string & left,
+		 const std::string & right) : internal(0)
 {
     try {
 	start_construction(op_);

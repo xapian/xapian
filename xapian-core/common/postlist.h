@@ -24,6 +24,8 @@
 #ifndef OM_HGUARD_POSTLIST_H
 #define OM_HGUARD_POSTLIST_H
 
+#include <string>
+
 #include "om/omtypes.h"
 #include "om/omerror.h"
 #include "refcnt.h"

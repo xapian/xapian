@@ -38,7 +38,7 @@ class MultiAllTermsList : public AllTermsList
 	std::vector<TermList *> lists;
 
 	/// The current term being pointed at.
-	om_termname current;
+	string current;
 
 	/// Flag indicating the end of the lists
 	bool is_at_end;
@@ -58,7 +58,7 @@ class MultiAllTermsList : public AllTermsList
 	om_termcount get_approx_size() const;
 
 	// Gets current termname
-	om_termname get_termname() const;
+	string get_termname() const;
 
 	// Get num of docs indexed by term
 	om_doccount get_termfreq() const;
@@ -66,7 +66,7 @@ class MultiAllTermsList : public AllTermsList
 	// Get num of docs indexed by term
 	om_termcount get_collection_freq() const;
 
-	TermList *skip_to(const om_termname &tname);
+	TermList *skip_to(const string &tname);
 
 	/** next() causes the AllTermsList to move to the next term in the list.
 	 */

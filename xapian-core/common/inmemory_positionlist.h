@@ -26,19 +26,22 @@
 #include "om/omtypes.h"
 #include "om/omerror.h"
 
+#include <string>
 #include <vector>
 #include "positionlist.h"
 #include "omdocumentinternal.h"
+
+using namespace std;
 
 /** A position list in a inemory database. */
 class InMemoryPositionList : public PositionList
 {
     private:
 	/// The list of positions.
-	std::vector<om_termpos> positions;
+	vector<om_termpos> positions;
 
 	/// Position of iteration through positions
-	std::vector<om_termpos>::const_iterator mypos;
+	vector<om_termpos>::const_iterator mypos;
 
 	/// True if we have started iterating
 	bool iterating_in_progress;

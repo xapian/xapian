@@ -150,7 +150,7 @@ static void report_read_error(const char * position)
 }
 
 static bool get_tname_from_key(const char **src, const char *end,
-			       om_termname &tname)
+			       string &tname)
 {
     return unpack_string_preserving_sort(src, end, tname);
 }
@@ -374,13 +374,13 @@ static inline string make_start_of_chunk(bool new_is_last_chunk,
 }
 
 /// Make a key for accessing the postlist.
-static void make_key(const om_termname & tname, om_docid did, string & key)
+static void make_key(const string & tname, om_docid did, string & key)
 {
     key = pack_string_preserving_sort(tname);
     key += pack_uint_preserving_sort(did);
 }
 
-static void make_key(const om_termname & tname, string & key)
+static void make_key(const string & tname, string & key)
 {
     key = pack_string_preserving_sort(tname);
 }
@@ -617,7 +617,7 @@ PostlistChunkWriter::skip_item(om_termcount wdf)
 }
 
 static void adjust_counts(QuartzBufferedTable * bufftable,
-			  const om_termname & tname,
+			  const string & tname,
 			  om_termcount entries_increase,
 			  om_termcount entries_decrease,
 			  om_termcount collection_freq_increase,
@@ -648,7 +648,7 @@ static void adjust_counts(QuartzBufferedTable * bufftable,
 }
 
 static void new_postlist(QuartzBufferedTable * bufftable,
-			 const om_termname & tname,
+			 const string & tname,
 			 om_docid new_did,
 			 om_termcount new_wdf,
 			 om_termcount new_doclen)
@@ -671,7 +671,7 @@ static void new_postlist(QuartzBufferedTable * bufftable,
 }
 
 static void new_chunk(QuartzBufferedTable * bufftable,
-		      const om_termname & tname,
+		      const string & tname,
 		      om_docid new_did,
 		      om_termcount new_wdf,
 		      quartz_doclen_t new_doclen)
@@ -723,7 +723,7 @@ void QuartzPostList::read_number_of_entries(const char ** posptr,
 QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
 			       const QuartzTable * table_,
 			       const QuartzTable * positiontable_,
-			       const om_termname & tname_)
+			       const string & tname_)
 	: this_db(this_db_),
 	  table(table_),
 	  positiontable(positiontable_),
@@ -1017,7 +1017,7 @@ QuartzPostList::get_description() const
 
 void
 QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
-			  const om_termname & tname_,
+			  const string & tname_,
 			  om_docid new_did,
 			  om_termcount new_wdf,
 			  quartz_doclen_t new_doclen)
@@ -1143,7 +1143,7 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
 
 void
 QuartzPostList::delete_entry(QuartzBufferedTable * bufftable,
-			     const om_termname & tname,
+			     const string & tname,
 			     om_docid did_to_delete)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzPostList::delete_entry",

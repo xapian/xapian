@@ -53,7 +53,7 @@ class EmptySubMatch : public SubMatch {
 	    throw OmInternalError("Attempt to open document from EmptySubMatch should not happen.");
 	}
 
-	const std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> get_term_info() const {
+	const std::map<string, OmMSet::Internal::Data::TermFreqAndWeight> get_term_info() const {
 	    throw OmInternalError("EmptySubMatch can't give terminfo.");
 	}
 };

@@ -149,14 +149,14 @@ OmMSet string_to_ommset(const string &s);
  *
  *  @param terminfo		The terminfo map to serialise.
  */
-string ommset_termfreqwts_to_string(const map<om_termname,
+string ommset_termfreqwts_to_string(const map<string,
 	OmMSet::Internal::Data::TermFreqAndWeight> &terminfo);
 
 /** Convert a serialised terminfo string back into a map.
  *
  *  @param s		The seralised map as a string.
  */
-map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight>
+map<string, OmMSet::Internal::Data::TermFreqAndWeight>
 string_to_ommset_termfreqwts(const string &s);
 
 OmQuery::Internal qfs_readquery();

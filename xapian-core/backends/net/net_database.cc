@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,7 +70,7 @@ NetworkDatabase::get_avlength() const
 }
 
 LeafPostList *
-NetworkDatabase::do_open_post_list(const om_termname & /*tname*/) const
+NetworkDatabase::do_open_post_list(const string & /*tname*/) const
 {
     throw OmUnimplementedError("NetworkDatabase::do_open_post_list() not implemented");
 }
@@ -81,7 +81,7 @@ NetworkDatabase::open_term_list(om_docid did) const {
     vector<NetClient::TermListItem> items;
     link->get_tlist(did, items);
     return new NetworkTermList(get_avlength(), get_doccount(), items,
-			       RefCntPtr<const NetworkDatabase>(RefCntPtrToThis(), this));
+			       RefCntPtr<const NetworkDatabase>(this));
 }
 
 Document *
@@ -97,7 +97,7 @@ NetworkDatabase::open_document(om_docid did, bool /*lazy*/) const
 
 AutoPtr<PositionList> 
 NetworkDatabase::open_position_list(om_docid /*did*/,
-				    const om_termname & /*tname*/) const
+				    const string & /*tname*/) const
 {
     throw OmUnimplementedError("Network databases do not support opening positionlist");
 }
@@ -126,7 +126,7 @@ NetworkDatabase::get_doclength(om_docid /*did*/) const
 }
 
 bool
-NetworkDatabase::term_exists(const om_termname & tname) const
+NetworkDatabase::term_exists(const string & tname) const
 {
     Assert(!tname.empty());
     // FIXME: have cache of termfreqs?
@@ -134,7 +134,7 @@ NetworkDatabase::term_exists(const om_termname & tname) const
 }
 
 om_doccount
-NetworkDatabase::get_termfreq(const om_termname & tname) const
+NetworkDatabase::get_termfreq(const string & tname) const
 {
     Assert(!tname.empty());
     // FIXME: have cache of termfreqs?

@@ -74,7 +74,7 @@ string_to_document(string paragraph)
     }
 
     string::size_type spacepos;
-    om_termname word;
+    string word;
     while ((spacepos = paragraph.find_first_not_of(" \t\n")) != string::npos) {
 	if (spacepos) paragraph = paragraph.erase(0, spacepos);
 	spacepos = paragraph.find_first_of(" \t\n");

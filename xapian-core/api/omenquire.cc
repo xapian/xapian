@@ -69,13 +69,13 @@ OmExpandDeciderFilterTerms::OmExpandDeciderFilterTerms(OmTermIterator terms,
 #endif
 
 int
-OmExpandDeciderFilterTerms::operator()(const om_termname &tname) const
+OmExpandDeciderFilterTerms::operator()(const string &tname) const
 {
     /* Solaris CC returns an iterator from tset.find() const, and then
      * doesn't like comparing it to the const_iterator from end().
      * Therefore make sure we get a const_iterator to do the comparision.
      */
-    std::set<om_termname>::const_iterator i = tset.find(tname);
+    std::set<string>::const_iterator i = tset.find(tname);
     return (i == tset.end());
 }
 
@@ -84,7 +84,7 @@ OmExpandDeciderAnd::OmExpandDeciderAnd(const OmExpandDecider *left_,
         : left(left_), right(right_) {}
 
 int
-OmExpandDeciderAnd::operator()(const om_termname &tname) const
+OmExpandDeciderAnd::operator()(const string &tname) const
 {
     return ((*left)(tname)) && ((*right)(tname));
 }
@@ -289,10 +289,10 @@ OmMSet::convert_to_percent(const OmMSetIterator & it) const
 }
 
 om_doccount
-OmMSet::get_termfreq(const om_termname &tname) const
+OmMSet::get_termfreq(const string &tname) const
 {
     DEBUGAPICALL(om_doccount, "OmMSet::get_termfreq", tname);
-    std::map<om_termname, Internal::Data::TermFreqAndWeight>::const_iterator i;
+    std::map<string, Internal::Data::TermFreqAndWeight>::const_iterator i;
     Assert(internal != 0);
     Assert(internal->data.get() != 0);
     i = internal->data->termfreqandwts.find(tname);
@@ -304,10 +304,10 @@ OmMSet::get_termfreq(const om_termname &tname) const
 }
 
 om_weight
-OmMSet::get_termweight(const om_termname &tname) const
+OmMSet::get_termweight(const string &tname) const
 {
     DEBUGAPICALL(om_weight, "OmMSet::get_termweight", tname);
-    std::map<om_termname, Internal::Data::TermFreqAndWeight>::const_iterator i;
+    std::map<string, Internal::Data::TermFreqAndWeight>::const_iterator i;
     Assert(internal != 0);
     Assert(internal->data.get() != 0);
     i = internal->data->termfreqandwts.find(tname);
@@ -720,7 +720,7 @@ OmESetIterator::operator++(int)
     }
 }
 
-const om_termname &
+const string &
 OmESetIterator::operator *() const
 {
     return internal->it->tname;
@@ -934,9 +934,8 @@ OmEnquire::Internal::Data::get_mset(om_doccount first, om_doccount maxitems,
     // retrieve the documents.  This is set here explicitly to avoid having
     // to pass it into the matcher, which gets messy particularly in the
     // networked case.
-    RefCntBase::RefCntPtrToThis tmp;
     retval.internal->data->enquire =
-	    RefCntPtr<const OmEnquire::Internal::Data>(tmp, this);
+	    RefCntPtr<const OmEnquire::Internal::Data>(this);
 
     return retval;
 }
@@ -1047,12 +1046,12 @@ OmEnquire::Internal::Data::read_doc(const OmMSetItem &item) const
 
 class ByQueryIndexCmp {
  private:
-    typedef std::map<om_termname, unsigned int> tmap_t;
+    typedef std::map<string, unsigned int> tmap_t;
     const tmap_t &tmap;
  public:
     ByQueryIndexCmp(const tmap_t &tmap_) : tmap(tmap_) {}
-    bool operator()(const om_termname &left,
-		    const om_termname &right) const {
+    bool operator()(const string &left,
+		    const string &right) const {
 	tmap_t::const_iterator l, r;
 	l = tmap.find(left);
 	r = tmap.find(right);
@@ -1076,20 +1075,20 @@ OmEnquire::Internal::Data::calc_matching_terms(om_docid did) const
     // copy the list of query terms into a map for faster access.
     // FIXME: a hash would be faster than a map, if this becomes
     // a problem.
-    std::map<om_termname, unsigned int> tmap;
+    std::map<string, unsigned int> tmap;
     unsigned int index = 1;
     for ( ; qt != qt_end; qt++) {
 	if (tmap.find(*qt) == tmap.end())
 	    tmap[*qt] = index++;
     }
 
-    std::vector<om_termname> matching_terms;
+    std::vector<string> matching_terms;
 
     OmTermIterator docterms = db.termlist_begin(did);
     OmTermIterator docterms_end = db.termlist_end(did);
     while (docterms != docterms_end) {
-	om_termname term = *docterms;
-        std::map<om_termname, unsigned int>::iterator t = tmap.find(term);
+	string term = *docterms;
+        std::map<string, unsigned int>::iterator t = tmap.find(term);
         if (t != tmap.end()) matching_terms.push_back(term);
 	docterms++;
     }

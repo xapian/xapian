@@ -25,10 +25,13 @@
 #ifndef OM_HGUARD_QUARTZ_VALUES_H
 #define OM_HGUARD_QUARTZ_VALUES_H
 
+#include <string>
+
 #include "quartz_table.h"
 #include "om/omtypes.h"
 #include "om/omdocument.h"
-using std::map;
+
+using namespace std;
 
 class QuartzValueManager {
     private:

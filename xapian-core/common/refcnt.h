@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,8 +28,7 @@
 #include "omdebug.h"
 
 /** Reference counted objects should inherit from
- *  RefCntBase.  This gives the object a reference count
- *  and a lock used by RefCntPtr.
+ *  RefCntBase.  This gives the object a reference count used by RefCntPtr.
  */
 class RefCntBase {
     private:
@@ -49,27 +48,8 @@ class RefCntBase {
 	RefCntBase(const RefCntBase &) : ref_count(0) { }
 
     public:
-	/** Dummy class, used simply to make the private constructor
-	 *  different.
-	 */
-	class RefCntPtrToThis {};
-
-	/** Return the current ref count.
-	 *
-	 *  This is only rarely useful.  One use is for copy-on-write.
-	 */
-	ref_count_t ref_count_get() const
-	{
-	    return ref_count;
-	}
-
 	/// The constructor, which initialises the ref_count to 0.
 	RefCntBase() : ref_count(0) { }
-
-	/** Increase reference count from 0 to 1, used when first making an
-	 *  RefCntPtr out of a pointer.
-	 */
-	void ref_start() const;
 
 	/// Increase the reference count, used when copying an RefCntPtr.
 	void ref_increment() const;
@@ -91,21 +71,19 @@ class RefCntPtr {
 	T *dest;
 
     public:
+	T *operator->() const;
+	T &operator*() const;
+	T *get() const;
 	/** Make an RefCntPtr for an object which may already
-	 *  have reference counted pointers.  This should only
-	 *  be called by the object itself, to pass references
-	 *  to objects which it creates and which depend on it.
-	 *  Everything else should already have a refcntptr.
+	 *  have reference counted pointers.  You usually pass in
+	 *  a newly created object, or an object may pass in "this"
+	 *   to get a RefCntPtr to itself to pass to other classes.
 	 *
 	 *  (eg, a database might pass a newly created postlist
 	 *  a reference counted pointer to itself.)
 	 */
-	RefCntPtr(RefCntBase::RefCntPtrToThis, T *dest_);
-
-	T *operator->() const;
-	T &operator*() const;
-	T *get() const;
-	RefCntPtr(T *dest_ = 0);
+	RefCntPtr(T *dest_);
+	RefCntPtr();
 	RefCntPtr(const RefCntPtr &other);
 	void operator=(const RefCntPtr &other);
 	~RefCntPtr();
@@ -114,49 +92,33 @@ class RefCntPtr {
 	RefCntPtr(const RefCntPtr<U> &other);
 };
 
-inline void RefCntBase::ref_start() const
-{
-    Assert(ref_count == 0);
-    ref_count += 1;
-}
-
 inline void RefCntBase::ref_increment() const
 {
-    ref_count += 1;
+    ++ref_count;
 }
 
 inline bool RefCntBase::ref_decrement() const
 {
-    ref_count -= 1;
+    Assert(ref_count != 0);
+    --ref_count;
     return (ref_count == 0);
-}
-
-
-
-template <class T>
-inline RefCntPtr<T>::RefCntPtr(RefCntBase::RefCntPtrToThis, T *dest_)
-	: dest(dest_)
-{
-    Assert(dest != 0);
-    Assert(dest->ref_count_get() != 0);
-    dest->ref_increment();
 }
 
 template <class T>
 inline RefCntPtr<T>::RefCntPtr(T *dest_) : dest(dest_)
 {
-    if (dest) {
-	dest->ref_start();
-    }
+    if (dest) dest->ref_increment();
+}
+
+template <class T>
+inline RefCntPtr<T>::RefCntPtr() : dest(0)
+{
 }
 
 template <class T>
 inline RefCntPtr<T>::RefCntPtr(const RefCntPtr &other) : dest(other.dest)
 {
-    if (dest) {
-	Assert(dest->ref_count_get() != 0);
-	dest->ref_increment();
-    }
+    if (dest) dest->ref_increment();
 }
 
 template <class T>
@@ -169,14 +131,8 @@ inline void RefCntPtr<T>::operator=(const RefCntPtr &other) {
     // FIXME: if pointer assignment isn't atomic, we ought to use locking...
     T *old_dest = dest;
     dest = other.dest;
-    if (old_dest && old_dest->ref_decrement()) {
-	delete old_dest;
-    }
-
-    if (dest) {
-	Assert(dest->ref_count_get() != 0);
-	dest->ref_increment();
-    }
+    if (dest) dest->ref_increment();
+    if (old_dest && old_dest->ref_decrement()) delete old_dest;
 }
 
 template <class T>
@@ -198,10 +154,7 @@ inline
 RefCntPtr<T>::RefCntPtr(const RefCntPtr<U> &other)
 	: dest(other.get())
 {
-    if (dest) {
-	Assert(dest->ref_count_get() != 0);
-	dest->ref_increment();
-    }
+    if (dest) dest->ref_increment();
 }
 
 template <class T>

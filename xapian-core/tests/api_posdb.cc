@@ -506,7 +506,7 @@ static bool test_poslist1()
     OmDatabase mydb(get_database("apitest_poslist"));
 
     OmStem stemmer("english");
-    om_termname term = stemmer.stem_word("sponge");
+    string term = stemmer.stem_word("sponge");
     
     OmPositionListIterator pli = mydb.positionlist_begin(2, term);
 

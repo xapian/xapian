@@ -46,7 +46,7 @@ class EmptyAllTermsList : public AllTermsList
 	}
 	
 	// Gets current termname
-	om_termname get_termname() const
+	string get_termname() const
 	{
 	    Assert(false);
 	    return "";
@@ -66,7 +66,7 @@ class EmptyAllTermsList : public AllTermsList
 	    return 0;
 	}
 
-	TermList * skip_to(const om_termname &/*tname*/)
+	TermList * skip_to(const string &/*tname*/)
 	{
 	    Assert(false);
 	    return NULL;

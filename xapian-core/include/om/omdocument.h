@@ -26,6 +26,7 @@
 #ifndef OM_HGUARD_OMDOCUMENT_H
 #define OM_HGUARD_OMDOCUMENT_H
 
+#include <string>
 #include "om/omtypes.h"
 #include "om/omtermlistiterator.h"
 #include "om/omvalueiterator.h"
@@ -97,7 +98,7 @@ class OmDocument {
 	 *  @param wdfinc    The increment that will be applied to the wdf
 	 *                   for this term.
 	 */
-	void add_posting(const om_termname & tname,
+	void add_posting(const std::string & tname,
 			 om_termpos tpos,
 			 om_termcount wdfinc = 1);
 
@@ -111,7 +112,7 @@ class OmDocument {
 	 *  @param wdfinc    The increment that will be applied to the wdf
 	 *                   for this term.
 	 */
-	void add_term_nopos(const om_termname & tname,
+	void add_term_nopos(const std::string & tname,
 			    om_termcount wdfinc = 1);
 
 	/** Remove a posting of a term from the document.
@@ -133,7 +134,7 @@ class OmDocument {
 	 *  @exception OmInvalidArgumentError will be thrown if the term is
 	 *  not in the document
 	 */
-	void remove_posting(const om_termname & tname,
+	void remove_posting(const std::string & tname,
 			    om_termpos tpos,
 			    om_termcount wdfdec = 1);
 
@@ -144,7 +145,7 @@ class OmDocument {
 	 *  @exception OmInvalidArgumentError will be thrown if the term is
 	 *  not in the document
 	 */
-	void remove_term(const om_termname & tname);
+	void remove_term(const std::string & tname);
 
 	/// Remove all terms (and postings) from the document.
 	void clear_terms();

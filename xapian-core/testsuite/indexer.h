@@ -76,8 +76,8 @@ class Indexer {
     protected:
 	IndexerDestination * dest;
     public:
-	Indexer() : dest(NULL) { return; }
-	virtual ~Indexer() { return; }
+	Indexer() : dest(NULL) {}
+	virtual ~Indexer() {}
 
 	// Set the destination
 	void set_destination(IndexerDestination *newdest) {dest = newdest;}
