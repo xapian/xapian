@@ -11,6 +11,11 @@ dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
 
+dnl Checks for gtk / glib
+AM_PATH_GTK(1.2.0, , AC_MSG_ERROR([** GTK 1.2.0 not installed or broken **]))
+AM_PATH_GLIB(1.2.0, , AC_MSG_ERROR([** GLIB 1.2.0 not installed or broken **]))
+AM_PATH_LIBGLADE(, AC_MSG_ERROR([** LIBGLADE not installed or broken **]))
+
 dnl Checks for libraries.
 dnl empty action if found - libtool will take care of things
 AC_CHECK_LIB(db, db_open, :)
@@ -56,4 +61,6 @@ AC_OUTPUT(
  backends/multi/Makefile
  backends/textfile/Makefile
  include/Makefile
+ gui/Makefile
+ gui/glade/Makefile
  ferretfx/Makefile)

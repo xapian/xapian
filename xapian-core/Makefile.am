@@ -3,7 +3,7 @@
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 SUBDIRS = include backends matcher stemmer indexer . \
-          tests ferretfx #gui
+          tests ferretfx gui
 
 lib_LTLIBRARIES = libom.la
 

@@ -8,7 +8,7 @@
   <source_directory>src</source_directory>
   <pixmaps_directory>pixmaps</pixmaps_directory>
   <language>C</language>
-  <gnome_support>True</gnome_support>
+  <gnome_support>False</gnome_support>
   <gettext_support>True</gettext_support>
   <use_widget_names>True</use_widget_names>
   <output_main_file>True</output_main_file>
