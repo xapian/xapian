@@ -71,6 +71,12 @@ class OmMSetIterator {
 	/// Get the weight of the document at the current position
         om_weight get_weight() const;
 
+	/** This returns the weight of the document as a percentage score
+	 *  The return value will be in the range 0 to 100:  0 meaning
+	 *  that the item did not match the query at all.
+	 */
+	om_percent get_percent() const;
+
 	/** Returns a string describing this object.
 	 *  Introspection method.
 	 */
@@ -124,10 +130,10 @@ class OmMSet {
 	 *  The return value will be in the range 0 to 100, and will be 0 if
 	 *  and only if the item did not match the query at all.
 	 */
-	int convert_to_percent(om_weight wt) const;
+	om_percent convert_to_percent(om_weight wt) const;
 
 	/// Return the percentage score for a particular item.
-	int convert_to_percent(const OmMSetIterator &it) const;
+	om_percent convert_to_percent(const OmMSetIterator &it) const;
 
 	/** Return the term frequency of the given query term.
 	 *

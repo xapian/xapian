@@ -70,6 +70,9 @@ typedef int	     om_keyno_diff;
 /** A calculated weight, for a term or document. */
 typedef double       om_weight;
 
+/** A percentage weight, for a term or document. */
+typedef int       om_percent;
+
 /** Type for specifying a timeout.  This refers to a time in microseconds:
  *  ie. a timeout value of 1000000 corresponds to a timeout of 1 second.
  */

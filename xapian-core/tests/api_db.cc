@@ -1013,6 +1013,37 @@ static bool test_getmterms1()
     return true;
 }
 
+// tests that get_matching_terms() returns the terms only once
+static bool test_getmterms2()
+{
+    om_termname_list answers_list;
+    answers_list.push_back("one");
+    answers_list.push_back("two");
+    answers_list.push_back("three");
+
+    OmDatabase mydb(get_database("apitest_termorder"));
+    OmEnquire enquire(make_dbgrp(&mydb));
+
+    OmQuery myquery(OmQuery::OP_OR,
+	    OmQuery(OmQuery::OP_AND,
+		    OmQuery("one", 1, 1),
+		    OmQuery("three", 1, 3)),
+	    OmQuery(OmQuery::OP_OR,
+		    OmQuery("one", 1, 4),
+		    OmQuery("two", 1, 2)));
+
+    enquire.set_query(myquery);
+
+    OmMSet mymset = enquire.get_mset(0, 10);
+
+    TEST_MSET_SIZE(mymset, 1);
+    om_termname_list list(enquire.get_matching_terms_begin(mymset.begin()),
+			  enquire.get_matching_terms_end(mymset.begin()));
+    TEST_EQUAL(list, answers_list);
+
+    return true;
+}
+
 // tests that specifying a nonexistent input file throws an exception.
 static bool test_absentfile1()
 {
@@ -2090,6 +2121,7 @@ test_desc db_tests[] = {
     {"reversebool1",	   test_reversebool1},
     {"reversebool2",	   test_reversebool2},
     {"getmterms1",	   test_getmterms1},
+    {"getmterms2",	   test_getmterms2},
     {"absentfile1",	   test_absentfile1},
     {"poscollapse1",	   test_poscollapse1},
     {"poscollapse2",	   test_poscollapse2},

@@ -1,3 +1,11 @@
+Wed Jan  3 19:30:30 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add get_percent method to OmMSetIterator.  Untested.
+
+	* Add om_percent type to om_types.
+
+	* Add test of sort order of terms in get_matching_terms.
+
 Tue Jan  2 15:05:53 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Move documentation of parameters for OmSettings out of omsettings.h

@@ -119,14 +119,17 @@ class OmMSetIterator::Internal {
 
 	std::vector<OmMSetItem>::const_iterator it;
 	std::vector<OmMSetItem>::const_iterator end;
-    
+
+	double percent_factor;
     public:
         Internal(std::vector<OmMSetItem>::const_iterator it_,
-		 std::vector<OmMSetItem>::const_iterator end_)
-	    : it(it_), end(end_)
+		 std::vector<OmMSetItem>::const_iterator end_,
+		 double percent_factor_)
+	    : it(it_), end(end_), percent_factor(percent_factor_)
 	{ }
 
-        Internal(const Internal &other) : it(other.it), end(other.end)
+        Internal(const Internal &other)
+	    : it(other.it), end(other.end), percent_factor(other.percent_factor)
 	{ }
 };
 
@@ -197,7 +200,11 @@ class OmMSet::Internal {
     friend class RemoteSubMatch;
     friend std::string ommset_to_string(const OmMSet &ommset);
     private:
-	int convert_to_percent_internal(om_weight wt) const;
+	/// Factor to multiply weights by to convert them to percentages.
+	mutable double percent_factor;
+
+	/// True if percent factor has been calculated.
+	mutable bool have_percent_factor;
 
 	/** A structure containing the term frequency and weight for a
 	 *  given query term.
@@ -252,6 +259,12 @@ class OmMSet::Internal {
 		  matches_upper_bound(matches_upper_bound_),
 		  max_possible(max_possible_),
 		  max_attained(max_attained_) {}
+
+	/// (Lazily) calcualates factor for converting weights to percentages.
+	void calc_percent_factor() const;
+		  
+	/// Converts a weight to a percentage weight
+	int convert_to_percent_internal(om_weight wt) const;
 
 	/** Returns a string representing the mset.
 	 *  Introspection method.

@@ -218,17 +218,17 @@ OmMSet::operator=(const OmMSet &other)
     *internal = *other.internal;
 }
 
-int
+om_percent
 OmMSet::convert_to_percent(om_weight wt) const
 {
-    DEBUGAPICALL(int, "OmMSet::convert_to_percent", wt);
+    DEBUGAPICALL(om_percent, "OmMSet::convert_to_percent", wt);
     RETURN(internal->convert_to_percent_internal(wt));
 }
 
-int
+om_percent
 OmMSet::convert_to_percent(const OmMSetIterator & it) const
 {
-    DEBUGAPICALL(int, "OmMSet::convert_to_percent", it);
+    DEBUGAPICALL(om_percent, "OmMSet::convert_to_percent", it);
     RETURN(internal->convert_to_percent_internal(it.get_weight()));
 }
 
@@ -317,15 +317,17 @@ OmMSet::swap(OmMSet & other)
 {
     std::swap(internal, other.internal);
 }
-    
+
 OmMSetIterator
 OmMSet::begin() const
 {
     if (internal->items.begin() == internal->items.end()) {
 	return OmMSetIterator(NULL);
     } else {
+	internal->calc_percent_factor();
 	return OmMSetIterator(new OmMSetIterator::Internal(internal->items.begin(),
-							   internal->items.end()));
+							   internal->items.end(),
+							   internal->percent_factor));
     }
 }
 
@@ -339,16 +341,20 @@ OmMSetIterator
 OmMSet::operator[](om_doccount i) const
 {
     Assert(0 <= i && i < size());
+    internal->calc_percent_factor();
     return OmMSetIterator(new OmMSetIterator::Internal(internal->items.begin() + i,
-						       internal->items.end()));
+						       internal->items.end(),
+						       internal->percent_factor));
 }
 
 OmMSetIterator
 OmMSet::back() const
 {
     Assert(!empty());
+    internal->calc_percent_factor();
     return OmMSetIterator(new OmMSetIterator::Internal(internal->items.begin() + internal->items.size() - 1,
-						       internal->items.end()));
+						       internal->items.end(),
+						       internal->percent_factor));
 }
 
 std::string
@@ -358,13 +364,24 @@ OmMSet::get_description() const
     RETURN("OmMSet(" + internal->get_description() + ")");
 }
 
-int
+void
+OmMSet::Internal::calc_percent_factor() const {
+    if (!have_percent_factor) {
+	if (max_possible == 0) percent_factor = 0;
+	else percent_factor = 100 / max_possible;
+	have_percent_factor = true;
+    }
+}
+
+om_percent
 OmMSet::Internal::convert_to_percent_internal(om_weight wt) const
 {
-    DEBUGAPICALL(int, "OmMSet::Internal::convert_to_percent", wt);
-    if (max_possible == 0) RETURN(100);
+    DEBUGAPICALL(om_percent, "OmMSet::Internal::convert_to_percent", wt);
+    calc_percent_factor();
 
-    int pcent = (int) ceil(wt * 100 / max_possible);
+    if (percent_factor == 0) RETURN(100);
+
+    om_percent pcent = static_cast<om_percent>(wt * percent_factor);
     DEBUGLINE(API, "wt = " << wt << ", max_possible = "
 	      << max_possible << " =>  pcent = " << pcent);
     if (pcent > 100) pcent = 100;
@@ -597,10 +614,12 @@ OmMSetIterator::operator=(const OmMSetIterator &other)
 	internal = 0;
     } else if (internal == 0) {
 	internal = new OmMSetIterator::Internal(other.internal->it,
-						other.internal->end);
+						other.internal->end,
+						other.internal->percent_factor);
     } else {
 	OmMSetIterator::Internal temp(other.internal->it,
-				      other.internal->end);
+				      other.internal->end,
+				      other.internal->percent_factor);
 	std::swap(*internal, temp);
     }
 }
@@ -636,6 +655,22 @@ om_weight
 OmMSetIterator::get_weight() const
 {
     return internal->it->wt;
+}
+
+om_percent
+OmMSetIterator::get_percent() const
+{
+    DEBUGAPICALL(om_percent, "OmMSetIterator::get_percent", "");
+    if (internal->percent_factor == 0) RETURN(100);
+
+    om_percent pcent =
+	static_cast<om_percent>(internal->it->wt * internal->percent_factor);
+    DEBUGLINE(API, "wt = " << internal->it->wt << " =>  pcent = " << pcent);
+    if (pcent > 100) pcent = 100;
+    if (pcent < 0) pcent = 0;
+    if (pcent == 0 && internal->it->wt > 0) pcent = 1;
+
+    RETURN(pcent);
 }
 
 std::string
@@ -903,7 +938,8 @@ OmEnquire::Internal::calc_matching_terms(om_docid did) const
     std::map<om_termname, unsigned int> tmap;
     unsigned int index = 1;
     for ( ; qt != qt_end; qt++) {
-	tmap[*qt] = index++;
+	if (tmap.find(*qt) == tmap.end())
+	    tmap[*qt] = index++;
     }
 
     std::vector<om_termname> matching_terms;
