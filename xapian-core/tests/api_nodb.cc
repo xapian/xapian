@@ -61,17 +61,17 @@ static bool test_getqterms1()
 		    Xapian::Query("four", 1, 4),
 		    Xapian::Query("two", 1, 2)));
 
-#ifdef __SUNPRO_CC
     om_termname_list list;
     {
         Xapian::TermIterator t;
         for (t = myquery.get_terms_begin(); t != myquery.get_terms_end(); ++t) 
             list.push_back(*t);
     }
-#else
-    om_termname_list list(myquery.get_terms_begin(), myquery.get_terms_end());
-#endif
     TEST(list == answers_list);
+#ifndef __SUNPRO_CC
+    om_termname_list list2(myquery.get_terms_begin(), myquery.get_terms_end());
+    TEST(list2 == answers_list);
+#endif
     return true;
 }
 

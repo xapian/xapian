@@ -57,7 +57,7 @@ class TermIterator {
 	TermIterator(Internal *internal_);
 
 	/// Default constructor - for declaring an uninitialised iterator
-	// TermIterator();
+	TermIterator() : internal(0) {}
 
 	/// Destructor
         ~TermIterator();
