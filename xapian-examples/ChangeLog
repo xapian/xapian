@@ -1,3 +1,7 @@
+Thu Aug 17 09:55:07 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix querygui to use OmSettings.
+
 Thu Aug 10 12:00:35 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.2.1

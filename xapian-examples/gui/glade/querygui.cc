@@ -292,8 +292,7 @@ int main(int argc, char *argv[]) {
     string gladefile = "querygui.glade";
     enquire = NULL;
     max_msize = 10;
-    vector<string> dbtypes;
-    vector<vector<string> > dbargs;
+    vector<string> dbargs;
 
     gtk_init(&argc, &argv);
     glade_init();
@@ -308,18 +307,8 @@ int main(int argc, char *argv[]) {
 	    max_msize = atoi(argv[1]);
 	    argc -= 2;
 	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--da") == 0) {
-	    dbtypes.push_back("da_flimsy");
-	    vector<string> args;
-	    args.push_back(argv[1]);
-	    dbargs.push_back(args);
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--im") == 0) {
-	    dbtypes.push_back("inmemory");
-	    vector<string> args;
-	    args.push_back(argv[1]);
-	    dbargs.push_back(args);
+	} else if (argc >= 2 && strcmp(argv[0], "--dbdir") == 0) {
+	    dbargs.push_back(argv[1]);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--glade") == 0) {
@@ -332,11 +321,17 @@ int main(int argc, char *argv[]) {
 	}
     }
 
-    if (!dbtypes.size() || syntax_error || argc >= 1) {
-	cout << "Syntax: " << progname << " [options]" << endl;
+    while(argc >= 1) {
+	dbargs.push_back(argv[1]);
+	argc -= 1;
+	argv += 1;
+    }
+
+    if (!dbargs.size() || syntax_error) {
+	cout << "Syntax: " << progname << " [options] <database directories>"
+	     << endl;
 	cout << "\t--max-msize <maximum msize>\n";
-	cout << "\t--da <DA directory>\n";
-	cout << "\t--im <textfile>\n";
+	cout << "\t--dbdir <database directory>\n";
 	cout << "\t--glade <glade interface definition file>\n";
 	exit(1);
     }
@@ -345,12 +340,14 @@ int main(int argc, char *argv[]) {
     try {
 	OmDatabaseGroup mydbs;
 
-	vector<string>::const_iterator p;
-	vector<vector<string> >::const_iterator q;
-	for(p = dbtypes.begin(), q = dbargs.begin();
-	    p != dbtypes.end();
-	    p++, q++) {
-	    mydbs.add_database(*p, *q);
+	vector<string>::const_iterator q;
+	for(q = dbargs.begin();
+	    q != dbargs.end();
+	    q++) {
+	    OmSettings settings;
+	    settings.set_value("backend", "auto");
+	    settings.set_value("auto_dir", q);
+	    mydbs.add_database(settings);
 	}
 
 	GladeXML *xml;
