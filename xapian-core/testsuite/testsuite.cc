@@ -40,6 +40,11 @@
 #include <dlfcn.h>
 #include "allocdata.h"
 
+/* In some systems <dlfcn.h> doesn't define RTLD_DEFAULT */
+#ifndef RTLD_DEFAULT
+#define RTLD_DEFAULT (void *)0;
+#endif
+
 #include <stdlib.h>
 
 #ifdef HAVE_GETOPT_H

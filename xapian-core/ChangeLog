@@ -1,3 +1,7 @@
+Tue Nov 21 11:46:24 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* testsuite.cc should work when RTLD_DEFAULT is not defined.
+
 Mon Nov 20 19:00:26 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added new class Btree_base encapsulating the structure of the
