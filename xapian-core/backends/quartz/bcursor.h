@@ -57,8 +57,8 @@ class Bcursor {
 	Btree * B;
 	Cursor * C;
 
-	/** The value of shared_level in the Btree structure. */
-	int shared_level;
+	/** The value of level in the Btree structure. */
+	int level;
 };
 
 #endif /* OM_HGUARD_BCURSOR_H */

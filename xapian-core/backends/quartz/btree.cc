@@ -1584,7 +1584,6 @@ Btree::Btree()
 	  changed_n(0),
 	  changed_c(0),
 	  max_item_size(0),
-	  shared_level(0),
 	  Btree_modified(false),
 	  full_compaction(false),
 	  writable(false)
@@ -1745,17 +1744,6 @@ Btree::do_open_to_read(const string & name_,
 
     handle = sys_open_to_read(name + "DB");
 
-    {
- 	// Having more than one level not-shared seems to cause problems
-	// Get Martin to investigate...
-#if 0
-	int common_levels = revision_number <= 1 ? 1 : 2;
-	shared_level = level > common_levels ? common_levels : level;
-#else
-	shared_level = level;
-#endif
-    }
-
     if (sequential) {
 	prev_ptr = &Btree::prev_for_sequential;
 	next_ptr = &Btree::next_for_sequential;
@@ -1764,13 +1752,12 @@ Btree::do_open_to_read(const string & name_,
 	next_ptr = &Btree::next_default;;
     }
 
-    for (int j = shared_level; j <= level; j++) {
-	C[j].n = -1;
-	C[j].p = new byte[block_size];
-	if (C[j].p == 0) {
-	    throw std::bad_alloc();
-	}
+    C[level].n = -1;
+    C[level].p = new byte[block_size];
+    if (C[level].p == 0) {
+	throw std::bad_alloc();
     }
+
     read_root();
 }
 
@@ -1784,17 +1771,6 @@ void
 Btree::open_to_read(const string & name_, uint4 n)
 {
     do_open_to_read(name_, true, n);
-}
-
-void
-Btree::force_block_to_cursor(Cursor * C_, int j)
-{
-    int n = C_[j].n;
-    if (n != C[j].n) {
-	C_[j].n = -1;
-	block_to_cursor(C_, j, n);
-	if (overwritten) return;
-    }
 }
 
 bool
@@ -1858,13 +1834,7 @@ Btree::prev_default(Cursor * C_, int j)
     Assert(c < 65536);
     if (c == DIR_START) {
 	if (j == level) return false;
-
-	if (j + 1 >= shared_level) {
-	    force_block_to_cursor(C_, j + 1);
-	    if (overwritten) return false;
-	}
-	if (! prev_default(C_, j + 1)) return false;
-
+	if (!prev_default(C_, j + 1)) return false;
 	c = DIR_END(p);
     }
     c -= D2;
@@ -1886,13 +1856,7 @@ Btree::next_default(Cursor * C_, int j)
     Assert(c < 65536);
     if (c == DIR_END(p)) {
 	if (j == level) return false;
-
-	if (j + 1 >= shared_level) {
-	    force_block_to_cursor(C_, j + 1);
-	    if (overwritten) return false;
-	}
-	if (! next_default(C_, j + 1)) return false;
-
+	if (!next_default(C_, j + 1)) return false;
 	c = DIR_START;
     }
     C_[j].c = c;

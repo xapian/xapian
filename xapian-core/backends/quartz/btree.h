@@ -158,7 +158,6 @@ class Btree {
 	int add_kt(int found);
 	int write_base();
 	void read_root();
-	void force_block_to_cursor(Cursor *C_, int j);
 //	void block_check(Cursor *C_, int j, int opts);
 	void split_root(Cursor *C_, int j);
 	void make_index_item(byte * result, unsigned int result_len,
@@ -219,10 +218,6 @@ class Btree {
 
 	/// maximum size of an item (key-tag pair)
 	int max_item_size;
-
-	/// in B-tree read mode, cursors share blocks in BC->C for
-	//  levels at or above B->shared_level
-	int shared_level;
 
 	/// set to true the first time the B-tree is written to
 	bool Btree_modified;

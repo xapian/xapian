@@ -30,30 +30,27 @@
 Bcursor::Bcursor(Btree *B_)
 	: positioned(false),
 	  B(B_),
-	  shared_level(B_->shared_level)
+	  level(B_->level)
 {
     AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
-    C = new Cursor[B->level + 1];
+    C = new Cursor[level + 1];
     Cursor * C_of_B = B->C;
 
-    int j;
-    for (j = 0; j < B->shared_level; j++) {
+    for (int j = 0; j < level; j++) {
         C[j].n = -1;
 	C[j].p = new byte[B->block_size];
     }
-    for (j = B->shared_level; j <= B->level; j++) {
-        C[j].n = C_of_B[j].n;
-	C[j].p = C_of_B[j].p;
-    }
+    C[level].n = C_of_B[level].n;
+    C[level].p = C_of_B[level].p;
 }
 
 Bcursor::~Bcursor()
 {
-    // Use the value of shared_level stored in the cursor rather than the
+    // Use the value of level stored in the cursor rather than the
     // Btree, since the Btree might have been deleted already.
-    for (int j = 0; j < shared_level; j++) {
+    for (int j = 0; j < level; j++) {
 	delete [] C[j].p;
     }
     delete [] C;

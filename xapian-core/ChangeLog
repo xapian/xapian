@@ -1,3 +1,9 @@
+Wed Jul 02 21:51:43 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/: Workaround for shared_level problem turns out to
+	  be arguably the better approach, so made it permanent and tidied up
+	  code.
+
 Mon Jun 23 21:39:50 BST 2003  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated in preparation for 0.7.0 release.
