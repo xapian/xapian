@@ -35,12 +35,12 @@ commonconfflags := \
 	--prefix=/usr \
 	--mandir=\$${prefix}/share/man \
 	--infodir=\$${prefix}/share/info \
-	--sysconfdir=/etc \
+	--sysconfdir=/etc
 
 maint: \
 	debian/control \
 	debian/libxapian$(libxapian_soversion).install \
-	debian/libxapian$(libxapian_dev_soversion)-dev.install \
+	debian/libxapian$(libxapian_dev_soversion)-dev.install
 
 maintclean: clean
 	rm -f debian/control
@@ -75,7 +75,7 @@ autotools:
 configure: debian/control configure-stamp
 configure-stamp: autotools
 	dh_testdir
-	mkdir build-nodebug
+	mkdir -p build-nodebug
 	cd build-nodebug; ../configure $(commonconfflags)
 	touch configure-stamp
 
@@ -88,7 +88,7 @@ build-stamp:
 install: DH_OPTIONS=
 install: build \
 	 debian/libxapian$(libxapian_soversion).install \
-	 debian/libxapian$(libxapian_dev_soversion)-dev.install \
+	 debian/libxapian$(libxapian_dev_soversion)-dev.install
 	dh_testdir
 	dh_testroot
 	dh_clean -k
