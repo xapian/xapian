@@ -1278,8 +1278,8 @@ static bool test_adddoc2()
 		    TEST_EQUAL(*i, "rising");
 		    TEST_EQUAL(1, j.get_termfreq());
 		}
-		Xapian::PositionListIterator k(i.positionlist_begin());
-		Xapian::PositionListIterator l(j.positionlist_begin());
+		Xapian::PositionIterator k(i.positionlist_begin());
+		Xapian::PositionIterator l(j.positionlist_begin());
 		for (; k != i.positionlist_end(); k++, l++) {
 		    TEST_NOT_EQUAL(l, j.positionlist_end());
 		    TEST_EQUAL(*k, *l);
@@ -1878,7 +1878,7 @@ static bool test_overwrite2()
     }
     writer.flush();
 
-    Xapian::PostListIterator ki = reader.postlist_begin("falling");
+    Xapian::PostingIterator ki = reader.postlist_begin("falling");
     *ki;
 
     return true;

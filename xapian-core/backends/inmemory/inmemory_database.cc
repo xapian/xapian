@@ -288,8 +288,8 @@ InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &docu
 
 	DEBUGLINE(DB, "InMemoryDatabase::do_add_document(): adding term "
 		  << *i);
-	Xapian::PositionListIterator j = i.positionlist_begin();
-	Xapian::PositionListIterator j_end = i.positionlist_end();
+	Xapian::PositionIterator j = i.positionlist_begin();
+	Xapian::PositionIterator j_end = i.positionlist_end();
 
 	if (j == j_end) {
 	    /* Make sure the posting exists, even without a position. */

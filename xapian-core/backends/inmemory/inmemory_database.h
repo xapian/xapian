@@ -185,7 +185,7 @@ class InMemoryTermList : public LeafTermList {
 	Xapian::doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
 	bool   at_end() const;
-	Xapian::PositionListIterator positionlist_begin() const;
+	Xapian::PositionIterator positionlist_begin() const;
 };
 
 /** A database held entirely in memory.
@@ -446,10 +446,10 @@ InMemoryTermList::at_end() const
     return (pos == end);
 }
 
-inline Xapian::PositionListIterator
+inline Xapian::PositionIterator
 InMemoryTermList::positionlist_begin() const
 {
-    return Xapian::PositionListIterator(db->open_position_list(did, (*pos).tname));
+    return Xapian::PositionIterator(db->open_position_list(did, (*pos).tname));
 }
 
 //////////////////////////////////////////////

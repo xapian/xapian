@@ -431,8 +431,8 @@ Xapian::Document::Internal::need_terms() const
 	Xapian::TermIterator t(database->open_term_list(did));
 	Xapian::TermIterator tend(NULL);
 	for ( ; t != tend; ++t) {
-	    Xapian::PositionListIterator p = t.positionlist_begin();
-	    Xapian::PositionListIterator pend = t.positionlist_end();
+	    Xapian::PositionIterator p = t.positionlist_begin();
+	    Xapian::PositionIterator pend = t.positionlist_end();
 	    OmDocumentTerm term(*t);
 	    for ( ; p != pend; ++p) {
 		term.add_position(*p);

@@ -55,9 +55,9 @@ typedef std::string om_termname;
 #define OmExpandDecider Xapian::ExpandDecider
 #define OmExpandDeciderAnd Xapian::ExpandDeciderAnd
 #define OmExpandDeciderFilterTerms Xapian::ExpandDeciderFilterTerms
-#define OmPositionListIterator Xapian::PositionListIterator
+#define OmPositionListIterator Xapian::PositionIterator
 #define OmTermIterator Xapian::TermIterator
-#define OmPostListIterator Xapian::PostListIterator
+#define OmPostListIterator Xapian::PostingIterator
 #define OmQuery Xapian::Query
 #define OmEnquire Xapian::Enquire
 #define OmMSet Xapian::MSet

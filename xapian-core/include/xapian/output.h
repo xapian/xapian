@@ -56,11 +56,11 @@ XAPIAN_OUTPUT_FUNCTION(Xapian::Enquire)
 #include <xapian/stem.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::Stem)
 
-#include <xapian/postlistiterator.h>
-XAPIAN_OUTPUT_FUNCTION(Xapian::PostListIterator)
+#include <xapian/postingiterator.h>
+XAPIAN_OUTPUT_FUNCTION(Xapian::PostingIterator)
 
-#include <xapian/positionlistiterator.h>
-XAPIAN_OUTPUT_FUNCTION(Xapian::PositionListIterator)
+#include <xapian/positioniterator.h>
+XAPIAN_OUTPUT_FUNCTION(Xapian::PositionIterator)
 
 #include <xapian/termiterator.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::TermIterator)

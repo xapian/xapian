@@ -279,9 +279,9 @@ QuartzTermList::get_weighting() const
     return wt->get_bits(current_wdf, doclen, get_termfreq(), doccount);
 }
 
-Xapian::PositionListIterator
+Xapian::PositionIterator
 QuartzTermList::positionlist_begin() const
 {
-    DEBUGCALL(DB, Xapian::PositionListIterator, "QuartzTermList::positionlist_begin", "");
-    return Xapian::PositionListIterator(this_db->open_position_list(did, current_tname));
+    DEBUGCALL(DB, Xapian::PositionIterator, "QuartzTermList::positionlist_begin", "");
+    return Xapian::PositionIterator(this_db->open_position_list(did, current_tname));
 }

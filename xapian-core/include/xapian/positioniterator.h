@@ -1,4 +1,4 @@
-/** \file positionlistiterator.h
+/** \file positioniterator.h
  * \brief Classes for iterating through position lists
  */
 /* ----START-LICENCE----
@@ -23,8 +23,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef XAPIAN_INCLUDED_POSITIONLISTITERATOR_H
-#define XAPIAN_INCLUDED_POSITIONLISTITERATOR_H
+#ifndef XAPIAN_INCLUDED_POSITIONITERATOR_H
+#define XAPIAN_INCLUDED_POSITIONITERATOR_H
 
 #include <iterator>
 #include <string>
@@ -35,13 +35,13 @@
 namespace Xapian {
 
 class Database;
-class PostListIterator;
+class PostingIterator;
 class TermIterator;
 
-class PositionListIterator {
+class PositionIterator {
     private:
 	// friend classes which need to be able to construct us
-	friend class PostListIterator;
+	friend class PostingIterator;
 	friend class TermIterator;
 	friend class Database;
 
@@ -50,30 +50,30 @@ class PositionListIterator {
 	/// @internal Reference counted internals.
 	Xapian::Internal::RefCntPtr<Internal> internal;
 
-        friend bool operator==(const PositionListIterator &a, const PositionListIterator &b);
+        friend bool operator==(const PositionIterator &a, const PositionIterator &b);
 
 	// FIXME: ought to be private
-	PositionListIterator(Internal *internal_);
+	PositionIterator(Internal *internal_);
 
 	/// Default constructor - for declaring an uninitialised iterator
-	// PositionListIterator();
+	// PositionIterator();
 
 	/// Destructor
-        ~PositionListIterator();
+        ~PositionIterator();
 
         /** Copying is allowed.  The internals are reference counted, so
 	 *  copying is also cheap.
 	 */
-	PositionListIterator(const PositionListIterator &o);
+	PositionIterator(const PositionIterator &o);
 
         /** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is also cheap.
 	 */
-	void operator=(PositionListIterator &o);
+	void operator=(PositionIterator &o);
 
 	Xapian::termpos operator *() const;
 
-	PositionListIterator & operator++();
+	PositionIterator & operator++();
 
 	void operator++(int);
 
@@ -93,18 +93,20 @@ class PositionListIterator {
 	typedef Xapian::termpos & reference;
 };
 
+/// Test equality of two PositionIterators
 inline bool
-operator==(const PositionListIterator &a, const PositionListIterator &b)
+operator==(const PositionIterator &a, const PositionIterator &b)
 {
     return (a.internal.get() == b.internal.get());
 }
 
+/// Test inequality of two PositionIterators
 inline bool
-operator!=(const PositionListIterator &a, const PositionListIterator &b)
+operator!=(const PositionIterator &a, const PositionIterator &b)
 {
     return !(a == b);
 }
 
 }
 
-#endif /* XAPIAN_INCLUDED_POSITIONLISTITERATOR_H */
+#endif /* XAPIAN_INCLUDED_POSITIONITERATOR_H */

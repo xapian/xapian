@@ -701,7 +701,7 @@ QuartzWritableDatabase::do_replace_document(Xapian::docid did,
                   QuartzPositionList qpl;
                   qpl.read_data(buffered_tables->get_positionlist_table(), did, *tIter);
                   qpl.next();
-                  Xapian::PositionListIterator pIter = tIter.positionlist_begin();
+                  Xapian::PositionIterator pIter = tIter.positionlist_begin();
                   while (!qpl.at_end() && pIter != tIter.positionlist_end()) {
 		    if (qpl.get_current_pos() != (*pIter)) break;
                     qpl.next();

@@ -39,8 +39,8 @@ class LeafPostList;
 class Xapian::TermIterator::Internal;
 typedef Xapian::TermIterator::Internal TermList;
 class LeafTermList;
-class Xapian::PositionListIterator::Internal;
-typedef Xapian::PositionListIterator::Internal PositionList;
+class Xapian::PositionIterator::Internal;
+typedef Xapian::PositionIterator::Internal PositionList;
 class NetworkDatabase;
 
 namespace Xapian {

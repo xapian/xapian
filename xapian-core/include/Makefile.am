@@ -7,8 +7,8 @@ include_HEADERS = xapian.h
 
 xapianinclude_HEADERS = xapian/base.h xapian/database.h xapian/document.h \
  xapian/enquire.h xapian/error.h xapian/errorhandler.h xapian/errortypes.h \
- xapian/expanddecider.h xapian/output.h xapian/positionlistiterator.h \
- xapian/postlistiterator.h xapian/query.h xapian/stem.h xapian/termiterator.h \
+ xapian/expanddecider.h xapian/output.h xapian/positioniterator.h \
+ xapian/postingiterator.h xapian/query.h xapian/stem.h xapian/termiterator.h \
  xapian/types.h xapian/valueiterator.h
 
 # Compatibility header to allow compilation of programs written for

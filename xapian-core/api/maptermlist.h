@@ -81,8 +81,8 @@ class MapTermList : public TermList {
 	    return it->second.termfreq;
 	}
 
-	Xapian::PositionListIterator positionlist_begin() const {
-	    return Xapian::PositionListIterator(new InMemoryPositionList(it->second.positions));
+	Xapian::PositionIterator positionlist_begin() const {
+	    return Xapian::PositionIterator(new InMemoryPositionList(it->second.positions));
 	}
 
 	// FIXME: needs to allow a next() before we start

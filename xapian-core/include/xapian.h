@@ -35,8 +35,8 @@
 // Access to databases, documents, etc
 #include <xapian/database.h>
 #include <xapian/document.h>
-#include <xapian/positionlistiterator.h>
-#include <xapian/postlistiterator.h>
+#include <xapian/positioniterator.h>
+#include <xapian/postingiterator.h>
 #include <xapian/termiterator.h>
 #include <xapian/valueiterator.h>
 

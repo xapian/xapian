@@ -1,4 +1,4 @@
-/** \file postlistiterator.h
+/** \file postingiterator.h
  * \brief Classes for iterating through posting lists
  */
 /* ----START-LICENCE----
@@ -23,8 +23,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef XAPIAN_INCLUDED_POSTLISTITERATOR_H
-#define XAPIAN_INCLUDED_POSTLISTITERATOR_H
+#ifndef XAPIAN_INCLUDED_POSTINGITERATOR_H
+#define XAPIAN_INCLUDED_POSTINGITERATOR_H
 
 #include <iterator>
 #include <string>
@@ -35,9 +35,9 @@
 namespace Xapian {
 
 class Database;
-class PositionListIterator;
+class PositionIterator;
 
-class PostListIterator {
+class PostingIterator {
     public:
 	class Internal;
 	/// @internal Reference counted internals.
@@ -46,29 +46,29 @@ class PostListIterator {
     private:
 	friend class Database; // So Database can construct us
 
-	PostListIterator(Internal *internal_);
+	PostingIterator(Internal *internal_);
 
     public:
-        friend bool operator==(const PostListIterator &a,
-			       const PostListIterator &b);
+        friend bool operator==(const PostingIterator &a,
+			       const PostingIterator &b);
 
 	/// Default constructor - for declaring an uninitialised iterator
-	//PostListIterator();
+	//PostingIterator();
 
 	/// Destructor
-        ~PostListIterator();
+        ~PostingIterator();
 
         /** Copying is allowed.  The internals are reference counted, so
 	 *  copying is also cheap.
 	 */
-	PostListIterator(const PostListIterator &other);
+	PostingIterator(const PostingIterator &other);
 
         /** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is also cheap.
 	 */
-	void operator=(const PostListIterator &other);
+	void operator=(const PostingIterator &other);
 
-	PostListIterator & operator++();
+	PostingIterator & operator++();
 
 	void operator++(int);
 
@@ -99,8 +99,8 @@ class PostListIterator {
         Xapian::termcount get_wdf() const;
 
     	// allow iteration of positionlist for current term
-	PositionListIterator positionlist_begin();
-	PositionListIterator positionlist_end();
+	PositionIterator positionlist_begin();
+	PositionIterator positionlist_end();
 
 	// Don't expose these methods here.  A container iterator doesn't
 	// provide a method to find the size of the container...
@@ -122,16 +122,18 @@ class PostListIterator {
 	//@}
 };
 
-inline bool operator==(const PostListIterator &a, const PostListIterator &b)
+/// Test equality of two PostingIterators
+inline bool operator==(const PostingIterator &a, const PostingIterator &b)
 {
     return (a.internal.get() == b.internal.get());
 }
 
-inline bool operator!=(const PostListIterator &a, const PostListIterator &b)
+/// Test inequality of two PostingIterators
+inline bool operator!=(const PostingIterator &a, const PostingIterator &b)
 {
     return !(a == b);
 }
 
 }
 
-#endif /* XAPIAN_INCLUDED_POSTLISTITERATOR_H */
+#endif /* XAPIAN_INCLUDED_POSTINGITERATOR_H */

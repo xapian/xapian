@@ -35,8 +35,8 @@
 namespace Xapian {
     
 class Document;
-class PositionListIterator;
-class PostListIterator;
+class PositionIterator;
+class PostingIterator;
 class TermIterator;
 class WritableDatabase;
 
@@ -106,11 +106,11 @@ class Database {
 	/** An iterator pointing to the start of the postlist
 	 *  for a given term.
 	 */
-	PostListIterator postlist_begin(const std::string &tname) const;
+	PostingIterator postlist_begin(const std::string &tname) const;
 
 	/** Corresponding end iterator to postlist_begin()
 	 */
-	PostListIterator postlist_end(const std::string &tname) const;
+	PostingIterator postlist_end(const std::string &tname) const;
 
 	/** An iterator pointing to the start of the termlist
 	 *  for a given document.
@@ -124,11 +124,11 @@ class Database {
 	/** An iterator pointing to the start of the position list
 	 *  for a given term in a given document.
 	 */
-	PositionListIterator positionlist_begin(Xapian::docid did, const std::string &tname) const;
+	PositionIterator positionlist_begin(Xapian::docid did, const std::string &tname) const;
 
 	/** Corresponding end iterator to positionlist_begin()
 	 */
-	PositionListIterator positionlist_end(Xapian::docid did, const std::string &tname) const;
+	PositionIterator positionlist_end(Xapian::docid did, const std::string &tname) const;
 
 	/** An iterator which runs across all terms in the database.
 	 */

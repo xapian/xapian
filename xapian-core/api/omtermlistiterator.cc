@@ -116,22 +116,22 @@ Xapian::TermIterator::skip_to(const string & tname)
     }
 }
 
-Xapian::PositionListIterator
+Xapian::PositionIterator
 Xapian::TermIterator::positionlist_begin()
 {
-    DEBUGAPICALL(Xapian::PositionListIterator, "Xapian::TermIterator::positionlist_begin", "");
+    DEBUGAPICALL(Xapian::PositionIterator, "Xapian::TermIterator::positionlist_begin", "");
     Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->positionlist_begin());
 }
 
-Xapian::PositionListIterator
+Xapian::PositionIterator
 Xapian::TermIterator::positionlist_end()
 {
-    DEBUGAPICALL(Xapian::PositionListIterator, "Xapian::TermIterator::positionlist_end", "");
+    DEBUGAPICALL(Xapian::PositionIterator, "Xapian::TermIterator::positionlist_end", "");
     Assert(internal.get());
     Assert(!internal->at_end());
-    RETURN(Xapian::PositionListIterator(NULL));
+    RETURN(Xapian::PositionIterator(NULL));
 }
 
 std::string

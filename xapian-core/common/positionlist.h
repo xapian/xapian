@@ -32,7 +32,7 @@
 using namespace std;
 
 /** Abstract base class for position lists. */
-class Xapian::PositionListIterator::Internal : public Xapian::Internal::RefCntBase
+class Xapian::PositionIterator::Internal : public Xapian::Internal::RefCntBase
 {
     private:
 	/// Copying is not allowed.
@@ -82,6 +82,6 @@ class Xapian::PositionListIterator::Internal : public Xapian::Internal::RefCntBa
 	Xapian::termcount index;
 };
 
-typedef Xapian::PositionListIterator::Internal PositionList;
+typedef Xapian::PositionIterator::Internal PositionList;
 
 #endif /* OM_HGUARD_POSITIONLIST_H */

@@ -504,7 +504,7 @@ static bool test_poslist1()
     Xapian::Stem stemmer("english");
     string term = stemmer.stem_word("sponge");
     
-    Xapian::PositionListIterator pli = mydb.positionlist_begin(2, term);
+    Xapian::PositionIterator pli = mydb.positionlist_begin(2, term);
 
     TEST(pli != mydb.positionlist_end(2, term));
     TEST(*pli == 1);
@@ -553,18 +553,18 @@ static bool test_poslist2()
 
     TEST_EXCEPTION(Xapian::RangeError,
 	// Check what happens when term doesn't exist
-	Xapian::PositionListIterator i = db.positionlist_begin(did, "nosuchterm");
+	Xapian::PositionIterator i = db.positionlist_begin(did, "nosuchterm");
 	// FIXME: quartz doesn't throw!
     );
 
     TEST_EXCEPTION(Xapian::DocNotFoundError,
         // Check what happens when the document doesn't even exist
-        Xapian::PositionListIterator i = db.positionlist_begin(123, "nosuchterm");
+        Xapian::PositionIterator i = db.positionlist_begin(123, "nosuchterm");
 	// FIXME: quartz doesn't throw!
     );            
     
     {
-	Xapian::PositionListIterator i = db.positionlist_begin(did, "nopos");
+	Xapian::PositionIterator i = db.positionlist_begin(did, "nopos");
 	TEST_EQUAL(i, db.positionlist_end(did, "nopos"));
     }
     
@@ -573,7 +573,7 @@ static bool test_poslist2()
     Xapian::TermIterator term = doc2.termlist_begin();
 
     {
-	Xapian::PositionListIterator i = term.positionlist_begin(); 
+	Xapian::PositionIterator i = term.positionlist_begin(); 
 	TEST_EQUAL(i, term.positionlist_end());
     }
 
@@ -586,7 +586,7 @@ static bool test_poslist2()
     db.replace_document(did2, doc4);
    
     {
-	Xapian::PositionListIterator i = db.positionlist_begin(did2, "hadpos");
+	Xapian::PositionIterator i = db.positionlist_begin(did2, "hadpos");
 	TEST_EQUAL(i, db.positionlist_end(did2, "hadpos"));
     }
 
@@ -594,7 +594,7 @@ static bool test_poslist2()
     TEST_EXCEPTION(Xapian::DocNotFoundError,
         // Check what happens when the document doesn't even exist
 	// (but once did)
-	Xapian::PositionListIterator i = db.positionlist_begin(did, "nosuchterm");
+	Xapian::PositionIterator i = db.positionlist_begin(did, "nosuchterm");
 	// FIXME: quartz doesn't throw!
     );
 

@@ -1,3 +1,16 @@
+Mon Jun 23 16:55:54 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/,backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,backends/quartz/,
+	  bindings/swig/om_util_python.i,bindings/swig/xapian.i,common/,
+	  include/Makefile.am,include/xapian.h,include/om/om.h,include/xapian/,
+	  matcher/localmatch.h,matcher/phrasepostlist.h,tests/api_db.cc,
+	  tests/api_posdb.cc,tests/quartztest.cc:
+	  Xapian::Xapian::PostListIterator -> Xapian::PostingIterator;
+	  Xapian::PositionListIterator -> Xapian::PositionIterator;
+	  xapian/postlistiterator.h -> xapian/postingiterator.h;
+	  xapian/positionlistiterator.h -> xapian/positioniterator.h.
+
 Mon Jun 23 15:31:30 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/database.cc,backends/inmemory/inmemory_database.h,

@@ -2406,8 +2406,8 @@ static bool test_adddoc2()
     TEST_EQUAL(iter1.get_termfreq(), 2);
     TEST_EQUAL(iter2.get_termfreq(), 0);
 
-    Xapian::PositionListIterator pi1 = iter1.positionlist_begin();
-    Xapian::PositionListIterator pi2 = iter2.positionlist_begin();
+    Xapian::PositionIterator pi1 = iter1.positionlist_begin();
+    Xapian::PositionIterator pi2 = iter2.positionlist_begin();
     TEST_EQUAL(*pi1, 3); pi1++;
     TEST_EQUAL(*pi2, 3); pi2++;
     TEST(pi1 == iter1.positionlist_end());
@@ -2437,9 +2437,9 @@ static bool test_adddoc2()
     TEST_EQUAL(iter1.get_termfreq(), 2);
     TEST_EQUAL(iter2.get_termfreq(), 0);
 
-    Xapian::PositionListIterator temp1 = iter1.positionlist_begin();
+    Xapian::PositionIterator temp1 = iter1.positionlist_begin();
     pi1 = temp1;
-    Xapian::PositionListIterator temp2 = iter2.positionlist_begin();
+    Xapian::PositionIterator temp2 = iter2.positionlist_begin();
     pi2 = temp2;
     TEST_EQUAL(*pi1, 2); pi1++;
     TEST_EQUAL(*pi2, 2); pi2++;
@@ -2562,17 +2562,17 @@ static bool test_replacedoc()
     Xapian::Document doc3 = db.get_document(did);
     Xapian::TermIterator tIter = doc3.termlist_begin();
     TEST_EQUAL(*tIter, "bar");
-    Xapian::PositionListIterator pIter = tIter.positionlist_begin();
+    Xapian::PositionIterator pIter = tIter.positionlist_begin();
     TEST_EQUAL(*pIter, 4);
     ++tIter;
     TEST_EQUAL(*tIter, "foo");
-    Xapian::PositionListIterator qIter = tIter.positionlist_begin();
+    Xapian::PositionIterator qIter = tIter.positionlist_begin();
     TEST_EQUAL(*qIter, 1);
     ++qIter;
     TEST_EQUAL(*qIter, 5);
     ++tIter;
     TEST_EQUAL(*tIter, "pipco");
-    Xapian::PositionListIterator rIter = tIter.positionlist_begin();
+    Xapian::PositionIterator rIter = tIter.positionlist_begin();
     TEST_EQUAL(*rIter, 2);
     ++tIter;
     TEST_EQUAL(tIter, doc3.termlist_end());
@@ -2934,19 +2934,19 @@ static bool test_postlist1()
     return true;
 }
 
-// tests that an Xapian::PostListIterator works as an STL iterator
+// tests that an Xapian::PostingIterator works as an STL iterator
 static bool test_postlist2()
 {
     Xapian::Database db(get_database("apitest_simpledata"));
-    Xapian::PostListIterator p = db.postlist_begin("this");
-    Xapian::PostListIterator pend = db.postlist_end("this");
+    Xapian::PostingIterator p = db.postlist_begin("this");
+    Xapian::PostingIterator pend = db.postlist_end("this");
 
     // test operator= creates a copy which compares equal
-    Xapian::PostListIterator p_copy = p;
+    Xapian::PostingIterator p_copy = p;
     TEST_EQUAL(p, p_copy);
 
     // test copy constructor creates a copy which compares equal
-    Xapian::PostListIterator p_clone(p);
+    Xapian::PostingIterator p_clone(p);
     TEST_EQUAL(p, p_clone);
 
 #ifdef __SUNPRO_CC
@@ -2971,20 +2971,20 @@ static bool test_postlist2()
     return true;
 }
 
-static Xapian::PostListIterator
+static Xapian::PostingIterator
 test_postlist3_helper()
 {
     Xapian::Database db(get_database("apitest_simpledata"));
     return db.postlist_begin("this");
 }
 
-// tests that an Xapian::PostListIterator still works when the DB is deleted
+// tests that an Xapian::PostingIterator still works when the DB is deleted
 static bool test_postlist3()
 {
-    Xapian::PostListIterator u = test_postlist3_helper();
+    Xapian::PostingIterator u = test_postlist3_helper();
     Xapian::Database db(get_database("apitest_simpledata"));
-    Xapian::PostListIterator p = db.postlist_begin("this");
-    Xapian::PostListIterator pend = db.postlist_end("this");
+    Xapian::PostingIterator p = db.postlist_begin("this");
+    Xapian::PostingIterator pend = db.postlist_end("this");
 
     while (p != pend) {
 	TEST_EQUAL(*p, *u);
@@ -2998,7 +2998,7 @@ static bool test_postlist3()
 static bool test_postlist4()
 {
     Xapian::Database db(get_database("apitest_simpledata"));
-    Xapian::PostListIterator i = db.postlist_begin("this");
+    Xapian::PostingIterator i = db.postlist_begin("this");
     i.skip_to(1);
     i.skip_to(999999999);
     TEST(i == db.postlist_end("this"));
@@ -3012,7 +3012,7 @@ static bool test_postlist5()
     // Allow for databases which don't support length
     if (db.get_avlength() != 1)
 	TEST_EQUAL_DOUBLE(db.get_avlength(), 4);
-    Xapian::PostListIterator i = db.postlist_begin("this");
+    Xapian::PostingIterator i = db.postlist_begin("this");
     unsigned int j = 1;
     while (i != db.postlist_end("this")) {
 	TEST_EQUAL(*i, j);
@@ -3027,7 +3027,7 @@ static bool test_postlist5()
 static bool test_postlist6()
 {
     Xapian::Database db(get_database("apitest_simpledata"));
-    Xapian::PostListIterator i = db.postlist_begin("this");
+    Xapian::PostingIterator i = db.postlist_begin("this");
     TEST(i != db.postlist_end("this"));
     while (i != db.postlist_end("this")) {
 	TEST_EQUAL(i.get_doclength(), db.get_doclength(*i));

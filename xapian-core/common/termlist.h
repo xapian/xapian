@@ -32,7 +32,7 @@
 
 using namespace std;
 
-class Xapian::PositionListIterator;
+class Xapian::PositionIterator;
 
 /** Abstract base class for termlists. */
 class Xapian::TermIterator::Internal : public Xapian::Internal::RefCntBase
@@ -101,7 +101,7 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::RefCntBase
 	// True if we're off the end of the list
 	virtual bool at_end() const = 0;
 
-	virtual Xapian::PositionListIterator positionlist_begin() const {
+	virtual Xapian::PositionIterator positionlist_begin() const {
 	    throw Xapian::InvalidOperationError("positionlist_begin not supported");
 	}
 };

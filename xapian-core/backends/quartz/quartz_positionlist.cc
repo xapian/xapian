@@ -140,8 +140,8 @@ void
 QuartzPositionList::set_positionlist(QuartzBufferedTable * table,
 			Xapian::docid did,
 			const string & tname,
-			Xapian::PositionListIterator pos,
-			const Xapian::PositionListIterator &pos_end)
+			Xapian::PositionIterator pos,
+			const Xapian::PositionIterator &pos_end)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzPositionList::set_positionlist", table << ", " << did << ", " << tname << ", " << pos << ", " << pos_end);
     string key;

@@ -34,9 +34,9 @@ namespace Xapian {
     class Weight;
     class Database::Internal;
     class Document::Internal;
-    class PostListIterator::Internal;
+    class PostingIterator::Internal;
 }
-typedef Xapian::PostListIterator::Internal PostList;
+typedef Xapian::PostingIterator::Internal PostList;
 
 #include <vector>
 using std::vector;

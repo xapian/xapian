@@ -126,8 +126,8 @@ class QuartzPositionList : public PositionList {
 	static void set_positionlist(QuartzBufferedTable * table,
 			Xapian::docid did,
 			const string & tname,
-			Xapian::PositionListIterator pos,
-			const Xapian::PositionListIterator &pos_end);
+			Xapian::PositionIterator pos,
+			const Xapian::PositionIterator &pos_end);
 
 	/// Delete the position list for the given docid and termname
 	static void delete_positionlist(QuartzBufferedTable * table,

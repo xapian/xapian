@@ -29,7 +29,7 @@
 #include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/error.h>
-#include <xapian/postlistiterator.h>
+#include <xapian/postingiterator.h>
 
 #include "positionlist.h"
 #include "autoptr.h"
@@ -37,7 +37,7 @@
 using namespace std;
 
 /** Abstract base class for postlists. */
-class Xapian::PostListIterator::Internal : public Xapian::Internal::RefCntBase
+class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase
 {
     private:
 	/// disallow copy
@@ -195,6 +195,6 @@ class Xapian::PostListIterator::Internal : public Xapian::Internal::RefCntBase
 	virtual string get_description() const = 0;
 };
 
-typedef Xapian::PostListIterator::Internal PostList;
+typedef Xapian::PostingIterator::Internal PostList;
 
 #endif /* OM_HGUARD_POSTLIST_H */

@@ -35,7 +35,7 @@
 namespace Xapian {
 
 class Database;
-class PositionListIterator;
+class PositionIterator;
 
 /** An iterator pointing to items in a list of terms.
  */
@@ -85,8 +85,8 @@ class TermIterator {
 	Xapian::doccount get_termfreq() const;
 
     	// allow iteration of positionlist for current document
-	PositionListIterator positionlist_begin();
-	PositionListIterator positionlist_end();
+	PositionIterator positionlist_begin();
+	PositionIterator positionlist_end();
     
 	/** Returns a string describing this object.
 	 *  Introspection method.

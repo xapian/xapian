@@ -46,11 +46,11 @@ namespace Xapian {
 
 %include "omtypes.i"
      
-class PositionListIterator {
+class PositionIterator {
   private:
   public:
-    PositionListIterator(const PositionListIterator &other);
-    ~PositionListIterator();
+    PositionIterator(const PositionIterator &other);
+    ~PositionIterator();
     std::string get_description() const;
     void skip_to(Xapian::termpos pos);
     %extend {
@@ -60,17 +60,17 @@ class PositionListIterator {
 	void next() {
 	    (*self)++;
 	}
-	bool equals(const PositionListIterator &other) {
+	bool equals(const PositionIterator &other) {
 	    return (*self)==other;
 	}
     }
 };
 
-class PostListIterator {
+class PostingIterator {
   private:
   public:
-    PostListIterator(const PostListIterator& other);
-    ~PostListIterator();
+    PostingIterator(const PostingIterator& other);
+    ~PostingIterator();
     std::string get_description() const;
     %extend {
 	Xapian::docid get_docid() {
@@ -79,15 +79,15 @@ class PostListIterator {
 	void next() {
 	    (*self)++;
 	}
-	bool equals(const PostListIterator &other) {
+	bool equals(const PostingIterator &other) {
 	    return (*self)==other;
 	}
     }
     void skip_to(docid did);
     doclength get_doclength() const;
     termcount get_wdf() const;
-    PositionListIterator positionlist_begin();
-    PositionListIterator positionlist_end();
+    PositionIterator positionlist_begin();
+    PositionIterator positionlist_end();
 };
 
 class TermIterator {
@@ -113,8 +113,8 @@ class TermIterator {
     Xapian::doccount get_termfreq() const;
 
     // allow iteration of positionlist for current document
-    PositionListIterator positionlist_begin();
-    PositionListIterator positionlist_end();
+    PositionIterator positionlist_begin();
+    PositionIterator positionlist_end();
 
     std::string get_description() const;
 };
@@ -300,12 +300,12 @@ class Database {
 	doclength get_doclength(docid docid) const;
 	void keep_alive();
 
-	PostListIterator postlist_begin(const std::string& tname) const;
-	PostListIterator postlist_end(const std::string& tname) const;
+	PostingIterator postlist_begin(const std::string& tname) const;
+	PostingIterator postlist_end(const std::string& tname) const;
 	TermIterator termlist_begin(docid did) const;
 	TermIterator termlist_end(docid did) const;
-	PositionListIterator positionlist_begin(docid did, const std::string& tname) const;
-	PositionListIterator positionlist_end(docid did, const std::string& tname) const;
+	PositionIterator positionlist_begin(docid did, const std::string& tname) const;
+	PositionIterator positionlist_end(docid did, const std::string& tname) const;
 	TermIterator allterms_begin() const;
 	TermIterator allterms_end() const;
 };

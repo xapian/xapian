@@ -190,7 +190,7 @@ class QuartzTermList : public LeafTermList {
 	 */
 	OmExpandBits get_weighting() const;
 
-	Xapian::PositionListIterator positionlist_begin() const;
+	Xapian::PositionIterator positionlist_begin() const;
 };
 
 #endif /* OM_HGUARD_QUARTZ_TERMLIST_H */

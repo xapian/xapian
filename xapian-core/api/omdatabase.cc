@@ -25,9 +25,9 @@
 #include <config.h>
 #include <xapian/error.h>
 #include "omdebug.h"
-#include <xapian/postlistiterator.h>
+#include <xapian/postingiterator.h>
 #include <xapian/termiterator.h>
-#include <xapian/positionlistiterator.h>
+#include <xapian/positioniterator.h>
 #include <xapian/output.h>
 #include "../backends/multi/multi_postlist.h"
 #include "../backends/multi/multi_termlist.h"
@@ -99,10 +99,10 @@ Database::add_database(const Database & database)
     }
 }
 
-PostListIterator
+PostingIterator
 Database::postlist_begin(const string &tname) const
 {
-    DEBUGAPICALL(PostListIterator, "Database::postlist_begin", tname);
+    DEBUGAPICALL(PostingIterator, "Database::postlist_begin", tname);
     if (tname.empty())
        	throw InvalidArgumentError("Zero length terms are invalid");
  
@@ -126,15 +126,15 @@ Database::postlist_begin(const string &tname) const
 	throw;
     }
 
-    RETURN(PostListIterator(new MultiPostList(pls, *this)));
+    RETURN(PostingIterator(new MultiPostList(pls, *this)));
 }
 
-PostListIterator
+PostingIterator
 Database::postlist_end(const string &tname) const
 {
-    DEBUGAPICALL(PostListIterator, "Database::postlist_end", tname);
+    DEBUGAPICALL(PostingIterator, "Database::postlist_end", tname);
     (void)tname;
-    RETURN(PostListIterator(NULL));
+    RETURN(PostingIterator(NULL));
 }
 
 TermIterator
@@ -187,10 +187,10 @@ Database::allterms_end() const
     RETURN(TermIterator(NULL));
 }
 
-PositionListIterator
+PositionIterator
 Database::positionlist_begin(Xapian::docid did, const string &tname) const
 {
-    DEBUGAPICALL(PositionListIterator, "Database::positionlist_begin",
+    DEBUGAPICALL(PositionIterator, "Database::positionlist_begin",
 		 did << ", " << tname);
     if (tname.empty())
        	throw InvalidArgumentError("Zero length terms are invalid");
@@ -201,17 +201,17 @@ Database::positionlist_begin(Xapian::docid did, const string &tname) const
     Xapian::doccount n = (did - 1) % multiplier; // which actual database
     Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
-    RETURN(PositionListIterator(internal[n]->open_position_list(m, tname)));
+    RETURN(PositionIterator(internal[n]->open_position_list(m, tname)));
 }
 
-PositionListIterator
+PositionIterator
 Database::positionlist_end(Xapian::docid did, const string &tname) const
 {
-    DEBUGAPICALL(PositionListIterator, "Database::positionlist_end",
+    DEBUGAPICALL(PositionIterator, "Database::positionlist_end",
 		 did << ", " << tname);
     (void)did;
     (void)tname;
-    RETURN(PositionListIterator(NULL));
+    RETURN(PositionIterator(NULL));
 }
 
 Xapian::doccount
