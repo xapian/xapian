@@ -23,7 +23,7 @@ int main()
 	OmDatabase db;
 	vector<string> params;
 	params.push_back("prog");
-	params.push_back("./omnetclient");
+	params.push_back("./omprogsrv");
 	params.push_back("text1.txt");
 	db.add_database("net", params);
 
