@@ -1,3 +1,8 @@
+Mon Dec 08 02:11:03 GMT 2003  Olly Betts <olly@survex.com>
+
+	* python/docs/.cvsignore,python/docs/examples/.cvsignore: Ignore
+	  Makefile too.
+
 Sun Dec  7 13:11:56 BST 2003  James Aylett  <james@tartarus.org>
 
 	* Added basic documentation, and two examples, for Python bindings
