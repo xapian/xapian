@@ -47,42 +47,28 @@ using namespace std;
 #endif
 
 %{
-#define OMSWIG_exception(type, msg) \
-    SWIG_exception((type), const_cast<char *>((msg).c_str()))
+#define OMSWIG_exception(type, e) \
+    SWIG_exception((type), \
+	const_cast<char *>(((e).get_type() + ": " + (e).get_msg()).c_str()))
 %}
 
 %exception {
     try {
     	$function
-    } catch (Xapian::AssertionError &e) {
-        OMSWIG_exception(SWIG_UnknownError,
-		       string("Assertion: ") + e.get_msg());
-    } catch (Xapian::UnimplementedError &e) {
-        OMSWIG_exception(SWIG_UnknownError,
-		       string("Unimplemented: ") + e.get_msg());
-    } catch (Xapian::InvalidArgumentError &e) {
-        OMSWIG_exception(SWIG_ValueError,e.get_msg());
-    } catch (Xapian::DocNotFoundError &e) {
-        OMSWIG_exception(SWIG_RuntimeError,
-		       string("DocNotFoundError: ") + e.get_msg());
-    } catch (Xapian::RangeError &e) {
-        OMSWIG_exception(SWIG_IndexError,
-		       string("RangeError: ") + e.get_msg());
-    } catch (Xapian::InternalError &e) {
-        OMSWIG_exception(SWIG_UnknownError,
-		       string("InternalError: ") + e.get_msg());
-    } catch (Xapian::DatabaseError &e) {
-        OMSWIG_exception(SWIG_IOError,
-		       string("DatabaseError: ") + e.get_msg());
-    } catch (Xapian::NetworkError &e) {
-        OMSWIG_exception(SWIG_IOError,
-		       string("NetworkError: ") + e.get_msg());
-    } catch (Xapian::InvalidResultError &e) {
-        OMSWIG_exception(SWIG_ValueError,
-		       string("InvalidResultError: ") + e.get_msg());
+    } catch (const Xapian::InvalidArgumentError &e) {
+        OMSWIG_exception(SWIG_ValueError, e);
+    } catch (const Xapian::RangeError &e) {
+        OMSWIG_exception(SWIG_IndexError, e);
+    } catch (const Xapian::DatabaseError &e) {
+        OMSWIG_exception(SWIG_IOError, e);
+    } catch (const Xapian::NetworkError &e) {
+        OMSWIG_exception(SWIG_IOError, e);
+    } catch (const Xapian::RuntimeError &e) {
+        OMSWIG_exception(SWIG_RuntimeError, e);
+    } catch (const Xapian::Error &e) {
+        OMSWIG_exception(SWIG_UnknownError, e);
     } catch (...) {
-        OMSWIG_exception(SWIG_UnknownError,
-			 string("unknown error in Xapian"));
+        SWIG_exception(SWIG_UnknownError, "unknown error in Xapian"));
     }
 }
 

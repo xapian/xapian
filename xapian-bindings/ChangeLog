@@ -1,3 +1,18 @@
+Wed May 26 04:04:06 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Fixed the %exception handler to cover all the exceptions
+	  Xapian can throw, not just a subset.
+
+Thu May 20 15:55:36 BST 2004  Richard Boulton <richard@tartarus.org>
+
+	* python/docs/: Add examples and documentation to dist (were being
+	  installed, but not added to dist, causing make distcheck, and
+	  dpkg-buildpackage, to fail).
+
+Thu May 20 15:06:54 BST 2004  Richard Boulton <richard@tartarus.org>
+
+	* Makefile.am: Add debian packaging files to distribution tarball.
+
 Wed May 19 11:27:42 BST 2004  Olly Betts <olly@survex.com>
 
 	* php4/util.i: Make sure that PHP bindings build a module which
