@@ -112,15 +112,15 @@ SleepyPostList::~SleepyPostList() {
 
 weight SleepyPostList::get_weight() const {
     Assert(!at_end());
-    if(!weight_initialised) calc_termweight();
     
-    return 1;
+    doccount wdf = 1;
+
+    return ir_wt->get_weight(wdf);
 }
 
 weight SleepyPostList::get_maxweight() const {
-    if(!weight_initialised) calc_termweight();
-
-    return 1;
+    // FIXME - too much indirection?
+    return ir_wt->get_maxweight();
 }
 
 ///////////////

@@ -54,30 +54,20 @@ class DBPostList : public virtual PostList {
     protected:
 	IRWeight own_wt;
 	const IRWeight * ir_wt;
-
-	mutable bool weight_initialised;
-	mutable weight termweight;
-	void calc_termweight() const; // Calculates term weight
     public:
-	DBPostList()
-		: ir_wt(&own_wt), weight_initialised(false)
-		{}
+	DBPostList() : ir_wt(&own_wt) {}
 	void set_termweight(const IRWeight *); // Sets term weight
 };
 
 inline void
 DBPostList::set_termweight(const IRWeight * wt)
 {
-    weight_initialised = false;
     ir_wt = wt;
 }
 
-inline void
-DBPostList::calc_termweight() const
-{
-    termweight = ir_wt->calc_termweight();
-    weight_initialised = true;
-}
+
+
+
 
 class TermList {
     private:

@@ -22,7 +22,9 @@ class IRWeight {
 	    termfreq = tf;
 	    initialised = true;
 	}
-	weight calc_termweight() const;
+	void calc_termweight() const;
+	weight get_weight(doccount wdf) const;
+	weight get_maxweight() const;
 };
 
 #endif /* _irweight_h_ */

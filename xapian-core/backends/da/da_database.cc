@@ -23,42 +23,20 @@ DAPostList::~DAPostList()
     DAclosepostings(postlist);
 }
 
-const double k = 1;
-
 /* This is the biggie */
 weight DAPostList::get_weight() const
 {
     Assert(!at_end());
 
-    if(!weight_initialised) calc_termweight();
-
-    doccount wdf;
-    weight wt;
-
-
     // NB ranges from daread share the same wdf value
-    wdf = postlist->wdf;
-
-//    printf("(wdf, termweight)  = (%4d, %4.2f)", wdf, termweight);
-
-    // FIXME - precalculate this freq score for several values of wdf - may
-    // remove much computation.
-    wt = (double) wdf / (k + wdf);
-//    printf("(freq score %4.2f)", wt);
-
-    wt *= termweight;
-
-//    printf("\t=> weight = %f\n", wt);
-
-    return wt;
+    return ir_wt->get_weight(postlist->wdf);
 }
 
 // return an upper bound on the termweight
 weight DAPostList::get_maxweight() const
 {
-    if(!weight_initialised) calc_termweight();
-
-    return termweight * (k + 1);
+    // FIXME - too much indirection?
+    return ir_wt->get_maxweight();
 }
 
 PostList * DAPostList::next(weight w_min)
