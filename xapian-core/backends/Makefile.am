@@ -53,6 +53,9 @@ SUBDIRS = \
           $(BUILDSUBDIR_INMEMORY) \
 	  $(BUILDSUBDIR_MULTI) \
 	  $(BUILDSUBDIR_REMOTE) .
+
+DIST_SUBDIRS = muscat36 sleepycat quartz inmemory multi net
+
 libbackend_la_LIBADD = \
           $(LIBADD_MUSCAT36) \
 	  $(LIBADD_SLEEPYCAT) \

@@ -1,3 +1,12 @@
+Wed Sep 20 16:04:21 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Declare this to be version 0.3.1
+
+Wed Sep 20 16:03:51 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Set up a DIST_SUBDIRS in backends/Makefile.am to ensure that
+	  everything that should goes into a distribution.
+
 Wed Sep 20 15:56:40 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* More fettling to Quartz - databases now have logic to ensure that
