@@ -45,14 +45,35 @@ int main() {
 				       in,
 				       out);
 	}
-	builder.register_node_type("reverse",
-				   &ReverseNode::create,
-				   vector<OmIndexerBuilder::NodeConnection>(),
-				   vector<OmIndexerBuilder::NodeConnection>());
-	builder.register_node_type("concat",
-				   &ConcatNode::create,
-				   vector<OmIndexerBuilder::NodeConnection>(),
-				   vector<OmIndexerBuilder::NodeConnection>());
+	{
+	    vector<OmIndexerBuilder::NodeConnection> in;
+	    vector<OmIndexerBuilder::NodeConnection> out;
+	    in.push_back(OmIndexerBuilder::NodeConnection("in",
+							  "mystr",
+							  mt_record));
+	    out.push_back(OmIndexerBuilder::NodeConnection("out",
+							   "mystr",
+							   mt_record));
+	    builder.register_node_type("reverse",
+				       &ReverseNode::create,
+				       in, out);
+	}
+	{
+	    vector<OmIndexerBuilder::NodeConnection> in;
+	    vector<OmIndexerBuilder::NodeConnection> out;
+	    in.push_back(OmIndexerBuilder::NodeConnection("in1",
+							  "mystr",
+							  mt_record));
+	    in.push_back(OmIndexerBuilder::NodeConnection("in2",
+							  "mystr",
+							  mt_record));
+	    out.push_back(OmIndexerBuilder::NodeConnection("out",
+							   "mystr",
+							   mt_record));
+	    builder.register_node_type("concat",
+				       &ConcatNode::create,
+				       in, out);
+	}
 	auto_ptr<OmIndexer> indexer = builder.build_from_file("test.xml");
 	Message msg(new Record());
 	msg->name = "foo";

@@ -110,7 +110,7 @@ OmIndexerBuilder::make_node(const std::string &type)
     std::map<std::string, node_desc>::const_iterator i;
     i = nodetypes.find(type);
     if (i == nodetypes.end()) {
-	throw std::string("Unknown node type ") + type;
+	throw OmInvalidArgumentError(std::string("Unknown node type ") + type);
     } else {
 	return i->second.create(OmSettings());
     }
@@ -162,6 +162,7 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 		throw "Duplicate node id!";
 	    }
 	    OmIndexerNode *newnode = make_node(node_attrs["type"]);
+	    types[node_attrs["id"]] = node_attrs["type"];
 	    indexer->nodemap[node_attrs["id"]] = newnode;
 	    // connect the inputs
 	    for (xmlNodePtr input = node->childs;
@@ -177,10 +178,10 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 		    throw "input node not found";
 		}
 		// typecheck throws on an error
-		typecheck(node_attrs["type"],
-			  input_attrs["name"],
-			  types[input_attrs["node"]],
-			  input_attrs["out_name"]);
+		typecheck(node_attrs["type"], // this node's type
+			  input_attrs["name"],// this node's input name
+			  types[input_attrs["node"]], // the input node's type
+			  input_attrs["out_name"]);  // the input node's output
 		newnode->connect_input(input_attrs["name"],
 				       i->second,
 				       input_attrs["out_name"]);
@@ -200,10 +201,10 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 }
 
 void
-OmIndexerBuilder::typecheck(const std::string &sendertype,
-			    const std::string &senderout,
-			    const std::string &receivertype,
-			    const std::string &receiverin)
+OmIndexerBuilder::typecheck(const std::string &receivertype,
+			    const std::string &receiverin,
+			    const std::string &sendertype,
+			    const std::string &senderout)
 {
     NodeConnection sendercon = get_outputcon(sendertype, senderout);
     NodeConnection receivercon = get_inputcon(receivertype, receiverin);
@@ -283,10 +284,14 @@ OmIndexer::set_input(Message msg)
 
 OmIndexerBuilder::OmIndexerBuilder()
 {
+    std::vector<NodeConnection> outputs;
+    outputs.push_back(OmIndexerBuilder::NodeConnection("out",
+						       "mystr",
+						       mt_record));
     register_node_type("START",
 		       &OmIndexerStartNode::create,
 		       std::vector<NodeConnection>(),
-		       std::vector<NodeConnection>());
+		       outputs);
 }
 
 void
