@@ -34,8 +34,10 @@
 #include "daread.h"
 #include "damuscat.h"
 
-DAPostList::DAPostList(const termname & tn, struct postings *pl, doccount tf)
-	: postlist(pl), currdoc(0), tname(tn), termfreq(tf)
+DAPostList::DAPostList(const termname & tname_,
+		       struct postings * postlist_,
+		       doccount termfreq_)
+	: postlist(postlist_), currdoc(0), tname(tname_), termfreq(tf)
 {
 }
 
@@ -67,7 +69,7 @@ PostList * DAPostList::next(weight w_min)
     return NULL;
 }
 
-PostList * DAPostList::skip_to(docid id, weight w_min)
+PostList * DAPostList::skip_to(docid did, weight w_min)
 {
     Assert(currdoc == 0 || !at_end());
     Assert(id >= currdoc);
@@ -86,8 +88,8 @@ PostList * DAPostList::skip_to(docid id, weight w_min)
 
 
 
-DATermList::DATermList(struct termvec *tv, doccount dbsize_new)
-	: have_started(false), dbsize(dbsize_new)
+DATermList::DATermList(struct termvec *tv, doccount dbsize_)
+	: have_started(false), dbsize(dbsize_)
 {
     // FIXME - read terms as we require them, rather than all at beginning?
     readterms(tv);
@@ -168,7 +170,7 @@ DADatabase::open(const DatabaseBuilderParams & params)
 
 // Returns a new posting list, for the postings in this database for given term
 DBPostList *
-DADatabase::open_post_list(const termname &tname, RSet *rset) const
+DADatabase::open_post_list(const termname & tname, RSet * rset) const
 {
     Assert(opened);
 
@@ -228,7 +230,7 @@ DADatabase::open_document(docid did) const
 }
 
 const DATerm *
-DADatabase::term_lookup(const termname &tname) const
+DADatabase::term_lookup(const termname & tname) const
 {
     Assert(opened);
     //DebugMsg("DADatabase::term_lookup(`" << tname.c_str() << "'): ");
@@ -264,7 +266,7 @@ DADatabase::term_lookup(const termname &tname) const
 }
 
 bool
-DADatabase::term_exists(const termname &tname) const
+DADatabase::term_exists(const termname & tname) const
 {
     if(term_lookup(tname) != NULL) return true;
     return false;

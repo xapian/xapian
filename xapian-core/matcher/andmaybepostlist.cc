@@ -83,7 +83,7 @@ AndMaybePostList::next(weight w_min)
 }
 
 PostList *
-AndMaybePostList::skip_to(docid id, weight w_min)
+AndMaybePostList::skip_to(docid did, weight w_min)
 {
     if (w_min > lmax) {
 	// we can replace the AND MAYBE with an AND

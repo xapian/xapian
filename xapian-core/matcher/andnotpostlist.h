@@ -30,7 +30,7 @@ class AndNotPostList : public virtual BranchPostList {
     private:
         docid lhead, rhead;
 
-        PostList *advance_to_next_match(weight w_min, PostList *);
+        PostList *advance_to_next_match(weight w_min, PostList *ret);
     public:
 	doccount get_termfreq() const;
 
@@ -41,12 +41,14 @@ class AndNotPostList : public virtual BranchPostList {
         weight recalc_maxweight();
 
 	PostList *next(weight w_min);
-	PostList *skip_to(docid, weight w_min);
+	PostList *skip_to(docid did, weight w_min);
 	bool   at_end() const;
 
 	string intro_term_description() const;
 
-        AndNotPostList(PostList *l, PostList *r, OMMatch *root_);
+        AndNotPostList(PostList *left,
+		       PostList *right,
+		       OMMatch *root_);
 
         PostList *sync_and_skip_to(docid id, weight w_min, docid lh, docid rh);
 };

@@ -83,7 +83,7 @@ AndPostList::next(weight w_min)
 }
 
 PostList *
-AndPostList::skip_to(docid id, weight w_min)
+AndPostList::skip_to(docid did, weight w_min)
 {
     if (id > head) process_next_or_skip_to(w_min, r->skip_to(id, w_min - lmax));
     return NULL;

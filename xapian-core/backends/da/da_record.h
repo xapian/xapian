@@ -35,7 +35,7 @@ class DADocument : public virtual IRDocument {
 	docid did;
 	mutable struct record * rec;
 
-	DADocument(const DADatabase *, docid);
+	DADocument(const DADatabase * database_, docid did_);
 
 	// Stop copying
 	DADocument(const DADocument &);
@@ -43,13 +43,13 @@ class DADocument : public virtual IRDocument {
     public:
 	~DADocument();
 
-	IRKey get_key(keyno) const;
+	IRKey get_key(keyno keyid) const;
 	IRData get_data() const;
 };
 
 inline
-DADocument::DADocument(const DADatabase * _database, docid _did)
-	: database(_database), did(_did), rec(NULL)
+DADocument::DADocument(const DADatabase * database_, docid did_)
+	: database(database_), did(did_), rec(NULL)
 {
 }
 

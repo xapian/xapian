@@ -35,7 +35,7 @@ class AndMaybePostList : public virtual BranchPostList {
         docid lhead, rhead;
         weight lmax, rmax;
 
-        PostList * process_next_or_skip_to(weight w_min, PostList *);
+        PostList * process_next_or_skip_to(weight w_min, PostList *ret);
     public:
 	doccount get_termfreq() const;
 
@@ -47,12 +47,12 @@ class AndMaybePostList : public virtual BranchPostList {
         weight recalc_maxweight();
 
 	PostList *next(weight w_min);
-	PostList *skip_to(docid, weight w_min);
+	PostList *skip_to(docid did, weight w_min);
 	bool   at_end() const;
 
 	string intro_term_description() const;
 
-        AndMaybePostList(PostList *, PostList *, OMMatch *root_,
+        AndMaybePostList(PostList *left, PostList *right, OMMatch *root_,
 			 docid lh = 0, docid rh = 0);
 };
 

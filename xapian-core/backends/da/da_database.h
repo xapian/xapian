@@ -54,7 +54,9 @@ class DAPostList : public virtual DBPostList {
 	termname tname;
 	doccount termfreq;
 
-	DAPostList(const termname &, struct postings *, doccount);
+	DAPostList(const termname & tname_,
+		   struct postings * postlist_,
+		   doccount termfreq_);
     public:
 	~DAPostList();
 
@@ -63,7 +65,7 @@ class DAPostList : public virtual DBPostList {
 	docid  get_docid() const;     // Gets current docid
 	weight get_weight() const;    // Gets current weight
 	PostList *next(weight w_min);          // Moves to next docid
-	PostList *skip_to(docid, weight w_min);  // Moves to next docid >= specified docid
+	PostList *skip_to(docid did, weight w_min);  // Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
 
 	string intro_term_description() const;
@@ -122,7 +124,7 @@ class DATermList : public virtual DBTermList {
 	bool have_started;
 	doccount dbsize;
 
-	DATermList(struct termvec *tv, doccount dbsize);
+	DATermList(struct termvec *tv, doccount dbsize_);
     public:
 	termcount get_approx_size() const;
 
@@ -185,9 +187,11 @@ inline bool DATermList::at_end() const
 
 
 class DATerm {
-    friend class DADatabase;
+    friend DADatabase;
     private:
-	DATerm(struct terminfo *, termname, struct DAfile * = NULL);
+	DATerm(struct terminfo * ti_,
+	       termname tname_,
+	       struct DAfile * DA_t_ = NULL);
         struct terminfo * get_ti() const;
 
 	mutable bool terminfo_initialised;
@@ -198,9 +202,9 @@ class DATerm {
 };
 
 inline
-DATerm::DATerm(struct terminfo *ti_new,
-	       termname name_new,
-	       struct DAfile * DA_t_new)
+DATerm::DATerm(struct terminfo * ti_,
+	       termname tname_,
+	       struct DAfile * DA_t_)
 	: terminfo_initialised(false)
 {
     if (ti_new) {
@@ -247,30 +251,30 @@ class DADatabase : public virtual IRDatabase {
 	DADatabase(const DADatabase&);
 
 	// Look up term in database
-	const DATerm * term_lookup(const termname &) const;
+	const DATerm * term_lookup(const termname & tname) const;
 
 	// Get a record
 	struct record * get_record(docid did) const;
 
 	DADatabase();
-	void open(const DatabaseBuilderParams &);
+	void open(const DatabaseBuilderParams & params);
     public:
 	~DADatabase();
 
 	doccount  get_doccount() const;
 	doclength get_avlength() const;
 
-	doccount get_termfreq(const termname &) const;
-	bool term_exists(const termname &) const;
+	doccount get_termfreq(const termname & tname) const;
+	bool term_exists(const termname & tname) const;
 
-	DBPostList * open_post_list(const termname&, RSet *) const;
-	DBTermList * open_term_list(docid id) const;
-	IRDocument * open_document(docid id) const;
+	DBPostList * open_post_list(const termname & tname, RSet * rset) const;
+	DBTermList * open_term_list(docid did) const;
+	IRDocument * open_document(docid did) const;
 
-	void make_term(const termname &) {
+	void make_term(const termname & tname) {
 	    throw OmError("DADatabase::make_term() not implemented");
 	}
-	docid make_doc(const docname &) {
+	docid make_doc(const docname & ) {
 	    throw OmError("DADatabase::make_doc() not implemented");
 	}
 	void make_posting(const termname &, unsigned int, unsigned int) {
@@ -293,7 +297,7 @@ DADatabase::get_avlength() const
 }
 
 inline doccount
-DADatabase::get_termfreq(const termname &tname) const
+DADatabase::get_termfreq(const termname & tname) const
 {
     PostList *pl = open_post_list(tname, NULL);
     doccount freq = 0;
