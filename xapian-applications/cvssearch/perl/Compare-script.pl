@@ -322,15 +322,12 @@ sub compare_file_index {
             @comments = ($comment, @comments);
         } elsif (/$ctrlA/) {
             last;
-        } else {
+        } elsif (/$ctrlC/) {
             my @fields = split(/$ctrlC/);
-            if (0) {
-            } elsif ($#fields == 1) {
-                $version = $fields[0];
-                $comment = $fields[1];
-            } elsif ($#fields == 0) {
-                $comment = $comment."\n".$fields[0];
-            }
+            $version = $fields[0];
+            $comment = $fields[1];
+        } else {
+            $comment = $comment."\n".$_;
         }
     }
     close(FILE);
