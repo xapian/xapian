@@ -1,9 +1,20 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Xapian: Remote Backend Protocol</TITLE>
+</HEAD>
+<BODY BGCOLOR="white" TEXT="black">
+
+<H1>Remote Backend Protocol</H1>
+
 FIXME: This description is now very out of date and needs rewriting
 to reflect what actually happens...
 
+<p>
 This is a brief description of the wire protocol used by the remote
 backend:
 
+<pre>
 Message 1:
 Direction: ProgClient->ProgServer
 Format: HELLO!
@@ -42,3 +53,7 @@ Format: MSETITEMS <items in MSET> <max weight>\n\
         MSETITEM: <weight> <docid> \n\
 	OK
 Description: The returned MSet.
+</pre>
+<!-- FOOTER $Author$ $Date$ $Id$ -->
+</BODY>
+</HTML>

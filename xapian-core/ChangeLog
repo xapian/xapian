@@ -1,3 +1,12 @@
+Fri Nov 15 17:00:15 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree_api.txt,docs/Makefile.am,docs/index.html,
+	  docs/quartzdesign.html,docs/remote_protocol.html,
+	  net/README_progprotocol.txt: Converted Btree API documentation
+	  to HTML and add it to the quartz design document; converted the
+	  (seriously out of date) remote protocol document to HTML, moved it
+	  into docs/, and linked it in.
+
 Fri Nov 15 13:05:06 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_record.cc,backends/quartz/quartz_utils.h,
