@@ -132,25 +132,76 @@ void
 SocketClient::request_doc(om_docid did)
 {
     do_write(std::string("D") + om_tostring(did));
+    requested_docs.push(did);
 }
 
 void
 SocketClient::collect_doc(om_docid did, std::string &doc,
 			  std::map<om_keyno, OmKey> &keys)
 {
-    // FIXME check did is correct?
-    std::string message = do_read();
-    Assert(!message.empty() && message[0] == 'O');
-    doc = decode_tname(message.substr(1));
+    /* First check that the data isn't in our temporary cache */
+    std::map<om_docid, cached_doc>::iterator i;
+    i = collected_docs.find(did);
 
-    while (1) {
+    if (i != collected_docs.end()) {
+	/* A hit! */
+	doc = i->second.data;
+	keys = i->second.keys;
+
+	/* remove from cache */
+	collected_docs.erase(i);
+
+	return;
+    }
+    
+    /* FIXME: should the cache be cleared at this point? */
+
+    /* Since we've missed our cache, the did being collected must be
+     * in our queue of requested documents.  We now fetch all of them
+     * into the cache.  Fetching only until the requested doc would
+     * defeat the point of a seperate request_doc to some extent.
+     */
+    while (!requested_docs.empty()) {
+	om_docid cdid = requested_docs.front();
+
+	/* Create new entry, and get a reference to it */
+	cached_doc &cdoc = collected_docs[cdid];
+
+	// FIXME check did is correct?
 	std::string message = do_read();
-	if (message == "Z") break;
-	istrstream is(message.c_str());
-	om_keyno keyno;
-	std::string omkey;
-	is >> keyno >> omkey;
-	keys[keyno] = string_to_omkey(omkey);
+	Assert(!message.empty() && message[0] == 'O');
+	cdoc.data = decode_tname(message.substr(1));
+
+	while (1) {
+	    std::string message = do_read();
+	    if (message == "Z") break;
+	    istrstream is(message.c_str());
+	    om_keyno keyno;
+	    std::string omkey;
+	    is >> keyno >> omkey;
+	    cdoc.keys[keyno] = string_to_omkey(omkey);
+	}
+
+	/* Remove this did from the queue */
+	requested_docs.pop();
+    }
+
+    /* FIXME: it's a bit of a waste doing this outside of the loop
+     * like this, but probably ok.
+     */
+    i = collected_docs.find(did);
+
+    if (i != collected_docs.end()) {
+	/* A hit! */
+	doc = i->second.data;
+	keys = i->second.keys;
+
+	/* remove from cache */
+	collected_docs.erase(i);
+    } else {
+	throw OmInternalError("Failed to collect document " +
+			      om_tostring(did) + ", possibly not requested.",
+			      context);
     }
 }
 

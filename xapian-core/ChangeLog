@@ -1,3 +1,9 @@
+Tue Feb 20 18:01:13 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* SocketClient implements a queue/cache system which means that
+	  collect_doc() doesn't need to be called in the same order as
+	  request_doc().
+
 Mon Feb 19 15:43:49 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Converted btree code to use new/delete instead of [mc]alloc/free.

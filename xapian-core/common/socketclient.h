@@ -26,6 +26,7 @@
 #include "netclient.h"
 #include "socketcommon.h"
 #include "rset.h"
+#include <queue>
 
 /** An implementation of the NetClient interface using a program.
  *  ProgClient gets a socket by spawning a separate program, rather
@@ -92,6 +93,17 @@ class SocketClient : public NetClient {
 
 	/// The context to return with any error messages
 	std::string context;
+
+	/// The queue of requested docids
+	std::queue<om_docid> requested_docs;
+
+	struct cached_doc {
+	    std::string data;
+	    std::map<om_keyno, OmKey> keys;
+	};
+	/// A store of the undecoded documents we've collected from the
+	/// other end
+	std::map<om_docid, cached_doc> collected_docs;
 	
     protected:
 	/** Constructor.  The constructor is protected so that raw instances
