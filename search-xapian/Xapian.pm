@@ -3,6 +3,15 @@ package Search::Xapian;
 use 5.006;
 use strict;
 use warnings;
+use Carp;
+
+use Search::Xapian::Database;
+use Search::Xapian::Document;
+use Search::Xapian::MSetIterator;
+use Search::Xapian::Query;
+use Search::Xapian::Settings;
+use Search::Xapian::WritableDatabase;
+#use Search::Xapian::
 
 require Exporter;
 require DynaLoader;
@@ -16,43 +25,39 @@ our @ISA = qw(Exporter DynaLoader);
 # This allows declaration	use Search::Xapian ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(
-	
-) ] );
+our %EXPORT_TAGS = (
+                    'ops' => [ qw(
+                                  OP_AND
+                                  OP_OR
+                                  OP_AND_NOT
+                                  OP_XOR
+                                  OP_AND_MAYBE
+                                  OP_FILTER
+                                  OP_NEAR
+                                  OP_PHRASE
+                                  OP_WEIGHT_CUTOFF
+                                  OP_ELITE_SET
+                                 ) ],
+                   );
+$EXPORT_TAGS{standard} = [ @{ $EXPORT_TAGS{'ops'} } ];
+$EXPORT_TAGS{all} = [ @{ $EXPORT_TAGS{'standard'} } ];
+
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
-our @EXPORT = qw(
-	
-);
-our $VERSION = '0.02';
+our @EXPORT = qw( );
+
+
+our $VERSION = '0.03';
 
 bootstrap Search::Xapian $VERSION;
 
 # Preloaded methods go here.
 
-package Search::Xapian::MatchSet;
-
-sub matches {
-  my $mset = shift;
-  my $i = $mset->begin();
-  my $size = $mset->size();
-  my $tmp = $i;
-  my @results = $tmp;
-  print $i->get_percent() . "\n";
-    print $results[0]->get_percent() . "\n";
-  while(--$size) {
-    print $results[0]->get_percent() . "\n";
-    $tmp = $i;
-    $i = $tmp->inc();
-    push @results, $i;
-  }
-    print $results[0]->get_percent() . "\n";
-  return @results;
-}
-
 1;
+
 __END__
+
 
 =head1 NAME
 

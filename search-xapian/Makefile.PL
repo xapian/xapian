@@ -36,3 +36,7 @@ sub locate($) {
   $result =~ s|/\Q$file\E$||;
   return $result;
 }
+
+sub MY::postamble {
+  return "\$(XS_FILES): \$(wildcard XS/*.xs)\n\ttouch \$(XS_FILES)";
+}

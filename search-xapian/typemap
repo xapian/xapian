@@ -1,21 +1,33 @@
 TYPEMAP
-OmSettings            O_OBJECT
-OmSettings *          O_OBJECT
-OmDatabase            O_OBJECT
-OmDatabase *          O_OBJECT
-OmWritableDatabase    O_OBJECT
-OmWritableDatabase *  O_OBJECT
+OmSettings            O_SETTINGS
+OmSettings *          O_SETTINGS
+OmDatabase            O_DATABASE
+OmDatabase *          O_DATABASE
+OmWritableDatabase    O_WDATABASE
+OmWritableDatabase *  O_WDATABASE
 OmEnquire *           O_OBJECT
-OmQuery               O_OBJECT
-OmQuery *             O_OBJECT
+OmQuery               O_QUERY
+OmQuery *             O_QUERY
 OmStem                O_OBJECT
 OmStem *              O_OBJECT
 OmMSet                O_MSET
 OmMSet *              O_MSET
-OmMSetIterator        O_MSETI
-OmMSetIterator *      O_MSETI
+OmRSet                O_RSET
+OmRSet *              O_RSET
+OmESet                O_ESET
+OmESet *              O_ESET
+OmMSetIterator        O_MSET_I
+OmMSetIterator *      O_MSET_I
 OmDocument            O_DOC
 OmDocument *          O_DOC
+OmMatchDecider        O_OBJECT
+OmMatchDecider *      O_OBJECT
+
+OmTermIterator        O_TERM_I
+OmTermIterator *      O_TERM_I
+OmValueIterator       O_VALUE_I
+OmValueIterator *     O_VALUE_I
+
 OmError               O_OBJECT
 OmError *             O_OBJECT
 
@@ -24,16 +36,20 @@ string *              STRING
 
 om_docid              T_IV
 om_doccount           T_IV
+om_doclength          T_IV
 om_percent            T_IV
+om_termcount          T_IV
 om_termname           T_PV
 om_termpos            T_IV
+om_valueno            T_IV
+om_weight             T_IV
 
-OmQuery::op           T_IV
 
 
 INPUT
 STRING
-                     $var = new string(SvPV($arg,PL_na))
+        $var = new string(SvPV($arg,PL_na))
+
 O_MSET
 	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
 		$var = ($type)SvIV((SV*)SvRV( $arg ));
@@ -42,7 +58,23 @@ O_MSET
 		XSRETURN_UNDEF;
 	}
 
-O_MSETI
+O_RSET
+	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a blessed SV reference\" );
+		XSRETURN_UNDEF;
+	}
+
+O_ESET
+	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a blessed SV reference\" );
+		XSRETURN_UNDEF;
+	}
+
+O_MSET_I
 	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
 		$var = ($type)SvIV((SV*)SvRV( $arg ));
 	else{
@@ -51,6 +83,30 @@ O_MSETI
 	}
 
 O_DOC
+	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a blessed SV reference\" );
+		XSRETURN_UNDEF;
+	}
+
+O_QUERY
+	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a blessed SV reference\" );
+		XSRETURN_UNDEF;
+	}
+       
+O_SETTINGS
+	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a blessed SV reference\" );
+		XSRETURN_UNDEF;
+	}
+
+O_DATABASE
 	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
 		$var = ($type)SvIV((SV*)SvRV( $arg ));
 	else{
@@ -59,12 +115,53 @@ O_DOC
 	}
        
 
+O_WDATABASE
+	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a blessed SV reference\" );
+		XSRETURN_UNDEF;
+	}
+       
+O_TERM_I
+	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a blessed SV reference\" );
+		XSRETURN_UNDEF;
+	}
+
+O_VALUE_I
+	if( sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG) )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a blessed SV reference\" );
+		XSRETURN_UNDEF;
+	}
+
+
 OUTPUT
 STRING
-                     sv_setpv((SV*)$arg, (char *) ($var.c_str()));
+        sv_setpv((SV*)$arg, (char *) ($var.c_str()));
 O_MSET
-	sv_setref_pv( $arg, "Search::Xapian::MatchSet", (void*)$var );
-O_MSETI
-	sv_setref_pv( $arg, "Search::Xapian::MatchSetIterator", (void*)$var );
+	sv_setref_pv( $arg, "Search::Xapian::MSet", (void*)$var );
+O_RSET
+	sv_setref_pv( $arg, "Search::Xapian::RSet", (void*)$var );
+O_ESET
+	sv_setref_pv( $arg, "Search::Xapian::ESet", (void*)$var );
+O_MSET_I
+	sv_setref_pv( $arg, "Search::Xapian::MSetIterator", (void*)$var );
 O_DOC
 	sv_setref_pv( $arg, "Search::Xapian::Document", (void*)$var );
+O_QUERY
+	sv_setref_pv( $arg, "Search::Xapian::Query", (void*)$var );
+O_SETTINGS
+	sv_setref_pv( $arg, "Search::Xapian::Settings", (void*)$var );
+O_DATABASE
+	sv_setref_pv( $arg, "Search::Xapian::Database", (void*)$var );
+O_WDATABASE
+	sv_setref_pv( $arg, "Search::Xapian::WritableDatabase", (void*)$var );
+O_TERM_I
+	sv_setref_pv( $arg, "Search::Xapian::TermListIterator", (void*)$var );
+O_VALUE_I
+	sv_setref_pv( $arg, "Search::Xapian::ValueListIterator", (void*)$var );
