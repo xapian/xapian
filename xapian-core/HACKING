@@ -5,7 +5,7 @@ This file is aimed to help developers get started with working on
 Muscat.
 
 Extra options to give to configure:
-=============================
+===================================
 
 Note: Non-developer configure options are described in INSTALL
 
@@ -16,6 +16,28 @@ Note: Non-developer configure options are described in INSTALL
 	the code.
 	"full" enables the compiling of code to generate verbose debugging
 	messages.
+
+
+Debugging Messages
+==================
+
+Lots of places in the code generate debugging messages to tell us what
+they're up to, and this information can be very useful.  However, its got
+to such a stage that we need to be able to turn it on and off easily: and
+so I've set up a system for controlling the debugging output by means of
+environment variables.  You can:
+
+ o) set OM_DEBUG_FILE to be the path to a file that you would like debugging
+    output to be stored in (to override the default of stderr).
+
+ o) set OM_DEBUG_TYPES to a bitmap to select the types of debugging message
+    you would like to display.  Currently, all messages are selected by
+    setting bit 0 (ie, OM_DEBUG_TYPES=1), but they will be differentiated
+    into separate classes in future.
+
+Of course, if you didn't compile with --enable-debug=full, these environment
+variables will have no effect.
+
 
 Building from CVS:
 ==================
