@@ -96,11 +96,12 @@ class TextfileDoc {
 class TextfilePostList : public virtual DBPostList {
     friend class TextfileDatabase;
     private:
-	weight termweight;
-
 	vector<TextfilePosting>::const_iterator pos;
 	vector<TextfilePosting>::const_iterator end;
+	doccount termfreq;
 	bool started;
+
+	doclength normalised_length;
 
 	TextfilePostList(const IRDatabase *, const TextfileTerm &);
     public:
@@ -120,10 +121,31 @@ class TextfilePostList : public virtual DBPostList {
 	bool   at_end() const;        // True if we're off the end of the list
 };
 
+inline
+TextfilePostList::TextfilePostList(const IRDatabase *db,
+				   const TextfileTerm &term)
+	: pos(term.docs.begin()),
+	  end(term.docs.end()),
+	  termfreq(term.docs.size()),
+	  started(false),
+	  normalised_length(1.0)
+{
+    own_wt.set_stats(db, get_termfreq());
+}
+
 inline doccount
 TextfilePostList::get_termfreq() const
 {
     return termfreq;
+}
+
+inline weight
+TextfilePostList::get_weight() const
+{
+    Assert(started);
+    Assert(!at_end());
+
+    return ir_wt->get_weight((*pos).positions.size(), normalised_length);
 }
 
 inline docid
@@ -132,6 +154,18 @@ TextfilePostList::get_docid() const
     Assert(started);
     Assert(!at_end());
     return (*pos).did;
+}
+
+inline PostList *
+TextfilePostList::next(weight w_min)
+{
+    if(started) {
+	Assert(!at_end());
+	pos++;
+    } else {
+	started = true;
+    }
+    return NULL;
 }
 
 inline bool
