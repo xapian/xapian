@@ -39,11 +39,13 @@ class U {
 
 #define YYSTYPE U
 
+static int yyparse();
 static int yyerror(const char *s);
 static int yylex();
 
-static string::const_iterator q_ptr;
+static OmQuery query;
 
+#include "parsequery.h"
 #include "omega.h"
 #include "query.h"
 %}
@@ -117,14 +119,31 @@ hypphr:   TERM HYPHEN TERM	{ $$.v.push_back($1.q); $$.v.push_back($3.q); }
 
 %%
 
-/* Lexical analyzer returns a string containing a term name
-   on the stack and the token TERM, a token for an operator,
-   or the ASCII character read otherwise.  Skips all blanks
-   and tabs, returns 0 for EOF. */
+static string::const_iterator q_ptr;
+static int pending_token;
+static om_termpos termpos;
+static bool stem, stem_all;
+static OmStem *stemmer;
 
-#include <ctype.h>
+void
+QueryParser::set_stemming_options(const string &lang, bool stem_all_)
+{
+    if (lang.empty()) {
+	stem = false;
+    } else {
+	if (stemmer) delete stemmer;
+	stemmer = new OmStem(lang);
+	stem = true;
+	stem_all = stem_all_;
+    }
+}
 
-static om_termpos termpos = 1;
+/* Lexical analyzer.  Puts a U object on the stack and returns a token.
+ * The token can be TERM, a token for an operator, the ASCII character
+ * read, or EOF.  Skips all whitespace (but whitespace is used to resolve
+ * operators with multiple meanings: e.g. `-' can be a hyphen or exclude a
+ * term).
+ */
 
 static inline int
 next_char()
@@ -133,18 +152,12 @@ next_char()
    return *q_ptr++;
 }
 
-static OmStem stemmer("english");
-
-static bool stem, stem_all;
-
 // FIXME: allow domain:uk in query...
 // don't allow + and & in term then ?
 // or allow +&.-_ ?
 // domain/site/language/host ?
 
-static int pending_token = 0;
-
-static int
+int
 yylex()
 {
     int c;
@@ -194,7 +207,7 @@ yylex()
         } else if (term == "NEAR") {
 	    return NEAR;
         }
-	if (stem_term) term = stemmer.stem_word(term);
+	if (stem_term) term = stemmer->stem_word(term);
 	yylval = U(OmQuery(term, 1, termpos++));
 	new_terms_list.push_back(term);
 	new_terms.insert(term);
@@ -212,21 +225,22 @@ yylex()
     return c;                                
 }
 
-static int
+int
 yyerror(const char *s)
 {
     throw s;
 }
 
-void
-parse_prob()
+OmQuery
+QueryParser::parse_query(const string &q)
 {
     pending_token = 0;
-    stem = !atoi(option["no_stem"].c_str());
-    // stem capitalised words too -- needed for EuroFerret
-    stem_all = atoi(option["all_stem"].c_str());
-    q_ptr = raw_prob.begin();
-    yyparse();
+    termpos = 1;
+    q_ptr = q.begin();
+    if (yyparse() == 1) {
+	throw "query failed to parse";
+    }
+    return query;
 }
 
 #if 0

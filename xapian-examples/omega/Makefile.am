@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-noinst_HEADERS = omega.h query.h cgiparam.h symboltab.h\
+noinst_HEADERS = omega.h query.h cgiparam.h parsequery.h symboltab.h\
  htmlparse.h utils.h
 
 # include yacc/bison generated C++ source

@@ -36,12 +36,10 @@
 #include "omega.h"
 #include "query.h"
 #include "cgiparam.h"
+#include "parsequery.h"
 
 static bool done_query = false;
 static om_docid last = 0;
-
-// declared in parsequery.yy
-extern void parse_prob();
 
 list<om_termname> new_terms_list;
 set<om_termname> new_terms;
@@ -53,10 +51,8 @@ static void ensure_match();
 string raw_prob;
 map<om_docid, bool> ticked;
 
-OmQuery query;
-
+static OmQuery query;
 static string query_string;
-
 om_queryop op = OM_MOP_OR; // default matching mode
 
 querytype
@@ -72,7 +68,10 @@ set_probabilistic(const string &newp, const string &oldp)
     }
 
     // call YACC generated parser
-    parse_prob();
+    QueryParser qp;
+    qp.set_stemming_options(option["no_stem"] == "true" ? "english" : "",
+			    option["all_stem"] == "true"); 
+    query = qp.parse_query(raw_prob);
 
     // Check new query against the previous one
     const char *pend;
