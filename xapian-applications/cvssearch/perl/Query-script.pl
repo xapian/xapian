@@ -645,20 +645,22 @@ sub highlightquery{
 #--------------
 sub printTips{
 	print Cvssearch::fileheader("<b>Tips</b>", ".");
-#	print "<p>\n";
-#	print "<b class=blue>Tips</font></b>\n";
-	print "<ul>\n";
-	print "<li>Use <tt class=orange>in:</tt> at the end of keywords to select package to search in. For example, \n";
-	print "<br><tt class=orange>menu in:kdebase/konqueror;kdepim/korganizer</tt> \n";
-	print "<br>searches for menu under kdebase/konqueror and kdepim/korganizer; default searches for keywords under all packages.\n";
-	print "<li>Keywords are not case-sensitive and stemmed. (e.g. searching for 'fishes' will match 'FISH', 'fishes', 'fishing'...)\n";
-	print "<li>Results are ranked with the objective of matching as large a fraction of the keywords as possible.  \n";
-	print "The top 1500 lines are returned.\n";
-        print "<li>Multiple words are AND queries for CVS comment matches and OR queries for grep matches.\n";
-	print "</ul>\n";
-	
-	print "</body>";
-	print "</html>";
+
+print <<_HTML_;
+<ul>
+<li>Use <tt class=orange>in:</tt> at the end of keywords to select package to search in. For example,
+<br><tt class=orange>menu in:kdebase/konqueror;kdepim/korganizer</tt>
+<br>searches for menu under kdebase/konqueror and kdepim/korganizer; default searches for keywords under all packages.  
+<br>It does not have to be full path, for example, you can use in:kword instead of in:koffice/kword, however you cannot use in:kwo.
+<li>Keywords are not case-sensitive and stemmed. (e.g. searching for 'fishes' will match 'FISH', 'fishes', 'fishing'...)
+<li>Results are ranked with the objective of matching as large a fraction of the keywords as possible.
+The top 1500 lines are returned.
+<li>Multiple words are AND queries for CVS comment matches and OR queries for grep matches.
+</ul>
+</body>
+</html>
+_HTML_
+
 }
 
 #------------------
