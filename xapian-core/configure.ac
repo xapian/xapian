@@ -56,6 +56,15 @@ dnl 6:0:0 0.?.? QueryParser API overhauled
 LIBRARY_VERSION_INFO=5:1:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
+dnl Note if the user specified a particular C++ compiler so we can give a more
+dnl appropriate error message if we can't link a simple C++ program.
+original_CXX=
+if test -n "$CXX" ; then
+  original_CXX="CXX=$CXX"
+elif test -n "$CCC" ; then
+  original_CXX="CCC=$CCC"
+fi
+
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR(matcher/andpostlist.cc)
 
@@ -73,6 +82,44 @@ AM_MAINTAINER_MODE
 
 dnl Checks for programs.
 AC_PROG_CXX
+
+dnl For reasons which are beyond me, if autoconf can't find a C++ compiler
+dnl it will set CXX to g++ (which obviously won't work) rather than actually
+dnl telling the user that it couldn't find a C++ compiler and telling them
+dnl to install one or set CXX if there's one configure failed to find.
+dnl It's probably worthwhile checking that the C++ compiler actually works
+dnl anyway!
+cxx_works=no
+if test -n "$CXX" ; then
+  AC_LANG_CPLUSPLUS
+  AC_MSG_CHECKING([whether the C++ compiler works])
+  AC_TRY_LINK([], [], cxx_works=yes, cxx_works=no)
+  AC_MSG_RESULT($cxx_works)
+fi
+if test no = "$cxx_works" ; then
+  case "$original_CXX" in
+  CCC=*)
+    dnl CCC is handled in a slightly odd way - if its value isn't an
+    dnl executable (taking PATH into account) then it is ignored!
+    test "$original_CXX" = "CCC=$CXX" || original_CXX=
+    ;;
+  esac
+  if test -z "$original_CXX" ; then
+  AC_MSG_ERROR([
+*** You need a working C++ compiler to compile Xapian, but configure failed to
+*** find one.  If you have a working C++ compiler, you can tell configure where
+*** to find it by invoking it like so:
+***
+***   ./configure CXX=/opt/bin/c++
+])
+  else
+  AC_MSG_ERROR([
+*** You need a working C++ compiler to compile Xapian, but the compiler you
+*** specified (with '$original_CXX') doesn't appear to be able to successfully
+*** compile and link a simple program.
+])
+  fi
+fi
 
 dnl We want a non-cross-compiling C compiler for building lemon with.
 if test -z "$CC_FOR_BUILD" ; then
@@ -605,15 +652,12 @@ if test yes = "$GXX"; then
       dnl Intel's compiler:
       dnl
       dnl -w1 stops the avalanche of uninteresting "remark" messages.
-      dnl FIXME: we'll also need some switches to disable warnings which
-      dnl don't have good workarounds in code...
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1"
+      dnl -wd... disables warnings which don't have good code workarounds.
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
       dnl Automatically add -Werror if maintainer mode is enabled.
-      dnl if test x$USE_MAINTAINER_MODE = xyes; then
-        dnl FIXME: not for now - we need to work out which warnings we need
-	dnl to disable first above...
-	dnl AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
-      dnl fi
+      if test x$USE_MAINTAINER_MODE = xyes; then
+	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+      fi
     ],
     [
       dnl GCC:
