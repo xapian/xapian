@@ -1,3 +1,9 @@
+Wed Nov 06 17:50:12 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/: Removed QuartzBufferedTable::write() (unused and
+	  unimplemented), and merged QuartzBufferedTable::write_internal()
+	  into QuartzBufferedTable::write_internal().
+
 Wed Nov 06 01:56:41 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/: disable quartz lexicon table unless USE_LEXICON

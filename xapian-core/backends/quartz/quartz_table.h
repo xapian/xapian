@@ -461,9 +461,6 @@ class QuartzBufferedTable : public QuartzTable {
 	 */
 	bool have_tag(const string &key);
 
-	/** Perform the writing of changes.
-	 */
-	void write_internal();
     public:
 	/** Create a new table.  This does not open the table - the open()
 	 *  method must be called before use is made of the table.
@@ -477,13 +474,6 @@ class QuartzBufferedTable : public QuartzTable {
 	 *  subsequently been called) will be lost.
 	 */
 	~QuartzBufferedTable();
-
-	/** Write any outstanding changes to disk.
-	 *
-	 *  This frees the memory used to store the changes in memory, but
-	 *  doesn't create a new revision.
-	 */
-	void write();
 
 	/** Apply any outstanding changes.
 	 *

@@ -682,7 +682,6 @@ static bool test_bufftable3()
 
 	key = "foo1";
 	*(bufftable.get_or_make_tag(key)) = "bar1";
-	bufftable.write();
 
 	key = "foo2";
 	*(bufftable.get_or_make_tag(key)) = "bar2";

@@ -535,19 +535,19 @@ QuartzBufferedTable::~QuartzBufferedTable()
 }
 
 void
-QuartzBufferedTable::write_internal()
+QuartzBufferedTable::apply(quartz_revision_number_t new_revision)
 {
-    DEBUGCALL(DB, void, "QuartzBufferedTable::write_internal", "");
+    DEBUGCALL(DB, void, "QuartzBufferedTable::apply", new_revision);
     try {
 	QuartzTableEntries::items & entries = changed_entries.get_all_entries();
 	map<string, string *>::iterator entry;
 	entry = entries.begin();
 	Assert(entry != entries.end());
 	// Don't set the null entry.
-	for (entry++;
+	for (++entry;
 	     entry != changed_entries.get_all_entries().end();
-	     entry++) {
-	    DEBUGLINE(DB, "QuartzBufferedTable::write_internal(): setting key " << hex_encode(entry->first) << " to " << ((entry->second)? (hex_encode(*(entry->second))) : string("<NULL>")));
+	     ++entry) {
+	    DEBUGLINE(DB, "QuartzBufferedTable::apply(): setting key " << hex_encode(entry->first) << " to " << ((entry->second)? (hex_encode(*(entry->second))) : string("<NULL>")));
 	    if (entry->second) {
 		disktable->set_entry(entry->first, *(entry->second));
 		delete entry->second;
@@ -561,21 +561,7 @@ QuartzBufferedTable::write_internal()
 	throw;
     }
     changed_entries.clear();
-}
 
-void
-QuartzBufferedTable::write()
-{
-    DEBUGCALL(DB, void, "QuartzBufferedTable::write", "");
-    // FIXME: implement
-    // write_internal();
-}
-
-void
-QuartzBufferedTable::apply(quartz_revision_number_t new_revision)
-{
-    DEBUGCALL(DB, void, "QuartzBufferedTable::apply", new_revision);
-    write_internal();
     disktable->apply(new_revision);
 
     AssertEq(entry_count, disktable->get_entry_count());
