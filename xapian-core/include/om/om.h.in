@@ -65,7 +65,9 @@
 %endif
 #endif
 %
-typedef std::string om_termname; // for backward compatibility
+% // for backward compatibility
+%include <string>
+typedef std::string om_termname;
 %
 % Types and exceptions
 %include "om/omtypes.h"

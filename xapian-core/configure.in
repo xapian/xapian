@@ -389,6 +389,7 @@ AC_OUTPUT(
  testsuite/Makefile
  include/Makefile
  include/om/Makefile
+ include/xapian/Makefile
  common/Makefile
  backends/Makefile
  backends/muscat36/Makefile

@@ -27,7 +27,7 @@
 
 #include "omdebug.h"
 #include "om/omoutput.h"
-#include "om/omstem.h"
+#include "xapian/stem.h"
 #include "utils.h"
 
 #include "api.h"
@@ -175,13 +175,13 @@ static const StringAndValue language_strings[] = {
 
 
 ////////////////////////////////////////////////////////////
-// OmStem::Internal class
+// Xapian::Stem::Internal class
 
-class OmStem::Internal {
+class Xapian::Stem::Internal : public Xapian::Internal::RefCntBase {
     private:
         // Prevent copying
-        Internal(const OmStem::Internal &);
-        Internal & operator=(const OmStem::Internal &);
+        Internal(const Xapian::Stem::Internal &);
+        Internal & operator=(const Xapian::Stem::Internal &);
 
     public:
 	/** Initialise the state based on the specified language name.
@@ -219,7 +219,7 @@ class OmStem::Internal {
 	stemmer_language get_stemtype(const string &language);
 };
 
-OmStem::Internal::Internal(const string &language)
+Xapian::Stem::Internal::Internal(const string &language)
 	: stemmer_data(0)
 {
     stemmer_language langcode_ = get_stemtype(language);
@@ -231,14 +231,14 @@ OmStem::Internal::Internal(const string &language)
     set_language(langcode_);
 }
 
-OmStem::Internal::Internal(enum stemmer_language langcode_)
+Xapian::Stem::Internal::Internal(enum stemmer_language langcode_)
 	: stemmer_data(0)
 {
     Assert(langcode_ != STEMLANG_INVALID);
     set_language(langcode_);
 }
 
-OmStem::Internal::~Internal()
+Xapian::Stem::Internal::~Internal()
 {
     if (stemmer_data != 0) {
 	stemmers[langcode].closedown(stemmer_data);
@@ -246,7 +246,7 @@ OmStem::Internal::~Internal()
 }
 
 void
-OmStem::Internal::set_language(stemmer_language langcode_)
+Xapian::Stem::Internal::set_language(stemmer_language langcode_)
 {
     Assert(langcode_ != STEMLANG_INVALID); 
     if (stemmer_data != 0) {
@@ -257,14 +257,14 @@ OmStem::Internal::set_language(stemmer_language langcode_)
 }
 
 stemmer_language
-OmStem::Internal::get_stemtype(const string &language)
+Xapian::Stem::Internal::get_stemtype(const string &language)
 {
     return static_cast<stemmer_language> (
 		map_string_to_value(language_strings, language));
 }
 
 string
-OmStem::Internal::stem_word(const string &word) const
+Xapian::Stem::Internal::stem_word(const string &word) const
 {
     if (!stemmer_data || word.empty()) return word;
     SN_set_current(stemmer_data, word.length(),
@@ -274,52 +274,48 @@ OmStem::Internal::stem_word(const string &word) const
     return string((const char *)(stemmer_data->p), stemmer_data->l);
 }
 
-///////////////////////
-// Methods of OmStem //
-///////////////////////
+// Methods of Xapian::Stem
 
-OmStem::OmStem(const string &language)
-	: internal(new OmStem::Internal(language))
+Xapian::Stem::Stem(const string &language)
+	: internal(new Xapian::Stem::Internal(language))
 {
-    DEBUGAPICALL(void, "OmStem::OmStem", language);
+    DEBUGAPICALL(void, "Xapian::Stem::Stem", language);
 }
 
-OmStem::OmStem() : internal(new OmStem::Internal(STEMLANG_NONE))
+Xapian::Stem::Stem() : internal(new Xapian::Stem::Internal(STEMLANG_NONE))
 {
-    DEBUGAPICALL(void, "OmStem::OmStem", "");
+    DEBUGAPICALL(void, "Xapian::Stem::Stem", "");
 }
 
-OmStem::~OmStem()
+Xapian::Stem::~Stem()
 {
-    DEBUGAPICALL(void, "OmStem::~OmStem", "");
-    delete internal;
+    DEBUGAPICALL(void, "Xapian::Stem::~Stem", "");
 }
 
-OmStem::OmStem(const OmStem &other)
+Xapian::Stem::Stem(const Xapian::Stem &other)
 {
-    DEBUGAPICALL(void, "OmStem::OmStem", other);
-    internal = new OmStem::Internal(other.internal->langcode);
+    DEBUGAPICALL(void, "Xapian::Stem::Stem", other);
+    internal = other.internal;
 }
 
 void
-OmStem::operator=(const OmStem &other)
+Xapian::Stem::operator=(const Xapian::Stem &other)
 {
-    DEBUGAPICALL(void, "OmStem::operator=", other);
-    delete internal;
-    internal = new OmStem::Internal(other.internal->langcode);
+    DEBUGAPICALL(void, "Xapian::Stem::operator=", other);
+    internal = other.internal;
 }
 
 string
-OmStem::stem_word(const string &word) const
+Xapian::Stem::stem_word(const string &word) const
 {
-    DEBUGAPICALL(string, "OmStem::stem_word", word);
+    DEBUGAPICALL(string, "Xapian::Stem::stem_word", word);
     RETURN(internal->stem_word(word));
 }
 
 string
-OmStem::get_available_languages()
+Xapian::Stem::get_available_languages()
 {
-    DEBUGAPICALL_STATIC(string, "OmStem::get_available_languages", "");
+    DEBUGAPICALL_STATIC(string, "Xapian::Stem::get_available_languages", "");
     string languages;
 
     const char ** pos;
@@ -333,8 +329,8 @@ OmStem::get_available_languages()
 }
 
 string
-OmStem::get_description() const
+Xapian::Stem::get_description() const
 {
-    DEBUGCALL(INTRO, string, "OmStem::get_description", "");
-    RETURN("OmStem(" + string(language_names[internal->langcode]) + ")");
+    DEBUGCALL(INTRO, string, "Xapian::Stem::get_description", "");
+    RETURN("Xapian::Stem(" + string(language_names[internal->langcode]) + ")");
 }
