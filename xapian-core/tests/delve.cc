@@ -96,7 +96,7 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
-    sort(recnos.begin(), recnos.end());
+    std::sort(recnos.begin(), recnos.end());
     
     try {
 	OmDatabase db;

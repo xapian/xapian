@@ -163,10 +163,10 @@ bool test_flowcheck1()
 	         "<output node='concat' out_name='out'/>"
              "</omindexer>\n"));
 
-	indexer->set_input(OmIndexerMessage(new OmIndexerData(vector<OmIndexerData>())));
+	indexer->set_input(OmIndexerMessage(new OmIndexerData(std::vector<OmIndexerData>())));
 	OmIndexerMessage result = indexer->get_raw_output();
 	if (verbose) {
-	    cerr << "got output: " << result << endl;
+	    std::cerr << "got output: " << result << endl;
 	}
     } catch (OmDataFlowError &) {
 	success = true;
@@ -658,7 +658,7 @@ test_ommakepairs1()
          "<output node='only' out_name='out'/>\n"
       "</omindexer>\n");
 
-    vector<OmIndexerData> vec;
+    std::vector<OmIndexerData> vec;
     vec.push_back(OmIndexerData("cab"));
     vec.push_back(OmIndexerData("abc"));
     indexer->set_input(OmIndexerMessage(new OmIndexerData(vec)));
