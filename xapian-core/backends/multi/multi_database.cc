@@ -81,7 +81,7 @@ PostList * MultiPostList::next(weight w_min)
 		// entry
 		continue;
 	    }
-	    (*i).currdoc = (*i).pl->get_docid();
+	    (*i).currdoc = (*i).pl->get_docid() * (*i).multiplier + (*i).offset;
 	}
 
 	// Check if it might be the newdoc
@@ -102,7 +102,8 @@ PostList * MultiPostList::next(weight w_min)
 // Actual database class //
 ///////////////////////////
 
-MultiDatabase::MultiDatabase() {
+MultiDatabase::MultiDatabase()
+{
     Assert((opened = false) == false);
     Assert((used = false) == false);
 }
@@ -128,8 +129,10 @@ MultiDatabase::open_subdatabase(IRDatabase * db,
 				const string &pathname, bool readonly) {
     Assert(!used);
     db->open(pathname, readonly);
-    databases.push_back(db);
     db->set_root(root);
+
+    databases.push_back(db);
+
     opened = true;
 }
 
@@ -138,8 +141,8 @@ void MultiDatabase::close() {
     if(opened) {
 	// Close all databases
 	while(databases.begin() != databases.end()) {
-	    (*(databases.begin()))->close();
-	    delete *(databases.begin());
+	    (*databases.begin())->close();
+	    delete *databases.begin();
 	    databases.erase(databases.begin());
 	}
     }
@@ -153,13 +156,19 @@ MultiDatabase::open_post_list(termid tid) const {
 
     termname tname = term_id_to_name(tid);
 
+    doccount offset = 0;
+    doccount multiplier = databases.size();
+
     list<MultiPostListInternal> pls;
     list<IRDatabase *>::const_iterator i = databases.begin();
     while(i != databases.end()) {
 	termid local_tid = (*i)->term_name_to_id(tname);
 	if(local_tid) {
-	    pls.push_back(MultiPostListInternal((*i)->open_post_list(tid)));
+	    MultiPostListInternal pl((*i)->open_post_list(tid),
+				     offset, multiplier);
+	    pls.push_back(pl);
 	}
+	offset++;
 	i++;
     }
     Assert(pls.begin() != pls.end());

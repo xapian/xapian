@@ -13,10 +13,13 @@ class MultiPostListInternal {
 	DBPostList * pl;
 	docid currdoc;
 
-	MultiPostListInternal(DBPostList * pl_new) {
-	    pl = pl_new;
-	    currdoc = 0;
-	}
+	doccount offset;
+	doccount multiplier;
+
+	MultiPostListInternal(DBPostList * pl_new,
+			      doccount off,
+			      doccount mult)
+		: pl(pl_new), currdoc(0), offset(off), multiplier(mult) {}
 };
 
 class MultiPostList : public virtual DBPostList {
@@ -162,7 +165,7 @@ MultiDatabase::get_doccount() const
     Assert((used = true) == true);
 
     doccount docs = 0;
-    
+
     list<IRDatabase *>::const_iterator i = databases.begin();
     while(i != databases.end()) {
 	docs += (*i)->get_doccount();
@@ -184,9 +187,9 @@ MultiDatabase::get_avlength() const
 
     list<IRDatabase *>::const_iterator i = databases.begin(); 
     while(i != databases.end()) {
-	doccount this_docs = (*i)->get_doccount();
-	docs += this_docs;
-	totlen += (*i)->get_avlength() * this_docs;
+	doccount db_doccount = (*i)->get_doccount();
+	docs += db_doccount;
+	totlen += (*i)->get_avlength() * db_doccount;
 	i++;
     }
 
