@@ -38,7 +38,7 @@ libquartz_la_LIBADD = @BERKELEY_3_1_LIBS@
 
 libquartz_la_LDFLAGS = @BERKELEY_3_1_LINKFLAGS@
 
-TESTS = quartztest
+TESTS = run-quartztest
 
 check_PROGRAMS = quartztest
 

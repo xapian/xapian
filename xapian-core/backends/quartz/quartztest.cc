@@ -728,6 +728,7 @@ static bool test_open1()
     OmSettings settings;
     system("rm -fr .testdb_open1");
     settings.set("quartz_dir", ".testdb_open1");
+    settings.set("quartz_logfile", "log_open1");
     settings.set("backend", "quartz");
 
     TEST_EXCEPTION(OmOpeningError,
@@ -751,7 +752,7 @@ static bool test_adddoc1()
     system("rm -fr .testdb_adddoc1");
     system("mkdir .testdb_adddoc1");
     settings.set("quartz_dir", ".testdb_adddoc1");
-    settings.set("quartz_logfile", "log");
+    settings.set("quartz_logfile", "log_adddoc1");
     settings.set("backend", "quartz");
 
     RefCntPtr<Database> database = DatabaseBuilder::create(settings, false);
@@ -766,7 +767,7 @@ static bool test_adddoc1()
     TEST_EQUAL(database->get_doccount(), 1);
     TEST_EQUAL(did, 1);
     TEST_EQUAL(database->get_avlength(), 0);
-    settings.set("quartz_logfile", "log_ro");
+    settings.set("quartz_logfile", "log_adddoc1_ro");
     {
 	RefCntPtr<Database> db_readonly =
 		DatabaseBuilder::create(settings, true);
@@ -817,7 +818,7 @@ static bool test_adddoc2()
     system("rm -fr .testdb_adddoc2");
     system("mkdir .testdb_adddoc2");
     settings.set("quartz_dir", ".testdb_adddoc2");
-    settings.set("quartz_logfile", "log");
+    settings.set("quartz_logfile", "log_adddoc2");
     settings.set("backend", "quartz");
 
     om_docid did;
@@ -858,7 +859,7 @@ static bool test_adddoc2()
     }
 
     {
-	settings.set("quartz_logfile", "log_ro");
+	settings.set("quartz_logfile", "log_adddoc2_ro");
 	RefCntPtr<Database> database = DatabaseBuilder::create(settings, true);
 	OmDocumentContents document_out = database->get_document(did);
 
