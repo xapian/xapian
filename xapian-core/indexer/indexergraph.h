@@ -32,10 +32,15 @@ template <class T, class U>
 class deleter_map : private std::map<T, U> {
     public:
 	using std::map<T, U>::iterator;
+	using std::map<T, U>::const_iterator;
 	using std::map<T, U>::begin;
 	using std::map<T, U>::end;
+	using std::map<T, U>::operator[];
+	using std::map<T, U>::find;
 	~deleter_map() {
-	    for (iterator i = begin(); i != end(); ++i) {
+	    for (typename std::map<T,U>::iterator i = begin();
+		 i != end();
+		 ++i) {
 		delete i->second;
 	    }
 	}
@@ -54,6 +59,10 @@ class OmIndexer {
 	/** Destructor
 	 */
 	~OmIndexer();
+
+	/** Get the output
+	 */
+	Message get_output();
     private:
 	typedef deleter_map<std::string, OmIndexerNode *> NodeMap;
 

@@ -1,0 +1,15 @@
+<!ELEMENT omindexer (node+, output)>
+<!ELEMENT node (input*)>
+<!ELEMENT output EMPTY>
+<!ELEMENT input EMPTY>
+
+<!ATTLIST omindexer>
+<!ATTLIST node
+          type CDATA #REQUIRED
+	  id   ID    #REQUIRED>
+<!ATTLIST output
+          node IDREF #REQUIRED>
+<!ATTLIST input
+	  name CDATA "in"
+          node IDREF #REQUIRED
+	  out_name CDATA "out">

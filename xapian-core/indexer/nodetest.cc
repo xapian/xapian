@@ -22,25 +22,42 @@
 
 #include "omindexernode.h"
 #include "testnodes.h"
+#include "indexergraph.h"
 
 int main() {
-    Message origmsg(new BasicMessage());
-    origmsg->name = "foo";
-    origmsg->value = "bar";
-    OmOrigNode orig(origmsg);
+    {
+	Message origmsg(new BasicMessage());
+	origmsg->name = "foo";
+	origmsg->value = "bar";
+	OmOrigNode orig(origmsg);
 
-    SplitNode split;
-    split.connect_input("in", &orig, "out");
+	SplitNode split;
+	split.connect_input("in", &orig, "out");
 
-    ReverseNode reverse;
-    reverse.connect_input("in", &split, "out1");
+	ReverseNode reverse;
+	reverse.connect_input("in", &split, "out1");
 
-    ConcatNode concat;
-    concat.connect_input("in1", &reverse, "out");
-    concat.connect_input("in2", &split, "out2");
+	ConcatNode concat;
+	concat.connect_input("in1", &reverse, "out");
+	concat.connect_input("in2", &split, "out2");
 
-    Message result = concat.get_output("out");
+	Message result = concat.get_output("out");
 
-    cout << "Name: " << result->name << endl;
-    cout << "Value: " << result->value << endl;
+	cout << "Name: " << result->name << endl;
+	cout << "Value: " << result->value << endl;
+    }
+
+    try {
+	OmIndexer indexer("test.xml");
+	Message result = indexer.get_output();
+
+	cout << "Name: " << result->name << endl;
+	cout << "Value: " << result->value << endl;
+    } catch (const std::string &s) {
+	cout << "Got exception: " << s << endl;
+    } catch (const char * s) {
+	cout << "Got exception: " << s << endl;
+    } catch (char *s) {
+	cout << "Got exception: " << s << endl;
+    }
 }

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE omindexer SYSTEM "test.dtd">
+<omindexer>
+    <node type="split" id="spl">
+       <input name="in" node="START" out_name="out"/>
+    </node>
+    <node type="reverse" id="rev">
+       <input name="in" node="spl" out_name="out1"/>
+    </node>
+    <node type="concat" id="con">
+       <input name="in1" node="rev" out_name="out"/>
+       <input name="in2" node="spl" out_name="out2"/>
+    </node>
+    <output node="con" out_name="out"/>
+</omindexer>

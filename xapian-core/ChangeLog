@@ -1,3 +1,7 @@
+Tue Aug 22 17:00:49 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added some proof-of-concept XML-generated indexer network code.
+
 Tue Aug 22 16:59:11 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix documentation comment in omsettings to refer to remote instead
