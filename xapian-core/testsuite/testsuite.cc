@@ -35,6 +35,7 @@
 
 #include "om/omerror.h"
 #include "testsuite.h"
+#include "omdebug.h"
 
 #ifdef HAVE_LIBPTHREAD
 #include <pthread.h>
@@ -309,6 +310,11 @@ int test_driver::main(int argc,
     	usage(argv[0]);
 	return 1;
     }
+
+    // We need to display something before we start, or the allocation
+    // made when the first debug message is displayed is (wrongly) picked
+    // up on as a memory leak.
+    DEBUGLINE(UNKNOWN, "Starting testsuite run.");
 
     test_driver::result myresult;
     if (one_test) {

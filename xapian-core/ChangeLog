@@ -1,3 +1,8 @@
+Thu Jun 29 03:13:12 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+        * Display an initial debugging message before starting a test run,
+	  thus avoiding a mistaken complaint of a memory leak.
+
 Thu Jun 29 03:06:12 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix typo causing nettests to fail: was trying to open network
