@@ -13,7 +13,7 @@ int main()
 
 	OmEnquire enq(db);
 
-	enq.set_query(OmQuery("foo"));
+	enq.set_query(OmQuery("word"));
 
 	OmMSet mset(enq.get_mset(0, 10));
     } catch (OmError &e) {

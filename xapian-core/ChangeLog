@@ -1,3 +1,8 @@
+Fri Mar 31 19:00:50 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* First remote mset retrieved.  Still doesn't complete the whole
+	  match process, but getting there.
+
 Wed Mar 29 18:01:46 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Split sleepycat database stuff into separate files, and made it

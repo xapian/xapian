@@ -101,12 +101,15 @@ ProgClient::do_read()
     buffer.erase(0, pos+1);
     //cout << "PostBuffer: [" << buffer << "]" << endl;
 
+    cout << "do_read(): " << retval << endl;
+
     return retval;
 }
 
 void
 ProgClient::do_write(string data)
 {
+    cout << "do_write(): " << data.substr(0, data.length() - 1) << endl;
     while (data.length() > 0) {
 	ssize_t written = write(socketfd, data.data(), data.length());
 
@@ -228,6 +231,18 @@ ProgClient::do_transaction_with_result(string msg)
     return response;
 }
 
+OmMSetItem
+string_to_msetitem(string s)
+{
+    istrstream is(s.c_str());
+    om_weight wt;
+    om_docid did;
+
+    is >> wt >> did;
+
+    return OmMSetItem(wt, did);
+}
+
 void
 ProgClient::get_mset(om_doccount first,
 		     om_doccount maxitems,
@@ -235,5 +250,21 @@ ProgClient::get_mset(om_doccount first,
 		     om_doccount *mbound,
 		     om_weight *greatest_wt)
 {
-    Assert(false);
+    do_write(string("GET_MSET ") +
+	     inttostring(first) + " " +
+	     inttostring(maxitems) + "\n");
+    
+    string response = do_read();
+    if (response == "ERROR") {
+	throw OmNetworkError("Error getting mset");
+    }
+    int numitems = atoi(response.c_str());
+
+    for (int i=0; i<numitems; ++i) {
+	mset.push_back(string_to_msetitem(do_read()));
+    }
+    response = do_read();
+    if (response != "OK") {
+	throw OmNetworkError("Error at end of mset");
+    }
 }

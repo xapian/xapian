@@ -297,6 +297,52 @@ void run_matcher() {
 
 	    cout << stats_to_string(*statgath.get_stats()) << endl;
 	    cout.flush();
+	} else if (words[0] == "GET_MSET") {
+	    //cerr << "GET_MSET: " << words.size() << " words" << endl;
+	    if (words.size() != 3) {
+		cout << "ERROR" << endl;
+		cout.flush();
+	    } else {
+		om_doccount first = atoi(words[1].c_str());
+		om_doccount maxitems = atoi(words[2].c_str());
+
+		vector<OmMSetItem> mset;
+		om_doccount mbound;
+		om_weight greatest_wt;
+
+		cerr << "About to get_mset(" << first
+			<< ", " << maxitems << "..." << endl;
+
+		leafmatch.get_mset(first,
+				   maxitems,
+				   mset,
+				   msetcmp_forward,
+				   &mbound,
+				   &greatest_wt,
+				   0);
+
+		//cerr << "done get_mset..." << endl;
+
+		cout << mset.size() << endl;
+		cout.flush();
+
+		//cerr << "sent size..." << endl;
+
+		for (vector<OmMSetItem>::iterator i=mset.begin();
+		     i != mset.end();
+		     ++i) {
+		    cout << i->wt << " " << i->did << endl;
+		    cout.flush();
+
+		    cerr << "MSETITEM: " << i->wt << " " << i->did << endl;
+		}
+		//cerr << "sent items..." << endl;
+
+		cout << "OK" << endl;
+		cout.flush();
+
+		//cerr << "sent OK..." << endl;
+	    }
 	} else {
 	    cout << "ERROR" << endl;
 	    cout.flush();
