@@ -310,7 +310,7 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 	case OmQuery::OP_LEAF: {
 	    // Make a postlist for a single term
 	    Assert(query->subqs.size() == 0);
-	    OmMSet::TermFreqAndWeight info;
+	    OmMSet::Internal::TermFreqAndWeight info;
 	
 	    // FIXME: pass the weight type and the info needed to create it to the
 	    // postlist instead

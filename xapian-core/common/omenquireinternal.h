@@ -194,12 +194,23 @@ class OmExpand;
 class OmMSet::Internal {
     friend class OmMSet;
     friend class MSetPostList;
+    friend class RemoteSubMatch;
     friend std::string ommset_to_string(const OmMSet &ommset);
     private:
+	int convert_to_percent_internal(om_weight wt) const;
+
+	/** A structure containing the term frequency and weight for a
+	 *  given query term.
+	 */
+	struct TermFreqAndWeight {
+	    om_doccount termfreq;
+	    om_weight termweight;
+	};
+
 	/** The term frequencies and weights returned by the match process.
 	 *  This map will contain information for each term which was in                 *  the query.
 	 */
-	std::map<om_termname, OmMSet::TermFreqAndWeight> termfreqandwts;
+	std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> termfreqandwts;
 
 	/// A list of items comprising the (selected part of the) mset.
 	std::vector<OmMSetItem> items;

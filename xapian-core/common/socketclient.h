@@ -168,7 +168,7 @@ class SocketClient : public NetClient {
 			   om_doccount &termfreq_min,
 			   om_doccount &termfreq_est,
 			   om_weight &maxw,
-			   std::map<om_termname, OmMSet::TermFreqAndWeight> &term_info);
+			   std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> &term_info);
 
 	void next(om_weight w_min, om_docid &did, om_weight &w, OmKey &key);
 	void skip_to(om_docid new_did, om_weight w_min, om_docid &did, om_weight &w, OmKey &key);

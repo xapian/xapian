@@ -103,19 +103,6 @@ class OmMSet {
     public: // FIXME: public for now, private would be better
 	Internal *internal; // reference counted internals
 
-    private:
-	/// Internal method used for percentage conversion
-	int convert_to_percent_internal(om_weight wt) const;
-
-    public:
-	/** A structure containing the term frequency and weight for a
-	 *  given query term.
-	 */
-	struct TermFreqAndWeight {
-	    om_doccount termfreq;
-	    om_weight termweight;
-	};
-
 	OmMSet(OmMSet::Internal * internal_);
 
 	OmMSet();
@@ -146,10 +133,6 @@ class OmMSet {
 	 *             in the query.
 	 */
 	om_weight get_termweight(const om_termname &tname) const;
-
-	/** Return all the available term weights and frequencies
-	 */
-	const std::map<om_termname, TermFreqAndWeight> get_all_terminfo() const;
 
 	/** The index of the first item in the result which was put into the
 	 *  mset.

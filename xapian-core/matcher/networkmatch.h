@@ -85,11 +85,11 @@ class RemoteSubMatch : public SubMatch {
 	    return db->open_document(did);
 	}
 
-	const std::map<om_termname, OmMSet::TermFreqAndWeight> get_term_info() const {
+	const std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> get_term_info() const {
 	    Assert(postlist);
 #ifdef USE_MSETPOSTLIST // FIXME: ought to be able to select
 	    postlist->make_pl();
-	    return postlist->pl->mset.get_all_terminfo();
+	    return postlist->pl->mset.internal->termfreqandwts;
 #else
 	    return postlist->get_terminfo();
 #endif

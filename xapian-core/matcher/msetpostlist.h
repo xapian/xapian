@@ -243,7 +243,7 @@ class RemotePostList : public PostList {
 	om_doccount termfreq_est;
 	om_weight maxw;
 
-	std::map<om_termname, OmMSet::TermFreqAndWeight> term_info;
+	std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> term_info;
 
     public:
 	om_doccount get_termfreq_max() const { return termfreq_max; }
@@ -271,7 +271,7 @@ class RemotePostList : public PostList {
 
 	virtual PositionList * get_position_list();
 
-	const std::map<om_termname, OmMSet::TermFreqAndWeight> get_terminfo() const {
+	const std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> get_terminfo() const {
 	    return term_info;
 	}
 

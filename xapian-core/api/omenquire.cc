@@ -185,40 +185,24 @@ OmMSet::OmMSet(OmMSet::Internal * internal_) : internal(internal_)
 }
 
 int
-OmMSet::convert_to_percent_internal(om_weight wt) const
-{
-    DEBUGAPICALL(int, "OmMSet::convert_to_percent", wt);
-    if (internal->max_possible == 0) RETURN(100);
-
-    int pcent = (int) ceil(wt * 100 / internal->max_possible);
-    DEBUGLINE(API, "wt = " << wt << ", max_possible = "
-	      << internal->max_possible << " =>  pcent = " << pcent);
-    if (pcent > 100) pcent = 100;
-    if (pcent < 0) pcent = 0;
-    if (pcent == 0 && wt > 0) pcent = 1;
-
-    RETURN(pcent);
-}
-
-int
 OmMSet::convert_to_percent(om_weight wt) const
 {
     DEBUGAPICALL(int, "OmMSet::convert_to_percent", wt);
-    RETURN(convert_to_percent_internal(wt));
+    RETURN(internal->convert_to_percent_internal(wt));
 }
 
 int
 OmMSet::convert_to_percent(const OmMSetIterator & it) const
 {
     DEBUGAPICALL(int, "OmMSet::convert_to_percent", it);
-    RETURN(convert_to_percent_internal(it.get_weight()));
+    RETURN(internal->convert_to_percent_internal(it.get_weight()));
 }
 
 om_doccount
 OmMSet::get_termfreq(const om_termname &tname) const
 {
     DEBUGAPICALL(om_doccount, "OmMSet::get_termfreq", tname);
-    std::map<om_termname, TermFreqAndWeight>::const_iterator i;
+    std::map<om_termname, Internal::TermFreqAndWeight>::const_iterator i;
     i = internal->termfreqandwts.find(tname);
     if (i == internal->termfreqandwts.end()) {
 	throw OmInvalidArgumentError("Term frequency of `" + tname +
@@ -231,19 +215,13 @@ om_weight
 OmMSet::get_termweight(const om_termname &tname) const
 {
     DEBUGAPICALL(om_weight, "OmMSet::get_termweight", tname);
-    std::map<om_termname, TermFreqAndWeight>::const_iterator i;
+    std::map<om_termname, Internal::TermFreqAndWeight>::const_iterator i;
     i = internal->termfreqandwts.find(tname);
     if (i == internal->termfreqandwts.end()) {
 	throw OmInvalidArgumentError("Term weight of `" + tname +
 				     "' not available.");
     }
     RETURN(i->second.termweight);
-}
-
-const std::map<om_termname, OmMSet::TermFreqAndWeight>
-OmMSet::get_all_terminfo() const
-{
-    return internal->termfreqandwts;
 }
 
 om_doccount
@@ -312,6 +290,22 @@ OmMSet::get_description() const
 {
     DEBUGCALL(INTRO, std::string, "OmMSet::get_description", "");
     RETURN("OmMSet(" + internal->get_description() + ")");
+}
+
+int
+OmMSet::Internal::convert_to_percent_internal(om_weight wt) const
+{
+    DEBUGAPICALL(int, "OmMSet::Internal::convert_to_percent", wt);
+    if (max_possible == 0) RETURN(100);
+
+    int pcent = (int) ceil(wt * 100 / max_possible);
+    DEBUGLINE(API, "wt = " << wt << ", max_possible = "
+	      << max_possible << " =>  pcent = " << pcent);
+    if (pcent > 100) pcent = 100;
+    if (pcent < 0) pcent = 0;
+    if (pcent == 0 && wt > 0) pcent = 1;
+
+    RETURN(pcent);
 }
 
 std::string

@@ -73,7 +73,7 @@ class LocalSubMatch : public SubMatch {
 	OmSettings opts;
 
 	/// The weights and termfreqs of terms in the query.
-	std::map<om_termname, OmMSet::TermFreqAndWeight> term_info;
+	std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> term_info;
 
 
 	PostList * build_and_tree(std::vector<PostList *> &postlists,
@@ -134,7 +134,7 @@ class LocalSubMatch : public SubMatch {
 	    return db->open_document(did);
 	}
 
-	const std::map<om_termname, OmMSet::TermFreqAndWeight> get_term_info() const {
+	const std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> get_term_info() const {
 	    return term_info;
 	}
 };   

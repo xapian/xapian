@@ -1,3 +1,7 @@
+Tue Dec 12 17:18:33 GMT 2000 Olly Betts
+
+	* Finished cleaning up OmMSet; updated TODO to reflect this.
+
 Tue Dec 12 17:16:02 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix bug with sorting keys in btrees.

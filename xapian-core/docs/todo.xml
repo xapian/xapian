@@ -72,7 +72,7 @@ currently, sometimes you have to supply a begin and end iterator, and sometimes
 you have to supply a reference to an object.  Always use begin and end
 iterators.
 
-Particular offenders are: OmMSet, OmBatchEnquire, OmStem.
+Particular offenders are: OmBatchEnquire, OmStem.
 
 Also OmEnquire::get_matching_terms(), OmQuery::get_terms(),
 OmExpandDeciderFilterTerms. (om_termnamelist), and some parts of the indexer.
@@ -96,7 +96,7 @@ wanted in each case - rework to avoid it if so.
 <todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
 
 Rework OmEnquire::get_docs() - make it able to take a vector of docids as well
-as MSetItems?  General tidy up needed.
+as MSetIterators?  General tidy up needed.
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">

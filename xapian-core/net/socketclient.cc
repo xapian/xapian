@@ -342,7 +342,7 @@ SocketClient::open_postlist(om_doccount first, om_doccount maxitems,
 			    om_doccount &termfreq_min,
 			    om_doccount &termfreq_est,
 			    om_weight &maxw,
-			    std::map<om_termname, OmMSet::TermFreqAndWeight> &term_info)
+			    std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> &term_info)
 {
     DEBUGCALL(MATCH, bool, "SocketClient::open_postlist", first << ", " << maxitems);
     Assert(global_stats_valid);

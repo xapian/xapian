@@ -27,7 +27,7 @@
 #include <map>
 #include "omlinebuf.h"
 #include "om/omsettings.h"
-#include "om/omenquire.h"
+#include "omenquireinternal.h"
 
 #define OM_SOCKET_PROTOCOL_VERSION 6
 
@@ -152,13 +152,13 @@ OmMSet string_to_ommset(const std::string &s);
  *  @param terminfo		The terminfo map to serialise.
  */
 std::string ommset_termfreqwts_to_string(const std::map<om_termname,
-					 OmMSet::TermFreqAndWeight> &terminfo);
+					 OmMSet::Internal::TermFreqAndWeight> &terminfo);
 
 /** Convert a serialised terminfo string back into a map.
  *
  *  @param s		The seralised map as a string.
  */
-std::map<om_termname, OmMSet::TermFreqAndWeight>
+std::map<om_termname, OmMSet::Internal::TermFreqAndWeight>
 string_to_ommset_termfreqwts(const std::string &s);
 
 /** Convert an OmKey object into a string representation.

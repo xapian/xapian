@@ -570,12 +570,12 @@ ommsetitems_to_string(const std::vector<OmMSetItem> &ommsetitems)
 
 std::string
 ommset_termfreqwts_to_string(const std::map<om_termname,
-			     OmMSet::TermFreqAndWeight> &terminfo)
+			     OmMSet::Internal::TermFreqAndWeight> &terminfo)
 {
     // encode as term freq weight term2 freq2 weight2 ...
     std::string result;
 
-    std::map<om_termname, OmMSet::TermFreqAndWeight>::const_iterator i;
+    std::map<om_termname, OmMSet::Internal::TermFreqAndWeight>::const_iterator i;
     for (i = terminfo.begin(); i != terminfo.end(); ++i) {
 	result += encode_tname(i->first);
 	result += " ";
@@ -608,7 +608,7 @@ ommset_to_string(const OmMSet &ommset)
     result += " ";
     result += ommsetitems_to_string(ommset.internal->items);
     result += " ";
-    result += ommset_termfreqwts_to_string(ommset.get_all_terminfo());
+    result += ommset_termfreqwts_to_string(ommset.internal->termfreqandwts);
 
     return result;
 }
@@ -684,10 +684,10 @@ string_to_ommset(const std::string &s)
 	msize--;
     }
 
-    std::map<om_termname, OmMSet::TermFreqAndWeight> terminfo;
+    std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> terminfo;
     om_termname term;
     while (is >> term) {
-	OmMSet::TermFreqAndWeight tfaw;
+	OmMSet::Internal::TermFreqAndWeight tfaw;
 	if (!(is >> tfaw.termfreq >> tfaw.termweight)) {
 	    Assert(false); // FIXME
 	}
@@ -703,15 +703,15 @@ string_to_ommset(const std::string &s)
 				       items, terminfo));
 }
 
-std::map<om_termname, OmMSet::TermFreqAndWeight>
+std::map<om_termname, OmMSet::Internal::TermFreqAndWeight>
 string_to_ommset_termfreqwts(const std::string &s)
 {
-    std::map<om_termname, OmMSet::TermFreqAndWeight> result;
+    std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> result;
     istrstream is(s.data(), s.length());
 
     om_termname term;
     while (is >> term) {
-	OmMSet::TermFreqAndWeight tfaw;
+	OmMSet::Internal::TermFreqAndWeight tfaw;
 	if (!(is >> tfaw.termfreq >> tfaw.termweight)) {
 	    Assert(false); // FIXME
 	}

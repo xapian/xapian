@@ -106,10 +106,10 @@ class MultiMatch
 
 	// FIXME: temporary bodge
 	PostList *get_postlist(om_doccount first, om_doccount maxitems,
-			       std::map<om_termname, OmMSet::TermFreqAndWeight> & termfreqandwts,
+			       std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> & termfreqandwts,
 			       OmErrorHandler * errorhandler);
 	void get_mset_2(PostList *pl, 
-			std::map<om_termname, OmMSet::TermFreqAndWeight> & termfreqandwts,
+			std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> & termfreqandwts,
 			om_doccount first, om_doccount maxitems,
 			OmMSet & mset, const OmMatchDecider *mdecider,
 			void (*snooper)(const OmMSetItem &));

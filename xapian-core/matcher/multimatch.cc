@@ -159,7 +159,7 @@ MultiMatch::prepare_matchers()
 
 PostList *
 MultiMatch::get_postlist(om_doccount first, om_doccount maxitems,
-			 std::map<om_termname, OmMSet::TermFreqAndWeight> & termfreqandwts,
+			 std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> & termfreqandwts,
 			 OmErrorHandler * errorhandler)
 {
     Assert(!leaves.empty());
@@ -208,14 +208,14 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		     OmErrorHandler * errorhandler,
 		     void (*snooper)(const OmMSetItem &))
 {
-    std::map<om_termname, OmMSet::TermFreqAndWeight> termfreqandwts;
+    std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> termfreqandwts;
     PostList *pl = get_postlist(first, maxitems, termfreqandwts, errorhandler);
     get_mset_2(pl, termfreqandwts, first, maxitems, mset, mdecider, snooper);
 }
 
 void
 MultiMatch::get_mset_2(PostList *pl, 
-		       std::map<om_termname, OmMSet::TermFreqAndWeight> & termfreqandwts,
+		       std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> & termfreqandwts,
 		       om_doccount first, om_doccount maxitems,
 		       OmMSet & mset, const OmMatchDecider *mdecider,
 		       void (*snooper)(const OmMSetItem &))
