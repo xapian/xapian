@@ -1,3 +1,7 @@
+Mon Apr 15 15:42:47 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated TODO list.
+
 Mon Apr 15 2002  Sam Liddicott <sam@ananova.com>
 
 	* Hacked around bindings and bindings/php to remove some SWIG 

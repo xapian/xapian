@@ -40,10 +40,11 @@ of c_str()s in the code...
 Write tests for copying term and postlist iterators.
 
 </todoitem>
-<todoitem priority="M" difficulty="1" owner="" area="DA/DB" release="1.0">
+<todoitem priority="M" difficulty="1" owner="" area="API" release="1.0">
 
-Rename keys to attributes.  (OmKey -&gt; OmAttrib / OmAttribute / OmAttr ?)
-Latest suggestion: OmFacet
+The word "key" already has a widely understood meaning which isn't quite
+in line with an OmKey, so perhaps we should rename OmKey to avoid confusiorn?
+OmKey -&gt; OmAttrib / OmAttribute / OmAttr / OmFacet / ... ?
 
 </todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="DA/DB" release="1.0">
@@ -97,14 +98,6 @@ Write tests to check that setting the parameters used in the BM25 and
 traditional weighting schemes works.
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="Exceptions" release="">
-
-Make exceptions threadsafe: see
-http://metalab.unc.edu/pub/Linux/docs/faqs/SMP-FAQ GCC (and EGCS) need
-existence of exceptions to be protected by a mutex - will need to cope with
-exception being copied.
-
-</todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Matcher" release="">
 
 Implement collapse keys for duplicate removal - which only fire if the
@@ -137,11 +130,6 @@ exceptions exist simultaneously.
 
 Make exceptions work with shared libs on solaris / find an alternative. (gcc
 =&gt; DISABLE_SHARED on Solaris)
-
-</todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="Options" release="">
-
-Use OmSettings for specifying what debugging info to output.
 
 </todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="OmSettings" release="">
@@ -191,10 +179,10 @@ Allow negative relevance judgements.  Will need to check that this doesn't
 cause assumptions to be violated. (eg, unsigned integers going negative.)
 
 </todoitem>
-<todoitem priority="M" difficulty="4" owner="" area="Stemming" release="">
+<todoitem priority="M" difficulty="3" owner="" area="Stemming" release="">
 
-Make a separate package to contain stemming algorithm stuff (docs, code,
-stemtest)
+Replace our own stemming code with Martin Porter's snowball stemmers (with a
+thin OmStem wrapper).
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Databases" release="">
@@ -214,12 +202,6 @@ Treat FILTER and AND as equivalent from the point of view of building
 optimal AND trees.  Also add a variant on FilterPostList where the left
 branch is boolean and the right probabilistic.  Resist urge to call
 it RETFIL.
-
-</todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Threads" release="">
-
-Make ./configure --enable-mutex-errcheck compile on more systems: need
-configure check for pthread_mutexattr_settype()
 
 </todoitem>
 <todoitem priority="L" difficulty="3" owner="" area="Quartz" release="">
@@ -273,21 +255,10 @@ removed.  When making a contribution to querysize, could just use the lesser
 of the number of terms, and elite_set_size.
 
 </todoitem>
-<todoitem priority="L" difficulty="3" owner="" area="Purify" release="">
-
-Write autoconf macro to turn on purify support. Submit to
-http://peti.cys.de/autoconf-archive/
-
-</todoitem>
 <todoitem priority="L" difficulty="3" owner="" area="Documentation" release="1.0">
 
 Add notes about catching exceptions throughout userman, particularly in
 examples (eg, search engine example)
-
-</todoitem>
-<todoitem priority="L" difficulty="3" owner="c" area="Backends" release="">
-
-Use thread locks around inmemory methods
 
 </todoitem>
 <todoitem priority="L" difficulty="2" owner="" area="Website" release="">
@@ -412,3 +383,174 @@ share some techniques from implementing synonym postlists.
 
 </todoitem>
 </todo>
+<!-- FIXME: enter these as TODO entries
+
+ * .deb and RPMs built, control files via autoconf
+
+I've some experience of producing debs and rpms, so I'll take a look at this
+once I've cleaned up the build system, sorted out the examples, etc.
+
+ * largefiles should get a better autoconf check?
+
+Propose: move to require autoconf >= 2.50 in the medium term as it includes
+better largefile checks, and should resolve this.
+
+ * propagate pthreads flags to xapian-config if needed (otherwise
+   linking will fail to pull in relevant pthreads-related symbols)
+ * I had a problem last time I tried to build on CF FreeBSD with
+   pthreads not linking properly. Olly has disabled this support by
+   default (we had a long discussion about the merits of threaded
+   support), but the build system should be able to cope with this if
+   enabled. These sorts of issues (with non-default options) _won't_
+   be caught easily by the automated testing, unless I get carried
+   away and rotate default testing with specific non-default options.
+
+Propose: remove mutex locking and hence dependency of pthreads, which removes
+all these issues.
+
+ * Do a VPATH build. make clean. Some files are left which shouldn't
+   be.
+
+xapian-core is OK.  Need to check xapian-examples and -apps.
+
+ * xapian-config in an uninst system doesn't get +x. This could be
+   worked round in the AC macro rather than doing something hideous
+   in the build system.
+ * xapview won't build with - -uninst (at least, didn't for me)
+
+Propose: remove - -uninst support.
+
+Code
+====
+
+ * Language bindings: Python, PHP and Java (as a minimum IMHO).
+   All can be done using SWIG, and it's probably easier to do so
+   even though some languages (eg Python) have better tools
+   available just because it's less overall work.
+
+Sam's working on this.
+
+ * indexgraph -> extra (needs to build as a support library?)
+ * languages dropped in favour of Snowball
+ * Reduce use of STL in API; Olly has a plan for std::string
+ * Query parser in a library (latest from Omega)
+ * Omega should have a make static target, needs some more stuff in
+   omindex (- -add-term, - -add-field) IMHO. Also could do with more
+   fields as standard, and probably support for subsite as key for
+   collapse. But see below.
+ * We talked about replacing Omega with a simpler PHP or Python-based
+   system, once the bindings are in place. Python would be good
+   because we could use it for omindex as well, and I suspect the code
+   would be much cleaner, easier to work with, and generally
+   understandable. For something that should be halfway between a
+   reasonably large-scale application for Xapian and a complex
+   example, this can only be a good thing. This probably needs a
+   query parser library, although it raises questions of consistency
+   of term generation (word breaks and stemming) across the index
+   and query tools ... we may want the query parser to have a callback
+   to deal with that, which can be done in the bindings although it's
+   a little fiddly in some languages I believe.
+
+To be done.
+
+ * Fix up examples and make sure they are actually instructive
+
+I've made a start.  delve is a reasonable example.  msearch probably needs
+simplifying to just do a probabilistic search, or to use the omega queryparser
+once it moves into extra.
+
+ * Olly's crash problem investigated
+
+Fixed, but there's a new problem.
+
+ * Look at replacing btree implementation, or at least tidying it
+
+I think Richard was looking into this.
+
+ * Use of getopt. I'm inclined to think we should use the fallback
+   method of GNU getopt being distributed with Xapian. This is a
+   reversal of my previous position :)
+
+Made a major start.  More to do.
+
+Ports
+=====
+
+ * Sparc Solaris non-debug was giving EXCEPT+LEAK on getdoc1 for all
+   backends. This might be a test suite bug, and may also have been
+   fixed by now, so I need to test it again.
+ * Automated testing across CF machines (I'm planning on doing this)
+ * I have some fixes for linux/alpha build, but they're somewhere in a
+   pile of paper on my desk. I'll dig them out and test at some point
+ * Windows - Richard played with this under mingw or Cygwin, I think?
+ * Update the PLATFORMS file
+
+Jobs for James?
+
+Design
+======
+
+ * We talked about use of local vs global databases, and decided it
+   would be useful to support Unix sockets for local machine databases
+   so the library can select() on all databases in complex cases. This
+   is probably something we can leave for a while, and probably
+   doesn't need to be automatic - so the local process can be fired
+   by the application, not the library - but at some point should be
+   thought through and documented properly.
+
+Longer term project.
+
+Website & docs
+==============
+
+ * xapian.org: schema pages (not crucial, but would be nice)
+
+I don't understand, so you'll have to do this.
+
+ * make sure the docs are actually correct at the moment
+
+Do you have a cunning plan for checking?  If not, I think the documentation
+from doxygen comments in the source can generally be assumed to be reasonably
+correct - documentation not tied to the source is much more likely to not
+have been updated to reflect changes, and to no longer be correct.
+
+ * Valgrind support - I think Olly has documented how to do these
+   sorts of things
+
+Propose: enhance valgrind slightly and replace out leak checking code with
+it.  This means we can only leak check on Linux though, rather than any
+platform which supports LD_PRELOAD.
+
+ * Internals public but marked @internal for doxygen, avoid 'friends'
+   usage and just trust people not to be stupid
+
+Need to add doxygen comments still.
+
+And here are my extra points:
+
+ * I'm not convinced the arguments for OmSettings are as compelling as we
+   originally thought, and it has definite drawbacks - one major one being
+   that there's no easy way to check for typos which can lead to users of
+   the library spending hours trying to sort out a bug which is just a
+   typo in an OmSettings value.  Another arugment for it was to allow passing
+   values to user weighting objects, etc, but I think it's best just to
+   implement these with a clone() method, and pass an example one in.  And
+   we might as well make built-in weighting objects work the same way rather
+   than being a special case.  Thoughts?
+
+ * Get nightly snapshot builds set up again?
+
+ * Look at getting the btree code to use pread and pwrite or similar calls 
+   where available (e.g. on Linux and Solaris).  These combine a seek and
+   read or write into a single syscall, which halves the syscall overhead and
+   can make an observable difference to performance.
+
+ * Think about using hashing instead of a btree for the backend?  Long term
+   project.
+
+ * Move "min_hits" into matcher?
+
+ * xapian-config - -cflags should be - -cxxflags, and related cleaning up.
+
+ * Look at reworking StatsGatherer mechanism to be simpler and clearer.
+-->
