@@ -36,7 +36,7 @@ using std::vector;
 #include <set>
 using std::set;
 
-class html_comparer : public html_writer 
+class html_comparer : public virtual_ostream 
 {
 private:
     process * p0;
@@ -55,6 +55,7 @@ private:
     const string & _pathname;
     diff _diff;
     unsigned int _diff_index;
+    ostream & show  (ostream &) const;
     ostream & write (ostream &) const;
     void 
     write_line(ostream & os, 
@@ -68,8 +69,6 @@ private:
                          string & select2, unsigned int index2, bool & do2,
                          unsigned int & diff_index) const;
 
-protected:
-    virtual ostream & style(ostream &) const;    
 public:
     html_comparer(const vector<unsigned int> & input1, 
                   const vector<unsigned int> & input2,

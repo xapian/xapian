@@ -46,8 +46,9 @@ string scvs_root;
 string scvs_log    = "cvs -l -f log -b ";
 string scvs_diff   = "cvs -l -f diff -N -b ";
 string scvs_update = "cvs -l -f update -p ";
-
+string slatest_version = "";
 string sversion    = "";
+
 bool use_html = false;
 bool read_mode = false;
 bool comp_mode = false;
@@ -87,10 +88,6 @@ main(unsigned int argc, const char **argv)
         if (0) {
         } else if (!strcmp(argv[i], "-i") && i+1 < argc) {
             input_file = argv[++i];
-        } else if (!strcmp(argv[i], "-r")) {
-            use_line = false;
-        } else if (!strcmp(argv[i], "-l")) {
-            use_line = true;
         } else if (!strcmp(argv[i], "-f1") && i+1 < argc) {
             scmt_db = argv[++i];
         } else if (!strcmp(argv[i], "-f2") && i+1 < argc) {
@@ -100,6 +97,8 @@ main(unsigned int argc, const char **argv)
             sversion = argv[++i];
             use_html = true;
             read_mode = true;
+        } else if (!strcmp(argv[i], "-r")) {
+            slatest_version = argv[++i];
         } else if (!strcmp(argv[i], "-h")) {
             usage(argv[0]);
         } else if (!strcmp(argv[i], "-d") && i+1 < argc) {
@@ -194,7 +193,6 @@ main(unsigned int argc, const char **argv)
             << "              the file is      :\t" << smax_version_file << endl
             << "average # versions / file      :\t" << num_version / file_index << endl
             << "average # cvs comments / line  :\t" << (double) num_mappings / (double) num_lines << endl
-//            << "total   # (cvs comment, line)  :\t" << num_mappings << endl
             ;
     }
     if (pdb_file)
@@ -210,15 +208,14 @@ static void usage(const string & prog_name)
     cerr << "Usage: " << prog_name << " -d CVSROOT [OPTION] [FILE] ..." << endl
          << endl
          << "Options:" << endl
-         << "  -h                 print this message" << endl
-         << "  -i                 input file contain a list of files to map" << endl
-         << "  -r                 use the forward range method" << endl
-         << "  -l                 use the backward line method" << endl
+         << "  -h                   print this message" << endl
+         << "  -i                   input file contain a list of files to map" << endl
+         << "  -r version           backtrack from version instead from the latest version" << endl
          << "  -html fileid version output html comparason result" << endl
-         << "  -db pkg.db         specify the database file" << endl
-         << "  -f1 pkg.cmt        specify the line-comment map file" << endl
-         << "  -f2 pkg.offset     specify the filename index file" <<endl
-         << "  -st stat.file      output statistical information to stat.file" << endl
+         << "  -db pkg.db           specify the database file" << endl
+         << "  -f1 pkg.cmt          specify the line-comment map file" << endl
+         << "  -f2 pkg.offset       specify the filename index file" <<endl
+         << "  -st stat.file        output statistical information to stat.file" << endl
         ;
     
     exit(0);

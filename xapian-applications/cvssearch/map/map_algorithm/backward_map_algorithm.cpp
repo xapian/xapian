@@ -31,6 +31,7 @@ extern bool output_html;
 extern bool read_mode;
 extern bool comp_mode;
 
+extern string slatest_version;
 extern string scvs_update;
 extern string scvs_diff;
 
@@ -52,13 +53,26 @@ static unsigned int get_length(const cvs_log & log, unsigned int j)
 void
 backward_map_algorithm::parse_log(const cvs_log & log)
 {
-    for (unsigned int j = 0; j < log.size(); ++j)
+    unsigned int j = 0;
+    unsigned int start = 0;
+
+    for (j = 0; j < log.size(); ++j) {
+        if ((j == 0 && slatest_version.length() == 0) || !strcmp(slatest_version.c_str(), string(log[j].revision()).c_str()))
+        {
+            start = j;
+            break;            
+        }
+    }
+
+    cerr << "start" << start << endl;
+    for (j = start; j < log.size(); ++j)
     {
         ostrstream ost;
-        if (j == 0)
+
+        if (j == start)
         {
             unsigned int length = get_length(log, j);
-            init(log[0], length);
+            init(log[j], length);
         }
 
         diff * pdiff = 0;

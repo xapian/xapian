@@ -35,8 +35,7 @@ html_comparer::html_comparer(const vector<unsigned int> & input1,
                              const string & revision0, 
                              const string & revision1, 
                              const string & revision2, const diff & diff)
-    : html_writer(string("comparing")),
-      _input1(input1),
+    : _input1(input1),
       _input2(input2),
       _revision0(revision0),
       _revision1(revision1),
@@ -74,15 +73,15 @@ html_comparer::html_comparer(const vector<unsigned int> & input1,
 
     _diff.unalign_top();
 
-     for (unsigned int  i = 0; i < _input1.size(); ++i)
-     {
-         cerr << "input1[" << i << "]=" << _input1[i] << "\t" << "input2[" << i << "]=" << _input2[i] << "\t" << endl;
-     }
+//      for (unsigned int  i = 0; i < _input1.size(); ++i)
+//      {
+//          cerr << "input1[" << i << "]=" << _input1[i] << "\t" << "input2[" << i << "]=" << _input2[i] << "\t" << endl;
+//      }
     
-     for (unsigned int i = 0; i < _diff.size(); ++i ) 
-     {
-         cerr << "diff[" << i << "]" << _diff[i] << endl;
-     }
+//      for (unsigned int i = 0; i < _diff.size(); ++i ) 
+//      {
+//          cerr << "diff[" << i << "]" << _diff[i] << endl;
+//      }
 }
 
 html_comparer::~html_comparer()
@@ -238,12 +237,12 @@ html_comparer::write_line(ostream & os,
         code_to_html converter1(line1, size);
         code_to_html converter2(line2, size);
         os << "<tr>";
-        os << "<td" << select2 << "> "; if (do2 && pis2 && *pis2) os << index2;     os << "</td>";
-        os << "<td" << select2 << "> "; if (do2 && pis2 && *pis2) os << converter2; os << "</td>";
-        os << "<td" << select1 << "> "; if (do1 && pis1 && *pis1) os << index1;     os << "</td>";
-        os << "<td" << select1 << "> "; if (do1 && pis1 && *pis1) os << converter1; os << "</td>";
-        os << "<td" << select0 << "> "; if (do0 && pis0 && *pis0) os << index0;     os << "</td>";
-        os << "<td" << select0 << "> "; if (do0 && pis0 && *pis0) os << converter0; os << "</td>";
+        os << "<td" << select2 << ">"; if (do2 && pis2 && *pis2) os << "<pre>" << index2;     os << " </td>";
+        os << "<td" << select2 << ">"; if (do2 && pis2 && *pis2) os << "<pre>" << converter2; os << " </td>";
+        os << "<td" << select1 << ">"; if (do1 && pis1 && *pis1) os << "<pre>" << index1;     os << " </td>";
+        os << "<td" << select1 << ">"; if (do1 && pis1 && *pis1) os << "<pre>" << converter1; os << " </td>";
+        os << "<td" << select0 << ">"; if (do0 && pis0 && *pis0) os << "<pre><a name=" << index0 << "> " << index0 << "</a>";     os << " </td>";
+        os << "<td" << select0 << ">"; if (do0 && pis0 && *pis0) os << "<pre>" << converter0; os << " </td>";
         os << "</tr>" << endl;
     }
     if (do0) ++index0;
@@ -271,7 +270,7 @@ html_comparer::write(ostream & os) const
        << ", and the propagation of the affected lines to version " << _revision0
        << endl;
     os << "<hr noshade>" << endl;
-    os << "<table align=center border=0 cellspacing=0 cellpadding=1>" << endl;
+    os << "<table align=center border=0 cellspacing=0 cellpadding=0>" << endl;
     os << "<tr>";
     os << "<td" << select2 << "> </td>";
     os << "<td" << select2 << "align=center> <B>version " << _revision2 << "</B></td>";
@@ -465,18 +464,8 @@ html_comparer::write(ostream & os) const
     return os;
 }
 
-ostream &
-html_comparer::style(ostream & os) const
+ostream & 
+html_comparer::show (ostream & os) const
 {
-    os << "<style type=\"text/css\">" << endl;
-    os << "body  {background-color:#EEEEEE;}" << endl;
-    os << "table {background-color:#FFFFFF;}" << endl;
-    os << "td    {white-space:pre; overflow:hidden;font-family:sans_serif;}" << endl;
-    os << ".s {background-color:#3366CC; color:#FFFFFF;}" << endl;
-    os << ".a {background-color:#CCCCFF;}" << endl;
-    os << ".c {background-color:#99FF99;}" << endl;
-    os << ".d {background-color:#FF9999;}" << endl;
-    os << ".n {background-color:#EEEEEE;}" << endl;
-    os << "</style>" << endl;
-    return os;
+    return write(os);
 }
