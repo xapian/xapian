@@ -179,7 +179,7 @@ QuartzPostList::next_chunk()
     if (tname_in_key != tname) {
 	is_at_end = true;
 	throw OmDatabaseCorruptError("Unexpected end of posting list (for `" +
-				     tname + "'.");
+				     tname + "').");
     }
 
     om_docid newdid;
@@ -237,9 +237,36 @@ QuartzPostList::move_to_chunk_containing(om_docid desired_did)
     (void) cursor->find_entry(key);
     Assert(!cursor->after_end());
 
-    
-    
-    throw OmUnimplementedError("QuartzPostList::move_to_chunk_containing() not yet implemented");
+    const char * keypos = cursor->current_key.value.data();
+    const char * keyend = keypos + cursor->current_key.value.size();
+    std::string tname_in_key;
+
+    // Check we're still in same postlist
+    if (!unpack_string(&keypos, keyend, tname_in_key)) {
+	report_read_error(keypos);
+    }
+    if (tname_in_key != tname) {
+	is_at_end = true;
+	throw OmDatabaseCorruptError("Posting list (for `" +
+				     tname + "') vanished under our feet.");
+    }
+    is_at_end = false;
+
+    pos = cursor->current_tag.value.data();
+    end = pos + cursor->current_tag.value.size();
+
+    if (keypos == keyend) {
+	// In first chunk
+	read_number_of_entries();
+	read_first_docid();
+    } else {
+	// In normal chunk
+	if (!unpack_uint_preserving_sort(&keypos, keyend, &did)) {
+	    report_read_error(keypos);
+	}
+    }
+    read_start_of_chunk();
+    read_wdf_and_length();
 }
 
 bool
@@ -264,8 +291,15 @@ QuartzPostList::skip_to(om_docid desired_did, om_weight w_min)
     // Don't skip back, and don't need to do anthing if already there.
     if (desired_did <= did) return NULL;
 
-    // We've started now - we're already positioned at start so there's no
-    // need to actually do anything.
+    move_to(desired_did);
+    return NULL;
+}
+
+void
+QuartzPostList::move_to(om_docid desired_did)
+{
+    // We've started now - if we hadn't already, we're already positioned
+    // at start so there's no need to actually do anything.
     have_started = true;
 
     // Move to correct chunk
@@ -289,8 +323,6 @@ QuartzPostList::skip_to(om_docid desired_did, om_weight w_min)
 		move_forward_in_chunk_to_at_least(desired_did);
 	Assert(have_document);
     }
-
-    return NULL;
 }
 
 std::string

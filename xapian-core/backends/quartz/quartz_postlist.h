@@ -169,6 +169,11 @@ class QuartzPostList : public LeafPostList {
 	 */
 	bool move_forward_in_chunk_to_at_least(om_docid desired_did);
 
+	/** Move to the desired document ID, or the next document ID if it
+	 *  doesn't exist, whether it's before or after the current position.
+	 */
+	void move_to(om_docid desired_did);
+
 	/// Report an error when reading the posting list.
 	void report_read_error(const char * position);
     public:
