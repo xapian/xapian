@@ -1,3 +1,8 @@
+Mon Oct 16 15:46:31 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added cursor operations to QuartzTable, so that we can move through
+	  items in order.
+
 Mon Oct 16 14:24:01 BST 2000 Olly Betts
 
 	* OmSocketLineBuf::do_readline: fixed core dump on time out.

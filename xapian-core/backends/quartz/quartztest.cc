@@ -59,36 +59,37 @@ static void check_table_values_hello(const QuartzDiskTable & table,
     TEST(!table.get_exact_entry(key, tag));
     TEST_EQUAL(tag.value, "foo");
     
+    QuartzCursor cursor;
 #ifdef MUS_DEBUG
     key.value = "";
     tag.value = "foo";
-    TEST_EXCEPTION(OmAssertionError, table.get_nearest_entry(key, tag));
+    TEST_EXCEPTION(OmAssertionError, table.get_nearest_entry(key, tag, cursor));
     TEST_EQUAL(tag.value, "foo");
 #endif
     
     // Check normal reads
     key.value = "hello";
     tag.value = "foo";
-    TEST(table.get_nearest_entry(key, tag));
+    TEST(table.get_nearest_entry(key, tag, cursor));
     TEST_EQUAL(key.value, "hello");
     TEST_EQUAL(tag.value, world);
 
     key.value = "jello";
     tag.value = "foo";
-    TEST(!table.get_nearest_entry(key, tag));
+    TEST(!table.get_nearest_entry(key, tag, cursor));
     TEST_EQUAL(key.value, "hello");
     TEST_EQUAL(tag.value, world);
 
     key.value = "bello";
     tag.value = "foo";
-    TEST(!table.get_nearest_entry(key, tag));
+    TEST(!table.get_nearest_entry(key, tag, cursor));
     TEST_EQUAL(key.value, "");
     TEST_EQUAL(tag.value, "");
     
 #ifdef MUS_DEBUG
     key.value = "";
     tag.value = "foo";
-    TEST_EXCEPTION(OmAssertionError, table.get_nearest_entry(key, tag));
+    TEST_EXCEPTION(OmAssertionError, table.get_nearest_entry(key, tag, cursor));
     TEST_EQUAL(key.value, "");
     TEST_EQUAL(tag.value, "foo");
 #endif
@@ -116,36 +117,37 @@ static void check_table_values_empty(const QuartzDiskTable & table)
     TEST(!table.get_exact_entry(key, tag));
     TEST_EQUAL(tag.value, "foo");
     
+    QuartzCursor cursor;
 #ifdef MUS_DEBUG
     key.value = "";
     tag.value = "foo";
-    TEST_EXCEPTION(OmAssertionError, table.get_nearest_entry(key, tag));
+    TEST_EXCEPTION(OmAssertionError, table.get_nearest_entry(key, tag, cursor));
     TEST_EQUAL(tag.value, "foo");
 #endif
     
     // Check normal reads
     key.value = "hello";
     tag.value = "foo";
-    TEST(!table.get_nearest_entry(key, tag));
+    TEST(!table.get_nearest_entry(key, tag, cursor));
     TEST_EQUAL(key.value, "");
     TEST_EQUAL(tag.value, "");
 
     key.value = "jello";
     tag.value = "foo";
-    TEST(!table.get_nearest_entry(key, tag));
+    TEST(!table.get_nearest_entry(key, tag, cursor));
     TEST_EQUAL(key.value, "");
     TEST_EQUAL(tag.value, "");
 
     key.value = "bello";
     tag.value = "foo";
-    TEST(!table.get_nearest_entry(key, tag));
+    TEST(!table.get_nearest_entry(key, tag, cursor));
     TEST_EQUAL(key.value, "");
     TEST_EQUAL(tag.value, "");
     
 #ifdef MUS_DEBUG
     key.value = "";
     tag.value = "foo";
-    TEST_EXCEPTION(OmAssertionError, table.get_nearest_entry(key, tag));
+    TEST_EXCEPTION(OmAssertionError, table.get_nearest_entry(key, tag, cursor));
     TEST_EQUAL(key.value, "");
     TEST_EQUAL(tag.value, "foo");
 #endif
@@ -408,6 +410,21 @@ static bool test_bufftable1()
 
     TEST_EQUAL(disktable1.get_entry_count(), 2);
     TEST_EQUAL(bufftable1.get_entry_count(), 2);
+
+    return true;
+}
+
+/// Test making and playing with a QuartzBufferedTable
+static bool test_bufftable2()
+{
+    unlink("./test_bufftable2_data_1");
+    unlink("./test_bufftable2_data_2");
+    QuartzDiskTable disktable1("./test_bufftable2_", false, 8192);
+    QuartzBufferedTable bufftable1(&disktable1);
+    disktable1.open();
+
+    TEST_EQUAL(disktable1.get_entry_count(), 0);
+    TEST_EQUAL(bufftable1.get_entry_count(), 0);
 
     return true;
 }
@@ -707,6 +724,7 @@ test_desc tests[] = {
     {"quartzdisktable1",	test_disktable1},
     {"quartztableentries1",	test_tableentries1},
     {"quartzbufftable1",	test_bufftable1},
+    {"quartzbufftable2",	test_bufftable2},
     {"quartzopen1",		test_open1},
     {"quartzadddoc1",		test_adddoc1},
     {"quartzadddoc2",		test_adddoc2},

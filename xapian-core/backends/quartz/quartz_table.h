@@ -93,6 +93,9 @@ operator << (ostream &os, QuartzRevisionNumber obj) {
     return os << (obj.get_description());
 }
 
+class QuartzCursor {
+};
+
 
 /** Base class for quartz tables.
  *
@@ -137,14 +140,34 @@ class QuartzTable {
 	 *  value, since null tag values are allowed to be stored in
 	 *  tables.
 	 *
-	 *  @param key  The key to look for in the table.
-	 *  @param tag  A tag object to fill with the value found.
+	 *  @param key    The key to look for in the table.
+	 *  @param tag    A tag object to fill with the value found.
+	 *  @param cursor A cursor, which will be positioned to point to
+	 *                the item after that found.
 	 *
 	 *  @return true if the exact key was found in the table, false
 	 *          otherwise.
 	 */
 	virtual bool get_nearest_entry(QuartzDbKey &key,
-				       QuartzDbTag & tag) const = 0;
+				       QuartzDbTag &tag,
+				       QuartzCursor &cursor) const = 0;
+
+	/** Read the next entry from the table.
+	 *
+	 *  This reads an entry from the position pointed to by the cursor,
+	 *  and then moves the cursor forward to point to the subsequent item
+	 *  if there is such an item.  If there is no subsequent item, the
+	 *  cursor becomes invalid.
+	 *
+	 *  @param key    Will be filled with the key of the item found.
+	 *  @param tag    Will be filled with the tag found.
+	 *  @param cursor The cursor pointing to the entry.
+	 *
+	 *  @return true if an entry was read, false otherwise.
+	 */
+	virtual bool get_next_entry(QuartzDbKey &key,
+				    QuartzDbTag &tag,
+				    QuartzCursor &cursor) const = 0;
 
 	/** Read an entry from the table, if and only if it is exactly that
 	 *  being asked for.
@@ -292,7 +315,12 @@ class QuartzDiskTable : public QuartzTable {
 	 */
 	//@{
 	quartz_tablesize_t get_entry_count() const;
-	bool get_nearest_entry(QuartzDbKey &key, QuartzDbTag & tag) const;
+	bool get_nearest_entry(QuartzDbKey &key,
+			       QuartzDbTag &tag,
+			       QuartzCursor &cursor) const;
+	bool get_next_entry(QuartzDbKey &key,
+			    QuartzDbTag &tag,
+			    QuartzCursor &cursor) const;
 	bool get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const;
 	//@}
 };
@@ -393,7 +421,12 @@ class QuartzBufferedTable : public QuartzTable {
 	 */
 	//@{
 	quartz_tablesize_t get_entry_count() const;
-	bool get_nearest_entry(QuartzDbKey &key, QuartzDbTag & tag) const;
+	bool get_nearest_entry(QuartzDbKey &key,
+			       QuartzDbTag &tag,
+			       QuartzCursor &cursor) const;
+	bool get_next_entry(QuartzDbKey &key,
+			    QuartzDbTag &tag,
+			    QuartzCursor &cursor) const;
 	bool get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const;
 	//@}
 };
