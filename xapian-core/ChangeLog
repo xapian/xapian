@@ -1,3 +1,8 @@
+Tue Jun 20 14:49:54 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Portability fixes - network bits now stand a better chance
+	  of compiling under Solaris.
+
 Tue Jun 20 14:41:00 BST 2000 Olly Betts
 
 	* PhrasePostList: added incomplete and disabled code for more

@@ -32,6 +32,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <memory>
+#include <netinet/in_systm.h>
+#include <netinet/in.h>
 #include <netinet/ip.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -60,7 +62,7 @@ TcpServer::get_listening_socket(int port)
 	retval = setsockopt(socketfd,
 			    SOL_SOCKET,
 			    SO_REUSEADDR,
-			    &optval,
+			    (void *)&optval,
 			    sizeof(optval));
     }
 
@@ -97,7 +99,8 @@ int
 TcpServer::get_connected_socket()
 {
     struct sockaddr_in remote_address;
-    socklen_t remote_address_size = sizeof(remote_address);
+    // socklen_t not supported everywhere...
+    /* socklen_t */ int remote_address_size = sizeof(remote_address);
     int con_socket = accept(listen_socket,
 			    reinterpret_cast<sockaddr *>(&remote_address),
 			    &remote_address_size);
