@@ -12,6 +12,7 @@ AC_PROG_CC
 AC_PROG_CXX
 
 dnl Checks for gtk / glib / glade
+AC_MSG_CHECKING(for libraries needed for gui frontend)
 have_glade=yes
 ifdef(AM_PATH_GTK,
  AM_PATH_GTK(1.2.0, , have_glade=no), have_glade=no
@@ -23,10 +24,10 @@ ifdef(AM_PATH_LIBGLADE,
  AM_PATH_LIBGLADE(, have_glade=no), have_glade=no
 )
 if test "X$have_glade" = Xyes; then
- AC_MSG(Building GUI frontend)
+ AC_MSG_RESULT(found)
  AC_SUBST(GUI_SUBDIR, gui)
 else
- AC_MSG(Not building GUI frontend)
+ AC_MSG_RESULT(not found)
  AC_SUBST(GUI_SUBDIR, )
 fi
 
