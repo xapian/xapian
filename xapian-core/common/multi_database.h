@@ -57,19 +57,9 @@ class MultiDatabase : public IRDatabase {
 	mutable bool length_initialised;
 	mutable om_doclength avlength;
 
-	/** Create and open a multi database from database parameters.
+	/** This constructor isn't supported by the multibackend.
 	 *
-	 *  @exception OmOpeningError thrown if database can't be opened.
-	 *
-	 *  @exception OmInvalidArgumentError if invalid arguments are
-	 *             supplied.
-	 *
-	 *  @param params Parameters supplied by the user to specify the
-	 *                location of the database to open.  The meanings
-	 *                of these parameters are dependent on the database
-	 *                type.
-	 *                Note that if params.readonly is set, all
-	 *                sub-databases will be opened readonly.
+	 *  @exception OmInvalidOperationError will always be thrown.
 	 */
 	MultiDatabase(const DatabaseBuilderParams & params);
 

@@ -38,37 +38,16 @@
 ///////////////////////////
 
 MultiDatabase::MultiDatabase(const DatabaseBuilderParams & params)
-	: length_initialised(false)
 {
-    // Check validity of parameters
-    if(params.readonly != true) {
-	throw OmInvalidArgumentError("MultiDatabase must be opened readonly.");
-    }
-
-    if(params.paths.size() != 0) {
-	throw OmInvalidArgumentError("MultiDatabase requires no path parameters.");
-    }
-    if(params.subdbs.size() <= 0) {
-	throw OmInvalidArgumentError("MultiDatabase requires at least one sub-database.");
-    }
-
-    // Loop through all params in subdbs, creating a database for each one,
-    // with the specified parameters.  Override some parameters though:
-    // If params.readonly is set, everything should be opened readonly
-
-    std::vector<DatabaseBuilderParams>::const_iterator p;
-    for(p = params.subdbs.begin(); p != params.subdbs.end(); p++) {
-	DatabaseBuilderParams sub_params = *p;
-	if(params.readonly) sub_params.readonly = params.readonly;
-
-	databases.push_back(DatabaseBuilder::create(sub_params));
-    }
+    throw OmInvalidOperationError("MultiDatabase::MultiDatabase(const "
+				  "DatabaseBuilderParams & params) not "
+				  "supported");
 }
 
 MultiDatabase::MultiDatabase(std::vector<OmRefCntPtr<IRDatabase> > databases_)
 	: length_initialised(false)
 {
-    if(databases_.size() <= 0) {
+    if (databases_.empty()) {
 	throw OmInvalidArgumentError("MultiDatabase requires at least one sub-database.");
     }
 

@@ -1,3 +1,10 @@
+Mon Aug 14 15:50:00 BST 2000 Olly Betts
+
+	* MultiDatabase::MultiDatabase(const DatabaseBuilderParams & params)
+	  now always throws OmInvalidOperationError.  The other constructor
+	  is a much less awkward way to construct a multidatabase and
+	  removing it greatly simplifies DatabaseBuilderParams.
+
 Mon Aug 14 15:13:00 BST 2000 Olly Betts
 
 	* Removed default stuff from OmSettings and added methods to read and
@@ -113,7 +120,7 @@ Tue Aug  8 16:04:09 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 Tue Aug  8 15:58:59 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
-	* Implemented some more of the support code for Pythong apitest
+	* Implemented some more of the support code for Python apitest
 
 Tue Aug  8 14:49:46 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
