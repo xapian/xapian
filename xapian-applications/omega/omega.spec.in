@@ -2,8 +2,8 @@
 # @configure_input@
 %define contentdir /var/lib
 
-Summary: Xapian-based indexing and search utilities.
-Name: @PACKAGE@
+Summary: A CGI search frontend and indexers built on Xapian.
+Name: xapian-omega
 Version: @VERSION@
 Release: 1
 License: GPL
@@ -11,32 +11,29 @@ Vendor: www.xapian.org
 Group: Applications/Internet
 URL: http://www.xapian.org/
 # FIXME: once we reach 1.0 "=" should become ">="
-Requires: xapian-core = %{version}, webserver
+Requires: xapian-core-libs = %{version}, webserver
 BuildRequires: xapian-core-devel = %{version}
-Source0: http://www.oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.gz
-
-# Where are we going to build the install set to?
-BuildRoot: %{_tmppath}/%{name}-root
+Source0: http://www.oligarchy.co.uk/xapian/%{version}/omega-%{version}.tar.gz
+Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %description
 Omega is a CGI application which uses the Xapian Information Retrieval
 library to index and search collections of documents.
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q -n omega-%{version}
 
 %build
-./configure --prefix=/usr
+%configure
 make
 
 %install
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}
-make install-strip DESTDIR=%{buildroot}
-mkdir -p %{buildroot}/usr/lib/omega/
+%makeinstall
 # CGI application
 mkdir -p %{buildroot}/var/www/cgi-bin/
-mv %{buildroot}/usr/lib/omega/bin/omega %{buildroot}/var/www/cgi-bin
+mv %{buildroot}%{_libdir}/omega/bin/omega %{buildroot}/var/www/cgi-bin
 # Create the data directory
 mkdir -p %{buildroot}%{contentdir}/omega/data
 # Default templates
@@ -48,8 +45,11 @@ cp -r images/* %{buildroot}/var/www/icons/omega/
 # Configuration file
 mkdir -p %{buildroot}/etc
 install -D -m644 omega.conf %{buildroot}/etc/omega.conf
+# Move the htdig2omega script to the right place
+mkdir -p %{buildroot}%{_datadir}/%{name}
+mv %{buildroot}/usr/share/omega/htdig2omega.script %{buildroot}%{_datadir}/%{name}
 # Move the docs to the right place
-mv %{buildroot}/usr/share/doc/%{name} %{buildroot}/usr/share/doc/%{name}-%{version}
+mv %{buildroot}/usr/share/doc/omega %{buildroot}/usr/share/doc/%{name}-%{version}
 
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
@@ -64,8 +64,6 @@ mv %{buildroot}/usr/share/doc/%{name} %{buildroot}/usr/share/doc/%{name}-%{versi
 /var/www/cgi-bin/omega
 /var/www/icons/omega
 %{_datadir}/%{name}/htdig2omega.script
-%docdir /usr/share/doc/%{name}-%{version}
-
 %config(noreplace) /etc/omega.conf
-
+%docdir /usr/share/doc/%{name}-%{version}
 %doc AUTHORS ChangeLog COPYING NEWS README TODO

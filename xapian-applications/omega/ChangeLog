@@ -1,3 +1,9 @@
+Mon Sep 20 14:45:53 BST 2004  Olly Betts <olly@survex.com>
+
+	* omega.spec.in: Update from Fabrice Colin.  The most notable change
+	  is that the RPM is now called xapian-omega because there's already
+	  an omega RPM (in Fedora Core at least) which is some game.
+
 Thu Sep 16 00:57:13 BST 2004  Olly Betts <olly@survex.com>
 
 	* cgiparam.cc,configfile.cc,configfile.h,htmlparse.cc,indextext.cc,
