@@ -80,9 +80,6 @@ class SocketClient : public NetClient {
 	/// If true, the global_stats are valid
 	bool global_stats_valid;
 
-	/// The max weight from the remote match
-	om_weight remote_maxweight;
-
 	/// The match options object
 	OmSettings moptions;
 
@@ -173,9 +170,7 @@ class SocketClient : public NetClient {
 	void send_global_stats(const Stats &stats);
 
 	/** Do the actual MSet fetching */
-	bool get_mset(om_doccount first,
-		      om_doccount maxitems,
-		      OmMSet &mset);
+	bool get_mset(om_doccount first, om_doccount maxitems, OmMSet &mset);
 
 	/** get the remote termlist */
 	void get_tlist(om_docid did,
@@ -185,9 +180,6 @@ class SocketClient : public NetClient {
 	void get_doc(om_docid did,
 		     std::string &doc,
 		     std::map<om_keyno, OmKey> &keys);
-
-	/** Find the max weight */
-	om_weight get_max_weight();
 
 	/** Get the document count. */
 	om_doccount get_doccount();

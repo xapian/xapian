@@ -77,7 +77,7 @@ class AndMaybePostList : public BranchPostList {
 	 */
 	virtual om_doclength get_doclength() const;
 
-        AndMaybePostList(PostList *left, PostList *right, LocalMatch *matcher_)
+        AndMaybePostList(PostList *left, PostList *right, MultiMatch *matcher_)
 	{
 	    l = left;
 	    r = right;
@@ -85,7 +85,7 @@ class AndMaybePostList : public BranchPostList {
 	}
 
 	/// Constructor for use by decomposing OrPostList
-        AndMaybePostList(PostList *left, PostList *right, LocalMatch *matcher_,
+        AndMaybePostList(PostList *left, PostList *right, MultiMatch *matcher_,
 			 om_docid lh, om_docid rh) : lhead(lh), rhead(rh)
 	{
 	    l = left;

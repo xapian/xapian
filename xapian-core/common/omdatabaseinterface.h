@@ -23,33 +23,25 @@
 #ifndef OM_HGUARD_OMDATABASEINTERFACE_H
 #define OM_HGUARD_OMDATABASEINTERFACE_H
 
-#include <vector>
-
-#include <om/omenquire.h>
-#include "database_builder.h"
-#include "multi_database.h"
+#include <om/omdatabase.h>
 
 /** This class is used basically to add an interface to OmDatabase
- *  which isn't exported to the API.  Internal OM functions can get at
- *  this interface by going through this friend class.
+ *  which isn't exported to the API.  Internal OM classes can get at
+ *  this interface by going through this friend class, without us having
+ *  to expose the names of such classes in friend class declarations in
+ *  the externally visible omdatabase.h header.
  */
 class OmDatabase::InternalInterface {
     public:
-	/** Create a MultiDatabase from an OmDatabase.
-	 *
-	 *  Even if the OmDatabase contains only one Database, this will
-	 *  be returned encapsulated in a MultiDatabase.
-	 *
-	 *  The MultiDatabase will be newly created if it hasn't been
-	 *  asked for previously (for example, a database has been added
-	 *  to the group since it was last requested).  Otherwise, the
-	 *  previously created MultiDatabase will be returned.
+	/** Return a pointer to an OmDatabase's Internals.
 	 *
 	 *  @param db		The source OmDatabase object.
 	 *
-	 *  @return  A reference counted pointer to the MultiDatabase.
+	 *  @return  A pointer to the internals.
 	 */
-	static RefCntPtr<MultiDatabase> get_multi_database(const OmDatabase &db);
+	static OmDatabase::Internal *get(const OmDatabase &db) {
+	    return db.internal;
+	}
 };
 
 #endif // OM_HGUARD_OMDATABASEINTERFACE_H

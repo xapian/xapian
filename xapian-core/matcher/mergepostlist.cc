@@ -26,10 +26,9 @@
 #include "omdebug.h"
 
 MergePostList::MergePostList(std::vector<PostList *> plists_)
+    : plists(plists_), current(-1)
 {
     DEBUGCALL(MATCH, void, "MergePostList::MergePostList", "std::vector<PostList *>");
-    current = -1;
-    plists = plists_;
 }
 
 MergePostList::~MergePostList()
@@ -48,6 +47,8 @@ MergePostList::next(om_weight w_min)
     DEBUGLINE(MATCH, "current = " << current);
     if (current == -1) current = 0;
     do {
+	// FIXME: should skip over Remote matchers which aren't ready yet
+	// and come back to them later...
 	PostList *p = plists[current]->next(w_min);
 	if (p) {
 	    delete plists[current];
@@ -55,7 +56,7 @@ MergePostList::next(om_weight w_min)
 	}
 	if (!plists[current]->at_end()) break;
 	current++;
-    } while (current < plists.size());
+    } while ((unsigned)current < plists.size());
     DEBUGLINE(MATCH, "current = " << current);
     RETURN(NULL);
 }

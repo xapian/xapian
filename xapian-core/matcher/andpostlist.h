@@ -67,7 +67,7 @@ class AndPostList : public BranchPostList {
 
         AndPostList(PostList *left,
 		    PostList *right,
-		    LocalMatch *matcher_,
+		    MultiMatch *matcher_,
 		    bool replacement = false);
 };
 

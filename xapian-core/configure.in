@@ -340,14 +340,6 @@ AC_ARG_ENABLE(backend_inmemory,
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-inmemory) ;;
 esac],[build_inmemory=true])
 
-AC_ARG_ENABLE(backend_multi,
-[  --enable-backend-multi  Enable the multi database backend (default=yes)],
-[case "${enableval}" in
-  yes) build_multi=true ;;
-  no)  build_multi=false ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-multi) ;;
-esac],[build_multi=true])
-
 AC_ARG_ENABLE(backend_remote,
 [  --enable-backend-remote Enable the remote database backend (default=yes)],
 [case "${enableval}" in
@@ -437,7 +429,6 @@ AM_CONDITIONAL(BUILD_BACKEND_MUSCAT36, test x$build_muscat36 = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_SLEEPYCAT, test x$build_sleepycat = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_QUARTZ, test x$build_quartz = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test x$build_inmemory = xtrue)
-AM_CONDITIONAL(BUILD_BACKEND_MULTI, test x$build_multi = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test x$build_remote = xtrue)
 AM_CONDITIONAL(BUILD_PTHREAD_SUPPORT, test x$use_pthread = xtrue)
 
@@ -461,11 +452,6 @@ fi
 if test x$build_inmemory = xtrue; then
 AC_DEFINE(MUS_BUILD_BACKEND_INMEMORY,,
   [Define if you want to build inmemory backend])
-fi
-
-if test x$build_multi = xtrue; then
-AC_DEFINE(MUS_BUILD_BACKEND_MULTI,,
-  [Define if you want to build multi database backend])
 fi
 
 if test x$build_remote = xtrue; then

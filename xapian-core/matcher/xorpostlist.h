@@ -62,7 +62,7 @@ class XorPostList : public BranchPostList {
 	 */
 	virtual om_doclength get_doclength() const;
 
-        XorPostList(PostList * left, PostList * right, LocalMatch * matcher_);
+        XorPostList(PostList * left, PostList * right, MultiMatch * matcher_);
 };
 
 inline om_doccount

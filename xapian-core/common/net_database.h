@@ -29,12 +29,16 @@
 #include "database.h"
 #include "netclient.h"
 
+class RemoteSubMatch;
+class PendingMSetPostList;
+
 /** A network database.  This is a reference to a remote database, and is
- *  mainly used by a NetworkMatch object.
+ *  mainly used by a RemoteSubMatch object.
  */
 class NetworkDatabase : public Database {
     friend class DatabaseBuilder;
-    friend class NetworkMatch;
+    friend class RemoteSubMatch;
+    friend class PendingMSetPostList;
     private:
         /// Reference to the network link object
     	RefCntPtr<NetClient> link;

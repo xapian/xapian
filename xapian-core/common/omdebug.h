@@ -10,6 +10,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+fg
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
@@ -39,6 +40,8 @@
 #ifdef MUS_USE_PTHREAD
 #include <pthread.h>
 #endif /* MUS_USE_PTHREAD */
+
+#include <unistd.h>
 
 /** The types of debug output.  These are specified within a DEBUGMSG in
  *  the code by the final portion of the name: ie, UNKNOWN, LOCK, etc...
@@ -160,9 +163,9 @@ extern OmDebug om_debug;
 } while (0)
 
 #ifdef HAVE_LIBPTHREAD
-#define THREAD_INFO " (Thread " << pthread_self() << ")"
+#define THREAD_INFO " (pid/thr " << getpid() << " " << pthread_self() << ")"
 #else // HAVE_LIBPTHREAD
-#define THREAD_INFO
+#define THREAD_INFO " (pid " << getpid() << ")"
 #endif // HAVE_LIBPTHREAD
 
 #define DEBUGLINE2(a,b) DEBUGMSG2(a, "Om" THREAD_INFO ": " << b << '\n')

@@ -22,12 +22,14 @@
 
 #include "expand.h"
 #include "rset.h"
-#include "database.h"
 #include "ortermlist.h"
 #include "omdebug.h"
 
 #include <algorithm>
 #include "autoptr.h"
+
+#include "omdatabaseinterface.h"
+#include "../api/omdatabaseinternal.h"
 
 class OmESetCmp {
     public:
@@ -48,6 +50,7 @@ class TLPCmpGt {
 AutoPtr<TermList>
 OmExpand::build_tree(const RSet *rset, const OmExpandWeight *ewt)
 {
+    OmDatabase::Internal * internal = OmDatabase::InternalInterface::get(db);
     // Put items in priority queue, such that items with greatest size
     // are returned first.
     // This is the same idea as for a set of postlists ORed together in
@@ -55,12 +58,16 @@ OmExpand::build_tree(const RSet *rset, const OmExpandWeight *ewt)
     //
     // FIXME: try using a heap instead (C++ sect 18.8)?
     std::priority_queue<TermList*, std::vector<TermList*>, TLPCmpGt> pq;
-    std::vector<RSetItem>::const_iterator i;
     try {
+	std::vector<RSetItem>::const_iterator i;
 	for (i = rset->documents.begin();
 	     i != rset->documents.end();
 	     i++) {
-	    AutoPtr<LeafTermList> tl(database->open_term_list((*i).did));
+	    unsigned int multiplier = internal->databases.size();
+	    om_docid realdid = ((*i).did - 1) / multiplier + 1;
+	    om_doccount dbnumber = ((*i).did - 1) % multiplier;
+
+	    AutoPtr<LeafTermList> tl(internal->databases[dbnumber]->open_term_list(realdid));
 	    tl->set_weighting(ewt);
 	    pq.push(tl.get());
 	    tl.release();
@@ -119,7 +126,7 @@ OmExpand::expand(om_termcount max_esize,
     om_weight w_min = 0;
 
     // Start weighting scheme
-    OmExpandWeight ewt(database, rset->get_rsize(), use_exact_termfreq);
+    OmExpandWeight ewt(db, rset->get_rsize(), use_exact_termfreq);
 
     AutoPtr<TermList> merger(build_tree(rset, &ewt));
     if(merger.get() == 0) return;

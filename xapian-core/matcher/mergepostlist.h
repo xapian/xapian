@@ -59,7 +59,6 @@ class MergePostList : public PostList {
 	virtual PositionList * get_position_list();
 
         MergePostList(std::vector<PostList *> plists_);
-	// FIXME: LocalMatch *matcher_?
         ~MergePostList();
 };
 
@@ -114,7 +113,7 @@ inline bool
 MergePostList::at_end() const
 {
     Assert(current != -1);
-    return current >= plists.size();
+    return (unsigned int)current >= plists.size();
 }
 
 inline std::string

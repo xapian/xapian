@@ -28,7 +28,6 @@
 #include <strstream.h>
 #include <iomanip.h>
 #include "database.h"
-#include "omdatabaseinterface.h"
 #include "database_builder.h"
 #include <om/omerror.h>
 #include <om/omenquire.h>
@@ -138,10 +137,7 @@ int main(int argc, char *argv[]) {
 	    delete *p;
 	}
 
-	RefCntPtr<MultiDatabase> mdb(
-	    OmDatabase::InternalInterface::get_multi_database(mydbs));
-
-	TcpServer server(mdb, port, msecs_timeout);
+	TcpServer server(mydbs, port, msecs_timeout);
 
 	if (one_shot) {
 	    server.run_once();

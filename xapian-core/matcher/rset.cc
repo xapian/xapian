@@ -21,10 +21,10 @@
  */
 
 #include "rset.h"
-#include "termlist.h"
 #include "stats.h"
 #include "omdebug.h"
 
+#include "termlist.h"
 #include "autoptr.h"
 
 void
@@ -33,22 +33,34 @@ RSet::calculate_stats()
     Assert(!calculated_reltermfreqs);
     DEBUGLINE(WTCALC, "RSet::calculate_stats(): ");
     std::vector<RSetItem>::const_iterator doc;
-    for (doc = documents.begin();
-	 doc != documents.end();
-	 doc++) {
+    for (doc = documents.begin(); doc != documents.end(); doc++) {
 	DEBUGLINE(WTCALC, "document " << doc->did << " [ ");
-	AutoPtr<TermList> tl =
-	    AutoPtr<TermList>(root->open_term_list(doc->did));
-	tl->next();
-	while(!(tl->at_end())) {
-	    // FIXME - can this lookup be done faster?
-	    // Store termnames in a hash for each document, rather than
-	    // a list?
-	    om_termname tname = tl->get_termname();
-	    DEBUGLINE(WTCALC, tname << ", ");
-	    if(reltermfreqs.find(tname) != reltermfreqs.end())
-		reltermfreqs[tname] ++;
+	if (dbroot) {
+	    AutoPtr<TermList> tl = AutoPtr<TermList>(dbroot->open_term_list(doc->did));
 	    tl->next();
+	    while (!tl->at_end()) {
+		// FIXME - can this lookup be done faster?
+		// Store termnames in a hash for each document, rather than
+		// a list?
+		om_termname tname = tl->get_termname();
+		DEBUGLINE(WTCALC, tname << ", ");
+		if (reltermfreqs.find(tname) != reltermfreqs.end())
+		    reltermfreqs[tname] ++;
+		tl->next();
+	    }
+	} else {
+	    OmTermListIterator tl = root.termlist_begin(doc->did);
+	    OmTermListIterator tlend = root.termlist_end(doc->did);
+	    while (tl != tlend) {
+		// FIXME - can this lookup be done faster?
+		// Store termnames in a hash for each document, rather than
+		// a list?
+		om_termname tname = *tl;
+		DEBUGLINE(WTCALC, tname << ", ");
+		if (reltermfreqs.find(tname) != reltermfreqs.end())
+		    reltermfreqs[tname] ++;
+		tl++;
+	    }
 	}
 	DEBUGLINE(WTCALC, "] ");
     }
@@ -57,15 +69,12 @@ RSet::calculate_stats()
 }
 
 void
-RSet::give_stats_to_statssource(StatsSource &statssource)
+RSet::give_stats_to_statssource(StatsSource *statssource)
 {
     Assert(calculated_reltermfreqs);
 
-    std::map<om_termname, om_doccount>::const_iterator reltermfreq;
-    for (reltermfreq = reltermfreqs.begin();
-	 reltermfreq != reltermfreqs.end();
-	 reltermfreq++) {
-	statssource.my_reltermfreq_is(reltermfreq->first,
-				      reltermfreq->second);
+    std::map<om_termname, om_doccount>::const_iterator i;
+    for (i = reltermfreqs.begin(); i != reltermfreqs.end(); i++) {
+	statssource->my_reltermfreq_is(i->first, i->second);
     }
 }

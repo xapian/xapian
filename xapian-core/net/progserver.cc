@@ -31,7 +31,7 @@
 #include <strstream.h>
 
 /// The ProgServer constructor, taking two filedescriptors and a database.
-ProgServer::ProgServer(RefCntPtr<MultiDatabase> db_,
+ProgServer::ProgServer(OmDatabase db_,
 		       int readfd_,
 		       int writefd_,
 		       int msecs_timeout_)

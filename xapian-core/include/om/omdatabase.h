@@ -153,6 +153,13 @@ class OmDatabase {
 
 	OmPositionListIterator positionlist_begin(om_docid did, const om_termname &tname) const;
 	OmPositionListIterator positionlist_end(om_docid did, const om_termname &tname) const;
+
+	om_doccount get_doccount() const;
+	om_doclength get_avlength() const;
+	om_doccount get_termfreq(const om_termname & tname) const;
+	om_doclength get_doclength(om_docid did) const;
+
+	bool term_exists(const om_termname & tname) const;
 };
 
 ///////////////////////////////////////////////////////////////////

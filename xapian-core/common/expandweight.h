@@ -55,7 +55,7 @@ class OmExpandBits {
  */
 class OmExpandWeight {
     protected:
-	const Database *root; // Root database
+	const OmDatabase root; // Root database
 	om_doccount dbsize;        // Size of whole collection
 	om_doccount rsize;         // Size of RSet
 
@@ -76,7 +76,7 @@ class OmExpandWeight {
     public:
 
 
-	OmExpandWeight(const Database *root_,
+	OmExpandWeight(const OmDatabase &root_,
 		       om_doccount rsetsize_,
 		       bool use_exact_termfreq_);
 

@@ -29,7 +29,8 @@
 #include <vector>
 #include "omlocks.h"
 
-class LocalMatch;
+class SubMatch;
+class LocalSubMatch;
 
 ///////////////////////////////////////////////////////////////////
 // OmQueryInternal class
@@ -37,7 +38,8 @@ class LocalMatch;
 
 /// Internal class, implementing most of OmQuery
 class OmQueryInternal {
-    friend class LocalMatch;
+    friend class SubMatch;
+    friend class LocalSubMatch;	
     public:
     	OmLock mutex;
     private:
@@ -74,7 +76,7 @@ class OmQueryInternal {
 	om_termcount wqf;
 
 	/** Maximum weight that this term could contribute.
-	 *  This is calculated by LocalMatch before the query is run for
+	 *  This is calculated by MultiMatch before the query is run for
 	 *  each term.
 	 */
 	om_weight max_weight;

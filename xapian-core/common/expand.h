@@ -45,13 +45,13 @@ class OmExpand {
 	OmExpand(const OmExpand &);
 	void operator=(const OmExpand &);
 
-        Database *database;
+	const OmDatabase &db;
 
         bool recalculate_maxweight;
 	AutoPtr<TermList> build_tree(const RSet *rset,
 				      const OmExpandWeight *ewt);
     public:
-        OmExpand(Database * database_);
+        OmExpand(const OmDatabase &db_);
 
 	void expand(om_termcount max_esize,
 		    OmESet & eset,
@@ -60,8 +60,8 @@ class OmExpand {
 		    bool use_exact_termfreq);
 };
 
-inline OmExpand::OmExpand(Database * database_)
-	: database(database_)
-{ return; }
+inline OmExpand::OmExpand(const OmDatabase &db_) : db(db_)
+{
+}
 
 #endif /* OM_HGUARD_EXPAND_H */

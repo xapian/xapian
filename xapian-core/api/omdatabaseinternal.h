@@ -29,7 +29,7 @@
 #include "omlocks.h"
 #include "refcnt.h"
 #include "database_builder.h"
-#include "multi_database.h"
+#include "document.h"
 #include "database.h"
 #include "om/omdatabase.h"
 
@@ -40,21 +40,21 @@
 /** Reference counted internals for OmDatabase.
  */
 class OmDatabase::Internal {
-    friend class OmDatabase::InternalInterface;
-
     private:
-	/** The multidatabase, if this has been created.
-	 */
-	RefCntPtr<MultiDatabase> multi_database;
-
-	/** Add a database, based on parameters.
-	 */
+	/// Add a database, based on parameters.
 	void add_database(const OmSettings &params, bool readonly);
     
     public:
-	/** The databases which this consists of.
-	 */
+	/// databases which this consists of.
 	std::vector<RefCntPtr<Database> > databases;
+
+	/** A lock to control concurrent access to this object.
+	 *  This is not intended to control access to the Database objects.
+	 */
+	OmLock mutex;
+
+	/// average document length - 0 means "not yet calculated"
+	mutable om_doclength avlength;
 
 	/** Make a new internal object, with the user supplied parameters.
 	 *
@@ -70,38 +70,27 @@ class OmDatabase::Internal {
 
 	/** Make a copy of this object, copying the ref count pointer.
 	 */
-        Internal(const Internal &other)	: databases(other.databases), mutex()
-	{
-	}
-    
-	Internal() {}
-    
-	/** Add a database, based on parameters.
-	 */
+        Internal(const Internal &other)	: databases(other.databases), mutex(),
+		avlength(other.avlength)
+	{ }
+
+	Internal() : avlength(0) { }
+
+	/// Add a database, based on parameters.
 	void add_database(const OmSettings &params);
 
-	/** Add an already opened database (or set of databases).
-	 */
+	// Add an already opened database
 	void add_database(RefCntPtr<Database> newdb);
 
-	/** A lock to control concurrent access to this object.
-	 *  This is not intended to control access to the Database objects.
-	 */
-	OmLock mutex;
+	/// get average document length
+	om_doclength get_avlength() const;
 
-	/** Create a MultiDatabase from an OmDatabase.
-	 *
-	 *  Even if the OmDatabase contains only one Database, this will
-	 *  be returned encapsulated in a MultiDatabase.
-	 *
-	 *  The MultiDatabase will be newly created if it hasn't been
-	 *  asked for previously (for example, a database has been added
-	 *  to the group since it was last requested).  Otherwise, the
-	 *  previously created MultiDatabase will be returned.
-	 *
-	 *  @return  A reference counted pointer to the MultiDatabase.
-	 */
-	RefCntPtr<MultiDatabase> get_multi_database();
+	LeafPostList *open_post_list(const om_termname & tname,
+				     const OmDatabase &db) const;
+
+	LeafTermList *open_term_list(om_docid did, const OmDatabase &db) const;
+
+	LeafDocument *open_document(om_docid did) const;
 };
 
 #endif // OM_HGUARD_OMDATABASEINTERNAL_H

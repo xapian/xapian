@@ -211,7 +211,7 @@ class StatsSource {
 };
 
 /** LocalStatsSource: the StatsSource object which provides methods
- *  to access the statistics.  A LocalMatch object uses it to report
+ *  to access the statistics.  A LocalSubMatch object uses it to report
  *  on its local statistics and retrieve the global statistics after
  *  the gathering process is complete.
  */

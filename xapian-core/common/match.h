@@ -26,6 +26,11 @@
 #include "database.h"
 #include "om/omdocument.h"
 #include "om/omenquire.h"
+#include "om/omsettings.h"
+#include "omqueryinternal.h"
+#include "match.h"
+#include "stats.h"
+#include "rset.h"
 #include "irweight.h"
 #include "refcnt.h"
 
@@ -52,54 +57,50 @@ class OmMSetCmp {
 	}
 };
 
-class StatsGatherer;
-
-/// Base class for single matchers
-class SingleMatch : public RefCntBase
-{
-    friend class MultiMatch;
-    private:
-	// disallow copies
-	SingleMatch(const SingleMatch &);
-	void operator=(const SingleMatch &);
-
-	///////////////////////////////////////////////////////////////////
-	// Link to a multimatch object (used by
-	// MultiMatch::add_singlematch)
-	virtual void link_to_multi(StatsGatherer *gatherer) = 0;
-
-    protected:
-	/// Flag to remember whether we have prepared to run a query yet
-	bool is_prepared;
-
+class SubMatch : public RefCntBase {
     public:
-	SingleMatch() : is_prepared(false) {};
-	virtual ~SingleMatch() = 0;
-
-	///////////////////////////////////////////////////////////////////
-	// Set the terms and operations which comprise the query
-	// =====================================================
-
-	/** Sets query to use. */
-	virtual void set_query(const OmQueryInternal * query_) = 0;
-
-	///////////////////////////////////////////////////////////////////
-	// Set additional options for performing the query
-	// ===============================================
-
-	/** Set relevance information.
+	/** Name of weighting scheme to use.
+	 *  This may differ from the requested scheme if, for example,
+	 *  the query is pure boolean.
 	 */
-        virtual void set_rset(const OmRSet & omrset) = 0;
+	string weighting_scheme;
 
-	/** Set the match options. */
-	virtual void set_options(const OmSettings & moptions_) = 0;
+	/// The size of the query (passed to IRWeight objects)
+	om_doclength querysize;
+    
+	/// Stored match options object
+	OmSettings mopts;
+
+	StatsSource * statssource;
+	
+	SubMatch(const OmQueryInternal * query, const OmSettings &mopts_,
+		 StatsSource * statssource_)
+	    : querysize(query->qlen), mopts(mopts_), statssource(statssource_)
+	{
+	    // Check that we have a valid query to run
+	    if (!query->isdefined) {
+		throw OmInvalidArgumentError("Query is not defined.");
+	    }
+	    
+	    // If query is boolean, set weighting to boolean
+	    if (query->is_bool()) {
+		weighting_scheme = "bool";
+	    } else {
+		weighting_scheme = mopts.get("match_weighting_scheme", "bm25");
+	    }	    
+	}
+
+	virtual ~SubMatch() {
+	    delete statssource;
+	}
 
 	///////////////////////////////////////////////////////////////////
 	// Prepare to do the match
 	// =======================
 
 	/** Prepare to perform the match operation.
-	 *  This must be called before get_mset().  It can be called more
+	 *  This must be called with a return value of true before
+	 *  get_postlist().  It can be called more
 	 *  than once.  If nowait is true, the operation has only succeeded
 	 *  when the return value is true.
 	 *
@@ -118,48 +119,11 @@ class SingleMatch : public RefCntBase
 	 */
 	virtual bool prepare_match(bool nowait) = 0;
 
-	///////////////////////////////////////////////////////////////////
-	// Get information about result
-	// ============================
+	virtual PostList * get_postlist(om_doccount maxitems, MultiMatch *matcher) = 0;
 
-	/** Perform the match operation, and get the matching items.
-	 *  Also returns a lower bound on the number of matching records in
-	 *  the database (mbound).  Because of some of the optimisations
-	 *  performed, this is likely to be much lower than the actual
-	 *  number of matching records, but it is expensive to do the
-	 *  exact calculation.
-	 *
-	 *  It is generally considered that presenting the mbound to users
-	 *  causes them to worry about the large number of results, rather
-	 *  than how useful those at the top of the mset are, and is thus
-	 *  undesirable.
-	 *
-	 *  @param first          First item to return (start at 0)
-	 *  @param maxitems       Maximum number of items to return
-	 *  @param mset           Results will be put here
-	 *  @param mdecider       Optional decision functor
-	 *  @param nowait         If true, then work asynchronously -
-	 *                        see prepare_match()
-	 *
-	 *  @return  If nowait is true, and the mset is being calculated
-	 *           over a network connection, and the result isn't
-	 *           immediately available, this method returns false.
-	 *           In all other circumstances it will return true.
-	 *
-	 *  @exception OmInvalidArgumentError is thrown if the query has
-	 *             not been set appropriately.
-	 */
-	virtual bool get_mset(om_doccount first,
-			      om_doccount maxitems,
-			      OmMSet &mset,
-			      const OmMatchDecider *mdecider,
-			      bool nowait) = 0;
+	virtual LeafDocument * open_document(om_docid did) const = 0;
+
+	virtual const std::map<om_termname, OmMSet::TermFreqAndWeight> get_term_info() const = 0;
 };
-
-///////////////////////////////
-// Inline method definitions //
-///////////////////////////////
-
-inline SingleMatch::~SingleMatch() {}
 
 #endif /* OM_HGUARD_MATCH_H */

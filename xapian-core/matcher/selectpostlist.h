@@ -52,8 +52,8 @@ class SelectPostList : public PostList {
 	PositionList * get_position_list() { return source->get_position_list(); }
 	bool at_end() const { return source->at_end(); }
 
-	std::string get_description() const;
-
+	std::string get_description() const;    
+    
 	SelectPostList(PostList *source_) : source(source_) { }
         ~SelectPostList() { delete source; }
 };

@@ -1,3 +1,67 @@
+
+===============================================================================
+
+Wed Oct 04 17:24:26 BST 2000 Olly Betts
+
+	* Added ExtraWeightPostList - weights from MSetPostList no longer get
+	  extra weight applied twice.
+
+	* SingleMatch no longer used so removed; SubMatch moved to match.h;
+	  SubMatch::mk_weight() moved to LocalSubMatch().
+
+Wed Oct 04 15:36:09 BST 2000 Olly Betts
+
+	* Removed references to multi backend since it no longer exists.
+
+Wed Oct 04 14:53:28 BST 2000 Olly Betts
+
+	* Removed PostList::set_matcher().
+
+Wed Oct 04 13:15:04 BST 2000 Olly Betts
+
+	* Eliminated internal friends from external headers.
+
+	* Fixed two more compiler warnings.
+ 
+Wed Oct 04 11:43:19 BST 2000 Olly Betts
+
+	* stats.h: Removed unneeded bodge.
+
+	* Fixed two compiler warnings.
+
+Tue Oct 03 18:32:35 BST 2000 Olly Betts
+
+	* Merged LocalMatch into MultiMatch.
+
+Tue Oct 03 17:04:17 BST 2000 Olly Betts
+
+	* Now passes all tests.
+
+Mon Oct 02 18:00:20 BST 2000 Olly Betts
+
+	* Cleaned up a bit.
+
+Mon Oct 02 17:28:53 BST 2000 Olly Betts
+
+	* LocalMatch: Split off postlist tree generation into LocalSubMatch
+	  (temporary name).  LocalMatch now just takes a single PostList and
+	  forms an MSet from it.  Remote versions not yet implemented.
+
+Thu Sep 28 12:19:25 BST 2000 Olly Betts
+
+	* Major overhaul of matcher including addition of MergePostList and
+	  MSetPostList.
+
+	* Use OmDatabase instead of converting it into a MultiDatabase.
+
+	* OmDatabase new methods: get_doccount(), get_avlength(),
+	  get_termfreq(), get_doclength(), term_exists().
+
+	* Currently MultiMatch / LocalMatch / NetworkMatch interface is
+	  highly bodged.
+
+===============================================================================
+
 Tue Oct  3 18:14:51 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Changed QuartzModifiedTable to QuartzBufferedTable.

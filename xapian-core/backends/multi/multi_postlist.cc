@@ -1,4 +1,4 @@
-/* multi_database.cc: interface to multiple database access
+/* multi_postlist.cc: interface to multiple database access
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -24,7 +24,6 @@
 
 #include "omdebug.h"
 #include "multi_postlist.h"
-#include "multi_database.h"
 #include "database_builder.h"
 
 #include <list>
@@ -34,7 +33,7 @@
 //////////////
 
 MultiPostList::MultiPostList(std::vector<LeafPostList *> & pls,
-			     RefCntPtr<const MultiDatabase> this_db_)
+			     const OmDatabase &this_db_)
 	: postlists(pls),
 	  this_db(this_db_),
 	  finished(false),
@@ -63,7 +62,7 @@ MultiPostList::get_weight() const
 om_doclength
 MultiPostList::get_doclength() const
 {
-    return this_db->get_doclength(get_docid());
+    return this_db.get_doclength(get_docid());
 }
 
 om_termcount

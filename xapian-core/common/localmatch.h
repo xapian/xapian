@@ -28,6 +28,7 @@
 #include "omqueryinternal.h"
 #include "match.h"
 #include "stats.h"
+#include "rset.h"
 
 class IRWeight;
 class Database;
@@ -38,30 +39,78 @@ class PostList;
 #include <map>
 #include "autoptr.h"
 
-class SubMatch {
-    public:
-	Database *db;
-	LocalStatsSource statssource;
+class LocalSubMatch : public SubMatch {
+    private:
+	bool is_prepared;
+
+	/// Query to be run
+	OmQueryInternal users_query;
+
+	const Database *db;
 	PostList *postlist;
 
-	SubMatch(Database *db_) : db(db_) {
-	    statssource.my_collection_size_is(db->get_doccount());
-	    statssource.my_average_length_is(db->get_avlength());
-	}
+	/// RSet to be used (affects weightings)
+	AutoPtr<RSet> rset;
+    
+	/** Optional limit on number of terms to OR together.
+	 *  If zero, there is no limit.
+	 */
+	om_termcount max_or_terms;
+
+	/// The weights and termfreqs of terms in the query.
+	std::map<om_termname, OmMSet::TermFreqAndWeight> term_info;
+
+
+	PostList * build_and_tree(std::vector<PostList *> &postlists,
+				  MultiMatch *matcher);
+
+	PostList * build_or_tree(std::vector<PostList *> &postlists,
+				 MultiMatch *matcher);
+
+	/// Make a postlist from a vector of query objects (AND or OR)
+	PostList *postlist_from_queries(OmQuery::op op,
+				const std::vector<OmQueryInternal *> & queries,
+				om_termcount window, MultiMatch *matcher);
+
+	/// Make a postlist from a query object
+	PostList *postlist_from_query(const OmQueryInternal * query,
+				      MultiMatch *matcher);
 
 	void register_term(const om_termname &tname) {
-	    statssource.my_termfreq_is(tname, db->get_termfreq(tname));
+	    statssource->my_termfreq_is(tname, db->get_termfreq(tname));
 	}
 
-	void link_to_multi(StatsGatherer *gatherer) {
-	    statssource.connect_to_gatherer(gatherer);
+	/// Make a weight - default argument is used for finding extra_weight
+	IRWeight * mk_weight(const OmQueryInternal *query = NULL);
+
+    public:
+	LocalSubMatch(const Database *db_, const OmQueryInternal * query,
+		      const OmRSet & omrset, const OmSettings &mopts_,
+		      StatsGatherer *gatherer)
+		: SubMatch(query, mopts_, new LocalStatsSource),
+		  is_prepared(false), users_query(*query), db(db_)
+	{	    
+	    AutoPtr<RSet> new_rset(new RSet(db, omrset));
+	    rset = new_rset;
+
+	    max_or_terms = mopts.get_int("match_max_or_terms", 0);
+
+	    statssource->my_collection_size_is(db->get_doccount());
+	    statssource->my_average_length_is(db->get_avlength());
+	    statssource->connect_to_gatherer(gatherer);
 	}
 
+	/// Calculate the statistics for the query
+	bool prepare_match(bool nowait);
 
-	PostList * open_post_list(const om_termname & tname, IRWeight *wt) {
-	    LeafPostList * pl = db->open_post_list(tname);
-	    pl->set_termweight(wt);
-	    return pl;
+	PostList * get_postlist(om_doccount maxitems, MultiMatch *matcher);
+
+	virtual LeafDocument * open_document(om_docid did) const {
+	    return db->open_document(did);
+	}
+
+	const std::map<om_termname, OmMSet::TermFreqAndWeight> get_term_info() const {
+	    return term_info;
 	}
 };   
 
@@ -74,109 +123,5 @@ class SubMatch {
 typedef bool (* mset_cmp)(const OmMSetItem &, const OmMSetItem &);
 bool msetcmp_forward(const OmMSetItem &, const OmMSetItem &);
 bool msetcmp_reverse(const OmMSetItem &, const OmMSetItem &);
-
-/** Class for performing the best match calculations on a database.
- *  This is the Match class which performs the main calculation: other
- *  Match objects merge or transmit the results of LocalMatch objects.
- */
-class LocalMatch : public SingleMatch
-{
-    private:
-	SubMatch submatch;    
-
-	/// Query to be run
-	OmQueryInternal users_query;
-
-	/// RSet to be used (affects weightings)
-	AutoPtr<RSet> rset;
-
-	/// Stored match options object
-	OmSettings mopts;
-
-	/** Name of weighting scheme to use.
-	 *  This may differ from the requested scheme if, for example,
-	 *  the query is pure boolean.
-	 */
-	string weighting_scheme;
-
-	/** Optional limit on number of terms to OR together.
-	 *  If zero, there is no limit.
-	 */
-	om_termcount max_or_terms;
-
-	/** The weights and termfreqs of terms in the query.
-	 */
-	std::map<om_termname, OmMSet::TermFreqAndWeight> term_info;
-
-	/// Comparison functor for sorting MSet
-	OmMSetCmp mcmp;
-
-	/** Internal flag to note that w_max needs to be recalculated
-	 *  while query is running.
-	 */
-        bool recalculate_w_max;
-
-	/// The size of the query (passed to IRWeight objects)
-	om_doclength querysize;
-
-	/// Calculate the statistics for the query
-	void gather_query_statistics();
-
-	/// Make a postlist from a query object
-	PostList *postlist_from_query(const OmQueryInternal * query);
-
-	/// Make a postlist from a vector of query objects (AND or OR)
-	PostList *postlist_from_queries(
-				OmQuery::op op,
-				const std::vector<OmQueryInternal *> & queries,
-				om_termcount window);
-
-	/// Make a weight - default argument is used for finding extra_weight
-	IRWeight * mk_weight(const OmQueryInternal *query = NULL);
-
-	/// Internal method to perform the collapse operation
-	bool perform_collapse(std::vector<OmMSetItem> &mset,
-			      std::map<OmKey, OmMSetItem> &collapse_table,
-			      om_docid did,
-			      const OmMSetItem &new_item,
-			      const OmMSetItem &min_item);
-
-	// disallow copies
-	LocalMatch(const LocalMatch &);
-	void operator=(const LocalMatch &);
-
-	PostList * build_and_tree(std::vector<PostList *> &postlists);
-	PostList * build_or_tree(std::vector<PostList *> &postlists);
-    public:
-        LocalMatch(Database * database_);
-
-	///////////////////////////////////////////////////////////////////
-	// Implement these virtual methods
-	void link_to_multi(StatsGatherer *gatherer);
-
-	void set_query(const OmQueryInternal * query);
-
-        void set_rset(const OmRSet & omrset);
-
-	void set_options(const OmSettings & mopts_);
-
-	bool prepare_match(bool nowait);
-
-	bool get_mset(om_doccount first,
-		      om_doccount maxitems,
-		      OmMSet & mset,
-		      const OmMatchDecider *mdecider,
-		      bool nowait
-		     );
-
-	///////////////////////////////////////////////////////////////////
-	// Miscellaneous
-	// =============
-
-	/** Called by postlists to indicate that they've rearranged themselves
-	 *  and the maxweight now possible is smaller.
-	 */
-        void recalc_maxweight();
-};
 
 #endif /* OM_HGUARD_LOCALMATCH_H */

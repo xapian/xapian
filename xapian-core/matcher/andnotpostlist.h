@@ -58,7 +58,7 @@ class AndNotPostList : public BranchPostList {
 
         AndNotPostList(PostList *left,
 		       PostList *right,
-		       LocalMatch *matcher_);
+		       MultiMatch *matcher_);
 
         PostList *sync_and_skip_to(om_docid id,
 				   om_weight w_min,

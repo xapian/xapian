@@ -346,7 +346,8 @@ test_driver::do_run_tests(std::vector<std::string>::const_iterator b,
 		bool succeeded = runtest(test);
 		if (succeeded) {
 		    ++result.succeeded;
-		    out << " ok." << std::endl;
+//		    out << " ok." << std::endl;
+		    out << "\r                                                                               \r";
 		} else {
 		    ++result.failed;
 		    out << std::endl;

@@ -24,8 +24,6 @@
 #define OM_HGUARD_SOCKETSERVER_H
 
 #include "netserver.h"
-#include "database.h"
-#include "multi_database.h"
 #include "multimatch.h"
 #include "socketcommon.h"
 #include "networkstats.h"
@@ -43,7 +41,7 @@ class SocketServer : public NetServer {
 	void operator=(const SocketServer &);
 
 	/// The database we're associated with
-	RefCntPtr<MultiDatabase> db;
+	OmDatabase db;
 
 	/// The filedescriptors for talking to the remote end.
 	int readfd;
@@ -97,7 +95,7 @@ class SocketServer : public NetServer {
 	 *                      missing or -1, then readfd_ will be used
 	 *                      instead.
 	 */
-	SocketServer(RefCntPtr<MultiDatabase> db,
+	SocketServer(OmDatabase db,
 		     int readfd_,
 		     int writefd_ = -1,
 		     int msecs_timeout_ = 10000);
@@ -106,7 +104,7 @@ class SocketServer : public NetServer {
 	 *  @param db		The database on which searches are done.
 	 *  @param buffer	OmLineBuf already connected to remote end.
 	 */
-	SocketServer(RefCntPtr<MultiDatabase> db,
+	SocketServer(OmDatabase db,
 		     AutoPtr<OmLineBuf> buffer,
 		     int msecs_timeout_ = 10000);
 

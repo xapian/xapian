@@ -24,8 +24,9 @@
 #include "utils.h"
 #include "omlocks.h"
 #include "omdatabaseinternal.h"
-#include "omdatabaseinterface.h"
-#include "multi_database.h"
+
+#include "../backends/multi/multi_postlist.h"
+#include "../backends/multi/multi_termlist.h"
 
 #include "omdebug.h"
 #include <om/omoutput.h>
@@ -44,12 +45,10 @@ void
 OmDatabase::Internal::add_database(const OmSettings & params, bool readonly)
 {
     OmLockSentry locksentry(mutex);
-
-    // Forget existing multidatabase
-    multi_database = 0;
-
     // Open database (readonly) and add it to the list
     RefCntPtr<Database> newdb(DatabaseBuilder::create(params, readonly));
+    // forget cached average length
+    avlength = 0;
     databases.push_back(newdb);
 }
 
@@ -63,38 +62,78 @@ void
 OmDatabase::Internal::add_database(RefCntPtr<Database> newdb)
 {
     OmLockSentry locksentry(mutex);
-
-    // Forget existing multidatabase
-    multi_database = 0;
-
-    // Add database to the list
+    // forget cached average length
+    avlength = 0;
     databases.push_back(newdb);
 }
 
-RefCntPtr<MultiDatabase>
-OmDatabase::Internal::get_multi_database()
+om_doclength
+OmDatabase::Internal::get_avlength() const
 {
-    OmLockSentry locksentry(mutex);
+    if (avlength == 0) {
+	om_doccount docs = 0;
+	om_doclength totlen = 0;
 
-    if (databases.size() == 0) {
-	throw OmInvalidArgumentError("No databases specified to search.");
+	// FIXME: why not calculate totlen and docs as databases are added
+	// and simply do the division when we're asked for avlength?
+	std::vector<RefCntPtr<Database> >::const_iterator i;
+	for (i = databases.begin(); i != databases.end(); i++) {
+	    om_doccount db_doccount = (*i)->get_doccount();
+	    docs += db_doccount;
+	    totlen += (*i)->get_avlength() * db_doccount;
+	}
+
+	avlength = totlen / docs;
     }
 
-//    if (databases.size() == 1) return databases[0];
-
-    if (multi_database.get() == 0) {
-	multi_database = new MultiDatabase(databases);
-    }
-
-    return multi_database;
+    return avlength;
 }
 
-//////////////////////////////////////////////
-// Methods of OmDatabase::InternalInterface //
-//////////////////////////////////////////////
-
-RefCntPtr<MultiDatabase>
-OmDatabase::InternalInterface::get_multi_database(const OmDatabase &db)
+LeafPostList *
+OmDatabase::Internal::open_post_list(const om_termname & tname,
+				     const OmDatabase &db) const
 {
-    return db.internal->get_multi_database();
+    // FIXME should we special case?  term_exists does quite a bit of extra
+    // work in the (common) case when the term does exist...
+    if (db.term_exists(tname)) return new EmptyPostList();
+    
+    std::vector<LeafPostList *> pls;
+    try {
+	std::vector<RefCntPtr<Database> >::const_iterator i;
+	for (i = databases.begin(); i != databases.end(); i++) {
+	    pls.push_back((*i)->open_post_list(tname));
+	    pls.back()->next();
+	}
+	Assert(pls.begin() != pls.end());
+    } catch (...) {
+	std::vector<LeafPostList *>::iterator i;
+	for (i = pls.begin(); i != pls.end(); i++) {
+	    delete *i;
+	    *i = 0;
+	}
+	throw;
+    }
+
+    return new MultiPostList(pls, db);
+}
+
+LeafTermList *
+OmDatabase::Internal::open_term_list(om_docid did, const OmDatabase &db) const
+{
+    unsigned int multiplier = databases.size();
+    om_docid realdid = (did - 1) / multiplier + 1;
+    om_doccount dbnumber = (did - 1) % multiplier;
+
+    TermList *newtl = databases[dbnumber]->open_term_list(realdid);
+    return new MultiTermList(newtl, databases[dbnumber], db);
+}
+
+LeafDocument *
+OmDatabase::Internal::open_document(om_docid did) const
+{
+    unsigned int multiplier = databases.size();
+    om_docid realdid = (did - 1) / multiplier + 1;
+    om_doccount dbnumber = (did - 1) % multiplier;
+
+    return databases[dbnumber]->open_document(realdid);
 }

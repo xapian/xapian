@@ -1,0 +1,204 @@
+/* msetpostlist.h: mset postlists from different databases
+ *
+ * ----START-LICENCE----
+ * Copyright 1999,2000 BrightStation PLC
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ * -----END-LICENCE-----
+ */
+
+#ifndef OM_HGUARD_MSETPOSTLIST_H
+#define OM_HGUARD_MSETPOSTLIST_H
+
+#include "database.h"
+#include "net_database.h"
+#include "omenquireinternal.h"
+
+/// A postlist comprising postlists from different databases mseted together.
+class MSetPostList : public PostList {
+    friend class RemoteSubMatch;
+    private:
+	OmMSet mset;    
+	const NetworkDatabase *db;
+	int current;
+
+    public:
+	om_doccount get_termfreq() const;
+
+	om_docid  get_docid() const;
+	om_weight get_weight() const;
+	om_weight get_maxweight() const;
+
+        om_weight recalc_maxweight();
+
+	PostList *next(om_weight w_min);
+	PostList *skip_to(om_docid did, om_weight w_min);
+	bool   at_end() const;
+
+	std::string get_description() const;
+
+	/** Return the document length of the document the current term
+	 *  comes from.
+	 */
+	virtual om_doclength get_doclength() const;
+
+	virtual PositionList * get_position_list();
+
+        MSetPostList(const OmMSet mset_, const NetworkDatabase *db_);
+        ~MSetPostList();
+};
+
+inline om_doccount
+MSetPostList::get_termfreq() const
+{
+    // sum of termfreqs for all terms in query which formed mset
+    om_doccount total = 0;
+    static const std::map<om_termname, OmMSet::TermFreqAndWeight> &m =
+	mset.get_all_terminfo();
+    std::map<om_termname, OmMSet::TermFreqAndWeight>::const_iterator i;
+    for (i = m.begin(); i != m.end(); i++) {
+	total += i->second.termfreq;
+    }
+    return total;
+}
+
+inline om_docid
+MSetPostList::get_docid() const
+{
+    DEBUGCALL(MATCH, om_docid, "MSetPostList::get_docid", "");
+    Assert(current != -1);
+    RETURN(mset.items[current].did);
+}
+
+inline om_weight
+MSetPostList::get_weight() const
+{
+    Assert(current != -1);
+    return mset.items[current].wt;
+}
+
+inline om_weight
+MSetPostList::get_maxweight() const
+{
+    // Before we've started, return max_possible...
+    // FIXME: when current advances from -1 to 0, we should probably call
+    // recalc_maxweight on the matcher...
+    if (current == -1) return mset.max_possible;    
+    if (mset.items.empty()) return 0;
+    // mset.max_attained is bigger than this if firstitem != 0
+    return mset.items[0].wt;
+}
+
+inline om_weight
+MSetPostList::recalc_maxweight()
+{
+    return get_maxweight();
+}
+
+inline bool
+MSetPostList::at_end() const
+{
+    Assert(current != -1);
+    return (unsigned int)current >= mset.items.size();
+}
+
+inline std::string
+MSetPostList::get_description() const
+{
+    return "( MSet " + mset.get_description() + " )";
+}
+
+inline om_doclength
+MSetPostList::get_doclength() const
+{
+    Assert(current != -1);
+    return 1; // FIXME: this info is unused with present weights
+//    return db->get_doclength(mset.items[current].did);
+}
+
+inline PositionList *
+MSetPostList::get_position_list()
+{
+    throw OmUnimplementedError("MSetPostList::get_position_list() unimplemented");
+}
+
+class RemoteSubMatch;
+
+/// Stands in for an MSetPostList until the MSet is available at which point
+/// it prunes, returning an MSetPostList
+class PendingMSetPostList : public PostList {
+    friend class RemoteSubMatch;
+    private:
+	const NetworkDatabase *db;
+	MSetPostList *pl;
+	om_doccount maxitems;
+
+	void make_pl() {
+	    if (pl) return;
+	    OmMSet mset;
+	    while (!db->link->get_mset(0, maxitems, mset)) {
+		db->link->wait_for_input();
+	    }
+	    pl = new MSetPostList(mset, db);
+	}
+
+    public:
+	// maxitems is an upper bound on the number of postings
+	om_doccount get_termfreq() const { return maxitems; }
+
+	om_docid  get_docid() const { Assert(false); }
+	om_weight get_weight() const { Assert(false); }
+	om_weight get_maxweight() const { Assert(false); }
+	
+        om_weight recalc_maxweight() {
+	    make_pl();
+	    return pl->recalc_maxweight();
+	}
+
+	PostList *next(om_weight w_min) {
+	    make_pl();
+	    PostList *pl2 = pl->next(w_min);
+	    Assert(pl2 == NULL); // MSetPostList-s don't prune
+	    pl2 = pl;
+	    pl = NULL;
+	    return pl2;
+	}
+
+	PostList *skip_to(om_docid did, om_weight w_min) {
+	    // MSetPostList doesn't return documents in docid order, so skip_to
+	    // isn't a meaningful operation.
+	    throw OmUnimplementedError("PendingMSetPostList doesn't support skip_to");	    
+	}
+
+	bool at_end() const { Assert(false); }
+
+	std::string get_description() const {
+	    return "( PendingMSet )";
+	}
+
+	/** Return the document length of the document the current term
+	 *  comes from.
+	 */
+	virtual om_doclength get_doclength() const { Assert(false); }
+
+	virtual PositionList * get_position_list() { Assert(false); }
+
+        PendingMSetPostList(const NetworkDatabase *db_, om_doccount maxitems_)
+		: db(db_), pl(NULL), maxitems(maxitems_) { }
+        ~PendingMSetPostList();
+};
+
+#endif /* OM_HGUARD_MSETPOSTLIST_H */

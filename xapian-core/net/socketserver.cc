@@ -33,6 +33,8 @@
 #include "termlist.h"
 #include "document.h"
 #include "omdebug.h"
+#include "../api/omdatabaseinternal.h"
+#include "omdatabaseinterface.h"
 #include "autoptr.h"
 #include <strstream.h>
 #include <signal.h>
@@ -41,7 +43,7 @@
 #include <unistd.h>
 
 /// The SocketServer constructor, taking two filedescriptors and a database.
-SocketServer::SocketServer(RefCntPtr<MultiDatabase> db_,
+SocketServer::SocketServer(OmDatabase db_,
 			   int readfd_,
 			   int writefd_,
 			   int msecs_timeout_)
@@ -62,11 +64,11 @@ SocketServer::SocketServer(RefCntPtr<MultiDatabase> db_,
     buf->readline(msecs_timeout);
     buf->writeline("HELLO " +
 		  om_tostring(OM_SOCKET_PROTOCOL_VERSION) + " " +
-		  om_tostring(db->get_doccount()) + " " +
-		  om_tostring(db->get_avlength()));
+		  om_tostring(db.get_doccount()) + " " +
+		  om_tostring(db.get_avlength()));
 }
 
-SocketServer::SocketServer(RefCntPtr<MultiDatabase> db_,
+SocketServer::SocketServer(OmDatabase db_,
 			   AutoPtr<OmLineBuf> buf_,
 			   int msecs_timeout_)
 	: db(db_),
@@ -177,7 +179,7 @@ SocketServer::run_match(const std::string &firstmessage)
     }
     OmQueryInternal query = query_from_string(message);
 
-    MultiMatch match(db.get(),
+    MultiMatch match(db,
 		     &query,
 		     omrset,
 		     moptions,
@@ -252,18 +254,17 @@ SocketServer::run_gettermlist(const std::string &firstmessage)
 
     om_docid did = atoi(message.c_str() + 9);
 
-    AutoPtr<LeafTermList> tl(db->open_term_list(did));
+    OmTermListIterator tl = db.termlist_begin(did);
+    OmTermListIterator tlend = db.termlist_end(did);
 
-    tl->next();
-
-    while (!tl->at_end()) {
+    while (tl != tlend) {
 	std::string item = "TLISTITEM ";
-	item = item + encode_tname(tl->get_termname()) + " ";
-	item = item + om_tostring(tl->get_wdf()) + " ";
-	item = item + om_tostring(tl->get_termfreq());
+	item = item + encode_tname(*tl) + " ";
+	item = item + om_tostring(tl.get_wdf()) + " ";
+	item = item + om_tostring(tl.get_termfreq());
 	buf->writeline(item);
 
-	tl->next();
+	tl++;
     }
 
     buf->writeline("END");
@@ -280,7 +281,7 @@ SocketServer::run_getdocument(const std::string &firstmessage)
 
     om_docid did = atoi(message.c_str() + 7);
 
-    AutoPtr<LeafDocument> doc(db->open_document(did));
+    AutoPtr<LeafDocument> doc(OmDatabase::InternalInterface::get(db)->open_document(did));
 
     buf->writeline(std::string("DOC ") + encode_tname(doc->get_data().value));
 

@@ -23,17 +23,16 @@
 #include "omdebug.h"
 #include "omlocks.h"
 #include "omdatabaseinternal.h"
+#include "omdatabaseinterface.h"
 
 #include <om/omerror.h>
 #include <om/omenquire.h>
 #include <om/omoutput.h>
 
 #include "rset.h"
-#include "localmatch.h"
 #include "multimatch.h"
 #include "expand.h"
 #include "database.h"
-#include "omdatabaseinterface.h"
 #include "database_builder.h"
 #include <om/omdocument.h>
 #include "omdocumentparams.h"
@@ -179,7 +178,7 @@ OmMSet::get_termweight(const om_termname &tname) const
     RETURN(i->second.termweight);
 }
 
-std::map<om_termname, OmMSet::TermFreqAndWeight>
+const std::map<om_termname, OmMSet::TermFreqAndWeight>
 OmMSet::get_all_terminfo() const
 {
     return termfreqandwts;
@@ -246,9 +245,8 @@ OmESet::get_description() const
 // Methods for OmEnquireInternal //
 ///////////////////////////////////
 
-OmEnquireInternal::OmEnquireInternal(const OmDatabase &databases)
-  : database(OmDatabase::InternalInterface::get_multi_database(databases)),
-    query(0)
+OmEnquireInternal::OmEnquireInternal(const OmDatabase &db_)
+  : db(db_), query(0)
 {
 }
 
@@ -312,7 +310,7 @@ OmEnquireInternal::get_mset(om_doccount first,
     //
     // Notes: when accessing query, we don't need to lock mutex, since its our
     // own copy and we're locked ourselves
-    MultiMatch match(database.get(), query->internal, *omrset, *moptions);
+    MultiMatch match(db, query->internal, *omrset, *moptions);
 
     OmMSet retval;
     // Run query and get results into supplied OmMSet object
@@ -341,8 +339,8 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
     }
 
     // FIXME: make expand and rset take a refcntptr
-    OmExpand expand(database.get());
-    RSet rset(database.get(), omrset);
+    OmExpand expand(db);
+    RSet rset(db, omrset);
 
     DEBUGLINE(API, "rset size is " << omrset.items.size());
 
@@ -409,13 +407,8 @@ OmEnquireInternal::get_matching_terms(const OmMSetItem &mitem) const
 std::string
 OmEnquireInternal::get_description() const
 {
-    std::string description;
-    /// \todo get description of the database
-    //description = database->get_description();
-    description = "Database()";
-    if (query != 0) {
-	description += ", " + query->get_description();
-    }
+    std::string description = db.get_description();
+    if (query) description += ", " + query->get_description();
     return description;
 }
 
@@ -426,7 +419,12 @@ OmEnquireInternal::get_description() const
 const OmDocument
 OmEnquireInternal::read_doc(om_docid did) const
 {
-    LeafDocument *doc = database->open_document(did);
+    OmDatabase::Internal * internal = OmDatabase::InternalInterface::get(db);
+    unsigned int multiplier = internal->databases.size();
+    om_docid realdid = (did - 1) / multiplier + 1;
+    om_doccount dbnumber = (did - 1) % multiplier;
+
+    LeafDocument *doc = internal->databases[dbnumber]->open_document(realdid);
 
     return OmDocument(OmDocumentParams(doc));
 }
@@ -471,28 +469,19 @@ OmEnquireInternal::calc_matching_terms(om_docid did) const
 	tmap[*i] = index++;
     }
 
-    AutoPtr<TermList> docterms(database->open_term_list(did));
-
-    /* next() must be called on a TermList before you can
-     * do anything else with it.
-     */
-    docterms->next();
-
     std::vector<om_termname> matching_terms;
 
-    while (!docterms->at_end()) {
-        std::map<om_termname, unsigned int>::iterator t =
-		tmap.find(docterms->get_termname());
-        if (t != tmap.end()) {
-	    matching_terms.push_back(docterms->get_termname());
-	}
-	docterms->next();
+    OmTermListIterator docterms = db.termlist_begin(did);
+    OmTermListIterator docterms_end = db.termlist_end(did);
+    while (docterms != docterms_end) {
+	om_termname term = *docterms;
+        std::map<om_termname, unsigned int>::iterator t = tmap.find(term);
+        if (t != tmap.end()) matching_terms.push_back(term);
+	docterms++;
     }
 
     // sort the resulting list by query position.
-    sort(matching_terms.begin(),
-	 matching_terms.end(),
-	 ByQueryIndexCmp(tmap));
+    sort(matching_terms.begin(), matching_terms.end(), ByQueryIndexCmp(tmap));
 
     return om_termname_list(matching_terms.begin(), matching_terms.end());
 }
