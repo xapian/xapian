@@ -28,5 +28,12 @@ public class RunTest {
     	OmStem foo = new OmStem("english");
 
 	System.out.println(foo.stem_word("giraffe"));
+
+	OmQuery bar = new OmQuery("word", 1, 2);
+	System.out.println(bar.get_description());
+
+	String[] baz_ = { "giraff", "lion" };
+	OmQuery baz = new OmQuery("FILTER", baz_);
+	System.out.println(baz.get_description());
     }
 }

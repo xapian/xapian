@@ -35,8 +35,9 @@ public class OmQuery extends OmObject {
     /** get terms in query */
     public native String[] get_terms ();
 
-//    string get_description() const 
-//	      Returns a string representing the query. 
+    /** Returns a string representing the query */
+    public native String get_description();
+
 //	  om_termcount get_length() const 
 //	      Get the length of the query, used by some ranking formulae. 
 //	  bool is_bool() const 

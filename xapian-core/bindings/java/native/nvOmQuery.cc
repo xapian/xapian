@@ -142,3 +142,21 @@ JNIEXPORT jobjectArray JNICALL Java_com_muscat_om_OmQuery_get_1terms
 
     return ret;    
 }
+
+/*
+ * Class:     com_muscat_om_OmQuery
+ * Method:    get_description
+ * Signature: ()Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_muscat_om_OmQuery_get_1description
+  (JNIEnv *env, jobject obj)
+{
+    OmQuery* query = (OmQuery*) tryGetLongField (env, obj, "nativePtr");
+    try {
+	return env->NewStringUTF (query->get_description().c_str());
+    }
+    catch (OmError& err) {
+	handleNativeError (env, err);
+    }
+    return NULL;
+}

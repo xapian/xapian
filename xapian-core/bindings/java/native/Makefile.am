@@ -57,7 +57,7 @@ native_sources = nvOmEnquire.lo			\
 	nvOmPrefixExpandDecider.lo	\
 	utils.lo
 
-all-local: libomusjava.so
+all-local: headers libomusjava.so
 
 libomusjava.so: $(native_sources)
 	$(LIBTOOL) $(CXX) -shared $^ ../../../libomus.la -o $@
