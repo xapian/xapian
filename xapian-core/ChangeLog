@@ -1,3 +1,8 @@
+Mon Jul 14 23:36:14 BST 2003  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated some linux results: RH7.3 on x86, and Debian on
+	  alpha and arm.
+
 Mon Jul 14 23:33:17 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in,Makefile.am,extra/Makefile.am: Added versioning
@@ -1245,7 +1250,7 @@ Fri Mar 28 20:04:04 GMT 2003  Olly Betts <olly@survex.com>
 Fri Mar 28 19:53:59 GMT 2003  Olly Betts <olly@survex.com>
 
 	* README: Removed out-of-date sourceforge references; tidied up
-          wording in places.
+	  wording in places.
 
 Fri Mar 28 19:52:11 GMT 2003  Olly Betts <olly@survex.com>
 
