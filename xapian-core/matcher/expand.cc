@@ -176,8 +176,8 @@ Expand::expand(const RSet *rset)
     if (eset.size()) {
 #ifdef MUS_DEBUG_VERBOSE
 	cout << "max weight in eset = " << eset.front().wt
-#endif /* MUS_DEBUG_VERBOSE */
 	     << ", min weight in eset = " << eset.back().wt << endl;
+#endif /* MUS_DEBUG_VERBOSE */
     }
     delete merger;
 }
