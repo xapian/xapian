@@ -1,3 +1,8 @@
+Wed Apr 19 18:45:21 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* parameter checks when opening databases now throw
+	  OmInvalidArgumentError exceptions, rather than just being Asserts.
+
 Wed Apr 19 18:10:31 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Changed PostList::get_position_list() to be non-const, since it

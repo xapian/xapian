@@ -25,6 +25,8 @@
 #include "database_builder.h"
 #include "progclient.h"
 
+#include "om/omerror.h"
+
 ///////////////////////////
 // Actual database class //
 ///////////////////////////
@@ -33,10 +35,14 @@ NetworkDatabase::NetworkDatabase(const DatabaseBuilderParams & params)
 	: link(0)
 {
     // Check validity of parameters
-    Assert(params.subdbs.size() == 0);
-
+    if(params.readonly != true) {
+	throw OmInvalidArgumentError("DBDatabase must be opened readonly.");
+    }
+    if(params.subdbs.size() != 0) {
+	throw OmInvalidArgumentError("NetworkDatabase cannot have sub databases.");
+    }
     if (params.paths.size() != 3) {
-	throw OmInvalidArgumentError("Bad arguments for net database");
+	throw OmInvalidArgumentError("NewworkDatabase requires three path parameters.");
     }
 
     if (params.paths[0] == "prog") {

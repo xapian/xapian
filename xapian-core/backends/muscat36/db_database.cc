@@ -36,6 +36,8 @@
 #include "dbread.h"
 #include "om/omdocument.h"
 
+#include "om/omerror.h"
+
 DBPostList::DBPostList(const om_termname & tname_,
 		       struct DB_postings * postlist_,
 		       om_doccount termfreq_)
@@ -132,10 +134,15 @@ DBDatabase::DBDatabase(const DatabaseBuilderParams & params, int heavy_duty_)
 	  heavy_duty(heavy_duty_)
 {
     // Check validity of parameters
-    Assert(params.readonly == true);
-    Assert(params.subdbs.size() == 0);
-    Assert(params.paths.size() >= 1);
-    Assert(params.paths.size() <= 2);
+    if(params.readonly != true) {
+	throw OmInvalidArgumentError("DBDatabase must be opened readonly.");
+    }
+    if(params.subdbs.size() != 0) {
+	throw OmInvalidArgumentError("DBDatabase cannot have sub databases.");
+    }
+    if(params.paths.size() < 1 || params.paths.size() > 2) {
+	throw OmInvalidArgumentError("DBDatabase requires either 1 or 2 parameters.");
+    }
 
     // Open database with specified path
     string filename = params.paths[0];

@@ -35,6 +35,8 @@
 #include "daread.h"
 #include "om/omdocument.h"
 
+#include "om/omerror.h"
+
 DAPostList::DAPostList(const om_termname & tname_,
 		       struct DA_postings * postlist_,
 		       om_doccount termfreq_)
@@ -133,10 +135,16 @@ DADatabase::DADatabase(const DatabaseBuilderParams & params, int heavy_duty_)
 	  heavy_duty(heavy_duty_)
 {
     // Check validity of parameters
-    Assert(params.readonly == true);
-    Assert(params.subdbs.size() == 0);
-    Assert(params.paths.size() >= 1);
-    Assert(params.paths.size() <= 3);
+    if(params.readonly != true) {
+	throw OmInvalidArgumentError("DADatabase must be opened readonly.");
+    }
+
+    if(params.subdbs.size() != 0) {
+	throw OmInvalidArgumentError("DADatabase cannot have sub databases.");
+    }
+    if(params.paths.size() < 1 || params.paths.size() > 3) {
+	throw OmInvalidArgumentError("DADatabase requires 1, 2 or 3 parameters.");
+    }
 
     // Work out file paths
     string filename_r;

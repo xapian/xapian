@@ -32,6 +32,8 @@
 #include <vector>
 #include <list>
 
+#include "om/omerror.h"
+
 ///////////////////////////
 // Actual database class //
 ///////////////////////////
@@ -40,8 +42,16 @@ MultiDatabase::MultiDatabase(const DatabaseBuilderParams & params)
 	: length_initialised(false)
 {
     // Check validity of parameters
-    Assert(params.paths.size() == 0);
-    Assert(params.subdbs.size() > 0);
+    if(params.readonly != true) {
+	throw OmInvalidArgumentError("MultiDatabase must be opened readonly.");
+    }
+
+    if(params.paths.size() != 0) {
+	throw OmInvalidArgumentError("MultiDatabase requires no path parameters.");
+    }
+    if(params.subdbs.size() <= 0) {
+	throw OmInvalidArgumentError("MultiDatabase requires at least one sub-database.");
+    }
 
     // Loop through all params in subdbs, creating a database for each one,
     // with the specified parameters.  Override some parameters though:

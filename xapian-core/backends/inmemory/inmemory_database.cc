@@ -32,6 +32,8 @@
 #include <map>
 #include <list>
 
+#include "om/omerror.h"
+
 //////////////
 // Postlist //
 //////////////
@@ -60,10 +62,15 @@ InMemoryPostList::get_position_list()
 InMemoryDatabase::InMemoryDatabase(const DatabaseBuilderParams & params)
 	: totlen(0)
 {
+    // FIXME - do appropriate thing if readonly flag is set.
+
     // Check validity of parameters
-    Assert(params.readonly == true);
-    Assert(params.paths.size() > 0);
-    Assert(params.subdbs.size() == 0);
+    if(params.paths.size() <= 0) {
+	throw OmInvalidArgumentError("InMemoryDatabase requires at least one parameter.");
+    }
+    if(params.subdbs.size() != 0) {
+	throw OmInvalidArgumentError("InMemoryDatabase cannot have sub databases.");
+    }
     
     TextfileIndexer indexer;
     indexer.set_destination(this);

@@ -43,11 +43,17 @@
 #include "sleepy_document.h"
 #include "sleepy_termcache.h"
 
+#include "om/omerror.h"
+
 SleepyDatabase::SleepyDatabase(const DatabaseBuilderParams &params)
 {
     // Check validity of parameters
-    Assert(params.paths.size() == 1);
-    Assert(params.subdbs.size() == 0);
+    if(params.paths.size() != 1) {
+	throw OmInvalidArgumentError("SleepyDatabase requires 1 path parameter.");
+    }
+    if(params.subdbs.size() != 0) {
+	throw OmInvalidArgumentError("SleepyDatabase cannot have sub databases.");
+    }
 
     // FIXME - these should be autopointers, so that if an exception is
     // thrown, memory isn't leaked.

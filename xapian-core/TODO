@@ -34,10 +34,6 @@ Priority | Area            | Task
          |                 | (might currently end up with a divorced D[AB]term
 	 |                 | object.
 ---------+-----------------+--------------------------------------------------
- Medium  | Databases       | Make parameter checks when opening databases
-         |                 | throw OmInvalidArgument errors, rather than
-	 |                 | just be Asserts.
----------+-----------------+--------------------------------------------------
  Medium  | Databases       | Make database parameters into name/value pairs,
          |                 | rather than simply be anonymous.
 ---------+-----------------+--------------------------------------------------
