@@ -19,7 +19,7 @@
  * USA
  * -----END-LICENCE-----
  */
-/* Version 1: see http://xapian.sourceforge.net/ for further information */
+/* Version 1: see http://xapian.org/ for further information */
 
 #ifndef OM_HGUARD_STEM_ITALIAN_H
 #define OM_HGUARD_STEM_ITALIAN_H
