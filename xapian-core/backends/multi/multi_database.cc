@@ -190,6 +190,13 @@ MultiDatabase::open_term_list(docid did) const {
     return new MultiTermList(newtl, *(databases.begin() + dbnumber), this);
 }
 
+IRDocument *
+MultiDatabase::open_document(docid id) const {
+    throw(OmError("MultiDatabase::open_document not yet implemented"));
+    return NULL;
+}
+
+
 termid
 MultiDatabase::add_term(const termname &tname) {
     throw OmError("MultiDatabase.add_term() not implemented");
