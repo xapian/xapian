@@ -156,10 +156,9 @@ associated data, and which terms from the query were found within them.
 <P>
 A typical enquiry session will consist of most of these operations, in
 various orders.  The OmEnquire class presents as few restrictions as
-possible on the order in which operations should be performed.  For
-example, although you must set the query before asking for the results,
-the database can be specified, or changed, before or after running the
-query.
+possible on the order in which operations should be performed.  Although
+you must set the query before any operation which uses it, you can call
+any of the other methods in any order.
 </P>
 <P>
 Many operations performed by the OmEnquire class are performed lazily (ie,
@@ -173,14 +172,9 @@ may not: you should catch exceptions in both situations).
 <H2>Specifying a database</H2>
 
 <P>
-Before any other enquire operations may be performed, a database to search
-must be specified.  (An
-<A HREF="apidoc/OmInvalidArgumentError.html"><CODE>OmInvalidArgumentError</CODE></A>
-will be thrown if the database is not specified when it is needed.)
-</P>
-<P>
-Databases are specified by calling
-<A HREF="apidoc/OmEnquire.html#add_database"><CODE>OmEnquire::add_database()</CODE></A>
+When creating an OmEnquire object, a database to search must be specified.
+Databases are specified by creating an OmDatabase object and calling
+<A HREF="apidoc/OmDatabase.html#add_database"><CODE>OmDatabase::add_database()</CODE></A>
 .  This takes two parameters;
 "<CODE><B>type</B></CODE>" which is a string
 representing the type of the database to open, and
@@ -224,7 +218,7 @@ database when the database is first used.
 <P>
 Muscat can search across several databases as easily as searching across a
 single one.  Simply call
-<A HREF="apidoc/OmEnquire.html#add_database"><CODE>OmEnquire::add_database()</CODE></A>
+<A HREF="apidoc/OmDatabase.html#add_database"><CODE>OmDatabase::add_database()</CODE></A>
 for each database that you wish to search through.
 </P>
 <P>
@@ -903,6 +897,68 @@ and it may accept (by returning <CODE>true</CODE>) or reject (by returning
 <CODE>false</CODE>) the term as appropriate.
 </P>
 
+<H2>Query batches</H2>
+<P>
+In some applications you may want to make many queries against the
+same database.  Open Muscat provides an API to do this, with the
+<CODE>OmBatchEnquire</CODE> class.  This is currently implemented
+as a wrapper around OmEnquire.  Using <CODE>OmBatchEnquire</CODE>
+will make it possible to take advantage of possible future
+optimisations.
+</P>
+
+<H3>Setting up the database</H3>
+<P>
+An <CODE>OmBatchEnquire</CODE>
+object is constructed in the same way as an <CODE>OmEnquire</CODE>,
+using an <CODE>OmDatabase</CODE> object to specify the database.
+</P>
+
+<H3>Setting up the batch query</H3>
+<P>
+For each query in the batch, you need to provide the query as well as
+the arguments that would go to <CODE>OmEnquire::get_mset()</CODE> -
+the match options, number of matches to return, etc.  For each query
+fill in the fields of an <CODE>OmBatchEnquire::query_desc</CODE>
+structure, add it to a container of type <CODE>OmBatchEnquire::query_batch</CODE>,
+and pass the container to <CODE>OmBatchEnquire::set_queries(const OmBatchEnquire::query_batch &amp;queries)</CODE>.
+</P>
+
+<H3>Running the batch query</H3>
+<P>
+Once the query batch is set up, you can run the queries by calling
+<CODE>OmBatchEnquire::get_msets()</CODE>.  It returns a container
+(of type <CODE>OmBatchEnquire::mset_batch</CODE>) of
+<CODE>OmBatchEnquire::batch_result</CODE> objects.  The container
+will have as many elements as there were queries in the batch,
+with the results in the same order.  The <CODE>OmMSet</CODE>s
+are not returned directly because some of the results may be invalid,
+for example if an invalid argument is supplied for a particular query.
+When this happens, <CODE>OmBatchEnquire</CODE> continues to process
+the remaining queries unless a more catastrophic error happens, for 
+example a fatal database error, in which case an exception will be
+thrown.
+</P><P>
+The main operation which can be done on a <CODE>batch_result</CODE> is
+to call <CODE>value()<CODE>, which will usually return the <CODE>OmMSet</CODE>
+associated with the relevant query.  If that query failed, however,
+<CODE>value()</CODE> will throw an exception of type <CODE>OmInvalidResultError</CODE>.  The validity of a result can also be determined by calling
+<CODE>is_valid()</CODE> to avoid an exception.
+</P>
+
+<H2>Thread safety</H2>
+<P>
+All of the main Muscat API classes (<CODE>OmEnquire</CODE>,
+<CODE>OmQuery</CODE>, <CODE>OmDatabase</CODE>,
+<CODE>OmBatchEnquire</CODE>) are protected by
+pthread mutexes when available and not disabled.  This means that
+the objects will not get into an inconsistent state as a result
+of concurrent accesses by different threads.  Note that changing
+the query from one thread while retrieving results with another
+will still lead to unexpected results which depend on which
+thread gets there first.
+</P>
+
 <H2>A simple example</H2>
 <P>
 A simple example of usage of the Muscat API is given by the msearch
@@ -911,7 +967,7 @@ example in the om-examples package.
 
 <HR>
 
-Last modified: 7 Mar 2000 by Richard Boulton
+Last modified: 10 Mar 2000 by Chris Emerson
 
 </BODY>
 </HTML>
