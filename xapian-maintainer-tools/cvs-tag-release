@@ -30,3 +30,4 @@ cvstag="v`echo "$1"|sed 's/\./-/g'`"
 for dir in $released_dirs ; do
     (cd "$srcdir$dir" && cvs tag "$cvstag")||exit $?
 done
+(cd "$srcdir" && cvs tag "$cvstag" bootstrap)||exit $?
