@@ -1,3 +1,7 @@
+Thu Dec 23 19:16:53 GMT 2004  Olly Betts <olly@survex.com>
+
+	* INSTALL,README: Added better installation instructions.
+
 Mon Dec 20 16:29:01 GMT 2004  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Simpler .pyc fix.
