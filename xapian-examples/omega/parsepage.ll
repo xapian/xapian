@@ -281,7 +281,7 @@ pretty_printf(const char *p, int *a)
     }
 #endif
 
-    for (m = first; m <= last; m++) if (print_caption(m)) break;
+    for (m = first; m <= last; m++) print_caption(m);
 }
 \\MAXHITS[0-9]+ {
     // item in max hits selector box */

@@ -7,7 +7,7 @@ long do_match(long int, long int); /* Ol 1997-01-31 return msize */
 void add_bterm(const string &);
 
 extern void run_query(void);
-extern int print_caption(long int);
+extern void print_caption(long int);
 extern void print_page_links(char, long int, long int);
 extern void do_picker(char prefix, const char **opts);
 

@@ -1,4 +1,4 @@
-// declared in parsepage.y
+// declared in parsepage.ll
 extern void print_query_page(const char *, long int, long int);
 
 #include <vector>
@@ -10,7 +10,6 @@ extern void print_query_page(const char *, long int, long int);
 
 #include <time.h>
 
-#include <sys/stat.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <fcntl.h>
@@ -18,7 +17,7 @@ extern void print_query_page(const char *, long int, long int);
 #include "main.h"
 #include "query.h"
 
-typedef enum { /*ABSENT = 0,*/ NORMAL, PLUS, MINUS /*, BOOL_FILTER*/ } termtype;
+typedef enum { NORMAL, PLUS, MINUS /*, BOOL_FILTER*/ } termtype;
 
 vector<termname> new_terms;
 static vector<termname> pluses;
@@ -62,7 +61,6 @@ matchop op = OR; // default matching mode
 static map<termname, int> matching_map;
 
 static void parse_prob(const string&);
-static char *find_format_string(char *pc);
 static int get_next_char(const char **p);
 
 /**************************************************************/
@@ -589,18 +587,18 @@ static void display_date(time_t date) {
    }
 }
 /***********************************************************************/
-extern int
+extern void
 print_caption(long int m)
 {
     long int q0 = 0, r = 0;
     int percent;
     long int w = 0; 
     time_t lastmod = -1;
-    char hostname[256] = "localhost"; /* erk */
-    string country = "x";
-    char country_code[8] = "x";
-    string language = "x";
-    char language_code[3] = "x";
+    string hostname = "localhost"; /* erk */
+    string country;
+    string country_code = "x";
+    string language;
+    string language_code = "x";
 
     w = (int)matcher->mset[m].w;
     q0 = matcher->mset[m].id;
@@ -616,19 +614,19 @@ print_caption(long int m)
 	    switch (term[0]) {
 	     case 'N':
 		if (length > len && term[length - 1] != '+') {
-		    strcpy(hostname, term + 1);
+		    hostname = term + 1;
 		    len = length;
 		}
 		if (!got_plus && length - 1 <= 3) {
-		    strcpy(country_code, term + 1);
+		    country_code = term + 1;
 		    if (term[length - 1] == '+') {
 			got_plus = 1;
-			strcpy(country_code + 2, "%2b");
+			country_code = string(term + 1, length - 2) + "%2b";
 		    }
 		}
 		break;
 	     case 'L':
-		strcpy(language_code, term + 1);
+		language_code = term + 1;
 		break;
 	    }
 	    terms->next();
@@ -636,210 +634,185 @@ print_caption(long int m)
 	delete terms;
      }
     
-    {
-	char buf[16] = "BOOL-N";
-	strcpy(buf + 6, country_code);
-	string tmp = buf;
-	country = option[tmp];
-	if (!country.size()) country = country_code;
-    }
-    {
-	char buf[16] = "BOOL-L";
-	buf[6] = language_code[0];
-	buf[7] = language_code[1];
-	buf[8] = '\0';
-	language = option[buf];
-	if (!language.size()) language = language_code;
-    }
+    country = option["BOOL-N" + country_code];
+    if (!country.size()) country = country_code;
+    language = option["BOOL-L" + language_code];
+    if (!language.size()) language = language_code;
    
     percent = percentage((double)w, matcher->get_max_weight());
+    
+    string path, sample, caption;
+    int port = -1;
+    const char *pp;
+    unsigned const char *u;
+    int size = -1;
+    int dadate = -1;
 
-    {
-       string path, sample, caption;
-       int port = -1;
-       const char *pp;
-       unsigned const char *u;
-       int size = -1;
-       int dadate = -1;
-
-       /* get datestamp of DA file this record is in so we can handle
-	* different versions of our record format */
-       if (q0 >= 0) {
-	  int n = q0 / 10000000;
-	  if (n < n_dlist) dadate = dlist[n];
-       }
-
-       IRDocument *doc = database.open_document(q0);
-       IRData data = doc->get_data();
-       pp = data.value.c_str() + 14;
-
-       u = (const unsigned char *)pp;
-       lastmod = (((unsigned char)(u[0] - 33) * 223) + (u[1] - 33)) * 86400;
-       pp += 2;
-       size = u[2];
-       pp++;
-       
-       if (*pp == '/') {
-	  char *q;
-	  /* / means we have a port number like so "/8080/index.html" */
-	  port = strtol(pp + 1, &q, 10);
-	  if (q) pp = q;
-	  pp++;
-       }
-
-       const char *p = strchr(pp, '\xfe');
-       if (p) {
-	   path = string(pp, p - pp);
-	   p++;
-	   if (*p != '\xfe' && *p != '\0') {
-	       const char *q = strchr(p, '\xfe');
-	       if (!q) {
-		   caption = string(p);
-	       } else {
-		   caption = string(p, q - p);
-		   sample = string(q + 1);
-	       }
-	   }
-       }
-
-       {
-	  char *p, *q;
-	  p = fmtstr;
-	  while ((q = strchr(p, '\xff')) != NULL) {
-	     cout << string(p, q - p);
-	     switch (q[1]) {
-	      case 'C': /* caption */
-		if (caption.size()) {
-		    utf8_to_html(caption);
-		    break;
-		}
-		/* otherwise fall through... */
-	      case 'U': /* url */
-		 cout << "http://" << hostname;
-		 if (port >= 0) cout << ':' << port;
-		 cout << '/' << path;
-		 break;
-	      case 'H': /* host */
-		 cout << hostname;
-		 break;
-	      case 'd': /* DB name */
-		 cout << db_name;
-		 break;
-	      case 'Q': /* query url */
-		 print_query_string(q + 2);
-		 break;
-	      case 'S': /* sample */
-		 if (sample.size()) {
-		     utf8_to_html(sample);
-		     cout << "...";
-		 }
-		 break;
-	      case 's': /* size */
-		/* decode packed file size */
-		if (size < 33) {
-		   cout << "Unknown";
-		} else if (size < 132) {
-		   size -= 32;
-		   cout << size / 10 << dec_sep << size % 10 << 'K';
-		} else if (size < 222) {
-		   cout << size - 132 + 10 << 'K';
-		} else if (size < 243) {
-		   cout << size - 222 + 10 << "0K";
-		} else if (size < 250) {
-		   cout << '0' << dec_sep << size - 243 + 3 << 'K';
-		} else if (size < 255) {
-		   cout << size - 249 << 'M';
-		} else {
-		   cout << ">5M";
-		}
-		break;
-	      case 'I': /* document id */
-		 cout << q0;
-		 break;
-	      case 'L': /* language */
-		 cout << language;
-		 break;
-	      case 'l': /* language (with link unless "unknown") */
-		 if (strcmp(language_code, "x") == 0) {
-		     cout << language;
-		 } else {
-		     cout << "<A HREF=\"/";
-		     print_query_string("&B=L");
-		     cout << "&B=L" << language_code << "\">" << language
-			  << "</A>";
-		 }
-		 break;
-	      case 'W': /* country */
-		 cout << country;
-		 break;
-	      case 'w': /* country code */
-		 cout << country_code;
-		 break;
-	      case 'M': /* last modified */
-		 display_date(lastmod);
-		 break;
-	      case 'V': /* date last visited */
-		 display_date(dadate);
-		 break;
-	      case 'P':
-		 cout << percent << '%';
-		 break;
-	      case 'T': {
-		  bool comma = false;
-		  // FIXME: in general we should store the matching terms
-		  // in a vector and then sort by the value of matching_map[]
-		  // In the DA case the way termid-s are invented means we
-		  // don't actually need to do this...
-		  TermList *terms = database.open_term_list(q0);
-		  terms->next();		  
-		  while (!terms->at_end()) {
-		      termname term = database.term_id_to_name(terms->get_termid());
-		      map<termname, int>::iterator i = matching_map.find(term);
-		      if (i != matching_map.end()) {
-#ifdef META
-			  if (comma) cout << ','; else comma = true;
-#else
-			  if (comma) cout << ' '; else comma = true;
-#endif
-			  /* quote terms with spaces in */
-			  if (term.find(' ') != string::npos)
-			      cout << '"' << term << '"';
-			  else
-			      cout << term;
-		      }
-		      terms->next();
-		  }
-		  delete terms;
-		  break;
-	      }
-	      case 'G': /* score Gif */
-		 cout << "/fx-gif/score-" << percent / 10 << ".gif";
-		 break;
-	      case 'X': /* relevance checkboX */
-		 if (r) {
-		     r_displayed[q0] = true;
-		     cout << "<INPUT TYPE=checkbox NAME=R" << q0 << " CHECKED>\n";
-		 } else {
-		     cout << "<INPUT TYPE=checkbox NAME=R" << q0 << ">\n";
-		 }
-		 break;
-	      default:
-		 cout << '\xff' << q[1];
-		 break;
-	     }
-	     p = q + 2;
-	  }
-	  cout << p;
-       }
+    // get datestamp of DA file this record is in so we can handle
+    // different versions of our record format
+    if (q0 >= 0) {
+	int n = q0 / 10000000;
+	if (n < n_dlist) dadate = dlist[n];
     }
 
-    return 0;
-}
+    IRDocument *doc = database.open_document(q0);
+    IRData data = doc->get_data();
+    pp = data.value.c_str() + 14;
 
-/***********************************************************************/
-/* modified from get_format_string -- no longer copies to a buffer */
-static char *find_format_string(char *pc) {
-    while (*pc && *pc != '\\' && *pc != '\n' && *pc != '\r')
-       pc++;
-    return pc;
+    u = (const unsigned char *)pp;
+    lastmod = (((unsigned char)(u[0] - 33) * 223) + (u[1] - 33)) * 86400;
+    pp += 2;
+    size = u[2];
+    pp++;
+       
+    if (*pp == '/') {
+	char *q;
+	/* / means we have a port number like so "/8080/index.html" */
+	port = strtol(pp + 1, &q, 10);
+	if (q) pp = q;
+	pp++;
+    }
+
+    const char *find_fe = strchr(pp, '\xfe');
+    if (find_fe) {
+	path = string(pp, find_fe - pp);
+	find_fe++;
+	if (*find_fe != '\xfe' && *find_fe != '\0') {
+	    const char *q = strchr(find_fe, '\xfe');
+	    if (!q) {
+		caption = string(find_fe);
+	    } else {
+		caption = string(find_fe, q - find_fe);
+		sample = string(q + 1);
+	    }
+	}
+    }
+
+    char *p, *q;
+    p = fmtstr;
+    while ((q = strchr(p, '\xff')) != NULL) {
+	cout << string(p, q - p);
+	switch (q[1]) {
+	 case 'C': /* caption */
+	    if (caption.size()) {
+		utf8_to_html(caption);
+		break;
+	    }
+	    /* otherwise fall through... */
+	 case 'U': /* url */
+	    cout << "http://" << hostname;
+	    if (port >= 0) cout << ':' << port;
+	    cout << '/' << path;
+	    break;
+	 case 'H': /* host */
+	    cout << hostname;
+	    break;
+	 case 'd': /* DB name */
+	    cout << db_name;
+	    break;
+	 case 'Q': /* query url */
+	    print_query_string(q + 2);
+	    break;
+	 case 'S': /* sample */
+	    if (sample.size()) {
+		utf8_to_html(sample);
+		cout << "...";
+	    }
+	    break;
+	 case 's': /* size */
+	    /* decode packed file size */
+	    if (size < 33) {
+		cout << "Unknown";
+	    } else if (size < 132) {
+		size -= 32;
+		cout << size / 10 << dec_sep << size % 10 << 'K';
+	    } else if (size < 222) {
+		cout << size - 132 + 10 << 'K';
+	    } else if (size < 243) {
+		cout << size - 222 + 10 << "0K";
+	    } else if (size < 250) {
+		cout << '0' << dec_sep << size - 243 + 3 << 'K';
+	    } else if (size < 255) {
+		cout << size - 249 << 'M';
+	    } else {
+		cout << ">5M";
+	    }
+	    break;
+	 case 'I': /* document id */
+	    cout << q0;
+	    break;
+	 case 'L': /* language */
+	    cout << language;
+	    break;
+	 case 'l': /* language (with link unless "unknown") */
+	    if (language_code == "x") {
+		cout << language;
+	    } else {
+		cout << "<A HREF=\"/";
+		print_query_string("&B=L");
+		cout << "&B=L" << language_code << "\">" << language
+		    << "</A>";
+	    }
+	    break;
+	 case 'W': /* country */
+	    cout << country;
+	    break;
+	 case 'w': /* country code */
+	    cout << country_code;
+	    break;
+	 case 'M': /* last modified */
+	    display_date(lastmod);
+	    break;
+	 case 'V': /* date last visited */
+	    display_date(dadate);
+	    break;
+	 case 'P':
+	    cout << percent << '%';
+	    break;
+	 case 'T': {
+	     bool comma = false;
+	     // FIXME: in general we should store the matching terms
+	     // in a vector and then sort by the value of matching_map[]
+	     // In the DA case the way termid-s are invented means we
+	     // don't actually need to do this...
+	     TermList *terms = database.open_term_list(q0);
+	     terms->next();
+	     while (!terms->at_end()) {
+		 termname term = database.term_id_to_name(terms->get_termid());
+		 map<termname, int>::iterator i = matching_map.find(term);
+		 if (i != matching_map.end()) {
+#ifdef META
+		     if (comma) cout << ','; else comma = true;
+#else
+		     if (comma) cout << ' '; else comma = true;
+#endif
+		     /* quote terms with spaces in */
+		     if (term.find(' ') != string::npos)
+			 cout << '"' << term << '"';
+		     else
+			 cout << term;
+		 }
+		 terms->next();
+	     }
+	     delete terms;
+	     break;
+	  }
+	  case 'G': /* score Gif */
+	     cout << "/fx-gif/score-" << percent / 10 << ".gif";
+	     break;
+	  case 'X': /* relevance checkboX */
+	     if (r) {
+		 r_displayed[q0] = true;
+		 cout << "<INPUT TYPE=checkbox NAME=R" << q0 << " CHECKED>\n";
+	     } else {
+		 cout << "<INPUT TYPE=checkbox NAME=R" << q0 << ">\n";
+	     }
+	     break;
+	  default:
+	     cout << '\xff' << q[1];
+	     break;
+	 }
+	 p = q + 2;
+     }
+     cout << p;
 }
