@@ -78,7 +78,7 @@ make_log_entry(const string &action, long matches)
     line = line + buf;
     var = getenv("HTTP_REFERER");
     if (var != NULL) {
-	line += '/t';
+	line += '\t';
 	line += var;
     }
     line += '\n';
