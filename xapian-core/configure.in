@@ -38,6 +38,15 @@ AC_PATH_PROG(PERL_PATH, perl)
 AM_CONDITIONAL(HAVE_PERL, test -n "$PERL_PATH")
 AC_SUBST(PERL_PATH)
 
+dnl Checks for doc.  (Diagrams in the documentation)
+AC_PATH_PROG(DOT_PATH, dot)
+if test -n "$DOT_PATH" ; then
+  DOXYGEN_HAVE_DOT=YES
+else
+  DOXYGEN_HAVE_DOT=NO
+fi
+AC_SUBST(DOXYGEN_HAVE_DOT)
+
 dnl Check for latex. (Needed to make some more of the documentation)
 AC_PATH_PROG(LATEX_PATH, latex)
 AM_CONDITIONAL(HAVE_LATEX, test -n "$LATEX_PATH")

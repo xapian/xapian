@@ -1,3 +1,10 @@
+Sun Jul  2 17:17:14 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Updated doxygen configuration files for doxygen 1.1.5.
+
+	* Configure now checks for dot tool, and sets doxygen config files
+	  accordingly.
+
 Fri Jun 30 16:04:19 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added an om_stringstream class as a simple implementation of 
