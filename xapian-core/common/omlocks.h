@@ -143,6 +143,7 @@ class OmLockSentry {
 
 class OmLock {
     public:
+	OmLock() {}
 	void lock() const {}
 	void unlock() const {}
 };
