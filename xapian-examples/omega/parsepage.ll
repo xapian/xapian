@@ -308,7 +308,7 @@ pretty_printf(const char *p, int *a)
 	vector<ESetItem>::const_iterator i;
 	for (i = topterms.eset.begin(); i != topterms.eset.end(); i++) {
 	    string term = database.term_id_to_name(i->tid);
-	    cout << term << " ";
+	    cout << term << ":" << i->wt << " " << endl;
 	}
 	for (i = topterms.eset.begin(); i != topterms.eset.end(); i++) {
 	    string term = database.term_id_to_name(i->tid);
