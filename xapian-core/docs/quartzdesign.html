@@ -12,13 +12,14 @@ WARNING: This document describes a piece of code which is still in
 development.  As such, some of the descriptions within it will be
 inconsistent with the code to be found in our releases and CVS
 repository.  In such cases, the code is out of date if written before
-this document (ie, before 20th October), and this document is out of
+this document (ie, before 2000-10-20), and this document is out of
 date if the code was written after this document.  If you find such
 inconsistencies, especially this document being out of date, please
 alert us to the problem using the discussion mailing list, at
 &lt;xapian-discuss@lists.sourceforge.net&gt;.
 <p>
-Once the Quartz backend is stable, this comment should go away.
+Once the Quartz backend is stable and this document has caught up,
+this warning should go away.
 
 <h2>Why Quartz?</h2>
 
@@ -26,13 +27,10 @@ Once the Quartz backend is stable, this comment should go away.
 What is this thing called Quartz?  How does it fit in with the Xapian
 library?</em>
 <p>
-Xapian can access information stored in various different formats,
-some of which are legacy formats which can be read by Xapian but not
-written to (for example, the Muscat 3.6 formats &quot;DA&quot; and
-&quot;DB&quot;), some of which are essentially testing formats (such as the
-InMemory format), and some which are experimental formats (such as the
-Sleepycat format, which is fully featured but doesn't scale - this has
-in fact now been removed from the source tree).
+Xapian can access information stored in various different formats.
+For example, there are the legacy formats which can be read by Xapian but not
+written to (at present, the Muscat 3.6 formats &quot;DA&quot; and
+&quot;DB&quot;), and the InMemory format which is held in memory.
 
 <p>
 Each of these formats is comprised by a set of classes providing an interface
@@ -63,11 +61,8 @@ which draws from all our past experience to satisfy the following criteria:
 
 <p>
 Different backends can be optionally compiled into the Xapian library
-(by specifying appropriate options to the configure script).  At the moment,
-Quartz is not compiled by default since it is incomplete, but eventually it
-will become a standard backend, included in all builds (unless explicitly
-disabled).  In fact, once complete it may well become the only backend which
-will be built by default.
+(by specifying appropriate options to the configure script).  Quartz
+is compiled by default.
 
 <p>
 <em>
@@ -415,9 +410,6 @@ and hopefully keeping performance high.
 <li>
 Add comment about the inversion process - we are essentially doing a text
 based partitioning scheme.
-</li>
-<li>
-Describe thread locking system.
 </li>
 <li>
 Mention adding documents: usual to add with a new document ID which is

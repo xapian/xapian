@@ -1,3 +1,8 @@
+Sat Sep 14 02:50:23 BST 2002  Olly Betts <olly@survex.com>
+
+	* docs/distributed.txt,docs/quartzdesign.html,docs/todo.xml: assorted
+	  documentation updates.
+
 Sat Sep 14 02:10:12 BST 2002  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: removed note about VPATH problems.

@@ -84,7 +84,8 @@ change at some point).
 NOTES
 =====
 
-A remote search should behave just like the equivalent local one, currently
-with the exception of match decision functors (which are not yet implemented
-for remote usage).  Exceptions are propagated across the link and thrown
-again at the client end. 
+A remote search should behave just like the equivalent local one, with the
+exception of a few currently unimplemented features (e.g. match decision
+functors).
+
+Exceptions are propagated across the link and thrown again at the client end. 

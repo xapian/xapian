@@ -39,11 +39,6 @@ info in the target since that can be created atomically) and check the details
 Or touch the lock periodically to keep it?
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="API" release="">
-
-Should OmWritableDatabase have a default ctor?  Consider for all API classes...
-
-</todoitem>
 <todoitem priority=" " difficulty="" owner="Olly" area="Documentation" release="0.5">
 
 Finish reading through generated docs to ensure they read well in collated form.
