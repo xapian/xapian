@@ -2,7 +2,7 @@ Source: xapian-bindings
 Section: libs
 Priority: optional
 Maintainer: Richard Boulton <richard@tartarus.org>
-Build-Depends: @PYTHON_BUILD_DEPENDS@ debhelper (>= 4.1.67), libxapian-dev, swig1.3 (>= 1.3.14), autotools-dev
+Build-Depends: @PYTHON_BUILD_DEPENDS@ debhelper (>= 4.1.67), libxapian-dev, swig1.3 (>= 1.3.20), autotools-dev
 Standards-Version: 3.6.1
 
 Package: python-xapian

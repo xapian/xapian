@@ -1,3 +1,10 @@
+xapian-bindings (0.8.1-2) unstable; urgency=low
+
+  * debian/control.in: Update build dependency on swig to require at
+    least version 1.3.20, since the configure script now requires this.
+
+ -- Richard Boulton <richard@tartarus.org>  Thu,  1 Jul 2004 10:02:35 +0100
+
 xapian-bindings (0.8.1-1) unstable; urgency=low
 
   * New upstream release.
