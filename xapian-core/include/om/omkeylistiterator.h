@@ -29,6 +29,8 @@
 class OmDocument;
 class OmKey;
 
+/** An iterator pointing to items in a list of keys.
+ */
 class OmKeyListIterator {
     private:
 	friend class OmDocument; // So OmDocument can construct us

@@ -20,6 +20,12 @@ progress, apart from C].
 Write (speed) performance test suite.
 
 </todoitem>
+<todoitem priority="M" difficulty="2" owner="" area="General" release="1.0">
+
+Make sure that all methods and classes in the API have documentation
+comments.
+
+</todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="General" release="0.9">
 
 Replace references to the old name with "Omsee", particularly in

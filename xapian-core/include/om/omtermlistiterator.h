@@ -29,6 +29,8 @@
 class OmDatabase;
 class OmPositionListIterator;
 
+/** An iterator pointing to items in a list of terms.
+ */
 class OmTermIterator {
     private:
 	// friend classes which need to be able to construct us

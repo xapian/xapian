@@ -1,3 +1,10 @@
+Thu Jan 25 15:11:14 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Add a couple of documentation comments: we need many more of
+	  these.  No method, and certainly no class, in the API should be
+	  without an explanatory comment (not least so that they're
+	  accessible from the doxygen browser).
+
 Thu Jan 25 14:51:55 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Hide the internals of OmIndexerDesc, and adding member functions
