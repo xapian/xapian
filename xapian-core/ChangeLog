@@ -1,3 +1,9 @@
+Wed Sep 08 16:14:47 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc: If replace_document() is used
+	  to add a document with did greater than lastdocid, raise lastdocid
+	  so future calls to add_document() won't clash.
+
 Wed Sep 08 16:13:51 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/inmemory_database.cc: Fixed bug

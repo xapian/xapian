@@ -883,6 +883,8 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 	    do_flush_const();
 	}
 
+	if (did > lastdocid) lastdocid = did;
+
 	// OK, now add entries to remove the postings in the underlying record.
 	Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
 	QuartzTermList termlist(ptrtothis,
