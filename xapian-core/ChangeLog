@@ -1,0 +1,19 @@
+Fri Jan 28 13:41:20 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Started Changelog
+
+	* Previous state of code:
+
+	  o An API for searching has just been created, but is undocumented,
+	    will change in various ways in the coming weeks, and isn't quite
+	    implemented correctly when building queries containing more than
+	    one term.
+
+	  o Stemming algorithms for dutch, english, french, german, italian,
+	    portuguese and spanish added and tested.
+
+	  o Searching through DA databases, raw text files (with naive
+	    indexer) and multiple databases implemented.
+
+	  o Documentation in a reasonably sorry state.  Next week is
+	    documentation week.
