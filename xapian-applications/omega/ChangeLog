@@ -1,3 +1,7 @@
+Tue Dec 24 20:12:23 GMT 2002  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.6.4.
+
 Tue Dec 24 20:06:47 GMT 2002  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Minor tweak.
