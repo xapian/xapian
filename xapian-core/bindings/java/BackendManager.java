@@ -105,6 +105,7 @@ public class BackendManager {
 
     private static boolean files_exist(String[] fnames) {
         for (int i=0; i<fnames.length; i++) {
+	    System.out.println("Checking file " + fnames[i]);
 	    File f = new File(fnames[i]);
 	    if (!f.exists()) {
 	        return false;
@@ -146,7 +147,7 @@ public class BackendManager {
 		    break;
 		}
 	    }
-	} while(linecount < 3 || line.trim() != "");
+	} while(linecount < 3 || (line != null && line.trim() != ""));
         return para;
     }
 

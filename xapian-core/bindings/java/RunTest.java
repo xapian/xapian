@@ -27,7 +27,8 @@ public class RunTest {
     public static void main (String[] args) throws Throwable {
         backendmanager = new BackendManager();
 
-	backendmanager.set_datadir(".sleepy");
+	backendmanager.set_datadir(System.getProperty("srcdir", ".") +
+	                           "/../../tests/testdata/" );
 
         boolean success = true;
     	// First some quick playing with stemmers and queries.

@@ -3,7 +3,7 @@
 #include "om/om.h"
 
 // JNI includes
-#include "com_muscat_om_OmQuery.h"
+#include "com_muscat_om_OmWritableDatabase.h"
 #include "utils.h"
 
 /*

@@ -38,7 +38,8 @@ JNIEXPORT void JNICALL Java_com_muscat_om_OmDatabaseGroup_deleteNativeObject
  * Method:    add_database
  * Signature: (Ljava/lang/String;[Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_com_muscat_om_OmDatabaseGroup_add_1database
+JNIEXPORT void JNICALL Java_com_muscat_om_OmDatabaseGroup_add_1database__Ljava_lang_String_2_3Ljava_lang_String_2
+
   (JNIEnv *env, jobject obj, jstring type, jobjectArray params)
 {
     OmDatabaseGroup* db = (OmDatabaseGroup*) tryGetLongField (env, obj, "nativePtr");
@@ -55,6 +56,25 @@ JNIEXPORT void JNICALL Java_com_muscat_om_OmDatabaseGroup_add_1database
 
     try {
 	db->add_database (type_n, params_n);
+    }
+    catch (OmError& err) {
+	handleNativeError (env, err);
+    }
+}
+
+/*
+ * Class:     com_muscat_om_OmDatabaseGroup
+ * Method:    add_database
+ * Signature: (Lcom/muscat/om/OmDatabase;)V
+ */
+JNIEXPORT void JNICALL Java_com_muscat_om_OmDatabaseGroup_add_1database__Lcom_muscat_om_OmDatabase_2
+  (JNIEnv *env, jobject obj, jobject database)
+{
+    OmDatabaseGroup* db = (OmDatabaseGroup*) tryGetLongField (env, obj, "nativePtr");
+    OmDatabase *database_n = (OmDatabase*) tryGetLongField(env, database, "nativePtr");
+
+    try {
+	db->add_database (*database_n);
     }
     catch (OmError& err) {
 	handleNativeError (env, err);

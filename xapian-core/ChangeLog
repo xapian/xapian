@@ -1,3 +1,7 @@
+Mon Jul 17 19:13:13 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* BackendManager now working from Java, at least for sleepy databases.
+
 Sat Jul 15 11:05:00 BST 2000 Olly Betts
 
 	* Updated AUTHORS file
