@@ -29,36 +29,42 @@ int main(int argc, char *argv[]) {
 	    string term = *p;
 	    if(term == "B") { boolean = true;}
 	    else if(term == "P") { boolean = false;}
-	    else if(boolean) {
-		if (term == "OR") {
-		    if (match.add_bor()) {
-			printf("Added boolean OR\n");
-		    } else {
-			printf("Failed to add boolean OR\n");
-		    }
-		} else if (term == "NOT") {
-		    if (match.add_bandnot()) {
-			printf("Added boolean ANDNOT\n");
-		    } else {
-			printf("Failed to add boolean ANDNOT\n");
-		    }
-		} else if (term == "AND") {
-		    if (match.add_band()) {
-			printf("Added boolean AND\n");
-		    } else {
-			printf("Failed to add boolean AND\n");
-		    }
-		} else {
-		    if(match.add_bterm(term)) { 
-			printf("Added boolean term \"%s\" ok\n", term.c_str());
-		    } else {
-			printf("Failed to add boolean term \"%s\"\n",
-			       term.c_str());
+	    else {
+		if (boolean) {
+		    if (term == "OR") {
+			if (match.add_bor()) {
+			    printf("Added boolean OR\n");
+			} else {
+			    printf("Failed to add boolean OR\n");
+			}
+			continue;
+		    } else if (term == "NOT") {
+			if (match.add_bandnot()) {
+			    printf("Added boolean ANDNOT\n");
+			} else {
+			    printf("Failed to add boolean ANDNOT\n");
+			}
+			continue;
+		    } else if (term == "AND") {
+			if (match.add_band()) {
+			    printf("Added boolean AND\n");
+			} else {
+			    printf("Failed to add boolean AND\n");
+			}
+			continue;
 		    }
 		}
-	    } else {
+
 		term = stemmer.stem_word(term);
-		if (match.add_pterm(term)) {
+		
+		bool res;
+		if (boolean) {
+		    res = match.add_bterm(term);
+		} else {
+		    res = match.add_pterm(term);
+		}
+		
+		if (res) {
 		    printf("Added term \"%s\" ok\n", term.c_str());
 		} else {
 		    printf("Failed to add term \"%s\"\n", term.c_str());
