@@ -160,10 +160,11 @@ int main(int argc, char *argv[]) {
     int msize = 10;
     list<string> dbnames;
     list<string> dbtypes;
-    const char *progname = argv[0];
 
     gtk_init(&argc, &argv);
     glade_init();
+
+    const char *progname = argv[0];
 
     bool syntax_error = false;
     argv++;
@@ -226,6 +227,17 @@ int main(int argc, char *argv[]) {
 	cout << e.get_msg() << endl;
 	exit(1);
     }
+
+	Match matcher(database); 
+	matcher.add_term("olli");
+	matcher.set_max_msize(10);
+	matcher.match();
+	weight maxweight = matcher.get_max_weight();
+	doccount mtotal = matcher.mtotal;
+	doccount mressize = matcher.msize;
+	cout << maxweight << " " << mtotal << " " << mressize << endl;
+
+    exit(0);
 
     GladeXML *xml;
 
