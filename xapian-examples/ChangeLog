@@ -1,3 +1,7 @@
+Wed Nov 27 05:10:44 GMT 2002  Olly Betts <olly@survex.com>
+
+	* simpleindex.cc: "const static ..." -> "static const ..."
+
 Wed Nov 27 05:02:34 GMT 2002  Olly Betts <olly@survex.com>
 
 	* configure.in: Updated version to 0.6.0; build with "-Wall -W" under
