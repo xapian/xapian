@@ -8,7 +8,7 @@ HTMLFILES = index.html intro.html intro_ir.html userman.html \
         stemming.html porterstem.html using_stemmers.html quickstart.html
 
 # Files which should be put in the distribution by automake
-EXTRA_DIST = mkdoc.pl.in todo2html.pl.in \
+EXTRA_DIST = mkdoc.pl.in todo2html.pl.in todo.xml \
         doxygen_api_conf.in doxygen_full_conf.in \
         $(HTMLFILES) \
         MatcherDesign Notes \

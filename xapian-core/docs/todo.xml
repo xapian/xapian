@@ -30,6 +30,12 @@ Write (speed) performance test suite.
 Write indexer modules.
 
 </todoitem>
+<todoitem priority="M" difficulty="5" owner="" area="Matcher">
+
+Write tests to check that setting the parameters used in the BM25 and
+traditional weighting schemes works.
+
+</todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="Exceptions">
 
 Make exceptions threadsafe: see
