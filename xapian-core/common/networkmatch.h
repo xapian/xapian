@@ -49,6 +49,9 @@ class NetworkMatch : public SingleMatch
 	/// The StatsSource object
 	NetworkStatsSource statssource;
 
+	/// A pointer to the gatherer, to access the statistics.
+	StatsGatherer *gatherer;
+
 	/// The maximum weight which can be returned
 	om_weight max_weight;
 

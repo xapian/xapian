@@ -28,6 +28,7 @@
 #include "multi_database.h"
 #include "multimatch.h"
 #include "progcommon.h"
+#include "networkstats.h"
 #include <memory>
 
 /** The base class of the network server object.
@@ -62,9 +63,20 @@ class ProgServer : public NetServer {
 	    conv_sendresult
 	} conversation_state;
 
+	/// The gatherer we can use to get local statistics
+	NetworkStatsGatherer *gatherer;
+
 	/// The multimatch object used
 	MultiMatch match;
 
+	/// Locally cached global statistics
+	Stats global_stats;
+
+	/// Flag indicating that we have the global statistics
+	bool have_global_stats;
+
+	/// Read the global statistics from the stream and cache them.
+	void read_global_stats();
     public:
 	/** Default constructor. */
 	ProgServer(auto_ptr<MultiDatabase> db, int readfd_, int writefd_);

@@ -26,6 +26,7 @@
 #include "localmatch.h"
 #include "netutils.h"
 #include "progcommon.h"
+#include "utils.h"
 #include <unistd.h>
 #include <memory>
 
@@ -36,7 +37,10 @@ ProgServer::ProgServer(auto_ptr<MultiDatabase> db_,
 	: db(db_), readfd(readfd_), writefd(writefd_),
 	  buf(readfd, writefd),
 	  conversation_state(conv_ready),
-	  match(db_.get(), auto_ptr<StatsGatherer>(new NetworkStatsGatherer(this)))
+	  gatherer(0),
+	  match(db_.get(),
+		auto_ptr<StatsGatherer>(gatherer = new NetworkStatsGatherer(this))),
+	  have_global_stats(0)
 {
 }
 
@@ -50,9 +54,9 @@ ProgServer::send_local_stats(Stats stats)
 {
     Assert(conversation_state == conv_sendlocal);
     string mystatstr = stats_to_string(stats);
-    mystatstr += '\n';
 
-    write(writefd, mystatstr.data(), mystatstr.length());
+    buf.writeline(mystatstr);
+    DebugMsg("ProgServer::send_local_stats(): wrote " << mystatstr);
 
     conversation_state = conv_getglobal;
 }
@@ -60,15 +64,9 @@ ProgServer::send_local_stats(Stats stats)
 Stats
 ProgServer::get_global_stats()
 {
-    Assert(conversation_state == conv_getglobal);
+    Assert(have_global_stats);
 
-    string global_stats;
-
-    Stats mystats = string_to_stats(global_stats);
-
-    conversation_state = conv_sendresult;
-
-    return mystats;
+    return global_stats;
 }
 
 void
@@ -90,26 +88,26 @@ ProgServer::run()
 		    static_cast<IRWeight::weight_type>(
 		    atol(words[1].c_str()));
 	    match.set_weighting(wt_type);
-	    cout << "OK" << endl;
-	    cout.flush();
+	    buf.writeline("OK");
 	} else if (words[0] == "SETQUERY") {
 	    OmQueryInternal temp =
 		    query_from_string(message.substr(9,
 						     message.npos));
 	    match.set_query(&temp);
 	    //cerr << "CLIENT QUERY: " << temp.serialise() << endl;
-	    cout << "OK" << endl;
-	    cout.flush();
+	    buf.writeline("OK");
 	} else if (words[0] == "ENDQUERY") {
 	    conversation_state = conv_sendlocal;
+	    send_local_stats(gatherer->get_local_stats());
 	} else if (words[0] == "GET_MSET") {
 	    //cerr << "GET_MSET: " << words.size() << " words" << endl;
 	    if (words.size() != 3) {
-		cout << "ERROR" << endl;
-		cout.flush();
+		buf.writeline("ERROR");
 	    } else {
 		om_doccount first = atoi(words[1].c_str());
 		om_doccount maxitems = atoi(words[2].c_str());
+
+		read_global_stats();
 
 		vector<OmMSetItem> mset;
 		om_doccount mbound;
@@ -128,8 +126,7 @@ ProgServer::run()
 
 		//cerr << "done get_mset..." << endl;
 
-		cout << mset.size() << endl;
-		cout.flush();
+		buf.writeline(inttostring(mset.size()));
 
 		//cerr << "sent size..." << endl;
 
@@ -143,8 +140,7 @@ ProgServer::run()
 		}
 		//cerr << "sent items..." << endl;
 
-		cout << "OK" << endl;
-		cout.flush();
+		buf.writeline("OK");
 
 		//cerr << "sent OK..." << endl;
 	    }
@@ -156,4 +152,16 @@ ProgServer::run()
 	    cout.flush();
 	}
     }
+}
+
+void
+ProgServer::read_global_stats()
+{
+    Assert(conversation_state == conv_getglobal);
+
+    global_stats = string_to_stats(buf.readline());
+
+    conversation_state = conv_sendresult;
+
+    have_global_stats = true;
 }

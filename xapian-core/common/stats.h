@@ -113,35 +113,6 @@ class LocalStatsGatherer : public StatsGatherer {
 	const Stats *get_stats() const;
 };
 
-// forward declaration for NetworkStatsGatherer
-class NetServer;
-
-/** A "slave" StatsGatherer used for the remote matcher
- */
-class NetworkStatsGatherer : public StatsGatherer {
-    private:
-	/// Flag indicating that the global stats are uptodate.
-	mutable bool have_global_stats;
-
-	/** The NetServer object using us.
-	 *  It is used to communicate with the remote statistics
-	 *  node.
-	 */
-	NetServer *nserv;
-
-	/** Fetch the global statistics, once we have all the
-	 *  local ones.
-	 *  The object will use the NetServer to do the exchange.
-	 */
-	void fetch_global_stats() const;
-
-    public:
-	NetworkStatsGatherer(NetServer *nserv);
-
-	/// See StatsGatherer::get_stats()
-	const Stats *get_stats() const;
-};
-
 /** Statistics source: gathers notifications of statistics which will be
  *  needed, and passes them on in bulk to a StatsGatherer.
  */
@@ -255,26 +226,6 @@ class LocalStatsSource : public StatsSource {
 
 	/// Contribute all the statistics that don't depend on global
 	/// stats.
-	void contrib_my_stats();
-};
-
-class NetClient;
-
-/** Network StatsSource: a virtual StatsSource which is part of the glue
- *  between a StatsGatherer and the remote matching process.
- */
-class NetworkStatsSource : public StatsSource {
-    private:
-	OmRefCntPtr<NetClient> nclient;
-    public:
-	/// Constructor
-	NetworkStatsSource(OmRefCntPtr<NetClient> nclient_);
-
-	/// Destructor
-	~NetworkStatsSource();
-
-	/// Contribute all the statistics that don't depend on global
-	/// stats.  Used by StatsGatherer.
 	void contrib_my_stats();
 };
 

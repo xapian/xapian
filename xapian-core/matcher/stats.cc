@@ -60,6 +60,15 @@ NetworkStatsGatherer::NetworkStatsGatherer(NetServer *nserv_)
 const Stats *
 NetworkStatsGatherer::get_stats() const
 {
+    fetch_local_stats();
+    fetch_global_stats();
+
+    return &total_stats;
+}
+
+void
+NetworkStatsGatherer::fetch_local_stats() const
+{
     if (!have_gathered) {
 	for (vector<StatsSource *>::iterator i = sources.begin();
 	     i != sources.end();
@@ -68,9 +77,13 @@ NetworkStatsGatherer::get_stats() const
 	}
 	have_gathered = true;
     }
-    fetch_global_stats();
+}
 
-    return &total_stats;
+Stats
+NetworkStatsGatherer::get_local_stats() const
+{
+    fetch_local_stats();
+    return total_stats;
 }
 
 void
@@ -78,7 +91,7 @@ NetworkStatsGatherer::fetch_global_stats() const
 {
     Assert(have_gathered);
 
-    nserv->send_local_stats(total_stats);
+    //nserv->send_local_stats(total_stats);
     total_stats = nserv->get_global_stats();
 
     have_global_stats = true;
@@ -93,7 +106,8 @@ LocalStatsSource::~LocalStatsSource()
 }
 
 NetworkStatsSource::NetworkStatsSource(OmRefCntPtr<NetClient> nclient_)
-	: nclient(nclient_)
+	: nclient(nclient_),
+          have_remote_stats(false)
 {
 }
 
@@ -104,9 +118,15 @@ NetworkStatsSource::~NetworkStatsSource()
 void
 NetworkStatsSource::contrib_my_stats()
 {
-    my_stats = nclient->get_remote_stats();
+    Assert(have_remote_stats);
     gatherer->contrib_stats(my_stats);
-    nclient->set_global_stats(*(gatherer->get_stats()));
+}
+
+void
+NetworkStatsSource::take_remote_stats(Stats stats)
+{
+    my_stats = stats;
+    have_remote_stats = true;
 }
 
 void

@@ -28,6 +28,7 @@
 #include "irweight.h"
 #include "omqueryinternal.h"
 #include "stats.h"
+#include "networkstats.h"
 
 /** The base class of the network interface.
  *  A NetClient object is used by NetworkMatch to communicate
@@ -39,11 +40,17 @@ class NetClient : public OmRefCntBase {
 	NetClient(const NetClient &);
 	void operator=(const NetClient &);
 
+    protected:
+	/// The StatsSource which deals with the statistics
+	NetworkStatsSource *statssource;
+
     public:
 	/** Default constructor. */
-	NetClient() {}
+	NetClient() : statssource(0) {}
 	/** Destructor. */
 	virtual ~NetClient() {};
+
+	void register_statssource(NetworkStatsSource *statssource_);
 
 	/** Write some bytes to the remote process.
 	 *  FIXME: These will be specialised into content-specific
@@ -66,7 +73,7 @@ class NetClient : public OmRefCntBase {
 	virtual void finish_query() = 0;
 
 	/** Send the global statistics down */
-	virtual void set_global_stats(const Stats &stats) = 0;
+	virtual void send_global_stats(const Stats &stats) = 0;
 
 	/** Do the actual MSet fetching */
 	virtual void get_mset(om_doccount first,
@@ -86,5 +93,10 @@ class NetClient : public OmRefCntBase {
 	 */
 	virtual bool data_is_available() = 0;
 };
+
+inline void
+NetClient::register_statssource(NetworkStatsSource *statssource_) {
+    statssource = statssource_;
+}
 
 #endif  /* OM_HGUARD_NETCLIENT_H */

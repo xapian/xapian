@@ -35,7 +35,8 @@
 
 ProgClient::ProgClient(string progname, string arg)
 	: socketfd(get_spawned_socket(progname, arg)),
-	  buf(socketfd)
+	  buf(socketfd),
+	  conv_state(state_getquery)
 {
 	do_write("HELLO!\n");
 
@@ -107,7 +108,7 @@ ProgClient::do_read()
 void
 ProgClient::do_write(string data)
 {
-    cout << "do_write(): " << data.substr(0, data.length() - 1) << endl;
+    cout << "do_write(): " << data.substr(0, data.find_last_of('\n')) << endl;
     buf.writeline(data);
 }
 
@@ -192,12 +193,17 @@ void
 ProgClient::finish_query()
 {
     do_write(string("ENDQUERY"));
+    conv_state = state_getstats;
 }
 
 Stats
 ProgClient::get_remote_stats()
 {
+    Assert(conv_state == state_getstats);
+
     string result = do_read();
+
+    conv_state = state_sendstats;
 
     return string_to_stats(result);
 }
@@ -241,9 +247,11 @@ string_to_msetitem(string s)
 
 
 void
-ProgClient::set_global_stats(const Stats &stats)
+ProgClient::send_global_stats(const Stats &stats)
 {
-    do_simple_transaction("SETSTATS " + stats_to_string(stats));
+    Assert(conv_state == state_sendstats);
+    do_write(stats_to_string(stats));
+    conv_state = state_getmset;
 }
 
 void
@@ -257,6 +265,7 @@ ProgClient::get_mset(om_doccount first,
 	     inttostring(first) + " " +
 	     inttostring(maxitems) + "\n");
     
+
     string response = do_read();
     if (response == "ERROR") {
 	throw OmNetworkError("Error getting mset");

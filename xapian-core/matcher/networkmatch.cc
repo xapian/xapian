@@ -46,6 +46,8 @@ NetworkMatch::NetworkMatch(IRDatabase *database_)
     // make sure that the database was a NetworkDatabase after all
     // (dynamic_cast<foo *> returns 0 if the cast fails)
     Assert(database != 0);
+
+    database->link->register_statssource(&statssource);
 }
 
 void
@@ -53,7 +55,11 @@ NetworkMatch::prepare_match()
 {
     if (!is_prepared) {
 	database->link->finish_query();
-	
+
+	// Read the remote statistics and give them to the stats source
+	//
+	statssource.take_remote_stats(database->link->get_remote_stats());
+
 	is_prepared = true;
     }
 }
@@ -65,8 +71,9 @@ NetworkMatch::finish_query()
 }
 
 void
-NetworkMatch::link_to_multi(StatsGatherer *gatherer)
+NetworkMatch::link_to_multi(StatsGatherer *gatherer_)
 {
+    gatherer = gatherer_;
     statssource.connect_to_gatherer(gatherer);
 //    statsleaf.my_collection_size_is(database->get_doccount());
 //    statsleaf.my_average_length_is(database->get_avlength());
@@ -477,7 +484,7 @@ NetworkMatch::get_mset(om_doccount first,
 	throw OmInvalidArgumentError("Can't use a match decider remotely");
     }
 
-    //database->link->set_global_stats(*(mygatherer->get_stats()));
+    database->link->send_global_stats(*(gatherer->get_stats()));
 
     database->link->get_mset(first, maxitems, mset, mbound, greatest_wt);
 }

@@ -42,6 +42,14 @@ class ProgClient : public NetClient {
 	/// The line buffer which does the I/O
 	OmLineBuf buf;
 
+	/// The conversation state
+	enum {
+	    state_getquery,  // Read the query and other info
+	    state_getstats,  // Read the local statistics from the remote end
+	    state_sendstats, // send the global statistics to the remote end
+	    state_getmset   // get the results of the query
+	} conv_state;
+
 	/// functions which actually do the work
 	string do_read();
 	void do_write(string data);
@@ -94,7 +102,7 @@ class ProgClient : public NetClient {
 	void finish_query();
 
 	/** Send the global statistics */
-	void set_global_stats(const Stats &stats);
+	void send_global_stats(const Stats &stats);
 
 	/** Do the actual MSet fetching */
 	void get_mset(om_doccount first,

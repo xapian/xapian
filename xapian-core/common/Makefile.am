@@ -6,7 +6,7 @@ noinst_HEADERS = \
  omassert.h \
  database_builder.h database.h termlist.h postlist.h \
  leafpostlist.h \
- irweight.h expandweight.h stats.h \
+ irweight.h expandweight.h stats.h networkstats.h \
  match.h localmatch.h networkmatch.h multimatch.h expand.h rset.h \
  stemmer.h \
  indexer.h textfile_indexer.h \
