@@ -6,3 +6,6 @@ Makefile
 .libs
 libindexgraph.la
 nodetest
+make_register.pl
+do_registration.cc
+ 
