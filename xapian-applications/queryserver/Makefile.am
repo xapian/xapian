@@ -13,5 +13,5 @@ php4dir = $(pkglibdir)/php4
 dist_php4_SCRIPTS = clients/index.php clients/xapian-queryclient.php
 
 noinst_HEADERS = source/base64.h
-xapian_queryserver_SOURCES = source/queryserver.cpp source/base64.c
+xapian_queryserver_SOURCES = source/queryserver.cpp source/base64.cc
 xapian_queryserver_LDADD = $(XAPIAN_LIBS)

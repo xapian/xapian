@@ -32,11 +32,6 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif /* __cplusplus */
-
 /** Calculate the size of buffer required to safely encode a block of data
  *  as base64 coded data.
  *  @param inlen The number of bytes of uncoded data.
@@ -73,9 +68,6 @@ base64_encode(const char *in, int inlen, char * out);
 extern int
 base64_decode(const char * in, int inlen, char *out);
 
-#ifdef __cplusplus
-}
-
 #include <string>
 class Base64
 {
@@ -99,5 +91,3 @@ class Base64
             return result;
         }
 };
-
-#endif /* __cplusplus */
