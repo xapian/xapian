@@ -1,6 +1,12 @@
+Mon Jun 21 03:21:14 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc: Finish backing out incorrect
+	  change from "Fri May 07 03:16:29 BST 2004" - failed to change two
+	  lines back before.
+
 Fri Jun 18 16:48:10 BST 2004  Richard Boulton <richard@tartarus.org>
 
-        * configure.in: Fix typo (STLPORT_CXXLAGS -> STLPORT_CXXFLAGS)
+	* configure.in: Fix typo (STLPORT_CXXLAGS -> STLPORT_CXXFLAGS)
 
 Thu Jun 17 03:46:32 BST 2004  Olly Betts <olly@survex.com>
 

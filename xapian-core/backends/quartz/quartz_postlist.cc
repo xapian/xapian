@@ -227,6 +227,7 @@ static void write_start_of_chunk(string & chunk,
 				 Xapian::docid first_did_in_chunk,
 				 Xapian::docid last_did_in_chunk)
 {
+    Assert((size_t)(end_of_chunk_header - start_of_chunk_header) <= chunk->size());
     Assert(last_did_in_chunk >= first_did_in_chunk);
     Xapian::docid increase_to_last = last_did_in_chunk - first_did_in_chunk;
 
@@ -505,11 +506,11 @@ PostlistChunkWriter::flush(QuartzBufferedTable *table)
 		    report_read_error(keypos);
 	    }
 	    bool wrong_is_last_chunk;
-	    string::size_type start_of_chunk_header = tagpos - cursor->current_tag.data();
+	    string::size_type start_of_chunk_header = tagpos - tag->data();
 	    Xapian::docid last_did_in_chunk =
 		read_start_of_chunk(&tagpos, tagend, first_did_in_chunk,
 				    &wrong_is_last_chunk);
-	    string::size_type end_of_chunk_header = tagpos - cursor->current_tag.data();
+	    string::size_type end_of_chunk_header = tagpos - tag->data();
 
 	    // write new is_last flag
 	    write_start_of_chunk(*tag,
@@ -1055,6 +1056,7 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 	    if (pos == end) {
 		*tag = newhdr;
 	    } else {
+		Assert((size_t)(pos - tag->data()) <= tag->size());
 		tag->replace(0, pos - tag->data(), newhdr);
 	    }
 	}
