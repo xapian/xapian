@@ -23,52 +23,17 @@
 #include "progclient.h"
 #include "tcpclient.h"
 #include "testsuite.h"
+#include "testutils.h"
 #include <om/omenquire.h>
 #include <unistd.h>
 
-// Test a simple network match
-bool test_netmatch1();
-// test a network match with two databases
-bool test_netmatch2();
-// test a network match with two databases
-bool test_tcpclient1();
-
-test_desc tests[] = {
-    {"netmatch1",	test_netmatch1},
-    {"netmatch2",	test_netmatch2},
-    {"tcpclient1",	test_tcpclient1},
-    {0,			0},
-};
-
+// Directory which the data is stored in.
 string datadir;
 
-int main(int argc, char *argv[])
-{
-    char *srcdir = getenv("srcdir");
-    if (srcdir == NULL) {
-        cout << "Error: $srcdir must be in the environment!" << endl;
-	return(1);
-    }
-    datadir = std::string(srcdir) + "/../tests/testdata/";
+// #######################################################################
+// # Start of test cases.
 
-    return test_driver::main(argc, argv, tests);
-}
-
-ostream &
-operator<<(ostream &os, const OmMSetItem &mitem)
-{
-    os << mitem.wt << " " << mitem.did;
-    return os;
-}
-
-ostream &
-operator<<(ostream &os, const OmMSet &mset)
-{
-    copy(mset.items.begin(), mset.items.end(),
-	 ostream_iterator<OmMSetItem>(os, "\n"));
-    return os;
-}
-
+// Test a simple network match
 bool test_netmatch1()
 {
     OmDatabaseGroup databases;
@@ -91,6 +56,7 @@ bool test_netmatch1()
     return true;
 }
 
+// test a network match with two databases
 bool test_netmatch2()
 {
     OmDatabaseGroup databases;
@@ -117,6 +83,37 @@ bool test_netmatch2()
     return true;
 }
 
+// test a simple network expand
+bool test_netexpand1()
+{
+    OmDatabaseGroup databases;
+    vector<string> params;
+    params.push_back("prog");
+    params.push_back("./omprogsrv");
+    params.push_back(datadir + "apitest_simpledata.txt");
+    databases.add_database("net", params);
+
+    OmEnquire enq(databases);
+
+    enq.set_query(OmQuery("word"));
+
+    OmMSet mset(enq.get_mset(0, 10));
+
+    if (verbose) {
+	cout << mset;
+    }
+
+    Assert(mset.items.size() > 0);
+
+    OmRSet rset;
+    rset.add_document(mset.items[0].did);
+
+    OmESet eset(enq.get_eset(10, rset));
+
+    return true;
+}
+
+// test a network match with two databases
 bool test_tcpclient1()
 {
     string command =
@@ -130,4 +127,28 @@ bool test_tcpclient1()
     TcpClient tc("localhost", 1235);
 
     return true;
+}
+
+
+// #######################################################################
+// # End of test cases.
+
+test_desc tests[] = {
+    {"netmatch1",	test_netmatch1},
+    {"netmatch2",	test_netmatch2},
+    {"netexpand1",      test_netexpand1},
+    {"tcpclient1",	test_tcpclient1},
+    {0,			0},
+};
+
+int main(int argc, char *argv[])
+{
+    char *srcdir = getenv("srcdir");
+    if (srcdir == NULL) {
+        cout << "Error: $srcdir must be in the environment!" << endl;
+	return(1);
+    }
+    datadir = std::string(srcdir) + "/../tests/testdata/";
+
+    return test_driver::main(argc, argv, tests);
 }

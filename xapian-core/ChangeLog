@@ -1,3 +1,8 @@
+Fri May 19 15:58:11 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add test to nettest to try to do an expand.  Currently fails, since
+	  this isn't implemented.
+
 Fri May 19 11:48:15 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* MultiMatch::get_max_weight() now returns the maximum of the
