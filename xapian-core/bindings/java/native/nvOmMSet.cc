@@ -92,3 +92,22 @@ JNIEXPORT jint JNICALL Java_com_muscat_om_OmMSet_convert_1to_1percent
     OmMSet* mset = (OmMSet*) tryGetLongField (env, obj, "nativePtr");
     return (jint) mset->convert_to_percent ((om_weight) weight);
 }
+
+/*
+ * Class:     com_muscat_om_OmMSet
+ * Method:    get_description
+ * Signature: ()Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_muscat_om_OmMSet_get_1description
+  (JNIEnv *env, jobject obj)
+{
+    OmMSet* mset = (OmMSet*) tryGetLongField (env, obj, "nativePtr");
+    try {
+	return env->NewStringUTF (mset->get_description().c_str());
+    }
+    catch (OmError& err) {
+	handleNativeError (env, err);
+    }
+    return NULL;
+}
+

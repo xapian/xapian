@@ -32,5 +32,8 @@ public class OmMSet extends OmReturnObject {
      
     /** This converts the weight supplied to a percentage score. */
     public native int convert_to_percent (double weight);
+
+    /** return a description of the mset as a string. */
+    public native String get_description();
 }
 
