@@ -41,6 +41,12 @@ InMemoryDocument::do_get_key(om_keyno keyid) const
     return key;
 }
 
+vector<OmKey>
+InMemoryDocument::do_get_all_keys() const
+{
+    throw OmUnimplementedError("InmemoryDocument::do_get_all_keys() unimplemented");
+}
+
 OmData
 InMemoryDocument::do_get_data() const
 {

@@ -65,6 +65,17 @@ DBDocument::do_get_key(om_keyno keyid) const
     return key;
 }
 
+/** Get the key for a DB document.
+ *  If a key file is available, this will be used to provide extremely fast
+ *  key lookup.
+ */
+vector<OmKey>
+DBDocument::do_get_all_keys() const
+{
+    throw OmUnimplementedError("DaDocument::do_get_all_keys() unimplemented");
+}
+
+
 OmData
 DBDocument::do_get_data() const
 {

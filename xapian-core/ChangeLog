@@ -1,3 +1,9 @@
+Fri Jun  2 18:22:03 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added get_all_keys() method to LeafDocument
+
+	* Implemented in subclasses by throwing OmUnimplementedError.
+
 Fri Jun  2 18:12:05 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Many fixes to sleepycat:

@@ -74,6 +74,16 @@ DADocument::do_get_key(om_keyno keyid) const
     return key;
 }
 
+/** Get the key for a DA document.
+ *  If a key file is available, this will be used to provide extremely fast
+ *  key lookup.
+ */
+vector<OmKey>
+DADocument::do_get_all_keys() const
+{
+    throw OmUnimplementedError("DaDocument::do_get_all_keys() unimplemented");
+}
+
 /** Get the data for a DA Document.
  *  This can be expensive, and shouldn't normally be used
  *  during the match operation (such as in a match decider functor):

@@ -26,6 +26,7 @@
 #include "om/omtypes.h"
 #include "omrefcnt.h"
 #include "omlocks.h"
+#include <vector>
 
 class OmKey;
 class OmData;
@@ -43,6 +44,8 @@ class LeafDocument : public OmRefCntBase {
 	
 	/// The virtual implementation of get_key().
 	virtual OmKey do_get_key(om_keyno keyid) const = 0;
+	/// The virtual implementation of get_key().
+	virtual vector<OmKey> do_get_all_keys() const = 0;
 	/// The virtual implementation of get_data().
 	virtual OmData do_get_data() const = 0;     
     public:
@@ -64,6 +67,20 @@ class LeafDocument : public OmRefCntBase {
 	 */
 	OmKey get_key(om_keyno keyid) const;
 	
+	/** Get all keys for this document
+	 *
+	 *  Keys are quickly accessible fields, for use during the match
+	 *  operation.  Each document may have a set of keys, each of which
+	 *  having a different keyid.  Duplicate keys with the same keyid are
+	 *  not supported in a single document.
+	 *
+	 *  @return       An vector of OmKey objects containing the specified
+	 *  keys.  If any key is not present in this document, the key's value
+	 *  will be a zero length string.  The vector will be at least big
+	 *  enough to hold all the keys for the document.
+	 */
+	vector<OmKey> get_all_keys() const;
+
 	/** Get data stored in document.
 	 *
 	 *  This is a general piece of data associated with a document, and

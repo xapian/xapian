@@ -48,6 +48,7 @@ class DBDocument : public LeafDocument {
 	~DBDocument();
 
 	OmKey do_get_key(om_keyno keyid) const;
+	vector<OmKey> do_get_all_keys() const;
 	OmData do_get_data() const;
 };
 

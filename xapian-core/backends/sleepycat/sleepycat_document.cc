@@ -69,6 +69,12 @@ SleepyDocument::do_get_key(om_keyno keyid) const
     throw OmUnimplementedError("SleepyDocument::do_get_key() unimplemented");
 }
 
+vector<OmKey>
+SleepyDocument::do_get_all_keys() const
+{
+    throw OmUnimplementedError("SleepyDocument::do_get_all_keys() unimplemented");
+}
+
 OmData
 SleepyDocument::do_get_data() const
 {
