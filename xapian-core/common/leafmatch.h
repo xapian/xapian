@@ -134,10 +134,6 @@ class LeafMatch : public Match
 		   const OmMatchDecider *mdecider
 		   );
 
-	void boolmatch(om_doccount first,
-		       om_doccount maxitems,
-		       vector<OmMSetItem> & mset);
-
 	///////////////////////////////////////////////////////////////////
 	// Miscellaneous
 	// =============

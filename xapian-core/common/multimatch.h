@@ -73,10 +73,6 @@ class MultiMatch : public Match
 		   om_weight * greatest_wt,
 		   const OmMatchDecider *mdecider
 		  );
-
-	void boolmatch(om_doccount first,
-		       om_doccount maxitems,
-		       vector<OmMSetItem> & mset);
 };
 
 ///////////////////////////////

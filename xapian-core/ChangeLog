@@ -1,3 +1,7 @@
+Mon Mar 20 13:02:37 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Removed old Match::boolmatch() methods - superceded.
+
 Mon Mar 20 12:50:40 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Made OmEnquire use reversebool when specified in moptions.

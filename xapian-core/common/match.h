@@ -136,17 +136,6 @@ class Match
 			   om_weight * greatest_wt,
 			   const OmMatchDecider *mdecider
 			  ) = 0;
-
-	/** Do a pure boolean match.
-	 *  All weights in the result will be set to 1.
-	 *
-	 *  @param first       First item to return (start at 0)                
-	 *  @param maxitems    Maximum number of items to return
-	 *  @param mset        Results will be put here
-	 */
-	virtual void boolmatch(om_doccount first,
-		       om_doccount maxitems,
-		       vector<OmMSetItem> & mset) = 0;
 };
 
 ///////////////////////////////
