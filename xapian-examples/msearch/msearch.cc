@@ -73,6 +73,16 @@ main(int argc, char *argv[])
 	    collapse_key = atoi(argv[1]);
 	    argc -= 2;
 	    argv += 2;
+	} else if (argc >= 4 && strcmp(argv[0], "--remote") == 0) {
+	    OmSettings *params = new OmSettings;
+	    params->set("backend", "remote");
+	    params->set("remote_type", "tcp");
+	    params->set("remote_server", argv[1]);
+	    params->set("remote_port", argv[2]);
+	    params->set("remote_timeout", argv[3]);
+	    dbs.push_back(params);
+	    argc -= 4;
+	    argv += 4;
 	} else if (argc >= 2 && strcmp(argv[0], "--dbdir") == 0) {
 	    OmSettings *params = new OmSettings;
 	    params->set("backend", "auto");
@@ -116,6 +126,7 @@ main(int argc, char *argv[])
 		"\t--mfirst <first mitem to return>\n" <<
 		"\t--key <key to collapse mset on>\n" <<
 		"\t--dbdir DIRECTORY\n" <<
+		"\t--remote SERVER PORT TIMEOUT\n" <<
 		"\t--rel DOCID\n" <<
 		"\t--showmset (default)\n" <<
 		"\t--hidemset\n" <<

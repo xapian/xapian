@@ -1,3 +1,7 @@
+Fri Nov 24 13:35:05 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add --remote parameter to msearch.
+
 Thu Nov 23 15:31:08 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Chris is slightly sleepy, so I changed indexfile back from using
