@@ -8,7 +8,7 @@ noinst_HEADERS = da_database.h da_record.h daread.h database.h match.h \
  orpostlist.h andpostlist.h andnotpostlist.h andmaybepostlist.h \
  xorpostlist.h branchpostlist.h filterpostlist.h \
  damuscat.h omtypes.h sleepy_database.h sleepy_list.h \
- multi_database.h error.h stem.h irweight.h omassert.h
+ multi_database.h error.h stem.h irweight.h omassert.h irdocument.h
 
 bin_PROGRAMS = dbtest matchtest idxtest stemtest
 
