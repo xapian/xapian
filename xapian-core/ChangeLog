@@ -1,3 +1,7 @@
+Wed Sep 06 09:28:04 BST 2000 Olly Betts
+
+	* Added omtermlistiteratorinternal.h to list of files to distribute.
+
 Tue Sep  5 18:36:43 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added a new setting "remote_timeout", used to configure the
