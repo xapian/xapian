@@ -23,16 +23,9 @@
 # USA
 # -----END-LICENCE-----
 
-# Set this if you want verbose messages by default (probably a good idea)
-VERBOSE=1
-
-# Set this if you want make to get run after configure by default
-# (also probably a good idea)
-RUNMAKE=1
-
 # Details of this script
 PROGNAME="`echo $0 | sed -e 's#^.*/##'`"
-VERSION="0.16"
+VERSION="0.17"
 
 # Little bit of paranoia
 test -z "${PROGNAME}" && PROGNAME="[build script]"
@@ -59,22 +52,15 @@ test -z "$BUILDDIR" && BUILDDIR='-'
 # Function definitions #
 ########################
 
-printlines() {
+display() {
   # Display arguments, interpreting \n
   # FIXME: Don't assume we have an echo which interprets \n correctly
   echo -e "$@"
 }
 
-display() {
-  # Display a string, unless not being verbose
-  if test 1 = "$VERBOSE" ; then
-    printlines "$@"
-  fi
-}
-
 error() {
   # Display an error message and stop
-  printlines "${PROGNAME}: error: $*" >&2
+  display "${PROGNAME}: error: $*" >&2
   exit 1
 }
 
@@ -92,7 +78,7 @@ run() {
 
 # Check if user asked for help
 if test "x$*" = "x--help" ; then
-  display "Usage: ${PROGNAME} [--quiet|--no-make] [--] [arguments for configure]"
+  display "Usage: ${PROGNAME} [arguments for configure]"
   display "Usage: ${PROGNAME} --help | --version"
   display
   display "  This script runs all the neccessary utilities to configure and"
@@ -101,15 +87,9 @@ if test "x$*" = "x--help" ; then
   display "Options:"
   display "  --help            Display this message"
   display "  --version         Display ${PROGNAME} version number (${VERSION})"
-  display "  --quiet           Don't report on progress of ${PROGNAME}"
-  display "  --no-make         Don't run make after configure"
-  display "  --                Mark end of options: all further arguments will be passed"
-  display "                    to configure"
   display
   if test -f "${SRCDIR}/configure" ; then
     display "Run \"${SRCDIR}/configure --help\" for arguments to pass to configure"
-  else
-    display "Run \"$0 -- --help\" for arguments to pass to configure"
   fi
   exit 0
 fi
@@ -118,37 +98,6 @@ fi
 if test "x$*" = "x--version" ; then
   display "${PROGNAME} version ${VERSION}"
   exit 0
-fi
-
-#######################
-# Parse other options #
-#######################
-
-# Check if asked to be quiet
-if test "x$1" = "x--quiet" ; then
-  VERBOSE=0
-  shift
-fi
-
-# Check if asked to be quiet
-if test "x$1" = "x--no-make" ; then
-  RUNMAKE=0
-  shift
-fi
-
-# Check if asked to be quiet (again)
-if test "x$1" = "x--quiet" ; then
-  if test 1 = "$VERBOSE" ; then
-    # If verbose is already 0
-    VERBOSE=0
-    shift
-  fi
-fi
-
-# Check if asked not to parse further arguments (by passing --)
-# (We just throw this away, since it has already worked)
-if test "x$1" = "x--" ; then
-  shift
 fi
 
 # Check for existence of neccessary tools
@@ -247,58 +196,14 @@ fi
 
 # Configure package
 
-# First move top level makefile away, so that we can tell if one gets
-# created
-if test -f Makefile ; then
-  display "${PROGNAME}: moving existing Makefile out of the way"
-  rm -f "Makefile.old$$"
-  mv Makefile "Makefile.old$$"
-fi
-
-use_config_status=no
-if test -f ./config.status ; then
+if test -f config.status && test -z "$*" ; then
   # If no parameters, assume that we just wish to re-run the configure,
   # using same parameters as last time.
   # (Note: make should automatically perform these steps if and when
   # neccessary, but this is useful for situations where make has got
   # confused - for example, when a broken makefile has been created.)
-  if test -z "$*" ; then
-    use_config_status=yes
-  fi
-fi
-
-if test yes = "$use_config_status" ; then
   run ./config.status --recheck
   run ./config.status
 else
   run "${SRCDIR}/configure" "$@"
-fi
-
-if test -f Makefile ; then
-  CREATED_MAKEFILE=1
-  if test -f "Makefile.old$$" ; then
-    rm -f "Makefile.old$$"
-  fi
-else
-  CREATED_MAKEFILE=0
-  RUNMAKE=0
-  if test -f "Makefile.old$$" ; then
-    display "${PROGNAME}: replacing existing Makefile"
-    mv "Makefile.old$$" Makefile
-  fi
-fi
-
-# Now run the make if desired
-if test -f Makefile ; then
-  if test 1 = "${RUNMAKE}" ; then
-    run ${MAKE-make}
-    display
-    display "${PROGNAME}: successfully built ${PACKAGE}"
-  else
-    if test 1 = "${CREATED_MAKEFILE}" ; then
-      display ""
-      display "${PROGNAME}: successfully configured ${PACKAGE}"
-      display "Run '${MAKE-make}' to compile"
-    fi
-  fi
 fi

@@ -1,3 +1,7 @@
+Fri May 03 17:13:36 BST 2002  Olly Betts <olly@survex.com>
+
+	* buildall: Don't run configure or make; removed --no-make and --quiet.
+
 Fri May  3 16:52:01 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* tests/testdata/etext.txt needs to be included in the distribution
