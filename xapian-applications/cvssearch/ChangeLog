@@ -1,3 +1,7 @@
+Fri Dec 10 01:57:25 GMT 2004  Olly Betts <olly@survex.com>
+
+	* db/Makefile.am: Build system changes to go with the previous change.
+
 Thu Dec 09 17:50:17 GMT 2004  Olly Betts <olly@survex.com>
 
 	* db/: Factored out duplicated stoplist code into stoplist.C and

@@ -2,7 +2,8 @@ noinst_HEADERS = cvs_comment_db.h cvs_db.h cvs_file_revision_db.h \
  cvs_line_db.h cvs_comment_id_db.h cvs_db_file.h cvs_filename_db.h \
  cvs_revision_db.h cvs_comment_id2_db.h cvs_file_id_db.h cvs_revision_less.h \
  cvs_diff_db.h pstream.h \
- util.h lines.h lines_cmt.h lines_db.h
+ util.h lines.h lines_cmt.h lines_db.h \
+ stoplist.h
 
 bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsminesearch \
  cvscommitindex cvscommitsearch cvsfileindex cvsfilesearch cvsrelatedindex \
@@ -50,7 +51,7 @@ cvscommitsearch_SOURCES = cvscommitsearch.C
 cvscommitsearch_LDFLAGS = $(FLAGS)
 cvscommitsearch_LDADD = $(libs)
 
-cvscommitindex_SOURCES = cvscommitindex.C
+cvscommitindex_SOURCES = cvscommitindex.C stoplist.C
 cvscommitindex_LDADD = $(libs)
 cvscommitindex_LDFLAGS = $(FLAGS)
 
@@ -59,7 +60,7 @@ cvsfilesearch_SOURCES = cvsfilesearch.C
 cvsfilesearch_LDFLAGS = $(FLAGS)
 cvsfilesearch_LDADD = $(libs)
 
-cvsfileindex_SOURCES = cvsfileindex.C
+cvsfileindex_SOURCES = cvsfileindex.C stoplist.C
 cvsfileindex_LDADD = $(libs)
 cvsfileindex_LDFLAGS = $(FLAGS)
 
