@@ -1,6 +1,22 @@
 /* query.cc: query executor for ferretfx
  *
  * ----START-LICENCE----
+ * Copyright 1999 Dialog Corporation
+ * 
+ * This program is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU General Public License as 
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
  * -----END-LICENCE-----
  */
 
@@ -153,7 +169,7 @@ void add_bterm(const string &term) {
 
 /**************************************************************/
 extern void
-run_query(void)
+run_query(doccount first, doccount maxhits)
 {
     if (!new_terms.empty()) {
 	// now we constuct the query:
@@ -168,7 +184,7 @@ run_query(void)
 	if (!minuses.empty()) {
 	    matcher->add_oplist(MOP_OR, minuses);
 	    if (!matcher->add_op(MOP_AND_NOT)) {
-		cout << "Don't be so negative\n" << endl; // FIXME
+		cout << "You must allow at least one of the search terms\n" << endl; // FIXME
 		exit(0);
 	    }
 	}
@@ -184,9 +200,14 @@ run_query(void)
     }
     if (bool_terms) matcher->add_op(MOP_FILTER);
 
-    matcher->match();
-
-    msize = matcher->mtotal;
+    doccount mtotal;
+    cout << "Running query: maxmsize = " << first + maxhits << "; " << endl;
+    // FIXME: use the value of first as first parameter: don't bother sorting
+    // first ``first'' items (but don't get given them either, so need to
+    // alter code elsewhere to understand this)
+    matcher->match(0, first + maxhits, mset, &mtotal);
+    msize = mtotal;
+    cout << "Ran query: msize = " << msize << "; " << endl;
 }
 
 long
@@ -440,8 +461,8 @@ print_caption(long int m)
     string language;
     string language_code = "x";
 
-    wt = (long int)matcher->mset[m].wt;
-    q0 = matcher->mset[m].did;
+    wt = (long int)mset[m].wt;
+    q0 = mset[m].did;
     
     /* get hostname from longest N tag
      * and country from shortest (allowing for uk+) */
