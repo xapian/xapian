@@ -600,6 +600,14 @@ class OmEnquire {
 	 */
 	void set_query(const OmQuery & query_);
 
+	/** Get the query which has been set.
+	 *  This is only valid after set_query() has been called.
+	 *
+	 *  @exception OmInvalidArgumentError will be thrown if query has
+	 *             not yet been set.
+	 */
+	const OmQuery & get_query();
+
 	/** Get (a portion of) the match set for the current query.
 	 *
 	 *  @param first     the first item in the result set to return.

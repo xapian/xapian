@@ -71,6 +71,7 @@ class OmEnquireInternal {
 	~OmEnquireInternal();
 
 	void set_query(const OmQuery & query_);
+	const OmQuery & get_query();
 	OmMSet get_mset(om_doccount first,
 			om_doccount maxitems,
 			const OmRSet *omrset,

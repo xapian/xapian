@@ -1,3 +1,8 @@
+Wed Jun 28 12:24:18 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* API addition - Add a OmEnquire::get_query() method, to retrieve the
+	  query which was set.
+
 Wed Jun 28 09:13:26 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add an OmLock, and sentries to the public methods in DADatabase.

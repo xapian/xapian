@@ -200,6 +200,15 @@ OmEnquireInternal::set_query(const OmQuery &query_)
     query = new OmQuery(query_);
 }
 
+const OmQuery &
+OmEnquireInternal::get_query()
+{
+    if (query == 0) {
+        throw OmInvalidArgumentError("Can't get query before setting it");
+    }
+    return *query;
+}
+
 OmMSet
 OmEnquireInternal::get_mset(om_doccount first,
                     om_doccount maxitems,
@@ -423,6 +432,12 @@ void
 OmEnquire::set_query(const OmQuery & query_)
 {
     internal->set_query(query_);
+}
+
+const OmQuery &
+OmEnquire::get_query()
+{
+    return internal->get_query();
 }
 
 OmMSet
