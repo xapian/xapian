@@ -33,6 +33,11 @@
 /** Return true if this xml Document is valid */
 static bool doc_is_valid(xmlDocPtr doc);
 
+/** Convert an xmlChar * into a std::string */
+std::string xmlChar2string(const CHAR *s) {
+    return std::string((char *)s);
+}
+
 /** Walk the xml tree to make an OmIndexerDesc */
 static AutoPtr<OmIndexerDesc> desc_from_tree(xmlDocPtr doc);
 
@@ -112,7 +117,7 @@ get_prop(xmlNodePtr node, const std::string &prop)
     std::string retval;
     try {
 	temp = xmlGetProp(node, prop.c_str());
-	retval = (char *)temp;
+	retval = xmlChar2string(temp);
 	free(temp);
 	temp = 0;
     } catch (...) {
@@ -130,14 +135,14 @@ static attrmap attr_to_map(xmlNodePtr node)
     xmlAttrPtr attr = node->properties;
     std::map<std::string, std::string> result;
     while (attr) {
-	std::string name = (char *)attr->name;
+	std::string name = xmlChar2string(attr->name);
 	CHAR *temp = 0;
 	std::string value;
 	try {
 	    //cerr << "Attr " << node->name << "." << name << "=" << endl;
 	    temp = xmlGetProp(node, name.c_str());
 	    if (temp) {
-		value = (char *)temp;
+		value = xmlChar2string(temp);
 		//cerr << "\tvalue = " << value << endl;
 		free(temp);
 		temp = 0;
@@ -171,7 +176,7 @@ static attrmap attr_to_map(xmlNodePtr node)
 	/*
 	 *
 	 * xmlNodePtr val = attr->val;
-	 * std::string value = (char *)val->content;
+	 * std::string value = xmlChar2string(val->content);
 	 */
 
 	result[name] = value;
@@ -201,14 +206,23 @@ get_config_values(xmlNodePtr node, OmSettings &config)
 	}
 	
 	// finish if we're no longer seeing <param ...>
-	if (std::string((char *)node->name) != "param") {
+	if (std::string(xmlChar2string(node->name)) != "param") {
 	    break;
 	}
 
 	std::string type = get_prop(node, "type");
 	if (type == "string") {
-	    config.set(get_prop(node, "name"),
-		       get_prop(node, "value"));
+	    std::string name = get_prop(node, "name");
+	    std::string value = get_prop(node, "value");
+
+	    if (value.length() == 0) {
+		// fall back on the data inside the tag
+		CHAR *content = xmlNodeGetContent(node);
+		if (content) {
+		    value = xmlChar2string(content);
+		}
+	    }
+	    config.set(name, value);
 	} else if (type == "list") {
 	    xmlNodePtr items = node->childs;
 	    std::vector<std::string> values;
@@ -217,7 +231,7 @@ get_config_values(xmlNodePtr node, OmSettings &config)
 		    items = items->next;
 		    continue;
 		}
-		std::string name((char *)items->name);
+		std::string name(xmlChar2string(items->name));
 		if (name != "item") {
 		    throw OmInvalidDataError(std::string("Unexpected tag `")
 					     + name + "'");
@@ -246,7 +260,7 @@ desc_from_tree(xmlDocPtr doc)
     if (!root) {
 	throw OmInvalidDataError("Error parsing graph description");
     }
-    std::string rootname = (char *)root->name;
+    std::string rootname = xmlChar2string(root->name);
     if (rootname != "omindexer") {
 	throw OmInvalidDataError(std::string("Root tag was `")
 				 + rootname + "', not <omindexer>");
@@ -261,7 +275,7 @@ desc_from_tree(xmlDocPtr doc)
 	if (node->type == XML_COMMENT_NODE) {
 	    continue;
 	}
-	std::string type = (char *)node->name;
+	std::string type = xmlChar2string(node->name);
 	if (type == "node") {
 	    OmIndexerDesc::NodeInstance ndesc;
 
@@ -279,8 +293,8 @@ desc_from_tree(xmlDocPtr doc)
 		    continue;
 		}
 
-		if (std::string((char *)child->name) != "input") {
-		    throw OmInvalidDataError(std::string("<input> tag expected, found ") + std::string((char *)child->name));
+		if (std::string(xmlChar2string(child->name)) != "input") {
+		    throw OmInvalidDataError(std::string("<input> tag expected, found ") + std::string(xmlChar2string(child->name)));
 		}
 		OmIndexerDesc::Connect conn;
 		conn.input_name = get_prop(child, "name");

@@ -2,7 +2,7 @@
 <!ELEMENT node (param*, input*)>
 <!ELEMENT output EMPTY>
 <!ELEMENT input EMPTY>
-<!ELEMENT param (item*)>
+<!ELEMENT param (#PCDATA|item)*>
 <!ELEMENT item EMPTY>
 
 <!ATTLIST omindexer>
@@ -19,6 +19,6 @@
 <!ATTLIST param
 	  type (string|list) "string"
 	  name CDATA #REQUIRED
-	  value CDATA #REQUIRED>
+	  value CDATA "">
 <!ATTLIST item
 	  value CDATA #REQUIRED>

@@ -1,3 +1,9 @@
+Wed Oct 11 17:27:49 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Parameter strings can be kept inside <param></param> instead of
+	  the <param value=""> attribute.  The former doesn't mangle
+	  whitespace.
+
 Wed Oct 11 11:17:52 BST 2000 Olly Betts
 
 	* Added profiling variant of DEBUGCALL() and DEBUGCALL_STATIC(),
