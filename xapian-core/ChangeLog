@@ -1,3 +1,9 @@
+Mon Apr 29 17:41:33 BST 2002  Olly Betts <olly@survex.com>
+
+	* Tidied up some uses of string.c_str().
+
+	* Cleaned up todo list.
+
 Mon Apr 29 16:08:21 BST 2002  Olly Betts <olly@survex.com>
 
 	* Updated buildall to check various tools have the required version

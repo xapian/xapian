@@ -27,6 +27,11 @@
 #include "om/omsettings.h"
 #include "omdebug.h"
 
+#include <map>
+using std::map;
+#include <string>
+using std::string;
+
 class Database;
 class RSet;
 class StatsSource;
@@ -50,7 +55,7 @@ class IRWeight {
 	bool initialised;
 	mutable bool weight_calculated;
 
-	static std::map<std::string, const IRWeight *> custom_weights;
+	static map<string, const IRWeight *> custom_weights;
     public:
 	IRWeight() : initialised(false), weight_calculated(false) { }
 	virtual ~IRWeight() { }
@@ -58,7 +63,7 @@ class IRWeight {
 	static IRWeight * create_new(const OmSettings & opts);
 
 	/// Register a custom weight object
-	static void register_custom(const std::string &wt_type, const IRWeight *wt);
+	static void register_custom(const string &wt_type, const IRWeight *wt);
 
 	/// Return a new weight object of this type.
 	virtual IRWeight * create(const OmSettings &opts) const = 0;

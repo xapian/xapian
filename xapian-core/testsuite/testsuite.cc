@@ -46,16 +46,16 @@ using std::streambuf;
 
 #include "getopt.h"
 
-#include <unistd.h> // for chdir
-
 #include <setjmp.h>
 #include <signal.h>
+#include <unistd.h> // for chdir
 
 #include <exception>
 
 #include "om/omerror.h"
 #include "testsuite.h"
 #include "omdebug.h"
+#include "utils.h"
 
 class null_streambuf : public streambuf {
 };

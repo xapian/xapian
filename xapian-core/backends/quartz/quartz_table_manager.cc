@@ -469,9 +469,9 @@ QuartzBufferedTableManager::get_database_write_lock()
 	 * Otherwise, it failed.  (Reference: Linux open() manpage)
 	 */
 	/* FIXME: sort out all these unlinks */
-	int result = link(tempname.c_str(), lock_name.c_str());
+	int result = link(tempname, lock_name);
 	if (result == 0) {
-	    unlink(tempname.c_str());
+	    unlink(tempname);
 	    return;
 	} else {
 #ifdef MUS_DEBUG_VERBOSE
@@ -480,7 +480,7 @@ QuartzBufferedTableManager::get_database_write_lock()
 	    struct stat statbuf;
 	    int statresult = fstat(tempfd, &statbuf);
 	    int fstat_errno = errno;
-	    unlink(tempname.c_str());
+	    unlink(tempname);
 	    if (statresult != 0) {
 		throw OmDatabaseLockError("Unable to fstat() temporary file " +
 					  tempname + " while locking: " +
@@ -504,7 +504,7 @@ void
 QuartzBufferedTableManager::release_database_write_lock()
 {
     DEBUGCALL(DB, void, "QuartzBufferedTableManager::release_database_write_lock", "");
-    unlink(lock_name.c_str());
+    unlink(lock_name);
 }
 
 void

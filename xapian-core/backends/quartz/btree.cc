@@ -237,8 +237,7 @@ int sys_close(int h) {
 
 static void sys_unlink(const std::string &filename)
 {
-    int err = unlink(filename.c_str());
-    if (err != 0) {
+    if (unlink(filename) == -1) {
 	std::string message = "Failed to unlink ";
 	message += filename;
 	message += ": ";
@@ -1681,12 +1680,7 @@ Btree::Btree()
 void
 sys_unlink_if_exists(const std::string & filename)
 {
-    struct stat buf;
-    if (stat(filename.c_str(), &buf)) {
-	if (errno == ENOENT) return;
-    }
-
-    if (unlink (filename.c_str())) {
+    if (unlink(filename) == -1) {
 	if (errno == ENOENT) return;
 	throw OmDatabaseError("Can't delete file: `" + filename +
 			      "': " + strerror(errno));

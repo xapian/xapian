@@ -343,7 +343,7 @@ SocketServer::run_gettermlist(const std::string &firstmessage)
 {
     std::string message = firstmessage;
 
-    om_docid did = atoi(message.c_str());
+    om_docid did = atoi(message);
 
     OmTermIterator tl = db.termlist_begin(did);
     OmTermIterator tlend = db.termlist_end(did);
@@ -366,7 +366,7 @@ SocketServer::run_getdocument(const std::string &firstmessage)
 {
     std::string message = firstmessage;
 
-    om_docid did = atoi(message.c_str());
+    om_docid did = atoi(message);
 
     AutoPtr<Document> doc(db.internal->open_document(did));
 

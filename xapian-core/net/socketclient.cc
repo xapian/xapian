@@ -552,7 +552,7 @@ SocketClient::get_posting(om_docid &did, om_weight &w, OmKey &key)
 		moptions = OmSettings();
 		omrset = OmRSet();
 	    } else {
-		did = atoi(message.c_str());
+		did = atoi(message);
 		string::size_type i = message.find(';');
 		string::size_type j = message.find(' ');
 		if (j != message.npos && (i == message.npos || j < i)) {

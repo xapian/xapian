@@ -8,7 +8,10 @@ not depending of pthreads.  Try dlsym() on pthread_self?
 </todoitem>
 <todoitem priority="H" difficulty="2" owner="" area="Matcher" release="">
 
-Pass around partially created postlist as an auto_ptr, for exception safety.
+Pass around partially created postlists and termlists as AutoPtrs?
+(for exception safety)
+
+</todoitem>
 
 </todoitem>
 <todoitem priority="H" difficulty="3" owner="" area="General / API" release="">
@@ -29,8 +32,10 @@ Write (speed) performance test suite.
 </todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="General" release="1.0">
 
-Check for zero byte cleanness wherever strings are used.  There are a lot
-of c_str()s in the code...
+Check for zero byte cleanness wherever strings are used.  There are a
+number of c_str()s in the code, but I believe all in the core library
+(excluding the bindings) are harmless at 2002-04-29.  There may be other zero
+byte issues though.
 
 </todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="Iterators" release="">
@@ -61,9 +66,11 @@ be the sum of the wdfs).
 Make all errors return a context if appropriate.
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="Porting" release="1.0">
+<todoitem priority="M" difficulty="5" owner="James" area="Porting" release="1.0">
 
-Produce NT version of OM.
+Produce Microsoft Windows version, probably cross-compiling to mingw.
+
+</todoitem>
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="">
@@ -163,7 +170,7 @@ Ensure that (Java in particular) bindings throw correct exception types.
 </todoitem>
 <todoitem priority="M" difficulty="4" owner="" area="Matcher" release="">
 
-Allow negative relevance judgements.  Will need to check that this doesn't
+Allow negative relevance judgements?  Will need to check that this doesn't
 cause assumptions to be violated. (eg, unsigned integers going negative.)
 
 </todoitem>
@@ -203,12 +210,6 @@ Need QuartzPostListTermsIterator class?  (But with a snappier name. ;-) )
 Make quartz database autoflush when enough changes have been performed based
 on the memory used up as a proportion of that available, rather than simply
 when a count of changes is reached.  Remove hardcoded count of 1000 changes.
-
-</todoitem>
-<todoitem priority="L" difficulty="4" owner="" area="API" release="">
-
-Databases should return postlists and termlists as AutoPtrs, rather than
-pointers.
 
 </todoitem>
 <todoitem priority="L" difficulty="4" owner="" area="API" release="">
@@ -317,6 +318,7 @@ functor tested and approved, as we know there are at least that many and
 can't know if there are more.  matches_upper_bound can be reduced by the
 number of documents that the functor rejected, and matches_estimated
 can be adjusted somehow - perhaps look at the reject rate of the functor?
+Partly done I believe.
 
 </todoitem>
 <todoitem priority="D" difficulty="3" owner="" area="API" release="">
@@ -365,146 +367,180 @@ exact termfrequency for the combined term to calculate the weight.  This will
 share some techniques from implementing synonym postlists.
 
 </todoitem>
-</todo>
-<!-- FIXME: enter these as TODO entries
+<todoitem priority="" difficulty="" owner="" area="" release="">
 
 "make install" on omega should install CGI binary somewhere more helpful
 
- * .deb and RPMs built, control files via autoconf
+</todoitem>
+<todoitem priority="" difficulty="" owner="Olly" area="" release="">
 
-I've some experience of producing debs and rpms, so I'll take a look at this
-once I've cleaned up the build system, sorted out the examples, etc.
+.deb and RPMs built, control files via autoconf
 
- * largefiles should get a better autoconf check?
+</todoitem>
+<todoitem priority="" difficulty="" owner="Olly" area="" release="">
 
+largefiles should get a better autoconf check?
 Propose: move to require autoconf >= 2.50 in the medium term as it includes
 better largefile checks, and should resolve this.
 
-Code
-====
+</todoitem>
+<todoitem priority="" difficulty="" owner="Sam/James" area="" release="">
 
- * Language bindings: Python, PHP and Java (as a minimum IMHO).
-   All can be done using SWIG, and it's probably easier to do so
-   even though some languages (eg Python) have better tools
-   available just because it's less overall work.
+Language bindings: Python, PHP and Java (as a minimum IMHO).
+All can be done using SWIG, and it's probably easier to do so
+even though some languages (eg Python) have better tools
+available just because it's less overall work.
 
-Sam's working on this.
+</todoitem>
+<todoitem priority="" difficulty="" owner="" area="" release="">
 
- * indexgraph -> extra (needs to build as a support library?)
- * languages dropped in favour of Snowball
- * Reduce use of STL in API; Olly has a plan for std::string
- * Query parser in a library (latest from Omega)
- * Omega should have a make static target, needs some more stuff in
-   omindex (- -add-term, - -add-field) IMHO. Also could do with more
-   fields as standard, and probably support for subsite as key for
-   collapse. But see below.
- * We talked about replacing Omega with a simpler PHP or Python-based
-   system, once the bindings are in place. Python would be good
-   because we could use it for omindex as well, and I suspect the code
-   would be much cleaner, easier to work with, and generally
-   understandable. For something that should be halfway between a
-   reasonably large-scale application for Xapian and a complex
-   example, this can only be a good thing. This probably needs a
-   query parser library, although it raises questions of consistency
-   of term generation (word breaks and stemming) across the index
-   and query tools ... we may want the query parser to have a callback
-   to deal with that, which can be done in the bindings although it's
-   a little fiddly in some languages I believe.
+indexgraph -> extra (needs to build as a support library?)
 
-To be done.
+</todoitem>
+<todoitem priority="" difficulty="" owner="Olly" area="" release="">
 
- * Fix up examples and make sure they are actually instructive
+Reduce use of STL in API; Olly has a plan for std::string
 
+</todoitem>
+<todoitem priority="" difficulty="" owner="Olly" area="" release="">
+
+Query parser in a library (latest from Omega)
+
+</todoitem>
+<todoitem priority="" difficulty="" owner="" area="" release="">
+
+Should Omega have a make static target?  Or just document configure runes?
+Need some more stuff in
+omindex (--add-term, --add-field) IMHO. Also could do with more
+fields as standard, and probably support for subsite as key for
+collapse.
+
+</todoitem>
+<todoitem priority="" difficulty="" owner="Sam" area="" release="">
+
+Replace Omega with a simpler PHP or Python-based
+system, once the bindings are in place. Python would be good
+because we could use it for omindex as well, and I suspect the code
+would be much cleaner, easier to work with, and generally
+understandable. For something that should be halfway between a
+reasonably large-scale application for Xapian and a complex
+example, this can only be a good thing. This probably needs a
+query parser library, although it raises questions of consistency
+of term generation (word breaks and stemming) across the index
+and query tools ... we may want the query parser to have a callback
+to deal with that, which can be done in the bindings although it's
+a little fiddly in some languages I believe.
+
+</todoitem>
+<todoitem priority="" difficulty="" owner="Olly" area="" release="">
+
+Fix up examples and make sure they are actually instructive.
 I've made a start.  delve is a reasonable example.  msearch probably needs
 simplifying to just do a probabilistic search, or to use the omega queryparser
 once it moves into extra.
 
- * Olly's crash problem investigated
+</todoitem>
+<todoitem priority="" difficulty="" owner="Olly" area="" release="">
 
-Fixed, but there's a new problem.
+Investigate and find a proper fix for FILTER problem.
 
- * Look at replacing btree implementation, or at least tidying it
+</todoitem>
+<todoitem priority="" difficulty="" owner="Richard" area="" release="">
 
-I think Richard was looking into this.
+Look at replacing btree implementation, or at least tidying it
 
- * Use of getopt. I'm inclined to think we should use the fallback
-   method of GNU getopt being distributed with Xapian. This is a
-   reversal of my previous position :)
+</todoitem>
+<todoitem priority="" difficulty="" owner="Olly" area="" release="">
 
-Made a major start.  Need to ensure getopt.c and getopt1.c get linked against
+Need to ensure getopt.c and getopt1.c get linked against
 anything that needs them for non-glibc platforms.
 
-Ports
-=====
+</todoitem>
+<todoitem priority="" difficulty="" owner="James" area="" release="">
 
- * Sparc Solaris non-debug was giving EXCEPT+LEAK on getdoc1 for all
-   backends. This might be a test suite bug, and may also have been
-   fixed by now, so I need to test it again.
- * Automated testing across CF machines (I'm planning on doing this)
- * I have some fixes for linux/alpha build, but they're somewhere in a
-   pile of paper on my desk. I'll dig them out and test at some point
- * Windows - Richard played with this under mingw or Cygwin, I think?
- * Update the PLATFORMS file
+Automated testing across CF machines
 
-Jobs for James?
+</todoitem>
+<todoitem priority="" difficulty="" owner="James" area="" release="">
 
-Design
-======
+I have some fixes for linux/alpha build, but they're somewhere in a
+pile of paper on my desk. I'll dig them out and test at some point
 
- * We talked about use of local vs global databases, and decided it
-   would be useful to support Unix sockets for local machine databases
-   so the library can select() on all databases in complex cases. This
-   is probably something we can leave for a while, and probably
-   doesn't need to be automatic - so the local process can be fired
-   by the application, not the library - but at some point should be
-   thought through and documented properly.
+</todoitem>
+<todoitem priority="" difficulty="" owner="James" area="" release="">
 
-Longer term project.
+Update the PLATFORMS file
 
-Website & docs
-==============
+</todoitem>
+<todoitem priority="" difficulty="" owner="" area="" release="">
 
- * xapian.org: schema pages (not crucial, but would be nice)
+We talked about use of local vs global databases, and decided it
+would be useful to support Unix sockets for local machine databases
+so the library can select() on all databases in complex cases. This
+is probably something we can leave for a while, and probably
+doesn't need to be automatic - so the local process can be fired
+by the application, not the library - but at some point should be
+thought through and documented properly.  A longer term project.
 
-I don't understand, so you'll have to do this.
+</todoitem>
+<todoitem priority="" difficulty="" owner="James" area="" release="">
 
- * make sure the docs are actually correct at the moment
+xapian.org: schema pages (not crucial, but would be nice)
 
-Do you have a cunning plan for checking?  If not, I think the documentation
-from doxygen comments in the source can generally be assumed to be reasonably
-correct - documentation not tied to the source is much more likely to not
-have been updated to reflect changes, and to no longer be correct.
+</todoitem>
+<todoitem priority="" difficulty="" owner="James" area="" release="">
 
- * Valgrind support - I think Olly has documented how to do these
-   sorts of things
+make sure the non-autogenerated docs are actually correct at the moment
 
-Propose: enhance valgrind slightly and replace out leak checking code with
-it.  This means we can only leak check on Linux though, rather than any
-platform which supports LD_PRELOAD.
+</todoitem>
+<todoitem priority="" difficulty="" owner="Olly" area="" release="">
 
-And here are my extra points:
+Use valgrind in the testsuite - waiting for Julian Seward to add the hooks
+needed.
 
- * I'm not convinced the arguments for OmSettings are as compelling as we
-   originally thought, and it has definite drawbacks - one major one being
-   that there's no easy way to check for typos which can lead to users of
-   the library spending hours trying to sort out a bug which is just a
-   typo in an OmSettings value.  Another arugment for it was to allow passing
-   values to user weighting objects, etc, but I think it's best just to
-   implement these with a clone() method, and pass an example one in.  And
-   we might as well make built-in weighting objects work the same way rather
-   than being a special case.  Thoughts?
+</todoitem>
+<todoitem priority="" difficulty="" owner="Olly" area="" release="">
 
- * Get nightly snapshot builds set up again?
+Replace all uses of OmSettings.
+The arguments for OmSettings are not as compelling as we
+originally thought, and it has definite drawbacks - one major one being
+that there's no easy way to check for typos which can lead to users of
+the library spending hours trying to sort out a bug which is just a
+typo in an OmSettings value.  Another arugment for it was to allow passing
+values to user weighting objects, etc, but I think it's best just to
+implement these with a clone() method, and pass an example one in.  And
+we might as well make built-in weighting objects work the same way rather
+than being a special case.  Backends can be done similarly, though an
+explicit factory is needed as there's more than one class to build.
 
- * Look at getting the btree code to use pread and pwrite or similar calls 
-   where available (e.g. on Linux and Solaris).  These combine a seek and
-   read or write into a single syscall, which halves the syscall overhead and
-   can make an observable difference to performance.
+</todoitem>
+<todoitem priority="" difficulty="" owner="James" area="" release="">
 
- * Think about using hashing instead of a btree for the backend?  Long term
-   project.
+Get nightly snapshot builds set up again
 
- * Move "min_hits" into matcher?
+</todoitem>
+<todoitem priority="" difficulty="" owner="Olly" area="" release="">
 
- * Look at reworking StatsGatherer mechanism to be simpler and clearer.
--->
+Look at getting the btree code to use pread and pwrite or similar calls 
+where available (e.g. on Linux and Solaris).  These combine a seek and
+read or write into a single syscall, which halves the syscall overhead and
+can make an observable difference to performance.
+
+</todoitem>
+<todoitem priority="" difficulty="" owner="Olly" area="" release="">
+
+Think about using hashing instead of a btree for the backend?  Long term
+project.
+
+</todoitem>
+<todoitem priority="" difficulty="" owner="Olly" area="" release="">
+
+Move "min_hits" into matcher?
+
+</todoitem>
+<todoitem priority="" difficulty="" owner="Olly" area="" release="">
+
+Look at reworking StatsGatherer mechanism to be simpler and clearer.
+
+</todoitem>
+</todo>

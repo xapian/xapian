@@ -26,23 +26,24 @@
 #include "testsuite.h"
 #include "testutils.h"
 #include <string>
+using std::string;
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
 
-static std::string tmpdir;
-static std::string datadir;
+static string tmpdir;
+static string datadir;
 
-static void delete_dir(std::string filename)
+static void delete_dir(string filename)
 {
-    system(("rm -fr " + filename).c_str());
+    system("rm -fr " + filename);
 }
 
-static void make_dir(std::string filename)
+static void make_dir(string filename)
 {
-    system(("mkdir " + filename).c_str());
+    mkdir(filename, 0700);
 }
 
 static int min(int i, int max)
@@ -97,8 +98,8 @@ static void process_lines(Btree & btree, FILE * f)
     }
 }
 
-static void do_update(const std::string & btree_dir,
-		     const std::string & datafile,
+static void do_update(const string & btree_dir,
+		     const string & datafile,
 		     bool full_compact = false)
 {
     Btree btree;
@@ -118,13 +119,13 @@ static void do_update(const std::string & btree_dir,
     btree.commit(btree.revision_number + 1);
 }
 
-static void do_check(const std::string & btree_dir,
-		     const std::string & args)
+static void do_check(const string & btree_dir,
+		     const string & args)
 {
     Btree::check(btree_dir.c_str(), args.c_str());
 }
 
-static void do_create(const std::string & btree_dir, int block_size = 1024)
+static void do_create(const string & btree_dir, int block_size = 1024)
 {
     delete_dir(btree_dir);
     make_dir(btree_dir);
@@ -134,10 +135,10 @@ static void do_create(const std::string & btree_dir, int block_size = 1024)
 }
 
 static bool
-file_exists(const std::string & filename)
+file_exists(const string & filename)
 {
     struct stat buf;
-    if (stat(filename.c_str(), &buf)) {
+    if (stat(filename, &buf)) {
 	if (errno == ENOENT) return false;
     }
     return true;
@@ -146,7 +147,7 @@ file_exists(const std::string & filename)
 /// Test making and playing with a QuartzBufferedTable
 static bool test_insertdelete1()
 {
-    std::string btree_dir = tmpdir + "/B/";
+    string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
     do_check(btree_dir, "v");
 
@@ -173,7 +174,7 @@ static bool test_LFSinsertdelete1()
 {
     bool LFSunlikely=sizeof(off_t)==4;
 
-    std::string btree_dir = tmpdir + "/B/";
+    string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
     do_check(btree_dir, "v");
 

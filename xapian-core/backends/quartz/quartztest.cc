@@ -49,28 +49,28 @@ static std::string tmpdir;
 static int get_filesize(std::string filename)
 {
     struct stat buf;
-    int result = stat(filename.c_str(), &buf);
+    int result = stat(filename, &buf);
     if (result) return -1;
     return buf.st_size;
 }
 
 static void deletedir(std::string filename)
 {
-    system(("rm -fr " + filename).c_str());
+    system("rm -fr " + filename);
 }
 
 static void makedir(std::string filename)
 {
-    mkdir(filename.c_str(), 0755);
+    mkdir(filename, 0700);
 }
 
 static void unlink_table(const std::string & path)
 {
-    unlink((path + "DB").c_str());
-    unlink((path + "baseA").c_str());
-    unlink((path + "baseB").c_str());
-    unlink((path + "bitmapA").c_str());
-    unlink((path + "bitmapB").c_str());
+    unlink(path + "DB");
+    unlink(path + "baseA");
+    unlink(path + "baseB");
+    unlink(path + "bitmapA");
+    unlink(path + "bitmapB");
 }
 
 /// Check the values returned by a table containing key/tag "hello"/"world"

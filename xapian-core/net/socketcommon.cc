@@ -712,7 +712,7 @@ string_to_ommsetitems(const std::string &s_)
 				    atol(did_s.c_str()),
 				    string_to_omkey(key_s)));
     }
-    AssertEq((unsigned)atoi(s_.substr(0, colon).c_str()), result.size());
+    AssertEq((unsigned)atoi(s_.substr(0, colon)), result.size());
     return result;
 }
 

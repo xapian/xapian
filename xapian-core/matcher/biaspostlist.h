@@ -29,6 +29,7 @@
 #include "om/omdatabase.h"
 #include "postlist.h"
 #include "multimatch.h"
+#include "utils.h"
 
 // DOCID_BASED doesn't require a key lookup so is more efficient
 // and works if documents are added at a reasonably steady rate
@@ -63,7 +64,7 @@ class OmBiasFunctor {
 	om_weight get_weight(om_docid id) {
 #ifndef DOCID_BASED
 	    OmKey key = db.get_document(id).get_key(0);
-	    time_t t = atoi(key.value.c_str());
+	    time_t t = atoi(key.value);
 	    if (t >= now) return max_w;
 #else /* DOCID_BASED */
 	    if (id >= max_id) return max_w;

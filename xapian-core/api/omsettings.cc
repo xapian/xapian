@@ -198,9 +198,7 @@ OmSettings::get_int(const std::string &key) const
     DEBUGAPICALL(int, "OmSettings::get_int", key);
     std::string val;
     (void) internal->find(key, val, true);
-    int res;
-    sscanf(val.c_str(), "%d", &res);
-    RETURN(res);
+    RETURN(atoi(val));
 }
 
 double
@@ -263,9 +261,7 @@ OmSettings::get_int(const std::string &key, int def) const
     DEBUGAPICALL(int, "OmSettings::get_int", key << ", " << def);
     std::string val;
     if (internal->find(key, val, false)) {
-	int res;
-	sscanf(val.c_str(), "%d", &res);
-	RETURN(res);
+	RETURN(atoi(val));
     } else {
 	RETURN(def);
     }

@@ -29,7 +29,6 @@
 
 #include "utils.h"
 
-#include <sys/stat.h>
 #include <stdio.h>
 
 #define BUFSIZE 100
@@ -125,7 +124,7 @@ file_exists(const std::string &fname)
 {
     struct stat sbuf;
     // exists && is a regular file
-    return stat(fname.c_str(), &sbuf) >= 0 && S_ISREG(sbuf.st_mode);
+    return stat(fname, &sbuf) >= 0 && S_ISREG(sbuf.st_mode);
 }
 
 /** Return true if all the files fnames exist.

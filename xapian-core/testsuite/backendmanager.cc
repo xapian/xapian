@@ -34,6 +34,7 @@
 #include "index_utils.h"
 #include "backendmanager.h"
 #include "omdebug.h"
+#include "utils.h"
 
 OmDocument
 string_to_document(std::string paragraph)
@@ -144,8 +145,8 @@ index_files_to_m36(const std::string &prog, const std::string &dbdir,
     out.close();
     std::string cmd = "../../makeda/" + prog + " -source " + dump +
 	" -da " + dbdir + "/ -work " + dbdir + "/tmp- > /dev/null";
-    system(cmd.c_str());
-    unlink(dump.c_str());
+    system(cmd);
+    unlink(dump);
 }
 
 std::vector<std::string>
@@ -156,10 +157,10 @@ make_strvec(std::string s1 = "",
 {
     std::vector<std::string> result;
 
-    if(s1 != "") result.push_back(s1);
-    if(s2 != "") result.push_back(s2);
-    if(s3 != "") result.push_back(s3);
-    if(s4 != "") result.push_back(s4);
+    if (!s1.empty()) result.push_back(s1);
+    if (!s2.empty()) result.push_back(s2);
+    if (!s3.empty()) result.push_back(s3);
+    if (!s4.empty()) result.push_back(s4);
 
     return result;
 }
@@ -336,10 +337,10 @@ bool create_dir_if_needed(const std::string &dirname)
 {
     // create a directory if not present
     struct stat sbuf;
-    int result = stat(dirname.c_str(), &sbuf);
+    int result = stat(dirname, &sbuf);
     if (result < 0) {
 	if (errno != ENOENT) throw OmOpeningError("Can't stat directory");
-        if (mkdir(dirname.c_str(), 0700) < 0) {
+        if (mkdir(dirname, 0700) < 0) {
 	    throw OmOpeningError("Can't create directory");
 	}
 	return true; // Successfully created a directory.
@@ -367,7 +368,7 @@ BackendManager::do_getdb_quartz(const std::vector<std::string> &dbnames, bool wr
 	// if the database is opened readonly, we can reuse it, but if it's
 	// writable we need to start afresh each time
 	std::string cmd = "rm -fr " + dbdir;
-	system(cmd.c_str());
+	system(cmd);
     }
     OmSettings params;
     params.set("backend", "quartz");
@@ -404,7 +405,7 @@ BackendManager::do_getwritedb_quartz(const std::vector<std::string> &dbnames,
 	// if the database is opened readonly, we can reuse it, but if it's
 	// writable we need to start afresh each time
 	std::string cmd = "rm -fr " + dbdir;
-	system(cmd.c_str());
+	system(cmd);
     }
     OmSettings params;
     params.set("backend", "quartz");

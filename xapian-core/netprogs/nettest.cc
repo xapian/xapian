@@ -133,7 +133,7 @@ static bool test_tcpclient1()
 
     std::string command = "./omtcpsrv --one-shot --quiet --port 1236 "
 	                  ".quartz/db=apitest_simpledata &";
-    system(command.c_str());
+    system(command);
 
     sleep(3);
     TcpClient tc("localhost", 1236, 10000, 10000);
@@ -153,7 +153,7 @@ static bool test_tcpmatch1()
 
     std::string command = "./omtcpsrv --one-shot --quiet --port 1235 "
 	                  ".quartz/db=apitest_simpledata &";
-    system(command.c_str());
+    system(command);
     sleep(3);
 
     OmSettings params;

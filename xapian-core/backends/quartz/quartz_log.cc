@@ -54,7 +54,8 @@ QuartzLog::make_entry(std::string entry) const
 {
     DEBUGCALL(DB, void, "QuartzLog::make_entry", entry);
     if (fp != 0) {
-	fprintf(fp, "%s\n", entry.c_str());
+	fwrite(entry.data(), entry.size(), 1, fp);
+	putc('\n', fp);
 	if (fflush(fp)) {
 	    throw OmOpeningError("Error when flushing logfile: " +
 				 std::string(strerror(errno)));

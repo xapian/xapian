@@ -24,34 +24,40 @@
 #define OM_HGUARD_UTILS_H
 
 #include <string>
+using std::string;
 #include <vector>
-#include <map>
+using std::vector;
+
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 /// Convert an integer to a string
-std::string om_tostring(int a);
+string om_tostring(int a);
 
 /// Convert an unsigned integer to a string
-std::string om_tostring(unsigned int a);
+string om_tostring(unsigned int a);
 
 /// Convert a long integer to a string
-std::string om_tostring(long int a);
+string om_tostring(long int a);
 
 /// Convert an unsigned long integer to a string
-std::string om_tostring(unsigned long int a);
+string om_tostring(unsigned long int a);
 
 /// Convert a double to a string
-std::string om_tostring(double a);
+string om_tostring(double a);
 
 /// Convert a bool to a string
-std::string om_tostring(bool a);
+string om_tostring(bool a);
 
 /// Convert a pointer to a string
-std::string om_tostring(const void * a);
+string om_tostring(const void * a);
 
 /// Split a string into a vector of strings, using a given separator
 /// character (default space)
-void split_words(std::string text,
-		 std::vector<std::string> &words,
+void split_words(string text,
+		 vector<string> &words,
 		 char wspace = ' ');
 
 ///////////////////////////////////////////
@@ -72,14 +78,38 @@ struct StringAndValue {
  *  not worth doing so, unless list gets large.
  */
 int map_string_to_value(const StringAndValue * haystack,
-			const std::string needle);
+			const string needle);
 
 /** Return true if the file fname exists.
  */
-bool file_exists(const std::string &fname);
+bool file_exists(const string &fname);
 
 /** Return true if all the files fnames exist.
  */
-bool files_exist(const std::vector<std::string> &fnames);
+bool files_exist(const vector<string> &fnames);
+
+/// Allow atoi to work directly on C++ strings.
+inline int atoi(const string &s) { return atoi(s.c_str()); }
+
+/// Allow unlink to work directly on C++ strings.
+inline int unlink(const string &filename) { return unlink(filename.c_str()); }
+
+/// Allow system to work directly on C++ strings.
+inline int system(const string &filename) { return system(filename.c_str()); }
+
+/// Allow link to work directly on C++ strings.
+inline int link(const string &o, const string &n) {
+    return link(o.c_str(), n.c_str());
+}
+
+/// Allow mkdir to work directly on C++ strings.
+inline int mkdir(const string &filename, mode_t mode) {
+    return mkdir(filename.c_str(), mode);
+}
+
+/// Allow stat to work directly on C++ strings.
+inline int stat(const string &filename, struct stat *buf) {
+    return stat(filename.c_str(), buf);
+}
 
 #endif /* OM_HGUARD_UTILS_H */
