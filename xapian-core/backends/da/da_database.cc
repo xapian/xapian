@@ -15,10 +15,10 @@
 #include "daread.h"
 #include "damuscat.h"
 
-DAPostList::DAPostList(const IRDatabase *db, struct postings *pl, doccount tf)
+DAPostList::DAPostList(const IRDatabase *root, struct postings *pl, doccount tf)
 	: postlist(pl), currdoc(0), termfreq(tf)
 {
-    own_wt.set_stats(db, tf);
+    own_wt.set_stats(root, tf);
 }
 
 DAPostList::~DAPostList()

@@ -102,10 +102,10 @@ SleepyDatabaseInternals::close()
 // Postlists //
 ///////////////
 
-SleepyPostList::SleepyPostList(IRDatabase *db, docid *data_new, doccount tf)
+SleepyPostList::SleepyPostList(IRDatabase *root, docid *data_new, doccount tf)
 	: pos(0), data(data_new), termfreq(tf)
 {
-    own_wt.set_stats(db, tf);
+    own_wt.set_stats(root, tf);
 }
 
 

@@ -13,14 +13,14 @@
 // Postlist //
 //////////////
 
-MultiPostList::MultiPostList(const IRDatabase *db,
+MultiPostList::MultiPostList(const IRDatabase *root,
 			     list<MultiPostListInternal> &pls)
 	: postlists(pls), finished(false), currdoc(0),
 	  freq_initialised(false)
 {
-    own_wt.set_stats(db, get_termfreq());
+    own_wt.set_stats(root, get_termfreq());
 
-    // Make all the sub-termlists use the same (our) termweight
+    // Make all the sub-postlists use the same (our) termweight
     set_termweight(&own_wt);
 }
 
