@@ -66,7 +66,14 @@ class OmLockSentry {
 	}
 
 	~OmLockSentry() {
-	    mut.unlock();
+	    try {
+		mut.unlock();
+	    } catch (OmAssertionError &err) {
+		// catch any assertion exceptions from unlock,
+		// since throwing exceptions from destructors
+		// is bad
+		cerr << err.get_msg() << endl;
+	    }
 	}
 };
 
