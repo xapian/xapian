@@ -58,8 +58,7 @@
 
 #include <unistd.h>
 #include <db_cxx.h>
-#include <fstream.h>
-#include <strstream>
+#include <fstream>
 #include <stdio.h>
 #include <string>
 #include <vector>

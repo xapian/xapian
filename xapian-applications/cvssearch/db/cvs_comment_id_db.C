@@ -26,10 +26,8 @@
  *
  ************************************************************/
 
+#include "util.h"
 #include "cvs_comment_id_db.h"
-#include <strstream>
-
-using namespace std;
 
 cvs_comment_id_db::cvs_comment_id_db(DbEnv *dbenv, u_int32_t flags)
     :cvs_db("file_revision-comment_id", "2", dbenv, flags)
@@ -75,10 +73,7 @@ cvs_comment_id_db::get(unsigned int fileId, const string & revision, unsigned in
 {
     int val = 0;
     try {
-        ostrstream ost;
-        ost << fileId << ':' << revision << ends;
-        string skey = ost.str();
-        ost.freeze(0);
+        string skey = uint_to_string(fileId) + ':' + revision;
 
         Dbt key ((void *) skey.c_str(), skey.length() + 1);
         Dbt data(0, 0);
@@ -87,7 +82,7 @@ cvs_comment_id_db::get(unsigned int fileId, const string & revision, unsigned in
         {
             comment_id = * (unsigned int *) data.get_data();
         }
-    }  catch (DbException& e ) {
+    } catch (DbException& e) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
     }
     return val;
@@ -109,16 +104,13 @@ cvs_comment_id_db::put(unsigned int fileId, const string & revision, unsigned in
 {
     int val = 0;
     try {
-        ostrstream ost;
-        ost << fileId << ':' << revision << ends;
-        string skey = ost.str();
-        ost.freeze(0);
+        string skey = uint_to_string(fileId) + ':' + revision;
 
         Dbt key ((void *) skey.c_str(), skey.length() + 1);
         Dbt data((void *) &comment_id, sizeof(unsigned int));
 
         val = _db.put(0, &key, &data, 0);
-    }  catch (DbException& e ) {
+    } catch (DbException& e) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
     }
     return val;

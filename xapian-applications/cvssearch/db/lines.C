@@ -1,3 +1,4 @@
+#include <xapian.h>
 #include "lines.h"
 #include "util.h"
 

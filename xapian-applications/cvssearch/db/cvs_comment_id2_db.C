@@ -26,9 +26,8 @@
  *
  ************************************************************/
 
+#include "util.h"
 #include "cvs_comment_id2_db.h"
-#include <strstream>
-using namespace std;
 
 cvs_comment_id2_db::cvs_comment_id2_db(DbEnv *dbenv, u_int32_t flags)
     :cvs_db("id-file_rev", "8", dbenv, flags)
@@ -77,10 +76,7 @@ int
 cvs_comment_id2_db::get(unsigned int comment_id, vector<unsigned int> & fileIds, vector<string> & revisions)
 {
     int val = 0;
-    ostrstream ost;
-    ost << comment_id << ends;
-    string skey = ost.str();
-    ost.freeze(0);
+    string skey = uint_to_string(comment_id);
 
     try {
         Dbt key ((void *) skey.c_str(), skey.length()+1);
@@ -94,13 +90,11 @@ cvs_comment_id2_db::get(unsigned int comment_id, vector<unsigned int> & fileIds,
             {
                 if (data.get_data()) 
                 {
-                    unsigned int file_id;
-                    string revision;
-                    char temp;
-                    istrstream ist((const char *) data.get_data());
-                    ist >> file_id;  // get file_id
-                    ist >> temp;     // get ':'
-                    ist >> revision; // get revision
+		    const char * p = (const char *)data.get_data();
+		    char *q;
+                    unsigned int file_id = strtoul(p, &q, 10);
+		    if (*q == ':') ++q;
+                    string revision(q);
                     fileIds.push_back(file_id);
                     revisions.push_back(revision);
                 }
@@ -112,15 +106,13 @@ cvs_comment_id2_db::get(unsigned int comment_id, vector<unsigned int> & fileIds,
                     }
                     if (data.get_data()) 
                     {
-                        unsigned int file_id;
-                        string revision;
-                        char temp;
-                        istrstream ist((const char *) data.get_data());
-                        ist >> file_id;  // get file_id
-                        ist >> temp;     // get ':'
-                        ist >> revision; // get revision
-                        fileIds.push_back(file_id);
-                        revisions.push_back(revision);
+			const char * p = (const char *)data.get_data();
+			char * q;
+			unsigned int file_id = strtoul(p, &q, 10);
+			if (*q == ':') ++q;
+			string revision(q);
+			fileIds.push_back(file_id);
+			revisions.push_back(revision);
                     }
                 }
                 pcursor->close();
@@ -149,24 +141,16 @@ cvs_comment_id2_db::get(unsigned int comment_id, vector<unsigned int> & fileIds,
 int
 cvs_comment_id2_db::put(unsigned int comment_id, unsigned int fileId, const string & revision)
 {
-    int val = 0;
     try {
-        ostrstream ost;
-        ost << fileId << ':' << revision << ends;
-        string sdata = ost.str();
-        ost.freeze(0);
+	string sdata = uint_to_string(fileId) + ':' + revision;
+	string skey = uint_to_string(comment_id);
 
-        ostrstream ost1;
-        ost1 << comment_id << ends;
-        string skey = ost1.str();
-        ost1.freeze(0);
-        
         Dbt key ((void *) skey.c_str(), skey.length() + 1);
         Dbt data((void *) sdata.c_str(), sdata.length() + 1);
 
-        val = _db.put(0, &key, &data, 0);
-    }  catch (DbException& e ) {
+        return _db.put(0, &key, &data, 0);
+    } catch (DbException& e) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
     }
-    return val;
+    return 0;
 }

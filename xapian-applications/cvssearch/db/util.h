@@ -7,8 +7,6 @@
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
 
-#include <xapian.h>
-#include <strstream>
 #include <string>
 #include <map>
 #include <set>
@@ -29,7 +27,12 @@ bool okFirstChar(char c);
 bool okSubChar  (char c);
 string get_cvsdata();
 
-string convert(unsigned int count);
+inline string uint_to_string(unsigned int v) {
+    char buf[32];
+    sprintf(buf, "%u", v);
+    return string(buf);
+}
+
 string convert(const string & input, char src, char dst);
 
 void get_packages(istream & is, set<string> & packages);

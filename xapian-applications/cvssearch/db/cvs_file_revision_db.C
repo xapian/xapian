@@ -26,8 +26,10 @@
  *
  ************************************************************/
 
+#include "util.h"
 #include "cvs_file_revision_db.h"
-#include <strstream>
+
+#include <stdio.h>
 
 cvs_file_revision_db::cvs_file_revision_db(DbEnv *dbenv, u_int32_t flags)
     :cvs_db("file-revision", "3", dbenv, flags)
@@ -71,13 +73,8 @@ cvs_file_revision_db::do_open(const string & filename, bool read_only)
 int
 cvs_file_revision_db::get(unsigned int fileId, set<string, cvs_revision_less> & revisions)
 {
-    ostrstream ost;
-    ost << fileId << ends;
-    string skey = ost.str();
-    ost.freeze(0);
-    
-    int val = 0;
-    
+    string skey = uint_to_string(fileId);
+ 
     try {
         Dbt key(((void *) skey.c_str()), skey.length()+1);
         Dbt data(0,0);
@@ -86,7 +83,8 @@ cvs_file_revision_db::get(unsigned int fileId, set<string, cvs_revision_less> & 
         
         if (pcursor) 
         {
-            if ((val = pcursor->get(&key, &data, DB_SET)) != DB_NOTFOUND) 
+	    int val = pcursor->get(&key, &data, DB_SET);
+            if (val != DB_NOTFOUND) 
             {
                 if (data.get_data()) 
                 {
@@ -111,7 +109,7 @@ cvs_file_revision_db::get(unsigned int fileId, set<string, cvs_revision_less> & 
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
     }
-    return val;
+    return 0;
 }
 
 /**
@@ -125,19 +123,15 @@ cvs_file_revision_db::get(unsigned int fileId, set<string, cvs_revision_less> & 
 int
 cvs_file_revision_db::put(unsigned int fileId, const string & revision)
 {
-    int val = 0;
-    ostrstream ost;
-    ost << fileId << ends;
-    string skey = ost.str();
-    ost.freeze(0);
+    string skey = uint_to_string(fileId);
 
     try {
         Dbt key ((void *) skey.c_str(), skey.length()+1);
         Dbt data((void *) revision.c_str(), revision.length()+1);
-        val = _db.put(0, &key, &data, 0);
+        return _db.put(0, &key, &data, 0);
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
         abort();
     }
-    return val;
+    return 0;
 }

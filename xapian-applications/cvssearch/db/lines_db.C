@@ -7,7 +7,6 @@
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
 
-#include <strstream>
 #include <iostream>
 #include <unistd.h>
 #include "lines_db.h"
@@ -110,10 +109,7 @@ bool lines_db::readNextLine() {
     stemWords( words, term_list );
         
     // build data string
-    ostrstream ost;
-    ost << line_no << ":"<< root << " " << package << " " << file_id << ":" << ends;
-    data = ost.str(); 
-    ost.freeze(0);
+    data = uint_to_string(line_no) + ':' + root + ' ' + package + ' ' + uint_to_string(file_id) + ':';
     codelinedata = data;
 
     for(set<string, cvs_revision_less>::const_iterator itr = revisions.begin();

@@ -85,8 +85,7 @@
 //
 
 #include <db_cxx.h>
-#include <fstream.h>
-#include <strstream>
+#include <fstream>
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -332,12 +331,11 @@ int main(int argc, char *argv[]) {
 	set<string> symbols = lines.getCodeSymbols();
           
 	string file = cvsdata+"/root0/src/"+lines.currentFile();
-	int line_no = lines.getLineNumber();
+	unsigned int line_no = lines.getLineNumber();
 	//	cerr << "Looking at line " << file << "\t" << line_no << endl;
-	ostrstream ost;
-	ost << file << "\t" << line_no << ends;
-	if ( app_symbol_tag.find( ost.str() ) != app_symbol_tag.end() ) {
-	  string f = app_symbol_tag[ost.str()];
+	string st = file + '\t' + uint_to_string(line_no);
+	if ( app_symbol_tag.find(st) != app_symbol_tag.end() ) {
+	  string f = app_symbol_tag[st];
 #warning "need to be careful with one line functions since they only have one tag"
 	  cerr << "FOUND FUNCTION " << f << " at line " << line_no << endl;
 
@@ -347,7 +345,6 @@ int main(int argc, char *argv[]) {
 	    current_function = f;
 	  }
 	}
-	ost.freeze(0);
 
 	//	  if ( app_symbols.find(*i) != app_symbols.end() ) {
 	//	    app_symbol_count[*i]++; // count number of lines that contain symbol

@@ -494,8 +494,7 @@ char *stopList[] = {
 #include <xapian.h>
 #include <unistd.h>
 #include <db_cxx.h>
-#include <fstream.h>
-#include <strstream>
+#include <fstream>
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -781,7 +780,7 @@ void write_DB_database( const string & database_file,
   map<string, unsigned int>::const_iterator i;
   for(i = item_count.begin(); i != item_count.end(); ++i) {
     string item = i->first;
-    string count = convert(i->second);
+    string count = uint_to_string(i->second);
 
     //cerr << "... writing item " << item << " with count " << count << endl;
 
@@ -818,12 +817,10 @@ void write_OM_database( const string & database_dir,
   // iterate over commits
   for (i = commit_code_words.begin(); i != commit_code_words.end(); ++i)
     {
-      string symbol_string = convert(i->first) + " "; // commit id comes first
-
+      string symbol_string = uint_to_string(i->first) + " "; // commit id comes first
 
       // find comment words associated with that commit
       map<unsigned int, list<string> >::const_iterator f = commit_comment_words.find(i->first);
-
 
       //list<string> words; // words to index by
       set<string> words; // words to index by

@@ -24,8 +24,6 @@
  ********************************************************************************/
 
 #include <xapian.h>
-#include <fstream.h>
-#include <strstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <map>

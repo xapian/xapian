@@ -26,10 +26,8 @@
  *
  ************************************************************/
 
+#include "util.h"
 #include "cvs_line_db.h"
-#include <strstream>
-
-using namespace std;
 
 cvs_line_db::cvs_line_db(DbEnv *dbenv, u_int32_t flags)
     :cvs_db("file_revision-line", "5", dbenv, flags)
@@ -76,10 +74,7 @@ cvs_line_db::get(unsigned int fileId, const string & revision, set<unsigned int>
 {
     result.clear();
 
-    ostrstream ost;
-    ost << fileId << ':' << revision << ends;
-    string skey = ost.str();
-    ost.freeze(0);
+    string skey = uint_to_string(fileId) + ':' + revision;
 
     int val = 0;
     try {
@@ -133,9 +128,7 @@ int
 cvs_line_db::put(unsigned int fileId, const string & revision, unsigned int line)
 {
     int val = 0;
-    ostrstream ost;
-    ost << fileId << ':' << revision << ends;
-    string skey = ost.str();
+    string skey = uint_to_string(fileId) + ':' + revision;
 
     try {
         Dbt key ((void *) skey.c_str(), skey.length()+1);
@@ -144,6 +137,5 @@ cvs_line_db::put(unsigned int fileId, const string & revision, unsigned int line
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
     }
-    ost.freeze(0);
     return val;
 }

@@ -1,3 +1,8 @@
+Tue Mar 23 23:26:29 GMT 2004  Olly Betts <olly@survex.com>
+
+	* db/,map/map.cpp,map/alignment/alignment.cpp,
+	  map/alignment/alignment.hpp: Replaced uses of deprecated strstream.
+
 Tue Mar 23 23:20:10 GMT 2004  Olly Betts <olly@localnet>
 
 	* README: Added note on which debian packages to install to allow

@@ -6,10 +6,12 @@
 #include <list>
 #include <map>
 #include <string>
-#include <xapian.h>
 #include <fstream>
 using namespace std;
 
+namespace Xapian {
+class Stem;
+}
 class lines
 {
 protected:

@@ -26,8 +26,8 @@
  *
  ************************************************************/
 
+#include "util.h"
 #include "cvs_revision_db.h"
-#include <strstream>
 
 cvs_revision_db::cvs_revision_db(DbEnv *dbenv, u_int32_t flags)
     :cvs_db("file_line-revision", "6", dbenv, flags)
@@ -72,10 +72,7 @@ cvs_revision_db::do_open(const string & filename, bool read_only)
 int
 cvs_revision_db::get(unsigned int fileId, unsigned int line, set<string, cvs_revision_less> & result)
 {
-    ostrstream ost;
-    ost << fileId << ':' << line << ends;
-    string skey = ost.str();
-    ost.freeze(0);
+    string skey = uint_to_string(fileId) + ':' + uint_to_string(line);
 
     int val = 0;
     try {
@@ -127,10 +124,7 @@ cvs_revision_db::get(unsigned int fileId, unsigned int line, set<string, cvs_rev
 int
 cvs_revision_db::put(unsigned int fileId, unsigned int line, const string & revision)
 {
-    ostrstream ost;
-    ost << fileId << ':' << line << ends;
-    string skey = ost.str();
-    ost.freeze(0);
+    string skey = uint_to_string(fileId) + ':' + uint_to_string(line);
 
     int val = 0;
     try {

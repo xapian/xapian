@@ -488,8 +488,7 @@ char *stopList[] = {
 #include <xapian.h>
 #include <unistd.h>
 #include <db_cxx.h>
-#include <fstream.h>
-#include <strstream>
+#include <fstream>
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -770,7 +769,7 @@ void write_DB_database( const string & database_file,
   map<string, unsigned int>::const_iterator i;
   for(i = item_count.begin(); i != item_count.end(); ++i) {
     string item = i->first;
-    string count = convert(i->second);
+    string count = uint_to_string(i->second);
 
     //cerr << "... writing item " << item << " with count " << count << endl;
 

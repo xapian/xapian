@@ -68,7 +68,6 @@
 #include <unistd.h>
 #include <db_cxx.h>
 #include <fstream>
-#include <strstream>
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -97,6 +96,8 @@
 
 // support C/C++/Java for now
 // ctags 5.0 flags (see http://ctags.sourceforge.net/ctags.html)
+// FIXME: this is bad - it allows symlink attacks on the files of the user
+// running cvssearch
 const string CTAGS_OUTPUT = "/tmp/tags";
 
 #warning "some hardcoding of preprocessor commands"
@@ -374,7 +375,7 @@ void write_DB_database( const string & database_file,
     map<string, unsigned int>::const_iterator i;
     for(i = item_count.begin(); i != item_count.end(); ++i) {
         string item = i->first;
-        string count = convert(i->second);
+        string count = uint_to_string(i->second);
 
 //cerr << "... writing item " << item << " with count " << count << endl;
         
@@ -414,7 +415,7 @@ void write_OM_database( const string & database_dir,
 
         // find symbols associated with commit
         const set<string> & symbols = i->second;
-        string symbol_string = convert(i->first) + " ";
+        string symbol_string = uint_to_string(i->first) + " ";
         set<string>::iterator j;
         for (j = symbols.begin(); j != symbols.end(); ++j) {
             symbol_string += (*j) + " ";

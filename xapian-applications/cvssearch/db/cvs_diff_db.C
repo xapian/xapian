@@ -26,10 +26,9 @@
  *
  ************************************************************/
 
+#include <util.h>
 #include "cvs_diff_db.h"
-#include <strstream>
 #include <assert.h>
-using namespace std;
 
 cvs_diff_db::cvs_diff_db(DbEnv *dbenv, u_int32_t flags)
     :cvs_db("file_revision-diff", "7", dbenv, flags)
@@ -89,27 +88,19 @@ cvs_diff_db::get(unsigned int fileId, const string & revision,
 
     int val = 0;
     try {
-        ostrstream ost;
-        ost << fileId << ':' << revision << ends;
-        string skey = ost.str();
-        ost.freeze(0);
+        string skey = uint_to_string(fileId) + ':' + revision;
 
         Dbt key ((void *) skey.c_str(), skey.length() + 1);
         Dbt data;
         val = _db.get(0, &key, &data, 0);
         if (data.get_data())
         {
-            istrstream ist((const char *) data.get_data());
-            while (ist && 
-                   ist >> is1 &&
-                   ist >> tmp &&
-                   ist >> is2 &&
-                   ist >> ctype &&
-                   ist >> id1 &&
-                   ist >> tmp &&
-                   ist >> id2 &&
-                   ist >> tmp)
+            const char *p = (const char *) data.get_data();
+	    int count;
+            while (sscanf(p, "%u,%u%c%u,%u.%n", &is1, &is2, &ctype, &id1, &id2,
+			  &count) >= 5)
             {
+		p += count;
                 switch(ctype) {
                 case 'a':
                     is1-=1;
@@ -126,12 +117,9 @@ cvs_diff_db::get(unsigned int fileId, const string & revision,
                     id2-=1;
                     break;
                 default:
-                    break;
+		    assert(false);
                 }
 
-                assert(ctype == 'd' ||
-                       ctype == 'a' ||
-                       ctype == 'c');
                 s1.push_back(is1);
                 s2.push_back(is2);
                 d1.push_back(id1);
@@ -139,7 +127,7 @@ cvs_diff_db::get(unsigned int fileId, const string & revision,
                 type.push_back(ctype);
             }
         }
-    }  catch (DbException& e ) {
+    } catch (DbException& e) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
     }
     return val;
@@ -164,33 +152,33 @@ cvs_diff_db::put(unsigned int fileId, const string & revision,
                  const vector<unsigned int> & d2,
                  const vector<char> & type)
 {
-    int val = 0;
     try {
-        ostrstream ost;
-        ost << fileId << ':' << revision << ends;
-        string skey = ost.str();
-        ost.freeze(0);
+        string skey = uint_to_string(fileId) + ':' + revision;
 
-        ostrstream ost1;
         assert(s1.size() == s2.size() &&
                s1.size() == d1.size() &&
                s1.size() == d2.size() &&
                s1.size() == type.size());
 
+        string sdata;
         for (unsigned int i = 0; i < s1.size(); ++i) 
         {
-            ost1 << s1[i] << ',' << s2[i] << type[i] << d1[i] << ',' << d2[i] << '.';
+            sdata += uint_to_string(s1[i]);
+	    sdata += ',';
+            sdata += uint_to_string(s2[i]);
+	    sdata += type[i];
+            sdata += uint_to_string(d1[i]);
+	    sdata += ',';
+            sdata += uint_to_string(d2[i]);
+	    sdata += '.';
         }
-        ost1 << ends;
-        string sdata = ost1.str();
-        ost.freeze(0);
 
         Dbt key ((void *)  skey.c_str(), skey.length() + 1);
         Dbt data((void *) sdata.c_str(), sdata.length() + 1);
 
-        val = _db.put(0, &key, &data, 0);
-    }  catch (DbException& e ) {
+        return _db.put(0, &key, &data, 0);
+    } catch (DbException& e) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
     }
-    return val;
+    return 0;
 }

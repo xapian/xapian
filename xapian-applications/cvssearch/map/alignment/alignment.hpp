@@ -27,7 +27,6 @@
 #include <vector>
 #include <list>
 #include <iostream>
-#include <strstream>
 #include <assert.h>
 using namespace std;
 
@@ -128,8 +127,6 @@ alignment<T>::find_optimal_alignment(bool hash_result)
         {
             int v = V[i][j];
             
-            ostrstream ost;
-
             if ( i>0 && j >0 && v == V[i-1][j-1] + S.score( S[i], D[j] ) ) {
                 if (type != e_change)
                 {
@@ -333,35 +330,27 @@ alignment<T>::diff1(ostream & os) const
             int v = V[i][j];
             string line1;
             string line2;
-            ostrstream ost1;
-            ostrstream ost2;
 
             if ( i>0 && j >0 && v == V[i-1][j-1] + S.score( S[i], D[j] ) ) {
-                ost1 << i + _source_offset << " " << S[i--] << ends;
-                ost2 << j + _dest_offset << " " << D[j--] << ends;
-                line1 = ost1.str();
-                line2 = ost2.str();
+                line1 = uint_to_string(i + _source_offset) + ' ' + S[i--];
+                line2 = uint_to_string(j + _dest_offset) + ' ' + D[j--];
                 max_length = (max_length > line1.length()) ? max_length : line1.length();
-                s.push_front( ost1.str());
-                t.push_front( ost2.str());
+                s.push_front(line1);
+                t.push_front(line2);
             } else if ( i>0 && v == V[i-1][j] + S.score(S[i], D.space()) ) {
-                ost1 << i + _source_offset << " " << S[i--] << ends;
-                ost2 << j + _dest_offset << " " << "$" << ends;
-                line1 = ost1.str();
-                line2 = ost2.str();
+                line1 = uint_to_string(i + _source_offset) + ' ' + S[i--];
+                line2 = uint_to_string(j + _dest_offset) + " $";
                 max_length = (max_length > line1.length()) ? max_length : line1.length();
-                s.push_front( ost1.str());
-                t.push_front( ost2.str());
+                s.push_front(line1);
+                t.push_front(line2);
             } else {
                 assert( v == V[i][j-1] + S.score(S.space(), D[j] )) ;
-                ost1 << i + _source_offset << " " << "$" << ends;
-                ost2 << j + _dest_offset << " " << D[j--] << ends;
-                line1 = ost1.str();
-                line2 = ost2.str();
+                line1 = uint_to_string(i + _source_offset) + " $";
+                line2 = uint_to_string(j + _dest_offset) + ' ' + D[j--];
                 max_length = (max_length > line1.length()) ? max_length : line1.length();
 
-                s.push_front( ost1.str());
-                t.push_front( ost2.str());
+                s.push_front(line1);
+                t.push_front(line2);
             }
 
         }

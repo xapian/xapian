@@ -8,10 +8,9 @@
 // (at your option) any later version.
 
 #include <xapian.h>
-#include <fstream.h>
+#include <fstream>
 #include <stdio.h>
 #include "util.h"
-#include <strstream>
 
 #define SHOW_WARNINGS 0 
 
@@ -225,14 +224,6 @@ string get_cvsdata()
         }
     }
     return cvsdata;
-}
-
-string convert(unsigned int count) {
-    ostrstream ost;
-    ost << count << ends;
-    string s = ost.str(); 
-    ost.freeze(0);
-    return s;
 }
 
 string convert(const string & input, char src, char dst) {

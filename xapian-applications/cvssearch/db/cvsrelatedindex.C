@@ -74,8 +74,7 @@
 #include <xapian.h>
 #include <unistd.h>
 #include <db_cxx.h>
-#include <fstream.h>
-#include <strstream>
+#include <fstream>
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -280,7 +279,7 @@ void write_OM_database( const string & database_dir,
   // iterate over commits
   for (i = commit_comment_words.begin(); i != commit_comment_words.end(); ++i)
     {
-      string symbol_string = convert(i->first) + " "; // commit id comes first
+      string symbol_string = uint_to_string(i->first) + " "; // commit id comes first
 
 
       // find comment words associated with that commit

@@ -205,10 +205,7 @@ lines_cmt::readNextLine() {
     }
 
     // build data string
-    ostrstream ost;
-    ost << (line_no-current_offset + 1) << ":"<< root << " " << package << " " << file_no << ":" << ends;
-    data = ost.str(); 
-    ost.freeze(0);
+    data = uint_to_string(line_no-current_offset + 1) + ':' + root + ' ' + package + ' ' + uint_to_string(file_no) + ':';
     codelinedata = data;
   
     for(int i = revisions.size()-1; i >=0; i-- ) {
