@@ -77,14 +77,14 @@ static int percentage(double num, double denom) {
 int
 set_probabilistic(const string &newp, const string &oldp)
 {
-    const char *p = newp.c_str();
-    /* strip leading whitespace */
-    while (isspace(*p)) p++;
+    int first_nonspace = 0;
+    /* skip leading whitespace */
+    while (isspace(newp[first_nonspace])) first_nonspace++;
+    int len = newp.length();
     /* and strip trailing whitespace */
-    size_t len = strlen(p);
-    while (len && isspace(p[len - 1])) len--;
+    while (len > first_nonspace && isspace(newp[len - 1])) len--;
    
-    raw_prob = string(p, len);
+    raw_prob = newp.substr(first_nonspace, len - first_nonspace);
     parse_prob(raw_prob);
 
     // Check new query against the previous one
@@ -233,7 +233,7 @@ do_picker(char prefix, const char **opts)
     buf[5] = prefix;
 
     string tmp = option[buf];
-    if (tmp.size())
+    if (!tmp.empty())
 	cout << tmp;
     else
 	cout << "-Any-";
@@ -241,7 +241,7 @@ do_picker(char prefix, const char **opts)
     for (p = opts; *p; p++) {
 	strcpy(buf+6, *p);
 	string trans = option[buf];
-	if (!trans.size()) {
+	if (trans.empty()) {
 	    if (prefix == 'N')
 		trans = string(".") + *p;
 	    else 
@@ -328,26 +328,26 @@ static void utf8_to_html(const string &str) {
       int ch = *p++;
       if (ch == 0) break;
 
-      // this is extra magic, not part of utf-8
+      // this is some extra magic, not part of utf-8
       switch (ch) {
-       case '\b': /* was \r but core muscat swallows that... */
-	 cout << " / "; /* line break in original */
-	 continue;
+       case '\b': // was \r but muscat 3.6 swallows that...
+	  cout << " / "; // line break in original
+	  continue;
        case '\t':
-	 cout << " * "; /* bullet point in original */
-	 continue;
+	  cout << " * "; // bullet point in original
+	  continue;
        case '\f':
-	 cout << "&nbsp;"; /* hardspace in original */
-	 continue;
+	  cout << "&nbsp;"; // hardspace in original
+	  continue;
        case '<':
-	 cout << "&lt;";
-	 continue;
+	  cout << "&lt;";
+	  continue;
        case '>':
-	 cout << "&gt;";
-	 continue;
+	  cout << "&gt;";
+	  continue;
        case '&':
-	 cout << "&amp;";
-	 continue;
+	  cout << "&amp;";
+	  continue;
       }
 
       /* A byte in the range 0x80-0xbf or 0xf0-0xff isn't valid in this state,
@@ -435,39 +435,38 @@ print_caption(long int m)
     
     /* get hostname from longest N tag
      * and country from shortest (allowing for uk+) */
-     {  int len = -1, got_plus = 0;
-	TermList *terms = database.open_term_list(q0);
-	terms->next();
-	while (!terms->at_end()) {
-	    const char *term = database.term_id_to_name(terms->get_termid()).c_str();
-	    int length = strlen(term);
-	    switch (term[0]) {
-	     case 'N':
-		if (length > len && term[length - 1] != '+') {
-		    hostname = term + 1;
-		    len = length;
-		}
-		if (!got_plus && length - 1 <= 3) {
-		    country_code = term + 1;
-		    if (term[length - 1] == '+') {
-			got_plus = 1;
-			country_code = string(term + 1, length - 2) + "%2b";
-		    }
-		}
-		break;
-	     case 'L':
-		language_code = term + 1;
-		break;
+    int len = -1, got_plus = 0;
+    TermList *terms = database.open_term_list(q0);
+    terms->next();
+    while (!terms->at_end()) {
+	string term = database.term_id_to_name(terms->get_termid());
+	int length = term.length();
+	switch (term[0]) {
+	 case 'N':
+	    if (length > len && term[length - 1] != '+') {
+		hostname = term.substr(1);
+		len = length;
 	    }
-	    terms->next();
+	    if (!got_plus && length - 1 <= 3) {
+		country_code = term.substr(1);
+		if (term[length - 1] == '+') {
+		    got_plus = 1;
+		    country_code = term.substr(1, length - 2) + "%2b";
+		}
+	    }
+	    break;
+	 case 'L':
+	    language_code = term.substr(1);
+	    break;
 	}
-	delete terms;
-     }
+	terms->next();
+    }
+    delete terms;
     
     country = option["BOOL-N" + country_code];
-    if (!country.size()) country = country_code;
+    if (country.empty()) country = country_code;
     language = option["BOOL-L" + language_code];
-    if (!language.size()) language = language_code;
+    if (language.empty()) language = language_code;
    
     percent = percentage((double)w, matcher->get_max_weight());
     
@@ -526,7 +525,7 @@ print_caption(long int m)
 	cout << string(p, q - p);
 	switch (q[1]) {
 	 case 'C': /* caption */
-	    if (caption.size()) {
+	    if (!caption.empty()) {
 		utf8_to_html(caption);
 		break;
 	    }
@@ -546,7 +545,7 @@ print_caption(long int m)
 	    print_query_string(q + 2);
 	    break;
 	 case 'S': /* sample */
-	    if (sample.size()) {
+	    if (!sample.empty()) {
 		utf8_to_html(sample);
 		cout << "...";
 	    }

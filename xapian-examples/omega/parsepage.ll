@@ -109,7 +109,7 @@ pretty_printf(const char *p, int *a)
 	cout << "<INPUT TYPE=hidden NAME=MAXHITS VALUE=" << size << ">\n";
     
     /*** save fmt ***/
-    if (fmt.size())
+    if (!fmt.empty())
 	cout << "<INPUT TYPE=hidden NAME=FMT VALUE=\"" << fmt << "\">\n";
     
     /*** save prob query ***/
@@ -370,7 +370,7 @@ pretty_printf(const char *p, int *a)
     /* ferret advert link (with keywords) */
     int pageid = time(NULL) - 894000000;
     int tag = 7533; /* english */
-    if (db_name.size() >= 12) {
+    if (db_name.length() >= 12) {
 	switch (db_name[8]) {
 	 case 'r':
 	    if (db_name == "ferret.french") tag = 7542;

@@ -194,8 +194,8 @@ static int main2(int argc, char *argv[])
    
     /* read thousands and decimal separators: e.g. 16<thou>729<dec>8037 */
     
-    if (option["dec_sep"].size()) dec_sep = option["dec_sep"][0];
-    if (option["thou_sep"].size()) thou_sep = option["thou_sep"][0];
+    if (!option["dec_sep"].empty()) dec_sep = option["dec_sep"][0];
+    if (!option["thou_sep"].empty()) thou_sep = option["thou_sep"][0];
    
     if ((val = GetEntry("MATCHOP")) != NULL) {
 	if (strcmp(val, "AND") == 0 || strcmp(val, "and") == 0) op = AND;
@@ -406,17 +406,17 @@ static int main2(int argc, char *argv[])
 	    big_buf += val;
 	    more = true;
 	}
-	val = NextEntry( "P", &n );
+	val = NextEntry("P", &n);
     }
 
     /*** add expand terms ? **/
     if (GetEntry("ADD") != NULL) {
-       val = FirstEntry( "X", &n );
+       val = FirstEntry("X", &n);
        while (val) {
 	   if (more) big_buf += ' ';
 	   big_buf += val;
 	   more = true;
-	   val = NextEntry( "X", &n );
+	   val = NextEntry("X", &n);
        }
     }
    
@@ -425,11 +425,11 @@ static int main2(int argc, char *argv[])
 #endif
 
     /*** set Boolean ***/
-    val = FirstEntry( "B", &n );
+    val = FirstEntry("B", &n);
     while (val != NULL) {
        /* we'll definitely get empty B fields from "-ALL-" options */
        if (isalnum(val[0])) add_bterm(val);
-       val = NextEntry( "B", &n );
+       val = NextEntry("B", &n);
     }
 
     if ((val = GetEntry("FMT")) != NULL && *val) {
