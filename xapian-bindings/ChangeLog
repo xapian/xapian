@@ -1,3 +1,8 @@
+Sun Oct 24 02:07:31 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/docs/examples/simpleindex.py: Trim spaces from the start as
+	  well as from the end of each line.  Simplify the loop slightly.
+
 Sun Oct 24 01:54:17 BST 2004  Olly Betts <olly@survex.com>
 
 	* tcl8/docs/bindings.html,tcl8/docs/examples/simpleindex.tcl: Added

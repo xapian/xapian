@@ -54,9 +54,9 @@ try:
     para = ''
     try:
         for line in sys.stdin:
-            line = string.rstrip(line)
-            if line=='':
-                if para!='':
+            line = string.strip(line)
+            if line == '':
+                if para != '':
                     doc = xapian.Document()
                     doc.set_data(para)
                     pos = 0
@@ -66,14 +66,13 @@ try:
                     # k is non-alnum (or is off the end of the para), set j=k.
                     # The term generation string is [i,j), so len = j-i
                     i = 0
-                    j = 0
-                    while i<len(para):
-                        i = find_p(para, j, p_alnum)
+                    while i < len(para):
+                        i = find_p(para, i, p_alnum)
                         j = find_p(para, i, p_notalnum)
                         k = find_p(para, j, p_notplusminus)
-                        if k==len(para) or not p_alnum(para[k]):
+                        if k == len(para) or not p_alnum(para[k]):
                             j = k
-                        if (j-i) <= MAX_PROB_TERM_LENGTH and j>i:
+                        if (j - i) <= MAX_PROB_TERM_LENGTH and j > i:
                             term = stemmer.stem_word(string.lower(para[i:j]))
                             doc.add_posting(term, pos)
                             pos += 1
@@ -81,7 +80,7 @@ try:
                     database.add_document(doc)
                     para = ''
             else:
-                if para!='':
+                if para != '':
                     para += ' '
                 para += line
     except StopIteration:
