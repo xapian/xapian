@@ -168,9 +168,9 @@ class PendingMSetPostList : public PostList {
 	// maxitems is an upper bound on the number of postings
 	om_doccount get_termfreq() const { return maxitems; }
 
-	om_docid  get_docid() const { Assert(false); }
-	om_weight get_weight() const { Assert(false); }
-	om_weight get_maxweight() const { Assert(false); }
+	om_docid  get_docid() const { Assert(false); return 0; }
+	om_weight get_weight() const { Assert(false); return 0; }
+	om_weight get_maxweight() const { Assert(false); return 0; }
 	
         om_weight recalc_maxweight() {
 	    make_pl();
@@ -192,7 +192,7 @@ class PendingMSetPostList : public PostList {
 	    throw OmUnimplementedError("PendingMSetPostList doesn't support skip_to");	    
 	}
 
-	bool at_end() const { Assert(false); }
+	bool at_end() const { Assert(false); return true; }
 
 	std::string get_description() const {
 	    return "( PendingMSet )";
@@ -201,9 +201,9 @@ class PendingMSetPostList : public PostList {
 	/** Return the document length of the document the current term
 	 *  comes from.
 	 */
-	virtual om_doclength get_doclength() const { Assert(false); }
+	virtual om_doclength get_doclength() const { Assert(false); return 1; }
 
-	virtual PositionList * get_position_list() { Assert(false); }
+	virtual PositionList * get_position_list() { Assert(false); return 0; }
 
         PendingMSetPostList(const NetworkDatabase *db_, om_doccount maxitems_)
 		: db(db_), pl(NULL), maxitems(maxitems_) { }

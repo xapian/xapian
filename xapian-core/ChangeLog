@@ -1,3 +1,7 @@
+Fri Nov 24 14:58:27 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix compile warnings when debug is off.
+
 Fri Nov 24 14:20:01 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Turn TIMING_PATCH off in cvs.
