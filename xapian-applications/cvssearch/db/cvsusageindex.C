@@ -35,7 +35,7 @@
 // should have another command for classes/functions that look
 // at their contents 
 
-#define SKIP_FUNCTIONS 1
+#define SKIP_FUNCTIONS 0
 
 #define MAX_FROM_APP 9999999
 
@@ -332,7 +332,7 @@ int main(int argc, char *argv[]) {
       map<string, int> app_symbol_count;
       map< string, int > contributed_terms;
 
-      Lines lines( cvsdata + "/root0/src/", "", package, file_cmt, file_offset, "accumulating" ); 
+      Lines lines( cvsdata + "/root0/src/", "", package, file_cmt, file_offset, " accumulating" ); 
 
       while ( lines.ReadNextLine() ) {
 
@@ -370,35 +370,14 @@ int main(int argc, char *argv[]) {
 	  }
               
 	  if ( terms.size() < MIN_WORDS ) {
-	    /*****
-		  cerr << "** TOO FEW WORDS: ";
-		  for( list<string>::iterator i = terms.begin(); i != terms.end(); i++ ) {
-		  cerr << (*i) << " ";
-		  }
-		  for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
-		  cerr << "SYMBOL " << (*i) << " ";
-		  }
-		  cerr << endl;
-	    *****/
 	    continue; 
 	  }
 
 	  if ( terms.size() > MAX_WORDS ) {
-	    /******
-		   cerr << "** TOO MANY WORDS: ";
-		   for( list<string>::iterator i = terms.begin(); i != terms.end(); i++ ) {
-		   cerr << (*i) << " ";
-		   }
-		   for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
-		   cerr << "SYMBOL " << (*i) << " ";
-		   }
-		   cerr << endl;
-	    ***/
 	    continue; 
 	  }
 
 	  if ( contributed_terms[*i] + terms.size() >= TOTAL_WORDS ) {
-	    //	    cerr << "*** Contributed too many words for " << *i << endl;
 	    continue;
 	  }
 
