@@ -1,3 +1,8 @@
+Fri Sep 15 12:59:17 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Hopefully fixed problems with older libxml not supporting
+	  validation.
+
 Fri Sep 15 12:01:34 BST 2000 Olly Betts
 
 	* TODO and todo.html now generated from master todo.xml.

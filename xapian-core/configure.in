@@ -123,9 +123,27 @@ then
     echo "checking libxml flags..."
     LIBXML_CFLAGS=`$XML_CONFIG_PATH --cflags`
     LIBXML_LIBS=`$XML_CONFIG_PATH --libs`
+
+    AC_LANG_SAVE
+    AC_LANG_C
+    SAVE_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS $LIBXML_CFLAGS"
+    AC_TRY_COMPILE([
+#include <parser.h>
+#include <valid.h>
+], [ xmlValidCtxt ctxt;
+     xmlDocPtr doc;
+     xmlValidateDocument(&ctxt, doc);
+     ], [have_libxml_valid=yes], [have_libxml_valid=no])
+    CFLAGS="$SAVE_CFLAGS"
+    AC_LANG_RESTORE
 fi
 AC_SUBST(LIBXML_CFLAGS)
 AC_SUBST(LIBXML_LIBS)
+if test "x$have_libxml_valid" = "xyes"; then
+AC_DEFINE(HAVE_LIBXML_VALID,,
+	  [ Define if libxml has validation available ])
+fi
 
 dnl Use libtool to manage our libraries
 AM_PROG_LIBTOOL

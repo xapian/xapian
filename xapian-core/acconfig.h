@@ -76,6 +76,9 @@
 /* Define if libxml is available */
 #undef HAVE_LIBXML
 
+/* Define if libxml supports validation */
+#undef HAVE_LIBXML_VALID
+
 @BOTTOM@
 #ifdef MUS_MUTEX_ERRCHECK
 /* We need _GNU_SOURCE to get the right definitions
