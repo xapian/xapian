@@ -706,7 +706,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			    const MatchDecider *mdecider) const
 {
     DEBUGCALL(API, MSet, "Enquire::Internal::get_mset", first << ", "
-	      << maxitems << ", " check_at_least << ", " << rset << ", "
+	      << maxitems << ", " << check_at_least << ", " << rset << ", "
 	      << mdecider);
     if (query == 0) {
         throw InvalidArgumentError("You must set a query before calling Xapian::Enquire::get_mset()");
@@ -1004,7 +1004,7 @@ Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 {
     // FIXME: display contents of pointer params, if they're not null.
     DEBUGAPICALL(Xapian::MSet, "Xapian::Enquire::get_mset", first << ", " <<
-		 maxitems << ", " check_at_least << ", " << rset << ", " <<
+		 maxitems << ", " << check_at_least << ", " << rset << ", " <<
 		 mdecider);
 
     try {

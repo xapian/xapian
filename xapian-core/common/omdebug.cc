@@ -82,9 +82,9 @@ OmDebug::initialise()
 	    // ensures that debug output is written to disk, so that none
 	    // is lost if we crash...
 #ifdef O_SYNC
-	    fd = open(s, O_CREAT | O_WRONLY | O_SYNC | O_APPEND, 0644);
+	    fd = open(s.c_str(), O_CREAT | O_WRONLY | O_SYNC | O_APPEND, 0644);
 #else
-	    fd = open(s, O_CREAT | O_WRONLY | O_APPEND, 0644);
+	    fd = open(s.c_str(), O_CREAT | O_WRONLY | O_APPEND, 0644);
 #endif
 
 	    if (fd == -1) {
