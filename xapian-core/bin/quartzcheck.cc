@@ -144,6 +144,7 @@ static void check_table(const char *filename, int opts) {
 			    "posting list for term `" << term << "'" << endl;
 		    }
 		    // Unpack extra header from first chunk.
+		    cursor->read_tag();
 		    pos = cursor->current_tag.data();
 		    end = pos + cursor->current_tag.size();
 		    if (!unpack_uint(&pos, end, &termfreq)) {
@@ -181,6 +182,7 @@ static void check_table(const char *filename, int opts) {
 				"prev chunk" << endl;
 			}
 		    }
+		    cursor->read_tag();
 		    pos = cursor->current_tag.data();
 		    end = pos + cursor->current_tag.size();
 		}

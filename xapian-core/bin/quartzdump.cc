@@ -142,6 +142,7 @@ main(int argc, char *argv[])
 	    
 	    while (!cursor->after_end()) {
 		if (use_endkey && cursor->current_key > endkey) break;
+		cursor->read_tag();
 		cout << hex_encode(cursor->current_key) << " -> "
 		     << hex_encode(cursor->current_tag) << "\n";
 		cursor->next();

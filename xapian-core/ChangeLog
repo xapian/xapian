@@ -1,3 +1,8 @@
+Thu Aug 19 12:58:10 BST 2004  Olly Betts <olly@survex.com>
+
+	* bin/quartzcheck.cc,bin/quartzdump.cc: Added calls to
+	  QuartzCursor::read_tag().
+
 Thu Aug 19 12:56:53 BST 2004  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Removed superfluous clear() of a map.
