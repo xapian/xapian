@@ -1,3 +1,7 @@
+Wed May 08 12:21:32 BST 2002  Olly Betts <olly@survex.com>
+
+	* buildall: run libtoolize; stripped out unnecessary stuff.
+
 Wed May 08 09:44:45 BST 2002  Olly Betts <olly@survex.com>
 
 	* matcher/msetpostlist.cc: Removed bogus comment cut and pasted from
