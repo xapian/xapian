@@ -23,6 +23,7 @@
 #ifndef OM_HGUARD_SOCKETCOMMON_H
 #define OM_HGUARD_SOCKETCOMMON_H
 
+#include "config.h"
 #include <string>
 #include <map>
 #include "omlinebuf.h"
@@ -178,5 +179,10 @@ OmQuery::Internal qfs_readquery();
 /** returns true if the string s starts with prefix.
  */
 bool startswith(const std::string &s, const std::string &prefix);
+
+/* socklen_t doesn't exist on eg Solaris 5.6 */
+#ifndef HAVE_SOCKLEN_T
+typedef unsigned int socklen_t;
+#endif  /* HAVE_SOCKLEN_T */
 
 #endif /* OM_HGUARD_SOCKETCOMMON_H */

@@ -1,3 +1,8 @@
+Wed Jan 17 16:10:02 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Moved the socklen_t definition so that tcpclient.cc could see
+	  it.
+
 Tue Jan 16 20:35:18 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix creation of quartz databases in backendmanager: all tests should

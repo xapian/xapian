@@ -117,10 +117,6 @@ TcpServer::get_listening_socket(int port)
     return socketfd;
 }
 
-#ifndef HAVE_SOCKLEN_T
-typedef int socklen_t;
-#endif  /* HAVE_SOCKLEN_T */
-
 int
 TcpServer::get_connected_socket()
 {
