@@ -7,16 +7,17 @@
 
 #include "database.h"
 
-// Calculate weights using statistics retrieved from db
-// If db is NULL weights are not calculated
-IRWeight::IRWeight(const IRDatabase *db, doccount tf) {
-    doccount dbsize = db->get_doccount();
-    doclength avlength = db->get_avlength();
-    doccount termfreq = tf;
+// Calculate weights using statistics retrieved from databases
+weight
+IRWeight::get_weight() const
+{
+    doccount dbsize = database->get_doccount();
+    doclength avlength = database->get_avlength();
 
     printf("Statistics: N=%d L=%f n_t=%d ", 
 	   dbsize, avlength, termfreq);
 
+    weight termweight;
     termweight = (dbsize - termfreq + 0.5) / (termfreq + 0.5); 
     if (termweight < 2) {
 	// if size and/or termfreq is estimated we can get termweight <= 0
@@ -28,4 +29,6 @@ IRWeight::IRWeight(const IRDatabase *db, doccount tf) {
 
     printf("\t=> termweight = %f\n",
 	   termweight);
+
+    return termweight;
 }                                   

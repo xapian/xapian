@@ -8,10 +8,13 @@ class IRDatabase;
 
 class IRWeight {
     private:
-	weight termweight;
+	const IRDatabase *database;
+	doccount termfreq;
     public:
-	IRWeight(const IRDatabase *, doccount termfreq);
-	weight get_weight() {return termweight;}
+	IRWeight(const IRDatabase *db, doccount tf)
+		: database(db), termfreq(tf)
+	{}
+	weight get_weight() const;
 };
 
 #endif /* _irweight_h_ */

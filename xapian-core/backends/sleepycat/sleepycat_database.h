@@ -19,13 +19,13 @@ class SleepyPostList : public virtual DBPostList {
 	bool weight_initialised;
 	weight termweight;
 
-	SleepyPostList(docid *, doccount);
+	SleepyPostList(IRDatabase *, docid *, doccount);
     public:
 	~SleepyPostList();
 
-	void  set_termweight(weight); // Sets term weight
-
 	doccount   get_termfreq() const;// Number of docs indexed by this term
+
+	weight     recalc_maxweight();
 
 	docid      get_docid() const;   // Current docid
 	weight     get_weight() const;  // Current weight
@@ -33,15 +33,6 @@ class SleepyPostList : public virtual DBPostList {
         PostList * next(weight w_min);  // Move next docid
 	bool       at_end() const;      // True if we're off the end of the list
 };
-
-inline void
-SleepyPostList::set_termweight(weight wt)
-{
-    termweight = wt;
-
-    // Set weight_initialised, but only if we're doing asserts
-    Assert((weight_initialised = true) == true);  // Deliberate =
-}
 
 inline doccount
 SleepyPostList::get_termfreq() const
@@ -70,6 +61,12 @@ SleepyPostList::at_end() const
 {
     if(pos > termfreq) return true;
     return false;
+}
+
+inline weight
+SleepyPostList::recalc_maxweight()
+{
+    return SleepyPostList::get_maxweight();
 }
 
 

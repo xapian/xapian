@@ -99,10 +99,12 @@ SleepyDatabaseInternals::close()
 // Postlists //
 ///////////////
 
-SleepyPostList::SleepyPostList(docid *data_new, doccount termfreq_new) {
-    pos = 0;
-    data = data_new;
-    termfreq = termfreq_new;
+SleepyPostList::SleepyPostList(IRDatabase *db,
+			       docid *data_new,
+			       doccount termfreq_new)
+	: pos(0), data(data_new), termfreq(termfreq_new)
+{
+    set_termweight(IRWeight(db, termfreq_new));
 }
 
 
@@ -110,14 +112,16 @@ SleepyPostList::~SleepyPostList() {
     free(data);
 }
 
-weight SleepyPostList::get_maxweight() const {
-    Assert(weight_initialised);
+weight SleepyPostList::get_weight() const {
+    Assert(!at_end());
+    if(!weight_initialised) calc_termweight();
+    
     return 1;
 }
 
-weight SleepyPostList::get_weight() const {
-    Assert(!at_end());
-    Assert(weight_initialised);
+weight SleepyPostList::get_maxweight() const {
+    if(!weight_initialised) calc_termweight();
+
     return 1;
 }
 
@@ -191,7 +195,8 @@ SleepyDatabase::open_post_list(termid tid) const {
 	throw OmError("PostlistDb error:" + string(e.what()));
     }
 
-    return new SleepyPostList((docid *)data.get_data(),
+    return new SleepyPostList(root,
+			      (docid *)data.get_data(),
 			      data.get_size() / sizeof(docid));
 }
 

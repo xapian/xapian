@@ -36,9 +36,11 @@ class MultiPostList : public virtual DBPostList {
     public:
 	~MultiPostList();
 
-	void  set_termweight(weight); // Sets term weight
+	void  set_termweight(const IRWeight &); // Sets term weight
 
 	doccount get_termfreq() const;
+
+	weight recalc_maxweight();
 
 	docid  get_docid() const;     // Gets current docid
 	weight get_weight() const;    // Gets current weight
@@ -49,7 +51,7 @@ class MultiPostList : public virtual DBPostList {
 };
 
 inline void
-MultiPostList::set_termweight(weight wt)
+MultiPostList::set_termweight(const IRWeight & wt)
 {
     list<MultiPostListInternal>::const_iterator i = postlists.begin();
     while(i != postlists.end()) {
@@ -88,6 +90,12 @@ inline bool
 MultiPostList::at_end() const
 {
     return finished;
+}
+
+inline weight
+MultiPostList::recalc_maxweight()
+{
+    return MultiPostList::get_maxweight();
 }
 
 
