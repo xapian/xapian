@@ -19,7 +19,7 @@ SUBDIRS = docs
 
 pylibdir = @PYTHON_LIB@/site-packages
 
-pylib_SCRIPTS = @PYTHON_MODERN_OR_OLDE@/xapian.py @PYTHON_MODERN_OR_OLDE@/xapian.pyc
+pylib_SCRIPTS = @PYTHON_MODERN_OR_OLDE@/xapian.py xapian.pyc
 
 pylib_LTLIBRARIES = _xapian.la
 
@@ -40,15 +40,11 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS)
 # generate the .pyc file in the same directory as the .py file.  However,
 # we can't expect to be allowed to write to $(srcdir), so we copy the
 # .py file to the build directory instead.
-@PYTHON_MODERN_OR_OLDE@/xapian.pyc: @PYTHON_MODERN_OR_OLDE@/xapian.py
-	if test -f "@PYTHON_MODERN_OR_OLDE@/xapian.py"; then \
-	  PYTHONPATH=@PYTHON_MODERN_OR_OLDE@:.libs $(PYTHON) -c "import xapian" || exit 1; \
-	else \
-	  test -d @PYTHON_MODERN_OR_OLDE@ || mkdir @PYTHON_MODERN_OR_OLDE@; \
-	  cp "$(srcdir)/@PYTHON_MODERN_OR_OLDE@/xapian.py" "@PYTHON_MODERN_OR_OLDE@/xapian.py" || exit 1; \
-	  PYTHONPATH=@PYTHON_MODERN_OR_OLDE@:.libs $(PYTHON) -c "import xapian" || exit 1; \
-	  rm "@PYTHON_MODERN_OR_OLDE@/xapian.py" || exit 1; \
-	fi
+xapian.pyc: xapian.py
+	PYTHONPATH=.:.libs $(PYTHON) -c "import xapian"
+
+xapian.py: @PYTHON_MODERN_OR_OLDE@/xapian.py
+	cp `test -f @PYTHON_MODERN_OR_OLDE@/xapian.py || echo '$(srcdir)/'`@PYTHON_MODERN_OR_OLDE@/xapian.py xapian.py
 
 if MAINTAINER_MODE
 # "modern" versions are for Python 2.2 and up;  "olde" versions are for earlier
@@ -64,8 +60,8 @@ olde/xapian_wrap.cc olde/xapian_wrap.h olde/xapian.py: ../xapian.i util.i extra.
 	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -python -shadow \
 	    -o olde/xapian_wrap.cc $(srcdir)/../xapian.i
 
-CLEANFILES = $(BUILT_SOURCES) @PYTHON_MODERN_OR_OLDE@/xapian.pyc
+CLEANFILES = $(BUILT_SOURCES) xapian.py xapian.pyc
 else
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
-CLEANFILES = @PYTHON_MODERN_OR_OLDE@/xapian.pyc
+CLEANFILES = xapian.py xapian.pyc
 endif
