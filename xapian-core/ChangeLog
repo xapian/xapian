@@ -1,3 +1,8 @@
+Tue Jul 23 22:12:34 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* Added a note to the effect that the indexgraph stuff isn't
+ 	  really considered useful to the HTML document introducing it.
+
 Tue Jul 23 22:09:39 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* Added some comments in quartztest test_create1(), in case anyone
