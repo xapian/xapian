@@ -203,7 +203,7 @@ void
 add_dtd_if_needed(xmlDocPtr doc) {
     // add the internal subset Dtd if it's not there
     if (doc->intSubset == 0) {
-	xmlCreateIntSubset(doc, "omindexer", 0, get_dtd_path());
+	xmlCreateIntSubset(doc, (const xmlChar *)"omindexer", 0, get_dtd_path());
     }
 }
 
@@ -216,8 +216,8 @@ doc_is_valid(xmlDocPtr doc)
     ctxt.error = &xml_warn_func;
 
     // Add our predefined "START" id
-    xmlAttrPtr attr = xmlNewDocProp(doc, "id", "START");
-    xmlAddID(&ctxt, doc, "START", attr);
+    xmlAttrPtr attr = xmlNewDocProp(doc, (const xmlChar *)"id", (const xmlChar *)"START");
+    xmlAddID(&ctxt, doc, (const xmlChar *)"START", attr);
 
     add_dtd_if_needed(doc);
 
@@ -242,7 +242,7 @@ get_prop(xmlNodePtr node, const std::string &prop)
     CHAR *temp = 0;
     std::string retval;
     try {
-	temp = xmlGetProp(node, prop.c_str());
+	temp = xmlGetProp(node, (const xmlChar *)prop.c_str());
 	if (temp) {
 	    retval = xmlChar2string(temp);
 	    free(temp);
