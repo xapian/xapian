@@ -59,6 +59,8 @@ class OmDocument {
 	/// This can be expensive, and shouldn't normally be used
 	/// in a match decider functor.
 	virtual OmData get_data() const = 0;     
+
+	virtual ~OmDocument() {}
 };
 
 #endif  // OM_HGUARD_OMDOCUMENT_H
