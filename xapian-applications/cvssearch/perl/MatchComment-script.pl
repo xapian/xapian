@@ -92,6 +92,11 @@ if(param()){
     print "</head>\n";
     print "<body>\n";
 
+    print "Code shown below is what appears in the most recent version of the file(s).<br>";
+    print "To see the original commit, click 'F'.<br>";
+    print "To view another file in this package, click the package link at the top.<br>";
+     
+
     print "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" border=\"0\">\n";
 
     my $revision  = shift @revisions;
