@@ -25,7 +25,7 @@
 
 #include "utils.h"
 #include "omassert.h"
-#include "dbpostlist.h"
+#include "leafpostlist.h"
 #include "termlist.h"
 #include "database.h"
 #include <stdlib.h>

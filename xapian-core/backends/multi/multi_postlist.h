@@ -25,7 +25,7 @@
 
 #include "utils.h"
 #include "omassert.h"
-#include "dbpostlist.h"
+#include "leafpostlist.h"
 #include <stdlib.h>
 #include <set>
 #include <vector>
@@ -33,19 +33,19 @@
 
 class MultiPostListInternal {
     public:
-	DBPostList * pl;
+	LeafPostList * pl;
 	om_docid currdoc;
 
 	om_doccount offset;
 	om_doccount multiplier;
 
-	MultiPostListInternal(DBPostList * pl_new,
+	MultiPostListInternal(LeafPostList * pl_new,
 			      om_doccount off,
 			      om_doccount mult)
 		: pl(pl_new), currdoc(0), offset(off), multiplier(mult) {}
 };
 
-class MultiPostList : public virtual DBPostList {
+class MultiPostList : public virtual LeafPostList {
     friend class MultiDatabase;
     private:
 	list<MultiPostListInternal> postlists;
@@ -80,7 +80,7 @@ inline void
 MultiPostList::set_termweight(const IRWeight * wt)
 {
     // Set in base class, so that get_maxweight() works
-    DBPostList::set_termweight(wt);
+    LeafPostList::set_termweight(wt);
     list<MultiPostListInternal>::const_iterator i = postlists.begin();
     while(i != postlists.end()) {
 	(*i).pl->set_termweight(wt);

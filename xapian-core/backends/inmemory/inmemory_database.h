@@ -25,7 +25,7 @@
 
 #include "omassert.h"
 #include "utils.h"
-#include "dbpostlist.h"
+#include "leafpostlist.h"
 #include "termlist.h"
 #include "database.h"
 #include "indexer.h"
@@ -115,7 +115,7 @@ class InMemoryDoc {
 
 
 // Post List
-class InMemoryPostList : public virtual DBPostList {
+class InMemoryPostList : public virtual LeafPostList {
     friend class InMemoryDatabase;
     private:
 	vector<InMemoryPosting>::const_iterator pos;
@@ -144,7 +144,7 @@ class InMemoryPostList : public virtual DBPostList {
 
 
 // Term List
-class InMemoryTermList : public virtual DBTermList {
+class InMemoryTermList : public virtual LeafTermList {
     friend class InMemoryDatabase;
     private:
 	vector<InMemoryPosting>::const_iterator pos;
@@ -203,8 +203,8 @@ class InMemoryDatabase : public virtual IRDatabase {
 	om_doccount get_termfreq(const om_termname & tname) const;
 	bool term_exists(const om_termname & tname) const;
 
-	DBPostList * open_post_list(const om_termname & tname, RSet * rset) const;
-	DBTermList * open_term_list(om_docid did) const;
+	LeafPostList * open_post_list(const om_termname & tname, RSet * rset) const;
+	LeafTermList * open_term_list(om_docid did) const;
 	OmDocument * open_document(om_docid did) const;
 
 	void make_term(const om_termname & tname);

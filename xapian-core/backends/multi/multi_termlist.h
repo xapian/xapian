@@ -31,7 +31,7 @@
 #include <vector>
 #include <list>
 
-class MultiTermList : public virtual DBTermList {
+class MultiTermList : public virtual LeafTermList {
     friend class MultiDatabase;
     private:
 	TermList *tl;
@@ -85,7 +85,7 @@ inline void
 MultiTermList::set_weighting(const OmExpandWeight * wt_new)
 {
     // Note: wt in the MultiTermList base class isn't ever set or used
-    DBTermList * dbtl = dynamic_cast<DBTermList *> (tl);
+    LeafTermList * dbtl = dynamic_cast<LeafTermList *> (tl);
     Assert(dbtl != NULL);
     dbtl->set_weighting(wt_new);
     return;

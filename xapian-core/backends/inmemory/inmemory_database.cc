@@ -92,7 +92,7 @@ InMemoryDatabase::open(const DatabaseBuilderParams & params)
     Assert((opened = true) == true);
 }
 
-DBPostList *
+LeafPostList *
 InMemoryDatabase::open_post_list(const om_termname & tname, RSet * rset) const
 {
     Assert(opened);
@@ -104,7 +104,7 @@ InMemoryDatabase::open_post_list(const om_termname & tname, RSet * rset) const
     return new InMemoryPostList(this, i->second);
 }
 
-DBTermList *
+LeafTermList *
 InMemoryDatabase::open_term_list(om_docid did) const
 {
     Assert(opened);

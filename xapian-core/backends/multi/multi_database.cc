@@ -87,7 +87,7 @@ MultiDatabase::open(const DatabaseBuilderParams & params) {
     opened = true;
 }
 
-DBPostList *
+LeafPostList *
 MultiDatabase::open_post_list(const om_termname & tname, RSet * rset) const
 {
     Assert(opened);
@@ -110,11 +110,11 @@ MultiDatabase::open_post_list(const om_termname & tname, RSet * rset) const
     }
     Assert(pls.begin() != pls.end());
     
-    DBPostList * newpl = new MultiPostList(pls);
+    LeafPostList * newpl = new MultiPostList(pls);
     return newpl;
 }
 
-DBTermList *
+LeafTermList *
 MultiDatabase::open_term_list(om_docid did) const {
     Assert(opened);
     Assert((used = true) == true);

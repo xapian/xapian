@@ -40,8 +40,8 @@ class MultiDatabase : public virtual IRDatabase {
 	mutable bool length_initialised;
 	mutable om_doclength avlength;
 
-	bool opened; // Whether we have opened the database (ie, added a subDB)
-	mutable bool used;// Have we used the database (if so, can't add more DBs)
+	bool opened; // Whether we have opened the database (ie, added a sub database)
+	mutable bool used;// Have we used the database (if so, can't add more  databases)
 
 	MultiDatabase();
 	void open(const DatabaseBuilderParams & params);
@@ -57,8 +57,8 @@ class MultiDatabase : public virtual IRDatabase {
 	om_doccount get_termfreq(const om_termname & tname) const;
 	bool term_exists(const om_termname & tname) const;
 
-	DBPostList * open_post_list(const om_termname & tname, RSet * rset) const;
-	DBTermList * open_term_list(om_docid did) const;
+	LeafPostList * open_post_list(const om_termname & tname, RSet * rset) const;
+	LeafTermList * open_term_list(om_docid did) const;
 	OmDocument * open_document(om_docid did) const;
 
 	void make_term(const om_termname &) {
