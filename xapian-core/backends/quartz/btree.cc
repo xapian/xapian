@@ -665,9 +665,9 @@ static void form_null_key(byte * b, uint4 n)
  *  and construct a new one.
  */
 void
-Btree::split_root()
+Btree::split_root(uint4 split_n)
 {
-    DEBUGCALL(DB, void, "Btree::split_root", "");
+    DEBUGCALL(DB, void, "Btree::split_root", split_n);
     /* gain a level */
     ++level;
 
@@ -680,10 +680,6 @@ Btree::split_root()
 	throw std::bad_alloc();
     }
     C[level].p = q;
-    C_split[level].p = zeroed_new(block_size);
-    if (C_split[level].p == 0) {
-	throw std::bad_alloc();
-    }
     C[level].c = DIR_START;
     C[level].n = base.next_free_block();
     C[level].rewrite = true;
@@ -693,9 +689,8 @@ Btree::split_root()
     compress(q);   /* to reset TOTAL_FREE, MAX_FREE */
 
     /* form a null key in b with a pointer to the old root */
-    uint4 old_root = C_split[level - 1].n;
     byte b[10]; /* 7 is exact */
-    form_null_key(b, old_root);
+    form_null_key(b, split_n);
     add_item(b, level);
 }
 
@@ -761,10 +756,6 @@ Btree::enter_key(int j, byte * prevkey, byte * newkey)
     Assert(writable);
     Assert(compare_keys(prevkey, newkey) < 0);
     Assert(j >= 1);
-    if (j > level) {
-	Assert(j == level + 1);
-	split_root();
-    }
 
     uint4 blocknumber = C[j - 1].n;
 
@@ -875,11 +866,10 @@ Btree::add_item(byte * kt_, int j)
     int needed = kt_len + D2;
     if (TOTAL_FREE(p) < needed) {
 	int m;
-	byte * q = C_split[j].p;
-
 	// Prepare to split p. After splitting, the block is in two halves, the
-	// lower half is q, the upper half p again. add_to_upper_half becomes
-	// true when the item gets added to p, false when it gets added to q.
+	// lower half is split_p, the upper half p again. add_to_upper_half
+	// becomes true when the item gets added to p, false when it gets added
+	// to split_p.
 
 	if (seq_count < 0) {
 	    // If we're not in sequential mode, we split at the mid point
@@ -890,12 +880,12 @@ Btree::add_item(byte * kt_, int j)
 	    m = c;
 	}
 
-	C_split[j].n = C[j].n;
+	uint4 split_n = C[j].n;
 	C[j].n = base.next_free_block();
 
-	memcpy(q, p, block_size);  /* replicate the whole block in q */
-	SET_DIR_END(q, m);
-	compress(q);      /* to reset TOTAL_FREE, MAX_FREE */
+	memcpy(split_p, p, block_size);  // replicate the whole block in split_p
+	SET_DIR_END(split_p, m);
+	compress(split_p);      /* to reset TOTAL_FREE, MAX_FREE */
 
 	{
 	    int residue = DIR_END(p) - m;
@@ -910,8 +900,9 @@ Btree::add_item(byte * kt_, int j)
 	if (seq_count < 0) {
 	    add_to_upper_half = (c >= m);
 	} else {
-	    // And add item to lower half if q has room, otherwise upper half
-	    add_to_upper_half = (TOTAL_FREE(q) < needed);
+	    // And add item to lower half if split_p has room, otherwise upper
+	    // half
+	    add_to_upper_half = (TOTAL_FREE(split_p) < needed);
 	}
 
 	if (add_to_upper_half) {
@@ -923,14 +914,17 @@ Btree::add_item(byte * kt_, int j)
 	    n = C[j].n;
 	} else {
 	    Assert(c >= DIR_START);
-	    Assert(c <= DIR_END(q));
-	    add_item_to_block(q, kt_, c);
-	    n = C_split[j].n;
+	    Assert(c <= DIR_END(split_p));
+	    add_item_to_block(split_p, kt_, c);
+	    n = split_n;
 	}
-	write_block(C_split[j].n, q);
+	write_block(split_n, split_p);
+
+	// Check if we're splitting the root block.
+	if (j == level) split_root(split_n);
 
 	enter_key(j + 1,                /* enters a separating key at level j + 1 */
-		  key_of(q, DIR_END(q) - D2), /* - between the last key of block q, */
+		  key_of(split_p, DIR_END(split_p) - D2), /* - between the last key of block split_p, */
 		  key_of(p, DIR_START));      /* - and the first key of block p */
     } else {
 	add_item_to_block(p, kt_, c);
@@ -983,9 +977,6 @@ Btree::delete_item(int j, bool repeatedly)
 	    base.free_block(C[j].n);
 	    C[j].rewrite = false;
 	    C[j].n = BLK_UNUSED;
-	    delete [] C_split[j].p;
-	    C_split[j].p = 0;
-	    C_split[j].n = BLK_UNUSED;
 	    level--;
 
 	    block_to_cursor(C, level, new_root);
@@ -1497,15 +1488,14 @@ Btree::do_open_to_write(const string & name_,
 
     for (int j = 0; j <= level; j++) {
 	C[j].n = BLK_UNUSED;
-	C_split[j].n = BLK_UNUSED;
 	C[j].p = new byte[block_size];
 	if (C[j].p == 0) {
 	    throw std::bad_alloc();
 	}
-	C_split[j].p = new byte[block_size];
-	if (C_split[j].p == 0) {
-	    throw std::bad_alloc();
-	}
+    }
+    split_p = new byte[block_size];
+    if (split_p == 0) {
+	throw std::bad_alloc();
     }
     read_root();
 
@@ -1563,7 +1553,8 @@ Btree::Btree()
 	  Btree_modified(false),
 	  full_compaction(false),
 	  writable(false),
-	  dont_close_handle(false)
+	  dont_close_handle(false),
+	  split_p(0)
 {
     DEBUGCALL(DB, void, "Btree::Btree", "");
 }
@@ -1639,8 +1630,8 @@ Btree::~Btree() {
 
     for (int j = level; j >= 0; j--) {
 	delete [] C[j].p;
-	delete [] C_split[j].p;
     }
+    delete [] split_p;
 
     delete [] kt;
     delete [] buffer;
@@ -1698,7 +1689,6 @@ Btree::commit(uint4 revision)
 
     for (int i = 0; i < BTREE_CURSOR_LEVELS; ++i) {
 	C[i].n = BLK_UNUSED;
-	C_split[i].n = BLK_UNUSED;
 	C[i].c = -1;
 	C[i].rewrite = false;
     }

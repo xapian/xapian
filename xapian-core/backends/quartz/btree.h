@@ -150,7 +150,7 @@ class Btree {
 	void delete_item(int j, bool repeatedly);
 	int add_kt(bool found);
 	void read_root();
-	void split_root();
+	void split_root(uint4 split_n);
 	void make_index_item(byte * result, unsigned int result_len,
 			     const byte * prevkey, const byte * newkey,
 			     const uint4 blocknumber, bool truncate) const;
@@ -254,7 +254,13 @@ class Btree {
 	static uint4 block_given_by(const byte * p, int c);
 
 	Cursor C[BTREE_CURSOR_LEVELS];
-	Cursor C_split[BTREE_CURSOR_LEVELS]; // Only used when updating.
+
+	/** Buffer used when splitting a block.
+	 *
+	 *  This buffer holds the split off part of the block.  It's only used
+	 *  when updating.
+	 */
+	byte * split_p;
 
 	/* Debugging methods */
 //	void report_block_full(int m, int n, const byte * p);
