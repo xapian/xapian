@@ -1,3 +1,11 @@
+Tue Jan 23 16:24:04 GMT 2001 Olly Betts
+
+	* No longer compile with -ansi under gcc - it causes problems by
+	  preventing Linux system headers defining various functions we need.
+
+	* testsuite/testsuite.cc: when reporting exceptions, display
+	  exception's errno value if set.
+
 Tue Jan 23 15:13:58 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Killed OmIndexerBuilder::NodeType.  Now use OmNodeDescriptor

@@ -20,12 +20,6 @@
  * -----END-LICENCE-----
  */
 
-// need _GNU_SOURCE to avoid brokenness due to defining _POSIX_SOURCE
-// FIXME: remove -ansi?
-#define _GNU_SOURCE 1
-// need _POSIX_SOURCE to get kill() on Linux
-#define _POSIX_SOURCE 1
-
 #include "progclient.h"
 #include "tcpclient.h"
 #include "testsuite.h"

@@ -21,11 +21,6 @@
  */
 
 #include "config.h"
-// need _GNU_SOURCE to stop _POSIX_SOURCE making things go weird.
-// FIXME: remove -ansi?
-#define _GNU_SOURCE 1
-// need _POSIX_SOURCE to get kill() on Linux
-#define _POSIX_SOURCE 1
 #include "tcpserver.h"
 #include "stats.h"
 #include "netutils.h"

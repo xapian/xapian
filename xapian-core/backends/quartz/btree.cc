@@ -22,11 +22,6 @@
 
 #include "config.h"
 
-/** The next 4 lines are needed to make fdatasync appear.
- */
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif /* _GNU_SOURCE */
 #include <unistd.h>
 
 #include <sys/types.h>
@@ -225,9 +220,6 @@ int sys_write_bytes(int h, int n, const byte * p)
 
 int sys_flush(int h) {
 #ifdef HAVE_FDATASYNC
-#ifndef _POSIX_SYNCHRONIZED_IO
-#define _POSIX_SYNCHRONIZED_IO
-#endif // _POSIX_SYNCHRONIZED_IO
     fdatasync(h);
 #else // HAVE_FDATASYNC
 #ifdef HAVE_FSYNC
