@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,7 +57,7 @@ int main(int argc, char *argv[])
 	indexer.set_input(filename);
 	OmDocument newdocument = indexer.get_output();
 
-	std::cout << "Document data: " << newdocument.get_data().value << std::endl;
+	std::cout << "Document data: " << newdocument.get_data() << std::endl;
 	std::cout << "Document keys: " << std::endl;
 	for (OmKeyListIterator i = newdocument.keylist_begin();
 	     i != newdocument.keylist_end();

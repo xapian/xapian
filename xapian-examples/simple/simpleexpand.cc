@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -88,7 +89,7 @@ int main(int argc, char *argv[])
 		 i++) {
 		std::cout << "Document ID " << *i << "\t" <<
 			i.get_percent() << "% [" <<
-			i.get_document().get_data().value << "]" << std::endl;
+			i.get_document().get_data() << "]" << std::endl;
 	    }
 	}
 

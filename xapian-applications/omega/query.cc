@@ -1340,7 +1340,7 @@ eval(const string &fmt, const vector<string> &param)
 		if (omdb) {
 		    int id = q0;
 		    if (!args.empty()) id = string_to_int(args[0]);
-		    value = omdb->get_document(id).get_data().value;
+		    value = omdb->get_document(id).get_data();
 		}
 		break;
 	    case CMD_relevant: {
@@ -1538,8 +1538,7 @@ print_caption(om_docid m, const string &fmt, const vector<string> &param)
     percent = mset.convert_to_percent(mset[m]);
 
     OmDocument doc = omdb->get_document(q0);
-    OmData data = doc.get_data();
-    string text = data.value;
+    string text = doc.get_data();
 
     // parse record
     field.clear();
