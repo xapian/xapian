@@ -196,3 +196,7 @@ sample=<sample>
 caption=<title>
 type=<mimetype>
 ----------------------------------------------------------------------
+
+Further fields may be added (although omindex doesn't currently do any
+others), and may be looked up from OmegaScript using the $field{}
+command.
