@@ -152,7 +152,9 @@ SleepyDatabase::open_term_list(om_docid did) const
 LeafDocument *
 SleepyDatabase::open_document(om_docid did) const
 {
-    return new SleepyDocument(internals->document_db, did);
+    return new SleepyDocument(internals->document_db,
+			      internals->key_db,
+			      did);
 }
 
 
@@ -162,7 +164,7 @@ SleepyDatabase::add_document(const struct OmDocumentContents & document)
     // FIXME - this method needs to be atomic
     
     // Make a new document to store the data, and use the document id returned
-    om_docid did = make_new_document(document.data);
+    om_docid did = make_new_document(document);
 
     om_doclength doclength = 0;
 
@@ -230,11 +232,11 @@ SleepyDatabase::add_entry_to_postlist(om_termid tid,
 }
 
 om_docid
-SleepyDatabase::make_new_document(const OmData & docdata) 
+SleepyDatabase::make_new_document(const OmDocumentContents & doccontents) 
 {
-    map<om_keyno, OmKey> omkeys;
-
-    SleepyDocument document(internals->document_db, docdata, omkeys);
+    SleepyDocument document(internals->document_db,
+			    internals->key_db,
+			    doccontents);
     return document.get_docid();
 }
 

@@ -23,20 +23,24 @@
 #include "sleepy_document.h"
 #include <om/omdocument.h>
 
-SleepyDocument::SleepyDocument(Db * db_, om_docid did_)
-	: db(db_),
+SleepyDocument::SleepyDocument(Db * document_db_,
+			       Db * key_db_,
+			       om_docid did_)
+	: document_db(document_db_),
+	  key_db(key_db_),
 	  did(did_),
 	  have_data(false)
 {
 }
 
-SleepyDocument::SleepyDocument(Db * db_,
-			       const OmData & data_,
-			       const map<om_keyno, OmKey> & keys_ )
-	: db(db_),
-	  data(data_),
+SleepyDocument::SleepyDocument(Db * document_db_,
+			       Db * key_db_,
+			       const OmDocumentContents & document_)
+	: document_db(document_db_),
+	  key_db(key_db_),
+	  data(document_.data),
 	  have_data(true),
-	  keys(keys_)
+	  keys(document_.keys)
 {
     try {
 	int err_num;
@@ -48,10 +52,10 @@ SleepyDocument::SleepyDocument(Db * db_,
 	dbdata.set_flags(DB_DBT_USERMEM);
 
 	// Append to document database - stores new document id in dbkey.
-	err_num = db->put(NULL, &dbkey, &dbdata, DB_APPEND);
+	err_num = document_db->put(NULL, &dbkey, &dbdata, DB_APPEND);
 	Assert(err_num == 0); // Any errors should cause an exception.
 
-	// FIXME: store keys
+	// Store keys
     } catch (DbException e) {
 	throw OmDatabaseError("DocumentDb Error: " + string(e.what()));
     }
@@ -88,7 +92,7 @@ SleepyDocument::do_get_data() const
 	    Dbt dbdata;
 	    dbdata.set_flags(DB_DBT_MALLOC);
 
-	    err_num = db->get(NULL, &dbkey, &dbdata, 0);
+	    err_num = document_db->get(NULL, &dbkey, &dbdata, 0);
 	    if(err_num == DB_NOTFOUND) throw OmRangeError("Document not found");
 
 	    data.value = string((char *)dbdata.get_data(), dbdata.get_size());

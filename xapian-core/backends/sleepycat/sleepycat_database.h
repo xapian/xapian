@@ -80,11 +80,11 @@ class SleepyDatabase : public IRDatabase {
 
 	/** Make a new document, and return the new document ID.
 	 *
-	 *  @param data The data to store in the document.
+	 *  @param document The document to store in the database.
 	 *
 	 *  @return The newly allocated document ID.
 	 */
-	om_docid make_new_document(const OmData & data);
+	om_docid make_new_document(const struct OmDocumentContents & document);
 
 	/** Make a new termlist.
 	 *

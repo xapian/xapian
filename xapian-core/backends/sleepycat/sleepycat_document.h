@@ -27,15 +27,20 @@
 #include <db_cxx.h>
 #include <map>
 #include <om/omdocument.h>
+#include <om/omindexdoc.h>
 
 /** A document in a sleepycat Database.
  */
 class SleepyDocument : public LeafDocument {
     friend class SleepyDatabase;
     private:
-	/** The database which the document is held in.
+	/** The database in which the document data is held.
 	 */
-	Db *db;
+	Db *document_db;
+
+	/** The database in which the document keys are held.
+	 */
+	Db *key_db;
 
 	/** The document ID of the document.
 	 */
@@ -61,29 +66,33 @@ class SleepyDocument : public LeafDocument {
 
 	/** Constructor: called by SleepyDatabase to read a document
 	 *
-	 *  @param db_ The database to look for the document in.
-	 *  @param did_ The document ID to look for.
+	 *  @param document_db_  The database to find the document data in.
+	 *  @param key_db_       The database to find the document keys in.
+	 *  @param did_          The document ID to look for.
 	 *
 	 *  @exception OmDatabaseError is thrown if the document can't be
 	 *             accessed.
 	 */
-	SleepyDocument(Db * db_, om_docid did_);
+	SleepyDocument(Db * document_db_,
+		       Db * key_db_,
+		       om_docid did_);
 
 	/** Constructor: called by SleepyDatabase to create a new document
 	 *
-	 *  @param db_   The database to store the document in.
-	 *  @param data_ The data to store in the document.
-	 *  @param keys_ The keys to store in the document.
+	 *  @param document_db_  The database to store the document data in.
+	 *  @param key_db_       The database to store the document keys in.
+	 *  @param document_     The document to store in the database.
 	 *
 	 *  @exception OmDatabaseError is thrown if the document can't be
 	 *             accessed.
 	 */
-	SleepyDocument(Db * db_,
-		       const OmData & data_,
-		       const map<om_keyno, OmKey> & keys_ );
+	SleepyDocument(Db * document_db_,
+		       Db * key_db_,
+		       const OmDocumentContents & document_);
 
 	/// Copying is not permitted
 	SleepyDocument(const SleepyDocument &);
+
 	/// Assignment is not permitted
 	SleepyDocument & operator = (const SleepyDocument &);
     public:

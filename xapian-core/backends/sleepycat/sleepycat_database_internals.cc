@@ -40,6 +40,7 @@
 #define FILENAME_TERMTOID "termid.db"
 #define FILENAME_IDTOTERM "termname.db"
 #define FILENAME_DOCUMENT "document.db"
+#define FILENAME_DOCKEYDB "dockey.db"
 #define FILENAME_STATS_DB "stats.db"
 
 enum {
@@ -54,6 +55,7 @@ SleepyDatabaseInternals::SleepyDatabaseInternals()
 	  termid_db(0),
 	  termname_db(0),
 	  document_db(0),
+	  key_db(0),
 	  stats_db(0)
 {
 }
@@ -98,6 +100,9 @@ SleepyDatabaseInternals::open(const string &pathname, bool readonly)
 	Db::open(FILENAME_DOCUMENT, DB_RECNO, dbflags, mode,
 		 &dbenv, 0, &document_db);
 
+	Db::open(FILENAME_DOCKEYDB, DB_HASH, dbflags, mode,
+		 &dbenv, 0, &key_db);
+
 	Db::open(FILENAME_STATS_DB, DB_RECNO, dbflags, mode,
 		 &dbenv, 0, &stats_db);
     }
@@ -120,6 +125,8 @@ SleepyDatabaseInternals::close()
 	termname_db = 0;
 	if(document_db) document_db->close(0);
 	document_db = 0;
+	if(key_db) key_db->close(0);
+	key_db = 0;
 	if(stats_db) stats_db->close(0);
 	stats_db = 0;
 

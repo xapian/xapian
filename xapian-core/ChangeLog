@@ -1,3 +1,9 @@
+Tue Jun  6 11:59:39 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added a database to store keys in to sleepycat, and pass those keys
+	  into document creation methods.  Now just need to write code to
+	  read and write the keys.
+
 Mon Jun  5 19:12:13 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix internaltest again (due to further change in sleepylists) and
