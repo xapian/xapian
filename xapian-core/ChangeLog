@@ -1,3 +1,7 @@
+Fri Mar 04 21:06:38 GMT 2005  Olly Betts <olly@survex.com>
+
+	* tests/testdata/etext.txt: Stripped carriage returns.
+
 Fri Mar 04 21:04:25 GMT 2005  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Assorted updates.
