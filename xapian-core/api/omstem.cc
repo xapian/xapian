@@ -30,57 +30,105 @@
 #include "om/omstem.h"
 #include "utils.h"
 
-#include "danish/stem_danish.h"
-#include "dutch/stem_dutch.h"
-#include "english/stem_english.h"
-#include "french/stem_french.h"
-#include "german/stem_german.h"
-#include "italian/stem_italian.h"
-#include "norwegian/stem_norwegian.h"
-#include "portuguese/stem_portuguese.h"
-#include "spanish/stem_spanish.h"
-#include "swedish/stem_swedish.h"
-#include "porter/stem_porter.h"
+#include "api.h"
+#include "snowball_danish.h"
+#include "snowball_dutch.h"
+#include "snowball_english.h"
+#include "snowball_french.h"
+#include "snowball_finnish.h"
+#include "snowball_german.h"
+#include "snowball_italian.h"
+#include "snowball_norwegian.h"
+#include "snowball_portuguese.h"
+#include "snowball_russian.h"
+#include "snowball_spanish.h"
+#include "snowball_swedish.h"
+#include "snowball_lovins.h"
+#include "snowball_porter.h"
 
 using std::string;
 
 ////////////////////////////////////////////////////////////
 
 /** The available languages for the stemming algorithms to use.
- *  If you change this, change language_names[] and language_strings[] also.
+ *  If you change this, change stemmers[], language_names[],
+ *  and language_strings[] also.
  */
 enum stemmer_language {
     STEMLANG_NULL,
     STEMLANG_DANISH,
     STEMLANG_DUTCH,
     STEMLANG_ENGLISH,
+    STEMLANG_FINNISH,
     STEMLANG_FRENCH,
     STEMLANG_GERMAN,
     STEMLANG_ITALIAN,
     STEMLANG_NORWEGIAN,
     STEMLANG_PORTUGUESE,
+    STEMLANG_RUSSIAN,
     STEMLANG_SPANISH,
     STEMLANG_SWEDISH,
+    STEMLANG_LOVINS,
     STEMLANG_PORTER
+};
+
+struct stemmer_obj {
+    /// Function pointer to initialise stemmer
+    struct SN_env * (* setup)();
+    
+    /// Function pointer to stem a word.
+    int (* stem)(struct SN_env *);
+
+    /// Function pointer to close down the stemmer.
+    void (* closedown)(struct SN_env *);
+};
+
+#define P(L) snowball_##L
+#define E(L) { P(L##_create_env), P(L##_stem), P(L##_close_env) }
+
+/** Structs of function pointers.
+ *  This list must be in the same order as enum stemmer_language.
+ *  If you change this, change language_names[], language_strings[], and
+ *  enum stemmer_language also.
+ */
+struct stemmer_obj stemmers[] = {
+	{ 0, 0, 0 },
+	E(danish),
+	E(dutch),
+	E(english),
+	E(french),
+	E(finnish),
+	E(german),
+	E(italian),
+	E(norwegian),
+	E(portuguese),
+	E(russian),
+	E(spanish),
+	E(swedish),
+	E(lovins),
+	E(porter),
 };
 
 /** The names of the languages.
  *  This list must be in the same order as enum stemmer_language.
- *  If you change this, change language_strings[] and enum stemmer_language
- *  also.
+ *  If you change this, change stemmers[], language_strings[], and
+ *  enum stemmer_language also.
  */
 static const char * language_names[] = {
     "",
     "danish",
     "dutch",
     "english",
+    "finnish",
     "french",
     "german",
     "italian",
     "norwegian",
     "portuguese",
+    "russian",
     "spanish",
     "swedish",
+    "english_lovins",
     "english_porter"
 };
 
@@ -96,19 +144,25 @@ static const StringAndValue language_strings[] = {
     {"dutch",		STEMLANG_DUTCH},
     {"en",		STEMLANG_ENGLISH},
     {"english",		STEMLANG_ENGLISH},
+    {"english_lovins",	STEMLANG_LOVINS},
     {"english_porter",	STEMLANG_PORTER},
     {"es",		STEMLANG_SPANISH},
+    {"fi",		STEMLANG_FINNISH},
+    {"finnish",		STEMLANG_FINNISH},
     {"fr",		STEMLANG_FRENCH},
     {"french",		STEMLANG_FRENCH},
     {"german",		STEMLANG_GERMAN},
     {"it",		STEMLANG_ITALIAN},
     {"italian",		STEMLANG_ITALIAN},
+    {"lovins",		STEMLANG_LOVINS},
     {"nl",		STEMLANG_DUTCH},
     {"no",		STEMLANG_NORWEGIAN},
     {"norwegian",	STEMLANG_NORWEGIAN},
     {"porter",		STEMLANG_PORTER},
     {"portuguese",	STEMLANG_PORTUGUESE},
     {"pt",		STEMLANG_PORTUGUESE},
+    {"ru",		STEMLANG_RUSSIAN},
+    {"russian",		STEMLANG_RUSSIAN},
     {"spanish",		STEMLANG_SPANISH},
     {"sv",		STEMLANG_SWEDISH},
     {"swedish",		STEMLANG_SWEDISH},
@@ -118,8 +172,6 @@ static const StringAndValue language_strings[] = {
 
 ////////////////////////////////////////////////////////////
 // OmStem::Internal class
-// ====================
-// Implementation of the OmStem interface
 
 class OmStem::Internal {
     public:
@@ -144,25 +196,13 @@ class OmStem::Internal {
 	string stem_word(const string &word) const;
     private:
 
-	/** Function pointer to setup the stemmer.
-	 */
-        void * (* stemmer_setup)();
-
-	/** Function pointer to stem a word.
-	 */
-	const char * (* stemmer_stem)(void *, const char *, int, int);
-
-	/** Function pointer to close down the stemmer.
-	 */
-	void (* stemmer_closedown)(void *);
-
 	/** Data used by the stemming algorithm.
 	 */
-	void * stemmer_data;
+	struct SN_env * stemmer_data;
 
-	/** Return a Stemmer object pointer given a language type.
+	/** Set the stemming language.
 	 */
-	void set_language(stemmer_language langcode);
+	void set_language(stemmer_language langcode_);
 
 	/** Return a stemmer_language enum value from a language
 	 *  string.
@@ -173,98 +213,38 @@ class OmStem::Internal {
 OmStem::Internal::Internal(const string &language)
 	: stemmer_data(0)
 {
-    langcode = get_stemtype(language);
-    if (langcode == STEMLANG_NULL) {
+    stemmer_language langcode_ = get_stemtype(language);
+    if (langcode_ == STEMLANG_NULL) {
         // FIXME: use a separate InvalidLanguage exception?
         throw OmInvalidArgumentError("Unknown language `" +
 				     language + "' specified");
     }
-    set_language(langcode);
+    set_language(langcode_);
 }
 
 OmStem::Internal::Internal(enum stemmer_language langcode_)
-	: langcode(langcode_), stemmer_data(0)
+	: stemmer_data(0)
 {
-    Assert(langcode != STEMLANG_NULL);
-    set_language(langcode);
+    Assert(langcode_ != STEMLANG_NULL);
+    set_language(langcode_);
 }
 
 OmStem::Internal::~Internal()
 {
     if (stemmer_data != 0) {
-	stemmer_closedown(stemmer_data);
+	stemmers[langcode].closedown(stemmer_data);
     }
 }
 
 void
 OmStem::Internal::set_language(stemmer_language langcode_)
 {
+    Assert(langcode_ != STEMMER_NULL); 
     if (stemmer_data != 0) {
-	stemmer_closedown(stemmer_data);
+	stemmers[langcode].closedown(stemmer_data);
     }
-    stemmer_setup = 0;
-    switch(langcode_) {
-	case STEMLANG_DANISH:
-	    stemmer_setup = setup_danish_stemmer;
-	    stemmer_stem = danish_stem;
-	    stemmer_closedown = closedown_danish_stemmer;
-	    break;
-	case STEMLANG_DUTCH:
-	    stemmer_setup = setup_dutch_stemmer;
-	    stemmer_stem = dutch_stem;
-	    stemmer_closedown = closedown_dutch_stemmer;
-	    break;
-	case STEMLANG_ENGLISH:
-	    stemmer_setup = setup_english_stemmer;
-	    stemmer_stem = english_stem;
-	    stemmer_closedown = closedown_english_stemmer;
-	    break;
-	case STEMLANG_FRENCH:
-	    stemmer_setup = setup_french_stemmer;
-	    stemmer_stem = french_stem;
-	    stemmer_closedown = closedown_french_stemmer;
-	    break;
-	case STEMLANG_GERMAN:
-	    stemmer_setup = setup_german_stemmer;
-	    stemmer_stem = german_stem;
-	    stemmer_closedown = closedown_german_stemmer;
-	    break;
-	case STEMLANG_ITALIAN:
-	    stemmer_setup = setup_italian_stemmer;
-	    stemmer_stem = italian_stem;
-	    stemmer_closedown = closedown_italian_stemmer;
-	    break;
-	case STEMLANG_NORWEGIAN:
-	    stemmer_setup = setup_norwegian_stemmer;
-	    stemmer_stem = norwegian_stem;
-	    stemmer_closedown = closedown_norwegian_stemmer;
-	    break;
-	case STEMLANG_PORTUGUESE:
-	    stemmer_setup = setup_portuguese_stemmer;
-	    stemmer_stem = portuguese_stem;
-	    stemmer_closedown = closedown_portuguese_stemmer;
-	    break;
-	case STEMLANG_SPANISH:
-	    stemmer_setup = setup_spanish_stemmer;
-	    stemmer_stem = spanish_stem;
-	    stemmer_closedown = closedown_spanish_stemmer;
-	    break;
-	case STEMLANG_SWEDISH:
-	    stemmer_setup = setup_swedish_stemmer;
-	    stemmer_stem = swedish_stem;
-	    stemmer_closedown = closedown_swedish_stemmer;
-	    break;
-	case STEMLANG_PORTER:
-	    stemmer_setup = setup_porter_stemmer;
-	    stemmer_stem = porter_stem;
-	    stemmer_closedown = closedown_porter_stemmer;
-	    break;
-	default:
-	    break;
-    }
-    // STEMLANG_NULL shouldn't be passed in here.
-    Assert(stemmer_setup != 0);
-    stemmer_data = stemmer_setup();
+    langcode = langcode_;
+    stemmer_data = stemmers[langcode].setup();
 }
 
 stemmer_language
@@ -279,7 +259,11 @@ OmStem::Internal::stem_word(const string &word) const
 {
     int len = word.length();
     if (len == 0) return "";
-    return string(stemmer_stem(stemmer_data, word.data(), 0, len - 1));
+    SN_set_current(stemmer_data, len,
+		   (const unsigned char *)(word.data()));
+    // FIXME should we look at the return value of the stem function?
+    stemmers[langcode].stem(stemmer_data);
+    return string((const char *)(stemmer_data->p), stemmer_data->l);
 }
 
 ///////////////////////
@@ -323,8 +307,7 @@ OmStem::stem_word(const string &word) const
 string
 OmStem::get_available_languages()
 {
-    DEBUGAPICALL_STATIC(string,
-			"OmStem::get_available_languages", "");
+    DEBUGAPICALL_STATIC(string, "OmStem::get_available_languages", "");
     string languages;
 
     const char ** pos;

@@ -210,12 +210,6 @@ Allow negative relevance judgements?  Will need to check that this doesn't
 cause assumptions to be violated. (eg, unsigned integers going negative.)
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="Olly" area="Stemming" release="0.6">
-
-Replace our own stemming code with Martin Porter's snowball stemmers (with a
-thin OmStem wrapper).
-
-</todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Databases" release="0.6">
 
 Change all internal references to net/network backend to remote backend (in

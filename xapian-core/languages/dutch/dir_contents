@@ -1,6 +1,0 @@
-<Directory>languages/dutch</Directory>
-
-<Description>
-Code for processing dutch, such as a stemming algorithm for normalising
-dutch words.
-</Description>

@@ -1,6 +1,0 @@
-<Directory>languages/norwegian</Directory>
-
-<Description>
-Code for processing norwegian, such as a stemming algorithm for normalising
-norwegian words.
-</Description>

@@ -2,34 +2,15 @@
 
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
-noinst_HEADERS = pool.h
+noinst_HEADERS = api.h header.h snowball_danish.h snowball_dutch.h\
+ snowball_english.h snowball_finnish.h snowball_french.h snowball_german.h\
+ snowball_italian.h snowball_lovins.h snowball_norwegian.h snowball_porter.h\
+ snowball_portuguese.h snowball_russian.h snowball_spanish.h snowball_swedish.h
 
 noinst_LTLIBRARIES = liblanguages.la
 
-liblanguages_la_SOURCES = pool.c
-
-SUBDIRS = danish \
-          dutch \
-	  english \
-	  french \
-	  german \
-	  italian \
-	  norwegian \
-          portuguese \
-	  spanish \
-	  swedish \
-	  porter \
-	  .
-
-liblanguages_la_LIBADD = \
-danish/libdanish.la \
-dutch/libdutch.la \
-english/libenglish.la \
-french/libfrench.la \
-german/libgerman.la \
-italian/libitalian.la \
-norwegian/libnorwegian.la \
-portuguese/libportuguese.la \
-spanish/libspanish.la \
-swedish/libswedish.la \
-porter/libporter.la
+liblanguages_la_SOURCES = api.c snowball_danish.c snowball_dutch.c\
+ snowball_english.c snowball_finnish.c snowball_french.c snowball_german.c\
+ snowball_italian.c snowball_lovins.c snowball_norwegian.c snowball_porter.c\
+ snowball_portuguese.c snowball_russian.c snowball_spanish.c snowball_swedish.c\
+ utilities.c 

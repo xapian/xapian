@@ -1,3 +1,10 @@
+Sat Oct 12 22:34:01 BST 2002  Olly Betts <olly@survex.com>
+
+	* api/omstem.cc,docs/stemming.html,docs/todo.xml,languages/: Replaced
+	  our stemmers with those from Snowball.  Note that these give better
+	  results, but this also means that existing databases won't work
+	  quite correctly if they contain stemmed terms.
+
 Sat Oct 12 17:17:26 BST 2002  Olly Betts <olly@survex.com>
 
 	* configure.in,NEWS: Version 0.5.3.
