@@ -1,0 +1,90 @@
+Tue Mar 23 18:38:51 GMT 2004  Olly Betts <olly@survex.com>
+
+	* ChangeLog: Created from CVS checkin comments.
+
+Tue Mar 23 15:18:00 GMT 2004  Olly Betts <olly@survex.com>
+
+	* .cvsignore,db/.cvsignore,map/,perl/.cvsignore: Updated.
+
+Tue Mar 23 14:04:24 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.in,map/alignment/Makefile.am: Fixed warnings from
+	  autotools.
+
+Mon Jul 21 01:23:00 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Use libtool; OM_PATH_XAPIAN -> XO_LIB_XAPIAN.
+
+Tue Jul 15 00:30:51 BST 2003  Olly Betts <olly@survex.com>
+
+	* .cvsignore,db/.cvsignore,map/.cvsignore,map/aligned_diff/.cvsignore,
+	  map/alignment/.cvsignore,map/cvs_parser/.cvsignore,
+	  map/diff/.cvsignore,map/html_writer/.cvsignore,
+	  map/include/.cvsignore,map/map_algorithm/.cvsignore,
+	  map/process/.cvsignore,map/range/.cvsignore,map/xmlxx/.cvsignore,
+	  perl/.cvsignore: Added .cvsignore files.
+
+Tue Jul 15 00:27:18 BST 2003  Olly Betts <olly@survex.com>
+
+	* The sourceforge CVS server is increasingly unusable, so I've
+	  imported cvssearch into the Xapian CVS tree under
+	  xapian-applications.
+
+Wed Jun 11 14:19:00 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in,db/Makefile.am: Use OM_PATH_XAPIAN to find Xapian
+	  installation.
+
+Tue Jun 03 12:00:00 BST 2003  Olly Betts <olly@survex.com>
+
+	* README: Fixed sleepycat download URL and a few typos.
+
+Tue Jun 03 02:01:00 BST 2003  Olly Betts <olly@survex.com>
+
+	* amir/indexer.C,db/: Create Xapian databases without positional
+	  information to greatly reduce disk usage (we don't use the
+	  positional information)
+
+Mon Jun 02 22:57:00 BST 2003  Olly Betts <olly@survex.com>
+
+	* amir/CommitSearch.cgi,perl/Cvssearch.pm,
+	  perl/PatternBrowser-script.pl: Set page title; use common
+	  stylesheet.
+
+Mon Jun 02 22:55:00 BST 2003  Olly Betts <olly@survex.com>
+
+	* amir/CommitSearch.cgi: Stripped \r
+
+Mon Jun 02 22:47:00 BST 2003  Olly Betts <olly@survex.com>
+
+	* amir/Query.cgi,perl/PatternBrowser-script.pl: Stripped \r
+
+Mon Jun 02 22:33:00 BST 2003  Olly Betts <olly@survex.com>
+
+	* amir/Query.cgi: Fixed bug [ 407462 ] order of file comments
+	  appears random
+
+Mon Jun 02 22:31:00 BST 2003  Olly Betts <olly@survex.com>
+
+	* amir/Query.cgi: Stripped \r
+
+Mon Jun 02 19:31:00 BST 2003  Olly Betts <olly@survex.com>
+
+	* perl/cvsbuild-script.pl: Fixed typo in previous checkin.
+
+Mon Jun 02 19:28:00 BST 2003  Olly Betts <olly@survex.com>
+
+	* README,amir/Query.cgi,amir/indexer.C,amir/searcher.C,
+	  db/,perl/Query-script.pl,perl/Source-script.pl,
+	  perl/SourceComment-script.pl,perl/cvsbuild-script.pl: Updated to
+	  build with Xapian 0.6 instead of OmSeek 0.4.1.
+
+Mon Jun 02 19:00:00 BST 2003  Olly Betts <olly@survex.com>
+
+	* perl/cvsbuild-script.pl: Reversed last checkin which seemed to be
+	  just odd zero-byte corruption.
+
+Fri May 30 16:35:14 BST 2003  Olly Betts <olly@survex.com>
+
+	* I've adopted cvssearch with the original authors' blessing.
+
