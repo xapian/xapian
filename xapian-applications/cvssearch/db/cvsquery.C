@@ -38,22 +38,26 @@ static void query_line            (cvs_db_file & db_file, unsigned int file_id, 
 static void query_revision        (cvs_db_file & db_file, unsigned int file_id, unsigned int line);
 static void query_revision_comment(cvs_db_file & db_file, unsigned int file_id);
 
+static string cvsroot_name;
+static string database_name;
+
+
 int
 main(unsigned int argc, char **argv) 
 {
     unsigned int file_id = 0;
     unsigned int line = 0;
     string revision;
-    string database_name;
-
     if (argc < 3 || !strcmp(argv[2], "-h")) {
         usage(argv[0]);
     }
-   
-    database_name = argv[1];
+
+    cvsroot_name = argv[1];
+    database_name = argv[2];
+
     cvs_db_file db_file(database_name);
 
-    for (unsigned int i = 2; i < argc; ++i)
+    for (unsigned int i = 3; i < argc; ++i)
     {
         if (0) {
         } else if (!strcmp(argv[i],"-f") && i+2 <= argc) {
@@ -89,7 +93,7 @@ main(unsigned int argc, char **argv)
 void
 usage(char * prog_name)
 {
-    cerr << "Usage: " << prog_name << " DatabaseFile [Options] [Options] ..." << endl
+    cerr << "Usage: " << prog_name << " $CVSDATA/rootdir DatabaseFile [Options] [Options] ..." << endl
          << endl
          << "Options:" << endl
          << "  -h                     print out this message" << endl
@@ -106,7 +110,7 @@ void query_filename(cvs_db_file & db_file, unsigned int file_id)
     string filename;
     if (db_file.get_filename(file_id, filename) == 0)
     {
-        cout << filename << endl;
+        cout << cvsroot_name << "/src/" << filename << endl;
     }
 }
 

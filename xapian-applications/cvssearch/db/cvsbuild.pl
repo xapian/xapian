@@ -89,6 +89,8 @@ sub read_root_dir {
             mkdir "$cvsdata/$cvsroot_dir"    || die " cannot create directory $cvsdata/$cvsroot_dir";
             mkdir "$cvsdata/$cvsroot_dir/db" || die " cannot create directory $cvsdata/$cvsroot_dir/db";
             mkdir "$cvsdata/$cvsroot_dir/src"|| die " cannot create directory $cvsdata/$cvsroot_dir/src";
+            print CVSROOTS "$cvsroot $cvsroot_dir\n";
+            close(CVSROOTS);
         }
         undef $j;
     } else {

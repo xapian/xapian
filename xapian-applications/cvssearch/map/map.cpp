@@ -167,7 +167,7 @@ main(unsigned int argc, const char **argv)
                     pdb_file->sync();
                 }
             }
-
+            i++;
         }
     }
     

@@ -46,6 +46,7 @@ if (read_root_dir()) {
     $_ = $ARGV[0];
     $ARGV[0]=~tr/\//\_/;
     $ARGV[0] = "$cvsdata/$cvsroot_dir/db/$ARGV[0]/$ARGV[0].db";
+    @ARGV = ("$cvsdata/$cvsroot_dir", @ARGV);
 } else {
     die "cannot find the root specified";
 }
