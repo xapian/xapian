@@ -125,7 +125,7 @@ $hostname{URL}
 	return the hostname from url URL
 
 $html{TEXT}
-	html escape string (<>&, etc)
+	html escape string (<>&")
 
 $htmlstrip{TEXT}
 	html strip tags from string (<...>, etc)

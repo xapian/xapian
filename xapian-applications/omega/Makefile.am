@@ -2,13 +2,10 @@
 
 AUTOMAKE_OPTIONS = 1.5 foreign # don't fuss about GNU required files
 
-noinst_HEADERS = omega.h query.h cgiparam.h parsequery.h symboltab.h\
+noinst_HEADERS = omega.h query.h cgiparam.h symboltab.h\
  htmlparse.h utils.h configfile.h
 
-# include yacc/bison generated C++ source
-EXTRA_DIST = parsequery.cc templates/query templates/godmode
-
-MAINTAINERCLEANFILES = parsequery.cc
+EXTRA_DIST = templates/query templates/godmode
 
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
 
@@ -20,13 +17,8 @@ endif
 
 bin_PROGRAMS = omega omindex $(XML2_PROGS)
 
-TESTS = parsequerytest
-
-check_PROGRAMS = parsequerytest
-
-omega_SOURCES = omega.cc query.cc cgiparam.cc parsequery.yy utils.cc \
-		configfile.cc
-omega_LDADD = $(XAPIAN_LIBS)
+omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc
+omega_LDADD = $(XAPIAN_LIBS) -lomqueryparser
 
 omindex_SOURCES = omindex.cc htmlparse.cc
 omindex_LDADD = $(XAPIAN_LIBS)
@@ -36,6 +28,3 @@ omindex_config_SOURCES = omindex-config.cc
 omindex_config_CXXFLAGS = $(LIBXML_CFLAGS)
 omindex_config_LDADD = $(LIBXML_LIBS)
 endif
-
-parsequerytest_SOURCES = parsequerytest.cc parsequery.yy
-parsequerytest_LDADD = $(XAPIAN_LIBS)

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
- * Copyright 2001 Ananova Ltd
+ * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@
 #include "omega.h"
 #include "query.h"
 #include "cgiparam.h"
-#include "parsequery.h"
+#include "om/omparsequery.h"
 
 static bool done_query = false;
 static om_docid last = 0;
@@ -57,7 +57,8 @@ static OmQuery query;
 static string query_string;
 OmQuery::op default_op = OmQuery::OP_OR; // default matching mode
 
-static QueryParser qp;
+static OmQueryParser qp;
+static OmStem *stemmer = NULL;
 
 static string eval_file(const string &fmtfile);
 
@@ -573,6 +574,9 @@ static string
 html_highlight(const string &s, const string &list,
 	       const string &bra, const string &ket)
 {
+    if (!stemmer) {
+	stemmer = new OmStem(option["no_stem"] == "true" ? "" : "english");
+    }
     string::const_iterator i, j = s.begin(), k, l;
     string res;
     while ((i = find_if(j, s.end(), p_alnum)) != s.end()) {
@@ -746,8 +750,8 @@ static struct func_desc func_tab[] = {
 {T(hitlist),	N, N, 0, 1, 0}}, // display hitlist using format in argument
 {T(hitsperpage),0, 0, N, 0, 0}}, // hits per page
 {T(hostname),	1, 1, N, 0, 0}}, // extract hostname from URL
-{T(html),	1, 1, N, 0, 0}}, // html escape string (<>&)
-{T(htmlstrip),	1, 1, N, 0, 0}}, // html strip tags string (s/<..?>//)
+{T(html),	1, 1, N, 0, 0}}, // html escape string (<>&")
+{T(htmlstrip),	1, 1, N, 0, 0}}, // html strip tags string (s/<[^>]*>?//g)
 {T(id),		0, 0, N, 0, 0}}, // docid of current doc
 {T(if),		2, 3, 1, 0, 0}}, // conditional
 {T(include),	1, 1, 1, 0, 0}}, // include another file

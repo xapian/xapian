@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 2001 Lemur Consulting Ltd.
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +29,6 @@
 #include <unistd.h>
 
 #include "configfile.h"
-
 
 static std::string config_file = "/etc/omega.conf";
 
@@ -75,6 +75,6 @@ void
 read_config_file()
 {
     if (try_read_config_file("omega.conf")) return;
-	    try_read_config_file(config_file);
+    try_read_config_file(config_file);
 }
 
