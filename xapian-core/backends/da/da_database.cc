@@ -202,7 +202,7 @@ const DATerm *
 DADatabase::term_lookup(const termname &tname) const
 {
     Assert(opened);
-    DebugMsg("DADatabase::term_lookup(`" << tname.c_str() << "'): ");
+    //DebugMsg("DADatabase::term_lookup(`" << tname.c_str() << "'): ");
 
     map<termname, DATerm>::const_iterator p = termmap.find(tname);
 

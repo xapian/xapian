@@ -154,13 +154,13 @@ InMemoryDatabase::term_exists(const termname &tname) const
 {
     Assert(opened);
 
-    DebugMsg("InMemoryDatabase::term_exists(`" << tname.c_str() << "'): ");
+    //DebugMsg("InMemoryDatabase::term_exists(`" << tname.c_str() << "'): ");
     map<termname, InMemoryTerm>::const_iterator p = postlists.find(tname);
 
     if (p == postlists.end()) {
-	DebugMsg("not found" << endl);
+	//DebugMsg("not found" << endl);
 	return false;
     }
-    DebugMsg("found" << endl);
+    //DebugMsg("found" << endl);
     return true;
 }

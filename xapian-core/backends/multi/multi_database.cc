@@ -128,7 +128,7 @@ MultiDatabase::term_exists(const termname &tname) const
     Assert(opened);
     Assert((used = true) == true);
 
-    DebugMsg("MultiDatabase::term_exists(`" << tname.c_str() << "'): ");
+    //DebugMsg("MultiDatabase::term_exists(`" << tname.c_str() << "'): ");
     set<termname>::const_iterator p = terms.find(tname);
 
     bool found = false;
@@ -142,14 +142,14 @@ MultiDatabase::term_exists(const termname &tname) const
 	}
 
 	if(found) {
-	    DebugMsg("found in sub-database" << endl);
+	    //DebugMsg("found in sub-database" << endl);
 	    terms.insert(tname);
 	} else {
-	    DebugMsg("not in collection" << endl);
+	    //DebugMsg("not in collection" << endl);
 	}
     } else {
 	found = true;
-	DebugMsg("found in cache" << endl);
+	//DebugMsg("found in cache" << endl);
     }
     return found;
 }

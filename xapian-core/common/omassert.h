@@ -53,7 +53,10 @@
 // Verbose debugging output
 
 // Don't bracket a, because it may have <<'s in it
-#define DebugMsg(a) cerr << a
+// Send to cout, not cerr, so that output appears on page in CGI scripts
+// (otherwise it clogs up error logs)
+// FIXME - should send it to a file.
+#define DebugMsg(a) cout << a
 
 #else
 #define DebugMsg(a)
