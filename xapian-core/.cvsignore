@@ -12,4 +12,6 @@ libtool
 stamp-h
 stamp-h.in
 .deps
+.libs
+libom.la
 om-*.tar.gz
