@@ -218,28 +218,25 @@ MultiMatch::add_next_sub_mset(vector<SingleMatch *>::iterator leaf,
 			      const OmMatchDecider *mdecider,
 			      vector<bool> & mset_received,
 			      vector<SingleMatch *>::size_type *msets_received,
-			      om_doccount * tot_mbound,
-			      om_weight   * tot_greatest_wt,
-			      vector<OmMSetItem> & mset,
+			      OmMSet & mset,
 			      bool nowait) {
-    om_doccount sub_mbound;
-    om_weight   sub_greatest_wt;
-    vector<OmMSetItem> sub_mset;
+    OmMSet sub_mset;
 
     // Get next mset
-    if ((*leaf)->get_mset(0, lastitem, sub_mset, &sub_mbound,
-			  &sub_greatest_wt, mdecider, nowait)) {
+    if ((*leaf)->get_mset(0, lastitem, sub_mset.items, &(sub_mset.mbound),
+			  &(sub_mset.max_attained), mdecider, nowait)) {
 	(*msets_received)++;
 	mset_received[leaf_number - 1] = true;
 
-	change_docids_to_global(sub_mset, number_of_leaves, leaf_number);
-
 	// Merge stats
-	(*tot_mbound) += sub_mbound;
-	if(sub_greatest_wt > *tot_greatest_wt)
-	    *tot_greatest_wt = sub_greatest_wt;
+	mset.mbound += sub_mset.mbound;
+	if(sub_mset.max_attained > mset.max_attained)
+	    mset.max_attained = sub_mset.max_attained;
 
-	merge_msets(mset, sub_mset, lastitem);
+	// Merge items
+	change_docids_to_global(sub_mset.items, number_of_leaves, leaf_number);
+	merge_msets(mset.items, sub_mset.items, lastitem);
+
 	return true;
     }
     return false;
@@ -282,8 +279,8 @@ MultiMatch::match(om_doccount first,
 	mset.max_possible = get_max_weight();
     } else if(leaves.size() > 1) {
 	// Need to merge msets.
-	om_doccount tot_mbound = 0;
-	om_weight   tot_greatest_wt = 0;
+	mset.mbound = 0;
+	mset.max_attained = 0;
 	om_doccount lastitem = first + maxitems;
 
 	prepare_matchers();
@@ -314,9 +311,7 @@ MultiMatch::match(om_doccount first,
 				  mdecider,
 				  mset_received,
 				  &msets_received,
-				  &tot_mbound,
-				  &tot_greatest_wt,
-				  mset.items,
+				  mset,
 				  nowait);
 	    }
 
@@ -336,8 +331,6 @@ MultiMatch::match(om_doccount first,
 	}
 	mset.firstitem = first;
 
-	mset.mbound       = tot_mbound;
-	mset.max_attained = tot_greatest_wt;
 	mset.max_possible = get_max_weight();
     }
 }

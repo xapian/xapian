@@ -92,9 +92,7 @@ class MultiMatch
 			       const OmMatchDecider *mdecider,
 			       vector<bool> & mset_received,
 			       vector<SingleMatch *>::size_type *msets_received,
-			       om_doccount * tot_mbound,
-			       om_weight   * tot_greatest_wt,
-			       vector<OmMSetItem> & mset,
+			       OmMSet & mset,
 			       bool nowait);
 
 	/** Prepare all the sub matchers.
