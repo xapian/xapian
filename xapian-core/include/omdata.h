@@ -1,4 +1,4 @@
-/* data.h
+/* omdata.h
  *
  * ----START-LICENCE----
  * Copyright 1999 Dialog Corporation
@@ -20,12 +20,12 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _data_h_
-#define _data_h_
+#ifndef _omdata_h_
+#define _omdata_h_
 
 // Include these for now, but later they will be hidden.
 #include "database.h"
 #include "database_builder.h"
 #include "irdocument.h"
 
-#endif /* _data_h_ */
+#endif /* _omdata_h_ */

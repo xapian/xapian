@@ -28,10 +28,10 @@
 #include "omerror.h"
 
 /* Data access */
-#include "data.h"
+#include "omdata.h"
 
 /* Searching */
-#include "enquire.h"
+#include "omenquire.h"
 
 /* Indexing */
 

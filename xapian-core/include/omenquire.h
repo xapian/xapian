@@ -1,4 +1,4 @@
-/* enquire.h
+/* omenquire.h
  *
  * ----START-LICENCE----
  * Copyright 1999 Dialog Corporation
@@ -20,8 +20,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _enquire_h_
-#define _enquire_h_
+#ifndef _omenquire_h_
+#define _omenquire_h_
 
 // Include these for now, but later they will be hidden.
 #include "match.h"
@@ -42,4 +42,4 @@ class Enquire {
 	// Open a database
 };
 
-#endif /* _enquire_h_ */
+#endif /* _omenquire_h_ */
