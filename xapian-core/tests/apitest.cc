@@ -230,6 +230,22 @@ int main(int argc, char *argv[])
 }
 
 
+bool floats_are_equal_enough(double a, double b)
+{
+    if (fabs(a - b) > 1E-5) return false;
+    return true;
+}
+
+bool weights_are_equal_enough(double a, double b)
+{
+    if (floats_are_equal_enough(a, b)) return true;
+
+    if(verbose) {
+	cout << "Got weight of " << a << ", expected weight of " << b << endl;
+    }
+    return false;
+}
+
 bool mset_range_is_same(const OmMSet &mset1, unsigned int first1,
                         const OmMSet &mset2, unsigned int first2,
 			unsigned int count)
@@ -354,6 +370,12 @@ bool test_simplequery2()
 	    }
 	    cout << ", expected 2 and 4." << endl;
 	}
+	success = false;
+    }
+
+    // Check the weights
+    if (!weights_are_equal_enough(mymset.items[0].wt, 0.993246) ||
+        !weights_are_equal_enough(mymset.items[1].wt, 0.430207)) {
 	success = false;
     }
 

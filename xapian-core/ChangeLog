@@ -1,3 +1,9 @@
+Fri Mar  3 15:25:42 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added to one of the tests in apitest a check that the weights
+	  returned by a query are as expected.  This will fail if weighting
+	  schemes are changed, deliberately or accidentally.
+
 Fri Mar  3 11:25:36 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* OmQuery now does a better job of collapsing sub-queries
