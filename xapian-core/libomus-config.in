@@ -1,8 +1,11 @@
 #! /bin/sh
+# @configure_input@
+# libomus-config.in: This file is processed by configure to
+# generate libomus-config
 
-prefix=~richard/Working/openmuscat/om
-libs=${prefix}/lib
-cflags=${prefix}/include
+prefix=@prefix@
+libdir=@exec_prefix@
+includedir=@includedir@
 
 usage()
 {
