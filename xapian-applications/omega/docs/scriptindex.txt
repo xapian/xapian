@@ -3,8 +3,8 @@ Index scripts:
 
 The basic format is one or more field names followed by a colon, followed by
 one or more actions.  Some actions take an optional or required parameter.
-The actions are applied to each field listed, and fields can be listed in
-several lines.
+The actions are applied in the specified order to each field listed, and
+fields can be listed in several lines.
 
 Here's an example:
 
