@@ -123,30 +123,41 @@ The CVS repository does not contain any automatically generated files
 experience shows it's best to keep these out of version control.  This
 means that if you check the sources out of CVS, before you can successfully
 run the normal build process you'll need to have several programs installed
-so these files can be generated.
+so these files can be generated.  Note that you can avoid needing to have
+these programs installed by using the CVS snapshots available from the
+CVS page of the Xapian website.
 
 At the time of writing, these programs are autoconf, automake, libtool,
 and GNU bison.  Some older versions of these programs may not work correctly:
 at the time of writing, the versions known to work are:
 
-	automake (GNU automake) 1.6.3
-		This is required as automake 1.5 doesn't work with "make check"
-		with Solaris make - the problem is with the rules to build
-		tests/internaltest.  Other than this, automake 1.4 has problems
-		with "make dist" in a VPATH build, and doesn't support
-		AM_CFLAGS/AM_CXXFLAGS.  Note that automake 1.6 has a bug which
-		causes it to emit spurious warnings: this is fixed in automake
-		1.6.1.  Automake 1.7 works too.  Automake 1.8 has been reported
-		to be problematic.
+	autoconf (GNU Autoconf) 2.59
+		2.57 fixes the annoying chmod warning on FreeBSD.  2.54 is
+		required by automake 1.6.3; autoconf 2.50 is needed for many
+		reasons anyway.  automake 1.8.5 needs at least 2.58, and 2.59
+		was released the same day as 2.58 to fix a problem.
 
-	Autoconf version 2.54
-		This version is required by automake 1.6.3; autoconf 2.50 is
-		needed for many reasons anyway.
+	automake (GNU automake) 1.8.5
+		automake 1.4 has problems with "make dist" in a VPATH build,
+		and doesn't support AM_CFLAGS/AM_CXXFLAGS.
 
-	GNU libtool 1.5
-		libtool 1.5 is the first version to properly support linking
-		C++ libraries.  Also libtool 1.4.2 doesn't seem to support
-		--mode=execute properly.
+		automake 1.5 doesn't work with "make check" with Solaris make -
+		the problem is with the rules to build tests/internaltest
+		(perhaps no longer relevant as those rules are simpler now).
+
+		Note that automake 1.6 has a bug which causes it to emit
+		spurious warnings: this is fixed in automake 1.6.1.
+
+		automake 1.7 works too.
+
+		automake 1.8 doesn't appear to have anything vital to us, but
+		there were a lot of fixes between 1.6.3 (the previous version
+		we required) and 1.8.5, so currently we're requiring 1.8.5.
+
+	GNU libtool 1.5.8
+		libtool 1.5 was the first version to properly support linking
+		C++ libraries, and 1.5.8 is large 1.5 plus bug fixes and
+		portability enhancements.
 
 	GNU Bison version 1.35
 		Bison versions 1.31 to 1.34 don't handle parsequery.yy - for

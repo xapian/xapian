@@ -1,3 +1,7 @@
+Sat Sep 04 12:35:12 BST 2004  Olly Betts <olly@survex.com>
+
+	* HACKING: Updated details of which autotools we require.
+
 Fri Sep 03 17:51:59 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Require autoconf 2.59.  Noted LIBRARY_VERSION_INFO
