@@ -39,6 +39,8 @@
 using namespace std;
 %}
 
+using namespace std;
+
 %include "stl.i"
 #ifndef SWIGGUILE
 %include typemaps.i
