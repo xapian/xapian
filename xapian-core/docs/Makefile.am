@@ -16,4 +16,5 @@ endif
 docdatadir   = ${datadir}/omuscat
 docdata_DATA = ${CREATED_DOCUMENTS}
 
-EXTRA_DIST = MatcherDesign Notes mkdoc.pl.in
+EXTRA_DIST = MatcherDesign Notes mkdoc.pl.in stemming.txt \
+hacking.html index.html intro.html intro_ir.html
