@@ -35,7 +35,7 @@ class State;
 
 class Xapian::QueryParser::Internal : public Xapian::Internal::RefCntBase {
     friend class Xapian::QueryParser;
-    friend class State;
+    friend class ::State;
     Xapian::Stem stemmer;
     stem_strategy stem_action;
     Xapian::Stopper * stopper;
