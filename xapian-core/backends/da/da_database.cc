@@ -8,6 +8,8 @@
 #include <algorithm>
 
 #include "database.h"
+#include "postlist.h"
+#include "termlist.h"
 #include "da_database.h"
 #include "da_record.h"
 #include "daread.h"

@@ -3,6 +3,9 @@
 #ifndef _da_database_h_
 #define _da_database_h_
 
+#include <map>
+#include <vector>
+
 #include "omassert.h"
 
 #include "database.h"
