@@ -135,10 +135,8 @@ result_destroy_notify(gpointer data)
 static void do_resultdisplay(gint row) {
     try {
 	om_docid did = mset.items[row].did;
-	//IRDocument *doc = database->open_document(did);
-	//IRData data = doc->get_data();
-	//string fulltext = data.value;
-	string fulltext = "<unimplemented>";
+	OmData data = enquire->get_doc_data(mset.items[row]);
+	string fulltext = data.value;
 	string score = inttostring(mset.convert_to_percent(mset.items[row]));
 
 	gtk_text_freeze(result_text);
@@ -177,8 +175,7 @@ static void do_topterms() {
 	    }
 	}
 
-	OmESet topterms;
-	enquire->get_eset(topterms, 50, rset);
+	OmESet topterms = enquire->get_eset(50, rset);
 	//topterms.expand(&rset, &decider);
 
 	gtk_clist_freeze(topterms_widget);
@@ -239,7 +236,7 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 
 	// Perform match
 	enquire->set_query(query);
-        enquire->get_mset(mset, 0, max_msize);
+        mset = enquire->get_mset(0, max_msize);
 
 	gtk_clist_freeze(results_widget);
 	gtk_clist_clear(results_widget);
@@ -250,22 +247,10 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	vector<OmMSetItem>::const_iterator j;
 	for (j = mset.items.begin(); j != mset.items.end(); j++) {
 	    om_docid did = j->did;
-#if 0
-	    IRDocument *doc = database->open_document(did);
-	    IRData data = doc->get_data();
-	    string message;
-#if 0
-	    if(Database *mdb = dynamic_cast<MultiDatabase *>(database)) {
-		message = (mdb->get_database_of_doc(did))->get_database_path();
-	    } else {
-		message = database->get_database_path();
-	    }
-	    message += " ";
-#endif
-	    message += data.value;
-	    message = data.value;
-#endif
-string message = "<unimplemented>";
+	    
+	    OmData data = enquire->get_doc_data(*j);
+	    string message = data.value;
+
 	    ResultItemGTK * item = new ResultItemGTK(j->did,
 		mset.convert_to_percent(*j), message);
 	    gint index = gtk_clist_append(results_widget, item->data);
