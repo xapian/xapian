@@ -245,7 +245,7 @@ class OmWritableDatabase : public OmDatabase {
 
 	/** End a session of modifications to the database.
 	 *
-	 *  This flushes any modifications made to the database, ends any
+	 *  This flushes any modifications made to the database, cancels any
 	 *  transactions in progress, and releases any locks held on the
 	 *  database.
 	 *
