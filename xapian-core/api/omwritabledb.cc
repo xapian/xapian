@@ -1,4 +1,4 @@
-/* omdatabaseinternal.h: Class definition for OmDatabaseGroup::Internal
+/* omindexer.cc
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -20,30 +20,13 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OMDATABASEINTERNAL_H
-#define OM_HGUARD_OMDATABASEINTERNAL_H
+#include "omassert.h"
+#include "om/omerror.h"
+#include "om/omindexer.h"
+#include "omwritabledbinternal.h"
 
-#include <vector>
-
-#include <om/omenquire.h>
-#include "omlocks.h"
-#include "database_builder.h"
-
-//////////////////////////////////
-// Internals of OmDatabaseGroup //
-//////////////////////////////////
-class OmDatabaseGroup::Internal {
-    public:
-	Internal() {}
-	Internal(const Internal &other)
-		: params(other.params), mutex() {}
-
-	vector<DatabaseBuilderParams> params;
-
-	OmLock mutex;
-
-	void add_database(const string & type,
-			  const vector<string> & paths);
-};
-
-#endif // OM_HGUARD_OMDATABASEINTERNAL_H
+om_docid
+OmWritableDatabase::add_document(const OmDocumentContents & document)
+{
+    throw OmUnimplementedError("OmWritableDatabase::add_document() not yet implemented.");
+}

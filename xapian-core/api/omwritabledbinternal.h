@@ -1,4 +1,4 @@
-/* omindexer.cc
+/* omwritabledbinternal.h: Class definition for OmWritableDatabase::Internal
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -20,12 +20,28 @@
  * -----END-LICENCE-----
  */
 
-#include "omassert.h"
-#include "om/omerror.h"
-#include "om/omindexer.h"
+#ifndef OM_HGUARD_OMWRITABLEDBINTERNAL_H
+#define OM_HGUARD_OMWRITABLEDBINTERNAL_H
 
-om_docid
-OmWritableDatabase::add_document(const OmDocumentContents & document)
-{
-    throw OmUnimplementedError("OmWritableDatabase::add_document() not yet implemented.");
-}
+#include <vector>
+
+#include <om/omindexer.h>
+#include "omlocks.h"
+#include "database_builder.h"
+
+/////////////////////////////////////
+// Internals of OmWritableDatabase //
+/////////////////////////////////////
+class OmWritableDatabase::Internal {
+    public:
+	Internal(const string & type,
+		 const vector<string> & paths);
+	Internal(const Internal &other)
+		: params(other.params), mutex() {}
+
+	DatabaseBuilderParams params;
+
+	OmLock mutex;
+};
+
+#endif // OM_HGUARD_OMWRITABLEDBINTERNAL_H

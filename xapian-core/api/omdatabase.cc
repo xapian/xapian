@@ -24,6 +24,7 @@
 #include "utils.h"
 #include "omlocks.h"
 #include "omdatabaseinternal.h"
+#include "omwritabledbinternal.h"
 
 #include <vector>
 
@@ -42,20 +43,33 @@ stringToType<om_database_type> stringToTypeMap<om_database_type>::types[] = {
 
 void
 OmDatabaseGroup::Internal::add_database(const string & type,
-			const vector<string> & param)
+					const vector<string> & paths)
 {
     // Convert type into an om_database_type
     om_database_type dbtype = OM_DBTYPE_NULL;
     dbtype = stringToTypeMap<om_database_type>::get_type(type);
 
-    // Prepare dbparams to build database with (open it readonly)
+    // Prepare parameters to build database with (opening it readonly)
     DatabaseBuilderParams dbparam(dbtype, true);
-    dbparam.paths = param;
+    dbparam.paths = paths;
 
-    // Use dbparams to create database, and add it to the list of databases
+    // Add dbparam to the list of database parameters
     params.push_back(dbparam);
-    //add_database(params);
 }
+
+OmWritableDatabase::Internal::Internal(const string & type,
+				       const vector<string> & paths)
+{
+    // Convert type into an om_database_type
+    om_database_type dbtype = OM_DBTYPE_NULL;
+    dbtype = stringToTypeMap<om_database_type>::get_type(type);
+
+    // Prepare parameters to build database with (open it writable)
+    params.type = dbtype;
+    params.readonly = false;
+    params.paths = paths;
+}
+
 
 ////////////////////////////////
 // Methods of OmDatabaseGroup //
@@ -93,7 +107,7 @@ void OmDatabaseGroup::operator=(const OmDatabaseGroup &other)
 }
 
 void OmDatabaseGroup::add_database(const string &type,
-			      const vector<string> &params)
+				   const vector<string> &params)
 {
     OmLockSentry locksentry(internal->mutex);
 
