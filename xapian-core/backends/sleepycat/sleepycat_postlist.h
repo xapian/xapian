@@ -49,7 +49,7 @@ class SleepyPostList : public LeafPostList {
 	 *  using the specified termid.
 	 *
 	 *  @param tid_        The termid to use to open the postlist.
-	 *  @param internals_  
+	 *  @param internals_  The database internals to use.
 	 *  @param tname_      The termname for this postlist: this is
 	 *                     used for introspection methods.
 	 */
