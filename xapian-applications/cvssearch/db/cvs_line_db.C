@@ -47,11 +47,15 @@ cvs_line_db::cvs_line_db(DbEnv *dbenv, u_int32_t flags)
 int
 cvs_line_db::do_open(const string & filename, bool read_only)
 {
-    int flag = read_only ? DB_RDONLY : DB_CREATE;
+    unsigned int flag = read_only ? DB_RDONLY : DB_CREATE;
     int val = 0;
     try {
         val = _db.set_flags(DB_DUP);
+#if DB_VERSION_MAJOR > 4 || (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 1)
+        val = _db.open(NULL, filename.c_str(), _db_name.c_str(), DB_HASH, flag, 0);
+#else
         val = _db.open(filename.c_str(), _db_name.c_str(), DB_HASH, flag, 0);
+#endif
     } catch (DbException & e) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
     }

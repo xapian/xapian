@@ -49,8 +49,12 @@ cvs_comment_id_db::do_open(const string & filename, bool read_only)
 {
     int val = 0;
     try {
-        int flag = read_only ? DB_RDONLY : DB_CREATE;
+        unsigned int flag = read_only ? DB_RDONLY : DB_CREATE;
+#if DB_VERSION_MAJOR > 4 || (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 1)
+        val = _db.open(NULL, filename.c_str(), _db_name.c_str(), DB_HASH, flag, 0);
+#else
         val = _db.open(filename.c_str(), _db_name.c_str(), DB_HASH, flag, 0);
+#endif
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
     }

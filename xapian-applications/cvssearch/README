@@ -14,9 +14,8 @@ INSTALLATION
 * install a suitable release of the sleepycat database from
   http://www.sleepycat.com/download/index.shtml
 
-  Unfortunately the sleepycat C++ API has changed subtley between recent
-  releases.  We know that 4.0.14 works, so presumably 4.0.x should.  Feedback
-  on this issue is particularly welcome.
+  The cvssearch source should build with either 4.0.x or 4.1.x.  4.2.x hasn't
+  been released at the time of writing.  Older versions have not been tested.
  
   From the dist/ directory, type
 

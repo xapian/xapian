@@ -520,19 +520,19 @@ int main(unsigned int argc, char *argv[]) {
     }
     in2.close();
     
-
-
-
-
-
-
     Db db_cmt(0,0);
+#if DB_VERSION_MAJOR > 4 || (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 1)
+    db_cmt.open( NULL, (cvsdata +"/root0/db/commit_cmt.db").c_str(),  0 , DB_HASH, DB_RDONLY, 0 );
+#else
     db_cmt.open( (cvsdata +"/root0/db/commit_cmt.db").c_str(),  0 , DB_HASH, DB_RDONLY, 0 );
+#endif
 
     Db db_code(0,0);
+#if DB_VERSION_MAJOR > 4 || (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 1)
+    db_code.open( NULL, (cvsdata +"/root0/db/commit_code.db").c_str(),  0 , DB_HASH, DB_RDONLY, 0 );
+#else
     db_code.open( (cvsdata +"/root0/db/commit_code.db").c_str(),  0 , DB_HASH, DB_RDONLY, 0 );
-
-
+#endif
 
     // ----------------------------------------
     // code which accesses Xapian

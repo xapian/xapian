@@ -468,9 +468,11 @@ int main(unsigned int argc, char *argv[]) {
     cerr << "TOTAL COMMIT TRANSACTIONS " << total_commit_transactions << endl;
 
     Db db(0,0);
+#if DB_VERSION_MAJOR > 4 || (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 1)
+    db.open( NULL, (cvsdata +"/root0/db/mining.db").c_str(),  0 , DB_HASH, DB_RDONLY, 0 );
+#else
     db.open( (cvsdata +"/root0/db/mining.db").c_str(),  0 , DB_HASH, DB_RDONLY, 0 );
-
-
+#endif
 
     // ----------------------------------------
     // code which accesses Xapian
