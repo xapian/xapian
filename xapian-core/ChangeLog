@@ -1,3 +1,7 @@
+Wed Apr 06 22:52:53 BST 2005  Olly Betts <olly@survex.com>
+
+	* ./: Removed ylwrap from svn:ignore.
+
 Tue Apr 05 22:34:16 BST 2005  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparsertest.cc,queryparser/Makefile.am,
