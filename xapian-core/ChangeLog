@@ -1,3 +1,7 @@
+Mon Sep 18 13:02:36 BST 2000 Olly Betts
+
+	* Added tests for skip_to on {Post,Term}ListIterator.
+
 Mon Sep 18 12:59:39 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Keep a count of the skipped tests.

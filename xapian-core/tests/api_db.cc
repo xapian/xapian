@@ -1652,6 +1652,16 @@ static bool test_termlist3()
     return true;
 }
 
+// tests skip_to
+static bool test_termlist4()
+{
+    OmDatabase db(get_database("apitest_onedoc"));
+    OmTermListIterator i = db.termlist_begin(1);
+    i.skip_to("");
+    i.skip_to("\xff");
+    return true;
+}
+
 // tests that opening a non-existant postlist return an empty list
 static bool test_postlist1()
 {
@@ -1723,6 +1733,16 @@ static bool test_postlist3()
     return true;
 }
 
+// tests skip_to
+static bool test_postlist4()
+{
+    OmDatabase db(get_database("apitest_simpledata"));
+    OmPostListIterator i = db.postlist_begin("thi");
+    i.skip_to(1);
+    i.skip_to(999999999);
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -1774,6 +1794,7 @@ test_desc db_tests[] = {
     {"termlist1",	   test_termlist1},
     {"termlist2",	   test_termlist2},
     {"termlist3",	   test_termlist3},
+    {"termlist4",	   test_termlist4},
     {0, 0}
 };
 
@@ -1800,5 +1821,6 @@ test_desc localdb_tests[] = {
     {"postlist1",	   test_postlist1},
     {"postlist2",	   test_postlist2},
     {"postlist3",	   test_postlist3},
+    {"postlist4",	   test_postlist4},
     {0, 0}
 };
