@@ -96,6 +96,14 @@ AC_ARG_ENABLE(backend_multi,
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-multi) ;;
 esac],[build_multi=true])
 
+AC_ARG_ENABLE(backend_net,
+[  --enable-backend-net    Enable the net database backend (default=yes)],
+[case "${enableval}" in
+  yes) build_net=true ;;
+  no)  build_net=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-net) ;;
+esac],[build_net=true])
+
 AC_ARG_ENABLE(pthread-support,
 [  --enable-pthread-support Enable pthread support (no|yes)(default=yes)],
 [case "${enableval}" in
@@ -133,6 +141,7 @@ AM_CONDITIONAL(BUILD_BACKEND_MUSCAT36, test x$build_muscat36 = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_SLEEPY, test x$build_sleepy = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test x$build_inmemory = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_MULTI, test x$build_multi = xtrue)
+AM_CONDITIONAL(BUILD_BACKEND_NET, test x$build_net = xtrue)
 
 dnl Set defines to specify what we compile
 
@@ -156,6 +165,10 @@ AC_DEFINE(MUS_BUILD_BACKEND_MULTI,,
   [Define if you want to build multi database backend])
 fi
 
+if test x$build_net = xtrue; then
+AC_DEFINE(MUS_BUILD_BACKEND_NET,,
+  [Define if you want to build net database backend])
+fi
 if test x$use_pthread = xtrue; then
 AC_DEFINE(MUS_USE_PTHREAD,,
   [Define if you want to build with libpthreads support])
@@ -285,6 +298,7 @@ AC_OUTPUT(
  backends/sleepy/Makefile
  backends/multi/Makefile
  backends/inmemory/Makefile
+ backends/net/Makefile
  languages/Makefile
  languages/dutch/Makefile
  languages/english/Makefile
