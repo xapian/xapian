@@ -56,7 +56,8 @@ EXTRA_libxapian_la_SOURCES =
 #    then set AGE to 0.
 #
 # 0:0:0 0.7.2 (and anything before) 
-libxapian_la_LDFLAGS = -version-info 0:0:0
+# 0:1:0 0.7.3
+libxapian_la_LDFLAGS = -version-info 0:1:0
 
 # FIXME:
 # doesn't really work as we'd hope as we get to play with the mangled symbols

@@ -1,3 +1,7 @@
+Fri Aug 08 01:38:40 BST 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.in,extra/Makefile.am: Version 0.7.3.
+
 Fri Aug 08 01:35:04 BST 2003  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated.

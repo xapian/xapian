@@ -15,7 +15,8 @@ check_PROGRAMS = queryparsertest
 TESTS = queryparsertest$(EXEEXT)
 
 # 0:0:0 0.7.2 (and anything before) 
-libxapianqueryparser_la_LDFLAGS = -version-info 0:0:0
+# 0:1:0 0.7.3
+libxapianqueryparser_la_LDFLAGS = -version-info 0:1:0
 
 libxapianqueryparser_la_SOURCES = queryparser.yy
 
