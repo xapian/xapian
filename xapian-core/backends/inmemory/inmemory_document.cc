@@ -23,11 +23,11 @@
 #include "inmemory_document.h"
 #include <om/omdocument.h>
 
-InMemoryDocument::InMemoryDocument(const std::string & doc_,
+InMemoryDocument::InMemoryDocument(const Database *database_,
+				   const std::string & doc_,
 				   const std::map<om_keyno, OmKey> &keys_)
-	: doc(doc_), keys(keys_)
+	: Document(database_), doc(doc_), keys(keys_)
 {
-    return;
 }
 
 OmKey

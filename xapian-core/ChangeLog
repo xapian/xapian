@@ -1,3 +1,10 @@
+Wed Nov 29 14:54:13 GMT 2000 Olly Betts
+
+	* leafdocument.cc renamed to document.cc
+
+	* Document class now has a pointer to the associated Database class
+	  so we can open termlists, etc.
+
 Wed Nov 29 14:03:43 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add quartztest to test for case when a database block gets

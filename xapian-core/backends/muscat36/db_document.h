@@ -37,8 +37,7 @@ class DBDocument : public Document {
 	mutable struct record * rec;
 	int heavy_duty;
 
-	DBDocument(const DBDatabase * database_,
-		   om_docid did_,
+	DBDocument(const DBDatabase * database_, om_docid did_,
 		   int heavy_duty_);
 
 	// Stop copying

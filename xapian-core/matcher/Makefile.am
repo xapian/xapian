@@ -20,4 +20,4 @@ libmatcher_la_SOURCES = orpostlist.cc andpostlist.cc andnotpostlist.cc \
  filterpostlist.cc ortermlist.cc expandweight.cc rset.cc \
  irweight.cc bm25weight.cc tradweight.cc \
  localmatch.cc multimatch.cc expand.cc stats.cc \
- leafdocument.cc mergepostlist.cc msetpostlist.cc $(SOURCEFORREMOTE)
+ document.cc mergepostlist.cc msetpostlist.cc $(SOURCEFORREMOTE)

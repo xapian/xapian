@@ -26,24 +26,19 @@
 #include "omdebug.h"
 #include <string.h>
 
-SleepycatDocument::SleepycatDocument(Db * document_db_,
-			       Db * key_db_,
-			       om_docid did_)
-	: document_db(document_db_),
-	  key_db(key_db_),
-	  did(did_),
-	  have_data(false)
+SleepycatDocument::SleepycatDocument(const Database *database_,
+				     Db * document_db_, Db * key_db_,
+				     om_docid did_)
+	: Document(database_), document_db(document_db_), key_db(key_db_),
+	  did(did_), have_data(false)
 {
 }
 
-SleepycatDocument::SleepycatDocument(Db * document_db_,
-			       Db * key_db_,
-			       const OmDocumentContents & document_)
-	: document_db(document_db_),
-	  key_db(key_db_),
-	  data(document_.data),
-	  have_data(true),
-	  keys(document_.keys)
+SleepycatDocument::SleepycatDocument(const Database *database_,
+				     Db * document_db_, Db * key_db_,
+				     const OmDocumentContents & document_)
+	: Document(database_), document_db(document_db_), key_db(key_db_),
+	  data(document_.data), have_data(true), keys(document_.keys)
 {
     try {
 	int err_num;

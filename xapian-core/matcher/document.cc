@@ -1,4 +1,4 @@
-/* leafdocument.cc: class with document data
+/* document.cc: class with document data
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC

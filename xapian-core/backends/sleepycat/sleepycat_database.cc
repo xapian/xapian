@@ -142,9 +142,8 @@ SleepycatDatabase::open_term_list(om_docid did) const
 Document *
 SleepycatDatabase::open_document(om_docid did) const
 {
-    return new SleepycatDocument(internals->document_db,
-				 internals->key_db,
-				 did);
+    return new SleepycatDocument(this, internals->document_db,
+				 internals->key_db, did);
 }
 
 PositionList *
@@ -289,8 +288,7 @@ SleepycatDatabase::add_entry_to_postlist(om_termid tid,
 om_docid
 SleepycatDatabase::make_new_document(const OmDocumentContents & doccontents)
 {
-    SleepycatDocument document(internals->document_db,
-			       internals->key_db,
+    SleepycatDocument document(this, internals->document_db, internals->key_db,
 			       doccontents);
     return document.get_docid();
 }

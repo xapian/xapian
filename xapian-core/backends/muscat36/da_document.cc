@@ -28,13 +28,10 @@
 
 /** Create a DADocument: this is only called by DADatabase::open_document()
  */
-DADocument::DADocument(const DADatabase * database_,
-		       om_docid did_,
+DADocument::DADocument(const DADatabase * database_, om_docid did_,
 		       int heavy_duty_)
-        : database(database_),
-	  did(did_),
-	  rec(NULL),
-	  heavy_duty(heavy_duty_)
+        : Document(database_), database(database_), did(did_),
+	  rec(NULL), heavy_duty(heavy_duty_)
 {
 }
 

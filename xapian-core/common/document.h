@@ -30,6 +30,7 @@
 
 class OmKey;
 class OmData;
+class Database;
 
 /// A document in the database - holds keys and records
 class Document : public RefCntBase {
@@ -39,6 +40,8 @@ class Document : public RefCntBase {
 
 	/// Assignment is not allowed.
 	void operator=(const Document &);
+
+	const Database *database;
 
 	OmLock mutex;
 
@@ -74,10 +77,7 @@ class Document : public RefCntBase {
 	 *  having a different keyid.  Duplicate keys with the same keyid are
 	 *  not supported in a single document.
 	 *
-	 *  @return       An vector of OmKey objects containing the specified
-	 *  keys.  If any key is not present in this document, the key's value
-	 *  will be a zero length string.  The vector will be at least big
-	 *  enough to hold all the keys for the document.
+	 *  @return   A map of OmKey objects containing all the keys.
 	 */
 	std::map<om_keyno, OmKey> get_all_keys() const;
 
@@ -101,7 +101,7 @@ class Document : public RefCntBase {
 	 *  private method, and only be called by database objects of the
 	 *  corresponding type.
 	 */
-	Document() {};
+	Document(const Database *database_) : database(database_) {};
 
 	/** Destructor.  Note that the database object which created this
 	 *  document must still exist at the time this is called.

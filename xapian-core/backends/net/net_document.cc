@@ -24,9 +24,10 @@
 #include <om/omdocument.h>
 #include "omdebug.h"
 
-NetworkDocument::NetworkDocument(const std::string & doc_,
+NetworkDocument::NetworkDocument(const Database *database_,
+				 const std::string & doc_,
 				 const std::map<om_keyno, OmKey> &keys_)
-	: doc(doc_), keys(keys_)
+	: Document(database_), doc(doc_), keys(keys_)
 {
 }
 

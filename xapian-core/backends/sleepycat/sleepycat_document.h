@@ -76,9 +76,8 @@ class SleepycatDocument : public Document {
 	 *  @exception OmDatabaseError is thrown if the document can't be
 	 *             accessed.
 	 */
-	SleepycatDocument(Db * document_db_,
-		       Db * key_db_,
-		       om_docid did_);
+	SleepycatDocument(const Database *database_, Db * document_db_,
+			  Db * key_db_, om_docid did_);
 
 	/** Constructor: called by SleepycatDatabase to create a new document
 	 *
@@ -89,9 +88,8 @@ class SleepycatDocument : public Document {
 	 *  @exception OmDatabaseError is thrown if the document can't be
 	 *             accessed.
 	 */
-	SleepycatDocument(Db * document_db_,
-		       Db * key_db_,
-		       const OmDocumentContents & document_);
+	SleepycatDocument(const Database *database_, Db * document_db_,
+			  Db * key_db_, const OmDocumentContents & document_);
 
 	/// Copying is not permitted
 	SleepycatDocument(const SleepycatDocument &);

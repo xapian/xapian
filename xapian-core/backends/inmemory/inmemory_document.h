@@ -32,7 +32,7 @@ class InMemoryDocument : public Document {
 	std::string doc;
 	std::map<om_keyno, OmKey> keys;
 
-	InMemoryDocument(const std::string & doc_,
+	InMemoryDocument(const Database *database_, const std::string & doc_,
 			 const std::map<om_keyno, OmKey> &keys_);
 
 	// Stop copying

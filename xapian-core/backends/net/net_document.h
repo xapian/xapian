@@ -33,7 +33,7 @@ class NetworkDocument : public Document {
 
 	std::map<om_keyno, OmKey> keys;
 
-	NetworkDocument(const std::string & doc_,
+	NetworkDocument(const Database *database_, const std::string & doc_,
 			const std::map<om_keyno, OmKey> &keys_);
 
 	// Stop copying
