@@ -57,7 +57,8 @@ EXTRA_libxapian_la_SOURCES =
 #
 # 0:0:0 0.7.2 (and anything before) 
 # 0:1:0 0.7.3
-libxapian_la_LDFLAGS = -version-info 0:1:0
+# 1:0:0 0.7.4 (Xapian::ESet now has reference counted internals)
+libxapian_la_LDFLAGS = -version-info 1:0:0
 
 # FIXME:
 # doesn't really work as we'd hope as we get to play with the mangled symbols

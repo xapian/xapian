@@ -362,7 +362,7 @@ class ESet {
     public:
 	class Internal;
 	/// @internal Reference counted internals.
-	Internal *internal;
+	Xapian::Internal::RefCntPtr<Internal> internal;
 
 	/// Construct an empty ESet
 	ESet();

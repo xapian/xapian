@@ -289,7 +289,7 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 	void fetch_items(Xapian::doccount first, Xapian::doccount last) const;
 };
 
-class ESet::Internal {
+class ESet::Internal : public Xapian::Internal::RefCntBase {
     friend class ESet;
     friend class ESetIterator;
     friend class OmExpand;
