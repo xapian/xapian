@@ -259,6 +259,17 @@ class QuartzBufferedTableManager : public QuartzTableManager {
 	QuartzBufferedTable attribute_buffered_table;
 	QuartzBufferedTable record_buffered_table;
 	//@}
+	
+	std::string lock_name;
+
+	/** Get a write lock on the database, or throw an
+	 *  OmDatabaseLockError if failure.
+	 */
+	void get_database_write_lock();
+
+	/** Release the database write lock.
+	 */
+	void release_database_write_lock();
 
     public:
 	/** Construct the manager.

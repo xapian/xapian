@@ -1,3 +1,7 @@
+Thu Dec  7 18:32:39 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Implementation of write locks for Quartz
+
 Thu Dec  7 18:28:55 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fix to backendmanager which doesn't return writable databases

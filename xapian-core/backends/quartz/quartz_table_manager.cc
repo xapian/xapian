@@ -28,6 +28,14 @@
 #include "utils.h"
 #include <om/omerror.h>
 #include <string>
+#include "omdebug.h"
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <sys/fcntl.h>
+#include <sys/utsname.h>
+#include <cerrno>
 
 QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
 					       std::string log_filename,
@@ -316,12 +324,87 @@ QuartzBufferedTableManager::QuartzBufferedTableManager(std::string db_dir_,
 	  termlist_buffered_table(disktables.get_termlist_table()),
 	  lexicon_buffered_table(disktables.get_lexicon_table()),
 	  attribute_buffered_table(disktables.get_attribute_table()),
-	  record_buffered_table(disktables.get_record_table())
+	  record_buffered_table(disktables.get_record_table()),
+	  lock_name(db_dir_ + "/db_lock")
 {
+    get_database_write_lock();
 }
 
 QuartzBufferedTableManager::~QuartzBufferedTableManager()
 {
+    release_database_write_lock();
+}
+
+void
+QuartzBufferedTableManager::get_database_write_lock()
+{
+    struct utsname host;
+    if (!uname(&host)) {
+	host.nodename[0] = '\0';
+    }
+    std::string tempname = lock_name + ".tmp."
+	    + om_tostring(getpid()) + "." +
+	    host.nodename + "." +
+	    om_tostring(reinterpret_cast<long>(this)); /* should work within
+							  one process too! */
+    DEBUGLINE(DB, "Temporary file " << tempname << " created.");
+    int num_tries = 5;
+    while (true) {
+	num_tries--;
+	if (num_tries < 0) {
+	    throw OmDatabaseLockError("Unable to acquire database write lock "
+				      + lock_name);
+	}
+
+	int tempfd = open(tempname.c_str(),
+			  O_CREAT | O_EXCL,
+			  S_IRUSR | S_IWUSR);
+	if (tempfd < 0) {
+	    throw OmDatabaseLockError("Unable to create " + tempname +
+				      ": " + strerror(errno),
+				      errno);
+	}
+	fdcloser fdclose(tempfd);
+
+	/* Now link(2) the temporary file to the lockfile name.
+	 * If either link() returns 0, or the temporary file has
+	 * link count 2 afterwards, then the lock succeeded.
+	 * Otherwise, it failed.  (Reference: Linux open() manpage)
+	 */
+	/* FIXME: sort out all these unlinks */
+	int result = link(tempname.c_str(), lock_name.c_str());
+	if (result == 0) {
+	    unlink(tempname.c_str());
+	    return;
+	} else {
+	    int link_errno = errno;
+	    struct stat statbuf;
+	    int statresult = fstat(tempfd, &statbuf);
+	    int fstat_errno = errno;
+	    unlink(tempname.c_str());
+	    if (statresult != 0) {
+		throw OmDatabaseLockError("Unable to fstat() temporary file " +
+					  tempname + " while locking: " +
+					  strerror(fstat_errno));
+	    }
+	    if (statbuf.st_nlink == 2) {
+		/* success */
+		return;
+	    } else {
+		DEBUGLINE(DB, "link() returned " << result
+			  << "(" << strerror(link_errno) << ")");
+		DEBUGLINE(DB, "Links in statbuf: " << statbuf.st_nlink);
+		/* also failed */
+		continue;
+	    }
+	}
+    }
+}
+
+void
+QuartzBufferedTableManager::release_database_write_lock()
+{
+    unlink(lock_name.c_str());
 }
 
 void
