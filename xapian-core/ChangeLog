@@ -1,3 +1,8 @@
+Wed Jul 09 14:51:51 BST 2003  Olly Betts <olly@survex.com>
+
+	* bindings/php4/Makefile.am,bindings/php4/xapian/.cvsignore: More
+	  work on the php4 bindings.
+
 Wed Jul 09 03:00:17 BST 2003  Olly Betts <olly@survex.com>
 
 	* bindings/guile/Makefile.am,bindings/python/Makefile.am,
