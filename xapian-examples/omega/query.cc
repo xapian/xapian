@@ -22,13 +22,10 @@
 
 typedef enum { /*ABSENT = 0,*/ NORMAL, PLUS, MINUS /*, BOOL_FILTER*/ } termtype;
 
-// FIXME: remove struct term and just put term straight into the
-// PLUS/MINUS/NORMAL vectors
-struct term {
-    string termname;
-    termtype type;
-};
-static vector<struct term> new_terms;
+static vector<termname> new_terms;
+static vector<termname> pluses;
+static vector<termname> minuses;
+static vector<termname> normals;
 
 #ifdef META
 static char *fmtstr = "ÿP\tÿU\tÿC\tÿS\tÿL\tÿW\tÿH\tÿs\tÿM\tÿT\n";
@@ -153,22 +150,18 @@ static int is_old_query( const char *oldp ) {
    if (new_terms.size() < n_old_terms) return 0;
 #endif
 
-   while ((pend = strchr( term, oldp_sep )) != NULL) {
-      size_t len = pend - term;
-      /* ignore oversized terms */
-      if (len < MAX_TERM_LEN) {
-	 oldterm = string(term, len);
-	 is_old = 0;
-	 vector<struct term>::const_iterator i;
-	 for (i = new_terms.begin(); i != new_terms.end(); i++) {
-	     if (oldterm == i->termname) {
-		 is_old = 1;
-		 break;
-	     }
-	 }
-	 if (!is_old) break;
-	 term = pend + 1;
-      }
+   while ((pend = strchr(term, oldp_sep)) != NULL) {
+       oldterm = string(term, pend - term);
+       is_old = 0;
+       vector<termname>::const_iterator i;
+       for (i = new_terms.begin(); i != new_terms.end(); i++) {
+	   if (oldterm == *i) {
+	       is_old = 1;
+	       break;
+	   }
+       }
+       if (!is_old) break;
+       term = pend + 1;
    }
 #ifdef FERRET
    /* for the ferret, return:
@@ -206,32 +199,6 @@ int set_probabilistic(const char *p, const char *oldp) {
    }
 
     if (!new_terms.empty()) {
-	vector<termname> pluses;
-	vector<termname> minuses;
-	vector<termname> normals;
-      
-	vector<struct term>::const_iterator i;
-	int count = 1;
-	for (i = new_terms.begin(); i != new_terms.end(); i++) {
-	    switch (i->type) {
-	     case PLUS:
-		pluses.push_back(i->termname);
-		matching_map[i->termname] = count++;
-		break;
-	     case MINUS:
-		minuses.push_back(i->termname);
-		// don't put MINUS terms in map - they won't match...
-		break;
-	     case NORMAL:
-		normals.push_back(i->termname);
-		matching_map[i->termname] = count++;
-		break;
-	     default:
-		cout << "ignoring term " << i->termname << endl; // FIXME
-		break;
-	  }
-	}
-
 	// now we constuct the query:
 	// ((plusterm_1 AND ... AND plusterm_n) ANDMAYBE
 	//  (term_1 OR ... OR term_m)) ANDNOT
@@ -255,11 +222,25 @@ int set_probabilistic(const char *p, const char *oldp) {
 
 /**************************************************************/
 
+static int term_count = 1; // FIXME: ick
+
 /* if term is in the database, add it to the term list */
 static void check_term(string name, termtype type) {
-    new_terms.push_back(struct term());
-    new_terms.back().termname = name;
-    new_terms.back().type = type;
+    new_terms.push_back(name);
+    switch (type) {
+     case PLUS:
+	pluses.push_back(name);
+	matching_map[name] = term_count++;
+	break;
+     case MINUS:
+	minuses.push_back(name);
+	// don't put MINUS terms in map - they won't match...
+	break;
+     case NORMAL:
+	normals.push_back(name);
+	matching_map[name] = term_count++;
+	break;
+    }    
 }
 
 /**************************************************************/
@@ -583,9 +564,9 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 	 /*** save prob query ***/
 	 if (!new_terms.empty()) {
 	     cout << "<INPUT TYPE=hidden NAME=OLDP VALUE=\"";
-	     vector<struct term>::const_iterator i;
+	     vector<termname>::const_iterator i;
 	     for (i = new_terms.begin(); i != new_terms.end(); i++) {
-		 cout << i->termname << '.';
+		 cout << *i << '.';
 	     }
 	     cout << "\">\n";
 	 }
@@ -1115,12 +1096,13 @@ static void print_query_page( const char* page, long int first, long int size) {
 		}
 	        else if (!strncmp(pc, "FREQS", 5)) {
 		   if (!new_terms.empty()) {
-		       vector<struct term>::const_iterator i;
+		       vector<termname>::const_iterator i;
 		       for (i = new_terms.begin(); i != new_terms.end(); i++) {
-			   const char *term = i->termname.c_str();
+			   const char *term = i->c_str();
 
+			   // FIXME: is there a better way?
 			   int freq = 0;
-			   termid id = database.term_name_to_id(i->termname);
+			   termid id = database.term_name_to_id(*i);
 			   if (id) {
 			       PostList *pl = database.open_post_list(id);
 			       freq = pl->get_termfreq();
