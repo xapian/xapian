@@ -1,3 +1,10 @@
+Thu May 16 15:41:14 BST 2002  Sam Liddicott <saml@ananova.net>
+
+	* Removed extra package again!
+	* Moved images to /var/www/icons/omega till we think of something
+	  better.  Should be the most harmless solution that still works
+	  without requireing too much brains on the part of the installer
+
 Thu May 16 14:53:54 BST 2002  Sam Liddicott <saml@ananova.net>
 
 	* Moved images to a seperate optional package to stop touching 
