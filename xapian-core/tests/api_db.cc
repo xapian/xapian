@@ -2071,7 +2071,7 @@ static bool test_postlist5()
 {
     OmDatabase db(get_database("apitest_manydocs"));
     OmPostListIterator i = db.postlist_begin("thi");
-    int j = 1;
+    unsigned int j = 1;
     while(i != db.postlist_end("thi")) {
 	TEST_EQUAL(*i, j);
 	i++;
