@@ -508,7 +508,7 @@ LocalMatch::perform_collapse(std::vector<OmMSetItem> &mset,
 		// Old one hasn't fallen out of MSet yet
 		// Scan through (unsorted) MSet looking for entry
 		// FIXME: more efficient way that just scanning?
-		om_weight olddid = olditem.did;
+		om_docid olddid = olditem.did;
 		DEBUGLINE(MATCH, "collapsem: removing " << olddid <<
 			  ": " << new_item.collapse_key.value);
 		std::vector<OmMSetItem>::iterator i = mset.begin();
