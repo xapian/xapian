@@ -1,3 +1,8 @@
+Sat Nov 06 14:49:05 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Updated comment - we now find SOURCEDOC in 2 goes (as
+	  there are no longer any C sources).
+
 Sat Nov 06 14:43:16 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Oops, STLPORT_CXXFLAGS *is* used (in xapian-config.in)
