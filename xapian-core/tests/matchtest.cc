@@ -38,6 +38,7 @@ main(int argc, char *argv[])
     bool multidb = false;
     bool showmset = false;
     matchop default_op = MOP_OR;
+    int collapse_key = -1;
 
     bool syntax_error = false;
     argv++;
@@ -49,6 +50,10 @@ main(int argc, char *argv[])
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--mfirst") == 0) {
 	    mfirst = atoi(argv[1]);
+	    argc -= 2;
+	    argv += 2;
+	} else if (argc >= 2 && strcmp(argv[0], "--key") == 0) {
+	    collapse_key = atoi(argv[1]);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--db") == 0) {
@@ -87,6 +92,7 @@ main(int argc, char *argv[])
 	cout << "Syntax: " << progname << " TERM ..." << endl;
 	cout << "\t--msize <msize>\n";
 	cout << "\t--mfirst <first mitem to return>\n";
+	cout << "\t--key <key to collapse mset on>\n";
 	cout << "\t--db DBDIRECTORY\n";
 	cout << "\t--im INMEMORY\n";
 	cout << "\t--rel DOCID\n";
@@ -209,6 +215,8 @@ main(int argc, char *argv[])
 	    match.add_oplist(default_op, prob_terms);
 	    prob_terms.clear();
 	}
+
+	if(collapse_key != -1) match.set_collapse_key(collapse_key);
 
 	vector<MSetItem> mset;
         match.match(mfirst, msize, mset);

@@ -76,6 +76,7 @@ class MSetCmp {
 
 Match::Match(IRDatabase *_database)
 	: default_op(MOP_OR),
+	  do_collapse(false),
 	  have_added_terms(false),
 	  query_ready(false)
 {
@@ -280,14 +281,12 @@ Match::match(doccount first, doccount maxitems, vector<MSetItem> &mset)
 }
 
 // This is the method which runs the query, generating the M set
-//
-// Note: at the moment, the calculation is performed in the same way
-// whether or not first == 0, but this could be used for optimisations
-// at a later stage.
 void
 Match::match(doccount first, doccount maxitems,
 	     vector<MSetItem> &mset, doccount *mtotal)
 {
+    Assert(maxitems > 0);
+
     // Prepare query
     *mtotal = 0;
     mset.clear();
@@ -304,6 +303,8 @@ Match::match(doccount first, doccount maxitems,
 
     weight w_max = max_weight;
     recalculate_maxweight = false;
+
+    map<IRKey, pair<weight, docid> > collapse_table;
 
     // Perform query
     while (1) {
@@ -342,19 +343,65 @@ Match::match(doccount first, doccount maxitems,
         weight w = merger->get_weight();
         
         if (w > w_min) {
-	    docid id = merger->get_docid();
-	    mset.push_back(MSetItem(w, id));
+	    docid did = merger->get_docid();
+	    bool add_item = true;
 
-	    // FIXME: find balance between larger size for more efficient
-	    // nth_element and smaller size for better w_min optimisations
-	    if (mset.size() == max_msize * 2) {
-		// find last element we care about
-		DebugMsg("finding nth" << endl);
-		nth_element(mset.begin(), mset.begin() + max_msize, mset.end(), MSetCmp());
-		// erase elements which don't make the grade
-	        mset.erase(mset.begin() + max_msize, mset.end());
-	        w_min = mset.back().wt;
-	        DebugMsg("mset size = " << mset.size() << endl);
+	    // Item has high enough weight to go in MSet: do collapse if wanted
+	    if(do_collapse) {
+		IRDocument * irdoc = database->open_document(did);
+		IRKey irkey = irdoc->get_key(collapse_key);
+		map<IRKey, pair<weight, docid> >::iterator oldkey;
+		oldkey = collapse_table.find(irkey);
+		if(oldkey == collapse_table.end()) {
+		    DebugMsg("collapsem: new key: " << irkey.value << endl);
+		    // Key not been seen before
+		    collapse_table.insert(pair<IRKey, pair<weight, docid> >(irkey, pair<weight, docid>(w, did)));
+		} else {
+		    weight oldw = (*oldkey).second.first;
+		    if(oldw > w) {
+			DebugMsg("collapsem: better exists: " << irkey.value << endl);
+			// There's already a better match with this key
+			add_item = false;
+		    } else {
+			// This is best match with this key so far:
+			// remove the old one from the MSet
+			if(oldw >= w_min) {
+			    // Old one hasn't fallen out of MSet yet
+			    // Scan through (unsorted) MSet looking for entry
+			    // FIXME: more efficient way that just scanning?
+			    weight olddid = (*oldkey).second.second;
+			    DebugMsg("collapsem: removing " << olddid << ": " << irkey.value << endl);
+			    vector<MSetItem>::iterator i = mset.begin();
+			    for(;;) {
+				if(i->did == olddid) {
+				    mset.erase(i);
+				    break;
+				}
+				i++;
+				// Check that it was found
+				Assert(i != mset.end());
+			    }
+			}
+			oldkey->second = pair<weight, docid>(w, did);
+		    }
+		}
+	    }
+
+	    if(add_item) {
+		mset.push_back(MSetItem(w, did));
+
+		// FIXME: find balance between larger size for more efficient
+		// nth_element and smaller size for better w_min optimisations
+		if (mset.size() == max_msize * 2) {
+		    // find last element we care about
+		    DebugMsg("finding nth" << endl);
+		    nth_element(mset.begin(), mset.begin() + max_msize,
+				mset.end(), MSetCmp());
+		    // erase elements which don't make the grade
+		    mset.erase(mset.begin() + max_msize, mset.end());
+		    w_min = mset.back().wt;
+		    DebugMsg("mset size = " << mset.size() << endl);
+		}
 	    }
 	}
     }
