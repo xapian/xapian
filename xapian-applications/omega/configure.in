@@ -1,5 +1,4 @@
-dnl Process this file with autoconf (version 2.50 or greater) to produce a
-dnl configure script.
+dnl Process this file with autoconf to produce a configure script.
 AC_INIT(omega.cc)
 AM_INIT_AUTOMAKE(omega, 0.4.1-cvs)
 AM_CONFIG_HEADER(config.h)
