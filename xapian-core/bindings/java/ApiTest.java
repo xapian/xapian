@@ -172,7 +172,7 @@ public class ApiTest {
     }
     */
 
-    public static OmDatabaseGroup get_simple_database() throws Throwable {
+    public static OmDatabase get_simple_database() throws Throwable {
         OmDatabase mydb = get_database("apitest_simpledata");
 	return make_dbgrp(mydb);
     }
@@ -207,10 +207,10 @@ public class ApiTest {
         return backendmanager.get_database(dbname1, dbname2);
     }
 
-    public static OmDatabaseGroup make_dbgrp(OmDatabase db1,
-                 			     OmDatabase db2,
-					     OmDatabase db3) throws Throwable {
-        OmDatabaseGroup result = new OmDatabaseGroup();
+    public static OmDatabase make_dbgrp(OmDatabase db1,
+					OmDatabase db2,
+					OmDatabase db3) throws Throwable {
+        OmDatabase result = new OmDatabase();
 
 	result.add_database(db1);
 	result.add_database(db2);
@@ -219,9 +219,9 @@ public class ApiTest {
 	return result;
     }
 
-    public static OmDatabaseGroup make_dbgrp(OmDatabase db1,
+    public static OmDatabase make_dbgrp(OmDatabase db1,
                  			     OmDatabase db2) throws Throwable {
-        OmDatabaseGroup result = new OmDatabaseGroup();
+        OmDatabase result = new OmDatabase();
 
 	result.add_database(db1);
 	result.add_database(db2);
@@ -229,8 +229,8 @@ public class ApiTest {
 	return result;
     }
 
-    public static OmDatabaseGroup make_dbgrp(OmDatabase db1) throws Throwable {
-        OmDatabaseGroup result = new OmDatabaseGroup();
+    public static OmDatabase make_dbgrp(OmDatabase db1) throws Throwable {
+        OmDatabase result = new OmDatabase();
 
 	result.add_database(db1);
 

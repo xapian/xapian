@@ -1,4 +1,4 @@
-/* OmWritableDatabase.java
+/* OmSettings.java: "global" settings object
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -21,26 +21,33 @@
  */
 package com.muscat.om;
 
-public class OmWritableDatabase extends OmDatabase {
-
-    public OmWritableDatabase (OmSettings params) throws OmError { 
-	nativePtr = createNativeObject (params);
+public class OmSettings extends OmObject {
+    
+    public OmSettings () throws OmError { 
+	nativePtr = createNativeObject ();
     }
-    protected native long createNativeObject (OmSettings params);
+    protected native long createNativeObject ();
 
     protected void finalize () throws Throwable {
 	super.finalize ();
     }
     protected native void deleteNativeObject ();
 
-    public void begin_session() {
-        begin_session(0);
-    }
+    public native void set(String key, String value);
+    public native void set(String key, int value);
+    public native void set(String key, double value);
+    public native void set(String key, boolean value);
+    public native void set(String key, String[] value);
 
-    public native void begin_session(int timeout);
-    public native void end_session();
-
-    public native int add_document(OmDocumentContents document);
+    public native String get(String key);
+    public native String get(String key, String def);
+    public native int get_int(String key);
+    public native int get_int(String key, int def);
+    public native boolean get_bool(String key);
+    public native boolean get_bool(String key, boolean def);
+    public native double get_real(String key);
+    public native double get_real(String key, double def);
+    public native String[] get_vector(String key);
 
     public native String get_description();
-}
+};

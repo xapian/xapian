@@ -9,24 +9,15 @@
 /*
  * Class:     com_muscat_om_OmWritableDatabase
  * Method:    createNativeObject
- * Signature: (Ljava/lang/String;[Ljava/lang/String;)J
+ * Signature: (Lcom/muscat/om/OmSettings;)J
  */
 JNIEXPORT jlong JNICALL Java_com_muscat_om_OmWritableDatabase_createNativeObject
-  (JNIEnv *env, jobject obj, jstring type, jobjectArray params)
+  (JNIEnv *env, jobject obj, jobject params)
 {
-    std::string type_n = getStringValue (env, type);
-
-    jsize params_len = env->GetArrayLength (params);
-    std::vector<string> params_n;
-    for (jsize i = 0; i < params_len; i++) {
-	jobject param_obj = env->GetObjectArrayElement (params, i);
-	std::string parm = getStringValue (env, (jstring) param_obj);
-	params_n.push_back (parm);
-	env->DeleteLocalRef (param_obj);
-    }
+    const OmSettings *params_n = (const OmSettings *) tryGetLongField (env, params, "nativePtr");
 
     try {
-	return (jlong) new OmWritableDatabase(type_n, params_n);
+	return (jlong) new OmWritableDatabase(*params_n);
     } catch (OmError &err) {
 	handleNativeError (env, err);
     }

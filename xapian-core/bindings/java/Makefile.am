@@ -7,7 +7,6 @@ CLASSPATH    =  $(top_builddir)/bindings/java:$(top_builddir)/bindings/java/clas
 
 JSRC  = com/muscat/om/OmObject.java			\
 	com/muscat/om/OmReturnObject.java		\
-	com/muscat/om/OmDatabaseGroup.java		\
 	com/muscat/om/OmDatabase.java			\
 	com/muscat/om/OmWritableDatabase.java		\
 	com/muscat/om/OmDocumentContents.java		\
@@ -20,7 +19,7 @@ JSRC  = com/muscat/om/OmObject.java			\
 	com/muscat/om/OmMSetItem.java			\
 	com/muscat/om/OmQuery.java			\
 	com/muscat/om/OmRSet.java			\
-	com/muscat/om/OmMatchOptions.java		\
+	com/muscat/om/OmSettings.java			\
 	com/muscat/om/OmMatchDecider.java		\
 	com/muscat/om/OmVector.java			\
 	com/muscat/om/OmStem.java			\
@@ -29,7 +28,6 @@ JSRC  = com/muscat/om/OmObject.java			\
 	com/muscat/om/OmESet.java			\
 	com/muscat/om/OmESetItem.java			\
 	com/muscat/om/OmESetItemVector.java		\
-	com/muscat/om/OmExpandOptions.java		\
 	com/muscat/om/OmExpandDecider.java		\
 	com/muscat/om/OmPrefixExpandDecider.java	\
 	com/muscat/om/OmError.java			\
@@ -47,7 +45,6 @@ JSRC  = com/muscat/om/OmObject.java			\
 
 JCLASSES  = com/muscat/om/OmObject.class			\
 	com/muscat/om/OmReturnObject.class		\
-	com/muscat/om/OmDatabaseGroup.class		\
 	com/muscat/om/OmDatabase.class 			\
 	com/muscat/om/OmWritableDatabase.class 		\
 	com/muscat/om/OmDocumentcontents.class 		\
@@ -60,7 +57,7 @@ JCLASSES  = com/muscat/om/OmObject.class			\
 	com/muscat/om/OmMSetItem.class			\
 	com/muscat/om/OmQuery.class			\
 	com/muscat/om/OmRSet.class			\
-	com/muscat/om/OmMatchOptions.class		\
+	com/muscat/om/OmSettings.class			\
 	com/muscat/om/OmVector.class			\
 	com/muscat/om/OmStem.class			\
 	com/muscat/om/OmMSetItemVector.class		\
@@ -68,19 +65,18 @@ JCLASSES  = com/muscat/om/OmObject.class			\
 	com/muscat/om/OmESet.class			\
 	com/muscat/om/OmESetItem.class			\
 	com/muscat/om/OmESetItemVector.class		\
-	com/muscat/om/OmExpandOptions.class		\
 	com/muscat/om/OmExpandDecider.class		\
 	com/muscat/om/OmPrefixExpandDecider.class	\
 	com/muscat/om/OmError.class			\
 	com/muscat/om/OmRuntimeError.class		\
 	com/muscat/om/OmOpeningError.class		\
-	com/muscat/om/OmLogicError.class			\
+	com/muscat/om/OmLogicError.class		\
 	com/muscat/om/OmInvalidArgumentError.class	\
 	com/muscat/om/OmDocNotFoundError.class		\
 	com/muscat/om/OmNetworkError.class		\
 	RunTest.class                                   \
 	ApiTest.class                                   \
-	TestFail.class                                   \
+	TestFail.class                                  \
 	ApiTestFuncs.class				\
 	BackendManager.class
 

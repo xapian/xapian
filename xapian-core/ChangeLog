@@ -1,3 +1,8 @@
+Mon Sep 11 18:39:58 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Some updates to Java half of the Java bindings.  The native half
+	  still needs some fixing, as do the test classes.
+
 Mon Sep 11 18:34:30 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix from Martin for DB database skip_to problem - reenabled skip_to

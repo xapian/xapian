@@ -4,11 +4,11 @@ public class OmEnquire extends OmObject {
 
     private OmEnquire () { }
     
-    public OmEnquire (OmDatabaseGroup db) {
+    public OmEnquire (OmDatabase db) {
 	nativePtr = createNativeObject (db);
     }
 	
-    protected native long createNativeObject (OmDatabaseGroup db);
+    protected native long createNativeObject (OmDatabase db);
     protected native void deleteNativeObject ();
     public void finalize () throws Throwable {
 	super.finalize ();
@@ -22,7 +22,7 @@ public class OmEnquire extends OmObject {
 
     /** Get (a portion of) the match set for the current query. */
     public OmMSet get_mset (int first, int maxitems, OmRSet rset,
-    			    OmMatchOptions moptions)
+    			    OmSettings moptions)
     {
 	return get_mset (first, maxitems, rset, moptions, null);
     }
@@ -34,7 +34,7 @@ public class OmEnquire extends OmObject {
 	return get_mset (first, maxitems, null, null, null);
     }
     public native OmMSet get_mset (int first, int maxitems, 
-				   OmRSet rset, OmMatchOptions moptions, OmMatchDecider mdecider);
+				   OmRSet rset, OmSettings moptions, OmMatchDecider mdecider);
 
     /** Set the query to run. */
     public native void set_query (OmQuery query);
@@ -43,11 +43,11 @@ public class OmEnquire extends OmObject {
     public OmESet get_eset (int maxitems, OmRSet rset) {
 	return get_eset (maxitems, rset, null, null);
     }
-    public OmESet get_eset (int maxitems, OmRSet rset, OmExpandOptions eopts) {
+    public OmESet get_eset (int maxitems, OmRSet rset, OmSettings eopts) {
 	return get_eset (maxitems, rset, eopts, null);
     }
     public native OmESet get_eset (int maxitems, OmRSet rset, 
-				   OmExpandOptions eopts, OmExpandDecider edecider);
+				   OmSettings eopts, OmExpandDecider edecider);
 
     /** Get terms which match a given document, by match set item. */
     public String[] get_matching_terms (OmMSetItem mitem) {

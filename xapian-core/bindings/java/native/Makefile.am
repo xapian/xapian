@@ -3,7 +3,6 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include $(JDKINC)
 #CPP     = g++
 
 JCLAS =	com.muscat.om.OmEnquire				\
-	com.muscat.om.OmDatabaseGroup			\
 	com.muscat.om.OmDatabase			\
 	com.muscat.om.OmWritableDatabase		\
 	com.muscat.om.OmDocumentContents		\
@@ -13,12 +12,12 @@ JCLAS =	com.muscat.om.OmEnquire				\
 	com.muscat.om.OmMSetItemVector			\
 	com.muscat.om.OmStem				\
 	com.muscat.om.OmDocument			\
-	com.muscat.om.OmMatchOptions    		\
+	com.muscat.om.OmSettings    			\
 	com.muscat.om.OmRSet				\
 	com.muscat.om.OmESet				\
 	com.muscat.om.OmESetItem			\
 	com.muscat.om.OmESetItemVector			\
-	com.muscat.om.OmExpandOptions			\
+	com.muscat.om.OmSettings			\
 	com.muscat.om.OmExpandDecider			\
 	com.muscat.om.OmPrefixExpandDecider
 
@@ -29,7 +28,6 @@ dummy_SOURCES = dummy.cc
 noinst_HEADERS = utils.h
 
 EXTRA_DIST = nvOmEnquire.cc			\
-	nvOmDatabaseGroup.cc		\
 	nvOmDatabase.cc			\
 	nvOmWritableDatabase.cc		\
 	nvOmDocumentContents.cc		\
@@ -39,17 +37,14 @@ EXTRA_DIST = nvOmEnquire.cc			\
 	nvOmMSetItemVector.cc		\
 	nvOmDocument.cc			\
 	nvOmStem.cc			\
-	nvOmMatchOptions.cc		\
 	nvOmRSet.cc			\
 	nvOmESet.cc			\
 	nvOmESetItem.cc			\
 	nvOmESetItemVector.cc		\
-	nvOmExpandOptions.cc		\
 	nvOmPrefixExpandDecider.cc	\
 	utils.cc
 
 native_sources = nvOmEnquire.lo			\
-	nvOmDatabaseGroup.lo		\
 	nvOmDatabase.lo			\
 	nvOmWritableDatabase.lo		\
 	nvOmDocumentContents.lo		\
@@ -59,12 +54,10 @@ native_sources = nvOmEnquire.lo			\
 	nvOmMSetItemVector.lo		\
 	nvOmDocument.lo			\
 	nvOmStem.lo			\
-	nvOmMatchOptions.lo		\
 	nvOmRSet.lo			\
 	nvOmESet.lo			\
 	nvOmESetItem.lo			\
 	nvOmESetItemVector.lo		\
-	nvOmExpandOptions.lo		\
 	nvOmPrefixExpandDecider.lo	\
 	utils.lo
 

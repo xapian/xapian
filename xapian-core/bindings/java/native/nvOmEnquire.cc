@@ -18,7 +18,7 @@
 JNIEXPORT jlong JNICALL Java_com_muscat_om_OmEnquire_createNativeObject
   (JNIEnv *env, jobject obj, jobject db)
 {
-    OmDatabaseGroup* db_n = (OmDatabaseGroup*) tryGetLongField (env, db, "nativePtr");
+    OmDatabase* db_n = (OmDatabase*) tryGetLongField (env, db, "nativePtr");
     jlong enq = 0;
     try {
 	enq = (jlong) new OmEnquire (*db_n);
@@ -81,8 +81,8 @@ JNIEXPORT jobject JNICALL Java_com_muscat_om_OmEnquire_get_1mset
     OmEnquire* enq = (OmEnquire*) tryGetLongField (env, obj, "nativePtr");
     OmRSet*          rset = omrset ?
 	(OmRSet*)           tryGetLongField (env, omrset, "nativePtr") : NULL;
-    OmMatchOptions*  mopt = omoptions ?
-	(OmMatchOptions*)   tryGetLongField (env, omoptions, "nativePtr") : NULL;
+    OmSettings*  mopt = omoptions ?
+	(OmSettings*)   tryGetLongField (env, omoptions, "nativePtr") : NULL;
     OmMatchDecider*  mdec = ommatchdecider ?
 	(OmMatchDecider*)   tryGetLongField (env, ommatchdecider, "nativePtr") : NULL;
 
@@ -126,8 +126,8 @@ JNIEXPORT jobject JNICALL Java_com_muscat_om_OmEnquire_get_1eset
     OmEnquire* enq              = (OmEnquire*)       tryGetLongField (env, obj, "nativePtr");
     OmRSet* rset_n              = (OmRSet*)          tryGetLongField (env, rset, "nativePtr");
 
-    OmExpandOptions* eoptions_n = (eoptions == NULL) ? 0 :
-	(OmExpandOptions*) tryGetLongField (env, eoptions, "nativePtr");
+    OmSettings* eoptions_n = (eoptions == NULL) ? 0 :
+	(OmSettings*) tryGetLongField (env, eoptions, "nativePtr");
 
     OmExpandDecider* edecider_n = (edecider == NULL) ? 0 :
 	(OmExpandDecider*) tryGetLongField (env, edecider, "nativePtr");
