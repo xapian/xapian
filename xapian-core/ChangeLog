@@ -1,3 +1,7 @@
+Tue Sep  5 15:21:13 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Correct directory tag in indexer/indexgraph/dir_contents
+
 Tue Sep 05 14:28:40 BST 2000 Olly Betts
 
 	* apitest: Added multidb5 - test of AND with multidatabase.

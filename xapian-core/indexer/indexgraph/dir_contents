@@ -1,4 +1,4 @@
-<Directory>indexer/indexergraph</Directory>
+<Directory>indexer/indexgraph</Directory>
 
 <Description>
 This directory contains the Muscat indexer framework.
