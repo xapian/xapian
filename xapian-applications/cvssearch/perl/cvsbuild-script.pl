@@ -74,6 +74,7 @@ if(($cvsdata ne "") && (not (-d $cvsdata))) {
 # ------------------------------------------------------------
 if(($cvscache ne "") && (not (-d $cvscache))) {
     mkdir ("$cvscache", 0777) || die "cannot mmkdir $cvscache: $!";
+    system ("chmod o+rwx $cvscache");
 }
 
 # ----------------------------------------

@@ -1,4 +1,3 @@
-#!/usr/bin/perl
 #-------------------------------------------------------------------
 # some stuff about cvssearch
 # This produces Header for matched files

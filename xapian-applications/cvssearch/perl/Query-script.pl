@@ -295,13 +295,14 @@ if($query && ($query ne "")){
 	#print "<pre>";
 	#print $first;
 	#@grepmatches = `grep -I -i -n -H '$tmpgrep' $files | head -$num_matches`;
-	@grepmatches = `grep -I -i -n -H '$first' $files`;
+	$match_expr = "(".join ("|", @tmpgrep).")";
+	@grepmatches = `grep -E -I -i -n -H \"$match_expr\" $files`;
 	#print @grepmatches;
-	foreach (@tmpgrep){
+	# foreach (@tmpgrep){
 		#print $_;
-		@grepmatches = grep '$_', @grepmatches; 
+	#	@grepmatches = grep '$_', @grepmatches; 
 		#print @grepmatches;
-	}
+	#}
 	#print "</pre>";
 	if($#grepmatches > $num_matches){
 		@grepmatches = @grepmatches[0..$num_matches];
@@ -644,7 +645,7 @@ sub printTips{
 #	print "<b class=blue>Tips</font></b>\n";
 	print "<ul>\n";
 	print "<li>use <tt class=orange>in:</tt> at the end of keywords to select package to seach in. For example, \n";
-	print "<br><tt class=orange>menu in:kdebase/konqueror;kdepime/korganizer</tt> \n";
+	print "<br><tt class=orange>menu in:kdebase/konqueror;kdepim/korganizer</tt> \n";
 	print "<br>searches for menu under kdebase/konqueror and kdepim/korganizer, default searches for keywords under all packages.\n";
 	print "<li>Keywords are not case-sensitive and stemmed. (e.g. searching for 'fishes' will match 'FISH', 'fishes', 'fishing'...)\n";
 	print "<li>Results are ranked with the objective of matching as large a fraction of the keywords as possible.  \n";
