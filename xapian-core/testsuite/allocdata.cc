@@ -39,9 +39,9 @@ check_alloc_differences(allocation_snapshot before, allocation_snapshot after)
     int i;
     for (i = allocdata.allocations_bound - 1; i >= 0; --i) {
 	if (allocdata.allocations[i].p
-	    && allocdata.allocations[i].id > before) return true;
+	    && allocdata.allocations[i].id > before) return false;
     }
-    return false;
+    return true;
 }
 
 void

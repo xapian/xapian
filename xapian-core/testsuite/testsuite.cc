@@ -163,7 +163,10 @@ void *operator new(size_t size) throw(std::bad_alloc) {
 
 void *operator new[](size_t size) throw (std::bad_alloc)
 {
-    return operator new(size);
+    // some STLs use new[], so don't check for now...
+    void * result = malloc(size);
+    if (!result) throw std::bad_alloc();
+    return result;
 }
 
 /// This method is simply here to be an easy place to set a break point
@@ -183,7 +186,8 @@ void operator delete(void *p) throw() {
 }
 
 void operator delete[](void *p) throw() {
-    operator delete(p);
+    // some STLs use new[], so don't check for now...
+    free(p);
 }
 
 test_driver::test_driver(const test_desc *tests_)
@@ -203,17 +207,14 @@ test_driver::runtest(const test_desc *test)
 {
     bool success = true;
 
-    allocation_snapshot before = get_alloc_snapshot();
-
     // This is used to make a note of how many times we've run the test
     int runcount = 0;
-    bool repeat;
 
-    do {
+    while (true) {
 	runcount++;
-	repeat = false;
+	tout.str("");
+	allocation_snapshot before = get_alloc_snapshot();
 	try {
-	    tout.str("");
 	    success = test->run();
 	    if (!success) {
 		out << tout.str();
@@ -256,20 +257,15 @@ test_driver::runtest(const test_desc *test)
 	}
 
 	allocation_snapshot after = get_alloc_snapshot();
-	if (check_alloc_differences(before, after)) {
-	    if (runcount < 2 && success) {
-		repeat = true;
-		before = get_alloc_snapshot();
-	    } else {
-		if (verbose) {
-		    print_alloc_differences(before, after, out);
-		}
-		out << " " << COL_RED << "LEAK" << COL_RESET;
-		success = false;
+	if (check_alloc_differences(before, after)) return success; // all new allocations freed
+	if (!success || runcount >= 2) {
+	    if (verbose) {
+		print_alloc_differences(before, after, out);
 	    }
+	    out << " " << COL_RED << "LEAK" << COL_RESET;
+	    return false;
 	}
-    } while(repeat);
-    return success;
+    }
 }
 
 test_driver::result

@@ -66,14 +66,19 @@ bool test_except1()
     return true;
 }
 
-char *duff_allocation = 0;
-char *duff_allocation_2 = 0;
+class duffnew_test {
+   duffnew_test() { *foo = 0; }
+   char foo[7];
+};
+
+duffnew_test *duff_allocation = 0;
+duffnew_test *duff_allocation_2 = 0;
 
 bool test_duffnew()
 {
     // make an unfreed allocation
     duff_allocation_2 = duff_allocation;
-    duff_allocation = new char[7];
+    duff_allocation = new duffnew_test; // char[7];
     return true;
 }
 
@@ -142,7 +147,7 @@ bool test_testsuite2()
 // test the memory leak tests
 bool test_testsuite3()
 {
-    // Note that duff_new leaks (deliberately), so it'll get run twice.
+    // Note that duffnew leaks (deliberately), so it'll get run twice.
     // Bear this in mind if you're trying to debug stuff round here...
     test_desc mytests[] = {
 	{"duff_new", test_duffnew},
