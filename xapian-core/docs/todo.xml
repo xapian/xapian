@@ -150,16 +150,6 @@ optimisations for the case of negative term weights.
 Patch doxygen, so that todo items in the body of methods get displayed.
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="Exceptions" release="">
-
-Check that it is safe for an exception to be thrown and caught within a
-destructor, when that destructor is being called due to an exception
-unwinding the stack.  eg, a database is destroyed due to an exception,
-database's destructor calls internal_end_session() which throws an exception
-(which is caught and handled by the destructor): is this safe - two
-exceptions exist simultaneously.
-
-</todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Exceptions" release="">
 
 Make exceptions work with shared libs on solaris / find an alternative. (gcc

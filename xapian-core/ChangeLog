@@ -1,3 +1,10 @@
+Wed Oct 23 05:24:14 BST 2002  Olly Betts <olly@survex.com>
+
+	* docs/todo.xml: Resolved TODO entry by consulting Stroustrup
+	  (it is safe to throw and catch an exception in a destructor,
+	  even when that destructor is being called during a stack unwind
+	  caused by an exception being thrown).
+
 Wed Oct 16 20:05:39 BST 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btreetest.cc: Suppress (most) output from
