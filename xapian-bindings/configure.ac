@@ -28,15 +28,13 @@ XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
-dnl Allow for bindings being version 0.8.5.1 which xapian-core is 0.8.5
-case "$PACKAGE_VERSION" in
-$XAPIAN_VERSION) ;;
-$XAPIAN_VERSION.[[1-9]]*) ;;
-*)
+dnl Allow for bindings being version 0.8.5.1 which xapian-core is 0.8.5.
+dnl Also ignore any _svn6789 suffix which snapshots will have.
+COMPAT_VERSION=["`echo \"$PACKAGE_VERSION\"|sed 's/^\([0-9]*\.[0-9]*\.[0-9]*\).*/\1/'`"]
+if test "$COMPAT_VERSION" != "$XAPIAN_VERSION" ; then
     dnl 0.8.2 was the first version which set XAPIAN_VERSION
     AC_MSG_ERROR([Xapian library is version ${XAPIAN_VERSION-<0.8.2} but the bindings are version $PACKAGE_VERSION])
-    ;;
-esac
+fi
 
 SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags` -Werror"
 AC_SUBST(SWIG_FLAGS)
