@@ -1,13 +1,6 @@
 #-------------------------------------------------------------------
 # some stuff about cvssearch
-# This produces a html query interface for cvssearch
-#
-# Structure:
-# 1. Calls $cvssearch - interface to omsee - for query matches
-# 2. grep source files for query words
-# 3. sorts and rank query matches as per file
-# 4. finds context matched by calling on $query
-# 5. Displays results, linking them to QueryFile.cgi
+# This produces a file with source code and matched lines highlighted.
 #
 # Author: Annie - anniec@cse.unsw.edu.au
 # Date: Feb 16 2001
@@ -15,7 +8,7 @@
 
 
 use CGI ':all';
-use cvssearch;
+use Cvssearch;
 use Entities;
 
 #---------------------------------------------
@@ -52,10 +45,10 @@ if(param()){
 	$dump = param("dump");
 	$id = param("id");
 	$displayname = param("displayname");
-	$id = cvssearch::decode($id);
-	$displayname = cvssearch::decode($displayname);
+	$id = Cvssearch::decode($id);
+	$displayname = Cvssearch::decode($displayname);
 	
-	$found = cvssearch::findfile($dump,$id);
+	$found = Cvssearch::findfile($dump,$id);
 	if (!$found){
 		&error("Page expired");
 	}
@@ -76,7 +69,7 @@ if(param()){
 	#display file
 	
 	#filename
-	&filename($displayname);
+	&filename();
 	
 	print "<table cellSpacing=0 cellPadding=0 width=100% border=0>";
 	@file = `cat $path`;
@@ -90,7 +83,7 @@ if(param()){
 		print "<td><a name=$i><pre>$i:</td>";
 		if($lineMAPweight{$i}){
 			$weight = $lineMAPweight{$i};
-			$color = cvssearch::get_color($weight, 150);
+			$color = Cvssearch::get_color($weight, 150);
 			$line = &highlightquery($line);
 			print "<td bgcolor=$color><pre>$line</td>";
 		}else{
@@ -99,7 +92,14 @@ if(param()){
 		print "</tr>\n";
 		$i++;
 	}
-	print "</table>";
+	print "</table>";	
+	
+	#print an empty page so html can scroll to the last line
+	print "<pre>";
+	for($j=0;$j<60;$j++){
+		print "\n";	
+	}
+	print "</pre>";
 }
 
 print "</body></html>";
@@ -120,18 +120,7 @@ print "</body></html>";
 #-----------------------------------
 
 sub filename{
-	my ($name) = @_;
-	$num = scalar(keys %lineMAPweight);
-print <<_HTML_;
-<p>
-<TABLE cellSpacing=0 cellPadding=2 width="100%" border=0>
-<TBODY>
-<TR>
-<TD noWrap bgColor=#3366cc><FONT face=arial,sans-serif color=white 
-size=-1><b>$name</b>&nbsp; </FONT></TD>
-<TD noWrap align=right bgColor=#3366cc><FONT face=arial,sans-serif color=white 
-size=-1>Matched <B>$num</B> lines.</FONT></TD></TR></TBODY></TABLE>
-_HTML_
+	print Cvssearch::fileheader("<b>Source Code<b>", "Darker highlight denotes better match");
 }
 
 

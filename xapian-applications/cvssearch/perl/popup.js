@@ -68,8 +68,10 @@ function moveObject(objectId, newXCoordinate, newYCoordinate) {
 // positive numbers are below and to the right of the cursor, negative numbers are above and to the left
 var xOffset = 30;
 var yOffset = -5;
+var lock = false;
 
 function showPopup (targetObjectId, eventObj) {
+	if(lock==false){
     if(eventObj) {
 	// hide any currently-visible popups
 	hideCurrentPopup();
@@ -93,14 +95,29 @@ function showPopup (targetObjectId, eventObj) {
     } else {
 	// there was no event object, so we won't be able to position anything, so give up
 	return false;
-    }
+	}
+	}else{
+		return false;
+	}
 } // showPopup
+
+function locking(targetObjectId, eventObj) {
+	if(lock==false){
+		lock = true;
+	}else{
+		lock = false;
+		hideCurrentPopup();	
+		showPopup(targetObjectId, eventObj);
+	}
+}
 
 function hideCurrentPopup() {
     // note: we've stored the currently-visible popup on the global object window.currentlyVisiblePopup
     if(window.currentlyVisiblePopup) {
-	changeObjectVisibility(window.currentlyVisiblePopup, 'hidden');
-	window.currentlyVisiblePopup = false;
+    	if(lock==false){
+			changeObjectVisibility(window.currentlyVisiblePopup, 'hidden');
+			window.currentlyVisiblePopup = false;
+		}
     }
 } // hideCurrentPopup
 

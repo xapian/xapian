@@ -15,13 +15,13 @@
 
 
 use CGI ':all';
-use cvssearch;
+use Cvssearch;
 use Entities;
 
 #-------------------
 # path variables
 #-------------------
-$CVSDATA = &cvssearch::get_cvsdata(); # path where database content file is stored
+$CVSDATA = &Cvssearch::get_cvsdata(); # path where database content file is stored
 $cvssearch = "./cvssearch";
 $num_matches = 1500;
 $cvsquery = "./cvsquerydb";
@@ -29,7 +29,7 @@ $cvsupdate = "./cvsupdatedb";
 $CVSROOTS = "$CVSDATA/CVSROOTS";
 $all = "All";
 $queryfile = "Queryfile.cgi";
-$cache = "./cache"; #where dump is written to
+$cache = "/tmp/cache"; #where dump is written to
 
 #---------------------------------------------
 # global mappigns defind in the script
@@ -82,6 +82,12 @@ h1 {color:#0066cc; font-size:x-large}
 </header>
 _STYLE_
 
+#print "<pre>";
+#$output1 = `ls -la /tmp/cache`;
+#print $output1;
+#$output2 = `rm -rf /tmp/cache`;
+#print $output2;
+#print "</pre>";
 #----------------------------------------
 # first pass on input
 # to get query for printing out the form
@@ -96,10 +102,13 @@ if(param()){
 #--------------
 print <<_HTML_;
 <body>
-<h1>CVSSearch</h1>
-<p>
+<table width=100%>
+<tr valign=bottom><td>
+<a href="http://www.cse.unsw.edu.au/~amichail/cvssearch">
+<img border=0 src="./logo.png"></a>
+</td><td align=right>
 <form action=./Query.cgi>
-<b>Enter keyword(s) to search for: </b><input type=text size=50 name=query value="$query">
+<b>Enter keyword(s) to search for: </b><input type=text size=45 name=query value="$query">
 _HTML_
 
 # print roots
@@ -120,15 +129,8 @@ close ROOTS;
 
 print <<_HTML_;
 </select>
-<input type=submit></form>
-_HTML_
-
-#--------------
-# print survey
-#--------------
-print <<_HTML_;
-<p>
-<b class=orange>Please fill out our short <a href=http://www.pollcat.com/tzk3nkgszq_a target=_blank>survey</a>. Your feedback is essential in improving CVSSearch.</font></b>
+<input type=submit value="Search"></form>
+</td></tr></table>
 _HTML_
 
 
@@ -162,8 +164,8 @@ if($query && ($query ne "")){
 		foreach (keys %dirMAProot){
 			$curroot = $_;
 			if($#rawproj<0){# search through all project under the root
-				@curproj = `$cvsupdate $curroot -f .`;
-				#print "@curproj";
+				$tmp = Cvssearch::cvsupdatedb($curroot, "-f", ".");
+				@curproj = split /\n/, $tmp;
 				#print "debug:".@curproj; # DEBUG
 				#print "all project";#debug;
 				foreach (@curproj){
@@ -247,7 +249,6 @@ if($query && ($query ne "")){
 	
 	#turn query words into "or" grep format
 	$grepquery = $stemquery;
-	chomp($grepquery);
 	$grepquery =~s/ /|/g;
 	
 	#---------------------------------------------
@@ -284,7 +285,9 @@ if($query && ($query ne "")){
 	
 	$files = join ' ', (values idMAPfile);
 	#print "<p>grep -I -i -n -H '$grepquery' $files | head -$num_matches";
-	@grepmatches = `grep -I -i -n -H '$grepquery' $files | head -$num_matches`;
+	$tmpgrep = $grepquery;
+	#$tmpgrep =~ s/|/\\|/g;
+	@grepmatches = `grep -I -i -n -H '$tmpgrep' $files | head -$num_matches`;
 
 	#print "<p>finished grep\n";#DEBUG
 	#print "<p>grep result: @grepmatches";#debug
@@ -343,10 +346,10 @@ if($query && ($query ne "")){
 		#go through each file
 		foreach (keys %$idarray){
 			$id = $_;
-			%tmprev = &hashVal(\%fileMAPrev, "$db $id");
-			foreach (keys %tmprev){
-				$j++;
-				$querystr .= " -c $id $_";
+			$revptr = $fileMAPrev{"$db $id"};
+			@tmprevs = keys %$revptr;
+			for ($i=0;$i<=$#tmprevs;$i++){
+				$querystr .= " -c $id $tmprevs[$i]";
 			}
 		}
 		#print "<p> $querystr";#debug
@@ -433,8 +436,9 @@ if($query && ($query ne "")){
 	# open file for storing info
 	$storefile = &validFilename($query);
 	#print "$cache/$storefile\n";#DEBUG
-	if (!(-d "$dir")) {
+	if (!(-d "$cache")) {
 		system("mkdir $cache");
+		system("chmod 777 $cache");
 	}
 	open (STORE, "> $cache/$storefile") or die "can't open $storefile";
 	
@@ -476,8 +480,8 @@ if($query && ($query ne "")){
 		$totalcount = scalar(keys %lw);
 		
 		#print filename and link
-		$encodedid = &cvssearch::encode($curid);
-		$encodename = &cvssearch::encode($displayfile);
+		$encodedid = &Cvssearch::encode($curid);
+		$encodename = &Cvssearch::encode($displayfile);
 		print "<p><a href=$queryfile?id=$encodedid&dump=$storefile&displayname=$encodename>$displayfile</a>";
 		print "<font size=-1>";
 		print " matches $totalcount lines: ";
@@ -492,22 +496,33 @@ if($query && ($query ne "")){
 		
 		#print comments
 		@comments = split /$ctrlA/, $fileMAPcomment{$curid};
-		$revsptr = $fileMAPrev{$curid};
-		@revs = keys %$revsptr;
-		#print "<br>@comments<br>";#debug
-		#print "@revs<br>";#debug
-		#print "<pre>";
+		$revptr = $fileMAPrev{$curid};
+		@revs = keys %$revptr;
+		
 		for ($i=0;$i<=$#revs;$i++){
-			$tmpcomment = $comments[$i];
-			$tmpcomment = Entities::encode_entities($tmpcomment);
+			$origcomment = $comments[$i];
+			$tmpcomment = Entities::encode_entities($origcomment);
 			@highlight = &highlightquery($tmpcomment);
+			@linecomment = split /\n/, $origcomment;
+			$beg = $linecomment[1];
+			$back = $linecomment[-1];
+			$beg =~s/($grepquery)/<b>\1<\/b>/ig;
+			$back =~s/($grepquery)/<b>\1<\/b>/ig;
 			if(@highlight){
-				print "<br><b class=lightcvs>$revs[$i]:</b>";
+				print "<br><b class=lightcvs>$revs[$i]: </b>";
 				foreach (@highlight){
 					s/\n//g;
-					print "..$_..";
+					$tmpline = $_;
+					if(not ($beg eq $tmpline)){
+						print "<b>..</b>";
+					}
+					print $tmpline;
+					if(not ($back eq $tmpline)){
+						print "<b>..</b>";
+					}
 				}
 			}
+			
 		}
 		
 #		#print grep results
@@ -529,10 +544,19 @@ if($query && ($query ne "")){
 	}
 	print "</font>";
 	close STORE;
+	system("chmod 777 $cache/$storefile");
 
 }
 
 &printTips;
+
+#--------------
+# print survey
+#--------------
+print <<_HTML_;
+<p>
+<b class=orange>Please fill out our short <a href=http://www.pollcat.com/tzk3nkgszq_a target=_blank>survey</a>. Your feedback is essential in improving CVSSearch.</font></b>
+_HTML_
 
 #--------------------------
 # sub functions
@@ -550,31 +574,20 @@ if($query && ($query ne "")){
 
 sub stats{
 	$num = scalar(keys %fileweight);
-print <<_HTML_;
-<p>
-<TABLE cellSpacing=0 cellPadding=2 width="100%" border=0>
-<TBODY>
-<TR>
-<TD noWrap bgColor=#3366cc><FONT face=arial,sans-serif color=white 
-size=-1>Searched CVS for <b>$stemquery</b> in<b>
-_HTML_
-
 	while(($curroot, $curproj) = each %rootMAPproj){
 		#repository name
 		$currep = $dirMAProot{$curroot};
-		print " $currep:";
+		$rep .= " $currep:";
 		foreach (@$curproj){
 			s/_/\//;
 			#print project
-			print "$_;";
+			$rep .= "$_;";
 		}
+		chop $rep;
 	}
+	
+	print Cvssearch::fileheader("Searched CVS for <b>$stemquery</b> in<b>$rep</b>", "Matched <B>$num</B> files.");
 
-print <<_HTML_;
-</b>&nbsp; </FONT></TD>
-<TD noWrap align=right bgColor=#3366cc><FONT face=arial,sans-serif color=white 
-size=-1>Matched <B>$num</B> files.</FONT></TD></TR></TBODY></TABLE>
-_HTML_
 }
 
 #----------------------------
@@ -596,52 +609,19 @@ sub displayFile{
 #-----------------------------------
 sub highlightquery{
 	my ($words) = @_;
-	@contains = grep s/($grepquery)/<b>\1<\/b>/ig, $words;
+	my @lines = split /\n/, $words; 
+	@contains = grep s/($grepquery)/<b>\1<\/b>/ig, @lines;
 	return @contains;
 }
 
-##-------------------
-## formats html file
-##-------------------
-#sub formatFile{
-#	my ($data, $filename, $totalmatch, $cvsm, $grepm) = @_;
-#	print "<p><a href=$data$storefile>$filename</a> matched lines: $totalmatch [$cvsm cvs matches] [$grepm grep matches]\n";
-#}
-#
-##----------------------------------------------------
-## given revision and its comments, format comments
-## by making words matched with query words bold.
-##----------------------------------------------------
-#sub formatComments{
-#	my ($comments)= @_;
-#	@sep = split /:/, $comments;
-#	$head = shift @sep;
-#	$rest = join ':', @sep;
-#	my $output = "<br><b class=blue>$head: <b>";
-#	@contains =grep s/($grepquery)/<b>\1<\/b>/ig, $rest;
-#	foreach (@contains){
-#		$output .= "..$_..";
-#	}
-#	return my $output;
-#}
-#sub formatComments{
-#	my ($rev, $comments) = @_;
-	
-#	my $output = "<br><b class=blue>$rev: <b>";
-#	my @contains = grep s/($grepquery)/<b>\1<\/b>/ig, $comments;
-	
-#	foreach (@contains){
-#		$output .= "..$_..";
-#	}
-#	return $output;
-#}
 
 #--------------
 # tips
 #--------------
 sub printTips{
-	print "<p>\n";
-	print "<b class=blue>Tips</font></b>\n";
+	print Cvssearch::fileheader("<b>Tips</b>", ".");
+#	print "<p>\n";
+#	print "<b class=blue>Tips</font></b>\n";
 	print "<ul>\n";
 	print "<li>use <tt class=orange>in:</tt> at the end of keywords to select package to seach in. For example, \n";
 	print "<br><tt class=orange>menu in:kdebase/konqueror;kdepime/korganizer</tt> \n";
@@ -667,21 +647,6 @@ sub error{
 }
 
 
-#!!!!!!!!!!!!!!!!!!
-# Grep functions
-#!!!!!!!!!!!!!!!!!!
-
-##------------------------------------
-## grep source file for query string
-##------------------------------------
-#sub grepMatch{
-#	my ($path) = @_;
-#	my $path = $data_path.$path.$src;
-#	$findfiles = `find $path -iregex '.*.java\\|.*.pl\\|.*.cpp\\|.*.c++\\|.*.cc\\|.*.h\\|.*.c\\|.*.rc\\|.*.sh'`;
-#	$findfiles =~ s/\n/ /g;
-#	my @curmatch = `grep -I -i -n -H '$grepquery' $findfiles`;
-#	return @curmatch;
-#}
 
 #!!!!!!!!!!!!!!!!!!!!
 # Calculation
@@ -699,9 +664,6 @@ sub calcWeight{
 	while (my ($key,$val)=each %hash) {
 		my %tmp1 = %$val;
 		my %tmp2 = %$val;
-#		print "$key:";#debug
-#		print %tmp1;#debug
-#		print "\n";#debug
 		my $sumweight = 0;	
 		while (my ($line1, $weight1)=each %tmp1){
 			while (my ($line2, $weight2)=each %tmp2){
@@ -835,26 +797,6 @@ sub hashVal{
 	return %$value;
 }
 
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# Misc Functions
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-##---------------------------------------------
-## Convert $CVSDATA/database/xxx/src/filename
-## to filename
-##---------------------------------------------
-#
-#sub tofilename{
-#	$tmpfilename = @_;
-#	$tmpfilename =~ s/^$CVSDATA\/database\/\w*\/src\///;
-#	return my $tmpfilename;
-#}
-#
-#sub toFullpath{
-#	my ($database,$filename) = @_;
-#	my $fullpath = "$CVSDATA/database/$database/src/$filename";
-#	return my $fullpath;
-#}
 
 #--------------------------------------------
 # make the given string into valide filename

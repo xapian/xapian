@@ -18,7 +18,7 @@
 #-------------------------------------------------------------------
 
 use CGI ':all';
-use cvssearch;
+use Cvssearch;
 
 #-------------------
 # path variables
@@ -27,6 +27,7 @@ $CVSDATA = $ENV{"CVSDATA"}; # path where database content file is stored
 $source = "./Source.cgi";
 $match = "./Match.cgi";
 $comments = "./Comments.cgi";
+$top = "./Top.cgi";
 
 #-------------
 # start html
@@ -39,20 +40,23 @@ if(param()){
 	$dump = param("dump");
 	$id = param("id");
 	$displayname = param("displayname");
-	$id = cvssearch::encode($id);
-	$displayname = cvssearch::encode($displayname);
+	$id = Cvssearch::encode($id);
+	$tempdisplay = $displayname;
+	$displayname = Cvssearch::encode($displayname);
 
 	$passparam = "?id=$id&dump=$dump&displayname=$displayname";
-	
-print <<_HTML_;
-<frameset rows=\"60%,40%\">		
+
+print <<_HTML_;	
+<head>
+<title>$tempdisplay</title>
+</head>
+<frameset rows=\"45,*\">
+	<frame name=top src=$top$passparam>
 	<frameset cols=\"50%,50%\">
 		<frame name=source src=$source$passparam>
 		<frame name=match src=$match$passparam>
 	</frameset>
-	<frame name=comments src=$comments$passparam>
 </frameset>
-
 <noframes>
 	<body bgcolor=\"#FFFFF0\">
 	sorry this page requires frame to be displayed

@@ -1,13 +1,11 @@
 #-------------------------------------------------------------------
 # some stuff about cvssearch
-# This produces a html query interface for cvssearch
+# This produces a html with matched lines only and it's revision 
+# information.
 #
-# Structure:
-# 1. Calls $cvssearch - interface to omsee - for query matches
-# 2. grep source files for query words
-# 3. sorts and rank query matches as per file
-# 4. finds context matched by calling on $query
-# 5. Displays results, linking them to QueryFile.cgi
+# Features include comments popups on mouseover, stick/unstick on click,
+# color coding, separate column for each revision,
+# bold revisions with query matches, bold grep matches
 #
 # Author: Annie - anniec@cse.unsw.edu.au
 # Date: Feb 16 2001
@@ -15,7 +13,7 @@
 
 
 use CGI ':all';
-use cvssearch;
+use Cvssearch;
 use Entities;
 
 #-----------------
@@ -28,6 +26,8 @@ $cvsquery = "./cvsquerydb";
 # global mappigns defind in the script
 #---------------------------------------------
 #%lineMAPinfo - map line number with its info (weight grep rev1 rev2..)
+#%revMAPcolor - maps revision with color coding
+#%revMAPmatch - only stores value for matched revisions
 
 # control character separator
 $ctrlA = chr(01);
@@ -52,9 +52,7 @@ print <<_STYLE_;
 
 <STYLE TYPE=text/css>
 body {background-color:white}
-A:link    { text-decoration:none; color:blue }
-A:active  { text-decoration:underline; color:blue}
-A:visited { text-decoration:none; color:blue }
+A:link, A:active, A:visited { text-decoration:none;color:black;}
 .popupLink { COLOR: blue; outline: none }
 .popup { POSITION:absolute; VISIBILITY:hidden; BACKGROUND-COLOR:white; LAYER-BACKGROUND-COLOR:white; BORDER:2px solid orange; PADDING: 3px; z-index: 10 }
 .red {color:red}
@@ -71,15 +69,15 @@ if(param()){
 	$dump = param("dump");
 	$id = param("id");
 	$displayname = param("displayname");
-	$did = cvssearch::encode($id);
-	$ddisplayname = cvssearch::encode($displayname);
+	$did = Cvssearch::encode($id);
+	$ddisplayname = Cvssearch::encode($displayname);
 	$passparam = "?id=$did&dump=$dump&displayname=$ddisplayname";
 	
-	$id = cvssearch::decode($id);
-	$displayname = cvssearch::decode($displayname);
+	$id = Cvssearch::decode($id);
+	$displayname = Cvssearch::decode($displayname);
 	
 	
-	$found = cvssearch::findfile($dump,$id);
+	$found = Cvssearch::findfile($dump,$id);
 	if (!$found){
 		&error("Page expired");
 	}
@@ -93,10 +91,11 @@ if(param()){
 	
 	#go through each line entry
 	foreach (@entries){
-		@info = split / |\n/, $_;
+		@info = split /\s/, $_;
 		$line = shift @info;
 		$together = join ' ', @info;
 		$lineMAPinfo{$line} = $together;
+
 	}
 	#-------------------------------
 	# query cvsquery for comments
@@ -117,14 +116,19 @@ if(param()){
 	#---------------------------
 	
 	print "<!-- keep the popup divs as the first things on the page or else MSIE 5 on the mac sometimes has trouble rendering them on top of text -->\n";
-	print "<DIV onclick='event.cancelBubble = true;' class=popup id='grep'>grep matched $grepquery on this line.</DIV>\n";
+	print "<DIV onclick='event.cancelBubble = true;' class=popup id='grep'>grep matched <b>$grepquery</b> on this line.</DIV>\n";
 	$i=0;
 	foreach (@revs){
+		$currev = $_;
 		$curcomment = $comments[$i];
+		chomp $curcomment;
 		$curcomment = Entities::encode_entities($curcomment);
-		$curcomment = &highlightquery($curcomment);
-		$ch = &toChar($_); # need to convert digits to alphabets since netscape doesn't understand digit id
-		print "<DIV onclick='event.cancelBubble = true;' class=popup id='$ch'>$curcomment</DIV>\n";
+		if($curcomment =~/$grepquery/){
+			$revMAPmatch{$currev} = $currev;
+			$curcomment = &highlightquery($curcomment);
+		}
+		$ch = &toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
+		print "<DIV onclick='event.cancelBubble = true;' class=popup id='$ch'><pre><b>Rev:$currev</b>\n$curcomment</pre></DIV>\n";
 		$i++;
 	}
 	print "<!-- begin body of document -->\n";
@@ -135,43 +139,96 @@ if(param()){
 	
 	#filename
 	&filename($stemquery);
+	@colors = Cvssearch::getSpectrum($#revs+1);
+	print "<pre>";
+	foreach ($i=0;$i<$#revs+1;$i++){
+		$revMAPcolor{$revs[$i]} = $colors[$i];
+		$ch = &toChar($revs[$i]); # need to convert digits to alphabets since netscape doesn't understand digit id
+		print "<span style=\"background-color:$colors[$i]\">";
+		print "<a href=# \n";
+		print "onclick=\"locking('$ch', event);return false;\"\n";
+		print "onmouseover=\"return !showPopup('$ch', event);\"\n";
+		print "onmouseout=\"hideCurrentPopup(); return false;\"\n";
+		print ">";
+		if($revMAPmatch{$revs[$i]}){
+			print "<b>$revs[$i]</b>";
+		}else{
+			print "$revs[$i]";
+		}
+		print "</a></span> ";
+	}
+	print "</pre>\n";
 	
 	print "<table cellSpacing=0 cellPadding=0 width=100% border=0>";
 	@file = `cat $path`;
 	#print @file;
 	$i=1; #line index
+	push @revs, "grep";
 	foreach(@file){
 		s/\n//g;
 		$line = $_;
 		if($lineMAPinfo{$i}){
 			$line = Entities::encode_entities($line);
 			print "<tr>";
-			print "<td><pre>$i:</td>";
+			print "<td><a name=$i><pre>$i:</td>";
 			$info = $lineMAPinfo{$i};
 			@info = split / /, $info;
 			$weight = shift @info;
 			
-			#print revs
+			#print revs, in the column it belongs to
 			print "<td><pre>";
-			foreach (@info){
-				$currev = $_;
-				$ch = &toChar($_); # need to convert digits to alphabets since netscape doesn't understand digit id
-				print "<a href=# class=popupLink\n";
-				print "onclick=\"return !showPopup('$ch', event);\"\n";
-				print "onmouseover=\"return !showPopup('$ch', event);\"\n";
-				print "onmouseout=\"hideCurrentPopup(); return false;\">$currev</a> ";
+			$flag = 1;
+			for($j=0;$j<$#revs+1;$j++){
+				$toprev = $revs[$j];
+				$found = 0;
+				$flag *= -1;
+				foreach (@info){
+					if($toprev eq $_){
+						$currev = $_;
+						$color = $revMAPcolor{$currev};
+						$ch = &toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
+						print "<span style=\"background-color:$color\">";
+						print "<a href=# \n";
+						print "onclick=\"locking('$ch', event);return false;\"\n";
+						print "onmouseover=\"return !showPopup('$ch', event);\"\n";
+						print "onmouseout=\"hideCurrentPopup(); return false;\"\n";
+						print ">";
+						if($revMAPmatch{$currev}){
+							print "<b>R</b>";
+						}elsif($currev eq "grep"){
+							print "<b>G</b>";
+						}else{
+							print "R";
+						}
+						print "</a></span>";
+						$found = 1;
+					}
+					last if $toprev eq $currev;
+				}
+				if($found==0){
+					if($flag==1){
+						print " ";
+					}else{
+						print "<span style=\"background-color:#dddddd\"> </span>";
+					}
+				}
 			}
 
 			print "</td>";
 			
-			$color = cvssearch::get_color($weight, 150);
+			$color = Cvssearch::get_color($weight, 150);
 			$line = &highlightquery($line);
-			print "<td bgcolor=$color><pre><a href=$source$passparam#$i target=source>$line</a></td>";
+			print "<td bgcolor=$color><pre><a href=\"$source$passparam#$i\" target=source>$line</a></td></tr>\n";
 		}
-		print "</tr>\n";
 		$i++;
 	}
 	print "</table>";
+	#print an empty page so html can scroll to the last line
+	print "<pre>";
+	for($j=0;$j<60;$j++){
+		print "\n";	
+	}
+	print "</pre>";
 }
 
 print "</body></html>";
@@ -193,17 +250,9 @@ print "</body></html>";
 
 sub filename{
 	my ($name) = @_;
-	$num = scalar(keys %lineMAPweight);
-print <<_HTML_;
-<p>
-<TABLE cellSpacing=0 cellPadding=2 width="100%" border=0>
-<TBODY>
-<TR>
-<TD noWrap bgColor=#3366cc><FONT face=arial,sans-serif color=white 
-size=-1>Matched lines for <b>$name</b>&nbsp; </FONT></TD>
-<TD noWrap align=right bgColor=#3366cc><FONT face=arial,sans-serif color=white 
-size=-1>Darker highlight denotes better matches.</FONT></TD></TR></TBODY></TABLE>
-_HTML_
+	$num = scalar(keys %lineMAPinfo);
+	print Cvssearch::fileheader("<b>$num</b> Matched lines for <b>$name</b>", "Click on rev to stick/unstick");
+
 }
 
 
@@ -225,7 +274,7 @@ sub highlightquery{
 #--------------------------------
 sub toChar{
 	my ($word) = @_;
-	$word =~ s/(\d)/@{[chr($1+65)]}/ig;
+	$word =~ s/(\d)/@{[chr($1+64)]}/ig;
 	return $word;
 }
 
@@ -234,7 +283,6 @@ sub toChar{
 #------------------
 sub error{
 	($mesg) = @_;
-	&stats;
 	print "<p><b class=red>$mesg</b>";
 	exit(0);
 }

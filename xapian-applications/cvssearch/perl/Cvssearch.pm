@@ -165,7 +165,7 @@ sub decode{
 #----------------------------------------------
 sub findfile{
 	my($d, $id) = @_;
-	my $cache = "cache";
+	my $cache = "/tmp/cache";
 	my $dump = `cat $cache/$d`;
 	my $ctrlA = chr(01);
 	my @dump = split /$ctrlA/, $dump;
@@ -189,8 +189,6 @@ sub findfile{
 sub get_color {
     my ($val, $max_val) = @_;
     my $ratio = $val/$max_val;
-
-    my @hex_digit = qw(0 1 2 3 4 5 6 7 8 9 A B C D E F);
   
     # ----------------------------------------
     # change color here.. darkest color
@@ -214,11 +212,7 @@ sub get_color {
     my $r = $min_color_red  + $ratio * $distance_red;
     my $g = $min_color_green+ $ratio * $distance_green;
     my $b = $min_color_blue + $ratio * $distance_blue;
-    
-    my $output = "#".
-      "$hex_digit[$r/16]$hex_digit[$r%16]".
-      "$hex_digit[$g/16]$hex_digit[$g%16]".
-      "$hex_digit[$b/16]$hex_digit[$b%16]";
+    my $output = sprintf(" #%2.2X%2.2X%2.2X",$r,$g,$b);
     return $output;
 }
 
@@ -337,14 +331,14 @@ sub cvsupdatedb {
             }
             close FILE;
         } elsif($flag eq "-f"){ # find database
-            my @bestmatches;
-            
+            my $bestmatches;
+            my $output;
             if (-e $path) {
-                @bestmatches = `grep $filepath\$ $path`; # match filepath from the end
+                $bestmatches = `grep $filepath\$ $path`; # match filepath from the end
             }
             
-            if(@bestmatches){
-                print @bestmatches;
+            if($bestmatches){
+                $output .= $bestmatches;
             }else{ #find everything below it
                 if ($filepath eq ".") {
                     # ----------------------------------------
@@ -353,18 +347,19 @@ sub cvsupdatedb {
                     if (-e $path) {
                         open (FILE, "<$path");
                         while (<FILE>) {
-                            print $_;
+                            $output .= $_;
                         }
                         close FILE;
                     }
                 }else {
-                    my @secmatches;
+                    my $secmatches;
                     if (-e $path) {
-                        @secmatches = `grep $filepath $path`;
+                        $secmatches = `grep $filepath $path`;
                     }
-                    print @secmatches;
+                    $output .= $secmatches;
                 }
             }
+            return $output;
         } elsif($flag eq "-i"){
             # ----------------------------------------
             # insert database
@@ -391,6 +386,73 @@ sub cvsupdatedb {
         exit(1);
     }
 }
+
+# display a blue header row with 2 columes, first argument on left col, second on right
+sub fileheader{
+	my ($left, $right) = @_;
+	my $header =<<_HTML_;
+<p>
+<TABLE cellSpacing=0 cellPadding=2 width="100%" border=0>
+<TBODY>
+<TR>
+<TD noWrap bgColor=#3366cc><FONT face=arial,sans-serif color=white 
+size=-1>$left&nbsp; </FONT></TD>
+<TD noWrap align=right bgColor=#3366cc><FONT face=arial,sans-serif color=white 
+size=-1>$right</FONT></TD></TR></TBODY></TABLE>
+_HTML_
+
+return $header;
+}
+
+sub getSpectrum{
+	my ($num) = @_;
+	my $r; my $g; my $b;
+	my $curcolor; my @colors; my $i;
+	my $curstep; my $range; my $mod;
+	my $step = (255*6)/$num;
+	for($i=0;$i<$num;$i++){
+		$curstep = $step*$i;
+		$range = int($curstep/255);
+		$mod = $curstep%255;
+		
+		if($range==0){
+			# R=255, G=0, B=0->255
+			$r=255;
+			$g=0;
+			$b=$mod;
+		}elsif($range==1){
+			# R=255->0, G=0, B=255
+			$r=255-$mod;
+			$g=0;
+			$b=255;
+		}elsif($range==2){
+			# R=0, G=0->255, B=255
+			$r=0;
+			$g=$mod;
+			$b=255;
+		}elsif($range==3){
+			# R=0, G=255, B=255->0
+			$r=0;
+			$g=255;
+			$b=255-$mod;
+		}elsif($range==4){
+			# R=0->255, G=255, B=0
+			$r=$mod;
+			$g=255;
+			$b=0
+		}else{
+			# R=255, G=255->0, B=0
+			$r=255;
+			$g=255-$mod;
+			$b=0;
+		}
+    	$curcolor = sprintf(" #%2.2X%2.2X%2.2X",$r,$g,$b);
+
+		push @colors, $curcolor;
+	}
+	return @colors;
+}
+
 return 1;
     
     
