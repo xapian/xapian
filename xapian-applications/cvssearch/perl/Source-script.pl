@@ -87,7 +87,7 @@ if(param()){
 		if($lineMAPweight{$i}) {
 			my $weight = $lineMAPweight{$i};
 			my $color = Cvssearch::get_color($weight, 150);
-			$line = highlightquery($line);
+			$line = Cvssearch::highlightquery($line, $grepquery);
 			print "<td bgcolor=$color>";
 		} else {
 			print "<td>"
@@ -98,17 +98,6 @@ if(param()){
 	print "</table>";	
 }
 print "</body></html>";
-
-#-----------------------------------
-# highlightquery
-# return line matched by query words
-# make words matched by query bold
-#-----------------------------------
-sub highlightquery{
-	my ($words) = @_;
-	$words =~ s!($grepquery)!<b>$1</b>!ig;
-	return $words;
-}
 
 #------------------
 # display errors

@@ -1,3 +1,8 @@
+Fri Dec 17 22:00:18 GMT 2004  Olly Betts <olly@survex.com>
+
+	* perl/: Factor out widely used highlightquery() into a common function
+	  in Cvssearch.pm.
+
 Fri Dec 17 01:46:21 GMT 2004  Olly Betts <olly@survex.com>
 
 	* perl/PatternBrowser-script.pl: Convert raw "&" in HTML output to

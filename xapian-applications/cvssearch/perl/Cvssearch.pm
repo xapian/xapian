@@ -606,4 +606,14 @@ sub g2l_commit {
 sub l2g_commit {
 }
 
+#-----------------------------------
+# highlightquery
+# Returns $words with any words matched by $pattern marked up as bold
+#-----------------------------------
+sub highlightquery {
+    my ($words, $pattern) = @_;
+    $words =~ s!(^|[^a-zA-Z])($pattern)!$1<b>$2</b>!ig;
+    return $words;
+}
+
 return 1;

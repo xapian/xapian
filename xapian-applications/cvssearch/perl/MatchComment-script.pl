@@ -5,7 +5,6 @@ use Entities;
 
 sub print_javascript;
 sub toChar;
-sub highlightquery;
 
 my $ctrlA = chr(01);
 my $ctrlC = chr(03);
@@ -152,7 +151,7 @@ if (param()) {
 
             if ($symbol ne "") {
                 my $old_line = $line;
-                $line = highlightquery($line, $symbol);
+                $line = Cvssearch::highlightquery($line, quotemeta $symbol);
                 if ($line eq $old_line) {
                     $i++;
                     next;
@@ -247,15 +246,4 @@ sub toChar{
 	my ($word) = @_;
 	$word =~ s/(\d)/@{[chr($1+65)]}/ig;
 	return $word;
-}
-
-#-----------------------------------
-# highlightquery
-# return line matched by query words
-# make words matched by query bold
-#-----------------------------------
-sub highlightquery{
-	my ($words, $word) = @_;
-	$words =~ s!($word)!<b>$1</b>!ig;
-	return $words;
 }

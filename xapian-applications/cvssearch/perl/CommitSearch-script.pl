@@ -131,7 +131,11 @@ _HTML_
 	    #hum.. might not even need this if with only one comment
 	    my $curcomments = Entities::encode_entities($comments[0]);
 	    if ($query) {
-		$curcomments = &highlightquery($curcomments);
+		if ($query =~ /@/) {
+		    # don't highlight for now
+		} else {
+		    $curcomments = Cvssearch::highlightquery($curcomments, $grepquery);
+		}
 	    } 
 	    if ($flag < 0) { 
 		print "<tr class=o";
@@ -183,20 +187,4 @@ sub insertArray {
 	$hash{$key} = [$value]; # anon list ref
     }
     return %hash;
-}
-
-#-----------------------------------
-# highlightquery
-# make words matched by query bold
-#-----------------------------------
-sub highlightquery {
-    my ($words) = @_;
-
-    if ($query =~ /@/ ) {
-	# don't highlight for now
-    } else {
-	$words =~ s!(^|[^a-zA-Z]+)($grepquery)!$1<b>$2</b>!ig;
-    }
-
-    return $words;
 }

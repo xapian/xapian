@@ -79,7 +79,7 @@ if (param()) {
                 }
                 $line = Entities::encode_entities($line);
                 if ($symbol ne "") {
-                    $line = highlightquery($line, $symbol);
+                    $line = Cvssearch::highlightquery($line, $symbol);
                 }
                 print "<tr><td>$i</td><td><pre>$line$space</td></tr>\n";
                 $i++;
@@ -93,7 +93,7 @@ if (param()) {
             $line = Entities::encode_entities($line);
             if ($symbol ne "") {
                 my $old_line = $line;
-                $line = highlightquery($line, $symbol);
+                $line = Cvssearch::highlightquery($line, $symbol);
                 if ($line eq $old_line) {
                     print "<tr><td>$i </td><td><pre>$line</td></tr>\n";
                 } else {
@@ -127,15 +127,4 @@ sub toChar{
 	my ($word) = @_;
 	$word =~ s/(\d)/@{[chr($1+65)]}/ig;
 	return $word;
-}
-
-#-----------------------------------
-# highlightquery
-# return line matched by query words
-# make words matched by query bold
-#-----------------------------------
-sub highlightquery{
-	my ($words, $word) = @_;
-	$words =~ s!($word)!<b>$1</b>!ig;
-	return $words;
 }

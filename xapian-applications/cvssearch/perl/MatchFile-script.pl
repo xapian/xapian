@@ -181,7 +181,7 @@ sub query {
 			$revMAPmatch{$currev} = $currev;
 		}
 		$revMAPcomment{$currev} = $curcomment;
-		#$curcomment = highlightquery($curcomment);
+		#$curcomment = Cvssearch::highlightquery($curcomment, $grepquery);
 		$i++;
 	}
     @revs = keys %revMAPmatch;
@@ -236,7 +236,7 @@ sub print_html() {
 	foreach (@revs){
 		my $currev = $_;
 		my $curcomment = $revMAPcomment{$currev};
-        $curcomment = highlightquery($curcomment);
+        $curcomment = Cvssearch::highlightquery($curcomment, $grepquery);
 		my $ch = toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
 		print "<DIV onclick='event.cancelBubble = true;' class=popup id='$ch'><pre><b>Rev:$currev</b>\n$curcomment</pre></DIV>\n";
 		$i++;
@@ -336,7 +336,7 @@ sub print_html() {
 			print "</td>";
 			
 			my $color = Cvssearch::get_color($weight, 150);
-			$line = &highlightquery($line);
+			$line = Cvssearch::highlightquery($line, $grepquery);
             my $space = "";
             if (length($line) == 0) {
                 $space = " ";
@@ -374,20 +374,6 @@ sub filename{
 	my $num = scalar(keys %lineMAPinfo);
 	print Cvssearch::fileheader("<b>$num</b> Matched lines for <b>$name</b>",
                                 "Move over C/G to see comment; Click C to see original commit below; Click matched line to see its context below");
-    
-}
-
-
-
-#-----------------------------------
-# highlightquery
-# return line matched by query words
-# make words matched by query bold
-#-----------------------------------
-sub highlightquery{
-	my ($words) = @_;
-	$words =~ s!($grepquery)!<b>$1</b>!ig;
-	return $words;
 }
 
 #--------------------------------

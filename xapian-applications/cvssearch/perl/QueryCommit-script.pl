@@ -140,7 +140,7 @@ _HTML_
 	        	}
 	        	print " valign=top><td><pre><a href=\"./QueryComment.cgi?$info[$i]&symbol=$urlsymbol&root=$root\">Browse Code</a></pre></td>";
 	        	if($query){
-	        		$curcomments = &highlightquery($curcomments);
+	        		$curcomments = Cvssearch::highlightquery($curcomments, $grepquery);
 	        	}
 	        	print "<td><pre>$curcomments</pre></td>";
 	        	print "<td><pre>$key</pre></td>";
@@ -185,15 +185,4 @@ sub insertArray{
 		$hash{$key} = [$value]; # anon array ref
 	}
 	return %hash;
-}
-
-
-#-----------------------------------
-# highlightquery
-# make words matched by query bold
-#-----------------------------------
-sub highlightquery{
-	my ($words) = @_;
-	$words =~ s!($grepquery)!<b>$1</b>!ig;
-	return $words;
 }
