@@ -1,3 +1,7 @@
+Sat Oct 12 23:29:50 BST 2002  Olly Betts <olly@survex.com>
+
+	* languages/: removed all the old .cvsignore files.
+
 Sat Oct 12 22:34:01 BST 2002  Olly Betts <olly@survex.com>
 
 	* api/omstem.cc,docs/stemming.html,docs/todo.xml,languages/: Replaced
