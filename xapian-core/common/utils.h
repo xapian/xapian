@@ -56,6 +56,13 @@ inline int open(const string &filename, int flags, mode_t mode) {
     return fcntl_open(filename.c_str(), flags, mode);
 }
 
+// If filename is a char* and mode is an int, we get ambiguity warnings
+// when the compiler tries to pick which overloaded open function to use
+// - this avoids that problem.
+inline int open(const char *filename, int flags, int mode) {
+    return fcntl_open(filename, flags, (mode_t)mode);
+}
+
 inline int open(const string &filename, int flags) {
     return fcntl_open(filename.c_str(), flags);
 }

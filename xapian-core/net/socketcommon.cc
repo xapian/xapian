@@ -39,7 +39,6 @@ using std::set;
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <fcntl.h>
 #include <cerrno>
 #include "socketcommon.h"
 #include "omdebug.h"

@@ -36,7 +36,6 @@ void
 TradWeight::calc_termweight() const
 {
     DEBUGCALL(MATCH, void, "TradWeight::calc_termweight", "");
-    Assert(initialised);
 
     om_doccount dbsize = internal->get_total_collection_size();
     lenpart = param_k / internal->get_total_average_length();
@@ -99,7 +98,7 @@ TradWeight::get_maxpart() const
 om_weight
 TradWeight::get_sumextra(om_doclength /*len*/) const
 {
-    DEBUGCALL(MATCH, om_weight, "TradWeight::get_sumextra", len);
+    DEBUGCALL(MATCH, om_weight, "TradWeight::get_sumextra", "/*len*/");
     RETURN(0);
 }
 

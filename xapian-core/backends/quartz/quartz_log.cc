@@ -25,11 +25,11 @@
 #include <config.h>
 #include "quartz_log.h"
 #include "omdebug.h"
+#include "utils.h"
 
 #include <errno.h>
 
 #include <sys/types.h>
-#include <fcntl.h>
 #include <unistd.h>
 
 using std::string;
@@ -37,7 +37,7 @@ using std::string;
 QuartzLog::QuartzLog(string filename)
 {
     DEBUGCALL(DB, void, "QuartzLog", filename);
-    fd = open(filename.c_str(), O_APPEND|O_WRONLY);
+    fd = open(filename, O_APPEND|O_WRONLY);
 }
 
 QuartzLog::~QuartzLog()

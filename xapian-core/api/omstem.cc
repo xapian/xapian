@@ -244,7 +244,7 @@ OmStem::Internal::~Internal()
 void
 OmStem::Internal::set_language(stemmer_language langcode_)
 {
-    Assert(langcode_ != STEMMER_NULL); 
+    Assert(langcode_ != STEMLANG_NULL); 
     if (stemmer_data != 0) {
 	stemmers[langcode].closedown(stemmer_data);
     }

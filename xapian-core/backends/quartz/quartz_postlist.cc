@@ -928,13 +928,13 @@ QuartzPostList::move_to_chunk_containing(om_docid desired_did)
 #ifdef MUS_DEBUG
 	om_termcount old_number_of_entries = number_of_entries;
 	om_termcount old_collection_freq = collection_freq;
-	read_start_of_first_chunk(&pos, end,
-				  &number_of_entries, &collection_freq, &did);
+	did = read_start_of_first_chunk(&pos, end, &number_of_entries,
+					&collection_freq);
+	Assert(old_number_of_entries == number_of_entries);
+	Assert(old_collection_freq == collection_freq);
 #else
 	did = read_start_of_first_chunk(&pos, end, 0, 0);
 #endif
-	Assert(old_number_of_entries == number_of_entries);
-	Assert(old_collection_freq == collection_freq);
     } else {
 	// In normal chunk
 	if (!unpack_uint_preserving_sort(&keypos, keyend, &did)) {

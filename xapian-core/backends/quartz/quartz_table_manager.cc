@@ -445,7 +445,7 @@ QuartzBufferedTableManager::QuartzBufferedTableManager(string db_dir_,
 	  lock_name(db_dir_ + "/db_lock")
 {
     DEBUGCALL(DB, void, "QuartzBufferedTableManager", db_dir_ << ", " <<
-	      block_size << ", " << create << ", " << allow_overwrite);
+	      action << ", " << block_size);
     get_database_write_lock();
 }
 

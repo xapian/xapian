@@ -37,8 +37,8 @@ OmDebug om_debug;
 
 using namespace std;
 
-#define OM_ENV_DEBUG_LOG   "OM_DEBUG_LOG"
-#define OM_ENV_DEBUG_FLAGS "OM_DEBUG_FLAGS"
+#define OM_ENV_DEBUG_LOG   "XAPIAN_DEBUG_LOG"
+#define OM_ENV_DEBUG_FLAGS "XAPIAN_DEBUG_FLAGS"
 
 OmDebug::OmDebug() : initialised(false), wanted_types(0), fd(2)
 {

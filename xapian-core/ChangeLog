@@ -1,3 +1,9 @@
+Fri Dec 06 23:05:22 GMT 2002  Olly Betts <olly@survex.com>
+
+	* api/omstem.cc,backends/quartz/,common/omdebug.cc,common/utils.h,
+	  matcher/tradweight.cc,net/socketcommon.cc,net/tcpclient.cc,
+	  tests/api_db.cc: Fixed to build with configure --enable-debug=full.
+
 Fri Dec 06 23:01:08 GMT 2002  Olly Betts <olly@survex.com>
 
 	* common/omdebug.cc,common/omdebug.h: Fixed permissions on newly

@@ -318,7 +318,7 @@ class MyErrorHandler : public OmErrorHandler {
 	int count;
 
 	bool handle_error(OmError & error) {
-	    count += 1;
+	    ++count;
 	    tout << "Error handling caught: " << error.get_type() << ": " <<
 		    error.get_msg() << ", with context `" <<
 		    error.get_context() << "': count is now " << count << "\n";
