@@ -78,7 +78,7 @@ XAPIAN_LDFLAGS=
 AC_SUBST(XAPIAN_LDFLAGS)
 
 ldflags=
-if test yesyes = "$GCC$enable_shared" ; then
+if test yesyes = "$GXX$enable_shared" ; then
   case $host_os in
     *mingw* | *cygwin*)
       ldflags="--enable-runtime-pseudo-reloc"
@@ -431,7 +431,7 @@ dnl * Set special compiler flags *
 dnl ******************************
 
 dnl extra flags for building with gcc
-if test yes = "$GCC" ; then
+if test yes = "$GXX" ; then
   dnl -Wno-long-long had appeared by GCC 2.95 and there's little likelihood
   dnl Xapian will build with any earlier version, so there's not much point
   dnl testing if -Wno-long-long is supported.
@@ -440,7 +440,7 @@ if test yes = "$GCC" ; then
   dnl GCC3 or newer.  We don't do this for older GCCs as GCC 2.95 issues
   dnl spurious warnings.
   if test x$USE_MAINTAINER_MODE = xyes; then
-    case `$CC --version` in
+    case `$CXX --version` in
     [3-9]*.*|[12][0-9]*.*) 
       AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
     esac
@@ -465,7 +465,7 @@ esac
 dnl modify flags for building with stlport
 STLPORT_CXXFLAGS=
 if test yes = "$use_stlport"; then
-  if test yes = "$GCC"; then
+  if test yes = "$GXX"; then
     STLPORT_CXXFLAGS="-nostdinc++"
   fi
   STLPORT_CXXFLAGS="$STLPORT_CXXFLAGS $STLPORT_INCLUDE"
