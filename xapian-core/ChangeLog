@@ -1,3 +1,8 @@
+Mon Feb 28 15:32:32 GMT 2005  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,common/Makefile.am,common/deleter_vector.h:
+	  Removed deleter_vector as it's no longer used anywhere.
+
 Mon Feb 28 15:27:42 GMT 2005  Olly Betts <olly@survex.com>
 
 	* api/omquery.cc,api/omqueryinternal.cc,include/xapian/query.h,

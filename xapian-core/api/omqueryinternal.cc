@@ -501,12 +501,10 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::termcount parameter_)
 
 Xapian::Query::Internal::~Internal()
 {
-#ifndef USE_DELETER_VECTOR
     subquery_list::iterator i;
     for (i = subqs.begin(); i != subqs.end(); i++) {
         delete *i;
     }
-#endif
 }
 
 Xapian::Query::Internal *
@@ -640,12 +638,10 @@ Xapian::Query::Internal::collapse_subqs()
 		Assert((*s)->term_pos == (*sq)->term_pos);
 		(*s)->wqf += (*sq)->wqf;
 		(*s)->qlen += (*sq)->qlen;
-		// rather than incrementing, delete the current
+		// Rather than incrementing, delete the current
 		// element, as it has been merged into the other
 		// equivalent term.
-#ifndef USE_DELETER_VECTOR
 		delete *sq;
-#endif
 		sq = subqs.erase(sq);
 	    }
 	} else {
