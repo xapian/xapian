@@ -1,3 +1,27 @@
+Xapian 0.7.1 (2003-07-08):
+
+testsuite:
+
+* Fixed testsuite programs to not try to use "rm -rf" under mingw.
+
+backends:
+
+* Quartz: Use pread() and pwrite() on platforms which support them.  Doing so
+  avoids one syscall per block read/write.
+
+* Quartz block count is now unsigned, which should nearly double the size of
+  database for a given block size.  Not tested this yet.
+
+omega:
+
+* omindex: Fixed compilation problem in 0.7.0.
+
+documentation:
+
+* Added new document discussing scalability issues.
+
+* PLATFORMS: Updated.
+
 Xapian 0.7.0 (2003-07-03):
 
 API:

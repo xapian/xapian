@@ -1,3 +1,7 @@
+Tue Jul 08 17:43:21 BST 2003  Olly Betts <olly@survex.com>
+
+	* NEWS,PLATFORMS,configure.in: Version 0.7.1.
+
 Sun Jul 06 21:35:08 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Minor tweak.
