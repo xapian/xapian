@@ -1,3 +1,7 @@
+Fri Oct 20 13:01:26 BST 2000 Olly Betts
+
+	* Added `make ctags' rule.
+
 Fri Oct 20 12:55:10 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fixed refcount problem with Quartz - references were being held

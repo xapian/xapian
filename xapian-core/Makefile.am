@@ -35,6 +35,10 @@ else
 	@exit 0
 endif
 
+# http://ctags.sourceforge.net/
+ctags:
+	ctags-exuberant -R --links=no
+
 acinclude.m4: autoconf/acinclude.m4
 	cp autoconf/acinclude.m4 acinclude.m4
 
