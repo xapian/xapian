@@ -9,6 +9,17 @@ additions. Python strings and lists, etc., are converted automatically
 in the bindings, so generally it should just work as expected.
 </p>
 
+<p>
+The <code>examples</code> subdirectory contains examples showing how to use the
+Python bindings based on the simple examples from <code>xapian-examples</code>:
+<a href="examples/simpleindex.py">simpleindex.py</a>,
+<a href="examples/simplesearch.py">simplesearch.py</a>,
+<a href="examples/simpleexpand.py">simpleexpand.py</a>.
+There's also 
+<a href="examples/simplematchdecider.py">simplematchdecider.py</a>
+which shows how to define a MatchDecider in Python.
+</p>
+
 <h2>Exceptions</h2>
 
 <p>
@@ -156,17 +167,6 @@ class mymatcher(xapian.MatchDecider):
   def __call__(self, doc):
     return 1
 </pre>
-
-<p>
-The <code>examples</code> subdirectory contains examples showing how to use the
-Python bindings based on the simple examples from <code>xapian-examples</code>:
-<a href="examples/simpleindex.py">simpleindex.py</a>,
-<a href="examples/simplesearch.py">simplesearch.py</a>,
-<a href="examples/simpleexpand.py">simpleexpand.py</a>.
-There's also 
-<a href="examples/simplematchdecider.py">simplematchdecider.py</a>
-which shows how to define a MatchDecider in Python.
-</p>
 
 <address>
 Last updated $Date$

@@ -9,6 +9,13 @@ and additions. PHP4 strings and arrays, etc., are converted automatically
 in the bindings, so generally it should just work as expected.
 </p>
 
+<p>
+The <code>examples</code> subdirectory contains examples showing how to use the
+PHP4 bindings based on the simple examples from <code>xapian-examples</code>:
+<a href="examples/simpleindex.php4">simpleindex.php4</a>,
+<a href="examples/simplesearch.php4">simplesearch.php4</a>.
+</p>
+
 <h2>Installation</h2>
 
 <p>
@@ -139,20 +146,6 @@ the TCP version is currently wrapped, the "program" version isn't).
    an MSetIterator and returns a list of terms in the current query which
    match the document given by that iterator. This may be slightly
    more convenient than using the TermIterator directly.
-</p>
-
-<h2>QueryParser and Stem</h2>
-
-<p>
-   The query parser and C++ wrapped stemmers are wrapped for PHP4 as
-   <code>QueryParser</code> and <code>Stem</code>. The interfaces are identical
-   to the C++ versions.
-</p>
-
-<p>
-There are examples of code using the PHP4 bindings, based on simplesearch and
-simpleindex from <code>xapian-examples</code>, in the <code>examples</code>
-subdirectory.
 </p>
 
 <address>
