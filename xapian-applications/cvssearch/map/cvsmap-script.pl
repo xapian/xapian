@@ -1,9 +1,8 @@
 # -* perl *-
 
 open(PWD, "pwd|");
-$save_dir = <PWD>;
+chomp($save_dir = <PWD>);
 close PWD;
-
 $curr_dir=$save_dir;
 
 @file_types=qw(cc h cpp c C);
@@ -38,23 +37,28 @@ if ($#ARGV < 0) {
             print "$path\n";
             if (chdir $path) {
                 unlink $list;
+		$found_files = 0;
                 open(LIST, ">$list_file");
                 for ($i = 0; $i <= $#file_types; ++$i) {
                     open(FIND_RESULT, "find . -name \"*.$file_types[$i]\"|");
                     while (<FIND_RESULT>) {
+			$found_files = 1;
                         print LIST $_;
                     }
                     close(FIND_RESULT);
                 }
                 close(LIST);
-                print TIME "$path", "\n";
-                print TIME "Started  @ ", `date`;
-                $start_date = time;
-                system ("cat $output_file|xargs cvsmap \$\@ -f1 $save_dir/$name.db -f2 $save_dir/$name.offset");
-                print TIME "Finished @ ", `date`;
-                $delta_time += time - $start_date;
-                print TIME "\n";
-                chdir $curr_dir || die "can't change back to $curr_dir\n";
+
+		if ($found_files) {
+	                print TIME "$path", "\n";
+        	        print TIME "Started  @ ", `date`;
+               		$start_date = time;
+	                system ("cat $list_file\|xargs cvsmap \$\@ -f1 $save_dir/$name.db -f2 $save_dir/$name.offset");
+        	        print TIME "Finished @ ", `date`;
+	                $delta_time += time - $start_date;
+	                print TIME "\n";
+		}
+               chdir $curr_dir || die "can't change back to $curr_dir\n";
             }
         }
     }
