@@ -68,7 +68,7 @@ inline doccount
 MultiPostList::get_termfreq() const
 {
     if(freq_initialised) return termfreq;
-    printf("Calcualting mulitple termfrequencies\n");
+    printf("Calculating multiple term frequencies\n");
 
     // Calculate and remember the termfreq
     list<MultiPostListInternal>::const_iterator i = postlists.begin();
