@@ -44,6 +44,13 @@ Priority | Area            | Task
          |                 | userman, particuarly in examples (eg, search
 	 |                 | engine example)
 ---------+-----------------+--------------------------------------------------
+ Medium  | MultiMatch      | Check that weights returned by a multimatch over
+         |                 | a set of multidatabases are same as those over
+	 |                 | the complete set as a single multidatabase.
+	 |                 | May need to turn approximation for termfrequency
+	 |                 | off.  Also, make sure that each subdatabase
+	 |                 | has the appropriate value in its "root" field.
+---------+-----------------+--------------------------------------------------
  Medium  | General         | If two OmEnquire objects are initialised with
          |                 | the same OmDatabase, they should share the
 	 |                 | same IRDatabase object.  This could be done with
