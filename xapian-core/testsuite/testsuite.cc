@@ -269,7 +269,7 @@ test_driver::runtest(const test_desc *test)
 		    for (int i=old_bound; i<after_bound; ++i) {
 			if (new_allocations[i].p != 0) {
 			    out << hex;
-			    out << "0x" << new_allocations[i].p << "(0x"
+			    out << new_allocations[i].p << "("
 				    << new_allocations[i].size << ") ";
 			    out << dec;
 			}
