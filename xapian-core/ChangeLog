@@ -1,3 +1,7 @@
+Tue May 06 19:31:42 BST 2003  Olly Betts <olly@survex.com>
+
+	* include/xapian/query.h: New file I failed to checkin on Friday.
+
 Tue May 06 14:16:41 BST 2003  Olly Betts <olly@survex.com>
 
 	* HACKING,configure.in,tests/.cvsignore,tests/Makefile.am,
