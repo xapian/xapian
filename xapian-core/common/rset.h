@@ -24,7 +24,7 @@
 #ifndef OM_HGUARD_RSET_H
 #define OM_HGUARD_RSET_H
 
-#include <vector>
+#include <set>
 #include <map>
 #include "omdebug.h"
 #include <xapian/enquire.h>
@@ -32,12 +32,6 @@
 
 class Database;
 class Xapian::Weight::Internal;
-
-class RSetItem {
-    public:
-	RSetItem(om_docid did_new) : did(did_new) { }
-	om_docid did;
-};
 
 /** A relevance set.
  *
@@ -57,13 +51,12 @@ class RSetI {
 	std::map<string, om_doccount> reltermfreqs;
 	bool calculated_reltermfreqs;
     public:
-	std::vector<RSetItem> documents; // FIXME - should be encapsulated
+	std::set<Xapian::docid> documents;
 
 	RSetI(const OmDatabase &root_);
 	RSetI(const OmDatabase &root_, const OmRSet & rset);
 	RSetI(const Database *dbroot_, const OmRSet & rset);
 
-	void add_document(om_docid did);
 	void will_want_reltermfreq(string tname);
 
 	void calculate_stats();
@@ -86,34 +79,28 @@ RSetI::RSetI(const OmDatabase &root_)
 /// Initialise with an Xapian::RSet
 inline
 RSetI::RSetI(const OmDatabase &root_, const OmRSet & omrset)
-	: root(root_), dbroot(NULL), calculated_reltermfreqs(false)
+	: root(root_), dbroot(NULL), calculated_reltermfreqs(false),
+	  documents(omrset.internal->items)
 {
-    std::set<om_docid>::const_iterator i;
-    for (i = omrset.internal->items.begin();
-	 i != omrset.internal->items.end(); ++i) {
-	add_document(*i);
-    }
 }
 
 /// Initialise with an OmRSet
 inline
 RSetI::RSetI(const Database *dbroot_, const OmRSet & omrset)
-	: dbroot(dbroot_), calculated_reltermfreqs(false)
+	: dbroot(dbroot_), calculated_reltermfreqs(false),
+	  documents(omrset.internal->items)
 {
-    std::set<om_docid>::const_iterator i;
-    for (i = omrset.internal->items.begin();
-	 i != omrset.internal->items.end(); i++) {
-	add_document(*i);
-    }
 }
 
+#if 0
 inline void
 RSetI::add_document(om_docid did)
 {
-    // FIXME - check that document isn't already in rset
     Assert(!calculated_reltermfreqs);
-    documents.push_back(RSetItem(did));
+    Assert(!documents[did]);
+    documents.insert(did);
 }
+#endif
 
 inline void
 RSetI::will_want_reltermfreq(string tname)

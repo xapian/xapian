@@ -35,11 +35,12 @@ RSetI::calculate_stats()
 {
     DEBUGCALL(MATCH, void, "RSetI::calculate_stats", "");
     Assert(!calculated_reltermfreqs);
-    std::vector<RSetItem>::const_iterator doc;
+    std::set<Xapian::docid>::const_iterator doc;
     for (doc = documents.begin(); doc != documents.end(); doc++) {
-	DEBUGLINE(WTCALC, "document " << doc->did << " [ ");
+	DEBUGLINE(WTCALC, "document " << *doc << " [ ");
 	if (dbroot) {
-	    AutoPtr<TermList> tl = AutoPtr<TermList>(dbroot->open_term_list(doc->did));
+	    AutoPtr<TermList> tl =
+		AutoPtr<TermList>(dbroot->open_term_list(*doc));
 	    tl->next();
 	    while (!tl->at_end()) {
 		// FIXME - can this lookup be done faster?
@@ -52,8 +53,8 @@ RSetI::calculate_stats()
 		tl->next();
 	    }
 	} else {
-	    Xapian::TermIterator tl = root.termlist_begin(doc->did);
-	    Xapian::TermIterator tlend = root.termlist_end(doc->did);
+	    Xapian::TermIterator tl = root.termlist_begin(*doc);
+	    Xapian::TermIterator tlend = root.termlist_end(*doc);
 	    while (tl != tlend) {
 		// FIXME - can this lookup be done faster?
 		// Store termnames in a hash for each document, rather than

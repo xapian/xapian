@@ -67,11 +67,11 @@ OmExpand::build_tree(const RSetI *rset, const OmExpandWeight *ewt)
     // FIXME: try using a heap instead (C++ sect 18.8)?
     priority_queue<TermList*, vector<TermList*>, TLPCmpGt> pq;
     try {
-	vector<RSetItem>::const_iterator i;
+	set<Xapian::docid>::const_iterator i;
 	for (i = rset->documents.begin(); i != rset->documents.end(); ++i) {
 	    unsigned int multiplier = db.internal->databases.size();
-	    om_docid realdid = ((*i).did - 1) / multiplier + 1;
-	    om_doccount dbnumber = ((*i).did - 1) % multiplier;
+	    om_docid realdid = (*i - 1) / multiplier + 1;
+	    om_doccount dbnumber = (*i - 1) % multiplier;
 
 	    AutoPtr<LeafTermList> tl(db.internal->databases[dbnumber]->open_term_list(realdid));
 	    tl->set_weighting(ewt);
