@@ -20,12 +20,6 @@ progress, apart from C].
 Write (speed) performance test suite.
 
 </todoitem>
-<todoitem priority="H" difficulty="5" owner="O" area="API" release="1.0">
-
-Merge OmDocument and OmDocumentContents into a single class, providing
-consistent interface.
-
-</todoitem>
 <todoitem priority="H" difficulty="5" owner="C" area="Indexer" release="1.0">
 
 Write indexer modules.
@@ -84,8 +78,7 @@ currently, sometimes you have to supply a begin and end iterator, and sometimes
 you have to supply a reference to an object.  Always use begin and end
 iterators.
 
-Particular offenders are: OmDocumentTerm, OmMSet, OmESet, OmRSet,
-OmBatchEnquire, OmStem.
+Particular offenders are: OmMSet, OmESet, OmRSet, OmBatchEnquire, OmStem.
 
 Also OmEnquire::get_matching_terms(), OmQuery::get_terms(),
 OmExpandDeciderFilterTerms. (om_termnamelist), and some parts of the indexer.
@@ -103,8 +96,7 @@ to gain much.)
 <todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
 
 Sort out API classes which expose members: check that this is really what is
-wanted in each case - rework to avoid it if so.  A particularly bad culprit is
-the OmDocumentContents (and OmDocumentTerm) class.
+wanted in each case - rework to avoid it if so.
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
@@ -400,7 +392,8 @@ it makes sense (or note in documentation to use FILTER).
 <todoitem priority="D" difficulty="5" owner="" area="Matcher" release="">
 
 Boolean filters result in collection statistics being for the wrong set of
-documents (should be appropriate subset).  Hard to be efficient
+documents (should be appropriate subset).  Hard (impossible?) to implement
+efficiently.
 
 </todoitem>
 </todo>

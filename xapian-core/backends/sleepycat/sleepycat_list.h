@@ -29,6 +29,7 @@
 #include <om/omtypes.h>
 #include <vector>
 #include <db_cxx.h>
+#include "omdocumentinternal.h"
 
 /** An item in a SleepycatList.  This might represent either a term in a
  *  termlist or a document in a postlist.  In either situation, it

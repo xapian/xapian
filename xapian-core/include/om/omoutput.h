@@ -39,7 +39,6 @@ OUTPUT_FUNCTION(OmWritableDatabase)
 OUTPUT_FUNCTION(OmData)
 OUTPUT_FUNCTION(OmKey)
 OUTPUT_FUNCTION(OmDocument)
-OUTPUT_FUNCTION(OmDocumentTerm)
 
 #include "omenquire.h"
 OUTPUT_FUNCTION(OmQuery)

@@ -31,6 +31,7 @@
 #include "database.h"
 #include "om/omerror.h"
 #include "om/omdocument.h"
+#include "omdocumentinternal.h"
 
 class SleepycatDatabaseTermCache;
 class SleepycatDatabaseInternals;

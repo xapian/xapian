@@ -28,6 +28,7 @@
 
 #include <vector>
 #include "positionlist.h"
+#include "omdocumentinternal.h"
 
 /** A position list in a inemory database. */
 class InMemoryPositionList : public PositionList
