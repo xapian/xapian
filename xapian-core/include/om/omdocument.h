@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,11 +60,11 @@ class OmDocument {
 	~OmDocument();
 
 	/// Get value by number (>= 0)
-	string get_value(om_valueno value) const;
+	std::string get_value(om_valueno value) const;
 
 	/// Add a new value.  It will replace any existing value with the
 	//  same number.
-	void add_value(om_valueno valueno, const string &value);
+	void add_value(om_valueno valueno, const std::string &value);
 
 	/// Remove any value with the given number.
 	void remove_value(om_valueno valueno);

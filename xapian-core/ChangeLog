@@ -1,3 +1,9 @@
+Sat Oct 12 16:49:50 BST 2002  Olly Betts <olly@survex.com>
+
+	* PLATFORMS,api/omvalueiteratorinternal.h,extra/parsequery.yy,
+	  include/om/omdocument.h: Fixed std:: namespace issues to
+	  allow compilation with GCC 3 once again.
+
 Sat Oct 12 15:43:22 BST 2002  Olly Betts <olly@survex.com>
 
 	* docs/todo.xml: Updated.

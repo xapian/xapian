@@ -8,19 +8,19 @@ output from "uname -a"), compiler and version (e.g. output from g++ -v), and any
 switches you passed to configure.
 
 A general note about GCC 2.95 - on many platforms, certain tests (deldoc1
-notably) may fail with OMEXCEPT - investigation reveals that the correct
-exception is being thrown, but is leaking through the catch block somehow.
-Adding tracing code often makes the test pass!  We believe this is a code
-generation problem or similar - it's never been reported with GCC 3.0 or
-newer.  The testsuite framework now uses RTTI (Run Time Type Information)
-to attempt to detect mishandled exceptions and ignore them.  This isn't
-totally effective, and the table below ignores test failures due to OMEXCEPT
-which investigation shows are due to mishandled exceptions.
+notably) may fail with OmError exceptions - investigation reveals that the
+correct exception is being thrown, but is leaking through the catch block
+somehow.  Adding tracing code often makes the test pass!  We believe this is a
+code generation problem or similar - it's never been reported with GCC 3.0 or
+newer.  The testsuite framework now uses RTTI (Run Time Type Information) to
+attempt to detect mishandled exceptions and ignore them.  This may not be
+totally effective.  The table below ignores test failures which investigation
+shows are due to mishandled exceptions.
 
 Arch  | Platform                       |Version|Status| Notes / requirements
 ------+--------------------------------+-------+------+------------------------
-x86   | Linux 2.4 Debian 3.0 GCC 2.95.4| 0.5.2 |Passed|
-x86   | Linux 2.4 Debian 3.0 GCC 3.0   | 0.5.0 |Passed|
+x86   | Linux 2.4 Debian 3.0 GCC 2.95.4| 0.5.3 |Passed|
+x86   | Linux 2.4 Debian 3.0 GCC 3.0   | 0.5.3 |Passed|
 x86   | Linux 2.2 Debian 2.2 GCC 2.95.4| 0.5.0 |Passed|
 x86   |*Linux 2.4 Debian 2.2 GCC 2.95.4| 0.5.1 |Passed|
 x86   |*Linux 2.4 RedHat 7.3 GCC 2.96  | 0.5.2 |Passed|
