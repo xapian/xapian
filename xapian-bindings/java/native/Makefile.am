@@ -1,7 +1,7 @@
 INCLUDES = -I/usr/local/jdk/include -I/usr/local/jdk/include/linux
 
 # directory to install libxapian_jni.{so,dynlib,dll,sl,...} in
-jnidir = $(top_srcdir)/java/built
+jnidir = `pwd`/../built
 jni_LTLIBRARIES = libxapian_jni.la
 
 libxapian_jni_la_SOURCES = Database.cc Document.cc ESet.cc ESetIterator.cc \

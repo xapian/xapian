@@ -1,4 +1,4 @@
-jardir = $(top_srcdir)/java/built # directory to install xapian_jni.jar in
+jardir = `pwd`/../../built # directory to install xapian_jni.jar in
 
 SUBDIRS = errors examples
 

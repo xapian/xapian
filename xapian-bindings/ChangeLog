@@ -1,3 +1,8 @@
+Thu Sep 16 23:02:28 BST 2004  Olly Betts <olly@survex.com>
+
+	* java/native/Makefile.am,java/org/xapian/Makefile.am: Fixed "make
+	  install" to not give libtool error.
+
 Thu Sep 16 22:51:26 BST 2004  Olly Betts <olly@survex.com>
 
 	* php4/docs/examples/Makefile.am: Include simplesearch.php and
