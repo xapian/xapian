@@ -32,7 +32,7 @@
 
 
 // IT SEEMS LIKE WE ACTUALLY GET MUCH BETTER RESULTS
-// BY LOOKING AT FEWER TRANSACTIONS RETURNED FIRST BY OMSEEK;
+// BY LOOKING AT FEWER TRANSACTIONS RETURNED FIRST BY Xapian;
 // EXAMPLE:  try sound; you get much better results with the top 100
 // than the top 500.
 
@@ -545,7 +545,7 @@ int main(unsigned int argc, char *argv[]) {
 
 
     // ----------------------------------------
-    // code which accesses Omsee
+    // code which accesses Xapian
     // ----------------------------------------
     OmDatabase database;
 
@@ -620,7 +620,7 @@ int main(unsigned int argc, char *argv[]) {
 
     map< string, int > item_count; // required for mining subset of all transactions
 
-    cerr << "analyzing results from omseek" << endl;
+    cerr << "analyzing results from Xapian" << endl;
     int other_transactions_read = 0;
     int total_transactions_read = 0;
 
@@ -638,7 +638,7 @@ int main(unsigned int argc, char *argv[]) {
       //      cerr << "sim = " << sim << endl;
 
       OmDocument doc = i.get_document();
-      string data = doc.get_data().value;
+      string data = doc.get_data();
 
       total_transactions_read++; // used for global queries
 

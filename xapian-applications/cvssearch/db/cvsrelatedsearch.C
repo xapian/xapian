@@ -221,7 +221,7 @@ int main(unsigned int argc, char *argv[]) {
 
 
     // ----------------------------------------
-    // code which accesses Omsee
+    // code which accesses Xapian
     // ----------------------------------------
     OmDatabase database;
 
@@ -341,7 +341,7 @@ int main(unsigned int argc, char *argv[]) {
       //      cerr << "sim = " << sim << endl;
 
       OmDocument doc = i.get_document();
-      string data = doc.get_data().value;
+      string data = doc.get_data();
 
       //      cerr << "Found " << data << endl;
 

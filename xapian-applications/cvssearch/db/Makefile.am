@@ -12,7 +12,7 @@ libcvs_lines_a_SOURCES = util.C util.h lines.h lines.C lines_cmt.C lines_cmt.h l
 
 bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsminesearch cvscommitindex cvscommitsearch cvsfileindex cvsfilesearch cvsrelatedindex cvsrelatedsearch
 
-LIBS = $(noinst_LIBRARIES) -lomseek -ldb_cxx
+LIBS = $(noinst_LIBRARIES) -lxapian -ldb_cxx
 
 if DYNAMIC
 FLAGS =

@@ -304,7 +304,7 @@ int main(int argc, char *argv[]) {
 
 
     // ----------------------------------------
-    // code which accesses Omsee
+    // code which accesses Xapian
     // ----------------------------------------
     OmDatabase database;
          
@@ -367,7 +367,7 @@ int main(int argc, char *argv[]) {
     for (OmMSetIterator i = matches.begin(); i != matches.end(); i++) {
       int sim = matches.convert_to_percent(i);
       OmDocument doc = i.get_document();
-      string data = doc.get_data().value;
+      string data = doc.get_data();
       //      cerr << endl << data << endl;
       list<string> symbols;
       split( data, " \n", symbols );

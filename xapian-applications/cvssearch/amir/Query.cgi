@@ -4,7 +4,7 @@
 # This produces a html query interface for cvssearch
 #
 # Structure:
-# 1. Calls $cvssearch - interface to omsee - for query matches
+# 1. Calls $cvssearch - interface to Xapian - for query matches
 # 2. grep source files for query words
 # 3. sorts and rank query matches as per file
 # 4. finds context matched by calling on $query
@@ -241,7 +241,7 @@ if($query && ($query ne "")){
 	}
 	
 	#---------------
-	# query omsee
+	# query Xapian
 	#---------------
 	
 	if($rootproj ne ''){

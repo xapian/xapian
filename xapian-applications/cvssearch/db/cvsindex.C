@@ -35,7 +35,7 @@
 #define SHOW_WARNINGS 0 
 
 #if SHOW_WARNINGS
-#warning "should use omsee-0.4.1 or later"
+#warning "should use Xapian-0.6 or later"
 #endif
 
 static void usage(char * prog_name);
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
             system( ("mkdir " + database_dir2).c_str());
 
             // ----------------------------------------
-            // code which accesses Omsee
+            // code which accesses Xapian
             // ----------------------------------------
             OmSettings db_parameters;
             db_parameters.set("backend", "quartz");
@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
             cerr << "... done!" << endl;
         }
         catch(OmError & error) {
-            cerr << "OMSEE Exception: " << error.get_msg() << endl;
+            cerr << "Xapian Exception: " << error.get_msg() << endl;
         }
     }
 }

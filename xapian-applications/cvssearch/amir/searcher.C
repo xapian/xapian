@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     }
 
      try {
-       // code which accesses Omsee
+       // code which accesses Xapian
        OmDatabase databases;
        OmSettings db_parameters;
        db_parameters.set("backend", "quartz");

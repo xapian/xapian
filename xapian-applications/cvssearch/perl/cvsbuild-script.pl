@@ -48,7 +48,7 @@ if (not (-x $cvsmap)) {
 
 my $mask = umask "0002";
 my $comp_mode = 0;
-my $cvsdata = Cvssearch::get_cvsdata();
+gy $cvsdata = Cvssearch::get_cvsdata();
 my $cvsroot = $ENV{"CVSROOT"};
 my $cvscache = "cache";
 my @file_types= qw(cc h cpp c C java);
@@ -297,7 +297,7 @@ sub cvsbuild {
                     system ("chmod o+r $prefix_path.om/*");
 
                     my $berkeley_size = 0;
-                    my $omsee_size = 0;
+                    my $xapian_size = 0;
                     my $cmt_size = 0;
                     
                     open(SIZE, "du $prefix_path.db|");
@@ -313,7 +313,7 @@ sub cvsbuild {
                     while (<SIZE>) {
                         chomp;
                         my @fields = split(/\t/);
-                        $omsee_size = $fields[0];
+                        $xapian_size = $fields[0];
                         last;
                     }
                     close (SIZE);
@@ -354,8 +354,8 @@ sub cvsbuild {
                     print STAT "\n";
                     print STAT "berkeley database size         :\t"
                         . $berkeley_size. "\tkb at $prefix_path.db\n";
-                    print STAT "omsee    database size         :\t"
-                        . $omsee_size  . "\tkb at $prefix_path.om\n";
+                    print STAT "xapian   database size         :\t"
+                        . $xapian_size  . "\tkb at $prefix_path.om\n";
                     close(STAT);
                 }
 

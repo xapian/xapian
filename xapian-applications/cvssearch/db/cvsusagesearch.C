@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 
   try {
     // ----------------------------------------
-    // code which accesses Omsee
+    // code which accesses Xapian
     // ----------------------------------------
     OmDatabase databases;
          
@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
       int sim = matches.convert_to_percent(i);
       //      cout << sim << " ";
       OmDocument doc = i.get_document();
-      string data = doc.get_data().value;
+      string data = doc.get_data();
 
       int imp = 0;
       imp = atoi( data.substr( 0, data.find(" ") ).c_str() );

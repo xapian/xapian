@@ -453,9 +453,9 @@ char *stopList[] = {
 
 
 // ??????????? is this info still correct below?
-//     Generates omsee databases each page.
+//     Generates Xapian databases each page.
 //
-//     If library directories given, also generates a "commit" omsee database
+//     If library directories given, also generates a "commit" Xapian database
 //     for library usage
 //
 
@@ -483,7 +483,7 @@ char *stopList[] = {
 #warning "should generate unique file for tags"
 #warning "ctags contains inheritance information; this can help"
 #warning "if (t,S) does not occur in class declaration say or where member variable is declared"
-#warning "requires omsee 0.4.1"
+#warning "requires Xapian 0.6"
 
 
 #include <unistd.h>
@@ -702,7 +702,7 @@ int main(unsigned int argc, char *argv[]) {
 
 
     // ----------------------------------------
-    // write out the omsee database
+    // write out the Xapian database
     // index by comment terms, the info field
     // should contain all the symbols
     // ----------------------------------------
@@ -710,7 +710,7 @@ int main(unsigned int argc, char *argv[]) {
     // write_OM_database( commit_path + ".om",  commit_code_words, commit_comment_words);
 
   } catch(OmError & error) {
-    cerr << "OmSee Exception: " << error.get_msg() << endl;
+    cerr << "Xapian Exception: " << error.get_msg() << endl;
   } catch( DbException& e ) {
     cerr << "Sleepy Cat Exception:  " << e.what() << endl;
   }

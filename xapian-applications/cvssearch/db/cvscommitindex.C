@@ -23,8 +23,8 @@
 
 
 
-// for some reason, omseek ranking is better with set than list for data mining purposes??
-// I think the reason is that with a set, omsee ranks those commit higher than contain
+// for some reason, Xapian ranking is better with set than list for data mining purposes??
+// I think the reason is that with a set, Xapian ranks those commit higher than contain
 // the fewest # of distinct words; that is smaller commits get ranked higher and this
 // makes it more likely that most of the code is relevant
 #warning "USING SET INSTEAD OF LIST FOR INDEX ENTRIES"
@@ -459,9 +459,9 @@ char *stopList[] = {
 
 
 // ??????????? is this info still correct below?
-//     Generates omsee databases each page.
+//     Generates Xapian databases each page.
 //
-//     If library directories given, also generates a "commit" omsee database
+//     If library directories given, also generates a "commit" Xapian database
 //     for library usage
 //
 
@@ -489,7 +489,7 @@ char *stopList[] = {
 #warning "should generate unique file for tags"
 #warning "ctags contains inheritance information; this can help"
 #warning "if (t,S) does not occur in class declaration say or where member variable is declared"
-#warning "requires omsee 0.4.1"
+#warning "requires Xapian 0.6"
 
 
 #include <unistd.h>
@@ -701,14 +701,14 @@ int main(unsigned int argc, char *argv[]) {
     //    write_DB_database( commit_path + ".db1", commit_code_words1);
 
     // ----------------------------------------
-    // write out the omsee database
+    // write out the Xapian database
     // index by comment terms, the info field
     // should contain all the symbols
     // ----------------------------------------
     write_OM_database( commit_path + ".om",  commit_code_words, commit_comment_words);
     //    write_OM_database( commit_path + ".om1", commit_code_words1, commit_comment_words1);
   } catch(OmError & error) {
-    cerr << "OmSee Exception: " << error.get_msg() << endl;
+    cerr << "Xapian Exception: " << error.get_msg() << endl;
   } catch( DbException& e ) {
     cerr << "Sleepy Cat Exception:  " << e.what() << endl;
   }

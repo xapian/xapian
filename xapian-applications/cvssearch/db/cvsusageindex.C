@@ -10,9 +10,9 @@
 //
 // Usage:  cvsusageindex < PACKAGE_LIST lib1_dir lib2_dir ...
 //
-//     Generates omsee databases each page.
+//     Generates Xapian databases each page.
 //
-//     If library directories given, also generates a "global" omsee database
+//     If library directories given, also generates a "global" Xapian database
 //     for library usage
 //
 
@@ -54,7 +54,7 @@
 #warning "requires ctags from http://ctags.sourceforge.net/"
 #warning "should generate unique file for tags"
 #warning "ctags contains inheritance information; this can help if (t,S) does not occur in class declaration say or where member variable is declared"
-#warning "requires omsee 0.4.1"
+#warning "requires Xapian 0.6"
 
 // ctags options
 //  want classes
@@ -119,7 +119,7 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
   system(("mkdir " + database_dir+"_c" ).c_str());
   system(("mkdir " + database_dir+"_f" ).c_str());
 
-  // code which accesses Omsee
+  // code which accesses Xapian
 
   OmSettings db_parameters_classes;
   db_parameters_classes.set("backend", "quartz");
@@ -439,19 +439,19 @@ int main(int argc, char *argv[]) {
 
 
       cerr << "Writing " << database_dir << endl;
-      /// write out results to omsee
+      /// write out results to Xapian
       writeDatabase( database_dir, app_symbol_count, app_symbol_terms );
 	
 	
 
     } // for packages
 
-    /// write out results to omsee
+    /// write out results to Xapian
     cerr << "Writing global" << endl;
     writeDatabase( "global.om", lib_symbol_count, lib_symbol_terms );
 
   } catch(OmError & error) {
-    cerr << "OMSEE Exception: " << error.get_msg() << endl;
+    cerr << "Xapian Exception: " << error.get_msg() << endl;
   } catch( DbException& e ) {
     cerr << "Exception:  " << e.what() << endl;
   }

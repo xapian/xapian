@@ -19,21 +19,13 @@ INSTALLATION
   make 
   make install 
 
-* download omseek.tar.gz v0.4.1-beta from 
-     http://sourceforge.net/project/showfiles.php?group_id=26013
+* download Xapian 0.6 from
+     http://www.xapian.org/download.php
 
   From the main directory, type
 
-  ./buildall 
- 
-  or 
-
-  ./buildall -- [configure options]  if required
-
-  (for help, type ./buildall --help)
-
-  Finally, type:
-
+  ./configure [configure options]
+  make
   make install
 
 * install the latest version of libxml from
@@ -52,7 +44,7 @@ INSTALLATION
   make install
 
 Note 1:
-* If you do not have root access, then sleepycat, omsee, libxml cannot be 
+* If you do not have root access, then sleepycat, Xapian, libxml cannot be 
   installed under their default output directory: /usr/local. 
 
 * One solution is to install these two packages in the user home directory 
@@ -247,14 +239,14 @@ stored under root0, etc...
 Under each rootx directory, we have
 db directory: 
 
-   contains omsee and database database files for each projects. 
+   contains Xapian and sleepycat database files for each projects. 
    so it looks something like this: 
    (suppose dir1/prject1 dir2/project2 are indexed):
    db/
        dir1_project1.db       contains berkeley databases
        dir1_project1.cmt      contains line-comment mappings
-       dir1_project1.om       contains an omsee database
-       dir1_project1.om2      contains another omsee database
+       dir1_project1.om       contains a Xapian database
+       dir1_project1.om2      contains another Xapian database
        dir1_project1.offset   contains in the format 
                              [ file_path index <into the cmt file>^B]
        dir1_project1.st       contains statistics for dir/project1
