@@ -8,8 +8,8 @@ bands are now 100% &gt;= p &gt; 50% and 50% &gt;= p &gt; 0%).
 <todoitem priority=" " difficulty="" owner="" area="Matcher" release="">
 
 Optimisation:  Consider using hash_map instead of map in various places -
-two possible such locations are i) doing collapsem (in match.cc) and ii)
-in the inmemory database.
+two possible such locations are i) doing collapsem (in matcher/multimatch.cc)
+and ii) in the inmemory database.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Olly" area="API" release="">
@@ -45,18 +45,7 @@ Check for swig version.
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">
 
-Tests for bindings.
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
-
 Clean up xapian-core/backends/quartz/z_make, etc.
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
-
-Java bindings in com/muscat/om should probably move to org/xapian before the
-bindings are actually released.
 
 </todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="Debug" release="">
@@ -75,12 +64,6 @@ Pass around partially created postlists and termlists as AutoPtrs?
 <todoitem priority="H" difficulty="3" owner="" area="API" release="">
 
 Put Om into its own namespace, to ensure lack of symbol conflicts.
-
-</todoitem>
-<todoitem priority="H" difficulty="5" owner="C" area="API" release="">
-
-Write bindings for other languages (Java, C, perl, python, php4, etc.). [In
-progress, apart from C].
 
 </todoitem>
 <todoitem priority="H" difficulty="5" owner="" area="Performance" release="">
@@ -201,11 +184,6 @@ Document backend API (database, postlist, termlist, document, etc) in same
 way as enquire API.
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="Bindings" release="">
-
-Ensure that (Java in particular) bindings throw correct exception types.
-
-</todoitem>
 <todoitem priority="M" difficulty="4" owner="" area="Matcher" release="">
 
 Allow negative relevance judgements?  Will need to check that this doesn't
@@ -293,7 +271,7 @@ examples (eg, search engine example)
 Put PS/PDF documentation on website.
 
 </todoitem>
-<todoitem priority="L" difficulty="5" owner="c" area="General" release="">
+<todoitem priority="L" difficulty="5" owner="" area="General" release="">
 
 Audit for exception safety.
 
@@ -416,12 +394,28 @@ share some techniques from implementing synonym postlists.
 .deb built, control files via autoconf
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Sam/James" area="" release="">
+<todoitem priority=" " difficulty="" owner="Sam/James" area="Bindings" release="">
 
-Language bindings: Python, PHP and Java (as a minimum IMHO).
+Language bindings: Python, PHP and Java (Perl and C would be good too).
 All can be done using SWIG, and it's probably easier to do so
 even though some languages (eg Python) have better tools
 available just because it's less overall work.
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="Bindings" release="">
+
+Tests for bindings.
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="Bindings" release="">
+
+Java bindings in com/muscat/om should probably move to org/xapian before the
+bindings are actually released.
+
+</todoitem>
+<todoitem priority="M" difficulty="5" owner="" area="Bindings" release="">
+
+Ensure that (Java in particular) bindings throw correct exception types.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="0.6">
@@ -464,7 +458,7 @@ simplifying to just do a probabilistic search, or to use OmQueryParser.
 <todoitem priority=" " difficulty="" owner="Olly" area="" release="">
 
 Investigate and find a proper fix for FILTER problem (believe this
-is fixed by fixes to quartz btree stuff).
+was fixed by fixes to quartz btree stuff).
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Richard" area="" release="">
