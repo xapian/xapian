@@ -874,7 +874,6 @@ Btree::add_item(byte * kt_, int j)
 	uint4 split_n = C[j].n;
 	C[j].n = base.next_free_block();
 
-	byte split_p[block_size]; // split_p holds the split-off part of the block
 	memcpy(split_p, p, block_size);  // replicate the whole block in split_p
 	SET_DIR_END(split_p, m);
 	compress(split_p);      /* to reset TOTAL_FREE, MAX_FREE */
@@ -1508,6 +1507,10 @@ Btree::do_open_to_write(bool revision_supplied, quartz_revision_number_t revisio
 	    throw std::bad_alloc();
 	}
     }
+    split_p = new byte[block_size];
+    if (split_p == 0) {
+	throw std::bad_alloc();
+    }
     read_root();
 
     buffer = zeroed_new(block_size);
@@ -1549,7 +1552,8 @@ Btree::Btree(string path_, bool readonly_)
 	  Btree_modified(false),
 	  full_compaction(false),
 	  writable(!readonly_),
-	  dont_close_handle(false)
+	  dont_close_handle(false),
+	  split_p(0)
 {
     DEBUGCALL(DB, void, "Btree::Btree", path_ << ", " << readonly_);
 }
@@ -1628,6 +1632,7 @@ void Btree::close() {
     for (int j = level; j >= 0; j--) {
 	delete [] C[j].p;
     }
+    delete [] split_p;
 
     delete [] kt;
     delete [] buffer;
