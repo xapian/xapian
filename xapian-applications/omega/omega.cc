@@ -66,8 +66,8 @@ int threshold = 0;
 bool sort_numeric = true;
 om_valueno sort_key = 0;
 int sort_bands = 0; // Don't sort
-om_valueno collapse_key=0;
-bool collapse=false;
+om_valueno collapse_key = 0;
+bool collapse = false;
 
 const static char filter_sep = '-';
 // Any choice of character for filter_sep could conceivably lead to
@@ -175,7 +175,6 @@ main2(int argc, char *argv[])
 	    string v = i->second;
 	    if (!v.empty()) {
 		vector<string>dbs = split(v, '/');
-		dbname = "";
 		vector<string>::const_iterator i;
 		for (i = dbs.begin(); i != dbs.end(); i++) {
 		    if (!i->empty()) {

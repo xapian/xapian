@@ -1,3 +1,8 @@
+Tue Mar 04 01:02:12 GMT 2003  Olly Betts <olly@survex.com>
+
+	* omega.cc: Fixed handling of multiple DB parameters to be as
+	  documented.
+
 Fri Feb 28 09:52:03 GMT 2003 Sam Liddicott <sam.liddicott@orange.co.uk>
 
 	* Added $collapsed to omegascript to give the number of hits
