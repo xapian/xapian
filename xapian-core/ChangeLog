@@ -1,3 +1,9 @@
+Sun Dec 21 01:47:07 GMT 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.h,
+	  backends/quartz/quartz_table_entries.h: Fixed typos and incorrect
+	  comments.
+
 Sat Dec 20 22:11:26 GMT 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/: Removed several needless inclusions of

@@ -35,7 +35,7 @@ using std::string;
 
 /** This class stores a set of entries from a quartz database table.
  *
- *  It may be used to store a set of proposed modificiations to the table,
+ *  It may be used to store a set of proposed modifications to the table,
  *  or to cache entries read from the table.
  */
 class QuartzTableEntries {

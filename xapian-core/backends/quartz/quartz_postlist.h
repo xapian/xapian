@@ -77,7 +77,7 @@ class QuartzPostList : public LeafPostList {
 	/// Pointer to byte after end of current chunk.
 	const char * end;
 
-        /// Document id we're currently at.
+	/// Document id we're currently at.
 	Xapian::docid did;
 
 	/// The (absolute) length of the current document.
@@ -89,7 +89,7 @@ class QuartzPostList : public LeafPostList {
 	/// Whether we've run off the end of the list yet.
 	bool is_at_end;
 
-	/// Whether we've run off the end of the list yet.
+	/// Whether we've started reading the list yet.
 	bool have_started;
 
 	/// The number of entries in the posting list.
@@ -101,11 +101,11 @@ class QuartzPostList : public LeafPostList {
 	/// The position list object for this posting list.
 	QuartzPositionList positionlist;
 
-        /// Copying is not allowed.
-        QuartzPostList(const QuartzPostList &);
+	/// Copying is not allowed.
+	QuartzPostList(const QuartzPostList &);
 
-        /// Assignment is not allowed.
-        void operator=(const QuartzPostList &);
+	/// Assignment is not allowed.
+	void operator=(const QuartzPostList &);
 
 	/** Move to the next item in the chunk, if possible.
 	 *  If already at the end of the chunk, returns false.
@@ -148,7 +148,7 @@ class QuartzPostList : public LeafPostList {
 	 *  to the end.
 	 *
 	 *  @return true if we moved to a valid document,
-	 *          false if we reached the end of the chunk.
+	 *	    false if we reached the end of the chunk.
 	 */
 	bool move_forward_in_chunk_to_at_least(Xapian::docid desired_did);
 
@@ -158,14 +158,14 @@ class QuartzPostList : public LeafPostList {
 	void move_to(Xapian::docid desired_did);
 
     public:
-        /// Default constructor.
-        QuartzPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
+	/// Default constructor.
+	QuartzPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
 		       const QuartzTable * table_,
 		       const QuartzTable * positiontable_,
 		       const string & tname);
 
-        /// Destructor.
-        ~QuartzPostList();
+	/// Destructor.
+	~QuartzPostList();
 
 	/** Returns number of docs indexed by this term.
 	 *
@@ -213,18 +213,19 @@ class QuartzPostList : public LeafPostList {
 	/// Get a description of the document.
 	std::string get_description() const;
 
-	/// Insert an entry
+	/// Insert an entry.
 	static void add_entry(QuartzBufferedTable * bufftable,
 			      const string & tname,
 			      Xapian::docid new_did,
 			      Xapian::termcount new_wdf,
 			      quartz_doclen_t new_doclen);
 
-	/// Delete an entry
+	/// Delete an entry.
 	static void delete_entry(QuartzBufferedTable * bufftable,
 				 const string & tname,
 				 Xapian::docid did);
 
+	/// Read the number of entries and the collection frequency.
 	static void read_number_of_entries(const char ** posptr,
 					   const char * end,
 					   Xapian::termcount * number_of_entries_ptr,
