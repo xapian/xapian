@@ -238,6 +238,7 @@ yylex()
         } else if (term == "NEAR") {
 	    return NEAR;
         }
+	if (stem_term && !stem_all && !islower(term[0])) stem_term = false;
 	lowercase_term(term);
 	if (stem_term) term = stemmer->stem_word(term);
 	yylval = U(OmQuery(term, 1, termpos++));
