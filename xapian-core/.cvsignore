@@ -12,6 +12,7 @@ config.log
 config.status
 libtool
 stamp-h
+stamp-h1
 stamp-h.in
 .deps
 .libs

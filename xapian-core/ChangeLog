@@ -1,3 +1,7 @@
+Thu Apr 04 20:37:12 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated .cvsignore files.
+
 Thu Apr 04 20:25:41 BST 2002  Olly Betts <olly@survex.com>
 
 	* PTHREAD_CFLAGS was only being used for compiling C, not C++, which
