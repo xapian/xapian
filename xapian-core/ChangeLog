@@ -1,3 +1,9 @@
+Tue Apr 27 17:45:51 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Only defined _XOPEN_SOURCE if __GLIBC__
+	  is defined.  OpenBSD seems to do the opposite to Linux and *disable*
+	  pread and pwrite if this is defined!
+
 Tue Apr 27 14:35:47 BST 2004  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,tests/api_db.cc: Need to adjust index by firstitem

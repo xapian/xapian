@@ -24,9 +24,11 @@
 
 #include <config.h>
 
+#ifdef __GLIBC__
 #if !defined _XOPEN_SOURCE
 // Need this to get pread and pwrite with GNU libc
 #define _XOPEN_SOURCE 500
+#endif
 #endif
 
 #include <unistd.h>
