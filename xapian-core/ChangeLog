@@ -1,3 +1,7 @@
+Mon Sep 04 17:40:18 BST 2000 Olly Betts
+
+	* Updated TODO.
+
 Mon Sep 04 17:22:29 BST 2000 Olly Betts
 
 	* Overhauled MultiDatabase and MultiPostList: Complexity used to

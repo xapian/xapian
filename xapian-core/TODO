@@ -86,9 +86,6 @@ M|5| |Documentation| Document backend API (database, postlist,
 M|5| |Bindings     | Ensure that (Java in particular) bindings throw
  | | |             | correct exception types.
 -+-+-+-------------+-----------------------------------------------------------
-M|2| |MultiDatabase| Termcache currently clears itself when full: make
- | | |             | more efficient.  Do we even want a cache here?
--+-+-+-------------+-----------------------------------------------------------
 M|4| |Stemming     | Make a separate package to contain stemming
  | | |Algorithms   | algorithm stuff (docs, code, stemtest)
 -+-+-+-------------+-----------------------------------------------------------
