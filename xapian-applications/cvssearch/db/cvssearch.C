@@ -51,7 +51,12 @@ int main(int argc, char *argv[]) {
 	 lowercase_term(term);
 	 term = stemmer.stem_word(term);
 	 queryterms.push_back(term);
+	 cout << term;
+	 if ( optpos < argc-1 ) {
+	   cout << " ";
+	 }
        }
+       cout << endl;
 
        OmQuery query(OmQuery::OP_AND, queryterms.begin(), queryterms.end());
 
