@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,77 +28,179 @@
 #include <getopt.h>
 
 #include <string>
+#include <fstream>
 #include <iostream>
 
-using std::string;
-using std::cout;
-using std::cerr;
-using std::endl;
-
 #include "om/omstem.h"
+#include "testsuite.h"
 
-static void
-stemfile(const OmStem &stemmer, FILE * f)
+using namespace std;
+
+static const int JUNKSIZE = 2 * 1048576;
+
+static string language;
+
+static OmStem stemmer("english"); // no default ctor
+
+static string srcdir;
+
+static int seed;
+
+// run stemmers on random text
+static bool
+test_stemrandom()
 {
-    while (true) {
-	int ch = getc(f);
-	if (ch == EOF) return;
-	if (isspace(ch)) {
-	    putchar(ch);
+    static const char wordchars[] =
+	"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz0123456789^\0";
+
+    if (getenv("OM_STEMTEST_SKIP_RANDOM"))
+	SKIP_TEST("OM_STEMTEST_SKIP_RANDOM set");
+
+    tout << "Stemming random text... (seed " << seed << ")" << endl;
+    srand(seed);
+
+    string word;
+    int stemmed_size = 0;
+    for (int c = JUNKSIZE; c; --c) {
+	char ch = wordchars[(rand() >> 8) % sizeof wordchars];
+	if (ch) {
+	    word += ch;
 	    continue;
 	}
-
-	std::string word;
-	while (true) {
-	    word += tolower(ch);
-
-	    ch = getc(f);
-	    if (ch == EOF) break;
-	    if (isspace(ch)) {
-		ungetc(ch, f);
-		break;
-	    }
-	}
-
-	cout << stemmer.stem_word(word);
+	stemmed_size += stemmer.stem_word(word).length();
+	word = "";
     }
+    stemmed_size += stemmer.stem_word(word).length();
+    tout << "Input size " << JUNKSIZE << ", stemmed size " << stemmed_size
+	 << endl;
+
+    if (stemmed_size > JUNKSIZE * 101 / 100) {
+	FAIL_TEST("Stemmed data is significantly bigger than input: "
+		  << stemmed_size << " vs. " << JUNKSIZE);
+    }
+    if (stemmed_size < JUNKSIZE / 2) {
+	FAIL_TEST("Stemmed data is significantly smaller than input: "
+		  << stemmed_size << " vs. " << JUNKSIZE);
+    }
+    return true;
+}
+	
+// run stemmers on random junk
+static bool
+test_stemjunk()
+{
+    if (getenv("OM_STEMTEST_SKIP_RANDOM"))
+	SKIP_TEST("OM_STEMTEST_SKIP_RANDOM set");
+
+    tout << "Stemming random junk... (seed " << seed << ")" << endl;
+    srand(seed);
+
+    string word;
+    int stemmed_size = 0;
+    for (int c = JUNKSIZE; c; --c) {
+	char ch = rand() >> 8;
+	if (ch) {
+	    word += ch;
+	    continue;
+	}
+	stemmed_size += stemmer.stem_word(word).length();
+	word = "";
+    }
+    stemmed_size += stemmer.stem_word(word).length();
+    tout << "Input size " << JUNKSIZE << ", stemmed size " << stemmed_size
+	 << endl;
+
+    if (stemmed_size > JUNKSIZE * 101 / 100) {
+	FAIL_TEST("Stemmed data is significantly bigger than input ("
+		  << stemmed_size << " vs. " << JUNKSIZE);
+    }
+    if (stemmed_size < JUNKSIZE / 2) {
+	FAIL_TEST("Stemmed data is significantly smaller than input ("
+		  << stemmed_size << " vs. " << JUNKSIZE);
+    }
+    return true;
 }
 
-int main(int argc, char **argv)
+static bool
+test_stemdict()
 {
-    std::string lang = "english";
+    string dir = srcdir + "/../../xapian-data/stemming/" + language + "/data";
 
-    struct option opts[] = {
-	{"language",	required_argument, 0, 'l'},
-	{NULL,		0, 0, 0}
-    };
-
-    bool syntax_error = false;
-
-    int c;
-    while ((c = getopt_long(argc, argv, "l", opts, NULL)) != EOF) {
-	if (c == 'l') {
-	    lang = optarg;
-	} else {
-	    syntax_error = true;
-	}
+    ifstream txt((dir + "/voc.txt").c_str());
+    if (!txt.is_open()) {
+	SKIP_TEST("voc.txt not found for language " + language);
     }
 
-    try {
-	OmStem stemmer(lang);
-	while (argv[optind]) {
-	    FILE * f = fopen(argv[optind], "r");
-	    if (f == NULL) {
-		cerr << "File " << argv[optind] << " not found\n";
-		exit(1);
-	    }
-	    stemfile(stemmer, f);
-	    ++optind;
-	}
-    } catch (const OmError &e) {
-	cout << e.get_msg() << endl;
-	return 1;
+    ifstream st((dir + "/voc.st").c_str());
+    if (!st.is_open()) {
+	txt.close();
+	SKIP_TEST("voc.st not found for language " + language);
     }
+ 
+    int wordcount = 0;
 
-    return 0;
+    tout << "Testing " << language << "with fixed dictionary..." << endl;
+
+    string word, stem, expect;
+    while (!txt.eof() && !st.eof()) {
+	getline(txt, word);
+	getline(st, expect);
+
+	stem = stemmer.stem_word(word);
+
+	TEST_EQUAL(stem, expect);
+	++wordcount;
+    }
+    txt.close();
+    st.close();
+
+    return true;
+}
+
+// ##################################################################
+// # End of actual tests                                            #
+// ##################################################################
+
+/// The lists of tests to perform
+test_desc tests[] = {
+    {"stemrandom",		test_stemrandom},
+    {"stemjunk",		test_stemjunk},
+    {"stemdict",		test_stemdict},
+    {0, 0}
+};
+
+int main(int argc, char *argv[])
+{
+    srcdir = test_driver::get_srcdir(argv[0]);
+    int result = 0;
+    char *val;
+
+    val = getenv("OM_STEMTEST_SEED");
+    if (val && *val) {
+	seed = atoi(val);
+    } else {
+	seed = 42; // FIXME hash hostname like stemtest.pl did???
+	//$seed = unpack("%32L*", `hostname`);
+    }
+    cout << "The random seed is " << seed << endl;
+    cout << "Please report the seed when reporting a test failure." << endl;
+
+    string langs;
+    val = getenv("OM_STEMTEST_LANGUAGES");
+    if (val && *val)
+	langs = val;
+    else
+	langs = OmStem::get_available_languages();
+
+    string::size_type b = 0;
+    while (b != langs.size()) {
+	string::size_type a = b;
+	while (b < langs.size() && langs[b] != ' ') ++b;
+	language = langs.substr(a, b - a);
+	while (b < langs.size() && langs[b] == ' ') ++b;
+	cout << "Running tests with " << language << " stemmer..." << endl;
+	stemmer = OmStem(language);
+	result = max(result, test_driver::main(argc, argv, tests));
+    }
+    return result;
 }

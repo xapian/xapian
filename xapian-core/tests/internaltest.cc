@@ -234,7 +234,6 @@ bool test_exception1()
     return true;
 }
 
-#ifdef HAVE_NO_ACCESS_CONTROL
 // ###########################################
 // # Tests of the reference counted pointers #
 // ###########################################
@@ -305,8 +304,6 @@ bool test_refcnt2()
 
     return true;
 }
-
-#endif /* HAVE_NO_ACCESS_CONTROL */
 
 // test string comparisions
 bool test_stringcomp1()
@@ -470,10 +467,8 @@ test_desc tests[] = {
 //    {"testsuite3",		test_testsuite3},
     {"testsuite4",		test_testsuite4},
     {"exception1",              test_exception1},
-#ifdef HAVE_NO_ACCESS_CONTROL
     {"refcnt1",			test_refcnt1},
     {"refcnt2",			test_refcnt2},
-#endif // HAVE_NO_ACCESS_CONTROL
     {"stringcomp1",		test_stringcomp1},
     {"omstringstream1",		test_omstringstream1},
     {"omsettings1",		test_omsettings1},

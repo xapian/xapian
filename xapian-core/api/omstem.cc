@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,6 +41,8 @@
 #include "spanish/stem_spanish.h"
 #include "swedish/stem_swedish.h"
 #include "porter/stem_porter.h"
+
+using std::string;
 
 ////////////////////////////////////////////////////////////
 
@@ -120,9 +123,13 @@ static const StringAndValue language_strings[] = {
 
 class OmStem::Internal {
     public:
-	/** Initialise the state based on the specified language.
+	/** Initialise the state based on the specified language name.
 	 */
-	Internal(const std::string &language);
+	Internal(const string &language);
+
+	/** Initialise the state based on the specified language code.
+	 */
+	Internal(enum stemmer_language langcode_);
 
 	/** Destructor.
 	 */
@@ -134,7 +141,7 @@ class OmStem::Internal {
 
 	/** Stem the given word.
 	 */
-	std::string stem_word(const std::string &word) const;
+	string stem_word(const string &word) const;
     private:
 
 	/** Function pointer to setup the stemmer.
@@ -160,10 +167,10 @@ class OmStem::Internal {
 	/** Return a stemmer_language enum value from a language
 	 *  string.
 	 */
-	stemmer_language get_stemtype(const std::string &language);
+	stemmer_language get_stemtype(const string &language);
 };
 
-OmStem::Internal::Internal(const std::string &language)
+OmStem::Internal::Internal(const string &language)
 	: stemmer_data(0)
 {
     langcode = get_stemtype(language);
@@ -175,9 +182,16 @@ OmStem::Internal::Internal(const std::string &language)
     set_language(langcode);
 }
 
+OmStem::Internal::Internal(enum stemmer_language langcode_)
+	: langcode(langcode_), stemmer_data(0)
+{
+    Assert(langcode != STEMLANG_NULL);
+    set_language(langcode);
+}
+
 OmStem::Internal::~Internal()
 {
-    if(stemmer_data != 0) {
+    if (stemmer_data != 0) {
 	stemmer_closedown(stemmer_data);
     }
 }
@@ -185,7 +199,7 @@ OmStem::Internal::~Internal()
 void
 OmStem::Internal::set_language(stemmer_language langcode_)
 {
-    if(stemmer_data != 0) {
+    if (stemmer_data != 0) {
 	stemmer_closedown(stemmer_data);
     }
     stemmer_setup = 0;
@@ -254,25 +268,25 @@ OmStem::Internal::set_language(stemmer_language langcode_)
 }
 
 stemmer_language
-OmStem::Internal::get_stemtype(const std::string &language)
+OmStem::Internal::get_stemtype(const string &language)
 {
     return static_cast<stemmer_language> (
 		map_string_to_value(language_strings, language));
 }
 
-std::string
-OmStem::Internal::stem_word(const std::string &word) const
+string
+OmStem::Internal::stem_word(const string &word) const
 {
     int len = word.length();
-    if(len == 0) return "";
-    return std::string(stemmer_stem(stemmer_data, word.data(), 0, len - 1));
+    if (len == 0) return "";
+    return string(stemmer_stem(stemmer_data, word.data(), 0, len - 1));
 }
 
 ///////////////////////
 // Methods of OmStem //
 ///////////////////////
 
-OmStem::OmStem(const std::string &language)
+OmStem::OmStem(const string &language)
 	: internal(0)
 {
     DEBUGAPICALL(void, "OmStem::OmStem", language);
@@ -288,47 +302,44 @@ OmStem::~OmStem()
 OmStem::OmStem(const OmStem &other)
 {
     DEBUGAPICALL(void, "OmStem::OmStem", other);
-    // FIXME
-    throw OmUnimplementedError("OmStem::OmStem(const OmStem &) unimplemented");
+    internal = new OmStem::Internal(other.internal->langcode);
 }
 
 void
 OmStem::operator=(const OmStem &other)
 {
     DEBUGAPICALL(void, "OmStem::operator=", other);
-    // FIXME
-    throw OmUnimplementedError("OmStem::operator=() unimplemented");
+    delete internal;
+    internal = new OmStem::Internal(other.internal->langcode);
 }
 
-std::string
-OmStem::stem_word(const std::string &word) const
+string
+OmStem::stem_word(const string &word) const
 {
-    DEBUGAPICALL(std::string, "OmStem::stem_word", word);
+    DEBUGAPICALL(string, "OmStem::stem_word", word);
     RETURN(internal->stem_word(word));
 }
 
-std::string
+string
 OmStem::get_available_languages()
 {
-    DEBUGAPICALL_STATIC(std::string,
+    DEBUGAPICALL_STATIC(string,
 			"OmStem::get_available_languages", "");
-    std::string languages;
+    string languages;
 
     const char ** pos;
     for (pos = language_names + 1;
 	 pos != language_names + (sizeof(language_names) / sizeof(char *));
 	 pos++) {
-	if (languages.length() > 0) {
-	    languages += " ";
-	}
+	if (!languages.empty()) languages += ' ';
 	languages += *pos;
     }
     RETURN(languages);
 }
 
-std::string
+string
 OmStem::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "OmStem::get_description", "");
-    RETURN("OmStem(" + std::string(language_names[internal->langcode]) + ")");
+    DEBUGCALL(INTRO, string, "OmStem::get_description", "");
+    RETURN("OmStem(" + string(language_names[internal->langcode]) + ")");
 }

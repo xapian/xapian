@@ -1,3 +1,15 @@
+Sat Sep 14 21:44:34 BST 2002  Olly Betts <olly@survex.com>
+
+	* internaltest: doesn't actually need -fno-access-control these
+	  days, so removed it and the configure tests for it.
+
+	* stemtest: recoded to be all in C++ and removed use of intermediate
+	  files for random data tests - now runs ~15% faster; no longer need
+	  HAVE_PERL so removed from configure.
+
+	* apitest: use C++ streams rather than stdio; stubdb1 now cleans up
+	  the temporary file it creates.
+
 Sat Sep 14 12:54:52 BST 2002  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: fix "mv apidoc/latex/refman.ps avidoc.ps" which

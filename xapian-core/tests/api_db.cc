@@ -342,26 +342,21 @@ static bool test_stubdb1()
     OmSettings params;
     params.set("backend", "auto");
     params.set("auto_dir", "stubdb1");
-    FILE * fd = fopen("stubdb1", "w");
-    TEST(fd != 0);
-    fprintf(fd, "backend=remote\n");
-    fprintf(fd, "remote_type=prog\n");
-    fprintf(fd, "remote_program=../netprogs/omprogsrv\n");
-    fprintf(fd, ("remote_args=" + backendmanager.get_datadir() + " apitest_simpledata\n").c_str());
-    fclose(fd);
-
-    /*
-    params.set("backend", "remote");
-    params.set("remote_type", "prog");
-    params.set("remote_program", "../netprogs/omprogsrv");
-    params.set("remote_args", backendmanager.get_datadir() + " apitest_simpledata");
-    */
+    ofstream out("stubdb1");
+    TEST(out.is_open());
+    out << "backend=remote\n"
+	   "remote_type=prog\n"
+	   "remote_program=../netprogs/omprogsrv\n"
+	   "remote_args=" << backendmanager.get_datadir() << " apitest_simpledata\n";
+    out.close();
 
     OmDatabase db(params);
     OmEnquire enquire(db);
     OmQuery myquery("word");
     enquire.set_query(myquery);
     enquire.get_mset(0, 10);
+
+    unlink("stubdb1");
 
     return true;
 }

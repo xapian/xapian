@@ -2,14 +2,8 @@
 
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_srcdir)/testsuite
 
-if HAVE_PERL
-PERLTESTS = stemtest.pl
-else
-PERLTESTS =
-endif
-
 ## Test programs to be run
-TESTS = apitest internaltest $(PERLTESTS)
+TESTS = apitest internaltest stemtest
 
 ## Programs to build
 check_PROGRAMS = apitest internaltest stemtest
@@ -22,15 +16,10 @@ apitest_SOURCES = apitest.cc api_nodb.cc api_posdb.cc api_db.cc
 apitest_LDADD = ../testsuite/libtest.la ../libxapian.la
 
 stemtest_SOURCES = stemtest.cc
-stemtest_LDADD = ../getopt/libgetopt.la ../libxapian.la
+stemtest_LDADD = ../testsuite/libtest.la ../libxapian.la
 
 internaltest_SOURCES = internaltest.cc
 internaltest_LDADD = ../testsuite/libtest.la ../libxapian.la
-if HAVE_CPP_ACCESS_BYPASS
-internaltest_CXXFLAGS = -fno-access-control -DHAVE_NO_ACCESS_CONTROL
-else
-internaltest_CXXFLAGS =
-endif
 
 ## Distribute test data:
 EXTRA_DIST = testdata/apitest_onedoc.txt \
@@ -48,8 +37,5 @@ EXTRA_DIST = testdata/apitest_onedoc.txt \
 	     testdata/etext.txt \
 	     findheaders.pl
 
-CLEANFILES = stemtest.pl
-
 clean-local:
-	rm -f randjunk_seed_* randtext_seed_*
 	rm -rf .quartz
