@@ -31,6 +31,8 @@
 #include <vector>
 #include <list>
 
+/** A database which contains other databases.
+ */
 class MultiDatabase : public IRDatabase {
     /** DatabaseBuilder is a friend of this class, so that it can call
      *  the constructor.
@@ -52,15 +54,19 @@ class MultiDatabase : public IRDatabase {
 	mutable bool length_initialised;
 	mutable om_doclength avlength;
 
-	// Whether we have opened the database (ie, added a sub database)
-	bool opened;
-
-	// Have we used the database (if so, can't add more  databases)
-	mutable bool used;
-
-	MultiDatabase();
-
-	void open(const DatabaseBuilderParams & params);
+	/** Create and open a multi database.
+	 *
+	 *  @exception OmOpeningError thrown if database can't be opened.
+	 *  
+	 *  @param params Parameters supplied by the user to specify the
+	 *                location of the database to open.  The meanings
+	 *                of these parameters are dependent on the database
+	 *                type.
+	 *                Note that if params.readonly is set, all
+	 *                sub-databases will be opened readonly.
+	 */
+	MultiDatabase(const DatabaseBuilderParams & params);
+	
     public:
 	~MultiDatabase();
 

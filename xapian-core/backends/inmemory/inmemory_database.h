@@ -170,7 +170,10 @@ class InMemoryTermList : public LeafTermList {
 };
 
 
-// Database
+/** A database held entirely in memory.
+ *
+ *  This is a prototype database, mainly used for debugging and testing.
+ */
 class InMemoryDatabase : public IRDatabase {
     friend class DatabaseBuilder;
     private:
@@ -182,15 +185,23 @@ class InMemoryDatabase : public IRDatabase {
 
 	om_totlength totlen;
 
-	bool opened; // Whether we have opened the database
 	bool indexing; // Whether we have started to index to the database
 
 	// Stop copy / assignment being allowed
 	InMemoryDatabase& operator=(const InMemoryDatabase &);
 	InMemoryDatabase(const InMemoryDatabase &);
 
-	InMemoryDatabase();
-	void open(const DatabaseBuilderParams & params);
+	/** Create and open an in-memory database.
+	 *
+	 *  @exception OmOpeningError thrown if database can't be opened.
+	 *
+	 *  @param params Parameters supplied by the user to specify the
+	 *                location of the database to open.  The meanings
+	 *                of these parameters are dependent on the database
+	 *                type.  Note that if params.readonly is set, all
+	 *                sub-databases will be opened readonly.
+	 */
+	InMemoryDatabase(const DatabaseBuilderParams & params);
     public:
 	~InMemoryDatabase();
 
@@ -381,14 +392,12 @@ inline bool InMemoryTermList::at_end() const
 inline om_doccount
 InMemoryDatabase::get_doccount() const
 {
-    Assert(opened);
     return termlists.size();
 }
 
 inline om_doclength
 InMemoryDatabase::get_avlength() const
 {
-    Assert(opened);
     om_doccount docs = InMemoryDatabase::get_doccount();
     Assert(docs != 0);
     return ((om_doclength) totlen) / docs;
@@ -397,8 +406,6 @@ InMemoryDatabase::get_avlength() const
 inline om_doccount
 InMemoryDatabase::get_termfreq(const om_termname & tname) const
 {
-    Assert(opened);
-
     map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if(i == postlists.end()) return 0;
     return i->second.docs.size();
@@ -407,7 +414,6 @@ InMemoryDatabase::get_termfreq(const om_termname & tname) const
 inline om_doclength
 InMemoryDatabase::get_doclength(om_docid did) const
 {
-    Assert(opened);
     Assert(did > 0 && did <= termlists.size());
 
     return doclengths[did - 1];

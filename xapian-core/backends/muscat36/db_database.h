@@ -236,7 +236,6 @@ class DBDatabase : public IRDatabase {
     friend class DatabaseBuilder;
     friend class DBDocument;
     private:
-	bool   opened;
 	struct DB_file * DB;
 
 	FILE * keyfile;
@@ -256,12 +255,18 @@ class DBDatabase : public IRDatabase {
 	struct record * get_record(om_docid did) const;
 
 	/** Get a key from keyfile (will return empty value if keyfile
-	 *  not open.
+	 *  not open).
 	 */
 	OmKey get_key(om_docid did, om_keyno keyid) const;
 
-	DBDatabase(int heavy_duty_);
-	void open(const DatabaseBuilderParams & params);
+	/** Create and open a DB database.
+	 *
+	 *  @exception OmOpeningError thrown if database can't be opened.
+	 *  
+	 *  @param params Parameters supplied by the user to specify the                 *                location of the database to open.  The meanings
+	 *                of these parameters are dependent on the database              *                type.
+	 */
+	DBDatabase(const DatabaseBuilderParams & params, int heavy_duty_);
     public:
 	~DBDatabase();
 
@@ -290,22 +295,20 @@ class DBDatabase : public IRDatabase {
 inline om_doccount
 DBDatabase::get_doccount() const
 {
-    Assert(opened);
     return DB->doc_count;
 }
 
 inline om_doclength
 DBDatabase::get_avlength() const
 {
-    Assert(opened);
+    // FIXME - actually return average length
     return 1;
 }
 
 inline om_doclength
 DBDatabase::get_doclength(om_docid did) const
 {
-    Assert(opened);
-    return 1;
+    return get_avlength();
 }
 
 inline om_doccount

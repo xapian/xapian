@@ -29,40 +29,10 @@
 // Actual database class //
 ///////////////////////////
 
-NetworkDatabase::NetworkDatabase()
-	: link(0), opened(false)
+NetworkDatabase::NetworkDatabase(const DatabaseBuilderParams & params)
+	: link(0)
 {
-}
-
-NetworkDatabase::~NetworkDatabase() {
-    // Close all databases
-#if 0
-    while(databases.begin() != databases.end()) {
-	delete *(databases.begin());
-	databases.erase(databases.begin());
-    }
-#endif
-}
-
-void
-NetworkDatabase::set_root(IRDatabase * db) {
-    throw OmUnimplementedError("NetworkDatabase::set_root() not implemented");
-#if 0
-    Assert(!used);
-    root = db;
-
-    vector<IRDatabase *>::const_iterator i = databases.begin();
-    while(i != databases.end()) {
-	(*i)->set_root(db);
-	i++;
-    }
-#endif
-}
-
-void
-NetworkDatabase::open(const DatabaseBuilderParams & params) {
     // Check validity of parameters
-    Assert(!opened);
     Assert(params.subdbs.size() == 0);
 
     if (params.paths.size() != 3) {
@@ -78,8 +48,33 @@ NetworkDatabase::open(const DatabaseBuilderParams & params) {
 	throw OmUnimplementedError(string("Network database type ") +
 				   params.paths[0]);
     }
-    opened = true;
 }
+
+
+NetworkDatabase::~NetworkDatabase() {
+    // Close all databases
+#if 0
+    while(databases.begin() != databases.end()) {
+	delete *(databases.begin());
+	databases.erase(databases.begin());
+    }
+#endif
+}
+
+void
+NetworkDatabase::set_root(IRDatabase * db) {
+    throw OmUnimplementedError("NetworkDatabase::set_root() not implemented");
+#if 0
+    root = db;
+
+    vector<IRDatabase *>::const_iterator i = databases.begin();
+    while(i != databases.end()) {
+	(*i)->set_root(db);
+	i++;
+    }
+#endif
+}
+
 
 #if 0
 void NetworkDatabase::initialise_link() {
@@ -105,8 +100,6 @@ NetworkDatabase::open_post_list(const om_termname & tname) const
 {
     throw OmUnimplementedError("NetworkDatabase::open_post_list() not implemented");
 #if 0
-    Assert(opened);
-    Assert((used = true) == true);
     Assert(term_exists(tname));
 
     om_doccount offset = 1;
@@ -134,9 +127,6 @@ LeafTermList *
 NetworkDatabase::open_term_list(om_docid did) const {
     throw OmUnimplementedError("NetworkDatabase::open_term_list() not implemented");
 #if 0
-    Assert(opened);
-    Assert((used = true) == true);
-
     om_doccount multiplier = databases.size();
 
     om_docid realdid = (did - 1) / multiplier + 1;
@@ -153,9 +143,6 @@ NetworkDatabase::open_document(om_docid did) const
 {
     throw OmUnimplementedError("NetworkDatabase::open_document() not implemented");
 #if 0
-    Assert(opened);
-    Assert((used = true) == true);
-
     om_doccount multiplier = databases.size();
 
     om_docid realdid = (did - 1) / multiplier + 1;
@@ -170,9 +157,6 @@ NetworkDatabase::get_doclength(om_docid did) const
 {
     throw OmUnimplementedError("NetworkDatabase::get_doclength() not implemented");
 #if 0
-    Assert(opened);
-    Assert((used = true) == true);
-
     om_doccount multiplier = databases.size();
 
     om_docid realdid = (did - 1) / multiplier + 1;
@@ -187,9 +171,6 @@ NetworkDatabase::term_exists(const om_termname & tname) const
 {
     throw OmUnimplementedError("NetworkDatabase::term_exists() not implemented");
 #if 0
-    Assert(opened);
-    Assert((used = true) == true);
-
     //DebugMsg("NetworkDatabase::term_exists(`" << tname.c_str() << "'): ");
     set<om_termname>::const_iterator p = terms.find(tname);
 

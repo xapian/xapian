@@ -119,32 +119,12 @@ DATermList::get_weighting() const
 
 
 
-DADatabase::DADatabase(int heavy_duty_)
-	: opened(false),
-	  DA_r(0),
+DADatabase::DADatabase(const DatabaseBuilderParams & params, int heavy_duty_)
+	: DA_r(0),
 	  DA_t(0),
 	  keyfile(0),
 	  heavy_duty(heavy_duty_)
 {
-}
-
-DADatabase::~DADatabase()
-{
-    if(DA_r != NULL) {
-	DA_close(DA_r);
-	DA_r = NULL;
-    }
-    if(DA_t != NULL) {
-	DA_close(DA_t);
-	DA_t = NULL;
-    }
-}
-
-void
-DADatabase::open(const DatabaseBuilderParams & params)
-{
-    Assert(!opened);
-
     // Check validity of parameters
     Assert(params.readonly == true);
     Assert(params.subdbs.size() == 0);
@@ -209,17 +189,25 @@ DADatabase::open(const DatabaseBuilderParams & params)
 	}
     }
 
-    opened = true;
-
     return;
+}
+
+DADatabase::~DADatabase()
+{
+    if(DA_r != NULL) {
+	DA_close(DA_r);
+	DA_r = NULL;
+    }
+    if(DA_t != NULL) {
+	DA_close(DA_t);
+	DA_t = NULL;
+    }
 }
 
 // Returns a new posting list, for the postings in this database for given term
 LeafPostList *
 DADatabase::open_post_list(const om_termname & tname) const
 {
-    Assert(opened);
-
     // Make sure the term has been looked up
     const DATerm * the_term = term_lookup(tname);
     Assert(the_term != NULL);
@@ -235,8 +223,6 @@ DADatabase::open_post_list(const om_termname & tname) const
 LeafTermList *
 DADatabase::open_term_list(om_docid did) const
 {
-    Assert(opened);
-
     struct termvec *tv = M_make_termvec();
     int found = DA_get_termvec(DA_r, did, tv);
 
@@ -255,8 +241,6 @@ DADatabase::open_term_list(om_docid did) const
 struct record *
 DADatabase::get_record(om_docid did) const
 {
-    Assert(opened);
-
     struct record *r = M_make_record();
     int found = DA_get_record(DA_r, did, r);
 
@@ -299,15 +283,12 @@ DADatabase::get_key(om_docid did, om_keyno keyid) const
 LeafDocument *
 DADatabase::open_document(om_docid did) const
 {
-    Assert(opened);
-
     return new DADocument(this, did, heavy_duty);
 }
 
 const DATerm *
 DADatabase::term_lookup(const om_termname & tname) const
 {
-    Assert(opened);
     //DebugMsg("DADatabase::term_lookup(`" << tname.c_str() << "'): ");
 
     map<om_termname, DATerm>::const_iterator p = termmap.find(tname);

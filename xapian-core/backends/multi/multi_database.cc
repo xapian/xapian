@@ -36,12 +36,27 @@
 // Actual database class //
 ///////////////////////////
 
-MultiDatabase::MultiDatabase()
+MultiDatabase::MultiDatabase(const DatabaseBuilderParams & params)
 	: length_initialised(false)
 {
-    Assert((opened = false) == false);
-    Assert((used = false) == false);
+    // Check validity of parameters
+    Assert(params.paths.size() == 0);
+    Assert(params.subdbs.size() > 0);
+
+    // Loop through all params in subdbs, creating a database for each one,
+    // with the specified parameters.  Override some parameters though:
+    // If params.readonly is set, everything should be opened readonly
+
+    vector<DatabaseBuilderParams>::const_iterator p;
+    for(p = params.subdbs.begin(); p != params.subdbs.end(); p++) {
+	DatabaseBuilderParams sub_params = *p;
+	if(params.readonly) sub_params.readonly = params.readonly;
+	if(params.root != NULL) sub_params.root = params.root;
+
+	databases.push_back(DatabaseBuilder::create(sub_params));
+    }
 }
+
 
 MultiDatabase::~MultiDatabase() {
     // Close all databases
@@ -55,9 +70,6 @@ MultiDatabase::~MultiDatabase() {
 om_doccount
 MultiDatabase::get_doccount() const
 {   
-    Assert(opened);
-    Assert((used = true) == true);
-
     om_doccount docs = 0;
 
     vector<IRDatabase *>::const_iterator i = databases.begin();
@@ -73,9 +85,6 @@ MultiDatabase::get_doccount() const
 om_doclength
 MultiDatabase::get_avlength() const
 {   
-    Assert(opened);
-    Assert((used = true) == true);
-
     if(!length_initialised) {
 	om_doccount docs = 0;
 	om_doclength totlen = 0;
@@ -110,7 +119,6 @@ MultiDatabase::get_termfreq(const om_termname & tname) const
 
 void
 MultiDatabase::set_root(IRDatabase * db) {
-    Assert(!used);
     root = db;
 
     vector<IRDatabase *>::const_iterator i = databases.begin();
@@ -120,35 +128,9 @@ MultiDatabase::set_root(IRDatabase * db) {
     }
 }
 
-void
-MultiDatabase::open(const DatabaseBuilderParams & params) {
-    Assert(!used);
-
-    // Check validity of parameters
-    Assert(params.paths.size() == 0);
-    Assert(params.subdbs.size() > 0);
-
-    // Loop through all params in subdbs, creating a database for each one,
-    // with the specified parameters.  Override some parameters though:
-    // If params.readonly is set, everything should be opened readonly
-
-    vector<DatabaseBuilderParams>::const_iterator p;
-    for(p = params.subdbs.begin(); p != params.subdbs.end(); p++) {
-	DatabaseBuilderParams sub_params = *p;
-	if(params.readonly) sub_params.readonly = params.readonly;
-	if(params.root != NULL) sub_params.root = params.root;
-
-	databases.push_back(DatabaseBuilder::create(sub_params));
-    }
-
-    opened = true;
-}
-
 LeafPostList *
 MultiDatabase::open_post_list(const om_termname & tname) const
 {
-    Assert(opened);
-    Assert((used = true) == true);
     Assert(term_exists(tname));
 
     om_doccount offset = 1;
@@ -173,9 +155,6 @@ MultiDatabase::open_post_list(const om_termname & tname) const
 
 LeafTermList *
 MultiDatabase::open_term_list(om_docid did) const {
-    Assert(opened);
-    Assert((used = true) == true);
-
     om_doccount multiplier = databases.size();
 
     om_docid realdid = (did - 1) / multiplier + 1;
@@ -189,9 +168,6 @@ MultiDatabase::open_term_list(om_docid did) const {
 LeafDocument *
 MultiDatabase::open_document(om_docid did) const
 {
-    Assert(opened);
-    Assert((used = true) == true);
-
     om_doccount multiplier = databases.size();
 
     om_docid realdid = (did - 1) / multiplier + 1;
@@ -203,9 +179,6 @@ MultiDatabase::open_document(om_docid did) const
 om_doclength
 MultiDatabase::get_doclength(om_docid did) const
 {
-    Assert(opened);
-    Assert((used = true) == true);
-
     om_doccount multiplier = databases.size();
 
     om_docid realdid = (did - 1) / multiplier + 1;
@@ -217,9 +190,6 @@ MultiDatabase::get_doclength(om_docid did) const
 bool
 MultiDatabase::term_exists(const om_termname & tname) const
 {
-    Assert(opened);
-    Assert((used = true) == true);
-
     //DebugMsg("MultiDatabase::term_exists(`" << tname.c_str() << "'): ");
     set<om_termname>::const_iterator p = terms.find(tname);
 

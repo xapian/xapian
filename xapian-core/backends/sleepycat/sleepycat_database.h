@@ -40,12 +40,20 @@ class SleepyDatabase : public IRDatabase {
     friend class DatabaseBuilder;
     private:
 	SleepyDatabaseInternals * internals;
-	bool opened;
 
 	SleepyDatabaseTermCache * termcache;
 
-	void open(const DatabaseBuilderParams & params);
-	SleepyDatabase();
+	/** Create and open a sleepycat database.
+	 *
+	 *  @exception OmOpeningError thrown if database can't be opened.
+	 *  
+	 *  @param params Parameters supplied by the user to specify the
+	 *                location of the database to open.  The meanings
+	 *                of these parameters are dependent on the database
+	 *                type.
+	 */ 
+	SleepyDatabase(const DatabaseBuilderParams & params);
+
     public:
 	~SleepyDatabase();
 
@@ -60,15 +68,25 @@ class SleepyDatabase : public IRDatabase {
 	LeafTermList * open_term_list(om_docid did) const;
 	LeafDocument * open_document(om_docid did) const;
 
-	void make_term(const om_termname &) {
-	    throw OmUnimplementedError("DADatabase::make_term() not implemented");
-	}
-	om_docid make_doc(const om_docname &) {
-	    throw OmUnimplementedError("DADatabase::make_doc() not implemented");
-	}
-	void make_posting(const om_termname &, unsigned int, unsigned int) {
-	    throw OmUnimplementedError("DADatabase::make_posting() not implemented");
-	}
+	// virtual methods of IndexerDestination
+	void make_term(const om_termname &);
+	om_docid make_doc(const om_docname &);
+	void make_posting(const om_termname &, unsigned int, unsigned int);
 };
+
+inline void
+SleepyDatabase::make_term(const om_termname &) {
+    throw OmUnimplementedError("DADatabase::make_term() not implemented");
+}
+
+inline om_docid 
+SleepyDatabase::make_doc(const om_docname &) {
+    throw OmUnimplementedError("DADatabase::make_doc() not implemented");
+}
+
+inline void 
+SleepyDatabase::make_posting(const om_termname &, unsigned int, unsigned int) {
+    throw OmUnimplementedError("DADatabase::make_posting() not implemented");
+}
 
 #endif /* OM_HGUARD_SLEEPY_DATABASE_H */

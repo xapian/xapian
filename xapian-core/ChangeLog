@@ -1,3 +1,8 @@
+Mon Apr  3 17:55:04 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Removed open() method from IRDatabase().  Use constructor to open
+	  database instead: this is _much_ cleaner.
+
 Fri Mar 31 19:00:50 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* First remote mset retrieved.  Still doesn't complete the whole

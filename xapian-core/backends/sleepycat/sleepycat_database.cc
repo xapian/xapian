@@ -40,10 +40,21 @@
 #include "omassert.h"
 #include "sleepy_termcache.h"
 
-SleepyDatabase::SleepyDatabase() {
-    internals = new SleepyDatabaseInternals();
-    termcache = new SleepyDatabaseTermCache(internals);
-    Assert((opened = false) == false);
+SleepyDatabase::SleepyDatabase(const DatabaseBuilderParams &params)
+	: internals(new SleepyDatabaseInternals()),
+	  termcache(new SleepyDatabaseTermCache(internals))
+{
+    // Check validity of parameters
+    Assert(params.paths.size() == 1);
+    Assert(params.subdbs.size() == 0);
+
+    // Open database with specified path
+    try {
+	internals->open(params.paths[0], params.readonly);
+    }
+    catch (DbException e) {
+	throw (OmOpeningError(string("Database error on open: ") + e.what()));
+    }
 }
 
 SleepyDatabase::~SleepyDatabase() {
@@ -56,27 +67,23 @@ SleepyDatabase::~SleepyDatabase() {
     catch (DbException e) {
 	throw (OmDatabaseError(string("Database error on close: ") + e.what()));
     }
-    Assert((opened = false) == false);
 }
 
 om_doccount
 SleepyDatabase::get_doccount() const
 {
-    Assert(opened);
     return 1;
 }
 
 om_doclength
 SleepyDatabase::get_avlength() const
 {
-    Assert(opened);
     return 1;
 }
 
 om_doclength
 SleepyDatabase::get_doclength(om_docid did) const
 {
-    Assert(opened);
     return 1;
 }
 
@@ -97,29 +104,9 @@ SleepyDatabase::term_exists(const om_termname &tname) const
     return false;
 }
 
-void
-SleepyDatabase::open(const DatabaseBuilderParams &params)
-{
-    Assert(!opened);
-
-    // Check validity of parameters
-    Assert(params.paths.size() == 1);
-    Assert(params.subdbs.size() == 0);
-
-    // Open database with specified path
-    try {
-	internals->open(params.paths[0], params.readonly);
-    }
-    catch (DbException e) {
-	throw (OmOpeningError(string("Database error on open: ") + e.what()));
-    }
-    Assert((opened = true) == true);
-}
-
 LeafPostList *
 SleepyDatabase::open_post_list(const om_termname & tname) const
 {
-    Assert(opened);
     om_termid tid = termcache->term_name_to_id(tname);
     Assert(tid != 0);
 
@@ -147,7 +134,6 @@ SleepyDatabase::open_post_list(const om_termname & tname) const
 
 LeafTermList *
 SleepyDatabase::open_term_list(om_docid did) const {
-    Assert(opened);
     Dbt key(&did, sizeof(did));
     Dbt data;
 
@@ -174,16 +160,14 @@ SleepyDatabase::open_term_list(om_docid did) const {
 
 LeafDocument *
 SleepyDatabase::open_document(om_docid did) const {
-    Assert(opened);
     throw OmUnimplementedError(
 	"SleepyDatabase.open_document() not implemented");
 }
 
 /*
 termid
-SleepyDatabase::add_term(const termname &tname) {
-    Assert(opened);
-
+SleepyDatabase::add_term(const termname &tname)
+{
     termid newid;
     newid = term_name_to_id(tname);
     if(newid) return newid;
@@ -212,9 +196,8 @@ SleepyDatabase::add_term(const termname &tname) {
 }
 
 void
-SleepyDatabase::add(termid tid, docid did, termpos tpos) {
-    Assert(opened);
-
+SleepyDatabase::add(termid tid, docid did, termpos tpos)
+{
     SleepyList pl(internals->postlist_db);
     pl.open(&tid, sizeof(tid));
     pl.add(did, 1);

@@ -238,7 +238,6 @@ class DADatabase : public IRDatabase {
     friend class DatabaseBuilder;
     friend class DADocument;
     private:
-	bool   opened;
 	struct DA_file * DA_r;
 	struct DA_file * DA_t;
 
@@ -263,8 +262,14 @@ class DADatabase : public IRDatabase {
 	 */
 	OmKey get_key(om_docid did, om_keyno keyid) const;
 
-	DADatabase(int heavy_duty_);
-	void open(const DatabaseBuilderParams & params);
+	/** Create and open a DA database.
+	 *
+	 *  @exception OmOpeningError thrown if database can't be opened.
+	 *  
+	 *  @param params Parameters supplied by the user to specify the                 *                location of the database to open.  The meanings
+	 *                of these parameters are dependent on the database              *                type.
+	 */
+	DADatabase(const DatabaseBuilderParams & params, int heavy_duty_);
     public:
 	~DADatabase();
 
@@ -293,22 +298,20 @@ class DADatabase : public IRDatabase {
 inline om_doccount
 DADatabase::get_doccount() const
 {
-    Assert(opened);
     return DA_r->itemcount;
 }
 
 inline om_doclength
 DADatabase::get_avlength() const
 {
-    Assert(opened);
+    // FIXME - actually want to return real avlength.
     return 1;
 }
 
 inline om_doclength
 DADatabase::get_doclength(om_docid did) const
 {
-    Assert(opened);
-    return 1;
+    return get_avlength();
 }
 
 inline om_doccount

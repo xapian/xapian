@@ -33,30 +33,13 @@ class LeafPostList;
 class LeafTermList;
 
 /** Base class for databases.
+ *
+ *  All classes derived from IRDatabase must have DatabaseBuilder as
+ *  a friend, so that they can be constructed in a unified way.
  */
 class IRDatabase : public IndexerDestination {
-    /** Class which can create IRDatabases.
-     *  All classes derived from IRDatabase must also have DatabaseBuilder as
-     *  a friend, so that they can be constructed in a unified way.
-     */
-    friend class DatabaseBuilder;
-
-    private:
-    	/** Open a database - called only by DatabaseBuilder
-	 *
-	 *  Note that there is no close method - the database is closed when
-	 *  the object is deleted.
-	 *
-	 *  @param params_ Parameters supplied by the user to specify the
-	 *                 location of the database to open.  The meanings
-	 *                 of these parameters are dependent on the database
-	 *                 type.
-	 */
-	virtual void open(const DatabaseBuilderParams & params_) = 0;
-
     protected:
-    	/** The constructor is called only by derived classes and by
-	 *  DatabaseBuilder.
+    	/** Create a database - called only by derived classes.
 	 */
 	IRDatabase() : root(this) { return; }
 

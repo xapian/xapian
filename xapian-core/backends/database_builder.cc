@@ -56,42 +56,42 @@ DatabaseBuilder::create(const DatabaseBuilderParams & params)
 	    break;
 	case OM_DBTYPE_MUSCAT36_DA_F:
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
-	    database = new DADatabase(0);
+	    database = new DADatabase(params, 0);
 #endif
 	    break;
 	case OM_DBTYPE_MUSCAT36_DA_H:
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
-	    database = new DADatabase(1);
+	    database = new DADatabase(params, 1);
 #endif
 	    break;
 	case OM_DBTYPE_MUSCAT36_DB_F:
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
-	    database = new DBDatabase(0);
+	    database = new DBDatabase(params, 0);
 #endif
 	    break;
 	case OM_DBTYPE_MUSCAT36_DB_H:
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
-	    database = new DBDatabase(1);
+	    database = new DBDatabase(params, 1);
 #endif
 	    break;
 	case OM_DBTYPE_INMEMORY:
 #ifdef MUS_BUILD_BACKEND_INMEMORY
-	    database = new InMemoryDatabase;
+	    database = new InMemoryDatabase(params);
 #endif
 	    break;
 	case OM_DBTYPE_SLEEPY:
 #ifdef MUS_BUILD_BACKEND_SLEEPY
-	    database = new SleepyDatabase;
+	    database = new SleepyDatabase(params);
 #endif
 	    break;
 	case OM_DBTYPE_MULTI:
 #ifdef MUS_BUILD_BACKEND_MULTI
-	    database = new MultiDatabase;
+	    database = new MultiDatabase(params);
 #endif
 	    break;
 	case OM_DBTYPE_NET:
 #ifdef MUS_BUILD_BACKEND_NET
-	    database = new NetworkDatabase;
+	    database = new NetworkDatabase(params);
 #endif
 	    break;
 	default:
@@ -101,14 +101,6 @@ DatabaseBuilder::create(const DatabaseBuilderParams & params)
     // Check that we have a database
     if(database == NULL) {
 	throw OmOpeningError("Couldn't create database");
-    }
-
-    // Open the database with the specified parameters
-    try {
-	database->open(params);
-    } catch (...) {
-	delete database;
-	throw;
     }
 
     // Set the root of the database, if specified, otherwise it will default

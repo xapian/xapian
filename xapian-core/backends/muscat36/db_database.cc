@@ -120,27 +120,11 @@ DBTermList::get_weighting() const
 
 
 
-DBDatabase::DBDatabase(int heavy_duty_)
-	: opened(false),
-	  DB(0),
+DBDatabase::DBDatabase(const DatabaseBuilderParams & params, int heavy_duty_)
+	: DB(0),
 	  keyfile(0),
 	  heavy_duty(heavy_duty_)
 {
-}
-
-DBDatabase::~DBDatabase()
-{
-    if(DB != 0) {
-	DB_close(DB);
-	DB = 0;
-    }
-}
-
-void
-DBDatabase::open(const DatabaseBuilderParams & params)
-{
-    Assert(!opened);
-
     // Check validity of parameters
     Assert(params.readonly == true);
     Assert(params.subdbs.size() == 0);
@@ -192,17 +176,21 @@ DBDatabase::open(const DatabaseBuilderParams & params)
 	}
     }
 
-    opened = true;
-
     return;
+}
+
+DBDatabase::~DBDatabase()
+{
+    if(DB != 0) {
+	DB_close(DB);
+	DB = 0;
+    }
 }
 
 // Returns a new posting list, for the postings in this database for given term
 LeafPostList *
 DBDatabase::open_post_list(const om_termname & tname) const
 {
-    Assert(opened);
-
     // Make sure the term has been looked up
     const DBTerm * the_term = term_lookup(tname);
     Assert(the_term != NULL);
@@ -218,8 +206,6 @@ DBDatabase::open_post_list(const om_termname & tname) const
 LeafTermList *
 DBDatabase::open_term_list(om_docid did) const
 {
-    Assert(opened);
-
     struct termvec *tv = M_make_termvec();
     int found = DB_get_termvec(DB, did, tv);
 
@@ -238,8 +224,6 @@ DBDatabase::open_term_list(om_docid did) const
 struct record *
 DBDatabase::get_record(om_docid did) const
 {
-    Assert(opened);
-
     struct record *r = M_make_record();
     int found = DB_get_record(DB, did, r);
 
@@ -282,15 +266,12 @@ DBDatabase::get_key(om_docid did, om_keyno keyid) const
 LeafDocument *
 DBDatabase::open_document(om_docid did) const
 {
-    Assert(opened);
-
     return new DBDocument(this, did, heavy_duty);
 }
 
 const DBTerm *
 DBDatabase::term_lookup(const om_termname & tname) const
 {
-    Assert(opened);
     //DebugMsg("DBDatabase::term_lookup(`" << tname.c_str() << "'): ");
 
     map<om_termname, DBTerm>::const_iterator p = termmap.find(tname);

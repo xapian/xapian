@@ -51,30 +51,14 @@ InMemoryPostList::get_weight() const
 // Actual database class //
 ///////////////////////////
 
-InMemoryDatabase::InMemoryDatabase()
+InMemoryDatabase::InMemoryDatabase(const DatabaseBuilderParams & params)
 	: totlen(0)
 {
-    Assert((opened = false) == false);
-    Assert((indexing = false) == false);
-}
-
-InMemoryDatabase::~InMemoryDatabase()
-{
-}
-
-void
-InMemoryDatabase::open(const DatabaseBuilderParams & params)
-{
-    Assert(!opened); // Can only open once
-
     // Check validity of parameters
     Assert(params.readonly == true);
     Assert(params.paths.size() > 0);
     Assert(params.subdbs.size() == 0);
     
-    // Index documents
-    Assert((indexing = true) == true);
-
     TextfileIndexer indexer;
     indexer.set_destination(this);
 
@@ -88,14 +72,15 @@ InMemoryDatabase::open(const DatabaseBuilderParams & params)
     // Make sure that there's at least one document
     if(postlists.size() <= 0)
 	throw OmOpeningError("Document was empty or nearly empty - nothing to search");
+}
 
-    Assert((opened = true) == true);
+InMemoryDatabase::~InMemoryDatabase()
+{
 }
 
 LeafPostList *
 InMemoryDatabase::open_post_list(const om_termname & tname) const
 {
-    Assert(opened);
     Assert(term_exists(tname));
 
     map<om_termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
@@ -107,7 +92,6 @@ InMemoryDatabase::open_post_list(const om_termname & tname) const
 LeafTermList *
 InMemoryDatabase::open_term_list(om_docid did) const
 {
-    Assert(opened);
     Assert(did > 0 && did <= termlists.size());
 
     return new InMemoryTermList(this, termlists[did - 1], get_doclength(did));
@@ -116,7 +100,6 @@ InMemoryDatabase::open_term_list(om_docid did) const
 LeafDocument *
 InMemoryDatabase::open_document(om_docid did) const
 {
-    Assert(opened);
     Assert(did > 0 && did <= doclists.size());
 
     return new InMemoryDocument(doclists[did - 1]);
@@ -125,18 +108,12 @@ InMemoryDatabase::open_document(om_docid did) const
 void
 InMemoryDatabase::make_term(const om_termname & tname)
 {
-    Assert(indexing == true);
-    Assert(opened == false);
-
     postlists[tname];  // Initialise, if not already there.
 }
 
 om_docid
 InMemoryDatabase::make_doc(const om_docname & dname)
 {
-    Assert(indexing == true);
-    Assert(opened == false);
-
     termlists.push_back(InMemoryDoc());
     doclengths.push_back(0);
     doclists.push_back(dname);
@@ -150,8 +127,6 @@ void InMemoryDatabase::make_posting(const om_termname & tname,
 				    om_docid did,
 				    om_termpos position)
 {
-    Assert(indexing == true);
-    Assert(opened == false);
     Assert(postlists.find(tname) != postlists.end());
     Assert(did > 0 && did <= termlists.size());
     Assert(did > 0 && did <= doclengths.size());
@@ -172,8 +147,6 @@ void InMemoryDatabase::make_posting(const om_termname & tname,
 bool
 InMemoryDatabase::term_exists(const om_termname & tname) const
 {
-    Assert(opened);
-
     //DebugMsg("InMemoryDatabase::term_exists(`" << tname.c_str() << "'): ");
     map<om_termname, InMemoryTerm>::const_iterator p = postlists.find(tname);
 

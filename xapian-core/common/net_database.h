@@ -29,6 +29,9 @@
 #include "database.h"
 #include "netclient.h"
 
+/** A network database.  This is a reference to a remote database, and is
+ *  mainly used by a NetworkMatch object.
+ */
 class NetworkDatabase : public IRDatabase {
     friend class DatabaseBuilder;
     friend class NetworkMatch;
@@ -36,14 +39,10 @@ class NetworkDatabase : public IRDatabase {
         /// Reference to the network link object
     	OmRefCntPtr<NetClient> link;
 
-	// indicator for error checking
-	bool opened;
-
 	/// Set up the connection, including swapping statistics.
 	void initialise_link();
 
-	NetworkDatabase();
-	void open(const DatabaseBuilderParams & params);
+	NetworkDatabase(const DatabaseBuilderParams & params);
     public:
 	~NetworkDatabase();
 
@@ -79,9 +78,6 @@ NetworkDatabase::get_avlength() const
 {
     throw OmUnimplementedError("NetworkDatabase::get_avlength() not implemented");
 #if 0
-    Assert(opened);
-    Assert((used = true) == true);
-
     if(!length_initialised) {
 	om_doccount docs = 0;
 	om_doclength totlen = 0;
