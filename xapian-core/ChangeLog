@@ -1,3 +1,9 @@
+Tue Apr 30 17:44:48 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated query parser in extra from the updated one in omega,
+	  and fettled it to cope better with multiple instantiations
+	  (though it's a long way from being reentrant at the moment).
+
 Tue Apr 30 11:03:44 BST 2002  Olly Betts <olly@survex.com>
 
 	* Updated todo.

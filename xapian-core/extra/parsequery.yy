@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001,2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,19 +22,22 @@
  */
 
 %{
+#include <algorithm>
+using std::find;
 #include <vector>
+using std::vector;
 #include <string>
+using std::string;
 #include <om/om.h>
 #include <stdio.h>
 #include <ctype.h>
-using std::string;
-
+ 
 class U {
     public:
 	OmQuery q;
-	std::vector<OmQuery> v;
-	std::vector<OmQuery> love;
-	std::vector<OmQuery> hate;
+	vector<OmQuery> v;
+	vector<OmQuery> love;
+	vector<OmQuery> hate;
 
 	U(OmQuery q) : q(q) { }
 	U() { }
@@ -51,7 +55,6 @@ static OmQuery query;
 
 static OmQueryParser *qp;
 static string q;
-    
 %}
 
 /* BISON Declarations */
@@ -70,11 +73,14 @@ input:	  /* nothing */	{ query = OmQuery(); }
 exp:	  prob		{
 			    OmQuery q = $1.q;
 			    if ($1.love.size()) {
-				q = OmQuery(OmQuery::OP_AND_MAYBE,
-					    OmQuery(OmQuery::OP_AND,
-						    $1.love.begin(),
-						    $1.love.end()),
-					    q);
+				OmQuery love(OmQuery::OP_AND,
+					     $1.love.begin(),
+					     $1.love.end());
+				if (q.is_empty()) {
+				    q = love;
+				} else {
+				    q = OmQuery(OmQuery::OP_AND_MAYBE, love, q);
+				}				
 			    }
 			    if ($1.hate.size()) {
 				q = OmQuery(OmQuery::OP_AND_NOT,
@@ -90,28 +96,64 @@ exp:	  prob		{
 	| exp NOT exp	{ $$ = U(OmQuery(OmQuery::OP_AND_NOT, $1.q, $3.q)); }
 	| exp XOR exp	{ $$ = U(OmQuery(OmQuery::OP_XOR, $1.q, $3.q)); }
 	| '(' exp ')'	{ $$ = $2; }
+	/* error catches */
+	| exp AND	{ throw "Syntax: expression AND expression"; }
+	| AND exp	{ throw "Syntax: expression AND expression"; }
+	| exp OR	{ throw "Syntax: expression OR expression"; }
+	| OR exp	{ throw "Syntax: expression OR expression"; }
+	| exp NOT	{ throw "Syntax: expression NOT expression"; }
+	| NOT exp	{ throw "Syntax: expression NOT expression"; }
+	| exp XOR	{ throw "Syntax: expression XOR expression"; }
+	| XOR exp	{ throw "Syntax: expression XOR expression"; }
 ;
 
-prob:	  term		{ $$ = $1; }
-	| prob term	{ $$ = U(OmQuery(OmQuery::OP_OR, $1.q, $2.q));
+prob:	  stopterm
+	| prob stopterm	{ if ($1.q.is_empty()) {
+	    		      $$ = $2; // even if $2.q.is_empty()
+			  } else if ($2.q.is_empty()) {
+			      $$ = $1;
+			  } else {
+			      $$ = U(OmQuery(qp->default_op, $1.q, $2.q));
+			  }
 	                  $$.love = $1.love;
 	                  $$.hate = $1.hate; }			  
+	| '+' term	{ $$.love.push_back($2.q); }
 	| prob '+' term	{ $$ = $1; $$.love.push_back($3.q); }
+	| '-' term	{ $$.hate.push_back($2.q); }
 	| prob '-' term	{ $$ = $1; $$.hate.push_back($3.q); }
 ;
 
-term:	  TERM		{ $$ = $1; }
-	| TERM NEAR TERM{ std::vector<OmQuery> v;
-	                  v.push_back($1.q);
-	                  v.push_back($3.q);
-			  $$ = U(OmQuery(OmQuery::OP_NEAR, v.begin(), v.end()));
-			  $$.q.set_window(11); }
+stopterm: TERM		{ om_termname term = *($1.q.get_terms_begin()); 
+			  if (qp->stop && (*qp->stop)(term)) {
+			      $$ = U();
+			      qp->stoplist.push_back(term);
+			      // This is ugly - FIXME?
+			      list<om_termname>::iterator i, j;
+			      i = qp->termlist.begin();
+			      do {
+				  j = i;
+				  ++i;
+				  i = find(i, qp->termlist.end(), term);
+			      } while (i != qp->termlist.end());
+			      qp->termlist.erase(j);
+			  } else {
+			      $$ = $1;
+			  } }
 	| '"' phrase '"'{ $$ = U(OmQuery(OmQuery::OP_PHRASE, $2.v.begin(), $2.v.end()));
 			  $$.q.set_window($2.v.size()); }
 	| hypphr        { $$ = U(OmQuery(OmQuery::OP_PHRASE, $1.v.begin(), $1.v.end()));
 			  $$.q.set_window($1.v.size()); }
-	| '{' phrase '}'{ $$ = U(OmQuery(OmQuery::OP_NEAR, $2.v.begin(), $2.v.end()));
+	| nearphr	{ $$ = U(OmQuery(OmQuery::OP_NEAR, $1.v.begin(), $1.v.end()));
+			  $$.q.set_window($1.v.size() + 9); }
+;
+
+term:	  TERM
+	| '"' phrase '"'{ $$ = U(OmQuery(OmQuery::OP_PHRASE, $2.v.begin(), $2.v.end()));
 			  $$.q.set_window($2.v.size()); }
+	| hypphr        { $$ = U(OmQuery(OmQuery::OP_PHRASE, $1.v.begin(), $1.v.end()));
+			  $$.q.set_window($1.v.size()); }
+	| nearphr	{ $$ = U(OmQuery(OmQuery::OP_NEAR, $1.v.begin(), $1.v.end()));
+			  $$.q.set_window($1.v.size() + 9); }
 ;
 
 phrase:	  TERM		{ $$.v.push_back($1.q); }
@@ -122,17 +164,22 @@ hypphr:   TERM HYPHEN TERM	{ $$.v.push_back($1.q); $$.v.push_back($3.q); }
 	| hypphr HYPHEN TERM	{ $$ = $1; $$.v.push_back($3.q); }
 ;
 
+nearphr:  TERM NEAR TERM	{ $$.v.push_back($1.q); $$.v.push_back($3.q); }
+	| nearphr NEAR TERM	{ $$ = $1; $$.v.push_back($3.q); }
+;
+
 %%
 
-static string::size_type qptr;
+static string::iterator qptr;
 static int pending_token;
 static om_termpos termpos;
-static bool stem, stem_all;
-static OmStem *stemmer;
 
 void
-OmQueryParser::set_stemming_options(const string &lang, bool stem_all_)
+OmQueryParser::set_stemming_options(const string &lang, bool stem_all_,
+				  OmStopper * stop_)
 {
+    if (stop) delete stop;
+    stop = stop_;
     if (lang.empty()) {
 	stem = false;
     } else {
@@ -153,8 +200,37 @@ OmQueryParser::set_stemming_options(const string &lang, bool stem_all_)
 static inline int
 next_char()
 {
-   if (qptr >= q.size()) return EOF;
-   return q[qptr++];
+   if (qptr == q.end()) return EOF;
+   return *qptr++;
+}
+
+// FIXME: copied from om/indexer/index_utils.cc
+static void
+lowercase_term(om_termname &term)
+{
+    om_termname::iterator i = term.begin();
+    while(i != term.end()) {
+	*i = tolower(*i);
+	i++;
+    }
+}
+
+inline static bool
+p_notalnum(char c)
+{
+    return !isalnum(c);
+}
+
+inline static bool
+p_notwhitespace(char c)
+{
+    return !isspace(c);
+}
+
+inline static bool
+p_notplusminus(unsigned int c)
+{
+    return c != '+' && c != '-';
 }
 
 int
@@ -168,32 +244,30 @@ yylex()
     }
     
     /* skip whitespace */
-    qptr = q.find_first_not_of(" \t\n\r\f\v", qptr);
-    if (qptr == string::npos) return 0;
+    qptr = find_if(qptr, q.end(), p_notwhitespace);
+    if (qptr == q.end()) return 0;
 
     /* process terms */
-    if (isalnum(q[qptr])) {
+    if (isalnum(*qptr)) {
 	string term;
-	bool stem_term = stem;
-	string::size_type term_end;
-	term_end = q.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-				       "abcdefghijklmnopqrstuvwxyz"
-				       "0123456789", qptr);
-	if (term_end != string::npos) {
-	    string::size_type end2 = q.find_first_not_of("+-", term_end);
-	    if (end2 == string::npos || !isalnum(q[end2])) term_end = end2;
+	bool already_stemmed = !qp->stem;
+	string::iterator term_end;
+	term_end = find_if(qptr, q.end(), p_notalnum);
+	if (term_end != q.end()) {
+	    string::iterator end2 = find_if(term_end, q.end(), p_notplusminus);
+	    if (end2 == q.end() || !isalnum(*end2)) term_end = end2;
 	}
-	term = q.substr(qptr, term_end - qptr);
+	term = q.substr(qptr - q.begin(), term_end - qptr);
 	qptr = term_end;
-	if (qptr != string::npos) {
-	    if (q[qptr] == '.') {
+	if (qptr != q.end()) {
+	    if (*qptr == '.') {
 		// "example.com" should give "exampl" and "com" - need EOF or
 		// space after '.' to mean "don't stem"
 		qptr++;
-		if (qptr == q.size() || isspace(q[qptr])) stem_term = false;
+		if (qptr == q.end() || isspace(*qptr)) already_stemmed = true;
 	    }
-	    if (q[qptr] == '-') {
-		if (qptr + 1 != q.size() && isalnum(q[qptr + 1])) {
+	    if (*qptr == '-') {
+		if (qptr + 1 != q.end() && isalnum(*(qptr + 1))) {
 		    qptr++;
 		    pending_token = HYPHEN;
 		}
@@ -210,21 +284,34 @@ yylex()
         } else if (term == "NEAR") {
 	    return NEAR;
         }
-	if (stem_term) term = stemmer->stem_word(term);
+	bool raw_term = (!already_stemmed && !qp->stem_all && !islower(term[0]));
+	lowercase_term(term);
+	if (raw_term)
+	    term = 'R' + term;
+	else if (!already_stemmed)
+	    term = qp->stemmer->stem_word(term);
 	yylval = U(OmQuery(term, 1, termpos++));
+	qp->termlist.push_back(term);
 	return TERM;
     }
-    c = q[qptr++];
+    c = *qptr++;
+    // FIXME: Some people may not want & and | to mean AND and OR
+    // FIXME: Some people may not want _ / and \ to mean phrase search
     switch (c) {
      case '&':
 	return AND;
      case '|':
 	return OR;
-     case '_':
-	return HYPHEN;
+     case '_': case '/': case '\\':
+	/* these characters generate a phrase search */
+	if (!isspace(*qptr)) return HYPHEN;
+	break;
+     case '(': case ')': case '-': case '+': case '"':
+	/* these characters are used in the grammar rules */
+	return c;
     }
-    /* return single chars */
-    return c;                                
+    /* ignore any other characters */
+    return yylex();                                
 }
 
 int
@@ -240,11 +327,14 @@ OmQueryParser::parse_query(const string &q_)
     q = q_;
     pending_token = 0;
     termpos = 1;
-    qptr = 0;
+    qptr = q.begin();
     if (yyparse() == 1) {
 	throw "query failed to parse";
     }
-    return query;
+    OmQuery res = query;
+    query = OmQuery();
+    q.clear();
+    return res;
 }
 
 #if 0
@@ -267,3 +357,7 @@ get_next_char(const char **p)
     return ch;
 }
 #endif
+
+/* Tell vim this is a yacc file
+ * vim: syntax=yacc
+ */
