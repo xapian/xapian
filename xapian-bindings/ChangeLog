@@ -1,3 +1,8 @@
+Thu Oct 21 02:45:15 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: It turns out that we do need to wrap MSet::MSet() after
+	  all (simpleexpand.py uses it, for example).
+
 Thu Oct 21 02:43:34 BST 2004  Olly Betts <olly@survex.com>
 
 	* python/docs/examples/: Report messages for Xapian exceptions.

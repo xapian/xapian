@@ -230,6 +230,7 @@ class MSetIterator;
 
 class MSet {
   public:
+    MSet();
     MSet(const MSet& other);
     ~MSet();
 
