@@ -135,7 +135,8 @@ class LocalMatch : public SingleMatch
 	/// Make a postlist from a vector of query objects (AND or OR)
 	PostList *postlist_from_queries(
 				om_queryop op,
-				const vector<OmQueryInternal *> & queries);
+				const vector<OmQueryInternal *> & queries,
+				om_termcount window);
 
 	/// Open a postlist
 	LeafPostList * mk_postlist(const om_termname& tname);

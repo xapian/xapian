@@ -45,6 +45,9 @@ class OmQueryInternal {
 	bool isdefined;
 	bool isbool;
 
+	// How close terms must be for NEAR or PHRASE
+	om_termcount window;
+
 	/// Operation to be performed at this node
 	om_queryop op;
 
@@ -83,7 +86,8 @@ class OmQueryInternal {
 	 *  supplied vector of OmQueryInternal pointers. */
 	void initialise_from_vector(
 		const vector<OmQueryInternal *>::const_iterator qbegin,
-		const vector<OmQueryInternal *>::const_iterator qend);
+		const vector<OmQueryInternal *>::const_iterator qend,
+		om_termpos window = 0);
 
 	/** swap the contents of this with another OmQueryInternal,
 	 *  in a way which is guaranteed not to throw.  This is
@@ -120,18 +124,21 @@ class OmQueryInternal {
 #if 0
 	OmQueryInternal(om_queryop op_,
 		const vector<OmQueryInternal>::const_iterator qbegin,
-		const vector<OmQueryInternal>::const_iterator qend);
+		const vector<OmQueryInternal>::const_iterator qend,
+		om_termpos window = 0);
 #endif
 
 	/** As before, but uses a vector of OmQueryInternal pointers. */
 	OmQueryInternal(om_queryop op_,
 		const vector<OmQueryInternal*>::const_iterator qbegin,
-		const vector<OmQueryInternal*>::const_iterator qend);
+		const vector<OmQueryInternal*>::const_iterator qend,
+		om_termpos window = 0);
 
 	/** As before, except subqueries are all individual terms. */
 	OmQueryInternal(om_queryop op_,
 		const vector<om_termname>::const_iterator tbegin,
-		const vector<om_termname>::const_iterator tend);
+		const vector<om_termname>::const_iterator tend,
+		om_termpos window = 0);
 
 	/** Copy constructor. */
 	OmQueryInternal(const OmQueryInternal & copyme);

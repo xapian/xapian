@@ -316,7 +316,8 @@ LocalMatch::set_weighting(IRWeight::weight_type wt_type_)
 // Optimise query by building tree carefully.
 PostList *
 LocalMatch::postlist_from_queries(om_queryop op,
-				  const vector<OmQueryInternal *> &queries)
+				  const vector<OmQueryInternal *> &queries,
+				  om_termcount window)
 {
     Assert(op == OM_MOP_OR || op == OM_MOP_AND || op == OM_MOP_NEAR ||
 	   op == OM_MOP_PHRASE);
@@ -327,58 +328,63 @@ LocalMatch::postlist_from_queries(om_queryop op,
     postlists.reserve(queries.size());
 
     vector<OmQueryInternal *>::const_iterator q;
-    for(q = queries.begin(); q != queries.end(); q++) {
+    for (q = queries.begin(); q != queries.end(); q++) {
 	postlists.push_back(postlist_from_query(*q));
 	DebugMsg("Made postlist: get_termfreq() = " <<
 		 postlists.back()->get_termfreq() << endl);
     }
 
     // Build tree
-    if (op == OM_MOP_AND) return build_and_tree(postlists);
+    switch (op) {
+	case OM_MOP_AND:
+	    return build_and_tree(postlists);
 
-    if (op == OM_MOP_NEAR) {
-	PostList *res = build_and_tree(postlists);
-	// FIXME: handle EmptyPostList return specially?
-	// FIXME: user specified window size instead of queries.size()
-	return new NearPostList(res, queries.size(), postlists);
-    }
-
-    if (op == OM_MOP_PHRASE) {
-	PostList *res = build_and_tree(postlists);
-	// FIXME: handle EmptyPostList return specially?
-	// FIXME: user specified window size instead of queries.size()
-	// FIXME: return new PhrasePostList(res, queries.size(), postlists);
-    }
-
-    // OK, it's an OR then...
-    
-    // Select top terms
-    if (max_or_terms != 0) {
-	DebugMsg("Selecting top " << max_or_terms << " terms, out of " <<
-		 postlists.size() << "." << endl);
-	if (postlists.size() > max_or_terms) {
-	    // FIXME: this doesn't work correctly for non-LeafPostList-s
-	    // since get_maxweight() isn't valid before next() or skip_to()
-	    vector<PostList *>::iterator j;
-	    for (j = postlists.begin(); j != postlists.end(); j++) {
-		(*j)->recalc_maxweight();
-	    }
-	    nth_element(postlists.begin(), postlists.begin() + max_or_terms,
-			postlists.end(), PlCmpGtTermWt());
-	    DebugMsg("Discarding " << (postlists.size() - max_or_terms) <<
-		     " terms." << endl);
-
-	    vector<PostList *>::const_iterator i;
-	    for (i = postlists.begin() + max_or_terms;
-		 i != postlists.end(); i++) {
-		delete *i;
-	    }
-	    postlists.erase(postlists.begin() + max_or_terms,
-			    postlists.end());
+	case OM_MOP_NEAR:
+	{
+	    PostList *res = build_and_tree(postlists);
+	    // FIXME: handle EmptyPostList return specially?
+	    return new NearPostList(res, window, postlists);
 	}
-    }
 
-    return build_or_tree(postlists);
+	case OM_MOP_PHRASE:
+	{
+	    PostList *res = build_and_tree(postlists);
+	    // FIXME: handle EmptyPostList return specially?
+	    // FIXME: return new PhrasePostList(res, window, postlists);
+	}
+    
+	case OM_MOP_OR:
+	    if (max_or_terms != 0) {
+		// Select top terms
+		DebugMsg("Selecting top " << max_or_terms << " terms, out of " <<
+			 postlists.size() << "." << endl);
+		if (postlists.size() > max_or_terms) {
+		    // FIXME: this doesn't work correctly for non-LeafPostList-s
+		    // since get_maxweight() isn't valid before next() or skip_to()
+		    vector<PostList *>::iterator j;
+		    for (j = postlists.begin(); j != postlists.end(); j++)
+			(*j)->recalc_maxweight();
+		    nth_element(postlists.begin(),
+				postlists.begin() + max_or_terms,
+				postlists.end(), PlCmpGtTermWt());
+		    DebugMsg("Discarding " << (postlists.size() - max_or_terms) <<
+			     " terms." << endl);
+
+		    vector<PostList *>::const_iterator i;
+	 	    for (i = postlists.begin() + max_or_terms;
+			 i != postlists.end(); i++) {
+			delete *i;
+		    }
+		    postlists.erase(postlists.begin() + max_or_terms,
+				    postlists.end());
+	 	}
+	     }
+
+	     return build_or_tree(postlists);
+
+	default:
+	    Assert(0);
+    }
 }
 
 // Make a postlist from a query object - this is called recursively down
@@ -410,8 +416,8 @@ LocalMatch::postlist_from_query(const OmQueryInternal *query_)
 	case OM_MOP_PHRASE:
 	case OM_MOP_NEAR:
 	    // Build a tree of postlists for AND, OR, PHRASE, or NEAR
-	    // FIXME: NEAR and PHRASE should take a "window size"
-	    return postlist_from_queries(query_->op, query_->subqs);
+	    return postlist_from_queries(query_->op, query_->subqs,
+					 query_->window);
 	case OM_MOP_FILTER:
 	    Assert(query_->subqs.size() == 2);
 	    return new FilterPostList(postlist_from_query(query_->subqs[0]),

@@ -74,7 +74,7 @@ NearPostList::terms_near()
 	plists.push_back((*i)->get_position_list());
     }
     sort(plists.begin(), plists.end(), PosListCmpLt());
-    Assert(plists.begin()->get_size() <= plists.end()->get_size());
+    Assert((*plists.begin())->get_size() <= (*plists.end())->get_size());
     plists[0]->next();
     om_termcount pos = plists[0]->get_position();
     return do_near(plists, 1, pos); 

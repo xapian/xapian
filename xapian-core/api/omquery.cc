@@ -233,8 +233,10 @@ OmQueryInternal::serialise() const
 		result += "%xor";
 		break;
 	    case OM_MOP_NEAR:
-		result += "%near";
-	        // FIXME: max_separation and order_matters?
+		result += "%near" + om_inttostring(window) + ",";
+		break;
+	    case OM_MOP_PHRASE:
+		result += "%phrase" + om_inttostring(window) + ",";
 		break;
 	} // switch(op)
 	result += "%)";
@@ -271,7 +273,10 @@ OmQueryInternal::get_description() const
 	    opstr = " XOR ";
 	    break;
 	case OM_MOP_NEAR:
-	    opstr = " NEAR ";
+	    opstr = " NEAR " + om_inttostring(window) + " ";
+	    break;
+	case OM_MOP_PHRASE:
+	    opstr = " PHRASE " + om_inttostring(window) + " ";
 	    break;
     }
     string description;
@@ -429,6 +434,10 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
     	throw OmInvalidArgumentError("Invalid query operation");
     }
 
+    if (op == OM_MOP_NEAR || op == OM_MOP_PHRASE) {
+    	throw OmInvalidArgumentError("NEAR/PHRASE take window size and list of terms or queries");
+    }
+
     // reject any attempt to make up a composite query when any sub-query
     // is a pure boolean query.  FIXME: ought to handle the different
     // operators specially.
@@ -488,14 +497,9 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 		    throw OmInvalidArgumentError("XOR can't have one undefined argument");
 		}
 		break;
-	    case OM_MOP_NEAR:
-		if (!left.isdefined && !right.isdefined) {
-		    isdefined = true;
-		} else {
-		    throw OmInvalidArgumentError("NEAR can't have one undefined argument");
-		}
-		break;
 	    case OM_MOP_LEAF:
+	    case OM_MOP_NEAR:
+	    case OM_MOP_PHRASE:
 		Assert(false); // Shouldn't have got this far
 	}
     } else {
@@ -541,16 +545,18 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 
 OmQueryInternal::OmQueryInternal(om_queryop op_,
 		 const vector<OmQueryInternal *>::const_iterator qbegin,
-		 const vector<OmQueryInternal *>::const_iterator qend)
+		 const vector<OmQueryInternal *>::const_iterator qend,
+		 om_termcount window)
 	: isdefined(true), isbool(false), op(op_)
 {   
-    initialise_from_vector(qbegin, qend);
+    initialise_from_vector(qbegin, qend, window);
     collapse_subqs();
 }
 
 OmQueryInternal::OmQueryInternal(om_queryop op_,
 		 const vector<om_termname>::const_iterator tbegin,
-		 const vector<om_termname>::const_iterator tend)
+		 const vector<om_termname>::const_iterator tend,
+		 om_termcount window)
 	: isdefined(true), isbool(false), op(op_)
 {
     vector<OmQueryInternal *> subqueries;
@@ -559,7 +565,7 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 	for(i = tbegin; i != tend; i++) {
 	    subqueries.push_back(new OmQueryInternal(*i));
 	}
-	initialise_from_vector(subqueries.begin(), subqueries.end());
+	initialise_from_vector(subqueries.begin(), subqueries.end(), window);
 	collapse_subqs();
     } catch (...) {
 	// this code would be in a finally clause if there were one...
@@ -616,25 +622,38 @@ OmQueryInternal::initialise_from_copy(const OmQueryInternal &copyme)
 void
 OmQueryInternal::initialise_from_vector(
 			const vector<OmQueryInternal *>::const_iterator qbegin,
-			const vector<OmQueryInternal *>::const_iterator qend)
+			const vector<OmQueryInternal *>::const_iterator qend,
+                        om_termcount window_)
 {
-    if ((op != OM_MOP_AND) && (op != OM_MOP_OR)) {
-    	throw OmInvalidArgumentError("Vector query op must be AND or OR");
+    bool merge_ok = false; // set if merging with subqueries is valid
+    switch (op) {
+	case OM_MOP_AND:
+	case OM_MOP_OR:
+	    if (window_ != 0)
+		throw OmInvalidArgumentError("window parameter not valid for AND or OR");
+	    merge_ok = true;
+	    break;
+	case OM_MOP_NEAR:
+	case OM_MOP_PHRASE:
+	    break;
+	default:
+	    throw OmInvalidArgumentError("Vector query op must be AND, OR, NEAR, or PHRASE");
     }
+    window = window_;
     qlen = 0;
 
     subquery_list::const_iterator i;
     // reject any attempt to make up a composite query when any sub-query
     // is a pure boolean query.  FIXME: ought to handle the different
     // operators specially.
-    for (i=qbegin; i!= qend; ++i) {
+    for (i = qbegin; i != qend; ++i) {
 	if ((*i)->isbool) {
 	    throw OmInvalidArgumentError("Only the top-level query can be pure boolean");
 	}
     }
     
     try {
-	for(i = qbegin; i != qend; i++) {
+	for (i = qbegin; i != qend; i++) {
 	    if((*i)->isdefined) {
 		/* if the subqueries have the same operator, then we
 		 * merge them in, rather than just adding the query.
@@ -642,7 +661,7 @@ OmQueryInternal::initialise_from_vector(
 		 * sub-queries will all have gone through this process
 		 * themselves already.
 		 */
-		if ((*i)->op == op) {
+		if (merge_ok && (*i)->op == op) {
 		    for (subquery_list::const_iterator j = (*i)->subqs.begin();
 			 j != (*i)->subqs.end();
 			 ++j) {
