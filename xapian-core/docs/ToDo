@@ -19,7 +19,7 @@ Make InMemoryDatabase allow (size of position vector) != (wdf), ie, if posting
 is made and position is already there, leave position vector same but
 increment wdf.
 
-Allow for a non-zero minimum value for the ndl.
+Allow for a non-zero minimum value for the ndl (normalised doc len).
 
 Rename some methods to use consistent nomenclature: eg
 get_termfreq -> get_cfreq (cf - collection frequency)
