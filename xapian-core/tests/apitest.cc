@@ -190,7 +190,7 @@ bool mset_range_is_same(const OMMSet &mset1, unsigned int first1,
 bool operator==(const OMMSet &first, const OMMSet &second)
 {
     if ((first.mbound != second.mbound) ||
-	(first.max_weight != second.max_weight) ||
+	(first.max_possible != second.max_possible) ||
 	(first.items.size() != second.items.size())) {
          return false;
     }
@@ -445,10 +445,10 @@ bool test_boolquery1()
     OMMSet mymset;
     do_get_simple_query_mset(mymset, myboolquery);
 
-    if (mymset.max_weight != 1) {
+    if (mymset.max_possible != 1) {
         success = false;
 	if (verbose) {
-	    cout << "Max weight in mset is " << mymset.max_weight << endl;
+	    cout << "Max weight in mset is " << mymset.max_possible << endl;
 	}
     } else {
         for (unsigned int i = 0; i<mymset.items.size(); ++i) {

@@ -37,19 +37,19 @@ class OMMatch;           // Class which performs queries
 // =============
 // Representation of a query
 
-// Enum of possible query operations
+/// Enum of possible query operations
 enum om_queryop {
-    OM_MOP_LEAF,      // For internal use - must never be specified as parameter
+    OM_MOP_LEAF,     /// For internal use - must never be specified as parameter
 
-    OM_MOP_AND,       // Return iff both subqueries are satisfied
-    OM_MOP_OR,        // Return if either subquery is satisfied
-    OM_MOP_AND_NOT,   // Return if left but not right satisfied
-    OM_MOP_XOR,       // Return if one query satisfied, but not both
-    OM_MOP_AND_MAYBE, // Return iff left satisfied, but use weights from both
-    OM_MOP_FILTER     // As AND, but use only weights from left subquery
+    OM_MOP_AND,      /// Return iff both subqueries are satisfied
+    OM_MOP_OR,       /// Return if either subquery is satisfied
+    OM_MOP_AND_NOT,  /// Return if left but not right satisfied
+    OM_MOP_XOR,      /// Return if one query satisfied, but not both
+    OM_MOP_AND_MAYBE,/// Return iff left satisfied, but use weights from both
+    OM_MOP_FILTER    /// As AND, but use only weights from left subquery
 };
 
-// Class representing a query
+/// Class representing a query
 class OMQuery {
     friend class OMMatch;
     private:
@@ -65,55 +65,57 @@ class OMQuery {
 	void initialise_from_vector(const vector<OMQuery *>::const_iterator qbegin,
 				    const vector<OMQuery *>::const_iterator qend);
     public:
-	// A query consisting of a single term
+	/// A query consisting of a single term
 	OMQuery(const om_termname & tname_);
 
-	// A query consisting of two subqueries, opp-ed together
+	/// A query consisting of two subqueries, opp-ed together
 	OMQuery(om_queryop op_, const OMQuery & left, const OMQuery & right);
 
-	// A set of OMQuery's, merged together with specified operator.
-	// (Takes begin and end iterators).
-	// The only operators allowed are AND and OR.
+	/** A set of OMQuery's, merged together with specified operator.
+	 * (Takes begin and end iterators).
+	 * The only operators allowed are AND and OR. */
 	OMQuery(om_queryop op_,
 		const vector<OMQuery>::const_iterator qbegin,
 		const vector<OMQuery>::const_iterator qend);
 
+	/// As before, but uses a vector of OMQuery pointers
 	OMQuery(om_queryop op_,
 		const vector<OMQuery *>::const_iterator qbegin,
 		const vector<OMQuery *>::const_iterator qend);
 
-	// As before, except subqueries are all individual terms.
+	/// As before, except subqueries are all individual terms.
 	OMQuery(om_queryop op_,
 		const vector<om_termname>::const_iterator tbegin,
 		const vector<om_termname>::const_iterator tend);
 
-	// Copy constructor
+	/// Copy constructor
 	OMQuery(const OMQuery & copyme);
 
-	// Assignment
+	/// Assignment
 	OMQuery & operator=(const OMQuery & copyme);
 
-	// Default constructor: makes a null query which can't be used
-	// (Convenient to have a default constructor though)
+	/** Default constructor: makes a null query which can't be used
+	 * (Convenient to have a default constructor though) */
 	OMQuery();
 
-	// Destructor
+	/// Destructor
 	~OMQuery();
 
-	// Introspection method
+	/** Introspection method
+	 * Returns a string representing the query. */
 	string get_description() const;
 
-	// Check whether the query is null
+	/// Check whether the query is null
 	bool is_null() const { return isnull; };
 
-	// Check whether the query is (pure) boolean
+	/// Check whether the query is (pure) boolean
 	bool is_bool() const { return isbool; };
 };
 
 ///////////////////////////////////////////////////////////////////
 // OMMatchOptions class
 // ====================
-// Used to specify options for running a query
+/// Used to specify options for running a query
 
 class OMMatchOptions {
     friend OMEnquire;
@@ -123,43 +125,76 @@ class OMMatchOptions {
 
 	bool  sort_forward;
     public:
-	void set_collapse_key(om_keyno key_);
-	void set_no_collapse();
-	void set_sort_forward(bool forward_ = true);
 	OMMatchOptions();
+
+	/** Set a key to collapse (remove duplicates) on.
+	 *  There may only be one key in use at a time.
+	 */
+	void set_collapse_key(om_keyno key_);
+
+	/// Set no key to collapse on.  This is the default.
+	void set_no_collapse();
+
+	/** Set direction of sorting.  This applies only to documents which 
+	 *  have the same weight, which will only ever occur with some
+	 *  weighting schemes.
+	 */
+	void set_sort_forward(bool forward_ = true);
 };
 
 ///////////////////////////////////////////////////////////////////
 // OMExpandOptions class
 // =====================
-// Used to specify options for performing expand
+/// Used to specify options for performing expand
 
 class OMExpandOptions {
     friend OMEnquire;
     private:
+	bool  allow_query_terms;
     public:
 	OMExpandOptions();
+
+	/** This sets whether terms which are already in the query will
+	 *  be returned by the match.  By default, such terms will not
+	 *  be returned.  A value of true will allow query terms to be
+	 *  placed in the ESet.
+	 */
+	void use_query_terms(bool allow_query_terms_);
+};
+
+/** Base class for expand decision functions.
+ */
+class OMExpandDecider {
+    public:
+	virtual bool want_term(const om_termname & tname) const = 0;
 };
 
 ///////////////////////////////////////////////////////////////////
 // OMRSet class
 // =============
-// Class representing a relevance set
+/** A relevance set.
+ *  This is the set of documents which are marked as relevant, for use
+ *  in modifying the term weights, and in performing query expansion.
+ */
 
 class OMRSet {
     private:
     public:
+	/** Items in the relevance set.  These can be altered directly if
+	 * desired.  */
 	set<om_docid> items;
 	void add_document(om_docid did);
 	void remove_document(om_docid did);
 };
 
+/// Add a document to the relevance set.
 inline void
 OMRSet::add_document(om_docid did)
 {
     items.insert(did);
 }
 
+/// Remove a document from the relevance set.
 inline void
 OMRSet::remove_document(om_docid did)
 {
@@ -172,27 +207,74 @@ OMRSet::remove_document(om_docid did)
 // =============
 // Representaton of a match result set
 
-// An item in the MSet
+/// An item resulting from a query
 class OMMSetItem {
     friend class OMMatch;
     private:
-	OMMSetItem(om_weight wt_new, om_docid did_new) : wt(wt_new), did(did_new) {}
+	OMMSetItem(om_weight wt_, om_docid did_) : wt(wt_), did(did_) {}
     public:
-	om_weight wt;
-	om_docid did;
+	om_weight wt; /// Weight calculated
+	om_docid did; /// Document id
 };
 
-// Class representing an MSet
+/** A match set (MSet).
+ *  This class represents (a portion of) the results of a query.
+ */
 class OMMSet {
     private:
     public:
 	OMMSet() : mbound(0) {}
-	// FIXME - implement convert_to_percent
-	int convert_to_percent(const OMMSetItem &) const;
-	int convert_to_percent(om_weight) const;
+
+	/** This converts the weight supplied to a percentage score.
+	 * The return value will be in the range 0 to 100, and will be 0 if
+	 * and only if the item did not match the query at all.
+	 */
+	int convert_to_percent(om_weight wt) const;
+
+	/// Return the percentage score for the given item.
+	int convert_to_percent(const OMMSetItem & item) const;
+
+	/// A list of items comprising the mset.
 	vector<OMMSetItem> items;
+
+	/** The index of the first item in the result to put into the mset.
+	 *  This corresponds to the parameter "first" specified in
+	 *  OMEnquire::get_mset().  A value of 0 corresponds to the highest
+	 *  result being the first item in the mset.
+	 */
+	om_doccount firstitem;
+
+	/** A lower bound on the number of documents in the database which
+	 *  have a weight greater than zero.
+	 *
+	 *  This is currently equal to the number of such documents "seen"
+	 *  by the enquiry system while searching through the database,
+	 *  although it should not be relied upon as being such.  This
+	 *  number is usually considerably less than the total number of
+	 *  documents which match the query to any extent, due to certain
+	 *  optimisations applied in calculating the M set.  The exact
+	 *  value is not returned since it would be too expensive to calculate
+	 *  it.
+	 *
+	 *  This value is returned because there is sometimes a request to
+	 *  display such information.  However, our experience is that
+	 *  presenting this value to users causes them to worry about the
+	 *  large number of results, rather than how useful those at the top
+	 *  of the result set are, and is thus undesirable.
+	 */
 	om_doccount mbound;
-	om_weight max_weight;
+
+	/** The maximum possible weight in the mset.
+	 *  This weight is likely not to be obtained in the set of results,
+	 *  but represents an upper bound on the weight which a document
+	 *  could attain for the given query.
+	 */
+	om_weight max_possible;
+
+	/** The greatest weight which is attained in the mset.
+	 *  This is useful when firstitem != 0.
+	 */
+	om_weight max_attained;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -200,7 +282,7 @@ class OMMSet {
 // =============
 // Representation a set of expand terms
 
-// An item in the ESet
+/// An item in the ESet
 class OMESetItem {
     friend class OMExpand;
     private:
@@ -211,7 +293,7 @@ class OMESetItem {
 	om_termname tname;
 };
 
-// Class representing an ESet
+/// Class representing an ESet
 class OMESet {
     private:
     public:
@@ -257,7 +339,8 @@ class OMEnquire {
 	void get_eset(OMESet & eset,
                       om_termcount maxitems,
                       const OMRSet & omrset,
-                      const OMExpandOptions * eoptions = 0) const;
+                      const OMExpandOptions * eoptions = 0,
+		      const OMExpandDecider * decider = 0) const;
 };
 
 #endif /* _omenquire_h_ */

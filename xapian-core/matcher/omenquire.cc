@@ -32,6 +32,7 @@
 #include "irdocument.h"
 
 #include <vector>
+#include <math.h>
 
 ///////////////////////////////////////////////////////////////////
 // Mapping of database types as strings to enum om_database_type //
@@ -368,6 +369,42 @@ OMMatchOptions::set_sort_forward(bool forward_)
 }
 
 /////////////////////////////////
+// Methods for OMExpandOptions //
+/////////////////////////////////
+
+OMExpandOptions::OMExpandOptions()
+	: allow_query_terms(false)
+{}
+
+void
+OMExpandOptions::use_query_terms(bool allow_query_terms_)
+{
+    allow_query_terms = allow_query_terms_;
+}
+
+
+////////////////////////
+// Methods for OMMSet //
+////////////////////////
+
+int
+OMMSet::convert_to_percent(om_weight wt) const
+{
+    int pcent = (int) ceil(wt * 100 / max_possible);
+    if(pcent > 100) pcent = 100;
+    if(pcent < 0) pcent = 0;
+    if(pcent == 0 && wt > 0) pcent = 1;
+
+    return pcent;
+}
+
+int
+OMMSet::convert_to_percent(const OMMSetItem & item) const
+{
+    return OMMSet::convert_to_percent(item.wt);
+}
+
+/////////////////////////////////
 // Internals of enquire system //
 /////////////////////////////////
 
@@ -530,14 +567,19 @@ OMEnquire::get_mset(OMMSet &mset,
     if(internal->query->is_bool()) {
 	match.boolmatch(first, maxitems, mset.items);
 	mset.mbound = mset.items.size();
-	mset.max_weight = 1;
+	mset.max_possible = 1;
+	mset.max_attained = 1;
     } else {
 	match.match(first, maxitems, mset.items,
-		    msetcmp_forward, &(mset.mbound));
+		    msetcmp_forward, &(mset.mbound), &(mset.max_attained));
 
 	// Get max weight for an item in the MSet
-	mset.max_weight = match.get_max_weight();
+	mset.max_possible = match.get_max_weight();
     }
+
+    // Store what the first item requested was, so that this information is
+    // kept with the mset.
+    mset.firstitem = first;
 
     // Clear up
     delete rset;
@@ -547,7 +589,8 @@ void
 OMEnquire::get_eset(OMESet & eset,
 	            om_termcount maxitems,
                     const OMRSet & omrset,
-	            const OMExpandOptions * eoptions) const
+	            const OMExpandOptions * eoptions,
+		    const OMExpandDecider * decider) const
 {
     internal->open_database();
     OMExpand expand(internal->database);
@@ -555,7 +598,9 @@ OMEnquire::get_eset(OMESet & eset,
 
     DebugMsg("rset size is " << rset.get_rsize() << endl);
 
-    OMExpandDeciderAlways expanddecider;
+    OMExpandDeciderAlways decider_always;
+    if(decider == 0) decider = &decider_always;
     
-    expand.expand(maxitems, eset, &rset, &expanddecider);
+    // FIXME: also set whether or not to use query terms.
+    expand.expand(maxitems, eset, &rset, decider);
 }

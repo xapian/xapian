@@ -14,7 +14,7 @@ endif
 
 if HAVE_DOCPP
 
-DOCPPFLAGS = --sort --no-java-graphs --all --c-comments --quantel --private --upwards-arrows --no-define
+DOCPPFLAGS = --all --sort --no-java-graphs --c-comments --quantel --upwards-arrows --no-define
 
 CREATED_DOCUMENTS2=apidoc/index.html sourcedoc/index.html
 
@@ -22,7 +22,7 @@ apidoc/index.html:
 	doc++ ${DOCPPFLAGS} --dir apidoc `find ${top_srcdir}/include -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
 
 sourcedoc/index.html:
-	doc++ ${DOCPPFLAGS} -p --dir sourcedoc `find ${top_srcdir} -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
+	doc++ ${DOCPPFLAGS} --private --dir sourcedoc `find ${top_srcdir} -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
 
 endif
 

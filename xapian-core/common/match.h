@@ -124,11 +124,13 @@ class OMMatch
 		   om_doccount maxitems,   // Maximum number of items to return
 		   vector<OMMSetItem> & mset,// Results will be put here
 		   mset_cmp cmp,           // Comparison operator to sort by
-		   om_doccount * mbound);  // Mbound will returned here
+		   om_doccount * mbound,   // Mbound will returned here
+		   om_weight * greatest_wt // Gets set to max weight attained
+		   );
 
 	// Do a boolean only match
-	void boolmatch(om_doccount first,     // First item to return (start at 0)
-		       om_doccount maxitems,  // Maximum number of items to return
+	void boolmatch(om_doccount first,  // First item to return (start at 0)
+		       om_doccount maxitems,// Maximum number of items to return
 		       vector<OMMSetItem> & mset); // Results
 
 	///////////////////////////////////////////////////////////////////

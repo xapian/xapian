@@ -1,3 +1,16 @@
+Tue Feb  8 19:17:53 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+        * Changed OMMSet::max_weight to OMMSet::max_possible.
+          Added OMMSet::max_attained, which is weight of top match, (not
+          neccessarily top item in MSet)
+
+        * Allow user to specify decision function for expand.
+
+        * Also allow user to specify that query terms should not be returned
+          by expand, by calling OMExpandOptions::use_query_terms().                       This does not yet work, however.
+
+        * Add many code comments, and make doc++ stuff work better.
+
 Tue Feb  8 19:13:43 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added some more tests.

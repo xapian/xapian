@@ -313,10 +313,12 @@ OMMatch::recalc_maxweight()
 // This is the method which runs the query, generating the M set
 void
 OMMatch::match(om_doccount first, om_doccount maxitems,
-	       vector<OMMSetItem> &mset, mset_cmp cmp,  om_doccount *mbound)
+	       vector<OMMSetItem> & mset, mset_cmp cmp,
+	       om_doccount * mbound, om_weight * greatest_wt)
 {
     // Prepare query
     *mbound = 0;
+    *greatest_wt = 0;
     mset.clear();
 
     MSetCmp mcmp(cmp);
@@ -418,6 +420,7 @@ OMMatch::match(om_doccount first, om_doccount maxitems,
 
 	    if(add_item) {
 		mset.push_back(mitem);
+		if(w > *greatest_wt) *greatest_wt = w;
 
 		// FIXME: find balance between larger size for more efficient
 		// nth_element and smaller size for better w_min optimisations

@@ -31,11 +31,6 @@
 #include <stack>
 #include <vector>
 
-class OMExpandDecider {
-    public:
-	virtual bool want_term(const om_termname & tname) const = 0;
-};
-
 class OMExpandDeciderAlways : public virtual OMExpandDecider {
     public:
 	bool want_term(const om_termname & tname) const { return true; }
