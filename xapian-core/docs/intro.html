@@ -58,13 +58,55 @@ tar zxvf om-&lt;versionnumber&gt;-&lt;date&gt;.tar.gz
 <br>
 tar zxvf om-examples-&lt;versionnumber&gt;-&lt;date&gt;.tar.gz
 </code> </blockquote>
-The archives should then be unpacked into subdirectories of their own.
-<P>
+These commands should unpack the archives into separate subdirectories
+("om" and "examples").
 
 <H3>Configuring and building Muscat</H3>
-Muscat uses the GNU automake and autoconf tools.  If you only wish to 
+Muscat uses the GNU automake and autoconf tools.  If you only wish to build
+from the snapshots or make minor alterations, this need not concern you
+greatly.
+<p>
+These tools generate a configure script for each of the archives, which you
+should run to set up the code for compilation.
+<p>
+A typical build would be done using the commands:
+<blockquote> <code>
+cd om<br>
+./configure<br>
+make
+</code> </blockquote>
+
+Various options may be given to the configure script: see the installation
+documentation within the archive for more details.
+<p>
+Note that, at present, Muscat does not present a well defined API to the
+outside world, so it may not be installed.  We therefore recommend that
+you do not perform a <code>make install</code>.
 
 <H3>Configuring and building the examples</H3>
+The examples can be built in almost exactly the same way as the core library.
+However, because they need to refer to Muscat, and Muscat can not currently
+be installed, you must pass parameters to configure to specify where to find
+Muscat.
+<p>
+The <code>--with-libomus-uninst</code> parameter specifies an (absolute) path
+where the Muscat code can be found.  The
+<code>--with-libomus-uninst-exec</code> specifies an
+(absolute) path where a built Muscat library can be found (this defaults to
+the value of <code>--with-libomus-uninst</code>).
+<p>
+Supposing you had unpacked both om and om-examples in the same
+directory, you could use:
+<blockquote> <code>
+cd om<br>
+./configure --with-libomus-uninst=`pwd`/../om<br>
+make
+</code> </blockquote>
+Again, note that we do not currently recommend attempting to install the
+examples.
+<p>
+Check the documentation within the examples archive for more details on
+building and running the examples.
 
 <H3>Building from CVS</H3>
 If you wish to help develop muscat, you may wish to build directly from the
@@ -78,7 +120,13 @@ script and makefiles.  This can be done using the GNU autoconf and automake
 packages: you must have these installed if you wish to work from CVS.
 <p>
 We provide a useful script (<code>buildall</code>) to run all the necessary
-scripts to generate the project Makefiles.
+scripts to generate the project Makefiles.  Simply run <code>./buildall</code>
+to run all the neccessary scripts, run configure, and then run make.
+Any parameters you wish to pass to configure may be supplied to buildall.
+Run <code>./buildall --help</code> for more details.
+
+<p>
+This document last modified: Mon Jan 17 2000
 
 </TD>
 </TR>
