@@ -241,7 +241,7 @@ sub make_randomtext {
     my @allowedchars = split(//,
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789^ \n");
 
-    if ((-r $filename) && ((stat($filename))[7] == $junksize)) {
+    if ((-r $filename) && (-s $filename == $junksize)) {
         print "$filename already exists, skipping generation.\n";
 	return;
     };
@@ -259,7 +259,7 @@ sub make_randomjunk {
     my $filename = shift;
     my $count = 0;
 
-    if ((-r $filename) && ((stat($filename))[7] == $junksize)) {
+    if ((-r $filename) && (-s $filename == $junksize)) {
         print "$filename already exists, skipping generation.\n";
 	return;
     };
