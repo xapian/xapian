@@ -28,12 +28,16 @@
 
 %typemap(python, out) string {
     $target = PyString_FromString(($source)->c_str());
+    delete $source;
+    $source = 0;
 }
 
 %typemap(perl5, out) string {
     $target = sv_newmortal();
     sv_setpv($target, ($source)->c_str());
     argvi++;
+    delete $source;
+    $source = 0;
 }
 
 class OmStem {
