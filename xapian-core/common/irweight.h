@@ -44,15 +44,13 @@ class IRWeight {
 
 	bool initialised;
 	mutable bool weight_calculated;
-
-	virtual void calc_termweight() const = 0;
     public:
 	IRWeight() : initialised(false), weight_calculated(false) { return; }
 	virtual ~IRWeight() { return; };
 
 	/* Type of a database */
 	enum weight_type {
-	    WTTYPE_PUREBOOL,
+	    WTTYPE_BOOL,
 	    WTTYPE_TRAD,
 	    WTTYPE_BM25
 	};
