@@ -184,7 +184,7 @@ OmWritableDatabase
 BackendManager::getwritedb_inmemory(const std::vector<std::string> &dbnames)
 {
     OmSettings params;
-    params.set_value("backend", "inmemory");
+    params.set("backend", "inmemory");
     OmWritableDatabase db(params);
     index_files_to_database(db, change_names_to_paths(dbnames));
 
@@ -236,8 +236,8 @@ BackendManager::getwritedb_sleepy(const std::vector<std::string> &dbnames)
 	dbdir += "=" + *i;
     }
     OmSettings params;
-    params.set_value("backend", "sleepycat");
-    params.set_value("sleepy_dir", dbdir);
+    params.set("backend", "sleepycat");
+    params.set("sleepy_dir", dbdir);
     if (files_exist(change_names_to_paths(dbnames))) {
 	if (create_dir_if_needed(dbdir)) {
 	    // directory was created, so do the indexing.
@@ -268,8 +268,8 @@ BackendManager::getwritedb_quartz(const std::vector<std::string> &dbnames)
 	dbdir += "=" + *i;
     }
     OmSettings params;
-    params.set_value("backend", "quartz");
-    params.set_value("quartz_dir", dbdir);
+    params.set("backend", "quartz");
+    params.set("quartz_dir", dbdir);
     if (files_exist(change_names_to_paths(dbnames))) {
 	if (create_dir_if_needed(dbdir)) {
 	    // directory was created, so do the indexing.
@@ -290,10 +290,10 @@ BackendManager::getdb_net(const std::vector<std::string> &dbnames)
     args.insert(args.end(), dbnames.begin(), dbnames.end());
 
     OmSettings params;
-    params.set_value("backend", "network");
-    params.set_value("network_type", "prog");
-    params.set_value("network_program", "../netprogs/omprogsrv");
-    params.set_value("network_args", args.begin(), args.end());
+    params.set("backend", "network");
+    params.set("network_type", "prog");
+    params.set("network_program", "../netprogs/omprogsrv");
+    params.set("network_args", args.begin(), args.end());
     OmDatabase db(params);
 
     return db;

@@ -165,10 +165,10 @@ bool test_tcpmatch1()
 
     OmDatabaseGroup databases;
     OmSettings params;
-    params.set_value("backend", "network");
-    params.set_value("network_type", "tcp");
-    params.set_value("network_server", "localhost");
-    params.set_value("network_port", 1236);
+    params.set("backend", "network");
+    params.set("network_type", "tcp");
+    params.set("network_server", "localhost");
+    params.set("network_port", 1236);
     databases.add_database(params);
 
     OmEnquire enq(databases);

@@ -70,8 +70,8 @@ main(int argc, char *argv[])
     }
     try {
 	OmSettings params;
-	params.set_value("backend", "auto");
-	params.set_value("auto_dir", argv[0]);
+	params.set("backend", "auto");
+	params.set("auto_dir", argv[0]);
 	DatabaseBuilder dbb;
 	IRDatabase *db = dbb.create(params, true);
 

@@ -128,7 +128,7 @@ MultiMatch::set_options(const OmSettings & moptions)
     }
 
     // FIXME: same code as in localmatch.cc...
-    if (moptions.get_value_bool("match_sort_forward", true)) {
+    if (moptions.get_bool("match_sort_forward", true)) {
 	mcmp = OmMSetCmp(msetcmp_forward);
     } else {
 	mcmp = OmMSetCmp(msetcmp_reverse);

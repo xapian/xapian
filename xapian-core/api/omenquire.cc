@@ -371,7 +371,7 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
     std::auto_ptr<OmExpandDecider> decider_noquery;
     std::auto_ptr<OmExpandDecider> decider_andnoquery;
 
-    if (query != 0 && !eoptions->get_value_bool("expand_use_query_terms", false)) {
+    if (query != 0 && !eoptions->get_bool("expand_use_query_terms", false)) {
 	std::auto_ptr<OmExpandDecider> temp1(
 	    new OmExpandDeciderFilterTerms(query->get_terms()));
         decider_noquery = temp1;
@@ -385,7 +385,7 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
     }
 
     expand.expand(maxitems, retval, &rset, edecider,
-		  eoptions->get_value_bool("expand_use_exact_termfreq", false));
+		  eoptions->get_bool("expand_use_exact_termfreq", false));
 
     return retval;
 }

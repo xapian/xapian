@@ -47,7 +47,7 @@
 
 SleepyDatabase::SleepyDatabase(const OmSettings &params, bool readonly)
 {
-    string path = params.get_value("sleepy_dir");
+    string path = params.get("sleepy_dir");
 
     // FIXME: misuse of auto_ptr - should be refcnt
     std::auto_ptr<SleepyDatabaseInternals> tempptr1(new SleepyDatabaseInternals());

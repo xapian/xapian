@@ -55,54 +55,54 @@ int main(int argc, char *argv[]) {
 	if (argc >= 2 && strcmp(argv[0], "--da-flimsy") == 0) {
 	    OmSettings *params = new OmSettings();
 	    std::string path = argv[1];
-	    params->set_value("backend", "da");
-	    params->set_value("m36_heavyduty", false);	    
-	    params->set_value("m36_record_file", path + "/R");
-	    params->set_value("m36_term_file", path + "/T");
+	    params->set("backend", "da");
+	    params->set("m36_heavyduty", false);	    
+	    params->set("m36_record_file", path + "/R");
+	    params->set("m36_term_file", path + "/T");
 	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--da-heavy") == 0) {
 	    OmSettings *params = new OmSettings();
 	    std::string path = argv[1];
-	    params->set_value("backend", "da");
-	    params->set_value("m36_heavyduty", true);
-	    params->set_value("m36_record_file", path + "/R");
-	    params->set_value("m36_term_file", path + "/T");
-	    params->set_value("m36_key_file", path + "/keyfile");
+	    params->set("backend", "da");
+	    params->set("m36_heavyduty", true);
+	    params->set("m36_record_file", path + "/R");
+	    params->set("m36_term_file", path + "/T");
+	    params->set("m36_key_file", path + "/keyfile");
 	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--db-flimsy") == 0) {
 	    OmSettings *params = new OmSettings();
 	    std::string path = argv[1];
-	    params->set_value("backend", "db");
-	    params->set_value("m36_heavyduty", false);
-	    params->set_value("m36_db_file", path + "/DB");
-	    params->set_value("m36_key_file", path + "/keyfile");
+	    params->set("backend", "db");
+	    params->set("m36_heavyduty", false);
+	    params->set("m36_db_file", path + "/DB");
+	    params->set("m36_key_file", path + "/keyfile");
 	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--db-heavy") == 0) {
 	    OmSettings *params = new OmSettings();
 	    std::string path = argv[1];
-	    params->set_value("backend", "db");
-	    params->set_value("m36_heavyduty", true);
-	    params->set_value("m36_db_file", path + "/DB");
-	    params->set_value("m36_key_file", path + "/keyfile");
+	    params->set("backend", "db");
+	    params->set("m36_heavyduty", true);
+	    params->set("m36_db_file", path + "/DB");
+	    params->set("m36_key_file", path + "/keyfile");
 	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 1 && strcmp(argv[0], "--im") == 0) {
 	    OmSettings *params = new OmSettings();
-	    params->set_value("backend", "inmemory");
+	    params->set("backend", "inmemory");
 	    dbs.push_back(params);
 	    argc -= 1;
 	    argv += 1;
 	} else if (argc >= 2 && strcmp(argv[0], "--sleepycat") == 0) {
 	    OmSettings *params = new OmSettings();
-	    params->set_value("backend", "sleepycat");
-	    params->set_value("sleepy_dir", argv[1]);
+	    params->set("backend", "sleepycat");
+	    params->set("sleepy_dir", argv[1]);
 	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;

@@ -54,9 +54,9 @@ QuartzDBManager::QuartzDBManager(const OmSettings & settings,
 
     QuartzDBManager::check_library_version();
 
-    string db_dir  = settings.get_value("quartz_dir");
-    string tmp_dir = settings.get_value("quartz_tmpdir", db_dir);
-    string env_dir = settings.get_value("quartz_envdir", db_dir);
+    string db_dir  = settings.get("quartz_dir");
+    string tmp_dir = settings.get("quartz_tmpdir", db_dir);
+    string env_dir = settings.get("quartz_envdir", db_dir);
 
 
     // set cache size parameters, etc, here.

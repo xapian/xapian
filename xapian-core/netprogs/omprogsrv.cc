@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
 
 #if 0
 	OmSettings param;
-	param.set_value("backend", "inmemory");
+	param.set("backend", "inmemory");
 
 	std::vector<IRDatabase> dbs;
 	dbs.push_back(DatabaseBuilder::create(param));

@@ -729,7 +729,7 @@ bool test_pctcutoff1()
     }
 
     OmSettings mymopt;
-    mymopt.set_value("match_percent_cutoff", my_pct);
+    mymopt.set("match_percent_cutoff", my_pct);
     OmMSet mymset2 = enquire.get_mset(0, 100, NULL, &mymopt);
 
     if (verbose) {
@@ -775,7 +775,7 @@ bool test_allowqterms1()
     myrset.add_document(mymset.items[1].did);
 
     OmSettings eopt;
-    eopt.set_value("expand_use_query_terms", false);
+    eopt.set("expand_use_query_terms", false);
 
     OmESet myeset = enquire.get_eset(1000, myrset, &eopt);
 
@@ -832,7 +832,7 @@ bool test_collapsekey1()
     om_doccount mymsize1 = mymset1.items.size();
 
     for (int key_no = 1; key_no<7; ++key_no) {
-	mymopt.set_value("match_collapse_key", key_no);
+	mymopt.set("match_collapse_key", key_no);
 	OmMSet mymset = enquire.get_mset(0, 100, 0, &mymopt);
 
 	if(mymsize1 <= mymset.items.size()) {
@@ -887,9 +887,9 @@ bool test_reversebool1()
 
     OmSettings mymopt;
     OmMSet mymset1 = enquire.get_mset(0, 100, 0, &mymopt);
-    mymopt.set_value("match_sort_forward", true);
+    mymopt.set("match_sort_forward", true);
     OmMSet mymset2 = enquire.get_mset(0, 100, 0, &mymopt);
-    mymopt.set_value("match_sort_forward", false);
+    mymopt.set("match_sort_forward", false);
     OmMSet mymset3 = enquire.get_mset(0, 100, 0, &mymopt);
 
     if(mymset1.items.size() == 0) {
@@ -977,10 +977,10 @@ bool test_reversebool2()
 	return false;
     }
 
-    mymopt.set_value("match_sort_forward", true);
+    mymopt.set("match_sort_forward", true);
     om_doccount msize = mymset1.items.size() / 2;
     OmMSet mymset2 = enquire.get_mset(0, msize, 0, &mymopt);
-    mymopt.set_value("match_sort_forward", false);
+    mymopt.set("match_sort_forward", false);
     OmMSet mymset3 = enquire.get_mset(0, msize, 0, &mymopt);
 
     // mymset2 should be first msize items of mymset1
@@ -1759,7 +1759,7 @@ bool test_maxorterms1()
 
     enquire.set_query(myquery2);
     OmSettings moptions;
-    moptions.set_value("match_max_or_terms", 1);
+    moptions.set("match_max_or_terms", 1);
     OmMSet mymset2 = enquire.get_mset(0, 10, NULL, &moptions);
 
     TEST_EQUAL(mymset1, mymset2);
@@ -1791,7 +1791,7 @@ bool test_maxorterms2()
 
     enquire.set_query(myquery2);
     OmSettings moptions;
-    moptions.set_value("match_max_or_terms", 1);
+    moptions.set("match_max_or_terms", 1);
     OmMSet mymset2 = enquire.get_mset(0, 10, NULL, &moptions);
 
     TEST_EQUAL(mymset1, mymset2);
@@ -1825,7 +1825,7 @@ bool test_maxorterms3()
     enquire2.set_query(myquery);
 
     OmSettings mopts;
-    mopts.set_value("match_max_or_terms", 3);
+    mopts.set("match_max_or_terms", 3);
     
     // retrieve the results
     OmMSet mymset1 = enquire1.get_mset(0, 10);
@@ -1916,7 +1916,7 @@ bool test_multiexpand1()
     OmESet eset2 = enquire2.get_eset(1000, rset2);
 
     OmSettings eopts;
-    eopts.set_value("expand_use_exact_termfreq", true);
+    eopts.set("expand_use_exact_termfreq", true);
     // This is the multi database without approximation
     OmESet eset3 = enquire2.get_eset(1000, rset2, &eopts);
 

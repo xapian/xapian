@@ -139,11 +139,11 @@ DADatabase::DADatabase(const OmSettings & params, bool readonly)
     }
 
     // Work out file paths
-    std::string filename_r = params.get_value("m36_record_file");
-    std::string filename_t = params.get_value("m36_term_file");
-    std::string filename_k = params.get_value("m36_key_file", "");
+    std::string filename_r = params.get("m36_record_file");
+    std::string filename_t = params.get("m36_term_file");
+    std::string filename_k = params.get("m36_key_file", "");
 
-    heavy_duty = params.get_value_bool("m36_heavyduty", true);
+    heavy_duty = params.get_bool("m36_heavyduty", true);
 
     // Open database with specified path
     DA_r = DA_open(filename_r.c_str(), DA_RECS, heavy_duty);

@@ -71,7 +71,7 @@ class OmSettings::Internal {
 	 *
 	 *  @param value The value to set the option to.
 	 */
-	void set_value(const string &key, const string &value);
+	void set(const string &key, const string &value);
 
 	/** Get a setting value.
 	 *
@@ -79,7 +79,7 @@ class OmSettings::Internal {
 	 *
 	 *  @exception   OmRangeError will be thrown for an invalid key.
 	 */
-	string get_value(const string &key) const;
+	string get(const string &key) const;
 
 	/** Return stored settings as a string for use by
 	 *  OmSettings::get_description()
@@ -116,41 +116,41 @@ OmSettings::~OmSettings()
 }
 
 void
-OmSettings::set_value(const string &key, const string &value)
+OmSettings::set(const string &key, const string &value)
 {
-    internal->set_value(key, value);
+    internal->set(key, value);
 }
 
 void
-OmSettings::set_value(const string &key, const char *value)
+OmSettings::set(const string &key, const char *value)
 {
-    internal->set_value(key, value);
+    internal->set(key, value);
 }
 
 void
-OmSettings::set_value(const string &key, int value)
+OmSettings::set(const string &key, int value)
 {
     char buf[64];
     sprintf(buf, "%d", value);
-    internal->set_value(key, string(buf));
+    internal->set(key, string(buf));
 }
 
 void
-OmSettings::set_value(const string &key, double value)
+OmSettings::set(const string &key, double value)
 {
     char buf[64];
     sprintf(buf, "%20g", value);
-    internal->set_value(key, string(buf));
+    internal->set(key, string(buf));
 }
 
 void
-OmSettings::set_value(const string &key, bool value)
+OmSettings::set(const string &key, bool value)
 {
-    internal->set_value(key, value ? "1" : "");
+    internal->set(key, value ? "1" : "");
 }
 
 void
-OmSettings::set_value(const string &key, vector<string>::const_iterator begin,
+OmSettings::set(const string &key, vector<string>::const_iterator begin,
 		      vector<string>::const_iterator end)
 {
     string s;
@@ -160,45 +160,45 @@ OmSettings::set_value(const string &key, vector<string>::const_iterator begin,
 	if (begin == end) break;
 	s += '\0';
     }
-    internal->set_value(key, s);
+    internal->set(key, s);
 }
 
 string
-OmSettings::get_value(const string &key) const
+OmSettings::get(const string &key) const
 {
-    return internal->get_value(key);
+    return internal->get(key);
 }
 
 bool
-OmSettings::get_value_bool(const string &key) const
+OmSettings::get_bool(const string &key) const
 {
-    string s = internal->get_value(key);
+    string s = internal->get(key);
     return !(s.empty() || s == "0");
 }
 
 int
-OmSettings::get_value_int(const string &key) const
+OmSettings::get_int(const string &key) const
 {
-    string s = internal->get_value(key);
+    string s = internal->get(key);
     int res;
     sscanf(s.c_str(), "%d", &res);
     return res;
 }
 
 double
-OmSettings::get_value_real(const string &key) const
+OmSettings::get_real(const string &key) const
 {
-    string s = internal->get_value(key);
+    string s = internal->get(key);
     double res;
     sscanf(s.c_str(), "%lf", &res);
     return res;
 }
 
 string
-OmSettings::get_value(const string &key, string def) const
+OmSettings::get(const string &key, string def) const
 {
     try {
-	return internal->get_value(key);
+	return internal->get(key);
     }
     catch (const OmRangeError &e) {
 	return def;
@@ -206,10 +206,10 @@ OmSettings::get_value(const string &key, string def) const
 }
 
 bool
-OmSettings::get_value_bool(const string &key, bool def) const
+OmSettings::get_bool(const string &key, bool def) const
 {
     try {
-	return get_value_bool(key);
+	return get_bool(key);
     }
     catch (const OmRangeError &e) {
 	return def;
@@ -217,10 +217,10 @@ OmSettings::get_value_bool(const string &key, bool def) const
 }
 
 int
-OmSettings::get_value_int(const string &key, int def) const
+OmSettings::get_int(const string &key, int def) const
 {
     try {
-	return get_value_int(key);
+	return get_int(key);
     }
     catch (const OmRangeError &e) {
 	return def;
@@ -228,10 +228,10 @@ OmSettings::get_value_int(const string &key, int def) const
 }
 
 double
-OmSettings::get_value_real(const string &key, double def) const
+OmSettings::get_real(const string &key, double def) const
 {
     try {
-	return get_value_real(key);
+	return get_real(key);
     }
     catch (const OmRangeError &e) {
 	return def;
@@ -239,9 +239,9 @@ OmSettings::get_value_real(const string &key, double def) const
 }
 
 vector<string>
-OmSettings::get_value_vector(const string &key) const
+OmSettings::get_vector(const string &key) const
 {
-    string s = internal->get_value(key);
+    string s = internal->get(key);
     string::size_type p = 0, q;
     vector<string> v;
     while (1) {	    
@@ -292,7 +292,7 @@ OmSettings::Internal::~Internal()
 }
 
 void
-OmSettings::Internal::set_value(const string &key, const string &value)
+OmSettings::Internal::set(const string &key, const string &value)
 {
     OmLockSentry sentry(mutex);
     // copy on write...
@@ -303,7 +303,7 @@ OmSettings::Internal::set_value(const string &key, const string &value)
 }
 
 string
-OmSettings::Internal::get_value(const string &key) const
+OmSettings::Internal::get(const string &key) const
 {
     OmLockSentry sentry(mutex);
 

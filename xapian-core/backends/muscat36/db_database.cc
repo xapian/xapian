@@ -137,14 +137,14 @@ DBDatabase::DBDatabase(const OmSettings & params, bool readonly) : DB(0), keyfil
 	throw OmInvalidArgumentError("DBDatabase must be opened readonly.");
     }
 
-    std::string filename = params.get_value("m36_db_file");
+    std::string filename = params.get("m36_db_file");
 
-    std::string filename_k = params.get_value("m36_key_file", "");
+    std::string filename_k = params.get("m36_key_file", "");
 
-    heavy_duty = params.get_value_bool("m36_heavyduty", true);
+    heavy_duty = params.get_bool("m36_heavyduty", true);
 
     // Get the cache_size
-    int cache_size = params.get_value_int("m36_db_cache_size", 30);
+    int cache_size = params.get_int("m36_db_cache_size", 30);
 
     // Actually open
     DB = DB_open(filename.c_str(), cache_size, heavy_duty);

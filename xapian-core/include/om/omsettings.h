@@ -133,7 +133,7 @@ class OmSettings {
 	 *
 	 *  @param value The value to set the option to.
 	 */
-	void set_value(const std::string &key, const std::string &value);
+	void set(const std::string &key, const std::string &value);
 
 	/** Set an option value.
 	 *
@@ -141,7 +141,7 @@ class OmSettings {
 	 *
 	 *  @param value The value to set the option to.
 	 */
-	void set_value(const string &key, const char *value);
+	void set(const string &key, const char *value);
     
 	/** Set an option value to an integer.
 	 *
@@ -149,7 +149,7 @@ class OmSettings {
 	 *
 	 *  @param value The value to set the option to.
 	 */
-	void set_value(const std::string &key, int value);
+	void set(const std::string &key, int value);
 
 	/** Set an option value to a real number.
 	 *
@@ -157,7 +157,7 @@ class OmSettings {
 	 *
 	 *  @param value The value to set the option to.
 	 */
-	void set_value(const std::string &key, double value);
+	void set(const std::string &key, double value);
 
 	/** Set an option value to a boolean.
 	 *
@@ -165,7 +165,7 @@ class OmSettings {
 	 *
 	 *  @param value The value to set the option to.
 	 */
-	void set_value(const std::string &key, bool value);
+	void set(const std::string &key, bool value);
 
 	/** Set an option value to a vector of strings.
 	 *
@@ -175,8 +175,8 @@ class OmSettings {
 	 *
 	 *  @param end   Iterator pointing to end of vector.
 	 */
-	void set_value(const string &key, vector<string>::const_iterator begin,
-		       vector<string>::const_iterator end);
+	void set(const string &key, vector<string>::const_iterator begin,
+		 vector<string>::const_iterator end);
 
 	/** Get a setting value as a string.
 	 *
@@ -184,13 +184,13 @@ class OmSettings {
 	 *
 	 *  @exception   OmRangeError will be thrown for an invalid key.
 	 */
-	std::string get_value(const std::string &key) const;
+	std::string get(const std::string &key) const;
 
 	/** Get a setting value as a string, with default value.
 	 *
 	 *  @param key	 The key corresponding to the value to retrieve.
 	 */
-	std::string get_value(const std::string &key, string def) const;
+	std::string get(const std::string &key, string def) const;
 
 	/** Get a setting value as an integer.
 	 *
@@ -198,13 +198,13 @@ class OmSettings {
 	 *
 	 *  @exception   OmRangeError will be thrown for an invalid key.
 	 */
-	int get_value_int(const std::string &key) const;
+	int get_int(const std::string &key) const;
 
 	/** Get a setting value as an integer, with default value.
 	 *
 	 *  @param key	 The key corresponding to the value to retrieve.
 	 */
-	int get_value_int(const std::string &key, int def) const;
+	int get_int(const std::string &key, int def) const;
 
 	/** Get a setting value as a boolean.
 	 *
@@ -212,13 +212,13 @@ class OmSettings {
 	 *
 	 *  @exception   OmRangeError will be thrown for an invalid key.
 	 */
-	bool get_value_bool(const std::string &key) const;
+	bool get_bool(const std::string &key) const;
 
 	/** Get a setting value as a boolean, with default value.
 	 *
 	 *  @param key	 The key corresponding to the value to retrieve.
 	 */
-	bool get_value_bool(const std::string &key, bool def) const;
+	bool get_bool(const std::string &key, bool def) const;
 
 	/** Get a setting value as an real number.
 	 *
@@ -226,13 +226,13 @@ class OmSettings {
 	 *
 	 *  @exception   OmRangeError will be thrown for an invalid key.
 	 */
-	double get_value_real(const std::string &key) const;
+	double get_real(const std::string &key) const;
 
 	/** Get a setting value as an real number, with default value.
 	 *
 	 *  @param key	 The key corresponding to the value to retrieve.
 	 */
-	double get_value_real(const std::string &key, double def) const;
+	double get_real(const std::string &key, double def) const;
 
 	/** Get a setting value as a vector of strings.
 	 *
@@ -240,7 +240,7 @@ class OmSettings {
 	 *
 	 *  @exception   OmRangeError will be thrown for an invalid key.
 	 */
-        vector<string> get_value_vector(const string &key) const;
+        vector<string> get_vector(const string &key) const;
 
 	/** Returns a string representing the database group object.
 	 *  Introspection method.

@@ -431,12 +431,12 @@ test_omsettings1()
 
     OmSettings settings;
 
-    settings.set_value("K1", "V1");
-    settings.set_value("K2", "V2");
-    settings.set_value("K1", "V3");
+    settings.set("K1", "V1");
+    settings.set("K2", "V2");
+    settings.set("K1", "V3");
 
-    if (settings.get_value("K1") != "V3" ||
-	settings.get_value("K2") != "V2") {
+    if (settings.get("K1") != "V3" ||
+	settings.get("K2") != "V2") {
 	success = false;
     }
     return success;
@@ -449,10 +449,10 @@ test_omsettings2()
 
     OmSettings settings;
     try {
-	settings.get_value("nonexistant");
+	settings.get("nonexistant");
 
 	if (verbose) {
-	    cout << "get_value() didn't throw with invalid key" << endl;
+	    cout << "get() didn't throw with invalid key" << endl;
 	}
     } catch (OmRangeError &e) {
 	success = true;
@@ -469,31 +469,31 @@ test_omsettings3()
     // test copy-on-write behaviour.
     OmSettings settings1;
 
-    settings1.set_value("FOO", "BAR");
-    settings1.set_value("MOO", "COW");
+    settings1.set("FOO", "BAR");
+    settings1.set("MOO", "COW");
 
     OmSettings settings2(settings1);
 
-    if (settings2.get_value("FOO") != "BAR" ||
-	settings2.get_value("MOO") != "COW") {
+    if (settings2.get("FOO") != "BAR" ||
+	settings2.get("MOO") != "COW") {
 	success = false;
 	if (verbose) {
 	    cout << "settings weren't copied properly." << endl;
 	}
     }
 
-    if (settings1.get_value("FOO") != "BAR" ||
-	settings1.get_value("MOO") != "COW") {
+    if (settings1.get("FOO") != "BAR" ||
+	settings1.get("MOO") != "COW") {
 	success = false;
 	if (verbose) {
 	    cout << "settings destroyed when copied." << endl;
 	}
     }
 
-    settings2.set_value("BOO", "AAH");
+    settings2.set("BOO", "AAH");
 
     try {
-	settings1.get_value("BOO");
+	settings1.get("BOO");
 	// should throw
 
 	success = false;
@@ -503,9 +503,9 @@ test_omsettings3()
     } catch (OmRangeError &) {
     }
 
-    settings1.set_value("FOO", "RAB");
+    settings1.set("FOO", "RAB");
 
-    if (settings2.get_value("FOO") != "BAR") {
+    if (settings2.get("FOO") != "BAR") {
 	success = false;
 
 	if (verbose) {

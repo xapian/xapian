@@ -263,9 +263,10 @@ The code to open a database for writing is, then:
 </P>
 
 <PRE>
-    vector&lt;string&gt; parameters;
-    parameters.push_back(argv[1]);
-    OmWritableDatabase database("sleepycat", parameters);
+    OmSettings db_parameters;
+    db_parameters.set("backend", "sleepycat");
+    db_parameters.set("sleepycat_dir", argv[1]);
+    OmWritableDatabase database(db_parameters);
 </PRE>
 
 <H3>Preparing the new document</H3>
@@ -448,9 +449,10 @@ database.  This keeps everything nice and consistent.
 </P>
 <PRE>
     OmDatabaseGroup databases;
-    vector&lt;string&gt; parameters;
-    parameters.push_back(argv[1]);
-    databases.add_database("sleepycat", parameters);
+    OmSettings db_parameters;
+    db_parameters.set("backend", "sleepycat");
+    db_parameters.set("sleepycat_dir", argv[1]);
+    databases.add_database(db_parameters);
 </PRE>
 
 <H3>Starting an enquire session</H3>
@@ -581,9 +583,7 @@ access to the data stored in this document.
 </LI></UL>
 <PRE>
     vector&lt;OmMSetItem&gt;::const_iterator i;
-    for (i = matches.items.begin();
-         i != matches.items.end();
-         i++) {
+    for (i = matches.items.begin(); i != matches.items.end(); i++) {
         cout &lt;&lt; "Document ID " &lt;&lt; i-&gt;did &lt;&lt; "\t";
 	cout &lt;&lt; matches.convert_to_percent(*i) &lt;&lt; "% ";
         OmDocument doc = enquire.get_doc(*i);

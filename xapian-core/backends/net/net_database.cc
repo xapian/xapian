@@ -42,20 +42,20 @@ NetworkDatabase::NetworkDatabase(const OmSettings & params, bool readonly)
     if (!readonly) {
 	throw OmInvalidArgumentError("NetworkDatabase must be opened readonly.");
     }
-    std::string type = params.get_value("network_type");
+    std::string type = params.get("network_type");
     if (type == "prog") {
-	std::string prog = params.get_value("network_program");
+	std::string prog = params.get("network_program");
 	if (prog.empty()) {
 	    throw OmInvalidArgumentError("NetworkDatabase(prog) requires network_program parameter.");
 	}
-	std::vector<std::string> args = params.get_value_vector("network_args");
+	std::vector<std::string> args = params.get_vector("network_args");
 	link = OmRefCntPtr<NetClient>(new ProgClient(prog, args));
 	Assert(link.get() != 0);
 	//initialise_link();
     } else if (type == "tcp") {
-	std::string server = params.get_value("network_server");
+	std::string server = params.get("network_server");
 	// FIXME: default port?
-	int port = params.get_value_int("network_port");
+	int port = params.get_int("network_port");
 	link = OmRefCntPtr<NetClient>(new TcpClient(server, port));
     } else {
 	throw OmUnimplementedError(std::string("Network database type ") +

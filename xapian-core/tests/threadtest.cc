@@ -86,8 +86,8 @@ open_db_group(std::string database_type, std::string dlist_path)
 	if(database_path.size() != 0) {
 	    OutputMessage("Adding `" + database_path + "' to dlist");
 	    OmSettings params;
-	    params.set_value("backend", database_type);
-	    params.set_value("auto_dir", database_path); // FIXME:
+	    params.set("backend", database_type);
+	    params.set("auto_dir", database_path); // FIXME:
 	    OmDatabase db(params);
 	    dbgrp.add_database(db);
 	}

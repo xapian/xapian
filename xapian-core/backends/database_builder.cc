@@ -77,44 +77,44 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
 
     // Convert type into an om_database_type
     om_database_type dbtype = static_cast<om_database_type> (
-	map_string_to_value(database_strings, params.get_value("backend")));
+	map_string_to_value(database_strings, params.get("backend")));
 
     // Create database of correct type, and open it
     switch (dbtype) {
 	case DBTYPE_NULL:
 	    throw OmInvalidArgumentError("Unknown database type `" + 
-					 params.get_value("backend") + "'");
+					 params.get("backend") + "'");
 	    break;
 	case DBTYPE_AUTO: {
 	    // Check validity of parameters
-	    string path = params.get_value("auto_dir");
+	    string path = params.get("auto_dir");
 	    OmSettings myparams = params;
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
 	    if (file_exists(path + "/R") && file_exists(path + "/T")) {
 		// can't easily tell flimsy from heavyduty so assume hd
-		myparams.set_value("m36_record_file", path + "/R");
-		myparams.set_value("m36_term_file", path + "/T");
-		myparams.set_value("m36_heavyduty", true);
+		myparams.set("m36_record_file", path + "/R");
+		myparams.set("m36_term_file", path + "/T");
+		myparams.set("m36_heavyduty", true);
                 if (file_exists(path + "/keyfile"))
-		    myparams.set_value("m36_key_file", path + "/keyfile");
+		    myparams.set("m36_key_file", path + "/keyfile");
 		database = new DADatabase(myparams, readonly);
                 break;
             }
 	    if (file_exists(path + "/DB")) {
-		myparams.set_value("m36_db_file", path + "/DB");
+		myparams.set("m36_db_file", path + "/DB");
 		// can't easily tell flimsy from heavyduty so assume hd
-		myparams.set_value("m36_heavyduty", true);
+		myparams.set("m36_heavyduty", true);
                 if (file_exists(path + "/keyfile"))
-		    myparams.set_value("m36_key_file", path + "/keyfile");
+		    myparams.set("m36_key_file", path + "/keyfile");
 		database = new DBDatabase(myparams, readonly);
                 break;
             }
 	    if (file_exists(path + "/DB.da")) {
-		myparams.set_value("m36_db_file", path + "/DB.da");
+		myparams.set("m36_db_file", path + "/DB.da");
 		// can't easily tell flimsy from heavyduty so assume hd
-		myparams.set_value("m36_heavyduty", true);
+		myparams.set("m36_heavyduty", true);
                 if (file_exists(path + "/keyfile"))
-		    myparams.set_value("m36_key_file", path + "/keyfile");
+		    myparams.set("m36_key_file", path + "/keyfile");
 		database = new DBDatabase(myparams, readonly);
                 break;
             }
@@ -128,7 +128,7 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
 //#define FILENAME_DOCUMENT "document.db"
 //#define FILENAME_DOCKEYDB "dockey.db"
 //#define FILENAME_STATS_DB "stats.db"
-	    myparams.set_value("sleepy_dir", path);
+	    myparams.set("sleepy_dir", path);
             database = new SleepyDatabase(myparams, readonly);
 #endif
             break;

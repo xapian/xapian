@@ -504,10 +504,10 @@ moptions_to_string(const OmSettings &moptions)
 {
     std::string result;
 
-    result += om_tostring(moptions.get_value_int("match_collapse_key", 0)) + " ";
-    result += om_tostring((int)moptions.get_value_bool("match_sort_forward", true)) + " ";
-    result += om_tostring(moptions.get_value_int("match_percent_cutoff", 0)) + " ";
-    result += om_tostring(moptions.get_value_int("match_max_or_terms", 0));
+    result += om_tostring(moptions.get_int("match_collapse_key", 0)) + " ";
+    result += om_tostring((int)moptions.get_bool("match_sort_forward", true)) + " ";
+    result += om_tostring(moptions.get_int("match_percent_cutoff", 0)) + " ";
+    result += om_tostring(moptions.get_int("match_max_or_terms", 0));
 
     return result;
 }
@@ -526,10 +526,10 @@ string_to_moptions(const std::string &s)
        >> percent_cutoff
        >> max_or_terms;
 
-    mopt.set_value("match_collapse_key", collapse_key);
-    mopt.set_value("match_sort_forward", sort_forward);
-    mopt.set_value("match_percent_cutoff", percent_cutoff);
-    mopt.set_value("match_max_or_terms", max_or_terms);
+    mopt.set("match_collapse_key", collapse_key);
+    mopt.set("match_sort_forward", sort_forward);
+    mopt.set("match_percent_cutoff", percent_cutoff);
+    mopt.set("match_max_or_terms", max_or_terms);
     
     Assert(s == moptions_to_string(mopt));
 //    DEBUGLINE(UNKNOWN, "string_to_moptions: mopt " << s << "->"

@@ -65,10 +65,10 @@
 QuartzDatabase::QuartzDatabase(const OmSettings & settings, bool readonly)
 	: modifications(0)
 {
-    use_transactions = settings.get_value_bool("quartz_use_transactions",
+    use_transactions = settings.get_bool("quartz_use_transactions",
 					       false);
 
-    modification_logfile = settings.get_value("quartz_modification_log", "");
+    modification_logfile = settings.get("quartz_modification_log", "");
 
     auto_ptr<QuartzDBManager> temp(
 	new QuartzDBManager(settings, use_transactions, readonly));
