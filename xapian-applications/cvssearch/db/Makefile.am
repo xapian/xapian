@@ -1,4 +1,17 @@
-bin_PROGRAMS = cvsindex cvssearch cvscomments cvssymbolcount cvscountsymbols cvsmine
+SUBDIRS = 
+INCLUDES =
+
+lib_LIBRARIES = libcvs_db.a
+libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C  cvs_line_db.C \
+ cvs_comment_db.h     cvs_db.h       cvs_file_revision_db.h  cvs_line_db.h \
+ cvs_comment_id_db.C  cvs_db_file.C  cvs_filename_db.C       cvs_revision_db.C \
+ cvs_comment_id_db.h  cvs_db_file.h  cvs_filename_db.h       cvs_revision_db.h \
+ cvs_revision_less.h
+
+bin_PROGRAMS = cvsindex cvssearch cvscomments cvssymbolcount cvscountsymbols cvsmine cvsquery
+
+cvsquery_SOURCES = cvsquery.C
+cvsquery_LDADD = libcvs_db.a -ldb_cxx libcvs_db.a
 
 cvsindex_SOURCES = util.h util.C cvsindex.C
 cvsindex_LDADD = -lomus -ldb_cxx

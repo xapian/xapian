@@ -1,3 +1,28 @@
+/************************************************************
+ *
+ *  cvs_db.h the base class to manipulate a database to store
+ *  something.
+ *
+ *  (c) 2001 Andrew Yao (andrewy@users.sourceforge.net)
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *  $Id$
+ *
+ ************************************************************/
+
 #ifndef __CVS_DB_H__
 #define __CVS_DB_H__
 
@@ -10,18 +35,16 @@ class cvs_db
 protected:
     Db _db;
     string _db_name;
+    bool _opened;
+    virtual int do_open(const string & filename) = 0;
+
 public:
-    cvs_db(DbEnv *dbenv, u_int32_t flags, const string & name) 
-        : _db(dbenv, flags), _db_name(name) {}
-    virtual int open(const string & filename) = 0;
-    int close(int flags = 0) {
-        try {
-            return _db.close(flags);
-        }  catch (DbException& e ) {
-            cerr << "SleepyCat Exception: " << e.what() << endl;
-        }
-    }
+    cvs_db(const string & name, DbEnv *dbenv, u_int32_t flags) 
+        : _db(dbenv, flags), _db_name(name), _opened(false) {}
     virtual ~cvs_db() {}
+    int open(const string & filename);
+    int close(int flags = 0);
+    int remove(const string & filename, int flags = 0);
 };
 
 #endif
