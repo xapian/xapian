@@ -82,7 +82,7 @@ LATEX_BATCHMODE       = YES
 #---------------------------------------------------------------------------
 # configuration options related to the RTF output
 #---------------------------------------------------------------------------
-GENERATE_RTF          = YES
+GENERATE_RTF          = NO
 RTF_OUTPUT            = rtf
 COMPACT_RTF           = NO
 RTF_HYPERLINKS        = NO
