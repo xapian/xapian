@@ -45,7 +45,7 @@ int n_dlist = 0;
 #include "query.h"
 
 OmEnquire * enquire;
-OmMSet * mset;
+OmMSet mset;
 OmRSet * rset;
 
 map<string, string> option;
@@ -194,7 +194,7 @@ static int main2(int argc, char *argv[])
     }
 
     // Open enquire system
-    enquire = new OmEnquire();
+    OmDatabase omdb;
 
     // read dlist
     try {
@@ -222,7 +222,7 @@ static int main2(int argc, char *argv[])
 #endif
 			vector<string> args;
 			args.push_back(dbpath);
-			enquire->add_database("da_flimsy", args);
+			omdb.add_database("da_flimsy", args);
 		    }
 		}
 	    }
@@ -233,11 +233,13 @@ static int main2(int argc, char *argv[])
 #endif
 	    vector<string> args;
 	    args.push_back(db_dir);
-	    enquire->add_database("da_flimsy", args);
+	    omdb.add_database("da_flimsy", args);
 	}
     } catch (OmError &e) {
 	cout << e.get_msg() << endl;
     }
+
+    enquire = new OmEnquire(omdb);
    
     // Create rset to put relevant items in.
     rset = new OmRSet();

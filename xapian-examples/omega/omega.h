@@ -37,7 +37,7 @@ extern string db_name;
 extern string fmt, fmtfile;
 
 extern OmEnquire * enquire;
-extern OmMSet * mset;
+extern OmMSet mset;
 extern OmRSet * rset;
 
 extern map<string, string> option;

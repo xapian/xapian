@@ -171,42 +171,42 @@ void add_bterm(const string &term) {
 extern void
 run_query(om_doccount first, om_doccount maxhits)
 {
-    if (!new_terms.empty()) {
-	// now we constuct the query:
-	// ((plusterm_1 AND ... AND plusterm_n) ANDMAYBE
-	//  (term_1 OR ... OR term_m)) ANDNOT
-	// (minusterm_1 OR ... OR minusterm_p)
-	if (!pluses.empty()) matcher->add_oplist(MOP_AND, pluses);
-	if (!normals.empty()) {
-	    matcher->add_oplist(op, normals);
-	    if (!pluses.empty()) matcher->add_op(MOP_AND_MAYBE);
-	}       
-	if (!minuses.empty()) {
-	    matcher->add_oplist(MOP_OR, minuses);
-	    if (!matcher->add_op(MOP_AND_NOT)) {
-		cout << "You must allow at least one of the search terms\n" << endl; // FIXME
-		exit(0);
-	    }
-	}
-    }
-    int bool_terms = 0;
-    // add any boolean terms and AND them together
-    // FIXME: should OR those with same prefix...
-    map <char, string>::const_iterator i;
-    for (i = filter_map.begin(); i != filter_map.end(); i++) {
-        matcher->add_term(i->second);
-	bool_terms++;
-	if (bool_terms) matcher->add_op(MOP_AND);
-    }
-    if (bool_terms) matcher->add_op(MOP_FILTER);
+    OmQuery query(OM_MOP_AND_NOT,
+		  OmQuery(OM_MOP_AND_MAYBE,
+			  OmQuery(OM_MOP_AND,
+				  pluses.begin(),
+				  pluses.end()),
+			  OmQuery(OM_MOP_OR,
+				  normals.begin(),
+				  normals.end())),
+		  OmQuery(OM_MOP_OR,
+			  minuses.begin(),
+			  minuses.end()));
 
-    doccount mtotal;
+    // a vector is more convenient than a map for constructing
+    // queries.
+    vector<om_termname> filter_vec;
+    for (map<char,string>::const_iterator ft = filter_map.begin();
+	 ft != filter_map.end();
+	 ++ft) {
+	filter_vec.push_back(ft->second);
+    }
+
+    if (!filter_vec.empty()) {
+	query = OmQuery(OM_MOP_FILTER,
+			query,
+			OmQuery(OM_MOP_AND,
+				filter_vec.begin(),
+				filter_vec.end()));
+    }
+
+    enquire->set_query(query);
+
     cout << "Running query: maxmsize = " << first + maxhits << "; " << endl;
     // FIXME: use the value of first as first parameter: don't bother sorting
     // first ``first'' items (but don't get given them either, so need to
     // alter code elsewhere to understand this)
-    enquire->set_rset(rset);
-    enquire->get_mset(mset, 0, first + maxhits); // FIXME - set msetcmp to reverse
+    mset = enquire->get_mset(0, first + maxhits, rset); // FIXME - set msetcmp to reverse
     msize = mset.mbound;
     cout << "Ran query: msize = " << msize << "; " << endl;
 }
@@ -440,7 +440,7 @@ static int percentage(double num, double denom) {
 
 class MatchingTermCmp {
     public:
-	bool operator()(const termname &a, const termname &b) {
+	bool operator()(const om_termname &a, const om_termname &b) {
 	    if(matching_map.find(a) != matching_map.end() &&
 	       matching_map.find(b) != matching_map.end()) {
 		return matching_map[a] < matching_map[b];
@@ -462,8 +462,8 @@ print_caption(long int m)
     string language;
     string language_code = "x";
 
-    wt = (long int)mset[m].wt;
-    q0 = mset[m].did;
+    wt = static_cast<long int>(mset.items[m].wt);
+    q0 = mset.items[m].did;
     
     /* get hostname from longest N tag
      * and country from shortest (allowing for uk+) */
