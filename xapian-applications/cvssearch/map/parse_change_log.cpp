@@ -3,7 +3,7 @@
 #include "xml++.h"
 #include "cvs_db_file.h"
 
-static const string sfilename = "ChangeLog";
+static const string sfilename = "_ChangeLog.xml";
 static const string sentry    = "entry";
 static const string sfile     = "file";
 static const string smsg      = "msg";
@@ -16,7 +16,7 @@ static void parse_file (const CXmlNode & rNode, const CXmlNode & rMsgNode, unsig
 void parse_change_log (const string & module, const string & cvs2cl_path, cvs_db_file & rdb_file) 
 {
     
-    string command = cvs2cl_path + " --xml ";
+    string command = cvs2cl_path + " --xml -f " + sfilename;
     system(command.c_str());
     
     CXmlTree doc(sfilename);

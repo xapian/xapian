@@ -207,7 +207,7 @@ function h() {
 }
 
 function c(line, fileid, rev){
-    var link = "./Compare.cgi?root=$root&pkg=$pkg&fileid=" + fileid +"&short=1&version="+ rev; // + "#" + line;
+    var link = "./Compare.cgi?root=$root&pkg=$pkg&fileid=" + fileid +"&short=1&version="+ rev + "#" + line;
 
     if (parent.frames[2].location.href != link) {
        parent.frames[2].location.href=link;

@@ -255,15 +255,6 @@ sub cvsbuild {
                     $map_start_date = time;
                     Cvssearch::cvsupdatedb ($root, "-r", $app_name);
                     chdir ("$cvsdata/$root/src/$app_path");
-                    print ("$cvsmap -d $cvsroot".
-                            " -i $list_file".
-                            " -db $prefix_path.db".
-                            " -st $prefix_path.st".
-                            " -f1 $prefix_path.cmt".
-                            " -f2 $prefix_path.offset".
-                            " -m  $app_path".
-                            " -cl $cvs2cl\n");
-
                     system ("$cvsmap -d $cvsroot".
                             " -i $list_file".
                             " -db $prefix_path.db".
