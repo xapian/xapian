@@ -276,10 +276,16 @@ OmMSet::get_max_attained() const
     return internal->max_attained;
 }
 
-om_termcount
+om_doccount
 OmMSet::size() const
 {
     return internal->items.size();
+}
+
+om_doccount
+OmMSet::max_size() const
+{
+    return om_doccount(-1); // FIXME: is there a better way to do this?
 }
 
 bool
@@ -288,6 +294,12 @@ OmMSet::empty() const
     return internal->items.empty();
 }
 
+void
+OmMSet::swap(OmMSet & other)
+{
+    std::swap(internal, other.internal);
+}
+    
 OmMSetIterator
 OmMSet::begin() const
 {
@@ -304,7 +316,16 @@ OmMSet::end() const
 OmMSetIterator
 OmMSet::operator[](om_doccount i) const
 {
+    Assert(0 <= i && i < size());
     return OmMSetIterator(new OmMSetIterator::Internal(internal->items.begin() + i,
+						       internal->items.end()));
+}
+
+OmMSetIterator
+OmMSet::back() const
+{
+    Assert(!empty());
+    return OmMSetIterator(new OmMSetIterator::Internal(internal->items.begin() + internal->items.size() - 1,
 						       internal->items.end()));
 }
 

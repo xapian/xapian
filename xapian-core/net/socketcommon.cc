@@ -498,7 +498,7 @@ moptions_to_string(const OmSettings &moptions)
 {
     std::string result;
 
-    result += om_tostring(moptions.get_int("match_collapse_key", 0)) + " ";
+    result += om_tostring(moptions.get_int("match_collapse_key", -1)) + " ";
     result += om_tostring((int)moptions.get_bool("match_sort_forward", true)) + " ";
     result += om_tostring(moptions.get_int("match_percent_cutoff", 0)) + " ";
     result += om_tostring(moptions.get_int("match_max_or_terms", 0));

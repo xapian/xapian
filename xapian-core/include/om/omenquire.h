@@ -80,7 +80,7 @@ class OmMSetIterator {
 	//@{	
 	typedef std::input_iterator_tag iterator_category;
 	typedef om_docid value_type;
-	typedef om_doccount difference_type;
+	typedef om_doccount_diff difference_type;
 	typedef om_docid * pointer;
 	typedef om_docid & reference;
 	//@}
@@ -206,14 +206,35 @@ class OmMSet {
 
 	om_doccount size() const;
 
+	om_doccount max_size() const;
+
 	bool empty() const;
+
+	void swap(OmMSet & other);
 
 	OmMSetIterator begin() const;
 
 	OmMSetIterator end() const;
 
+	// FIXME: should this be an offset into the mset or into
+	// the range of the mset that was requested?
 	OmMSetIterator operator[](om_doccount i) const;
 
+	OmMSetIterator back() const;
+	
+	/// Allow use as an STL container
+	//@{	
+	typedef std::input_iterator_tag iterator_category;
+	typedef OmMSetIterator value_type; // FIXME: not assignable...
+	typedef OmMSetIterator iterator;
+	typedef OmMSetIterator const_iterator;
+	typedef OmMSetIterator & reference; // Hmm
+	typedef OmMSetIterator & const_reference;
+	typedef OmMSetIterator * pointer; // Hmm
+	typedef om_doccount_diff difference_type;
+	typedef om_doccount size_type;
+	//@}
+	
 	/** Returns a string representing the mset.
 	 *  Introspection method.
 	 */
@@ -260,7 +281,7 @@ class OmESetIterator {
 	//@{	
 	typedef std::input_iterator_tag iterator_category;
 	typedef om_termname value_type;
-	typedef om_termcount difference_type;
+	typedef om_termcount_diff difference_type;
 	typedef om_termname * pointer;
 	typedef om_termname & reference;
 	//@}

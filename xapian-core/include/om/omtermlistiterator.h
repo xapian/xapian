@@ -80,7 +80,7 @@ class OmTermListIterator {
 	//@{
 	typedef std::input_iterator_tag iterator_category;
 	typedef om_termname value_type;
-	typedef om_termcount difference_type;
+	typedef om_termcount_diff difference_type;
 	typedef om_termname * pointer;
 	typedef om_termname & reference;
 	//@}

@@ -34,14 +34,23 @@ typedef unsigned int om_docid;
 /** Type for counts of documents. */
 typedef om_docid     om_doccount;
 
+/** Type for signed difference between counts of documents. */
+typedef int	     om_doccount_diff;
+
 /** Type for counts of terms (eg, wdf, wqf). */
 typedef om_termid    om_termcount;
+
+/** Type for signed difference between counts of terms. */
+typedef int	     om_termcount_diff;
 
 /** Type for term positions within documents.
  *  These start at 1.  A value of 0 means that the positional information
  *  is not available for that term.
  */
 typedef unsigned int om_termpos;
+
+/** Type for signed difference between term positions. */
+typedef int	     om_termpos_diff;
 
 /** Type for (normalised) lengths of documents. */
 typedef double       om_doclength;
@@ -51,6 +60,12 @@ typedef double       om_totlength;
 
 /** Type for referring to key in document. */
 typedef unsigned int om_keyno;
+
+/** Type for referring to key in document. */
+typedef unsigned int om_keyno;
+
+/** Type for signed difference between keynos. */
+typedef int	     om_keyno_diff;
 
 /** A calculated weight, for a term or document. */
 typedef double       om_weight;

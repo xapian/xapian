@@ -1,3 +1,13 @@
+Wed Dec 13 17:27:17 GMT 2000 Olly Betts
+
+	* OmMSet is now an STL compatible container.
+
+	* Om*Iterator::difference_type was unsigned - now signed.
+	
+	* net/readquery.ll: fixed compiler warning.
+	
+	* Remote backend was defaulting to collapse on key 0.
+	
 Wed Dec 13 16:48:49 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Add handling of DatabaseModified to OmEnquire::get_mset()

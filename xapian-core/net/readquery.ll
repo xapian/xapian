@@ -46,8 +46,11 @@ OP_KET		%\)
 		    const char *q = strchr(p, ' ');
 		    Assert(q != NULL);
 		    qt.tname = decode_tname(std::string(p, q - p));
-
-		    qt.term_pos = strtol(q + 1, &p, 10);
+		    {		    
+			char *tmp; // avoid compiler warning
+			qt.term_pos = strtol(q + 1, &tmp, 10);
+			p = tmp;
+		    }
 		    if (*p == ',') {
 		        qt.wqf = atoi(p + 1);
 		    } else {
