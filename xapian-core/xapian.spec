@@ -41,6 +41,7 @@ Features of Xapian include:
 %package devel
 Group: Development/Libraries
 Summary: Files needed for building against xapian
+Prereq: xapian-core
 
 %description devel
 The xapian-devel package contains the files needed for building against xapian.
