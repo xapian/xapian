@@ -73,7 +73,7 @@ Why do we call it Quartz - where does the name come from?
 <p>Well, we had to call it something, and Quartz was
 simply the first name we came up with which we thought we could live with...
 
-<h2>Overview</h2>
+<h2>Tables</h2>
 
 A Quartz database consists of several tables, each of which stores a
 different type of information: for example, one table stores the user-defined
@@ -85,7 +85,9 @@ refer to these as <em>items</em> or <em>entries</em>.  Items may
 be accessed randomly by specifying a key and reading the item
 pointed to, or in sorted order by creating a cursor pointing to a
 particular item.  The sort order is a lexicographical ordering based
-on the contents of the keys.
+on the contents of the keys.  Only one instance of a key may exist in
+a single table - inserting a second item with the same key as an existing
+item will overwrite the existing item.
 <p>
 Positioning of cursors may be performed even when a
 full key isn't known, by attempting to access an item which doesn't
@@ -98,13 +100,10 @@ interface.  The former provides direct access to the table as stored
 on disk, and the latter provides access via a large buffer in order to
 use the memory as a write cache and greatly speed the process of
 indexing.
-<p>
-The tables are currently all (planned to be) implemented 
-In some situations, the use of a different
 
 <h2>The contents of the tables</h2>
 
-We shall worry about the implementation of the tables shortly, but first
+We shall worry about the implementation of the tables later, but first
 we shall look at what is stored within each table.
 <p>
 There are six tables comprising a quartz database.
@@ -120,8 +119,52 @@ There are six tables comprising a quartz database.
 
 <h2>Btree implementation</h2>
 
-Fairly standard implementation, but for the revision scheme.
-Describe how modifications are applied atomically.
+The tables are currently all planned to be implemented as B-trees.
+<p>
+(The code currently uses a temporary hack to implement tables by reading the
+contents of an unstructured file into memory, modifying it, and writing it all
+back again.  Martin is working on a B-tree manager, which is complete apart
+from some API issues and will be added into the CVS repository within the next
+couple of weeks.)
+<p>
+In some situations, the use of a different structure would be appropriate - in
+particular for the lexicon where key ordering is irrelevant, and a hashing
+scheme would likely provide more memory and time efficient access.  This
+will be investigated once the initial version is fully functional.
+<p>
+A B-tree is a fairly standard structure for storing this kind of data, so I
+will not describe it in detail - see a reference book on database design and
+algorithms for that.  The essential points are that it is a block-based
+multiply branching tree structure, storing keys in the internal blocks and
+key-tag pairs in the leaf blocks.
+<p>
+Our implementation is fairly standard, except for its revision scheme,
+which allows modifications to be applied atomically whilst other processes
+are reading the database.  This scheme involves copying each block in the
+tree which is involved in a modification, rather than modifying it in
+place, so that a complete new tree structure is built up whilst the old
+structure is unmodified (although this new structure will typically share a
+large number of blocks with the old structure).  The modifications can then
+be atomically applied by writing the new root block and making it active.
+<p>
+After a modification is applied successfully, the old version of the
+table is still fully intact, and can be accessed.  The old version only
+becomes invalid when a second modification is attempted (and it becomes
+invalid whether or not that second modification succeeds).
+<p>
+There is no need for a process which is writing the database to know
+whether any processes are reading previous versions of the database.  As long
+as only one update is performed before the reader closes (or reopens) the
+database, no problem will occur.  If more than one update occurs whilst
+the table is still open, the reader will notice that the database has been
+changed whilst it has been reading it by comparing a revision number stored
+at the start of each block with the revision number it was expecting.  An
+appropriate action can then be taken (for example, to reopen the database
+and repeat the operation).
+<p>
+An alternative approach would be to obtain a read-lock on the revision
+being accessed.  A write would then have to wait until no read-locks
+existed on the old revision before modifying the database.
 
 <h2>Buffered tables</h2>
 
@@ -130,7 +173,7 @@ immediately written to disk, there would be two problems.
 
 <ol>
 <li>
-The system would be very slow...  If a disk read and then a write was
+The system would be very slow.  If a disk read and then a write was
 required each time an item was changed, the indexing process would
 spend most of its time waiting for the disk's write head to seek to
 the appropriate block.  By buffering up a large set of changes, and
@@ -157,7 +200,10 @@ In fact, a QuartzBufferedTable object has to have two handles open on
 the table - one for reading and one for writing.  This is simply
 because the interface for writing a table is more limited than that
 for reading a table (in particular, cursor operations are not
-available).  The 
+available).
+<p>
+(Note: the current temporary implementation of quartz tables doesn't
+use two handles.  It doesn't implement Cursor operations yet either.)
 
 <h2>Applying changes to all the tables simultaneously</h2>
 
@@ -165,9 +211,8 @@ This is all wonderful: we have tables storing arbitrary bits of useful
 data, we can update bits of them as we like, and we can then call a
 method and have all the modifications applied to the table atomically.
 Unfortunately, we need more than that - we need to be able to apply
-modifications to multiple tables atomically, so that the tables are
-always accessed in a mutually consistent state.
-
+modifications as a single atomic transaction across multiple tables, so
+that the tables are always accessed in a mutually consistent state.
 <p>
 The revisioning scheme described earlier comes to the rescue!  By carefully
 making sure that we open all the tables at the same revision, and by ensuring
@@ -175,8 +220,22 @@ that at least one such consistent revision always exists, we can extend the
 scope of atomicity to cover all the tables.  In detail:
 
 <ul>
-<li></li>
+<li>
+When opening a database, we open each table in a specified order: lets call
+the tables <em>A</em>, <em>B</em>, <em>C</em>, <em>D</em>, <em>E</em>,
+<em>F</em>, and say we open them in alphabetical order.
+</li><li>
+When opening a database, after opening the first table, <em>A</em>, at the
+newest available revision, we read its revision number.  We then open all
+the other tables at the same revision number.
+</li><li>
+When writing changes to a database, we write the tables in reverse order.
+</li>
 </ul>
+
+This scheme guarantees that modifications are atomic across all the tables
+- essentially we have made the modification get committed only when the
+final table is committed.
 
 <h2>Items to be added to this document</h2>
 
@@ -185,6 +244,10 @@ scope of atomicity to cover all the tables.  In detail:
 Describe that postlists must be stored in sorted order, for boolean queries, so cannot store in reverse wdf order for efficiency.  A possible workaround is to
 store the postlists in two or more chunks, ordered by wdf, and to access them
 in this order.
+</li>
+<li>
+An better explanation of why there will always be a consistent set of table
+versions using the scheme described above.
 </li>
 <li>
 Describe thread locking system.
