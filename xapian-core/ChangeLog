@@ -1,3 +1,7 @@
+Sat Sep 18 19:02:54 BST 2004  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Updated missed use of omprogsrv to xapian-progsrv.
+
 Tue Sep 14 18:09:19 BST 2004  Olly Betts <olly@survex.com>
 
 	* xapian.spec.in,bin/.cvsignore,bin/Makefile.am,debian/control.in,
