@@ -128,18 +128,12 @@ MultiDatabase::term_exists(const termname &tname) const
     Assert(opened);
     Assert((used = true) == true);
 
-#ifdef MUS_DEBUG_VERBOSE
-    cout << "Looking up term `" << tname.c_str() << "': ";
-#endif
+    DebugMsg("MultiDatabase::term_exists(`" << tname.c_str() << "'): ");
     set<termname>::const_iterator p = terms.find(tname);
 
     bool found = false;
 
     if (p == terms.end()) {
-#ifdef MUS_DEBUG_VERBOSE
-	cout << "looking through sub-databases: ";
-#endif
-
 	vector<IRDatabase *>::const_iterator i = databases.begin();
 	while(i != databases.end()) {
 	    found = (*i)->term_exists(tname);
@@ -148,20 +142,14 @@ MultiDatabase::term_exists(const termname &tname) const
 	}
 
 	if(found) {
-#ifdef MUS_DEBUG_VERBOSE
-	    cout << "found -- adding to cache" << endl;
-#endif
+	    DebugMsg("found in sub-database" << endl);
 	    terms.insert(tname);
 	} else {
-#ifdef MUS_DEBUG_VERBOSE
-	    cout << "not in collection" << endl;
-#endif
+	    DebugMsg("not in collection" << endl);
 	}
     } else {
 	found = true;
-#ifdef MUS_DEBUG_VERBOSE
-	cout << "found" << endl;
-#endif
+	DebugMsg("found in cache" << endl);
     }
     return found;
 }

@@ -15,21 +15,17 @@ operator+(const ExpandBits &bits1, const ExpandBits &bits2)
 
     // FIXME - try to share this information rather than pick half of it
     if(bits2.dbsize > sum.dbsize) {
-#ifdef MUS_DEBUG_VERBOSE
-	cout << "ExpandBits::operator+ using second operand: " <<
-		bits2.termfreq << "/" << bits2.dbsize << " instead of " <<
-		bits1.termfreq << "/" << bits1.dbsize << endl;
-#endif /* MUS_DEBUG_VERBOSE */
+	DebugMsg("ExpandBits::operator+ using second operand: " <<
+		 bits2.termfreq << "/" << bits2.dbsize << " instead of " <<
+		 bits1.termfreq << "/" << bits1.dbsize << endl);
 	sum.termfreq = bits2.termfreq;
 	sum.dbsize = bits2.dbsize;
     }
-#ifdef MUS_DEBUG_VERBOSE
     else if(bits2.dbsize < sum.dbsize){
-	cout << "ExpandBits::operator+ using first operand: " << 
+	DebugMsg("ExpandBits::operator+ using first operand: " << 
 		bits1.termfreq << "/" << bits1.dbsize << " instead of " <<
-		bits2.termfreq << "/" << bits2.dbsize << endl;
+		bits2.termfreq << "/" << bits2.dbsize << endl);
     }
-#endif /* MUS_DEBUG_VERBOSE */
     return sum;
 }
 
@@ -40,28 +36,25 @@ ExpandWeight::get_weight(const ExpandBits &bits, const termname &tname) const
     if(bits.dbsize != dbsize) {
 	if(bits.dbsize > 0) {
 	    termfreq *= (double) dbsize / (double)bits.dbsize;
-#ifdef MUS_DEBUG_VERBOSE
-	    cout << "Approximating termfreq of `" << tname << "': " <<
-		    bits.termfreq << " * " << dbsize << " / " <<
-		    bits.dbsize << " = " << termfreq << endl;
-#endif /* MUS_DEBUG_VERBOSE */
+	    DebugMsg("Approximating termfreq of `" << tname << "': " <<
+		     bits.termfreq << " * " << dbsize << " / " <<
+		     bits.dbsize << " = " << termfreq << " (true value is:" <<
+		     root->get_termfreq(tname) << ")" << endl);
 	} else {
 	    termfreq = root->get_termfreq(tname);
-#ifdef MUS_DEBUG_VERBOSE
-	    cout << "Asking database for termfreq of `" << tname << "': " <<
-		    termfreq << endl;
-#endif /* MUS_DEBUG_VERBOSE */
+	    DebugMsg("Asking database for termfreq of `" << tname << "': " <<
+		     termfreq << endl);
 	}
     }
 
-#ifdef MUS_DEBUG_VERBOSE
-    cout << "ExpandWeight::get_weight("
-	    "N=" << dbsize << ", "
-	    "n=" << termfreq << ", "
-	    "R=" << rsize << ", "
-	    "r=" << bits.rtermfreq << ", "
-	    "mult=" << bits.multiplier << ")";
-#endif /* MUS_DEBUG_VERBOSE */
+#if 0
+    DebugMsg("ExpandWeight::get_weight("
+	     "N=" << dbsize << ", "
+	     "n=" << termfreq << ", "
+	     "R=" << rsize << ", "
+	     "r=" << bits.rtermfreq << ", "
+	     "mult=" << bits.multiplier << ")");
+#endif
 
     double rtermfreq = bits.rtermfreq;
     
@@ -81,10 +74,10 @@ ExpandWeight::get_weight(const ExpandBits &bits, const termname &tname) const
     }
     tw = log(tw);
 
-#ifdef MUS_DEBUG_VERBOSE
-    cout << " => Term weight = " << tw <<
-	    " Expand weight = " << bits.multiplier * tw << endl;
-#endif /* MUS_DEBUG_VERBOSE */
+#if 0
+    DebugMsg(" => Term weight = " << tw <<
+	     " Expand weight = " << bits.multiplier * tw << endl);
+#endif
 
     return(bits.multiplier * tw);
 }

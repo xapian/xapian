@@ -202,9 +202,7 @@ const DATerm *
 DADatabase::term_lookup(const termname &tname) const
 {
     Assert(opened);
-#ifdef MUS_DEBUG_VERBOSE
-    cout << "Looking up term `" << tname.c_str() << "': ";
-#endif
+    DebugMsg("DADatabase::term_lookup(`" << tname.c_str() << "'): ");
 
     map<termname, DATerm>::const_iterator p = termmap.find(tname);
 
@@ -222,22 +220,16 @@ DADatabase::term_lookup(const termname &tname) const
 	free(k);
 
 	if(found == 0) {
-#ifdef MUS_DEBUG_VERBOSE
-	    cout << "Not in collection" << endl;
-#endif
+	    DebugMsg("Not in collection" << endl);
 	} else {
-#ifdef MUS_DEBUG_VERBOSE
-	    cout << "found, adding to cache" << endl;
-#endif
+	    DebugMsg("found, adding to cache" << endl);
 	    pair<termname, DATerm> termpair(tname, DATerm(&ti, tname));
 	    termmap.insert(termpair);
 	    the_term = &(termmap.find(tname)->second);
 	}
     } else {
 	the_term = &((*p).second);
-#ifdef MUS_DEBUG_VERBOSE
-	cout << "found in cache" << endl;
-#endif
+	DebugMsg("found in cache" << endl);
     }
     return the_term;
 }

@@ -6,8 +6,6 @@ Near term (within a fortnight)
 
 Split database definition files into database/postlist/termlist files.
 
-Make all debugging printf / cout stuff occur iff MUS_DEBUG_VERBOSE is defined.
-
 Remove hardcoded reference to an indexer in InMemoryDatabase.  Index to it
 in the usual way.
 

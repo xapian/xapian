@@ -51,9 +51,7 @@ Expand::build_tree(const RSet *rset, const ExpandWeight *ewt)
     // speeds things up.
     while (true) {
 	TermList *p = pq.top();
-#ifdef MUS_DEBUG_VERBOSE
-	//cout << "Expand: adding termlist " << p << " to tree" << endl;
-#endif /* MUS_DEBUG_VERBOSE */
+	DebugMsg("Expand: adding termlist " << p << " to tree" << endl);
 	pq.pop();
 	if (pq.empty()) {
 	    return p;
@@ -81,15 +79,11 @@ Expand::expand(const RSet *rset, const ExpandDecider *decider)
     TermList *merger = build_tree(rset, &ewt);
     if(merger == NULL) return;
 
-#ifdef MUS_DEBUG_VERBOSE
-    cout << "ewt.get_maxweight() = " << ewt.get_maxweight() << endl;
-#endif /* MUS_DEBUG_VERBOSE */
+    DebugMsg("ewt.get_maxweight() = " << ewt.get_maxweight() << endl);
     while (1) {
 	TermList *ret = merger->next();
         if (ret) {
-#ifdef MUS_DEBUG_VERBOSE
-	    //cout << "*** REPLACING ROOT\n";
-#endif /* MUS_DEBUG_VERBOSE */
+	    DebugMsg("*** REPLACING ROOT" << endl);
 	    delete merger;
 	    merger = ret;
 	}
@@ -110,9 +104,7 @@ Expand::expand(const RSet *rset, const ExpandDecider *decider)
 		// nth_element and smaller size for better w_min optimisations
 		if (eset.size() == max_esize * 2) {
 		    // find last element we care about
-#ifdef MUS_DEBUG_VERBOSE
-		    cout << "finding nth\n";		
-#endif /* MUS_DEBUG_VERBOSE */
+		    DebugMsg("finding nth" << endl);
 		    nth_element(eset.begin(),
 				eset.begin() + max_esize,
 				eset.end(),
@@ -120,9 +112,7 @@ Expand::expand(const RSet *rset, const ExpandDecider *decider)
 		    // erase elements which don't make the grade
 		    eset.erase(eset.begin() + max_esize, eset.end());
 		    w_min = eset.back().wt;
-#ifdef MUS_DEBUG_VERBOSE
-		    cout << "eset size = " << eset.size() << endl;
-#endif /* MUS_DEBUG_VERBOSE */
+		    DebugMsg("eset size = " << eset.size() << endl);
 		}
 	    }
 	}
@@ -130,28 +120,20 @@ Expand::expand(const RSet *rset, const ExpandDecider *decider)
 
     if (eset.size() > max_esize) {
 	// find last element we care about
-#ifdef MUS_DEBUG_VERBOSE
-	cout << "finding nth\n";		
-#endif /* MUS_DEBUG_VERBOSE */
+	DebugMsg("finding nth" << endl);
 	nth_element(eset.begin(), eset.begin() + max_esize, eset.end(), ESetCmp());
 	// erase elements which don't make the grade
 	eset.erase(eset.begin() + max_esize, eset.end());
     }
-#ifdef MUS_DEBUG_VERBOSE
-    cout << "sorting\n";
-#endif /* MUS_DEBUG_VERBOSE */
+    DebugMsg("sorting" << endl);
 
     // Need a stable sort, but this is provided by comparison operator
     sort(eset.begin(), eset.end(), ESetCmp());
 
-#ifdef MUS_DEBUG_VERBOSE
-    cout << "esize = " << eset.size() << ", etotal = " << etotal << endl;
-#endif /* MUS_DEBUG_VERBOSE */
+    DebugMsg("esize = " << eset.size() << ", etotal = " << etotal << endl);
     if (eset.size()) {
-#ifdef MUS_DEBUG_VERBOSE
-	cout << "max weight in eset = " << eset.front().wt
-	     << ", min weight in eset = " << eset.back().wt << endl;
-#endif /* MUS_DEBUG_VERBOSE */
+	DebugMsg("max weight in eset = " << eset.front().wt
+		 << ", min weight in eset = " << eset.back().wt << endl);
     }
     delete merger;
 }

@@ -20,18 +20,14 @@ TradWeight::calc_termweight() const
     doccount dbsize = root->get_doccount();
     lenpart = k / root->get_avlength();
 
-#ifdef MUS_DEBUG_VERBOSE
-    cout << "Statistics: N=" << dbsize << " n_t=" << termfreq;
-#endif /* MUS_DEBUG_VERBOSE */
+    DebugMsg("Statistics: N=" << dbsize << " n_t=" << termfreq);
 
     weight tw = 0;
     doccount rsize;
     if(rset != NULL && (rsize = rset->get_rsize()) != 0) {
 	doccount rtermfreq = rset->get_reltermfreq(tname);
 
-#ifdef MUS_DEBUG_VERBOSE
-	cout << " R=" << rsize << " r_t=" << rtermfreq;
-#endif /* MUS_DEBUG_VERBOSE */
+	DebugMsg(" R=" << rsize << " r_t=" << rtermfreq);
 
 	tw = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /
 	     ((rsize - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
@@ -50,9 +46,7 @@ TradWeight::calc_termweight() const
     }
     tw = log(tw);
 
-#ifdef MUS_DEBUG_VERBOSE
-    cout << " => termweight = " << tw << endl;
-#endif /* MUS_DEBUG_VERBOSE */
+    DebugMsg(" => termweight = " << tw << endl);
     termweight = tw;
     weight_calculated = true;
 }

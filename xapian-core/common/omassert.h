@@ -49,5 +49,14 @@
 #define Assert(a)
 #endif
 
+#ifdef MUS_DEBUG_VERBOSE
+// Verbose debugging output
+
+// Don't bracket a, because it may have <<'s in it
+#define DebugMsg(a) cerr << a
+
+#else
+#define DebugMsg(a)
+#endif
 
 #endif /* _omassert_h_ */

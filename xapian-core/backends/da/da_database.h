@@ -146,9 +146,7 @@ inline bool DATermList::at_end() const
 {
     Assert(have_started);
     if(pos == terms.end()) {
-#ifdef MUS_DEBUG_VERBOSE
-	cout << "TERMLIST " << this << " ENDED " << endl;
-#endif
+	DebugMsg("TERMLIST " << this << " ENDED " << endl);
 	return true;
     }
     return false;
@@ -188,9 +186,7 @@ inline struct terminfo *
 DATerm::get_ti() const
 {
     if (!terminfo_initialised) {
-#ifdef MUS_DEBUG_VERBOSE
-	cout << "Getting terminfo" << endl;
-#endif
+	DebugMsg("Getting terminfo" << endl);
 	int len = name.length();
 	if(len > 255) abort();
 	byte * k = (byte *) malloc(len + 1);

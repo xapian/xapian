@@ -47,9 +47,7 @@ AndMaybePostList::next(weight w_min)
     if (w_min > lmax) {
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
-#ifdef MUS_DEBUG_VERBOSE
-	cout << "AND MAYBE -> AND\n";
-#endif /* MUS_DEBUG_VERBOSE */
+	DebugMsg("AND MAYBE -> AND" << endl);
 	ret = new AndPostList(l, r, root, true);
 	l = r = NULL;
 	PostList *ret2 = ret->skip_to(max(lhead, rhead) + 1, w_min);
@@ -68,9 +66,7 @@ AndMaybePostList::skip_to(docid id, weight w_min)
     if (w_min > lmax) {
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
-#ifdef MUS_DEBUG_VERBOSE
-	cout << "AND MAYBE -> AND (in skip_to)\n";
-#endif /* MUS_DEBUG_VERBOSE */
+	DebugMsg("AND MAYBE -> AND (in skip_to)" << endl);
 	ret = new AndPostList(l, r, root, true);
 	id = max(id, max(lhead, rhead));
 	l = r = NULL;

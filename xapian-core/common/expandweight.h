@@ -76,12 +76,12 @@ ExpandWeight::get_bits(termcount wdf,
 	// FIXME -- lots of repeated calculation here - have a weight for each
 	// termlist, so can cache results?
 	multiplier = (k + 1) * wdf / (k * len + wdf);
-#ifdef MUS_DEBUG_VERBOSE
-	cout << "Using (wdf, len) = (" << wdf << ", " << len <<
-		") => multiplier = " << multiplier << endl;
+#if 0
+	DebugMsg("Using (wdf, len) = (" << wdf << ", " << len <<
+		 ") => multiplier = " << multiplier << endl);
     } else {
-	cout << "No wdf information => multiplier = " << multiplier << endl;
-#endif /* MUS_DEBUG_VERBOSE */
+	DebugMsg("No wdf information => multiplier = " << multiplier << endl);
+#endif
     }
     return ExpandBits(multiplier, termfreq, dbsize);
 }

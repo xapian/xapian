@@ -154,13 +154,13 @@ InMemoryDatabase::term_exists(const termname &tname) const
 {
     Assert(opened);
 
-#ifdef MUS_DEBUG_VERBOSE
-    cout << "Looking up term `" << tname.c_str() << "'" << endl;
-#endif
+    DebugMsg("InMemoryDatabase::term_exists(`" << tname.c_str() << "'): ");
     map<termname, InMemoryTerm>::const_iterator p = postlists.find(tname);
 
     if (p == postlists.end()) {
+	DebugMsg("not found" << endl);
 	return false;
     }
+    DebugMsg("found" << endl);
     return true;
 }
