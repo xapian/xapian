@@ -483,6 +483,7 @@ static test tests[] = {
     { "subject:\"space flight\"", "(XTspace:(pos=1) PHRASE 2 XTflight:(pos=2))" },
     { "author:(twain OR poe) OR flight", "(Atwain:(pos=1) OR Apoe:(pos=2) OR flight:(pos=3))" },
     { "author:(twain OR title:pit OR poe)", "(Atwain:(pos=1) OR XTpit:(pos=2) OR Apoe:(pos=3))" },
+    { "beer NOT \"orange juice\"", "(beer:(pos=1) AND_NOT (orang:(pos=2) PHRASE 2 juic:(pos=3)))" },
     { NULL, NULL }
 };
 

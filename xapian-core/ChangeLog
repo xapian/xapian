@@ -1,3 +1,7 @@
+Thu May 06 00:32:17 BST 2004  Olly Betts <olly@survex.com>
+
+	* extra/queryparsertest.cc: Added test case for `term NOT "a phrase'.
+
 Thu May 06 00:28:32 BST 2004  Olly Betts <olly@survex.com>
 
 	* common/omdebug.cc,common/omdebug.h: Renamed OmTimer class used
