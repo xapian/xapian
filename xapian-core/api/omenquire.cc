@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -341,13 +341,6 @@ MSet::size() const
 {
     Assert(internal.get() != 0);
     return internal->items.size();
-}
-
-Xapian::doccount
-MSet::max_size() const
-{
-    Assert(internal.get() != 0);
-    return Xapian::doccount(-1); // FIXME: is there a better way to do this?
 }
 
 bool

@@ -4,7 +4,7 @@
 /* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,21 +51,19 @@ class MSet {
 	/// @internal Reference counted internals.
 	Xapian::Internal::RefCntPtr<Internal> internal;
 
-    public:
-	// FIXME: public for now, private would be better
-	/// @internal Constructor for internal use
+	/// @internal Constructor for internal use.
 	explicit MSet(MSet::Internal * internal_);
 
-	/// Create an empty Xapian::MSet
+	/// Create an empty Xapian::MSet.
 	MSet();
 
-	/// Destroy a Xapian::MSet
+	/// Destroy a Xapian::MSet.
 	~MSet();
 
 	/// Copying is allowed (and is cheap).
 	MSet(const MSet & other);
 
-        /// Assignment is allowed (and is cheap).
+	/// Assignment is allowed (and is cheap).
 	void operator=(const MSet &other);
 
 	/** Fetch the the document info for a set of items in the MSet.
@@ -107,7 +105,7 @@ class MSet {
 	 *  @param tname The term to look for.
 	 *
 	 *  @exception Xapian::InvalidArgumentError is thrown if the term was
-	 *             not in the query.
+	 *	       not in the query.
 	 */
 	Xapian::doccount get_termfreq(const std::string &tname) const;
 
@@ -188,9 +186,10 @@ class MSet {
 	Xapian::weight get_max_attained() const;
 
 	/** The number of items in this MSet */
-	Xapian::termcount size() const;
+	Xapian::doccount size() const;
 
-	Xapian::doccount max_size() const;
+	/** Required to allow use as an STL container. */
+	Xapian::doccount max_size() const { return size(); }
 
 	/** Test if this MSet is empty */
 	bool empty() const;
@@ -242,8 +241,8 @@ class MSet {
 class MSetIterator {
     private:
 	friend class MSet;
-        friend bool operator==(const MSetIterator &a, const MSetIterator &b);
-        friend bool operator!=(const MSetIterator &a, const MSetIterator &b);
+	friend bool operator==(const MSetIterator &a, const MSetIterator &b);
+	friend bool operator!=(const MSetIterator &a, const MSetIterator &b);
 
 	MSetIterator(Xapian::doccount index_, const MSet & mset_)
 	    : index(index_), mset(mset_) { }
@@ -255,9 +254,9 @@ class MSetIterator {
 	/** Create an uninitialised iterator; this cannot be used, but is
 	 *  convenient syntactically.
 	 */
-        MSetIterator() : index(0), mset() { }
+	MSetIterator() : index(0), mset() { }
 
-        ~MSetIterator() { }
+	~MSetIterator() { }
 
 	/// Copying is allowed (and is cheap).
 	MSetIterator(const MSetIterator &other) {
@@ -265,7 +264,7 @@ class MSetIterator {
 	    mset = other.mset;
 	}
 
-        /// Assignment is allowed (and is cheap).
+	/// Assignment is allowed (and is cheap).
 	void operator=(const MSetIterator &other) {
 	    index = other.index;
 	    mset = other.mset;
@@ -316,7 +315,7 @@ class MSetIterator {
 	 *  @return     A Xapian::Document object containing the document data.
 	 *
 	 *  @exception Xapian::DocNotFoundError The document specified could not
-	 *                                 be found in the database.
+	 *	       be found in the database.
 	 */
 	Xapian::Document get_document() const;
 
@@ -326,12 +325,12 @@ class MSetIterator {
 	 *  list of results of the query.  The document judged "most relevant"
 	 *  will have rank of 0.
 	 */
-        Xapian::doccount get_rank() const {
+	Xapian::doccount get_rank() const {
 	    return mset.get_firstitem() + index;
 	}
 
 	/// Get the weight of the document at the current position
-        Xapian::weight get_weight() const;
+	Xapian::weight get_weight() const;
 
 	/** Get an estimate of the number of documents that have been collapsed
 	 *  into this one.
@@ -404,7 +403,7 @@ class ESet {
 	/// Copying is allowed (and is cheap).
 	ESet(const ESet & other);
 
-        /// Assignment is allowed (and is cheap).
+	/// Assignment is allowed (and is cheap).
 	void operator=(const ESet &other);
 
 	/** A lower bound on the number of terms which are in the full
@@ -415,6 +414,9 @@ class ESet {
 
 	/** The number of terms in this E-Set */
 	Xapian::termcount size() const;
+
+	/** Required to allow use as an STL container. */
+	Xapian::termcount max_size() const { return size(); }
 
 	/** Test if this E-Set is empty */
 	bool empty() const;
@@ -445,8 +447,8 @@ class ESet {
 class ESetIterator {
     private:
 	friend class ESet;
-        friend bool operator==(const ESetIterator &a, const ESetIterator &b);
-        friend bool operator!=(const ESetIterator &a, const ESetIterator &b);
+	friend bool operator==(const ESetIterator &a, const ESetIterator &b);
+	friend bool operator!=(const ESetIterator &a, const ESetIterator &b);
 
 	ESetIterator(Xapian::termcount index_, const ESet & eset_)
 	    : index(index_), eset(eset_) { }
@@ -458,9 +460,9 @@ class ESetIterator {
 	/** Create an uninitialised iterator; this cannot be used, but is
 	 *  convenient syntactically.
 	 */
-        ESetIterator() : index(0), eset() { }
+	ESetIterator() : index(0), eset() { }
 
-        ~ESetIterator() { }
+	~ESetIterator() { }
 
 	/// Copying is allowed (and is cheap).
 	ESetIterator(const ESetIterator &other) {
@@ -468,7 +470,7 @@ class ESetIterator {
 	    eset = other.eset;
 	}
 
-        /// Assignment is allowed (and is cheap).
+	/// Assignment is allowed (and is cheap).
 	void operator=(const ESetIterator &other) {
 	    index = other.index;
 	    eset = other.eset;
@@ -504,7 +506,7 @@ class ESetIterator {
 	const std::string & operator *() const;
 
 	/// Get the weight of the term at the current position
-        Xapian::weight get_weight() const;
+	Xapian::weight get_weight() const;
 
 	/** Returns a string describing this object.
 	 *  Introspection method.
@@ -640,15 +642,15 @@ class Enquire {
 	 *  different database, or set of databases.
 	 *
 	 *  @param database Specification of the database or databases to
-	 *         use.
+	 *	   use.
 	 *  @param errorhandler_  A pointer to the error handler to use.
-	 *         Ownership of the object pointed to is not assumed by the
-	 *         Xapian::Enquire object - the user should delete the
-	 *         Xapian::ErrorHandler object after the Xapian::Enquire object is
-	 *         deleted.  To use no error handler, this parameter
-	 *         should be 0.
+	 *	   Ownership of the object pointed to is not assumed by the
+	 *	   Xapian::Enquire object - the user should delete the
+	 *	   Xapian::ErrorHandler object after the Xapian::Enquire object
+	 *	   is deleted.  To use no error handler, this parameter
+	 *	   should be 0.
 	 */
-        Enquire(const Database &databases, ErrorHandler * errorhandler_ = 0);
+	Enquire(const Database &databases, ErrorHandler * errorhandler_ = 0);
 
 	/** Close the Xapian::Enquire object.
 	 */
@@ -666,56 +668,67 @@ class Enquire {
 	 *  This is only valid after set_query() has been called.
 	 *
 	 *  @exception Xapian::InvalidArgumentError will be thrown if query has
-	 *             not yet been set.
+	 *	       not yet been set.
 	 */
 	const Xapian::Query & get_query();
 
 	/** Set the weighting scheme to use for queries.
 	 *
 	 *  @param weight_  the new weighting scheme.  If no weighting scheme
-	 *  		    is specified, the default is BM25 with the
-	 *  		    default parameters.
+	 *		    is specified, the default is BM25 with the
+	 *		    default parameters.
 	 */
 	void set_weighting_scheme(const Weight &weight_);
 
-        /** Set the collapse key to use for queries.
-         *
-         *  @param collapse_key  value number to collapse on - at most one mset
-	 *      entry with each particular value will be returned.
+	/** Set the collapse key to use for queries.
 	 *
-	 *      The entry returned will be the best entry with that particular
-	 *      value (highest weight or highest sorting key).
+	 *  @param collapse_key  value number to collapse on - at most one mset
+	 *	entry with each particular value will be returned.
 	 *
-	 *      An example use might be to create a value for each document
-	 *      containing an MD5 hash of the document contents.  Then
-	 *      duplicate documents from different sources can be eliminated at
-	 *      search time (it's better to eliminate duplicates at index time,
-	 *      but this may not be always be possible - for example the search
-	 *      may be over more than one Xapian database).
+	 *	The entry returned will be the best entry with that particular
+	 *	value (highest weight or highest sorting key).
 	 *
-	 *      Another use is to group matches in a particular category (e.g.
-	 *      you might collapse a mailing list search on the Subject: so
-	 *      that there's only one result per discussion thread).  In this
-	 *      case you can use get_collapse_count() to give the user some
-	 *      idea how many other results there are.  And if you index the
-	 *      Subject: as a boolean term as well as putting it in a value,
-	 *      you can offer a link to a non-collapsed search restricted to
-	 *      that thread using a boolean filter.
+	 *	An example use might be to create a value for each document
+	 *	containing an MD5 hash of the document contents.  Then
+	 *	duplicate documents from different sources can be eliminated at
+	 *	search time (it's better to eliminate duplicates at index time,
+	 *	but this may not be always be possible - for example the search
+	 *	may be over more than one Xapian database).
 	 *
-	 *      (default is Xapian::valueno(-1) which means no collapsing).
-         */
+	 *	Another use is to group matches in a particular category (e.g.
+	 *	you might collapse a mailing list search on the Subject: so
+	 *	that there's only one result per discussion thread).  In this
+	 *	case you can use get_collapse_count() to give the user some
+	 *	idea how many other results there are.  And if you index the
+	 *	Subject: as a boolean term as well as putting it in a value,
+	 *	you can offer a link to a non-collapsed search restricted to
+	 *	that thread using a boolean filter.
+	 *
+	 *	(default is Xapian::valueno(-1) which means no collapsing).
+	 */
 	void set_collapse_key(Xapian::valueno collapse_key);
 
-        /** Set the order in which to return result documents of equal weight.
-         *
-	 * @param sort_forward If true, documents with the same weight will
-	 *	be returned in ascending document order; if false, they will be
-	 *	returned in descending order. (default true)
-         */
+	/** Set the direction in which documents are ordered by document id
+	 *  in the returned MSet.
+	 *
+	 *  This order only has an effect on documents which would otherwise
+	 *  have equal rank.  For a weighted probabilistic match with no sort
+	 *  value, this means documents with equal weight.  For a boolean match,
+	 *  with no sort value, this means all documents.  And if a sort value
+	 *  is used, this means documents with equal sort value (and also equal
+	 *  weight if ordering on relevance after the sort).
+	 *
+	 * @param sort_forward If true, document ids are in ascending order;
+	 *	  if false, they are in descending order. (default true)
+	 *
+	 *  Note: If you add documents in strict date order, then a boolean
+	 *  search with set_sort_forward(false) is a very efficient way to
+	 *  perform "sort by date, newest first".
+	 */
 	void set_sort_forward(bool sort_forward);
 
-        /** Set the percentage and/or weight cutoffs.
-         *
+	/** Set the percentage and/or weight cutoffs.
+	 *
 	 * @param percent_cutoff Minimum percentage score for returned
 	 *	documents. If a document has a lower percentage score than this,
 	 *	it will not appear in the mset.  If your intention is to return
@@ -730,11 +743,11 @@ class Enquire {
 	 *	previous run of the same query; this is thus mainly useful for
 	 *	alerting operations.  The other potential use is with a user
 	 *	specified weighting scheme.
-         */
+	 */
 	void set_cutoff(Xapian::percent percent_cutoff, Xapian::weight weight_cutoff = 0);
 
-        /** Set the sorting key and number of sort bands.
-         *
+	/** Set the sorting key and number of sort bands.
+	 *
 	 * @param sort_key value number to reorder on.  Sorting is with a
 	 *	string compare.  Higher is better.  If match_sort_key is set,
 	 *	but match_sort_bands isn't, sort the whole mset my the key.
@@ -747,46 +760,46 @@ class Enquire {
 	 *	 no re-sorting).
 	 *
 	 * @param sort_by_relevance sort results with equal keys by relevance
-	 *       rather than docid.  (default is false).
+	 *	 rather than docid.  (default is false).
 	 */
 	void set_sorting(Xapian::valueno sort_key, int sort_bands,
 			 bool sort_by_relevance = false);
 
-        /** Set the bias functor parameters.
-         *
+	/** Set the bias functor parameters.
+	 *
 	 * NB this is a temporary API for this feature.
 	 *
 	 * @param bias_weight Maximum weight bias functor can add (and which is
 	 *	given to document with a time now or in the future).
 	 *
 	 * @param bias_halflife the match bias decays exponentially as you go
-	 * 	back in time.  This sets the half-life of this decay in seconds
-	 * 	(default 0 => no bias).
+	 *	back in time.  This sets the half-life of this decay in seconds
+	 *	(default 0 => no bias).
 	 */
 	void set_bias(Xapian::weight bias_weight, time_t bias_halflife);
 
 	/** Get (a portion of) the match set for the current query.
 	 *
 	 *  @param first     the first item in the result set to return.
-	 *                   A value of zero corresponds to the first item
-	 *                   returned being that with the highest score.
-	 *                   A value of 10 corresponds to the first 10 items
-	 *                   being ignored, and the returned items starting
-	 *                   at the eleventh.
+	 *		     A value of zero corresponds to the first item
+	 *		     returned being that with the highest score.
+	 *		     A value of 10 corresponds to the first 10 items
+	 *		     being ignored, and the returned items starting
+	 *		     at the eleventh.
 	 *  @param maxitems  the maximum number of items to return.
 	 *  @param checkatleast  the minimum number of items to check.  Because
-	 *                   the matcher optimises, it won't consider every
-	 *                   document which might match, so the total number
-	 *                   of matches is estimated.  Setting checkatleast
-	 *                   forces it to consider that many matches and so
-	 *                   allows for reliable paging links.
+	 *		     the matcher optimises, it won't consider every
+	 *		     document which might match, so the total number
+	 *		     of matches is estimated.  Setting checkatleast
+	 *		     forces it to consider that many matches and so
+	 *		     allows for reliable paging links.
 	 *  @param omrset    the relevance set to use when performing the query.
 	 *  @param mdecider  a decision functor to use to decide whether a
-	 *                   given document should be put in the MSet
+	 *		     given document should be put in the MSet
 	 *
 	 *
-	 *  @return          A Xapian::MSet object containing the results of the
-	 *                   query.
+	 *  @return	     A Xapian::MSet object containing the results of the
+	 *		     query.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 */
@@ -806,21 +819,21 @@ class Enquire {
 	 *
 	 *  @param maxitems  the maximum number of items to return.
 	 *  @param omrset    the relevance set to use when performing
-	 *                   the expand operation.
+	 *		     the expand operation.
 	 *  @param flags     zero or more of these values |-ed together:
-	 *                    - Xapian::Enquire::include_query_terms query
-	 *                      terms may be returned from expand
+	 *		      - Xapian::Enquire::include_query_terms query
+	 *			terms may be returned from expand
 	 *		      - Xapian::Enquire::use_exact_termfreq for multi
 	 *			dbs, calculate the exact termfreq; otherwise an
 	 *			approximation is used which can greatly improve
 	 *			efficiency, but still returns good results.
 	 *  @param k	     the parameter k in the query expansion algorithm
-	 *  		     (default is 1.0)
+	 *		     (default is 1.0)
 	 *  @param edecider  a decision functor to use to decide whether a
-	 *                   given term should be put in the ESet
+	 *		     given term should be put in the ESet
 	 *
-	 *  @return          An ESet object containing the results of the
-	 *                   expand.
+	 *  @return	     An ESet object containing the results of the
+	 *		     expand.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 */
@@ -834,12 +847,12 @@ class Enquire {
 	 *
 	 *  @param maxitems  the maximum number of items to return.
 	 *  @param omrset    the relevance set to use when performing
-	 *                   the expand operation.
+	 *		     the expand operation.
 	 *  @param edecider  a decision functor to use to decide whether a
-	 *                   given term should be put in the ESet
+	 *		     given term should be put in the ESet
 	 *
-	 *  @return          An ESet object containing the results of the
-	 *                   expand.
+	 *  @return	     An ESet object containing the results of the
+	 *		     expand.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 */
@@ -864,13 +877,13 @@ class Enquire {
 	 *  make this call.
 	 *
 	 *  @param did     The document id for which to retrieve the matching
-	 *                 terms.
+	 *		   terms.
 	 *
-	 *  @return        An iterator returning the terms which match the
-	 *                 document.  The terms will be returned (as far as this
-	 *                 makes any sense) in the same order as the terms
-	 *                 in the query.  Terms will not occur more than once,
-	 *                 even if they do in the query.
+	 *  @return	   An iterator returning the terms which match the
+	 *		   document.  The terms will be returned (as far as this
+	 *		   makes any sense) in the same order as the terms
+	 *		   in the query.  Terms will not occur more than once,
+	 *		   even if they do in the query.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 *  @exception Xapian::DocNotFoundError      The document specified
@@ -893,11 +906,11 @@ class Enquire {
 	 *
 	 *  @param it   The iterator for which to retrieve the matching terms.
 	 *
-	 *  @return        An iterator returning the terms which match the
-	 *                 document.  The terms will be returned (as far as this
-	 *                 makes any sense) in the same order as the terms
-	 *                 in the query.  Terms will not occur more than once,
-	 *                 even if they do in the query.
+	 *  @return	An iterator returning the terms which match the
+	 *		   document.  The terms will be returned (as far as this
+	 *		   makes any sense) in the same order as the terms
+	 *		   in the query.  Terms will not occur more than once,
+	 *		   even if they do in the query.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 *  @exception Xapian::DocNotFoundError      The document specified
@@ -910,9 +923,9 @@ class Enquire {
 
 	/** Register a MatchDecider.
 	 *
-	 * @param name  	The name to register this matchdecider as.
+	 * @param name		The name to register this matchdecider as.
 	 * @param mdecider	The matchdecider.  If omitted, then remove
-	 * 			any matchdecider registered with this name.
+	 *			any matchdecider registered with this name.
 	 */
 	void register_match_decider(const std::string &name,
 				    const MatchDecider *mdecider = NULL);
@@ -1056,7 +1069,7 @@ class BoolWeight : public Weight {
 /** BM25 weighting scheme
  *
  * BM25 weighting options : The BM25 formula is \f[
- *      \frac{k_{2}.n_{q}}{1+L_{d}}+\sum_{t}\frac{(k_{3}+1)q_{t}}{k_{3}+q_{t}}.\frac{(k_{1}+1)f_{t,d}}{k_{1}((1-b)+bL_{d})+f_{t,d}}.w_{t}
+ *	\frac{k_{2}.n_{q}}{1+L_{d}}+\sum_{t}\frac{(k_{3}+1)q_{t}}{k_{3}+q_{t}}.\frac{(k_{1}+1)f_{t,d}}{k_{1}((1-b)+bL_{d})+f_{t,d}}.w_{t}
  * \f] where
  *   - \f$w_{t}\f$ is the termweight of term t
  *   - \f$f_{t,d}\f$ is the within document frequency of term t in document d
@@ -1081,18 +1094,18 @@ class BM25Weight : public Weight {
 	/** Construct a BM25 weight.
 	 *
 	 * @param k1 governs the importance of within document frequency.
-	 * 		  Must be >= 0.  0 means ignore wdf.  Default is 1.
+	 *		  Must be >= 0.  0 means ignore wdf.  Default is 1.
 	 * @param k2 compensation factor for the high wdf values in
-	 * 		  large documents.  Must be >= 0.  0 means no
-	 * 		  compensation.  Default is 0.
+	 *		  large documents.  Must be >= 0.  0 means no
+	 *		  compensation.  Default is 0.
 	 * @param k3 governs the importance of within query frequency.
-	 * 	          Must be >= 0.  0 means ignore wqf.  Default is 1.
+	 *		  Must be >= 0.  0 means ignore wqf.  Default is 1.
 	 * @param b Relative importance of within document frequency and
-	 * 		  document length.  Must be >= 0 and <= 1.  Default
-	 * 		  is 0.5.
+	 *		  document length.  Must be >= 0 and <= 1.  Default
+	 *		  is 0.5.
 	 * @param min_normlen specifies a cutoff on the minimum value that
-	 * 		  can be used for a normalised document length -
-	 * 		  smaller values will be forced up to this cutoff.
+	 *		  can be used for a normalised document length -
+	 *		  smaller values will be forced up to this cutoff.
 	 *		  This prevents very small documents getting a huge
 	 *		  bonus weight.  Default is 0.5.
 	 */
@@ -1126,7 +1139,7 @@ class BM25Weight : public Weight {
 /** Traditional probabilistic weighting scheme (as used by Muscat 3.6)
  *
  * The Traditional weighting scheme formula is \f[
- *      \sum_{t}\frac{f_{t,d}}{k.L_{d}+f_{t,d}}.w_{t}
+ *	\sum_{t}\frac{f_{t,d}}{k.L_{d}+f_{t,d}}.w_{t}
  * \f] where
  *   - \f$w_{t}\f$ is the termweight of term t
  *   - \f$f_{t,d}\f$ is the within document frequency of term t in document d
@@ -1151,9 +1164,9 @@ class TradWeight : public Weight {
 	/** Construct a TradWeight
 	 *
 	 * @param k  parameter governing the importance of within
-         *           document frequency and document length - any non-negative
-         *           number (0 meaning to ignore wdf and doc length when
-	 *           calculating weights).  Default is 1.
+	 *	     document frequency and document length - any non-negative
+	 *	     number (0 meaning to ignore wdf and doc length when
+	 *	     calculating weights).  Default is 1.
 	 */
 	explicit TradWeight(double k) : param_k(k), weight_calculated(false) {
 	    if (param_k < 0) param_k = 0;
