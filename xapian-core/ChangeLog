@@ -1,3 +1,11 @@
+Thu Mar 27 05:17:05 GMT 2003  Olly Betts <olly@survex.com>
+
+	* api/omstem.cc,include/om/omstem.h: Added default OmStem ctor,
+	  and "none" language.  Both of these give a stemmer object which
+	  leaves terms unchanged which should allow for simpler logic
+	  in programs using Xapian.  The default ctor also removes the
+	  need to mess with pointers in some cases.
+
 Thu Mar 27 04:52:27 GMT 2003  Olly Betts <olly@survex.com>
 
 	* NEWS: Started to prepare for next release.

@@ -55,7 +55,8 @@ using std::string;
  *  and language_strings[] also.
  */
 enum stemmer_language {
-    STEMLANG_NULL,
+    STEMLANG_INVALID,
+    STEMLANG_NONE,
     STEMLANG_DANISH,
     STEMLANG_DUTCH,
     STEMLANG_ENGLISH,
@@ -93,6 +94,7 @@ struct stemmer_obj {
  */
 struct stemmer_obj stemmers[] = {
 	{ 0, 0, 0 },
+	{ 0, 0, 0 },
 	E(danish),
 	E(dutch),
 	E(english),
@@ -116,6 +118,7 @@ struct stemmer_obj stemmers[] = {
  */
 static const char * language_names[] = {
     "",
+    "none",
     "danish",
     "dutch",
     "english",
@@ -157,6 +160,7 @@ static const StringAndValue language_strings[] = {
     {"lovins",		STEMLANG_LOVINS},
     {"nl",		STEMLANG_DUTCH},
     {"no",		STEMLANG_NORWEGIAN},
+    {"none",		STEMLANG_NONE},
     {"norwegian",	STEMLANG_NORWEGIAN},
     {"porter",		STEMLANG_PORTER},
     {"portuguese",	STEMLANG_PORTUGUESE},
@@ -166,7 +170,7 @@ static const StringAndValue language_strings[] = {
     {"spanish",		STEMLANG_SPANISH},
     {"sv",		STEMLANG_SWEDISH},
     {"swedish",		STEMLANG_SWEDISH},
-    {"",		STEMLANG_NULL}
+    {"",		STEMLANG_INVALID}
 };
 
 
@@ -219,7 +223,7 @@ OmStem::Internal::Internal(const string &language)
 	: stemmer_data(0)
 {
     stemmer_language langcode_ = get_stemtype(language);
-    if (langcode_ == STEMLANG_NULL) {
+    if (langcode_ == STEMLANG_INVALID) {
         // FIXME: use a separate InvalidLanguage exception?
         throw OmInvalidArgumentError("Unknown language `" +
 				     language + "' specified");
@@ -230,7 +234,7 @@ OmStem::Internal::Internal(const string &language)
 OmStem::Internal::Internal(enum stemmer_language langcode_)
 	: stemmer_data(0)
 {
-    Assert(langcode_ != STEMLANG_NULL);
+    Assert(langcode_ != STEMLANG_INVALID);
     set_language(langcode_);
 }
 
@@ -249,7 +253,7 @@ OmStem::Internal::set_language(stemmer_language langcode_)
 	stemmers[langcode].closedown(stemmer_data);
     }
     langcode = langcode_;
-    stemmer_data = stemmers[langcode].setup();
+    stemmer_data = stemmers[langcode].setup ? stemmers[langcode].setup() : 0;
 }
 
 stemmer_language
@@ -262,9 +266,8 @@ OmStem::Internal::get_stemtype(const string &language)
 string
 OmStem::Internal::stem_word(const string &word) const
 {
-    int len = word.length();
-    if (len == 0) return "";
-    SN_set_current(stemmer_data, len,
+    if (!stemmer_data || word.empty()) return word;
+    SN_set_current(stemmer_data, word.length(),
 		   (const unsigned char *)(word.data()));
     // FIXME should we look at the return value of the stem function?
     stemmers[langcode].stem(stemmer_data);
@@ -276,10 +279,14 @@ OmStem::Internal::stem_word(const string &word) const
 ///////////////////////
 
 OmStem::OmStem(const string &language)
-	: internal(0)
+	: internal(new OmStem::Internal(language))
 {
     DEBUGAPICALL(void, "OmStem::OmStem", language);
-    internal = new OmStem::Internal(language);
+}
+
+OmStem::OmStem() : internal(new OmStem::Internal(STEMLANG_NONE))
+{
+    DEBUGAPICALL(void, "OmStem::OmStem", language);
 }
 
 OmStem::~OmStem()
