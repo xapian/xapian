@@ -339,6 +339,7 @@ AC_OUTPUT(
  tests/Makefile
  docs/Makefile
  m4/Makefile
+ autoconf/Makefile
  net/Makefile
  netprogs/Makefile
  libomus-config.nodep
