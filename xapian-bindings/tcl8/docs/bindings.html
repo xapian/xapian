@@ -53,7 +53,7 @@ in the bindings, so generally it should just work as expected.
 </table>
 
 <p>
-   Other methods, such as <code>MSetIterator::get_document()</code>, are
+   Other methods, such as <code>MSetIterator::get_document</code>, are
    available under the same names.
 </p>
    
@@ -66,10 +66,10 @@ in the bindings, so generally it should just work as expected.
 
 <table title='MSet additional methods'>
 <thead><td>Method name</td><td>Explanation</td></thead>
-<tr><td><code>get_hit(index)</code></td><td>returns MSetIterator at index</td></tr>
-<tr><td><code>get_document_percentage(index)</code></td><td><code>convert_to_percent(get_hit(index))</code></td></tr>
-<tr><td><code>get_document(index)</code></td><td><code>get_hit(index).get_document()</code></td></tr>
-<tr><td><code>get_document_id(index)</code></td><td><code>get_hit(index).get_docid()</code></td></tr>
+<tr><td><code>mset get_hit index</code></td><td>returns MSetIterator at index</td></tr>
+<tr><td><code>mset get_document_percentage index</code></td><td><code>mset convert_to_percent [mset get_hit index]</code></td></tr>
+<tr><td><code>mset get_document index</code></td><td><code>[mset get_hit index] get_document</code></td></tr>
+<tr><td><code>mset get_document_id index</code></td><td><code>[mset get_hit index] get_docid</code></td></tr>
 </table>
 
 <h2>Xapian::Auto</h2>
@@ -84,9 +84,9 @@ in the bindings, so generally it should just work as expected.
 <h2>Xapian::Quartz::open, Xapian::InMemory::open, and Xapian::Remote::open</h2>
 
 <ul>
-<li> <code>Xapian::Quartz::open()</code> is wrapped as <code>xapian::quartz_open()</code>
-<li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian::inmemory_open()</code>
-<li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian::remote_open()</code> (only
+<li> <code>Xapian::Quartz::open()</code> is wrapped as <code>xapian::quartz_open</code>
+<li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian::inmemory_open</code>
+<li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian::remote_open</code> (only
 the TCP version is currently wrapped, the "program" version isn't).
 </ul>
 
