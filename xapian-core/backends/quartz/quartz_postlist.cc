@@ -1017,7 +1017,7 @@ QuartzPostListTable::merge_changes(
 	    string tag;
 	    (void)get_exact_entry(current_key, tag);
 
-	    // Rewrite start of first chunk to update termfreq and collfreq.
+	    // Read start of first chunk to get termfreq and collfreq.
 	    const char *pos = tag.data();
 	    const char *end = pos + tag.size();
 	    Xapian::termcount termfreq, collfreq;
@@ -1038,7 +1038,8 @@ QuartzPostListTable::merge_changes(
 
 	    termfreq += deltas->second.first;
 	    if (termfreq == 0) {
-		// All postings deleted!
+		// All postings deleted!  So we can shortcut by zapping the
+		// posting list.
 		AutoPtr<Bcursor> cursor(cursor_get());
 
 		if (!cursor->find_entry(current_key)) {
@@ -1058,6 +1059,7 @@ QuartzPostListTable::merge_changes(
 	    }
 	    collfreq += deltas->second.second;
 
+	    // Rewrite start of first chunk to update termfreq and collfreq.
 	    string newhdr = make_start_of_first_chunk(termfreq, collfreq, firstdid);
 	    newhdr += make_start_of_chunk(islast, firstdid, lastdid);
 	    if (pos == end) {

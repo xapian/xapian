@@ -1,3 +1,7 @@
+Fri Oct 29 22:37:31 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc: Improved comments.
+
 Fri Oct 29 05:10:02 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Fixed ultra-obscure bug in the code which
