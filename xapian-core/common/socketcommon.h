@@ -26,6 +26,7 @@
 #include "config.h"
 #include <string>
 #include <map>
+#include <sys/time.h>
 #include "omlinebuf.h"
 #include "om/omsettings.h"
 #include "omenquireinternal.h"
@@ -61,10 +62,13 @@ class OmSocketLineBuf : public OmLineBuf {
 	void operator=(const OmSocketLineBuf &other);
 
 	/** Read one line from readfd
-	 *  @param msecs_timeout	The timeout in milliseconds before
-	 *  				throwing an exception.
+	 *  @param end_time	The time in secons at which the read will
+	 *  			fail with a timeout error.
+	 *  @param end_time_usecs
+	 *  			The microsecond portion of the timeout time
 	 */
-	std::string do_readline(int msecs_timeout);
+	std::string do_readline(time_t end_time,
+				unsigned int end_time_usecs);
 
 	/** Write one line to writefd
 	 */

@@ -340,13 +340,12 @@ OmSocketLineBuf::OmSocketLineBuf(int fd_, const std::string & errcontext_)
 }
 
 std::string
-OmSocketLineBuf::do_readline(int msecs_timeout)
+OmSocketLineBuf::do_readline(time_t end_time,
+			     unsigned int end_time_usecs)
 {
-    DEBUGCALL(UNKNOWN, std::string, "OmSocketLineBuf::do_readline", msecs_timeout);
+    DEBUGCALL(UNKNOWN, std::string, "OmSocketLineBuf::do_readline",
+	      end_time << ", " << end_time_usecs);
     std::string::size_type pos;
-
-    time_t end_time = time(NULL) + msecs_timeout / 1000;    
-    int end_time_usecs = (msecs_timeout % 1000) * 1000;
 
     while (1) {
 	time_t curr_time = time(NULL);

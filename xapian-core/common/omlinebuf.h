@@ -41,10 +41,13 @@ class OmLineBuf {
 	void operator=(const OmLineBuf &other);
 
 	/** Read one line
-	 *
-	 * @param msecs_timeout	The timeout after which the read should throw.
+	 *  @param end_time	The time in secons at which the read will
+	 *  			fail with a timeout error.
+	 *  @param end_time_usecs
+	 *  			The microsecond portion of the timeout time
 	 */
-	virtual std::string do_readline(int msecs_timeout) = 0;
+	virtual std::string do_readline(time_t end_time,
+					unsigned int end_time_usecs) = 0;
 
 	/** Write one line to writefd
 	 */
@@ -59,9 +62,13 @@ class OmLineBuf {
 	virtual ~OmLineBuf() {};
 
 	/** Read one line
-	 * @param msecs_timeout	The timeout after which the read should throw.
+	 *  @param end_time	The time in secons at which the read will
+	 *  			fail with a timeout error.
+	 *  @param end_time_usecs
+	 *  			The microsecond portion of the timeout time
 	 */
-	std::string readline(int msecs_timeout);
+	std::string readline(time_t end_time,
+			     unsigned int end_time_usecs);
 
 	/** Return true if there is data available to be read
 	 *  immediately.

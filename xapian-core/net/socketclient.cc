@@ -47,7 +47,8 @@ SocketClient::SocketClient(int socketfd_,
 	  remote_stats_valid(false),
 	  global_stats_valid(false),
 	  context(context_),
-	  msecs_timeout(msecs_timeout_)
+	  msecs_timeout(msecs_timeout_),
+	  end_time_set(false)
 {
     // ignore SIGPIPE - we check return values instead, and that
     // way we can easily throw an exception.
@@ -74,6 +75,22 @@ SocketClient::SocketClient(int socketfd_,
     }
 }
 
+void
+SocketClient::init_end_time()
+{
+    /* FIXME: use something with a higher resolution than time() */
+    end_time = time(NULL) + msecs_timeout / 1000;    
+    end_time_usecs = (msecs_timeout % 1000) * 1000;
+
+    end_time_set = true;
+}
+
+void
+SocketClient::close_end_time()
+{
+    end_time_set = false;
+}
+
 NetClient::TermListItem
 string_to_tlistitem(const std::string &s)
 {
@@ -92,11 +109,15 @@ SocketClient::get_tlist(om_docid did,
 			std::vector<NetClient::TermListItem> &items) {
     do_write(std::string("T") + om_tostring(did));
 
+    init_end_time();
+
     while (1) {
 	std::string message = do_read();
 	if (message == "Z") break;
 	items.push_back(string_to_tlistitem(message));
     }
+
+    close_end_time();
 }
 
 void
@@ -149,7 +170,14 @@ SocketClient::get_avlength()
 std::string
 SocketClient::do_read()
 {
-    std::string retval = buf.readline(msecs_timeout);
+    std::string retval;
+    if (end_time_set) {
+	retval = buf.readline(end_time, end_time_usecs);
+    } else {
+	init_end_time();
+	retval = buf.readline(end_time, end_time_usecs);
+	close_end_time();
+    }
 
     DEBUGLINE(UNKNOWN, "do_read(): " << retval);
 
@@ -281,6 +309,7 @@ SocketClient::send_global_stats(const Stats &stats)
 {
     Assert(conv_state >= state_sendglobal);
     if (conv_state == state_sendglobal) {
+	init_end_time();
 	global_stats = stats;
 	global_stats_valid = true;
 	conv_state = state_getmset;
@@ -332,6 +361,9 @@ SocketClient::get_mset(om_doccount first,
     global_stats_valid = false;
     moptions = OmSettings();
     omrset = OmRSet();
+
+    // disable the timeout, now that the mset has been retrieved.
+    close_end_time();
 
     return true;
 }

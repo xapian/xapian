@@ -1,3 +1,11 @@
+Mon Feb  5 17:46:16 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Modified the behaviour of timeouts during a match.  Internally,
+	  an absolute timeout time is set from start_match().  Now remote
+	  nodes should timeout at NOW + remote_timeout, rather than
+	  waiting remote_timeout milliseconds for each read().  Needs
+	  some more testing.
+
 Mon Feb  5 17:21:52 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix a missing #include in socketcommon.h

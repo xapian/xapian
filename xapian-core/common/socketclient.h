@@ -128,6 +128,20 @@ class SocketClient : public NetClient {
 	/// in milliseconds
 	int msecs_timeout;
 
+	/// The time at which the current operation will (eg a full
+	/// match) will time out.
+	time_t end_time;
+	int end_time_usecs;
+
+	/// Whether the timeout is valid
+	bool end_time_set;
+
+	/// Initialise end_time{,_usecs} to current time + msecs_timeout
+	void init_end_time();
+
+	/// Clear end_time{,_usecs}
+	void close_end_time();
+
     public:
 	/** Destructor. */
 	virtual ~SocketClient();

@@ -96,7 +96,7 @@ class SocketServer : public NetServer {
 
 	/// Read a line of input from the buffer, and process
 	/// any special messages (eg 'X')
-	std::string readline(int msecs_timeout = 0);
+	std::string readline(int msecs_delay = 0);
 
     public:
 	/** Default constructor.

@@ -398,7 +398,10 @@ SocketServer::run_match(const std::string &firstmessage)
 std::string
 SocketServer::readline(int msecs_timeout)
 {
-    std::string result = buf->readline(msecs_timeout);
+    time_t secs = time(NULL) + (msecs_timeout / 1000);
+    unsigned int usecs = (msecs_timeout % 1000) * 1000;
+    std::string result = buf->readline(secs,
+				       usecs);
     // intercept 'X' messages.
     if (result.length() > 0 && result[0] == 'X') {
 	throw SocketServerFinished();
