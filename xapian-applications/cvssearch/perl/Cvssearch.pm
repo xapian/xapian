@@ -470,6 +470,40 @@ sub getSpectrum{
 	return @colors;
 }
 
+### This function will be passed to the standard
+### perl sort function for sort the cvs versions.
+### ie. 1.10 is later than l.9
+sub cmp_cvs_version
+  {
+      my $first = $_[0];
+      my $second = $_[1];
+      
+      my @first = split(/\./, $first);
+      my @second = split(/\./, $second);
+      
+      my $size = $#first;
+      $size = $#second if ($#first > $#second); 
+      
+      for (my $i=0; $i<=$size; $i++) {
+          if ($first[$i]>$second[$i]) {
+              return 1;
+          } elsif ($first[$i]<$second[$i]) {
+              return -1;
+          } else {
+            next;
+        }
+    }
+    
+    if ($#first > $#second) {
+        return 1;
+    } elsif ($#first < $#second) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+
 return 1;
     
     

@@ -17,7 +17,7 @@ use Entities;
 #-----------------
 $source = "./Source.cgi";
 $cvsquery = "./cvsquerydb";
-
+$passparam = "";
 #---------------------------------------------
 # global mappigns defind in the script
 #---------------------------------------------
@@ -44,11 +44,14 @@ open (OUTPUT, "<./popup.js");
 print <OUTPUT>;
 close (OUTPUT);
 
-# ----------------------------------------
-# print javascript for calling popups in
-# shorthand notation
-# ----------------------------------------
-print <<_SCRIPT_;
+
+sub print_javascript {
+  my ($root, $pkg, $fileid) = @_;
+  # ----------------------------------------
+  # print javascript for calling popups in
+  # shorthand notation
+  # ----------------------------------------
+  print <<_SCRIPT_;
 <script language="JavaScript">
 function l(targetObjectId, event) {
     locking(targetObjectId, event);
@@ -59,14 +62,29 @@ function s(targetObjectId, event) {
     return !showPopup(targetObjectId, event);
 }
 
-
 function h() {
     hideCurrentPopup();
     return false;
 }
+
+function c(line, rev){
+    var link = "./Compare.cgi?root=$root&pkg=$pkg&fileid=$fileid&version="+ rev + "#" + line;
+    if (parent.frames[2].location.href != link) {
+       parent.frames[2].location.href=link;
+    }
+    return false;
+}
+
+function o(line) {
+    var link = "$source$passparam#"+line;
+    if (parent.frames[2].location.href != link) {
+        parent.frames[2].location.href = link;
+    }
+    return false;
+}   
 </script>
 _SCRIPT_
-
+}
 
 
 #----------------------------------------
@@ -83,7 +101,7 @@ if(param()){
 	
 	$found = Cvssearch::findfile($dump,$id);
 	if (!$found){
-		&error("Page expired");
+      &error("Page expired");
 	}
     
     
@@ -108,6 +126,7 @@ if(param()){
 	#-------------------------------
     
 	($root, $db, $fileid) = split / /, $id;
+    print_javascript($root, $db, $fileid);
 	$querystr = "$cvsquery $root $db";
     
 	@revs = split /\s/, $revs;
@@ -138,7 +157,7 @@ if(param()){
 		$i++;
 	}
     @revs = keys %revMAPmatch;
-    @revs = sort {cmp_cvs_version($a, $b)} @revs;
+    @revs = sort {Cvssearch::cmp_cvs_version($a, $b)} @revs;
     if (@revs){
     	@colors = Cvssearch::getSpectrum($#revs+1);
     }
@@ -240,18 +259,18 @@ if(param()){
 					if($toprev eq $_){
 						$currev = $_;
 						$color = $revMAPcolor{$currev};
-                        $ch = &toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
-
+                        $ch = toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
                         if ($color) {
                             $ch1 = &toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
                             $ch1 =~ tr/\./-/;
                             print "<span class=$ch1>";
                         } 
                         print "<a href=# ";
-                        print "onclick=\"return l('$ch',event);\" onmouseover=s('$ch',event); onmouseout=h();>";
 						if($revMAPmatch{$currev}){
+                          print "onclick=\"return c($i, $currev);\" onmouseover=s('$ch',event); onmouseout=h();>";
 							print "C";
 						}elsif($currev eq "grep"){
+                          print "onclick=\"return l('$ch', event);\" onmouseover=s('$ch',event); onmouseout=h();>";
 							print "G";
 						}
 						print "</a>";
@@ -280,7 +299,7 @@ if(param()){
             if (length($line) == 0) {
                 $space = " ";
             }
-			print "<td bgcolor=$color><pre><a href=\"$source$passparam#$i\" target=s>$line$space</a></td></tr>\n";
+			print "<td bgcolor=$color><pre><a href=# onclick=\"return o($i);\">$line$space</a></td></tr>\n";
 		}
 		if ($lineMAPinfo{$i+1} > $lineMAPinfo{$i}) {
             print "<tr><td colspan=3><div style=\"height:5px;\"> </div></td></tr>\n";
@@ -351,35 +370,3 @@ sub error{
 	exit(0);
 }
 
-### This function will be passed to the standard
-### perl sort function for sort the cvs versions.
-### ie. 1.10 is later than l.9
-sub cmp_cvs_version
-  {
-      my $first = $_[0];
-      my $second = $_[1];
-      
-      my @first = split(/\./, $first);
-      my @second = split(/\./, $second);
-      
-      my $size = $#first;
-      $size = $#second if ($#first > $#second); 
-      
-      for (my $i=0; $i<=$size; $i++) {
-          if ($first[$i]>$second[$i]) {
-              return 1;
-          } elsif ($first[$i]<$second[$i]) {
-              return -1;
-          } else {
-            next;
-        }
-    }
-    
-    if ($#first > $#second) {
-        return 1;
-    } elsif ($#first < $#second) {
-        return -1;
-    } else {
-        return 0;
-    }
-}

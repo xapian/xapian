@@ -41,8 +41,10 @@ if(param()){
 	$displayname = param("displayname");
 	$displayname = Cvssearch::decode($displayname);
 
+	$id = Cvssearch::decode($id);
+	my ($root, $db, $fileid) = split / /, $id;
 print <<_HTML_;
-<b>$displayname</b>
+<a href="./Compare.cgi?root=$root&pkg=$db&fileid=$fileid" target=s><b>$displayname</b></a>
 _HTML_
 }
 print "</body></html>";

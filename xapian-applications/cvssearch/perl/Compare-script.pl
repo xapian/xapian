@@ -41,7 +41,7 @@ if (0) {
 } elsif (param("version") eq "") {
     compare_file_index(param("root"), param("pkg"), param("fileid"));
 } else {
-    compare_file_version(param("root"), param("pkg"), param("fileid"), param("version"));
+    compare_file_version(param("root"), param("pkg"), param("fileid"), param("version"), param("latest"));
 }
 
 # ------------------------------------------------------------
@@ -357,6 +357,7 @@ sub compare_file_index {
         
         print "<hr noshade>\n";
         print "Default branch: MAIN\n";
+        print_compare_form($root, $pkg, $fileid, $versions[$#versions], $versions[0]);
         my $i;
         for ($i = 0; $i < $#versions; $i++) {
             print "<hr size=1 noshade>\n";
@@ -378,6 +379,7 @@ sub compare_file_index {
         print "<pre>$comments[$i]</pre>\n";
 
         print "<hr noshade>\n";
+        print_compare_form($root, $pkg, $fileid, $versions[$#versions], $versions[0]);
     } else {
         print "There are no commits for the file <b>$filename</b>, no diff result is available.\n";
     }
@@ -385,31 +387,61 @@ sub compare_file_index {
 }
 
 sub compare_file_version {
-    my ($root, $pkg, $fileid, $version) = @_;
+    my ($root, $pkg, $fileid, $version, $latest_version) = @_;
     $pkg=~tr/\//\_/;
     my $cvsroot = Cvssearch::read_cvsroot_dir($root, $cvsdata);
     if ($fileid eq "" || 
         $pkg eq "" ||
         $root eq "" ||
-        $cvsdata eq "") {
+        $cvsdata eq "" ||
+        $version eq "") {
         print start_html;
         print "The specified parameters are not valid\n"; 
         print end_html;
     }
-    open (FILE, "$cvsquery $root $pkg -f $fileid |");
-    chdir ("$cvsdata/$root/src");
+    my $file ="";
+    open (FILE, "$cvsquery $root $pkg -f $fileid -v $fileid|");
     while (<FILE>) {
         chomp;
-        my $file = $_;
-        open (OUTPUT, "$cvsmap -d $cvsroot -db $cvsdata/$root/db/$pkg.db/$pkg.db -html $fileid $version $file |");
-        while (<OUTPUT>) {
-            print $_;
-        }
-        close(OUTPUT);
+        $file = $_;
         last;
     }
-    chdir ($pwd);
+
+    if ($latest_version eq "") {
+      while (<FILE>) {
+        chomp;
+        if (0) {
+        } elsif (/$ctrlA/) {
+        } else {
+          $latest_version = $_;
+        }
+      }
+    }
     close(FILE);
+
+    if (Cvssearch::cmp_cvs_version($latest_version,$version) < 0) {
+       print start_html;
+       print "the specified latest version $latest_version is older than the version $version\n";
+       print end_html;
+       return;
+    }
+
+    print "<html>\n";
+    print "<head>\n";
+    print_title("aligned diff output for $file:version $version");
+    print_style_sheet();
+    print "</head>\n";
+    print "<body>\n";
+    chdir ("$cvsdata/$root/src");
+    open (OUTPUT, "$cvsmap -d $cvsroot -db $cvsdata/$root/db/$pkg.db/$pkg.db -html $fileid $version -r $latest_version $file |");
+    while (<OUTPUT>) {
+      print $_;
+    }
+    close(OUTPUT);
+    chdir ($pwd);
+    print_compare_form($root, $pkg, $fileid, $version, $latest_version);
+    print "</body>\n";
+    print "</html>\n";
 }
 
 sub usage {
@@ -418,6 +450,21 @@ Compare.cgi 1.0 (2001-3-15)
 Usage URL: http://www.example.com/cgi-bin/Compare.cgi
 EOF
 exit 0;
+}
+
+sub print_compare_form {
+    my ($root, $pkg, $fileid, $version, $latest_version) = @_;
+    print "<form action=./Compare.cgi>\n";
+    print "<input type=hidden name=root value=$root>\n";
+    print "<input type=hidden name=pkg value=$pkg>\n";
+    print "<input type=hidden name=fileid value=$fileid>\n";
+    print "This form allows you to see the differences occurred during commit ";
+    print "<input type=text size=5 name=version value=\"$version\">,<br>\n";
+    print "and the propagation of the affected lines to version ";
+    print "<input type=text size=5 name=latest  value=\"$latest_version\">\n";
+    print "<input type=submit value=\"Compare\"><br>\n";
+    print "<font size=-1>(latest version will be used if this field is empty).</font><br>\n";
+    print "</form>\n";
 }
 
 sub  print_title {
@@ -429,9 +476,14 @@ sub print_style_sheet {
     print "<style type=\"text/css\">\n";
     print "body  {background-color:#EEEEEE;}\n";
     print "table {background-color:#FFFFFF;}\n";
+#    print "td    {white-space:pre; overflow:hidden;font-family:'sans serif',courier;}\n";
     print "td    {white-space:pre; overflow:hidden;}\n";
     print ".e {background-color:#ffffff;}\n";
+    print ".a {background-color:#CCCCFF;}\n";
     print ".o {background-color:#ccccee;}\n";
+    print ".c {background-color:#99FF99;}\n";
     print ".s {background-color:#3366CC; color:#FFFFFF;}\n";
+    print ".d {background-color:#FF9999;}\n";
+    print ".n {background-color:#EEEEEE;}\n";
     print "</style>\n";
 }

@@ -502,7 +502,7 @@ if($query && ($query ne "")){
 		#print filename and link
 		$encodedid = &Cvssearch::encode($curid);
 		$encodename = &Cvssearch::encode($displayfile);
-		print "<p><a href=$queryfile?id=$encodedid&dump=$storefile&displayname=$encodename>$displayfile</a>";
+		print "<p><a href=$queryfile?id=$encodedid&dump=$storefile&displayname=$encodename>$displayfile</a>\n";
 		print "<font size=-1>";
 		print " matches $totalcount lines: ";
 		print "<b>";
@@ -560,7 +560,7 @@ if($query && ($query ne "")){
 #			}
 #		}
 		#print "</pre>";
-		print "</font>";
+		print "</font>\n";
 	}
 	print "</font>";
 	close STORE;
