@@ -1,3 +1,9 @@
+Tue Sep 10 13:51:20 BST 2002  Olly Betts <olly@survex.com>
+
+	* quartz_table.cc: don't form tag when we just want to check if a
+	  key is present before calling Btree::del().  Working out why
+	  we can't call Btree::del() would still be worthwhile though.
+
 Tue Sep 10 13:02:04 BST 2002  Olly Betts <olly@survex.com>
 
 	* quartztest.cc: removed unused #include-s; describe valid options
