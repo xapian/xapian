@@ -348,6 +348,7 @@ QuartzDiskTable::cursor_get() const
 bool
 QuartzDiskTable::set_entry(const QuartzDbKey & key, const QuartzDbTag * tag)
 {
+    Assert(key.value.size() != 0);
     Assert(opened);
     if(readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
 
@@ -415,7 +416,10 @@ QuartzBufferedTable::apply(quartz_revision_number_t new_revision)
     bool result;
     try {
 	std::map<QuartzDbKey, QuartzDbTag *>::const_iterator entry;
-	for (entry = changed_entries.get_all_entries().begin();
+	entry = changed_entries.get_all_entries().begin();
+	Assert(entry != changed_entries.get_all_entries().end());
+	// Don't apply the null entry.
+	for (entry++;
 	     entry != changed_entries.get_all_entries().end();
 	     entry++) {
 	    result = disktable->set_entry(entry->first, entry->second);

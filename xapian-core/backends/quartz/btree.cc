@@ -489,24 +489,24 @@ static int block_given_by(byte * p, int c)
 */
 
 static void Btree_alter(struct Btree * B, struct Cursor * C)
-{   int j = 0;
+{
+    int j = 0;
     byte * p = C[j].p;
-    while(true)
-    {   if (C[j].rewrite) return; /* all new, so return */
-        C[j].rewrite = true;
+    while(true) {
+	if (C[j].rewrite) return; /* all new, so return */
+	C[j].rewrite = true;
 
-        {   int4 n = C[j].n;
-            if (block_free_at_start(B, n)) return;
-            free_block(B, n);
-            n = next_free_block(B);
-            C[j].n = n;
-            SET_REVISION(p, B->next_revision);
+	int4 n = C[j].n;
+	if (block_free_at_start(B, n)) return;
+	free_block(B, n);
+	n = next_free_block(B);
+	C[j].n = n;
+	SET_REVISION(p, B->next_revision);
 
-            if (j == B->level) return;
-            j++;
-            p = C[j].p;
-            set_block_given_by(p, C[j].c, n);
-        }
+	if (j == B->level) return;
+	j++;
+	p = C[j].p;
+	set_block_given_by(p, C[j].c, n);
     }
 }
 
@@ -1444,9 +1444,14 @@ static void read_root(struct Btree * B, struct Cursor * C)
 {
     if (B->faked_root_block) {
 	/* root block for an unmodified database. */
-
         int o = B->block_size - C2;
         byte * p = C[0].p;
+
+	/* clear block - shouldn't be neccessary, but is a bit nicer,
+	 * and means that the same operations should always produce
+	 * the same database. */
+	memset(p, 0, B->block_size);
+	
         SETC(p, o, 1); o -= C2;        /* number of components in tag */
         SETC(p, o, 1); o -= K1;        /* component one in key */
         SETK(p, o, K1 + C2); o -= I2;  /* null key length */
@@ -1457,6 +1462,7 @@ static void read_root(struct Btree * B, struct Cursor * C)
         o -= (DIR_START + D2);
         SET_MAX_FREE(p, o);
         SET_TOTAL_FREE(p, o);
+	SET_LEVEL(p, 0);
 
         if (B->bit_map0 == 0) {
 	    /* reading - revision number doesn't matter as long as it's 

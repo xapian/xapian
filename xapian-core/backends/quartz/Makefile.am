@@ -47,3 +47,7 @@ quartztest_LDADD = libquartz.la \
                    ../../testsuite/libtest.la \
 		   ../../libomus.la
 
+run-quartztest:
+	@rm -f run-quartztest
+	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-quartztest
+

@@ -150,7 +150,8 @@ static bool test_disktable1()
     {
 	QuartzDiskTable table0("./test_dbtable1_", true, 0);
 	TEST_EXCEPTION(OmOpeningError, table0.open());
-	TEST_EXCEPTION(OmOpeningError, table0.open(10));
+	//TEST_EXCEPTION(OmOpeningError, table0.open(10));
+	TEST(!table0.open(10));
     }
     QuartzDiskTable table2("./test_dbtable1_", false, 8192);
     table2.open();
@@ -218,9 +219,11 @@ static bool test_disktable1()
 
     // Check adding an entry with a null key
     key.value = "";
-    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entry(key, &tag));
 #ifdef MUS_DEBUG
+    TEST_EXCEPTION(OmAssertionError, table1.set_entry(key, &tag));
     TEST_EXCEPTION(OmAssertionError, table2.set_entry(key, &tag));
+#else
+    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entry(key, &tag));
 #endif
 
     // Check changing an entry, to a null tag
