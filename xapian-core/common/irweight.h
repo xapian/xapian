@@ -10,8 +10,7 @@
 class IRDatabase;
 class RSet;
 
-// FIXME - make IRWeight abstract, and have different weighting schemes
-// as subclasses
+// Abstract base class for weighting schemes
 class IRWeight {
     protected:
 	const IRDatabase *root;
@@ -20,26 +19,23 @@ class IRWeight {
 	const RSet * rset;
 
 	bool initialised;
-
 	mutable bool weight_calculated;
-	mutable weight termweight;
-	mutable doclength lenpart;
+
+	virtual void calc_termweight() const;
     public:
 	IRWeight() : initialised(false), weight_calculated(false) { return; }
-	virtual ~IRWeight() { }
-	void set_stats(const IRDatabase *, doccount, termname, const RSet *);
-	virtual void calc_termweight() const;
-	virtual weight get_weight(doccount wdf, doclength len) const;
-	weight get_maxweight() const;
+	virtual ~IRWeight() = 0;
+	virtual void set_stats(const IRDatabase *,
+			       doccount,
+			       termname,
+			       const RSet *);
+	virtual weight get_weight(doccount wdf, doclength len) const = 0;
+	virtual weight get_maxweight() const = 0;
 };
 
-class BM25Weight : public IRWeight {
-    public:
-	virtual ~BM25Weight() { }
-	void calc_termweight() const;
-	weight get_weight(doccount wdf, doclength len) const;
-};
-
+///////////////////////////////
+// Inline method definitions //
+///////////////////////////////
 
 inline void
 IRWeight::set_stats(const IRDatabase *root_new,
