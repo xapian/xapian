@@ -22,36 +22,33 @@
 
 #include "config.h"
 
-// Needed for macros to specify file modes
-#include <sys/stat.h>
+#include "quartz_db_table.h"
 
-#include "quartz_db_manager.h"
-
-#include "utils.h"
-#include <om/omerror.h>
-#include <string>
-
-QuartzDbManager::QuartzDbManager(const OmSettings & settings,
-				 bool use_transactions,
-				 bool readonly)
-{
-    string db_dir  = settings.get("quartz_dir");
-    string tmp_dir = settings.get("quartz_tmpdir", db_dir);
-    string env_dir = settings.get("quartz_envdir", db_dir);
-
-
-    // set cache size parameters, etc, here.
-
-    // open environment here
-    calc_mode();
-}
-
-QuartzDbManager::~QuartzDbManager()
+QuartzDbTable::QuartzDbTable(bool readonly)
 {
 }
 
-int
-QuartzDbManager::calc_mode()
+QuartzDbTable::~QuartzDbTable()
 {
-    return S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 }
+
+quartz_revision_number_t
+QuartzDbTable::get_revision_number()
+{
+}
+
+bool
+QuartzDbTable::read_entry(QuartzDbKey &key, QuartzDbTag & tag)
+{
+}
+
+bool
+QuartzDbTable::read_entry_exact(const QuartzDbKey &key, QuartzDbTag & tag)
+{
+}
+
+bool
+QuartzDbTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries)
+{
+}
+

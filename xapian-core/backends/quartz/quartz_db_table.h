@@ -25,6 +25,7 @@
 
 #include "config.h"
 #include "quartz_types.h"
+#include <string>
 #include <map>
 
 /** A tag in a quartz table.
@@ -92,6 +93,11 @@ class QuartzDbTable {
 	 *  should remain in step, and can be used to ensure that a user is
 	 *  accessing a consistent view of the database.
 	 *
+	 *  The absolute value of a revision number should be considered
+	 *  immaterial - all that matters is the difference between revision
+	 *  numbers.  Hence, the only operation which should be applied to
+	 *  revision numbers is comparision of differences.
+	 *
 	 *  @return the current revision number.
 	 */
 	quartz_revision_number_t get_revision_number();
@@ -133,15 +139,20 @@ class QuartzDbTable {
 
 	/** Modify the entries in the table.
 	 *
-	 *  The key / tag pairs in entries
+	 *  Each key / tag pair is added to the database.
 	 *
-	 *  If an entry is specified with a null tag (ie, 0 length), then
-	 *  the entry will be removed from the database.  Otherwise, the
-	 *  key/tag pair will be added to the 
+	 *  If the key already exists in the database, the existing tag
+	 *  is replaced by the supplied one.
+	 *
+	 *  If an entry is specified with a null pointer for the tag, then
+	 *  the entry will be removed from the database.
 	 *
 	 *  @param entries   The key / tag pairs to store in the table.
+	 *
+	 *  @return true if the operation completed successfully, false
+	 *          otherwise.
 	 */
-	set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries);
+	bool set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries);
 };
 
 #endif /* OM_HGUARD_QUARTZ_DB_TABLE_H */
