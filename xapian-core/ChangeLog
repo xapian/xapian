@@ -1,3 +1,7 @@
+Mon Jun  5 14:51:56 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* SleepyPostLists now use the document length when calculating weights.
+
 Mon Jun  5 14:36:28 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix internaltest to cope with changed SleepyListItem parameters.

@@ -77,7 +77,7 @@ SleepyPostList::get_weight() const
 	wdf = 1;
     }
 
-    return ir_wt->get_sumpart(wdf, 1.0);
+    return ir_wt->get_sumpart(wdf, get_doclength());
 }
 
 SleepyPositionList &
