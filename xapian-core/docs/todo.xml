@@ -345,7 +345,7 @@ it in cgi-bin directory).
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Sam/James" area="Bindings" release="">
 
-Language bindings: Java, Guile?, tcl? (C would be good too).
+Language bindings: Guile?, tcl? (C would be good too).
 All can be done using SWIG, and it's probably easier to do so
 even though some languages may have better tools
 available just because it's less overall work.  We have contributed XS
