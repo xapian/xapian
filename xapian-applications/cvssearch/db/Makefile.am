@@ -8,7 +8,7 @@ libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C
  cvs_revision_less.h \
  cvs_diff_db.C cvs_diff_db.h
 
-bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsminesearch \
+bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsminesearch cvsfileindex cvsfilesearch \
 	# cvssearch cvsusagesearch cvscomments \
 	# cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
 
@@ -27,6 +27,10 @@ cvsminesearch_SOURCES = util.h util.C cvsminesearch.C
 cvsminesearch_LDFLAGS = -static
 cvsminesearch_LDADD = -ldb_cxx -lomsee
 
+cvsfilesearch_SOURCES = util.h util.C cvsfilesearch.C
+cvsfilesearch_LDFLAGS = -static
+cvsfilesearch_LDADD = -ldb_cxx -lomsee
+
 #cvsusagesearch_SOURCES = util.h util.C cvsusagesearch.C
 #cvsusagesearch_LDFLAGS = -static 
 #cvsusagesearch_LDADD = -lomsee
@@ -44,6 +48,10 @@ cvsminesearch_LDADD = -ldb_cxx -lomsee
 cvsmineindex_SOURCES = util.h util.C cvsmineindex.C
 cvsmineindex_LDADD = -ldb_cxx -lomsee
 cvsmineindex_LDFLAGS = -static
+
+cvsfileindex_SOURCES = util.h util.C cvsfileindex.C
+cvsfileindex_LDADD = -ldb_cxx -lomsee
+cvsfileindex_LDFLAGS = -static
 
 #cvscomments_SOURCES = cvscomments.C
 #cvscomments_LDADD = -ldb_cxx -lomsee
