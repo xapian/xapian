@@ -96,18 +96,29 @@ inline bool operator!=(const OmMSetIterator &a,
  *  This class represents (a portion of) the results of a query.
  */
 class OmMSet {
-    friend class OmExpand;
+    friend class OmEnquire;
     private:
 	class Internal;
 
-    public: // FIXME: public for now, private would be better
-	Internal *internal; // reference counted internals
-
+    public:
+	// FIXME: public for now, private would be better
 	OmMSet(OmMSet::Internal * internal_);
 
+	// FIXME: public for now, private would be better
+	/// reference counted internals
+	Internal *internal;
+
+	/// Create an empty OmMSet
 	OmMSet();
 
+	/// Destroy an OmMSet
 	~OmMSet();
+
+	/// Copying is allowed (and is cheap).
+	OmMSet(const OmMSet & other);
+
+        /// Assignment is allowed (and is cheap).
+	void operator=(const OmMSet &other);
 
 	/** This converts the weight supplied to a percentage score.
 	 *  The return value will be in the range 0 to 100, and will be 0 if

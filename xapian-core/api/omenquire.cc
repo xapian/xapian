@@ -189,6 +189,17 @@ OmMSet::~OmMSet()
     delete internal;
 }
 
+OmMSet::OmMSet(const OmMSet & other)
+	: internal(new Internal(*other.internal))
+{
+}
+
+void
+OmMSet::operator=(const OmMSet &other)
+{
+    *internal = *other.internal;
+}
+
 int
 OmMSet::convert_to_percent(om_weight wt) const
 {

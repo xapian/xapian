@@ -1,3 +1,11 @@
+Wed Dec 13 01:58:38 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add copy and assignment operators to OmMSet so that the internals
+	  get copied (rather than just the pointer to them).  Really want a
+	  small internals class, holding a refcount to the real internals, or
+	  else to use refcntptrs for the members of OmMSet::Internal which are
+	  potentially large (eg, items)
+
 Wed Dec 13 01:05:44 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add Asserts to api/omdatabaseinternal.cc to ensure that there is at
