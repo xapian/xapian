@@ -36,7 +36,11 @@ class RemoteSubMatch : public SubMatch {
 
 	const NetworkDatabase *db;
 
-	PendingMSetPostList *postlist; // FIXME remove this crap
+#ifdef USE_MSETPOSTLIST // FIXME: ought to be able to select
+	MSetPostList *postlist; // FIXME used in get_term_info() - do this better
+#else
+	RemotePostList *postlist; // FIXME used in get_term_info() - do this better
+#endif
 
 	/// RSet to be used (affects weightings)
 	AutoPtr<RSet> rset;
@@ -81,8 +85,12 @@ class RemoteSubMatch : public SubMatch {
 
 	const std::map<om_termname, OmMSet::TermFreqAndWeight> get_term_info() const {
 	    Assert(postlist);
+#ifdef USE_MSETPOSTLIST // FIXME: ought to be able to select
 	    postlist->make_pl();
 	    return postlist->pl->mset.get_all_terminfo();
+#else
+	    return postlist->get_terminfo();
+#endif
 	}
 };   
 

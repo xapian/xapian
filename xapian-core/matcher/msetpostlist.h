@@ -27,7 +27,7 @@
 #include "net_database.h"
 #include "omenquireinternal.h"
 
-/// A postlist comprising postlists from different databases mseted together.
+/// A postlist taking postings from an already formed mset
 class MSetPostList : public PostList {
     friend class RemoteSubMatch;
     private:
@@ -108,7 +108,7 @@ MSetPostList::get_maxweight() const
     if (current == -1) return mset.max_possible;    
     if (mset.items.empty()) return 0;
     // mset.max_attained is bigger than this if firstitem != 0
-    return mset.items[0].wt;
+    return mset.items[current].wt;
 }
 
 inline om_weight
@@ -209,5 +209,147 @@ class PendingMSetPostList : public PostList {
 		: db(db_), pl(NULL), maxitems(maxitems_) { }
         ~PendingMSetPostList();
 };
+
+/// A postlist streamed across a network connection
+class RemotePostList : public PostList {
+    friend class RemoteSubMatch;
+    private:
+	const NetworkDatabase *db;
+	om_docid did;
+	om_weight w;
+	OmKey key;
+	
+	om_doccount termfreq;
+	om_weight maxw;
+
+	std::map<om_termname, OmMSet::TermFreqAndWeight> term_info;
+
+    public:
+	om_doccount get_termfreq() const;
+
+	om_docid  get_docid() const;
+	om_weight get_weight() const;
+	const OmKey * get_collapse_key() const;
+
+	om_weight get_maxweight() const;
+
+        om_weight recalc_maxweight();
+
+	PostList *next(om_weight w_min);
+	PostList *skip_to(om_docid did, om_weight w_min);
+	bool   at_end() const;
+
+	std::string get_description() const;
+
+	/** Return the document length of the document the current term
+	 *  comes from.
+	 */
+	virtual om_doclength get_doclength() const;
+
+	virtual PositionList * get_position_list();
+
+	const std::map<om_termname, OmMSet::TermFreqAndWeight> get_terminfo() const {
+	    return term_info;
+	}
+
+        RemotePostList(const NetworkDatabase *db_, om_doccount maxitems_);
+        ~RemotePostList();
+};
+
+inline RemotePostList::RemotePostList(const NetworkDatabase *db_, om_doccount maxitems)
+    : db(db_), did(0)
+{
+    DEBUGCALL(MATCH, void, "RemotePostList::RemotePostList", db_ << ", " << maxitems);
+    db->link->open_postlist(0, maxitems, termfreq, maxw, term_info);
+}
+
+inline RemotePostList::~RemotePostList()
+{
+    DEBUGCALL(MATCH, void, "RemotePostList::~RemotePostList", "");
+}
+
+inline PostList *
+RemotePostList::next(om_weight w_min)
+{
+    DEBUGCALL(MATCH, PostList *, "RemotePostList::next", w_min);
+    db->link->next(w_min, did, w, key);
+    RETURN(NULL);
+}
+
+inline PostList *
+RemotePostList::skip_to(om_docid new_did, om_weight w_min)
+{
+    DEBUGCALL(MATCH, PostList *, "RemotePostList::skip_to", new_did << ", " << w_min);
+    if (new_did > did) db->link->skip_to(new_did, w_min, did, w, key);
+    RETURN(NULL);
+}
+
+inline om_doccount
+RemotePostList::get_termfreq() const
+{
+    return termfreq;
+}
+
+inline om_docid
+RemotePostList::get_docid() const
+{
+    DEBUGCALL(MATCH, om_docid, "RemotePostList::get_docid", "");
+    Assert(did != 0);    
+    RETURN(did);
+}
+
+inline om_weight
+RemotePostList::get_weight() const
+{
+    Assert(did != 0);
+    return w;
+}
+
+inline const OmKey *
+RemotePostList::get_collapse_key() const
+{
+    Assert(did != 0);
+    return &key;
+}
+
+inline om_weight
+RemotePostList::get_maxweight() const
+{
+    // FIXME: should decrease as postlist progresses
+    return maxw;
+}
+
+inline om_weight
+RemotePostList::recalc_maxweight()
+{
+    // FIXME: send over network
+    return get_maxweight();
+}
+
+inline bool
+RemotePostList::at_end() const
+{
+    return (did == 0);
+}
+
+inline std::string
+RemotePostList::get_description() const
+{
+    return "( Remote )";
+}
+
+inline om_doclength
+RemotePostList::get_doclength() const
+{
+    Assert(did != 0);
+    return 1; // FIXME: this info is unused with present weights
+//    return db->get_doclength(mset.items[current].did);
+}
+
+inline PositionList *
+RemotePostList::get_position_list()
+{
+    throw OmUnimplementedError("RemotePostList::get_position_list() unimplemented");
+}
 
 #endif /* OM_HGUARD_MSETPOSTLIST_H */

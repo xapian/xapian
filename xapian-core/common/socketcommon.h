@@ -24,8 +24,10 @@
 #define OM_HGUARD_SOCKETCOMMON_H
 
 #include <string>
+#include <map>
 #include "omlinebuf.h"
 #include "om/omsettings.h"
+#include "om/omenquire.h"
 
 #define OM_SOCKET_PROTOCOL_VERSION 3
 
@@ -141,6 +143,20 @@ std::string ommset_to_string(const OmMSet &ommset);
  *  @param s		The serialised object as a string.
  */
 OmMSet string_to_ommset(const std::string &s);
+
+/** Convert a terminfo map into a string representation.
+ *
+ *  @param terminfo		The terminfo map to serialise.
+ */
+std::string ommset_termfreqwts_to_string(const std::map<om_termname,
+					 OmMSet::TermFreqAndWeight> &terminfo);
+
+/** Convert a serialised terminfo string back into a map.
+ *
+ *  @param s		The seralised map as a string.
+ */
+std::map<om_termname, OmMSet::TermFreqAndWeight>
+string_to_ommset_termfreqwts(const std::string &s);
 
 /** Convert an OmKey object into a string representation.
  *

@@ -1,3 +1,16 @@
+Wed Oct 18 15:38:39 BST 2000 Olly Betts
+
+	* New RemotePostList which streams postings across a network
+	  connection.  Show give faster remote matches when the bandwidth
+	  is good.
+
+	* MSetPostList::get_max_weight() now returns the weight of the current
+	  item once it starts being read - weights decrease down the mset, so
+	  all no weight can be greater than the current one.
+
+	* Reverted Richard's max_possible_item change as after discussion
+	  we've decided it doesn't actyually work correctly.
+ 
 Wed Oct 18 14:17:21 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added a debug class for indexer messages

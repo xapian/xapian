@@ -157,6 +157,38 @@ MultiMatch::prepare_matchers()
     } while (!prepared);
 }
 
+PostList *
+MultiMatch::get_postlist(om_doccount first, om_doccount maxitems,
+			 std::map<om_termname, OmMSet::TermFreqAndWeight> & termfreqandwts,
+			 OmErrorHandler * errorhandler)
+{
+    Assert(!leaves.empty());
+
+    {
+	std::vector<RefCntPtr<SubMatch> >::iterator leaf;
+	for (leaf = leaves.begin(); leaf != leaves.end(); leaf++) {
+	    (*leaf)->start_match(first + maxitems);
+	}
+    }
+
+    PostList *pl;
+    if (leaves.size() == 1) {
+	// Only one mset to get - so get it
+	pl = leaves.front()->get_postlist(first + maxitems, this);
+    } else {
+	std::vector<PostList *> v;
+	std::vector<RefCntPtr<SubMatch> >::iterator i;
+	for (i = leaves.begin(); i != leaves.end(); i++) {
+	    v.push_back((*i)->get_postlist(first + maxitems, this));
+	}
+	pl = new MergePostList(v, errorhandler);
+    }
+
+    termfreqandwts = leaves.front()->get_term_info();
+    
+    return pl;
+}
+
 void
 MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		     OmMSet & mset, const OmMatchDecider *mdecider,
@@ -197,10 +229,6 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // maximum weight a document could possibly have
     const om_weight max_weight = pl->recalc_maxweight();
 
-    // Maxium possible item that could exist.
-    // FIXME: the "(om_docid)-1" is a hack to get the maximum possible
-    // document ID.
-    OmMSetItem max_possible_item(max_weight, OM_MAX_POSS_DOCID);
     recalculate_w_max = false;
 
     // Check if any results have been asked for (might just be wanting
@@ -220,7 +248,12 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
     // Set the minimum item, used to compare against to see if an item
     // should be considered for the mset.
+    //
+    // NB set weight to -1 so that all documents pass test until we
+    // have an mset full - if initial weight is 0, we reject any
+    // documents with weight 0 if we use msetcmp_forward.
     OmMSetItem min_item(-1, 0);
+
     {
 	int val = opts.get_int("match_percent_cutoff", 0);
 	if (val > 0) {
@@ -247,9 +280,9 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     while (1) {
 	if (recalculate_w_max) {
 	    recalculate_w_max = false;
-	    max_possible_item.wt = pl->recalc_maxweight();
-	    DEBUGLINE(MATCH, "max possible item = " << max_possible_item);
-	    if (mcmp(min_item, max_possible_item)) {
+	    om_weight w_max = pl->recalc_maxweight();
+	    DEBUGLINE(MATCH, "max possible doc weight = " << w_max);
+	    if (w_max < min_item.wt) {
 		DEBUGLINE(MATCH, "*** TERMINATING EARLY (1)");
 		break;
 	    }
@@ -263,11 +296,11 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
 	    // no need for a full recalc (unless we've got to do one because
 	    // of a prune elsewhere) - we're just switching to a subtree
-	    max_possible_item.wt = pl->get_maxweight();
-	    DEBUGLINE(MATCH, "max possible item = " << max_possible_item);
-            AssertParanoid(recalculate_w_max || fabs(max_possible_item.wt - pl->recalc_maxweight()) < 1e-9);
+	    om_weight w_max = pl->get_maxweight();
+	    DEBUGLINE(MATCH, "max possible doc weight = " << w_max);
+            AssertParanoid(recalculate_w_max || fabs(w_max - pl->recalc_maxweight()) < 1e-9);
 
-	    if (mcmp(min_item, max_possible_item)) {
+	    if (w_max < min_item.wt) {
 		DEBUGLINE(MATCH, "*** TERMINATING EARLY (2)");
 		break;
 	    }
@@ -280,6 +313,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	om_docid did = pl->get_docid();
         om_weight wt = pl->get_weight();
 
+	DEBUGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
 	OmMSetItem new_item(wt, did);
 
 	// test if item has high enough weight to get into proto-mset
@@ -359,13 +393,13 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	}
     }
 
-    DEBUGLINE(MATCH, "sorting");
-
-    // Need a stable sort, but this is provided by comparison operator
-    std::sort(items.begin(), items.end(), mcmp);
-
     DEBUGLINE(MATCH, "msize = " << items.size() << ", mbound = " << mbound);
     if (items.size()) {
+	DEBUGLINE(MATCH, "sorting");
+
+	// Need a stable sort, but this is provided by comparison operator
+	std::sort(items.begin(), items.end(), mcmp);
+
 	DEBUGLINE(MATCH, "max weight in mset = " << items[0].wt <<
 		  ", min weight in mset = " << items.back().wt);
     }

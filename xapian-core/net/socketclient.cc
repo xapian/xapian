@@ -100,7 +100,7 @@ SocketClient::get_tlist(om_docid did,
 			std::vector<NetClient::TermListItem> &items) {
     std::string message;
 
-    buf.writeline(std::string("GETTLIST ") + om_tostring(did));
+    do_write(std::string("GETTLIST ") + om_tostring(did));
 
     while (startswith(message = do_read(), "TLISTITEM ")) {
 	items.push_back(string_to_tlistitem(message.substr(10)));
@@ -114,7 +114,7 @@ SocketClient::get_tlist(om_docid did,
 void
 SocketClient::request_doc(om_docid did)
 {
-    buf.writeline(std::string("GETDOC ") + om_tostring(did));
+    do_write(std::string("GETDOC ") + om_tostring(did));
 }
 
 void
@@ -149,7 +149,7 @@ SocketClient::get_doc(om_docid did,
 {
     // FIXME: just call request then collect if that interface survives
     std::string message;
-    buf.writeline(std::string("GETDOC ") + om_tostring(did));
+    do_write(std::string("GETDOC ") + om_tostring(did));
 
     message = do_read();
     if (!startswith(message, "DOC ")) {
@@ -228,7 +228,7 @@ SocketClient::do_close()
     // musn't let any exception escape a destructor, or else we
     // abort immediately if from a destructor.
     try {
-	buf.writeline("QUIT");
+	do_write("QUIT");
     } catch (...) {
     }
     close(socketfd);
@@ -435,4 +435,125 @@ SocketClient::get_mset(om_doccount first,
     omrset = OmRSet();
 
     return true;
+}
+
+bool
+SocketClient::open_postlist(om_doccount first, om_doccount maxitems,
+			    om_doccount &termfreq, om_weight &maxw,
+			    std::map<om_termname, OmMSet::TermFreqAndWeight> &term_info)
+{
+    DEBUGCALL(MATCH, bool, "SocketClient::open_postlist", first << ", " << maxitems);
+    Assert(global_stats_valid);
+    Assert(conv_state >= state_getmset);
+    switch (conv_state) {
+	case state_getquery:
+	case state_sentquery:
+	case state_sendglobal:
+	    throw OmInvalidArgumentError("open_postlist called before global stats given");
+	    break;
+	case state_getmset:
+
+	    // Message 5 (see README_progprotocol.txt)
+	    {
+		std::string message = "GLOBSTATS " +
+			stats_to_string(global_stats) + '\n';
+		message += "GETPLIST " +
+			    om_tostring(first) + " " +
+			    om_tostring(maxitems);
+		do_write(message);
+	    }
+
+	    // FIXME: new state here...
+
+	    while (!buf.data_waiting()) {
+		wait_for_input();
+	    }
+	
+	    std::string message = do_read();
+	    {
+		// extract term frequency and max weight
+		istrstream is(message.c_str());
+		is >> termfreq >> maxw;
+		minw = maxw;
+	    }
+	    message = do_read();
+	    DEBUGLINE(UNKNOWN, "term_info = `" << message << "'");
+	    term_info = string_to_ommset_termfreqwts(message);
+	    conv_state = state_getresult;
+    } // switch (conv_state)
+    RETURN(false);
+}
+
+bool
+SocketClient::get_posting(om_docid &did, om_weight &w, OmKey &key)
+{
+    DEBUGCALL(MATCH, bool, "SocketClient::get_posting", "");
+    Assert(global_stats_valid);
+    Assert(conv_state >= state_getresult);
+    switch (conv_state) {
+	case state_getquery:
+	case state_sentquery:
+	case state_sendglobal:
+	case state_getmset:
+	    throw OmInvalidArgumentError("get_posting called too soon");
+	    break;
+	case state_getresult: {
+
+	    DEBUGLINE(MATCH, "about to see if data is waiting");
+	    if (!buf.data_waiting()) {
+		RETURN(false);
+	    }
+	
+	    DEBUGLINE(MATCH, "data is waiting");
+	    std::string message = do_read();
+	    DEBUGLINE(MATCH, "read `" << message << "'");
+	    if (message == "OK") {
+		did = 0;
+
+		// reset the state
+		conv_state = state_getquery;
+		query_string = "";
+		remote_stats = Stats();
+		remote_stats_valid = false;
+		global_stats = Stats();
+		global_stats_valid = false;
+		moptions = OmSettings();
+		omrset = OmRSet();
+	    } else {
+		// extract first,maxitems
+		istrstream is(message.c_str());
+		is >> did >> w;
+		int i = message.find(';');
+		if (i != message.npos) {
+		    key = string_to_omkey(message.substr(i + 1));
+		}
+	    }
+	}
+    } // switch (conv_state)
+
+    RETURN(true);
+}
+
+void
+SocketClient::next(om_weight w_min, om_docid &did, om_weight &w, OmKey &key)
+{
+    if (w_min > minw) {
+	minw = w_min;
+	do_write("M" + om_tostring(w_min));
+    }
+
+    while (!get_posting(did, w, key)) wait_for_input();
+}
+
+void
+SocketClient::skip_to(om_docid new_did, om_weight w_min, om_docid &did, om_weight &w, OmKey &key)
+{
+    do_write("S" + om_tostring(new_did));
+    if (w_min > minw) {
+	minw = w_min;
+	do_write("M" + om_tostring(w_min));
+    }
+
+    while (!get_posting(did, w, key) || (did && (did < new_did || w < w_min)))
+	wait_for_input();
 }

@@ -122,6 +122,10 @@ SocketServer::run()
 		run_gettermlist(message);
 	    } else if (startswith(message, "GETDOC ")) {
 		run_getdocument(message);
+	    } else if (startswith(message, "M")) {
+		// ignore min weight message left over from postlist
+	    } else if (startswith(message, "S")) {
+		// ignore skip_to message left over from postlist
 	    } else {
 		throw OmInvalidArgumentError(std::string("Unexpected message:") +
 					     message);
@@ -207,7 +211,90 @@ SocketServer::run_match(const std::string &firstmessage)
     message = buf->readline(msecs_timeout);
 
     if (message.substr(0, 7) != "GETMSET") {
-	throw OmNetworkError(std::string("Expected GETMSET, got ") + message);
+	if (message.substr(0, 8) != "GETPLIST") {
+	    throw OmNetworkError(std::string("Expected GETMSET or GETPLIST, got ") + message);
+	}	
+	message = message.substr(9);
+	om_doccount first;
+	om_doccount maxitems;
+	{
+	    // extract first,maxitems
+	    istrstream is(message.c_str());
+	    is >> first >> maxitems;
+	}
+	PostList *pl;
+	{
+	    std::map<om_termname, OmMSet::TermFreqAndWeight> terminfo;
+	    // not sure we really need these numbers...
+	    pl = match.get_postlist(first, maxitems, terminfo, 0);
+	    buf->writeline(om_tostring(pl->get_termfreq()) + " " +
+			   om_tostring(pl->recalc_maxweight()));
+	    buf->writeline(ommset_termfreqwts_to_string(terminfo));
+	}
+	om_docid did = 0;
+	om_weight w_min = 0;
+	om_keyno collapse_key;
+	bool do_collapse = true;
+	{
+	    int val = moptions.get_int("match_collapse_key", -1);
+	    if (val >= 0) {
+		do_collapse = true;
+		collapse_key = val;
+	    }
+	}
+	while (1) {
+	    om_docid new_did = 0;
+	    while (buf->data_waiting()) {
+		std::string m = buf->readline(0);
+		switch (m.empty() ? 0 : m[0]) {
+		    case 'M': {
+			// min weight has dropped
+			istrstream is(message.c_str() + 1);
+			is >> w_min;
+			DEBUGLINE(UNKNOWN, "w_min now " << w_min);
+			break;
+		    }
+		    case 'S': {
+			// skip to
+			istrstream is(message.c_str() + 1);
+			is >> new_did;
+			DEBUGLINE(UNKNOWN, "skip_to now " << new_did);
+			break;
+		    }
+		default:
+		    Assert(false);
+		}
+	    }
+	    PostList *p;
+	    if (new_did > did + 1) {
+		DEBUGLINE(UNKNOWN, "skip_to(" << new_did << ", " << w_min << ")");
+		p = pl->skip_to(new_did, w_min);
+	    } else {
+		DEBUGLINE(UNKNOWN, "next(" << w_min << ")");
+		p = pl->next(w_min);
+	    }
+	    if (p) {
+		delete pl;
+		pl = p;
+	    }
+	    if (pl->at_end()) break;
+	    did = pl->get_docid();
+	    om_weight w = pl->get_weight();
+	    if (w >= w_min) {
+		DEBUGLINE(UNKNOWN, "Returning did " << did << " wt " << w);
+		std::string key = "";
+		if (do_collapse) {
+		    AutoPtr<LeafDocument> doc(OmDatabase::InternalInterface::get(match.db)->open_document(did));
+		    key = ";" + omkey_to_string(doc->get_key(collapse_key));		    
+		}
+		buf->writeline(om_tostring(did) + " " + om_tostring(w) + key);
+	    } else {
+		DEBUGLINE(UNKNOWN, "Ignoring did " << did << " wt " << w << " (since wt < " << w_min << ")");
+	    }
+	}
+	delete pl;
+	buf->writeline("OK");
+	return;
     }
     message = message.substr(8);
 

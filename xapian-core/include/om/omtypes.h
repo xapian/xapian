@@ -31,12 +31,6 @@ typedef unsigned int om_termid;
  */
 typedef unsigned int om_docid;
 
-/** The maximum possible value for a document ID, in this version of the
- *  library.  Note that this limit applies nowhere on permanent storage - it
- *  is merely a limit applicable for this compilation of the limrary.
- */
-#define OM_MAX_POSS_DOCID ((om_docid)-1)
-
 /** Type for counts of documents. */
 typedef om_docid     om_doccount;
 

@@ -372,6 +372,7 @@ OmSocketLineBuf::OmSocketLineBuf(int fd_)
 std::string
 OmSocketLineBuf::do_readline(int msecs_timeout)
 {
+    DEBUGCALL(UNKNOWN, std::string, "OmSocketLineBuf::do_readline", msecs_timeout);
     std::string::size_type pos;
 
     time_t end_time = time(NULL) + msecs_timeout / 1000;    
@@ -424,9 +425,9 @@ OmSocketLineBuf::do_readline(int msecs_timeout)
 
     std::string retval(buffer.begin(), buffer.begin() + pos);
 
-    buffer.erase(0, pos+1);
+    buffer.erase(0, pos + 1);
 
-    return retval;
+    RETURN(retval);
 }
 
 void
@@ -434,8 +435,6 @@ OmSocketLineBuf::wait_for_data(int msecs)
 {
     // FIXME: share with readline()
     while (buffer.find_first_of('\n') == buffer.npos) {
-	char buf[256];
-
 	// wait for input to be available.
 	fd_set fdset;
 	FD_ZERO(&fdset);
@@ -455,9 +454,10 @@ OmSocketLineBuf::wait_for_data(int msecs)
 	    if (errno == EINTR) {
 		// select interrupted due to signal
 		// FIXME: adjust timeout for next time around to compensate
-		// for time used.  Need to use gettimeofday() or similar, since
-		// the contents of tv are now effectively undefined.  (On Linux,
-		// it's the time not slept, but this isn't portable)
+		// for time used.  Need to use gettimeofday() or similar,
+		// since the contents of tv are now effectively undefined.
+		// (On Linux, it's the time not slept, but this isn't
+		// portable)
 		continue;
 	    } else {
 		throw OmNetworkError("Unknown network error waiting for remote.");
@@ -467,6 +467,8 @@ OmSocketLineBuf::wait_for_data(int msecs)
 
 	ssize_t received;
 	do {
+	    char buf[256];
+
 	    received = read(readfd, buf, sizeof(buf) - 1);
 
 	    if (received > 0) {
@@ -508,6 +510,7 @@ OmSocketLineBuf::data_waiting()
 void
 OmSocketLineBuf::do_writeline(std::string s)
 {
+    DEBUGCALL(UNKNOWN, void, "OmSocketLineBuf::do_writeline", s);
     if (s.length() == 0 || s[s.length()-1] != '\n') {
 	s += '\n';
     }

@@ -104,6 +104,8 @@ class SocketClient : public NetClient {
 	 */
 	int get_spawned_socket(std::string progname, std::string arg);
 
+	om_weight minw; // minimum weight we're interested in
+	
     protected:
 	/** Constructor.  The constructor is protected so that raw instances
 	 *  can't be created - a derived class must be instantiated which
@@ -132,6 +134,8 @@ class SocketClient : public NetClient {
 
 	/// Close the socket
 	void do_close();
+
+	bool get_posting(om_docid &did, om_weight &w, OmKey &key);
 
     public:
 	/** Destructor. */
@@ -168,6 +172,13 @@ class SocketClient : public NetClient {
 	/** Do the actual MSet fetching */
 	bool get_mset(om_doccount first, om_doccount maxitems, OmMSet &mset);
 
+	bool open_postlist(om_doccount first, om_doccount maxitems,
+			   om_doccount &termfreq, om_weight &maxw,
+			   std::map<om_termname, OmMSet::TermFreqAndWeight> &term_info);
+
+	void next(om_weight w_min, om_docid &did, om_weight &w, OmKey &key);
+	void skip_to(om_docid new_did, om_weight w_min, om_docid &did, om_weight &w, OmKey &key);
+	
 	/** get the remote termlist */
 	void get_tlist(om_docid did,
 		       std::vector<NetClient::TermListItem> &items);

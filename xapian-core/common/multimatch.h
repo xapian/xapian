@@ -30,13 +30,17 @@
 #include "omqueryinternal.h"
 
 #include <vector>
+#include <map>
 #include "om/autoptr.h"  // auto_ptr
 
 class SubMatch;
 class OmErrorHandler;
 
+class SocketServer;
+
 class MultiMatch
 {
+    friend class SocketServer; // FIXME: temporary bodge
     private:
 	/// Vector of the items
 	std::vector<RefCntPtr<SubMatch> > leaves;
@@ -101,6 +105,11 @@ class MultiMatch
 		      const OmMatchDecider * mdecider,
 		      OmErrorHandler * errorhandler);
 
+	// FIXME: temporary bodge
+	PostList *get_postlist(om_doccount first, om_doccount maxitems,
+			       std::map<om_termname, OmMSet::TermFreqAndWeight> & termfreqandwts,
+			       OmErrorHandler * errorhandler);
+	    
 	/** Called by postlists to indicate that they've rearranged themselves
 	 *  and the maxweight now possible is smaller.
 	 */
