@@ -659,12 +659,17 @@ main(int argc, char **argv)
 	    break;
 	case 'M': {
 	    const char * s = strchr(optarg, ':');
-	    if (s != NULL && s[1] != '\0') {
-		mime_map[string(optarg, s - optarg)] = string(s + 1);
+	    if (s != NULL) {
+		if (s[1]) {
+		    mime_map[string(optarg, s - optarg)] = string(s + 1);
+		} else {
+		    // -Mtxt: removes the default mapping for .txt files.
+		    mime_map.erase(string(optarg, s - optarg));
+		}
 	    } else {
 		cerr << "Illegal MIME mapping '" << optarg << "'\n"
-		     << "Should be of the form ext:type, eg txt:text/plain"
-		     << endl;
+			"Should be of the form ext:type, eg txt:text/plain\n"
+			"(or txt: to delete a default mapping)" << endl;
 		return 1;
 	    }
 	    break;

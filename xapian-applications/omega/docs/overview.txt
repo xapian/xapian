@@ -112,7 +112,7 @@ omindex operation
 omindex is fairly simple to use:
 
 ----------------------------------------------------------------------
-Usage: ../omindex [OPTION] --db DATABASE 
+Usage: omindex [OPTION] --db DATABASE 
         --url BASEURL [BASEDIRECTORY] DIRECTORY
 
 Index static website data via the filesystem.
@@ -185,8 +185,8 @@ Currently omindex can index:
 If you have additional extensions that represent one of these types, you need
 to add an additional MIME mapping using the --mime-type option. For instance:
 
-$ omindex --db /www/omega --url '/press' /www/example/press
-          --mime-type 'doc:application/postscript'
+$ omindex --db /www/omega --url /press /www/example/press \
+          --mime-type doc:application/postscript
 
 The syntax of --mime-type is 'ext:type', where ext is the extension of
 a file of that type (everything after the last '.'), and type is one
@@ -209,6 +209,9 @@ of:
     application/vnd.sun.xml.writer.global
     application/vnd.sun.xml.writer.template
     application/vnd.wordperfect
+
+If you wish to remove a MIME mapping, you can do this by omitting the type - for example
+to not index .doc files, use: --mime-type doc:
 
 --duplicates configures how omindex handles duplicates (detected on
 URL). 'ignore' means to ignore a document if it already appears to be
