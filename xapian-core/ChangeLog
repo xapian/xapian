@@ -1,3 +1,8 @@
+Sun Jan 05 22:20:33 GMT 2003  Olly Betts <olly@survex.com>
+
+	* testsuite/index_utils.cc: Handling of ^x was just downright wrong
+	  due to a typo.
+
 Sun Jan 05 22:19:56 GMT 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/.cvsignore: Ignore quartzcompact binary.

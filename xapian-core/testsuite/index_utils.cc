@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,7 +60,7 @@ void lowercase_term(om_termname &term)
 	if (c <= '9') c = c - '0';
 	else if (c <= 'Z') c = c - 'A';
 	else c = c - 'a';
-	b = b * 16 + a;
+	b = b * 16 + c;
 	term.replace(a, 4, std::string(&b, 1));
     }
 }
