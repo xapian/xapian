@@ -18,22 +18,32 @@ IRWeight::calc_termweight() const
 {
     Assert(initialised);
 
-    doccount dbsize = database->get_doccount();
-    lenpart = k / database->get_avlength();
+    doccount dbsize = root->get_doccount();
+    lenpart = k / root->get_avlength();
 
-    //printf("Statistics: N=%d n_t=%d ", dbsize, termfreq);
+    printf("Statistics: N=%d n_t=%d ", dbsize, termfreq);
 
-    weight tw;
-    tw = (dbsize - termfreq + 0.5) / (termfreq + 0.5); 
+    weight tw = 0;
+    doccount rsize;
+    if(rset != NULL && (rsize = rset->get_rsize()) != 0) {
+	doccount rtermfreq = rset->get_reltermfreq(tid);
+
+	printf("R=%d r_t=%d ", rsize, rtermfreq);
+
+	tw = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /
+	     ((rsize - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
+    } else {
+	tw = (dbsize - termfreq + 0.5) / (termfreq + 0.5);
+    }
     if (tw < 2) {
 	// if size and/or termfreq is estimated we can get tw <= 0
 	// so handle this gracefully
 	if (tw <= 1e-6) tw = 1e-6;
 	tw = tw / 2 + 1;
     }
-    tw = log(tw);   
+    tw = log(tw);
 
-    //printf("\t=> termweight = %f\n", tw);
+    printf("\t=> termweight = %f\n", tw);
     termweight = tw;
     weight_calculated = true;
 }
