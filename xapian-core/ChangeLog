@@ -1,3 +1,7 @@
+Thu Apr 11 10:11:11 BST 2002  Olly Betts <olly@survex.com>
+
+	* Sorted out automake for php4 bindings.
+
 Wed Apr 10 14:44:50 BST 2002  Olly Betts <olly@survex.com>
 
 	* Removed a superfluous DEBUGLINE.
