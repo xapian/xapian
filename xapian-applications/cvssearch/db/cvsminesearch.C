@@ -47,7 +47,7 @@
 
 
 //
-// Usage:  cvsminesearch package (# results) query_word1 query_word2 ... 
+// Usage:  cvsminesearch package (# results) query_word1 query_word2 ...
 //
 //               cvsminesearch (# results) query_word1 query_word2 ... takes list of packages from stdin
 //
@@ -56,6 +56,18 @@
 //     Returns the top 10 lines with both ftp and nfs.
 //
 // ($CVSDATA/package is the directory with the quartz database inside)
+//
+
+
+// Examples:
+//
+//   cvsminesearch root0/db/mining.om 10
+//   cvsminesearch root0/db/mining.om 10 drag drop =>
+//   cvsminesearch root0/db/mining.om 10 :QdropEvent =>
+//   cvsminesearch root0/db/mining.om 10 drag drop :QDropEvent =>
+//
+//   cvsminesearch root0/db/mining.om 10 drag drop (without arrow)
+//      just returns commits with drag drop in comments
 //
 
 
@@ -112,22 +124,19 @@ unsigned int find_symbol_count( Db& db, const string & k ) {
 void generate_rules( Db& db,
                      const string & ranking_system,
                      const set<string>& query_symbols,
-                     const map<string, set<int> >& relative_item_commits,
+                     const map<string, int >& relative_item_count,
                      unsigned int transactions_returned,
                      unsigned int total_commit_transactions,
                      map<double, set<string> >& class_ranking,
                      map<double, set<string> >& function_ranking )
 {
-    if( ranking_system == "" ) {
-        cerr << "*** Please supply ranking system:  either =>, <=, or <=>" << endl;
-        exit(-1);
-    }
+    assert( ranking_system != "" );
 
-    for( map<string, set<int> >::const_iterator i = relative_item_commits.begin();
-         i != relative_item_commits.end(); ++i)
+    for( map<string, int >::const_iterator i = relative_item_count.begin();
+         i != relative_item_count.end(); ++i)
     {
         string symbol = i->first;
-        unsigned int a_and_b_count = i->second.size();
+        unsigned int a_and_b_count = i->second;
 
         if ( a_and_b_count < MIN_SUPPORT ) {
             continue;
@@ -218,7 +227,7 @@ void rank_all_items( Db& db,
 }
 
 void count_single_items(const map< int, set<string> >& transactions,
-                        map<string, set<int> >& item_count )
+                        map<string, int >& item_count )
 {
     cerr << "... counting items" << endl;
     for( map< int, set<string> >::const_iterator t = transactions.begin();
@@ -227,12 +236,12 @@ void count_single_items(const map< int, set<string> >& transactions,
         const set<string> & S = t->second;
         for( set<string>::const_iterator s = S.begin(); s != S.end(); ++s)
         {
-            item_count[*s].insert( t->first ); // insert commit id
+            item_count[*s]++;
         }
     }
 }
 
-void output_items(const map<string, set<int> >& item_commits, const map< double, set<string> >& class_ranking, unsigned int max_results )
+void output_items( const map< double, set<string> >& class_ranking, unsigned int max_results )
 {
     unsigned int count = 0;
     for( map< double, set<string> >::const_iterator i = class_ranking.begin();
@@ -244,6 +253,7 @@ void output_items(const map<string, set<int> >& item_commits, const map< double,
         {
             cout << score << " ";
 
+/*
             // write out commits
             // strip arrow off
             string t;
@@ -259,6 +269,7 @@ void output_items(const map<string, set<int> >& item_commits, const map< double,
                   cout << (*i) << " ";
               }
             }
+*/
 
             cout << (*s) << endl;
             ++count;
@@ -331,7 +342,7 @@ int main(unsigned int argc, char *argv[]) {
         // code which accesses Omsee
         // ----------------------------------------
         OmDatabase database;
-         
+
         for( set<string>::iterator i = packages.begin(); i != packages.end(); i++ ) {
             OmSettings db_parameters;
             db_parameters.set("backend", "quartz");
@@ -341,10 +352,10 @@ int main(unsigned int argc, char *argv[]) {
 
         // start an enquire session
         OmEnquire enquire(database);
-         
+
         vector<om_termname> queryterms;
         set<string> query_symbols;
-         
+
         OmStem stemmer("english");
 
         string ranking_system = "";
@@ -355,7 +366,7 @@ int main(unsigned int argc, char *argv[]) {
 
             if ( s.find(":") == 0 ) {
                 queryterms.push_back(s); // symbol, put as is
-                query_symbols.insert(s);
+                query_symbols.insert(s); // no stemming, no lc
             } else if ( s == "=>" || s == "<=" || s == "<=>" ) {
                 ranking_system = s;
             } else {
@@ -363,10 +374,10 @@ int main(unsigned int argc, char *argv[]) {
                 lowercase_term(term);
                 term = stemmer.stem_word(term);
                 queryterms.push_back(term);
-                cout << term << " ";
+                //cout << term << " ";
             }
         }
-        cout << endl;
+        //cout << endl;
 
         OmMSet matches;
 
@@ -381,10 +392,9 @@ int main(unsigned int argc, char *argv[]) {
             map< double, set<string> > function_ranking;
             map< double, set<string> > class_ranking;
             rank_all_items(db, total_commit_transactions, class_ranking, function_ranking);
-#warning "don't have commit ids here..."
-            map<string, set<int> > item_commits;
-            output_items( item_commits, class_ranking, max_results );
-            output_items( item_commits, function_ranking, max_results );
+
+            output_items( class_ranking, max_results );
+            output_items( function_ranking, max_results );
             db.close(0);
             return 0;
         }
@@ -395,7 +405,7 @@ int main(unsigned int argc, char *argv[]) {
             OmDocument doc = i.get_document();
             string data = doc.get_data().value;
 
-            cerr << "Found " << data << endl;
+            //cerr << "Found " << data << endl;
 
             list<string> symbols;
             split( data, " \n", symbols );
@@ -410,7 +420,7 @@ int main(unsigned int argc, char *argv[]) {
                         continue;
                 }
                 S.insert(*s);
-                cerr << "..." << (*s) << endl;
+              //  cerr << "..." << (*s) << endl;
             }
             assert( commit_id != -1 );
             transactions_returned[commit_id] = S;
@@ -418,31 +428,47 @@ int main(unsigned int argc, char *argv[]) {
 
         assert( total_commit_transactions > 0 );
 
-        // the consequent of our rules contains only one item
-        // so we need only count single items
+        if ( ranking_system != "" ) {
 
-        //////////////////////////////////// count single items
+                // the consequent of our rules contains only one item
+                // so we need only count single items
 
-        map< string, set<int> > relative_item_commits; // the count is relative to the transactions returned
-        count_single_items( transactions_returned, relative_item_commits );
+                //////////////////////////////////// count single items
 
-        // at this point we can generate rules
-        map< double, set<string> > function_ranking;
-        map< double, set<string> > class_ranking;
+                map< string, int > relative_item_count; // the count is relative to the transactions returned
+                count_single_items( transactions_returned, relative_item_count );
 
-        generate_rules( db, ranking_system, query_symbols, relative_item_commits,
-                        transactions_returned.size(),
-                        total_commit_transactions, class_ranking, function_ranking );
+                // at this point we can generate rules
+                map< double, set<string> > function_ranking;
+                map< double, set<string> > class_ranking;
 
-        output_items( relative_item_commits, class_ranking, max_results );
-        output_items( relative_item_commits, function_ranking, max_results );
+                generate_rules( db, ranking_system, query_symbols, relative_item_count,
+                                transactions_returned.size(),
+                                total_commit_transactions, class_ranking, function_ranking );
+
+                output_items( class_ranking, max_results );
+                output_items( function_ranking, max_results );
+
+        } else {
+
+          int c = 0;
+          // no ranking system specified, so return list of commit ids
+          for( map< int, set<string> >::iterator i = transactions_returned.begin(); i != transactions_returned.end(); i++ ) {
+                cout << i->first << endl;
+                c++;
+                if ( c == max_results ) {
+                        break;
+                }
+          }
+
+        }
 
         db.close(0);
-    
-         
+
+
     }
     catch(OmError & error) {
-        cout << "Exception: " << error.get_msg() << endl;
+        cerr << "Exception: " << error.get_msg() << endl;
     }  catch( DbException& e ) {
         cerr << "Exception:  " << e.what() << endl;
     }
