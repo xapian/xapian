@@ -107,9 +107,12 @@ sub compare_root_index() {
     my %roots = read_cvs_roots();
     my $cvsroot;
     foreach (keys %roots) {
-        print "<option value=$roots{$_}>$_</option>\n";
+
         if ($root eq $roots{$_}) {
             $cvsroot = $_;
+            print "<option selected value=$roots{$_}>$_</option>\n";
+        } else {
+            print "<option value=$roots{$_}>$_</option>\n";            
         }
     }
     print "</select><input type=submit></form>\n";
