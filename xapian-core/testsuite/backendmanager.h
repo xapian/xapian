@@ -53,7 +53,7 @@ class BackendManager {
 	OmDatabase getdb_sleepy(const vector<string> &dbnames);
     public:
 	/// Constructor - set up default state.
-	BackendManager() : do_getdb(&getdb_void) {};
+	BackendManager() : do_getdb(&BackendManager::getdb_void) {};
 
 	/** Set the database type to use.
 	 *

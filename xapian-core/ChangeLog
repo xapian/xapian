@@ -1,3 +1,7 @@
+Thu Jun  8 11:32:11 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Removed some warnings from BackendManager.
+
 Wed Jun  7 18:26:17 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix bug in Muscat3.6 backends causing an Assertion to fail when

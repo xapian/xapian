@@ -115,15 +115,15 @@ void
 BackendManager::set_dbtype(const string &type)
 {
     if (type == "inmemory") {
-	do_getdb = &getdb_inmemory;
+	do_getdb = &BackendManager::getdb_inmemory;
     } else if (type == "sleepycat") {
-	do_getdb = &getdb_sleepy;
+	do_getdb = &BackendManager::getdb_sleepy;
 	DebugMsg("Removing .sleepy/..." << endl);
 	system("rm -fr .sleepy");
     } else if (type == "net") {
-	do_getdb = &getdb_net;
+	do_getdb = &BackendManager::getdb_net;
     } else if (type == "void") {
-	do_getdb = &getdb_void;
+	do_getdb = &BackendManager::getdb_void;
     } else {
 	throw OmInvalidArgumentError("Expected inmemory or sleepy");
     }
