@@ -2,7 +2,7 @@
 # bootstrap a xapian source tree obtained from CVS to produce a tree like
 # you'd get from unpacking the results of "make dist"
 #
-# Copyright (C) 2002,2003 Olly Betts
+# Copyright (C) 2002,2003,2004 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -39,9 +39,8 @@ esac
 
 srcdir="`echo $0|sed 's![^/]*$!!'`"
 # don't try to build xapian-applications/dbtools or xapview - they need work.
-# ditto for cvssearch.
 modules=
-for module in xapian-core xapian-bindings xapian-examples xapian-applications/omega ; do
+for module in xapian-core xapian-bindings xapian-examples xapian-applications/omega xapian-applications/queryserver xapian-applications/cvssearch ; do
   d="${srcdir}$module"
   if test -f "$d/configure.in" -o -f "$d/configure.ac" ; then
     echo "Bootstrapping \`$module'"
