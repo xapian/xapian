@@ -1,3 +1,8 @@
+Fri Jul 11 12:08:57 BST 2003  Olly Betts <olly@survex.com>
+
+	* omega.cc: If the same database is listed more than once, only search
+	  the first occurrence.
+ 
 Fri Jul 11 11:57:24 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in,utils.cc: Use snprintf.

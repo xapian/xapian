@@ -28,6 +28,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <set>
 
 #include <fcntl.h>
 #ifdef WIN32
@@ -135,18 +136,20 @@ try {
     try {
 	// get database(s) to search
 	dbname = "";
+	set<string> seen; // only add a repeated db once
 	g = cgi_params.equal_range("DB");
-	for (MCI i = g.first; i != g.second; i++) {
+	for (MCI i = g.first; i != g.second; ++i) {
 	    string v = i->second;
 	    if (!v.empty()) {
-		vector<string>dbs = split(v, '/');
-		vector<string>::const_iterator i;
-		for (i = dbs.begin(); i != dbs.end(); i++) {
-		    if (!i->empty()) {
+		vector<string> dbs = split(v, '/');
+		vector<string>::const_iterator j;
+		for (j = dbs.begin(); j != dbs.end(); ++j) {
+		    if (!j->empty() && seen.find(*j) == seen.end()) {
 			// Translate DB parameter to path of database directory
 			if (!dbname.empty()) dbname += '/';
-			dbname += *i;
-			db.add_database(Xapian::Auto::open(map_dbname_to_dir(*i)));
+			dbname += *j;
+			db.add_database(Xapian::Auto::open(map_dbname_to_dir(*j)));
+			seen.insert(*j);
 		    }
 		}
 	    }
