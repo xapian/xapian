@@ -1,3 +1,7 @@
+Fri Apr 19 13:29:57 BST 2002  Olly Betts <olly@survex.com>
+
+	* Minor tweaks to quartz_database.cc.
+
 Fri Apr 19 13:07:50 BST 2002  Olly Betts <olly@survex.com>
 
 	* Moved test poslist1 into correct place and renamed it to poslist2

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -318,11 +319,10 @@ QuartzDatabase::open_position_list(om_docid did,
     poslist->read_data(tables->get_positionlist_table(), did, tname);
     if (poslist->get_size() == 0) {
 	// Check that term / document combination exists.
-	AutoPtr<LeafTermList> ltl;
-	RefCntBase::RefCntPtrToThis tmp;
-	RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
+	RefCntPtr<const QuartzDatabase> ptrtothis(RefCntBase::RefCntPtrToThis(),
+						  this);
 	// If the doc doesn't exist, this will throw OmDocNotFound:
-	ltl.reset(open_term_list_internal(did, ptrtothis));
+	AutoPtr<LeafTermList> ltl(open_term_list_internal(did, ptrtothis));
 	ltl->skip_to(tname);
 	if (ltl->at_end() || ltl->get_termname() != tname)
 	    throw OmRangeError("Can't open position list: requested term is not present in document.");
