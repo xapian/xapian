@@ -1,3 +1,8 @@
+Fri Apr 19 16:42:42 BST 2002  Olly Betts <olly@survex.com>
+
+	* Tracked down and fixed the bug in the quartz backend which was making
+	  test poslist2 fail.
+
 Fri Apr 19 16:06:39 BST 2002  Olly Betts <olly@survex.com>
 
 	* Fixed some compilation problems which I somehow failed to notice

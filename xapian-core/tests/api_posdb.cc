@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -625,6 +626,6 @@ test_desc positionaldb_tests[] = {
 test_desc localpositionaldb_tests[] = {
     {"poslist1",	   test_poslist1},
 // FIXME: fix quartz to pass this test
-//    {"poslist2",	   test_poslist2},
+    {"poslist2",	   test_poslist2},
     {0, 0}
 };
