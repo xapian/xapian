@@ -245,7 +245,8 @@ static void sys_unlink(const string &filename)
 void
 Btree::read_block(uint4 n, byte * p) const
 {
-    DEBUGCALL(DB, void, "Btree::read_block", n << ", " << p);
+    // Log the value of p, not the contents of the block it points to...
+    DEBUGCALL(DB, void, "Btree::read_block", n << ", " << (void*)p);
     /* Use the base bit_map_size not the bitmap's size, because
      * the latter is uninitialised in readonly mode.
      */
