@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-AUTOMAKE_OPTIONS = 1.5
+AUTOMAKE_OPTIONS = 1.6.3
 
 noinst_HEADERS = omega.h query.h cgiparam.h symboltab.h\
  htmlparse.h utils.h configfile.h

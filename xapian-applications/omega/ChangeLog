@@ -1,3 +1,8 @@
+Wed Oct 02 17:02:25 BST 2002  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.5.1.
+	* Makefile.am,configure.in: require automake 1.6.3 and autoconf 2.54
+	  since xapian-core does anyway, and it neatens configure.in slightly.            
 Wed Oct 02 16:58:39 BST 2002  Olly Betts <olly@survex.com>
 
 	* query.cc,docs/omegascript.txt: Added $hit which gives the m-set
