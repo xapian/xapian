@@ -48,8 +48,8 @@
 #include <string>
 #include <algorithm>  // for std::min()
 
-//#define BTREE_DEBUG_FULL 1
-#undef BTREE_DEBUG_FULL
+#define BTREE_DEBUG_FULL 1
+//#undef BTREE_DEBUG_FULL
 
 #ifdef BTREE_DEBUG_FULL
 /*------debugging aids from here--------*/
@@ -1388,7 +1388,7 @@ Btree::basic_open(const char * name_,
 
 	// FIXME: assumption that there are only two bases
         if (base_ok[0] && base_ok[1]) both_bases = true;
-        if (!base_ok[0] && !base_ok[0]) {
+        if (!base_ok[0] && !base_ok[1]) {
 	    std::string message = "Error opening table `"; 
 	    message += name_;
 	    message += "': ";
@@ -1983,6 +1983,10 @@ Btree::next_default(struct Btree * B, struct Cursor * C, int j)
     if (j > 0) {
 	B->block_to_cursor(C, j - 1, block_given_by(p, c));
         if (B->overwritten) return false;
+#ifdef BTREE_DEBUG_FULL
+	printf("Block in Btree:next_default");
+	B->report_block_full(j - 1, C[j - 1].n, C[j - 1].p);
+#endif /* BTREE_DEBUG_FULL */
     }
     return true;
 }
@@ -2096,8 +2100,8 @@ void Btree::report_block_full(int m, int n, byte * p)
     int c;
     printf("\n");
     print_spaces(m);
-    printf("Block [%d] revision *%d items (%d) usage %d%%:\n",
-            n, REVISION(p), (dir_end - DIR_START)/D2, block_usage(this, p));
+    printf("Block [%d] level %d, revision *%d items (%d) usage %d%%:\n",
+	   n, j, REVISION(p), (dir_end - DIR_START)/D2, block_usage(this, p));
 
     for (c = DIR_START; c < dir_end; c += D2)
     {
