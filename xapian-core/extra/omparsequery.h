@@ -30,4 +30,4 @@
 #define OmStopper Xapian::Stopper
 #define OmQueryParser Xapian::QueryParser
 
-#endif /* XAPIAN_INCLUDED_PARSEQUERY_H */
+#endif /* XAPIAN_INCLUDED_OMPARSEQUERY_H */

@@ -1,3 +1,8 @@
+Mon Jun 23 21:18:23 BST 2003  Olly Betts <olly@survex.com>
+
+	* extra/omparsequery.h: Corrected include protection token comment on
+	  #endif to match that used in the #ifdef.
+
 Mon Jun 23 21:10:33 BST 2003  Olly Betts <olly@survex.com>
 
 	* bootstrap: Check for Bison 1.875 which doesn't work with Xapian.
