@@ -65,12 +65,6 @@ static null_streambuf nullsb;
 /// The global verbose flag.
 bool verbose;
 
-test_driver::test_driver(const test_desc *tests_)
-	: abort_on_error(false),
-	  out(std::cout.rdbuf()),
-	  tests(tests_)
-{}
-
 void
 test_driver::set_quiet(bool quiet_)
 {
@@ -99,6 +93,15 @@ struct allocation_info {
 };
 static allocation_info new_allocations[max_allocations];
 
+/* To help in tracking memory leaks, we can set a trap on a particular
+ * memory address being allocated (which would be from the leak reporting
+ * also provided by our operator new)
+ */
+/// The address to trap (or 0 for none)
+static void *new_trap_address = 0;
+/// Which one to trap (eg 1st, 2nd, etc.)
+static unsigned long new_trap_count = 0;
+
 /** Our overridden new and delete operators, which
  *  allow us to check for leaks.
  *
@@ -113,6 +116,15 @@ void *operator new(size_t size) throw(std::bad_alloc) {
     size_t real_size = (size > 0)? size : 1;
 
     void *result = malloc(real_size);
+
+    if (new_trap_address != 0 &&
+        new_trap_address == result &&
+        new_trap_count != 0) {
+        --new_trap_count;
+	if (new_trap_count == 0) {
+            abort();
+        }
+    }
 
     if (!result) {
 #ifdef HAVE_LIBPTHREAD
@@ -180,6 +192,26 @@ void operator delete(void *p) throw() {
 #ifdef HAVE_LIBPTHREAD
     pthread_mutex_unlock(&test_driver_mutex);
 #endif // HAVE_LIBPTHREAD
+}
+
+test_driver::test_driver(const test_desc *tests_)
+	: abort_on_error(false),
+	  out(std::cout.rdbuf()),
+	  tests(tests_)
+{
+    // set up special handling to check for a particular allocation
+    const char *addr = getenv("OM_NEW_TRAP");
+    if (addr) {
+        new_trap_address = (void *)strtol(addr, 0, 16);
+        const char *count = getenv("OM_NEW_TRAP_COUNT");
+        if (count) {
+            new_trap_count = atol(count);
+	} else {
+  	    new_trap_count = 1;
+	}
+        DEBUGLINE(UNKNOWN, "new trap address set to " << new_trap_address);
+        DEBUGLINE(UNKNOWN, "new trap count set to " << new_trap_count);
+    }
 }
 
 //  A wrapper around the tests to trap exceptions,

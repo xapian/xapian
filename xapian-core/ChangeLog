@@ -1,3 +1,14 @@
+Fri Jul 21 12:26:20 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed a reported memory leak in apitest on Solaris
+
+	* Extra debugging facilities for finding memory allocation problems
+	  in testsuite programs.
+	  If OM_NEW_TRAP is set in the environment with a hex value, then
+	  global operator new() will abort() when that address is allocated.
+	  If OM_NEW_TRAP_COUNT is set to a number n, then only abort on the
+	  nth allocation returning the above address.
+
 Thu Jul 20 19:08:53 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Progress on the apitest-to-Java script and support stuff.  A

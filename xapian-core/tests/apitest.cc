@@ -1039,7 +1039,7 @@ bool test_getqterms1()
 {
     bool success;
 
-    static string answers[4] = {
+    static const char *answers[4] = {
 	"one",
 	"two",
 	"three",
@@ -1056,7 +1056,11 @@ bool test_getqterms1()
 
     om_termname_list terms = myquery.get_terms();
 
-    success = (terms == om_termname_list(answers, answers+4));
+    om_termname_list answers_list;
+    for (int i=0; i<(sizeof(answers) / sizeof(answers[0])); ++i) {
+        answers_list.push_back(answers[i]);
+    }
+    success = (terms == answers_list);
     if (verbose && !success) {
 	cout << "Terms returned in incorrect order: ";
 	copy(terms.begin(),
@@ -1073,7 +1077,7 @@ bool test_getmterms1()
 {
     bool success = true;
 
-    static string answers[4] = {
+    static const char *answers[4] = {
 	"one",
 	"two",
 	"three",
@@ -1103,7 +1107,11 @@ bool test_getmterms1()
 	}
     } else {
 	om_termname_list mterms = enquire.get_matching_terms(mymset.items[0]);
-	if (mterms != om_termname_list(answers, answers+4)) {
+        om_termname_list answers_list;
+	for (int i=0; i<(sizeof(answers) / sizeof(answers[0])); ++i) {
+		answers_list.push_back(answers[i]);
+	}
+	if (mterms != answers_list) {
 	    success = false;
 	    if (verbose) {
 		cout << "Terms returned in incorrect order: ";
