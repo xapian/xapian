@@ -1812,6 +1812,37 @@ static bool test_matches1()
     TEST_EQUAL(mymset.get_matches_estimated(), 1);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
 
+    mymset = do_get_simple_query_mset(myquery, 1);
+    TEST_EQUAL(mymset.get_matches_lower_bound(), 2);
+    TEST_EQUAL(mymset.get_matches_estimated(), 2);
+    TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+
+    mymset = do_get_simple_query_mset(myquery, 2);
+    TEST_EQUAL(mymset.get_matches_lower_bound(), 2);
+    TEST_EQUAL(mymset.get_matches_estimated(), 2);
+    TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+
+    myquery = query(OmQuery::OP_AND, "paragraph", "another");
+    mymset = do_get_simple_query_mset(myquery, 0);
+    TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
+    TEST_EQUAL(mymset.get_matches_estimated(), 1);
+    TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+
+    mymset = do_get_simple_query_mset(myquery, 1);
+    TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
+    TEST_EQUAL(mymset.get_matches_estimated(), 1);
+    TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
+
+    mymset = do_get_simple_query_mset(myquery, 2);
+    TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
+    TEST_EQUAL(mymset.get_matches_estimated(), 1);
+    TEST_EQUAL(mymset.get_matches_upper_bound(), 1);
+
+    mymset = do_get_simple_query_mset(myquery, 1, 20);
+    TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
+    TEST_EQUAL(mymset.get_matches_estimated(), 1);
+    TEST_EQUAL(mymset.get_matches_upper_bound(), 1);
+
     return true;
 }
 

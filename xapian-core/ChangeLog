@@ -1,3 +1,11 @@
+Mon Jan 15 12:23:02 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Set matches_* to the known value of the number of hits if we have
+	  been unable to return as many hits as were requested, and therefore
+	  know the exact number.
+
+	* Update test_matches1() to check this works correctly.  Passes.
+
 Fri Jan 12 17:45:27 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Implement get_doclength() for QuartzDatabase
