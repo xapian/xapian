@@ -160,8 +160,13 @@ esac], [use_mutex_errcheck=no])
 
 dnl Now set appropriate defines
 
+dnl Clear -g flag
+CFLAGS=`echo " $CFLAGS " | sed 's/[ 	][ 	]*/  /g' | sed 's/ -g / /g'`
+CXXFLAGS=`echo " $CXXFLAGS " | sed 's/[ 	][ 	]*/  /g' | sed 's/ -g / /g'`
+
 if test "$use_debug" = yes; then
 CFLAGS="$CFLAGS -g";
+CXXFLAGS="$CXXFLAGS -g";
 AC_DEFINE(MUS_DEBUG,,
   [Define if you want debugging to be enabled (will cause some slow down)])
 fi
@@ -215,7 +220,7 @@ if test "$GCC" = yes; then
 
   CXXFLAGS=`echo "$CXXFLAGS -pedantic -Wall -Wunused -Wno-long-long -fno-gnu-keywords" | sed "s/-O[0-9]*/${OPT_LEVEL}/"`
   case "$CXXFLAGS" in
-    *-O6*) ;;
+    *${OPT_LEVEL}*) ;;
     *) CXXFLAGS="$CXXFLAGS $OPT_LEVEL"
   esac
   changequote([, ])
