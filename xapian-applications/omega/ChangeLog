@@ -1,3 +1,7 @@
+Wed Nov 28 12:36:49 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Fettled default query template.
+
 Wed Nov 28 12:33:52 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Request one more match than the last we want to display so we can tell if the
