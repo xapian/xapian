@@ -430,9 +430,12 @@ LeafMatch::perform_collapse(vector<OmMSetItem> &mset,
 			  const OmMSetItem &min_item,
 			  const LeafDocument *irdoc)
 {
-    bool add_item = true;
-
     OmKey irkey = irdoc->get_key(collapse_key);
+
+    // Don't collapse on null key
+    if(irkey.value.size() == 0) return true;
+
+    bool add_item = true;
     map<OmKey, OmMSetItem>::iterator oldkey;
     oldkey = collapse_table.find(irkey);
     if(oldkey == collapse_table.end()) {
