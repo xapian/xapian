@@ -1,16 +1,18 @@
 #include <stdio.h>
 
 #include "proto_database.h"
+#include "da_database.h"
 //#include "match.h"
 
 int main(int argc, char *argv[]) {
-    ProtoDatabase database;
+    DADatabase database;
     PostList * postlist;
     termid tid;
 
     try {
 	database.open("testdir", 0);
-	tid = database.term_name_to_id("2");
+	tid = database.term_name_to_id("a");
+	// posting list 122 141 142 174 ...
 	postlist = database.open_post_list(tid);
 	while(!postlist->at_end()) {
 	    docid did;
