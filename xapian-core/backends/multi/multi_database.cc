@@ -154,6 +154,7 @@ MultiDatabase::open_post_list(const termname & tname, RSet *rset) const
 {
     Assert(opened);
     Assert((used = true) == true);
+    Assert(term_exists(tname));
 
     doccount offset = 1;
     doccount multiplier = databases.size();
@@ -205,40 +206,41 @@ MultiDatabase::open_document(docid did) const {
 
 termid
 MultiDatabase::term_name_to_id(const termname &tname) const {
+    Assert(false);
+}
+
+bool
+MultiDatabase::term_exists(const termname &tname) const
+{
     Assert(opened);
     Assert((used = true) == true);
 
     printf("Looking up term `%s': ", tname.c_str());
-    map<termname,termid>::const_iterator p = termidmap.find(tname);
+    set<termname>::const_iterator p = terms.find(tname);
 
-    termid tid = 0;
-    if (p == termidmap.end()) {
+    bool found = false;
+
+    if (p == terms.end()) {
 	printf("Looking through sub-databases:");
-	bool found = false;
 
 	vector<IRDatabase *>::const_iterator i = databases.begin();
 	while(i != databases.end()) {
-	    termid thisid = (*i)->term_name_to_id(tname);
-	    if(thisid) {
-		found = true;
-		break;
-	    }
+	    found = (*i)->term_exists(tname);
+	    if(found) break;
 	    i++;
 	}
 
 	if(found) {
-	    tid = termvec.size() + 1;
-	    printf("Adding as ID %d\n", tid);
-	    termvec.push_back(MultiTerm(tname));
-	    termidmap[tname] = tid;
+	    cout << "Found -- adding to cache" << endl;
+	    terms.insert(tname);
 	} else {
-	    printf("Not in collection\n");
+	    cout << "Not in collection" << endl;
 	}
     } else {
-	tid = (*p).second;
-	printf("found, ID %d\n", tid);
+	found = true;
+	cout << "found" << endl;
     }
-    return tid;
+    return found;
 }
 
 IRDatabase *

@@ -8,7 +8,7 @@
 #include "termlist.h"
 #include "database.h"
 #include <stdlib.h>
-#include <map>
+#include <set>
 #include <vector>
 #include <list>
 
@@ -191,21 +191,9 @@ inline bool MultiTermList::at_end() const
 
 
 
-class MultiTerm {
-    friend class MultiDatabase;
-    private:
-	MultiTerm(termname name_new) {
-	    name = name_new;
-	}
-    public:
-	termname name;
-};
-
-
 class MultiDatabase : public virtual IRGroupDatabase {
     private:
-	mutable map<termname, termid> termidmap;
-	mutable vector<MultiTerm> termvec;
+	mutable set<termname> terms;
 
 	vector<IRDatabase *> databases;
 
@@ -289,7 +277,8 @@ MultiDatabase::get_avlength() const
 
 inline doccount
 MultiDatabase::get_termfreq(const termname &tname) const
-{   
+{
+    if(!term_exists(tname)) return 0;
     PostList *pl = open_post_list(tname, NULL);
     doccount freq = 0;
     if(pl) freq = pl->get_termfreq();
@@ -297,20 +286,9 @@ MultiDatabase::get_termfreq(const termname &tname) const
     return freq;
 }
 
-inline bool
-MultiDatabase::term_exists(const termname &tname) const
-{
-    if(term_name_to_id(tname)) return true;
-    return false;
-}
-
 inline termname
 MultiDatabase::term_id_to_name(termid tid) const {
-    Assert(opened);
-    Assert((used = true) == true);
-    Assert(tid > 0 && tid <= termvec.size());
-    //printf("Looking up termid %d: name = `%s'\n", tid, termvec[tid - 1].name.c_str());
-    return termvec[tid - 1].name;
+    Assert(false);
 }
 
 #endif /* _multi_database_h_ */
