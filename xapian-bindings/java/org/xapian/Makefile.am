@@ -1,5 +1,7 @@
 jardir = $(top_srcdir)/java/built # directory to install xapian_jni.jar in
 
+SUBDIRS = errors examples
+
 SUFFIXES = .java .class
 
 EXTRA_DIST = Database.java Document.java ESet.java ESetIterator.java\
@@ -15,8 +17,8 @@ XAPIAN_CLASS_FILES = Database.class Document.class ESet.class\
 
 jar_DATA = xapian_jni.jar
 
-xapian.jar:
-	$(JAR) -cf xapian_jni.jar $(XAPIAN_CLASS_FILES)
+xapian.jar: $(XAPIAN_CLASS_FILES)
+	$(JAR) -cf xapian_jni.jar $(XAPIAN_CLASS_FILES) errors/*.class
 
 .java.class:
 	$(JAVAC) -d . $<
