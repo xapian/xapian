@@ -1,3 +1,8 @@
+Tue Nov 09 03:03:48 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,Makefile.am: We now get -AA or -std strict_ansi from
+	  xapian-config, so we don't need to probe for them ourselves.
+
 Sun Nov 07 04:51:51 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: rearrange so that libtool is active when we test if

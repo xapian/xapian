@@ -59,8 +59,6 @@ EXTRA_DIST = templates/query \
 	docs/scriptindex.txt \
 	dbi2omega htdig2omega htdig2omega.script
 
-AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
-
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
 bin_PROGRAMS = omindex scriptindex

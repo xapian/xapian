@@ -5,8 +5,6 @@ AUTOMAKE_OPTIONS = 1.6.3
 SUBDIRS = . docs
 DIST_SUBDIRS = . docs
 
-AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
-
 bin_PROGRAMS = xapian-queryserver
 
 php4dir = $(pkglibdir)/php4
