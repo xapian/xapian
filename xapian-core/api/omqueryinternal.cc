@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,8 +55,6 @@ get_min_subqs(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::OP_PHRASE:
 	case Xapian::Query::OP_ELITE_SET:
 	    return 0;
-	case Xapian::Query::OP_WEIGHT_CUTOFF:
-	    return 1;
 	case Xapian::Query::OP_FILTER:
 	case Xapian::Query::OP_AND_MAYBE:
 	case Xapian::Query::OP_AND_NOT:
@@ -73,8 +71,6 @@ get_max_subqs(Xapian::Query::Internal::op_t op)
     switch (op) {
 	case Xapian::Query::Internal::OP_LEAF:
 	    return 0;
-	case Xapian::Query::OP_WEIGHT_CUTOFF:
-	    return 1;
 	case Xapian::Query::OP_FILTER:
 	case Xapian::Query::OP_AND_MAYBE:
 	case Xapian::Query::OP_AND_NOT:
@@ -210,9 +206,6 @@ Xapian::Query::Internal::serialise() const
 	    case Xapian::Query::OP_PHRASE:
 		result += "\"" + om_tostring(window);
 		break;
-	    case Xapian::Query::OP_WEIGHT_CUTOFF:
-		result += ">" + om_tostring(cutoff);
-		break;
 	    case Xapian::Query::OP_ELITE_SET:
 		result += "*" + om_tostring(elite_set_size);
 		break;
@@ -236,7 +229,6 @@ Xapian::Query::Internal::get_op_name(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::OP_XOR:             name = "XOR"; break;
 	case Xapian::Query::OP_NEAR:            name = "NEAR"; break;
 	case Xapian::Query::OP_PHRASE:          name = "PHRASE"; break;
-	case Xapian::Query::OP_WEIGHT_CUTOFF:   name = "WEIGHT_CUTOFF"; break;
 	case Xapian::Query::OP_ELITE_SET:       name = "ELITE_SET"; break;
     }
     return name;
@@ -262,8 +254,6 @@ Xapian::Query::Internal::get_description() const
 	opstr = " " + get_op_name(op) + " ";
 	if (op == Xapian::Query::OP_NEAR || op == Xapian::Query::OP_PHRASE)
 	    opstr += om_tostring(window) + " ";
-	if (op == Xapian::Query::OP_WEIGHT_CUTOFF)
-	    opstr += om_tostring(cutoff) + " ";
 	if (op == Xapian::Query::OP_ELITE_SET)
 	    opstr += om_tostring(elite_set_size) + " ";
     }
@@ -280,14 +270,6 @@ void
 Xapian::Query::Internal::set_window(Xapian::termpos window_)
 {
     window = window_;
-}
-
-void
-Xapian::Query::Internal::set_cutoff(double cutoff_)
-{
-    if (op != Xapian::Query::OP_WEIGHT_CUTOFF)
-	throw Xapian::InvalidOperationError("Can only set cutoff parameter for weight or percentage cutoff operators.");
-    cutoff = cutoff_;
 }
 
 void
@@ -483,17 +465,6 @@ QUnserial::readcompound() {
 		p = tmp;
 		return qint;
 	    }
-	    case '>': {
-		Xapian::Query::Internal * qint;
-		qint = new Xapian::Query::Internal(Xapian::Query::OP_WEIGHT_CUTOFF);
-		Assert(subqs.size() == 1);
-		qint->add_subquery(*subqs[0]);
-		qint->end_construction();
-		char *tmp; // avoid compiler warning
-		qint->set_cutoff(strtod(p, &tmp));
-		p = tmp;
-		return qint;
-	    }
 	    case '*': {
 		Xapian::Query::Internal * qint;
 		qint = qint_from_vector(Xapian::Query::OP_ELITE_SET, subqs);
@@ -533,7 +504,6 @@ Xapian::Query::Internal::swap(Xapian::Query::Internal &other)
     subqs.swap(other.subqs);
     std::swap(qlen, other.qlen);
     std::swap(window, other.window);
-    std::swap(cutoff, other.cutoff);
     std::swap(elite_set_size, other.elite_set_size);
     std::swap(tname, other.tname);
     std::swap(term_pos, other.term_pos);
@@ -546,7 +516,6 @@ Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
 	  subqs(),
 	  qlen(copyme.qlen),
 	  window(copyme.window),
-	  cutoff(copyme.cutoff),
 	  elite_set_size(copyme.elite_set_size),
 	  tname(copyme.tname),
 	  term_pos(copyme.term_pos),
@@ -568,7 +537,6 @@ Xapian::Query::Internal::Internal(const string & tname_, Xapian::termcount wqf_,
 	  subqs(),
 	  qlen(wqf_),
 	  window(0),
-	  cutoff(0),
 	  elite_set_size(0),
 	  tname(tname_),
 	  term_pos(term_pos_),
@@ -584,7 +552,6 @@ Xapian::Query::Internal::Internal(op_t op_)
 	  subqs(),
 	  qlen(0),
 	  window(0),
-	  cutoff(0),
 	  elite_set_size(0),
 	  tname(),
 	  term_pos(0),
@@ -645,17 +612,6 @@ Xapian::Query::Internal::validate_query() const
 		" requires a window size of at least " + 
 		om_tostring(get_min_window(op)) + ", had " +
 		om_tostring(window) + ".");
-    }
-
-    // Check that the cutoff parameter is in acceptable limits
-    // FIXME: flakey and nasty.
-    if (cutoff != 0 && op != Xapian::Query::OP_WEIGHT_CUTOFF) {
-	throw Xapian::InvalidArgumentError("Xapian::Query: " + get_op_name(op) +
-		" requires a cutoff of 0");
-    }
-    if (cutoff < 0) {
-	throw Xapian::InvalidArgumentError("Xapian::Query: " + get_op_name(op) +
-		" requires a cutoff of at least 0");
     }
 
     // Check that all subqueries are valid.

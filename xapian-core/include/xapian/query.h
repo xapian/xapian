@@ -94,14 +94,6 @@ class Query {
 	     */
 	    OP_PHRASE,
 
-	    /** Return only results with a weight greater than or equal to
-	     *  a specified cutoff value.
-	     *
-	     *  The cutoff parameter should be specified for this operation,
-	     *  and will default to 0 (no cutoff).
-	     */
-	    OP_WEIGHT_CUTOFF,
-
 	    /** Select an elite set of terms from the subqueries, and perform
 	     *  a query with all those terms combined as an OR query.
 	     */
@@ -173,10 +165,6 @@ class Query {
 	/** Set the window size, for a NEAR or PHRASE query.
 	 */
 	void set_window(Xapian::termpos window);
-
-	/** Set the cutoff parameter, for a WEIGHT_CUTOFF query.
-	 */
-	void set_cutoff(Xapian::weight cutoff);
 
 	/** Set the elite set size, for ELITE_SET queries.  */
 	void set_elite_set_size(Xapian::termcount size);
@@ -289,10 +277,6 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	Xapian::termpos window;
 
-	/** What's the cutoff for *_CUTOFF queries.
-	 */
-	double cutoff;
-
 	/** How many terms to select for the elite set, for ELITE_SET queries.
 	 */
 	Xapian::termcount elite_set_size;
@@ -394,9 +378,6 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Set window for NEAR or PHRASE queries */
 	void set_window(Xapian::termpos window);
-
-	/** Set cutoff for *_CUTOFF queries */
-	void set_cutoff(double cutoff);
 
 	/** Set elite set size */
 	void set_elite_set_size(Xapian::termcount size);

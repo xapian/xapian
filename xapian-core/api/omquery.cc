@@ -166,13 +166,6 @@ void Xapian::Query::set_window(Xapian::termpos window)
     internal->set_window(window);
 }
 
-void Xapian::Query::set_cutoff(Xapian::weight cutoff)
-{
-    DEBUGAPICALL(void, "Xapian::Query::set_cutoff", cutoff);
-    Assert(internal.get());
-    internal->set_cutoff(cutoff);
-}
-
 void Xapian::Query::set_elite_set_size(Xapian::termcount size)
 {
     DEBUGAPICALL(void, "Xapian::Query::set_elite_set_size", size);

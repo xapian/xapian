@@ -1,3 +1,10 @@
+Mon Feb 28 04:43:20 GMT 2005  Olly Betts <olly@survex.com>
+
+	* api/omquery.cc,api/omqueryinternal.cc,common/socketcommon.h,
+	  include/xapian/query.h,matcher/,tests/api_anydb.cc:
+	  Removed OP_WEIGHT_CUTOFF, since it doesn't actually seem to
+	  add useful functionality over using Enquire::set_cutoff().
+
 Mon Feb 28 04:31:58 GMT 2005  Olly Betts <olly@survex.com>
 
 	* matcher/weightcutoffpostlist.cc: Fix updating of docid in

@@ -37,7 +37,6 @@
 #include "leafpostlist.h"
 #include "mergepostlist.h"
 #include "extraweightpostlist.h"
-#include "weightcutoffpostlist.h"
 
 #include "omqueryinternal.h"
 
@@ -463,13 +462,6 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 					postlist_from_query(query->subqs[1], matcher, is_bool),
 					matcher,
 					db->get_doccount());
-
-	case Xapian::Query::OP_WEIGHT_CUTOFF:
-	    Assert(query->subqs.size() == 1);
-	    // FIXME: if is_bool, then do what?
-	    return new WeightCutoffPostList(postlist_from_query(query->subqs[0], matcher, is_bool),
-					    query->cutoff,
-					    matcher);
     }
     Assert(false);
     RETURN(NULL);

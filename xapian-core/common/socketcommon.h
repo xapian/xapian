@@ -34,7 +34,8 @@
 
 using std::map;
 
-#define XAPIAN_SOCKET_PROTOCOL_VERSION 17
+// 18: Removed OP_WEIGHT_CUTOFF
+#define XAPIAN_SOCKET_PROTOCOL_VERSION 18
 
 class Stats;
 class OmTime;
