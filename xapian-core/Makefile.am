@@ -3,8 +3,6 @@
 # Need 1.5 for AM_CFLAGS, etc; also so generated files in EXTRA_DIST work
 AUTOMAKE_OPTIONS = 1.5
 
-#ln -s `find .. -type f \( -name \*.cc -o -name \*.h -o -name \*.c \) -print` .
-
 if BUILD_BACKEND_REMOTE
 BUILDSUBDIR_REMOTE1 = net
 BUILDSUBDIR_REMOTE2 = netprogs
@@ -27,7 +25,7 @@ bin_SCRIPTS = xapian-config
 
 CLEANFILES = TODO TODO.release xapian-config
 
-EXTRA_DIST = Makefile_common.am ChangeLog buildall HACKING PLATFORMS \
+EXTRA_DIST = ChangeLog buildall HACKING PLATFORMS \
              ar-wrapper-solaris TODO TODO.release xapian.spec
 
 lib_LTLIBRARIES = libxapian.la
@@ -53,10 +51,7 @@ else
 	false
 endif
 
-# http://ctags.sourceforge.net/
-ctags:
-	ctags-exuberant -R --links=no
-
+# FIXME:
 # doesn't really work as we'd hope as we get to play with the mangled symbols
 libxapian_la_LDFLAGS = -export-symbols-regex 'Om[A-Z]'
 

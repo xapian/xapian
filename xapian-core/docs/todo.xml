@@ -4,6 +4,13 @@
 Fix problem with 100% being in its own sort band.
 
 </todoitem>
+<todoitem priority=" " difficulty="" owner="" area="Matcher" release="">
+
+Optimisation:  Consider using hash_map instead of map in various places -
+two possible such locations are i) doing collapsem (in match.cc) and ii)
+in the inmemory databse.
+
+</todoitem>
 <todoitem priority=" " difficulty="" owner="Olly" area="API" release="">
 
 Should OmWritableDatabase have a default ctor?  Consider for all API classes...
@@ -16,10 +23,10 @@ match numeric docids in another system?)  Currently replace_document() fails
 if the document id doesn't exist already (at least with quartz).
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="Docs" release="0.5">
+<todoitem priority=" " difficulty="" owner="Olly" area="Documentation" release="">
 
-Install all docs in docs, not just the html ones (e.g. omsettings should be
-installed).  Convert text docs to HTML?
+Convert text docs to HTML?  Link together docs aimed at those developing
+Xapian itself.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Olly" area="Quartz" release="">
@@ -36,7 +43,7 @@ Or touch the lock periodically to keep it?
 Should OmWritableDatabase have a default ctor?  Consider for all API classes...
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="Docs" release="0.5">
+<todoitem priority=" " difficulty="" owner="Olly" area="Documentation" release="0.5">
 
 Finish reading through generated docs to ensure they read well in collated form.
 
@@ -80,7 +87,7 @@ Pass around partially created postlists and termlists as AutoPtrs?
 (for exception safety)
 
 </todoitem>
-<todoitem priority="H" difficulty="3" owner="" area="General / API" release="">
+<todoitem priority="H" difficulty="3" owner="" area="API" release="">
 
 Put Om into its own namespace, to ensure lack of symbol conflicts.
 
@@ -110,7 +117,7 @@ should probably use data() and length().
 Write tests for copying term and postlist iterators.
 
 </todoitem>
-<todoitem priority="M" difficulty="1" owner="" area="DA/DB" release="1.0">
+<todoitem priority="M" difficulty="1" owner="" area="DA/DB" release="">
 
 Add get_all_terms DB databases.  Needs extra code in dbread.[ch].
 
@@ -131,7 +138,7 @@ Make all errors return a context if appropriate.
 Produce Microsoft Windows version, probably cross-compiling to mingw.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="API" release="">
+<todoitem priority="M" difficulty="3" owner="" area="API" release="0.6">
 
 Implement methods to iterate through all the documents in the database.
 Possibly via a special term which indexes all documents.
@@ -161,7 +168,7 @@ optimisations for the case of negative term weights.
 Patch doxygen, so that todo items in the body of methods get displayed.
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="General" release="">
+<todoitem priority="M" difficulty="5" owner="" area="Exceptions" release="">
 
 Check that it is safe for an exception to be thrown and caught within a
 destructor, when that destructor is being called due to an exception

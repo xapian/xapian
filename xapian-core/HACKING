@@ -138,8 +138,8 @@ which breaks C++ code which has methods called open.  There's a cunning way
 to avoid this problem, which is implemented in common/utils.h.
 
 Any C++ file which wants to "#include <fcntl.h>" should instead '#include
-"utils.h"'.  The open call this defines will also take a C++ string (or you can
-pass a char* which it will convert to a C++ string for you).
+"utils.h"'.  For convenience, the open call this defines takes a C++ string,
+but you can also pass a char* (which will be converted to a C++ string).
 
 Warning Free Compilation:
 -------------------------
@@ -154,7 +154,7 @@ If using GCC 3.0 or newer, you should consider configure-ing with:
 
 when doing development work on Xapian.  This promotes warnings to errors,
 and should ensure you don't introduce warnings.  If you find out how to
-do the same with other compilers, note it here.
+do the same with other compilers, please add a note here.
 
 Makefile Portability:
 =====================
@@ -213,13 +213,38 @@ many versions of make).
 Using @echo on a message sent to stdout or stderr is acceptable.  Otherwise
 don't use "@" - it makes it harder to track down problems in the makefiles.
 
+Use of Assert
+=============
+
+Use Asserts to perform internal consistency checks, and to check for invalid
+arguments to functions and methods (e.g. passing a NULL pointer when this isn't
+permitted).  They should *NOT* be used to check for error conditions such as
+file read errors, new returning 0, etc (since we want to perform such checks
+in non-debug builds too).
+
+File format errors should also not be tested with Asserts - we want to catch
+a corrupted database or a malformed input file in a non-debug build too.
+
+There are several variants of Assert:
+
+Assert(P) -- asserts that expression P is true
+AssertEq(a,b) -- asserts that expressions a and b are equal [message reports
+	values of a and b, so is more informative than Assert((a)==(b))]
+AssertNe(a,b) -- asserts a and b are not equal
+AssertEqDouble(a,b) -- asserts a and b differ by less than DBL_EPSILON
+
+AssertParanoid(P) -- a particularly expensive assertion.  If you want a build
+	with Asserts enabled, but without a great performance overhead, then
+	passing --enable-debug=partial to configure and AssertParanoids won't
+	be checked, but Asserts will.
+
 Submitting Patches:
 ===================
 
 If you have a patch to fix a problem in Xapian, or to add a new
 feature, feel free to submit it to us via the SourceForge patch
 management system. Any major changes should be discussed on the
-xapian-devel mailing list first (see
+xapian-devel mailing list first:
 <http://lists.sourceforge.net/mailman/listinfo/xapian-devel>
 
 We find patches generated with "diff -puN" easiest to read.  If you are

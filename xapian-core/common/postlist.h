@@ -157,6 +157,15 @@ class PostList : public RefCntBase
 	PostList *next() { return next(-9e20); }
 	
 	/// Move to next docid with weight greater than w_min
+	//
+	// In many cases, next() returns a NULL PostList pointer.  A non-NULL
+	// return is used by BranchPostList to simplify the PostList
+	// tree.  Sometimes a BranchPostList P will return a pointer to a
+	// different PostList to replace it.  P's parent will notice, and
+	// replace its pointer to P with the returned pointer, which can be
+	// either one of P's children, or another branch.  P will be deleted
+	// by the parent after it replaces P.
+
 	virtual PostList *next(om_weight w_min) = 0;
 
 	/// Moves to next docid >= specified docid
