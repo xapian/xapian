@@ -1,11 +1,11 @@
 # a macro to get the libs/cflags for libomus
 # serial 1
 
-dnl AC_PATH_LIBOMUS([ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
+dnl AM_PATH_LIBOMUS([ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
 dnl Find paths to LIBOMUS
 dnl Defines LIBOMUS_CFLAGS and LIBOMUS_LIBS
 dnl
-AC_DEFUN(AC_PATH_LIBOMUS,
+AC_DEFUN(AM_PATH_LIBOMUS,
 [dnl
 dnl Get the cflags and libraries from the libomus-config script
 dnl
