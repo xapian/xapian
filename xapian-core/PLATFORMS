@@ -83,7 +83,9 @@ hppa  |=HP-UX 11.11 aCC B3910B A.03.57 | 0.8.5 |Passed| (spe192) [9]
 hppa  |=HP-UX 11.23 aCC B3910B A.03.55 | 0.8.5 |Passed| (spe191) [9]
 ia64  |=Linux 2.4 Debian 3.0 GCC 3.4.1 | 0.8.5 |Passed| (spe156)
 ia64  |=Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.5 |Passed| (spe177)
+ia64  |+Linux 2.4 RHEL AS3 GCC 3.2.3   | 0.8.5~|Passed| Only tried xapian-core
 ia64  |=Linux 2.4 RHEL AS3 GCC 3.4.1   | 0.8.5 |Passed| (spe177)
+ia64  |+Linux 2.4 RHEL AS3 IntelC++ 8.1| 0.8.5~|Passed| [11]
 ia64  |=HP-UX 11.23 GCC 3.4.1          | 0.8.5 |Passed| (spe176)
 ia64  |=HP-UX 11.23 aCC B3910B A.06.00 | 0.8.5 |Passed| (spe176)
 ------+--------------------------------+-------+------+------------------------
@@ -135,6 +137,7 @@ x86   | Linux 2.4 Debian sid GCC 3.3.1 | 0.7.0 |Passed| from Olly Betts
 & = ixion (James Aylett's colo box)
 ^ = thanks to Wookey for access to this platform
 = = HP Test Drive machine (http://www.testdrive.hp.com/)
++ = Intel and SGI Parallel Application Center (http://www.intel.com/IDS/pac/)
 
 ~ = Tested version from CVS shortly before this release (or after for ~ suffix)
 
@@ -176,3 +179,10 @@ scenario.
 mv: [FILE]: set owner/group (was: [USERNO]/[GROUPNO]): Operation not permitted
 (This problem is believed fixed by a newer autoconf, which we use from
 0.8.2 onwards.)
+
+[11] Intel's compiler is very "chatty" - lots of "remark" messages about
+irrelevant thing, and a few warnings which don't seem to be easy to suppress
+by tweaking the code.  Also, configure identifies it as GCC, so we pass a few
+GCC specific command-line options which Intel's compiler doesn't actually
+understand.  However it just issues a warning message and ignores these
+options, so the build works.
