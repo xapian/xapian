@@ -245,6 +245,8 @@ dnl unset the cached value since linking with "-lrt" may change the answer
 unset ac_cv_func_fdatasync
 AC_CHECK_FUNCS(fdatasync fsync)
 
+AC_CHECK_FUNCS(pread pwrite)
+
 dnl See if we want to use STLport
 RJB_FIND_STLPORT
 

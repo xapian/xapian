@@ -1,3 +1,8 @@
+Sat Jul 05 02:09:06 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in,backends/quartz/btree.cc: Use pread() and pwrite() if
+	  available - this avoids one syscall per block read/write.
+
 Fri Jul 04 22:05:14 BST 2003  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Added results from building 0.7.0 on my Linux dev box.

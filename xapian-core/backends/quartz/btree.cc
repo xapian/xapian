@@ -127,23 +127,12 @@ static int sys_open_for_readwrite(const string & name)
     return fd;
 }
 
-static void sys_lseek(int h, off_t offset)
-{
-    Assert((offset & 1023) == 0);
-    if (lseek(h, offset, SEEK_SET) == -1) {
-	string message = "Error seeking to block: ";
-	message += strerror(errno);
-	throw Xapian::DatabaseError(message);
-    }
-}
-
 static void sys_write_bytes(int h, int n, const char * p)
 {
-    ssize_t bytes_written;
     while (1) {
-	bytes_written = write(h, p, n);
+	ssize_t bytes_written = write(h, p, n);
 	if (bytes_written == n) {
-	    // normal case - read succeeded, so return.
+	    // normal case - write succeeded, so return.
 	    return;
 	} else if (bytes_written == -1) {
 	    string message = "Error writing block: ";
@@ -293,7 +282,36 @@ Btree::read_block(int4 n, byte * p)
      */
     Assert(n / CHAR_BIT < base.get_bit_map_size());
 
-    sys_lseek(handle, (off_t)block_size * n);
+#ifdef HAVE_PREAD
+    off_t offset = (off_t)block_size * n;
+    int m = block_size;
+    while (1) {
+	ssize_t bytes_read = pread(handle, (char *)p, m, offset);
+	// normal case - read succeeded, so return.
+	if (bytes_read == m) return;
+	if (bytes_read == -1) {
+	    string message = "Error reading block " + om_tostring(n) + ": ";
+	    message += strerror(errno);
+	    throw Xapian::DatabaseError(message);
+	} else if (bytes_read == 0) {
+	    string message = "Error reading block " + om_tostring(n) + ": got end of file";
+	    throw Xapian::DatabaseError(message);
+	} else if (bytes_read < m) {
+	    /* Read part of the block, which is not an error.  We should
+	     * continue reading the rest of the block.
+	     */
+	    m -= bytes_read;
+	    p += bytes_read;
+	    offset += bytes_read;
+	}
+    }
+#else
+    if (lseek(handle, (off_t)block_size * n, SEEK_SET) == -1) {
+	string message = "Error seeking to block: ";
+	message += strerror(errno);
+	throw Xapian::DatabaseError(message);
+    }
+
     int m = block_size;
     while (1) {
 	ssize_t bytes_read = read(handle, (char *)p, m);
@@ -314,6 +332,7 @@ Btree::read_block(int4 n, byte * p)
 	    p += bytes_read;
 	}
     }
+#endif
     /** Previously, this would set B->error to BTREE_ERROR_DB_READ
      *  when sys_read_block() failed.  However, it now throws an
      *  exception, so we never get here.
@@ -359,8 +378,39 @@ Btree::write_block(int4 n, const byte * p)
 	}
     }
 
-    sys_lseek(handle, (off_t)block_size * n);
+#ifdef HAVE_PWRITE
+    off_t offset = (off_t)block_size * n;
+    int m = block_size;
+    while (true) {
+	ssize_t bytes_written = pwrite(handle, p, m, offset);
+	if (bytes_written == m) {
+	    // normal case - write succeeded, so return.
+	    return;
+	} else if (bytes_written == -1) {
+	    string message = "Error writing block: ";
+	    message += strerror(errno);
+	    throw Xapian::DatabaseError(message);
+	} else if (bytes_written == 0) {
+	    string message = "Error writing block: wrote no data";
+	    throw Xapian::DatabaseError(message);
+	} else if (bytes_written < m) {
+	    /* Wrote part of the block, which is not an error.  We should
+	     * continue writing the rest of the block.
+	     */
+	    m -= bytes_written;
+	    p += bytes_written;
+	    offset += bytes_written;
+	}
+    }
+#else
+    if (lseek(handle, (off_t)block_size * n, SEEK_SET) == -1) {
+	string message = "Error seeking to block: ";
+	message += strerror(errno);
+	throw Xapian::DatabaseError(message);
+    }
+
     sys_write_bytes(handle, block_size, (const char *)p);
+#endif
     /* This used to set B->error as below, but will now throw
      * an exception if it fails.
 	B->error = BTREE_ERROR_DB_WRITE;
