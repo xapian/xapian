@@ -211,7 +211,8 @@ class QuartzDbTable {
 	 *  is replaced by the supplied one.
 	 *
 	 *  If an entry is specified with a null pointer for the tag, then
-	 *  the entry will be removed from the database.
+	 *  the entry will be removed from the database if it exists.  If
+	 *  it does not exist, no action will be taken.
 	 *
 	 *  @param entries   The key / tag pairs to store in the table.
 	 *

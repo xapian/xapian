@@ -110,7 +110,7 @@ static void check_table_values_empty(const QuartzDbTable & table)
     // Check normal reads
     key.value = "hello";
     tag.value = "foo";
-    TEST(table.read_entry(key, tag));
+    TEST(!table.read_entry(key, tag));
     TEST_EQUAL(key.value, "");
     TEST_EQUAL(tag.value, "");
 
@@ -227,6 +227,26 @@ static bool test_dbtable1()
     // Check the entries in the table
     check_table_values_empty(table1);
     check_table_values_empty(table2);
+    
+    // Check read_entry when looking for something between two elements
+    newentries.clear();
+    key.value = "hello";
+    tag.value = "world";
+    newentries[key] = &tag;
+    key.value = "whooo";
+    tag.value = "world";
+    newentries[key] = &tag;
+    TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
+    table2.set_entries(newentries);
+
+    TEST_EQUAL(rev1, table1.get_revision_number());
+    TEST_NOT_EQUAL(rev2, table2.get_revision_number());
+    rev1 = table1.get_revision_number();
+    rev2 = table2.get_revision_number();
+
+    // Check the entries in the table
+    check_table_values_empty(table1);
+    check_table_values_hello(table2, "world");
     
     return true;
 }

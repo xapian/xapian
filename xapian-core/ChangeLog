@@ -1,3 +1,7 @@
+Wed Sep 13 17:52:12 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* QuartzDbTables now implemented (as maps) and pass testsuite.
+
 Wed Sep 13 17:34:03 BST 2000 Olly Betts
 
 	* test programs can now take a list of tests to on the command line.
