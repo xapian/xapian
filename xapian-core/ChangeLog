@@ -1,3 +1,19 @@
+Thu Aug 17 20:47:48 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix some documentation comments in common/database.h and
+	  include/om/omdatabase.h
+
+	* Begun to implement structure for organising database modifications
+	  in Quartz database - added QuartzModifcations.  Also added a mutex
+	  to protect the QuartzDatabase class from concurrent access.
+
+	* Ensure that all database types won't have an exception thrown
+	  from their destructors: catch any thrown by internal_end_session()
+	  and discard them.  Is this safe? - is possible to have two
+	  exceptions in progress at once; one causing the destructor to
+	  be called, and one inside the destructor (although this won't
+	  escape the destructor).
+
 Thu Aug 17 17:16:00 BST 2000 Olly Betts
 
 	* Merged select_query_terms into build_query_tree
