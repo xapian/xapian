@@ -8,8 +8,6 @@ Split database definition files into database/postlist/termlist files.
 
 Make all debugging printf / cout stuff occur iff MUS_DEBUG_VERBOSE is defined.
 
-Make all databases inherit from IndexerDestination.
-
 Remove hardcoded reference to an indexer in InMemoryDatabase.  Index to it
 in the usual way.
 
@@ -43,6 +41,7 @@ Middle term (within a couple of months)
 Write an Enquire object to make a consistent exported searching interface.
 
 Make the sleepycat database function (at all).
+Write indexing methods for databases.
 
 Passage retrieval.
 
