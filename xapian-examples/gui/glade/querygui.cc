@@ -4,6 +4,8 @@
 #include <glade/glade.h>
 #include <cstdio>
 #include <string>
+#include <unistd.h>
+#include <sys/stat.h>
 #include "querygui.h"
 
 #include "database.h"
@@ -12,8 +14,11 @@
 #include "irdocument.h"
 #include "match.h"
 #include "stem.h"
+
+#include "multi_database.h"
 #include "da_database.h"
 #include "textfile_database.h"
+
 #include "textfile_indexer.h"
 #include "query_parser.h"
 
@@ -86,6 +91,7 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 
 	vector<QueryTerm>::const_iterator i = qterms.begin();
 	while(i != qterms.end()) {
+	    cout << "`" << (*i).tname << "'" << endl;
 	    matcher.add_term((*i).tname);
 	    i++;
 	}
@@ -93,7 +99,6 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	matcher.set_max_msize(10);
 
 	matcher.match();
-
 	weight maxweight = matcher.get_max_weight();
 	doccount mtotal = matcher.mtotal;
 	doccount msize = matcher.msize;
@@ -144,7 +149,6 @@ IRDatabase *makenewdb(const string &type)
 }
 
 int main(int argc, char *argv[]) {
-    string datafile = "/mnt/ivory/disk1/home/richard/textfile";
     string gladefile = "querygui.glade";
     int msize = 10;
     list<string> dbnames;
@@ -162,7 +166,7 @@ int main(int argc, char *argv[]) {
 	    msize = atoi(argv[1]);
 	    argc -= 2;
 	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--db") == 0) {
+	} else if (argc >= 2 && strcmp(argv[0], "--da") == 0) {
 	    dbnames.push_back(argv[1]);
 	    dbtypes.push_back("da");
 	    argc -= 2;
@@ -170,6 +174,10 @@ int main(int argc, char *argv[]) {
 	} else if (argc >= 2 && strcmp(argv[0], "--tf") == 0) {
 	    dbnames.push_back(argv[1]);
 	    dbtypes.push_back("textfile");
+	    argc -= 2;
+	    argv += 2;
+	} else if (argc >= 2 && strcmp(argv[0], "--glade") == 0) {
+	    gladefile = argv[1];
 	    argc -= 2;
 	    argv += 2;
 	} else {
@@ -181,22 +189,41 @@ int main(int argc, char *argv[]) {
     if (syntax_error || argc >= 1) {
 	cout << "Syntax: " << progname << " [options]" << endl;
 	cout << "\t--msize <initial msize>\n";
-	cout << "\t--db <DA directory>\n";
+	cout << "\t--da <DA directory>\n";
 	cout << "\t--tf <textfile>\n";
+	cout << "\t--glade <glade interface definition file>\n";
 	exit(1);
     }
 
+    if(!dbnames.size()) {
+	dbnames.push_back("/mnt/ivory/disk1/home/richard/textfile");
+	dbtypes.push_back("textfile");
+    }
+
     try {
-	database = new TextfileDatabase();
-	database->open(datafile, true);
+	if (dbnames.size() > 1) {
+	    MultiDatabase *multidb = new MultiDatabase;
+	    list<string>::const_iterator p;
+	    list<string>::const_iterator q;
+	    for(p = dbnames.begin(), q = dbtypes.begin();
+		p != dbnames.end();
+		p++, q++) {
+		multidb->open_subdatabase(makenewdb(*q), *p, true);
+	    }
+	    database = multidb;
+	} else {
+	    database = makenewdb(*(dbtypes.begin()));
+	    database->open(*(dbnames.begin()), true);
+	}
     } catch (OmError e) {
 	cout << e.get_msg() << endl;
-	return 1;
+	exit(1);
     }
 
     GladeXML *xml;
 
     /* load the interface */
+
     xml = glade_xml_new(gladefile.c_str(), NULL);
     if(xml == NULL) {
 	cerr << "Unable to open " << gladefile << endl;
