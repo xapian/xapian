@@ -1,3 +1,7 @@
+Thu Dec 13 15:10:24 GMT 2001  Olly Betts <olly@survex.com>
+
+	* For image page buttons, display pages 10-999 by using 2 or 3 images.
+
 Thu Dec 13 15:02:16 GMT 2001  Olly Betts <olly@survex.com>
 
 	* New operators: $div{}, $mod{}, $mul{}, $sub{}, $ge{}, $gt{}, $le{},

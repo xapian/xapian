@@ -13,9 +13,14 @@ SRC="/images/next.png" BORDER=0 HEIGHT=30 WIDTH=30>,
 <IMG ALT="" SRC="/images/nextoff.png" HEIGHT=30 WIDTH=30>}
 }
 
-$def{PAGE,<INPUT TYPE=image NAME="$1" VALUE="$1" SRC="/images/page-$1.png" BORDER=0$opt{a} ALT="$1">}
+$def{P,<INPUT TYPE=image NAME="$1" VALUE="$1" SRC="/images/page-$2.png" BORDER=0$opt{a} ALT="$1">}
 
-$def{SPAGE,<IMG SRC="/images/page-$1s.png"$opt{a} ALT=$1>}
+$def{PAGE,$if{$gt{$1,9},$if{$gt{$1,99},$P{$1,$div{$1,100}}}
+$P{$1,$mod{$div{$1,10},10}}}$P{$1,$mod{$1,10}}}
+
+$def{S,<IMG SRC="/images/page-$2s.png"$opt{a} ALT=$1>}
+$def{SPAGE,$if{$gt{$1,9},$if{$gt{$1,99},$S{$1,$div{$1,100}}}
+$S{$1,$mod{$div{$1,10},10}}}$S{$1,$mod{$1,10}}}
 }
 
 $def{PREV,$if{$ne{$topdoc,0},<INPUT TYPE=submit NAME="&lt;" VALUE="Previous">}}
@@ -60,7 +65,7 @@ $if{$ne{$last,$msize},
 $list{$map{$queryterms,$prettyterm{$_}:&nbsp;$nice{$freq{$_}}},Term frequencies: <b>,$. ,</b>}
 <table>
 $hitlist{<TR><TD VALIGN=top><IMG
-SRC="/images/score-$score.png"
+SRC="/images/score-$div{$percentage,10}.png"
 ALT="$percentage%" HEIGHT=16 WIDTH=32></TD>
 <TD VALIGN=top><TABLE BORDER=0 CELLPADDING=1><TR><TD BGCOLOR="#ccffcc">
 <INPUT TYPE=checkbox NAME=R VALUE=$id$if{$relevant, CHECKED}>
@@ -104,6 +109,9 @@ $if{$ne{$topdoc,0},<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>}
 $if{$ne{$hitsperpage,10},<INPUT TYPE=hidden NAME=HITSPERPAGE VALUE=$hitsperpage>}
 $if{$fmt,<INPUT TYPE=hidden NAME=FMT VALUE="$html{$fmt}">}
 $list{$queryterms,<INPUT TYPE=hidden NAME=OLDP VALUE=",.,.">}
+${Need this is value of DB can change
+$if{$dbname,<INPUT TYPE=hidden NAME=OLDDB VALUE="$html{$dbname}">}
+}
 $list{$relevants,<INPUT TYPE=hidden NAME=R VALUE=",.,">}
 $if{$cgi{THRESHOLD},<INPUT TYPE=hidden NAME=THRESHOLD VALUE="$html{$cgi{THRESHOLD}}">}
 </FORM>
