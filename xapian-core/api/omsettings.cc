@@ -53,8 +53,20 @@ class OmSettings::Internal {
 	OmRefCntPtr<OmSettingsData> data;
     public:
 	/** Create a settings internal object.
+	 *
+	 *  @param is_default If true, this is the default settings
+	 *                    object.  If false, then settings are
+	 *                    copied from the default object.  Only
+	 *                    the first settings object should have
+	 *                    this argument as true.
 	 */
-	Internal();
+	Internal(bool is_default = false);
+
+	// Debugging variable
+	static bool made_default;
+
+	// The default data
+	static OmRefCntPtr<OmSettingsData> default_data;
 
 	/** Copy constructor.
 	 *  The copies are reference-counted, so copies are relatively
@@ -84,6 +96,10 @@ class OmSettings::Internal {
 	 */
 	string get_value(const string &key) const;
 };
+
+bool OmSettings::Internal::made_default = false;
+
+OmRefCntPtr<OmSettingsData> OmSettings::Internal::default_data = 0;
 
 ////////////////////////////////////////////////////////////////
 // OmSettings methods
@@ -128,9 +144,20 @@ OmSettings::get_value(const string &key) const
 ////////////////////////////////////////////////////////////////
 // OmSettings::Internal methods
 
-OmSettings::Internal::Internal()
-	: data(new OmSettingsData)
+OmSettings::Internal::Internal(bool is_default)
+	: data(0)
 {
+    if (is_default) {
+	Assert(!made_default);
+	default_data = OmRefCntPtr<OmSettingsData>(new OmSettingsData());
+	default_data->values["net.timeout"] = inttostring(10);
+	data = default_data;
+	made_default = true;
+    } else {
+	// else copy the default settings
+	Assert(made_default);
+	data = default_data;
+    }
 }
 
 OmSettings::Internal::Internal(const OmSettings::Internal &other)
@@ -174,3 +201,10 @@ OmSettings::Internal::get_value(const string &key) const
     }
     return i->second;
 }
+
+OmSettings::OmSettings(bool is_default)
+	: internal(new Internal(true))
+{
+}
+
+OmSettings const OmSettings::default_settings(true);

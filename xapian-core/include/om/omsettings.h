@@ -37,7 +37,19 @@ class OmSettings {
 	/// Internal implementation
 	Internal *internal;
 
+	/// Constructor used internally.
+	OmSettings(bool is_default);
+
     public:
+	/** The default settings object.
+	 *
+	 *  This object can be used when the default settings do not
+	 *  need to be modified.
+	 *  The values in the default object are the initial values of
+	 *  any freshly constructed OmSettings object.
+	 */
+	static const OmSettings default_settings;
+
 	/** Create a settings object.
 	 */
 	OmSettings();
