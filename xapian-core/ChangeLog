@@ -1,3 +1,9 @@
+Tue May 16 16:29:25 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* apitest now performs its own indexing for tests.  Next step is to
+	  stop nettest using the internal indexing in InMemoryDatabase and
+	  then stop InMemoryDatabase accepting path parameters.
+
 Tue May 16 15:07:46 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added add_database() method to OmDatabaseGroup which takes an

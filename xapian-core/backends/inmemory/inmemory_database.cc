@@ -65,26 +65,32 @@ InMemoryDatabase::InMemoryDatabase(const DatabaseBuilderParams & params)
     // FIXME - do appropriate thing if readonly flag is set.
 
     // Check validity of parameters
-    if(params.paths.size() <= 0) {
-	throw OmInvalidArgumentError("InMemoryDatabase requires at least one parameter.");
+#if 0
+    if(params.paths.size() != 0) {
+	throw OmInvalidArgumentError("InMemoryDatabase expects no parameters.");
     }
+#endif
     if(params.subdbs.size() != 0) {
 	throw OmInvalidArgumentError("InMemoryDatabase cannot have sub databases.");
     }
-    
-    TextfileIndexer indexer;
-    indexer.set_destination(this);
 
-    for(vector<string>::const_iterator p = params.paths.begin();
-	p != params.paths.end(); p++) {
-	TextfileIndexerSource source(*p);
-	DebugMsg("Indexing `" << *p << "'" << endl);
-	indexer.add_source(source);
+#if 1
+    if(params.paths.size() != 0) {
+	TextfileIndexer indexer;
+	indexer.set_destination(this);
+
+	for(vector<string>::const_iterator p = params.paths.begin();
+	    p != params.paths.end(); p++) {
+	    TextfileIndexerSource source(*p);
+	    DebugMsg("Indexing `" << *p << "'" << endl);
+	    indexer.add_source(source);
+	}
+
+	// Make sure that there's at least one document
+	if(postlists.size() <= 0)
+	    throw OmOpeningError("Document was empty or nearly empty - nothing to search");
     }
-
-    // Make sure that there's at least one document
-    if(postlists.size() <= 0)
-	throw OmOpeningError("Document was empty or nearly empty - nothing to search");
+#endif
 }
 
 InMemoryDatabase::~InMemoryDatabase()

@@ -28,6 +28,8 @@
 
 #include "om/om.h"
 #include "testsuite.h"
+#include "textfile_indexer.h"
+#include "../indexer/index_utils.h"
 
 // always succeeds
 bool test_trivial();
@@ -263,6 +265,90 @@ operator<<(ostream &os, const OmMSet &mset)
     return os;
 }
 
+void
+index_string_to_database(OmWritableDatabase & database, string paragraph)
+{
+    OmStem stemmer("english");
+
+    OmDocumentContents document;
+    document.data = OmData(paragraph);
+    om_termcount position = 1;
+
+    string::size_type spacepos;
+    om_termname word;
+    while((spacepos = paragraph.find_first_not_of(" \t\n")) != string::npos) {
+	if(spacepos) paragraph = paragraph.erase(0, spacepos);
+	spacepos = paragraph.find_first_of(" \t\n");
+	word = paragraph.substr(0, spacepos);
+	select_characters(word, "");
+	lowercase_term(word);
+	word = stemmer.stem_word(word);
+	document.add_posting(word, position++);
+	paragraph = paragraph.erase(0, spacepos);
+    }
+
+    database.add_document(document);
+}
+
+void
+index_files_to_database(OmWritableDatabase & database, vector<string> paths)
+{
+    for (vector<string>::const_iterator p = paths.begin();
+	 p != paths.end();
+	 p++) {
+	if (verbose) cout << "apitest: Indexing `" << *p << "'" << endl;
+	TextfileIndexerSource source(*p);
+	auto_ptr<istream> from(source.get_stream());
+
+	while(*from) {
+	    string para;
+	    get_paragraph(*from, para);
+	    index_string_to_database(database, para);
+	}
+    }
+}
+
+vector<string>
+make_strvec(string s1 = "",
+	    string s2 = "",
+	    string s3 = "",
+	    string s4 = "")
+{
+    vector<string> result;
+
+    if(s1 != "") result.push_back(s1);
+    if(s2 != "") result.push_back(s2);
+    if(s3 != "") result.push_back(s3);
+    if(s4 != "") result.push_back(s4);
+
+    return result;
+}
+
+void
+index_file_to_database(OmWritableDatabase & database, string path)
+{
+    index_files_to_database(database, make_strvec(path));
+}
+
+OmDatabaseGroup
+make_dbgrp(OmDatabase * db1 = 0,
+	   OmDatabase * db2 = 0,
+	   OmDatabase * db3 = 0,
+	   OmDatabase * db4 = 0)
+{
+    OmDatabaseGroup result;
+
+    if(db1 != 0) result.add_database(*db1);
+    if(db2 != 0) result.add_database(*db2);
+    if(db3 != 0) result.add_database(*db3);
+    if(db4 != 0) result.add_database(*db4);
+
+    return result;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Tests start here
+
 bool test_trivial()
 {
     return true;
@@ -278,12 +364,11 @@ bool test_zerodocid_inmemory()
     bool success = true;
     // open the database (in this case a simple text file
     // we prepared earlier)
-    vector<string> dbargs;
-    dbargs.push_back(datadir + "/apitest_onedoc.txt");
 
-    OmDatabaseGroup mydb;
-    mydb.add_database("inmemory", dbargs);
-    OmEnquire enquire(mydb);
+    OmWritableDatabase mydb("inmemory", make_strvec());
+    index_file_to_database(mydb, datadir + "/apitest_onedoc.txt");
+
+    OmEnquire enquire(make_dbgrp(&mydb));
 
     // make a simple query, with one word in it - "word".
     OmQuery myquery("word");
@@ -297,7 +382,7 @@ bool test_zerodocid_inmemory()
     if ((mymset.items.size() != 1) ||
 	(mymset.items[0].did == 0)) {
 	if (verbose) {
-	    cout << "A query on an inmemory database returned a zero docid" << endl;
+	    cout << "A query on a database returned a zero docid" << endl;
 	}
 	success = false;
     }
@@ -306,12 +391,9 @@ bool test_zerodocid_inmemory()
 
 OmDatabaseGroup get_simple_database()
 {
-    OmDatabaseGroup mydb;
-    vector<string> dbargs;
-    dbargs.push_back(datadir + "/apitest_simpledata.txt");
-    mydb.add_database("inmemory", dbargs);
-
-    return mydb;
+    OmWritableDatabase mydb("inmemory", make_strvec());
+    index_file_to_database(mydb, datadir + "/apitest_simpledata.txt");
+    return make_dbgrp(&mydb);
 }
 
 void init_simple_enquire(OmEnquire &enq, const OmQuery &query = OmQuery("thi"))
@@ -408,20 +490,17 @@ bool test_simplequery3()
 bool test_multidb1()
 {
     bool success = true;
-    OmDatabaseGroup mydb1;
-    vector<string> dbargs1;
-    dbargs1.push_back(datadir + "/apitest_simpledata.txt");
-    dbargs1.push_back(datadir + "/apitest_simpledata2.txt");
-    mydb1.add_database("inmemory", dbargs1);
-    OmEnquire enquire1(mydb1);
 
-    OmDatabaseGroup mydb2;
-    vector<string> dbargs2;
-    dbargs2.push_back(datadir + "/apitest_simpledata.txt");
-    mydb2.add_database("inmemory", dbargs2);
-    dbargs2[0] = datadir + "/apitest_simpledata2.txt";
-    mydb2.add_database("inmemory", dbargs2);
-    OmEnquire enquire2(mydb2);
+    OmWritableDatabase mydb1("inmemory", make_strvec());
+    index_file_to_database(mydb1, datadir + "/apitest_simpledata.txt");
+    index_file_to_database(mydb1, datadir + "/apitest_simpledata2.txt");
+    OmEnquire enquire1(make_dbgrp(&mydb1));
+
+    OmWritableDatabase mydb2("inmemory", make_strvec());
+    index_file_to_database(mydb2, datadir + "/apitest_simpledata.txt");
+    OmWritableDatabase mydb3("inmemory", make_strvec());
+    index_file_to_database(mydb3, datadir + "/apitest_simpledata2.txt");
+    OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
 
     // make a simple query, with one word in it - "word".
     OmQuery myquery("word");
@@ -456,22 +535,19 @@ bool test_multidb1()
 bool test_multidb2()
 {
     bool success = true;
-    OmDatabaseGroup mydb1;
-    vector<string> dbargs1;
-    dbargs1.push_back(datadir + "/apitest_simpledata.txt");
-    dbargs1.push_back(datadir + "/apitest_simpledata2.txt");
-    mydb1.add_database("inmemory", dbargs1);
-    OmEnquire enquire1(mydb1);
 
-    OmDatabaseGroup mydb2;
-    vector<string> dbargs2;
-    dbargs2.push_back(datadir + "/apitest_simpledata.txt");
-    mydb2.add_database("inmemory", dbargs2);
-    dbargs2[0] = datadir + "/apitest_simpledata2.txt";
-    mydb2.add_database("inmemory", dbargs2);
-    OmEnquire enquire2(mydb2);
+    OmWritableDatabase mydb1("inmemory", make_strvec());
+    index_file_to_database(mydb1, datadir + "/apitest_simpledata.txt");
+    index_file_to_database(mydb1, datadir + "/apitest_simpledata2.txt");
+    OmEnquire enquire1(make_dbgrp(&mydb1));
 
-    // make a simple query, with one word in it - "word".
+    OmWritableDatabase mydb2("inmemory", make_strvec());
+    index_file_to_database(mydb2, datadir + "/apitest_simpledata.txt");
+    OmWritableDatabase mydb3("inmemory", make_strvec());
+    index_file_to_database(mydb3, datadir + "/apitest_simpledata2.txt");
+    OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
+
+    // make a simple query
     OmQuery myquery(OM_MOP_OR,
 		    OmQuery("inmemory"),
 		    OmQuery("word"));
@@ -1163,12 +1239,9 @@ bool test_getmterms1()
 	"four"
     };
 
-    OmDatabaseGroup mydb;
-    vector<string> dbargs;
-    dbargs.push_back(datadir + "/apitest_termorder.txt");
-    mydb.add_database("inmemory", dbargs);
-
-    OmEnquire enquire(mydb);
+    OmWritableDatabase mydb("inmemory", make_strvec());
+    index_file_to_database(mydb, datadir + "/apitest_termorder.txt");
+    OmEnquire enquire(make_dbgrp(&mydb));
 
     OmQuery myquery(OM_MOP_OR,
 	    OmQuery(OM_MOP_AND,
@@ -1229,11 +1302,9 @@ bool test_absentfile1()
     bool success = false;
 
     try {
-	OmDatabaseGroup mydb;
-	vector<string> dbargs;
-	dbargs.push_back("/this_does_not_exist");
-	mydb.add_database("inmemory", dbargs);
-	OmEnquire enquire(mydb);
+	OmWritableDatabase mydb("inmemory", make_strvec());
+	index_file_to_database(mydb, "/this_does_not_exist");
+	OmEnquire enquire(make_dbgrp(&mydb));
 
 	OmQuery myquery("cheese");
 	enquire.set_query(myquery);
@@ -1586,13 +1657,12 @@ bool test_emptyquerypart1()
 bool test_multidb3()
 {
     bool success = true;
-    OmDatabaseGroup mydb;
-    vector<string> dbargs;
-    dbargs.push_back(datadir + "/apitest_simpledata.txt");
-    mydb.add_database("inmemory", dbargs);
-    dbargs[0] = datadir + "/apitest_simpledata2.txt";
-    mydb.add_database("inmemory", dbargs);
-    OmEnquire enquire(mydb);
+
+    OmWritableDatabase mydb2("inmemory", make_strvec());
+    index_file_to_database(mydb2, datadir + "/apitest_simpledata.txt");
+    OmWritableDatabase mydb3("inmemory", make_strvec());
+    index_file_to_database(mydb3, datadir + "/apitest_simpledata2.txt");
+    OmEnquire enquire(make_dbgrp(&mydb2, &mydb3));
 
     // make a query
     OmQuery myquery(OM_MOP_OR,
@@ -1640,15 +1710,14 @@ bool test_multidb3()
 bool test_multidb4()
 {
     bool success = true;
-    OmDatabaseGroup mydb;
-    vector<string> dbargs;
-    dbargs.push_back(datadir + "/apitest_simpledata.txt");
-    mydb.add_database("inmemory", dbargs);
-    dbargs[0] = datadir + "/apitest_simpledata2.txt";
-    mydb.add_database("inmemory", dbargs);
-    dbargs[0] = datadir + "/apitest_termorder.txt";
-    mydb.add_database("inmemory", dbargs);
-    OmEnquire enquire(mydb);
+
+    OmWritableDatabase mydb2("inmemory", make_strvec());
+    index_file_to_database(mydb2, datadir + "/apitest_simpledata.txt");
+    OmWritableDatabase mydb3("inmemory", make_strvec());
+    index_file_to_database(mydb3, datadir + "/apitest_simpledata2.txt");
+    OmWritableDatabase mydb4("inmemory", make_strvec());
+    index_file_to_database(mydb4, datadir + "/apitest_termorder.txt");
+    OmEnquire enquire(make_dbgrp(&mydb2, &mydb3, &mydb4));
 
     // make a query
     OmQuery myquery(OM_MOP_OR,
