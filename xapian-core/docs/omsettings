@@ -61,13 +61,17 @@
       matches which contain all the terms in the query, then consider using
       OmQuery::OP_AND instead of OmQuery::OP_OR in the query).
       (default -1 => no cut-off)
-    - match_cutoff :  Minimum weight for a document to be returned.  If a
+    - match_cutoff : Minimum weight for a document to be returned.  If a
       document has a lower score that this, it will not appear in the mset.
       It is usually only possible to choose an appropriate weight for cutoff
       based on the results of a previous run of the same query; this is thus
       mainly useful for alerting operations.
     - match_weighting_scheme : Weighting scheme to use; this is one of
       'bm25', 'trad' or 'bool'.  The default is bm25.
+
+  - match_sort_bands : sort results into this many bands, and by document id
+      within each band, according to the setting of match_sort_forward.  The
+      default (0) is off.
 
   - match bias functor options - NB this is a temporary API for this feature.
     - match_bias : Default false - set to true to enable the match bias

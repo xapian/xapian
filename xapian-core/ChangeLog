@@ -1,3 +1,9 @@
+Tue May 07 14:55:37 BST 2002  Olly Betts <olly@survex.com>
+
+	* Added "match_sort_bands" option to sort results within relevance
+	  bands.  Currently the sort within each band is by document id, which
+	  isn't really very useful.  The plan is to allow sorting by a key.
+
 Tue May 07 14:54:12 BST 2002  Olly Betts <olly@survex.com>
 
 	* Sorted out tests/findheaders.pl wrt last change.

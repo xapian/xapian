@@ -65,7 +65,9 @@
 class OmErrorHandler;
 
 // Comparison which sorts equally weighted MSetItems in docid order
-bool msetcmp_forward(const OmMSetItem &a, const OmMSetItem &b) {
+bool
+msetcmp_forward(const OmMSetItem &a, const OmMSetItem &b)
+{
     if (a.wt > b.wt) return true;
     if (a.wt < b.wt) return false;
     // two special cases to make min_item compares work when did == 0
@@ -75,11 +77,32 @@ bool msetcmp_forward(const OmMSetItem &a, const OmMSetItem &b) {
 }
 
 // Comparison which sorts equally weighted MSetItems in reverse docid order
-bool msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b) {
+bool
+msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b)
+{
     if (a.wt > b.wt) return true;
     if (a.wt < b.wt) return false;
     return (a.did > b.did);
 }
+
+class MSetSortCmp {
+    private:
+	double factor;
+	bool forward;
+    public:
+	MSetSortCmp(int bands, double percent_scale, bool forward_)
+	    : factor(percent_scale * bands / 100.0), forward(forward_) {
+	}
+	bool operator()(const OmMSetItem &a, const OmMSetItem &b) const {
+	    int band_a = int(a.wt * factor);
+	    int band_b = int(b.wt * factor);
+	    if (band_a != band_b) return band_a > band_b;
+
+	    // FIXME: sort by key...
+	    if (forward) return a.did < b.did;
+	    return a.did > b.did;
+	}
+};
 
 ////////////////////////////////////
 // Initialisation and cleaning up //
@@ -379,6 +402,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	}
     }
 
+    int sort_bands = opts.get_int("match_sort_bands", 0);
+
     // Perform query
 
     // We form the mset in two stages.  In the first we fill up our working
@@ -394,8 +419,6 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // Is the mset a valid heap?
     bool is_heap = false; 
 
-#define BANDS 5
-#define sorting false //true
     while (1) {
 	if (recalculate_w_max) {
 	    if (min_item.wt > 0.0 && getorrecalc_maxweight(pl) < min_item.wt) {
@@ -505,13 +528,13 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	if (pushback) {
 	    items.push_back(new_item);
 	    docs_matched++;
-	    if (items.size() == max_msize) {
+	    if (!sort_bands && items.size() == max_msize) {
 		// We're done if this is a forward boolean match
 		// (bodgetastic, FIXME better if we can)
 		if (max_weight == 0) {
 		    if (opts.get_bool("match_sort_forward", true)) break;
 		}
-	    } else if (items.size() > max_msize) {
+	    } else if (!sort_bands && items.size() > max_msize) {
 		if (!is_heap) {
 		    is_heap = true;
 		    std::make_heap<std::vector<OmMSetItem>::iterator,
@@ -562,7 +585,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 #endif
 	        }
 	    }
-	    if (sorting && BANDS > 1) {
+	    if (sort_bands > 1) {
 		if (greatest_wt >= getorrecalc_maxweight(pl)) {
 		    if (!is_heap) {
 			is_heap = true;
@@ -572,7 +595,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		    }
 		    // greatest_wt cannot now rise any further, so we now know
 		    // exactly where the relevance bands are.
-		    om_weight w = greatest_wt / BANDS * floor(items.back().wt * BANDS / greatest_wt);
+		    om_weight w = greatest_wt / sort_bands * floor(items.back().wt * sort_bands / greatest_wt);
 		    if (w > min_item.wt) min_item.wt = w;
 		}
 	    }
@@ -628,6 +651,15 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	}
 	percent_scale *= 100.0;
     }
+    
+    if (sort_bands) {
+	sort(items.begin(), items.end(),
+	     MSetSortCmp(sort_bands, percent_scale,
+			 opts.get_bool("match_sort_forward", true)));
+	if (items.size() > max_msize) {
+	    items.erase(items.begin() + max_msize, items.end());
+	}
+    }
 
     if (items.size() < max_msize) {
 	DEBUGLINE(MATCH, "items.size() = " << items.size() <<
@@ -674,7 +706,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	      "matches_estimated = " << matches_estimated << ", " <<
 	      "matches_upper_bound = " << matches_upper_bound);
 
-    if (items.size()) {
+    if (!sort_bands && !items.empty()) {
 	DEBUGLINE(MATCH, "sorting");
 
 	// Need a stable sort, but this is provided by comparison operator
