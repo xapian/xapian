@@ -1,3 +1,8 @@
+Thu Sep 02 17:55:33 BST 2004  Olly Betts <olly@survex.com>
+
+	* matcher/andpostlist.cc: Initialise lmax and rmax to 0.  Hopefully
+	  this will fix SIGFPE on apitest's qterminfo2 on alpha linux.
+
 Thu Sep 02 14:50:20 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc: Not storing the document length
