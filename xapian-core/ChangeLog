@@ -1,3 +1,8 @@
+Thu May 25 14:33:20 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Socketserver now updated to use the modified MultiMatch
+	  interface.
+
 Thu May 25 14:21:07 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Made all MultiMatch::set_* methods private.  These are now called

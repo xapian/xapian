@@ -86,10 +86,6 @@ SocketServer::run()
 {
     try {
 	while (1) {
-	    MultiMatch match(db.get(),
-			     auto_ptr<StatsGatherer>(gatherer =
-						     new NetworkStatsGatherer(this)));
-
 	    string message;
 
 	    // Message 3 (see README_progprotocol.txt)
@@ -104,11 +100,7 @@ SocketServer::run()
 		throw OmNetworkError(string("Expected MOPTIONS, got ") + message);
 	    }
 
-	    {
-		OmMatchOptions moptions = string_to_moptions(message.substr(9));
-
-		match.set_options(moptions);
-	    }
+	    OmMatchOptions moptions = string_to_moptions(message.substr(9));
 
 	    // extract the rset
 	    message = buf.readline();
@@ -116,12 +108,7 @@ SocketServer::run()
 		DebugMsg("Expected RSET, got " << message << endl);
 		throw OmNetworkError(string("Invalid message: ") + message);
 	    }
-	    {
-		OmRSet omrset = string_to_omrset(message.substr(5));
-
-		match.set_rset(omrset);
-	    }
-
+	    OmRSet omrset = string_to_omrset(message.substr(5));
 
 	    // extract the query
 	    message = buf.readline();
@@ -141,24 +128,26 @@ SocketServer::run()
 	    }
 	    message = message.substr(1);
 
-	    {
-		// extract the weighting type
-		IRWeight::weight_type wt_type = 
-			static_cast<IRWeight::weight_type>(
-							   atol(wt_string.c_str()));
-		match.set_weighting(wt_type);
-	    }
+	    // extract the weighting type
+	    IRWeight::weight_type wt_type = 
+		    static_cast<IRWeight::weight_type>(
+						       atol(wt_string.c_str()));
 
-	    {
-		// Extract the query
-		if (message[0] != '\"' || message[message.length()-1] != '\"') {
-		    throw OmNetworkError("Invalid query specification");
-		} else {
-		    message = message.substr(1, message.length() - 2);
-		}
-		OmQueryInternal temp = query_from_string(message);
-		match.set_query(&temp);
+	    // Extract the query
+	    if (message[0] != '\"' || message[message.length()-1] != '\"') {
+		throw OmNetworkError("Invalid query specification");
+	    } else {
+		message = message.substr(1, message.length() - 2);
 	    }
+	    OmQueryInternal query = query_from_string(message);
+
+	    MultiMatch match(db.get(),
+			     &query,
+			     omrset,
+			     wt_type,
+			     moptions,
+			     auto_ptr<StatsGatherer>(gatherer =
+						     new NetworkStatsGatherer(this)));
 
 #if 0
 	    DebugMsg("Adding artificial delay for statistics" << endl);
