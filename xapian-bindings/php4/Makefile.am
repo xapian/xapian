@@ -6,7 +6,6 @@ TESTS_ENVIRONMENT = $(PHP4) -d extension_dir=.libs
 TESTS = smoketest.php
 
 EXTRA_DIST = util.i extra.i $(TESTS)
-DIST_SUBDIRS = docs
 SUBDIRS = docs
 
 phpextdir = @PHP_EXTENSION_DIR@

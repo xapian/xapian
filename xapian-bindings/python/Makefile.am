@@ -6,7 +6,6 @@ TESTS_ENVIRONMENT = PYTHONPATH=.:.libs $(PYTHON)
 TESTS = smoketest.py
 
 EXTRA_DIST = util.i extra.i $(TESTS)
-DIST_SUBDIRS = docs
 SUBDIRS = docs
 
 pylibdir = @PYTHON_LIB@/site-packages
