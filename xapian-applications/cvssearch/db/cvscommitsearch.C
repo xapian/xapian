@@ -11,6 +11,9 @@
 #include <math.h>
 #include <algorithm>
 
+// should probably put a limit on # of terms we look at in a commit
+// when doing query expansion; now it may too long for some queries
+
 //
 // Major bug:
 //
