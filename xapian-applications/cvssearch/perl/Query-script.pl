@@ -23,7 +23,7 @@ use Entities;
 #-------------------
 $CVSDATA = &Cvssearch::get_cvsdata(); # path where database content file is stored
 $cvssearch = "./cvssearch";
-$num_matches = 1500;
+$num_matches = 800;
 $cvsquery = "./cvsquerydb";
 $CVSROOTS = "$CVSDATA/CVSROOTS";
 $all = "All";
@@ -56,19 +56,6 @@ $ctrlA = chr(01);
 $ctrlB = chr(02);
 $ctrlC = chr(03);
 
-#-------------
-# start html
-#-------------
-
-print "Content-type:text/html\n\n";
-print "<html>\n";
-print "<header>\n";
-
-#---------------
-# style sheet
-#---------------
-Cvssearch::print_style_sheet();
-print "</header>\n";
 
 #----------------------------------------
 # first pass on input
@@ -76,8 +63,35 @@ print "</header>\n";
 #----------------------------------------
 if(param()){
 	$query = param("query");
+	$urlquery = $query;
+	$urlquery =~ s/\s/%20/g;
 	$root = param("root");
+	$searchmode = param("searchmode");
 }
+
+#-------------
+# start html
+#-------------
+
+print "Content-type:text/html\n\n";
+print "<html>\n";
+print "<head>\n";
+
+if($searchmode eq "c"){
+	#redirect to pattern browser page
+	if($root eq $all){
+		$root = "";
+	}
+	print "<META HTTP-EQUIV=Refresh CONTENT=\"0; URL=./PatternBrowser.cgi?query=$urlquery&root=$root\">";
+	print "</head></html>";
+	return (0);
+}
+
+#---------------
+# style sheet
+#---------------
+Cvssearch::print_style_sheet();
+print "</head>\n";
 
 #--------------
 # print form
@@ -88,7 +102,8 @@ print <<_HTML_;
 <tr valign=bottom><td>
 <a href="http://cvssearch.sourceforge.net">
 <img border=0 src="Logo.cgi"></a>
-<br><a href="./Compare.cgi">Browse Database Contents</a>   
+<br><a href="./Compare.cgi">[Browse Database Contents]</a>   
+&nbsp;<a href="./PatternBrowser.cgi">[Browse Classes & Functions]</a>
 </td><td align=right>
 <form action=./Query.cgi>
 <b>Enter keyword(s) to search for: </b><input type=text size=45 name=query value="$query">
@@ -98,7 +113,7 @@ _HTML_
 print "<p><b>Select Repository: </b><select name=root>\n";
 print "<OPTION>$all</OPTION>\n";
 
-open ROOTS, "< $CVSROOTS";
+open ROOTS, "< $CVSROOTS" or die "can't open cvsroots";
 while (<ROOTS>) {
   ($curroot, $curdir) = split /\s/, $_;
   $dirMAProot{$curdir} = $curroot;
@@ -111,10 +126,14 @@ while (<ROOTS>) {
 close ROOTS;
 
 print <<_HTML_;
-</select>
-<input type=submit value="Search"></form>
+</select><p>
+<b>Search for: </b><select name=searchmode>
+<option value=f>Files</option>
+<option value=c>Classes/Functions</option>
+</select>&nbsp;<input type=submit value="Search"></form>
 </td></tr></table>
 _HTML_
+
 
 
 #--------------
@@ -610,9 +629,8 @@ print <<_HTML_;
 <br>It does not have to be full path, for example, you can use in:kword instead of in:koffice/kword, however you cannot use in:kwo.
 <li>Keywords are not case-sensitive and stemmed. (e.g. searching for 'fishes' will match 'FISH', 'fishes', 'fishing'...)
 <li>Results are ranked with the objective of matching as large a fraction of the keywords as possible.
-The top 1500 lines are returned.
+The top 800 lines are returned.
 <li>Multiple words are AND queries for CVS comment matches and OR queries for grep matches.
-<li><B class=red>Searching through hundreds of applications may take a long time so we recommend using in: whenever possible to restrict your search to only a few applications!</B>
 </ul>
 </body>
 </html>

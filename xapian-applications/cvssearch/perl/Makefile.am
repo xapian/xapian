@@ -1,6 +1,7 @@
 bin_SCRIPTS = cvsbuilddb cvsupdatedb cvsquerydb	\
     Compare.cgi \
     MatchFile.cgi Query.cgi QueryFile.cgi Source.cgi Top.cgi Logo.cgi fishlogo.gif\
+    PatternBrowser.cgi QueryCommit.cgi \
     MatchComment.cgi QueryComment.cgi TopComment.cgi SourceComment.cgi\
     cvs2cl \
     popup.js \
@@ -9,6 +10,7 @@ bin_SCRIPTS = cvsbuilddb cvsupdatedb cvsquerydb	\
 EXTRA_DIST = cvsbuild-script.pl cvsupdate-script.pl cvsquery-script.pl \
     Compare-script.pl \
     MatchFile-script.pl Query-script.pl QueryFile-script.pl Source-script.pl Top-script.pl Logo-script.pl \
+    PatternBrowser-script.pl QueryCommit-script.pl \
     MatchComment-script.pl QueryComment-script.pl TopComment-script.pl SourceComment-script.pl \
     fishlogo.gif\
     cvs2cl.pl \
@@ -74,5 +76,11 @@ Top.cgi:$(srcdir)/Top-script.pl
 	$(build-perl-script)
 
 Logo.cgi:$(srcdir)/Logo-script.pl
+	$(build-perl-script)
+
+PatternBrowser.cgi:$(srcdir)/PatternBrowser-script.pl
+	$(build-perl-script)
+
+QueryCommit.cgi:$(srcdir)/QueryCommit-script.pl
 	$(build-perl-script)
 
