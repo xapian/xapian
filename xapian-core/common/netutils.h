@@ -76,7 +76,7 @@ decode_tname(const std::string &thex)
     Assert((thex[thex.size() - 1] == '.'));
     std::string result;
 
-    for (std::string::size_type i=0; i<thex.length() - 1; i+=2) {
+    for (std::string::size_type i = 0; i < thex.length() - 1; i+=2) {
 	result += hextochar(thex[i], thex[i+1]);
     }
 

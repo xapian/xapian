@@ -53,22 +53,14 @@ SocketClient::SocketClient(int socketfd_,
 	throw OmNetworkError(std::string("signal: ") + strerror(errno));
     }
 
-    do_write("HELLO!\n");
-
     std::string received = do_read();
 
     DEBUGLINE(UNKNOWN, "Read back " << received);
-    if (received.substr(0, 5) != "HELLO") {
+    if (received.substr(0, 3) != "OM ") {
 	throw OmNetworkError("Unknown start of conversation");
     }
 
-    handle_hello(received.substr(6));
-}
-
-void
-SocketClient::handle_hello(const std::string &s)
-{
-    istrstream is(s.c_str());
+    istrstream is(received.c_str() + 3);
 
     int version;
     is >> version >> doccount >> avlength;
@@ -85,11 +77,9 @@ string_to_tlistitem(const std::string &s)
 {
     istrstream is(s.c_str());
     NetClient::TermListItem item;
-
     std::string tencoded;
 
-    is >> tencoded >> item.wdf >> item.termfreq;
-
+    is >> item.wdf >> item.termfreq >> tencoded;
     item.tname = decode_tname(tencoded);
 
     return item;
@@ -98,47 +88,38 @@ string_to_tlistitem(const std::string &s)
 void
 SocketClient::get_tlist(om_docid did,
 			std::vector<NetClient::TermListItem> &items) {
-    std::string message;
+    do_write(std::string("T") + om_tostring(did));
 
-    do_write(std::string("GETTLIST ") + om_tostring(did));
-
-    while (startswith(message = do_read(), "TLISTITEM ")) {
-	items.push_back(string_to_tlistitem(message.substr(10)));
-    }
-
-    if (message != "END") {
-	throw OmNetworkError(std::string("Expected END, got ") + message);
+    while (1) {
+	std::string message = do_read();
+	if (message == "Z") break;
+	items.push_back(string_to_tlistitem(message));
     }
 }
 
 void
 SocketClient::request_doc(om_docid did)
 {
-    do_write(std::string("GETDOC ") + om_tostring(did));
+    do_write(std::string("D") + om_tostring(did));
 }
 
 void
 SocketClient::collect_doc(om_docid did, std::string &doc,
 			  std::map<om_keyno, OmKey> &keys)
 {
-    // FIXME check did is correct...
+    // FIXME check did is correct?
     std::string message = do_read();
-    if (!startswith(message, "DOC ")) {
-	throw OmNetworkError(std::string("Expected DOC, got ") + message);
-    }
+    Assert(!message.empty() && message[0] == 'O');
+    doc = decode_tname(message.substr(1));
 
-    doc = decode_tname(message.substr(4));
-
-    while (startswith(message = do_read(), "KEY ")) {
-	istrstream is(message.substr(4).c_str());
+    while (1) {
+	std::string message = do_read();
+	if (message == "Z") break;
+	istrstream is(message.c_str());
 	om_keyno keyno;
 	std::string omkey;
 	is >> keyno >> omkey;
 	keys[keyno] = string_to_omkey(omkey);
-    }
-
-    if (message != "END") {
-	throw OmNetworkError(std::string("Expected END, got ") + message);
     }
 }
 
@@ -147,28 +128,8 @@ SocketClient::get_doc(om_docid did,
 		      std::string &doc,
 		      std::map<om_keyno, OmKey> &keys)
 {
-    // FIXME: just call request then collect if that interface survives
-    std::string message;
-    do_write(std::string("GETDOC ") + om_tostring(did));
-
-    message = do_read();
-    if (!startswith(message, "DOC ")) {
-	throw OmNetworkError(std::string("Expected DOC, got ") + message);
-    }
-
-    doc = decode_tname(message.substr(4));
-
-    while (startswith(message = do_read(), "KEY ")) {
-	istrstream is(message.substr(4).c_str());
-	om_keyno keyno;
-	std::string omkey;
-	is >> keyno >> omkey;
-	keys[keyno] = string_to_omkey(omkey);
-    }
-
-    if (message != "END") {
-	throw OmNetworkError(std::string("Expected END, got ") + message);
-    }
+    request_doc(did);
+    collect_doc(did, doc, keys);
 }
 
 om_doccount
@@ -190,8 +151,8 @@ SocketClient::do_read()
 
     DEBUGLINE(UNKNOWN, "do_read(): " << retval);
 
-    if (retval.substr(0, 5) == "ERROR") {
-	string_to_omerror(retval.substr(6), "REMOTE:");
+    if (retval.substr(0, 1) == "E") {
+	string_to_omerror(retval.substr(1), "REMOTE:");
     }
 
     return retval;
@@ -225,10 +186,10 @@ SocketClient::data_is_available()
 void
 SocketClient::do_close()
 {
-    // musn't let any exception escape a destructor, or else we
-    // abort immediately if from a destructor.
+    // mustn't let any exception escape or else we
+    // abort immediately if called from a destructor.
     try {
-	do_write("QUIT");
+	do_write("X");
     } catch (...) {
     }
     close(socketfd);
@@ -258,16 +219,9 @@ SocketClient::finish_query()
     switch (conv_state) {
 	case state_getquery:
 	    // Message 3 (see README_progprotocol.txt)
-	    {
-		std::string message;
-
-		message += "MOPTIONS " +
-			moptions_to_string(moptions) + '\n';
-		message += "RSET " +
-			omrset_to_string(omrset) + '\n';
-		message += "SETQUERY \"" + query_string + "\"" + '\n';
-		do_write(message);
-	    }
+	    do_write("Q" + query_string + '\n'
+		     + moptions_to_string(moptions) + '\n'
+		     + omrset_to_string(omrset));		
 	    conv_state = state_sentquery;
 	    // fall through...
 	case state_sentquery:
@@ -279,10 +233,10 @@ SocketClient::finish_query()
 
 	    {
 		std::string response = do_read();
-		if (response.substr(0, 7) != "MYSTATS") {
+		if (response.substr(0, 1) != "L") {
 		    throw OmNetworkError("Error getting statistics");
 		}
-		remote_stats = string_to_stats(response.substr(8, response.npos));
+		remote_stats = string_to_stats(response.substr(1));
 		remote_stats_valid = true;
 
 		success = true;
@@ -321,49 +275,6 @@ SocketClient::get_remote_stats(Stats &out)
 }
 
 void
-SocketClient::do_simple_transaction(std::string msg)
-{
-    do_write(msg + '\n');
-    std::string response = do_read();
-
-    if (response != "OK") {
-	throw OmNetworkError(std::string("Invalid response: (") +
-			     msg + ") -> (" + response + ")");
-    }
-}
-
-std::string
-SocketClient::do_transaction_with_result(std::string msg)
-{
-    do_write(msg + '\n');
-    std::string response = do_read();
-
-    if (response == "ERROR") {
-	throw OmNetworkError(std::string("Error response: (") +
-			     msg + ") -> (" + response + ")");
-    }
-    return response;
-}
-
-OmMSetItem
-string_to_msetitem(std::string s)
-{
-    istrstream is(s.c_str());
-    om_weight wt;
-    om_docid did;
-    std::string keyval;
-
-    std::string header;
-
-    is >> header >> wt >> did >> keyval;
-
-    Assert (header == "MSETITEM:");
-
-    return OmMSetItem(wt, did, string_to_omkey(keyval));
-}
-
-
-void
 SocketClient::send_global_stats(const Stats &stats)
 {
     Assert(conv_state >= state_sendglobal);
@@ -390,14 +301,8 @@ SocketClient::get_mset(om_doccount first,
 	case state_getmset:
 
 	    // Message 5 (see README_progprotocol.txt)
-	    {
-		std::string message = "GLOBSTATS " +
-			stats_to_string(global_stats) + '\n';
-		message += "GETMSET " +
-			    om_tostring(first) + " " +
-			    om_tostring(maxitems);
-		do_write(message);
-	    }
+	    do_write("G" + stats_to_string(global_stats) + '\n' +
+		     "M" + om_tostring(first) + " " + om_tostring(maxitems));
 	    conv_state = state_getresult;
 	    return false; // FIXME icky
 
@@ -411,16 +316,8 @@ SocketClient::get_mset(om_doccount first,
 	    // Message 6
 	    {
 		std::string response = do_read();
-		if (response.substr(0, 4) != "MSET") {
-		    throw OmNetworkError(std::string("Expected MSET, got ") + response);
-		}
-		response = response.substr(5);
-
-		mset = string_to_ommset(response);
-		response = do_read();
-		if (response != "OK") {
-		    throw OmNetworkError("Error at end of mset");
-		}
+		Assert(!response.empty() && response[0] == 'O');
+		mset = string_to_ommset(response.substr(1));
 	    }
     } // switch (conv_state)
 
@@ -454,14 +351,8 @@ SocketClient::open_postlist(om_doccount first, om_doccount maxitems,
 	case state_getmset:
 
 	    // Message 5 (see README_progprotocol.txt)
-	    {
-		std::string message = "GLOBSTATS " +
-			stats_to_string(global_stats) + '\n';
-		message += "GETPLIST " +
-			    om_tostring(first) + " " +
-			    om_tostring(maxitems);
-		do_write(message);
-	    }
+	    do_write("G" + stats_to_string(global_stats) + '\n' +
+		     "P" + om_tostring(first) + " " + om_tostring(maxitems));
 
 	    // FIXME: new state here...
 
@@ -478,7 +369,8 @@ SocketClient::open_postlist(om_doccount first, om_doccount maxitems,
 	    }
 	    message = do_read();
 	    DEBUGLINE(UNKNOWN, "term_info = `" << message << "'");
-	    term_info = string_to_ommset_termfreqwts(message);
+	    Assert(!message.empty() && message[0] == 'O');
+	    term_info = string_to_ommset_termfreqwts(message.substr(1));
 	    conv_state = state_getresult;
     } // switch (conv_state)
     RETURN(false);
@@ -507,7 +399,7 @@ SocketClient::get_posting(om_docid &did, om_weight &w, OmKey &key)
 	    DEBUGLINE(MATCH, "data is waiting");
 	    std::string message = do_read();
 	    DEBUGLINE(MATCH, "read `" << message << "'");
-	    if (message == "OK") {
+	    if (message == "Z") {
 		did = 0;
 
 		// reset the state
@@ -520,10 +412,15 @@ SocketClient::get_posting(om_docid &did, om_weight &w, OmKey &key)
 		moptions = OmSettings();
 		omrset = OmRSet();
 	    } else {
-		// extract first,maxitems
-		istrstream is(message.c_str());
-		is >> did >> w;
+		did = atoi(message.c_str());
 		int i = message.find(';');
+		int j = message.find(' ');
+		if (j != message.npos && (i == message.npos || j < i)) {
+		    istrstream is(message.substr(j + 1, i - j - 1).c_str());
+		    is >> w;
+		} else {
+		    w = 0;
+		}
 		if (i != message.npos) {
 		    key = string_to_omkey(message.substr(i + 1));
 		}
@@ -539,7 +436,7 @@ SocketClient::next(om_weight w_min, om_docid &did, om_weight &w, OmKey &key)
 {
     if (w_min > minw) {
 	minw = w_min;
-	do_write("M" + om_tostring(w_min));
+	do_write("m" + om_tostring(w_min));
     }
 
     while (!get_posting(did, w, key)) wait_for_input();
@@ -551,7 +448,7 @@ SocketClient::skip_to(om_docid new_did, om_weight w_min, om_docid &did, om_weigh
     do_write("S" + om_tostring(new_did));
     if (w_min > minw) {
 	minw = w_min;
-	do_write("M" + om_tostring(w_min));
+	do_write("m" + om_tostring(w_min));
     }
 
     while (!get_posting(did, w, key) || (did && (did < new_did || w < w_min)))

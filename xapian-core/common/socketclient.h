@@ -86,19 +86,6 @@ class SocketClient : public NetClient {
 	/// The current RSet.
 	OmRSet omrset;
 
-	/// Read the initial data sent at the start of connection
-	void handle_hello(const std::string &s);
-
-	/** Write the string and get an "OK" message back,
-	 *  or else throw an exception
-	 */
-	void do_simple_transaction(std::string msg);
-
-	/** Write the string to the stream and return the
-	 *  reply.  Throw an exception if the reply is "ERROR".
-	 */
-	std::string do_transaction_with_result(std::string msg);
-
 	/** Spawn a program and return a filedescriptor of
 	 *  the local end of a socket to it.
 	 */

@@ -81,12 +81,12 @@ int main(int argc, char *argv[]) {
 	cerr << "OmError exception (" << typeid(e).name()
 	     << "): " << e.get_msg() << endl;
 	 */
-	cout << "ERROR " << omerror_to_string(e) << endl;
+	cout << "E" << omerror_to_string(e) << endl;
     } catch (...) {
 	/*
 	cerr << "Caught exception" << endl;
 	 */
-	cout << "ERROR UNKNOWN" << endl;
+	cout << "EUNKNOWN" << endl;
     }
 }
 

@@ -1,3 +1,7 @@
+Tue Oct 31 14:34:19 GMT 2000 Olly Betts
+
+	* Revised remote protocol to be somewhat less verbose.
+ 
 Tue Oct 31 14:18:24 GMT 2000 Olly Betts
 
 	* Improved output from test programs.

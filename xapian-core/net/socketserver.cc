@@ -60,8 +60,7 @@ SocketServer::SocketServer(OmDatabase db_,
     if (signal(SIGPIPE, SIG_IGN) < 0) {
 	throw OmNetworkError(std::string("signal: ") + strerror(errno));
     }
-    buf->readline(msecs_timeout);
-    buf->writeline("HELLO " +
+    buf->writeline("OM " +
 		  om_tostring(OM_SOCKET_PROTOCOL_VERSION) + " " +
 		  om_tostring(db.get_doccount()) + " " +
 		  om_tostring(db.get_avlength()));
@@ -90,10 +89,7 @@ SocketServer::~SocketServer()
 void
 SocketServer::send_local_stats(Stats stats)
 {
-    std::string mystatstr = std::string("MYSTATS ") + stats_to_string(stats);
-
-    buf->writeline(mystatstr);
-    DebugMsg("SocketServer::send_local_stats(): wrote " << mystatstr);
+    buf->writeline("L" + stats_to_string(stats));
 }
 
 Stats
@@ -113,34 +109,28 @@ SocketServer::run()
 
 	    // Message 3 (see README_progprotocol.txt)
 	    message = buf->readline(msecs_timeout);
-
-	    if (message == "QUIT") {
-		return;
-	    } else if (startswith(message, "MOPTIONS ")) {
-		run_match(message);
-	    } else if (startswith(message, "GETTLIST ")) {
-		run_gettermlist(message);
-	    } else if (startswith(message, "GETDOC ")) {
-		run_getdocument(message);
-	    } else if (startswith(message, "M")) {
-		// ignore min weight message left over from postlist
-	    } else if (startswith(message, "S")) {
-		// ignore skip_to message left over from postlist
-	    } else {
-		throw OmInvalidArgumentError(std::string("Unexpected message:") +
-					     message);
+	    
+	    switch (message.empty() ? '\0' : message[0]) {
+		case 'X': return;
+		case 'Q': run_match(message.substr(1)); break;
+		case 'T': run_gettermlist(message.substr(1)); break;
+		case 'D': run_getdocument(message.substr(1)); break;
+		case 'm': break; // ignore min weight message left over from postlist
+		case 'S': break; // ignore skip_to message left over from postlist
+		default:
+		    throw OmInvalidArgumentError(std::string("Unexpected message:") +
+						 message);
 	    }
-
 	}
     } catch (OmNetworkError &e) {
 	// _Don't_ send network errors over, since they're likely to have
 	// been caused by an error talking to the other end.
 	throw;
     } catch (OmError &e) {
-	buf->writeline(std::string("ERROR ") + omerror_to_string(e));
+	buf->writeline(std::string("E") + omerror_to_string(e));
 	throw;
     } catch (...) {
-	buf->writeline(std::string("ERROR UNKNOWN"));
+	buf->writeline(std::string("EUNKNOWN"));
 	throw;
     }
 }
@@ -151,51 +141,29 @@ static snooper_do_collapse;
 void
 match_snooper(const OmMSetItem &i)
 {
-    std::string key = "";
-    if (snooper_do_collapse) {
-	key = ";" + omkey_to_string(i.collapse_key);
-    }
-    snooper_buf->writeline(om_tostring(i.did) + " " + om_tostring(i.wt) + key);
+    std::string msg = om_tostring(i.did);
+    if (i.wt != 0) msg += " " + om_tostring(i.wt);
+    if (snooper_do_collapse) msg += ";" + omkey_to_string(i.collapse_key);
+    snooper_buf->writeline(msg);
 }
 
 void
 SocketServer::run_match(const std::string &firstmessage)
 {
     std::string message = firstmessage;
-    // extract the match options
-    if (!startswith(message, "MOPTIONS ")) {
-	throw OmNetworkError(std::string("Expected MOPTIONS, got ") + message);
-    }
+    
+    gatherer = new NetworkStatsGatherer(this);
+    
+    OmQuery::Internal query = query_from_string(message);
 
-    OmSettings moptions = string_to_moptions(message.substr(9));
+    // extract the match options
+    message = buf->readline(msecs_timeout);
+    OmSettings moptions = string_to_moptions(message);
 
     // extract the rset
     message = buf->readline(msecs_timeout);
-    if (!startswith(message, "RSET ")) {
-	DEBUGLINE(UNKNOWN, "Expected RSET, got " << message);
-	throw OmNetworkError(std::string("Invalid message: ") + message);
-    }
-    OmRSet omrset = string_to_omrset(message.substr(5));
+    OmRSet omrset = string_to_omrset(message);
 
-    // extract the query
-    message = buf->readline(msecs_timeout);
-
-    if (!startswith(message, "SETQUERY ")) {
-	DEBUGLINE(UNKNOWN, "Expected SETQUERY, got " << message);
-	throw OmNetworkError("Invalid message");
-    }
-
-    message = message.substr(9, message.npos);
-
-    // Extract the query
-    if (message[0] != '\"' || message[message.length()-1] != '\"') {
-	throw OmNetworkError("Invalid query specification");
-    } else {
-	message = message.substr(1, message.length() - 2);
-    }
-    OmQuery::Internal query = query_from_string(message);
-
-    gatherer = new NetworkStatsGatherer(this);
     MultiMatch match(db, &query, omrset, moptions,
 		     AutoPtr<StatsGatherer>(gatherer));
 
@@ -210,21 +178,21 @@ SocketServer::run_match(const std::string &firstmessage)
     // Message 5, part 1
     message = buf->readline(msecs_timeout);
 
-    if (message.substr(0, 9) != "GLOBSTATS") {
-	throw OmNetworkError(std::string("Expected GLOBSTATS, got ") + message);
+    if (!startswith(message, "G")) {
+	throw OmNetworkError(std::string("Expected 'G', got ") + message);
     }
 
-    global_stats = string_to_stats(message.substr(10));
+    global_stats = string_to_stats(message.substr(1));
     have_global_stats = true;
 
     // Message 5, part 2
     message = buf->readline(msecs_timeout);
 
-    if (message.substr(0, 7) != "GETMSET") {
-	if (message.substr(0, 8) != "GETPLIST") {
-	    throw OmNetworkError(std::string("Expected GETMSET or GETPLIST, got ") + message);
+    if (message.substr(0, 1) != "M") {
+	if (message.substr(0, 1) != "P") {
+	    throw OmNetworkError(std::string("Expected M or P, got ") + message);
 	}
-	message = message.substr(9);
+	message = message.substr(1);
 	om_doccount first;
 	om_doccount maxitems;
 	{
@@ -240,13 +208,13 @@ SocketServer::run_match(const std::string &firstmessage)
 	    pl = match.get_postlist(first, maxitems, terminfo, 0);
 	    buf->writeline(om_tostring(pl->get_termfreq()) + " " +
 			   om_tostring(pl->recalc_maxweight()));
-	    buf->writeline(ommset_termfreqwts_to_string(terminfo));
+	    buf->writeline("O" + ommset_termfreqwts_to_string(terminfo));
 	    snooper_buf = buf.get();
 	    OmMSet mset;
 	    match.get_mset_2(pl, terminfo, first, maxitems, mset, 0,
 			     match_snooper);
 	}
-	buf->writeline("OK");
+	buf->writeline("Z");
 	return;
 #else
 	PostList *pl;
@@ -255,8 +223,8 @@ SocketServer::run_match(const std::string &firstmessage)
 	    // not sure we really need these numbers...
 	    pl = match.get_postlist(first, maxitems, terminfo, 0);
 	    buf->writeline(om_tostring(pl->get_termfreq()) + " " +
-			   om_tostring(pl->recalc_maxweight()));
-	    buf->writeline(ommset_termfreqwts_to_string(terminfo));
+			   om_tostring(pl->recalc_maxweight())));
+	    buf->writeline("O" + ommset_termfreqwts_to_string(terminfo));
 	}
 	om_docid did = 0;
 	om_weight w_min = 0;
@@ -274,7 +242,7 @@ SocketServer::run_match(const std::string &firstmessage)
 	    while (buf->data_waiting()) {
 		std::string m = buf->readline(0);
 		switch (m.empty() ? 0 : m[0]) {
-		    case 'M': {
+		    case 'm': {
 			// min weight has dropped
 			istrstream is(message.c_str() + 1);
 			is >> w_min;
@@ -309,22 +277,23 @@ SocketServer::run_match(const std::string &firstmessage)
 	    om_weight w = pl->get_weight();
 	    if (w >= w_min) {
 		DEBUGLINE(UNKNOWN, "Returning did " << did << " wt " << w);
-		std::string key = "";
+		std::string msg = om_tostring(did);
+		if (w != 0) msg += " " + om_tostring(w);
 		if (do_collapse) {
 		    AutoPtr<LeafDocument> doc(OmDatabase::InternalInterface::get(match.db)->open_document(did));
-		    key = ";" + omkey_to_string(doc->get_key(collapse_key));		    
+		    msg += ";" + omkey_to_string(doc->get_key(collapse_key));		    
 		}
-		buf->writeline(om_tostring(did) + " " + om_tostring(w) + key);
+		buf->writeline(msg);
 	    } else {
 		DEBUGLINE(UNKNOWN, "Ignoring did " << did << " wt " << w << " (since wt < " << w_min << ")");
 	    }
 	}
 	delete pl;
-	buf->writeline("OK");
+	buf->writeline("Z");
 	return;
 #endif
     }
-    message = message.substr(8);
+    message = message.substr(1);
 
 #if 0
     DEBUGLINE(UNKNOWN, "Adding artificial delay...");
@@ -348,69 +317,53 @@ SocketServer::run_match(const std::string &firstmessage)
 
     DEBUGLINE(UNKNOWN, "done get_mset...");
 
-    buf->writeline(std::string("MSET ") + ommset_to_string(mset));
+    buf->writeline("O" + ommset_to_string(mset));
 
     DEBUGLINE(UNKNOWN, "sent mset...");
-
-    buf->writeline("OK");
-
-    //DEBUGLINE(UNKNOWN, "sent OK...");
 }
 
 void
 SocketServer::run_gettermlist(const std::string &firstmessage)
 {
     std::string message = firstmessage;
-    // extract the match options
-    if (!startswith(message, "GETTLIST ")) {
-	throw OmNetworkError(std::string("Expected GETTLIST, got ") + message);
-    }
 
-    om_docid did = atoi(message.c_str() + 9);
+    om_docid did = atoi(message.c_str());
 
     OmTermListIterator tl = db.termlist_begin(did);
     OmTermListIterator tlend = db.termlist_end(did);
 
     while (tl != tlend) {
-	std::string item = "TLISTITEM ";
-	item = item + encode_tname(*tl) + " ";
-	item = item + om_tostring(tl.get_wdf()) + " ";
-	item = item + om_tostring(tl.get_termfreq());
+	std::string item = om_tostring(tl.get_wdf())
+	    + " " + om_tostring(tl.get_termfreq()) + " " + encode_tname(*tl);
 	buf->writeline(item);
-
 	tl++;
     }
 
-    buf->writeline("END");
+    buf->writeline("Z");
 }
 
 void
 SocketServer::run_getdocument(const std::string &firstmessage)
 {
     std::string message = firstmessage;
-    // extract the match options
-    if (!startswith(message, "GETDOC ")) {
-	throw OmNetworkError(std::string("Expected GETDOC, got ") + message);
-    }
 
-    om_docid did = atoi(message.c_str() + 7);
+    om_docid did = atoi(message.c_str());
 
     AutoPtr<LeafDocument> doc(OmDatabase::InternalInterface::get(db)->open_document(did));
 
-    buf->writeline(std::string("DOC ") + encode_tname(doc->get_data().value));
+    buf->writeline("O" + encode_tname(doc->get_data().value));
 
     std::map<om_keyno, OmKey> keys = doc->get_all_keys();
 
     std::map<om_keyno, OmKey>::const_iterator i = keys.begin();
     while (i != keys.end()) {
-	std::string item = std::string("KEY ") +
-		om_tostring(i->first) + " " +
-		omkey_to_string(i->second);
+	std::string item = om_tostring(i->first) + " "
+	    + omkey_to_string(i->second);
 	buf->writeline(item);
 	++i;
     }
 
-    buf->writeline("END");
+    buf->writeline("Z");
 }
 
 void
