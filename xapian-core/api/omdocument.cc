@@ -111,16 +111,22 @@ std::string
 OmDocument::get_description() const
 {
     std::string description = "OmDocument(data=";
-    if (internal->data_here)  description += "`" + internal->data.value + "'";
-    else                      description += "[not fetched]";
+    if (internal->data_here)
+      	description += "`" + internal->data.value + "'";
+    else
+	description += "[not fetched]";
 
     description += " keys=";
-    if (internal->keys_here)  description += om_tostring(internal->keys.size());
-    else                      description += "[not fetched]";
+    if (internal->keys_here)
+      	description += om_tostring(internal->keys.size());
+    else
+	description += "[not fetched]";
 
     description += " terms=";
-    if (internal->terms_here) description += om_tostring(internal->terms.size());
-    else                      description += "[not fetched]";
+    if (internal->terms_here)
+       	description += om_tostring(internal->terms.size());
+    else
+	description += "[not fetched]";
 
     return description + ")";
 }

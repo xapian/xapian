@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,10 +32,9 @@
 #include "ompositionlistiteratorinternal.h"
 #include "om/omoutput.h"
 
-OmDatabase::OmDatabase()
+OmDatabase::OmDatabase() : internal(new OmDatabase::Internal())
 {
     DEBUGAPICALL(void, "OmDatabase::OmDatabase", "");
-    internal = new OmDatabase::Internal();
 }
 
 OmDatabase::OmDatabase(const OmSettings & params, bool readonly)
@@ -94,8 +94,9 @@ OmDatabase::~OmDatabase()
 void
 OmDatabase::reopen()
 {
-    for (size_t i = 0; i < internal->databases.size(); ++i) {
-	internal->databases[i]->do_reopen();
+    std::vector<RefCntPtr<Database> >::iterator i;
+    for (i = internal->databases.begin(); i != internal->databases.end(); i++) {
+	(*i)->do_reopen();
     }
 }
 
@@ -127,7 +128,8 @@ OmPostListIterator
 OmDatabase::postlist_begin(const om_termname &tname) const
 {
     DEBUGAPICALL(OmPostListIterator, "OmDatabase::postlist_begin", tname);
-    if (tname.empty()) throw OmInvalidArgumentError("Zero length terms are invalid");
+    if (tname.empty())
+       	throw OmInvalidArgumentError("Zero length terms are invalid");
     RETURN(OmPostListIterator(new OmPostListIterator::Internal(internal->open_post_list(tname, *this))));
 }
 
@@ -135,7 +137,8 @@ OmPostListIterator
 OmDatabase::postlist_end(const om_termname &tname) const
 {
     DEBUGAPICALL(OmPostListIterator, "OmDatabase::postlist_end", tname);
-    if (tname.empty()) throw OmInvalidArgumentError("Zero length terms are invalid");
+    if (tname.empty())
+       	throw OmInvalidArgumentError("Zero length terms are invalid");
     RETURN(OmPostListIterator(NULL));
 }
 
@@ -176,7 +179,8 @@ OmDatabase::positionlist_begin(om_docid did, const om_termname &tname) const
 {
     DEBUGAPICALL(OmPositionListIterator, "OmDatabase::positionlist_begin",
 		 did << ", " << tname);
-    if (tname.empty()) throw OmInvalidArgumentError("Zero length terms are invalid");
+    if (tname.empty())
+       	throw OmInvalidArgumentError("Zero length terms are invalid");
     if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
     AutoPtr<PositionList> poslist = internal->open_position_list(did, tname);
 
@@ -188,7 +192,8 @@ OmDatabase::positionlist_end(om_docid did, const om_termname &tname) const
 {
     DEBUGAPICALL(OmPositionListIterator, "OmDatabase::positionlist_end",
 		 did << ", " << tname);
-    if (tname.empty()) throw OmInvalidArgumentError("Zero length terms are invalid");
+    if (tname.empty())
+       	throw OmInvalidArgumentError("Zero length terms are invalid");
     if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
     RETURN(OmPositionListIterator(NULL));
 }
@@ -320,8 +325,7 @@ OmWritableDatabase::operator=(const OmWritableDatabase &other)
 OmWritableDatabase::~OmWritableDatabase()
 {
     DEBUGAPICALL(void, "OmWritableDatabase::~OmWritableDatabase", "");
-    delete internal;
-    internal = 0;
+    // Don't delete internal here - that's OmDatabase's dtor's job
 }
 
 void

@@ -166,7 +166,7 @@ OmRSet::Internal::get_description() const
     for (std::set<om_docid>::const_iterator i = items.begin();
 	 i != items.end();
 	 i++) {
-	if (description != "") description += ", ";
+	if (!description.empty()) description += ", ";
 	description += om_tostring(*i);
     }
 
@@ -549,7 +549,7 @@ OmMSet::Internal::Data::get_description() const
     for (std::vector<OmMSetItem>::const_iterator i = items.begin();
 	 i != items.end();
 	 i++) {
-	if (description != "") description += ", ";
+	if (!description.empty()) description += ", ";
 	description += i->get_description();
     }
 
@@ -1270,11 +1270,18 @@ std::string
 OmEnquire::get_description() const
 {
     DEBUGCALL(INTRO, std::string, "OmEnquire::get_description", "");
+#if 1
+    return "OmEnquire";
+#else
+    // Hmm, causing and handling exceptions is a somewhat suspect thing to be
+    // doing in code which we want to be able to use for non-intrusive
+    // tracing - FIXME
     try {
 	RETURN("OmEnquire(" + internal->data->get_description() + ")");
     } catch (OmError & e) {
 	if (internal->data->errorhandler) (*internal->data->errorhandler)(e);
 	throw;
     }
+#endif
 }
 

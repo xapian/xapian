@@ -1,3 +1,14 @@
+Thu Dec 20 10:36:18 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Don't delete internal in ~OmWritableDatabase - ~OmDatabase
+	  does that for us (internal was zeroed after delete, so this
+	  was probably harmless) 
+
+	* Tweaked OmEnquire::get_description() and
+	  OmPostListIterator::get_description() to do less - there's a
+	  debug related bug somewhere and get_description() should be a
+	  non-intrusive method...
+
 Thu Dec 20 10:32:56 GMT 2001  Richard Boulton <richard@tartarus.org>
 
 	* Fix a couple of misquoted messages in configure.in.
