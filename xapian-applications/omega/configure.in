@@ -30,7 +30,7 @@ fi
 if test -n "$XML_CONFIG_PATH" ; then
   AC_DEFINE(HAVE_LIBXML,, [ Define if libxml or libxml2 is available.])
 fi
-AM_CONDITIONAL(HAVE_LIBXML2, test "x$HAVE_LIBXML2" = xyes)
+AM_CONDITIONAL(HAVE_LIBXML2, test yes = "$HAVE_LIBXML2")
 
 if test -n "$XML_CONFIG_PATH"
 then
@@ -55,7 +55,7 @@ then
 fi
 AC_SUBST(LIBXML_CFLAGS)
 AC_SUBST(LIBXML_LIBS)
-if test "x$have_libxml_valid" = "xyes"; then
+if test yes = "$have_libxml_valid"; then
 AC_DEFINE(HAVE_LIBXML_VALID,,
 	  [ Define if libxml has validation available ])
 else
@@ -67,7 +67,7 @@ dnl * Set special compiler flags *
 dnl ******************************
 
 dnl extra flags for building with gcc
-if test "$GCC" = yes; then
+if test yes = "$GCC"; then
   AM_CFLAGS="$AM_CFLAGS -Wall -Wunused -Wno-long-long"
   AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wunused -Wno-long-long -fno-gnu-keywords"
 fi

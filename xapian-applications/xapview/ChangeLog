@@ -1,3 +1,7 @@
+Thu Apr 18 14:39:22 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated buildall; minor tweaks to configure.in.
+
 Fri Apr 12 16:20:58 BST 2002  Olly Betts <olly@survex.com>
 
 	* Require automake 1.5.

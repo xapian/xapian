@@ -1,3 +1,7 @@
+Thu Apr 18 14:37:05 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated buildall; minor tweaks to configure.in.
+
 Wed Apr 17 12:31:18 BST 2002  Olly Betts <olly@survex.com>
 
 	* Removed references to xapian-config uninst options. 
