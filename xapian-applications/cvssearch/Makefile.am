@@ -1,1 +1,0 @@
-SUBDIRS = db map perl
