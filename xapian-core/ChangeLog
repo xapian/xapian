@@ -1,3 +1,8 @@
+Fri Aug  4 11:43:00 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed an indexing buglet which caused results of the simplequery2 to
+	  be different under Java.  Now 22 pass, 4 fail (including alwaysfail)
+
 Thu Aug  3 17:40:38 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Now 21 tests pass, 5 fail (including alwaysfail) - databases

@@ -205,6 +205,7 @@ public class BackendManager {
 		spacepos++;
 	    }
 	    String word = paragraph.substring(0, spacepos);
+	    word = stripword(word);
 	    word = word.toLowerCase();
 	    word = stemmer.stem_word(word);
 	    if (word.length() != 0) {
@@ -218,5 +219,21 @@ public class BackendManager {
 
     private static boolean isspace(char c) {
         return (c == ' ' || c == '\t' || c == '\n');
+    }
+
+    private static boolean isalpha(char c) {
+        return (c >= 'a' && c <= 'z') ||
+	       (c >= 'A' && c <= 'Z');
+    }
+
+    private static String stripword(String word) {
+        String result = "";
+
+	for (int i=0; i<word.length(); ++i) {
+	    if (isalpha(word.charAt(i))) {
+	        result += word.charAt(i);
+	    }
+	}
+	return result;
     }
 }
