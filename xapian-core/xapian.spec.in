@@ -11,7 +11,6 @@ Group: Applications/Databases
 URL: http://www.xapian.org/
 Requires: %{name}-libs = %{version}
 Source0: http://www.oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.gz
-Source1: http://www.oligarchy.co.uk/xapian/%{version}/xapian-examples-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %description
@@ -48,10 +47,6 @@ files needed for building packages which use Xapian.
 cd %{name}-%{version}
 %configure
 make
-XAPIAN_CORE_WD=`pwd`
-cd ../xapian-examples-%{version}
-%configure XAPIAN_CONFIG=$XAPIAN_CORE_WD/xapian-config
-make
 
 %install
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
@@ -66,8 +61,6 @@ cp HACKING %{buildroot}%{_datadir}/doc/%{name}-devel-%{version}
 # Copy the rest while we are in this directory
 mkdir -p %{buildroot}%{_datadir}/doc/%{name}-%{version}
 cp AUTHORS ChangeLog COPYING NEWS PLATFORMS README %{buildroot}%{_datadir}/doc/%{name}-%{version}
-cd ../xapian-examples-%{version}
-make DESTDIR=%{buildroot} install
 
 %post -p /sbin/ldconfig
 

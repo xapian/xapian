@@ -1,3 +1,9 @@
+Tue Apr 05 02:12:31 BST 2005  Olly Betts <olly@survex.com>
+
+	* docs/overview.html,docs/install.html,configure.ac,Makefile.am,
+	  xapian.spec.in,examples/Makefile.am: Moved xapian-examples module
+	  to examples subdirectory of xapian-core.
+
 Tue Apr 05 00:37:05 BST 2005  Olly Betts <olly@survex.com>
 
 	* m4/.cvsignore,debian/.cvsignore,matcher/.cvsignore,docs/.cvsignore,

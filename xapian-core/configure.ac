@@ -743,6 +743,7 @@ AC_CONFIG_FILES([
  docs/Makefile
  net/Makefile
  bin/Makefile
+ examples/Makefile
  getopt/Makefile
  extra/Makefile
  docs/doxygen_api_conf

@@ -17,24 +17,23 @@ Xapian can be built on UNIX systems (including MacOS X), and also Microsoft
 Windows systems using GCC with mingw or cygwin.
 
 <H3>Download</H3>
-The first step is to obtain a copy of the software from <a href="http://www.xapian.org/download.php">the Xapian website</a>.
+The first step is to obtain a copy of the software from the
+<a href="http://www.xapian.org/download.php">Xapian website</a>.
 
 <H3>Unpacking</H3>
 Use the usual tools to unpack the archives.  For example, on a Linux system:
 <blockquote> <code>
 tar zxvf xapian-core-&lt;versionnumber&gt;<!-- -&lt;date&gt;-->.tar.gz
 <br>
-tar zxvf xapian-examples-&lt;versionnumber&gt;<!-- -&lt;date&gt;-->.tar.gz
-<br>
-tar zxvf omegas-&lt;versionnumber&gt;<!-- -&lt;date&gt;-->.tar.gz
+tar zxvf omega-&lt;versionnumber&gt;<!-- -&lt;date&gt;-->.tar.gz
 </code> </blockquote>
 These commands should unpack the archives into separate subdirectories
-("xapian-core-N.NN", "xapian-examples-N.NN", and "omega-N.NN").
+("xapian-core-N.NN" and "omega-N.NN").
 
 <H3>Configuring and building Xapian</H3>
 Xapian uses the GNU autoconf, automake, and libtool tools.
 If you only wish to build
-releases or <a href="http://www.oligarchy.co.uk/xapian/HEAD/">CVS snapshots</a>
+releases or <a href="http://www.oligarchy.co.uk/xapian/trunk/">SVN snapshots</a>
 or make minor alterations, this need not concern you greatly.
 <p>
 These tools generate a shell script called "configure" for each of the
@@ -58,11 +57,11 @@ By default, Xapian will be installed in directories under
 to configure (e.g. <code>./configure --prefix=/home/fred/xapian</code> if
 you don't have root access to the system you want to install Xapian on).
 
-<H3>Configuring and building the examples</H3>
-The examples can be built in almost exactly the same way as the core library.
+<H3>Configuring and building Omega</H3>
+Omega can be built in almost exactly the same way as the core library.
 Simply run:
 <pre>
-    cd xapian-examples
+    cd omega
     ./configure
     make
 </pre>
@@ -79,14 +78,11 @@ runtime library search path, so you can link against a shared Xapian library
 installed in a non-standard location, and it will be found without you having
 to mess with LD_LIBRARY_PATH.
 
-<p>
-Check the documentation within the xapian-examples archive for more details on
-building and running the examples.
-
 <H3>Building from CVS</H3>
 
 If you wish to help develop Xapian, you may wish to
-<A HREF="http://www.xapian.org/cvs.php">build from the CVS repository</A>.
+<A HREF="http://www.xapian.org/bleeding.php">build from the Subversion
+repository</A>.
 
 <!-- FOOTER $Author$ $Date$ $Id$ -->
 </BODY>
