@@ -1,3 +1,7 @@
+Thu Oct  5 18:01:27 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Corrected includes of autoptr.h in quartz files.
+
 Thu Oct  5 17:51:01 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Made QuartzTable into a base class for QuartzDiskTable and

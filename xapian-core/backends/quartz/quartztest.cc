@@ -30,7 +30,7 @@
 #include "quartz_table_entries.h"
 #include "quartz_utils.h"
 
-#include "autoptr.h"
+#include "om/autoptr.h"
 
 #include "unistd.h"
 

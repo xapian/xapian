@@ -31,7 +31,7 @@ class QuartzBufferedTableManager;
 class QuartzModifications;
 #include "quartz_log.h"
 
-#include "autoptr.h"
+#include "om/autoptr.h"
 #include "omlocks.h"
 
 /** A backend designed for efficient indexing and retrieval, using

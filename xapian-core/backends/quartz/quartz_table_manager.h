@@ -27,7 +27,7 @@
 #include <om/omsettings.h>
 #include "quartz_table.h"
 #include "quartz_log.h"
-#include "autoptr.h"
+#include "om/autoptr.h"
 
 /** Class managing the tables used by a Quartz database.
  */

@@ -23,7 +23,7 @@
 #include "config.h"
 
 #include "quartz_diffs.h"
-#include "autoptr.h"
+#include "om/autoptr.h"
 #include "omassert.h"
 
 QuartzDbTag *

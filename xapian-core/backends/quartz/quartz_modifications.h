@@ -29,7 +29,7 @@
 #include "quartz_log.h"
 #include "quartz_table.h"
 #include "om/omindexdoc.h"
-#include "autoptr.h"
+#include "om/autoptr.h"
 
 #include <stdio.h>
 
