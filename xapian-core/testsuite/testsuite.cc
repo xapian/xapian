@@ -49,6 +49,11 @@
 #include "omdebug.h"
 #include "utils.h"
 
+#ifdef HAVE_VALGRIND_H
+#undef HAVE_VALGRIND_H // Need to get suitable hooks in valgrind
+//#include <valgrind.h>
+#endif
+
 using namespace std;
 
 class null_streambuf : public streambuf {
@@ -71,8 +76,8 @@ om_ostringstream tout;
 int test_driver::runs = 0;
 test_driver::result test_driver::total = {0, 0, 0};
 string test_driver::argv0 = "";
-std::string test_driver::col_red, test_driver::col_green;
-std::string test_driver::col_yellow, test_driver::col_reset;
+string test_driver::col_red, test_driver::col_green;
+string test_driver::col_yellow, test_driver::col_reset;
 
 void
 test_driver::set_quiet(bool quiet_)
@@ -124,8 +129,8 @@ test_driver::get_srcdir(const string & argv0)
 	    chdir("netprogs");
 	} else {
 	    cout << argv0
-		<< ": srcdir not in the environment and I can't guess it!"
-		<< endl;
+		 << ": srcdir not in the environment and I can't guess it!"
+		 << endl;
 	    exit(1);
 	}
     }
@@ -198,9 +203,7 @@ test_driver::runtest(const test_desc *test)
     //volatile int runcount = 0;
 
     while (true) {
-	//runcount++;
 	tout.str("");
-	// FIXME get snapshot with valgrind
 	SignalRedirector sig; // use object so signal handlers are reset
 	if (!setjmp(jb)) {
 	    if (getenv("XAPIAN_SIG_DFL") == NULL) sig.activate();
@@ -273,17 +276,15 @@ test_driver::runtest(const test_desc *test)
 	    success = false;
 	}
 
-	// check snapshot with valgrind
-	return success; // all new allocations freed
-#if 0
-	if (!success || runcount >= 2) {
-	    if (verbose) {
-		print_alloc_differences(before, after, out);
+#ifdef HAVE_VALGRIND_H
+	if (VALGRIND_DO_LEAK_CHECK(verbose && success)) {
+	    if (success) {
+		out << " " << col_red << "LEAK" << col_reset;
+		return false;
 	    }
-	    out << " " << col_red << "LEAK" << col_reset;
-	    return false;
 	}
 #endif
+	return success;
     }
 }
 
@@ -374,7 +375,7 @@ test_driver::report(const test_driver::result &r, const string &desc)
 
 	if (r.skipped) {
 	    cout << ", " << col_yellow << r.skipped << col_reset
-		<< " skipped." << endl;
+		 << " skipped." << endl;
 	} else {
 	    cout << "." << endl;
 	}

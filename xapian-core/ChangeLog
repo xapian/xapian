@@ -1,3 +1,9 @@
+Fri Dec 13 22:17:41 GMT 2002  Olly Betts <olly@survex.com>
+
+	* configure.in,testsuite/testsuite.cc: Added hooks for using valgrind
+	  to find leaks in the test suite.  Just need to sort out suitable
+	  hooks in valgrind now!
+
 Fri Dec 13 19:57:23 GMT 2002  Olly Betts <olly@survex.com>
 
 	* docs/: OmSettings removal updates.

@@ -141,6 +141,9 @@ dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h limits.h)
 
+dnl If valgrind is installed, we use it for leak checking in the testsuite
+dnl FIXME: sort this out AC_CHECK_HEADERS(valgrind.h)
+
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_TYPE_SIZE_T
