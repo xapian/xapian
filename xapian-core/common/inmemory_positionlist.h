@@ -51,12 +51,16 @@ class InMemoryPositionList : public PositionList
 
 	/// Assignment is not allowed.
 	void operator=(const InMemoryPositionList &);
+
     public:
 	/// Default constructor.
-	InMemoryPositionList() : iterating_in_progress(false) {}
+	InMemoryPositionList() : iterating_in_progress(false) { }
+
+	/// Construct, fill list with data, and move the position to the start.
+	InMemoryPositionList(const OmDocumentTerm::term_positions & positions_);
 
 	/// Destructor.
-	~InMemoryPositionList() { return; }
+	~InMemoryPositionList() { }
 
 	/// Fill list with data, and move the position to the start.
 	void set_data(const OmDocumentTerm::term_positions & positions_);

@@ -1,3 +1,12 @@
+Wed Apr 23 14:31:51 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omtermlistiterator.cc,api/omtermlistiteratorinternal.h,
+	  api/omvalueiteratorinternal.h,backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_positionlist.cc,
+	  common/inmemory_positionlist.h: Added InMemoryPositionList ctor
+	  which takes the positions data to avoid needing to construct and
+	  immediately call set_data().
+
 Wed Apr 23 14:14:34 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/,backends/,common/,include/,matcher/: OmPositionListIterator
@@ -5087,6 +5096,7 @@ Fri Nov 24 18:27:06 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 Fri Nov 24 15:34:17 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.4.1
+
 
 
 

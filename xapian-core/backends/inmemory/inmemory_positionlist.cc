@@ -24,6 +24,12 @@
 #include "omdebug.h"
 #include "inmemory_positionlist.h"
 
+InMemoryPositionList::InMemoryPositionList(const OmDocumentTerm::term_positions & positions_)
+    : positions(positions_), mypos(positions.begin()),
+      iterating_in_progress(false) 
+{
+}
+
 void
 InMemoryPositionList::set_data(const OmDocumentTerm::term_positions & positions_)
 {

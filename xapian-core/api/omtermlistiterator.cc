@@ -24,7 +24,7 @@
 #include "om/omtermlistiterator.h"
 #include "omtermlistiteratorinternal.h"
 #include "termlist.h"
-#include "inmemory_positionlist.h"
+#include "positionlist.h"
 #include "omdebug.h"
 
 OmTermIterator::OmTermIterator()

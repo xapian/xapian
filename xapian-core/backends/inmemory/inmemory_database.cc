@@ -59,9 +59,7 @@ InMemoryPostList::read_position_list()
 PositionList *
 InMemoryPostList::open_position_list() const
 {
-    AutoPtr<InMemoryPositionList> poslist(new InMemoryPositionList());
-    poslist->set_data(pos->positions);
-    return poslist.release();
+    return new InMemoryPositionList(pos->positions);
 }
 
 om_termcount
@@ -155,9 +153,7 @@ InMemoryDatabase::open_position_list(om_docid did,
     vector<InMemoryPosting>::const_iterator i;
     for (i = doc.terms.begin(); i != doc.terms.end(); ++i) {
 	if (i->tname == tname) {
-	    AutoPtr<InMemoryPositionList> poslist(new InMemoryPositionList());
-	    poslist->set_data(i->positions);
-	    return poslist.release();
+	    return new InMemoryPositionList(i->positions);
 	}
     }
     throw Xapian::RangeError("No positionlist for term in document.");

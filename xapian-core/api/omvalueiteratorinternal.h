@@ -43,4 +43,4 @@ class OmValueIterator::Internal {
 	{ }
 };
 
-#endif /* OM_HGUARD_OMVALUEITERATOR_H */
+#endif /* OM_HGUARD_OMVALUEITERATORINTERNAL_H */

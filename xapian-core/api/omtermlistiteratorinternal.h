@@ -211,9 +211,7 @@ class MapTermList : public TermList {
 	}
 
 	Xapian::PositionListIterator positionlist_begin() const {
-	    AutoPtr<InMemoryPositionList> pl(new InMemoryPositionList());
-	    pl->set_data(it->second.positions);
-	    return Xapian::PositionListIterator(pl.release());
+	    return Xapian::PositionListIterator(new InMemoryPositionList(it->second.positions));
 	}
 
 	// FIXME: needs to allow a next() before we start
