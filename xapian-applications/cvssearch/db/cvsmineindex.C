@@ -1,75 +1,63 @@
-// cvsmineindex.C
-//
-// (c) 2001 Amir Michail (amir@users.sourceforge.net)
+/********************************************************************************
+ * cvsmineindex.C
+ * 
+ * (c) 2001 Amir Michail (amir@users.sourceforge.net)
+ * modified by Andrew Yao (andrewy@users.sourceforge.net)
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * Usage:     cvsmineindex -r root0 -f package_list_file lib1_dir lib2_dir
+ * 
+ *           => builds a directory 
+ *                        $CVSDATA/root0/db/mining.om with quartz database
+ *                         inside
+ *           => builds a directory
+ *                        $CVSDATA/root0/db/mining.db with berkerley db 
+ *           => builds a file
+ *                        $CVSDATA/root0/db/mining.count with # of commits
+ * 
+ ********************************************************************************/
 
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
 
-//
-// Usage:  cvsusageindex < PACKAGE_LIST lib1_dir lib2_dir ...
-//
+// ??????????? is this info still correct below?
 //     Generates omsee databases each page.
 //
 //     If library directories given, also generates a "mining" omsee database
 //     for library usage
 //
 
-//
+// ------------------------------------------------------------
 // General approach:
 //
-//   For each symbol, we identify all comments that were associated
-//   with lines containing that symbol.
-
+// For each symbol, we identify all comments that were associated
+//  with lines containing that symbol.
 //
-// We do not put duplicate comments in the symbol's profile, so the
-// profiles are reasonably small.  
+// We do not put duplicate comments in the symbol's profile, so
+// the profiles are reasonably small.  
 //
-
 //
-//   Query => classes/functions related to the task at hand, both at a
-//                    local & global level.
+// Query => classes/functions related to the task at hand, both
+// at a local & global level.
 //
-//     
-
-
-
-
-#warning "requires ctags from http://ctags.sourceforge.net/"
-#warning "should generate unique file for tags"
-#warning "ctags contains inheritance information; this can help if (t,S) does not occur in class declaration say or where member variable is declared"
-#warning "requires omsee 0.4.1"
-
-// ctags options
-//  want classes
-//  want public/protected member *functions*
-//  ignore inheritance for now...
-
-// -R (recursive)
-// --c-types=cfsuAC
-// --kind-long=yes (verbose tag descriptions)
-// from this, ignore all entries with access:private
-
-// /tmp is small, so we use /tmp
-
-#define TEMP "/tmp"
-
-// support C/C++/Java for now
-
-// ctags 5.0 flags (see http://ctags.sourceforge.net/ctags.html)
-//
-#define CTAGS_FLAGS "-R -n --file-scope=no --fields=aiKs --c-types=cfsu --java-types=cim -f" TEMP "/tags"
-
-
 //
 // Reasoning for looking at symbols in the most recent copy and
 // not on a commit by commit basis in previous versions:
 //
 //    code symbols change over time but not the domain concepts
 //    we describe them by in comments
-//
+// ------------------------------------------------------------
 
+#warning "requires ctags 5.0 from http://ctags.sourceforge.net/"
+#warning "should generate unique file for tags"
+#warning "ctags contains inheritance information; this can help"
+#warning "if (t,S) does not occur in class declaration say or where member variable is declared"
+#warning "requires omsee 0.4.1"
+
+
+#include <unistd.h>
 #include <db_cxx.h>
 #include <fstream.h>
 #include <strstream>
@@ -82,365 +70,389 @@
 #include <algorithm>
 #include <om/om.h>
 
+#include "cvs_db_file.h"
 #include "util.h"
 
+// ----------------------------------------
+// ctags options
+//  want classes
+//  want public/protected member *functions*
+//  ignore inheritance for now...
 
-void usage(char * prog_name);
-const string database = "db";
+// -R (recursive)
+// --c-types=cfsuAC
+// --kind-long=yes (verbose tag descriptions)
+// from this, ignore all entries with access:private
 
-void writeOMDatabase( const string& database_dir,
-		      map< string, set<string> >& comment_symbols, 
-		      map< string, list<string> >& comment_words ) {
-  
-  system( ("rm -rf " + database_dir).c_str() );
-  system(("mkdir " + database_dir).c_str());
+// /tmp is small, so we use /tmp
+// ----------------------------------------
 
-  OmSettings db_parameters;
-  db_parameters.set("backend", "quartz");
-  db_parameters.set("quartz_dir", database_dir);
-  db_parameters.set("database_create", true);
-  OmWritableDatabase database(db_parameters); // open database 
+
+// support C/C++/Java for now
+// ctags 5.0 flags (see http://ctags.sourceforge.net/ctags.html)
+const string CTAGS_OUTPUT = "/tmp/tags";
+const string CTAGS_FLAGS = "-R -n --file-scope=no --fields=aiKs --c-types=cfsu --java-types=cim -f" + CTAGS_OUTPUT;
+
+// ----------------------------------------
+// function declarations.
+// ----------------------------------------
+static void usage(char * prog_name);
+static void write_OM_database( const string & database_dir,
+                               const map<unsigned int, set <string> > & commit_symbols, 
+                               const map<unsigned int, list<string> > & commit_words );
+
+static void write_DB_database( const string & database_file,
+                               const map<unsigned int, set<string> > & commit_symbols);
+
+
+int main(unsigned int argc, char *argv[]) {
+
+    string cvsdata = get_cvsdata();
+    string root = "";
+    set<string> packages;
+
+    system( ("rm -f " + CTAGS_OUTPUT).c_str() ); 
+    for (unsigned int i = 1; i < argc; ++i)
+    {
+        if (0) {
+        } else if (!strcmp(argv[i],"-f") && i+1 < argc) {
+            ifstream fin(argv[++i]);
+            get_packages(fin, packages);
+        } else if (!strcmp(argv[i],"-r") && i+1 < argc) {
+            root = argv[++i];
+        } else if (!strcmp(argv[i],"-h")) {
+            usage(argv[0]);
+        } else {
+            // ----------------------------------------
+            // get libraries if any from cmd line
+            // and run ctags on it.
+            // ----------------------------------------
+            string dir = argv[i];
+            cerr << "...running ctags on library " << dir << endl;
+            string cmd = string("ctags -a ") + string(CTAGS_FLAGS) + " " + dir; // append mode
+            cerr << "...invoking " << cmd << endl;
+            system(cmd.c_str());
+        }
+    }
+    if (root.length() == 0) {
+        usage(argv[0]);
+    }
     
-  for( map< string, set<string > >::iterator i = comment_symbols.begin(); i != comment_symbols.end(); i++ ) {
-    string cmt = i->first;
-
-    set<string> symbols = i->second;
-    string symbol_string;
-    for( set<string>::iterator j = symbols.begin(); j != symbols.end(); j++ ) {
-      symbol_string = symbol_string + (*j) + " ";
-    }
-
-    //      cerr << "Looking at comment " << cmt << endl;
-    list<string> W = comment_words[cmt];
-      
-    OmDocument newdocument;
-    int pos = 1;
-
-    // add terms for indexing
-    set<string> added;
-    for( list<string>::iterator w = W.begin(); w != W.end(); w++ ) {
-      if ( added.find(*w) != added.end() ) {
-	continue; // added already, save some space by skipping
-      }
-      newdocument.add_posting(*w, pos++); 
-      added.insert(*w);
-    }
-
-    // add symbols for indexing (symbols get a : prefix to distinguish them from terms)
-    for( set<string>::iterator j = symbols.begin(); j != symbols.end(); j++ ) {
-      newdocument.add_posting(":"+(*j), pos++); 
-    }
-
-    //      cerr << "Symbol string is:  " << symbol_string << endl;
-
-    // put transaction contents in data
-    newdocument.set_data(  symbol_string );
-
-    database.add_document(newdocument);
-
-  }
+    // ----------------------------------------
+    // get symbols from library
+    // ----------------------------------------
+    set<string> lib_symbols;
+    map<string, set<string> > lib_symbol_parents;
+    cerr << "...reading library tags" << endl;
+    readTags( CTAGS_OUTPUT, lib_symbols, lib_symbol_parents );
     
+    string package_path;        // e.g. kdebase/konqueror
+    string package_name;        // e.g. kdebase_konqueror
+    string package_db_path;     // e.g. ...cvsdata/root0/db/kdebase_konqueror
+    string package_src_path;    // e.g. ...cvsdata/root0/src/kdebase/konqueror
+        
+    // ----------------------------------------
+    // This is the key:   It takes a commit id
+    // to all the symbols under that commit.
+    // ----------------------------------------
+    // commit_symbols[commit_id] -> code symbols.
+    // commit_words  [commit_id] -> stemmed words.
+    map<unsigned int, set <string> > commit_symbols;
+    map<unsigned int, list<string> > commit_words;
     
-}
+    try {
+        // ----------------------------------------
+        // go through each package
+        // ----------------------------------------
+        set<string>::const_iterator i;
+        for ( i = packages.begin(); i != packages.end(); i++ ) {
+            package_path = *i;
+            package_name = convert(package_path, '/', '_');
+            package_db_path  = cvsdata + "/" + root + "/db/" + package_name;
+            package_src_path = cvsdata + "/" + root + "/src/" + package_path;
 
-int main(int argc, char *argv[]) {
+            // ----------------------------------------
+            // run ctags on that package
+            // ----------------------------------------
+            system( ("rm -f " + CTAGS_OUTPUT).c_str() );
+            string cmd = string("ctags ") + CTAGS_FLAGS + " " + package_src_path;
+            cerr << "...invoking " << cmd << endl;
+            system(cmd.c_str());
 
-
-  // for each package, we process it seperately
-
-  string cvsdata = get_cvsdata();
-
-  // get list of packages to process from file
-
-  set<string> lib_symbols;
-  map<string, set<string> > lib_symbol_parents;
-
-  set<string> packages;
-
-  int qpos;
-  int npos;
-
-  // get apps from stdin
-  string p;
-  while (!cin.eof()) {
-    cin >> p;
-    if ( cin.eof() && p == "" ) {
-      break;
-    }
-    cerr << "... will process " << p << endl;
-    packages.insert(p);
-  }
-  npos = 1;
-  qpos = 2;
-  
-
-
-  // get libraries if any from cmd line
-  system("rm -f " TEMP "/tags"); 
-
-  for( int i = 1; i < argc; i++ ) {
-    string dir = argv[i];
-    cerr << "...running ctags on library " << dir << endl;
-    string cmd = string("ctags -a ") + string(CTAGS_FLAGS) + " " + dir; // append mode
-    cerr << "...invoking " << cmd << endl;
-    system(cmd.c_str());
-  }
-  
-  cerr << "...reading library tags" << endl;
-  readTags( TEMP "/tags", lib_symbols, lib_symbol_parents );
-
-  // might be easier to just maintain something like:  file:revision
-  // that we way do not duplicate comments
-  //
-  // in fact, we can use:
-  //
-  // cvsquery -c file_id revision to get the comment
-  //
-
-
-  ///////// This is the key map:  It takes a commit comment to all the symbols under that comment
-  map< string, set<string> > comment_symbols;
-  map< string, list< string > > comment_words;
-
-
-
-  try {
-
-      
-
-    for ( set<string>::iterator i = packages.begin(); i != packages.end(); i++ ) {
-
-      string package = *i + ".cmt";
-
-      string package_name;
-      string package_path;
-
-      unsigned int p = package.find(".cmt");
-      unsigned int q = package.find_last_of('/');
-
-      if ( p == string::npos ) {
-	cerr << "Must include .cmt extension in package(s)." << endl;
-	exit(1);
-      }
-      // ----------------------------------------
-      // no '/', so use current directory
-      // ----------------------------------------
-      if ( q == string::npos) {
-	q = 0;
-      }
-      if ( q >= p )
-	{
-	  cerr << "Cannot parse package.cmt. found a \"/\" after \".cmt\" in the filename." << endl;
-	  exit(1);
-	}
-      package_name = string(package, q, p-q);
-      package_path = string(package, 0, p);
-      
-      cerr << "package -" << package_name << "-" << endl;
-      system("rm -f " TEMP "/tags" );
-
-      //      cerr << "Running ctags on " << package_path << endl;
-      string fullpath = cvsdata +"/root0/src/" + package_path;
-      string cmd = string("ctags ") + string(CTAGS_FLAGS) + " " + fullpath;
-      cerr << "Invoking " << cmd << endl;
-      system(cmd.c_str());
-      
-      set<string> app_symbols;
-      map<string, set<string> > app_symbol_parents;
-      cerr << "... reading application tags" << endl;
-      readTags( TEMP "/tags", app_symbols, app_symbol_parents );
+            // ----------------------------------------
+            // read symbols from each application
+            // ----------------------------------------
+            set<string> app_symbols;
+            map<string, set<string> > app_symbol_parents;
+            cerr << "... reading application tags" << endl;
+            readTags( CTAGS_OUTPUT, app_symbols, app_symbol_parents );
 
 #if 0      
-      for( set<string>::iterator s = app_symbols.begin(); s != app_symbols.end(); s++ ) {
-	cerr << (*s) << endl;
-	set<string> parents = app_symbol_parents[*s];
-	for( set<string>::iterator p = parents.begin(); p != parents.end(); p++ ) {
-	  cerr << "... has parent " << (*p) << endl;
-	}
-      }
+            for( set<string>::iterator s = app_symbols.begin(); s != app_symbols.end(); s++ ) {
+                cerr << (*s) << endl;
+                set<string> parents = app_symbol_parents[*s];
+                for( set<string>::iterator p = parents.begin(); p != parents.end(); p++ ) {
+                    cerr << "... has parent " << (*p) << endl;
+                }
+            }
 #endif
       
+            // map< unsigned int, const set<list<string> > > app_symbol_terms; // accumulated from all its points of usage
+            // map< unsigned int, int> app_symbol_count;
+            // set<string> found_symbol_before;
+            
+            // ----------------------------------------
+            // this line NEEDS to be changed..
+            // ----------------------------------------
+            lines_cmt lines( cvsdata + "/root0/src/", "", "", "", "", " mining" ); 
+            
+            // ------------------------------------------------------------
+            // need first input to be 
+            // "...cvsdata/root0/db/pkg" + ".db/" + pkg.db"
+            // ------------------------------------------------------------
+            cvs_db_file db_file(package_db_path + ".db/" + package_name + ".db", true);
+            unsigned int commitid = 0;
+            unsigned int fileid = 0;
+            string filename = "";
+            while ( lines.readNextLine() ) {
+                string data = lines.getData();
+                set<string> symbols = lines.getCodeSymbols();
+                
+                if (strcmp(filename.c_str(), lines.getCurrentFile().c_str())) {
+                    filename = lines.getCurrentFile();
+                    // ----------------------------------------
+                    // need to obtain file id
+                    // only when the file has changed.
+                    // ----------------------------------------
+                    if (db_file.get_fileid(fileid, filename) != 0) {
+                        fileid = 0;
+                    }
+                }
+                if (fileid == 0) {
+                    continue;
+                }
+                
+                // ----------------------------------------
+                // here we have a mapping between revision
+                // for this line and the associated CVS comment.
+                // ----------------------------------------
+                const map<string, string > & revisions = lines.getRevisionCommentString();
+                map<string, string >::const_iterator i;
+                
+                for(i = revisions.begin(); i != revisions.end(); ++i ) {
+                    if (db_file.get_commit(fileid, i->first, commitid) == 0) {
+                        // ----------------------------------------
+                        // have we entered info for this commit ?
+                        // ----------------------------------------
+                        if (commit_words.find(commitid) == commit_words.end()) 
+                        {
+                            // ----------------------------------------
+                            // nope, we have not. so need to set
+                            // commit_words[commitid]
+                            // ----------------------------------------
+                            const map<string, list<string> > & terms = lines.getRevisionCommentWords();
+                            map<string, list<string> >::const_iterator itr = terms.find(i->first);
+                            if (itr != terms.end()) {
+                                commit_words[commitid] = itr->second;
+                            }
+                        }
+                        // ----------------------------------------
+                        // now go through each symbol,
+                        // and add it to the commit_symbols mapping
+                        // ----------------------------------------
+                        for( set<string>::iterator s = symbols.begin(); s != symbols.end(); ++s ) {
+                            if ( lib_symbols.find(*s) != lib_symbols.end() ) {
+                                commit_symbols[commitid].insert(*s);
+                            } else {
+                                // ----------------------------------------
+                                // this symbol is not in the library, so 
+                                // let's see if its parents are;
+                                // if so, we add every such parent
+                                // ----------------------------------------
+                                set<string> parents = app_symbol_parents[*s];
+                                for( set<string>::iterator p = parents.begin(); p != parents.end(); ++p ) {
+                                    if ( lib_symbols.find(*p) != lib_symbols.end() ) {
+                                        commit_symbols[commitid].insert(*p);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } // for packages
 
+        // ----------------------------------------
+        // write results
+        // ----------------------------------------
 
-      // change / to _ in package
-      for( int i = 0; i < package_path.length(); i++ ) {
-	if ( package_path[i] == '/' ) {
-	  package_path[i] = '_';
-	}
-      }
-      
-      package_path = cvsdata +"/root0/db/"+package_path;
+        // ----------------------------------------
+        // data mining location.
+        // ----------------------------------------
+        string mining_path = cvsdata + "/" + root + "/db/mining";
 
-      //    string file_cmt = cvsdata+"/database/"+package + ".cmt";
-      //    string file_offset = cvsdata +"/database/"+package +".offset";
+        // ----------------------------------------
+        // printing # of commits to a file 
+        // mining.count
+        // transactions are in commit_symbols
+        // ----------------------------------------
+        ofstream out((mining_path + ".count").c_str());
+        out << commit_symbols.size() << endl;
+        out.close();
+        
+        // ----------------------------------------
+        // write out the berkeley database
+        // mainly the frequency of each symbol and
+        // # of times it appeared.
+        // ----------------------------------------
+        write_DB_database( mining_path + ".db", commit_symbols);
 
+        // ----------------------------------------
+        // write out the omsee database
+        // index by comment terms, the info field 
+        // should contain all the symbols
+        // ----------------------------------------
+        write_OM_database( mining_path + ".om", commit_symbols, commit_words);
 
+    } catch(OmError & error) {
+        cerr << "OmSee Exception: " << error.get_msg() << endl;
+    } catch( DbException& e ) {
+        cerr << "Sleepy Cat Exception:  " << e.what() << endl;
+    }
+}
 
+void
+usage(char * prog_name)
+{
+  cerr << "Usage: " << prog_name << " [Options] ..." << endl
+       << endl
+       << "Options:" << endl
+       << "  -h                     print out this message" << endl
+    ;
+  exit(0);
+}
 
-
-
-      int lines_read = 0;
-
-
-      package = string(package, q, p);
-      cerr << "package -" << package_name << "-" << endl;
-
-      assert( package != "." ); // safety checks
-      assert( package != ".." );
-
-
-      string file_cmt    = package_path + ".cmt";
-      string file_offset = package_path + ".offset";
-
-      // file may not exist (if it was deleted in repostory at some point)
-      {
-	ifstream in( file_cmt.c_str() );
-	if ( !in ) {
-	  cerr << "Could not find " << file_cmt << endl;
-	  continue;
-	}
-      }
-
-      cerr << "... reading " << file_cmt << endl;
-
-      map< string, set<list<string> > > app_symbol_terms; // accumulated from all its points of usage
-      map<string, int> app_symbol_count;
-      set<string> found_symbol_before;
-
-      Lines lines( cvsdata + "/root0/src/", "", package, file_cmt, file_offset, " mining" ); 
-
-      while ( lines.ReadNextLine() ) {
-
-	string data = lines.getData();
-	map<string, list<string> > terms = lines.getRevisionCommentWords();
-	set<string> symbols = lines.getCodeSymbols();
-
-
-	//	cerr << "Line " << data << endl;
-
-	//// basically, we need to cycle over all the comments here
-	map<string, string > revisions = lines.getRevisionCommentString();
-	for( map<string, string >::iterator i = revisions.begin(); i != revisions.end(); i++ ) {
-	  
-	  //	  cerr << "Revision " << i->first << " has comment " << i->second << endl;
-
-	  comment_words[i->second] = terms[i->first];
-
-	  for( set<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
-
-	    if ( lib_symbols.find(*s) != lib_symbols.end() ) {
-
-	      comment_symbols[ i->second].insert(*s);
-
-	    } else {
-	      // this symbol is not in the library, so let's see if its parents are;
-	      // if so, we add every such parent
-
-	      set<string> parents = app_symbol_parents[*s];
-	      for( set<string>::iterator p = parents.begin(); p != parents.end(); p++ ) {
-		if ( lib_symbols.find(*p) != lib_symbols.end() ) {
-		  //		  cerr << *s << " ... adding its parent " << *p << endl;
-		  comment_symbols[ i->second].insert(*p);
-		}
-	      }
-	    }	    
-
-	  }
-
-	}
-
-      } // while
-
-
-    } // for packages
-
-
-    // write results
-    // 
-    // index by comment terms, the info field should contain all the symbols
-
-
-    // we also want to generate sleepy cat databases with the following
+void write_DB_database( const string & database_file,
+                        const map<unsigned int, set<string> > & commit_symbols)
+{
+    // ----------------------------------------
+    // we also want to generate a sleepy cat 
+    // database with the following
     // information
     //
     // a=>b -> confidence (irrespective of query)
     // b -> confidence (irrespective of query)
     // this can all be put in one database
-
-
-
-
-
-
-
-
-    /////// data mining step
-    /////// transactions are in comment_symbols
-    
-    int transaction_count = comment_symbols.size();
-
-    cerr << "# transactions = " << transaction_count << endl;
-
-    map< string, int > item_count;
-
-    // count items
-    cerr << "... counting items" << endl;
-    for( map< string, set<string> >::iterator t = comment_symbols.begin(); t != comment_symbols.end(); t++ ) {
-      set<string> S = t->second;
-      for( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
-	item_count[*s]++;
-      }
+    // 
+        // item_count maps each code symbol to # of
+    // times it appeared in the entire
+    // package.
+    // ----------------------------------------
+    map< string, unsigned int > item_count;
+    map<unsigned int, set<string> >::const_iterator t;
+    for (t = commit_symbols.begin(); t!= commit_symbols.end(); ++t) {
+        const set<string> & symbols = t->second;
+        set<string>::const_iterator s;
+        for (s = symbols.begin(); s != symbols.end(); ++s) {
+            ++(item_count[*s]);
+        }
     }
 
-
+    // ----------------------------------------
+    // write to a berkeley db, each symbol 
+    // and # of times it has appeared.
+    // ----------------------------------------
+    system( ("rm -rf " + database_file ).c_str() );
     cerr << "... writing out item counts" << endl;
-
-    system( ("rm -rf " + cvsdata +"/root0/db/mining.count" ).c_str() );
-    ofstream out( (cvsdata+"/root0/db/mining.count").c_str() );
-    out << transaction_count << endl;
-    out.close();
-
-    system( ("rm -rf " + cvsdata +"/root0/db/mining.db" ).c_str() );
     
     Db db(0,0);
-    db.open( (cvsdata +"/root0/db/mining.db").c_str(),  0 , DB_HASH, DB_CREATE, 0 );
+    db.open(database_file.c_str(), 0, DB_HASH, DB_CREATE, 0);
 
-
-    for( map<string, int>::iterator i = item_count.begin(); i != item_count.end(); i++ ) {
-      int count = i->second;
-      string item = i->first;
-      
-
-      ostrstream ost;
-      ost << count << ends;
-      string s = ost.str();
-      
-      // write to database
-      Dbt key( (void*) item.c_str(), item.length()+1);
-      Dbt data( (void*) s.c_str(), s.length()+1);
-      db.put( 0, &key, &data, DB_NOOVERWRITE );
-      ost.freeze(0);
+    map<string, unsigned int>::const_iterator i;
+    for(i = item_count.begin(); i != item_count.end(); ++i) {
+        string item = i->first;
+        string count = convert(i->second);
+        
+        // ----------------------------------------
+        // write to database
+        // ----------------------------------------
+        Dbt key ( (void*) item.c_str(), item.length()+1);
+        Dbt data( (void*) count.c_str(), count.length()+1);
+        db.put( 0, &key, &data, DB_NOOVERWRITE );
     }
-
     db.close(0);
+}
 
 
 
+// ----------------------------------------
+// reason for const in set<>, list<> are because
+// the values in the map should not be changed.
+// reason for const in map<> is because
+// the parameter shouldn't be changed
+// ----------------------------------------
 
+void write_OM_database( const string & database_dir,
+                        const map<unsigned int, set <string> > & commit_symbols, 
+                        const map<unsigned int, list<string> > & commit_words ) {
+    
+    system( ("rm -rf " + database_dir).c_str() );
+    system( ("mkdir " + database_dir).c_str() );
 
+    OmSettings db_parameters;
+    db_parameters.set("backend", "quartz");
+    db_parameters.set("quartz_dir", database_dir);
+    db_parameters.set("database_create", true);
+    OmWritableDatabase database(db_parameters); // open database 
+    
+    assert(commit_words.size() == commit_symbols.size());
 
+    map<unsigned int, set <string> >::const_iterator i;
+    for (i = commit_symbols.begin(); i != commit_symbols.end(); ++i)
+    {
+        const set<string> & symbols = i->second;
+        string symbol_string;
+        set<string>::iterator j;
+        for (j = symbols.begin(); j != symbols.end(); ++j) {
+            symbol_string += (*j) + " ";
+        }
+        
+        map<unsigned int, list<string> >::const_iterator f = commit_words.find(i->first);
+        if (f == commit_words.end()) {
+            continue;
+        }
 
-
-    /////// write out OM database
-    writeOMDatabase( cvsdata + "/root0/db/mining.om", 
-		     comment_symbols,
-		     comment_words );
-
-  } catch(OmError & error) {
-    cerr << "OMSEE Exception: " << error.get_msg() << endl;
-  } catch( DbException& e ) {
-    cerr << "Exception:  " << e.what() << endl;
-  }
-
-
+        const list<string> & words = f->second;
+        
+        OmDocument newdocument;
+        int pos = 0;
+        
+        // ----------------------------------------
+        // add terms for indexing
+        // ----------------------------------------
+        set<string> added;
+        list<string>::const_iterator w;
+        for (w = words.begin(); w != words.end(); ++w) {
+            if ( added.find(*w) != added.end() ) {
+                continue; // added already, save some space by skipping
+            }
+            newdocument.add_posting(*w, ++pos); 
+            added.insert(*w);
+        }
+        
+        // ----------------------------------------
+        // add symbols for indexing (symbols get a 
+        // : prefix to distinguish them from terms)
+        // ----------------------------------------
+        for(j = symbols.begin(); j != symbols.end(); ++j) {
+            newdocument.add_posting(":"+(*j), ++pos); 
+        }
+        
+        // ----------------------------------------
+        // put transaction contents in data
+        // ----------------------------------------
+        newdocument.set_data(  symbol_string );
+        
+        database.add_document(newdocument);
+    }
 }

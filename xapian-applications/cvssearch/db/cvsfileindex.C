@@ -189,10 +189,10 @@ int main(int argc, char *argv[]) {
       package_path = string(package, 0, p);
       
       // change / to _ in package
-      for( int i = 0; i < package_path.length(); i++ ) {
-	if ( package_path[i] == '/' ) {
-	  package_path[i] = '_';
-	}
+      for( unsigned int i = 0; i < package_path.length(); i++ ) {
+          if ( package_path[i] == '/' ) {
+              package_path[i] = '_';
+          }
       }
       
       package_path = cvsdata +"/root0/db/"+package_path;
@@ -205,7 +205,7 @@ int main(int argc, char *argv[]) {
 
 
 
-      int lines_read = 0;
+      // int lines_read = 0;
 
 
       package = string(package, q, p);
@@ -233,13 +233,13 @@ int main(int argc, char *argv[]) {
       map<string, int> app_symbol_count;
       set<string> found_symbol_before;
 
-      Lines lines( cvsdata + "/root0/src/", "", package, file_cmt, file_offset, " mining" ); 
+      lines_cmt lines( cvsdata + "/root0/src/", "", package, file_cmt, file_offset, " mining" ); 
 
-      while ( lines.ReadNextLine() ) {
+      while ( lines.readNextLine() ) {
 
-	string data = lines.getData();
-	map<string, list<string> > terms = lines.getRevisionCommentWords();
-	set<string> symbols = lines.getCodeSymbols();
+          string data = lines.getData();
+          map<string, list<string> > terms = lines.getRevisionCommentWords();
+          set<string> symbols = lines.getCodeSymbols();
 
 
 	//	cerr << "Line " << data << endl;
@@ -251,7 +251,7 @@ int main(int argc, char *argv[]) {
 	  //	  cerr << "Revision " << i->first << " has comment " << i->second << endl;
 
 	  comment_words[i->second] = terms[i->first];
-	  comment_files[i->second].insert( lines.currentFile() );
+	  comment_files[i->second].insert( lines.getCurrentFile() );
 
 	  for( set<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
 	      comment_symbols[ i->second].insert(*s);

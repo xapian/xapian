@@ -182,7 +182,7 @@ void generate_rules( Db& db, const string& ranking_system, set<string>& query_sy
 
     string item = ranking_system + symbol;
 
-    if ( item.find("()") != -1 ) {
+    if ( item.find("()") != string::npos ) {
       function_ranking[ -score ].insert(item);
     } else {
       class_ranking[ -score ].insert(item);
@@ -209,7 +209,7 @@ void rank_all_items( Db& db, int total_commit_transactions, map< double, set<str
     double c = 100.0*(double)atoi((char*)data.get_data()) / (double) total_commit_transactions;
     //    cerr << k << " has count " << c << endl;
 
-    if ( k.find("()") == -1 ) {
+    if ( k.find("()") == string::npos ) {
       class_ranking[-c].insert(k);
     } else {
       function_ranking[-c].insert(k);

@@ -64,7 +64,7 @@ void writeFileDB( const string& prev_file, const string& package_path, const map
   // open database for file
   string filedb_dir = prev_file;
 
-  for( int i = 0; i < filedb_dir.length(); i++ ) {
+  for( unsigned int i = 0; i < filedb_dir.length(); i++ ) {
     if ( filedb_dir[i] == '/' ) {
 #if SHOW_WARNINGS
 #warning "potential file conflict with _"
@@ -200,25 +200,25 @@ int main(int argc, char *argv[])
 
       set< list<string> > file_comments;
 
-      Lines lines( cvsdata+"/"+root+"/src", root, package, file_cmt, file_offset, " indexing"); 
+      lines_cmt lines( cvsdata+"/"+root+"/src", root, package, file_cmt, file_offset, " indexing"); 
       string prev_file = "";
-      while ( lines.ReadNextLine() ) {
-	if ( lines.currentFile() != prev_file ) {
-	  if ( prev_file != "" ) {	  
-	    // writeFileDB( prev_file, package_path, revision_comment_words );
-
-	    // write out entry for file comments
-	    //writeFileComments( database2, prev_file, file_comments );
-	  }
-	  revision_comment_words.clear();
-	  file_comments.clear();
-
-	  prev_file = lines.currentFile();
-
-	  files++;
-
-	}
-
+      while ( lines.readNextLine() ) {
+          if ( lines.getCurrentFile() != prev_file ) {
+              if ( prev_file != "" ) {	  
+                  // writeFileDB( prev_file, package_path, revision_comment_words );
+                  
+                  // write out entry for file comments
+                  //writeFileComments( database2, prev_file, file_comments );
+              }
+              revision_comment_words.clear();
+              file_comments.clear();
+              
+              prev_file = lines.getCurrentFile();
+              
+              files++;
+              
+          }
+          
 
 	lines.updateRevisionComments( revision_comment_words );
 	list<string> words = lines.getTermList();

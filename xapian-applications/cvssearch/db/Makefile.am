@@ -1,4 +1,4 @@
-noinst_LIBRARIES = libcvs_db.a
+noinst_LIBRARIES = libcvs_db.a libcvs_lines.a
 libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C  cvs_line_db.C \
  cvs_comment_db.h     cvs_db.h       cvs_file_revision_db.h  cvs_line_db.h \
  cvs_comment_id_db.C  cvs_db_file.C  cvs_filename_db.C       cvs_revision_db.C \
@@ -8,6 +8,8 @@ libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C
  cvs_revision_less.h \
  cvs_diff_db.C cvs_diff_db.h
 
+libcvs_lines_a_SOURCES = util.C util.h lines.h lines.C lines_cmt.C lines_cmt.h
+
 bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsminesearch cvsfileindex cvsfilesearch \
 	# cvssearch cvsusagesearch cvscomments \
 	# cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
@@ -15,83 +17,83 @@ bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsminesearch cvsfileind
 cvsquery_SOURCES = cvsquery.C
 cvsquery_LDADD = libcvs_db.a -ldb_cxx libcvs_db.a
 
-cvsindex_SOURCES = util.h util.C cvsindex.C
+cvsindex_SOURCES = cvsindex.C
 cvsindex_LDFLAGS = -static
-cvsindex_LDADD = -lomsee
+cvsindex_LDADD = libcvs_lines.a -lomsee libcvs_lines.a
 
-cvssearch_SOURCES = util.h util.C cvssearch.C
+cvssearch_SOURCES = cvssearch.C
 cvssearch_LDFLAGS = -static
-cvssearch_LDADD = -lomsee
+cvssearch_LDADD = libcvs_lines.a -lomsee libcvs_lines.a
 
-cvsminesearch_SOURCES = util.h util.C cvsminesearch.C
+cvsminesearch_SOURCES =  cvsminesearch.C
 cvsminesearch_LDFLAGS = -static
-cvsminesearch_LDADD = -ldb_cxx -lomsee
+cvsminesearch_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
 
-cvsfilesearch_SOURCES = util.h util.C cvsfilesearch.C
+cvsfilesearch_SOURCES =   cvsfilesearch.C
 cvsfilesearch_LDFLAGS = -static
-cvsfilesearch_LDADD = -ldb_cxx -lomsee
+cvsfilesearch_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
 
-#cvsusagesearch_SOURCES = util.h util.C cvsusagesearch.C
+#cvsusagesearch_SOURCES =   cvsusagesearch.C
 #cvsusagesearch_LDFLAGS = -static 
-#cvsusagesearch_LDADD = -lomsee
+#cvsusagesearch_LDADD = libcvs_lines.a -lomsee libcvs_lines.a
 
-#cvsclasses_SOURCES = util.h util.C cvspatterns.C
-#cvsclasses_LDADD = -ldb_cxx -lomsee
+#cvsclasses_SOURCES =   cvspatterns.C
+#cvsclasses_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
 
-#cvsfunctions_SOURCES = util.h util.C cvspatterns.C
-#cvsfunctions_LDADD = -ldb_cxx -lomsee
+#cvsfunctions_SOURCES =   cvspatterns.C
+#cvsfunctions_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
 
-#cvsusageindex_SOURCES = util.h util.C cvsusageindex.C
-#cvsusageindex_LDADD = -ldb_cxx -lomsee
+#cvsusageindex_SOURCES =   cvsusageindex.C
+#cvsusageindex_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
 #cvsusageindex_LDFLAGS = -static
 
-cvsmineindex_SOURCES = util.h util.C cvsmineindex.C
-cvsmineindex_LDADD = -ldb_cxx -lomsee
+cvsmineindex_SOURCES =   cvsmineindex.C
+cvsmineindex_LDADD = libcvs_db.a libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a libcvs_db.a
 cvsmineindex_LDFLAGS = -static
 
-cvsfileindex_SOURCES = util.h util.C cvsfileindex.C
-cvsfileindex_LDADD = -ldb_cxx -lomsee
+cvsfileindex_SOURCES =   cvsfileindex.C
+cvsfileindex_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
 cvsfileindex_LDFLAGS = -static
 
 #cvscomments_SOURCES = cvscomments.C
-#cvscomments_LDADD = -ldb_cxx -lomsee
+#cvscomments_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
 #cvscomments_LDFLAGS = -static
 
 #cvssymbolcount_SOURCES = cvssymbolcount.C
-#cvssymbolcount_LDADD = -ldb_cxx -lomsee
+#cvssymbolcount_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
 #cvssymbolcount_LDFLAGS = -static
 
-#cvscountsymbols_SOURCES = util.h util.C cvscountsymbols.C
-#cvscountsymbols_LDADD = -ldb_cxx -lomsee
+#cvscountsymbols_SOURCES =   cvscountsymbols.C
+#cvscountsymbols_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
 #cvscountsymbols_LDFLAGS = -static
 
-#cvsminelocal_SOURCES = util.h util.C cvsminelocal.C
-#cvsminelocal_LDADD = -lomsee -ldb_cxx
+#cvsminelocal_SOURCES =   cvsminelocal.C
+#cvsminelocal_LDADD = libcvs_lines.a -lomsee -ldb_cxx libcvs_lines.a
 #cvsminelocal_LDFLAGS = -static
 
-#cvsmineglobal_SOURCES = util.h util.C cvsmineglobal.C
-#cvsmineglobal_LDADD = -lomsee -ldb_cxx
+#cvsmineglobal_SOURCES =   cvsmineglobal.C
+#cvsmineglobal_LDADD = libcvs_lines.a -lomsee -ldb_cxx libcvs_lines.a
 
 
-#cvseval_SOURCES = util.h util.C cvseval.C
+#cvseval_SOURCES =   cvseval.C
 
 #cvscomments_SOURCES = cvscomments.C
-#cvscomments_LDADD = -ldb_cxx -lomsee
+#cvscomments_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
 
 #cvssymbolcount_SOURCES = cvssymbolcount.C
-#cvssymbolcount_LDADD = -ldb_cxx -lomsee
+#cvssymbolcount_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
 
-#cvscountsymbols_SOURCES = util.h util.C cvscountsymbols.C
-#cvscountsymbols_LDADD = -ldb_cxx -lomsee
+#cvscountsymbols_SOURCES =   cvscountsymbols.C
+#cvscountsymbols_LDADD = libcvs_lines.a -ldb_cxx -lomsee libcvs_lines.a
 
-#cvsminelocal_SOURCES = util.h util.C cvsminelocal.C
-#cvsminelocal_LDADD = -lomsee -ldb_cxx
+#cvsminelocal_SOURCES =   cvsminelocal.C
+#cvsminelocal_LDADD = libcvs_lines.a -lomsee -ldb_cxx libcvs_lines.a
 
-#cvsmineglobal_SOURCES = util.h util.C cvsmineglobal.C
-#cvsmineglobal_LDADD = -lomsee -ldb_cxx
+#cvsmineglobal_SOURCES =   cvsmineglobal.C
+#cvsmineglobal_LDADD = libcvs_lines.a -lomsee -ldb_cxx libcvs_lines.a
 
 
-#cvseval_SOURCES = util.h util.C cvseval.C
-#cvseval_LDADD = -lomsee -ldb_cxx
+#cvseval_SOURCES =   cvseval.C
+#cvseval_LDADD = libcvs_lines.a -lomsee -ldb_cxx libcvs_lines.a
 
 
