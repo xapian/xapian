@@ -1,3 +1,7 @@
+Tue May 27 17:55:24 BST 2003  Olly Betts <olly@survex.com>
+
+	* query.cc: Added missing "#include <assert.h>".
+
 Mon May 26 22:41:26 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Don't use libtool; Use AC_CONFIG_FILES - it's the new
