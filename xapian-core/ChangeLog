@@ -1,3 +1,8 @@
+Tue Jul 29 11:58:21 BST 2003  Olly Betts <olly@survex.com>
+
+	* testsuite/testutils.cc: Added output of const vector<unsigned int>
+	  for platforms which use our internal stringstream implementation.
+
 Tue Jul 29 11:42:54 BST 2003  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated with results from the tinderbox.
