@@ -45,6 +45,10 @@ Priority | Area            | Task
          |                 | userman, particuarly in examples (eg, search
 	 |                 | engine example)
 ---------+-----------------+--------------------------------------------------
+ Medium  | Configure       | Enable pthread stuff to be turned on / off by
+         |                 | configure options.  Make sure linking (-lpthread)
+	 |                 | gets sorted out, too.
+---------+-----------------+--------------------------------------------------
  Low     |cBackends        | Use pthread locks around inmemory methods
 ---------+-----------------+--------------------------------------------------
  Low     | Backends        | Use pthread locks around database methods
