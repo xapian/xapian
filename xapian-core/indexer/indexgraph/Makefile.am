@@ -35,7 +35,7 @@ INDEXERNODES = omstemmernode.cc omsplitternode.cc omlistconcatnode.cc \
 		omtermlistaddnode.cc omnewkeylistnode.cc \
 		omkeylistaddnode.cc ommakepairnode.cc \
 		ommakepairsnode.cc ommakerangenode.cc \
-		omselectitemsnode.cc
+		omselectitemsnode.cc omsplitoncharsnode.cc
 
 libindexgraph_la_SOURCES = omindexer.cc omindexermessage.cc \
 	do_registration.cc $(INDEXERNODES) indexerxml.cc \

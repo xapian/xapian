@@ -1,3 +1,11 @@
+Tue Nov 28 15:08:38 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added OmSplitOnCharsNode, which does a subset of OmRegexSplitNode
+	  but less slowly.
+
+	* Modified RegexSplit node and regexcommon so that less copying
+	  of strings is needed.
+
 Tue Nov 28 13:42:41 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Moved the Btree's bitmap into a separate object.

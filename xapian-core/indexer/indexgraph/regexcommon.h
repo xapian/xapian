@@ -91,12 +91,15 @@ class Regex {
 	    return pattern;
 	}
 
-	bool matches(const std::string &s) {
+	bool matches(const std::string &s,
+		     std::string::size_type fpos = 0) {
 	    Assert(compiled);
 
 	    str = s;
+	    firstpos = fpos;
 
-	    int result = regnexec(&re, str.c_str(), str.length(),
+	    int result = regnexec(&re, str.data() + firstpos,
+				  str.length() - firstpos,
 				  regmatch_size,
 				  &regmatches, 0);
 	    bool retval = (result == 0);
@@ -110,7 +113,7 @@ class Regex {
 	    if (match_no >= regmatch_size) {
 		return -1;
 	    } else {
-		return regmatches[match_no].rm_so;
+		return regmatches[match_no].rm_so + firstpos;
 	    }
 	}
 
@@ -118,7 +121,7 @@ class Regex {
 	    if (match_no >= regmatch_size) {
 		return -1;
 	    } else {
-		return regmatches[match_no].rm_eo;
+		return regmatches[match_no].rm_eo + firstpos;
 	    }
 	}
 
@@ -126,7 +129,7 @@ class Regex {
 	    if (!submatch_defined(match_no)) {
 		return std::string("");
 	    } else {
-		return str.substr(regmatches[match_no].rm_so,
+		return str.substr(regmatches[match_no].rm_so + firstpos,
 				  regmatches[match_no].rm_eo -
 				  regmatches[match_no].rm_so);
 	    }
@@ -160,6 +163,8 @@ class Regex {
 	std::string pattern;
 
 	std::string str;
+	// The position in str where we start matching.
+	std::string::size_type firstpos;
 
 	std::string geterrstring(int errcode) {
 	    size_t len = regerror(errcode, &re, NULL, 0);

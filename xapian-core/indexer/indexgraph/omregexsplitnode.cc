@@ -101,44 +101,46 @@ class OmRegexSplitNode : public OmIndexerNode {
 	     */
 	    int extra_char = -1;
 
-	    // FIXME: this involves lots of copying substrings around...
-	    while (input.length() > 0 && regex.matches(input)) {
+	    // current position in input string
+	    std::string::size_type pos = 0;
+	    std::string::size_type last = input.length();
+	    while (pos < last && regex.matches(input, pos)) {
 		size_t start = regex.match_start(0);
 		size_t end = regex.match_end(0);
 
-		if (start > 0) {
+		if (start > pos) {
 		    if (extra_char == -1) {
-			output->append_element(input.substr(0, start));
+			output->append_element(input.substr(pos, start - pos));
 		    } else {
 			std::string temp;
 			temp += (unsigned char)extra_char;
-			temp += input.substr(0, start);
-			output->append_element(input.substr(0, start));
+			temp += input.substr(pos, start - pos);
+			output->append_element(temp);
 			extra_char = -1;
 		    }
 		}
-		if (end == 0) {
+		if (end == pos) {
 		    if (extra_char != -1) {
 			std::string temp;
 			temp += (unsigned char)extra_char;
 			output->append_element(temp);
 			extra_char = -1;
 		    } else {
-			extra_char = (unsigned char)input[0];
-			input = input.substr(1);
+			extra_char = (unsigned char)input[pos];
+			pos++;
 		    }
-		} else if (end < input.length()) {
-		    input = input.substr(end);
+		} else if (end < last) {
+		    pos = end;
 		} else {
-		    input = "";
+		    pos = last;
 		}
 	    }
-	    if (input.length() > 0 || extra_char != -1) {
+	    if (pos < last || extra_char != -1) {
 		std::string last_one;
 		if (extra_char != -1) {
 		    last_one += extra_char;
 		}
-		last_one += input;
+		last_one += input.substr(pos);
 		output->append_element(last_one);
 	    }
 	    set_output("out", output);
@@ -147,5 +149,6 @@ class OmRegexSplitNode : public OmIndexerNode {
 
 NODE_BEGIN(OmRegexSplitNode, omregexsplit)
 NODE_INPUT("in", "string", mt_string)
+NODE_INPUT("regex", "string", mt_string)
 NODE_OUTPUT("out", "strings", mt_vector)
 NODE_END()
