@@ -59,8 +59,8 @@ QuartzRecordTable::get_doccount() const
     // strict as we can typically assign an unsigned short to a signed long,
     // but this shouldn't actually matter here).
     CASSERT(sizeof(Xapian::doccount) >= sizeof(quartz_tablesize_t));
-    CASSERT((Xapian::doccount)(-1) > 0);
-    CASSERT((quartz_tablesize_t)(-1) > 0);
+    CASSERT_TYPE_UNSIGNED(Xapian::doccount);
+    CASSERT_TYPE_UNSIGNED(quartz_tablesize_t);
     Xapian::doccount entries = get_entry_count();
     RETURN(entries ? entries - 1 : 0);
 }

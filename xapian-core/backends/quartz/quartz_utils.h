@@ -36,8 +36,11 @@
 
 using namespace std;
 
-/// Compile time assert a condition
+/// Compile time assert a condition.
 #define CASSERT(a) {char assert[(a) ? 1 : -1];(void)assert;}
+
+/// Compile time assert that type T is unsigned.
+#define CASSERT_TYPE_UNSIGNED(T) CASSERT(static_cast<T>(-1) > 0)
 
 typedef unsigned char       om_byte;
 typedef unsigned int        om_uint32;
@@ -74,7 +77,7 @@ unpack_uint(const char ** src,
 	    T * resultptr)
 {
     // Check unsigned
-    CASSERT((T)(-1) > 0);
+    CASSERT_TYPE_UNSIGNED(T);
 
     // Check byte is what it's meant to be
     CASSERT(sizeof(om_byte) == 1);
@@ -129,7 +132,7 @@ string
 pack_uint(T value)
 {
     // Check unsigned
-    CASSERT((T)(-1) > 0);
+    CASSERT_TYPE_UNSIGNED(T);
 
     if (value == 0) return string("", 1u);
     string result;
@@ -166,7 +169,7 @@ bool
 unpack_uint_last(const char ** src, const char * src_end, T * resultptr)
 {
     // Check unsigned
-    CASSERT((T)(-1) > 0);
+    CASSERT_TYPE_UNSIGNED(T);
     // Check byte is what it's meant to be
     CASSERT(sizeof(om_byte) == 1);
 
@@ -201,7 +204,7 @@ string
 pack_uint_last(T value)
 {
     // Check unsigned
-    CASSERT((T)(-1) > 0);
+    CASSERT_TYPE_UNSIGNED(T);
 
     string result;
     while (value) {
@@ -226,7 +229,7 @@ string
 pack_uint_preserving_sort(T value)
 {
     // Check unsigned
-    CASSERT((T)(-1) > 0);
+    CASSERT_TYPE_UNSIGNED(T);
 
     string result;
     while(value != 0) {

@@ -1,3 +1,9 @@
+Wed Sep 22 02:41:41 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_record.cc,backends/quartz/quartz_utils.h:
+	  Introduced CASSERT_TYPE_UNSIGNED to replace the common use of
+	  CASSERT to assert at compile time that a type is unsigned.
+
 Tue Sep 21 15:58:05 BST 2004  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Removed reports from versions prior to 0.7.0.  So much
