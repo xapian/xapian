@@ -16,10 +16,10 @@ EXTRA_DIST = queryparser.lemony queryparser_internal.cc lemon.c lempar.c
 
 if MAINTAINER_MODE
 lemon: lemon.c
-	$(CC_FOR_BUILD) -o lemon lemon.c
+	$(CC_FOR_BUILD) -o lemon $(srcdir)/lemon.c
 
 queryparser_internal.cc queryparser.h: queryparser.lemony lempar.c lemon
-	./lemon queryparser.lemony
+	./lemon $(srcdir)/queryparser.lemony
 	mv -f queryparser.c queryparser_internal.cc
 
 MAINTAINERCLEANFILES = queryparser_internal.cc queryparser.h queryparser.c\
