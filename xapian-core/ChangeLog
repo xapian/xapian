@@ -1,3 +1,14 @@
+Thu Sep 14 18:15:29 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added new exception OmInvalidDataError for bad data which
+	  isn't really an API misuse.
+
+	* Cleaned up the use of silly exceptions in the indexer code.
+
+	* Indexer graph checks the XML source for validity.
+
+	* Modified the DTD to allow list parameters as well as string.
+
 Thu Sep 14 17:33:05 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Completed implementation of QuartzDbEntries.

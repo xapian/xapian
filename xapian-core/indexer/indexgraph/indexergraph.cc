@@ -82,9 +82,8 @@ OmIndexerBuilder::get_xmltree_from_file(const std::string &filename)
 {
     xmlDocPtr doc = xmlParseFile(filename.c_str());
 
-    // FIXME: Check the validity of the document
-    if (!doc) {
-	throw "Invalid document";
+    if (!doc || !doc_is_valid(doc)) {
+	throw OmInvalidDataError("Graph definition is invalid");
     }
 
     return doc;
@@ -96,12 +95,45 @@ OmIndexerBuilder::get_xmltree_from_string(const std::string &xmldesc)
     xmlDocPtr doc = xmlParseMemory(const_cast<char *>(xmldesc.c_str()),
 				   xmldesc.length());
 
-    // FIXME: Check the validity of the document
-    if (!doc) {
-	throw "Invalid Document";
+    if (!doc || !doc_is_valid(doc)) {
+	throw OmInvalidDataError("Graph definition is invalid");
     }
 
     return doc;
+}
+
+extern "C" {
+static void xml_error_func(void *ctx, const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    fprintf(stderr, "ERROR: ");
+    vfprintf(stderr, fmt, ap);
+    va_end(ap);
+    throw OmInvalidDataError("xml is not valid");
+}
+
+static void xml_warn_func(void *ctx, const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    fprintf(stderr, "WARNING: ");
+    vfprintf(stderr, fmt, ap);
+    va_end(ap);
+}
+
+} // extern "C"
+
+bool
+OmIndexerBuilder::doc_is_valid(xmlDocPtr doc)
+{
+    xmlValidCtxt ctxt;
+    ctxt.error = &xml_error_func;
+    ctxt.error = &xml_warn_func;
+
+    // Add our predefined "START" id
+    xmlAttrPtr attr = xmlNewDocProp(doc, "id", "START");
+    xmlAddID(&ctxt, doc, "START", attr);
+
+    return xmlValidateDocument(&ctxt, doc);
 }
 
 OmIndexerNode *
@@ -111,7 +143,7 @@ OmIndexerBuilder::make_node(const std::string &type,
     std::map<std::string, node_desc>::const_iterator i;
     i = nodetypes.find(type);
     if (i == nodetypes.end()) {
-	throw OmInvalidArgumentError(std::string("Unknown node type ") + type);
+	throw OmInvalidDataError(std::string("Unknown node type ") + type);
     } else {
 	return i->second.create(config);
     }
@@ -139,11 +171,11 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 {
     xmlNodePtr root = doc->root;
     if (!root) {
-	throw "no root";
+	throw OmInvalidDataError("Error parsing graph description");
     }
     std::string rootname = (char *)root->name;
     if (rootname != "omindexer") {
-	throw "Bad root tag";
+	throw OmInvalidDataError("Root tag was not <omindexer>");
     }
     //cout << "root name is " << rootname << endl;
     std::map<std::string, std::string> types;
@@ -160,7 +192,8 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 	if (type == "node") {
 	    std::map<std::string, std::string> node_attrs(attr_to_map(node->properties));
 	    if (indexer->nodemap.find(node_attrs["id"]) != indexer->nodemap.end()) {
-		throw "Duplicate node id!";
+		throw OmInvalidDataError(std::string("Duplicate node id ")
+					 + node_attrs["id"]);
 	    }
 	    xmlNodePtr child = node->childs;
 	    OmSettings config;
@@ -177,13 +210,15 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 	    // connect the inputs
 	    while (child != 0) {
 		if (std::string((char *)child->name) != "input") {
-		    throw "Expected input";
+		    throw OmInvalidDataError(std::string("<input> tag expected, found ") + std::string((char *)child->name));
 		}
 		std::map<std::string, std::string> input_attrs(attr_to_map(child->properties));
 		OmIndexer::NodeMap::const_iterator i =
 			indexer->nodemap.find(input_attrs["node"]);
 		if (i == indexer->nodemap.end()) {
-		    throw "input node not found";
+		    throw OmInvalidDataError(std::string("Input node ") +
+					     input_attrs["node"] +
+					     " not found");
 		}
 		// typecheck throws on an error
 		typecheck(node_attrs["type"], // this node's type
@@ -200,13 +235,14 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 	    std::map<std::string, std::string> attrs(attr_to_map(node->properties));
 	    OmIndexer::NodeMap::const_iterator i = indexer->nodemap.find(attrs["node"]);
 	    if (i == indexer->nodemap.end()) {
-		cerr << "bad node" << endl;
-		throw "bad node";
+		throw OmInvalidDataError(std::string("Unknown output node ") +
+					 attrs["node"]);
 	    }
 	    indexer->final = i->second;
 	    indexer->final_out = attrs["out_name"];
 	} else {
-	    throw "Unknown tag";
+	    throw OmInvalidDataError(std::string("Unexpected tag ") +
+				     type);
 	}
     }
 }
@@ -227,14 +263,14 @@ OmIndexerBuilder::typecheck(const std::string &receivertype,
 	    // this is ok - things can be converted (up to a point)
 	    // between records and primitives.
 	} else {
-	    throw OmInvalidArgumentError(std::string("Types of ") + 
+	    throw OmInvalidDataError(std::string("Types of ") + 
 					 sendertype + "[" + senderout + "]" +
 					 " and " + receivertype + "[" +
 					 receiverin + "] are not physically compatible.");
 	}
     } else if (sendercon.type != receivercon.type) {
 	if (receivercon.type != "ANY" && sendercon.type != "ANY") {
-	    throw OmInvalidArgumentError(std::string("Types of ") + 
+	    throw OmInvalidDataError(std::string("Types of ") + 
 					 sendertype + "[" + senderout + "]" +
 					 " and " + receivertype + "[" +
 					 receiverin + "] are not compatible.");
@@ -250,7 +286,7 @@ OmIndexerBuilder::get_outputcon(const std::string &nodetype,
     std::map<std::string, node_desc>::const_iterator type;
     type = nodetypes.find(nodetype);
     if (type == nodetypes.end()) {
-	throw OmInvalidArgumentError(std::string("Unknown node type ") +
+	throw OmInvalidDataError(std::string("Unknown node type ") +
 				     nodetype);
     }
     std::vector<OmNodeConnection>::const_iterator i;
@@ -260,7 +296,7 @@ OmIndexerBuilder::get_outputcon(const std::string &nodetype,
 	    return *i;
 	}
     }
-    throw OmInvalidArgumentError(std::string("Invalid output connection ") +
+    throw OmInvalidDataError(std::string("Invalid output connection ") +
 				 nodetype + "[" + output_name + "]");
 }
 
@@ -271,7 +307,7 @@ OmIndexerBuilder::get_inputcon(const std::string &nodetype,
     std::map<std::string, node_desc>::const_iterator type;
     type = nodetypes.find(nodetype);
     if (type == nodetypes.end()) {
-	throw OmInvalidArgumentError(std::string("Unknown node type ") +
+	throw OmInvalidDataError(std::string("Unknown node type ") +
 				     nodetype);
     }
     std::vector<OmNodeConnection>::const_iterator i;
@@ -281,7 +317,7 @@ OmIndexerBuilder::get_inputcon(const std::string &nodetype,
 	    return *i;
 	}
     }
-    throw OmInvalidArgumentError(std::string("Invalid input connection ") +
+    throw OmInvalidDataError(std::string("Invalid input connection ") +
 				 nodetype + "[" + input_name + "]");
 }
 
@@ -304,8 +340,8 @@ OmIndexer::set_node_config(const std::string &node_id,
 {
     NodeMap::iterator i = nodemap.find(node_id);
     if (i == nodemap.end()) {
-	throw OmInvalidArgumentError(std::string("Node id ") + node_id +
-				     " doesn't exist");
+	throw OmInvalidDataError(std::string("Node id ") + node_id +
+				 " doesn't exist");
     }
     i->second->set_config_string(key, value);
 }

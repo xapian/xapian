@@ -176,6 +176,9 @@ class OmIndexerBuilder {
 	/** Get the XML parse tree from a string*/
 	xmlDocPtr get_xmltree_from_string(const std::string &xmldesc);
 
+	/** Check the validity of a parsed tree */
+	static bool doc_is_valid(xmlDocPtr doc);
+
 	/** Build the node graph (with checking) and set up the final
 	 *  node pointer.
 	 */

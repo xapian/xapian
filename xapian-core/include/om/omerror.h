@@ -155,4 +155,7 @@ DEFINE_ERROR_CLASS(OmInvalidResultError, OmRuntimeError);
 /** Thrown in the indexing system when a type mismatch occurs. */
 DEFINE_ERROR_CLASS(OmTypeError, OmRuntimeError);
 
+/** Thrown when data being worked on is invalid */
+DEFINE_ERROR_CLASS(OmInvalidDataError, OmRuntimeError);
+
 #endif /* OM_HGUARD_OMERROR_H */

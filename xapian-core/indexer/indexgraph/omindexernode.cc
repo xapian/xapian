@@ -37,9 +37,12 @@ OmIndexerNode::get_output_record(const std::string &output_name)
     // FIXME: check for validity of output_name in debugging code?
 
     if (i == outputs_record.end()) {
-	throw std::string("Request for output ") + 
-		output_name + ", which wasn't calculated, from " +
-		typeid(*this).name();
+	// FIXME: OmInvalidArgumentError doesn't sound right here (and
+	// below)...
+	throw OmInvalidArgumentError(std::string("Request for output ") + 
+				     output_name +
+				     ", which wasn't calculated, from " +
+				     typeid(*this).name());
     } else {
 	result = *i->second;
 	outputs_record.erase(i);
@@ -59,13 +62,12 @@ OmIndexerNode::get_output_int(const std::string &output_name)
     // FIXME: check for validity of output_name in debugging code?
 
     if (i == outputs_record.end()) {
-	throw std::string("Request for output ") + 
+	throw OmInvalidArgumentError(std::string("Request for output ") + 
 		output_name + ", which wasn't calculated, from " +
-		typeid(*this).name();
+		typeid(*this).name());
     } else {
 	if ((*i->second)->get_type() != Record::rt_int) {
-	    // FIXME: better exception?
-	    throw OmInvalidArgumentError(std::string("Attempt to convert a non-int output (") + output_name + ") into a int");
+	    throw OmTypeError(std::string("Attempt to convert a non-int output (") + output_name + ") into a int");
 	}
 	result = (*i->second)->get_int();
 	outputs_record.erase(i);
@@ -85,13 +87,12 @@ OmIndexerNode::get_output_double(const std::string &output_name)
     // FIXME: check for validity of output_name in debugging code?
 
     if (i == outputs_record.end()) {
-	throw std::string("Request for output ") + 
+	throw OmInvalidArgumentError(std::string("Request for output ") + 
 		output_name + ", which wasn't calculated, from " +
-		typeid(*this).name();
+		typeid(*this).name());
     } else {
 	if ((*i->second)->get_type() != Record::rt_double) {
-	    // FIXME: better exception?
-	    throw OmInvalidArgumentError(std::string("Attempt to convert a non-double output (") + output_name + ") into a double");
+	    throw OmTypeError(std::string("Attempt to convert a non-double output (") + output_name + ") into a double");
 	}
 	result = (*i->second)->get_double();
 	outputs_record.erase(i);
@@ -111,13 +112,12 @@ OmIndexerNode::get_output_string(const std::string &output_name)
     // FIXME: check for validity of output_name in debugging code?
 
     if (i == outputs_record.end()) {
-	throw std::string("Request for output ") + 
+	throw OmInvalidArgumentError(std::string("Request for output ") + 
 		output_name + ", which wasn't calculated, from " +
-		typeid(*this).name();
+		typeid(*this).name());
     } else {
 	if ((*i->second)->get_type() != Record::rt_string) {
-	    // FIXME: better exception?
-	    throw OmInvalidArgumentError(std::string("Attempt to convert a non-string output (") + output_name + ") into a string");
+	    throw OmTypeError(std::string("Attempt to convert a non-string output (") + output_name + ") into a string");
 	}
 	result = (*i->second)->get_string();
 	outputs_record.erase(i);

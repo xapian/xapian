@@ -2,17 +2,23 @@
 <!ELEMENT node (param*, input*)>
 <!ELEMENT output EMPTY>
 <!ELEMENT input EMPTY>
+<!ELEMENT param (item*)>
+<!ELEMENT item EMPTY>
 
 <!ATTLIST omindexer>
 <!ATTLIST node
           type CDATA #REQUIRED
 	  id   ID    #REQUIRED>
 <!ATTLIST output
-          node IDREF #REQUIRED>
+          node IDREF #REQUIRED
+	  out_name CDATA #REQUIRED>
 <!ATTLIST input
 	  name CDATA "in"
           node IDREF #REQUIRED
 	  out_name CDATA "out">
 <!ATTLIST param
+	  type (string|list) "string"
 	  name CDATA #REQUIRED
+	  value CDATA #REQUIRED>
+<!ATTLIST item
 	  value CDATA #REQUIRED>
