@@ -163,9 +163,9 @@ POOLDIR="pool/$VERSION"
 mkdir -p "$PUBDIR/$SRCDIR"
 
 # Calculate location that tarballs should be found at
-TARBALL_CORE="${PUBDIR}/$POOLDIR/source/xapian-core_${SNAP_VERSION}.orig.tar.gz"
-TARBALL_BINDINGS="${PUBDIR}/$POOLDIR/source/xapian-bindings_${SNAP_VERSION}.orig.tar.gz"
-TARBALL_OMEGA="${PUBDIR}/$POOLDIR/source/xapian-omega_${SNAP_VERSION}.orig.tar.gz"
+TARBALL_CORE="${PUBDIR}/${POOLDIR}/source/xapian-core_${SNAP_VERSION}.orig.tar.gz"
+TARBALL_BINDINGS="${PUBDIR}/${POOLDIR}/source/xapian-bindings_${SNAP_VERSION}.orig.tar.gz"
+TARBALL_OMEGA="${PUBDIR}/${POOLDIR}/source/xapian-omega_${SNAP_VERSION}.orig.tar.gz"
 
 # Make tarballs, if we don't already have some
 if [ -e ${TARBALL_CORE} -a -e ${TARBALL_BINDINGS} -a -e ${TARBALL_OMEGA} ];
@@ -174,7 +174,7 @@ then
   true
 else
   # Make source directory
-  mkdir -p "$POOLDIR/source"
+  mkdir -p "${PUBDIR}/${POOLDIR}/source"
 
   # Checkout original packages from CVS
   rm -rf origsrc
@@ -300,9 +300,9 @@ cd ..
 src_files="build/xapian*.dsc build/xapian*.diff.gz build/xapian*.changes build/xapian*.tar.gz"
 rm -rf "upload-sources"
 mkdir -p "upload-sources/$SRCDIR"
-mkdir -p "upload-sources/$POOLDIR/source"
-mkdir -p "upload-sources/$POOLDIR/binary"
-mv $src_files upload-sources/$POOLDIR/source
+mkdir -p "upload-sources/${POOLDIR}/source"
+mkdir -p "upload-sources/${POOLDIR}/binary"
+mv $src_files upload-sources/${POOLDIR}/source
 cat >upload-sources/$SRCDIR/Release <<EOF
 Archive: $COMPONENT
 Component: main
