@@ -139,7 +139,7 @@ static void do_resultdisplay(gint row) {
 	//IRData data = doc->get_data();
 	//string fulltext = data.value;
 	string fulltext = "<unimplemented>";
-	string score = inttostring((int)(100 * mset.items[row].wt / mset.max_weight));
+	string score = inttostring(mset.convert_to_percent(mset.items[row]));
 
 	gtk_text_freeze(result_text);
 	gtk_text_backward_delete(result_text, gtk_text_get_length(result_text));
@@ -244,7 +244,8 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	gtk_clist_freeze(results_widget);
 	gtk_clist_clear(results_widget);
 	cout << "MBound: " << mset.mbound <<
-	        " Maxweight: " << mset.max_weight << endl;
+	        " Max_possible: " << mset.max_possible <<
+	        " Max_attained: " << mset.max_attained << endl;
 
 	vector<OMMSetItem>::const_iterator j;
 	for (j = mset.items.begin(); j != mset.items.end(); j++) {
@@ -266,7 +267,7 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 #endif
 string message = "<unimplemented>";
 	    ResultItemGTK * item = new ResultItemGTK(j->did,
-		100 * j->wt / mset.max_weight, message);
+		mset.convert_to_percent(*j), message);
 	    gint index = gtk_clist_append(results_widget, item->data);
 
 	    // Make sure it gets freed when item is removed from result list
