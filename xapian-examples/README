@@ -2,16 +2,16 @@ This directory contains example programs which can be compiled against
 Muscat.
 
 If you haven't installed Muscat when configuring this directory, you need
-to specify the location of the Muscat code, using the --with-libomus-uninst
+to specify the location of the Muscat code, using the --with-omsee-uninst
 configure option.
 
 This is further complicated if you are performing a VPATH build
 (ie, builddir != srcdir), in which case you must also specify the
 location of a built, but not installed, Muscat library, using the
---with-libomus-uninst-exec configure option.
+--with-omsee-uninst-exec configure option.
 
 Note that you shouldn't specify relative directories in the
---with-libomus-uninst* parameters.
+--with-omsee-uninst* parameters.
 
 Once configure has run successfully, simply running "make" in the top-level
 directory should build the examples.
