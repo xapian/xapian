@@ -47,7 +47,6 @@ class IRWeight;
 typedef bool (* mset_cmp)(const OmMSetItem &, const OmMSetItem &);
 bool msetcmp_forward(const OmMSetItem &, const OmMSetItem &);
 bool msetcmp_reverse(const OmMSetItem &, const OmMSetItem &);
-class MSetCmp;
 
 /** Class for performing the best match calculations on a database.
  *  This is the Match class which performs the main calculation: other
