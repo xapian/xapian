@@ -1,3 +1,10 @@
+Thu Oct 21 17:44:19 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/docs/bindings.html: Remove documentation explicitly saying
+	  how we wrap Xapian::QueryParser and Xapian::Stem since we wrap them
+	  exactly as we wrap everything else we don't mention!  Also mention
+	  simpleexpand example.
+
 Thu Oct 21 16:59:03 BST 2004  Olly Betts <olly@survex.com>
 
 	* php4/Makefile.am: Note why we pass -I. to SWIG.

@@ -124,7 +124,7 @@ the TCP version is currently wrapped, the "program" version isn't).
 <p>
    Please note that although the source code for the bindings
    indicates that there's another constructor to <code>xapian.Query</code> that
-   should be able to take a default query operator, a list of queries,
+   should be able to take a query operator, a list of queries,
    and an optional window, this doesn't actually work in Python at the
    moment due to the way SWIG overloading works.
 </p>
@@ -136,14 +136,6 @@ the TCP version is currently wrapped, the "program" version isn't).
    an MSetIterator and returns a list of terms in the current query which
    match the document given by that iterator. This may be slightly
    more convenient than using the TermIterator directly.
-</p>
-
-<h2>QueryParser and Stem</h2>
-
-<p>
-   The query parser and C++ wrapped stemmers are wrapped for Python as
-   <code>xapian.QueryParser</code> and <code>xapian.Stem</code>. The interfaces
-   are identical to the C++ versions.
 </p>
 
 <h2>MatchDecider</h2>
@@ -165,8 +157,8 @@ class mymatcher(xapian.MatchDecider):
 </pre>
 
 <p>
-There are examples of the Python bindings, based on simplesearch and
-simpleindex from <code>xapian-examples</code>, in the <code>examples</code>
+There are examples of the Python bindings, based on simplesearch, simpleindex,
+and simpleexpand from <code>xapian-examples</code>, in the <code>examples</code>
 subdirectory. There is also an example of defining a MatchDecider in Python.
 </p>
 
