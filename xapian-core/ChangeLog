@@ -1,3 +1,7 @@
+Fri Sep  8 18:42:49 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* In delve, ensure that recno's are in sorted order.
+
 Fri Sep  8 18:41:19 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* In MultiPostList::skip_to(), don't call get_docid() if already

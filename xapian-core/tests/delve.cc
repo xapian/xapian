@@ -31,6 +31,7 @@
 #include <vector>
 #include <stack>
 #include <memory>
+#include <algorithm>
 
 using std::string;
 using std::cout;
@@ -75,6 +76,9 @@ main(int argc, char *argv[])
 		"\t-t <term> -r <recno>  for position list\n";
 	exit(1);
     }
+
+    sort(recnos.begin(), recnos.end());
+    
     try {
 	OmSettings params;
 	params.set("backend", "auto");
