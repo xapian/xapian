@@ -642,10 +642,7 @@ test_desc tests[] = {
     {"omfilereader1",		&test_omfilereader1},
     {"omfilereader2",		&test_omfilereader2},
     {"omvectorsplit1",		&test_omvectorsplit1},
-    /*
-     * FIXME: fix the test
     {"omlistconcat1",		&test_omlistconcat1},
-    */
     // FIXME: add tests for regex nodes
     {0, 0}
 };

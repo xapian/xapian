@@ -613,10 +613,19 @@ void OmIndexerNode::Internal::request_inputs()
 		// take the version from the input, as we haven't seen it yet.
 		split_versions[num] =
 			i->second.node->internal->split_versions[num];
-	    } else if (i->second.node->internal->split_versions[num] != 0) {
+	    } else if (i->second.node->internal->split_versions[num] != 0
+		       && i->second.node->internal->split_versions[num] !=
+		          split_versions[num]) {
+		std::string message = "Detected flow problem: ";
+		message += "splitting node ";
+		message += om_tostring(num);
+		message += " versions ";
+		message += om_tostring(split_versions[num]);
+		message += " vs ";
+		message += om_tostring(i->second.node->internal->split_versions[num]);
 		// FIXME: find enough information to identify the node
 		// causing the conflict, then have a useful message.
-		throw OmDataFlowError("Detected flow problem");
+		throw OmDataFlowError(message);
 	    }
 	    /*
 	    cerr << split_versions[num];
