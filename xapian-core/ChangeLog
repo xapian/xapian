@@ -1,3 +1,11 @@
+Wed Dec 13 17:53:19 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix: m36_key_file parameter wasn't being set with DA flimsy
+	  databases (thanks to Mark Hagger).
+
+	* indextest.cc changed to use "\n" instead of endl - compiles
+	  with STLport again.
+
 Wed Dec 13 17:27:17 GMT 2000 Olly Betts
 
 	* OmMSet is now an STL compatible container.

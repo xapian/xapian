@@ -64,6 +64,7 @@ int main(int argc, char *argv[]) {
 	    params->set("m36_heavyduty", false);	    
 	    params->set("m36_record_file", path + "/R");
 	    params->set("m36_term_file", path + "/T");
+	    params->set("m36_key_file", path + "/keyfile");
 	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;
