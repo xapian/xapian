@@ -24,8 +24,8 @@
 
 #include <config.h>
 
-#if defined __GLIBC__ && !defined _XOPEN_SOURCE
-// To get pread and pwrite
+#if !defined _XOPEN_SOURCE
+// Need this to get pread and pwrite with GNU libc
 #define _XOPEN_SOURCE 500
 #endif
 
