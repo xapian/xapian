@@ -33,8 +33,9 @@ class PostList {
         virtual ~PostList() { return; }
 };
 
-// Postlist which is actually directly related to entries in a database
-// (in some sense)  Nice description, eh -- Richard
+// Postlist which generates termweights (rather than merely modifying them
+// and passing them on)
+// FIXME - choose a better name for this class
 class DBPostList : public virtual PostList {
     protected:
 	const IRWeight * ir_wt;
