@@ -17,22 +17,22 @@ OrPostList::next(weight w_min)
     bool rnext = false;
 
     if (w_min > minmax) {
-	printf("minmax %f lmax %f rmax %f w_min %f\n",
-	       minmax, lmax, rmax, w_min);
+	cout << "minmax " << minmax << " lmax " << lmax << " rmax " << rmax
+	     << " w_min " << w_min << endl;
 	// we can replace the OR with another operator
 	PostList *ret;
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
-		printf("OR -> AND\n");
+		cout << "OR -> AND\n";
 		ret = new AndPostList(l, r, root);
 	    } else {
-		printf("OR -> AND MAYBE (1)\n");
+		cout << "OR -> AND MAYBE (1)\n";
 		ret = new AndMaybePostList(r, l, root);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
-	    printf("OR -> AND MAYBE (2)\n");
+	    cout << "OR -> AND MAYBE (2)\n";
 	    ret = new AndMaybePostList(l, r, root);
 	}
 		
