@@ -47,39 +47,7 @@ bool test_alwaysfail();
 bool test_testsuite1();
 bool test_testsuite2();
 bool test_testsuite3();
-// test the reference counted pointers
-bool test_refcnt1();
-// test string comparisions
-bool test_stringcomp1();
-// test whether a SleepyList packs and unpacks correctly
-bool test_sleepypack1();
-// test the behaviour of OmSettings
-bool test_omsettings1();
-// test the behaviour of OmSettings
-bool test_omsettings2();
-// test the behaviour of OmSettings
-bool test_omsettings3();
 
-test_desc tests[] = {
-    {"testsuite1",		test_testsuite1},
-    {"testsuite2",		test_testsuite2},
-    {"testsuite3",		test_testsuite3},
-    {"refcnt1",			test_refcnt1},
-    {"stringcomp1",		test_stringcomp1},
-
-#ifdef MUS_BUILD_BACKEND_SLEEPY
-    {"sleepypack1",		test_sleepypack1},
-#endif
-    {"omsettings1",		test_omsettings1},
-    {"omsettings2",		test_omsettings2},
-    {"omsettings3",		test_omsettings3},
-    {0, 0}
-};
-
-int main(int argc, char *argv[])
-{
-    return test_driver::main(argc, argv, tests);
-}
 
 bool test_trivial()
 {
@@ -190,6 +158,10 @@ bool test_testsuite3()
     return success;
 }
 
+// ###########################################
+// # Tests of the reference counted pointers #
+// ###########################################
+
 class test_refcnt : public OmRefCntBase {
     private:
 	bool &deleted;
@@ -271,6 +243,9 @@ bool test_refcnt1()
     return success;
 }
 
+
+
+// test string comparisions
 bool test_stringcomp1()
 {
     bool success = true;
@@ -320,6 +295,7 @@ bool test_stringcomp1()
 }
 
 #ifdef MUS_BUILD_BACKEND_SLEEPY
+// test whether a SleepyList packs and unpacks correctly
 bool test_sleepypack1()
 {
     bool success = true;
@@ -380,8 +356,11 @@ bool test_sleepypack1()
 
     return success;
 }
-
 #endif
+
+// ####################################
+// # test the behaviour of OmSettings #
+// ####################################
 
 bool
 test_omsettings1()
@@ -475,3 +454,28 @@ test_omsettings3()
     return success;
 }
 
+
+// ##################################################################
+// # End of actual tests                                            #
+// ##################################################################
+
+/// The lists of tests to perform
+test_desc tests[] = {
+    {"testsuite1",		test_testsuite1},
+    {"testsuite2",		test_testsuite2},
+    {"testsuite3",		test_testsuite3},
+    {"refcnt1",			test_refcnt1},
+    {"stringcomp1",		test_stringcomp1},
+#ifdef MUS_BUILD_BACKEND_SLEEPY
+    {"sleepypack1",		test_sleepypack1},
+#endif
+    {"omsettings1",		test_omsettings1},
+    {"omsettings2",		test_omsettings2},
+    {"omsettings3",		test_omsettings3},
+    {0, 0}
+};
+
+int main(int argc, char *argv[])
+{
+    return test_driver::main(argc, argv, tests);
+}

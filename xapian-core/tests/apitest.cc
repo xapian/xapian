@@ -2007,7 +2007,7 @@ bool test_maxorterms1()
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
-/// The tests which don't use any of the backends
+/// The tests which use a backend
 test_desc db_tests[] = {
     {"zerodocid", 	   test_zerodocid},
     {"simplequery1",       test_simplequery1},
@@ -2046,7 +2046,7 @@ test_desc db_tests[] = {
     {0, 0}
 };
 
-/// The tests which use a backend
+/// The tests which don't use any of the backends
 test_desc nodb_tests[] = {
     {"trivial",            test_trivial},
     // {"alwaysfail",       test_alwaysfail},
@@ -2086,7 +2086,7 @@ int main(int argc, char *argv[])
     summary.failed += sum_temp.failed;
 #endif
 
-#if 0 && defined(MUS_BUILD_BACKEND_SLEEPY)
+#if 1 && defined(MUS_BUILD_BACKEND_SLEEPY)
     backendmanager.set_dbtype("sleepycat");
     cout << "Running tests with sleepycat backend..." << endl;
     result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
