@@ -291,13 +291,13 @@ sub code_comment_counter {
 # the database that has been built.
 # This is used to keep track of which database has been built
 # Usage:
-# 1. cvsupdatedb root filepath
+# 1. cvsupdatedb ($root, "-i", $filepath);
 #    inserts a database stored in the filepath under root if the database 
 #    is not already stored.
-#    e.g. cvsupdatedb -i kdebase/konqueror
-# 2. cvsupdatedb root -r filepath
+#    e.g. cvsupdatedb ($root, "-i", "kdebase/konqueror");
+# 2. cvsupdatedb ($root, "-r", $filepath);
 #    remove a database stored in the filepath
-# 3. cvsupdatedb root -f filepath
+# 3. cvsupdatedb ($root, "-f", $filepath);
 #    finds if the database for this filepath is built, if not, 
 #    returns all the database built under that filepath if any.
 # 
