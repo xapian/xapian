@@ -26,14 +26,14 @@ $if{$eq{$msize,0},
 $if{$query,No documents match your query},
 
 $if{$ne{$last,$msize},
- $add{$topdoc,1}-$add{$topdoc,$hitsperpage} of about $msize matches,
+ $nice{$add{$topdoc,1}}-$nice{$add{$topdoc,$hitsperpage}} of about $nice{$msize} matches,
  $if{$eq{$topdoc,0},
-  All $msize matches,
-  $add{$topdoc,1}$if{$ne{$add{$topdoc,1},$msize},-$msize} of exactly $msize matches}
+  All $nice{$msize} matches,
+  $nice{$add{$topdoc,1}}$if{$ne{$add{$topdoc,1},$msize},-$nice{$msize}} of exactly $nice{$msize} matches}
 }
 <hr>
 </center>
-$list{$freqs,Term frequencies: <b>,$. ,</b>}
+$list{$map{$queryterms,$_:&nbsp;$nice{$freq{$_}}},Term frequencies: <b>,$. ,</b>}
 <table>
 $hitlist{<TR><TD VALIGN=top><IMG
 SRC="images/score-$score.png"
@@ -42,7 +42,7 @@ ALT="$percentage%" HEIGHT=16 WIDTH=32></TD>
 <INPUT TYPE=checkbox NAME=R VALUE=$id$if{$relevant, CHECKED}>
 </TD></TR></TABLE></TD>
 <TD><B><A
-HREF="$field{url}">$html{$or{$field{caption},$field{url},Untitled}}</A></B><BR>
+HREF="$field{url}">$html{$or{$field{caption},$field{title},$field{url},Untitled}}</A></B><BR>
 $highlight{$field{sample},$terms}$if{$field{sample},...}<br>
 <A HREF="$field{url}">$html{$field{url}}</A><br>
 ${
@@ -66,7 +66,7 @@ $if{$ne{$lastpage,1},
 $set{a,$if{$opt{pagelink_height}, HEIGHT=$opt{pagelink_height}}$if{$opt{pagelink_width}, WIDTH=$opt{pagelink_width}}}
 
 $map{$range{1,$add{$thispage,-1}},
-<INPUT TYPE=image NAME="[ $_ ]" VALUE="$_"
+<INPUT TYPE=image NAME="$_" VALUE="$_"
 SRC="images/page-$_.png" BORDER=0$opt{a} ALT="$_">}
 
 <IMG SRC="images/page-$thispage{}s.png"$opt{a}

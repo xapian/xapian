@@ -1,6 +1,11 @@
+Thu Nov 22 13:24:45 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Use $nice{} in query template, but don't use $freqs.  Use numbers as
+	  page image button tooltips on Netscape 4.
+
 Thu Nov 22 13:02:17 GMT 2001  Olly Betts <olly@survex.com>
 
-	* Herded escaped CGI parameter maingling code back into cgiparam.cc;
+	* Herded escaped CGI parameter mangling code back into cgiparam.cc;
 	  added special handling for  numeric image button names.
 
 Thu Nov 22 12:55:00 GMT 2001  Olly Betts <olly@survex.com>
