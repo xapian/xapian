@@ -1,3 +1,7 @@
+Tue Dec 07 18:18:26 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_log.cc: Fixed to compile on mingw.
+
 Tue Dec 07 15:57:44 GMT 2004  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated.

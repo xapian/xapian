@@ -30,6 +30,7 @@
 #include <errno.h>
 
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 
 #ifdef __WIN32__
