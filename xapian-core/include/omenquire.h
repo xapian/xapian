@@ -339,14 +339,22 @@ class OmESetItem {
 };
 
 /** Class representing an ESet.
- *  This set represents the results of an OmEnquire::get_eset()
+ *  This set represents the results of an expand operation, which can be
+ *  performed by OmEnquire::get_eset().
  */
 class OmESet {
     private:
     public:
-	OmESet() : etotal(0) {}
+	OmESet() : ebound(0) {}
+
+	/// A list of items comprising the eset.
 	vector<OmESetItem> items;
-	om_termcount etotal;
+
+	/** A lower bound on the number of terms which are in the full
+	 *  set of results of the expand.  This will be greater than or
+	 *  equal to items.size()
+	 */
+	om_termcount ebound;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -368,9 +376,20 @@ class OmData {
 ///////////////////////////////////////////////////////////////////
 // OmEnquire class
 // ===============
-// This class provides an interface to the information retrieval
-// system for the purpose of searching.
 
+/** This class provides an interface to the information retrieval
+ *  system for the purpose of searching.
+ *
+ *  Databases are usually opened lazily, so exceptions may not be
+ *  thrown where you would expect them to be.  You should catch
+ *  OmError exceptions when calling any method in OmEnquire.
+ *
+ *  @exception OmInvalidArgumentError will be thrown if an invalid
+ *  argument is supplied, for example, an unknown database type.
+ *
+ *  @exception OmOpeningError will be thrown if the database cannot
+ *  be opened (for example, a required file cannot be found).
+ */
 class OmEnquire {
     private:
 	OmEnquireInternal *internal;
@@ -378,26 +397,39 @@ class OmEnquire {
         OmEnquire();
         ~OmEnquire();
 
-	// Add a new database to use.
-	//
-	// First parameter is a string describing the database type.
-	// Second parameter is a vector of parameters to be used to open the
-	// database: meaning and number required depends on database type.
-	//
-	// The database will always be opened read-only.
+	/** Add a new database to use.
+	 *
+	 *  The database may not be opened by this call: the system may wait
+	 *  until a get_mset.  Thus failure to open the database may not
+	 *  result in an OmOpeningError exception being thrown until the
+	 *  database is used.
+	 *
+	 *  The database will always be opened read-only.
+	 *
+	 * 
+	 *  @param type    a string describing the database type.
+	 *  @param params  a vector of parameters to be used to open the
+	 *  database: meaning and number required depends on database type.
+	 * 
+	 */
 	void add_database(const string & type,
 			  const vector<string> & params);
 
-	// Set the query to run.
+	/** Set the query to run.
+	 *
+	 *  @param query_  the new query to run.
+	 */
 	void set_query(const OmQuery & query_);
 
-	// Get (a portion of) the match set for the current query
+	/** Get (a portion of) the match set for the current query.
+	 */
 	OmMSet get_mset(om_doccount first,
                         om_doccount maxitems,
 			const OmRSet * omrset = 0,
 			const OmMatchOptions * moptions = 0) const;
 
-	// Get the expand set for the given rset
+	/** Get the expand set for the given rset.
+	 */
 	OmESet get_eset(om_termcount maxitems,
 			const OmRSet & omrset,
 			const OmExpandOptions * eoptions = 0,
