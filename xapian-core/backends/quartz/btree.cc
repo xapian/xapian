@@ -2084,13 +2084,15 @@ extern int Bcursor_find_key(struct Bcursor * BC, byte * key, int key_len)
 
         if (B->overwritten) return false;
 
-        if (C[0].c < DIR_START)
-        {   C[0].c = DIR_START;
-            B->prev(B, C, 0);
-
-            if (B->overwritten) return false;
-
-        }
+	if (! found) {
+	    if (C[0].c < DIR_START) {
+		C[0].c = DIR_START;
+		if (! B->prev(B, C, 0)) return false;
+	    }
+	    while (component_of(C[0].p, C[0].c) != 1) {
+		if (! B->prev(B, C, 0)) return false;
+	    }
+	}
         BC->positioned = true;
         return found;
     }

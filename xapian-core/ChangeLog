@@ -1,3 +1,10 @@
+Fri Nov 17 14:18:02 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix to Bcursor_find_key() so that it reads the tag correctly when
+	  searching for a key which doesn't exist, but the previous item
+	  is split into multiple chunks (tag used to come from only the
+	  final chunk).
+
 Fri Nov 17 12:29:54 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix bug with applying new empty revisions to empty DBs - blocks no
