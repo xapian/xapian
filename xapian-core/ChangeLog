@@ -1,3 +1,9 @@
+Mon Dec 13 02:20:08 GMT 2004  Olly Betts <olly@survex.com>
+
+	* bin/quartzcompact.cc: Tables sizes will always be a whole number of
+	  Kbytes, since the blocksize is, so report the size in K.  Also
+	  report the change in size as well as the before and after sizes.
+
 Mon Dec 13 02:11:59 GMT 2004  Olly Betts <olly@survex.com>
 
 	* common/netutils.cc: Added missing '#include <config.h>' (probably

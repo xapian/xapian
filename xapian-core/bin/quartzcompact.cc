@@ -132,7 +132,7 @@ main(int argc, char **argv)
 	    in.open();
 
 	    off_t in_size = 0;
-	    if (stat(src + "DB", &sb) == 0) in_size = sb.st_size;
+	    if (stat(src + "DB", &sb) == 0) in_size = sb.st_size / 1024;
 
 	    string dest = destdir;
 	    dest += '/';
@@ -155,10 +155,11 @@ main(int argc, char **argv)
 	    out.commit(1);
 
 	    if (in_size != 0 && stat(dest + "DB", &sb) == 0) {
-		off_t out_size = sb.st_size;
-		cout << '\r' << *t << ": Done - reduction "
-		     << 100 * double(in_size - out_size) / in_size
-		     << "% (" << in_size << " -> " << out_size << ")" << endl;
+		off_t out_size = sb.st_size / 1024;
+		cout << '\r' << *t << ": Reduced by "
+		     << 100 * double(in_size - out_size) / in_size << "% "
+		     << in_size - out_size << "K (" << in_size << "K -> "
+		     << out_size << "K)" << endl;
 	    } else {
 		cout << '\r' << *t << ": Done" << endl;
 	    }
