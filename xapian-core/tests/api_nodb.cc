@@ -150,19 +150,24 @@ static bool test_querylen2()
 // tests that queries validate correctly
 static bool test_queryvalid1()
 {
+cout << "queryvalid1" << endl;
     vector<OmQuery> v1;
     // Need two arguments
     TEST_EXCEPTION(OmInvalidArgumentError,
 		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
+    tout << "ANDNOT () checked" << endl;
     v1.push_back(OmQuery("bad"));
     TEST_EXCEPTION(OmInvalidArgumentError,
 		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
+    tout << "ANDNOT (\"bad\") checked" << endl;
     v1.clear();
     v1.push_back(OmQuery());
     TEST_EXCEPTION(OmInvalidArgumentError,
 		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
+    tout << "ANDNOT (OmQuery()) checked" << endl;
 
     OmQuery q2(OmQuery::OP_XOR, OmQuery("foo"), OmQuery("bar"));
+    tout << "XOR (\"foo\", \"bar\") checked" << endl;
     return true;
 }
 

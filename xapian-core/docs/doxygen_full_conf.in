@@ -140,7 +140,7 @@ SKIP_FUNCTION_MACROS   = YES
 TAGFILES               = 
 GENERATE_TAGFILE       = 
 ALLEXTERNALS           = NO
-PERL_PATH              = @PERL_PATH@
+PERL_PATH              = @PERL@
 #---------------------------------------------------------------------------
 # Configuration options related to the dot tool   
 #---------------------------------------------------------------------------
@@ -158,7 +158,7 @@ MAX_DOT_GRAPH_HEIGHT   = 1024
 GENERATE_LEGEND        = YES
 DOT_CLEANUP            = YES
 #---------------------------------------------------------------------------
-# Configuration::addtions related to the search engine   
+# Configuration::additions related to the search engine   
 #---------------------------------------------------------------------------
 SEARCHENGINE           = NO
 CGI_NAME               = search.cgi

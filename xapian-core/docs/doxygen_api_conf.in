@@ -134,12 +134,12 @@ EXPAND_AS_DEFINED      = DEFINE_ERROR_BASECLASS \
                          DEFINE_ERROR_CLASS
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
-# Configuration::addtions related to external references   
+# Configuration::additions related to external references   
 #---------------------------------------------------------------------------
 TAGFILES               = 
 GENERATE_TAGFILE       = 
 ALLEXTERNALS           = NO
-PERL_PATH              = @PERL_PATH@
+PERL_PATH              = @PERL@
 #---------------------------------------------------------------------------
 # Configuration options related to the dot tool   
 #---------------------------------------------------------------------------

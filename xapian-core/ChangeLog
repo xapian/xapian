@@ -1,3 +1,7 @@
+Thu Apr 11 14:23:44 BST 2002  Olly Betts <olly@survex.com>
+
+	* Cleaning up build system.
+
 Thu Apr 11 13:18:23 BST 2002  Olly Betts <olly@survex.com>
 
 	* Use AndPostList with boolean weights on the RHS instead of

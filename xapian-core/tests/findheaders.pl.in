@@ -1,4 +1,4 @@
-#! @PERL_PATH@ -w
+#! @PERL@ -w
 # @configure_input@
 # findheaders.pl is automatically generated from findheaders.pl.in
 # *** Do not edit the generated file ***

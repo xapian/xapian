@@ -1,4 +1,4 @@
-#! @PERL_PATH@ -w
+#! @PERL@ -w
 # @configure_input@
 # apitest_to_python.pl is automatically generated from apitest_to_python.pl.in
 # *** Do not edit the generated file ***

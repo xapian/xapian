@@ -71,8 +71,8 @@ AC_LANG_RESTORE
 AM_CONDITIONAL(HAVE_CPP_ACCESS_BYPASS, test "$FNO_ACCESS_FLAG" = yes)
 
 dnl Checks for perl.  (Needed to make some of the documentation)
-AC_PATH_PROG(PERL_PATH, perl)
-AM_CONDITIONAL(HAVE_PERL, test -n "$PERL_PATH")
+AC_PATH_PROG(PERL, perl)
+AM_CONDITIONAL(HAVE_PERL, test -n "$PERL")
 
 have_perl_xml_and_text=yes
 AC_MSG_CHECKING([for perl XML::Parser module])
@@ -107,10 +107,10 @@ dnl Make DATADIR available to the library
 AC_DEFINE_DIR(DATADIR, datadir, [Location of platform independent support files])
 
 dnl Checks for dot.  (Diagrams in the documentation)
-AC_PATH_PROG(DOT_PATH, dot)
-if test -n "$DOT_PATH" ; then
+AC_PATH_PROG(DOT, dot)
+if test -n "$DOT" ; then
   DOXYGEN_HAVE_DOT=YES
-  DOXYGEN_DOT_PATH=`echo "$DOT_PATH" | sed "s/\/dot$//"`
+  DOXYGEN_DOT_PATH=`echo "$DOT" | sed "s/\/dot$//"`
 else
   DOXYGEN_HAVE_DOT=NO
 fi
@@ -118,25 +118,20 @@ AC_SUBST(DOXYGEN_HAVE_DOT)
 AC_SUBST(DOXYGEN_DOT_PATH)
 
 dnl Check for latex. (Needed to make some more of the documentation)
-AC_PATH_PROG(LATEX_PATH, latex)
-AM_CONDITIONAL(HAVE_LATEX, test -n "$LATEX_PATH")
-
-dnl Doc++ is no longer used.
-dnl dnl Check for doc++. (Needed to make some more of the documentation)
-dnl AC_PATH_PROG(DOCPP_PATH, doc++)
-dnl AM_CONDITIONAL(HAVE_DOCPP, test -n "$DOCPP_PATH")
+AC_PATH_PROG(LATEX, latex)
+AM_CONDITIONAL(HAVE_LATEX, test -n "$LATEX")
 
 dnl Check for doxygen. (Needed to make some more of the documentation)
-AC_PATH_PROG(DOXYGEN_PATH, doxygen, missing)
-AM_CONDITIONAL(HAVE_DOXYGEN, test "x$DOXYGEN_PATH" != xmissing)
+AC_PATH_PROG(DOXYGEN, doxygen, missing)
+AM_CONDITIONAL(HAVE_DOXYGEN, test "x$DOXYGEN" != xmissing)
 
 dnl Check for dvips. (Needed to make some more of the documentation)
-AC_PATH_PROG(DVIPS_PATH, dvips)
-AM_CONDITIONAL(HAVE_DVIPS, test -n "$DVIPS_PATH")
+AC_PATH_PROG(DVIPS, dvips)
+AM_CONDITIONAL(HAVE_DVIPS, test -n "$DVIPS")
 
 dnl Check for swig. (For generating scripting language bindings)
-AC_PATH_PROG(SWIG_PATH, swig)
-AM_CONDITIONAL(HAVE_SWIG, test -n "$SWIG_PATH")
+AC_PATH_PROG(SWIG, swig)
+AM_CONDITIONAL(HAVE_SWIG, test -n "$SWIG")
 
 dnl Check whether we need -ldl for dlsym() etc.
 AC_TRY_LINK_FUNC(dlsym, ,

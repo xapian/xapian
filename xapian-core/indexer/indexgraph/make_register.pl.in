@@ -1,4 +1,4 @@
-#! @PERL_PATH@ -w
+#! @PERL@ -w
 # @configure_input@
 # make_register.pl is automatically generated from make_register.pl.in
 # *** Do not edit the generated file ***

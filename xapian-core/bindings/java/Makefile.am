@@ -100,7 +100,7 @@ apitest_src = $(top_srcdir)/tests/api_db.cc \
 
 ApiTestFuncs.java: $(apitest_src) apitest_to_java.pl \
 		$(top_srcdir)/tests/apitest_parser.pm $(srcdir)/ToJava.pm
-	cat $(apitest_src) | @PERL_PATH@ -I$(srcdir)/ -I $(top_srcdir)/tests apitest_to_java.pl
+	cat $(apitest_src) | $(PERL) -I$(srcdir)/ -I $(top_srcdir)/tests apitest_to_java.pl
 
 all-local: class.timestamp
 

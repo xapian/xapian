@@ -1,4 +1,4 @@
-#! @PERL_PATH@ -w
+#! @PERL@ -w
 # @configure_input@
 # apitest_to_java.pl is automatically generated from apitest_to_java.pl.in
 # *** Do not edit the generated file ***

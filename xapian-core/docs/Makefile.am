@@ -1,9 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-DOCPP = @DOCPP_PATH@
-DVIPS = @DVIPS_PATH@
-LATEX = @LATEX_PATH@
-
 HTMLFILES = index.html intro.html intro_ir.html userman.html \
         stemming.html porterstem.html using_stemmers.html quickstart.html \
 	quartzdesign.html
@@ -164,9 +160,6 @@ todo-release.html: todo2html.pl todo.xml
 	if test -f "todo2html.pl"; then d2="." ; else d2="$(srcdir)/"; fi; \
 	$${d2}/todo2html.pl --release \* $${d1}/todo.xml >$@
 
-DOCPPFLAGS = --sort --no-java-graphs --c-comments --quantel \
-             --upwards-arrows --no-define
-
 %.dvi: %.tex docxx.sty
 	@#Make it as if docxx is there, for VPATH builds.
 	@if [ ! -r docxx.sty ] ; then \
@@ -191,7 +184,7 @@ DOCPPFLAGS = --sort --no-java-graphs --c-comments --quantel \
 -include .deps-sourcedoc-tex
 
 DISTCLEANFILES=\
-        .deps-apidoc-html \
+	.deps-apidoc-html \
 	.deps-apidoc-tex \
 	.deps-sourcedoc-html \
 	.deps-sourcedoc-tex
@@ -220,34 +213,14 @@ apidoc/html/index.html: doxygen_api_conf \
 			$(srcdir)/doxygen_api_footer.html_tmpl
 	@echo "Generating API documentation with doxygen"
 	@depends="$(APIDOC_SRC)"; destfile=".deps-apidoc-html"; $(GENDEPS)
-	@top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN_PATH) doxygen_api_conf
+	@top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_api_conf
 
 sourcedoc/html/index.html: doxygen_full_conf \
                         $(srcdir)/doxygen_full_header.html_tmpl \
 			$(srcdir)/doxygen_full_footer.html_tmpl
 	@echo "Generating full source documentation with doxygen"
 	@depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-html"; $(GENDEPS)
-	@top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN_PATH) doxygen_full_conf
-
-## apidoc/index.html:
-## 	@echo "Generating HTML documentation for API"
-## 	@depends="$(APIDOC_SRC)"; destfile=".deps-apidoc-html"; $(GENDEPS)
-## 	@doc++ $(DOCPPFLAGS) --dir apidoc $(APIDOC_SRC)
-##
-## apidoc.tex:
-## 	@echo "Generating LaTeX documentation for API"
-## 	@depends="$(APIDOC_SRC)"; destfile=".deps-apidoc-tex"; $(GENDEPS)
-## 	@doc++ -t $(DOCPPFLAGS) --output $@ $(APIDOC_SRC)
-##
-## sourcedoc/index.html:
-## 	@echo "Generating HTML documentation for full source"
-## 	@depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-html"; $(GENDEPS)
-## 	@doc++ $(DOCPPFLAGS) --all --private --dir sourcedoc $(SOURCEDOC_SRC)
-##
-## sourcedoc.tex:
-## 	@echo "Generating LaTeX documentation for full source"
-## 	@depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-tex"; $(GENDEPS)
-## 	@doc++ -t $(DOCPPFLAGS) --private --output $@ $(SOURCEDOC_SRC)
+	@top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_full_conf
 
 ##################################
 # Generate images from dia files #

@@ -1,4 +1,4 @@
-#! @PERL_PATH@ -w
+#! @PERL@ -w
 # @configure_input@
 # mkdoc.pl is automatically generated from mkdoc.pl.in
 # *** Do not edit the generated file ***

@@ -30,5 +30,5 @@ xapianc.so: xapian_wrap.o
 
 apitestfuncs.py: $(top_srcdir)/tests/apitest.cc apitest_to_python.pl \
                  $(top_srcdir)/tests/apitest_parser.pm $(srcdir)/ToPython.pm
-	@PERL_PATH@ -I$(srcdir)/ -I $(top_srcdir)/tests apitest_to_python.pl < $<
+	$(PERL) -I$(srcdir)/ -I $(top_srcdir)/tests apitest_to_python.pl < $<
 
