@@ -1,3 +1,9 @@
+Tue Nov 12 00:41:42 GMT 2002  Olly Betts <olly@survex.com>
+
+	* simpleindex.cc: Added MAX_PROB_TERM_LENGTH as in the omega
+	  indexers - it's a good idea to exclude junk terms so the
+	  example indexer probably should.
+
 Wed Oct 30 02:12:37 GMT 2002  Olly Betts <olly@survex.com>
 
 	* buildall: Removed in favour of bootstrap script.

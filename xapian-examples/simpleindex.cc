@@ -32,6 +32,10 @@ using namespace std;
 
 #include <ctype.h>
 
+// Put a limit on the size of terms to help prevent the index being bloated
+// by useless junk terms
+const static unsigned int MAX_PROB_TERM_LENGTH = 64;
+
 inline static bool
 p_alnum(unsigned int c)
 {
@@ -82,7 +86,7 @@ int main(int argc, char *argv[])
     
     OmStem stemmer("english");
     string para;
-    while (1) {
+    while (true) {
 	string line;
 	if (cin.eof()) break;
 	getline(cin, line); 
@@ -99,10 +103,14 @@ int main(int argc, char *argv[])
 			j = find_if(i, para.end(), p_notalnum);
 			k = find_if(j, para.end(), p_notplusminus);
 			if (k == para.end() || !isalnum(*k)) j = k;
-			om_termname term = para.substr(i - para.begin(), j - i);
-			lowercase_term(term);
-			term = stemmer.stem_word(term);
-			doc.add_posting(term, pos++);
+			string::size_type len = j - i;
+			if (len <= MAX_PROB_TERM_LENGTH) {
+			    om_termname term = para.substr(i - para.begin(),
+							   len);
+			    lowercase_term(term);
+			    term = stemmer.stem_word(term);
+			    doc.add_posting(term, pos++);
+			}
 		    }
 
 		    // Add the document to the database
