@@ -35,7 +35,7 @@ const string default_db_name = "ompf";
 static string map_dbname_to_dir(const string &db_name);
 
 static void make_log_entry(const char *action, long matches);
-static void make_query_log_entry(const char *buf, size_t length);
+static void make_query_log_entry(const string &buf);
 
 string db_name;
 static string db_dir;
@@ -60,10 +60,9 @@ int main(int argc, char *argv[])
 static int main2(int argc, char *argv[])
 {
     int n;
-    char     big_buf[4048];
+    string big_buf;
     long int list_size;
-    char    *to = big_buf;
-    int      more = 0;
+    bool more = false;
     int      is_old;
     long int topdoc = 0;
     char     *method;
@@ -195,7 +194,7 @@ static int main2(int argc, char *argv[])
 	if (atoi(val) == 100) op = AND;
     }
 
-    *to = '\0';
+    big_buf = "";
 
 #if 0 // FIXME def FERRET
     if ((val = GetEntry("MORELIKE")) != NULL) {
@@ -207,12 +206,10 @@ static int main2(int argc, char *argv[])
        while (!Getfrom_Muscat (&z)) {
 	  check_error(&z);
 	  if (z.p[0] == 'I') {
-	     if (more) *to++ = ' ';
-	     strcpy(to, z.p + 2);	     
-	     to += strlen (to);
-	     *to++ = '.';
-	     *to = '\0';
-	     more = 1;
+	     if (more) big_buf += ' ';
+	     big_buf += (z.p + 2);
+	     big_buf += '.';
+	     more = true;
 	  }
        }
        Give_Muscat("delrels r0-*");
@@ -376,12 +373,10 @@ static int main2(int argc, char *argv[])
        while (!Getfrom_Muscat (&z)) {
 	  check_error(&z);
 	  if (z.p[0] == 'I') {
-	     if (more) *to++ = ' ';
-	     strcpy(to, z.p + 2);	     
-	     to += strlen (to);
-	     *to++ = '.';
-	     *to = '\0';
-	     more = 1;
+	     if (more) big_buf += ' ';
+	     big_buf += (z.p + 2);
+	     big_buf += '.';
+	     more = true;
 	  }
        }
        Give_Muscat("delrels r0-*");
@@ -395,24 +390,24 @@ static int main2(int argc, char *argv[])
 #endif
       
     /*** collect the prob fields ***/   
-    val = FirstEntry( "P", &n );
+    val = FirstEntry("P", &n);
     while (val) {
-       if (more) *to++ = ' ';
-       strcpy(to, val);
-       more = strlen (val);
-       to += more;
-       val = NextEntry( "P", &n );
+	if (*val) {
+	    if (more) big_buf += ' ';
+	    big_buf += val;
+	    more = true;
+	}
+	val = NextEntry( "P", &n );
     }
 
     /*** add expand terms ? **/
     if (GetEntry("ADD") != NULL) {
        val = FirstEntry( "X", &n );
        while (val) {
-	  if (more) *to++ = ' ';
-	  strcpy (to, val);
-	  to += strlen (to);
-	  more = 1;
-	  val = NextEntry( "X", &n );
+	   if (more) big_buf += ' ';
+	   big_buf += val;
+	   more = true;
+	   val = NextEntry( "X", &n );
        }
     }
    
@@ -473,11 +468,10 @@ static int main2(int argc, char *argv[])
 	    make_log_entry("query", matches);
 	}
     }
-    /* temporarily stick a newline on so we can add the line to the    */
-    /* logfile with one call to write (which seems to be atomic)       */
-    *to = '\n';
-    make_query_log_entry( big_buf, to-big_buf+1 );
-    *to = '\0';
+    // Stick a newline on so we can add the line to the logfile with
+    // one call to write (which should be atomic)
+    big_buf += '\n';
+    make_query_log_entry(big_buf);
    
     return 0;
 }
@@ -559,12 +553,11 @@ static void make_log_entry( const char *action, long matches ) {
    }
 }
 
-static void make_query_log_entry( const char *buf, size_t length ) {
-   int fd;
-   string log_buf = db_dir + "/query.log";
-   fd = open(log_buf.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
-   if (fd != -1) {
-      write( fd, buf, length );
-      close( fd );
-   }
+static void make_query_log_entry(const string &buf) {
+    string log_buf = db_dir + "/query.log";
+    int fd = open(log_buf.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
+    if (fd != -1) {
+	write(fd, buf.data(), buf.size());
+	close(fd);
+    }
 }
