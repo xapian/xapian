@@ -74,7 +74,9 @@ The PHP4 bindings do not currently use a PHP4 object orientated style. In order 
 <h2>Xapian::Auto</h2>
 
 <p>
-   Functions in <code>Xapian::Auto</code> are mapped directly (so <code>Xapian::Auto::open()</code> becomes <code>open()</code>, for instance).
+   Functions in <code>Xapian::Auto</code> are mapped directly (so <code>Xapian::Auto::open()</code> becomes <code>open()</code>, for instance).  The 2 argument
+form of Auto::open() which opens a writable database is wrapped as
+<code>open_writable</code>.
 </p>
 
 <h2>Constants</h2>
@@ -84,7 +86,7 @@ The PHP4 bindings do not currently use a PHP4 object orientated style. In order 
 </p>
 
 <p>
-   With the exception of the <code>Xapian::Auto::DB_*</code> constants, all constants from Xapian are available using a helper function; so for instance <code>Xapian::Query::OP_OR</code> becomes <code>OP_OR_get()</code>.
+   With the exception of the <code>Xapian::DB_*</code> constants, all constants from Xapian are available using a helper function; so for instance <code>Xapian::Query::OP_OR</code> becomes <code>OP_OR_get()</code>.
 </p>
 
 <h2>Enquire</h2>
@@ -99,7 +101,7 @@ The PHP4 bindings do not currently use a PHP4 object orientated style. In order 
 <h2>QueryParser and Stem</h2>
 
 <p>
-   The query parser and C++ wrapped stemmers are wrapped for Python as
+   The query parser and C++ wrapped stemmers are wrapped for PHP4 as
    <code>QueryParser</code> and <code>Stem</code>. The interfaces are identical to
    the C++ versions.
 </p>

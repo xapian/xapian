@@ -1,3 +1,9 @@
+Thu Aug 19 17:20:45 BST 2004  Olly Betts <olly@survex.com>
+
+	* php4/docs/bindings.html: Document that the 2 argument form of
+	  Xapian::Auto::open() for opening a writable database is wrapped
+	  as open_writable().
+
 Thu Aug 12 13:26:16 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.in: Check that the bindings version matches the version of
