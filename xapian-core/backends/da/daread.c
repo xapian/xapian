@@ -384,10 +384,16 @@ int block_size(filehandle f, const char * s)
 
 extern struct DAfile * DAopen(const char * s, int type)
 {  struct DAfile * p = (struct DAfile *) malloc(sizeof(struct DAfile));
-   filehandle q = X_findtoread(s);
-   int bsize = block_size(q,s);
-   byte * b = malloc(bsize+40);  /* ample */
-   const char * s_type = (type eq DATERMS) ? "term" : "record";
+   filehandle q;
+   int bsize;
+   byte * b;
+   const char * s_type;
+
+   q = X_findtoread(s);
+   if(q == -1) return NULL;
+   bsize = block_size(q,s);
+   b = malloc(bsize+40);  /* ample */
+   s_type = (type eq DATERMS) ? "term" : "record";
    p->locator = q;
    p->blocksize = bsize;
    readda(p,0,b);
