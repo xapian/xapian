@@ -1,3 +1,10 @@
+Wed Oct 25 13:00:39 BST 2000 Olly Betts
+
+	* Factored out MultiMatch::get_collapse_key().
+
+	* Matcher now exits early for boolean queries when
+	  match_sort_forward is on (which it is by default).
+
 Wed Oct 25 11:32:33 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed a bug in the indexer dataflow checking which complained

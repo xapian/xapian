@@ -189,6 +189,19 @@ MultiMatch::get_postlist(om_doccount first, om_doccount maxitems,
     return pl;
 }
 
+inline OmKey
+MultiMatch::get_collapse_key(PostList *pl, const OmDatabase &db, om_docid did,
+			     om_keyno keyno, RefCntPtr<LeafDocument> &doc)
+{		      
+    const OmKey *key = pl->get_collapse_key();
+    if (key) return *key;
+    if (doc.get() == 0) {
+	RefCntPtr<LeafDocument> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
+	doc = temp;
+    }
+    return doc->get_key(keyno);
+}
+
 void
 MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		     OmMSet & mset, const OmMatchDecider *mdecider,
@@ -235,10 +248,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // maxweight)
     if (maxitems == 0) {
 	delete pl;
-
 	mset = OmMSet(first, mbound, max_weight, greatest_wt, items,
 		      termfreqandwts);
-
 	return;
     }
 
@@ -289,18 +300,17 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    
 	    om_docid did = pl->get_docid();
 	    
-	    RefCntPtr<LeafDocument> irdoc;
+	    RefCntPtr<LeafDocument> doc;
 	    
 	    // Use the decision functor if any.
 	    // FIXME: if results are from MSetPostList then we can omit this
 	    // step
 	    if (mdecider != NULL) {
-		if (irdoc.get() == 0) {
+		if (doc.get() == 0) {
 		    RefCntPtr<LeafDocument> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
-		    irdoc = temp;
+		    doc = temp;
 		}
-		OmDocument mydoc(irdoc);
-		if (!mdecider->operator()(mydoc)) continue;
+		if (!mdecider->operator()(OmDocument(doc))) continue;
 	    }
 	    
 	    om_weight wt = pl->get_weight();
@@ -310,17 +320,9 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    
 	    // Perform collapsing on key if requested.
 	    if (do_collapse) {
-		const OmKey *key = pl->get_collapse_key();
-		if (key) {
-		    new_item.collapse_key = *key;
-		} else {
-		    if (irdoc.get() == 0) {
-			RefCntPtr<LeafDocument> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
-			irdoc = temp;
-		    }
-		    new_item.collapse_key = irdoc.get()->get_key(collapse_key);
-		}
-		
+		new_item.collapse_key =
+		    get_collapse_key(pl, db, did, collapse_key, doc);
+
 		// Don't collapse on null key
 		if (!new_item.collapse_key.value.empty()) {
 		    std::map<OmKey, OmMSetItem>::iterator oldkey;
@@ -339,9 +341,6 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			}
 			// This is best match with this key so far:
 			// remove the old one from the MSet
-			// Old one hasn't fallen out of MSet yet
-			// Scan through (unsorted) MSet looking for entry
-			// FIXME: more efficient way than just scanning?
 			om_docid olddid = olditem.did;
 			DEBUGLINE(MATCH, "collapsem: removing " << olddid <<
 				  ": " << new_item.collapse_key.value);
@@ -364,14 +363,12 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	}
     }
 
-    // doesn't work with remote streamed postlists - we can't stop early like this
-#if 0
+    // FIXME doesn't work with remote streamed postlists - we can't stop early like this
     // We're done if this is a forward boolean match
     // (bodgetastic, FIXME better if we can)
     if (max_weight == 0) {
 	if (opts.get_bool("match_sort_forward", true)) goto match_complete;
     }
-#endif
 
     if (min_item.wt > 0 || items.size() >= max_msize) {
 	// ie. we didn't go into the previous loop and exit because of at_end()
@@ -414,17 +411,17 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    // test if item has high enough weight to get into proto-mset
 	    if (!mcmp(new_item, min_item)) continue;
 	    
-	    RefCntPtr<LeafDocument> irdoc;
+	    RefCntPtr<LeafDocument> doc;
 	    
 	    // Use the decision functor if any.
 	    // FIXME: if results are from MSetPostList then we can omit this
 	    // step
 	    if (mdecider != NULL) {
-		if (irdoc.get() == 0) {
+		if (doc.get() == 0) {
 		    RefCntPtr<LeafDocument> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
-		    irdoc = temp;
+		    doc = temp;
 		}
-		OmDocument mydoc(irdoc);
+		OmDocument mydoc(doc);
 		if (!mdecider->operator()(mydoc)) continue;
 	    }
 	    
@@ -432,16 +429,9 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
 	    // Perform collapsing on key if requested.
 	    if (do_collapse) {
-		const OmKey *key = pl->get_collapse_key();
-		if (key) {
-		    new_item.collapse_key = *key;
-		} else {
-		    if (irdoc.get() == 0) {
-			RefCntPtr<LeafDocument> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
-			irdoc = temp;
-		    }
-		    new_item.collapse_key = irdoc.get()->get_key(collapse_key);
-		}
+		new_item.collapse_key =
+		    get_collapse_key(pl, db, did, collapse_key, doc);
+
 		// Don't collapse on null key
 		if (!new_item.collapse_key.value.empty()) {
 		    std::map<OmKey, OmMSetItem>::iterator oldkey;
