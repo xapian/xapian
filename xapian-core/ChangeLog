@@ -1,3 +1,8 @@
+Wed Nov 07 14:21:47 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Made doc counts returned from percentage cutoff matches more
+	  accurate.
+
 Wed Nov 07 12:30:32 GMT 2001  Olly Betts <olly@survex.com>
 
 	* GCC 3 fixes.

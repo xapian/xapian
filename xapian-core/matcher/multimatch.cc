@@ -540,6 +540,9 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 				      OmMSetCmp>(items.begin(), items.end(),
 						 mcmp);
 			items.pop_back();
+			// Correct doc count by pretending we never considered
+			// the documents we are now removing...
+			docs_matched--;
 		    }
 	        }
 	    }
@@ -584,6 +587,9 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		std::pop_heap<std::vector<OmMSetItem>::iterator,
 			      OmMSetCmp>(items.begin(), items.end(), mcmp);
 		items.pop_back();
+		// Correct doc count by pretending we never considered
+		// the documents we are now removing...
+		docs_matched--;
 	    }
 	}
 	percent_scale *= 100.0;
@@ -631,7 +637,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	matches_estimated = docs_matched;
 
     if (items.size() < maxitems) {
-	Assert(docs_matched >= items.size() + first || items.size() == 0);
+	Assert(docs_matched == items.size() + first || items.size() == 0);
 	matches_lower_bound = docs_matched;
 	matches_upper_bound = docs_matched;
 	matches_estimated = docs_matched;
