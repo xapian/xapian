@@ -799,6 +799,28 @@ These methods return a value in the range 0 to 100, which will be
 0 if and only if the item did not match the query at all.
 </P>
 
+<H3>Getting the document's data</H3>
+<P>
+Each document in the main index has some data associated with it,
+represented by an
+<A HREF="apidoc/OmDocument.html"><CODE>OmDocument</CODE></A> object.
+There are some arbitrary numeric keys (which are not yet available,
+and mainly useful in the match process) and an arbitrary lump of
+data.  To get the <CODE>OmDocument</CODE> object, use
+<A HREF="apidoc/OmEnquire#get_doc"><CODE>OmEnquire::get_doc()</CODE></A>.
+The returned <CODE>OmDocument</CODE> is fairly cheap to copy around.
+</P> <P>
+This data can be used to store a summary of the document along
+with a URL, for example, or anything else the application developer
+would like.
+</P><P>
+The data can be retrieved with
+<A HREF="apidoc/OmDocument.html#get_data"><CODE>OmDocument::get_data()</CODE></A>
+from the <CODE>OmDocument</CODE> object.  This returns an <CODE>OmData</CODE>
+object containing a C++ string with the data.  It can include embedded nulls
+or other special characters.
+</P>
+
 <H2>Specifying a relevance set</H2>
 <P>
 Muscat supports the idea of relevance feedback: that is, of allowing the user
