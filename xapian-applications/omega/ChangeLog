@@ -1,3 +1,8 @@
+Wed Mar 10 00:08:40 GMT 2004  Olly Betts <olly@survex.com>
+
+	* docs/scriptindex.txt: Make more explicit that boolean produces a
+	  *single* boolean term.
+
 Tue Mar 09 19:08:19 GMT 2004  Olly Betts <olly@survex.com>
 
 	* indextext.cc,omindex.cc,scriptindex.cc: Updated to use add_term()

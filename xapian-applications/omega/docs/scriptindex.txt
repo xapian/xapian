@@ -17,10 +17,10 @@ type : field=type boolean=XT
 The actions are:
 
 boolean[=PREFIX]
-	index the text as a boolean term (with prefix PREFIX).  Omega expects
-	certain prefixes to be used for certain purposes - those starting
-	"X" are reserved for user applications.  Q is reserved for a unique ID
-	term.
+	index the text as a single boolean term (with prefix PREFIX).  Omega
+	expects certain prefixes to be used for certain purposes - those
+	starting "X" are reserved for user applications.  Q is reserved for a
+	unique ID term.
 
 date=FORMAT
 	generate terms for date range searching.  If FORMAT is "unix", then the
