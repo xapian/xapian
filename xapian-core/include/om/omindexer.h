@@ -47,7 +47,7 @@ class OmIndexer {
 
 	/** Get the output document contents.
 	 */
-	AutoPtr<OmDocumentContents> get_output();
+	OmDocumentContents get_output();
 
 	/** Get the output as an OmIndexerMessage
 	 */

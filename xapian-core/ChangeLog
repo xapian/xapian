@@ -1,3 +1,7 @@
+Fri Oct  6 17:19:07 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Implemented the new OmIndexer::get_output()
+
 Fri Oct  6 13:15:45 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* QuartzBufferedTable::get_or_make_tag() now never returns a null
