@@ -1,6 +1,29 @@
 #include "andmaybepostlist.h"
 #include "andpostlist.h"
 
+inline PostList *
+AndMaybePostList::process_next_or_skip_to(weight w_min, PostList *ret)
+{
+    handle_prune(l, ret);
+    if (l->at_end()) {
+	// once l is over, so is the AND MAYBE
+	lhead = 0;
+	return NULL;
+    }
+	
+    lhead = l->get_docid();
+    if (lhead <= rhead) return NULL;
+    
+    handle_prune(r, r->skip_to(lhead, w_min));
+    if (r->at_end()) {
+	PostList *ret = l;
+	l = NULL;
+	return ret;
+    }
+    rhead = r->get_docid();
+    return NULL;
+}
+
 AndMaybePostList::AndMaybePostList(PostList *left, PostList *right,
 				   Match *root_, bool replacement)
 {
@@ -23,7 +46,7 @@ AndMaybePostList::next(weight w_min)
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
 	cout << "AND MAYBE -> AND\n";
-	ret = new AndPostList(l, r, root);
+	ret = new AndPostList(l, r, root, true);
 	l = r = NULL;
 	PostList *ret2 = ret->next(w_min);
 	if (ret2) {
@@ -32,25 +55,7 @@ AndMaybePostList::next(weight w_min)
 	}
 	return ret;
     }
-
-    if (lhead == rhead) {
-	handle_prune(r, r->next(w_min));
-        if (r->at_end()) {
-	    PostList *ret = l;
-	    l = NULL;
-	    return ret;
-	}
-	rhead = r->get_docid();
-    }
-    
-    handle_prune(l, l->next(w_min));
-    if (!l->at_end()) {
-	lhead = l->get_docid();	
-    } else {
-	// no point returning r - l is required
-	lhead = 0;
-    }
-    return NULL;
+    return process_next_or_skip_to(w_min, l->next(w_min));
 }
 
 PostList *
@@ -79,28 +84,8 @@ AndMaybePostList::skip_to(docid id, weight w_min)
 	return ret;
     }
 
-    // exit if we're already past the skip point
+    // exit if we're already past the skip point (or at it)
     if (id <= lhead) return NULL;
 
-    handle_prune(l, l->skip_to(id, w_min));
-    if (l->at_end()) {
-	// once l is over, so is the AND MAYBE
-	lhead = 0;
-	return NULL;
-    }
-    
-    docid lhead_new = l->get_docid();
-    
-    if (lhead == rhead) {
-	handle_prune(r, r->skip_to(lhead_new, w_min));
-        if (r->at_end()) {
-	    PostList *ret = l;
-	    l = NULL;
-	    return ret;
-	}
-	rhead = r->get_docid();
-    }
-
-    lhead = lhead_new;
-    return NULL;
+    return process_next_or_skip_to(w_min, l->skip_to(id, w_min));
 }

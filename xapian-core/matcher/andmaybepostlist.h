@@ -12,6 +12,7 @@ class AndMaybePostList : public virtual BranchPostList {
         docid lhead, rhead;
         weight lmax, rmax;
 
+        PostList * process_next_or_skip_to(weight w_min, PostList *);
     public:
 	doccount get_termfreq() const;
 
