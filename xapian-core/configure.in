@@ -203,4 +203,3 @@ AC_OUTPUT(
  libomus-config
  docs/mkdoc.pl
 )
-AC_OUTPUT_COMMANDS([chmod +x docs/mkdoc.pl])

@@ -8,6 +8,7 @@ CREATED_DOCUMENTS=code_structure.html
 
 code_structure.html: mkdoc.pl
 	@echo "Generating documentation"
+	@chmod +x mkdoc.pl
 	@./mkdoc.pl ${top_srcdir} $@
 
 endif
