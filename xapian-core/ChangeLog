@@ -1,3 +1,7 @@
+Tue Sep 26 10:12:23 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added omstopword node
+
 Mon Sep 25 18:00:01 BST 2000 Olly Betts
 
 	* MergePostList: now working - just need to sort out how it works

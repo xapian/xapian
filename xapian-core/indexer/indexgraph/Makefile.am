@@ -7,14 +7,14 @@ noinst_HEADERS = indexergraph.h omindexernode.h testnodes.h deleter_map.h \
 
 noinst_LTLIBRARIES = libindexgraph.la
 
-noinst_PROGRAMS = nodetest
-
-nodetest_SOURCES = nodetest.cc
-
-nodetest_LDADD = ../../libomus.la
+#noinst_PROGRAMS = nodetest
+#
+#nodetest_SOURCES = nodetest.cc
+#
+#nodetest_LDADD = ../../libomus.la
 
 INDEXERNODES = omstemmernode.cc omsplitternode.cc omlistconcatnode.cc \
-		omprefixnode.cc
+		omprefixnode.cc omstopwordnode.cc
 
 libindexgraph_la_SOURCES = indexergraph.cc omindexernode.cc \
 	do_registration.cc $(INDEXERNODES)
@@ -29,6 +29,9 @@ omlistconcatnode.lo: omlistconcatnode.cc
 	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<
 
 omprefixnode.lo: omprefixnode.cc
+	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<
+
+omstopwordnode.lo: omstopwordnode.cc
 	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<
 
 indexergraph.lo: indexergraph.cc

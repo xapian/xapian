@@ -161,14 +161,31 @@ typedef std::map<std::string, std::string> attrmap;
 typedef std::map<std::string, std::string> typemap;
 
 // FIXME: handle the unicode stuff rather than char *
-static attrmap attr_to_map(xmlAttrPtr attr)
+static attrmap attr_to_map(xmlNodePtr node)
 {
+    xmlAttrPtr attr = node->properties;
     std::map<std::string, std::string> result;
     while (attr) {
 	std::string name = (char *)attr->name;
-	xmlNodePtr val = attr->val;
-	std::string value = (char *)val->content;
-	//cout << "\tAttr " << name << "=" << value << endl;
+	xmlChar *temp = 0;
+	std::string value;
+	try {
+	    temp = xmlGetProp(node, name.c_str());
+	    if (temp) {
+		value = (char *)temp;
+		free(temp);
+		temp = 0;
+	    }
+	} catch (...) {
+	    if (temp) free(temp);
+	    throw;
+	}
+	/*
+	 *
+	 * xmlNodePtr val = attr->val;
+	 * std::string value = (char *)val->content;
+	 */
+	cout << "\tAttr " << node->name << "." << name << "=" << value << endl;
 
 	result[name] = value;
 
@@ -177,10 +194,53 @@ static attrmap attr_to_map(xmlAttrPtr attr)
     return result;
 }
 
+/** Turn the parameters specified in <param> tags into OmSettings
+ *  entries.
+ *  
+ *  @param node		The first <param> node
+ *  @param config	The OmSettings object to modify
+ *
+ *  @return The first non-<param> node found.
+ */
+xmlNodePtr
+get_config_values(xmlNodePtr node, OmSettings &config)
+{
+    while (node != 0 &&
+	   std::string((char *)node->name) == "param") {
+	attrmap param_attrs(attr_to_map(node));
+	if (param_attrs["type"] == "string") {
+	    config.set(param_attrs["name"], param_attrs["value"]);
+	} else if (param_attrs["type"] == "list") {
+	    xmlNodePtr items = node->childs;
+	    std::vector<std::string> values;
+	    while (items) {
+		std::string name((char *)items->name);
+		if (name != "item") {
+		    throw OmInvalidDataError(std::string("Unexpected tag `")
+					     + name + "'");
+		}
+		attrmap item_attrs(attr_to_map(items));
+		values.push_back(item_attrs["value"]);
+		items = items->next;
+	    }
+	    config.set(param_attrs["name"],
+		       values.begin(),
+		       values.end());
+	} else {
+	    throw OmInvalidDataError(std::string("Invalid <param> type `")
+				     + param_attrs["type"] + "'");
+	}
+	node = node->next;
+    }
+    return node;
+}
+
 void
 OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 {
     xmlNodePtr root = doc->root;
+    cerr << "intSubset = " << doc->intSubset << endl;
+    cerr << "extSubset = " << doc->extSubset << endl;
     if (!root) {
 	throw OmInvalidDataError("Error parsing graph description");
     }
@@ -201,19 +261,14 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 	std::string type = (char *)node->name;
 	// cout << "node name = " << type << endl;
 	if (type == "node") {
-	    attrmap node_attrs(attr_to_map(node->properties));
+	    attrmap node_attrs(attr_to_map(node));
 	    if (indexer->nodemap.find(node_attrs["id"]) != indexer->nodemap.end()) {
 		throw OmInvalidDataError(std::string("Duplicate node id ")
 					 + node_attrs["id"]);
 	    }
 	    xmlNodePtr child = node->childs;
 	    OmSettings config;
-	    while (child != 0 &&
-		   std::string((char *)child->name) == "param") {
-		attrmap param_attrs(attr_to_map(child->properties));
-		config.set(param_attrs["name"], param_attrs["value"]);
-		child = child->next;
-	    }
+	    child = get_config_values(child, config);
 	    OmIndexerNode *newnode = make_node(node_attrs["type"], config);
 	    types[node_attrs["id"]] = node_attrs["type"];
 	    indexer->nodemap[node_attrs["id"]] = newnode;
@@ -222,7 +277,7 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 		if (std::string((char *)child->name) != "input") {
 		    throw OmInvalidDataError(std::string("<input> tag expected, found ") + std::string((char *)child->name));
 		}
-		attrmap input_attrs(attr_to_map(child->properties));
+		attrmap input_attrs(attr_to_map(child));
 		OmIndexer::NodeMap::const_iterator i =
 			indexer->nodemap.find(input_attrs["node"]);
 		if (i == indexer->nodemap.end()) {
@@ -242,7 +297,7 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 		child = child->next;
 	    }
 	} else if (type == "output") {
-	    attrmap attrs(attr_to_map(node->properties));
+	    attrmap attrs(attr_to_map(node));
 	    OmIndexer::NodeMap::const_iterator i = indexer->nodemap.find(attrs["node"]);
 	    if (i == indexer->nodemap.end()) {
 		throw OmInvalidDataError(std::string("Unknown output node ") +
