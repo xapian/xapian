@@ -160,7 +160,7 @@ dnl ******************************
 dnl extra flags for building with gcc
 if test "$GCC" = yes; then
   changequote(, ) dnl avoid problems with [] in sed expressions
-  CFLAGS=`echo "$CFLAGS -pedantic -Wall -Wunused -Wno-long-long" | sed 's/-O[0-9]*/-O6/'`
+  CFLAGS=`echo "$CFLAGS -pedantic -Wall -Wunused " | sed 's/-O[0-9]*/-O6/'`
   case "$CFLAGS" in
     *-O6*) ;;
     *) CFLAGS="$CFLAGS -O6"

@@ -136,7 +136,7 @@ class OMExpandOptions {
 class OMRSet {
     private:
     public:
-	set<docid> reldocs;
+	set<docid> items;
 	void add_document(docid);
 	void remove_document(docid);
 };
@@ -144,14 +144,14 @@ class OMRSet {
 inline void
 OMRSet::add_document(docid did)
 {
-    reldocs.insert(did);
+    items.insert(did);
 }
 
 inline void
 OMRSet::remove_document(docid did)
 {
-    set<docid>::iterator i = reldocs.find(did);
-    if(i != reldocs.end()) reldocs.erase(i);
+    set<docid>::iterator i = items.find(did);
+    if(i != items.end()) items.erase(i);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -176,6 +176,7 @@ class OMMSet {
 	OMMSet() : mbound(0) {}
 	vector<OMMSetItem> items;
 	doccount mbound;
+	weight max_weight;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -194,7 +195,7 @@ class OMESetItem {
 	termname tname;
 };
 
-// Encapsulation of match set
+// Encapsulation of expand set
 class OMESet {
     private:
     public:

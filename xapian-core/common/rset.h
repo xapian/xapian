@@ -70,7 +70,7 @@ RSet::RSet(IRDatabase *root_new, const OMRSet & _rset)
 	: root(root_new), initialised_reltermfreqs(false)
 {
     set<docid>::const_iterator i;
-    for(i = _rset.reldocs.begin(); i != _rset.reldocs.end(); i++) {
+    for(i = _rset.items.begin(); i != _rset.items.end(); i++) {
 	add_document(*i);
     }
 }
