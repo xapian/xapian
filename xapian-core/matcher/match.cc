@@ -20,7 +20,7 @@ Match::add_pterm(const string& termname)
     return true;
 }
 
-#define MSIZE 100
+#define MSIZE 1000
 
 typedef struct {
     weight w;
@@ -36,7 +36,7 @@ Match::match(void)
         PostList *tmp;
        
         // build a tree balanced by the term frequencies
-        // (similar to a huffman encoding tree)
+        // (similar to building a huffman encoding tree)
         while (true) {
 	    tmp = pq.top();
 	    pq.pop();
@@ -53,6 +53,8 @@ Match::match(void)
     weight min = 0;
     msetitem mset[MSIZE];
 
+    // FIXME: this method of building the M-set isn't very efficient
+    // - want to avoid all those memmove-s
     while (!merger->at_end()) {
         weight w = merger->get_weight();
         
