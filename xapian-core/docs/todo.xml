@@ -67,6 +67,13 @@ Make all errors return a context if appropriate.
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
 
+Add ability to specify a match cutoff by weight (rather than percentage
+weight) - useful in cases where the kind of weights expected from the query
+are known, eg filtering.
+
+</todoitem>
+<todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
+
 Return more information about number of documents in database which match
 query. Perhaps an estimate based on the termfreqs of the terms in the query
 (and overridden by docs_considered if docs_considered is greater).
