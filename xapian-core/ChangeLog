@@ -1,3 +1,7 @@
+Sat Mar 06 01:56:17 GMT 2004  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Another tweak for Sun's C++ compiler.
+
 Sat Mar 06 01:31:29 GMT 2004  Olly Betts <olly@survex.com>
 
 	* common/omenquireinternal.h: Tweaked friend class declarations a
