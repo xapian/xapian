@@ -1,3 +1,9 @@
+Mon Jun  5 19:12:13 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix internaltest again (due to further change in sleepylists) and
+	  turn off network tests in apitest, which accidentally got turned
+	  on.
+
 Mon Jun  5 18:59:49 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Moved implementation of OmExpand::get_bits() out of the header file.

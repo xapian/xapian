@@ -309,9 +309,9 @@ bool test_sleepypack1()
     positions.push_back(16u);
 
     SleepyListItem item1(id, wdf, positions, termfreq, doclen);
-    string packed1 = item1.pack();
-    SleepyListItem item2(packed1);
-    string packed2 = item2.pack();
+    string packed1 = item1.pack(true);
+    SleepyListItem item2(packed1, true);
+    string packed2 = item2.pack(true);
 
     if(packed1 != packed2) {
 	success = false;
