@@ -112,7 +112,7 @@ index_files_to_m36(const std::string &prog, const std::string &dbdir,
 	    out << "#RSTART#\n" << doc.data.value << "\n#REND#\n#TSTART#\n";
 	    OmDocumentContents::document_terms::const_iterator i;
 	    for (i = doc.terms.begin(); i != doc.terms.end(); i++) {
-		out << i->second.tname << endl;
+		out << i->second.tname << std::endl;
 	    }
 	    out << "#TEND#\n";
 	    OmDocumentContents::document_keys::const_iterator key_i;

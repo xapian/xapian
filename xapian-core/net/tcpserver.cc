@@ -153,9 +153,9 @@ TcpServer::get_connected_socket()
     if (verbose) {
 	std::cout << "Connection from " << hent->h_name << ", port " <<
 #ifndef TIMING_PATCH
-	    remote_address.sin_port << endl;
+	    remote_address.sin_port << std::endl;
 #else /* TIMING_PATCH */
-	    remote_address.sin_port << ". (tcpserver.cc)" << endl;
+	    remote_address.sin_port << ". (tcpserver.cc)" << std::endl;
 #endif /* TIMING_PATCH */
     }
 
@@ -192,7 +192,7 @@ TcpServer::run_once()
 	    sserv.run();
 	} catch (const OmError &err) {
 	    std::cerr << "Got exception " << err.get_type()
-		 << ": " << err.get_msg() << endl;
+		 << ": " << err.get_msg() << std::endl;
 	} catch (...) {
 	    // ignore other exceptions
 	}
@@ -237,10 +237,10 @@ TcpServer::run()
 	} catch (const OmError &err) {
 	    // FIXME: better error handling.
 	    std::cerr << "Caught " << err.get_type()
-		      << ": " << err.get_msg() << endl;
+		      << ": " << err.get_msg() << std::endl;
 	} catch (...) {
 	    // FIXME: better error handling.
-	    std::cerr << "Caught exception." << endl;
+	    std::cerr << "Caught exception." << std::endl;
 	}
     }
 }

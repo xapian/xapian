@@ -132,7 +132,7 @@ test_driver::get_srcdir(const std::string & argv0)
 	} else {
 	    std::cout << argv0
 		<< ": srcdir not in the environment and I can't guess it!"
-		<< endl;
+		<< std::endl;
 	    exit(1);
 	}
     }

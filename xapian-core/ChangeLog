@@ -1,3 +1,7 @@
+Mon Dec  4 10:11:11 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added some more std:: prefixes for STLport.
+
 Fri Dec  1 17:45:01 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Increase the sleep after the server is started by tcpclient1 to 3
