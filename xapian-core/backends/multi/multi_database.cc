@@ -187,7 +187,7 @@ MultiDatabase::open_term_list(docid did) const {
 
     TermList *newtl;
     newtl = (*(databases.begin() + dbnumber))->open_term_list(realdid);
-    return newtl;
+    return new MultiTermList(newtl, *(databases.begin() + dbnumber), this);
 }
 
 termid

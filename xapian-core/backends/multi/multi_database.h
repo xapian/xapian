@@ -107,6 +107,73 @@ MultiPostList::recalc_maxweight()
 
 
 
+class MultiTermList : public virtual TermList {
+    friend class MultiDatabase;
+    private:
+	TermList *tl;
+	const IRDatabase *termdb;
+	const IRDatabase *rootdb;
+	double termfreq_factor;
+
+	MultiTermList(TermList *tl,
+		      const IRDatabase *termdb,
+		      const IRDatabase *rootdb);
+    public:
+	termid get_termid() const;
+	termcount get_wdf() const; // Number of occurences of term in current doc
+	doccount get_termfreq() const;  // Number of docs indexed by term
+	TermList * next();
+	bool   at_end() const;
+
+	~MultiTermList();
+};
+
+inline MultiTermList::MultiTermList(TermList *tl_new,
+				    const IRDatabase *termdb_new,
+				    const IRDatabase *rootdb_new)
+	: tl(tl_new), termdb(termdb_new), rootdb(rootdb_new)
+{
+    termfreq_factor = (rootdb->get_doccount()) / (termdb->get_doccount());
+printf("Approximation factor for termfrequency: %f\n", termfreq_factor);
+}
+
+inline MultiTermList::~MultiTermList()
+{
+    delete tl;
+}
+
+inline termid MultiTermList::get_termid() const
+{
+    termid tid = tl->get_termid();
+    // FIXME - inefficient (!!!)
+    return rootdb->term_name_to_id(termdb->term_id_to_name(tid));
+}
+
+inline termcount MultiTermList::get_wdf() const
+{
+    return tl->get_wdf();
+}
+
+inline doccount MultiTermList::get_termfreq() const
+{
+    // Approximate term frequency
+    return (doccount) (tl->get_termfreq() * termfreq_factor);
+}
+
+inline TermList * MultiTermList::next()
+{
+    return tl->next();
+}
+
+inline bool MultiTermList::at_end() const
+{
+    return tl->at_end();
+}
+
+
+
+
+
 class MultiTerm {
     friend class MultiDatabase;
     private:
