@@ -54,16 +54,15 @@ _HTML_
 # first pass on input
 # to get query for printing out the form
 #----------------------------------------
-if(param()){
-	$symbol = param("symbol");
-	@tmpsymbol = split /\s/, $symbol;
-	$urlsymbol = join '|', @tmpsymbol;
-	$query = param("query");
-	$root = param("root");
-	
-	if(!$root){
-		&error("You must specify a root and symbol!");
-	}
+if (param()) {
+    $symbol = param("symbol");
+    if (!$symbol) {
+	&error("You must specify a symbol!");
+    }
+    @tmpsymbol = split /\s/, $symbol;
+    $urlsymbol = join '|', @tmpsymbol;
+    $query = param("query");
+    my $root = Cvssearch::sanitise_root(param("root"), "root0");
 
 	if($query){
 		@tmpquery = split /\s/, $query;

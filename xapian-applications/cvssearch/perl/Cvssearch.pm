@@ -5,9 +5,17 @@ use strict;
 # ----------------------------------------
 # symbols to export by default
 # ----------------------------------------
-my @EXPORT = qw(read_cvsroot_dir read_root_dir strip_last_slash get_cvsdata get_cvs_stat code_comment_counter g2l_commit);
+my @EXPORT = qw(sanitise_root read_cvsroot_dir read_root_dir strip_last_slash get_cvsdata get_cvs_stat code_comment_counter g2l_commit);
 
-
+# default is optional, but it'll usually be "root0"
+sub sanitise_root {
+    my ($root, $default) = @_;
+    # Default/sanitise input.
+    if (!$root || $root !~ /^root\d+$/) {
+	$root = $default; 
+    }
+    return $root;
+}
 
 sub get_cvsdata {
     # ----------------------------------------

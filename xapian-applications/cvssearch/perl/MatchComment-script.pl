@@ -30,14 +30,14 @@ print "Content-type:text/html\n\n";
 print "<html>\n";
 print "<head>\n";
 Cvssearch::print_style_sheet();
-if(param()){
-	my $id = param("id");
-    my $root = param("root");
+if (param()) {
+    my $id = param("id");
+    my $root = Cvssearch::sanitise_root(param("root"));
     my $pkg = param("pkg");
     my $symbol = param("symbol");
 ### Amir: HACK TO SHOW ALL COMMIT LINES
     $symbol = "";
-	my $passparam = "?id=$id&root=$root&pkg=$pkg";
+    my $passparam = "?id=$id&root=$root&pkg=$pkg";
 
     my @file_ids;
     my @file_names;

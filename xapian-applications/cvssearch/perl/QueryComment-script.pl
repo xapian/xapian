@@ -40,22 +40,23 @@ my @class;
 $class[0] = "class=\"e\"";
 $class[1] = "class=\"o\"";
 
+my $root = Cvssearch::sanitise_root(param("root"));
 
 # ------------------------------------------------------------
 # redirects to one of the subroutines
 # depends on whether certain parameters are set or not
 # ------------------------------------------------------------
 if (0) {
-} elsif (param("root") eq "") {
+} elsif ($root eq "") {
     system ("$cvscompare");
 } elsif (param("pkg") eq "") {
     system ("$cvscompare");
-} elsif  (param("id") eq "") {
+} elsif (param("id") eq "") {
     print header;
-    commit_pkg_index(param("root"), param("pkg"));
+    commit_pkg_index($root, param("pkg"));
 } else {
     print header;
-    commit(param ("root"), param ("pkg"), param("id"), param ("symbol"));
+    commit($root, param("pkg"), param("id"), param("symbol"));
 }
 
 sub commit {

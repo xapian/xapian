@@ -66,7 +66,8 @@ $query = param("query");
 $urlquery = $query;
 $urlquery =~ s/\s/%20/g;
 $symbol = param("symbol");
-$root = param("root");
+my $root = Cvssearch::sanitise_root(param("root"));
+
 $mode = &Cvssearch::decode(param("mode"));
 
 # set default mode to <=>

@@ -63,11 +63,7 @@ if (param()) {
     $urlsymbol =~ s/\s+/|/g;
 
     $query = param("query");
-    my $root = param("root");
-
-    if (!$root || $root eq "All"){ 
-	$root = "root0"; 
-    }
+    my $root = Cvssearch::sanitise_root(param("root"), "root0");
 
     if ($query) {
 	$grepquery = $query;

@@ -40,9 +40,9 @@ print "<body>\n";
 #----------------------------------------
 # Parse Parameters
 #----------------------------------------
-if(param()){
-	my $fileid = param("fileid");
-    my $root = param("root");
+if (param()) {
+    my $fileid = param("fileid");
+    my $root = Cvssearch::sanitise_root(param("root"));
     my $pkg = param("pkg");
     my $revision = param("revision");
     my $symbol = param("symbol");

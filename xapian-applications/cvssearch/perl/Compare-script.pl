@@ -23,26 +23,28 @@ sub compare_index();
 # ------------------------------------------------------------
 # path where all our files are stored.
 # ------------------------------------------------------------
-if($cvsdata eq "") {
+if ($cvsdata eq "") {
     print STDERR "WARNING: \$CVSDATA not set!\n";
     exit(1);
 }
 
 print header;
 
+my $root = Cvssearch::sanitise_root(param("root"));
+
 # ------------------------------------------------------------
 # redirects to one of the subroutines
 # depends on whether certain parameters are set or not
 # ------------------------------------------------------------
 if (0) {
-} elsif (param("root") eq "") {
+} elsif ($root eq "") {
     compare_index();
 } elsif (param("pkg") eq "") {
-    compare_root_index(param("root"));
+    compare_root_index($root);
 } elsif (param("fileid") eq "") {
-    compare_pkg_index(param("root"), param("pkg"));
+    compare_pkg_index($root, param("pkg"));
 } elsif (param("version") eq "") {
-    compare_file_index(param("root"), param("pkg"), param("fileid"));
+    compare_file_index($root, param("pkg"), param("fileid"));
 } else {
     my $short = param("short");
 
@@ -54,7 +56,7 @@ if (0) {
     if ($width eq "") {
         $width = 40;
     }
-    compare_file_version(param("root"), param("pkg"), param("fileid"), param("version"),
+    compare_file_version($root, param("pkg"), param("fileid"), param("version"),
                          $short, $width, param("latest"));
 }
 

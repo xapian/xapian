@@ -34,9 +34,9 @@ print "</head>\n";
 #----------------------------------------
 # Parse Parameters
 #----------------------------------------
-if(param()){
+if (param()) {
     my $commit_id = param("id");
-    my $root = param("root");
+    my $root = Cvssearch::sanitise_root(param("root"));
     my $pkg = param("pkg");
     my $cvsroot = Cvssearch::read_cvsroot_dir($root, $cvsdata);
 

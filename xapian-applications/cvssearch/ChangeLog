@@ -1,3 +1,8 @@
+Fri Dec 17 01:24:32 GMT 2004  Olly Betts <olly@survex.com>
+
+	* perl/: Sanitise root parameter to all CGI scripts.  It should always
+	  be of the form "root<number>".
+
 Fri Dec 10 02:19:06 GMT 2004  Olly Betts <olly@survex.com>
 
 	* perl/Logo-script.pl: use strict; call handle IMG not GIF; better

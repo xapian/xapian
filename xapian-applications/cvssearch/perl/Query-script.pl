@@ -59,12 +59,12 @@ $ctrlA = chr(01);
 # first pass on input
 # to get query for printing out the form
 #----------------------------------------
-if(param()){
-	$query = param("query");
-	$urlquery = $query;
-	$urlquery =~ s/\s/%20/g;
-	$root = param("root");
-	$searchmode = param("searchmode");
+if (param()) {
+    $query = param("query");
+    $urlquery = $query;
+    $urlquery =~ s/\s/%20/g;
+    $root = Cvssearch::sanitise_root(param("root"));
+    $searchmode = param("searchmode");
 }
 
 #-------------
