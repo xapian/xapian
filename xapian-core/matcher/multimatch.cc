@@ -303,6 +303,7 @@ MultiMatch::get_mset_2(PostList *pl,
 	    
 	    om_weight wt = pl->get_weight();
 	    OmMSetItem new_item(wt, did);
+	    DEBUGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
 
 	    bool pushback = true;
 	    
@@ -387,7 +388,10 @@ MultiMatch::get_mset_2(PostList *pl,
 		}
 	    }
 	    
-	    if (pl->at_end()) break;
+	    if (pl->at_end()) {
+		DEBUGLINE(MATCH, "Reached end of potential matches");
+		break;
+	    }
 	    
 	    mbound++;
 	    
@@ -472,12 +476,13 @@ MultiMatch::get_mset_2(PostList *pl,
 	    if (items.size() == max_msize * 2) {
 		// find last element we care about
 		DEBUGLINE(MATCH, "finding nth");
-		std::nth_element(items.begin(), items.begin() + max_msize,
+		std::nth_element(items.begin(), items.begin() + max_msize - 1,
 				 items.end(), mcmp);
 		// erase elements which don't make the grade
 		items.erase(items.begin() + max_msize, items.end());
-		min_item = items.back();
+		min_item = items.back(); // Note that this item is the only one sorted
 		DEBUGLINE(MATCH, "mset size = " << items.size());
+		DEBUGLINE(MATCH, "min_item.wt = " << min_item.wt);
 	    }
 	}
     }
@@ -487,10 +492,12 @@ MultiMatch::get_mset_2(PostList *pl,
     // done with posting list tree
     delete pl;
     
+    DEBUGLINE(MATCH, items.size() << " items in potential mset");
+
     if (items.size() > max_msize) {
 	// find last element we care about
 	DEBUGLINE(MATCH, "finding nth");
-	std::nth_element(items.begin(), items.begin() + max_msize, items.end(), mcmp);
+	std::nth_element(items.begin(), items.begin() + max_msize - 1, items.end(), mcmp);
 	// erase elements which don't make the grade
 	items.erase(items.begin() + max_msize, items.end());
     }

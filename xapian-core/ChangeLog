@@ -1,3 +1,16 @@
+Fri Nov 24 18:27:06 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Major bug fix!  When removing elements, matcher was performing
+	  nth_element() on the first element to be thrown away, rather than
+	  the lowest element to keep.  This meant that, after throwing away
+	  low scoring items, items.back() was a random item rather than the
+	  lowest scoring item.  This caused the min weight for getting into
+	  the mset to go up faster than it should have done, and generally
+	  broke everything.
+
+	  It will be interesting to compare evaluation measures before and
+	  after this fix.
+
 Fri Nov 24 15:34:17 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.4.1
