@@ -8,7 +8,6 @@ License: GPL
 Vendor: www.xapian.org
 Group: System Environment/Libraries
 URL: http://www.xapian.org/
-BuildRequires: sed
 #Source0: http://www.xapian.org/download/distributions/%{name}-%{version}.tar.gz
 Source0: http://www.tartarus.org/~olly/xapian-%{version}/%{name}-%{version}.tar.gz
 
@@ -80,7 +79,7 @@ install -D -m755 backends/quartz/.libs/quartzcompact %{buildroot}%{_bindir}/quar
 %docdir /usr/share/doc/xapian-core-%{version}
 %{_bindir}/xapian-config
 %{_includedir}/om
-%{_includedir}/xapian/*.h
+%{_includedir}/xapian
 %{_libdir}/libomqueryparser.a
 %{_libdir}/libomqueryparser.la
 %{_libdir}/libxapian.a
