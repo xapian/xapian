@@ -1,3 +1,7 @@
+Fri Apr 12 11:34:26 BST 2002  Olly Betts <olly@survex.com>
+
+	* Removed remaining files from gui subdirectory.
+
 Tue Apr  9 19:00:36 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* msearch: Remove GTK and LIBGLADE cflags, which were unwanted and
