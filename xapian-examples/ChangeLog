@@ -1,3 +1,12 @@
+Fri Nov 17 16:38:57 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Declare this to be version 0.4.0
+
+Fri Nov 17 16:28:06 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix build system of indexergui so that it can build with an
+	  uninstalled library.
+
 Tue Nov 14 19:32:46 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* The indexer GUI can load graphs from XML files and display them

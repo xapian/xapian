@@ -7,6 +7,8 @@ AM_CONFIG_HEADER(config.h)
 dnl Pick up the Gnome macros.
 AM_ACLOCAL_INCLUDE(macros)
 
+AM_PROG_LIBTOOL
+
 GNOME_INIT
 AC_ISC_POSIX
 AC_PROG_CC
