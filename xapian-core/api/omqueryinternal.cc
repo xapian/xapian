@@ -531,15 +531,15 @@ Xapian::Query::Internal::unserialise(const string &s)
 void
 Xapian::Query::Internal::swap(Xapian::Query::Internal &other)
 {
-    swap(op, other.op);
+    std::swap(op, other.op);
     subqs.swap(other.subqs);
-    swap(qlen, other.qlen);
-    swap(window, other.window);
-    swap(cutoff, other.cutoff);
-    swap(elite_set_size, other.elite_set_size);
-    swap(tname, other.tname);
-    swap(term_pos, other.term_pos);
-    swap(wqf, other.wqf);
+    std::swap(qlen, other.qlen);
+    std::swap(window, other.window);
+    std::swap(cutoff, other.cutoff);
+    std::swap(elite_set_size, other.elite_set_size);
+    std::swap(tname, other.tname);
+    std::swap(term_pos, other.term_pos);
+    std::swap(wqf, other.wqf);
 }
 
 Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)

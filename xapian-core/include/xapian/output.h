@@ -27,7 +27,7 @@
 #ifndef XAPIAN_INCLUDED_OUTPUT_H
 #define XAPIAN_INCLUDED_OUTPUT_H
 
-#include <iosfwd>
+#include <fstream>
 
 #define XAPIAN_OUTPUT_FUNCTION(CLASS) \
 inline std::ostream & \

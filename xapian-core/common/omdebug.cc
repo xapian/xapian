@@ -35,7 +35,6 @@ OmDebug om_debug;
 #include <stdlib.h>
 #include <unistd.h>
 #include <string>
-#include <iostream>
 
 using namespace std;
 
@@ -80,12 +79,10 @@ OmDebug::initialise()
 	    }
 
 	    fd = open(s, O_CREAT | O_SYNC | O_APPEND, 0644);
-	    cerr << "fd = " << fd << " errno = " << errno << endl;
 
 	    if (fd == -1) {
 		fd = 2;
-		cerr << "Can't open requested debug log `" << s
-		    << "' - using stderr." << endl;
+		display_message(OM_DEBUG_UNKNOWN, "Can't open requested debug log `" + s + "' - using stderr.\n");
 	    }
 	}
 

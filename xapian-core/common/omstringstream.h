@@ -35,7 +35,7 @@ typedef std::ostringstream om_ostringstream;
 #else // HAVE_SSTREAM
 
 #include <string>
-#include <iostream>
+#include <fstream>
 
 class om_ostringstream {
     public:

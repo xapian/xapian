@@ -30,7 +30,6 @@
 #include <fstream>
 #include <string>
 
-#include<iostream>
 using namespace std;
 
 // Include headers for all the enabled database backends
@@ -238,7 +237,7 @@ Auto::open(const string &path)
 }
 
 WritableDatabase
-Auto::open(const std::string &path, int action)
+Auto::open(const string &path, int action)
 {
     DEBUGAPICALL_STATIC(WritableDatabase, "Auto::open", path << ", " << action);
 #ifdef MUS_BUILD_BACKEND_QUARTZ

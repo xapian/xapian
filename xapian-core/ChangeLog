@@ -1,3 +1,10 @@
+Thu Sep 25 13:13:37 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,backends/database.cc,common/omdebug.cc,
+	  common/omstringstream.h,include/xapian/output.h: Removed or replaced
+	  uses of <iostream> and <iosfwd> - we don't need or want the library
+	  to pull in cin and friends.
+
 Thu Sep 25 13:12:31 BST 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Improved several comments.
