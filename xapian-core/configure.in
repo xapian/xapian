@@ -40,7 +40,8 @@ dnl Checks for library functions.
 AC_FUNC_MEMCMP
 AC_CHECK_FUNCS(strerror)
 
-dnl Add parameters for aclocal  (must come after AM_INIT_AUTOMAKE)
+dnl Add parameters for aclocal
+dnl (This must come after AM_INIT_AUTOMAKE, since it modifies ACLOCAL)
 AC_ARG_WITH(aclocal-params,
 [  --with-aclocal-params=PARAMS Give aclocal extra parameters],
 [case "${withval}" in
