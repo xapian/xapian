@@ -214,18 +214,6 @@ class QuartzPostList : public LeafPostList {
 	/// Get a description of the document.
 	std::string get_description() const;
 
-	/// Insert an entry.
-	static void add_entry(QuartzBufferedTable * bufftable,
-			      const string & tname,
-			      Xapian::docid new_did,
-			      Xapian::termcount new_wdf,
-			      quartz_doclen_t new_doclen);
-
-	/// Delete an entry.
-	static void delete_entry(QuartzBufferedTable * bufftable,
-				 const string & tname,
-				 Xapian::docid did);
-
 	/// Read the number of entries and the collection frequency.
 	static void read_number_of_entries(const char ** posptr,
 					   const char * end,

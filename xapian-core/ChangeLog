@@ -1,3 +1,9 @@
+Sun Dec 21 14:54:49 GMT 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc,backends/quartz/quartz_postlist.h,
+	  tests/quartztest.cc: Subsumed QuartzPostList::add_entry and
+	  QuartzPostList::delete_entry into QuartzPostList::merge_changes.
+
 Sun Dec 21 03:21:42 GMT 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc,
