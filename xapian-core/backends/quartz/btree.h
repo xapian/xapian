@@ -32,7 +32,7 @@ typedef unsigned long uint4;
 struct Cursor {
     /** Constructor, to set important elements to 0.
      */
-    Cursor() : p(0), split_p(0) {}
+    Cursor() : p(0), c(-1), n(-1), rewrite(false), split_p(0), split_n(-1) {}
 
     byte * p;         /* pointer to a block */
     int c;            /* offset in the block's directory */
