@@ -127,6 +127,12 @@ NetworkDatabase::term_exists(const string & tname) const
     return link->term_exists(tname);
 }
 
+bool
+NetworkDatabase::has_positions() const
+{
+    throw Xapian::UnimplementedError("NetworkDatabase::has_positions() not implemented");
+}
+
 Xapian::doccount
 NetworkDatabase::get_termfreq(const string & tname) const
 {

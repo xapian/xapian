@@ -571,6 +571,12 @@ QuartzDatabase::term_exists(const string & tname) const
     return cursor->find_entry(key);
 }
 
+bool
+QuartzDatabase::has_positions() const
+{
+    return positionlist_table.get_entry_count() > 0;
+}
+
 
 LeafPostList *
 QuartzDatabase::do_open_post_list(const string& tname) const
@@ -1083,6 +1089,12 @@ QuartzWritableDatabase::term_exists(const string & tname) const
 {
     DEBUGCALL(DB, bool, "QuartzWritableDatabase::term_exists", tname);
     RETURN(get_termfreq(tname) != 0);
+}
+
+bool
+QuartzWritableDatabase::has_positions() const
+{
+    return database_ro.has_positions();
 }
 
 

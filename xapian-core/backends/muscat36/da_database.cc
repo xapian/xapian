@@ -386,6 +386,12 @@ DADatabase::term_exists(const string & tname) const
     return (term_lookup(tname).get() != 0);
 }
 
+bool
+DADatabase::has_positions() const
+{
+    return false;
+}
+
 TermList *
 DADatabase::open_allterms() const
 {

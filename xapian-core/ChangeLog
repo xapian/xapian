@@ -1,3 +1,14 @@
+Mon Nov 08 04:49:21 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,backends/muscat36/,
+	  backends/net/net_database.cc,backends/quartz/quartz_database.cc,
+	  backends/quartz/quartz_database.h,common/database.h,
+	  common/net_database.h,matcher/localmatch.cc: If a database contains
+	  no positional information, change NEAR and PHRASE queries into AND
+	  queries (as otherwise they'd return no matches at all) (bug#56).
+	* tests/api_wrdb.cc: Added feature test phraseorneartoand1.
+
 Mon Nov 08 04:09:04 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,backends/quartz/btree.cc: Improved what we do to

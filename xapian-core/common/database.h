@@ -175,6 +175,10 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	virtual bool term_exists(const string & tname) const = 0;
 
+	/** Check whether this database contains any positional information.
+	 */
+	virtual bool has_positions() const = 0;
+
 	//////////////////////////////////////////////////////////////////
 	// Data item access methods:
 	// =========================

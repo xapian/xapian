@@ -60,7 +60,7 @@ static bool test_adddoc1()
     doc1.add_posting("bar", 3);
     doc1.add_posting("bar", 4);
     db.add_document(doc1);
-    
+
     doc2.set_data(string("dick"));
     doc2.add_posting("foo", 1);
     doc2.add_posting("foo", 2);
@@ -86,7 +86,7 @@ static bool test_adddoc1()
 
     mset_expect_order(mset, 3, 1, 2);
 
-    return true;    
+    return true;
 }
 
 // test that removing a posting and removing a term works
@@ -261,7 +261,7 @@ static bool test_adddoc2()
     TEST(iter1 == doc1.termlist_end());
     TEST(iter2 == doc2.termlist_end());
 
-    return true;    
+    return true;
 }
 
 // test that adding lots of documents works, and doesn't leak memory
@@ -279,7 +279,7 @@ static bool test_adddoc3()
 	}
 	db.add_document(doc);
     }
-    return true;    
+    return true;
 }
 
 // tests that database destructors flush if it isn't done explicitly
@@ -410,7 +410,7 @@ static bool test_deldoc2()
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(2));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(3));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(4));
-    
+
     // test positionlist_{begin,end}?
 
     TEST_EQUAL(db.get_doccount(), 0);
@@ -467,7 +467,7 @@ static bool test_deldoc3()
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(1));
     (void)&db; // gcc 2.95 seems to miscompile without this!!! - Olly
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(2));
-    
+
     // test positionlist_{begin,end}?
 
     TEST_EQUAL(db.get_doccount(), 0);
@@ -547,7 +547,7 @@ static bool test_deldoc4()
 	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(i));
 	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(i));
     }
-    
+
     // test positionlist_{begin,end}?
 
     TEST_EQUAL(db.get_doccount(), 0);
@@ -713,8 +713,48 @@ static bool test_uniqueterm1()
     TEST_EQUAL(db.get_doccount(), 16);
 
     db.delete_document("U2");
- 
+
     TEST_EQUAL(db.get_doccount(), 16);
+
+    return true;
+}
+
+// Check that PHRASE/NEAR becomes AND if there's no positional info in the
+// database.
+static bool test_phraseorneartoand1()
+{
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    for (int n = 1; n <= 20; ++n) {
+	Xapian::Document doc;
+	doc.add_term(om_tostring(n));
+	doc.add_term(om_tostring(n ^ 9));
+	doc.add_term("all");
+	doc.set_data("pass1");
+	db.add_document(doc);
+    }
+    db.flush();
+
+    Xapian::Enquire enquire(db);
+    Xapian::MSet mymset;
+
+    const char * q1[] = { "all", "1" };
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_PHRASE, q1, q1 + 2));
+    mymset = enquire.get_mset(0, 10);
+    TEST_EQUAL(2, mymset.size());
+
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_NEAR, q1, q1 + 2));
+    mymset = enquire.get_mset(0, 10);
+    TEST_EQUAL(2, mymset.size());
+
+    const char * q2[] = { "1", "2" };
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_PHRASE, q2, q2 + 2));
+    mymset = enquire.get_mset(0, 10);
+    TEST_EQUAL(0, mymset.size());
+
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_NEAR, q2, q2 + 2));
+    mymset = enquire.get_mset(0, 10);
+    TEST_EQUAL(0, mymset.size());
 
     return true;
 }
@@ -736,5 +776,6 @@ test_desc writabledb_tests[] = {
     {"replacedoc1",	   test_replacedoc1},
     {"replacedoc2",	   test_replacedoc2},
     {"uniqueterm1",	   test_uniqueterm1},
+    {"phraseorneartoand1", test_phraseorneartoand1},
     {0, 0}
 };

@@ -299,6 +299,7 @@ class DBDatabase : public Xapian::Database::Internal {
 		"DBDatabase::get_collection_freq() not implemented: data not stored in database.");
 	}
 	bool term_exists(const string & tname) const;
+	bool has_positions() const;
 
 	LeafPostList * do_open_post_list(const string & tname) const;
 	LeafTermList * open_term_list(Xapian::docid did) const;

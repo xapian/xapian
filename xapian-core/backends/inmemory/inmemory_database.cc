@@ -73,7 +73,7 @@ InMemoryPostList::get_wdf() const
 ///////////////////////////
 
 InMemoryDatabase::InMemoryDatabase()
-	: totdocs(0), totlen(0)
+	: totdocs(0), totlen(0), positions_present(false)
 {
 #if 0
     // FIXME: sort out his rather nasty error faking stuff
@@ -106,6 +106,12 @@ bool
 InMemoryDatabase::doc_exists(Xapian::docid did) const
 {
     return (did > 0 && did <= termlists.size() && termlists[did - 1].is_valid);
+}
+
+bool
+InMemoryDatabase::has_positions() const
+{
+    return positions_present;
 }
 
 LeafTermList *
@@ -179,6 +185,9 @@ InMemoryDatabase::delete_document(Xapian::docid did)
     totlen -= doclengths[did-1];
     doclengths[did-1] = 0;
     totdocs--;
+    // A crude check, but it's hard to be more precise with the current
+    // InMemory structure without being very inefficient.
+    if (totdocs == 0) positions_present = false;
 
     vector<InMemoryTermEntry>::const_iterator i;
     for (i = termlists[did - 1].terms.begin();
@@ -285,6 +294,7 @@ InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &docu
 	    /* Make sure the posting exists, even without a position. */
 	    make_posting(*i, did, 0, i.get_wdf(), false);
 	} else {
+	    positions_present = true;
 	    for ( ; j != j_end; ++j) {
 		make_posting(*i, did, *j, i.get_wdf());
 	    }

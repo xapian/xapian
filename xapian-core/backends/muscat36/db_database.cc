@@ -246,6 +246,12 @@ DBDatabase::term_exists(const string & tname) const
     return (term_lookup(tname).get() != 0);
 }
 
+bool
+DBDatabase::has_positions() const
+{
+    return false;
+}
+
 // Returns a new posting list, for the postings in this database for given term
 LeafPostList *
 DBDatabase::open_post_list_internal(const string & tname) const

@@ -371,7 +371,8 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 	RETURN(pl);
     }
 
-    switch (query->op) {
+    int op = query->op;
+    switch (op) {
 	case Xapian::Query::Internal::OP_LEAF: {
 	    // Make a postlist for a single term
 	    Assert(query->subqs.size() == 0);
@@ -414,15 +415,19 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 	    pl->set_termweight(wt);
 	    RETURN(pl);
 	}
+	case Xapian::Query::OP_PHRASE:
+	case Xapian::Query::OP_NEAR:
+	    // If no positional information in this sub-database, change the
+	    // PHRASE/NEAR into an AND so that we actually return some matches.
+	    if (!db->has_positions()) op = Xapian::Query::OP_AND;
+	    // FALL THROUGH
 	case Xapian::Query::OP_AND:
 	case Xapian::Query::OP_OR:
 	case Xapian::Query::OP_XOR:
-	case Xapian::Query::OP_PHRASE:
-	case Xapian::Query::OP_NEAR:
 	case Xapian::Query::OP_ELITE_SET:
 	    // Build a tree of postlists for AND, OR, XOR, PHRASE, NEAR, or
 	    // ELITE_SET
-	    return postlist_from_queries(query->op, query->subqs,
+	    return postlist_from_queries(op, query->subqs,
 					 query->window, query->elite_set_size,
 					 matcher, is_bool);
 	case Xapian::Query::OP_FILTER:

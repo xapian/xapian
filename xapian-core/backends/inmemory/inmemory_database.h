@@ -224,6 +224,8 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 
 	Xapian::doclength totlen;
 
+	bool positions_present;
+
 	// Stop copy / assignment being allowed
 	InMemoryDatabase& operator=(const InMemoryDatabase &);
 	InMemoryDatabase(const InMemoryDatabase &);
@@ -278,6 +280,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	Xapian::doccount get_termfreq(const string & tname) const;
 	Xapian::termcount get_collection_freq(const string & tname) const;
 	bool term_exists(const string & tname) const;
+	bool has_positions() const;
 
 	LeafPostList * do_open_post_list(const string & tname) const;
 	LeafTermList * open_term_list(Xapian::docid did) const;
