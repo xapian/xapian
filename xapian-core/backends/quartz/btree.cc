@@ -20,6 +20,14 @@
  * -----END-LICENCE-----
  */
 
+/** The next 4 lines are needed to make fdatasync appear.
+ */
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif /* _GNU_SOURCE */
+#include <unistd.h>
+
+
 #include <stdio.h>
 #include <stdlib.h>   /* for calloc */
 #include <string.h>   /* for memmove */
@@ -197,7 +205,7 @@ static void inconsistency(int n)
 
 /* Input/output is defined with calls to the basic Unix system interface: */
 
-static int valid_handle(h) { return h >= 0; }
+static int valid_handle(int h) { return h >= 0; }
 
 static int sys_open_to_read(const char * s)
 {   return open(s, O_RDONLY, 0666);
@@ -231,7 +239,14 @@ static int sys_write_bytes(int h, int n, byte * p)
 {   return write(h, (char *)p, n) == n;
 }
 
-static int sys_flush(int h) { fdatasync(h); return true; }
+static int sys_flush(int h) {
+#ifdef _POSIX_SYNCHRONIZED_IO
+    fdatasync(h);
+#else
+    fsync(h);
+#endif
+    return true;
+}
 
 static int sys_close(int h) { return close(h) == 0; }  /* 0 if success */
 
