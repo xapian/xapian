@@ -1,3 +1,9 @@
+Wed Sep 18 17:35:00 BST 2002  Olly Betts <olly@survex.com>
+
+	* include/om/Makefile.am: We want to install om/om.h, but not
+	  distribute it or people with a different compiler to whoever
+	  ran "make dist" will get the "ABI mismatch" error.
+
 Wed Sep 18 13:16:14 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* docs/.cvsignore: Add docs/doxygen_full_warnings.
