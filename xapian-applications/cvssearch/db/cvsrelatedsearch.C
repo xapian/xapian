@@ -77,99 +77,11 @@
 
 
 
-
-#define MIN_SUPPORT 1 
-#define MAX_QUERY_VECTOR_TERMS 25
-
-
-// try convinction instead of interest measure (convinction is directional)
 //
-// See:
+// Usage:  cvsrelatedsearch package (# results) query_word1 query_word2 ...
 //
-// http://citeseer.nj.nec.com/brin97dynamic.html
+// also:  cvsrelatedsearch package (# results) package:commit_id
 //
-
-// confidence: P(A&B)/P(A)
-
-// interest: P(A&B)/(P(A)*P(B) [completely symmetric]
-
-// convinction: P(A)P(not B) / P(A, not B)
-//
-// Intuition:  logically, A=>B can be rewritten as ~(A & ~B), so we can see
-//                 how far A&~B deviates from independence, and invert the ratio
-//                 to take care of the outside negation.
-//
-//                 Unlike confidence, convinction factors in both P(A) and P(B) and
-//                 always has a value of 1 when the relvant items are completely unrelated
-//
-//                 Unlike interest, rules which hold 100% of the time have the highest possible
-//                 convinction value of infinity.  (While confidence has this property, interest does
-//                 not.)
-
-// Basically, we proceed as before finding frequent item sets.
-//
-// Say we are considering A=>B.  We want to know:
-//
-// * % of transactions without B
-//
-// * % of transactions with A 
-//
-// * % of transactions with A but not B (count of transactions with A - (A,B) count )
-//
-// 
-
-
-//
-// Usage:  cvsminesearch package (# results) query_word1 query_word2 ...
-//
-//               cvsminesearch (# results) query_word1 query_word2 ... takes list of packages from stdin
-//
-// Example:  cvssearch root0/db/kdeutils_kfind 10 ftp nfs
-//
-//     Returns the top 10 lines with both ftp and nfs.
-//
-// ($CVSDATA/package is the directory with the quartz database inside)
-//
-
-
-// Examples:
-//
-//   cvsminesearch root0/db/commit.om 10
-//   cvsminesearch root0/db/commit.om 10 drag drop =>
-//   cvsminesearch root0/db/commit.om 10 drag drop (without arrow)
-//      just returns commits with drag drop in comments
-//
-
-
-/////////// TODO:  output commit information along with every time you print
-
-
-/////////// usage (IMPORTANT:  prefix class/function names with :)
-
-// (1) no query words, no antecedent or consequent
-//
-//  simply returns most used classes & functions
-//
-
-// (2) no query words, but have antecedent or consequent
-//
-// in this case, we consider rules A => B
-//
-
-// (3) query words, no antecedent or consequent
-//
-// returns classes/functions that tend to be used given the query Q
-//
-
-// (4) query words, but have antecedent or consequent
-//
-// in this case, we consider rules Q^A => B
-//
-
-
-
-
-
 
 
 
@@ -317,22 +229,60 @@ int main(unsigned int argc, char *argv[]) {
     OmEnquire enquire(database);
 
     vector<om_termname> queryterms;
-    set<string> query_symbols;
-    set<string> query_term_set;
-    map< string, double > query_vector;
 
     string in_opt = "";
     list<string> in_opt_list;
 
     OmStem stemmer("english");
 
+    string query_package = "";
+    string query_commit = "";
+
     for (unsigned int optpos = qpos; optpos < argc; optpos++) {
 
       string s = argv[optpos];
 
-      if ( s.find(":") == 0 ) {
-	queryterms.push_back(s); // symbol, put as is
-	query_symbols.insert(s); // no stemming, no lc
+      if ( s.find(":") != -1 ) {
+
+	// we have:  package_name:commit_id
+	string package = s.substr( 0, s.find(":"));
+	cerr << "PACKAGE -" << package << "-" << endl;
+
+	string query_commit = s.substr( s.find(":")+1, s.length()-s.find(":"));
+	cerr << "QUERY COMMIT -" << query_commit << "-" << endl;
+	
+
+	
+	string cmd = "./cvsquerydb root0 " + package + " -C " + query_commit + " > ./cache/cmt";
+	system("rm -f ./cache/cmt");
+	cerr << "CMD = -" << cmd << "-" << endl;
+	system(cmd.c_str());
+
+	ifstream in("./cache/cmt");
+	while ( ! in.eof() ) {
+	  string comment;
+	  in >> comment;
+
+	  list<string> terms;
+	  split( comment, " .,:;#%_*+&'\"/!()[]{}<>?-\t\n\002\003", terms );
+
+	  for( list<string>::iterator i = terms.begin(); i != terms.end(); i++ ) {
+	    string term = *i;
+	    lowercase_term(term);
+	    term = stemmer.stem_word(term);
+	    
+	    if ( term != "" && isalpha(term[0]) ) {
+	      queryterms.push_back(term);
+	      cout << term << " ";
+	      cerr << "QUERY TERM " << term << endl;
+	    }
+
+	  }
+	  
+	}
+	in.close();
+
+	
       } else if ( s.find("in:") == 0 ) {
 	in_opt = s.substr(3);
 	cerr << "RESTRICTED TO -" << in_opt << "-" << endl;
@@ -344,16 +294,15 @@ int main(unsigned int argc, char *argv[]) {
 	om_termname term = s;
 	lowercase_term(term);
 	term = stemmer.stem_word(term);
-	queryterms.push_back(term);
-	query_term_set.insert(term);
-	query_vector[ term ] = 1.0;
-	cout << term << " ";
-        cerr << "QUERY TERM " << term << endl;
+	if ( term != "" ) {
+	  queryterms.push_back(term);
+	  cout << term << " ";
+	  cerr << "QUERY TERM " << term << endl;
+	}
       }
     }
     cout << endl; // empty line if no query words
 
-    assert( query_vector.size() >= 1 );
 
     OmMSet matches;
 
@@ -369,18 +318,6 @@ int main(unsigned int argc, char *argv[]) {
       assert(0);
     }
 
-    //    map< int, set<string> > transaction_all_words;
-    map< int, set<string> > transaction_code_words;
-    map< pair<int, string>, int > transaction_code_word_count;
-    map< int, set<string> > transaction_comment_words;
-    map< pair<int, string>, int > transaction_comment_word_count;
-
-    map< string, int > item_count; // required for mining subset of all transactions
-
-    cerr << "analyzing results from omseek" << endl;
-    int other_transactions_read = 0;
-    int total_transactions_read = 0;
-
     int last_percentage = 100;
 
     for (OmMSetIterator i = matches.begin(); i != matches.end(); i++) {
@@ -392,8 +329,6 @@ int main(unsigned int argc, char *argv[]) {
 
       OmDocument doc = i.get_document();
       string data = doc.get_data().value;
-
-      total_transactions_read++; // used for global queries
 
       //      cerr << "Found " << data << endl;
 
