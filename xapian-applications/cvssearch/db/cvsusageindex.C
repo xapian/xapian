@@ -47,7 +47,7 @@
 // 15 is reasonable but takes a while
 
 
-#define MIN_SUPP 1 
+#define MIN_SUPP 1
 #define MIN_SURPRISE 0.0
 
 // if true, counts files.
@@ -71,6 +71,13 @@
 #include <om/om.h>
 
 #include "util.h"
+
+
+#define FLUSH_RATE 50
+
+void usage(char * prog_name);
+const string database = "db";
+
 
 
 int main(int argc, char *argv[]) {
@@ -131,18 +138,36 @@ int main(int argc, char *argv[]) {
 
     string package = *i + ".cmt";
 
-    int p = package.find(".cmt");
-    if ( p == -1 ) {
+    string package_name;
+    string package_path;
+
+    unsigned int p = package.find(".cmt");
+    unsigned int q = package.find_last_of('/');
+
+    if ( p == string::npos ) {
       cerr << "Must include .cmt extension in package(s)." << endl;
       exit(1);
     }
+    // ----------------------------------------
+    // no '/', so use current directory
+    // ----------------------------------------
+    if ( q == string::npos) {
+      q = 0;
+    }
+    if ( q >= p )
+      {
+	cerr << "Cannot parse package.cmt. found a \"/\" after \".cmt\" in the filename." << endl;
+	exit(1);
+      }
+    package_name = string(package, q, p-q);
+    package_path = string(package, 0, p);
 
-    package = string(package, 0, p);
 
-    cerr << "package -" << package << "-" << endl;
 
-    cerr << "Running ctags on " << package << endl;
-    string fullpath = cvsdata +"/" + package;
+    cerr << "package -" << package_name << "-" << endl;
+
+    cerr << "Running ctags on " << package_path << endl;
+    string fullpath = cvsdata +"/" + package_path;
     string cmd = string("ctags ") + string(CTAGS_FLAGS) + " " + fullpath;
     cerr << "Invoking " << cmd << endl;
     system(cmd.c_str());
@@ -160,22 +185,18 @@ int main(int argc, char *argv[]) {
 
 
     // change / to _ in package
-    for( int i = 0; i < package.length(); i++ ) {
-      if ( package[i] == '/' ) {
-	package[i] = '_';
+    for( int i = 0; i < package_path.length(); i++ ) {
+      if ( package_path[i] == '/' ) {
+	package_path[i] = '_';
       }
     }
 
-    string file_cmt = cvsdata+"/database/"+package + ".cmt";
-    string file_offset = cvsdata +"/database/"+package +".offset";
+    package_path = "database/"+package_path;
 
-    // file may not exist (if it was deleted in repostory at some point)
-    {
-      ifstream in( file_cmt.c_str() );
-      if ( !in ) {
-	continue;
-      }
-    }
+    //    string file_cmt = cvsdata+"/database/"+package + ".cmt";
+    //    string file_offset = cvsdata +"/database/"+package +".offset";
+
+
 
 
     map<string, int> symbol_count;
@@ -184,35 +205,86 @@ int main(int argc, char *argv[]) {
 
     int lines_read = 0;
 
+
+    package = string(package, q, p);
+    cerr << "package -" << package_name << "-" << endl;
+
+    assert( package != "." ); // safety checks
+    assert( package != ".." );
+
+
+    string file_cmt    = package_path + ".cmt";
+    string file_offset = package_path + ".offset";
+    string database_dir= package_path + ".om";
+
+    // file may not exist (if it was deleted in repostory at some point)
+    {
+      ifstream in( file_cmt.c_str() );
+      if ( !in ) {
+	cerr << "Could not find " << file_cmt << endl;
+	continue;
+      }
+    }
+
+
+    cerr << "... removing directory " << database_dir << " (if it already exists)" << endl;
+    system( ("rm -rf " + database_dir).c_str() );
+
     try {
 
-      { // pass 1
-	cerr << "PASS 1" << endl;
-	Lines lines( cvsdata, package, file_cmt, file_offset, GRANULARITY, USE_STOP_LIST ); // file level granularity
-	lines_read = 0;
-	string prev_file = "";
-	while ( lines.ReadNextLine() ) {
+      // ----------------------------------------
+      // create database directory
+      // ----------------------------------------
+      system(("mkdir " + database_dir ).c_str());
 
-	  if ( lines.currentFile() != prev_file ) {
-	    prev_file = lines.currentFile();
+      // code which accesses Omsee
+
+      OmSettings db_parameters;
+      db_parameters.set("backend", "quartz");
+      db_parameters.set("quartz_dir", database_dir);
+      OmWritableDatabase database(db_parameters); // open database
+
+      database.begin_session();
+
+      cerr << "... reading " << file_cmt << endl;
+
+      map< string, list<string> > symbol_terms; // accumulated from all its points of usage
+
+
+      Lines lines( cvsdata, package, file_cmt, file_offset, GRANULARITY, USE_STOP_LIST ); // file level granularity
+      int files = 0;
+      string prev_file = "";
+      while ( lines.ReadNextLine() ) {
+
+	if ( lines.currentFile() != prev_file ) {
+	  prev_file = lines.currentFile();
+	  files++;
+	  if ( files % FLUSH_RATE == 0 ) {
+	    cerr << "... flushing database." << endl;
+	    database.flush();
 	  }
+	}
 
-	  set<string> terms = lines.getCommentTerms();
-	  set<string> symbols = lines.getCodeSymbols();
+	string data = lines.getData();
+	list<string> terms = lines.getTermList();
+	set<string> symbols = lines.getCodeSymbols();
 
 
-	 // for( set<string>::iterator i = terms.begin(); i != terms.end(); i++ ) {
-	 //   term_count[*i]++;
-	 // }
+	for( list<string>::iterator i = terms.begin(); i != terms.end(); i++ ) {
+	  term_count[*i]++;
+	}
 
-	  for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
-	    if ( defined_symbols.find(*i) != defined_symbols.end() ) {
-	      symbol_count[*i]++; // count number of lines that contain symbol
-	    }
+	for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
+	  if ( defined_symbols.find(*i) != defined_symbols.end() ) {
+	    symbol_count[*i]++; // count number of lines that contain symbol
 	  }
-	  lines_read++;
-	} // while
-      }
+	}
+	lines_read++;
+      } // while
+
+
+      database.end_session();
+      cerr << "Done!" << endl;
 
 #if 0
       map< pair<string, string>, set<string> > rule_support;
@@ -282,7 +354,7 @@ int main(int argc, char *argv[]) {
 	  if ( entryclasses != "" ) {
 	    Dbt key( (void*) prev_term.c_str(), prev_term.length()+1);
 	    Dbt data( (void*) entryclasses.c_str(), entryclasses.length()+1);
-	    dbclasses.put( 0, &key, &data, DB_NOOVERWRITE );	  
+	    dbclasses.put( 0, &key, &data, DB_NOOVERWRITE );
 	  }
 	  if ( entryfunctions != "" ) {
 	    Dbt key( (void*) prev_term.c_str(), prev_term.length()+1);
@@ -351,7 +423,8 @@ int main(int argc, char *argv[]) {
 
 #endif
 
-
+    } catch(OmError & error) {
+      cerr << "OMSEE Exception: " << error.get_msg() << endl;
     } catch( DbException& e ) {
       cerr << "Exception:  " << e.what() << endl;
     }
