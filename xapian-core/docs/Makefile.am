@@ -10,7 +10,7 @@ HTMLFILES = index.html intro.html intro_ir.html userman.html \
         stemming.html porterstem.html using_stemmers.html
 
 # Files which should be put in the distribution by automake
-EXTRA_DIST = mkdoc.pl.in $(HTMLFILES) \
+EXTRA_DIST = mkdoc.pl.in doxygen.conf.in $(HTMLFILES) \
         MatcherDesign Notes stemming.txt \
 	docxx.sty
 
@@ -207,6 +207,10 @@ include $(top_srcdir)/Makefile_common.am
 
 APIDOC_SRC    = `find $(top_srcdir)/include \( -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c \) -print`
 SOURCEDOC_SRC = `find $(top_srcdir) \( \( -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c -and -not -name acconfig.h \) -and -not -path \*/tests/\* \) -print`
+
+doxygen/html/index.html: doxygen.conf
+	@echo "Generating documentation with doxygen"
+	@top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) doxygen doxygen.conf
 
 apidoc/index.html:
 	@echo "Generating HTML documentation for API"
