@@ -65,7 +65,7 @@ QuartzPositionList::read_data(const QuartzTable * table,
 void
 QuartzPositionList::next_internal()
 {
-    if (pos == data.end()) {
+    if (pos == end) {
 	is_at_end = true;
 	return;
     }

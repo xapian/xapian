@@ -1175,11 +1175,72 @@ static bool test_postlist1()
     return true;
 }
 
-/// Test playing with a positionlist1
+/// Test playing with a positionlist, testing skip_to in particular.
 static bool test_positionlist1()
 {
-    // Test skip_to in particular.
-    return false;
+    QuartzDiskTable disktable("testdb_positionlist1_", false, 8192);
+    disktable.open();
+    QuartzBufferedTable bufftable(&disktable);
+
+    OmDocumentTerm::term_positions positions;
+
+    positions.push_back(5);
+    positions.push_back(8);
+    positions.push_back(10);
+    positions.push_back(12);
+    QuartzPositionList::set_positionlist(&bufftable, 1, "foo", positions);
+
+    QuartzPositionList pl;
+
+    TEST_EXCEPTION(OmDocNotFoundError, pl.read_data(&bufftable, 1, "foobar"));
+    TEST_EXCEPTION(OmDocNotFoundError, pl.read_data(&bufftable, 2, "foo"));
+    pl.read_data(&bufftable, 1, "foo");
+    TEST_EQUAL(pl.get_size(), 4);
+
+    pl.next();
+    TEST(!pl.at_end());
+    TEST_EQUAL(pl.get_size(), 4);
+    TEST_EQUAL(pl.get_position(), 5);
+
+    pl.next();
+    TEST(!pl.at_end());
+    TEST_EQUAL(pl.get_position(), 8);
+
+    pl.next();
+    TEST(!pl.at_end());
+    TEST_EQUAL(pl.get_position(), 10);
+
+    pl.next();
+    TEST(!pl.at_end());
+    TEST_EQUAL(pl.get_position(), 12);
+
+    pl.next();
+    TEST(pl.at_end());
+
+    pl.read_data(&bufftable, 1, "foo");
+    TEST_EQUAL(pl.get_size(), 4);
+
+    pl.skip_to(5);
+    TEST(!pl.at_end());
+    TEST_EQUAL(pl.get_size(), 4);
+    TEST_EQUAL(pl.get_position(), 5);
+
+    pl.skip_to(9);
+    TEST(!pl.at_end());
+    TEST_EQUAL(pl.get_position(), 10);
+
+    pl.next();
+    TEST(!pl.at_end());
+    TEST_EQUAL(pl.get_position(), 12);
+
+    pl.skip_to(12);
+    TEST(!pl.at_end());
+    TEST_EQUAL(pl.get_position(), 12);
+
+    pl.skip_to(13);
+    TEST(pl.at_end());
+
+    return true;
 }
 
 
