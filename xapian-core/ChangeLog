@@ -1,3 +1,7 @@
+Thu Feb 17 12:00:33 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Header files now get installed in a subdirectory (om/)
+
 Tue Feb 15 17:03:31 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Implemented the "allow query terms" option for Expand Terms.

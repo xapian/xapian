@@ -23,7 +23,7 @@
 #ifndef OM_HGUARD_INDEX_UTILS_H
 #define OM_HGUARD_INDEX_UTILS_H
 
-#include "omtypes.h"
+#include "om/omtypes.h"
 void lowercase_term(om_termname &);
 void select_characters(om_termname &term, const string & keep);
 void get_paragraph(istream &input, string &para);

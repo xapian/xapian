@@ -23,7 +23,7 @@
 #ifndef OM_HGUARD_EXPANDWEIGHT_H
 #define OM_HGUARD_EXPANDWEIGHT_H
 
-#include "omtypes.h"
+#include "om/omtypes.h"
 #include "omassert.h"
 #include "database.h"
 

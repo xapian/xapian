@@ -25,7 +25,7 @@
 
 #include "database.h"
 #include "omassert.h"
-#include "omenquire.h"
+#include "om/omenquire.h"
 
 class IRWeight;
 

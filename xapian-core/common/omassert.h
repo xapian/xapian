@@ -30,7 +30,7 @@
 #include "config.h"
 
 // Include the definitions of the exceptions we're going to throw
-#include "omerror.h"
+#include "om/omerror.h"
 
 // 2nd level of stringize definition not needed for the use we put this
 // to in this file (since we always use it within a macro here) but

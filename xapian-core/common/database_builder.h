@@ -25,7 +25,7 @@
 
 #include <string>
 #include <vector>
-#include "omtypes.h"
+#include "om/omtypes.h"
 
 class IRDatabase;
 

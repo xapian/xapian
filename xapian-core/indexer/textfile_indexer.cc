@@ -21,7 +21,7 @@
  */
 
 #include "omassert.h"
-#include "omerror.h"
+#include "om/omerror.h"
 #include "textfile_indexer.h"
 #include "stemmer.h"
 #include "index_utils.h"

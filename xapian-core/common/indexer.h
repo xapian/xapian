@@ -26,7 +26,7 @@
 #include <string>
 #include <iostream>
 
-#include "omtypes.h"
+#include "om/omtypes.h"
 
 // A source of data for indexing (eg, a file)
 class IndexerSource {

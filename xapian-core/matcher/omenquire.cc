@@ -20,9 +20,10 @@
  * -----END-LICENCE-----
  */
 
-#include "omerror.h"
 #include "omassert.h"
-#include "omenquire.h"
+
+#include "om/omerror.h"
+#include "om/omenquire.h"
 
 #include "rset.h"
 #include "match.h"

@@ -23,7 +23,7 @@
 #include <iostream>
 #include <string>
 #include <getopt.h>
-#include "om.h"
+#include "om/om.h"
 
 typedef bool (*testerfunc)();
 

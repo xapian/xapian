@@ -197,6 +197,7 @@ dnl **************************
 AC_OUTPUT(
  Makefile
  include/Makefile
+ include/om/Makefile
  common/Makefile
  backends/Makefile
  backends/da/Makefile

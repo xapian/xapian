@@ -25,8 +25,8 @@
 
 #include "omassert.h"
 
-#include "omtypes.h"
-#include "omerror.h"
+#include "om/omtypes.h"
+#include "om/omerror.h"
 #include "expandweight.h"
 
 class TermList {

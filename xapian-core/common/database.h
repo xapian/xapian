@@ -24,7 +24,7 @@
 #define OM_HGUARD_DATABASE_H
 
 #include <string>
-#include "omtypes.h"
+#include "om/omtypes.h"
 
 #include "database_builder.h"
 #include "indexer.h"

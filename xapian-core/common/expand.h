@@ -25,7 +25,7 @@
 
 #include "database.h"
 #include "termlist.h"
-#include "omenquire.h"
+#include "om/omenquire.h"
 
 #include <queue>
 #include <stack>

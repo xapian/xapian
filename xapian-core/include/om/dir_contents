@@ -1,4 +1,4 @@
-<Directory>include</Directory>
+<Directory>include/om</Directory>
 
 <Description>
 This directory contains the externally visible header files which are

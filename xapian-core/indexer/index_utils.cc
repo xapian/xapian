@@ -21,7 +21,6 @@
  */
 
 #include "index_utils.h"
-#include "omtypes.h"
 #include <ctype.h>
 #include <cctype>
 

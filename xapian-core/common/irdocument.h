@@ -23,8 +23,8 @@
 #ifndef OM_HGUARD_IRDOCUMENT_H
 #define OM_HGUARD_IRDOCUMENT_H
 
-#include "omtypes.h"
-#include "omenquire.h"
+#include "om/omtypes.h"
+#include "om/omenquire.h"
 
 // A key in a document
 class IRKey {

@@ -24,7 +24,7 @@
 #define OM_HGUARD_TRADWEIGHT_H
 
 #include "irweight.h"
-#include "omtypes.h"
+#include "om/omtypes.h"
 #include "omassert.h"
 
 // Traditional weighting scheme

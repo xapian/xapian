@@ -21,7 +21,7 @@
  */
 
 #include "omassert.h"
-#include "omerror.h"
+#include "om/omerror.h"
 #include "query_parser.h"
 #include <cstdlib>
 #include <string>
