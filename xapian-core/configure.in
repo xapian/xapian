@@ -31,7 +31,7 @@ if test "$GCC" = yes; then
     *) CFLAGS="$CFLAGS -O6"
   esac
 
-  CXXFLAGS=`echo "$CFLAGS -pedantic -Wall -Wunused -fno-gnu-keywords" | sed 's/-O[0-9]*/-O6/'`
+  CXXFLAGS=`echo "$CXXFLAGS -pedantic -Wall -Wunused -fno-gnu-keywords" | sed 's/-O[0-9]*/-O6/'`
   case "$CXXFLAGS" in
     *-O6*) ;;
     *) CXXFLAGS="$CXXFLAGS -O6"
