@@ -47,6 +47,11 @@ Priority | Area            | Task
  Medium  | Documentation   | Patch doxygen, so that todo items in the body of
          |                 | methods get displayed.
 ---------+-----------------+--------------------------------------------------
+ Medium  | DatabaseBuilder | Check that DatabaseBuilder returns correct
+         |                 | error messages if: a completely unknown database
+	 |                 | type is specified, or an unavailable type is
+	 |                 | specified, or a null type is specified (ie "").
+---------+-----------------+--------------------------------------------------
  Medium  | API             | OmDocumentTerm should use a set rather than a
          |                 | map.
 ---------+-----------------+--------------------------------------------------
