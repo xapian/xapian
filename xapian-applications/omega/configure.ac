@@ -10,6 +10,10 @@ AC_CONFIG_SRCDIR(omega.cc)
 
 AC_CONFIG_HEADERS(config.h)
 
+dnl Check for libxapian
+AC_PROG_LIBTOOL
+XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
+
 dnl Checks for programs.
 AC_PROG_CXX
 
@@ -51,17 +55,44 @@ fi
 
 AC_CHECK_FUNCS(posix_fadvise)
 
+AC_MSG_CHECKING(for working snprintf)
 dnl mingw has _snprintf
-AC_CHECK_FUNCS(snprintf _snprintf)
-if test $ac_cv_func_snprintf$ac_cv_func__snprintf = noyes ; then
-  AC_DEFINE(snprintf, _snprintf,
-	    [Define snprintf to whatever it's called on this platform])
-  AC_DEFINE(HAVE_SNPRINTF, 1)
-fi
-
-dnl Check for libxapian
-AC_PROG_LIBTOOL
-XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
+for func in snprintf _snprintf ; do
+  dnl Check that snprintf actually works as it's meant to.
+  dnl
+  dnl Linux 'man snprintf' warns:
+  dnl  Linux libc4.[45] does not have a snprintf, but provides a libbsd that
+  dnl  contains an snprintf equivalent to sprintf, i.e., one that ignores the
+  dnl  size argument.  Thus, the use of snprintf with early libc4 leads to
+  dnl  serious security problems.
+  dnl
+  dnl It also warns that glibc < 2.0.6 (and presumably other pre-C90
+  dnl implementations) return -1 when truncating so check that we get the
+  dnl ISO C90 semantics for the returned length when truncating.
+  AC_RUN_IFELSE([
+    AC_LANG_PROGRAM(
+      [[#include <stdio.h>]],
+      [[
+	char buffer[4] = "abc";
+	if ($func(buffer, 2, "%s", "XYZ") != 3) return 1;
+	if (memcmp(buffer, "XYc", 4) != 0) return 1;
+	if ($func(buffer, 2, "%x", 0x12) != 2) return 1;
+	if (memcmp(buffer, "12c", 4) != 0) return 1
+      ]]
+    )],
+    [ac_cv_func_snprintf="$func";break],
+    [ac_cv_func_snprintf=no],
+    [ac_cv_func_snprintf=unknown;break]
+  )
+done
+AC_MSG_RESULT([$ac_cv_func_snprintf])
+case "$ac_cv_func_snprintf" in
+  no|unknown) ;; dnl be conservative when crosscompiling
+  *)
+    AC_DEFINE_UNQUOTED(SNPRINTF, [$ac_cv_func_snprintf],
+       [Define to the name of a function implementing snprintf with ISO C90 semantics (if one exists)])
+    ;;
+esac
 
 dnl Disabled XML stuff as we don't currently build omindex-config
 dnl dnl Check for libxml or libxml2.  We do this by looking for xml-config.
