@@ -61,6 +61,7 @@ enum om_queryop {
     OM_MOP_FILTER
 };
 
+
 /** Class representing a query.
  *  Queries are represented as a heirarchy of classes.
  */
@@ -70,14 +71,25 @@ class OmQuery {
 	bool isdefined;
 	bool isbool;
 
-	om_queryop op;       /// Operation to be performed at this node
-	vector<OmQuery *> subqs;  /// Sub queries on which to perform operation
-	om_termcount qlen;   /// Length of query
+	/// Operation to be performed at this node
+	om_queryop op;
+
+	/// Sub queries on which to perform operation
+	vector<OmQuery *> subqs;
+
+	/// Length of query
+	om_termcount qlen;
 
 	// Fields used only for leaf nodes.
-	om_termname tname;   /// Term that this leaf represents
-	om_termpos term_pos; /// Position in query of this term
-	om_termcount wqf;    /// Within query frequency of this term
+
+	/// Term that this leaf represents
+	om_termname tname;
+
+	/// Position in query of this term
+	om_termpos term_pos;
+
+	/// Within query frequency of this term
+	om_termcount wqf;
 
 	/// Copy another OmQuery into self.
 	void initialise_from_copy(const OmQuery & copyme);
