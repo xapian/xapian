@@ -18,3 +18,12 @@ dist_docdata_DATA = \
 noinst_HEADERS = source/base64.h
 xapian_queryserver_SOURCES = source/queryserver.cpp source/base64.c
 xapian_queryserver_LDADD = $(XAPIAN_LIBS)
+
+docs/xapian-queryserver.txt: docs/xapian-queryserver.but
+	$(mkinstalldirs) docs
+	$(HALIBUT) --text=$@.tmp $^
+	mv $@.tmp $@
+
+# Build documentation
+all-local: docs/xapian-queryserver.txt
+

@@ -23,6 +23,9 @@ dnl Check for libxapian
 AC_PROG_LIBTOOL
 XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 
+dnl Check for halibut. (Needed to make some of the documentation)
+AC_PATH_PROG([HALIBUT], [halibut], [$MISSING halibut])
+
 dnl ******************************
 dnl * Set special compiler flags *
 dnl ******************************

@@ -1,3 +1,8 @@
+Tue Apr 27 13:19:36 BST 2004  Richard Boulton <richard@tartarus.org>
+
+        * Makefile.am, configure.ac: If halibut is available, use it to
+          build the documentation.
+
 Tue Apr 27 12:12:01 BST 2004  Richard Boulton <richard@tartarus.org>
 
         * docs/: Beginnings of documentation.  Written in halibut, but
