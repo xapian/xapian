@@ -1,3 +1,7 @@
+Thu Apr 18 11:08:04 BST 2002  Olly Betts <olly@survex.com>
+
+	* Use case instead of echo/sed to replace dirname.
+
 Thu Apr 18 10:19:01 BST 2002  Olly Betts <olly@survex.com>
 
 	* Another Makefile portability tweak. 
