@@ -1,9 +1,22 @@
+Contents
+========
+
+1. A brief guide to running tests
+2. A Brief Guide To Writing Tests That's Probably Slightly Wrong
+3. Secret Info about the Quartz Backend Test
+
+A Brief Guide to Running Tests
+------------------------------
+
+After a successful "make", try "make check"
+
+
 A Brief Guide To Writing Tests That's Probably Slightly Wrong
 -------------------------------------------------------------
 
 Almost all tests live in tests/. (The btree and Quartz backend stuff
 has its own tests for internal consistency, which live in
-backends/quartz/. I'll ignore them.)
+backends/quartz/. I'll ignore them, but read more in the next section)
 
 The tests mostly use a standard test rig, in testsuite/, which wraps
 each test, reports results, and generally packages things up nicely. I
@@ -57,3 +70,37 @@ from fail to pass, and secondly you're more likely to write the test
 carefully, because once you've fixed something there's often a feeling
 that you should commit it for the good of the world, which tends to
 distract you :-)
+
+Secret Info About the Quartz Backend Test
+-----------------------------------------
+
+If you'll be testing the btree's ability, those tests are in
+backends/quartz/btreetest.cc, or for quartz itself try quartztest.cc.  
+(Tests are a bit scattered; low-level tests of parts of the system are
+generally in the source directories, while high-level leves are in tests/.
+To complicate matters, tests of the stemmers and the indexgraph stuff are
+actually in tests/ not in the right place.)
+
+Okay. Basically, most of it you can ignore, because the framework is
+done for you. You are responsible for doing two things:
+
+1.	writing a minimal test or tests for the feature
+2.	adding that test to the list of tests to be run
+
+2. is simple. There's a test_desc array in each file that comprises a
+set of tests (I'll come to that in a minute), and you just add another 
+entry. The entry is an array consisting of a name for the test and a
+pointer to the function that is the test. Easy.
+
+Look at the bottom of btreetest.cc for the test_desc array. Now look
+up about 20 lines for the one and only test (which is why this is a
+good example :-). You need to write a function which will return true
+or false depending on whether it failed or not.
+
+In addition, there are a bunch of macros you want to use. Things like
+TEST_EQUAL are all in testsuite/testsuite.h. They're pretty simple to
+use.
+
+Anything else, just ask. And I may have got some bits wrong, but you
+should be able to figure it out from the code. :)
+
