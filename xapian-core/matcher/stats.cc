@@ -60,7 +60,7 @@ LocalStatsGatherer::get_stats() const
 	have_gathered = true;
     }
 
-    return (&total_stats);
+    RETURN((&total_stats));
 }
 
 #include "config.h"
@@ -82,7 +82,7 @@ NetworkStatsGatherer::get_stats() const
     fetch_local_stats();
     fetch_global_stats();
 
-    return &total_stats;
+    RETURN(&total_stats);
 }
 
 void

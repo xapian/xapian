@@ -46,11 +46,11 @@ BM25Weight::BM25Weight(const OmSettings & opts)
     param_D = opts.get_real("bm25weight_D", 0.5);
     min_normlen = opts.get_real("bm25weight_min_normlen", 0.5);
 
-    if(param_A < 0) throw OmInvalidArgumentError("Parameter A in BM25 weighting formula must be at least 0.");
-    if(param_B < 0) throw OmInvalidArgumentError("Parameter B in BM25 weighting formula must be at least 0.");
-    if(param_C < 0) throw OmInvalidArgumentError("Parameter C in BM25 weighting formula must be at least 0.");
-    if(param_D < 0) throw OmInvalidArgumentError("Parameter D in BM25 weighting formula must be at least 0.");
-    if(param_D > 1) throw OmInvalidArgumentError("Parameter D in BM25 weighting formula must be less than or equal to 1.");
+    if (param_A < 0) throw OmInvalidArgumentError("Parameter A in BM25 weighting formula must be at least 0.");
+    if (param_B < 0) throw OmInvalidArgumentError("Parameter B in BM25 weighting formula must be at least 0.");
+    if (param_C < 0) throw OmInvalidArgumentError("Parameter C in BM25 weighting formula must be at least 0.");
+    if (param_D < 0) throw OmInvalidArgumentError("Parameter D in BM25 weighting formula must be at least 0.");
+    if (param_D > 1) throw OmInvalidArgumentError("Parameter D in BM25 weighting formula must be less than or equal to 1.");
 }
 
 // Calculate weights using statistics retrieved from databases
@@ -124,7 +124,7 @@ BM25Weight::get_sumpart(om_termcount wdf, om_doclength len) const
 
     DEBUGLINE(WTCALC, " =>  sumpart = " << wt);
 
-    return wt;
+    RETURN(wt);
 }
 
 om_weight
@@ -133,7 +133,7 @@ BM25Weight::get_maxpart() const
     DEBUGCALL(MATCH, om_weight, "BM25Weight::get_maxpart", "");
     if(!weight_calculated) calc_termweight();
     DEBUGLINE(WTCALC, "maxpart = " << ((param_B + 1) * termweight));
-    return (param_B + 1) * termweight;
+    RETURN((param_B + 1) * termweight);
 }
 
 /* Should return param_C * querysize * (1-len) / (1+len)
@@ -152,7 +152,7 @@ BM25Weight::get_sumextra(om_doclength len) const
 	      " querysize = " << querysize <<
 	      " =>  normlen = " << normlen <<
 	      " =>  sumextra = " << extra);
-    return extra;
+    RETURN(extra);
 }
 
 om_weight
@@ -162,5 +162,5 @@ BM25Weight::get_maxextra() const
     om_weight maxextra = param_C * querysize;
     DEBUGLINE(WTCALC, "querysize = " << querysize <<
 	      " =>  maxextra = " << maxextra);
-    return maxextra;
+    RETURN(maxextra);
 }

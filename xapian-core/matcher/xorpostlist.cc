@@ -38,21 +38,21 @@ XorPostList::advance_to_next_match(om_weight w_min)
 	if (l->at_end()) {
 	    if (r->at_end()) {
 		lhead = 0;
-		return NULL;
+		RETURN(NULL);
 	    }
 	    PostList *ret = r;
 	    r = NULL;
-	    return ret;
+	    RETURN(ret);
 	}
 	if (r->at_end()) {
 	    PostList *ret = l;
 	    l = NULL;
-	    return ret;
+	    RETURN(ret);
 	}
 	lhead = l->get_docid();
 	rhead = r->get_docid();
     }
-    return NULL;
+    RETURN(NULL);
 }
 
 XorPostList::XorPostList(PostList *left_,
@@ -79,7 +79,7 @@ XorPostList::next(om_weight w_min)
 		DEBUGLINE(MATCH, "XOR drops below w_min");
 		// neither side is weighty enough, so run dry
 		lhead = 0;
-		return NULL;
+		RETURN(NULL);
 	    }
 	    DEBUGLINE(MATCH, "XOR -> AND NOT (1)");
 	    ret = new AndNotPostList(r, l, matcher, dbsize);
@@ -92,7 +92,7 @@ XorPostList::next(om_weight w_min)
 
 	l = r = NULL;
 	next_handling_prune(ret, w_min, matcher);
-	return ret;
+	RETURN(ret);
     }
 
     bool ldry = false;
@@ -112,7 +112,7 @@ XorPostList::next(om_weight w_min)
         if (r->at_end()) {
 	    PostList *ret = l;
 	    l = NULL;
-	    return ret;
+	    RETURN(ret);
 	}
 	rhead = r->get_docid();
     }
@@ -120,11 +120,11 @@ XorPostList::next(om_weight w_min)
     if (ldry) {
 	PostList *ret = r;
 	r = NULL;
-	return ret;
+	RETURN(ret);
     }
 
     lhead = l->get_docid();
-    return advance_to_next_match(w_min);
+    RETURN(advance_to_next_match(w_min));
 }
 
 PostList *
@@ -139,7 +139,7 @@ XorPostList::skip_to(om_docid did, om_weight w_min)
 		DEBUGLINE(MATCH, "XOR drops below w_min");
 		// neither side is weighty enough, so run dry
 		lhead = 0;
-		return NULL;
+		RETURN(NULL);
 	    }
 	    DEBUGLINE(MATCH, "XOR -> AND NOT (in skip_to) (1)");
 	    AndNotPostList *ret3 = new AndNotPostList(r, l, matcher, dbsize);
@@ -161,7 +161,7 @@ XorPostList::skip_to(om_docid did, om_weight w_min)
 	    delete ret;
 	    ret = ret2;
 	}
-	return ret;
+	RETURN(ret);
     }
 
     bool ldry = false;
@@ -176,7 +176,7 @@ XorPostList::skip_to(om_docid did, om_weight w_min)
 	if (r->at_end()) {
 	    PostList *ret = l;
 	    l = NULL;
-	    return ret;
+	    RETURN(ret);
 	}
 	rhead = r->get_docid();
     }
@@ -184,9 +184,9 @@ XorPostList::skip_to(om_docid did, om_weight w_min)
     if (ldry) {
 	PostList *ret = r;
 	r = NULL;
-	return ret;
+	RETURN(ret);
     }
 
     lhead = l->get_docid();
-    return advance_to_next_match(w_min);
+    RETURN(advance_to_next_match(w_min));
 }

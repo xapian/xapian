@@ -33,20 +33,20 @@ AndMaybePostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
     if (l->at_end()) {
 	// once l is over, so is the AND MAYBE
 	lhead = 0;
-	return NULL;
+	RETURN(NULL);
     }
 
     lhead = l->get_docid();
-    if (lhead <= rhead) return NULL;
+    if (lhead <= rhead) RETURN(NULL);
 
     skip_to_handling_prune(r, lhead, w_min - lmax, matcher);
     if (r->at_end()) {
 	PostList *ret = l;
 	l = NULL;
-	return ret;
+	RETURN(ret);
     }
     rhead = r->get_docid();
-    return NULL;
+    RETURN(NULL);
 }
 
 PostList *
@@ -60,9 +60,9 @@ AndMaybePostList::next(om_weight w_min)
 	ret = new AndPostList(l, r, matcher, dbsize, true);
 	l = r = NULL;
 	skip_to_handling_prune(ret, std::max(lhead, rhead) + 1, w_min, matcher);
-	return ret;
+	RETURN(ret);
     }
-    return process_next_or_skip_to(w_min, l->next(w_min - rmax));
+    RETURN(process_next_or_skip_to(w_min, l->next(w_min - rmax)));
 }
 
 PostList *
@@ -77,11 +77,11 @@ AndMaybePostList::skip_to(om_docid did, om_weight w_min)
 	did = std::max(did, std::max(lhead, rhead));
 	l = r = NULL;
 	skip_to_handling_prune(ret, did, w_min, matcher);
-	return ret;
+	RETURN(ret);
     }
 
     // exit if we're already past the skip point (or at it)
-    if (did <= lhead) return NULL;
+    if (did <= lhead) RETURN(NULL);
 
-    return process_next_or_skip_to(w_min, l->skip_to(did, w_min - rmax));
+    RETURN(process_next_or_skip_to(w_min, l->skip_to(did, w_min - rmax)));
 }

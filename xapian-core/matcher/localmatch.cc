@@ -141,7 +141,7 @@ LocalSubMatch::build_xor_tree(std::vector<PostList *> &postlists,
     // If none of the postlists had any entries, return an EmptyPostList.
     if (pq.empty()) {
 	EmptyPostList *pl = new EmptyPostList();
-	return pl;
+	RETURN(pl);
     }
 
     // Build a tree balanced by the term frequencies
@@ -153,7 +153,7 @@ LocalSubMatch::build_xor_tree(std::vector<PostList *> &postlists,
     while (true) {
 	PostList *pl = pq.top();
 	pq.pop();
-	if (pq.empty()) return pl;
+	if (pq.empty()) RETURN(pl);
 	// NB right is always <= left - we can use this to optimise
 	pl = new XorPostList(pq.top(), pl, matcher, db->get_doccount());
 	pq.pop();
@@ -191,7 +191,7 @@ LocalSubMatch::build_and_tree(std::vector<PostList *> &postlists,
 
     if (postlists.empty()) {
 	EmptyPostList *pl = new EmptyPostList();
-	return pl;
+	RETURN(pl);
     }
 
     std::stable_sort(postlists.begin(), postlists.end(), PLPCmpLt());
@@ -203,7 +203,7 @@ LocalSubMatch::build_and_tree(std::vector<PostList *> &postlists,
 	// NB right is always <= left - we use this to optimise.
 	pl = new AndPostList(postlists[j], pl, matcher, db->get_doccount());
     }
-    return pl;
+    RETURN(pl);
 }
 
 PostList *
@@ -240,7 +240,7 @@ LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists,
     // If none of the postlists had any entries, return an EmptyPostList.
     if (pq.empty()) {
 	EmptyPostList *pl = new EmptyPostList();
-	return pl;
+	RETURN(pl);
     }
 
     // Build a tree balanced by the term frequencies
@@ -252,7 +252,7 @@ LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists,
     while (true) {
 	PostList *pl = pq.top();
 	pq.pop();
-	if (pq.empty()) return pl;
+	if (pq.empty()) RETURN(pl);
 	// NB right is always <= left - we can use this to optimise
 	pl = new OrPostList(pq.top(), pl, matcher, db->get_doccount());
 	pq.pop();
@@ -295,19 +295,19 @@ LocalSubMatch::postlist_from_queries(OmQuery::Internal::op_t op,
     // Build tree
     switch (op) {
 	case OmQuery::OP_XOR:
-	    return build_xor_tree(postlists, matcher);
+	    RETURN(build_xor_tree(postlists, matcher));
 
 	case OmQuery::OP_AND:
-	    return build_and_tree(postlists, matcher);
+	    RETURN(build_and_tree(postlists, matcher));
 
 	case OmQuery::OP_OR:
-	    return build_or_tree(postlists, matcher);
+	    RETURN(build_or_tree(postlists, matcher));
 
 	case OmQuery::OP_NEAR:
 	{
 	    PostList *res = build_and_tree(postlists, matcher);
 	    // FIXME: handle EmptyPostList return specially?
-	    return new NearPostList(res, window, postlists);
+	    RETURN(new NearPostList(res, window, postlists));
 	}
 
 	case OmQuery::OP_PHRASE:
@@ -318,7 +318,7 @@ LocalSubMatch::postlist_from_queries(OmQuery::Internal::op_t op,
 	    std::vector<PostList *> postlists_orig = postlists;
 	    PostList *res = build_and_tree(postlists, matcher);
 	    // FIXME: handle EmptyPostList return specially?
-	    return new PhrasePostList(res, window, postlists_orig);
+	    RETURN(new PhrasePostList(res, window, postlists_orig));
 	}
 
 	case OmQuery::OP_ELITE_SET:
@@ -332,7 +332,7 @@ LocalSubMatch::postlist_from_queries(OmQuery::Internal::op_t op,
 		for (i = postlists.begin(); i != postlists.end(); i++)
 		    delete *i;
 		postlists.clear();
-		return new EmptyPostList();
+		RETURN(new EmptyPostList());
 	    }
 
 	    if (postlists.size() > elite_set_size) {
@@ -357,14 +357,14 @@ LocalSubMatch::postlist_from_queries(OmQuery::Internal::op_t op,
 				postlists.end());
 	    }
 
-	    return build_or_tree(postlists, matcher);
+	    RETURN(build_or_tree(postlists, matcher));
 	}
 
 	default:
 	    Assert(0);
     }
     Assert(0);
-    return NULL;
+    RETURN(NULL);
 }
 
 // Make a postlist from a query object - this is called recursively down
@@ -378,7 +378,7 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 	case OmQuery::Internal::OP_UNDEF: {
 	    LeafPostList *pl = new EmptyPostList();
 	    pl->set_termweight(new BoolWeight(opts));
-	    return pl;
+	    RETURN(pl);
 	}
 
 	case OmQuery::Internal::OP_LEAF: {
@@ -407,7 +407,7 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 	    // MULTI
 	    LeafPostList * pl = db->open_post_list(query->tname);
 	    pl->set_termweight(wt);
-	    return pl;
+	    RETURN(pl);
 	}
 	case OmQuery::OP_AND:
 	case OmQuery::OP_OR:
@@ -450,7 +450,7 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 	    throw OmUnimplementedError("Percentage cutoffs in query tree not yet implemented.");
     }
     Assert(false);
-    return NULL;
+    RETURN(NULL);
 }
 
 ////////////////////////
@@ -477,7 +477,7 @@ LocalSubMatch::prepare_match(bool nowait)
 	}
 	is_prepared = true;
     }
-    return true;
+    RETURN(true);
 }
 
 PostList *
@@ -490,9 +490,9 @@ LocalSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
     // contribution.
     if (wt->get_maxextra() == 0) {
 	delete wt;
-	return pl;
+	RETURN(pl);
     }
-    return new ExtraWeightPostList(pl, wt, matcher);
+    RETURN(new ExtraWeightPostList(pl, wt, matcher));
 }
 
 
@@ -516,5 +516,5 @@ LocalSubMatch::mk_weight(const OmQuery::Internal *query_)
 	AssertEqDouble(wt->get_maxextra(), extra_weight->get_maxextra());
     }
 #endif /* MUS_DEBUG_PARANOID */
-    return wt;
+    RETURN(wt);
 }

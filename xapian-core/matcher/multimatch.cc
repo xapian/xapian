@@ -192,12 +192,12 @@ MultiMatch::get_collapse_key(PostList *pl, const OmDatabase &db, om_docid did,
 {		      
     DEBUGCALL(MATCH, OmKey, "MultiMatch::get_collapse_key", pl << ", " << db << ", " << did << ", " << keyno << ", [doc]");
     const OmKey *key = pl->get_collapse_key();
-    if (key) return *key;
+    if (key) RETURN(*key);
     if (doc.get() == 0) {
 	RefCntPtr<Document> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
 	doc = temp;
     }
-    return doc->get_key(keyno);
+    RETURN(doc->get_key(keyno));
 }
 
 om_weight
@@ -214,7 +214,7 @@ MultiMatch::getorrecalc_maxweight(PostList *pl)
 	AssertParanoid(fabs(wt - pl->recalc_maxweight()) < 1e-9);
     }
     DEBUGLINE(MATCH, "max possible doc weight = " << wt);
-    return wt;
+    RETURN(wt);
 }
 
 void

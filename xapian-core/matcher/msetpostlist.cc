@@ -44,7 +44,7 @@ MSetPostList::next(om_weight w_min)
     DEBUGCALL(MATCH, PostList *, "MSetPostList::next", w_min);
     Assert(current == -1 || !at_end());
     current++;
-    return NULL;
+    RETURN(NULL);
 }
 
 PostList *

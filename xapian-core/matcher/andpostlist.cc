@@ -26,36 +26,46 @@
 inline void
 AndPostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
 {
-    DEBUGCALL(MATCH, void, "AndPostList::process_next_or_skip_to", w_min << ", " << ret);
+    DEBUGCALL(MATCH, void, "AndPostList::process_next_or_skip_to",
+	      w_min << ", " << ret);
     head = 0;
     handle_prune(r, ret);
+    DEBUGLINE("r at_end = " << r->at_end());
     if (r->at_end()) return;
 
     // r has just been advanced by next or skip_to so must be > head
     // (and head is the current position of l)
-    skip_to_handling_prune(l, r->get_docid(), w_min - rmax, matcher);
+    om_docid rhead = r->get_docid();
+    DEBUGLINE("rhead " << rhead);
+    DEBUGLINE("w_min " << w_min << " rmax " << rmax);
+    skip_to_handling_prune(l, rhead, w_min - rmax, matcher);
+    DEBUGLINE("l at_end = " << l->at_end());
     if (l->at_end()) return;
 
     om_docid lhead = l->get_docid();
-    om_docid rhead = r->get_docid();
+    DEBUGLINE("lhead " << lhead);
 
     while (lhead != rhead) {
 	if (lhead < rhead) {
 	    // FIXME: CSE these w_min values?
 	    // But note that lmax and rmax may change on recalc_maxweight...
 	    skip_to_handling_prune(l, rhead, w_min - rmax, matcher);
+	    DEBUGLINE("l at_end = " << l->at_end());
 	    if (l->at_end()) {
 		head = 0;
 		return;
 	    }
 	    lhead = l->get_docid();
+	    DEBUGLINE("lhead " << lhead);
 	} else {
 	    skip_to_handling_prune(r, lhead, w_min - lmax, matcher);
+	    DEBUGLINE("r at_end = " << r->at_end());
 	    if (r->at_end()) {
 		head = 0;
 		return;
 	    }
 	    rhead = r->get_docid();
+	    DEBUGLINE("rhead " << rhead);
 	}
     }
 
@@ -83,13 +93,14 @@ AndPostList::next(om_weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "AndPostList::next", w_min);
     process_next_or_skip_to(w_min, r->next(w_min - lmax));
-    return NULL;
+    RETURN(NULL);
 }
 
 PostList *
 AndPostList::skip_to(om_docid did, om_weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "AndPostList::skip_to", did << ", " << w_min);
-    if (did > head) process_next_or_skip_to(w_min, r->skip_to(did, w_min - lmax));
-    return NULL;
+    if (did > head)
+	process_next_or_skip_to(w_min, r->skip_to(did, w_min - lmax));
+    RETURN(NULL);
 }

@@ -34,7 +34,7 @@ TradWeight::TradWeight(const OmSettings & opts)
 {
     DEBUGCALL(MATCH, void, "TradWeight", opts);
     param_k = opts.get_real("tradweight_k", 1);
-    if(param_k < 0) throw OmInvalidArgumentError("Parameter k in traditional weighting formula must be at least 0.");
+    if (param_k < 0) throw OmInvalidArgumentError("Parameter k in traditional weighting formula must be at least 0.");
 }
 
 
@@ -85,34 +85,34 @@ om_weight
 TradWeight::get_sumpart(om_termcount wdf, om_doclength len) const
 {
     DEBUGCALL(MATCH, om_weight, "TradWeight::get_sumpart", wdf << ", " << len);
-    if(!weight_calculated) calc_termweight();
+    if (!weight_calculated) calc_termweight();
 
     om_weight wt = (double) wdf / (len * lenpart + wdf);
 
     wt *= termweight;
 
-    return wt;
+    RETURN(wt);
 }
 
 om_weight
 TradWeight::get_maxpart() const
 {
     DEBUGCALL(MATCH, om_weight, "TradWeight::get_maxpart", "");
-    if(!weight_calculated) calc_termweight();
+    if (!weight_calculated) calc_termweight();
 
-    return termweight;
+    RETURN(termweight);
 }
 
 om_weight
 TradWeight::get_sumextra(om_doclength len) const
 {
     DEBUGCALL(MATCH, om_weight, "TradWeight::get_sumextra", len);
-    return 0;
+    RETURN(0);
 }
 
 om_weight
 TradWeight::get_maxextra() const
 {
     DEBUGCALL(MATCH, om_weight, "TradWeight::get_maxextra", "");
-    return 0;
+    RETURN(0);
 }

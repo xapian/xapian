@@ -79,7 +79,7 @@ AndNotPostList::get_termfreq_max() const
 {
     DEBUGCALL(MATCH, om_doccount, "AndNotPostList::get_termfreq_max", "");
     // Max is when as many docs as possible on left, and none excluded.
-    return l->get_termfreq_max();
+    RETURN(l->get_termfreq_max());
 }
 
 inline om_doccount
@@ -89,8 +89,8 @@ AndNotPostList::get_termfreq_min() const
     // Min is when as few docs as possible on left, and maximum are excluded.
     om_doccount l_min = l->get_termfreq_min();
     om_doccount r_max = r->get_termfreq_max();
-    if (l_min > r_max) return l_min - r_max;
-    return 0u;
+    if (l_min > r_max) RETURN(l_min - r_max);
+    RETURN(0u);
 }
 
 inline om_doccount
@@ -104,14 +104,14 @@ AndNotPostList::get_termfreq_est() const
 	    (l->get_termfreq_est() *
 	     (1.0 - static_cast<double>(r->get_termfreq_est()) / dbsize));
 
-    return est;
+    RETURN(est);
 }
 
 inline om_docid
 AndNotPostList::get_docid() const
 {
     DEBUGCALL(MATCH, om_docid, "AndNotPostList::get_docid", "");
-    return lhead;
+    RETURN(lhead);
 }
 
 // only called if we are doing a probabilistic AND NOT
@@ -119,7 +119,7 @@ inline om_weight
 AndNotPostList::get_weight() const
 {
     DEBUGCALL(MATCH, om_weight, "AndNotPostList::get_weight", "");
-    return l->get_weight();
+    RETURN(l->get_weight());
 }
 
 // only called if we are doing a probabilistic AND NOT
@@ -127,21 +127,21 @@ inline om_weight
 AndNotPostList::get_maxweight() const
 {
     DEBUGCALL(MATCH, om_weight, "AndNotPostList::get_maxweight", "");
-    return l->get_maxweight();
+    RETURN(l->get_maxweight());
 }
 
 inline om_weight
 AndNotPostList::recalc_maxweight()
 {
     DEBUGCALL(MATCH, om_weight, "AndNotPostList::recalc_maxweight", "");
-    return l->recalc_maxweight();
+    RETURN(l->recalc_maxweight());
 }
 
 inline bool
 AndNotPostList::at_end() const
 {
     DEBUGCALL(MATCH, bool, "AndNotPostList::at_end", "");
-    return lhead == 0;
+    RETURN(lhead == 0);
 }
 
 inline std::string
@@ -154,7 +154,7 @@ inline om_doclength
 AndNotPostList::get_doclength() const
 {
     DEBUGCALL(MATCH, om_doclength, "AndNotPostList::get_doclength", "");
-    return l->get_doclength();
+    RETURN(l->get_doclength());
 }
 
 #endif /* OM_HGUARD_ANDNOTPOSTLIST_H */

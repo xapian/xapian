@@ -30,7 +30,7 @@ AndNotPostList::advance_to_next_match(om_weight w_min, PostList *ret)
     handle_prune(l, ret);
     if (l->at_end()) {
 	lhead = 0;
-	return NULL;
+	RETURN(NULL);
     }
     lhead = l->get_docid();
 
@@ -39,7 +39,7 @@ AndNotPostList::advance_to_next_match(om_weight w_min, PostList *ret)
 	    next_handling_prune(l, w_min, matcher);
 	    if (l->at_end()) {
 		lhead = 0;
-		return NULL;
+		RETURN(NULL);
 	    }
 	    lhead = l->get_docid();
 	}
@@ -47,11 +47,11 @@ AndNotPostList::advance_to_next_match(om_weight w_min, PostList *ret)
 	if (r->at_end()) {
 	    ret = l;
 	    l = NULL;
-	    return ret;
+	    RETURN(ret);
 	}
 	rhead = r->get_docid();
     }
-    return NULL;
+    RETURN(NULL);
 }
 
 AndNotPostList::AndNotPostList(PostList *left_,
@@ -68,7 +68,7 @@ PostList *
 AndNotPostList::next(om_weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "AndNotPostList::next", w_min);
-    return advance_to_next_match(w_min, l->next(w_min));
+    RETURN(advance_to_next_match(w_min, l->next(w_min)));
 }
 
 PostList *
@@ -80,13 +80,13 @@ AndNotPostList::sync_and_skip_to(om_docid id,
     DEBUGCALL(MATCH, PostList *, "AndNotPostList::sync_and_skip_to", id << ", " << w_min << ", " << lh << ", " << rh);
     lhead = lh;
     rhead = rh;
-    return skip_to(id, w_min);
+    RETURN(skip_to(id, w_min));
 }
 
 PostList *
 AndNotPostList::skip_to(om_docid did, om_weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "AndNotPostList::skip_to", did << ", " << w_min);
-    if (did <= lhead) return NULL;
-    return advance_to_next_match(w_min, l->skip_to(did, w_min));
+    if (did <= lhead) RETURN(NULL);
+    RETURN(advance_to_next_match(w_min, l->skip_to(did, w_min)));
 }

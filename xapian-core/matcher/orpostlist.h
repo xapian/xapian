@@ -77,14 +77,14 @@ inline om_doccount
 OrPostList::get_termfreq_max() const
 {
     DEBUGCALL(MATCH, om_doccount, "OrPostList::get_termfreq_max", "");
-    return std::min(l->get_termfreq_max() + r->get_termfreq_max(), dbsize);
+    RETURN(std::min(l->get_termfreq_max() + r->get_termfreq_max(), dbsize));
 }
 
 inline om_doccount
 OrPostList::get_termfreq_min() const
 {
     DEBUGCALL(MATCH, om_doccount, "OrPostList::get_termfreq_min", "");
-    return std::max(l->get_termfreq_min(), r->get_termfreq_min());
+    RETURN(std::max(l->get_termfreq_min(), r->get_termfreq_min()));
 }
 
 inline om_doccount
@@ -95,15 +95,16 @@ OrPostList::get_termfreq_est() const
     // P(l or r) = P(l) + P(r) - P(l) . P(r)
     double lest = static_cast<double>(l->get_termfreq_est());
     double rest = static_cast<double>(r->get_termfreq_est());
-    return static_cast<om_doccount> (lest + rest - lest * rest / dbsize);
+    RETURN(static_cast<om_doccount> (lest + rest - lest * rest / dbsize));
 }
-
+#include <iostream.h>
 inline om_docid
 OrPostList::get_docid() const
 {
     DEBUGCALL(MATCH, om_docid, "OrPostList::get_docid", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
-    return std::min(lhead, rhead);
+cout << "OrPostList::get_docid() RETURN(ed " << std::min(lhead, rhead) << endl;
+    RETURN(std::min(lhead, rhead));
 }
 
 // only called if we are doing a probabilistic OR
@@ -112,9 +113,9 @@ OrPostList::get_weight() const
 {
     DEBUGCALL(MATCH, om_weight, "OrPostList::get_weight", "");
     Assert(lhead != 0 && rhead != 0); // check we've started
-    if (lhead < rhead) return l->get_weight();
-    if (lhead > rhead) return r->get_weight();
-    return l->get_weight() + r->get_weight();
+    if (lhead < rhead) RETURN(l->get_weight());
+    if (lhead > rhead) RETURN(r->get_weight());
+    RETURN(l->get_weight() + r->get_weight());
 }
 
 // only called if we are doing a probabilistic operation
@@ -122,7 +123,7 @@ inline om_weight
 OrPostList::get_maxweight() const
 {
     DEBUGCALL(MATCH, om_weight, "OrPostList::get_maxweight", "");
-    return lmax + rmax;
+    RETURN(lmax + rmax);
 }
 
 inline om_weight
@@ -132,7 +133,7 @@ OrPostList::recalc_maxweight()
     lmax = l->recalc_maxweight();
     rmax = r->recalc_maxweight();
     minmax = std::min(lmax, rmax);
-    return OrPostList::get_maxweight();
+    RETURN(OrPostList::get_maxweight());
 }
 
 inline bool
@@ -141,7 +142,7 @@ OrPostList::at_end() const
     DEBUGCALL(MATCH, bool, "OrPostList::at_end", "");
     // Can never really happen - OrPostList next/skip_to autoprune
     AssertParanoid(!(l->at_end()) && !(r->at_end()));
-    return false;
+    RETURN(false);
 }
 
 inline std::string
@@ -167,7 +168,7 @@ OrPostList::get_doclength() const
 		  << lhead << "] = " << doclength);
     }
 
-    return doclength;
+    RETURN(doclength);
 }
 
 #endif /* OM_HGUARD_ORPOSTLIST_H */

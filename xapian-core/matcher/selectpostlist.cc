@@ -32,7 +32,7 @@ SelectPostList::next(om_weight w_min)
 	(void)p;
 	Assert(p == NULL); // AND should never prune
     } while (!source->at_end() && !test_doc());
-    return NULL;
+    RETURN(NULL);
 }
 
 PostList *
@@ -45,5 +45,5 @@ SelectPostList::skip_to(om_docid did, om_weight w_min)
 	Assert(p == NULL); // AND should never prune
         if (!source->at_end() && !test_doc()) this->next(w_min);
     }
-    return NULL;
+    RETURN(NULL);
 }

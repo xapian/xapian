@@ -32,7 +32,7 @@ Document::get_key(om_keyno keyid) const
 {
     DEBUGCALL(MATCH, OmKey, "Document::get_key", keyid);
     OmLockSentry locksentry(mutex);
-    return do_get_key(keyid);
+    RETURN(do_get_key(keyid));
 }
 
 std::map<om_keyno, OmKey>
@@ -47,7 +47,7 @@ Document::get_data() const
 {
     DEBUGCALL(MATCH, OmData, "Document::get_data", "");
     OmLockSentry locksentry(mutex);
-    return do_get_data();
+    RETURN(do_get_data());
 }
 
 LeafTermList *
@@ -55,5 +55,5 @@ Document::open_term_list() const
 {
     DEBUGCALL(MATCH, LeafTermList *, "Document::open_term_list", "");
     OmLockSentry locksentry(mutex);
-    return database->open_term_list(did);
+    RETURN(database->open_term_list(did));
 }

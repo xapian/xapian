@@ -64,7 +64,7 @@ IRWeight::create_new(const OmSettings & opts)
     // Check that we have a weighting object
     Assert(weight != NULL);
 
-    return weight;
+    RETURN(weight);
 }
 
 void

@@ -57,11 +57,11 @@ NearPostList::test_doc()
     om_termpos pos;
     do {
 	plists[0]->next();
-	if (plists[0]->at_end()) return false;
+	if (plists[0]->at_end()) RETURN(false);
 	pos = plists[0]->get_position();
     } while (!do_test(plists, 1, pos, pos));
 
-    return true;
+    RETURN(true);
 }
 
 bool
@@ -78,14 +78,14 @@ NearPostList::do_test(std::vector<PositionList *> &plists, om_termcount i,
 	om_termpos pos = plists[i]->get_position();
 	DEBUGLINE(MATCH, "[" << i << "]: " << max - window + 1 << " " << min
 		  << " " << pos << " " << max << " " << min + window - 1);
-	if (pos > min + window - 1) return false;
-	if (i + 1 == plists.size()) return true;
+	if (pos > min + window - 1) RETURN(false);
+	if (i + 1 == plists.size()) RETURN(true);
 	if (pos < min) min = pos;
 	else if (pos > max) max = pos;
-	if (do_test(plists, i + 1, min, max)) return true;
+	if (do_test(plists, i + 1, min, max)) RETURN(true);
 	plists[i]->next();
     }
-    return false;
+    RETURN(false);
 }
 
 
@@ -113,7 +113,7 @@ PhrasePostList::test_doc()
 	plists[0]->next();
 	if (plists[0]->at_end()) {
 	    DEBUGLINE(MATCH, "--MISS--");
-	    return false;
+	    RETURN(false);
 	}
 	pos = plists[0]->get_position();
 	idx = plists[0]->index;
@@ -121,7 +121,7 @@ PhrasePostList::test_doc()
 	if (min > window) min -= window; else min = 0;
     } while (!do_test(plists, 1, min, pos + window - idx));
     DEBUGLINE(MATCH, "**HIT**");
-    return true;
+    RETURN(true);
 }
 
 bool
@@ -157,8 +157,8 @@ PhrasePostList::do_test(std::vector<PositionList *> &plists, om_termcount i,
     while (!plists[i]->at_end()) {
 	om_termpos pos = plists[i]->get_position();
 	DEBUGLINE(MATCH, " " << mymin << " " << pos << " " << mymax);
-	if (pos > mymax) return false;
-	if (i + 1 == plists.size()) return true;
+	if (pos > mymax) RETURN(false);
+	if (i + 1 == plists.size()) RETURN(true);
 	om_termpos tmp = pos + window - idxi;
 	if (tmp < max) max = tmp;
 	tmp = pos + plists.size() - idxi;
@@ -166,8 +166,8 @@ PhrasePostList::do_test(std::vector<PositionList *> &plists, om_termcount i,
 	    tmp -= window;
 	    if (tmp > min) min = tmp;
 	}
-	if (do_test(plists, i + 1, min, max)) return true;
+	if (do_test(plists, i + 1, min, max)) RETURN(true);
 	plists[i]->next();
     }
-    return false;
+    RETURN(false);
 }

@@ -27,34 +27,46 @@
 inline void
 FilterPostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
 {
-    DEBUGCALL(MATCH, void, "FilterPostList::process_next_or_skip_to", w_min << ", " << ret);
+    DEBUGLINE("ret = " << (void*)ret);
     head = 0;
-    handle_prune(r, ret);
+    // Don't call handle_prune - since r contributes no weight, we don't
+    // need to recalc_maxweight
+    if (ret) {
+	delete r;
+	r = ret;
+    }
+    DEBUGLINE("r at_end = " << r->at_end());
     if (r->at_end()) return;
 
     // r has just been advanced by next or skip_to so must be > head
     // (and head is the current position of l)
-    skip_to_handling_prune(l, r->get_docid(), w_min, matcher);
+    om_docid rhead = r->get_docid();
+    DEBUGLINE("rhead " << rhead);
+    DEBUGLINE("w_min " << w_min);
+    skip_to_handling_prune(l, rhead, w_min, matcher);
+    DEBUGLINE("l at_end = " << l->at_end());
     if (l->at_end()) return;
 
     om_docid lhead = l->get_docid();
-    om_docid rhead = r->get_docid();
+    DEBUGLINE("lhead " << lhead);
 
     while (lhead != rhead) {
 	if (lhead < rhead) {
 	    skip_to_handling_prune(l, rhead, w_min, matcher);
-	    if (l->at_end()) {
-		head = 0;
-		return;
-	    }
+	    DEBUGLINE("l at_end = " << l->at_end());
+	    if (l->at_end()) return;
 	    lhead = l->get_docid();
+	    DEBUGLINE("lhead " << lhead);
 	} else {
-	    skip_to_handling_prune(r, lhead, 0, matcher);
-	    if (r->at_end()) {
-		head = 0;
-		return;
+	    PostList *p = r->skip_to(lhead, 0);
+	    if (p) {
+		delete r;
+		r = p;
 	    }
+	    DEBUGLINE("r at_end = " << r->at_end());
+	    if (r->at_end()) return;
 	    rhead = r->get_docid();
+	    DEBUGLINE("rhead " << rhead);
 	}
     }
 
@@ -67,7 +79,7 @@ FilterPostList::next(om_weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "FilterPostList::next", w_min);
     process_next_or_skip_to(w_min, r->next(0));
-    return NULL;
+    RETURN(NULL);
 }
 
 PostList *
@@ -75,21 +87,21 @@ FilterPostList::skip_to(om_docid did, om_weight w_min)
 {
     DEBUGCALL(MATCH, PostList *, "FilterPostList::skip_to", did << ", " << w_min);
     if (did > head) process_next_or_skip_to(w_min, r->skip_to(did, 0));
-    return NULL;
+    RETURN(NULL);
 }
 
 om_weight
 FilterPostList::get_weight() const
 {
     DEBUGCALL(MATCH, om_weight, "FilterPostList::get_weight", "");
-    return l->get_weight();
+    RETURN(l->get_weight());
 }
 
 om_weight
 FilterPostList::get_maxweight() const
 {
     DEBUGCALL(MATCH, om_weight, "FilterPostList::get_maxweight", "");
-    return l->get_maxweight();
+    RETURN(lmax);
 }
 
 om_weight
@@ -97,7 +109,7 @@ FilterPostList::recalc_maxweight()
 {
     DEBUGCALL(MATCH, om_weight, "FilterPostList::recalc_maxweight", "");
     lmax = l->recalc_maxweight();
-    return lmax;
+    RETURN(lmax);
 }
 
 std::string

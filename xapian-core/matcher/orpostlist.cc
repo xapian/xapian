@@ -36,6 +36,7 @@ OrPostList::OrPostList(PostList *left_,
     DEBUGCALL(MATCH, void, "OrPostList", left_ << ", " << right_ << ", " << matcher_ << ", " << dbsize_);
 }
 
+#include <iostream.h>
 PostList *
 OrPostList::next(om_weight w_min)
 {
@@ -63,7 +64,7 @@ OrPostList::next(om_weight w_min)
 	}
 
 	l = r = NULL;
-	return ret;
+	RETURN(ret);
     }
 
     bool ldry = false;
@@ -82,19 +83,19 @@ OrPostList::next(om_weight w_min)
         if (r->at_end()) {
 	    PostList *ret = l;
 	    l = NULL;
-	    return ret;
+	    RETURN(ret);
 	}
 	rhead = r->get_docid();
     }
 
     if (!ldry) {
 	lhead = l->get_docid();
-	return NULL;
+	RETURN(NULL);
     }
 
     PostList *ret = r;
     r = NULL;
-    return ret;
+    RETURN(ret);
 }
 
 PostList *
@@ -124,7 +125,7 @@ OrPostList::skip_to(om_docid did, om_weight w_min)
 
 	l = r = NULL;
 	skip_to_handling_prune(ret, did, w_min, matcher);
-	return ret;
+	RETURN(ret);
     }
 
     bool ldry = false;
@@ -139,17 +140,17 @@ OrPostList::skip_to(om_docid did, om_weight w_min)
 	if (r->at_end()) {
 	    PostList *ret = l;
 	    l = NULL;
-	    return ret;
+	    RETURN(ret);
 	}
 	rhead = r->get_docid();
     }
 
     if (!ldry) {
 	lhead = l->get_docid();
-	return NULL;
+	RETURN(NULL);
     }
 
     PostList *ret = r;
     r = NULL;
-    return ret;
+    RETURN(ret);
 }

@@ -52,17 +52,17 @@ OrTermList::next()
 	if (r->at_end()) {
 	    TermList *ret = l;
 	    l = NULL;
-	    return ret;
+	    RETURN(ret);
 	}
 	rhead = r->get_termname();
     }
 
     if (!ldry) {
 	lhead = l->get_termname();
-	return NULL;
+	RETURN(NULL);
     }
 
     TermList *ret = r;
     r = NULL;
-    return ret;
+    RETURN(ret);
 }

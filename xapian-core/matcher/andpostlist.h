@@ -80,14 +80,14 @@ inline om_doccount
 AndPostList::get_termfreq_max() const
 {
     DEBUGCALL(MATCH, om_doccount, "AndPostList::get_termfreq_max", "");
-    return std::min(l->get_termfreq_max(), r->get_termfreq_max());
+    RETURN(std::min(l->get_termfreq_max(), r->get_termfreq_max()));
 }
 
 inline om_doccount
 AndPostList::get_termfreq_min() const
 {
     DEBUGCALL(MATCH, om_doccount, "AndPostList::get_termfreq_min", "");
-    return 0u;
+    RETURN(0u);
 }
 
 inline om_doccount
@@ -98,14 +98,14 @@ AndPostList::get_termfreq_est() const
     // P(l and r) = P(l) . P(r)
     double lest = static_cast<double>(l->get_termfreq_est());
     double rest = static_cast<double>(r->get_termfreq_est());
-    return static_cast<om_doccount> (lest * rest / dbsize);
+    RETURN(static_cast<om_doccount> (lest * rest / dbsize));
 }
 
 inline om_docid
 AndPostList::get_docid() const
 {
     DEBUGCALL(MATCH, om_docid, "AndPostList::get_docid", "");
-    return head;
+    RETURN(head);
 }
 
 // only called if we are doing a probabilistic AND
@@ -113,7 +113,7 @@ inline om_weight
 AndPostList::get_weight() const
 {
     DEBUGCALL(MATCH, om_weight, "AndPostList::get_weight", "");
-    return l->get_weight() + r->get_weight();
+    RETURN(l->get_weight() + r->get_weight());
 }
 
 // only called if we are doing a probabilistic operation
@@ -121,7 +121,7 @@ inline om_weight
 AndPostList::get_maxweight() const
 {
     DEBUGCALL(MATCH, om_weight, "AndPostList::get_maxweight", "");
-    return lmax + rmax;
+    RETURN(lmax + rmax);
 }
 
 inline om_weight
@@ -130,14 +130,14 @@ AndPostList::recalc_maxweight()
     DEBUGCALL(MATCH, om_weight, "AndPostList::recalc_maxweight", "");
     lmax = l->recalc_maxweight();
     rmax = r->recalc_maxweight();
-    return AndPostList::get_maxweight();
+    RETURN(AndPostList::get_maxweight());
 }
 
 inline bool
 AndPostList::at_end() const
 {
     DEBUGCALL(MATCH, bool, "AndPostList::at_end", "");
-    return head == 0;
+    RETURN(head == 0);
 }
 
 inline std::string
@@ -153,7 +153,7 @@ AndPostList::get_doclength() const
     om_doclength doclength = l->get_doclength();
     DEBUGLINE(MATCH, "docid=" << head);
     AssertEqDouble(l->get_doclength(), r->get_doclength());
-    return doclength;
+    RETURN(doclength);
 }
 
 #endif /* OM_HGUARD_ANDPOSTLIST_H */

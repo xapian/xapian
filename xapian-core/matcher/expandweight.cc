@@ -82,7 +82,7 @@ OmExpandWeight::get_bits(om_termcount wdf,
 	      average_length << ") => normalised_length = " <<
 	      normalised_length);
 
-    if(wdf > 0) {
+    if (wdf > 0) {
 	// FIXME -- use alpha, document importance
 	// FIXME -- lots of repeated calculation here - have a weight for each
 	// termlist, so can cache results?
@@ -102,7 +102,7 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
 {
     DEBUGCALL(MATCH, om_weight, "OmExpandWeight::get_weight", "[bits], " << tname);
     double termfreq = (double)bits.termfreq;
-    if(bits.dbsize != dbsize) {
+    if (bits.dbsize != dbsize) {
 	if (bits.dbsize > 0 && !use_exact_termfreq) {
 	    termfreq *= (double) dbsize / (double)bits.dbsize;
 	    DEBUGLINE(WTCALC, "Approximating termfreq of `" << tname << "': " <<
@@ -144,8 +144,8 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
     DEBUGLINE(WTCALC, " => Term weight = " << tw <<
 	      " Expand weight = " << bits.multiplier * tw);
 
-    //return(rtermfreq * tw);
-    return(bits.multiplier * tw);
+    //RETURN(rtermfreq * tw);
+    RETURN(bits.multiplier * tw);
 }
 
 // Provide an upper bound on the values which may be returned as weights
@@ -154,5 +154,5 @@ OmExpandWeight::get_maxweight() const
 {
     DEBUGCALL(MATCH, om_weight, "OmExpandWeight::get_maxweight", "");
     // FIXME - check the maths behind this.
-    return(log(4.0 * (rsize + 0.5) * (dbsize - rsize + 0.5)) * rsize);
+    RETURN(log(4.0 * (rsize + 0.5) * (dbsize - rsize + 0.5)) * rsize);
 }

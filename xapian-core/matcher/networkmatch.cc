@@ -67,7 +67,7 @@ RemoteSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
 {
     DEBUGCALL(MATCH, PostList *, "RemoteSubMatch::get_postlist", maxitems << ", " << matcher);
     postlist = new PendingMSetPostList(db, maxitems);
-    return postlist;
+    RETURN(postlist);
 }
 
 bool
@@ -79,7 +79,7 @@ RemoteSubMatch::prepare_match(bool nowait)
 
 	if (!finished_query) {
 	    if (nowait) {
-		return false;
+		RETURN(false);
 	    } else {
 		do {
 		    db->link->wait_for_input();
@@ -92,7 +92,7 @@ RemoteSubMatch::prepare_match(bool nowait)
 	Stats mystats;
 	bool read_remote_stats = db->link->get_remote_stats(mystats);
 	if (!read_remote_stats) {
-	    if (nowait) return false;
+	    if (nowait) RETURN(false);
 	    do {
 		db->link->wait_for_input();
 	    } while (!db->link->get_remote_stats(mystats));
@@ -101,7 +101,7 @@ RemoteSubMatch::prepare_match(bool nowait)
 
 	is_prepared = true;
     }
-    return true;
+    RETURN(true);
 }
 
 void

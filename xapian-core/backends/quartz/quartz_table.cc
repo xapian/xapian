@@ -30,7 +30,7 @@
 #include <errno.h>
 #include "omdebug.h"
 
-#ifdef DEBUG_VERBOSE
+#ifdef MUS_DEBUG_VERBOSE
 static std::string hex_encode(const std::string & input) {
     const char * table = "0123456789abcdef";
     std::string result;

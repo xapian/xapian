@@ -40,7 +40,7 @@ WeightCutoffPostList::next(om_weight w_min)
     do {
 	(void) next_handling_prune(pl, w_min, matcher);
     } while ((!pl->at_end()) && pl->get_weight() < w_min);
-    return NULL;
+    RETURN(NULL);
 }
 
 PostList *
@@ -53,10 +53,10 @@ WeightCutoffPostList::skip_to(om_docid did, om_weight w_min)
 	// it moves forward past did, or that the weight is taken into account.
 	(void) skip_to_handling_prune(pl, did, w_min, matcher);
 
-	if (pl->at_end()) return NULL;
+	if (pl->at_end()) RETURN(NULL);
 	did += 1; // To ensure that skipping further ahead happens.
     } while (pl->get_weight() < w_min);
 
-    return NULL;
+    RETURN(NULL);
 }
 
