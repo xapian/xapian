@@ -27,13 +27,14 @@
 #include <map>
 #include "omdebug.h"
 #include "om/omenquire.h"
+#include "omenquireinternal.h"
 
 class Database;
 class StatsSource;
 
 class RSetItem {
     public:
-	RSetItem(om_docid did_new) : did(did_new) { return; }
+	RSetItem(om_docid did_new) : did(did_new) { }
 	om_docid did;
 };
 
@@ -78,24 +79,26 @@ RSet::RSet(const OmDatabase &root_)
 	: root(root_), dbroot(NULL), calculated_reltermfreqs(false)
 {}
 
-// Initialise with an OMRset
+// Initialise with an OmRSet
 inline
 RSet::RSet(const OmDatabase &root_, const OmRSet & omrset)
 	: root(root_), dbroot(NULL), calculated_reltermfreqs(false)
 {
     std::set<om_docid>::const_iterator i;
-    for (i = omrset.items.begin(); i != omrset.items.end(); i++) {
+    for (i = omrset.internal->items.begin();
+	 i != omrset.internal->items.end(); i++) {
 	add_document(*i);
     }
 }
 
-// Initialise with an OMRset
+// Initialise with an OmRSet
 inline
 RSet::RSet(const Database *dbroot_, const OmRSet & omrset)
 	: dbroot(dbroot_), calculated_reltermfreqs(false)
 {
     std::set<om_docid>::const_iterator i;
-    for (i = omrset.items.begin(); i != omrset.items.end(); i++) {
+    for (i = omrset.internal->items.begin();
+	 i != omrset.internal->items.end(); i++) {
 	add_document(*i);
     }
 }

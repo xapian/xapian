@@ -98,8 +98,8 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
     om_doccount number_of_leaves = internal->databases.size();
     std::vector<OmRSet> subrsets(number_of_leaves);
 
-    for (std::set<om_docid>::const_iterator reldoc = omrset.items.begin();
-	 reldoc != omrset.items.end(); reldoc++) {
+    for (std::set<om_docid>::const_iterator reldoc = omrset.internal->items.begin();
+	 reldoc != omrset.internal->items.end(); reldoc++) {
 	om_doccount local_docid = ((*reldoc) - 1) / number_of_leaves + 1;
 	om_doccount subdatabase = ((*reldoc) - 1) % number_of_leaves;
 	subrsets[subdatabase].add_document(local_docid);
@@ -128,7 +128,7 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
     }
     Assert(subrset == subrsets.end());
 
-    gatherer->set_global_stats(omrset.items.size());
+    gatherer->set_global_stats(omrset.size());
     prepare_matchers();
 
     if (!opts.get_bool("match_sort_forward", true)) {

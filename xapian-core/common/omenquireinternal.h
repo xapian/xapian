@@ -155,4 +155,24 @@ class OmESet::Internal {
 	std::string get_description() const;
 };
 
+class RSet;
+
+class OmRSet::Internal {
+    friend class OmRSet;
+    friend class RSet;
+    friend class OmExpand;
+    friend class MultiMatch;
+    friend std::string omrset_to_string(const OmRSet &omrset);
+
+    private:
+	/// Items in the relevance set.
+	std::set<om_docid> items;
+
+    public:
+	/** Returns a string representing the rset.
+	 *  Introspection method.
+	 */
+	std::string get_description() const;
+};
+
 #endif // OM_HGUARD_OMENQUIREINTERNAL_H

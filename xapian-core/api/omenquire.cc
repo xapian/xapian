@@ -83,8 +83,34 @@ OmExpandDeciderAnd::operator()(const om_termname &tname) const
 // Methods for OmRSet //
 ////////////////////////
 
+om_doccount
+OmRSet::size() const
+{
+    return internal->items.size();
+}
+
+void
+OmRSet::add_document(om_docid did)
+{
+    internal->items.insert(did);
+}
+
+void
+OmRSet::remove_document(om_docid did)
+{
+    std::set<om_docid>::iterator i = internal->items.find(did);
+    if (i != internal->items.end()) internal->items.erase(i);
+}
+
 std::string
 OmRSet::get_description() const
+{
+    DEBUGCALL(INTRO, std::string, "OmRSet::get_description", "");
+    RETURN("OmRSet(" + internal->get_description() + ")");
+}
+
+std::string
+OmRSet::Internal::get_description() const
 {
     DEBUGCALL(INTRO, std::string, "OmRSet::get_description", "");
     std::string description;
@@ -445,7 +471,7 @@ OmEnquire::Internal::get_eset(om_termcount maxitems,
     OmExpand expand(db);
     RSet rset(db, omrset);
 
-    DEBUGLINE(API, "rset size is " << omrset.items.size());
+    DEBUGLINE(API, "rset size is " << omrset.size());
 
     OmExpandDeciderAlways decider_always;
     if (edecider == 0) edecider = &decider_always;

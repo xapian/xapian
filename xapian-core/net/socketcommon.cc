@@ -37,6 +37,7 @@
 #include "om/omenquire.h"
 #include "om/omdocument.h"
 #include "omlinebuf.h"
+#include "omenquireinternal.h"
 
 OmQuery::Internal qfs_readcompound();
 
@@ -533,10 +534,10 @@ string_to_moptions(const std::string &s)
 std::string
 omrset_to_string(const OmRSet &omrset)
 {
-    std::string result = om_tostring(omrset.items.size());
+    std::string result = om_tostring(omrset.size());
 
-    for (std::set<om_docid>::const_iterator i = omrset.items.begin();
-	 i != omrset.items.end();
+    for (std::set<om_docid>::const_iterator i = omrset.internal->items.begin();
+	 i != omrset.internal->items.end();
 	 ++i) {
 	result += " ";
 	result += om_tostring(*i);
@@ -746,7 +747,7 @@ string_to_omrset(const std::string &s)
     is >> numitems;
 
     while (numitems-- && (is >> did)) {
-	omrset.items.insert(did);
+	omrset.add_document(did);
     }
 
     return omrset;

@@ -328,16 +328,18 @@ class OmESet {
  */
 
 class OmRSet {
-    private:
-    public:
-	/** Items in the relevance set.
-	 *  These can be altered directly if desired. */
-	std::set<om_docid> items;
+    public: // FIXME: public Internals not ideal
+	class Internal;
+	
+	Internal *internal; // reference counted internals
 
-	/** Add a document to the relevance set. */
+    public:
+	om_doccount size() const;
+
+	/// Add a document to the relevance set.
 	void add_document(om_docid did);
 
-	/** Remove a document from the relevance set. */
+	/// Remove a document from the relevance set.
 	void remove_document(om_docid did);
 
 	/** Returns a string representing the rset.
@@ -345,22 +347,6 @@ class OmRSet {
 	 */
 	std::string get_description() const;
 };
-
-// FIXME - probably shouldn't have implementation here, but since we're
-// exposing the set anyway, maybe it doesn't matter.  But should we expose
-// the set?
-inline void
-OmRSet::add_document(om_docid did)
-{
-    items.insert(did);
-}
-
-inline void
-OmRSet::remove_document(om_docid did)
-{
-    std::set<om_docid>::iterator i = items.find(did);
-    if(i != items.end()) items.erase(i);
-}
 
 /** Base class for matcher decision functor.
  */
