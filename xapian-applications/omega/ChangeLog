@@ -1,3 +1,8 @@
+Mon Sep 20 14:49:26 BST 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Require same versions of autoconf and
+	  automake that xapian-core does.
+
 Mon Sep 20 14:45:53 BST 2004  Olly Betts <olly@survex.com>
 
 	* omega.spec.in: Update from Fabrice Colin.  The most notable change
