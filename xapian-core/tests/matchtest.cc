@@ -1,12 +1,12 @@
 #include <stdio.h>
 
-#include "proto_database.h"
+#include "da_database.h"
 #include "match.h"
 #include "stem.h"
 
 int main(int argc, char *argv[]) {
     try {
-        ProtoDatabase database;
+        DADatabase database;
 	database.open("testdir", 0);
        
         Match match(&database);
