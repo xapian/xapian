@@ -46,11 +46,12 @@ class ReverseNode : public OmIndexerNode {
 	void calculate() {
 	    Message in = get_input_record("in");
 
-	    Record out;
+	    Record out(*in);
 	    out.name = reverse_string(in->name);
 	    if (out.type == mt_string) {
 		*out.u.string_val = reverse_string(*out.u.string_val);
 	    }
+	    //cout << "Turned " << in << " into " << out << endl;
 
 	    set_output_record("out", out);
 	}

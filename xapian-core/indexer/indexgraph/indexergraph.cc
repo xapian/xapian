@@ -30,6 +30,7 @@ class OmIndexerStartNode : public OmIndexerNode
 	OmIndexerStartNode() {}
 
 	void set_message(Message msg) {
+	    //cout << "Setting message:" << msg << endl;
 	    message = msg;
 	};
     private:

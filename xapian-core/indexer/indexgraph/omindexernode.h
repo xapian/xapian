@@ -73,6 +73,9 @@ class Record {
 
 typedef auto_ptr<Record> Message;
 
+std::ostream &operator<<(std::ostream &os, const Message &message);
+std::ostream &operator<<(std::ostream &os, const Record &record);
+
 class OmIndexerNode {
     public:
 	/** Used by the graph builder to connect nodes together. */

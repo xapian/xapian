@@ -48,7 +48,6 @@ int main() {
 	Message result = indexer->get_output();
 
 	cout << "Name: " << result->name << endl;
-	cout << "Value: " << *result->u.string_val << endl; // BAD!
 	switch (result->type) {
 	    case mt_int:
 		cout << result->u.int_val;
@@ -57,7 +56,7 @@ int main() {
 		cout << result->u.double_val;
 		break;
 	    case mt_string:
-		cout << result->u.string_val;
+		cout << *result->u.string_val;
 		break;
 	    case mt_vector:
 		cout << "Vector";

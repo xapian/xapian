@@ -74,13 +74,13 @@ OmIndexerNode::config_modified(const std::string &key)
 {
 }
 
-Record::Record() : type(mt_int)
+Record::Record() : name(), type(mt_int)
 {
     u.int_val = 0;
 }
 
 Record::Record(const Record &other)
-	: type(other.type)
+	: name(other.name), type(other.type)
 {
     switch (type) {
 	case mt_int:
@@ -158,6 +158,7 @@ Record::swap(Record &other) {
 	    break;
     }
     /* finally swap type */
+    std::swap(name, other.name);
     std::swap(type, other.type);
 }
 
@@ -192,6 +193,8 @@ OmIndexerNode::connect_input(const std::string &input_name,
 void OmIndexerNode::set_output_record(const std::string &output_name,
 				      const Record &value)
 {
+    /*cout << "Setting output \"" << output_name
+	 << "\" to record:" << value << endl; */
     // TODO: check that it isn't already set?
     outputs_record[output_name] = value;
 }
@@ -207,6 +210,32 @@ Message OmIndexerNode::get_input_record(const std::string &input_name)
     } else {
 	return i->second.node->get_output_record(i->second.node_output);
     }
+}
+
+std::ostream &operator<<(std::ostream &os, const Record &record)
+{
+    os << "Record{";
+    switch (record.type) {
+	case mt_int:
+	    os << "int}: " << record.name << "=" << record.u.int_val;
+	    break;
+	case mt_double:
+	    os << "double}: " << record.name << "=" << record.u.double_val;
+	    break;
+	case mt_string:
+	    os << "string}: " << record.name << "=" << *record.u.string_val;
+	    break;
+	case mt_vector:
+	    os << "vector}: length " << record.name << "=" << record.u.vector_val->size();
+	    break;
+    }
+    return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const Message &message)
+{
+    os << "Message: " << *message;
+    return os;
 }
 
 #if 0
