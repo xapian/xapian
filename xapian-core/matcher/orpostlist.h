@@ -20,6 +20,7 @@ class OrPostList : public virtual PostList {
 	bool   at_end() const;
 
         OrPostList(PostList *, PostList *);
+        OrPostList() {}
         ~OrPostList();
 };
 

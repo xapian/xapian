@@ -1,5 +1,8 @@
 // boolean AND of two posting lists
 
+#ifndef _andpostlist_h_
+#define _andpostlist_h_
+
 #include "database.h"
 #include "orpostlist.h"
 
@@ -30,3 +33,5 @@ AndPostList::get_docid() const
 {
     return lhead; // lhead and rhead are always equal between method calls
 }
+
+#endif /* _andpostlist_h_ */

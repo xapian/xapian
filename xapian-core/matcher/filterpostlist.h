@@ -1,6 +1,7 @@
 // apply a boolean posting list as a filter to a probabilistic posting list
 
 #include "database.h"
+#include "andpostlist.h"
 
 // FilterPostList(probabilistic, boolean)
 

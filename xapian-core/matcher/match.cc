@@ -3,6 +3,7 @@
 #include "andpostlist.h"
 #include "orpostlist.h"
 #include "andnotpostlist.h"
+#include "filterpostlist.h"
 
 #include <algorithm>
 
@@ -126,7 +127,9 @@ Match::match(void)
 	pq.push(merger);
     }
 
-    if(boolmerger) merger = boolmerger;
+    if(boolmerger) {
+	merger = new FilterPostList(merger, boolmerger);
+    }
     
     doccount msize = 0, mtotal = 0;
     weight w_min = 0;
