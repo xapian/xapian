@@ -210,10 +210,17 @@ InMemoryDatabase::replace_document(Xapian::docid did,
     DEBUGLINE(DB, "InMemoryDatabase::replace_document(): replacing doc "
 	          << did);
 
-    doclists[did - 1] = "";
-    valuelists[did - 1].clear();
-    totlen -= doclengths[did - 1];
-    totdocs--;
+    if (doc_exists(did)) { 
+	doclists[did - 1] = "";
+	valuelists[did - 1].clear();
+	totlen -= doclengths[did - 1];
+	totdocs--;
+    } else if (did > termlists.size()) {
+	termlists.resize(did);
+	doclengths.resize(did);
+	doclists.resize(did);
+	valuelists.resize(did);
+    }
 
     vector<InMemoryPosting>::const_iterator i;
     for (i = termlists[did - 1].terms.begin();
