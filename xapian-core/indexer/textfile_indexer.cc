@@ -55,7 +55,8 @@ TextfileIndexer::add_source(const IndexerSource &source)
 	    select_characters(word, "");
 	    lowercase_term(word);
 	    word = stemmer.stem_word(word);
-	    dest->make_posting(dest->make_term(word), did, position++);
+	    dest->make_term(word);
+	    dest->make_posting(word, did, position++);
 	    para = para.erase(0, spacepos);
 	}
     }

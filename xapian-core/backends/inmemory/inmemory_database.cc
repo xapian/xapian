@@ -74,10 +74,12 @@ DBPostList *
 TextfileDatabase::open_post_list(const termname & tname, RSet *rset) const
 {
     Assert(opened);
-    termid tid = term_name_to_id(tname);
-    Assert(tid != 0);
+    Assert(term_exists(tname));
 
-    return new TextfilePostList(root, this, postlists[tid - 1], tname, rset);
+    map<termname, TextfileTerm>::const_iterator i = postlists.find(tname);
+    Assert(i != postlists.end());
+
+    return new TextfilePostList(root, this, i->second, tname, rset);
 }
 
 TermList *
@@ -130,7 +132,7 @@ TextfileDatabase::make_term(const termname &tname)
 	tid = termvec.size() + 1;
 	termvec.push_back(tname);
 	termidmap[tname] = tid;
-	postlists.push_back(TextfileTerm());
+	postlists[tname];  // Initialise
     } else {
 	tid = (*p).second;
     }
@@ -152,22 +154,24 @@ TextfileDatabase::make_doc(const docname &dname)
     return termlists.size();
 }
 
-void TextfileDatabase::make_posting(termid tid, docid did, termcount position)
+void TextfileDatabase::make_posting(const termname & tname,
+				    docid did,
+				    termcount position)
 {
     Assert(indexing == true);
     Assert(opened == false);
-    Assert(tid > 0 && tid <= postlists.size());
+    Assert(postlists.find(tname) != postlists.end());
     Assert(did > 0 && did <= termlists.size());
     Assert(did > 0 && did <= doclengths.size());
 
     // Make the posting
     TextfilePosting posting;
-    posting.tid = tid;
+    posting.tname = tname;
     posting.did = did;
     posting.positions.push_back(position);
 
     // Now record the posting
-    postlists[tid - 1].add_posting(posting);
+    postlists[tname].add_posting(posting);
     termlists[did - 1].add_posting(posting);
     doclengths[did - 1] += posting.positions.size();
     totlen += posting.positions.size();

@@ -20,18 +20,18 @@
 class TextfilePosting {
     public:
 	docid did;
-	termid tid;
+	termname tname;
 	vector<termcount> positions; // Sorted list of positions
 
 	// Merge two postings (same term/doc pair, new positional info)
 	void merge(const TextfilePosting & post) {
 	    Assert(did == post.did);
-	    Assert(tid == post.tid);
+	    Assert(tname == post.tname);
 
 	    positions.insert(positions.end(),
 			     post.positions.begin(),
 			     post.positions.end());
-	    // FIXME - inefficient
+	    // FIXME - inefficient - use merge (and list<>)?
 	    sort(positions.begin(), positions.end());
 	}
 };
@@ -46,11 +46,11 @@ class TextfilePostingLessByDocId {
 };
 
 // Compare by term ID
-class TextfilePostingLessByTermId {
+class TextfilePostingLessByTermName {
     public:
 	int operator() (const TextfilePosting &p1, const TextfilePosting &p2)
 	{
-	    return p1.tid < p2.tid;
+	    return p1.tname < p2.tname;
 	}
 };
 
@@ -81,8 +81,8 @@ class TextfileDoc {
 	    vector<TextfilePosting>::iterator p;
 	    p = lower_bound(terms.begin(), terms.end(),
 			    post,
-			    TextfilePostingLessByTermId());
-	    if(p == terms.end() || TextfilePostingLessByTermId()(post, *p)) {
+			    TextfilePostingLessByTermName());
+	    if(p == terms.end() || TextfilePostingLessByTermName()(post, *p)) {
 		terms.insert(p, post);
 	    } else {
 		(*p).merge(post);
@@ -160,7 +160,7 @@ class TextfileDatabase : public virtual IRDatabase,
 	map<termname, termid> termidmap;
 	vector<termname> termvec;
 
-	vector<TextfileTerm> postlists;
+	map<termname, TextfileTerm> postlists;
 	vector<TextfileDoc> termlists;
 	vector<string> doclists;
 
@@ -188,7 +188,7 @@ class TextfileDatabase : public virtual IRDatabase,
 
 	doccount  get_doccount() const;
 	doclength get_avlength() const;
-	doccount get_termfreq(termid) const;  // Number of docs indexed by term
+	doccount get_termfreq(const termname &) const; // Numb of docs indexed by term
 
 	DBPostList * open_post_list(const termname&, RSet *) const;
 	TermList * open_term_list(docid) const;
@@ -198,7 +198,7 @@ class TextfileDatabase : public virtual IRDatabase,
 
 	termid make_term(const termname &);
 	docid make_doc(const docname &);
-	void make_posting(termid, docid, termcount);
+	void make_posting(const termname &, docid, termcount);
 
 	const string get_database_path() const;
 };
@@ -291,7 +291,7 @@ inline termname TextfileTermList::get_termname() const
 {
     Assert(started);
     Assert(!at_end());
-    return this_db->term_id_to_name((*pos).tid);
+    return (*pos).tname;
 }
 
 inline termcount TextfileTermList::get_wdf() const
@@ -306,7 +306,7 @@ inline doccount TextfileTermList::get_termfreq() const
     Assert(started);
     Assert(!at_end());
 
-    return this_db->get_termfreq((*pos).tid);
+    return this_db->get_termfreq((*pos).tname);
 }
 
 inline TermList * TextfileTermList::next()
@@ -330,6 +330,9 @@ inline bool TextfileTermList::at_end() const
 
 
 
+//////////////////////////////////////////////
+// Inline function definitions for database //
+//////////////////////////////////////////////
 
 inline doccount
 TextfileDatabase::get_doccount() const
@@ -348,12 +351,14 @@ TextfileDatabase::get_avlength() const
 }
 
 inline doccount
-TextfileDatabase::get_termfreq(termid tid) const
+TextfileDatabase::get_termfreq(const termname & tname) const
 {
     Assert(opened);
-    Assert(tid > 0 && tid <= postlists.size());
+    Assert(term_exists(tname));
 
-    return postlists[tid - 1].docs.size();
+    map<termname, TextfileTerm>::const_iterator i = postlists.find(tname);
+    Assert(i != postlists.end());
+    return i->second.docs.size();
 }
 
 inline doclength

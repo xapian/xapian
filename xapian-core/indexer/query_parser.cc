@@ -61,8 +61,13 @@ QueryParser::make_doc(const docname &dname)
 { return 1; }
 
 void
-QueryParser::make_posting(termid tid, docid did, termcount tpos)
+QueryParser::make_posting(const termname &tname, docid did, termcount tpos)
 {
+    map<termname,termid>::const_iterator p = termidmap.find(tname);
+    Assert(p != termidmap.end());
+
+    termid tid = (*p).second;
     Assert(tid > 0 && tid <= termvec.size());
+
     termvec[tid - 1].add_posting(tpos);
 }

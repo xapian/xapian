@@ -7,6 +7,7 @@
 #include "indexer.h"
 #include <vector>
 #include <map>
+#include <algorithm>
 
 class QueryTerm {
     public:
@@ -16,7 +17,10 @@ class QueryTerm {
 	QueryTerm(termname tname_new) : tname(tname_new)  { return; }
 
 	void add_posting(termcount pos) {
+	    // FIXME - inefficient (speed)
+	    // FIXME - inefficient (space, if we don't need the positional info)
 	    positions.push_back(pos);
+	    sort(positions.begin(), positions.end());
 	}
 	
 	termcount get_wqf() {
@@ -47,7 +51,7 @@ class QueryParser : public virtual IndexerDestination {
 	
 	termid  make_term(const termname &);
 	docid   make_doc(const docname &);
-	void    make_posting(termid, docid, termcount);
+	void    make_posting(const termname &, docid, termcount);
 };
 
 #endif /* _query_parser_h_ */

@@ -20,7 +20,7 @@ class IndexerDestination {
     public:
 	virtual termid make_term(const termname &) = 0;
 	virtual docid make_doc(const docname &) = 0;
-	virtual void make_posting(termid, docid, termcount) = 0;
+	virtual void make_posting(const termname &, docid, termcount) = 0;
 };
 
 // A way to generate terms from sources
