@@ -28,6 +28,10 @@
 #include "testsuite.h"
 #include "omrefcnt.h"
 
+#ifdef MUS_BUILD_BACKEND_SLEEPY
+#include "../backends/sleepy/sleepy_list.h"
+#endif
+
 // always succeeds
 bool test_trivial();
 // always fails (for testing the framework)
@@ -39,12 +43,18 @@ bool test_testsuite2();
 bool test_refcnt1();
 // test string comparisions
 bool test_stringcomp1();
+// test whether a SleepyList packs and unpacks correctly
+bool test_sleepypack1();
 
 test_desc tests[] = {
     {"testsuite1",		test_testsuite1},
     {"testsuite2",		test_testsuite2},
     {"refcnt1",			test_refcnt1},
     {"stringcomp1",		test_stringcomp1},
+
+#ifdef MUS_BUILD_BACKEND_SLEEPY
+    {"sleepypack1",		test_sleepypack1},
+#endif
     {0, 0}
 };
 
@@ -298,3 +308,32 @@ bool test_stringcomp1()
 
     return success;
 }
+
+#ifdef MUS_BUILD_BACKEND_SLEEPY
+bool test_sleepypack1()
+{
+    bool success = true;
+
+    SleepyListItem::id_type id = 7;
+    om_doccount termfreq = 92;
+    om_termcount wdf = 81;
+    const vector<om_termpos> positions;
+    positions.push_back(6);
+    positions.push_back(16);
+
+    SleepyListItem item1(id, termfreq, wdf, positions);
+    string packed1 = item1.pack();
+    SleepyListItem item2(packed1);
+    string packed2 = item2.pack();
+
+    if(packed1 != packed2) {
+	success = false;
+	if(verbose) {
+	    cout << "Packed items were not equal ('" << packed1 <<
+		    "' and '" << packed2 << "'" << endl;
+	}
+    }
+
+    return success;
+}
+#endif

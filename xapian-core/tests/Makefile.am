@@ -6,6 +6,10 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 # ie: when we have an API
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
+# These are for internal test - should be removed, and internal test
+# split into bits among the sources.
+INCLUDES += -I/usr/local/BerkeleyDB/include -I/usr/include/db2
+
 if HAVE_PERL
 PERLTESTS = stemtest.pl
 else
