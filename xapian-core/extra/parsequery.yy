@@ -252,11 +252,22 @@ yylex()
 	string term;
 	bool already_stemmed = !qp->stem;
 	string::iterator term_end;
+more_term:
 	term_end = find_if(qptr, q.end(), p_notalnum);
 	if (term_end != q.end()) {
-	    string::iterator end2 = find_if(term_end, q.end(), p_notplusminus);
-	    if (end2 == q.end() || !isalnum(*end2)) term_end = end2;
+	    if (*term_end == '&') {
+	       // Treat AT&T M&S A&P etc as a single term
+	       if (term_end + 1 != q.end() && isalnum(term_end[1])) {
+		   qptr = term_end + 1;
+		   goto more_term;
+	       }
+	    } else {
+		string::iterator end2;
+		end2 = find_if(term_end, q.end(), p_notplusminus);
+		if (end2 == q.end() || !isalnum(*end2)) term_end = end2;
+	    }
 	}
+
 	term = q.substr(qptr - q.begin(), term_end - qptr);
 	qptr = term_end;
 	if (qptr != q.end()) {
@@ -296,13 +307,13 @@ yylex()
     }
     c = *qptr++;
     // FIXME: Some people may not want & and | to mean AND and OR
-    // FIXME: Some people may not want _ / and \ to mean phrase search
+    // FIXME: Some people may not want _ / \ and @ to mean phrase search
     switch (c) {
      case '&':
 	return AND;
      case '|':
 	return OR;
-     case '_': case '/': case '\\':
+     case '_': case '/': case '\\': case '@':
 	/* these characters generate a phrase search */
 	if (!isspace(*qptr)) return HYPHEN;
 	break;

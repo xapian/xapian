@@ -1,3 +1,7 @@
+Tue May 14 13:10:33 BST 2002  Olly Betts <olly@survex.com>
+
+	* Search for <word>&<word> as a single term (e.g. AT&T, M&S, A&P).
+
 Tue May 14 11:50:03 BST 2002  Olly Betts <olly@survex.com>
 
 	* When including config.h, always specify it as <config.h>, not
