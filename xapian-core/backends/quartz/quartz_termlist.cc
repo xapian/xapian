@@ -33,6 +33,9 @@
 #include "quartz_utils.h"
 #include "utils.h"
 
+#include <algorithm>
+using namespace std;
+
 void
 QuartzTermList::set_entries(QuartzBufferedTable * table_,
 			    om_docid did,

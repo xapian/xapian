@@ -50,6 +50,8 @@
 
 using std::min;
 using std::string;
+ 
+const string::size_type Btree::max_key_len;
 
 //#define BTREE_DEBUG_FULL 1
 #undef BTREE_DEBUG_FULL

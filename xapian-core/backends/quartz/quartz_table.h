@@ -126,10 +126,6 @@ class QuartzDiskCursor : public QuartzCursor {
 	 */
 	AutoPtr<Bcursor> cursor;
 
-	/** The maximum length of a key.
-	 */
-	string::size_type max_key_len;
-
     public:
 	/// Create the cursor
 	QuartzDiskCursor(Btree * btree);

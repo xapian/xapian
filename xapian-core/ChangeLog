@@ -1,3 +1,7 @@
+Thu Nov 28 01:33:25 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/: Fixed to compile with GCC 3.0.
+ 
 Thu Nov 28 01:32:31 GMT 2002  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated with test results from 0.5.4 release.

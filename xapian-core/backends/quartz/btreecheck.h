@@ -32,7 +32,7 @@
 class BtreeCheck : public Btree {
     public:
 	static void check(const string & name, int opts,
-			  std::ostream &out = cout);
+			  std::ostream &out = std::cout);
     private:
 	BtreeCheck(std::ostream &out_) : out(out_) {}
 

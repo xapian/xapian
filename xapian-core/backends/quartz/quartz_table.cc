@@ -53,8 +53,7 @@ hex_encode(const string & input)
 
 QuartzDiskCursor::QuartzDiskCursor(Btree * btree)
 	: is_positioned(false),
-	  cursor(new Bcursor(btree)),
-	  max_key_len(btree->max_key_len) {}
+	  cursor(new Bcursor(btree)) {}
 
 bool
 QuartzDiskCursor::find_entry(const string &key)
@@ -65,9 +64,9 @@ QuartzDiskCursor::find_entry(const string &key)
 
     int found = false;
 
-    if (key.size() > max_key_len) {
+    if (key.size() > Btree::max_key_len) {
 	// Can't find key - too long to possibly be present.
-	(void) cursor->find_key(key.substr(0, max_key_len));
+	(void) cursor->find_key(key.substr(0, Btree::max_key_len));
 	// FIXME: check for errors
     } else {
 	found = cursor->find_key(key);
@@ -370,7 +369,7 @@ QuartzDiskTable::get_exact_entry(const string &key, string & tag) const
     Assert(opened);
     Assert(!(key.empty()));
 
-    if (key.size() > btree_for_reading->max_key_len) RETURN(false);
+    if (key.size() > Btree::max_key_len) RETURN(false);
 
     // FIXME: avoid having to create a cursor here.
     Bcursor cursor(btree_for_reading);
@@ -401,12 +400,12 @@ QuartzDiskTable::set_entry(const string & key, const string & tag)
     Assert(opened);
     if (readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
 
-    if (key.size() > btree_for_writing->max_key_len) {
+    if (key.size() > Btree::max_key_len) {
 	throw OmInvalidArgumentError(
 		"Key too long: length was " +
 		om_tostring(key.size()) +
 		" bytes, maximum length of a key is " + 
-		om_tostring(btree_for_writing->max_key_len) +
+		om_tostring(Btree::max_key_len) +
 		" bytes.");
     }
 
@@ -425,12 +424,12 @@ QuartzDiskTable::set_entry(const string & key)
     Assert(opened);
     if (readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
 
-    if (key.size() > btree_for_writing->max_key_len) {
+    if (key.size() > Btree::max_key_len) {
 	throw OmInvalidArgumentError(
 		"Key too long: length was " +
 		om_tostring(key.size()) +
 		" bytes, maximum length of a key is " + 
-		om_tostring(btree_for_writing->max_key_len) +
+		om_tostring(Btree::max_key_len) +
 		" bytes.");
     }
 

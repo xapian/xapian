@@ -60,11 +60,11 @@ static int process_lines(Btree & btree, ifstream &f)
 	if (s.empty()) continue;
 	if (s[0] == '+') {
 	    string::size_type sp = s.find(' ');
-	    btree.add(s.substr(1, min(sp - 1, btree.max_key_len)),
+	    btree.add(s.substr(1, min(sp - 1, Btree::max_key_len)),
 		      s.substr(sp + 1));
 	    ++count;
 	} else if (s[0] == '-') {
-	    btree.del(s.substr(1, btree.max_key_len));
+	    btree.del(s.substr(1, Btree::max_key_len));
 	    --count;
 	} else {
 	    throw "No '+' or '-' on line `" + s + "'";
