@@ -12,7 +12,7 @@ main(int argc, char *argv[])
 {
     int msize = 10;
     const char *progname = argv[0];
-    const char *dbname = "testdir";
+    list<string> dbnames;
     bool multidb = false;
 
     bool syntax_error = false;
@@ -24,7 +24,7 @@ main(int argc, char *argv[])
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--db") == 0) {
-	    dbname = argv[1];
+	    dbnames.push_back(argv[1]);
 	    argc -= 2;
 	    argv += 2;
 	} else if (strcmp(argv[0], "--multidb") == 0) {
@@ -44,17 +44,22 @@ main(int argc, char *argv[])
 	cout << "\t--multidb\n";
 	exit(1);
     }
+
+    if(!dbnames.size()) dbnames.push_back("testdir");
     
     try {
 	IRDatabase *database;
 
-	if (multidb) {
+	if (multidb || dbnames.size() > 1) {
 	    MultiDatabase *multidb = new MultiDatabase;
-	    multidb->open_subdatabase(new DADatabase, dbname, 0);
+	    list<string>::const_iterator p;
+	    for(p = dbnames.begin(); p != dbnames.end(); p++) {
+		multidb->open_subdatabase(new DADatabase, *p, 0);
+	    }
 	    database = multidb;
 	} else {
 	    database = new DADatabase;
-	    database->open(dbname, 0);
+	    database->open(*(dbnames.begin()), 0);
 	}
        
         Match match(database);
