@@ -81,7 +81,7 @@ InMemoryDatabase::open(const DatabaseBuilderParams & params)
     for(vector<string>::const_iterator p = params.paths.begin();
 	p != params.paths.end(); p++) {
 	TextfileIndexerSource source(*p);
-	cout << *p << endl;
+	DebugMsg("Indexing `" << *p << "'" << endl);
 	indexer.add_source(source);
     }
 
