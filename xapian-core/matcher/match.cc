@@ -12,6 +12,8 @@
 #include "irdocument.h"
 #include "rset.h"
 
+#include "bm25weight.h"
+
 #include <algorithm>
 
 class PLPCmpGt {
@@ -37,6 +39,19 @@ Match::Match(IRDatabase *database_new)
     rset = NULL;
 }
 
+DBPostList * mk_postlist(IRDatabase *DB,
+			 const termname& tname,
+			 RSet * rset) {
+    // FIXME - this should be centralised into a postlist factory
+    DBPostList * pl = DB->open_post_list(tname, rset);
+    if(rset) rset->will_want_termfreq(tname);
+
+    BM25Weight * wt = new BM25Weight();
+    wt->set_stats(DB, pl->get_termfreq(), tname, rset);
+    pl->set_termweight(wt);
+    return pl;
+}
+
 void
 Match::add_term(const termname& tname)
 {
@@ -44,10 +59,7 @@ Match::add_term(const termname& tname)
     // We want to push a null PostList in most (all?) situations
     // for similar reasons to using the muscat3.6 zerofreqs option
     if (DB->term_exists(tname)) {
-	q.push(DB->open_post_list(tname, rset));
-	if(rset) rset->will_want_termfreq(tname);
-	// FIXME - should get called automatically when we open a post list
-	// -- want a postlist factory
+	q.push(mk_postlist(DB, tname, rset));
     } else {
 	q.push(new EmptyPostList());
     }
@@ -66,10 +78,7 @@ Match::add_oplist(matchop op, const vector<termname> &terms)
 	for (i = terms.begin(); i != terms.end(); i++) {
 	    // for an OR, we can just ignore zero freq terms
 	    if (DB->term_exists(*i)) {
-		pq.push(DB->open_post_list(*i, rset));
-		if(rset) rset->will_want_termfreq(*i);
-		// FIXME - should get called automatically when we open any
-		// post list
+		pq.push(mk_postlist(DB, *i, rset));
 	    }
 	}
 
@@ -111,10 +120,7 @@ Match::add_oplist(matchop op, const vector<termname> &terms)
 	    sorted.clear();
 	    break;
 	}
-	sorted.push_back(DB->open_post_list(*i, rset));
-	if(rset) rset->will_want_termfreq(*i);
-	// FIXME - should get called automatically when we open a post list
-	// -- want a postlist factory
+	sorted.push_back(mk_postlist(DB, *i, rset));
     }
     
     if (sorted.empty()) {
