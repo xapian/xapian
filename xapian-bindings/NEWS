@@ -1,16 +1,20 @@
-Xapian-bindings 0.8.4 (2004-12-02):
+Xapian-bindings 0.8.4 (2004-12-08):
 
 General:
 
-* README: Improved a bit.
+* README: Now clearly says which languages we currently support, which people
+  are working on, etc.
 
 * Instead of requiring the user to have a really recent SWIG installed, ship
   the files SWIG generates.  Disable all the SWIG rules unless configure is run
   with --enable-maintainer-mode to make sure they aren't triggered accidentally
-  by make with dodgy VPATH or anything else.
+  (e.g. by make with dodgy VPATH).
 
 * configure: Require SWIG 1.3.22 or higher (but note that SWIG is no longer
-  needed if you just want to installing the bindings).
+  needed if you just want to install the bindings).
+
+* Wrap the new Database and WritableDatabase constructors which replace
+  Auto::open().
 
 * It turns out that we do need to wrap MSet::MSet() (wrapping removed in 0.8.2)
   (for example, simpleexpand.py needs it).
@@ -22,8 +26,9 @@ General:
 * Second argument to Document::add_posting() isn't optional, but xapian.i
   indicated that it was.
 
-* xapian.i: Wrapped Xapian::Weight and standard subclasses.  Deriving your
-  own weight class in the scripting language isn't currently supported.
+* xapian.i: Added wrappers for Xapian::Weight and standard subclasses.
+  Deriving your own weight class in the scripting language isn't currently
+  supported.
 
 * xapian.i: %name is deprecated, so use %rename instead.  This also works
   around a bug in SWIG 1.3.23.
@@ -117,6 +122,10 @@ Tcl:
 
 * configure.ac: Noted that the bindings can easily be compiled for use with
   Tcl 8.0, in case anybody needs that for some reason.
+
+* Don't wrap the factory functions which return a quartz WritableDatabase as
+  the destructor never gets called so changes aren't flushed and the lock file
+  isn't removed.
 
 Xapian-bindings 0.8.3 (2004-09-20):
 
@@ -257,7 +266,7 @@ Java:
 * Make finalize() methods of Database and WritableDatabase public so they can
   be called from by the user.
 
-* Document Doccument.add_term_nopos() as deprecated.
+* Document Document.add_term_nopos() as deprecated.
 
 PHP4:
 
