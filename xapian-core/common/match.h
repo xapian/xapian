@@ -48,8 +48,6 @@ class OMMatch
     private:
         IRDatabase *database;
 
-	om_queryop default_op;
-   
         int min_weight_percent;
         weight max_weight;
 
@@ -67,16 +65,6 @@ class OMMatch
 	bool query_ready; 
 	PostList * build_query();
 
-	DBPostList * mk_postlist(const termname& tname,
-				 RSet * rset);
-    public:
-        OMMatch(IRDatabase *);
-        ~OMMatch();
-
-	///////////////////////////////////////////////////////////////////
-	// Set the terms and operations which comprise the query
-	// =====================================================
-	
 	// Add term to query stack
         void add_term(const termname &);
 
@@ -86,9 +74,19 @@ class OMMatch
 	// Add list of terms op'd together to stack
 	void add_oplist(om_queryop op, const vector<termname>&);
 
-	// Set operator to use for any terms which are left over -
-	// default is OM_MOP_OR
-	void set_default_op(om_queryop);
+	// Open a postlist
+	DBPostList * mk_postlist(const termname& tname,
+				 RSet * rset);
+    public:
+        OMMatch(IRDatabase *);
+        ~OMMatch();
+
+	///////////////////////////////////////////////////////////////////
+	// Set the terms and operations which comprise the query
+	// =====================================================
+
+	// Sets query to use.
+	void set_query(const OMQuery *);
 
 	///////////////////////////////////////////////////////////////////
 	// Set additional options for performing the query
@@ -116,17 +114,12 @@ class OMMatch
 	// Get an upper bound on the possible weights (unlikely to be attained)
         weight get_max_weight();
 
-	// Perform the match operation, and get the matching items
-	void match(doccount first,         // First item to return (start at 0)
-		   doccount maxitems,      // Maximum number of items to return
-		   vector<OMMSetItem> &,   // Results will be put in this vector
-		   mset_cmp);              // Comparison operator to sort by
-
-	// Perform the match operation, but also return a lower bound on the
-	// number of matching records in the database (mbound).  Because of
-	// some of the optimisations performed, this is likely to be much
-	// lower than the actual number of matching records, but it is
-	// expensive to do the calculation properly.
+	// Perform the match operation, and get the matching items.
+	// Also returns a lower bound on the number of matching records in
+	// the database (mbound).  Because of some of the optimisations
+	// performed, this is likely to be much lower than the actual
+	// number of matching records, but it is expensive to do the
+	// exact calculation.
 	//
 	// It is generally considered that presenting the mbound to users
 	// causes them to worry about the large number of results, rather
@@ -150,12 +143,6 @@ class OMMatch
 ///////////////////////////////
 // Inline method definitions //
 ///////////////////////////////
-
-inline void
-OMMatch::set_default_op(om_queryop _default_op)
-{
-    default_op = _default_op;
-}
 
 inline void
 OMMatch::set_collapse_key(keyno key)

@@ -72,36 +72,35 @@ stringToType<om_database_type> stringToTypeMap<om_database_type>::types[] = {
 /////////////////////////
 
 OMQuery::OMQuery(const termname & _tname)
-	: left(NULL), right(NULL), tname(_tname)
-{}
+	: tname(_tname), op(OM_MOP_LEAF)
+{
+}
 
 OMQuery::OMQuery(om_queryop _op, const OMQuery &query1, const OMQuery &query2)
 	: op(_op)
 {
-    left = new OMQuery(query1);
-    right = new OMQuery(query2);
+    Assert(op != OM_MOP_LEAF);
+    // FIXME; if sub query has same op, which is OR or AND, add to list
+    subqs.push_back(new OMQuery(query1));
+    subqs.push_back(new OMQuery(query2));
 }
 
 OMQuery::OMQuery(om_queryop _op, const vector<OMQuery> &subqueries)
 	: op(_op)
 {
-    Assert(op == OM_MOP_AND || op == OM_MOP_OR);
     initialise_from_vector(subqueries.begin(), subqueries.end());
 }
 
 OMQuery::OMQuery(om_queryop _op, const vector<OMQuery>::const_iterator qbegin,
 		 const vector<OMQuery>::const_iterator qend)
-	        : op(_op)
+	: op(_op)
 {   
-    Assert(op == OM_MOP_AND || op == OM_MOP_OR);
     initialise_from_vector(qbegin, qend);
 }
 
 OMQuery::OMQuery(om_queryop _op, const vector<termname> &terms)
 	: op(_op)
 {
-    Assert(op == OM_MOP_AND || op == OM_MOP_OR);
-
     vector<OMQuery> subqueries;
     vector<termname>::const_iterator i;
     for(i = terms.begin(); i != terms.end(); i++) {
@@ -110,38 +109,46 @@ OMQuery::OMQuery(om_queryop _op, const vector<termname> &terms)
     initialise_from_vector(subqueries.begin(), subqueries.end());
 }
 
+// Copy constructor
 OMQuery::OMQuery(const OMQuery &copyme)
 {
     initialise_from_copy(copyme);
 }
 
-OMQuery::OMQuery(const OMQuery *copyme)
+// Assignment
+OMQuery &
+OMQuery::operator=(const OMQuery &copyme)
 {
-    initialise_from_copy(*copyme);
+    initialise_from_copy(copyme);
+    return *this;
 }
 
+
 OMQuery::OMQuery()
-	: left(NULL), right(NULL), tname("")
+	: tname(""), op(OM_MOP_LEAF)
 {
 }
 
 OMQuery::~OMQuery()
 {
-    delete left;
-    delete right;
+    vector<OMQuery *>::const_iterator i;
+    for(i = subqs.begin(); i != subqs.end(); i++) {
+	delete *i;
+    }
+    subqs.clear();
 }
 
 void
 OMQuery::initialise_from_copy(const OMQuery &copyme)
 {
-    tname = copyme.tname;
     op    = copyme.op;
-    if(copyme.left != NULL) {
-	left = new OMQuery(*(copyme.left));
-	right = new OMQuery(*(copyme.right));
+    if(op == OM_MOP_LEAF) {
+	tname = copyme.tname;
     } else {
-	left = NULL;
-	right = NULL;
+	vector<OMQuery *>::const_iterator i;
+	for(i = copyme.subqs.begin(); i != copyme.subqs.end(); i++) {
+	    subqs.push_back(new OMQuery(**i));
+	}
     }
 }
 
@@ -149,22 +156,25 @@ void
 OMQuery::initialise_from_vector(const vector<OMQuery>::const_iterator qbegin,
 				const vector<OMQuery>::const_iterator qend)
 {
+    Assert(op == OM_MOP_AND || op == OM_MOP_OR);
     if(qbegin == qend) {
-	left = NULL;
-	right = NULL;
-	tname = "";
+	// FIXME Null query not allowed, but throw exception rather than Assert
+	Assert(false);
     } else if(qbegin + 1 == qend) {
 	// Copy into self
 	initialise_from_copy(*qbegin);
     } else {
-	left = new OMQuery(*qbegin);
-	right = new OMQuery(op, qbegin + 1, qend);
+	// FIXME: keep in vector
+	vector<OMQuery>::const_iterator i;
+	for(i = qbegin; i != qend; i++) {
+	    subqs.push_back(new OMQuery(*i));
+	}
     }
 }
 
-/////////////////////////
-// Methods for OMQuery //
-/////////////////////////
+////////////////////////////////
+// Methods for OMQueryOptions //
+////////////////////////////////
 
 void
 OMQueryOptions::set_collapse_key(keyno _key)
@@ -186,7 +196,7 @@ OMQueryOptions::set_no_collapse()
 class OMEnquireInternal {
     public:
 	IRDatabase * database;
-	OMQuery * query;
+	mutable OMQuery * query;
 	OMQueryOptions options;
 	OMRSet omrset;
 
@@ -271,6 +281,9 @@ OMEnquireInternal::get_mset(OMMSet &mset,
     }
 
     // Set Query
+    match.set_query(query);
+
+    // Run query and get results into supplied OMMSet object
     match.match(first, maxitems, mset.items, msetcmp_forward, &(mset.mbound));
 }
 

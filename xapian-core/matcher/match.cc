@@ -87,8 +87,7 @@ bool msetcmp_reverse(const OMMSetItem &a, const OMMSetItem &b) {
 ////////////////////////////////////
 
 OMMatch::OMMatch(IRDatabase *_database)
-	: default_op(OM_MOP_OR),
-	  do_collapse(false),
+	: do_collapse(false),
 	  have_added_terms(false),
 	  query_ready(false)
 {
@@ -125,6 +124,12 @@ OMMatch::mk_postlist(const termname& tname,
 ////////////////////////
 
 void
+OMMatch::set_query(const OMQuery *)
+{
+    
+}
+
+void
 OMMatch::add_term(const termname& tname)
 {
     query_ready = false;
@@ -146,10 +151,12 @@ OMMatch::add_oplist(om_queryop op, const vector<termname> &terms)
     Assert((have_added_terms = true) == true);
     Assert(op == OM_MOP_OR || op == OM_MOP_AND);
     if (op == OM_MOP_OR) {
-	// FIXME: try using a heap instead (C++ sect 18.8)?
-	
+	// Build nice tree for OR-ed terms
 	// Put terms into a priority queue, such that those with greatest
 	// term frequency are returned first.
+
+	// FIXME: try using a heap instead (C++ sect 18.8)?
+
 	priority_queue<PostList*, vector<PostList*>, PLPCmpGt> pq;
 	vector<termname>::const_iterator i;
 	for (i = terms.begin(); i != terms.end(); i++) {
@@ -182,39 +189,39 @@ OMMatch::add_oplist(om_queryop op, const vector<termname> &terms)
 	    pq.pop();
 	    pq.push(p);
 	}
-    }
-    
-    // Build nice tree for AND-ed terms
-    // SORT list into ascending freq order
-    // AND last two elements, then AND with each subsequent element
-    vector<PostList *> sorted;
-    vector<termname>::const_iterator i;
-    for (i = terms.begin(); i != terms.end(); i++) {
-	if (!database->term_exists(*i)) {
-	    // a zero freq term => the AND has zero freq
-	    vector<PostList *>::const_iterator j;
-	    for (j = sorted.begin(); j != sorted.end(); j++) delete *j;
-	    sorted.clear();
-	    break;
+    } else {
+	// Build nice tree for AND-ed terms
+	// SORT list into ascending freq order
+	// AND last two elements, then AND with each subsequent element
+	vector<PostList *> sorted;
+	vector<termname>::const_iterator i;
+	for (i = terms.begin(); i != terms.end(); i++) {
+	    if (!database->term_exists(*i)) {
+		// a zero freq term => the AND has zero freq
+		vector<PostList *>::const_iterator j;
+		for (j = sorted.begin(); j != sorted.end(); j++) delete *j;
+		sorted.clear();
+		break;
+	    }
+	    sorted.push_back(mk_postlist(*i, rset));
 	}
-	sorted.push_back(mk_postlist(*i, rset));
-    }
-    
-    if (sorted.empty()) {
-	query.push(new EmptyPostList());
-	return;
-    }
 
-    stable_sort(sorted.begin(), sorted.end(), PLPCmpLt());
-    
-    PostList *p = sorted.back();
-    sorted.pop_back();
-    while (!sorted.empty()) {	    
-	// NB right is always <= left - we can use this to optimise
-	p = new AndPostList(sorted.back(), p, this);
+	if (sorted.empty()) {
+	    query.push(new EmptyPostList());
+	    return;
+	}
+
+	stable_sort(sorted.begin(), sorted.end(), PLPCmpLt());
+
+	PostList *p = sorted.back();
 	sorted.pop_back();
+	while (!sorted.empty()) {	    
+	    // NB right is always <= left - we can use this to optimise
+	    p = new AndPostList(sorted.back(), p, this);
+	    sorted.pop_back();
+	}
+	query.push(p);
     }
-    query.push(p);		
 }
 
 bool
@@ -275,22 +282,10 @@ OMMatch::build_query()
 
 	if (query.size() == 0) return NULL; // No query
 
-	// Add default operator to all remaining terms.  Unless set with
-	// set_default_op(), the default operator is OM_MOP_OR
-	while (query.size() > 1) add_op(default_op);
-
+	Assert(query.size() == 1);
 	max_weight = query.top()->recalc_maxweight();
     }
     return query.top();
-}
-
-// Convenience wrapper
-void
-OMMatch::match(doccount first, doccount maxitems,
-	     vector<OMMSetItem> &mset, mset_cmp cmp)
-{
-    doccount mbound;
-    match(first, maxitems, mset, cmp, &mbound);
 }
 
 // This is the method which runs the query, generating the M set

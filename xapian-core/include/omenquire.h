@@ -28,6 +28,7 @@
 #include <set>
 
 class OMEnquireInternal; // Internal state of enquire
+class OMMatch;           // Class which performs queries
 
 ///////////////////////////////////////////////////////////////////
 // OMQuery class
@@ -35,6 +36,8 @@ class OMEnquireInternal; // Internal state of enquire
 // Class representing a query
 
 typedef enum {
+    OM_MOP_LEAF,      // For internal use - must never be specified as parameter
+
     OM_MOP_AND,       // Return iff both subqueries are satisfied
     OM_MOP_OR,        // Return if either subquery is satisfied
     OM_MOP_AND_NOT,   // Return if left but not right satisfied
@@ -44,9 +47,9 @@ typedef enum {
 } om_queryop;
 
 class OMQuery {
+    friend class OMMatch;
     private:
-	OMQuery *left;
-	OMQuery *right;
+	vector<OMQuery *> subqs;
 	termname tname;
 	om_queryop op;
 
@@ -60,7 +63,6 @@ class OMQuery {
 	// A query consisting of two subqueries, opp-ed together
 	OMQuery(om_queryop, const OMQuery &, const OMQuery &);
 
-	// Convenience functions:
 	// A set of OMQuery's, merged together with specified operator.
 	// The only operators allowed are AND and OR
 	OMQuery(om_queryop, const vector<OMQuery> &);
@@ -73,9 +75,11 @@ class OMQuery {
 		const vector<OMQuery>::const_iterator,
 		const vector<OMQuery>::const_iterator);
 
-	// Copy constructors
+	// Copy constructor
 	OMQuery(const OMQuery &);
-	OMQuery(const OMQuery *);
+
+	// Assignment
+	OMQuery & operator=(const OMQuery &);
 
 	// Default constructor: creates a null query
 	OMQuery();
@@ -131,8 +135,6 @@ OMRSet::remove_document(docid did)
 // Class representing a match result set
 
 // An item in the MSet
-class OMMatch;
-
 class OMMSetItem {
     friend class OMMatch;
     private:
