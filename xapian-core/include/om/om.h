@@ -33,6 +33,7 @@
 /* Data access */
 #include "omdocument.h"
 #include "omdatabase.h"
+#include "ompostlistiterator.h"
 
 /* Searching */
 #include "omenquire.h"

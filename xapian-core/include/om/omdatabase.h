@@ -28,6 +28,7 @@
 #include "omsettings.h"
 
 class OmWritableDatabase;
+class OmPostListIterator;
 
 ///////////////////////////////////////////////////////////////////
 // OmDatabase class
@@ -141,6 +142,9 @@ class OmDatabase {
 	 *  Introspection method.
 	 */
 	virtual std::string get_description() const;
+
+	virtual OmPostListIterator postlist_begin(const om_termname &tname) const;
+	virtual OmPostListIterator postlist_end(const om_termname &tname) const;
 };
 
 ///////////////////////////////////////////////////////////////////

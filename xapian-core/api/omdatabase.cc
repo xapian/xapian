@@ -23,7 +23,9 @@
 #include "om/omerror.h"
 #include "omdatabaseinternal.h"
 #include "omdebug.h"
-#include <om/omoutput.h>
+#include "om/ompostlistiterator.h"
+#include "ompostlistiteratorinternal.h"
+#include "om/omoutput.h"
 
 OmDatabase::OmDatabase()
 {
@@ -107,6 +109,18 @@ OmDatabase::add_database(const OmDatabase & database)
 	 i != database.internal->databases.end(); i++) {
 	internal->add_database(*i);
     }
+}
+
+OmPostListIterator
+OmDatabase::postlist_begin(const om_termname &tname) const
+{
+    return OmPostListIterator(new OmPostListIterator::Internal(internal->get_multi_database()->open_post_list(tname)));
+}
+
+OmPostListIterator
+OmDatabase::postlist_end(const om_termname &tname) const
+{
+    return OmPostListIterator(new OmPostListIterator::Internal(new EmptyPostList()));
 }
 
 std::string

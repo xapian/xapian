@@ -1,3 +1,7 @@
+Sat Sep 02 18:30:48 BST 2000 Olly Betts
+
+	* Implemented OmPostListIterator.
+
 Fri Sep 01 18:36:09 BST 2000 Olly Betts
 
 	* apitest: Split off api_db.cc - test requiring a database.

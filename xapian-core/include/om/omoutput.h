@@ -60,6 +60,9 @@ OUTPUT_FUNCTION(OmStem);
 #include "omsettings.h"
 OUTPUT_FUNCTION(OmSettings);
 
+#include "ompostlistiterator.h"
+OUTPUT_FUNCTION(OmPostListIterator);
+
 inline std::ostream &
 operator<<(std::ostream & os, const om_termname_list & obj) {
     os << "om_termname_list(";

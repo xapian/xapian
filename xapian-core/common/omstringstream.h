@@ -104,6 +104,7 @@ OSTRINGSTREAMFUNC(OmDocumentTerm);
 OSTRINGSTREAMFUNC(OmDocumentContents);
 OSTRINGSTREAMFUNC(OmStem);
 OSTRINGSTREAMFUNC(OmSettings);
+OSTRINGSTREAMFUNC(OmPostListIterator);
 
 inline om_ostringstream &
 operator<<(om_ostringstream & os, const om_termname_list & obj) {
