@@ -1,3 +1,9 @@
+Sun Mar 21 14:23:23 GMT 2004  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Use getopt for option parsing.  Change default to
+	  *not* overwriting the database (use --overwrite if you really want
+	  to do this); -u is now accepted but ignored.
+
 Fri Mar 12 02:11:28 GMT 2004  Olly Betts <olly@survex.com>
 
 	* templates/xml: "Content-Type: application/html" is more appropriate

@@ -34,6 +34,7 @@
 #include <vector>
 #include <list>
 
+#include <getopt.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -541,22 +542,39 @@ again:
 int
 main(int argc, char **argv)
 {
-    // If update_db is true, the database will be updated rather than created.
-    bool update_db = false;
+    // If overwrite is true, the database will be created anew even if it
+    // already exists.
+    bool overwrite = false;
     bool quiet = false;
     verbose = false;
 
     argv0 = argv[0];
+    static const struct option longopts[] = {
+	{ "help",	no_argument,	NULL, 'h' },
+	{ "version",	no_argument,	NULL, 'V' },
+	{ "overwrite",	no_argument,	NULL, 'o' },
+	{ "quiet",	no_argument,	NULL, 'q' },
+	{ "verbose",	no_argument,	NULL, 'v' },
+	{ 0, 0, NULL, 0 }
+    };
 
-    // Simplest possible options parsing: we require two or more parameters,
-    // preceded by options.
-
-    while (argc >= 3) {
-	if (argv[1][0] != '-') break;
-
-	switch (argv[1][1]) {
+    bool more = true, show_help = false;
+    while (more) {
+	switch (getopt_long(argc, argv, "uqv", longopts, NULL)) {
+	    case EOF:
+		more = false;
+		break;
+	    default:
+	    case 'h': // --help
+	    case 'V': // --version
+		show_help = true;
+		more = false;
+		break;
+	    case 'o': // --overwrite
+		overwrite = true;
+		break;
 	    case 'u':
-		update_db = true;
+		// Update is now the default, so ignore -u for compatibility...
 		break;
 	    case 'q':
 		quiet = true;
@@ -564,17 +582,14 @@ main(int argc, char **argv)
 	    case 'v':
 		verbose = true;
 		break;
-	    default:
-		argc = 1;
-		break;
 	}
-	argv++;
-	argc--;
     }
 
-    if (argc < 3) {
+    argv += optind;
+    argc -= optind;
+    if (show_help || argc < 2) {
 	cout << "Usage: " << argv0
-	     << " [-u] [-q] [-v] "
+	     << " [--help] [--version] [--overwrite] [-q] [-v] "
 	     << " <path to xapian database> <indexer script> [<filename>]..."
 	     << endl
 	     << "Creates a new database containing the data given by the list "
@@ -584,13 +599,13 @@ main(int argc, char **argv)
 	     << endl
 	     << "The -v (verbose) option generates messages about all actions."
 	     << endl
-	     << "The -u option causes the database to be updated rather than "
-	     << "created anew."
+	     << "The --overwrite option causes the database to be created anew (the default is\n"
+	        "to update if the database already exists)."
 	     << endl;
 	exit(1);
     }
     
-    parse_index_script(argv[2]);
+    parse_index_script(argv[1]);
     
     // Catch any Xapian::Error exceptions thrown
     try {
@@ -600,11 +615,11 @@ main(int argc, char **argv)
 	Xapian::WritableDatabase database;
 	while (true) {
 	    try {
-		if (update_db) {
-		    database = Xapian::Auto::open(argv[1],
+		if (!overwrite) {
+		    database = Xapian::Auto::open(argv[0],
 						  Xapian::DB_CREATE_OR_OPEN);
 		} else {
-		    database = Xapian::Auto::open(argv[1],
+		    database = Xapian::Auto::open(argv[0],
 						  Xapian::DB_CREATE_OR_OVERWRITE);
 		}
 		break;
@@ -620,11 +635,11 @@ main(int argc, char **argv)
 	delcount = 0;
 
 	// Read file/s
-	if (argc == 3) {
+	if (argc == 2) {
 	    // Read from stdin
 	    index_file(cin, database, stemmer);
 	} else {
-	    for (int i = 3; i < argc; ++i) {
+	    for (int i = 2; i < argc; ++i) {
 		ifstream stream(argv[i]);
 		if (stream) {
 		    index_file(stream, database, stemmer);
