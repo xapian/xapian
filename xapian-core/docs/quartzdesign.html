@@ -416,6 +416,15 @@ based partitioning scheme.
 <li>
 Describe thread locking system.
 </li>
+<li>
+Mention adding documents: usual to add with a new document ID which is
+greater than any currently in the system.  This means that new postings
+get added to the end of posting lists (so we make it easy to get to the
+end of a posting list quickly).  Also, we key position lists by document
+ID first and termname second, so that new positionlists get added to the
+end of the positionlist database, meaning that hardly any blocks will need
+to be altered in this database: data just gets added to the end.
+</li>
 </ul>
 
 <h2>Endnote</h2>
