@@ -1,3 +1,11 @@
+Thu Sep 09 13:11:52 BST 2004  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/multimatch.h,common/omenquireinternal.h,
+	  include/xapian/enquire.h,matcher/multimatch.cc,net/socketserver.cc:
+	  Added optional "checkatleast" parameter to Enquire::get_mset()
+	  which allows Omega's MIN_HITS functionality to be implemented
+	  in the matcher (a bit more efficient).
+
 Thu Sep 09 04:18:32 BST 2004  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated.

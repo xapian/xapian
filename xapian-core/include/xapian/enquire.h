@@ -770,6 +770,12 @@ class Enquire {
 	 *                   being ignored, and the returned items starting
 	 *                   at the eleventh.
 	 *  @param maxitems  the maximum number of items to return.
+	 *  @param checkatleast  the minimum number of items to check.  Because
+	 *                   the matcher optimises, it won't consider every
+	 *                   document which might match, so the total number
+	 *                   of matches is estimated.  Setting checkatleast
+	 *                   forces it to consider that many matches and so
+	 *                   allows for reliable paging links.
 	 *  @param omrset    the relevance set to use when performing the query.
 	 *  @param mdecider  a decision functor to use to decide whether a
 	 *                   given document should be put in the MSet
@@ -781,8 +787,14 @@ class Enquire {
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 */
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
+		      Xapian::doccount checkatleast = 0,
 		      const RSet * omrset = 0,
 		      const MatchDecider * mdecider = 0) const;
+	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
+		      const RSet * omrset,
+		      const MatchDecider * mdecider = 0) const {
+	    return get_mset(first, maxitems, 0, omrset, mdecider);
+	}
 
 	static const int include_query_terms = 1;
 	static const int use_exact_termfreq = 2;

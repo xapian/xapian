@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
  *
@@ -80,7 +80,8 @@ msetcmp_forward(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSe
 {
     if (a.wt > b.wt) return true;
     if (a.wt < b.wt) return false;
-    // two special cases to make min_item compares work when did == 0
+    // Two special cases to make min_item compares work when did == 0
+    // NB note the ordering: if a.did == b.did == 0, we should return false
     if (a.did == 0) return false;
     if (b.did == 0) return true;
     return (a.did < b.did);
@@ -321,10 +322,12 @@ MultiMatch::getorrecalc_maxweight(PostList *pl)
 
 void
 MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
+		     Xapian::doccount check_at_least,
 		     Xapian::MSet & mset, const Xapian::MatchDecider *mdecider)
 {
     DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
 	      << ", ...");
+    if (check_at_least < maxitems) check_at_least = maxitems;
 
     if (!query) {
 	mset = Xapian::MSet(); // FIXME: mset.get_firstitem() will return 0 not first
@@ -338,7 +341,9 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator leaf;
 	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
 	    try {
-		(*leaf)->start_match(first + maxitems);
+		// FIXME: look if we can push the "check_at_least" stuff
+		// into the remote match handling too.
+		(*leaf)->start_match(first + check_at_least);
 	    } catch (Xapian::Error & e) {
 		if (errorhandler) {
 		    DEBUGLINE(EXCEPTION, "Calling error handler for "
@@ -358,7 +363,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator i;
     for (i = leaves.begin(); i != leaves.end(); ++i) {
 	// FIXME: errorhandler here? (perhaps not needed if this simply makes a pending postlist)
-	postlists.push_back((*i)->get_postlist(first + maxitems, this));
+	postlists.push_back((*i)->get_postlist(first + check_at_least, this));
     }
 
     // Get term info
@@ -434,7 +439,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     // Check if any results have been asked for (might just be wanting
     // maxweight).
-    if (maxitems == 0) {
+    if (check_at_least == 0) {
 	delete pl;
 	if (mdecider != NULL) {
 	    // Lower bound must be set to 0 as the match decider could discard
@@ -459,7 +464,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     // Set max number of results that we want - this is used to decide
     // when to throw away unwanted items.
-    Xapian::doccount max_msize = first + maxitems;
+    Xapian::doccount max_msize = first + check_at_least;
     items.reserve(max_msize + 1);
 
     // Set the minimum item, used to compare against to see if an item
@@ -891,6 +896,20 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     DEBUGLINE(MATCH, items.size() << " items in potential mset");
 
+    if (check_at_least > maxitems) {
+	// Remove unwanted trailing entries
+	if (maxitems == 0) {
+	    items.clear();
+	} else {
+	    if (sort_bands <= 1)
+		nth_element(items.begin(),
+			    items.begin() + first + maxitems,
+			    items.end(),
+			    mcmp);
+	    // Erase the unwanted trailing items.
+	    items.erase(items.begin() + first + maxitems);
+	}
+    }
     if (first > 0) {
 	// Remove unwanted leading entries
 	if (items.size() <= first) {
@@ -900,7 +919,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    if (sort_bands <= 1)
 		nth_element(items.begin(), items.begin() + first, items.end(),
 			    mcmp);
-	    // erase the leading ``first'' elements
+	    // Erase the leading ``first'' elements
 	    items.erase(items.begin(), items.begin() + first);
 	}
     }

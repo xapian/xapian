@@ -702,10 +702,12 @@ Enquire::Internal::get_query()
 
 MSet
 Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
-                    const RSet *rset, const MatchDecider *mdecider) const
+			    Xapian::doccount check_at_least, const RSet *rset,
+			    const MatchDecider *mdecider) const
 {
     DEBUGCALL(API, MSet, "Enquire::Internal::get_mset", first << ", "
-	      << maxitems << ", " << rset << ", " << mdecider);
+	      << maxitems << ", " check_at_least << ", " << rset << ", "
+	      << mdecider);
     if (query == 0) {
         throw InvalidArgumentError("You must set a query before calling Xapian::Enquire::get_mset()");
     }
@@ -729,7 +731,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     // Run query and get results into supplied Xapian::MSet object
     MSet retval;
-    match.get_mset(first, maxitems, retval, mdecider);
+    match.get_mset(first, maxitems, check_at_least, retval, mdecider);
 
     Assert(weight->name() != "bool" || retval.get_max_possible() == 0);
 
@@ -994,17 +996,18 @@ Enquire::set_bias(Xapian::weight bias_weight, time_t bias_halflife)
 }
 
 MSet
-Enquire::get_mset(Xapian::doccount first,
-                    Xapian::doccount maxitems,
-                    const RSet *rset,
-		    const MatchDecider *mdecider) const
+Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
+		  Xapian::doccount check_at_least, const RSet *rset,
+		  const MatchDecider *mdecider) const
 {
     // FIXME: display contents of pointer params, if they're not null.
     DEBUGAPICALL(Xapian::MSet, "Xapian::Enquire::get_mset", first << ", " <<
-		 maxitems << ", " << rset << ", " << mdecider);
+		 maxitems << ", " check_at_least << ", " << rset << ", " <<
+		 mdecider);
 
     try {
-	RETURN(internal->get_mset(first, maxitems, rset, mdecider));
+	RETURN(internal->get_mset(first, maxitems, check_at_least, rset,
+				  mdecider));
     } catch (Error & e) {
 	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;
