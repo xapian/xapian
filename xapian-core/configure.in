@@ -8,6 +8,10 @@ AC_CONFIG_SRCDIR(matcher/andpostlist.cc)
 
 AM_CONFIG_HEADER(config.h)
 
+AH_TOP([#ifndef OM_HGUARD_CONFIG_H
+#define OM_HGUARD_CONFIG_H])
+AH_BOTTOM([#endif])
+
 dnl Add parameters for aclocal
 dnl (This must come after AM_INIT_AUTOMAKE, since it modifies ACLOCAL)
 ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"
@@ -367,12 +371,6 @@ TOP_BUILDDIR='$(top_builddir)'
 
 AC_SUBST(TOP_SRCDIR)
 AC_SUBST(TOP_BUILDDIR)
-
-AH_TOP([#ifndef OM_HGUARD_CONFIG_H
-#define OM_HGUARD_CONFIG_H
-])
-AH_BOTTOM([#endif
-])
 
 dnl **************************
 dnl * Build the output files *

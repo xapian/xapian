@@ -393,13 +393,6 @@ share some techniques from implementing synonym postlists.
 .deb and RPMs built, control files via autoconf
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="" release="0.6">
-
-largefiles should get a better autoconf check?
-Propose: move to require autoconf >= 2.50 in the medium term as it includes
-better largefile checks, and should resolve this.
-
-</todoitem>
 <todoitem priority=" " difficulty="" owner="Sam/James" area="" release="">
 
 Language bindings: Python, PHP and Java (as a minimum IMHO).
@@ -442,8 +435,7 @@ a little fiddly in some languages I believe.
 
 Fix up examples and make sure they are actually instructive.
 I've made a start.  delve is a reasonable example.  msearch probably needs
-simplifying to just do a probabilistic search, or to use the omega queryparser
-once it moves into extra.
+simplifying to just do a probabilistic search, or to use OmQueryParser.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Olly" area="" release="">
