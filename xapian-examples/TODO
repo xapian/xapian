@@ -2,6 +2,11 @@ TODO list for examples
 ======================
 
 
+general
+
+	* make installable, and make install and build instructions
+	  consistent with those in the main library introduction.
+
 querygui
 
 	* give a nice message if can't find .glade file, explaining that it
