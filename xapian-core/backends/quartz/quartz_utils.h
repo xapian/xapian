@@ -43,7 +43,7 @@ typedef long long           om_int64;
  *                   read.
  *  @param src_end   A pointer to the byte after the end of the data to
  *                   read the integer from.
- *  @param result    A pointer to a place to store the result.  If an
+ *  @param resultptr A pointer to a place to store the result.  If an
  *                   error occurs, the value stored in this location is
  *                   undefined.  If this pointer is 0, the result is not
  *                   stored, and the method simply skips over the result.
