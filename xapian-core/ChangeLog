@@ -1,3 +1,8 @@
+Tue Apr 05 15:16:38 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: #define VERSION in version.h shouldn't include any
+	  _svn6789 suffix.
+
 Tue Apr 05 13:28:23 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: Snapshot generator now appends _svn6789 or similar to
