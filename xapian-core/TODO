@@ -40,6 +40,9 @@ M|5| |Exceptions   | Make exceptions threadsafe: see
  | | |             | be protected by a mutex - will need to cope with
  | | |             | exception being copied.
 -+-+-+-------------+-----------------------------------------------------------
+M|1| |Iterators    | Test that an Om*Iterator still works after the OmDatabase
+ | | |             | it is derived from is deleted.
+-+-+-+-------------+-----------------------------------------------------------
 M|3| |OmDocument   | Remove termfreq element from OmDocumentContents - not
  | | |             | meaningful in some places where this is used (for example
  | | |             | OmDatabase::add_document()).  Perhaps we need two
