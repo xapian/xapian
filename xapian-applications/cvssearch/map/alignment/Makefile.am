@@ -9,4 +9,4 @@ alignment_LDADD = ../process/libprocess.la ../diff/libdiff.la \
 
 libalignment_la_SOURCES = char_sequence.cpp  line_sequence.cpp \
 	alignment.h  alignment.hpp  char_sequence.h  line_sequence.h  sequence.h
-AM_CXXFLAGS = -O3 -DINLINE -DNDEBUG -Wall
+AM_CXXFLAGS = -O3 -DNDEBUG -Wall -W
