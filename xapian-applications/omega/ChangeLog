@@ -1,3 +1,7 @@
+Fri Dec 14 15:37:20 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Added $error to make nicer error reporting possible.
+
 Fri Dec 14 14:49:18 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Give more helpful messages for query syntax errors in cases where

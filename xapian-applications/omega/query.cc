@@ -62,6 +62,8 @@ static string eval_file(const string &fmtfile);
 
 static std::set<om_termname> termset;
 
+static string error_msg;
+
 class MyStopper : public OmStopper {
     bool operator()(const om_termname &t) {
 	switch (t[0]) {
@@ -109,7 +111,13 @@ set_probabilistic(const string &newp, const string &oldp)
 			    option["all_stem"] == "true",
 			    new MyStopper()); 
     qp.set_default_op(default_op);
-    query = qp.parse_query(raw_prob);
+    try {
+	query = qp.parse_query(raw_prob);
+    }
+    catch (const char *s) {
+	error_msg = s;
+	return BAD_QUERY;
+    }
 
     om_termcount n_new_terms = 0;
     for (list<om_termname>::const_iterator i = qp.termlist.begin();
@@ -321,19 +329,22 @@ run_query()
 			date_range_filter(y1, m1, d1, y2, m2, d2));
     }
 
-    enquire->set_query(query);
+    if (enquire) {
+	enquire->set_query(query);
 
-    OmSettings opt;
-    opt.set("match_percent_cutoff", threshold);
-    // FIXME - set msetcmp to reverse?
-    //
-    // We could use the value of topdoc as first parameter, but we
-    // need to know the first few items on the mset to fake a
-    // relevance set for topterms.
-    //
-    // Fetch one extra result so we know if we've reached the end of the matches or
-    // not - then we can avoid offering a "next" button which leads to an empty page
-    mset = enquire->get_mset(0, topdoc + hits_per_page + 1, rset, &opt);
+	OmSettings opt;
+	opt.set("match_percent_cutoff", threshold);
+	// FIXME - set msetcmp to reverse?
+	//
+	// We could use the value of topdoc as first parameter, but we
+	// need to know the first few items on the mset to fake a
+	// relevance set for topterms.
+	//
+	// Fetch one extra result so we know if we've reached the end of the
+	// matches or not - then we can avoid offering a "next" button which
+	// leads to an empty page
+	mset = enquire->get_mset(0, topdoc + hits_per_page + 1, rset, &opt);
+    }
 }
 
 #if 0
@@ -586,6 +597,7 @@ CMD_defaultop,
 CMD_div,
 CMD_eq,
 CMD_env,
+CMD_error,
 CMD_field,
 CMD_filesize,
 CMD_fmt,
@@ -670,6 +682,7 @@ static struct func_desc func_tab[] = {
 {T(defaultop),	0, 0, N, 0, 0}}, // default operator: "and" or "or"
 {T(div),	2, 2, N, 0, 0}}, // integer divide
 {T(env),	1, 1, N, 0, 0}}, // environment variable
+{T(error),	0, 0, N, 0, 0}}, // error message
 {T(eq),		2, 2, N, 0, 0}}, // test equality
 {T(field),	1, 1, N, 0, 0}}, // lookup field in record
 {T(filesize),	1, 1, N, 0, 0}}, // pretty printed filesize
@@ -853,17 +866,18 @@ eval(const string &fmt, const vector<string> &param)
 		value = int_to_string(total);
 		break;
 	    }
-	    case CMD_allterms: {
-		// list of all terms indexing document
-		int id = q0;
-		if (!args.empty()) id = string_to_int(args[0]);
-		OmTermIterator term = omdb->termlist_begin(id);
-		for ( ; term != omdb->termlist_end(id); term++)
-		    value = value + *term + '\t';
+	    case CMD_allterms:
+		if (omdb) {
+		    // list of all terms indexing document
+		    int id = q0;
+		    if (!args.empty()) id = string_to_int(args[0]);
+		    OmTermIterator term = omdb->termlist_begin(id);
+		    for ( ; term != omdb->termlist_end(id); term++)
+			value = value + *term + '\t';
 
-		if (!value.empty()) value.erase(value.size() - 1);
+		    if (!value.empty()) value.erase(value.size() - 1);
+		}
 		break;
-	    }
 	    case CMD_and: {
 		for (vector<string>::const_iterator i = args.begin();
 		     i != args.end(); i++) {
@@ -942,6 +956,12 @@ eval(const string &fmt, const vector<string> &param)
 		if (env != NULL) value = env;
 		break;
 	    }
+	    case CMD_error:
+		if (error_msg.empty() && omdb == NULL) {
+		    error_msg = "Database `" + dbname + "' couldn't be opened"; 
+		}
+		value = error_msg;
+		break;
 	    case CMD_field:
 		value = field[args[0]];
 		break;
@@ -966,10 +986,12 @@ eval(const string &fmt, const vector<string> &param)
 		value = fmtname;
 		break;
 	    case CMD_freq: 
-		try {
-		    value = int_to_string(mset.get_termfreq(args[0]));
-		} catch (...) {
-		    value = int_to_string(omdb->get_termfreq(args[0]));
+		if (omdb) {
+		    try {
+			value = int_to_string(mset.get_termfreq(args[0]));
+		    } catch (...) {
+			value = int_to_string(omdb->get_termfreq(args[0]));
+		    }
 		}
 		break;
 	    case CMD_freqs:
@@ -1247,12 +1269,13 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		break;
 	    }
-	    case CMD_record: {
-		int id = q0;
-		if (!args.empty()) id = string_to_int(args[0]);
-		value = omdb->get_document(id).get_data().value;
+	    case CMD_record:
+		if (omdb) {
+		    int id = q0;
+		    if (!args.empty()) id = string_to_int(args[0]);
+		    value = omdb->get_document(id).get_data().value;
+		}
 		break;
-	    }
 	    case CMD_relevant: {
 		// document id if relevant; empty otherwise
 		int id = q0;
@@ -1304,19 +1327,21 @@ eval(const string &fmt, const vector<string> &param)
 		value = int_to_string(string_to_int(args[0]) -
 		       		      string_to_int(args[1]));
 		break;
-	    case CMD_terms: {
-		// list of matching terms
-		OmTermIterator term = enquire->get_matching_terms_begin(q0);
-		for ( ; term != enquire->get_matching_terms_end(q0); term++) {
-		    // check term was in the typed query so we ignore
-		    // boolean filter terms
-		    if (termset.find(*term) != termset.end()) 
-			value = value + *term + '\t';
-		}
+	    case CMD_terms:
+		if (enquire) {
+		    // list of matching terms
+		    OmTermIterator term = enquire->get_matching_terms_begin(q0);
+		    while (term != enquire->get_matching_terms_end(q0)) {
+			// check term was in the typed query so we ignore
+			// boolean filter terms
+			if (termset.find(*term) != termset.end()) 
+			    value = value + *term + '\t';
+			++term;
+		    }
 
-		if (!value.empty()) value.erase(value.size() - 1);
+		    if (!value.empty()) value.erase(value.size() - 1);
+		}
 		break;
-	    }
 	    case CMD_thispage:
 		value = int_to_string(topdoc / hits_per_page + 1);
 		break;
@@ -1324,39 +1349,41 @@ eval(const string &fmt, const vector<string> &param)
 		// first document on current page of hit list (counting from 0)
 		value = int_to_string(topdoc);
 		break;
-	    case CMD_topterms: {
-		int howmany = 20;
-		if (!args.empty()) howmany = string_to_int(args[0]);
-		if (howmany < 0) howmany = 0;
-		    
-		// List of expand terms
-		OmESet eset;
-		ExpandDeciderOmega decider;
-		    
-		if (!rset->empty()) {
-		    eset = enquire->get_eset(howmany, *rset, 0, &decider);
-	    	} else if (mset.size()) {
-		    // invent an rset
-		    OmRSet tmp;
-			
-	    	    int c = 5;
-    		    // FIXME: what if mset does not start at first match?
-		    OmMSetIterator m = mset.begin();
-		    for ( ; m != mset.end(); ++m) {
-			tmp.add_document(*m);
-			if (--c == 0) break;
+	    case CMD_topterms:
+		if (enquire) {
+		    int howmany = 20;
+		    if (!args.empty()) howmany = string_to_int(args[0]);
+		    if (howmany < 0) howmany = 0;
+
+		    // List of expand terms
+		    OmESet eset;
+		    ExpandDeciderOmega decider;
+
+		    if (!rset->empty()) {
+			eset = enquire->get_eset(howmany, *rset, 0, &decider);
+		    } else if (mset.size()) {
+			// invent an rset
+			OmRSet tmp;
+
+			int c = 5;
+			// FIXME: what if mset does not start at first match?
+			OmMSetIterator m = mset.begin();
+			for ( ; m != mset.end(); ++m) {
+			    tmp.add_document(*m);
+			    if (--c == 0) break;
+			}
+
+			eset = enquire->get_eset(howmany, tmp, 0, &decider);
 		    }
-			
-		    eset = enquire->get_eset(howmany, tmp, 0, &decider);
+
+		    OmESetIterator i;
+		    for (i = eset.begin(); i != eset.end(); ++i) {
+			value += *i;
+			value += '\t';
+		    }
+		    if (!value.empty()) value.erase(value.size() - 1);
 		}
-		    
-		for (OmESetIterator i = eset.begin(); i != eset.end(); i++) {
-		    value += *i;
-		    value += '\t';
-		}
-		if (!value.empty()) value.erase(value.size() - 1);
 		break;
-	    }
 	    case CMD_url:
 	        value = percent_encode(args[0]);
 		break;

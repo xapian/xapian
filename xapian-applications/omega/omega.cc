@@ -172,18 +172,11 @@ main2(int argc, char *argv[])
 	    params.set("auto_dir", map_dbname_to_dir(dbname));
 	    omdb->add_database(params);
 	}
+	enquire = new OmEnquire(*omdb);
     }
     catch (const OmError &e) {
-	// FIXME: make this more helpful (and use a template?)
-	// odds are it's not a database
-	cout << "<HTML><HEAD>\n"
-	        "<TITLE>Database `" << dbname << "' not found</TITLE></HEAD>\n"
-	        "<BODY BGCOLOR=white>\n"
-	        "<H3>Database <i>" << dbname << "</i> not found "
-	        "(or not readable)</H3>\n"
-	        "</BODY></HTML>\n";
-        cout << "<!-- " << e.get_msg() << " -->\n";
-	exit(0);
+	omdb = NULL;
+	enquire = NULL;
     }
 
     val = cgi_params.find("DEFAULTOP");
@@ -192,8 +185,6 @@ main2(int argc, char *argv[])
 	    default_op = OmQuery::OP_AND;
     }
 
-    enquire = new OmEnquire(*omdb);
-   
     big_buf = "";
 
     val = cgi_params.find("FMT");
@@ -203,7 +194,7 @@ main2(int argc, char *argv[])
     }
 
     val = cgi_params.find("MORELIKE");
-    if (val != cgi_params.end()) {
+    if (enquire && val != cgi_params.end()) {
 	int doc = atol(val->second.c_str());
        
 	OmRSet tmprset;
@@ -272,42 +263,48 @@ main2(int argc, char *argv[])
     if (val != cgi_params.end()) {
 	v = val->second;
     }
-    int result = set_probabilistic(big_buf, v);
-    if (result == SAME_QUERY) {
-	// work out which mset element is at top of the new page of hits
-	val = cgi_params.find("TOPDOC");
-	if (val != cgi_params.end()) topdoc = atol(val->second.c_str());
+    switch (set_probabilistic(big_buf, v)) {
+	case BAD_QUERY:
+	    // Hmm, how to handle this...
+	    break;
+	case NEW_QUERY:
+	    break;
+	case SAME_QUERY:
+	    // work out which mset element is at top of the new page of hits
+	    val = cgi_params.find("TOPDOC");
+	    if (val != cgi_params.end()) topdoc = atol(val->second.c_str());
 
-	// Handle next, previous, and page links
-	if (cgi_params.find(">") != cgi_params.end()) {
-	    topdoc += hits_per_page;
-	} else if (cgi_params.find("<") != cgi_params.end()) {
-	    if (topdoc >= hits_per_page) topdoc -= hits_per_page;
-	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
-		   (val = cgi_params.find("#")) != cgi_params.end()) {
-	    topdoc = (atol(val->second.c_str()) - 1) * hits_per_page;
-	}
+	    // Handle next, previous, and page links
+	    if (cgi_params.find(">") != cgi_params.end()) {
+		topdoc += hits_per_page;
+	    } else if (cgi_params.find("<") != cgi_params.end()) {
+		if (topdoc >= hits_per_page) topdoc -= hits_per_page;
+	    } else if ((val = cgi_params.find("[")) != cgi_params.end() ||
+		    (val = cgi_params.find("#")) != cgi_params.end()) {
+		topdoc = (atol(val->second.c_str()) - 1) * hits_per_page;
+	    }
 
-	// snap topdoc to page boundary
-	topdoc = (topdoc / hits_per_page) * hits_per_page;
-    }
-    if (result != NEW_QUERY) {
-	// put documents marked as relevant into the rset
-	g = cgi_params.equal_range("R");
-	for (MCI i = g.first; i != g.second; i++) {
-	    string v = i->second;
-	    if (!v.empty()) {
-		vector<string> r = split(v, '.');
-		vector<string>::const_iterator i;
-		for (i = r.begin(); i != r.end(); i++) {
-		    om_docid d = string_to_int(*i);
-		    if (d) {
-			rset->add_document(d);
-			ticked[d] = true;
+	    // snap topdoc to page boundary
+	    topdoc = (topdoc / hits_per_page) * hits_per_page;
+	    /* FALL THRU */
+        case EXTENDED_QUERY:
+	    // put documents marked as relevant into the rset
+	    g = cgi_params.equal_range("R");
+	    for (MCI i = g.first; i != g.second; i++) {
+		string v = i->second;
+		if (!v.empty()) {
+		    vector<string> r = split(v, '.');
+		    vector<string>::const_iterator i;
+		    for (i = r.begin(); i != r.end(); i++) {
+			om_docid d = string_to_int(*i);
+			if (d) {
+			    rset->add_document(d);
+			    ticked[d] = true;
+			}
 		    }
 		}
 	    }
-	}
+	    break;
     }
 
     // Percentage relevance cut-off

@@ -53,7 +53,7 @@ $if{$opt{topterms},
  <hr>
 }
 $if{$eq{$msize,0},
-$if{$query,No documents match your query},
+$if{$query,$or{$html{$error},No documents match your query}},
 $if{$ne{$last,$msize},
  $nice{$add{$topdoc,1}}-$nice{$last} of about $nice{$msize} matches,
  $if{$eq{$topdoc,0},

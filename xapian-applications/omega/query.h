@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,7 +37,8 @@
 // NEW_QUERY entirely new query
 // SAME_QUERY unchanged query
 // EXTENDED_QUERY new query, but based on the old one
-typedef enum { NEW_QUERY, SAME_QUERY, EXTENDED_QUERY } querytype;
+// BAD_QUERY parse error (message in query_parse_error)
+typedef enum { NEW_QUERY, SAME_QUERY, EXTENDED_QUERY, BAD_QUERY } querytype;
 
 querytype set_probabilistic(const string&, const string&);
 om_doccount do_match();
@@ -49,4 +51,6 @@ extern OmStem *stemmer;
 extern string raw_prob;
 extern std::map<om_docid, bool> ticked;
 
+extern void report_error(const string &title, const string &msg);
+    
 #endif /* QUERY_H */

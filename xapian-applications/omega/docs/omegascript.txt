@@ -80,6 +80,10 @@ $defaultop
 $env{VAR}
 	lookup variable in environment
 
+$error
+	error message (e.g. if a database wouldn't open, or the query wasn't
+	parseable) or empty if there wasn't an error
+
 $field{NAME}
 	lookup field in record
 
@@ -218,6 +222,7 @@ $url{TEXT}
 
 $version
 	omega version string
+	
 Numeric Operators:
 ==================
 
