@@ -1,23 +1,78 @@
 Xapian-core 0.8.2 (2004-08-??):
 
-up to: Thu Aug 12 16:26:42 BST 2004  Olly Betts <olly@survex.com>
+up to: Thu Aug 19 14:09:28 BST 2004  Olly Betts <olly@survex.com>
+
+	* matcher/localmatch.cc: Fixed problems handling termweights in
+	  queries with the same term repeated (bug #37) and added
+	  regression test (qterminfo2).
+
+	* xapian.spec.in,debian/libxapianVERSION-dev.install,
+	  extra/.cvsignore,extra/Makefile.am,extra/omparsequery.h,
+	  include/Makefile.am,include/om/.cvsignore,include/om/dir_contents,
+	  include/om/om.h,m4/xapian.m4: Removed the compatibility layer which
+	  allowed programs written against the pre-0.7.0 API to be compiled.
+
+	* bin/,backends/quartz/,tests/quartztest.cc: QuartzCursor no longer
+	  automatically reads the tag - you have to call read_tag() to
+	  get it read.  This speeds up iterator over all the terms in
+	  a database.  Also commented out QuartzCursor::prev as it's
+	  unused and untested (at least in its latest form).
+  NB This code is currently disabled...
+
+* Fixed to compile when configured with --disable-inmemory (bug #33).
+
+	* backends/quartz/btree.cc,backends/quartz/btree.h: Don't redundantly
+	  store next_revision - it's always just revision_number + 1.
+	* backends/quartz/btree.cc,backends/quartz/btree.h: Calculate and
+	  store the latest revision number, rather than storing the other
+	  one and working out which is newer every time we're asked.
+
+	* backends/quartz/btree.cc: Implemented Btree::cancel directly rather
+	  than closing and reopening the Btree.
+
+	* backends/quartz/quartz_database.cc,
+	  backends/quartz/quartz_database.h: Added tunable flush thresholds
+	  - set XAPIAN_FLUSH_THRESHOLD=5000 to flush every 5000 documents
+	  or XAPIAN_FLUSH_THRESHOLD_LENGTH=1000000 to flush every 1000000
+	  total change in document length.  Set both to flush whichever is
+	  reached first.  Set neither and the default is to flush every
+	  1000 documents as before.
+
+* Reworked quartztest's positionlist1 into a generic api test as apitest's
+  poslist3.
 
 	* quartz: Eliminated QuartzBufferedTable and refactored the code to
 	  reduce the number of classes and improve maintainability.  This
 	  speeds up building databases.
+	  Changed Btree::create() to remove any pre-existing alternate base
+	  file, so we no longer need to call Btree::erase before
+	  Btree::create.
+	  Removed no-longer-used Btree::erase and
+	  QuartzTable::erase methods.
+	* backends/quartz/,bin/quartzcheck.cc,bin/quartzcompact.cc,
+	  bin/quartzdump.cc,tests/btreetest.cc,tests/quartztest.cc,
+	  testsuite/btreecheck.cc,testsuite/btreecheck.h: Eliminated
+	  QuartzTable which had become just a thin wrapper around Btree.
 
-	* m4/xapian.m4: XO_LIB_XAPIAN now AC_SUBSTs XAPIAN_VERSION.
+* XO_LIB_XAPIAN now AC_SUBSTs XAPIAN_VERSION.
 
-	* API: Xapian::WritableDatabase::replace_document can now be used
-	  to add a document with a specific docid (to allow keeping docids
-	  in sync with numeric UIDs from another system).
+* API: Xapian::WritableDatabase::replace_document can now be used
+  to add a document with a specific docid (to allow keeping docids
+  in sync with numeric UIDs from another system).
 
-	* API: Added Xapian::WritableDatabase::replace_document and
-	  delete_document variants which take a unique id term name rather
-	  than a document id.
+* API: Added Xapian::WritableDatabase::replace_document and
+  delete_document variants which take a unique id term name rather
+  than a document id.
 
-	* include/xapian/database.h: Better generated API documentation for
-	  Xapian::WritableDatabase::replace_document and delete_document.
+* docs/: Various minor updates and improvements.
+
+* Improved API documentation for Xapian::WritableDatabase::replace_document and
+  delete_document.
+
+* Updated quartz design docs to reflect recent changes.  Also pulled
+  out the Btree and Bcursor API docs and slotted them in as doxygen
+  documentation comments - this way they're much more likely to
+  be kept up-to-date.
 
 Xapian-core 0.8.1 (2004-06-30):
 

@@ -1,3 +1,7 @@
+Thu Aug 19 19:19:48 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated from recent ChangeLog entries.
+
 Thu Aug 19 14:09:28 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: Added regression test for bug #37.
@@ -43,7 +47,7 @@ Mon Aug 16 15:27:30 BST 2004  Olly Betts <olly@survex.com>
 Mon Aug 16 15:08:08 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_table.cc: Fixed QuartzCursor::find()
-    	  to work again after the last change.
+	  to work again after the last change.
 
 Mon Aug 16 14:43:08 BST 2004  Olly Betts <olly@survex.com>
 
@@ -195,7 +199,7 @@ Wed Aug 11 23:40:34 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc,backends/quartz/quartz_database.h:
 	  Eliminated buffered_tables member of QuartzWritableDatabase.
- 
+
 Wed Aug 11 21:26:35 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/inmemory_database.cc,
@@ -323,19 +327,19 @@ Wed Jun 16 02:39:11 BST 2004  Robert Pollak <robert.pollak@fabasoft.com>
 	  quartz index.
 
 Wed Jun 16 02:05:07 BST 2004  Richard Boulton <richard@tartarus.org>
- 
- 	* matcher/multimatch.cc: When collapsing, keep track of the number
- 	  of collapses performed, and use this information to modify the
- 	  bounds and estimate of the number of matches.
- 	* tests/api_db.cc: Added tests for this.
- 	* include/xapian/enquire.h: Update documentation comments for
- 	  MSet::get_matches_*() functions to make clear that collapsing and
- 	  cutoffs are taken into account.  (Previously, the most likely
- 	  interpretation of the comments was that they wouldn't be taken
- 	  into account, but the implementation was that percentage cutoffs
- 	  were taken into account.)  Due to this ambiguity, I think it is
- 	  reasonable to say this isn't an API change.
- 
+
+	* matcher/multimatch.cc: When collapsing, keep track of the number
+	  of collapses performed, and use this information to modify the
+	  bounds and estimate of the number of matches.
+	* tests/api_db.cc: Added tests for this.
+	* include/xapian/enquire.h: Update documentation comments for
+	  MSet::get_matches_*() functions to make clear that collapsing and
+	  cutoffs are taken into account.  (Previously, the most likely
+	  interpretation of the comments was that they wouldn't be taken
+	  into account, but the implementation was that percentage cutoffs
+	  were taken into account.)  Due to this ambiguity, I think it is
+	  reasonable to say this isn't an API change.
+
 Wed Jun 16 01:55:29 BST 2004  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Rearranged code so that the behaviour can
@@ -1187,10 +1191,10 @@ Sun Dec 14 03:38:55 GMT 2003  Olly Betts <olly@survex.com>
 
 	* common/omdebug.cc: Open debug log with flag O_WRONLY so that we can
 	  actually write to it!
- 
+
 Mon Dec 08 01:53:24 GMT 2003  Olly Betts <olly@survex.com>
 
-	* HACKING: Update to mention that building from CVS requires 
+	* HACKING: Update to mention that building from CVS requires
 	  ./configure --enable-maintainer-mode (or use bootstrap).
 
 Mon Dec 01 19:03:00 GMT 2003  Olly Betts <olly@survex.com>
