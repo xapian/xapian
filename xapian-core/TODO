@@ -227,7 +227,7 @@ Big Jobs
 ========
 
 ---------+-----------------+--------------------------------------------------
- High    | API             | Write bindings for other languages (Java, C,
+ High    |cAPI             | Write bindings for other languages (Java, C,
          |                 | perl, python, etc.).
 ---------+-----------------+--------------------------------------------------
  High    | Performance     | Write (speed) performance test suite.
