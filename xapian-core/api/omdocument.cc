@@ -26,7 +26,6 @@
 #include <xapian/document.h>
 #include <xapian/types.h>
 #include "document.h"
-#include "modifieddocument.h"
 #include "maptermlist.h"
 #include "xapian/error.h"
 #include <algorithm>
