@@ -1,3 +1,11 @@
+Thu Mar 11 23:51:10 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: GCC 2.95 supported -Wno-long-long and is our minimum
+	  recommended version, so unconditionally use -Wno-long-long with
+	  GCC, and don't test for it on other compilers (the test incorrectly
+	  decided to use it with SGI's compiler leading to a warning for
+	  every file compiled).
+
 Thu Mar 11 17:29:24 GMT 2004  Olly Betts <olly@survex.com>
 
 	* docs/intro_ir.html: Added a link to "Information Retrieval"

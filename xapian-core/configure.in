@@ -329,36 +329,13 @@ dnl ******************************
 dnl * Set special compiler flags *
 dnl ******************************
 
-dnl Add -Wno-long-long to $AM_CXXFLAGS if it's supported
-AC_MSG_CHECKING([whether -Wno-long-long works with C++])
-AC_LANG_SAVE
-AC_LANG_CPLUSPLUS
-SAVED_CXXFLAGS="$CXXFLAGS"
-CXXFLAGS="$CXXFLAGS -Wno-long-long"
-AC_TRY_LINK(,[return 0],
-		AC_MSG_RESULT(yes); [AM_CXXFLAGS="$AM_CXXFLAGS -Wno-long-long"],
-		AC_MSG_RESULT(no))
-CXXFLAGS="$SAVED_CXXFLAGS"
-unset SAVED_CXXFLAGS
-AC_LANG_RESTORE
-
-dnl Add -Wno-long-long to $AM_CFLAGS if it's supported
-AC_MSG_CHECKING([whether -Wno-long-long works with C])
-AC_LANG_SAVE
-AC_LANG_C
-SAVED_CFLAGS="$CFLAGS"
-CFLAGS="$CFLAGS -Wno-long-long"
-AC_TRY_LINK(,[return 0],
-		AC_MSG_RESULT(yes); [AM_CFLAGS="$AM_CFLAGS -Wno-long-long"],
-		AC_MSG_RESULT(no))
-CFLAGS="$SAVED_CFLAGS"
-unset SAVED_CFLAGS
-AC_LANG_RESTORE
-
 dnl extra flags for building with gcc
-if test yes = "$GCC"; then
-  AM_CFLAGS="$AM_CFLAGS -Wall -W"
-  AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -fno-gnu-keywords"
+if test yes = "$GCC" ; then
+  dnl Since -Wno-long-long appeared by GCC 2.95 and there's not much likelihood
+  dnl Xapian will with anything earlier version, there's not much point testing
+  dnl for it.
+  AM_CFLAGS="$AM_CFLAGS -Wall -W -Wno-long-long"
+  AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wno-long-long -fno-gnu-keywords"
 fi
 
 dnl modify flags for building with stlport
