@@ -54,7 +54,7 @@
  * BITMAP	The bitmap.  This will be BIT_MAP_SIZE raw bytes.
  * REVISION3	A third copy of the revision number, for consistency checks.
  */
-#define CURR_FORMAT 3U
+#define CURR_FORMAT 4U
 
 #if 0
 

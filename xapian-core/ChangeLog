@@ -1,3 +1,12 @@
+Mon Jan  8 19:03:42 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Increment format number in quartz/btree_base.cc.  This isn't
+	  actually due to a change in the btree format, but to ensure that
+	  some databases which were causing problems are rebuilt.
+
+	  We need to add quartz format numbers, separate from the btree format
+	  numbers, to check this kind of thing.
+
 Mon Jan  8 15:13:04 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add some debugging, and fix a test data file.

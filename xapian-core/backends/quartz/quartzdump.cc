@@ -58,11 +58,23 @@ main(int argc, char *argv[])
     std::vector<std::string> tables;
     quartz_revision_number_t revnum = 0;
     bool use_revno = false;
+    om_termname startterm;
+    om_termname endterm;
 
     bool syntax_error = false;
     while (argc && argv[0][0] == '-') {
 	if (argc >= 2 && strcmp(argv[0], "-r") == 0) {
 	    revnum = atoi(argv[1]);
+	    use_revno = true;
+	    argc -= 2;
+	    argv += 2;
+	} else if (argc >= 2 && strcmp(argv[0], "-s") == 0) {
+	    startterm = argv[1];
+	    use_revno = true;
+	    argc -= 2;
+	    argv += 2;
+	} else if (argc >= 2 && strcmp(argv[0], "-e") == 0) {
+	    endterm = argv[1];
 	    use_revno = true;
 	    argc -= 2;
 	    argv += 2;
@@ -81,7 +93,8 @@ main(int argc, char *argv[])
     if (syntax_error || argc != 0) {
 	std::cout << "Syntax:\t" << progname << " <options> <table>...\n"
 		"\t-r <revno>            Specify revision number to open\n"
-		"\t-v                    extra info\n";
+		"\t-s <start>            Start at term start\n";
+		"\t-e <end>              End at term end\n";
 	exit(1);
     }
 

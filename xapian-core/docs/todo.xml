@@ -20,6 +20,12 @@ progress, apart from C].
 Write (speed) performance test suite.
 
 </todoitem>
+<todoitem priority="M" difficulty="1" owner="" area="Quartz" release="0.9">
+
+Add format numbers to the quartz database as a whole, rather than just relying
+on the btree format numbers.
+
+</todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="Indexer" release="1.0">
 
 Make OmRegexFilterNode class send unmatched items to a different output.
