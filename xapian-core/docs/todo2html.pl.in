@@ -78,12 +78,28 @@ if ($ARGV[0] eq '--text') {
     $postamble = "";
 } else {
     $preamble =
-"<HTML>
+'<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<HTML>
 <HEAD>
-<TITLE>Omsee: ToDo</TITLE>
+<META NAME="Created" CONTENT="17/10/00">
+<META NAME="Created By" CONTENT="|l|e|n|s|i|s|">
+<META NAME="Resource Type" CONTENT="Document">
+<META NAME="Copyright" CONTENT="(c)2000 omsee">
+<META NAME="Description" CONTENT="OMSEE developers zone to do list">
+<META NAME="Keywords" CONTENT="OMSEE open muscat to do list required tasks">
+<TITLE>omsee developers zone - to do list</TITLE>
+<LINK rel=stylesheet type="text/css" HREF="http://www.omsee.com/omseeweb.css">
 </HEAD>
-<BODY BGCOLOR=\"#FFFFFF\">
-";
+
+<!--#set var="menupos_1" value="developers" -->
+<!--#set var="menuselection" value="todo" -->
+<!--#set var="topdir" value="../../" -->
+<!--#include virtual="${topdir}tmpl/nav.shtml" -->
+
+<BODY BACKGROUND="../../art/bg.gif" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#333399" ALINK="#6666CC" VLINK="#663366" TOPMARGIN=0 LEFTMARGIN=0 MARGINHEIGHT=0 MARGINWIDTH=0>
+
+<!--#include virtual="${topdir}tmpl/pagebegin.shtml" -->
+';
     $table_begin =
 "<TABLE BORDER=1>
 <TR>
@@ -102,7 +118,8 @@ if ($ARGV[0] eq '--text') {
 
     $postamble =
 "<!-- FOOTER \$ Author: $author \$ \$ Date: $date \$ \$ Id: \$ -->\n" .
-"</BODY>\n</HTML>\n";
+'<!--#include virtual="${topdir}tmpl/pageend.shtml" -->' .
+"\n</BODY>\n</HTML>\n";
 }
 
 print $preamble;
