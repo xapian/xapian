@@ -1,3 +1,8 @@
+Tue Sep 12 17:33:01 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Implemented OmIndexerNode::set_config_string() and added
+	  OmIndexer::set_node_config() to make it useful.
+
 Tue Sep 12 17:12:30 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* The Java bindings now seem to work again, although the automatic

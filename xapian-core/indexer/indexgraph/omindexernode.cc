@@ -425,10 +425,19 @@ void OmIndexerNode::set_output(const std::string &output_name,
     Message mess(new Record("double", value));
     outputs_record[output_name] = new Message(mess);
 }
+
 std::string
 OmIndexerNode::get_config_string(const std::string &key) const
 {
     return settings.get(key);
+}
+
+void
+OmIndexerNode::set_config_string(const std::string &key,
+				 const std::string &value)
+{
+    settings.set(key, value);
+    config_modified(key);
 }
 
 Message OmIndexerNode::get_input_record(const std::string &input_name)

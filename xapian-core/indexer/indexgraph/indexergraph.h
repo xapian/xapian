@@ -43,6 +43,18 @@ class OmIndexer {
 	/** Set the input
 	 */
 	void set_input(Message msg);
+
+	/** Set a configuration value in a node.
+	 *  Will throw an exception if a non-existant node_id is specified.
+	 *
+	 * @param node_id	The id of the node to configure.
+	 * @param key		The key to set
+	 * @param value		The value associated with the key.
+	 */
+	void set_node_config(const std::string &node_id,
+			     const std::string &key,
+			     const std::string &value);
+
 	/** Get the output
 	 */
 	Message get_output();
