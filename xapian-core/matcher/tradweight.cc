@@ -35,6 +35,7 @@ TradWeight::TradWeight(const OmSettings & opts)
     if(param_k < 0) throw OmInvalidArgumentError("Parameter k in traditional weighting formula must be at least 0.");
 }
 
+
 // Calculate weights using statistics retrieved from databases
 void
 TradWeight::calc_termweight() const

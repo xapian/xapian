@@ -52,9 +52,8 @@ class BM25Weight : public IRWeight {
 		  param_D(param_D_)
 		  {}
     public:
-	IRWeight * clone() const {
-	    return new BM25Weight(termweight, lenpart, param_A,
-				  param_B, param_C, param_D);
+	IRWeight * create(const OmSettings &opts) const	{
+	    return new BM25Weight(opts);
 	}
 	BM25Weight(const OmSettings & opts);
 	~BM25Weight() { }

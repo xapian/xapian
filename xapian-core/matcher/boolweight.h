@@ -31,7 +31,9 @@ class BoolWeight : public IRWeight {
     private:
 	BoolWeight() {}
     public:
-	IRWeight * clone() const { return new BoolWeight; }
+	IRWeight * create(const OmSettings &opts) const	{
+	    return new BoolWeight;
+	}
 	BoolWeight(const OmSettings & opts) { }
 	~BoolWeight() { }
 	om_weight get_sumpart(om_termcount wdf, om_doclength len) const { return 0; }

@@ -55,7 +55,7 @@ IRWeight::create(const string &wt_type, const OmSettings & opts)
 	    throw OmOpeningError("Unknown custom weighting scheme `" +
 				 wt_type + "'");
 	}
-	weight = i->second->clone();
+	weight = i->second->create(opts);
     }
 
     // Check that we have a weighting object
@@ -67,6 +67,7 @@ IRWeight::create(const string &wt_type, const OmSettings & opts)
 void
 IRWeight::register_custom(const string &wt_type, const IRWeight *wt)
 {
+    // FIXME threadlock
     Assert(wt);
     if (wt_type.size() == 0 || wt_type.at(0) != 'x') {
 	throw OmInvalidArgumentError("Custom weighting scheme names must start with `x'");

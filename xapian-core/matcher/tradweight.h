@@ -41,8 +41,8 @@ class TradWeight : public IRWeight {
 		: termweight(termweight_), lenpart(lenpart_), param_k(param_k_)
 		{}
     public:
-	IRWeight * clone() const {
-	    return new TradWeight(termweight, lenpart, param_k);
+	IRWeight * create(const OmSettings &opts) const	{
+	    return new TradWeight(opts);
 	}
 	TradWeight(const OmSettings & opts);
 	~TradWeight() { }

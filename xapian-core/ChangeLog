@@ -1,3 +1,7 @@
+Mon Oct 09 13:54:13 BST 2000 Olly Betts
+
+	* IRWeight::clone() -> IRWeight::create(const OmSettings & opts)
+
 Fri Oct  6 18:43:41 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added QuartzWritableDatabase, which inherits from QuartzDatabase.

@@ -49,16 +49,16 @@ class IRWeight {
 
 	static map<string, const IRWeight *> custom_weights;
     public:
-	IRWeight() : initialised(false), weight_calculated(false) { return; }
-	virtual ~IRWeight() { return; }
+	IRWeight() : initialised(false), weight_calculated(false) { }
+	virtual ~IRWeight() { }
 
 	static IRWeight *create(const string &wt_type, const OmSettings & opts);
 
 	/// Register a custom weight object
 	static void register_custom(const string &wt_type, const IRWeight *wt);
 
-	/// Return a clone of this weight object.
-	virtual IRWeight * clone() const = 0;
+	/// Return a new weight object of this type.
+	virtual IRWeight * create(const OmSettings &opts) const = 0;
 
 	/** Initialise the weight object with the neccessary stats, or
 	 *  places to get them from.
