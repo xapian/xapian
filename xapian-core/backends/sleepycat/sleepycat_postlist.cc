@@ -91,7 +91,7 @@ SleepyPostList::get_wdf() const
     return wdf;
 }
 
-SleepyPositionList *
+PositionList *
 SleepyPostList::get_position_list()
 {
     mypositions.set_data(mylist.get_current_item().positions);

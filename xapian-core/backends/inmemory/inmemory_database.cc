@@ -56,7 +56,8 @@ InMemoryPostList::get_doclength() const
 PositionList *
 InMemoryPostList::get_position_list()
 {
-    throw OmUnimplementedError("InMemoryPostList::get_position_list() unimplemented");
+    mypositions.set_data(pos->positions);
+    return &mypositions;
 }
 
 om_termcount

@@ -1,3 +1,11 @@
+Mon Jul  3 15:18:55 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Implemented InMemoryPostList::get_position_list()
+
+	* SleepyPositionList is now replaced by an InMemoryPostList -
+	  implementation is same, only difference is where the initialising
+	  values come from.
+
 Mon Jul  3 14:28:06 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed ProgClient's destructor (was throwing an exception duplicating

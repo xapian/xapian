@@ -6,4 +6,5 @@ noinst_HEADERS = inmemory_database.h inmemory_document.h
 
 noinst_LTLIBRARIES = libinmemory.la
 
-libinmemory_la_SOURCES = inmemory_database.cc inmemory_document.cc
+libinmemory_la_SOURCES = inmemory_database.cc inmemory_document.cc \
+    inmemory_positionlist.cc

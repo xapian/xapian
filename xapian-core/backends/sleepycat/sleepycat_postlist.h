@@ -29,7 +29,7 @@
 class SleepyDatabase;
 class SleepyDatabaseInternals;
 #include "sleepy_list.h"
-#include "sleepy_positionlist.h"
+#include "inmemory_positionlist.h"
 
 /** A postlist in a sleepycat database.
  */
@@ -49,7 +49,7 @@ class SleepyPostList : public LeafPostList {
 	/** List of positions of the current term.
 	 *  This list is populated when get_position_list() is called.
 	 */
-	SleepyPositionList mypositions;
+	InMemoryPositionList mypositions;
 
 	/** Create a SleepyPostList from the specified internals, and
 	 *  using the specified termid.
@@ -71,7 +71,7 @@ class SleepyPostList : public LeafPostList {
 	om_weight    get_weight() const;    // Current weight
 	om_doclength get_doclength() const; // Length of current document
         om_termcount get_wdf() const;	    // Within Document Frequency
-	SleepyPositionList *get_position_list(); // Get positions
+	PositionList *get_position_list(); // Get positions
         PostList * next(om_weight w_min);  // Move to next docid
         PostList * skip_to(om_docid did, om_weight w_min);  // Skip to next docid >= docid
 	bool       at_end() const;      // True if we're off the end of the list

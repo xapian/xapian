@@ -36,7 +36,7 @@
 #include <algorithm>
 #include "om/omdocument.h"
 #include "om/omindexdoc.h"
-
+#include "inmemory_positionlist.h"
 
 // Class representing a posting (a term/doc pair, and
 // all the relevant positional information, is a single posting)
@@ -126,6 +126,11 @@ class InMemoryPostList : public LeafPostList {
 	om_termname tname;
 	om_doccount termfreq;
 	bool started;
+
+	/** List of positions of the current term.
+	 *  This list is populated when get_position_list() is called.
+	 */
+	InMemoryPositionList mypositions;
 
 	const InMemoryDatabase * this_db;
 
