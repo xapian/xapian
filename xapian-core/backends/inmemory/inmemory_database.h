@@ -92,7 +92,7 @@ class TextfileDoc {
 
 
 
-
+// Post List
 class TextfilePostList : public virtual DBPostList {
     friend class TextfileDatabase;
     private:
@@ -101,9 +101,11 @@ class TextfilePostList : public virtual DBPostList {
 	doccount termfreq;
 	bool started;
 
-	doclength normalised_length;
+	const TextfileDatabase * this_db;
 
-	TextfilePostList(const IRDatabase *, const TextfileTerm &);
+	TextfilePostList(const IRDatabase *,
+			 const TextfileDatabase *,
+			 const TextfileTerm &);
     public:
 	doccount get_termfreq() const;
 
@@ -121,31 +123,93 @@ class TextfilePostList : public virtual DBPostList {
 	bool   at_end() const;        // True if we're off the end of the list
 };
 
+
+// Term List
+class TextfileTermList : public virtual TermList {
+    friend class TextfileDatabase;
+    private:
+	vector<TextfilePosting>::const_iterator pos;
+	vector<TextfilePosting>::const_iterator end;
+	bool started;
+
+	TextfileTermList(const TextfileDoc &);
+    public:
+	termid get_termid() const;
+	termcount get_wdf() const; // Number of occurences of term in current doc
+	doccount get_termfreq() const;  // Number of docs indexed by term
+	TermList * next();
+	bool   at_end() const;
+};
+
+
+// Database
+class TextfileDatabase : public virtual IRDatabase {
+    private:
+	map<termname, termid> termidmap;
+	vector<termname> termvec;
+
+	vector<TextfileTerm> postlists;
+	vector<TextfileDoc> termlists;
+
+	vector<doclength> doclengths;
+
+	termid make_term(const termname &);
+	docid make_doc();
+	void make_posting(termid, docid, termcount);
+
+	totlength totlen;
+
+	bool opened; // Whether we have opened the database
+    public:
+	TextfileDatabase();
+	~TextfileDatabase();
+
+	void set_root(IRDatabase *);
+
+	termid term_name_to_id(const termname &) const;
+	termname term_id_to_name(termid) const;
+
+	termid add_term(const termname &);
+	docid add_doc(IRDocument &);
+	void add(termid, docid, termpos);
+
+	void open(const string &pathname, bool readonly);
+	void close();
+
+	doccount  get_doccount() const;
+	doclength get_avlength() const;
+
+	DBPostList * open_post_list(termid) const;
+	TermList * open_term_list(docid) const;
+	IRDocument * open_document(docid) const;
+
+	doclength get_normlength(docid) const;
+};
+
+
+
+
+//////////////////////////////////////////////
+// Inline function definitions for postlist //
+//////////////////////////////////////////////
+
 inline
-TextfilePostList::TextfilePostList(const IRDatabase *db,
+TextfilePostList::TextfilePostList(const IRDatabase *root,
+				   const TextfileDatabase *db,
 				   const TextfileTerm &term)
 	: pos(term.docs.begin()),
 	  end(term.docs.end()),
 	  termfreq(term.docs.size()),
 	  started(false),
-	  normalised_length(1.0)
+	  this_db(db)
 {
-    own_wt.set_stats(db, get_termfreq());
+    own_wt.set_stats(root, get_termfreq());
 }
 
 inline doccount
 TextfilePostList::get_termfreq() const
 {
     return termfreq;
-}
-
-inline weight
-TextfilePostList::get_weight() const
-{
-    Assert(started);
-    Assert(!at_end());
-
-    return ir_wt->get_weight((*pos).positions.size(), normalised_length);
 }
 
 inline docid
@@ -179,21 +243,9 @@ TextfilePostList::at_end() const
 
 
 
-class TextfileTermList : public virtual TermList {
-    friend class TextfileDatabase;
-    private:
-	vector<TextfilePosting>::const_iterator pos;
-	vector<TextfilePosting>::const_iterator end;
-	bool started;
-
-	TextfileTermList(const TextfileDoc &);
-    public:
-	termid get_termid() const;
-	termcount get_wdf() const; // Number of occurences of term in current doc
-	doccount get_termfreq() const;  // Number of docs indexed by term
-	TermList * next();
-	bool   at_end() const;
-};
+//////////////////////////////////////////////
+// Inline function definitions for termlist //
+//////////////////////////////////////////////
 
 inline TextfileTermList::TextfileTermList(const TextfileDoc &doc)
 	: pos(doc.terms.begin()),
@@ -244,58 +296,30 @@ inline bool TextfileTermList::at_end() const
 
 
 
-class TextfileDatabase : public virtual IRDatabase {
-    private:
-	map<termname, termid> termidmap;
-	vector<termname> termvec;
-
-	vector<TextfileTerm> postlists;
-	vector<TextfileDoc> termlists;
-
-	termid make_term(const termname &);
-	docid make_doc();
-	void make_posting(termid, docid, termcount);
-
-	doccount docs;
-	doclength avlength;
-
-	bool opened; // Whether we have opened the database
-    public:
-	TextfileDatabase();
-	~TextfileDatabase();
-
-	void set_root(IRDatabase *);
-
-	termid term_name_to_id(const termname &) const;
-	termname term_id_to_name(termid) const;
-
-	termid add_term(const termname &);
-	docid add_doc(IRDocument &);
-	void add(termid, docid, termpos);
-
-	void open(const string &pathname, bool readonly);
-	void close();
-
-	doccount  get_doccount() const;
-	doclength get_avlength() const;
-
-	DBPostList * open_post_list(termid) const;
-	TermList * open_term_list(docid) const;
-	IRDocument * open_document(docid) const;
-};
-
 inline doccount
 TextfileDatabase::get_doccount() const
 {
     Assert(opened);
-    return docs;
+    return postlists.size();
 }
 
 inline doclength
 TextfileDatabase::get_avlength() const
 {
     Assert(opened);
-    return avlength;
+    doccount docs = TextfileDatabase::get_doccount();
+    Assert(docs != 0);
+    printf("Avlen: %f\n", ((doclength) totlen) / docs);
+    return ((doclength) totlen) / docs;
+}
+
+inline doclength
+TextfileDatabase::get_normlength(docid did) const
+{
+    Assert(opened);
+    Assert(did > 0 && did <= termlists.size());
+
+    return ((doclength) doclengths[did - 1]) / get_avlength();
 }
 
 inline termname

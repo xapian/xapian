@@ -10,6 +10,20 @@
 #include <map>
 #include <list>
 
+//////////////
+// Postlist //
+//////////////
+
+weight
+TextfilePostList::get_weight() const
+{
+    Assert(started);
+    Assert(!at_end());
+
+    return ir_wt->get_weight((*pos).positions.size(),
+			     this_db->get_normlength(get_docid()));
+}
+
 ///////////////////////////
 // Actual database class //
 ///////////////////////////
@@ -25,13 +39,10 @@ TextfileDatabase::~TextfileDatabase() {
 
 void TextfileDatabase::open(const string &pathname, bool readonly) {
     Assert(readonly == true);
-    close();
+    Assert(opened == false); // Can only open once
 
     // Initialise
-    docs = 0;
-    avlength = 1.0;
-    termvec.clear();
-    termidmap.clear();
+    totlen = 0;
 
     // Index document
     termname word = "thou";
@@ -48,17 +59,25 @@ void TextfileDatabase::open(const string &pathname, bool readonly) {
     opened = true;
 }
 
+void TextfileDatabase::close() {
+}
+
 void TextfileDatabase::make_posting(termid tid, docid did, termcount position) {
+    Assert(tid > 0 && tid <= postlists.size());
+    Assert(did > 0 && did <= termlists.size());
+    Assert(did > 0 && did <= doclengths.size());
+
+    // Make the posting
     TextfilePosting posting;
     posting.tid = tid;
     posting.did = did;
     posting.positions.push_back(position);
-    termlists[did - 1].add_posting(posting);
-    postlists[tid - 1].add_posting(posting);
-}
 
-void TextfileDatabase::close() {
-    opened = false;
+    // Now record the posting
+    postlists[tid - 1].add_posting(posting);
+    termlists[did - 1].add_posting(posting);
+    doclengths[did - 1] += posting.positions.size();
+    totlen += posting.positions.size();
 }
 
 DBPostList *
@@ -66,8 +85,7 @@ TextfileDatabase::open_post_list(termid tid) const {
     Assert(opened);
     Assert(tid > 0 && tid <= postlists.size());
 
-    throw OmError("TextfileDatabase.open_post_list() not yet implemented");
-    //return new TextfilePostList(postlists[tid - 1]);
+    return new TextfilePostList(root, this, postlists[tid - 1]);
 }
 
 TermList *
@@ -123,6 +141,10 @@ docid
 TextfileDatabase::make_doc()
 {
     termlists.push_back(TextfileDoc());
+    doclengths.push_back(0);
+
+    AssertParanoid(termlists.size() == doclengths.size());
+
     return termlists.size();
 }
 

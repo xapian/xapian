@@ -10,7 +10,8 @@ typedef unsigned int termpos;  // Type for term positions within documents
 typedef docid doccount;        // Type for counts of documents
 typedef termid termcount;      // Type for counts of terms (eg, wdf, termfreq)
 
-typedef double doclength;      // Type for (averaged) lengths of documents
+typedef double doclength;      // Type for (normalised) lengths of documents
+typedef unsigned long long totlength; // Type for sum of lengths of documents
 
 typedef unsigned int keyno;    // Type for referring to key in document
 
