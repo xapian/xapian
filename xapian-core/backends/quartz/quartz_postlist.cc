@@ -156,20 +156,25 @@ static bool get_tname_from_key(const char **src, const char *end,
 }
 
 static bool
-skip_and_check_tname_in_key(const char **keypos, const char *keyend,
-			    const string &tname)
+check_tname_in_key_lite(const char **keypos, const char *keyend, const string &tname)
 {
     string tname_in_key;
 
     // Read the termname.
-    if (*keypos != keyend) {
-	if (!get_tname_from_key(keypos, keyend, tname_in_key)) {
-	    report_read_error(*keypos);
-	}
+    if (!get_tname_from_key(keypos, keyend, tname_in_key)) {
+	report_read_error(*keypos);
     }
 
     // This should only fail if the postlist doesn't exist at all.
     return tname_in_key == tname;
+}
+ 
+static bool
+check_tname_in_key(const char **keypos, const char *keyend, const string &tname)
+{
+    if (*keypos == keyend) return false;
+
+    return check_tname_in_key_lite(keypos, keyend, tname);
 }
 
 /// Read the start of the first chunk in the posting list.
@@ -432,7 +437,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 		}
 		const char *kpos = cursor->current_key.data();
 		const char *kend = kpos + cursor->current_key.size();
-		if (!skip_and_check_tname_in_key(&kpos, kend, tname)) {
+		if (!check_tname_in_key(&kpos, kend, tname)) {
 		    throw Xapian::DatabaseCorruptError("Expected another key with the same term name but found a different one");
 		}
 
@@ -582,7 +587,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 	    // First find out the initial docid
 	    const char *keypos = orig_key.data();
 	    const char *keyend = keypos + orig_key.size();
-	    if (!skip_and_check_tname_in_key(&keypos, keyend, tname)) {
+	    if (!check_tname_in_key(&keypos, keyend, tname)) {
 		throw Xapian::DatabaseCorruptError("Have invalid key writing to postlist");
 	    }
 	    Xapian::docid initial_did;
@@ -1038,7 +1043,7 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 		    const char * keypos = cursor->current_key.data();
 		    const char * keyend = keypos + cursor->current_key.size();
 
-		    if (!skip_and_check_tname_in_key(&keypos, keyend, tname)) {
+		    if (!check_tname_in_key(&keypos, keyend, tname)) {
 			// Postlist for this termname doesn't exist.
 			break;
 		    }
@@ -1130,7 +1135,7 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 			    // Add in middle of postlist.
 			    keypos = cursor->current_key.data();
 			    keyend = keypos + cursor->current_key.size();
-			    if (!skip_and_check_tname_in_key(&keypos, keyend, tname)) {
+			    if (!check_tname_in_key(&keypos, keyend, tname)) {
 			       // Postlist for this termname doesn't exist.
 			       break;
 			    }
@@ -1197,7 +1202,7 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 		    const char * keypos = cursor->current_key.data();
 		    const char * keyend = keypos + cursor->current_key.size();
 
-		    if (!skip_and_check_tname_in_key(&keypos, keyend, tname)) {
+		    if (!check_tname_in_key(&keypos, keyend, tname)) {
 			// Postlist for this termname doesn't exist.
 			break;
 		    }
