@@ -1,3 +1,7 @@
+Mon Jan 15 18:02:42 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix assertion which was the wrong way round in multimatch.cc
+
 Mon Jan 15 17:46:13 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix initialisation of Btree_base::sequential when creating database.

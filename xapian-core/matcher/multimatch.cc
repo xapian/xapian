@@ -573,7 +573,7 @@ MultiMatch::get_mset_2(PostList *pl,
 	matches_estimated = docs_considered;
 
     if (items.size() < maxitems) {
-	Assert(docs_considered <= items.size() + first);
+	Assert(docs_considered >= items.size() + first || items.size() == 0);
 	matches_lower_bound = docs_considered;
 	matches_upper_bound = docs_considered;
 	matches_estimated = docs_considered;
