@@ -102,9 +102,14 @@ class OmDocument {
 	/** Destructor. */
 	~OmDocument();
 
-	/** Get key by number (>= 0)
-	 */
+	/// Get key by number (>= 0)
 	OmKey get_key(om_keyno key) const;
+
+	void add_key(om_keyno keyno, const OmKey &key);
+
+	void remove_key(om_keyno keyno);
+
+	void clear_keys();
 
 	/** Get data stored in document.
 	 *  This can be expensive, and shouldn't normally be used
@@ -115,22 +120,33 @@ class OmDocument {
 	/// Set data stored in a document.
 	void set_data(const OmData &data);
 
-	void add_key(om_keyno keyno, const OmKey &key);
-
-	void remove_key(om_keyno keyno);
-
-	void clear_keys();
-
 	/** Add an occurrence of a term to the document.
 	 *
-	 *  Multiple occurrences of the term at the same position are represented
-	 *  only once in the positional information, but do increase the wdf.
+	 *  Multiple occurrences of the term at the same position are
+	 *  represented only once in the positional information, but do
+	 *  increase the wdf.
 	 *
 	 *  @param tname  The name of the term.
 	 *  @param tpos   The position of the term.
 	 */
 	void add_posting(const om_termname & tname, om_termpos tpos);
-	
+
+	/** Remove an occurrence of a term to the document.
+	 *
+	 *  @param tname  The name of the term.
+	 *  @param tpos   The position of the term.
+	 */
+	void remove_posting(const om_termname & tname, om_termpos tpos);
+
+	/** Remove a term and all postings associated with it.
+	 *
+	 *  @param tname  The name of the term.
+	 */
+	void remove_term(const om_termname & tname);
+
+	/// Remove all terms and postings.
+	void clear_terms();
+
 	/** Returns a string representing the OmDocument.
 	 *  Introspection method.
 	 */

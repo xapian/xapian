@@ -1,3 +1,8 @@
+Wed Nov 29 12:35:49 GMT 2000 Olly Betts
+
+	* Added OmDocument::remove_posting(), OmDocument::remove_term(),
+	  and OmDocument::clear_terms()
+
 Wed Nov 29 12:31:22 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added another revision number in the middle of the base file,

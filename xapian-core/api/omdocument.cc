@@ -156,3 +156,49 @@ OmDocument::add_posting(const om_termname & tname, om_termpos tpos)
 	i->second.add_posting(tpos);
     }
 }
+
+void
+OmDocument::remove_posting(const om_termname & tname, om_termpos tpos)
+{
+    DEBUGAPICALL(void, "OmDocument::remove_posting", tname << ", " << tpos);
+    // FIXME: need to lock here...
+    if (!internal->terms_here) {
+	// FIXME: read terms from LeafDocument into terms
+	Assert(false);
+	internal->terms_here = true;
+    }
+    std::map<om_termname, OmDocumentTerm>::iterator i;
+    i = internal->terms.find(tname);
+
+    if (i == internal->terms.end()) return;
+    
+    // FIXME: implement
+    // i->second.remove_posting(tpos);
+    // if (no postings left) internal->terms.erase(i);
+    Assert(0);
+}
+
+void
+OmDocument::remove_term(const om_termname & tname)
+{
+    DEBUGAPICALL(void, "OmDocument::remove_term", tname);
+    // FIXME: need to lock here...
+    if (!internal->terms_here) {
+	// FIXME: read terms from LeafDocument into terms
+	Assert(false);
+	internal->terms_here = true;
+    }
+    internal->terms.erase(tname);
+}
+
+
+void
+OmDocument::clear_terms()
+{
+    DEBUGAPICALL(void, "OmDocument::clear_terms", "");
+    if (internal->terms_here) {
+	internal->terms.clear();
+    } else {
+	internal->terms_here = true;
+    }
+}
