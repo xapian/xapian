@@ -1,7 +1,0 @@
-#! /bin/sh
-make libquartz.la &&
-(cd .. && make libbackend.la) &&
-(cd ../.. && make libxapian.la) &&
-make quartztest &&
-./quartztest "$@"
-
