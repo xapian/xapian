@@ -25,7 +25,7 @@
 
 #include "config.h"
 #include "quartz_db_manager.h"
-#include "quartz_db_blocks.h"
+#include "quartz_db_entries.h"
 #include "om/omtypes.h"
 #include "om/omindexdoc.h"
 
@@ -42,7 +42,7 @@ class QuartzDbDiffs {
     protected:
 	/** Blocks which have been changed.
 	 */
-	QuartzDbBlocks diffs;
+	QuartzDbEntries diffs;
 
     public:
 	/** Construct the diffs object.
@@ -50,14 +50,18 @@ class QuartzDbDiffs {
 	QuartzDbDiffs() {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
+	 *
+	 *  Virtual to allow full destruction when a subclass is deleted.
+	 *  Pure virtual to make the class abstract.
 	 */
-	virtual ~QuartzDbDiffs() {};
+	virtual ~QuartzDbDiffs() = 0;
 
-	/** Apply the diffs.  Throws an exception if an error
-	 *  occurs.
+	/** Apply the diffs.  Throws an exception if an error occurs.
 	 */
-	virtual void apply() = 0;
+	void apply();
 };
+
+inline QuartzDbDiffs::~QuartzDbDiffs() {}
 
 /** Class managing a set of diffs to a Quartz PostList database.
  */
@@ -87,10 +91,6 @@ class QuartzPostListDbDiffs : public QuartzDbDiffs {
 	 *                posting list.
 	 */
 	void add_posting(om_termname tname, om_docid did, om_termcount wdf);
-
-	/** Apply the diffs.
-	 */
-	void apply();
 };
 
 /** Class managing a set of diffs to a Quartz PositionList database.
@@ -117,10 +117,6 @@ class QuartzPositionListDbDiffs : public QuartzDbDiffs {
 	void add_positionlist(om_docid did,
 			      om_termname tname,
 			      OmDocumentTerm::term_positions positions);
-
-	/** Apply the diffs.
-	 */
-	void apply();
 };
 
 #endif /* OM_HGUARD_QUARTZ_DB_DIFFS_H */

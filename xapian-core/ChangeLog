@@ -1,3 +1,14 @@
+Thu Sep 14 17:09:53 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Rename QuartzDbBlocks to QuartzDbEntries and finish specifying the
+	  interface.  Implementation is incomplete, but compiles.
+
+	  This also removes the duplicate definition which was causing
+	  includetest to fail.
+
+	* QuartzDbDiffs now has a non-virtual apply() method - implementation
+	  will be identical for all subclasses.
+
 Thu Sep 14 15:06:24 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix the problem with max_or_terms and termfreqs of 0.  Test

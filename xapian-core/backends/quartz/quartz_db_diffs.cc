@@ -25,14 +25,14 @@
 #include "quartz_db_diffs.h"
 
 void
-QuartzPostListDbDiffs::add_posting(om_termname tname,
-				   om_docid did,
-				   om_termcount wdf)
+QuartzDbDiffs::apply()
 {
 }
 
 void
-QuartzPostListDbDiffs::apply()
+QuartzPostListDbDiffs::add_posting(om_termname tname,
+				   om_docid did,
+				   om_termcount wdf)
 {
 }
 
@@ -41,11 +41,6 @@ void
 QuartzPositionListDbDiffs::add_positionlist(om_docid did,
 	om_termname tname,
 	OmDocumentTerm::term_positions positions)
-{
-}
-
-void
-QuartzPositionListDbDiffs::apply()
 {
 }
 

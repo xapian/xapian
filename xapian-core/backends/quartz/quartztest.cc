@@ -26,6 +26,7 @@
 
 #include "quartz_database.h"
 #include "quartz_db_table.h"
+#include "quartz_db_entries.h"
 
 /// Check the values returned by a table containing key/tag "hello"/"world"
 static void check_table_values_hello(const QuartzDbTable & table, string world)
@@ -133,7 +134,7 @@ static void check_table_values_empty(const QuartzDbTable & table)
     TEST_EQUAL(tag.value, "foo");
 }
 
-/// Test making and playing with a quartz_db_table
+/// Test making and playing with a QuartzDbTable
 static bool test_dbtable1()
 {
     QuartzDbTable table1(true);
@@ -265,6 +266,13 @@ static bool test_dbtable1()
     return true;
 }
 
+/// Test making and playing with a QuartzDbEntries
+static bool test_dbentries1()
+{
+    QuartzDbEntries entries;
+    return true;
+}
+
 /// Test opening of a quartz database
 static bool test_open1()
 {
@@ -282,6 +290,7 @@ static bool test_open1()
 /// The lists of tests to perform
 test_desc tests[] = {
     {"quartzdbtable1",		test_dbtable1},
+    {"quartzdbentries1",	test_dbentries1},
     {"quartzopen1",		test_open1},
     {0, 0}
 };
