@@ -44,14 +44,6 @@ Priority | Area            | Task
          |                 | userman, particuarly in examples (eg, search
 	 |                 | engine example)
 ---------+-----------------+--------------------------------------------------
- Medium  | Configure       | Enable pthread stuff to be turned on / off by
-         |                 | configure options.  Make sure linking (-lpthread)
-	 |                 | gets sorted out, too.
----------+-----------------+--------------------------------------------------
- Medium  | Matcher         | Make boolmatch support decision functors.
-         |                 | This could perhaps be done by making boolmatch
-	 |                 | use same code, but a zero weighting scheme.
----------+-----------------+--------------------------------------------------
  Low     |cBackends        | Use pthread locks around inmemory methods
 ---------+-----------------+--------------------------------------------------
  Low     | Backends        | Use pthread locks around database methods
@@ -59,6 +51,9 @@ Priority | Area            | Task
  Low     | Website         | Put TeX documentation on website.
 ---------+-----------------+--------------------------------------------------
  Low     | Documentation   | Merge output of mkdoc.pl with doc++ output. 
+---------+-----------------+--------------------------------------------------
+ Low     | Documentation   | Support use of doxygen to generate documentation
+         |                 | and use this for documentation on website.
 ---------+-----------------+--------------------------------------------------
  Low     | Backends        | Stop d[ba]read from exporting junk symbols
 ---------+-----------------+--------------------------------------------------
