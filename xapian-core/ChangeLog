@@ -1,3 +1,7 @@
+Wed Dec 13 18:06:29 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Uncommented the code in pctcutoff1 - test now passes.
+
 Wed Dec 13 17:53:19 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix: m36_key_file parameter wasn't being set with DA flimsy

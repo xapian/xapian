@@ -591,13 +591,10 @@ static bool test_pctcutoff1()
     TEST_AND_EXPLAIN(mymset2.size() >= num_items,
 		     "Match with % cutoff lost too many items");
 
-    /* FIXME: uncomment
     TEST_AND_EXPLAIN(mymset2.size() == num_items ||
 		     (mymset2.convert_to_percent(mymset2[num_items]) == my_pct &&
 		      mymset2.convert_to_percent(mymset2.back()) == my_pct),
 		     "Match with % cutoff returned too many items");
-		     */
-    return false;
 
     return true;
 }
