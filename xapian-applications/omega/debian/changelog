@@ -1,3 +1,10 @@
+xapian-omega (0.8.4-2) unstable; urgency=low
+
+  * Suggest libwpd7, which is actually present in testing and unstable,
+    rather than libwpd, which isn't.
+
+ -- Richard Boulton <richard@tartarus.org>  Fri, 10 Dec 2004 17:48:58 +0000
+
 xapian-omega (0.8.4-1) unstable; urgency=low
 
   * New upstream release.
