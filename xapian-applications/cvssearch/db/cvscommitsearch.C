@@ -12,6 +12,51 @@
 #include <algorithm>
 
 
+
+#define OFFSET_FILE "/root0/commit.offset"
+
+
+// IT SEEMS LIKE WE ACTUALLY GET MUCH BETTER RESULTS
+// BY LOOKING AT FEWER TRANSACTIONS RETURNED FIRST BY OMSEEK;
+// EXAMPLE:  try sound; you get much better results with the top 100
+// than the top 500.
+
+// only look at top 100 commits
+#define GLOBAL_QUERY_MAX_TRANSACTIONS 100
+
+// to save time, we put a limit on # of transactions outside app
+// however, we look at all app transactions
+#define LOCAL_QUERY_MAX_OTHER_TRANSACTIONS 100
+
+// global
+//#define FIRST_COMMIT 5550
+//#define LAST_COMMIT 7593
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+///////// more on data mining
+
+// we should do data mining at two levels
+
+// at the global level
+
+// and also at the application level
+
+
+
+
+
 // it is sufficient to consider search by commit
 // if our system works properly, because we can be assured that every line of code
 // is involved in at least one commit, so at least one commit will come up 
@@ -33,8 +78,8 @@
 
 /* test konqueror searches right now, get these numbers from offset file */
 /*
-#define FIRST_COMMIT 5550
-#define LAST_COMMIT 7593
+  #define FIRST_COMMIT 5550
+  #define LAST_COMMIT 7593
 */
 
 /* test kword */
@@ -44,9 +89,6 @@
 */
 
 
-// global
-#define FIRST_COMMIT 5550
-#define LAST_COMMIT 7593
 
 
 
@@ -172,6 +214,7 @@ double compute_idf( Db& db, const string& k, const int N ) {
   unsigned int count = find_symbol_count( db, k );
   //  cerr << "compute idf N=" << N << " and count = " << count << " for " << k << endl;
   double idf = log( (double) N / (double) count - 1 );
+  //cerr << "idf = " << idf << endl;
   return idf;
 }
 
@@ -195,14 +238,14 @@ double compute_convinction( unsigned int a_count,
   double convinction = (a_prob * not_b_prob) / ( a_and_not_b_prob );
 
   /**
-  cerr << "b_count " << b_count << endl;
-  cerr << "not_b_count " << not_b_count << endl;
-  cerr << "total_commit_transactions " << total_commit_transactions << endl;
-  cerr << "... a_prob " << a_prob << endl;
-  cerr << "... not_b_prob " << not_b_prob << endl;
-  cerr << "... a_prob*not_b_prob " << a_prob*not_b_prob << endl;
-  cerr << "... a_and_not_b_prob " << a_and_not_b_prob << endl;
-  cerr << "... convinction " << convinction << endl;
+     cerr << "b_count " << b_count << endl;
+     cerr << "not_b_count " << not_b_count << endl;
+     cerr << "total_commit_transactions " << total_commit_transactions << endl;
+     cerr << "... a_prob " << a_prob << endl;
+     cerr << "... not_b_prob " << not_b_prob << endl;
+     cerr << "... a_prob*not_b_prob " << a_prob*not_b_prob << endl;
+     cerr << "... a_and_not_b_prob " << a_and_not_b_prob << endl;
+     cerr << "... convinction " << convinction << endl;
   **/
 
   //#warning "dividing convinction by prob of consequent"
@@ -216,15 +259,13 @@ double compute_convinction( unsigned int a_count,
 }
 
 
-void generate_rules( Db& db,
-                     const set<string> & ranking_system,
+void generate_rules( map<string, int>& item_count,
                      const set<string>& query_symbols,
                      const map<string, int >& relative_item_count,
                      unsigned int transactions_returned,
                      unsigned int total_commit_transactions,
                      map<double, set<string> >& code_term_ranking )
 {
-  assert( ! ranking_system.empty() );
 
   for( map<string, int >::const_iterator i = relative_item_count.begin();
        i != relative_item_count.end(); ++i)
@@ -241,78 +282,21 @@ void generate_rules( Db& db,
 	continue;
       }
 
-      double score = -1.0; // the higher the better
       string prefix = "";
 
-      if ( ranking_system.find( "<=>" ) != ranking_system.end() ) {
-
-	// use interest measure P(A&B)/(P(A)*P(B)) which is symmetric
-	unsigned int symbol_count = find_symbol_count( db, symbol );
-	double A_prob = (double) symbol_count / (double) total_commit_transactions;
-	double B_prob = (double) transactions_returned / (double) total_commit_transactions;
-	double A_and_B_prob = (double) a_and_b_count / (double) total_commit_transactions;
-
-	double interest = A_and_B_prob / ( A_prob * B_prob );
-
-	score = interest;
-	//#warning "taking log of interest now"
-	//            score = log( 1.0 + interest );
-	assert( score >= 0.0 );
-	prefix = "<=>";
-
-      } 
-
- 
-      if ( ranking_system.find( "=>" ) != ranking_system.end() ) {
-
-
-	// generate rule of the form a=>b
-	unsigned int a_count = 0;
-	unsigned int b_count = 0;
-	unsigned int symbol_count = find_symbol_count( db, symbol );
-
-	// normally, we would be here...
-	a_count = transactions_returned; // if only query terms specified, this case applies also
-	b_count = symbol_count;
-
-	double convinction = compute_convinction( a_count, b_count, a_and_b_count, total_commit_transactions );
-
-	if ( score < 0.0 ) {
-	  score = convinction;
-	  prefix = "=>";
-	} else {
-	  assert(0);
-	  score = score * convinction;
-	  prefix +="*=>";
-	}
-
-      }
-
-      if ( ranking_system.find( "<=" ) != ranking_system.end() ) {
-	// generate rule of the form a<=b
-	unsigned int a_count = 0;
-	unsigned int b_count = 0;
-	unsigned int symbol_count = find_symbol_count( db, symbol );
-
-	a_count = symbol_count;
-	b_count = transactions_returned;
-
-	double convinction = compute_convinction( a_count, b_count, a_and_b_count, total_commit_transactions );
-
-	if ( score < 0.0 ) {
-	  score = convinction;
-	  prefix = "<=";
-	} else {
-	  assert(0);
-	  score = score * convinction;
-	  prefix += "*<=";
-	}
-
-      }
-
-      string item = /*prefix +*/ symbol;
-
-      code_term_ranking[ -score ].insert(item);
+      // generate rule of the form a=>b
+      unsigned int a_count = 0;
+      unsigned int b_count = 0;
+      
+      unsigned int symbol_count = item_count[symbol]; //find_symbol_count( db, symbol );
+      
+      // normally, we would be here...
+      a_count = transactions_returned; // if only query terms specified, this case applies also
+      b_count = symbol_count;
+      
+      double convinction = compute_convinction( a_count, b_count, a_and_b_count, total_commit_transactions );
+      
+      code_term_ranking[ -convinction ].insert(symbol);
 
     }
 }
@@ -381,18 +365,24 @@ double compute_magnitude( const map< string, double >& v ) {
     f += (i->second)*(i->second);
   }
   f = sqrt(f);
+
   return f;
 }
 
 double compute_cosine_similarity( const map< string, double >& v1,
 				  const map< string, double >& v2 ) {
 
+
+  if ( v1.size() == 0 || v2.size() == 0 ) {
+    return 0.0;
+  }
+
   double dot = 0.0;
 
   for( map<string, double>::const_iterator i1 = v1.begin(); i1 != v1.end(); i1++ ) {
     map<string, double>::const_iterator i2 = v2.find(i1->first);
     if ( i2 != v2.end() ) {
-      cerr << "shared term " << (i1->first) << " with weights " << (i1->second) << " and " << (i2->second) << endl;
+      //      cerr << "shared term " << (i1->first) << " with weights " << (i1->second) << " and " << (i2->second) << endl;
       dot += (i1->second)*(i2->second);
     }
   }
@@ -402,6 +392,33 @@ double compute_cosine_similarity( const map< string, double >& v1,
 
   return dot / (m1*m2);
   
+}
+
+
+bool commit_of_interest( int commit_id, string& in_opt,
+			map< int, string >& commit_package,
+			map< string, int>& package_last_commit ) {
+  if ( in_opt == "" ) {
+    return true;
+  }
+
+  if ( commit_package[ commit_id ] == in_opt ) {
+    return true;
+  }
+
+  // this could still be a commit for last package
+  // this is not currently handled
+
+  if ( commit_package[ commit_id ] != "" ) {
+    return false;
+  }
+
+  if ( package_last_commit[ in_opt ] == 0 ) { // hack
+    // must mean this is the last package
+    return true;
+  }
+
+  return false;
 }
 
 int main(unsigned int argc, char *argv[]) {
@@ -456,8 +473,48 @@ int main(unsigned int argc, char *argv[]) {
     in.close();
     cerr << "TOTAL COMMIT TRANSACTIONS " << total_commit_transactions << endl;
 
-    Db db(0,0);
-    db.open( (cvsdata +"/root0/db/commit.db").c_str(),  0 , DB_HASH, DB_RDONLY, 0 );
+
+
+    // load commit offset info
+    map< string, int > package_first_commit;
+    map< string, int > package_last_commit;
+    map< int, string > commit_package;
+
+    ifstream in2 (  (cvsdata+OFFSET_FILE).c_str() );
+    string line;
+    string last_package = "";
+    int last_offset = -1;
+    for(;;) {
+      string package; int offset;
+      in2 >> package; 
+      if ( in2.eof() ) {
+	break;
+      }
+      in2 >> offset;
+      //      cerr << "read -" << package <<"- at offset " << offset << endl;     
+      package_first_commit[package] = offset;
+      if ( last_package != "" ) {
+	package_last_commit[last_package] = offset-1;
+	for( int i = last_offset; i <= offset-1; i++ ) {
+	  commit_package[i] = last_package;
+	}
+      }
+      last_package = package;
+      last_offset = offset;
+    }
+    in2.close();
+    
+
+
+
+
+
+
+    Db db_cmt(0,0);
+    db_cmt.open( (cvsdata +"/root0/db/commit_cmt.db").c_str(),  0 , DB_HASH, DB_RDONLY, 0 );
+
+    Db db_code(0,0);
+    db_code.open( (cvsdata +"/root0/db/commit_code.db").c_str(),  0 , DB_HASH, DB_RDONLY, 0 );
 
 
 
@@ -481,9 +538,9 @@ int main(unsigned int argc, char *argv[]) {
     set<string> query_term_set;
     map< string, double > query_vector;
 
-    OmStem stemmer("english");
+    string in_opt = "";
 
-    set<string> ranking_system;
+    OmStem stemmer("english");
 
     for (unsigned int optpos = qpos; optpos < argc; optpos++) {
 
@@ -492,8 +549,12 @@ int main(unsigned int argc, char *argv[]) {
       if ( s.find(":") == 0 ) {
 	queryterms.push_back(s); // symbol, put as is
 	query_symbols.insert(s); // no stemming, no lc
+      } else if ( s.find("in:") == 0 ) {
+	in_opt = s.substr(3);
+	cerr << "RESTRICTED TO -" << in_opt << "-" << endl;
       } else if ( s == "=>" || s == "<=" || s == "<=>" ) {
-	ranking_system.insert(s);
+	cerr << "\nranking system no longer required" << endl;
+	assert(0);
       } else {
 	om_termname term = s;
 	lowercase_term(term);
@@ -505,6 +566,8 @@ int main(unsigned int argc, char *argv[]) {
       }
     }
     cout << endl; // empty line if no query words
+
+    assert( query_vector.size() >= 1 );
 
     OmMSet matches;
 
@@ -526,242 +589,311 @@ int main(unsigned int argc, char *argv[]) {
     map< int, set<string> > transaction_comment_words;
     map< pair<int, string>, int > transaction_comment_word_count;
 
+    map< string, int > item_count; // required for mining subset of all transactions
+
     cerr << "analyzing results from omseek" << endl;
+    int other_transactions_read = 0;
+    int total_transactions_read = 0;
+
+    int last_percentage = 100;
+
     for (OmMSetIterator i = matches.begin(); i != matches.end(); i++) {
+
+      if ( in_opt == "" && total_transactions_read == GLOBAL_QUERY_MAX_TRANSACTIONS ) {
+	break;
+      }
+
       unsigned int sim = matches.convert_to_percent(i);
+      assert( sim <= last_percentage );
+      last_percentage = sim;
+      //      cerr << "sim = " << sim << endl;
+
       OmDocument doc = i.get_document();
       string data = doc.get_data().value;
 
-      //cerr << "Found " << data << endl;
+      total_transactions_read++; // used for global queries
+
+      //      cerr << "Found " << data << endl;
 
       list<string> symbols;
-      split( data, " \n", symbols );
-      //      set<string> S_code, S_comment;
+      split( data, " \n", symbols ); // 20% of time spent here
+
+      //#warning "IGNORING DATA FOR SPEED TEST"
+      //#if 0
+
+      // code below takes 80% of time
 
       // the commit number is also stored in data now, so we need to check for it below
       int commit_id = -1;
+
+
       for( list<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
-	assert( s->length() >= 1 );
+	//	assert( s->length() >= 1 );
 	if ( isdigit((*s)[0]) ) {
 	  if( commit_id != -1 ) {
 	    //	    cerr << "warning:  found " << (*s) << " in code symbol terms" << endl;
 	    continue;
 	  }
-	  
+
 	  commit_id = atoi( s->c_str() );
-	  //	  cerr << "** commit " << commit_id << endl;
+
+	  //      cerr << "** commit " << commit_id << endl;
+	  
+	  if ( !commit_of_interest( commit_id, in_opt, commit_package, package_last_commit ) ) {
+	    other_transactions_read++;
+	    if ( other_transactions_read > LOCAL_QUERY_MAX_OTHER_TRANSACTIONS ) {
+	      //cerr << "skipping other transaction " << commit_id << endl;
+	      goto skip;
+	    } else {
+	      //	      cerr << "ACCEPTED OTHER TRANSACTION " << other_transactions_read << endl;
+	    }
+	  }
+
+
+	  set<string> empty;
+	  transaction_comment_words[commit_id] = empty;
+	  transaction_code_words[commit_id] = empty;
+
 	  continue;
 	}
+
 	assert( commit_id != -1 );
+
+
 	if ( (*s)[0] == '+' ) {
-	  string s2( *s, 1, s->length()-1 );
+	  const string& s2 = s->substr(1);
 	  if ( isdigit(s2[0]) ) {
-	    //	    cerr << "warning:  found " << s2 << " in code comment terms" << endl;
+	    //	    cerr << "warning:  found " << (*s) << " in code comment terms" << endl;
 	    continue;
 	  }
 
-	  if ( s2.length() == 1 ) {
-	    continue;
-	  }
+	  //	  if ( s2.length() == 1 ) {
+	  //	    continue;
+	  //	  }
 
-	  //	  cerr << "converted -" << (*s) << "- to " << "-" << s2 <<"-" << endl;
 	  transaction_comment_word_count[ make_pair( commit_id, s2 ) ] ++;
-	  transaction_comment_words[commit_id].insert(s2);
-	  //	  cerr << "... comment word " << s2 << endl;
+	  transaction_comment_words[commit_id].insert( s2 );
+	  //	  cerr << "... comment word -" << s2 << "-" << endl;
 	} else {
 
-	  if ( s->length() == 1 ) {
-	    continue;
-	  }
+	  //	  if ( s->length() == 1 ) {
+	  //	    continue;
+	  //	  }
 
 	  transaction_code_word_count[ make_pair( commit_id, *s ) ] ++;
 	  transaction_code_words[commit_id].insert(*s);
-	  //	  cerr << "... code word " << (*s) << endl;
+	  //	  cerr << "... code word -" << (*s) << "-" << endl;
 	}
       }
+
+      // update item count
+      for( set<string>::iterator i = transaction_code_words[commit_id].begin();
+	   i != transaction_code_words[commit_id].end(); i++ ) {
+	item_count[*i] ++;
+      }
+
+
+    skip: ;
       assert( commit_id != -1 );
+      //#endif
     }
 
     cerr << "done" << endl;
 
     assert( total_commit_transactions > 0 );
 
-    if ( ! ranking_system.empty() ) {
+    cerr << "# code transactions = " << transaction_code_words.size() << endl;
+    cerr << "# comment transactions = " << transaction_comment_words.size() << endl;
 
-      // the consequent of our rules contains only one item
-      // so we need only count single items
-
-      //////////////////////////////////// count single items
-
-      map< string, int > relative_item_count; // the count is relative to the transactions returned
-
-
-      cerr << "counting single items" << endl;
-      count_single_items( transaction_code_words, relative_item_count );
-
-      // at this point we can generate rules
-      map< double, set<string> > code_term_ranking;
-
-      cerr << "generating rules" << endl;
-      generate_rules( db, ranking_system, query_symbols, relative_item_count,
-		      transaction_code_words.size(),
-		      total_commit_transactions, code_term_ranking );
-
-      cerr << "outputing items" << endl;
-      output_items( code_term_ranking, max_results );
+#warning "data mining done with respect to code"      
 
 
 
+    // the consequent of our rules contains only one item
+    // so we need only count single items
+
+    //////////////////////////////////// count single items
+
+    map< string, int > relative_item_count; // the count is relative to the transactions returned
+
+
+    cerr << "counting single items" << endl;
+    count_single_items( transaction_code_words, relative_item_count );
+
+    // at this point we can generate rules
+    map< double, set<string> > code_term_ranking;
+
+    cerr << "generating rules" << endl;
+    generate_rules( item_count, query_symbols, relative_item_count,
+		    transaction_code_words.size(),
+		    total_commit_transactions, code_term_ranking );
+
+    //    cerr << "outputing items" << endl;
+    //    output_items( code_term_ranking, max_results );
 
 
 
 
 
-      // construct query vector
 
-      map< string, double > expanded_query_vector;
 
-      set< string > query_expansion;
 
-      //      int rank = 0;
+    // construct query vector
 
-      cerr << "creating expanded vector" << endl;
-      for( map< double, set<string> >::const_iterator i = code_term_ranking.begin(); i != code_term_ranking.end(); i++ ) {
-	set<string> W = i->second;
-	for( set<string>::const_iterator w = W.begin(); w != W.end(); w++ ) {
+    map< string, double > expanded_query_vector;
 
-	  double idf = compute_idf( db, *w, total_commit_transactions ); 
-	  //	  rank++;
-	  expanded_query_vector[ *w ] = idf; //*(-(i->first)); //pow(2.0,pow(2.0, -(i->first)));
+    set< string > query_expansion;
 
-	  if ( query_term_set.find(*w) != query_term_set.end() ) {
-	    // this has infinite convinction
-	    expanded_query_vector[*w] *= 5.0; // 10 times as much for query words
-	  }
+    //      int rank = 0;
 
-	  cerr << "word " << *w << " has score " << expanded_query_vector[*w] << endl;
-	  query_expansion.insert(*w);
-	  if ( expanded_query_vector.size() == MAX_QUERY_VECTOR_TERMS ) {
-	    goto done;
-	  }
+    cerr << "creating expanded vector" << endl;
+    for( map< double, set<string> >::const_iterator i = code_term_ranking.begin(); i != code_term_ranking.end(); i++ ) {
+      set<string> W = i->second;
+      for( set<string>::const_iterator w = W.begin(); w != W.end(); w++ ) {
+
+#warning "idf here computed using code counts only"
+	double idf = compute_idf( db_code, *w, total_commit_transactions ); 
+
+
+	//	  rank++;
+	expanded_query_vector[ *w ] = idf; //*(-(i->first)); //pow(2.0,pow(2.0, -(i->first)));
+
+	if ( query_term_set.find(*w) != query_term_set.end() ) {
+	  // this has infinite convinction
+	  expanded_query_vector[*w] *= 5.0; // 10 times as much for query words
+	}
+
+	cerr << "word " << *w << " has score " << expanded_query_vector[*w] << endl;
+	query_expansion.insert(*w);
+	if ( expanded_query_vector.size() == MAX_QUERY_VECTOR_TERMS ) {
+	  goto done;
 	}
       }
-    done: ;
+    }
+  done: ;
 
-      /////////////// okay, now we go over every commit and compute the cosine similarity with the query vector
+    cerr << endl;
+
+    /////////////// okay, now we go over every commit and compute the cosine similarity with the query vector
 
 
 
-      // we compute two cosine similarities
+    // we compute two cosine similarities
+
+    // cosine similarity 1:  query words with comment vector
+
+    // cosine similarity 2:  query expansion words with code vector
+
+
+    map< double, set<int> > final_ranking;
+
+    for( map< int, set<string> >::iterator t = transaction_code_words.begin(); t != transaction_code_words.end(); t++ ) {
+      // we construct a binary vector for the document
+
+      int commit_id = t->first;
+      set<string> T = t->second;
+
+      if ( T.empty() ) {
+	//	  cerr << "... skipping commit with no code words" << endl;
+	continue; // skip empty commits
+      }
+
+
+      if ( ! commit_of_interest( commit_id, in_opt, commit_package, package_last_commit ) ) {
+	//	  cerr << "... skipping commit " << commit_id << " not in app range" << endl;
+	continue;
+      }
+
+	
+      // build code vector
+
+      map< string, double > code_vector;
+      //	cerr << ".. building code vector for commit " << commit_id << endl;
+
+      int total_commit_code_words = 0;
+      for( set<string>::iterator j = T.begin(); j != T.end(); j++ ) {
+	int c = transaction_code_word_count[ make_pair(commit_id, *j) ];
+#warning "idf here computed using code counts"
+	code_vector[ *j ] = (double)c*compute_idf( db_code, *j, total_commit_transactions );;
+	total_commit_code_words += c;
+      }
+
+      // build comment vector
+      //	cerr << ".. building comment vector for commit " << commit_id << endl;
+      map< string, double > comment_vector;
+      set<string> C = transaction_comment_words[commit_id];
+      for( set<string>::iterator c = C.begin(); c != C.end(); c++ ) {
+#warning "idf for comment uses comment counts"
+	comment_vector[ *c ] = (double)transaction_comment_word_count[ make_pair(commit_id, *c) ] * compute_idf( db_cmt, *c, total_commit_transactions );
+      }
+
+
+      //	cerr << "Transaction " << (t->first-FIRST_COMMIT) << " has # code terms = " << total_commit_code_words << endl;
+      //	cerr << "...query expansion size " << query_expansion.size() << endl;
 
       // cosine similarity 1:  query words with comment vector
 
+      double cosine1 = compute_cosine_similarity( query_vector, comment_vector );	
+
+      //      cerr << "... comment cosine similarity = " << cosine1 << endl;
+
       // cosine similarity 2:  query expansion words with code vector
 
-
-      map< double, set<int> > final_ranking;
-
-      for( map< int, set<string> >::iterator t = transaction_code_words.begin(); t != transaction_code_words.end(); t++ ) {
-	// we construct a binary vector for the document
-
-	int commit_id = t->first;
-	set<string> T = t->second;
-
-	if ( T.empty() ) {
-	  //	  cerr << "... skipping commit with no code words" << endl;
-	  continue; // skip empty commits
-	}
+      double cosine2 = compute_cosine_similarity( expanded_query_vector, code_vector );
 
 
-	if ( commit_id < FIRST_COMMIT || commit_id > LAST_COMMIT ) {
-	  //	  cerr << "... skipping commit " << commit_id << " not in app range" << endl;
-	  continue;
-	}
+      //      cerr << ".... code cosine similarity = " << cosine2 << endl;
 
-	
-	// build code vector
-
-	map< string, double > code_vector;
-	cerr << ".. building code vector for commit " << commit_id << endl;
-
-	int total_commit_code_words = 0;
-	for( set<string>::iterator j = T.begin(); j != T.end(); j++ ) {
-	  int c = transaction_code_word_count[ make_pair(commit_id, *j) ];
-	  code_vector[ *j ] = (double)c*compute_idf( db, *j, total_commit_transactions );;
-	  total_commit_code_words += c;
-	}
-
-	// build comment vector
-	cerr << ".. building comment vector for commit " << commit_id << endl;
-	map< string, double > comment_vector;
-	set<string> C = transaction_comment_words[commit_id];
-	for( set<string>::iterator c = C.begin(); c != C.end(); c++ ) {
-	  comment_vector[ *c ] = (double)transaction_comment_word_count[ make_pair(commit_id, *c) ] * compute_idf( db, *c, total_commit_transactions );
-	}
+      // a low value (e.g., 0.01) makes each factor really important
+      double final_score = (0.01+cosine1)*(0.01+cosine2)*log((double)total_commit_code_words);
+      //      cerr << "cosine1 = " << cosine1 << endl;
+      //      cerr << "cosine2 = " << cosine2 << endl;
+      //      cerr << total_commit_code_words << " => " << final_score << endl;
 
 
-	cerr << "Transaction " << (t->first-FIRST_COMMIT) << " has # code terms = " << total_commit_code_words << endl;
-	cerr << "...query expansion size " << query_expansion.size() << endl;
+      /***
+	  cerr << "... multiplying by " << log((double)total_commit_code_words) << endl;
+	  final_score = final_score * log((double)total_commit_code_words);
 
-	// cosine similarity 1:  query words with comment vector
-	double cosine1 = compute_cosine_similarity( query_vector, comment_vector );	
-
-	cerr << "... comment cosine similarity = " << cosine1 << endl;
-
-	// cosine similarity 2:  query expansion words with code vector
-
-	double cosine2 = compute_cosine_similarity( expanded_query_vector, code_vector );
+	  cerr << "... dividing by " <<  log(1.0+transaction_comment_word_count[ commit_id ]) << endl;
+	  final_score = final_score / log(1.0+transaction_comment_word_count[ commit_id ]);
+      ***/
 
 
-	cerr << ".... code cosine similarity = " << cosine2 << endl;
-
-	// a low value (e.g., 0.01) makes each factor really important
-	double final_score = (0.01+cosine1)*(0.01+cosine2)*log((double)total_commit_code_words);
-
-
-	/***
-	cerr << "... multiplying by " << log((double)total_commit_code_words) << endl;
-	final_score = final_score * log((double)total_commit_code_words);
-
-	cerr << "... dividing by " <<  log(1.0+transaction_comment_word_count[ commit_id ]) << endl;
-	final_score = final_score / log(1.0+transaction_comment_word_count[ commit_id ]);
-	***/
-
-
-	final_ranking[-final_score].insert( t->first );
-      }
-
-
-      cerr << "query expansion size = " << query_expansion.size() << endl;
-
-      for( map< double, set<int> >::iterator i = final_ranking.begin(); i != final_ranking.end(); i++ ) {
-	double score = i->first;
-	set<int> S = i->second;
-	for ( set<int>::iterator j = S.begin(); j != S.end(); j++ ) {
-	  cerr << "commit " << ((*j)-FIRST_COMMIT) << " of size " << transaction_code_words[*j].size() << " has score " << -score << endl;
-	}
-      }
-
-
-
-
-
-
-    } else {
-
-      int c = 0;
-      // no ranking system specified, so return list of commit ids
-      for( map< int, set<string> >::iterator i = transaction_code_words.begin(); i != transaction_code_words.end(); i++ ) {
-	cout << i->first << endl;
-	c++;
-	if ( c == max_results ) {
-	  break;
-	}
-      }
-
+      final_ranking[-final_score].insert( t->first );
     }
 
-    db.close(0);
+
+    //    cerr << "query expansion size = " << query_expansion.size() << endl;
+
+    int count = 0;
+    for( map< double, set<int> >::iterator i = final_ranking.begin(); i != final_ranking.end(); i++ ) {
+      double score = i->first;
+      set<int> S = i->second;
+      for ( set<int>::iterator j = S.begin(); j != S.end(); j++ ) {
+	cerr << "commit " << ((*j)-package_first_commit[commit_package[*j]]) << " in package " << commit_package[*j] << " of code size " << transaction_code_words[*j].size() << " has score " << -score << endl;
+
+	/**
+	// show comment profile also
+	cerr << "...-";
+	for( set<string>::iterator k = transaction_comment_words[*j].begin();
+	     k != transaction_comment_words[*j].end(); k++ ) {
+	  cerr << (*k) << "@" << transaction_comment_word_count[ make_pair(*j, *k) ] << " ";
+	}
+	cerr << "-" << endl;
+	**/
+
+	count++;
+	if ( count == max_results ) {
+	  goto completed;
+	}
+      }
+    }
+  completed: ;
+    cerr << endl << endl;
+
+    db_code.close(0);
+    db_cmt.close(0);
 
 
   }

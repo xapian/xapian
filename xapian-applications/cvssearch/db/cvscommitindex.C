@@ -35,12 +35,14 @@
 
 // latent semantic indexing is probably a better way to do this
 // can also use idf instead of stop list
+
+// this stoplist is very help in reducing memory/disk requirements!
 char *stopList[] = {
   // single letters
   "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
 
   // non-interesting items (keep this list very short)
-  "set",
+  //  "set", // want "settings" to work
   "get",
   "string", "str",
   "null", "nil",
@@ -74,7 +76,7 @@ char *stopList[] = {
   "default",
   "delete",
   "do",
-  "double",
+  //  "double", // want double buffering to work
   "dynamic_cast",
   "else",
   "enum",
@@ -126,7 +128,7 @@ char *stopList[] = {
 
 #warning "not handling words with ' in them properly"
   "a",
-  "about",
+  //  "about", // want about dialog box query to work
   "above",
   "across",
   "after",
@@ -145,7 +147,7 @@ char *stopList[] = {
   "among",
   "amongst",
   "amoungst",
-  "amount",
+  //  "amount",
   "an",
   "and",
   "another",
@@ -159,7 +161,7 @@ char *stopList[] = {
   "around",
   "as",
   "at",
-  "back",
+  //  "back",
   "be",
   "became",
   "because",
@@ -176,27 +178,27 @@ char *stopList[] = {
   "besides",
   "between",
   "beyond",
-  "bill",
+  //  "bill",
   "both",
-  "bottom",
+  //  "bottom",
   "but",
   "by",
-  "call",
+  //  "call",
   "can",
   "cannot",
-  "cant",
+  "can't",
   "co",
-  "computer",
+  //  "computer",
   "con",
   "could",
-  "couldnt",
+  "couldn't",
   "cry",
   "de",
   "describe",
   "detail",
   "do",
   "done",
-  "down",
+  //  "down",
   "due",
   "during",
   "each",
@@ -206,7 +208,7 @@ char *stopList[] = {
   "eleven",
   "else",
   "elsewhere",
-  "empty",
+  //  "empty",
   "enough",
   "etc",
   "even",
@@ -219,9 +221,9 @@ char *stopList[] = {
   "few",
   "fifteen",
   "fify",
-  "fill",
-  "find",
-  "fire",
+  //  "fill",
+  //  "find",
+  //  "fire",
   "first",
   "five",
   "for",
@@ -231,15 +233,15 @@ char *stopList[] = {
   "found",
   "four",
   "from",
-  "front",
-  "full",
+  //  "front",
+  //  "full",
   "further",
   "get",
   "give",
-  "go",
+  //  "go",
   "had",
   "has",
-  "hasnt",
+  "hasn't",
   "have",
   "he",
   "hence",
@@ -263,7 +265,7 @@ char *stopList[] = {
   "in",
   "inc",
   "indeed",
-  "interest",
+  //  "interest",
   "into",
   "is",
   "it",
@@ -282,23 +284,23 @@ char *stopList[] = {
   "me",
   "meanwhile",
   "might",
-  "mill",
+  //  "mill",
   "mine",
   "more",
   "moreover",
   "most",
   "mostly",
-  "move",
+  //  "move",
   "much",
   "must",
   "my",
   "myself",
-  "name",
+  //  "name",
   "namely",
   "neither",
   "never",
   "nevertheless",
-  "next",
+  //  "next",
   "nine",
   "no",
   "nobody",
@@ -327,7 +329,7 @@ char *stopList[] = {
   "out",
   "over",
   "own",
-  "part",
+  //  "part",
   "per",
   "perhaps",
   "please",
@@ -344,8 +346,8 @@ char *stopList[] = {
   "several",
   "she",
   "should",
-  "show",
-  "side",
+  //  "show",
+  //  "side",
   "since",
   "sincere",
   "six",
@@ -360,7 +362,7 @@ char *stopList[] = {
   "somewhere",
   "still",
   "such",
-  "system",
+  //  "system",
   "take",
   "ten",
   "than",
@@ -379,7 +381,7 @@ char *stopList[] = {
   "thereupon",
   "these",
   "they",
-  "thick",
+  //  "thick",
   "thin",
   "third",
   "this",
@@ -400,9 +402,9 @@ char *stopList[] = {
   "twenty",
   "two",
   "un",
-  "under",
+  //  "under",
   "until",
-  "up",
+  //  "up",
   "upon",
   "us",
   "very",
@@ -688,7 +690,8 @@ int main(unsigned int argc, char *argv[]) {
     // mainly the frequency of each symbol and
     // # of times it appeared.
     // ----------------------------------------
-    write_DB_database( commit_path + ".db",  commit_all_words);
+    write_DB_database( commit_path + "_cmt.db",  commit_comment_words);
+    write_DB_database( commit_path + "_code.db",  commit_code_words);
     //    write_DB_database( commit_path + ".db1", commit_code_words1);
 
     // ----------------------------------------
@@ -756,6 +759,7 @@ void write_DB_database( const string & database_file,
   // write to a berkeley db, each symbol
   // and # of times it has appeared.
   // ----------------------------------------
+  cerr << "... removing previous version (if any) of " << database_file << endl;
   system( ("rm -rf " + database_file ).c_str() );
   cerr << "... writing out item counts" << endl;
 
