@@ -274,6 +274,8 @@ fi
 if test "$use_purify" = true; then
 CXXLD='purify $(CXX)'
 CCLD='purify $(CC)'
+AC_SUBST(CXXLD)
+AC_SUBST(CCLD)
 enable_static=no
 fi
 
