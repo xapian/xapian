@@ -1,3 +1,7 @@
+Tue Aug  1 15:41:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add autoconf support for compiling with STLport.
+
 Tue Aug  1 15:39:50 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Change C++ style comments in acconfig.h into C style comments.

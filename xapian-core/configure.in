@@ -304,6 +304,9 @@ CME_FIND_SOCKETPAIR
 dnl Add -lnsl to $LDFLAGS if needed (eg Solaris)
 RJB_FIND_GETHOSTENT
 
+dnl See if we want to use STLport
+RJB_FIND_STLPORT
+
 AC_DEFINE(MUS_BUILD_BACKEND_NET,,
   [Define if you want to build net database backend])
 fi
@@ -311,8 +314,8 @@ fi
 if test x$use_pthread = xtrue; then
 AC_DEFINE(MUS_USE_PTHREAD,,
   [Define if you want to build with libpthreads support])
-CFLAGS="$CFLAGS -D_REENTRANT";
-CXXFLAGS="$CXXFLAGS -D_REENTRANT";
+CFLAGS="$CFLAGS -D_REENTRANT -D_PTHREADS";
+CXXFLAGS="$CXXFLAGS -D_REENTRANT -D_PTHREADS";
 fi
 
 dnl *************************
@@ -457,6 +460,17 @@ if test "$GCC" = yes; then
     *) CXXFLAGS="$CXXFLAGS $OPT_LEVEL"
   esac
   changequote([, ])
+fi
+
+dnl modify flags for building with stlport
+if test "x$use_stlport" = yes; then
+  dnl STLport doesn't work with -ansi (at least, at version 4.0)
+  CXXFLAGS=`echo "$CXXFLAGS" | sed "s/-ansi//"`
+  if test "$GCC" = yes; then
+    CXXFLAGS="-nostdinc++ $CXXFLAGS"
+  fi
+  CXXFLAGS="$STLPORT_INCLUDE $CXXFLAGS"
+  LIBS="$STLPORT_LIBS $LIBS"
 fi
 
 dnl *******************************************************************
