@@ -187,9 +187,9 @@ SleepyDatabase::add_document(const struct OmDocumentContents & document)
 
 om_doccount
 SleepyDatabase::add_entry_to_postlist(om_termid tid,
-				       om_docid did,
-				       om_termcount wdf,
-				       const vector<om_termpos> & positions)
+				      om_docid did,
+				      om_termcount wdf,
+				      const vector<om_termpos> & positions)
 {
 // FIXME: suggest refactoring most of this method into a constructor of
 // SleepyPostList, followed by adding an item to the postlist
