@@ -1,3 +1,7 @@
+Fri Mar 17 13:39:10 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Declare this to be version 0.1.1
+
 Thu Mar 16 17:33:36 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* New program "internaltest" added to the test suite, for
