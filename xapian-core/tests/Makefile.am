@@ -13,10 +13,10 @@ PERLTESTS =
 endif
 
 ## Test programs to be run
-TESTS = apitest includetest $(PERLTESTS)
+TESTS = apitest internaltest includetest $(PERLTESTS)
 
 ## Programs to build
-check_PROGRAMS  = apitest includetest stemtest
+check_PROGRAMS  = apitest internaltest includetest stemtest
 
 ## Sources:
 
@@ -26,6 +26,9 @@ includetest_SOURCES = includetest.cc
 
 apitest_SOURCES = apitest.cc testsuite.cc
 apitest_LDADD = ../libomus.la
+
+internaltest_SOURCES = internaltest.cc testsuite.cc
+internaltest_LDADD = ../libomus.la
 
 stemtest_SOURCES = stemtest.cc
 stemtest_LDADD = ../libomus.la

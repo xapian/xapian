@@ -21,23 +21,47 @@
  */
 
 #include <iostream>
+#include <streambuf.h>
 #include <string>
 #include "om/omerror.h"
 #include "testsuite.h"
 
+class null_streambuf : public streambuf {
+};
+
+static null_streambuf nullsb;
+
+test_driver::test_driver()
+	: abort_on_error(false),
+	  out(cout.rdbuf())
+{}
+
+void
+test_driver::set_quiet(bool quiet_)
+{
+    if (quiet_) {
+	out.rdbuf(&nullsb);
+    } else {
+	out.rdbuf(cout.rdbuf());
+    }
+}
 
 //  A wrapper around the tests to trap exceptions,
 //  and avoid having to catch them in every test function.
-bool test_driver::runtest(const test_desc *test)
+//  If this test driver is used for anything other than
+//  Open Muscat tests, then this ought to be provided by
+//  the client, really.
+bool
+test_driver::runtest(const test_desc *test)
 {
     bool success;
     try {
         success = test->run();
     } catch (OmError &err) {
-	cout << "OmError exception: " << err.get_msg();
+	out << "OmError exception: " << err.get_msg();
 	success = false;
     } catch (...) {
-	cout << "Unknown exception! ";
+	out << "Unknown exception! ";
 	success = false;
     }
     return success;
@@ -45,21 +69,21 @@ bool test_driver::runtest(const test_desc *test)
 
 test_driver::result test_driver::run_tests(const test_desc *tests)
 {
-    test_desc *test = &tests[0];
+    const test_desc *test = tests;
     test_driver::result result = {0, 0};
 
     while ((test->name) != 0) {
-    	cout << "Running test: " << test->name << "...";
-	cout.flush();
+    	out << "Running test: " << test->name << "...";
+	out.flush();
 	bool succeeded = runtest(test);
 	if (succeeded) {
 	    ++result.succeeded;
-	    cout << " ok." << endl;
+	    out << " ok." << endl;
 	} else {
 	    ++result.failed;
-	    cout << " FAILED" << endl;
+	    out << " FAILED" << endl;
 	    if (abort_on_error) {
-	        cout << "Test failed - aborting further tests." << endl;
+	        out << "Test failed - aborting further tests." << endl;
 		break;
 	    }
 	}

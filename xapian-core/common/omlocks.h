@@ -26,7 +26,7 @@
 #include "config.h"
 #include "omassert.h"
 
-#ifdef HAVE_LIBPTHREAD
+#ifdef MUS_USE_PTHREAD
 
 #include <pthread.h>
 
@@ -139,7 +139,7 @@ class OmLockSentry {
 	}
 };
 
-#else // !HAVE_LIBPTHREAD
+#else // !MUS_USE_PTHREAD
 
 class OmLock {
     public:
@@ -159,6 +159,6 @@ class OmLockSentry {
 	~OmLockSentry() { }
 };
 
-#endif // HAVE_LIBPTHREAD
+#endif // MUS_USE_PTHREAD
 
 #endif /* OM_HGUARD_OMLOCKS_H */

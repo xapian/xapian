@@ -36,8 +36,7 @@ struct test_desc {
 
 class test_driver {
     public:
-	test_driver() : abort_on_error(false) {};
-
+	test_driver();
 
 	struct result {
 	    unsigned int succeeded;
@@ -47,11 +46,15 @@ class test_driver {
 	result run_tests(const test_desc *tests);
 
 	void set_abort_on_error(bool aoe_);
+	void set_quiet(bool quiet_);
     private:
 	bool runtest(const test_desc *test);
 	
 	// abort tests at the first failure
 	bool abort_on_error;
+
+	// the default stream to output to
+	ostream out;
 };
 
 inline void test_driver::set_abort_on_error(bool aoe_)
