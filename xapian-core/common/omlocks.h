@@ -86,7 +86,8 @@ class OmLock {
 	void unlock() const {
 	    Assert(islocked);
 	    islocked = false;
-	    int retval = pthread_mutex_unlock(&mutex);
+	    int retval;
+	    retval = pthread_mutex_unlock(&mutex);
 
 #ifdef MUS_DEBUG_VERBOSE
 	    if(retval != 0) {
