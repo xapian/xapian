@@ -46,8 +46,8 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    |CDistribution    | Write a network server version
 ---------+-----------------+--------------------------------------------------
- High    |CDistribution    | Add timeouts and throw an exception if no answer
- 	 |		   | is received soon enough.
+ High    |CDistribution    | Make timeouts configurable with a sensible
+         |                 | default.
 ---------+-----------------+--------------------------------------------------
  High    |CDistribution    | Add support for Expand
 ---------+-----------------+--------------------------------------------------
