@@ -33,21 +33,37 @@ MultiPostList::~MultiPostList()
 
 weight MultiPostList::get_weight() const
 {
-    return 1;
+    // FIXME - incorrect formula (?)
+    weight wt = 0;
+    list<MultiPostListInternal>::const_iterator i = postlists.begin();
+    while(i != postlists.end()) {
+	if((*i).currdoc == currdoc)
+	    wt += (*i).pl->get_weight();
+	i++;
+    }
+    return wt;
 }
 
 weight MultiPostList::get_maxweight() const
 {
-    return 1;
+    // FIXME - incorrect formula (?)
+    weight wt = 0;
+    list<MultiPostListInternal>::const_iterator i = postlists.begin();
+    while(i != postlists.end()) {
+	if((*i).currdoc == currdoc)
+	    wt += (*i).pl->get_maxweight();
+	i++;
+    }
+    return wt;
 }
 
 PostList * MultiPostList::next(weight w_min)
 {
     Assert(!at_end());
     
-    list<MultiPostListInternal>::iterator i = postlists.begin();
     docid newdoc = 0;
 
+    list<MultiPostListInternal>::iterator i = postlists.begin();
     while(i != postlists.end()) {
 	// Check if it needs to be advanced
 	if(currdoc >= (*i).currdoc) {
@@ -76,6 +92,8 @@ PostList * MultiPostList::next(weight w_min)
 	finished = true;
     return NULL;
 }
+
+// FIXME - implement skip_to() for efficiency
 
 ///////////////////////////
 // Actual database class //
