@@ -27,6 +27,7 @@ use Cvssearch;
 my $match = "./MatchComment.cgi";
 my $top = "./TopComment.cgi";
 my $querycomment = "./QueryComment.cgi";
+my $source = "./SourceComment.cgi";
 my $cvscompare ="./Compare.cgi";
 my $cvsquery = "./cvsquerydb";
 my $ctrlA = chr(01);
@@ -58,6 +59,26 @@ if (0) {
 
 sub commit {
 	my ($root, $pkg, $id, $symbol) = @_;
+    my @file_ids;
+    my @file_names;
+    my @revisions;
+
+    open (QUERY, "$cvsquery $root $pkg -A $id |");
+    while (<QUERY>) {
+        chomp;
+        if (0) {
+        } elsif (/$ctrlC/) {
+            my @fields = split(/$ctrlC/);
+            @file_ids   = (@file_ids,   $fields[0]);
+            @file_names = (@file_names, $fields[1]);
+            @revisions  = (@revisions,  $fields[2]);
+            last;
+        }
+    }
+    close (QUERY);
+
+	my $fileid = shift @file_ids;
+    my $revision = shift @revisions;
 	my $passparam = "?id=$id&root=$root&pkg=$pkg&symbol=$symbol";
 
     print <<_HTML_;	
@@ -66,8 +87,8 @@ sub commit {
 </head>
 <frameset rows=\"90, 45%, *\">
 	<frame name=\"t\" src=$top$passparam>
-	<frame name=\"m\" src=$match$passparam>
-    <frame name=\"s\" src=$querycomment?root=$root&pkg=$pkg>
+    <frame name=\"m\" src=$match$passparam>
+    <frame name=\"s\" src=$source?root=$root&pkg=$pkg&fileid=$fileid&revision=$revision&symbol=$symbol>
 </frameset>
 <noframes>
 	<body bgcolor=\"#FFFFF0\">
@@ -102,24 +123,24 @@ sub commit_pkg_index {
     my @revisions;
     my $commitid = 1;
     my $cvsroot = Cvssearch::read_cvsroot_dir($root, $cvsdata);
-    print "<h1 align=center>$pkg</h1>\n";
+    print "<h1 align=center>Commits for $pkg</h1>\n";
     print "<b>Up to ";
     print "<a href=\"$cvscompare?root=$root\">[$cvsroot]</a>\n";
     print "</b><p>\n";
     
-    print "Click on a file to display its revision history and see how lines from "; 
-    print "early versions have been matched/aligned with lines in the latest version ";
-    print "(so that commit comments are associated with the correct lines in the ";
-    print "latest version).<br>\n";
+#    print "Click on a file to display its revision history and see how lines from "; 
+#    print "early versions have been matched/aligned with lines in the latest version ";
+#    print "(so that commit comments are associated with the correct lines in the ";
+#    print "latest version).<br>\n";
 
-    print "Click on a revision to display how lines from "; 
-    print "this revision of this file has been matched/aligned with lines in the latest version ";
-    print "(so that commit comments are associated with the correct lines in the ";
-    print "latest version).<br>\n";
+#    print "Click on a revision to display how lines from "; 
+#    print "this revision of this file has been matched/aligned with lines in the latest version ";
+#    print "(so that commit comments are associated with the correct lines in the ";
+#    print "latest version).<br>\n";
 
-    print "Click on a CVS comment to display all the lines involved in that commit "; 
+    print "Click on <b>Browse Code</b> to display all the lines involved in that commit "; 
     print "and have been matched/aligned with lines in the latest version ";
-    print "(so that commit comments are associated with the correct lines in the ";
+    print "(so that the commit comments are associated with the correct lines in the ";
     print "latest version).<br>\n";
     
     print "<hr noshade>\n";
@@ -129,8 +150,8 @@ sub commit_pkg_index {
     # revision number and comment
     # ----------------------------------------
     open (RESULT, "$command |");
-    print "<table  width=\"100%\" border=0 cellspacing=1 cellpadding=2>\n";
-    print "<tr><td class=s>File</td><td class=s>Revision</td><td class=s>CVS Comment</td></tr>\n";
+    print "<table  width=\"100%\" border=0 cellspacing=0 cellpadding=2>\n";
+    print "<tr><td class=s colspan=3>Commit Comments</td></tr>\n";
     while (<RESULT>) {
         chomp;
         if (0) {
@@ -140,8 +161,13 @@ sub commit_pkg_index {
             @filenames = (@filenames, $filename);
             @revisions = (@revisions, $revision);
         } elsif (/$ctrlB/) {
-            my $count = $#filenames + 1;
+            my $count = $#filenames + 2;
             my $printed_comment = 0;
+            print "<tr valign=top>\n";
+            print "<td $class[$i%2] colspan=2>";
+            print "<a href=\"$querycomment?root=$root&pkg=$pkg&id=$commitid\" target=_top><pre>Browse Code</pre></a></td>\n";
+            print "<td $class[$i%2] rowspan=$count><pre>$comment</pre></td>\n";
+            print "</tr>\n";
             foreach (@fileids) {
                 my $filename = shift @filenames;
                 my $revision = shift @revisions;
@@ -151,25 +177,15 @@ sub commit_pkg_index {
                     # ----------------------------------------
                     $filename = substr($filename, length($pkg)+1, length($filename)-length($pkg)-1);
                 }
-
-
                 print "<tr>\n";
-                print "<td $class[$i%2]><a href=# onclick=\"return f($_);\">$filename</a></td>\n";
-                print "<td $class[$i%2]><a href=# onclick=\"return r($_, \'$revision\');\">$revision</a></td>\n";
-
-                if ($printed_comment) {
-                    print "</tr>\n";
-                } else {
-                    print "<td $class[1] rowspan=$count valign=top>";
-                    print "<a href=\"$querycomment?root=$root&pkg=$pkg&id=$commitid\" target=_top>$comment</a></td>\n";
-                    print "</tr>\n";
-                    $printed_comment = 1;
-                    $commitid++;
-                }
-                $i++;
+                print "<td $class[$i%2]>$filename</td>\n";
+                print "<td $class[$i%2]>$revision</td>\n";
+#                print "<td $class[$i%2]><a href=# onclick=\"return f($_);\">$filename</a></td>\n";
+#                print "<td $class[$i%2]><a href=# onclick=\"return r($_, \'$revision\');\">$revision</a></td>\n";
+                print "</tr>\n";
             }
-            print "<tr><td colspan=3><hr></td></tr>\n";
-
+            $commitid++;
+            $i++;
             $comment = "";
             @filenames = ();
             @fileids = ();

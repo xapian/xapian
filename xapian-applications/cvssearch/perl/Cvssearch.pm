@@ -526,7 +526,7 @@ sub print_style_sheet {
     print ".a {background-color:#CCCCFF;}\n";
     print ".o {background-color:#ccccee;}\n";
     print ".c {background-color:#99FF99;}\n";
-    print ".s {background-color:#3366CC; color:#FFFFFF;}\n";
+    print ".s {background-color:#3366CC; color:#FFFFFF; font-weight:bold;}\n";
     print ".d {background-color:#FF9999;}\n";
     print ".n {background-color:#EEEEEE;}\n";
     print ".g {background-color:#dddddd;}\n";
