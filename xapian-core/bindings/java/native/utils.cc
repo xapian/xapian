@@ -43,7 +43,7 @@ void handleNativeError (JNIEnv *env, OmError& err_ref) {
 	    throwNewException (env, "com/muscat/om/OmInvalidArgumentError", msg);
 	}
 	else {
-	    throwNewException (env, "com/muscat/om/OmRuntimeError", msg);
+	    throwNewException (env, "com/muscat/om/OmLogicError", msg);
 	}
     }
     else {
