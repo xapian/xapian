@@ -216,6 +216,7 @@ test_driver::runtest(const test_desc *test)
 		int vg_leaks = 0, vg_dubious = 0, vg_reachable = 0, dummy;
 		VALGRIND_COUNT_LEAKS(vg_leaks, vg_dubious, vg_reachable, dummy);
 		ftruncate(LOG_FD_FOR_VG, 0);
+		lseek(LOG_FD_FOR_VG, 0, SEEK_SET);
 #endif
 		if (!test->run()) {
 		    string s = tout.str();
@@ -242,21 +243,46 @@ test_driver::runtest(const test_desc *test)
 	    if (c == 0 || (c < 0 && errno != EINTR)) break; \
 	    if (c > 0) out << string(buf, c); \
 	} \
-	ftruncate(LOG_FD_FOR_VG, 0); \
     } \
     out << " " << col_red << M << col_reset; \
 } while (0)
+		char buf[1024];
+		lseek(LOG_FD_FOR_VG, 0, SEEK_SET);
+		while (true) {
+		    ssize_t c = read(LOG_FD_FOR_VG, buf, sizeof(buf));
+		    if (c == 0 || (c < 0 && errno != EINTR)) {
+			buf[0] = 0;
+			break;
+		    }
+		    if (c > 0) {
+			ssize_t i = 0;
+			do {
+			    while (i < c && buf[i] != ' ') ++i;
+			} while (++i < c && buf[i] == '\n');
+			char *p = (char *)memchr(buf + i, '\n', c - i);
+			if (p == NULL) p = buf + c;
+			c = p - buf - i;
+			if (c > 1024) c = 79;
+			memmove(buf, buf + i, c);
+			buf[c] = '\0';
+			break;
+		    }
+		}
+		lseek(LOG_FD_FOR_VG, 0, SEEK_END);
 		VALGRIND_DO_LEAK_CHECK;
 		int vg_errs2 = VALGRIND_COUNT_ERRORS;
 		vg_errs = vg_errs2 - vg_errs;
 		int vg_leaks2 = 0, vg_dubious2 = 0, vg_reachable2 = 0;
 		VALGRIND_COUNT_LEAKS(vg_leaks2, vg_dubious2, vg_reachable2,
-			dummy);
+				     dummy);
 		vg_leaks = vg_leaks2 - vg_leaks;
 		vg_dubious = vg_dubious2 - vg_dubious;
 		vg_reachable = vg_reachable2 - vg_reachable;
 		if (vg_errs) {
-		    REPORT_FAIL_VG("USED UNINITIALISED DATA");
+		    string fail_msg(buf);
+		    if (fail_msg.empty())
+			fail_msg = "VALGRIND DETECTED A PROBLEM";
+		    REPORT_FAIL_VG(fail_msg);
 		    return FAIL;
 		}
 		if (vg_leaks > 0) {
@@ -552,7 +578,7 @@ test_driver::parse_command_line(int argc, char **argv)
     }
 
 #ifdef HAVE_VALGRIND
-    if (verbose && RUNNING_ON_VALGRIND) {
+    if (RUNNING_ON_VALGRIND) {
 	// Open a temporary file for valgrind to log to.
 	FILE * f = tmpfile();
 	if (f) {
