@@ -34,9 +34,6 @@ Priority | Area            | Task
  Medium  | Documentation   | Patch doxygen, so that todo items in the body of
          |                 | methods get displayed.
 ---------+-----------------+--------------------------------------------------
- Medium  | API / Debugging | Display debug messages at start and end of all
-         |                 | API methods.
----------+-----------------+--------------------------------------------------
  Medium  | API             | OmDocumentTerm should use a set rather than a
          |                 | map.
 ---------+-----------------+--------------------------------------------------
