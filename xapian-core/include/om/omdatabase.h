@@ -485,7 +485,7 @@ class OmWritableDatabase : public OmDatabase {
 	/** Get a document from the database.
 	 *  FIXME: document more.
 	 */
-	OmDocumentContents get_document(om_docid did);
+	OmDocumentContents get_document(om_docid did) const;
 
 	/** Returns a string representing the database object.
 	 *  Introspection method.

@@ -1,3 +1,8 @@
+Wed Aug 30 17:50:42 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Make OmWritableDatabase::get_document() into a const method -
+	  doesn't change anything.
+
 Wed Aug 30 15:10:09 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Put guards in indexergraph header file to make it empty if
