@@ -405,11 +405,6 @@ indexgraph -> extra (needs to build as a support library?)
 Reduce use of STL in API; Olly has a plan for std::string
 
 </todoitem>
-<todoitem priority="" difficulty="" owner="Olly" area="" release="">
-
-Query parser in a library (latest from Omega)
-
-</todoitem>
 <todoitem priority="" difficulty="" owner="" area="" release="">
 
 Should Omega have a make static target?  Or just document configure runes?
