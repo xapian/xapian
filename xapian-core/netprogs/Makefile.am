@@ -4,6 +4,8 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
+noinst_HEADERS = readquery.h
+
 noinst_PROGRAMS = nettest omnetclient
 
 nettest_SOURCES = nettest.cc
