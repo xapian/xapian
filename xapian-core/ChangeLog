@@ -1,3 +1,9 @@
+Mon Dec 13 02:50:44 GMT 2004  Olly Betts <olly@survex.com>
+
+	* languages/: Added missing '#include <config.h>' to .cc files
+	  (probably harmless, but it should be included as the first thing any
+	  source file does).
+
 Mon Dec 13 02:21:28 GMT 2004  Olly Betts <olly@survex.com>
 
 	* bin/quartzdump.cc: Mark the long options as const.
