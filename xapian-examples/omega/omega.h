@@ -48,10 +48,9 @@ extern const string default_db_name;
 extern vector<int> dlist;
 #endif
 
-#if 0
-class ExpandDeciderFerret : public virtual ExpandDecider {
+class ExpandDeciderFerret : public OmExpandDecider {
     public:
-	bool want_term(const termname& tname) const {
+	int operator()(const om_termname& tname) const {
 	    // only suggest 4 or more letter words for now to
 	    // avoid italian problems FIXME: fix this at index time
 	    if (tname.length() <= 3) return false;
@@ -66,4 +65,3 @@ class ExpandDeciderFerret : public virtual ExpandDecider {
 	    return true;
 	}
 };
-#endif

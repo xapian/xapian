@@ -41,10 +41,10 @@ extern void print_query_page(const string &, long int, long int);
 // declared in parsequery.ll
 extern void parse_prob(const string&);
 
-vector<termname> new_terms;
-static vector<termname> pluses;
-static vector<termname> minuses;
-static vector<termname> normals;
+vector<om_termname> new_terms;
+static vector<om_termname> pluses;
+static vector<om_termname> minuses;
+static vector<om_termname> normals;
 
 #ifdef META
 char *fmtstr = "ÿP\tÿU\tÿC\tÿS\tÿL\tÿW\tÿH\tÿs\tÿM\tÿT\n";
@@ -65,7 +65,7 @@ char *fmtstr =
 
 string raw_prob;
 long int msize = -1;
-map<docid, bool> ticked;
+map<om_docid, bool> ticked;
 
 string gif_dir = "/fx-gif";
 
@@ -77,9 +77,9 @@ string ad_keywords;
 
 string query_string;
 
-matchop op = MOP_OR; // default matching mode
+om_queryop op = OM_MOP_OR; // default matching mode
 
-map<termname, int> matching_map;
+map<om_termname, int> matching_map;
 
 int
 set_probabilistic(const string &newp, const string &oldp)
@@ -118,7 +118,7 @@ set_probabilistic(const string &newp, const string &oldp)
     // short-cut: if the new query has fewer terms, it must be a new one
     if (new_terms.size() < n_old_terms) return 0;
     
-    vector<termname>::const_iterator i = new_terms.begin();
+    vector<om_termname>::const_iterator i = new_terms.begin();
     int is_old = 1;
     while ((pend = strchr(term, '.')) != NULL) {
 	oldterm = string(term, pend - term);
@@ -169,7 +169,7 @@ void add_bterm(const string &term) {
 
 /**************************************************************/
 extern void
-run_query(doccount first, doccount maxhits)
+run_query(om_doccount first, om_doccount maxhits)
 {
     if (!new_terms.empty()) {
 	// now we constuct the query:

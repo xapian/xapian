@@ -28,7 +28,7 @@ long do_match(long int, long int); /* Ol 1997-01-31 return msize */
 
 void add_bterm(const string &);
 
-extern void run_query(doccount first, doccount maxhits);
+extern void run_query(om_doccount first, om_doccount maxhits);
 extern void print_caption(long int);
 extern void print_page_links(char, long int, long int);
 extern void do_picker(char prefix, const char **opts);
@@ -41,13 +41,13 @@ extern string gif_dir;
 
 extern string raw_prob;
 extern long int msize;
-extern map<docid, bool> ticked;
+extern map<om_docid, bool> ticked;
 extern string query_string;
 extern map<char, string> filter_map;
 extern char *fmtstr;
 extern string ad_keywords;
-extern vector<termname> new_terms;
-extern map<termname, int> matching_map;
+extern vector<om_termname> new_terms;
+extern map<om_termname, int> matching_map;
 
 typedef enum { NORMAL, PLUS, MINUS /*, BOOL_FILTER*/ } termtype;
 

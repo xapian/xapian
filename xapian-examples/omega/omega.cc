@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     try {
 	return main2(argc, argv);
     }
-    catch (OmError e) {
+    catch (OmError &e) {
 	cout << "Exception: " << e.get_msg() << endl;
     }
     catch (...) {
@@ -85,10 +85,10 @@ int main(int argc, char *argv[])
 static int main2(int argc, char *argv[])
 {
     string big_buf;
-    docid list_size;
+    om_docid list_size;
     bool more = false;
     int      is_old;
-    docid topdoc = 0;
+    om_docid topdoc = 0;
     char     *method;
     multimap<string, string>::const_iterator val;
     multimap<string, string>::const_iterator notfound = cgi_params.end();
@@ -235,7 +235,7 @@ static int main2(int argc, char *argv[])
 	    args.push_back(db_dir);
 	    enquire->add_database("da_flimsy", args);
 	}
-    } catch (OmError e) {
+    } catch (OmError &e) {
 	cout << e.get_msg() << endl;
     }
    
@@ -249,9 +249,9 @@ static int main2(int argc, char *argv[])
 
     val = cgi_params.find("MATCHOP");
     if (val != notfound) {
-	if (val->second == "AND" || val->second == "and") op = Om_MOP_AND;
+	if (val->second == "AND" || val->second == "and") op = OM_MOP_AND;
     } else if ((val = cgi_params.find("THRESHOLD")) != notfound) {
-	if (atoi(val->second.c_str()) == 100) op = Om_MOP_AND;
+	if (atoi(val->second.c_str()) == 100) op = OM_MOP_AND;
     }
 
     big_buf = "";
@@ -260,12 +260,15 @@ static int main2(int argc, char *argv[])
     if (val != notfound) {
 	int doc = atol(val->second.c_str());
        
-	OmESet topterms;
 	OmRSet tmprset;
 
 	tmprset.add_document(doc);
+
+	OmExpandOptions eoptions;
+	eoptions.use_query_terms(false);
 	ExpandDeciderFerret decider;
-	enquire->get_eset(topterms, tmprset, decider);
+	OmESet topterms =
+		enquire->get_eset(100, tmprset, &eoptions, &decider);
 
 	int c = 0;
 	vector<OmESetItem>::const_iterator i;
@@ -518,7 +521,7 @@ static int main2(int argc, char *argv[])
 	for (MCI i = g.first; i != g.second; i++) {
 	    string v = i->second;
 	    if (!v.empty()) {
-		docid d = atoi(v.c_str());
+		om_docid d = atoi(v.c_str());
 		if (d) {
 		    rset->add_document(d);
 		    ticked[d] = true;
