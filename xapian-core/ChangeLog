@@ -1,3 +1,8 @@
+Wed Jul  5 14:57:10 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* More debugging stuff: flush after each message, and correct a
+	  couple of formatting wonkinesses.
+
 Wed Jul  5 13:12:09 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Implement OmDocumentTerm::get_description() and

@@ -154,7 +154,7 @@ extern OmDebug om_debug;
 	om_ostringstream os; \
 	os << b; \
 	OmLockSentry sentry(*(om_debug.get_mutex())); \
-	om_debug << OM_DEBUG_##a << os.str(); \
+	(om_debug << OM_DEBUG_##a << os.str()).flush(); \
     } \
 }
 

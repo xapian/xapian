@@ -242,6 +242,7 @@ OmMSetItem::get_description() const
     string description;
 
     description = om_inttostring(did) + ", " + doubletostring(wt) + ", " +
+	    collapse_key.get_description();
 
     description = "OmMSetItem(" + description + ")";
 

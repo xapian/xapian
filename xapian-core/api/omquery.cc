@@ -66,7 +66,8 @@ OmQuery::OmQuery(om_queryop op_,
 	: internal(0)
 {
     // FIXME: display the contents of the vector
-    DEBUGAPICALL("OmQuery::OmQuery", "vector<OmQuery *>, " << window);
+    DEBUGAPICALL("OmQuery::OmQuery",
+		 op_ << ", " << "vector<OmQuery *>, " << window);
     vector<OmQueryInternal *> temp;
     vector<OmQuery *>::const_iterator i = qbegin;
     while (i != qend) {
@@ -83,7 +84,8 @@ OmQuery::OmQuery(om_queryop op_,
 	: internal(0)
 {   
     // FIXME: display the contents of the vector
-    DEBUGAPICALL("OmQuery::OmQuery", "vector<OmQuery>, " << window);
+    DEBUGAPICALL("OmQuery::OmQuery",
+		 op_ << ", " << "vector<OmQuery>, " << window);
     vector<OmQueryInternal *> temp;
     vector<OmQuery>::const_iterator i = qbegin;
     while (i != qend) {
@@ -100,7 +102,8 @@ OmQuery::OmQuery(om_queryop op_,
 		 om_termpos window)
 	: internal(0)
 {
-    DEBUGAPICALL("OmQuery::OmQuery", op_ << "vector<om_termname>, " << window);
+    DEBUGAPICALL("OmQuery::OmQuery",
+		 op_ << ", " << "vector<om_termname>, " << window);
     internal = new OmQueryInternal(op_, tbegin, tend, window);
 }
 
