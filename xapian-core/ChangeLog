@@ -1,3 +1,12 @@
+Mon Oct 29 11:54:36 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Changed matcher to form proto-mset using a min-heap (as described
+	  in "Managing Gigabytes", 2nd ed., pp 211-213).  Compared to the
+	  previous "nth-element" approach, this uses about half the memory,
+	  allows the min-weight based matcher optimisations to work sooner,
+	  and should be inherently faster (not yet benchmarked though).  The
+	  code's slightly simpler too.
+
 Mon Oct 29 11:53:38 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Fixed remote backend to pass match_cutoff setting across.

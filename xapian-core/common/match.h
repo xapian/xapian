@@ -46,8 +46,9 @@ bool msetcmp_reverse(const OmMSetItem &, const OmMSetItem &);
 
 /// Compare an OmMSetItem, using a custom function
 class OmMSetCmp {
-    public:
+    private:
 	bool (* fn)(const OmMSetItem &a, const OmMSetItem &b);
+    public:
 	OmMSetCmp(bool (* fn_)(const OmMSetItem &a, const OmMSetItem &b))
 		: fn(fn_) {}
 	bool operator()(const OmMSetItem &a, const OmMSetItem &b) const {
