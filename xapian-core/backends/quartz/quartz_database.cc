@@ -488,7 +488,7 @@ QuartzWritableDatabase::do_add_document(const OmDocument & document)
     // FIXME: this should be configurable
     // FIXME: this should be done by checking memory usage, not the number of
     // changes.
-    if (++changecount > 1000) {
+    if (++changecount >= 1000) {
 	buffered_tables->apply();
 	changecount = 0;
     }
