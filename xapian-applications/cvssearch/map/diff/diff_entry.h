@@ -38,6 +38,7 @@ private:
     range _src;
     range _dst;
     diff_type _type;
+    bool _read_content;
 
     vector<string> _src_lines;
     vector<string> _dst_lines;
@@ -48,7 +49,7 @@ protected:
     virtual void init(unsigned int s1, unsigned int s2, unsigned int d1, unsigned d2, diff_type type);
 
 public:
-    diff_entry::diff_entry();
+    diff_entry::diff_entry(bool read_content = true);
     diff_entry::diff_entry(unsigned int s1, unsigned int s2, unsigned int d1, unsigned d2, diff_type type);
     diff_entry::diff_entry(unsigned int s1, unsigned int s2, unsigned int d1, unsigned d2, char type);
 
@@ -65,5 +66,7 @@ public:
 
     const vector<string> & source_line() const { return _src_lines; }
     const vector<string> & dest_line() const   { return _dst_lines; }
+
+    bool operator==(const diff_entry & r) const;
 };
 #endif

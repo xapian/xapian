@@ -34,7 +34,7 @@ diff::read(istream & is)
     // ----------------------------------------
     while (is)
     {
-        diff_entry entry;
+        diff_entry entry(_read_content);
         is >> entry;
         if (entry.read_status())
         {
@@ -59,4 +59,90 @@ diff::show(ostream & os) const
 
 diff::~diff() 
 {
+}
+
+bool
+diff::operator==(const diff & r) const
+{
+    if (size() != r.size()) 
+    {
+        return false;
+    }
+
+    for (unsigned int i = 0; i < size(); ++i) 
+    {
+        if (_entries[i] != r[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+void
+diff::align_top() 
+{
+    if (!_aligned)
+    {
+        // ----------------------------------------
+        // because the diff entry are read in
+        // increasing order, each entry affects
+        // all subsequent entries, but the source 
+        // range produced by cvs diff 
+        // refers to the old position
+        //
+        // e.g.
+        // 2a3,4   <- this causes a shift of +2
+        //            add to the source of subsequent
+        //            entries.
+        // 
+        // 5,6c7,8 <- this causes no shift
+        // ----------------------------------------
+        int offset = 0;
+        for (unsigned int i = 0; i < _entries.size(); ++i)
+        {
+            try {
+                _entries[i].source() += offset;
+            }
+            catch (range_exception & e)
+            {
+                cerr << e;
+            }
+            offset += _entries[i].size();
+        }
+    }
+}
+
+void
+diff::unalign_top() 
+{
+    if (_aligned)
+    {
+        // ----------------------------------------
+        // because the diff entry are read in
+        // increasing order, each entry affects
+        // all subsequent entries, but the source 
+        // range produced by cvs diff 
+        // refers to the old position
+        //
+        // e.g.
+        // 2a3,4   <- this causes a shift of +2
+        //            add to the source of subsequent
+        //            entries.
+        // 
+        // 5,6c7,8 <- this causes no shift
+        // ----------------------------------------
+        int offset = 0;
+        for (unsigned int i = 0; i < _entries.size(); ++i)
+        {
+            try {
+                _entries[i].source() += -offset;
+            }
+            catch (range_exception & e)
+            {
+                cerr << e;
+            }
+        offset += _entries[i].size();
+        }
+    }
 }

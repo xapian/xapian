@@ -29,6 +29,7 @@
 
 extern bool output_html;
 extern bool read_mode;
+extern bool comp_mode;
 
 extern string scvs_update;
 extern string scvs_diff;
@@ -170,7 +171,6 @@ backward_map_algorithm::get_diff(const cvs_log & log, unsigned int j)
 diff *
 backward_map_algorithm::calc_diff(const cvs_log & log, unsigned int j) 
 {
-// cerr << "calc_diff" << endl;
     diff * pdiff = 0;
     if (j == log.size()-1)
     {
@@ -192,7 +192,7 @@ backward_map_algorithm::calc_diff(const cvs_log & log, unsigned int j)
             << "-r" << log[j].revision()   << " " 
             << "-r" << log[j+1].revision() << " "
             << log.file_name() << ends;
-cerr << ost.str() << endl;        
+        // cerr << ost.str() << endl;        
         process p(ost.str());
         istream *pis = p.process_output();
         if (*pis)
@@ -200,8 +200,50 @@ cerr << ost.str() << endl;
             pdiff = new aligned_diff();
             if (pdiff) {
                 *pis >> *pdiff;
+                pdiff->align_top();
             }
         }
+
+        if (comp_mode)
+        {
+            diff * pdiff2 = new diff(false);
+            if (pdiff2) 
+            {
+                ostrstream ost0;
+                ost0 << scvs_update << "-r" << log[j].revision()
+                     << " " << log.file_name() << " 2>/dev/null >/tmp/a0" << ends;
+                
+                ostrstream ost1;
+                ost1 << scvs_update << "-r" << log[j+1].revision() 
+                     << " " << log.file_name() << " 2>/dev/null >/tmp/a1" << ends;
+                
+                system (ost0.str());
+                system (ost1.str());
+                process p2("./alignment /tmp/a0 /tmp/a1");
+
+                istream * pis2 = p2.process_output();
+                if (*pis2) 
+                {
+                    *pis2 >> *pdiff2;
+                    pdiff2->align_top();
+                }
+
+                system ("rm -rf /tmp/a0");
+                system ("rm -rf /tmp/a1");
+            
+                if (pdiff && *pdiff2 == *pdiff) {
+                } else {
+                    cerr << "different output between two alignment method found" << endl;
+                    cerr << "amir's method" << endl;
+                    cerr << *pdiff2 << endl;
+                    cerr << "***"<< endl;
+                    cerr << "andrew's method" << endl;
+                    cerr << *pdiff << endl;
+                }
+            }
+            delete pdiff2;
+        }
     }
+
     return pdiff;
 }

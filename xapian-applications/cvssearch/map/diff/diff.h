@@ -32,9 +32,16 @@
 class diff : public collection<diff_entry>, public virtual_iostream
 {
 protected:
+    bool _read_content;
+    bool _aligned;
     virtual istream & read(istream &);
     virtual ostream & show(ostream &) const;
+
 public:
     virtual ~diff();
+    diff (bool read_content = true) : _read_content(read_content), _aligned(false) {}
+    bool operator==(const diff & r) const;
+    void align_top();
+    void unalign_top();
 };
 #endif

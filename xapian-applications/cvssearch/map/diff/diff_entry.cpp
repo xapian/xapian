@@ -31,7 +31,8 @@ diff_entry::~diff_entry()
 {
 }
 
-diff_entry::diff_entry()
+diff_entry::diff_entry(bool read)
+    :_read_content(read)
 {
 
 }
@@ -103,6 +104,7 @@ diff_entry::read(istream & is)
     while (getline(is, line))
     {
         char c;
+
         if (line.length() == 0)
         {
             continue;
@@ -165,7 +167,7 @@ diff_entry::read(istream & is)
         }
         init(s1,s2,d1,d2,type);
 
-        if (_type == e_change) 
+        if (_type == e_change && _read_content) 
         {
             string subline;
             for (unsigned int i = 0; is && i < _src.size(); ++i)
@@ -177,14 +179,14 @@ diff_entry::read(istream & is)
                     _src_lines.push_back(subline);
                 }
             }
-            
+
             // ----------------------------------------
             // get separator
             // ----------------------------------------
             do {
                 getline(is,line);
             } while (is && (line.length() == 0 || line[0] != '-'));
-
+            
             for (unsigned int i = 0; is && i < _dst.size(); ++i)
             {
                 getline(is,line);
@@ -242,4 +244,25 @@ diff_entry::size() const
         break;
     }
     return 0;
+}
+
+bool
+diff_entry::operator==(const diff_entry & r) const
+{
+    if (_src != r.source()) 
+    {
+        return false;
+    }
+    
+    if (_dst != r.dest())
+    {
+        return false;
+    }
+
+    if (_type != r.type())
+    {
+        return false;
+    }
+
+    return true;
 }

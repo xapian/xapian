@@ -6,6 +6,8 @@ use cvssearch;
 my $mask = umask "0002";
 my $cvsdata = $ENV{"CVSDATA"};
 my $cvsroot = $ENV{"CVSROOT"};
+my $comp_mode = 0;
+
 $cvsdata = &cvssearch::get_cvsdata();
 $cvsroot = &cvssearch::strip_last_slash($cvsroot);
 
@@ -69,6 +71,9 @@ while ($i<=$#ARGV) {
         }
     } elsif ($ARGV[$i] eq "-h") {
         usage();
+    } elsif ($ARGV[$i] eq "-comp") {
+        $comp_mode = 1;
+        $i++;
     } else {
         # ----------------------------------------
         # assume they are package names
@@ -96,18 +101,13 @@ cvsbuild();
 
 sub cvsbuild {
     my $list_file="$cvsdata/.list";
-    my $time_file="$cvsdata/.time";
 
     my $root =&cvssearch::read_root_dir($cvsroot, $cvsdata);
-    my $delta_time = 0;
     
     # ----------------------------------------
     # clear temp files
     # ----------------------------------------
-    unlink $time_file;
     unlink $list_file;
-    
-    open(TIME, ">$time_file");
     
     foreach (@modules) {
 
@@ -129,15 +129,18 @@ sub cvsbuild {
             # special case if the package is .
             # meaning all packages under the repository
             # ----------------------------------------
+            my $checkout_start_date = time;
             if ($app_path eq ".") {
                 system ("cvs -l -d $cvsroot checkout -d $cvsdata/$root/src . 2>/dev/null");
             } else {
                 system ("cvs -l -d $cvsroot checkout -d $cvsdata/$root/src -N $app_path 2>/dev/null"); 
             }
+            my $checkout_end_date = time;
             
             # ----------------------------------------
             # find files
             # ----------------------------------------
+            my $find_start_date = time;
             my $found_files = 0;
             open(LIST, ">$list_file") || die "cannot create temporary file list\n";
             for ($i = 0; $i <= $#file_types; ++$i) {
@@ -149,43 +152,92 @@ sub cvsbuild {
                 close(FIND_RESULT);
             }
             close(LIST);
-            
+            my $find_end_date = time;
+
+            my $map_start_date;
+            my $map_end_date;
+
+            my $index_start_date;
+            my $index_end_date;
             # ----------------------------------------
             # do cvsmap and cvsindex
             # ----------------------------------------
             if ($found_files) {
-                print TIME "$cvsdata/$root/src/$app_path", "\n";
-                print TIME "Started  @ ", `date`;
-                my $start_date = time;
                 my $prefix_path = "$cvsdata/$root/db/$app_name";
-                system ("$cvsmap -d $cvsroot".
-                        " -i $list_file".
-                        " -db $prefix_path.db".
-                        " -st $prefix_path.st".
-                        " -f1 $prefix_path.cmt".
-                        " -f2 $prefix_path.offset");
-                
-                system ("$cvsindex $root:$app_name");
-                system ("$cvsupdatedb $root $app_name");
-
-                # ----------------------------------------
-                # clear db directory
-                # ----------------------------------------
-                if (-d "$prefix_path.db") {
-                    system ("rm -rf $prefix_path.db/*");
+                if ($comp_mode) {
+                    system ("$cvsmap -d $cvsroot".
+                            " -i $list_file".
+                            " -comp");
                 } else {
-                    mkdir ("$prefix_path.db",0777) || die " cannot mkdir $prefix_path.db: $!";
+                    $map_start_date = time;
+                    system ("$cvsmap -d $cvsroot".
+                            " -i $list_file".
+                            " -db $prefix_path.db".
+                            " -st $prefix_path.st".
+                            " -f1 $prefix_path.cmt".
+                            " -f2 $prefix_path.offset");
+                    $map_end_date = time;
+                    $index_start_date =time;
+                    system ("$cvsindex $root:$app_name");
+                    $index_end_date =time;
+                    system ("$cvsupdatedb $root $app_name");
+                    # ----------------------------------------
+                    # clear db directory
+                    # ----------------------------------------
+                    if (-d "$prefix_path.db") {
+                        system ("rm -rf $prefix_path.db/*");
+                    } else {
+                        mkdir ("$prefix_path.db",0777) || die " cannot mkdir $prefix_path.db: $!";
+                    }
+                    system ("chmod o+r $prefix_path.db?");
+                    system ("mv $prefix_path.db? $prefix_path.db");
+
+                    my $berkeley_size = 0;
+                    my $omsee_size = 0;
+                    my $cmt_size = 0;
+                    
+                    open(SIZE, "du $prefix_path.db|");
+                    while (<SIZE>) {
+                        chomp;
+                        my @fields = split(/\t/);
+                        $berkeley_size = $fields[0];
+                        last;
+                    }
+                    close (SIZE);
+
+                    open(SIZE, "du $prefix_path.om|");
+                    while (<SIZE>) {
+                        chomp;
+                        my @fields = split(/\t/);
+                        $omsee_size = $fields[0];
+                        last;
+                    }
+                    close (SIZE);
+
+                    open(SIZE, "du $prefix_path.cmt|");
+                    while (<SIZE>) {
+                        chomp;
+                        my @fields = split(/\t/);
+                        $cmt_size = $fields[0];
+                        last;
+                    }
+                    close(SIZE);
+
+                    open(STAT, ">>$prefix_path.st") || die "cannot append to statistics file\n";
+                    print STAT "\n";
+                    print STAT "total build time :        \t". (time - $checkout_start_date) . " seconds\n";
+                    print STAT "   checkout time :        \t". ($checkout_end_date - $checkout_start_date) . " seconds\n";
+                    print STAT "   map      time :        \t". ($map_end_date      - $map_start_date). " seconds\n";
+                    print STAT "   index    time :        \t". ($index_end_date    - $index_start_date). "\n";
+                    print STAT "berkeley database size:   \t". $berkeley_size. " KB at $prefix_path.db\n";
+                    print STAT "omsee    database size:   \t". $omsee_size  . " KB at $prefix_path.om\n";
+                    print STAT "cmt      file     size:   \t". $cmt_size . " KB at $prefix_path.cmt\n";
+                    close(STAT);
                 }
-                system ("chmod o+r $prefix_path.db?");
-                system ("mv $prefix_path.db? $prefix_path.db");
-                print TIME "Finished @ ", `date`;
-                $delta_time += time - $start_date;
-                print TIME "\n";
+
             }
         }
     }
-    print TIME "Operation Time: $delta_time Seconds \n";
-    close(TIME);
 }
 
 sub usage() {
@@ -200,6 +252,8 @@ Options:
                        will only do the line mapping for files with extension
                        .html and .java; default types include: c cc cpp C h.
   modules              a list of modules to built, e.g. koffice/kword  kdebase/konqueror
+  -comp                simulates the comparison between the two alignment implementations,
+                       no databases will be written.
   -f app.list          a file containing a list of modules
   -h                   print out this message
 EOF

@@ -62,43 +62,12 @@ html_comparer::html_comparer(const vector<unsigned int> & input1,
     p1 = new process(ost1.str());
     p2 = new process(ost2.str());
 
-    // ----------------------------------------
-    // ****************************
-    // this is done in aligned_diff,
-    // need to undo this.
-    // ****************************
-    // 
-    // because the diff entry are read in
-    // increasing order, each entry affects
-    // all subsequent entries, but the source 
-    // range produced by cvs diff 
-    // refers to the old position
-    //
-    // e.g.
-    // 2a3,4   <- this causes a shift of +2
-    //            add to the source of subsequent
-    //            entries.
-    // 
-    // 5,6c7,8 <- this causes no shift
-    // this is already done..
-    //
-    // ----------------------------------------
-    int offset = 0;
-    for (unsigned int i = 0; i < _diff.size(); ++i)
-    {
-        try {
-            _diff[i].source() += -offset;
-        }
-        catch (range_exception & e)
-        {
-            cerr << e;
-        }
-        offset += _diff[i].size();
-    }
+    _diff.unalign_top();
 }
 
 html_comparer::~html_comparer()
 {
+    _diff.align_top();
     delete p0;
     delete p1;
     delete p2;

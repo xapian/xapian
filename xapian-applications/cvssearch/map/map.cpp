@@ -50,6 +50,7 @@ string scvs_update = "cvs -l -f update -p ";
 string sversion    = "";
 bool use_html = false;
 bool read_mode = false;
+bool comp_mode = false;
 
 static string smax_version_file;
 static string scmt_db     = "/dev/null";
@@ -58,7 +59,6 @@ static string sfile_db    = "/dev/null";
 static string sstats_file = "/dev/null";
 
 static unsigned int num_mappings = 0;
-static unsigned int num_size = 0;
 static unsigned int num_deletes = 0;
 static unsigned int num_updates = 0;
 static unsigned int num_searches = 0;
@@ -109,6 +109,8 @@ main(unsigned int argc, const char **argv)
             use_db = true;
         } else if (!strcmp(argv[i], "-st") && i+1 < argc) {
             sstats_file = argv[++i];
+        } else if (!strcmp(argv[i], "-comp")) {
+            comp_mode = true;
         } else {
             break;
         }
@@ -181,20 +183,21 @@ main(unsigned int argc, const char **argv)
     // ----------------------------------------
     // print statistics information
     // ----------------------------------------
-    if (num_size != 0 && num_lines != 0)
+    if (!use_html && file_index != 0 && num_lines != 0)
     {
-        stats_fout << "************************************************************"
-                   << "total number of updates  " << num_updates << endl
-                   << "total number of deletes  " << num_deletes << endl
-                   << "total number of searches " << num_searches << endl
-                   << "total number of versions " << num_version << endl
-                   << "total number of files " << file_index << endl
-                   << "average number of versions in a file " << num_version / file_index << endl
-                   << "maximum number of versions in a file " << max_version << " " << smax_version_file << endl
-                   << "total number of comments " << num_mappings << endl
-                   << "total number of lines " << num_lines << endl
-                   << "average number of comments per line " << (double) num_mappings / (double) num_lines << endl
-                   << "************************************************************" << endl;
+        stats_fout
+//                    << "total number of updates  " << num_updates << endl
+//                    << "total number of deletes  " << num_deletes << endl
+//                    << "total number of searches " << num_searches << endl
+//                    << "total number of comments " << num_mappings << endl
+//                    << "total number of versions: " << num_version << endl
+            << "total  # of files:        \t" << file_index << endl
+            << "total  # of lines of code:\t" << num_lines << endl
+            << "maximum # versions / file:\t" << max_version << endl
+            << "              the file is:\t" << smax_version_file << endl
+            << "average # versions / file:\t" << num_version / file_index << endl
+            << "average # comments / line:\t" << (double) num_mappings / (double) num_lines << endl
+            ;
     }
     if (pdb_file)
     {
