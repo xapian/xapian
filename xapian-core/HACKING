@@ -9,14 +9,24 @@ Extra options to give to configure:
 
 Note: Non-developer configure options are described in INSTALL
 
---enable-debug=paranoid
---enable-debug=full
-	You should use one of these if you're going to be developing muscat.
-	"paranoid" enables expensive consistency checks in various places in
-	the code.
-	"full" enables the compiling of code to generate verbose debugging
-	messages.
+You will probably want to use some of these if you're going to be developing
+muscat.
 
+--enable-debug
+	This enables compiling of assertion code, to produce warnings if
+	the code gets into an unexpected state, and also compiling into
+	the system of debugging symbols.
+
+--enable-debug=partial
+        This option enables debugging symbols, and some assertions.  It does
+	not enable verbose debugging messages or very expensive assertions.
+
+--enable-debug-verbose
+	This enables compiling into the system of code to generate verbose
+	debugging messages.  See "Debugging Messages", below.
+
+--enable-debug=full
+	This is the same as --enable-debug --enable-debug-verbose
 
 Debugging Messages
 ==================
