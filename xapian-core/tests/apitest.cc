@@ -48,6 +48,8 @@ using std::ostream;
 #include "backendmanager.h"
 #include "utils.h"
 
+#include "api_nodb.h"
+
 OmDatabase
 make_dbgrp(OmDatabase * db1 = 0,
 	   OmDatabase * db2 = 0,
@@ -73,20 +75,6 @@ OmDatabase get_database(const string &dbname, const string &dbname2 = "") {
 // #######################################################################
 // # Tests start here
 
-// always succeeds
-static bool test_trivial()
-{
-    return true;
-}
-
-#if 0
-// always fails (for testing the framework)
-static bool test_alwaysfail()
-{
-    return false;
-}
-#endif
-
 // tests that the backend doesn't return zero docids
 static bool test_zerodocid()
 {
@@ -106,11 +94,10 @@ static bool test_zerodocid()
 
     // We've done the query, now check that the result is what
     // we expect (1 document, with non-zero docid)
-    if (mymset.items.size() != 1)
-	FAIL_TEST("Expected 1 item, got " << mymset.items.size());
+    TEST_MSET_SIZE(mymset, 1);
 
-    if (mymset.items[0].did == 0)
-	FAIL_TEST("A query on a database returned a zero docid");
+    TEST_AND_EXPLAIN(mymset.items[0].did != 0,
+		     "A query on a database returned a zero docid");
 
     return true;
 }
@@ -140,7 +127,7 @@ OmMSet do_get_simple_query_mset(OmQuery query, int maxitems = 10, int first = 0)
 static bool test_simplequery1()
 {
     OmMSet mymset = do_get_simple_query_mset(OmQuery("word"));
-    TEST_EQUAL(mymset.items.size(), 2);
+    TEST_MSET_SIZE(mymset, 2);
     return true;
 }
 
@@ -168,7 +155,7 @@ static bool test_simplequery3()
     OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"));
 
     // Check that 6 documents were returned.
-    TEST_EQUAL(mymset.items.size(), 6);
+    TEST_MSET_SIZE(mymset, 6);
 
     return true;
 }
@@ -298,7 +285,7 @@ static bool test_nullquery1()
 static bool test_msetmaxitems1()
 {
     OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"), 1);
-    TEST_EQUAL(mymset.items.size(), 1);
+    TEST_MSET_SIZE(mymset, 1);
     return true;
 }
 
@@ -352,31 +339,19 @@ static bool test_msetfirst1()
 // tests the converting-to-percent functions
 static bool test_topercent1()
 {
-    bool success = true;
     OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"), 20, 0);
 
-    int last_pct = 101;
-    for (unsigned i=0; i<mymset.items.size(); ++i) {
+    int last_pct = 100;
+    for (unsigned i = 0; i < mymset.items.size(); ++i) {
 	int pct = mymset.convert_to_percent(mymset.items[i]);
-	if (pct != mymset.convert_to_percent(mymset.items[i].wt)) {
-	    success = false;
-	    if (verbose) {
-		cout << "convert_to_%(msetitem) != convert_to_%(wt)" << endl;
-	    }
-	} else if ((pct < 0) || (pct > 100)) {
-	    success = false;
-	    if (verbose) {
-	        cout << "percentage out of range: " << pct << endl;
-	    }
-	} else if (pct > last_pct) {
-	    success = false;
-	    if (verbose) {
-	        cout << "percentage increased over mset" << endl;
-	    }
-	}
+	TEST_AND_EXPLAIN(pct == mymset.convert_to_percent(mymset.items[i].wt),
+			 "convert_to_%(msetitem) != convert_to_%(wt)");
+        TEST_AND_EXPLAIN(pct >= 0 && pct <= 100,
+			 "percentage out of range: " << pct);
+        TEST_AND_EXPLAIN(pct <= last_pct, "percentage increased down mset");
 	last_pct = pct;
     }
-    return success;
+    return true;
 }
 
 class myExpandFunctor : public OmExpandDecider {
@@ -438,18 +413,9 @@ static bool test_expandfunctor1()
 	    ++orig;
 	}
 
-	if ((orig->tname != filt->tname) ||
-	    (orig->wt != filt->wt)) {
-	    success = false;
-	    if (verbose) {
-	        cout << "Mismatch in items "
-	             << orig->tname
-		     << " vs. "
-		     << filt->tname
-		     << " after filtering" << endl;
-	    }
-	    break;
-	}
+	TEST_AND_EXPLAIN(orig->tname == filt->tname && orig->wt == filt->wt,
+			 "Mismatch in items " << orig->tname << " vs. "
+			 << filt->tname << " after filtering");
     }
 
     while (orig != myeset_orig.items.end() && !myfunctor(orig->tname)) {
@@ -465,11 +431,9 @@ static bool test_expandfunctor1()
 		 ostream_iterator<OmESetItem>(cout, " "));
 	    cout << endl;
 	}
-    } else if (filt != myeset.items.end()) {
-        success = false;
-	if (verbose) {
-	    cout << "Extra items in the filtered eset." << endl;
-	}
+    } else {
+	TEST_AND_EXPLAIN(filt == myeset.items.end(),
+			 "Extra items in the filtered eset.");
     }
 
     return success;
@@ -509,7 +473,7 @@ static bool test_matchfunctor1()
 
 void print_mset_percentages(const OmMSet &mset)
 {
-    for (unsigned i=0; i<mset.items.size(); ++i) {
+    for (unsigned i = 0; i < mset.items.size(); ++i) {
         cout << " ";
 	cout << mset.convert_to_percent(mset.items[i]);
     }
@@ -518,17 +482,15 @@ void print_mset_percentages(const OmMSet &mset)
 // tests the percent cutoff option
 static bool test_pctcutoff1()
 {
-    bool success = true;
-
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
     OmMSet mymset1 = enquire.get_mset(0, 100);
 
     if (verbose) {
-      cout << "Original mset pcts:";
-      print_mset_percentages(mymset1);
-      cout << endl;
+	cout << "Original mset pcts:";
+	print_mset_percentages(mymset1);
+	cout << endl;
     }
 
     unsigned int num_items = 0;
@@ -538,19 +500,13 @@ static bool test_pctcutoff1()
         int new_pct = mymset1.convert_to_percent(mymset1.items[i]);
         if (new_pct != my_pct) {
 	    changes++;
-	    if (changes <= 3) {
-	        num_items = i;
-		my_pct = new_pct;
-	    }
+	    if (changes > 3) break;
+	    num_items = i;
+	    my_pct = new_pct;
 	}
     }
 
-    if (changes <= 3) {
-	success = false;
-        if (verbose) {
-	    cout << "MSet not varied enough to test" << endl;
-	}
-    }
+    TEST_AND_EXPLAIN(changes > 3, "MSet not varied enough to test");
     if (verbose) {
         cout << "Cutoff percent: " << my_pct << endl;
     }
@@ -565,25 +521,14 @@ static bool test_pctcutoff1()
         cout << endl;
     }
 
-    if (mymset2.items.size() < num_items) {
-        success = false;
-	if (verbose) {
-	    cout << "Match with % cutoff lost too many items" << endl;
-	}
-    } else if (mymset2.items.size() > num_items) {
-        for (unsigned int i=num_items; i<mymset2.items.size(); ++i) {
-	    if (mymset2.convert_to_percent(mymset2.items[i]) != my_pct) {
-	        success = false;
-		if (verbose) {
-		    cout << "Match with % cutoff returned too many items"
-			 << endl;
-		}
-		break;
-	    }
-	}
-    }
+    TEST_AND_EXPLAIN(mymset2.items.size() >= num_items,
+		     "Match with % cutoff lost too many items");
+    TEST_AND_EXPLAIN(mymset2.items.size() == num_items ||
+		     (mymset2.convert_to_percent(mymset2.items[num_items]) == my_pct &&
+		      mymset2.convert_to_percent(mymset2.items.back()) == my_pct),
+		     "Match with % cutoff returned too many items");
 
-    return success;
+    return true;
 }
 
 // tests the allow query terms expand option
@@ -624,8 +569,6 @@ static bool test_allowqterms1()
 // tests that the MSet max_attained works
 static bool test_maxattain1()
 {
-    bool success = true;
-
     OmMSet mymset = do_get_simple_query_mset(OmQuery("thi"), 100, 0);
 
     om_weight mymax = 0;
@@ -634,15 +577,11 @@ static bool test_maxattain1()
 	    mymax = mymset.items[i].wt;
 	}
     }
-    if (mymax != mymset.max_attained) {
-        success = false;
-	if (verbose) {
-	    cout << "Max weight in MSet is " << mymax
-	         << ", max_attained = " << mymset.max_attained << endl;
-        }
-    }
+    TEST_AND_EXPLAIN(mymax == mymset.max_attained,
+		     "Max weight in MSet is " << mymax
+		     << ", max_attained = " << mymset.max_attained);
 
-    return success;
+    return true;
 }
 
 // tests the collapse-on-key
@@ -947,17 +886,6 @@ static bool test_getmterms1()
     return success;
 }
 
-// tests that building a query with boolean sub-queries throws an exception.
-static bool test_boolsubq1()
-{
-    OmQuery mybool("foo");
-    mybool.set_bool(true);
-
-    TEST_EXCEPTION(OmInvalidArgumentError,
-		   OmQuery query(OmQuery::OP_OR, OmQuery("bar"), mybool));
-    return true;
-}
-
 // tests that specifying a nonexistent input file throws an exception.
 static bool test_absentfile1()
 {
@@ -970,135 +898,6 @@ static bool test_absentfile1()
 		   
 		   OmMSet mymset = enquire.get_mset(0, 10);)
     return true;
-}
-
-// tests that query lengths are calculated correctly
-static bool test_querylen1()
-{
-    // test that a null query has length 0
-    bool success = (OmQuery().get_length()) == 0;
-
-    return success;
-}
-
-// tests that query lengths are calculated correctly
-static bool test_querylen2()
-{
-    // test that a simple query has the right length
-    bool success = true;
-
-    OmQuery myquery;
-
-    myquery = OmQuery(OmQuery::OP_OR,
-		      OmQuery("foo"),
-		      OmQuery("bar"));
-    myquery = OmQuery(OmQuery::OP_AND,
-		      myquery,
-		      OmQuery(OmQuery::OP_OR,
-			      OmQuery("wibble"),
-			      OmQuery("spoon")));
-
-    if (myquery.get_length() != 4) {
-	success = false;
-	if (verbose) {
-	    cout << "Query had length "
-		 << myquery.get_length()
-		 << ", expected 4" << endl;
-	}
-    }
-
-    return success;
-}
-
-// tests that query lengths are calculated correctly
-static bool test_querylen3()
-{
-    bool success = true;
-
-    // test with an even bigger and strange query
-
-    om_termname terms[3] = {
-	"foo",
-	"bar",
-	"baz"
-    };
-    OmQuery queries[3] = {
-	OmQuery("wibble"),
-	OmQuery("wobble"),
-	OmQuery(OmQuery::OP_OR, std::string("jelly"), std::string("belly"))
-    };
-
-    OmQuery myquery;
-    vector<om_termname> v1(terms, terms+3);
-    vector<OmQuery> v2(queries, queries+3);
-    vector<OmQuery *> v3;
-
-    auto_ptr<OmQuery> dynquery1(new OmQuery(OmQuery::OP_AND,
-					    std::string("ball"),
-					    std::string("club")));
-    auto_ptr<OmQuery> dynquery2(new OmQuery("ring"));
-    v3.push_back(dynquery1.get());
-    v3.push_back(dynquery2.get());
-
-    OmQuery myq1 = OmQuery(OmQuery::OP_AND, v1.begin(), v1.end());
-    if (myq1.get_length() != 3) {
-	success = false;
-	if (verbose) {
-	    cout << "Query myq1 length is "
-		    << myq1.get_length()
-		    << ", expected 3.  Description: "
-		    << myq1.get_description() << endl;
-	}
-    }
-
-    OmQuery myq2_1 = OmQuery(OmQuery::OP_OR, v2.begin(), v2.end());
-    if (myq2_1.get_length() != 4) {
-	success = false;
-	if (verbose) {
-	    cout << "Query myq2_1 length is "
-		    << myq2_1.get_length()
-		    << ", expected 4.  Description: "
-		    << myq2_1.get_description() << endl;
-	}
-    }
-
-    OmQuery myq2_2 = OmQuery(OmQuery::OP_AND, v3.begin(), v3.end());
-    if (myq2_2.get_length() != 3) {
-	success = false;
-	if (verbose) {
-	    cout << "Query myq2_2 length is "
-		    << myq2_2.get_length()
-		    << ", expected 3.  Description: "
-		    << myq2_2.get_description() << endl;
-	}
-    }
-
-    OmQuery myq2 = OmQuery(OmQuery::OP_OR, myq2_1, myq2_2);
-    if (myq2.get_length() != 7) {
-	success = false;
-	if (verbose) {
-	    cout << "Query myq2 length is "
-		    << myq2.get_length()
-		    << ", expected 7.  Description: "
-		    << myq2.get_description() << endl;
-	}
-    }
-
-    myquery = OmQuery(OmQuery::OP_OR, myq1, myq2);
-    if (myquery.get_length() != 10) {
-	success = false;
-	if (verbose) {
-	    cout << "Query length is "
-		 << myquery.get_length()
-		 << ", expected 9"
-		 << endl;
-	    cout << "Query is: "
-		 << myquery.get_description()
-		 << endl;
-	}
-    }
-
-    return success;
 }
 
 // tests that the collapsing on termpos optimisation works
@@ -1128,50 +927,6 @@ static bool test_poscollapse2()
     OmQuery q(OmQuery::OP_OR, OmQuery("thi", 1, 1), OmQuery("thi", 1, 1));
     TEST_EQUAL(q.get_length(), 2);
     return true;
-}
-
-// tests that collapsing of queries includes subqueries
-static bool test_subqcollapse1()
-{
-    bool success = true;
-
-    OmQuery queries1[3] = {
-	OmQuery("wibble"),
-	OmQuery("wobble"),
-	OmQuery(OmQuery::OP_OR, std::string("jelly"), std::string("belly"))
-    };
-
-    OmQuery queries2[3] = {
-	OmQuery(OmQuery::OP_AND, std::string("jelly"), std::string("belly")),
-	OmQuery("wibble"),
-	OmQuery("wobble")
-    };
-
-    vector<OmQuery> vec1(queries1, queries1+3);
-    OmQuery myquery1(OmQuery::OP_OR, vec1.begin(), vec1.end());
-    string desc1 = myquery1.get_description();
-
-    vector<OmQuery> vec2(queries2, queries2+3);
-    OmQuery myquery2(OmQuery::OP_AND, vec2.begin(), vec2.end());
-    string desc2 = myquery2.get_description();
-
-    if(desc1 != "OmQuery((wibble OR wobble OR jelly OR belly))") {
-	success = false;
-	if(verbose) {
-	    cout << "Failed to correctly collapse query: got `" <<
-		    desc1 << "'" << endl;
-	}
-    }
-
-    if(desc2 != "OmQuery((jelly AND belly AND wibble AND wobble))") {
-	success = false;
-	if(verbose) {
-	    cout << "Failed to correctly collapse query: got `" <<
-		    desc2 << "'" << endl;
-	}
-    }
-
-    return success;
 }
 
 // test that the batch query functionality works
@@ -1243,32 +998,6 @@ static bool test_absentterm2()
 
     OmMSet mymset = enquire.get_mset(0, 10);
     mset_expect_order(mymset);
-
-    return true;
-}
-
-// test behaviour when creating a query from an empty vector
-static bool test_emptyquerypart1()
-{
-    vector<om_termname> emptyterms;
-    OmQuery query(OmQuery::OP_OR, emptyterms.begin(), emptyterms.end());
-
-    return true;
-}
-
-static bool test_stemlangs()
-{
-    vector<string> langs;
-    langs = OmStem::get_available_languages();
-
-    TEST(langs.size() != 0);
-
-    vector<string>::const_iterator i;
-    for (i = langs.begin(); i != langs.end(); i++) {
-	// try making a stemmer with the given language -
-	// it should successfully create, and not throw an exception.
-	OmStem stemmer(*i);
-    }
 
     return true;
 }
@@ -2207,54 +1936,6 @@ static bool test_mbound1()
     return true;
 }
 
-#define CHECK_BACKEND_UNKNOWN(BACKEND) do {\
-    OmSettings p;\
-    p.set("backend", (BACKEND));\
-    try { OmDatabase db(p);\
-	FAIL_TEST("Backend `" << (BACKEND) << "' shouldn't be known but is"); }\
-    catch (const OmInvalidArgumentError &e) { }\
-    } while (0)
-
-#define CHECK_BACKEND_UNAVAILABLE(BACKEND) do {\
-    OmSettings p;\
-    p.set("backend", (BACKEND));\
-    try { OmDatabase db(p);\
-	FAIL_TEST("Backend `" << (BACKEND) << "' shouldn't be available but is"); }\
-    catch (const OmFeatureUnavailableError &e) { }\
-    } while (0)
-
-// test that DatabaseBuilder throws correct error for a completely unknown
-// database backend, or if an empty string is passed for the backend
-static bool test_badbackend1()
-{
-    CHECK_BACKEND_UNKNOWN("shorterofbreathanotherdayclosertodeath");
-    CHECK_BACKEND_UNKNOWN("");
-    return true;
-}
-
-// test that DatabaseBuilder throws correct error for any unavailable
-// database backends
-static bool test_badbackend2()
-{
-#ifndef MUS_BUILD_BACKEND_INMEMORY
-    CHECK_BACKEND_UNAVAILABLE("inmemory");
-#endif
-#ifndef MUS_BUILD_BACKEND_QUARTZ
-    CHECK_BACKEND_UNAVAILABLE("quartz");
-#endif
-#ifndef MUS_BUILD_BACKEND_SLEEPYCAT
-    CHECK_BACKEND_UNAVAILABLE("sleepycat");
-#endif
-#ifndef MUS_BUILD_BACKEND_REMOTE
-    CHECK_BACKEND_UNAVAILABLE("remote");
-#endif
-#ifndef MUS_BUILD_BACKEND_MUSCAT36
-    CHECK_BACKEND_UNAVAILABLE("da");
-    CHECK_BACKEND_UNAVAILABLE("db");
-#endif
-    return true;
-}
-
 // test that indexing a term more than once at the same position increases
 // the wdf
 static bool test_adddoc1()
@@ -2372,23 +2053,6 @@ static bool test_databaseassign()
 
 // #######################################################################
 // # End of test cases: now we list the tests to run.
-
-/// The tests which don't use any of the backends
-test_desc nodb_tests[] = {
-    {"trivial",            test_trivial},
-    // {"alwaysfail",       test_alwaysfail},
-    {"getqterms1",	   test_getqterms1},
-    {"boolsubq1",	   test_boolsubq1},
-    {"querylen1",	   test_querylen1},
-    {"querylen2",	   test_querylen2},
-    {"querylen3",	   test_querylen3},
-    {"subqcollapse1",	   test_subqcollapse1},
-    {"emptyquerypart1",    test_emptyquerypart1},
-    {"stemlangs",	   test_stemlangs},
-    {"badbackend1",	   test_badbackend1},
-    {"badbackend2",	   test_badbackend2},
-    {0, 0}
-};
 
 /// The tests which use a backend
 test_desc db_tests[] = {

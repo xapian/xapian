@@ -1,3 +1,9 @@
+Fri Sep 01 15:52:06 BST 2000 Olly Betts
+
+	* apitest: Split off nodb tests into api_nodb.cc.
+
+	* Testsuite "-f" switch is now pointless - removed.
+	
 Fri Sep 01 13:22:33 BST 2000 Olly Betts
 
 	* apitest now uses test helpers in many more tests.

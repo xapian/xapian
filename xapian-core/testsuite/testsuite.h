@@ -1,4 +1,4 @@
-/* testsuite.h: a test suite engine
+/* testsuite.h: a generic test suite engine
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -25,7 +25,6 @@
 
 #include <iostream>
 #include <string>
-#include "om/omerror.h"
 
 /** Class which is thrown when a test case fails.
  *  This class contains a message, which is displayed to the user if
@@ -37,14 +36,11 @@ class TestFailure {
 	TestFailure(std::string message_ = "") : message(message_) {}
 	~TestFailure() {}
 	std::string message;
-
-//	std::ostream & operator<<(std::ostream &os, const OmMSetItem &mitem);
 };
 
 /** Macro used to build a TestFailure object and throw it.
  */
 // Don't bracket a, because it may have <<'s in it
-//#define FAIL_TEST(a) do { TestFailure testfail; testfail << a; throw testfail; } while (0)
 #define FAIL_TEST(a) do { TestFailure testfail; \
                           if (verbose) { std::cout << a; } \
 		          throw testfail; } while (0)
@@ -179,9 +175,9 @@ inline void test_driver::set_abort_on_error(bool aoe_)
  *  the condition fails.
  *  NB: uses an else clause to avoid dangling else damage
  */
-#define TEST_AND_EXPLAIN(a, b) if (a) { } else \
-                             FAIL_TEST(TESTCASE_LOCN(a) << std::endl << \
-				       b << std::endl)
+#define TEST_AND_EXPLAIN(a, b) \
+    if (a) { } else \
+	FAIL_TEST(TESTCASE_LOCN(a) << std::endl << b << std::endl)
 
 /// Test a condition, without an additional explanation for failure.
 #define TEST(a) TEST_AND_EXPLAIN(a, "")
@@ -189,12 +185,11 @@ inline void test_driver::set_abort_on_error(bool aoe_)
 /// Test for equality of two things.
 #define TEST_EQUAL(a, b) TEST_AND_EXPLAIN(((a) == (b)), \
 	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' to be equal:" \
-	" were " << (a) << " and " << (b) << std::endl)
+	" were " << (a) << " and " << (b))
 
 /// Test for non-equality of two things.
 #define TEST_NOT_EQUAL(a, b) TEST_AND_EXPLAIN(((a) != (b)), \
 	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' not to be equal:" \
-	" were " << (a) << " and " << (b) << std::endl)
+	" were " << (a) << " and " << (b))
 
-
-#endif  // OM_HGUARD_TESTSUITE_H
+#endif // OM_HGUARD_TESTSUITE_H

@@ -381,7 +381,7 @@ test_driver::result test_driver::do_run_tests(const std::string &testname)
 static void usage(char *progname)
 {
     std::cerr << "Usage: " << progname
-              << " [-v] [-o] [-f] [testname]" << std::endl;
+              << " [-v] [-o] [testname]" << std::endl;
     exit(1);
 }
 
@@ -390,7 +390,6 @@ int test_driver::main(int argc,
 		      const test_desc *tests,
 		      test_driver::result *summary)
 {
-    bool fussy = true;
 #ifdef HAVE_LIBPTHREAD
     pthread_mutex_init(&test_driver_mutex, 0);
 #endif // HAVE_LIBPTHREAD
@@ -402,16 +401,13 @@ int test_driver::main(int argc,
     std::string one_test_name;
     bool one_test = false;
 
-    while ((c = getopt(argc, argv, "vof")) != EOF) {
+    while ((c = getopt(argc, argv, "vo")) != EOF) {
 	switch (c) {
 	    case 'v':
 		verbose = true;
 		break;
 	    case 'o':
 		driver.set_abort_on_error(true);
-		break;
-	    case 'f':
-	    	fussy = true;
 		break;
 	    default:
 	    	usage(argv[0]);
@@ -451,11 +447,5 @@ int test_driver::main(int argc,
 	 << myresult.failed << " failed."
 	 << std::endl;
 
-    if (fussy) {
-	return (bool)myresult.failed; // if 0, then everything passed
-    } else {
-	return 0;
-    }
+    return (bool)myresult.failed; // if 0, then everything passed
 }
-
-

@@ -81,9 +81,9 @@ void test_mset_order_equal(const OmMSet &mset1, const OmMSet &mset2);
 #define TEST_MSET_SIZE(a, b) TEST_AND_EXPLAIN(((a).items.size() == (b)), \
 	"MSet `"STRINGIZE(a)"' is not of expected size: was `" << \
 	(a).items.size() << "' expected `" << (b) << "': " << endl << \
-	"Full mset was: " << endl << (a) << endl)
+	"Full mset was: " << endl << (a))
 
 /// Check that a piece of code throws an expected exception
-#define TEST_EXCEPTION(a,b) try {b;FAIL_TEST("Expected "#a);}catch(a &e){}
+#define TEST_EXCEPTION(a,b) try {b;FAIL_TEST("Expected "#a);}catch(const a &e){}
 
 #endif  // OM_HGUARD_TESTUTILS_H
