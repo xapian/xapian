@@ -38,7 +38,7 @@ if(-d "$cvsdata/$root") {
             if("$ARGV[1]\n" ne $_){
                 print FILE $_;
             }else{
-                print "$ARGV[1] found and deleted.\n";
+                print "... $ARGV[1] found and deleted.\n";
             }
         }
         close FILE;
@@ -58,12 +58,12 @@ if(-d "$cvsdata/$root") {
     }else{ # insert database
         if(-e $path) {
             if(!`grep ^"$ARGV[0]"\$ $path`){
-                print "... $ARGV[0] inserted.";
+                print "... $ARGV[0] inserted.\n";
                 open (PATH, ">>$path");
                 print PATH "$ARGV[0]\n";
                 close PATH;
             }else{
-                print "$ARGV[0] already exists!\n";
+                print "... $ARGV[0] already exists!\n";
             }
         } else {
             open (PATH, ">$path");

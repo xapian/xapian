@@ -203,6 +203,7 @@ sub cvsbuild {
                             " -comp");
                 } else {
                     $map_start_date = time;
+                    system ("$cvsupdatedb $root -r $app_name");
                     system ("$cvsmap -d $cvsroot".
                             " -i $list_file".
                             " -db $prefix_path.db".

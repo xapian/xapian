@@ -44,7 +44,7 @@ using std::vector;
 string scvs_root;
 
 string scvs_log    = "cvs -l -f log -b ";
-string scvs_diff   = "cvs -l -f diff -b ";
+string scvs_diff   = "cvs -l -f diff -N -b ";
 string scvs_update = "cvs -l -f update -p ";
 
 string sversion    = "";
@@ -128,7 +128,7 @@ main(unsigned int argc, const char **argv)
     }
 
     scvs_log    = "cvs -l -f -d " + scvs_root + " log -b ";
-    scvs_diff   = "cvs -l -f -d " + scvs_root + " diff -b ";
+    scvs_diff   = "cvs -l -f -d " + scvs_root + " diff -N -b ";
     scvs_update = "cvs -l -f -d " + scvs_root + " update -p ";
 
     ofstream cmt_fout   (scmt_db.c_str());
