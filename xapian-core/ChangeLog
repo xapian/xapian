@@ -1,3 +1,9 @@
+Wed Jan 24 15:57:10 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Improve test of OmMSetIterators equality comparisions.
+
+	* Update TODO
+
 Wed Jan 24 15:11:11 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Renamed OmNodeConnection to OmNodePad.  The old name was

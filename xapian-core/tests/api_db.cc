@@ -551,6 +551,7 @@ static bool test_msetiterator1()
     OmMSetIterator l(j);
     OmMSetIterator m(k);
     OmMSetIterator n = mymset.begin();
+    OmMSetIterator o = mymset.begin();
     TEST_NOT_EQUAL(j, k);
     TEST_NOT_EQUAL(l, m);
     TEST_EQUAL(k, m);
@@ -560,10 +561,14 @@ static bool test_msetiterator1()
 
     k = j;
     TEST_EQUAL(j, k);
+    TEST_EQUAL(j, o);
     k++;
     TEST_NOT_EQUAL(j, k);
     TEST_NOT_EQUAL(k, l);
     TEST_NOT_EQUAL(k, m);
+    TEST_NOT_EQUAL(k, o);
+    o++;
+    TEST_EQUAL(k, o);
     k++;
     TEST_NOT_EQUAL(j, k);
     TEST_NOT_EQUAL(k, l);

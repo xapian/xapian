@@ -9,12 +9,6 @@ Pass around partially created postlist as an auto_ptr, for exception safety.
 Put Om into its own namespace, to ensure lack of symbol conflicts.
 
 </todoitem>
-<todoitem priority="H" difficulty="2" owner="C" area="Iterators" release="0.9">
-
-Check that the OmMSetIterators compare equality correctly: not just comparing
-equal to same iterator or if at end.
-
-</todoitem>
 <todoitem priority="H" difficulty="5" owner="C" area="API" release="">
 
 Write bindings for other languages (Java, C, perl, python, etc.). [In
@@ -30,6 +24,14 @@ Write (speed) performance test suite.
 
 Add format numbers to the quartz database as a whole, rather than just relying
 on the btree format numbers.
+
+</todoitem>
+<todoitem priority="M" difficulty="1" owner="" area="Indexer" release="1.0">
+
+Check that the interface used by OmDocument isn't causing great
+inefficiency (vis, problems reported by Andy of large document adds taking
+a great deal of time).  add_posting should be replaced by something which
+takes a chunk of documents, perhaps?
 
 </todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="Indexer" release="1.0">
@@ -57,6 +59,11 @@ Add get_all_terms DB databases.  Needs extra code in dbread.[ch].
 Add query operator to filter on weight / percentage weight.
 
 </todoitem>
+<todoitem priority="M" difficulty="4" owner="" area="general" release="0.9">
+
+Rework OmQuery interface.
+
+</todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="general" release="">
 
 Make all errors return a context if appropriate.
@@ -70,21 +77,8 @@ shouldn't be exposed.
 
 Particular offenders are:
 
-OmBatchEnquire [probably leave this out of the first api release]
-
-OmEnquire::get_docs()
 OmStem::get_available_languages()
-OmSettings::set() [vector]
-OmSettings::get_vector()
-OmIndexerNode::get_config_vector()
 OmIndexerDesc::nodes
-OmIndexerBuilder::NodeType
-
-</todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="API" release="0.9">
-
-Rework OmEnquire::get_docs() - make it able to take a vector of docids as well
-as MSetIterators?  General tidy up needed.
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
@@ -326,6 +320,11 @@ Audit for exception safety.
 <todoitem priority="L" difficulty="4" owner="R" area="Positional" release="">
 
 Test get_position_list() methods on databases.
+
+</todoitem>
+<todoitem priority="L" difficulty="3" owner="" area="API" release="">
+
+Re-implement OmBatchEnquire, and add back into the system.
 
 </todoitem>
 <todoitem priority="L" difficulty="3" owner="" area="Weighting" release="">
