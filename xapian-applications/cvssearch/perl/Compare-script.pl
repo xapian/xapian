@@ -10,14 +10,12 @@ my $cvscompare = "./Compare.cgi";
 my $cvscomment = "./QueryComment.cgi";
 my $cvsquery = "$pwd/cvsquerydb";
 my $cvsbuild = "$pwd/cvsbuilddb";
-
 my $cvsmap = "$pwd/cvsmap";
+
 my $ctrlA = chr(01);
 my $ctrlB = chr(02);
 my $ctrlC = chr(03);
-my @class;
-$class[0] = "class=\"e\"";
-$class[1] = "class=\"o\"";
+my @class = {"class=\"e\"", "class=\"o\""};
 
 # ------------------------------------------------------------
 # path where all our files are stored.

@@ -98,7 +98,7 @@ _HTML_
 print "<p><b>Select Repository: </b><select name=root>\n";
 print "<OPTION>$all</OPTION>\n";
 
-open ROOTS, "< $CVSROOTS" or die "can't open cvsroots";
+open ROOTS, "< $CVSROOTS";
 while (<ROOTS>) {
   ($curroot, $curdir) = split /\s/, $_;
   $dirMAProot{$curdir} = $curroot;

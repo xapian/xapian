@@ -221,23 +221,29 @@ sub cvsbuild {
             # ----------------------------------------
             my $find_start_date = time;
             my $found_files = 0;
-            open(LIST, ">$list_file") || die "cannot create temporary file list\n";
+            my @files;
 
             if (chdir ("$cvsdata/$root/src/$app_path")) {
                 for ($i = 0; $i <= $#file_types; ++$i) {
                     open(FIND_RESULT, "find . -name \"*.$file_types[$i]\"|");
                     while (<FIND_RESULT>) {
-                        $found_files = 1;
+                        chomp;
                         my $length = length($_);
-                        print LIST substr($_, 2, $length-2);
+                        @files = (substr($_, 2, $length-2), @files);
+                        $found_files = 1;
                     }
                     close(FIND_RESULT);
                 }
                 chdir ($pwd);
             }
+            my @sorted_files = sort @files;
+            open(LIST, ">$list_file") || die "cannot create temporary file list\n";
+            foreach (@sort_files) {
+                print LIST "$_\n";
+            }
             close(LIST);
             my $find_end_date = time;
-
+            
             my $map_start_date;
             my $map_end_date;
 
