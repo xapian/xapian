@@ -31,9 +31,9 @@ $def{NEXT,$if{$ne{$last,$msize},<INPUT TYPE=submit NAME="&gt;" VALUE="Next">}}
 $set{topterms,$or{$ne{$msize,0},$query}}
 <head>
 <title>$if{$query,Omega search results for `$html{$query}',New Omega Search}</title>
-$if{topterms,$include{toptermsjs}}
+$if{$opt{topterms},$include{toptermsjs}}
 </head>
-<body bgcolor="#eeeeee">
+<body bgcolor="#ffffff">
 <FORM NAME=P METHOD=GET 
 ACTION="$html{$or{$env{SCRIPT_NAME},omega}}" TARGET="_top">
 <center>
@@ -69,15 +69,14 @@ ALT="$percentage%" HEIGHT=16 WIDTH=32></TD>
 </TD></TR></TABLE></TD>
 <TD><B><small>$html{$date{$field{modtime},%Y-%m-%d %H:%M}}</small>
 <A HREF="$field{url}">$html{$or{$field{caption},$field{title},$field{url},Untitled}}</A></B><BR>
-$highlight{$field{sample},$terms}$if{$field{sample},...}<br>
+<small>$highlight{$field{sample},$terms}$if{$field{sample},...}</small><br>
 <A HREF="$field{url}">$html{$field{url}}</A><br>
-${
-<small>Language: <b>$html{$or{$field{language},unknown}}</b>
-Size: <b>$html{$or{$filesize{$field{size}},unknown}}</b>
-</b><br>
-}
-$percentage% relevant, matching:
-<i>$list{$map{$html{$terms},$prettyterm{$_}},$. ,</i> and <i>}</i></small>${for lynx:}<P></TD></TR>}
+<small>
+$if{$field{language},Language: <b>$html{$field{language}}</b>}
+$if{$field{size},Size: <b>$html{$filesize{$field{size}}}</b>}
+$if{$field{language}$field{size},<br>}
+$percentage% relevant$. matching:
+<i>$list{$map{$terms,$html{$prettyterm{$_}}},$. ,</i> and <i>}</i></small>${for lynx:}<P></TD></TR>}
 </table>
 
 <br><center>

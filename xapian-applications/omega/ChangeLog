@@ -1,3 +1,12 @@
+Sun Dec 08 06:36:04 GMT 2002  Olly Betts <olly@survex.com>
+
+	* templates/query: Make background white - the very light grey just
+	  looks dirty; fixed exclusion of TopTerms Javascript when there
+	  are not TopTerms; sample now <small>; language and size now
+	  appear when the corresponding fields are present; fixed
+	  unmatched </small>; fixed missing list of terms matching
+	  each document.
+
 Sat Dec 07 21:20:31 GMT 2002  Olly Betts <olly@survex.com>
 
 	* configure.in: Version 0.6.2.
