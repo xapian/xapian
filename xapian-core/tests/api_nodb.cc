@@ -258,7 +258,7 @@ static bool test_stemlangs1()
 #define CHECK_BACKEND_UNKNOWN(BACKEND) do {\
     OmSettings p;\
     p.set("backend", (BACKEND));\
-    TEST_EXCEPTION(OmInvalidArgumentError, OmDatabase db(p))\
+    TEST_EXCEPTION(OmInvalidArgumentError, OmDatabase db(p));\
     } while (0)
 
 // test that DatabaseBuilder throws correct error for a completely unknown
@@ -274,7 +274,7 @@ static bool test_badbackend1()
 #define CHECK_BACKEND_UNAVAILABLE(BACKEND) do {\
     OmSettings p;\
     p.set("backend", (BACKEND));\
-    TEST_EXCEPTION(OmFeatureUnavailableError, OmDatabase db(p))\
+    TEST_EXCEPTION(OmFeatureUnavailableError, OmDatabase db(p));\
     } while (0)
 
 // test that DatabaseBuilder throws correct error for any unavailable
