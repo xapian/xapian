@@ -1,9 +1,0 @@
-control
-libxapian-dev.install
-libxapian-queryparser-dev.install
-libxapian-queryparser1.install
-libxapian-queryparser1.postinst
-libxapian-queryparser1.postrm
-libxapian2.install
-libxapian2.postinst
-libxapian2.postrm
