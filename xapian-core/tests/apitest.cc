@@ -2372,8 +2372,53 @@ bool test_mbound1()
     return true;
 }
 
+#define CHECK_BACKEND_UNKNOWN(BACKEND) do {\
+    OmSettings p;\
+    p.set("backend", (BACKEND));\
+    try { OmDatabase db(p); result = false; }\
+    catch (const OmInvalidArgumentError &e) { }\
+    catch (...) { result = false; } } while (0)
 
+#define CHECK_BACKEND_UNAVAILABLE(BACKEND) do {\
+    OmSettings p;\
+    p.set("backend", (BACKEND));\
+    try { OmDatabase db(p); result = false; }\
+    catch (const OmFeatureUnavailableError &e) { }\
+    catch (...) { result = false; } } while (0)
 
+// test that DatabaseBuilder throws correct error for a completely unknown
+// database backend, or if an empty string is passed for the backend
+bool test_badbackend1()
+{
+    bool result = true;
+    CHECK_BACKEND_UNKNOWN("shorterofbreathanotherdayclosertodeath");
+    CHECK_BACKEND_UNKNOWN("");
+    return result;
+}
+
+// test that DatabaseBuilder throws correct error for any unavailable
+// database backends
+bool test_badbackend2()
+{
+    bool result = true;
+#ifndef MUS_BUILD_BACKEND_INMEMORY
+    CHECK_BACKEND_UNAVAILABLE("inmemory");
+#endif
+#ifndef MUS_BUILD_BACKEND_QUARTZ
+    CHECK_BACKEND_UNAVAILABLE("quartz");
+#endif
+#ifndef MUS_BUILD_BACKEND_SLEEPY
+    CHECK_BACKEND_UNAVAILABLE("sleepycat");
+#endif
+#ifndef MUS_BUILD_BACKEND_NET
+    CHECK_BACKEND_UNAVAILABLE("network");
+#endif
+#ifndef MUS_BUILD_BACKEND_MUSCAT36
+    CHECK_BACKEND_UNAVAILABLE("da");
+    CHECK_BACKEND_UNAVAILABLE("db");
+#endif
+    return result;
+}
 
 // #######################################################################
 // # End of test cases: now we list the tests to run.
@@ -2390,6 +2435,8 @@ test_desc nodb_tests[] = {
     {"subqcollapse1",	   test_subqcollapse1},
     {"emptyquerypart1",    test_emptyquerypart1},
     {"stemlangs",	   test_stemlangs},
+    {"badbackend1",	   test_badbackend1},
+    {"badbackend2",	   test_badbackend2},
     {0, 0}
 };
 

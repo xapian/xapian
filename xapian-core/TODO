@@ -16,10 +16,6 @@ Little Jobs
          |                 |
 Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
- Urgent  | Richard         | Drink tea
----------+-----------------+--------------------------------------------------
- Urgent  | Chris           | Juggle
----------+-----------------+--------------------------------------------------
  High    |CDistribution    | Make the network server better (multithreaded
          |                 | etc.).
 ---------+-----------------+--------------------------------------------------
@@ -38,7 +34,7 @@ Priority | Area            | Task
  Medium  | OmDatabase      | Make sure that end_session() gets called from
          |                 | destructor if a session is in progress.
 ---------+-----------------+--------------------------------------------------
- Medium  | Exceptions      | Make exceptoins threadsafe: see
+ Medium  | Exceptions      | Make exceptions threadsafe: see
 	 |                 | http://metalab.unc.edu/pub/Linux/docs/faqs/SMP-FAQ
 	 |                 | GCC (and EGCS) need existence of exceptions to
 	 |                 | be protected by a mutex - will need to cope with
@@ -46,11 +42,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Medium  | Documentation   | Patch doxygen, so that todo items in the body of
          |                 | methods get displayed.
----------+-----------------+--------------------------------------------------
- Medium  | DatabaseBuilder | Check that DatabaseBuilder returns correct
-         |                 | error messages if: a completely unknown database
-	 |                 | type is specified, or an unavailable type is
-	 |                 | specified, or a null type is specified (ie "").
 ---------+-----------------+--------------------------------------------------
  Medium  | API             | OmDocumentTerm should use a set rather than a
          |                 | map.
@@ -94,22 +85,17 @@ Priority | Area            | Task
  Medium  | Exceptions      | Make them work with shared libs on solaris /
          |                 | find an alternative.
 ---------+-----------------+--------------------------------------------------
- Medium  | Options         | Make an OmOptions object, storing a map of
-         |                 | option strings to their values.  Use for things
-	 |                 | such as, what debugging to output, what size
-	 |                 | caches to use, etc.
+ Medium  | Options         | Use OmSettings for specifying what debugging info
+	 |                 | to output
 ---------+-----------------+--------------------------------------------------
  Medium  | Postlist        | Add ability to retrieve collection frequency
          |                 | (ie, sum of wdfs).
----------+-----------------+--------------------------------------------------
- Medium  | Databases       | Make database parameters into name/value pairs,
-         |                 | rather than simply be anonymous.
 ---------+-----------------+--------------------------------------------------
  Medium  | WritableDbs     | Make add_document() atomic.
 ---------+-----------------+--------------------------------------------------
  Medium  | WritableDbs     | Add pthread locking to all database classes.
 ---------+-----------------+--------------------------------------------------
- Medium  | Databases       | Ensure that opening a termlist / postlist which
+ Medium  | Databases       | Ensure that opening a termlist which
          |                 | is not present throws the correct exception.
 ---------+-----------------+--------------------------------------------------
  Medium  | Documentation   | Ensure that API documentation covers entirety of
@@ -137,12 +123,6 @@ Priority | Area            | Task
 	 |                 | the API is concerned.  Have an internal typedef
 	 |                 | so that this isn't inappropriate internally.
 ---------+-----------------+--------------------------------------------------
- Medium  | Sleepycat       | Make sleepylist use a list rather than a vector?
-         |                 | Check behaviour when halfway through list and an
-	 |                 | item is added.
----------+-----------------+--------------------------------------------------
- Medium  | Sleepycat       | Implement termlists, keys, and collection stats.
----------+-----------------+--------------------------------------------------
  Medium  | API             | Test OmMSet::get_termfreq() and
          |                 | OmMSet::get_termweight().
 ---------+-----------------+--------------------------------------------------
@@ -162,9 +142,6 @@ Priority | Area            | Task
  Low     | Documentation   | Add notes about catching exceptions throughout
          |                 | userman, particularly in examples (eg, search
 	 |                 | engine example)
----------+-----------------+--------------------------------------------------
- Low     | Backends        | Make SleepyTermCache lose entries eventually
-         |                 | (will currently eat up entire memory).
 ---------+-----------------+--------------------------------------------------
  Low     |cBackends        | Use pthread locks around inmemory methods
 ---------+-----------------+--------------------------------------------------
@@ -211,8 +188,6 @@ Priority | Area            | Task
          |                 | being for the wrong set of documents (should be
   	 |                 | appropriate subset)
 ---------+-----------------+--------------------------------------------------
- Dubious | General         | Use term classes instead of prefixes
----------+-----------------+--------------------------------------------------
 
 
 Big Jobs
@@ -221,20 +196,14 @@ Big Jobs
          |                 |
 Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
- High    |cAPI             | Write bindings for other languages (Java, C,
-         |                 | perl, python, etc.).
+ High    |CAPI             | Write bindings for other languages (Java, C,
+         |                 | perl, python, etc.). [In progress, apart from C].
 ---------+-----------------+--------------------------------------------------
- High    |rPerformance     | Write (speed) performance test suite.
+ High    | Performance     | Write (speed) performance test suite.
 ---------+-----------------+--------------------------------------------------
- High    |gIndexer         | Write indexer modules.
+ High    |CIndexer         | Write indexer modules.
 ---------+-----------------+--------------------------------------------------
  Low     | Positional      | Passage retrieval.
 ---------+-----------------+--------------------------------------------------
  Low     | Matcher         | Clustering algorithms.
----------+-----------------+--------------------------------------------------
- Verylow | General         | Sanify and implement introspection methods -
-	 |                 | get_database_path, etc.  Should be able to get
-	 |                 | entire state of database by introspection.
-	 |                 | Extend introspection methods to cover all
-	 |                 | objects.
 ---------+-----------------+--------------------------------------------------

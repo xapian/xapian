@@ -168,9 +168,10 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
     }
 
     // Check that we have a database
-    if(database == NULL) {
-	throw OmOpeningError("Couldn't create database: support for specified "
-			     "database type not available.");
+    if (database == NULL) {
+	throw OmFeatureUnavailableError("Couldn't create database: support "
+					"for specified database type not "
+					"available.");
     }
 
     return database;
