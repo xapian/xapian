@@ -71,6 +71,8 @@ QuartzCursor::find_entry(const string &key)
     have_read_tag = false;
     is_positioned = true;
 
+    read_tag(); // FIXME : shouldn't need to call this here
+
     DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key) << "'");
 
     RETURN(found);
@@ -108,6 +110,8 @@ QuartzCursor::next()
     cursor.get_key(&current_key);
     // FIXME: check for errors
     have_read_tag = false;
+
+    read_tag(); // FIXME : shouldn't need to call this here
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
 }
