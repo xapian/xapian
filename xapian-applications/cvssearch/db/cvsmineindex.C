@@ -100,7 +100,9 @@
 // support C/C++/Java for now
 // ctags 5.0 flags (see http://ctags.sourceforge.net/ctags.html)
 const string CTAGS_OUTPUT = "/tmp/tags";
-const string CTAGS_FLAGS = "-R -n --file-scope=no --fields=aiKs --c-types=cfsu --java-types=cim -f" + CTAGS_OUTPUT;
+
+#warning "some hardcoding of preprocessor commands"
+const string CTAGS_FLAGS = "-R -I Q_OBJECT -I K_DCOP --file-scope=no --fields=aiKs --c-types=cfp --java-types=cim -f" + CTAGS_OUTPUT;
 
 // ----------------------------------------
 // function declarations.
@@ -485,6 +487,7 @@ get_data(lines & lines,
     while ( lines.readNextLine() ) {
         string data = lines.getData();
         set<string> symbols = lines.getCodeSymbols();
+	list<string> symbol_terms = lines.getCodeSymbolTerms();
         
         if (strcmp(filename.c_str(), lines.getCurrentFile().c_str())) {
             filename = lines.getCurrentFile();
@@ -548,6 +551,16 @@ get_data(lines & lines,
                         }
                     }
                 }
+
+/*****************
+		// always add code terms to commit_words
+		for( list<string>::iterator i = symbol_terms.begin(); i != symbol_terms.end(); i++ ) {
+		  //		  cerr << "... entering code word " << (*i) << endl;
+		  commit_words[commitid+offset].insert(*i);
+		}
+****************/
+
+
                 // ----------------------------------------
                 // now go through each symbol,
                 // and add it to the commit_symbols mapping

@@ -9,7 +9,14 @@
 
 #define MIN_SUPPORT 1 
 
+#warning "test double buffering query; see if it still gives Button, box, etc."
+#warning "test if namespace stuff is working, e.g., try searching for plugin or part"
 
+// remaining problems
+// 
+// parts -> yields "General", doesn't show KParts::..
+//
+// sound -> yields Options, Buffer, ... where do these come from?
 
 
 // try convinction instead of interest measure (convinction is directional)

@@ -404,27 +404,36 @@ double compute_cosine_similarity( const map< string, double >& v1,
 }
 
 
-bool commit_of_interest( int commit_id, string& in_opt,
+bool commit_of_interest( int commit_id, list<string>& in_opt_list,
 			map< int, string >& commit_package,
 			map< string, int>& package_last_commit ) {
-  if ( in_opt == "" ) {
+  if ( in_opt_list.empty() ) {
     return true;
   }
 
-  if ( commit_package[ commit_id ] == in_opt ) {
-    return true;
-  }
+  // check if in_opt is part of substring
 
-  // this could still be a commit for last package
-  // this is not currently handled
+  for( list<string>::iterator in_opt = in_opt_list.begin(); in_opt != in_opt_list.end(); in_opt++ ) {
 
-  if ( commit_package[ commit_id ] != "" ) {
-    return false;
-  }
+    //    cerr << "checking if -" <<*in_opt<<"- is in -" << commit_package[commit_id] << "-" << endl;
 
-  if ( package_last_commit[ in_opt ] == 0 ) { // hack
-    // must mean this is the last package
-    return true;
+    
+    if ( commit_package[ commit_id ].find( *in_opt ) != -1 ) {
+      return true;
+    }
+    
+
+    /**********
+    if ( commit_package[ commit_id ] != "" ) {
+      return false;
+    }
+    
+    if ( package_last_commit[ *in_opt ] == 0 ) { // hack
+      // must mean this is the last package
+      return true;
+    }
+    *********/
+
   }
 
   return false;
@@ -501,6 +510,7 @@ int main(unsigned int argc, char *argv[]) {
       }
       in2 >> offset;
       //      cerr << "read -" << package <<"- at offset " << offset << endl;     
+
       package_first_commit[package] = offset;
       if ( last_package != "" ) {
 	package_last_commit[last_package] = offset-1;
@@ -508,6 +518,7 @@ int main(unsigned int argc, char *argv[]) {
 	  commit_package[i] = last_package;
 	}
       }
+
       last_package = package;
       last_offset = offset;
     }
@@ -548,6 +559,7 @@ int main(unsigned int argc, char *argv[]) {
     map< string, double > query_vector;
 
     string in_opt = "";
+    list<string> in_opt_list;
 
     OmStem stemmer("english");
 
@@ -561,6 +573,7 @@ int main(unsigned int argc, char *argv[]) {
       } else if ( s.find("in:") == 0 ) {
 	in_opt = s.substr(3);
 	cerr << "RESTRICTED TO -" << in_opt << "-" << endl;
+	split(in_opt, ";", in_opt_list);
       } else if ( s == "=>" || s == "<=" || s == "<=>" ) {
 	cerr << "\nranking system no longer required" << endl;
 	assert(0);
@@ -648,7 +661,7 @@ int main(unsigned int argc, char *argv[]) {
 
 	  //      cerr << "** commit " << commit_id << endl;
 	  
-	  if ( !commit_of_interest( commit_id, in_opt, commit_package, package_last_commit ) ) {
+	  if ( !commit_of_interest( commit_id, in_opt_list, commit_package, package_last_commit ) ) {
 	    other_transactions_read++;
 	    if ( other_transactions_read > LOCAL_QUERY_MAX_OTHER_TRANSACTIONS ) {
 	      //cerr << "skipping other transaction " << commit_id << endl;
@@ -809,7 +822,7 @@ int main(unsigned int argc, char *argv[]) {
       }
 
 
-      if ( ! commit_of_interest( commit_id, in_opt, commit_package, package_last_commit ) ) {
+      if ( ! commit_of_interest( commit_id, in_opt_list, commit_package, package_last_commit ) ) {
 	//	  cerr << "... skipping commit " << commit_id << " not in app range" << endl;
 	continue;
       }
@@ -882,6 +895,8 @@ int main(unsigned int argc, char *argv[]) {
       set<int> S = i->second;
       for ( set<int>::iterator j = S.begin(); j != S.end(); j++ ) {
 	cerr << "commit " << ((*j)-package_first_commit[commit_package[*j]]) << " in package " << commit_package[*j] << " of code size " << transaction_code_words[*j].size() << " has score " << -score << endl;
+
+	cout << (*j) << endl;
 
 	/**
 	// show comment profile also

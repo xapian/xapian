@@ -1,5 +1,4 @@
 kdeadmin/kcron
-kdeadmin/kdat
 kdeadmin/kpackage
 kdeadmin/ksysctrl
 kdeadmin/ksysv
@@ -167,7 +166,6 @@ kdenonbeta/kanu
 kdenonbeta/kappdock
 kdenonbeta/karbon
 kdenonbeta/karchie
-kdenonbeta/kasbar
 kdenonbeta/kbackpage
 kdenonbeta/kbattleship
 kdenonbeta/kbugreport
@@ -186,7 +184,6 @@ kdenonbeta/kdepass
 kdenonbeta/kexpress
 kdenonbeta/kfax
 kdenonbeta/kgame
-kdenonbeta/kglchess
 kdenonbeta/kgnuplot
 kdenonbeta/khtmlimage
 kdenonbeta/kicq
@@ -200,7 +197,6 @@ kdenonbeta/kio_rlan
 kdenonbeta/klasstraphobia
 kdenonbeta/klilo
 kdenonbeta/klistviewtest
-kdenonbeta/kmail2
 kdenonbeta/kmessage
 kdenonbeta/knapster
 kdenonbeta/knetmon
@@ -223,13 +219,11 @@ kdenonbeta/kxmledit
 kdenonbeta/libkafka
 kdenonbeta/libkdegames
 kdenonbeta/libkmedia
-kdenonbeta/libkmsg
 kdenonbeta/libodbc
 kdenonbeta/lnk
 kdenonbeta/mathopd
 kdenonbeta/maudio2
 kdenonbeta/motifdnd
-kdenonbeta/pfs
 kdenonbeta/pws
 kdenonbeta/python
 kdenonbeta/smb
@@ -238,7 +232,6 @@ kdenonbeta/testgamelib
 kdenonbeta/webmaker
 kdenonbeta/xmmsdcop
 
-kdepim/abbrowser
 kdepim/empath
 kdepim/kab2
 kdepim/korganizer
@@ -272,7 +265,6 @@ kdetoys/kscore
 kdetoys/kteatime
 kdetoys/ktux
 kdetoys/kworldwatch
-kdetoys/mouse
 
 kdeutils/ark
 kdeutils/kab
@@ -294,7 +286,6 @@ kdeutils/kljettool
 kdeutils/klpq
 kdeutils/knotes
 kdeutils/kpm
-kdeutils/ktimemon
 kdeutils/ktop
 kdeutils/ktreebrowser
 kdeutils/kwrite
