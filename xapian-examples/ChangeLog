@@ -1,3 +1,8 @@
+Mon Jun 23 16:58:19 BST 2003  Olly Betts <olly@survex.com>
+
+	* delve.cc: PostListIterator -> PostingIterator; PositionListIterator
+	  -> PositionIterator.
+
 Mon May 26 23:18:54 BST 2003  Olly Betts <olly@survex.com>
 
 	* copydatabase.cc,createdatabase.cc,delve.cc,msearch.cc,

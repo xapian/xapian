@@ -207,8 +207,8 @@ main(int argc, char **argv)
 	    } else {
 		term = stemmer.stem_word(term);
 	    }
-	    PostListIterator p = db.postlist_begin(term);
-	    PostListIterator pend = db.postlist_end(term);
+	    PostingIterator p = db.postlist_begin(term);
+	    PostingIterator pend = db.postlist_end(term);
 	    if (p == pend) {
 		cout << "term `" << term << "' not in database\n";
 		continue;
@@ -239,8 +239,8 @@ main(int argc, char **argv)
 			cout << "Position List for term `" << term
 			    << "', record #" << *j << ':';
 			try {
-			    PositionListIterator pos = p.positionlist_begin();
-			    PositionListIterator posend = p.positionlist_end();
+			    PositionIterator pos = p.positionlist_begin();
+			    PositionIterator posend = p.positionlist_end();
 			    while (pos != posend) {
 				cout << separator << *pos;
 				++pos;
