@@ -245,6 +245,8 @@ class OmMatchDecider {
 	 *  in the near future.
 	 */
 	virtual int operator()(const OmDocument *doc) const = 0;
+
+	virtual ~OmMatchDecider() {}
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -300,6 +302,8 @@ class OmExpandDeciderAnd : public OmExpandDecider {
     public:
     	/** Constructor, which takes as arguments the two
 	 *  decision functors to AND together.
+	 *  OmExpandDeciderAnd will not delete its sub-
+	 *  functors.
 	 */
 	OmExpandDeciderAnd(const OmExpandDecider *left_,
 	                   const OmExpandDecider *right_);
@@ -486,6 +490,10 @@ class OmESet {
 class OmEnquire {
     private:
 	OmEnquireInternal *internal;
+
+	// disallow copies
+	OmEnquire(const OmEnquire &);
+	void operator=(const OmEnquire &);
     public:
         OmEnquire();
         ~OmEnquire();

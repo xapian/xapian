@@ -31,7 +31,11 @@
 class PostList
 {
     private:
+	// disallow copy
+	PostList(const PostList &);
+	void operator=(const PostList &);
     public:
+	PostList() {}
         virtual ~PostList() { return; }
 
 	///////////////////////////////////////////////////////////////////

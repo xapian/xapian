@@ -39,6 +39,8 @@ enum stemmer_language {
 
 class Stemmer {
     private:
+	Stemmer(const Stemmer &);
+	void operator=(const Stemmer &);
     public:
 	Stemmer() {};
 	virtual ~Stemmer() {};

@@ -38,6 +38,10 @@ class RSetItem {
 
 class RSet {
     private:
+	// disallow copy
+	RSet(const RSet &);
+	void operator=(const RSet &);
+
 	IRDatabase *root;
 
 	mutable map<om_termname, om_doccount> reltermfreqs;

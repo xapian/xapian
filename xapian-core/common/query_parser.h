@@ -29,6 +29,7 @@
 #include <algorithm>
 
 class QueryTerm {
+    private:
     public:
 	om_termname tname;
 	vector<om_termcount> positions;

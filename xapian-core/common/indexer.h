@@ -30,12 +30,22 @@
 
 // A source of data for indexing (eg, a file)
 class IndexerSource {
+    private:
+	// disallow copy
+	IndexerSource(const IndexerSource &);
+	void operator=(const IndexerSource &);
     public:
 	virtual istream * get_stream() const = 0;  // Get the stream of data
+	IndexerSource() {}
+	virtual ~IndexerSource() {}
 };
 
 // Something which wants the indexed terms (eg, a database, or a query)
 class IndexerDestination {
+    private:
+	// disallow copy
+	IndexerDestination(const IndexerDestination &);
+	void operator=(const IndexerDestination &);
     public:
 	/* Place term in database if not already there.
 	 * FIXME - merge into make_posting()?
@@ -49,10 +59,17 @@ class IndexerDestination {
 	virtual void make_posting(const om_termname & tname,
                                   om_docid did,
 				  om_termpos tpos) = 0;
+
+	IndexerDestination() {}
+	virtual ~IndexerDestination() {}
 };
 
 // A way to generate terms from sources
 class Indexer {
+    private:
+	// disallow copy
+	Indexer(const Indexer &);
+	void operator=(const Indexer &);
     protected:
 	IndexerDestination * dest;
     public:

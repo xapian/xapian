@@ -31,6 +31,9 @@ class RSet;
 
 /// Abstract base class for weighting schemes
 class IRWeight {
+    private:
+	IRWeight(const IRWeight &);
+	void operator=(IRWeight &);
     protected:
 	const IRDatabase *root;
 	om_doclength querysize;

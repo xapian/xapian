@@ -41,6 +41,10 @@ class OmStemInternal;
 class OmStem {
     private:
         OmStemInternal *internal;
+
+	// disallow copy
+	OmStem(const OmStem &);
+	void operator=(const OmStem &);
     public:
 	/** Create a stemmer object.
 	 *

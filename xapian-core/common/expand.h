@@ -38,6 +38,10 @@ class OmExpandDeciderAlways : public virtual OmExpandDecider {
 
 class OmExpand {
     private:
+	// disallow copy
+	OmExpand(const OmExpand &);
+	void operator=(const OmExpand &);
+
         IRDatabase *database;
    
         bool recalculate_maxweight;

@@ -31,7 +31,12 @@
 
 class TermList {
     private:
+	// disallow copy
+	TermList(const TermList &);
+	void operator=(const TermList &);
     public:
+	TermList() {}
+	
 	virtual om_termcount get_approx_size() const = 0; // Gets size of termlist
 	virtual OmExpandBits get_weighting() const = 0; // Gets weighting info for current term
 	virtual const om_termname get_termname() const = 0; // Gets current termname

@@ -91,6 +91,9 @@ class OmMatch
 			      const MSetCmp &mcmp,
 			      const OmMSetItem &min_item,
 			      const OmDocument *irdoc);
+	// disallow copies
+	OmMatch(const OmMatch &);
+	void operator=(const OmMatch &);
     public:
         OmMatch(IRDatabase * database_);
         ~OmMatch();
