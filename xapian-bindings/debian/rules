@@ -69,7 +69,7 @@ install: build
 	for v in $(PYTHONVERSIONS); do \
 	    set -e; \
 	    cd build-python$$v; \
-	    $(MAKE) DESTDIR=../$(CURDIR)/debian/tmp install; \
+	    $(MAKE) DESTDIR=$(CURDIR)/debian/tmp install; \
 	    cd ..; \
 	done
 
