@@ -67,9 +67,6 @@ AC_SUBST(SWIG_PATH)
 dnl Use libtool to manage our libraries
 AM_PROG_LIBTOOL
 
-dnl Shut libtool up
-LIBTOOL="$LIBTOOL --quiet"
-
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h limits.h)
@@ -112,7 +109,7 @@ AC_LANG_CPLUSPLUS
 CXXFLAGS_sleepysave=$CXXFLAGS
 CXXFLAGS="$CXXFLAGS $SLEEPYCAT_INCLUDES $SLEEPYCAT_LIBS $SLEEPYCAT_LINKFLAGS"
 AC_TRY_COMPILE([#include <db_cxx.h>],
-	       [return 0;],
+	       [Dbt t;return 0;],
 	       [have_sleepy_cxx=yes],
 	       [have_sleepy_cxx=no])
 CXXFLAGS=$CXXFLAGS_sleepysave
@@ -203,9 +200,22 @@ AC_ARG_ENABLE(insure,
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-insure) ;;
 esac], [use_insure=false])
 
+AC_ARG_ENABLE(quiet,
+[  --enable-quiet          Enable quiet building (default=no)],
+[case "${enableval}" in
+  yes) use_quiet=true ;;
+  no)  use_quiet=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-quiet) ;;
+esac], [use_quiet=false])
+
 dnl Check whether we have pthreads, but only if we want it
 if test x$use_pthread = xtrue; then
   AC_CHECK_LIB(pthread, pthread_create)
+fi
+
+dnl Shut things up if we want to be quiet
+if test x$use_quiet = xtrue; then
+  LIBTOOL="$LIBTOOL --quiet"
 fi
 
 dnl Turn off compilation of anything that we don't have the requirements for

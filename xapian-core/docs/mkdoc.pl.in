@@ -173,7 +173,7 @@ EOF
     }
 
     # Print footer
-    my $date = `date`;
+    my $date = `date "+%d %B %Y"`;
     $date =~ s/\n$//;
     my $genby = `whoami`;
     $genby =~ s/\n$//;
@@ -182,7 +182,7 @@ EOF
 
     print DESTFILE <<EOF;
 <HR>
-Generated on $date, by $genby
+Generated on $date.
 <P>
 Command line used to generate this documentation:<BR>
 <CODE>$0 @ARGV</CODE>

@@ -232,6 +232,7 @@ void
 OmStem::operator=(const OmStem &other)
 {
     // FIXME
+    OmLockSentry locksentry(internal->mutex); // or some kind of lock, anyway
     throw OmUnimplementedError("OmStem::operator=() unimplemented");
 }
 

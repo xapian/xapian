@@ -1,3 +1,14 @@
+Wed Jun 21 13:40:26 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+        * Add a --enable-quiet option to configure to turn off libtool
+	  messages if they're not wanted.
+
+	* Add a Dbt object to the test for db_cxx.h, to check that the
+	  right library is being linked with.
+
+	* Set datestamp in mkdoc.pl to consitent format with rest of
+	  documentation.
+
 Wed Jun 21 13:40:03 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Stoped the "undefined reference to SocketServer type_info node"
