@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
 	    printf("tname is `%s'\n", tname.c_str());
 	    // posting list 122 141 142 174 ...
 	    postlist = database.open_post_list(tid);
-	    postlist->next();
+	    postlist->next(0.0);
 	    while(!postlist->at_end()) {
 		docid did;
 		weight wt;
@@ -32,8 +32,8 @@ int main(int argc, char *argv[]) {
 		did = postlist->get_docid();
 		wt = postlist->get_weight();
 		printf("TermId: %d  DocId: %d  Weight: %f\n", tid, did, wt);
-		if(did == 120) postlist->skip_to(144);
-		else postlist->next();
+		if(did == 120) postlist->skip_to(144, 0.0);
+		else postlist->next(0.0);
 	    }
 	    delete postlist;
 	}

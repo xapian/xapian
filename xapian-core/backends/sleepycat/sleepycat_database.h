@@ -24,7 +24,7 @@ class SleepyPostList : public virtual PostList {
 
 	docid    get_docid() const;     // Current docid
 	weight   get_weight() const;    // Current weight
-	PostList * next();              // Move next docid
+        PostList * next(weight w_min);  // Move next docid
 	bool     at_end() const;        // True if we're off the end of the list
 };
 
@@ -43,7 +43,7 @@ SleepyPostList::get_docid() const
 }
 
 inline PostList *
-SleepyPostList::next()
+SleepyPostList::next(weight w_min)
 {
     Assert(!at_end());
     pos ++;
