@@ -254,6 +254,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	~InMemoryDatabase();
 
 	Xapian::doccount  get_doccount() const;
+	Xapian::docid get_lastdocid() const;
 	Xapian::doclength get_avlength() const;
 	Xapian::doclength get_doclength(Xapian::docid did) const;
 
@@ -454,6 +455,12 @@ inline Xapian::doccount
 InMemoryDatabase::get_doccount() const
 {
     return totdocs;
+}
+
+inline Xapian::docid
+InMemoryDatabase::get_lastdocid() const
+{
+    return termlists.size();
 }
 
 inline Xapian::doclength

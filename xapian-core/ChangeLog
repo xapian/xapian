@@ -1,3 +1,8 @@
+Wed Jun 16 15:40:21 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.h: Implemented get_lastdocid()
+	  for InMemory backend.
+
 Wed Jun 16 02:39:41 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.in: Note the value of LIBRARY_VERSION_INFO which 0.8.1
