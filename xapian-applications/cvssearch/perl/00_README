@@ -2,7 +2,7 @@ say you want to build a file: myfile.cgi in src/perl
 
 1. remove the first line of myfile.cgi (the line containing
 #!/usr/local/bin/perl) and rename the new file as myfile-script.pl (or
-myfile.pl what ever you wish to call it, I will assume u will use
+myfile.pl or whatever you wish to call it, but I will assume you will use
 myfile-script.pl below)
 
 2. cvs add myfile-script.pl into the repository.
@@ -17,11 +17,15 @@ package with the command "make dist"
 3.3. add to the end of perl/Makefile.am the following two lines:
 
 myfile.cgi: $(srcdir)/myfile-script.pl
-<TAB>$(build-perl-script)
+<TAB>$(PERL) -I $(srcdir) -c $(srcdir)/myfile-script.pl
+<TAB>echo "#!$(PERL) -w" | cat $(srcdir)/myfile-script.pl > tmp-$@
+<TAB>chmod ugo+rx tmp-$@
+<TAB>mv -f tmp-$@ $@
 
 make sure to include $(srcdir) as above, otherwise make distcheck will
-fail. also note $(build-perl-script) is only defined in perl/Makefile.am
+fail.
 
 4. to create myfile.cgi, type make, the new Makefile will be remade, and
-then if any perl scripts contain syntax errors,  it will report that. 5.
-type make install to copy .cgi files into the cgi-bin directory.
+then if any perl scripts contain syntax errors, it will report that.
+
+5. type make install to copy .cgi files into the cgi-bin directory.
