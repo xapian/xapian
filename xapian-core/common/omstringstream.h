@@ -68,7 +68,7 @@ class om_ostringstream {
 
 #define OSTRINGSTREAMFUNC(X) \
     inline om_ostringstream & \
-    operator << (om_ostringstream &os, const X obj) { \
+    operator << (om_ostringstream &os, const X & obj) { \
 	return os << obj.get_description(); \
     }
 
