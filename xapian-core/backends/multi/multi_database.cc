@@ -217,7 +217,7 @@ MultiDatabase::term_exists(const termname &tname) const
     Assert((used = true) == true);
 
 #ifdef MUS_DEBUG_VERBOSE
-    cout << "Looking up term `" << tname.c_str() << "': "
+    cout << "Looking up term `" << tname.c_str() << "': ";
 #endif
     set<termname>::const_iterator p = terms.find(tname);
 
