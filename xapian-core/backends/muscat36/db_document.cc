@@ -66,14 +66,23 @@ DBDocument::do_get_key(om_keyno keyid) const
     return key;
 }
 
-/** Get the key for a DB document.
- *  If a key file is available, this will be used to provide extremely fast
- *  key lookup.
+/** Get all the keys for a DB document.
+ *
+ *  Note: this only returns keys from the keyfile.  If keys are being
+ *  read from the record, this will not return them.
  */
 std::map<om_keyno, OmKey>
 DBDocument::do_get_all_keys() const
 {
-    throw OmUnimplementedError("DaDocument::do_get_all_keys() unimplemented");
+    om_keyno keyid = 0;
+    std::map<om_keyno, OmKey> keys;
+
+    OmKey key = database->get_key(did, keyid);
+    if (key.value.size() != 0) {
+	keys[keyid] = key;
+    }
+
+    return keys;
 }
 
 

@@ -76,12 +76,22 @@ DADocument::do_get_key(om_keyno keyid) const
 }
 
 /** Get all the keys for a DA document.
+ *
+ *  Note: this only returns keys from the keyfile.  If keys are being
+ *  read from the record, this will not return them.
  */
 std::map<om_keyno, OmKey>
 DADocument::do_get_all_keys() const
 {
+    om_keyno keyid = 0;
+    std::map<om_keyno, OmKey> keys;
 
-    throw OmUnimplementedError("DaDocument::do_get_all_keys() unimplemented");
+    OmKey key = database->get_key(did, keyid);
+    if (key.value.size() != 0) {
+	keys[keyid] = key;
+    }
+
+    return keys;
 }
 
 /** Get the data for a DA Document.

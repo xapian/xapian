@@ -1,3 +1,7 @@
+Tue Aug  8 14:49:46 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Implement do_get_all_keys() for DA and DB databases.  Untested.
+
 Tue Aug  8 12:26:13 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix potential concurrency problem in big file descriptor stuff:
