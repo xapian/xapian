@@ -1,6 +1,4 @@
 usr/bin/xapian-config
-usr/include/om/om.h
-usr/include/om/omparsequery.h
 usr/include/xapian.h
 usr/include/xapian/base.h
 usr/include/xapian/database.h
@@ -20,9 +18,6 @@ usr/include/xapian/termiterator.h
 usr/include/xapian/types.h
 usr/include/xapian/valueiterator.h
 usr/include/xapian/version.h
-usr/lib/libomqueryparser.a
-usr/lib/libomqueryparser.la
-usr/lib/libomqueryparser.so
 usr/lib/libxapian.a
 usr/lib/libxapian.la
 usr/lib/libxapian.so
