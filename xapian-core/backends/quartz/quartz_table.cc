@@ -48,10 +48,6 @@ hex_encode(const string & input)
 }
 #endif
 
-QuartzCursor::QuartzCursor(Btree * btree)
-	: is_positioned(false),
-	  cursor(btree) {}
-
 bool
 QuartzCursor::find_entry(const string &key)
 {
@@ -72,14 +68,26 @@ QuartzCursor::find_entry(const string &key)
 
     bool err = cursor.get_key(&current_key);
     (void)err; // FIXME: check for errors
+    have_read_tag = false;
+
+    DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key) << "'");
+
+    RETURN(found);
+}
+
+void
+QuartzCursor::read_tag()
+{
+    DEBUGCALL(DB, void, "QuartzCursor::read_tag", "");
+
+    if (have_read_tag) return;
 
     is_positioned = cursor.get_tag(&current_tag);
     // FIXME: check for errors
 
-    DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key) <<
-	      "', tag=`" << hex_encode(current_tag) << "'");
+    have_read_tag = true;
 
-    RETURN(found);
+    DEBUGLINE(DB, "tag=`" << hex_encode(current_tag) << "'");
 }
 
 void
@@ -87,6 +95,10 @@ QuartzCursor::next()
 {
     DEBUGCALL(DB, bool, "QuartzCursor::next", "");
     Assert(!is_after_end);
+    if (!have_read_tag) {
+	if (!cursor.next()) is_positioned = false;
+    }
+
     if (!is_positioned) {
 	is_after_end = true;
 	return;
@@ -94,13 +106,12 @@ QuartzCursor::next()
 
     cursor.get_key(&current_key);
     // FIXME: check for errors
-    is_positioned = cursor.get_tag(&current_tag);
-    // FIXME: check for errors
+    have_read_tag = false;
 
-    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) <<
-	      "', tag=`" << hex_encode(current_tag) << "'");
+    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
 }
 
+#if 0 // Unused and untested in its current form...
 void
 QuartzCursor::prev()
 {
@@ -114,24 +125,17 @@ QuartzCursor::prev()
 	int found = cursor.find_key(current_key);
 	(void)found; // FIXME: check for errors
 	Assert(found);
-    } else {
+    } else if (have_read_tag) {
 	cursor.prev();
 	// FIXME: check for errors
     }
 
+    cursor.prev();
+    // FIXME: check for errors
     cursor.get_key(&current_key);
     // FIXME: check for errors
+    have_read_tag = false;
 
-    if (!current_key.empty()) {
-	cursor.prev();
-	// FIXME: check for errors
-	cursor.get_key(&current_key);
-	// FIXME: check for errors
-    }
-
-    is_positioned = cursor.get_tag(&current_tag);
-    // FIXME: check for errors
-
-    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) <<
-	      "', tag=`" << hex_encode(current_tag) << "'");
+    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
 }
+#endif

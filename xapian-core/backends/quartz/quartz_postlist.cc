@@ -410,6 +410,7 @@ PostlistChunkWriter::flush(Btree *table)
 	    // them into the block we're renaming.
 	    Xapian::termcount num_ent, coll_freq;
 	    {
+		cursor->read_tag();
 		const char *tagpos = cursor->current_tag.data();
 		const char *tagend = tagpos + cursor->current_tag.size();
 
@@ -435,6 +436,7 @@ PostlistChunkWriter::flush(Btree *table)
 		report_read_error(kpos);
 	    }
 
+	    cursor->read_tag();
 	    const char *tagpos = cursor->current_tag.data();
 	    const char *tagend = tagpos + cursor->current_tag.size();
 
@@ -488,6 +490,7 @@ PostlistChunkWriter::flush(Btree *table)
 	    bool is_prev_first_chunk = (keypos == keyend);
 
 	    // Now update the last_chunk
+	    cursor->read_tag();
 	    string tag = cursor->current_tag;
 
 	    const char *tagpos = tag.data();
@@ -662,6 +665,7 @@ QuartzPostList::QuartzPostList(Xapian::Internal::RefCntPtr<const Xapian::Databas
 	last_did_in_chunk = 0;
 	return;
     }
+    cursor->read_tag();
     pos = cursor->current_tag.data();
     end = pos + cursor->current_tag.size();
 
@@ -731,6 +735,7 @@ QuartzPostList::next_chunk()
     }
     did = newdid;
 
+    cursor->read_tag();
     pos = cursor->current_tag.data();
     end = pos + cursor->current_tag.size();
 
@@ -813,6 +818,7 @@ QuartzPostList::move_to_chunk_containing(Xapian::docid desired_did)
     }
     is_at_end = false;
 
+    cursor->read_tag();
     pos = cursor->current_tag.data();
     end = pos + cursor->current_tag.size();
 
@@ -941,6 +947,7 @@ QuartzPostListTable::get_chunk(const string &tname,
     // the data part of the chunk wholesale.
     bool is_first_chunk = (keypos == keyend);
 
+    cursor->read_tag();
     const char * pos = cursor->current_tag.data();
     const char * end = pos + cursor->current_tag.size();
     Xapian::docid first_did_in_chunk;

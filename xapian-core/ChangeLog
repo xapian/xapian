@@ -1,3 +1,11 @@
+Mon Aug 16 14:43:08 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/,tests/quartztest.cc: QuartzCursor no longer
+	  automatically reads the tag - you have to call read_tag() to
+	  get it read.  This speeds up iterator over all the terms in
+	  a database.  Also commented out QuartzCursor::prev as it's
+	  unused and untested (at least in its latest form).
+
 Mon Aug 16 12:39:56 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree_types.h: Made Bcursor.rewrite bool rather than

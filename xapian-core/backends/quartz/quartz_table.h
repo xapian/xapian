@@ -49,6 +49,10 @@ class QuartzCursor {
 	 */
 	bool is_after_end;
 
+	/** Have we read the tag for the current key?
+	 */
+	bool have_read_tag;
+
 	/** The btree cursor.  This points to the next item, not the current
 	 *  item.
 	 */
@@ -56,7 +60,11 @@ class QuartzCursor {
 
     public:
 	/// Initialise the cursor 
-	QuartzCursor(Btree * btree);
+	QuartzCursor(Btree * btree)
+	    : is_positioned(false),
+	      is_after_end(false),
+	      have_read_tag(false),
+	      cursor(btree) {}
 
 	/// Destroy the cursor
 	~QuartzCursor() {}
@@ -65,9 +73,17 @@ class QuartzCursor {
 	 */
 	string current_key;
 
-	/** Current tag pointed to by cursor.
+	/** Current tag pointed to by cursor.  You must call read_tag to
+	 *  make this value available.
 	 */
 	string current_tag;
+
+	/** Read the tag from the table and store it in current_tag.
+	 *
+	 *  Some cursor users don't need the tag, so for efficiency we
+	 *  only read it when asked to.
+	 */
+	void read_tag();
 
 	/** Find an entry, or a near match, in the table.
 	 *
@@ -98,6 +114,7 @@ class QuartzCursor {
 	 */
 	void next();
 
+#if 0 // Unused and untested in its current form...
 	/** Move the cursor back in the table.
 	 *
 	 *  If there are no previous entries in the table, the cursor
@@ -105,6 +122,7 @@ class QuartzCursor {
 	 *  cursor back one position.
 	 */
 	void prev();
+#endif
 
 	/** Determine whether cursor is off the end of table.
 	 *

@@ -111,18 +111,21 @@ static void check_table_values_hello(Btree & table, const string &world)
     tag = "foo";
     TEST(cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key, "hello");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, world);
 
     key = "jello";
     tag = "foo";
     TEST(!cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key, "hello");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, world);
 
     key = "bello";
     tag = "foo";
     TEST(!cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key, "");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "");
 }
 
@@ -155,18 +158,21 @@ static void check_table_values_empty(Btree & table)
     tag = "foo";
     TEST(!cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key, "");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "");
 
     key = "jello";
     tag = "foo";
     TEST(!cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key, "");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "");
 
     key = "bello";
     tag = "foo";
     TEST(!cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key, "");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "");
 }
 
@@ -386,6 +392,7 @@ static bool test_disktable3()
 	AutoPtr<QuartzCursor> cursor(table.cursor_get());
 	TEST(cursor->find_entry(tradekey));
 	TEST_EQUAL(cursor->current_key, tradekey);
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag.size(), 3800);
 
 	cursor->next();
@@ -402,6 +409,7 @@ static bool test_disktable3()
 	AutoPtr<QuartzCursor> cursor(table.cursor_get());
 	TEST(cursor->find_entry(tradekey));
 	TEST_EQUAL(cursor->current_key, tradekey);
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag.size(), 4000);
 
 	cursor->next();
@@ -525,21 +533,25 @@ static bool test_bufftable2()
 	AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
 	TEST(!cursor->find_entry(key));
 	TEST_EQUAL(cursor->current_key, "");
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "");
 
 	cursor->next();
 	TEST(!cursor->after_end());
 	TEST_EQUAL(cursor->current_key, "foo1");
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "bar1");
 
 	cursor->next();
 	TEST(!cursor->after_end());
 	TEST_EQUAL(cursor->current_key, "foo2");
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "bar2");
 
 	cursor->next();
 	TEST(!cursor->after_end());
 	TEST_EQUAL(cursor->current_key, "foo3");
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "bar3");
 
 	cursor->next();
@@ -612,26 +624,31 @@ static bool test_bufftable2()
 	AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
 	TEST(!cursor->find_entry(key));
 	TEST_EQUAL(cursor->current_key, "");
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "");
 
 	cursor->next();
 	TEST(!cursor->after_end());
 	TEST_EQUAL(cursor->current_key, "foo1");
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "bar1");
 
 	cursor->next();
 	TEST(!cursor->after_end());
 	TEST_EQUAL(cursor->current_key, "foo2");
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "bar2");
 
 	cursor->next();
 	TEST(!cursor->after_end());
 	TEST_EQUAL(cursor->current_key, "foo26");
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "bar26");
 
 	cursor->next();
 	TEST(!cursor->after_end());
 	TEST_EQUAL(cursor->current_key, "foo3");
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "bar3");
 
 	cursor->next();
@@ -701,11 +718,13 @@ static bool test_bufftable3()
 	AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
 	TEST(!cursor->find_entry(key));
 	TEST_EQUAL(cursor->current_key, "");
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "");
 
 	cursor->next();
 	TEST(!cursor->after_end());
 	TEST_EQUAL(cursor->current_key, "foo3");
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "bar3");
 
 	cursor->next();
@@ -744,11 +763,13 @@ static bool test_cursor3()
 	    AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
 	    TEST(!cursor->find_entry(key));
 	    TEST_EQUAL(cursor->current_key, "A");
+	    cursor->read_tag();
 	    TEST_EQUAL(cursor->current_tag, "A");
 
 	    cursor->next();
 	    TEST(!cursor->after_end());
 	    TEST_EQUAL(cursor->current_key, "B");
+	    cursor->read_tag();
 	    TEST_EQUAL(cursor->current_tag, "B");
 	}
 
@@ -762,11 +783,13 @@ static bool test_cursor3()
 	    AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
 	    TEST(!cursor->find_entry(key));
 	    TEST_EQUAL(cursor->current_key, "A");
+	    cursor->read_tag();
 	    TEST_EQUAL(cursor->current_tag, "A");
 
 	    cursor->next();
 	    TEST(!cursor->after_end());
 	    TEST_EQUAL(cursor->current_key, "B");
+	    cursor->read_tag();
 	    TEST_EQUAL(cursor->current_tag, "B");
 	}
 
@@ -788,11 +811,13 @@ static bool test_cursor3()
 	    AutoPtr<QuartzCursor> cursor(disktable.cursor_get());
 	    TEST(!cursor->find_entry(key));
 	    TEST_EQUAL(cursor->current_key, "A");
+	    cursor->read_tag();
 	    TEST_EQUAL(cursor->current_tag, "A");
 
 	    cursor->next();
 	    TEST(!cursor->after_end());
 	    TEST_EQUAL(cursor->current_key, "B");
+	    cursor->read_tag();
 	    TEST_EQUAL(cursor->current_tag, "B");
 	}
     }
@@ -832,11 +857,13 @@ static bool test_cursor1()
 	AutoPtr<QuartzCursor> cursor(table->cursor_get());
 	TEST(!cursor->find_entry(key));
 	TEST_EQUAL(cursor->current_key, "foo2");
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "bar2");
 
 	cursor->next();
 	TEST(!cursor->after_end());
 	TEST_EQUAL(cursor->current_key, "foo3");
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "bar3");
 
 	cursor->next();
@@ -845,21 +872,25 @@ static bool test_cursor1()
 	key = "foo";
 	TEST(!cursor->find_entry(key));
 	TEST_EQUAL(cursor->current_key, "");
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "");
 
 	cursor->next();
 	TEST(!cursor->after_end());
 	TEST_EQUAL(cursor->current_key, "foo1");
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "bar1");
 
 	key = "foo2";
 	TEST(cursor->find_entry(key));
 	TEST_EQUAL(cursor->current_key, "foo2");
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "bar2");
 
 	cursor->next();
 	TEST(!cursor->after_end());
 	TEST_EQUAL(cursor->current_key, "foo3");
+	cursor->read_tag();
 	TEST_EQUAL(cursor->current_tag, "bar3");
 
 	cursor->next();
@@ -882,48 +913,57 @@ static bool test_cursor1()
     AutoPtr<QuartzCursor> cursor(disktable1.cursor_get());
     TEST(!cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key, "foo2");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar2");
 
     cursor->next();
     TEST(!cursor->after_end());
     TEST_EQUAL(cursor->current_key, "foo3");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar3");
 
     key = "foo25";
     cursor.reset(bufftable1.cursor_get());
     TEST(cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key, "foo25");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar25");
 
     cursor->next();
     TEST(!cursor->after_end());
     TEST_EQUAL(cursor->current_key, "foo3");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar3");
 
     key = "foo26";
     cursor.reset(bufftable1.cursor_get());
     TEST(!cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key, "foo25");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar25");
 
     cursor->next();
     TEST(!cursor->after_end());
     TEST_EQUAL(cursor->current_key, "foo3");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar3");
 
     key = "foo2";
     TEST(cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key, "foo2");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar2");
 
     cursor->next();
     TEST(!cursor->after_end());
     TEST_EQUAL(cursor->current_key, "foo25");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar25");
 
     cursor->next();
     TEST(!cursor->after_end());
     TEST_EQUAL(cursor->current_key, "foo3");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar3");
 
     cursor->next();
@@ -932,21 +972,25 @@ static bool test_cursor1()
     key = "foo1";
     TEST(!cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key, "");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "");
 
     cursor->next();
     TEST(!cursor->after_end());
     TEST_EQUAL(cursor->current_key, "foo2");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar2");
 
     cursor->next();
     TEST(!cursor->after_end());
     TEST_EQUAL(cursor->current_key, "foo25");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar25");
 
     cursor->next();
     TEST(!cursor->after_end());
     TEST_EQUAL(cursor->current_key, "foo3");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar3");
 
     new_revision += 1;
@@ -957,21 +1001,25 @@ static bool test_cursor1()
     key = "foo2";
     TEST(cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key, "foo2");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar2");
 
     key = "foo24";
     TEST(!cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key, "foo2");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar2");
 
     key = "foo25";
     TEST(cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key, "foo25");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar25");
 
     key = "foo24";
     TEST(!cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key, "foo2");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar2");
 
     key = "foo25";
@@ -981,11 +1029,13 @@ static bool test_cursor1()
     cursor.reset(bufftable1.cursor_get());
     TEST(!cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key, "foo2");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar2");
 
     cursor->next();
     TEST(!cursor->after_end());
     TEST_EQUAL(cursor->current_key, "foo3");
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, "bar3");
 
     return true;
@@ -1020,6 +1070,7 @@ static bool test_cursor2()
 
     TEST(!cursor->find_entry(searchkey));
     TEST_EQUAL(cursor->current_key, key1);
+    cursor->read_tag();
     TEST_EQUAL(cursor->current_tag, tag1);
 
     return true;
