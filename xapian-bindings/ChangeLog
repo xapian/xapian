@@ -1,3 +1,7 @@
+Wed Dec 01 05:59:24 GMT 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: It's now tomorrow, so bump the 0.8.4 release date.
+
 Wed Dec 01 05:57:41 GMT 2004  Olly Betts <olly@survex.com>
 
 	* tcl8/docs/examples/simplesearch.tcl: Need Tcl 8.1 or later.
