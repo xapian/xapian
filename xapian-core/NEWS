@@ -1,5 +1,154 @@
-Announcing the version 0.2.0 of Muscat.
-=======================================
+Announcing version 0.2.1 of Muscat.
+===================================
+
+This release contains many bugfixes and new features.  We recommend
+upgrading to this version.
+
+It has been two months since the last release: as a result, this release
+note is rather lengthy.  We have had 40k of entries in ChangeLog since the
+last time I compiled one of these...
+
+Expect the next minor release to happen sooner.
+
+
+This release is available from the usual place:
+        http://open.muscat.com/download/index.html
+
+As ever, for the most up-to-date documentation, see our online copy at
+	http://open.muscat.com/developer/index.html
+
+
+API modifications:
+
+ * API change: changed OmWritableDatabase considerably, so that it
+   has begin_session() and end_session() methods instead of lock()
+   and unlock() methods, amongst other things.
+
+ * API change: renamed OmExpandOptions::use_query_terms() to
+   OmExpandOptions::set_use_query_terms().  This is to be consistent
+   with OmMatchOptions' naming scheme.
+
+ * API addition: added NEAR and PHRASE operators to om_queryop, and
+   added a window size parameter to the appropriate OmQuery constructors.
+
+ * API addition: added OmExpandOptions::use_exact_termfreq() to
+   allow disabling of termfreq approximation in ExpandWeight.
+
+ * API addition: Add an OmEnquire::get_query() method, to retrieve the
+   query which was set.
+
+ * API addition: Add get_description() methods to all API objects,
+   returning a human readable description of the contents of the object.
+
+ * API addition: Added output operators for API objects, so that you can
+   do, for example, "cout << omenquire;"
+
+ * API addition: added OmInvalidOperationError to report invalid
+   API usage, for example, ending a session when one hasn't been
+   begun.
+
+ * API addition: added OmDatabaseCorruptError to report that a
+   database has become corrupt.
+
+ * API addition: added OmDatabaseLockError to report when a lock on
+   a database couldn't be aquired.
+
+ * API addition: added get_type() method to OmError, to return a string
+   describing the class.
+
+ * API addition: added OmMSet::get_termfreq() and OmMSet::get_termweight()
+   methods, to get information about the terms involved in the query.
+
+Here are the highlights of the new features:
+
+ * Added phrase and near-term searching.
+
+ * New stemming algorithms - for Norwegian, Swedish and Danish.
+
+ * Better autodetection of available features.  Muscat should now compile
+   on Solaris "out-of-the-box", with either GCC or the native compiler.
+
+ * All tests now pass, for all database types (including the network database
+   type, used for distributed searching).
+
+ * Added threadtest, for testing of Muscat in multithreaded use.
+
+ * Debugging system has been thouroughly reworked: much easier to get
+   details of what's going on, and control the level of debug information
+   by the OM_DEBUG_FILE and OM_DEBUG_TYPES environment variables. Also
+   memory allocation trapping has been improved in the testsuite, with
+   the OM_NEW_TRAP[_COUNT] environment variables.
+
+ * Java API is now up-to-date with the C++ API, except for the database
+   writing methods.  The Java API is also tested with an automatically
+   translated subset of apitest, and passes all 32 of these tests.
+
+ * Omega, an example CGI based search system (derived from the old
+   ferretfx example) has been added to the examples.
+
+ * Delve, a simple utility to inspect databases, has been added to the
+   tests.  This will currently only compile with GCC.
+
+ * Various new tests added to testsuite.
+
+ See the Changelog for full details of the work done (but beware - it's
+ 40k of stuff since the last release).
+
+Bugs fixed include:
+
+ * Pretty much any concurrent access to Muscat was causing occasional memory
+   corruption / segfaults / other weird behaviour.  After a huge bughunt,
+   we finally traced this to the standard C++ library we were using,
+   libstdc++.  Recompiling using the STLport C++ library, fixes the
+   problem, so we have added configuration options to support this (see the
+   INSTALL file for details).
+
+ * Concurrency problems in Muscat 3.6 databases fixed.  It's now safe for
+   multiple threads to perform searches across the same OmDatabaseGroup
+   object (using separate OmEnquire objects).
+
+ * Fix potential concurrency problem in big file descriptor stuff:
+   although it was very unlikely to have actually caused a problem.
+
+ * Distributed searching didn't work with DA or DB databases, due to
+   unimplemented do_get_all_keys() methods.
+
+
+The next tasks ahead of us are:
+
+ * Continue the developement of the Java, Perl and Python interfaces to
+   Muscat, to get the Perl and Python versions up-to-date, and to keep
+   them all in sync with the full API.
+
+   Chris Emerson is working on this.
+
+ * A new general purpose database backend.  The existing Sleepycat backend
+   is functionally complete, but is highly inefficient: try indexing more
+   than a few 1000 documents, and the system will slow to a crawl.  This
+   is due to an inefficient design, so a new system is being written using
+   the knowledge gained, a newer version of Berkeley DB.
+
+   The existing "Sleepycat" database backend will provide a useful cross-check
+   for correctness during the development of the new backend, and will then be
+   removed.
+
+   I am performing this work.
+
+ * Creation of an indexing system, for taking documents and parsing them into
+   terms, keys and data.  We are working on a detailed design for this, which
+   will be added to the documentation reasonably soon.
+
+   Chris Emerson will be working on this.
+
+ * As ever, completing the items in the TODO list...
+
+Have fun with this release, and as ever let us know of any problems /
+successes you have.
+
+
+
+Announcing version 0.2.0 of Muscat.
+===================================
 
 This release contains many bugfixes and new features.  We recommend
 upgrading to this version.
@@ -76,8 +225,8 @@ Bugs fixed include:
 
 
 
-Announcing the version 0.1.3 of Muscat.
-=======================================
+Announcing version 0.1.3 of Muscat.
+===================================
 
 This is mainly a bugfix release: we suggest upgrading to this version.
 
@@ -129,8 +278,8 @@ There have been several other changes:
 
 
 
-Announcing the version 0.1.2 of Muscat.
-=======================================
+Announcing version 0.1.2 of Muscat.
+===================================
 
 It's been a month since the last release, and a lot has happened since
 then.  We've been to a conference (the BCS IRSG), got a prototype
