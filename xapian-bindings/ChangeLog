@@ -1,3 +1,9 @@
+Thu Oct 28 04:45:15 BST 2004  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,csharp/SmokeTest.cs: Added a smoketest.
+	  Currently it fails.
+	* csharp/Makefile.am: Updated list of generated .cs files.
+
 Thu Oct 28 04:37:31 BST 2004  Olly Betts <olly@survex.com>
 
 	* xapian.i: In the Query ctor which takes a vector of terms, only

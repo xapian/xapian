@@ -1,12 +1,11 @@
 ## Process this file with automake to produce Makefile.in
 
-EXTRA_DIST = util.i extra.i AssemblyInfo.cs.in
-CLEANFILES = \
-  XapianSharp.snk \
-  XapianSharp.loT \
-  AssemblyInfo.cs \
-  $(ASSEMBLY).dll \
-  $(BUILT_SOURCES)
+TESTS_ENVIRONMENT =
+
+## Test programs to be run
+TESTS = SmokeTest.exe
+
+EXTRA_DIST = util.i extra.i AssemblyInfo.cs.in SmokeTest.cs
 
 ASSEMBLY=XapianSharp
 
@@ -33,8 +32,8 @@ XAPIAN_SWIG_CS_SRCS=\
 	SWIGTYPE_p_Xapian__Stopper.cs \
 	SWIGTYPE_p_Xapian__Weight.cs \
 	SWIGTYPE_p_std__listTstd__string_t.cs \
+	SWIGTYPE_p_std__vectorTstd__string_t.cs \
 	SWIGTYPE_p_time_t.cs \
-	SWIGTYPE_p_vectorTXapian__Query_p_t.cs \
 	Stem.cs \
 	TermIterator.cs \
 	ValueIterator.cs \
@@ -62,12 +61,23 @@ lib_LTLIBRARIES = XapianSharp.la
 
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS) @SWIG_CXXFLAGS@
 XapianSharp_la_LDFLAGS = -avoid-version -module
-nodist_XapianSharp_la_SOURCES = XapianSharp.cc
+nodist_XapianSharp_la_SOURCES = $(ASSEMBLY).cc
 XapianSharp_la_LIBADD = $(XAPIAN_LIBS)
 
 install-data-local: $(ASSEMBLY).dll
 	$(GACUTIL) /i $(ASSEMBLY).dll /f /package $(ASSEMBLY) /gacdir $(libdir) /root $(DESTDIR)$(libdir)
+
 uninstall-local:
 	$(GACUTIL) /u $(ASSEMBLY) /f /package $(ASSEMBLY) /gacdir $(libdir) /root $(DESTDIR)$(libdir)
 
+SmokeTest.exe: SmokeTest.cs $(ASSEMBLY).dll
+	$(CSC) --unsafe --target exe SmokeTest.cs -r:$(ASSEMBLY).dll
+
 all-am: $(ASSEMBLY).dll
+
+CLEANFILES = $(BUILT_SOURCES) \
+  XapianSharp.snk \
+  XapianSharp.loT \
+  AssemblyInfo.cs \
+  $(ASSEMBLY).dll \
+  SmokeTest.exe
