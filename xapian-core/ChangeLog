@@ -1,3 +1,10 @@
+Thu Oct 10 17:14:28 BST 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/{bcursor.cc,btree.cc,btree.h}: Btree::prev* and
+	  Btree::next* are no longer static methods.
+	* backends/quartz/btree.h: Tweaked comments so doxygen will
+	  understand them.
+
 Thu Oct 10 16:12:29 BST 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_postlist.cc: return docids rather

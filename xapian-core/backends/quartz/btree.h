@@ -32,15 +32,15 @@ using std::string;
 #include "btree_base.h"
 #include "bcursor.h"
 
-/* allow for this many levels in the B-tree. Overflow practically impossible */
-/* FIXME: but we want it to be completely impossible... */
+// Allow for BTREE_CURSOR_LEVELS levels in the B-tree.
+// With 10, overflow is practically impossible
+// FIXME: but we want it to be completely impossible...
 #define BTREE_CURSOR_LEVELS 10
 
 class Btree {
     friend class Bcursor; /* Should probably fix this. */
     public:
-	/** Constructor, to set important elements to 0.
-	 */
+	/** Constructor */
 	Btree();
 
 	~Btree();
@@ -172,29 +172,48 @@ class Btree {
 			     const int4 blocknumber, bool truncate) const;
 	void form_key(const string & key);
 
-	/** true if the root block is faked (not written to disk).  false
-	 * otherwise.  This is true when the btree hasn't been modified yet.
+	/** true if the root block is faked (not written to disk).
+	 * false otherwise.  This is true when the btree hasn't been
+	 * modified yet.
 	 */
 	bool faked_root_block;
 
-	/** true iff the data has been written in a single write in sequential
-	 *  order.
+	/** true iff the data has been written in a single write in
+	 * sequential order.
 	 */
 	bool sequential;
 
-	int handle;           /* corresponding file handle */
-	int level;            /* number of levels, counting from 0 */
-	int4 root;            /* the root block of the B-tree */
-	byte * kt;            /* buffer of size B->block_size for making up key-tag items */
-	byte * buffer;        /* buffer of size block_size for reforming blocks */
-	uint4 next_revision;  /* 1 + revision number of the opened B-tree */
-	Btree_base base;      /* for writing back as file baseA or baseB */
-	char other_base_letter;/* - and the value 'B' or 'A' of the next base */
+	/// corresponding file handle
+	int handle;
 
-	string name;     /* The path name of the B tree */
+	/// number of levels, counting from 0
+	int level;
 
-	/** count of the number of successive instances of purely sequential
-	 *  addition, starting at SEQ_START_POINT (neg) and going up to zero */
+	/// the root block of the B-tree
+	int4 root;
+
+	/// buffer of size B->block_size for making up key-tag items
+	byte * kt;
+
+	/// buffer of size block_size for reforming blocks
+	byte * buffer;
+
+	/// 1 + revision number of the opened B-tree
+	uint4 next_revision;
+
+	/// for writing back as file baseA or baseB
+	Btree_base base;
+
+	/// - and the value 'B' or 'A' of the next base
+	char other_base_letter;
+
+
+	/// The path name of the B tree
+	string name;
+
+	/** count of the number of successive instances of purely
+	 * sequential addition, starting at SEQ_START_POINT (neg) and
+	 * going up to zero */
 	int seq_count;
 
 	/** the last block to be changed by an addition */
@@ -204,22 +223,35 @@ class Btree {
 	 *  by an addition */
 	int changed_c;
 
-	int max_item_size;    /* maximum size of an item (key-tag pair) */
-	int shared_level;     /* in B-tree read mode, cursors share blocks in
-				 BC->C for levels at or above B->shared_level */
-	char Btree_modified;  /* set to true the first time the B-tree is written to */
-	char full_compaction; /* set to true when full compaction is to be achieved */
+	/// maximum size of an item (key-tag pair)
+	int max_item_size;
 
-	bool writable; 	/* Set to true when the database is opened to write. */
+	/// in B-tree read mode, cursors share blocks in BC->C for
+	//  levels at or above B->shared_level
+	int shared_level;
 
-	int (* prev)(Btree *, Cursor *, int);
-	int (* next)(Btree *, Cursor *, int);
+	/// set to true the first time the B-tree is written to
+	char Btree_modified;
 
-	static int prev_default(Btree *, Cursor *C, int j);
-	static int next_default(Btree *, Cursor *C, int j);
+	/// set to true when full compaction is to be achieved
+	char full_compaction;
 
-	static int prev_for_sequential(Btree *, Cursor *C, int dummy);
-	static int next_for_sequential(Btree *, Cursor *C, int dummy);
+
+	/// Set to true when the database is opened to write.
+	bool writable;
+
+
+	int prev(Cursor *C_, int j) { return (this->*prev_ptr)(C_, j); }
+	int next(Cursor *C_, int j) { return (this->*next_ptr)(C_, j); }
+
+	int (Btree::* prev_ptr)(Cursor *, int);
+	int (Btree::* next_ptr)(Cursor *, int);
+
+	int prev_default(Cursor *C_, int j);
+	int next_default(Cursor *C_, int j);
+
+	int prev_for_sequential(Cursor *C_, int dummy);
+	int next_for_sequential(Cursor *C_, int dummy);
 
 	/* B-tree navigation functions */
 

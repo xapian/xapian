@@ -68,7 +68,7 @@ Bcursor::prev()
     if (!positioned) return false;
 
     while (true) {
-        if (! B->prev(B, C, 0)) {
+        if (! B->prev(C, 0)) {
 	    positioned = false;
 	    return false;
 	}
@@ -87,7 +87,7 @@ Bcursor::next()
     if (!positioned) return false;
 
     while (true) {
-	if (! B->next(B, C, 0)) {
+	if (! B->next(C, 0)) {
 	    positioned = false;
 	    return false;
 	}
@@ -111,10 +111,10 @@ Bcursor::find_key(const string &key)
     if (! found) {
 	if (C[0].c < DIR_START) {
 	    C[0].c = DIR_START;
-	    if (! B->prev(B, C, 0)) return false;
+	    if (! B->prev(C, 0)) return false;
 	}
 	while (component_of(C[0].p, C[0].c) != 1) {
-	    if (! B->prev(B, C, 0)) return false;
+	    if (! B->prev(C, 0)) return false;
 	}
     }
     positioned = true;
@@ -162,7 +162,7 @@ Bcursor::get_tag(Btree_item * item)
 	int l = GETI(p, 0) - cd;
 	item->tag.append(reinterpret_cast<char *>(p + cd), l);
 	// FIXME Do we need to call B->next(...) on the last pass?
-	positioned = B->next(B, C, 0);
+	positioned = B->next(C, 0);
 
 	if (B->overwritten) return false;
 

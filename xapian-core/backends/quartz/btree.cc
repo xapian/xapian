@@ -1771,8 +1771,13 @@ Btree::do_open_to_read(const string & name_,
 	shared_level = level > common_levels ? common_levels : level;
     }
 
-    prev = sequential ? prev_for_sequential : prev_default;
-    next = sequential ? next_for_sequential : next_default;
+    if (sequential) {
+	prev_ptr = &Btree::prev_for_sequential;
+	next_ptr = &Btree::next_for_sequential;
+    } else {
+	prev_ptr = &Btree::prev_default;;
+	next_ptr = &Btree::next_default;;
+    }
 
     for (int j = shared_level; j <= level; j++) {
 	C[j].n = -1;
@@ -1815,110 +1820,110 @@ Btree::force_block_to_cursor(Cursor * C_, int j)
 }
 
 int
-Btree::prev_for_sequential(Btree * B, Cursor * C, int /*dummy*/)
+Btree::prev_for_sequential(Cursor * C_, int /*dummy*/)
 {
-    byte * p = C[0].p;
-    int c = C[0].c;
+    byte * p = C_[0].p;
+    int c = C_[0].c;
     if (c == DIR_START) {
-	int n = C[0].n;
+	int n = C_[0].n;
 	while (true) {
 	    n--;
 	    if (n < 0) return false;
-	    B->read_block(n, p);
-	    if (B->overwritten) return false;
+	    read_block(n, p);
+	    if (overwritten) return false;
 	    if (REVISION(p) > 1) {
-		B->set_overwritten();
+		set_overwritten();
 		return false;
 	    }
 	    if (GET_LEVEL(p) == 0) break;
 	}
 	c = DIR_END(p);
-	C[0].n = n;
+	C_[0].n = n;
     }
     c -= D2;
-    C[0].c = c;
+    C_[0].c = c;
     return true;
 }
 
 int
-Btree::next_for_sequential(Btree * B, Cursor * C, int /*dummy*/)
+Btree::next_for_sequential(Cursor * C_, int /*dummy*/)
 {
-    byte * p = C[0].p;
-    int c = C[0].c;
+    byte * p = C_[0].p;
+    int c = C_[0].c;
     c += D2;
     if (c == DIR_END(p)) {
-	int n = C[0].n;
+	int n = C_[0].n;
 	while (true) {
 	    n++;
-	    if (n > B->base.get_last_block()) return false;
-	    B->read_block(n, p);
-	    if (B->overwritten) return false;
+	    if (n > base.get_last_block()) return false;
+	    read_block(n, p);
+	    if (overwritten) return false;
 	    if (REVISION(p) > 1) {
-		B->set_overwritten();
+		set_overwritten();
 		return false;
 	    }
 	    if (GET_LEVEL(p) == 0) break;
 	}
 	c = DIR_START;
-	C[0].n = n;
+	C_[0].n = n;
     }
-    C[0].c = c;
+    C_[0].c = c;
     return true;
 }
 
 int
-Btree::prev_default(Btree * B, Cursor * C, int j)
+Btree::prev_default(Cursor * C_, int j)
 {
-    byte * p = C[j].p;
-    int c = C[j].c;
+    byte * p = C_[j].p;
+    int c = C_[j].c;
     Assert(c >= 0);
     Assert(c < 65536);
     if (c == DIR_START) {
-	if (j == B->level) return false;
+	if (j == level) return false;
 
-	if (j + 1 >= B->shared_level) {
-	    B->force_block_to_cursor(C, j + 1);
-	    if (B->overwritten) return false;
+	if (j + 1 >= shared_level) {
+	    force_block_to_cursor(C_, j + 1);
+	    if (overwritten) return false;
 	}
-	if (! prev_default(B, C, j + 1)) return false;
+	if (! prev_default(C_, j + 1)) return false;
 
 	c = DIR_END(p);
     }
     c -= D2;
-    C[j].c = c;
+    C_[j].c = c;
     if (j > 0) {
-	B->block_to_cursor(C, j - 1, block_given_by(p, c));
-	if (B->overwritten) return false;
+	block_to_cursor(C_, j - 1, block_given_by(p, c));
+	if (overwritten) return false;
     }
     return true;
 }
 
 int
-Btree::next_default(Btree * B, Cursor * C, int j)
+Btree::next_default(Cursor * C_, int j)
 {
-    byte * p = C[j].p;
-    int c = C[j].c;
+    byte * p = C_[j].p;
+    int c = C_[j].c;
     c += D2;
     Assert(c >= 0);
     Assert(c < 65536);
     if (c == DIR_END(p)) {
-	if (j == B->level) return false;
+	if (j == level) return false;
 
-	if (j + 1 >= B->shared_level) {
-	    B->force_block_to_cursor(C, j + 1);
-	    if (B->overwritten) return false;
+	if (j + 1 >= shared_level) {
+	    force_block_to_cursor(C_, j + 1);
+	    if (overwritten) return false;
 	}
-	if (! next_default(B, C, j + 1)) return false;
+	if (! next_default(C_, j + 1)) return false;
 
 	c = DIR_START;
     }
-    C[j].c = c;
+    C_[j].c = c;
     if (j > 0) {
-	B->block_to_cursor(C, j - 1, block_given_by(p, c));
-	if (B->overwritten) return false;
+	block_to_cursor(C_, j - 1, block_given_by(p, c));
+	if (overwritten) return false;
 #ifdef BTREE_DEBUG_FULL
 	printf("Block in Btree:next_default");
-	B->report_block_full(j - 1, C[j - 1].n, C[j - 1].p);
+	report_block_full(j - 1, C_[j - 1].n, C_[j - 1].p);
 #endif /* BTREE_DEBUG_FULL */
     }
     return true;
