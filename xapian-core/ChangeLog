@@ -1,3 +1,8 @@
+Tue Nov 02 16:52:21 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: AM_CONFIG_HEADER -> AC_CONFIG_HEADERS; removed
+	  commented out AC_LANG_SAVE and AC_LANG_RESTORE.
+
 Tue Nov 02 15:56:02 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: # comments -> dnl comments.
