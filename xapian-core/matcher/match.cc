@@ -170,15 +170,11 @@ Match::match(void)
 	    }
 	}
         mtotal++;
-        try {
-	    merger->next(); 	    
-	}
-        catch (PostList **p) {
-	    PostList *tmp;
-	    tmp = merger;
-	    merger = *p;
-	    *p = NULL;
-	    delete tmp;
+
+        PostList *ret = merger->next(); 	    
+        if (ret) {
+	    delete merger;
+	    merger = ret;
 	}
     }
 

@@ -9,15 +9,15 @@
 class AndNotPostList : public virtual BranchPostList {
     private:
         docid lhead, rhead;
-        void advance_to_next_match();
+        PostList *advance_to_next_match();
     public:
 	doccount get_termfreq() const;
 
 	docid  get_docid() const;
 	weight get_weight() const;
 
-	void   next();
-	void   skip_to(docid);
+        PostList *next();
+        PostList *skip_to(docid);
 	bool   at_end() const;
 
         AndNotPostList(PostList *l, PostList *r);

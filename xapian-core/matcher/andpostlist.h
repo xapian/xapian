@@ -16,9 +16,9 @@ class AndPostList : public virtual BranchPostList {
 
 	docid  get_docid() const;
 	weight get_weight() const;
-
-	void   next();
-	void   skip_to(docid);
+    
+        PostList *next();
+        PostList *skip_to(docid);
 	bool   at_end() const;
 
         AndPostList(PostList *l, PostList *r);

@@ -1,13 +1,17 @@
 #include "orpostlist.h"
 
-inline void
+inline PostList *
 OrPostList::maybe_throw_kid(void)
 {
-    if (!rhead) {	
-	throw &l;
+    PostList *ret = NULL;
+    if (!rhead) {
+	ret = l;
+	l = NULL;
     } else if (!lhead) {
-	throw &r;
+	ret = r;
+	r = NULL;
     }
+    return ret;
 }
 
 OrPostList::OrPostList(PostList *left, PostList *right)
@@ -17,7 +21,7 @@ OrPostList::OrPostList(PostList *left, PostList *right)
     lhead = rhead = 0;
 }
 
-void
+PostList *
 OrPostList::next()
 {
     bool lnext = false;
@@ -31,30 +35,67 @@ OrPostList::next()
     }
 
     if (lnext) {
-	try { l->next(); } catch (PostList **p) { catch_kid(l, p); }
+	PostList *ret;
+	ret = l->next();
+        if (ret) {
+	    delete l;
+	    l = ret;
+	}
 	lhead = 0;
 	if (!l->at_end()) lhead = l->get_docid();
     }
 
     if (rnext) {
-	try { r->next(); } catch (PostList **p) { catch_kid(r, p); }
+	PostList *ret;
+	ret = r->next();
+        if (ret) {
+	    delete r;
+	    r = ret;
+	}
         rhead = 0;
         if (!r->at_end()) rhead = r->get_docid();
     }
 
-    maybe_throw_kid();
+    PostList *ret = NULL;
+    if (!rhead) {
+	ret = l;
+	l = NULL;
+    } else if (!lhead) {
+	ret = r;
+	r = NULL;
+    }
+    return ret;
+//    return maybe_throw_kid();
 }
 
-void
+PostList *
 OrPostList::skip_to(docid id)
 {
-    try { l->skip_to(id); } catch (PostList **p) { catch_kid(l, p); }
+    PostList *ret;
+    ret = l->skip_to(id);
+    if (ret) {
+	delete l;
+	l = ret;
+    }
     lhead = 0;
     if (!l->at_end()) lhead = l->get_docid();
 
-    try { r->skip_to(id); } catch (PostList **p) { catch_kid(r, p); }
+    ret = r->skip_to(id);
+    if (ret) {
+	delete r;
+	r = ret;
+    }
     rhead = 0;
     if (!r->at_end()) rhead = r->get_docid();
 
-    maybe_throw_kid();
+    ret = NULL;
+    if (!rhead) {
+	ret = l;
+	l = NULL;
+    } else if (!lhead) {
+	ret = r;
+	r = NULL;
+    }
+    return ret;
+//    return maybe_throw_kid();
 }

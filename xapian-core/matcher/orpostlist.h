@@ -9,15 +9,15 @@
 class OrPostList : public virtual BranchPostList {
     private:
         docid lhead, rhead;
-        void maybe_throw_kid(void);
+        PostList *maybe_throw_kid(void);
     public:
 	doccount get_termfreq() const;
 
 	docid  get_docid() const;
 	weight get_weight() const;
 
-	void   next();
-	void   skip_to(docid);
+	PostList *next();
+	PostList *skip_to(docid);
 	bool   at_end() const;
 
         OrPostList(PostList *, PostList *);

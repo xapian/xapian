@@ -69,19 +69,21 @@ weight DAPostList::get_weight() const
     return wt;
 }
 
-void DAPostList::next()
+PostList * DAPostList::next()
 {
     Assert(!at_end());
     DAreadpostings(postlist, 0, 0);
+    return NULL;
 }
 
-void DAPostList::skip_to(docid id)
+PostList * DAPostList::skip_to(docid id)
 {
     Assert(!at_end());
     Assert(id >= docid(postlist->Doc));
     //printf("%p:From %d skip_to ", this, postlist->Doc);
     if(id != docid(postlist->Doc)) DAreadpostings(postlist, 0, id);
     //printf("%d - get_id %d\n", id, postlist->Doc);
+    return NULL;
 }
 
 

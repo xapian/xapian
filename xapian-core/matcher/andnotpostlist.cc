@@ -1,11 +1,11 @@
 #include "andnotpostlist.h"
 
-inline void
+inline PostList *
 AndNotPostList::advance_to_next_match()
 {
     if (l->at_end()) {
 	lhead = 0;
-	return;
+	return NULL;
     }
     lhead = l->get_docid();
 
@@ -14,14 +14,18 @@ AndNotPostList::advance_to_next_match()
 	    l->next();
 	    if (l->at_end()) {
 		lhead = 0;
-		return;
+		return NULL;
 	    }
 	    lhead = l->get_docid();
 	}		
 	r->skip_to(lhead);
-	if (r->at_end()) throw &l;
+	if (r->at_end()) {
+	    l = NULL;
+	    return l;
+	}
 	rhead = r->get_docid();
     }
+    return NULL;
 }
 
 AndNotPostList::AndNotPostList(PostList *left, PostList *right)
@@ -31,16 +35,16 @@ AndNotPostList::AndNotPostList(PostList *left, PostList *right)
     lhead = rhead = 0;
 }
 
-void
+PostList *
 AndNotPostList::next()
 {
     l->next();
-    advance_to_next_match();
+    return advance_to_next_match();    
 }
 
-void
+PostList *
 AndNotPostList::skip_to(docid id)
 {
     l->skip_to(id);
-    advance_to_next_match();
+    return advance_to_next_match();
 }

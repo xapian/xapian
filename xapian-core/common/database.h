@@ -22,21 +22,23 @@ class PostList {
 	virtual docid  get_docid() const = 0;     // Gets current docid
 	virtual weight get_weight() const = 0;    // Gets current weight
 
-	virtual void   next() = 0;          // Moves to next docid
-	virtual void   skip_to(docid);  // Moves to next docid >= specified docid
+	virtual PostList *next() = 0;          // Moves to next docid
+	virtual PostList *skip_to(docid);  // Moves to next docid >= specified docid
 	virtual bool   at_end() const = 0;        // True if we're off the end of the list
 
         virtual ~PostList() { return; }
 };
 
 // naive implementation for database that can't do any better
-inline void
+inline PostList *
 PostList::skip_to(docid id)
 {
     Assert(!at_end());
     while (!at_end() && get_docid() < id) {
-	next();
+	PostList *ret = next();
+	if (ret) return ret;
     }
+    return NULL;
 }
 
 class TermList {
