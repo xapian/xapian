@@ -44,4 +44,52 @@ sub new() {
   return $rset;
 }
 
+sub add_document {
+  my $self = shift;
+  if( scalar(@_) == 1 ) {
+    my $arg = shift;
+    my $arg_class = ref( $arg );
+    if( $arg_class eq 'Search::Xapian::MSetIterator' ) {
+      $self->add_document1($arg);
+    } else {
+      $self->add_document2($arg);
+    }
+    return;
+  }
+  Carp::carp( "USAGE: \$rset->add_document(\$docid) or \$rset->add_document(\$msetiterator)" );
+  exit;
+}
+
+sub remove_document {
+  my $self = shift;
+  if( scalar(@_) == 1 ) {
+    my $arg = shift;
+    my $arg_class = ref( $arg );
+    if( $arg_class eq 'Search::Xapian::MSetIterator' ) {
+      $self->remove_document1($arg);
+    } else {
+      $self->remove_document2($arg);
+    }
+    return;
+  }
+  Carp::carp( "USAGE: \$rset->remove_document(\$docid) or \$rset->remove_document(\$msetiterator)" );
+  exit;
+}
+
+sub contains {
+  my $self = shift;
+  my $invalid_args;
+  if( scalar(@_) == 1 ) {
+    my $arg = shift;
+    my $arg_class = ref( $arg );
+    if( $arg_class eq 'Search::Xapian::MSetIterator' ) {
+      return $self->contains1($arg);
+    } else {
+      return $self->contains2($arg);
+    }
+  }
+  Carp::carp( "USAGE: \$rset->contains(\$docid) or \$rset->contains(\$msetiterator)" );
+  exit;
+}
+
 1;

@@ -7,7 +7,7 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 15 };
+BEGIN { plan tests => 18 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -42,5 +42,35 @@ ok( $doc->get_value(1) eq "" );
 ok( $doc->get_value(2) eq "chocolate" );
 $doc->clear_values();
 ok( $doc->get_value(2) eq "" );
+
+my $database = Search::Xapian::WritableDatabase->new();
+
+# in <= 0.8.3.0 this added with wdfinc 1
+$doc->add_posting( "hello", 1, 100 );
+# in <= 0.8.3.0 this added with wdfinc 0
+$doc->add_posting( "hello", 2 );
+$database->add_document($doc);
+
+ok( $database->get_doclength(1) == 101 );
+
+$doc = Search::Xapian::Document->new();
+# in <= 0.8.3.0 this added with wdfinc 1 (happens to work as it should)
+$doc->add_posting( "goodbye", 1, 1 );
+# in <= 0.8.3.0 this added with wdfinc 1 (happens to work as it should)
+$doc->add_posting( "goodbye", 2, 1 );
+# in <= 0.8.3.0 this removed with wdfinc 0
+$doc->remove_posting( "goodbye", 2 );
+$database->add_document($doc);
+
+ok( $database->get_doclength(2) == 1 );
+
+$doc = Search::Xapian::Document->new();
+# in <= 0.8.3.0 this added with wdfinc 1
+$doc->add_term( "a", 100 );
+# in <= 0.8.3.0 this added with wdfinc 0
+$doc->add_term( "a" );
+$database->add_document($doc);
+
+ok( $database->get_doclength(3) == 101 );
 
 1;

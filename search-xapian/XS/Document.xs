@@ -48,7 +48,7 @@ Document::add_posting(tname, tpos, wdfinc = NO_INIT)
     termpos	tpos
     termcount	wdfinc
     CODE:
-        if (items == 3) {
+        if (items == 4) { /* items includes the hidden this pointer */
             THIS->add_posting(tname, tpos, wdfinc);
         } else {
             THIS->add_posting(tname, tpos);
@@ -59,7 +59,7 @@ Document::add_term(tname, wdfinc = NO_INIT)
     string	tname
     termcount	wdfinc
     CODE:
-        if (items == 2) {
+        if (items == 3) { /* items includes the hidden this pointer */
             THIS->add_term(tname, wdfinc);
         } else {
             THIS->add_term(tname);
@@ -72,7 +72,7 @@ Document::remove_posting(tname, tpos, wdfdec = NO_INIT)
     termcount	wdfdec
     CODE:
 	try {
-            if (items == 3) {
+            if (items == 4) { /* items includes the hidden this pointer */
                 THIS->remove_posting(tname, tpos, wdfdec);
             } else {
                 THIS->remove_posting(tname, tpos);

@@ -25,13 +25,44 @@ bool
 RSet::empty()
 
 void
-RSet::add_document(docid did)
+RSet::add_document1(it)
+    MSetIterator *	it
+    CODE:
+	THIS->add_document(*it);
 
 void
-RSet::remove_document(docid did)
+RSet::add_document2(did)
+    docid did
+    CODE:
+	THIS->add_document(did);
+
+void
+RSet::remove_document1(it)
+    MSetIterator *	it
+    CODE:
+	THIS->remove_document(*it);
+
+void
+RSet::remove_document2(did)
+    docid	did
+    CODE:
+	THIS->remove_document(did);
 
 bool
-RSet::contains(docid did)
+RSet::contains1(it)
+    MSetIterator *	it
+    CODE:
+	RETVAL = THIS->contains(*it);
+    OUTPUT:
+        RETVAL
+
+bool
+RSet::contains2(did)
+    docid	did
+    CODE:
+	RETVAL = THIS->contains(did);
+    OUTPUT:
+        RETVAL
 
 string
 RSet::get_description()
