@@ -34,21 +34,13 @@ encode_tname(const std::string &tname)
     
     std::string::const_iterator i;
     for (i = tname.begin(); i != tname.end(); ++i) {
-	switch (*i) {
-	    case '\0':
-		result += "\\0";
-		break;
-	    case ' ':
-		result += "\\_";
-		break;
-	    case '\n':
-		result += "\\n";
-		break;
-	    case '\\':
-		result += "\\\\";
-		break;
-	    default:
-	        result += *i;
+	if ((unsigned char)*i < 33) {
+	    result += "\\";
+	    result += (char)(*i + 64);
+	} else if (*i == '\\') {
+	    result += "\\\\";
+	} else {
+	    result += *i;
 	}
     }
     if (result.empty()) result = "\\x";
@@ -68,26 +60,16 @@ decode_tname(const std::string &tcode)
 	    case '\\':
 	        i++;
 	        Assert(i != tcode.end());
-	        switch (*i) {
-		    case '\\':
-		       result += "\\";
-		       break;
-		    case 'n':
-		       result += "\n";
-		       break;
-		    case '_':
-		       result += " ";
-		       break;
-		    case '0':
-		       result += std::string("\0", 1);
-		       break;
-		    default:
-		       Assert(false);
+		if (*i == '\\') {
+		    result += "\\";
+		} else {
+		    result += (char)(*i - 64);
 		}
 	        break;
 	    case ' ':
 	    case '\0':
 	    case '\n':
+	    case '\t':
 	        Assert(false);
 	    default:
 	        result += *i;

@@ -259,7 +259,7 @@ AC_ARG_ENABLE(backend_sleepycat,
   yes) build_sleepycat=true ;;
   no)  build_sleepycat=false ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-sleepycat) ;;
-esac],[build_sleepycat=true])
+esac],[build_sleepycat=false])
 
 AC_ARG_ENABLE(backend_quartz,
 [  --enable-backend-quartz Enable the quartz database backend (default=yes)],

@@ -673,13 +673,22 @@ string_to_ommset(const std::string &s)
 	    matches_upper_bound >>
 	    max_possible >>
 	    max_attained;
+    if (!is) {
+	throw OmNetworkError("Problem reading OmMSet from string");
+    }
     int msize;
     is >> msize;
+    if (!is) {
+	throw OmNetworkError("Problem reading OmMSet from string");
+    }
     while (msize > 0) {
 	std::string s;
 	om_weight wt;
 	om_docid did;
 	is >> wt >> did >> s;
+	if (!is) {
+	    throw OmNetworkError("Problem reading OmMSet from string");
+	}
 	items.push_back(OmMSetItem(wt, did, string_to_omkey(s)));
 	msize--;
     }
