@@ -1,5 +1,0 @@
-<Directory>indexer/indexgraph</Directory>
-
-<Description>
-The Xapian indexer framework.
-</Description>
