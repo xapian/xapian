@@ -1,4 +1,4 @@
-/** \file omstem.h
+/** \file stem.h
  * \brief The stemming API
  */
 /* ----START-LICENCE----
@@ -23,8 +23,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OMSTEM_H
-#define OM_HGUARD_OMSTEM_H
+#ifndef XAPIAN_INCLUDED_STEM_H
+#define XAPIAN_INCLUDED_STEM_H
 
 #include <string>
 

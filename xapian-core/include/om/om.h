@@ -21,8 +21,8 @@
 // USA
 // -----END-LICENCE-----
 
-#ifndef OM_HGUARD_OM_H
-#define OM_HGUARD_OM_H
+#ifndef XAPIAN_INCLUDED_OM_H
+#define XAPIAN_INCLUDED_OM_H
 
 // Set defines for library version and check C++ ABI versions match
 #include <xapian/version.h>
@@ -61,8 +61,8 @@ typedef std::string om_termname;
 #define OmTermIterator Xapian::TermIterator
 
 // om/omoutput.h used to include iostream, but xapian/output.h includes iosfwd
-// instead.  We include iostream here in case anyone relied on iostream being
-// included.
+// instead.  So we include iostream here in case anyone relied on iostream
+// being implicitly included.
 #include <iostream>
 
 // Types and exceptions
@@ -89,4 +89,4 @@ typedef std::string om_termname;
 // Output
 #include <xapian/output.h>
 
-#endif
+#endif /* XAPIAN_INCLUDED_OM_H */

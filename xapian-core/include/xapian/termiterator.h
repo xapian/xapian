@@ -22,8 +22,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_TERMITERATOR_H
-#define OM_HGUARD_TERMITERATOR_H
+#ifndef XAPIAN_INCLUDED_TERMITERATOR_H
+#define XAPIAN_INCLUDED_TERMITERATOR_H
 
 #include <iterator>
 #include <string>
@@ -117,4 +117,4 @@ operator!=(const TermIterator &a, const TermIterator &b)
 
 }
 
-#endif /* OM_HGUARD_TERMITERATOR_H */
+#endif /* XAPIAN_INCLUDED_TERMITERATOR_H */

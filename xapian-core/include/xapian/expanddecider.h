@@ -21,8 +21,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_EXPANDDECIDER_H
-#define OM_HGUARD_EXPANDDECIDER_H
+#ifndef XAPIAN_INCLUDED_EXPANDDECIDER_H
+#define XAPIAN_INCLUDED_EXPANDDECIDER_H
 
 #include "om/omenquire.h"
 #include <set>
@@ -66,4 +66,4 @@ class ExpandDeciderAnd : public ExpandDecider {
 
 }
 
-#endif /* OM_HGUARD_EXPANDDECIDER_H */
+#endif /* XAPIAN_INCLUDED_EXPANDDECIDER_H */

@@ -22,8 +22,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_ERROR_H
-#define OM_HGUARD_ERROR_H
+#ifndef XAPIAN_INCLUDED_ERROR_H
+#define XAPIAN_INCLUDED_ERROR_H
 
 #include <string>
 
@@ -133,4 +133,4 @@ class a : public b { \
 
 }
 
-#endif /* OM_HGUARD_ERROR_H */
+#endif /* XAPIAN_INCLUDED_ERROR_H */

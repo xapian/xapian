@@ -22,8 +22,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_BASE_H
-#define OM_HGUARD_BASE_H
+#ifndef XAPIAN_INCLUDED_BASE_H
+#define XAPIAN_INCLUDED_BASE_H
 
 /** Reference counted internal classes should inherit from RefCntBase.
  *
@@ -157,4 +157,4 @@ inline T *RefCntPtr<T>::get() const
 }
 }
 
-#endif /* OM_HGUARD_BASE_H */
+#endif /* XAPIAN_INCLUDED_BASE_H */

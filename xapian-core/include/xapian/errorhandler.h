@@ -22,8 +22,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_ERRORHANDLER_H
-#define OM_HGUARD_ERRORHANDLER_H
+#ifndef XAPIAN_INCLUDED_ERRORHANDLER_H
+#define XAPIAN_INCLUDED_ERRORHANDLER_H
 
 #include "xapian/error.h"
 
@@ -73,4 +73,4 @@ class Xapian::ErrorHandler {
 	void operator()(Xapian::Error & error);
 };
 
-#endif /* OM_HGUARD_ERRORHANDLER_H */
+#endif /* XAPIAN_INCLUDED_ERRORHANDLER_H */

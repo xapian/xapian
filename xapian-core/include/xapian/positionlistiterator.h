@@ -22,8 +22,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_POSITIONLISTITERATOR_H
-#define OM_HGUARD_POSITIONLISTITERATOR_H
+#ifndef XAPIAN_INCLUDED_POSITIONLISTITERATOR_H
+#define XAPIAN_INCLUDED_POSITIONLISTITERATOR_H
 
 #include <iterator>
 #include <string>
@@ -110,4 +110,4 @@ operator!=(const Xapian::PositionListIterator &a,
 
 }
 
-#endif /* OM_HGUARD_POSITIONLISTITERATOR_H */
+#endif /* XAPIAN_INCLUDED_POSITIONLISTITERATOR_H */

@@ -1,3 +1,10 @@
+Tue Apr 29 21:08:40 BST 2003  Olly Betts <olly@survex.com>
+
+	* include/om/om.h,include/xapian/base.h,include/xapian/error.h,
+	  include/xapian/errorhandler.h,include/xapian/expanddecider.h,
+	  include/xapian/positionlistiterator.h,include/xapian/stem.h,
+	  include/xapian/termiterator.h: OM_HGUARD_* -> XAPIAN_INCLUDED_*.
+
 Tue Apr 29 20:37:01 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/,backends/,common/,include/,indexer/omnodeinstanceiterator.h,
