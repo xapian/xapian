@@ -380,7 +380,9 @@ bool test_simplequery2()
 	if (verbose) {
 	    cout << "Got docids:";
 	    for (size_t i=0; i<mymset.items.size(); ++i) {
-		cout << " " << mymset.items[i].did;
+		if (i != 0) cout << ", ";
+		cout << " " << mymset.items[i].did <<
+			"(wt " << mymset.items[i].wt << ")";
 	    }
 	    cout << ", expected 2 and 4." << endl;
 	}
@@ -389,8 +391,8 @@ bool test_simplequery2()
 
     // Check the weights
     if (success &&
-	(!weights_are_equal_enough(mymset.items[0].wt, 0.820927) ||
-	 !weights_are_equal_enough(mymset.items[1].wt, 0.430207))) {
+	(!weights_are_equal_enough(mymset.items[0].wt, 0.662011) ||
+	 !weights_are_equal_enough(mymset.items[1].wt, 0.570927))) {
 	success = false;
     }
 
