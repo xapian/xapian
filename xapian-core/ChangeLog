@@ -1,3 +1,8 @@
+Thu Sep 25 11:57:03 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Removed `#include <iostream>' left over from
+	  debugging; changed to `using namespace std;'.
+
 Mon Sep 15 00:41:10 BST 2003  Olly Betts <olly@survex.com>
 
 	* extra/queryparser.yy: Fixed to build with Sun's C++ compiler.

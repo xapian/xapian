@@ -41,8 +41,7 @@
 #include <math.h>
 #include <limits.h>
 
- #include <iostream>
- using namespace std;
+using namespace std;
 
 // Properties for query operations.
 
@@ -163,12 +162,12 @@ can_flatten(Xapian::Query::Internal::op_t op)
  *  for compound queries as it's simpler than working out what sum(wqf) would
  *  be - FIXME).
  */
-std::string
+string
 Xapian::Query::Internal::serialise() const
 {
     Xapian::termpos curpos = 1;
     Xapian::termcount len = 0;
-    std::string result;
+    string result;
 
     if (op == Xapian::Query::Internal::OP_LEAF) {
 	result += "[" + encode_tname(tname);
@@ -225,10 +224,10 @@ Xapian::Query::Internal::serialise() const
     return result;
 }
 
-std::string
+string
 Xapian::Query::Internal::get_op_name(Xapian::Query::Internal::op_t op)
 {
-    std::string name;
+    string name;
     switch (op) {
 	case Xapian::Query::Internal::OP_LEAF:  name = "LEAF"; break;
 	case Xapian::Query::OP_AND:             name = "AND"; break;
@@ -246,10 +245,10 @@ Xapian::Query::Internal::get_op_name(Xapian::Query::Internal::op_t op)
 }
 
 // Introspection
-std::string
+string
 Xapian::Query::Internal::get_description() const
 {
-    std::string opstr;
+    string opstr;
 
     if (is_leaf(op)) {
 	if (term_pos != 0) {
@@ -270,7 +269,7 @@ Xapian::Query::Internal::get_description() const
 	if (op == Xapian::Query::OP_ELITE_SET)
 	    opstr += om_tostring(elite_set_size) + " ";
     }
-    std::string description;
+    string description;
     subquery_list::const_iterator i;
     for (i = subqs.begin(); i != subqs.end(); i++) {
 	if (!description.empty()) description += opstr;
@@ -314,11 +313,11 @@ Xapian::Query::Internal::set_length(Xapian::termcount qlen_)
 /** Private function used to implement get_terms() */
 void
 Xapian::Query::Internal::accumulate_terms(
-			std::vector<std::pair<string, Xapian::termpos> > &terms) const
+			vector<pair<string, Xapian::termpos> > &terms) const
 {
     if (is_leaf(op)) {
         // We're a leaf, so just return our term.
-        terms.push_back(std::make_pair(tname, term_pos));
+        terms.push_back(make_pair(tname, term_pos));
     } else {
     	subquery_list::const_iterator end = subqs.end();
         // not a leaf, concatenate results from all subqueries
@@ -329,7 +328,7 @@ Xapian::Query::Internal::accumulate_terms(
 }
 
 struct LessByTermpos {
-    typedef const std::pair<string, Xapian::termpos> argtype;
+    typedef const pair<string, Xapian::termpos> argtype;
     bool operator()(argtype &left, argtype &right) {
 	if (left.second != right.second) {
 	    return left.second < right.second;
@@ -342,20 +341,20 @@ struct LessByTermpos {
 Xapian::TermIterator
 Xapian::Query::Internal::get_terms() const
 {
-    std::vector<std::pair<string, Xapian::termpos> > terms;
+    vector<pair<string, Xapian::termpos> > terms;
     accumulate_terms(terms);
 
     sort(terms.begin(), terms.end(), LessByTermpos());
 
     // remove adjacent duplicates, and return an iterator pointing
     // to just after the last unique element
-    std::vector<std::pair<string, Xapian::termpos> >::iterator newlast =
+    vector<pair<string, Xapian::termpos> >::iterator newlast =
 	    	unique(terms.begin(), terms.end());
     // and remove the rest...  (See Stroustrup 18.6.3)
     terms.erase(newlast, terms.end());
 
-    std::vector<string> result;
-    std::vector<std::pair<string, Xapian::termpos> >::const_iterator i;
+    vector<string> result;
+    vector<pair<string, Xapian::termpos> >::const_iterator i;
     for (i = terms.begin(); i != terms.end(); ++i) {
 	result.push_back(i->first);
     }
@@ -532,15 +531,15 @@ Xapian::Query::Internal::unserialise(const string &s)
 void
 Xapian::Query::Internal::swap(Xapian::Query::Internal &other)
 {
-    std::swap(op, other.op);
+    swap(op, other.op);
     subqs.swap(other.subqs);
-    std::swap(qlen, other.qlen);
-    std::swap(window, other.window);
-    std::swap(cutoff, other.cutoff);
-    std::swap(elite_set_size, other.elite_set_size);
-    std::swap(tname, other.tname);
-    std::swap(term_pos, other.term_pos);
-    std::swap(wqf, other.wqf);
+    swap(qlen, other.qlen);
+    swap(window, other.window);
+    swap(cutoff, other.cutoff);
+    swap(elite_set_size, other.elite_set_size);
+    swap(tname, other.tname);
+    swap(term_pos, other.term_pos);
+    swap(wqf, other.wqf);
 }
 
 Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
@@ -729,7 +728,7 @@ void
 Xapian::Query::Internal::collapse_subqs()
 {
     Assert(can_reorder(op));
-    typedef std::set<Xapian::Query::Internal *, SortPosName> subqtable;
+    typedef set<Xapian::Query::Internal *, SortPosName> subqtable;
     subqtable sqtab;
 
     subquery_list::iterator sq = subqs.begin();
