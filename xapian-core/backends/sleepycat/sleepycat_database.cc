@@ -17,7 +17,10 @@
 #define FILENAME_TERMTOID "termid.db"
 #define FILENAME_IDTOTERM "termname.db"
 
-// Internal database state
+/////////////////////////////
+// Internal database state //
+/////////////////////////////
+
 class SleepyDatabaseInternals {
     private:
 	DbEnv dbenv;
@@ -92,6 +95,42 @@ SleepyDatabaseInternals::close()
     if(opened) dbenv.appexit();
 }
 
+///////////////
+// Postlists //
+///////////////
+
+SleepyPostList::SleepyPostList(docid *data_new, doccount termfreq_new) {
+    pos = 0;
+    data = data_new;
+    termfreq = termfreq_new;
+}
+
+
+SleepyPostList::~SleepyPostList() {
+    free(data);
+}
+
+weight SleepyPostList::get_weight() const {
+    return 1;
+}
+
+///////////////
+// Termlists //
+///////////////
+
+SleepyTermList::SleepyTermList(termid *data_new, termcount terms_new) {
+    pos = 0;
+    data = data_new;
+    terms = terms_new;
+}
+
+SleepyTermList::~SleepyTermList() {
+    free(data);
+}
+
+///////////////////////////
+// Actual database class //
+///////////////////////////
 
 SleepyDatabase::SleepyDatabase() {
     internals = new SleepyDatabaseInternals();
@@ -115,20 +154,58 @@ void SleepyDatabase::close() {
 
 PostList *
 SleepyDatabase::open_post_list(termid id) {
-    return NULL;
+    Dbt key(&id, sizeof(id));
+    Dbt data;
+
+    // FIXME - should use DB_DBT_USERMEM and DB_DBT_PARTIAL eventually
+    data.set_flags(DB_DBT_MALLOC);
+
+    // Get, no transactions, no flags
+    try {
+	int found = internals->postlist_db->get(NULL, &key, &data, 0);
+	if(found == DB_NOTFOUND) throw RangeError("Termid not found");
+
+	// Any other errors should cause an exception.
+	Assert(found == 0);
+    }
+    catch (DbException e) {
+	throw OmError("PostlistDb error:" + string(e.what()));
+    }
+
+    return new SleepyPostList((docid *)data.get_data(),
+			      data.get_size() / sizeof(docid));
 }
 
 TermList *
 SleepyDatabase::open_term_list(docid id) {
-    return NULL;
+    Dbt key(&id, sizeof(id));
+    Dbt data;
+
+    // FIXME - should use DB_DBT_USERMEM and DB_DBT_PARTIAL eventually
+    data.set_flags(DB_DBT_MALLOC);
+
+    // Get, no transactions, no flags
+    try {
+	int found = internals->postlist_db->get(NULL, &key, &data, 0);
+	if(found == DB_NOTFOUND) throw RangeError("Termid not found");
+
+	// Any other errors should cause an exception.
+	Assert(found == 0);
+    }
+    catch (DbException e) {
+	throw OmError("TermlistDb error:" + string(e.what()));
+    }
+
+    return new SleepyTermList((termid *)data.get_data(),
+			      data.get_size() / sizeof(termid));
 }
 
 termid
 SleepyDatabase::term_name_to_id(const termname &) {
-    return 0;
+    return 1;
 }
 
 termname
 SleepyDatabase::term_id_to_name(termid) {
-    return "";
+    return "a";
 }

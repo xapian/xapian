@@ -1,11 +1,14 @@
 #include <stdio.h>
 
+#include "sleepy_database.h"
+/*
 #include "proto_database.h"
 #include "da_database.h"
 #include "da_record.h"
+*/
 
 int main(int argc, char *argv[]) {
-    ProtoDatabase database;
+    SleepyDatabase database;
     PostList * postlist;
     TermList * termlist;
     termid tid;
@@ -19,6 +22,7 @@ int main(int argc, char *argv[]) {
 	} else {
 	    // posting list 122 141 142 174 ...
 	    postlist = database.open_post_list(tid);
+	    postlist->next();
 	    while(!postlist->at_end()) {
 		docid did;
 		weight wt;

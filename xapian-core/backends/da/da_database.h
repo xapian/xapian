@@ -80,26 +80,26 @@ class DATermList : public virtual TermList {
 
 	DATermList(DADatabase *db, struct termvec *tv);
     public:
-	termid get_termid();
-	termcount get_wdf();       // Number of occurences of term in current doc
-	doccount get_termfreq();  // Number of docs indexed by term
+	termid get_termid() const;
+	termcount get_wdf() const; // Number of occurences of term in current doc
+	doccount get_termfreq() const;  // Number of docs indexed by term
 	void   next();
-	bool   at_end();
+	bool   at_end() const;
 };
 
-inline termid DATermList::get_termid()
+inline termid DATermList::get_termid() const
 {
     Assert(!at_end());
     return pos->id;
 }
 
-inline termcount DATermList::get_wdf()
+inline termcount DATermList::get_wdf() const
 {
     Assert(!at_end());
     return pos->wdf;
 }
 
-inline doccount DATermList::get_termfreq()
+inline doccount DATermList::get_termfreq() const
 {
     Assert(!at_end());
     return pos->termfreq;
@@ -111,7 +111,7 @@ inline void   DATermList::next()
     pos++;
 }
 
-inline bool   DATermList::at_end()
+inline bool   DATermList::at_end() const
 {
     if(pos == terms.end()) return true;
     return false;

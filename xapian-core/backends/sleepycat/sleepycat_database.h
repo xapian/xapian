@@ -5,13 +5,17 @@
 
 #include "omassert.h"
 #include "database.h"
+#include <stdlib.h>
 
+// Postlist - a list of documents indexed by a given term
 class SleepyPostList : public virtual PostList {
     friend class SleepyDatabase;
     private:
-	docid  currdoc;
+	doccount pos;
+	docid *data;
+	doccount termfreq;
 
-	SleepyPostList();
+	SleepyPostList(docid *, doccount);
     public:
 	~SleepyPostList();
 
@@ -23,37 +27,96 @@ class SleepyPostList : public virtual PostList {
 	bool     at_end() const;       // True if we're off the end of the list
 };
 
+inline doccount
+SleepyPostList::get_termfreq() const
+{
+    return termfreq;
+}
+
 inline docid
 SleepyPostList::get_docid() const
 {
     Assert(!at_end());
-    return currdoc;
+    Assert(pos != 0);
+    return data[pos - 1];
+}
+
+inline void
+SleepyPostList::next()
+{
+    Assert(!at_end());
+    pos ++;
 }
 
 inline bool
 SleepyPostList::at_end() const
 {
-    if(currdoc == 0) return true;
+    if(pos > termfreq) return true;
     return false;
 }
 
 
 
 
+
+// Termlist - a list of terms indexing a given document
 class SleepyTermList : public virtual TermList {
     friend class SleepyDatabase;
     private:
-	vector<termid>::iterator pos;
-	vector<termid> ids;
+	termcount pos;
+	termid *data;
+	termcount terms;
 
-	SleepyTermList(struct proto_db *db);
+	SleepyTermList(termid *, termcount);
+	~SleepyTermList();
     public:
-	termid get_termid();
-	termcount get_wdf();  // Number of occurences of term in current doc
-	termcount get_termfreq();  // Number of docs indexed by term
+	termid get_termid() const;  // Current termid
+	termcount get_wdf() const;  // Occurences of current term in doc
+	doccount get_termfreq() const;  // Docs indexed by current term
 	void   next();
-	bool   at_end();
+	bool   at_end() const;
 };
+
+inline termid
+SleepyTermList::get_termid() const
+{
+    Assert(!at_end());
+    Assert(pos != 0);
+    return data[pos];
+}
+
+inline termcount
+SleepyTermList::get_wdf() const
+{
+    Assert(!at_end());
+    Assert(pos != 0);
+    return 1;
+}
+
+inline doccount
+SleepyTermList::get_termfreq() const
+{
+    Assert(!at_end());
+    Assert(pos != 0);
+    return 1;
+}   
+
+inline void
+SleepyTermList::next()
+{
+    Assert(!at_end());
+    pos ++;
+}
+
+inline bool
+SleepyTermList::at_end() const
+{
+    if(pos > terms) return true;
+    return false;
+}
+
+
+
 
 
 class SleepyDatabaseInternals;
