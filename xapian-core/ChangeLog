@@ -1,3 +1,7 @@
+Fri May 09 03:50:36 BST 2003  Olly Betts <olly@survex.com>
+
+	* common/rset.h: Removed unused RSetI ctor variant.
+
 Fri May 09 02:00:03 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,common/,docs/overview.html,include/om/om.h,

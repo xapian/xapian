@@ -53,7 +53,6 @@ class RSetI {
     public:
 	std::set<Xapian::docid> documents;
 
-	RSetI(const OmDatabase &root_);
 	RSetI(const OmDatabase &root_, const Xapian::RSet & rset);
 	RSetI(const Database *dbroot_, const Xapian::RSet & rset);
 
@@ -69,12 +68,6 @@ class RSetI {
 ///////////////////////////////
 // Inline method definitions //
 ///////////////////////////////
-
-/// Empty initialisation
-inline
-RSetI::RSetI(const OmDatabase &root_)
-	: root(root_), dbroot(NULL), calculated_reltermfreqs(false)
-{}
 
 /// Initialise with an Xapian::RSet
 inline
