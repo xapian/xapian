@@ -44,7 +44,7 @@ using namespace std;
 OmDocument
 string_to_document(string paragraph)
 {
-    OmStem stemmer("english");
+    Xapian::Stem stemmer("english");
 
     OmDocument document;
     document.set_data(paragraph);

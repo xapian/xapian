@@ -111,7 +111,7 @@ query(OmQuery::op op, string t1 = "", string t2 = "",
       string t9 = "", string t10 = "")
 {
     vector<string> v;
-    OmStem stemmer("english");    
+    Xapian::Stem stemmer("english");    
     if (!t1.empty()) v.push_back(stemmer.stem_word(t1));
     if (!t2.empty()) v.push_back(stemmer.stem_word(t2));
     if (!t3.empty()) v.push_back(stemmer.stem_word(t3));
@@ -128,7 +128,7 @@ query(OmQuery::op op, string t1 = "", string t2 = "",
 OmQuery
 query(string t)
 {
-    return OmQuery(OmStem("english").stem_word(t));
+    return OmQuery(Xapian::Stem("english").stem_word(t));
 }
 
 OmMSet do_get_simple_query_mset(OmQuery query, int maxitems = 10, int first = 0)
@@ -1407,7 +1407,7 @@ static bool test_spaceterms1()
     OmMSet mymset;
     om_doccount count;
     OmMSetIterator m;
-    OmStem stemmer("english");
+    Xapian::Stem stemmer("english");
 
     init_simple_enquire(enquire, OmQuery(stemmer.stem_word("space man")));
     mymset = enquire.get_mset(0, 10);
@@ -1452,7 +1452,7 @@ static bool test_xor1()
 {
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
-    OmStem stemmer("english");
+    Xapian::Stem stemmer("english");
 
     vector<string> terms;
     terms.push_back(stemmer.stem_word("this"));
@@ -1646,7 +1646,7 @@ static bool test_specialterms1()
     OmMSet mymset;
     om_doccount count;
     OmMSetIterator m;
-    OmStem stemmer("english");
+    Xapian::Stem stemmer("english");
 
     init_simple_enquire(enquire, OmQuery(stemmer.stem_word("new\nline")));
     mymset = enquire.get_mset(0, 10);
@@ -1898,7 +1898,7 @@ static bool test_eliteset3()
     OmEnquire enquire2(make_dbgrp(&mydb2));
 
     // make a query
-    OmStem stemmer("english");
+    Xapian::Stem stemmer("english");
 
     string term1 = stemmer.stem_word("word");
     string term2 = stemmer.stem_word("rubbish");
@@ -1968,7 +1968,7 @@ static bool test_termlisttermfreq1()
 {
     OmDatabase mydb(get_database("apitest_simpledata"));
     OmEnquire enquire(make_dbgrp(&mydb));
-    OmStem stemmer("english");
+    Xapian::Stem stemmer("english");
     OmRSet rset1;
     OmRSet rset2;
     rset1.add_document(5);
@@ -2071,7 +2071,7 @@ static bool test_qterminfo1()
     OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
 
     // make a query
-    OmStem stemmer("english");
+    Xapian::Stem stemmer("english");
 
     string term1 = stemmer.stem_word("word");
     string term2 = stemmer.stem_word("inmemory");
@@ -2372,8 +2372,8 @@ static bool test_adddoc2()
     TEST_EQUAL(iter1.get_termfreq(), 2);
     TEST_EQUAL(iter2.get_termfreq(), 0);
 
-    OmPositionListIterator pi1 = iter1.positionlist_begin();
-    OmPositionListIterator pi2 = iter2.positionlist_begin();
+    Xapian::PositionListIterator pi1 = iter1.positionlist_begin();
+    Xapian::PositionListIterator pi2 = iter2.positionlist_begin();
     TEST_EQUAL(*pi1, 3); pi1++;
     TEST_EQUAL(*pi2, 3); pi2++;
     TEST(pi1 == iter1.positionlist_end());
@@ -2403,9 +2403,9 @@ static bool test_adddoc2()
     TEST_EQUAL(iter1.get_termfreq(), 2);
     TEST_EQUAL(iter2.get_termfreq(), 0);
 
-    OmPositionListIterator temp1 = iter1.positionlist_begin();
+    Xapian::PositionListIterator temp1 = iter1.positionlist_begin();
     pi1 = temp1;
-    OmPositionListIterator temp2 = iter2.positionlist_begin();
+    Xapian::PositionListIterator temp2 = iter2.positionlist_begin();
     pi2 = temp2;
     TEST_EQUAL(*pi1, 2); pi1++;
     TEST_EQUAL(*pi2, 2); pi2++;
@@ -2528,17 +2528,17 @@ static bool test_replacedoc()
     OmDocument doc3 = db.get_document(did);
     OmTermIterator tIter = doc3.termlist_begin();
     TEST_EQUAL(*tIter, "bar");
-    OmPositionListIterator pIter = tIter.positionlist_begin();
+    Xapian::PositionListIterator pIter = tIter.positionlist_begin();
     TEST_EQUAL(*pIter, 4);
     ++tIter;
     TEST_EQUAL(*tIter, "foo");
-    OmPositionListIterator qIter = tIter.positionlist_begin();
+    Xapian::PositionListIterator qIter = tIter.positionlist_begin();
     TEST_EQUAL(*qIter, 1);
     ++qIter;
     TEST_EQUAL(*qIter, 5);
     ++tIter;
     TEST_EQUAL(*tIter, "pipco");
-    OmPositionListIterator rIter = tIter.positionlist_begin();
+    Xapian::PositionListIterator rIter = tIter.positionlist_begin();
     TEST_EQUAL(*rIter, 2);
     ++tIter;
     TEST_EQUAL(tIter, doc3.termlist_end());

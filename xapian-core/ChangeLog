@@ -1,3 +1,9 @@
+Sun Apr 20 22:55:04 BST 2003  Olly Betts <olly@survex.com>
+
+	* extra/omparsequery.h,include/xapian/stem.h,tests/api_db.cc,
+	  tests/api_nodb.cc,tests/api_posdb.cc,testsuite/backendmanager.cc:
+	  OmStem -> Xapian::Stem; OmExpandDecider -> Xapian::ExpandDecider.
+
 Sun Apr 20 22:52:42 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in,api/omenquire.cc,common/expand.h,
@@ -5072,6 +5078,7 @@ Fri Nov 24 18:27:06 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 Fri Nov 24 15:34:17 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.4.1
+
 
 
 

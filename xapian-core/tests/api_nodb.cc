@@ -230,7 +230,7 @@ static bool test_singlesubq1()
 static bool test_stemlangs1()
 {
     vector<string> langv;
-    string langs = OmStem::get_available_languages();
+    string langs = Xapian::Stem::get_available_languages();
 
     string::size_type next = langs.find_first_of(" ");
 
@@ -254,7 +254,7 @@ static bool test_stemlangs1()
     for (i = langv.begin(); i != langv.end(); i++) {
 	// try making a stemmer with the given language -
 	// it should successfully create, and not throw an exception.
-	OmStem stemmer(*i);
+	Xapian::Stem stemmer(*i);
     }
 
     return true;

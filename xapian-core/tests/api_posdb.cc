@@ -43,7 +43,7 @@ static bool test_near1()
 {
     OmDatabase mydb(get_database("apitest_phrase"));
     OmEnquire enquire(make_dbgrp(&mydb));
-    OmStem stemmer("english");
+    Xapian::Stem stemmer("english");
     enquire.set_weighting_scheme(BoolWeight());
 
     // make a query
@@ -196,7 +196,7 @@ static bool test_near2()
 {
     OmDatabase mydb(get_database("apitest_phrase"));
     OmEnquire enquire(make_dbgrp(&mydb));
-    OmStem stemmer("english");
+    Xapian::Stem stemmer("english");
     enquire.set_weighting_scheme(BoolWeight());
 
     // make a query
@@ -248,7 +248,7 @@ static bool test_phrase1()
 {
     OmDatabase mydb(get_database("apitest_phrase"));
     OmEnquire enquire(make_dbgrp(&mydb));
-    OmStem stemmer("english");
+    Xapian::Stem stemmer("english");
     enquire.set_weighting_scheme(BoolWeight());
 
     // make a query
@@ -453,7 +453,7 @@ static bool test_phrase2()
 {
     OmDatabase mydb(get_database("apitest_phrase"));
     OmEnquire enquire(make_dbgrp(&mydb));
-    OmStem stemmer("english");
+    Xapian::Stem stemmer("english");
     enquire.set_weighting_scheme(BoolWeight());
 
     // make a query
@@ -505,10 +505,10 @@ static bool test_poslist1()
 {
     OmDatabase mydb(get_database("apitest_poslist"));
 
-    OmStem stemmer("english");
+    Xapian::Stem stemmer("english");
     string term = stemmer.stem_word("sponge");
     
-    OmPositionListIterator pli = mydb.positionlist_begin(2, term);
+    Xapian::PositionListIterator pli = mydb.positionlist_begin(2, term);
 
     TEST(pli != mydb.positionlist_end(2, term));
     TEST(*pli == 1);
@@ -557,18 +557,18 @@ static bool test_poslist2()
 
     TEST_EXCEPTION(Xapian::RangeError,
 	// Check what happens when term doesn't exist
-	OmPositionListIterator i = db.positionlist_begin(did, "nosuchterm");
+	Xapian::PositionListIterator i = db.positionlist_begin(did, "nosuchterm");
 	// FIXME: quartz doesn't throw!
     );
 
     TEST_EXCEPTION(Xapian::DocNotFoundError,
         // Check what happens when the document doesn't even exist
-        OmPositionListIterator i = db.positionlist_begin(123, "nosuchterm");
+        Xapian::PositionListIterator i = db.positionlist_begin(123, "nosuchterm");
 	// FIXME: quartz doesn't throw!
     );            
     
     {
-	OmPositionListIterator i = db.positionlist_begin(did, "nopos");
+	Xapian::PositionListIterator i = db.positionlist_begin(did, "nopos");
 	TEST_EQUAL(i, db.positionlist_end(did, "nopos"));
     }
     
@@ -577,7 +577,7 @@ static bool test_poslist2()
     OmTermIterator term = doc2.termlist_begin();
 
     {
-	OmPositionListIterator i = term.positionlist_begin(); 
+	Xapian::PositionListIterator i = term.positionlist_begin(); 
 	TEST_EQUAL(i, term.positionlist_end());
     }
 
@@ -590,7 +590,7 @@ static bool test_poslist2()
     db.replace_document(did2, doc4);
    
     {
-	OmPositionListIterator i = db.positionlist_begin(did2, "hadpos");
+	Xapian::PositionListIterator i = db.positionlist_begin(did2, "hadpos");
 	TEST_EQUAL(i, db.positionlist_end(did2, "hadpos"));
     }
 
@@ -598,7 +598,7 @@ static bool test_poslist2()
     TEST_EXCEPTION(Xapian::DocNotFoundError,
         // Check what happens when the document doesn't even exist
 	// (but once did)
-	OmPositionListIterator i = db.positionlist_begin(did, "nosuchterm");
+	Xapian::PositionListIterator i = db.positionlist_begin(did, "nosuchterm");
 	// FIXME: quartz doesn't throw!
     );
 

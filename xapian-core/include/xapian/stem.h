@@ -70,7 +70,7 @@ class Stem {
 	std::string stem_word(const std::string &word) const;
 
 	/** Return a list of available languages.  The list is returned
-	 *  as a space-separated string.  An OmStem object is not
+	 *  as a space-separated string.  A Xapian::Stem object is not
 	 *  required for this operation.
 	 */
 	static std::string get_available_languages();

@@ -79,7 +79,7 @@ class OmQueryParser {
 
 	OmStopper *stop;
 
-	OmStem *stemmer;
+	Xapian::Stem *stemmer;
 
 	bool stem, stem_all;
 
