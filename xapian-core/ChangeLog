@@ -1,3 +1,8 @@
+Mon Apr 05 17:21:06 BST 2004  Olly Betts <olly@survex.com>
+
+	* README: There never was an Omsee release - the last BrightStation
+	  release was "OpenMuscat 0.4.1".
+
 Mon Apr 05 17:19:38 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc,
