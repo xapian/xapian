@@ -143,6 +143,8 @@ AC_SUBST(LIBXML_LIBS)
 if test "x$have_libxml_valid" = "xyes"; then
 AC_DEFINE(HAVE_LIBXML_VALID,,
 	  [ Define if libxml has validation available ])
+else
+AC_MSG_WARN(libxml doesn't have xmlValidateDocument: disabling validation.)
 fi
 
 dnl Use libtool to manage our libraries

@@ -1,3 +1,7 @@
+Fri Sep 15 13:26:16 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added an AC_MSG_WARN if validation is not supported
+
 Fri Sep 15 12:59:17 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Hopefully fixed problems with older libxml not supporting
