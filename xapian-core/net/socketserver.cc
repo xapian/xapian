@@ -239,7 +239,7 @@ SocketServer::run()
 	// been caused by an error talking to the other end.
 	throw;
     } catch (OmError &e) {
-	buf.writeline(omerror_to_string(e));
+	buf.writeline(string("ERROR ") + omerror_to_string(e));
 	throw;
     } catch (...) {
 	buf.writeline(string("ERROR UNKNOWN"));

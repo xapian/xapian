@@ -427,8 +427,8 @@ LocalMatch::select_query_terms()
     om_termname_list::const_iterator tname;
     for (tname = terms.begin(); tname != terms.end(); tname++) {
 	IRWeight * wt = mk_weight(1, *tname);
-	cout << "TERM `" <<  *tname << "' get_maxpart = " <<
-		wt->get_maxpart() << endl;
+	DebugMsg("TERM `" <<  *tname << "' get_maxpart = " <<
+		wt->get_maxpart() << endl);
     }
 }
 
