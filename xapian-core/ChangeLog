@@ -1,3 +1,9 @@
+Thu Mar 27 01:09:04 GMT 2003  Olly Betts <olly@survex.com>
+
+	* docs/todo.xml,tests/api_db.cc: Added regression test for Quartz
+	  bug which caused problems with long terms on machines with signed
+	  chars.
+
 Wed Mar 26 20:30:18 GMT 2003  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: fixed interaction of collapsing and

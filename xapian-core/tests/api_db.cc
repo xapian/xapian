@@ -2204,8 +2204,7 @@ static bool test_adddoc1()
     return true;    
 }
 
-// test that indexing a term more than once at the same position increases
-// the wdf
+// test that removing a posting and removing a term works
 static bool test_adddoc2()
 {
     OmWritableDatabase db = get_writable_database("");
@@ -2218,6 +2217,9 @@ static bool test_adddoc2()
     doc1.add_posting("foo", 2);
     doc1.add_posting("bar", 3);
     doc1.add_posting("gone", 1);
+    // Quartz had a bug handling a term >= 128 characters longer than the
+    // previous term - this is "foo" + 130 "X"s
+    doc1.add_posting("fooXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", 1);
     om_docid did;
 
     OmDocument doc2 = db.get_document(did = db.add_document(doc1));
@@ -2249,6 +2251,17 @@ static bool test_adddoc2()
     iter2++;
     TEST(iter1 != doc1.termlist_end());
     TEST(iter2 != doc2.termlist_end());
+    TEST_EQUAL(*iter1, "fooXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+    TEST_EQUAL(*iter2, *iter1);
+    TEST_EQUAL(iter1.get_wdf(), 1);
+    TEST_EQUAL(iter2.get_wdf(), 1);
+    TEST_EQUAL(iter1.get_termfreq(), 0);
+    TEST_EQUAL(iter2.get_termfreq(), 1);
+
+    iter1++;
+    iter2++;
+    TEST(iter1 != doc1.termlist_end());
+    TEST(iter2 != doc2.termlist_end());
     TEST_EQUAL(*iter1, "gone");
     TEST_EQUAL(*iter2, *iter1);
     TEST_EQUAL(iter1.get_wdf(), 1);
@@ -2266,6 +2279,7 @@ static bool test_adddoc2()
     doc2.add_term_nopos("bar", 8);
     doc2.add_term_nopos("bag", 0);
     doc2.remove_term("gone");
+    doc2.remove_term("fooXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 
     // Should have (doc,wdf) pairs: (bag,0)(bar,9)(bat,0)(foo,0)
     // positionlists (bag,none)(bar,3)(bat,none)(foo,2)

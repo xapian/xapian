@@ -1,10 +1,4 @@
 <todo>
-<todoitem priority="H" difficulty="1" owner="Olly" area="Tests" release="0.7">
-
-Write testcase for termlist with long term bug fixed recently (>= 128
-characters longer than previous term will do the job).
-
-</todoitem>
 <todoitem priority="H" difficulty="3" owner="Olly" area="API" release="0.7">
 
 Put Xapian into its own namespace, and
@@ -650,6 +644,14 @@ omega: split date code into separate file.
 
 query parser - improve handling of slightly malformed queries.
 For example '"malformed phrase' or '"phrase one "phrase two"'...
+
+</todoitem>
+<todoitem priority=" " difficulty="" owner="" area="omega" release="">
+
+Round the estimated number of matches according to the min and max values.
+E.g. if min is 170123, est is 177789 and max is 182342 round est to 180000.
+I.e. round it to a multiple of the largest power of 10 which keeps it between
+min and max.
 
 </todoitem>
 </todo>
