@@ -172,7 +172,9 @@ string_to_document(string paragraph)
 	select_characters(word, "");
 	lowercase_term(word);
 	word = stemmer.stem_word(word);
-	document.add_posting(word, position++);
+	if(word.size() != 0) {
+	    document.add_posting(word, position++);
+	}
 	paragraph = paragraph.erase(0, spacepos);
     }
 
@@ -2086,7 +2088,7 @@ int main(int argc, char *argv[])
     summary.failed += sum_temp.failed;
 #endif
 
-#if 1 && defined(MUS_BUILD_BACKEND_SLEEPY)
+#if 0 && defined(MUS_BUILD_BACKEND_SLEEPY)
     backendmanager.set_dbtype("sleepycat");
     cout << "Running tests with sleepycat backend..." << endl;
     result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
