@@ -100,13 +100,13 @@ class DADatabase : public virtual IRDatabase {
 	DADatabase();
 	~DADatabase();
 
-	void open(string pathname, bool readonly);
+	void open(const string &pathname, bool readonly);
 	void close();
 
 	PostList * open_post_list(termid id);
 	TermList * open_term_list(docid id);
 
-	termid term_name_to_id(termname);
+	termid term_name_to_id(const termname &);
 	termname term_id_to_name(termid);
 };
 

@@ -22,7 +22,13 @@ class Match {
 
     public:
         Match(IRDatabase *);
-        bool add_pterm(const string&);
+        bool add_pterm(const string &);
         void match(void);
-        void set_max_msize(doccount n) { max_msize = n; }
+        void set_max_msize(doccount n);
 };
+
+inline void
+Match::set_max_msize(doccount n)
+{
+    max_msize = n;
+}

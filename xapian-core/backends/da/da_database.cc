@@ -118,7 +118,7 @@ DADatabase::~DADatabase()
 }
 
 void
-DADatabase::open(string pathname, bool readonly)
+DADatabase::open(const string &pathname, bool readonly)
 {
     DADatabase::close();
 
@@ -187,7 +187,7 @@ TermList * DADatabase::open_term_list(docid id)
 }
 
 termid
-DADatabase::term_name_to_id(termname name)
+DADatabase::term_name_to_id(const termname &name)
 {
     Assert(opened);
     //printf("Looking up term `%s': ", name.c_str());

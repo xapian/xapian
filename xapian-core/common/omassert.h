@@ -13,6 +13,7 @@ const bool CHECK_PARANOID = true;
 const bool CHECK_ASSERT = true;
 #endif
 
+// FIXME: the where strings typically don't get thrown away by the compiler
 template<class X, class A> inline void _Assert(A assertion, const char *where)
 {
     if (!assertion) throw X(where);

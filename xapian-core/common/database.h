@@ -40,10 +40,10 @@ class TermList {
 class IRDatabase {
     private:
     public:
-	virtual termid term_name_to_id(termname) = 0;
+	virtual termid term_name_to_id(const termname &) = 0;
 	virtual termname term_id_to_name(termid) = 0;
     
-        virtual void open(string pathname, bool readonly) = 0;
+        virtual void open(const string &pathname, bool readonly) = 0;
 	virtual void close() = 0;
 
 	// Throws RangeError if termid invalid

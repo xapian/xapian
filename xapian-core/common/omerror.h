@@ -12,7 +12,7 @@ class OmError {
     private:
         string msg;
     public:
-        OmError(string error_msg)
+        OmError(const string &error_msg)
         {
             msg = error_msg;
         }
@@ -24,17 +24,17 @@ class OmError {
 
 class RangeError : public OmError {
     public:
-	RangeError(string msg) : OmError(msg) {};
+	RangeError(const string &msg) : OmError(msg) {};
 };
 
 class OpeningError : public OmError {
     public:
-        OpeningError(string msg) : OmError(msg) {};
+        OpeningError(const string &msg) : OmError(msg) {};
 };
 
 class AssertionFailed : public OmError {
     public:
-        AssertionFailed(string msg) : OmError(msg + " - assertion failed") {};
+        AssertionFailed(const string &msg) : OmError(msg + " - assertion failed") {};
 };
 
 #endif /* _error_h_ */
