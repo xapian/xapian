@@ -1,3 +1,7 @@
+Mon Jun 19 13:48:40 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* The Python interface now passes the OmBatchEnquire test.
+
 Mon Jun 19 12:55:20 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added the Porter stemmer (without the recent improvements in the

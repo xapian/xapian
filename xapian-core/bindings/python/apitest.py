@@ -159,10 +159,15 @@ def test_batchquery1():
 	    success = 0
 	    if (verbose):
 		print "Query 1 returned different result!"
- 	if (myresults[1] != None):
+		print "myresults[0] =", myresults[0]
+		print "simple =", do_get_simple_query_mset(OmQuery("thi"))
+	try:
+ 	    foo = myresults[1]
 	    success = 0
 	    if (verbose):
 		print "Query 2 should not be valid"
+	except:
+	    pass
 
 	if (myresults[2] != do_get_simple_query_mset(OmQuery("word"))):
 	    success = 0

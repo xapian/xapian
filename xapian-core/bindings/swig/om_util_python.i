@@ -253,7 +253,28 @@ PyObject *OmESet_items_get(OmESet *eset)
 
 %addmethods OmMSet {
     %readonly
+    // access to the items array
     PyObject *items;
+
+    // for comparison
+    int __cmp__(const OmMSet &other) {
+	if (self->mbound != other.mbound) {
+	    return (self->mbound < other.mbound)? -1 : 1;
+	} else if (self->max_possible != other.max_possible) {
+	    return (self->max_possible < other.max_possible)? -1 : 1;
+	} else if (self->items.size() != other.items.size()) {
+	    return (self->items.size() < other.items.size())? -1 : 1;
+	}
+
+	for (int i=0; i<self->items.size(); ++i) {
+	    if (self->items[i].wt != other.items[i].wt) {
+		return (self->items[i].wt < other.items[i].wt)? -1 : 1;
+	    } else if (self->items[i].did != other.items[i].did) {
+		return (self->items[i].did < other.items[i].did)? -1 : 1;
+	    }
+	}
+	return 0;
+    }
     %readwrite
 }
 
