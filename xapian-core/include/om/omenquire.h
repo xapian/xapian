@@ -331,8 +331,19 @@ class OmRSet {
 	class Internal;
 	
 	Internal *internal; // reference counted internals
-
     public:
+	/// Copy constructor
+	OmRSet(const OmRSet &rset);
+
+	/// Assignment operator
+	void operator=(const OmRSet &rset);
+
+	/// Default constructor
+	OmRSet();
+
+	/// Destructor
+	~OmRSet();
+
 	om_doccount size() const;
 
 	/// Add a document to the relevance set.

@@ -1,3 +1,7 @@
+Tue Dec 12 10:54:44 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added constructors and destructor to OmRSet.
+
 Mon Dec 11 16:32:07 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove caching of average length in OmDatabaseInternal, was breaking

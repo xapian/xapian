@@ -83,6 +83,27 @@ OmExpandDeciderAnd::operator()(const om_termname &tname) const
 // Methods for OmRSet //
 ////////////////////////
 
+OmRSet::OmRSet()
+	: internal(new Internal())
+{
+}
+
+OmRSet::OmRSet(const OmRSet &other)
+	: internal(new Internal(*other.internal))
+{
+}
+
+void
+OmRSet::operator=(const OmRSet &other)
+{
+    *internal = *other.internal;
+}
+
+OmRSet::~OmRSet()
+{
+    delete internal;
+}
+
 om_doccount
 OmRSet::size() const
 {
