@@ -1,6 +1,6 @@
-Xapian-core 0.8.2 (2004-08-??):
+Xapian-core 0.8.2 (2004-09-??):
 
-up to: Tue Aug 31 00:53:35 BST 2004  Olly Betts <olly@survex.com>
+up to: Thu Sep 09 03:39:52 BST 2004  Olly Betts <olly@survex.com>
 
 API:
 
@@ -21,6 +21,9 @@ API:
   are requested, the lower bound on the number of matches must be 0
   (since the matchdecider could reject all the matches).
 
+* Renamed Query::is_empty() to Query::empty() for consistency.  Keep
+  Query::is_empty() for now as a deprecated alias.
+
 testsuite:
 
 * Reworked quartztest's positionlist1 into a generic api test as apitest's
@@ -28,6 +31,14 @@ testsuite:
 
 * apitest: Reenabled allterms2, but with the iterator copying parts removed -
   TermIterator is an input_iterator so that part was invalid.
+
+* Overhauled btreetest and quartztest - tests at the Btree level are now all
+  in btreetest.  Those at the QuartzDatabase level are in quartztest.
+
+* Split api_db.cc into 3 files as it has grown rather large.
+
+* tests/runtest: Added support for easily running gdb on a test program,
+  automatically sorting out srcdir and libtool.
 
 quartz backend:
 
@@ -52,6 +63,14 @@ quartz backend:
   unless the search includes a term whose postlist has pending
   modifications.
 
+* QuartzWritableDatabase now stores the total document length and the last
+  docid itself rather than tallying added and removed document length and
+  writing the last docid back every time a document is added.  This gives
+  cleaner code and a small performance win.
+
+* Make the first key null for blocks more than 1 away from the leaves.  
+  It saves disk space for a tiny CPU and RAM cost so is bound to be
+  a win overall.
 
 * matcher/localmatch.cc: Fixed problems handling termweights in
   queries with the same term repeated (bug #37) and added
@@ -62,11 +81,9 @@ quartz backend:
   database.  Also commented out QuartzCursor::prev as it's unused and untested
   (at least in its latest form).
 
-* Added tunable flush thresholds - set XAPIAN_FLUSH_THRESHOLD=5000 to flush
-  every 5000 documents or XAPIAN_FLUSH_THRESHOLD_LENGTH=1000000 to flush every
-  1000000 total change in document length.  Set both to flush whichever is
-  reached first.  Set neither and the default is to flush every 1000 documents
-  as before.
+* Added tunable flush threshold - set XAPIAN_FLUSH_THRESHOLD=50000 to flush
+  every 50000 documents.  The default is now every 10000 documents (was
+  every 1000 documents previously).
 
 * Eliminated QuartzBufferedTable and refactored the code to
   reduce the number of classes and improve maintainability.  This
@@ -87,14 +104,27 @@ quartz backend:
 * backends/quartz/btree.cc: Implemented Btree::cancel directly rather
   than closing and reopening the Btree.
 
+inmemory backend:
+
+* Fixed bugs with deleting a document while a PostingIterator over it is
+  active.
+
+muscat36 backend:
+
+* Fixed to compile now that internal_end_session() has gone (broken in 0.8.1).
+
 build system:
+
+	* HACKING: Updated details of which autotools we require.
+	* configure.ac: Require autoconf 2.59.  Noted LIBRARY_VERSION_INFO
+	  which 0.8.2 will probably have.
+	* Makefile.am: Require automake 1.8.5. libtool 1.5.8
 
 * Fixed to compile when configured with --disable-inmemory (bug #33).
 
 * XO_LIB_XAPIAN now AC_SUBSTs XAPIAN_VERSION.
 
-* configure.ac: Don't define DATADIR - we no longer use it and clashes
-  with more recent mingw headers.
+* Quote macro names to fix warnings from newer aclocal.
 
 documentation:
 
@@ -119,6 +149,18 @@ documentation:
 
 * Corrected multiple occurences of "an Xapian::XXX" to "a Xapian::XXX"
   (presumably these all resulted from replacing "Om" with "Xapian::").
+
+portability:
+
+* Reworked how we cope with fcntl.h #define-ing open on Solaris.  This
+  change allows Sun's C++ compiler to produce a working Xapian build on
+  sparc Solaris.
+
+* configure.ac: Don't define DATADIR - we no longer use it and clashes
+  with more recent mingw headers.
+
+* matcher/andpostlist.cc: Initialise lmax and rmax to 0.  This cures
+  the SIGFPE on apitest's qterminfo2 on alpha linux.
 
 Xapian-core 0.8.1 (2004-06-30):
 
