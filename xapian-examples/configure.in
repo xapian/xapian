@@ -12,9 +12,12 @@ AC_PROG_CC
 AC_PROG_CXX
 AM_PROG_LEX
 
-# Turn off shared libraries for now as the make the build take longer
+dnl Turn off shared libraries for now as the make the build take longer
 AC_DISABLE_SHARED
 AM_PROG_LIBTOOL
+
+dnl Check for libomus
+AM_PATH_LIBOMUS(, AC_MSG_ERROR([Can't find Muscat library]))
 
 dnl Checks for gtk / glib / glade
 build_gui=yes
