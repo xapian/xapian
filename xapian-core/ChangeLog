@@ -1,3 +1,9 @@
+Fri Aug  4 18:52:56 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Split apitest_to_java into the separate packages it contained
+
+	* Started work on the Python apitest module
+
 Fri Aug  4 15:32:30 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* More tests work from Java.  (31 pass)

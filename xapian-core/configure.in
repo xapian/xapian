@@ -529,6 +529,7 @@ AC_OUTPUT(
  docs/doxygen_full_conf
  tests/stemtest.pl
  bindings/java/apitest_to_java.pl
+ bindings/python/apitest_to_python.pl
  bindings/Makefile
  bindings/python/Makefile
  bindings/perl5/Makefile

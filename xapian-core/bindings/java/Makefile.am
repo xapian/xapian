@@ -99,8 +99,9 @@ JAVACFLAGS = +E
 
 # rule to make java -> class
 
-ApiTestFuncs.java: $(top_srcdir)/tests/apitest.cc apitest_to_java.pl
-	@PERL_PATH@ apitest_to_java.pl < $<
+ApiTestFuncs.java: $(top_srcdir)/tests/apitest.cc apitest_to_java.pl \
+		   $(top_srcdir)/tests/apitest_parser.pm $(srcdir)/ToJava.pm
+	@PERL_PATH@ -I$(srcdir)/ -I $(top_srcdir)/tests apitest_to_java.pl < $<
 
 all-local: class.timestamp
 
