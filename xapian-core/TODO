@@ -95,6 +95,8 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Low     |cTODO            | Write some VIM macros to deal with this TODO
 ---------+-----------------+--------------------------------------------------
+ Low     | SleepyCat       | Make configure.in detect presence of sleepycat
+---------+-----------------+--------------------------------------------------
  Verylow | General         | Improve performance using SIMD instructions
 ---------+-----------------+--------------------------------------------------
  Verylow | General         | Make backends / weighting schemes / indexer
