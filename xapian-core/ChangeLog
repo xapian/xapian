@@ -1,3 +1,10 @@
+Thu Apr 10 00:23:28 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Automatically disable the remote backend if we don't
+	  have fork() since the remote backend requires it in several places;
+	  AM_CONDITIONAL ENABLE_SHARED isn't used anywhere so commented it
+	  out.
+
 Wed Apr 09 22:48:20 BST 2003  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated with recent changes.
@@ -4969,4 +4976,5 @@ Fri Nov 24 18:27:06 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 Fri Nov 24 15:34:17 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.4.1
+
 

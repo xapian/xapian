@@ -180,6 +180,11 @@ AC_ARG_ENABLE(backend_remote,
   no)  build_remote=false ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-remote) ;;
 esac],[build_remote=true])
+dnl check for fork - if we don't have it, the remote backend won't build
+AC_CHECK_FUNCS(fork)
+if test $ac_cv_func_fork = no ; then
+  build_remote=false
+fi
 
 AC_ARG_ENABLE(quiet,
 [  --enable-quiet          Enable quiet building (default=no)],
@@ -203,7 +208,7 @@ AM_CONDITIONAL(BUILD_BACKEND_QUARTZ, test true = "$build_quartz")
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test true = "$build_inmemory")
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test true = "$build_remote")
 dnl Set a flag for AM when shared libraries are enabled.
-AM_CONDITIONAL(ENABLE_SHARED, test yes = "$enable_shared")
+dnl AM_CONDITIONAL(ENABLE_SHARED, test yes = "$enable_shared")
 
 dnl Set defines to specify what we compile
 
