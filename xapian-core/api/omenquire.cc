@@ -411,6 +411,7 @@ MSet::Internal::get_doc_by_index(Xapian::doccount index) const
 {
     DEBUGCALL(API, Document, "Xapian::MSet::Internal::Data::get_doc_by_index",
 	      index);
+    index += firstitem; 
     map<Xapian::doccount, Document>::const_iterator doc;
     doc = indexeddocs.find(index);
     if (doc != indexeddocs.end()) {

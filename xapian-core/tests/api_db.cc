@@ -782,6 +782,25 @@ static bool test_msetiterator2()
     return true;
 }
 
+// tests that begin().get_document() works when first != 0
+static bool test_msetiterator3()
+{
+    Xapian::Database mydb(get_database("apitest_simpledata"));
+
+    Xapian::Enquire enquire(mydb);
+
+    Xapian::Query myquery("this");
+    enquire.set_query(myquery);
+
+    Xapian::MSet mymset = enquire.get_mset(2, 10);
+
+    TEST(!mymset.empty());
+    Xapian::Document doc(mymset.begin().get_document());
+    TEST(!doc.get_data().empty());
+
+    return true;
+}
+
 // tests that eset iterators on empty esets compare equal.
 static bool test_esetiterator1()
 {
@@ -3312,6 +3331,7 @@ test_desc localdb_tests[] = {
     {"matchfunctor1",	   test_matchfunctor1},
     {"msetiterator1",	   test_msetiterator1},
     {"msetiterator2",	   test_msetiterator2},
+    {"msetiterator3",	   test_msetiterator3},
     {"esetiterator1",	   test_esetiterator1},
     {"esetiterator2",	   test_esetiterator2},
     {"multiexpand1",       test_multiexpand1},

@@ -1,3 +1,10 @@
+Wed Aug 06 01:57:11 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Applied patch from Olivier Galibert to fix
+	  MSetIterator::get_document() when get_mset() was called with
+	  first != 0.
+	* tests/api_db.cc: Added regression test (msetiterator3).
+
 Mon Aug 04 12:40:25 BST 2003  Olly Betts <olly@survex.com>
 
 	* languages/Makefile.am: Fixed compilation for compilers other than
