@@ -26,6 +26,7 @@
 #include <getopt.h>
 #include "om/om.h"
 #include "testsuite.h"
+#include "omrefcnt.h"
 
 // always succeeds
 bool test_trivial();
@@ -34,10 +35,13 @@ bool test_alwaysfail();
 // test the test framework
 bool test_testsuite1();
 bool test_testsuite2();
+// test the reference counted pointers
+bool test_refcnt1();
 
 test_desc tests[] = {
     {"testsuite1",		test_testsuite1},
     {"testsuite2",		test_testsuite2},
+    {"refcnt1",			test_refcnt1},
     {0, 0}
 };
 
@@ -158,6 +162,87 @@ bool test_testsuite2()
 		 << res.failed << " failed." << endl;
 	}
 	success = false;
+    }
+
+    return success;
+}
+
+class test_refcnt : public OmRefCntBase {
+    private:
+	bool &deleted;
+    public:
+	test_refcnt(bool &deleted_) : deleted(deleted_) {
+	    if (verbose) {
+	        cout << " constructor ";
+	    }
+	}
+	~test_refcnt() {
+	    deleted = true;
+	    if (verbose) {
+		cout << " destructor ";
+	    }
+	}
+};
+
+bool test_refcnt1()
+{
+    bool success = true;
+
+    bool deleted = false;
+
+    test_refcnt *p = new test_refcnt(deleted);
+
+    if (p->ref_count != 0) {
+	success = false;
+	if (verbose) {
+	    cout << "Plain ref-counted class has ref count "
+		 << p->ref_count << endl;
+	}
+	delete p;
+    } else {
+	OmRefCntPtr<test_refcnt> rcp(p);
+
+	if (rcp->ref_count != 1) {
+	    success = false;
+	    if (verbose) {
+		cout << "Reference count not 1: "
+	             << rcp->ref_count << endl;
+	    }
+	}
+
+	{
+	    OmRefCntPtr<test_refcnt> rcp2;
+	    rcp2 = rcp;
+	    if (rcp->ref_count != 2) {
+		success = false;
+		if (verbose) {
+		    cout << "Refcount not 2: "
+			 << rcp->ref_count << endl;
+		}
+	    }
+	    // rcp2 goes out of scope here
+	}
+
+	if (deleted) {
+	    success = false;
+	    if (verbose) {
+		cout << "Object prematurely deleted!" << endl;
+	    }
+	} else if (rcp->ref_count != 1) {
+	    success = false;
+	    if (verbose) {
+		cout << "Reference count not 1 again: "
+	             << rcp->ref_count << endl;
+	    }
+	}
+    }
+
+    if (deleted != true) {
+	success = false;
+	if (verbose) {
+	    cout << "Object not properly deleted"
+		 << endl;
+	}
     }
 
     return success;
