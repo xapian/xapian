@@ -158,6 +158,7 @@ base64_encode(const char * in, int inlen, char * out)
         if (linelen >= 64) {
             *out = '\n';
             out += 1;
+            outlen += 1;
             linelen = 0;
         }
 	base64_encode_atom((const unsigned char *)in, n, out);
