@@ -39,10 +39,12 @@
 
 int main(int argc, char *argv[]) {
     string message;
+#if 0
     getline(cin, message);
     cerr << "omnetclient: read " << message << endl;
     cout << "BOO!" << endl;
     cout.flush();
+#endif
 
     if (argc != 2) {
 	cerr << "Wrong number of arguments" << endl;

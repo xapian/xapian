@@ -1,3 +1,7 @@
+Fri May 12 19:18:43 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Bug fixes to the TCP server
+
 Fri May 12 18:48:14 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Make OmDatabaseGroup now stores opened databases, rather than

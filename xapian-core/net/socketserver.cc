@@ -35,7 +35,8 @@
 SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
 		       int readfd_,
 		       int writefd_)
-	: db(db_), readfd(readfd_), writefd(writefd_),
+	: db(db_), readfd(readfd_),
+	  writefd((writefd_ == -1)?readfd_ : writefd_),
 	  buf(readfd, writefd),
 	  conversation_state(conv_ready),
 	  gatherer(0),
@@ -43,9 +44,8 @@ SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
 		auto_ptr<StatsGatherer>(gatherer = new NetworkStatsGatherer(this))),
 	  have_global_stats(0)
 {
-    if (writefd == -1) {
-	writefd = readfd;
-    }
+    buf.readline();
+    buf.writeline("Hello!");
 }
 
 /// The SocketServer destructor

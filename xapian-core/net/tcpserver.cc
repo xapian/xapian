@@ -52,7 +52,7 @@ TcpServer::get_listening_socket(int port)
 
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
-    addr.sin_port = port;
+    addr.sin_port = htons(port);
     addr.sin_addr.s_addr = INADDR_ANY;
 
     int retval = bind(socketfd,
@@ -88,6 +88,8 @@ TcpServer::get_listening_socket(int port)
 	throw OmNetworkError("accept: unexpected remote address size");
     }
 
+    // FIXME: get this bit working, probably
+#if 0
     struct hostent *hent =
 	    gethostbyaddr(reinterpret_cast<char *>(&remote_address),
 			  sizeof(remote_address),
@@ -103,6 +105,7 @@ TcpServer::get_listening_socket(int port)
     cerr << "Connection from " << hent->h_name
 	 << ", port " << remote_address.sin_port << endl;
 
+#endif
 
     // FIXME: use a destructor for closing socketfd?
     close(socketfd);
