@@ -42,7 +42,7 @@
 
 OmEnquire * enquire;
 OmMSet mset;
-string query;
+string querystring;
 
 om_doccount max_msize;
 GtkCList *results_widget;
@@ -146,7 +146,7 @@ static void do_resultdisplay(gint row) {
 	gtk_text_backward_delete(result_text, gtk_text_get_length(result_text));
 	gtk_text_insert(result_text, NULL, NULL, NULL, fulltext.c_str(), -1);
 	gtk_text_thaw(result_text);
-	gtk_label_set_text(result_query, query.c_str());
+	gtk_label_set_text(result_query, querystring.c_str());
 	gtk_label_set_text(result_score, score.c_str());
 	gtk_label_set_text(result_docid, inttostring(did).c_str());
     } catch (OmError &e) {
@@ -219,7 +219,7 @@ static void
 on_query_changed(GtkWidget *widget, gpointer user_data) {
     GtkEditable *textbox = GTK_EDITABLE(widget);
     char *tmp = gtk_editable_get_chars( textbox, 0, -1);
-    query = string(tmp);
+    querystring = string(tmp);
     g_free(tmp);
 
     try {
@@ -228,17 +228,17 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	TextfileIndexer idx;
 	parser.set_indexer(&idx);
 	vector<QueryTerm> qterms;
-	qterms = parser.parse_query(query);
+	qterms = parser.parse_query(querystring);
 
-	OmQuery query;
+	OmQuery omquery;
 	vector<QueryTerm>::const_iterator i = qterms.begin();
 	while(i != qterms.end()) {
-	    query = OmQuery(OM_MOP_OR, query, (*i).tname);
+	    omquery = OmQuery(OM_MOP_OR, omquery, (*i).tname);
 	    i++;
 	}
 
 	// Perform match
-	enquire->set_query(query);
+	enquire->set_query(omquery);
         mset = enquire->get_mset(0, max_msize);
 
 	gtk_clist_freeze(results_widget);
@@ -268,11 +268,12 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	    gtk_clist_set_row_data_full(results_widget, index, item,
 					result_destroy_notify);
 	}
+	gtk_clist_thaw(results_widget);
+	do_topterms();
     } catch (OmError &e) {
+	gtk_clist_thaw(results_widget);
 	cout << e.get_msg() << endl;
     }
-    gtk_clist_thaw(results_widget);
-    do_topterms();
 }
 
 static gboolean
