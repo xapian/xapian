@@ -1,3 +1,7 @@
+Mon Nov 01 05:44:02 GMT 2004  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fixed compilation problem on alpha Linux.
+
 Mon Nov 01 03:16:36 GMT 2004  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc,api/omstem.cc,
