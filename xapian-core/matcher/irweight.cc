@@ -7,6 +7,7 @@
 
 #include "database.h"
 #include "irweight.h"
+#include "rset.h"
 #include "omassert.h"
 
 const double k = 1;

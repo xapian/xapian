@@ -5,22 +5,13 @@
 #define _irweight_h_
 
 class IRDatabase;
-
-#include <vector>
-class RSetItem {
-    public:
-	docid did;
-};
-
-class RSet {
-    public:
-	vector<RSetItem> documents;
-};
+class RSet;
 
 class IRWeight {
     private:
 	const IRDatabase *database;
 	doccount termfreq;
+	const RSet * rset;
 
 	bool initialised;
 
@@ -29,14 +20,12 @@ class IRWeight {
 	mutable doclength lenpart;
     public:
 	IRWeight() : initialised(false), weight_calculated(false) { return; }
-	void set_stats(const IRDatabase *db, doccount tf, const RSet rset) {
+	void set_stats(const IRDatabase *db,
+		       doccount tf,
+		       const RSet *rset_new = NULL) {
 	    database = db;
 	    termfreq = tf;
-	    initialised = true;
-	}
-	void set_stats(const IRDatabase *db, doccount tf) {
-	    database = db;
-	    termfreq = tf;
+	    rset = rset_new;
 	    initialised = true;
 	}
 	void calc_termweight() const;
