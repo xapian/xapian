@@ -12,6 +12,8 @@
 #include "postlist.h"
 #include "termlist.h"
 #include "irdocument.h"
+#include "expand.h"
+#include "rset.h"
 #include "match.h"
 #include "stem.h"
 
@@ -25,7 +27,8 @@
 #include "config.h"
 
 IRDatabase *database;
-GtkCList *results;
+GtkCList *results_widget;
+GtkCList *topterms_widget;
 
 gchar *
 c_string(const string & s)
@@ -47,12 +50,38 @@ string inttostring(int a)
     return string(buf);
 }
 
+string floattostring(double a)
+{
+    // Use ostrstream (because ostringstream often doesn't exist)
+    char buf[100];  // Very big (though we're also bounds checked)
+    ostrstream ost(buf, 100);
+    ost << a << ends;
+    return string(buf);
+}
+
+class TopTermItemGTK {
+    public:
+	TopTermItemGTK(termid tid_new, termname tname) : tid(tid_new)
+	{
+	    data = new gchar *[1];
+	    data[0] = c_string(tname);
+	}
+	~TopTermItemGTK() {
+	    delete data[0];
+	    delete data;
+	}
+	termid tid;
+	
+	gchar **data;
+};
+
 class ResultItemGTK {
     public:
-	ResultItemGTK(docid did, int percent, docname dname) {
+	ResultItemGTK(docid did_new, int percent, docname dname) : did(did_new)
+	{
 	    data = new gchar *[3];
 	    data[0] = c_string(inttostring(percent));
-	    data[1] = c_string(inttostring(did));
+	    data[1] = c_string(inttostring(did_new));
 	    data[2] = c_string(dname);
 	}
 	~ResultItemGTK() {
@@ -61,15 +90,81 @@ class ResultItemGTK {
 	    delete data[2];
 	    delete data;
 	}
+	docid did;
 	
 	gchar **data;
 };
+
+static void
+topterm_destroy_notify(gpointer data)
+{
+    TopTermItemGTK * item = (TopTermItemGTK *)data;
+    delete item;
+}
 
 static void
 result_destroy_notify(gpointer data)
 {
     ResultItemGTK * item = (ResultItemGTK *)data;
     delete item;
+}
+
+static void do_topterms() {
+    try {
+	RSet rset(database);
+	GList *next = results_widget->selection;
+	gint index;
+
+	while(next) {
+	    index = GPOINTER_TO_INT(next->data);
+	    gpointer rowdata = gtk_clist_get_row_data(results_widget, index);
+	    ResultItemGTK * item = (ResultItemGTK *) rowdata;
+	    rset.add_document(item->did);
+	    next = next->next;
+	}
+
+	if (!rset.get_rsize()) {
+	    // invent an rset
+	    gint msize = results_widget->rows;
+	    for (index = min(4, msize - 1); index >= 0; index--) {
+		gpointer rowdata = gtk_clist_get_row_data(results_widget, index);
+		ResultItemGTK * item = (ResultItemGTK *) rowdata;
+		rset.add_document(item->did);
+	    }
+	}
+
+	Expand topterms(database);
+	topterms.expand(&rset);
+
+	gtk_clist_freeze(topterms_widget);
+	gtk_clist_clear(topterms_widget);
+
+	vector<ESetItem>::const_iterator i;
+	for (i = topterms.eset.begin(); i != topterms.eset.end(); i++) {
+	    string tname = database->term_id_to_name(i->tid);
+	    tname = tname + " (" + floattostring(i->wt) + ")";
+
+	    TopTermItemGTK * item = new TopTermItemGTK(i->tid, tname);
+	    gint index = gtk_clist_append(topterms_widget, item->data);
+
+	    // Make sure it gets freed when item is removed from result list
+	    gtk_clist_set_row_data_full(topterms_widget, index, item,
+					topterm_destroy_notify);
+	}
+    } catch (OmError e) {
+	cout << e.get_msg() << endl;
+    }
+    gtk_clist_thaw(topterms_widget);
+}
+
+static void
+on_results_selection(GtkWidget *widget,
+		     gint row,
+		     gint column,
+		     GdkEventButton *event,
+		     gpointer data)
+{
+    do_topterms();
 }
 
 static void
@@ -102,8 +197,8 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	doccount mtotal = matcher.mtotal;
 	doccount msize = matcher.msize;
 
-	gtk_clist_freeze(results);
-	gtk_clist_clear(results);
+	gtk_clist_freeze(results_widget);
+	gtk_clist_clear(results_widget);
 	cout << "MTotal: " << mtotal << " Maxweight: " << maxweight << endl;
 	for (docid i = 0; i < msize; i++) {
 	    docid q0 = matcher.mset[i].id;
@@ -117,19 +212,20 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	    }
 	    message += " ";
 	    message += data.value;
+	    message = data.value;
 	    ResultItemGTK * item = new ResultItemGTK(matcher.mset[i].id,
 		100 * matcher.mset[i].w / maxweight, message);
-	    gint index = gtk_clist_append(results, item->data);
+	    gint index = gtk_clist_append(results_widget, item->data);
 
 	    // Make sure it gets freed when item is removed from result list
-	    gtk_clist_set_row_data_full(results, index, item,
+	    gtk_clist_set_row_data_full(results_widget, index, item,
 					result_destroy_notify);
 	}
-	gtk_clist_thaw(results);
-
     } catch (OmError e) {
 	cout << e.get_msg() << endl;
     }
+    gtk_clist_thaw(results_widget);
+    do_topterms();
 }
 
 static gboolean
@@ -251,8 +347,8 @@ int main(int argc, char *argv[]) {
     /* connect the signals in the interface */
     glade_xml_signal_autoconnect(xml);
 
-    GtkWidget * widget = glade_xml_get_widget(xml, "results");
-    results = GTK_CLIST(widget);
+    topterms_widget = GTK_CLIST(glade_xml_get_widget(xml, "topterms"));
+    results_widget = GTK_CLIST(glade_xml_get_widget(xml, "results"));
 
     /* start the event loop */
     gtk_main();

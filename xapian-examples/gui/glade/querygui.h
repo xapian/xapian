@@ -11,6 +11,12 @@ extern "C" {
 #include <glade/glade.h>
 
 void on_query_changed(GtkWidget *widget, gpointer user_data);
+void on_results_selection(GtkWidget *widget,
+			  gint row,
+			  gint column,
+			  GdkEventButton *event,
+			  gpointer data);
+
 
 gboolean on_mainwindow_destroy(GtkWidget *widget,
 			       GdkEvent *event,

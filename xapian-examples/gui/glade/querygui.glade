@@ -26,26 +26,21 @@
 
 <widget>
   <class>GtkWindow</class>
-  <name>mainwindow</name>
-  <width>350</width>
-  <height>450</height>
-  <signal>
-    <name>destroy</name>
-    <handler>on_mainwindow_destroy</handler>
-    <last_modification_time>Wed, 20 Oct 1999 13:54:25 GMT</last_modification_time>
-  </signal>
+  <name>searchwindow</name>
+  <width>300</width>
+  <height>300</height>
   <title>Test a query</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_NONE</position>
   <modal>False</modal>
-  <allow_shrink>True</allow_shrink>
+  <allow_shrink>False</allow_shrink>
   <allow_grow>True</allow_grow>
   <auto_shrink>False</auto_shrink>
 
   <widget>
     <class>GtkFrame</class>
-    <name>frame1</name>
-    <width>357</width>
+    <child_name>GnomeDock:contents</child_name>
+    <name>frame2</name>
     <height>99</height>
     <label>Query tester</label>
     <label_xalign>0</label_xalign>
@@ -53,11 +48,12 @@
 
     <widget>
       <class>GtkTable</class>
-      <name>table1</name>
+      <name>table2</name>
+      <border_width>3</border_width>
       <rows>2</rows>
       <columns>2</columns>
       <homogeneous>False</homogeneous>
-      <row_spacing>0</row_spacing>
+      <row_spacing>3</row_spacing>
       <column_spacing>0</column_spacing>
 
       <widget>
@@ -92,7 +88,7 @@
 
       <widget>
 	<class>GtkLabel</class>
-	<name>label3</name>
+	<name>label7</name>
 	<label>Query:</label>
 	<justify>GTK_JUSTIFY_CENTER</justify>
 	<wrap>False</wrap>
@@ -117,12 +113,11 @@
       </widget>
 
       <widget>
-	<class>GtkScrolledWindow</class>
-	<name>scrolledwindow1</name>
-	<hscrollbar_policy>GTK_POLICY_ALWAYS</hscrollbar_policy>
-	<vscrollbar_policy>GTK_POLICY_ALWAYS</vscrollbar_policy>
-	<hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
-	<vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+	<class>GtkVPaned</class>
+	<name>vpaned1</name>
+	<handle_size>10</handle_size>
+	<gutter_size>6</gutter_size>
+	<position>0</position>
 	<child>
 	  <left_attach>0</left_attach>
 	  <right_attach>2</right_attach>
@@ -139,52 +134,112 @@
 	</child>
 
 	<widget>
-	  <class>GtkCList</class>
-	  <name>results</name>
-	  <can_focus>True</can_focus>
-	  <columns>3</columns>
-	  <column_widths>80,80,80</column_widths>
-	  <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
-	  <show_titles>True</show_titles>
-	  <shadow_type>GTK_SHADOW_IN</shadow_type>
+	  <class>GtkScrolledWindow</class>
+	  <name>scrolledwindow2</name>
+	  <hscrollbar_policy>GTK_POLICY_AUTOMATIC</hscrollbar_policy>
+	  <vscrollbar_policy>GTK_POLICY_AUTOMATIC</vscrollbar_policy>
+	  <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
+	  <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+	  <child>
+	    <shrink>True</shrink>
+	    <resize>False</resize>
+	  </child>
 
 	  <widget>
-	    <class>GtkLabel</class>
-	    <child_name>CList:title</child_name>
-	    <name>label4</name>
-	    <label>Score</label>
-	    <justify>GTK_JUSTIFY_CENTER</justify>
-	    <wrap>False</wrap>
-	    <xalign>0.5</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
+	    <class>GtkCList</class>
+	    <name>results</name>
+	    <can_focus>True</can_focus>
+	    <signal>
+	      <name>select_row</name>
+	      <handler>on_results_selection</handler>
+	      <last_modification_time>Thu, 04 Nov 1999 12:19:32 GMT</last_modification_time>
+	    </signal>
+	    <signal>
+	      <name>unselect_row</name>
+	      <handler>on_results_selection</handler>
+	      <last_modification_time>Thu, 04 Nov 1999 12:19:40 GMT</last_modification_time>
+	    </signal>
+	    <columns>3</columns>
+	    <column_widths>80,80,80</column_widths>
+	    <selection_mode>GTK_SELECTION_MULTIPLE</selection_mode>
+	    <show_titles>True</show_titles>
+	    <shadow_type>GTK_SHADOW_IN</shadow_type>
+
+	    <widget>
+	      <class>GtkLabel</class>
+	      <child_name>CList:title</child_name>
+	      <name>label8</name>
+	      <label>Score</label>
+	      <justify>GTK_JUSTIFY_CENTER</justify>
+	      <wrap>False</wrap>
+	      <xalign>0.5</xalign>
+	      <yalign>0.5</yalign>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	    </widget>
+
+	    <widget>
+	      <class>GtkLabel</class>
+	      <child_name>CList:title</child_name>
+	      <name>label9</name>
+	      <label>Docid</label>
+	      <justify>GTK_JUSTIFY_CENTER</justify>
+	      <wrap>False</wrap>
+	      <xalign>0.5</xalign>
+	      <yalign>0.5</yalign>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	    </widget>
+
+	    <widget>
+	      <class>GtkLabel</class>
+	      <child_name>CList:title</child_name>
+	      <name>label10</name>
+	      <label>Terms</label>
+	      <justify>GTK_JUSTIFY_CENTER</justify>
+	      <wrap>False</wrap>
+	      <xalign>0.5</xalign>
+	      <yalign>0.5</yalign>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	    </widget>
 	  </widget>
+	</widget>
+
+	<widget>
+	  <class>GtkScrolledWindow</class>
+	  <name>scrolledwindow3</name>
+	  <hscrollbar_policy>GTK_POLICY_AUTOMATIC</hscrollbar_policy>
+	  <vscrollbar_policy>GTK_POLICY_AUTOMATIC</vscrollbar_policy>
+	  <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
+	  <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+	  <child>
+	    <shrink>True</shrink>
+	    <resize>True</resize>
+	  </child>
 
 	  <widget>
-	    <class>GtkLabel</class>
-	    <child_name>CList:title</child_name>
-	    <name>label5</name>
-	    <label>Docid</label>
-	    <justify>GTK_JUSTIFY_CENTER</justify>
-	    <wrap>False</wrap>
-	    <xalign>0.5</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	  </widget>
+	    <class>GtkCList</class>
+	    <name>topterms</name>
+	    <can_focus>True</can_focus>
+	    <columns>1</columns>
+	    <column_widths>80</column_widths>
+	    <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
+	    <show_titles>False</show_titles>
+	    <shadow_type>GTK_SHADOW_IN</shadow_type>
 
-	  <widget>
-	    <class>GtkLabel</class>
-	    <child_name>CList:title</child_name>
-	    <name>label6</name>
-	    <label>Terms</label>
-	    <justify>GTK_JUSTIFY_CENTER</justify>
-	    <wrap>False</wrap>
-	    <xalign>0.5</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
+	    <widget>
+	      <class>GtkLabel</class>
+	      <child_name>CList:title</child_name>
+	      <name>label12</name>
+	      <label>label12</label>
+	      <justify>GTK_JUSTIFY_CENTER</justify>
+	      <wrap>False</wrap>
+	      <xalign>0.5</xalign>
+	      <yalign>0.5</yalign>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	    </widget>
 	  </widget>
 	</widget>
       </widget>
