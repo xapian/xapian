@@ -1,3 +1,8 @@
+Wed Aug 06 16:27:34 BST 2003  Olly Betts <olly@survex.com>
+
+	* HACKING: Noted that libtool 1.5 is the first version to actually
+	  support linking C++ libraries properly.
+
 Wed Aug 06 16:25:15 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,net/socketcommon.cc,common/omenquireinternal.h:
