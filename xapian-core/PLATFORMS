@@ -32,7 +32,7 @@ x86   | Linux 2.4 Debian sid GCC 3.3.1 | 0.7.0 |Passed| from Olly Betts
 x86   |*Linux 2.4 Debian 2.2 GCC 2.95.2| 0.7.5 |Passed|
 x86   |!Linux 2.4 RedHat 7.1 GCC 3.2.2 | 0.6.5 |Passed| with CXXFLAGS=-Werror
 x86   |*Linux 2.4 RedHat 7.2 GCC 2.96  | 0.7.3 |Passed| SF CF WebSphere box #2
-x86   |*Linux 2.4 RedHat 7.3 GCC 2.96  | 0.7.3 |Passed|
+x86   | Linux 2.4 RedHat 7.3 GCC 2.96  | 0.7.5 |Passed| from Chris Good
 x86   | Linux 2.4 RedHat 8.0 GCC 2.96  | 0.7.3 |Passed| from Chris Good
 x86   |!FreeBSD 4.7 GCC 2.95.4         | 0.7.3 |Passed| [1]
 x86   |!FreeBSD 4.8 GCC 2.95.4         | 0.7.5 |Passed| [1]
