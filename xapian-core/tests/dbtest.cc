@@ -27,13 +27,18 @@ int main(int argc, char *argv[]) {
 	    else postlist->next();
 	}
 	delete postlist;
+	termlist = database.open_term_list(200);
+	termlist = database.open_term_list(201);
+	termlist = database.open_term_list(202);
 	did = 111;
 	termlist = database.open_term_list(did);
 	printf("\nTermlist for document %d:\n", did);
 	while(!termlist->at_end()) {
 	    termid tid = termlist->get_termid();
 
-	    printf("TermId: %d\n", tid);
+	    printf("Term (Id %d) `%s' wdf=%d\n", tid,
+		   database.term_id_to_name(tid).c_str(),
+		   termlist->get_wdf());
 	    termlist->next();
 	}
 	delete termlist;

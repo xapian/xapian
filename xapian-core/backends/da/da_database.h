@@ -57,16 +57,29 @@ DAPostList::at_end() const
 
 
 
+class DATermListItem {
+    public:
+	termid id;
+	termcount wdf;
+	DATermListItem(termid id_new, termcount wdf_new) {
+	    id = id_new;
+	    wdf = wdf_new;
+	}
+	bool operator< (const DATermListItem& a) const {
+	    return this->id < a.id;
+	}
+};
  
 class DATermList : public virtual TermList {
     friend class DADatabase;
     private:
-	vector<termid>::iterator pos;
-	vector<termid> ids;
+	vector<DATermListItem>::iterator pos;
+	vector<DATermListItem> terms;
 
 	DATermList(DADatabase *db, struct termvec *tv);
     public:
 	termid get_termid();
+	termcount get_wdf();
 	void   next();
 	bool   at_end();
 };
@@ -74,7 +87,13 @@ class DATermList : public virtual TermList {
 inline termid DATermList::get_termid()
 {
     Assert(!at_end());
-    return *pos;
+    return pos->id;
+}
+
+inline termcount DATermList::get_wdf()
+{
+    Assert(!at_end());
+    return pos->wdf;
 }
 
 inline void   DATermList::next()
@@ -85,7 +104,7 @@ inline void   DATermList::next()
 
 inline bool   DATermList::at_end()
 {
-    if(pos == ids.end()) return true;
+    if(pos == terms.end()) return true;
     return false;
 }
 

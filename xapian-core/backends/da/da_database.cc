@@ -93,14 +93,14 @@ DATermList::DATermList(DADatabase *db, struct termvec *tv)
 	termid id;
 	// FIXME - Next line is inefficient - checks for term in term list
 	id = db->term_name_to_id(string(term + 1, (unsigned)term[0] - 1));
-	ids.push_back(id);
+	terms.push_back(DATermListItem(id, tv->wdf));
 	readterms(tv);
     }
     losetermvec(tv);
 
-    sort(ids.begin(), ids.end());
+    sort(terms.begin(), terms.end());
 
-    pos = ids.begin();
+    pos = terms.begin();
 }
 
 

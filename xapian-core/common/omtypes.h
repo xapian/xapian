@@ -7,6 +7,7 @@ typedef unsigned int termid;
 typedef unsigned int docid;
 
 typedef docid doccount;
+typedef termid termcount;
 
 typedef double weight;
 

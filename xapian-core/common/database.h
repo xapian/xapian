@@ -43,6 +43,7 @@ class TermList {
     private:
     public:
 	virtual termid get_termid() = 0;    // Gets current termid
+	virtual termcount get_wdf() = 0;    // Get wdf of current term
 	virtual void   next() = 0;          // Moves to next termid
 	virtual bool   at_end() = 0;        // True if we're off the end of the list
 
