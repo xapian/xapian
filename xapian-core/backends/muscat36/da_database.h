@@ -284,7 +284,7 @@ class DADatabase : public IRDatabase {
 	LeafTermList * open_term_list(om_docid did) const;
 	LeafDocument * open_document(om_docid did) const;
 
-	void add_document(const struct DocumentContents & document) {
+	void add_document(const struct OmDocumentContents & document) {
 	    throw OmUnimplementedError("DADatabase::add_document() not implemented");
 	}
 };

@@ -26,7 +26,8 @@
 #include "om/omtypes.h"
 
 #include "database_builder.h"
-#include "document_contents.h"
+#include "om/omindexdoc.h"
+#include "indexer.h"
 
 class LeafDocument;
 class LeafPostList;
@@ -186,7 +187,7 @@ class IRDatabase : public IndexerDestination {
 
 	/** Add a new document to the database.
 	 */
-	virtual void add_document(const struct DocumentContents & document) = 0;
+	virtual void add_document(const struct OmDocumentContents & document) = 0;
 
 
 	//////////////////////////////////////////////////////////////////

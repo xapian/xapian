@@ -1,3 +1,12 @@
+Tue Apr 11 22:01:03 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Renamed DocumentContents and DocumentTerm to OmDocumentContents and 
+	  OmDocumentTerm, and added these classes to the API.  Moved these
+	  from "common/document_contents.h" to "include/om/omindexdoc.h"
+
+	* Added a OmWritableDatabase class to the API.  Implemented some of
+	  the needed methods.
+
 Tue Apr 11 21:14:18 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* SleepyDatabase now knows how to allocate a new term ID for a new

@@ -62,7 +62,7 @@ class NetworkDatabase : public IRDatabase {
 	/** NetworkDatabase is a readonly database type, and thus this method
 	 *  is not supported: if called an exception will be thrown.
 	 */
-	void add_document(const struct DocumentContents & document) {
+	void add_document(const struct OmDocumentContents & document) {
 	    throw OmUnimplementedError("NetworkDatabase::add_document() not implemented");
 	}
 

@@ -1,4 +1,4 @@
-/* document_contents.h
+/* omindexdoc.h: Representation of document in indexes
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -20,17 +20,20 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_DOCUMENT_CONTENTS_H
-#define OM_HGUARD_DOCUMENT_CONTENTS_H
+#ifndef OM_HGUARD_OMINDEXDOC_H
+#define OM_HGUARD_OMINDEXDOC_H
 
 #include <string>
 #include <vector>
 #include <map>
 #include "om/omtypes.h"
-#include "indexer.h"
+
+///////////////////////////////////////////////////////////////////
+// OmDocumentTerm class
+// ====================
 
 /** A term in a document. */
-struct DocumentTerm {
+struct OmDocumentTerm {
     /** Make a new term.
      *
      *  This creates a new term, and adds one posting at the specified
@@ -39,7 +42,7 @@ struct DocumentTerm {
      *  @param tname_ The name of the new term.
      *  @param tpos   Optional positional information.
      */
-    DocumentTerm(const om_termname & tname_, om_termpos tpos = 0);
+    OmDocumentTerm(const om_termname & tname_, om_termpos tpos = 0);
 
     /** The name of this term.
      */
@@ -81,13 +84,17 @@ struct DocumentTerm {
     void add_posting(om_termpos tpos = 0);
 };
 
+///////////////////////////////////////////////////////////////////
+// OmDocumentContents class
+// ========================
+
 /** The information which is stored in a document.
  *
  *  This object contains all the information associated with a document,
  *  and can be used to build up that information and then add it to a
  *  writable database.
  */
-struct DocumentContents {
+struct OmDocumentContents {
     /** The (user defined) data associated with this document. */
     string data;
 
@@ -98,7 +105,7 @@ struct DocumentContents {
     document_keys keys;
 
     /** Type to store terms in. */
-    typedef map<om_termname, DocumentTerm> document_terms;
+    typedef map<om_termname, OmDocumentTerm> document_terms;
 
     /** The terms (and their frequencies and positions) in this document. */
     document_terms terms;
@@ -114,4 +121,4 @@ struct DocumentContents {
     void add_posting(const om_termname & tname, om_termpos tpos = 0);
 };
 
-#endif /* OM_HGUARD_DOCUMENT_CONTENTS_H */
+#endif /* OM_HGUARD_OMINDEXDOC_H */

@@ -34,6 +34,7 @@
 #include "omenquire.h"
 
 /* Indexing */
+#include "omindexer.h"
 
 /* Stemming */
 #include "omstem.h"

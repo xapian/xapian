@@ -10,4 +10,5 @@ noinst_HEADERS = omdatabaseinternal.h omenquireinternal.h
 noinst_LTLIBRARIES = libapi.la
 
 libapi_la_SOURCES = omenquire.cc omquery.cc omdatabase.cc \
-		    omstem.cc ombatchenquire.cc omdocument.cc
+		    omstem.cc ombatchenquire.cc omdocument.cc \
+		    omindexdoc.cc omindexer.cc

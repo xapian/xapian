@@ -61,7 +61,7 @@ TextfileIndexer::add_source(const IndexerSource & source)
 	get_paragraph(*from, para);
 	//get_a_line(*from, para);
 	
-	DocumentContents document;
+	OmDocumentContents document;
 	document.data = para;
 	om_termcount position = 1;
 

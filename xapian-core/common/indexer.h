@@ -27,7 +27,7 @@
 #include <iostream>
 
 #include "om/omtypes.h"
-#include "document_contents.h"
+#include "om/omindexdoc.h"
 
 /** A source of data for indexing (eg, a file)
  */
@@ -57,7 +57,7 @@ class IndexerDestination {
 
 	/** Add a new document to the destination.
 	 */
-	virtual void add_document(const struct DocumentContents & document) = 0;
+	virtual void add_document(const struct OmDocumentContents & document) = 0;
 };
 
 /** A way to generate terms from sources

@@ -157,11 +157,11 @@ SleepyDatabase::open_document(om_docid did) const
 
 
 void
-SleepyDatabase::add_document(const struct DocumentContents & document)
+SleepyDatabase::add_document(const struct OmDocumentContents & document)
 {
     om_docid did = get_doccount() + 1;
 
-    DocumentContents::document_terms::const_iterator i;
+    OmDocumentContents::document_terms::const_iterator i;
     for(i = document.terms.begin(); i != document.terms.end(); i++) {
 	om_termid tid = termcache->assign_new_termid(i->second.tname);
 	make_entry_in_postlist(tid, did, i->second.wdf, i->second.positions);

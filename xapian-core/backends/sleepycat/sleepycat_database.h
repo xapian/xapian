@@ -87,7 +87,7 @@ class SleepyDatabase : public IRDatabase {
 	LeafDocument * open_document(om_docid did) const;
 
 	// virtual method of IndexerDestination
-	void add_document(const struct DocumentContents & document);
+	void add_document(const struct OmDocumentContents & document);
 };
 
 #endif /* OM_HGUARD_SLEEPY_DATABASE_H */
