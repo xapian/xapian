@@ -51,8 +51,6 @@ void
 OmDebug::open_output()
 {
     if (!output_initialised) {
-	out.rdbuf(cerr.rdbuf());
-
 	char * filename = getenv(OM_ENV_DEBUG_FILE);
 	if (filename != 0) {
 	    {
@@ -61,11 +59,9 @@ OmDebug::open_output()
 		auto_ptr<std::ofstream> temp(new std::ofstream(filename));
 		to = temp;
 	    }
-	    if (to.get() && *to) {
-		out.rdbuf(to->rdbuf());
-	    } else {
-		out << "Can't open requested debug file `" <<
-		string(filename) << "' using stderr." << endl << flush;
+	    if (to.get() == 0 || *to == 0) {
+		cerr << "Can't open requested debug file `" <<
+			string(filename) << "' using stderr." << endl << flush;
 	    }
 	}
 	output_initialised = true;
@@ -106,6 +102,16 @@ OmDebug::want_type(enum om_debug_types type)
 	return false;
     }
     return true;
+}
+
+ostream &
+OmDebug::operator << (enum om_debug_types type)
+{
+    open_output();
+    if (to.get() && *to) {
+	return *to;
+    }
+    return cerr;
 }
 
 #endif /* MUS_DEBUG_VERBOSE */

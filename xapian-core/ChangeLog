@@ -1,3 +1,8 @@
+Mon Jun 26 14:12:19 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Change debug class so that it has an operator<<, rather than
+	  exposing a stream.  This is somewhat more portable.
+
 Sat Jun 24 03:11:43 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Removed need for om_debug object to be initialised, since it wasn't

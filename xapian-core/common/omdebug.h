@@ -106,8 +106,8 @@ class OmDebug {
 	 */
 	auto_ptr<std::ofstream> to;
     public:
-	/// Stream
-	ostream out;
+	/// Operator for outputting something
+	ostream & operator << (enum om_debug_types type);
 
 	/// Check whether a given type is wanted for output
 	bool want_type(enum om_debug_types type);
@@ -122,11 +122,8 @@ class OmDebug {
 extern OmDebug om_debug;
 
 
-// Don't bracket a, because it may have <<'s in it
-// Send to cout, not cerr, so that output appears on page in CGI scripts
-// (otherwise it clogs up error logs)
-// FIXME - should send it to a file.
-#define DEBUGMSG(a,b) if(om_debug.want_type(OM_DEBUG_##a)) { om_debug.out << b ; cerr.flush(); }
+// Don't bracket b, because it may have <<'s in it
+#define DEBUGMSG(a,b) if(om_debug.want_type(OM_DEBUG_##a)) { om_debug << OM_DEBUG_##a << b ; }
 #else
 #define DEBUGMSG(a,b)
 #endif
