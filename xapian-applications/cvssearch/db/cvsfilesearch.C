@@ -7,7 +7,7 @@
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
 
-#define MIN_SUPPORT 5
+#define MIN_SUPPORT 1
 
 // try convinction instead of interest measure (convinction is directional)
 //
@@ -293,13 +293,13 @@ int main(int argc, char *argv[]) {
   try {
 
     int total_commit_transactions = 0;
-    ifstream in( (cvsdata +"/root0/db/mining.count").c_str() );
+    ifstream in( (cvsdata +"/root0/db/files.count").c_str() );
     in >> total_commit_transactions;
     in.close();
     cerr << "TOTAL COMMIT TRANSACTIONS " << total_commit_transactions << endl;
 
     Db db(0,0);
-    db.open( (cvsdata +"/root0/db/mining.db").c_str(),  0 , DB_HASH, DB_RDONLY, 0 );
+    db.open( (cvsdata +"/root0/db/files.db").c_str(),  0 , DB_HASH, DB_RDONLY, 0 );
     
 
 
@@ -329,10 +329,7 @@ int main(int argc, char *argv[]) {
 
       string s = argv[optpos];
 
-      if ( s.find(":") == 0 ) {
-	queryterms.push_back(s); // symbol, put as is
-        query_symbols.insert(s);
-      } else if ( s == "=>" || s == "<=" || s == "<=>" ) {
+      if ( s == "=>" || s == "<=" || s == "<=>" ) {
         ranking_system = s;
       } else {
 	om_termname term = s;

@@ -1,4 +1,4 @@
-// cvsmineindex.C
+// cvsfileindex.C
 //
 // (c) 2001 Amir Michail (amir@users.sourceforge.net)
 
@@ -16,30 +16,8 @@
 //     for library usage
 //
 
-//
-// General approach:
-//
-//   For each symbol, we identify all comments that were associated
-//   with lines containing that symbol.
-
-//
-// We do not put duplicate comments in the symbol's profile, so the
-// profiles are reasonably small.  
-//
-
-//
-//   Query => classes/functions related to the task at hand, both at a
-//                    local & global level.
-//
-//     
-
-
-
-
-#warning "requires ctags from http://ctags.sourceforge.net/"
-#warning "should generate unique file for tags"
-#warning "ctags contains inheritance information; this can help if (t,S) does not occur in class declaration say or where member variable is declared"
-#warning "requires omsee 0.4.1"
+#warning "should generate an om database for each app"
+#warning "should be able to search multiple databases easily using om"
 
 // ctags options
 //  want classes
@@ -54,12 +32,6 @@
 // /tmp is small, so we use /tmp
 
 #define TEMP "/tmp"
-
-// support C/C++/Java for now
-
-// ctags 5.0 flags (see http://ctags.sourceforge.net/ctags.html)
-//
-#define CTAGS_FLAGS "-R -n --file-scope=no --fields=aiKs --c-types=cfsu --java-types=cim -f" TEMP "/tags"
 
 
 //
@@ -126,11 +98,6 @@ void writeOMDatabase( const string& database_dir,
       added.insert(*w);
     }
 
-    // add symbols for indexing (symbols get a : prefix to distinguish them from terms)
-    for( set<string>::iterator j = symbols.begin(); j != symbols.end(); j++ ) {
-      newdocument.add_posting(":"+(*j), pos++); 
-    }
-
     //      cerr << "Symbol string is:  " << symbol_string << endl;
 
     // put transaction contents in data
@@ -152,9 +119,6 @@ int main(int argc, char *argv[]) {
 
   // get list of packages to process from file
 
-  set<string> lib_symbols;
-  map<string, set<string> > lib_symbol_parents;
-
   set<string> packages;
 
   int qpos;
@@ -175,19 +139,6 @@ int main(int argc, char *argv[]) {
   
 
 
-  // get libraries if any from cmd line
-  system("rm -f " TEMP "/tags"); 
-
-  for( int i = 1; i < argc; i++ ) {
-    string dir = argv[i];
-    cerr << "...running ctags on library " << dir << endl;
-    string cmd = string("ctags -a ") + string(CTAGS_FLAGS) + " " + dir; // append mode
-    cerr << "...invoking " << cmd << endl;
-    system(cmd.c_str());
-  }
-  
-  cerr << "...reading library tags" << endl;
-  readTags( TEMP "/tags", lib_symbols, lib_symbol_parents );
 
   // might be easier to just maintain something like:  file:revision
   // that we way do not duplicate comments
@@ -199,6 +150,7 @@ int main(int argc, char *argv[]) {
 
 
   ///////// This is the key map:  It takes a commit comment to all the symbols under that comment
+  map< string, set<string> > comment_files;
   map< string, set<string> > comment_symbols;
   map< string, list< string > > comment_words;
 
@@ -236,32 +188,6 @@ int main(int argc, char *argv[]) {
       package_name = string(package, q, p-q);
       package_path = string(package, 0, p);
       
-      cerr << "package -" << package_name << "-" << endl;
-      system("rm -f " TEMP "/tags" );
-
-      //      cerr << "Running ctags on " << package_path << endl;
-      string fullpath = cvsdata +"/root0/src/" + package_path;
-      string cmd = string("ctags ") + string(CTAGS_FLAGS) + " " + fullpath;
-      cerr << "Invoking " << cmd << endl;
-      system(cmd.c_str());
-      
-      set<string> app_symbols;
-      map<string, set<string> > app_symbol_parents;
-      cerr << "... reading application tags" << endl;
-      readTags( TEMP "/tags", app_symbols, app_symbol_parents );
-
-#if 0      
-      for( set<string>::iterator s = app_symbols.begin(); s != app_symbols.end(); s++ ) {
-	cerr << (*s) << endl;
-	set<string> parents = app_symbol_parents[*s];
-	for( set<string>::iterator p = parents.begin(); p != parents.end(); p++ ) {
-	  cerr << "... has parent " << (*p) << endl;
-	}
-      }
-#endif
-      
-
-
       // change / to _ in package
       for( int i = 0; i < package_path.length(); i++ ) {
 	if ( package_path[i] == '/' ) {
@@ -325,26 +251,10 @@ int main(int argc, char *argv[]) {
 	  //	  cerr << "Revision " << i->first << " has comment " << i->second << endl;
 
 	  comment_words[i->second] = terms[i->first];
+	  comment_files[i->second].insert( lines.currentFile() );
 
 	  for( set<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
-
-	    if ( lib_symbols.find(*s) != lib_symbols.end() ) {
-
 	      comment_symbols[ i->second].insert(*s);
-
-	    } else {
-	      // this symbol is not in the library, so let's see if its parents are;
-	      // if so, we add every such parent
-
-	      set<string> parents = app_symbol_parents[*s];
-	      for( set<string>::iterator p = parents.begin(); p != parents.end(); p++ ) {
-		if ( lib_symbols.find(*p) != lib_symbols.end() ) {
-		  //		  cerr << *s << " ... adding its parent " << *p << endl;
-		  comment_symbols[ i->second].insert(*p);
-		}
-	      }
-	    }	    
-
 	  }
 
 	}
@@ -385,7 +295,7 @@ int main(int argc, char *argv[]) {
 
     // count items
     cerr << "... counting items" << endl;
-    for( map< string, set<string> >::iterator t = comment_symbols.begin(); t != comment_symbols.end(); t++ ) {
+    for( map< string, set<string> >::iterator t = comment_files.begin(); t != comment_files.end(); t++ ) {
       set<string> S = t->second;
       for( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
 	item_count[*s]++;
@@ -395,15 +305,15 @@ int main(int argc, char *argv[]) {
 
     cerr << "... writing out item counts" << endl;
 
-    system( ("rm -rf " + cvsdata +"/root0/db/mining.count" ).c_str() );
-    ofstream out( (cvsdata+"/root0/db/mining.count").c_str() );
+    system( ("rm -rf " + cvsdata +"/root0/db/files.count" ).c_str() );
+    ofstream out( (cvsdata+"/root0/db/files.count").c_str() );
     out << transaction_count << endl;
     out.close();
 
-    system( ("rm -rf " + cvsdata +"/root0/db/mining.db" ).c_str() );
+    system( ("rm -rf " + cvsdata +"/root0/db/files.db" ).c_str() );
     
     Db db(0,0);
-    db.open( (cvsdata +"/root0/db/mining.db").c_str(),  0 , DB_HASH, DB_CREATE, 0 );
+    db.open( (cvsdata +"/root0/db/files.db").c_str(),  0 , DB_HASH, DB_CREATE, 0 );
 
 
     for( map<string, int>::iterator i = item_count.begin(); i != item_count.end(); i++ ) {
@@ -432,8 +342,8 @@ int main(int argc, char *argv[]) {
 
 
     /////// write out OM database
-    writeOMDatabase( cvsdata + "/root0/db/mining.om", 
-		     comment_symbols,
+    writeOMDatabase( cvsdata + "/root0/db/files.om", 
+		     comment_files,
 		     comment_words );
 
   } catch(OmError & error) {
