@@ -688,7 +688,13 @@ OmMSet::convert_to_percent(const OmMSetItem & item) const
 /////////////////////////////////
 class OmDatabase::Internal {
     public:
+	Internal() {}
+	Internal(const Internal &other)
+		: params(other.params), mutex() {}
+
 	vector<DatabaseBuilderParams> params;
+
+	OmLock mutex;
 
 	//void add_database(const DatabaseBuilderParams & newdb);
 	void add_database(const string & type,
@@ -725,12 +731,21 @@ OmDatabase::~OmDatabase() {
 }
 
 OmDatabase::OmDatabase(const OmDatabase &other)
-	: internal(new Internal(*other.internal))
+	: internal(0)
 {
+    OmLockSentry locksentry(other.internal->mutex);
+
+    internal = new Internal(*other.internal);
 }
 
 void OmDatabase::operator=(const OmDatabase &other)
 {
+    // we get these locks in a defined order to avoid deadlock
+    // should two threads try to assign two databases to each
+    // other at the same time.
+    OmLockSentry locksentry1(min(internal, other.internal)->mutex);
+    OmLockSentry locksentry2(max(internal, other.internal)->mutex);
+    
     Internal *newinternal = new Internal(*other.internal);
 
     swap(internal, newinternal);
@@ -741,6 +756,8 @@ void OmDatabase::operator=(const OmDatabase &other)
 void OmDatabase::add_database(const string &type,
 			      const vector<string> &params)
 {
+    OmLockSentry locksentry(internal->mutex);
+
     internal->add_database(type, params);
 }
 

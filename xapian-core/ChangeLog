@@ -1,3 +1,7 @@
+Thu Mar  2 10:39:20 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added locks to OmDatabase methods
+
 Wed Mar  1 19:14:02 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Separated OmDatabase out from OmEnquire, and fixed the tests.
