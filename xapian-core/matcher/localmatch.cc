@@ -264,7 +264,8 @@ LocalSubMatch::postlist_from_queries(OmQuery::Internal::op_t op,
 				const OmQuery::Internal::subquery_list &queries,
 				om_termpos window,
 				om_termcount elite_set_size,
-				MultiMatch *matcher)
+				MultiMatch *matcher,
+				bool is_bool)
 {
     Assert(op == OmQuery::OP_OR || op == OmQuery::OP_AND ||
 	   op == OmQuery::OP_XOR ||
@@ -278,7 +279,7 @@ LocalSubMatch::postlist_from_queries(OmQuery::Internal::op_t op,
 
     OmQuery::Internal::subquery_list::const_iterator q;
     for (q = queries.begin(); q != queries.end(); q++) {
-	postlists.push_back(postlist_from_query(*q, matcher));
+	postlists.push_back(postlist_from_query(*q, matcher, is_bool));
 	DEBUGLINE(MATCH, "Made postlist for " << (*q)->get_description() <<
 		  ": termfreq is: (min, est, max) = (" <<
 		  postlists.back()->get_termfreq_min() << ", " <<
@@ -365,7 +366,7 @@ LocalSubMatch::postlist_from_queries(OmQuery::Internal::op_t op,
 // the query tree.
 PostList *
 LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
-				   MultiMatch *matcher)
+				   MultiMatch *matcher, bool is_bool)
 {
     switch (query->op) {
 	case OmQuery::Internal::OP_UNDEF: {
@@ -381,7 +382,12 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 	
 	    // FIXME: pass the weight type and the info needed to create it to the
 	    // postlist instead
-	    IRWeight * wt = mk_weight(query);
+	    IRWeight * wt;
+	    if (is_bool) {
+		wt = new BoolWeight(opts);
+	    } else {
+		wt = mk_weight(query);
+	    }
 	    info.termweight = wt->get_maxpart();
 
 	    // MULTI - this statssource should be the combined one...
@@ -407,28 +413,29 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 	    // ELITE_SET
 	    return postlist_from_queries(query->op, query->subqs,
 					 query->window, query->elite_set_size,
-					 matcher);
+					 matcher, is_bool);
 	case OmQuery::OP_FILTER:
 	    Assert(query->subqs.size() == 2);
-	    return new FilterPostList(postlist_from_query(query->subqs[0], matcher),
-				      postlist_from_query(query->subqs[1], matcher),
+	    return new FilterPostList(postlist_from_query(query->subqs[0], matcher, is_bool),
+				      postlist_from_query(query->subqs[1], matcher, true),
 				      matcher,
 				      db->get_doccount());
 	case OmQuery::OP_AND_NOT:
 	    Assert(query->subqs.size() == 2);
-	    return new AndNotPostList(postlist_from_query(query->subqs[0], matcher),
-				      postlist_from_query(query->subqs[1], matcher),
+	    return new AndNotPostList(postlist_from_query(query->subqs[0], matcher, is_bool),
+				      postlist_from_query(query->subqs[1], matcher, true),
 				      matcher,
 				      db->get_doccount());
 	case OmQuery::OP_AND_MAYBE:
 	    Assert(query->subqs.size() == 2);
-	    return new AndMaybePostList(postlist_from_query(query->subqs[0], matcher),
-					postlist_from_query(query->subqs[1], matcher),
+	    return new AndMaybePostList(postlist_from_query(query->subqs[0], matcher, is_bool),
+					postlist_from_query(query->subqs[1], matcher, is_bool),
 					matcher);
 
 	case OmQuery::OP_WEIGHT_CUTOFF:
 	    Assert(query->subqs.size() == 1);
-	    return new WeightCutoffPostList(postlist_from_query(query->subqs[0], matcher),
+	    // FIXME: if is_bool, then do what?
+	    return new WeightCutoffPostList(postlist_from_query(query->subqs[0], matcher, is_bool),
 					    query->cutoff,
 					    matcher);
 	case OmQuery::OP_PERCENT_CUTOFF:
@@ -468,7 +475,7 @@ LocalSubMatch::prepare_match(bool nowait)
 PostList *
 LocalSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
 {
-    PostList *pl = postlist_from_query(&users_query, matcher);
+    PostList *pl = postlist_from_query(&users_query, matcher, false);
     IRWeight *wt = mk_weight();
     // don't bother with an ExtraWeightPostList if there's no extra weight
     // contribution.

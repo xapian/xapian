@@ -1,3 +1,9 @@
+Tue Dec 11 13:06:08 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Don't work out probabilistic weights for boolean bits of the query (rhs
+	  of FILTER and AND_NOT) which fixes incorrect percentage weights in filtered
+	  queries.
+
 Tue Dec 11 12:26:44 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Added test singlesubq1 to keep an eye on can_replace_by_single_subq.

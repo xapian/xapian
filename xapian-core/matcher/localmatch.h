@@ -78,11 +78,13 @@ class LocalSubMatch : public SubMatch {
 				const OmQuery::Internal::subquery_list &queries,
 				om_termpos window,
 				om_termcount elite_set_size,
-				MultiMatch *matcher);
+				MultiMatch *matcher,
+				bool is_bool);
 
 	/// Make a postlist from a query object
 	PostList *postlist_from_query(const OmQuery::Internal * query,
-				      MultiMatch *matcher);
+				      MultiMatch *matcher,
+				      bool is_bool);
 
 	void register_term(const om_termname &tname) {
 	    statssource->my_termfreq_is(tname, db->get_termfreq(tname));
