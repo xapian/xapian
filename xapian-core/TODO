@@ -32,6 +32,9 @@ Priority | Area            | Task
  High    |CDistribution    | Make timeouts configurable with a sensible
          |                 | default.
 ---------+-----------------+--------------------------------------------------
+ High    | Tests	   | Make apitest's tests use all backends, not just
+         |                 | inmemory.
+---------+-----------------+--------------------------------------------------
  High    | Distribution    | Add support for Expand
 ---------+-----------------+--------------------------------------------------
  Medium  | Matchers        | Merge get_max_weight() into result of get_mset()
