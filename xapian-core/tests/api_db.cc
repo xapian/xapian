@@ -109,8 +109,11 @@ static bool test_simplequery2()
     mset_expect_order(mymset, 2, 4);
 
     // Check the weights
-    weights_are_equal_enough(mymset.items[0].wt, 0.661095);
-    weights_are_equal_enough(mymset.items[1].wt, 0.56982);
+    //these weights are for C=.5 in bm25weight
+    //weights_are_equal_enough(mymset.items[0].wt, 0.661095);
+    //weights_are_equal_enough(mymset.items[1].wt, 0.56982);
+    weights_are_equal_enough(mymset.items[0].wt, 0.523241);
+    weights_are_equal_enough(mymset.items[1].wt, 0.320494);
 
     return true;
 }
@@ -1540,7 +1543,8 @@ static bool test_qlen1()
     OmMSet mset1 = do_get_simple_query_mset(q1);
     OmMSet mset2 = do_get_simple_query_mset(q2);
     // Check the weights
-    return (mset1.items[0].wt < mset2.items[0].wt);
+    TEST(mset1.items[0].wt < mset2.items[0].wt);
+    return true;
 }
 
 // tests that opening a non-existant termlist throws the correct exception
