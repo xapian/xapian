@@ -547,7 +547,8 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
 		0);
 
 	// Remove the attributes
-	// FIXME: implement
+	QuartzAttributesManager::delete_all_attributes(*(buffered_tables->get_attribute_table()),
+						       did);
 
 	// Remove the termlist.
 	QuartzTermList::delete_termlist(buffered_tables->get_termlist_table(),
@@ -583,14 +584,88 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
     OmLockSentry sentry(database_ro.quartz_mutex);
 
     Assert(buffered_tables != 0);
-    //return modifications->replace_document(did, document);
+    DEBUGCALL(DB, void,
+	      "QuartzWritableDatabase::do_replace_document", document);
 
-    // Note: If an error occurs while adding a document, or doing any other
-    // transaction, the modifications so far must be cleared before
-    // returning control to the user - otherwise partial modifications will
-    // persist in memory, and eventually get written to disk.
+    // Calculate the new document length
+    quartz_doclen_t new_doclen = 0;
+    {
+	OmTermIterator term = document.termlist_begin();
+	OmTermIterator term_end = document.termlist_end();    
+	for ( ; term != term_end; ++term) {
+	    new_doclen += term.get_wdf();
+	}
+    }
 
-    throw OmUnimplementedError("QuartzWritableDatabase::do_replace_document() not yet implemented");
+    try {
+	// Replace the record
+	QuartzRecordManager::replace_record(
+		*(buffered_tables->get_record_table()),
+		document.get_data(),
+		did);
+
+	// Replace the attributes.
+	QuartzAttributesManager::delete_all_attributes(
+		*(buffered_tables->get_attribute_table()),
+		did);
+	{
+	    OmKeyListIterator key = document.keylist_begin();
+	    OmKeyListIterator key_end = document.keylist_end();
+	    for ( ; key != key_end; ++key) {
+		QuartzAttributesManager::add_attribute(
+		    *(buffered_tables->get_attribute_table()),
+		    *key, did, key.get_keyno());
+	    }
+	}
+
+	// Set the termlist.
+	quartz_doclen_t old_doclen;
+	{
+	    QuartzDatabase::RefCntPtrToThis tmp;
+	    RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
+
+	    QuartzTermList termlist(ptrtothis,
+				    database_ro.tables->get_termlist_table(),
+				    database_ro.tables->get_lexicon_table(),
+				    did,
+				    database_ro.get_doccount_internal());
+
+	    termlist.next();
+	    while (!termlist.at_end()) {
+	        om_termname tname = termlist.get_termname();
+	        QuartzPostList::delete_entry(buffered_tables->get_postlist_table(),
+		    tname, did);
+	        QuartzPositionList::delete_positionlist(
+		    buffered_tables->get_positionlist_table(),
+		    did, tname);
+	        QuartzLexicon::decrement_termfreq(
+		    buffered_tables->get_lexicon_table(),
+		    tname);
+	        termlist.next();
+	    }
+
+	    old_doclen = termlist.get_doclength();
+	}
+
+	QuartzTermList::set_entries(buffered_tables->get_termlist_table(), did,
+		document.termlist_begin(), document.termlist_end(),
+		new_doclen, false);
+
+	// Set the new document length
+	QuartzRecordManager::modify_total_length(
+		*(buffered_tables->get_record_table()),
+		old_doclen,
+		new_doclen);
+
+    } catch (...) {
+	// If an error occurs while adding a document, or doing any other
+	// transaction, the modifications so far must be cleared before
+	// returning control to the user - otherwise partial modifications will
+	// persist in memory, and eventually get written to disk.
+	buffered_tables->cancel();
+
+	throw;
+    }
 
     // FIXME: this should be configurable
     // FIXME: this should be done by checking memory usage, not the number of

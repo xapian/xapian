@@ -1,3 +1,12 @@
+Wed Mar 28 10:25:35 BST 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* QuartzDatabase now implements replace_document(), and 
+	  delete_document() now removes keys/attributes as well.
+	  However, postlist entries are not yet correctly removed,
+	  so this will cause problems.
+
+	* Added a test for deleting/replacing documents, which passes.
+
 Tue Mar 27 17:31:58 BST 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* QuartzAttributes now has a method to delete a document's

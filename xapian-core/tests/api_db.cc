@@ -2351,6 +2351,53 @@ static bool test_databaseassign1()
     return true;
 }
 
+// tests that deletion and updating of documents works as expected
+static bool test_deldoc1()
+{
+    OmWritableDatabase db = get_writable_database("");
+
+    OmDocument doc1;
+
+    doc1.add_posting("foo", 1);
+    doc1.add_posting("foo", 1);
+    doc1.add_posting("foo", 2);
+    doc1.add_posting("foo", 2);
+    doc1.add_posting("bar", 3);
+    doc1.add_posting("gone", 1);
+    om_docid did;
+
+    did = db.add_document(doc1);
+    TEST_EQUAL(did, 1);
+
+    doc1.remove_term("gone");
+
+    db.add_document(doc1);
+
+    doc1.add_term_nopos("new", 1);
+    db.add_document(doc1);
+
+    db.delete_document(1);
+
+    TEST_EXCEPTION(OmDocNotFoundError, db.get_document(1));
+
+    doc1 = db.get_document(2);
+    doc1.remove_term("foo");
+    doc1.add_term_nopos("fwing");
+    db.replace_document(2, doc1);
+
+    OmDocument doc2 = db.get_document(2);
+    OmTermIterator tit = doc2.termlist_begin();
+    TEST_NOT_EQUAL(tit, doc2.termlist_end());
+    TEST_EQUAL(*tit, "bar");
+    tit++;
+    TEST_NOT_EQUAL(tit, doc2.termlist_end());
+    TEST_EQUAL(*tit, "fwing");
+    tit++;
+    TEST_EQUAL(tit, doc2.termlist_end());
+
+    return true;
+}
+
 // tests that wqf affects the document weights
 static bool test_wqf1()
 {
@@ -2711,6 +2758,7 @@ test_desc writabledb_tests[] = {
     {"adddoc2",		   test_adddoc2},
     {"implicitendsession1",test_implicitendsession1},
     {"databaseassign1",	   test_databaseassign1},
+    {"deldoc1",		   test_deldoc1},
     {0, 0}
 };
 
