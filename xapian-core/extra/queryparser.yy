@@ -424,6 +424,13 @@ more_term:
      case '_': case '/': case '\\': case '@':
      case '\'': case '*':
 	/* these characters generate a phrase search */
+	if (qptr - 1 == q.begin()) {
+	    /* Ignore at start of query */
+	    return yylex();
+	}
+	// Ignore at end of query
+	if (qptr == q.end()) return 0;
+
 	if (!isalnum(*qptr)) break;
 	if (qptr - 1 != q.begin()) {
 	    int prevch = *(qptr - 2);

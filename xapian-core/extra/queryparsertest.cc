@@ -70,6 +70,7 @@ static test tests[] = {
     { "hard\xa0space", "(hard:(pos=1) OR space:(pos=2))" },
     { " white\r\nspace\ttest ", "(white:(pos=1) OR space:(pos=2) OR test:(pos=3))" },
     { "!!!MAGIC!!!", "(weird:(pos=1) OR stuff:(pos=2))" }, // !!!MAGIC!!! replaced below
+    { "one AND/two/three", "(one:(pos=1) AND (two:(pos=2) PHRASE 2 three:(pos=3)))" },
     // These are currently parse errors, but many shouldn't be:
     { "behuizing 19\" inch", NULL },
     { "\"missing quote", NULL }, //"(miss:(pos=1) PHRASE 2 quot:(pos=2))" },
