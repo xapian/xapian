@@ -1,3 +1,7 @@
+Mon Sep 18 12:59:39 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Keep a count of the skipped tests.
+
 Mon Sep 18 12:31:05 BST 2000 Olly Betts
 
 	* acinclude.m4 generation moved from buildall to a separate script

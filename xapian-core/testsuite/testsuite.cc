@@ -324,7 +324,7 @@ test_driver::do_run_tests(std::vector<std::string>::const_iterator b,
     std::set<std::string> m(b, e);
     bool check_name = !m.empty();
 
-    test_driver::result result = {0, 0};
+    test_driver::result result = {0, 0, 0};
 
     for (const test_desc *test = tests; test->name; test++) {
 	if (!check_name || (m.find(test->name) != m.end())) {
@@ -345,6 +345,7 @@ test_driver::do_run_tests(std::vector<std::string>::const_iterator b,
 		}
 	    } catch (const TestSkip &e) {
 		// ignore the result of this test.
+		++result.skipped;
 	    }
 	}
     }
@@ -409,8 +410,12 @@ int test_driver::main(int argc,
     if (myresult.succeeded != 0 || myresult.failed != 0) {
 	std::cout << argv[0] << " completed test run: "
 	    << myresult.succeeded << " tests passed, "
-	    << myresult.failed << " failed."
-	    << std::endl;
+	    << myresult.failed << " failed";
+	if (myresult.skipped) {
+	    std::cout << ", " << myresult.skipped << " skipped." << std::endl;
+	} else {
+	    std::cout << "." << std::endl;
+	}
     }
 
     return (bool)myresult.failed; // if 0, then everything passed

@@ -91,6 +91,9 @@ class test_driver {
 
 	    /// The number of tests which failed.
 	    unsigned int failed;
+
+	    /// The number of tests which were skipped
+	    unsigned int skipped;
 	};
 
 	/** main() replacement.  Standard OM test suite programs

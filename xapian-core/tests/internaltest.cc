@@ -108,10 +108,12 @@ bool test_testsuite1()
 
     test_driver::result res = driver.run_tests();
     if (res.succeeded != 1 ||
-	res.failed != 1) {
+	res.failed != 1 ||
+	res.skipped != 1) {
 	if (verbose) {
 	    cout << res.succeeded << " succeeded, "
-		 << res.failed << " failed." << endl;
+		 << res.failed << " failed,"
+		 << res.skipped << " skipped." << endl;
 	}
 	success = false;
     }

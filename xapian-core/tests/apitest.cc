@@ -88,7 +88,8 @@ get_writable_database(const string &dbname)
     cout << "Running " << #T << " tests with " << (B) << " backend..." << endl;\
     result = max(result, test_driver::main(argc, argv, T##_tests, &sum_temp));\
     summary.succeeded += sum_temp.succeeded;\
-    summary.failed += sum_temp.failed; } else (void)0
+    summary.failed += sum_temp.failed;\
+    summary.skipped += sum_temp.skipped; } else (void)0
 
 int main(int argc, char *argv[])
 {
@@ -98,7 +99,7 @@ int main(int argc, char *argv[])
     if (p) backend = p;
 
     int result = 0;
-    test_driver::result summary = {0, 0};
+    test_driver::result summary = {0, 0, 0};
 
     backendmanager.set_datadir(srcdir + "/testdata/");
 
@@ -155,7 +156,8 @@ int main(int argc, char *argv[])
 #endif
 
     cout << argv[0] << " total: " << summary.succeeded << " passed, "
-	 << summary.failed << " failed." << endl;
+	 << summary.failed << " failed, " 
+	 << summary.skipped << " skipped." << endl;
 
     return result;
 }
