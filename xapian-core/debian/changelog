@@ -1,3 +1,10 @@
+xapian-core (0.8.0-9) unstable; urgency=low
+
+  * Remove build dependencies on tools which aren't required if not using
+    maintainer mode.
+
+ -- Richard Boulton <richard@tartarus.org>  Thu, 27 May 2004 00:37:02 +0100
+
 xapian-core (0.8.0-8) unstable; urgency=low
 
   * Fix minor bugs in debian/rules (trailing backslashes, and missing -p
