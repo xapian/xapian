@@ -1,0 +1,183 @@
+
+  - the following is a ranked list (commonest to rarest) of stopwords
+  - deriving from a large German sample of text. The double S combination
+  - is rendered as 'ss'.
+
+  - After stemming, one form will catch several others (so 'solche' will
+  - catch 'solcher', 'solches', 'solchem', 'solchen' and 'solch'), and
+  - no attempt is made to include a complete set of variant forms of
+  - every word in this list.
+
+  - A few additional words have been added at the end.
+
+und            -  and
+die            -  the
+der            -  the
+in             -  in
+sie            -  she
+zu             -  to
+er             -  he
+das            -  the
+den            -  the
+sich           -  herself
+es             -  it
+ein            -  a
+mit            -  with
+nicht          -  not
+so             -  so
+ich            -  I
+auf            -  on
+war            -  was
+als            -  than, as
+dem            -  the
+von            -  from
+dass           -  that
+aber           -  but
+wie            -  how
+ist            -  is
+eine           -  a
+an             -  at
+auch           -  also
+des            -  of the
+da             -  there
+nur            -  only
+hatte          -  had
+wenn           -  when
+noch           -  still, yet
+im             -  in + dem
+um             -  about, around
+sein           -  his
+aus            -  out of
+fu^ur          -  for
+ihm            -  to him
+einen          -  a
+ihr            -  you, to her
+man            -  one
+oder           -  or
+was            -  what
+nach           -  to(wards)
+denn           -  because
+einem          -  a
+mir            -  to me
+vor            -  before
+einer          -  a
+doch           -  (several meanings)
+ihn            -  him
+nun            -  now
+u^uber         -  over
+wir            -  we
+wu^urde        -  would
+durch          -  through
+werden         -  will
+zum            -  zu + dem
+diese          -  this
+hat            -  has
+selbst         -  self
+mich           -  me
+waren          -  were
+wieder         -  again
+seine          -  his
+bei            -  by
+du             -  thou
+haben          -  have
+am             -  an + dem
+sind           -  are
+dann           -  then
+welche         -  which
+wird           -  will
+jetzt          -  now
+zur            -  zu + der
+kann           -  can
+dieser         -  this
+ohne           -  without
+ihre           -  her
+sehr           -  very
+ihnen          -  to them
+nichts         -  nothing
+eines          -  a
+seiner         -  his
+hier           -  here
+unter          -  under
+alles          -  all
+wo             -  where
+uns            -  us
+sondern        -  but
+ko^unnte       -  could
+etwas          -  something
+weil           -  because
+also           -  so
+dies           -  this
+bis            -  until
+ob             -  whether
+ko^unnen       -  can
+seinen         -  his
+wa^ahrend      -  while
+seinem         -  his
+vom            -  von + dem
+ihrer          -  her
+habe           -  have
+wollte         -  wanted
+machen         -  do
+muss           -  must
+dieses         -  this
+viel           -  much
+keine          -  no
+hatten         -  had
+ihren          -  her
+einmal         -  once
+diesem         -  this
+kein           -  no
+welches        -  which
+musste         -  had to
+gegen          -  towards
+ihrem          -  her
+meine          -  my
+diesen         -  this
+zwar           -  indeed
+andere         -  other
+mein           -  my
+euch           -  you
+indem          -  while
+ins            -  in + das
+damit          -  with it
+dort           -  (over) there
+dessen         -  of him
+solche         -  such
+wollen         -  want
+welcher        -  which
+wu^urden       -  would
+sonst          -  else
+hinter         -  behind
+gewesen        -  p.p. of sein
+andern         -  other
+dich           -  thee
+bin            -  am
+derselben      -  the same
+einige         -  some
+will           -  want
+sollte         -  should
+dazu           -  to that
+anderen        -  other
+zwischen       -  between
+weg            -  away, off
+weiter         -  further
+dir            -  to thee
+soll           -  shall
+hab            -  have (?)
+werde          -  will
+jeder          -  each, every
+hin            -  there
+
+ - other forms not in the ranking
+
+deiner         -  thy
+euer           -  your
+eure           -  your
+euren          -  your
+dieselbe       -
+dasselbe       -  to supplement derselbe above. derjenige forms ignored.
+jener          -  that
+mancher        -  some, many a
+bist           -  art
+warst          -  wast
+wirst          -  willst
