@@ -143,6 +143,7 @@ OmBatchEnquire::Internal::get_msets() const
 	     */
             result.push_back(batch_result(OmMSet(), false));
 	}
+	++q;
     }
 
     Assert(result.size() == queries.size());

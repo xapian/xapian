@@ -1,3 +1,7 @@
+Thu Mar  9 17:03:35 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added test for OmBatchEnquire (and fixed a bug in it)
+
 Thu Mar  9 16:00:18 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Don't use -O6 when debugging is turned on.  Debug compiles

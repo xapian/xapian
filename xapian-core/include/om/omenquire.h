@@ -709,9 +709,6 @@ class OmBatchEnquire {
 	    const OmRSet * omrset;
 	    const OmMatchOptions * moptions;
 	    const OmMatchDecider * mdecider;
-
-	    // default constructor to set pointers to defaults.
-	    query_desc() : omrset(0), moptions(0), mdecider(0) {};
 	};
 	    
 	typedef vector<query_desc> query_batch;

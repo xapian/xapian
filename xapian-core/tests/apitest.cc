@@ -98,6 +98,10 @@ bool test_querylen3();
 bool test_poscollapse1();
 // tests that collapsing of queries includes subqueries
 bool test_subqcollapse1();
+// test that the batch query functionality works
+bool test_batchquery1();
+// test that running a query twice returns the same results
+bool test_repeatquery1();
 
 om_test tests[] = {
     {"trivial",            test_trivial},
@@ -131,6 +135,8 @@ om_test tests[] = {
     {"querylen3",	   test_querylen3},
     {"poscollapse1",	   test_poscollapse1},
     {"subqcollapse1",	   test_subqcollapse1},
+    {"batchquery1",	   test_batchquery1},
+    {"repeatquery1",	   test_repeatquery1},
     {0, 0}
 };
 
@@ -200,6 +206,7 @@ int main(int argc, char *argv[])
 
     while ((test->name) != 0) {
     	cout << "Running test: " << test->name << "...";
+	cout.flush();
 	bool succeeded = runtest(test);
 	if (succeeded) {
 	    ++num_succeeded;
@@ -1371,6 +1378,94 @@ bool test_subqcollapse1()
 	if(verbose)
 	    cout << "Failed to correctly collapse query: got `" <<
 		    desc2 << "'" << endl;
+    }
+
+    return success;
+}
+
+bool test_batchquery1()
+{
+    bool success = true;
+
+    OmBatchEnquire::query_desc mydescs[3] = {
+	{ OmQuery("thi"), 0, 10, 0, 0, 0},
+	{ OmQuery(), 0, 10, 0, 0, 0},
+	{ OmQuery("word"), 0, 10, 0, 0, 0}};
+
+
+    OmBatchEnquire benq(get_simple_database());
+
+    OmBatchEnquire::query_batch myqueries(mydescs, mydescs+3);
+
+    benq.set_queries(myqueries);
+
+    OmBatchEnquire::mset_batch myresults = benq.get_msets();
+
+    if (myresults.size() != 3) {
+	success = false;
+	if (verbose) {
+	    cout << "Results size is "
+		 << myresults.size()
+		 << ", expected 3."
+		 << endl;
+	}
+    } else {
+	if (myresults[0].value() !=
+	    do_get_simple_query_mset(OmQuery("thi"))) {
+	    success = false;
+	    if (verbose) {
+		cout << "Query 1 returned different result!" << endl;
+	    }
+	}
+ 	if (myresults[1].is_valid()) {
+	    success = false;
+	    if (verbose) {
+		cout << "Query 2 should not be valid" << endl;
+	    }
+	}
+	try {
+	    OmMSet unused = myresults[1].value();
+	    // should have thrown an exception by now.
+	    success = false;
+	    if (verbose) {
+		cout << "Query 2 mset didn't throw an exception" << endl;
+	    }
+	} catch (OmInvalidResultError &) {
+	}
+
+	if (myresults[2].value() !=
+	    do_get_simple_query_mset(OmQuery("word"))) {
+	    success = false;
+	    if (verbose) {
+		cout << "Query 3 returned different result!" << endl;
+	    }
+	}
+    }
+
+    return success;
+}
+
+bool test_repeatquery1()
+{
+    bool success = true;
+
+    OmEnquire enquire(get_simple_database());
+    init_simple_enquire(enquire);
+
+    OmQuery myquery(OM_MOP_OR,
+		    OmQuery("thi"),
+		    OmQuery("word"));
+    enquire.set_query(myquery);
+    
+    OmMSet mymset1 = enquire.get_mset(0, 10);
+    OmMSet mymset2 = enquire.get_mset(0, 10);
+
+    if (mymset1 != mymset2) {
+	success = false;
+
+	if (verbose) {
+	    cout << "MSets are different." << endl;
+	}
     }
 
     return success;
