@@ -220,13 +220,18 @@ test_driver::runtest(const test_desc *test)
 		    string s = tout.str();
 		    if (!s.empty()) {
 			out << '\n' << tout.str();
-			if (s[s.size() - 1] |= '\n') out << endl;
+			if (s[s.size() - 1] != '\n') out << endl;
 			tout.str("");
 		    }
 		    out << " " << col_red << "FAILED" << col_reset;
 		    return FAIL;
 		}
 #ifdef HAVE_VALGRIND_MEMCHECK_H
+		// We must empty tout before asking valgrind to perform its
+		// leak checks, otherwise the buffers holding the output may
+		// be identified as a memory leak (especially if >1K of output
+		// has been buffered it appears...)
+	        tout.str("");
 #define REPORT_FAIL_VG(M) do { \
     if (verbose) { \
 	lseek(LOG_FD_FOR_VG, 0, SEEK_SET); \
@@ -285,7 +290,7 @@ test_driver::runtest(const test_desc *test)
 		string s = tout.str();
 		if (!s.empty()) {
 		    out << '\n' << tout.str();
-		    if (s[s.size() - 1] |= '\n') out << endl;
+		    if (s[s.size() - 1] != '\n') out << endl;
 		    tout.str("");
 		}
 		out << " " << col_red << "FAILED" << col_reset;
@@ -294,7 +299,7 @@ test_driver::runtest(const test_desc *test)
 		string s = tout.str();
 		if (!s.empty()) {
 		    out << '\n' << tout.str();
-		    if (s[s.size() - 1] |= '\n') out << endl;
+		    if (s[s.size() - 1] != '\n') out << endl;
 		    tout.str("");
 		}
 		out << " " << col_yellow << "SKIPPED" << col_reset;
@@ -308,7 +313,7 @@ test_driver::runtest(const test_desc *test)
 		string s = tout.str();
 		if (!s.empty()) {
 		    out << '\n' << tout.str();
-		    if (s[s.size() - 1] |= '\n') out << endl;
+		    if (s[s.size() - 1] != '\n') out << endl;
 		    tout.str("");
 		}
 		out << " " << col_red << errclass << col_reset;
@@ -325,7 +330,7 @@ test_driver::runtest(const test_desc *test)
 		string s = tout.str();
 		if (!s.empty()) {
 		    out << '\n' << tout.str();
-		    if (s[s.size() - 1] |= '\n') out << endl;
+		    if (s[s.size() - 1] != '\n') out << endl;
 		    tout.str("");
 		}
 		out << " " << col_red << "EXCEPT" << col_reset;
@@ -339,7 +344,7 @@ test_driver::runtest(const test_desc *test)
 	    string s = tout.str();
 	    if (!s.empty()) {
 		out << '\n' << tout.str();
-		if (s[s.size() - 1] |= '\n') out << endl;
+		if (s[s.size() - 1] != '\n') out << endl;
 		tout.str("");
 	    }
 	    const char *sig = "SIGNAL";

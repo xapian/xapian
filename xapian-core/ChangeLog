@@ -1,3 +1,11 @@
+Sun Sep 07 02:09:50 BST 2003  Olly Betts <olly@survex.com>
+
+	* testsuite/testsuite.cc: Delete any buffered test output before
+	  asking valgrind to check for leaks, as otherwise the buffered
+	  output may be reported as a leak; also fixed |= to != in several
+	  places - a cosmetic bug which lead to extra newlines after test
+	  output.
+
 Sun Sep 07 00:09:32 BST 2003  Olly Betts <olly@survex.com>
 
 	* testsuite/testsuite.cc: Actaully open temporary file for valgrind
