@@ -1,3 +1,7 @@
+Wed Jun 28 17:58:50 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Make testsuite's memory checking threadsafe.
+
 Wed Jun 28 16:24:49 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix deadlock in da_database.cc.

@@ -36,6 +36,12 @@
 #include "om/omerror.h"
 #include "testsuite.h"
 
+#ifdef HAVE_LIBPTHREAD
+#include <pthread.h>
+
+pthread_mutex_t test_driver_mutex;
+#endif // HAVE_LIBPTHREAD
+
 class null_streambuf : public streambuf {
 };
 
@@ -87,11 +93,17 @@ static allocation_info new_allocations[max_allocations];
  *  the built-in malloc so easily in implementation.)
  */
 void *operator new(size_t size) throw(bad_alloc) {
+#ifdef HAVE_LIBPTHREAD
+    pthread_mutex_lock(&test_driver_mutex);
+#endif // HAVE_LIBPTHREAD
     size_t real_size = (size > 0)? size : 1;
 
     void *result = malloc(real_size);
 
     if (!result) {
+#ifdef HAVE_LIBPTHREAD
+    pthread_mutex_unlock(&test_driver_mutex);
+#endif // HAVE_LIBPTHREAD
 	throw bad_alloc();
     }
 
@@ -107,10 +119,20 @@ void *operator new(size_t size) throw(bad_alloc) {
 	++num_new_allocations;
     }
 
+#ifdef HAVE_LIBPTHREAD
+    pthread_mutex_unlock(&test_driver_mutex);
+#endif // HAVE_LIBPTHREAD
     return result;
 }
 
+/// This method is simply here to be an easy place to set a break point
+void memory_weirdness() {
+}
+
 void operator delete(void *p) throw() {
+#ifdef HAVE_LIBPTHREAD
+    pthread_mutex_lock(&test_driver_mutex);
+#endif // HAVE_LIBPTHREAD
     if (p) {
 	bool found_it = false;
 	for (int i = new_allocations_bound - 1;
@@ -135,11 +157,15 @@ void operator delete(void *p) throw() {
 	    fprintf(stderr,
 		    "Trying to delete %p which wasn't allocated with new\n",
 		    p);
+	    memory_weirdness();
 	}
 
 	--num_new_allocations;
 	free(p);
     }
+#ifdef HAVE_LIBPTHREAD
+    pthread_mutex_unlock(&test_driver_mutex);
+#endif // HAVE_LIBPTHREAD
 }
 
 //  A wrapper around the tests to trap exceptions,
@@ -248,6 +274,9 @@ int test_driver::main(int argc,
 		      test_driver::result *summary)
 {
     bool fussy = true;
+#ifdef HAVE_LIBPTHREAD
+    pthread_mutex_init(&test_driver_mutex, 0);
+#endif // HAVE_LIBPTHREAD
 
     int c;
 
