@@ -168,7 +168,6 @@ Match::match()
     recalculate_maxweight = true;
     weight w_max;
 
-    // FIXME: clean all this up
     // FIXME: partial_sort?
     // FIXME: quicker to just resort whole lot than sort and merge?
     while (1) {
@@ -205,6 +204,8 @@ Match::match()
 	    docid id = merger->get_docid();
 	    mset.push_back(MSetItem(w, id));
 
+	    // FIXME: find balance between larger size for more efficient
+	    // resorting and smaller size for better w_min optimisations
 	    if (mset.size() == max_msize * 2) {
 	        // sort new elements
 	        cout << "sorting\n";		
