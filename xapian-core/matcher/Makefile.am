@@ -2,7 +2,7 @@
 
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
-INCLUDES = -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
 include_HEADERS = orpostlist.h andpostlist.h andnotpostlist.h \
  andmaybepostlist.h xorpostlist.h branchpostlist.h filterpostlist.h \
