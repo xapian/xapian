@@ -26,6 +26,13 @@
 class SleepyDatabaseInternals;
 class SleepyDatabase;
 
+/** Termname to termID mappings.
+ *
+ *  This class maintains a cache of termname to termID mappings, looking
+ *  up in the database only when required.
+ *
+ *  Entries are not deleted from the cache until the object is destroyed.
+ */
 class SleepyDatabaseTermCache {
     friend class SleepyDatabase;
     private:

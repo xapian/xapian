@@ -30,6 +30,9 @@
 
 typedef unsigned int entry_type;   // Able to represent any entry
 
+/** A list of items which might comprise a termlist or a postlist,
+ *  which are stored in a sleepycat database.
+ */
 class SleepyList {
     private:
 	Db *db;

@@ -30,7 +30,8 @@
 #include "database.h"
 #include <stdlib.h>
 
-// Postlist - a list of documents indexed by a given term
+/** A poslist in a sleepycat database.
+ */
 class SleepyPostList : public LeafPostList {
     friend class SleepyDatabase;
     private:

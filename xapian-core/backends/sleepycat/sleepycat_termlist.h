@@ -33,7 +33,8 @@
 #include "om/omtypes.h"
 #include "sleepy_termcache.h"
 
-// Termlist - a list of terms indexing a given document
+/** A termlist in a sleepycat database.
+ */
 class SleepyTermList : public LeafTermList {
     friend class SleepyDatabase;
     private:
