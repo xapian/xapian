@@ -42,6 +42,10 @@ QuartzPositionList::read_data(const QuartzTable * table,
 	data = "";
 	pos = data.data();
 	end = pos;
+	is_at_end = true;
+	have_started = false;
+	current_pos = 0;
+	number_of_entries = 0;
 	return;
     }
 

@@ -1758,8 +1758,10 @@ static bool test_positionlist1()
 
     QuartzPositionList pl;
 
-    TEST_EXCEPTION(OmDocNotFoundError, pl.read_data(&bufftable, 1, "foobar"));
-    TEST_EXCEPTION(OmDocNotFoundError, pl.read_data(&bufftable, 2, "foo"));
+    pl.read_data(&bufftable, 1, "foobar");
+    TEST_EQUAL(pl.get_size(), 0);
+    pl.read_data(&bufftable, 2, "foo");
+    TEST_EQUAL(pl.get_size(), 0);
     pl.read_data(&bufftable, 1, "foo");
     TEST_EQUAL(pl.get_size(), 4);
 

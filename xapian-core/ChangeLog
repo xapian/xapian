@@ -1,3 +1,9 @@
+Fri Mar 16 15:40:49 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Fix up small bug in quartztest causing it to fail for lack of an
+	  expected exception.  Initialise values in quartz_positionlist.cc
+	  when position list is not present.
+
 Thu Mar 15 17:40:38 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Make timeout absolute, rather than cumulative, when fetching
