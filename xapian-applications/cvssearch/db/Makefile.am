@@ -26,9 +26,9 @@ cvsminesearch_SOURCES = util.h util.C cvsminesearch.C
 cvsminesearch_LDFLAGS = -static
 cvsminesearch_LDADD = -lomsee
 
-cvsusagesearch_SOURCES = util.h util.C cvsusagesearch.C
-cvsusagesearch_LDFLAGS = -static 
-cvsusagesearch_LDADD = -lomsee
+#cvsusagesearch_SOURCES = util.h util.C cvsusagesearch.C
+#cvsusagesearch_LDFLAGS = -static 
+#cvsusagesearch_LDADD = -lomsee
 
 #cvsclasses_SOURCES = util.h util.C cvspatterns.C
 #cvsclasses_LDADD = -ldb_cxx -lomsee
@@ -36,9 +36,9 @@ cvsusagesearch_LDADD = -lomsee
 #cvsfunctions_SOURCES = util.h util.C cvspatterns.C
 #cvsfunctions_LDADD = -ldb_cxx -lomsee
 
-cvsusageindex_SOURCES = util.h util.C cvsusageindex.C
-cvsusageindex_LDADD = -ldb_cxx -lomsee
-cvsusageindex_LDFLAGS = -static
+#cvsusageindex_SOURCES = util.h util.C cvsusageindex.C
+#cvsusageindex_LDADD = -ldb_cxx -lomsee
+#cvsusageindex_LDFLAGS = -static
 
 cvsmineindex_SOURCES = util.h util.C cvsmineindex.C
 cvsmineindex_LDADD = -ldb_cxx -lomsee
