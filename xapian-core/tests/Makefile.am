@@ -2,7 +2,9 @@
 
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
-INCLUDES = -I$(top_srcdir)/include
+# The including of /common should be removed ultimately.
+# ie: when we have an API
+INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
 bin_PROGRAMS = dbtest matchtest idxtest stemtest
 
