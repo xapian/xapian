@@ -105,7 +105,6 @@ set_int4(byte *p, int c, int x)
        I2      the 2 byte length of an item (key-tag pair)
        I3      the two byte item length followed by the 1 byte key kength
        D2      the 2 byte offset to the item from the directory
-       D4      = 2 * D2 (used once!)
        C2      the 2 byte counter that ends each key and begins each tag
 */
 
@@ -113,7 +112,6 @@ set_int4(byte *p, int c, int x)
 #define I2 2
 #define I3 3
 #define D2 2
-#define D4 4
 #define C2 2
 
 /*  and when setting or getting K1, I2, D2, C2 we use SETK, GETK ... defined as: */

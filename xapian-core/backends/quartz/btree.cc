@@ -588,7 +588,7 @@ int Btree::find_in_block(const byte * p, const byte * key, int offset, int c)
     }
 
     while (j - i > D2) {
-	int k = i + ((j - i)/D4)*D2; /* mid way */
+	int k = i + ((j - i)/(D2 * 2))*D2; /* mid way */
 	int t = compare_keys(key, p + GETD(p, k) + I2);
 	if (t < 0) j = k; else i = k;
     }
@@ -704,49 +704,6 @@ Btree::split_root(uint4 split_n)
     add_item(b, level);
 }
 
-/** Make an item with key newkey.  Key is optionally truncated to minimal key
- *  that differs from prevkey, the preceding key in a block, and tag containing
- *  a block number.  Must preserve counts at end of the keys, however.
- *
- *  Store result in buffer "result".
- */
-void Btree::make_index_item(byte * result, unsigned int result_len,
-			    const byte * prevkey, const byte * newkey,
-			    const uint4 blocknumber, bool truncate) const
-{
-    Assert(writable);
-    Assert(compare_keys(prevkey, newkey) < 0);
-
-    int prevkey_len = GETK(prevkey, 0) - C2;
-    int newkey_len = GETK(newkey, 0) - C2;
-    int i;
-
-    if (truncate) {
-	i = K1;
-	while (i < prevkey_len && prevkey[i] == newkey[i]) {
-	    i++;
-	}
-
-	// Want one byte of difference.
-	if (i < newkey_len) i++;
-    } else {
-	i = newkey_len;
-    }
-
-    // FIXME: Not ideal - better than buffer overrun though
-    if (I2 + i + C2 + 4 > (int)result_len) {
-	throw Xapian::DatabaseCorruptError("make_index_item: key would have overflowed buffer");
-    }
-
-    SETI(result, 0, I2 + i + C2 + 4); // Set item length
-    SETK(result, I2, i + C2);    // Set key length
-    memmove(result + I2 + K1, newkey + K1, i - K1); // Copy the main part of the key
-    memmove(result + I2 + i, newkey + newkey_len, C2); // copy count part
-
-    // Set tag contents to block number
-    set_int4(result, I2 + i + C2, blocknumber);
-}
-
 /** enter_key(j, prevkey, newkey) is called after a block split.
 
    It enters in the block at level C[j] a separating key for the block
@@ -772,9 +729,34 @@ Btree::enter_key(int j, byte * prevkey, byte * newkey)
     uint4 blocknumber = C[j - 1].n;
 
     // Keys are truncated here: but don't truncate the count at the end away.
-    // FIXME: check that b is big enough.  Dynamically allocate.
-    byte b[UCHAR_MAX + 1];
-    make_index_item(b, UCHAR_MAX + 1, prevkey, newkey, blocknumber, j == 1);
+    const int newkey_len = GETK(newkey, 0) - C2;
+    int i;
+
+    if (j == 1) {
+	// Truncate the key to the minimal key which differs from prevkey,
+	// the preceding key in the block.
+	i = K1;
+	const int prevkey_len = GETK(prevkey, 0) - C2;
+	while (i < prevkey_len && prevkey[i] == newkey[i]) {
+	    i++;
+	}
+
+	// Want one byte of difference.
+	if (i < newkey_len) i++;
+    } else {
+	i = newkey_len;
+    }
+
+    byte b[UCHAR_MAX + 6];
+    Assert(I2 + i + C2 + 4 <= (int)sizeof(b));
+
+    SETI(b, 0, I2 + i + C2 + 4); // Set item length
+    SETK(b, I2, i + C2);    // Set key length
+    memmove(b + I2 + K1, newkey + K1, i - K1); // Copy the main part of the key
+    memmove(b + I2 + i, newkey + newkey_len, C2); // copy count part
+
+    // Set tag contents to block number
+    set_int4(b, I2 + i + C2, blocknumber);
 
     /* when j > 1 we can make the first key of block p null, but is it worth it?
        Other redundant keys still creep in. The code to do it is commented out

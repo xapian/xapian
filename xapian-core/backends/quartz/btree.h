@@ -328,9 +328,6 @@ class Btree {
 	int add_kt(bool found);
 	void read_root();
 	void split_root(uint4 split_n);
-	void make_index_item(byte * result, unsigned int result_len,
-			     const byte * prevkey, const byte * newkey,
-			     const uint4 blocknumber, bool truncate) const;
 	void form_key(const string & key) const;
 
 	/** revision number of the opened B-tree. */
