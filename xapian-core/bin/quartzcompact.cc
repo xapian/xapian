@@ -23,10 +23,10 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
+
 #include <fstream>
 #include <iostream>
-
-using namespace std;
 
 #include <errno.h>
 #include <stdio.h> // for rename()
@@ -37,25 +37,59 @@ using namespace std;
 #include "bcursor.h"
 #include <xapian/version.h>
 
+#include "gnu_getopt.h"
+
+using namespace std;
+
+static void
+usage(const char * progname)
+{
+    cout << "Usage: " << progname
+	 << " [OPTION] <path to source database> "
+	    "<path to destination database>\n\n"
+	    "  -n, --no-full  Disable full compaction"
+	 << endl;
+}
+
 int
 main(int argc, char **argv)
 {
-    // We take two arguments - the path to source databases
-    // and the path to the database to create
-    if (argc != 3) {
-	if (argc == 2 && strcmp(argv[1], "--version") == 0) {
-	    cout << "quartzcompact (xapian) "XAPIAN_VERSION << endl; 
-	    exit(0);
-	}
-	cout << "Usage: " << argv[0]
-	     << " <path to source database> <path to destination database>"
-	     << endl;
-	if (argc == 2 && strcmp(argv[1], "--help") == 0) exit(0);
+    const struct option long_opts[] = {
+	{"no-full",	no_argument, 0, 'n'},
+	{"help",	no_argument, 0, 'h'},
+	{"version",	no_argument, 0, 'v'},
+    };
+
+    bool full_compaction = true;
+
+    int c;
+    while ((c = gnu_getopt_long(argc, argv, "nhv", long_opts, 0)) != EOF) {
+        switch (c) {
+            case 'n':
+		full_compaction = false;
+                break;
+            case 'h':
+		usage(argv[0]);
+		exit(0);
+	    case 'v':
+		cout << "quartzcompact (xapian) "XAPIAN_VERSION << endl; 
+		exit(0);
+            default:
+		usage(argv[0]);
+		exit(1);
+        }
+    }
+
+    if (argc - optind != 2) {
+	usage(argv[0]);
 	exit(1);
     }
 
-    const char *srcdir = argv[1];
-    const char *destdir = argv[2];
+    // Path to the source databases
+    const char *srcdir = argv[optind];
+    // Path to the database to create
+    const char *destdir = argv[optind + 1];
+
     if (strcmp(srcdir, destdir) == 0) {
 	cout << argv[0] << ": source and destination may not be the same directory" << endl;
 	exit(1);
@@ -108,7 +142,7 @@ main(int argc, char **argv)
 	    Btree out(dest, false);
 	    out.create(8192);
 	    out.open();
-	    out.set_full_compaction(true);
+	    out.set_full_compaction(full_compaction);
 
 	    if (in.get_entry_count()) {
 		Bcursor BC(&in);

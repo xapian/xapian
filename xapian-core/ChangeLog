@@ -1,3 +1,13 @@
+Mon Dec 13 00:41:28 GMT 2004  Olly Betts <olly@survex.com>
+
+	* bin/quartzcompact.cc: Added missing '#include <config.h>' so that
+	  largefile support is enabled and we report compression statistics
+	  for tables > 2G.
+	* bin/quartzcompact.cc: Added --no-full / -n option to disable full
+	  compaction.  This may be useful if you want to update the database
+	  after compacting it (need to test to see if this option is actually
+	  useful).
+
 Sun Dec 12 21:26:27 GMT 2004  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Previous attempted fix to --libs output was wrong
