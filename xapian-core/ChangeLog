@@ -1,3 +1,21 @@
+Fri Nov  3 18:33:20 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added several extra checks to cursor behaviour in quartztest.
+
+	* Split QuartzTableEntries::get_item_and_advance() into get_item()
+	  and advance().
+
+	* Change AssertEqDouble to AssertEq - it works usefully for lots of
+	  types.
+
+	* Implemented QuartzDiskTable cursor operations fully.
+	  Implemented QuartzBuffTable cursors except for coping with
+	  entries deleted in buffer but not on disk.
+
+	* Typedefed contents of QuartzTableEntries, and added iterator methods.
+
+	* quartztest tests of tables unlink old tables before running.
+
 Fri Nov 03 17:29:05 GMT 2000 Olly Betts
 
 	* Remote streamed mset now listens to min_weight and skip_to

@@ -80,9 +80,9 @@ QuartzTableEntries::get_iterator(const QuartzDbKey & key) const
 }
 
 bool
-QuartzTableEntries::get_item_and_advance(items::const_iterator iter,
-					 const QuartzDbKey ** keyptr,
-					 const QuartzDbTag ** tagptr) const
+QuartzTableEntries::get_item(items::const_iterator iter,
+			     const QuartzDbKey ** keyptr,
+			     const QuartzDbTag ** tagptr) const
 {
     if (iter == entries.end()) {
 	return false;
@@ -91,8 +91,13 @@ QuartzTableEntries::get_item_and_advance(items::const_iterator iter,
     *keyptr = &(iter->first);
     *tagptr = iter->second;
 
-    iter++;
     return true;
+}
+
+void
+QuartzTableEntries::advance(items::const_iterator iter) const
+{
+    if (iter != entries.end()) iter++;
 }
 
 bool

@@ -635,6 +635,11 @@ static bool test_cursor1()
     key.value = "foo25";
     bufftable1.get_or_make_tag(key)->value = "bar25";
 
+    key.value = "foo26";
+    bufftable1.delete_tag(key);
+    key.value = "foo1";
+    bufftable1.delete_tag(key);
+
     key.value = "foo25";
     tag.value = "";
     AutoPtr<QuartzCursor> cursor(disktable1.make_cursor());
@@ -657,6 +662,17 @@ static bool test_cursor1()
     TEST_EQUAL(key.value, "foo3");
     TEST_EQUAL(tag.value, "bar3");
 
+    key.value = "foo26";
+    tag.value = "";
+    cursor = bufftable1.make_cursor();
+    TEST(!bufftable1.get_nearest_entry(key, tag, *cursor));
+    TEST_EQUAL(key.value, "foo25");
+    TEST_EQUAL(tag.value, "bar25");
+
+    TEST(bufftable1.get_next_entry(key, tag, *cursor));
+    TEST_EQUAL(key.value, "foo3");
+    TEST_EQUAL(tag.value, "bar3");
+
     key.value = "foo2";
     tag.value = "";
     TEST(!bufftable1.get_nearest_entry(key, tag, *cursor));
@@ -666,6 +682,37 @@ static bool test_cursor1()
     TEST(bufftable1.get_next_entry(key, tag, *cursor));
     TEST_EQUAL(key.value, "foo25");
     TEST_EQUAL(tag.value, "bar25");
+
+    TEST(bufftable1.get_next_entry(key, tag, *cursor));
+    TEST_EQUAL(key.value, "foo3");
+    TEST_EQUAL(tag.value, "bar3");
+
+    key.value = "foo1";
+    tag.value = "";
+    TEST(!bufftable1.get_nearest_entry(key, tag, *cursor));
+    TEST_EQUAL(key.value, "foo2");
+    TEST_EQUAL(tag.value, "bar2");
+
+    TEST(bufftable1.get_next_entry(key, tag, *cursor));
+    TEST_EQUAL(key.value, "foo25");
+    TEST_EQUAL(tag.value, "bar25");
+
+    TEST(bufftable1.get_next_entry(key, tag, *cursor));
+    TEST_EQUAL(key.value, "foo3");
+    TEST_EQUAL(tag.value, "bar3");
+
+    new_revision += 1;
+    TEST(bufftable1.apply(new_revision));
+
+    key.value = "foo25";
+    bufftable1.delete_tag(key);
+
+    key.value = "foo25";
+    tag.value = "";
+    cursor = bufftable1.make_cursor();
+    TEST(!bufftable1.get_nearest_entry(key, tag, *cursor));
+    TEST_EQUAL(key.value, "foo2");
+    TEST_EQUAL(tag.value, "bar2");
 
     TEST(bufftable1.get_next_entry(key, tag, *cursor));
     TEST_EQUAL(key.value, "foo3");

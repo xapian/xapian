@@ -134,8 +134,7 @@ class QuartzTableEntries {
 	 */
 	items::const_iterator get_iterator(const QuartzDbKey & key) const;
 
-	/** Get the item pointed to by the iterator, and then advance the
-	 *  iterator.
+	/** Get the item pointed to by the iterator.
 	 *
 	 *  If the iterator doesn't point to an item, the keyptr and tagptr
 	 *  are unmodified.
@@ -152,9 +151,13 @@ class QuartzTableEntries {
 	 *
 	 *  @return true if the iterator pointed to an item, false if not.
 	 */
-	bool get_item_and_advance(items::const_iterator iter,
-				  const QuartzDbKey ** keyptr,
-				  const QuartzDbTag ** tagptr) const;
+	bool get_item(items::const_iterator iter,
+		      const QuartzDbKey ** keyptr,
+		      const QuartzDbTag ** tagptr) const;
+
+	/** Advance the iterator, unless it is already at the end.
+	 */
+	void advance(items::const_iterator iter) const;
 
 	/** Return whether there are any entries stored in this object.
 	 *

@@ -242,8 +242,8 @@ QuartzDiskTable::get_next_entry(QuartzDbKey &key,
     // FIXME: check for errors
 
     // FIXME: unwanted copies
-    tag.value = string(reinterpret_cast<char *>(item->tag), item->tag_len);
     key.value = string(reinterpret_cast<char *>(item->key), item->key_len);
+    tag.value = string(reinterpret_cast<char *>(item->tag), item->tag_len);
 
     return true;
 }
@@ -481,8 +481,9 @@ QuartzBufferedTable::get_nearest_entry(QuartzDbKey &key,
     const QuartzDbKey * keyptr;
     const QuartzDbTag * tagptr;
 
+    bool have_item = changed_entries.get_item(cursor.iter, &keyptr, &tagptr);
     // We should have an item, even if it's just the initial null item
-    Assert(changed_entries.get_item_and_advance(cursor.iter, &keyptr, &tagptr));
+    Assert(have_item);
 
     if (keyptr->value == key.value) {
 	// Have an exact match in changed entries => this is the one to use
@@ -496,22 +497,23 @@ QuartzBufferedTable::get_nearest_entry(QuartzDbKey &key,
 	    Assert(!have_exact);
 	    key = *keyptr;
 	    tag = *tagptr;
-	    // Advance the disktable part, not caring whether it now points
-	    // to an entry, but if it does it must be an entry > key asked
-	    // for and therefore > key found.
-	    disktable->get_next_entry(cursor.current_key,
-				      cursor.current_tag,
-				      cursor);
-
 	} else {
 	    Assert(have_exact || key.value != cursor.current_key.value);
 	    key = cursor.current_key;
 	    tag = cursor.current_tag;
-	    // Advance iterator, not caring whether it now points
-	    // to an entry, but if it does it must be an entry > key asked
-	    // for and therefore > key found.
-	    changed_entries.get_item_and_advance(cursor.iter, &keyptr, &tagptr);
 	}
+
+	// Advance the disktable part.  If it now points to an entry it
+	// must be an entry > key asked for.  If it doesn't, we store an
+	// entry of value "".
+	int read_entry = disktable->get_next_entry(cursor.current_key,
+						   cursor.current_tag,
+						   cursor);
+	if (!read_entry) cursor.current_key.value = "";
+
+	// Advance iterator.  If it now points to an entry it must be an
+	// entry > key asked for.
+	changed_entries.advance(cursor.iter);
     }
 
     return have_exact;
@@ -522,18 +524,43 @@ QuartzBufferedTable::get_next_entry(QuartzDbKey &key,
 				    QuartzDbTag &tag,
 				    QuartzCursor &cursor) const
 {
-    bool have_entry;
+    // Read item from iterator;
 
-    have_entry = disktable->get_next_entry(cursor.current_key,
-					   cursor.current_tag,
-					   cursor);
+    const QuartzDbKey * keyptr;
+    const QuartzDbTag * tagptr;
 
-    if (have_entry) {
+    bool iter_valid = changed_entries.get_item(cursor.iter, &keyptr, &tagptr);
+    bool current_valid = (cursor.current_key.value.size() != 0); 
+
+    if (iter_valid && current_valid) {
+	// Pick earlier one;
+	if (*keyptr < cursor.current_key) {
+	    key = *keyptr;
+	    tag = *tagptr;
+	    changed_entries.advance(cursor.iter);
+	} else {
+	    key = cursor.current_key;
+	    tag = cursor.current_tag;
+	    int read_entry = disktable->get_next_entry(cursor.current_key,
+						       cursor.current_tag,
+						       cursor);
+	    if (!read_entry) cursor.current_key.value = "";
+	}
+    } else if (iter_valid) {
+	key = *keyptr;
+	tag = *tagptr;
+	changed_entries.advance(cursor.iter);
+    } else if (current_valid) {
 	key = cursor.current_key;
 	tag = cursor.current_tag;
+	int read_entry = disktable->get_next_entry(cursor.current_key,
+						   cursor.current_tag,
+						   cursor);
+	if (!read_entry) cursor.current_key.value = "";
+    } else {
+	return false;
     }
-
-    return have_entry;
+    return true;
 }
 
 bool
