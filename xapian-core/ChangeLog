@@ -1,3 +1,7 @@
+Thu Mar 11 01:56:19 GMT 2004  Olly Betts <olly@survex.com>
+
+	* include/xapian/query.h: Another fix for Sun's C++.
+
 Tue Mar 09 21:02:08 GMT 2004  Olly Betts <olly@survex.com>
 
 	* include/xapian/document.h: string -> std::string.
