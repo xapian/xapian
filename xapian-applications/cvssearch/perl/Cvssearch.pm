@@ -5,7 +5,7 @@ use strict;
 # ----------------------------------------
 # symbols to export by default
 # ----------------------------------------
-our @EXPORT = qw(read_cvsroot_dir, read_root_dir, strip_last_slash, get_cvsdata, get_cvs_stat, code_comment_counter);
+my @EXPORT = qw(read_cvsroot_dir, read_root_dir, strip_last_slash, get_cvsdata, get_cvs_stat, code_comment_counter);
 
 
 

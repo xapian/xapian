@@ -78,7 +78,7 @@ To search the database, use the URL
    http://<Your Domain Name>/<your cgi-bin dir>/Query.cgi
          
 To see how code alignment works, use the URL
-   http://<Your Domain Name>/<your cgi-bin dir>/cvscompare.cgi
+   http://<Your Domain Name>/<your cgi-bin dir>/Compare.cgi
 
 
 Advanced Usage:  Multiple CVS Repositories
@@ -94,7 +94,7 @@ Security & File Permissions
 ===========================
 
 * To build the database, you must have read and write access to the repository.
-* to use cvscompare.cgi, the userid the server uses to run the cgi-script must also have read/write access.
+* to use Compare.cgi, the userid the server uses to run the cgi-script must also have read/write access to the repository.y
 * to use Query.cgi, There will be a cache directory created under your cgi-bin directory that has public read/write access.
 
 

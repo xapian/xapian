@@ -29,7 +29,12 @@ if ($#ARGV < 0) {
 
 print header;
 
-if (param("root") eq "") {
+# ------------------------------------------------------------
+# redirects to one of the subroutines
+# depends on whether certain parameters are set or not
+# ------------------------------------------------------------
+if (0) {
+} elsif (param("root") eq "") {
     compare_index();
 } elsif (param("pkg") eq "") {
     compare_root_index(param("root"));
@@ -41,6 +46,9 @@ if (param("root") eq "") {
     compare_file_version(param("root"), param("pkg"), param("fileid"), param("version"));
 }
 
+# ------------------------------------------------------------
+# create a hash table of entries found in $cvsdata/CVSROOTS.
+# ------------------------------------------------------------
 sub read_cvs_roots() {
     open (CVSROOTS, "<$cvsdata/CVSROOTS");
     my %roots;
@@ -53,6 +61,9 @@ sub read_cvs_roots() {
     return %roots;
 }
 
+# ------------------------------------------------------------
+# no parameters are given.
+# ------------------------------------------------------------
 sub compare_index() {
     my @roots = read_cvs_roots();
     if ($#roots >= 1) {
@@ -65,6 +76,9 @@ sub compare_index() {
     }
 }
 
+# ------------------------------------------------------------
+# only the root parameter is given
+# ------------------------------------------------------------
 sub compare_root_index() {
     my ($root) = @_;
 
@@ -75,6 +89,9 @@ sub compare_root_index() {
     print "</head>\n";
     print "<body>\n";
 
+    # ----------------------------------------
+    # show a drop down menu
+    # ----------------------------------------
     print "<form action=$cvscompare>\n";
     print "<b>Select Repository: </b>\n";
     print "<select name=root>\n";
@@ -88,6 +105,9 @@ sub compare_root_index() {
     }
     print "</select><input type=submit></form>\n";
 
+    # ----------------------------------------
+    # didn't obtain a valid cvsroot entry
+    # ----------------------------------------
     if ($cvsroot eq "") {
         print start_html;
         print "the specified root directory does not correspond to a repository.\n";
@@ -97,7 +117,10 @@ sub compare_root_index() {
         exit(0);
     }
 
-    print "<H1 align=center>Repository $cvsroot</H1>\n";
+    # ----------------------------------------
+    # found a repository, list all the packages
+    # ----------------------------------------
+    print "<h1 align=center>Repository $cvsroot</h1>\n";
     open (DBCONTENT, "<$cvsdata/$root/dbcontent");
     print "<table  width=\"100%\" border=0 cellspacing=1 cellpadding=2>\n";
     print "<tr><td class=\"s\">Package</td></tr>\n";
@@ -116,11 +139,11 @@ sub compare_root_index() {
     print end_html;
 }
 
+# ------------------------------------------------------------
+# list all the files that are indexed in a package
+# ------------------------------------------------------------
 sub compare_pkg_index {
     my ($root, $pkg) = @_;
-    # ----------------------------------------
-    # dump all the links here
-    # ----------------------------------------
     $pkg  =~tr/\//\_/;
     my $pkg1 = $pkg;
     my $i;
@@ -134,11 +157,14 @@ sub compare_pkg_index {
 
     print "<html>\n";
     print "<head>\n";
-    print "<TITLE>package $pkg1</TITLE>\n";
+    print_title ($pkg1);
     print_style_sheet();
     print "</head>\n";
     print "<body>\n";
 
+    # ----------------------------------------
+    # dump all the links here
+    # ----------------------------------------
     open (OFFSET, "<$cvsdata/$root/db/$pkg.offset");
     $i = 1;
     while (<OFFSET>) {
@@ -153,11 +179,18 @@ sub compare_pkg_index {
     }
     close (OFFSET);
     
+    # ----------------------------------------
+    # append to the query string
+    # ----------------------------------------
     my $command = "$cvsquery $root $pkg ";
     for ($i = 1; $i <= $#filenames + 1; $i++) {
         $command = $command . " -a $i";
     }
 
+    # ----------------------------------------
+    # output, only interested in the last
+    # revision number and comment
+    # ----------------------------------------
     open (RESULT, "$command |");
     while (<RESULT>) {
         chomp;
@@ -178,6 +211,10 @@ sub compare_pkg_index {
                 }
             }
         } elsif (/$ctrlA/) {
+            # ----------------------------------------
+            # only include the last version and comment
+            # for each file
+            # ----------------------------------------
             @versions = (@versions, $version);
             @comments = (@comments, $comment);
         } else {
@@ -191,21 +228,25 @@ sub compare_pkg_index {
             }
         }
     }
+    # ----------------------------------------
+    # at this point 
+    # @version == last version of all files (before indexing)
+    # @comment == last comment of all files (before indexing)
+    # ----------------------------------------
+
     close(RESULT);
     my $cvsroot = Cvssearch::read_cvsroot_dir($root, $cvsdata);
-    print "<H1 align=center>$pkg1</H1>\n";
+    print "<h1 align=center>$pkg1</h1>\n";
     print "<b>Up to ";
     print "<a href=\"$cvscompare?root=$root\">[$cvsroot]</a>/\n";
     print "</b><p>\n";
     print "Click on a file to display its revision history and to get a chance to display aligned diffs between consecutive revisions.\n";
-    print "<HR NOSHADE>\n";
+    print "<hr noshade>\n";
     print "<table  width=\"100%\" border=0 cellspacing=1 cellpadding=2>\n";
     print "<tr><td class=\"s\">File</td><td class=\"s\">Last Rev</td><td class=\"s\">Last CVS Comment</td></tr>\n";
     $i = 0;
     foreach (@filenames) {
         my @class;
-        $class[0] = "class=\"e\"";
-        $class[1] = "class=\"o\"";
         print "<tr>\n";
         print "<td $class[$i%2]><a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=". ($i+1)."\">$filenames[$i]</a></td>";
         print "<td $class[$i%2]>$versions[$i]</td>\n";
@@ -217,6 +258,9 @@ sub compare_pkg_index {
     print end_html;
 }
 
+# ------------------------------------------------------------
+# display a list of revisions for a file
+# ------------------------------------------------------------
 sub compare_file_index {
     my ($root, $pkg, $fileid) = @_;
     # ----------------------------------------
@@ -231,6 +275,9 @@ sub compare_file_index {
     my $filename;
     my $pkg1;
 
+    # ------------------------------------------------------------
+    # get the filename
+    # ------------------------------------------------------------
     while (<FILE>) {
         chomp;
         if (0) {
@@ -241,11 +288,18 @@ sub compare_file_index {
             $pkg1 = $pkg;
             $pkg1 =~tr/\_/\//;
             if ($pkg1 == substr($filename, 0, length($pkg1))) {
+                # ----------------------------------------
+                # throw away the package name part.
+                # ----------------------------------------
                 $filename = substr($filename, length($pkg1)+1, length($filename)-length($pkg1)-1);
             }
         }
     }
+
     if ($filename eq "") {
+        # ----------------------------------------
+        # woops.. didn't get a filename
+        # ----------------------------------------
         print start_html;
         print "The specified parameters are not valid\n"; 
         print end_html;
@@ -296,17 +350,17 @@ sub compare_file_index {
     
     if ($#versions >= 0) {
         my $cvsroot = Cvssearch::read_cvsroot_dir($root, $cvsdata);
-        print "<H1 align=\"center\">aligned diff outputs for <B>$filename</B></H1>\n";
+        print "<h1 align=\"center\">aligned diff outputs for <B>$filename</B></h1>\n";
         print "<b>Up to ";
         print "<a href=\"$cvscompare?root=$root\">[$cvsroot]</a>/\n";
         print "<a href=\"$cvscompare?pkg=$pkg&root=$root\">[$pkg1]</a>\n";
         print "</b><p>\n";
         
-        print "<HR NOSHADE>\n";
+        print "<hr noshade>\n";
         print "Default branch: MAIN\n";
         my $i;
         for ($i = 0; $i < $#versions; $i++) {
-            print "<HR size=1 NOSHADE>\n";
+            print "<hr size=1 noshade>\n";
             print "<a href=\"$cvscompare?";
             print "fileid=$fileid&";
             print "pkg=$pkg&";
@@ -316,7 +370,7 @@ sub compare_file_index {
             print "<pre>$comments[$i]</pre>\n";
         }
         $i = $#versions;
-        print "<HR size=1 NOSHADE>\n";
+        print "<hr size=1 noshade>\n";
         print "<a href=\"$cvscompare?";
         print "fileid=$fileid&";
         print "pkg=$pkg&";
@@ -324,15 +378,11 @@ sub compare_file_index {
         print "version=$versions[$i]\">initial version for <b>$filename</b></a><br>\n";
         print "<pre>$comments[$i]</pre>\n";
 
-        print "<HR NOSHADE>\n";
+        print "<hr noshade>\n";
     } else {
-        print "There are less than two commits for the file <b>$filename</b>, no diff result is available.\n";
+        print "There are no commits for the file <b>$filename</b>, no diff result is available.\n";
     }
     print end_html;
-}
-
-sub dummy_page {
-    
 }
 
 sub compare_file_version {
@@ -343,11 +393,10 @@ sub compare_file_version {
         $pkg eq "" ||
         $root eq "" ||
         $cvsdata eq "") {
-        
-        dummy_page();
+        print start_html;
+        print "The specified parameters are not valid\n"; 
+        print end_html;
     }
-    print STDERR "$fileid $pkg, $root, $version $cvsroot\n";
-
     open (FILE, "$cvsquery $root $pkg -f $fileid |");
     while (<FILE>) {
         chomp;
@@ -363,21 +412,25 @@ sub compare_file_version {
 }
 
 sub usage {
-
+    print << "EOF";
+Compare.cgi 1.0 (2001-3-15)
+Usage URL: http://www.example.com/cgi-bin/Compare.cgi
+EOF
+exit 0;
 }
 
 sub  print_title {
     my ($title) = @_;
-    print "<TITLE>$title</TITLE>\n";
+    print "<title>$title</title>\n";
 }
 
 sub print_style_sheet {
-    print "<STYLE TYPE-\"type/css\">\n";
+    print "<style type=\"type/css\">\n";
     print "body  {background-color:#EEEEEE;}\n";
     print "table {background-color:#FFFFFF;}\n";
     print "td    {white-space:pre; overflow:hidden;}\n";
     print ".e {background-color:#ffffff;}\n";
     print ".o {background-color:#ccccee;}\n";
     print ".s {background-color:#3366CC; color:#FFFFFF;}\n";
-    print "</STYLE>\n";
+    print "</style>\n";
 }

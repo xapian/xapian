@@ -196,13 +196,11 @@ html_comparer::get_class_type (string & select0, unsigned int index0, bool & do0
         }
     }
 
-    cerr << do0 << " " << index0 << select0 << endl;
-    cerr << do1 << " " << index1 << select1 << endl;
-    cerr << do2 << " " << index2 << select2 << endl;
-    cerr << _diff[diff_index] << endl;
-    cerr << endl;
-    
-    
+//     cerr << do0 << " " << index0 << select0 << endl;
+//     cerr << do1 << " " << index1 << select1 << endl;
+//     cerr << do2 << " " << index2 << select2 << endl;
+//     cerr << _diff[diff_index] << endl;
+//     cerr << endl;
 }
 
 void 
@@ -239,14 +237,14 @@ html_comparer::write_line(ostream & os,
         code_to_html converter0(line0, size);
         code_to_html converter1(line1, size);
         code_to_html converter2(line2, size);
-        os << "<TR>";
-        os << "<TD" << select2 << "> "; if (do2 && pis2 && *pis2) os << index2;     os << "</TD>";
-        os << "<TD" << select2 << "> "; if (do2 && pis2 && *pis2) os << converter2; os << "</TD>";
-        os << "<TD" << select1 << "> "; if (do1 && pis1 && *pis1) os << index1;     os << "</TD>";
-        os << "<TD" << select1 << "> "; if (do1 && pis1 && *pis1) os << converter1; os << "</TD>";
-        os << "<TD" << select0 << "> "; if (do0 && pis0 && *pis0) os << index0;     os << "</TD>";
-        os << "<TD" << select0 << "> "; if (do0 && pis0 && *pis0) os << converter0; os << "</TD>";
-        os << "</TR>" << endl;
+        os << "<tr>";
+        os << "<td" << select2 << "> "; if (do2 && pis2 && *pis2) os << index2;     os << "</td>";
+        os << "<td" << select2 << "> "; if (do2 && pis2 && *pis2) os << converter2; os << "</td>";
+        os << "<td" << select1 << "> "; if (do1 && pis1 && *pis1) os << index1;     os << "</td>";
+        os << "<td" << select1 << "> "; if (do1 && pis1 && *pis1) os << converter1; os << "</td>";
+        os << "<td" << select0 << "> "; if (do0 && pis0 && *pis0) os << index0;     os << "</td>";
+        os << "<td" << select0 << "> "; if (do0 && pis0 && *pis0) os << converter0; os << "</td>";
+        os << "</tr>" << endl;
     }
     if (do0) ++index0;
     if (do1) ++index1;
@@ -260,28 +258,28 @@ html_comparer::write(ostream & os) const
     string select1 = " class=\"s\"";
     string select2 = " class=\"s\"";
 
-    os << "<H3 align=center>aligned diff for " << _pathname 
+    os << "<h3 align=center>aligned diff for " << _pathname 
        << " between "
        << " version " << _revision2
        << " and"
        << " version " << _revision1
-       << "</H3>" << endl
+       << "</h3>" << endl
        << " Here we show where the differences occurred between "
        << " version " << _revision2
        << " and"
        << " " << _revision1
        << ", and the propagation of the affected lines to version " << _revision0
        << endl;
-    os << "<HR NOSHADE>" << endl;
-    os << "<TABLE align=center border=0 cellspacing=0 cellpadding=1>" << endl;
-    os << "<TR>";
-    os << "<TD" << select2 << "> </TD>";
-    os << "<TD" << select2 << "align=center> <B>version " << _revision2 << "</B></TD>";
-    os << "<TD" << select1 << "> </TD>";
-    os << "<TD" << select1 << "align=center> <B>version " << _revision1 << "</B></TD>";
-    os << "<TD" << select0 << "> </TD>";
-    os << "<TD" << select0 << "align=center> <B>version " << _revision0 << "</B></TD>";
-    os << "</TR>" << endl;
+    os << "<hr noshade>" << endl;
+    os << "<table align=center border=0 cellspacing=0 cellpadding=1>" << endl;
+    os << "<tr>";
+    os << "<td" << select2 << "> </td>";
+    os << "<td" << select2 << "align=center> <B>version " << _revision2 << "</B></td>";
+    os << "<td" << select1 << "> </td>";
+    os << "<td" << select1 << "align=center> <B>version " << _revision1 << "</B></td>";
+    os << "<td" << select0 << "> </td>";
+    os << "<td" << select0 << "align=center> <B>version " << _revision0 << "</B></td>";
+    os << "</tr>" << endl;
 
     unsigned int index0 = 1, index1 = 1, index2 = 1;
     string line0, line1, line2;
@@ -436,99 +434,6 @@ html_comparer::write(ostream & os) const
                 }
             }
 
-//             if (0) {
-//             } else if (_input1[index0] == index1 && _input2[index0] == index2) {
-//                 // ----------------------------------------
-//                 // index0 == line # of latest version
-//                 // index1 == line # of later version
-//                 // index2 == line # of earlier version
-//                 // 
-//                 // umm.. all the lines are need to be produced.
-//                 // ----------------------------------------
-//                 write_line(os,
-//                            select0, index0, true,
-//                            select1, index1, true,
-//                            select2, index2, true,
-//                            diff_index);
-//             } else if (_input1[index0] == index1 && _input2[index0] >  index2) {
-//                 // ----------------------------------------
-//                 // later version == last version, but something in earlier version
-//                 // is deleted in the later version, so only show earlier version.
-//                 // ----------------------------------------
-//                 write_line(os,
-//                            select0, index0, false,
-//                            select1, index1, false,
-//                            select2, index2, true, 
-//                            diff_index);
-//             } else if (_input1[index0] == index1 && _input2[index0] <  index2) {
-//                 // ----------------------------------------
-//                 // something is inserted in the later version
-//                 // and propagated to the final version
-//                 // ----------------------------------------
-//                 assert(_input2[index0] == 0);
-//                 write_line(os,
-//                            select0, index0, true,
-//                            select1, index1, true,
-//                            select2, index2, false,
-//                            diff_index);
-//             } else if (_input1[index0] >  index1 && _input2[index0] == index2) {
-//                 assert(0);
-//                 write_line(os,
-//                            select0, index0, false,
-//                            select1, index1, true,
-//                            select2, index2, false,
-//                            diff_index);
-//             } else if (_input1[index0] >  index1 && _input2[index0] >  index2) {
-//                 // ----------------------------------------
-//                 // some thing to show in both later and early 
-//                 // version, but not in final version.
-//                 // ----------------------------------------
-//                 write_line(os,
-//                            select0, index0, false,
-//                            select1, index1, true,
-//                            select2, index2, true,
-//                            diff_index);
-//             } else if (_input1[index0] >  index1 && _input2[index0] <  index2) {
-//                 // ----------------------------------------
-//                 // something is inserted in the later version
-//                 // and propagated to the final version
-//                 // ----------------------------------------
-//                 write_line(os,
-//                            select0, index0, false,
-//                            select1, index1, true,
-//                            select2, index2, false,
-//                            diff_index);
-//             } else if (_input1[index0] <  index1 && _input2[index0] == index2) {
-//                 // ----------------------------------------
-//                 // something is inserted in the later version
-//                 // and propagated to the final version
-//                 // ----------------------------------------
-//                 write_line(os,
-//                            select0, index0, true,
-//                            select1, index1, false,
-//                            select2, index2, true,
-//                            diff_index);
-//             } else if (_input1[index0] <  index1 && _input2[index0] >  index2) {
-//                 // ----------------------------------------
-//                 // something is inserted in the later version
-//                 // and propagated to the final version
-//                 // ----------------------------------------
-//                 write_line(os,
-//                            select0, index0, false,
-//                            select1, index1, false,
-//                            select2, index2, true,
-//                            diff_index);
-//             } else if (_input1[index0] <  index1 && _input2[index0] <  index2) {
-//                 // ----------------------------------------
-//                 // something is inserted in the later version
-//                 // and propagated to the final version
-//                 // ----------------------------------------
-//                 write_line(os,
-//                            select0, index0, true,
-//                            select1, index1, false,
-//                            select2, index2, false,
-//                            diff_index);
-//             }
         }
         while ((pis1 && *pis1) || (pis2 && *pis2)) 
         {
@@ -545,18 +450,17 @@ html_comparer::write(ostream & os) const
                        select2, index2, do2,
                        diff_index);
         }
-        cerr << "DONE" << endl;
     }
-    os << "</TABLE>" << endl;
-    os << "<HR width=100%>" << endl;
-    os << "<TABLE border=0>" << endl;
-    os << "<TR><TD colspan=2>Legend:</TD></TR>" << endl;
-    os << "<TR><TD class=\"n\"> </TD><TD align=center class=\"a\"> added in v."
-       << _revision1 << " and propagated to v." << _revision0 << "</TD></TR>" << endl;
-    os << "<TR><TD colspan=2 align=center class=\"c\"> changed lines from v." << _revision2 << " to v." 
-       << _revision1 << " and propagated to v." << _revision0 << "</TD></TR>" << endl;
-    os << "<TR><TD align=center class=\"d\"> removed in v." << _revision1 << "</TD><TD class=\"n\"> </TD></TR>" << endl;
-    os << "</TABLE>" << endl;
+    os << "</table>" << endl;
+    os << "<hr width=100%>" << endl;
+    os << "<table border=0>" << endl;
+    os << "<tr><td colspan=2>Legend:</td></tr>" << endl;
+    os << "<tr><td class=\"n\"> </td><td align=center class=\"a\"> added in v."
+       << _revision1 << " and propagated to v." << _revision0 << "</td></tr>" << endl;
+    os << "<tr><td colspan=2 align=center class=\"c\"> changed lines from v." << _revision2 << " to v." 
+       << _revision1 << " and propagated to v." << _revision0 << "</td></tr>" << endl;
+    os << "<tr><td align=center class=\"d\"> removed in v." << _revision1 << "</td><td class=\"n\"> </td></tr>" << endl;
+    os << "</table>" << endl;
 
     return os;
 }
@@ -564,15 +468,15 @@ html_comparer::write(ostream & os) const
 ostream &
 html_comparer::style(ostream & os) const
 {
-    os << "<STYLE TYPE-\"type/css\">" << endl;
-    os << "BODY  {background-color:#EEEEEE;}" << endl;
-    os << "TABLE {background-color:#FFFFFF;}" << endl;
-    os << "TD    {white-space:pre; overflow:hidden;font-family:courier;}" << endl;
+    os << "<style type=\"type/css\">" << endl;
+    os << "body  {background-color:#EEEEEE;}" << endl;
+    os << "table {background-color:#FFFFFF;}" << endl;
+    os << "td    {white-space:pre; overflow:hidden;font-family:courier;}" << endl;
     os << ".s {background-color:#3366CC; color:#FFFFFF;}" << endl;
     os << ".a {background-color:#CCCCFF;}" << endl;
     os << ".c {background-color:#99FF99;}" << endl;
     os << ".d {background-color:#FF9999;}" << endl;
     os << ".n {background-color:#EEEEEE;}" << endl;
-    os << "</STYLE>" << endl;
+    os << "</style>" << endl;
     return os;
 }
