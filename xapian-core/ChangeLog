@@ -1,6 +1,6 @@
 Wed May 17 17:52:22 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
-	* Fix memory leak.
+	* Fix memory leak in rset.cc
 
 Wed May 17 17:26:41 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
