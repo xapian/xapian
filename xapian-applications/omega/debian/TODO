@@ -18,3 +18,5 @@ I don't feel comfortable about part of the xapian-scriptindex package not
 working at all if the Recommends dependency isn't satisfied, but dbi2omega is
 such a trivial thing I'm not happy about making a package just for it.
 Perhaps it should simply be installed as an example, under /usr/share/doc/
+
+Include htdig2omega stuff into packages.

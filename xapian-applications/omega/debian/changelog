@@ -1,3 +1,19 @@
+xapian-omega (0.8.2-1) unstable; urgency=low
+
+  * New upstream release.
+  * Fixes for accented characters, uses new API features in libxapian4.
+  * omindex can detect documents removed since the last indexing run and
+    delete them from the database.
+  * Now links with libxapian4.
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 14 Sep 2004 13:28:03 +0100
+
+xapian-omega (0.8.1-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 30 Jun 2004 20:25:13 +0100
+
 xapian-omega (0.8.0-3) unstable; urgency=low
 
   * Merge xapian-omega and xapian-scriptindex packages, to reduce complexity
