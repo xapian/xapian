@@ -1,3 +1,8 @@
+Tue Oct 30 16:50:46 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Removed superfluous lines from configure.in; fixed warning from
+	  automake 1.5.
+
 Mon Oct 29 11:54:36 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Changed matcher to form proto-mset using a min-heap (as described

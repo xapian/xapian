@@ -25,21 +25,18 @@ AC_CHECK_FUNCS(gettimeofday ftime)
 
 dnl Check for getopt.h.  On some systems, it's in stdlib.h
 AC_CHECK_HEADERS(getopt.h)
-AC_SUBST(HAVE_GETOPT_H)
 
 dnl Check for a stringstream implementation.  (If not present, we roll
 dnl one ourselves).
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 AC_CHECK_HEADERS(sstream)
-AC_SUBST(HAVE_SSTREAM)
 AC_LANG_RESTORE
 
 dnl Check for a new streams implementation.
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 AC_CHECK_HEADERS(streambuf)
-AC_SUBST(HAVE_STREAMBUF)
 AC_LANG_RESTORE
 
 dnl check for strcasecmp.
@@ -76,7 +73,6 @@ AM_CONDITIONAL(HAVE_CPP_ACCESS_BYPASS, test "$FNO_ACCESS_FLAG" = yes)
 dnl Checks for perl.  (Needed to make some of the documentation)
 AC_PATH_PROG(PERL_PATH, perl)
 AM_CONDITIONAL(HAVE_PERL, test -n "$PERL_PATH")
-AC_SUBST(PERL_PATH)
 
 have_perl_xml_and_text=yes
 AC_MSG_CHECKING([for perl XML::Parser module])
@@ -126,33 +122,27 @@ AC_SUBST(DOXYGEN_DOT_PATH)
 dnl Check for latex. (Needed to make some more of the documentation)
 AC_PATH_PROG(LATEX_PATH, latex)
 AM_CONDITIONAL(HAVE_LATEX, test -n "$LATEX_PATH")
-AC_SUBST(LATEX_PATH)
 
 dnl Doc++ is no longer used.
 dnl dnl Check for doc++. (Needed to make some more of the documentation)
 dnl AC_PATH_PROG(DOCPP_PATH, doc++)
 dnl AM_CONDITIONAL(HAVE_DOCPP, test -n "$DOCPP_PATH")
-dnl AC_SUBST(DOCPP_PATH)
 
 dnl Check for doxygen. (Needed to make some more of the documentation)
 AC_PATH_PROG(DOXYGEN_PATH, doxygen, missing)
 AM_CONDITIONAL(HAVE_DOXYGEN, test "x$DOXYGEN_PATH" != xmissing)
-AC_SUBST(DOXYGEN_PATH)
 
 dnl Check for dvips. (Needed to make some more of the documentation)
 AC_PATH_PROG(DVIPS_PATH, dvips)
 AM_CONDITIONAL(HAVE_DVIPS, test -n "$DVIPS_PATH")
-AC_SUBST(DVIPS_PATH)
 
 dnl Check for swig. (For generating scripting language bindings)
 AC_PATH_PROG(SWIG_PATH, swig)
 AM_CONDITIONAL(HAVE_SWIG, test -n "$SWIG_PATH")
-AC_SUBST(SWIG_PATH)
 
 dnl Check for libxml.  We do this by looking for xml-config.
 dnl FIXME: is something else needed for non-gnome libxml?
 AC_PATH_PROG(XML_CONFIG_PATH, xml-config)
-AC_SUBST(XML_CONFIG_PATH)
 if test -n "$XML_CONFIG_PATH"
 then
 AC_DEFINE(HAVE_LIBXML,,
