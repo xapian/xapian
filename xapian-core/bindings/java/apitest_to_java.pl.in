@@ -33,6 +33,7 @@ package ToJava;
 BEGIN {
     %ToJava::typemap = ( "bool" => "boolean",
                          "unsigned int" => "int",
+                         "unsigned" => "int",
                          "size_t" => "int",
 			 "om_weight" => "double");
     %ToJava::basic_types = ("boolean" => 1,
@@ -42,7 +43,7 @@ BEGIN {
 
 sub new {
     my $class = shift;
-    return bless { func => ""}, $class;
+    return bless { tests => [], func => ""}, $class;
 }
 
 sub get_value {
@@ -63,6 +64,14 @@ class ApiTestFuncs {
     public static OmDatabase get_database(String arg1, String arg2) throws Throwable {
         return ApiTest.get_database(arg1, arg2);
     }
+    private static void print_mset_percentages(OmMSet mset) throws Throwable {
+        ApiTest.print_mset_percentages(mset);
+    }
+    public static OmEnquire get_simple_database() throws Throwable {
+	OmDatabaseGroup mydbgrp = new OmDatabaseGroup();
+	mydbgrp.add_database(get_database("apitest_simpledata"));
+	return new OmEnquire(mydbgrp);
+    }
     private static OmEnquire make_dbgrp(OmDatabase db1) throws Throwable {
         return new OmEnquire(ApiTest.make_dbgrp(db1));
     }
@@ -75,8 +84,18 @@ class ApiTestFuncs {
 					       int first) throws Throwable {
 	return ApiTest.get_simple_query_mset(query, maxitems, first);
     }
+    private static OmMSet do_get_simple_query_mset(OmQuery query,
+                                                   int maxitems) throws Throwable {
+	return do_get_simple_query_mset(query, maxitems, 0);
+    }
     private static OmMSet do_get_simple_query_mset(OmQuery query) throws Throwable {
 	return do_get_simple_query_mset(query, 10, 0);
+    }
+    private static void init_simple_enquire(OmEnquire enq, OmQuery query) throws Throwable {
+    	ApiTest.init_simple_enquire(enq, query);
+    }
+    public static void init_simple_enquire(OmEnquire enq) throws Throwable {
+    	ApiTest.init_simple_enquire(enq);
     }
     private static boolean floats_are_equal_enough(double a, double b)
     {
@@ -92,15 +111,82 @@ class ApiTestFuncs {
 	}
 	return false;
     }
+    private static void TEST_AND_EXPLAIN(boolean test, String message) throws Throwable {
+        if (!test) {
+	    throw new TestFail();
+	}
+    }
+    private static boolean mset_range_is_same_weights(OmMSet mset1, int first1,
+    						      OmMSet mset2, int first2,
+						      int count) throws Throwable {
+	OmVector mset1_items = mset1.get_items();
+	OmVector mset2_items = mset2.get_items();
+	TEST_AND_EXPLAIN(mset1_items.size() >= first1 + count - 1,
+	                 "mset1 is too small: expected at least " +
+			 (first1 + count - 1) + " items.\n");
+
+	TEST_AND_EXPLAIN(mset2_items.size() >= first2 + count - 1,
+	                 "mset2 is too small: expected at least " +
+			 (first2 + count - 1) + " items.\n");
+
+	for (int i=0; i<count; ++i) {
+	    if (((OmMSetItem)mset1_items.elementAt(i)).get_wt() !=
+	        ((OmMSetItem)mset2_items.elementAt(i)).get_wt()) {
+		return false;
+	    }
+	}
+	return true;
+    }
+    private static boolean mset_range_is_same(OmMSet mset1, int first1,
+                                              OmMSet mset2, int first2,
+					      int count) throws Throwable {
+	OmVector mset1_items = mset1.get_items();
+	OmVector mset2_items = mset2.get_items();
+
+	TEST_AND_EXPLAIN(mset1_items.size() >= first1 + count - 1,
+			 "mset1 is too small: expected at least " +
+			 (first1 + count - 1) + " items.\n");
+
+	TEST_AND_EXPLAIN(mset2_items.size() >= first2 + count - 1,
+			 "mset2 is too small: expected at least " +
+			 (first2 + count - 1) + " items.\n");
+
+	for (int i=0; i<count; ++i) {
+	    if ((((OmMSetItem)mset1_items.elementAt(first1+i)).get_wt() !=
+	         ((OmMSetItem)mset2_items.elementAt(first2+i)).get_wt()) || 
+	        (((OmMSetItem)mset1_items.elementAt(first1+i)).get_did() !=
+	         ((OmMSetItem)mset2_items.elementAt(first2+i)).get_did())) {
+	        return false;
+	    }
+	}
+	return true;
+    }
     private static boolean verbose = true;
     private static String endl = "\n";
 EOF
 }
 
 sub prologue() {
-    return <<'EOF'
+    my $self = shift;
+    my $result = <<MAINSTART;
+    public static void main() throws Throwable {
+MAINSTART
+    my $name;
+    foreach $name (@{$self->{tests}}) {
+        $result .= <<TESTEND;
+    System.out.print("${name}... ");
+    try {
+        boolean result = ${name}();
+	System.out.println(result? "ok." : "FAIL");
+    } catch (TestFail foo) {
+        System.out.println("FAIL");
+    }
+TESTEND
+    }
+    $result .= <<MAINEND
+    }
 }
-EOF
+MAINEND
 }
 
 sub make_comment($) {
@@ -115,6 +201,9 @@ sub func_start($) {
     if ($orig =~ /^bool ([a-z0-9_]+)\(\)/) {
         my $name = $1;
 	$self->{func} = "    public static boolean $name() throws Throwable \n    {\n";
+	my @testlist = @{$self->{tests}};
+	$testlist[$#testlist + 1] = $name;
+	$self->{tests} = \@testlist;
 	$self->{indent_level} = 8;
 	return $self->{func};
     } else {
@@ -140,11 +229,21 @@ sub addtext($) {
     $text =~ s/\&([a-z]+)/$1/g;
     # const type & -> type
     $text =~ s/(?:const )($main::type) (?:\&)/$1/g;
-    # Change "OmType(foo)" -> "new OmType(foo)" if within ()
-    $text =~ s/(\(.*)($main::type)\(/$1new $2(/gs;
+    # Change "OmType(foo)" -> "new OmType(foo)"
+    $text =~ s/(?:(?<!new ))($main::type)\(/new $1(/gs;
     # Change "mymsetfoo.items" -> "mymsetfoo_items" (set up in var_decl)
     $text =~ s/(mymset[a-z0-9]*)\.(items)/$1_$2/g;
     $text =~ s/(mymset[a-z0-9]*_items)\[([^\]])+\]\.([a-z]+)/((OmMSetItem)($1.elementAt($2))).get_$3()/g;
+    $text =~ s/(mymset[a-z0-9]*_items)\[([^\]])+\](?!\.)/((OmMSetItem)($1.elementAt($2)))/g;
+    # Change "mymset.membervar" to "mymset.get_membervar()"
+    $text =~ s/(mymset[a-z0-9]*)\.([a-z_]+)(?=[^a-z0-9A-Z_.(])/$1.get_$2()/g;
+    # Change "myesetfoo.items" -> "myesetfoo_items" (set up in var_decl)
+    $text =~ s/(myeset[a-z0-9]*)\.(items)/$1_$2/g;
+    $text =~ s/(myeset[a-z0-9]*_items)\[([^\]])+\]\.([a-z_]+)/((OmESetItem)($1.elementAt($2))).get_$3()/g;
+    $text =~ s/(myeset[a-z0-9]*_items)\[([^\]])+\](?!\.)/((OmESetItem)($1.elementAt($2)))/g;
+    # change OM_MOP_FOO into "FOO"
+    # change OM_MOP_FOO into "FOO"
+    $text =~ s/OM_MOP_([A-Z_]+)/"$1"/g;
     $self->{func} .= (" " x $self->{indent_level}) . $text;
 }
 
@@ -180,10 +279,14 @@ sub var_decl($$$) {
     } else {
 	$text = "$type $name = new $type();\n";
     }
-    # a special case
+    # some special cases: Om[EM]Set
     if ($type eq "OmMSet") {
         $text .= "OmVector ${name}_items = ${name}.get_items();\n";
     }
+    if ($type eq "OmESet") {
+        $text .= "OmVector ${name}_items = ${name}.get_items();\n";
+    }
+
     $self->addtext($text);
     return $text;
 }
@@ -356,7 +459,7 @@ sub getline() {
 }
 
 $main::func_start_regex = '^bool (test_[a-z_]*[0-9]*)\(\) *$';
-$main::type = "(?:bool|(?:unsigned )?int|size_t|Om[A-Z][A-Za-z]+|om_[a-z]+)";
+$main::type = "\\b(?:bool|(?:unsigned )?int|unsigned|size_t|Om[A-Z][A-Za-z]+|om_[a-z]+)";
 $main::identifier = "(?:[a-zA-Z_0-9]+)";
 $main::func = "(?:(?:$main::identifier).$main::identifier)";
 $main::commentstart = '(?:\/\/|\/\*)';

@@ -1,3 +1,7 @@
+Wed Aug  2 18:36:03 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Some more improvements to the apitest converter for Java.
+
 Wed Aug  2 18:09:43 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added OmDatabaseCorruptError - for when a database is corrupt.
