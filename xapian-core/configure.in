@@ -201,5 +201,4 @@ AC_OUTPUT(
  docs/mkdoc.pl
  tests/Makefile
  gui/Makefile
- gui/glade/Makefile
- ferretfx/Makefile)
+ gui/glade/Makefile)

@@ -3,7 +3,7 @@
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 SUBDIRS = include backends matcher languages indexer . \
-          gui ferretfx tests docs
+          gui tests docs
 
 EXTRA_DIST = INSTALL
 
