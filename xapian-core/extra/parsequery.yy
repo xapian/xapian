@@ -266,7 +266,7 @@ yylex()
 
     /* process terms */
     if (isalnum(*qptr)) {
-	string term;
+	string term, original_term;
 	bool already_stemmed = !qp->stem;
 	string::iterator term_start = qptr, term_end;
 	// This needs more work - e.g. keywords have no positional info so this
@@ -280,12 +280,14 @@ yylex()
 	if (find_if(term_start, term_end, p_notalnum) != term_end) {
 	    // It contains punctuation, so see if it's a keyword
 	    term = q.substr(term_start - q.begin(), term_end - term_start);
+	    original_term = term;
 	    lowercase_term(term);
 	    term = "K" + term;
 	    if (qp->db.term_exists("K" + term)) {
 		// It's a keyword, so don't stem it
 		already_stemmed = true;
 	    } else {
+		original_term = "";
 		term = "";
 	    }
 	}
@@ -326,7 +328,10 @@ more_term:
 		// "example.com" should give "exampl" and "com" - need EOF or
 		// space after '.' to mean "don't stem"
 		qptr++;
-		if (qptr == q.end() || isspace(*qptr)) already_stemmed = true;
+		if (qptr == q.end() || isspace(*qptr)) {
+		    if (original_term.empty()) original_term = term + '.';
+		    already_stemmed = true;
+		}
 	    }
 	    if (*qptr == '-') {
 		if (qptr + 1 != q.end() && isalnum(*(qptr + 1))) {
@@ -373,7 +378,7 @@ more_term:
 	}
 
 	bool raw_term = (!already_stemmed && !qp->stem_all && !islower(term[0]));
-	string original_term = term;
+	if (original_term.empty()) original_term = term;
 	lowercase_term(term);
 	if (raw_term)
 	    term = 'R' + term;

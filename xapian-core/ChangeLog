@@ -1,3 +1,8 @@
+Mon Dec 23 03:22:19 GMT 2002  Olly Betts <olly@survex.com>
+
+	* extra/parsequery.yy: If a stemmed form with a "." is in the query,
+	  include the "." on the form in the unstem multimap.
+
 Sun Dec 22 21:44:06 GMT 2002  Olly Betts <olly@survex.com>
 
 	* extra/omparsequery.h,extra/parsequery.yy,extra/parsequerytest.cc:
