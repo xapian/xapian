@@ -1,3 +1,7 @@
+Sun Aug 22 13:09:38 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,configure.in: Renamed configure.in to configure.ac.
+
 Wed Aug 18 12:43:44 BST 2004  Olly Betts <olly@survex.com>
 
 	* delve.cc: Report name of database in the "failed to open" message.
