@@ -1,3 +1,7 @@
+Thu Jul 17 00:52:13 BST 2003  Olly Betts <olly@survex.com>
+
+	* bootstrap: Removed bootstrap in favour of top-level bootstrap.
+
 Fri Jul 04 22:12:44 BST 2003  Olly Betts <olly@survex.com>
 
 	* bootstrap: add missing ';;' as case pattern delimiter

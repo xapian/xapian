@@ -1,3 +1,7 @@
+Thu Jul 17 00:52:37 BST 2003  Olly Betts <olly@survex.com>
+
+	* bootstrap: Removed bootstrap in favour of top-level bootstrap.
+
 Fri Jul 04 22:13:44 BST 2003  Olly Betts <olly@survex.com>
 
 	* .cvsignore: Ignore autom4te.cache.
@@ -19,7 +23,7 @@ Sat Apr 12 02:37:02 BST 2003  Olly Betts <olly@survex.com>
 
 Wed Feb 26 09:58:01 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
 
-        * Fix success message in bootstrap when building in non-src dir
+        * bootstrap: Fix success message when building in non-src dir
           as configure is written to the src dir
 
 Wed Oct 30 01:58:36 GMT 2002  Olly Betts <olly@survex.com>
@@ -110,5 +114,3 @@ Mon Nov 19 22:04:42 2001  James Aylett  <tartarus@users.sourceforge.net>
 	* source/xdb-dump.cc (main): copies db-options element into output
  	  (by managing to copy it _before_ we free the document it came
  	  from, sigh)
-
-
