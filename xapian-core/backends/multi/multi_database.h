@@ -10,16 +10,16 @@
 
 class MultiPostListInternal {
     public:
-	PostList * pl;
+	DBPostList * pl;
 	docid currdoc;
 
-	MultiPostListInternal(PostList * pl_new) {
+	MultiPostListInternal(DBPostList * pl_new) {
 	    pl = pl_new;
 	    currdoc = 0;
 	}
 };
 
-class MultiPostList : public virtual PostList {
+class MultiPostList : public virtual DBPostList {
     friend class MultiDatabase;
     private:
 	list<MultiPostListInternal> postlists;
@@ -30,12 +30,13 @@ class MultiPostList : public virtual PostList {
 	mutable bool freq_initialised;
 	mutable doccount termfreq;
 
-	mutable bool weight_initialised;
-	mutable weight termweight;
+	weight termweight;
 
 	MultiPostList(list<MultiPostListInternal> &);
     public:
 	~MultiPostList();
+
+	void  set_termweight(weight); // Sets term weight
 
 	doccount get_termfreq() const;
 
@@ -46,6 +47,16 @@ class MultiPostList : public virtual PostList {
 	//PostList *skip_to(docid, weight);// Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
 };
+
+inline void
+MultiPostList::set_termweight(weight wt)
+{
+    list<MultiPostListInternal>::const_iterator i = postlists.begin();
+    while(i != postlists.end()) {
+	(*i).pl->set_termweight(wt);
+	i++;
+    }
+}
 
 inline doccount
 MultiPostList::get_termfreq() const
@@ -125,8 +136,52 @@ class MultiDatabase : public virtual IRDatabase {
 			      const string &pathname, bool readonly);
 	void close();
 
-	PostList * open_post_list(termid id) const;
+	doccount  get_doccount() const;
+	doclength get_avlength() const;
+
+	DBPostList * open_post_list(termid id) const;
 	TermList * open_term_list(docid id) const;
 };
+
+inline doccount
+MultiDatabase::get_doccount() const
+{
+    // FIXME - lazy evaluation?
+    Assert(opened);
+    Assert((used = true) == true);
+
+    doccount docs = 0;
+    
+    list<IRDatabase *>::const_iterator i = databases.begin();
+    while(i != databases.end()) {
+	docs += (*i)->get_doccount();
+	i++;
+    }
+
+    return docs;
+}
+
+inline doclength
+MultiDatabase::get_avlength() const
+{
+    // FIXME - lazy evaluation?
+    Assert(opened);
+    Assert((used = true) == true);
+
+    doccount docs = 0;
+    doclength totlen = 0;
+
+    list<IRDatabase *>::const_iterator i = databases.begin(); 
+    while(i != databases.end()) {
+	doccount this_docs = (*i)->get_doccount();
+	docs += this_docs;
+	totlen += (*i)->get_avlength() * this_docs;
+	i++;
+    }
+
+    doclength avlen = totlen / docs;
+
+    return avlen;
+}
 
 #endif /* _sleepy_database_h_ */

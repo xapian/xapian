@@ -111,10 +111,13 @@ SleepyPostList::~SleepyPostList() {
 }
 
 weight SleepyPostList::get_maxweight() const {
+    Assert(weight_initialised);
     return 1;
 }
 
 weight SleepyPostList::get_weight() const {
+    Assert(!at_end());
+    Assert(weight_initialised);
     return 1;
 }
 
@@ -138,6 +141,7 @@ SleepyTermList::~SleepyTermList() {
 
 SleepyDatabase::SleepyDatabase() {
     internals = new SleepyDatabaseInternals();
+    Assert((opened = false) == false);
 }
 
 SleepyDatabase::~SleepyDatabase() {
@@ -152,6 +156,7 @@ void SleepyDatabase::open(const string &pathname, bool readonly) {
     catch (DbException e) {
 	throw (OmError(string("Database error on open: ") + e.what()));
     }
+    Assert((opened = true) == true);
 }
 
 void SleepyDatabase::close() {
@@ -162,10 +167,12 @@ void SleepyDatabase::close() {
     catch (DbException e) {
 	throw (OmError(string("Database error on close: ") + e.what()));
     }
+    Assert((opened = false) == false);
 }
 
-PostList *
+DBPostList *
 SleepyDatabase::open_post_list(termid tid) const {
+    Assert(opened);
     Dbt key(&tid, sizeof(tid));
     Dbt data;
 
@@ -190,6 +197,7 @@ SleepyDatabase::open_post_list(termid tid) const {
 
 TermList *
 SleepyDatabase::open_term_list(docid tid) const {
+    Assert(opened);
     Dbt key(&tid, sizeof(tid));
     Dbt data;
 
@@ -214,6 +222,8 @@ SleepyDatabase::open_term_list(docid tid) const {
 
 termid
 SleepyDatabase::add_term(const termname &tname) {
+    Assert(opened);
+
     termid newid;
     newid = term_name_to_id(tname);
     if(newid) return newid;
@@ -243,11 +253,14 @@ SleepyDatabase::add_term(const termname &tname) {
 
 docid
 SleepyDatabase::add_doc(IRDocument &doc) {
+    Assert(opened);
     throw OmError("SleepyDatabase.add_doc() not implemented");
 }
 
 void
 SleepyDatabase::add(termid tid, docid did, termpos tpos) {
+    Assert(opened);
+
     // Add to Postlist
     try {
 	// First see if appropriate postlist already exists
@@ -314,6 +327,8 @@ SleepyDatabase::add(termid tid, docid did, termpos tpos) {
 
 termid
 SleepyDatabase::term_name_to_id(const termname &tname) const {
+    Assert(opened);
+
     Dbt key((void *)tname.c_str(), tname.size());
     Dbt data;
     termid tid;
@@ -345,6 +360,8 @@ SleepyDatabase::term_name_to_id(const termname &tname) const {
 
 termname
 SleepyDatabase::term_id_to_name(termid tid) const {
+    Assert(opened);
+
     if(tid == 0) throw RangeError("Termid 0 not valid");
 
     Dbt key(&tid, sizeof(tid));

@@ -18,12 +18,12 @@ ACCESS_DA = da_database.cc daread.c da_record.cc
 
 STEMMER_SRC = stem.c stem_en.cc
 
-dbtest_SOURCES = dbtest.cc $(ACCESS_DA) $(ACCESS_SLEEPY) \
+dbtest_SOURCES = irweight.cc dbtest.cc $(ACCESS_DA) $(ACCESS_SLEEPY) \
                  $(ACCESS_MULTI)
 dbtest_LDADD = -L/usr/local/BerkeleyDB/lib -ldb
 
 matchtest_SOURCES = match.cc orpostlist.cc andpostlist.cc andnotpostlist.cc \
- andmaybepostlist.cc matchtest.cc $(ACCESS_DA) $(STEMMER_SRC)
+ andmaybepostlist.cc matchtest.cc irweight.cc $(ACCESS_DA) $(STEMMER_SRC)
 matchtest_LDADD = -L/usr/local/BerkeleyDB/lib -ldb
 
 idxtest_SOURCES = idxtest.cc $(ACCESS_SLEEPY) $(ACCESS_MULTI)

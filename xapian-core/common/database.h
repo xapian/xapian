@@ -14,6 +14,8 @@
 #include "omtypes.h"
 #include "error.h"
 
+class IRWeight;
+
 class PostList {
     private:
     public:
@@ -46,6 +48,11 @@ PostList::skip_to(docid id, weight w_min)
     }
     return NULL;
 }
+
+class DBPostList : public virtual PostList {
+    public:
+	virtual void  set_termweight(weight) = 0; // Sets term weight
+};
 
 class TermList {
     private:
@@ -81,11 +88,24 @@ class IRDatabase {
         virtual void open(const string &pathname, bool readonly) = 0;
 	virtual void close() = 0;
 
+	// Number of docs in the database
+	virtual doccount  get_doccount() const = 0;
+	// Average length of a document
+	virtual doclength get_avlength() const = 0;
+
 	// Throws RangeError if termid invalid
-	virtual PostList * open_post_list(termid) const = 0;
+	virtual DBPostList * open_post_list(termid) const = 0;
 
 	// Throws RangeError if docid invalid
 	virtual TermList * open_term_list(docid) const = 0;
+};
+
+class IRWeight {
+    private:
+	weight termweight;
+    public:
+	IRWeight(IRDatabase *, PostList *);
+	weight get_weight() {return termweight;}
 };
 
 #endif /* _database_h_ */

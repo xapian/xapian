@@ -8,25 +8,40 @@
 #include <stdlib.h>
 
 // Postlist - a list of documents indexed by a given term
-class SleepyPostList : public virtual PostList {
+class SleepyPostList : public virtual DBPostList {
     friend class SleepyDatabase;
     private:
 	doccount pos;
 	docid *data;
+
 	doccount termfreq;
+
+	bool weight_initialised;
+	weight termweight;
 
 	SleepyPostList(docid *, doccount);
     public:
 	~SleepyPostList();
 
-	doccount get_termfreq() const;  // Number of docs indexed by this term
-	weight   get_maxweight() const; // An upper bound on the term weight
+	void  set_termweight(weight); // Sets term weight
 
-	docid    get_docid() const;     // Current docid
-	weight   get_weight() const;    // Current weight
+	doccount   get_termfreq() const;// Number of docs indexed by this term
+
+	docid      get_docid() const;   // Current docid
+	weight     get_weight() const;  // Current weight
+	weight     get_maxweight() const; // An upper bound on the term weight
         PostList * next(weight w_min);  // Move next docid
-	bool     at_end() const;        // True if we're off the end of the list
+	bool       at_end() const;      // True if we're off the end of the list
 };
+
+inline void
+SleepyPostList::set_termweight(weight wt)
+{
+    termweight = wt;
+
+    // Set weight_initialised, but only if we're doing asserts
+    Assert((weight_initialised = true) == true);  // Deliberate =
+}
 
 inline doccount
 SleepyPostList::get_termfreq() const
@@ -127,6 +142,7 @@ class SleepyDatabaseInternals;
 class SleepyDatabase : public virtual IRDatabase {
     private:
 	SleepyDatabaseInternals * internals;
+	bool opened;
     public:
 	SleepyDatabase();
 	~SleepyDatabase();
@@ -141,8 +157,25 @@ class SleepyDatabase : public virtual IRDatabase {
 	void open(const string &pathname, bool readonly);
 	void close();
 
-	PostList * open_post_list(termid id) const;
+	doccount  get_doccount() const;
+	doclength get_avlength() const;
+
+	DBPostList * open_post_list(termid id) const;
 	TermList * open_term_list(docid id) const;
 };
+
+inline doccount
+SleepyDatabase::get_doccount() const
+{
+    Assert(opened);
+    return 1;
+}
+
+inline doclength
+SleepyDatabase::get_avlength() const
+{
+    Assert(opened);
+    return 1;
+}
 
 #endif /* _sleepy_database_h_ */

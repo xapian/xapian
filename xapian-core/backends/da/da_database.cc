@@ -3,7 +3,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
-#include <math.h>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -13,11 +12,10 @@
 #include "da_record.h"
 #include "daread.h"
 
-DAPostList::DAPostList(struct postings *pl, doccount tf, doccount size)
+DAPostList::DAPostList(struct postings *pl, doccount tf)
 {
     termfreq = tf;
     postlist = pl;
-    dbsize = size;
 
     weight_initialised = false;
     currdoc = 0;
@@ -34,24 +32,11 @@ const double k = 1;
 weight DAPostList::get_weight() const
 {
     Assert(!at_end());
+    Assert(weight_initialised);
+
     doccount wdf;
     weight wt;
 
-    if (!weight_initialised) {
-	weight_initialised = true;
-
-	termweight = (dbsize - termfreq + 0.5) / (termfreq + 0.5);
-	if (termweight < 2) {
-	    // if size and/or termfreq is estimated we can get termweight <= 0
-	    // so handle this gracefully
-	    if (termweight <= 1e-6) termweight = 1e-6;
-	    termweight = termweight / 2 + 1;
-	}
-	termweight = log(termweight);
-
-	printf("(dbsize, termfreq) = (%4d, %4d)\t=> termweight = %f\n",
-	       dbsize, termfreq, termweight);
-    }
 
     // NB ranges from daread share the same wdf value
     wdf = postlist->wdf;
@@ -73,22 +58,7 @@ weight DAPostList::get_weight() const
 // return an upper bound on the termweight
 weight DAPostList::get_maxweight() const
 {
-    if (!weight_initialised) {
-	// FIXME: golden gluepot strikes again
-	weight_initialised = true;
-
-	termweight = (dbsize - termfreq + 0.5) / (termfreq + 0.5);
-	if (termweight < 2) {
-	    // if size and/or termfreq is estimated we can get termweight <= 0
-	    // so handle this gracefully
-	    if (termweight <= 1e-6) termweight = 1e-6;
-	    termweight = termweight / 2 + 1;
-	}
-	termweight = log(termweight);
-
-	printf("(dbsize, termfreq) = (%4d, %4d)\t=> termweight = %f\n",
-	       dbsize, termfreq, termweight);
-    }
+    Assert(weight_initialised);
 
     return termweight * (k + 1);
 }
@@ -176,8 +146,6 @@ DADatabase::open(const string &pathname, bool readonly)
 	throw OpeningError(string("When opening ") + filename_t + ": " + strerror(errno));
     }
 
-    dbsize = DA_r->itemcount;
-
     opened = true;
 
     return;
@@ -197,7 +165,10 @@ DADatabase::close()
     opened = false;
 }
 
-PostList * DADatabase::open_post_list(termid id) const
+// Returns a new posting list, for the postings in this database for given term
+// Weights are calculated using statistics retrieved from db
+// If db is NULL weights are not calculated
+DBPostList * DADatabase::open_post_list(termid id) const
 {
     Assert(opened);
     Assert(id > 0 && id <= termvec.size());
@@ -207,7 +178,7 @@ PostList * DADatabase::open_post_list(termid id) const
     struct postings * postlist;
     postlist = DAopenpostings((terminfo *)&(termvec[id - 1].ti), DA_t);
 
-    DAPostList * pl = new DAPostList(postlist, termvec[id - 1].ti.freq, dbsize);
+    DBPostList * pl = new DAPostList(postlist, termvec[id - 1].ti.freq);
     return pl;
 }
 

@@ -8,20 +8,22 @@
 #include "database.h"
 #include "daread.h"
 
-class DAPostList : public virtual PostList {
+class DAPostList : public virtual DBPostList {
     friend class DADatabase;
     private:
 	struct postings * postlist;
 	docid  currdoc;
-	doccount termfreq;
-        mutable weight termweight;
-	doccount dbsize;
-    
-        mutable bool weight_initialised;
 
-	DAPostList(struct postings *pl, doccount termf, doccount dbsize);
+	doccount termfreq;
+    
+        bool weight_initialised;
+        weight termweight;
+
+	DAPostList(struct postings *, doccount);
     public:
 	~DAPostList();
+
+	void  set_termweight(weight); // Sets term weight
 
 	doccount get_termfreq() const;
 
@@ -32,6 +34,15 @@ class DAPostList : public virtual PostList {
 	PostList *skip_to(docid, weight w_min);  // Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
 };
+
+inline void
+DAPostList::set_termweight(weight wt)
+{
+    termweight = wt;
+
+    // Set weight_initialised, but only if we're doing asserts
+    Assert((weight_initialised = true) == true);  // Deliberate =
+}
 
 inline doccount
 DAPostList::get_termfreq() const
@@ -141,7 +152,6 @@ class DADatabase : public virtual IRDatabase {
 	bool   opened;
 	struct DAfile * DA_r;
 	struct DAfile * DA_t;
-	doccount dbsize;
 
 	mutable map<termname, termid> termidmap;
 	mutable vector<DATerm> termvec;
@@ -166,10 +176,27 @@ class DADatabase : public virtual IRDatabase {
 	void open(const string &pathname, bool readonly);
 	void close();
 
-	PostList * open_post_list(termid id) const;
+	doccount  get_doccount() const;
+	doclength get_avlength() const;
+
+	DBPostList * open_post_list(termid id) const;
 	TermList * open_term_list(docid id) const;
 
 	DARecord * get_document(docid id) const;
 };
+
+inline doccount
+DADatabase::get_doccount() const
+{
+    Assert(opened);
+    return DA_r->itemcount;
+}
+
+inline doclength
+DADatabase::get_avlength() const
+{
+    Assert(opened);
+    return 1;
+}
 
 #endif /* _da_database_h_ */

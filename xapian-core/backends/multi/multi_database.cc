@@ -15,8 +15,8 @@
 MultiPostList::MultiPostList(list<MultiPostListInternal> &pls)
 {
     postlists = pls;
+
     freq_initialised = false;
-    weight_initialised = false;
     currdoc = 0;
     finished = false;
 }
@@ -33,7 +33,8 @@ MultiPostList::~MultiPostList()
 
 weight MultiPostList::get_weight() const
 {
-    // FIXME - incorrect formula (?)
+    Assert(freq_initialised);
+    // FIXME - incorrect formula
     weight wt = 0;
     list<MultiPostListInternal>::const_iterator i = postlists.begin();
     while(i != postlists.end()) {
@@ -46,6 +47,7 @@ weight MultiPostList::get_weight() const
 
 weight MultiPostList::get_maxweight() const
 {
+    Assert(freq_initialised);
     // FIXME - incorrect formula (?)
     weight wt = 0;
     list<MultiPostListInternal>::const_iterator i = postlists.begin();
@@ -100,8 +102,8 @@ PostList * MultiPostList::next(weight w_min)
 ///////////////////////////
 
 MultiDatabase::MultiDatabase() {
-    opened = false;
-    used = false;
+    Assert((opened = false) == false);
+    Assert((used = false) == false);
 }
 
 MultiDatabase::~MultiDatabase() {
@@ -130,10 +132,10 @@ void MultiDatabase::close() {
     opened = false;
 }
 
-PostList *
+DBPostList *
 MultiDatabase::open_post_list(termid tid) const {
     Assert(opened);
-    used = true;
+    Assert((used = true) == true);
 
     termname tname = term_id_to_name(tid);
 
@@ -173,6 +175,7 @@ MultiDatabase::add(termid tid, docid did, termpos tpos) {
 termid
 MultiDatabase::term_name_to_id(const termname &tname) const {
     Assert(opened);
+    Assert((used = true) == true);
 
     printf("Looking up term `%s': ", tname.c_str());
     map<termname,termid>::const_iterator p = termidmap.find(tname);
@@ -210,6 +213,7 @@ MultiDatabase::term_name_to_id(const termname &tname) const {
 termname
 MultiDatabase::term_id_to_name(termid tid) const {
     Assert(opened);
+    Assert((used = true) == true);
     Assert(tid > 0 && tid <= termvec.size());
     //printf("Looking up termid %d: name = `%s'\n", tid, termvec[tid - 1].name.c_str());
     return termvec[tid - 1].name;
