@@ -2070,6 +2070,7 @@ static bool test_postlist4()
 static bool test_postlist5()
 {
     OmDatabase db(get_database("apitest_manydocs"));
+    TEST_EQUAL_DOUBLE(db.get_avlength(), 4);
     OmPostListIterator i = db.postlist_begin("thi");
     unsigned int j = 1;
     while(i != db.postlist_end("thi")) {
