@@ -442,7 +442,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 						 &new_first_did)) {
 		    report_read_error(kpos);
 		}
-		
+
 		const char *tagpos = cursor->current_tag.data();
 		const char *tagend = tagpos + cursor->current_tag.size();
 
@@ -561,7 +561,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 	     */
 	    DEBUGLINE(DB, "PostlistChunkWriter::write_to_disk(): deleting from the first chunk, which still has items in it");
 	    *tag = make_start_of_first_chunk(number_of_entries,
-						   collectionfreq, 
+						   collectionfreq,
 						   first_did);
 
 	    *tag += make_start_of_chunk(is_last_chunk,
@@ -578,7 +578,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 	     *   harder because the key for the chunk changes, so
 	     *   we've got to do a switch.
 	     */
-	    
+
 	    // First find out the initial docid
 	    const char *keypos = orig_key.data();
 	    const char *keyend = keypos + orig_key.size();
@@ -643,7 +643,7 @@ static void adjust_counts(QuartzBufferedTable * bufftable,
     collection_freq += collection_freq_increase;
     collection_freq -= collection_freq_decrease;
 
-    tag->replace(0, tagpos - tag->data(), 
+    tag->replace(0, tagpos - tag->data(),
 		 pack_uint(number_of_entries) + pack_uint(collection_freq));
 }
 
@@ -687,7 +687,7 @@ static void new_chunk(QuartzBufferedTable * bufftable,
 }
 
 
-/** Read the number of entries in the posting list. 
+/** Read the number of entries in the posting list.
  *  This must only be called when *posptr is pointing to the start of
  *  the first chunk of the posting list.
  */
@@ -716,7 +716,7 @@ void QuartzPostList::read_number_of_entries(const char ** posptr,
  *  3)  wdf, then doclength of first item.
  *  4)  increment in docid to next item, followed by wdf and doclength of item
  *  5)  (4) repeatedly.
- * 
+ *
  *  The first chunk begins with the number of entries, then the docid of the
  *  first document, then has the header of a standard chunk.
  */
@@ -868,7 +868,7 @@ QuartzPostList::next(Xapian::weight w_min)
 	      (is_at_end ? string("end.") : string("docid, wdf, doclength = ") +
 	       om_tostring(did) + ", " + om_tostring(wdf) + ", " +
 	       om_tostring(doclength)));
-    
+
     RETURN(NULL);
 }
 
@@ -947,7 +947,7 @@ QuartzPostList::move_forward_in_chunk_to_at_least(Xapian::docid desired_did)
 	RETURN(false);
     }
     while (did < desired_did) {
-	// FIXME: perhaps we don't need to decode the wdf and documnet length
+	// FIXME: perhaps we don't need to decode the wdf and document length
 	// for documents we're skipping past.
 	bool at_end_of_chunk = !next_in_chunk();
 	if (at_end_of_chunk) RETURN(false);
@@ -974,7 +974,7 @@ QuartzPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
 	      (is_at_end ? string("end.") : string("docid, wdf, doclength = ") +
 	       om_tostring(did) + ", " + om_tostring(wdf) + ", " +
 	       om_tostring(doclength) + "."));
-    
+
     RETURN(NULL);
 }
 
@@ -1026,7 +1026,7 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
 		     new_did << ", " <<
 		     new_wdf << ", " <<
 		     new_doclen);
-    
+
     // How big should chunks in the posting list be?  (They will grow
     // slightly bigger than this, but not more than a few bytes extra)
     unsigned int chunksize = 2048;

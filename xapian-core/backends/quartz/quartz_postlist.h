@@ -29,7 +29,6 @@
 
 #include "leafpostlist.h"
 #include <xapian/types.h>
-#include "quartz_table_entries.h"
 #include "omassert.h"
 #include "quartz_types.h"
 #include "quartz_positionlist.h"
@@ -60,35 +59,32 @@ class QuartzPostList : public LeafPostList {
 	/// The termname for this postlist.
 	string tname;
 
-
-	/// Cursor pointing to current chunk of postlist. 
+	/// Cursor pointing to current chunk of postlist.
 	AutoPtr<QuartzCursor> cursor;
 
 	/// True if this is the last chunk.
 	bool is_last_chunk;
 
-	/// The first document id in this chunk;
+	/// The first document id in this chunk.
 	Xapian::docid first_did_in_chunk;
 
-	/// The last document id in this chunk;
+	/// The last document id in this chunk.
 	Xapian::docid last_did_in_chunk;
 
 	/// Position of iteration through current chunk.
 	const char * pos;
 
-	/// Byte after end of current chunk.
+	/// Pointer to byte after end of current chunk.
 	const char * end;
-
 
         /// Document id we're currently at.
 	Xapian::docid did;
 
-	/// The (absolute) length of the current document, 
+	/// The (absolute) length of the current document.
 	quartz_doclen_t doclength;
 
 	/// The wdf of the current document.
 	Xapian::termcount wdf;
-
 
 	/// Whether we've run off the end of the list yet.
 	bool is_at_end;
@@ -125,7 +121,7 @@ class QuartzPostList : public LeafPostList {
 
 	/** Return true if the given document ID lies in the range covered
 	 *  by the current chunk.  This does not say whether the document ID
-	 *  is actually present.  It will return false if the document ID 
+	 *  is actually present.  It will return false if the document ID
 	 *  is greater than the last document ID in the chunk, even if it is
 	 *  less than the first document ID in the next chunk: it is possible
 	 *  for no chunk to contain a particular document ID.
@@ -135,7 +131,7 @@ class QuartzPostList : public LeafPostList {
 	/** Move to chunk containing the specified document ID.
 	 *
 	 *  This moves to the chunk whose starting document ID is
-	 *  <= desired_did, but such that the next chunks starting
+	 *  <= desired_did, but such that the next chunk's starting
 	 *  document ID is > desired_did.
 	 *
 	 *  It is thus possible that current_chunk_contains(desired_did)
@@ -175,7 +171,7 @@ class QuartzPostList : public LeafPostList {
 	 *
 	 *  This is the length of the postlist.
 	 */
-	Xapian::doccount   get_termfreq() const { return number_of_entries; }
+	Xapian::doccount get_termfreq() const { return number_of_entries; }
 
 	/** Returns the number of occurrences of the term in the database.
 	 *
@@ -184,7 +180,7 @@ class QuartzPostList : public LeafPostList {
 	Xapian::termcount get_collection_freq() const { return collection_freq; }
 
 	/// Returns the current docid.
-	Xapian::docid     get_docid() const { Assert(have_started); return did; }
+	Xapian::docid get_docid() const { Assert(have_started); return did; }
 
 	/// Returns the length of current document.
 	Xapian::doclength get_doclength() const {
@@ -212,7 +208,7 @@ class QuartzPostList : public LeafPostList {
 	PostList * skip_to(Xapian::docid desired_did, Xapian::weight w_min);
 
 	/// Return true if and only if we're off the end of the list.
-	bool       at_end() const { return is_at_end; }
+	bool at_end() const { return is_at_end; }
 
 	/// Get a description of the document.
 	std::string get_description() const;

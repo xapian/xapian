@@ -29,7 +29,6 @@
 #include <xapian/types.h>
 #include "positionlist.h"
 #include <xapian/document.h>
-#include "quartz_table_entries.h"
 
 #include <string>
 

@@ -25,6 +25,8 @@
 #ifndef OM_HGUARD_QUARTZ_UTILS_H
 #define OM_HGUARD_QUARTZ_UTILS_H
 
+#include <xapian/types.h>
+
 #include <string>
 
 using namespace std;
@@ -382,9 +384,6 @@ pack_bool(bool value)
 {
     return value ? "1" : "0";
 }
-
-#include "quartz_table_entries.h"
-#include <xapian/types.h>
 
 /** Convert a document id to a key (suitable when the docid is the only
  *  component of the key).
