@@ -1,3 +1,7 @@
+Wed Nov 06 01:54:30 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/overview.html: Corrected link to API docs on website.
+
 Mon Nov 04 02:35:22 GMT 2002  Olly Betts <olly@survex.com>
 
 	* include/om/omerror.h,net/omerr_string.cc,netprogs/omprogsrv.cc,
