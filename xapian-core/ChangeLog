@@ -1,3 +1,7 @@
+Mon Dec 13 02:21:28 GMT 2004  Olly Betts <olly@survex.com>
+
+	* bin/quartzdump.cc: Mark the long options as const.
+
 Mon Dec 13 02:20:08 GMT 2004  Olly Betts <olly@survex.com>
 
 	* bin/quartzcompact.cc: Tables sizes will always be a whole number of

@@ -69,7 +69,7 @@ main(int argc, char *argv[])
 
     bool syntax_error = false;
 
-    struct option long_opts[] = {
+    const struct option long_opts[] = {
 	{"revision",	required_argument, 0, 'r'},
 	{"start-key",	required_argument, 0, 's'},
 	{"end-key",	required_argument, 0, 'e'},
