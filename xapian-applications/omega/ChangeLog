@@ -1,3 +1,7 @@
+Tue Dec 24 20:06:47 GMT 2002  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Minor tweak.
+
 Tue Dec 24 19:58:57 GMT 2002  Olly Betts <olly@survex.com>
 
 	* omega.cc,docs/cgiparams.txt: Prefer MINHITS to MIN_HITS and

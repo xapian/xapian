@@ -241,7 +241,7 @@ parse_index_script(const string &filename)
 		    // is safe to do since nopos isn't a sane prefix value)
 		    actions.push_back(Action(Action::INDEXNOPOS));
 		} else {
-		    actions.push_back(Action(code, string(j, i)));
+		    actions.push_back(Action(code, arg));
 		}
 		i = find_if(i, s.end(), p_notspace);
 	    } else {
@@ -596,6 +596,7 @@ again:
 		addcount ++;
 	    }
 	}
+
 	if (stream.eof() || !getline(stream, line)) break;
     }
 
@@ -705,7 +706,7 @@ main(int argc, char **argv)
 	cout << "records (added, replaced, deleted) = (" << addcount <<
 		", " << repcount << ", " << delcount << ")" << endl;
     } catch (const OmError &error) {
-	cout << "Exception: "  << error.get_msg() << endl;
+	cout << "Exception: " << error.get_msg() << endl;
 	exit(1);
     } catch (...) {
 	cout << "Unknown Exception" << endl;
