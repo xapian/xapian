@@ -125,9 +125,9 @@ string_to_stats(const std::string &s)
 	if (word.length() == 0) continue;
 
 	if (word[0] == 'T') {
-	    is >> stat.termfreq[word.substr(1)];
+	    is >> stat.termfreq[decode_tname(word.substr(1))];
 	} else if (word[0] == 'R') {
-	    is >> stat.reltermfreq[word.substr(1)];
+	    is >> stat.reltermfreq[decode_tname(word.substr(1))];
 	} else {
 	    throw OmNetworkError(std::string("Invalid stats string word: ") + word);
 	}

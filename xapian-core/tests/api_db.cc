@@ -891,25 +891,27 @@ static bool test_spaceterms1()
     OmMSet mymset;
     std::vector<OmDocument> docs;
 
-    init_simple_enquire(enquire, OmQuery("space man"));
+    OmStem stemmer("english");
+    init_simple_enquire(enquire, OmQuery(stemmer.stem_word("space man")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
     docs = enquire.get_docs(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
     
-    init_simple_enquire(enquire, OmQuery("new\nline"));
+    init_simple_enquire(enquire, OmQuery(stemmer.stem_word("new\nline")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
     docs = enquire.get_docs(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
-    init_simple_enquire(enquire, OmQuery("back\\slash"));
+    init_simple_enquire(enquire, OmQuery(stemmer.stem_word("back\\slash")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
     docs = enquire.get_docs(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
-    init_simple_enquire(enquire, OmQuery(std::string("big\0zero", 8)));
+    init_simple_enquire(enquire,
+			OmQuery(stemmer.stem_word(std::string("big\0zero", 8))));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
     docs = enquire.get_docs(mymset.begin(), mymset.end());

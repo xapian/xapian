@@ -1,3 +1,14 @@
+Wed Dec 13 11:49:53 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Apply the stemmer to query terms used in spaceterms1.  (Not doing
+	  so caused the test to fail spuriously on local databases, since the
+	  terms are stemmed at index time).  The test still fails with da and
+	  db databases.
+	
+	* Fixed a problem when stats were unpacked from the network stream,
+	  where term names were not correctly unquoted.  This led to double
+	  quoting of global statistics.
+
 Wed Dec 13 02:49:05 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Implement copy and assignment methods for OmPositionListIterator.
