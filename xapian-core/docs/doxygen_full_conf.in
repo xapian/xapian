@@ -56,7 +56,7 @@ DISABLE_INDEX        = NO
 # If the EXTRACT_ALL tag is set to YES all classes and functions will be
 # included in the documentation, even if no documentation was available.
 
-EXTRACT_ALL          = NO
+EXTRACT_ALL          = YES
 
 # If the EXTRACT_PRIVATE tag is set to YES all private members of a class
 # will be included in the documentation.
@@ -147,7 +147,7 @@ CASE_SENSE_NAMES     = YES
 # will generate a verbatim copy of the header file for each class for
 # which an include is specified. Set to NO to disable this.
 
-VERBATIM_HEADERS     = NO
+VERBATIM_HEADERS     = YES
 
 # If the SHOW_INCLUDE_FILES tag is set to YES (the default) then Doxygen
 # will put list of the files that are included by a file in the documentation
