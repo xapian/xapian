@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<omindexer>
+    <!-- First make split the filename down two paths -->
+    <node type="omsplitter" id="splitfname">
+        <input name="in" node="START" out_name="out"/></node>
+
+    <!-- In the left path, read the file into memory -->
+    <node type="omfilereader" id="readfile">
+        <input name="filename" node="splitfname" out_name="left"/></node>
+    <!-- Split the file into "words" -->
+    <node type="omregexsplit" id="wordsplit">
+        <param name="regex" type="string" value="[^a-zA-Z]+"/>
+        <input name="in" node="readfile" out_name="out"/></node>
+    <!-- Duplicate the list of words -->
+    <node type="omsplitter" id="dupwords">
+        <input name="in" node="wordsplit" out_name="out"/></node>
+    <!-- Left branch, separate capital words -->
+    <node type="omregexfilter" id="capsonly">
+        <param name="regex" type="string" value="^[A-Z]"/>
+	<input name="in" node="dupwords" out_name="left"/></node>
+    <!-- Right branch, lower case everything... -->
+    <node type="omtranslate" id="tolower">
+        <param name="from" type="string" value="ABCDEFGHIJKLMNOPQRSTUVWXYZ"/>
+        <param name="to" type="string" value="abcdefghijklmnopqrstuvwxyz"/>
+	<input name="in" node="dupwords" out_name="right"/></node>
+    <!-- ... and stem -->
+    <node type="omstemmer" id="stem">
+        <param name="language" type="string" value="english"/>
+	<input name="in" node="tolower" out_name="out"/></node>
+    <!-- Now merge the two lists of terms -->
+    <node type="omlistconcat" id="terms">
+        <input name="left" node="capsonly" out_name="out"/>
+	<input name="right" node="stem" out_name="out"/></node>
+
+    <!-- Right branch from splitfname -->
+    <!-- Split the filename again -->
+    <node type="omsplitter" id="splitfname2">
+        <input name="in" node="splitfname" out_name="right"/></node>
+    <!-- extract the filename -->
+    <node type="omregexreplace" id="filenameonly">
+        <param name="regex" type="string" value="^(.*/)?([^/]+)$"/>
+        <param name="replace_expr" type="string" value="\2"/>
+	<input name="in" node="splitfname2" out_name="out"/></node>
+</omindexer>
