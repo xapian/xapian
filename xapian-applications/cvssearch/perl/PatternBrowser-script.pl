@@ -215,14 +215,14 @@ for ($i=0; $i <= $max; $i++, $flag *=-1) {
 		print "<tr class=o>";
 	}
 	if($curclass){
-		print "<td><pre>$curclass</td><td><font class=ref>[<a href=\"./QueryCommit.cgi?root=$root&symbol=$curclass%20$symbol&query=$urlquery\">code</a> / <a href=\"$own?symbol=$curclass&mode=$modeMAPhtml{$mode}&root=$root\">patterns</a>]</font></td>\n"; 
+		print "<td><pre>$curclass</td><td><font class=ref>[<a href=\"./QueryCommit.cgi?root=$root&symbol=$curclass%20$symbol&query=$urlquery\">code</a> / <a href=\"$own?symbol=$curclass&mode=$modeMAPhtml{$mode}&root=$root\">related</a>]</font></td>\n"; 
 	}else{
  		print "<td></td><td></td>";
    	}
         	
 	#print func
 	if($curfunc){
-        print "<td><pre>$curfunc</td><td><font class=ref>[<a href=\"./QueryCommit.cgi?root=$root&symbol=$curfunc%20$symbol&query=$urlquery\">code</a> / <a href=\"$own?symbol=$curfunc&mode=$modeMAPhtml{$mode}&root=$root\">patterns</a>]</font></td></tr>";        		
+        print "<td><pre>$curfunc</td><td><font class=ref>[<a href=\"./QueryCommit.cgi?root=$root&symbol=$curfunc%20$symbol&query=$urlquery\">code</a> / <a href=\"$own?symbol=$curfunc&mode=$modeMAPhtml{$mode}&root=$root\">related</a>]</font></td></tr>";        		
     }else{
     	print "<td></td><td></td>";
 	}
