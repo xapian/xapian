@@ -36,6 +36,15 @@ Priority | Area            | Task
  High    | LocalMatch      | Pass around partially created postlist as an
          |                 | auto_ptr, for exception safety.
 ---------+-----------------+--------------------------------------------------
+ Medium  | OmError         | Add a get_type method, which returns a string
+         |                 | describing the database type.
+---------+-----------------+--------------------------------------------------
+ Medium  | Introspection   | Add introspection (get_description()) methods to
+         |                 | all API objects.
+---------+-----------------+--------------------------------------------------
+ Medium  | API / Debugging | Display debug messages at start and end of all
+         |                 | API methods.
+---------+-----------------+--------------------------------------------------
  Medium  | API             | OmDocumentTerm should use a set rather than a
          |                 | map.
 ---------+-----------------+--------------------------------------------------
