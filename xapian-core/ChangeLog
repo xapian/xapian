@@ -1,3 +1,8 @@
+Tue Jul 29 01:21:53 BST 2003  Olly Betts <olly@survex.com>
+
+	* testsuite/testsuite.cc,testsuite/testsuite.h: Only use \r in test
+	  output if the output is a tty.
+
 Mon Jul 28 23:56:10 BST 2003  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Fixed fix of --cxxflags for uninstalled VPATH

@@ -82,6 +82,7 @@ vector<string> test_driver::test_names;
 bool test_driver::abort_on_error = false;
 string test_driver::col_red, test_driver::col_green;
 string test_driver::col_yellow, test_driver::col_reset;
+bool test_driver::use_cr = false;
 
 string
 test_driver::get_srcdir()
@@ -402,7 +403,7 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 	    switch (runtest(test)) {
 		case PASS:
 		    ++result.succeeded;
-		    if (verbose) {
+		    if (verbose || !use_cr) {
 			out << col_green << " ok" << col_reset << endl;
 		    } else {
 			out << "\r                                                                               \r";
@@ -501,6 +502,7 @@ test_driver::parse_command_line(int argc, char **argv)
 	col_green = "\x1b[1m\x1b[32m";
 	col_yellow = "\x1b[1m\x1b[33m";
 	col_reset = "\x1b[0m";
+	use_cr = true;
     }
 
     struct option long_opts[] = {

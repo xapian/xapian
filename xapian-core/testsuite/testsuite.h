@@ -199,6 +199,10 @@ class test_driver {
 
 	// strings to use for colouring - empty if output isn't a tty
 	static std::string col_red, col_green, col_yellow, col_reset;
+
+	// use \r to not advance a line when a test passes (this only
+	// really makes sense if the output is a tty)
+	static bool use_cr;
 };
 
 #ifndef STRINGIZE
