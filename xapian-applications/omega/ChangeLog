@@ -1,3 +1,7 @@
+Thu May 29 18:03:54 BST 2003  Olly Betts <olly@survex.com>
+
+	* query.cc: Fixed bug in DEFAULT_LOG_ENTRY's Omegascript.
+
 Thu May 29 00:22:28 BST 2003  Olly Betts <olly@survex.com>
 
 	* query.cc: Set STEM_LANGUAGE near the start of the file so it's easy

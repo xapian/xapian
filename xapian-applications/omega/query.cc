@@ -97,7 +97,7 @@ static long int sec = 0, usec = -1;
 static const char * DEFAULT_LOG_ENTRY =
 	"$or{$env{REMOTE_HOST},$env{REMOTE_ADDR},-}\t"
 	"[$date{$now,%d/%b/%Y:%H:%M:%S} +0000]\t"
-	"$if{$cgi{X},add,$if{$cgi{MORELIKE},morelike},query}\t"
+	"$if{$cgi{X},add,$if{$cgi{MORELIKE},morelike,query}}\t"
 	"$dbname\t"
 	"$query\t"
 	"$msize$if{$env{HTTP_REFERER},\t$env{HTTP_REFERER}}";
