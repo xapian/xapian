@@ -225,6 +225,7 @@ AC_OUTPUT(
  languages/portuguese/Makefile
  languages/spanish/Makefile
  matcher/Makefile
+ api/Makefile
  indexer/Makefile
  tests/Makefile
  docs/Makefile

@@ -47,6 +47,7 @@ class OmLock {
     private:
 	/// The physical pthread mutex.
 	mutable pthread_mutex_t mutex;
+	mutable bool islocked;
 
 	// disallow copies
 	OmLock(const OmLock &);
@@ -54,7 +55,7 @@ class OmLock {
 
     public:
 	/// The constructor, which initialises the mutex
-    	OmLock() {
+    	OmLock() : islocked(false) {
 	    pthread_mutex_init(&mutex, NULL);
 	}
 
@@ -67,16 +68,24 @@ class OmLock {
 	void lock() const {
 	    int retval = pthread_mutex_lock(&mutex);
 	    Assert(retval == 0);
+	    islocked = true;
 	}
 
 	/** Release the lock.  The lock should be currently
 	 *  owned by the thread calling unlock.
 	 */
 	void unlock() const {
+	    Assert(islocked);
+	    islocked = false;
 	    int retval = pthread_mutex_unlock(&mutex);
 
 	    // FIXME - remove next line
-	    if(retval != 0) cout << "retval:" << retval << endl;
+	    if(retval != 0) {
+		cout << "retval:"
+		     << strerror(retval)
+		     << " (" << retval
+		     << ")" << endl;
+	    }
 		    
 	    Assert(retval == 0);
 	}

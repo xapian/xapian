@@ -5,7 +5,7 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 # Order is relvant: when building, tests must be at end
 # When installing, should install script and m4 stuff last, in case of failure
 SUBDIRS = include common \
-          backends matcher languages indexer . m4 \
+          backends api matcher languages indexer . m4 \
 	  docs tests
 
 EXTRA_DIST = Makefile_common.am ChangeLog buildall HACKING TODO PLATFORMS
@@ -21,6 +21,7 @@ libomus_la_LIBADD = \
  backends/libbackend.la \
  matcher/libmatcher.la \
  languages/liblanguages.la \
- indexer/libindexer.la
+ indexer/libindexer.la \
+ api/libapi.la
 
 bin_SCRIPTS = libomus-config
