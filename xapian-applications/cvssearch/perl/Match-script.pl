@@ -197,7 +197,7 @@ if(param()){
 		$ch = &toChar($revs[$i]); # need to convert digits to alphabets since netscape doesn't understand digit id
         $ch1 = $ch;
         $ch1 =~ tr/\./-/;
-		print "<span class=$ch1><a href=# \n";
+		print "<span class=$ch1><a href=# ";
         print "onclick=\"return l('$ch',event);\" onmouseover=s('$ch',event); onmouseout=h();>";
 
 		if($revMAPmatch{$revs[$i]}){
@@ -243,7 +243,7 @@ if(param()){
                             $ch1 =~ tr/\./-/;
                             print "<span class=$ch1>";
                         } 
-                        print "<a href=# \n";
+                        print "<a href=# ";
                         print "onclick=\"return l('$ch',event);\" onmouseover=s('$ch',event); onmouseout=h();>";
 						if($revMAPmatch{$currev}){
 							print "C";
