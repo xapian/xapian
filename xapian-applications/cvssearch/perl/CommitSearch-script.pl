@@ -14,7 +14,6 @@ use Entities;
 # path variables
 #-------------------
 # path where database content file is stored
-chdir('/usr/lib/cgi-bin');
 my $CVSDATA = &Cvssearch::get_cvsdata();
 my $cvscommit = "./cvscommitsearch";
 my $cvsrelated = "./cvsrelatedsearch";
@@ -83,7 +82,6 @@ if (param()) {
 
     print <<_HTML_;
 	<table cellSpacing=0 cellPadding=2 width="100%" border=0>
-	<TBODY>
 	<tr><td class=s><FONT face=arial,sans-serif size=-1>
 	<b>Package</b></FONT></td>
 	<td colspan=2 class=s><FONT face=arial,sans-serif size=-1>
@@ -104,15 +102,13 @@ _HTML_
 	$querysymbol .= " \":$_\"";
     }
     
-    #query cvscommitsearch for global commit id
-    #print "$cvscommit $root/db/commit.om $commit_num_query $query $querysymbol";
-
     my @ids;
     $query =~ s/;/\\;/g; # used in in: command
 #print STDERR "QUERY IS -$query-\n";
     if ($query =~ /\@/) {
 	@ids = `$cvsrelated $root/db/related.om $related_num_query $query $querysymbol`;
     } else {
+	# query cvscommitsearch for global commit id
 	@ids = `$cvscommit $root/db/commit.om $commit_num_query $query $querysymbol`;
     }
 
@@ -131,7 +127,8 @@ _HTML_
 	my $val = $globalCommits[$i];#id
 	# now that we have package and id, can print things out here
 
-	# get comments  
+	# get comments
+	#print "<!-- $cvsquery $root $key -C $val -->\n";
 	my @comments = split /$ctrlA/o, `$cvsquery $root $key -C $val`;
 
 	if ($comments[0]) {

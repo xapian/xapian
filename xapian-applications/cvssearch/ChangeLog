@@ -1,3 +1,10 @@
+Wed Dec 01 19:57:52 GMT 2004  Olly Betts <olly@survex.com>
+
+	* db/cvscommitsearch.C: Commenting improvements.
+	* db/lines_db.C: Use wc to count lines in the file.
+	* db/util.C: Covert _ to / in get_packages.
+	* perl/CommitSearch-script.pl: Lose the <TBODY> tag; more comments.
+
 Wed May 12 20:41:44 BST 2004  Olly Betts <olly@survex.com>
 
 	* map/process/Makefile.am: Add pstream.h to list of files to

@@ -1,5 +1,5 @@
 #warning "DOES NOT HANDLE STOP WORDS IN QUERY"
-// cvsminesearch.C
+// cvscommitsearch.C
 //
 // (c) 2001 Amir Michail (amir@users.sourceforge.net)
 
@@ -14,13 +14,13 @@
 
 #warning "*** IN: DOESN'T WORK WELL DUE TO LIMITING # OF SEARCH RESULTS"
 
-// should probably put a limit on # of terms we look at in a commit
-// when doing query expansion; now it may too long for some queries
+// should probably put a limit on # of terms we look at in a commit when
+// doing query expansion; currently it may take too long for some queries
 
 //
 // Major bug:
 //
-//./cvscommitsearch root0/db/commit.om 10 lyx  
+// ./cvscommitsearch root0/db/commit.om 10 lyx
 //
 // yields:
 //
@@ -47,19 +47,6 @@
 //#define FIRST_COMMIT 5550
 //#define LAST_COMMIT 7593
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 ///////// more on data mining
 
 // we should do data mining at two levels
@@ -69,26 +56,23 @@
 // and also at the application level
 
 
-
-
-
 // it is sufficient to consider search by commit
-// if our system works properly, because we can be assured that every line of code
-// is involved in at least one commit, so at least one commit will come up 
+// if our system works properly, because we can be assured that every line of
+// code is involved in at least one commit, so at least one commit will come up
 // even if the query words show up only in the code
 
 // also, observe that we now index using both comments & code words
 // the data mining will pick up new things now; unfortunately, things are also
 // slower now
 
-//
-// should now have query words => query word with value infinity; need to fix this
-// it actually doesn't show up as infinity but a large number; why? stemming?
+// should now have query words => query word with value infinity; need to fix
+// this it actually doesn't show up as infinity but a large number; why?
+// stemming?
 // No.  This one is simple.  For code words, you will always find them
 // in the code. But for comment words, they may or may not be in the code.
 
-// however, even so, we should probably not count these convinction values but just
-// use idf
+// however, even so, we should probably not count these conviction values but
+// just use idf
 
 
 /* test konqueror searches right now, get these numbers from offset file */
@@ -104,15 +88,11 @@
 */
 
 
-
-
-
-
 #define MIN_SUPPORT 1 
 #define MAX_QUERY_VECTOR_TERMS 25
 
 
-// try convinction instead of interest measure (convinction is directional)
+// try conviction instead of interest measure (conviction is directional)
 //
 // See:
 //
@@ -123,17 +103,17 @@
 
 // interest: P(A&B)/(P(A)*P(B) [completely symmetric]
 
-// convinction: P(A)P(not B) / P(A, not B)
+// conviction: P(A)P(not B) / P(A, not B)
 //
 // Intuition:  logically, A=>B can be rewritten as ~(A & ~B), so we can see
 //                 how far A&~B deviates from independence, and invert the ratio
 //                 to take care of the outside negation.
 //
-//                 Unlike confidence, convinction factors in both P(A) and P(B) and
+//                 Unlike confidence, conviction factors in both P(A) and P(B) and
 //                 always has a value of 1 when the relvant items are completely unrelated
 //
 //                 Unlike interest, rules which hold 100% of the time have the highest possible
-//                 convinction value of infinity.  (While confidence has this property, interest does
+//                 conviction value of infinity.  (While confidence has this property, interest does
 //                 not.)
 
 // Basically, we proceed as before finding frequent item sets.
@@ -145,21 +125,17 @@
 // * % of transactions with A 
 //
 // * % of transactions with A but not B (count of transactions with A - (A,B) count )
-//
-// 
 
 
-//
 // Usage:  cvsminesearch package (# results) query_word1 query_word2 ...
 //
 //               cvsminesearch (# results) query_word1 query_word2 ... takes list of packages from stdin
 //
-// Example:  cvssearch root0/db/kdeutils_kfind 10 ftp nfs
+// Example:  cvsminesearch root0/db/kdeutils_kfind 10 ftp nfs
 //
 //     Returns the top 10 lines with both ftp and nfs.
 //
 // ($CVSDATA/package is the directory with the quartz database inside)
-//
 
 
 // Examples:
@@ -168,7 +144,6 @@
 //   cvsminesearch root0/db/commit.om 10 drag drop =>
 //   cvsminesearch root0/db/commit.om 10 drag drop (without arrow)
 //      just returns commits with drag drop in comments
-//
 
 
 /////////// TODO:  output commit information along with every time you print
@@ -223,7 +198,7 @@ double compute_idf( Db& db, const string& k, const int N ) {
   return idf;
 }
 
-double compute_convinction( unsigned int a_count, 
+double compute_conviction( unsigned int a_count, 
 			    unsigned int b_count, 
                             unsigned int a_and_b_count, 
 	                    unsigned int total_commit_transactions ) {
@@ -240,7 +215,7 @@ double compute_convinction( unsigned int a_count,
 
   double b_prob = (double) b_count / (double) total_commit_transactions;
 
-  double convinction = (a_prob * not_b_prob) / ( a_and_not_b_prob );
+  double conviction = (a_prob * not_b_prob) / ( a_and_not_b_prob );
 
   /**
      cerr << "b_count " << b_count << endl;
@@ -250,17 +225,17 @@ double compute_convinction( unsigned int a_count,
      cerr << "... not_b_prob " << not_b_prob << endl;
      cerr << "... a_prob*not_b_prob " << a_prob*not_b_prob << endl;
      cerr << "... a_and_not_b_prob " << a_and_not_b_prob << endl;
-     cerr << "... convinction " << convinction << endl;
+     cerr << "... conviction " << conviction << endl;
   **/
 
-  //#warning "dividing convinction by prob of consequent"
-  //cerr << "..convinction " << convinction << endl;
+  //#warning "dividing conviction by prob of consequent"
+  //cerr << "..conviction " << conviction << endl;
   //cerr << "..prob b " << b_prob << endl;
 
 
-  //convinction = convinction / log(1.0+log(1.0+b_prob));
+  //conviction = conviction / log(1.0+log(1.0+b_prob));
 
-  return convinction;
+  return conviction;
 }
 
 
@@ -299,9 +274,9 @@ void generate_rules( map<string, int>& item_count,
       a_count = transactions_returned; // if only query terms specified, this case applies also
       b_count = symbol_count;
       
-      double convinction = compute_convinction( a_count, b_count, a_and_b_count, total_commit_transactions );
+      double conviction = compute_conviction( a_count, b_count, a_and_b_count, total_commit_transactions );
       
-      code_term_ranking[ -convinction ].insert(symbol);
+      code_term_ranking[ -conviction ].insert(symbol);
 
     }
 }
@@ -312,7 +287,7 @@ void generate_rules( map<string, int>& item_count,
 void count_single_items(const map< int, set<string> >& transactions,
                         map<string, int >& item_count )
 {
-  cerr << "... counting items" << endl;
+//  cerr << "... counting items" << endl;
   for( map< int, set<string> >::const_iterator t = transactions.begin();
        t != transactions.end(); ++t)
     {
@@ -437,7 +412,7 @@ bool commit_of_interest( int commit_id, list<string>& in_opt_list,
 
 int main(unsigned int argc, char *argv[]) {
 
-  if(argc < 3) {
+  if (argc < 3) {
     cout << "Usage: " << argv[0] <<
       " <path to database> <search terms>" << endl;
     exit(1);
@@ -453,7 +428,7 @@ int main(unsigned int argc, char *argv[]) {
   // ----------------------------------------
   // get packages from cmd line or from file
   // ----------------------------------------
-  if ( isdigit(argv[1][0] )) {
+  if (isdigit(argv[1][0])) {
     // ----------------------------------------
     // get packages from file
     // ----------------------------------------
@@ -476,11 +451,9 @@ int main(unsigned int argc, char *argv[]) {
     qpos = 3;
   }
 
-  unsigned int max_results = atoi( argv[npos] );
-
+  unsigned int max_results = atoi(argv[npos]);
 
   try {
-
     unsigned int total_commit_transactions = 0;
     ifstream in( (cvsdata +"/root0/db/commit.count").c_str() );
     in >> total_commit_transactions;
@@ -494,31 +467,33 @@ int main(unsigned int argc, char *argv[]) {
     map< string, int > package_last_commit;
     map< int, string > commit_package;
 
-    ifstream in2 (  (cvsdata+OFFSET_FILE).c_str() );
+    ifstream in2 ((cvsdata+OFFSET_FILE).c_str());
     string line;
     string last_package = "";
     int last_offset = -1;
-    for(;;) {
-      string package; int offset;
-      in2 >> package; 
-      if ( in2.eof() ) {
-	break;
-      }
-      in2 >> offset;
-      //      cerr << "read -" << package <<"- at offset " << offset << endl;     
+    if (in2) {
+	while (true) {
+	  string package;
+	  int offset;
+	  in2 >> package; 
+	  if ( in2.eof() ) {
+	    break;
+	  }
+	  in2 >> offset;
+//	  cerr << "read -" << package <<"- at offset " << offset << endl;
+	  package_first_commit[package] = offset;
+	  if (!last_package.empty()) {
+	    package_last_commit[last_package] = offset-1;
+	    for( int i = last_offset; i <= offset-1; i++ ) {
+	      commit_package[i] = last_package;
+	    }
+	  }
 
-      package_first_commit[package] = offset;
-      if ( last_package != "" ) {
-	package_last_commit[last_package] = offset-1;
-	for( int i = last_offset; i <= offset-1; i++ ) {
-	  commit_package[i] = last_package;
+	  last_package = package;
+	  last_offset = offset;
 	}
-      }
-
-      last_package = package;
-      last_offset = offset;
+	in2.close();
     }
-    in2.close();
     
     Db db_cmt(0,0);
 #if DB_VERSION_MAJOR > 4 || (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 1)
@@ -598,7 +573,6 @@ int main(unsigned int argc, char *argv[]) {
       assert(0);
     }
 
-    //    map< int, set<string> > transaction_all_words;
     map< int, set<string> > transaction_code_words;
     map< pair<int, string>, int > transaction_code_word_count;
     map< int, set<string> > transaction_comment_words;
@@ -774,7 +748,7 @@ int main(unsigned int argc, char *argv[]) {
 	expanded_query_vector[ *w ] = idf; //*(-(i->first)); //pow(2.0,pow(2.0, -(i->first)));
 
 	if ( query_term_set.find(*w) != query_term_set.end() ) {
-	  // this has infinite convinction
+	  // this has infinite conviction
 #warning "2.0 factor for query words"
 	  expanded_query_vector[*w] *= 2.0; 
 	}

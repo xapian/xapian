@@ -9,9 +9,12 @@
 
 #include <iostream>
 #include <unistd.h>
+using namespace std;
+
 #include "lines_db.h"
 #include "util.h"
-using namespace std;
+
+#include "pstream.h"
 
 lines_db::lines_db(const string & root, 
                    const string & pkg, 
@@ -65,18 +68,15 @@ bool lines_db::readNextLine() {
         }
 
 	// in_code->rdbuf()->setbuf(0, 0);
-	char buf[4096];
-	unsigned int no_of_lines = 0;
-	while (!in_code->bad()) {
-	    in_code->get(buf, sizeof(buf));
-	    if (in_code->eof()) {
-		// End of file
-		file_length = no_of_lines;
-		break;
-	    }
-	    if (in_code->get() == '\n') ++no_of_lines;
+	{
+	    vector<string> args;
+	    args.push_back("-l");
+	    args.push_back(file_path);
+	    redi::ipstream wc("wc", args);
+	    char buf[64];
+	    wc.get(buf, sizeof(buf));
+	    file_length = strtoul(buf, NULL, 10);
 	}
-        in_code->seekg(0, ios_base::beg);
 
         cerr << "..." << message << " " << current_fn << endl;
         _db_file.get_revision(file_id, line_no = 1, revisions);

@@ -227,6 +227,6 @@ void get_packages(istream & is, set<string> & packages)
     {
         assert( p != "" );
         cerr << "... package " << p << endl;
-        packages.insert(p);
+        packages.insert(convert(p, '_', '/'));
     }
 }
