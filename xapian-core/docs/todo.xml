@@ -385,4 +385,10 @@ from database: if two nodes fail, the total timeout should still be that
 specified, not twice it.
 
 </todoitem>
+<todoitem priority="M" difficulty="2" owner="" area="Quartz" release="1.0">
+
+Ensure that quartz databases don't have a problem if there is no positional
+information entry available for a term / document combination.
+
+</todoitem>
 </todo>

@@ -1,3 +1,10 @@
+Thu Mar 15 13:55:53 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Removed OmDocument::set_wdf() and OmDocument::add_term().
+	  Replaced with OmDocument::add_term_nopos(), which adds a term
+	  without specifying positional information, taking an optional
+	  wdfinc parameter.  Updated testsuite correspondingly.
+
 Thu Mar 15 13:14:10 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Update TODO

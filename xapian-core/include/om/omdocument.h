@@ -128,7 +128,7 @@ class OmDocument {
 	/// Set data stored in a document, from a string.
 	void set_data(const std::string &data);
 
-	/** Add an occurrence of a term to the document.
+	/** Add an occurrence of a term at a particular position.
 	 *
 	 *  Multiple occurrences of the term at the same position are
 	 *  represented only once in the positional information, but do
@@ -140,46 +140,24 @@ class OmDocument {
 	 *  @param tname     The name of the term.
 	 *  @param tpos      The position of the term.
 	 *  @param wdfinc    The increment that will be applied to the wdf
-	 *                   when adding this posting.
+	 *                   for this term.
 	 */
 	void add_posting(const om_termname & tname,
 			 om_termpos tpos,
 			 om_termcount wdfinc = 1);
 
-	/** Set the wdf to a particular value.
+	/** Add a term to the document, without specifying a position that
+	 *  it occurs at.
 	 *
-	 *  Note that subsequent calls to add_posting() and remove_posting()
-	 *  will modify the value.
-	 *
-	 *  Note also that it is perfectly reasonable for a term to have a
-	 *  wdf of zero.
-	 *
-	 *  If the term is not already in the document, it will be added to
-	 *  it (but will not have a positionlist unless add_posting() is
-	 *  called).
+	 *  Any existing positional information for the term will be left
+	 *  unmodified.
 	 *
 	 *  @param tname     The name of the term.
-	 *  @param wdf       The value to set the wdf to.
+	 *  @param wdfinc    The increment that will be applied to the wdf
+	 *                   for this term.
 	 */
-	void set_wdf(const om_termname & tname, om_termcount wdf);
-
-	/** Add a term to the document.
-	 *
-	 *  If the term is already in the document, no changes occur.
-	 *  If the term is not in the document, it is added with a wdf of 0.
-	 *
-	 *  It is not neccessary to call this before calling add_posting()
-	 *  or set_wdf().  Indeed, if the term is not already in the
-	 *  document, the effect of this method is identical to that of
-	 *  set_wdf(tname, 0)
-	 *
-	 *  This method's main use is for adding terms to the document
-	 *  which represent categories that the document falls into, for
-	 *  use in boolean retrieval.
-	 *
-	 *  @param tname     The name of the term.
-	 */
-	void add_term(const om_termname & tname);
+	void add_term_nopos(const om_termname & tname,
+			    om_termcount wdfinc = 1);
 
 	/** Remove a posting of a term from the document.
 	 *

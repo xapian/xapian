@@ -2203,10 +2203,9 @@ static bool test_adddoc2()
 
 
     doc2.remove_posting("foo", 1, 5);
-    doc2.set_wdf("bar", 9);
-    doc2.set_wdf("bat", 0);
-    doc2.add_term("bar");
-    doc2.add_term("bag");
+    doc2.add_term_nopos("bat", 0);
+    doc2.add_term_nopos("bar", 8);
+    doc2.add_term_nopos("bag", 0);
     doc2.remove_term("gone");
 
     // Should have (doc,wdf) pairs: (bag,0)(bar,9)(bat,0)(foo,0)
