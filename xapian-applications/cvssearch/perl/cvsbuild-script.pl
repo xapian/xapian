@@ -260,14 +260,7 @@ sub cvsbuild {
                     }
                     close (SIZE);
 
-                    open(SIZE, "du $prefix_path.cmt|");
-                    while (<SIZE>) {
-                        chomp;
-                        my @fields = split(/\t/);
-                        $cmt_size = $fields[0];
-                        last;
-                    }
-                    close(SIZE);
+                    unlink "$prefix_path.cmt";
 
                     my $cvs_words;
                     my $code_words = 0;
@@ -303,8 +296,6 @@ sub cvsbuild {
                         . $berkeley_size. "\tkb at $prefix_path.db\n";
                     print STAT "omsee    database size         :\t"
                         . $omsee_size  . "\tkb at $prefix_path.om\n";
-                    print STAT "cmt      file     size         :\t"
-                        . $cmt_size . "\tkb at $prefix_path.cmt\n";
                     close(STAT);
                 }
 
