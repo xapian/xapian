@@ -1,3 +1,9 @@
+Tue Jun 27 11:19:01 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added test for requiring -nsl (eg, on solaris).
+          Only add network libraries if compiling in network code.
+	  Change configure options for specifying debugging levels.
+
 Tue Jun 27 10:09:13 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Changed "test -e" to "test -f" in Makefiles - test -e is not

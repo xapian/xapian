@@ -79,9 +79,6 @@ dnl Checks for library functions.
 AC_FUNC_MEMCMP
 AC_CHECK_FUNCS(strerror)
 
-dnl Add -lsocket to $LDFLAGS if needed (eg Solaris)
-CME_FIND_SOCKETPAIR
-
 dnl Check for sleepycat library.
 SLEEPYCAT_INCLUDES="-I/usr/local/BerkeleyDB/include -I/usr/include/db2"
 SLEEPYCAT_LIBS=
@@ -268,9 +265,16 @@ AC_DEFINE(MUS_BUILD_BACKEND_MULTI,,
 fi
 
 if test x$build_net = xtrue; then
+dnl Add -lsocket to $LDFLAGS if needed (eg Solaris)
+CME_FIND_SOCKETPAIR
+
+dnl Add -lnsl to $LDFLAGS if needed (eg Solaris)
+RJB_FIND_GETHOSTENT
+
 AC_DEFINE(MUS_BUILD_BACKEND_NET,,
   [Define if you want to build net database backend])
 fi
+
 if test x$use_pthread = xtrue; then
 AC_DEFINE(MUS_USE_PTHREAD,,
   [Define if you want to build with libpthreads support])
@@ -283,14 +287,22 @@ dnl *************************
 dnl Work out what debugging we want
 
 AC_ARG_ENABLE(debug, 
-[  --enable-debug          Turn on debugging (no|yes|paranoid|full)(default=no)],
+[  --enable-debug          Turn on debugging (no|partial|yes|full)(default=no)],
 [case "${enableval}" in
   full) use_debug_paranoid=yes ; use_debug=yes ; use_debug_verbose=yes ;;
-  paranoid) use_debug_paranoid=yes ; use_debug=yes ;;
-  yes) use_debug=yes ;;
+  yes) use_debug_paranoid=yes ; use_debug=yes ;;
+  partial) use_debug=yes ;;
   no)  use_debug=no ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
 esac], [use_debug=no])
+
+AC_ARG_ENABLE(debug-verbose, 
+[  --enable-debug-verbose  Turn on debugging messages (no|yes)(default=no)],
+[case "${enableval}" in
+  yes) use_debug_verbose=yes ;;
+  no)  use_debug_verbose=no ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug-verbose) ;;
+esac], [use_debug_verbose=no])
 
 AC_ARG_ENABLE(mutex-errcheck,
 [  --enable-mutex-errcheck Turn on error-checking mutexes (no|yes)(default=no)],
