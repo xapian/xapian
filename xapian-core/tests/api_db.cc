@@ -440,10 +440,16 @@ static bool test_emptyquery1()
 {
     OmMSet mymset = do_get_simple_query_mset(OmQuery());
     TEST_MSET_SIZE(mymset, 0);
+    TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
+    TEST_EQUAL(mymset.get_matches_upper_bound(), 0);
+    TEST_EQUAL(mymset.get_matches_estimated(), 0);
     std::vector<OmQuery> v;
     mymset = do_get_simple_query_mset(OmQuery(OmQuery::OP_AND,
 					      v.begin(), v.end()));
     TEST_MSET_SIZE(mymset, 0);
+    TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
+    TEST_EQUAL(mymset.get_matches_upper_bound(), 0);
+    TEST_EQUAL(mymset.get_matches_estimated(), 0);
     return true;
 }
 

@@ -1,3 +1,7 @@
+Thu Nov 22 12:27:49 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Enhanced test emptyquery1.
+
 Fri Nov 16 15:32:09 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Added OmQuery::is_empty() method.
@@ -129,7 +133,7 @@ Mon Oct 22 10:38:20 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 Fri Jun 22 13:24:59 2001  Sam Liddicott <sam@ananova.com>
 
-        * Added some explicit type casts in xmlindexer and quartze backend
+        * Added some explicit type casts in xmlindexer and quartz backend
           to help gcc2.96 compile. 
 
 Thu Jun 21 11:05:31 2001  James Aylett  <tartarus@users.sourceforge.net>
