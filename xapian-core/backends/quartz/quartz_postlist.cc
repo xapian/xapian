@@ -528,7 +528,7 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
 
 	om_docid first_did_in_chunk;
 	if (is_first_chunk) {
-	    read_start_of_first_chunk(&tagpos, tagend, &first_did_in_chunk, 0);
+	    read_start_of_first_chunk(&tagpos, tagend, 0, &first_did_in_chunk);
 	} else {
 	    if (!unpack_uint_preserving_sort(&keypos, keyend,
 					     &first_did_in_chunk))
