@@ -1,7 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-# The including of /common should be removed ultimately.
-# ie: when we have an API
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_srcdir)/testsuite
 
 if HAVE_PERL
@@ -21,10 +19,6 @@ TESTS = apitest internaltest $(PERLTESTS)
 
 ## Programs to build
 check_PROGRAMS = apitest internaltest stemtest
-
-if HAVE_PERL
-check-local: includetest.o
-endif
 
 ## Sources:
 
@@ -58,35 +52,11 @@ EXTRA_DIST = testdata/apitest_onedoc.txt \
 	     testdata/etext.txt \
 	     findheaders.pl
 
-CLEANFILES = includetest.cc stemtest.pl
+CLEANFILES = stemtest.pl
 
 clean-local:
 	rm -f randjunk_seed_* randtext_seed_*
 	rm -rf .quartz
-
--include .deps-includetest-cc
-
-dist-hook:
-	rm -f $(distdir)/includetest.cc
-
-DISTCLEANFILES = .deps-includetest-cc
-
-# Get GENDEPS macro
-include $(top_srcdir)/Makefile_common.am
-
-ALL_INCLUDES = `$(PERL) $(srcdir)/findheaders.pl $(top_srcdir)`
-
-## Extra rules:
-includetest.cc: findheaders.pl
-	@echo "Generating includetest.cc - including all header files."
-	depends="$(ALL_INCLUDES)"; destfile=".deps-includetest-cc"; $(GENDEPS)
-	for header in $(ALL_INCLUDES) ; do echo '#include "'$$header'"' ; done > $@
-	echo '#include "$(top_srcdir)/common/omdebug.cc"' >> $@
-	echo 'int main() { return 0; }' >> $@
-
-# FIXME: ought to check each header file is OK by itself ideally...
-includetest.o: includetest.cc
-	$(CXXCOMPILE) -c includetest.cc
 
 ## Compile internaltest with the extra CXXFLAGS
 ## We have to provide our own rules, because automake doesn't

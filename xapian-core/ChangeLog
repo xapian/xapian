@@ -1,3 +1,8 @@
+Thu Jun 27 12:05:53 BST 2002  Olly Betts <olly@survex.com>
+
+	* Removed includetest - it was useful early in development, but isn't
+	  really now.
+
 Wed Jun 26 22:09:57 BST 2002  Olly Betts <olly@survex.com>
 
 	* apitest: deldoc2 and deldoc3 now pass when the library is compiled
