@@ -120,7 +120,8 @@ can_replace_by_single_subq(OmQuery::Internal::op_t op)
 	    op == OmQuery::OP_XOR ||
 	    op == OmQuery::OP_NEAR ||
 	    op == OmQuery::OP_PHRASE ||
-	    op == OmQuery::OP_ELITE_SET ||
+// Can't replace OP_ELITE_SET by a single subq since then set_elite_set_size will barf...
+//	    op == OmQuery::OP_ELITE_SET ||
 	    op == OmQuery::OP_FILTER ||
 	    op == OmQuery::OP_AND_MAYBE ||
 	    op == OmQuery::OP_AND_NOT);
