@@ -1,3 +1,7 @@
+Fri Apr 28 16:22:56 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added checking for -lsocket on Solaris
+
 Fri Apr 28 10:27:06 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* ProgServer exits when it receives "QUIT"

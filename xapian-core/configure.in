@@ -293,6 +293,9 @@ AC_TRY_COMPILE(,[return 0],
 unset SAVED_CXXFLAGS
 AC_LANG_RESTORE
 
+dnl Add -lsocket to $LDFLAGS if needed (eg Solaris)
+CME_FIND_SOCKETPAIR
+
 if test "$use_debug" = yes; then
   OPT_LEVEL=""
 else
