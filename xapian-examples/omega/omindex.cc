@@ -1,5 +1,28 @@
+/* omindex.cc: index static documents into the omega db
+ *
+ * ----START-LICENCE----
+ * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 James Aylett
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ * -----END-LICENCE-----
+ */
 #include <string>
 #include <map>
+#include <memory>
 
 #include <fstream>
 
@@ -7,13 +30,26 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
-#include <htmlparse.h>
+#include <getopt.h>
 
 #include <om/om.h>
 
+#include "htmlparse.h"
+
 using std::cout;
 using std::endl;
+
+#define OMINDEX "omindex"
+#define VERSION "1.0"
+
+#define DUPE_ignore 0
+#define DUPE_replace 1
+#define DUPE_duplicate 2
+static int dupes = DUPE_replace;
+static string dbpath;
+static string root;
+static string baseurl;
+static OmWritableDatabase *db;
 
 // FIXME: these 2 copied from om/indexer/index_utils.cc
 static void
@@ -25,8 +61,6 @@ lowercase_term(om_termname &term)
 	i++;
     }
 }
-
-static OmWritableDatabase *db;
 
 class MyHtmlParser : public HtmlParser {
     public:
@@ -122,20 +156,23 @@ index_text(const string &s, OmDocument &doc, OmStem &stemmer, om_termpos pos)
     return pos;
 }
 
-static string root;
-
 static void
 index_file(const string &url, const string &mimetype)
 {
     string file = root + url;
     string title, sample, keywords, dump;
 
-    cout << "Indexing \"" << url << "\" as " << mimetype << "\n";
+    cout << "Indexing \"" << baseurl << url << "\" as " << mimetype << " ... ";
+
+    if (dupes==DUPE_ignore && db->term_exists("U" + baseurl + url)) {
+	cout << "duplicate. Ignored." << endl;
+	return;
+    }
 
     if (mimetype == "text/html") {
 	std::ifstream in(file.c_str());
 	if (!in) {
-	    cout << "Can't open \"" << file << "\" - skipping\n";
+	    cout << "can't open \"" << file << "\" - skipping\n";
 	    return;
 	}
 	string text;
@@ -148,7 +185,7 @@ index_file(const string &url, const string &mimetype)
 	MyHtmlParser p;
 	p.parse_html(text);
 	if (!p.indexing_allowed) {
-	    cout << "Indexing disallowed by meta tag\n";
+	    cout << "indexing disallowed by meta tag\n";
 	    return;
 	}
 	dump = p.dump;
@@ -158,7 +195,7 @@ index_file(const string &url, const string &mimetype)
     } else if (mimetype == "text/plain") {
 	std::ifstream in(file.c_str());
 	if (!in) {
-	    cout << "Can't open \"" << file << "\" - skipping\n";
+	    cout << "can't open \"" << file << "\" - skipping\n";
 	    return;
 	}
 	while (!in.eof()) {
@@ -237,7 +274,7 @@ index_file(const string &url, const string &mimetype)
 
     // Put the data in the document
     OmDocument newdocument;
-    string record = "url=" + url + "\nsample=" + sample;
+    string record = "url=" + baseurl + url + "\nsample=" + sample;
     if (title != "") record = record + "\ncaption=" + title;
     record = record + "\ntype=" + mimetype;
     newdocument.set_data(record);
@@ -247,10 +284,29 @@ index_file(const string &url, const string &mimetype)
     pos = index_text(title, newdocument, stemmer, pos);
     pos = index_text(dump, newdocument, stemmer, pos + 100);
     pos = index_text(keywords, newdocument, stemmer, pos + 100);
-    newdocument.add_term_nopos("M" + mimetype);
+    newdocument.add_term_nopos("M" + mimetype); // Mimetype
+    newdocument.add_term_nopos("S" + baseurl); // Subsite
+    newdocument.add_term_nopos("U" + baseurl + url); // Url
 
-    // Add the document to the database
-    db->add_document(newdocument);
+    if (dupes==DUPE_replace && db->term_exists("U" + baseurl + url)) {
+	// This document has already been indexed - update!
+	try {
+	    auto_ptr<OmEnquire> enq = auto_ptr<OmEnquire>(new OmEnquire(*db));
+	    enq->set_query(OmQuery("U" + baseurl + url));
+	    OmMSet mset = enq->get_mset(0, 1);
+	    try {
+		db->replace_document(*mset[0], newdocument);
+	    } catch (...) {
+	    }
+	} catch (...) {
+	    db->add_document(newdocument);
+	    cout << "(failed re-seek) ";
+	}
+	cout << "duplicate. Re-indexed." << endl;
+    } else {
+	db->add_document(newdocument);
+	cout << "done." << endl;
+    }
 }
 
 static void
@@ -308,19 +364,122 @@ index_directory(const string &dir)
 int
 main(int argc, char **argv)
 {
-    OmSettings params;
-    if (argc != 4) {
-	cout << "Syntax: " << argv[0] << " DBDIRECTORY DOCROOT STARTURL\n";
-	cout << "e.g. " << argv[0]
-	     << " /home/omega/data/default /home/httpd/html /\n";
-	exit(1);
+    // getopt
+    char* optstring = "hvd:D:U:";
+    struct option longopts[6];
+    int longindex, getopt_ret;
+    longopts[0].name = "help";
+    longopts[0].has_arg = 0;
+    longopts[0].flag = NULL;
+    longopts[0].val = 'h';
+    longopts[1].name = "version";
+    longopts[1].has_arg = 0;
+    longopts[1].flag = NULL;
+    longopts[1].val = 'v';
+    longopts[2].name = "duplicates";
+    longopts[2].has_arg = required_argument;
+    longopts[2].flag = NULL;
+    longopts[2].val = 'd';
+    longopts[3].name = "db";
+    longopts[3].has_arg = required_argument;
+    longopts[3].flag = NULL;
+    longopts[3].val = 'D';
+    longopts[4].name = "url";
+    longopts[4].has_arg = required_argument;
+    longopts[4].flag = NULL;
+    longopts[4].val = 'U';
+
+    while ((getopt_ret = getopt_long(argc, argv, optstring,
+				     longopts, &longindex))!=EOF) {
+	switch (getopt_ret) {
+	case 'h':
+	    cout << OMINDEX << endl
+		 << "Usage: " << argv[0] << " [OPTION] --db DATABASE "
+		 << endl << "\t--url BASEURL DIRECTORY" << endl << endl
+		 << "Index static website data via the filesystem." << endl
+		 << "  -d, --duplicates\tset duplicate handling" << endl
+		 << "  \t\t\tone of `ignore', `replace', `duplicate'" << endl
+		 << "  -D, --db\t\tpath to database to use" << endl
+		 << "  -U, --url\t\tbase url DIRECTORY represents" << endl
+		 << "  -h, --help\t\tdisplay this help and exit" << endl
+		 << "  -v --version\t\toutput version and exit" << endl << endl
+		 << "Report bugs via the web interface at:" << endl
+		 << "<http://sourceforge.net/tracker/?func=add&group_id=26013&atid=385771>" << endl;
+	    return 0;
+	    break;
+	case 'v':
+	    cout << OMINDEX << " (omega) " << VERSION << endl;
+	    cout << "(c) Copyright 2000-2001 Brightstation, Inc." << endl;
+	    cout << "(c) Copyright 2001 James Aylett" << endl << endl;
+	    cout << "This is free software, and may be redistributed under" << endl;
+	    cout << "the terms of the GNU Public License." << endl;
+	    return 0;
+	    break;
+	case 'd': // how shall we handle duplicate documents?
+	    switch (optarg[0]) {
+	    case 'd':
+		dupes = DUPE_duplicate;
+		break;
+	    case 'i':
+		dupes = DUPE_ignore;
+		break;
+	    case 'r':
+		dupes = DUPE_replace;
+		break;
+	    }
+	    break;
+	case 'D':
+	    dbpath = optarg;
+	    break;
+	case 'U':
+	    baseurl = optarg;
+	    break;
+	case ':': // missing param
+	    cerr << OMINDEX << ": missing parameter for option '" <<
+		 longopts[longindex].name << "'.\n";
+	    return 1;
+	case '?': // unknown option: FIXME -> char
+	    cerr << OMINDEX << ": unknown option '" << optopt << "'.\n";
+	    return 1;
+	}
     }
+
+    if (dbpath=="") {
+	cerr << OMINDEX << ": you must specify a database with --db.\n";
+	return 1;
+    }
+    if (baseurl=="") {
+	cerr << OMINDEX << ": you must specify a base URL with --url.\n";
+	return 1;
+    }
+    // baseurl mustn't end '/' or you end up with the wrong URL
+    // (//thing is different to /thing). We could probably make this
+    // safe a different way, by ensuring that we don't put a leading '/'
+    // on leafnames when scanning a directory, but this will do.
+    if (baseurl[baseurl.length()-1]=='/') {
+	cout << "baseurl has trailing '/' ... removing ... " << endl;
+	baseurl = baseurl.substr(0, baseurl.length()-1);
+    }
+
+    if (optind >= argc || optind+1 < argc) {
+	cerr << OMINDEX << ": you must specify a single directory to index.\n";
+	return 1;
+    }
+    root = argv[optind];
+
+    OmSettings params;
     params.set("backend", "quartz");
-    params.set("quartz_dir", argv[1]);
-    root = argv[2];
+    params.set("quartz_dir", dbpath);
     try {
-	db = new OmWritableDatabase(params);
-	index_directory(argv[3]);
+	try {
+	    db = new OmWritableDatabase(params);
+	} catch (OmOpeningError& error) {
+	    params.set("database_create", true);
+	    db = new OmWritableDatabase(params);
+	}
+	index_directory("/");
+	//      db->reopen(); // Ensure we're up to date
+	//      cout << "\n\nNow we have " << db->get_doccount() << " documents.\n";
 	delete db;
     }
     catch (OmError &e) {
