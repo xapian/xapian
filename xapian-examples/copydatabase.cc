@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,20 +54,21 @@ main(int argc, char **argv)
 
 	    // At present there's no way to iterate across all documents
 	    // so we have to test each docid in turn until we've found all
-	    // the documents
+	    // the documents or reached the highest numbered one.
 	    doccount count = src_database.get_doccount();
 	    docid did = 1;
+	    docid max_did = src_database.get_lastdocid();
 	    while (count) {
 		try {
 		    Document document = src_database.get_document(did);
 		    dest_database.add_document(document);
 		    --count;
 		    cout << '\r' << argv[i] << ": " << count
-			 << " docs to go" << flush;
+			 << " docs to go " << flush;
 		} catch (const DocNotFoundError &) {
 		    // that document must have been deleted
 		}
-		if (did == (docid)-1) break;
+		if (did == max_did) break;
 		++did;
 	    }
 	    cout << '\r' << argv[i] << ": Done                  " << endl;

@@ -1,3 +1,9 @@
+Wed Jun 30 15:03:33 BST 2004  Olly Betts <olly@survex.com>
+
+	* copydatabase.cc: Make use of new get_lastdocid() method; output
+	  an extra space after the progress report so that we don't get
+	  "... docs to goooo"!
+
 Mon Apr 19 14:44:10 BST 2004  Olly Betts <olly@survex.com>
 
 	* NEWS: Final update for 0.8.0.
