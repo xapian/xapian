@@ -3,7 +3,7 @@ Mon May  8 16:42:24 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 	* Moved specification of mset comparison method into Match Options.
 	  Renamed the comparator class OmMSetCmp (from MSetCmp), and created
 	  a method in OmMatchOptions to return an appropriate instance.
-	  Made comparator a method of LocalMatch and MultiMatch, which gets
+	  Made comparator a member of LocalMatch and MultiMatch, which gets
 	  set by the set_options() method.
 
 Mon May  8 16:33:16 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
