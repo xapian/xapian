@@ -899,9 +899,15 @@ Btree::add_item(struct Cursor * C, byte * kt, int j)
 	split_off(C, j, m, p, q);
 	if (c >= m) {
 	    c -= (m - DIR_START);
+	    Assert(seq_count < 0 || c <= DIR_START + D2);
+	    Assert(c >= DIR_START);
+	    Assert(c <= DIR_END(p));
 	    add_item_to_block(p, kt, c);
 	    n = C[j].n;
 	} else {
+	    Assert(seq_count < 0);
+	    Assert(c >= DIR_START);
+	    Assert(c <= DIR_END(q));
 	    add_item_to_block(q, kt, c);
 	    n = C[j].split_n;
 	}

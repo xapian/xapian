@@ -1,3 +1,10 @@
+Wed Jun 26 12:32:47 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* btree.cc: Asserts to check that add_item in sequential mode
+	  when splitting a block is not trying to add to the wrong block,
+	  or to add to a new block which is not empty (or containing more
+	  than one item).
+
 Tue Jun 25 17:53:19 BST 2002  Olly Betts <olly@survex.com>
 
 	* Assert that the value of c is sane in GETINT1, etc.
