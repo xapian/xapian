@@ -930,7 +930,6 @@ static bool test_adddoc1()
 
     RefCntPtr<Database> database = DatabaseBuilder::create(settings, false);
 
-    database->begin_session(0);
     TEST_EQUAL(database->get_doccount(), 0);
     TEST_EQUAL(database->get_avlength(), 0);
     OmDocument document;
@@ -978,7 +977,6 @@ static bool test_adddoc1()
     TEST_EQUAL(database->get_avlength(), 0);
 
     database->flush();
-    database->end_session();
 
     return true;
 }
@@ -1650,14 +1648,13 @@ static bool test_overwrite2()
 
     om_docid last_doc = 0;
 
-    writer.begin_session();
     for (int i=0; i<1000; ++i) {
 	last_doc = writer.add_document(document_in);
 	if (i % 200 == 0) {
 	    writer.flush();
 	}
     }
-    writer.end_session();
+    writer.flush();
 
     OmDatabase reader(settings);
     // FIXME: use reader.get_document() when available.
@@ -1673,65 +1670,60 @@ static bool test_overwrite2()
     key_out = enquire.get_doc(last_doc).get_key(7);
     TEST(key_out.value == "Key7");
 
-    writer.begin_session();
     for (int i=0; i<1000; ++i) {
 	last_doc = writer.add_document(document_in);
 	if (i % 200 == 0) {
 	    writer.flush();
 	}
     }
-    writer.end_session();
+    writer.flush();
 
     doc_out = OmData();
     doc_out = enquire.get_doc(last_doc).get_data();
     TEST(doc_out.value == "Foobar rising");
 
-    writer.begin_session();
     for (int i=0; i<1000; ++i) {
 	last_doc = writer.add_document(document_in);
 	if (i % 200 == 0) {
 	    writer.flush();
 	}
     }
-    writer.end_session();
+    writer.flush();
 
     key_out = OmKey();
     key_out = enquire.get_doc(last_doc).get_key(7);
     TEST(key_out.value == "Key7");
 
-    writer.begin_session();
     for (int i=0; i<1000; ++i) {
 	last_doc = writer.add_document(document_in);
 	if (i % 200 == 0) {
 	    writer.flush();
 	}
     }
-    writer.end_session();
+    writer.flush();
 
     enquire.set_query(OmQuery("falling"));
     enquire.get_mset(1, 10);
 
-    writer.begin_session();
     for (int i=0; i<1; ++i) {
 	last_doc = writer.add_document(document_in);
 	if (i % 200 == 0) {
 	    writer.flush();
 	}
     }
-    writer.end_session();
+    writer.flush();
 
     OmTermListIterator ti = reader.termlist_begin(1);
     *ti;
     ti++;
 
-    writer.begin_session();
     for (int i=0; i<1; ++i) {
 	last_doc = writer.add_document(document_in);
 	if (i % 200 == 0) {
 	    writer.flush();
 	}
     }
-    writer.end_session();
+    writer.flush();
 
     OmPostListIterator ki = reader.postlist_begin("falling");
     *ki;
