@@ -384,9 +384,10 @@ class OmExpandDeciderAnd : public OmExpandDecider {
  *  be opened (for example, a required file cannot be found).
  */
 class OmEnquire {
+    public:
+	class Internal;
     private:
 	/// Internals, where most of the work is performed.
-	class Internal;
 	Internal *internal;
 
 	/// Copies are not allowed.
@@ -632,8 +633,8 @@ class OmQuery {
     private:
 	friend class OmEnquire::Internal;
 
-	class Internal;
 	/// Internals of query class
+	class Internal;
     	Internal *internal;
 
     public:
@@ -780,8 +781,9 @@ class OmQuery {
  *
  */
 class OmBatchEnquire {
-    private:
+    public:
 	class Internal;
+    private:
 	Internal *internal;
 
 	// disallow copies
