@@ -572,17 +572,9 @@ LeafPostList *
 QuartzDatabase::do_open_post_list(const string& tname) const
 {
     DEBUGCALL(DB, LeafPostList *, "QuartzDatabase::do_open_post_list", tname);
-    Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
-
-    RETURN(open_post_list_internal(tname, ptrtothis));
-}
-
-LeafPostList *
-QuartzDatabase::open_post_list_internal(const string& tname,
-				Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> ptrtothis) const
-{
-    DEBUGCALL(DB, LeafPostList *, "QuartzDatabase::open_post_list_internal", tname << ", [ptrtothis]");
     Assert(!tname.empty());
+
+    Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
     return(new QuartzPostList(ptrtothis,
 			      &postlist_table,
 			      &positionlist_table,
@@ -590,22 +582,13 @@ QuartzDatabase::open_post_list_internal(const string& tname,
 }
 
 LeafTermList *
-QuartzDatabase::open_term_list_internal(Xapian::docid did,
-				Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> ptrtothis) const
-{
-    DEBUGCALL(DB, LeafTermList *, "QuartzDatabase::open_term_list_internal",
-	      did << ", [ptrtothis]");
-    Assert(did != 0);
-    return(new QuartzTermList(ptrtothis, &termlist_table,
-			      did, get_doccount()));
-}
-
-LeafTermList *
 QuartzDatabase::open_term_list(Xapian::docid did) const
 {
     DEBUGCALL(DB, LeafTermList *, "QuartzDatabase::open_term_list", did);
+    Assert(did != 0);
+
     Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
-    RETURN(open_term_list_internal(did, ptrtothis));
+    RETURN(new QuartzTermList(ptrtothis, &termlist_table, did, get_doccount()));
 }
 
 Xapian::Document::Internal *
@@ -614,8 +597,8 @@ QuartzDatabase::open_document(Xapian::docid did, bool lazy) const
     DEBUGCALL(DB, Xapian::Document::Internal *, "QuartzDatabase::open_document",
 	      did << ", " << lazy);
     Assert(did != 0);
-    Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
 
+    Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
     RETURN(new QuartzDocument(ptrtothis,
 			      &value_table,
 			      &record_table,
@@ -632,9 +615,8 @@ QuartzDatabase::open_position_list(Xapian::docid did,
     poslist->read_data(&positionlist_table, did, tname);
     if (poslist->get_size() == 0) {
 	// Check that term / document combination exists.
-	Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
 	// If the doc doesn't exist, this will throw Xapian::DocNotFoundError:
-	AutoPtr<LeafTermList> ltl(open_term_list_internal(did, ptrtothis));
+	AutoPtr<LeafTermList> ltl(open_term_list(did));
 	ltl->skip_to(tname);
 	if (ltl->at_end() || ltl->get_termname() != tname)
 	    throw Xapian::RangeError("Can't open position list: requested term is not present in document.");
@@ -1129,6 +1111,7 @@ LeafPostList *
 QuartzWritableDatabase::do_open_post_list(const string& tname) const
 {
     DEBUGCALL(DB, LeafPostList *, "QuartzWritableDatabase::do_open_post_list", tname);
+    Assert(!tname.empty());
 
     // Need to flush iff we've got buffered changes to this term's postlist.
     map<string, map<docid, pair<char, termcount> > >::const_iterator j;
@@ -1136,8 +1119,10 @@ QuartzWritableDatabase::do_open_post_list(const string& tname) const
     if (j != mod_plists.end()) do_flush_const();
 
     Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
-
-    RETURN(database_ro.open_post_list_internal(tname, ptrtothis));
+    return(new QuartzPostList(ptrtothis,
+			      &database_ro.postlist_table,
+			      &database_ro.positionlist_table,
+			      tname));
 }
 
 LeafTermList *
@@ -1145,12 +1130,14 @@ QuartzWritableDatabase::open_term_list(Xapian::docid did) const
 {
     DEBUGCALL(DB, LeafTermList *, "QuartzWritableDatabase::open_term_list",
 	      did);
+    Assert(did != 0);
 
     // Only need to flush if document #did has been modified.
     if (doclens.find(did) != doclens.end()) do_flush_const();
 
     Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
-    RETURN(database_ro.open_term_list_internal(did, ptrtothis));
+    RETURN(new QuartzTermList(ptrtothis, &database_ro.termlist_table, did,
+			      get_doccount()));
 }
 
 Xapian::Document::Internal *
@@ -1159,9 +1146,6 @@ QuartzWritableDatabase::open_document(Xapian::docid did, bool lazy) const
     DEBUGCALL(DB, Xapian::Document::Internal *, "QuartzWritableDatabase::open_document",
 	      did << ", " << lazy);
     Assert(did != 0);
-
-    // Only need to flush if document #did has been modified.
-    if (doclens.find(did) != doclens.end()) do_flush_const();
 
     Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
     RETURN(new QuartzDocument(ptrtothis,
@@ -1180,9 +1164,8 @@ QuartzWritableDatabase::open_position_list(Xapian::docid did,
     poslist->read_data(&database_ro.positionlist_table, did, tname);
     if (poslist->get_size() == 0) {
 	// Check that term / document combination exists.
-	Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
 	// If the doc doesn't exist, this will throw Xapian::DocNotFoundError:
-	AutoPtr<LeafTermList> ltl(database_ro.open_term_list_internal(did, ptrtothis));
+	AutoPtr<LeafTermList> ltl(open_term_list(did));
 	ltl->skip_to(tname);
 	if (ltl->at_end() || ltl->get_termname() != tname)
 	    throw Xapian::RangeError("Can't open position list: requested term is not present in document.");

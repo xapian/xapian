@@ -1,3 +1,14 @@
+Sun Aug 22 10:56:56 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc: No need to force a flush on
+	  QuartzWritableDatabase::open_document() (the document will read
+	  things lazily from the database, and that may trigger a forced
+	  flush).
+	* backends/quartz/quartz_database.cc,
+	  backends/quartz/quartz_database.h: Eliminated
+	  QuartzDatabase::open_post_list_internal() and
+	  QuartzDatabase::open_term_list_internal().
+
 Sun Aug 22 01:33:05 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc,backends/quartz/quartz_record.cc,

@@ -177,14 +177,6 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	 */
 	void cancel();
 
-	/// Implementation of open_post_list()
-	LeafPostList * open_post_list_internal(const string & tname,
-		Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> ptrtothis) const;
-
-	/// Implementation of open_term_list()
-	LeafTermList * open_term_list_internal(Xapian::docid did,
-		Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> ptrtothis) const;
-
     public:
 	/** Create and open a quartz database.
 	 *
