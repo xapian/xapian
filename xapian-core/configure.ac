@@ -165,6 +165,9 @@ AC_SUBST(DOXYGEN_DOT_PATH)
 dnl Check for latex. (Needed to make some more of the documentation)
 AC_PATH_PROG(LATEX, latex, [$MISSING latex])
 
+dnl Check for makeindex. (Needed to make some more of the documentation)
+AC_PATH_PROG(MAKEINDEX, makeindex, [$MISSING makeindex])
+
 dnl Check for doxygen. (Needed to make some more of the documentation)
 AC_PATH_PROG(DOXYGEN, doxygen, [$MISSING doxygen])
 
