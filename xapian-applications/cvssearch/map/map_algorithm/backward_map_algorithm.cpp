@@ -155,8 +155,13 @@ diff *
 backward_map_algorithm::get_diff(const cvs_log & log, unsigned int j)
 {
     diff * pdiff = 0;
-    if ((pdiff = read_diff(log, j)) != 0) {
-        return pdiff;
+    if (read_mode) {
+        pdiff = read_diff(log, j);
+        if (pdiff) {
+            return pdiff;
+        } else {
+            return calc_diff(log, j);
+        }
     } else {
         return save_diff(log, j);
     }
