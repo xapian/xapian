@@ -6,16 +6,26 @@
 #include "multi_database.h"
 
 int main(int argc, char *argv[]) {
-    MultiDatabase database;
     DBPostList * postlist;
     TermList * termlist;
     termid tid;
     docid did;
 
     try {
+#if 0
+	MultiDatabase database;
 	database.open_subdatabase(new SleepyDatabase(), "test_sleepy", 0);
-	database.open_subdatabase(new SleepyDatabase(), "test_sleepy2", 0);
-	database.open_subdatabase(new DADatabase(), "testdir", 0);
+	//database.open_subdatabase(new SleepyDatabase(), "test_sleepy2", 0);
+	//database.open_subdatabase(new DADatabase(), "testdir", 0);
+#endif
+#if 1
+	SleepyDatabase database;
+	database.open("test_sleepy", 0);
+#endif
+#if 0
+	DADatabase database;
+	database.open("testdir", 0);
+#endif
 
 	tid = database.term_name_to_id("thou");
 	printf("tid is %d\n", tid);
@@ -43,15 +53,18 @@ int main(int argc, char *argv[]) {
 	    }
 	    delete postlist;
 	}
+	/*
 	termlist = database.open_term_list(200);
 	delete termlist;
 	termlist = database.open_term_list(201);
 	delete termlist;
 	termlist = database.open_term_list(202);
 	delete termlist;
-	did = 111;
-	termlist = database.open_term_list(did);
+	*/
+	did = 1;
 	printf("\nTermlist for document %d:\n", did);
+	termlist = database.open_term_list(did);
+	termlist->next();
 	while(!termlist->at_end()) {
 	    termid tid = termlist->get_termid();
 
