@@ -14,7 +14,7 @@ xapian: xapian/configure
 
 xapian/configure: xapian/config.m4 xapian/Makefile.in xapian/xapian_wrap.cpp xapian/php_xapian.h xapian.php
 	for file in $? ; do \
-	  case "$$file" in xapian/*) cp $$file xapian ;; esac ; \
+	  case "$$file" in xapian/*) ;; *) cp $$file xapian ;; esac ; \
 	done
 	cd xapian && phpize
 
