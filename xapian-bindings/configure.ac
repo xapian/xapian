@@ -18,7 +18,6 @@ AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
 dnl Checks for programs.
-AC_PROG_CC
 AC_PROG_CXX
 
 dnl Check for libxapian
