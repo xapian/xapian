@@ -5,7 +5,10 @@
 
 #include "omassert.h"
 #include "database.h"
+#include "postlist.h"
+#include "termlist.h"
 #include <stdlib.h>
+#include <map>
 #include <vector>
 #include <list>
 

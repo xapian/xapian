@@ -3,7 +3,7 @@
 #ifndef _omassert_h_
 #define _omassert_h_
 
-#include "error.h"
+#include "omerror.h"
 
 // 2nd level not need here (since we're using this in a macro) but
 // is required in general

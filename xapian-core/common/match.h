@@ -2,6 +2,7 @@
 #define _match_h_
 
 #include "database.h"
+#include "postlist.h"
 
 #include <queue>
 #include <stack>

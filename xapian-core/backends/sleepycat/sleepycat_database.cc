@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string>
+#include <algorithm>
 
 // Sleepycat database stuff
 #include <db_cxx.h>

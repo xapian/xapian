@@ -6,6 +6,8 @@
 #include <math.h>
 
 #include "database.h"
+#include "irweight.h"
+#include "omassert.h"
 
 const double k = 1;
 

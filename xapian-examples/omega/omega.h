@@ -1,6 +1,8 @@
 #define FERRET 1
 
 #include "database.h"
+#include "postlist.h"
+#include "termlist.h"
 #include "irdocument.h"
 #include "match.h"
 #include "stem.h"

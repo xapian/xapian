@@ -5,6 +5,8 @@
 
 #include "omassert.h"
 #include "database.h"
+#include "postlist.h"
+#include "termlist.h"
 #include <stdlib.h>
 
 // Postlist - a list of documents indexed by a given term

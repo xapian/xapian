@@ -7,7 +7,7 @@
 #include "omassert.h"
 
 #include "omtypes.h"
-#include "error.h"
+#include "omerror.h"
 #include "irweight.h"
 
 class PostList {

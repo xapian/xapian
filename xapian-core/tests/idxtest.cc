@@ -1,5 +1,7 @@
 #include "sleepy_database.h"
+#include "omerror.h"
 
+#include <algorithm>
 #include <stdio.h>
 
 int main(int argc, char *argv[]) {
