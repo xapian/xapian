@@ -154,9 +154,13 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
       //	  cerr << "..." << pos << " " << word << endl;
       newdocument.add_posting(word, pos++); // term, position of term
     }
+
+    assert( symbol.size() <= 1000 );
     static char str[4096];
     sprintf(str, "%d %s", count, symbol.c_str());
+    assert( strlen(str) <= 1000 );
     newdocument.data = string(str);
+
     if ( isFunction ) {
       database_functions.add_document(newdocument);
     } else {
@@ -165,8 +169,12 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
   }
 
 
+#warning "seg faults"
   database_functions.end_session();
   database_classes.end_session();
+
+  //  database_functions.flush();
+  //  database_classes.flush();
   cerr << "Done!" << endl;
 }
 
