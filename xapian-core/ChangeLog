@@ -1,3 +1,7 @@
+Wed Dec  6 11:36:55 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Increase sleep in tcpclient1 to 3 (did tcpmatch1 last time, duh!)
+
 Tue Dec  5 17:13:38 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* QuartzDocument now has a QuartzTableManager pointer rather than

@@ -141,7 +141,7 @@ static bool test_tcpclient1()
 	                  "--port 1236 &";
     system(command.c_str());
 
-    sleep(1);
+    sleep(3);
     TcpClient tc("localhost", 1236, 10000, 10000);
 
     return true;
@@ -217,7 +217,7 @@ static bool test_tcpdead1()
 	FAIL_TEST("fork() failed");
     }
 
-    sleep(1);
+    sleep(3);
 
     // parent code:
     OmSettings params;
@@ -235,7 +235,7 @@ static bool test_tcpdead1()
 	FAIL_TEST("Couldn't send signal to child");
     }
 
-    sleep(1);
+    sleep(3);
 
 //    cout << pid << endl;
 //    system("ps x | grep omtcp");
