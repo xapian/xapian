@@ -58,4 +58,7 @@ bool operator==(const OmMSet &first, const OmMSet &second);
 	(a).items.size() << "' expected `" << (b) << "': " << endl << \
 	"Full mset was: " << endl << (a) << endl)
 
+/// Check that a piece of code throws an expected exception
+#define TEST_EXCEPTION(a,b) try {b;FAIL_TEST("Expected "#a);}catch(a &e){}
+
 #endif  // OM_HGUARD_TESTUTILS_H

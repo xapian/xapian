@@ -108,44 +108,6 @@ TEST_EXPECTED_DOCS(const OmMSet &A,
     return true;
 }
 
-// tests the allow query terms expand option
-bool test_allowqterms1();
-// tests that the MSet max_attained works
-bool test_maxattain1();
-// tests the collapse-on-key
-bool test_collapsekey1();
-// tests a reversed boolean query
-bool test_reversebool1();
-// tests a reversed boolean query, where the full mset isn't returned
-bool test_reversebool2();
-// tests that get_query_terms() returns the terms in the right order
-bool test_getqterms1();
-// tests that get_matching_terms() returns the terms in the right order
-bool test_getmterms1();
-// tests that building a query with boolean sub-queries throws an exception.
-bool test_boolsubq1();
-// tests that specifying a nonexistent input file throws an exception.
-bool test_absentfile1();
-// tests that query lengths are calculated correctly
-bool test_querylen1();
-// tests that query lengths are calculated correctly
-bool test_querylen2();
-// tests that query lengths are calculated correctly
-bool test_querylen3();
-// tests that the collapsing on termpos optimisation works
-bool test_poscollapse1();
-// tests that collapsing of queries includes subqueries
-bool test_subqcollapse1();
-// test that the batch query functionality works
-bool test_batchquery1();
-// test that running a query twice returns the same results
-bool test_repeatquery1();
-// test that searching for a term not in the database fails nicely
-bool test_absentterm1();
-// as absentterm1, but setting query from a vector of terms
-bool test_absentterm2();
-// test behaviour when creating a query from an empty vector
-bool test_emptyquerypart1();
 
 bool floats_are_equal_enough(double a, double b)
 {
@@ -792,6 +754,7 @@ bool test_pctcutoff1()
     return success;
 }
 
+// tests the allow query terms expand option
 bool test_allowqterms1()
 {
     bool success = true;
@@ -826,6 +789,7 @@ bool test_allowqterms1()
     return success;
 }
 
+// tests that the MSet max_attained works
 bool test_maxattain1()
 {
     bool success = true;
@@ -849,6 +813,7 @@ bool test_maxattain1()
     return success;
 }
 
+// tests the collapse-on-key
 bool test_collapsekey1()
 {
     bool success = true;
@@ -907,6 +872,7 @@ bool test_collapsekey1()
     return success;
 }
 
+// tests a reversed boolean query
 bool test_reversebool1()
 {
     OmEnquire enquire(get_simple_database());
@@ -986,6 +952,7 @@ bool test_reversebool1()
     return true;
 }
 
+// tests a reversed boolean query, where the full mset isn't returned
 bool test_reversebool2()
 {
     OmEnquire enquire(get_simple_database());
@@ -1056,6 +1023,7 @@ bool test_reversebool2()
     return true;
 }
 
+// tests that get_query_terms() returns the terms in the right order
 bool test_getqterms1()
 {
     bool success;
@@ -1089,6 +1057,7 @@ bool test_getqterms1()
     return success;
 }
 
+// tests that get_matching_terms() returns the terms in the right order
 bool test_getmterms1()
 {
     bool success = true;
@@ -1139,6 +1108,7 @@ bool test_getmterms1()
     return success;
 }
 
+// tests that building a query with boolean sub-queries throws an exception.
 bool test_boolsubq1()
 {
     bool success = false;
@@ -1157,6 +1127,7 @@ bool test_boolsubq1()
     return success;
 }
 
+// tests that specifying a nonexistent input file throws an exception.
 bool test_absentfile1()
 {
     bool success = false;
@@ -1176,6 +1147,7 @@ bool test_absentfile1()
     return success;
 }
 
+// tests that query lengths are calculated correctly
 bool test_querylen1()
 {
     // test that a null query has length 0
@@ -1184,6 +1156,7 @@ bool test_querylen1()
     return success;
 }
 
+// tests that query lengths are calculated correctly
 bool test_querylen2()
 {
     // test that a simple query has the right length
@@ -1212,6 +1185,7 @@ bool test_querylen2()
     return success;
 }
 
+// tests that query lengths are calculated correctly
 bool test_querylen3()
 {
     bool success = true;
@@ -1302,6 +1276,7 @@ bool test_querylen3()
     return success;
 }
 
+// tests that the collapsing on termpos optimisation works
 bool test_poscollapse1()
 {
     bool success = true;
@@ -1330,6 +1305,7 @@ bool test_poscollapse1()
     return success;
 }
 
+// tests that collapsing of queries includes subqueries
 bool test_subqcollapse1()
 {
     bool success = true;
@@ -1371,6 +1347,7 @@ bool test_subqcollapse1()
     return success;
 }
 
+// test that the batch query functionality works
 bool test_batchquery1()
 {
     bool success = true;
@@ -1433,6 +1410,7 @@ bool test_batchquery1()
     return success;
 }
 
+// test that running a query twice returns the same results
 bool test_repeatquery1()
 {
     bool success = true;
@@ -1459,6 +1437,7 @@ bool test_repeatquery1()
     return success;
 }
 
+// test that searching for a term not in the database fails nicely
 bool test_absentterm1()
 {
     bool success = true;
@@ -1481,6 +1460,7 @@ bool test_absentterm1()
     return success;
 }
 
+// as absentterm1, but setting query from a vector of terms
 bool test_absentterm2()
 {
     bool success = true;
@@ -1505,6 +1485,7 @@ bool test_absentterm2()
     return success;
 }
 
+// test behaviour when creating a query from an empty vector
 bool test_emptyquerypart1()
 {
     vector<om_termname> emptyterms;
@@ -2174,6 +2155,50 @@ bool test_phrase1()
     return true;
 }
 
+/// Test the termfrequency and termweight info returned for query terms
+bool test_qterminfo1()
+{
+    OmDatabase mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
+    OmEnquire enquire1(make_dbgrp(&mydb1));
+
+    OmDatabase mydb2(get_database("apitest_simpledata"));
+    OmDatabase mydb3(get_database("apitest_simpledata2"));
+    OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
+
+    // make a query
+    OmQuery myquery(OM_MOP_OR,
+		    OmQuery("inmemory"),
+		    OmQuery("word"));
+    myquery.set_bool(true);
+    enquire1.set_query(myquery);
+    enquire2.set_query(myquery);
+
+    // retrieve the results
+    OmMSet mymset1a = enquire1.get_mset(0, 0);
+    OmMSet mymset2a = enquire2.get_mset(0, 0);
+
+    TEST_EQUAL(mymset1a.get_termfreq("inmemory"),
+	       mymset2a.get_termfreq("inmemory"));
+    TEST_EQUAL(mymset1a.get_termweight("inmemory"),
+	       mymset2a.get_termweight("inmemory"));
+    TEST_EQUAL(mymset1a.get_termfreq("word"),
+	       mymset2a.get_termfreq("word"));
+    TEST_EQUAL(mymset1a.get_termweight("word"),
+	       mymset2a.get_termweight("word"));
+
+    TEST_EQUAL(mymset1a.get_termfreq("inmemory"), 1);
+    TEST_EQUAL(mymset1a.get_termfreq("word"), 3);
+
+    cout << "mymset1a.get_termweight(\"inmemory\")" <<
+	    mymset1a.get_termweight("inmemory") << endl;
+    cout << "mymset1a.get_termweight(\"word\")" <<
+	    mymset1a.get_termweight("word") << endl;
+
+    TEST_EXCEPTION(OmInvalidArgumentError,
+		   mymset1a.get_termfreq("sponge"));
+    
+    return true;
+}
 
 
 
@@ -2222,6 +2247,7 @@ test_desc db_tests[] = {
     {"multiexpand1",       test_multiexpand1},
     {"near1",		   test_near1},
     {"phrase1",		   test_phrase1},
+    {"qterminfo1",	   test_qterminfo1},
     {0, 0}
 };
 

@@ -1,3 +1,8 @@
+Tue Jul 11 12:54:15 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added test to apitest to check the get_term{freq,weight} methods
+	  of OmMSet.  Currently fails, since these are unimplemented. 
+
 Tue Jul 11 11:37:00 BST 2000 Olly Betts
 
 	* Added threadtest to .cvsignore
