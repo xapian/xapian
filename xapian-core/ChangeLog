@@ -1,3 +1,9 @@
+Wed Jul  5 11:33:00 BST 2000 Olly Betts
+
+	* backends/database_builder.cc: backend list now in alphabetical
+	  order; removed OM_ prefix from OM_DBTYPE_* (since they're now
+	  internal to this file).
+
 Wed Jul  5 11:10:56 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed incorrect test in apitest

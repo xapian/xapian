@@ -46,32 +46,33 @@
 
 /** Type of a database */
 enum om_database_type {
-    OM_DBTYPE_NULL,
-    OM_DBTYPE_AUTO, // autodetect database type
-    OM_DBTYPE_MUSCAT36_DA_F,
-    OM_DBTYPE_MUSCAT36_DA_H,
-    OM_DBTYPE_MUSCAT36_DB_F,
-    OM_DBTYPE_MUSCAT36_DB_H,
-    OM_DBTYPE_INMEMORY,
-    OM_DBTYPE_SLEEPY,
-    OM_DBTYPE_MULTI,
-    OM_DBTYPE_NET
+    DBTYPE_NULL,
+    DBTYPE_AUTO, // autodetect database type
+    DBTYPE_MUSCAT36_DA_F,
+    DBTYPE_MUSCAT36_DA_H,
+    DBTYPE_MUSCAT36_DB_F,
+    DBTYPE_MUSCAT36_DB_H,
+    DBTYPE_INMEMORY,
+    DBTYPE_SLEEPY,
+    DBTYPE_MULTI,
+    DBTYPE_NET
 };
 
 // Translation of types as strings to types as enum om_database_type
 
-// Table of names of database types
+/** The mapping from database type names to database type codes.
+ *  This list must be in alphabetic order. */
 static const StringAndValue database_strings[] = {
-    { "da_flimsy",		OM_DBTYPE_MUSCAT36_DA_F	},
-    { "da_heavy",		OM_DBTYPE_MUSCAT36_DA_H	},
-    { "db_flimsy",		OM_DBTYPE_MUSCAT36_DB_F	},
-    { "db_heavy",		OM_DBTYPE_MUSCAT36_DB_H	},
-    { "inmemory",		OM_DBTYPE_INMEMORY	},
-    { "multidb",		OM_DBTYPE_MULTI		},
-    { "sleepycat",		OM_DBTYPE_SLEEPY	},
-    { "net",			OM_DBTYPE_NET		},
-    { "auto",			OM_DBTYPE_AUTO		},
-    { "",			OM_DBTYPE_NULL		}  // End
+    { "auto",			DBTYPE_AUTO		},
+    { "da_flimsy",		DBTYPE_MUSCAT36_DA_F	},
+    { "da_heavy",		DBTYPE_MUSCAT36_DA_H	},
+    { "db_flimsy",		DBTYPE_MUSCAT36_DB_F	},
+    { "db_heavy",		DBTYPE_MUSCAT36_DB_H	},
+    { "inmemory",		DBTYPE_INMEMORY		},
+    { "multidb",		DBTYPE_MULTI		},
+    { "net",			DBTYPE_NET		},
+    { "sleepycat",		DBTYPE_SLEEPY		},
+    { "",			DBTYPE_NULL		}  // End
 };
 
 IRDatabase *
@@ -85,10 +86,10 @@ DatabaseBuilder::create(const DatabaseBuilderParams & params)
 
     // Create database of correct type, and open it
     switch (dbtype) {
-	case OM_DBTYPE_NULL:
+	case DBTYPE_NULL:
 	    throw OmInvalidArgumentError("Unspecified database type");
 	    break;
-	case OM_DBTYPE_AUTO:
+	case DBTYPE_AUTO:
 	    // Check validity of parameters
 	    if (params.paths.size() != 1) {
 		throw OmInvalidArgumentError("OM_DBTYPE_AUTO requires 1 parameter.");
@@ -130,42 +131,42 @@ DatabaseBuilder::create(const DatabaseBuilderParams & params)
             database = new SleepyDatabase(params);
 #endif
             break;
-	case OM_DBTYPE_MUSCAT36_DA_F:
+	case DBTYPE_MUSCAT36_DA_F:
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
 	    database = new DADatabase(params, 0);
 #endif
 	    break;
-	case OM_DBTYPE_MUSCAT36_DA_H:
+	case DBTYPE_MUSCAT36_DA_H:
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
 	    database = new DADatabase(params, 1);
 #endif
 	    break;
-	case OM_DBTYPE_MUSCAT36_DB_F:
+	case DBTYPE_MUSCAT36_DB_F:
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
 	    database = new DBDatabase(params, 0);
 #endif
 	    break;
-	case OM_DBTYPE_MUSCAT36_DB_H:
+	case DBTYPE_MUSCAT36_DB_H:
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
 	    database = new DBDatabase(params, 1);
 #endif
 	    break;
-	case OM_DBTYPE_INMEMORY:
+	case DBTYPE_INMEMORY:
 #ifdef MUS_BUILD_BACKEND_INMEMORY
 	    database = new InMemoryDatabase(params);
 #endif
 	    break;
-	case OM_DBTYPE_SLEEPY:
+	case DBTYPE_SLEEPY:
 #ifdef MUS_BUILD_BACKEND_SLEEPY
 	    database = new SleepyDatabase(params);
 #endif
 	    break;
-	case OM_DBTYPE_MULTI:
+	case DBTYPE_MULTI:
 #ifdef MUS_BUILD_BACKEND_MULTI
 	    database = new MultiDatabase(params);
 #endif
 	    break;
-	case OM_DBTYPE_NET:
+	case DBTYPE_NET:
 #ifdef MUS_BUILD_BACKEND_NET
 	    database = new NetworkDatabase(params);
 #endif
