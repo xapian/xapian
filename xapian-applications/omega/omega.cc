@@ -39,6 +39,8 @@
 #include "cgiparam.h"
 #include "query.h"
 
+using namespace std;
+
 OmEnquire * enquire;
 OmDatabase * omdb;
 OmRSet * rset;
@@ -59,13 +61,6 @@ om_docid min_hits = 0;
 
 // percentage cut-off
 int threshold = 0;
-
-// Whether or not we want the rset
-bool want_rset = false;
-// Whether or not we process [ ] > < # stuff
-bool want_paging = false;
-// raw_search means ignore paging, use topdoc and rset
-bool raw_search = false; 
 
 bool sort_numeric = true;
 om_valueno sort_key = 0;
@@ -121,7 +116,7 @@ main2(int argc, char *argv[])
     bool more = false;
     char *method;
     MCI val;
-    std::pair<MCI, MCI> g;
+    pair<MCI, MCI> g;
 
     // set default thousands and decimal separators: e.g. "16,729 hits" "1.4K"
     option["decimal"] = ".";
@@ -310,24 +305,35 @@ main2(int argc, char *argv[])
     } else {
         min_hits=0;
     }
-    // raw_search means ignore paging, use topdoc and rset
+
+    // Should we discard the existing R-set recorded in R CGI parameters?
+    bool discard_rset = true;
+
+    // Should we force the first page of hits (and ignore [ > < # and TOPDOC
+    // CGI parameters)?
+    bool force_first_page = true;
+
+    // raw_search means don't snap TOPDOC to a multiple of HITSPERPAGE.
+    // Normally we snap TOPDOC like this so that things work nicely if
+    // HITSPERPAGE is in a picker or on radio buttons.  If we're postprocessing
+    // the output of omega and want variable sized pages, this is unhelpful.
+    bool raw_search = false; 
     val = cgi_params.find("RAW_SEARCH");
     if (val != cgi_params.end()) {
 	raw_search = bool(atol(val->second.c_str()));
     }
-    rset = new OmRSet();
+
     string v;
     // get list of terms from previous iteration of query
     val = cgi_params.find("xP");
     if (val == cgi_params.end()) val = cgi_params.find("OLDP");
     if (val != cgi_params.end()) {
 	v = val->second;
+    } else {
+	// if xP not given, default to keeping the rset and don't force page 1
+	discard_rset = false;
+	force_first_page = false;
     }
-    if (raw_search) {
-	want_rset = true;
-	want_paging = true;
-    }
-
     int result = set_probabilistic(big_buf, v);
     switch (result) {
 	case BAD_QUERY:
@@ -337,35 +343,34 @@ main2(int argc, char *argv[])
 	    break;
 	case SAME_QUERY:
         case EXTENDED_QUERY:
-            if (raw_search) break;
 	    // If we've changed database, force the first page of hits
 	    // and discard the R-set (since the docids will have changed)
 	    val = cgi_params.find("xDB");
 	    if (val != cgi_params.end() && val->second != dbname) break;
-	    if (result == SAME_QUERY) {
+	    if (result == SAME_QUERY && force_first_page) {
 		static const char * check_vars[] = {
 		    "DEFAULTOP", "B", "DAYSMINUS", "DATE1", "DATE2", NULL
 		};
+		force_first_page = false;
 		// FIXME: cope with multiple values for B...
-		const char **pv;
-		for (pv = check_vars; *pv; ++pv) {
+		for (const char **pv = check_vars; *pv; ++pv) {
 		    val = cgi_params.find('x' + string(*pv));
 		    if (val != cgi_params.end()) {
 			string oldv = val->second;
 			val = cgi_params.find(*pv);
-			if (val == cgi_params.end() || val->second != oldv)
+			if (val == cgi_params.end() || val->second != oldv) {
+			    // Filters changed since last query
+			    force_first_page = true;
 			    break;
+			}
 		    }
 		}
-		// No filters changed since last query
-		if (!*pv) want_paging = true;
 	    }
-	    want_rset = true;
+	    discard_rset = false;
 	    break;
     }
 
-    if (want_paging) {
-
+    if (!force_first_page) {
 	// Work out which mset element is the first hit we want
 	// to display
 	val = cgi_params.find("TOPDOC");
@@ -376,17 +381,21 @@ main2(int argc, char *argv[])
 	if (cgi_params.find(">") != cgi_params.end()) {
 	    topdoc += hits_per_page;
 	} else if (cgi_params.find("<") != cgi_params.end()) {
-	    if (topdoc >= hits_per_page) topdoc -= hits_per_page;
+	    if (topdoc >= hits_per_page)
+		topdoc -= hits_per_page;
+	    else
+		topdoc = 0;
 	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
-		(val = cgi_params.find("#")) != cgi_params.end()) {
+		   (val = cgi_params.find("#")) != cgi_params.end()) {
 	    topdoc = (atol(val->second.c_str()) - 1) * hits_per_page;
 	}
 
-	// snap topdoc to page boundry
-	if (! raw_search) topdoc = (topdoc / hits_per_page) * hits_per_page;
+	// snap topdoc to page boundary
+	if (!raw_search) topdoc = (topdoc / hits_per_page) * hits_per_page;
     }
 
-    if (want_rset) {
+    rset = new OmRSet();
+    if (!discard_rset) {
 	// put documents marked as relevant into the rset
 	g = cgi_params.equal_range("R");
 	for (MCI i = g.first; i != g.second; i++) {

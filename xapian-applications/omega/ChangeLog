@@ -1,3 +1,22 @@
+Thu Jul 04 02:11:46 BST 2002  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc, docs/scriptindex.txt: new indexer - indexing
+	  behaviour is controlled by a simple but powerful script.
+
+	* Makefile.am: tidied up.
+	
+	* configfile.cc, docs/quickstart.txt: database and templates default to
+	  being in /var/lib/omega rather than /home/omega.
+ 
+	* docs/quickstart.txt: describe the new test mode (command line) rather
+	  than the old one (stdin).
+
+	* omega.cc, docs/cgiparams.txt: If xP isn't set, honour paging and
+	  R-set.  So RAW_SEARCH now only disables snapping TOPDOC to a multiple
+	  of HITSPERPAGE.
+
+	* query.cc: "using namespace std;"
+
 Fri Jun 14 00:07:20 BST 2002  Olly Betts <olly@survex.com>
 
 	* $prettyterm{} no longer adds a trailing '.' if the term also exists

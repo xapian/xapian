@@ -45,6 +45,8 @@
 #include "cgiparam.h"
 #include "om/omparsequery.h"
 
+using namespace std;
+
 static bool done_query = false;
 static om_docid last = 0;
 
@@ -64,7 +66,7 @@ static OmStem *stemmer = NULL;
 
 static string eval_file(const string &fmtfile);
 
-static std::set<om_termname> termset;
+static set<om_termname> termset;
 
 static string error_msg;
 
@@ -102,11 +104,11 @@ querytype
 set_probabilistic(const string &newp, const string &oldp)
 {
     // strip leading and trailing whitespace
-    std::string::size_type first_nonspace = newp.find_first_not_of(" \t\r\n\v");
+    string::size_type first_nonspace = newp.find_first_not_of(" \t\r\n\v");
     if (first_nonspace == string::npos) {
 	raw_prob = "";
     } else {
-	std::string::size_type len = newp.find_last_not_of(" \t\r\n\v");
+	string::size_type len = newp.find_last_not_of(" \t\r\n\v");
 	raw_prob = newp.substr(first_nonspace, len + 1 - first_nonspace);
     }
 
@@ -160,12 +162,12 @@ set_probabilistic(const string &newp, const string &oldp)
     return SAME_QUERY;
 }
 
-static std::multimap<char, string> filter_map;
+static multimap<char, string> filter_map;
 
-typedef std::multimap<char,string>::const_iterator FMCI;
+typedef multimap<char,string>::const_iterator FMCI;
     
 void add_bterm(const string &term) {
-    filter_map.insert(std::make_pair(term[0], term));
+    filter_map.insert(make_pair(term[0], term));
 }
 
 static int
@@ -183,7 +185,7 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 {
     char buf[9];
     sprintf(buf, "%04d%02d", y1, m1);
-    std::vector<OmQuery> v;
+    vector<OmQuery> v;
 
     int d_last = last_day(y1, m1);
     int d_end = d_last;
@@ -194,10 +196,10 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
     if (d1 > 1 || d_end < d_last) {
     	for ( ; d1 <= d_end ; d1++) {
 	    sprintf(buf + 6, "%02d", d1);
-	    v.push_back(OmQuery('D' + std::string(buf)));
+	    v.push_back(OmQuery('D' + string(buf)));
 	}
     } else {
-	v.push_back(OmQuery('M' + std::string(buf)));
+	v.push_back(OmQuery('M' + string(buf)));
     }
     
     if (y1 == y2 && m1 == m2) {
@@ -207,18 +209,18 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
     int m_last = (y1 < y2) ? 12 : m2 - 1;
     while (++m1 <= m_last) {
 	sprintf(buf + 4, "%02d", m1);
-	v.push_back(OmQuery('M' + std::string(buf)));
+	v.push_back(OmQuery('M' + string(buf)));
     }
 	
     if (y1 < y2) {
 	while (++y1 < y2) {
 	    sprintf(buf, "%04d", y1);
-	    v.push_back(OmQuery('Y' + std::string(buf)));
+	    v.push_back(OmQuery('Y' + string(buf)));
 	}
 	sprintf(buf, "%04d", y2);
 	for (m1 = 1; m1 < m2; m1++) {
 	    sprintf(buf + 4, "%02d", m1);
-	    v.push_back(OmQuery('M' + std::string(buf)));
+	    v.push_back(OmQuery('M' + string(buf)));
 	}
     }
 	
@@ -228,10 +230,10 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
     if (d2 < last_day(y2, m2)) {
     	for (d1 = 1 ; d1 <= d2; d1++) {
 	    sprintf(buf + 6, "%02d", d1);
-	    v.push_back(OmQuery('D' + std::string(buf)));
+	    v.push_back(OmQuery('D' + string(buf)));
 	}
     } else {
-	v.push_back(OmQuery('M' + std::string(buf)));
+	v.push_back(OmQuery('M' + string(buf)));
     }
 
     return OmQuery(OmQuery::OP_OR, v.begin(), v.end());
@@ -252,8 +254,8 @@ run_query()
 {
     if (!filter_map.empty()) {
 	// OR together filters with the same prefix, then AND together
-	std::vector<OmQuery> filter_vec;
-	std::vector<om_termname> and_vec;
+	vector<OmQuery> filter_vec;
+	vector<om_termname> and_vec;
 	int current = -256;
 	for (FMCI i = filter_map.begin(); ; i++) {
 	    bool over = (i == filter_map.end());
@@ -282,15 +284,15 @@ run_query()
 	// to be THE query instead of filtering an empty query
 	// So we can have pure boolean queries this way
 	if (query.is_empty()) {
-		query = OmQuery(OmQuery::OP_AND,
-                                filter_vec.begin(),
-                                filter_vec.end());
+	    query = OmQuery(OmQuery::OP_AND,
+			    filter_vec.begin(),
+			    filter_vec.end());
 	} else {
-		query = OmQuery(OmQuery::OP_FILTER,
-			query,
-			OmQuery(OmQuery::OP_AND,
-				filter_vec.begin(),
-				filter_vec.end()));
+	    query = OmQuery(OmQuery::OP_FILTER,
+		    query,
+		    OmQuery(OmQuery::OP_AND,
+			    filter_vec.begin(),
+			    filter_vec.end()));
 	}
     }
 
@@ -379,7 +381,8 @@ run_query()
 	// Fetch one extra result so we know if we've reached the end of the
 	// matches or not - then we can avoid offering a "next" button which
 	// leads to an empty page
-	mset = enquire->get_mset(0, topdoc + std::max(hits_per_page + 1,min_hits), rset, &opt);
+	mset = enquire->get_mset(0, topdoc + max(hits_per_page + 1,min_hits),
+				 rset, &opt);
     }
 }
 
@@ -417,14 +420,14 @@ do_picker(char prefix, const char **opts)
 
     cout << '>';
 
-    string tmp = option[std::string('B') + prefix];
+    string tmp = option[string('B') + prefix];
     if (!tmp.empty())
 	cout << tmp;
     else
 	cout << "-Any-";
     
     for (p = opts; *p; p++) {
-	string trans = option[std::string('B') + prefix + *p];
+	string trans = option[string('B') + prefix + *p];
 	if (trans.empty()) {
 	    // FIXME: nasty special casing on prefix...
 	    if (prefix == 'N')
@@ -443,7 +446,7 @@ do_picker(char prefix, const char **opts)
 
     vector<string>::const_iterator i2;
     for (i2 = picker.begin(); i2 != picker.end(); i2++) {
-	std::string::size_type j = (*i2).find('\t');
+	string::size_type j = (*i2).find('\t');
 	if (j == string::npos) continue;
 	const char *p = (*i2).c_str();
 	cout << "\n<OPTION VALUE=" << prefix << string(p + j + 1);
@@ -481,7 +484,7 @@ static string
 html_escape(const string &str)
 {
     string res;
-    std::string::size_type p = 0;
+    string::size_type p = 0;
     while (p < str.size()) {
 	char ch = str[p++];
 	switch (ch) {
@@ -508,7 +511,7 @@ static string
 html_strip(const string &str)
 {
     string res;
-    std::string::size_type p = 0;
+    string::size_type p = 0;
     bool skip = false;
     while (p < str.size()) {
 	char ch = str[p++];
@@ -530,8 +533,8 @@ html_strip(const string &str)
 static bool word_in_list(const string& test_word, const string& list)
 {
     //    cerr << "word_in_list(" << test_word << ", '" << list << "'): ";
-    std::string::size_type split = 0, split2;
-    while ((split2 = list.find('\t', split)) != std::string::npos) {
+    string::size_type split = 0, split2;
+    while ((split2 = list.find('\t', split)) != string::npos) {
 	if (test_word == list.substr(split, split2 - split)) {
 	    //	    cerr << "HIT." << endl;
 	    return 1;
@@ -569,6 +572,20 @@ inline static bool
 p_notalnum(unsigned int c)
 {
     return !isalnum(c);
+}
+
+// Not a character in an indentifier
+inline static bool
+p_notid(unsigned int c)
+{
+    return !isalnum(c) && c != '_';
+}
+
+// Not a character in an HTML tag name
+inline static bool
+p_nottag(unsigned int c)
+{
+    return !isalnum(c) && c != '.' && c != '-';
 }
 
 inline static bool
@@ -627,7 +644,7 @@ moreterm:
         }
 	if (!match && word_in_list(stemmer->stem_word(term), list)) match = true;
 	if (match) res += bra;
-	res += word;
+	res += html_escape(word);
 	if (match) res += ket;
     }
     if (j != s.end()) res += html_escape(s.substr(j - s.begin()));
@@ -640,7 +657,7 @@ print_query_string(const char *after)
 {
     if (after && strncmp(after, "&B=", 3) == 0) {
 	char prefix = after[3];
-	std::string::size_type start = 0, amp = 0;
+	string::size_type start = 0, amp = 0;
 	while (1) {
 	    amp = query_string.find('&', amp);
 	    if (amp == string::npos) {
@@ -840,10 +857,10 @@ eval(const string &fmt, const vector<string> &param)
 	}
     }
     string res;
-    std::string::size_type p = 0, q;
+    string::size_type p = 0, q;
     while ((q = fmt.find('$', p)) != string::npos) {
 	res += fmt.substr(p, q - p);
-	std::string::size_type code_start = q; // note down for error reporting
+	string::size_type code_start = q; // note down for error reporting
 	q++;
 	if (q >= fmt.size()) break;
 	unsigned char ch = fmt[q];
@@ -891,10 +908,7 @@ eval(const string &fmt, const vector<string> &param)
 		string msg = "Unknown $ code in: $" + fmt.substr(q);
 		throw msg;
 	}
-	p = fmt.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-				  "abcdefghijklmnopqrstuvwxyz"
-				  "0123456789_", q);
-	if (p == string::npos) p = fmt.size();
+	p = find_if(fmt.begin() + q, fmt.end(), p_notid) - fmt.begin();
 	string var = fmt.substr(q, p - q);
 	map<string, const struct func_attrib *>::const_iterator i;
 	i = func_map.find(var);
@@ -933,13 +947,13 @@ eval(const string &fmt, const vector<string> &param)
 		(int)args.size() > i->second->maxargs)
 		throw "too many arguments to $" + var;
 
-	    std::vector<string>::size_type n;
+	    vector<string>::size_type n;
 	    if (i->second->evalargs != N)
 		n = i->second->evalargs;
 	    else
 		n = args.size();
 	    
-	    for (std::vector<string>::size_type j = 0; j < n; j++)
+	    for (vector<string>::size_type j = 0; j < n; j++)
 		args[j] = eval(args[j], param);
 	}
 	if (i->second->ensure_match) ensure_match();
@@ -983,7 +997,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_cgilist: {
-		std::pair<MCI, MCI> g;
+		pair<MCI, MCI> g;
 		g = cgi_params.equal_range(args[0]);
 		for (MCI i = g.first; i != g.second; i++)
 		    value = value + i->second + '\t';
@@ -1106,11 +1120,10 @@ eval(const string &fmt, const vector<string> &param)
 		if (args.size() > 3) {
 		    ket = args[3];
 		} else {
-		    string::size_type i = bra.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-								"abcdefghijklmnopqrstuvwxyz"
-								"0123456789.-", 2);
+		    string::const_iterator i;
+		    i = find_if(bra.begin() + 2, bra.end(), p_nottag);
 		    ket = "</";
-		    ket += bra.substr(1, i - 1);
+		    ket += bra.substr(1, i - bra.begin() - 1);
 		    ket += '>'; 
 		}
 		    
@@ -1224,7 +1237,7 @@ eval(const string &fmt, const vector<string> &param)
 		    }
 		    value += pre;
 		    string list = args[0];
-		    std::string::size_type split = 0, split2;
+		    string::size_type split = 0, split2;
 		    while ((split2 = list.find('\t', split)) != string::npos) {
 			if (split) value += inter;
 			value += list.substr(split, split2 - split);
@@ -1244,7 +1257,7 @@ eval(const string &fmt, const vector<string> &param)
 		if (!args[0].empty()) {
 		    string l = args[0], pat = args[1];
 		    vector<string> p(param);
-		    std::string::size_type i = 0, j;
+		    string::size_type i = 0, j;
 		    while (1) {
 			j = l.find('\t', i);
 			string save_loopvar;
@@ -1302,7 +1315,7 @@ eval(const string &fmt, const vector<string> &param)
 		if (args[0] != args[1]) value = "true";
 		break;
 	    case CMD_nice: {
-		std::string::const_iterator i = args[0].begin();
+		string::const_iterator i = args[0].begin();
 		int len = args[0].length();
 		while (len) {
 		    value += *i++;
@@ -1402,7 +1415,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_setrelevant: {
-		std::string::size_type i = 0, j;
+		string::size_type i = 0, j;
 	    	while (1) {
 		    j = args[0].find_first_not_of("0123456789", i);
 	    	    om_docid id = atoi(args[0].substr(i, j - i).c_str());
@@ -1598,12 +1611,12 @@ print_caption(om_docid m, const string &fmt, const vector<string> &param)
 
     // parse record
     field.clear();
-    std::string::size_type i = 0;
+    string::size_type i = 0;
     while (1) {
-	std::string::size_type old_i = i;
+	string::size_type old_i = i;
 	i = text.find('\n', i);
 	string line = text.substr(old_i, i - old_i);
-	std::string::size_type j = line.find('=');
+	string::size_type j = line.find('=');
 	if (j != string::npos) {
 	    string key=line.substr(0, j);
 	    string value=field[key];

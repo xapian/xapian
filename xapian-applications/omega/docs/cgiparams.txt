@@ -23,7 +23,8 @@ xDB
 
 DEFAULTOP
 	default operator - values recognised "AND", "and", "OR", "or".
-	Default: OR.
+	Default: OR.  If you want to implement "match all words", set
+	DEFAULTOP=AND.
 
 P
 	probabilistic query (may occur multiple times).
@@ -53,15 +54,18 @@ MORELIKE
 	unique id from an external database)
 
 RAW_SEARCH
-	when set to a true-ish value turns off search-change detection
-	(usually based on comparing with DB with xDB, P with xP etc)
-	and add's the rset, honours TOPDOC and processes paging info anyway.
-	When set also stops TOPDOC being snapped to a multiple of HITSPERPAGE
+	when set to non-zero value, this prevents TOPDOC being snapped to a
+	multiple of HITSPERPAGE.  Normally we snap TOPDOC like this so that
+	things work nicely if HITSPERPAGE is in a picker or on radio buttons.
+	If we're postprocessing the output of omega and want variable sized
+	pages, this is unhelpful.
 
 MIN_HINTS
 	can be set to look for more matches than needed for HITSPERPAGE so
-	you can be sure of how many more consecutive pages will definitatly
-	be needed to show results.
+	you can be sure of how many more consecutive pages will definitely
+	be needed to show results.  Note that setting this high can slow
+	down the search.
+
 
 Filtering parameters
 --------------------

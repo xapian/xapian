@@ -6,28 +6,24 @@ Basic instructions:
 $ ./omindex DBPATH WEBPATH /
 
 Where DBPATH is where you want the database, such as
-/home/myuser/omega/dbs/default and WEBPATH is the directory containing
-all your web documents.
+/var/lib/omega/data/default and WEBPATH is the directory containing
+all your web documents - e.g. /var/www.
 
 2.      Edit omega.conf:
 
 database_dir should point to the directory containing your database,
-such as /home/myuser/omega/dbs, and template_dir to wherever you've
-dropped the tempaltes/ directory from omega, such as
-/home/myuser/omega/templates.
+such as /var/lib/omega/data, and template_dir to where the templates
+are - e.g. /var/lib/omega/templates.
 
-3.      Test omega, from the command line:
+3.      Test omega from the command line:
 
-$ ./omega
-omega - om-examples 0.4.1-cvs (compiled Jun 25 2001 14:55:21)
-Enter NAME=VALUE lines, end with blank line
-HITSPERPAGE=10
-P=my search terms
+$ ./omega 'P=my search terms' HITSPERPAGE=10
 
+You then get a large-ish HTML file.  This is the test mode - useful for
+checking that everything works independent of your webserver configuration.
+To actually use omega, you should install it as a CGI by copying or
+linking the omega executable into your cgi-bin directory.
 
-You then get a large-ish HTML file. For best results, set this all up
-as a CGI in some way.
-
-For more information, see overview.txt. Descriptions of the omega CGI
-program are in cgiparams.txt, and of the OmegaScript language it uses
-to format its results pages in omegascript.txt.
+For more information, see overview.txt.  Descriptions of the CGI parameters
+which omega accepts are in cgiparams.txt; omegascript.txt describes the
+OmegaScript language used to control the format of omega's output.

@@ -33,8 +33,8 @@ using std::ifstream;
 
 static string config_file = "/etc/omega.conf";
 
-string database_dir = "/home/omega/data/";
-string template_dir = "/home/omega/templates/";
+string database_dir = "/var/lib/omega/data/";
+string template_dir = "/var/lib/omega/templates/";
 
 /** Return true if the file fname exists
  */
