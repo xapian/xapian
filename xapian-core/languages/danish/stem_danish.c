@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "pool.h"
 #include "stem_danish.h"
@@ -168,7 +169,7 @@ static int step_1(struct danish_stemmer * z)
                 ends(z, "ers") ||
                 ends(z, "erets") ||    /* rare */
                 ends(z, "ets") ||
-                ends(z, "s") && not_among(z->p[z->j], "eiuOs")) break;
+                (ends(z, "s") && not_among(z->p[z->j], "eiuOs"))) break;
             return false;
         case 't':
             if (ends(z, "eret") ||
