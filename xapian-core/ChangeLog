@@ -1,3 +1,7 @@
+Wed Dec 08 15:59:44 GMT 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: Bumped the 0.8.4 release date.
+
 Wed Dec 08 15:32:46 GMT 2004  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Make sure that --libs output doesn't include

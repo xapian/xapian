@@ -1,4 +1,4 @@
-Xapian-core 0.8.4 (2004-11-30):
+Xapian-core 0.8.4 (2004-12-08):
 
 API:
 
@@ -17,7 +17,7 @@ API:
 * QueryParser: Be smarter about when to add a ':' when adding a term prefix.
 
 * BoolWeight::unserialise() now returns BoolWeight*, and similarly for
-  TradWeight and BM25 weight.  BoolWeight::clone() now returns BoolWeight *.
+  TradWeight and BM25Weight.  BoolWeight::clone() now returns BoolWeight *.
 
 * If a database contains no positional information, change NEAR and PHRASE
   queries into AND queries (as otherwise they'd return no matches at all)
