@@ -6,13 +6,21 @@ AndPostList::advance_to_next_match()
     lhead = l->get_docid();
     rhead = r->get_docid();
 
-    // if both l and r hit the end, lhead and rhead will both be zero
-    // if we're already at the end, lhead and rhead will already be zero
     while (lhead != rhead) {
 	if (lhead < rhead) {
 	    l->skip_to(rhead);
+	    if (l->at_end()) {
+		lhead = rhead = 0;
+		return;
+	    }
+	    lhead = l->get_docid();	    
 	} else {
 	    r->skip_to(lhead);
+	    if (r->at_end()) {
+		lhead = rhead = 0;
+		return;
+	    }
+	    rhead = r->get_docid();	    
 	}
     }    
 }
