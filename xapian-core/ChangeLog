@@ -1,3 +1,7 @@
+Wed Sep 08 19:45:37 BST 2004  Olly Betts <olly@survex.com>
+
+	* HACKING: Updated details of Solaris open workaround.
+
 Wed Sep 08 19:42:15 BST 2004  Olly Betts <olly@survex.com>
 
 	* common/utils.h,backends/quartz/btree.cc,
