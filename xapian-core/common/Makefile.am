@@ -14,7 +14,7 @@ noinst_HEADERS = \
  omdocumentparams.h document.h networkmatch.h \
  netclient.h progclient.h multi_database.h net_database.h \
  netutils.h netserver.h progserver.h \
- progcommon.h positionlist.h
+ progcommon.h positionlist.h testsuite.h
 
 noinst_LTLIBRARIES = libcommon.la
 

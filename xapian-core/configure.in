@@ -361,6 +361,7 @@ dnl **************************
 
 AC_OUTPUT(
  Makefile
+ testsuite/Makefile
  include/Makefile
  include/om/Makefile
  common/Makefile
