@@ -1,3 +1,17 @@
+Wed Feb 28 18:42:47 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Fixes to neaten up configure output, and to test for the Perl
+	  Text::Format module, thanks to James Aylett (patch slightly
+	  modified, so if it doesn't work it's probably my fault).
+
+	* configure.in checks for presence of ftime() and gettimeofday()
+
+	* Added OmTime, a class to deal with times to an accuracy of
+	  microseconds, or whatever the best accuracy the system supports
+	  is.
+
+	* Use OmTime in network code instead of time(NULL).
+
 Wed Feb 28 14:23:11 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Merge common code from OmSocketLineBuf::wait_for_data() and 

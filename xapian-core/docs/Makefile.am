@@ -24,8 +24,8 @@ EXTRA_DIST = mkdoc.pl.in todo2html.pl.in todo.xml \
 # Things to do if have perl installed
 if HAVE_PERL
 CREATED_DOCUMENTS1=code_structure.html
-# and if XML::Parser is installed
-if HAVE_PERL_XML
+# and if XML::Parser and Text::Format is installed
+if HAVE_PERL_XML_AND_TEXT
 CREATED_DOCUMENTS2=todo.html todo-release.html
 endif
 endif

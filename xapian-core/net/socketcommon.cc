@@ -344,14 +344,13 @@ OmSocketLineBuf::OmSocketLineBuf(int fd_, const std::string & errcontext_)
 }
 
 std::string
-OmSocketLineBuf::do_readline(time_t end_time,
-			     unsigned int end_time_usecs)
+OmSocketLineBuf::do_readline(const OmTime & end_time)
 {
     DEBUGCALL(UNKNOWN, std::string, "OmSocketLineBuf::do_readline",
-	      end_time << ", " << end_time_usecs);
+	      end_time.sec << ", " << end_time.usec);
     std::string::size_type pos;
     while ((pos = buffer.find_first_of('\n')) == buffer.npos) {
-	attempt_to_read(end_time, end_time_usecs);
+	attempt_to_read(end_time);
     }
     std::string retval(buffer.begin(), buffer.begin() + pos);
     buffer.erase(0, pos + 1);
@@ -359,26 +358,20 @@ OmSocketLineBuf::do_readline(time_t end_time,
 }
 
 void
-OmSocketLineBuf::attempt_to_read(time_t end_time,
-				 unsigned int end_time_usecs)
+OmSocketLineBuf::attempt_to_read(const OmTime & end_time)
 {
     DEBUGCALL(UNKNOWN, std::string, "OmSocketLineBuf::attempt_to_read",
-	      end_time << ", " << end_time_usecs);
+	      end_time.sec << ":" << end_time.usec);
     fd_set fdset;
     FD_ZERO(&fdset);
     FD_SET(readfd, &fdset);
 
-    time_t curr_time = time(NULL);
-
-    int msecs;
-    if (end_time > curr_time)
-	msecs = (end_time - curr_time) * 1000;
-    else
-	msecs = 0; 
+    OmTime time_diff(end_time - OmTime::now());
+    if (end_time.sec < 0) time_diff = OmTime(0);
 
     struct timeval tv;
-    tv.tv_sec = msecs / 1000;
-    tv.tv_usec = (msecs % 1000 ) * 1000;
+    tv.tv_sec = time_diff.sec;
+    tv.tv_usec = time_diff.usec;
 
     DEBUGLINE(UNKNOWN, "readfd=" << readfd << ", " <<
 	      "tv.tv_sec=" << tv.tv_sec << ", " <<
@@ -388,11 +381,6 @@ OmSocketLineBuf::attempt_to_read(time_t end_time,
     if (retval < 0) {
 	if (errno == EINTR) {
 	    // select interrupted due to signal
-	    // FIXME: adjust timeout for next time around to compensate
-	    // for time used.  Need to use gettimeofday() or similar,
-	    // since the contents of tv are now effectively undefined.
-	    // (On Linux, it's the time not slept, but this isn't
-	    // portable)
 	    DEBUGLINE(UNKNOWN, "Got EINTR in select");
 	    return;
 	} else {
@@ -402,13 +390,11 @@ OmSocketLineBuf::attempt_to_read(time_t end_time,
 	}
     } else if (retval == 0) {
 	// Check timeout
-	// FIXME: too much cut and pasting.
-	if (curr_time > end_time) {
+	if (OmTime::now() > end_time) {
 	    // Timeout has expired, and no data is waiting
 	    // (especially if we've been waiting on a different node's
 	    // timeout)
-	    DEBUGLINE(UNKNOWN, "timeout reached, current time = " <<
-		      curr_time << ", end time = " << end_time);
+	    DEBUGLINE(UNKNOWN, "timeout reached");
 	    throw OmNetworkTimeoutError("No response from remote end", errcontext);
 	}
 	return;
@@ -423,8 +409,7 @@ OmSocketLineBuf::attempt_to_read(time_t end_time,
 	    return;
 	} else if (errno == EAGAIN) {
 	    // Check timeout
-	    // FIXME: too much cut and pasting.
-	    if (curr_time > end_time) {
+	    if (OmTime::now() > end_time) {
 		// Timeout has expired, and no data is waiting
 		// (especially if we've been waiting on a different node's
 		// timeout)
@@ -447,10 +432,10 @@ void
 OmSocketLineBuf::wait_for_data(int msecs)
 {
     DEBUGCALL(UNKNOWN, std::string, "OmSocketLineBuf::wait_for_data", msecs);
-    time_t end_time = time(NULL) + msecs / 1000;
+    OmTime end_time = OmTime::now() + OmTime(msecs);
     // wait for input to be available.
     while (buffer.find_first_of('\n') == buffer.npos) {
-	attempt_to_read(end_time, 0);
+	attempt_to_read(end_time);
     }
 }
 
@@ -479,9 +464,7 @@ OmSocketLineBuf::data_waiting()
 }
 
 void
-OmSocketLineBuf::do_writeline(std::string s,
-			      time_t end_time,
-			      unsigned int end_time_usecs)
+OmSocketLineBuf::do_writeline(std::string s, const OmTime & end_time)
 {
     DEBUGCALL(UNKNOWN, void, "OmSocketLineBuf::do_writeline", s);
     if (s.length() == 0 || s[s.length()-1] != '\n') {
@@ -494,13 +477,13 @@ OmSocketLineBuf::do_writeline(std::string s,
 	FD_ZERO(&fdset);
 	FD_SET(writefd, &fdset);
 
-	time_t now = time(NULL);
+	OmTime time_diff(end_time - OmTime::now());
+	if (end_time.sec < 0) time_diff = OmTime(0);
 
 	// this should probably go in an outer loop rather than the inner.
-	// FIXME: use higher resolution time function.
 	struct timeval tv;
-	tv.tv_sec = end_time - now;
-	tv.tv_usec = 0;
+	tv.tv_sec = time_diff.sec;
+	tv.tv_usec = time_diff.usec;
 
 	int retval = select(writefd + 1, 0, &fdset, &fdset, &tv);
 

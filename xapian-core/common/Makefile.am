@@ -12,7 +12,7 @@ noinst_HEADERS = \
  utils.h omlocks.h omqueryinternal.h refcnt.h \
  document.h \
  netclient.h progclient.h net_database.h \
- netutils.h netserver.h progserver.h socketclient.h socketserver.h \
+ netutils.h omtime.h netserver.h progserver.h socketclient.h socketserver.h \
  socketcommon.h positionlist.h tcpclient.h \
  tcpserver.h omerr_string.h omdebug.h omlinebuf.h omstringstream.h \
  inmemory_positionlist.h omenquireinternal.h emptypostlist.h \

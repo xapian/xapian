@@ -16,6 +16,9 @@ AC_PROG_CC
 AC_PROG_CXX
 AM_PROG_LEX
 
+dnl Check for time functions.
+AC_CHECK_FUNCS(gettimeofday ftime)
+
 dnl Check for getopt.h.  On some systems, it's in stdlib.h
 AC_CHECK_HEADERS(getopt.h)
 AC_SUBST(HAVE_GETOPT_H)
@@ -54,6 +57,7 @@ AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 SAVED_CXXFLAGS="$CXXFLAGS"
 CXXFLAGS="$CXXFLAGS -fno-access-control"
+AC_MSG_CHECKING([for -fno-access-control])
 dnl Use AC_TRY_LINK instead of AC_TRY_COMPILE, since some compilers
 dnl ignore options they don't understand and just pass them on to ld,
 dnl rather than giving an error.  (eg Solaris CC)
@@ -68,7 +72,10 @@ AM_CONDITIONAL(HAVE_CPP_ACCESS_BYPASS, test "$FNO_ACCESS_FLAG" = yes)
 dnl Checks for perl.  (Needed to make some of the documentation)
 AC_PATH_PROG(PERL_PATH, perl)
 AM_CONDITIONAL(HAVE_PERL, test -n "$PERL_PATH")
-AC_MSG_CHECKING([for perl XML module...])
+AC_SUBST(PERL_PATH)
+
+have_perl_xml_and_text=yes
+AC_MSG_CHECKING([for perl XML::Parser module])
 if perl -MXML::Parser -e '' 2>/dev/null
 then
     have_perl_xml=yes
@@ -77,10 +84,26 @@ else
 fi
 AC_MSG_RESULT("$have_perl_xml")
 if test "$have_perl_xml" = no ; then
-    AC_MSG_WARN([Perl XML module not present; TODO won't be build.])
+    AC_MSG_WARN([Perl XML module not present; TODO won't be built.])
+    have_perl_xml_and_text=no
 fi
-AM_CONDITIONAL(HAVE_PERL_XML, test "$have_perl_xml" = yes)
-AC_SUBST(PERL_PATH)
+
+AC_MSG_CHECKING([for perl Text::Format module])
+if perl -MText::Format -e '' 2>/dev/null
+then
+    have_perl_text=yes
+else
+    have_perl_text=no
+fi
+AC_MSG_RESULT("$have_perl_text")
+if test "$have_perl_text" = no; then
+    AC_MSG_WARN([Perl Text::Format not present; TODO won't be built.])
+    have_perl_xml_and_text=no
+fi
+
+AM_CONDITIONAL(HAVE_PERL_XML_AND_TEXT, test "$have_perl_xml_and_text" = yes)
+
+
 
 dnl Make DATADIR available to the library
 AC_DEFINE_DIR(DATADIR, datadir, [Location of platform independent support files])
@@ -134,7 +157,7 @@ fi
 
 if test -n "$XML_CONFIG_PATH"
 then
-    AC_MSG_CHECKING([libxml flags...])
+    AC_MSG_CHECKING([libxml flags])
     LIBXML_CFLAGS=`$XML_CONFIG_PATH --cflags`
     LIBXML_LIBS=`$XML_CONFIG_PATH --libs`
 

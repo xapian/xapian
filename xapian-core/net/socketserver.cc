@@ -229,7 +229,7 @@ match_snooper(const OmMSetItem &i)
     std::string msg = om_tostring(i.did);
     if (i.wt != 0) msg += " " + om_tostring(i.wt);
     if (snooper_do_collapse) msg += ";" + omkey_to_string(i.collapse_key);
-    snooper_buf->writeline(msg, time(NULL) + snooper_timeout, 0);
+    snooper_buf->writeline(msg, OmTime::now() + OmTime(snooper_timeout, 0));
 }
 
 void
@@ -414,10 +414,7 @@ SocketServer::run_match(const std::string &firstmessage)
 std::string
 SocketServer::readline(int msecs_timeout)
 {
-    time_t secs = time(NULL) + (msecs_timeout / 1000);
-    unsigned int usecs = (msecs_timeout % 1000) * 1000;
-    std::string result = buf->readline(secs,
-				       usecs);
+    std::string result = buf->readline(OmTime::now() + OmTime(msecs_timeout));
     // intercept 'X' messages.
     if (result.length() > 0 && result[0] == 'X') {
 	throw SocketServerFinished();
@@ -433,9 +430,7 @@ SocketServer::writeline(const std::string &message,
 	// default to our normal timeout
 	milliseconds_timeout = msecs_active_timeout;
     }
-    time_t secs = time(NULL) + (milliseconds_timeout / 1000);
-    unsigned int usecs = (milliseconds_timeout % 1000) * 1000;
-    buf->writeline(message, secs, usecs);
+    buf->writeline(message, OmTime::now() + OmTime(milliseconds_timeout));
 }
 
 void

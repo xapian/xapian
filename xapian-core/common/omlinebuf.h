@@ -24,6 +24,7 @@
 #define OM_HGUARD_OMLINEBUF_H
 
 #include <string>
+#include "omtime.h"
 
 /** The OmLineBuf class is an interface to a line-buffered
  *  stream used by the network backends.
@@ -41,19 +42,14 @@ class OmLineBuf {
 	void operator=(const OmLineBuf &other);
 
 	/** Read one line
-	 *  @param end_time	The time in secons at which the read will
+	 *  @param end_time	The time at which the read will
 	 *  			fail with a timeout error.
-	 *  @param end_time_usecs
-	 *  			The microsecond portion of the timeout time
 	 */
-	virtual std::string do_readline(time_t end_time,
-					unsigned int end_time_usecs) = 0;
+	virtual std::string do_readline(const OmTime & end_time) = 0;
 
 	/** Write one line to writefd
 	 */
-	virtual void do_writeline(std::string s,
-				  time_t end_time,
-				  unsigned int end_time_usecs) = 0;
+	virtual void do_writeline(std::string s, const OmTime & end_time) = 0;
 
 	std::string line_buffer;
     public:
@@ -64,13 +60,10 @@ class OmLineBuf {
 	virtual ~OmLineBuf() {};
 
 	/** Read one line
-	 *  @param end_time	The time in secons at which the read will
+	 *  @param end_time	The time at which the read will
 	 *  			fail with a timeout error.
-	 *  @param end_time_usecs
-	 *  			The microsecond portion of the timeout time
 	 */
-	std::string readline(time_t end_time,
-			     unsigned int end_time_usecs);
+	std::string readline(const OmTime & end_time);
 
 	/** Return true if there is data available to be read
 	 *  immediately.
@@ -83,9 +76,7 @@ class OmLineBuf {
 
 	/** Write one line to writefd
 	 */
-	void writeline(std::string s,
-		       time_t end_time,
-		       unsigned int end_time_usecs);
+	void writeline(std::string s, const OmTime & end_time);
 };
 
 #endif // OM_HGUARD_OMLINEBUF_H

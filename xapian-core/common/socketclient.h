@@ -27,6 +27,7 @@
 #include "socketcommon.h"
 #include "rset.h"
 #include <deque>
+#include "omtime.h"
 
 /** An implementation of the NetClient interface using a program.
  *  ProgClient gets a socket by spawning a separate program, rather
@@ -156,16 +157,15 @@ class SocketClient : public NetClient {
 
 	/// The time at which the current operation will (eg a full
 	/// match) will time out.
-	time_t end_time;
-	int end_time_usecs;
+	OmTime end_time;
 
 	/// Whether the timeout is valid
 	bool end_time_set;
 
-	/// Initialise end_time{,_usecs} to current time + msecs_timeout
+	/// Initialise end_time to current time + msecs_timeout
 	void init_end_time();
 
-	/// Clear end_time{,_usecs}
+	/// Clear end_time
 	void close_end_time();
 
     public:

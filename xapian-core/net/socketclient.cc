@@ -87,13 +87,11 @@ SocketClient::keep_alive()
 void
 SocketClient::init_end_time()
 {
-    /* FIXME: use something with a higher resolution than time() */
-    end_time = time(NULL) + msecs_timeout / 1000;    
-    end_time_usecs = (msecs_timeout % 1000) * 1000;
+    end_time = OmTime::now() + OmTime(msecs_timeout);
 
     end_time_set = true;
     DEBUGLINE(UNKNOWN, "init_end_time() - set timer to " <<
-	      end_time << "." << end_time_usecs <<
+	      end_time.sec << "." << end_time.usec <<
 	      " (" << msecs_timeout << " msecs)");
 }
 
@@ -262,10 +260,10 @@ SocketClient::do_read()
 {
     std::string retval;
     if (end_time_set) {
-	retval = buf.readline(end_time, end_time_usecs);
+	retval = buf.readline(end_time);
     } else {
 	init_end_time();
-	retval = buf.readline(end_time, end_time_usecs);
+	retval = buf.readline(end_time);
 	close_end_time();
     }
 
@@ -283,10 +281,10 @@ SocketClient::do_write(std::string data)
 {
     DEBUGLINE(UNKNOWN, "do_write(): " << data.substr(0, data.find_last_of('\n')));
     if (end_time_set) {
-	buf.writeline(data, end_time, end_time_usecs);
+	buf.writeline(data, end_time);
     } else {
 	init_end_time();
-	buf.writeline(data, end_time, end_time_usecs);
+	buf.writeline(data, end_time);
 	close_end_time();
     }
 }
@@ -318,10 +316,10 @@ SocketClient::do_close()
 	/* Don't wait for a timeout to expire while writing
 	 * the close-down message.
 	 * FIXME: come up with a better way of not waiting.
+	 * FIXME: 1000 is an arbitrary parameter
 	 */
-	time_t secs = time(NULL) + 1;
-	unsigned int msecs = 0;
-	buf.writeline("X", secs, msecs);
+	OmTime endtime = OmTime::now() + OmTime(1000);
+	buf.writeline("X", endtime);
     } catch (...) {
     }
     close(socketfd);

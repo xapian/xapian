@@ -39,20 +39,20 @@ libomsee_la_SOURCES = dummy.c
 EXTRA_libomsee_la_SOURCES =
 
 TODO: ./docs/todo2html.pl $(top_srcdir)/docs/todo.xml $(top_srcdir)/docs/todo2html.pl.in
-if HAVE_PERL_XML
+if HAVE_PERL_XML_AND_TEXT
 	@echo "Generating $@"
 	@./docs/todo2html.pl --text $(top_srcdir)/docs/todo.xml > $@
 else
-	@echo "Can't generate $@: need Perl XML module."
+	@echo "Can't generate $@: need Perl XML and Text::Format module."
 	@exit 0
 endif
 
 TODO.release: ./docs/todo2html.pl $(top_srcdir)/docs/todo.xml $(top_srcdir)/docs/todo2html.pl.in
-if HAVE_PERL_XML
+if HAVE_PERL_XML_AND_TEXT
 	@echo "Generating $@"
 	@./docs/todo2html.pl --release \* --text $(top_srcdir)/docs/todo.xml > $@
 else
-	@echo "Can't generate $@: need Perl XML module."
+	@echo "Can't generate $@: need Perl XML and Text::Format module."
 	@exit 0
 endif
 

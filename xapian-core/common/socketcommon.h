@@ -31,6 +31,7 @@
 #include "om/omsettings.h"
 #include "omenquireinternal.h"
 #include "om/omquery.h"
+#include "omtime.h"
 
 #define OM_SOCKET_PROTOCOL_VERSION 9
 
@@ -62,24 +63,18 @@ class OmSocketLineBuf : public OmLineBuf {
 	void operator=(const OmSocketLineBuf &other);
 
 	/** Read one line from readfd
-	 *  @param end_time	The time in secons at which the read will
+	 *  @param end_time	The time at which the read will
 	 *  			fail with a timeout error.
-	 *  @param end_time_usecs
-	 *  			The microsecond portion of the timeout time
 	 */
-	std::string do_readline(time_t end_time,
-				unsigned int end_time_usecs);
+	std::string do_readline(const OmTime & end_time);
 
 	/** Write one line to writefd
 	 */
-	void do_writeline(std::string s,
-			  time_t end_time,
-			  unsigned int end_time_usecs);
+	void do_writeline(std::string s, const OmTime & end_time);
 
 	/** Attempt to read some data
 	 */
-	void attempt_to_read(time_t end_time,
-			     unsigned int end_time_usecs);
+	void attempt_to_read(const OmTime & end_time);
     public:
 	/** The main constructor.  The arguments are the
 	 *  input and output filedescriptors to use.
