@@ -1,3 +1,13 @@
+Tue Oct 31 18:10:49 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Begun changing implementation of QuartzTable to use btree stuff.
+	  Currently doesn't compile.
+
+	* Added quartztest that opening an unavailable revision of a valid
+	  database doesn't throw an exception.
+
+	* More updates / corrections to btree_api.txt documentation.
+
 Tue Oct 31 16:25:14 GMT 2000 Olly Betts
 
 	* Fixed a few warnings from gcc.

@@ -161,6 +161,7 @@ static bool test_disktable1()
     {
 	QuartzDiskTable table0("./test_dbtable1_", true, 0);
 	TEST_EXCEPTION(OmOpeningError, table0.open());
+	TEST_EXCEPTION(OmOpeningError, table0.open(10));
     }
     QuartzDiskTable table2("./test_dbtable1_", false, 8192);
     table2.open();
@@ -508,7 +509,7 @@ static bool test_bufftable2()
     {
 	// Open old revision
 	QuartzDiskTable disktable("./test_bufftable2_", false, 8192);
-	disktable.open(old_revision);
+	TEST(disktable.open(old_revision));
 	QuartzBufferedTable bufftable(&disktable);
 
 	TEST_EQUAL(disktable.get_entry_count(), 3);
@@ -574,6 +575,9 @@ static bool test_bufftable2()
 	TEST_EQUAL(key.value, "foo3");
 	TEST_EQUAL(tag.value, "bar3");
     }
+    // Check that opening a nonexistant revision returns false (but doesn't
+    // throw an exception).
+    TEST(!disktable.open(new_revision + 10));
 
     return true;
 }

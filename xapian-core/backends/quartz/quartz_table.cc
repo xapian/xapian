@@ -140,52 +140,100 @@ QuartzDiskTable::QuartzDiskTable(std::string path_,
 				 bool readonly_,
 				 unsigned int blocksize_)
 	: path(path_),
+	  blocksize(blocksize_),
 	  opened(false),
-          readonly(readonly_),
-	  revision(0)
+          readonly(readonly_)
 {
 }
 
 void
 QuartzDiskTable::open()
 {
-    // FIXME implement
-    std::map<QuartzDbKey, QuartzDbTag> data1;
-    readfile(path + "data_1", data1, &revision1, readonly);
+    opened = false;
 
-    std::map<QuartzDbKey, QuartzDbTag> data2;
-    readfile(path + "data_2", data2, &revision2, readonly);
+    if (readonly) {
+	btree_for_reading.reset(Btree_open_to_read(path.c_str()));
+	if (btree_for_reading.get() == 0) {
+	    // FIXME: explain why
+	    throw OmOpeningError("Cannot open table `"+path+"' for reading.");
+	}
+	opened = true;
+	return;
+    }
 
-    if(revision1 > revision2) {
-	data = data1;
-	revision = revision1;
-    } else {
-	data = data2;
-	revision = revision2;
+    // Create database if needed
+    // FIXME: use btree library to check if table exists yet.
+    if (!file_exists(path + "/DB")) {
+	if (!Btree_create(path.c_str(), blocksize)) {
+	    // FIXME: explain why
+	    throw OmOpeningError("Cannot create table `" + path + "'.");
+	}
+    }
+
+    btree_for_writing.reset(Btree_open_to_write(path.c_str()));
+    if (btree_for_writing.get() == 0) {
+	// FIXME: explain why
+	throw OmOpeningError("Cannot open table `"+path+"' for writing.");
+    }
+
+    btree_for_reading.reset(Btree_open_to_read_revision(path.c_str(),
+				btree_for_writing->revision_number));
+    if (btree_for_reading.get() == 0) {
+	btree_for_writing.reset(0);
+	throw OmOpeningError("Cannot open table `" + path +
+			     "' for reading and writing.");
     }
 
     opened = true;
 }
 
 bool
-QuartzDiskTable::open(quartz_revision_number_t revision_)
+QuartzDiskTable::open(quartz_revision_number_t revision)
 {
-    // FIXME implement
-    std::map<QuartzDbKey, QuartzDbTag> data1;
-    readfile(path + "data_1", data1, &revision1, readonly);
+    opened = false;
 
-    std::map<QuartzDbKey, QuartzDbTag> data2;
-    readfile(path + "data_2", data2, &revision2, readonly);
+    if (readonly) {
+	btree_for_reading.reset(Btree_open_to_read_revision(path.c_str(),
+							    revision));
+	if (btree_for_reading.get() == 0) {
+	    // FIXME: throw an exception if it's not just this revision which
+	    // unopenable.
+	    return false;
+	}
+	opened = true;
+	return true;
+    }
 
-    if (revision1 ==revision_) {
-	data = data1;
-	revision = revision1;
-    } else if (revision2 == revision_) {
-	data = data2;
-	revision = revision2;
-    } else {
+    // Create database if needed
+    // FIXME: use btree library to check if table exists yet.
+    if (!file_exists(path + "/DB")) {
+	if (!Btree_create(path.c_str(), blocksize)) {
+	    // FIXME: explain why
+	    throw OmOpeningError("Cannot create table `" + path + "'.");
+	}
+    }
+
+    btree_for_writing.reset(Btree_open_to_write_revision(path.c_str(),
+							 revision));
+    if (btree_for_writing.get() == 0) {
+	// FIXME: throw an exception if it's not just this revision which
+	// unopenable.
 	return false;
     }
+
+    Assert(btree_for_writing->revision_number = revision);
+
+    btree_for_reading.reset(Btree_open_to_read_revision(path.c_str(),
+				btree_for_writing->revision_number));
+    if (btree_for_reading.get() == 0) {
+	btree_for_writing.reset(0);
+	// FIXME: throw an exception if it's not just this revision which
+	// unopenable.
+	return false;
+    }
+
+    Assert(btree_for_reading->revision_number = revision);
+
     opened = true;
     return true;
 }
@@ -198,30 +246,20 @@ quartz_revision_number_t
 QuartzDiskTable::get_open_revision_number() const
 {
     Assert(opened);
-    return revision;
+    return btree_for_reading->revision_number;
 }
 
 quartz_revision_number_t
 QuartzDiskTable::get_latest_revision_number() const
 {
-    // FIXME: replace with a call to martin's code
-    std::map<QuartzDbKey, QuartzDbTag> data1;
-    quartz_revision_number_t rev1;
-    readfile(path + "data_1", data1, &rev1, readonly);
-
-    std::map<QuartzDbKey, QuartzDbTag> data2;
-    quartz_revision_number_t rev2;
-    readfile(path + "data_2", data2, &rev2, readonly);
-
-    if (rev1 > rev2) return rev1;
-    return rev2;
+    // FIXME: implement with a call to martin's code
 }
 
 quartz_tablesize_t
 QuartzDiskTable::get_entry_count() const
 {
     Assert(opened);
-    return data.size();
+    return btree_for_reading->item_count;
 }
 
 bool

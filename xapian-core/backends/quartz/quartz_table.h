@@ -29,6 +29,8 @@
 #include <string>
 #include <map>
 
+#include "btree.h"
+
 class QuartzDiskTable;
 
 /** A cursor pointing to a position in a quartz table, for reading several
@@ -164,22 +166,13 @@ class QuartzDiskTable : public QuartzTable {
 	/// Assignment not allowed
 	void operator=(const QuartzDiskTable &);
 
-	/** Store the data in memory for now.  FIXME: this is only to assist
-	 *  the early development.
-	 */
-	std::map<QuartzDbKey, QuartzDbTag> data;
-
-	/** The revision number in the first temporary file.
-	 */
-	quartz_revision_number_t revision1;
-
-	/** The revision number in the second temporary file.
-	 */
-	quartz_revision_number_t revision2;
-
 	/** The path at which the table is stored.
 	 */
 	std::string path;
+
+	/** The blocksize to create the database with, if it needs creating.
+	 */
+	unsigned int blocksize;
 
 	/** Whether the table has been opened.
 	 */
@@ -189,9 +182,13 @@ class QuartzDiskTable : public QuartzTable {
 	 */
 	bool readonly;
 
-	/** The current revision number.
+	/** The btree structure for reading.
 	 */
-	quartz_revision_number_t revision;
+	AutoPtr<struct Btree> btree_for_reading;
+
+	/** The btree structure for writing.
+	 */
+	AutoPtr<struct Btree> btree_for_writing;
 
     public:
 	/** Create a new table.  This does not open the table - the open()
@@ -216,10 +213,14 @@ class QuartzDiskTable : public QuartzTable {
 	 *  @param revision_      - revision number to open.
 	 *
 	 *  @return true if table is successfully opened at desired revision,
-	 *          false if table cannot be opened at desired revision.
+	 *          false if table cannot be opened at desired revision (but
+	 *          table is otherwise consistent)
 	 *
 	 *  @exception OmDatabaseCorruptError will be thrown if the table is
 	 *             in a corrupt state.
+	 *  @exception OmOpeningError will be thrown if the table cannot be
+	 *             opened (but is not corrupt - eg, permission problems,
+	 *             not present, etc).
 	 */
 	bool open(quartz_revision_number_t revision_);
 
@@ -227,6 +228,9 @@ class QuartzDiskTable : public QuartzTable {
 	 *
 	 *  @exception OmDatabaseCorruptError will be thrown if the table is
 	 *             in a corrupt state.
+	 *  @exception OmOpeningError will be thrown if the table cannot be
+	 *             opened (but is not corrupt - eg, permission problems,
+	 *             not present, etc).
 	 */
 	void open();
 

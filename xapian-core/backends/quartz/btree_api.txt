@@ -244,7 +244,7 @@ int Btree_find_tag(struct Btree * B, byte * key, int key_len, struct Btree_item 
     its length put in t->tag_len. If the key is not found t->tag and t->tag_len
     are left unchanged. e.g.
 
-        Btree_item t = Btree_item_create(B);
+        Btree_item t = Btree_item_create();
         Btree_find_tag(B, "TODAY", 5, t); /* get today's date */
 
 
@@ -298,7 +298,7 @@ void Btree_quit(struct Btree * B);
 
 and,
 
-struct Btree_item * Btree_item_create(struct Btree * B);
+struct Btree_item * Btree_item_create();
 
 void Btree_item_lose(struct Btree item * kt);
 
@@ -359,7 +359,7 @@ int Bcursor_get_key(struct Bcursor * BC, struct Btree_item * kt);
     For example,
 
         Bcursor * BC = Bcursor_create(B);
-        Btree_item * kt = Btree_item_create(B);
+        Btree_item * kt = Btree_item_create();
 
         /* Now we'll print all the keys in the B-tree (assuming they
            have a simple form */
@@ -389,7 +389,7 @@ void Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * kt);
     For example,
 
         Bcursor * BC = Bcursor_create(B);
-        Btree_item * kt = Btree_item_create(B);
+        Btree_item * kt = Btree_item_create();
 
         /* Now do something to each key-tag pair in the Btree */
            have a simple form */
@@ -411,7 +411,7 @@ void Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * kt);
     to -1. [Perhaps there should be procedures to do this.] For example,
 
         Bcursor * BC = Bcursor_create(B);
-        Btree_item * kt = Btree_item_create(B);
+        Btree_item * kt = Btree_item_create();
 
         unsigned char * calendar[2000];
         int year;
@@ -530,7 +530,7 @@ compact B-tree with revision number 1.
 
     {   struct Btree * B = Btree_open_to_read("B/");
         struct Bcursor * BC = Bcursor_create(B);
-        struct Btree_item * item = Btree_item_create(B);
+        struct Btree_item * item = Btree_item_create();
 
         Btree_create("Bnew/", 8192);
 
@@ -626,7 +626,7 @@ retry:
     }
     ...
 
-    Btree_item t = Btree_item_create(B);
+    Btree_item t = Btree_item_create();
 
     Btree_find_tag(B, "brunel", 6, t); /* look up some keyword */
 
@@ -655,7 +655,7 @@ The test is not required after any of the following,
 
    revision = B->revision_number;
    Btree_quit(B);
-   kt = Btree_item_create(B);
+   kt = Btree_item_create();
    Btree_item_lose(kt);
    BC = Bcursor_create(B);
    Bcursor_get_key(BC, kt);
