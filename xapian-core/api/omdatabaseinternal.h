@@ -90,6 +90,14 @@ class OmDatabase::Internal {
 
 	RefCntPtr<PositionList> open_position_list(om_docid did,
 					 const om_termname &tname) const;
+
+	/** Do whatever is necessary to recover from an
+	 *  OmDatabaseModifiedError when fetching data from document did.
+	 *  In most cases this is ignored, or causes the database to
+	 *  re-open.  It may also throw an OmDatabaseCorruptError when
+	 *  used on a writable database which doesn't expect other writers.
+	 */
+	void recover_from_overwritten(om_docid did);
 };
 
 #endif // OM_HGUARD_OMDATABASEINTERNAL_H

@@ -334,6 +334,11 @@ QuartzDatabase::open_position_list(om_docid did,
     return result;
 }
 
+void
+QuartzDatabase::recover_from_overwritten()
+{
+    tables->reopen_after_overwritten();
+}
 
 
 
@@ -658,5 +663,11 @@ QuartzWritableDatabase::open_position_list(om_docid did,
     PositionList * result = poslist.get();
     poslist.release();
     return result;
+}
+
+void
+QuartzWritableDatabase::recover_from_overwritten()
+{
+    throw OmDatabaseCorruptError("Attempt to recover from overwritten condition on writable database");
 }
 

@@ -141,3 +141,13 @@ OmDatabase::Internal::open_position_list(om_docid did,
 
     return databases[dbnumber]->open_position_list(realdid, tname);
 }
+
+void
+OmDatabase::Internal::recover_from_overwritten(om_docid did)
+{
+    unsigned int multiplier = databases.size();
+    om_docid realdid = (did - 1) / multiplier + 1;
+    om_doccount dbnumber = (did - 1) % multiplier;
+
+    databases[dbnumber]->recover_from_overwritten();
+}

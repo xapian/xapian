@@ -27,6 +27,9 @@
 #include "omdocumentinternal.h"
 #include "omtermlistiteratorinternal.h"
 #include "omkeylistiteratorinternal.h"
+#include "om/omerror.h"
+#include "omdatabaseinterface.h"
+#include "omdatabaseinternal.h"
 #include <algorithm>
 
 //////////////////////////////////
@@ -44,7 +47,7 @@ OmDocument::OmDocument() : internal(new OmDocument::Internal)
 OmKey
 OmDocument::get_key(om_keyno key) const
 {
-    DEBUGAPICALL(OmKey, "OmDocument::get_data", key);
+    DEBUGAPICALL(OmKey, "OmDocument::get_key", key);
     if (internal->keys_here) {
 	std::map<om_keyno, OmKey>::const_iterator i;
 	i = internal->keys.find(key);
@@ -56,7 +59,22 @@ OmDocument::get_key(om_keyno key) const
     }
     // create our own RefCntPtr in case another thread assigns a new ptr
     RefCntPtr<Document> myptr = internal->ptr;
-    RETURN(myptr->get_key(key));
+
+    // FIXME: un-hardwire the repeat count
+    int tries_left = 100;
+    while (true) {
+	try {
+	    RETURN(myptr->get_key(key));
+	} catch (OmDatabaseModifiedError &e) {
+	    if (--tries_left > 0) {
+		OmDatabase::InternalInterface::get(internal->database)->
+			recover_from_overwritten(internal->did);
+	    } else {
+		// Give up!
+		throw;
+	    }
+	}
+    }
 }
 
 OmData
@@ -66,7 +84,22 @@ OmDocument::get_data() const
     if (internal->data_here) RETURN(internal->data);
     // create our own RefCntPtr in case another thread assigns a new ptr
     RefCntPtr<Document> myptr = internal->ptr;
-    RETURN(myptr->get_data());
+
+    // FIXME: un-hardwire the repeat count
+    int tries_left = 100;
+    while (true) {
+	try {
+	    RETURN(myptr->get_data());
+	} catch (OmDatabaseModifiedError &e) {
+	    if (--tries_left > 0) {
+		OmDatabase::InternalInterface::get(internal->database)->
+			recover_from_overwritten(internal->did);
+	    } else {
+		// Give up!
+		throw;
+	    }
+	}
+    }
 }
 
 void

@@ -64,6 +64,8 @@ class QuartzDatabase : public Database {
 	virtual void do_delete_document(om_docid did);
 	virtual void do_replace_document(om_docid did,
 					 const OmDocument & document);
+
+	virtual void recover_from_overwritten();
 	//@}
 
 	/// Implementation of get_avlength()
@@ -157,6 +159,8 @@ class QuartzWritableDatabase : public Database {
 	virtual void do_delete_document(om_docid did);
 	virtual void do_replace_document(om_docid did,
 					 const OmDocument & document);
+
+	virtual void recover_from_overwritten();
 	//@}
 
     public:

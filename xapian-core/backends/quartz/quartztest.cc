@@ -1788,7 +1788,7 @@ test_desc tests[] = {
     {"quartzpostlist2",		test_postlist2},
     {"quartzpositionlist1",	test_positionlist1},
     {"quartzoverwrite1", 	test_overwrite1},
-//    {"quartzoverwrite2", 	test_overwrite2},
+    {"quartzoverwrite2", 	test_overwrite2},
     {"quartzbitmap1", 		test_bitmap1},
     {"quartzwritelock1", 	test_writelock1},
     {0, 0}
