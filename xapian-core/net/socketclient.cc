@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -281,7 +282,7 @@ SocketClient::do_read()
 
     DEBUGLINE(UNKNOWN, "do_read(): " << retval);
 
-    if (retval.substr(0, 1) == "E") {
+    if (retval[0] == 'E') {
 	string_to_omerror(retval.substr(1), "REMOTE:", context);
     }
 
@@ -384,7 +385,7 @@ SocketClient::finish_query()
 
 	    {
 		std::string response = do_read();
-		if (response.substr(0, 1) != "L") {
+		if (response[0] != 'L') {
 		    throw OmNetworkError("Error getting statistics", context);
 		}
 		remote_stats = string_to_stats(response.substr(1));
