@@ -67,7 +67,8 @@ EXTRA_DIST = testdata/apitest_onedoc.txt \
              testdata/apitest_simpledata2.txt \
 	     testdata/apitest_termorder.txt \
 	     testdata/apitest_rset.txt \
-	     testdata/apitest_phrase.txt
+	     testdata/apitest_phrase.txt \
+	     testdata/indextest_filereader.txt
 
 
 clean-local:

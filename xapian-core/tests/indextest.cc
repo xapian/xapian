@@ -31,6 +31,9 @@ using std::endl;
 #include "testsuite.h"
 #include "om/omstem.h"
 
+// srcdir, used by some tests
+std::string srcdir;
+
 bool test_basic1()
 {
     OmIndexerBuilder builder;
@@ -244,7 +247,7 @@ bool test_omstemmer1()
         return false;
     }
 
-    for (int i=0; i<v.size(); ++i) {
+    for (unsigned i=0; i<v.size(); ++i) {
         if (result->get_element(i).get_string() !=
 			stemmer.stem_word(v[i].get_string())) {
 	    return false;
@@ -289,7 +292,7 @@ bool test_omprefix1()
         return false;
     }
 
-    for (int i=0; i<v.size(); ++i) {
+    for (unsigned i=0; i<v.size(); ++i) {
         if (result->get_element(i).get_string() !=
 			std::string("WIB") + v[i].get_string()) {
 	    return false;
@@ -337,12 +340,282 @@ bool test_omstopword1()
         return false;
     }
 
-    for (int i=0; i<v.size()-2; ++i) {
+    for (unsigned i=0; i<v.size()-2; ++i) {
         if (result->get_element(i).get_string() !=
 			v[i*2].get_string()) {
 	    if (verbose) {
 		cout << "Result: " << result << endl;
 	    }
+	    return false;
+	}
+    }
+
+    return true;
+}
+
+bool test_omflattenstring1()
+{
+    OmIndexerBuilder builder;
+
+    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+      "<?xml version=\"1.0\"?>\n"
+      "<omindexer>\n"
+         "<node type='omflattenstring' id='only'>\n"
+	     "<input name='in' node='START' out_name='out'/>\n"
+	 "</node>\n"
+         "<output node='only' out_name='out'/>\n"
+      "</omindexer>\n");
+      // FIXME: on PPC, it seems to miss the last character, so complains
+      // that there's no final >.  Stop the bodge, and investigate.
+
+    OmIndexerMessage result;
+
+    std::vector<OmIndexerData> v;
+    v.push_back(OmIndexerData("penguins"));
+    v.push_back(OmIndexerData("flying"));
+    v.push_back(OmIndexerData("elephants"));
+
+    std::vector<OmIndexerData> v2;
+    v2.push_back(OmIndexerData("nested1"));
+    v2.push_back(OmIndexerData("nested2"));
+
+    v.push_back(OmIndexerData(v2));
+
+    // now test with a vector
+    indexer->set_input(OmIndexerMessage(new OmIndexerData(v)));
+    result = indexer->get_raw_output();
+    if (verbose && result->get_type() != OmIndexerData::rt_string) {
+        cout << "Non-string result: " << result << endl;
+    }
+    if (result->get_string() != "penguinsflyingelephantsnested1nested2") {
+	if (verbose) {
+	    cout << "Bad result: `" << result << "'" << endl;
+	}
+        return false;
+    }
+
+    return true;
+}
+
+bool test_omtranslate1()
+{
+    OmIndexerBuilder builder;
+
+    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+      "<?xml version=\"1.0\"?>\n"
+      "<omindexer>\n"
+         "<node type='omtranslate' id='only'>\n"
+	     "<param type='string' name='from' value='abcdefghijklmnopqrstuvwxyz'/>\n"
+	     "<param type='string' name='to' value='nopqrstuvwxyzabcdefghijklm'/>\n"
+	     "<input name='in' node='START' out_name='out'/>\n"
+	 "</node>\n"
+         "<output node='only' out_name='out'/>\n"
+      "</omindexer>\n");
+      // FIXME: on PPC, it seems to miss the last character, so complains
+      // that there's no final >.  Stop the bodge, and investigate.
+
+    OmIndexerMessage result;
+
+    std::vector<OmIndexerData> v;
+    v.push_back(OmIndexerData("word"));
+    v.push_back(OmIndexerData("flying"));
+    v.push_back(OmIndexerData("sponge"));
+    v.push_back(OmIndexerData("penguins"));
+    v.push_back(OmIndexerData("elephants"));
+
+    std::vector<OmIndexerData> answer;
+    // rot13 versions
+    answer.push_back(OmIndexerData("jbeq"));
+    answer.push_back(OmIndexerData("sylvat"));
+    answer.push_back(OmIndexerData("fcbatr"));
+    answer.push_back(OmIndexerData("crathvaf"));
+    answer.push_back(OmIndexerData("ryrcunagf"));
+
+    // now test with a vector
+    indexer->set_input(OmIndexerMessage(new OmIndexerData(v)));
+    result = indexer->get_raw_output();
+    if (verbose && result->get_type() != OmIndexerData::rt_vector) {
+        cout << "Non-vector result: " << result << endl;
+    }
+    if (result->get_vector_length() != v.size()) {
+        return false;
+    }
+
+    for (unsigned i=0; i<v.size(); ++i) {
+        if (result->get_element(i).get_string() != answer[i].get_string()) {
+	    return false;
+	}
+    }
+
+    return true;
+}
+
+bool
+test_omfilereader1()
+{
+    std::string datadir = srcdir + "/testdata/";
+
+    OmIndexerBuilder builder;
+
+    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+      "<?xml version=\"1.0\"?>\n"
+      "<omindexer>\n"
+         "<node type='omfilereader' id='only'>\n"
+	     "<param type='string' name='filename' value='" +
+	           datadir + "indextest_filereader.txt'/>\n"
+	 "</node>\n"
+         "<output node='only' out_name='out'/>\n"
+      "</omindexer>\n");
+      // FIXME: on PPC, it seems to miss the last character, so complains
+      // that there's no final >.  Stop the bodge, and investigate.
+
+    OmIndexerMessage result = indexer->get_raw_output();
+
+    if (verbose && result->get_type() != OmIndexerData::rt_string) {
+        cout << "Non-string result: " << result << endl;
+	return false;
+    }
+
+    if (result->get_string() != "correct answer\n") {
+	if (verbose) {
+	    cout << "Got string: `" << result->get_string() << "'" << endl;
+	}
+	return false;
+    }
+
+    return true;
+}
+
+bool test_omfilereader2()
+{
+    std::string datadir = srcdir + "/testdata/";
+
+    OmIndexerBuilder builder;
+
+    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+      "<?xml version=\"1.0\"?>\n"
+      "<omindexer>\n"
+         "<node type='omfilereader' id='only'>\n"
+	     "<input name='filename' node='START' out_name='out'/>\n"
+	 "</node>\n"
+         "<output node='only' out_name='out'/>\n"
+      "</omindexer>\n");
+      // FIXME: on PPC, it seems to miss the last character, so complains
+      // that there's no final >.  Stop the bodge, and investigate.
+
+    indexer->set_input(OmIndexerMessage(new OmIndexerData(datadir
+				+ "indextest_filereader.txt")));
+
+    OmIndexerMessage result = indexer->get_raw_output();
+
+    if (verbose && result->get_type() != OmIndexerData::rt_string) {
+        cout << "Non-string result: " << result << endl;
+	return false;
+    }
+
+    if (result->get_string() != "correct answer\n") {
+	if (verbose) {
+	    cout << "Got string: `" << result->get_string() << "'" << endl;
+	}
+	return false;
+    }
+
+    return true;
+}
+
+bool test_omvectorsplit1()
+{
+    OmIndexerBuilder builder;
+
+    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+      "<?xml version=\"1.0\"?>\n"
+      "<omindexer>\n"
+         "<node type='omvectorsplit' id='only'>\n"
+	     "<input name='in' node='START' out_name='out'/>\n"
+	 "</node>\n"
+         "<output node='only' out_name='out'/>\n"
+      "</omindexer>\n");
+      // FIXME: on PPC, it seems to miss the last character, so complains
+      // that there's no final >.  Stop the bodge, and investigate.
+
+    OmIndexerMessage result;
+
+    std::vector<OmIndexerData> v;
+    v.push_back(OmIndexerData("word"));
+    v.push_back(OmIndexerData("flying"));
+    v.push_back(OmIndexerData("sponge"));
+    v.push_back(OmIndexerData("penguins"));
+    v.push_back(OmIndexerData("elephants"));
+
+    // now test with a vector
+    indexer->set_input(OmIndexerMessage(new OmIndexerData(v)));
+
+    for (size_t i=0; i<v.size(); ++i) {
+	result = indexer->get_raw_output();
+	if (verbose && result->get_type() != OmIndexerData::rt_string) {
+	    cout << "Non-string result: " << result << endl;
+	}
+	if (result->get_string() != v[i].get_string()) {
+	    if (verbose) {
+		cout << "Got " << result << ", expected " << v[i] << endl;
+	    }
+	    return false;
+	}
+    }
+    result = indexer->get_raw_output();
+    if (result->get_type() != OmIndexerData::rt_empty) {
+	if (verbose) {
+	    cout << "Expected empty at end, got: " << result << endl;
+	}
+	return false;
+    }
+
+    return true;
+}
+
+bool test_omlistconcat1()
+{
+    OmIndexerBuilder builder;
+
+    AutoPtr<OmIndexer> indexer = builder.build_from_string(
+      "<?xml version=\"1.0\"?>\n"
+      "<omindexer>\n"
+         "<node type='omsplitter' id='split'>\n"
+	     "<input name='in' node='START' out_name='out'/>\n"
+	 "</node>\n"
+         "<node type='omlistconcat' id='only'>\n"
+	     "<input name='left' node='split' out_name='left'/>\n"
+	     "<input name='right' node='split' out_name='right'/>\n"
+	 "</node>\n"
+         "<output node='only' out_name='out'/>\n"
+      "</omindexer>\n");
+      // FIXME: on PPC, it seems to miss the last character, so complains
+      // that there's no final >.  Stop the bodge, and investigate.
+
+    OmIndexerMessage result;
+
+    std::vector<OmIndexerData> v;
+    v.push_back(OmIndexerData("word"));
+    v.push_back(OmIndexerData("flying"));
+    v.push_back(OmIndexerData("sponge"));
+    v.push_back(OmIndexerData("penguins"));
+    v.push_back(OmIndexerData("elephants"));
+
+    // now test with a vector
+    indexer->set_input(OmIndexerMessage(new OmIndexerData(v)));
+    result = indexer->get_raw_output();
+    if (verbose && result->get_type() != OmIndexerData::rt_vector) {
+        cout << "Non-vector result: " << result << endl;
+    }
+    if (result->get_vector_length() != 2*v.size()) {
+        return false;
+    }
+
+    for (unsigned i=0; i<v.size(); ++i) {
+        if (result->get_element(i).get_string() != v[i].get_string()) {
+	    return false;
+	}
+        if (result->get_element(i + v.size()).get_string() != v[i].get_string()) {
 	    return false;
 	}
     }
@@ -356,18 +629,30 @@ bool test_omstopword1()
 
 /// The lists of tests to perform
 test_desc tests[] = {
-    {"basic1",		&test_basic1},
-    {"basic2",		&test_basic2},
-    {"basic3",		&test_basic3},
-    {"flowcheck1",	&test_flowcheck1},
-    {"omsplitter1",	&test_omsplitter1},
-    {"omstemmer1",	&test_omstemmer1},
-    {"omprefix1",	&test_omprefix1},
-    {"omstopword1",	&test_omstopword1},
+    {"basic1",			&test_basic1},
+    {"basic2",			&test_basic2},
+    {"basic3",			&test_basic3},
+    {"flowcheck1",		&test_flowcheck1},
+    {"omsplitter1",		&test_omsplitter1},
+    {"omstemmer1",		&test_omstemmer1},
+    {"omprefix1",		&test_omprefix1},
+    {"omstopword1",		&test_omstopword1},
+    {"omflattenstring1",	&test_omflattenstring1},
+    {"omtranslate1",		&test_omtranslate1},
+    {"omfilereader1",		&test_omfilereader1},
+    {"omfilereader2",		&test_omfilereader2},
+    {"omvectorsplit1",		&test_omvectorsplit1},
+    /*
+     * FIXME: fix the test
+    {"omlistconcat1",		&test_omlistconcat1},
+    */
+    // FIXME: add tests for regex nodes
     {0, 0}
 };
 
 int main(int argc, char *argv[])
 {
+    srcdir = test_driver::get_srcdir(argv[0]);
+
     return test_driver::main(argc, argv, tests);
 }

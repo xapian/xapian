@@ -43,6 +43,8 @@ class OmIndexerData {
 	    rt_vector
 	};
 
+	typedef std::vector<OmIndexerData>::size_type size_type;
+
 	/** Constructor: create an empty record */
 	OmIndexerData();
 	/** Constructor: create an int record */
@@ -86,7 +88,7 @@ class OmIndexerData {
 	/** Return the length of the vector in this message.
 	 *  Will throw an exception if this message is not a vector.
 	 */
-	int get_vector_length() const;
+	size_type get_vector_length() const;
 
 	/** Return a reference to a given element in a vector.
 	 *  Will throw an exception if this message is not a vector,
@@ -94,7 +96,7 @@ class OmIndexerData {
 	 *
 	 *  @param offset	The (zero-based) offset into the vector.
 	 */
-	const OmIndexerData &operator[](unsigned int offset) const;
+	const OmIndexerData &operator[](size_type offset) const;
 
 	/** Return a reference to a given element in a vector.
 	 *  Will throw an exception if this message is not a vector,
@@ -102,7 +104,7 @@ class OmIndexerData {
 	 *
 	 *  @param offset	The (zero-based) offset into the vector.
 	 */
-	const OmIndexerData &get_element(unsigned int offset) const;
+	const OmIndexerData &get_element(size_type offset) const;
 
 	/** Append a OmIndexerData to the vector value.
 	 *  Will throw an exception if this message is not a vector

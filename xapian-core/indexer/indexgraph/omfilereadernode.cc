@@ -23,6 +23,7 @@
 #include "om/omindexernode.h"
 #include "om/omerror.h"
 #include "node_reg.h"
+#include "omdebug.h"
 #include <iostream>
 #include <fstream>
 
@@ -64,12 +65,29 @@ class OmFileReaderNode : public OmIndexerNode {
 
 	static void read_file(std::string &s, const std::string &filename)
 	{
+	    DEBUGLINE(INDEXER, "OmFileReaderNode: reading from " << filename);
 	    std::ifstream ifs(filename.c_str());
+
+	    if (!ifs) {
+		throw OmInvalidDataError(std::string("Couldn't open file ") +
+					 filename);
+	    }
 	    char buf[1024];
 
-	    while (ifs.read(buf, sizeof(buf))) {
-		s.append(buf, ifs.gcount());
+	    do {
+		ifs.read(buf, sizeof(buf));
+		size_t numbytes = ifs.gcount();
+		s.append(buf, numbytes);
+		DEBUGLINE(INDEXER, "OmFileReaderNode: appending "
+			  << numbytes << " bytes...");
+	    } while (!ifs.eof() && ifs.good());
+	    
+	    if (!ifs.eof()) {
+		throw OmInvalidDataError(std::string("Error reading from ")
+					 + filename);
 	    }
+	    DEBUGLINE(INDEXER, "OmFileReaderNode: read " << s.length()
+		      << " bytes.");
 	}
 };
 

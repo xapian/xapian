@@ -206,7 +206,7 @@ OmIndexerData::get_string() const
     return *u.string_val;
 }
 
-int
+OmIndexerData::size_type
 OmIndexerData::get_vector_length() const
 {
     if (type != rt_vector) {
@@ -222,7 +222,7 @@ OmIndexerData::operator[](unsigned int offset) const
 }
 
 const OmIndexerData &
-OmIndexerData::get_element(unsigned int offset) const
+OmIndexerData::get_element(size_type offset) const
 {
     if (type != rt_vector) {
 	throw OmTypeError("OmIndexerData::get_vector_length() called for non-vector value");
