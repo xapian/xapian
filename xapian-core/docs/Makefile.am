@@ -107,6 +107,10 @@ todo-release.html: todo2html.pl todo.xml
 	    $(PERL) $(srcdir)/todo2html.pl --release \* $(srcdir)/todo.xml >$@ ;\
 	fi
 
+# We run into problems with line length limits in older sed implementations
+# (e.g. on Solaris) so use $T instead of $(top_srcdir) in APIDOC_SRC, etc
+T=$(top_srcdir)
+
 apidoc/html/index.html: $(top_srcdir)/configure.in \
 		$(srcdir)/doxygen_api_header.html_tmpl \
 		$(srcdir)/doxygen_api_footer.html_tmpl \
@@ -134,10 +138,11 @@ sourcedoc/html/index.html: $(top_srcdir)/configure.in \
 		$(srcdir)/doxygen_full_header.html_tmpl \
 		$(srcdir)/doxygen_full_footer.html_tmpl \
 		$(srcdir)/doxygen_full_conf.in \
-		$(SOURCEDOC_CC_SRC) $(SOURCEDOC_C_H_SRC)
+		$(SOURCEDOC_CC_SRC) $(SOURCEDOC_C_SRC) $(SOURCEDOC_H_SRC) \
+		$(APIDOC_SRC)
 	if test -f "$(srcdir)/sourcedoc/html/index.html" && \
 	   test ! -f "sourcedoc/html/index.html" && \
-	   test -z "`find $(top_srcdir)/configure.in $(srcdir)/doxygen_full_header.html_tmpl $(srcdir)/doxygen_full_footer.html_tmpl $(srcdir)/doxygen_full_conf.in $(SOURCEDOC_CC_SRC) $(SOURCEDOC_C_H_SRC) -newer $(srcdir)/sourcedoc/html/index.html -print`" ; then \
+	   test -z "`find $(top_srcdir)/configure.in $(srcdir)/doxygen_full_header.html_tmpl $(srcdir)/doxygen_full_footer.html_tmpl $(srcdir)/doxygen_full_conf.in $(SOURCEDOC_CC_SRC) $(SOURCEDOC_C_SRC) $(SOURCEDOC_H_SRC) $(APIDOC_SRC) -newer $(srcdir)/sourcedoc/html/index.html -print`" ; then \
 	    echo Not rebuilding sourcedoc/html/index.html despite make with crude VPATH ;\
 	else \
 	    top_srcdir=$(top_srcdir) $(DOXYGEN) doxygen_full_conf ;\

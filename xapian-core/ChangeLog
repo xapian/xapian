@@ -1,3 +1,8 @@
+Mon Sep 16 17:15:46 BST 2002  Olly Betts <olly@survex.com>
+
+	* configure.in,docs/Makefile.am: Added workaround for pattern length
+	  limits in Solaris sed.
+
 Mon Sep 16 17:13:20 BST 2002  Olly Betts <olly@survex.com>
 
 	* include/om/om.h.in: Added explanatory comments for developers.
