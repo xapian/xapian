@@ -101,10 +101,18 @@ MyHtmlParser::process_text(const string &text)
     // some tags are meaningful mid-word so this is simplistic at best...
 
     if (!in_script_tag && !in_style_tag) {
-	string::size_type firstchar = text.find_first_not_of(" \t\n\r");
-	if (firstchar != string::npos) {
-	    dump += text.substr(firstchar);
-	    dump += " ";
+	string::size_type b = 0;
+	while ((b = text.find_first_not_of(" \t\n\r\xa0", b)) != string::npos) {
+	    if (!dump.empty()) dump += ' ';
+	    string::size_type e = text.find_first_of(" \t\n\r\xa0", b);
+	    if (e == string::npos) {
+		dump += text.substr(b);
+		cout << "[" << text.substr(b) << "]" << endl;
+		break;
+	    }
+	    dump += text.substr(b, e - b);
+	    cout << "[" << text.substr(b, e - b) << "]" << endl;
+	    b = e + 1;
 	}
     }
 }

@@ -1,3 +1,9 @@
+Wed Nov 24 00:04:42 GMT 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: HTML extraction now turns strips leading and trailing
+	  whitespace and converts all other consecutive groups of whitespace
+	  to a single space.
+
 Tue Nov 23 20:29:14 GMT 2004  Olly Betts <olly@survex.com>
 
 	* Makefile.am: XAPIAN_FLAGS already links with xapianqueryparser
