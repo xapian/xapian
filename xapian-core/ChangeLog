@@ -1,3 +1,8 @@
+Thu Mar 25 00:22:13 GMT 2004  Olly Betts <olly@survex.com>
+
+	* bin/quartzcheck.cc: Check the structure with the postlist Btree
+	  as well as the Btree structures themselves.
+
 Sun Mar 21 00:00:59 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_table_manager.cc: Fix for building on mingw.

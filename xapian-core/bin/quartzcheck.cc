@@ -4,7 +4,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,6 +29,11 @@
 using namespace std;
 
 #include "btreecheck.h"
+#include "quartz_table.h"
+#include "quartz_types.h"
+#include "quartz_utils.h"
+
+static void check_table(const char *table, int opts);
 
 int
 main(int argc, char **argv)
@@ -85,13 +90,162 @@ main(int argc, char **argv)
 		table += *t;
 		table += '_';
 		cout << *t << ":\n";
-		BtreeCheck::check(table, opts);
+		check_table(table.c_str(), opts);
 	    }
 	} else {
-	    BtreeCheck::check(argv[1], opts);
+	    check_table(argv[1], opts);
 	}
     } catch (const Xapian::Error &error) {
 	cerr << argv[0] << ": " << error.get_msg() << endl;
 	exit(1);
+    }
+}
+
+static void check_table(const char *filename, int opts) {
+    // Check the btree structure.
+    BtreeCheck::check(filename, opts);
+
+    // Now check the quartz structures inside the btree.
+    QuartzDiskTable table(filename, true, 0);
+    table.open();
+    AutoPtr<QuartzCursor> cursor(table.cursor_get());
+
+    cursor->find_entry("");
+    cursor->next(); // Skip the empty entry.
+    switch (filename[strlen(filename) - 6]) { // 5th from last char is unique!
+	case 'e': // rEcord_
+	    break;
+	case 't': { // posTlist_
+	    // Now check the structure of each postlist in the table.
+	    string current_term;
+	    Xapian::docid lastdid = 0;
+	    Xapian::termcount termfreq = 0, collfreq = 0;
+	    Xapian::termcount tf = 0, cf = 0;
+	    while (!cursor->after_end()) {
+		string & key = cursor->current_key;
+
+		const char * pos, * end;
+
+		// Get term from key.
+		pos = key.data();
+		end = pos + key.size();
+
+		string term;
+		Xapian::docid did;
+		if (!unpack_string_preserving_sort(&pos, end, term)) {
+		    cout << "Error unpacking termname from key" << endl;
+		}
+		if (current_term.empty()) {
+		    current_term = term;
+		    tf = cf = 0;
+		    if (pos != end) {
+			cout << "Extra bytes after key for first chunk of "
+			    "posting list for term `" << term << "'" << endl;
+		    }
+		    // Unpack extra header from first chunk.
+		    pos = cursor->current_tag.data();
+		    end = pos + cursor->current_tag.size();
+		    if (!unpack_uint(&pos, end, &termfreq)) {
+			cout << "Failed to unpack termfreq for term `" << term
+			     << "'" << endl;
+		    }
+		    if (!unpack_uint(&pos, end, &collfreq)) {
+			cout << "Failed to unpack collfreq for term `" << term
+			     << "'" << endl;
+		    }
+		    if (!unpack_uint(&pos, end, &did)) {
+			cout << "Failed to unpack firstdid for term `" << term
+			     << "'" << endl;
+		    } else {
+			++did;
+		    }
+		} else {
+		    if (term != current_term) {
+			if (pos == end) {
+			    cout << "No last chunk for term `" << term << "'"
+				 << endl;
+			} else {
+			    cout << "Mismatch in follow-on chunk in posting "
+				"list for term `" << current_term << "' (got `"
+				<< term << "')" << endl;
+			}
+			current_term = term;
+		    }
+		    if (pos != end) {
+			if (!unpack_uint_preserving_sort(&pos, end, &did)) {
+			    cout << "Failed to unpack did from key" << endl;
+			}
+			if (did <= lastdid) {
+			    cout << "First did in this chunk is <= last in "
+				"prev chunk" << endl;
+			}
+		    }
+		    pos = cursor->current_tag.data();
+		    end = pos + cursor->current_tag.size();
+		}
+
+		bool is_last_chunk;
+		if (!unpack_bool(&pos, end, &is_last_chunk)) {
+		    cout << "Failed to unpack last chunk flag" << endl;
+		}
+		// Read what the final document ID in this chunk is.
+		if (!unpack_uint(&pos, end, &lastdid)) {
+		    cout << "Failed to unpack increase to last" << endl;
+		}
+		++lastdid;
+		lastdid += did;
+		while (true) {
+		    Xapian::termcount wdf, doclen;
+		    if (!unpack_uint(&pos, end, &wdf)) {
+			cout << "Failed to unpack wdf" << endl;
+		    }
+		    if (!unpack_uint(&pos, end, &doclen)) {
+			cout << "Failed to unpack doc length" << endl;
+		    }
+		    ++tf;
+		    cf += wdf;
+		    if (pos == end) break;
+		    Xapian::docid inc;
+		    if (!unpack_uint(&pos, end, &inc)) {
+			cout << "Failed to unpack docid increase" << endl;
+		    }
+		    ++inc;
+		    did += inc;
+		    if (did > lastdid) {
+			cout << "docid " << did << " > last docid " << lastdid
+			     << endl;
+		    }
+		}
+		if (is_last_chunk) {
+		    if (tf != termfreq) {
+			cout << "termfreq " << termfreq << " != # of entries "
+			     << tf << endl;
+		    }
+		    if (cf != collfreq) {
+			cout << "collfreq " << collfreq << " != sum wdf " << cf
+			     << endl;
+		    }
+		    if (did != lastdid) {
+			cout << "lastdid " << lastdid << " != last did " << did
+			     << endl;
+		    }
+		    current_term = "";
+		}
+
+		cursor->next();
+	    }
+	    if (!current_term.empty()) {
+		cout << "Last term `" << current_term << "' has no last chunk"
+		     << endl;
+	    }
+	    cout << "Postlist structure checked OK" << endl;
+	    break;
+	}
+	case 'm': // terMlist_
+	    break;
+	case 'i': // posItion_
+	    break;
+	case 'v': // Value_
+	    break;
     }
 }
