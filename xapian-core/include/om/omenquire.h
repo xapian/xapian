@@ -162,13 +162,43 @@ class OmQuery {
 class OmMatchOptions {
     friend OmEnquireInternal;
     private:
+        /** If true, duplicates will be removed based on a key.
+	 *  This defaults to false.
+	 */
 	bool  do_collapse;
+
+	/** The key number to collapse upon, if do_collapse is true.
+	 */
 	om_keyno collapse_key;
 
+	/** If true, documents with the same weight will be
+	 *  returned in ascending document order; if false, they will
+	 *  be returned in descending order.
+	 */
 	bool  sort_forward;
 
+	/** Minimum percentage score for returned documents.
+	 *  If a document has a lower percentage score than this, it
+	 *  will 
+	 */
 	int percent_cutoff;
+
+	/** Maximum number of terms which will be used if the query
+	 *  contains a large number of terms which are ORed together.
+	 *
+	 *  The terms will be sorted according to termweight, and only
+	 *  the top terms will be used.  Parts of the query which
+	 *  do not involve terms ORed together will be unaffected by this
+	 *  option.
+	 *
+	 *  If this is set to zero, all terms will be used.
+	 *
+	 *  This defaults to zero.
+	 */
+	om_termcount max_or_terms;
     public:
+	/** Create a match options object.
+	 */
 	OmMatchOptions();
 
 	/** Set a key to collapse (remove duplicates) on.
@@ -176,7 +206,9 @@ class OmMatchOptions {
 	 */
 	void set_collapse_key(om_keyno key_);
 
-	/// Set no key to collapse on.  This is the default.
+	/** Set no key to collapse on.
+	 *  This is the default.
+	 */
 	void set_no_collapse();
 
 	/** Set direction of sorting.  This applies only to documents which 
