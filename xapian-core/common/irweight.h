@@ -16,7 +16,7 @@ class IRWeight {
 	mutable bool weight_calculated;
 	mutable weight termweight;
     public:
-	IRWeight() : initialised(false) {}
+	IRWeight() : initialised(false), weight_calculated(false) {}
 	void set_stats(const IRDatabase *db, doccount tf) {
 	    database = db;
 	    termfreq = tf;
