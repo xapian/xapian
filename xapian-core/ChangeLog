@@ -1,3 +1,10 @@
+Tue May 16 12:48:40 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Assignment operators for OmDatabase and OmWritableDatabase are
+	  now safe: assignment of a OmDatabase to an OmWritableDatabase
+	  will either fail to compile or throw an exception, all other
+	  possibilities will work.
+
 Tue May 16 12:22:33 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Now pass match options over the net link.  (Untested so far)

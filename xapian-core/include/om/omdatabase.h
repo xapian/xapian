@@ -26,6 +26,8 @@
 #include <vector>
 #include "omindexdoc.h"
 
+class OmWritableDatabase;
+
 ///////////////////////////////////////////////////////////////////
 // OmDatabase class
 // ================
@@ -33,6 +35,19 @@
 /** This class is used to access a database.
  */
 class OmDatabase {
+    friend OmWritableDatabase;
+    private:
+	/** Check whether this is a writable database.
+	 *
+	 *  This is used to check that an assignment to an OmWritableDatabase
+	 *  is valid.
+	 *
+	 *  @return true if the database is writable, false otherwise.
+	 *               This always returns false for an instance of
+	 *               OmDatabase (as opposed to an instance of a subclass).
+	 */
+	virtual bool is_writable() const { return false; }
+
     protected:
 	class Internal;
 
@@ -80,7 +95,7 @@ class OmDatabase {
 	 *  If there are no copies of this object remaining, the database
 	 *  will be closed.
 	 */
-	~OmDatabase();
+	virtual ~OmDatabase();
 
         /** Copying is allowed.  The internals are reference counted, so
 	 *  copying is also cheap.
@@ -90,7 +105,7 @@ class OmDatabase {
         /** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is also cheap.
 	 */
-	void operator=(const OmDatabase &other);
+	virtual void operator=(const OmDatabase &other);
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -103,6 +118,28 @@ class OmDatabase {
  *  is liable to change in the near future.
  */
 class OmWritableDatabase : public OmDatabase {
+    private:
+	/** Assignment of an OmDatabase to an OmWritableDatabase is 
+	 *  not allowed.  This method may get called by calling the
+	 *  assignment operator from a reference to an OmDatabase,
+	 *  in which case an exception will be thrown unless the
+	 *
+	 *  @param     other   the OmDatabase to assign.
+	 *
+	 *  @exception OmInvalidArgument is thrown if other is not a reference
+	 *             to a writable database.
+	 */
+	virtual void operator=(const OmDatabase &other);
+
+	/** Check whether this is a writable database.
+	 *
+	 *  This is used to check that an assignment to an OmWritableDatabase
+	 *  is valid.
+	 *
+	 *  @return true if the database is writable, false otherwise.
+	 *               This always returns true for an OmWritableDatabase.
+	 */
+	virtual bool is_writable() const { return true; }
     public:
 	/** Open a database for writing.
 	 *
@@ -124,7 +161,7 @@ class OmWritableDatabase : public OmDatabase {
 	 *  If there are no copies of this object remaining, the database
 	 *  will be closed.
 	 */
-	~OmWritableDatabase();
+	virtual ~OmWritableDatabase();
 
         /** Copying is allowed.  The internals are reference counted, so
 	 *  copying is also cheap.
@@ -132,7 +169,9 @@ class OmWritableDatabase : public OmDatabase {
 	OmWritableDatabase(const OmWritableDatabase &other);
 
         /** Assignment is allowed.  The internals are reference counted,
-	 *  so assignment is also cheap.
+	 *  so assignment is also cheap.  Note that only an
+	 *  OmWritableDatabase may be assigned to an OmWritableDatabase:
+	 *  an attempt to assign an OmDatabase will throw an exception.
 	 */
 	void operator=(const OmWritableDatabase &other);
 

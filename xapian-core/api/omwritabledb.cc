@@ -45,7 +45,6 @@ OmDatabase::OmDatabase(const OmDatabase &other)
 void
 OmDatabase::operator=(const OmDatabase &other)
 {
-    // FIXME: 
     OmLockSentry locksentry(internal->mutex);
     // pointers are reference counted.
     internal->mydb = other.internal->mydb;
@@ -54,6 +53,7 @@ OmDatabase::operator=(const OmDatabase &other)
 OmDatabase::~OmDatabase()
 {
     delete internal;
+    internal = 0;
 }
 
 
@@ -70,6 +70,18 @@ OmWritableDatabase::OmWritableDatabase(const OmWritableDatabase &other)
 }
 
 void
+OmWritableDatabase::operator=(const OmDatabase &other)
+{
+    if(other.is_writable()) {
+	OmLockSentry locksentry(internal->mutex);
+	// pointers are reference counted.
+	internal->mydb = other.internal->mydb;
+    } else {
+	throw OmInvalidArgumentError("Cannot assign a readonly database to a writable database");
+    }
+}
+
+void
 OmWritableDatabase::operator=(const OmWritableDatabase &other)
 {
     OmLockSentry locksentry(internal->mutex);
@@ -79,6 +91,8 @@ OmWritableDatabase::operator=(const OmWritableDatabase &other)
 
 OmWritableDatabase::~OmWritableDatabase()
 {
+    delete internal;
+    internal = 0;
 }
 
 om_docid
