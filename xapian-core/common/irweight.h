@@ -61,6 +61,9 @@ class IRWeight {
 	 *  places to get them from.
 	 *
 	 *  @param stats_    Object to ask for collection statistics.
+	 *  @param querysize_ Query size.
+	 *  @param wqf_      Within query frequency of term this object is
+	 *		     associated with.
 	 *  @param tname_    Term which this object is associated with.
 	 */
 	virtual void set_stats(const StatsSource * stats_,

@@ -213,72 +213,66 @@ MultiMatch::add_next_sub_mset(SingleMatch * leaf,
     OmMSet sub_mset;
 
     // Get next mset
-    if (leaf->get_mset(0, lastitem, sub_mset,
-			  mdecider, nowait)) {
+    if (!leaf->get_mset(0, lastitem, sub_mset, mdecider, nowait))
+        return false;
 
-	// Merge stats
-	mset.mbound += sub_mset.mbound;
-	if(sub_mset.max_attained > mset.max_attained)
-	    mset.max_attained = sub_mset.max_attained;
-	if(sub_mset.max_possible > mset.max_possible)
-	    mset.max_possible = sub_mset.max_possible;
+    // Merge stats
+    mset.mbound += sub_mset.mbound;
+    if (sub_mset.max_attained > mset.max_attained)
+	mset.max_attained = sub_mset.max_attained;
+    if (sub_mset.max_possible > mset.max_possible)
+	mset.max_possible = sub_mset.max_possible;
+    
+    // Merge items
+    change_docids_to_global(sub_mset.items, leaf_number);
+    merge_msets(mset.items, sub_mset.items, lastitem);
 
-	// Merge items
-	change_docids_to_global(sub_mset.items, leaf_number);
-	merge_msets(mset.items, sub_mset.items, lastitem);
+    // Merge term information
+    std::map<om_termname, OmMSet::TermFreqAndWeight> *msettermfreqandwts =
+	&OmMSet::InternalInterface::get_termfreqandwts(mset);
+    std::map<om_termname, OmMSet::TermFreqAndWeight> *sub_msettermfreqandwts =
+	&OmMSet::InternalInterface::get_termfreqandwts(sub_mset);
 
-	// Merge term information
-	std::map<om_termname, OmMSet::TermFreqAndWeight> *msettermfreqandwts =
-		&OmMSet::InternalInterface::get_termfreqandwts(mset);
-	std::map<om_termname, OmMSet::TermFreqAndWeight> *sub_msettermfreqandwts =
-		&OmMSet::InternalInterface::get_termfreqandwts(sub_mset);
+    if (msettermfreqandwts->empty()) {
+	*msettermfreqandwts = *sub_msettermfreqandwts;
+    } else {
+	std::map<om_termname, OmMSet::TermFreqAndWeight>::iterator i;
+	std::map<om_termname, OmMSet::TermFreqAndWeight>::const_iterator j;
 
-	if(msettermfreqandwts->size() == 0) {
-	    *msettermfreqandwts = *sub_msettermfreqandwts;
-	} else {
-	    std::map<om_termname, OmMSet::TermFreqAndWeight>::iterator i;
-	    std::map<om_termname, OmMSet::TermFreqAndWeight>::const_iterator j;
-
-	    for (i = msettermfreqandwts->begin(),
-		 j = sub_msettermfreqandwts->begin();
-		 i != msettermfreqandwts->end() &&
-		 j != sub_msettermfreqandwts->end();
-		 i++, j++) {
-		if(i->second.termweight == 0 && i->second.termfreq != 0) {
-		    DEBUGLINE(WTCALC, "termweight of `" << i->first <<
-			      "' in first mset is 0, setting to " <<
-			      j->second.termweight);
-		    i->second.termweight = j->second.termweight;
-		}
+	for (i = msettermfreqandwts->begin(),
+	     j = sub_msettermfreqandwts->begin();
+	     i != msettermfreqandwts->end() &&
+	     j != sub_msettermfreqandwts->end();
+	     i++, j++) {
+	    if (i->second.termweight == 0 && i->second.termfreq != 0) {
+		DEBUGLINE(WTCALC, "termweight of `" << i->first <<
+			  "' in first mset is 0, setting to " <<
+			  j->second.termweight);
+		i->second.termweight = j->second.termweight;
 	    }
-
-#ifdef MUS_DEBUG_PARANOID
-	    AssertParanoid(msettermfreqandwts->size() ==
-			   sub_msettermfreqandwts->size());
-	    for (i = msettermfreqandwts->begin(),
-		 j = sub_msettermfreqandwts->begin();
-		 i != msettermfreqandwts->end() &&
-		 j != sub_msettermfreqandwts->end();
-		 i++, j++) {
-		DebugMsg("Comparing " <<
-			 i->first << "," <<
-			 i->second.termfreq << "," <<
-			 i->second.termweight << " with " <<
-			 j->first << "," <<
-			 j->second.termfreq << "," <<
-			 j->second.termweight);
-
-		AssertParanoid(i->first == j->first);
-		AssertParanoid(i->second.termfreq == j->second.termfreq);
-		AssertParanoid(i->second.termweight == j->second.termweight ||
-			       j->second.termweight == 0);
-	    }
-#endif /* MUS_DEBUG_PARANOID */
 	}
 
-	return true;
+#ifdef MUS_DEBUG_PARANOID
+	AssertParanoid(msettermfreqandwts->size() ==
+		       sub_msettermfreqandwts->size());
+	for (i = msettermfreqandwts->begin(),
+	     j = sub_msettermfreqandwts->begin();
+	     i != msettermfreqandwts->end() &&
+	     j != sub_msettermfreqandwts->end();
+	     i++, j++) {
+	    DebugMsg("Comparing " << i->first << "," <<
+		     i->second.termfreq << "," << i->second.termweight <<
+		     " with " << j->first << "," << 
+		     j->second.termfreq << "," << j->second.termweight);
+	    AssertParanoid(i->first == j->first);
+	    AssertParanoid(i->second.termfreq == j->second.termfreq);
+	    AssertParanoid(i->second.termweight == j->second.termweight ||
+			   j->second.termweight == 0);
+	}
+#endif /* MUS_DEBUG_PARANOID */
     }
-    return false;
+
+    return true;
 }
 
 void

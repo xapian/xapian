@@ -1,3 +1,7 @@
+Fri Sep 22 10:41:08 BST 2000 Olly Betts
+
+	* Updated docs in irweight.h; tweaked multimatch.cc.
+
 Thu Sep 21 18:56:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added more frobs to quartz: adding stuff to test revision number
