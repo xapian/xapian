@@ -1,3 +1,20 @@
+Thu Nov  2 18:24:12 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add `extern "C"' to btree.h so that it will link with C++ code.
+
+	* QuartzDiskTable now has set_entry() and apply() methods rather than
+	  a single set_entries() method - this is more flexible and neatens
+	  the code considerably.
+
+	* Don't store btree pointers in AutoPtr's - they're not created by
+	  new.
+
+	* Implement remaining methods in QuartzDiskTable
+
+	* Make quartztest compile by correcting syntax for using cursors.
+
+	* Add a btree regression test to quartztest.
+
 Wed Nov  1 18:59:28 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Corrected a couple of points in btree_api.txt

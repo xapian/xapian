@@ -75,13 +75,12 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_,
 			    "all revision numbers to consistent state (" +
 			    om_tostring(new_revision) + ") to proceed.  "
 			    "This will remove partial changes.");
-	    std::map<QuartzDbKey, QuartzDbTag *> empty_entries;
-	    postlist_table    .set_entries(empty_entries, new_revision);
-	    positionlist_table.set_entries(empty_entries, new_revision);
-	    termlist_table    .set_entries(empty_entries, new_revision);
-	    lexicon_table     .set_entries(empty_entries, new_revision);
-	    attribute_table   .set_entries(empty_entries, new_revision);
-	    record_table      .set_entries(empty_entries, new_revision);
+	    postlist_table    .apply(new_revision);
+	    positionlist_table.apply(new_revision);
+	    termlist_table    .apply(new_revision);
+	    lexicon_table     .apply(new_revision);
+	    attribute_table   .apply(new_revision);
+	    record_table      .apply(new_revision);
 	}
     } else {
 	// Get the most recent versions, failing with an OmNeedRecoveryError
@@ -99,12 +98,11 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_,
 	    log->make_entry("Initialising database - new revision is " +
 			    om_tostring(new_revision) + ".");   
 
-	    std::map<QuartzDbKey, QuartzDbTag *> empty_entries;
-	    postlist_table    .set_entries(empty_entries,  new_revision);
-	    positionlist_table.set_entries(empty_entries,  new_revision);
-	    termlist_table    .set_entries(empty_entries,  new_revision);
-	    lexicon_table     .set_entries(empty_entries,  new_revision);
-	    attribute_table   .set_entries(empty_entries,  new_revision);
+	    postlist_table    .apply(new_revision);
+	    positionlist_table.apply(new_revision);
+	    termlist_table    .apply(new_revision);
+	    lexicon_table     .apply(new_revision);
+	    attribute_table   .apply(new_revision);
 
 	    QuartzRecordManager::initialise(record_table, new_revision);
 	}
@@ -279,17 +277,13 @@ QuartzDiskTableManager::get_next_revision_number() const
 bool
 QuartzDiskTableManager::set_revision_number(quartz_revision_number_t new_revision)
 {
-    std::map<QuartzDbKey, QuartzDbTag *> null_entries;
-
     bool success = true;
-    success = success && postlist_table.set_entries(null_entries, new_revision);
-    success = success &&
-	      positionlist_table.set_entries(null_entries, new_revision);
-    success = success && termlist_table.set_entries(null_entries, new_revision);
-    success = success && lexicon_table.set_entries(null_entries, new_revision);
-    success = success &&
-	      attribute_table.set_entries(null_entries, new_revision);
-    success = success && record_table.set_entries(null_entries, new_revision);
+    success = success && postlist_table    .apply(new_revision);
+    success = success && positionlist_table.apply(new_revision);
+    success = success && termlist_table    .apply(new_revision);
+    success = success && lexicon_table     .apply(new_revision);
+    success = success && attribute_table   .apply(new_revision);
+    success = success && record_table      .apply(new_revision);
 
     return success;
 }

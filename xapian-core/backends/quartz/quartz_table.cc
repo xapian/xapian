@@ -32,128 +32,40 @@
 // FIXME: just temporary
 #include <stdio.h>
 
-static std::string
-readline(FILE *fp)
-{
-    std::string res;
-
-    while(1) {
-	int ch = fgetc(fp);
-	if (ch == EOF) break;
-	if (ch == '\0') break;
-	if (ch == '\1') {
-	    ch = fgetc(fp);
-	    if (ch == EOF) break;
-	}
-	res += std::string(&((char)ch), 1);
-    }
-
-    return res;
-}
-
-static void
-writeline(FILE *fp, std::string data)
-{
-    std::string::const_iterator i;
-    for (i = data.begin(); i != data.end(); i++) {
-	if (*i == '\0' || *i == '\1') {
-	    fputc('\1', fp);
-	}
-	fputc(*i, fp);
-    }
-    fputc('\0', fp);
-}
-
-static void
-writefile(std::string filename,
-	  std::map<QuartzDbKey, QuartzDbTag> & data,
-	  quartz_revision_number_t rev)
-{
-    FILE * fp = fopen(filename.c_str(), "w+");
-
-    if (fp == 0) {
-	throw OmDatabaseCorruptError(std::string("Can't access database: ") +
-				     strerror(errno));
-    }
-
-    size_t items;
-    items = fwrite((const void *) &rev,
-		   sizeof(quartz_revision_number_t),
-		   1,
-		   fp);
-    if (items != 1) {
-	fclose(fp);
-	throw OmDatabaseCorruptError("Can't write to Quartz table (" + filename + ")" + strerror(errno));
-    }
-
-    std::map<QuartzDbKey, QuartzDbTag>::const_iterator i;
-    for (i = data.begin(); i != data.end(); i++) {
-	writeline(fp, i->first.value);
-	writeline(fp, i->second.value);
-    }
-
-    fclose(fp);
-}
-
-static void
-readfile(std::string filename,
-	 std::map<QuartzDbKey, QuartzDbTag> & data,
-	 quartz_revision_number_t * rev,
-	 bool readonly)
-{
-    FILE * fp = fopen(filename.c_str(), "r");
-
-    if (fp == 0) {
-	if(readonly)
-	    throw OmOpeningError("Table `" + filename + "' does not exist.");
-	*rev = 0;
-	data.clear();
-	writefile(filename, data, *rev);
-	return;
-    }
-
-    size_t items;
-    items = fread((void *) rev, sizeof(quartz_revision_number_t), 1, fp);
-    if (items != 1) {
-	fclose(fp);
-	throw OmDatabaseCorruptError("Can't open Quartz table (" + filename + ")" + strerror(errno));
-    }
-
-    while(!feof(fp)) {
-	QuartzDbKey key;
-	QuartzDbTag tag ;
-	key.value = readline(fp);
-	if (feof(fp) && key.value != "") {
-	    fclose(fp);
-	    throw OmDatabaseCorruptError("Can't open Quartz table (" + filename + ") - no tag for key `" + key.value + "': " + strerror(errno));
-	}
-
-	tag.value = readline(fp);
-	if (!feof(fp)) {
-	    data[key] = tag;
-	}
-    }
-    fclose(fp);
-}
-
 QuartzDiskTable::QuartzDiskTable(std::string path_,
 				 bool readonly_,
 				 unsigned int blocksize_)
 	: path(path_),
 	  blocksize(blocksize_),
 	  opened(false),
-          readonly(readonly_)
+          readonly(readonly_),
+	  btree_for_reading(0),
+	  btree_for_writing(0)
 {
+}
+
+void
+QuartzDiskTable::close()
+{
+    if (btree_for_reading != 0) {
+	Btree_quit(btree_for_reading);
+	btree_for_reading = 0;
+    }
+    if (btree_for_writing != 0) {
+	Btree_quit(btree_for_writing);
+	btree_for_writing = 0;
+    }
+    opened = false;
 }
 
 void
 QuartzDiskTable::open()
 {
-    opened = false;
+    close();
 
     if (readonly) {
-	btree_for_reading.reset(Btree_open_to_read(path.c_str()));
-	if (btree_for_reading.get() == 0) {
+	btree_for_reading = Btree_open_to_read(path.c_str());
+	if (btree_for_reading == 0) {
 	    // FIXME: explain why
 	    throw OmOpeningError("Cannot open table `"+path+"' for reading.");
 	}
@@ -163,23 +75,28 @@ QuartzDiskTable::open()
 
     // Create database if needed
     // FIXME: use btree library to check if table exists yet.
-    if (!file_exists(path + "/DB")) {
+    if (!file_exists(path + "DB")) {
+#if 1
+	Btree_create(path.c_str(), blocksize);
+#else
 	if (!Btree_create(path.c_str(), blocksize)) {
 	    // FIXME: explain why
 	    throw OmOpeningError("Cannot create table `" + path + "'.");
 	}
+#endif
     }
 
-    btree_for_writing.reset(Btree_open_to_write(path.c_str()));
-    if (btree_for_writing.get() == 0) {
+    btree_for_writing = Btree_open_to_write(path.c_str());
+    if (btree_for_writing == 0) {
 	// FIXME: explain why
 	throw OmOpeningError("Cannot open table `"+path+"' for writing.");
     }
 
-    btree_for_reading.reset(Btree_open_to_read_revision(path.c_str(),
-				btree_for_writing->revision_number));
-    if (btree_for_reading.get() == 0) {
-	btree_for_writing.reset(0);
+    btree_for_reading = Btree_open_to_read_revision(path.c_str(),
+				btree_for_writing->revision_number);
+    if (btree_for_reading == 0) {
+	close();
+	// FIXME: explain why
 	throw OmOpeningError("Cannot open table `" + path +
 			     "' for reading and writing.");
     }
@@ -190,12 +107,11 @@ QuartzDiskTable::open()
 bool
 QuartzDiskTable::open(quartz_revision_number_t revision)
 {
-    opened = false;
+    close();
 
     if (readonly) {
-	btree_for_reading.reset(Btree_open_to_read_revision(path.c_str(),
-							    revision));
-	if (btree_for_reading.get() == 0) {
+	btree_for_reading = Btree_open_to_read_revision(path.c_str(), revision);
+	if (btree_for_reading == 0) {
 	    // FIXME: throw an exception if it's not just this revision which
 	    // unopenable.
 	    return false;
@@ -207,15 +123,18 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
     // Create database if needed
     // FIXME: use btree library to check if table exists yet.
     if (!file_exists(path + "/DB")) {
+#if 1
+	Btree_create(path.c_str(), blocksize);
+#else
 	if (!Btree_create(path.c_str(), blocksize)) {
 	    // FIXME: explain why
 	    throw OmOpeningError("Cannot create table `" + path + "'.");
 	}
+#endif
     }
 
-    btree_for_writing.reset(Btree_open_to_write_revision(path.c_str(),
-							 revision));
-    if (btree_for_writing.get() == 0) {
+    btree_for_writing = Btree_open_to_write_revision(path.c_str(), revision);
+    if (btree_for_writing == 0) {
 	// FIXME: throw an exception if it's not just this revision which
 	// unopenable.
 	return false;
@@ -223,10 +142,10 @@ QuartzDiskTable::open(quartz_revision_number_t revision)
 
     Assert(btree_for_writing->revision_number = revision);
 
-    btree_for_reading.reset(Btree_open_to_read_revision(path.c_str(),
-				btree_for_writing->revision_number));
-    if (btree_for_reading.get() == 0) {
-	btree_for_writing.reset(0);
+    btree_for_reading = Btree_open_to_read_revision(path.c_str(),
+				btree_for_writing->revision_number);
+    if (btree_for_reading == 0) {
+	close();
 	// FIXME: throw an exception if it's not just this revision which
 	// unopenable.
 	return false;
@@ -271,7 +190,7 @@ AutoPtr<QuartzCursor>
 QuartzDiskTable::make_cursor()
 {
     Assert(opened);
-    return AutoPtr<QuartzCursor>(new QuartzCursor(btree_for_reading.get()));
+    return AutoPtr<QuartzCursor>(new QuartzCursor(btree_for_reading));
 }
 
 bool
@@ -288,10 +207,10 @@ QuartzDiskTable::get_nearest_entry(QuartzDbKey &key,
     cursor.is_positioned = Bcursor_get_tag(cursor.cursor, item);
 
     // FIXME: unwanted copy
-    tag.value = string(item->tag, item->tag_len);
-    Assert(key.value == string(item->key, item->key_len));
+    tag.value = string(reinterpret_cast<char *>(item->tag), item->tag_len);
+    Assert(key.value == string(reinterpret_cast<char *>(item->key), item->key_len));
 
-    // FIXME: delete item
+    Btree_item_lose(item);
 
     return found;
 }
@@ -306,7 +225,19 @@ QuartzDiskTable::get_next_entry(QuartzDbKey &key,
     if (!cursor.is_positioned) {
 	return false;
     }
-    // FIXME: implement
+
+    Btree_item * item = Btree_item_create();
+    // FIXME: check for errors
+    Bcursor_get_key(cursor.cursor, item);
+    // FIXME: check for errors
+    cursor.is_positioned = Bcursor_get_tag(cursor.cursor, item);
+    // FIXME: check for errors
+
+    // FIXME: unwanted copies
+    tag.value = string(reinterpret_cast<char *>(item->tag), item->tag_len);
+    key.value = string(reinterpret_cast<char *>(item->key), item->key_len);
+
+    return true;
 }
 
 bool
@@ -315,72 +246,75 @@ QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) cons
     Assert(opened);
     Assert(!(key.value.empty()));
 
-    /// FIXME: replace with calls to martin's code
-    std::map<QuartzDbKey, QuartzDbTag>::const_iterator j = data.find(key);
-    if (j == data.end()) {
+    // FIXME: avoid having to create a cursor here.
+    struct Bcursor * cursor = Bcursor_create(btree_for_reading);
+    int found = Bcursor_find_key(cursor, key.value.data(), key.value.size());
+
+    if (!found) {
+	Bcursor_lose(cursor);
 	return false;
     }
-    tag.value = (j->second).value;
+    
+    Btree_item * item = Btree_item_create();
+    Bcursor_get_tag(cursor, item);
+    // FIXME: unwanted copy
+    tag.value = string(reinterpret_cast<char *>(item->tag), item->tag_len);
+
+    // FIXME: ensure that these loses get called whatever exit route happens.
+    Btree_item_lose(item);
+    Bcursor_lose(cursor);
+    
     return true;
 }
 
 bool
-QuartzDiskTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
-			     quartz_revision_number_t new_revision)
+QuartzDiskTable::set_entry(const QuartzDbKey & key, const QuartzDbTag * tag)
 {
     Assert(opened);
-    if(readonly) throw OmInvalidOperationError("Attempt to set entries in a readonly table.");
+    if(readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
 
-    // Find out which table is not opened
-    std::map<QuartzDbKey, QuartzDbTag> data1;
-    quartz_revision_number_t rev1;
-    readfile(path + "data_1", data1, &rev1, readonly);
-
-    std::map<QuartzDbKey, QuartzDbTag> data2;
-    quartz_revision_number_t rev2;
-    readfile(path + "data_2", data2, &rev2, readonly);
-
-    data1.clear();
-    data2.clear();
-
-
-    // FIXME: replace with calls to martin's code
-    {
-	std::map<QuartzDbKey, QuartzDbTag *>::const_iterator i;
-	for (i = entries.begin(); i != entries.end(); i++) {
-	    Assert(!((i->first).value.empty()));
-	    std::map<QuartzDbKey, QuartzDbTag>::iterator j;
-	    j = data.find(i->first);
-	    if (i->second == 0) {
-		// delete j
-		if (j != data.end()) {
-		    data.erase(j);
-		}
-	    } else {
-		if (j == data.end()) {
-		    data.insert(make_pair(i->first, *(i->second)));
-		} else {
-		    if ((j->second).value != (*(i->second)).value) {
-			j->second = *(i->second);
-		    }
-		}
-	    }
-	}
-    }
-
-
-    // Write data
-    if(revision == rev1) {
-	revision = new_revision;
-	writefile(path + "data_2", data, revision);
+    if (tag == 0) {
+	// delete entry
+	int result = Btree_delete(btree_for_writing,
+				  key.value.data(),
+				  key.value.size());
+	// FIXME: Check result
     } else {
-	Assert(revision == rev2);
-	revision = new_revision;
-	writefile(path + "data_1", data, revision);
+	// add entry
+	int result = Btree_add(btree_for_writing,
+			       key.value.data(),
+			       key.value.size(),
+			       tag->value.data(),
+			       tag->value.size());
+	// FIXME: Check result
     }
 
     return true;
 }
+
+bool
+QuartzDiskTable::apply(quartz_revision_number_t new_revision)
+{
+    Assert(opened);
+    if(readonly) throw OmInvalidOperationError("Attempt to modify a readonly table.");
+
+    // Close reading table
+    Assert(btree_for_reading != 0);
+    Btree_quit(btree_for_reading);
+    btree_for_reading = 0;
+
+    // Close writing table and write changes
+    Assert(btree_for_writing != 0);
+    Btree_close(btree_for_writing, new_revision);
+    // FIXME: check for errors
+    btree_for_writing = 0;
+
+    // Reopen table
+    open();
+
+    return true;
+}
+
 
 
 
@@ -399,8 +333,13 @@ QuartzBufferedTable::apply(quartz_revision_number_t new_revision)
 {
     bool result;
     try {
-	result = disktable->set_entries(changed_entries.get_all_entries(),
-					new_revision);
+	std::map<QuartzDbKey, QuartzDbTag *>::const_iterator entry;
+	for (entry = changed_entries.get_all_entries().begin();
+	     entry != changed_entries.get_all_entries().end();
+	     entry++) {
+	    result = disktable->set_entry(entry->first, entry->second);
+	}
+	disktable->apply(new_revision);
     } catch (...) {
 	changed_entries.clear();
 	throw;

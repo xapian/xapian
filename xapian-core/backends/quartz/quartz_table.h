@@ -192,12 +192,16 @@ class QuartzDiskTable : public QuartzTable {
 
 	/** The btree structure for reading.
 	 */
-	AutoPtr<struct Btree> btree_for_reading;
+	struct Btree * btree_for_reading;
 
 	/** The btree structure for writing.
 	 */
-	AutoPtr<struct Btree> btree_for_writing;
+	struct Btree * btree_for_writing;
 
+	/** Close the table.  This closes and frees any of the btree
+	 *  structures which have been created and opened.
+	 */
+	void close();
     public:
 	/** Create a new table.  This does not open the table - the open()
 	 *  method must be called before use is made of the table.
@@ -260,22 +264,38 @@ class QuartzDiskTable : public QuartzTable {
 	 */
 	quartz_revision_number_t get_latest_revision_number() const;
 
-	/** Modify the entries in the table.
-	 *
-	 *  Each key / tag pair is added to the table.
+	/** Set an entry in the table.
 	 *
 	 *  If the key already exists in the table, the existing tag
 	 *  is replaced by the supplied one.
 	 *
-	 *  If an entry is specified with a null pointer for the tag, then
+	 *  If a null pointer is supplied for the tag, then
 	 *  the entry will be removed from the table, if it exists.  If
 	 *  it does not exist, no action will be taken.
 	 *
 	 *  If an error occurs during the operation, this will be signalled
-	 *  by a return value of false.  The table will be left in an
-	 *  unmodified state.
+	 *  by a return value of false.  All modifications since the
+	 *  previous apply() will be lost.
 	 *
-	 *  @param entries       The key / tag pairs to store in the table.
+	 *  Note that other methods (such as get_nearest_entry())
+	 *  must not be performed after this call until apply() has been
+	 *  called.
+	 *
+	 *  @param key   The key to store in the table.
+	 *  @param tag   A pointer to the tag to store in the table, or 0
+	 *               to delete the item in the table.
+	 *
+	 *  @return true if the operation completed successfully, false
+	 *          otherwise.
+	 *
+	 */
+	bool set_entry(const QuartzDbKey & key, const QuartzDbTag * tag);
+
+	/** Apply changes to the table.
+	 *
+	 *  Changes made to the table by calling set_entry() are applied to
+	 *  disk.  In the event of failure, the changes may be discarded.
+	 *
 	 *  @param new_revision  The new revision number to store.  This must
 	 *          be greater than the latest revision number (see
 	 *          get_latest_revision_number()), or undefined behaviour will
@@ -284,8 +304,7 @@ class QuartzDiskTable : public QuartzTable {
 	 *  @return true if the operation completed successfully, false
 	 *          otherwise.
 	 */
-	bool set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
-			 quartz_revision_number_t new_revision);
+	bool apply(quartz_revision_number_t new_revision);
 
 	/** Virtual methods of QuartzTable.
 	 */

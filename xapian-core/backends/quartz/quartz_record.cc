@@ -88,20 +88,18 @@ void
 QuartzRecordManager::initialise(QuartzDiskTable & table,
 				quartz_revision_number_t new_revision)
 {
-    std::map<QuartzDbKey, QuartzDbTag *> entries;
     QuartzDbKey key;
-    QuartzDbTag tag_nextdoc;
-    QuartzDbTag tag_totallen;
+    QuartzDbTag tag;
 
     key.value = NEXTDOCID_TAG;
-    tag_nextdoc.value = pack_uint(1u);
-    entries[key] = &tag_nextdoc;
+    tag.value = pack_uint(1u);
+    table.set_entry(key, &tag);
 
     key.value = TOTLEN_TAG;
-    tag_totallen.value = pack_uint(0u);
-    entries[key] = &tag_totallen;
+    tag.value = pack_uint(0u);
+    table.set_entry(key, &tag);
 
-    table.set_entries(entries, new_revision);
+    table.apply(new_revision);
 }
 
 om_docid
