@@ -13,5 +13,7 @@ code_structure.html: mkdoc.pl
 
 endif
 
-pkgdata_DATA = $(CREATED_DOCUMENTS)
+docdatadir   = $(datadir)/omuscat
+docdata_DATA = $(CREATED_DOCUMENTS)
+
 EXTRA_DIST = MatcherDesign Notes mkdoc.pl.in
