@@ -28,10 +28,10 @@
 class EmptyPostList : public PostList {
     public:
 	om_doccount get_termfreq() const;
+	om_weight get_maxweight() const;
 
 	om_docid  get_docid() const;
 	om_weight get_weight() const;
-	om_weight get_maxweight() const;
 
         om_weight recalc_maxweight();
 
@@ -96,7 +96,6 @@ inline string
 EmptyPostList::intro_term_description() const
 {
     return "[empty]";
-	    
 }
 
 #endif /* OM_HGUARD_EMPTYPOSTLIST_H */
