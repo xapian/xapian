@@ -1,3 +1,7 @@
+Tue Aug 24 19:23:07 BST 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Install htdig2omega and htdig2omega.script.
+
 Mon Aug 23 22:29:53 BST 2004  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Report index file name and line number when

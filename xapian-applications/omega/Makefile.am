@@ -62,7 +62,7 @@ AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
 bin_PROGRAMS = omindex scriptindex
-bin_SCRIPTS = dbi2omega
+bin_SCRIPTS = dbi2omega htdig2omega
 
 # Data to install, in the usual automake way
 docdatadir   = $(datadir)/doc/omega
@@ -71,6 +71,8 @@ docdata_DATA = docs/cgiparams.txt \
 	docs/overview.txt \
 	docs/quickstart.txt \
 	docs/scriptindex.txt
+
+data_DATA = htdig2omega.script
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc
 omega_LDADD = $(XAPIAN_LIBS) -lxapianqueryparser # -lpcre
