@@ -1,3 +1,7 @@
+Mon Sep 23 19:33:31 BST 2002  Olly Betts <olly@survex.com>
+
+	* net/Makefile.am: Fixed building of readquery.cc from readquery.ll.
+
 Sun Sep 22 03:57:20 BST 2002  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated.
