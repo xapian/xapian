@@ -95,18 +95,26 @@ if(param()){
                 my $old_line = $line;
                 $line = highlightquery($line, $symbol);
                 if ($line eq $old_line) {
-                    print "<tr><td>$i</td><td><pre>$line$space</td></tr>\n";
+                    print "<tr><td>$i </td><td><pre>$line</td></tr>\n";
                 } else {
-                    print "<tr><td><a name=\"$i\">$i</a></td><td class=t><pre>$line$space</td></tr>\n";
+                    print "<tr><td><a name=\"$i\">$i </a></td><td class=t><pre>$line$space</td></tr>\n";
                 }
             } else {
-                print "<tr><td><a name=\"$i\">$i</a></td><td class=t><pre>$line$space</td></tr>\n";
+                print "<tr><td><a name=\"$i\">$i </a></td><td class=t><pre>$line$space</td></tr>\n";
             }
             $i++;
         }
     }
-    close (FILE);
     close (QUERY);
+    while(<FILE>) {
+        chomp;
+        my $line = $_;
+        $line = Entities::encode_entities($line);
+        print "<tr><td>$i </td><td><pre>$line</td></tr>\n";
+        $i++;
+    }
+    close (FILE);
+
 	print "</table>\n";	
 }
 print "</body></html>";
