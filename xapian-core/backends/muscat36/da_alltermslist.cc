@@ -24,7 +24,7 @@
 #include <config.h>
 #include "da_alltermslist.h"
 
-DAAllTermsList::DAAllTermsList(Xapian::Internal::RefCntPtr<const Database> database_,
+DAAllTermsList::DAAllTermsList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
 			       const DA_term_info &term_,
 			       DA_file *DA_t_)
 	: database(database_),

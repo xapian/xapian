@@ -332,7 +332,7 @@ DADatabase::get_value(Xapian::docid did, Xapian::valueno valueid) const
     return value;
 }
 
-Document *
+Xapian::Document::Internal *
 DADatabase::open_document(Xapian::docid did, bool lazy) const
 {
     return new DADocument(this, did, heavy_duty, lazy);

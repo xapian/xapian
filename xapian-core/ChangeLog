@@ -1,3 +1,8 @@
+Wed Jun 04 02:43:08 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/muscat36/: Split up spec into comments in the appropriate
+	  header files; fixed to build after recent Om -> Xapian changes.
+
 Wed Jun 04 01:56:46 BST 2003  Olly Betts <olly@survex.com>
 
 	* HACKING: Bison 1.75 and 1.875a both checked with parsequery.yy

@@ -39,7 +39,7 @@ class DAAllTermsList : public AllTermsList
 	void operator=(const DAAllTermsList &);
 
 	/// Keep our database around
-	RefCntPtr<const Database> database;
+	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
 
 	DA_term_info term;
 	DA_file *DA_t;
@@ -53,7 +53,7 @@ class DAAllTermsList : public AllTermsList
 	bool is_at_end;
     public:
 	/// Standard constructor for base class.
-	DAAllTermsList(Xapian::Internal::Xapian::Internal::RefCntPtr<const Database> database_,
+	DAAllTermsList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
 		       const DA_term_info &term_,
 		       DA_file *DA_t);
 

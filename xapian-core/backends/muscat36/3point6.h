@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +33,70 @@ extern "C" {
 
 #define BYTERANGE   256
 #define MAXINT      0X7FFFFFFF
+
+/* Record unpicking
+ * ----------------
+ * 
+ * This is best explained through an example. Suppose a record has been read
+ * into
+ * 
+ *     struct record r;
+ * 
+ * Then r->p points to the record, and r->heavy_duty is 0 or 1 according as r is
+ * in flimsy or heavy duty style.
+ * 
+ * Calling dump(r->p, 0, r->heavy_duty, 0) prints the record out in an
+ * approximate u-dump style (u-dump is a Muscat3.6 command).
+ * 
+ * Here is the definition of dump:
+ * 
+ *     static void dump(byte * p, int c, int x, int margin)
+ *     {
+ *         // c is a cursor that moves down the record,
+ *         // x is 0 or 1 according as flimsy or heavy duty,
+ *         // margin measures the width of the left-margin.
+ *         int limit = c + LENGTH_OF(p, c, x);
+ * 
+ *         // print the margin
+ *         {   int i;
+ *             for (i = 0; i < margin; i++) printf(" ");
+ *         }
+ * 
+ *         printf("*%d", CODE_OF(p, c, x));  // print the code
+ * 
+ *         switch(TYPE_OF(p, c, x))  // switch on the field type
+ *         {   case GROUP_FIELD:
+ *                 printf("\n");
+ *                 {   c += HEAD_LENGTH(x);
+ *                     margin++;
+ *                     while (c < limit)
+ *                     {   dump(p, c, x, margin);
+ *                         c += LENGTH_OF(p, c, x);
+ *                     }
+ *                 }
+ *                 return;
+ *             case STRING_FIELD:
+ *                 {   c += HEAD_LENGTH(x);
+ *                     printf(" ");
+ *                     while (c < limit) printf("%c",p[c++]);
+ *                 }
+ *                 break;
+ *             case INTEGER_FIELD:
+ *                 printf(" %d", INTEGER_AT(p, c, x));
+ *                 while(1)
+ *                 {   c += 4; // integers are always 4 bytes
+ *                     if (c + HEAD_LENGTH(x) >= limit) break;
+ *                     printf(" %d", INTEGER_AT(p, c, x));
+ *                         // extra integers are rare/
+ *                 }
+ *                 break;
+ *             case BINARY_FIELD:
+ *                 printf(" binary");
+ *                 break;
+ *         }
+ *         printf("\n");
+ *     }
+ */
 
 #define FLIMSY 0
 #define HEAVY_DUTY 1
@@ -100,6 +165,58 @@ extern int M_wordat(const byte * p);
 extern void M_put_I(byte * p, int c, int n);
 extern int M_compare_bytes(int n, const byte * p, int c, int m, const byte * q, int d);
 extern int M_get_block_size(filehandle f, const char * s);
+
+/* Functions for handling Muscat 3.6 records and term vectors:
+ * 
+ *     struct record * r = M_make_record();    // creates a record structure
+ *     M_lose_record(r);                       // - and loses it
+ * 
+ *     struct termvec * tv = M_make_termvec(); // makes a termvec structure
+ *     M_lose_termvec(struct termvec * tv);    // - and loses it
+ * 
+ * A Muscat 3.6 term is expected to be a 'k-string', with length L in k[0], and
+ * characters in k[1] ... k[L-1]. This is how they come in the packed term
+ * vectors. Obviously it's easy to cast a C string into this form:
+ * 
+ *        {  int len = strlen(s);
+ *           memmove(k+1, s, len); k[0] = len+1;  // k-string in [k, 0]
+ *        }
+ * 
+ * A termvec can be set up for term-by-term reading with
+ * 
+ *     M_open_terms(tv);
+ * 
+ * after which
+ * 
+ *     M_read_terms(tv);
+ * 
+ * reads successive terms.
+ * 
+ * Each call of M_read_terms(tv) gives
+ * 
+ *     tv->term  - the term (as k-string), or 0 when the list runs out
+ *     tv->rel   - true/false according as term is/is not marked for
+ *                 relevance feedback
+ *     tv->freq  - the term frequency, or -1 if this info is absent
+ *     tv->wdf   - the wdf, or 0 id this info is absent
+ *     tv->termp - the term's positional information, or 0 if absent.
+ *                 This can be unpicked by,
+ * 
+ *     int x = tv->heavy_duty; // x is 0 or 1
+ *     if (tv->termp)
+ *     {  byte * p = tv->termp;
+ *        int l = L2(p, 0);
+ *        int i;
+ *        for (i=2; i < l; i += LWIDTH(x) + 1)
+ *        printf(" offset=%d; width=%d", LENGTH_OF(p, i, x), p[i + LWIDTH(x)]);
+ *     }
+ * 
+ *     L2, LWIDTH and LENGTH_OF are defined above.
+ * 
+ *     The term occurs at the given offsets in the record, with the given
+ *     widths.
+ */
+
 extern struct record * M_make_record();
 extern void M_lose_record(struct record * r);
 extern void M_open_terms(struct termvec * tv);

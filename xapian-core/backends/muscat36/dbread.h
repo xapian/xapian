@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,8 +31,46 @@ extern "C" {
 #endif
 
 #include "3point6.h"
-#include "io_system.h"
 #include "dbdefs.h"
+
+/* DB files
+ * --------
+ * DB file access is the same as DA record and term file access with 'DB'
+ * replacing 'DA' in the spec in daread.h. The corresponding declarations are:
+ * 
+ * struct DB_file *
+ *      DB_open(const char * s, int n, int heavy_duty)
+ * void DB_close(struct DB_file * p)
+ * int  DB_term(const byte * k, struct DB_term_info * t, struct DB_file * p)
+ * struct DB_postings *
+ *      DB_open_postings(struct DB_term_info * t, struct DB_file * p)
+ * void DB_read_postings(struct DB_postings * q, int style, int Z0)
+ * void DB_close_postings(struct DB_postings * q)
+ * int  DB_get_record(struct DB_file * p, int n, struct record * r)
+ * int  DB_get_termvec(struct DB_file * p, int n, struct termvec * tv)
+ * 
+ * There is however the difference in setting the DB file up.
+ * 
+ *         struct DB_file * DB;
+ *         DB = DB_open("/home/richard/test/d/DB", 30, FLIMSY);
+ *                      // '30' is explained below
+ * 
+ * and to close:
+ * 
+ *         DB_close(DB);
+ * 
+ * DB is the handle for both term and record/termvec accesses.
+ * 
+ * The total number of documents (or terms) in the DB file is given by
+ * 
+ *         DB->doc_count       (DB->term_count)
+ * 
+ * A DB file is set up with a cache of blocks for reading. This is the second
+ * argument of DBopen, so in the example above 30 blocks are used. The cache
+ * will in any case be given at least 8 blocks. It would be a bad error to use
+ * DA_RECS or DA_RECS in the second argument, since these are large positive
+ * numbers.
+ */
 
 struct DB_pool /* block held in memory */
 {

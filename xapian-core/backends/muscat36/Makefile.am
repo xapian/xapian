@@ -14,5 +14,3 @@ libmuscat36_la_SOURCES = io_system.c 3point6.c \
 			 da_database.cc da_document.cc daread.c \
 			 da_alltermslist.cc \
 			 db_database.cc db_document.cc dbread.c
-
-EXTRA_DIST = spec
