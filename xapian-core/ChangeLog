@@ -1,3 +1,8 @@
+Thu Jun 05 20:21:08 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Fixed a couple of problems with the new
+	  query serialisation.
+
 Thu Jun 05 17:55:21 BST 2003  Olly Betts <olly@survex.com>
 
 	* HACKING,configure.in: Flex is no longer used, so removed configure

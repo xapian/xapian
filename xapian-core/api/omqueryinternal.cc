@@ -382,6 +382,7 @@ class QUnserial {
 
 Xapian::Query::Internal *
 QUnserial::decode() {
+    DEBUGLINE(UNKNOWN, "QUnserial::decode(" << p << ")");
     Xapian::Query::Internal * qint = readquery();
     if (*p == '=') {
 	char *tmp; // avoid compiler warning
@@ -390,15 +391,15 @@ QUnserial::decode() {
     } else {
 	qint->set_length(len);
     }
+    DEBUGLINE(UNKNOWN, "Remainder of query (should be none) is `" << p << "'");
     Assert(*p == '\0');
     return qint;
 }
 
 Xapian::Query::Internal *
 QUnserial::readquery() {
-    switch (*p) {
+    switch (*p++) {
 	case '[': {
-	    ++p;
 	    const char *q = strchr(p, ' ');
 	    if (!q) q = p + strlen(p);
 	    string tname = decode_tname(string(p, q - p));
@@ -421,9 +422,9 @@ QUnserial::readquery() {
 	    return new Xapian::Query::Internal(tname, wqf, term_pos);
 	}
 	case '(':
-	    ++p;
 	    return readcompound();
 	default:
+	    DEBUGLINE(UNKNOWN, "Can't parse remainder `" << p - 1 << "'");
 	    throw Xapian::InvalidArgumentError("Invalid query string");
     }
 }
@@ -442,14 +443,21 @@ Xapian::Query::Internal *
 QUnserial::readcompound() {
     vector<Xapian::Query::Internal *> subqs;
     while (true) {
-	switch (*p) {
+	switch (*p++) {
 	    case '[':
+		--p;
 		subqs.push_back(readquery());
 		break;
-	    case '(':
-		++p;
-		subqs.push_back(readcompound());
+	    case '(': {
+		Xapian::Query::Internal * qint = readcompound();
+		if (*p == '=') {
+		    char *tmp; // avoid compiler warning
+		    qint->set_length((Xapian::termcount)strtol(p + 1, &tmp, 10));
+		    p = tmp;
+		}
+		subqs.push_back(qint);
 		break;
+	    }
 	    case '&':
 		return qint_from_vector(Xapian::Query::OP_AND, subqs);
 	    case '|':
@@ -466,7 +474,7 @@ QUnserial::readcompound() {
 		Xapian::Query::Internal * qint;
 		qint = qint_from_vector(Xapian::Query::OP_NEAR, subqs);
 		char *tmp; // avoid compiler warning
-		qint->set_window((Xapian::termpos)strtol(p + 1, &tmp, 10));
+		qint->set_window((Xapian::termpos)strtol(p, &tmp, 10));
 		p = tmp;
 		return qint;
 	    }
@@ -474,7 +482,7 @@ QUnserial::readcompound() {
 		Xapian::Query::Internal * qint;
 		qint = qint_from_vector(Xapian::Query::OP_PHRASE, subqs);
 		char *tmp; // avoid compiler warning
-		qint->set_window((Xapian::termpos)strtol(p + 1, &tmp, 10));
+		qint->set_window((Xapian::termpos)strtol(p, &tmp, 10));
 		p = tmp;
 		return qint;
 	    }
@@ -485,7 +493,7 @@ QUnserial::readcompound() {
 		qint->add_subquery(*subqs[0]);
 		qint->end_construction();
 		char *tmp; // avoid compiler warning
-		qint->set_cutoff(strtod(p + 1, &tmp));
+		qint->set_cutoff(strtod(p, &tmp));
 		p = tmp;
 		return qint;
 	    }
@@ -493,11 +501,12 @@ QUnserial::readcompound() {
 		Xapian::Query::Internal * qint;
 		qint = qint_from_vector(Xapian::Query::OP_ELITE_SET, subqs);
 		char *tmp; // avoid compiler warning
-		qint->set_elite_set_size((Xapian::termcount)strtol(p + 1, &tmp, 10));
+		qint->set_elite_set_size((Xapian::termcount)strtol(p, &tmp, 10));
 		p = tmp;
 		return qint;
 	    }
 	    default:
+		DEBUGLINE(UNKNOWN, "Can't parse remainder `" << p - 1 << "'");
 		throw Xapian::InvalidArgumentError("Invalid query string");
 	}
     }
