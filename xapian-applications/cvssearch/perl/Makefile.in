@@ -59,13 +59,16 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 CXX = @CXX@
 CXXFLAGS = @CXXFLAGS@
+MAKEINFO = @MAKEINFO@
+PACKAGE = @PACKAGE@
 PERL = @PERL@
 RANLIB = @RANLIB@
+VERSION = @VERSION@
 
 bin_SCRIPTS = cvsbuilddb cvsupdatedb cvsquerydb 	cvscompare.cgi 	Match.cgi Query.cgi Queryfile.cgi Source.cgi         cvs_comment_extractor code_comment_extractor cvs2cl 	popup.js utility.js 	cvssearch.pm Entities.pm
 
 
-EXTRA_DIST = cvsbuild-script.pl cvsupdate-script.pl cvsquery-script.pl 	cvscompare-script.pl 	Match-script.pl Query-script.pl Queryfile-script.pl Source-script.pl         comment_extractor_c.pl comment_extractor_c++.pl 	popup.js utility.js         cvssearch.pm Entities.pm
+EXTRA_DIST = cvsbuild-script.pl cvsupdate-script.pl cvsquery-script.pl 	cvscompare-script.pl 	Match-script.pl Query-script.pl Queryfile-script.pl Source-script.pl         comment_extractor_c.pl comment_extractor_c++.pl cvs2cl.pl 	popup.js utility.js         cvssearch.pm Entities.pm
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
@@ -73,9 +76,6 @@ SCRIPTS =  $(bin_SCRIPTS)
 
 DIST_COMMON =  Makefile.am Makefile.in
 
-
-PACKAGE = @PACKAGE@
-VERSION = @VERSION@
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
