@@ -31,13 +31,8 @@ Priority | Area            | Task
  High    | LocalMatch      | Pass around partially created postlist as an
          |                 | auto_ptr, for exception safety.
 ---------+-----------------+--------------------------------------------------
- Medium  | Expand          | Restructure expand so that it functions in
-         |                 | the distributed case.
----------+-----------------+--------------------------------------------------
  Medium  | API             | OmDocumentTerm should use a set rather than a
          |                 | map.
----------+-----------------+--------------------------------------------------
- Medium  | Matchers        | Merge get_max_weight() into result of get_mset()
 ---------+-----------------+--------------------------------------------------
  Medium  | OmDatabase      | Test assignment operators for OmDatabase and
          |                 | OmWritableDatabase
@@ -52,11 +47,6 @@ Priority | Area            | Task
  Medium  | Matchers        | Make get_mset() (and MultiMatch::match()) return
          |                 | msets rather than setting a pass by reference
 	 |                 | parameter.  Change match() to get_mset().
----------+-----------------+--------------------------------------------------
- Medium  | MatchOptions    | Pass all options to matcher (sort order,
-         |                 | weighting scheme, and max query terms) right
-	 |                 | down to LocalMatch object.  Implement max query
-	 |                 | terms.
 ---------+-----------------+--------------------------------------------------
  Medium  | Databases       | Make OmDatabaseGroup::Internal return same
          |                 | multidatabase object if get_multi_database() is
@@ -160,11 +150,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Low     | Website         | Put TeX documentation on website.
 ---------+-----------------+--------------------------------------------------
- Low     | Documentation   | Merge output of mkdoc.pl with doc++ output. 
----------+-----------------+--------------------------------------------------
- Low     | Documentation   | Support use of doxygen to generate documentation
-         |                 | and use this for documentation on website.
----------+-----------------+--------------------------------------------------
  Low     | Backends        | Stop d[ba]read from exporting junk symbols
 ---------+-----------------+--------------------------------------------------
  Low     | InMemory        | Make InMemoryDatabase allow
@@ -180,8 +165,6 @@ Priority | Area            | Task
  Low     |cGeneral         | Audit for exception safety.
 ---------+-----------------+--------------------------------------------------
  Low     |cTODO            | Write some VIM macros to deal with this TODO
----------+-----------------+--------------------------------------------------
- Low     | SleepyCat       | Make configure.in detect presence of sleepycat
 ---------+-----------------+--------------------------------------------------
  Verylow | General         | Improve performance using SIMD instructions
 ---------+-----------------+--------------------------------------------------
