@@ -66,13 +66,30 @@ int main(int argc, char *argv[])
 
 	// Build the query object
 	OmQuery query(OM_MOP_OR, queryterms.begin(), queryterms.end());
-	cout << "Performing query `" << query.get_description() << "'" << endl;
 
-	// Give the query object to the enquire session
-	enquire.set_query(query);
+	OmMSet matches;
+	if(query.is_defined()) {
+	    cout << "Performing query `" << query.get_description() <<
+		    "'" << endl;
 
-	// Get the top 10 results of the query
-	OmMSet matches = enquire.get_mset(0, 10);
+	    // Give the query object to the enquire session
+	    enquire.set_query(query);
+
+	    // Get the top 10 results of the query
+	    matches = enquire.get_mset(0, 10);
+
+	    // Display the results
+	    cout << matches.items.size() << " results found" << endl;
+
+	    for (vector<OmMSetItem>::const_iterator i = matches.items.begin();
+		 i != matches.items.end();
+		 i++) {
+		OmDocument doc = enquire.get_doc(*i);
+		cout << "Document ID " << i->did << "\t" <<
+			matches.convert_to_percent(*i) << "% [" <<
+			doc.get_data().value << "]" << endl;
+	    }
+	}
 
 	// Put the top 5 into the rset if rset is empty
 	if(reldocs.items.size() == 0) {
@@ -88,18 +105,6 @@ int main(int argc, char *argv[])
 	
 	// Get the suggested expand terms
 	OmESet eterms = enquire.get_eset(10, reldocs);
-
-	// Display the results
-	cout << matches.items.size() << " results found" << endl;
-
-	for (vector<OmMSetItem>::const_iterator i = matches.items.begin();
-	     i != matches.items.end();
-	     i++) {
-	    OmDocument doc = enquire.get_doc(*i);
-	    cout << "Document ID " << i->did << "\t" <<
-		    matches.convert_to_percent(*i) << "% [" <<
-		    doc.get_data().value << "]" << endl;
-	}
 
 	// Display the expand terms
 	cout << eterms.items.size() << " suggested additional terms" << endl;
