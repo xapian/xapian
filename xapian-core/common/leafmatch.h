@@ -29,10 +29,10 @@
 
 #include "match.h"
 #include "stats.h"
+#include "irweight.h"
 
 class IRDatabase;
 class LeafDocument;
-class IRWeight;
 
 #include <stack>
 #include <vector>
@@ -67,13 +67,15 @@ class LeafMatch : public Match
 	/// RSet to be used (affects weightings)
 	RSet *rset;
 
+	/// Weighting scheme to use
+	IRWeight::weight_type wt_type;
+
 	/// Whether to perform collapse operation
 	bool do_collapse;
 
 	/// Key to collapse on, if desired
 	om_keyno collapse_key;
 
-	bool have_added_terms;
         bool recalculate_maxweight;
 
 	/// Make a postlist from a query object
@@ -116,6 +118,7 @@ class LeafMatch : public Match
 	void set_query(const OmQueryInternal * query_);
 
         void set_rset(RSet * rset_);
+	void set_weighting(IRWeight::weight_type wt_type_);
         void set_min_weight_percent(int pcent);
 	void set_collapse_key(om_keyno key);
 	void set_no_collapse();
@@ -165,9 +168,15 @@ LeafMatch::set_no_collapse()
 inline void
 LeafMatch::set_rset(RSet *rset_)
 {
-    Assert(!have_added_terms);
     Assert(query == NULL);
     rset = rset_;
+}
+
+inline void
+LeafMatch::set_weighting(IRWeight::weight_type wt_type_)
+{
+    Assert(query == NULL);
+    wt_type = wt_type_;
 }
 
 inline void

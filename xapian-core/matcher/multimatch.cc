@@ -70,6 +70,17 @@ MultiMatch::set_rset(RSet * rset)
 }
 
 void
+MultiMatch::set_weighting(IRWeight::weight_type wt_type_)
+{
+    Assert((allow_add_leafmatch = false) == false);
+    for(vector<LeafMatch *>::iterator i = leaves.begin();
+	i != leaves.end(); i++) {
+	(*i)->set_weighting(wt_type_);
+    }
+}
+
+
+void
 MultiMatch::set_min_weight_percent(int pcent)
 {
     Assert((allow_add_leafmatch = false) == false);
@@ -158,8 +169,8 @@ MultiMatch::match(om_doccount first,
 		vector<OmMSetItem> sub_mset;
 
 		// Get next mset
-		(*leaf)->match(0, lastitem, sub_mset,
-			       cmp, &sub_mbound, &sub_greatest_wt, mdecider);
+		(*leaf)->match(0, lastitem, sub_mset, cmp,
+			       &sub_mbound, &sub_greatest_wt, mdecider);
 
 		DebugMsg("Merging mset of size " << sub_mset.size() <<
 			 " to existing set of size " << mset.size() <<

@@ -571,7 +571,7 @@ class OmEnquire {
 	 *  It is possible for the document to have been removed from the
 	 *  database between the time it is returned in an mset, and the
 	 *  time that this call is made.  If possible, you should specify
-	 *  an OmMSetItem instead of a om_docid, since this will enable
+	 *  an OmMSetItem instead of an om_docid, since this will enable
 	 *  database backends with suitable support to prevent this
 	 *  occurring.
 	 *

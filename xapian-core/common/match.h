@@ -27,8 +27,7 @@
 #include "omassert.h"
 #include "om/omdocument.h"
 #include "om/omenquire.h"
-
-class IRWeight;
+#include "irweight.h"
 
 #include <stack>
 #include <vector>
@@ -82,6 +81,10 @@ class Match
 	 */
 	virtual void set_rset(RSet * rset_) = 0;
 
+	/** Set weighting scheme.
+	 */
+	virtual void set_weighting(IRWeight::weight_type wt_type) = 0;
+	
 	/** Set cutoff at min percentage - defaults to -1, which means no
 	 *  cutoff.
 	 */
@@ -126,13 +129,13 @@ class Match
 	 *  @param mdecider    Optional decision functor
 	 */
 	virtual void match(om_doccount first,
-		   om_doccount maxitems,
-		   vector<OmMSetItem> & mset,
-		   mset_cmp cmp,
-		   om_doccount * mbound,
-		   om_weight * greatest_wt,
-		   const OmMatchDecider *mdecider
-		  ) = 0;
+			   om_doccount maxitems,
+			   vector<OmMSetItem> & mset,
+			   mset_cmp cmp,
+			   om_doccount * mbound,
+			   om_weight * greatest_wt,
+			   const OmMatchDecider *mdecider
+			  ) = 0;
 
 	/** Do a pure boolean match.
 	 *  All weights in the result will be set to 1.

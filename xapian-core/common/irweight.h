@@ -50,6 +50,15 @@ class IRWeight {
 	IRWeight() : initialised(false), weight_calculated(false) { return; }
 	virtual ~IRWeight() { return; };
 
+	/* Type of a database */
+	enum weight_type {
+	    WTTYPE_PUREBOOL,
+	    WTTYPE_TRAD,
+	    WTTYPE_BM25
+	};
+
+	static IRWeight * create(IRWeight::weight_type type);
+
 	/** Initialise the weight object with the neccessary stats, or
 	 *  places to get them from.
 	 *

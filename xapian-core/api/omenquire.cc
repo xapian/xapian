@@ -285,6 +285,9 @@ OmEnquireInternal::get_mset(om_doccount first,
 	match.set_collapse_key(moptions->collapse_key);
     }
 
+    // Set weighting scheme
+    match.set_weighting(IRWeight::WTTYPE_BM25);
+
     // Set Query
     match.set_query(query->internal);
 
@@ -301,8 +304,8 @@ OmEnquireInternal::get_mset(om_doccount first,
 	    retval.max_attained = 0;
 	}
     } else {
-	match.match(first, maxitems, retval.items,
-		    msetcmp_forward, &(retval.mbound), &(retval.max_attained),
+	match.match(first, maxitems, retval.items, msetcmp_forward,
+		    &(retval.mbound), &(retval.max_attained),
 		    mdecider);
 
 	// Get max weight for an item in the MSet

@@ -89,8 +89,8 @@ LeafMatch::LeafMatch(IRDatabase *database_, StatsGatherer * gatherer_)
 	  max_weight(0),
 	  query(NULL),
 	  rset(NULL),
-	  do_collapse(false),
-	  have_added_terms(false)
+	  wt_type(IRWeight::WTTYPE_BM25),
+	  do_collapse(false)
 {
 
     statsleaf.my_collection_size_is(database->get_doccount());
@@ -124,7 +124,7 @@ LeafMatch::mk_weight(om_doclength querysize_,
 		     om_termname tname_,
 		     const RSet * rset_)
 {
-    IRWeight * wt = new BM25Weight();
+    IRWeight * wt = IRWeight::create(wt_type);
     //IRWeight * wt = new TradWeight();
     weights.push_back(wt); // Remember it for deleting
     wt->set_stats(&statsleaf, querysize_, tname_, rset_);
@@ -376,10 +376,13 @@ LeafMatch::perform_collapse(vector<OmMSetItem> &mset,
 
 // This is the method which runs the query, generating the M set
 void
-LeafMatch::match(om_doccount first, om_doccount maxitems,
-	       vector<OmMSetItem> & mset, mset_cmp cmp,
-	       om_doccount * mbound, om_weight * greatest_wt,
-	       const OmMatchDecider *mdecider)
+LeafMatch::match(om_doccount first,
+		 om_doccount maxitems,
+		 vector<OmMSetItem> & mset,
+		 mset_cmp cmp,
+		 om_doccount * mbound,
+		 om_weight * greatest_wt,
+		 const OmMatchDecider *mdecider)
 {
     // Prepare query
     *mbound = 0;

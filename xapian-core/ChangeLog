@@ -1,3 +1,10 @@
+Fri Mar 17 18:38:18 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added set_weighting() method to match, to set weighting scheme
+	  to be used (as a value from the IRWeight::weight_type enum).
+	  Updated OmEnquire to use this: ability to set weight is just
+	  one little step away from the API and the user now.
+
 Fri Mar 17 13:39:10 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.1.1
