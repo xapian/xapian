@@ -189,6 +189,9 @@ class InMemoryDatabase : public IRDatabase {
 
 	bool indexing; // Whether we have started to index to the database
 
+	/// If true, we're not allowed to add documents.
+	bool readonly;
+
 	// Stop copy / assignment being allowed
 	InMemoryDatabase& operator=(const InMemoryDatabase &);
 	InMemoryDatabase(const InMemoryDatabase &);
@@ -198,10 +201,7 @@ class InMemoryDatabase : public IRDatabase {
 	 *  @exception OmOpeningError thrown if database can't be opened.
 	 *
 	 *  @param params Parameters supplied by the user to specify the
-	 *                location of the database to open.  The meanings
-	 *                of these parameters are dependent on the database
-	 *                type.  Note that if params.readonly is set, all
-	 *                sub-databases will be opened readonly.
+	 *                location of the database to open.
 	 */
 	InMemoryDatabase(const DatabaseBuilderParams & params);
 

@@ -20,8 +20,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Urgent  | Chris           | Juggle
 ---------+-----------------+--------------------------------------------------
- High    | API             | Rename OmDatabase to OmDatabaseGroup
----------+-----------------+--------------------------------------------------
  High    | MultiMatch      | Fix the MSet docid merging
 ---------+-----------------+--------------------------------------------------
  High    | Stemming        | Make a separate package to contain stemming
@@ -33,6 +31,9 @@ Priority | Area            | Task
  High    | Muscat36 Backend| Protect open_post_list() from concurrent access
          |                 | (might currently end up with a divorced D[AB]term
 	 |                 | object.
+---------+-----------------+--------------------------------------------------
+ High    | InMemory        | Remove hardcoded reference to an indexer in
+         |                 | InMemoryDatabase.  Index to it in the usual way.
 ---------+-----------------+--------------------------------------------------
  Medium  | Databases       | Make database parameters into name/value pairs,
          |                 | rather than simply be anonymous.
@@ -116,9 +117,6 @@ Priority | Area            | Task
          |                 | and use this for documentation on website.
 ---------+-----------------+--------------------------------------------------
  Low     | Backends        | Stop d[ba]read from exporting junk symbols
----------+-----------------+--------------------------------------------------
- Low     | InMemory        | Remove hardcoded reference to an indexer in
-         |                 | InMemoryDatabase.  Index to it in the usual way.
 ---------+-----------------+--------------------------------------------------
  Low     | InMemory        | Make InMemoryDatabase allow
          |                 | <size of position vector> != <wdf>, ie, if
