@@ -3,10 +3,9 @@
 #include "proto_database.h"
 #include "da_database.h"
 #include "da_record.h"
-//#include "match.h"
 
 int main(int argc, char *argv[]) {
-    DADatabase database;
+    ProtoDatabase database;
     PostList * postlist;
     TermList * termlist;
     termid tid;
@@ -15,19 +14,23 @@ int main(int argc, char *argv[]) {
     try {
 	database.open("testdir", 0);
 	tid = database.term_name_to_id("true");
-	// posting list 122 141 142 174 ...
-	postlist = database.open_post_list(tid);
-	while(!postlist->at_end()) {
-	    docid did;
-	    weight wt;
+	if(tid == 0) {
+	    printf("Term not found\n");
+	} else {
+	    // posting list 122 141 142 174 ...
+	    postlist = database.open_post_list(tid);
+	    while(!postlist->at_end()) {
+		docid did;
+		weight wt;
 
-	    did = postlist->get_docid();
-	    wt = postlist->get_weight();
-	    printf("TermId: %d  DocId: %d  Weight: %f\n", tid, did, wt);
-	    if(did == 120) postlist->skip_to(144);
-	    else postlist->next();
+		did = postlist->get_docid();
+		wt = postlist->get_weight();
+		printf("TermId: %d  DocId: %d  Weight: %f\n", tid, did, wt);
+		if(did == 120) postlist->skip_to(144);
+		else postlist->next();
+	    }
+	    delete postlist;
 	}
-	delete postlist;
 	termlist = database.open_term_list(200);
 	termlist = database.open_term_list(201);
 	termlist = database.open_term_list(202);
@@ -44,9 +47,9 @@ int main(int argc, char *argv[]) {
 	    termlist->next();
 	}
 	delete termlist;
-	DARecord * rec = database.get_document(did);
-
-	delete rec;
+//	DARecord * rec = database.get_document(did);
+//
+//	delete rec;
 	database.close();
     }
     catch (OmError e) {
