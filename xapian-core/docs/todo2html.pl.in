@@ -19,6 +19,15 @@ V Verylow
 D Dubious
 );
 
+my %priorityorder = qw(
+U 6
+H 5
+M 4
+L 3
+V 2
+D 1
+);
+
 my %priority_colours = qw(
 U ff7777
 H 77ff77
@@ -102,8 +111,11 @@ my $p1 = new XML::Parser(Handlers => {Start => \&handle_start,
                                       End   => \&handle_end,
 				      Char  => \&handle_char});
 
+my @items;
 print $table_begin;
 $p1->parsefile($ARGV[0]);
+
+displayitems();
 print $table_end;
 
 print $postamble;
@@ -121,17 +133,8 @@ sub handle_start {
     }
 }
 
-sub handle_end {
-    my $xpat = shift;
-    my $tag = shift;
-    $tag eq 'todoitem' or return;
-    if ($filter_release) {
-	if ($filter_release eq '*') {
-	    if ($field{'release'} eq '') { return; }
-	} else {
-	    if ($filter_release ne $field{'release'}) { return; }
-	}
-    }
+sub display_item {
+    my %field = %{shift()};
     if ($text) {
         print join "|", map substr("$field{$_} ", 0, 1), qw(priority difficulty owner);
         my $f = Text::Format->new({columns => 54, firstIndent => 0});
@@ -139,7 +142,7 @@ sub handle_end {
         my $f2 = Text::Format->new({columns => 13, firstIndent => 0});
 	my @arealines = $f2->format($field{'area'});
         my $f3 = Text::Format->new({columns => 3, firstIndent => 0});
-	my @releaselines = $f->format($field{'release'});
+	my @releaselines = $f3->format($field{'release'});
 	my $prefix = '';
 	my $lines = scalar @tasklines;
 	$lines = scalar @arealines if scalar @arealines > $lines;
@@ -167,6 +170,66 @@ sub handle_end {
 <TD BGCOLOR="$colour" VALIGN=top>$field{owner}</TD>
 </TR>
 EOT
+    }
+}
+
+sub handle_end {
+    my $xpat = shift;
+    my $tag = shift;
+    $tag eq 'todoitem' or return;
+    if ($filter_release) {
+	if ($filter_release eq '*') {
+	    if ($field{'release'} eq '') { return; }
+	} else {
+	    if ($filter_release ne $field{'release'}) { return; }
+	}
+    }
+    my %fieldcopy = %field;
+    push(@items, \%fieldcopy);
+}
+
+sub cmprelease {
+    my $r1 = $$a{'release'};
+    my $r2 = $$b{'release'};
+    $r1 = "9999999" if $r1 eq "";
+    $r2 = "9999999" if $r2 eq "";
+    $r1 <=> $r2;
+}
+
+sub cmppriority {
+    my $r1 = $$a{'priority'};
+    my $r2 = $$b{'priority'};
+    $r1 = $priorityorder{$r1};
+    $r2 = $priorityorder{$r2};
+    $r2 <=> $r1;
+}
+
+sub cmparea {
+    my $r1 = $$a{'area'};
+    my $r2 = $$b{'area'};
+    $r1 cmp $r2;
+}
+
+sub cmptask {
+    my $r1 = $$a{'task'};
+    my $r2 = $$b{'task'};
+    $r1 cmp $r2;
+}
+
+sub cmpitems {
+    my $c = cmprelease();
+    return $c if $c != 0;
+    $c = cmppriority();
+    return $c if $c != 0;
+    $c = cmparea();
+    return $c if $c != 0;
+    cmptask();
+}
+
+sub displayitems {
+    my $fieldref;
+    foreach $fieldref (sort cmpitems @items) {
+	display_item($fieldref);
     }
 }
 

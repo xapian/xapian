@@ -1,3 +1,7 @@
+Mon Feb  5 17:15:46 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Sort generated todo lists.
+
 Fri Feb  2 17:44:54 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Add an OmDocument::add_term() method.
