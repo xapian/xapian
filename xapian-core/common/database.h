@@ -75,8 +75,7 @@ DBPostList::set_termweight(const IRWeight * wt)
 inline void
 DBPostList::calc_termweight() const
 {
-    Assert(ir_wt != NULL);
-    termweight = ir_wt->get_weight();
+    termweight = ir_wt->calc_termweight();
     weight_initialised = true;
 }
 

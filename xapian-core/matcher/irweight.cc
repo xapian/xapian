@@ -9,26 +9,30 @@
 
 // Calculate weights using statistics retrieved from databases
 weight
-IRWeight::get_weight() const
+IRWeight::calc_termweight() const
 {
-    doccount dbsize = database->get_doccount();
-    doclength avlength = database->get_avlength();
+    Assert(initialised);
+    if(!weight_calculated) {
+	doccount dbsize = database->get_doccount();
+	doclength avlength = database->get_avlength();
 
-    printf("Statistics: N=%d L=%f n_t=%d ", 
-	   dbsize, avlength, termfreq);
+	printf("Statistics: N=%d L=%f n_t=%d ", 
+	       dbsize, avlength, termfreq);
 
-    weight termweight;
-    termweight = (dbsize - termfreq + 0.5) / (termfreq + 0.5); 
-    if (termweight < 2) {
-	// if size and/or termfreq is estimated we can get termweight <= 0
-	// so handle this gracefully
-	if (termweight <= 1e-6) termweight = 1e-6;
-	termweight = termweight / 2 + 1;
+	weight tw;
+	tw = (dbsize - termfreq + 0.5) / (termfreq + 0.5); 
+	if (tw < 2) {
+	    // if size and/or termfreq is estimated we can get tw <= 0
+	    // so handle this gracefully
+	    if (tw <= 1e-6) tw = 1e-6;
+	    tw = tw / 2 + 1;
+	}
+	tw = log(tw);   
+
+	printf("\t=> termweight = %f\n", tw);
+	termweight = tw;
+	weight_calculated = true;
     }
-    termweight = log(termweight);   
-
-    printf("\t=> termweight = %f\n",
-	   termweight);
-
+    
     return termweight;
 }                                   

@@ -10,12 +10,19 @@ class IRWeight {
     private:
 	const IRDatabase *database;
 	doccount termfreq;
+
+	bool initialised;
+
+	mutable bool weight_calculated;
+	mutable weight termweight;
     public:
+	IRWeight() : initialised(false) {}
 	void set_stats(const IRDatabase *db, doccount tf) {
 	    database = db;
 	    termfreq = tf;
+	    initialised = true;
 	}
-	weight get_weight() const;
+	weight calc_termweight() const;
 };
 
 #endif /* _irweight_h_ */
