@@ -31,14 +31,12 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    | Tests	   | Make apitest's tests use da/db backends as well
 ---------+-----------------+--------------------------------------------------
- High    | Distribution    | Add support for Expand
----------+-----------------+--------------------------------------------------
  High    | LocalMatch      | Pass around partially created postlist as an
          |                 | auto_ptr, for exception safety.
 ---------+-----------------+--------------------------------------------------
- High    |rPostlists       | Make it possible to read the document length
-         |                 | from a postlist.  Make matcher use this, rather
-	 |                 | than asking the database.
+ High    | Expand          | Restructure expand so that statistics get shared
+         |                 | correctly in multidb case.  Enable the
+	 |                 | `multiexpand1' test, and get it to pass.
 ---------+-----------------+--------------------------------------------------
  Medium  | API             | OmDocumentTerm should use a set rather than a
          |                 | map.
