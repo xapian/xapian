@@ -1,3 +1,7 @@
+Fri Aug 15 15:12:24 BST 2003  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated with current testsuite results for mingw build.
+
 Fri Aug 15 15:10:59 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Use O_BINARY for database I/O if it

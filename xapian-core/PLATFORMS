@@ -86,6 +86,9 @@ mv: [FILE]: set owner/group (was: [USERNO]/[GROUPNO]): Operation not permitted
 [3] "make check" won't work for a cross-compiled build, but once copied to a
 Windows box some tests fail; Remote backend is automatically disabled (the
 remote backend needs fork() and socketpair(), neither of which mingw provides).
+Tests which pass are: internaltest, stemtest, queryparsertest.  apitest on
+quartz backend and quartztest fail with "out of memory"; btreetest passes
+simple1, but fails the other 3 test cases.
 
 [4] "make check" won't work for a cross-compiled build.  Not tried to run the
 binaries yet; Remote backend is automatically disabled (the remote backend
