@@ -360,7 +360,7 @@ sub compare_file_index {
         
         print "<hr noshade>\n";
         print "Default branch: MAIN\n";
-        print_compare_form($root, $pkg, $fileid, $versions[$#versions], $versions[0]);
+        print_compare_form($root, $pkg, $fileid, $versions[$#versions], "1", $versions[0]);
         my $i;
         for ($i = 0; $i < $#versions; $i++) {
             print "<hr size=1 noshade>\n";
@@ -378,7 +378,7 @@ sub compare_file_index {
         print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=1&version=$versions[$i]\">short</a>\n";
         print "<pre>$comments[$i]</pre>\n";
         print "<hr noshade>\n";
-        print_compare_form($root, $pkg, $fileid, $versions[$#versions], $versions[0]);
+        print_compare_form($root, $pkg, $fileid, $versions[$#versions], "1", $versions[0]);
     } else {
         print "There are no commits for the file <b>$filename</b>, no diff result is available.\n";
     }
@@ -464,7 +464,7 @@ sub compare_file_version {
     }
     close(OUTPUT);
     chdir ($pwd);
-    print_compare_form($root, $pkg, $fileid, $version, $latest_version);
+    print_compare_form($root, $pkg, $fileid, $version, $short, $latest_version);
     print "</body>\n";
     print "</html>\n";
 }
@@ -478,7 +478,7 @@ exit 0;
 }
 
 sub print_compare_form {
-    my ($root, $pkg, $fileid, $version, $latest_version) = @_;
+    my ($root, $pkg, $fileid, $version, $short, $latest_version) = @_;
     print "<form action=./Compare.cgi>\n";
     print "This form allows you to see the differences (aligned) occurred during commit $version ";
     print "and the propagation of the affected lines to a later version.<br>\n";
@@ -488,7 +488,17 @@ sub print_compare_form {
     print "Aligned diff in the commit of version <input type=text size=5 name=version value=\"$version\">,";
     print "propagated to version <input type=text size=5 name=latest  value=\"$latest_version\">";
     print "<font size=-1> (if this field is empty, the latest version when database is built will be used).</font><br>\n";
-    print "output should be <select name=short><option value=0>long</option><option value=1>short</option></select>\n";
+    print "output should be <select name=short>\n";
+    my $selectedl= "";
+    my $selecteds= "";
+    if (0) {
+    } elsif ($short eq "0") {
+      $selectedl = " selected";      
+    } elsif ($short eq "1") {
+      $selecteds = " selected";
+    }
+    print "<option $selectedl value=0>long</option>\n";
+    print "<option $selecteds value=1>short</option></select>\n";
     print "<input type=submit value=\"Get Aligned Diff\"><br>\n";
 
     print "</form>\n";
