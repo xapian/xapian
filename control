@@ -10,6 +10,7 @@ Section: web
 Architecture: any
 Depends: ${shlibs:Depends}
 Suggests: xapian-scriptindex
+Recommends: httpd
 Description: CGI interface to Xapian search engine
  This package contains the "omega" CGI application which provides a
  customisable web interface for searching Xapian databases.
