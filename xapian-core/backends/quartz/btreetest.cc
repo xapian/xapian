@@ -23,16 +23,15 @@
  */
 
 #include <config.h>
-#include <stdio.h>   /* fprintf etc */
 #include "btree.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
 
 #include <algorithm>
-using std::min;
+#include <fstream>
 #include <string>
-using std::string;
+using namespace std;
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -52,52 +51,21 @@ static void make_dir(string filename)
     mkdir(filename, 0700);
 }
 
-static void process_lines(Btree & btree, FILE * f)
+static void process_lines(Btree & btree, ifstream &f)
 {
-    int line_count = 0;
-    char s[10000];
-
     while (true) {
-	string::size_type i = 0;
-	string::size_type j = 0;
-        int mode = 0;
-        while (true) {
-	    int ch = getc(f);
-            if (ch == EOF) { return; }
-            if (ch == ' ') {
-		if (i == 0) continue;
-                if (j == 0) j = i;
-            }
-            if (ch == '+' && i == 0) { mode = 1; continue; }
-            if (ch == '-' && i == 0) { mode = 2; continue; }
-            if (ch == '\n') {
-                line_count++;
-                if (mode == 0) {
-		    if (i == 0) break;
-		    fprintf(stderr, "No '+' or '-' on line %d\n", line_count);
-		    exit(1);
-                } else if (mode == 1) {
-		    /*if (i > 0)*/
-                        if (j > 0) {
-			    btree.add(string(s, min(j, btree.max_key_len)),
-				      string(s + j + 1, i - j - 1));
-			} else {
-			    btree.add(string(s, min(i, btree.max_key_len)), "");
-			}
-                    break;
-                } else {
-		    /*if (i > 0)*/
-                        if (j > 0) {
-			    btree.del(string(s, min(j, btree.max_key_len)));
-			} else {
-			    btree.del(string(s, min(i, btree.max_key_len)));
-			}
-                    break;
-                }
-            }
-	    if (i >= sizeof(s)) abort(); // FIXME
-            s[i++] = ch;
-        }
+	string s;
+        if (!getline(f, s)) return;
+	if (s.empty()) continue;
+	if (s[0] == '+') {
+	    string::size_type sp = s.find(' ');
+	    btree.add(s.substr(1, min(sp - 1, btree.max_key_len)),
+		      s.substr(sp + 1));
+	} else if (s[0] == '-') {
+	    btree.del(s.substr(1, btree.max_key_len));
+	} else {
+	    throw "No '+' or '-' on line `" + s + "'";
+	}
     }
 }
 
@@ -113,11 +81,11 @@ static void do_update(const string & btree_dir,
 	btree.set_full_compaction(true);
     }
     
-    FILE * f = fopen(datafile.c_str(), "r");
-    TEST_AND_EXPLAIN(f != 0, "File " << datafile << " not found");
-
-    process_lines(btree, f);
-    fclose(f);
+    {
+	ifstream f(datafile.c_str());
+	TEST_AND_EXPLAIN(f.is_open(), "File " << datafile << " not found");
+	process_lines(btree, f);
+    }
 
     btree.commit(btree.revision_number + 1);
 }
@@ -154,34 +122,6 @@ static bool test_insertdelete1()
     return true;
 }
 
-#if 0 // FIXME: implement this!  Currently it's a copy of test_insertdelete1()
-/// Test making and playing with a QuartzBufferedTable
-/// try to pass the 2G boundry.  Should succeed if LFS is enabled
-static bool test_LFSinsertdelete1()
-{
-    bool LFSunlikely=sizeof(off_t)==4;
-
-    string btree_dir = tmpdir + "/B/";
-    do_create(btree_dir);
-    Btree::check(btree_dir, "v");
-
-    if (!file_exists(datadir + "ord+") || !file_exists(datadir + "ord-"))
-	SKIP_TEST("Data files not present");
-
-    do_update(btree_dir, datadir + "ord+");
-    Btree::check(btree_dir, "v");
-
-    do_update(btree_dir, datadir + "ord-");
-    Btree::check(btree_dir, "vt");
-
-    Btree btree;
-    btree.open_to_read(btree_dir.c_str());
-    TEST_EQUAL(btree.item_count, 0);
-
-    return true;
-}
-#endif
-
 // ================================
 // ========= END OF TESTS =========
 // ================================
@@ -189,7 +129,6 @@ static bool test_LFSinsertdelete1()
 // The lists of tests to perform
 test_desc tests[] = {
     {"insertdelete1",         test_insertdelete1},
-// FIXME:    {"LFSinsertdelete1",      test_LFSinsertdelete1},
     {0, 0}
 };
 

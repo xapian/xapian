@@ -1,3 +1,9 @@
+Tue Jun 25 16:30:09 BST 2002  Olly Betts <olly@survex.com>
+
+	* btreetest.cc: use C++ IO rather than C stdio; removed commented out
+	  LFSinsertdelete1 test (it was never written and a test suite which
+	  creates 2G files is probably a bit too resource hungry).
+
 Tue Jun 25 13:56:01 BST 2002  Olly Betts <olly@survex.com>
 
 	* btree/quartz: More use of const pointers; more use of C++ strings.
