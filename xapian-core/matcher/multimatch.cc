@@ -628,10 +628,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    min_item = items.front();
 		    min_item.wt = tmp;
 #if 0
-                    // FIXME: This optimisation gives incorrect results.
-                    // Disable for now, but check that the comparisons
-                    // are the correct way round.  We really should rework
-                    // to share code with MSetSortCmp anyway...
+		    // FIXME: This optimisation gives incorrect results.
+		    // Disable for now, but check that the comparisons
+		    // are the correct way round.  We really should rework
+		    // to share code with MSetSortCmp anyway...
 		    if (new_item.sort_key.empty()) {
 			Xapian::Document doc = db.get_document(new_item.did);
 			new_item.sort_key = doc.get_value(sort_key);
@@ -671,7 +671,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			min_item = items.front();
 			min_item.wt = tmp;
 		    } else {
-		        min_item = items.front();
+			min_item = items.front();
 		    }
 		    if (getorrecalc_maxweight(pl) < min_item.wt) {
 			DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
@@ -693,10 +693,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	if (wt > greatest_wt) {
 	    greatest_wt = wt;
 	    if (percent_cutoff) {
-	        Xapian::weight w = wt * percent_factor;
-	        if (w > min_item.wt) {
-	            min_item.wt = w;
-	            min_item.did = 0;
+		Xapian::weight w = wt * percent_factor;
+		if (w > min_item.wt) {
+		    min_item.wt = w;
+		    min_item.did = 0;
 		    if (!is_heap) {
 			is_heap = true;
 			make_heap<vector<Xapian::Internal::MSetItem>::iterator,
@@ -715,7 +715,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			Assert(i->wt >= min_item.wt);
 		    }
 #endif
-	        }
+		}
 	    }
 	    if (sort_bands > 1) {
 		if (greatest_wt >= getorrecalc_maxweight(pl)) {
@@ -749,7 +749,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator i;
 
 	Xapian::TermIterator docterms = db.termlist_begin(best->did);
-        Xapian::TermIterator docterms_end = db.termlist_end(best->did);
+	Xapian::TermIterator docterms_end = db.termlist_end(best->did);
 	while (docterms != docterms_end) {
 	    i = termfreqandwts.find(*docterms);
 	    if (i != termfreqandwts.end()) {
@@ -902,7 +902,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		// in the items, we remove from collapse_tab here as processed
 		// so we can quit early.  Therefore each time we find an item
 		// with a collapse_key the collapse_key must be in collapse_tab
-                Assert(key != collapse_tab.end());
+		Assert(key != collapse_tab.end());
 		// If weight of top collapsed item is not relevent enough
 		// then collapse count is bogus in every way
 		// FIXME: Should this be <=?
