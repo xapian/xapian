@@ -28,24 +28,53 @@
 #include "omsettings.h"
 
 class OmWritableDatabase;
-class OmDatabaseGroup;
 
 ///////////////////////////////////////////////////////////////////
 // OmDatabase class
 // ================
 
-/** This class is used to access a database.
+/** This class is used to access a database, or a set of databases..
+ *
+ *  This class is used in conjunction with an OmEnquire object.
+ *
+ *  @exception OmInvalidArgumentError will be thrown if an invalid
+ *  argument is supplied, for example, an unknown database type.
+ *
+ *  @exception OmOpeningError may be thrown if the database cannot
+ *  be opened (for example, a required file cannot be found).
  */
 class OmDatabase {
     /** OmWritableDatabase is a friend so that it can call is_writable().
      */
     friend OmWritableDatabase;
 
-    /** OmDatabaseGroup is a friend so that it can access the internals
-     *  to extract the database pointer.
-     */
-    friend OmDatabaseGroup;
+    public:
+	/** Add a new database to use.
+	 *
+	 *  This call will opened a new database with the specified
+	 *  parameters, and add it to the set of databases to be accessed
+	 *  by this database group.
+	 *
+	 *  The database will always be opened read-only.
+	 *
+	 *  @param params  an OmSettings object specifying the parameters
+	 *		   to be used to open the database.
+	 *
+	 *  @exception OmInvalidArgumentError  See class documentation.
+	 *  @exception OmOpeningError          See class documentation.
+	 */
+	void add_database(const OmSettings &params);
 
+	/** Add an already opened database (or set of databases) to the set
+	 *  to be accessed by this object.
+	 *
+	 *  The handle on the database will be copied, so may be deleted
+	 *  or reused by the caller as desired.
+	 *
+	 *  @param database the opened database to add.
+	 */
+	void add_database(const OmDatabase & database);
+    
     private:
 	/** Check whether this is a writable database.
 	 *
@@ -63,6 +92,13 @@ class OmDatabase {
 
 	/** Reference counted internals. */
 	Internal *internal;
+
+	/** InternalInterface is a class used internally to interact
+	 *  with OmDatabase objects.
+	 */
+	class InternalInterface;
+
+	friend class InternalInterface;
 
 	/** Open a database, possibly readonly.
 	 *
@@ -96,6 +132,10 @@ class OmDatabase {
 	 *             be opened.
 	 */
 	OmDatabase(const OmSettings &params);
+
+	/** Create an OmDatabase with no databases in.
+	 */
+	OmDatabase();
 
 	/** Destroy this handle on the database.
 	 *  If there are no copies of this object remaining, the database
@@ -443,73 +483,6 @@ class OmWritableDatabase : public OmDatabase {
 	OmDocumentContents get_document(om_docid did);
 
 	/** Returns a string representing the database object.
-	 *  Introspection method.
-	 */
-	std::string get_description() const;
-};
-
-///////////////////////////////////////////////////////////////////
-// OmDatabaseGroup class
-// =====================
-
-/** This class encapsulates a set of databases.
- *
- *  This class is used in conjunction with an OmEnquire object.
- *
- *  @exception OmInvalidArgumentError will be thrown if an invalid
- *  argument is supplied, for example, an unknown database type.
- *
- *  @exception OmOpeningError may be thrown if the database cannot
- *  be opened (for example, a required file cannot be found).
- */
-class OmDatabaseGroup {
-    public:
-	/** This class is used internally to hide implementation details.
-	 */
-	class Internal;
-
-	/** InternalInterface is a class used internally to interact
-	 *  with OmDatabaseGroup objects.
-	 */
-	class InternalInterface;
-    private:
-	Internal *internal;
-
-	friend class InternalInterface;
-
-    public:
-	OmDatabaseGroup();
-	~OmDatabaseGroup();
-	OmDatabaseGroup(const OmDatabaseGroup &other);
-	void operator=(const OmDatabaseGroup &other);
-
-	/** Add a new database to use.
-	 *
-	 *  This call will opened a new database with the specified
-	 *  parameters, and add it to the set of databases to be accessed
-	 *  by this database group.
-	 *
-	 *  The database will always be opened read-only.
-	 *
-	 *  @param params  an OmSettings object specifying the parameters
-	 *		   to be used to open the database.
-	 *
-	 *  @exception OmInvalidArgumentError  See class documentation.
-	 *  @exception OmOpeningError          See class documentation.
-	 */
-	void add_database(const OmSettings &params);
-
-	/** Add an already opened database to the set of databases to be
-	 *  accessed by this database group.
-	 *
-	 *  The handle on the database will be copied, so may be deleted
-	 *  or reused by the caller as desired.
-	 *
-	 *  @param database the opened database to add.
-	 */
-	void add_database(const OmDatabase & database);
-
-	/** Returns a string representing the database group object.
 	 *  Introspection method.
 	 */
 	std::string get_description() const;

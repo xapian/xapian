@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
     cout << "Opening server on port " << port << "..." << endl;
 
     try {
-        OmDatabaseGroup mydbs;
+        OmDatabase mydbs;
 
 	std::vector<OmSettings *>::const_iterator p;
 	for (p = dbs.begin(); p != dbs.end(); p++) {
@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	OmRefCntPtr<MultiDatabase> mdb(
-	    OmDatabaseGroup::InternalInterface::get_multidatabase(mydbs));
+	    OmDatabase::InternalInterface::get_irdatabase(mydbs));
 
 	TcpServer server(mdb, port);
 

@@ -38,10 +38,10 @@ class MultiDatabase : public IRDatabase {
      */
     friend class DatabaseBuilder;
 
-    /** OmDatabaseGroup::Internal is a friend of this class,
+    /** OmDatabase::Internal is a friend of this class,
      *  so that it can call the constructor, passing in IRDatabase pointers.
      */
-    friend class OmDatabaseGroup::Internal;
+    friend class OmDatabase::Internal;
 
     /** MultiMatch is a friend of this class so that it can access
      *  `databases'.  FIXME: this isn't very clean.

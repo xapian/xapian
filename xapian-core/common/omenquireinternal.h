@@ -43,7 +43,7 @@
 class OmEnquireInternal {
     private:
 	/** The multidatabase which this enquire object uses.
-	 *  This is obtained from the database group set in the constructor.
+	 *  This is obtained from the OmDatabase set in the constructor.
 	 */
 	OmRefCntPtr<MultiDatabase> database;
 
@@ -66,7 +66,7 @@ class OmEnquireInternal {
 	 */
 	om_termname_list calc_matching_terms(om_docid did) const;
     public:
-	OmEnquireInternal(const OmDatabaseGroup &databases);
+	OmEnquireInternal(const OmDatabase &databases);
 	~OmEnquireInternal();
 
 	void set_query(const OmQuery & query_);

@@ -31,18 +31,17 @@
 #include <om/omoutput.h>
 #include <vector>
 
+/////////////////////////////////////
+// Methods of OmDatabase::Internal //
+/////////////////////////////////////
+
 OmDatabase::Internal::Internal(const OmSettings &params, bool readonly)
 {
-    // Open database
-    mydb = DatabaseBuilder::create(params, readonly);
+    add_database(params, readonly);
 }
 
-//////////////////////////////////////////
-// Methods of OmDatabaseGroup::Internal //
-//////////////////////////////////////////
-
 void
-OmDatabaseGroup::Internal::add_database(const OmSettings & params)
+OmDatabase::Internal::add_database(const OmSettings & params, bool readonly)
 {
     OmLockSentry locksentry(mutex);
 
@@ -50,12 +49,18 @@ OmDatabaseGroup::Internal::add_database(const OmSettings & params)
     multi_database = 0;
 
     // Open database (readonly) and add it to the list
-    OmRefCntPtr<IRDatabase> newdb(DatabaseBuilder::create(params, true));
+    OmRefCntPtr<IRDatabase> newdb(DatabaseBuilder::create(params, readonly));
     databases.push_back(newdb);
 }
 
 void
-OmDatabaseGroup::Internal::add_database(OmRefCntPtr<IRDatabase> newdb)
+OmDatabase::Internal::add_database(const OmSettings & params)
+{
+    add_database(params, true);
+}
+
+void
+OmDatabase::Internal::add_database(OmRefCntPtr<IRDatabase> newdb)
 {
     OmLockSentry locksentry(mutex);
 
@@ -67,9 +72,11 @@ OmDatabaseGroup::Internal::add_database(OmRefCntPtr<IRDatabase> newdb)
 }
 
 OmRefCntPtr<MultiDatabase>
-OmDatabaseGroup::Internal::get_multidatabase()
+OmDatabase::Internal::get_irdatabase()
 {
     OmLockSentry locksentry(mutex);
+
+//    if (databases.size() == 1) return databases[0];
 
     if (multi_database.get() == 0) {
 	multi_database = new MultiDatabase(databases);
@@ -78,13 +85,12 @@ OmDatabaseGroup::Internal::get_multidatabase()
     return multi_database;
 }
 
-///////////////////////////////////////////////////
-// Methods of OmDatabaseGroup::InternalInterface //
-///////////////////////////////////////////////////
+//////////////////////////////////////////////
+// Methods of OmDatabase::InternalInterface //
+//////////////////////////////////////////////
 
 OmRefCntPtr<MultiDatabase>
-OmDatabaseGroup::InternalInterface::get_multidatabase(
-						const OmDatabaseGroup &dbg)
+OmDatabase::InternalInterface::get_irdatabase(const OmDatabase &dbg)
 {
-    return dbg.internal->get_multidatabase();
+    return dbg.internal->get_irdatabase();
 }

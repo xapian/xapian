@@ -25,6 +25,12 @@
 #include "omdebug.h"
 #include <om/omoutput.h>
 
+OmDatabase::OmDatabase()
+{
+    DEBUGAPICALL("OmDatabase::OmDatabase", "");
+    internal = new OmDatabase::Internal();
+}
+
 OmDatabase::OmDatabase(const OmSettings & params, bool readonly)
 	: internal(new OmDatabase::Internal(params, readonly))
 {
@@ -38,18 +44,38 @@ OmDatabase::OmDatabase(const OmSettings & params)
 }
 
 OmDatabase::OmDatabase(const OmDatabase &other)
-	: internal(new Internal(*(other.internal)))
+	: internal(0)
 {
     DEBUGAPICALL("OmDatabase::OmDatabase", "OmDatabase");
+    OmLockSentry locksentry(other.internal->mutex);
+
+    internal = new Internal(*(other.internal));
 }
 
 void
 OmDatabase::operator=(const OmDatabase &other)
 {
     DEBUGAPICALL("OmDatabase::operator=", "OmDatabase");
-    OmLockSentry locksentry(internal->mutex);
-    // pointers are reference counted.
-    internal->mydb = other.internal->mydb;
+    if (this == &other) {
+	DEBUGLINE(API, "OmDatabase assigned to itself");
+	return;
+    }
+
+    // we get these locks in a defined order to avoid deadlock
+    // should two threads try to assign two databases to each
+    // other at the same time.
+    Internal * newinternal;
+
+    {
+	OmLockSentry locksentry1(std::min(internal, other.internal)->mutex);
+	OmLockSentry locksentry2(std::max(internal, other.internal)->mutex);
+
+	newinternal = new Internal(*(other.internal));
+
+	std::swap(internal, newinternal);
+    }
+
+    delete newinternal;
 }
 
 OmDatabase::~OmDatabase()
@@ -59,12 +85,38 @@ OmDatabase::~OmDatabase()
     internal = 0;
 }
 
+void
+OmDatabase::add_database(const OmSettings &params)
+{
+    DEBUGAPICALL("OmDatabase::add_database", params);
+    internal->add_database(params);
+}
+
+void
+OmDatabase::add_database(const OmDatabase & database)
+{
+    DEBUGAPICALL("OmDatabase::add_database", "OmDatabase");
+    if (this == &database) {
+	DEBUGLINE(API, "OmDatabase added to itself");
+	throw OmInvalidArgumentError("Can't add an OmDatabase to itself");
+	return;
+    }
+    std::vector<OmRefCntPtr<IRDatabase> >::iterator i;
+    OmLockSentry locksentry(database.internal->mutex);
+    for (i = database.internal->databases.begin();
+	 i != database.internal->databases.end(); i++) {
+	internal->add_database(*i);
+    }
+}
+
 std::string
 OmDatabase::get_description() const
 {
     DEBUGAPICALL("OmDatabase::get_description", "");
     /// \todo display contents of the database
-    return "OmDatabase()";
+    std::string description = "OmDatabase()";
+    DEBUGAPIRETURN(description);
+    return description;
 }
 
 
@@ -84,10 +136,8 @@ void
 OmWritableDatabase::operator=(const OmDatabase &other)
 {
     DEBUGAPICALL("OmWritableDatabase::operator=", "OmDatabase");
-    if(other.is_writable()) {
-	OmLockSentry locksentry(internal->mutex);
-	// pointers are reference counted.
-	internal->mydb = other.internal->mydb;
+    if (other.is_writable()) {
+	OmDatabase::operator=(other);
     } else {
 	throw OmInvalidArgumentError("Cannot assign a readonly database to a writable database");
     }
@@ -97,9 +147,7 @@ void
 OmWritableDatabase::operator=(const OmWritableDatabase &other)
 {
     DEBUGAPICALL("OmWritableDatabase::operator=", "OmWritableDatabase");
-    OmLockSentry locksentry(internal->mutex);
-    // pointers are reference counted.
-    internal->mydb = other.internal->mydb;
+    OmDatabase::operator=(other);
 }
 
 OmWritableDatabase::~OmWritableDatabase()
@@ -117,7 +165,7 @@ OmWritableDatabase::begin_session(om_timeout timeout)
     IRDatabase * database;
     {
 	OmLockSentry locksentry(internal->mutex);
-	database = internal->mydb.get();
+	database = internal->databases[0].get();
     }
 
     database->begin_session(timeout);
@@ -131,7 +179,7 @@ OmWritableDatabase::end_session()
     IRDatabase * database;
     {
 	OmLockSentry locksentry(internal->mutex);
-	database = internal->mydb.get();
+	database = internal->databases[0].get();
     }
 
     database->end_session();
@@ -145,7 +193,7 @@ OmWritableDatabase::flush()
     IRDatabase * database;
     {
 	OmLockSentry locksentry(internal->mutex);
-	database = internal->mydb.get();
+	database = internal->databases[0].get();
     }
 
     database->flush();
@@ -159,7 +207,7 @@ OmWritableDatabase::begin_transaction()
     IRDatabase * database;
     {
 	OmLockSentry locksentry(internal->mutex);
-	database = internal->mydb.get();
+	database = internal->databases[0].get();
     }
 
     database->begin_transaction();
@@ -173,7 +221,7 @@ OmWritableDatabase::commit_transaction()
     IRDatabase * database;
     {
 	OmLockSentry locksentry(internal->mutex);
-	database = internal->mydb.get();
+	database = internal->databases[0].get();
     }
 
     database->commit_transaction();
@@ -187,7 +235,7 @@ OmWritableDatabase::cancel_transaction()
     IRDatabase * database;
     {
 	OmLockSentry locksentry(internal->mutex);
-	database = internal->mydb.get();
+	database = internal->databases[0].get();
     }
 
     database->cancel_transaction();
@@ -213,7 +261,7 @@ OmWritableDatabase::add_document(const OmDocumentContents & document,
     IRDatabase * database;
     {
 	OmLockSentry locksentry(internal->mutex);
-	database = internal->mydb.get();
+	database = internal->databases[0].get();
     }
 
     om_docid did = database->add_document(document, timeout);
@@ -230,7 +278,7 @@ OmWritableDatabase::delete_document(om_docid did, om_timeout timeout)
     IRDatabase * database;
     {
 	OmLockSentry locksentry(internal->mutex);
-	database = internal->mydb.get();
+	database = internal->databases[0].get();
     }
 
     database->delete_document(did, timeout);
@@ -247,7 +295,7 @@ OmWritableDatabase::replace_document(om_docid did,
     IRDatabase * database;
     {
 	OmLockSentry locksentry(internal->mutex);
-	database = internal->mydb.get();
+	database = internal->databases[0].get();
     }
 
     database->replace_document(did, document, timeout);
@@ -261,7 +309,7 @@ OmWritableDatabase::get_document(om_docid did)
     IRDatabase * database;
     {
 	OmLockSentry locksentry(internal->mutex);
-	database = internal->mydb.get();
+	database = internal->databases[0].get();
     }
 
     return database->get_document(did);
@@ -273,85 +321,5 @@ OmWritableDatabase::get_description() const
     /// \todo display contents of the writable database
     std::string description = "OmWritableDatabase()";
     DEBUGAPICALL("OmWritableDatabase::get_description", "");
-    return description;
-}
-
-////////////////////////////////
-// Methods of OmDatabaseGroup //
-////////////////////////////////
-
-OmDatabaseGroup::OmDatabaseGroup()
-{
-    DEBUGAPICALL("OmDatabaseGroup::OmDatabaseGroup", "");
-    internal = new OmDatabaseGroup::Internal();
-}
-
-OmDatabaseGroup::~OmDatabaseGroup() {
-    DEBUGAPICALL("OmDatabaseGroup::~OmDatabaseGroup", "");
-    delete internal;
-}
-
-OmDatabaseGroup::OmDatabaseGroup(const OmDatabaseGroup &other)
-	: internal(0)
-{
-    DEBUGAPICALL("OmDatabaseGroup::OmDatabaseGroup", "OmDatabaseGroup");
-    OmLockSentry locksentry(other.internal->mutex);
-
-    internal = new Internal(*other.internal);
-}
-
-void
-OmDatabaseGroup::operator=(const OmDatabaseGroup &other)
-{
-    DEBUGAPICALL("OmDatabaseGroup::operator=", "OmDatabaseGroup");
-    if(this == &other) {
-	DEBUGLINE(API, "OmDatabaseGroup assigned to itself");
-	return;
-    }
-
-    // we get these locks in a defined order to avoid deadlock
-    // should two threads try to assign two databases to each
-    // other at the same time.
-    Internal * newinternal;
-
-    {
-	OmLockSentry locksentry1(std::min(internal, other.internal)->mutex);
-	OmLockSentry locksentry2(std::max(internal, other.internal)->mutex);
-
-	newinternal = new Internal(*other.internal);
-
-	std::swap(internal, newinternal);
-    }
-
-    delete newinternal;
-}
-
-void
-OmDatabaseGroup::add_database(const OmSettings &params)
-{
-    DEBUGAPICALL("OmDatabaseGroup::add_database", params);
-    internal->add_database(params);
-}
-
-void
-OmDatabaseGroup::add_database(const OmDatabase & database)
-{
-    DEBUGAPICALL("OmDatabaseGroup::add_database", "OmDatabase");
-    OmRefCntPtr<IRDatabase> dbptr;
-    {
-	OmLockSentry locksentry(database.internal->mutex);
-	dbptr = database.internal->mydb;
-    }
-
-    internal->add_database(dbptr);
-}
-
-std::string
-OmDatabaseGroup::get_description() const
-{
-    DEBUGAPICALL("OmDatabaseGroup::get_description", "");
-    /// \todo display the contents of the database group
-    std::string description = "OmDatabaseGroup()";
-    DEBUGAPIRETURN(description);
     return description;
 }

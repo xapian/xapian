@@ -1,5 +1,4 @@
 /* omdatabaseinternal.h: Class definition for OmDatabase::Internal
- * and OmDatabaseGroup::Internal
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -41,7 +40,22 @@
 /** Reference counted internals for OmDatabase.
  */
 class OmDatabase::Internal {
+    friend class OmDatabase::InternalInterface;
+
+    private:
+	/** The multidatabase, if this has been created.
+	 */
+	OmRefCntPtr<MultiDatabase> multi_database;
+
+	/** Add a database, based on parameters.
+	 */
+	void add_database(const OmSettings &params, bool readonly);
+    
     public:
+	/** The databases which this consists of.
+	 */
+	std::vector<OmRefCntPtr<IRDatabase> > databases;
+
 	/** Make a new internal object, with the user supplied parameters.
 	 *
 	 *  This opens the database and stores it in the ref count pointer.
@@ -56,63 +70,41 @@ class OmDatabase::Internal {
 
 	/** Make a copy of this object, copying the ref count pointer.
 	 */
-	Internal(const Internal &other) : mydb(other.mydb), mutex() {}
-
-	/** The database.  Access to this is not protected by a mutex here -
-	 *  it is up to the database to deal with thread safety.
-	 */
-	OmRefCntPtr<IRDatabase> mydb;
-
-	/** A lock to control concurrent access to this object.
-	 *  This is not intended to control access to the IRDatabase object.
-	 */
-	OmLock mutex;
-};
-
-//////////////////////////////////
-// Internals of OmDatabaseGroup //
-//////////////////////////////////
-
-/** The implementation for OmDatabaseGroup.
- */
-class OmDatabaseGroup::Internal {
-    friend class OmDatabaseGroup::InternalInterface;
-    private:
-	/** The databases which this consists of.
-	 */
-	std::vector<OmRefCntPtr<IRDatabase> > databases;
-
-	/** The multidatabase, if this has been created.
-	 */
-	OmRefCntPtr<MultiDatabase> multi_database;
-
-    public:
+        Internal(const Internal &other)	: databases(other.databases), mutex()
+	{
+	}
+    
 	Internal() {}
-	Internal(const Internal &other)
-		: databases(other.databases), mutex() {}
-
-	/** Mutex to protect access to these internals.
-	 */
-	OmLock mutex;
-
-	/** Add a database to the group, based on parameters.
+    
+	/** Add a database, based on parameters.
 	 */
 	void add_database(const OmSettings &params);
 
-	/** Add an already opened database to the group.
+	/** Add an already opened database (or set of databases).
 	 */
 	void add_database(OmRefCntPtr<IRDatabase> newdb);
 
-	/** Create a MultiDatabase from an OmDatabaseGroup.
+	/** A lock to control concurrent access to this object.
+	 *  This is not intended to control access to the IRDatabase objects.
+	 */
+	OmLock mutex;
+
+	/** Create a IRDatabase from an OmDatabase.
+	 *
+	 *  FIXME: always return MultiDatabase for now (need to fettle
+	 *  OmEnquire otherwise).
+	 *
+	 *  If the OmDatabase contains only one IRDatabase, this will be
+	 *  returned.  Otherwise a MultiDatabase will be returned.
 	 *
 	 *  The MultiDatabase will be newly created if it hasn't been
 	 *  asked for previously (for example, a database has been added
 	 *  to the group since it was last requested).  Otherwise, the
 	 *  previously created MultiDatabase will be returned.
 	 *
-	 *  @return  A reference counted pointer to the MultiDatabase.
+	 *  @return  A reference counted pointer to the IRDatabase.
 	 */
-	OmRefCntPtr<MultiDatabase> get_multidatabase();
+	OmRefCntPtr<MultiDatabase> get_irdatabase();
 };
 
 #endif // OM_HGUARD_OMDATABASEINTERNAL_H

@@ -185,13 +185,13 @@ test_mset_order_equal(const OmMSet &mset1, const OmMSet &mset2,
 }
 
 
-OmDatabaseGroup
+OmDatabase
 make_dbgrp(OmDatabase * db1 = 0,
 	   OmDatabase * db2 = 0,
 	   OmDatabase * db3 = 0,
 	   OmDatabase * db4 = 0)
 {
-    OmDatabaseGroup result;
+    OmDatabase result;
 
     if(db1 != 0) result.add_database(*db1);
     if(db2 != 0) result.add_database(*db2);
@@ -256,10 +256,9 @@ bool test_zerodocid()
     return success;
 }
 
-OmDatabaseGroup get_simple_database()
+OmDatabase get_simple_database()
 {
-    OmDatabase mydb(get_database("apitest_simpledata"));
-    return make_dbgrp(&mydb);
+    return OmDatabase(get_database("apitest_simpledata"));
 }
 
 void init_simple_enquire(OmEnquire &enq, const OmQuery &query = OmQuery("thi"))

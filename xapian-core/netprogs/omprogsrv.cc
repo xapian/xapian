@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	OmDatabase db = backendmanager.get_database(paths);
-	OmDatabaseGroup dbgrp;
+	OmDatabase dbgrp;
 	dbgrp.add_database(db);
 
 #if 0
@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
 #endif
 
 	OmRefCntPtr<MultiDatabase> multidb;
-	multidb = OmDatabaseGroup::InternalInterface::get_multidatabase(dbgrp);
+	multidb = OmDatabase::InternalInterface::get_irdatabase(dbgrp);
 	ProgServer server(multidb, 0, 1);
 
 	server.run();

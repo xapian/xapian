@@ -262,8 +262,8 @@ OmESet::get_description() const
 // Methods for OmEnquireInternal //
 ///////////////////////////////////
 
-OmEnquireInternal::OmEnquireInternal(const OmDatabaseGroup &databases)
-  : database(OmDatabaseGroup::InternalInterface::get_multidatabase(databases)),
+OmEnquireInternal::OmEnquireInternal(const OmDatabase &databases)
+  : database(OmDatabase::InternalInterface::get_irdatabase(databases)),
     query(0)
 {
 }
@@ -517,7 +517,7 @@ OmEnquireInternal::calc_matching_terms(om_docid did) const
 // Methods of OmEnquire //
 //////////////////////////
 
-OmEnquire::OmEnquire(const OmDatabaseGroup &databases)
+OmEnquire::OmEnquire(const OmDatabase &databases)
 {
     DEBUGAPICALL("OmEnquire::OmEnquire", databases);
     internal = new OmEnquireInternal(databases);

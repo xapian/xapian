@@ -536,7 +536,7 @@ class OmEnquire {
 	 *  @param database Specification of the database or databases to
 	 *         use.
 	 */
-        OmEnquire(const OmDatabaseGroup &databases);
+        OmEnquire(const OmDatabase &databases);
 
 	/** Close the OmEnquire object.
 	 *
@@ -754,7 +754,7 @@ class OmBatchEnquire {
 	OmBatchEnquire(const OmBatchEnquire &);
 	void operator=(const OmBatchEnquire &);
     public:
-        OmBatchEnquire(const OmDatabaseGroup &databases);
+        OmBatchEnquire(const OmDatabase &databases);
         ~OmBatchEnquire();
 
 	/** This class stores a set of queries to be performed as a batch.

@@ -49,8 +49,6 @@ M|3| |Documentation| Patch doxygen, so that todo items in the body of
 M|4| |OmDatabase   | Test assignment operators for OmDatabase and
  | | |             | OmWritableDatabase
 -+-+-+-------------+-----------------------------------------------------------
-M|2| |Databases    | Make OmDatabaseGroup inherit from OmDatabase
--+-+-+-------------+-----------------------------------------------------------
 M|4| |LocalMatch   | Test performance when nth_element is run more
  | | |             | or less frequently, to see what is best.
 -+-+-+-------------+-----------------------------------------------------------

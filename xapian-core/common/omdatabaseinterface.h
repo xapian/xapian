@@ -1,4 +1,4 @@
-/* omdatabaseinterface.h: Extra interface to OmDatabaseGroup
+/* omdatabaseinterface.h: Extra interface to OmDatabase
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -29,25 +29,30 @@
 #include "database_builder.h"
 #include "multi_database.h"
 
-/** This class is used basically to add an interface to OmDatabaseGroup
+/** This class is used basically to add an interface to OmDatabase
  *  which isn't exported to the API.  Internal OM functions can get at
  *  this interface by going through this friend class.
  */
-class OmDatabaseGroup::InternalInterface {
+class OmDatabase::InternalInterface {
     public:
-	/** Create a MultiDatabase from an OmDatabaseGroup.
+	/** Create a IRDatabase from an OmDatabase.
+	 *
+	 *  FIXME: always return MultiDatabase for now (need to fettle
+	 *  OmEnquire otherwise).
+	 *
+	 *  If the OmDatabase contains only one IRDatabase, this will be
+	 *  returned.  Otherwise a MultiDatabase will be returned.
 	 *
 	 *  The MultiDatabase will be newly created if it hasn't been
 	 *  asked for previously (for example, a database has been added
 	 *  to the group since it was last requested).  Otherwise, the
 	 *  previously created MultiDatabase will be returned.
 	 *
-	 *  @param dbg		The source OmDatabaseGroup object.
+	 *  @param dbg		The source OmDatabase object.
 	 *
-	 *  @return  A reference counted pointer to the MultiDatabase.
+	 *  @return  A reference counted pointer to the IRDatabase.
 	 */
-	static OmRefCntPtr<MultiDatabase>
-		get_multidatabase(const OmDatabaseGroup &dbg);
+	static OmRefCntPtr<MultiDatabase> get_irdatabase(const OmDatabase &dbg);
 };
 
 #endif // OM_HGUARD_OMDATABASEINTERFACE_H

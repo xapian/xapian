@@ -38,16 +38,13 @@ std::string datadir;
 // Test a simple network match
 bool test_netmatch1()
 {
-    OmDatabaseGroup databases;
     BackendManager backendmanager;
     backendmanager.set_dbtype("remote");
     backendmanager.set_datadir(datadir);
     std::vector<std::string> paths;
     paths.push_back("apitest_simpledata");
-    OmDatabase db = backendmanager.get_database(paths);
-    databases.add_database(db);
 
-    OmEnquire enq(databases);
+    OmEnquire enq(backendmanager.get_database(paths));
 
     enq.set_query(OmQuery("word"));
 
@@ -63,7 +60,7 @@ bool test_netmatch1()
 // test a network match with two databases
 bool test_netmatch2()
 {
-    OmDatabaseGroup databases;
+    OmDatabase databases;
     BackendManager backendmanager;
     backendmanager.set_dbtype("remote");
     backendmanager.set_datadir(datadir);
@@ -98,12 +95,8 @@ bool test_netexpand1()
     backendmanager.set_datadir(datadir);
     std::vector<std::string> paths;
     paths.push_back("apitest_simpledata");
-    OmDatabase db = backendmanager.get_database(paths);
 
-    OmDatabaseGroup databases;
-    databases.add_database(db);
-
-    OmEnquire enq(databases);
+    OmEnquire enq(backendmanager.get_database(paths));
 
     enq.set_query(OmQuery("word"));
 
@@ -154,7 +147,7 @@ bool test_tcpmatch1()
     backendmanager.set_datadir(datadir);
     std::vector<std::string> paths;
     paths.push_back("apitest_simpledata");
-    OmDatabase db = backendmanager.get_database(paths);
+    OmDatabase dbremote = backendmanager.get_database(paths);
 
     std::string command =
 	    std::string("./omtcpsrv --one-shot --sleepycat ") +
@@ -163,15 +156,14 @@ bool test_tcpmatch1()
     system(command.c_str());
     sleep(1);
 
-    OmDatabaseGroup databases;
     OmSettings params;
     params.set("backend", "remote");
     params.set("remote_type", "tcp");
     params.set("remote_server", "localhost");
     params.set("remote_port", 1236);
-    databases.add_database(params);
+    OmDatabase db(params);
 
-    OmEnquire enq(databases);
+    OmEnquire enq(db);
 
     enq.set_query(OmQuery("word"));
 

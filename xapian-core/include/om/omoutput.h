@@ -34,7 +34,6 @@ operator<<(std::ostream & os, const a & obj) { \
 #include "omdatabase.h"
 OUTPUT_FUNCTION(OmDatabase);
 OUTPUT_FUNCTION(OmWritableDatabase);
-OUTPUT_FUNCTION(OmDatabaseGroup);
 
 #include "omdocument.h"
 OUTPUT_FUNCTION(OmData);

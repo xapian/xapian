@@ -1,3 +1,10 @@
+Wed Aug 23 15:10:00 BST 2000 Olly Betts
+
+	* WARNING: Incompatible changes to API!
+
+	* OmDatabaseGroup merged into OmDatabase.  Upgrading your code should
+	  just be a matter of replacing OmDatabaseGroup with OmDatabase.
+
 Wed Aug 23 13:11:59 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added classes to store a set of modified quartz database blocks.

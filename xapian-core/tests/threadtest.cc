@@ -59,16 +59,16 @@ struct some_searches
 {
     std::string database_type;
     std::string database_path;
-    OmDatabaseGroup dbgrp;
+    OmDatabase dbgrp;
     std::vector<OmQuery> queries;
     std::vector<OmMSet> expected_results;
     std::vector<OmMSet> inthread_results;
 };
 
-OmDatabaseGroup
+OmDatabase
 open_db_group(std::string database_type, std::string dlist_path)
 {
-    OmDatabaseGroup dbgrp;
+    OmDatabase dbgrp;
 
     FILE * fp = fopen (dlist_path.c_str(), "r");
     TEST_AND_EXPLAIN(fp != 0, "Can't open file `" << dlist_path << "' - " <<
@@ -115,7 +115,7 @@ search_stuff(OmEnquire & enq,
 }
 
 void
-search_stuff(OmDatabaseGroup & dbgrp,
+search_stuff(OmDatabase & dbgrp,
 	     std::vector<OmQuery> & queries,
 	     std::vector<OmMSet> & results)
 {
@@ -129,7 +129,7 @@ search_stuff(std::string database_type,
 	     std::vector<OmQuery> & queries,
 	     std::vector<OmMSet> & results)
 {
-    OmDatabaseGroup dbgrp = open_db_group(database_type, database_path);
+    OmDatabase dbgrp = open_db_group(database_type, database_path);
     search_stuff(dbgrp, queries, results);
 }
 
