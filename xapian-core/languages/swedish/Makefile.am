@@ -6,4 +6,4 @@ noinst_LTLIBRARIES = libswedish.la
 
 noinst_HEADERS = stem_swedish.h
 
-libspanish_la_SOURCES = stem_swedish.c
+libswedish_la_SOURCES = stem_swedish.c
