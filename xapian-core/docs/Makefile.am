@@ -7,8 +7,6 @@
 
 # FIXME: add "xapian hacker docs" option to build sourcedoc.ps and HTML
 
-SUFFIXES = .eps .dia .png
-
 HTMLDOCS = index.html install.html intro_ir.html overview.html \
  stemming.html quickstart.html remote.html remote_protocol.html \
  quartzdesign.html matcherdesign.html tests.html scalability.html \
@@ -110,13 +108,3 @@ endif
 
 # We used to do: $(LATEX) "\scrollmode\input" refman.tex
 # doxygen does: latex refman.tex
-
-##################################
-# Generate images from dia files #
-##################################
-
-.dia.eps:
-	dia -e $@ $<
-
-.eps.png:
-	pstoimg -aaliastext -antialias -center 0 -density 40 -depth 1 $<

@@ -1,3 +1,9 @@
+Mon Aug 16 15:41:33 BST 2004  Olly Betts <olly@survex.com>
+
+	* docs/: Removed unused and very out of date class diagrams in dia
+	  format.  Doxygen generates similar but up-to-date diagrams
+	  automatically anyway.
+
 Mon Aug 16 15:27:30 BST 2004  Olly Betts <olly@survex.com>
 
 	* xapian.spec.in,debian/libxapianVERSION-dev.install,
