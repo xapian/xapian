@@ -1,3 +1,7 @@
+Thu Dec 06 18:49:40 GMT 2001  Olly Betts <olly@survex.com>
+
+	* parsequery.yy: changed to use find_if() (faster than find_first_of()).
+
 Thu Dec 06 17:46:37 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Base page links on estimated number of matches, not minimum.
