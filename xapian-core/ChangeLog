@@ -1,3 +1,7 @@
+Thu Nov  2 18:49:58 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* More stuff in indexerquickstart.html
+
 Thu Nov  2 18:24:12 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add `extern "C"' to btree.h so that it will link with C++ code.

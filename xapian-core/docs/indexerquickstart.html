@@ -427,18 +427,69 @@ string.
         &lt;input name=&quot;in&quot; node=&quot;readfile&quot; out_name=&quot;out&quot;/&gt;&lt;/node&gt;
 </PRE>
 
-<!--
+<H3>Duplicating the word list</H3>
+
+<P>
+We make use of an <CODE>omsplitter</CODE> node again to copy the list
+of words, so that we can do different operations on each copy.
+</P>
+
+<PRE>
     &lt;!-- Duplicate the list of words --&gt;
     &lt;node type=&quot;omsplitter&quot; id=&quot;dupwords&quot;&gt;
         &lt;input name=&quot;in&quot; node=&quot;wordsplit&quot; out_name=&quot;out&quot;/&gt;&lt;/node&gt;
+</PRE>
+
+<H3>Processing capitalised words</H3>
+
+<P>
+The first step is to remove the lower-case words from the list.  This is
+done using an <CODE>omregexfilter</CODE> node.  The input to this node
+is a list of strings.  The output is the subset of the strings in the
+input list which match a particular regular expression.  In this case
+we set the regular expression to "^[A-Z]", which matches a capital letter
+at the start of the string.
+</P>
+<PRE>
     &lt;!-- Left branch, separate capital words --&gt;
     &lt;node type=&quot;omregexfilter&quot; id=&quot;capsonly&quot;&gt;
         &lt;param name=&quot;regex&quot; type=&quot;string&quot; value=&quot;^[A-Z]&quot;/&gt;
 	&lt;input name=&quot;in&quot; node=&quot;dupwords&quot; out_name=&quot;left&quot;/&gt;&lt;/node&gt;
+</PRE>
+
+<P>
+Once we've separated the capitalized words out, we want to lower case them.
+In our indexing scheme all normal words are stored in the database lower
+cased, and some special terms may be stored with an initial capital letter.
+We do the lower-casing using an <CODE>omtranslatelist</CODE> node.  It takes
+as input a list of strings (the similar <CODE>omtranslate</CODE> node takes
+a single string instead).  There are two configuration parameters to set.
+"from" and "to" should be strings of equal length.  The nth character of
+"from" will be replaced by the nth character of "to" in the output of the
+node.  In this example we translate each upper-case letter to its lower-case
+equivalent.
+</P>
+
+<PRE>
     &lt;node type=&quot;omtranslatelist&quot; id=&quot;lowercaps&quot;&gt;
         &lt;param name=&quot;from&quot; type=&quot;string&quot; value=&quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;/&gt;
         &lt;param name=&quot;to&quot; type=&quot;string&quot; value=&quot;abcdefghijklmnopqrstuvwxyz&quot;/&gt;
 	&lt;input name=&quot;in&quot; node=&quot;capsonly&quot; out_name=&quot;out&quot;/&gt;&lt;/node&gt;
+</PRE>
+
+<H3>Processing the second copy of the word list</H3>
+
+<P>
+We'll take the other copy of the word list and apply the English stemmer.
+For this we use the <CODE>omstemmer</CODE> node.  This node takes a list
+of words in the input "in" and returns the list of stemmed words in output
+"out".  The configuration parameter "language" sets the stemmer language.
+</P><P>
+Before stemming, we need to lower-case the words, which we do with an
+<CODE>omtranslate</CODE> node as before.
+</P>
+
+<PRE>
     &lt;!-- Right branch, lower case everything... --&gt;
     &lt;node type=&quot;omtranslatelist&quot; id=&quot;tolower&quot;&gt;
         &lt;param name=&quot;from&quot; type=&quot;string&quot; value=&quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;/&gt;
@@ -448,11 +499,30 @@ string.
     &lt;node type=&quot;omstemmer&quot; id=&quot;stem&quot;&gt;
         &lt;param name=&quot;language&quot; type=&quot;string&quot; value=&quot;english&quot;/&gt;
 	&lt;input name=&quot;in&quot; node=&quot;tolower&quot; out_name=&quot;out&quot;/&gt;&lt;/node&gt;
+</PRE>
+
+<H3>Merging the word lists</H3>
+
+<P>
+Now that we have two lists of words, we want to join them back together
+again.  This is done with an <CODE>omlistconcat</CODE> node.  It has
+two inputs, "left" and "right", and simply appends the contents of
+the list at "right" to the list at "left".
+
+<PRE>
     &lt;!-- Now merge the two lists of terms --&gt;
     &lt;node type=&quot;omlistconcat&quot; id=&quot;terms&quot;&gt;
         &lt;input name=&quot;left&quot; node=&quot;lowercaps&quot; out_name=&quot;out&quot;/&gt;
 	&lt;input name=&quot;right&quot; node=&quot;stem&quot; out_name=&quot;out&quot;/&gt;&lt;/node&gt;
+</PRE>
 
+<H3>Making a termlist from the words</H3>
+
+<P>
+Before it can be used with an <CODE>OmDocumentContents</CODE> object, the
+termlist must be in the right form.  Two nodes help with this:
+<CODE>omnewtermlist</CODE> and <CODE>omtermlistadd</CODE>
+<!--
     &lt;!-- convert the terms into a termlist --&gt;
     &lt;node type=&quot;omnewtermlist&quot; id=&quot;maketermlist&quot;&gt;&lt;/node&gt;
     &lt;node type=&quot;omtermlistadd&quot; id=&quot;addtermlist&quot;&gt;
