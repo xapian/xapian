@@ -58,19 +58,29 @@ class NetClient : public OmRefCntBase {
 	 */
 	virtual void write_data(string msg) = 0;
 
+	/** Wait for some input to be available.
+	 *  wait_for_input() can be called to avoid having to loop
+	 *  waiting for eg finish_query() to return.  wait_for_input()
+	 *  returns when the next operation can proceed without waiting.
+	 */
+	virtual void wait_for_input() = 0;
+
 	/** Set the weighting type */
 	virtual void set_weighting(IRWeight::weight_type wt_type) = 0;
 
 	/** Set the query */
 	virtual void set_query(const OmQueryInternal *query_) = 0;
 
-	/** Read the remote statistics */
-	virtual Stats get_remote_stats() = 0;
+	/** Read the remote statistics.
+	 *  Returns true if the call succeeded, or false
+	 *  if the remote end hasn't yet responded.
+	 */
+	virtual bool get_remote_stats(Stats &out) = 0;
 
 	/** Signal to the remote end that this is the end of the query
 	 *  specification phase.
 	 */
-	virtual void finish_query() = 0;
+	virtual bool finish_query() = 0;
 
 	/** Send the global statistics down */
 	virtual void send_global_stats(const Stats &stats) = 0;

@@ -54,11 +54,32 @@ bool
 NetworkMatch::prepare_match(bool nowait)
 {
     if (!is_prepared) {
-	database->link->finish_query();
+	bool finished_query = database->link->finish_query();
+
+	if (!finished_query) {
+	    if (nowait) {
+		return false;
+	    } else {
+		do {
+		    database->link->wait_for_input();
+		} while (!database->link->finish_query());
+	    }
+	}
 
 	// Read the remote statistics and give them to the stats source
 	//
-	statssource.take_remote_stats(database->link->get_remote_stats());
+	Stats mystats;
+	bool read_remote_stats = database->link->get_remote_stats(mystats);
+	if (!read_remote_stats) {
+	    if (nowait) {
+		return false;
+	    } else {
+		do {
+		    database->link->wait_for_input();
+		} while (!database->link->get_remote_stats(mystats));
+	    };
+	};
+	statssource.take_remote_stats(mystats);
 
 	is_prepared = true;
     }

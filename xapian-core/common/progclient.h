@@ -45,6 +45,7 @@ class ProgClient : public NetClient {
 	/// The conversation state
 	enum {
 	    state_getquery,  // Accumulate the query and other info
+	    state_sentquery, // Query has been sent, waiting for remote stats.
 	    state_getmset    // Ready to call get_mset
 	} conv_state;
 
@@ -102,6 +103,9 @@ class ProgClient : public NetClient {
 	 */
 	void write_data(string msg);
 
+	/** Wait for input to be available */
+	void wait_for_input();
+
 	/** Set the weighting type */
 	void set_weighting(IRWeight::weight_type wt_type);
 
@@ -109,11 +113,13 @@ class ProgClient : public NetClient {
 	void set_query(const OmQueryInternal *query_);
 
 	/** Get the remote stats */
-	Stats get_remote_stats();
+	bool get_remote_stats(Stats &out);
 
 	/** Signal the end of the query specification phase.
+	 *  Returns true if the operation succeeded, or false
+	 *  if part or all of it is pending on network I/O.
 	 */
-	void finish_query();
+	bool finish_query();
 
 	/** Send the global statistics */
 	void send_global_stats(const Stats &stats);

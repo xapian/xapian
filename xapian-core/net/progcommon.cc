@@ -23,7 +23,10 @@
 #include <string>
 #include <vector>
 #include <strstream.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <cerrno>
 #include "progcommon.h"
 #include "omassert.h"
@@ -267,11 +270,19 @@ OmQueryInternal qfs_readcompound()
 OmLineBuf::OmLineBuf(int readfd_, int writefd_)
 	: readfd(readfd_), writefd(writefd_)
 {
+    // set non-blocking flag on reading fd
+    if (fcntl(readfd, F_SETFL, O_NONBLOCK) < 0) {
+	throw OmNetworkError("Can't set non-blocking flag on fd");
+    };
 }
 
 OmLineBuf::OmLineBuf(int fd_)
 	: readfd(fd_), writefd(fd_)
 {
+    // set non-blocking flag on reading fd
+    if (fcntl(readfd, F_SETFL, O_NONBLOCK) < 0) {
+	throw OmNetworkError("Can't set non-blocking flag on fd");
+    };
 }
 
 string
@@ -280,6 +291,13 @@ OmLineBuf::readline()
     string::size_type pos;
     while ((pos = buffer.find_first_of('\n')) == buffer.npos) {
 	char buf[256];
+	
+	// wait for input to be available.
+	fd_set fdset;
+	FD_ZERO(&fdset);
+	FD_SET(readfd, &fdset);
+	select(readfd+1, &fdset, 0, 0, NULL);
+
 	ssize_t received = read(readfd, buf, sizeof(buf) - 1);
 
 	buffer += string(buf, buf + received);
@@ -289,6 +307,43 @@ OmLineBuf::readline()
     buffer.erase(0, pos+1);
 
     return retval;
+}
+
+void
+OmLineBuf::wait_for_data()
+{
+    // FIXME: share with readline()
+    string::size_type pos;
+    while ((pos = buffer.find_first_of('\n')) == buffer.npos) {
+	char buf[256];
+	
+	// wait for input to be available.
+	fd_set fdset;
+	FD_ZERO(&fdset);
+	FD_SET(readfd, &fdset);
+	select(readfd+1, &fdset, 0, 0, NULL);
+
+	ssize_t received = read(readfd, buf, sizeof(buf) - 1);
+
+	buffer += string(buf, buf + received);
+    }
+}
+
+bool
+OmLineBuf::data_waiting()
+{
+    fd_set fdset;
+    FD_ZERO(&fdset);
+    FD_SET(readfd, &fdset);
+
+    struct timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = 100000;
+    if (select(readfd+1, &fdset, 0, 0, &tv) > 0) {
+	return true;
+    } else {
+	return false;
+    }
 }
 
 void

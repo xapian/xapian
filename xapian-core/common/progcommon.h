@@ -60,6 +60,14 @@ class OmLineBuf {
 	 */
 	string readline();
 
+	/** Return true if there is data available to be read.
+	 */
+	bool data_waiting();
+
+	/** Block until at least a line of data has been read.
+	 */
+	void wait_for_data();
+
 	/** Write one line to writefd
 	 */
 	void writeline(string s);

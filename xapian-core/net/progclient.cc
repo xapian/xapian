@@ -129,7 +129,7 @@ ProgClient::read_data()
 bool
 ProgClient::data_is_available()
 {
-    return true;
+    return buf.data_waiting();
 }
 
 ProgClient::~ProgClient()
@@ -152,33 +152,65 @@ ProgClient::set_query(const OmQueryInternal *query_)
     query_string = query_->serialise();
 } 
 
-void
+bool
 ProgClient::finish_query()
 {
-    Assert(conv_state == state_getquery);
-    // Message 3 (see README_progprotocol.txt)
-    string message = "SETQUERY " +
-	             wt_string + " \"" +
-		     query_string + "\"";
-    do_write(message);
+    bool success = false;
+    switch (conv_state) {
+	case state_getquery:
+	    // Message 3 (see README_progprotocol.txt)
+	    {
+		string message = "SETQUERY " +
+		                 wt_string + " \"" +
+		       	         query_string + "\"";
+		do_write(message);
+	    }
+	    conv_state = state_sentquery;
+	    // fall through...
+	case state_sentquery:
 
-    // Message 4
-    string response = do_read();
-    if (response.substr(0, 7) != "MYSTATS") {
-	throw OmNetworkError("Error getting statistics");
+	    // Message 4
+	    if (!data_is_available()) {
+		break;
+	    }
+	    
+	    {
+		string response = do_read();
+		if (response.substr(0, 7) != "MYSTATS") {
+		    throw OmNetworkError("Error getting statistics");
+		}
+		remote_stats = string_to_stats(response.substr(8, response.npos));
+		remote_stats_valid = true;
+
+		success = true;
+	    }
+
+	    conv_state = state_getmset;
+	    // fall through...
+	case state_getmset:
+	    ;
     }
-    remote_stats = string_to_stats(response.substr(8, response.npos));
-    remote_stats_valid = true;
-
-    conv_state = state_getmset;
+    return success;
 }
 
-Stats
-ProgClient::get_remote_stats()
+void
+ProgClient::wait_for_input()
 {
-    Assert(remote_stats_valid);
+    buf.wait_for_data();
+}
 
-    return remote_stats;
+bool
+ProgClient::get_remote_stats(Stats &out)
+{
+    Assert(remote_stats_valid && conv_state >= state_sentquery);
+    if (!remote_stats_valid && conv_state <= state_getmset) {
+	bool finished = finish_query();
+
+	if (!finished) return false;
+    }
+
+    out = remote_stats;
+    return true;
 }
 
 void

@@ -249,11 +249,17 @@ MultiMatch::match(om_doccount first,
 	om_weight   tot_greatest_wt = 0;
 	om_doccount lastitem = first + maxitems;
 
-	// Prepare all the msets
-	for(vector<SingleMatch *>::iterator leaf = leaves.begin();
-	    leaf != leaves.end(); leaf++) {
-	    (*leaf)->prepare_match();
-	}
+	bool prepared;
+	do {
+	    prepared = true;
+	    // Prepare all the msets
+	    for(vector<SingleMatch *>::iterator leaf = leaves.begin();
+		leaf != leaves.end(); leaf++) {
+		if (!(*leaf)->prepare_match(true)) {
+		    prepared = false;
+		}
+	    }
+	} while (!prepared);
 
 	// Get the first mset
 	(*(leaves.begin()))->get_mset(0, lastitem, mset, cmp,
