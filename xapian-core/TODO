@@ -71,6 +71,9 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Medium  | WritableDbs     | Add pthread locking to all database classes.
 ---------+-----------------+--------------------------------------------------
+ Medium  | Databases       | Ensure that opening a termlist / postlist which
+         |                 | is not present throws the correct exception.
+---------+-----------------+--------------------------------------------------
  Medium  | Documentation   | Ensure that API documentation covers entirity of
          |                 | API.  Then rewrite it for clarity.
 ---------+-----------------+--------------------------------------------------
