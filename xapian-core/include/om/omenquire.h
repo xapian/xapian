@@ -62,8 +62,9 @@ enum om_queryop {
     OM_MOP_FILTER
 };
 
-
+/// Internals of query class
 class OmQueryInternal;
+
 /** Class representing a query.
  *  Queries are represented as a heirarchy of classes.
  */
@@ -712,6 +713,10 @@ class OmBatchEnquire {
 	    const OmMatchDecider * mdecider;
 	};
 	    
+	/** Type used to store a batch of queries to be performed.
+	 */
+	typedef vector<query_desc> query_batch;
+
 	/** Set up the queries to run.
 	 *
 	 *  @param queries_  A set of structures describing each query
@@ -738,10 +743,6 @@ class OmBatchEnquire {
 
 		bool is_valid() const { return isvalid; }
 	};
-
-	/** Type used to store a batch of queries to be performed.
-	 */
-	typedef vector<query_desc> query_batch;
 
 	/** Type used to store the results of a query batch.
 	 */
