@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -146,6 +146,9 @@ static int ends(struct dutch_stemmer * z, char * s)
     z->j = z->k - length;
     return true;
 }
+
+/* after ends(z, s1), context(z, s2) checks that s1 is preceded by s2
+*/
 
 static int context(struct dutch_stemmer * z, char * s)
 {   int keep_j = z->j;
@@ -286,13 +289,10 @@ extern char * dutch_stem(struct dutch_stemmer * z, char * q, int i0, int i1)
 /*
     See the English stemmer for notes on the irregular forms.
 
-    The list of German irregularities needs further development.
+    The list of Dutch irregularities is left blank at the moment.
 */
 
 static char * irregular_forms[] = {
-
-    "abendstern", "abendstern/",       /* Otherwise 'abendstern' -> 'abend' etc */
-    "morgenstern", "morgenstern/",
 
     0, 0  /* terminator */
 

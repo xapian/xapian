@@ -2,17 +2,17 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -132,10 +132,9 @@ static int char_type(struct french_stemmer * z, int i)
    pos0 and pos1 are also established for certain rarer tests.
 */
 
-static int measure(struct french_stemmer * z)
+static void measure(struct french_stemmer * z)
 {   int j = 0;
     int k = z->k;
-    char * p = z->p;
     z->posV = k; /* default */
     if (k < 2) return;
     while (j < k && char_type(z, j) == VOW) j++;
@@ -143,7 +142,6 @@ static int measure(struct french_stemmer * z)
     {
         /* now go to a vowel */
         while (!(j == k || char_type(z, j) == VOW)) j++;
-/*        if (j == 1) j++;   to 3rd letter TEST THIS REMOVAL CAREFULLY */
         z->posV = j;
     }
     j = 0;
