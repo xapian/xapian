@@ -1,3 +1,7 @@
+Sat Oct 21 07:54:53 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added quartzdesign.html document to docs/
+
 Fri Oct 20 18:17:21 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* In quartz: store document lengths in termlists, store total

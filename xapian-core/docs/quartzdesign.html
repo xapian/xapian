@@ -256,8 +256,10 @@ size to be stored in a single B-tree block, and hence to be accessed with a
 minimal amount of disk latency.  
 <p>
 The key for the first chunk in a posting list is the term ID of the term
-whose posting list it is.  The key in subsequent
-each of these chunks is the
+whose posting list it is.  The key in subsequent chunks is the term ID
+followed by the document ID of the first document in the chunk.  This
+allows the cursor methods to be used to scan through the chunks in order,
+and also to jump to the chunk containing a particular document ID.
 
 <p>
 It is quite possible that data in other tables (eg, termlist and possibly
