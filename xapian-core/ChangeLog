@@ -1,3 +1,7 @@
+Thu May 25 12:07:29 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add a simple test of the max_or_terms feature to apitest.
+
 Thu May 25 12:06:06 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add max_or_terms member to localmatch, to store option in.
