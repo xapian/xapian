@@ -44,9 +44,9 @@ int n_dlist = 0;
 #include "cgiparam.h"
 #include "query.h"
 
-OMEnquire * enquire;
-OMMSet * mset;
-OMRSet * rset;
+OmEnquire * enquire;
+OmMSet * mset;
+OmRSet * rset;
 
 map<string, string> option;
 
@@ -194,7 +194,7 @@ static int main2(int argc, char *argv[])
     }
 
     // Open enquire system
-    enquire = new OMEnquire();
+    enquire = new OmEnquire();
 
     // read dlist
     try {
@@ -240,7 +240,7 @@ static int main2(int argc, char *argv[])
     }
    
     // Create rset to put relevant items in.
-    rset = new OMRSet();
+    rset = new OmRSet();
        
     /* read thousands and decimal separators: e.g. 16<thou>729<dec>8037 */
     
@@ -249,9 +249,9 @@ static int main2(int argc, char *argv[])
 
     val = cgi_params.find("MATCHOP");
     if (val != notfound) {
-	if (val->second == "AND" || val->second == "and") op = OM_MOP_AND;
+	if (val->second == "AND" || val->second == "and") op = Om_MOP_AND;
     } else if ((val = cgi_params.find("THRESHOLD")) != notfound) {
-	if (atoi(val->second.c_str()) == 100) op = OM_MOP_AND;
+	if (atoi(val->second.c_str()) == 100) op = Om_MOP_AND;
     }
 
     big_buf = "";
@@ -260,15 +260,15 @@ static int main2(int argc, char *argv[])
     if (val != notfound) {
 	int doc = atol(val->second.c_str());
        
-	OMESet topterms;
-	OMRSet tmprset;
+	OmESet topterms;
+	OmRSet tmprset;
 
 	tmprset.add_document(doc);
 	ExpandDeciderFerret decider;
 	enquire->get_eset(topterms, tmprset, decider);
 
 	int c = 0;
-	vector<OMESetItem>::const_iterator i;
+	vector<OmESetItem>::const_iterator i;
 	for (i = topterms.items.begin(); i != topterms.items.end(); i++) {
 	    string term = i->tname;
 	    if (term.empty()) continue;

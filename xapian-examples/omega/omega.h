@@ -22,7 +22,7 @@
 
 #define FERRET 1
 
-#include "om.h"
+#include "om/om.h"
 
 #include "config.h"
 #define FX_VERSION_STRING "1.4+ (" PACKAGE "-" VERSION ")"
@@ -36,9 +36,9 @@ extern FILE *page_fopen(const string &page);
 extern string db_name;
 extern string fmt, fmtfile;
 
-extern OMEnquire * enquire;
-extern OMMSet * mset;
-extern OMRSet * rset;
+extern OmEnquire * enquire;
+extern OmMSet * mset;
+extern OmRSet * rset;
 
 extern map<string, string> option;
 
