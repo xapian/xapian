@@ -30,6 +30,7 @@
 #include "omnodeconnection.h"
 #include "om/omnodedescriptor.h"
 #include "omnodedescriptorinternal.h"
+#include "omdebug.h"
 #include <algorithm>
 
 class OmIndexerBuilder::Internal {
@@ -74,6 +75,11 @@ class OmIndexerBuilder::Internal {
 	 *  @param desc	The description of the nodes.
 	 */
 	std::vector<int> sort_nodes(const OmIndexerDesc &desc);
+
+	/** Return a count of the number of nodes which have more than
+	 *  one output.
+	 */
+	int count_splitting_nodes(const OmIndexerDesc &desc);
 	
 	/** Data kept with each node as the graph is being built */
 	struct type_data {
@@ -207,6 +213,18 @@ OmIndexerBuilder::Internal::sort_nodes(const OmIndexerDesc &desc)
     return result;
 }
 
+int
+OmIndexerBuilder::Internal::count_splitting_nodes(const OmIndexerDesc &desc)
+{
+    int count = 0;
+    for (size_t i=0; i<desc.nodes.size(); ++i) {
+	if (nodetypes[desc.nodes[i].type].outputs.size() > 1) {
+	    ++count;
+	}
+    }
+    return count;
+}
+
 void
 OmIndexerBuilder::Internal::build_graph(OmIndexer::Internal *indexer,
 			      const OmIndexerDesc &desc)
@@ -218,7 +236,16 @@ OmIndexerBuilder::Internal::build_graph(OmIndexer::Internal *indexer,
      */
     std::vector<int> sorted = sort_nodes(desc);
     
-    indexer->nodemap["START"] = make_node("START", OmSettings());
+    // get a count of the number of nodes with more than one output
+    int num_splitting_nodes = count_splitting_nodes(desc);
+    int next_splitting_node_num = 0;
+    DEBUGLINE(INDEXER, "count of splitting nodes: " << num_splitting_nodes);
+
+    OmSettings startconfig;
+    startconfig.set("omindexer_numsplitting", num_splitting_nodes);
+    startconfig.set("omindexer_node_id", "START");
+
+    indexer->nodemap["START"] = make_node("START", startconfig);
     indexer->start = dynamic_cast<OmIndexerStartNode *>(indexer->nodemap["START"]);
     types["START"].outputs = nodetypes["START"].outputs;
     types["START"].node_name = "START";
@@ -234,7 +261,15 @@ OmIndexerBuilder::Internal::build_graph(OmIndexer::Internal *indexer,
 					 + node->id);
 	}
 
-	OmIndexerNode *newnode = make_node(node->type, node->param);
+	OmSettings config(node->param);
+
+	// add some internal data to the configuration
+	config.set("omindexer_numsplitting", num_splitting_nodes);
+	config.set("omindexer_node_id", node->id);
+	if (nodetypes[node->type].outputs.size() > 1) {
+	    config.set("omindexer_mysplitid", next_splitting_node_num++);
+	}
+	OmIndexerNode *newnode = make_node(node->type, config);
 	types[node->id].node_name = node->id;
 	types[node->id].inputs = nodetypes[node->type].inputs;
 	types[node->id].outputs = nodetypes[node->type].outputs;

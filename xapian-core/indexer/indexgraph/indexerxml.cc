@@ -20,8 +20,6 @@
  * -----END-LICENCE-----
  */
 
-#define XML_DTD_PATH "/tmp"
-
 #include "indexerxml.h"
 #include "om/omerror.h"
 #include "register_core.h"
@@ -126,9 +124,12 @@ doc_is_valid(xmlDocPtr doc)
     xmlFreeProp(attr);
     attr = 0;
     // add the Dtd if it's not there
+    // FIXME: find the DTD somewhere
+#if 0
     if (doc->extSubset == 0) {
-	xmlNewDtd(doc, "omindexer", NULL, XML_DTD_PATH);
+	xmlNewDtd(doc, "omindexer", NULL, get_dtd_path());
     }
+#endif
 
     return xmlValidateDocument(&ctxt, doc);
 #else  // HAVE_LIBXML_VALID

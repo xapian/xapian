@@ -1,4 +1,4 @@
-<!ELEMENT omindexer (node+, output)>
+<!ELEMENT omindexer (node*, output)>
 <!ELEMENT node (param*, input*)>
 <!ELEMENT output EMPTY>
 <!ELEMENT input EMPTY>

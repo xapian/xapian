@@ -126,8 +126,30 @@ class OmIndexerNode::Internal {
 	    std::string node_output;
 	};
 
+	typedef unsigned int nodever_t;
+
 	/* ********** Private data ************/
-	// FIXME: store the node's ID here for errors
+	/** The configuration strings */
+	OmSettings settings;
+
+	/** This node instance's ID */
+	std::string id;
+
+	/** The "version number" associated with the last calculate() */
+	nodever_t version;
+
+	/** The number of nodes in this graph which have more than one
+	 *  output. */
+	int num_splitting_nodes;
+
+	/** The splitter number of this node, of -1 if it has only one
+	 *  output.
+	 */
+	int my_split_id;
+
+	/** A list of the last seen versions of the splitting nodes */
+	std::vector<nodever_t> split_versions;
+
 	/** The owning node (used for calling virtual methods) */
 	OmIndexerNode *owner;
 
@@ -139,9 +161,6 @@ class OmIndexerNode::Internal {
 
 	/** The collected inputs */
 	deleter_map<std::string, OmIndexerMessage *> stored_inputs;
-
-	/** The configuration strings */
-	OmSettings settings;
 };
 
 OmIndexerMessage
@@ -284,7 +303,16 @@ OmIndexerNode::Internal::calculate_if_needed(const std::string &output_name)
 	cerr << "Calculating " << typeid(*owner).name() <<
 		           " (output " << output_name << " requested)" << endl;
 	 */
+	// increment the version number of our results
+	version++;
+	//cerr << "[" << id << "]: incrementing version to " << version << endl;
+	//cerr << "My split_id = " << my_split_id << endl;
+
 	owner->calculate();
+
+	if (my_split_id >= 0) {
+	    split_versions[my_split_id] = version;
+	}
 	/*
 	cerr << "Calculated!" << endl;
 	 */
@@ -298,8 +326,17 @@ OmIndexerNode::OmIndexerNode(const OmSettings &settings_)
 
 OmIndexerNode::Internal::Internal(const OmSettings &settings_,
 				  OmIndexerNode *owner_)
-	: owner(owner_), settings(settings_)
+	: settings(settings_),
+	  id(settings_.get("omindexer_node_id")),
+	  version(0),
+	  num_splitting_nodes(settings.get_int("omindexer_numsplitting")),
+	  my_split_id(settings.get_int("omindexer_mysplitid", -1)),
+	  split_versions(num_splitting_nodes),
+	  owner(owner_)
 {
+    for (int i=0; i<num_splitting_nodes; ++i) {
+	split_versions[i] = 0;
+    }
 }
 
 OmIndexerNode::~OmIndexerNode()
@@ -553,9 +590,40 @@ void OmIndexerNode::Internal::request_inputs()
     // dump the old inputs, if any
     stored_inputs.clear();
 
+    // start our seen versions again
+    for (int i=0; i<num_splitting_nodes; ++i) {
+	split_versions[i] = 0;
+    }
+
     std::map<std::string, input_desc>::const_iterator i;
     for (i=inputs.begin(); i!=inputs.end(); ++i) {
+	// Physically fetch the input
 	stored_inputs[i->first] = new OmIndexerMessage(
 		i->second.node->get_output_record(i->second.node_output));
+	
+	/* Check that we're not merging results which come from two different
+	 * calculations of the same node
+	 */
+	/*
+	cerr << "[" << id << "] Merging " << num_splitting_nodes
+		<< " inputs: ";
+	 */
+	for (int num=0; num<num_splitting_nodes; ++num) {
+	    if (split_versions[num] == 0) {
+		// take the version from the input, as we haven't seen it yet.
+		split_versions[num] =
+			i->second.node->internal->split_versions[num];
+	    } else if (i->second.node->internal->split_versions[num] != 0) {
+		// FIXME: find enough information to identify the node
+		// causing the conflict, then have a useful message.
+		throw OmDataFlowError("Detected flow problem");
+	    }
+	    /*
+	    cerr << split_versions[num];
+	    */
+	}
+	/*
+	cerr << endl;
+	*/
     }
 }

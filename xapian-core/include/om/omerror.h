@@ -190,4 +190,7 @@ DEFINE_ERROR_CLASS(OmTypeError, OmRuntimeError);
 /** Thrown when data being worked on is invalid */
 DEFINE_ERROR_CLASS(OmInvalidDataError, OmRuntimeError);
 
+/** Thrown when the indexer detects a data flow error */
+DEFINE_ERROR_CLASS(OmDataFlowError, OmRuntimeError);
+
 #endif /* OM_HGUARD_OMERROR_H */

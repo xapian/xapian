@@ -6,6 +6,8 @@ noinst_HEADERS = deleter_map.h omindexerinternal.h omnodeconnection.h\
 		register_core.h node_reg.h regexcommon.h indexerxml.h \
 		toposort.h omnodedescriptorinternal.h
 
+data_DATA = omindexer.dtd
+
 noinst_LTLIBRARIES = libindexgraph.la
 
 #noinst_PROGRAMS = nodetest

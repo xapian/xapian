@@ -34,9 +34,111 @@ bool test_basic1()
 {
     OmIndexerBuilder builder;
 
-    builder.build_from_string("<?xml version=\"1.0\"?><omindexer/>");
+    return true;
+}
+
+bool test_basic2()
+{
+    OmIndexerBuilder builder;
+
+    builder.build_from_string("<?xml version=\"1.0\"?><!DOCTYPE omindexer SYSTEM '../../om/indexer/indexgraph/omindexer.dtd'><omindexer><output node='START' out_name='out'/></omindexer>");
 
     return true;
+}
+
+class readtwice : public OmIndexerNode {
+    public:
+	static OmIndexerNode *create(const OmSettings &settings) {
+	    return new readtwice(settings);
+	}
+    private:
+	readtwice(const OmSettings &settings)
+		: OmIndexerNode(settings) {}
+
+	void calculate() {
+	    request_inputs();
+	    get_input_record("in");
+	    request_inputs();
+	    set_output("out", get_input_record("in"));
+	}
+};
+
+class writetwice : public OmIndexerNode {
+    public:
+	static OmIndexerNode *create(const OmSettings &settings) {
+	    return new writetwice(settings);
+	}
+    private:
+	writetwice(const OmSettings &settings)
+		: OmIndexerNode(settings), saved_msg(0), have_msg(false) {}
+
+	OmIndexerMessage saved_msg;
+	bool have_msg;
+
+	void calculate() {
+	    if (have_msg) {
+		set_output("out", saved_msg);
+		have_msg = false;
+	    } else {
+		request_inputs();
+		OmIndexerMessage in = get_input_record("in");
+		saved_msg = OmIndexerMessage(new OmIndexerData(*in));
+		have_msg = true;
+		set_output("out", in);
+	    }
+	}
+};
+
+/** Test that the checking for data mismatches in the indexer data flow works
+ */
+bool test_flowcheck1()
+{
+    bool success = false;
+    try {
+	OmIndexerBuilder builder;
+
+	{
+	    OmNodeDescriptor ndesc("readtwice", &readtwice::create);
+	    ndesc.add_input("in", "*1", mt_record);
+	    ndesc.add_output("out", "*1", mt_record);
+	    builder.register_node_type(ndesc);
+	}
+	{
+	    OmNodeDescriptor ndesc("writetwice", &writetwice::create);
+	    ndesc.add_input("in", "*1", mt_record);
+	    ndesc.add_output("out", "*1", mt_record);
+	    builder.register_node_type(ndesc);
+	}
+
+	AutoPtr<OmIndexer> indexer(builder.build_from_string(
+	     "<?xml version=\"1.0\"?>"
+	     "<!DOCTYPE omindexer SYSTEM '../../om/indexer/indexgraph/omindexer.dtd'>"
+	     "<omindexer>"
+	         "<node type='writetwice' id='wtwo'>"
+		      "<input name='in' node='START' out_name='out'/>"
+		 "</node>"
+	         "<node type='omsplitter' id='split'>"
+		      "<input name='in' node='wtwo' out_name='out'/>"
+		 "</node>"
+	         "<node type='readtwice' id='rtwo'>"
+		      "<input name='in' node='split' out_name='right'/>"
+		 "</node>"
+	         "<node type='omlistconcat' id='concat'>"
+		      "<input name='left' node='split' out_name='left'/>"
+		      "<input name='right' node='rtwo' out_name='out'/>"
+		 "</node>"
+	         "<output node='concat' out_name='out'/>"
+             "</omindexer>"));
+
+	indexer->set_input(OmIndexerMessage(new OmIndexerData(vector<OmIndexerData>())));
+	OmIndexerMessage result = indexer->get_raw_output();
+	if (verbose) {
+	    cerr << "got output: " << result << endl;
+	}
+    } catch (OmDataFlowError &) {
+	success = true;
+    }
+    return success;
 }
 
 // ##################################################################
@@ -45,6 +147,9 @@ bool test_basic1()
 
 /// The lists of tests to perform
 test_desc tests[] = {
+    {"basic1",		&test_basic1},
+    {"basic2",		&test_basic2},
+    {"flowcheck1",	&test_flowcheck1},
     {0, 0}
 };
 

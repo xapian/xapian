@@ -1,3 +1,20 @@
+Wed Oct 18 14:17:21 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added a debug class for indexer messages
+
+	* Some changes to the indexer semantics.  Inputs from a given node
+	  are all fetched at once, and some dataflow checking is done to
+	  detect potential errors where data gets out of step.
+
+	* Added a test that the above checking works to indextest.
+
+	* Added new exception: OmDataFlowError, used in the indexer.
+
+	* The START node gives slightly more helpful errors when misused.
+
+	* Added the indexer DTD to data_DATA (and renamed it to omindexer.dtd
+	  from test.dtd)
+
 Tue Oct 17 18:44:43 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* API Change: add error handlers.  This involves: adding an

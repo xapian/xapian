@@ -25,6 +25,7 @@
 
 #include "om/omindexer.h"
 #include "om/omindexernode.h"
+#include "om/omerror.h"
 #include "deleter_map.h"
 
 class OmIndexerStartNode;
@@ -58,15 +59,24 @@ class OmIndexerStartNode : public OmIndexerNode
 	void set_message(OmIndexerMessage msg) {
 	    //cout << "Setting message:" << msg << endl;
 	    message = msg;
+	    message_valid = true;
 	};
     private:
 	OmIndexerStartNode(const OmSettings &settings)
-		: OmIndexerNode(settings) {}
+		: OmIndexerNode(settings), message_valid(false) {}
 	void calculate() {
+	    if (!message_valid) {
+		throw OmInvalidArgumentError("Message read more than once from START!");
+	    }
+	    if (!message.get()) {
+		throw OmInvalidArgumentError("Message is null!");
+	    }
 	    set_output("out", message);
+	    message_valid = false;
 	}
 
 	OmIndexerMessage message;
+	bool message_valid;
 };
 
 #endif /* OM_HGUARD_OMINDEXERINTERNAL_H */

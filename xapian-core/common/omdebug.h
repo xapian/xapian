@@ -87,6 +87,10 @@ enum om_debug_types {
      */
     OM_DEBUG_DBLOCK,
 
+    /** A debug message in the indexing system
+     */
+    OM_DEBUG_INDEXER,
+
     /** A value equal to the number of known types.
      */
     OM_DEBUG_NUMTYPES
