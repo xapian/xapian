@@ -45,10 +45,10 @@ static OmWritableDatabase *db;
 
 class MyHtmlParser : public HtmlParser {
     public:
-    	string dump;
+    	string title, dump;
 	void process_text(const string &text);
 //	void opening_tag(const string &tag, const map<string,string> &p);
-//	void closing_tag(const string &tag);
+	void closing_tag(const string &tag);
 };
 
 void
@@ -56,6 +56,20 @@ MyHtmlParser::process_text(const string &text)
 {
     // some tags are meaningful mid-word so this is simplistic at best...
     dump += text + " ";
+}
+
+void
+MyHtmlParser::closing_tag(const string &text)
+{
+    string x = text;
+    lowercase_term(x); // ick
+    if (x == "title") {
+	title = dump;
+	// replace newlines with spaces
+	size_t i = 0;    
+	while ((i = title.find("\n", i)) != string::npos) title[i] = ' ';
+	dump = "";
+    }
 }
 
 static string root = "/home/httpd/html/open.muscat.com";
@@ -93,9 +107,14 @@ index_file(const string &file)
     // Make the document
     OmDocumentContents newdocument;
 
+    string sample = dump.substr(0, 300);
+    size_t space = sample.find_last_of(" \t\n");
+    if (space != string::npos) sample.erase(space);
+
     // Put the data in the document
-    newdocument.data = string("url=file:") + file + "\n"
-	+ string("sample=") + dump;
+    string record = "url=file:" + file + "\nsample=" + sample;
+    if (p.title != "") record = record +"\ncaption=" + p.title;
+    newdocument.data = record;
 
     size_t j;
     j = 0;

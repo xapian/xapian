@@ -69,7 +69,7 @@ char *fmtstr =
 "$html{$or{$filesize{$field{size}},unknown}}"
 "</b>\n"		       
 "Last modified: <b>$html{$or{$date{$field{modified}},unknown}}</b>\n"
-"<br>$percentage% relevant, matching: <i>$html{$list{$terms, ,</i> and <i>}}</i></small>\n"
+"<br>$percentage% relevant, matching: <i>$list{$html{$terms}, ,</i> and <i>}</i></small>\n"
 "</TD></TR>\n";
 
 char *pagefmtstr =
@@ -110,7 +110,7 @@ char *pagefmtstr =
 //\PAGES.G
 // FIXME: what if multiple DB parameters?
 "$if{$cgi{DB},<INPUT TYPE=hidden NAME=DB VALUE=\"$html{$cgi{DB}}\">}\n"
-"$if{$topdoc,<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>}\n"
+"$ifeq{$topdoc,0,<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>}\n"
 "$ifneq{$maxhits,10,<INPUT TYPE=hidden NAME=MAXHITS VALUE=$maxhits>}\n"
 "$if{$fmt,<INPUT TYPE=hidden NAME=FMT VALUE=\"$html{$fmt}\">}\n"
 "$list{$queryterms,<INPUT TYPE=hidden NAME=OLDP VALUE=\",.,.\">}\n"
@@ -888,13 +888,10 @@ eval(const string &fmt)
 		break;
 	    }
 	    if (var == "topdoc") {
-		// first document on current page of hit list
-		// (counting from 0) or empty if on first page
-		if (topdoc != 0) {
-		    sprintf(tmp, "%u", topdoc);
-		    value = tmp;
-		}
+		// first document on current page of hit list (counting from 0)
 		ok = true;
+		sprintf(tmp, "%u", topdoc);
+		value = tmp;
 		break;
 	    }
 	    if (var == "topterms") {

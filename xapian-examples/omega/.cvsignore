@@ -1,6 +1,7 @@
 .*.swp
 *.lo
 omega
+omindex
 Makefile.in
 Makefile
 .deps

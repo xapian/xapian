@@ -1,4 +1,5 @@
 #include <htmlparse.h>
+#include <stdio.h>
 
 void
 HtmlParser::parse_html(const string &body)
@@ -24,7 +25,46 @@ HtmlParser::parse_html(const string &body)
 
 
 	// process text up to start of tag
-	if (p > start) process_text(body.substr(start, p - start));
+	if (p > start) {
+	    string text = body.substr(start, p - start);
+	    size_t amp = 0;
+	    while ((amp = text.find('&', amp)) != string::npos) {
+		int val = 0;
+		string::size_type end;
+		size_t p = amp + 1;
+		if (p < text.size() && text[p] == '#') {
+		    p++;
+		    if (p < text.size() && tolower(text[p]) == 'x') {
+			// hex
+			p++;
+			end = text.find_first_not_of("ABCDEFabcdef"
+						     "0123456789", p);
+			sscanf(text.substr(p, end - p).c_str(), "%x", &val);
+		    } else {
+			// number
+			end = text.find_first_not_of("0123456789", p);
+			val = atoi(text.substr(p, end - p).c_str());
+		    }
+		} else {
+		    end = text.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+						 "abcdefghijklmnopqrstuvwxyz"
+						 "0123456789", p);
+		    string code = text.substr(p, end - p);
+		    if (code == "amp") val = '&';
+		    else if (code == "lt") val = '<';
+		    else if (code == "gt") val = '>';
+		    else if (code == "nbsp") val = '\xa0';
+		}
+		if (end < text.size() && text[end] == ';') end++;
+		if (val) {
+		    text.replace(amp, end - amp, char(val));
+		    amp += 1;
+		} else {
+		    amp = end;
+		}
+	    }
+	    process_text(text);
+	}
 
 	if (p == body.size()) break;
 
