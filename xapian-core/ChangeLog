@@ -1,3 +1,7 @@
+Thu May 13 12:09:19 BST 2004  Olly Betts <olly@survex.com>
+
+	* docs/quartzdesign.html: "interger" -> "integer".
+
 Thu May 13 11:20:44 BST 2004  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Removed bogus extra line added by last change.
