@@ -2124,9 +2124,9 @@ Btree::check(const string & name, const string & opt_string)
 	printf("\n\n");
     }
 
-    if (B.faked_root_block)
-	printf("void ");
-    else {
+    if (B.faked_root_block) {
+	if (opts) printf("void ");
+    } else {
 	B.block_check(C, B.level, opts);
 
 	/* the bit map should now be entirely clear: */
@@ -2135,5 +2135,5 @@ Btree::check(const string & name, const string & opt_string)
 	    failure(100);
 	}
     }
-    printf("B-tree checked okay\n");
+    if (opts) printf("B-tree checked okay\n");
 }

@@ -1,3 +1,9 @@
+Tue Nov 26 05:47:32 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Suppress all output from a successful
+	  Btree::Check() is no options are specified, so that btreetest
+	  generates clean output when all tests pass.
+
 Tue Nov 19 02:08:30 GMT 2002  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated.
