@@ -10,7 +10,7 @@ noinst_HEADERS = da_database.h daread.h database.h match.h mergedpostlist.h \
 bin_PROGRAMS = dbtest matchtest idxtest stemtest
 
 ACCESS_PROTO = proto_database.cc proto_db.c
-ACCESS_DA = da_database.cc trial.cc
+ACCESS_DA = da_database.cc daread.c
 
 STEMMER_SRC = stem.c stem_en.cc
 

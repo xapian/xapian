@@ -141,7 +141,7 @@ PostList * DADatabase::open_post_list(termid id)
     name.copy((char*)(k + 1), len);
 
     struct terminfo ti;
-    int found = DAterm(k, 0, &ti, DA_t);
+    int found = DAterm(k, &ti, DA_t);
 
     if(found == 0) throw RangeError("Termid not found");
 
