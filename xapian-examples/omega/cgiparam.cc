@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 James Aylett
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,9 +44,13 @@ add_param(string name, string val)
 	if (name[i - 1] == 'x')
 	    name = name.substr(0, i - 2);
     }
+    // SJA: we don't do this, because we want to use IMAGE buttons
+    // not just SUBMIT. With them, we don't get NAME=VALUE, only
+    // VALUE.x=FOO and VALUE.y=BAR (the latter of which we discard).
+    // See omega.cc for the other side of this hairyness.
     // Truncate at first space - convert `[ page two ]=2' into `[=2'
-    i = name.find(' ');
-    if (i != string::npos) name = name.substr(0, i);
+//    i = name.find(' ');
+//    if (i != string::npos) name = name.substr(0, i);
     cgi_params.insert(make_pair(name, val));
 }
 

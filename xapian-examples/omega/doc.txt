@@ -10,11 +10,6 @@ For handling of <input type=image ...>:
 <param>.x=<value> is converted to <param>=<value>
 <param>.y=<value> is ignored
 
-A parameter name with a space in is truncated at the space (this allows nice
-"tool tips" for the page image buttons - Netscape uses the name parameter of
-an "<input type=image ...>" as the tooltip so the select page image buttons
-have name "[ 3 ]" and value "3" which converts to name "[" and value "3"):
-
 <prespace> <postspace>=<value> is converted to <prespace>=<value>
 
 If applicable, the second conversion is applied to the result of the first.
@@ -52,6 +47,12 @@ TOPDOC - first document to display (snapped to multiple of HITSPERPAGE).
 > - next page.
 
 [ - goto this page (trailing junk after number ignored).
+
+If this parameter doesn't exist, a parameter starting with '[' will
+have the next part of the parameter name treated as the number of the
+page to jump to. This means that <input type='image' .../> forms
+buttons can have names of the form '[ 3 ]', which looks nice in lynx,
+for tooltips, and so on.
 
 R - relevant document (multiple values separated by ".")
 
@@ -96,9 +97,9 @@ If "LIST" is 1, 2, 3, 4 then:
 "$list{LIST,List ,$. , and ,.}" = "List 1, 2, 3 and 4."
 NB $list returns an empty string for an empty list (so the last two forms
 aren't redundant as it may at first appear).
-$map{LIST,...) - map a list into the arguments
+$map{LIST,STUFF) - map a list into the evaluated argument.
 If "LIST" is 1, 2, 3, 4 then:
-"$map{LIST,x, = ,; }" = "x1 = 1; x2 = 2; x3 = 3; x4 = 4; "
+"$map{LIST,x$_ = $_; }" = "x1 = 1; x2 = 2; x3 = 3; x4 = 4; "
 $max{...} - maximum of the arguments
 $min{...} - minimum of the arguments
 $msize - estimated number of matches
