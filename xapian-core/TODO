@@ -59,6 +59,7 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
          |                 | Write tests for collapse M.
 ---------+-----------------+--------------------------------------------------
+ Medium  |                 | Write get_matching_terms method for OmEnquire.
 
 
 Middle term
