@@ -1,3 +1,7 @@
+Tue Sep 07 02:33:50 BST 2004  Olly Betts <olly@survex.com>
+
+	* tests/test.da: Another cruft file removed.
+
 Tue Sep 07 02:21:49 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/btreetest.cc,tests/quartztest.cc: Moved overwrite1 from
