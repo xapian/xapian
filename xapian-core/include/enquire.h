@@ -1,4 +1,4 @@
-/* om.h: Include all externally visible parts of om
+/* enquire.h
  *
  * ----START-LICENCE----
  * Copyright 1999 Dialog Corporation
@@ -20,24 +20,26 @@
  * -----END-LICENCE-----
  */
 
-#ifndef _om_h_
-#define _om_h_
+#ifndef _enquire_h_
+#define _enquire_h_
 
-/* Types and exceptions */
-#include "omtypes.h"
-#include "omerror.h"
-
-/* Data access */
-#include "database.h"
-#include "database_builder.h"
-#include "irdocument.h"
-
-/* Searching */
+// Include these for now, but later they will be hidden.
 #include "match.h"
 #include "expand.h"
 #include "stem.h"
 #include "rset.h"
 
-/* Indexing */
+// This class provides an interface to the information retrieval
+// system for the purpose of searching.
 
-#endif /* _om_h_ */
+class Enquire {
+    private:
+    public:
+        Enquire();
+        ~Enquire();
+
+	// Methods to:
+	// Open a database
+};
+
+#endif /* _enquire_h_ */
