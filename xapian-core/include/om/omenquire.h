@@ -241,7 +241,7 @@ class OmMatchDecider {
 	 *  Note: The parameters of this method are extremely likely to change
 	 *  in the near future.
 	 */
-	virtual int operator()(OmDocument *doc) const = 0;
+	virtual int operator()(const OmDocument *doc) const = 0;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -563,10 +563,11 @@ class OmEnquire {
 			const OmExpandDecider * edecider = 0) const;
 
 
-	/** @memo Get the document data by document id.
+	/** @memo Get the document info by document id.
 	 *
-	 *  @doc This method returns the data associated with the given
-	 *  document.
+	 *  @doc This method returns a pointer to an OmDocument object
+	 *  which provides the information about a document.  The caller
+	 *  must delete this object when finished.
 	 *
 	 *  It is possible for the document to have been removed from the
 	 *  database between the time it is returned in an mset, and the
@@ -580,19 +581,21 @@ class OmEnquire {
 	 *
 	 *  @param did   The document id for which to retrieve the data.
 	 *
-	 *  @return      An OmData object containing the document data.
+	 *  @return      A pointer to an OmDocument object containing the
+	 *  document data, which must be deleted by the caller.
 	 *
 	 *  @exception OmInvalidArgumentError  See class documentation.
 	 *  @exception OmOpeningError          See class documentation.
 	 *  @exception OmDocNotFoundError      The document specified could not
 	 *                                     be found in the database.
 	 */
-	OmData get_doc_data(om_docid did) const;
+	const OmDocument *get_doc(om_docid did) const;
 
-	/** @memo Get the document data by match set item.
+	/** @memo Get the document info by match set item.
 	 *
-	 *  @doc This method returns the data associated with the given
-	 *  document.
+	 *  @doc This method returns a pointer to an OmDocument object
+	 *  which provides the information about a document.  The caller
+	 *  must delete this object when finished.
 	 *
 	 *  If the underlying database has suitable support, using this call
 	 *  (rather than passing an om_docid) will enable the system to
@@ -601,14 +604,15 @@ class OmEnquire {
 	 *
 	 *  @param mitem   The item for which to retrieve the data.
 	 *
-	 *  @return      An OmData object containing the document data.
+	 *  @return      A pointer to an OmDocument object containing the
+	 *  document data, which must be deleted by the caller.
 	 *
 	 *  @exception OmInvalidArgumentError  See class documentation.
 	 *  @exception OmOpeningError          See class documentation.
 	 *  @exception OmDocNotFoundError  The document specified could not
 	 *  be found in the database.
 	 */
-	OmData get_doc_data(const OmMSetItem &mitem) const;
+	const OmDocument *get_doc(const OmMSetItem &mitem) const;
 
 
 	/** @memo Get terms which match a given document, by document id.

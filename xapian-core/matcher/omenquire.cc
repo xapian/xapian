@@ -706,19 +706,19 @@ OmEnquire::get_eset(om_termcount maxitems,
     return retval;
 }
 
-OmData
-OmEnquire::get_doc_data(om_docid did) const
+const OmDocument *
+OmEnquire::get_doc(om_docid did) const
 {
     internal->open_database();
     OmDocument *doc = internal->database->open_document(did);
-    return doc->get_data();
+    return doc;
 }
 
-OmData
-OmEnquire::get_doc_data(const OmMSetItem &mitem) const
+const OmDocument *
+OmEnquire::get_doc(const OmMSetItem &mitem) const
 {
     internal->open_database();
-    return get_doc_data(mitem.did);
+    return get_doc(mitem.did);
 }
 
 om_termname_list
