@@ -757,11 +757,11 @@ static bool test_cursor2()
     disktable1.open();
     QuartzBufferedTable bufftable1(&disktable1);
 
-    std::string key1 = "pada";
-    std::string tag1 = string(2033, '\x00');
-    std::string key2 = "padc";
+    std::string key1 = "a";
+    std::string tag1 = string(2036, '\x00');
+    std::string key2 = "c";
     std::string tag2 = "bar2";
-    std::string searchkey = "padb";
+    std::string searchkey = "b";
 
     key.value = key1;
     bufftable1.get_or_make_tag(key)->value = tag1;
