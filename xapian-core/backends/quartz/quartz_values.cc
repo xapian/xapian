@@ -47,7 +47,8 @@ QuartzValueManager::unpack_entry(const char ** pos,
 				 Xapian::valueno * this_value_no,
 				 string & this_value)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzValueManager::unpack_entry", pos << ", " << end << ", " << this_value_no << ", " << this_value);
+    DEBUGCALL_STATIC(DB, void, "QuartzValueManager::unpack_entry",
+		     "[pos], [end], " << this_value_no << ", " << this_value);
     if (!unpack_uint(pos, end, this_value_no)) {
 	if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete item in value table");
 	else throw Xapian::RangeError("Value number in value table is too large");
