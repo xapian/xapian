@@ -1,3 +1,7 @@
+Mon Apr 12 00:31:15 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated for 0.8.0.
+
 Sun Apr 11 21:18:47 BST 2004  Olly Betts <olly@survex.com>
 
 	* extra/queryparser.yy,extra/queryparsertest.cc: Don't use a raw term

@@ -1,7 +1,4 @@
-Xapian 0.8.0 (2004-04-0?):
-
-Includes ChangeLog entries up to:
-Mon Apr 05 17:21:06 BST 2004  Olly Betts <olly@survex.com>
+Xapian 0.8.0 (2004-04-12):
 
 * Omega, xapian-examples and xapian-bindings now have their own NEWS files.
 
@@ -22,8 +19,11 @@ API:
 * Renamed Xapian::Document::add_term_nopos to Xapian::Document::add_term
   (with forwarding wrapper method for compatibility with existing code).
 
-* include/xapian/base.h: Assigning a normal pointer to a RefCntPtr no
-  longer creates a temporary RefCntPtr from it, saving a few cycles.
+* The reference counting mechanism used by most API classes now handles
+  creating a new object slightly more efficiently.
+
+* Xapian::QueryParser: Don't use a raw term for a term which starts with a
+  digit.
 
 testsuite:
 
@@ -46,43 +46,29 @@ quartz backend:
   This change is backward compatible (0.7 database will work with 0.8, but
   databases built or updated with 0.8 won't work with 0.7).
 
-* Removed OLD_TERMLIST_FORMAT code - it has been disabled for since 0.6.0.
-
 * quartzcheck: Check the structure within the postlist Btree as well as
   the Btree structures themselves.
 
-* backends/quartz/btree.cc,backends/quartz/btree.h,
-  testsuite/btreecheck.cc: Made some static functions into static
-  member functions of Btree so we can avoid duplicating code in
-  btreecheck.cc.  Also tweaked compare_keys to use memcmp and
-  special case when the keys are the same length (each of these
-  changes gives a very small speed gain).
+* Reduced code duplication in the btree manager and btreechecking code.
 
-* bin/quartzdump.cc: Backslash escape space and backslash in output
-  rather than hex encoding them; renamed start-term and end-term to
-  start-key and end-key; removed rather pointless "Calling next"
-  message; if there's an error, write it to stderr not stdout, and
-  exit with return code 1.
+* quartzdump: Backslash escape space and backslash in output rather than hex
+  encoding them; renamed start-term and end-term to start-key and end-key;
+  removed rather pointless "Calling next" message; if there's an error, write
+  it to stderr not stdout, and exit with return code 1.
 
-* backends/quartz/quartz_utils.h: Updated explanation of string encoding.
+* Corrected a number of comments in the source.
 
-* backends/quartz/quartz_values.cc: Fixed problem with dereferencing
-  a pointer to the end of a string in debug output.
+* Removed several needless inclusions of quartz_table_entries.h.
 
-* backends/quartz/quartz_postlist.cc,backends/quartz/quartz_postlist.h,
-  tests/quartztest.cc: Subsumed QuartzPostList::add_entry and
-  QuartzPostList::delete_entry into QuartzPostList::merge_changes.
-
-* backends/quartz/quartz_postlist.h, backends/quartz/quartz_table_entries.h:
-  Fixed typos and incorrect comments.
-
-* backends/quartz/: Removed several needless inclusions of
-  quartz_table_entries.h.
+* Removed OLD_TERMLIST_FORMAT code - it has been disabled for since 0.6.0.
 
 * Removed all the quartz lexicon code and docs.  It's been disabled for ages,
   and we've not missed it.
 
 build system:
+
+* XO_LIB_XAPIAN autoconf macro can now be called without arguments in the
+  common case where you want the test to fail if Xapian isn't found.
 
 * Fixed the configure test for valgrind - it wasn't working correctly when
   valgrind was installed but was too a version to support VALGRIND_COUNT_ERRORS
@@ -90,12 +76,12 @@ build system:
 
 * GCC 2.95 supported -Wno-long-long and is our minimum recommended version, so
   unconditionally use -Wno-long-long with GCC, and don't test for it on other
-  compilers (the test incorrectly decided to use it with SGI's compiler
+  compilers (the old test incorrectly decided to use it with SGI's compiler
   resulting in a warning for every file compiled).
 
 documentation:
 
-* docs/: Updated the quickstart tutorial and removed the warning that "this
+* Updated the quickstart tutorial and removed the warning that "this
   document isn't up to date".
 
 * docs/intro_ir.html: Added a link to "Information Retrieval" by Keith van
@@ -105,18 +91,19 @@ documentation:
 
 * HACKING: XAPIAN_DEBUG_TYPES should be XAPIAN_DEBUG_FLAGS.
 
-* HACKING: Update to mention that building from CVS requires 
+* HACKING: Updated to mention that building from CVS requires 
   `./configure --enable-maintainer-mode' (or use bootstrap).
 
 * docs/quartzdesign.html: Some minor improvements.
 
-* docs/matcherdesign.html: Merged in more details from a message I sent to the
+* docs/matcherdesign.html: Merged in more details from a message sent to the
   mailing list.
 
 * docs/queryparser.html: Grammar fixes.
 
 * Doxygen wasn't picking up the documentation for PostingIterator and
-  PositionListIterator - fixed.
+  PositionListIterator - fixed.  Added doxygen comments for Xapian::Stopper
+  and Xapian::QueryParser.
 
 portability:
 
@@ -127,7 +114,7 @@ portability:
 * NetBSD mkdir() doesn't cope with a trailing / on the path - fixed our code to
   cope with this.
 
-* mingw/cygwin: Only use O_SYNC (on the debug log) if we have it.
+* mingw/cygwin: Only use O_SYNC (on the debug log) if the headers define it.
 
 * backends/quartz/quartz_table_manager.cc: Fix for building on mingw.
 
@@ -145,13 +132,19 @@ portability:
 * backends/quartz/quartz_termlist.cc: Use Xapian::doccount instead of
   unsigned int in set_entries().
 
-* backends/database.cc: Database::Internal::Internal::keep_alive()
-  should be Database::Internal::keep_alive().
+* Database::Internal::Internal::keep_alive() should be
+  Database::Internal::keep_alive().
+
+* Make Xapian::Weight::Weight() protected rather than private as we want to be
+  able to call it from derived classes (GCC 3.4 flags this, other compilers
+  seem to miss it).
 
 debug code:
 
-* common/omdebug.cc: Open debug log with flag O_WRONLY so that we can
-  actually write to it!
+* Open debug log with flag O_WRONLY so that we can actually write to it!
+
+* backends/quartz/quartz_values.cc: Fixed problem with dereferencing
+  a pointer to the end of a string in debug output.
 
 Xapian 0.7.5 (2003-11-26):
 
