@@ -75,9 +75,8 @@ static unsigned int decode_version(const string &s)
 void QuartzMetaFile::open()
 {
     int fd = sys_open_to_read(filename);
-    fdcloser fdc(fd);
-
     string data = sys_read_all_bytes(fd, min_metafile_size + 1);
+    sys_close(fd);
 
     if (data.length() < min_metafile_size) {
 	throw Xapian::DatabaseCorruptError("Quartz metafile " + filename +
@@ -105,15 +104,12 @@ void QuartzMetaFile::open()
 
 void QuartzMetaFile::create()
 {
-    int fd = sys_open_to_write(filename);
-
-    fdcloser fdc(fd);
-
     string data = metafile_magic;
-
     data += encode_version(metafile_version);
 
+    int fd = sys_open_to_write(filename);
     sys_write_string(fd, data);
+    sys_close(fd);
 }
 
 void QuartzMetaFile::erase()
