@@ -1,3 +1,10 @@
+Fri Feb 18 03:05:40 GMT 2005  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Made full compaction a tiny bit more
+	  compact.  Improved compaction by a few % in non-full case.
+	  Tighter bound on amount of memory to reserve to read the tag
+	  into.
+
 Fri Feb 18 00:47:41 GMT 2005  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc: Removed duplicate "#include <xapian/enquire.h>".

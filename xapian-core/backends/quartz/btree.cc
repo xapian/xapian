@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,7 +31,9 @@
 //
 // Despite the risks, it's useful for speeding up a full rebuild.
 //
-// FIXME: make this mode run-time selectable.
+// FIXME: make this mode run-time selectable, and record that it is currently
+// in use somewhere on disk, so readers can check and refuse to open the
+// database.
 //
 // #define DANGEROUS
 
@@ -1098,17 +1100,26 @@ Btree::add(const string &key, string tag)
     const size_t L = max_item_size - cd; // largest amount of tag data for any chunk
     size_t first_L = L;                  // - amount for tag1
     bool found = find(C);
-    if (!found && full_compaction) {
+    if (!found) {
 	byte * p = C[0].p;
-	int n = TOTAL_FREE(p) % (max_item_size + D2) - D2 - cd;
-	if (n > 0) {
-	    // We shouldn't always cram a few bytes in, if that means we need
-	    // more items we need to store an extra key so the total space
-	    // required might actually increase!  So we need to check this.
+	size_t n = TOTAL_FREE(p) % (max_item_size + D2);
+	if (n > D2 + cd) {
+	    n -= (D2 + cd);
+	    // if n >= last then fully filling this block won't produce
+	    // an extra item, so we might as well do this even if
+	    // full_compaction isn't active.
 	    //
-	    // n >= first_L Fully filling this block won't produce an extra item
-	    // n > cd We save more space than the extra item's space overhead
-	    if (size_t(n) >= first_L || size_t(n) > cd + D2) first_L = n;
+	    // In the full_compaction case, it turns out we shouldn't always
+	    // try to fill every last byte.  Doing so can actually increase the
+	    // total space required (I believe this effect is due to longer
+	    // dividing keys being required in the index blocks).  Empirically,
+	    // n >= key.size() + K appears a good criterion for K ~= 34.  This
+	    // seems to save about 0.2% in total database size over always
+	    // splitting the tag.  It'll also give be slightly faster retrieval
+	    // as we can avoid reading an extra block occasionally.
+	    size_t last = tag.length() % L;
+	    if (n >= last || (full_compaction && n >= key.size() + 34))
+		first_L = n;
 	}
     }
 
@@ -1222,7 +1233,9 @@ Btree::read_tag(Cursor * C_, string *tag) const
     int n = item.components_of();
 
     tag->resize(0);
-    if (n > 1) tag->reserve(max_item_size * n);
+    // max_item_size also includes K1 + I2 + C2 + C2 bytes overhead and the key
+    // (which is at least 1 byte long).
+    if (n > 1) tag->reserve((max_item_size - (1 + K1 + I2 + C2 + C2)) * n);
 
     item.append_chunk(tag);
 
