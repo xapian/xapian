@@ -37,9 +37,12 @@ QuartzPositionList::read_data(const QuartzTable * table,
     QuartzDbTag tag;
     make_key(did, tname, key);
     if (!table->get_exact_entry(key, tag)) {
-	throw OmDocNotFoundError("Position list for term " + tname +
-				 " in document " + om_tostring(did) +
-				 " not present in database.");
+	// This isn't an error, since position list not be present simply
+	// implies that there is no positional information available.
+	data = "";
+	pos = data.data();
+	end = pos;
+	return;
     }
 
     // FIXME: Unwanted copy

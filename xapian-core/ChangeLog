@@ -1,3 +1,11 @@
+Thu Mar 15 15:31:35 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* QuartzPositionList should no longer complain if positional
+	  information isn't available for a particular term / document
+	  combination.
+
+	* Updated todo.
+
 Thu Mar 15 13:55:53 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Removed OmDocument::set_wdf() and OmDocument::add_term().

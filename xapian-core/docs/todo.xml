@@ -41,14 +41,6 @@ Check for zero byte cleanness wherever strings are used.  There are a lot
 of c_str()s in the code...
 
 </todoitem>
-<todoitem priority="M" difficulty="1" owner="" area="Indexer" release="1.0">
-
-Check that the interface used by OmDocument isn't causing great
-inefficiency (vis, problems reported by Andy of large document adds taking
-a great deal of time).  add_posting should be replaced by something which
-takes a chunk of documents, perhaps?
-
-</todoitem>
 <todoitem priority="M" difficulty="1" owner="" area="Iterators" release="">
 
 Write tests for copying term and postlist iterators.
