@@ -46,13 +46,9 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Low     | Backends        | Use pthread locks around database methods
 ---------+-----------------+--------------------------------------------------
- Low     | Matcher         | Test implementation of BM25 weight
----------+-----------------+--------------------------------------------------
  Low     | Website         | Put TeX documentation on website.
 ---------+-----------------+--------------------------------------------------
  Low     | Documentation   | Merge output of mkdoc.pl with doc++ output. 
----------+-----------------+--------------------------------------------------
- Low     |cAPI             | Add query batch (as wrapper for now)
 ---------+-----------------+--------------------------------------------------
  Low     | Backends        | Stop d[ba]read from exporting junk symbols
 ---------+-----------------+--------------------------------------------------
