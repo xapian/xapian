@@ -22,3 +22,5 @@ extern DADatabase database;
 extern Match *matcher;
 
 extern map<string, string> option;
+
+extern const string default_db_name;

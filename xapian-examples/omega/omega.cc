@@ -43,6 +43,8 @@ map<string, string> option;
 static int ssi=0;
 #endif
 
+const string default_db_name = "ompf";
+
 static string map_dbname_to_dir(const string &db_name);
 
 static void make_log_entry( const char *action, long matches );
@@ -164,73 +166,17 @@ int main(int argc, char *argv[]) {
     /* 1997-01-23 added so you can find the version of a given FX easily */
     method = getenv("REQUEST_METHOD");
     if (method == NULL) {
-       /* Seems we're running from the command line so print a version number and stop */
-       puts( "FX "FX_VERSION_STRING" (Actually compiled "__DATE__" "__TIME__")\n"
-	     "Options:"
-/* this list probably needs pruning */
-#ifdef SHAREWARE
-	    " FREEWARE"
-#endif
-#ifdef CHEAPWARE
-	    " 6DBLIMIT"
-#endif
-#ifdef LOGGING
-	    " LOGGING"
-#endif
-#ifdef BIGENDER
-	    " BIGENDER"
-#endif
-#ifdef TRACINGFULL
-	    " TRACINGFULL"
-#endif
-#ifdef UNIX
-	    " UNIX"
-#endif
-#ifdef OS2
-	    " OS2"
-#endif
-#ifdef WIN32
-	    " WIN32"
-#endif
-#ifdef SUNOS
-	    " SUNOS"
-#endif
-#ifdef DOS
-	    " DOS"
-#endif
-#ifdef SOLARIS2
-	    " SOLARIS2"
-#endif
-#ifdef DEBUGMUS
-	    " DEBUGMUS"
-#endif
-#ifdef COMPILED
-	    " COMPILED"
-# ifndef CMAIN
-	    " (newstyle)"
-# endif
-#endif
-#ifdef NO_CONTENTTYPE
-/* Stops the output of 'content-type: text/html\n\n' */
-	    " NO_CONTENTTYPE"
-#endif
-#ifdef WEBCD /* Constrains FX to look at one database name only ('1') */
-             /* and sets DB_LIMIT to a given number which should be */
-	     /* changed for each CD. This is not used at the moment, */
-	     /* but should be in the future. */
-	    " WEBCD"
-#endif
-	    );
-
-       puts("Enter NAME=VALUE lines, end with blank line");
+	/* Seems we're running from the command line so print a version number and stop */
+	cout << "ompf "FX_VERSION_STRING" (compiled "__DATE__" "__TIME__")\n"
+	        "Enter NAME=VALUE lines, end with blank line\n";
     }
 
     /* Was for XITAMI (used on WebCD), but newer versions behave better */
 #ifndef NO_CONTENTTYPE
 #ifdef META
-    printf("Content-type: text/plain\n\n");
+    cout << "Content-type: text/plain\n\n";
 #else
-    printf("Content-type: text/html\n\n");
+    cout << "Content-type: text/html\n\n";
 #endif
 #endif
     
@@ -251,13 +197,13 @@ int main(int argc, char *argv[]) {
 
     /* FIXME - ick */
     if (topdoc >= 1000) {
-       puts("Sorry, only the first 1000 matches are accessible at present");
-       exit(0);
+	cout << "Sorry, only the first 1000 matches are accessible at present";
+	exit(0);
     }
 
     /*** get database name ***/
     db_name = GetEntry("DB");
-    if (db_name == NULL) db_name = "ompf";
+    if (db_name == NULL) db_name = default_db_name.c_str();
 #ifdef META
     ssi = 0;
 #else
@@ -269,11 +215,14 @@ int main(int argc, char *argv[]) {
     db_dir = map_dbname_to_dir(db_name);
 
     if (chdir(db_dir.c_str()) == -1) {
-       /* if we can't cd there, odds are it's not a database */
-       printf( "<HTML><HEAD><TITLE>Database '%s' not found</TITLE></HEAD>"
-	       "<BODY BGCOLOR=white><H3>Database '%s' not found (or not readable)</H3>\n"
-	       "</BODY></HTML>", db_name, db_name );
-       exit(0);
+	// if we can't cd there, odds are it's not a database
+	cout << "<HTML><HEAD>"
+	        "<TITLE>Database '" << db_name << "' not found</TITLE></HEAD>"
+	        "<BODY BGCOLOR=white>"
+	        "<H3>Database '" << db_name << "' not found "
+	        "(or not readable)</H3>\n"
+	        "</BODY></HTML>";
+	exit(0);
     }
 
     // read t/vars
@@ -313,9 +262,8 @@ int main(int argc, char *argv[]) {
 	      if (!fgets(dlistbuf, 256, f)) break;
 	      /* da recs /netapp/ferret-data/data-912508010/R terms /netapp/ferret-data/data-912508010/T */
 	      if (strncmp(dlistbuf, "da recs ", 8) == 0) {
-		 char *p = strstr(dlistbuf + 8, "/data-");
-		 if (p) dlist[n_dlist++] = atoi(p + 6);
-		 /* printf("<!-- %s %d -->\n", dlistbuf, dlist[n_dlist-1]); */
+		  char *p = strstr(dlistbuf + 8, "/data-");
+		  if (p) dlist[n_dlist++] = atoi(p + 6);
 	      }
 	   }
 	   fclose(f);
@@ -374,8 +322,8 @@ int main(int argc, char *argv[]) {
     if ((val = GetEntry("IDSPISPOPD")) != NULL) {
        int doc = atol(val);
 
-       printf("<b>Clunk<b> ... <i>god mode engaged!</i><hr>\n"
-	      "Raw record #%d:<br>\n", doc);
+	cout << "<b>Clunk<b> ... <i>god mode engaged!</i><hr>\n"
+	        "Raw record #" << doc << ":<br>\n";
       
        Give_Muscat("set p to d d (a) x s + g0;");
        Ignore_Muscat();
@@ -388,39 +336,39 @@ int main(int argc, char *argv[]) {
 	     unsigned char *p = z.p + 2;
 	     int ch;
 	     while ((ch = *p++) != '\0') {
-		switch (ch) {
-		 case '<':
-		   fputs("&lt;", stdout);
-		   break;
-		 case '>':
-		   fputs("&gt;", stdout);
-		   break;
-		 case '&':
-		   fputs("&amp;", stdout);
-		   break;
-		 case '\t':
-		   fputs("\\t", stdout);
-		   break;
-		 case '\r':
-		   fputs("\\r", stdout);
-		   break;
-		 case '\b':
-		   fputs("\\b", stdout);
-		   break;		   
-		 default:
-		   if (ch < 32 || ch >= 127) {
-		      printf("\\x%02x", ch);
-		   } else {
-		      putchar(ch);
-		   }
-		   break;
+		  switch (ch) {
+		   case '<':
+		      cout << "&lt;";
+		      break;
+		   case '>':
+		      cout << "&gt;";
+		      break;
+		   case '&':
+		      cout << "&amp;";
+		      break;
+		   case '\t':
+		      cout << "\\t";
+		      break;
+		   case '\r':
+		      cout << "\\r";
+		      break;
+		   case '\b':
+		      cout << "\\b";
+		      break;		   
+		   default:
+		      if (ch < 32 || ch >= 127) {
+			  printf("\\x%02x", ch);
+		      } else {
+			  putchar(ch);
+		      }
+		      break;
 		}
 	     }
-	     fputs("<br>\n", stdout);
+	     cout << "<br>\n";
 	  }
        }
        
-       fputs("<hr>\nTerms indexing this record<br>\n"
+	cout "<hr>\nTerms indexing this record<br>\n"
 	     "<table><tr><th>Term</th><th>Freq</th></tr>\n"
 	     "<FORM NAME=P METHOD=GET ACTION=\"/\">\n"
 	     "<NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>\n"
@@ -430,96 +378,95 @@ int main(int argc, char *argv[]) {
 	     "</SCRIPT>\n"
 	     "<INPUT ALIGN=middle TYPE=image HEIGHT=56 WIDTH=56 BORDER=0 "
 	     "SRC=\"http://www.euroferret.com/fx-gif/find.gif\" "
-	     "VALUE=Find>\n",
-	     stdout);
+	     "VALUE=Find>\n";
 
-       printf("<INPUT TYPE=hidden NAME=DB VALUE=%s>\n", db_name);
+	cout << "<INPUT TYPE=hidden NAME=DB VALUE=" << db_name << ">\n";
 
        Give_Muscatf("tof %ld style f", doc);
        while (!Getfrom_Muscat (&z)) {
 	  check_error(&z);
 	  if (z.p[0] == 'I') {
-	     unsigned char *p;
-	     int ch;
-	     int freq = strtol(z.p + 2, &p, 10);
+	      unsigned char *p;
+	      int ch;
+	      int freq = strtol(z.p + 2, &p, 10);
 	     
-	     while (*p == ' ') p++;
+	      while (*p == ' ') p++;
 	     
-	     fputs("<tr><td>", stdout);
-	     if (isupper(*p)) {
-		printf("<input type=checkbox name=B value=\"%s\">", p);
-	     } else if (strchr(p, ' ')) {
-		printf("<input type=checkbox name=X onclick=C(this) "
-		       "value=\"&quot;%s&quot;\">", p);
-	     } else {
-		printf("<input type=checkbox name=X onclick=C(this) "
-		       "value=\"%s.\">", p);
-	     }
-	     printf(" <A HREF=\"/?DB=%s&", db_name);
-	     if (isupper(*p)) {
-		printf("B=%s\">", p);
-	     } else if (strchr(p, ' ')) {
-		char *q = p;
-		fputs("P=%22", stdout);
-		while (*q) {
-		   if (*q == ' ')
-		      putchar('+');
-		   else
-		      putchar(*q);
-		   q++;
-		}
-		fputs("%22\">", stdout);
-	     } else {
-		char *q = p;
-		fputs("P=", stdout);
-		while (*q) {
-		   if (*q == '+')
-		      fputs("%2b", stdout);
-		   else if (*q == '&')
-		      fputs("%26", stdout);
-		   else
-		      putchar(*q);
-		   q++;
-		}
-		fputs(".\">", stdout);
-	     }
+	      cout << "<tr><td>";
+	      if (isupper(*p)) {
+		  cout << "<input type=checkbox name=B value=\"" << p << "\">";
+	      } else if (strchr(p, ' ')) {
+		  cout << "<input type=checkbox name=X onclick=C(this) "
+		          "value=\"&quot;" << p << "&quot;\">";
+	      } else {
+		  cout << "<input type=checkbox name=X onclick=C(this) "
+		          "value=\"" << p << ".\">";
+	      }
+	      cout << " <A HREF=\"/?DB=" << db_name << "&";
+	      if (isupper(*p)) {
+		  cout << "B=" << p << "\">";
+	      } else if (strchr(p, ' ')) {
+		  char *q = p;
+		  cout << "P=%22";
+		  while (*q) {
+		      if (*q == ' ')
+			  cout << '+';
+		      else
+			  cout << *q;
+		      q++;
+		  }
+		  cout << "%22\">";
+	      } else {
+		  char *q = p;
+		  cout << "P=";
+		  while (*q) {
+		      if (*q == '+')
+			  cout << "%2b";
+		      else if (*q == '&')
+			  cout << "%26";
+		      else
+			  cout << *q;
+		      q++;
+		  }
+		  cout << ".\">";
+	      }
 
-	     while ((ch = *p++) != '\0') {
-		switch (ch) {
-		 case '<':
-		   fputs("&lt;", stdout);
-		   break;
-		 case '>':
-		   fputs("&gt;", stdout);
-		   break;
-		 case '&':
-		   fputs("&amp;", stdout);
-		   break;
-		 case '\t':
-		   fputs("\\t", stdout);
-		   break;
-		 case '\r':
-		   fputs("\\r", stdout);
-		   break;
-		 case '\b':
-		   fputs("\\b", stdout);
-		   break;		   
-		 default:
-		   if (ch < 32 || ch >= 127) {
-		      printf("\\x%02x", ch);
-		   } else {
-		      putchar(ch);
-		   }
-		   break;
-		}
-	     }
-	     printf("</A></td><td>%d</td></tr>\n", freq);
+	      while ((ch = *p++) != '\0') {
+		  switch (ch) {
+		   case '<':
+		      cout << "&lt;";
+		      break;
+		   case '>':
+		      cout << "&gt;";
+		      break;
+		   case '&':
+		      cout << "&amp;";
+		      break;
+		   case '\t':
+		      cout << "\\t";
+		      break;
+		   case '\r':
+		      cout << "\\r";
+		      break;
+		   case '\b':
+		      cout << "\\b";
+		      break;		   
+		   default:
+		      if (ch < 32 || ch >= 127) {
+			  printf("\\x%02x", ch);
+		      } else {
+			  putchar(ch);
+		      }
+		      break;
+		  }
+	      }
+	      cout << "</A></td><td>" << freq << "</td></tr>\n";
 	  }
        }
-       fputs("</table>\n", stdout);
+       cout << "</table>\n";
 #if 0
-       fputs("<hr>\nExpand terms<br>\n"
-	     "<table><tr><th>Term</th><th>Freq</th></tr>\n", stdout);
+       cout << "<hr>\nExpand terms<br>\n"
+	       "<table><tr><th>Term</th><th>Freq</th></tr>\n";
        
        Give_Muscatf("rel %ld", doc);
        Ignore_Muscat();
@@ -543,7 +490,7 @@ int main(int argc, char *argv[]) {
 	  goto got_query_from_morelike;
        }       
 #endif
-       fputs("<hr>\n", stdout);
+       cout << "<hr>\n";
        exit(0);
     }
 #endif
@@ -656,7 +603,7 @@ int main(int argc, char *argv[]) {
 
 /**************************************************************/
 static void do_easter_egg( void ) {
-   puts("<CENTER><FONT SIZE=\"+2\" COLOR=\"#666600\">\n"
+    cout << "<CENTER><FONT SIZE=\"+2\" COLOR=\"#666600\">\n"
 	"Muscat FX Explorer designed by Tom Mortimer.<BR>\n"
 	"Coded by Tom, Graham Simms, Kev Metcalfe,<BR>\n"
 	"Simon Arrowsmith, Olly Betts, Jon Thackray.<BR>\n"
@@ -664,7 +611,7 @@ static void do_easter_egg( void ) {
 	"Muscat Search Engine by Dr Martin Porter.<BR>\n"
 	"Cake by Charis Beynon.<BR>\n"
 	"20 November 1997.\n"
-	"</FONT></CENTER>" );
+	"</FONT></CENTER>";
 }
 
 static string map_dbname_to_dir(const string &db_name) {

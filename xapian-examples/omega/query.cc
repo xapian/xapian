@@ -58,7 +58,7 @@ static int n_new_terms;
 static long int score_height, score_width;
 static int weight_threshold = 0;
 
-int thou_sep = ',', dec_sep = '.';
+char thou_sep = ',', dec_sep = '.';
 
 #ifdef FERRET
 static char ad_keywords[MAX_TERM_LEN * 4 + 4] = "";
@@ -72,8 +72,6 @@ extern int n_dlist;
 static string query_string;
 
 int percent_min = 0; /* default to old behaviour */
-
-static int using_boolquery = 0;
 
 static void do_adjustm ( void );
 static int parse_prob( const char *, struct term * );
@@ -102,10 +100,10 @@ static void print_escaping_dquotes( char *str, int spaces ) {
    while ( (p_end = strchr( p, '\"' )) != NULL ) {
       len = p_end - p;
       if (len) fwrite( p, 1, len, stdout );
-      fputs( "&#34;", stdout );
+      cout << "&#34;";
       p = p_end + 1;
    }
-   fputs( p, stdout );
+   cout << p;
    if (buf) free(buf);
 }
 
@@ -151,7 +149,6 @@ static int is_old_query( const char *oldp ) {
       pend++;
       n_old_terms++;
    }
-/*printf("\n<!-- old: %d new: %d -->\n", n_old_terms, n_new_terms);*/
    /* short-cut: if the new query has fewer terms, it must be a new one */
    if (n_new_terms < n_old_terms) return 0;
 #endif
@@ -310,7 +307,6 @@ static int parse_prob( const char *text, struct term *pTerm ) {
 
     ch = get_next_char( &pC );
     while (ch) {	
-//printf("%p: %p: loop, ch = '%c'\n", text, pC, ch);fflush(stdout);
 	if (isalnum (ch)) {
 	    bool got_next = false;
 	    int do_stem;
@@ -502,7 +498,7 @@ static void run_query(void) {
     /* Fix problem when there's a boolean and none of the probabilistic terms
      * were in the term list.  Otherwise Muscat throws away all the pterms and
      * then returns all records matching just the boolean query */
-    if (n_new_terms == 0 && checked_a_term && !using_boolquery) {
+    if (n_new_terms == 0 && checked_a_term) {
        maxweight = 0;
        msize = 0;
        return;
@@ -579,7 +575,7 @@ long do_match ( long int first_hit, long int list_size) {
 /* pretty print numbers with thousands separated */
 /* NB only handles %ld and %d with no width or flag specifiers... */
 static void pretty_printf(const char *p, int *a) {
-   int ch;
+   char ch;
    while ((ch = *p++)) {
       if (ch == '%') {
 	 ch = *p++;
@@ -592,13 +588,13 @@ static void pretty_printf(const char *p, int *a) {
 	    len = strlen(buf);
 	    q = buf;
 	    while ((ch = *q++)) {
-	       putchar(ch);
-	       if (--len && len % 3 == 0) putchar(thou_sep);
+		cout << ch;
+		if (--len && len % 3 == 0) cout << thou_sep;
 	    }
 	    continue;
 	 }
       }
-      putchar(ch);
+      cout << ch;
    }
 }
 
@@ -608,7 +604,7 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 				   long int maxhits, long int last,
 				   long int showdoc, long int docid ) {
    if (!strncmp (pc, "GIF_DIR", 7)) {
-      fputs( gif_dir, stdout );
+      cout << gif_dir;
       return 7;
    }
 
@@ -619,65 +615,60 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
    }
    
    /* Ol 1997-01-23 - \SCRIPT_NAME is the pathname fx was invoked with */
-   if (!strncmp (pc, "SCRIPT_NAME", 11)) {
-      char *p = getenv("SCRIPT_NAME");
-      if (p == NULL) /* we're probably in test mode, or the server's crap */
-	p = "fx";
-      fputs( p, stdout );
-      return 11;
-   }
+    if (!strncmp (pc, "SCRIPT_NAME", 11)) {
+	char *p = getenv("SCRIPT_NAME");
+	if (p == NULL) /* we're probably in test mode, or the server's crap */
+	    p = "fx";
+	cout << p;
+	return 11;
+    }
 
    if (!strncmp (pc, "TOPDOC", 6)) {
-      printf ("%ld", topdoc);
-      return 6;
+       cout << topdoc;
+       return 6;
    }
 
    else if (!strncmp (pc, "VERSION", 7)) {
-      puts(FX_VERSION_STRING);
-      return 7;
+       cout << FX_VERSION_STRING << endl;
+       return 7;
    }
 
    if (!strncmp (pc, "SAVE", 4)) {
-      long int r, i;
-      r = r; // FIXME
+       long int r, i;
+       r = r; // FIXME
 
-      /*** save DB name **/
-#ifdef FERRET
-      if (strcmp(db_name, "ferret") != 0)
-#endif
-	 printf("<INPUT TYPE=hidden NAME=DB VALUE=\"%s\">\n", db_name);
+       /*** save DB name **/
+       if (db_name != default_db_name)
+	   cout << "<INPUT TYPE=hidden NAME=DB VALUE=\"" << db_name << "\">\n";
 
-      /*** save top doc no. ***/
-      if (topdoc != 0) printf("<INPUT TYPE=hidden NAME=TOPDOC VALUE=%ld>\n", topdoc);
+       /*** save top doc no. ***/
+       if (topdoc != 0)
+	   cout << "<INPUT TYPE=hidden NAME=TOPDOC VALUE=" << topdoc << "\n";
+       
+       /*** save maxhits ***/
+       if (maxhits != 10)
+	   cout << "<INPUT TYPE=hidden NAME=MAXHITS VALUE=" << maxhits << ">\n";
 
-      /*** save maxhits ***/
-      if (maxhits != 10) printf("<INPUT TYPE=hidden NAME=MAXHITS VALUE=%ld>\n", maxhits);
-
-      /*** save fmt ***/
-      if (fmt && *fmt) printf("<INPUT TYPE=hidden NAME=FMT VALUE=\"%s\">\n", fmt);
+       /*** save fmt ***/
+       if (fmt && *fmt)
+	   cout << "<INPUT TYPE=hidden NAME=FMT VALUE=\"" << fmt << "\">\n";
 
       if (which == 'Q') {
 	 /*** save prob query ***/
 	 if (n_new_terms) {
-	    fputs ("<INPUT TYPE=hidden NAME=OLDP VALUE=\"", stdout);
-	    for (i = 0; i < n_new_terms; i++) {
-	       fputs(new_terms[i].termname.c_str(), stdout);
-	       putchar('.');
-	    }
-	    puts ("\">");
+	     cout << "<INPUT TYPE=hidden NAME=OLDP VALUE=\"";
+	     for (i = 0; i < n_new_terms; i++) {
+		 cout << new_terms[i].termname.c_str() << '.';
+	     }
+	     cout << "\">\n";
 	 }
       }
 
       if (which != 'Q') {
 	 /*** save prob query ***/
-	 printf("<INPUT TYPE=hidden NAME=P VALUE=\"");
+	 cout << "<INPUT TYPE=hidden NAME=P VALUE=\"";
 	 print_escaping_dquotes(raw_prob, 0);
-	 puts( "\">" );
-
-	 /*** indicate if it is really a Boolean query ***/
-	 if (using_boolquery) {
-	    puts ("<INPUT TYPE=hidden NAME=TREATASBOOL VALUE=on>\n");
-	 }
+	 cout << "\">\n";
 
 #if 0
 	 /*** save bool query ***/
@@ -761,64 +752,48 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 	 format = pc + 7;
 	 pc_end = find_format_string( format );
 	 if ( which == 'Q' ? (topdoc == 0) : (showdoc == 0) ) {
-	    fputs( "<img ", stdout );
+	    cout << "<img ";
 	    fwrite( format, 1, pc_end - format, stdout );
-	    puts( ">" );
+	    cout << ">\n";
 	 }
 	 return pc_end - pc;
       }
 
       if (!strncmp (pc, "PREV", 4)) {
-	 format = pc + 4;
-	 pc_end = find_format_string( format );
-	 if (which == 'Q') {
-	    if (topdoc > 0) {
-	       long int new_first;
-	       new_first = topdoc - maxhits;
-	       if (new_first < 0) new_first = 0;
-
-	       printf( "<INPUT NAME=F%ld ", new_first );
-	       fwrite( format, 1, pc_end - format, stdout );
-	       puts( ">" );
-	    }
-	 } else {
-	    if (showdoc > 0) {
-	       printf ("<INPUT NAME=S%ld ", showdoc - 1 );
-	       fwrite( format, 1, pc_end - format, stdout );
-	       puts( ">" );
-	    }
-	 }
-	 return pc_end - pc;
+	  format = pc + 4;
+	  pc_end = find_format_string( format );
+	  if (topdoc > 0) {
+	      long int new_first;
+	      new_first = topdoc - maxhits;
+	      if (new_first < 0) new_first = 0;
+	      
+	      cout << "<INPUT NAME=F" << new_first << ' ';
+	      fwrite( format, 1, pc_end - format, stdout );
+	      cout << ">\n";
+	  }
+	  return pc_end - pc;
       }
       
       if (!strncmp (pc, "NEXTOFF", 7)) {
-	 format = pc + 7;
-	 pc_end = find_format_string( format );
-	 if ( which == 'Q' ? (last >= msize - 1) : (showdoc + 1 >= msize) ) {
-	    fputs( "<img ", stdout );
-	    fwrite( format, 1, pc_end - format, stdout );
-	    puts( ">" );
-	 }
-	 return pc_end - pc;
+	  format = pc + 7;
+	  pc_end = find_format_string( format );
+	  if (last >= msize - 1) {
+	      cout << "<img ";
+	      fwrite( format, 1, pc_end - format, stdout );
+	      cout << ">\n";
+	  }
+	  return pc_end - pc;
       }
       
       if (!strncmp (pc, "NEXT", 4)) {
-	 format = pc + 4;
-	 pc_end = find_format_string( format );
-	 if (which == 'Q') {
-	    if (last < msize - 1) {
-	       printf ("<INPUT NAME=F%ld ", last + 1);
-	       fwrite( format, 1, pc_end - format, stdout );
-	       puts( ">" );
-	    }
-	 } else {
-	    if (showdoc + 1 < msize) {
-	       printf ("<INPUT NAME=S%ld ", showdoc + 1);
-	       fwrite( format, 1, pc_end - format, stdout );
-	       puts( ">" );
-	    }
-	 }
-	 return pc_end - pc;
+	  format = pc + 4;
+	  pc_end = find_format_string( format );
+	  if (last < msize - 1) {
+	      cout << "<INPUT NAME=F" << last + 1 << ' ';
+	      fwrite( format, 1, pc_end - format, stdout );
+	      cout << ">\n";
+	  }
+	  return pc_end - pc;
       }
    }
 
@@ -866,13 +841,13 @@ static size_t process_common_codes( int which, char *pc, long int topdoc,
 			 topdoc + 1, last + 1, msize);
 	       }
 	    } else if (have_query) {
-	       fputs( "No documents found matching these words", stdout);
+	       cout << "No documents found matching these words";
 	    }
 	    return 5;
 	    break;
 	  case '0': /* followed by string */
 	    if ((msize == 0) && have_query)
-	       fputs(pc + 5, stdout);
+		cout << pc + 5;
 	    break;
 	  case '1':
 	    /* used to be < MLIMIT - now use an exact compare since MTOTAL
@@ -998,13 +973,12 @@ do_picker(char prefix, const char **opts)
       t = strchr(s, '\t');
       if (!t) continue;
       *t++ = '\0';
-      printf("\n<OPTION VALUE=%c%s", prefix, t);
-      if (t[-2] == '\n') fputs(" SELECTED", stdout);
-      putchar('>');
-      fputs(s, stdout);
+      cout << "\n<OPTION VALUE=" << prefix << t;
+      if (t[-2] == '\n') cout << " SELECTED";
+      cout << '>' << s;
    }
    
-   puts("</SELECT>");
+   cout << "</SELECT>\n";
 }
 
 /*******************************************************************/
@@ -1035,7 +1009,7 @@ static void print_query_page( const char* page, long int first, long int size) {
     /*** parse the page ***/
     while (fgets (line, 511, filep)) {
 	if ((pc = strchr (line, '\\')) == NULL) {
-	   fputs (line, stdout);
+	   cout << line;
 	}
 	else {
 	    pre = line;
@@ -1066,7 +1040,7 @@ static void print_query_page( const char* page, long int first, long int size) {
 		    printf("# fields are tab separated, extra fields may be appended in future\n"
 			   "first\tlast\ttotal\n"
 			   "%ld\t%ld\t%ld\n", first + 1, last + 1, msize);		    
-		    fputs("relevance\turl\tcaption\tsample\tlanguage\tcountry\thostname\tsize\tlast modified\tmatching\n", stdout);
+		    cout << "relevance\turl\tcaption\tsample\tlanguage\tcountry\thostname\tsize\tlast modified\tmatching\n";
 #endif
 		    {
 			char *q;
@@ -1296,20 +1270,6 @@ static void print_query_page( const char* page, long int first, long int size) {
 		   pc += 5;
 		}
 #endif
-	        /* SA 1997-08-06 - TREATASBOOL checkbox */
-                else if (!strncmp (pc, "BOOLQUERY", 9)) {
-		    if (using_boolquery) puts("checked");
-		    pc += 9;
-		}
-
-	        /* SA 1997-09-18 general display only if Boolean stuff (cf \HITLINE)*/
-                else if (!strncmp (pc, "BOOLLINE", 8)) {
-		    if (using_boolquery) {
-		    	pc += 8;
-		    } else {
-		    	pc += strlen (pc);
-		    }
-		}
 
 		else {
 		    putchar (*pc++);

@@ -11,7 +11,7 @@ void do_showdoc( long int, long int, long int );
 
 void muscat_stem( char * );
 
-extern int dec_sep, thou_sep;
+extern char dec_sep, thou_sep;
 
 extern int percent_min;
 
