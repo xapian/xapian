@@ -7,7 +7,9 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 ## Test programs to run
 TESTS = nettest
 
-check_PROGRAMS = nettest omprogsrv omtcpsrv
+check_PROGRAMS = nettest
+
+noinst_PROGRAMS = omprogsrv omtcpsrv
 
 nettest_SOURCES = nettest.cc
 nettest_LDADD = ../libomus.la ../testsuite/libtest.la
