@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -276,7 +276,7 @@ SocketServer::run_match(const string &firstmessage)
     
     gatherer = new NetworkStatsGatherer(this);
     
-    OmQuery::Internal query = query_from_string(message);
+    Xapian::Query::Internal * query = query_from_string(message);
 
     // extract the match options
     message = readline(msecs_active_timeout);
@@ -307,7 +307,7 @@ SocketServer::run_match(const string &firstmessage)
     message = readline(msecs_active_timeout);
     OmRSet omrset = string_to_omrset(message);
 
-    MultiMatch match(db, &query, omrset, collapse_key, percent_cutoff,
+    MultiMatch match(db, query, omrset, collapse_key, percent_cutoff,
 		     weight_cutoff, sort_forward, om_valueno(-1), 0, 0, 0,
 		     NULL, AutoPtr<StatsGatherer>(gatherer), wt.get());
 

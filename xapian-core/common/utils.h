@@ -73,6 +73,8 @@ inline int open(const string &filename, int flags) {
     return fcntl_open(filename.c_str(), flags);
 }
 
+inline string om_tostring(const string &s) { return s; }
+
 /// Convert an integer to a string
 string om_tostring(int a);
 

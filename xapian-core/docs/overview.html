@@ -132,7 +132,7 @@ required.
 <H2>The OmEnquire class</H2>
 
 <P>
-The <A HREF="apidoc/html/class_OmEnquire.html"><CODE>OmEnquire()</CODE></A> class
+The <A HREF="apidoc/html/class_OmEnquire.html"><CODE>OmEnquire</CODE></A> class
 is central to all searching operations.  It provides an interface for
 <UL><LI>
 Specifying the database, or databases, to search across.
@@ -341,7 +341,7 @@ particularly good for queries containing many terms.
 <H3>A query for a single term</H3>
 <P>
 All queries are represented by
-<A HREF="apidoc/html/class_OmQuery.html"><CODE>OmQuery()</CODE></A>
+<A HREF="apidoc/html/class_OmQuery.html"><CODE>OmQuery</CODE></A>
 objects.  The simplest possible (non-trivial) query is one which searches
 for a single term.  This can be created as follows (where <CODE>tname</CODE> is the term to be searched for):
 </P>
@@ -614,9 +614,7 @@ A plain probabilistic query is created by connecting terms together with OmQuery
 operators. For example,
 
 <PRE>
-    OmQuery query();   // undefined query; see next section
-
-    query = OmQuery(OmQuery::OP_OR, query, OmQuery("regulation"));
+    OmQuery query("regulation"));
     query = OmQuery(OmQuery::OP_OR, query, OmQuery("import"));
     query = OmQuery(OmQuery::OP_OR, query, OmQuery("export"));
     query = OmQuery(OmQuery::OP_OR, query, OmQuery("canned"));
@@ -667,6 +665,7 @@ probabilistic query with a Boolean filter,
     query = OmQuery(OmQuery::OP_FILTER, query, bquery);
 </PRE>
 
+<!-- This doesn't work - you need to set a boolean weight object
 This is the general technique for processing boolean queries, so to run a
 pure boolean query, attach it as a filter to an undefined query:
 
@@ -674,6 +673,7 @@ pure boolean query, attach it as a filter to an undefined query:
     bquery = OmQuery(OmQuery::OP_FILTER, OmQuery(), bquery);
     // bquery will now run as a pure boolean
 </PRE>
+-->
 
 A common requirement in search engine functionality is to run a
 probabilistic query where some terms are required to index all the
@@ -711,39 +711,9 @@ the corresponding query can be set up by,
 
 <H3>Undefined queries</H3>
 <P>
-These are an added complication, although they make it possible to write
-much neater code, and to perform some extra types of query. (See
-<A HREF="#purebool">"Specifying a pure boolean query"</A>).
-</P>
-
-<P>
-Undefined queries are not empty queries, or queries which match nothing:
-rather, they should be thought of as placeholders.  An undefined query is
-created by calling the default constructor for OmQuery(), and can then be
-used in many places in construction of a query.
-</P>
-
-<H3><A NAME="purebool">Specifying a pure boolean query</A></H3>
-<P>
-Occasionally it may be desirable to perform a purely boolean query, and not
-to calculate weights for each document.  This can be performed within Xapian
-as follows:
-<UL><LI>
-Make the desired query, as described above.
-For example, putting it in <CODE>query</CODE>:
-example:<PRE>
-OmQuery query(OmQuery::OP_AND_NOT, OmQuery("cheese"), OmQuery("bread"));
-</PRE>
-</LI><LI>
-Make a pure boolean query, by filtering a null query with the boolean query.
-For example:
-<PRE>
-OmQuery boolquery(OmQuery::OP_FILTER, OmQuery(), query);
-</PRE>
-</LI></UL>
-
-The boolquery will return a set of documents matching the criteria supplied:
-each document in the result set will have a weight of 0.
+Performing a match with an undefined query matches nothing, which is sometimes
+useful.  However an undefined query can't be used with operators to compose
+a query.
 </P>
 
 <H2>Retrieving the results of a query</H2>
@@ -770,7 +740,7 @@ score, and a value of 10 corresponds to the first 10 items being ignored,
 and the returned items starting at the eleventh).
 </P>
 <P>
-You must also specify (in <CODE>maxitems</CODE>) the the maximum number of
+You must also specify (in <CODE>maxitems</CODE>) the maximum number of
 items to return.  Unless there are not enough matching items, precisely
 this number of items will be returned.
 If <CODE>maxitems</CODE> is zero, no items will be returned, but the usual

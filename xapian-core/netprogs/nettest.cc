@@ -56,7 +56,7 @@ static bool test_netmatch1()
 
     OmEnquire enq(backendmanager.get_database(paths));
 
-    enq.set_query(OmQuery("word"));
+    enq.set_query(Xapian::Query("word"));
 
     OmMSet mset(enq.get_mset(0, 10));
 
@@ -86,7 +86,7 @@ static bool test_netmatch2()
 
     OmEnquire enq(databases);
 
-    enq.set_query(OmQuery("word"));
+    enq.set_query(Xapian::Query("word"));
 
     OmMSet mset(enq.get_mset(0, 10));
 
@@ -108,7 +108,7 @@ static bool test_netexpand1()
 
     OmEnquire enq(backendmanager.get_database(paths));
 
-    enq.set_query(OmQuery("word"));
+    enq.set_query(Xapian::Query("word"));
 
     OmMSet mset(enq.get_mset(0, 10));
 
@@ -165,7 +165,7 @@ static bool test_tcpmatch1()
 
     OmEnquire enq(db);
 
-    enq.set_query(OmQuery("word"));
+    enq.set_query(Xapian::Query("word"));
 
     OmMSet mset(enq.get_mset(0, 10));
 
@@ -230,7 +230,7 @@ static bool test_tcpdead1()
     
     time_t t = time(NULL);
     try {
-	enq.set_query(OmQuery("word"));	
+	enq.set_query(Xapian::Query("word"));	
 	OmMSet mset(enq.get_mset(0, 10));
     }
     catch (const Xapian::NetworkError &e) {

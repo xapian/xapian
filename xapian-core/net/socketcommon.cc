@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,17 +51,16 @@ using std::set;
 #include "omlinebuf.h"
 #include "omenquireinternal.h"
 
-OmQuery::Internal qfs_readcompound();
+Xapian::Query::Internal * qfs_readcompound();
 
-OmQuery::Internal query_from_string(string qs)
+Xapian::Query::Internal * query_from_string(string qs)
 {
     Assert(qs.length() > 1);
 
     qfs_start(qs);
 
-    OmQuery::Internal retval = qfs_readquery();
-    DebugMsg("query_from_string(" << qs << ") = " << retval.serialise());
-    Assert(retval.serialise() == qs);
+    Xapian::Query::Internal * retval = qfs_readquery();
+    AssertEq(qs, retval->serialise());
 
     qfs_end();
 
@@ -153,38 +152,19 @@ string_to_stats(const string &s)
     return stat;
 }
 
-// A vector converter: vector<OmQuery::Internal> to vector<OmQuery::Internal *>
-// The original vector is still responsible for destroying the objects.
-vector<OmQuery::Internal *>
-convert_subqs(vector<OmQuery::Internal> &v) {
-    vector<OmQuery::Internal *> result;
-    vector<OmQuery::Internal>::iterator i;
-    for (i = v.begin(); i != v.end(); ++i) {
-	result.push_back(&(*i));
-    }
-    return result;
-}
-
-OmQuery::Internal qfs_readquery()
+Xapian::Query::Internal * qfs_readquery()
 {
     querytok qt = qfs_gettok();
     switch (qt.type) {
-	case querytok::NULL_QUERY:  // null query
-	    return OmQuery::Internal();
-	    break;
 	case querytok::TERM:
-	    return OmQuery::Internal(qt.tname, qt.wqf, qt.term_pos);
-	    break;
+	    return new Xapian::Query::Internal(qt.tname, qt.wqf, qt.term_pos);
 	case querytok::OP_BRA:
 	    return qfs_readcompound();
-	    break;
-	case querytok::QUERY_LEN:
-	    {
-		OmQuery::Internal temp(qfs_readquery());
-		temp.set_length(qt.qlen);
-		return temp;
-	    }
-	    break;
+	case querytok::QUERY_LEN: {
+	    Xapian::Query::Internal * temp = qfs_readquery();
+	    temp->set_length(qt.qlen);
+	    return temp;
+	}
 	default:
 	    Assert(false);
     }
@@ -192,170 +172,78 @@ OmQuery::Internal qfs_readquery()
 				 om_tostring(qt.type) + '\'');
 }
 
-static OmQuery::Internal
-qint_from_vector(OmQuery::op op, vector<OmQuery::Internal *> & vec) {
-    OmQuery::Internal qint(op);
-    vector<OmQuery::Internal *>::const_iterator i;
+static Xapian::Query::Internal *
+qint_from_vector(Xapian::Query::op op, vector<Xapian::Query::Internal *> & vec) {
+    Xapian::Query::Internal * qint = new Xapian::Query::Internal(op);
+    vector<Xapian::Query::Internal *>::const_iterator i;
     for (i = vec.begin(); i != vec.end(); i++)
-	qint.add_subquery(**i);
-    qint.end_construction();
+	qint->add_subquery(**i);
+    qint->end_construction();
     return qint;
 }
 
-OmQuery::Internal qfs_readcompound()
+Xapian::Query::Internal * qfs_readcompound()
 {
-    vector<OmQuery::Internal> subqs;
-    while (1) {
+    vector<Xapian::Query::Internal *> subqs;
+    while (true) {
 	querytok qt = qfs_gettok();
 	switch (qt.type) {
-	    case querytok::OP_KET:
-		if (subqs.empty()) {
-		    return OmQuery::Internal();
-		} else {
-		    throw Xapian::InvalidArgumentError("Invalid query string");
-		}
+	    case querytok::QUERY_LEN: {
+		Xapian::Query::Internal * temp = qfs_readquery();
+		temp->set_length(qt.qlen);
+		subqs.push_back(temp);
 		break;
-	    case querytok::NULL_QUERY:
-		subqs.push_back(OmQuery::Internal());
-		break;
-	    case querytok::QUERY_LEN:
-		{
-		    OmQuery::Internal temp(qfs_readquery());
-		    temp.set_length(qt.qlen);
-		    subqs.push_back(temp);
-		}
-		break;
+	    }
 	    case querytok::TERM:
-		subqs.push_back(OmQuery::Internal(qt.tname, qt.wqf,
-						  qt.term_pos));
+		subqs.push_back(new Xapian::Query::Internal(qt.tname, qt.wqf,
+							    qt.term_pos));
 		break;
 	    case querytok::OP_BRA:
 		subqs.push_back(qfs_readcompound());
 		break;
 	    case querytok::OP_AND:
-		{
-		    vector<OmQuery::Internal *> temp =
-			    convert_subqs(subqs);
-		    querytok myqt = qfs_gettok();
-		    if (myqt.type != querytok::OP_KET) {
-			throw Xapian::InvalidArgumentError("Expected %) in query string");
-		    }
-		    return qint_from_vector(OmQuery::OP_AND, temp);
-		}
-		break;
+		return qint_from_vector(Xapian::Query::OP_AND, subqs);
 	    case querytok::OP_OR:
-		{
-		    vector<OmQuery::Internal *> temp =
-			    convert_subqs(subqs);
-		    querytok myqt = qfs_gettok();
-		    if (myqt.type != querytok::OP_KET) {
-			throw Xapian::InvalidArgumentError("Expected %) in query string");
-		    }
-		    return qint_from_vector(OmQuery::OP_OR, temp);
-		}
-		break;
+		return qint_from_vector(Xapian::Query::OP_OR, subqs);
 	    case querytok::OP_FILTER:
-		{
-		    vector<OmQuery::Internal *> temp =
-			    convert_subqs(subqs);
-		    querytok myqt = qfs_gettok();
-		    if (myqt.type != querytok::OP_KET) {
-			throw Xapian::InvalidArgumentError("Expected %) in query string");
-		    }
-		    return qint_from_vector(OmQuery::OP_FILTER, temp);
-		}
-		break;
+		return qint_from_vector(Xapian::Query::OP_FILTER, subqs);
 	    case querytok::OP_XOR:
-		{
-		    vector<OmQuery::Internal *> temp =
-			    convert_subqs(subqs);
-		    querytok myqt = qfs_gettok();
-		    if (myqt.type != querytok::OP_KET) {
-			throw Xapian::InvalidArgumentError("Expected %) in query string");
-		    }
-		    return qint_from_vector(OmQuery::OP_XOR, temp);
-		}
-		break;
+		return qint_from_vector(Xapian::Query::OP_XOR, subqs);
 	    case querytok::OP_ANDMAYBE:
-		{
-		    vector<OmQuery::Internal *> temp =
-			    convert_subqs(subqs);
-		    querytok myqt = qfs_gettok();
-		    if (myqt.type != querytok::OP_KET) {
-			throw Xapian::InvalidArgumentError("Expected %) in query string");
-		    }
-		    return qint_from_vector(OmQuery::OP_AND_MAYBE, temp);
-		}
-		break;
+		return qint_from_vector(Xapian::Query::OP_AND_MAYBE, subqs);
 	    case querytok::OP_ANDNOT:
-		{
-		    vector<OmQuery::Internal *> temp =
-			    convert_subqs(subqs);
-		    querytok myqt = qfs_gettok();
-		    if (myqt.type != querytok::OP_KET) {
-			throw Xapian::InvalidArgumentError("Expected %) in query string");
-		    }
-		    return qint_from_vector(OmQuery::OP_AND_NOT, temp);
-		}
-		break;
-	    case querytok::OP_NEAR:
-		{
-		    vector<OmQuery::Internal *> temp =
-			    convert_subqs(subqs);
-		    querytok myqt = qfs_gettok();
-		    if (myqt.type != querytok::OP_KET) {
-			throw Xapian::InvalidArgumentError("Expected %) in query string");
-		    }
-		    OmQuery::Internal qint(qint_from_vector(OmQuery::OP_NEAR, temp));
-		    qint.set_window(qt.window);
-		    return qint;
-
-		}
-		break;
-	    case querytok::OP_PHRASE:
-		{
-		    vector<OmQuery::Internal *> temp =
-			    convert_subqs(subqs);
-		    querytok myqt = qfs_gettok();
-		    if (myqt.type != querytok::OP_KET) {
-			throw Xapian::InvalidArgumentError("Expected %) in query string");
-		    }
-		    OmQuery::Internal qint(qint_from_vector(OmQuery::OP_PHRASE, temp));
-		    qint.set_window(qt.window);
-		    return qint;
-		}
-		break;
-	    case querytok::OP_WEIGHT_CUTOFF:
-		{
-		    querytok myqt = qfs_gettok();
-		    if (myqt.type != querytok::OP_KET) {
-			throw Xapian::InvalidArgumentError("Expected %) in query string");
-		    }
-		    OmQuery::Internal qint(OmQuery::OP_WEIGHT_CUTOFF);
-		    Assert(subqs.size() == 1);
-		    qint.add_subquery(subqs[0]);
-		    qint.end_construction();
-		    qint.set_cutoff(qt.cutoff);
-		    return qint;
-		}
-		break;
-	    case querytok::OP_ELITE_SET:
-		{
-		    vector<OmQuery::Internal *> temp =
-			    convert_subqs(subqs);
-		    querytok myqt = qfs_gettok();
-		    if (myqt.type != querytok::OP_KET) {
-			throw Xapian::InvalidArgumentError("Expected %) in query string");
-		    }
-		    OmQuery::Internal qint(qint_from_vector(OmQuery::OP_ELITE_SET, temp));
-		    qint.set_elite_set_size(qt.elite_set_size);
-		    return qint;
-		}
-		break;
+		return qint_from_vector(Xapian::Query::OP_AND_NOT, subqs);
+	    case querytok::OP_NEAR: {
+		Xapian::Query::Internal * qint;
+		qint = qint_from_vector(Xapian::Query::OP_NEAR, subqs);
+		qint->set_window(qt.window);
+		return qint;
+	    }
+	    case querytok::OP_PHRASE: {
+		Xapian::Query::Internal * qint;
+		qint = qint_from_vector(Xapian::Query::OP_PHRASE, subqs);
+		qint->set_window(qt.window);
+		return qint;
+	    }
+	    case querytok::OP_WEIGHT_CUTOFF: {
+		Xapian::Query::Internal * qint;
+		qint = new Xapian::Query::Internal(Xapian::Query::OP_WEIGHT_CUTOFF);
+		Assert(subqs.size() == 1);
+		qint->add_subquery(*subqs[0]);
+		qint->end_construction();
+		qint->set_cutoff(qt.cutoff);
+		return qint;
+	    }
+	    case querytok::OP_ELITE_SET: {
+		Xapian::Query::Internal * qint;
+		qint = qint_from_vector(Xapian::Query::OP_ELITE_SET, subqs);
+		qint->set_elite_set_size(qt.elite_set_size);
+		return qint;
+	    }
 	    default:
 		throw Xapian::InvalidArgumentError("Invalid query string");
 	} // switch(qt.type)
-    } // while(1)
+    }
 }
 
 OmSocketLineBuf::OmSocketLineBuf(int readfd_, int writefd_, const string & errcontext_)

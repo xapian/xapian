@@ -29,7 +29,7 @@
 
 using namespace std;
 
-OmQuery::op default_op = OmQuery::OP_OR;
+Xapian::Query::op default_op = Xapian::Query::OP_OR;
 
 typedef struct {
     const char *query;
@@ -59,7 +59,7 @@ main(void)
     test *p = tests;
     int succeed = 0, fail = 0;
     while (p->query) {
-	string expect = string("OmQuery(") + p->expect + ')';
+	string expect = string("Xapian::Query(") + p->expect + ')';
 	string parsed;
 	try {
 	    parsed = qp.parse_query(p->query).get_description();

@@ -28,15 +28,16 @@
 #include <string>
 #include <map>
 #include <sys/time.h>
+
 #include "omlinebuf.h"
 #include "omenquireinternal.h"
-#include "om/omquery.h"
+#include <xapian/query.h>
 
 using std::map;
 
 #define OM_SOCKET_PROTOCOL_VERSION 16
 
-class OmQuery::Internal;
+class Xapian::Query::Internal;
 class Stats;
 class OmRSet;
 class OmMSet;
@@ -106,7 +107,7 @@ class OmSocketLineBuf : public OmLineBuf {
  *
  *  @param qs  The string from which to build the query.
  */
-OmQuery::Internal query_from_string(string qs);
+Xapian::Query::Internal * query_from_string(string qs);
 
 /** Convert a Stats object into a string representation.
  *
@@ -159,7 +160,7 @@ string ommset_termfreqwts_to_string(const map<string,
 map<string, OmMSet::Internal::Data::TermFreqAndWeight>
 string_to_ommset_termfreqwts(const string &s);
 
-OmQuery::Internal qfs_readquery();
+Xapian::Query::Internal * qfs_readquery();
 
 /** returns true if the string s starts with prefix.
  */

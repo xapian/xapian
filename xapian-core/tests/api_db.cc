@@ -62,7 +62,7 @@ static bool test_zerodocid1()
     OmEnquire enquire(make_dbgrp(&mydb));
 
     // make a simple query, with one word in it - "word".
-    OmQuery myquery("word");
+    Xapian::Query myquery("word");
     enquire.set_query(myquery);
 
     // retrieve the top ten results (we only expect one)
@@ -99,13 +99,13 @@ static bool test_termstats()
     return true;
 }
 
-void init_simple_enquire(OmEnquire &enq, const OmQuery &query = OmQuery("this"))
+void init_simple_enquire(OmEnquire &enq, const Xapian::Query &query = Xapian::Query("this"))
 {
     enq.set_query(query);
 }
 
-OmQuery
-query(OmQuery::op op, string t1 = "", string t2 = "",
+Xapian::Query
+query(Xapian::Query::op op, string t1 = "", string t2 = "",
       string t3 = "", string t4 = "", string t5 = "",
       string t6 = "", string t7 = "", string t8 = "",
       string t9 = "", string t10 = "")
@@ -122,16 +122,16 @@ query(OmQuery::op op, string t1 = "", string t2 = "",
     if (!t8.empty()) v.push_back(stemmer.stem_word(t8));
     if (!t9.empty()) v.push_back(stemmer.stem_word(t9));
     if (!t10.empty()) v.push_back(stemmer.stem_word(t10));
-    return OmQuery(op, v.begin(), v.end());
+    return Xapian::Query(op, v.begin(), v.end());
 }
 
-OmQuery
+Xapian::Query
 query(string t)
 {
-    return OmQuery(Xapian::Stem("english").stem_word(t));
+    return Xapian::Query(Xapian::Stem("english").stem_word(t));
 }
 
-OmMSet do_get_simple_query_mset(OmQuery query, int maxitems = 10, int first = 0)
+OmMSet do_get_simple_query_mset(Xapian::Query query, int maxitems = 10, int first = 0)
 {
     // open the database (in this case a simple text file
     // we prepared earlier)
@@ -145,7 +145,7 @@ OmMSet do_get_simple_query_mset(OmQuery query, int maxitems = 10, int first = 0)
 // tests the document count for a simple query
 static bool test_simplequery1()
 {
-    OmMSet mymset = do_get_simple_query_mset(OmQuery("word"));
+    OmMSet mymset = do_get_simple_query_mset(Xapian::Query("word"));
     TEST_MSET_SIZE(mymset, 2);
     return true;
 }
@@ -153,7 +153,7 @@ static bool test_simplequery1()
 // tests for the right documents and weights returned with simple query
 static bool test_simplequery2()
 {
-    OmMSet mymset = do_get_simple_query_mset(OmQuery("word"));
+    OmMSet mymset = do_get_simple_query_mset(Xapian::Query("word"));
 
     // We've done the query, now check that the result is what
     // we expect (documents 2 and 4)
@@ -188,15 +188,15 @@ static bool test_puncterms1()
     OmDatabase db(get_database("apitest_punc"));
     OmEnquire enquire(db);
 
-    OmQuery q1("semi;colon");
+    Xapian::Query q1("semi;colon");
     enquire.set_query(q1);
     OmMSet m1 = enquire.get_mset(0, 10);
 
-    OmQuery q2("col:on");
+    Xapian::Query q2("col:on");
     enquire.set_query(q2);
     OmMSet m2 = enquire.get_mset(0, 10);
 
-    OmQuery q3("com,ma");
+    Xapian::Query q3("com,ma");
     enquire.set_query(q3);
     OmMSet m3 = enquire.get_mset(0, 10);
 
@@ -215,7 +215,7 @@ static bool test_multidb1()
     OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
 
     // make a simple query, with one word in it - "word".
-    OmQuery myquery("word");
+    Xapian::Query myquery("word");
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
 
@@ -242,7 +242,7 @@ static bool test_multidb2()
     OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
 
     // make a simple query
-    OmQuery myquery = query(OmQuery::OP_OR, "inmemory", "word");
+    Xapian::Query myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
 
@@ -264,7 +264,7 @@ static bool test_multidb3()
     OmEnquire enquire(make_dbgrp(&mydb2, &mydb3));
 
     // make a query
-    OmQuery myquery = query(OmQuery::OP_OR, "inmemory", "word");
+    Xapian::Query myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
     enquire.set_weighting_scheme(BoolWeight());
     enquire.set_query(myquery);
 
@@ -284,7 +284,7 @@ static bool test_multidb4()
     OmEnquire enquire(make_dbgrp(&mydb2, &mydb3, &mydb4));
 
     // make a query
-    OmQuery myquery = query(OmQuery::OP_OR, "inmemory", "word");
+    Xapian::Query myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
     enquire.set_weighting_scheme(BoolWeight());
     enquire.set_query(myquery);
 
@@ -303,7 +303,7 @@ static bool test_multidb5()
     OmEnquire enquire(make_dbgrp(&mydb2, &mydb3));
 
     // make a query
-    OmQuery myquery = query(OmQuery::OP_AND, "inmemory", "word");
+    Xapian::Query myquery = query(Xapian::Query::OP_AND, "inmemory", "word");
     enquire.set_weighting_scheme(BoolWeight());
     enquire.set_query(myquery);
 
@@ -325,14 +325,14 @@ static bool test_stubdb1()
     {
 	OmDatabase db = OmStub__open("stubdb1");
 	OmEnquire enquire(db);
-	OmQuery myquery("word");
+	Xapian::Query myquery("word");
 	enquire.set_query(myquery);
 	enquire.get_mset(0, 10);
     }
     {
 	OmDatabase db = OmAuto__open("stubdb1");
 	OmEnquire enquire(db);
-	OmQuery myquery("word");
+	Xapian::Query myquery("word");
 	enquire.set_query(myquery);
 	enquire.get_mset(0, 10);
     }
@@ -425,7 +425,7 @@ static bool test_multierrhandler1()
 	OmEnquire enquire(dbgrp, &myhandler);
 
 	// make a query
-	OmQuery myquery = query(OmQuery::OP_OR, "inmemory", "word");
+	Xapian::Query myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
 	enquire.set_weighting_scheme(BoolWeight());
 	enquire.set_query(myquery);
 
@@ -465,14 +465,14 @@ static bool test_changequery1()
     // we prepared earlier)
     OmEnquire enquire(get_simple_database());
 
-    OmQuery myquery("this");
+    Xapian::Query myquery("this");
     // make a simple query
     enquire.set_query(myquery);
 
     // retrieve the top ten results
     OmMSet mset1 = enquire.get_mset(0, 10);
 
-    myquery = OmQuery("foo");
+    myquery = Xapian::Query("foo");
     OmMSet mset2 = enquire.get_mset(0, 10);
 
     // verify that both msets are identical
@@ -483,13 +483,13 @@ static bool test_changequery1()
 // tests that an empty query returns no matches
 static bool test_emptyquery1()
 {
-    OmMSet mymset = do_get_simple_query_mset(OmQuery());
+    OmMSet mymset = do_get_simple_query_mset(Xapian::Query());
     TEST_MSET_SIZE(mymset, 0);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 0);
     TEST_EQUAL(mymset.get_matches_estimated(), 0);
-    vector<OmQuery> v;
-    mymset = do_get_simple_query_mset(OmQuery(OmQuery::OP_AND,
+    vector<Xapian::Query> v;
+    mymset = do_get_simple_query_mset(Xapian::Query(Xapian::Query::OP_AND,
 					      v.begin(), v.end()));
     TEST_MSET_SIZE(mymset, 0);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
@@ -532,7 +532,7 @@ static bool test_expandmaxitems1()
 // tests that a pure boolean query has all weights set to 1
 static bool test_boolquery1()
 {
-    OmQuery myboolquery(query("this"));
+    Xapian::Query myboolquery(query("this"));
 
     // open the database (in this case a simple text file
     // we prepared earlier)
@@ -846,7 +846,7 @@ print_mset_weights(const OmMSet &mset)
 static bool test_cutoff1()
 {
     OmEnquire enquire(get_simple_database());
-    init_simple_enquire(enquire, query(OmQuery::OP_OR,
+    init_simple_enquire(enquire, query(Xapian::Query::OP_OR,
 				       "this", "line", "paragraph", "rubbish"));
     OmMSet mymset1 = enquire.get_mset(0, 100);
 
@@ -900,8 +900,8 @@ static bool test_cutoff1()
 static bool test_cutoff2()
 {
     OmEnquire enquire(get_simple_database());
-    OmQuery q = query(OmQuery::OP_OR, "this", "line", "paragraph", "rubbish");
-    init_simple_enquire(enquire, query(OmQuery::OP_OR,
+    Xapian::Query q = query(Xapian::Query::OP_OR, "this", "line", "paragraph", "rubbish");
+    init_simple_enquire(enquire, query(Xapian::Query::OP_OR,
 				       "this", "line", "paragraph", "rubbish"));
     OmMSet mymset1 = enquire.get_mset(0, 100);
 
@@ -931,7 +931,7 @@ static bool test_cutoff2()
         tout << "Cutoff weight: " << my_wt << "\n";
     }
 
-    OmQuery cutoffq(OmQuery::OP_WEIGHT_CUTOFF, q);
+    Xapian::Query cutoffq(Xapian::Query::OP_WEIGHT_CUTOFF, q);
     cutoffq.set_cutoff(my_wt);
     enquire.set_query(cutoffq);
     OmMSet mymset2 = enquire.get_mset(0, 100);
@@ -966,7 +966,7 @@ print_mset_percentages(const OmMSet &mset)
 static bool test_pctcutoff1()
 {
     OmEnquire enquire(get_simple_database());
-    init_simple_enquire(enquire, query(OmQuery::OP_OR,
+    init_simple_enquire(enquire, query(Xapian::Query::OP_OR,
 				       "this", "line", "paragraph", "rubbish"));
     OmMSet mymset1 = enquire.get_mset(0, 100);
 
@@ -1119,7 +1119,7 @@ static bool test_collapsekey2()
 static bool test_reversebool1()
 {
     OmEnquire enquire(get_simple_database());
-    OmQuery query("this");
+    Xapian::Query query("this");
     init_simple_enquire(enquire, query);
     enquire.set_weighting_scheme(BoolWeight());
 
@@ -1173,7 +1173,7 @@ static bool test_reversebool1()
 static bool test_reversebool2()
 {
     OmEnquire enquire(get_simple_database());
-    OmQuery query("this");
+    Xapian::Query query("this");
     init_simple_enquire(enquire, query);
     enquire.set_weighting_scheme(BoolWeight());
 
@@ -1236,13 +1236,13 @@ static bool test_getmterms1()
     OmDatabase mydb(get_database("apitest_termorder"));
     OmEnquire enquire(make_dbgrp(&mydb));
 
-    OmQuery myquery(OmQuery::OP_OR,
-	    OmQuery(OmQuery::OP_AND,
-		    OmQuery("one", 1, 1),
-		    OmQuery("three", 1, 3)),
-	    OmQuery(OmQuery::OP_OR,
-		    OmQuery("four", 1, 4),
-		    OmQuery("two", 1, 2)));
+    Xapian::Query myquery(Xapian::Query::OP_OR,
+	    Xapian::Query(Xapian::Query::OP_AND,
+		    Xapian::Query("one", 1, 1),
+		    Xapian::Query("three", 1, 3)),
+	    Xapian::Query(Xapian::Query::OP_OR,
+		    Xapian::Query("four", 1, 4),
+		    Xapian::Query("two", 1, 2)));
 
     enquire.set_query(myquery);
 
@@ -1278,13 +1278,13 @@ static bool test_getmterms2()
     OmDatabase mydb(get_database("apitest_termorder"));
     OmEnquire enquire(make_dbgrp(&mydb));
 
-    OmQuery myquery(OmQuery::OP_OR,
-	    OmQuery(OmQuery::OP_AND,
-		    OmQuery("one", 1, 1),
-		    OmQuery("three", 1, 3)),
-	    OmQuery(OmQuery::OP_OR,
-		    OmQuery("one", 1, 4),
-		    OmQuery("two", 1, 2)));
+    Xapian::Query myquery(Xapian::Query::OP_OR,
+	    Xapian::Query(Xapian::Query::OP_AND,
+		    Xapian::Query("one", 1, 1),
+		    Xapian::Query("three", 1, 3)),
+	    Xapian::Query(Xapian::Query::OP_OR,
+		    Xapian::Query("one", 1, 4),
+		    Xapian::Query("two", 1, 2)));
 
     enquire.set_query(myquery);
 
@@ -1316,7 +1316,7 @@ static bool test_absentfile1()
 		   OmDatabase mydb(get_database("/this_does_not_exist"));
 		   OmEnquire enquire(make_dbgrp(&mydb));
 		   
-		   OmQuery myquery("cheese");
+		   Xapian::Query myquery("cheese");
 		   enquire.set_query(myquery);
 		   
 		   OmMSet mymset = enquire.get_mset(0, 10););
@@ -1326,10 +1326,10 @@ static bool test_absentfile1()
 // tests that the collapsing on termpos optimisation works
 static bool test_poscollapse1()
 {
-    OmQuery myquery1(OmQuery::OP_OR,
-		     OmQuery("this", 1, 1),
-		     OmQuery("this", 1, 1));
-    OmQuery myquery2("this", 2, 1);
+    Xapian::Query myquery1(Xapian::Query::OP_OR,
+		     Xapian::Query("this", 1, 1),
+		     Xapian::Query("this", 1, 1));
+    Xapian::Query myquery2("this", 2, 1);
 
     if (verbose) {
 	tout << myquery1.get_description() << "\n";
@@ -1347,7 +1347,7 @@ static bool test_poscollapse1()
 // tests that the collapsing on termpos optimisation gives correct query length
 static bool test_poscollapse2()
 {
-    OmQuery q(OmQuery::OP_OR, OmQuery("this", 1, 1), OmQuery("this", 1, 1));
+    Xapian::Query q(Xapian::Query::OP_OR, Xapian::Query("this", 1, 1), Xapian::Query("this", 1, 1));
     TEST_EQUAL(q.get_length(), 2);
     return true;
 }
@@ -1358,7 +1358,7 @@ static bool test_repeatquery1()
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
-    enquire.set_query(query(OmQuery::OP_OR, "this", "word"));
+    enquire.set_query(query(Xapian::Query::OP_OR, "this", "word"));
 
     OmMSet mymset1 = enquire.get_mset(0, 10);
     OmMSet mymset2 = enquire.get_mset(0, 10);
@@ -1373,7 +1373,7 @@ static bool test_fetchdocs1()
     OmEnquire enquire(get_simple_database());
     init_simple_enquire(enquire);
 
-    enquire.set_query(query(OmQuery::OP_OR, "this", "word"));
+    enquire.set_query(query(Xapian::Query::OP_OR, "this", "word"));
 
     OmMSet mymset1 = enquire.get_mset(0, 10);
     OmMSet mymset2 = enquire.get_mset(0, 10);
@@ -1409,7 +1409,7 @@ static bool test_spaceterms1()
     OmMSetIterator m;
     Xapian::Stem stemmer("english");
 
-    init_simple_enquire(enquire, OmQuery(stemmer.stem_word("space man")));
+    init_simple_enquire(enquire, Xapian::Query(stemmer.stem_word("space man")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
     count = 0;
@@ -1421,7 +1421,7 @@ static bool test_spaceterms1()
 	TEST_NOT_EQUAL(mymset.begin().get_document().get_value(value_no), "");
     }
 
-    init_simple_enquire(enquire, OmQuery(stemmer.stem_word("tab\tby")));
+    init_simple_enquire(enquire, Xapian::Query(stemmer.stem_word("tab\tby")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
     count = 0;
@@ -1437,7 +1437,7 @@ static bool test_spaceterms1()
 	}
     }
     
-    init_simple_enquire(enquire, OmQuery(stemmer.stem_word("back\\slash")));
+    init_simple_enquire(enquire, Xapian::Query(stemmer.stem_word("back\\slash")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
     count = 0;
@@ -1459,7 +1459,7 @@ static bool test_xor1()
     terms.push_back(stemmer.stem_word("word"));
     terms.push_back(stemmer.stem_word("of"));
 
-    OmQuery query(OmQuery::OP_XOR, terms.begin(), terms.end());
+    Xapian::Query query(Xapian::Query::OP_XOR, terms.begin(), terms.end());
     enquire.set_weighting_scheme(BoolWeight());
     enquire.set_query(query);
 
@@ -1486,9 +1486,9 @@ static bool test_getdoc1()
 static bool test_emptyop1()
 {
     OmEnquire enquire(get_simple_database());
-    vector<OmQuery> nullvec;
+    vector<Xapian::Query> nullvec;
     
-    OmQuery query1(OmQuery::OP_XOR, nullvec.begin(), nullvec.end());
+    Xapian::Query query1(Xapian::Query::OP_XOR, nullvec.begin(), nullvec.end());
 
     OmMSet mymset = do_get_simple_query_mset(query1);
     TEST_MSET_SIZE(mymset, 0);
@@ -1508,7 +1508,7 @@ static bool test_keepalive1()
 	db.keep_alive();
     }
     OmEnquire enquire(db);
-    OmQuery myquery("word");
+    Xapian::Query myquery("word");
     enquire.set_query(myquery);
     enquire.get_mset(0, 10);
 
@@ -1648,7 +1648,7 @@ static bool test_specialterms1()
     OmMSetIterator m;
     Xapian::Stem stemmer("english");
 
-    init_simple_enquire(enquire, OmQuery(stemmer.stem_word("new\nline")));
+    init_simple_enquire(enquire, Xapian::Query(stemmer.stem_word("new\nline")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
     count = 0;
@@ -1668,7 +1668,7 @@ static bool test_specialterms1()
     }
     
     init_simple_enquire(enquire,
-			OmQuery(stemmer.stem_word(string("big\0zero", 8))));
+			Xapian::Query(stemmer.stem_word(string("big\0zero", 8))));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
     count = 0;
@@ -1683,7 +1683,7 @@ static bool test_absentterm1()
 {
     OmEnquire enquire(get_simple_database());
     enquire.set_weighting_scheme(BoolWeight());
-    OmQuery query("frink");
+    Xapian::Query query("frink");
     init_simple_enquire(enquire, query);
 
     OmMSet mymset = enquire.get_mset(0, 10);
@@ -1699,7 +1699,7 @@ static bool test_absentterm2()
     vector<string> terms;
     terms.push_back("frink");
 
-    OmQuery query(OmQuery::OP_OR, terms.begin(), terms.end());
+    Xapian::Query query(Xapian::Query::OP_OR, terms.begin(), terms.end());
     enquire.set_query(query);
 
     OmMSet mymset = enquire.get_mset(0, 10);
@@ -1713,7 +1713,7 @@ static bool test_rset1()
 {
     OmDatabase mydb(get_database("apitest_rset"));
     OmEnquire enquire(make_dbgrp(&mydb));
-    OmQuery myquery = query(OmQuery::OP_OR, "giraffe", "tiger");
+    Xapian::Query myquery = query(Xapian::Query::OP_OR, "giraffe", "tiger");
     enquire.set_query(myquery);
 
     OmMSet mymset1 = enquire.get_mset(0, 10);
@@ -1736,7 +1736,7 @@ static bool test_rset2()
 {
     OmDatabase mydb(get_database("apitest_rset"));
     OmEnquire enquire(make_dbgrp(&mydb));
-    OmQuery myquery = query(OmQuery::OP_OR, "cuddly", "people");
+    Xapian::Query myquery = query(Xapian::Query::OP_OR, "cuddly", "people");
     enquire.set_query(myquery);
 
     OmMSet mymset1 = enquire.get_mset(0, 10);
@@ -1762,7 +1762,7 @@ static bool test_rsetmultidb1()
     OmEnquire enquire1(make_dbgrp(&mydb1));
     OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
 
-    OmQuery myquery = query(OmQuery::OP_OR, "cuddly", "multiple");
+    Xapian::Query myquery = query(Xapian::Query::OP_OR, "cuddly", "multiple");
 
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
@@ -1800,7 +1800,7 @@ static bool test_rsetmultidb2()
     OmEnquire enquire1(make_dbgrp(&mydb1));
     OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
 
-    OmQuery myquery = query("is");
+    Xapian::Query myquery = query("is");
 
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
@@ -1832,7 +1832,7 @@ static bool test_rsetmultidb2()
 static bool test_rsetmultidb3()
 {
     OmEnquire enquire(get_database("apitest_simpledata2"));
-    enquire.set_query(query(OmQuery::OP_OR, "cuddly", "people"));
+    enquire.set_query(query(Xapian::Query::OP_OR, "cuddly", "people"));
     OmMSet mset = enquire.get_mset(0, 10); // used to fail assertion
     return true;
 }
@@ -1843,10 +1843,10 @@ static bool test_eliteset1()
     OmDatabase mydb(get_database("apitest_simpledata"));
     OmEnquire enquire(make_dbgrp(&mydb));
 
-    OmQuery myquery1 = query(OmQuery::OP_OR, "word");
+    Xapian::Query myquery1 = query(Xapian::Query::OP_OR, "word");
     myquery1.set_length(2); // so the query lengths are the same
 
-    OmQuery myquery2 = query(OmQuery::OP_ELITE_SET, "simple", "word");
+    Xapian::Query myquery2 = query(Xapian::Query::OP_ELITE_SET, "simple", "word");
     myquery2.set_elite_set_size(1);
 
     enquire.set_query(myquery1);
@@ -1866,11 +1866,11 @@ static bool test_eliteset2()
     OmDatabase mydb(get_database("apitest_simpledata"));
     OmEnquire enquire(make_dbgrp(&mydb));
 
-    OmQuery myquery1 = query(OmQuery::OP_AND, "word", "search");
+    Xapian::Query myquery1 = query(Xapian::Query::OP_AND, "word", "search");
 
-    OmQuery myquery2(OmQuery::OP_ELITE_SET,
+    Xapian::Query myquery2(Xapian::Query::OP_ELITE_SET,
 		     query("this"),
-		     query(OmQuery::OP_AND, "word", "search"));
+		     query(Xapian::Query::OP_AND, "word", "search"));
     myquery2.set_elite_set_size(1);
 
     enquire.set_query(myquery1);
@@ -1909,10 +1909,10 @@ static bool test_eliteset3()
     terms.push_back(term2);
     terms.push_back(term3);
 
-    OmQuery myquery1(OmQuery::OP_OR, terms.begin(), terms.end());
+    Xapian::Query myquery1(Xapian::Query::OP_OR, terms.begin(), terms.end());
     enquire1.set_query(myquery1);
 
-    OmQuery myquery2(OmQuery::OP_ELITE_SET, terms.begin(), terms.end());
+    Xapian::Query myquery2(Xapian::Query::OP_ELITE_SET, terms.begin(), terms.end());
     myquery2.set_elite_set_size(3);
     enquire2.set_query(myquery2);
 
@@ -1946,8 +1946,8 @@ static bool test_eliteset4()
     OmDatabase mydb2(get_database("apitest_simpledata"));
     OmEnquire enquire2(make_dbgrp(&mydb2));
 
-    OmQuery myquery1 = query("rubbish");
-    OmQuery myquery2 = query(OmQuery::OP_ELITE_SET, "word", "rubbish", "fibble");
+    Xapian::Query myquery1 = query("rubbish");
+    Xapian::Query myquery2 = query(Xapian::Query::OP_ELITE_SET, "word", "rubbish", "fibble");
     myquery2.set_elite_set_size(1);
     enquire1.set_query(myquery1);
     enquire2.set_query(myquery2);
@@ -2077,11 +2077,11 @@ static bool test_qterminfo1()
     string term2 = stemmer.stem_word("inmemory");
     string term3 = stemmer.stem_word("flibble");
 
-    OmQuery myquery(OmQuery::OP_OR,
-		    OmQuery(term1),
-		    OmQuery(OmQuery::OP_OR,
-			    OmQuery(term2),
-			    OmQuery(term3)));
+    Xapian::Query myquery(Xapian::Query::OP_OR,
+		    Xapian::Query(term1),
+		    Xapian::Query(Xapian::Query::OP_OR,
+			    Xapian::Query(term2),
+			    Xapian::Query(term3)));
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
 
@@ -2132,7 +2132,7 @@ static bool test_msetzeroitems1()
 // test that the matches_* of a simple query are as expected
 static bool test_matches1()
 {
-    OmQuery myquery;
+    Xapian::Query myquery;
     OmMSet mymset;
 
     myquery = query("word");
@@ -2141,25 +2141,25 @@ static bool test_matches1()
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
 
-    myquery = query(OmQuery::OP_OR, "inmemory", "word");
+    myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
     mymset = do_get_simple_query_mset(myquery);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 2);
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
 
-    myquery = query(OmQuery::OP_AND, "inmemory", "word");
+    myquery = query(Xapian::Query::OP_AND, "inmemory", "word");
     mymset = do_get_simple_query_mset(myquery);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mymset.get_matches_estimated(), 0);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 0);
 
-    myquery = query(OmQuery::OP_AND, "simple", "word");
+    myquery = query(Xapian::Query::OP_AND, "simple", "word");
     mymset = do_get_simple_query_mset(myquery);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 2);
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
 
-    myquery = query(OmQuery::OP_AND, "simple", "word");
+    myquery = query(Xapian::Query::OP_AND, "simple", "word");
     mymset = do_get_simple_query_mset(myquery, 0);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mymset.get_matches_estimated(), 1);
@@ -2175,7 +2175,7 @@ static bool test_matches1()
     TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
 
-    myquery = query(OmQuery::OP_AND, "paragraph", "another");
+    myquery = query(Xapian::Query::OP_AND, "paragraph", "another");
     mymset = do_get_simple_query_mset(myquery, 0);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mymset.get_matches_estimated(), 1);
@@ -2234,7 +2234,7 @@ static bool test_adddoc1()
     doc3.add_posting("bar", 3);
     db.add_document(doc3);
 
-    OmQuery query("foo");
+    Xapian::Query query("foo");
 
     OmEnquire enq(make_dbgrp(&db));
     enq.set_query(query);
@@ -2764,8 +2764,8 @@ static bool test_deldoc4()
 static bool test_wqf1()
 {
     // both queries have length 2; in q1 word has wqf=2, in q2 word has wqf=1
-    OmQuery q1("word", 2);
-    OmQuery q2("word");
+    Xapian::Query q1("word", 2);
+    Xapian::Query q2("word");
     q2.set_length(2);
     OmMSet mset1 = do_get_simple_query_mset(q1);
     OmMSet mset2 = do_get_simple_query_mset(q2);
@@ -2777,8 +2777,8 @@ static bool test_wqf1()
 // tests that query length affects the document weights
 static bool test_qlen1()
 {
-    OmQuery q1("word");
-    OmQuery q2("word");
+    Xapian::Query q1("word");
+    Xapian::Query q2("word");
     q2.set_length(2);
     OmMSet mset1 = do_get_simple_query_mset(q1);
     OmMSet mset2 = do_get_simple_query_mset(q2);
@@ -3035,7 +3035,7 @@ static bool test_sortbands1()
     OmEnquire enquire(db);
     const char * terms[] = {"better", "place", "reader", "without", "would"};
     for (size_t j = 0; j < sizeof(terms) / sizeof(const char *); ++j) {
-	enquire.set_query(OmQuery(terms[j]));
+	enquire.set_query(Xapian::Query(terms[j]));
 	enquire.set_sorting(om_valueno(-1), 10);
 	OmMSet mset = enquire.get_mset(0, 20);
 	om_docid prev = 0;
@@ -3105,7 +3105,7 @@ static bool test_consistency1()
 {
     OmDatabase db(get_database("etext"));
     OmEnquire enquire(db);
-    enquire.set_query(OmQuery(OmQuery::OP_OR, OmQuery("the"), OmQuery("sky")));
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, Xapian::Query("the"), Xapian::Query("sky")));
     om_doccount lots = 214;
     OmMSet bigmset = enquire.get_mset(0, lots);
     try {

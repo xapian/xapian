@@ -1,4 +1,27 @@
 %{
+/* readquery.ll: decode a serialised query
+ *
+ * ----START-LICENCE----
+ * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ * -----END-LICENCE-----
+ */
 
 #include "readquery.h"
 #include <stdio.h>
@@ -14,28 +37,25 @@ querytok qt;
 %option never-interactive
 %option nounput
 
-OP_AND		%and
-OP_OR		%or
-OP_FILTER	%filter
-OP_ANDMAYBE	%andmaybe
-OP_ANDNOT	%andnot
-OP_XOR		%xor
-OP_NEAR		%near{DIGIT}{DIGIT}*
-OP_PHRASE	%phrase{DIGIT}{DIGIT}*
-OP_WEIGHT_CUTOFF	%wtcutoff{DIGIT}{DIGIT}*\.{DIGIT}{DIGIT}*
-OP_ELITE_SET	%eliteset{DIGIT}{DIGIT}*
+OP_AND		%and%\)
+OP_OR		%or%\)
+OP_FILTER	%filter%\)
+OP_ANDMAYBE	%andmaybe%\)
+OP_ANDNOT	%andnot%\)
+OP_XOR		%xor%\)
+OP_NEAR		%near{DIGIT}{DIGIT}*%\)
+OP_PHRASE	%phrase{DIGIT}{DIGIT}*%\)
+OP_WEIGHT_CUTOFF	%wtcutoff{DIGIT}{DIGIT}*\.{DIGIT}{DIGIT}*%\)
+OP_ELITE_SET	%eliteset{DIGIT}{DIGIT}*%\)
 
 TCHAR		[^ \n]
 DIGIT		[0-9]
 
 TERM		%T{TCHAR}*\ {DIGIT}{DIGIT}*(,{DIGIT}{DIGIT}*)?
 
-NULL_QUERY	%N
-
 QUERY_LEN	%L{DIGIT}{DIGIT}*
 
 OP_BRA		%\(
-OP_KET		%\)
 %%
 
 {TERM}		{
@@ -61,11 +81,6 @@ OP_KET		%\)
 
 {OP_BRA}	{
 		    qt.type = querytok::OP_BRA;
-		    return qt;
-		}
-
-{OP_KET}	{
-		    qt.type = querytok::OP_KET;
 		    return qt;
 		}
 
@@ -120,11 +135,6 @@ OP_KET		%\)
 {OP_ELITE_SET}	{
 		    qt.type = querytok::OP_ELITE_SET;
 		    qt.elite_set_size = atoi(yytext + 9); // skip %eliteset
-		    return qt;
-		}
-
-{NULL_QUERY}	{
-		    qt.type = querytok::NULL_QUERY;
 		    return qt;
 		}
 

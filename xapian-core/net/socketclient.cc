@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -384,7 +384,7 @@ SocketClient::~SocketClient()
 }
 
 void
-SocketClient::set_query(const OmQuery::Internal *query_,
+SocketClient::set_query(const Xapian::Query::Internal *query_,
 			om_valueno collapse_key, bool sort_forward,
 			int percent_cutoff, om_weight weight_cutoff,
 			const OmWeight *wtscheme, const OmRSet &omrset_)

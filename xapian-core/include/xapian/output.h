@@ -42,8 +42,8 @@ XAPIAN_OUTPUT_FUNCTION(OmWritableDatabase)
 #include "om/omdocument.h"
 XAPIAN_OUTPUT_FUNCTION(OmDocument)
 
-#include "om/omquery.h"
-XAPIAN_OUTPUT_FUNCTION(OmQuery)
+#include <xapian/query.h>
+XAPIAN_OUTPUT_FUNCTION(Xapian::Query)
 
 #include "om/omenquire.h"
 XAPIAN_OUTPUT_FUNCTION(OmRSet)

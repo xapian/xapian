@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,11 +59,12 @@ class RemoteSubMatch : public SubMatch {
 	void finish_query();
 
 	/// Make a weight - default argument is used for finding extra_weight
-	OmWeight * mk_weight(const OmQuery::Internal *query = NULL);
+	OmWeight * mk_weight(const Xapian::Query::Internal *query = NULL);
 
     public:
 	RemoteSubMatch(const NetworkDatabase *db_,
-		       const OmQuery::Internal * query, const OmRSet & omrset,
+		       const Xapian::Query::Internal * query,
+		       const OmRSet & omrset,
 		       om_valueno collapse_key, bool sort_forward,
 		       int percent_cutoff, om_weight weight_cutoff,
 		       StatsGatherer *gatherer_, const OmWeight *wtscheme);

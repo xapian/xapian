@@ -158,7 +158,7 @@ class OmEnquire::Internal::Data : public RefCntBase {
 	 *  This may need to be mutable in future so that it can be
 	 *  replaced by an optimised version.
 	 */
-	OmQuery * query;
+	Xapian::Query * query;
 
 	/** Calculate the matching terms.
 	 *  This method does the work for get_matching_terms().
@@ -204,8 +204,8 @@ class OmEnquire::Internal::Data : public RefCntBase {
 	 */
 	OmDocument read_doc(const OmMSetItem &item) const;
 
-	void set_query(const OmQuery & query_);
-	const OmQuery & get_query();
+	void set_query(const Xapian::Query & query_);
+	const Xapian::Query & get_query();
 	OmMSet get_mset(om_doccount first, om_doccount maxitems,
 			const OmRSet *omrset, 
 			const OmMatchDecider *mdecider) const;

@@ -884,13 +884,13 @@ OmEnquire::Internal::Data::~Data()
 }
 
 void
-OmEnquire::Internal::Data::set_query(const OmQuery &query_)
+OmEnquire::Internal::Data::set_query(const Xapian::Query &query_)
 {
     delete query;
-    query = new OmQuery(query_);
+    query = new Xapian::Query(query_);
 }
 
-const OmQuery &
+const Xapian::Query &
 OmEnquire::Internal::Data::get_query()
 {
     if (query == 0) {
@@ -920,8 +920,9 @@ OmEnquire::Internal::Data::get_mset(om_doccount first, om_doccount maxitems,
     }
 
     // FIXME: make match take a refcntptr
-    MultiMatch match(db, query->internal, *omrset, collapse_key, percent_cutoff,
-		     weight_cutoff, sort_forward, sort_key, sort_bands,
+    MultiMatch match(db, query->internal.get(), *omrset, collapse_key,
+		     percent_cutoff, weight_cutoff,
+		     sort_forward, sort_key, sort_bands,
 		     bias_halflife, bias_weight, errorhandler,
 		     AutoPtr<StatsGatherer>(new LocalStatsGatherer()), weight);
 
@@ -1132,7 +1133,7 @@ OmEnquire::~OmEnquire()
 }
 
 void
-OmEnquire::set_query(const OmQuery & query_)
+OmEnquire::set_query(const Xapian::Query & query_)
 {
     DEBUGAPICALL(void, "OmEnquire::set_query", query_);
     try {
@@ -1143,10 +1144,10 @@ OmEnquire::set_query(const OmQuery & query_)
     }
 }
 
-const OmQuery &
+const Xapian::Query &
 OmEnquire::get_query()
 {
-    DEBUGAPICALL(const OmQuery &, "OmEnquire::get_query", "");
+    DEBUGAPICALL(const Xapian::Query &, "OmEnquire::get_query", "");
     try {
 	RETURN(internal->data->get_query());
     } catch (Xapian::Error & e) {

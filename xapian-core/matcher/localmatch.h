@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,7 +56,7 @@ class LocalSubMatch : public SubMatch {
 	bool is_prepared;
 
 	/// Query to be run
-	OmQuery::Internal users_query;
+	Xapian::Query::Internal users_query;
 
 	const Database *db;
 
@@ -83,15 +83,15 @@ class LocalSubMatch : public SubMatch {
 				 MultiMatch *matcher);
 
 	/// Make a postlist from a vector of query objects (AND or OR)
-	PostList *postlist_from_queries(OmQuery::Internal::op_t op,
-				const OmQuery::Internal::subquery_list &queries,
+	PostList *postlist_from_queries(Xapian::Query::Internal::op_t op,
+				const Xapian::Query::Internal::subquery_list &queries,
 				om_termpos window,
 				om_termcount elite_set_size,
 				MultiMatch *matcher,
 				bool is_bool);
 
 	/// Make a postlist from a query object
-	PostList *postlist_from_query(const OmQuery::Internal * query,
+	PostList *postlist_from_query(const Xapian::Query::Internal * query,
 				      MultiMatch *matcher,
 				      bool is_bool);
 
@@ -100,7 +100,8 @@ class LocalSubMatch : public SubMatch {
 	}
 
     public:
-	LocalSubMatch(const Database *db_, const OmQuery::Internal * query,
+	LocalSubMatch(const Database *db_,
+		      const Xapian::Query::Internal * query,
 		      const OmRSet & omrset, StatsGatherer *gatherer,
 		      const OmWeight *wtscheme_)
 		: statssource(new LocalStatsSource(gatherer)),

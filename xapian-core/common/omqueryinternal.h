@@ -25,9 +25,12 @@
 #ifndef OM_HGUARD_OMQUERYINTERNAL_H
 #define OM_HGUARD_OMQUERYINTERNAL_H
 
+#if 0
 #include <xapian/types.h>
 #include "om/omenquire.h"
-#include "om/omquery.h"
+#endif
+#include <xapian/query.h>
+#if 0
 #include <string>
 #include <vector>
 
@@ -40,24 +43,19 @@ using namespace std;
 class MultiMatch;
 class LocalSubMatch;
 
-///////////////////////////////////////////////////////////////////
-// OmQuery::Internal class
-// =====================
-
-/// Internal class, implementing most of OmQuery
-class OmQuery::Internal {
+/// Internal class, implementing most of Xapian::Query
+class Xapian::Query::Internal : public Xapian::Internal::RefCntBase {
     friend class MultiMatch;
     friend class LocalSubMatch;
     friend class SortPosName;
     public:
         static const int OP_LEAF = -1;
-        static const int OP_UNDEF = -2;
 
 	/// The container type for storing pointers to subqueries
 #ifdef USE_DELETER_VECTOR
-	typedef deleter_vector<OmQuery::Internal *> subquery_list;
+	typedef deleter_vector<Xapian::Query::Internal *> subquery_list;
 #else
-	typedef vector<OmQuery::Internal *> subquery_list;
+	typedef vector<Xapian::Query::Internal *> subquery_list;
 #endif
 
 	/// Type storing the operation
@@ -95,17 +93,17 @@ class OmQuery::Internal {
 	/// Within query frequency of this term - leaf node only
 	om_termcount wqf;
 
-	/** swap the contents of this with another OmQuery::Internal,
+	/** swap the contents of this with another Xapian::Query::Internal,
 	 *  in a way which is guaranteed not to throw.  This is
 	 *  used with the assignment operator to make it exception
 	 *  safe.
 	 *  It's important to adjust swap with any addition of
 	 *  member variables!
 	 */
-	void swap(OmQuery::Internal &other);
+	void swap(Xapian::Query::Internal &other);
 
-	/// Copy another OmQuery::Internal into self.
-	void initialise_from_copy(const OmQuery::Internal & copyme);
+	/// Copy another Xapian::Query::Internal into self.
+	void initialise_from_copy(const Xapian::Query::Internal & copyme);
 
         void accumulate_terms(
 	    vector<pair<string, om_termpos> > &terms) const;
@@ -114,7 +112,7 @@ class OmQuery::Internal {
 	 *  For example, an AND query with only one subquery would become the
 	 *  subquery itself.
 	 */
-	void simplify_query();
+	Xapian::Query::Internal * simplify_query();
 
 	/** Preliminary checks that query is valid. (eg, has correct number of
 	 *  sub queries.) Throw an exception if not.  This is initially called
@@ -133,7 +131,7 @@ class OmQuery::Internal {
 
 	/** Get a string describing the given query type.
 	 */
-	static string get_op_name(OmQuery::Internal::op_t op);
+	static string get_op_name(Xapian::Query::Internal::op_t op);
 
 	/** Collapse the subqueryies together if appropriate.
 	 */
@@ -146,10 +144,10 @@ class OmQuery::Internal {
 
     public:
 	/** Copy constructor. */
-	Internal(const OmQuery::Internal & copyme);
+	Internal(const Xapian::Query::Internal & copyme);
 
 	/** Assignment. */
-	void operator=(const OmQuery::Internal & copyme);
+	void operator=(const Xapian::Query::Internal & copyme);
 
 	/** A query consisting of a single term. */
 	Internal(const string & tname_, om_termcount wqf_ = 1,
@@ -172,11 +170,11 @@ class OmQuery::Internal {
 
 	/** Add a subquery.
 	 */
-	void add_subquery(const OmQuery::Internal & subq);
+	void add_subquery(const Xapian::Query::Internal & subq);
 
 	/** Finish off the construction.
 	 */
-	void end_construction();
+	Xapian::Query::Internal * end_construction();
 
 	/** Return a string in an easily parsed form
 	 *  which contains all the information in a query.
@@ -216,10 +214,7 @@ class OmQuery::Internal {
 	 *  termpos) will be removed.
 	 */
 	Xapian::TermIterator get_terms() const;
-	
-	/// Test is the query is empty (i.e. was set using OmQuery() or with
-	//  an empty iterator ctor)
-	bool is_empty() const { return op == OP_UNDEF; }
 };
+#endif
 
 #endif // OM_HGUARD_OMQUERYINTERNAL_H

@@ -37,12 +37,12 @@ using namespace std;
  
 class U {
     public:
-	OmQuery q;
-	vector<OmQuery> v;
-	vector<OmQuery> love;
-	vector<OmQuery> hate;
+	Xapian::Query q;
+	vector<Xapian::Query> v;
+	vector<Xapian::Query> love;
+	vector<Xapian::Query> hate;
 
-	U(OmQuery q) : q(q) { }
+	U(Xapian::Query q) : q(q) { }
 	U() { }
 };
 
@@ -54,7 +54,7 @@ static int yyparse();
 static int yyerror(const char *s);
 static int yylex();
 
-static OmQuery query;
+static Xapian::Query query;
 
 static OmQueryParser *qp;
 static string q;
@@ -69,35 +69,35 @@ static string q;
 
 /* Grammar follows */
 %%
-input:	  /* nothing */	{ query = OmQuery(); }
+input:	  /* nothing */	{ query = Xapian::Query(); }
 	| exp		{ query = $1.q; }
 ;
 
 exp:	  prob		{
-			    OmQuery q = $1.q;
+			    Xapian::Query q = $1.q;
 			    if ($1.love.size()) {
-				OmQuery love(OmQuery::OP_AND,
+				Xapian::Query love(Xapian::Query::OP_AND,
 					     $1.love.begin(),
 					     $1.love.end());
 				if (q.is_empty()) {
 				    q = love;
 				} else {
-				    q = OmQuery(OmQuery::OP_AND_MAYBE, love, q);
+				    q = Xapian::Query(Xapian::Query::OP_AND_MAYBE, love, q);
 				}				
 			    }
 			    if ($1.hate.size()) {
-				q = OmQuery(OmQuery::OP_AND_NOT,
+				q = Xapian::Query(Xapian::Query::OP_AND_NOT,
 					    q,
-					    OmQuery(OmQuery::OP_OR,
+					    Xapian::Query(Xapian::Query::OP_OR,
 						    $1.hate.begin(),
 						    $1.hate.end()));
 			    }
 			    $$ = q;
 			}
-	| exp AND exp	{ $$ = U(OmQuery(OmQuery::OP_AND, $1.q, $3.q)); }
-	| exp OR exp	{ $$ = U(OmQuery(OmQuery::OP_OR, $1.q, $3.q)); }
-	| exp NOT exp	{ $$ = U(OmQuery(OmQuery::OP_AND_NOT, $1.q, $3.q)); }
-	| exp XOR exp	{ $$ = U(OmQuery(OmQuery::OP_XOR, $1.q, $3.q)); }
+	| exp AND exp	{ $$ = U(Xapian::Query(Xapian::Query::OP_AND, $1.q, $3.q)); }
+	| exp OR exp	{ $$ = U(Xapian::Query(Xapian::Query::OP_OR, $1.q, $3.q)); }
+	| exp NOT exp	{ $$ = U(Xapian::Query(Xapian::Query::OP_AND_NOT, $1.q, $3.q)); }
+	| exp XOR exp	{ $$ = U(Xapian::Query(Xapian::Query::OP_XOR, $1.q, $3.q)); }
 	| '(' exp ')'	{ $$ = $2; }
 	/* error catches */
 	| exp AND	{ throw "Syntax: expression AND expression"; }
@@ -116,7 +116,7 @@ prob:	  probterm
 			  } else if ($2.q.is_empty()) {
 			      $$ = $1;
 			  } else {
-			      $$ = U(OmQuery(qp->default_op, $1.q, $2.q));
+			      $$ = U(Xapian::Query(qp->default_op, $1.q, $2.q));
 			  }
 	                  $$.love = $1.love;
 	                  $$.hate = $1.hate; }			  
@@ -146,21 +146,21 @@ stopterm: TERM		{ string term = *($1.q.get_terms_begin());
 			  } else {
 			      $$ = $1;
 			  } }
-	| '"' phrase '"'{ $$ = U(OmQuery(OmQuery::OP_PHRASE, $2.v.begin(), $2.v.end()));
+	| '"' phrase '"'{ $$ = U(Xapian::Query(Xapian::Query::OP_PHRASE, $2.v.begin(), $2.v.end()));
 			  $$.q.set_window($2.v.size()); }
-	| hypphr        { $$ = U(OmQuery(OmQuery::OP_PHRASE, $1.v.begin(), $1.v.end()));
+	| hypphr        { $$ = U(Xapian::Query(Xapian::Query::OP_PHRASE, $1.v.begin(), $1.v.end()));
 			  $$.q.set_window($1.v.size()); }
-	| nearphr	{ $$ = U(OmQuery(OmQuery::OP_NEAR, $1.v.begin(), $1.v.end()));
+	| nearphr	{ $$ = U(Xapian::Query(Xapian::Query::OP_NEAR, $1.v.begin(), $1.v.end()));
 			  $$.q.set_window($1.v.size() + 9); }
 ;
 
 term:	  TERM
 	| PREFIXTERM
-	| '"' phrase '"'{ $$ = U(OmQuery(OmQuery::OP_PHRASE, $2.v.begin(), $2.v.end()));
+	| '"' phrase '"'{ $$ = U(Xapian::Query(Xapian::Query::OP_PHRASE, $2.v.begin(), $2.v.end()));
 			  $$.q.set_window($2.v.size()); }
-	| hypphr        { $$ = U(OmQuery(OmQuery::OP_PHRASE, $1.v.begin(), $1.v.end()));
+	| hypphr        { $$ = U(Xapian::Query(Xapian::Query::OP_PHRASE, $1.v.begin(), $1.v.end()));
 			  $$.q.set_window($1.v.size()); }
-	| nearphr	{ $$ = U(OmQuery(OmQuery::OP_NEAR, $1.v.begin(), $1.v.end()));
+	| nearphr	{ $$ = U(Xapian::Query(Xapian::Query::OP_NEAR, $1.v.begin(), $1.v.end()));
 			  $$.q.set_window($1.v.size() + 9); }
 ;
 
@@ -391,7 +391,7 @@ more_term:
 	    term = prefix + term;
 	    prefix = "";
 	}
-	yylval = U(OmQuery(term, 1, termpos++));
+	yylval = U(Xapian::Query(term, 1, termpos++));
 	qp->termlist.push_back(term);
 	qp->unstem.insert(make_pair(term, original_term));
 	return TERM;
@@ -424,7 +424,7 @@ yyerror(const char *s)
     throw s;
 }
 
-OmQuery
+Xapian::Query
 OmQueryParser::parse_query(const string &q_)
 {
     qp = this;
@@ -436,8 +436,8 @@ OmQueryParser::parse_query(const string &q_)
     if (yyparse() == 1) {
 	throw "query failed to parse";
     }
-    OmQuery res = query;
-    query = OmQuery();
+    Xapian::Query res = query;
+    query = Xapian::Query();
     q = "";
     return res;
 }

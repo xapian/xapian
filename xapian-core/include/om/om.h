@@ -60,6 +60,7 @@ typedef std::string om_termname;
 #define OmPositionListIterator Xapian::PositionListIterator
 #define OmTermIterator Xapian::TermIterator
 #define OmPostListIterator Xapian::PostListIterator
+#define OmQuery Xapian::Query
 //#define OmDocument Xapian::Document
 
 #define om_percent Xapian::percent
@@ -89,7 +90,7 @@ typedef std::string om_termname;
 
 // Searching
 #include "om/omenquire.h"
-#include "om/omquery.h"
+#include <xapian/query.h>
 #include <xapian/expanddecider.h>
 
 // Stemming

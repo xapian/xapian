@@ -471,7 +471,7 @@ conversion operation, to the terms.
 <P>
 Queries are represented within Xapian by <CODE>OmQuery</CODE> objects, so
 the next step is to construct one from our query terms.
-By an amazing coincidence, there is a constructor ready to take our vector
+Conveniently there is a constructor which will take our vector
 of terms and create an <CODE>OmQuery</CODE> object from it.
 <PRE>
     OmQuery query(OmQuery::OP_OR, queryterms.begin(), queryterms.end());

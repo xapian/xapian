@@ -50,7 +50,7 @@ class MultiMatch
 
 	const OmDatabase db;
 
-	const OmQuery::Internal *query;
+	const Xapian::Query::Internal *query;
 
 	om_valueno collapse_key;
 
@@ -116,7 +116,7 @@ class MultiMatch
 	 *  @param wtischeme Weighting scheme
 	 */
 	MultiMatch(const OmDatabase &db_,
-		   const OmQuery::Internal * query,
+		   const Xapian::Query::Internal * query,
 		   const OmRSet & omrset,
 		   om_valueno collapse_key_,
 		   int percent_cutoff_,

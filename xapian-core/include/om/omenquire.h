@@ -33,8 +33,11 @@
 #include <string>
 #include <time.h> // for time_t
 
-class OmQuery;
-class Xapian::ErrorHandler;
+namespace Xapian {
+class Query;
+class ErrorHandler;
+}
+
 class OmWeight;
 
 /** An iterator pointing to items in an MSet.
@@ -585,7 +588,7 @@ class OmEnquire {
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 *  @exception Xapian::OpeningError          See class documentation.
 	 */
-	void set_query(const OmQuery & query_);
+	void set_query(const Xapian::Query & query_);
 
 	/** Get the query which has been set.
 	 *  This is only valid after set_query() has been called.
@@ -593,7 +596,7 @@ class OmEnquire {
 	 *  @exception Xapian::InvalidArgumentError will be thrown if query has
 	 *             not yet been set.
 	 */
-	const OmQuery & get_query();
+	const Xapian::Query & get_query();
 
 	/** Set the weighting scheme to use for queries.
 	 *
@@ -645,8 +648,8 @@ class OmEnquire {
 	 *	documents. If a document has a lower percentage score than this,
 	 *	it will not appear in the mset.  If your intention is to return
 	 *	only matches which contain all the terms in the query, then
-	 *	it's more efficient to use OmQuery::OP_AND instead of
-	 *	OmQuery::OP_OR in the query than to set percent_cutoff to 100).
+	 *	it's more efficient to use Xapian::Query::OP_AND instead of
+	 *	Xapian::Query::OP_OR in the query than to set percent_cutoff to 100).
 	 *	(default 0 => no percentage cut-off).
 	 * @param weight_cutoff Minimum weight for a document to be returned.
 	 *	If a document has a lower score that this, it will not appear

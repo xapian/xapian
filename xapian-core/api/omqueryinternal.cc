@@ -44,23 +44,22 @@
 // Properties for query operations.
 
 static unsigned int
-get_min_subqs(OmQuery::Internal::op_t op)
+get_min_subqs(Xapian::Query::Internal::op_t op)
 {
     switch (op) {
-	case OmQuery::Internal::OP_UNDEF:
-	case OmQuery::Internal::OP_LEAF:
-	case OmQuery::OP_AND:
-	case OmQuery::OP_OR:
-	case OmQuery::OP_XOR:
-	case OmQuery::OP_NEAR:
-	case OmQuery::OP_PHRASE:
-	case OmQuery::OP_ELITE_SET:
+	case Xapian::Query::Internal::OP_LEAF:
+	case Xapian::Query::OP_AND:
+	case Xapian::Query::OP_OR:
+	case Xapian::Query::OP_XOR:
+	case Xapian::Query::OP_NEAR:
+	case Xapian::Query::OP_PHRASE:
+	case Xapian::Query::OP_ELITE_SET:
 	    return 0;
-	case OmQuery::OP_WEIGHT_CUTOFF:
+	case Xapian::Query::OP_WEIGHT_CUTOFF:
 	    return 1;
-	case OmQuery::OP_FILTER:
-	case OmQuery::OP_AND_MAYBE:
-	case OmQuery::OP_AND_NOT:
+	case Xapian::Query::OP_FILTER:
+	case Xapian::Query::OP_AND_MAYBE:
+	case Xapian::Query::OP_AND_NOT:
 	    return 2;
 	default:
 	    Assert(false);
@@ -69,24 +68,23 @@ get_min_subqs(OmQuery::Internal::op_t op)
 }
 
 static unsigned int
-get_max_subqs(OmQuery::Internal::op_t op)
+get_max_subqs(Xapian::Query::Internal::op_t op)
 {
     switch (op) {
-	case OmQuery::Internal::OP_UNDEF:
-	case OmQuery::Internal::OP_LEAF:
+	case Xapian::Query::Internal::OP_LEAF:
 	    return 0;
-	case OmQuery::OP_WEIGHT_CUTOFF:
+	case Xapian::Query::OP_WEIGHT_CUTOFF:
 	    return 1;
-	case OmQuery::OP_FILTER:
-	case OmQuery::OP_AND_MAYBE:
-	case OmQuery::OP_AND_NOT:
+	case Xapian::Query::OP_FILTER:
+	case Xapian::Query::OP_AND_MAYBE:
+	case Xapian::Query::OP_AND_NOT:
 	    return 2;
-	case OmQuery::OP_AND:
-	case OmQuery::OP_OR:
-	case OmQuery::OP_XOR:
-	case OmQuery::OP_NEAR:
-	case OmQuery::OP_PHRASE:
-	case OmQuery::OP_ELITE_SET:
+	case Xapian::Query::OP_AND:
+	case Xapian::Query::OP_OR:
+	case Xapian::Query::OP_XOR:
+	case Xapian::Query::OP_NEAR:
+	case Xapian::Query::OP_PHRASE:
+	case Xapian::Query::OP_ELITE_SET:
 	    return UINT_MAX;
 	default:
 	    Assert(false);
@@ -95,11 +93,11 @@ get_max_subqs(OmQuery::Internal::op_t op)
 }
 
 static om_termpos
-get_min_window(OmQuery::Internal::op_t op)
+get_min_window(Xapian::Query::Internal::op_t op)
 {
     switch (op) {
-	case OmQuery::OP_NEAR:
-	case OmQuery::OP_PHRASE:
+	case Xapian::Query::OP_NEAR:
+	case Xapian::Query::OP_PHRASE:
 	    return 1;
 	default:
 	    return 0;
@@ -107,42 +105,42 @@ get_min_window(OmQuery::Internal::op_t op)
 }
 
 static bool
-is_leaf(OmQuery::Internal::op_t op)
+is_leaf(Xapian::Query::Internal::op_t op)
 {
-    return (op == OmQuery::Internal::OP_LEAF);
+    return (op == Xapian::Query::Internal::OP_LEAF);
 }
 
 static bool
-can_replace_by_single_subq(OmQuery::Internal::op_t op)
+can_replace_by_single_subq(Xapian::Query::Internal::op_t op)
 {
-    return (op == OmQuery::OP_AND ||
-	    op == OmQuery::OP_OR ||
-	    op == OmQuery::OP_XOR ||
-	    op == OmQuery::OP_NEAR ||
-	    op == OmQuery::OP_PHRASE ||
+    return (op == Xapian::Query::OP_AND ||
+	    op == Xapian::Query::OP_OR ||
+	    op == Xapian::Query::OP_XOR ||
+	    op == Xapian::Query::OP_NEAR ||
+	    op == Xapian::Query::OP_PHRASE ||
 // Can't replace OP_ELITE_SET by a single subq since then set_elite_set_size will barf...
-//	    op == OmQuery::OP_ELITE_SET ||
-	    op == OmQuery::OP_FILTER ||
-	    op == OmQuery::OP_AND_MAYBE ||
-	    op == OmQuery::OP_AND_NOT);
+//	    op == Xapian::Query::OP_ELITE_SET ||
+	    op == Xapian::Query::OP_FILTER ||
+	    op == Xapian::Query::OP_AND_MAYBE ||
+	    op == Xapian::Query::OP_AND_NOT);
 }
 
 static bool
-can_reorder(OmQuery::Internal::op_t op)
+can_reorder(Xapian::Query::Internal::op_t op)
 {
-    return (op == OmQuery::OP_OR ||
-	    op == OmQuery::OP_AND ||
-	    op == OmQuery::OP_XOR);
+    return (op == Xapian::Query::OP_OR ||
+	    op == Xapian::Query::OP_AND ||
+	    op == Xapian::Query::OP_XOR);
 }
 
 static bool
-can_flatten(OmQuery::Internal::op_t op)
+can_flatten(Xapian::Query::Internal::op_t op)
 {
-    return (op == OmQuery::OP_NEAR || op == OmQuery::OP_PHRASE);
+    return (op == Xapian::Query::OP_NEAR || op == Xapian::Query::OP_PHRASE);
 }
 
 ///////////////////////////////////
-// Methods for OmQuery::Internal //
+// Methods for Xapian::Query::Internal //
 ///////////////////////////////////
 
 /** serialising method, for network matches.
@@ -164,15 +162,13 @@ can_flatten(OmQuery::Internal::op_t op)
  *  	<op> is one of: %and, %or, %filter, %andmaybe, %andnot, %xor
  */
 std::string
-OmQuery::Internal::serialise() const
+Xapian::Query::Internal::serialise() const
 {
-    if (op == OmQuery::Internal::OP_UNDEF) return "%N";
-
     std::string result;
 
     std::string qlens = std::string("%L") + om_tostring(qlen);
     result += qlens;
-    if (op == OmQuery::Internal::OP_LEAF) {
+    if (op == Xapian::Query::Internal::OP_LEAF) {
 	result += "%T" + encode_tname(tname) + ' ' + om_tostring(term_pos);
 	if (wqf != 1) result += ',' + om_tostring(wqf);
     } else {
@@ -183,40 +179,37 @@ OmQuery::Internal::serialise() const
 	    result += (*i)->serialise() + " ";
 	}
 	switch (op) {
-	    case OmQuery::Internal::OP_LEAF:
+	    case Xapian::Query::Internal::OP_LEAF:
 		Assert(false);
 		break;
-	    case OmQuery::Internal::OP_UNDEF:
-		Assert(false);
-		break;
-	    case OmQuery::OP_AND:
+	    case Xapian::Query::OP_AND:
 		result += "%and";
 		break;
-	    case OmQuery::OP_OR:
+	    case Xapian::Query::OP_OR:
 		result += "%or";
 		break;
-	    case OmQuery::OP_FILTER:
+	    case Xapian::Query::OP_FILTER:
 		result += "%filter";
 		break;
-	    case OmQuery::OP_AND_MAYBE:
+	    case Xapian::Query::OP_AND_MAYBE:
 		result += "%andmaybe";
 		break;
-	    case OmQuery::OP_AND_NOT:
+	    case Xapian::Query::OP_AND_NOT:
 		result += "%andnot";
 		break;
-	    case OmQuery::OP_XOR:
+	    case Xapian::Query::OP_XOR:
 		result += "%xor";
 		break;
-	    case OmQuery::OP_NEAR:
+	    case Xapian::Query::OP_NEAR:
 		result += "%near" + om_tostring(window);
 		break;
-	    case OmQuery::OP_PHRASE:
+	    case Xapian::Query::OP_PHRASE:
 		result += "%phrase" + om_tostring(window);
 		break;
-	    case OmQuery::OP_WEIGHT_CUTOFF:
+	    case Xapian::Query::OP_WEIGHT_CUTOFF:
 		result += "%wtcutoff" + om_tostring(cutoff);
 		break;
-	    case OmQuery::OP_ELITE_SET:
+	    case Xapian::Query::OP_ELITE_SET:
 		result += "%eliteset" + om_tostring(elite_set_size);
 		break;
 	} // switch(op)
@@ -226,31 +219,29 @@ OmQuery::Internal::serialise() const
 }
 
 std::string
-OmQuery::Internal::get_op_name(OmQuery::Internal::op_t op)
+Xapian::Query::Internal::get_op_name(Xapian::Query::Internal::op_t op)
 {
     std::string name;
-    switch(op) {
-	case OmQuery::Internal::OP_UNDEF: name = "UNDEF"; break;
-	case OmQuery::Internal::OP_LEAF:  name = "LEAF"; break;
-	case OmQuery::OP_AND:             name = "AND"; break;
-	case OmQuery::OP_OR:              name = "OR"; break;
-	case OmQuery::OP_FILTER:          name = "FILTER"; break;
-	case OmQuery::OP_AND_MAYBE:       name = "AND_MAYBE"; break;
-	case OmQuery::OP_AND_NOT:         name = "AND_NOT"; break;
-	case OmQuery::OP_XOR:             name = "XOR"; break;
-	case OmQuery::OP_NEAR:            name = "NEAR"; break;
-	case OmQuery::OP_PHRASE:          name = "PHRASE"; break;
-	case OmQuery::OP_WEIGHT_CUTOFF:   name = "WEIGHT_CUTOFF"; break;
-	case OmQuery::OP_ELITE_SET:       name = "ELITE_SET"; break;
+    switch (op) {
+	case Xapian::Query::Internal::OP_LEAF:  name = "LEAF"; break;
+	case Xapian::Query::OP_AND:             name = "AND"; break;
+	case Xapian::Query::OP_OR:              name = "OR"; break;
+	case Xapian::Query::OP_FILTER:          name = "FILTER"; break;
+	case Xapian::Query::OP_AND_MAYBE:       name = "AND_MAYBE"; break;
+	case Xapian::Query::OP_AND_NOT:         name = "AND_NOT"; break;
+	case Xapian::Query::OP_XOR:             name = "XOR"; break;
+	case Xapian::Query::OP_NEAR:            name = "NEAR"; break;
+	case Xapian::Query::OP_PHRASE:          name = "PHRASE"; break;
+	case Xapian::Query::OP_WEIGHT_CUTOFF:   name = "WEIGHT_CUTOFF"; break;
+	case Xapian::Query::OP_ELITE_SET:       name = "ELITE_SET"; break;
     }
     return name;
 }
 
 // Introspection
 std::string
-OmQuery::Internal::get_description() const
+Xapian::Query::Internal::get_description() const
 {
-    if(op == OmQuery::Internal::OP_UNDEF) return "<NULL>";
     std::string opstr;
 
     if (is_leaf(op)) {
@@ -265,11 +256,11 @@ OmQuery::Internal::get_description() const
 	return tname + opstr;
     } else {
 	opstr = " " + get_op_name(op) + " ";
-	if (op == OmQuery::OP_NEAR || op == OmQuery::OP_PHRASE)
+	if (op == Xapian::Query::OP_NEAR || op == Xapian::Query::OP_PHRASE)
 	    opstr += om_tostring(window) + " ";
-	if (op == OmQuery::OP_WEIGHT_CUTOFF)
+	if (op == Xapian::Query::OP_WEIGHT_CUTOFF)
 	    opstr += om_tostring(cutoff) + " ";
-	if (op == OmQuery::OP_ELITE_SET)
+	if (op == Xapian::Query::OP_ELITE_SET)
 	    opstr += om_tostring(elite_set_size) + " ";
     }
     std::string description;
@@ -282,23 +273,23 @@ OmQuery::Internal::get_description() const
 }
 
 void
-OmQuery::Internal::set_window(om_termpos window_)
+Xapian::Query::Internal::set_window(om_termpos window_)
 {
     window = window_;
 }
 
 void
-OmQuery::Internal::set_cutoff(double cutoff_)
+Xapian::Query::Internal::set_cutoff(double cutoff_)
 {
-    if (op != OmQuery::OP_WEIGHT_CUTOFF)
+    if (op != Xapian::Query::OP_WEIGHT_CUTOFF)
 	throw Xapian::InvalidOperationError("Can only set cutoff parameter for weight or percentage cutoff operators.");
     cutoff = cutoff_;
 }
 
 void
-OmQuery::Internal::set_elite_set_size(om_termcount size_)
+Xapian::Query::Internal::set_elite_set_size(om_termcount size_)
 {
-    if (op != OmQuery::OP_ELITE_SET)
+    if (op != Xapian::Query::OP_ELITE_SET)
 	throw Xapian::InvalidOperationError("Can only set elite set size for elite set operator.");
     if (size_ == 0)
 	throw Xapian::InvalidArgumentError("Elite set size may not be zero.");
@@ -306,7 +297,7 @@ OmQuery::Internal::set_elite_set_size(om_termcount size_)
 }
 
 om_termcount
-OmQuery::Internal::set_length(om_termcount qlen_)
+Xapian::Query::Internal::set_length(om_termcount qlen_)
 {
     om_termcount oldqlen = qlen;
     qlen = qlen_;
@@ -315,11 +306,9 @@ OmQuery::Internal::set_length(om_termcount qlen_)
 
 /** Private function used to implement get_terms() */
 void
-OmQuery::Internal::accumulate_terms(
+Xapian::Query::Internal::accumulate_terms(
 			std::vector<std::pair<string, om_termpos> > &terms) const
 {
-    Assert(op != OmQuery::Internal::OP_UNDEF);
-
     if (is_leaf(op)) {
         // We're a leaf, so just return our term.
         terms.push_back(std::make_pair(tname, term_pos));
@@ -344,12 +333,10 @@ struct LessByTermpos {
 };
 
 Xapian::TermIterator
-OmQuery::Internal::get_terms() const
+Xapian::Query::Internal::get_terms() const
 {
     std::vector<std::pair<string, om_termpos> > terms;
-    if (op != OmQuery::Internal::OP_UNDEF) {
-        accumulate_terms(terms);
-    }
+    accumulate_terms(terms);
 
     sort(terms.begin(), terms.end(), LessByTermpos());
 
@@ -372,20 +359,21 @@ OmQuery::Internal::get_terms() const
 
 // Methods 
 
+#if 0 // FIXME
 // Make an uninitialised query
-OmQuery::Internal::Internal()
-	: op(OmQuery::Internal::OP_UNDEF),
-	  subqs(),
-	  qlen(0),
-	  window(0),
-	  cutoff(0),
-	  elite_set_size(0),
-	  tname(),
-	  term_pos(0),
-	  wqf(0)
-{}
+Xapian::Query::Internal::Internal()
+       : subqs(),
+         qlen(0),
+         window(0),
+         cutoff(0),
+         elite_set_size(0),
+         tname(),
+         term_pos(0),
+         wqf(0)
+{ }
+#endif
 
-/** swap the contents of this with another OmQuery::Internal,
+/** swap the contents of this with another Xapian::Query::Internal,
  *  in a way which is guaranteed not to throw.  This is
  *  used with the assignment operator to make it exception
  *  safe.
@@ -393,7 +381,7 @@ OmQuery::Internal::Internal()
  *  member variables!
  */
 void
-OmQuery::Internal::swap(OmQuery::Internal &other)
+Xapian::Query::Internal::swap(Xapian::Query::Internal &other)
 {
     std::swap(op, other.op);
     subqs.swap(other.subqs);
@@ -406,22 +394,9 @@ OmQuery::Internal::swap(OmQuery::Internal &other)
     std::swap(wqf, other.wqf);
 }
 
-void
-OmQuery::Internal::operator=(const OmQuery::Internal &copyme)
-{
-    OmQuery::Internal temp(copyme);
-    this->swap(temp);
-}
-
-void
-OmQuery::Internal::initialise_from_copy(const OmQuery::Internal &copyme)
-{
-    OmQuery::Internal temp(copyme);
-    this->swap(temp);
-}
-
-OmQuery::Internal::Internal(const OmQuery::Internal &copyme)
-	: op(copyme.op),
+Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
+	: Xapian::Internal::RefCntBase(),
+	  op(copyme.op),
 	  subqs(),
 	  qlen(copyme.qlen),
 	  window(copyme.window),
@@ -434,16 +409,16 @@ OmQuery::Internal::Internal(const OmQuery::Internal &copyme)
     for (subquery_list::const_iterator i = copyme.subqs.begin();
 	 i != copyme.subqs.end();
 	 ++i) {
-	subqs.push_back(new OmQuery::Internal(**i));
+	subqs.push_back(new Xapian::Query::Internal(**i));
     }
 }
 
 //////////////////////////////////////////
 // Methods for making new query objects
 
-OmQuery::Internal::Internal(const string & tname_, om_termcount wqf_,
+Xapian::Query::Internal::Internal(const string & tname_, om_termcount wqf_,
 		 om_termpos term_pos_)
-	: op(OmQuery::Internal::OP_LEAF),
+	: op(Xapian::Query::Internal::OP_LEAF),
 	  subqs(),
 	  qlen(wqf_),
 	  window(0),
@@ -458,7 +433,7 @@ OmQuery::Internal::Internal(const string & tname_, om_termcount wqf_,
     }
 }
 
-OmQuery::Internal::Internal(op_t op_)
+Xapian::Query::Internal::Internal(op_t op_)
 	: op(op_),
 	  subqs(),
 	  qlen(0),
@@ -471,7 +446,7 @@ OmQuery::Internal::Internal(op_t op_)
 {
 }
 
-OmQuery::Internal::~Internal()
+Xapian::Query::Internal::~Internal()
 {
 #ifndef USE_DELETER_VECTOR
     subquery_list::iterator i;
@@ -481,24 +456,25 @@ OmQuery::Internal::~Internal()
 #endif
 }
 
-void
-OmQuery::Internal::end_construction()
+Xapian::Query::Internal *
+Xapian::Query::Internal::end_construction()
 {
-    DEBUGCALL(API, void, "OmQuery::Internal::end_construction", "");
+    DEBUGCALL(API, void, "Xapian::Query::Internal::end_construction", "");
     prevalidate_query();
-    simplify_query();
-    validate_query();
+    Xapian::Query::Internal * qint = simplify_query();
+    if (qint) qint->validate_query();
+    return qint;
 }
 
 void
-OmQuery::Internal::prevalidate_query() const
+Xapian::Query::Internal::prevalidate_query() const
 {
-    DEBUGCALL(API, void, "OmQuery::Internal::prevalidate_query", "");
+    DEBUGCALL(API, void, "Xapian::Query::Internal::prevalidate_query", "");
 
     // Check that the number of subqueries is in acceptable limits for this op
     if (subqs.size() < get_min_subqs(op) ||
 	subqs.size() > get_max_subqs(op)) {
-	throw Xapian::InvalidArgumentError("OmQuery: " + get_op_name(op) +
+	throw Xapian::InvalidArgumentError("Xapian::Query: " + get_op_name(op) +
 		" requires a minimum of " + om_tostring(get_min_subqs(op)) +
 		" and a maximum of " + om_tostring(get_max_subqs(op)) +
 		" sub queries, had " +
@@ -512,14 +488,14 @@ OmQuery::Internal::prevalidate_query() const
 }
 
 void
-OmQuery::Internal::validate_query() const
+Xapian::Query::Internal::validate_query() const
 {
-    DEBUGCALL(API, void, "OmQuery::Internal::validate_query", "");
+    DEBUGCALL(API, void, "Xapian::Query::Internal::validate_query", "");
     prevalidate_query();
 
     // Check that the window size is in acceptable limits
     if (window < get_min_window(op)) {
-	throw Xapian::InvalidArgumentError("OmQuery: " + get_op_name(op) +
+	throw Xapian::InvalidArgumentError("Xapian::Query: " + get_op_name(op) +
 		" requires a window size of at least " + 
 		om_tostring(get_min_window(op)) + ", had " +
 		om_tostring(window) + ".");
@@ -527,27 +503,26 @@ OmQuery::Internal::validate_query() const
 
     // Check that the cutoff parameter is in acceptable limits
     // FIXME: flakey and nasty.
-    if (cutoff != 0 && op != OmQuery::OP_WEIGHT_CUTOFF) {
-	throw Xapian::InvalidArgumentError("OmQuery: " + get_op_name(op) +
+    if (cutoff != 0 && op != Xapian::Query::OP_WEIGHT_CUTOFF) {
+	throw Xapian::InvalidArgumentError("Xapian::Query: " + get_op_name(op) +
 		" requires a cutoff of 0");
     }
     if (cutoff < 0) {
-	throw Xapian::InvalidArgumentError("OmQuery: " + get_op_name(op) +
+	throw Xapian::InvalidArgumentError("Xapian::Query: " + get_op_name(op) +
 		" requires a cutoff of at least 0");
     }
 
     // Check that all subqueries are valid.
-    for (subquery_list::const_iterator i = subqs.begin();
-	 i != subqs.end();
-	 ++i) {
+    subquery_list::const_iterator i;
+    for (i = subqs.begin(); i != subqs.end(); ++i) {
 	(**i).validate_query();
     }
 }
 
-void
-OmQuery::Internal::simplify_query()
+Xapian::Query::Internal *
+Xapian::Query::Internal::simplify_query()
 {
-    DEBUGCALL(API, void, "OmQuery::Internal::simplify_query", "");
+    DEBUGCALL(API, bool, "Xapian::Query::Internal::simplify_query", "");
 
     // if window size is 0, then use number of subqueries
     // This is cheap, so we might as well always set it.
@@ -571,20 +546,21 @@ OmQuery::Internal::simplify_query()
     }
 
     // If we have no subqueries, then we're simply an undefined query.
-    if (subqs.size() == 0 && !is_leaf(op)) {
-	op = OmQuery::Internal::OP_UNDEF;
-	return;
-    }
+    if (subqs.empty() && !is_leaf(op)) return 0;
 
     // Some nodes with only one subquery can be replaced by the subquery.
     if (subqs.size() == 1 && can_replace_by_single_subq(op)) {
-	initialise_from_copy(**(subqs.begin()));
+	Xapian::Query::Internal * qint = subqs[0];
+	subqs[0] = 0;
+	return qint;
     }
+
+    return this;
 }
 
 struct SortPosName {
-    bool operator()(const OmQuery::Internal * left,
-		    const OmQuery::Internal * right) const {
+    bool operator()(const Xapian::Query::Internal * left,
+		    const Xapian::Query::Internal * right) const {
 	Assert(left != 0);
 	Assert(right != 0);
 	Assert(is_leaf(left->op));
@@ -601,16 +577,15 @@ struct SortPosName {
  *  single occurrence with higher wqf.
  */
 void
-OmQuery::Internal::collapse_subqs()
+Xapian::Query::Internal::collapse_subqs()
 {
     Assert(can_reorder(op));
-    typedef std::set<OmQuery::Internal *, SortPosName> subqtable;
+    typedef std::set<Xapian::Query::Internal *, SortPosName> subqtable;
     subqtable sqtab;
 
     subquery_list::iterator sq = subqs.begin();
     while (sq != subqs.end()) {
 	Assert(*sq != 0);
-	Assert((*sq)->op != OmQuery::Internal::OP_UNDEF);
 	if (is_leaf((*sq)->op)) {
 	    Assert((*sq)->subqs.size() == 0);
 	    subqtable::iterator s = sqtab.find(*sq);
@@ -638,31 +613,30 @@ OmQuery::Internal::collapse_subqs()
 
 /// Change, eg, A NEAR (B AND C) to (A NEAR B) AND (A NEAR C)
 void
-OmQuery::Internal::flatten_subqs()
+Xapian::Query::Internal::flatten_subqs()
 {
-    Assert(op == OmQuery::OP_NEAR || op == OmQuery::OP_PHRASE);
+    Assert(op == Xapian::Query::OP_NEAR || op == Xapian::Query::OP_PHRASE);
 
     subquery_list::iterator sq;
     for (sq = subqs.begin(); sq != subqs.end(); sq++) {
-	Assert((*sq)->op != OmQuery::Internal::OP_UNDEF);
 	if (!is_leaf((*sq)->op)) break;
     }
 
     if (sq != subqs.end()) {
-	if ((*sq)->op == OmQuery::OP_NEAR ||
-	    (*sq)->op == OmQuery::OP_PHRASE) {
+	if ((*sq)->op == Xapian::Query::OP_NEAR ||
+	    (*sq)->op == Xapian::Query::OP_PHRASE) {
 	    // FIXME: A PHRASE (B PHRASE C) -> (A PHRASE B) AND (B PHRASE C)?
 	    throw Xapian::UnimplementedError("Can't use NEAR/PHRASE with a subexpression containing NEAR or PHRASE");
 	}
 
-	AutoPtr<OmQuery::Internal> flattenme(*sq);
+	AutoPtr<Xapian::Query::Internal> flattenme(*sq);
 	*sq = 0;
 
 	// New query to build up.
-	OmQuery::Internal newq(flattenme->op);
+	Xapian::Query::Internal newq(flattenme->op);
 
 	subquery_list::iterator j;
-	for (j = flattenme->subqs.begin(); j != flattenme->subqs.end(); j++) {
+	for (j = flattenme->subqs.begin(); j != flattenme->subqs.end(); ++j) {
 	    *sq = *j;
 	    *j = 0;
 	    flatten_subqs();
@@ -671,17 +645,17 @@ OmQuery::Internal::flatten_subqs()
 	    *sq = 0;
 	}
 
-	newq.end_construction();
-
-	this->swap(newq);
+	Xapian::Query::Internal * newq2 = newq.end_construction();
+	Assert(newq2);
+	this->swap(*newq2);
     }
 }
 
 void
-OmQuery::Internal::add_subquery(const OmQuery::Internal & subq)
+Xapian::Query::Internal::add_subquery(const Xapian::Query::Internal & subq)
 {
     Assert(!is_leaf(op));
-    if (can_reorder(op) && (op == subq.op)) {
+    if (can_reorder(op) && op == subq.op) {
 	// Distribute the subquery.
 	for (subquery_list::const_iterator i = subq.subqs.begin();
 	     i != subq.subqs.end(); i++) {
@@ -689,7 +663,6 @@ OmQuery::Internal::add_subquery(const OmQuery::Internal & subq)
 	}
     } else {
 	qlen += subq.qlen;
-	subqs.push_back(new OmQuery::Internal(subq));
+	subqs.push_back(new Xapian::Query::Internal(subq));
     }
 }
-

@@ -50,9 +50,10 @@ class NetClient : public RefCntBase {
 
     public:
 	/** Default constructor. */
-	NetClient() : statssource(0) {}
+	NetClient() : statssource(0) { }
+
 	/** Destructor. */
-	virtual ~NetClient() {}
+	virtual ~NetClient() { }
 
 	virtual void keep_alive() = 0;
 
@@ -71,7 +72,7 @@ class NetClient : public RefCntBase {
 	 * @param wtscheme Weighting scheme.
 	 * @param omrset_ The rset.
 	 */
-	virtual void set_query(const OmQuery::Internal *query_,
+	virtual void set_query(const Xapian::Query::Internal *query_,
 			       om_valueno collapse_key, bool sort_forward,
 			       int percent_cutoff, om_weight weight_cutoff,
 			       const OmWeight *wtscheme,
@@ -92,14 +93,14 @@ class NetClient : public RefCntBase {
 	virtual void send_global_stats(const Stats &stats) = 0;
 
 	/** Do the actual MSet fetching */
-	virtual bool get_mset(om_doccount first,
-			      om_doccount maxitems,
+	virtual bool get_mset(om_doccount first, om_doccount maxitems,
 			      OmMSet &mset) = 0;
 
 	virtual void close_end_time() = 0;
 	
 	virtual void next(om_weight w_min, om_docid &did, om_weight &w,
 			  string &value) = 0;
+
 	virtual void skip_to(om_docid new_did, om_weight w_min, om_docid &did,
 			     om_weight &w, string &value) = 0;
 
@@ -117,16 +118,14 @@ class NetClient : public RefCntBase {
 			       vector<TermListItem> &items) = 0;
 
 	/** Retrieve a remote document */
-	virtual void get_doc(om_docid did,
-			     string &doc,
+	virtual void get_doc(om_docid did, string &doc,
 			     map<om_valueno, string> &values) = 0;
 
 	/** Request a remote document */
 	virtual void request_doc(om_docid did) = 0;
 
 	/** Collect a remote document */
-	virtual void collect_doc(om_docid did,
-				 string &doc,
+	virtual void collect_doc(om_docid did, string &doc,
 				 map<om_valueno, string> &values) = 0;
 
 	/** Find out the remote document count */

@@ -1,8 +1,9 @@
-/* readquery.h: tests for the network matching code.
+/* readquery.h: decode a serialised query
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,7 +34,6 @@ using namespace std;
 struct querytok {
     enum etype {
 	END,
-	NULL_QUERY,
 	QUERY_LEN,
 	OP_AND,
 	OP_OR,
@@ -47,7 +47,6 @@ struct querytok {
 	OP_ELITE_SET,
 	TERM,
 	OP_BRA,
-	OP_KET,
 	ERROR
     } type;
     om_termcount qlen;

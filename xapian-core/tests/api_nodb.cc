@@ -53,13 +53,13 @@ static bool test_getqterms1()
     answers_list.push_back("three");
     answers_list.push_back("four");
 
-    OmQuery myquery(OmQuery::OP_OR,
-	    OmQuery(OmQuery::OP_AND,
-		    OmQuery("one", 1, 1),
-		    OmQuery("three", 1, 3)),
-	    OmQuery(OmQuery::OP_OR,
-		    OmQuery("four", 1, 4),
-		    OmQuery("two", 1, 2)));
+    Xapian::Query myquery(Xapian::Query::OP_OR,
+	    Xapian::Query(Xapian::Query::OP_AND,
+		    Xapian::Query("one", 1, 1),
+		    Xapian::Query("three", 1, 3)),
+	    Xapian::Query(Xapian::Query::OP_OR,
+		    Xapian::Query("four", 1, 4),
+		    Xapian::Query("two", 1, 2)));
 
 #ifdef __SUNPRO_CC
     om_termname_list list;
@@ -79,12 +79,12 @@ static bool test_getqterms1()
 static bool test_emptyquery1()
 {
     // test that an empty query is_empty
-    TEST(OmQuery().is_empty());
+    TEST(Xapian::Query().is_empty());
     // test that an empty query has length 0
-    TEST(OmQuery().get_length() == 0);
-    vector<OmQuery> v;
-    TEST(OmQuery(OmQuery::OP_OR, v.begin(), v.end()).is_empty());
-    TEST(OmQuery(OmQuery::OP_OR, v.begin(), v.end()).get_length() == 0);
+    TEST(Xapian::Query().get_length() == 0);
+    vector<Xapian::Query> v;
+    TEST(Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end()).is_empty());
+    TEST(Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end()).get_length() == 0);
     return true;
 }
 
@@ -92,15 +92,15 @@ static bool test_emptyquery1()
 static bool test_querylen1()
 {
     // test that a simple query has the right length
-    OmQuery myquery;
-    myquery = OmQuery(OmQuery::OP_OR,
-		      OmQuery("foo"),
-		      OmQuery("bar"));
-    myquery = OmQuery(OmQuery::OP_AND,
+    Xapian::Query myquery;
+    myquery = Xapian::Query(Xapian::Query::OP_OR,
+		      Xapian::Query("foo"),
+		      Xapian::Query("bar"));
+    myquery = Xapian::Query(Xapian::Query::OP_AND,
 		      myquery,
-		      OmQuery(OmQuery::OP_OR,
-			      OmQuery("wibble"),
-			      OmQuery("spoon")));
+		      Xapian::Query(Xapian::Query::OP_OR,
+			      Xapian::Query("wibble"),
+			      Xapian::Query("spoon")));
 
     TEST_EQUAL(myquery.get_length(), 4);
     return true;
@@ -115,40 +115,40 @@ static bool test_querylen2()
 	"bar",
 	"baz"
     };
-    OmQuery queries[3] = {
-	OmQuery("wibble"),
-	OmQuery("wobble"),
-	OmQuery(OmQuery::OP_OR, string("jelly"), string("belly"))
+    Xapian::Query queries[3] = {
+	Xapian::Query("wibble"),
+	Xapian::Query("wobble"),
+	Xapian::Query(Xapian::Query::OP_OR, string("jelly"), string("belly"))
     };
 
-    OmQuery myquery;
+    Xapian::Query myquery;
     vector<string> v1(terms, terms + 3);
-    vector<OmQuery> v2(queries, queries + 3);
-    vector<OmQuery *> v3;
-    AutoPtr<OmQuery> dynquery1(new OmQuery(OmQuery::OP_AND,
+    vector<Xapian::Query> v2(queries, queries + 3);
+    vector<Xapian::Query *> v3;
+    AutoPtr<Xapian::Query> dynquery1(new Xapian::Query(Xapian::Query::OP_AND,
 					   string("ball"),
 					   string("club")));
-    AutoPtr<OmQuery> dynquery2(new OmQuery("ring"));
+    AutoPtr<Xapian::Query> dynquery2(new Xapian::Query("ring"));
     v3.push_back(dynquery1.get());
     v3.push_back(dynquery2.get());
 
-    OmQuery myq1 = OmQuery(OmQuery::OP_AND, v1.begin(), v1.end());
+    Xapian::Query myq1 = Xapian::Query(Xapian::Query::OP_AND, v1.begin(), v1.end());
     tout << "myq1=" << myq1 << "\n";
     TEST_EQUAL(myq1.get_length(), 3);
 
-    OmQuery myq2_1 = OmQuery(OmQuery::OP_OR, v2.begin(), v2.end());
+    Xapian::Query myq2_1 = Xapian::Query(Xapian::Query::OP_OR, v2.begin(), v2.end());
     tout << "myq2_1=" << myq2_1 << "\n";
     TEST_EQUAL(myq2_1.get_length(), 4);
 
-    OmQuery myq2_2 = OmQuery(OmQuery::OP_AND, v3.begin(), v3.end());
+    Xapian::Query myq2_2 = Xapian::Query(Xapian::Query::OP_AND, v3.begin(), v3.end());
     tout << "myq2_2=" << myq2_2 << "\n";
     TEST_EQUAL(myq2_2.get_length(), 3);
 
-    OmQuery myq2 = OmQuery(OmQuery::OP_OR, myq2_1, myq2_2);
+    Xapian::Query myq2 = Xapian::Query(Xapian::Query::OP_OR, myq2_1, myq2_2);
     tout << "myq2=" << myq2 << "\n";
     TEST_EQUAL(myq2.get_length(), 7);
 
-    myquery = OmQuery(OmQuery::OP_OR, myq1, myq2);
+    myquery = Xapian::Query(Xapian::Query::OP_OR, myq1, myq2);
     tout << "myquery=" << myquery << "\n";
     TEST_EQUAL(myquery.get_length(), 10);
 
@@ -158,22 +158,21 @@ static bool test_querylen2()
 // tests that queries validate correctly
 static bool test_queryvalid1()
 {
-    vector<OmQuery> v1;
+    vector<Xapian::Query> v1;
     // Need two arguments
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
+		   Xapian::Query(Xapian::Query::OP_AND_NOT, v1.begin(), v1.end()));
     tout << "ANDNOT () checked" << endl;
-    v1.push_back(OmQuery("bad"));
+    v1.push_back(Xapian::Query("bad"));
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
+		   Xapian::Query(Xapian::Query::OP_AND_NOT, v1.begin(), v1.end()));
     tout << "ANDNOT (\"bad\") checked" << endl;
     v1.clear();
-    v1.push_back(OmQuery());
+    v1.push_back(Xapian::Query());
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
-    tout << "ANDNOT (OmQuery()) checked" << endl;
-
-    OmQuery q2(OmQuery::OP_XOR, OmQuery("foo"), OmQuery("bar"));
+		   Xapian::Query(Xapian::Query::OP_AND_NOT, v1.begin(), v1.end()));
+    tout << "ANDNOT (Xapian::Query()) checked" << endl;
+    Xapian::Query q2(Xapian::Query::OP_XOR, Xapian::Query("foo"), Xapian::Query("bar"));
     tout << "XOR (\"foo\", \"bar\") checked" << endl;
     return true;
 }
@@ -181,27 +180,27 @@ static bool test_queryvalid1()
 // tests that collapsing of queries includes subqueries
 static bool test_subqcollapse1()
 {
-    OmQuery queries1[3] = {
-	OmQuery("wibble"),
-	OmQuery("wobble"),
-	OmQuery(OmQuery::OP_OR, string("jelly"), string("belly"))
+    Xapian::Query queries1[3] = {
+	Xapian::Query("wibble"),
+	Xapian::Query("wobble"),
+	Xapian::Query(Xapian::Query::OP_OR, string("jelly"), string("belly"))
     };
 
-    OmQuery queries2[3] = {
-	OmQuery(OmQuery::OP_AND, string("jelly"), string("belly")),
-	OmQuery("wibble"),
-	OmQuery("wobble")
+    Xapian::Query queries2[3] = {
+	Xapian::Query(Xapian::Query::OP_AND, string("jelly"), string("belly")),
+	Xapian::Query("wibble"),
+	Xapian::Query("wobble")
     };
 
-    vector<OmQuery> vec1(queries1, queries1 + 3);
-    OmQuery myquery1(OmQuery::OP_OR, vec1.begin(), vec1.end());
+    vector<Xapian::Query> vec1(queries1, queries1 + 3);
+    Xapian::Query myquery1(Xapian::Query::OP_OR, vec1.begin(), vec1.end());
     TEST_EQUAL(myquery1.get_description(),
-	       "OmQuery((wibble OR wobble OR jelly OR belly))");
+	       "Xapian::Query((wibble OR wobble OR jelly OR belly))");
 
-    vector<OmQuery> vec2(queries2, queries2 + 3);
-    OmQuery myquery2(OmQuery::OP_AND, vec2.begin(), vec2.end());
+    vector<Xapian::Query> vec2(queries2, queries2 + 3);
+    Xapian::Query myquery2(Xapian::Query::OP_AND, vec2.begin(), vec2.end());
     TEST_EQUAL(myquery2.get_description(),
-	       "OmQuery((jelly AND belly AND wibble AND wobble))");
+	       "Xapian::Query((jelly AND belly AND wibble AND wobble))");
 
     return true;
 }
@@ -210,7 +209,7 @@ static bool test_subqcollapse1()
 static bool test_emptyquerypart1()
 {
     vector<string> emptyterms;
-    OmQuery query(OmQuery::OP_OR, emptyterms.begin(), emptyterms.end());
+    Xapian::Query query(Xapian::Query::OP_OR, emptyterms.begin(), emptyterms.end());
     return true;
 }
 
@@ -218,11 +217,11 @@ static bool test_singlesubq1()
 {
     vector<string> oneterm;
     oneterm.push_back("solo");
-    OmQuery q_eliteset(OmQuery::OP_ELITE_SET, oneterm.begin(), oneterm.end());
+    Xapian::Query q_eliteset(Xapian::Query::OP_ELITE_SET, oneterm.begin(), oneterm.end());
     q_eliteset.set_elite_set_size(1);
-    OmQuery q_near(OmQuery::OP_NEAR, oneterm.begin(), oneterm.end());
+    Xapian::Query q_near(Xapian::Query::OP_NEAR, oneterm.begin(), oneterm.end());
     q_near.set_window(1);
-    OmQuery q_phrase(OmQuery::OP_PHRASE, oneterm.begin(), oneterm.end());
+    Xapian::Query q_phrase(Xapian::Query::OP_PHRASE, oneterm.begin(), oneterm.end());
     q_phrase.set_window(1);
     return true;
 }

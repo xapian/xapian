@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -261,25 +261,25 @@ LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists,
 // Operation must be either AND or OR.
 // Optimise query by building tree carefully.
 PostList *
-LocalSubMatch::postlist_from_queries(OmQuery::Internal::op_t op,
-				const OmQuery::Internal::subquery_list &queries,
+LocalSubMatch::postlist_from_queries(Xapian::Query::Internal::op_t op,
+				const Xapian::Query::Internal::subquery_list &queries,
 				om_termpos window,
 				om_termcount elite_set_size,
 				MultiMatch *matcher,
 				bool is_bool)
 {
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::postlist_from_queries", op << ", [queries], " << window << ", " << elite_set_size << ", " << matcher << ", " << is_bool);
-    Assert(op == OmQuery::OP_OR || op == OmQuery::OP_AND ||
-	   op == OmQuery::OP_XOR ||
-	   op == OmQuery::OP_NEAR || op == OmQuery::OP_PHRASE ||
-	   op == OmQuery::OP_ELITE_SET);
+    Assert(op == Xapian::Query::OP_OR || op == Xapian::Query::OP_AND ||
+	   op == Xapian::Query::OP_XOR ||
+	   op == Xapian::Query::OP_NEAR || op == Xapian::Query::OP_PHRASE ||
+	   op == Xapian::Query::OP_ELITE_SET);
     Assert(queries.size() >= 2);
 
     // Open a postlist for each query, and store these postlists in a vector.
     std::vector<PostList *> postlists;
     postlists.reserve(queries.size());
 
-    OmQuery::Internal::subquery_list::const_iterator q;
+    Xapian::Query::Internal::subquery_list::const_iterator q;
     for (q = queries.begin(); q != queries.end(); q++) {
 	postlists.push_back(postlist_from_query(*q, matcher, is_bool));
 	DEBUGLINE(MATCH, "Made postlist for " << (*q)->get_description() <<
@@ -291,23 +291,23 @@ LocalSubMatch::postlist_from_queries(OmQuery::Internal::op_t op,
 
     // Build tree
     switch (op) {
-	case OmQuery::OP_XOR:
+	case Xapian::Query::OP_XOR:
 	    RETURN(build_xor_tree(postlists, matcher));
 
-	case OmQuery::OP_AND:
+	case Xapian::Query::OP_AND:
 	    RETURN(build_and_tree(postlists, matcher));
 
-	case OmQuery::OP_OR:
+	case Xapian::Query::OP_OR:
 	    RETURN(build_or_tree(postlists, matcher));
 
-	case OmQuery::OP_NEAR:
+	case Xapian::Query::OP_NEAR:
 	{
 	    PostList *res = build_and_tree(postlists, matcher);
 	    // FIXME: handle EmptyPostList return specially?
 	    RETURN(new NearPostList(res, window, postlists));
 	}
 
-	case OmQuery::OP_PHRASE:
+	case Xapian::Query::OP_PHRASE:
 	{
 	    // build_and_tree reorders postlists, but the order is
 	    // important for phrase, so we need to keep a copy
@@ -318,7 +318,7 @@ LocalSubMatch::postlist_from_queries(OmQuery::Internal::op_t op,
 	    RETURN(new PhrasePostList(res, window, postlists_orig));
 	}
 
-	case OmQuery::OP_ELITE_SET:
+	case Xapian::Query::OP_ELITE_SET:
 	{
 	    // Select top terms
 	    DEBUGLINE(API, "Selecting top " << elite_set_size <<
@@ -367,18 +367,18 @@ LocalSubMatch::postlist_from_queries(OmQuery::Internal::op_t op,
 // Make a postlist from a query object - this is called recursively down
 // the query tree.
 PostList *
-LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
+LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 				   MultiMatch *matcher, bool is_bool)
 {
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::postlist_from_query", query << ", " << matcher << ", " << is_bool);
-    switch (query->op) {
-	case OmQuery::Internal::OP_UNDEF: {
-	    LeafPostList *pl = new EmptyPostList();
-	    pl->set_termweight(new BoolWeight());
-	    RETURN(pl);
-	}
+    if (!query) {
+	LeafPostList *pl = new EmptyPostList();
+	pl->set_termweight(new BoolWeight());
+	RETURN(pl);
+    }
 
-	case OmQuery::Internal::OP_LEAF: {
+    switch (query->op) {
+	case Xapian::Query::Internal::OP_LEAF: {
 	    // Make a postlist for a single term
 	    Assert(query->subqs.size() == 0);
 	    OmMSet::Internal::Data::TermFreqAndWeight info;
@@ -413,18 +413,18 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 	    pl->set_termweight(wt);
 	    RETURN(pl);
 	}
-	case OmQuery::OP_AND:
-	case OmQuery::OP_OR:
-	case OmQuery::OP_XOR:
-	case OmQuery::OP_PHRASE:
-	case OmQuery::OP_NEAR:
-	case OmQuery::OP_ELITE_SET:
+	case Xapian::Query::OP_AND:
+	case Xapian::Query::OP_OR:
+	case Xapian::Query::OP_XOR:
+	case Xapian::Query::OP_PHRASE:
+	case Xapian::Query::OP_NEAR:
+	case Xapian::Query::OP_ELITE_SET:
 	    // Build a tree of postlists for AND, OR, XOR, PHRASE, NEAR, or
 	    // ELITE_SET
 	    return postlist_from_queries(query->op, query->subqs,
 					 query->window, query->elite_set_size,
 					 matcher, is_bool);
-	case OmQuery::OP_FILTER:
+	case Xapian::Query::OP_FILTER:
 	    Assert(query->subqs.size() == 2);
 	    // FIXME:
 	    // AndPostList works, but FilterPostList doesn't - tracing suggests
@@ -445,20 +445,20 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 				      matcher,
 				      db->get_doccount());
 #endif
-	case OmQuery::OP_AND_NOT:
+	case Xapian::Query::OP_AND_NOT:
 	    Assert(query->subqs.size() == 2);
 	    return new AndNotPostList(postlist_from_query(query->subqs[0], matcher, is_bool),
 				      postlist_from_query(query->subqs[1], matcher, true),
 				      matcher,
 				      db->get_doccount());
-	case OmQuery::OP_AND_MAYBE:
+	case Xapian::Query::OP_AND_MAYBE:
 	    Assert(query->subqs.size() == 2);
 	    return new AndMaybePostList(postlist_from_query(query->subqs[0], matcher, is_bool),
 					postlist_from_query(query->subqs[1], matcher, is_bool),
 					matcher,
 					db->get_doccount());
 
-	case OmQuery::OP_WEIGHT_CUTOFF:
+	case Xapian::Query::OP_WEIGHT_CUTOFF:
 	    Assert(query->subqs.size() == 1);
 	    // FIXME: if is_bool, then do what?
 	    return new WeightCutoffPostList(postlist_from_query(query->subqs[0], matcher, is_bool),

@@ -174,7 +174,7 @@ class MSetSortCmp {
 ////////////////////////////////////
 // Initialisation and cleaning up //
 ////////////////////////////////////
-MultiMatch::MultiMatch(const OmDatabase &db_, const OmQuery::Internal * query_,
+MultiMatch::MultiMatch(const OmDatabase &db_, const Xapian::Query::Internal * query_,
 		       const OmRSet & omrset, om_valueno collapse_key_,
 		       int percent_cutoff_, om_weight weight_cutoff_,
 		       bool sort_forward_, om_valueno sort_key_,
@@ -195,6 +195,8 @@ MultiMatch::MultiMatch(const OmDatabase &db_, const OmQuery::Internal * query_,
 	      sort_key_ << ", " << sort_bands_ << ", " << bias_halflife_ <<
 	      ", " << bias_weight_ << ", " << errorhandler_ <<
 	      ", [gatherer_], [weight_]");
+    if (!query) return;
+
     query->validate_query();
 
     om_doccount number_of_leaves = db.internal->databases.size();
@@ -266,6 +268,7 @@ void
 MultiMatch::prepare_matchers()
 {
     DEBUGCALL(MATCH, void, "MultiMatch::prepare_matchers", "");
+    Assert(query);
     bool prepared;
     bool nowait = true;
     do {
@@ -329,6 +332,11 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 {
     DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
 	      << ", ...");
+
+    if (!query) {
+	mset = OmMSet(); // FIXME: mset.get_firstitem() will return 0 not first
+	return;
+    }
 
     map<string, OmMSet::Internal::Data::TermFreqAndWeight> termfreqandwts;
 

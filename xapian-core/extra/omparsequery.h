@@ -45,7 +45,7 @@ class OmQueryParser {
 	OmQueryParser & operator=(const OmQueryParser &);
     
     public:
-	OmQueryParser() : default_op(OmQuery::OP_OR), stop(NULL), stemmer(NULL),
+	OmQueryParser() : default_op(Xapian::Query::OP_OR), stop(NULL), stemmer(NULL),
 		stem(true), stem_all(false)
 	{
 	    set_stemming_options("english");
@@ -55,7 +55,7 @@ class OmQueryParser {
 				  bool stem_all_ = false,
 				  OmStopper *stop_ = NULL);
 	
-	void set_default_op(OmQuery::op default_op_) {
+	void set_default_op(Xapian::Query::op default_op_) {
 	    default_op = default_op_;
 	}
 
@@ -63,7 +63,7 @@ class OmQueryParser {
 	    db = db_;
 	}
 
-	OmQuery parse_query(const std::string &q);
+	Xapian::Query parse_query(const std::string &q);
 	
 	std::list<std::string> termlist;
 	std::list<std::string> stoplist;
@@ -75,7 +75,7 @@ class OmQueryParser {
 	std::map<std::string, std::string> prefixes;
 
 	// don't touch these - FIXME: make private and use friend...
-	OmQuery::op default_op;
+	Xapian::Query::op default_op;
 
 	OmStopper *stop;
 

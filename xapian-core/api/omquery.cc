@@ -28,11 +28,11 @@
 #include "utils.h"
 #include "netutils.h"
 
-#include "xapian/error.h"
+#include <xapian/error.h>
 #include "om/omenquire.h"
 #include <xapian/output.h>
 
-#include "xapian/termiterator.h"
+#include <xapian/termiterator.h>
 #include "omtermlistiteratorinternal.h"
 
 #include <vector>
@@ -40,84 +40,77 @@
 #include <algorithm>
 #include <math.h>
 
-/////////////////////////
-// Methods for OmQuery //
-/////////////////////////
-
 /// Add a subquery by reference
 void
-OmQuery::add_subquery(const OmQuery & subq)
+Xapian::Query::add_subquery(const Xapian::Query & subq)
 {
-    DEBUGAPICALL(void, "OmQuery::add_subquery", subq);
-    Assert(internal);
-    Assert(subq.internal);
+    DEBUGAPICALL(void, "Xapian::Query::add_subquery", subq);
+    Assert(internal.get());
+    if (!subq.internal.get())
+	throw Xapian::InvalidArgumentError("Can't compose a query from undefined queries");
     internal->add_subquery(*(subq.internal));
 }
 
 /// Add a subquery by pointer
 void
-OmQuery::add_subquery(const OmQuery * subq)
+Xapian::Query::add_subquery(const Xapian::Query * subq)
 {
-    DEBUGAPICALL(void, "OmQuery::add_subquery", subq);
+    DEBUGAPICALL(void, "Xapian::Query::add_subquery", subq);
     if (subq == 0) {
 	throw Xapian::InvalidArgumentError("Pointer to subquery may not be null");
     }
-    Assert(internal);
-    Assert(subq->internal);
+    Assert(internal.get());
+    Assert(subq->internal.get());
     internal->add_subquery(*(subq->internal));
 }
 
 /// Add a subquery which is a single term
 void
-OmQuery::add_subquery(const string & tname)
+Xapian::Query::add_subquery(const string & tname)
 {
-    DEBUGAPICALL(void, "OmQuery::add_subquery", tname);
-    OmQuery::Internal temp(tname);
-    Assert(internal);
-    internal->add_subquery(temp);
+    DEBUGAPICALL(void, "Xapian::Query::add_subquery", tname);
+    Assert(internal.get());
+    internal->add_subquery(tname);
 }
 
 /// Setup the internals for the query, with the appropriate operator.
 void
-OmQuery::start_construction(OmQuery::op op_)
+Xapian::Query::start_construction(Xapian::Query::op op_)
 {
-    DEBUGAPICALL(void, "OmQuery::start_construction", op_);
-    Assert(!internal);
-    internal = new OmQuery::Internal(op_);
+    DEBUGAPICALL(void, "Xapian::Query::start_construction", op_);
+    Assert(!internal.get());
+    internal = new Xapian::Query::Internal(op_);
 }
 
 /// Check that query has an appropriate number of arguments, etc,
 void
-OmQuery::end_construction()
+Xapian::Query::end_construction()
 {
-    DEBUGAPICALL(void, "OmQuery::end_construction", "");
-    Assert(internal);
-    internal->end_construction();
+    DEBUGAPICALL(void, "Xapian::Query::end_construction", "");
+    Assert(internal.get());
+    internal = internal->end_construction();
 }
 
 /// Abort construction of the query: delete internal.
 void
-OmQuery::abort_construction()
+Xapian::Query::abort_construction()
 {
-    DEBUGAPICALL(void, "OmQuery::abort_construction", "");
-    Assert(internal);
-    delete internal;
+    DEBUGAPICALL(void, "Xapian::Query::abort_construction", "");
+    Assert(internal.get());
     internal = 0;
 }
 
-OmQuery::OmQuery(const string & tname_,
-		 om_termcount wqf_,
-		 om_termpos term_pos_)
-	: internal(new OmQuery::Internal(tname_, wqf_, term_pos_))
+Xapian::Query::Query(const string & tname_, om_termcount wqf_, om_termpos pos_)
+	: internal(new Xapian::Query::Internal(tname_, wqf_, pos_))
 {
-    DEBUGAPICALL(void, "OmQuery::OmQuery",
-		 tname_ << ", " << wqf_ << ", " << term_pos_);
+    DEBUGAPICALL(void, "Xapian::Query::Query",
+		 tname_ << ", " << wqf_ << ", " << pos_);
 }
 
-OmQuery::OmQuery(OmQuery::op op_, const OmQuery &left, const OmQuery &right)
-	: internal(new OmQuery::Internal(op_))
+Xapian::Query::Query(Xapian::Query::op op_, const Xapian::Query &left, const Xapian::Query &right)
+	: internal(new Xapian::Query::Internal(op_))
 {
-    DEBUGAPICALL(void, "OmQuery::OmQuery",
+    DEBUGAPICALL(void, "Xapian::Query::Query",
 		 op_ << ", " << left << ", " << right);
     internal->add_subquery(*(left.internal));
     internal->add_subquery(*(right.internal));
@@ -125,101 +118,108 @@ OmQuery::OmQuery(OmQuery::op op_, const OmQuery &left, const OmQuery &right)
 }
 
 // Copy constructor
-OmQuery::OmQuery(const OmQuery & copyme)
-	: internal(0)
+Xapian::Query::Query(const Xapian::Query & copyme)
+	: internal(copyme.internal)
 {
-    DEBUGAPICALL(void, "OmQuery::OmQuery", copyme);
-    Assert(copyme.internal);
-    internal = new OmQuery::Internal(*(copyme.internal));
+    DEBUGAPICALL(void, "Xapian::Query::Query", copyme);
 }
 
 // Assignment
-OmQuery &
-OmQuery::operator=(const OmQuery & copyme)
+Xapian::Query &
+Xapian::Query::operator=(const Xapian::Query & copyme)
 {
-    DEBUGAPICALL(OmQuery &, "OmQuery::operator=", copyme);
-    Assert(copyme.internal);
-    OmQuery::Internal *temp = new OmQuery::Internal(*(copyme.internal));
-    std::swap(temp, this->internal);
-    delete temp;
-
+    DEBUGAPICALL(Xapian::Query &, "Xapian::Query::operator=", copyme);
+    internal = copyme.internal;
     RETURN(*this);
 }
 
 // Default constructor
-OmQuery::OmQuery()
-	: internal(0)
+Xapian::Query::Query() : internal(0)
 {
-    DEBUGAPICALL(void, "OmQuery::OmQuery", "");
-    internal = new OmQuery::Internal();
+    DEBUGAPICALL(void, "Xapian::Query::Query", "");
 }
 
 // Destructor
-OmQuery::~OmQuery()
+Xapian::Query::~Query()
 {
-    DEBUGAPICALL(void, "OmQuery::~OmQuery", "");
-    delete internal;
+    DEBUGAPICALL(void, "Xapian::Query::~Query", "");
 }
 
 std::string
-OmQuery::get_description() const
+Xapian::Query::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "OmQuery::get_description", "");
-    RETURN("OmQuery(" + internal->get_description() + ')');
+    DEBUGCALL(INTRO, std::string, "Xapian::Query::get_description", "");
+    std::string res("Xapian::Query(");
+    if (internal.get()) res += internal->get_description();
+    res += ")";
+    RETURN(res);
 }
 
-void OmQuery::set_window(om_termpos window)
+void Xapian::Query::set_window(om_termpos window)
 {
-    DEBUGAPICALL(void, "OmQuery::set_window", window);
-    Assert(internal);
+    DEBUGAPICALL(void, "Xapian::Query::set_window", window);
+    Assert(internal.get());
     internal->set_window(window);
 }
 
-void OmQuery::set_cutoff(om_weight cutoff)
+void Xapian::Query::set_cutoff(om_weight cutoff)
 {
-    DEBUGAPICALL(void, "OmQuery::set_cutoff", cutoff);
-    Assert(internal);
+    DEBUGAPICALL(void, "Xapian::Query::set_cutoff", cutoff);
+    Assert(internal.get());
     internal->set_cutoff(cutoff);
 }
 
-void OmQuery::set_elite_set_size(om_termcount size)
+void Xapian::Query::set_elite_set_size(om_termcount size)
 {
-    DEBUGAPICALL(void, "OmQuery::set_elite_set_size", size);
-    Assert(internal);
+    DEBUGAPICALL(void, "Xapian::Query::set_elite_set_size", size);
+    Assert(internal.get());
     internal->set_elite_set_size(size);
 }
 
-om_termcount OmQuery::get_length() const
+om_termcount Xapian::Query::get_length() const
 {
-    DEBUGAPICALL(om_termcount, "OmQuery::get_length", "");
-    Assert(internal);
-    RETURN(internal->get_length());
+    DEBUGAPICALL(om_termcount, "Xapian::Query::get_length", "");
+    RETURN(internal.get() ? internal->get_length() : 0);
 }
 
-om_termcount OmQuery::set_length(om_termcount qlen)
+om_termcount Xapian::Query::set_length(om_termcount qlen)
 {
-    DEBUGAPICALL(om_termcount, "OmQuery::set_length", qlen);
-    Assert(internal);
+    DEBUGAPICALL(om_termcount, "Xapian::Query::set_length", qlen);
+    Assert(internal.get());
     RETURN(internal->set_length(qlen));
 }
 
-Xapian::TermIterator OmQuery::get_terms_begin() const
+Xapian::TermIterator Xapian::Query::get_terms_begin() const
 {
-    DEBUGAPICALL(Xapian::TermIterator, "OmQuery::get_terms_begin", "");
-    Assert(internal);
+    DEBUGAPICALL(Xapian::TermIterator, "Xapian::Query::get_terms_begin", "");
+    Assert(internal.get());
     RETURN(internal->get_terms());
 }
 
-Xapian::TermIterator OmQuery::get_terms_end() const
+Xapian::TermIterator Xapian::Query::get_terms_end() const
 {
-    DEBUGAPICALL(Xapian::TermIterator, "OmQuery::get_terms_end", "");
+    DEBUGAPICALL(Xapian::TermIterator, "Xapian::Query::get_terms_end", "");
     RETURN(Xapian::TermIterator(NULL));
 }
 	
 bool
-OmQuery::is_empty() const
+Xapian::Query::is_empty() const
 {
-    DEBUGAPICALL(void, "OmQuery::is_empty", "");
-    Assert(internal);
-    return internal->is_empty();
+    DEBUGAPICALL(void, "Xapian::Query::is_empty", "");
+    return internal.get() == 0;
+}
+
+Xapian::Query::Query(Query::op op,
+		     const std::string & left, const std::string & right)
+    : internal(0)
+{
+    try {
+	start_construction(op);
+	add_subquery(left);
+	add_subquery(right);
+	end_construction();
+    } catch (...) {
+	abort_construction();
+	throw;
+    }
 }
