@@ -1,7 +1,0 @@
-<Directory>backends/sleepycat</Directory>
-
-<Description>
-This backend uses the Berkeley database library to store posting lists and
-termlists.  It works, but the data structures aren't yet compressed in
-any way so the databases are currently rather large and slow.
-</Description>

@@ -104,9 +104,9 @@ clean-local:
 	@echo "removing random stemtest data"; \
 	$(RM) randjunk_seed_* ; \
 	$(RM) randtext_seed_* ;
-	@if [ -d .sleepycat ]; then \
-	  echo "removing .sleepycat/"; \
-	  $(RM) -r .sleepycat/* ; rmdir .sleepycat ; \
+	@if [ -d .quartz ]; then \
+	  echo "removing .quartz/"; \
+	  $(RM) -r .quartz/* ; rmdir .quartz ; \
         fi
 
 -include .deps-includetest-cc

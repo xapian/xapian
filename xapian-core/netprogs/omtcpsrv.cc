@@ -102,13 +102,6 @@ int main(int argc, char *argv[]) {
 	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--sleepycat") == 0) {
-	    OmSettings *params = new OmSettings();
-	    params->set("backend", "sleepycat");
-	    params->set("sleepycat_dir", argv[1]);
-	    dbs.push_back(params);
-	    argc -= 2;
-	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--port") == 0) {
 	    port = atoi(argv[1]);
 	    argc -= 2;
@@ -148,7 +141,7 @@ int main(int argc, char *argv[]) {
 
     if (syntax_error || argc > 0 || !dbs.size()) {
 	cerr << "Syntax: " << progname << " [OPTIONS]" << endl <<
-		"\t--[da-flimsy|da-heavy|db|sleepycat|quartz] DIRECTORY\n" <<
+		"\t--[da-flimsy|da-heavy|db|quartz] DIRECTORY\n" <<
 		"\t--im INMEMORY\n" <<
 		"\t--port NUM" <<
 		"\t--idle-timeout MSECS" <<

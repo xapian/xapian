@@ -95,9 +95,9 @@ om_tostring(bool val)
     return val ? "true" : "false";
 }
 
-void split_words(std::string text,
-		 std::vector<std::string> &words,
-		 char ws) {
+void
+split_words(std::string text, std::vector<std::string> &words, char ws)
+{
     if (text.length() > 0 && text[0] == ws) {
 	text.erase(0, text.find_first_not_of(ws));
     }
@@ -109,8 +109,7 @@ void split_words(std::string text,
 }
 
 int
-map_string_to_value(const StringAndValue * haystack,
-		    const std::string needle)
+map_string_to_value(const StringAndValue * haystack, const std::string needle)
 {
     while(haystack->name[0] != '\0') {
 	if(haystack->name == needle) break;
@@ -119,22 +118,14 @@ map_string_to_value(const StringAndValue * haystack,
     return haystack->value;
 }
 
-/** Return true if the files fname exists.
+/** Return true if the file fname exists
  */
 bool
 file_exists(const std::string &fname)
 {
-    // create a directory for sleepycat indexes if not present
     struct stat sbuf;
-    int result = stat(fname.c_str(), &sbuf);
-    if (result < 0) {
-	return false;
-    } else {
-	if (!S_ISREG(sbuf.st_mode)) {
-	    return false;
-	}
-	return true;
-    }
+    // exists && is a regular file
+    return stat(fname.c_str(), &sbuf) >= 0 && S_ISREG(sbuf.st_mode);
 }
 
 /** Return true if all the files fnames exist.
@@ -142,9 +133,7 @@ file_exists(const std::string &fname)
 bool
 files_exist(const std::vector<std::string> &fnames)
 {
-    for (std::vector<std::string>::const_iterator i = fnames.begin();
-	 i != fnames.end();
-	 i++) {
+    for (std::vector<std::string>::const_iterator i = fnames.begin(); i != fnames.end(); i++) {
 	if (!file_exists(*i)) return false;
     }
     return true;

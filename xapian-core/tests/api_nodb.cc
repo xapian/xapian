@@ -283,9 +283,6 @@ static bool test_badbackend2()
 #ifndef MUS_BUILD_BACKEND_QUARTZ
     CHECK_BACKEND_UNAVAILABLE("quartz");
 #endif
-#ifndef MUS_BUILD_BACKEND_SLEEPYCAT
-    CHECK_BACKEND_UNAVAILABLE("sleepycat");
-#endif
 #ifndef MUS_BUILD_BACKEND_REMOTE
     CHECK_BACKEND_UNAVAILABLE("remote");
 #endif

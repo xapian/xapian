@@ -84,16 +84,6 @@ class BackendManager {
 	/// Get a writable network database instance
 	OmWritableDatabase getwritedb_network(const std::vector<std::string> &dbnames);
 
-	/// Get a sleepycat database instance.
-	OmDatabase getdb_sleepycat(const std::vector<std::string> &dbnames);
-
-	/// Get a writable sleepycat database instance.
-	OmWritableDatabase getwritedb_sleepycat(const std::vector<std::string> &dbnames);
-
-	/// Do the actual work of creating a sleepycat database instance.
-	OmWritableDatabase do_getwritedb_sleepycat(const std::vector<std::string> &dbnames,
-						   bool writable);
-    
 	/// Get a quartz database instance.
 	OmDatabase getdb_quartz(const std::vector<std::string> &dbnames);
 
@@ -141,7 +131,7 @@ class BackendManager {
 
 	/** Set the database type to use.
 	 *
-	 *  Valid values for dbtype are "inmemory", "sleepycat", "quartz",
+	 *  Valid values for dbtype are "inmemory", "quartz",
 	 *  "void", "da", "daflimsy", "db", "dbflimsy", and "remote".
 	 */
 	void set_dbtype(const std::string &type);

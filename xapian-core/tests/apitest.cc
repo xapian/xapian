@@ -133,16 +133,6 @@ int main(int argc, char *argv[])
     RUNTESTS("quartz", multikey);
 #endif
 
-#if 1 && defined(MUS_BUILD_BACKEND_SLEEPYCAT)
-    RUNTESTS("sleepycat", db);
-    RUNTESTS("sleepycat", specchar);
-    RUNTESTS("sleepycat", writabledb);
-    RUNTESTS("sleepycat", localdb);
-    RUNTESTS("sleepycat", positionaldb);
-    RUNTESTS("sleepycat", doclendb);
-    RUNTESTS("sleepycat", multikey);
-#endif
-
 #if 1 && defined(MUS_BUILD_BACKEND_REMOTE)
     RUNTESTS("remote", db);
     RUNTESTS("remote", specchar);

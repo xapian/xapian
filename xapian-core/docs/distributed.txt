@@ -71,8 +71,8 @@ Options for specifying the database(s):
         Add a da/db database to the database group served by this server.
     --im <filename>
         Add an inmemory (text file) database to the group.
-    --sleepycat <dir>
-        Add a sleepycat database to the group.
+    --quartz <dir>
+        Add a quartz database to the group.
 
 Once started, the server will run and listen for connections on the
 configured port, currently handling them one by one (although this will

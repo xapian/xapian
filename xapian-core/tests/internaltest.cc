@@ -32,10 +32,6 @@ using std::endl;
 #include "refcnt.h"
 #include "omstringstream.h"
 
-#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
-#include "../backends/sleepycat/sleepycat_list.h"
-#endif
-
 // always succeeds
 bool test_trivial();
 // always fails (for testing the framework)
@@ -360,73 +356,6 @@ bool test_omstringstream1()
     return true;
 }
 
-#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
-// test whether a SleepycatList packs and unpacks correctly
-bool test_sleepycatpack1()
-{
-    bool success = true;
-
-    SleepycatListItem::id_type id = 7;
-    om_doccount termfreq = 92;
-    om_termcount wdf = 81;
-    om_doclength doclen = 75;
-    std::vector<om_termpos> positions;
-    positions.push_back(6u);
-    positions.push_back(16u);
-
-    SleepycatListItem item1(id, wdf, positions, termfreq, doclen);
-    std::string packed1 = item1.pack(true);
-    SleepycatListItem item2(packed1, true);
-    std::string packed2 = item2.pack(true);
-
-    if(packed1 != packed2) {
-	success = false;
-	if(verbose) {
-	    cout << "Packed items were not equal ('" << packed1 <<
-		    "' and '" << packed2 << "'" << endl;
-	}
-    }
-    if(item1.id != item2.id) {
-	success = false;
-	if(verbose) {
-	    cout << "Unpacked items were not equal (ids '" << item1.id <<
-		    "' and '" << item2.id << "')" << endl;
-	}
-    }
-    if(item1.termfreq != item2.termfreq) {
-	success = false;
-	if(verbose) {
-	    cout << "Unpacked items were not equal (termfreqs '" <<
-		    item1.termfreq << "' and '" << item2.termfreq << "')" <<
-		    endl;
-	}
-    }
-    if(item1.wdf != item2.wdf) {
-	success = false;
-	if(verbose) {
-	    cout << "Unpacked items were not equal (wdfs '" << item1.wdf <<
-		    "' and '" << item2.wdf << "')" << endl;
-	}
-    }
-    if(item1.positions != item2.positions) {
-	success = false;
-	if(verbose) {
-	    cout << "Unpacked items were not equal" << endl;
-	}
-    }
-    if(item1.doclength != item2.doclength) {
-	success = false;
-	if(verbose) {
-	    cout << "Unpacked items were not equal (doclengths '" <<
-		    item1.doclength << "' and '" << item2.doclength <<
-		    "')" << endl;
-	}
-    }
-
-    return success;
-}
-#endif
-
 // ####################################
 // # test the behaviour of OmSettings #
 // ####################################
@@ -535,9 +464,6 @@ test_desc tests[] = {
     {"refcnt2",			test_refcnt2},
 #endif // HAVE_NO_ACCESS_CONTROL
     {"stringcomp1",		test_stringcomp1},
-#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
-    {"sleepycatpack1",		test_sleepycatpack1},
-#endif
     {"omstringstream1",		test_omstringstream1},
     {"omsettings1",		test_omsettings1},
     {"omsettings2",		test_omsettings2},

@@ -187,10 +187,6 @@ BackendManager::set_dbtype(const std::string &type)
     } else if (type == "inmemoryerr3") {
 	do_getdb = &BackendManager::getdb_inmemoryerr3;
 	do_getwritedb = &BackendManager::getwritedb_inmemoryerr3;
-    } else if (type == "sleepycat") {
-	do_getdb = &BackendManager::getdb_sleepycat;
-	do_getwritedb = &BackendManager::getwritedb_sleepycat;
-	system("rm -fr .sleepycat");
     } else if (type == "quartz") {
 	do_getdb = &BackendManager::getdb_quartz;
 	do_getwritedb = &BackendManager::getwritedb_quartz;
@@ -219,7 +215,7 @@ BackendManager::set_dbtype(const std::string &type)
 	do_getwritedb = &BackendManager::getwritedb_void;
     } else {
 	throw OmInvalidArgumentError(
-		"Expected inmemory, sleepycat, quartz, remote, da, db, "
+		"Expected inmemory, quartz, remote, da, db, "
 		"daflimsy, dbflimsy, or void");
     }
     current_type = type;
@@ -338,78 +334,22 @@ BackendManager::getwritedb_inmemoryerr3(const std::vector<std::string> &dbnames)
  */
 bool create_dir_if_needed(const std::string &dirname)
 {
-    // create a directory for sleepycat indexes if not present
+    // create a directory if not present
     struct stat sbuf;
     int result = stat(dirname.c_str(), &sbuf);
     if (result < 0) {
-	if (errno == ENOENT) {
-	    if (mkdir(dirname.c_str(), 0700) < 0) {
-		throw OmOpeningError("Can't create directory");
-	    }
-	} else {
-	    throw OmOpeningError("Can't stat directory");
+	if (errno != ENOENT) throw OmOpeningError("Can't stat directory");
+        if (mkdir(dirname.c_str(), 0700) < 0) {
+	    throw OmOpeningError("Can't create directory");
 	}
-	return true; // either threw an exception, or created a directory.
-    } else {
-	if (!S_ISDIR(sbuf.st_mode)) {
-	    throw OmOpeningError("Is not a directory.");
-	}
-	return false; // Already a directory.
+	return true; // Successfully created a directory.
     }
-}
-
-OmWritableDatabase
-BackendManager::do_getwritedb_sleepycat(const std::vector<std::string> &dbnames,
-					bool writable)
-{
-    std::string parent_dir = ".sleepycat";
-    create_dir_if_needed(parent_dir);
-
-    std::string dbdir = parent_dir + "/db";
-    // add 'w' to distinguish readonly dbs (which can be reused) from
-    // writable ones (which need to be recreated on each use)
-    if (writable) dbdir += 'w';
-    for (std::vector<std::string>::const_iterator i = dbnames.begin();
-	 i != dbnames.end();
-	 i++) {
-	dbdir += "=" + *i;
-    }
-    if (writable) {
-	// if the database is opened readonly, we can reuse it, but if it's
-	// writable we need to start afresh each time
-	std::string cmd = "rm -fr " + dbdir;
-	system(cmd.c_str());
-    }
-    OmSettings params;
-    params.set("backend", "sleepycat");
-    params.set("sleepycat_dir", dbdir);
-    if (files_exist(change_names_to_paths(dbnames))) {
-	if (create_dir_if_needed(dbdir)) {
-	    // directory was created, so do the indexing.
-	    OmWritableDatabase db(params);
-	    index_files_to_database(db, change_names_to_paths(dbnames));
-	    // sleepycat needs to be closed and reopened after a write so
-	    // let db go out of scope (and close) and reopen below
-	}
-    }
-    return OmWritableDatabase(params);
+    if (!S_ISDIR(sbuf.st_mode)) throw OmOpeningError("Is not a directory.");
+    return false; // Already a directory.
 }
 
 OmDatabase
-BackendManager::getdb_sleepycat(const std::vector<std::string> &dbnames)
-{
-    return do_getwritedb_sleepycat(dbnames, false);
-}
-
-OmWritableDatabase
-BackendManager::getwritedb_sleepycat(const std::vector<std::string> &dbnames)
-{
-    return do_getwritedb_sleepycat(dbnames, true);
-}
-
-OmDatabase
-BackendManager::do_getdb_quartz(const std::vector<std::string> &dbnames,
-				bool writable)
+BackendManager::do_getdb_quartz(const std::vector<std::string> &dbnames, bool writable)
 {
     std::string parent_dir = ".quartz";
     create_dir_if_needed(parent_dir);

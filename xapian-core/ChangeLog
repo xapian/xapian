@@ -1,3 +1,9 @@
+Wed Mar 21 02:50:19 GMT 2001 Olly Betts
+
+	* Entirely removed sleepcat backend and all references to it.
+
+	* Disable muscat36 backend by default.
+
 Tue Mar 20 18:47:12 GMT 2001 Olly Betts
 
 	* open_document() now takes a lazy flag - if not set we need to check

@@ -35,25 +35,8 @@ a decent chance of successfully compiling the code.
 </P>
 <P>
 In addition, to run the examples, you will need a version of Omsee compiled
-with support for the "sleepycat" database access method.  This requires a
-copy of the Berkeley Database library, from Sleepycat software, to be
-installed on your system, and for Omsee to be compiled to use this (by
-passing the --enable-backend-sleepycat parameter to the configuration
-script).  The sleepycat database system is available for most architectures,
-free for open source projects, from
-<A HREF="http://www.sleepycat.com/">http://www.sleepycat.com/</A>
-</P>
-<P>
-If you don't have this library available, there is at the time of writing
-no database access method which allows you to write databases to permanent
-storage.  As a temporary measure, you could use the InMemory database
-method, which keeps a database entirely in memory, and either search the
-database directly, or write it to a text file and create a DA file from it,
-using the makeDA utility (which is binary only, and available only for Linux).
-</P>
-<P>
-Other access methods will be written in due course, and in the meantime
-this guide should be useful to you as an overview of how the system works.
+with support for the "quartz" database access method (this is enabled
+by default).
 </P>
 
 <HR>
@@ -110,7 +93,7 @@ What can be accessed fast, what can't.
 How each piece of data might be stored.
 </P>
 
-<H3><A NAME="sleepycat_databases">SleepyCat databases</A></H3>
+<H3><A NAME="quartz_databases">Quartz databases</A></H3>
 
 <P>
 FIXME: to be written.
@@ -127,7 +110,7 @@ efficient database format for searching.
 </P>
 <P>
 On the other hand, it does lack a couple of features available in the
-sleepycat database, one of which is that is does not store positional
+quartz database format, one of which is that is does not store positional
 information in the posting lists.  Because of this, some operations
 (such as phrase searching) will never be possible with this database format.
 </P>
@@ -141,11 +124,11 @@ databases.
 Because the DA format is an old format, we do not provide software to
 create DA files directly.  However, you may use the makeDA utility to
 create these files, either from text data which you have hand prepared,
-or from data unloaded from a sleepycat (or other format) database.
+or from data unloaded from a quartz (or other format) database.
 </P>
 <P>
 You can search a DA database in exactly the same way as you would search a
-sleepycat database (see the <A HREF="#searcher">example searcher</A>).
+quartz database (see the <A HREF="#searcher">example searcher</A>).
 </P>
 
 <HR>
@@ -240,12 +223,12 @@ object.  The constructor for this object takes two arguments.
 <B>type</B> - this is a string determining the type of the database to open.
 The possible values for this depend on which backends are compiled into the
 system: if the type is not known an <CODE>OmInvalidArgument</CODE> error will
-be thrown.  For this example, we use the &quot;<CODE>sleepycat</CODE>&quot;
+be thrown.  For this example, we use the &quot;<CODE>quartz</CODE>&quot;
 database type.
 </LI><LI>
 <B>parameters</B> - this is a set of parameters to be used to open the
 database, stored in an STL vector. The meaning of the parameters is
-dependent on the database type: for a sleepycat database there is expected
+dependent on the database type: for a quartz database there is expected
 to be one and only one argument, which is the path (possibly relative to
 the current directory) of a directory in which the database files reside.
 </LI></OL>
@@ -264,8 +247,8 @@ The code to open a database for writing is, then:
 
 <PRE>
     OmSettings db_parameters;
-    db_parameters.set("backend", "sleepycat");
-    db_parameters.set("sleepycat_dir", argv[1]);
+    db_parameters.set("backend", "quartz");
+    db_parameters.set("quartz_dir", argv[1]);
     OmWritableDatabase database(db_parameters);
 </PRE>
 
@@ -431,7 +414,7 @@ Again, this is performed just as it was for the simple indexer.
 Omsee has the ability to search over many databases simultaneously,
 possibly even with the databases distributed across a network of machines.
 Each database can be in its own format, so, for example, we might have a
-system searching across two DA databases and a sleepycat database.
+system searching across two DA databases and a quartz database.
 </P>
 <P>
 This means that, when we are preparing to search, we create an
@@ -445,8 +428,8 @@ to the database.
 <PRE>
     OmDatabase databases;
     OmSettings db_parameters;
-    db_parameters.set("backend", "sleepycat");
-    db_parameters.set("sleepycat_dir", argv[1]);
+    db_parameters.set("backend", "quartz");
+    db_parameters.set("quartz_dir", argv[1]);
     databases.add_database(db_parameters);
 </PRE>
 <P>
@@ -455,8 +438,8 @@ constructor, which is a handy shortcut if you only want to search one database:
 </P>
 <PRE>
     OmSettings db_parameters;
-    db_parameters.set("backend", "sleepycat");
-    db_parameters.set("sleepycat_dir", argv[1]);
+    db_parameters.set("backend", "quartz");
+    db_parameters.set("quartz_dir", argv[1]);
     OmDatabase db(db_parameters);
 </PRE>
 
@@ -670,10 +653,7 @@ document.db  postlist.db  termid.db  termlist.db  termname.db
 Given the small amount of data in the database, you may be concerned that
 the total size of these files is somewhat over 50k.  Be reassured that the
 database is block structured, here consisting of largely empty
-blocks, and will behave much better for large databases.  It is worth
-noting, however, that the sleepycat backend is not currently very efficient
-(in either space or time), and that this will be improving greatly in the
-future.
+blocks, and will behave much better for large databases.
 </P>
 
 <P>

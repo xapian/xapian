@@ -21,8 +21,7 @@ omtcpsrv_LDADD = ../libomsee.la
 distclean-local: clean-local
 
 clean-local:
-	@if [ -d .sleepycat ]; then \
-	  echo "removing .sleepycat/"; \
-	  $(RM) -r .sleepycat/* ; rmdir .sleepycat ; \
+	@if [ -d .quartz ]; then \
+	  echo "removing .quartz/"; \
+	  $(RM) -r .quartz/* ; rmdir .quartz ; \
 	fi
-

@@ -2,7 +2,7 @@
 
   - general
     - backend : database backend type - current backends are: auto, da, db,
-      inmemory, remote, quartz, and sleepycat
+      inmemory, remote, and quartz
     - database_create : boolean, true if a new database should be created.
       Default is false.
     - database_allow_overwrite : boolean.  This has no effect unless
@@ -12,9 +12,6 @@
 
   - auto pseudo-backend
     - auto_dir : directory for auto pseudo-backend to look for database in
-
-  - sleepycat backend
-    - sleepycat_dir : directory containing sleepycat database
 
   - muscat36 backends
     - m36_key_file : keys for DA or DB file

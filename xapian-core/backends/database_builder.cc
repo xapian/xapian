@@ -31,9 +31,6 @@
 #ifdef MUS_BUILD_BACKEND_INMEMORY
 #include "inmemory/inmemory_database.h"
 #endif
-#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
-#include "sleepycat/sleepycat_database.h"
-#endif
 #ifdef MUS_BUILD_BACKEND_QUARTZ
 #include "quartz/quartz_database.h"
 #endif
@@ -51,8 +48,7 @@ enum om_database_type {
     DBTYPE_MUSCAT36_DB,
     DBTYPE_INMEMORY,
     DBTYPE_REMOTE,
-    DBTYPE_QUARTZ,
-    DBTYPE_SLEEPYCAT
+    DBTYPE_QUARTZ
 };
 
 // Translation of types as strings to types as enum om_database_type
@@ -66,7 +62,6 @@ static const StringAndValue database_strings[] = {
     { "inmemory",		DBTYPE_INMEMORY		},
     { "remote",			DBTYPE_REMOTE		},
     { "quartz",			DBTYPE_QUARTZ		},
-    { "sleepycat",		DBTYPE_SLEEPYCAT	},
     { "",			DBTYPE_NULL		}  // End
 };
 
@@ -132,18 +127,6 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
 		}
 	    }
 #endif
-#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
-            // SleepycatDatabase has lots of files so just default to it for now
-//#define FILENAME_POSTLIST "postlist.db"
-//#define FILENAME_TERMLIST "termlist.db"
-//#define FILENAME_TERMTOID "termid.db"
-//#define FILENAME_IDTOTERM "termname.db"
-//#define FILENAME_DOCUMENT "document.db"
-//#define FILENAME_DOCKEYDB "dockey.db"
-//#define FILENAME_STATS_DB "stats.db"
-	    myparams.set("sleepycat_dir", path);
-            database = new SleepycatDatabase(myparams, readonly);
-#endif
             break;
         }
 	case DBTYPE_MUSCAT36_DA:
@@ -159,11 +142,6 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
 	case DBTYPE_INMEMORY:
 #ifdef MUS_BUILD_BACKEND_INMEMORY
 	    database = new InMemoryDatabase(params, readonly);
-#endif
-	    break;
-	case DBTYPE_SLEEPYCAT:
-#ifdef MUS_BUILD_BACKEND_SLEEPYCAT
-	    database = new SleepycatDatabase(params, readonly);
 #endif
 	    break;
 	case DBTYPE_QUARTZ:

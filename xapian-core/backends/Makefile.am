@@ -21,11 +21,6 @@ BUILDSUBDIR_MUSCAT36 = muscat36
 LIBADD_MUSCAT36 = muscat36/libmuscat36.la
 endif
 
-if BUILD_BACKEND_SLEEPYCAT
-BUILDSUBDIR_SLEEPYCAT = sleepycat
-LIBADD_SLEEPYCAT = sleepycat/libsleepycat.la
-endif
-
 if BUILD_BACKEND_QUARTZ
 BUILDSUBDIR_QUARTZ = quartz
 LIBADD_QUARTZ = quartz/libquartz.la
@@ -42,16 +37,14 @@ LIBADD_REMOTE = net/libnetdb.la
 endif
 
 SUBDIRS = $(BUILDSUBDIR_MUSCAT36) \
-	  $(BUILDSUBDIR_SLEEPYCAT) \
           $(BUILDSUBDIR_QUARTZ) \
           $(BUILDSUBDIR_INMEMORY) \
 	  $(BUILDSUBDIR_REMOTE) multi .
 
-DIST_SUBDIRS = muscat36 sleepycat quartz inmemory net multi .
+DIST_SUBDIRS = muscat36 quartz inmemory net multi .
 
 libbackend_la_LIBADD = \
           $(LIBADD_MUSCAT36) \
-	  $(LIBADD_SLEEPYCAT) \
 	  $(LIBADD_QUARTZ) \
           $(LIBADD_INMEMORY) \
 	  $(LIBADD_REMOTE) \
