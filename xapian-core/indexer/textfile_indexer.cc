@@ -41,7 +41,6 @@ TextfileIndexer::add_source(const IndexerSource &source)
     while(*from) {
 	string line;
 	getline(*from, line);
-	cout << "Line: `" << line << "'" << endl;
 	
 	docid did = dest->make_doc();
 	termcount position = 1;
@@ -55,7 +54,6 @@ TextfileIndexer::add_source(const IndexerSource &source)
 	    select_characters(word, "");
 	    lowercase_term(word);
 	    word = stemmer.stem_word(word);
-	    cout << "Word: `" << word << "'" << endl;
 	    dest->make_posting(dest->make_term(word), did, position++);
 	    line = line.erase(0, spacepos);
 	}
