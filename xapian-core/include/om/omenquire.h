@@ -28,7 +28,6 @@
 #include <string>
 #include <vector>
 #include <set>
-#include "omlocks.h"
 
 class OmEnquireInternal; // Internal state of enquire
 class OmEnquire;         // Declare Enquire class
