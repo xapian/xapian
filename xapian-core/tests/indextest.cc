@@ -623,6 +623,26 @@ bool test_omlistconcat1()
     return true;
 }
 
+bool
+test_badnode1()
+{
+    bool success = false;
+    try {
+	OmIndexerBuilder builder;
+	builder.build_from_string(
+      "<?xml version=\"1.0\"?>\n"
+      "<omindexer>\n"
+         "<node type='non-existant' id='only'>\n"
+	     "<input name='in' node='START' out_name='out'/>\n"
+	 "</node>\n"
+         "<output node='only' out_name='out'/>\n"
+      "</omindexer>\n");
+    } catch (OmInvalidDataError &) {
+	success = true;
+    }
+    return success;
+}
+
 // ##################################################################
 // # End of actual tests                                            #
 // ##################################################################
@@ -643,6 +663,7 @@ test_desc tests[] = {
     {"omfilereader2",		&test_omfilereader2},
     {"omvectorsplit1",		&test_omvectorsplit1},
     {"omlistconcat1",		&test_omlistconcat1},
+    {"badnode1",		&test_badnode1},
     // FIXME: add tests for regex nodes
     {0, 0}
 };

@@ -76,6 +76,11 @@ class OmIndexerBuilder::Internal {
 	 */
 	std::vector<int> sort_nodes(const OmIndexerDesc &desc);
 
+	/** Verify that all the node types are valid.
+	 *  Throw an OmInvalidDataError if any types in the desc are unknown.
+	 */
+	void verify_node_types(const OmIndexerDesc &desc);
+
 	/** Return a count of the number of nodes which have more than
 	 *  one output.
 	 */
@@ -213,6 +218,20 @@ OmIndexerBuilder::Internal::sort_nodes(const OmIndexerDesc &desc)
     return result;
 }
 
+void
+OmIndexerBuilder::Internal::verify_node_types(const OmIndexerDesc &desc)
+{
+    int count = 0;
+    for (size_t i=0; i<desc.nodes.size(); ++i) {
+	std::map<std::string, node_desc>::const_iterator type;
+	type = nodetypes.find(desc.nodes[i].type);
+	if (type == nodetypes.end()) {
+	    throw OmInvalidDataError(std::string("Unknown node type ") +
+				     desc.nodes[i].type);
+	}
+    }
+}
+
 int
 OmIndexerBuilder::Internal::count_splitting_nodes(const OmIndexerDesc &desc)
 {
@@ -236,6 +255,12 @@ OmIndexerBuilder::Internal::build_graph(OmIndexer::Internal *indexer,
      */
     std::vector<int> sorted = sort_nodes(desc);
     
+    /* First check that all the node types are valid.
+     * This must be called before any accidental use of
+     * nodetypes[desc....], such as in count_splitting_nodes.
+     */
+    verify_node_types(desc);
+
     // get a count of the number of nodes with more than one output
     int num_splitting_nodes = count_splitting_nodes(desc);
     int next_splitting_node_num = 0;

@@ -1,3 +1,8 @@
+Mon Oct 30 14:20:46 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed a segfault when trying to use a non-existant node type,
+	  and added a test for it.
+
 Fri Oct 27 19:52:55 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* New indexer nodes: omnewkeylist, omnewtermlist, and omtermlistadd
