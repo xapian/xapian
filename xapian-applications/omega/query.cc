@@ -281,12 +281,14 @@ run_query()
 
     enquire->set_query(query);
 
-    // We could use the value of topdoc as first parameter, but we
-    // need to know the first few items on the mset to fake a
-    // relevance set for topterms
     OmSettings opt;
     opt.set("match_percent_cutoff", threshold);
     // FIXME - set msetcmp to reverse?
+    //
+    // We could use the value of topdoc as first parameter, but we
+    // need to know the first few items on the mset to fake a
+    // relevance set for topterms.
+    //
     // Fetch one extra result so we know if we've reached the end of the matches or
     // not - then we can avoid offering a "next" button which leads to an empty page
     mset = enquire->get_mset(0, topdoc + hits_per_page + 1, rset, &opt);
@@ -448,7 +450,7 @@ lowercase_term(om_termname &term)
 
 // FIXME: shares algorithm with omindex.cc!
 static string
-html_highlight(const string &str, const string &list)
+html_highlight(const string &str, const string &list, const string &bra, const string &ket)
 {
     string res;
     std::string::size_type i, j = 0, k, l = 0;
@@ -467,19 +469,19 @@ html_highlight(const string &str, const string &list)
 
 	//	cerr << "[j=" << j << "] ";
 	
-	//#if 0
 	string word = str.substr(i, j - i);
 	string term = word;
 	lowercase_term(term);
 
 	res += html_escape(str.substr(l, i - l));
 	if (word_in_list(stemmer->stem_word(term), list)) {
-	    res += "<strong>" + word + "</strong>";
+	    res += bra;
+	    res += word;
+	    res += ket;
 	} else {
 	    res += word;
 	}
 	l = j;
-	//#endif
 	//	i = j + 1;
     }
     //    cerr << endl;
@@ -614,7 +616,7 @@ static struct func_desc func_tab[] = {
 {T(fmt),	0, 0, N, 0, 0}}, // name of current format
 {T(freq),	1, 1, N, 0, 0}}, // frequency of a term
 {T(freqs),	0, 0, N, 1, 1}}, // return HTML string listing query terms and frequencies
-{T(highlight),	2, 2, N, 0, 0}}, // html escape and highlight words from list
+{T(highlight),	2, 4, N, 0, 0}}, // html escape and highlight words from list
 {T(hitlist),	N, N, 0, 1, 0}}, // display hitlist using format in argument
 {T(hitsperpage),0, 0, N, 0, 0}}, // hits per page
 {T(hostname),	1, 1, N, 0, 0}}, // extract hostname from URL
@@ -864,9 +866,27 @@ eval(const string &fmt, const string &loopvar)
 		value = eval("$map{$queryterms,$_:&nbsp;$nice{$freq{$_}}}",
 			     loopvar);
 		break;
-	    case CMD_highlight:
-		value = html_highlight(args[0], args[1]);
+	    case CMD_highlight: {
+		string bra, ket;
+		if (args.size() > 2) {
+		    bra = args[2];
+		} else {
+		    bra = "<strong>";
+		}
+		if (args.size() > 3) {
+		    ket = args[3];
+		} else {
+		    string::size_type i = bra.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+								"abcdefghijklmnopqrstuvwxyz"
+								"0123456789.-", 2);
+		    ket = "</";
+		    ket += bra.substr(1, i - 1);
+		    ket += '>'; 
+		}
+		    
+		value = html_highlight(args[0], args[1], bra, ket);
 		break;
+	    }
 	    case CMD_hitlist:
 #if 0
 		const char *q;

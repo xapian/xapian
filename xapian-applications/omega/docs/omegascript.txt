@@ -96,10 +96,11 @@ $freq{term}
 $freqs
 	returns an HTML string listing query terms and frequencies
 
-$highlight{TEXT,LIST}
+$highlight{TEXT,LIST,[OPEN,[CLOSE]]}
 	html escape string (<>&, etc) and highlight any terms from LIST
-	that appear in TEXT. Currently uses <strong>...</strong> to
-	highlight.
+	that appear in TEXT by enclosing them in OPEN and CLOSE.  OPEN
+	defaults to "<strong>", CLOSE to the appropriate closing tag for
+	OPEN (i.e. with a "/" in front and any parameters removed).
 
 $hitlist{FMT}
 	display hitlist using format FMT

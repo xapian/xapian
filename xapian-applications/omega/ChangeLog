@@ -1,3 +1,8 @@
+Thu Nov 29 15:25:54 GMT 2001  Olly Betts <olly@survex.com>
+
+	* $highlight{} now allows you to specify the tags to use for the
+	  highlighting.
+
 Thu Nov 29 15:24:53 GMT 2001  Olly Betts <olly@survex.com>
 
 	* topdoc is unsigned so subtracting and then checking if it's < 0 doesn't
