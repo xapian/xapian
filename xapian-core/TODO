@@ -22,8 +22,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    | Documentation   | Write more and more API documentation
 ---------+-----------------+--------------------------------------------------
- High    | Matcher         | Finish implementation of BM25 weight
----------+-----------------+--------------------------------------------------
  Medium  | API             | Use pthread locks around API methods, to make
          |                 | all operations thread safe.  Conditionally
          |                 | compile such locks.
@@ -50,6 +48,8 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Low     | API		   | Do allow boolean subqueries in OmQuery
          |                 | constructors, where it makes sense.
+---------+-----------------+--------------------------------------------------
+ Low     | Matcher         | Test implementation of BM25 weight
 ---------+-----------------+--------------------------------------------------
  Low	 | Stemming	   | "one" should probably stem to "one", not "on"
 ---------+-----------------+--------------------------------------------------
