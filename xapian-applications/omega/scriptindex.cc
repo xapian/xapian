@@ -344,18 +344,8 @@ hash(const string &s)
 #endif
 
 static bool
-index_file(string filename, OmWritableDatabase &database, OmStem &stemmer)
+index_file(istream &stream, OmWritableDatabase &database, OmStem &stemmer)
 {
-    // FIXME: oh so non-portable...
-    if (filename.empty()) filename = "/dev/fd/0";
-
-    ifstream stream(filename.c_str());
-
-    if (!stream) {
-	cout << "Can't open file " << filename << endl;
-	return false;
-    }
-
     string line;
     if (!getline(stream, line)) {
 	// empty file !?!
@@ -635,10 +625,15 @@ main(int argc, char **argv)
 	// Read file/s
 	if (argc == 3) {
 	    // Read from stdin
-	    index_file("", database, stemmer);
+	    index_file(cin, database, stemmer);
 	} else {
 	    for (int i = 3; i < argc; ++i) {
-		index_file(argv[i], database, stemmer);
+		ifstream stream(argv[i]);
+		if (stream) {
+		    index_file(stream, database, stemmer);
+		} else {
+		    cout << "Can't open file " << argv[i] << endl;
+		}
 	    }
 	}
 

@@ -1,3 +1,8 @@
+Sun Dec 08 08:42:47 GMT 2002  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Replaced icky unportable code which set the filename
+	  to "/dev/fd/0" in order to read from stdin.
+
 Sun Dec 08 06:39:30 GMT 2002  Olly Betts <olly@survex.com>
 
 	* query.cc,docs/omegascript.txt: Fixed $hitlist to complain if more
