@@ -25,6 +25,16 @@
 #include "db_document.h"
 #include "dbread.h"
 
+DBDocument::DBDocument(const DBDatabase * database_,
+		       om_docid did_,
+		       int heavy_duty_)
+        : database(database_),
+	  did(did_),
+	  rec(NULL),
+	  heavy_duty(heavy_duty_)
+{
+}
+
 DBDocument::~DBDocument()
 {
     if(rec != NULL) M_lose_record(rec);

@@ -28,6 +28,7 @@
 
 class DBDatabase;
 
+/// A document from a DA format database
 class DBDocument : public LeafDocument {
     friend class DBDatabase;
     private:
@@ -49,14 +50,5 @@ class DBDocument : public LeafDocument {
 	OmKey get_key(om_keyno keyid) const;
 	OmData get_data() const;
 };
-
-inline
-DBDocument::DBDocument(const DBDatabase * database_,
-		       om_docid did_,
-		       int heavy_duty_)
-	: database(database_), did(did_), rec(NULL), heavy_duty(heavy_duty_)
-{
-}
-
 
 #endif /* OM_HGUARD_DB_DOCUMENT_H */

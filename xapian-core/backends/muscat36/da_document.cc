@@ -25,21 +25,41 @@
 #include "da_document.h"
 #include "daread.h"
 
+/** Create a DADocument: this is only called by DADatabase::open_document()
+ */
+DADocument::DADocument(const DADatabase * database_,
+		       om_docid did_,
+		       int heavy_duty_)
+        : database(database_),
+	  did(did_),
+	  rec(NULL),
+	  heavy_duty(heavy_duty_)
+{
+}
+
+/** Clean up the document: frees the record structure.  The creating
+ *  DADatabase must still exist at the time this is called.
+ */
 DADocument::~DADocument()
 {
     if(rec != NULL) M_lose_record(rec);
 }
 
+/** Get the key for a DA document.
+ *  If a key file is available, this will be used to provide extremely fast
+ *  key lookup.
+ */
 OmKey
 DADocument::get_key(om_keyno keyid) const
 {
-    DebugMsg("Asked for keyno " << keyid);
-    OmKey key;
-    key.value = did % (keyid + 1);
-    DebugMsg(": saying " << key.value << endl);
-    return key;
+    return database->get_key(did, keyid);
 }
 
+/** Get the data for a DA Document.
+ *  This can be expensive, and shouldn't normally be used
+ *  during the match operation (such as in a match decider functor):
+ *  use a key instead, if at all possible.
+ */
 OmData
 DADocument::get_data() const
 {

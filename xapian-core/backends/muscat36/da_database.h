@@ -23,6 +23,7 @@
 #ifndef OM_HGUARD_DA_DATABASE_H
 #define OM_HGUARD_DA_DATABASE_H
 
+#include <stdio.h>
 #include <map>
 #include <vector>
 #include <errno.h>
@@ -111,6 +112,7 @@ class DATermListItem {
 	{ return; }
 };
  
+/** A term list for a DA Database */
 class DATermList : public LeafTermList {
     friend class DADatabase;
     private:
@@ -231,6 +233,7 @@ DATerm::get_ti() const
     return &ti;
 }
 
+/** A DA Database */
 class DADatabase : public IRDatabase {
     friend class DatabaseBuilder;
     friend class DADocument;
@@ -238,6 +241,8 @@ class DADatabase : public IRDatabase {
 	bool   opened;
 	struct DA_file * DA_r;
 	struct DA_file * DA_t;
+
+	FILE * keyfile;
 
 	mutable map<om_termname, DATerm> termmap;
 
@@ -252,6 +257,9 @@ class DADatabase : public IRDatabase {
 
 	// Get a record
 	struct record * get_record(om_docid did) const;
+
+	/** Get a key. */
+	OmKey get_key(om_docid did, om_keyno keyid) const;
 
 	DADatabase(int heavy_duty_);
 	void open(const DatabaseBuilderParams & params);

@@ -33,6 +33,7 @@
 #include "da_database.h"
 #include "da_document.h"
 #include "daread.h"
+#include "om/omdocument.h"
 
 DAPostList::DAPostList(const om_termname & tname_,
 		       struct DA_postings * postlist_,
@@ -119,11 +120,12 @@ DATermList::get_weighting() const
 
 
 DADatabase::DADatabase(int heavy_duty_)
-	: heavy_duty(heavy_duty_)
+	: opened(false),
+	  DA_r(0),
+	  DA_t(0),
+	  keyfile(0),
+	  heavy_duty(heavy_duty_)
 {
-    DA_r = NULL;
-    DA_t = NULL;
-    opened = false;
 }
 
 DADatabase::~DADatabase()
@@ -148,20 +150,49 @@ DADatabase::open(const DatabaseBuilderParams & params)
     Assert(params.subdbs.size() == 0);
     Assert(params.paths.size() == 1);
 
-    // Open database with specified path
+    // Work out file paths
     string filename_r = params.paths[0] + "/R";
     string filename_t = params.paths[0] + "/T";
+    string filename_k = params.paths[0] + "/keyfile";
 
+    // Open database with specified path
     DA_r = DA_open(filename_r.c_str(), DA_RECS, heavy_duty);
-    if(DA_r == NULL) {
+    if (DA_r == 0) {
 	throw OmOpeningError(string("When opening ") + filename_r + ": " + strerror(errno));
     }
-
     DA_t = DA_open(filename_t.c_str(), DA_TERMS, heavy_duty);
-    if(DA_t == NULL) {
+    if (DA_t == 0) {
 	DA_close(DA_r);
-	DA_r = NULL;
+	DA_r = 0;
 	throw OmOpeningError(string("When opening ") + filename_t + ": " + strerror(errno));
+    }
+
+    // Open keyfile, if we can
+    keyfile = fopen(filename_k.c_str(), "rb");
+    if (keyfile != 0) {
+	// Check for magic string at beginning of file.
+	char input[9];
+	size_t bytes_read = fread(input, sizeof(char), 8, keyfile);
+	if(bytes_read < 8) {
+	    fclose(keyfile);
+	    keyfile = 0;
+	    DA_close(DA_t);
+	    DA_t = 0;
+	    DA_close(DA_r);
+	    DA_r = 0;
+	    throw OmOpeningError(string("When opening ") + filename_k + ": couldn't read magic - " + strerror(errno));
+	} else {
+	    input[8] = '\0';
+	    if(strcmp(input, "omrocks!")) {
+		fclose(keyfile);
+		keyfile = 0;
+		DA_close(DA_t);
+		DA_t = 0;
+		DA_close(DA_r);
+		DA_r = 0;
+		throw OmOpeningError(string("When opening ") + filename_k + ": couldn't read magic - got `" + input + "'");
+	    }
+	}
     }
 
     opened = true;
@@ -222,6 +253,27 @@ DADatabase::get_record(om_docid did) const
     }
 
     return r;
+}
+
+/** Get the specified key for given document.  Use the fast lookup file
+ *  if available.
+ */
+OmKey
+DADatabase::get_key(om_docid did, om_keyno keyid) const
+{
+    OmKey key;
+    DebugMsg("Looking for keyno " << keyid << " in document " << did);
+
+    if (keyfile == 0) {
+	DebugMsg(": don't have keyfile - returning value of 0" << endl);
+	key.value = 0;
+    } else {
+	//fseek();
+
+	key.value = 1;
+	DebugMsg(": found - value is `" << key.value << "'" << endl);
+    }
+    return key;
 }
 
 LeafDocument *
