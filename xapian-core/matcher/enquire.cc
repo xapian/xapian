@@ -29,7 +29,6 @@
 #include "irdocument.h"
 
 #include <vector>
-#include <map>
 
 //////////////////////////////////////////////////////////////
 // Mapping of database names, as strings, to database types //
@@ -40,6 +39,10 @@ template<class X> struct stringToType {
     X type;
 };
 
+// Note: this just uses a list of entrys, and searches linearly through
+// them.  Could at make this do a binary chop, but probably not worth
+// doing so, unless list gets large.  Only used when openeing a database,
+// after all.
 template<class X> class stringToTypeMap {
     public:
 	static stringToType<X> types[];
@@ -53,6 +56,7 @@ template<class X> class stringToTypeMap {
 	}
 };
 
+// Table of names of database types
 stringToType<om_database_type> stringToTypeMap<om_database_type>::types[] = {
     { "da_flimsy",		OM_DBTYPE_DA		},
     { "inmemory",		OM_DBTYPE_INMEMORY	},
@@ -61,30 +65,153 @@ stringToType<om_database_type> stringToTypeMap<om_database_type>::types[] = {
     { "",			OM_DBTYPE_NULL		}  // End
 };
 
+/////////////////////////
+// Methods for OMQuery //
+/////////////////////////
+
+OMQuery::OMQuery(const termname & _tname)
+	: left(NULL), right(NULL), tname(_tname)
+{}
+
+OMQuery::OMQuery(om_queryop _op, const OMQuery &query1, const OMQuery &query2)
+	: op(_op)
+{
+    left = new OMQuery(query1);
+    right = new OMQuery(query2);
+}
+
+OMQuery::OMQuery(om_queryop _op, const vector<OMQuery> &subqueries)
+	: op(_op)
+{
+    Assert(op == OM_MOP_AND || op == OM_MOP_OR);
+    initialise_from_vector(subqueries.begin(), subqueries.end());
+}
+
+OMQuery::OMQuery(om_queryop _op, const vector<OMQuery>::const_iterator qbegin,
+		 const vector<OMQuery>::const_iterator qend)
+	        : op(_op)
+{   
+    Assert(op == OM_MOP_AND || op == OM_MOP_OR);
+    initialise_from_vector(qbegin, qend);
+}
+
+OMQuery::OMQuery(om_queryop _op, const vector<termname> &terms)
+	: op(_op)
+{
+    Assert(op == OM_MOP_AND || op == OM_MOP_OR);
+
+    vector<OMQuery> subqueries;
+    vector<termname>::const_iterator i;
+    for(i = terms.begin(); i != terms.end(); i++) {
+	subqueries.push_back(OMQuery(*i));
+    }
+    initialise_from_vector(subqueries.begin(), subqueries.end());
+}
+
+OMQuery::OMQuery(const OMQuery &copyme)
+{
+    initialise_from_copy(copyme);
+}
+
+OMQuery::OMQuery(const OMQuery *copyme)
+{
+    initialise_from_copy(*copyme);
+}
+
+OMQuery::~OMQuery()
+{
+    delete left;
+    delete right;
+}
+
+void
+OMQuery::initialise_from_copy(const OMQuery &copyme)
+{
+    tname = copyme.tname;
+    op    = copyme.op;
+    if(copyme.left != NULL) {
+	left = new OMQuery(*(copyme.left));
+	right = new OMQuery(*(copyme.right));
+    }
+}
+
+void
+OMQuery::initialise_from_vector(const vector<OMQuery>::const_iterator qbegin,
+				const vector<OMQuery>::const_iterator qend)
+{
+    Assert(qbegin != qend);
+    if(qbegin + 1 == qend) {
+	// Copy into self
+	initialise_from_copy(*qbegin);
+    } else {
+	left = new OMQuery(*qbegin);
+	right = new OMQuery(op, qbegin + 1, qend);
+    }
+}
+
 //////////////////////////////////////
 // Internal state of enquire object //
 //////////////////////////////////////
 
-class EnquireState {
+class OMEnquireState {
     public:
 	IRDatabase * database;
+	OMQuery * query;
 
-	EnquireState() : database(NULL) {}
-	~EnquireState() {
-	    delete database;
-	}
+	OMEnquireState();
+	~OMEnquireState();
+
+	void set_database(IRDatabase *);
+	void set_query(const OMQuery &);
 };
 
-//////////////////////////////
-// Initialise and shut down //
-//////////////////////////////
+///////////////////////////////////////
+// Inline methods for OMEnquireState //
+///////////////////////////////////////
 
-Enquire::Enquire()
+inline
+OMEnquireState::OMEnquireState()
+	: database(NULL), query(NULL)
 {
-    state = new EnquireState();
 }
 
-Enquire::~Enquire()
+inline
+OMEnquireState::~OMEnquireState()
+{
+    set_database(NULL);
+    if(query) {
+	delete query;
+	query = NULL;
+    }
+}
+
+inline void
+OMEnquireState::set_database(IRDatabase * _database)
+{
+    if(database) delete database;
+    database = _database;
+}
+
+inline void
+OMEnquireState::set_query(const OMQuery &_query)
+{
+    if(query) {
+	delete query;
+	query = NULL;
+    }
+    query = new OMQuery(_query);
+}
+
+////////////////////////////////////////////
+// Initialise and delete OMEnquire object //
+////////////////////////////////////////////
+
+OMEnquire::OMEnquire()
+{
+    state = new OMEnquireState();
+}
+
+OMEnquire::~OMEnquire()
 {
     delete state;
     state = NULL;
@@ -95,38 +222,23 @@ Enquire::~Enquire()
 //////////////////
 
 void
-Enquire::set_database(string spec, bool readonly)
+OMEnquire::set_database(const string & type,
+			const vector<string> & entries,
+			bool readonly)
 {
-    DebugMsg("Database specifier: `" << spec << "'" << endl);
-
-    // Extract the type
-    string::size_type colonpos = spec.find_first_of(":");
-    if(colonpos == spec.npos) throw OmError("Invalid database specifier");
-    string type = spec.substr(0, colonpos);
-    spec.erase(0, colonpos + 1);
-
     // Convert type into an om_database_type
     om_database_type dbtype = stringToTypeMap<om_database_type>::get_type(type);
-
-    // Extract the entries into a list
-    vector<string> entries;
-    while((colonpos = spec.find_first_of(":")) != spec.npos) {
-	entries.push_back(spec.substr(0, colonpos));
-	DebugMsg("entry `" << spec.substr(0, colonpos) << "' ");
-	spec.erase(0, colonpos + 1);
-    }
-    if(spec.size() != 0) {
-	entries.push_back(spec);
-	DebugMsg("entry `" << spec << "' ");
-    }
-    DebugMsg(entries.size() << " entries" << endl);
 
     // Prepare params to build database with
     DatabaseBuilderParams params(dbtype, readonly);
     params.paths = entries;
 
     // Use params to create database
-    state->database = DatabaseBuilder::create(params);
+    state->set_database(DatabaseBuilder::create(params));
 }
 
-
+void
+OMEnquire::set_query(const OMQuery &query)
+{
+    state->set_query(query);
+}

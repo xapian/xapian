@@ -24,21 +24,33 @@
 
 #include "om.h"
 
+#include <vector>
+#include <string>
+
 int
 main(int argc, char *argv[])
 {
-    Enquire enquire;
+    OMEnquire enquire;
+    char *progname = argv[0];
 
-    string spec;
+    string type;
     if(argc >= 2) {
-	spec = argv[1];
+	type = argv[1];
+	argv++;
+	argc--;
+    }
+
+    vector<string> dbparams;
+    while(argc >= 2) {
+	if(string(argv[1]) == "--") break;
+	dbparams.push_back(argv[1]);
 	argv++;
 	argc--;
     }
 
     try {
-	enquire.set_database(spec);
+	enquire.set_database(type, dbparams);
     } catch (OmError e) {
-	cout << e.get_msg() << endl;
+	cout << progname << ": OmError " << e.get_msg() << endl;
     }
 }

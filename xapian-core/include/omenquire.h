@@ -23,36 +23,87 @@
 #ifndef _omenquire_h_
 #define _omenquire_h_
 
-// Include these for now, but later they will be hidden.
-#include "match.h"
-#include "expand.h"
-#include "stemmer.h"
-#include "rset.h"
+#include <vector>
 
-// Internal state
-class EnquireState;
+///////////////////////////////////////////////////////////////////
+// OMQuery class
+// =============
+// Class representing a query
 
+typedef enum {
+    OM_MOP_AND,       // Return document only if both subqueries are satisfied
+    OM_MOP_OR,        // Return document if either subquery is satisfied
+    OM_MOP_AND_NOT,   // Return document if first query but not second satisfied
+    OM_MOP_XOR,       // Return document if one query satisfied, but not both
+    OM_MOP_AND_MAYBE, // Return document iff 
+    OM_MOP_FILTER     // Return document only if 
+} om_queryop;
+
+class OMQuery {
+    private:
+	OMQuery *left;
+	OMQuery *right;
+	termname tname;
+	om_queryop op;
+
+	void initialise_from_copy(const OMQuery &);
+	void initialise_from_vector(const vector<OMQuery>::const_iterator,
+				    const vector<OMQuery>::const_iterator);
+    public:
+	// A query consisting of a single term
+	OMQuery(const termname &);
+
+	// A query consisting of two subqueries, opp-ed together
+	OMQuery(om_queryop, const OMQuery &, const OMQuery &);
+
+	// Convenience functions:
+	// A set of OMQuery's, merged together with specified operator.
+	// The only operators allowed are AND and OR
+	OMQuery(om_queryop, const vector<OMQuery> &);
+
+	// As before, except subqueries are all individual terms.
+	OMQuery(om_queryop, const vector<termname> &);
+
+	// As before, but use begin and end iterators
+	OMQuery(om_queryop,
+		const vector<OMQuery>::const_iterator,
+		const vector<OMQuery>::const_iterator);
+
+	// Copy constructors
+	OMQuery(const OMQuery &);
+	OMQuery(const OMQuery *);
+
+	// Destructor
+	~OMQuery();
+};
+
+///////////////////////////////////////////////////////////////////
+// OMEnquire class
+// ===============
 // This class provides an interface to the information retrieval
 // system for the purpose of searching.
 
-class Enquire {
+class OMEnquireState; // Internal state
+class OMEnquire {
     private:
-	EnquireState *state;
+	OMEnquireState *state;
     public:
-        Enquire();
-        ~Enquire();
+        OMEnquire();
+        ~OMEnquire();
 
 	// Set the database to use.
 	//
-	// First parameter is a string describing the database:
-	// the start of the string is a case sensitive name followed by a :,
-	// specifying the type of the database.  The subsequent string is a
-	// set of / separated entries, whose meaning is dependent on the type
-	// of the database.
-	//
-	// Second parameter is a flag: if set, the database will be opened
+	// First parameter is a string describing the database type.
+	// Second parameter is a vector of parameters to be used to open the
+	// database: meaning and number required depends on database type.
+	// Third parameter is a flag: if set, the database will be opened
 	// read-only.
-	void set_database(string, bool = true);
+	void set_database(const string &,
+			  const vector<string> &,
+			  bool = true);
+
+	// Set the query to run.
+	void set_query(const OMQuery &);
 };
 
 #endif /* _omenquire_h_ */
