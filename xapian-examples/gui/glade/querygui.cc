@@ -28,6 +28,8 @@
 #include <string>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <string.h>
+#include <errno.h>
 #include "querygui.h"
 
 #include "om.h"
@@ -353,6 +355,13 @@ int main(int argc, char *argv[]) {
 	GladeXML *xml;
 
 	/* load the interface */
+	struct stat statbuf;
+	int err = stat(gladefile.c_str(), &statbuf);
+	if(err) {
+	    cerr << "Unable to open " << gladefile <<
+		    " (" << strerror(errno) << ")" << endl;
+	    return 1;
+	}
 
 	xml = glade_xml_new(gladefile.c_str(), NULL);
 	if(xml == NULL) {
