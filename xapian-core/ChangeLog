@@ -1,3 +1,14 @@
+Mon Oct 30 19:05:23 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added OmKeylistAddNode and OmRegexMatchNode.
+
+	* Some slightly more helpful exception messages
+
+	* OmTermlistAddNode and OmPrefixNode support flat strings as
+	  well as lists of strings
+
+	* Better support for submatches in regexcommon
+
 Mon Oct 30 17:37:33 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add a FIXME in irweight.cc

@@ -117,14 +117,22 @@ class Regex {
 	}
 
 	std::string match_string(size_t match_no) const {
-	    if (match_no >= regmatch_size ||
-		regmatches[match_no].rm_so == -1) {
+	    if (!submatch_defined(match_no)) {
 		return std::string("");
 	    } else {
 		return str.substr(regmatches[match_no].rm_so,
 				  regmatches[match_no].rm_eo -
 				  regmatches[match_no].rm_so);
 	    }
+	}
+
+	bool submatch_defined(size_t match_no) const {
+	    return !(match_no >= regmatch_size ||
+		    regmatches[match_no].rm_so == -1);
+	}
+
+	int num_subexprs() const {
+	    return re.re_nsub;
 	}
 
 	~Regex() {

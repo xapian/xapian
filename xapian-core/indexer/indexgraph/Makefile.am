@@ -19,7 +19,8 @@ noinst_LTLIBRARIES = libindexgraph.la
 #nodetest_LDADD = ../../libomus.la
 
 if HAVE_REGEX
-REGEX_NODES = omregexreplacenode.cc omregexsplitnode.cc omregexfilternode.cc
+REGEX_NODES = omregexreplacenode.cc omregexsplitnode.cc \
+		omregexfilternode.cc omregexmatchnode.cc
 REGEX_LIBS = @REGEX_LIBS@
 else
 REGEX_NODES = 
@@ -31,7 +32,8 @@ INDEXERNODES = omstemmernode.cc omsplitternode.cc omlistconcatnode.cc \
 		omflattenstringnode.cc omtranslatenode.cc \
 		omfilereadernode.cc omvectorsplitnode.cc \
 		ommakedocnode.cc omconstantnode.cc omnewtermlistnode.cc \
-		omtermlistaddnode.cc omnewkeylistnode.cc
+		omtermlistaddnode.cc omnewkeylistnode.cc \
+		omkeylistaddnode.cc
 
 libindexgraph_la_SOURCES = omindexer.cc omindexermessage.cc \
 	do_registration.cc $(INDEXERNODES) indexerxml.cc \

@@ -22,6 +22,7 @@
 
 #include "om/omindexernode.h"
 #include "node_reg.h"
+#include "om/omerror.h"
 
 class OmPrefixNode : public OmIndexerNode {
     public:
@@ -37,22 +38,39 @@ class OmPrefixNode : public OmIndexerNode {
 		return;
 	    }
 
-	    OmIndexerMessage output(new OmIndexerData(
-				      std::vector<OmIndexerData>()));
-
 	    std::string prefix = get_config_string("prefix");
 
-	    for (int i=0; i<input->get_vector_length(); ++i) {
-		output->append_element(
-	            OmIndexerData(prefix +
-				  input->get_element(i).get_string()));
-	    }
+	    switch (input->get_type()) {
+		case OmIndexerData::rt_vector:
+		    {
+			OmIndexerMessage output(new OmIndexerData(
+					  std::vector<OmIndexerData>()));
 
-	    set_output("out", output);
+			for (size_t i=0; i<input->get_vector_length(); ++i) {
+			    output->append_element(
+				       OmIndexerData(prefix +
+					     input->get_element(i).get_string()));
+			}
+			set_output("out", output);
+		    }
+		    break;
+		case OmIndexerData::rt_string:
+		    {
+			set_output("out", prefix + input->get_string());
+		    }
+		    break;
+		default:
+		    throw OmTypeError(std::string("Bad data given to omprefix node"));
+	    }
 	}
 };
 
-NODE_BEGIN(OmPrefixNode, omprefix)
+NODE_BEGIN(OmPrefixNode, omprefixlist)
 NODE_INPUT("in", "strings", mt_vector)
 NODE_OUTPUT("out", "strings", mt_vector)
+NODE_END()
+
+NODE_BEGIN(OmPrefixNode, omprefix)
+NODE_INPUT("in", "string", mt_string)
+NODE_OUTPUT("out", "string", mt_string)
 NODE_END()

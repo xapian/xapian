@@ -1,4 +1,4 @@
-/* omtermlistaddnode.cc: Node which adds words to a termlist
+/* omkeylistaddnode.cc: Node which adds keys to a keylist
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -26,9 +26,9 @@
 #include <cctype>
 #include "om/omerror.h"
 
-class OmTermlistAddNode : public OmIndexerNode {
+class OmKeylistAddNode : public OmIndexerNode {
     public:
-	OmTermlistAddNode(const OmSettings &config)
+	OmKeylistAddNode(const OmSettings &config)
 		: OmIndexerNode(config)
 	{
 	    // FIXME: parameters to set positional defaults?
@@ -37,48 +37,39 @@ class OmTermlistAddNode : public OmIndexerNode {
 	// FIXME: implement config_modified()
 	void calculate() {
 	    request_inputs();
-	    OmIndexerMessage terms = get_input_record("termlist");
-	    OmIndexerMessage words = get_input_record("words");
+	    OmIndexerMessage keys = get_input_record("keylist");
+	    OmIndexerMessage words = get_input_record("keys");
 
 	    switch (words->get_type()) {
 		case OmIndexerData::rt_vector:
 		    for (size_t i = 0; i<words->get_vector_length(); ++i) {
-			terms->append_element(make_term(words->get_element(i), i+1));
+			keys->append_element(make_key(words->get_element(i)));
 		    }
 		    break;
 		case OmIndexerData::rt_string:
-		    terms->append_element(make_term(*words, 1));
+		    keys->append_element(make_key(*words));
 		    break;
 		default:
-		    throw OmTypeError(std::string("Bad data given to termlistadd node"));
+		    throw OmTypeError(std::string("Bad data given to keylistadd node"));
 	    }
-	    set_output("out", terms);
+	    set_output("out", keys);
 	}
 
-	OmIndexerData make_term(const OmIndexerData &word, int pos) {
-	    std::vector<OmIndexerData> empty;
-	    OmIndexerData retval(empty);
-	    retval.append_element(word);
-	    retval.append_element(1);  // wdf
-	    retval.append_element(1);  // termfreq
-	    OmIndexerData positions(empty);
-	    positions.append_element(pos);
-	    retval.append_element(positions);
-
-	    return retval;
+	OmIndexerData make_key(const OmIndexerData &word) {
+	    return word;
 	}
 };
 
 /* version 1: add a vector */
-NODE_BEGIN(OmTermlistAddNode, omtermlistadd)
-NODE_INPUT("words", "strings", mt_vector)
-NODE_INPUT("termlist", "terms", mt_vector)
-NODE_OUTPUT("out", "terms", mt_vector)
+NODE_BEGIN(OmKeylistAddNode, omkeylistadd)
+NODE_INPUT("keys", "strings", mt_vector)
+NODE_INPUT("keylist", "keys", mt_vector)
+NODE_OUTPUT("out", "keys", mt_vector)
 NODE_END()
 
 /* version 2: add a string */
-NODE_BEGIN(OmTermlistAddNode, omtermlistaddone)
-NODE_INPUT("words", "string", mt_string)
-NODE_INPUT("termlist", "terms", mt_vector)
-NODE_OUTPUT("out", "terms", mt_vector)
+NODE_BEGIN(OmKeylistAddNode, omkeylistaddone)
+NODE_INPUT("keys", "string", mt_string)
+NODE_INPUT("keylist", "keys", mt_vector)
+NODE_OUTPUT("out", "keys", mt_vector)
 NODE_END()
