@@ -45,7 +45,7 @@ int main(int argc, char **argv)
     // Catch any Error exceptions thrown
     try {
 	// Open the database
-	Database db(Auto::open(argv[1]));
+	Database db(argv[1]);
 
 	// Start an enquire session
 	Enquire enquire(db);

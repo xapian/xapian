@@ -66,20 +66,14 @@ lowercase_term(string &term)
 }
 
 int main(int argc, char **argv)
-{
+try {
     if (argc != 2) {
 	cout << "usage: " << argv[0] << " <path to database>" << endl;
 	exit(1);
     }
 
-    WritableDatabase database;
-    try {
-	// Open the database
-	database = Auto::open(argv[1], DB_CREATE_OR_OPEN);
-    } catch (const Error &error) {
-	cerr << "Exception: "  << error.get_msg() << endl;
-	exit(1);
-    }
+    // Open the database
+    WritableDatabase database(argv[1], DB_CREATE_OR_OPEN);
     
     Stem stemmer("english");
     string para;
@@ -92,32 +86,27 @@ int main(int argc, char **argv)
 	}
 	if (line.empty()) {
 	    if (!para.empty()) {
-		try {
-		    Document doc;
-		    doc.set_data(para);
+		Document doc;
+		doc.set_data(para);
 
-		    termcount pos = 0;
-		    string::iterator i, j = para.begin(), k;
-		    while ((i = find_if(j, para.end(), p_alnum)) != para.end())
-		    {
-			j = find_if(i, para.end(), p_notalnum);
-			k = find_if(j, para.end(), p_notplusminus);
-			if (k == para.end() || !isalnum(*k)) j = k;
-			string::size_type len = j - i;
-			if (len <= MAX_PROB_TERM_LENGTH) {
-			    string term = para.substr(i - para.begin(), len);
-			    lowercase_term(term);
-			    term = stemmer.stem_word(term);
-			    doc.add_posting(term, pos++);
-			}
+		termcount pos = 0;
+		string::iterator i = para.begin();
+		while ((i = find_if(i, para.end(), p_alnum)) != para.end()) {
+		    string::iterator j = find_if(i, para.end(), p_notalnum);
+		    string::iterator k = find_if(j, para.end(), p_notplusminus);
+		    if (k == para.end() || !isalnum(*k)) j = k;
+		    string::size_type len = j - i;
+		    if (len <= MAX_PROB_TERM_LENGTH) {
+			string term = para.substr(i - para.begin(), len);
+			lowercase_term(term);
+			term = stemmer.stem_word(term);
+			doc.add_posting(term, pos++);
 		    }
-
-		    // Add the document to the database
-		    database.add_document(doc);
-		} catch (const Error &error) {
-		    cerr << "Exception: "  << error.get_msg() << endl;
-		    exit(1);
+		    i = j;
 		}
+
+		// Add the document to the database
+		database.add_document(doc);
 
 		para = "";
 	    }
@@ -125,4 +114,7 @@ int main(int argc, char **argv)
 	if (!para.empty()) para += ' ';
 	para += line;
     }
+} catch (const Error &error) {
+    cerr << "Exception: "  << error.get_msg() << endl;
+    exit(1);
 }

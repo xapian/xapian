@@ -1,3 +1,10 @@
+Tue Dec 07 16:44:26 GMT 2004  Olly Betts <olly@survex.com>
+
+	* copydatabase.cc,delve.cc,quest.cc,simpleexpand.cc,simpleindex.cc,
+	  simplesearch.cc: Use the new style Database/WritableDatabase
+	  constructor rather than factory functions.
+	* simpleindex.cc: Move the try block to wrap all of main().
+
 Tue Nov 30 22:43:23 GMT 2004  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Updated for 0.8.4 release.

@@ -184,7 +184,7 @@ main(int argc, char **argv)
 	vector<string>::const_iterator i;
 	for (i = dbs.begin(); i != dbs.end(); i++) {
 	    try {
-		db.add_database(Auto::open(*i));
+		db.add_database(Database(*i));
 	    } catch (const Error &e) {
 		cout << "Error opening database `" << *i << "': " << e.get_msg()
 		     << endl;

@@ -44,11 +44,11 @@ main(int argc, char **argv)
     const char *dest = argv[argc - 1];
     try {
 	// Create the destination database
-	WritableDatabase dest_database(Auto::open(dest, DB_CREATE));
+	WritableDatabase dest_database(dest, DB_CREATE);
 
 	for (int i = 1; i < argc - 1; ++i) {
 	    // Open the source database
-	    Database src_database(Auto::open(argv[i]));
+	    Database src_database(argv[i]);
 
 	    // Copy each document across
 

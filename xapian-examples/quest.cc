@@ -67,7 +67,7 @@ main(int argc, char **argv)
 		    msize = atoi(optarg);
 		    break;
 		case 'd':
-		    db.add_database(Xapian::Auto::open(optarg));
+		    db.add_database(Xapian::Database(optarg));
 		    have_database = true;
 		    break;
 		case 'v':
