@@ -55,10 +55,6 @@ class QuartzDbManager : public RefCntBase {
 	/// Assignment not allowed
 	void operator=(const QuartzDbManager &);
 
-	/** Calculate the mode that database files should be created with.
-	 */
-	static int       calc_mode();
-
 	/** Open all tables at most recent revision.
 	 *
 	 *  @exception OmNeedRecoveryError is thrown if versions are not

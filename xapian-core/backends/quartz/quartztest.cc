@@ -148,8 +148,10 @@ static void check_table_values_empty(const QuartzDbTable & table)
 /// Test making and playing with a QuartzDbTable
 static bool test_dbtable1()
 {
-    QuartzDbTable table1("./test_dbtable1_", true);
+    TEST_EXCEPTION(OmOpeningError,
+		   QuartzDbTable table0("./test_dbtable1_", true));
     QuartzDbTable table2("./test_dbtable1_", false);
+    QuartzDbTable table1("./test_dbtable1_", true);
 
     QuartzRevisionNumber rev1 = table1.get_open_revision_number();
     QuartzRevisionNumber rev2 = table2.get_open_revision_number();
@@ -339,7 +341,7 @@ static bool test_open1()
     OmSettings settings;
     settings.set("quartz_dir", "foo");
 
-    QuartzDatabase database(settings, true);
+    QuartzDatabase database(settings, false);
     return true;
 }
 

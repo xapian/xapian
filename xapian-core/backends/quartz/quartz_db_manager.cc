@@ -22,9 +22,6 @@
 
 #include "config.h"
 
-// Needed for macros to specify file modes
-#include <sys/stat.h>
-
 #include "quartz_db_manager.h"
 
 #include "utils.h"
@@ -48,7 +45,6 @@ QuartzDbManager::QuartzDbManager(string db_dir_,
     // set cache size parameters, etc, here.
 
     // open environment here
-    calc_mode();
 
     // open tables
     if (readonly) {
@@ -185,10 +181,4 @@ QuartzDbManager::get_next_revision_number() const
 	postlist_table->get_latest_revision_number());
     new_revision.increment();
     return new_revision;
-}
-
-int
-QuartzDbManager::calc_mode()
-{
-    return S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 }

@@ -132,6 +132,8 @@ operator << (ostream &os, QuartzRevisionNumber obj) {
     return os << (obj.get_description());
 }
 
+// FIXME: just temporary
+#include <stdio.h>
 
 /** Class managing a table in a Quartz database.
  *
@@ -151,6 +153,9 @@ class QuartzDbTable : public RefCntBase {
 	 *  the early development.
 	 */
 	std::map<QuartzDbKey, QuartzDbTag> data;
+
+	// FIXME: just temporary
+	FILE * fp;
 
 	/** The path at which the table is stored.
 	 */
