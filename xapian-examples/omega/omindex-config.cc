@@ -24,12 +24,21 @@
 #include <map>
 #include <fstream>
 #include <unistd.h>
-#include <libxml/parser.h>
+#include <parser.h>
 #include <pair.h>
 #include <list>
 
 #define xmlT(x) (reinterpret_cast<const xmlChar*>(x))
 #define toC(x)  (reinterpret_cast<const char*>(x))
+
+/** This clump of defines is for compatibility across libxml1 and 2.
+ *  libxml2 and later versions of libxml1 should have these already.
+ *  These should work for earlier libxml1 versions.
+ */
+#ifndef xmlChildrenNode
+#define xmlChildrenNode childs
+#define xmlRootNode root
+#endif
 
 static list<pair<string, string> >                mappings;
 static list<pair<string, pair<string, string> > > actions;
@@ -155,7 +164,7 @@ static void read_block(xmlDocPtr doc, xmlNodePtr node, const reader_writer_info*
 				   string("' property for node ") +
 				   reinterpret_cast<const char*>(node->name) + string("'"));
 			}
-			data[i] = string(toC(xmlNodeListGetString(doc, prop->children, 1)));
+			data[i] = string(toC(xmlNodeListGetString(doc, prop->xmlChildrenNode, 1)));
 		    }
 		}
 		prop = prop->next;

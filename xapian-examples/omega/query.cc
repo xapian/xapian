@@ -875,7 +875,7 @@ eval(const string &fmt)
 		break;
 	    case CMD_setmap: {
 		string base = args[0] + ',';
-		for (int i = 1; i + 1 < args.size(); i++) {
+		for (unsigned int i = 1; i + 1 < args.size(); i++) {
 		    option[base + args[i]] = args[i + 1];
 		}
 		break;

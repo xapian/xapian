@@ -1,3 +1,11 @@
+Sun Mar 18 12:59:36 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Some modifications to fix omega compilation to work with latest
+	  version of the omsee API.
+
+	* Some modifications towards getting omindex-config to compile with
+	  libxml1: doesn't yet work.
+
 Sat Mar 17 12:09:30 GMT 2001 Olly Betts
 
 	* gui/glade/querygui.cc: Adding missing `#include <vector>'

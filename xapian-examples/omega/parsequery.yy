@@ -108,10 +108,14 @@ term:	  TERM		{ $$ = $1; }
 	| TERM NEAR TERM{ vector<OmQuery> v;
 	                  v.push_back($1.q);
 	                  v.push_back($3.q);
-			  $$ = U(OmQuery(OmQuery::OP_NEAR, v.begin(), v.end(), 11)); }
-	| '"' phrase '"'{ $$ = U(OmQuery(OmQuery::OP_PHRASE, $2.v.begin(), $2.v.end(), $2.v.size())); }
-	| hypphr        { $$ = U(OmQuery(OmQuery::OP_PHRASE, $1.v.begin(), $1.v.end(), $1.v.size())); }
-	| '{' phrase '}'{ $$ = U(OmQuery(OmQuery::OP_NEAR, $2.v.begin(), $2.v.end(), $2.v.size())); }
+			  $$ = U(OmQuery(OmQuery::OP_NEAR, v.begin(), v.end()));
+			  $$.q.set_window(11); }
+	| '"' phrase '"'{ $$ = U(OmQuery(OmQuery::OP_PHRASE, $2.v.begin(), $2.v.end()));
+			  $$.q.set_window($2.v.size()); }
+	| hypphr        { $$ = U(OmQuery(OmQuery::OP_PHRASE, $1.v.begin(), $1.v.end()));
+			  $$.q.set_window($1.v.size()); }
+	| '{' phrase '}'{ $$ = U(OmQuery(OmQuery::OP_NEAR, $2.v.begin(), $2.v.end()));
+			  $$.q.set_window($2.v.size()); }
 ;
 
 phrase:	  TERM		{ $$.v.push_back($1.q); }

@@ -50,7 +50,7 @@ string fmtname = "query";
 om_docid topdoc = 0;
 om_docid hits_per_page = 0;
 
-static const string muscat_dir = "/usr/omega";
+static const string muscat_dir = "/usr/data/richard/Working/openmuscat/om-examples/omega";
 
 static void
 make_log_entry(const string &action, long matches)
