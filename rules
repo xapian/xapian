@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 # The default python version
-PYTHON_VERSION_MAIN := 2.3
+PYTHON_VERSION_MAIN := `/usr/bin/python -c 'import sys;print sys.version[:3]'`
 
 # The python versions to build for
 PYTHON_VERSIONS := 2.1 2.2 2.3
