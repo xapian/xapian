@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,7 +59,8 @@ Xapian::Query::add_subquery(const Xapian::Query * subq)
 	throw Xapian::InvalidArgumentError("Pointer to subquery may not be null");
     }
     Assert(internal.get());
-    Assert(subq->internal.get());
+    if (!subq->internal.get())
+	throw Xapian::InvalidArgumentError("Can't compose a query from undefined queries");
     internal->add_subquery(*(subq->internal));
 }
 
@@ -111,9 +112,14 @@ Xapian::Query::Query(Xapian::Query::op op_, const Xapian::Query &left, const Xap
 {
     DEBUGAPICALL(void, "Xapian::Query::Query",
 		 op_ << ", " << left << ", " << right);
-    internal->add_subquery(*(left.internal));
-    internal->add_subquery(*(right.internal));
-    end_construction();
+    try {
+	add_subquery(left);
+	add_subquery(right);
+	end_construction();
+    } catch (...) {
+	abort_construction();
+	throw;
+    }
 }
 
 // Copy constructor
