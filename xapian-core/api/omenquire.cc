@@ -662,6 +662,7 @@ Enquire::Internal::~Internal()
 void
 Enquire::Internal::set_query(const Query &query_)
 {
+    delete query;
     query = new Query(query_);
 }
 

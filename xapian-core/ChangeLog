@@ -1,3 +1,8 @@
+Sun Sep 07 02:24:06 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Fixed small memory leak if
+	  Xapian::Enquire::set_query() is called more than once.
+
 Sun Sep 07 02:12:47 BST 2003  Olly Betts <olly@survex.com>
 
 	* common/omenquireinternal.h,include/xapian/enquire.h: Fixed
