@@ -46,7 +46,7 @@ SleepyDatabaseTermCache::term_name_to_id(const om_termname &tname) const
 
     // Get, no transactions, no flags
     try {
-	int found = internals->termid_db->get(NULL, &key, &data, 0);
+	int found = internals->termid_db->get(0, &key, &data, 0);
 	if(found == DB_NOTFOUND) {
 	    tid = 0;
 	} else {
@@ -78,7 +78,7 @@ SleepyDatabaseTermCache::term_id_to_name(om_termid tid) const
 
     // Get, no transactions, no flags
     try {
-	int found = internals->termname_db->get(NULL, &key, &data, 0);
+	int found = internals->termname_db->get(0, &key, &data, 0);
 	if(found == DB_NOTFOUND) throw OmRangeError("Termid " +
 						    inttostring(tid) +
 						    " not found in termcache");

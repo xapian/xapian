@@ -56,10 +56,11 @@ SleepyDatabase::SleepyDatabase(const DatabaseBuilderParams &params)
 	throw OmInvalidArgumentError("SleepyDatabase cannot have sub databases.");
     }
 
+    // FIXME: misuse of auto_ptr - should be refcnt
     auto_ptr<SleepyDatabaseInternals> tempptr1(new SleepyDatabaseInternals());
+    internals = tempptr1;
     auto_ptr<SleepyDatabaseTermCache>
 	tempptr2(new SleepyDatabaseTermCache(internals.get()));
-    internals = tempptr1;
     termcache = tempptr2;
 
     // Check that path is to a valid extant directory
