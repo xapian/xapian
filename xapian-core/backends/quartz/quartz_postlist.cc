@@ -76,20 +76,47 @@ static void new_postlist(QuartzBufferedTable * bufftable,
     tag->value += make_start_of_chunk(true, new_did, new_did, new_wdf, new_doclen);
 }
 
+static void write_start_of_chunk(std::string & chunk,
+				 unsigned int start_of_chunk_header,
+				 unsigned int end_of_chunk_header,
+				 bool is_last_chunk,
+				 om_docid first_did_in_chunk,
+				 om_docid last_did_in_chunk)
+{
+    Assert(last_did_in_chunk >= first_did_in_chunk);
+    om_docid increase_to_last = last_did_in_chunk - first_did_in_chunk;
 
-#if 0
-static void append_to_chunk(std::string & chunk,
-				om_docid new_did,
-				om_termcount new_wdf,
-				om_termcount new_doclength)
+    chunk.replace(start_of_chunk_header,
+		  end_of_chunk_header - start_of_chunk_header,
+		  pack_bool(is_last_chunk) + pack_uint(increase_to_last));
+}
+
+static void write_did_increase(std::string & chunk,
+			       om_docid new_did,
+			       om_docid last_did_in_chunk)
 {
     Assert(new_did > last_did_in_chunk);
     chunk += pack_uint(new_did - last_did_in_chunk);
-    write_wdf_and_length(chunk, new_wdf, new_doclength);
-
-    Assert(did <= last_did_in_chunk);
 }
-#endif
+
+/// Read the wdf and the document length of an item.
+static void write_wdf_and_length(std::string & chunk,
+				 om_termcount wdf,
+				 quartz_doclen_t doclength)
+{
+    chunk += pack_uint(wdf);
+    chunk += pack_uint(doclength);
+}
+
+static void append_to_chunk(std::string & chunk,
+			    om_docid new_did,
+			    om_docid last_did_in_chunk,
+			    om_termcount new_wdf,
+			    om_termcount new_doclength)
+{
+    write_did_increase(chunk, new_did, last_did_in_chunk);
+    write_wdf_and_length(chunk, new_wdf, new_doclength);
+}
 
 /// Report an error when reading the posting list.
 static void report_read_error(const char * position)
@@ -182,9 +209,7 @@ static void read_start_of_chunk(const char ** posptr,
 				const char * end,
 				om_docid first_did_in_chunk,
 				bool * is_last_chunk_ptr,
-				om_docid * last_did_in_chunk_ptr,
-				om_termcount * wdf_ptr,
-				quartz_doclen_t * doclength_ptr)
+				om_docid * last_did_in_chunk_ptr)
 {
     // Read whether this is the last chunk
     if (!unpack_bool(posptr, end, is_last_chunk_ptr))
@@ -195,9 +220,6 @@ static void read_start_of_chunk(const char ** posptr,
     if (!unpack_uint(posptr, end, &increase_to_last))
 	report_read_error(*posptr);
     *last_did_in_chunk_ptr = first_did_in_chunk + increase_to_last;
-
-    // Read wdf and length
-    read_wdf_and_length(posptr, end, wdf_ptr, doclength_ptr);
 }
 
 /** The format of a postlist is:
@@ -248,7 +270,8 @@ QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
     read_start_of_first_chunk(&pos, end, &number_of_entries, &did);
     first_did_in_chunk = did;
     read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk,
-			&last_did_in_chunk, &wdf, &doclength);
+			&last_did_in_chunk);
+    read_wdf_and_length(&pos, end, &wdf, &doclength);
 }
 
 QuartzPostList::~QuartzPostList()
@@ -319,7 +342,8 @@ QuartzPostList::next_chunk()
 
     first_did_in_chunk = did;
     read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk,
-			&last_did_in_chunk, &wdf, &doclength);
+			&last_did_in_chunk);
+    read_wdf_and_length(&pos, end, &wdf, &doclength);
 }
 
 PositionList *
@@ -393,7 +417,8 @@ QuartzPostList::move_to_chunk_containing(om_docid desired_did)
 
     first_did_in_chunk = did;
     read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk,
-			&last_did_in_chunk, &wdf, &doclength);
+			&last_did_in_chunk);
+    read_wdf_and_length(&pos, end, &wdf, &doclength);
 }
 
 bool
@@ -511,38 +536,36 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
 	}
 	bool is_last_chunk;
 	om_docid last_did_in_chunk;
-	om_termcount wdf;
-	quartz_doclen_t doclength;
 
-	read_start_of_chunk(&tagpos, tagend,
-			    first_did_in_chunk,
-			    &is_last_chunk,
-			    &last_did_in_chunk,
-			    &wdf,
-			    &doclength);
+	unsigned int start_of_chunk_header = tagpos - tag->value.data();
+	read_start_of_chunk(&tagpos, tagend, first_did_in_chunk,
+			    &is_last_chunk, &last_did_in_chunk);
+	unsigned int end_of_chunk_header = tagpos - tag->value.data();
 
-	// FIXME - insert here.
-
-	adjust_number_of_entries(bufftable, tname, 1, 0);
-#if 0
-	{
-	    QuartzDbKey key;
-	    make_key(new_did, key);
-	    // Add an entry to the end of the posting list
-	    QuartzDbTag * tag = bufftable->get_or_make_tag(key);
-	    Assert(tag != 0);
-	    Assert(tag->value.size() != 0);
-
+	// Have read in data needed - now add item
+	if (!is_last_chunk ||
+	    !(last_did_in_chunk < new_did)) {
+	    // Add in middle of postlist.
+	    throw OmUnimplementedError("Setting entries only currently implemented at end of postlist.");
+	} else {
+	    // Append
 	    if (tag->value.size() > chunksize) {
 		//append_chunk(new_did);
 		throw OmUnimplementedError("Havn't implemented multi chunk postlists yet.");
 	    } else {
-		append_to_chunk(tag->value, new_did, new_wdf, new_doclen);
+		append_to_chunk(tag->value, new_did, last_did_in_chunk,
+				new_wdf, new_doclen);
+		last_did_in_chunk = new_did;
+		write_start_of_chunk(tag->value,
+				     start_of_chunk_header,
+				     end_of_chunk_header,
+				     is_last_chunk,
+				     first_did_in_chunk,
+				     last_did_in_chunk);
 	    }
-	} else {
-	    throw OmUnimplementedError("Setting entries only currently implemented at end of postlist.");
 	}
-#endif
+
+	adjust_number_of_entries(bufftable, tname, 1, 0);
     }
 }
 
