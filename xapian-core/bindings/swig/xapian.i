@@ -91,16 +91,25 @@ class OmMSet {
 	OmMSet();
 	~OmMSet();
 
+	om_doccount size() const;
+	om_doccount get_matches_estimated() const;
+	om_doccount get_matches_lower_bound() const;
 	int convert_to_percent(om_weight wt) const;
-//	int convert_to_percent(const OmMSetItem & item) const;
 	om_weight get_termfreq(string tname) const;
 	om_doccount get_termweight(string tname) const;
 	om_doccount get_firstitem() const;
 	om_weight get_max_possible();
 	om_weight get_max_attained();
+//	int convert_to_percent(const OmMSetItem & item) const;
 	%extend {
+	  int get_document_percentage(om_doccount i) {
+	    return (*self).convert_to_percent( ((*self)[i]) );
+	  }
 	  const OmDocument get_document(om_doccount i) {
 	    return ((*self)[i]).get_document();
+ 	  }
+	  const om_docid get_document_id(om_doccount i) {
+	    return *((*self)[i]);
  	  }
 	}
 
@@ -257,6 +266,9 @@ class OmWritableDatabase : public OmDatabase {
 	string get_description() const;
 };
 
+// so we can typemap this to arrays
+//typedef std::list<om_termname> om_termname_list;
+
 class OmEnquire {
     public:
         OmEnquire(const OmDatabase &databases);
@@ -275,7 +287,22 @@ class OmEnquire {
 			const OmSettings *moptions = 0,
 			const OmMatchDecider *mdecider = 0) const;
 
-//	om_termname_list get_matching_terms(om_docid did);
+	%extend {
+		std::list<om_termname> get_matching_terms(om_docid did) const {
+		  std::list<om_termname> terms;
+		  OmTermIterator term = self->get_matching_terms_begin(did);
+
+		  while (term != self->get_matching_terms_end(did)) {
+		    // check term was in the typed query so we ignore
+		    // boolean filter terms
+//		    if (termset.find(*term) != termset.end())
+		      terms.push_back(*term);
+                    ++term;
+		  }
+
+		  return terms;
+		}
+	}
 
 	string get_description() const;
 };
@@ -289,3 +316,5 @@ class OmQueryParser {
   void set_default_op(OmQuery::op default_op_);
   OmQuery parse_query(const string &q);
 };
+
+

@@ -25,16 +25,10 @@
 %include typemaps.i
 
 %typemap(php4, out) string {
-//$result blah
-//    RETVAL_STRINGL((char*)$1.data(), $1.length(),1);
   ZVAL_STRINGL($result, (char*)$1.data(), $1.length(), 1);
-
-
 }
 
 %typemap(php4, out) std::string {
-//$result blah
-//    RETVAL_STRINGL((char*)$1.data(), $1.length(),1);
   ZVAL_STRINGL($result, (char*)$1.data(), $1.length(), 1);
 }
 
@@ -67,8 +61,8 @@
 %typemap(php4, out) std::list<om_termname > {
     array_init($result);
 
-    for(om_termname_list::const_iterator tn = $1->begin();
-        tn!=$1->end;$tn++) {
-      add_next_index_stringl($result,tn->c_str(),tn->length(),1);
+    for(std::list<om_termname >::const_iterator tn = $1.begin(); tn!=$1.end();tn++) {
+      // We can cast away const because we pass 1 as last param meaning duplicate
+      add_next_index_stringl($result,(char *)(tn->c_str()),tn->length(),1);
     }
 }

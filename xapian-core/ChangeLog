@@ -1,3 +1,11 @@
+Fri May 24 11:46:50 BST 2002  Sam Liddicott <saml@ananova.net>
+
+	* Now support get_matching_terms via swig
+	  I'm not sure how to generally map iterators to php but in
+	  cases where we know only a small number of items exist
+	  to be iterated over it makes sense to return them as a 
+	  php array
+
 Tue May 21 15:28:40 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* multi_postlist.cc (get_doclength):  Get the document length from
