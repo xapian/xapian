@@ -51,11 +51,14 @@ if test "x$LIBOMUS_UNINST" = "x"; then
   fi
 else
   AC_MSG_RESULT(using uninstalled version)
+  if test "x$LIBOMUS_UNINST_EXEC" = "x"; then
+    LIBOMUS_UNIST_EXEC=no
+  fi
   if test "x$LIBOMUS_UNINST_EXEC" = "xno"; then
     LIBOMUS_UNIST_EXEC=$LIBOMUS_UNINST
   fi
   LIBOMUS_CFLAGS="-I$LIBOMUS_UNINST/include -I$LIBOMUS_UNINST/common"
-  LIBOMUS_LIBS="-L$LIBOMUS_UNINST_EXEC libomus.la"
+  LIBOMUS_LIBS="$LIBOMUS_UNINST_EXEC/libomus.la"
 fi
 
 AC_SUBST(LIBOMUS_CFLAGS)
