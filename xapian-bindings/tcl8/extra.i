@@ -1,5 +1,5 @@
 %{
-/* php4/extra.i: Xapian scripting PHP4 interface additional code.
+/* tcl8/extra.i: Xapian scripting TCL interface additional code.
  *
  * ----START-LICENCE----
  * Copyright 2003 James Aylett

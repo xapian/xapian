@@ -1,3 +1,8 @@
+Tue Sep 14 03:35:57 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/extra.i: This had been copied from php4/extra.i without
+	  changing reference in comments from PHP4 to Tcl - fixed.
+
 Mon Sep 13 05:08:51 BST 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Version 0.8.2.
