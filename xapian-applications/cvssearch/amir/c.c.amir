@@ -351,7 +351,7 @@ static void initToken (tokenInfo* const token)
 {
     token->type		= TOKEN_NONE;
     token->keyword	= KEYWORD_NONE;
-    token->lineNumber	= getSourceLineNumber (); // Amir changed Source -> Input
+    token->lineNumber	= getSourceLineNumber ();
     token->filePosition	= getInputFilePosition ();
     vStringClear (token->name);
 }
@@ -2083,26 +2083,31 @@ static boolean isStatementEnd (const statementInfo *const st)
 	isEnd = TRUE;
     else if (isType (token, TOKEN_BRACE_CLOSE)) { // Amir
 
+#warning "bug:  says function in start tag & member in end tag"
+#warning "bug:  uses same tag type for both start & end"
       if ( st->declaration == DECL_FUNCTION ) {
+	vString *scope = vStringNew ();
 	tagEntryInfo e;
 
 	/* blockName is of type tokenInfo* */
 	//	fprintf(stderr, "Found end of function -%s-\n", vStringValue(st->blockName->name));
 	//	fprintf(stderr, "...line # %d\n", getInputLineNumber() );
 
-	/****
-
 	initTagEntry(&e, vStringValue( st->blockName->name )); 
 
-	e.lineNumber	= getInputLineNumber();
+	e.lineNumber	= getSourceLineNumber(); // was InputLine...
 	e.filePosition	= st->blockName->filePosition;
-	// e.isFileScope	= st->blockName->isFileScope; 
+	//e.isFileScope	= st->blockName->isFileScope; 
 	e.kindName	= tagName (st->blockName->type);
 	e.kind		= tagLetter (st->blockName->type);
 
-	makeTagEntry (&e);
+	findScopeHierarchy (scope, st);
+	addOtherFields (&e, st->blockName->type, st, scope);
 
-	**/
+	makeTagEntry (&e);
+	makeExtraTagEntry (st->blockName->type, &e, scope);
+	vStringDelete (scope);	
+
 	
       }
 
