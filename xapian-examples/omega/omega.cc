@@ -453,7 +453,7 @@ static int main2(int argc, char *argv[])
     {
        /*** get old prob query (if any) ***/
        val = GetEntry("OLDP");
-       is_old = set_probabilistic(big_buf, val);
+       is_old = set_probabilistic(big_buf, val?val:"");
        if (!val) is_old = 1; /** not really, but it should work **/
     }
 

@@ -18,8 +18,6 @@
 #include "main.h"
 #include "query.h"
 
-#define MAX_TERM_LEN 128
-
 typedef enum { /*ABSENT = 0,*/ NORMAL, PLUS, MINUS /*, BOOL_FILTER*/ } termtype;
 
 static vector<termname> new_terms;
@@ -44,12 +42,11 @@ static char *fmtstr =
 "</TD></TR>\n";
 #endif
 
-char raw_prob[4048];
-static long int msize = 0;
-static double maxweight = -1;
+static string raw_prob;
+static long int msize = -1;
+static map<docid, bool> r_displayed;
+
 static string gif_dir = "/fx-gif";
-static long int r_displayed[200];
-static long int r_di;
 static long int score_height, score_width;
 
 char thou_sep = ',', dec_sep = '.';
@@ -66,38 +63,26 @@ matchop op = OR; // default matching mode
 static map<termname, int> matching_map;
 
 static void do_adjustm(void);
-static void parse_prob(const char *);
-static char *find_format_string( char *pc );
+static void parse_prob(const string&);
+static char *find_format_string(char *pc);
 static void run_query(void);
-static void print_query_page( const char *, long int, long int );
-static int print_caption( long int, int );
-static void print_page_links( char, long int, long int );
-static int get_next_char( const char **p );
+static void print_query_page(const char *, long int, long int);
+static int print_caption(long int, int);
+static void print_page_links(char, long int, long int);
+static int get_next_char(const char **p);
 
 /******************************************************************/
-/* print string to stdout, with " replaced by &#34; */
-static void print_escaping_dquotes( char *str, int spaces ) {
-   char *p;
-   char *p_end;
-   size_t len;
-   char *buf = NULL;
-
-   p = str;
-   if (spaces) {
-      p = buf = strdup(str);
-      if (!p) throw "memory";
-      while ( (p = strchr( p, ' ' )) != NULL )
-	 *p = '+';
-      p = buf;
-   }
-   while ( (p_end = strchr( p, '\"' )) != NULL ) {
-      len = p_end - p;
-      if (len) cout << string(p, len);
-      cout << "&#34;";
-      p = p_end + 1;
-   }
-   cout << p;
-   if (buf) free(buf);
+// print string to stdout, with " replaced by &#34;
+// FIXME: tidy up?
+static void print_escaping_dquotes(const string &str) {
+    for (size_t i = 0; i < str.size(); i++) {
+	char ch = str[i];
+	if (ch == '"') {
+	    cout << "&#34;";
+	    continue;
+	}
+	cout << ch;
+    }
 }
 
 /**************************************************************/
@@ -117,7 +102,7 @@ static int percentage(double num, double denom) {
 /* Check new query against the previous one */
 /* Heuristic: If any words have been removed, it's a "fresh query"
  * so we should clear the R-set */
-static int is_old_query( const char *oldp ) {
+static int is_old_query(const string &oldp) {
    string oldterm;
    const char *pend;
    const char *term;
@@ -125,9 +110,9 @@ static int is_old_query( const char *oldp ) {
    char oldp_sep = '.';
    unsigned int n_old_terms = 0; // ?
 
-   if (!oldp) return 0;
+   if (oldp.empty()) return 0;
 
-   term = oldp;
+   term = oldp.c_str();
    is_old = 0;
    /* note old format is "word1#word2#", with trailing # */
    /* new format uses . instead of # as some old browsers don't quote #
@@ -171,19 +156,17 @@ static int is_old_query( const char *oldp ) {
 }
 
 /**************************************************************/
-int set_probabilistic(const char *p, const char *oldp) {
-   char *q;
+int set_probabilistic(const string &newp, const string &oldp) {
+   const char *p = newp.c_str();
    int is_old;
 
    /* strip leading whitespace */
    while (isspace(*p)) p++;
-
-   strcpy(raw_prob, p);
-
    /* and strip trailing whitespace */
-   q = raw_prob + strlen(raw_prob);
-   while (q > raw_prob && isspace(q[-1])) q--;
-   *q = '\0';
+   size_t len = strlen(p);
+   while (len && isspace(p[len - 1])) len--;
+   
+   raw_prob = string(p, len);
 
    parse_prob(raw_prob);
 
@@ -257,9 +240,9 @@ static int get_next_char( const char **p ) {
 }
 
 static void
-parse_prob(const char *text)
+parse_prob(const string &text)
 {
-    const char *pC = text;
+    const char *pC = text.c_str();
     termtype type = NORMAL;
     string buf;
     int stem, stem_all;
@@ -383,8 +366,6 @@ static void run_query(void) {
 
     matcher->match();
 
-    maxweight = matcher->get_max_weight();
-
     msize = matcher->mtotal;
 }
 
@@ -450,255 +431,6 @@ static void pretty_printf(const char *p, int *a) {
       }
       cout << ch;
    }
-}
-
-/*******************************************************************/
-/* showdoc and docid are only relevant for print_doc_page */
-static size_t process_common_codes(int which, char *pc, long int topdoc,
-				   long int maxhits, long int last,
-				   long int showdoc, long int docid) {
-   if (!strncmp (pc, "GIF_DIR", 7)) {
-      cout << gif_dir;
-      return 7;
-   }
-
-   if (!strncmp (pc, "PROB", 4)) {
-      int plus = (pc[4] == '+');
-      print_escaping_dquotes(raw_prob, plus);
-      return 4 + plus;
-   }
-   
-   /* Ol 1997-01-23 - \SCRIPT_NAME is the pathname fx was invoked with */
-    if (!strncmp (pc, "SCRIPT_NAME", 11)) {
-	char *p = getenv("SCRIPT_NAME");
-	if (p == NULL) /* we're probably in test mode, or the server's crap */
-	    p = "fx";
-	cout << p;
-	return 11;
-    }
-
-   if (!strncmp (pc, "TOPDOC", 6)) {
-       cout << topdoc;
-       return 6;
-   }
-
-   else if (!strncmp (pc, "VERSION", 7)) {
-       cout << FX_VERSION_STRING << endl;
-       return 7;
-   }
-
-   if (!strncmp (pc, "SAVE", 4)) {
-       long int r;
-       r = r; // FIXME
-
-       /*** save DB name **/
-       if (db_name != default_db_name)
-	   cout << "<INPUT TYPE=hidden NAME=DB VALUE=\"" << db_name << "\">\n";
-
-       /*** save top doc no. ***/
-       if (topdoc != 0)
-	   cout << "<INPUT TYPE=hidden NAME=TOPDOC VALUE=" << topdoc << "\n";
-       
-       /*** save maxhits ***/
-       if (maxhits != 10)
-	   cout << "<INPUT TYPE=hidden NAME=MAXHITS VALUE=" << maxhits << ">\n";
-
-       /*** save fmt ***/
-       if (fmt.size())
-	   cout << "<INPUT TYPE=hidden NAME=FMT VALUE=\"" << fmt << "\">\n";
-
-      if (which == 'Q') {
-	 /*** save prob query ***/
-	 if (!new_terms.empty()) {
-	     cout << "<INPUT TYPE=hidden NAME=OLDP VALUE=\"";
-	     vector<termname>::const_iterator i;
-	     for (i = new_terms.begin(); i != new_terms.end(); i++) {
-		 cout << *i << '.';
-	     }
-	     cout << "\">\n";
-	 }
-      }
-
-      if (which != 'Q') {
-	 /*** save prob query ***/
-	 cout << "<INPUT TYPE=hidden NAME=P VALUE=\"";
-	 print_escaping_dquotes(raw_prob, 0);
-	 cout << "\">\n";
-
-	 // FIXME: save bool query
-      }
-
-      if (which == 'Q') {
-#if 0 // FIXME
-	 /*** save R-set (not in r_displayed) ***/
-	 Give_Muscat ("show docs r0-1000");
-	 while (!Getfrom_Muscat (&z)) {
-	    if (sscanf (z.p, "I)%ld", &r)) {
-	       int print_it = 1;
-	       for (i = 0; i < r_di; i++) {
-		  if (r == r_displayed[i]) {
-		     print_it = 0;
-		     break;
-		  }
-	       }
-	       if (print_it)
-		    cout << "<INPUT TYPE=hidden NAME=R" << r << "VALUE=1>\n";
-	    }
-	 }
-#endif
-      }
-
-#if 0
-      if (which == 'E') {
-	 /*** save R-set ***/
-	 Give_Muscat ("show docs r0-1000");
-	 while (!Getfrom_Muscat (&z)) {
-	    if (sscanf (z.p, "I)%ld", &r))
-		 cout << "<INPUT TYPE=hidden NAME=R" << r << "VALUE=1>\n";
-	 }
-      }
-
-      if (which == 'D') {
-	 /*** save R-set ***/
-	 Give_Muscat ("show docs r0-1000");
-/*	 Give_Muscat ("showv (R*) v");*/
-	 while (!Getfrom_Muscat (&z)) {
-	    if (sscanf (z.p, "I)%ld", &r)) {
-	       if (r != docid)
-		    cout << "<INPUT TYPE=hidden NAME=R" << r << "VALUE=1>\n";
-	    }
-	 }
-      }
-#endif
-
-      /*** save number of hits per page and relevance threshold ***/
-      if (which != 'Q') {
-          cout << "<INPUT TYPE=hidden NAME=MAXHITS VALUE=" << maxhits << ">\n";
-	  if (op == AND)
-	      cout << "<INPUT TYPE=hidden NAME=MATCHOP VALUE=AND>\n";
-      }
-
-      return 4;
-   }
-
-   if (which != 'E') { /* Q and D behave somewhat differently: page vs doc */
-      char *format;
-      char *pc_end;
-
-      if (!strncmp (pc, "PREVOFF", 7)) {
-	 format = pc + 7;
-	 pc_end = find_format_string( format );
-	 if (topdoc == 0) {
-	    cout << "<img " << string(format, pc_end - format) << ">\n";
-	 }
-	 return pc_end - pc;
-      }
-
-      if (!strncmp (pc, "PREV", 4)) {
-	  format = pc + 4;
-	  pc_end = find_format_string( format );
-	  if (topdoc > 0) {
-	      long int new_first;
-	      new_first = topdoc - maxhits;
-	      if (new_first < 0) new_first = 0;
-	      
-	      cout << "<INPUT NAME=F" << new_first << ' '
-		   << string(format, pc_end - format) << ">\n";
-	  }
-	  return pc_end - pc;
-      }
-      
-      if (!strncmp (pc, "NEXTOFF", 7)) {
-	  format = pc + 7;
-	  pc_end = find_format_string( format );
-	  if (last >= msize - 1) {
-	      cout << "<img " << string(format, pc_end - format) << ">\n";
-	  }
-	  return pc_end - pc;
-      }
-      
-      if (!strncmp (pc, "NEXT", 4)) {
-	  format = pc + 4;
-	  pc_end = find_format_string( format );
-	  if (last < msize - 1) {
-	      cout << "<INPUT NAME=F" << last + 1 << ' '
-		   << string(format, pc_end - format) << ">\n";
-	  }
-	  return pc_end - pc;
-      }
-   }
-
-   if (which != 'E') {
-      /* Olly: was only on D, but useful (at least for debugging) on Q */
-      if (!strncmp (pc, "MSIZE", 5)) {
-	  cout << msize;
-	  return 5;
-      }
-   }
-
-   if (which == 'Q') {
-      if (!strncmp (pc, "PAGES.", 6)) {
-	 print_page_links (pc[6], maxhits, topdoc);
-	 return 7;
-      }
-
-      if (!strncmp (pc, "STAT", 4)) {
-	 int arg[3];
-	 int print = 0;
-	 arg[0] = topdoc + 1;
-	 arg[1] = last + 1;
-	 arg[2] = msize;
-	 /* We're doing:
-	  * \STAT0 none
-	  * \STAT2 returning some matches from over n
-	  * \STATa returning all matches from n
-	  * \STATs returning some (but not all) matches from n
-	  * \STATLINE like hitline but enabled when one of the STATx codes fires
-	  */
-	 switch (pc[4]) {
-	  case '0': /* followed by string */
-	    if (msize == 0 && !new_terms.empty())
-		cout << pc + 5;
-	    break;
-	  case '2':
-	    /* used to be >= - now use an exact compare since MTOTAL
-	     * may have given us the full figure.  If MTOTAL works and
-	     * we got exactly MLIMIT hits, this will misreport... */
-	    if (msize == MLIMIT) print = 1;
-	    break;
-	  case 'a':
-	    /* used to be < MLIMIT - now use an exact compare since MTOTAL
-	     * may have given us the full figure.  If MTOTAL works and
-	     * we got exactly MLIMIT hits, this will misreport... */
-	    /* FIXME: could use Mike Gatford's "1001" trick */
-	    if (0 < msize && msize != MLIMIT &&
-		(topdoc == 0 && last + 1 == msize)) {	       
-	       arg[0] = msize;
-	       print = 1;
-	    }
-	    break;
-	  case 's':
-	    /* used to be < MLIMIT - now use an exact compare since MTOTAL
-	     * may have given us the full figure.  If MTOTAL works and
-	     * we got exactly MLIMIT hits, this will misreport... */
-	    /* FIXME: could use Mike Gatford's "1001" trick */
-	    if (0 < msize && msize != MLIMIT &&
-		!(topdoc == 0 && last + 1 == msize)) print = 1;
-	    break;
-	  case 'L':	     
-	    if (strncmp(pc + 5, "INE", 3) == 0) {
-		// \STATLINE
-		if (msize == 0 && new_terms.empty()) return strlen(pc);
-		return 8;
-	    }
-	    break;
-	 }
-	 if (print) pretty_printf(pc + 5, arg);
-	 return strlen(pc); /* skip rest of line */
-      }
-   }
-   
-   return 0;
 }
 
 static int
@@ -808,7 +540,7 @@ static void print_query_page( const char* page, long int first, long int size) {
     score_width = atoi(option["score_width"].c_str());
     if ((filep = page_fopen(page)) == NULL) return;
 
-    r_di = 0;
+    r_displayed.clear();
 
     /*** parse the page ***/
     while (fgets (line, 511, filep)) {
@@ -818,26 +550,172 @@ static void print_query_page( const char* page, long int first, long int size) {
 	else {
 	    pre = line;
 	    do {
-	        size_t skip;
 		cout << string(pre, pc - pre);
 	        pc++;
 
-		skip = process_common_codes( 'Q', pc, first, size, last, 0, 0 );
-	        
-	        if (skip) {
-		   pc += skip;
-		   pre = pc;
-		   continue;
-		}
+		if (!strncmp (pc, "GIF_DIR", 7)) {
+		    cout << gif_dir;
+		    pc += 7;
+		} else if (!strncmp (pc, "PROB", 4)) {
+		    print_escaping_dquotes(raw_prob);
+		    pc += 4;
+		} else if (!strncmp (pc, "SCRIPT_NAME", 11)) {
+		    // \SCRIPT_NAME is the pathname we were invoked with
+		    char *p = getenv("SCRIPT_NAME");
+		    // we're probably in test mode, or the server's crap
+		    if (p == NULL) p = "fx";
+		    cout << p;
+		    pc += 11;
+		} else if (!strncmp (pc, "TOPDOC", 6)) {
+		    cout << first;
+		    pc += 6;
+		} else if (!strncmp (pc, "VERSION", 7)) {
+		    cout << FX_VERSION_STRING << endl;
+		    pc += 7;
+		} else if (!strncmp (pc, "SAVE", 4)) {
+		    /*** save DB name **/
+		    if (db_name != default_db_name) {
+			cout << "<INPUT TYPE=hidden NAME=DB VALUE=\""
+			     << db_name << "\">\n";
+		    }
 
-		if (!strncmp (pc, "HITLINE", 7)) {
+		    /*** save top doc no. ***/
+		    if (first != 0) {
+			cout << "<INPUT TYPE=hidden NAME=TOPDOC VALUE="
+			     << first << "\n";
+		    }
+       
+		    /*** save maxhits ***/
+		    if (size != 10) {
+			cout << "<INPUT TYPE=hidden NAME=MAXHITS VALUE="
+			     << size << ">\n";
+		    }
+
+		    /*** save fmt ***/
+		    if (fmt.size()) {
+			cout << "<INPUT TYPE=hidden NAME=FMT VALUE=\""
+			     << fmt << "\">\n";
+		    }
+
+		    /*** save prob query ***/
+		    if (!new_terms.empty()) {
+			cout << "<INPUT TYPE=hidden NAME=OLDP VALUE=\"";
+			vector<termname>::const_iterator i;
+			for (i = new_terms.begin(); i != new_terms.end(); i++)
+			    cout << *i << '.';
+			cout << "\">\n";
+		    }
+
+#if 0 // FIXME
+		    /*** save R-set (not in r_displayed) ***/
+		    docid r;
+		    Give_Muscat ("show docs r0-1000");
+		    while (!Getfrom_Muscat (&z)) {
+			if (sscanf(z.p, "I)%ld", &r)) {
+			    if (!r_displayed[r])
+				cout << "<INPUT TYPE=hidden NAME=R" << r << "VALUE=1>\n";
+			}
+		    }
+#endif
+		    
+		    pc += 4;
+		} else if (!strncmp (pc, "PREVOFF", 7)) {
+		    char *format = pc + 7;
+		    pc = find_format_string(format);
+		    if (first == 0)
+			cout << "<img " << string(format, pc - format) << ">\n";
+		} else if (!strncmp (pc, "PREV", 4)) {
+		    char *format = pc + 4;
+		    pc = find_format_string(format);
+		    if (first > 0) {
+			long int new_first;
+			new_first = first - size;
+			if (new_first < 0) new_first = 0;
+			
+			cout << "<INPUT NAME=F" << new_first << ' '
+			     << string(format, pc - format) << ">\n";
+		    }
+		} else if (!strncmp (pc, "NEXTOFF", 7)) {
+		    char *format = pc + 7;
+		    pc = find_format_string(format);
+		    if (last >= msize - 1)
+			cout << "<img " << string(format, pc - format) << ">\n";
+		} else if (!strncmp (pc, "NEXT", 4)) {
+		    char *format = pc + 4;
+		    pc = find_format_string(format);
+		    if (last < msize - 1)
+			cout << "<INPUT NAME=F" << last + 1 << ' '
+			     << string(format, pc - format) << ">\n";
+		} else if (!strncmp (pc, "MSIZE", 5)) {
+		    cout << msize;
+		    pc += 5;
+		} else if (!strncmp (pc, "PAGES.", 6)) {
+		    print_page_links(pc[6], size, first);
+		    pc += 7;
+		} else if (!strncmp (pc, "STAT", 4)) {
+		    int arg[3];
+		    bool print = false;
+		    arg[0] = first + 1;
+		    arg[1] = last + 1;
+		    arg[2] = msize;
+		    /* We're doing:
+		     * \STAT0 none
+		     * \STAT2 returning some matches from over n
+		     * \STATa returning all matches from n
+		     * \STATs returning some (but not all) matches from n
+		     * \STATLINE like \HITLINE but enabled when any one of the
+		     *        \STATx codes fires
+		     */
+		    switch (pc[4]) {
+		     case '0': /* followed by string */
+			if (msize == 0 && !new_terms.empty()) cout << pc + 5;
+			break;
+		     case '2':
+			/* used to be >= - now use an exact compare since MTOTAL
+			 * may have given us the full figure.  If MTOTAL works and
+			 * we got exactly MLIMIT hits, this will misreport... */
+			if (msize == MLIMIT) print = true;
+			break;
+		     case 'a':
+			/* used to be < MLIMIT - now use an exact compare since MTOTAL
+			 * may have given us the full figure.  If MTOTAL works and
+			 * we got exactly MLIMIT hits, this will misreport... */
+			/* FIXME: could use Mike Gatford's "1001" trick */
+			if (0 < msize && msize != MLIMIT &&
+			    (first == 0 && last + 1 == msize)) {	       
+			    arg[0] = msize;
+			    print = true;
+			}
+			break;
+		     case 's':
+			/* used to be < MLIMIT - now use an exact compare since MTOTAL
+			 * may have given us the full figure.  If MTOTAL works and
+			 * we got exactly MLIMIT hits, this will misreport... */
+			/* FIXME: could use Mike Gatford's "1001" trick */
+			if (0 < msize && msize != MLIMIT &&
+			    !(first == 0 && last + 1 == msize)) print = true;
+			break;
+		     case 'L':	     
+			if (strncmp(pc + 5, "INE", 3) == 0) {
+			    // \STATLINE
+			    if (!(msize == 0 && new_terms.empty())) {
+				pc += 8;
+				goto ick;
+			    }
+			}
+			break;
+		    }
+		    if (print) pretty_printf(pc + 5, arg);
+		    pc += strlen(pc); /* skip rest of line */
+		    ick:;
+		} else if (!strncmp (pc, "HITLINE", 7)) {
 		    if (msize) {
 			pc += strlen(pc); /* Ignore the rest of this line if no hits */
 		    } else {
 			pc += 7; /* Just ignore the tag itself if there are hits */
 		    }
 		}
-
+		
 		else if (!strncmp (pc, "HITS", 4)) {
 		    long int m;
 #ifdef META
@@ -847,13 +725,13 @@ static void print_query_page( const char* page, long int first, long int size) {
 			 << "relevance\turl\tcaption\tsample\tlanguage\tcountry\thostname\tsize\tlast modified\tmatching\n";
 #endif
 		    {
-			char *q;
+			const char *q;
 			int ch;
 			
 			query_string = "?DB=";
 			query_string += db_name;
 			query_string += "&P=";
-			q = raw_prob;
+			q = raw_prob.c_str();
 			while ((ch = *q++) != '\0') {
 			   if (ch == '+') {
 			      query_string += "%2b";
@@ -964,7 +842,7 @@ static void print_query_page( const char* page, long int first, long int size) {
 #ifdef FERRET
 		else if (!strncmp (pc, "DOMATCH", 7)) {
 		   /* don't rerun query if we ran it earlier */
-		   if (maxweight < 0) {
+		   if (msize < 0) {
 		      matcher->set_max_msize(first + size);
 		      run_query();
 		      do_adjustm();
@@ -1297,7 +1175,7 @@ static int print_caption( long int m, int do_expand ) {
 	if (!language.size()) language = language_code;
     }
    
-    percent = percentage((double)w, maxweight);
+    percent = percentage((double)w, matcher->get_max_weight());
 
     {
        string path, sample, caption;
@@ -1462,7 +1340,7 @@ static int print_caption( long int m, int do_expand ) {
 		 break;
 	      case 'X': /* relevance checkboX */
 		 if (r) {
-		     r_displayed[r_di++] = q0;
+		     r_displayed[q0] = true;
 		     cout << "<INPUT TYPE=checkbox NAME=R" << q0 << " CHECKED>\n";
 		 } else {
 		     cout << "<INPUT TYPE=checkbox NAME=R" << q0 << ">\n";
@@ -1483,7 +1361,7 @@ static int print_caption( long int m, int do_expand ) {
 
 /***********************************************************************/
 /* modified from get_format_string -- no longer copies to a buffer */
-static char *find_format_string( char *pc ) {
+static char *find_format_string(char *pc) {
     while (*pc && *pc != '\\' && *pc != '\n' && *pc != '\r')
        pc++;
     return pc;
