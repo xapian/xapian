@@ -139,27 +139,6 @@ struct option
    `getopt'.  */
 
 #if (defined __STDC__ && __STDC__) || defined(__cplusplus)
-# ifdef __GNU_LIBRARY__
-/* Many other libraries have conflicting prototypes for getopt, with
-   differences in the consts, in stdlib.h.  To avoid compilation
-   errors, only prototype getopt for the GNU C library.  */
-extern int getopt (int /*__argc*/, char *const */*__argv*/, const char *__shortopts);
-# else /* not __GNU_LIBRARY__ */
-#  ifdef __cplusplus
-// In C++ "getopt ()" means it takes no argument, which is no good.  This
-// makes use of the fact that internally getopt () and getopt_long () call
-// the same function to actually do the work!
-
-// Include stdlib.h first so we don't mess with any getopt prototype that
-// might be there if stdlib.h is included after this header...
-#include <stdlib.h>
-#define getopt(ARGC, ARGV, OPTSTRING) getopt_long(ARGC, ARGV, OPTSTRING,\
-	(const struct option *) 0, (int *) 0)
-#else
-extern int getopt ();
-#  endif
-# endif /* __GNU_LIBRARY__ */
-
 # ifndef __need_getopt
 extern int getopt_long (int /*__argc*/, char *const */*__argv*/, const char *__shortopts,
 			const struct option *__longopts, int *__longind);
@@ -173,6 +152,26 @@ extern int _getopt_internal (int /*__argc*/, char *const */*__argv*/,
 			     const struct option *__longopts, int *__longind,
 			     int __long_only);
 # endif
+
+# ifdef __GNU_LIBRARY__
+/* Many other libraries have conflicting prototypes for getopt, with
+   differences in the consts, in stdlib.h.  To avoid compilation
+   errors, only prototype getopt for the GNU C library.  */
+extern int getopt (int /*__argc*/, char *const */*__argv*/, const char *__shortopts);
+# else /* not __GNU_LIBRARY__ */
+#  ifdef __cplusplus
+// In C++ "getopt ()" means it takes no argument, which is no good.  So
+// we inline a call to _getopt_internal instead.  The dummy default argument
+// avoids any conflict with any C prototype of getopt in system headers.
+inline int getopt(int __argc, char *const * __argv, const char *__shortopts,
+		  bool dummy = false) {
+    return _getopt_internal(__argc, __argv, __shortopts,
+		       (const struct option *) 0, (int *) 0, 0);
+}
+#  else
+extern int getopt ();
+#  endif
+# endif /* __GNU_LIBRARY__ */
 #else /* not __STDC__ */
 extern int getopt ();
 # ifndef __need_getopt

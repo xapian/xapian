@@ -1,3 +1,8 @@
+Wed Jul 30 15:07:58 BST 2003  Olly Betts <olly@survex.com>
+
+	* common/getopt.h: Another iteration of the getopt C++ prototype fix
+	  as the previous one failed on Solaris.
+
 Wed Jul 30 02:38:47 BST 2003  Olly Betts <olly@survex.com>
 
 	* testsuite/backendmanager.cc: Fixed breakage caused by remotetest
