@@ -37,19 +37,19 @@ Note 1:
 
 * for csh:
   setenv LD_LIBRARY_PATH "$HOME/lib"
-  setenv LDFLAGS         "-L$HOME/lib -O3 -Wall"
-  setenv CXXFLAGS        "-I$HOME/include -O3 -Wall"
-  setenv CFLAGS          "-I$HOME/include -O3 -Wall"
-  setenv CPPFLAGS        "-I$HOME/include -O3 -Wall"
+  setenv LDFLAGS "-L$HOME/lib -O3 -Wall"
+  setenv CXXFLAGS "-I$HOME/include -O3 -Wall"
+  setenv CFLAGS "-I$HOME/include -O3 -Wall"
+  setenv CPPFLAGS "-I$HOME/include -O3 -Wall"
 
   or
 
 * for bash:
   export LD_LIBRARY_PATH="$HOME/lib"
-  export LDFLAGS        ="-L$HOME/lib -O3 -Wall"
-  export CXXFLAGS       ="-I$HOME/include -O3 -Wall"
-  export CFLAGS         ="-I$HOME/include -O3 -Wall"
-  export CPPFLAGS       ="-I$HOME/include -O3 -Wall"
+  export LDFLAGS="-L$HOME/lib -O3 -Wall"
+  export CXXFLAGS="-I$HOME/include -O3 -Wall"
+  export CFLAGS="-I$HOME/include -O3 -Wall"
+  export CPPFLAGS="-I$HOME/include -O3 -Wall"
 
 Note 2:
 * there is no need to specify --prefix because we want to output 
