@@ -1,3 +1,11 @@
+Tue Nov 19 01:46:35 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/btree.h,
+	  backends/quartz/btreetest.cc,backends/quartz/quartztest.cc,
+	  docs/quartzdesign.html: Quartz B-tree minimum blocksize is
+	  now 2048 bytes (as was in fact documented already).  This
+	  means the max term length is now always 252 bytes.
+
 Mon Nov 18 22:16:57 GMT 2002  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,matcher/expand.cc,matcher/expandweight.cc:

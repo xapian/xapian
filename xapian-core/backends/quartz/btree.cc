@@ -1440,16 +1440,6 @@ Btree::basic_open(const string & name_,
 	throw std::bad_alloc();
     }
 
-    max_item_size = (block_size - DIR_START - BLOCK_CAPACITY * D2) / BLOCK_CAPACITY;
-
-    /* This upper limit corresponds to K1 == 1 */
-    max_key_len = UCHAR_MAX - K1 - C2;
-
-    // This limit would come into effect with large keys in a B-tree with a
-    // small block size.
-    string::size_type max = max_item_size - I3 - C2 - C2 - TAG_CAPACITY;
-    if (max_key_len > max) max_key_len = max;
-
     /* ready to open the main file */
 
     base_letter = ch;
@@ -1580,7 +1570,6 @@ Btree::Btree()
 	  other_revision_number(0),
 	  both_bases(false),
 	  item_count(0),
-	  max_key_len(0),
 	  block_size(0),
 	  base_letter('A'),
 	  faked_root_block(true),
@@ -1633,7 +1622,7 @@ Btree::create(const string &name_, int block_size)
 	throw OmInvalidArgumentError("Btree block size too large");
     }
 
-    if (block_size < DIR_START + BLOCK_CAPACITY * (D2 + I3 + KEY_CAPACITY + 2 * C2 + TAG_CAPACITY)) {
+    if (block_size < 2048) {
 	/* block size far too small */
 	throw OmInvalidArgumentError("Btree block size too small");
     }

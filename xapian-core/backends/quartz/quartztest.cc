@@ -1936,7 +1936,7 @@ static bool test_bitmap1()
     const string dbname = tmpdir + "testdb_bitmap1_";
     unlink_table(dbname);
     /* Use a small block size to make it easier to get a large bitmap */
-    QuartzDiskTable disktable(dbname, false, 256);
+    QuartzDiskTable disktable(dbname, false, 2048);
     disktable.create();
     disktable.open();
     QuartzBufferedTable bufftable(&disktable);

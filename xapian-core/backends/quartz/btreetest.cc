@@ -96,7 +96,7 @@ static int do_update(const string & btree_dir,
     return count;
 }
 
-static void do_create(const string & btree_dir, int block_size = 1024)
+static void do_create(const string & btree_dir, int block_size = 2048)
 {
     delete_dir(btree_dir);
     make_dir(btree_dir);

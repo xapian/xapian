@@ -109,7 +109,7 @@ class Btree {
 	int4 item_count;
 
 	/** the largest possible value of a key_len. */
-	string::size_type max_key_len;
+	static const string::size_type max_key_len = 252;
 
 	/* 'semi-public': the user might be allowed to read this */
 
@@ -186,7 +186,7 @@ class Btree {
 	/// the root block of the B-tree
 	int4 root;
 
-	/// buffer of size B->block_size for making up key-tag items
+	/// buffer of size block_size for making up key-tag items
 	byte * kt;
 
 	/// buffer of size block_size for reforming blocks

@@ -491,8 +491,7 @@ item. But the null item cannot be deleted, and an attempt to do so is merely
 ignored.
 
 <P>
-A key must not exceed 252 bytes in length, and will have a smaller upper limit
-if the block size of the B-tree is less than 1086 bytes.
+A key must not exceed 252 bytes in length.
 
 <P>
 A tag may have length zero. There is an upper limit on the length of a tag, but
@@ -595,22 +594,16 @@ Thereafter there are two modes for accessing the B-tree: update and retrieval.
 </blockquote>
 
 <pre>
-string::size_type B-&gt;max_key_len;
+string::size_type Btree::max_key_len;
 </pre>
 
 <blockquote>
     This gives the upper limit of the size of a key that may
-    be presented to the B-tree. As mentioned above, it will be 252 if the
-    B-tree block size exceeds 1086 bytes, otherwise less. But it is of course
-    good practice to use B-&gt;max_key_len, rather than writing '252' into your
-    code.
-<p>
-    Note that for tiny B-tree block sizes this number becomes ridiculously
-    small. (It is 3 when the block size is 100 bytes.)
+    be presented to the B-tree (252 bytes with the present implementation).
 </blockquote>
 
 <pre>
-uint4 B-&gt;revision_number;
+uint4 Btree::revision_number;
 </pre>
 
 <blockquote>
@@ -619,7 +612,7 @@ uint4 B-&gt;revision_number;
 </blockquote>
 
 <pre>
-uint4 B-&gt;other_revision_number;
+uint4 Btree::other_revision_number;
 </pre>
 
 <blockquote>
@@ -628,7 +621,7 @@ uint4 B-&gt;other_revision_number;
 </blockquote>
 
 <pre>
-bool B-&gt;both_bases;
+bool Btree::both_bases;
 </pre>
 
 <blockquote>
@@ -732,7 +725,7 @@ int Btree::close(unsigned long revision);
 </blockquote>
 -->
 <pre>
-int4 B-&gt;item_count;
+int4 Btree::item_count;
 </pre>
 
 <blockquote>
@@ -748,7 +741,7 @@ is considerably elaborated by the use of cursors.
 
 <pre>
 <!--bool-->void Btree_open_to_read(const string &amp; name);
-uint4 B-&gt;revision_number;
+uint4 Btree::revision_number;
 <!--bool-->void Btree_open_to_read(const string &amp; name, uint4 revision);
 </pre>
 
@@ -1042,7 +1035,7 @@ updating process overwrites a part of the B-tree required by the retrieval
 process, the flag
 
 <pre> 
-    bool B-&gt;overwitten;
+    bool Btree::overwitten;
 </pre>
 
 is set to true. This may be detected, and suitable action taken. Here is a model
