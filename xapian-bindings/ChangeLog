@@ -1,3 +1,7 @@
+Wed Feb 23 04:08:55 GMT 2005  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated for 0.8.5.1.
+
 Wed Feb 23 04:07:48 GMT 2005  Olly Betts <olly@survex.com>
 
 	* README: Refer reader to java/README for java specific information.
@@ -7,7 +11,7 @@ Tue Feb 22 16:12:55 GMT 2005  Olly Betts <olly@survex.com>
 	* java/Makefile.am,java/README,java/native/Makefile.am,
 	  java/org/xapian/Makefile.am,java/org/xapian/errors/Makefile.am:
 	  Fixed how the jar file is made, and build it directory to the built
-	  subdirectory rather than requiring an "install" step.   Updated the
+	  subdirectory rather than requiring an "install" step.  Updated the
 	  README to add a "how to build" section.  Tweak the java commands in
 	  the README for running the examples to work around a bug in Debian
 	  gij's java wrapper script.  Added a README section about tested java
@@ -803,7 +807,7 @@ Wed Jun 30 00:09:58 BST 2004  Olly Betts <olly@survex.com>
 Tue Jun 29 23:26:36 BST 2004  Eric B. Ridge <ebr@tcdi.com>
 
 	* java/native/,java/org/xapian/: Updates to java bindings:
-	  - cleanup usages of XapianObjectHolder to be  explicitly created
+	  - cleanup usages of XapianObjectHolder to be explicitly created
 	    during library initialization
 	  - make finalize() methods of Database and WritableDatabase public so
 	    they can be called from the outside world (should probably have

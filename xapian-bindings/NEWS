@@ -1,3 +1,42 @@
+Xapian-bindings 0.8.5.1 (2005-02-23):
+
+General:
+
+* configure: Run compiler feature tests using the C++ compiler, not the C
+  compiler.
+
+* Allow bindings version to have an extra "patchlevel", yet still match with
+  corresponding xapian-core version (e.g. 0.8.5.1 and 0.8.5);
+
+Java:
+
+* Added a missing .java source file and removed several unused ones.
+
+* Fixed several glitches in the java bindings automake build system.
+
+* Use "-Wno-unused" when compiling JNI C++ code to ignore harmless
+  warnings in generated code (we were carefully passing "-Wunused"
+  which is the opposite of what is needed!)
+
+* Fixed a couple of warnings from GCJ.
+
+* Wrapped a few missing methods added since Eric created the bindings.  There
+  are still some missing methods - there's now a (probably incomplete) list in
+  java/README.
+
+* Added various useful bits of information to java/README.
+
+* Tweaked SimpleSearch.java to be more like the C++ version.
+
+PHP4:
+
+* 0.8.5 was generated with SWIG 1.3.24, but PHP support is broken there so
+  we now generate the PHP bindings with SWIG 1.3.22 and everything else with
+  a more recent version.
+
+* configure: Check for "php" as a program name as well as "php4", and
+  fall-back to missing so the error message from "make check" is better.
+
 Xapian-bindings 0.8.5 (2004-12-23):
 
 General:
