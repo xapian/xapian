@@ -21,6 +21,7 @@
  */
 
 #include "config.h"
+#include "omdebug.h"
 
 #include "quartz_db_entries.h"
 
@@ -41,30 +42,45 @@ QuartzDbTag *
 QuartzDbEntries::get_tag(const QuartzDbKey &key)
 {
     std::map<QuartzDbKey, QuartzDbTag *>::iterator i = entries.find(key);
-    if (i == entries.end()) return 0;
+    Assert(i != entries.end());
     return i->second;
+}
+
+bool
+QuartzDbEntries::have_entry(const QuartzDbKey &key)
+{
+    return (entries.find(key) != entries.end());
 }
 
 void
 QuartzDbEntries::set_tag(const QuartzDbKey &key,
-			 auto_ptr<QuartzDbTag> data)
+			 auto_ptr<QuartzDbTag> tag)
 {
     std::map<QuartzDbKey, QuartzDbTag *>::iterator i = entries.find(key);
 
-    if (data.get() == 0) {
-	// Don't allow null pointers, for convenience.  (Makes get_tag()
-	// easier, for a start).
-	auto_ptr<QuartzDbTag> temp(new QuartzDbTag());
-	data = temp;
-    }
-
     if (i == entries.end()) {
-	entries[key] = data.get();
+	entries[key] = tag.get();
     } else {
 	delete (i->second);
-	i->second = data.get();
+	i->second = tag.get();
     }
-    data.release();
+    tag.release();
 }
 
+void
+QuartzDbEntries::forget_entry(const QuartzDbKey &key)
+{
+    std::map<QuartzDbKey, QuartzDbTag *>::iterator i = entries.find(key);
+
+    if (i != entries.end()) {
+	delete (i->second);
+	entries.erase(i);
+    }
+}
+
+std::map<QuartzDbKey, QuartzDbTag *> &
+QuartzDbEntries::get_all_entries()
+{
+    return entries;
+}
 

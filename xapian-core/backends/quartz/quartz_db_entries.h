@@ -56,8 +56,8 @@ class QuartzDbEntries {
 
 	/** Get a pointer to the tag for a given key.
 	 *
-	 *  If the tag isn't currently stored in this object, an exception
-	 *  will be thrown.  have_tag() should be used to check whether
+	 *  This must not be called for a give which is not stored in the
+	 *  object - have_tag() should be used first to check whether
 	 *  a tag is stored or not.
 	 *
 	 *  @param key  The key that the tag is stored under.
@@ -67,9 +67,6 @@ class QuartzDbEntries {
 	 *          if desired, but the user should not try to free the
 	 *          pointer.  A null pointer will be returned if the tag
 	 *          is marked for deletion.
-	 *
-	 *  @exception OmRangeError is thrown if the tag isn't currently
-	 *             stored in this object.
 	 */
 	QuartzDbTag * get_tag(const QuartzDbKey &key);
 
