@@ -585,7 +585,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	}
 	percent_scale /= denom;
 	Assert(percent_scale > 0);
-	if (false /*percent_cutoff*/) {
+	if (percent_cutoff) {
 	    // trim the mset to the correct answer...
 	    om_weight min_wt = percent_factor / percent_scale;
 	    if (!is_heap) {
