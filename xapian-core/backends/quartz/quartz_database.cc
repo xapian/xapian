@@ -21,7 +21,19 @@
  */
 
 #include "config.h"
+
+// This is needed so that u_long gets defined, despite our specifying -ansi;
+// otherwise db_cxx.h is broken.
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif /* _GNU_SOURCE */
+#include <sys/types.h>
+#include <db_cxx.h>
+
 #include "quartz_database.h"
+
+class QuartzDatabase::Internal {
+};
 
 QuartzDatabase::QuartzDatabase(const DatabaseBuilderParams & params)
 {

@@ -1,3 +1,8 @@
+Tue Aug 15 14:47:06 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Link quartz database into DatabaseBuilder and testsuite.  Now
+	  ready to begin writing it. :)
+
 Tue Aug 15 11:27:04 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added initial (empty) quartz_database.{cc,h} files, so that

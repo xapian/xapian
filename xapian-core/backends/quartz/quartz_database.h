@@ -23,14 +23,6 @@
 #ifndef OM_HGUARD_QUARTZ_DATABASE_H
 #define OM_HGUARD_QUARTZ_DATABASE_H
 
-// This is needed so that u_long gets defined, despite our specifying -ansi;
-// otherwise db_cxx.h is broken.
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif /* _GNU_SOURCE */
-#include <sys/types.h>
-
-#include <db_cxx.h>
 #include "database.h"
 
 /** A backend designed for efficient indexing and retrieval, using
@@ -42,6 +34,8 @@
 class QuartzDatabase : public IRDatabase {
     friend class DatabaseBuilder;
     private:
+	class Internal;
+
 	/** Create and open a quartz database.
 	 *
 	 *  @exception OmOpeningError thrown if database can't be opened.

@@ -2448,6 +2448,19 @@ int main(int argc, char *argv[])
     summary.failed += sum_temp.failed;
 #endif
 
+#if 1 && defined(MUS_BUILD_BACKEND_QUARTZ)
+    backendmanager.set_dbtype("quartz");
+    cout << "Running tests with quartz backend..." << endl;
+    result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
+    summary.succeeded += sum_temp.succeeded;
+    summary.failed += sum_temp.failed;
+    cout << "Running localdb tests with quartz backend..." << endl;
+    result = max(result,
+		 test_driver::main(argc, argv, localdb_tests, &sum_temp));
+    summary.succeeded += sum_temp.succeeded;
+    summary.failed += sum_temp.failed;
+#endif
+
 #if 1 && defined(MUS_BUILD_BACKEND_SLEEPY)
     backendmanager.set_dbtype("sleepycat");
     cout << "Running tests with sleepycat backend..." << endl;

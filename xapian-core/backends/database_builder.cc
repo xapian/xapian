@@ -34,6 +34,9 @@
 #ifdef MUS_BUILD_BACKEND_SLEEPY
 #include "sleepy/sleepy_database.h"
 #endif
+#ifdef MUS_BUILD_BACKEND_QUARTZ
+#include "quartz/quartz_database.h"
+#endif
 #ifdef MUS_BUILD_BACKEND_MULTI
 // multi_database.h is in common/
 #include "multi_database.h"
@@ -54,6 +57,7 @@ enum om_database_type {
     DBTYPE_MUSCAT36_DB_H,
     DBTYPE_INMEMORY,
     DBTYPE_SLEEPY,
+    DBTYPE_QUARTZ,
     DBTYPE_MULTI,
     DBTYPE_NET
 };
@@ -72,6 +76,7 @@ static const StringAndValue database_strings[] = {
     { "multidb",		DBTYPE_MULTI		},
     { "net",			DBTYPE_NET		},
     { "sleepycat",		DBTYPE_SLEEPY		},
+    { "quartz",			DBTYPE_QUARTZ		},
     { "",			DBTYPE_NULL		}  // End
 };
 
@@ -159,6 +164,11 @@ DatabaseBuilder::create(const DatabaseBuilderParams & params)
 	case DBTYPE_SLEEPY:
 #ifdef MUS_BUILD_BACKEND_SLEEPY
 	    database = new SleepyDatabase(params);
+#endif
+	    break;
+	case DBTYPE_QUARTZ:
+#ifdef MUS_BUILD_BACKEND_QUARTZ
+	    database = new QuartzDatabase(params);
 #endif
 	    break;
 	case DBTYPE_MULTI:

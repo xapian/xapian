@@ -69,6 +69,12 @@ class BackendManager {
 
 	/// Get a writable sleepy database instance.
 	OmWritableDatabase getwritedb_sleepy(const std::vector<std::string> &dbnames);
+
+	/// Get a quartz database instance.
+	OmDatabase getdb_quartz(const std::vector<std::string> &dbnames);
+
+	/// Get a writable quartz database instance.
+	OmWritableDatabase getwritedb_quartz(const std::vector<std::string> &dbnames);
     public:
 	/// Constructor - set up default state.
 	BackendManager() :
@@ -77,7 +83,7 @@ class BackendManager {
 
 	/** Set the database type to use.
 	 *
-	 *  Valid values for dbtype are "inmemory", "sleepycat",
+	 *  Valid values for dbtype are "inmemory", "sleepycat", "quartz",
 	 *  "void", and "net".
 	 */
 	void set_dbtype(const std::string &type);

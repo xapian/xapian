@@ -122,6 +122,10 @@ BackendManager::set_dbtype(const std::string &type)
 	do_getdb = &BackendManager::getdb_sleepy;
 	do_getwritedb = &BackendManager::getwritedb_sleepy;
 	system("rm -fr .sleepy");
+    } else if (type == "quartz") {
+	do_getdb = &BackendManager::getdb_quartz;
+	do_getwritedb = &BackendManager::getwritedb_quartz;
+	system("rm -fr .quartz");
     } else if (type == "net") {
 	do_getdb = &BackendManager::getdb_net;
 	do_getwritedb = &BackendManager::getwritedb_net;
@@ -129,7 +133,8 @@ BackendManager::set_dbtype(const std::string &type)
 	do_getdb = &BackendManager::getdb_void;
 	do_getwritedb = &BackendManager::getwritedb_void;
     } else {
-	throw OmInvalidArgumentError("Expected inmemory, sleepy, net or void");
+	throw OmInvalidArgumentError(
+		"Expected inmemory, sleepycat, quartz, net or void");
     }
 }
 
@@ -243,6 +248,42 @@ BackendManager::getwritedb_sleepy(const std::vector<std::string> &dbnames)
     } else {
 	// open a non-existant database
 	return OmWritableDatabase("sleepycat", make_strvec(dbdir));
+    }
+}
+
+OmDatabase
+BackendManager::getdb_quartz(const std::vector<std::string> &dbnames)
+{
+    return getwritedb_quartz(dbnames);
+}
+
+OmWritableDatabase
+BackendManager::getwritedb_quartz(const std::vector<std::string> &dbnames)
+{
+    std::string parent_dir = ".quartz";
+    create_dir_if_needed(parent_dir);
+
+    std::string dbdir = parent_dir + "/db";
+    for (std::vector<std::string>::const_iterator i = dbnames.begin();
+	 i != dbnames.end();
+	 i++) {
+	dbdir += "=" + *i;
+    }
+    if(files_exist(change_names_to_paths(dbnames))) {
+	bool created = create_dir_if_needed(dbdir);
+
+	if (created) {
+	    // directory was created, so do the indexing.
+	    OmWritableDatabase db("quartz", make_strvec(dbdir));
+	    index_files_to_database(db, change_names_to_paths(dbnames));
+	    return db;
+	} else {
+	    // else just return a read-only db.
+	    return OmWritableDatabase("quartz", make_strvec(dbdir));
+	}
+    } else {
+	// open a non-existant database
+	return OmWritableDatabase("quartz", make_strvec(dbdir));
     }
 }
 
