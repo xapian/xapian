@@ -1,3 +1,8 @@
+Tue Sep 26 17:12:44 BST 2000 Olly Betts
+
+	* OmTermListIterator: operator* now const; added get_wdf() and
+	  get_termfreq() methods.
+
 Tue Sep 26 13:30:42 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove a comment referring to auto_ptr

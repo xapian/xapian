@@ -53,7 +53,7 @@ class OmTermListIterator {
 	 */
 	void operator=(const OmTermListIterator &other);
 
-	const om_termname operator *();
+	const om_termname operator *() const;
 
 	OmTermListIterator & operator++();
 
@@ -62,6 +62,9 @@ class OmTermListIterator {
 	// extra method, not required for an input_iterator
 	void skip_to(const om_termname & tname);
 
+	om_termcount get_wdf() const;
+	om_doccount get_termfreq() const;
+    
 	/** Returns a string describing this object.
 	 *  Introspection method.
 	 */

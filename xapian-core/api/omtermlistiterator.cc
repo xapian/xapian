@@ -54,10 +54,24 @@ OmTermListIterator::operator=(const OmTermListIterator &other)
 }
 
 const om_termname
-OmTermListIterator::operator *()
+OmTermListIterator::operator *() const
 {
     DEBUGAPICALL(om_termname, "OmTermListIterator::operator*", "");
     RETURN(internal->termlist->get_termname());
+}
+
+om_termcount
+OmTermListIterator::get_wdf() const
+{
+    DEBUGAPICALL(om_termcount, "OmTermListIterator::get_wdf", "");
+    RETURN(internal->termlist->get_wdf());
+}
+
+om_doccount
+OmTermListIterator::get_termfreq() const
+{
+    DEBUGAPICALL(om_doccount, "OmTermListIterator::get_termfreq", "");
+    RETURN(internal->termlist->get_termfreq());
 }
 
 OmTermListIterator &
