@@ -47,5 +47,6 @@ AndNotPostList::next(weight w_min)
 PostList *
 AndNotPostList::skip_to(docid id, weight w_min)
 {
+    if (id <= lhead) return NULL;
     return advance_to_next_match(w_min, l->skip_to(id, w_min));
 }
