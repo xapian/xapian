@@ -252,7 +252,6 @@ pretty_printf(const char *p, int *a)
     map <char, string>::const_iterator i;			 
     for (i = filter_map.begin(); i != filter_map.end(); i++) {
 	query_string += "&B=";
-	query_string += i->first;
 	query_string += i->second;
     }
 

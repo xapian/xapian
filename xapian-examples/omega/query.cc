@@ -270,8 +270,6 @@ do_picker(char prefix, const char **opts)
 	cout << "\n<OPTION VALUE=\"" << prefix << current << "\" SELECTED>"
              << current;
     }
-
-    
     cout << "</SELECT>\n";
 }
 
@@ -295,9 +293,8 @@ print_page_links(char type, long int hits_per_page, long int topdoc)
       }
    } else {
       long int plh, plw, have_selected_page_gifs;
-      /* If not specified, plh and plw no longer default to 15
-       * since that prevents the user having different sized page gifs
-       */
+      // If not specified, plh and plw no longer default to 15
+      // since that prevents the user having different sized page gifs
       plh = atoi(option["pagelink_height"].c_str());
       plw = atoi(option["pagelink_width"].c_str());
       have_selected_page_gifs = atoi(option["pagelink_width"].c_str());
@@ -325,14 +322,13 @@ print_page_links(char type, long int hits_per_page, long int topdoc)
    }
 }
 
-#ifdef FERRET
 static void utf8_to_html(const string &str) {
    const unsigned char *p = (const unsigned char *)str.c_str();
    while (1) {
       int ch = *p++;
       if (ch == 0) break;
 
-      /* this is extra magic, not part of utf-8 */
+      // this is extra magic, not part of utf-8
       switch (ch) {
        case '\b': /* was \r but core muscat swallows that... */
 	 cout << " / "; /* line break in original */
@@ -385,32 +381,29 @@ static void utf8_to_html(const string &str) {
 }
 
 static void print_query_string(const char *after) {		      
-   if (after && strncmp(after, "&B=", 3) == 0) {
-      int prefix = 0;
-      const char *amp, *qs;
-      qs = query_string.c_str(); // FIXME: use string methods
-			 
-      prefix = after[3];
-      amp = qs;
-      while (qs) {
-	 amp = strchr(amp, '&');
-	 if (!amp) {
-	     cout << qs;
-	     break;
-	 }
-	 amp++;
-	 while (amp[0] == 'B' && amp[1] == '=' && amp[2] == prefix) {
-	    cout << string(qs, amp - qs - 1);
-	    qs = strchr(amp + 3, '&');
-	    if (!qs) break;
-	    amp = qs + 1;
-	 }
-      }
-   } else {
-       cout << query_string;
-   }
+    if (after && strncmp(after, "&B=", 3) == 0) {
+	char prefix = after[3];
+	size_t start = 0, amp = 0;
+	while (1) {
+	    amp = query_string.find('&', amp);
+	    if (amp == string::npos) {
+		cout << query_string.substr(start);
+		return;
+	    }
+	    amp++;
+	    while (query_string[amp] == 'B' &&
+		   query_string[amp + 1] == '=' &&
+		   query_string[amp + 2] == prefix) {
+		cout << query_string.substr(start, amp - start - 1);
+		start = query_string.find('&', amp + 3);
+		if (start == string::npos) return;
+		amp = start + 1;
+	    }
+	}
+    }
+
+    cout << query_string;
 }
-#endif
 
 static void display_date(time_t date) {
    if (date == (time_t)-1) {
