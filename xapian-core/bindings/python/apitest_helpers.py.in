@@ -177,7 +177,8 @@ def string_to_document(paragraph):
 
 def TEST_AND_EXPLAIN(a, b):
     if (not a):
-        print b
+        if verbose:
+            print b
         raise TestFail
 
 def TEST_EQUAL(a,b):
@@ -202,12 +203,19 @@ def TEST_EXPECTED_DOCS(mset, *dids):
     expect = dids
     def to_did(item):
         return item[OMMSET_DID]
+    def identity(i):
+        return i
     got_dids = map(to_did, mset.items)
+
+    # make sure we have the same type of sequence for the comparison
+    expect = map(identity, expect)
     if (got_dids != expect):
         if verbose:
             print "Match set had unexpected documents:"
 	    print "Got: ", str(got_dids)
 	    print "Expected: ", str(expect)
+        raise TestFail
+    return 1
 
 def floats_are_equal_enough(a, b):
     import math

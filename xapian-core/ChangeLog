@@ -1,3 +1,7 @@
+Mon Aug 14 19:11:03 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Python tests up to 25 pass, 3 fail (plus test_alwaysfail).
+
 Mon Aug 14 18:42:05 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Java and SWIG bindings brought up to date with recent changes

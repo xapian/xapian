@@ -29,6 +29,7 @@ BEGIN {
     %ToPython::basic_types = (
     	"std::string" => 1,
     	"bool" => 1,
+    	"om_weight" => 1,
 	"int" => 1
     );
 
@@ -159,8 +160,11 @@ sub addtext($) {
     $text =~ s/($apitest_parser::func)\.size\(\)/len($1)/g;
     # change mset.items[foo].did to mset.items[foo][OMMSET_DID], etc.
     $text =~ s/\.did\b/[OMMSET_DID]/g;
-    $text =~ s/\.wt\b/[OMMSET_WT]/g;
+    $text =~ s/(mset\.items\[[^\]]*])\.wt\b/${1}[OMMSET_WT]/g;
     $text =~ s/\.collapse_key\b/[OMMSET_COLLAPSE_KEY]/g;
+    # change eset.items[foo].did to eset.items[foo][OMESET_DID], etc.
+    $text =~ s/\.tname\b/[OMESET_TNAME]/g;
+    $text =~ s/(eset\.items\[[^\]]*])\.wt\b/${1}[OMESET_WT]/g;
     # account for the renaming of some constructors
     $text =~ s/OmQuery\(\)/OmQueryNull()/g;
     while ($text =~ s/OmQuery\((OM_MOP[A-Z_]+),(.*)((?:, *[0-9]+)?)\)/OmQueryList($1, ($2)$3)/sg) {};

@@ -192,10 +192,16 @@
 #define OMMSET_DID 0
 #define OMMSET_WT 1
 #define OMMSET_COLLAPSEKEY 2
+
+#define OMESET_TNAME 0
+#define OMESET_WT 1
 %{
 #define OMMSET_DID 0
 #define OMMSET_WT 1
 #define OMMSET_COLLAPSEKEY 2
+
+#define OMESET_TNAME 0
+#define OMESET_WT 1
 
 PyObject *OmMSet_items_get(OmMSet *mset)
 {
