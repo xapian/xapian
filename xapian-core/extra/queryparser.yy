@@ -210,7 +210,7 @@ QueryParser::set_stemming_options(const string &lang, bool stem_all_,
 {
     if (stop) delete stop;
     stop = stop_;
-    if (lang.empty()) {
+    if (lang.empty() || lang == "none") {
 	stem = false;
     } else {
 	if (stemmer) delete stemmer;

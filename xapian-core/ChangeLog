@@ -1,3 +1,7 @@
+Wed Nov 26 15:31:56 GMT 2003  Olly Betts <olly@survex.com>
+
+	* extra/queryparser.yy: Special case stemming language "none".
+
 Tue Nov 25 04:37:50 GMT 2003  Olly Betts <olly@survex.com>
 
 	* api/ompositionlistiterator.cc,api/ompostlistiterator.cc,
