@@ -166,8 +166,17 @@ B->revision_number
 
     It gives the revision number of the B-tree.
 
+
     ['unsigned long' to be properly typedeffed.]
 
+B->other_revision_number
+
+    Similarly, this gives the revision number held in the other base file of the
+    B-tree, or is zero if there is only one base file, and
+
+B->both_bases
+
+    is true iff both files baseA and baseB exist as valid bases.
 
 struct Btree * Btree_open_to_write_revision(char * name, unsigned long revision);
 

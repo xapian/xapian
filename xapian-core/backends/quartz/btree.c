@@ -1316,8 +1316,10 @@ static struct Btree * basic_open(char * name, int revision_supplied, uint4 revis
     {   byte * baseA = read_base(s, name_len, 'A');
         byte * baseB = read_base(s, name_len, 'B');
         byte * base;
+        byte * other_base;
 
         if (baseA != 0 && baseB != 0) B->both_bases = true;
+        if (baseA == 0 && baseB == 0) collapse("no base");
 
         if (revision_supplied)
         {   if (baseA != 0 && get_int4(baseA, B_REVISION) == revision) ch = 'A';
@@ -1330,8 +1332,8 @@ static struct Btree * basic_open(char * name, int revision_supplied, uint4 revis
                                   /* unsigned comparison */
         }
 
-        if (ch == 'A') { base = baseA; free(baseB); } else
-        if (ch == 'B') { base = baseB; free(baseA); } else
+        if (ch == 'A') { base = baseA; other_base = baseB; } else
+        if (ch == 'B') { base = baseB; other_base = baseA; } else
             collapse("no valid base");
 
         /* base now points to the most recent base block */
@@ -1345,6 +1347,12 @@ static struct Btree * basic_open(char * name, int revision_supplied, uint4 revis
         B->bit_map_size =    get_int4(base, B_BIT_MAP_SIZE);
         B->item_count =      get_int4(base, B_ITEM_COUNT);
         B->last_block =      get_int4(base, B_LAST_BLOCK);
+
+        if (other_base != 0)
+        {   B->other_revision_number = get_int4(other_base, B_REVISION);
+            free(other_base);
+        }
+printf("*%d *%d [%d]\n", B->revision_number, B->other_revision_number, B->both_bases);
     }
     B->kt = calloc(1, B->block_size); /* k holds contructed items as well as keys */
     B->max_item_size = (B->block_size - DIR_START - BLOCK_CAPACITY * D2) / BLOCK_CAPACITY;
@@ -2008,12 +2016,12 @@ extern void Btree_check(char * name, char * opt_string)
         {   for (i = 0; i <= limit; i++)
             {   printf("%c", block_free_at_start(B, i) ? '.' : '*');
                 if (i > 0) {
-		    if ((i + 1) % 100 == 0) {
-			printf("\n");
-		    } else if ((i + 1) % 10 == 0) {
-			printf(" ");
-		    }
-		}
+                    if ((i + 1) % 100 == 0) {
+                        printf("\n");
+                    } else if ((i + 1) % 10 == 0) {
+                        printf(" ");
+                    }
+                }
             }
             printf("\n\n");
         }

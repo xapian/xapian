@@ -54,16 +54,18 @@ struct Btree {
 
     char overwritten;     /* set to true if a parallel overwrite is detected */
     uint4 revision_number;/* revision number of the opened B-tree */
+    uint4 other_revision_number;
+                          /* - revision number of the other base */
+    char both_bases;      /* set to true if baseA and baseB both exist. The old base
+                             is deleted as soon as a write to the Btree takes place */
     int4 item_count;      /* keeps a count of the number of items in the B-tree */
     int max_key_len;      /* the largest possible value of a key_len */
 
     /* 'semi-public': the user might be allowed to read this */
 
     int block_size;       /* block size of the B tree in bytes */
-    int base_letter;      /* - and the value 'A' or 'B' of the current base */
+    int base_letter;      /* the value 'A' or 'B' of the current base */
     int4 last_block;      /* the last used block of B->bit_map0 */
-    char both_bases;      /* set to true if baseA and baseB both exist. The old base
-                             is deleted as soon as a write to the Btree takes place */
 
     /* 'private' information */
 
