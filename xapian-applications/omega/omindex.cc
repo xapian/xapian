@@ -95,6 +95,11 @@ class MyHtmlParser : public HtmlParser {
 		indexing_allowed(true) { }
 };
 
+// FIXME: Should we include \xa0 which is non-breaking space in iso-8859-1, but
+// not in all charsets and perhaps spans of all \xa0 should become a single
+// \xa0?
+#define WHITESPACE " \t\n\r"
+
 void
 MyHtmlParser::process_text(const string &text)
 {
@@ -102,16 +107,14 @@ MyHtmlParser::process_text(const string &text)
 
     if (!in_script_tag && !in_style_tag) {
 	string::size_type b = 0;
-	while ((b = text.find_first_not_of(" \t\n\r\xa0", b)) != string::npos) {
+	while ((b = text.find_first_not_of(WHITESPACE, b)) != string::npos) {
 	    if (!dump.empty()) dump += ' ';
-	    string::size_type e = text.find_first_of(" \t\n\r\xa0", b);
+	    string::size_type e = text.find_first_of(WHITESPACE, b);
 	    if (e == string::npos) {
 		dump += text.substr(b);
-		cout << "[" << text.substr(b) << "]" << endl;
 		break;
 	    }
 	    dump += text.substr(b, e - b);
-	    cout << "[" << text.substr(b, e - b) << "]" << endl;
 	    b = e + 1;
 	}
     }

@@ -1,3 +1,9 @@
+Wed Nov 24 00:22:39 GMT 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Removed debug output; don't include \xa0 in the list of
+	  whitespace characters for now, as that's a bit character set
+	  specific...
+
 Wed Nov 24 00:04:42 GMT 2004  Olly Betts <olly@survex.com>
 
 	* omindex.cc: HTML extraction now turns strips leading and trailing
