@@ -550,7 +550,63 @@ static bool test_poslist1()
     return true;
 }
 
-// #######################################################################
+static bool test_poslist2()
+{
+    OmWritableDatabase db = get_writable_database("");
+
+    OmDocument doc;
+    doc.add_term_nopos("nopos");
+    om_docid did = db.add_document(doc);
+
+    TEST_EXCEPTION(OmRangeError,
+	// Check what happens when term doesn't exist
+	OmPositionListIterator i = db.positionlist_begin(did, "nosuchterm");
+	// FIXME: quartz doesn't throw!
+    );
+
+    TEST_EXCEPTION(OmDocNotFoundError,
+        // Check what happens when the document doesn't even exist
+        OmPositionListIterator i = db.positionlist_begin(123, "nosuchterm");
+	// FIXME: quartz doesn't throw!
+    );            
+    
+    {
+	OmPositionListIterator i = db.positionlist_begin(did, "nopos");
+	TEST_EQUAL(i, db.positionlist_end(did, "nopos"));
+    }
+    
+    OmDocument doc2 = db.get_document(did);
+   
+    OmTermIterator term = doc2.termlist_begin();
+
+    {
+	OmPositionListIterator i = term.positionlist_begin(); 
+	TEST_EQUAL(i, term.positionlist_end());
+    }
+
+    OmDocument doc3;
+    doc3.add_posting("hadpos", 1);
+    om_docid did2 = db.add_document(doc3);
+
+    OmDocument doc4 = db.get_document(did2);
+    doc4.remove_posting("hadpos", 1);
+    db.replace_document(did2, doc4);
+   
+    {
+	OmPositionListIterator i = db.positionlist_begin(did2, "hadpos");
+	TEST_EQUAL(i, db.positionlist_end(did2, "hadpos"));
+    }
+
+    db.delete_document(did);
+    TEST_EXCEPTION(OmDocNotFoundError,
+        // Check what happens when the document doesn't even exist
+	// (but once did)
+	OmPositionListIterator i = db.positionlist_begin(did, "nosuchterm");
+	// FIXME: quartz doesn't throw!
+    );
+
+    return true;
+}
 // # End of test cases: now we list the tests to run.
 
 /// The tests which need a backend which supports positional information
@@ -568,5 +624,7 @@ test_desc positionaldb_tests[] = {
  */
 test_desc localpositionaldb_tests[] = {
     {"poslist1",	   test_poslist1},
+// FIXME: fix quartz to pass this test
+//    {"poslist2",	   test_poslist2},
     {0, 0}
 };

@@ -1,3 +1,8 @@
+Fri Apr 19 13:07:50 BST 2002  Olly Betts <olly@survex.com>
+
+	* Moved test poslist1 into correct place and renamed it to poslist2
+	  since there's already a poslist1... 
+
 Fri Apr 19 11:19:15 BST 2002  Olly Betts <olly@survex.com>
 
 	* poslist1 (when actually run!) reveals that Quartz fails to throw
