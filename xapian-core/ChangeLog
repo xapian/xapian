@@ -1,3 +1,7 @@
+Mon Sep 18 14:03:58 BST 2000 Olly Betts
+
+	* Sorted out wrinkles with geacinclude.sh.
+
 Mon Sep 18 13:02:36 BST 2000 Olly Betts
 
 	* Added tests for skip_to on {Post,Term}ListIterator.
