@@ -1,3 +1,7 @@
+Tue Nov 02 02:44:34 GMT 2004  Olly Betts <olly@survex.com>
+
+	* languages/pool.c,languages/pool.h: Removed unused sources.
+
 Tue Nov 02 01:51:30 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: AC_TYPE_SIZE_T causes problems with Compaq C++ when it
