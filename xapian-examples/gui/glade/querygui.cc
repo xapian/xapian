@@ -206,12 +206,11 @@ static void do_topterms() {
 
 	gtk_clist_freeze(topterms_widget);
 	gtk_clist_clear(topterms_widget);
-
-	std::vector<OmESetItem>::const_iterator i;
-	for (i = topterms.items.begin(); i != topterms.items.end(); i++) {
-	    std::string tname = i->tname;
+	
+	for (OmESetIterator i = topterms.begin(); i != topterms.end(); i++) {
+	    std::string tname = *i;
 //#ifdef DEBUG
-	    tname = tname + " (" + floattostring(i->wt) + ")";
+	    tname = tname + " (" + floattostring(i.get_weight()) + ")";
 //#endif
 
 	    TopTermItemGTK * item = new TopTermItemGTK(tname);

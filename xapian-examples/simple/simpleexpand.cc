@@ -107,16 +107,14 @@ int main(int argc, char *argv[])
 	OmESet eterms = enquire.get_eset(10, reldocs);
 
 	// Display the expand terms
-	cout << eterms.items.size() << " suggested additional terms" << endl;
+	cout << eterms.size() << " suggested additional terms" << endl;
 
-	for (vector<OmESetItem>::const_iterator k = eterms.items.begin();
-	     k != eterms.items.end();
-	     k++) {
-	    cout << "Term `" << k->tname << "'\t " <<
-		    "(weight " << k->wt << ")" << endl;
+	for (OmESetIterator k = eterms.begin(); k != eterms.end(); k++) {
+	    cout << "Term `" << *k << "'\t " <<
+		    "(weight " << k.get_weight() << ")" << endl;
 	}
     }
-    catch(OmError &error) {
+    catch (const OmError &error) {
 	cout << "Exception: "  << error.get_msg() << endl;
     }
 }

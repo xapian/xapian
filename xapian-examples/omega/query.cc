@@ -868,11 +868,8 @@ eval(const string &fmt)
 			eset = enquire->get_eset(howmany, tmp, 0, &decider);
 		    }
 		    
-		    vector<OmESetItem>::const_iterator i;
-		    for (i = eset.items.begin();
-			 i != eset.items.end(); i++) {
-			value = value + i->tname + '\t';
-		    }
+		    for (OmESetIterator i = eset.begin(); i != eset.end(); i++)
+			value = value + *i + '\t';
 		    if (!value.empty()) value.erase(value.size() - 1);
 		}
 		break;

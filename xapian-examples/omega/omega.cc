@@ -163,7 +163,8 @@ main2(int argc, char *argv[])
 	    params.set("auto_dir", map_dbname_to_dir(dbname));
 	    omdb.add_database(params);
 	}
-    } catch (OmError &e) {
+    }
+    catch (OmError &e) {
 	// FIXME: make this more helpful (and use a template?)
 	// odds are it's not a database
 	cout << "<HTML><HEAD>\n"
@@ -210,11 +211,9 @@ main2(int argc, char *argv[])
 	ExpandDeciderOmega decider;
 	OmESet topterms = enquire->get_eset(6, tmprset, &eoptions, &decider);
 
-	vector<OmESetItem>::const_iterator i;
-	for (i = topterms.items.begin(); i != topterms.items.end(); i++) {
-	    string term = i->tname;
+	for (OmESetIterator i = topterms.begin(); i != topterms.end(); i++) {
 	    if (more) big_buf += ' ';
-	    big_buf += term;
+	    big_buf += *i;
 	    more = true;
 	}
 	if (more) goto got_query_from_morelike;
