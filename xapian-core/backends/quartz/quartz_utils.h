@@ -91,7 +91,7 @@ unpack_uint(const char ** src,
 	    return false;
 	}
 
-	om_byte part = static_cast<om_byte> (**src);
+	om_byte part = static_cast<om_byte>(**src);
 	(*src)++;
 
 	// if new byte might cause overflow, and it does
@@ -105,7 +105,7 @@ unpack_uint(const char ** src,
 		    *src = 0;
 		    return false;
 		}
-		part = static_cast<const om_byte> (**src);
+		part = static_cast<om_byte>(**src);
 		(*src)++;
 	    }
 	}
@@ -141,7 +141,7 @@ pack_uint(T value)
 	om_byte part = value & 0x7f;
 	value = value >> 7;
 	if (value) part |= 0x80;
-	result.append(1u, (char) part);
+	result.append(1u, char(part));
     }
 
     return result;
@@ -173,7 +173,7 @@ unpack_uint_last(const char ** src, const char * src_end, T * resultptr)
     // Check byte is what it's meant to be
     CASSERT(sizeof(om_byte) == 1);
 
-    if (src_end - *src > (int)sizeof(T)) {
+    if (src_end - *src > int(sizeof(T))) {
 	// Would overflow
 	*src = src_end;
 	return false;
@@ -208,7 +208,7 @@ pack_uint_last(T value)
 
     string result;
     while (value) {
-        result += (char)value;
+        result += char(value);
 	value >>= 8;
     }
     return result;
@@ -232,12 +232,12 @@ pack_uint_preserving_sort(T value)
     CASSERT_TYPE_UNSIGNED(T);
 
     string result;
-    while(value != 0) {
+    while (value != 0) {
 	om_byte part = value & 0xff;
 	value = value >> 8;
-	result.insert((string::size_type)0u, 1u, (char) part);
+	result.insert(string::size_type(0), 1u, char(part));
     }
-    result.insert((string::size_type)0u, 1u, (char) result.size());
+    result.insert(string::size_type(0), 1u, char(result.size()));
     return result;
 }
 
@@ -271,7 +271,7 @@ unpack_uint_preserving_sort(const char ** src,
 	return false;
     }
 
-    unsigned int length = static_cast<const om_byte> (**src);
+    unsigned int length = static_cast<om_byte>(**src);
     (*src)++;
 
     if (length > sizeof(T)) {
@@ -286,7 +286,7 @@ unpack_uint_preserving_sort(const char ** src,
     T result = 0;
     while (length > 0) {
 	result = result << 8;
-	result += static_cast<const om_byte> (**src);
+	result += static_cast<om_byte>(**src);
 	(*src)++;
 	length--;
     }
@@ -306,7 +306,7 @@ unpack_string(const char ** src,
     }
 
     if (src_end - *src < 0 ||
-	(string::size_type)(src_end - *src) < length) {
+	string::size_type(src_end - *src) < length) {
 	src = 0;
 	return false;
     }

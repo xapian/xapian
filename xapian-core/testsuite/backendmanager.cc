@@ -67,7 +67,7 @@ string_to_document(string paragraph)
 	value += string("\0\0\0 \1\t", 6);
 
 	for (int k = 0; k < 256; k++) {
-	    value += (char)(k);
+	    value += char(k);
 	}
 	value += paragraph;
 	document.add_value(0, value);
@@ -394,7 +394,7 @@ BackendManager::getdb_quartz(const vector<string> &dbnames)
     // If the database is readonly, we can reuse it if it exists.
     if (create_dir_if_needed(dbdir)) {
 	// Directory was created, so do the indexing.
-	Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE));
+	Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE, 2048));
 	index_files_to_database(db, change_names_to_paths(dbnames));
     }
     return Xapian::Quartz::open(dbdir);
@@ -418,7 +418,7 @@ BackendManager::getwritedb_quartz(const vector<string> &dbnames)
     (void)create_dir_if_needed(dbdir);
     touch(dbdir + "/log");
     // directory was created, so do the indexing.
-    Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE));
+    Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE, 2048));
     index_files_to_database(db, change_names_to_paths(dbnames));
     return db;
 }

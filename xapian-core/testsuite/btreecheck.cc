@@ -37,7 +37,7 @@ void BtreeCheck::print_spaces(int n) const
 
 void BtreeCheck::print_bytes(int n, const byte * p) const
 {
-    out.write((const char *)p, n);
+    out.write(reinterpret_cast<const char *>(p), n);
 }
 
 void BtreeCheck::print_key(const byte * p, int c, int j) const
@@ -52,7 +52,7 @@ void BtreeCheck::print_key(const byte * p, int c, int j) const
 	for (int i = K1; i < l; i++) {
 	    // out << (k[i] < 32 ? '.' : k[i]);
 	    char ch = k[i];
-	    if (ch < 32) out << '/' << (unsigned int)ch; else out << ch;
+	    if (ch < 32) out << '/' << unsigned(ch); else out << ch;
 	}
     }
 }
@@ -150,11 +150,11 @@ BtreeCheck::block_check(Cursor * C_, int j, int opts)
 
     for (c = DIR_START; c < dir_end; c += D2) {
 	int o = GETD(p, c);
-	if (o > (int)block_size) failure(21);
+	if (o > int(block_size)) failure(21);
 	if (o - dir_end < max_free) failure(30);
 
 	int kt_len = GETI(p, o);
-	if (o + kt_len > (int)block_size) failure(40);
+	if (o + kt_len > int(block_size)) failure(40);
 	total_free -= kt_len;
 
 	if (c > significant_c &&

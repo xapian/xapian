@@ -878,9 +878,9 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     } else {
 	if (percent_cutoff) {
 	    // another approach: Xapian::doccount new_est = items.size() * (1 - percent_factor) / (1 - min_item.wt / greatest_wt);
-	    Xapian::doccount new_est = (Xapian::doccount)((1 - percent_factor) *
-							  matches_estimated);
-	    matches_estimated = max((size_t)new_est, items.size());
+	    Xapian::doccount new_est;
+	    new_est = Xapian::doccount((1 - percent_factor) * matches_estimated);
+	    matches_estimated = max(Xapian::doccount(new_est), items.size());
 	    // and another: items.size() + (1 - greatest_wt * percent_factor / min_item.wt) * (matches_estimated - items.size());
 
 	    // Very likely an underestimate, but we can't really do better without
@@ -915,7 +915,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		double collapse_rate =
 			double(duplicates_found) / double(documents_considered);
 		matches_estimated -=
-			(Xapian::doccount)(double(matches_estimated) *
+			Xapian::doccount(double(matches_estimated) *
 					   collapse_rate);
 	    }
 

@@ -243,7 +243,7 @@ Btree_base::read(const string & name, char ch, string &err_msg)
     }
 
     /* Read the bitmap */
-    if ((uint4)(end - start) <= bit_map_size) {
+    if (uint4(end - start) <= bit_map_size) {
 	err_msg += "Not enough space for bitmap in base file " +
 		basename + "\n";
 	return false;

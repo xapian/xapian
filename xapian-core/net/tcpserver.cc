@@ -85,7 +85,7 @@ TcpServer::get_listening_socket(int port)
 	retval = setsockopt(socketfd,
 			    SOL_SOCKET,
 			    SO_REUSEADDR,
-			    (void *)&optval,
+			    reinterpret_cast<void *>(&optval),
 			    sizeof(optval));
     }
 

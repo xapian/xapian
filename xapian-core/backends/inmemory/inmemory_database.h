@@ -486,7 +486,7 @@ InMemoryDatabase::get_avlength() const
 {
     Xapian::doccount docs = InMemoryDatabase::get_doccount();
     if (docs == 0) return 0;
-    return ((Xapian::doclength) totlen) / docs;
+    return Xapian::doclength(totlen) / docs;
 }
 
 inline Xapian::doccount

@@ -248,7 +248,7 @@ test_driver::runtest(const test_desc *test)
 			do {
 			    while (i < c && buf[i] != ' ') ++i;
 			} while (++i < c && buf[i] == '\n');
-			char *p = (char *)memchr(buf + i, '\n', c - i);
+			char *p = reinterpret_cast<char *>(memchr(buf + i, '\n', c - i));
 			if (p == NULL) p = buf + c;
 			c = p - buf - i;
 			if (c > 1024) c = 79;
@@ -611,5 +611,5 @@ test_driver::run(const test_desc *tests)
     total.failed += myresult.failed;
     total.skipped += myresult.skipped;
 
-    return (bool)myresult.failed; // if 0, then everything passed
+    return bool(myresult.failed); // if 0, then everything passed
 }

@@ -146,7 +146,7 @@ MSetPostList::at_end() const
 {
     DEBUGCALL(MATCH, bool, "MSetPostList::at_end", "");
     Assert(current != -1);
-    return (unsigned int)current >= mset.size();
+    return unsigned(current) >= mset.size();
 }
 
 string

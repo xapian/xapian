@@ -525,7 +525,7 @@ QuartzDatabase::get_avlength() const
     DEBUGCALL(DB, Xapian::doclength, "QuartzDatabase::get_avlength", "");
     Xapian::doccount docs = record_table.get_doccount();
     if (docs == 0) RETURN(0);
-    RETURN((double)record_table.get_total_length() / docs);
+    RETURN(double(record_table.get_total_length()) / docs);
 }
 
 Xapian::doclength
@@ -1041,7 +1041,7 @@ QuartzWritableDatabase::get_avlength() const
     DEBUGCALL(DB, Xapian::doclength, "QuartzWritableDatabase::get_avlength", "");
     Xapian::doccount docs = database_ro.get_doccount();
     if (docs == 0) RETURN(0);
-    RETURN((double)total_length / docs);
+    RETURN(double(total_length) / docs);
 }
 
 Xapian::doclength

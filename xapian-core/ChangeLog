@@ -1,3 +1,14 @@
+Mon Nov 01 03:16:36 GMT 2004  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,api/omstem.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/multi/multi_termlist.h,backends/quartz/,
+	  extra/queryparser.yy,matcher/,net/tcpserver.cc,tests/api_anydb.cc,
+	  tests/api_db.cc,tests/quartztest.cc,testsuite/backendmanager.cc,
+	  testsuite/btreecheck.cc,testsuite/testsuite.cc: Changed C style
+	  casts to C++ style.  The syntax is ugly, but they do make the intent
+	  clearer which is a good thing.
+
 Mon Nov 01 02:56:31 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Select ANSI iostream implmentation for Compaq C++.

@@ -171,7 +171,7 @@ set_int4(byte *p, int c, int x)
 
 */
 
-#define REVISION(b)      (unsigned int)get_int4(b, 0)
+#define REVISION(b)      static_cast<unsigned int>(get_int4(b, 0))
 #define GET_LEVEL(b)     GETINT1(b, 4)
 #define MAX_FREE(b)      GETINT2(b, 5)
 #define TOTAL_FREE(b)    GETINT2(b, 7)

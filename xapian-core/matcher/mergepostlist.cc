@@ -78,7 +78,7 @@ MergePostList::next(Xapian::weight w_min)
 		throw;
 	    }
 	}
-    } while ((unsigned)current < plists.size());
+    } while (unsigned(current) < plists.size());
     DEBUGLINE(MATCH, "current = " << current);
     RETURN(NULL);
 }
@@ -205,7 +205,7 @@ MergePostList::at_end() const
 {
     DEBUGCALL(MATCH, bool, "MergePostList::at_end", "");
     Assert(current != -1);
-    return (unsigned int)current >= plists.size();    
+    return unsigned(current) >= plists.size();    
 }
 
 string

@@ -253,10 +253,11 @@ Btree::read_block(uint4 n, byte * p) const
     Assert(n / CHAR_BIT < base.get_bit_map_size());
 
 #ifdef HAVE_PREAD
-    off_t offset = (off_t)block_size * n;
+    off_t offset = off_t(block_size) * n;
     int m = block_size;
     while (true) {
-	ssize_t bytes_read = pread(handle, (char *)p, m, offset);
+	ssize_t bytes_read = pread(handle, reinterpret_cast<char *>(p), m,
+				   offset);
 	// normal case - read succeeded, so return.
 	if (bytes_read == m) return;
 	if (bytes_read == -1) {
@@ -277,7 +278,7 @@ Btree::read_block(uint4 n, byte * p) const
 	}
     }
 #else
-    if (lseek(handle, (off_t)block_size * n, SEEK_SET) == -1) {
+    if (lseek(handle, off_t(block_size) * n, SEEK_SET) == -1) {
 	string message = "Error seeking to block: ";
 	message += strerror(errno);
 	throw Xapian::DatabaseError(message);
@@ -285,7 +286,7 @@ Btree::read_block(uint4 n, byte * p) const
 
     int m = block_size;
     while (true) {
-	ssize_t bytes_read = read(handle, (char *)p, m);
+	ssize_t bytes_read = read(handle, reinterpret_cast<char *>(p), m);
 	// normal case - read succeeded, so return.
 	if (bytes_read == m) return;
 	if (bytes_read == -1) {
@@ -335,7 +336,7 @@ Btree::write_block(uint4 n, const byte * p) const
     }
 
 #ifdef HAVE_PWRITE
-    off_t offset = (off_t)block_size * n;
+    off_t offset = off_t(block_size) * n;
     int m = block_size;
     while (true) {
 	ssize_t bytes_written = pwrite(handle, p, m, offset);
@@ -1283,7 +1284,7 @@ Btree::find_tag(const string &key, string * tag) const
 
     tag->resize(0);
     if (n > 1) {
-	string::size_type space_for_tag = (string::size_type) max_item_size * n;
+	string::size_type space_for_tag = string::size_type(max_item_size) * n;
 	tag->reserve(space_for_tag);
     }
 
@@ -1314,7 +1315,7 @@ Btree::set_full_compaction(bool parity)
 
 Bcursor * Btree::cursor_get() const {
     // FIXME Ick - casting away const is nasty
-    return new Bcursor((Btree *)this);
+    return new Bcursor(const_cast<Btree *>(this));
 }
 
 /************ B-tree opening and closing ************/
@@ -1702,7 +1703,7 @@ Btree::commit(quartz_revision_number_t revision)
 	C[i].rewrite = false;
     }
 
-    base.write_to_file(name + "base" + (char)base_letter);
+    base.write_to_file(name + "base" + char(base_letter));
     base.commit();
 
     read_root();

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -103,10 +103,10 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
 			   const string &tname) const
 {
     DEBUGCALL(MATCH, Xapian::weight, "OmExpandWeight::get_weight", "[bits], " << tname);
-    double termfreq = (double)bits.termfreq;
+    double termfreq = double(bits.termfreq);
     if (bits.dbsize != dbsize) {
 	if (bits.dbsize > 0 && !use_exact_termfreq) {
-	    termfreq *= (double) dbsize / (double)bits.dbsize;
+	    termfreq *= double(dbsize) / bits.dbsize;
 	    DEBUGLINE(WTCALC, "Approximating termfreq of `" << tname << "': " <<
 		      bits.termfreq << " * " << dbsize << " / " <<
 		      bits.dbsize << " = " << termfreq << " (true value is:" <<

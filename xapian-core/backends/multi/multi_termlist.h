@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,10 +63,8 @@ inline MultiTermList::MultiTermList(LeafTermList * tl_,
 				    const Xapian::Database &rootdb_)
 	: tl(tl_), termdb(termdb_), rootdb(rootdb_)
 {
-    termfreq_factor = ((double)(rootdb.get_doccount())) /
-		      (termdb->get_doccount());
-    DEBUGLINE(DB, "Approximation factor for termfrequency: " <<
-	      termfreq_factor);
+    termfreq_factor = double(rootdb.get_doccount()) / termdb->get_doccount();
+    DEBUGLINE(DB, "Approximation factor for termfreq: " << termfreq_factor);
 }
 
 inline MultiTermList::~MultiTermList()
@@ -106,7 +104,7 @@ inline Xapian::termcount MultiTermList::get_wdf() const
 inline Xapian::doccount MultiTermList::get_termfreq() const
 {
     // Approximate term frequency
-    return (Xapian::doccount) (tl->get_termfreq() * termfreq_factor);
+    return Xapian::doccount(tl->get_termfreq() * termfreq_factor);
 }
 
 inline TermList * MultiTermList::next()

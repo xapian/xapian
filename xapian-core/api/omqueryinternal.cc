@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -385,7 +385,7 @@ QUnserial::decode() {
     Xapian::Query::Internal * qint = readquery();
     if (*p == '=') {
 	char *tmp; // avoid compiler warning
-	qint->set_length((Xapian::termcount)strtol(p + 1, &tmp, 10));
+	qint->set_length(Xapian::termcount(strtol(p + 1, &tmp, 10)));
 	p = tmp;
     } else {
 	qint->set_length(len);
@@ -451,7 +451,7 @@ QUnserial::readcompound() {
 		Xapian::Query::Internal * qint = readcompound();
 		if (*p == '=') {
 		    char *tmp; // avoid compiler warning
-		    qint->set_length((Xapian::termcount)strtol(p + 1, &tmp, 10));
+		    qint->set_length(Xapian::termcount(strtol(p + 1, &tmp, 10)));
 		    p = tmp;
 		}
 		subqs.push_back(qint);
@@ -473,7 +473,7 @@ QUnserial::readcompound() {
 		Xapian::Query::Internal * qint;
 		qint = qint_from_vector(Xapian::Query::OP_NEAR, subqs);
 		char *tmp; // avoid compiler warning
-		qint->set_window((Xapian::termpos)strtol(p, &tmp, 10));
+		qint->set_window(Xapian::termpos(strtol(p, &tmp, 10)));
 		p = tmp;
 		return qint;
 	    }
@@ -481,7 +481,7 @@ QUnserial::readcompound() {
 		Xapian::Query::Internal * qint;
 		qint = qint_from_vector(Xapian::Query::OP_PHRASE, subqs);
 		char *tmp; // avoid compiler warning
-		qint->set_window((Xapian::termpos)strtol(p, &tmp, 10));
+		qint->set_window(Xapian::termpos(strtol(p, &tmp, 10)));
 		p = tmp;
 		return qint;
 	    }
@@ -500,7 +500,7 @@ QUnserial::readcompound() {
 		Xapian::Query::Internal * qint;
 		qint = qint_from_vector(Xapian::Query::OP_ELITE_SET, subqs);
 		char *tmp; // avoid compiler warning
-		qint->set_elite_set_size((Xapian::termcount)strtol(p, &tmp, 10));
+		qint->set_elite_set_size(Xapian::termcount(strtol(p, &tmp, 10)));
 		p = tmp;
 		return qint;
 	    }

@@ -735,9 +735,9 @@ static bool test_specialterms1()
 	TEST_NOT_EQUAL(value, "");
 	if (value_no == 0) {
 	    TEST(value.size() > 263);
-	    TEST_EQUAL((unsigned char)(value[262]), 255);
+	    TEST_EQUAL(static_cast<unsigned char>(value[262]), 255);
 	    for (int k = 0; k < 256; k++) {
-		TEST_EQUAL((unsigned char)(value[k+7]), k);
+		TEST_EQUAL(static_cast<unsigned char>(value[k+7]), k);
 	    }
 	}
     }

@@ -58,15 +58,15 @@ QuartzTermListTable::set_entries(Xapian::docid did,
 	    x = (t.get_wdf() + 1) * (prev_term.length() + 1) + i;
 	    if (x < 256) {
 		// Cool, we can!
-		v += (char)x;
+		v += char(x);
 		stored_wdf = true;
 	    } else {
-		v += (char)i;
+		v += char(i);
 	    }
-	    v += (char)((*t).length() - i);
+	    v += char((*t).length() - i);
 	    v += (*t).substr(i);
 	} else {
-	    v += (char)(*t).length();
+	    v += char((*t).length());
 	    v += *t;
 	}
 	prev_term = *t;
@@ -158,7 +158,7 @@ QuartzTermList::next()
     bool got_wdf = false;
     // If there was a previous term, how much to reuse.
     if (!current_tname.empty()) {
-	string::size_type len = (unsigned char)(*pos++);
+	string::size_type len = static_cast<unsigned char>(*pos++);
 	if (len > current_tname.length()) {
 	    // The wdf was squeezed into the same byte.
 	    current_wdf = len / (current_tname.length() + 1) - 1;
@@ -169,7 +169,7 @@ QuartzTermList::next()
     }
     // What to append (note len must be positive, since just truncating
     // always takes us backwards in the sort order)
-    string::size_type len = (unsigned char)(*pos++);
+    string::size_type len = static_cast<unsigned char>(*pos++);
     current_tname.append(pos, len);
     pos += len;
 

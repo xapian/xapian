@@ -532,7 +532,7 @@ QueryParser::parse_query(const string &q_)
     while (C_isspace(*i)) ++i;
     
     for ( ; i != q_.end(); ++i) {
-	int ch = (unsigned char)*i;
+	int ch = static_cast<unsigned char>(*i);
 	if (ch < 32 || ch == 127) ch = ' ';
 	int cache = 0;
 	// Transliterate accented characters in step with what the indexers do
@@ -543,8 +543,8 @@ QueryParser::parse_query(const string &q_)
 	switch (ch) {
 #include "symboltab.h"
 	}
-	q += (char)ch;
-	if (cache) q += (char)cache;
+	q += char(ch);
+	if (cache) q += char(cache);
     }
 
     if (q.empty()) return Query();

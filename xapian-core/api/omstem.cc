@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -268,10 +268,11 @@ Xapian::Stem::Internal::stem_word(const string &word) const
 {
     if (!stemmer_data || word.empty()) return word;
     SN_set_current(stemmer_data, word.length(),
-		   (const unsigned char *)(word.data()));
+		   reinterpret_cast<const unsigned char *>(word.data()));
     // FIXME should we look at the return value of the stem function?
     stemmers[langcode].stem(stemmer_data);
-    return string((const char *)(stemmer_data->p), stemmer_data->l);
+    return string(reinterpret_cast<const char *>(stemmer_data->p),
+		  stemmer_data->l);
 }
 
 // Methods of Xapian::Stem

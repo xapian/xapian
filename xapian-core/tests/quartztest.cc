@@ -510,7 +510,7 @@ static bool test_unpackint1()
     success = unpack_uint(&p, foo.data() + foo.size(), &result);
     TEST(success);
     TEST_EQUAL(result, 0);
-    TEST_EQUAL((void *)p, (void *)(foo.data() + 1));
+    TEST_EQUAL(p, reinterpret_cast<const char *>(foo.data() + 1));
 
     success = unpack_uint(&p, foo.data() + foo.size(), &result);
     TEST(success);

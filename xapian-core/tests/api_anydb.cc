@@ -1621,7 +1621,7 @@ static bool test_spaceterms1()
 	TEST_NOT_EQUAL(value, "");
 	if (value_no == 0) {
 	    TEST(value.size() > 262);
-	    TEST_EQUAL((unsigned char)(value[261]), 255);
+	    TEST_EQUAL(static_cast<unsigned char>(value[261]), 255);
 	}
     }
     
