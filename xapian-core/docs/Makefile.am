@@ -159,7 +159,8 @@ code_structure.html: mkdoc.pl
 
 todo.html: todo2html.pl
 	@echo "Generating todo list"
-	@./todo2html.pl $(top_srcdir)/TODO >todo.html
+	@./todo2html.pl $(top_srcdir)/todo.xml >todo.html
+	@./todo2html.pl --text $(top_srcdir)/todo.xml > ../TODO
 
 DOCPPFLAGS = --sort --no-java-graphs --c-comments --quantel \
              --upwards-arrows --no-define

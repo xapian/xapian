@@ -4,15 +4,11 @@
 # *** Do not edit the generated file ***
 
 # todo2html.pl.in: generate documentation from source code and associated files.
+require 5;
 use strict;
-
-print <<EOT;
-<HTML>
-<HEAD>
-<TITLE>Muscat: ToDo</TITLE>
-</HEAD>
-<BODY BGCOLOR="#FFFFFF">
-EOT
+use XML::Parser;
+use Text::Format;
+# FIXME: HTML escape output
 
 my %priority = qw(
 U Urgent
@@ -34,29 +30,47 @@ D 777777
 
 $priority{' '} = '';
 
-my $line;
-my $lastline=' ';
-my $priority='';
-my $difficulty='';
-my $area='';
-my $task='';
-my $owner='';
-my $isitem=0;
-my $tableopen=0;
-while($line = <>) {
-    chomp $line;
-    my $lastlinelen = length($lastline);
-    if($lastlinelen != 0 && $line =~ m/={$lastlinelen}/) {
-        print "</TABLE>\n" if $tableopen;
-	$tableopen = 0;
-        print "<H2>" . $lastline . "</H2>\n";
-    } else {
-        if(($line =~ m/-\+-\+-\+-------------\+-----------------------------------------------------------/)) {
-	    $priority =~ s/\s+//g;
-	    if($priority ne '') {
-		if(!$tableopen) {
-		print <<EOT;
-<TABLE BORDER=1>
+my %field;
+
+my ($preamble, $postamble, $table_begin, $table_end);
+
+my $text = 0;
+if ($ARGV[0] eq '--text') {
+   shift @ARGV;
+   $text = 1;
+   $preamble =
+"This file contains items which need to be worked on.
+
+[P]riority values, in decreasing priority order, are:
+
+ [U]rgent  - can't do anything else until this is done.
+ [H]igh    - must be done as soon as possible.
+ [M]edium  - should be done fairly soon.
+ [L]ow     - not needed soon.
+ [V]erylow - do when there is nothing else to do.
+ [D]ubious - not sure that we want to do this.
+
+[D]ifficulty values range from 1 (easy) to 5 (hard)
+
+[W]ho the task is assigned to: [C]hris [R]ichard
+
+";
+    $table_begin = 
+" | | |             |\n" .
+"P|D|W|Area         | Task\n" .
+"-+-+-+-------------+-----------------------------------------------------------\n";
+    $table_end = "";
+    $postamble = "";
+} else {
+    $preamble =
+"<HTML>
+<HEAD>
+<TITLE>Muscat: ToDo</TITLE>
+</HEAD>
+<BODY BGCOLOR=\"#FFFFFF\">
+";
+    $table_begin =
+"<TABLE BORDER=1>
 <TR>
 <TD>Priority</TD>
 <TD>Difficulty</TD>
@@ -64,62 +78,79 @@ while($line = <>) {
 <TD>Task</TD>
 <TD>Owner</TD>
 </TR>
-EOT
-		}
-		$tableopen = 1;
-		my $colour = '#' . ($priority_colours{$priority} || 'ffffff');
-		print <<EOT;
-<TR VALIGN=top>
-<TD BGCOLOR="$colour" VALIGN=top>$priority{$priority}</TD>
-<TD BGCOLOR="$colour" VALIGN=top>$difficulty</TD>
-<TD BGCOLOR="$colour" VALIGN=top>$area</TD>
-<TD BGCOLOR="$colour" VALIGN=top>$task</TD>
-<TD BGCOLOR="$colour" VALIGN=top>$owner</TD>
-</TR>
-EOT
-		$priority = '';
-		$owner = '';
-		$difficulty = '';
-		$area = '';
-		$task = '';
-	    }
-	    $isitem=1;
-	} else {
-	    if($isitem &&
-	       $line =~ m/^([UHMLVD ])\|([1-5 ])\|([\w ])\|([^|]*?)\s*\|\s*([^|]*?)\s*$/) {
-		$priority .= $1;
-		$difficulty .= $2;
-		$owner .= $3;
-		$area .= $4 . " ";
-		$task .= $5 . " ";
-	    } else {
-		$priority = '';
-		$owner = '';
-		$difficulty = '';
-		$area = '';
-		$task = '';
-	    }
-	}
-    }
-    $lastline = $line;
+";
+    $table_end = "</TABLE>\n";
+    my $date = `date '+%Y/%m/%d %H:%M:%S'`;
+    chomp $date;
+    my $author = 'a script';
+
+    $postamble =
+"<!-- FOOTER \$ Author: $author \$ \$ Date: $date \$ \$ Id: \$ -->\n" .
+"</BODY>\n</HTML>\n";
 }
 
-print "</TABLE>\n" if $tableopen;
-$tableopen = 0;
+print $preamble;
 
-my $date = `date '+%Y/%m/%d %H:%M:%S'`;
-chomp $date;
-my $author = 'a script';
+my $p1 = new XML::Parser(Handlers => {Start => \&handle_start,
+                                      End   => \&handle_end,
+				      Char  => \&handle_char});
 
-print "<!-- FOOTER \$";
-print "Author: $author ";
-print "\$ \$";
-print "Date: $date ";
-print "\$ \$";
-print "Id:  ";
-print "\$";
-print " -->\n";
-print <<EOT;
-</BODY>
-</HTML>
+print $table_begin;
+$p1->parsefile($ARGV[0]);
+print $table_end;
+
+print $postamble;
+
+sub handle_start {
+    my $xpat = shift;
+    my $tag = shift;
+    $tag eq 'todo' and return;
+    $tag eq 'todoitem' or die "unknown element <$tag ...>\n";
+    %field = ('owner' => '', 'field' => '');
+    while (scalar @_) {
+	my $name = shift;
+	my $value = shift;
+	$field{$name} = $value;
+    }
+}
+
+sub handle_end {
+    my $xpat = shift;
+    my $tag = shift;
+    $tag eq 'todoitem' or return;
+    if ($text) {
+        print join "|", map substr("$field{$_} ", 0, 1), qw(priority difficulty owner);
+        my $f = Text::Format->new({columns => 58, firstIndent => 0});
+	my @tasklines = $f->format($field{'task'});
+        my $f2 = Text::Format->new({columns => 13, firstIndent => 0});
+	my @arealines = $f2->format($field{'area'});
+	my $prefix = '';
+	my $lines = scalar @tasklines;
+	$lines = scalar @arealines if scalar @arealines > $lines;
+	for (1..$lines) {	
+	    my $area = shift @arealines || '';
+	    chomp $area;
+	    my $task = shift @tasklines || '';
+	    chomp $task;
+	    printf "%s|%-13s| %s\n", $prefix, $area, $task;
+	    $prefix = " | | ";
+	}
+        print "-+-+-+-------------+-----------------------------------------------------------\n";
+    } else {
+        my $colour = '#' . ($priority_colours{$field{priority}} || 'ffffff');
+	print <<EOT;
+<TR VALIGN=top>
+<TD BGCOLOR="$colour" VALIGN=top>$priority{$field{priority}}</TD>
+<TD BGCOLOR="$colour" VALIGN=top>$field{difficulty}</TD>
+<TD BGCOLOR="$colour" VALIGN=top>$field{area}</TD>
+<TD BGCOLOR="$colour" VALIGN=top>$field{task}</TD>
+<TD BGCOLOR="$colour" VALIGN=top>$field{owner}</TD>
+</TR>
 EOT
+    }
+}
+
+sub handle_char {
+    my ($xpat, $string) = @_;
+    $field{task} .= $string;
+}

@@ -1,3 +1,7 @@
+Fri Sep 15 12:01:34 BST 2000 Olly Betts
+
+	* TODO and todo.html now generated from master todo.xml.
+
 Fri Sep 15 09:07:04 BST 2000 Olly Betts
 
 	* HTML TODO list coloured by priority.
