@@ -64,10 +64,14 @@ set<string> countWords( const string& s, map<string, int>& symbol_count ) {
   set<string> symbols;
 
   string current = "";
+  bool foundBlank = false;
   for ( string::const_iterator i = s.begin(); i != s.end(); i++ ) {
     char c = *i;
     
     if ( blankChar(c) ) {
+      if ( current != "" ) {
+	foundBlank = true;
+      }
       continue;
     }
 
@@ -79,17 +83,27 @@ set<string> countWords( const string& s, map<string, int>& symbol_count ) {
       // already started something
       if (! okSubChar(c) ) {
 	if ( c == '(' ) {
+	  assert( current != "" );
 	  current += "()";
 	  //cerr << "... found " << current << endl;
 	  symbols.insert(current);
 	  current = "";
+	  foundBlank =false;
 	} else {
 	  // identifier ended
 	  //cerr << "... found " << current << endl;
+	  assert( current != "" );
 	  symbols.insert(current);
 	  current = "";
+	  foundBlank = false;
 	}
       } else {
+	if ( foundBlank ) {
+	  assert( current != "" );
+	  symbols.insert(current);
+	  current = "";	  
+	  foundBlank = false;
+	}	
 	current += c;
       }
     }
