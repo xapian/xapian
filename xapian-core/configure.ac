@@ -28,7 +28,19 @@ AC_INIT(xapian-core, 0.8.1)dnl FIXME: bugreport addr as third argument
 #
 # 6. If any interfaces have been removed since the last public release
 #    then set AGE to 0.
-# 2:0:0 0.8.0
+#
+# Older libxapian versions:
+# 0:0:0 0.7.2 (and 0.7.1 and 0.7.0 - 0.7.0 was the first libxapian version)
+# 0:1:0 0.7.3
+# 1:0:0 0.7.4 (Xapian::ESet now has reference counted internals)
+# 1:1:1 0.7.5 (Xapian::{Term,Posting,Position}Iterator default ctors added)
+# 2:0:0 0.8.0 (TradWeight ctor explicit; Xapian::Document::add_term() added)
+# Older libxapianqueryparser versions:
+# 0:0:0 0.7.2 (and 0.7.1 and 0.7.0)
+# 0:1:0 0.7.3 (and 0.7.4)
+# 0:2:0 0.7.5
+# 1:0:0 0.8.0
+# LIBRARY_VERSION_INFO:
 # 3:0:0 0.8.1 (Xapian::Database::get_lastdocid added; QueryParser tries
 #	       reparsing after stripping punctuation; several unused
 #	       Error subclasses removed; assorted Iterator changes)

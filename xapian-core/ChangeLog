@@ -1,3 +1,8 @@
+Sun Aug 22 13:02:25 BST 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,extra/Makefile.am: Moved the older library
+	  version information into configure.ac.
+
 Sun Aug 22 12:58:21 BST 2004  Olly Betts <olly@survex.com>
 
 	* HACKING,configure.in,configure.ac,backends/Makefile.am,
@@ -10,7 +15,7 @@ Sun Aug 22 12:47:43 BST 2004  Olly Betts <olly@survex.com>
 
 Sun Aug 22 11:38:55 BST 2004  Olly Betts <olly@survex.com>
 
-	* backends/quartz/btree.cc,backends/quartz/btree_util.h: Adjusted 
+	* backends/quartz/btree.cc,backends/quartz/btree_util.h: Adjusted
 	  some Asserts to check c is within blocksize rather than
 	  65536.  Added a FIXME for those which can't be trivially changed.
 
