@@ -26,7 +26,7 @@ XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 
 AC_ARG_WITH(swig,
   [  --without-swig          disable all bindings which depend on SWIG
-                         (currently: Python PHP Tcl Guile)])
+                         (currently: Python PHP Tcl Guile CSharp)])
 AC_ARG_WITH(python,
   [  --without-python        disable Python bindings])
 
@@ -43,9 +43,7 @@ AC_ARG_WITH(guile,
   [  --without-guile         disable Guile bindings])
 
 AC_ARG_WITH(csharp,
-  [  --with-csharp           enable CSharp bindings],
-  [with_csharp=$withval],
-  with_csharp=no)
+  [  --without-csharp        disable CSharp bindings])
 
 BINDINGS=
 
@@ -161,11 +159,8 @@ if test no != "$with_swig" ; then
 
   if test no != "$with_csharp" ; then
     AC_PATH_PROG(CSC, mcs, [])
-    if test -n "$CSC" ;  then
-      AC_PATH_PROG(GACUTIL, gacutil, no)
-      if test "x$GACUTIL" = "xno" ; then
-        AC_MSG_ERROR([No gacutil tool found])
-      fi
+    AC_PATH_PROG(GACUTIL, gacutil, [])
+    if test -n "$CSC" -a -n "$GACUTIL" ; then
       BINDINGS="$BINDINGS csharp"
     fi
   fi
