@@ -1,3 +1,13 @@
+Wed Feb 21 14:33:50 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Use a deque<> directly instead of a queue, due to conflict
+	  with Solaris headers.
+	
+	* Split the collect_doc loop into a seperate function
+
+	* SocketClient should be more robust against request_doc() being
+	  used without collect_doc().
+
 Tue Feb 20 18:01:13 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* SocketClient implements a queue/cache system which means that

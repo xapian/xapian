@@ -78,6 +78,7 @@ SocketClient::SocketClient(int socketfd_,
 void
 SocketClient::keep_alive()
 {
+    get_requested_docs();  // avoid confusing the protocol
     do_write(std::string("K"));
     std::string message = do_read();
     // ignore message
@@ -115,6 +116,10 @@ string_to_tlistitem(const std::string &s)
 void
 SocketClient::get_tlist(om_docid did,
 			std::vector<NetClient::TermListItem> &items) {
+    /* avoid confusing the protocol if there are requested documents
+     * being returned.
+     */
+    get_requested_docs();
     do_write(std::string("T") + om_tostring(did));
 
     init_end_time();
@@ -132,7 +137,36 @@ void
 SocketClient::request_doc(om_docid did)
 {
     do_write(std::string("D") + om_tostring(did));
-    requested_docs.push(did);
+    requested_docs.push_back(did);
+}
+
+void
+SocketClient::get_requested_docs()
+{
+    while (!requested_docs.empty()) {
+	om_docid cdid = requested_docs.front();
+
+	/* Create new entry, and get a reference to it */
+	cached_doc &cdoc = collected_docs[cdid];
+
+	// FIXME check did is correct?
+	std::string message = do_read();
+	Assert(!message.empty() && message[0] == 'O');
+	cdoc.data = decode_tname(message.substr(1));
+
+	while (1) {
+	    std::string message = do_read();
+	    if (message == "Z") break;
+	    istrstream is(message.c_str());
+	    om_keyno keyno;
+	    std::string omkey;
+	    is >> keyno >> omkey;
+	    cdoc.keys[keyno] = string_to_omkey(omkey);
+	}
+
+	/* Remove this did from the queue */
+	requested_docs.pop_front();
+    }
 }
 
 void
@@ -161,33 +195,10 @@ SocketClient::collect_doc(om_docid did, std::string &doc,
      * into the cache.  Fetching only until the requested doc would
      * defeat the point of a seperate request_doc to some extent.
      */
-    while (!requested_docs.empty()) {
-	om_docid cdid = requested_docs.front();
+    get_requested_docs();
 
-	/* Create new entry, and get a reference to it */
-	cached_doc &cdoc = collected_docs[cdid];
-
-	// FIXME check did is correct?
-	std::string message = do_read();
-	Assert(!message.empty() && message[0] == 'O');
-	cdoc.data = decode_tname(message.substr(1));
-
-	while (1) {
-	    std::string message = do_read();
-	    if (message == "Z") break;
-	    istrstream is(message.c_str());
-	    om_keyno keyno;
-	    std::string omkey;
-	    is >> keyno >> omkey;
-	    cdoc.keys[keyno] = string_to_omkey(omkey);
-	}
-
-	/* Remove this did from the queue */
-	requested_docs.pop();
-    }
-
-    /* FIXME: it's a bit of a waste doing this outside of the loop
-     * like this, but probably ok.
+    /* FIXME: it's a bit of a waste doing this outside of the collect
+     * loop like this, but probably ok.
      */
     i = collected_docs.find(did);
 
@@ -301,6 +312,11 @@ void
 SocketClient::set_query(const OmQuery::Internal *query_,
 			const OmSettings &moptions_, const OmRSet &omrset_)
 {
+    /* avoid confusing the protocol if there are requested documents
+     * being returned.
+     */
+    get_requested_docs();
+
     Assert(conv_state == state_getquery);
     query_string = query_->serialise();
     moptions = moptions_;
@@ -310,6 +326,11 @@ SocketClient::set_query(const OmQuery::Internal *query_,
 bool
 SocketClient::finish_query()
 {
+    /* avoid confusing the protocol if there are requested documents
+     * being returned.
+     */
+    get_requested_docs();
+
     bool success = false;
     switch (conv_state) {
 	case state_getquery:
@@ -386,6 +407,11 @@ SocketClient::get_mset(om_doccount first,
 		       om_doccount maxitems,
 		       OmMSet &mset)
 {
+    /* avoid confusing the protocol if there are requested documents
+     * being returned.
+     */
+    get_requested_docs();
+
     Assert(global_stats_valid);
     Assert(conv_state >= state_getmset);
     switch (conv_state) {
@@ -441,6 +467,11 @@ SocketClient::open_postlist(om_doccount first, om_doccount maxitems,
 			    om_weight &maxw,
 			    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> &term_info)
 {
+    /* avoid confusing the protocol if there are requested documents
+     * being returned.
+     */
+    get_requested_docs();
+
     DEBUGCALL(MATCH, bool, "SocketClient::open_postlist", first << ", " << maxitems);
     Assert(global_stats_valid);
     Assert(conv_state >= state_getmset);

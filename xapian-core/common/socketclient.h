@@ -26,7 +26,7 @@
 #include "netclient.h"
 #include "socketcommon.h"
 #include "rset.h"
-#include <queue>
+#include <deque>
 
 /** An implementation of the NetClient interface using a program.
  *  ProgClient gets a socket by spawning a separate program, rather
@@ -95,7 +95,10 @@ class SocketClient : public NetClient {
 	std::string context;
 
 	/// The queue of requested docids
-	std::queue<om_docid> requested_docs;
+	std::deque<om_docid> requested_docs;
+	/* This would be a std::queue<om_docid>, but that conflicts with
+	 * some networking headers on Solaris.  Maybe when the std::
+	 * namespace actually works properly it can go back. */
 
 	struct cached_doc {
 	    std::string data;
@@ -104,6 +107,8 @@ class SocketClient : public NetClient {
 	/// A store of the undecoded documents we've collected from the
 	/// other end
 	std::map<om_docid, cached_doc> collected_docs;
+
+	void get_requested_docs();
 	
     protected:
 	/** Constructor.  The constructor is protected so that raw instances
