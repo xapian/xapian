@@ -16,9 +16,6 @@ class SleepyPostList : public virtual DBPostList {
 
 	doccount termfreq;
 
-	bool weight_initialised;
-	weight termweight;
-
 	SleepyPostList(IRDatabase *, docid *, doccount);
     public:
 	~SleepyPostList();
