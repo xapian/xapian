@@ -707,6 +707,27 @@ static bool test_cursor1()
     new_revision += 1;
     TEST(bufftable1.apply(new_revision));
 
+    cursor.reset(bufftable1.cursor_get());
+    key.value = "foo2";
+    TEST(cursor->find_entry(key));
+    TEST_EQUAL(cursor->current_key.value, "foo2");
+    TEST_EQUAL(cursor->current_tag.value, "bar2");
+
+    key.value = "foo24";
+    TEST(!cursor->find_entry(key));
+    TEST_EQUAL(cursor->current_key.value, "foo2");
+    TEST_EQUAL(cursor->current_tag.value, "bar2");
+
+    key.value = "foo25";
+    TEST(cursor->find_entry(key));
+    TEST_EQUAL(cursor->current_key.value, "foo25");
+    TEST_EQUAL(cursor->current_tag.value, "bar25");
+
+    key.value = "foo24";
+    TEST(!cursor->find_entry(key));
+    TEST_EQUAL(cursor->current_key.value, "foo2");
+    TEST_EQUAL(cursor->current_tag.value, "bar2");
+
     key.value = "foo25";
     bufftable1.delete_tag(key);
 
