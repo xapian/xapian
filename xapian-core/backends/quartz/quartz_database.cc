@@ -481,9 +481,12 @@ QuartzWritableDatabase::do_add_document(const OmDocument & document)
 		QuartzPostList::add_entry(buffered_tables->get_postlist_table(),
 					  *term, did, term.get_wdf(),
 					  new_doclen);
-		QuartzPositionList::set_positionlist(
-		    buffered_tables->get_positionlist_table(), did,
-		    *term, term.positionlist_begin(), term.positionlist_end());
+		if (term.positionlist_begin() != term.positionlist_end())
+		{
+		  QuartzPositionList::set_positionlist(
+		      buffered_tables->get_positionlist_table(), did,
+		      *term, term.positionlist_begin(), term.positionlist_end());
+		}
 	    }
 	}
 
@@ -708,10 +711,13 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 		QuartzPostList::add_entry(buffered_tables->get_postlist_table(),
 					  *tIter, did, tIter.get_wdf(),
 					  new_doclen);
-		QuartzPositionList::set_positionlist(
-		    buffered_tables->get_positionlist_table(), did,
-		    *tIter, tIter.positionlist_begin(), tIter.positionlist_end());
-                ++vIter;
+		if (tIter.positionlist_begin() != tIter.positionlist_end())
+		{
+		  QuartzPositionList::set_positionlist(
+		      buffered_tables->get_positionlist_table(), did,
+		      *tIter, tIter.positionlist_begin(), tIter.positionlist_end());
+                  ++vIter;
+		}
 	    }
             // Finally, update the positionlist of terms that are not new or removed.
             vIter = posTerms.begin();

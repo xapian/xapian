@@ -1,3 +1,9 @@
+Mon Jun 11 12:07:00 2001  Hein Ragas <hragas@users.sourceforge.net>
+
+        * Modified QuartzWritableDatabase::do_add_document and
+          QuartzWritableDatabase::do_replace_document to leave the PositionList
+          empty for a term with no positions associated with it.
+
 Mon May 29 12:17:00 2001  Hein Ragas <hragas@users.sourceforge.net>
 
         * Modified QuartzPostList::add_entry to allow for adding of entries
