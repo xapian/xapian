@@ -36,6 +36,9 @@ Priority | Area            | Task
  High    | LocalMatch      | Pass around partially created postlist as an
          |                 | auto_ptr, for exception safety.
 ---------+-----------------+--------------------------------------------------
+ Medium  | API             | OmDocumentTerm should use a set rather than a
+         |                 | map.
+---------+-----------------+--------------------------------------------------
  Medium  | Matchers        | Merge get_max_weight() into result of get_mset()
 ---------+-----------------+--------------------------------------------------
  Medium  | OmDatabase      | Test assignment operators for OmDatabase and
