@@ -16,7 +16,7 @@ dnl Use libtool to manage our libraries
 AM_PROG_LIBTOOL
 
 dnl Check for libomus
-AM_PATH_LIBOMUS(, AC_MSG_ERROR([Can't find Muscat library]))
+OM_PATH_LIBOMUS(, AC_MSG_ERROR([Can't find Muscat library]))
 
 dnl Checks for gtk / glib / glade
 build_gui=yes
