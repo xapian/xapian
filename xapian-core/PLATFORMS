@@ -30,12 +30,13 @@ x86   |&Linux 2.2 Debian 3.0 GCC "3.5" | 0.8.0~|Passed| gcc-3.5-20040327
 x86   | Linux 2.4 Debian sid GCC 2.95.4| 0.8.3 |Passed| from Olly Betts
 x86   | Linux 2.4 Debian sid GCC 3.0.4 | 0.8.0 |Passed| from Olly Betts
 x86   | Linux 2.4 Debian sid GCC 3.2.3 | 0.8.0 |Passed| from Olly Betts
-x86   | Linux 2.4 Debian sid GCC 3.3.3 | 0.8.3 |Passed| from Olly Betts
+x86   | Linux 2.4 Debian sid GCC 3.3.5 | 0.8.3~|Passed| from Olly Betts
 x86   |*Linux 2.4 Debian 2.2 GCC 2.95.2| 0.8.3~|Passed|
 x86   | Linux 2.4 RedHat 7.3 GCC 2.96  | 0.8.0 |Passed| from Chris Good
-x86   |*Linux 2.4 RedHat 9.0 GCC 3.2.2 | 0.8.3~|Passed|
+x86   |#Linux 2.4 RedHat 9.0 GCC 3.2.2 | 0.8.3~|Passed|
 x86   |*Linux 2.4 RedHat AS3 GCC 2.96  | 0.8.3~|Passed|
 x86   |*Linux 2.4 RedHat AS3 GCC 3.2.3 | 0.8.3~|Passed|
+x86   |*Linux 2.6 RedHat FC2 GCC 3.3.3 | 0.8.3~|Passed|
 x86   | Linux 2.4 Slackw. 9.1 GCC 3.2.3|~0.8.1 |Passed| from tweakers.net
 x86   | Linux 2.6 Debian 3.0 GCC 2.95.4| 0.8.2 |Passed| from gmane.org
 x86   |!FreeBSD 4.8 GCC 2.95.4         | 0.8.3~|Passed|
