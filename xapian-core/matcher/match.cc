@@ -144,8 +144,17 @@ Match::match(void)
     // FIXME: clean all this up
     // FIXME: partial_sort?
     // FIXME: quicker to just resort whole lot than sort and merge?
-    merger->next(); // move onto first match
-    while (!merger->at_end()) {
+    while (1) {
+        PostList *ret = merger->next(); 	    
+        if (ret) {
+	    delete merger;
+	    merger = ret;
+	}
+
+	if (merger->at_end()) break;
+
+        mtotal++;
+	
         weight w = merger->get_weight();
         
         if (w > w_min) {
@@ -168,13 +177,6 @@ Match::match(void)
 	        w_min = mset.back().w;
 	        cout << "mset size = " << mset.size() << endl;
 	    }
-	}
-        mtotal++;
-
-        PostList *ret = merger->next(); 	    
-        if (ret) {
-	    delete merger;
-	    merger = ret;
 	}
     }
 
