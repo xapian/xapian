@@ -33,9 +33,7 @@ using std::string;
 
 typedef unsigned char       om_byte;
 typedef unsigned int        om_uint32;
-typedef unsigned long long  om_uint64;
 typedef int                 om_int32;
-typedef long long           om_int64;
 
 /** FIXME: the pack and unpack int methods store in low-byte-first order
  *  - it might be easier to implement efficient specialisations with
@@ -224,20 +222,20 @@ unpack_string(const char ** src,
 	      const char * src_end,
 	      string & result)
 {
-    string::size_type length;
-    if (!unpack_uint(src, src_end, &length)) {
-	return false;
-    }
-
-    if (src_end - *src < 0 ||
+    string::size_type length;                        
+    if (!unpack_uint(src, src_end, &length)) {       
+    	return false;                                 
+    }                                                
+                                              
+    if (src_end - *src < 0 ||                        
 	(string::size_type)(src_end - *src) < length) {
-	src = 0;
-	return false;
-    }
-
-    result = string(*src, length);
-    *src += length;
-    return true;
+	src = 0;                                      
+	return false;                                 
+    }                                                
+                                                  
+    result = string(*src, length);                   
+    *src += length;                                  
+    return true;                                     
 }
 
 inline string
@@ -246,7 +244,6 @@ pack_string(string value)
     return pack_uint(value.size()) + value;
 }
 
-const int bytes_per_string_chunk = 8;
 /** Pack a string into a representation which preserves sort order.
  *  The string is split into chunks of N bytes, the last one padded
  *  with null bytes if needed.  Each chunk is followed by a byte
@@ -257,23 +254,13 @@ const int bytes_per_string_chunk = 8;
 inline string
 pack_string_preserving_sort(string value)
 {
-    string result;
-    string::size_type pos = 0;
-    while ((value.length() - pos) > static_cast<unsigned>(bytes_per_string_chunk)) {
-	result += value.substr(pos, 8) + (char)(bytes_per_string_chunk+64);
-	pos += 8;
+    string::size_type i = 0, j;
+    while ((j = value.find('\0', i)) != string::npos) {
+	value.replace(j, 1, "\0\xff", 2);
+	i = j + 2;
     }
-    // last chunk (can be empty or full)
-    result += value.substr(pos);
-
-    int frag_length = value.length() - pos;
-
-    for (int i=0; i < (bytes_per_string_chunk - frag_length); ++i) {
-	result += '\0';
-    }
-    result += static_cast<char>(frag_length);
-
-    return result;
+    value += '\0'; // FIXME temp...
+    return value + '\0'; // Note - next byte mustn't be '\xff'...
 }
 
 inline bool
@@ -281,25 +268,24 @@ unpack_string_preserving_sort(const char ** src,
 			      const char * src_end,
 			      string & result)
 {
-    result = string("");
-    bool done = false;
-    while (!done) {
-	if (src_end - *src < (bytes_per_string_chunk + 1)) {
-	    return false;
+    result = "";
+    while (*src < src_end) {
+	const char *begin = *src;
+	while (**src) {
+	    ++(*src);
+	    if (*src == src_end) return false;
 	}
-	int count = (*src)[bytes_per_string_chunk];
-	if (count >= 64) {
-	    count -= 64;
-	} else {
-	    done = true;
+	result += string(begin, *src - begin);
+	++(*src);
+	if (*src == src_end) return false;
+	if (**src != '\xff') {
+	    ++(*src); // FIXME temp
+	    return true;
 	}
-	if (count > bytes_per_string_chunk) {
-	    return false;
-	}
-	result += string(*src, count);
-	*src += bytes_per_string_chunk + 1;
+	result += '\0';
+	++(*src);
     }
-    return true;
+    return false;
 }
 
 inline bool
@@ -312,8 +298,12 @@ unpack_bool(const char ** src,
 	return false;
     }
     switch (*((*src)++)) {
-	case '0': if(resultptr) *resultptr = false; return true;
-	case '1': if(resultptr) *resultptr = true; return true;
+	case '0':
+	    if (resultptr) *resultptr = false;
+	    return true;
+	case '1':
+	    if (resultptr) *resultptr = true;
+	    return true;
     }
     *src = 0;
     return false;
