@@ -1,3 +1,7 @@
+Wed Nov 27 05:00:39 GMT 2002  Olly Betts <olly@survex.com>
+
+	* AUTHORS,HACKING: Removed or replaced sourceforge.net URLs.
+
 Wed Nov 27 04:58:29 GMT 2002  Olly Betts <olly@survex.com>
 
 	* docs/quartzdesign.html: Reworded "under development" warning;

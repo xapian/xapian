@@ -2,9 +2,9 @@ Instructions for hacking on Xapian
 ==================================
 
 This file is aimed to help developers get started with working on
-Xapian. The Xapian SourceForge project page is at
-<http://sourceforge.net/projects/xapian/>, and contains various tools
-that help support us.
+Xapian. The documentation contains a section covering various internal
+aspects of the library - this can also be found on the Xapian website
+<http://www.xapian.org/>.
 
 Extra options to give to configure:
 ===================================
