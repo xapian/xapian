@@ -46,7 +46,7 @@ weight DAPostList::get_weight() {
 
     wdf = postlist->wdf;
 
-    printf("(wdf, termweight)  = (%4d, %4.2f)", wdf, termweight);
+//    printf("(wdf, termweight)  = (%4d, %4.2f)", wdf, termweight);
 
     double k = 1;
     // FIXME - precalculate this freq score for several values of wt - may
@@ -56,7 +56,7 @@ weight DAPostList::get_weight() {
 
     wt *= termweight;
 
-    printf("\t=> weight = %f\n", wt);
+//    printf("\t=> weight = %f\n", wt);
 
     return wt;
 }
