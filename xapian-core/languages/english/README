@@ -1,0 +1,6 @@
+<Directory>languages/english</Directory>
+
+<Description>
+Code for processing english, such as an updated version of the porter
+stemming algorithm for normalising english words.
+</Description>

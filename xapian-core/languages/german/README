@@ -1,0 +1,6 @@
+<Directory>languages/german</Directory>
+
+<Description>
+Code for processing german, such as a stemming algorithm for normalising
+german words.
+</Description>

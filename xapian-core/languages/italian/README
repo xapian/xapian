@@ -1,0 +1,6 @@
+<Directory>languages/italian</Directory>
+
+<Description>
+Code for processing italian, such as a stemming algorithm for normalising
+italian words.
+</Description>

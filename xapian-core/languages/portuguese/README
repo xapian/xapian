@@ -1,0 +1,6 @@
+<Directory>languages/portuguese</Directory>
+
+<Description>
+Code for processing portuguese, such as a stemming algorithm for normalising
+portuguese words.
+</Description>

@@ -1,0 +1,6 @@
+<Directory>languages/french</Directory>
+
+<Description>
+Code for processing french, such as a stemming algorithm for normalising
+french words.
+</Description>
