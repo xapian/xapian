@@ -1,11 +1,21 @@
+Mon Nov 27 18:08:35 GMT 2000 Olly Betts
+
+	* A RefCntPtr now copes with being assigned to (used to delete the
+	  underlying object if the reference count was 1).  Added regression
+	  test (refcnt2).
+
+	* Now overwrite pointer inside RefCntPtr before deleting the pointed
+	  to object so there's no window where another thread can access the
+	  pointer and get the just-deleted object.
+
 Mon Nov 27 14:36:59 GMT 2000 Olly Betts
 
-	* OmError class now optional stores an errno value.
+	* OmError class now optionally stores an errno value.
 
 Mon Nov 27 13:04:18 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Quartztest builds its test databases in a subdirectory, which
-	  is now in cvs ignore, so we shouldn't get cvs complaining about
+	  is now in .cvsignore, so we shouldn't get cvs complaining about
 	  so many unknown files any more.
 
 Mon Nov 27 12:53:16 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>

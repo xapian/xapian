@@ -282,6 +282,23 @@ bool test_refcnt1()
     return true;
 }
 
+// This is a regression test - a RefCntPtr used to delete the object pointed
+// to if it was the reference count was 1 and you assigned it to itself.
+bool test_refcnt2()
+{
+    bool deleted = false;
+
+    test_refcnt *p = new test_refcnt(deleted);
+
+    RefCntPtr<test_refcnt> rcp(p);
+    
+    rcp = rcp;
+    
+    TEST_AND_EXPLAIN(!deleted, "Object deleted by self-assignment");
+
+    return true;
+}
+
 #endif /* HAVE_NO_ACCESS_CONTROL */
 
 // test string comparisions
@@ -514,6 +531,7 @@ test_desc tests[] = {
     {"exception1",              test_exception1},
 #ifdef HAVE_NO_ACCESS_CONTROL
     {"refcnt1",			test_refcnt1},
+    {"refcnt2",			test_refcnt2},
 #endif // HAVE_NO_ACCESS_CONTROL
     {"stringcomp1",		test_stringcomp1},
 #ifdef MUS_BUILD_BACKEND_SLEEPYCAT
