@@ -1,6 +1,11 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(include/database.h)
 AM_INIT_AUTOMAKE(om, 0.0.1)
+
+dnl Add parameters for aclocal
+dnl (This must come after AM_INIT_AUTOMAKE, since it modifies ACLOCAL)
+ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"
+
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs.
@@ -43,17 +48,6 @@ AC_CHECK_FUNCS(strerror)
 dnl Check for sleepycat library.
 dnl FIXME - just assume that we don't have it, for now
 have_berkleydb=no
-
-dnl Add parameters for aclocal
-dnl (This must come after AM_INIT_AUTOMAKE, since it modifies ACLOCAL)
-AC_ARG_WITH(aclocal-params,
-[  --with-aclocal-params=PARAMS Give aclocal extra parameters],
-[case "${withval}" in
-  yes) ;;dnl Don't give any parameters
-  no) ;;dnl Don't give any parameters
-  *) ACLOCAL="$ACLOCAL ${withval}" ;;
-esac]
-)
 
 dnl ***************************
 dnl * Select modules to build *
