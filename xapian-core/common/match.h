@@ -66,11 +66,12 @@ class OmMatch
         bool recalculate_maxweight;
 
 	// Make a postlist from a query object
-	PostList * postlist_from_query(const OmQuery * query_);
+	PostList * postlist_from_query(const OmQueryInternal * query_);
 
 	// Make a postlist from a vector of query objects (AND or OR)
-	PostList * postlist_from_queries(om_queryop op,
-					 const vector<OmQuery *> & queries);
+	PostList * postlist_from_queries(
+				 om_queryop op,
+				 const vector<OmQueryInternal *> & queries);
 
 	// Open a postlist
 	LeafPostList * mk_postlist(const om_termname& tname,
@@ -103,7 +104,7 @@ class OmMatch
 	// =====================================================
 
 	// Sets query to use.
-	void set_query(const OmQuery * query_);
+	void set_query(const OmQueryInternal * query_);
 
 	///////////////////////////////////////////////////////////////////
 	// Set additional options for performing the query

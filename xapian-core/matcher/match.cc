@@ -31,6 +31,7 @@
 #include "leafpostlist.h"
 #include <om/omdocument.h>
 #include "rset.h"
+#include "omqueryinternal.h"
 
 #include "bm25weight.h"
 
@@ -135,7 +136,8 @@ OmMatch::mk_weight(const IRDatabase * root_,
 // Operation must be either AND or OR.
 // Optimise query by building tree carefully.
 PostList *
-OmMatch::postlist_from_queries(om_queryop op, const vector<OmQuery *> &queries)
+OmMatch::postlist_from_queries(om_queryop op,
+			       const vector<OmQueryInternal *> &queries)
 {
     Assert(op == OM_MOP_OR || op == OM_MOP_AND);
     Assert(queries.size() >= 2);
@@ -143,7 +145,7 @@ OmMatch::postlist_from_queries(om_queryop op, const vector<OmQuery *> &queries)
     // Open a postlist for each query, and store these postlists in a vector.
     vector<PostList *> postlists;
     postlists.reserve(queries.size());
-    vector<OmQuery *>::const_iterator q;
+    vector<OmQueryInternal *>::const_iterator q;
     for(q = queries.begin(); q != queries.end(); q++) {
 	postlists.push_back(postlist_from_query(*q));
 	DebugMsg("Made postlist: get_termfreq() = " << postlists.back()->get_termfreq() << endl);
@@ -233,7 +235,7 @@ OmMatch::postlist_from_queries(om_queryop op, const vector<OmQuery *> &queries)
 // Make a postlist from a query object - this is called recursively down
 // the query tree.
 PostList *
-OmMatch::postlist_from_query(const OmQuery *query_)
+OmMatch::postlist_from_query(const OmQueryInternal *query_)
 {
     PostList *pl = NULL;
 
@@ -296,7 +298,7 @@ OmMatch::postlist_from_query(const OmQuery *query_)
 ////////////////////////
 
 void
-OmMatch::set_query(const OmQuery *query_)
+OmMatch::set_query(const OmQueryInternal *query_)
 {
     // Clear existing query
     max_weight = 0;

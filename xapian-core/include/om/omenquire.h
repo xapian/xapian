@@ -67,54 +67,11 @@ enum om_queryop {
 /** Class representing a query.
  *  Queries are represented as a heirarchy of classes.
  */
+class OmQueryInternal;
 class OmQuery {
-    friend class OmMatch;
-    friend class OmEnquireInternal;
     private:
-	bool isdefined;
-	bool isbool;
-
-	/// Operation to be performed at this node
-	om_queryop op;
-
-	/// The container type for storing pointers to subqueries
-	typedef vector<OmQuery *> subquery_list;
-	/// Sub queries on which to perform operation
-	subquery_list subqs;
-
-	/// Length of query
-	om_termcount qlen;
-
-	// Fields used only for leaf nodes.
-
-	/// Term that this leaf represents
-	om_termname tname;
-
-	/// Position in query of this term
-	om_termpos term_pos;
-
-	/// Within query frequency of this term
-	om_termcount wqf;
-
-	/// The object mutex
-	OmLock mutex;
-
-	/// Copy another OmQuery into self.
-	void initialise_from_copy(const OmQuery & copyme);
-
-	/** Set my vector of queries to be a memberwise copy of the
-	 *  supplied vector of OmQuery objects. */
-	void initialise_from_vector(const vector<OmQuery>::const_iterator qbegin,
-				    const vector<OmQuery>::const_iterator qend);
-
-	/** Set my vector of queries to be a memberwise copy of the
-	 *  supplied vector of OmQuery pointers. */
-	void initialise_from_vector(const vector<OmQuery *>::const_iterator qbegin,
-				    const vector<OmQuery *>::const_iterator qend);
-
-	/** Private function used to implement get_terms() */
-        void accumulate_terms(
-	    vector<pair<om_termname, om_termpos> > &terms) const;
+	friend class OmEnquireInternal;
+    	OmQueryInternal *internal;
     public:
 	/** A query consisting of a single term. */
 	OmQuery(const om_termname & tname_,
@@ -166,10 +123,10 @@ class OmQuery {
 	string get_description() const;
 
 	/** Check whether the query is defined. */
-	bool is_defined() const { return isdefined; }
+	bool is_defined() const;
 
 	/** Check whether the query is (pure) boolean. */
-	bool is_bool() const { return isbool; }
+	bool is_bool() const;
 
 	/** Set whether the query is a pure boolean.
 	 *  Returns true iff the query was previously a boolean query.
@@ -180,7 +137,7 @@ class OmQuery {
 	 *  This value is calculated automatically, but may be overridden
 	 *  using set_length().
 	 */
-	om_termcount get_length() const { return qlen; }
+	om_termcount get_length() const;
 
 	/** Set the length of the query.
 	 *  This overrides the automatically calculated value, which may
