@@ -1,3 +1,10 @@
+Thu Feb 22 12:14:12 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Some small changes in quartz to improve exception safety and
+	  error checking.
+
+	* Remove unwanted OmExpandWeight::get_expand_k() method.
+
 Wed Feb 21 19:02:44 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Overhauled the OmMSet::fetch() etc. methods.  Documents are

@@ -93,7 +93,6 @@ class OmExpandWeight {
 			     const om_termname & tname) const;
 
 	om_weight get_maxweight() const;
-	double get_expand_k( void ) { return expand_k; }
 };
 
 #endif /* OM_HGUARD_EXPANDWEIGHT_H */

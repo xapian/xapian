@@ -363,8 +363,10 @@ QuartzDiskTable::get_entry_count() const
 {
     DEBUGCALL(DB, quartz_revision_number_t,
 	      "QuartzDiskTable::get_entry_count", "");
-    Assert(opened);
-    RETURN(btree_for_reading->item_count);
+    if (opened) 
+	RETURN(btree_for_reading->item_count);
+    else
+	RETURN(0);
 }
 
 bool
@@ -465,13 +467,18 @@ QuartzDiskTable::apply(quartz_revision_number_t new_revision)
 
     // Close writing table and write changes
     Assert(btree_for_writing != 0);
-    Btree_close(btree_for_writing, new_revision);
-    // FIXME: check for errors
+    int errorval = Btree_close(btree_for_writing, new_revision);
+    if (errorval) {
+	throw OmDatabaseError("Can't commit new revision: error code " +
+			      om_tostring(errorval));
+    }
     btree_for_writing = 0;
 
     // Reopen table
     if (!open(new_revision)) {
-	throw OmDatabaseError("Can't open the revision we've just written");
+	throw OmDatabaseError("Can't open the revision we've just written (" +
+			      om_tostring(new_revision) + ") for table at `" +
+			      path + "'");
     }
     // FIXME: check for errors
     // FIXME: want to indicate that the database closed successfully even

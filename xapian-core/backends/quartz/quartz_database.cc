@@ -383,8 +383,8 @@ QuartzWritableDatabase::do_flush()
     OmLockSentry sentry(database_ro.quartz_mutex);
     Assert(buffered_tables != 0);
 
-    buffered_tables->apply();
     changecount = 0;
+    buffered_tables->apply();
 }
 
 void
@@ -490,8 +490,8 @@ QuartzWritableDatabase::do_add_document(const OmDocument & document)
     // FIXME: this should be done by checking memory usage, not the number of
     // changes.
     if (++changecount >= 1000) {
-	buffered_tables->apply();
 	changecount = 0;
+	buffered_tables->apply();
     }
 
     RETURN(did);
@@ -560,8 +560,8 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
     // FIXME: this should be done by checking memory usage, not the number of
     // changes.
     if (++changecount > 1000) {
-	buffered_tables->apply();
 	changecount = 0;
+	buffered_tables->apply();
     }
 }
 
@@ -586,8 +586,8 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
     // FIXME: this should be done by checking memory usage, not the number of
     // changes.
     if (++changecount > 1000) {
-	buffered_tables->apply();
 	changecount = 0;
+	buffered_tables->apply();
     }
 }
 
