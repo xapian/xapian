@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,6 +52,9 @@ string fmtname = "query";
 
 om_docid topdoc = 0;
 om_docid hits_per_page = 0;
+
+// percentage cut-off
+int threshold = 0;
 
 static void
 make_log_entry(const string &action, long matches)
@@ -305,6 +309,13 @@ main2(int argc, char *argv[])
 		}
 	    }
 	}
+    }
+
+    // Percentage relevance cut-off
+    if (cgi_params.find("THRESHOLD") != cgi_params.end()) {
+        threshold = atoi(val->second.c_str());
+        if (threshold < 0) threshold = 0;
+        if (threshold > 100) threshold = 100;
     }
 
     // process commands

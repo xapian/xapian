@@ -1,3 +1,9 @@
+Tue Nov 06 12:23:55 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Added support for percentage threshold cutoff (CGI var THRESHOLD);
+	  Code for calculating better percentages has been pushed into Xapian
+	  so removed it from here.
+
 Mon Nov  5 12:42:26 GMT 2001  Richard Boulton <richard@tartarus.org>
 
 	* Omega moved to new home, from om-examples/omega.

@@ -112,7 +112,6 @@ void add_bterm(const string &term) {
     filter_map.insert(std::make_pair(term[0], term));
 }
 
-/**************************************************************/
 static void
 run_query()
 {
@@ -160,8 +159,10 @@ run_query()
 	// We could use the value of topdoc as first parameter, but we
 	// need to know the first few items on the mset to fake a
 	// relevance set for topterms
-	mset = enquire->get_mset(0, topdoc + hits_per_page, rset);
+        OmSettings opt;
+        opt.set("match_percent_cutoff", threshold);
 	// FIXME - set msetcmp to reverse?
+       	mset = enquire->get_mset(0, topdoc + hits_per_page, rset, &opt);
     }
 }
 
@@ -1071,7 +1072,7 @@ eval_file(const string &fmtfile)
     throw err;
 }
 
-/* return a sane (1-100) percentage value for num/denom */
+/* return a sane (1-100) percentage value for ratio */
 static int
 percentage(double ratio)
 {
@@ -1088,21 +1089,7 @@ print_caption(om_docid m, const string &fmt, const string &loopvar)
 {
     q0 = *(mset[m]);
 
-    static double scale = -1;
-    if (scale < 0) {
-	double denom = 0;
-	list<om_termname>::const_iterator i;
-	for (i = qp.termlist.begin(); i != qp.termlist.end(); i++)
-	    denom += mset.get_termweight(*i);
-	denom *= mset[0].get_weight();
-	scale = 0;
-	OmTermIterator j = enquire->get_matching_terms_begin(*(mset[0]));
-	for ( ; j != enquire->get_matching_terms_end(*(mset[0])); j++)
-	    scale += mset.get_termweight(*j);
-	if (denom > 0) scale /= denom;
-    }
-    percent = percentage(mset[m].get_weight() * scale);
-    // percent = mset.convert_to_percent(mset[m]);
+    percent = mset.convert_to_percent(mset[m]);
 
     OmDocument doc = omdb->get_document(q0);
     OmData data = doc.get_data();

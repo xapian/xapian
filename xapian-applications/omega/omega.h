@@ -50,6 +50,8 @@ extern OmRSet * rset;
 extern om_docid topdoc;
 extern om_docid hits_per_page;
 
+extern int threshold;
+
 extern map<string, string> option;
 
 extern const string default_dbname;
@@ -68,4 +70,3 @@ class ExpandDeciderOmega : public OmExpandDecider {
 	    return true;
 	}
 };
-
