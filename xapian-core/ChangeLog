@@ -1,3 +1,9 @@
+Fri Apr 14 17:22:04 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added quickstart guide to documentation.
+
+	* Declare this to be Version 0.1.2
+
 Thu Apr 13 11:05:31 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Document data storage implementation done.  Sleepydatabase now
