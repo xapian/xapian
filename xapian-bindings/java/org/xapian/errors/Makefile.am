@@ -17,7 +17,7 @@ XAPIAN_CLASS_FILES = AssertionError.class DatabaseCorruptError.class\
  RuntimeError.class UnimplementedError.class XapianError.class\
  XapianRuntimeError.class
 
-all: $(XAPIAN_CLASS_FILES)
+noinst_DATA = $(XAPIAN_CLASS_FILES)
 
 .java.class:
 	$(JAVAC) -classpath $(srcdir)/../../..:../../.. -d ../../.. $<

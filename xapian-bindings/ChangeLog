@@ -1,3 +1,15 @@
+Tue Feb 22 16:12:55 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am,java/README,java/native/Makefile.am,
+	  java/org/xapian/Makefile.am,java/org/xapian/errors/Makefile.am:
+	  Fixed how the jar file is made, and build it directory to the built
+	  subdirectory rather than requiring an "install" step.   Updated the
+	  README to add a "how to build" section.  Tweak the java commands in
+	  the README for running the examples to work around a bug in Debian
+	  gij's java wrapper script.  Added a README section about tested java
+	  platforms.  Automatically "install" the JNI glue library in "built"
+	  and remove the .la file (which is useless here).
+
 Tue Feb 22 01:38:14 GMT 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: Set version to 0.8.5.1 and fix version check.

@@ -1,6 +1,3 @@
-# directory to install xapian_jni.jar in
-jardir = `pwd`/../../built
-
 SUBDIRS = errors . examples
 
 SUFFIXES = .java .class
@@ -16,10 +13,7 @@ XAPIAN_CLASS_FILES = Database.class Document.class ESet.class\
  RSet.class Stem.class TermIterator.class WritableDatabase.class\
  Xapian.class XapianJNI.class
 
-jar_DATA = xapian_jni.jar
-
-xapian_jni.jar: $(XAPIAN_CLASS_FILES)
-	$(JAR) -cf xapian_jni.jar $(XAPIAN_CLASS_FILES) errors/*.class
+noinst_DATA = $(XAPIAN_CLASS_FILES)
 
 .java.class:
 	$(JAVAC) -classpath $(srcdir)/../..:../.. -d ../.. $<

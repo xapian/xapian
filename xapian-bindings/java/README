@@ -1,18 +1,39 @@
+How to build the bindings:
+==========================
+
+Running "make" will "install" a JNI glue shared library into a "built"
+subdirectory.  The jar file is built into the "built" subdirectory too.
+
+You can copy these two files into your java installation, or just use them
+in-place.
+
+How to compile the examples:
+============================
+
+  cd java
+  javac -classpath built/xapian_jni.jar:. org/xapian/examples/SimpleIndex.java
+  javac -classpath built/xapian_jni.jar:. org/xapian/examples/SimpleSearch.java
+
 How to run the examples:
 ========================
 
 To run the examples, you need to give Java a special system-property named
-"java.library.path".  The value of this property is the absolute path of the
-directory where the libxapian_jni.so library is located.
+"java.library.path".  The value of this property is the path of the directory
+where the libxapian_jni.so library is located.
 
-Alternatively, you can set the LD_LIBRARY_PATH environment variable and skip
-the -Djava.library.path setting for java.
-
- java -classpath built/xapian_jni.jar:. -Djava.library.path=built \
+ java -Djava.library.path=built -classpath built/xapian_jni.jar:. \
       org.xapian.examples.SimpleIndex ./test.db index words like java
 
- java -classpath built/xapian_jni.jar:. -Djava.library.path=built \
+ java -Djava.library.path=built -classpath built/xapian_jni.jar:. \
       org.xapian.examples.SimpleSearch ./test.db index words like java
+
+(Alternatively, you can set the LD_LIBRARY_PATH environment variable and skip
+the -Djava.library.path setting for java.)
+
+The java bindings have been tested with Debian packages of GCJ 3.4 and GIJ 3.4.
+They should work with any java toolchain with suitable JNI support - please
+report success stories or any problems to the development mailing list:
+xapian-devel@lists.xapian.org
 
 TODO list:
 ==========
