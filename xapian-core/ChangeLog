@@ -1,3 +1,7 @@
+Wed Oct 16 02:44:00 BST 2002  Olly Betts <olly@survex.com>
+
+	* testsuite/testsuite.cc: Compilation fix for GCC 3.2.
+
 Sat Oct 12 17:17:26 BST 2002  Olly Betts <olly@survex.com>
 
 	* configure.in,NEWS: Version 0.5.3.
