@@ -43,14 +43,14 @@ inline docid
 DAPostList::get_docid() const
 {
     Assert(!at_end());
-    //printf("%p:DocID %d\n", this, postlist->Doc);
-    return postlist->Doc;
+    //printf("%p:DocID %d\n", this, currdoc);
+    return currdoc;
 }
 
 inline bool
 DAPostList::at_end() const
 {
-    if(postlist->Doc == MAXINT) return true;
+    if (currdoc == MAXINT) return true;
     return false;
 }
 

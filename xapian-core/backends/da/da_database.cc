@@ -20,8 +20,7 @@ DAPostList::DAPostList(struct postings *pl, doccount tf, doccount size)
     dbsize = size;
 
     weight_initialised = false;
-
-    //DAreadpostings(postlist, 0, 0);
+    currdoc = 0;
 }
 
 DAPostList::~DAPostList()
@@ -52,6 +51,7 @@ weight DAPostList::get_weight() const
 	       dbsize, termfreq, termweight);
     }
 
+    // NB ranges from daread share the same wdf value
     wdf = postlist->wdf;
 
 //    printf("(wdf, termweight)  = (%4d, %4.2f)", wdf, termweight);
@@ -72,17 +72,28 @@ weight DAPostList::get_weight() const
 PostList * DAPostList::next()
 {
     Assert(!at_end());
-    DAreadpostings(postlist, 0, 0);
+    if (currdoc && currdoc < docid(postlist->E)) {	
+	currdoc++;
+	return NULL;
+    }
+    DAreadpostings(postlist, 1, 0);
+    currdoc = docid(postlist->Doc);
     return NULL;
 }
 
 PostList * DAPostList::skip_to(docid id)
 {
     Assert(!at_end());
-    Assert(id >= docid(postlist->Doc));
-    //printf("%p:From %d skip_to ", this, postlist->Doc);
-    if(id != docid(postlist->Doc)) DAreadpostings(postlist, 0, id);
-    //printf("%d - get_id %d\n", id, postlist->Doc);
+    Assert(id >= currdoc);
+    if (currdoc && id <= docid(postlist->E)) {
+	// skip_to later in the current range
+	currdoc = id;
+	return NULL;
+    }
+    //printf("%p:From %d skip_to ", this, currdoc);
+    DAreadpostings(postlist, 1, id);
+    currdoc = docid(postlist->Doc);
+    //printf("%d - get_id %d\n", id, currdoc);
     return NULL;
 }
 
