@@ -75,6 +75,11 @@ class OmSocketLineBuf : public OmLineBuf {
 	void do_writeline(std::string s,
 			  time_t end_time,
 			  unsigned int end_time_usecs);
+
+	/** Attempt to read some data
+	 */
+	void attempt_to_read(time_t end_time,
+			     unsigned int end_time_usecs);
     public:
 	/** The main constructor.  The arguments are the
 	 *  input and output filedescriptors to use.
@@ -96,7 +101,7 @@ class OmSocketLineBuf : public OmLineBuf {
 	 *                if zero).  An exception will be thrown if
 	 *                the timeout is exceeded.
 	 */
-	void wait_for_data(int msecs = 0);
+	void wait_for_data(int msecs);
 };
 
 /** Build a query from a serialised string.

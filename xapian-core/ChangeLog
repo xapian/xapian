@@ -1,3 +1,10 @@
+Wed Feb 28 14:23:11 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Merge common code from OmSocketLineBuf::wait_for_data() and 
+	  OmSocketLineBuf::do_readline() into
+	  OmSocketLineBuf::attempt_to_read(), and thus fix bug in
+	  wait_for_data() when 0 bytes returned from read().
+
 Tue Feb 27 18:40:33 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Fixes to remote matcher code to cope better with failure of
