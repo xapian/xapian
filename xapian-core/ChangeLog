@@ -1,3 +1,9 @@
+Thu Jan 15 00:54:47 GMT 2004  Olly Betts <olly@survex.com>
+
+	* api/maptermlist.h: Removed a FIXME which already had been fixed.
+	  Removed a couple of asserts from a function which should never be
+	  called (and so had `Assert(false)' anyway).
+
 Mon Jan 12 00:32:37 GMT 2004  Olly Betts <olly@survex.com>
 
 	* bin/quartzdump.cc: Backslash escape space and backslash in output

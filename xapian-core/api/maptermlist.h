@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,7 +39,7 @@ class MapTermList : public TermList {
 	bool started;
 
     public:
-        MapTermList(const Xapian::Document::Internal::document_terms::const_iterator &it_,
+	MapTermList(const Xapian::Document::Internal::document_terms::const_iterator &it_,
 		    const Xapian::Document::Internal::document_terms::const_iterator &it_end_,
 		    Xapian::termcount size_)
 		: it(it_), it_end(it_end_), size(size_), started(false)
@@ -56,10 +56,10 @@ class MapTermList : public TermList {
 	    abort();
 #ifdef __SUNPRO_CC
 	    // For compilers which worry abort() might return...
-            return OmExpandBits(0, 0, 0);
+	    return OmExpandBits(0, 0, 0);
 #endif
 	}
-	    
+
 	// Gets current termname
 	string get_termname() const {
 	    Assert(started);
@@ -76,9 +76,7 @@ class MapTermList : public TermList {
 
 	// Get num of docs indexed by term
 	Xapian::doccount get_termfreq() const {
-	    Assert(started);
-	    Assert(!at_end());
-	    Assert(false);
+	    Assert(false); // should never get called
 	    return 0;
 	}
 
@@ -86,7 +84,6 @@ class MapTermList : public TermList {
 	    return Xapian::PositionIterator(new InMemoryPositionList(it->second.positions));
 	}
 
-	// FIXME: needs to allow a next() before we start
 	TermList * next() {
 	    if (!started) {
 		started = true;
