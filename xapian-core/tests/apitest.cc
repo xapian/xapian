@@ -279,6 +279,7 @@ bool operator==(const OmMSet &first, const OmMSet &second)
 	(first.items.size() != second.items.size())) {
          return false;
     }
+    if(first.items.size() == 0) return true;
     return mset_range_is_same(first, 0, second, 0, first.items.size());
 }
 
@@ -766,6 +767,7 @@ bool test_pctcutoff1()
     }
 
     if (changes <= 3) {
+	success = false;
         if (verbose) {
 	    cout << "MSet not varied enough to test" << endl;
 	}
