@@ -1,3 +1,7 @@
+Fri Mar 28 17:45:41 GMT 2003  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Report correct version number (was hard-wired to 1.0!)
+
 Tue Mar 25 14:46:10 GMT 2003  Olly Betts <olly@survex.com>
 
 	* query.cc: If xP and P are both empty, classify as SAME_QUERY not

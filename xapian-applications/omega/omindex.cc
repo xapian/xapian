@@ -4,7 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,8 @@
  * USA
  * -----END-LICENCE-----
  */
+
+#include <config.h>
 
 #include <algorithm>
 #include <string>
@@ -50,7 +52,6 @@ using std::ifstream;
 using std::auto_ptr;
 
 #define OMINDEX "omindex"
-#define VERSION "1.0"
 
 #define DUPE_ignore 0
 #define DUPE_replace 1
@@ -227,7 +228,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 
     cout << "Indexing \"" << url << "\" as " << mimetype << " ... ";
 
-    if (dupes==DUPE_ignore && db.term_exists("U" + baseurl + url)) {
+    if (dupes == DUPE_ignore && db.term_exists("U" + baseurl + url)) {
 	cout << "duplicate. Ignored." << endl;
 	return;
     }
@@ -357,7 +358,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
     if (j > 0 && baseurl.substr(j, 3) == "://") {
 	j += 3;
     	string::size_type k = baseurl.find('/', j);
-	if (k==string::npos) {
+	if (k == string::npos) {
 	  newdocument.add_term_nopos("P/"); // Path
 	  newdocument.add_term_nopos("H" + baseurl.substr(j));
 	} else {
@@ -382,7 +383,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
     newdocument.add_term_nopos("Y" + string(buf)); // Year (YYYY)
     newdocument.add_term_nopos("U" + baseurl + url); // Url
 
-    if (dupes==DUPE_replace && db.term_exists("U" + baseurl + url)) {
+    if (dupes == DUPE_replace && db.term_exists("U" + baseurl + url)) {
 	// This document has already been indexed - update!
 	try {
 	    auto_ptr<OmEnquire> enq = auto_ptr<OmEnquire>(new OmEnquire(db));
@@ -507,10 +508,11 @@ main(int argc, char **argv)
 		 << "<http://xapian.org/bugs/>" << endl;
 	    return 0;
 	case 'v':
-	    cout << OMINDEX << " (omega) " << VERSION << "\n"
+	    cout << OMINDEX << " (" << PACKAGE << ") " << VERSION << "\n"
 		 << "Copyright (c) 1999,2000,2001 BrightStation PLC.\n"
 		 << "Copyright (c) 2001 James Aylett\n"
-		 << "Copyright (c) 2001,2002 Ananova Ltd\n\n"
+		 << "Copyright (c) 2001,2002 Ananova Ltd\n"
+		 << "Copyright (c) 2002,2003 Olly Betts\n\n"
 		 << "This is free software, and may be redistributed under\n"
 		 << "the terms of the GNU Public License." << endl;
 	    return 0;
