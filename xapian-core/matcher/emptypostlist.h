@@ -54,7 +54,6 @@ EmptyPostList::recalc_maxweight()
 inline PostList *
 EmptyPostList::next(weight w_min)
 {
-    Assert(0); // no documents
     return NULL;
 }
 
