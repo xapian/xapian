@@ -1,3 +1,8 @@
+Fri Apr 04 03:10:53 BST 2003  Olly Betts <olly@survex.com>
+
+	* common/omstringstream.h: Removed unused code for writing
+	  vector<string> to our own implementation of om_ostringstream.
+
 Fri Apr 04 03:08:35 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/ompostlistiterator.cc: Use "using namespace std;"; replaced

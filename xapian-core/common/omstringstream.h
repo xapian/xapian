@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,7 +37,6 @@ typedef std::ostringstream om_ostringstream;
 
 #include <string>
 #include <iostream>
-#include <vector>
 
 class om_ostringstream {
     public:
@@ -107,19 +106,6 @@ OSTRINGSTREAMFUNC(OmPostListIterator)
 OSTRINGSTREAMFUNC(OmPositionListIterator)
 OSTRINGSTREAMFUNC(OmTermIterator)
 OSTRINGSTREAMFUNC(OmValueIterator)
-
-inline om_ostringstream &
-operator<<(om_ostringstream & os, const std::vector<std::string> & v)
-{
-    os << "vector<string> {";
-    std::vector<std::string>::const_iterator i;
-    for (i = v.begin(); i != v.end(); i++) {
-	if (i != v.end()) os << ", ";
-	os << '"' << *i << '"';
-    }
-    os << "}";
-    return os;
-}
 
 #undef OSTRINGSTREAMFUNC
 
