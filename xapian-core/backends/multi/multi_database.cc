@@ -89,9 +89,6 @@ PostList * MultiPostList::next(weight w_min)
 	if((*i).currdoc < newdoc) newdoc = (*i).currdoc;
     }
 
-    cout << "MultiPostList::next() -- currdoc = " << currdoc <<
-	    " newdoc = " << newdoc << endl;
-
     currdoc = newdoc;
 
     return NULL;
