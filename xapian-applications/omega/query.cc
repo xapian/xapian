@@ -79,6 +79,8 @@ static string eval_file(const string &fmtfile);
 
 static set<om_termname> termset;
 
+static string queryterms;
+
 static string error_msg;
 
 static long int sec = 0, usec = -1;
@@ -142,7 +144,11 @@ set_probabilistic(const string &newp, const string &oldp)
     om_termcount n_new_terms = 0;
     for (list<om_termname>::const_iterator i = qp.termlist.begin();
 	 i != qp.termlist.end(); ++i) {
-	termset.insert(*i);
+	if (termset.find(*i) == termset.end()) {
+	    termset.insert(*i);
+	    if (!queryterms.empty()) queryterms += '\t';
+	    queryterms += *i;
+	}		    
 	n_new_terms++;
     }
 
@@ -814,6 +820,7 @@ CMD_thispage,
 CMD_time,
 CMD_topdoc,
 CMD_topterms,
+CMD_unstem,
 CMD_url,
 CMD_version,
 CMD_MACRO // special tag for macro evaluation
@@ -893,7 +900,7 @@ static struct func_desc func_tab[] = {
 {T(prettyterm),	1, 1, N, 0, 0}}, // pretty print term name
 {T(query),	0, 0, N, 0, 0}}, // query
 {T(querydescription),	0, 0, N, 0, 0}}, // query.get_description()
-{T(queryterms),	0, 0, N, 0, 1}}, // list of query terms
+{T(queryterms),	0, 0, N, 0, 0}}, // list of query terms
 {T(range),	2, 2, N, 0, 0}}, // return list of values between start and end
 {T(record),	0, 1, N, 1, 0}}, // record contents of document
 {T(relevant),	0, 1, N, 1, 0}}, // is document relevant?
@@ -910,6 +917,8 @@ static struct func_desc func_tab[] = {
 {T(topdoc),	0, 0, N, 0, 0}}, // first document on current page of hit list (counting from 0)
 // FIXME: cache really needs to be smart about parameter value...
 {T(topterms),	0, 1, N, 1, 1}}, // list of up to N top relevance feedback terms (default 16)
+{T(unstem),	1, 1, N, 0, 0}}, // return list of probabilistic terms from
+				 // the query which stemmed to this term
 {T(url),	1, 1, N, 0, 0}}, // url encode argument
 {T(version),	0, 0, N, 0, 0}}, // omega version string
 { NULL,{0,      0, 0, 0, 0, 0}}
@@ -1441,14 +1450,7 @@ eval(const string &fmt, const vector<string> &param)
 		value = query.get_description();
 		break;
 	    case CMD_queryterms:
-		if (!qp.termlist.empty()) {
-		    list<om_termname>::const_iterator i;
-		    for (i = qp.termlist.begin();
-			 i != qp.termlist.end(); i++) {
-			value = value + *i + '\t';
-		    }		    
-		    if (!value.empty()) value.erase(value.size() - 1);
-		}
+		value = queryterms;
 		break;
 	    case CMD_range: {
 		int start = string_to_int(args[0]);
@@ -1632,6 +1634,17 @@ eval(const string &fmt, const vector<string> &param)
 		    if (!value.empty()) value.erase(value.size() - 1);
 		}
 		break;
+	    case CMD_unstem: {
+		const string &term = args[0];
+		multimap<string, string>::const_iterator i;
+		i = qp.unstem.find(term);
+		while (i != qp.unstem.end() && i->first == term) {
+		    if (!value.empty()) value += '\t';
+		    value += i->second;
+		    ++i;
+		}
+		break;
+	    }
 	    case CMD_url:
 	        value = percent_encode(args[0]);
 		break;
@@ -1713,6 +1726,12 @@ pretty_term(const string & term)
     
     if (term.length() >= 2 && term[0] == 'R')
 	return char(toupper(term[1])) + term.substr(2);
+
+    // If there's an unstemmed version in the query, use that
+    // (FIXME currently uses the first of multiple forms - might be
+    // "better" to pick the one with the highest termfreq)
+    multimap<string, string>::const_iterator i = qp.unstem.find(term);
+    if (i != qp.unstem.end()) return i->second;
 
     // If the term wasn't indexed unstemmed, it's probably a non-term
     // e.g. "litr" - the stem of "litre"

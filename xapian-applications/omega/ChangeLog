@@ -1,3 +1,10 @@
+Mon Dec 23 03:23:33 GMT 2002  Olly Betts <olly@survex.com>
+
+	* query.cc,docs/omegascript.txt,templates/query: Added $unstem to map
+	  a stemmed term to the form(s) used in the query; $queryterms now
+	  only includes the first occurence of each stemmed form; $prettyterm
+	  uses the unstem map.
+
 Sat Dec 21 17:47:33 GMT 2002  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc,docs/scriptindex.txt: Replaced index=nopos with

@@ -61,7 +61,7 @@ $if{$not{$msizeexact},
 }
 <hr>
 </center>
-$list{$map{$queryterms,$prettyterm{$_}:&nbsp;$nice{$freq{$_}}},Term frequencies: <b>,$. ,</b>}
+$list{$map{$queryterms,$list{$html{$unstem{$_}},<b>,</b>/<b>,</b>}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}
 <br><small>Search took $time seconds</small>
 <table>
 $hitlist{<TR><TD VALIGN=top><IMG

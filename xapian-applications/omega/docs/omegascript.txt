@@ -194,6 +194,7 @@ $percentage
 $prettyterm{TERM}
 	convert a term to "user form", as it might be entered in a query
 	(currently "Rbeckham" -> "Beckham"; "footbal" -> "footbal.").
+	Also looks at unstemmed forms entered in the query.
 
 $query
 	query string (built from cgi P variable(s) plus possible added
@@ -259,6 +260,10 @@ $topdoc
 
 $topterms[{N}]
 	list of up to N top relevance feedback terms (default 16)
+
+$unstem{TERM}
+	maps a stemmed term to a list of the unstemmed forms of it used in
+	the query
 
 $url{TEXT}
 	url encode argument
