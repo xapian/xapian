@@ -22,13 +22,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    | Documentation   | Write more and more API documentation
 ---------+-----------------+--------------------------------------------------
- Medium  | API             | Use pthread locks around API methods, to make
-         |                 | all operations thread safe.  Conditionally
-         |                 | compile such locks.
----------+-----------------+--------------------------------------------------
- Medium  | General         | Set appropriate copy and assignment methods
-         |                 | for each class with a destructor.
----------+-----------------+--------------------------------------------------
  Medium  | Documentation   | Document backend API (database, postlist,
          |                 | termlist, document, etc) in same way as enquire
 	 |                 | API.
@@ -48,6 +41,8 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Low     | API		   | Do allow boolean subqueries in OmQuery
          |                 | constructors, where it makes sense.
+---------+-----------------+--------------------------------------------------
+ Low     | Backends        | Use pthread locks around database methods
 ---------+-----------------+--------------------------------------------------
  Low     | Matcher         | Test implementation of BM25 weight
 ---------+-----------------+--------------------------------------------------
