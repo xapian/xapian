@@ -31,6 +31,7 @@
 class IRWeight;
 class IRDatabase;
 class LeafDocument;
+class PostList;
 
 #include <vector>
 #include <map>
