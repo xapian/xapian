@@ -25,6 +25,7 @@
 
 #include "config.h"
 
+#include "om/omtypes.h"
 #include "quartz_db_manager.h"
 #include "quartz_db_blocks.h"
 
@@ -39,10 +40,6 @@ class QuartzDbDiffs {
 	void operator=(const QuartzDbDiffs &);
 
     protected:
-	/** Pointer to the database manager.
-	 */
-	QuartzDbManager * db_manager;
-
 	/** Blocks which have been changed.
 	 */
 	QuartzDbBlocks diffs;
@@ -50,28 +47,41 @@ class QuartzDbDiffs {
     public:
 	/** Construct the diffs object.
 	 */
-	QuartzDbDiffs(db_manager_) : db_manager(db_manager_) {}
+	QuartzDbDiffs() {}
 
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
 	 */
-	~QuartzDbDiffs();
+	virtual ~QuartzDbDiffs() {};
 
 	/** Apply the diffs.  Throws an exception if an error
 	 *  occurs.
 	 */
-	virtual void apply();
+	virtual void apply() = 0;
 };
 
 /** Class managing a set of diffs to a Quartz Postlist database.
  */
 class QuartzPostListDbDiffs : public QuartzDbDiffs {
+    private:
+	/** Pointer to the database manager.
+	 */
+	QuartzDbManager * db_manager;
+
     public:
-	QuartzPostListDbDiffs(db_manager_) : QuartzDbDiffs(db_manager_) {}
+	/** Construct the diffs object.
+	 */
+	QuartzPostListDbDiffs(QuartzDbManager * db_manager_)
+		: db_manager(db_manager_) {}
+
 	~QuartzPostListDbDiffs() {}
 
 	/** Add a posting to the diffs.
 	 */
-	add_posting(om_docid did, om_termname tname, om_termcount wdf);
-}
-	
+	void add_posting(om_docid did, om_termname tname, om_termcount wdf);
+
+	/** Apply the diffs.
+	 */
+	void apply();
+};
+
 #endif /* OM_HGUARD_QUARTZ_DB_DIFFS_H */

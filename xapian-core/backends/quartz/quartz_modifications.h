@@ -26,6 +26,8 @@
 #include "config.h"
 
 #include "quartz_db_manager.h"
+#include "quartz_db_diffs.h"
+#include "om/omindexdoc.h"
 
 /** Class managing all the modifications made to a Quartz database.
  */

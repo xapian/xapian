@@ -1,3 +1,7 @@
+Thu Aug 24 15:04:04 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Various modifications to quartz database: compiles again.
+
 Thu Aug 24 13:31:19 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add new, private, constructor of OmRefCntPtr, and make the pointed

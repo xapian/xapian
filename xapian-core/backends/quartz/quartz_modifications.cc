@@ -29,7 +29,8 @@
 QuartzModifications::QuartzModifications(QuartzDbManager * db_manager_,
 					 string logfile_)
 	: db_manager(db_manager_),
-	  logfile(logfile_)
+	  logfile(logfile_),
+	  postlist_diffs(db_manager_)
 {
 }
 
