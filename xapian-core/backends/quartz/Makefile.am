@@ -15,6 +15,7 @@ noinst_HEADERS =       quartz_types.h \
 		       quartz_attributes.h \
 		       quartz_utils.h \
 		       quartz_log.h \
+		       quartz_document.h \
 		       btree.h
 
 libquartz_la_SOURCES = quartz_database.cc \
@@ -29,14 +30,11 @@ libquartz_la_SOURCES = quartz_database.cc \
 		       quartz_attributes.cc \
 		       quartz_utils.cc \
 		       quartz_log.cc \
+		       quartz_document.cc \
 		       btree.cc
 
 
 noinst_LTLIBRARIES = libquartz.la
-
-libquartz_la_LIBADD = @BERKELEY_3_1_LIBS@
-
-libquartz_la_LDFLAGS = @BERKELEY_3_1_LINKFLAGS@
 
 TESTS = run-quartztest
 

@@ -37,6 +37,7 @@
 #include "quartz_lexicon.h"
 #include "quartz_record.h"
 #include "quartz_attributes.h"
+#include "quartz_document.h"
 
 #include <string>
 
@@ -351,7 +352,14 @@ QuartzDatabase::open_document(om_docid did) const
 {
     Assert(did != 0);
     OmLockSentry sentry(quartz_mutex);
-    throw OmUnimplementedError("QuartzDatabase::open_document() not yet implemented");
+
+    RefCntBase::RefCntPtrToThis tmp;
+    RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
+
+    return new QuartzDocument(ptrtothis,
+			      tables->get_attribute_table(),
+			      tables->get_record_table(),
+			      did);
 }
 
 
@@ -647,6 +655,14 @@ QuartzWritableDatabase::open_term_list(om_docid did) const
 LeafDocument *
 QuartzWritableDatabase::open_document(om_docid did) const
 {
-    return database_ro.open_document(did);
-}
+    Assert(did != 0);
+    OmLockSentry sentry(database_ro.quartz_mutex);
 
+    RefCntBase::RefCntPtrToThis tmp;
+    RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
+
+    return new QuartzDocument(ptrtothis,
+			      buffered_tables->get_attribute_table(),
+			      buffered_tables->get_record_table(),
+			      did);
+}

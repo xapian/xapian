@@ -1,3 +1,10 @@
+Wed Nov 15 18:14:10 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added QuartzDocument class, and implemented QuartzDatabase::
+	  open_document().
+	
+	* Removed BerkeleyDB 3.1 bits from the Quartz Makefile.am
+
 Wed Nov 15 14:52:19 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added stub operator new[]() and operator delete[]() to
