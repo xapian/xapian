@@ -1,0 +1,8 @@
+<Directory>autoconf</Directory>
+
+<Description>
+Directory containing m4 macros needed for building Muscat configuration
+scripts.  These macros will be put into acinclude.m4 by buildall - this
+directory is just a convenient way to keep them in separate files and up
+to date.
+</Description>
