@@ -188,7 +188,7 @@ class OmQuery::Internal {
 	std::string get_description() const;
 
 	/** Check whether the query is defined. */
-	bool is_defined() const { return op != OP_UNDEF; }
+	bool is_defined() const;
 
 	/** Check whether the query is (pure) boolean. */
 	bool is_bool() const { return isbool; }

@@ -300,6 +300,15 @@ OmQuery::Internal::get_description() const
 }
 
 bool
+OmQuery::Internal::is_defined() const
+{
+    if (op == OP_UNDEF) return false;
+    if (op == OP_ELITE_SET && elite_set_size == 0) return false;
+    return true;
+}
+
+
+bool
 OmQuery::Internal::set_bool(bool isbool_)
 {
     bool oldbool = isbool;

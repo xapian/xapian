@@ -1,3 +1,8 @@
+Thu Mar 22 15:58:08 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Change definition of OmQuery::is_defined(), so that elite set
+	  queries are undefined until a size is specified for the set.
+
 Wed Mar 21 14:29:04 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Implemented delete_document and replace_document in inmemory
