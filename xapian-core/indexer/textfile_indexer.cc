@@ -48,7 +48,7 @@ TextfileIndexer::add_source(const IndexerSource &source)
     Assert(dest != NULL);
     istream *from = source.get_stream();
 
-    // Read lines, each line is a document, split lines into words,
+    // Read lines, each paragraph is a document, split lines into words,
     // each word is a term
     // FIXME - This is just a temporary hack - we want to make a toolkit
     // of indexing "bits" and allow the user to specify how to put them
