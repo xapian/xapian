@@ -57,7 +57,7 @@ template<class T>
 void
 alignment<T>::find_optimal_alignment(bool hash_result) 
 {
-    if (hash_result) {
+/*    if (hash_result) {
         unsigned int s1 = _source_offset, s2 = S.size() + _source_offset, d1= _dest_offset, d2 = D.size() + _dest_offset;
         if (0) {
         } else if (d2 == _dest_offset) {
@@ -71,7 +71,7 @@ alignment<T>::find_optimal_alignment(bool hash_result)
             return;
         }
     }
-
+*/
     for(unsigned int i = 1; i <= S.size(); i++ ) {
         V[i][0] = V[i-1][0] + S.score( S[i], S.space() );
     }
@@ -104,20 +104,29 @@ alignment<T>::find_optimal_alignment(bool hash_result)
         diff_type type = e_none;
 
         unsigned int s1=i, s2=i, d1=j, d2=j;
-
         while ( i >0 || j > 0 ) 
         {
             int v = V[i][j];
             
             ostrstream ost;
+	    //	    cerr << "i = " << i << " j = " << j << endl;
             if ( i>0 && j >0 && v == V[i-1][j-1] + S.score( S[i], D[j] ) ) {
                 if (type != e_change)
-                {
-                    s1 = i+1 + _source_offset;
-                    d1 = j+1 + _dest_offset;
+		  {
+		    if (type == e_add) {
+		      s1 = i + _source_offset;
+		      d1 = j + 1 + _dest_offset;
+		    } else if (type == e_delete) {
+		      s1 = i + 1 + _source_offset;
+		      d1 = j + _dest_offset;
+		    }
+// 		     if (type != e_none)  cerr << "in change: " << (char) type << " s1 " << s1 << " s2 " << s2 << " d1 " << d1 << " d2 " << d2 << endl;
                     if (type != e_none) _entries.push_front(diff_entry(s1,s2,d1,d2,type));
                     s2 = i + _source_offset;
                     d2 = j + _dest_offset;
+//  		    cerr << "setting s2 " << s2 << " i " << i << endl;
+//  		    cerr << "setting d2 " << d2 << " j " << j << endl;
+//  		    cerr << "setting type " << (char) e_change << endl;
                     type = e_change;
                 }
                 i--;
@@ -125,31 +134,58 @@ alignment<T>::find_optimal_alignment(bool hash_result)
             } else if ( i>0 && v == V[i-1][j] + S.score(S[i], D.space()) ) {
                 if (type != e_delete)
                 {
-                    s1 = i+1 + _source_offset;
-                    d1 = j+1 + _dest_offset;
+		  if (type == e_change) {
+                    s1 = i + 1 + _source_offset;
+                    d1 = j + 1 + _dest_offset;
+		  } else if (type == e_add) {
+                    s1 = i + _source_offset;
+                    d1 = j + 1 + _dest_offset;
+		  }
+		  //		  		    if (type != e_none)  cerr << "in delete: " << (char) type << " s1 " << s1 << " s2 " << s2 << " d1 " << d1 << " d2 " << d2 << endl;
                     if (type != e_none) _entries.push_front(diff_entry(s1,s2,d1,d2,type));
                     s2 = i + _source_offset;
                     d2 = j + _dest_offset;
-                    type = e_delete;
+// 		     cerr << "setting s2 " << s2 << " i " << i << endl;
+// 		     cerr << "setting d2 " << d2 << " j " << j << endl;
+// 		     cerr << "setting type " << (char) e_delete << endl;
+		     type = e_delete;
                 }
                 i--;
             } else {
                 assert( v == V[i][j-1] + S.score(S.space(), D[j] )) ;
                 if (type != e_add)
                 {
-                    s1 = i+1 + _source_offset;
-                    d1 = j+1 + _dest_offset;
-                    if (type != e_none) _entries.push_front(diff_entry(s1,s2,d1,d2,type));
-                    s2 = i + _source_offset;
-                    d2 = j + _dest_offset;
-                    type = e_add;
+		  if (type == e_change) {
+                    s1 = i + 1 + _source_offset;
+                    d1 = j + 1 + _dest_offset;
+		  } else if (type == e_delete) {
+                    s1 = i + 1 + _source_offset;
+                    d1 = j + _dest_offset;
+		  }
+		  //		  if (type != e_none)  cerr << "in add: " << (char) type << "  s1 " << s1 << " s2 " << s2 << " d1 " << d1 << " d2 " << d2 << endl;
+		  if (type != e_none) _entries.push_front(diff_entry(s1,s2,d1,d2,type));
+		  s2 = i + _source_offset;
+		  d2 = j + _dest_offset;
+// 		   cerr << "setting s2 " << s2 << " i " << i << endl;
+// 		   cerr << "setting d2 " << d2 << " j " << j << endl;
+// 		   cerr << "setting type " << (char) e_add << endl;
+		   type = e_add;
                 }
                 j--;
             }
         }
-        s1 = i+1 + _source_offset;
-        d1 = j+1 + _dest_offset;
-        if (type != e_none) _entries.push_front(diff_entry(s1,s2,d1,d2,type));
+	if (type == e_change) {
+	  s1 = i+1 + _source_offset;
+	  d1 = j+1 + _dest_offset;
+	} else if (type == e_add) {
+	  s1 = i + _source_offset;
+	  d1 = j + 1 + _dest_offset;
+	}  else if (type == e_delete) {
+	  s1 = i + 1 + _source_offset;
+	  d1 = j + _dest_offset;
+	}
+	//	if (type != e_none)  cerr << "in final: " << (char) type << " s1 " << s1 << " s2 " << s2 << " d1 " << d1 << " d2 " << d2 << endl;
+	if (type != e_none) _entries.push_front(diff_entry(s1,s2,d1,d2,type));
     }
 }
 
@@ -185,8 +221,9 @@ template<class T>
 ostream &
 alignment<T>::show(ostream & os) const
 {
-    return    diff2(os);
-// return diff1(os);
+
+  return    diff2(os);
+  // return diff1(os);
 }
 
 template<class T>

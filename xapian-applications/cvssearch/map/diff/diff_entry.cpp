@@ -67,7 +67,7 @@ diff_entry::init(unsigned int s1, unsigned int s2, unsigned int d1, unsigned d2,
     try {
         // ----------------------------------------
         // strangely, diff produces result 2a3,4
-        
+        // cerr << s1 << " " << s2 << " " << d1 << " " << d2 << " " << type << endl;        
         // meaning insert after line 2
         switch (type)
         {
