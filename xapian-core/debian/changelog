@@ -1,5 +1,13 @@
 xapian-core (0.8-1) unstable; urgency=low
 
+  * Fixed postinst, postrm, and prerm scripts to have a #!/bin/sh line, so
+    they actually work.
+  * Various tweaks to debian/rules suggested by looking at dh_make output. 
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 11 May 2004 17:00:03 +0100
+
+xapian-core (0.8-1) unstable; urgency=low
+
   * Initial release, from upstream source snapshot.
 
  -- Richard Boulton <richard@tartarus.org>  Sun,  9 May 2004 16:28:37 +0100

@@ -23,6 +23,15 @@ else
 	confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
 endif
 
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	confflags += CFLAGS="-O0" CXXFLAGS="-O0"
+else
+	confflags += CFLAGS="-O2" CXXFLAGS="-O2"
+endif
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+	INSTALL_PROGRAM += -s
+endif
+
 maint: \
 	debian/control \
 	debian/libxapian$(libxapian_soversion).install \
@@ -34,7 +43,7 @@ maint: \
 	debian/libxapian-queryparser$(libqueryparser_soversion).postrm \
 	debian/libxapian-queryparser$(libqueryparser_dev_soversion)-dev.install
 
-maintclean:
+maintclean: debian/control clean
 	rm -f debian/control
 	rm -f debian/libxapian$(libxapian_soversion).install
 	rm -f debian/libxapian$(libxapian_soversion).postinst
@@ -119,7 +128,7 @@ install: build \
 	$(MAKE) DESTDIR=$(CURDIR)/debian/tmp install
 
 	# Reads the *.install files to decide where to install everything
-	dh_install --sourcedir=debian/tmp --list-missing
+	dh_install --sourcedir=debian/tmp
 
 
 binary: binary-arch binary-indep
@@ -166,4 +175,4 @@ clean:
 	dh_clean
 	rm -f build-stamp configure-stamp
 
-.PHONY: maint configure build install binary binary-arch binary-indep clean
+.PHONY: maint maintclean configure build install binary binary-arch binary-indep clean
