@@ -69,6 +69,9 @@ struct postings
     int E;        /* range end, for identity ranges */
     int Doc;      /* externally, the doc number delivered */
     int wdf;      /* within-doc-frequency */
+    int * shortcut;
+                  /* the 'short cut' vector for skipping blocks
+                     that don't need to be read */
 };
 
 struct record

@@ -36,6 +36,10 @@ int unpackint(int * a, byte * p, int o)
       *a = m;
     }; return o;
 }
+
+int packint(int n, byte * p, int o)
+{  p[o] = n; return o+1;  } /* so long as n < 128 */
+
     /*-----------------------
     static int mcount=0;
     void * malloc_(int n)
@@ -216,20 +220,21 @@ void f(struct postings * q)
          case 2: /* padder */
             {  int inc = q->blockinc;
                unless (inc < 0)
-               {  /* let sh = branch!q */
-                  inc++;
+               {  inc++;
                   if (Z eq MAXINT)
                   {  s_D = MAXINT; s_E = MAXINT; return;
                   }
-                  /* try the shortcut:---
-                  unless sh = 0 do
-                  {  let j = -1
-                     for i = 1 to sh!0 do
-                     {  if sh!i >= Z break
-                        j = i
+                  /* try the shortcut: */
+                  {  int * sh = q->shortcut;
+                     unless (sh eq 0)
+                     {  int j = -1;
+                        int i; for (i = 1; i <= sh[0]; i++)
+                        {  if (sh[i] >= Z) break;
+                           j = i;
+                        }
+                        if (inc < j+1) { inc = j+1; q->E = sh[j]; }
                      }
-                     if inc < j+1 do { inc = j+1; q->E = sh!j }
-                  }---code up later --------*/
+                  }
                   readda(q->p,q->blocknum+inc,b);
                   q->blockinc = inc; o = 0;
                }
@@ -265,23 +270,23 @@ byte * copybytes(int k, struct DAfile * p, int n, int o)
    return b;
 }
 
-/*------- translate later
-and read.shortcut.(p,n,o,sh.size,sh.count) = valof
-{  n := n+o/p!c.blocksize; o := o rem p!c.blocksize
-    {  let b = copybytes.(sh.size,p,n,o)
-        let v = nb(sh.count+1,11)
-        let c = unpackint(v+1,b,0)
-        for i = 1 to sh.count-1 do
-        {  c := unpackint(v+i+1,b,c); v!(i+1) := v!(i+1)+v!i  }
-        v!0 := sh.count
-        lose(b)
-        resultis v
-    }
+
+int * read_shortcut(struct DAfile * p, int n, int o, int shsize, int shcount)
+{  n = n+o/p->blocksize; o = o % p->blocksize;
+   {  byte * b = copybytes(shsize,p,n,o);
+      int * v = (int *) malloc((shcount+1) * sizeof(int));
+      int c = unpackint(v+1,b,0);
+      int i; for (i = 1; i < shcount; i++)
+      {  c = unpackint(v+i+1,b,c); v[i+1] += v[i];  }
+      v[0] = shcount;
+      free(b);
+      return v;
+   }
 }
----------*/
+
 extern struct postings * DAopenpostings(struct terminfo * v, struct DAfile * p)
 {  struct postings * q = (struct postings *) malloc(sizeof(struct postings));
-    q->p = p; q->D = 1; q->E = 0; q->wdf = 0;
+    q->p = p; q->D = 1; q->E = 0; q->wdf = 0; q->shortcut = 0;
     if (v->freq eq 0)
     {  byte * b = (byte *) malloc(1);
        q->b = b; q->o = 0;
@@ -300,13 +305,13 @@ extern struct postings * DAopenpostings(struct terminfo * v, struct DAfile * p)
           p->next = 0;
           q->blockinc = 0;
           q->blocknum = blocknum; q->o = v->po;
-       /* wait until we're ready to test short cuts
+
           if (v->shsize > 0)
-          {  q->branch = read_shortcut(p,blocknum,q->o+size,
-                                       v->shsize,v->shcount);
-             packint(3, q->b, q->o); /--* startoff *--/
+          {  q->shortcut = read_shortcut(p,blocknum,q->o+size,
+                                         v->shsize,v->shcount);
+             packint(3, q->b, q->o); /* startoff */
           } else
-       */
+
           {  unless (p->pblockno eq blocknum)
              {  readda(p,blocknum,q->b);
                 p->pblockno = blocknum;
@@ -333,7 +338,7 @@ extern void DAreadpostings(struct postings * q, int style, int Z0)
 
 extern void DAclosepostings(struct postings * q)
 {  free(q->b);
-   /*free(q->branch); shortcut */
+   free(q->shortcut);
    free(q);
 }
 
