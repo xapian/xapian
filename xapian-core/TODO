@@ -33,6 +33,9 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    | Distribution    | Add support for Expand
 ---------+-----------------+--------------------------------------------------
+ High    | LocalMatch      | Pass around partially created postlist as an
+         |                 | auto_ptr, for exception safety.
+---------+-----------------+--------------------------------------------------
  Medium  | Matchers        | Merge get_max_weight() into result of get_mset()
 ---------+-----------------+--------------------------------------------------
  Medium  | OmDatabase      | Test assignment operators for OmDatabase and
