@@ -952,7 +952,6 @@ class OmBatchEnquire {
 	 */
 	const OmDocument get_doc(const OmMSetIterator &it) const;
 
-
 	/** Get terms which match a given document, by document id.
 	 *  See OmEnquire::get_matching_terms for details.
 	 */

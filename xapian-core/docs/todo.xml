@@ -79,15 +79,27 @@ are known, eg filtering.
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
 
-Make the use of iterators consistent when supplying a set of things to the API:
-currently, sometimes you have to supply a begin and end iterator, and sometimes
-you have to supply a reference to an object.  Always use begin and end
-iterators.
+API cleanup.  Classes should hide implementation in internals, and should
+not use STL containers as parameters or return types.
 
-Particular offenders are: OmBatchEnquire, OmStem.
+Particular offenders are:
 
-Also OmEnquire::get_matching_terms(), OmQuery::get_terms(),
-OmExpandDeciderFilterTerms. (om_termnamelist), and some parts of the indexer.
+OmBatchEnquire
+
+OmEnquire::get_docs()
+OmEnquire::get_matching_terms()
+OmQuery::get_terms(),
+OmStem::get_available_languages()
+OmSettings::set()
+OmSettings::get_vector()
+OmIndexerNode::get_config_vector()
+OmIndexerMessage::size_type
+OmIndexerMessage::OmIndexerMessage()
+OmIndexerMessage::set_vector()
+OmIndexerDesc::nodes
+OmIndexerBuilder::NodeType
+
+OmExpandDeciderFilterTerms::OmExpandDeciderFilterTerms()
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
