@@ -45,8 +45,10 @@ int main(int argc, char *argv[])
 	for (vector<OmMSetItem>::const_iterator i = matches.items.begin();
 	     i != matches.items.end();
 	     i++) {
+	    OmDocument doc = enquire.get_doc(*i);
 	    cout << "Document ID " << i->did << "\t" <<
-		    matches.convert_to_percent(*i) << "%" << endl;
+		    matches.convert_to_percent(*i) << "% [" <<
+		    doc.get_data().value << "]" << endl;
 	}
     }
     catch(OmError &error) {
