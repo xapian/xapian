@@ -1,3 +1,10 @@
+Fri Oct 22 03:21:20 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/.cvsignore,tcl8/Makefile.am: Pass -pkgversion to SWIG to set
+	  the Tcl package version; create pkgIndex.tcl so the package can
+	  be loaded in the usual Tcl way; install in "xapian<VERSION>"
+	  subdirectory of the Tcl library directory, as is the convention.
+
 Fri Oct 22 02:36:00 BST 2004  Olly Betts <olly@survex.com>
 
 	* tcl8/docs/bindings.html: Added documentation for tcl8.

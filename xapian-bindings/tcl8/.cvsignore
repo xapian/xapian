@@ -6,3 +6,4 @@ Makefile
 .libs
 xapian_wrap.cc
 xapian.la
+pkgIndex.tcl

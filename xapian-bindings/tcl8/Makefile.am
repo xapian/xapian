@@ -7,9 +7,10 @@ TESTS = smoketest.tcl
 
 EXTRA_DIST = util.i extra.i $(TESTS)
 
-tcllibdir = @TCL_LIB@
+tcllibdir = @TCL_LIB@/xapian@VERSION@
 
 tcllib_LTLIBRARIES = xapian.la
+tcllib_DATA = pkgIndex.tcl
 
 # Remove the .la file - xapian.la is never linked against (it's a module)
 # and TCL doesn't use libltdl.  Note that the library gets installed by
@@ -26,6 +27,9 @@ xapian_la_LIBADD = $(XAPIAN_LIBS)
 BUILT_SOURCES = xapian_wrap.cc
 
 xapian_wrap.cc: ../xapian.i util.i extra.i
-	$(SWIG) -namespace -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -tcl8 -o $@ $(srcdir)/../xapian.i
+	$(SWIG) -namespace -pkgversion @VERSION@ -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -tcl8 -o $@ $(srcdir)/../xapian.i
 
-CLEANFILES = $(BUILT_SOURCES)
+pkgIndex.tcl: Makefile.am
+	echo 'package ifneeded xapian @VERSION@ [list load [file join $$dir xapian[info sharedlibextension]]]' > pkgIndex.tcl
+
+CLEANFILES = $(BUILT_SOURCES) pkgIndex.tcl
