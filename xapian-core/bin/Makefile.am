@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I${top_builddir}/include
+INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I${top_builddir}/include -I$(top_srcdir)/testsuite
 
 if BUILD_BACKEND_QUARTZ
 quartz_bin_programs = quartzcheck quartzcompact quartzdump
@@ -11,12 +11,13 @@ remote_bin_programs = omtcpsrv
 remote_check_programs = omprogsrv
 endif
 
+EXTRA_PROGRAMS = quartzcheck quartzcompact quartzdump omtcpsrv omprogsrv
 bin_PROGRAMS = $(quartz_bin_programs) $(remote_bin_programs)
 check_PROGRAMS = $(remote_check_programs)
 
 quartzcheck_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzcheck_SOURCES = quartzcheck.cc
-quartzcheck_LDADD = ../libxapian.la ../backends/quartz/libbtreecheck.la
+quartzcheck_LDADD = ../testsuite/libbtreecheck.la ../libxapian.la
 
 quartzcompact_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzcompact_SOURCES = quartzcompact.cc

@@ -14,7 +14,7 @@ endif
 # failure (disk full for example)?
 SUBDIRS = include getopt autoconf common \
           api backends matcher languages $(remote_subdirs) \
-	  . bin m4 docs testsuite tests extra
+	  . testsuite bin m4 docs tests extra
 
 DIST_SUBDIRS = include getopt autoconf common \
                api backends matcher languages net \

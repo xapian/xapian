@@ -1,3 +1,11 @@
+Sun Sep 28 23:55:49 BST 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am,backends/quartz/Makefile.am,
+	  backends/quartz/btreecheck.cc,backends/quartz/btreecheck.h,
+	  bin/Makefile.am,testsuite/Makefile.am,testsuite/btreecheck.cc,
+	  testsuite/btreecheck.h: libbtreecheck.la now has an explicit
+	  dependency on libxapian.la.
+
 Sun Sep 28 17:29:55 BST 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.in: Tell libtool about any libraries which

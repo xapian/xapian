@@ -25,7 +25,7 @@
 #ifndef OM_HGUARD_BTREECHECK_H
 #define OM_HGUARD_BTREECHECK_H
 
-#include "btree.h"
+#include "../backends/quartz/btree.h"
 
 #include <iostream>
 
