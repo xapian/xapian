@@ -260,6 +260,12 @@ shell_protect(const string & file)
 {
     string safefile = file;
     string::size_type p = 0;
+    if (!safefile.empty() && safefile[0] == '-') {
+	// If the filename starts with a '-', protect it from being treated as
+	// an option by prepending "./".
+	safefile.insert(0, "./");
+	p = 2;
+    }
     while (p < safefile.size()) {
 	// Exclude a few safe characters which are common in filenames
 	if (!isalnum(safefile[p]) && strchr("/._-", safefile[p]) == NULL) {

@@ -1,3 +1,9 @@
+Wed Nov 17 16:31:01 GMT 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: If a filename to be passed to a filter program has a
+	  leading "-", protect it from possible interpretation as an option
+	  by prepending "./".
+
 Wed Nov 17 16:29:55 GMT 2004  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Index Wordperfect documents with wpd2text, if available.
