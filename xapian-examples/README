@@ -16,3 +16,12 @@ Note that you shouldn't specify relative directories in the
 Once configure has run successfully, simply running "make" in the top-level
 directory should build the examples.  Note that the "ferretfx" example is
 currently disabled, and won't compile.
+
+Developers
+==========
+
+If you are trying to build from CVS, you will need the GNU autoconf, automake,
+and libtool packages.  You will also need some other packages installed in
+order to provide the macros needed to build the configuration scripts.
+
+<More details to follow>
