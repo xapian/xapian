@@ -109,13 +109,21 @@ BINDINGS=
 if test -n "$SWIG" ; then
     AC_PATH_PROG(PYTHON, python, [])
     if test -n "$PYTHON" ; then
-        PYTHON_INC="`python -c 'import sys;print sys.prefix + "/include/python" + sys.version[[:3]]'`"
+	PYTHON_INC="`python -c 'import sys;print sys.prefix + "/include/python" + sys.version[[:3]]'`"
 	AC_SUBST(PYTHON_INC)
-        PYTHON_LIB="`python -c 'import sys;print sys.prefix + "/lib/python" + sys.version[[:3]]'`"
+	PYTHON_LIB="`python -c 'import sys;print sys.prefix + "/lib/python" + sys.version[[:3]]'`"
 	AC_SUBST(PYTHON_LIB)
-        BINDINGS="$BINDINGS python"
+	BINDINGS="$BINDINGS python"
     fi
-dnl FIXME: also check for guile, tcl8, java, php4
+dnl FIXME: uncomment this code once php4 support is working
+dnl    AC_PATH_PROG(PHP_CONFIG, php-config, [])
+dnl    if test -n "$PHP_CONFIG" ; then
+dnl	dnl FIXME: check version: $PHP_CONFIG --version returns e.g. "4.2.1"
+dnl	PHPIZE="`$PHP_CONFIG --prefix`/bin/phpize"
+dnl	AC_SUBST(PHPIZE)
+dnl	BINDINGS="$BINDINGS php4"
+dnl    fi
+dnl FIXME: also check for guile, tcl8, java
 fi
 AC_SUBST(BINDINGS)
 
@@ -430,10 +438,10 @@ AC_CONFIG_FILES([
  xapian.spec
  bindings/Makefile
  bindings/python/Makefile
+ bindings/php4/Makefile
  ])
 # bindings/guile/Makefile
 # bindings/tcl8/Makefile
-# bindings/php4/Makefile
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
 AC_OUTPUT
 

@@ -1,3 +1,8 @@
+Wed Jul 09 02:30:55 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in,bindings/Makefile.am,bindings/php4/Makefile.am:
+	  Working towards getting the php4 bindings functional again.
+
 Wed Jul 09 01:27:39 BST 2003  Olly Betts <olly@survex.com>
 
 	* bindings/swig/om_util_php4.i: om_termname -> std::string.
