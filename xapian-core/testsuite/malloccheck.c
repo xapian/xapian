@@ -20,6 +20,8 @@
  * -----END-LICENCE-----
  */
 
+#define _GNU_SOURCE /* glibc 2.2 needs this to give us RTLD_NEXT */
+
 #include "alloccommon.h"
 #include <dlfcn.h>
 #include <stdlib.h>
@@ -173,7 +175,7 @@ realloc(void *ptr, size_t size)
 
     result = real_realloc(ptr, size);
     if (ptr == 0 && size > 0) {
-	// equivalent to malloc(size)
+	/* equivalent to malloc(size) */
 	if (result) {
 	    HANDLE_MALLOC_TRAP(result);
 	    handle_allocation(&malloc_allocdata,
@@ -181,7 +183,7 @@ realloc(void *ptr, size_t size)
 	}
     } else if (size == 0) {
 	if (ptr != 0) {
-	    // equivalent to free(ptr)
+	    /* equivalent to free(ptr) */
 	    if (handle_deallocation(&malloc_allocdata, ptr) != alloc_ok) {
 		fprintf(stderr,
 			"realloc()ing memory at %p to 0 which wasn't malloc()ed!\n",

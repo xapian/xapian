@@ -1,3 +1,9 @@
+Fri Jan 12 11:16:17 GMT 2001 Olly Betts
+
+	* glibc 2.2 needs `#define _GNU_SOURCE' to give us RTLD_NEXT.
+
+	* C++ comments changed to C comments in malloccheck.c.
+
 Thu Jan 11 16:42:07 GMT 2001 Olly Betts
 
 	* Removed unnecessary `#include "alltermslist.h"' from
