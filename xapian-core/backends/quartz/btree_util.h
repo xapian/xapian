@@ -28,6 +28,10 @@
 #include "omassert.h"
 
 #include <string.h>  /* memset */
+
+// FIXME: This named constant probably isn't used everywhere it should be...
+#define BYTES_PER_BLOCK_NUMBER 4
+
 /* The unit of access into the DB files is an unsigned char, which is defined
    as 'byte' with a typedef.
 
@@ -253,6 +257,19 @@ public:
 	int cd = GETK(p, I2) + I2 + C2;
 	int l = GETI(p, 0) - cd;
 	tag->append(reinterpret_cast<const char *>(p + cd), l);
+    }
+    /** Get this item's tag as a block number (this block should not be at
+     *  level 0).
+     */
+    uint4 block_given_by() const {
+	return get_int4(p, GETI(p, 0) - BYTES_PER_BLOCK_NUMBER);
+    }
+    /** Set this item's tag to point to block n (this block should not be at
+     *  level 0).
+     */
+    void set_block_given_by(uint4 n) {
+	// FIXME: sort out constness of p
+	set_int4(const_cast<byte*>(p), GETI(p, 0) - BYTES_PER_BLOCK_NUMBER, n);
     }
 };
 

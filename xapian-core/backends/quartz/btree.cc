@@ -448,32 +448,6 @@ Btree::block_to_cursor(Cursor * C_, int j, uint4 n) const
     AssertEq(j, GET_LEVEL(p));
 }
 
-/** set_block_given_by(p, c, n) finds the item at block address p,
- *  directory offset c, and sets its tag value to n.  For blocks not at
- *  the data level, when GET_LEVEL(p) > 0, the tag of an item is just
- *  the block number of another block in the B-tree structure.
- */
-
-static void set_block_given_by(byte * p, int c, uint4 n)
-{
-    c = GETD(p, c);        /* c is an offset to an item */
-    c += GETI(p, c) - BYTES_PER_BLOCK_NUMBER;
-			   /* c is an offset to a block number */
-    set_int4(p, c, n);
-}
-
-/** block_given_by(p, c) finds the item at block address p, directory offset c,
- *  and returns its tag value as an integer.
- */
-uint4
-Btree::block_given_by(const byte * p, int c)
-{
-    c = GETD(p, c);        /* c is an offset to an item */
-    c += GETI(p, c) - BYTES_PER_BLOCK_NUMBER;
-			   /* c is an offset to a block number */
-    return get_int4(p, c);
-}
-
 /** Btree::alter(); is called when the B-tree is to be altered.
 
    It causes new blocks to be forced for the current set of blocks in
@@ -520,7 +494,7 @@ Btree::alter()
 	if (j == level) return;
 	j++;
 	p = C[j].p;
-	set_block_given_by(p, C[j].c, n);
+	Item(p, C[j].c).set_block_given_by(n);
     }
 }
 
@@ -581,7 +555,7 @@ Btree::find(Cursor * C_) const
 	report_block_full(j, C_[j].n, p);
 #endif /* BTREE_DEBUG_FULL */
 	C_[j].c = c;
-	block_to_cursor(C_, j - 1, block_given_by(p, c));
+	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
     }
     p = C_[0].p;
     c = find_in_block(p, key, D2, C_[j].c);
@@ -927,7 +901,7 @@ Btree::delete_item(int j, bool repeatedly)
 	Assert(j == level);
 	while (dir_end == DIR_START + D2 && level > 0) {
 	    /* single item in the root block, so lose a level */
-	    uint4 new_root = block_given_by(p, DIR_START);
+	    uint4 new_root = Item(p, DIR_START).block_given_by();
 	    delete [] p;
 	    C[level].p = 0;
 	    base.free_block(C[level].n);
@@ -1850,7 +1824,7 @@ Btree::prev_default(Cursor * C_, int j) const
     c -= D2;
     C_[j].c = c;
     if (j > 0) {
-	block_to_cursor(C_, j - 1, block_given_by(p, c));
+	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
     }
     return true;
 }
@@ -1873,7 +1847,7 @@ Btree::next_default(Cursor * C_, int j) const
     }
     C_[j].c = c;
     if (j > 0) {
-	block_to_cursor(C_, j - 1, block_given_by(p, c));
+	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
 #ifdef BTREE_DEBUG_FULL
 	printf("Block in Btree:next_default");
 	report_block_full(j - 1, C_[j - 1].n, C_[j - 1].p);
