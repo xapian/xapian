@@ -6,16 +6,16 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 # ie: when we have an API
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
-bin_PROGRAMS = dbtest matchtest idxtest stemtest
+noinst_PROGRAMS = dbtest matchtest idxtest stemtest
 
 dbtest_SOURCES = dbtest.cc
-dbtest_LDADD = ../libom.la
+dbtest_LDADD = ../libomus.la
 
 matchtest_SOURCES = matchtest.cc
-matchtest_LDADD = ../libom.la
+matchtest_LDADD = ../libomus.la
 
 idxtest_SOURCES = idxtest.cc
-idxtest_LDADD = ../libom.la
+idxtest_LDADD = ../libomus.la
 
 stemtest_SOURCES = stemtest.cc
-stemtest_LDADD = ../libom.la
+stemtest_LDADD = ../libomus.la
