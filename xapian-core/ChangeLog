@@ -1,3 +1,12 @@
+Thu May 25 14:21:07 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Made all MultiMatch::set_* methods private.  These are now called
+	  from the constructor, based the arguments supplied to it.
+
+	* MultiMatch now calls its submatchers prepare_match() at the end
+	  of its constructor: this should fix the problems lately experienced
+	  with network queries.
+
 Thu May 25 12:07:29 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add a simple test of the max_or_terms feature to apitest.
