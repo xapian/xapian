@@ -5,6 +5,10 @@ CVSSearch
 INSTALLATION
 ============
 
+* install ctags 5.0 or higher from http://ctags.sourceforge.net;
+  make sure this version of ctags is in your path
+  (warning: version 4.x won't work)
+
 * install the latest release of the sleepycat database from
   http://www.sleepycat.com/download.html  
  

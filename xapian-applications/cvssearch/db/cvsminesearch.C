@@ -7,7 +7,8 @@
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
 
-#define MIN_SUPPORT 1 
+// support of 1 is ok for =>, but probably not for <=>, <= !!!
+#define MIN_SUPPORT 10 
 
 #warning "DOES NOT USE STOP WORDS"
 
