@@ -59,7 +59,7 @@ AC_PATH_PROG(PERL_PATH, perl)
 AM_CONDITIONAL(HAVE_PERL, test -n "$PERL_PATH")
 AC_SUBST(PERL_PATH)
 
-dnl Checks for doc.  (Diagrams in the documentation)
+dnl Checks for dot.  (Diagrams in the documentation)
 AC_PATH_PROG(DOT_PATH, dot)
 if test -n "$DOT_PATH" ; then
   DOXYGEN_HAVE_DOT=YES
@@ -82,8 +82,8 @@ dnl AM_CONDITIONAL(HAVE_DOCPP, test -n "$DOCPP_PATH")
 dnl AC_SUBST(DOCPP_PATH)
 
 dnl Check for doxygen. (Needed to make some more of the documentation)
-AC_PATH_PROG(DOXYGEN_PATH, doxygen)
-AM_CONDITIONAL(HAVE_DOXYGEN, test -n "$DOXYGEN_PATH")
+AC_PATH_PROG(DOXYGEN_PATH, doxygen, missing)
+AM_CONDITIONAL(HAVE_DOXYGEN, test "$DOXYGEN_PATH" = missing)
 AC_SUBST(DOXYGEN_PATH)
 
 dnl Check for dvips. (Needed to make some more of the documentation)
