@@ -1,3 +1,9 @@
+Tue Dec 12 17:16:02 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix bug with sorting keys in btrees.
+
+	* Various fixes to quartzdump.
+
 Tue Dec 12 15:40:28 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Nettest compiles with new OmMSet interface.

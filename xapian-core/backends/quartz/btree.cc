@@ -422,7 +422,10 @@ Btree::block_to_cursor(struct Cursor * C_, int j, int4 n)
 {
     byte * p = C_[j].p;
     if (n == C_[j].n) return;
+
+    // FIXME: only needs to be done in write mode
     if (C_[j].rewrite) {
+	Assert(C == C_);
 	write_block(C_[j].n, p);
         C_[j].rewrite = false;
     }
@@ -515,17 +518,34 @@ Btree::alter(Cursor * C)
    Now remember that items are added into the B-tree in fastest time when they
    are preordered by their keys. This is therefore the piece of code that needs
    to be followed to arrange for the preordering.
+   
+   This is complicated by the fact that keys have two parts - a value and
+   then a count.  We first compare the values, and only if they are equal
+   do we compare the counts.
 */
 
 static int compare_keys(byte * key1, byte * key2)
 {   int key1_len = GETK(key1, 0);
     int key2_len = GETK(key2, 0);
-    int k_smaller = key2_len < key1_len ? key2_len : key1_len;
-    int i; for (i = K1; i < k_smaller; i++)
-    {   int diff = (int) key1[i] - key2[i];
+    int k_smaller = (key2_len < key1_len ? key2_len : key1_len) - C2;
+    int i;
+    
+    // Compare the first part of the keys
+    for (i = K1; i < k_smaller; i++)
+    {
+	int diff = (int) key1[i] - key2[i];
         if (diff != 0) return diff;
     }
-    return key1_len - key2_len;
+    int diff = key1_len - key2_len;
+    if (diff != 0) return diff;
+
+    // Compare the count
+    for (; i < k_smaller + C2; i++)
+    {
+	int diff = (int) key1[i] - key2[i];
+        if (diff != 0) return diff;
+    }
+    return 0;
 }
 
 /* find_in_block(p, key, offset, c) searches for the key in the block at p.
@@ -543,9 +563,13 @@ static int find_in_block(byte * p, byte * key, int offset, int c)
 {   int i = DIR_START - offset;
     int j = DIR_END(p);
 
-    if (c < j && i < c && compare_keys(key, p + GETD(p, c) + I2) >= 0) i = c;
-    c += D2;
-    if (c < j && i < c && compare_keys(key, p + GETD(p, c) + I2) < 0) j = c;
+    if (c != -1) {
+	if (c < j && i < c && compare_keys(key, p + GETD(p, c) + I2) >= 0)
+	    i = c;
+	c += D2;
+	if (c < j && i < c && compare_keys(key, p + GETD(p, c) + I2) < 0)
+	    j = c;
+    }
 
     while (j - i > D2)
     {   int k = i + (j - i)/D4*D2; /* mid way */
@@ -555,7 +579,7 @@ static int find_in_block(byte * p, byte * key, int offset, int c)
     return i;
 }
 
-/* find(B, C) searches for the key of B->kt in the B-tree. Result is 1 if
+/* find(B, C_) searches for the key of B->kt in the B-tree. Result is 1 if
    found, 0 otherwise. When 0, the B_tree cursor is positioned at the last key
    in the B-tree <= the search key. Goes to first (null) item in B-tree when
    key length == 0.
@@ -575,14 +599,14 @@ Btree::find(struct Cursor * C_)
     {
 	p = C_[j].p;
         c = find_in_block(p, k, 0, C_[j].c);
-            /*  debug with e.g. report_block_full(B, j, C[j].n, p);  */
+            /*  debug with e.g. report_block_full(B, j, C_[j].n, p);  */
         C_[j].c = c;
         block_to_cursor(C_, j - 1, block_given_by(p, c));
         if (overwritten) return false;
     }
     p = C_[0].p;
     c = find_in_block(p, k, D2, C_[j].c);
-            /*  and again report_block_full(B, j, C[j].n, p);  */
+            /*  and again report_block_full(B, j, C_[j].n, p);  */
     C_[0].c = c;
     if (c < DIR_START) return false;
     return compare_keys(kt + I2, key_of(p, c)) == 0;
