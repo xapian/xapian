@@ -84,15 +84,23 @@ BM25Weight::calc_termweight() const
 
 	DEBUGMSG(WTCALC, " R=" << rsize << " r_t=" << rtermfreq);
 
+	// termfreq must be at least rtermfreq since there are at least
+	// rtermfreq documents indexed by this term.  And it can't be
+	// more than (dbsize - rsize + rtermfreq) since the number
+	// of releveant documents not indexed by this term can't be
+	// more than the number of documents not indexed by this term.
+	Assert(termfreq >= rtermfreq);
+	Assert(termfreq <= dbsize - rsize + rtermfreq);
+
 	tw = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /
 	     ((rsize - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
     } else {
 	tw = (dbsize - termfreq + 0.5) / (termfreq + 0.5);
     }
+
+    Assert(tw > 0);
+
     if (tw < 2) {
-	// if size and/or termfreq is estimated we can get tw <= 0
-	// so handle this gracefully
-	if (tw <= 1e-6) tw = 1e-6;
 	tw = tw / 2 + 1;
     }
     tw = log(tw);

@@ -1,3 +1,10 @@
+Fri Nov 26 03:50:36 GMT 2004  Olly Betts <olly@survex.com>
+
+	* matcher/bm25weight.cc,matcher/tradweight.cc: termfreq is always
+	  exact for matching (we only approximate it for query expansion)
+	  so replace code to work around bad approximations with Assert() to
+	  make sure this never happens.
+
 Fri Nov 26 00:19:22 GMT 2004  Olly Betts <olly@survex.com>
 
 	* matcher/expandweight.cc,matcher/tradweight.cc: If we estimate the
