@@ -92,7 +92,6 @@ make DESTDIR=%{buildroot} install
 
 %files libs
 %defattr(-, root, root)
-%{_libdir}/libxapian.so
 %{_libdir}/libxapian.so.*
 
 %files devel
@@ -100,6 +99,7 @@ make DESTDIR=%{buildroot} install
 %{_bindir}/xapian-config
 %{_includedir}/xapian
 %{_includedir}/xapian.h
+%{_libdir}/libxapian.so
 %{_libdir}/libxapian.a
 %{_libdir}/libxapian.la
 /usr/share/aclocal/xapian.m4

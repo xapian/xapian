@@ -1,3 +1,8 @@
+Tue Mar 01 00:08:12 GMT 2005  Olly Betts <olly@survex.com>
+
+	* xapian.spec.in: Put the .so in the -devel package (it's only useful
+	  for linking to - the .so.* files are all that's needed at runtime).
+
 Tue Mar 01 00:05:25 GMT 2005  Olly Betts <olly@survex.com>
 
 	* Makefile.am,xapian-config.in,xapian.spec.in,extra/.cvsignore,
