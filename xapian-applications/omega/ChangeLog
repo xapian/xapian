@@ -1,3 +1,7 @@
+Tue Jul 08 17:56:39 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.7.1.
+
 Tue Jul 08 17:34:01 BST 2003  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Fixed compilation problem.
