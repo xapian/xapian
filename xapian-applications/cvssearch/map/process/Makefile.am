@@ -1,2 +1,2 @@
-noinst_LIBRARIES = libprocess.a
-libprocess_a_SOURCES = process.cpp process.h
+noinst_LTLIBRARIES = libprocess.la
+libprocess_la_SOURCES = process.cpp process.h

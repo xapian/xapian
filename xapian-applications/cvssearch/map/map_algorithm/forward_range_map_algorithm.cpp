@@ -24,7 +24,6 @@
 
 #include "forward_range_map_algorithm.h"
 #include <strstream>
-#include "process.h"
 #include "aligned_diff.h"
 
 forward_range_map_algorithm::forward_range_map_algorithm(const cvs_log & log, unsigned int index, cvs_db_file * db_file)

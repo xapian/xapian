@@ -9,7 +9,7 @@ lines::lines(const string & r, const string & p, const string & m)
 {
     static string cvsdata = get_cvsdata();
     path = cvsdata + "/" + root + "/src/";
-    stemmer = new OmStem("english");
+    stemmer = new Xapian::Stem("english");
     current_fn = "";
     line_no = 0;  
     file_count = 0;
@@ -98,8 +98,7 @@ void
 lines::stemWords( const list<string>& words, list<string>& term_list )
 {
     for( list<string>::const_iterator i = words.begin(); i != words.end(); i++ ) {
-        string word = *i;
-        om_termname term = word;
+	string term = *i;
         lowercase_term(term);
         term = stemmer->stem_word(term);
         terms.insert(term);

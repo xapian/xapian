@@ -90,7 +90,7 @@
 #include <map>
 #include <math.h>
 #include <algorithm>
-#include <om/om.h>
+#include <xapian.h>
 
 #include "util.h"
 

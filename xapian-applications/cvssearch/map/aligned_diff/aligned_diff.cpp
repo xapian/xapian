@@ -25,7 +25,6 @@
 #include "aligned_diff.h"
 #include "alignment.h"
 #include "line_sequence.h"
-#include "process.h"
 
 istream &
 aligned_diff::read(istream & is)

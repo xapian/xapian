@@ -21,7 +21,7 @@
 
 #warning "sometimes have '(null)' in results"
 
-#include <om/om.h>
+#include <xapian.h>
 #include <db_cxx.h>
 #include <stdio.h>
 #include <math.h>
@@ -75,11 +75,11 @@ int main(int argc, char *argv[]) {
      }
 
      try {
-       OmStem stemmer("english");
+       Xapian::Stem stemmer("english");
 
        assert( qpos == argc-1 );
 
-       om_termname term = argv[qpos];
+       string term = argv[qpos];
        lowercase_term(term);
        term = stemmer.stem_word(term);
        string queryterm = term;

@@ -6,8 +6,9 @@
 #include <list>
 #include <map>
 #include <string>
-#include <om/om.h>
+#include <xapian.h>
 #include <fstream>
+using namespace std;
 
 class lines
 {
@@ -40,7 +41,7 @@ protected:
     map< string, list<string> > revision_comment_words;
     map< string, string >       revision_comment_string;
 
-    OmStem *stemmer;
+    Xapian::Stem *stemmer;
     ifstream *in_code;
     unsigned int file_count;
     string path;

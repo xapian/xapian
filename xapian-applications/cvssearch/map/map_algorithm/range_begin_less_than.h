@@ -28,6 +28,7 @@
 
 #include <functional>
 #include "range_map.h"
+using namespace std;
 
 class range_begin_less_than : public binary_function<range_map *, range_map *, bool> 
 {

@@ -1,9 +1,9 @@
-#include <om/om.h>
+#include <xapian.h>
 
 static void
-lowercase_term(om_termname &term)
+lowercase_term(string &term)
 {
-    om_termname::iterator i = term.begin();
+    string::iterator i = term.begin();
     while(i != term.end()) {
         *i = tolower(*i);
         i++;
@@ -21,19 +21,17 @@ int main(int argc, char *argv[]) {
   try {
     // code which accesses Xapian
 
-    OmSettings db_parameters;
-    db_parameters.set("backend", "quartz");
-    db_parameters.set("quartz_dir", argv[1]);
-    OmWritableDatabase database(db_parameters); // open database (doesn't erase)
+    // open database (doesn't erase)
+    Xapian::WritableDatabase database(Xapian::Quartz::open(argv[1]));
 
-    OmDocumentContents newdocument;
+    Xapian::Document newdocument;
     newdocument.data = string(argv[2]); // data associated with document (e.g., title, etc.)
     
-    OmStem stemmer("english");
+    Xapian::Stem stemmer("english");
 
     // add document terms
     for(int i = 3; i < argc; i++) {
-      om_termname term = argv[i];
+      string term = argv[i];
       cout << term << " -> ";
       lowercase_term(term);
       term = stemmer.stem_word(term);
@@ -45,7 +43,7 @@ int main(int argc, char *argv[]) {
     database.add_document(newdocument);
 
   }
-  catch(OmError & error) {
+  catch(const Xapian::Error & error) {
     cout << "Exception: " << error.get_msg() << endl;
   } 
   

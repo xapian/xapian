@@ -23,6 +23,7 @@
  ************************************************************/
 
 #include "line_map_algorithm.h"
+using namespace std;
 
 ostream &
 line_map_algorithm::show(ostream & os) const

@@ -1,6 +1,6 @@
 bin_PROGRAMS = 
-noinst_LIBRARIES = libaligned_diff.a
+noinst_LTLIBRARIES = libaligned_diff.la
 INCDIRS = include diff range alignment process
-INCLUDES = $(foreach dir, $(INCDIRS), -I$(srcdir)/../$(dir))
-libaligned_diff_a_SOURCES = aligned_diff.cpp aligned_diff.h
-
+INCLUDES = -I$(srcdir)/../include -I$(srcdir)/../diff -I$(srcdir)/../range \
+    -I$(srcdir)/../alignment -I$(srcdir)/../process
+libaligned_diff_la_SOURCES = aligned_diff.cpp aligned_diff.h

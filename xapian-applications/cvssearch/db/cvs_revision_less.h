@@ -2,6 +2,9 @@
 #define __CVS_REVISION_LESS_H__
 
 #include <functional>
+#include <assert.h>
+
+using namespace std;
 
 class cvs_revision_less : public binary_function<string, string, bool> 
 {

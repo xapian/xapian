@@ -27,8 +27,6 @@
 #warning "THAT WAY WE DO NOT GET EXTRANEOUS STUFF (e.g., example apps)"
 #warning "EXAMPLE: qt/include and kde/include"
 
-
-
 // if DB_ONLY is false, it looks at cmt files and compares two methods
 #define DB_ONLY 1
 
@@ -65,12 +63,12 @@
 #warning "should generate unique file for tags"
 #warning "ctags contains inheritance information; this can help"
 #warning "if (t,S) does not occur in class declaration say or where member variable is declared"
-#warning "requires Xapian 0.6"
 
+#include <xapian.h>
 
 #include <unistd.h>
 #include <db_cxx.h>
-#include <fstream.h>
+#include <fstream>
 #include <strstream>
 #include <stdio.h>
 #include <string>
@@ -79,7 +77,6 @@
 #include <map>
 #include <math.h>
 #include <algorithm>
-#include <om/om.h>
 
 #include "cvs_db_file.h"
 #include "util.h"
@@ -310,7 +307,7 @@ int main(unsigned int argc, char *argv[]) {
         // ----------------------------------------
         write_OM_database( mining_path + ".om",  commit_symbols, commit_words);
         write_OM_database( mining_path + ".om1", commit_symbols1, commit_words1);
-    } catch(OmError & error) {
+    } catch(const Xapian::Error & error) {
         cerr << "Xapian Exception: " << error.get_msg() << endl;
     } catch( DbException& e ) {
         cerr << "Sleepy Cat Exception:  " << e.what() << endl;
@@ -402,15 +399,7 @@ void write_OM_database( const string & database_dir,
                         const map<unsigned int, set<string> > & commit_words
     )
 {
-    system( ("rm -rf " + database_dir).c_str() );
-    system( ("mkdir " + database_dir).c_str() );
-
-    OmSettings db_parameters;
-    db_parameters.set("backend", "quartz");
-    db_parameters.set("quartz_dir", database_dir);
-    db_parameters.set("database_create", true);
-    OmWritableDatabase database(db_parameters); // open database 
-
+    Xapian::WritableDatabase database(Xapian::Quartz::open(database_dir, Xapian::DB_CREATE_OR_OVERWRITE)); // open database 
 
     int transactions_written = 0;
 
@@ -441,7 +430,7 @@ void write_OM_database( const string & database_dir,
         }
 
 
-        OmDocument newdocument;
+        Xapian::Document newdocument;
 
         // ----------------------------------------
         // add terms for indexing

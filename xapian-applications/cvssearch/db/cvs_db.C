@@ -24,6 +24,8 @@
 
 #include "cvs_db.h"
 
+using namespace std;
+
 int
 cvs_db::open(const string & filename, bool read_only) 
 {
@@ -37,7 +39,7 @@ cvs_db::open(const string & filename, bool read_only)
 }
 
 int
-cvs_db::close(int flags = 0) {
+cvs_db::close(int flags) {
     try {
         _opened = false;
         return _db.close(flags);
@@ -48,7 +50,7 @@ cvs_db::close(int flags = 0) {
 }
 
 int
-cvs_db::remove(const string & filename, int flags = 0) 
+cvs_db::remove(const string & filename, int flags) 
 {
     try {
         close();

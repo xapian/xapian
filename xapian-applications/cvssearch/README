@@ -20,7 +20,7 @@ INSTALLATION
   make 
   make install 
 
-* download Xapian 0.6 from
+* download Xapian 0.7 or higher from
   http://www.xapian.org/download.php
 
   From the main directory, type

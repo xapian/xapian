@@ -24,7 +24,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdiostream.h>
+#include <ext/stdio_filebuf.h>
 
 #include "process.h"
 
@@ -33,7 +33,8 @@ process::process(const string & command)
     _fout = popen(command.c_str(), "r");
     if (_fout != NULL)
     {
-        _output = new istdiostream(_fout);
+	filebuf * fb = new __gnu_cxx::stdio_filebuf<char>(_fout, ios::in);
+        _output = new istream(fb);
     }
 }
 

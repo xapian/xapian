@@ -28,6 +28,8 @@
 #include <list>
 #include <iostream>
 #include <strstream>
+#include <assert.h>
+using namespace std;
 
 /**
  * constructor.

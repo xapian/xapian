@@ -24,7 +24,7 @@
 //
 
 
-#include <om/om.h>
+#include <xapian.h>
 #include <stdio.h>
 #include <math.h>
 #include <map>
@@ -77,24 +77,22 @@ int main(int argc, char *argv[]) {
     // ----------------------------------------
     // code which accesses Xapian
     // ----------------------------------------
-    OmDatabase databases;
+    Xapian::Database databases;
          
+    // can search multiple databases at once
     for( set<string>::iterator i = packages.begin(); i != packages.end(); i++ ) {
-      OmSettings db_parameters;
-      db_parameters.set("backend", "quartz");
-      db_parameters.set("quartz_dir", cvsdata+"/"+(*i));
-      databases.add_database(db_parameters); // can search multiple databases at once
+      databases.add_database(Xapian::Quartz::open(cvsdata+"/"+(*i)));
     }
          
     // start an enquire session
-    OmEnquire enquire(databases);
+    Xapian::Enquire enquire(databases);
          
-    vector<om_termname> queryterms;
+    vector<string> queryterms;
          
-    OmStem stemmer("english");
+    Xapian::Stem stemmer("english");
          
     for (int optpos = qpos; optpos < argc; optpos++) {
-      om_termname term = argv[optpos];
+      string term = argv[optpos];
       lowercase_term(term);
       term = stemmer.stem_word(term);
       queryterms.push_back(term);
@@ -105,7 +103,7 @@ int main(int argc, char *argv[]) {
     }
     cout << endl;
          
-    OmQuery query(OmQuery::OP_AND, queryterms.begin(), queryterms.end());
+    Xapian::Query query(Xapian::Query::OP_AND, queryterms.begin(), queryterms.end());
          
     //       cerr << "Performing query `" << query.get_description() << "'" << endl;
          
@@ -114,15 +112,15 @@ int main(int argc, char *argv[]) {
     int num_results = 999999; // = atoi( argv[npos] );
     assert( num_results > 0 );
          
-    OmMSet matches = enquire.get_mset(0, num_results); // get top 10 matches
+    Xapian::MSet matches = enquire.get_mset(0, num_results); // get top 10 matches
 
     map< double, set<string> > results;	
          
-    for (OmMSetIterator i = matches.begin(); i != matches.end(); i++) {
+    for (Xapian::MSetIterator i = matches.begin(); i != matches.end(); i++) {
       //	 cout << "Document ID " << i->did << "\t";
       int sim = matches.convert_to_percent(i);
       //      cout << sim << " ";
-      OmDocument doc = i.get_document();
+      Xapian::Document doc = i.get_document();
       string data = doc.get_data();
 
       int imp = 0;
@@ -156,7 +154,7 @@ int main(int argc, char *argv[]) {
   done: ;
          
   }
-  catch(OmError & error) {
+  catch(const Xapian::Error & error) {
     cout << "Exception: " << error.get_msg() << endl;
   }
 }

@@ -9,3 +9,9 @@ configure
 install-sh
 missing
 mkinstalldirs
+autom4te*.cache
+config.guess
+config.sub
+depcomp
+libtool
+ltmain.sh

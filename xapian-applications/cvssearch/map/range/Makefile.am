@@ -1,3 +1,3 @@
-noinst_LIBRARIES = librange.a
+noinst_LTLIBRARIES = librange.la
 INCLUDES = -I$(srcdir)/../include
-librange_a_SOURCES = range.cpp  range_exception.cpp range.h  range_exception.h
+librange_la_SOURCES = range.cpp  range_exception.cpp range.h  range_exception.h

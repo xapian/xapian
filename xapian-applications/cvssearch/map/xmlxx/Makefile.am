@@ -1,4 +1,4 @@
 bin_PROGRAMS = 
-noinst_LIBRARIES = libxmlxx.a
-INCLUDES = 
-libxmlxx_a_SOURCES = xml++.h xmlTree.cpp xmlTree.h xmlNode.h xmlNode.cpp xmlProperty.cpp xmlProperty.h
+noinst_LTLIBRARIES = libxmlxx.la
+INCLUDES = -I/usr/include/libxml2
+libxmlxx_la_SOURCES = xml++.h xmlTree.cpp xmlTree.h xmlNode.h xmlNode.cpp xmlProperty.cpp xmlProperty.h

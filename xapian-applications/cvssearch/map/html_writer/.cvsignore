@@ -1,2 +1,6 @@
 Makefile
 Makefile.in
+.deps
+.libs
+*.lo
+libhtml_writer.la

@@ -24,6 +24,7 @@
 
 #include "range_map.h"
 #include "range.h"
+using namespace std;
 
 range_map::range_map(const cvs_log_entry & log_entry, const range & range)
     :_log_entry(log_entry),

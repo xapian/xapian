@@ -31,6 +31,7 @@
 #define __COLLECTION_H__
 
 #include <vector>
+#include <assert.h>
 using std::vector;
 
 template<class T>

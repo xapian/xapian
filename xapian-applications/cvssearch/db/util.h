@@ -7,14 +7,15 @@
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
 
-#include <om/om.h>
+#include <xapian.h>
 #include <strstream>
 #include <string>
 #include <map>
 #include <set>
 #include <list>
+using namespace std;
 
-void lowercase_term(om_termname &term);
+void lowercase_term(string &term);
 void lowercase_string(string &term);
 void split (const string & text, const string & separators, list<string> & words);
 void readTags( const string& fn, set<string>& S, map<string, set<string> >& parents

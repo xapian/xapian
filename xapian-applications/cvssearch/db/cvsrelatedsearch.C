@@ -90,16 +90,12 @@
 // also:  cvsrelatedsearch package (# results) package:commit_id
 //
 
-
-
+#include <xapian.h>
 #include <db_cxx.h>
-#include <om/om.h>
 #include <stdio.h>
 #include <math.h>
 
 #include "util.h"
-
-
 
 bool commit_of_interest( int commit_id, list<string>& in_opt_list,
 			 map< int, string >& commit_package,
@@ -223,24 +219,22 @@ int main(unsigned int argc, char *argv[]) {
     // ----------------------------------------
     // code which accesses Xapian
     // ----------------------------------------
-    OmDatabase database;
+    Xapian::Database database;
 
+    // can search multiple databases at once
     for( set<string>::iterator i = packages.begin(); i != packages.end(); i++ ) {
-      OmSettings db_parameters;
-      db_parameters.set("backend", "quartz");
-      db_parameters.set("quartz_dir", cvsdata+"/"+(*i));
-      database.add_database(db_parameters); // can search multiple databases at once
+      database.add_database(Xapian::Quartz::open(cvsdata+"/"+(*i)));
     }
 
     // start an enquire session
-    OmEnquire enquire(database);
+    Xapian::Enquire enquire(database);
 
-    vector<om_termname> queryterms;
+    vector<string> queryterms;
 
     string in_opt = "";
     list<string> in_opt_list;
 
-    OmStem stemmer("english");
+    Xapian::Stem stemmer("english");
 
     string query_package = "";
     string query_commit = "";
@@ -298,7 +292,7 @@ int main(unsigned int argc, char *argv[]) {
 	cerr << "\nranking system no longer required" << endl;
 	assert(0);
       } else {
-	om_termname term = s;
+	string term = s;
 	lowercase_term(term);
 	term = stemmer.stem_word(term);
 	if ( term != "" ) {
@@ -311,11 +305,11 @@ int main(unsigned int argc, char *argv[]) {
     cout << endl; // empty line if no query words
 
 
-    OmMSet matches;
+    Xapian::MSet matches;
 
     if ( ! queryterms.empty() ) {
 
-      OmQuery query(OmQuery::OP_OR, queryterms.begin(), queryterms.end());
+      Xapian::Query query(Xapian::Query::OP_OR, queryterms.begin(), queryterms.end());
       enquire.set_query(query);
 
       if ( in_opt == "" ) {
@@ -333,14 +327,14 @@ int main(unsigned int argc, char *argv[]) {
 
     int count = 0;
 
-    for (OmMSetIterator i = matches.begin(); i != matches.end(); i++) {
+    for (Xapian::MSetIterator i = matches.begin(); i != matches.end(); i++) {
 
       unsigned int sim = matches.convert_to_percent(i);
       assert( sim <= last_percentage );
       last_percentage = sim;
       //      cerr << "sim = " << sim << endl;
 
-      OmDocument doc = i.get_document();
+      Xapian::Document doc = i.get_document();
       string data = doc.get_data();
 
       //      cerr << "Found " << data << endl;
@@ -381,7 +375,7 @@ int main(unsigned int argc, char *argv[]) {
 
 done: ;
 
-    } catch(OmError & error) {
+    } catch(const Xapian::Error & error) {
       cerr << "Exception: " << error.get_msg() << endl;
     }  catch( DbException& e ) {
       cerr << "Exception:  " << e.what() << endl;

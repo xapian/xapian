@@ -23,6 +23,7 @@
  ************************************************************/
 
 #include "html_writer.h"
+using namespace std;
 
 ostream & 
 html_writer::show (ostream & os) const

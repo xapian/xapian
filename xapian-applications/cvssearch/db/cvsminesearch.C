@@ -64,7 +64,7 @@ Notice 1/(1-x1) < 1/(1-x2) <=> 1-x2 < 1-x1 <=> x1 < x2  for 0 <= x1 <=1 and 0
 **/
 
 
-#warning "DOES NOT USE S\TOP WORDS"
+#warning "DOES NOT USE STOP WORDS"
 
 #warning "test double buffering query; see if it still gives Button, box, etc."
 #warning "test if namespace stuff is working, e.g., try searching for plugin or part"
@@ -163,15 +163,8 @@ Notice 1/(1-x1) < 1/(1-x2) <=> 1-x2 < 1-x1 <=> x1 < x2  for 0 <= x1 <=1 and 0
 // in this case, we consider rules Q^A => B
 //
 
-
-
-
-
-
-
-
+#include <xapian.h>
 #include <db_cxx.h>
-#include <om/om.h>
 #include <stdio.h>
 #include <math.h>
 
@@ -482,22 +475,19 @@ int main(unsigned int argc, char *argv[]) {
     // ----------------------------------------
     // code which accesses Xapian
     // ----------------------------------------
-    OmDatabase database;
+    Xapian::Database database;
 
     for( set<string>::iterator i = packages.begin(); i != packages.end(); i++ ) {
-      OmSettings db_parameters;
-      db_parameters.set("backend", "quartz");
-      db_parameters.set("quartz_dir", cvsdata+"/"+(*i));
-      database.add_database(db_parameters); // can search multiple databases at once
+      database.add_database(Xapian::Quartz::open(cvsdata+"/"+(*i)));
     }
 
     // start an enquire session
-    OmEnquire enquire(database);
+    Xapian::Enquire enquire(database);
 
-    vector<om_termname> queryterms;
+    vector<string> queryterms;
     set<string> query_symbols;
 
-    OmStem stemmer("english");
+    Xapian::Stem stemmer("english");
 
     set<string> ranking_system;
 
@@ -512,7 +502,7 @@ int main(unsigned int argc, char *argv[]) {
       } else if ( s == "=>" || s == "<=" || s == "<=>" ) {
 	ranking_system.insert(s);
       } else {
-	om_termname term = s;
+	string term = s;
 	lowercase_term(term);
 	term = stemmer.stem_word(term);
 	queryterms.push_back(term);
@@ -522,11 +512,11 @@ int main(unsigned int argc, char *argv[]) {
     }
     cout << endl; // empty line if no query words
 
-    OmMSet matches;
+    Xapian::MSet matches;
 
     if ( ! queryterms.empty() ) {
 
-      OmQuery query(OmQuery::OP_AND, queryterms.begin(), queryterms.end());
+      Xapian::Query query(Xapian::Query::OP_AND, queryterms.begin(), queryterms.end());
       enquire.set_query(query);
       unsigned int num_results = 10000000;
       matches = enquire.get_mset(0, num_results);
@@ -544,9 +534,9 @@ int main(unsigned int argc, char *argv[]) {
     }
 
     map< int, set<string> > transactions_returned;
-    for (OmMSetIterator i = matches.begin(); i != matches.end(); i++) {
+    for (Xapian::MSetIterator i = matches.begin(); i != matches.end(); i++) {
       unsigned int sim = matches.convert_to_percent(i);
-      OmDocument doc = i.get_document();
+      Xapian::Document doc = i.get_document();
       string data = doc.get_data();
 
       //cerr << "Found " << data << endl;
@@ -612,7 +602,7 @@ int main(unsigned int argc, char *argv[]) {
 
 
   }
-  catch(OmError & error) {
+  catch(const Xapian::Error & error) {
     cerr << "Exception: " << error.get_msg() << endl;
   }  catch( DbException& e ) {
     cerr << "Exception:  " << e.what() << endl;

@@ -29,6 +29,8 @@
 #include "cvs_line_db.h"
 #include <strstream>
 
+using namespace std;
+
 cvs_line_db::cvs_line_db(DbEnv *dbenv, u_int32_t flags)
     :cvs_db("file_revision-line", "5", dbenv, flags)
 {

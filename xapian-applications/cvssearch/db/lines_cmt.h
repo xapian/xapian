@@ -2,6 +2,7 @@
 #define __LINES_CMT_H__
 
 #include "lines.h"
+using namespace std;
 
 class lines_cmt : public lines
 {

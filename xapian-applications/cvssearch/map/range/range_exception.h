@@ -30,6 +30,7 @@
 #include "virtual_ostream.h"
 #include <string>
 using std::string;
+using std::exception;
 
 class range;
 
@@ -54,6 +55,8 @@ public:
      * creates an exception based on the begin and end values.
      **/
     range_exception(unsigned int begin, unsigned int end);
+
+    ~range_exception() throw() {}
 };
 
 #endif

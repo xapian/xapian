@@ -131,5 +131,9 @@ public:
      * @return true if two ranges are equal.
      **/
     bool operator==(const range &) const;
+
+    bool operator!=(const range &r) const {
+	return !this->operator==(r);
+    }
 };
 #endif

@@ -25,6 +25,7 @@
 #include "range_exception.h"
 #include "range.h"
 #include <strstream>
+using namespace std;
 
 range_exception::range_exception(const range & r)
 {

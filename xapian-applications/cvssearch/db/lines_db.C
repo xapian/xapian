@@ -10,9 +10,9 @@
 #include <strstream>
 #include <iostream>
 #include <stdio.h>
-#include <stdiostream.h>
 #include "lines_db.h"
 #include "util.h"
+using namespace std;
 
 lines_db::lines_db(const string & root, 
                    const string & pkg, 
@@ -62,16 +62,14 @@ bool lines_db::readNextLine() {
         {
             string command = "wc -l " + file_path;
             FILE * fout = popen(command.c_str(), "r");
-            istream * pis = 0;
             if (fout != NULL)
             {
-                pis = new istdiostream(fout);
-            }
-            if (pis) {
-                *pis >> file_length;
+		char buf[1024];
+		size_t c = fread(buf, 1, 1024, fout);
+		buf[c] = '\0';
+		file_length = strtoul(buf, NULL, 10);
             }
             pclose(fout);
-            delete pis;
         }
         in_code = new ifstream(file_path.c_str());
         if( ! *in_code ) {

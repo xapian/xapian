@@ -46,4 +46,4 @@ public:
     static string space();
 };
 
-#endif;
+#endif

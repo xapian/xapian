@@ -24,8 +24,9 @@
 
 #include "range.h"
 #include "diff_entry.h"
+#include <assert.h>
 #include <string>
-using std::string;
+using namespace std;
 
 diff_entry::~diff_entry()
 {

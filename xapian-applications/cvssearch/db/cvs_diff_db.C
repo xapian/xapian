@@ -28,6 +28,8 @@
 
 #include "cvs_diff_db.h"
 #include <strstream>
+#include <assert.h>
+using namespace std;
 
 cvs_diff_db::cvs_diff_db(DbEnv *dbenv, u_int32_t flags)
     :cvs_db("file_revision-diff", "7", dbenv, flags)

@@ -31,6 +31,7 @@
 #define __CVS_FILENAME_DB_H__
 
 #include "cvs_db.h"
+using namespace std;
 
 class cvs_filename_db : public cvs_db 
 {

@@ -181,7 +181,7 @@ range::operator-(const range & r)
             (*this) = range(intersect.end(), _end-1);
         }
     }
-    return range(0,-1);
+    return range(0,(unsigned int)-1);
 }
     
 bool

@@ -26,6 +26,7 @@
 #ifndef __CHAR_SEQUENCE_H__
 #define __CHAR_SEQUENCE_H__
 
+#include <assert.h>
 #include <string>
 using std::string;
 

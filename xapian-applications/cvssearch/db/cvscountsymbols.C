@@ -15,7 +15,7 @@
 //
 //  Generates package1.count package2.count ...
 
-#include <om/om.h>
+#include <xapian.h>
 #include <db_cxx.h>
 #include <fstream.h>
 #include <stdio.h>

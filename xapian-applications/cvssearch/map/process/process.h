@@ -26,10 +26,10 @@
 #ifndef __PROCESS_H__
 #define __PROCESS_H__
 
-#include <iostream>
+#include <fstream>
 #include <stdio.h>
 #include <string>
-using std::string;
+using namespace std;
 
 class process
 {

@@ -28,6 +28,7 @@
 
 #include "cvs_file_id_db.h"
 #include <strstream>
+using namespace std;
 
 cvs_file_id_db::cvs_file_id_db(DbEnv *dbenv, u_int32_t flags)
     :cvs_db("filename-file_id", "9", dbenv, flags)

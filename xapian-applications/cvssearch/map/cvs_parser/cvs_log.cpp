@@ -24,6 +24,8 @@
 
 #include "cvs_log.h"
 #include "cvs_output.h"
+#include <iterator>
+using namespace std;
 
 extern string scvs_root;
 

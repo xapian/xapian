@@ -23,7 +23,7 @@
  * 
  ********************************************************************************/
 
-#include <om/om.h>
+#include <xapian.h>
 #include <fstream.h>
 #include <strstream>
 #include <stdio.h>
@@ -33,10 +33,6 @@
 #include "util.h"
 
 #define SHOW_WARNINGS 0 
-
-#if SHOW_WARNINGS
-#warning "should use Xapian-0.6 or later"
-#endif
 
 static void usage(char * prog_name);
 
@@ -76,20 +72,14 @@ void writeFileDB(const string & prev_file,
     }
     filedb_dir = package_path + ".om2/"+filedb_dir;
 
-    system(("mkdir " + filedb_dir ).c_str()); // for file db's
-
-    OmSettings db_parameters;
-    db_parameters.set("backend", "quartz");
-    db_parameters.set("quartz_dir", filedb_dir);
-    db_parameters.set("database_create", true);
-    OmWritableDatabase file_db(db_parameters); // open database
+    Xapian::WritableDatabase file_db(Xapian::Quartz::open(filedb_dir, Xapian::DB_CREATE)); // open database
 
     map<string, list<string> >::const_iterator r;
     for(r = revision_comment_words.begin(); r != revision_comment_words.end(); ++r)
     {
         const string & revision = r->first;
         const list<string> & words = r->second;
-        OmDocument newdocument;
+        Xapian::Document newdocument;
         list<string>::const_iterator i;
         for(i = words.begin(); i != words.end(); ++i) {
             const string & word = *i;
@@ -100,7 +90,7 @@ void writeFileDB(const string & prev_file,
     }
 }
 
-void writeFileComments(OmWritableDatabase& db,
+void writeFileComments(Xapian::WritableDatabase& db,
                        const string& fn, 
                        const set< list<string> >& file_comments )
 {
@@ -115,7 +105,7 @@ void writeFileComments(OmWritableDatabase& db,
         }
     }
 
-    OmDocument newdocument;
+    Xapian::Document newdocument;
     list<string>::const_iterator itr;
     for(itr = all_words.begin(); itr != all_words.end(); ++itr) {
         const string & word = *itr;
@@ -158,27 +148,15 @@ int main(int argc, char *argv[])
             // ----------------------------------------
             // create database directory
             // ----------------------------------------
-            cerr << "... removing directory " << database_dir << " (if it already exists)" << endl;
-            system( ("rm -rf " + database_dir).c_str() );
-            system( ("rm -rf " + database_dir2).c_str());
-            system( ("mkdir " + database_dir ).c_str());
-            system( ("mkdir " + database_dir2).c_str());
+            cerr << "... creating databases in directory " << database_dir << endl;
 
             // ----------------------------------------
             // code which accesses Xapian
             // ----------------------------------------
-            OmSettings db_parameters;
-            db_parameters.set("backend", "quartz");
-            db_parameters.set("quartz_dir", database_dir);
-            db_parameters.set("database_create", true);
-            OmWritableDatabase database(db_parameters); // open database
+            Xapian::WritableDatabase database(Xapian::Quartz::open(database_dir, Xapian::DB_CREATE_OR_OVERWRITE)); // open database
 
             /**
-            OmSettings db_parameters2;
-            db_parameters2.set("backend", "quartz");
-            db_parameters2.set("quartz_dir", database_dir2);
-            db_parameters2.set("database_create", true);
-            OmWritableDatabase database2(db_parameters2); // open database
+            Xapian::WritableDatabase database2(Xapian::Quartz::open(database2_dir, Xapian::DB_CREATE_OR_OVERWRITE)); // open database
             **/
 
             int files = 0;
@@ -241,7 +219,7 @@ int main(int argc, char *argv[])
                 // ----------------------------------------
 
                 // add line comments
-                OmDocument newdocument;
+                Xapian::Document newdocument;
                 list<string>::const_iterator i;
                 for(i = words.begin(); i != words.end(); ++i) {
                     string word = *i;
@@ -252,7 +230,7 @@ int main(int argc, char *argv[])
             }
             cerr << "... done!" << endl;
         }
-        catch(OmError & error) {
+        catch(const Xapian::Error & error) {
             cerr << "Xapian Exception: " << error.get_msg() << endl;
         }
     }

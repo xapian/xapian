@@ -54,7 +54,6 @@
 #warning "requires ctags from http://ctags.sourceforge.net/"
 #warning "should generate unique file for tags"
 #warning "ctags contains inheritance information; this can help if (t,S) does not occur in class declaration say or where member variable is declared"
-#warning "requires Xapian 0.6"
 
 // ctags options
 //  want classes
@@ -95,7 +94,7 @@
 #include <map>
 #include <math.h>
 #include <algorithm>
-#include <om/om.h>
+#include <xapian.h>
 
 #include "util.h"
 
@@ -104,36 +103,15 @@ void usage(char * prog_name);
 const string database = "db";
 
 void writeDatabase( const string& database_dir, map<string, int>& app_symbol_count, map<string, set<list<string> > >& app_symbol_terms ) {
-
-  cerr << "... removing directory " << database_dir << " (if it already exists)" << endl;
+  cerr << "... creating databases in directory " << database_dir << endl;
   assert( database_dir != "." );
   assert( database_dir != "..");
-  //  system( ("rm -rf " + database_dir).c_str() );
-  system( ("rm -rf " + database_dir+"_c").c_str() );
-  system( ("rm -rf " + database_dir+"_f").c_str() );
-
-
-  // ----------------------------------------
-  // create database directory
-  // ----------------------------------------
-  system(("mkdir " + database_dir+"_c" ).c_str());
-  system(("mkdir " + database_dir+"_f" ).c_str());
 
   // code which accesses Xapian
 
-  OmSettings db_parameters_classes;
-  db_parameters_classes.set("backend", "quartz");
-  db_parameters_classes.set("quartz_dir", database_dir+"_c");
-  db_parameters_classes.set("database_create", true);
-  OmWritableDatabase database_classes(db_parameters_classes); // open database
-
-  OmSettings db_parameters_functions;
-  db_parameters_functions.set("backend", "quartz");
-  db_parameters_functions.set("quartz_dir", database_dir+"_f");
-  db_parameters_functions.set("database_create", true);
-  OmWritableDatabase database_functions(db_parameters_functions); // open database
-
-
+  // open databases
+  Xapian::WritableDatabase database_classes(Xapian::Quartz::open(database_dir+"_c", Xapian::DB_CREATE_OR_OVERWRITE));
+  Xapian::WritableDatabase database_functions(Xapian::Quartz::open(database_dir+"_f", Xapian::DB_CREATE_OR_OVERWRITE));
 
   for( map<string, int>::iterator c = app_symbol_count.begin(); c != app_symbol_count.end(); c++ ) {
     string symbol = c->first;
@@ -156,7 +134,7 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
       cerr << endl;
     }
 
-    OmDocument newdocument;
+    Xapian::Document newdocument;
     for( list<string>::iterator i = words.begin(); i != words.end(); i++ ) {
 	  
       string word = *i;
@@ -449,7 +427,7 @@ int main(int argc, char *argv[]) {
     cerr << "Writing global" << endl;
     writeDatabase( "global.om", lib_symbol_count, lib_symbol_terms );
 
-  } catch(OmError & error) {
+  } catch(const Xapian::Error & error) {
     cerr << "Xapian Exception: " << error.get_msg() << endl;
   } catch( DbException& e ) {
     cerr << "Exception:  " << e.what() << endl;

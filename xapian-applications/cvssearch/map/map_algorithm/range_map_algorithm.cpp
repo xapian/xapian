@@ -26,7 +26,6 @@
 #include <strstream>
 #include <fstream>
 #include <math.h>
-#include <stdiostream.h>
 #include "alignment.h"
 #include "line_sequence.h"
 #include "aligned_diff.h"
@@ -35,7 +34,6 @@
 #include "diff.h"
 #include "cvs_log.h"
 
-#include "process.h"
 #include <list>
 using std::list;
 

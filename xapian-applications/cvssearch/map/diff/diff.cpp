@@ -25,6 +25,8 @@
 
 #include "diff.h"
 #include <algorithm>
+#include <iterator>
+using namespace std;
 
 istream & 
 diff::read(istream & is)

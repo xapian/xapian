@@ -23,8 +23,8 @@
  ************************************************************/
 
 #include "html_comparer.h"
-#include <strstream>
 #include "code_to_html.h"
+using namespace std;
 
 extern string scvs_update;
 
@@ -56,28 +56,16 @@ html_comparer::html_comparer(const vector<unsigned int> & input1,
 
     p0 = p1 = p2 = 0;
     pis0 = pis1 = pis2 = 0;
-    ostrstream ost0;
-    ost0 << scvs_update << "-r" << revision0
-         << " " << filename << " 2>/dev/null" << ends;
+    string cmd0 = scvs_update + "-r" + revision0 + " " + filename + " 2>/dev/null";
+    string cmd1 = scvs_update + "-r" + revision1 + " " + filename + " 2>/dev/null";
     
-    ostrstream ost1;
-    ost1 << scvs_update << "-r" << revision1 
-         << " " << filename << " 2>/dev/null" << ends;
-    
-    ostrstream ost2;
-    ost2 << scvs_update << "-r" << revision2 
-         << " " << filename << " 2>/dev/null" << ends;
-
-
-    p0 = new process(ost0.str());
-    p1 = new process(ost1.str());
-    ost0.freeze(0);
-    ost1.freeze(0);
-    ost2.freeze(0);
+    p0 = new process(cmd0);
+    p1 = new process(cmd1);
 
     if (revision2 != "none") 
     {
-        p2 = new process(ost2.str());
+	string cmd2 = scvs_update + "-r" + revision2 + " " + filename + " 2>/dev/null";
+        p2 = new process(cmd2);
     }
 
     if (p0) pis0 = p0->process_output();

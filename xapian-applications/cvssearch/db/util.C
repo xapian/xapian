@@ -7,7 +7,7 @@
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
 
-#include <om/om.h>
+#include <xapian.h>
 #include <fstream.h>
 #include <stdio.h>
 #include "util.h"
@@ -19,9 +19,9 @@
 #warning "use stemming on symbols"
 #endif
 
-void lowercase_term(om_termname &term)
+void lowercase_term(string &term)
 {
-    om_termname::iterator i = term.begin();
+    string::iterator i = term.begin();
     while(i != term.end()) {
         *i = tolower(*i);
         i++;
@@ -30,7 +30,7 @@ void lowercase_term(om_termname &term)
 
 void lowercase_string(string &term)
 {
-    om_termname::iterator i = term.begin();
+    string::iterator i = term.begin();
     while(i != term.end()) {
         *i = tolower(*i);
         i++;

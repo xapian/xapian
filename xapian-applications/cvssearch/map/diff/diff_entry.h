@@ -156,5 +156,9 @@ public:
      * @return true if the two sources are equal and the two dest are equal.
      **/
     bool operator==(const diff_entry & r) const;
+
+    bool operator!=(const diff_entry & r) const {
+	return !this->operator == (r);
+    }
 };
 #endif

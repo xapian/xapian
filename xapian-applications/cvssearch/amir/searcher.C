@@ -1,9 +1,9 @@
-#include <om/om.h>
+#include <xapian.h>
 
 static void
-lowercase_term(om_termname &term)
+lowercase_term(string &term)
 {
-    om_termname::iterator i = term.begin();
+    string::iterator i = term.begin();
     while(i != term.end()) {
         *i = tolower(*i);
         i++;
@@ -19,22 +19,20 @@ int main(int argc, char *argv[]) {
 
      try {
        // code which accesses Xapian
-       OmDatabase databases;
-       OmSettings db_parameters;
-       db_parameters.set("backend", "quartz");
-       db_parameters.set("quartz_dir", argv[1]);
-       databases.add_database(db_parameters); // can search multiple databases at once
+       Xapian::Database databases;
+       // can search multiple databases at once
+       databases.add_database(Xapian::Quartz::open(argv[1]));
 
        // start an enquire session
-       OmEnquire enquire(databases);
+       Xapian::Enquire enquire(databases);
 
-       vector<om_termname> queryterms;
+       vector<string> queryterms;
        
-       OmStem stemmer("english");
+       Xapian::Stem stemmer("english");
 
        for (int optpos = 2; optpos < argc; optpos++) {
 
-	 om_termname term = argv[optpos];
+	 string term = argv[optpos];
 	 cout << term << " -> ";
 	 lowercase_term(term);
 	 term = stemmer.stem_word(term);
@@ -43,28 +41,27 @@ int main(int argc, char *argv[]) {
 	 queryterms.push_back(term);
        }
 
-       // MOP stands for "Match OPeration"
-       OmQuery query(OmQuery::OP_AND, queryterms.begin(), queryterms.end());
+       Xapian::Query query(Xapian::Query::OP_AND, queryterms.begin(), queryterms.end());
 
        cout << "Performing query `" <<
          query.get_description() << "'" << endl;
 
        enquire.set_query(query); // copies query object
 
-       OmMSet matches = enquire.get_mset(0, 10); // get top 10 matches
+       Xapian::MSet matches = enquire.get_mset(0, 10); // get top 10 matches
 
        cout << matches.items.size() << " results found" << endl;
 
-       vector<OmMSetItem>::const_iterator i;
+       Xapian::MSetIterator i; 
        for (i = matches.items.begin(); i != matches.items.end(); i++) {
 	 cout << "Document ID " << i->did << "\t";
 	 cout << matches.convert_to_percent(*i) << "% ";
-	 OmDocument doc = enquire.get_doc(*i);
+	 Xapian::Document doc = enquire.get_doc(*i);
 	 cout << "[" << doc.get_data().value << "]" << endl; // data associated with doc
        }
 
      }
-     catch(OmError & error) {
+     catch(const Xapian::Error & error) {
        cout << "Exception: " << error.get_msg() << endl;
      }
      

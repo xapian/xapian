@@ -28,7 +28,7 @@
 
 #include "cvs_comment_id2_db.h"
 #include <strstream>
-
+using namespace std;
 
 cvs_comment_id2_db::cvs_comment_id2_db(DbEnv *dbenv, u_int32_t flags)
     :cvs_db("id-file_rev", "8", dbenv, flags)

@@ -27,13 +27,14 @@
  ************************************************************/
 
 #include "cvs_filename_db.h"
+using namespace std;
 
 cvs_filename_db::cvs_filename_db(DbEnv *dbenv, u_int32_t flags)
     :cvs_db("recno-filename", "4", dbenv, flags)
 {
 }
 
-cvs_filename_db::cvs_filename_db(const string & name, const string & index, DbEnv *dbenv = 0, u_int32_t flags = 0)
+cvs_filename_db::cvs_filename_db(const string & name, const string & index, DbEnv *dbenv, u_int32_t flags)
     :cvs_db(name, index, dbenv, flags)
 {
 }
@@ -44,10 +45,10 @@ cvs_filename_db::count(unsigned int & count)
     int val = 0;
     DB_BTREE_STAT *sp;
     try {
-        val = _db.stat(&sp, malloc, DB_RECORDCOUNT);
+        val = _db.stat(&sp, /*malloc,*/ DB_RECORDCOUNT);
         count = sp->bt_nkeys;
         free(sp);
-    }  catch (DbException& e ) {
+    } catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
     }
     return val;

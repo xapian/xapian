@@ -28,6 +28,7 @@
 #include "virtual_ostream.h"
 #include "cvs_log_entry.h"
 #include <vector>
+#include <assert.h>
 using std::vector;
 
 class line_map : public virtual_ostream

@@ -1,11 +1,11 @@
-AC_INIT(map/map.cpp)
+AC_INIT([map/map.cpp])
 AM_INIT_AUTOMAKE(cvssearch, 2.0)
+AM_PROG_LIBTOOL
 
-OM_PATH_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
+XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 
 AC_SUBST(CXXFLAGS)
 AC_PROG_CXX 
-AC_PROG_RANLIB
 AC_PATH_PROGS(PERL, perl)
 AM_CONDITIONAL(DYNAMIC, false)
 AC_OUTPUT([Makefile
