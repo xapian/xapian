@@ -1,3 +1,138 @@
+Xapian-core 0.8.1 (2004-06-2X):
+
+Up to:
+Sun Jun 27 23:37:01 BST 2004  Olly Betts <olly@survex.com>
+
+API:
+
+* New method Xapian::Database::get_lastdocid which returns the highest used
+  document id for a database (useful for re-synchronizing an indexer which
+  was interrupted).  Implemented for quartz and inmemory.
+
+* Xapian::MSet::get_matches_*() methods now take collapsing into account, and
+  the documentation has been clarified to state explicitly that collapsing and
+  cutoffs are taken into account.
+
+* Xapian::MSet: Need to adjust index by firstitem when indexing into items
+  (bug#28).
+
+* MSetIterator and ESetIterator are now bidirectional iterators (rather than
+  just input iterators)
+
+* Fixed post-increment forms of PostingIterator, TermIterator,
+  PositionIterator, and ValueIterator so that *i++ works (as it must for them
+  to be true input iterators).
+
+* Xapian::QueryParser: If we fail to parse a query, try stripping out
+  non-alphanumerics (except '.') and reparsing.
+
+* Fixed memory leaked upon Xapian::QueryParser destruction.
+
+* Removed several unused Xapian::Error subclasses (these were used by the
+  indexer framework which we decided was a failed experiment).
+
+testsuite:
+
+* queryparsertest: Pruned near-duplicate queryparsertest testcases.
+
+* queryparsertest: Added test case for `term NOT "a phrase'.
+
+* remotetest: Use 127.0.0.1 instead of localhost so that tcpmatch1 doesn't fail
+  just because the network setup is broken.
+
+quartz backend:
+
+* Fixed bug which meant we sometimes failed to remove a posting when deleting
+  or replacing a document.
+
+* Fixed PostlistChunkReader to take a copy of the postlist data being read to
+  avoid problems with reading data from a string that's been deleted.
+
+* Fixed bug in postlist merging which could occasionally extend a postlist
+  chunk to overlap the docid range of the next chunk.
+
+* Eliminated the split cursor in each Btree object - we only actually need a
+  single block buffer to handle splitting blocks.  This reduces the memory
+  overhead of each Bcursor (and hence each QuartzPostList).
+
+* Changed 2 calls to abort() to throw Xapian::DatabaseCorruptError instead,
+
+* If Btree is writable, throw DatabaseCorruptError if we detect overwritten.
+
+* Check the return value of fdatasync()/fsync()/_commit() and raise an error.
+  If they fail, we really want to know as it could cause data corruption.
+
+* Assorted clean ups, improved comments, debug tracing, assertions.
+
+* When merging in postlist changes, removed an unneeded call to
+  QuartzBufferedTable::get_or_make_tag() in a case when we're using a cursor
+  which has already fetched the tag.
+
+* Added SON_OF_QUARTZ define to disable incompatible changes to database
+  formats by default, and use it to control the docid encoding for keys such
+  that we're always inserting at the end of the table when added new documents.
+
+* Reopening the readonly version of a writable Btree is now more efficient
+  (we used to close and reopen all the files and destroy and recreate a lot
+  of objects and buffers).
+
+* Share file descriptors between the read and write Btree objects so that a
+  quartz WritableDatabase now uses 5 fds rather than 10.
+
+* Added configure test for glibc, because otherwise we need to include a header
+  before we can check for glibc in order to define something we should be
+  defining before we include any headers!  Defining _XOPEN_SOURCE on OpenBSD
+  seems to do the opposite to Linux and *disable* pread and pwrite!
+
+backends:
+
+* Stripped out the session machinery - all that is actually required is to
+  ensure that any unflushed changes are flushed when the destructor runs.
+
+* A few other backend interface cleanups.
+
+build system:
+
+* Unified the shlib version numbers (the small benefit of tracking them
+  individually makes it hard to justify the extra work required, and having one
+  version simplifies debian packaging too).
+
+* configure.in: Fix typo (STLPORT_CXXLAGS -> STLPORT_CXXFLAGS)
+
+* Removed trivial m4/Makefile.am and and autoconf/Makefile.am and do the work
+  from the top level Makefile.am instead.  It's easier to see the structure
+  this way, and it also removes a couple of recursive make invocations which
+  will speed up builds a little.
+
+documentation:
+
+* HACKING: Added a list of subtasks when doing a release.
+  Currently it's always me that does this, but it may not always be
+  and anyhow it'll help me to have a list to run through.
+
+* include/xapian/database.h: Remove references to sessions in doxygen
+  comments.
+
+* docs/quickstart.html: Corrected lingering reference to "om.h" and
+  note that we need <iostream>.
+
+* docs/quickstartindex.cc.html,docs/quickstartexpand.cc.html,
+  docs/quickstartsearch.cc.html: Add <iostream>.
+
+* PLATFORMS,AUTHORS: Updated.
+
+* docs/quartzdesign.html: Corrected various pieces of out of date
+  information, and improved wording in a couple of places.
+
+* docs/scalability.html: Removed the reference to the Quartz update bottleneck
+  "currently being addressed for Xapian 0.8" as it's now been addressed!  Also
+  reworded to remove use of first person (it was originally a message sent to
+  the mailing list).
+
+packaging:
+
+* debian/: Added basic Debian packaging.
+
 Xapian-core 0.8.0 (2004-04-19):
 
 * Omega, xapian-examples and xapian-bindings now have their own NEWS files.
@@ -32,7 +167,7 @@ testsuite:
 
 * quartztest: cause a test to fail if there's still a directory after a call
   to rmdir(), or if there isn't a directory after calling mkdir().
- 
+
 * apitest: Check returned docids are the expected values in a couple more
   cases.  Improved wording of a comment.
 
@@ -104,7 +239,7 @@ documentation:
 
 * HACKING: XAPIAN_DEBUG_TYPES should be XAPIAN_DEBUG_FLAGS.
 
-* HACKING: Updated to mention that building from CVS requires 
+* HACKING: Updated to mention that building from CVS requires
   `./configure --enable-maintainer-mode' (or use bootstrap).
 
 * HACKING: Added notes about using "using", and pointers to a couple of useful
@@ -297,7 +432,7 @@ portability:
 
 * Make the dummy source file C++ rather than C so that automake tells libtool
   that this is a C++ library - vital for correct linking on some platforms.
-  
+
 * Makefile.am: Pass -no-undefined to libtool so that we can build build a DLL
   on MS Windows.
 
@@ -527,7 +662,7 @@ omega:
 
 * omega: If the same database is listed more than once, only search the first
   occurrence.
- 
+
 * omega: use snprintf to help guard against buffer overflows.
 
 Xapian 0.7.1 (2003-07-08):
@@ -708,7 +843,7 @@ Xapian 0.6.5 (2003-04-10):
   remote backend requires it in several places.
 
 * Fixed to build with debug enabled.
- 
+
 * testsuite: fixed to still build when some backends are disabled.
 
 * extra/parsequerytest.cc: Fixed to build with GCC 2.95.
@@ -970,17 +1105,17 @@ Xapian 0.6.0 (2002-11-27):
   access into the dump format expected by scriptindex.
 
 Xapian 0.5.5 (2002-12-04):
- 
+
 * Fixed compilation with --enable-debug.
- 
+
 * Minor documentation updates.
- 
+
 * Omega: Fixed paging on default database; removed xDEFAULTOP from the query
   template as it's no longer used; removed bogus unmatched '}' from query
   template; added dbi2omega perl script to dump any database which perl DBI
   can access into the dump format expected by scriptindex; limit length of
   probabilistic terms generated to 64 characters.
- 
+
 Xapian 0.5.4 (2002-10-16):
 
 * Fixed a compilation error with "make check" when using GCC 3.2.
@@ -1062,12 +1197,12 @@ summarised the most notable changes and improvements:
         instructive examples which demonstrate how to use Xapian to implement
         particularly features.
       + Added "xapian-applications" which contains larger sample applications
-    
+
   * Much improved build system - should now build "out of the box" on many Unix
     platforms. Can now VPATH build with vendor tools on most platforms. Builds
     as cleanly as we can achieve with GCC 2.95.* (some bogus warnings due to
     compiler bugs). Should build without warnings on GCC 3.0, 3.1, and 3.2.
-  
+
   * If using GCC, om/om.h now contains a check that the compiler used to build
     Xapian and the compiler used to build the application have compatible C++
     ABIs. So you get a clear error message early from the first attempt to
