@@ -15,9 +15,9 @@ da             -  de + a
 em             -  in
 um             -  a
 para           -  for
-é            -  ->SER
+é              -  ->SER
 com            -  with
-não          -  not, no
+não            -  not, no
 uma            -  a
 os             -  the; them
 no             -  em + o
@@ -36,7 +36,7 @@ ao             -  a + o
 ele            -  he
 das            -  de + as
 tem            -  ->TER
-à            -  a + a
+à              -  a + a
 seu            -  his
 sua            -  her
 ou             -  or
@@ -44,17 +44,17 @@ ser            -  ->SER
 quando         -  when
 muito          -  much
  (diz = tell)
-há           -  ->HAV
+há             -  ->HAV
 nos            -  em + os; us
-já           -  already, now
-está         -  ->EST
+já             -  already, now
+está           -  ->EST
 eu             -  I
  (brasil)
-também       -  also
-só           -  only, just
+também         -  also
+só             -  only, just
 pelo           -  per + o
 pela           -  per + a
-até          -  up to
+até            -  up to
 isso           -  that
 ela            -  he
 entre          -  between
@@ -73,8 +73,8 @@ nas            -  em + as
 me             -  me
 esse           -  that
 eles           -  they
-estão        -  ->EST
-você         -  you
+estão          -  ->EST
+você           -  you
 tinha          -  ->TER
 foram          -  ->SER
 essa           -  that
@@ -82,17 +82,17 @@ num            -  em + um
 nem            -  nor
 suas           -  her
 meu            -  my
-às           -  a + as
+às             -  a + as
 minha          -  my
-têm          -  ->TER
+têm            -  ->TER
 numa           -  em + uma
 pelos          -  per + os
 elas           -  they
 havia          -  ->HAV
 seja           -  ->SER
 qual           -  which
-será         -  ->SER
-nós          -  we
+será           -  ->SER
+nós            -  we
 tenho          -  ->TER
 lhe            -  to him, her
 deles          -  of them
@@ -109,7 +109,7 @@ dele           -  of him
 
 tu             -  thou
 te             -  thee
-vocês        -  you (plural)
+vocês          -  you (plural)
 vos            -  you
 lhes           -  to them
 meus           -  my

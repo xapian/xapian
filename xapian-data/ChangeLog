@@ -1,3 +1,8 @@
+Sun Oct 13 03:44:58 BST 2002  Olly Betts <olly@survex.com>
+
+	* stemming/: Fixed layout of stopsource files where the muscat3.6
+	  style "e^a" accents have been changed into "é" etc.
+
 Sun Oct 13 03:34:09 BST 2002  Olly Betts <olly@survex.com>
 
 	* stemming/: Updated files so that they are correct for the Snowball

@@ -26,7 +26,7 @@ al             -  a + el
 es             -  ->SER
 lo             -  him
 como           -  how
-más          -  more
+más            -  more
 dijo = said
 pero           -  pero
 sus            -  su plural
@@ -36,13 +36,13 @@ o              -  or
 fue            -  ->SER
 este           -  this
 ha             -  ->HABER
-sí           -  himself etc
+sí             -  himself etc
 porque         -  because
 dos = two
 esta           -  this
 son            -  ->SER
 entre          -  between
-está         -  ->ESTAR
+está           -  ->ESTAR
 cuando         -  when
 muy            -  very
 sin            -  without
@@ -51,7 +51,7 @@ sin            -  without
 sobre          -  on
 ser            -  ->SER
 tiene          -  ->TENER
-también      -  also
+también        -  also
     - ciento = hundred
 me             -  me
 hasta          -  until
@@ -62,7 +62,7 @@ han            -  ->HABER
 quien          -  whom, that
     - año = year
   - the stopwords that follow were interspersed with many ordinary words
-están        -  ->ESTAR
+están          -  ->ESTAR
 estado         -  ->ESTAR
 desde          -  from
 todo           -  all
@@ -78,21 +78,21 @@ otros          -  other
 fueron         -  ->SER
 ese            -  that
 eso            -  that
-había        -  ->HABER
+había          -  ->HABER
 ante           -  before
 ellos          -  they
 e              -  and (variant of y)
 esto           -  this
-mí           -  me
+mí             -  me
 antes          -  before
 algunos        -  some
-qué          -  what?
+qué            -  what?
 unos           -  a
 yo             -  I
 otro           -  other
 otras          -  other
 otra           -  other
-él           -  he
+él             -  he
 tanto          -  so much, many
 esa            -  that
 estos          -  these
@@ -117,7 +117,7 @@ nosotros       -  we
 
 mi             -  me
 mis            -  mi plural
-tú           -  thou
+tú             -  thou
 te             -  thee
 ti             -  thee
 tu             -  thy
@@ -127,10 +127,10 @@ nosotras       -  we
 vosostros      -  you
 vosostras      -  you
 os             -  you
-mío          -  mine
-mía          -
-míos         -
-mías         -
+mío            -  mine
+mía            -
+míos           -
+mías           -
 tuyo           -  thine
 tuya           -
 tuyos          -
