@@ -1,3 +1,8 @@
+Thu Sep 14 15:03:40 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add a test for doing max_or_terms when one of the query terms is
+	  not in the database.
+
 Wed Sep 13 19:07:11 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Small typo in DbTermList::get_termfreq() corrected.  Now works

@@ -1227,8 +1227,8 @@ static bool test_maxorterms3()
     OmStem stemmer("english");
 
     string term1 = stemmer.stem_word("word");
-    string term2 = stemmer.stem_word("inmemory");
-    string term3 = stemmer.stem_word("flibble");
+    string term2 = stemmer.stem_word("rubbish");
+    string term3 = stemmer.stem_word("banana");
 
     OmQuery myquery(OmQuery::OP_OR,
 		    OmQuery(term1),
@@ -1257,6 +1257,45 @@ static bool test_maxorterms3()
 	       mymset2.get_termfreq(term3));
     TEST_EQUAL(mymset1.get_termweight(term3),
 	       mymset2.get_termweight(term3));
+//    TEST_EQUAL(mymset1, mymset2);
+
+    return true;
+}
+
+/// Test that max_or_terms doesn't pick terms with 0 frequency
+static bool test_maxorterms4()
+{
+    OmDatabase mydb1(get_database("apitest_simpledata"));
+    OmEnquire enquire1(make_dbgrp(&mydb1));
+
+    OmDatabase mydb2(get_database("apitest_simpledata"));
+    OmEnquire enquire2(make_dbgrp(&mydb2));
+
+    // make a query
+    OmStem stemmer("english");
+
+    string term1 = stemmer.stem_word("word");
+    string term2 = stemmer.stem_word("rubbish");
+    string term3 = stemmer.stem_word("flibble");
+
+    OmQuery myquery1(term2);
+    OmQuery myquery2(OmQuery::OP_OR,
+		    OmQuery(term1),
+		    OmQuery(OmQuery::OP_OR,
+			    OmQuery(term2),
+			    OmQuery(term3)));
+    enquire1.set_query(myquery1);
+    enquire2.set_query(myquery2);
+
+    OmSettings mopts;
+    mopts.set("match_max_or_terms", 1);
+    
+    // retrieve the results
+    OmMSet mymset1 = enquire1.get_mset(0, 10);
+    OmMSet mymset2 = enquire2.get_mset(0, 10, NULL, &mopts);
+
+    TEST_NOT_EQUAL(mymset2.items.size(), 0);
+    TEST_EQUAL(mymset1, mymset2);
 //    TEST_EQUAL(mymset1, mymset2);
 
     return true;
@@ -1725,6 +1764,7 @@ test_desc db_tests[] = {
     {"maxorterms1",        test_maxorterms1},
     {"maxorterms2",        test_maxorterms2},
     {"maxorterms3",        test_maxorterms3},
+    {"maxorterms4",        test_maxorterms4},
     {"termlisttermfreq",   test_termlisttermfreq},
     {"qterminfo1",	   test_qterminfo1},
     {"msetzeroitems1",     test_msetzeroitems1},
