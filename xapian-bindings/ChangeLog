@@ -1,3 +1,9 @@
+Wed May 12 01:52:44 BST 2004  Richard Boulton <richard@tartarus.org>
+
+        * configure.in: Revert "test -x" to "test -n", and change
+          previously extant "test -x" to "test -r": test -x isn't
+          portable.
+
 Tue May 11 20:04:36 BST 2004  Richard Boulton <richard@tartarus.org>
 
         * configure.in: Use $PYTHON instead of python when running python
