@@ -74,15 +74,15 @@ html_comparer::html_comparer(const vector<unsigned int> & input1,
 
     _diff.unalign_top();
 
-//     for (unsigned int  i = 0; i < _input1.size(); ++i)
-//     {
-//         cerr << "input1[" << i << "]=" << _input1[i] << "\t" << "input2[" << i << "]=" << _input2[i] << "\t" << endl;
-//     }
+     for (unsigned int  i = 0; i < _input1.size(); ++i)
+     {
+         cerr << "input1[" << i << "]=" << _input1[i] << "\t" << "input2[" << i << "]=" << _input2[i] << "\t" << endl;
+     }
     
-//     for (unsigned int i = 0; i < _diff.size(); ++i ) 
-//     {
-//         cerr << "diff[" << i << "]" << _diff[i] << endl;
-//     }
+     for (unsigned int i = 0; i < _diff.size(); ++i ) 
+     {
+         cerr << "diff[" << i << "]" << _diff[i] << endl;
+     }
 }
 
 html_comparer::~html_comparer()
