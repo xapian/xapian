@@ -1,3 +1,9 @@
+/* andmaybepostlist.cc: Merged postlist: items from one list, weights from both
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #include "andmaybepostlist.h"
 #include "andpostlist.h"
 #include "omassert.h"

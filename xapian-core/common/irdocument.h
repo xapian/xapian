@@ -1,4 +1,8 @@
-/* irdocument.h : A document */
+/* irdocument.h : A document
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _irdocument_h_
 #define _irdocument_h_

@@ -1,4 +1,8 @@
-/* om.h: Include all externally visible parts of om */
+/* om.h: Include all externally visible parts of om
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _om_h_
 #define _om_h_

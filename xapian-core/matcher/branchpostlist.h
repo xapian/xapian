@@ -1,4 +1,8 @@
-// virtual base class for branched types of postlist
+/* branchpostlist.h: virtual base class for branched types of postlist
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _branchpostlist_h_
 #define _branchpostlist_h_

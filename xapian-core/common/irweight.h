@@ -1,4 +1,7 @@
 /* irweight.h
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #ifndef _irweight_h_

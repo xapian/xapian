@@ -1,4 +1,8 @@
-/* multi_database.cc: interface to multiple database access */
+/* multi_database.cc: interface to multiple database access
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #include <stdio.h>
 

@@ -1,7 +1,7 @@
 /* omassert.h : Provide Assert() and similar functions
  *
  * ----START-LICENCE----
- * ----END-LICENCE----
+ * -----END-LICENCE-----
  */
 
 // Note: we use macros to define our assertions, since with a template

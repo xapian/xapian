@@ -1,4 +1,8 @@
-/* inmemory_document.h: C++ class definition for accessing a inmemory document*/
+/* inmemory_document.h: C++ class definition for accessing a inmemory document
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _inmemory_document_h_
 #define _inmemory_document_h_

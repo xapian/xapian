@@ -1,4 +1,7 @@
 /* bm25weight.h
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #ifndef _bm25weight_h_

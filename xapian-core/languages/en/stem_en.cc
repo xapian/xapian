@@ -1,3 +1,9 @@
+/* stem_en.cc: English stemming class
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #include <string>
 
 #include "stem.h"

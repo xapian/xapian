@@ -1,4 +1,8 @@
-/* daread.h: Header files for martin's code */
+/* daread.h: Header files for martin's code
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _daread_h_
 #define _daread_h_

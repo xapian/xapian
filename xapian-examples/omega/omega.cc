@@ -1,3 +1,9 @@
+/* main.cc: Main module for ferretfx
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #include "main.h"
 
 vector<int> dlist;

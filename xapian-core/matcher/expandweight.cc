@@ -1,4 +1,8 @@
-/* expandweight.cc: C++ class for weight calculation routines */
+/* expandweight.cc: C++ class for weight calculation routines
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #include <math.h>
 

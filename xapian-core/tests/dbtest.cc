@@ -1,3 +1,9 @@
+/* dbtest.cc:
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #include <stdio.h>
 
 #include "omerror.h"

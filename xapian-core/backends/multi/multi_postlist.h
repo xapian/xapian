@@ -1,4 +1,8 @@
-/* multi_postlist.h: C++ class definition for multiple database access */
+/* multi_postlist.h: C++ class definition for multiple database access
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _multi_postlist_h_
 #define _multi_postlist_h_

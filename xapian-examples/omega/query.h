@@ -1,3 +1,9 @@
+/* query.h: query functions for ferretfx
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #ifndef QUERY_H
 #define QUERY_H
 

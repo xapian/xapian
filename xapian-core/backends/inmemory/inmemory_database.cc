@@ -1,4 +1,8 @@
-/* inmemory_database.cc: interface to text file access */
+/* inmemory_database.cc: interface to text file access
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #include <stdio.h>
 

@@ -1,4 +1,8 @@
-// empty posting list (for zero frequency terms)
+/* emptypostlist.h: empty posting list (for zero frequency terms)
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _emptypostlist_h_
 #define _emptypostlist_h_

@@ -1,4 +1,8 @@
-/* querygui.cc */
+/* querygui.cc: Test GUI for om
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #include "config.h"
 

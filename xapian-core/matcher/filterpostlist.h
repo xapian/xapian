@@ -1,4 +1,9 @@
-// apply a boolean posting list as a filter to a probabilistic posting list
+/* filterpostlist.h: apply a boolean posting list as a filter to a
+ * probabilistic posting list
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #include "database.h"
 #include "andpostlist.h"

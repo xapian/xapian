@@ -1,4 +1,8 @@
-/* omtypes.h : Common types used */
+/* omtypes.h : Common types used
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _omtypes_h_
 #define _omtypes_h_

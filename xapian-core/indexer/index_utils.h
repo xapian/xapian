@@ -1,4 +1,7 @@
 /* index_utils.h
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #ifndef _index_utils_h_

@@ -1,4 +1,7 @@
 /* query_parser.cc
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #include "omassert.h"

@@ -1,4 +1,7 @@
 /* textfile_indexer.h
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #ifndef _textfile_indexer_h_

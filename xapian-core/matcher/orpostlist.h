@@ -1,4 +1,8 @@
-// OR of two posting lists
+/* orpostlist.h: OR of two posting lists
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _orpostlist_h_
 #define _orpostlist_h_

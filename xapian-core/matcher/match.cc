@@ -1,4 +1,7 @@
 /* match.cc
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #include "match.h"

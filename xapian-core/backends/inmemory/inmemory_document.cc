@@ -1,4 +1,8 @@
-/* inmemory_document.cc: C++ class for storing inmemory documents */
+/* inmemory_document.cc: C++ class for storing inmemory documents
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #include "inmemory_document.h"
 

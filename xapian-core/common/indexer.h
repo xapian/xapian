@@ -1,4 +1,7 @@
 /* indexer.h
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #ifndef _indexer_h_

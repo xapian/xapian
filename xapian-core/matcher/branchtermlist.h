@@ -1,4 +1,8 @@
-// virtual base class for branched types of termlist
+/* branchtermlist.h: virtual base class for branched types of termlist
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _branchtermlist_h_
 #define _branchtermlist_h_

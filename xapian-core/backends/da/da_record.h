@@ -1,4 +1,8 @@
-/* da_database.h: C++ class definition for DA access routines */
+/* da_database.h: C++ class definition for DA access routines
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _da_record_h_
 #define _da_record_h_

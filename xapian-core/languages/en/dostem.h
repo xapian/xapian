@@ -1,4 +1,8 @@
-/* dostem.h: Header files for martin's code */
+/* dostem.h: Header files for martin's code
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _dostem_h_
 #define _dostem_h_

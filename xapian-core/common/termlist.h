@@ -1,4 +1,7 @@
 /* termlist.h
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #ifndef _termlist_h_

@@ -1,4 +1,7 @@
 /* database_builder.h
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #ifndef _database_builder_h_

@@ -1,7 +1,7 @@
 /* acconfig.h : config.h template
  *
  * ----START-LICENCE----
- * ----END-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #ifndef _om_config_h_

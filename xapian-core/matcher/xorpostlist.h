@@ -1,4 +1,8 @@
-// XOR of two posting lists
+/* xorpostlist.h: XOR of two posting lists
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _xorpostlist_h_
 #define _xorpostlist_h_

@@ -1,4 +1,8 @@
-/* sleepy_database.h: C++ class definition for sleepycat access routines */
+/* sleepy_database.h: C++ class definition for sleepycat access routines
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _sleepy_database_h_
 #define _sleepy_database_h_

@@ -1,4 +1,8 @@
-/* da_record.cc: C++ class for reading DA records */
+/* da_record.cc: C++ class for reading DA records
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #include "irdocument.h"
 #include "da_record.h"

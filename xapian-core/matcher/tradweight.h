@@ -1,4 +1,7 @@
 /* tradweight.h
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #ifndef _tradweight_h_

@@ -1,3 +1,9 @@
+/* idxtest.cc:
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #include "om.h"
 #include <algorithm>
 #include <stdio.h>

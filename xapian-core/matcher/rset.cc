@@ -1,4 +1,7 @@
 /* rset.cc
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #include "rset.h"

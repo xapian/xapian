@@ -1,4 +1,8 @@
-/* bm25weight.cc: C++ class for weight calculation routines */
+/* bm25weight.cc: C++ class for weight calculation routines
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #include <math.h>
 

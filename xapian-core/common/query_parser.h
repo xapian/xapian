@@ -1,4 +1,7 @@
 /* query_parser.h
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #ifndef _query_parser_h_

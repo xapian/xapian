@@ -1,4 +1,7 @@
 /* rset.h
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #ifndef _rset_h_

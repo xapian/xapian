@@ -1,4 +1,8 @@
-/* multi_termlist.h: C++ class definition for multiple database access */
+/* multi_termlist.h: C++ class definition for multiple database access
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _multi_termlist_h_
 #define _multi_termlist_h_

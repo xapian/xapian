@@ -1,3 +1,9 @@
+/* andnotpostlist.cc: Return items which are in A, unless they're in B
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #include "andnotpostlist.h"
 
 inline PostList *

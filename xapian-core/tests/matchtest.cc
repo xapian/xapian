@@ -1,3 +1,9 @@
+/* matchtest.cc
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #include <stdio.h>
 
 #include "om.h"

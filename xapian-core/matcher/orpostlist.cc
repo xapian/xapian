@@ -1,3 +1,9 @@
+/* orpostlist.cc: OR of two posting lists
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #include "orpostlist.h"
 #include "andpostlist.h"
 #include "andmaybepostlist.h"

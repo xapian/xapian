@@ -1,3 +1,9 @@
+/* enquire.h
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #ifndef _enquire_h_
 #define _enquire_h_
 

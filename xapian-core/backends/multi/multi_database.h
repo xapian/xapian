@@ -1,4 +1,8 @@
-/* multi_database.h: C++ class definition for multiple database access */
+/* multi_database.h: C++ class definition for multiple database access
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _multi_database_h_
 #define _multi_database_h_

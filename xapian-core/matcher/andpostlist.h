@@ -1,4 +1,8 @@
-// AND of two posting lists
+/* andpostlist.h: Return only items which are in both sublists
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _andpostlist_h_
 #define _andpostlist_h_

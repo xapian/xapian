@@ -1,3 +1,9 @@
+/* query.cc: query executor for ferretfx
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #include <algorithm>
 #include <vector>
 

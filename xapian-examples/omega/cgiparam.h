@@ -1,4 +1,8 @@
-/* functions to deal with CGI parameters */
+/* functions to deal with CGI parameters
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 /* decode the query from stdin as "NAME=VALUE" pairs */
 extern void decode_test( void );

@@ -1,3 +1,9 @@
+/* stemtest.cc
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #include <string>
 
 #include "stem.h"

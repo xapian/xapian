@@ -1,4 +1,8 @@
-// AND NOT of two posting lists
+/* andnotpostlist.h: Return items which are in A, unless they're in B
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _andnotpostlist_h_
 #define _andnotpostlist_h_

@@ -1,3 +1,9 @@
+/* expand.h: class for finding expand terms
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #ifndef _expand_h_
 #define _expand_h_
 

@@ -1,4 +1,7 @@
 /* index_utils.cc
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #include "index_utils.h"

@@ -1,4 +1,8 @@
-/* sleepy_list.h: class definition for sleepycat list access routines */
+/* sleepy_list.h: class definition for sleepycat list access routines
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _sleepy_list_h_
 #define _sleepy_list_h_

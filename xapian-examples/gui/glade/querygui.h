@@ -1,4 +1,8 @@
-/* querygui.h */
+/* querygui.h: Header for callbacks in test GUI for om
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _querygui_h_
 #define _querygui_h_

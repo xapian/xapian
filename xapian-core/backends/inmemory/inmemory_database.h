@@ -1,4 +1,8 @@
-/* inmemory_database.h: C++ class definition for multiple database access */
+/* inmemory_database.h: C++ class definition for multiple database access
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _inmemory_database_h_
 #define _inmemory_database_h_

@@ -1,4 +1,7 @@
 /* error.h
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #ifndef _error_h_

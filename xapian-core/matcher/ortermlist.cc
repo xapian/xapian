@@ -1,3 +1,9 @@
+/* ortermlist.cc: OR of two term lists
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #include "ortermlist.h"
 
 OrTermList::OrTermList(TermList *left, TermList *right)

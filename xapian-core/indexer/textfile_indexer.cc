@@ -1,4 +1,7 @@
 /* textfile_indexer.cc
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #include "omassert.h"

@@ -1,4 +1,7 @@
-/* da_database.cc: C++ class for datype access routines */
+/* da_database.cc: C++ class for datype access routines
+ * 
+ * ----START-LICENCE----
+ * -----END-LICENCE----- */
 
 #include <string.h>
 #include <stdio.h>

@@ -1,3 +1,9 @@
+/* xorpostlist.cc: XOR of two posting lists
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #include "xorpostlist.h"
 #include "andnotpostlist.h"
 

@@ -1,4 +1,7 @@
 /* expandweight.h
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #ifndef _expandweight_h_

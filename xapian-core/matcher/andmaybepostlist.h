@@ -1,5 +1,12 @@
-// AND MAYBE of two posting lists
-// A AND MAYBE B is logically just A, but we keep B around for weight purposes
+/* andmaybepostlist.h: Merged postlist: items from one list, weights from both
+ *
+ * AND MAYBE of two posting lists
+ * A AND MAYBE B is logically just A, but we keep B around for weight purposes
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 
 #ifndef _andmaybepostlist_h_
 #define _andmaybepostlist_h_

@@ -1,4 +1,8 @@
-// empty term list (for degenerated trees)
+/* emptytermlist.h: empty term list (for degenerated trees)
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _emptytermlist_h_
 #define _emptytermlist_h_

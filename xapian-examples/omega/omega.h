@@ -1,3 +1,9 @@
+/* main.h: Main header for ferretfx
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #define FERRET 1
 
 #include "om.h"

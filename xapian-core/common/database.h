@@ -1,4 +1,7 @@
-/* database.h
+/* database.h: database class declarations
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #ifndef _database_h_

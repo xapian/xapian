@@ -1,4 +1,8 @@
-/* sleepy_list.cc: lists of data from a sleepycat database */
+/* sleepy_list.cc: lists of data from a sleepycat database
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #include <algorithm>
 

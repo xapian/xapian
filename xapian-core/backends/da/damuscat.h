@@ -1,3 +1,9 @@
+/* damuscat.h: header containing various macros for old muscat code.
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #define until(a)    while(!(a))
 #define unless(a)   if(!(a))
 #define repeat      for(;;)

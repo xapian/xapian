@@ -1,3 +1,8 @@
+/* daread.c: Code to read an old muscat Direct Access file
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #include <stdio.h>   /* main etc */
 #include <stdlib.h>  /* exit etc */

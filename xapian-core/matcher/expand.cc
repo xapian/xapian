@@ -1,4 +1,7 @@
 /* expand.cc
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #include "expand.h"

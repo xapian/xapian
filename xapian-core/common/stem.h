@@ -1,3 +1,9 @@
+/* stem.h: C++ interface to stemming algorithms
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #include <string>
 
 class Stem {

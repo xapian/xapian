@@ -1,4 +1,7 @@
 /* postlist.h
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
  */
 
 #ifndef _postlist_h_

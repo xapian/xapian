@@ -1,4 +1,8 @@
-// OR of two term lists
+/* ortermlist.h: OR of two term lists
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 #ifndef _ortermlist_h_
 #define _ortermlist_h_

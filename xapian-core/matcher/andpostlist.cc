@@ -1,3 +1,9 @@
+/* andpostlist.cc: Return only items which are in both sublists
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #include "andpostlist.h"
 
 inline void

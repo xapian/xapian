@@ -1,3 +1,8 @@
+/* dostem.c: Porter stemming algorithm
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 /* This is the Porter stemming algorithm, coded up in ANSI C by the
    author. It may be be regarded as cononical, in that it follows the

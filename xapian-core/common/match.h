@@ -1,3 +1,9 @@
+/* match.h: class for performing a match
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #ifndef _match_h_
 #define _match_h_
 

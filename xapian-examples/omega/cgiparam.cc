@@ -1,3 +1,9 @@
+/* cgiparam.cc: Parse CGI parameters
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
+
 #include <stdio.h>
 #include <limits.h>
 #include <map>

@@ -1,4 +1,8 @@
-/* sleepy_database.cc: interface to sleepycat database routines */
+/* sleepy_database.cc: interface to sleepycat database routines
+ *
+ * ----START-LICENCE----
+ * -----END-LICENCE-----
+ */
 
 
 #include <sys/types.h>
