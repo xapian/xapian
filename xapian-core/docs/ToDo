@@ -16,6 +16,11 @@ Expose positional information in postlists in a consistent way.
 Make postlists expose positional information (extra methods / get_positionlist() method)
 Implement phrase searching. - AND postlist, scan through positionlist for sequential positions.
 
+Document how each function should work in database, and what it should do in
+error conditions (when things should be Asserted / when exceptions should
+be thrown / when error condition should be returned.)
+Do same for postlists, termlists, documents, matcher, etc.
+
 Middle term (within a couple of months)
 ============================
 

@@ -6,3 +6,8 @@ Termid issue:  Where should translation from local id to global id be performed?
  i)  Could do in multitermlist / multipostlist - have a translation cache
  ii) Could do by passing lowlevel termlist a translation routine
      (NULL = no translation)
+
+Asserts: should be put in place to ensure correct usage.  If the assert isn't
+there, segfaults should not result, unless the condition is specifically
+prohibited in documentation.  Segfaults should not result when reading from
+files, or other data streams, even if Asserts are turned off.
