@@ -35,6 +35,7 @@
 #include "database_builder.h"
 #include <om/omdocument.h>
 #include "omdocumentinternal.h"
+#include "omenquireinternal.h"
 
 #include <vector>
 #include <memory>
@@ -139,45 +140,8 @@ OmMSet::convert_to_percent(const OmMSetItem & item) const
     return OmMSet::convert_to_percent(item.wt);
 }
 
-/////////////////////////////////
-// Internals of enquire system //
-/////////////////////////////////
-
-class OmEnquireInternal {
-	mutable IRDatabase * database;
-	OmDatabase dbdesc;
-	
-	/* This may need to be mutable in future so that it can be
-	 * replaced by an optimised version.
-	 */
-	OmQuery * query;
-
-    public:
-	// pthread mutexes, if available.
-	OmLock mutex;
-
-	OmEnquireInternal(const OmDatabase &db);
-	~OmEnquireInternal();
-
-	void open_database() const;
-	void set_query(const OmQuery & query_);
-	OmMSet get_mset(om_doccount first,
-			om_doccount maxitems,
-			const OmRSet *omrset,
-			const OmMatchOptions *moptions,
-			const OmMatchDecider *mdecider) const;
-	OmESet get_eset(om_termcount maxitems,
-			const OmRSet & omrset,
-			const OmExpandOptions * eoptions,
-			const OmExpandDecider * edecider) const;
-	const OmDocument get_doc(const OmMSetItem &mitem) const;
-	const OmDocument get_doc(om_docid did) const;
-	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
-	om_termname_list get_matching_terms(om_docid did) const;
-};
-
 //////////////////////////////////////////
-// Inline methods for OmEnquireInternal //
+// Methods for OmEnquireInternal //
 //////////////////////////////////////////
 
 OmEnquireInternal::OmEnquireInternal(const OmDatabase &db)
