@@ -45,7 +45,7 @@ IRWeight::get_weight(doccount wdf, doclength len) const
     weight wt;
 
 
-    //printf("(wdf, len, termweight, k * avlength)  = (%4d, %4f, %4.2f, %4f)\n",
+    //printf("(wdf, len, termweight, k / avlength)  = (%4d, %4f, %4.2f, %4f)\n",
     //	wdf, len, termweight, lenpart);
 
     // FIXME - precalculate this freq score for several values of wdf - may

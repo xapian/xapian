@@ -167,7 +167,7 @@ main(int argc, char *argv[])
 	    IRDocument *doc = database->open_document(q0);
 	    IRData data = doc->get_data();
 	    string p = data.value;
-	    cout << q0 << ":[" << p << "]\n\n";
+	    cout << q0 << ":[" << p << "] " << match.mset[i].w << "\n\n";
 	}
 	cout << endl;
 	database->close();
