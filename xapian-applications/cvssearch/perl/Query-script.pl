@@ -564,12 +564,16 @@ if($query && ($query ne "")){
 
 &printTips;
 
+
+
 #--------------
-# print survey
+# print email for bugs # survey
 #--------------
 print <<_HTML_;
+#<p>
+#<b class=orange>Please fill out our short <a href=http://www.pollcat.com/tzk3nkgszq_a target=_blank>survey</a>. Your feedback is essential in improving CVSSearch.</font></b>
 <p>
-<b class=orange>Please fill out our short <a href=http://www.pollcat.com/tzk3nkgszq_a target=_blank>survey</a>. Your feedback is essential in improving CVSSearch.</font></b>
+<b class=orange>Please send all bugs/comments to <a mailto="cvssearch\@cse.unsw.edu.au">cvssearch\@cse.unsw.edu.au</a>
 _HTML_
 
 #--------------------------
@@ -637,12 +641,13 @@ sub printTips{
 #	print "<p>\n";
 #	print "<b class=blue>Tips</font></b>\n";
 	print "<ul>\n";
-	print "<li>use <tt class=orange>in:</tt> at the end of keywords to select package to seach in. For example, \n";
+	print "<li>Use <tt class=orange>in:</tt> at the end of keywords to select package to search in. For example, \n";
 	print "<br><tt class=orange>menu in:kdebase/konqueror;kdepim/korganizer</tt> \n";
-	print "<br>searches for menu under kdebase/konqueror and kdepim/korganizer, default searches for keywords under all packages.\n";
+	print "<br>searches for menu under kdebase/konqueror and kdepim/korganizer; default searches for keywords under all packages.\n";
 	print "<li>Keywords are not case-sensitive and stemmed. (e.g. searching for 'fishes' will match 'FISH', 'fishes', 'fishing'...)\n";
 	print "<li>Results are ranked with the objective of matching as large a fraction of the keywords as possible.  \n";
 	print "The top 1500 lines are returned.\n";
+        print "<li>Multiple words are AND queries for CVS comment matches and OR queries for grep matches.\n";
 	print "</ul>\n";
 	
 	print "</body>";

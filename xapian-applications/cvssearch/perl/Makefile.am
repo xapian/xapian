@@ -2,15 +2,15 @@ bin_SCRIPTS = cvsbuilddb cvsupdatedb cvsquerydb	\
     Compare.cgi \
     Match.cgi Query.cgi Queryfile.cgi Source.cgi Top.cgi\
     cvs2cl \
-    popup.js utility.js \
-    Cvssearch.pm Entities.pm logo.png
+    popup.js \
+    Cvssearch.pm Entities.pm 
 
 EXTRA_DIST = cvsbuild-script.pl cvsupdate-script.pl cvsquery-script.pl \
     Compare-script.pl \
     Match-script.pl Query-script.pl Queryfile-script.pl Source-script.pl Top-script.pl\
     cvs2cl.pl \
-    popup.js utility.js \
-    Cvssearch.pm Entities.pm logo.png
+    popup.js \
+    Cvssearch.pm Entities.pm
 
 define build-perl-script
 $(PERL) -I $(srcdir) -c $(firstword $^)
