@@ -138,11 +138,11 @@ static bool test_tcpclient1()
 
     std::string command = "./omtcpsrv --one-shot --quiet --quartz "
 	                  ".quartz/db=apitest_simpledata "
-	                  "--port 1235 &";
+	                  "--port 1236 &";
     system(command.c_str());
 
     sleep(1);
-    TcpClient tc("localhost", 1235, 10000, 10000);
+    TcpClient tc("localhost", 1236, 10000, 10000);
 
     return true;
 }
@@ -159,7 +159,7 @@ static bool test_tcpmatch1()
 
     std::string command = "./omtcpsrv --one-shot --quiet --quartz "
 	                  ".quartz/db=apitest_simpledata"
-	                  " --port 1236 &";
+	                  " --port 1235 &";
     system(command.c_str());
     sleep(1);
 
@@ -167,7 +167,7 @@ static bool test_tcpmatch1()
     params.set("backend", "remote");
     params.set("remote_type", "tcp");
     params.set("remote_server", "localhost");
-    params.set("remote_port", 1236);
+    params.set("remote_port", 1235);
     OmDatabase db(params);
 
     OmEnquire enq(db);
