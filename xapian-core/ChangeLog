@@ -1,3 +1,8 @@
+Mon Sep 30 20:30:42 BST 2002  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Improved wording about bogus OMEXCEPT failures);
+	  Added results for OpenBSD 3.0 and Solaris 8 on x86 (both work).
+
 Mon Sep 30 20:25:03 BST 2002  Olly Betts <olly@survex.com>
 
 	* docs/: Pruned .cvsignore; removed cvs.html (link to CVS info
