@@ -1,3 +1,8 @@
+Thu Nov 04 01:18:55 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Eliminated use of \( \) in sed expression as it
+	  appears to cause problems on HP-UX.
+
 Thu Nov 04 00:54:11 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Added icky workaround to Compaq C++ oddness - cc can
