@@ -1,3 +1,11 @@
+Tue Apr 27 15:19:29 BST 2004  Richard Boulton <richard@tartarus.org>
+
+        * docs/Makefile.am: New file.  Builds text, info, pdf, man and html
+          documentation.
+        * docs/xapian-queryserver-manpage.but: Add man page.
+        * Makefile.am, configure.ac: Move parts of Makefile.am into
+          docs/Makefile.am
+
 Tue Apr 27 13:19:36 BST 2004  Richard Boulton <richard@tartarus.org>
 
         * Makefile.am, configure.ac: If halibut is available, use it to

@@ -4,8 +4,9 @@
 
 QueryServer is intended to provide a simple way to use Xapian from a wide
 variety of scripting languages, without having to implement (or compile)
-special extensions for that language.  As long as the languague supports
-use of UNIX sockets, a simple communication layer can be implemented
+special extensions for that language.  As long as the language supports use of
+UNIX sockets, a simple communication layer can be implemented without the need
+to compile extension modules for the language.
 
 QueryServer could easily be extended to work using TCP sockets, or any similar
 messaging system, for platforms in which UNIX sockets are not available.
