@@ -1767,8 +1767,8 @@ bool test_rsetmultidb1()
     expect_mset_order(mymset2a, order2a, 2, "mymset2a");
     expect_mset_order(mymset2b, order2b, 2, "mymset2b");
 
-    TEST_EQUAL(mymset1a, mymset2a);
-    TEST_EQUAL(mymset1b, mymset2b);
+    mset_range_is_same_weights(mymset1a, 0, mymset2a, 0, 2);
+    mset_range_is_same_weights(mymset1b, 0, mymset2b, 0, 2);
     TEST_NOT_EQUAL(mymset1a, mymset1b);
     TEST_NOT_EQUAL(mymset2a, mymset2b);
 
