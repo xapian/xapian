@@ -1,3 +1,7 @@
+Wed Mar 10 14:39:13 GMT 2004  Olly Betts <olly@survex.com>
+
+	* templates/xml: "Content-Type: text/xml".
+
 Wed Mar 10 00:08:40 GMT 2004  Olly Betts <olly@survex.com>
 
 	* docs/scriptindex.txt: Make more explicit that boolean produces a
