@@ -137,25 +137,47 @@
     $1 = 0;
 }
 */
-%typemap(python, in) const vector<string> &(vector<string> v){
+
+%typemap(python, freearg) const vector<string>* {
+    delete $1;
+}
+
+%typemap(python, typecheck) const std::vector<std::string>* {
+    $1 = 1;
+    if (!PyList_Check($input)) {
+	$1 = 0;
+    } else {
+	int numitems = PyList_Size($input);
+	for (int i=0; i<numitems; ++i) {
+	    PyObject *obj = PyList_GetItem($input, i);
+	    if (!PyString_Check(obj)) {
+		$1 = 0;
+		break;
+	    }
+	}
+    }
+}
+
+%typemap(python, in) const std::vector<std::string>* {
     if (!PyList_Check($input)) {
         PyErr_SetString(PyExc_TypeError, "expected list");
         return NULL;
     }
+    vector<string> *v = new vector<string>();
     int numitems = PyList_Size($input);
     for (int i=0; i<numitems; ++i) {
         PyObject *obj = PyList_GetItem($input, i);
 	if (PyString_Check(obj)) {
 	    int len = PyString_Size(obj);
 	    char *err = PyString_AsString(obj);
-	    v.push_back(string(err, len));
+	    v->push_back(string(err, len));
 	} else {
 	    PyErr_SetString(PyExc_TypeError,
 			    "expected list of strings");
 	    return NULL;
 	}
     }
-    $1 = &v;
+    $1 = v;
 }
 
 %typedef PyObject *LangSpecificListType;

@@ -1,3 +1,8 @@
+Wed Oct  6 17:28:54 BST 2004  James Aylett  <james@tartarus.org>
+
+	* get overloaded Query(Query::op, vector<string>*, termpos)
+	  constructor working in Python
+
 Thu Sep 30 02:29:13 BST 2004  Richard Boulton <richard@tartarus.org>
 
         * csharp/Makefile.am: Add XapianSharp.snk to CLEANFILES.
