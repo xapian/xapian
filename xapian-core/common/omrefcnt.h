@@ -30,13 +30,27 @@
  *  and a lock used by OmRefCntPtr.
  */
 class OmRefCntBase {
-    public:
+    private:
 	typedef unsigned int ref_count_t;
 
+	/// The actual reference count
 	ref_count_t ref_count;
+
+	/// the lock used for synchronising increment and decrement
 	OmLock ref_count_mutex;
 
-	OmRefCntBase() : ref_count(0) {}
+    public:
+	/// The constructor, which initialises the ref_count to 0.
+	OmRefCntBase() : ref_count(0) {};
+
+	/// Increase the reference count, used when attaching an OmRefCntPtr.
+	void ref_increment();
+
+	/** Decrease the reference count.  In addition, return true if the
+	 *  count has decreased to zero, meaning that this object should
+	 *  be deleted.
+	 */
+	bool ref_decrement();
 };
 
 /** The actual reference-counted pointer.  Can be used with any
@@ -48,14 +62,9 @@ class OmRefCntPtr {
     private:
 	T *dest;
 
-	void increment();
-
-	// if decrement() returns true, then
-	// dest should be deleted.
-	bool decrement();
     public:
 	T *operator->() const;
-	T *operator*() const;
+	T &operator*() const;
 	T *get() const;
 	OmRefCntPtr(T *dest_ = 0);
 	OmRefCntPtr(const OmRefCntPtr &other);
@@ -63,52 +72,48 @@ class OmRefCntPtr {
 	~OmRefCntPtr();
 };
 
-template <class T>
-inline void OmRefCntPtr<T>::increment()
+inline void OmRefCntBase::ref_increment()
 {
-    if (dest) {
-	OmLockSentry locksentry(dest->ref_count_mutex);
-	dest->ref_count += 1;
-    }
+    OmLockSentry locksentry(ref_count_mutex);
+    ref_count += 1;
 }
 
-template <class T>
-inline bool OmRefCntPtr<T>::decrement()
+inline bool OmRefCntBase::ref_decrement()
 {
-    if (dest) {
-	OmLockSentry locksentry(dest->ref_count_mutex);
-	dest->ref_count -= 1;
-	return (dest->ref_count == 0);
-    } else {
-	return false;
-    }
+    OmLockSentry locksentry(ref_count_mutex);
+    ref_count -= 1;
+    return (ref_count == 0);
 }
 
 template <class T>
 inline OmRefCntPtr<T>::OmRefCntPtr(T *dest_) : dest(dest_)
 {
-    increment();
+    if (dest) {
+	dest->ref_increment();
+    }
 }
 
 template <class T>
 inline OmRefCntPtr<T>::OmRefCntPtr(const OmRefCntPtr &other) : dest(other.dest)
 {
-    increment();
+    dest->ref_increment();
 }
 
 template <class T>
 inline void OmRefCntPtr<T>::operator=(const OmRefCntPtr &other) {
-    if (decrement()) {
+    if (dest && dest->ref_decrement()) {
 	delete dest;
     };
     dest = other.dest;
-    increment();
+    if (dest) {
+	dest->ref_increment();
+    };
 }
 
 template <class T>
 inline OmRefCntPtr<T>::~OmRefCntPtr()
 {
-    if (decrement()) {
+    if (dest && dest->ref_decrement()) {
 	delete dest;
 	dest = 0;
     }
@@ -121,9 +126,9 @@ inline T *OmRefCntPtr<T>::operator->() const
 }
 
 template <class T>
-inline T *OmRefCntPtr<T>::operator*() const
+inline T &OmRefCntPtr<T>::operator*() const
 {
-    return dest;
+    return *dest;
 }
 
 template <class T>

@@ -16,6 +16,12 @@ else
 PERLTESTS = 
 endif
 
+if HAVE_CPP_ACCESS_BYPASS
+INTERNAL_TEST_CFLAGS = -fno-access-control -DHAVE_NO_ACCESS_CONTROL
+else
+INTERNAL_TEST_CFLAGS =
+endif
+
 ## Test programs to be run
 TESTS = apitest internaltest includetest $(PERLTESTS)
 
@@ -31,6 +37,7 @@ apitest_LDADD = ../libomus.la ../testsuite/libtest.la
 
 internaltest_SOURCES = internaltest.cc
 internaltest_LDADD = ../libomus.la ../testsuite/libtest.la
+internaltest_CFLAGS = $(INTERNALTEST_CFLAGS)
 
 stemtest_SOURCES = stemtest.cc
 stemtest_LDADD = ../libomus.la

@@ -19,6 +19,20 @@ dnl Check for getopt.h.  On some systems, it's in stdlib.h
 AC_CHECK_HEADERS(getopt.h)
 AC_SUBST(HAVE_GETOPT_H)
 
+dnl Check for -fno-access-control flag to compiler.
+dnl Used in some low-level test suite stuff.
+AC_LANG_SAVE
+AC_LANG_CPLUSPLUS
+SAVED_CXXFLAGS="$CXXFLAGS"
+CXXFLAGS="$CXXFLAGS -fno-access-control"
+AC_TRY_COMPILE(,[return 0],
+		[echo yes; FNO_ACCESS_FLAG=yes],
+		[echo no; FNO_ACCESS_FLAG=no])
+CXXFLAGS="$SAVED_CXXFLAGS"
+unset SAVED_CXXFLAGS
+AC_LANG_RESTORE
+AM_CONDITIONAL(HAVE_CPP_ACCESS_BYPASS, test "$FNO_ACCESS_FLAG" = yes)
+
 dnl Checks for perl.  (Needed to make some of the documentation)
 AC_PATH_PROG(PERL_PATH, perl)
 AM_CONDITIONAL(HAVE_PERL, test -n "$PERL_PATH")
