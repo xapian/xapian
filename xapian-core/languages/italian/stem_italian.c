@@ -63,6 +63,15 @@ struct italian_stemmer
 
 /* char_type(z, i) is CON or VOW according as the character at i is a consonant
    or vowel. Used in measure().
+
+   Upper case letter usage:
+
+        A      a^g   (a grave)
+        E      e^a   (e acute), as well as:
+        E      e^g   (e grave)
+        I      i^g   (i grave)
+        O      o^g   (o grave)
+
 */
 
 static int vowel(int ch)
@@ -562,7 +571,7 @@ static char * irregular_forms[] = {
 
     "ho/hai/ha/abbiamo/avete/hanno/"
     "abbia/abbiate/abbiano/"
-    "avro^g/avrai/avra^g/avremo/avrete/avranno/"
+    "avrO/avrai/avrA/avremo/avrete/avranno/"
     "avrei/avresti/avrebbe/avremmo/avreste/avrebbero/"
     "avevo/avevi/aveva/avevamo/avevate/avevano/"
     "ebbi/avesti/ebbe/avemmo/aveste/ebbero/"
@@ -572,9 +581,9 @@ static char * irregular_forms[] = {
   ,
     "dar" ,
 
-    "do/da^g/diamo/danno/"
+    "do/dA/diamo/danno/"
     "dia/diate/diano/"
-    "daro^g/darai/dara^g/daremo/darete/daranno/"
+    "darO/darai/darA/daremo/darete/daranno/"
     "darei/daresti/darebbe/daremmo/dareste/darebbero/"
     "davo/davi/dava/davamo/davate/davano/"
     "diedi/desti/diede/demmo/deste/diedero/"
@@ -585,9 +594,9 @@ static char * irregular_forms[] = {
 
     "esser" ,
 
-    "sono/sei/e^g/siamo/siete/"
+    "sono/sei/E/siamo/siete/"
     "sia/siate/siano/"
-    "saro^g/sarai/sara^g/saremo/sarete/saranno/"
+    "sarO/sarai/sarA/saremo/sarete/saranno/"
     "sarei/saresti/sarebbe/saremmo/sareste/sarebbero/"
     "ero/eri/era/eravamo/eravate/erano/"
     "fui/fosti/fu/fummo/foste/furono/"
@@ -598,7 +607,7 @@ static char * irregular_forms[] = {
 
     "faccio/fai/facciamo/fanno/"
     "faccia/facciate/facciano/"
-    "faro^g/farai/fara^g/faremo/farete/faranno/"
+    "farO/farai/farA/faremo/farete/faranno/"
     "farei/faresti/farebbe/faremmo/fareste/farebbero/"
     "facevo/facevi/faceva/facevamo/facevate/facevano/"
     "feci/facesti/fece/facemmo/faceste/fecero/"
@@ -611,7 +620,7 @@ static char * irregular_forms[] = {
 
     "sto/stai/sta/stiamo/stanno/"
     "stia/stiate/stiano/"
-    "staro^g/starai/stara^g/staremo/starete/staranno/"
+    "starO/starai/starA/staremo/starete/staranno/"
     "starei/staresti/starebbe/staremmo/stareste/starebbero/"
     "stavo/stavi/stava/stavamo/stavate/stavano/"
     "stetti/stesti/stette/stemmo/steste/stettero/"

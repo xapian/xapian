@@ -63,6 +63,17 @@ void debug(struct spanish_stemmer * z, int n)
 
 /* char_type(ch) is CON or VOW according as ch is a consonant or vowel.
    Used in measure().
+
+   Upper case letter usage:
+
+        A      a^a   (a acute)
+        E      e^a   (e acute)
+        I      i^a   (i acute)
+        O      i^a   (i acute)
+        U      o^a   (o acute)
+        U      u^h   (u acute)
+        N      n^t   (n tilde)
+
 */
 
 static int char_type(int ch)

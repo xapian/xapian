@@ -65,6 +65,17 @@ struct french_stemmer
 
 /* char_type(z, i) is CON or VOW according as the character at i is a consonant
    or vowel. Used in measure().
+
+   Upper case letter usage:
+
+        A      a^h   (a circumflex)
+        F      e^a   (e acute)
+        G      e^g   (e grave)
+        E      e^h   (e circumflex)
+        I      i^h   (i circumflex)
+        U      u^h   (u cicumflex)
+        J      i^u   (i trema, or diaeresis)
+
 */
 
 static int vowel(int ch)
