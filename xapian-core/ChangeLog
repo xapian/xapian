@@ -1,3 +1,11 @@
+Thu Apr 04 20:25:41 BST 2002  Olly Betts <olly@survex.com>
+
+	* PTHREAD_CFLAGS was only being used for compiling C, not C++, which
+	  was causing builds to fail unless threading was disabled.  This
+	  problem has been there a long time, but until recently was hidden
+	  by the check for fdatasync erroneously linking in -lrt which pulls
+	  in pthreads anyway (at least this is the situation on Linux).
+
 Thu Apr 04 20:06:00 BST 2002  Olly Betts <olly@survex.com>
 
 	* Removed XML indexer stuff from the main xapian library.  All the

@@ -243,6 +243,7 @@ if test x$use_pthread = xtrue; then
   if test x$HAVE_PTHREAD != x; then
     LIBS="$PTHREAD_LIBS $LIBS"
     CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
+    CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
     CC="$PTHREAD_CC"
   fi
 fi
