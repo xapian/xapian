@@ -197,57 +197,44 @@ QuartzDatabase::do_get_document_internal(om_docid did,
 {
     Assert(did != 0);
 
-    int tries_left = 5;
+    OmDocumentContents document;
 
-    while (tries_left) {
-	try {
-	    OmDocumentContents document;
+    document.data = QuartzRecordManager::get_record(
+		*(tables->get_record_table()), did);
 
-	    document.data = QuartzRecordManager::get_record(
-							    *(tables->get_record_table()), did);
+    QuartzAttributesManager::get_all_attributes(
+		*(tables->get_attribute_table()),
+		document.keys,
+		did);
 
-	    QuartzAttributesManager::get_all_attributes(
-							*(tables->get_attribute_table()),
-							document.keys,
-							did);
+    QuartzTermList termlist(ptrtothis,
+			    tables->get_termlist_table(),
+			    tables->get_lexicon_table(),
+			    did,
+			    get_doccount_internal());
 
-	    QuartzTermList termlist(ptrtothis,
-				    tables->get_termlist_table(),
-				    tables->get_lexicon_table(),
-				    did,
-				    get_doccount_internal());
+    termlist.next();
+    while (!termlist.at_end()) {
+	OmDocumentTerm term(termlist.get_termname());
+	term.wdf = termlist.get_wdf();
+	term.termfreq = termlist.get_termfreq();
 
-	    termlist.next();
-	    while (!termlist.at_end()) {
-		OmDocumentTerm term(termlist.get_termname());
-		term.wdf = termlist.get_wdf();
-		term.termfreq = termlist.get_termfreq();
-
-		// read appropriate QuartzPositionList, and store it too.
-		QuartzPositionList positionlist;
-		positionlist.read_data(tables->get_positionlist_table(),
-				       did,
-				       term.tname);
-		positionlist.next();
-		while (!positionlist.at_end()) {
-		    term.positions.push_back(positionlist.get_position());
-		    positionlist.next();
-		}
-
-		document.terms.insert(std::make_pair(term.tname, term));
-		termlist.next();
-	    }
-
-	    return document;
-	} catch (OmDatabaseModifiedError &e) {
-	    if (tries_left-- > 0) {
-		DEBUGLINE(DB, "Database modifed - reopening.");
-		tables->reopen_tables_because_overwritten();
-	    } else {
-		throw;
-	    }
+	// read appropriate QuartzPositionList, and store it too.
+	QuartzPositionList positionlist;
+	positionlist.read_data(tables->get_positionlist_table(),
+			       did,
+			       term.tname);
+	positionlist.next();
+	while (!positionlist.at_end()) {
+	    term.positions.push_back(positionlist.get_position());
+	    positionlist.next();
 	}
+
+	document.terms.insert(std::make_pair(term.tname, term));
+	termlist.next();
     }
+
+    return document;
 }
 
 
@@ -385,7 +372,8 @@ QuartzDatabase::open_document(om_docid did) const
     RefCntPtr<const QuartzDatabase> ptrtothis(tmp, this);
 
     return new QuartzDocument(ptrtothis,
-			      tables.get(),
+			      tables->get_attribute_table(),
+			      tables->get_record_table(),
 			      did);
 }
 
@@ -725,7 +713,8 @@ QuartzWritableDatabase::open_document(om_docid did) const
     RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
 
     return new QuartzDocument(ptrtothis,
-			      buffered_tables,
+			      buffered_tables->get_attribute_table(),
+			      buffered_tables->get_record_table(),
 			      did);
 }
 

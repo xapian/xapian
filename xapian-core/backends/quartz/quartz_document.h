@@ -36,10 +36,12 @@ class QuartzDocument : public Document {
     private:
 	RefCntPtr<const Database> database;
 
-	QuartzTableManager *tables;
+	QuartzTable *attribute_table;
+	QuartzTable *record_table;
 
 	QuartzDocument(RefCntPtr<const Database> database_,
-		       QuartzTableManager *tables_,
+		       QuartzTable *attribute_table_,
+		       QuartzTable *record_table_,
 		       om_docid did_);
 
 	// Stop copying

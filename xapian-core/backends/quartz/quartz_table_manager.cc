@@ -301,15 +301,6 @@ QuartzDiskTableManager::get_record_table()
     return &record_table;
 }
 
-void
-QuartzDiskTableManager::reopen_tables_because_overwritten()
-{
-    if (readonly) {
-	open_tables_consistent();
-    } else {
-	throw OmDatabaseCorruptError("Found overwritten block in writable database");
-    }
-}
 
 QuartzBufferedTableManager::QuartzBufferedTableManager(std::string db_dir_,
 						       std::string log_filename,
@@ -434,8 +425,3 @@ QuartzBufferedTableManager::get_record_table()
     return &record_buffered_table;
 }
 
-void
-QuartzBufferedTableManager::reopen_tables_because_overwritten()
-{
-    disktables.reopen_tables_because_overwritten();
-}

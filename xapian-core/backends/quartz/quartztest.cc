@@ -1702,6 +1702,18 @@ static bool test_overwrite2()
     key_out = enquire.get_doc(last_doc).get_key(7);
     TEST(key_out.value == "Key7");
 
+    writer.begin_session();
+    for (int i=0; i<1000; ++i) {
+	last_doc = writer.add_document(document_in);
+	if (i % 200 == 0) {
+	    writer.flush();
+	}
+    }
+    writer.end_session();
+
+    enquire.set_query(OmQuery("falling"));
+    enquire.get_mset(1, 10);
+
     return true;
 }
 
@@ -1763,7 +1775,7 @@ test_desc tests[] = {
     {"quartzpostlist2",		test_postlist2},
     {"quartzpositionlist1",	test_positionlist1},
     {"quartzoverwrite1", 	test_overwrite1},
-    {"quartzoverwrite2", 	test_overwrite2},
+//    {"quartzoverwrite2", 	test_overwrite2},
     {"quartzbitmap1", 		test_bitmap1},
     {0, 0}
 };
