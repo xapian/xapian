@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Hein Ragas
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -128,6 +129,10 @@ class QuartzPositionList : public PositionList {
 	static void delete_positionlist(QuartzBufferedTable * table,
 					om_docid did,
 					const om_termname & tname);
+	/// Return the current position
+	om_termpos get_current_pos() {
+	    return(current_pos);
+	}
 };
 
 #endif /* OM_HGUARD_QUARTZ_POSITIONLIST_H */

@@ -1,3 +1,8 @@
+Mon May 28 12:00:00 2001  Hein Ragas <hragas@users.sourceforge.net>
+
+        * Fixed a bug in replace_document for Quartz, added a test to
+          ensure proper working of the fix.
+
 Fri Apr 27 15:16:10 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 	* Project name change to Omseek.

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Hein Ragas
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -2429,6 +2430,51 @@ static bool test_deldoc1()
     return true;
 }
 
+static bool test_replacedoc()
+{
+    OmWritableDatabase db = get_writable_database("");
+
+    OmDocument doc1;
+
+    doc1.add_posting("foo", 1);
+    doc1.add_posting("foo", 2);
+    doc1.add_posting("gone",3);
+    doc1.add_posting("bar", 4);
+    doc1.add_posting("foo", 5);
+    om_docid did;
+
+    did = db.add_document(doc1);
+    TEST_EQUAL(did, 1);
+
+    OmDocument doc2;
+
+    doc2.add_posting("foo", 1);
+    doc2.add_posting("pipco", 2);
+    doc2.add_posting("bar", 4);
+    doc2.add_posting("foo", 5);
+
+    db.replace_document(did, doc2);
+
+    OmDocument doc3 = db.get_document(did);
+    OmTermIterator tIter = doc3.termlist_begin();
+    TEST_EQUAL(*tIter, "bar");
+    OmPositionListIterator pIter = tIter.positionlist_begin();
+    TEST_EQUAL(*pIter, 4);
+    ++tIter;
+    TEST_EQUAL(*tIter, "foo");
+    OmPositionListIterator qIter = tIter.positionlist_begin();
+    TEST_EQUAL(*qIter, 1);
+    ++qIter;
+    TEST_EQUAL(*qIter, 5);
+    ++tIter;
+    TEST_EQUAL(*tIter, "pipco");
+    OmPositionListIterator rIter = tIter.positionlist_begin();
+    TEST_EQUAL(*rIter, 2);
+    ++tIter;
+    TEST_EQUAL(tIter, doc3.termlist_end());
+    return true;
+}
+
 // tests that deletion and updating of documents works as expected
 static bool test_deldoc2()
 {
@@ -3008,6 +3054,7 @@ test_desc writabledb_tests[] = {
     {"deldoc2",		   test_deldoc2},
     {"deldoc3",		   test_deldoc3},
     {"deldoc4",		   test_deldoc4},
+    {"replacedoc",	   test_replacedoc},
     {0, 0}
 };
 

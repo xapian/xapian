@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Hein Ragas
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -619,20 +620,72 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 	}
 
 	// Set the termlist.
+        // We should detect what terms have been deleted, and which ones have been added. Then we'll add/delete only
+        //   those terms.
 	quartz_doclen_t old_doclen;
 	{
+            vector<om_termname> delTerms;
+            vector<om_termname> addTerms;
+            vector<om_termname> posTerms;
+
+            // First, before we modify the Postlist, we should detect the old document length, since that
+            //   seems to be of some importance later on.
 	    QuartzDatabase::RefCntPtrToThis tmp;
 	    RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
-
 	    QuartzTermList termlist(ptrtothis,
-				    database_ro.tables->get_termlist_table(),
+	  			    database_ro.tables->get_termlist_table(),
 				    database_ro.tables->get_lexicon_table(),
 				    did,
 				    database_ro.get_doccount_internal());
-
-	    termlist.next();
-	    while (!termlist.at_end()) {
-	        om_termname tname = termlist.get_termname();
+	    old_doclen = termlist.get_doclength();
+            OmTermIterator tNewIter = document.termlist_begin();
+            termlist.next();
+            while (!termlist.at_end() && tNewIter != document.termlist_end())
+            {
+              om_termname tname = termlist.get_termname();
+              if (tname < (*tNewIter))
+              {
+                // Deleted term exists in the old termlist, but not in the new one.
+                delTerms.push_back(tname);
+                termlist.next();
+              }
+              else
+              {
+                if (tname > (*tNewIter))
+                {
+                  // Added term does not exist in the old termlist, but it does in the new one.
+                  addTerms.push_back((*tNewIter));
+                  ++tNewIter;
+                }
+                else
+                {
+                  // Terms are equal, but perhaps its positionlist has been modified. Record it, and skip to the next.
+                  posTerms.push_back(tname);
+                  ++tNewIter;
+                  termlist.next();
+                }
+              }
+            }
+            // One of the lists (or both!) has been processed. Check if any of the iterators are not at the end.
+            while (!termlist.at_end())
+            {
+              // Any term left in the old list must be removed.
+              om_termname tname = termlist.get_termname();
+              delTerms.push_back(tname);
+              termlist.next();
+            }
+            while (tNewIter != document.termlist_end())
+            {
+              // Any term left in the new list must be added.
+              addTerms.push_back((*tNewIter));
+              ++tNewIter;
+            }
+            // We now know which terms to add and which to remove. Let's get to work!
+            // Delete the terms on our "hitlist"...
+            vector<om_termname>::iterator vIter = delTerms.begin();
+            while (vIter != delTerms.end())
+            {
+	        om_termname tname = (*vIter);
 	        QuartzPostList::delete_entry(buffered_tables->get_postlist_table(),
 		    tname, did);
 	        QuartzPositionList::delete_positionlist(
@@ -641,16 +694,80 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 	        QuartzLexicon::decrement_termfreq(
 		    buffered_tables->get_lexicon_table(),
 		    tname);
-	        termlist.next();
+                ++vIter;
 	    }
-
-	    old_doclen = termlist.get_doclength();
+            // Now add the terms that are new...
+            vIter = addTerms.begin();
+            while (vIter != addTerms.end())
+            {
+                OmTermIterator tIter = document.termlist_begin();
+                tIter.skip_to((*vIter));
+		QuartzLexicon::increment_termfreq(
+		    buffered_tables->get_lexicon_table(),
+		    *tIter);
+		QuartzPostList::add_entry(buffered_tables->get_postlist_table(),
+					  *tIter, did, tIter.get_wdf(),
+					  new_doclen);
+		QuartzPositionList::set_positionlist(
+		    buffered_tables->get_positionlist_table(), did,
+		    *tIter, tIter.positionlist_begin(), tIter.positionlist_end());
+                ++vIter;
+	    }
+            // Finally, update the positionlist of terms that are not new or removed.
+            vIter = posTerms.begin();
+            while (vIter != posTerms.end())
+            {
+                OmTermIterator tIter = document.termlist_begin();
+                tIter.skip_to((*vIter));
+                if (tIter.positionlist_begin() == tIter.positionlist_end())
+                {
+                  // In the new document, this term does not have any positions associated with it
+                  QuartzPositionList qpl;
+                  qpl.read_data(buffered_tables->get_positionlist_table(), did, *tIter);
+                  if (qpl.get_size() != 0)
+                  {
+                    // But there are positions associated with this term in the index. Delete the positionlist.
+                    QuartzPositionList::delete_positionlist(buffered_tables->get_positionlist_table(), did, *tIter);
+                  }
+                }
+                else
+                {
+                  // In the new document, this term has positions associated with it. Check whether we need to re-create
+                  //   the positionlist.
+                  QuartzPositionList qpl;
+                  qpl.read_data(buffered_tables->get_positionlist_table(), did, *tIter);
+                  qpl.next();
+                  OmPositionListIterator pIter = tIter.positionlist_begin();
+                  while (!qpl.at_end() && pIter != tIter.positionlist_end())
+                  {
+                    if (qpl.get_current_pos() != (*pIter))
+                    {
+                      // Position lists do not match, so create a new one.
+  		      QuartzPositionList::set_positionlist(
+		        buffered_tables->get_positionlist_table(), did,
+		        *tIter, tIter.positionlist_begin(), tIter.positionlist_end());
+                      break;
+                    }
+                    qpl.next();
+                    ++pIter;
+                  }
+                  if (!qpl.at_end() || pIter != tIter.positionlist_end())
+                  {
+                    // One of the position lists has not reached yet the end -- which means they are different. Create a
+                    //   new posisitionlist based on the one in the new OmDocument.
+  		    QuartzPositionList::set_positionlist(
+		      buffered_tables->get_positionlist_table(), did,
+		      *tIter, tIter.positionlist_begin(), tIter.positionlist_end());
+                  }
+                }
+                ++vIter;
+	    }
+            // All done!
 	}
-
+        // Set pointers from the document to the terms.
 	QuartzTermList::set_entries(buffered_tables->get_termlist_table(), did,
 		document.termlist_begin(), document.termlist_end(),
 		new_doclen, false);
-
 	// Set the new document length
 	QuartzRecordManager::modify_total_length(
 		*(buffered_tables->get_record_table()),
