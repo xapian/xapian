@@ -21,11 +21,11 @@ server.
 
 THE PROG METHOD
 ===============
-The prog method actually spawns a program when the database is opened, and
+The prog method spawns a program when the database is opened, and
 communicates with it over a Unix domain socket.  This isn't intended for
-production use, but is really only useful for debugging and testing.  The
-omprogsrv program currently only uses text files indexed into inmemory
-databases.
+production use, but is useful for debugging and testing.  The omprogsrv
+program, which is designed to be the program spawned, currently only uses
+text files indexed into inmemory databases.
 
 From the client end, the following database parameters are used:
 
@@ -50,6 +50,9 @@ Argument 2: The server's hostname.
 Argument 3: The server port to use (as a decimal string).
 
 The server is omtcpsrv in the netprogs/ directory of the OM distribution.
+This should be started and left running in the background before searches
+are performed.
+
 The arguments omtcpsrv currently knows are:
     --port <portnum>
         (required) the port to listen on.
@@ -64,7 +67,7 @@ Options for specifying the database(s):
     --im <filename>
         Add an inmemory (text file) database to the group
     --sleepycat <dir>
-        Add a sleepycat databaes to the group.
+        Add a sleepycat database to the group.
 
 Once started, the server will run and listen for connections on the
 configured port, currently handling them one by one (although this will
@@ -72,6 +75,7 @@ change at some point).
 
 NOTES
 =====
-A network search should behave just like the equivalent local one, currently
-with the exception of match decision functors.  Exceptions are propagated
-over the link.
+A network search should behave just like the equivalent local one,
+currently with the exception of match decision functors (which are not yet
+implemented for network usage).  Exceptions are propagated across the link
+and thrown again at the client end.
