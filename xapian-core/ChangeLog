@@ -1,3 +1,13 @@
+Fri Sep  8 12:02:05 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix Asserts in MultiPostList::skip_to(), and small bug in
+	  MultiPostList::next();
+
+	* debugging info to DBDatabase::skip_to().
+
+	* delve now displays lists of docids or terms one per line, for easier
+	  post-processing.
+
 Fri Sep 08 11:02:53 BST 2000 Olly Betts
 
 	* Reenabled termlist1 for DA backend so Martin can investigate bug.

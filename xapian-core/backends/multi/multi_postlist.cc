@@ -95,9 +95,11 @@ MultiPostList::next(om_weight w_min)
 		(*i)->next(w_min);
 		if (!(*i)->at_end()) {
 		    id = ((*i)->get_docid() - 1) * multiplier + offset;
+		    if (newdoc == 0 || id < newdoc) newdoc = id;
 		}
+	    } else {
+		if (newdoc == 0 || id < newdoc) newdoc = id;
 	    }
-	    if (newdoc == 0 || id < newdoc) newdoc = id;
 	}
 	offset++;
     }
@@ -125,8 +127,8 @@ MultiPostList::skip_to(om_docid did, om_weight w_min)
     om_doccount dbnumber = (did - 1) % multiplier;
     std::vector<LeafPostList *>::iterator i;
     for (i = postlists.begin(); i != postlists.end(); i++) {	
-	Assert(realdid * multiplier + offset >= did);
-	Assert(realdid * multiplier + offset < did + multiplier);
+	Assert((realdid - 1) * multiplier + offset >= did);
+	Assert((realdid - 1) * multiplier + offset < did + multiplier);
 	if (!(*i)->at_end()) {
 	    (*i)->skip_to(realdid, w_min);
 	    om_docid id = ((*i)->get_docid() - 1) * multiplier + offset;

@@ -88,7 +88,7 @@ main(int argc, char *argv[])
 	    if (recno == 0) {
 		cout << "Posting List for term `" << term << "':";
 		while (p != pend) {
-		    cout << ' ' << *p;
+		    cout << '\n' << *p;
 		    p++;
 		}
 		cout << endl;
@@ -104,7 +104,7 @@ main(int argc, char *argv[])
 		OmPositionListIterator pos = p.positionlist_begin();
 		OmPositionListIterator posend = p.positionlist_end();
 		while (pos != posend) {
-		    cout << ' ' << *pos;
+		    cout << '\n' << *pos;
 		    pos++;
 		}
 		cout << endl;
@@ -114,7 +114,7 @@ main(int argc, char *argv[])
 	    OmTermListIterator tend = db.termlist_end(recno);
 	    cout << "Term List for record #" << recno << ':';
 	    while (t != tend) {
-		cout << ' ' << *t;
+		cout << '\n' << *t;
 		t++;
 	    }
 	    cout << endl;

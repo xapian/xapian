@@ -84,9 +84,12 @@ PostList * DBPostList::skip_to(om_docid did, om_weight w_min)
     DEBUGLINE(DB, "DBPostList::skip_to(" << did << ", " << w_min <<
 	      "): current docid = " << currdoc);
     if (currdoc && did <= om_docid(postlist->E)) {
+	DEBUGLINE(DB, "skip within range (end of range is " <<
+		  om_docid(postlist->E) << ")");
 	currdoc = did;
     } else {
 	DB_read_postings(postlist, 1, did);
+	DEBUGLINE(DB, "reading more postings");
 	currdoc = om_docid(postlist->Doc);
     }
     DEBUGLINE(DB, "DBPostList::skip_to(" << did << ", " << w_min <<
