@@ -99,14 +99,11 @@ class PostList
 	 *
 	 *  This is currently only meaningful for a LeafPostList, although
 	 *  in future such things as a "SynonymPostList" may be created and
-	 *  implement this method.
-	 *
-	 *  This method may only be called while the current position is at a
-	 *  valid item: ie, after at least one next() or skip_to() has been
-	 *  performed, and before at_end() returns true (or would do were it to
-	 *  be called).
+	 *  implement this method.  If get_wdf() is called on a postlist
+	 *  which where wdf isn't meaningful then an OmUnimplementedError
+	 *  exception will be thrown.
 	 */
-        virtual om_termcount get_wdf() const = 0;
+        virtual om_termcount get_wdf() const;
 
 	/** Get the list of positions at which the current term appears.
 	 *  This method returns a reference to a PositionList, which is valid
@@ -142,5 +139,11 @@ class PostList
 	// derives.
 	virtual string intro_term_description() const = 0;
 };
+
+inline om_termcount
+PostList::get_wdf() const
+{
+    throw OmUnimplementedError("PostList::get_wdf() unimplemented");
+}
 
 #endif /* OM_HGUARD_POSTLIST_H */

@@ -27,37 +27,35 @@
 #include "andpostlist.h"
 #include "omdebug.h"
 
-/** A postlist comprising two postlists NEARed together.
+/** A postlist comprising several postlists NEARed together.
  *
- *  This postlist returns a posting if and only if it is in both of the
- *  sub-postlists and the terms are near each other.  The weight for a
- *  posting is the sum of the weights of the sub-postings.
+ *  This postlist returns a posting if and only if it is in all of the
+ *  sub-postlists and all the terms occur within a specified distance of
+ *  each other somewhere in the document.  The weight for a posting is the
+ *  sum of the weights of the sub-postings.
  */
-class NearPostList : public AndPostList {
+class NearPostList : public PostList {
     private:
-        om_termpos max_separation;
-        bool order_matters;
+        om_termpos window;
+    	PostList *source; // Source of candidate documents
+	vector<PostList *> terms;
 
-	inline bool terms_near();
+    	inline bool terms_near();
     public:
 	PostList *next(om_weight w_min);
 	PostList *skip_to(om_docid did, om_weight w_min);
 
 	string intro_term_description() const;
 
-        NearPostList(PostList *left,
-		     PostList *right,
-		     LocalMatch *matcher_,
-		     om_termpos max_separation,
-		     bool order_matters = false);
+        NearPostList(PostList *source_, om_termpos window_,
+		     vector<PostList *> terms_);
 };
 
 inline string
 NearPostList::intro_term_description() const
 {
-    // FIXME: include max_separation and order_matters in desc?
-    return "(" + l->intro_term_description() + " Near " +
-	    r->intro_term_description() + ")";
+    // FIXME: include window in desc?
+    return "(Near " + source->intro_term_description() + ")";
 }
 
 #endif /* OM_HGUARD_NEARPOSTLIST_H */

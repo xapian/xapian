@@ -1736,7 +1736,7 @@ bool test_rsetmultidb2()
     return true;
 }
 
-/// Test the set_max_or_terms() match option.
+/// Simple test of the set_max_or_terms() match option.
 bool test_maxorterms1()
 {
     OmDatabase mydb(get_database("apitest_simpledata"));
@@ -1758,7 +1758,39 @@ bool test_maxorterms1()
     OmMSet mymset2 = enquire.get_mset(0, 10, 0, &moptions);
 
     TEST_EQUAL(mymset1, mymset2);
+    
+    return true;
+}
 
+/// Test the set_max_or_terms() match option works if the OR contains
+/// sub-expressions (regression test)
+bool test_maxorterms2()
+{
+    OmDatabase mydb(get_database("apitest_simpledata"));
+    OmEnquire enquire(make_dbgrp(&mydb));
+
+    OmStem stemmer("english");
+
+    OmQuery myquery1(OM_MOP_AND,
+		     OmQuery(stemmer.stem_word("word")),
+		     OmQuery(stemmer.stem_word("search")));
+
+    OmQuery myquery2(OM_MOP_OR,
+		     OmQuery(stemmer.stem_word("thi")),
+		     OmQuery(OM_MOP_AND,
+			     OmQuery(stemmer.stem_word("word")),
+			     OmQuery(stemmer.stem_word("search"))));
+
+    enquire.set_query(myquery1);
+    OmMSet mymset1 = enquire.get_mset(0, 10);
+
+    enquire.set_query(myquery2);
+    OmMatchOptions moptions;
+    moptions.set_max_or_terms(1);
+    OmMSet mymset2 = enquire.get_mset(0, 10, 0, &moptions);
+
+    TEST_EQUAL(mymset1, mymset2);
+    
     return true;
 }
 
@@ -1897,6 +1929,7 @@ test_desc db_tests[] = {
     {"rsetmultidb1",       test_rsetmultidb1},
     {"rsetmultidb2",       test_rsetmultidb2},
     {"maxorterms1",        test_maxorterms1},
+    {"maxorterms2",        test_maxorterms2},
     {"termlisttermfreq",   test_termlisttermfreq},
     {"multiexpand1",       test_multiexpand1},
     {0, 0}

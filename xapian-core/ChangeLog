@@ -1,3 +1,15 @@
+Wed Jun 14 18:14:00 BST 2000 Olly Betts
+
+	* PostListAndTermWeight scrapped; use get_maxweight() instead.
+	  Fixes bug: max_or_terms now works with non-LeafPostlist-s;
+	  regression test maxorterms2 added to apitest
+
+	* Stub get_wdf() now in PostList
+
+	* Documented PLPCmpLt and PLPCmpGt
+
+	* More work on NEAR and PHRASE
+
 Wed Jun 14 18:08:53 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove compliated class heirarchy for Stemming algorithms: replace

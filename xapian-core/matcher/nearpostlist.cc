@@ -22,23 +22,26 @@
 
 #include "nearpostlist.h"
 
-NearPostList::NearPostList(PostList *left, PostList *right, LocalMatch *matcher_,
-			   om_termpos max_separation_,
-			   bool order_matters_) : AndPostList(left, right, matcher)
+NearPostList::NearPostList(PostList *source_, om_termpos window_,
+			   vector<PostList *> terms_)
 {
-    max_separation = max_separation_;
-    order_matters = order_matters_;
+    source = source_;
+    window = window_;
+    terms = terms_;
 }
 
 inline bool
 NearPostList::terms_near()
 {
     // check if NEAR criterion is satisfied
-    PositionList *lposlist = l->get_position_list();
-    PositionList *rposlist = r->get_position_list();
-    // FIXME: swap round poslists if appropriate?  If so need to fudge if
-    // order_matters...
+    vector<PositionList *> plists;
+    vector<PostList *>::iterator i;
+    for (i = terms.begin(); i != terms.end(); i++) {
+	plists.push_back((*i)->get_position_list());
+    }
+    // FIXME: now sort plists...
     while (1) {
+#if 0 // FIXME: recode...
         lposlist->next();
         if (lposlist->at_end()) break;
         om_termpos lpos = lposlist->get_position();
@@ -51,6 +54,7 @@ NearPostList::terms_near()
         if (rposlist->at_end()) break;
         // FIXME: if terms are the same should we reject rpos == lpos???
         if (rposlist->get_position() <= lpos + max_separation) return true;
+#endif
     }
     return false;
 }
@@ -58,22 +62,18 @@ NearPostList::terms_near()
 PostList *
 NearPostList::next(om_weight w_min)
 {
-    while (1) {
-        AndPostList::next(w_min);
-        if (at_end()) return NULL;
-        if (terms_near()) return NULL;
-    }
+    do {
+        source->next(w_min);
+    } while (!source->at_end() && !terms_near());
+    return NULL;
 }
 
 PostList *
 NearPostList::skip_to(om_docid did, om_weight w_min)
 {
     if (did > get_docid()) {
-        while (1) {
-	   AndPostList::skip_to(did, w_min);
-	   if (at_end()) return NULL;
-	   if (terms_near()) return NULL;
-	}
+	source->skip_to(did, w_min);
+        if (!source->at_end() && !terms_near()) this->next(w_min);
     }
     return NULL;
 }

@@ -32,7 +32,6 @@ class IRWeight;
 class IRDatabase;
 class LeafDocument;
 class PostList;
-struct PostListAndTermWeight;
 
 #include <vector>
 #include <map>
@@ -130,11 +129,11 @@ class LocalMatch : public SingleMatch
 	void gather_query_statistics();
 
 	/// Make a postlist from a query object
-	PostListAndTermWeight postlist_from_query(
+	PostList *postlist_from_query(
 				const OmQueryInternal * query_);
 
 	/// Make a postlist from a vector of query objects (AND or OR)
-	PostListAndTermWeight postlist_from_queries(
+	PostList *postlist_from_queries(
 				om_queryop op,
 				const vector<OmQueryInternal *> & queries);
 
@@ -162,8 +161,8 @@ class LocalMatch : public SingleMatch
 	LocalMatch(const LocalMatch &);
 	void operator=(const LocalMatch &);
 
-	PostList * build_and_tree(vector<PostListAndTermWeight> &postlists);
-	PostList * build_or_tree(vector<PostListAndTermWeight> &postlists);
+	PostList * build_and_tree(vector<PostList *> &postlists);
+	PostList * build_or_tree(vector<PostList *> &postlists);
     public:
         LocalMatch(IRDatabase * database_);
         ~LocalMatch();

@@ -55,12 +55,6 @@ class BranchPostList : public PostList {
     public:
         virtual ~BranchPostList();
 
-	/** Most branch postlists won't be able to supply wdf.
-	 *  If get_wdf() is called on such a branch postlist,
-	 *  an OmUnimplementedError exception will be thrown.
-	 */
-        virtual om_termcount get_wdf() const;
-
 	/** Most branch postlists won't be able to supply position lists.
 	 *  If get_position_list() is called on such a branch postlist,
 	 *  an OmUnimplementedError exception will be thrown.
@@ -85,12 +79,6 @@ BranchPostList::handle_prune(PostList *&kid, PostList *ret)
 	// now tell matcher that maximum weights need recalculation.
 	matcher->recalc_maxweight();
     }
-}
-
-inline om_termcount
-BranchPostList::get_wdf() const
-{
-    throw OmUnimplementedError("BranchPostList::get_wdf() unimplemented");
 }
 
 inline PositionList *
