@@ -3,44 +3,41 @@
 <TITLE>Porter stemming algorithm</TITLE>
 </HEAD>
 <BODY>
-<PRE>
 
-\...\ denotes italicisation; {...} denotes superscripting
---------------------------------------------------------------------------
+        <h1><center>An algorithm for suffix stripping</h1></center><br>
 
-                An algorithm for suffix stripping
+                   <center>M.F.Porter</center>
+                      <center>1980</center><br>
 
-                            M.F.Porter
-                               1980
-
-   Originally published in \Program\, \14\ no. 3, pp 130-137, July 1980.
+Originally published in <i>Program</i>, <b>14</b> no. 3, pp 130-137, July
+1980.<p>
 
 
-1. INTRODUCTION
+<h2>1. Introduction</h2>
 
 Removing suffixes by automatic means is an operation which is especially
 useful in the field of information retrieval. In a typical IR environment,
 one has a collection of documents, each described by the words in the
 document title and possibly by words in the document abstract. Ignoring the
 issue of precisely where the words originate, we can say that a document is
-represented by a vetor of words, or \terms\. Terms with a common stem will
+represented by a vetor of words, or <i>terms</i>. Terms with a common stem will
 usually have similar meanings, for example:
-
+<pre>
         CONNECT
         CONNECTED
         CONNECTING
         CONNECTION
         CONNECTIONS
-
+</pre>
 Frequently, the performance of an IR system will be improved if term groups
 such as this are conflated into a single term. This may be done by removal
 of the various suffixes -ED, -ING, -ION, IONS to leave the single term
 CONNECT. In addition, the suffix stripping process will reduce the total
 number of terms in the IR system, and hence reduce the size and complexity
-of the data in the system, which is always advantageous.
+of the data in the system, which is always advantageous.<p>
 
 Many strategies for suffix stripping have been reported in the
-literature.{(e.g. 1-6)} The nature of the task will vary considerably
+literature.<sup>(e.g. 1-6)</sup> The nature of the task will vary considerably
 depending on whether a stem dictionary is being used, whether a suffix
 list is being used, and of course on the purpose for which the suffix
 stripping is being done. Assuming that one is not making use of a stem
@@ -59,13 +56,13 @@ little difficulty in coding it up in other programming languages.) Given the
 speed of the program, it would be quite realistic to apply it to every word
 in a large file of continuous text, although for historical reasons we have
 found it convenient to apply it only to relatively small vocabulary lists
-derived from continuous text files.
+derived from continuous text files.<p>
 
 In any suffix stripping program for IR work, two points must be borne in
 mind. Firstly, the suffixes are being removed simply to improve IR
 performance, and not as a linguistic exercise. This means that it would not
 be at all obvious under what circumstances a suffix should be removed, even
-if we could exactly determine the suffixes of a word by automatic means.
+if we could exactly determine the suffixes of a word by automatic means.<p>
 
 Perhaps the best criterion for removing suffixes from two words W1 and W2 to
 produce a single stem S, is to say that we do so if there appears to be no
@@ -74,12 +71,12 @@ document is about W2'. So if W1=`CONNECTION' and W2=`CONNECTIONS' it seems
 very reasonable to conflate them to a single stem. But if W1=`RELATE' and
 W2=`RELATIVITY' it seems perhaps unreasonable, especially if the document
 collection is concerned with theoretical physics. (It should perhaps be
-added that RELATE and RELATIVITY \are\ conflated together in the algorithm
+added that RELATE and RELATIVITY <i>are</i> conflated together in the algorithm
 described here.) Between these two extremes there is a continuum of
 different cases, and given two terms W1 and W2, there will be some variation
 in opinion as to whether they should be conflated, just as there is with
 deciding the relevance of some document to a query. The evaluation of the
-worth of a suffix stripping system is correspondingly difficult.
+worth of a suffix stripping system is correspondingly difficult.<p>
 
 The second point is that with the approach adopted here, i.e. the use of a
 suffix list with various rules, the success rate for the suffix stripping
@@ -100,13 +97,13 @@ to be rather rare. For example, cases in which the root of a word changes
 with the addition of a suffix, as in DECEIVE/DECEPTION, RESUME/RESUMPTION,
 INDEX/INDICES occur much more rarely in real vocabularies than one might at
 first suppose. In view of the error rate that must in any case be expected,
-it did not seem worthwhile to try and cope with these cases.
+it did not seem worthwhile to try and cope with these cases.<p>
 
 It is not obvious that the simplicity of the present program is any demerit.
-In a test on the well-known Cranfield 200 collection{7} it gave an
+In a test on the well-known Cranfield 200 collection<sup>7</sup> it gave an
 improvement in retrieval performance when compared with a very much more
 elaborate program which has been in use in IR research in Cambridge since
-1971{(2,6)}. The test was done as follows: the words of the titles and
+1971<sup>(2,6)</sup>. The test was done as follows: the words of the titles and
 abstracts in the documents were passed through the earlier suffix stripping
 system, and the resultis stems were used to index the documents. The words
 of the queries were reduced to stems in the same way, and the documents were
@@ -115,7 +112,7 @@ document. From these rankings, recall and precision values were obtained
 using the standard recall cutoff method. The entire process was then
 repeated using the suffix stripping system described in this paper, and the
 results were as follows:
-
+<pre>
         earlier system        present system
         --------------        --------------
       precision  recall     precision  recall
@@ -130,122 +127,122 @@ results were as follows:
           80      27.15         80      27.52
           90      24.59         90      25.85
          100      24.59        100      25.85
-
+</pre>
 Cleary, the performance is not very different. The important point is that
 the earlier, more elaborate system certainly performs no better than the
-present, simple system.
+present, simple system.<p>
 
-(This test was done by prof. C.J. van Rijsbergen.)
+(This test was done by prof. C.J. van Rijsbergen.)<p>
 
-2. THE ALGORITHM
+<h2>2. The Algorithm</h2>
 
 To present the suffix stripping algorithm in its entirety we will need a few
-difinitions.
+difinitions.<p>
 
-A \consonant\ in a word is a letter other than A, E, I, O or U, and other
+A <i>consonant</i> in a word is a letter other than A, E, I, O or U, and other
 than Y preceded by a consonant. (The fact that the term `consonant' is
 defined to some extent in terms of itself does not make it ambiguous.) So in
 TOY the consonants are T and Y, and in SYZYGY they are S, Z and G. If a
-letter is not a consonant it is a \vowel\.
+letter is not a consonant it is a <i>vowel</i>.<p>
 
 A consonant will be denoted by c, a vowel by v. A list ccc... of length
 greater than 0 will be denoted by C, and a list vvv... of length greater
 than 0 will be denoted by V. Any word, or part of a word, therefore has one
 of the four forms:
-
+<pre>
     CVCV ... C
     CVCV ... V
     VCVC ... C
     VCVC ... V
-
+</pre>
 These may all be represented by the single form
-
+<pre>
     [C]VCVC ... [V]
-
+</pre>
 where the square brackets denote arbitrary presence of their contents.
-Using (VC){m} to denote VC repeated m times, this may again be written as
-
-    [C](VC){m}[V].
-
-m will be called the \measure\ of any word or word part when represented in
+Using (VC)<sup>m</sup> to denote VC repeated m times, this may again be written as
+<pre>
+    [C](VC)<sup>m</sup>[V].
+</pre>
+m will be called the <i>measure</i> of any word or word part when represented in
 this form. The case m = 0 covers the null word. Here are some examples:
-
+<pre>
     m=0    TR,  EE,  TREE,  Y,  BY.
     m=1    TROUBLE,  OATS,  TREES,  IVY.
     m=2    TROUBLES,  PRIVATE,  OATEN,  ORRERY.
-
-The \rules\ for removing a suffix will be given in the form
-
+</pre>
+The <i>rules</i> for removing a suffix will be given in the form
+<pre>
     (condition) S1 -> S2
-
+</pre>
 This means that if a word ends with the suffix S1, and the stem before S1
 satisfies the given condition, S1 is replaced by S2. The condition is
 usually given in terms of m, e.g.
-
+<pre>
     (m > 1) EMENT ->
-
+</pre>
 Here S1 is `EMENT' and S2 is null. This would map REPLACEMENT to REPLAC,
-since REPLAC is a word part for which m = 2.
+since REPLAC is a word part for which m = 2.<p>
 
-The `condition' part may also contain the following:
+The `condition' part may also contain the following:<p>
 
-*S  - the stem ends with S (and similarly for the other letters).
+*S  - the stem ends with S (and similarly for the other letters).<p>
 
-*v* - the stem contains a vowel.
+*v* - the stem contains a vowel.<p>
 
-*d  - the stem ends with a double consonant (e.g. -TT, -SS).
+*d  - the stem ends with a double consonant (e.g. -TT, -SS).<p>
 
 *o  - the stem ends cvc, where the second c is not W, X or Y (e.g.
-       -WIL, -HOP).
+       -WIL, -HOP).<p>
 
-And the condition part may also contain expressions with \and\, \or\ and
-\not\, so that
-
+And the condition part may also contain expressions with <i>and</i>, <i>or</i> and
+<i>not</i>, so that
+<pre>
     (m>1 and (*S or *T))
-
+</pre>
 tests for a stem with m>1 ending in S or T, while
-
+<pre>
     (*d and not (*L or *S or *Z))
-
+</pre>
 tests for a stem ending witha double consonant other than L, S or Z.
-Elaborate conditions like this are required only rarely.
+Elaborate conditions like this are required only rarely.<p>
 
 In a set of rules written beneath each other, only one is obeyed, and this
 will be the one with the longest matching S1 for the given word. For
 example, with
-
+<pre>
     SSES -> SS
     IES  -> I
     SS   -> SS
     S    ->
-
+</pre>
 (here the conditions are all null) CARESSES maps to CARESS since SSES is
 the longest match for S1. Equally CARESS maps to CARESS (S1=`SS') and CARES
-to CARE (S1=`S').
+to CARE (S1=`S').<p>
 
 In the rules below, examples of their application, successful or otherwise,
-are given on the right in lower case. The algorithm now follows:
+are given on the right in lower case. The algorithm now follows:<p>
 
-Step 1a
-
+<h3>Step 1a</h3>
+<pre>
     SSES -> SS                         caresses  ->  caress
     IES  -> I                          ponies    ->  poni
                                        ties      ->  ti
     SS   -> SS                         caress    ->  caress
     S    ->                            cats      ->  cat
-
-Step 1b
-
+</pre>
+<h3>Step 1b</h3>
+<pre>
     (m>0) EED -> E                     feed      ->  feed
                                        agreed    ->  agree
     (*v*) ED  ->                       plastered ->  plaster
                                        bled      ->  bled
     (*v*) ING ->                       motoring  ->  motor
                                        sing      ->  sing
-
+</pre>
 If the second or third of the rules in Step 1b is successful, the following
 is done:
-
+<pre>
     AT -> ATE                       conflat(ed)  ->  conflate
     BL -> BLE                       troubl(ed)   ->  trouble
     IZ -> IZE                       siz(ed)      ->  size
@@ -258,22 +255,23 @@ is done:
                                     fizz(ed)     ->  fizz
     (m=1 and *o) -> E               fail(ing)    ->  fail
                                     fil(ing)     ->  file
-
+</pre>
 The rule to map to a single letter causes the removal of one of the double
 letter pair. The -E is put back on -AT, -BL and -IZ, so that the suffixes
 -ATE, -BLE and -IZE can be recognised later. This E may be removed in step
-4.
+4.<p>
 
-Step 1c
-
+<h3>Step 1c</h3>
+<pre>
     (*v*) Y -> I                    happy        ->  happi
                                     sky          ->  sky
+</pre>
+Step 1 deals with plurals and past participles. The subsequent steps
+are
+much more straightforward.<p>
 
-Step 1 deals with plurals and past participles. The subsequent steps are
-much more straightforward.
-
-Step 2
-
+<h3>Step 2</h3>
+<pre>
     (m>0) ATIONAL ->  ATE           relational     ->  relate
     (m>0) TIONAL  ->  TION          conditional    ->  condition
                                     rational       ->  rational
@@ -295,16 +293,16 @@ Step 2
     (m>0) ALITI   ->  AL            formaliti      ->  formal
     (m>0) IVITI   ->  IVE           sensitiviti    ->  sensitive
     (m>0) BILITI  ->  BLE           sensibiliti    ->  sensible
-
+</pre>
 The test for the string S1 can be made fast by doing a program switch on
 the penultimate letter of the word being tested. This gives a fairly even
 breakdown of the possible values of the string S1. It will be seen in fact
 that the S1-strings in step 2 are presented here in the alphabetical order
 of their penultimate letter. Similar techniques may be applied in the other
-steps.
+steps.<p>
 
-Step 3
-
+<h3>Step 3</h3>
+<pre>
     (m>0) ICATE ->  IC              triplicate     ->  triplic
     (m>0) ATIVE ->                  formative      ->  form
     (m>0) ALIZE ->  AL              formalize      ->  formal
@@ -312,9 +310,9 @@ Step 3
     (m>0) ICAL  ->  IC              electrical     ->  electric
     (m>0) FUL   ->                  hopeful        ->  hope
     (m>0) NESS  ->                  goodness       ->  good
-
-Step 4
-
+</pre>
+<h3>Step 4</h3>
+<pre>
     (m>1) AL    ->                  revival        ->  reviv
     (m>1) ANCE  ->                  allowance      ->  allow
     (m>1) ENCE  ->                  inference      ->  infer
@@ -334,27 +332,27 @@ Step 4
     (m>1) OUS   ->                  homologous     ->  homolog
     (m>1) IVE   ->                  effective      ->  effect
     (m>1) IZE   ->                  bowdlerize     ->  bowdler
+</pre>
+The suffixes are now removed. All that remains is a little tidying up.<p>
 
-The suffixes are now removed. All that remains is a little tidying up.
-
-Step 5a
-
+<h3>Step 5a</h3>
+<pre>
     (m>1) E     ->                  probate        ->  probat
                                     rate           ->  rate
     (m=1 and not *o) E ->           cease          ->  ceas
-
-Step 5b
-
+</pre>
+<h3>Step 5b</h3>
+<pre>
     (m > 1 and *d and *L) -> single letter
                                     controll       ->  control
                                     roll           ->  roll
-
+</pre><p>
 The algorithm is careful not to remove a suffix when the stem is too short,
 the length of the stem being given by its measure, m. There is no linguistic
 basis for this approach. It was merely observed that m could be used quite
 effectively to help decide whether or not it was wise to take off a suffix.
 For example, in the following two lists:
-
+<pre>
                   list A        list B
                   ------        ------
                   RELATE        DERIVATE
@@ -362,14 +360,14 @@ For example, in the following two lists:
                   CONFLATE      DEMONSTRATE
                   PIRATE        NECESSITATE
                   PRELATE       RENOVATE
-
+</pre>
 -ATE is removed from the list B words, but not from the list A words. This
 means that the pairs DERIVATE/DERIVE, ACTIVATE/ACTIVE, DEMONSTRATE/DEMONS-
 TRABLE, NECESSITATE/NECESSITOUS, will conflate together. The fact that no
 attempt is made to identify prefixes can make the results look rather
 inconsistent. Thus PRELATE does not lose the -ATE, but ARCHPRELATE becomes
 ARCHPREL. In practice this does not matter too much, because the presence of
-the prefix decreases the probability of an erroneous conflation.
+the prefix decreases the probability of an erroneous conflation.<p>
 
 Complex suffixes are removed bit by bit in the different steps. Thus
 GENERALIZATIONS is stripped to GENERALIZATION (Step 1), then to GENERALIZE
@@ -378,7 +376,7 @@ is stripped to OSCILLATOR (Step 1), then to OSCILLATE (Step 2), then to
 OSCILL (Step 4), and then to OSCIL (Step 5). In a vocabulary of 10,000
 words, the reduction in size of the stem was distributed among the steps as
 follows:
-
+<pre>
     Suffix stripping of a vocabulary of 10,000 words
     ------------------------------------------------
     Number of words reduced in step 1:   3597
@@ -387,39 +385,39 @@ follows:
                   "                 4:   2424
                   "                 5:   1373
     Number of words not reduced:         3650
-
+</pre>
 The resulting vocabulary of stems contained 6370 distinct entries. Thus the
 suffix stripping process reduced the size of the vocabulary by about one
-third.
+third.<p>
 
-REFERENCIES
+<h2>Referencies</h2>
 
-1.  LOVINS, J.B. Development of a Stemming Algorithm. \Mechanical
-    Translation and computation Linguistics\. \11\ (1) March 1968 pp 23-31.
+1.  LOVINS, J.B. Development of a Stemming Algorithm. <i>Mechanical
+    Translation and computation Linguistics</i>. <b>11</b> (1) March 1968 pp
+    23-31.<p>
 
 2.  ANDREWS, K. The Development of a Fast Conflation Algorithm for English.
-    \Dissertation for the Diploma in Computer Science\, Computer
-    Laboratory, University of Cambridge, 1971.
+    <i>Dissertation for the Diploma in Computer Science</i>, Computer
+    Laboratory, University of Cambridge, 1971.<p>
 
 3.  PETRARCA, A.E. and LAY W.M. Use of an automatically generated authority
     list to eliminate scattering caused by some singular and plural main
-    index terms. \Proceedings of the American Society for Information
-    Science\, \6\ 1969 pp 277-282.
+    index terms. <i>Proceedings of the American Society for Information
+    Science</i>, <b>6</b> 1969 pp 277-282.<p>
 
-4.  DATTOLA, Robert T. \FIRST: Flexible Information Retrieval System for
-    Text\. Webster N.Y: Xerox Corporation, 12 Dec 1975.
+4.  DATTOLA, Robert T. <i>FIRST: Flexible Information Retrieval System for
+    Text</i>. Webster N.Y: Xerox Corporation, 12 Dec 1975.<p>
 
-5.  COLOMBO, D.S. and NIEHOFF R.T. \Final report on improved access to
+5.  COLOMBO, D.S. and NIEHOFF R.T. <i>Final report on improved access to
     scientific and technical information through automated vocabulary
-    switching.\ NSF Grant No. SIS75-12924 to the National Science
-    Foundation.
+    switching.</i> NSF Grant No. SIS75-12924 to the National Science
+    Foundation.<p>
 
-6.  DAWSON, J.L. Suffix Removal and Word Conflation. \ALLC Bulletin\,
-    Michaelmas 1974 p.33-46.
+6.  DAWSON, J.L. Suffix Removal and Word Conflation. <i>ALLC Bulletin</i>,
+    Michaelmas 1974 p.33-46.<p>
 
-7.  CLEVERDON, C.W., MILLS J. and KEEN M. \Factors Determining the
-    Performance of Indexing Systems\ 2 vols. College of Aeronautics,
-    Cranfield 1966.
-</PRE>
+7.  CLEVERDON, C.W., MILLS J. and KEEN M. <i>Factors Determining the
+    Performance of Indexing Systems</i> 2 vols. College of Aeronautics,
+    Cranfield 1966.<p>
 </BODY>
 </HTML>

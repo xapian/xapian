@@ -77,7 +77,7 @@ when it comes to the very practical matter of writing the stemming algorithm.
 
 A conventional grammar of a language will list all the grammatical endings,
 and will often summarise most of the morphological endings. A grammar, plus a
-dictionary, are therefore basic references in the devlopment of a stemming
+dictionary, are therefore basic references in the development of a stemming
 algorithm, although you can dispense with them if you have an excellent
 knowledge of the language. What you cannot dispense with is a vocabulary to
 try the algorithm out on as it is being developed. Assemble about 2 megabytes
@@ -163,7 +163,8 @@ of consonants, and V for a sequence of vowels, any word can be analysed as,
 
         [C] V C ... V C [V]
 
-where [..] indicates arbitrary presence, and (V C)n means V C repeated n
+where [..] indicates arbitrary presence, and V C ... V C means V C repeated
+zero or more
 times. We can find successive positions 0, 1, 2 ... in a word corresponding
 to each vowel-consonant stretch V C,
 
@@ -257,7 +258,7 @@ easily recognised value).
 Alternatively, stopwords could be removed before the stemming algorithm is
 applied, or after the stemming algorithm is applied. In this latter case, the
 words to be removed must themselves have gone through the stemmer, and the
-number of distinct forms will be greatly reduced as a result. In italian for
+number of distinct forms will be greatly reduced as a result. In Italian for
 example, the four forms
 
     questa     queste    questi    questo
