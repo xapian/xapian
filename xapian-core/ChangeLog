@@ -1,3 +1,8 @@
+Tue Dec 05 15:07:26 GMT 2000 Olly Betts
+
+	* Oops, failed to add new file `tests/testdata/apitest_punc.txt'
+	  with last check-in.
+
 Tue Dec 05 14:34:04 GMT 2000 Olly Betts
 
 	* OmTermListIterator implemented for an OmDocument with terms stored
