@@ -125,6 +125,8 @@ at the time of writing, the versions known to work are:
 		
 	GNU libtool 1.5
 		libtool 1.4.2 doesn't seem to support --mode=execute properly.
+		It also tries to link C++ code with gcc, which can cause link
+		failures.
 
 	GNU Bison version 1.35
 		Bison versions 1.31 to 1.34 don't handle parsequery.yy - for
