@@ -35,6 +35,11 @@ typedef unsigned long long  om_uint64;
 typedef int                 om_int32;
 typedef long long           om_int64;
 
+/** FIXME: the pack and unpack int methods store in low-byte-first order
+ *  - it might be easier to implement efficient specialisations with
+ *  high-byte-first order.
+ */
+
 /** Reads an unsigned integer from a string starting at a given position.
  *
  *  @param src       A pointer to a pointer to the data to read.  The
@@ -118,17 +123,98 @@ pack_uint(T value)
     // Check unsigned
     CASSERT((T)(-1) > 0);
 
-    if (value == 0) return std::string("\000", 1);
+    if (value == 0) return std::string("\000", 1u);
     std::string result;
 
     while(value != 0) {
 	om_byte part = value & 0x7f;
 	value = value >> 7;
 	if (value) part |= 0x80;
-	result.append(1, (char) part);
+	result.append(1u, (char) part);
     }
 
     return result;
+}
+
+/** Generate a packed representation of an integer, preserving sort order.
+ *
+ *  This representation is less compact than the usual one, and has a limit
+ *  of 256 bytes on the length of the integer.  However, this is unlikely to
+ *  ever be a problem.
+ *
+ *  @param value  The integer to represent.
+ *
+ *  @result       A string containing the representation of the integer.
+ */
+template<class T>
+std::string
+pack_uint_preserving_sort(T value)
+{
+    // Check unsigned
+    CASSERT((T)(-1) > 0);
+
+    std::string result;
+    while(value != 0) {
+	om_byte part = value & 0xff;
+	value = value >> 8;
+	result.insert(0u, 1u, (char) part);
+    }
+    result.insert(0u, 1u, (char) result.size());
+    return result;
+}
+
+/** Unpack a unsigned integer, store in sort preserving order.
+ *
+ *  @param src       A pointer to a pointer to the data to read.  The
+ *                   character pointer will be updated to point to the
+ *                   next character to read, or 0 if the method ran out of
+ *                   data.  (It is only set to 0 in case of an error).
+ *  @param src_end   A pointer to the byte after the end of the data to
+ *                   read the integer from.
+ *  @param resultptr A pointer to a place to store the result.  If an
+ *                   error occurs, the value stored in this location is
+ *                   undefined.  If this pointer is 0, the result is not
+ *                   stored, and the method simply skips over the result.
+ *
+ *  @result True if an integer was successfully read.  False if the read
+ *          failed.  Failure may either be due to the data running out (in
+ *          which case *src will equal 0), or due to the value read
+ *          overflowing the size of result (in which case *src will point
+ *          to wherever the value ends, despite the overflow).
+ */
+template<class T>
+bool
+unpack_uint_preserving_sort(const char ** src,
+			    const char * src_end,
+			    T * resultptr)
+{
+    if (*src == src_end) {
+	*src = 0;
+	return false;
+    }
+
+    unsigned int length = static_cast<const om_byte> (**src);
+    (*src)++;
+
+    if (length > sizeof(T)) {
+	*src += length;
+	if (*src > src_end) {
+	    *src = 0;
+	}
+	return false;
+    }
+
+    // Can't be overflow now.
+    T result;
+    while (length > 0) {
+	result = result << 8;
+	result += static_cast<const om_byte> (**src);
+	(*src)++;
+	length--;
+    }
+    *resultptr = result;
+
+    return true;
 }
 
 inline bool

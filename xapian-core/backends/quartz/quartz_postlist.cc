@@ -72,10 +72,6 @@ QuartzPostList::QuartzPostList(RefCntPtr<const Database> this_db_,
     read_start_of_chunk();
 }
 
-// FIXME
-#define pack_uint_preserving_sort pack_uint
-#define unpack_uint_preserving_sort unpack_uint
-
 void
 QuartzPostList::make_key(const om_termname & tname,
 			 om_docid did,
