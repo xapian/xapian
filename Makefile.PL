@@ -3,6 +3,8 @@ use ExtUtils::MakeMaker;
 $CC = 'g++';
 
 # locate xapian header and shared object files
+# using `locate` is decidedly ugly, but the best way I can think to do
+# so for the time being. 
 my $lib = locate( 'libxapian.so' );
 my $inc = locate( 'om/om.h' );
 
@@ -29,11 +31,13 @@ WriteMakefile(
 
 sub locate($) {
   my $file = shift;
+  print "Searching for $file:";
   my @matches = `locate "*/$file"`;
   map { chomp } @matches;
   @matches = sort { -M $a <=> -M $b } grep { -e $_ } @matches;
   my $result = $matches[0];
   $result =~ s|/\Q$file\E$||;
+  print " found in '$result'\n";
   return $result;
 }
 

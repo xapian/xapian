@@ -1,4 +1,4 @@
-package Search::Xapian::MSetIterator;
+package Search::Xapian::ESetIterator;
 
 use 5.006;
 use strict;

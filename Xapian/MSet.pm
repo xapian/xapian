@@ -65,7 +65,7 @@ sub fetch() {
     $invalid_args = 1;
   }
   if( $invalid_args ) {
-    Carp::carp( "USAGE: \$mset->fetch(\$key, \$value)" );
+    Carp::carp( "USAGE: \$mset->fetch(\$key, \$value)" ); # FIXME - wrong!
     exit;
   }
 }

@@ -77,7 +77,7 @@ OmMSet::size()
 om_doccount
 OmMSet::max_size()
 
-om_weight
+bool
 OmMSet::empty()
 
 void

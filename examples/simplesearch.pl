@@ -7,7 +7,7 @@ use Getopt::Std;
 use Search::Xapian qw(:ops);
 
 use vars qw( %opts );
-getopts('d:t:h', \%opts);
+getopts('d:t:nh', \%opts);
 
 if( exists $opts{h} ) {
   print <<EOF;
@@ -17,6 +17,7 @@ Options:
         -d : database directory
         -t : search terms
         -h : displays this help screen
+        -q : quiet; does not display document data
 EOF
   exit 0;
 }
@@ -38,6 +39,10 @@ my @matches = $enq->matches(0, 10);
 print scalar(@matches) . " results found\n";
 
 foreach my $match ( @matches ) {
-  my $doc = $match->get_document();
-  printf "ID %d %d%% [ %s ]\n", $match->get_docid(), $match->get_percent(), $doc->get_data();
+  printf "ID %d %d%%", $match->get_docid(), $match->get_percent();
+  if( !defined( $opts{n} ) ) {
+    my $doc = $match->get_document();
+    printf " [ %s ]", $doc->get_data();
+  }
+  print "\n";
 }

@@ -54,7 +54,7 @@ OmWritableDatabase::replace_document(did, document)
     om_docid            did
     OmDocument *        document
     CODE:
-        THIS->replace_document(did,* document);
+        THIS->replace_document(did, *document);
 
 string
 OmWritableDatabase::get_description()

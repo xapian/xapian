@@ -39,37 +39,44 @@ sub new() {
   my $invalid_args;
   if( scalar(@_) == 1 ) {
     $query = new1(@_);
-  } elsif( scalar(@_) == 3 ) {
-    if( !ref( $_[1] ) and !ref( $_[2] ) ) {
-      $query = new2(@_);
-    } elsif( ref( $_[1] ) eq ref( $_[2] ) and ref( $_[2] ) eq $class ) {
-      $query = new3(@_);
-    } else {
-        Carp::carp( "new()'s second and third arguments must both either be search terms (scalars), or $class objects" );
-        $invalid_args++;
-    }
   } else {
-    my $op = shift;
-    foreach( @_ ) {
-      if( ref ) {
-        Carp::carp( "When new() is called with variable arguments, all after the first must be search terms (scalars) ");
-        $invalid_args++;
-        last;
-      }
-    }
-    while( @_ ) {
-      my $temp;
-      if( !$#_ ) {
-        $temp = new1( shift );
+    if( $_[0] !~ /^[-+]?\d+$/ ) {
+      Carp::carp( "new()'s first argument must be an OP when called with more than one argument" );
+      $invalid_args++;
+    } else {
+      if( scalar(@_) == 3 ) {
+        if( !ref( $_[1] ) and !ref( $_[2] ) ) {
+          $query = new2(@_);
+        } elsif( ref( $_[1] ) eq ref( $_[2] ) and ref( $_[2] ) eq $class ) {
+          $query = new3(@_);
+        } else {
+          Carp::carp( "new()'s second and third arguments must both either be search terms (scalars), or $class objects" );
+          $invalid_args++;
+        }
       } else {
-        $temp = new2( $op, shift, shift );
+        my $op = shift;
+        foreach( @_ ) {
+          if( ref ) {
+            Carp::carp( "When new() is called with variable arguments, all after the first must be search terms (scalars) ");
+            $invalid_args++;
+            last;
+          }
+        }
+        while( @_ ) {
+          my $temp;
+          if( !$#_ ) {
+            $temp = new1( shift );
+          } else {
+            $temp = new2( $op, shift, shift );
+          }
+          bless $temp, $class;
+          $query = defined($query) ? new3( $op, $query, $temp ) : $temp;
+          bless $query, $class;
+        }
+        return $query;
+        exit;
       }
-      bless $temp, $class;
-      $query = defined($query) ? new3( $op, $query, $temp ) : $temp;
-      bless $query, $class;
     }
-    return $query;
-    exit;
   }
   if( $invalid_args ) {
     Carp::carp( "USAGE: $class->new('term'), $class->new(OP, 'term1', 'term2'), $class->new(OP, \$query1, \$query2) or $class->new(OP, \@terms)" );
