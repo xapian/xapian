@@ -773,13 +773,12 @@ struct func_attrib {
     int tag;
     int minargs, maxargs, evalargs;
     bool ensure_match;
-    bool cache; // FIXME: implement cache
 };
 
 #define STRINGIZE(N) _STRINGIZE(N)
 #define _STRINGIZE(N) #N
     
-#define T(F,A,B,C,D,E) {STRINGIZE(F),{CMD_##F,A,B,C,D,E}}
+#define T(F,A,B,C,D) {STRINGIZE(F),{CMD_##F,A,B,C,D}}
 struct func_desc {
     const char *name;
     struct func_attrib a;
@@ -787,97 +786,95 @@ struct func_desc {
 
 #define N -1
 static struct func_desc func_tab[] = {
-//name minargs maxargs evalargs ensure_match cache
-{"",{CMD_,	N, N, 0, 0, 0}}, // commented out code
-T(add,		0, N, N, 0, 0), // add a list of numbers
-T(allterms,	0, 1, N, 0, 0), // list of all terms matching document
-T(and,		1, N, 0, 0, 0), // logical shortcutting and of a list of values
-T(cgi,		1, 1, N, 0, 0), // return cgi parameter value
-T(cgilist,	1, 1, N, 0, 0), // return list of values for cgi parameter
-T(collapsed,	0, 0, N, 0, 0), // return number of hits collapsed into this
-T(date,		1, 2, N, 0, 0), // convert time_t to strftime format
+//name minargs maxargs evalargs ensure_match
+{"",{CMD_,	   N, N, 0, 0}},// commented out code
+T(add,		   0, N, N, 0), // add a list of numbers
+T(allterms,	   0, 1, N, 0), // list of all terms matching document
+T(and,		   1, N, 0, 0), // logical shortcutting and of a list of values
+T(cgi,		   1, 1, N, 0), // return cgi parameter value
+T(cgilist,	   1, 1, N, 0), // return list of values for cgi parameter
+T(collapsed,	   0, 0, N, 0), // return number of hits collapsed into this
+T(date,		   1, 2, N, 0), // convert time_t to strftime format
 				// (default: YYYY-MM-DD)
-T(dbname,	0, 0, N, 0, 0), // database name
-T(dbsize,	0, 0, N, 0, 1), // database size (# of documents)
-T(def,		2, 2, 1, 0, 0), // define a macro
-T(defaultop,	0, 0, N, 0, 0), // default operator: "and" or "or"
-T(div,		2, 2, N, 0, 0), // integer divide
-T(env,		1, 1, N, 0, 0), // environment variable
-T(error,	0, 0, N, 0, 0), // error message
-T(eq,		2, 2, N, 0, 0), // test equality
-T(field,	1, 1, N, 0, 0), // lookup field in record
-T(filesize,	1, 1, N, 0, 0), // pretty printed filesize
-T(filters,	0, 0, N, 0, 0), // serialisation of current filters
-T(fmt,		0, 0, N, 0, 0), // name of current format
-T(freq,		1, 1, N, 0, 0), // frequency of a term
-T(freqs,	0, 0, N, 1, 1), // return HTML string listing query terms and
+T(dbname,	   0, 0, N, 0), // database name
+T(dbsize,	   0, 0, N, 0), // database size (# of documents)
+T(def,		   2, 2, 1, 0), // define a macro
+T(defaultop,	   0, 0, N, 0), // default operator: "and" or "or"
+T(div,		   2, 2, N, 0), // integer divide
+T(env,		   1, 1, N, 0), // environment variable
+T(error,	   0, 0, N, 0), // error message
+T(eq,		   2, 2, N, 0), // test equality
+T(field,	   1, 1, N, 0), // lookup field in record
+T(filesize,	   1, 1, N, 0), // pretty printed filesize
+T(filters,	   0, 0, N, 0), // serialisation of current filters
+T(fmt,		   0, 0, N, 0), // name of current format
+T(freq,		   1, 1, N, 0), // frequency of a term
+T(freqs,	   0, 0, N, 1), // return HTML string listing query terms and
 				// frequencies
-T(ge,		2, 2, N, 0, 0), // test >=
-T(gt,		2, 2, N, 0, 0), // test >
-T(highlight,	2, 4, N, 0, 0), // html escape and highlight words from list
-T(hit,		0, 0, N, 0, 0), // hit number of current mset entry (starting
+T(ge,		   2, 2, N, 0), // test >=
+T(gt,		   2, 2, N, 0), // test >
+T(highlight,	   2, 4, N, 0), // html escape and highlight words from list
+T(hit,		   0, 0, N, 0), // hit number of current mset entry (starting
 				// from 0
-T(hitlist,	1, 1, 0, 1, 0), // display hitlist using format in argument
-T(hitsperpage,	0, 0, N, 0, 0), // hits per page
-T(hostname,	1, 1, N, 0, 0), // extract hostname from URL
-T(html,		1, 1, N, 0, 0), // html escape string (<>&")
-T(htmlstrip,	1, 1, N, 0, 0), // html strip tags string (s/<[^>]*>?//g)
-T(id,		0, 0, N, 0, 0), // docid of current doc
-T(if,		2, 3, 1, 0, 0), // conditional
-T(include,	1, 1, 1, 0, 0), // include another file
-T(last,		0, 0, N, 1, 0), // m-set number of last hit on page
-T(lastpage,	0, 0, N, 1, 0), // number of last hit page
-T(le,		2, 2, N, 0, 0), // test <=
-T(list,		2, 5, N, 0, 0), // pretty print list
-T(log,		1, 2, 1, 0, 0), // create a log entry
-T(lt,		2, 2, N, 0, 0), // test <
-T(map,		1, 2, 1, 0, 0), // map a list into another list
-T(max,		1, N, N, 0, 0), // maximum of a list of values
-T(min,		1, N, N, 0, 0), // minimum of a list of values
-T(mod,		2, 2, N, 0, 0), // integer modulus
-T(msize,	0, 0, N, 1, 0), // number of matches
-T(msizeexact,	0, 0, N, 1, 0), // is $msize exact?
-T(mul,		2, N, N, 0, 0), // multiply a list of numbers
-T(ne,	 	2, 2, N, 0, 0), // test not equal
-T(nice,		1, 1, N, 0, 0), // pretty print integer (with thousands sep)
-T(not,		1, 1, N, 0, 0), // logical not
-T(now,		0, 0, N, 0, 0), // current date/time as a time_t
-T(opt,		1, 2, N, 0, 0), // lookup an option value
-T(or,		1, N, 0, 0, 0), // logical shortcutting or of a list of values
-T(percentage,	0, 0, N, 0, 0), // percentage score of current hit
-T(prettyterm,	1, 1, N, 0, 0), // pretty print term name
-T(query,	0, 0, N, 0, 0), // query
-T(querydescription,
-		0, 0, N, 0, 0), // query.get_description()
-T(queryterms,	0, 0, N, 0, 0), // list of query terms
-T(range,	2, 2, N, 0, 0), // return list of values between start and end
-T(record,	0, 1, N, 1, 0), // record contents of document
-T(relevant,	0, 1, N, 1, 0), // is document relevant?
-T(relevants,	0, 0, N, 1, 0), // return list of relevant documents
-T(score,	0, 0, N, 0, 0), // score (0-10) of current hit
-T(set,		2, 2, N, 0, 0), // set option value
-T(setmap,	1, N, N, 0, 0), // set map of option values
-T(setrelevant,  0, 1, N, 0, 0), // set rset
-T(slice,	2, 2, N, 0, 0), // slice a list using a second list
-T(sub,		2, 2, N, 0, 0), // subtract
-T(terms,	0, 0, N, 1, 0), // list of matching terms
-T(thispage,	0, 0, N, 1, 0), // page number of current page
-T(time,		0, 0, N, 1, 0), // how long the match took (in seconds)
-T(topdoc,	0, 0, N, 1, 0), // first document on current page of hit list
+T(hitlist,	   1, 1, 0, 1), // display hitlist using format in argument
+T(hitsperpage,	   0, 0, N, 0), // hits per page
+T(hostname,	   1, 1, N, 0), // extract hostname from URL
+T(html,		   1, 1, N, 0), // html escape string (<>&")
+T(htmlstrip,	   1, 1, N, 0), // html strip tags string (s/<[^>]*>?//g)
+T(id,		   0, 0, N, 0), // docid of current doc
+T(if,		   2, 3, 1, 0), // conditional
+T(include,	   1, 1, 1, 0), // include another file
+T(last,		   0, 0, N, 1), // m-set number of last hit on page
+T(lastpage,	   0, 0, N, 1), // number of last hit page
+T(le,		   2, 2, N, 0), // test <=
+T(list,		   2, 5, N, 0), // pretty print list
+T(log,		   1, 2, 1, 0), // create a log entry
+T(lt,		   2, 2, N, 0), // test <
+T(map,		   1, 2, 1, 0), // map a list into another list
+T(max,		   1, N, N, 0), // maximum of a list of values
+T(min,		   1, N, N, 0), // minimum of a list of values
+T(mod,		   2, 2, N, 0), // integer modulus
+T(msize,	   0, 0, N, 1), // number of matches
+T(msizeexact,	   0, 0, N, 1), // is $msize exact?
+T(mul,		   2, N, N, 0), // multiply a list of numbers
+T(ne,	 	   2, 2, N, 0), // test not equal
+T(nice,		   1, 1, N, 0), // pretty print integer (with thousands sep)
+T(not,		   1, 1, N, 0), // logical not
+T(now,		   0, 0, N, 0), // current date/time as a time_t
+T(opt,		   1, 2, N, 0), // lookup an option value
+T(or,		   1, N, 0, 0), // logical shortcutting or of a list of values
+T(percentage,	   0, 0, N, 0), // percentage score of current hit
+T(prettyterm,	   1, 1, N, 0), // pretty print term name
+T(query,	   0, 0, N, 0), // query
+T(querydescription,0, 0, N, 0), // query.get_description()
+T(queryterms,	   0, 0, N, 0), // list of query terms
+T(range,	   2, 2, N, 0), // return list of values between start and end
+T(record,	   0, 1, N, 1), // record contents of document
+T(relevant,	   0, 1, N, 1), // is document relevant?
+T(relevants,	   0, 0, N, 1), // return list of relevant documents
+T(score,	   0, 0, N, 0), // score (0-10) of current hit
+T(set,		   2, 2, N, 0), // set option value
+T(setmap,	   1, N, N, 0), // set map of option values
+T(setrelevant,     0, 1, N, 0), // set rset
+T(slice,	   2, 2, N, 0), // slice a list using a second list
+T(sub,		   2, 2, N, 0), // subtract
+T(terms,	   0, 0, N, 1), // list of matching terms
+T(thispage,	   0, 0, N, 1), // page number of current page
+T(time,		   0, 0, N, 1), // how long the match took (in seconds)
+T(topdoc,	   0, 0, N, 1), // first document on current page of hit list
 				// (counting from 0)
-// FIXME: cache really needs to be smart about parameter value...
-T(topterms,	0, 1, N, 1, 1), // list of up to N top relevance feedback terms
+T(topterms,	   0, 1, N, 1), // list of up to N top relevance feedback terms
 				// (default 16)
 #ifdef HAVE_PCRE
-T(transform,	3, 3, N, 0, 0), // transform with a regexp
+T(transform,	   3, 3, N, 0), // transform with a regexp
 #endif
-T(uniq,		1, 1, N, 0, 0), // removed duplicates from a sorted list
-T(unstem,	1, 1, N, 0, 0), // return list of probabilistic terms from
+T(uniq,		   1, 1, N, 0), // removed duplicates from a sorted list
+T(unstem,	   1, 1, N, 0), // return list of probabilistic terms from
 				// the query which stemmed to this term
-T(url,		1, 1, N, 0, 0), // url encode argument
-T(value,	1, 2, N, 0, 0), // return document value
-T(version,	0, 0, N, 0, 0), // omega version string
-{ NULL,{0,      0, 0, 0, 0, 0}}
+T(url,		   1, 1, N, 0), // url encode argument
+T(value,	   1, 2, N, 0), // return document value
+T(version,	   0, 0, N, 0), // omega version string
+{ NULL,{0,	   0, 0, 0, 0}}
 };
 
 #undef T // Leaving T defined screws up Sun's C++ compiler!
@@ -1069,16 +1066,19 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_dbname:
 		value = dbname;
 		break;
-	    case CMD_dbsize:
-		value = int_to_string(db.get_doccount());
+	    case CMD_dbsize: {
+		static Xapian::doccount dbsize;
+		if (!dbsize) dbsize = db.get_doccount();
+		value = int_to_string(dbsize);
 		break;
+	    }
 	    case CMD_def: {
 		func_attrib *fa = new func_attrib;
 		fa->tag = CMD_MACRO + macros.size();
 		fa->minargs = 0;
 		fa->maxargs = 9;
 		fa->evalargs = N; // FIXME: or 0?
-		fa->ensure_match = fa->cache = false;
+		fa->ensure_match = false;
 		
 		macros.push_back(args[1]);
 		func_map[args[0]] = fa;
