@@ -97,8 +97,7 @@ QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
 
 om_docid
 QuartzRecordManager::add_record(QuartzBufferedTable & table,
-				const OmData & data,
-				om_doclength new_doclen)
+				const OmData & data)
 {
     om_docid did = get_newdocid(table);
 

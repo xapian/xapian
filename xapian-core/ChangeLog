@@ -1,3 +1,9 @@
+Fri Jan 12 17:45:27 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Implement get_doclength() for QuartzDatabase
+
+	* Remove unused parameter from QuartzRecordManager::add_record()
+
 Fri Jan 12 17:14:16 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed MultiAllTermsList, which had stopped working.

@@ -55,8 +55,7 @@ class QuartzRecordManager {
 	/** Add a new record to the table.
 	 */
 	static om_docid add_record(QuartzBufferedTable & table,
-				   const OmData & data,
-				   om_doclength doclen);
+				   const OmData & data);
 
 	/** Delete a record from the table.
 	 */

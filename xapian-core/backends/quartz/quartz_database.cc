@@ -203,7 +203,13 @@ QuartzDatabase::get_doclength(om_docid did) const
 {
     Assert(did != 0);
     OmLockSentry sentry(quartz_mutex);
-    throw OmUnimplementedError("QuartzDatabase::get_doclength() not yet implemented");
+
+    QuartzTermList termlist(0,
+			    tables->get_termlist_table(),
+			    tables->get_lexicon_table(),
+			    did,
+			    0);
+    return termlist.get_doclength();
 }
 
 om_doccount
@@ -434,8 +440,7 @@ QuartzWritableDatabase::do_add_document(const OmDocument & document)
 	// Set the record, and get the document ID to use.
 	did = QuartzRecordManager::add_record(
 		*(buffered_tables->get_record_table()),
-		document.get_data(),
-		new_doclen);
+		document.get_data());
 	Assert(did != 0);
 
 	// Set the attributes.
