@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -100,6 +100,14 @@ class AccentNormalisingItor {
 	++itor;
     }
     string::const_iterator raw() const { return itor; }
+    /// Allow use as an STL iterator
+    //@{
+    typedef std::input_iterator_tag iterator_category;
+    typedef char value_type;
+    typedef string::size_type difference_type;
+    typedef const char * pointer;
+    typedef const char & reference;
+    //@}
 };
 
 Xapian::termpos

@@ -1,3 +1,8 @@
+Tue Apr 05 23:33:33 BST 2005  Olly Betts <olly@survex.com>
+
+	* indextext.h: Add typedefs to allow AccentNormalisingItor to be used
+	  as an STL iterator.
+
 Tue Apr 05 00:47:52 BST 2005  Olly Betts <olly@survex.com>
 
 	* docs/cgiparams.txt,docs/omegascript.txt: Fixed 3 references to
