@@ -1,3 +1,11 @@
+Sat Oct 30 16:42:24 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/bcursor.cc: Fix Bcusor::del() which didn't always
+	  leave the cursor on the next item like it should.
+	* backends/quartz/quartz_postlist.cc: If we're removing a posting
+	  list entirely, often there will only be one chunk, so avoid
+	  creating a Bcursor in this case.
+
 Sat Oct 30 16:55:19 BST 2004  Olly Betts <olly@survex.com>
 
 	* languages/header.h: Removed unused #define MAXINT and MININT which

@@ -1040,15 +1040,12 @@ QuartzPostListTable::merge_changes(
 	    if (termfreq == 0) {
 		// All postings deleted!  So we can shortcut by zapping the
 		// posting list.
-		AutoPtr<Bcursor> cursor(cursor_get());
-
-		if (!cursor->find_entry(current_key)) {
-		    throw Xapian::DatabaseCorruptError("The key we're working on has disappeared");
-		}
-		// Important: advance the cursor *before* deleting the
-		// key/tag pair.
-		cursor->del();
+		del(current_key);
 		if (islast) continue;
+		AutoPtr<Bcursor> cursor(cursor_get());
+		(void)cursor->find_entry(current_key);
+		// find_entry() returns the entry <= that asked for.
+		cursor->next();
 		while (!cursor->after_end()) {
 		    const char *kpos = cursor->current_key.data();
 		    const char *kend = kpos + cursor->current_key.size();

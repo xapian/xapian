@@ -263,31 +263,12 @@ void
 Bcursor::del()
 {
     Assert(!is_after_end);
-    string doomed_key = current_key;
 
-    if (!have_read_tag) {
-	while (true) {
-	    if (! B->next(C, 0)) {
-		is_positioned = false;
-		break;
-	    }
-	    if (component_of(C[0].p, C[0].c) == 1) {
-		is_positioned = true;
-		break;
-	    }
-	}
-    }
-
+    // FIXME: this isn't the most efficient approach, but I struggled to
+    // make the obvious approaches work.
     B->del(current_key);
-
-    if (!is_positioned) {
-	is_after_end = true;
-	return;
-    }
-
-    get_key(&current_key);
-    // FIXME: check for errors
-    have_read_tag = false;
+    find_entry(current_key);
+    next();
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
 }
