@@ -934,10 +934,10 @@ static bool test_poscollapse2()
 // test that the batch query functionality works
 static bool test_batchquery1()
 {
-    OmBatchEnquire::query_desc mydescs[3] = {
-	{ OmQuery("thi"), 0, 10, 0, 0, 0},
-	{ OmQuery(), 0, 10, 0, 0, 0},
-	{ OmQuery("word"), 0, 10, 0, 0, 0}};
+    OmBatchEnquire::query_desc mydescs[3];
+    mydescs[0] = OmBatchEnquire::query_desc(OmQuery("thi"), 0, 10, 0, 0, 0);
+    mydescs[1] = OmBatchEnquire::query_desc(OmQuery(), 0, 10, 0, 0, 0);
+    mydescs[2] = OmBatchEnquire::query_desc(OmQuery("word"), 0, 10, 0, 0, 0);
 
     OmBatchEnquire benq(get_simple_database());
 

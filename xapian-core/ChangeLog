@@ -1,3 +1,12 @@
+Wed Sep 13 18:49:27 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix apitest so that the OmBatchEnquire::query_desc structure gets
+	  created.
+
+	* Attempt to fix DbTermLists handling of term frequencies: if the
+	  termfreq was not present it was being mishandled.  However,
+	  multiexpand1 still fails. :(
+
 Wed Sep 13 18:05:19 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* QuartzDbTable now has a get_entry_count() method to ... count its

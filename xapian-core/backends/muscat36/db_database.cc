@@ -126,6 +126,21 @@ DBTermList::DBTermList(struct termvec *tv, om_doccount dbsize_,
     pos = terms.begin();
 }
 
+om_doccount
+DBTermList::get_termfreq() const
+{   
+    Assert(!at_end());
+    Assert(have_started);
+    // FIXME: really icky cast
+    if (pos->termfreq == (om_termcount) -1) {
+	// Not available - read from database
+	DEBUGLINE(DB, "DBTermList;get_termfreq - termfreq for `" << pos->tname
+		  << "' not available, reading from database");
+	this_db->get_termfreq(pos->tname);
+    }
+    return pos->termfreq;
+}
+
 OmExpandBits
 DBTermList::get_weighting() const
 {
@@ -134,7 +149,7 @@ DBTermList::get_weighting() const
     Assert(wt != NULL);
 
     // FIXME: want to use document length
-    return wt->get_bits(pos->wdf, 1, pos->termfreq, dbsize);
+    return wt->get_bits(pos->wdf, 1, get_termfreq(), dbsize);
 }
 
 

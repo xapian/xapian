@@ -786,6 +786,20 @@ class OmBatchEnquire {
 	    query_desc() :
 		    first(0), maxitems(10), omrset(0), moptions(0), mdecider(0)
 		    {}
+
+	    /// Constructor allowing initialisation with curly brace notation
+	    query_desc(const OmQuery & query_,
+		       om_doccount first_,
+		       om_doccount maxitems_,
+		       const OmRSet * omrset_ = 0,
+		       const OmSettings * moptions_ = 0,
+		       const OmMatchDecider * mdecider_ = 0)
+		    : query(query_),
+		      first(first_),
+		      maxitems(maxitems_),
+		      omrset(omrset_),
+		      moptions(moptions_),
+		      mdecider(mdecider_) {}
 	};
 
 	/** Type used to store a batch of queries to be performed.

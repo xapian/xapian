@@ -172,14 +172,8 @@ inline om_termcount DBTermList::get_wdf() const
 {
     Assert(!at_end());
     Assert(have_started);
+    if (pos->wdf == 0) return 1;
     return pos->wdf;
-}
-
-inline om_doccount DBTermList::get_termfreq() const
-{
-    Assert(!at_end());
-    Assert(have_started);
-    return pos->termfreq;
 }
 
 inline TermList * DBTermList::next()
