@@ -82,12 +82,7 @@ h1 {color:#0066cc; font-size:x-large}
 </header>
 _STYLE_
 
-#print "<pre>";
-#$output1 = `ls -la /tmp/cache`;
-#print $output1;
-$output2 = `rm -rf /tmp/cache`;
-#print $output2;
-#print "</pre>";
+
 #----------------------------------------
 # first pass on input
 # to get query for printing out the form
@@ -105,7 +100,7 @@ print <<_HTML_;
 <table width=100%>
 <tr valign=bottom><td>
 <a href="http://www.cse.unsw.edu.au/~amichail/cvssearch">
-<img border=0 src="http://www.cse.unsw.edu.au/~anniec/images/logo.png"></a>
+<img border=0 src="http://www.cse.unsw.edu.au/~anniec/images/fishlogo.gif"></a>
 </td><td align=right>
 <form action=./Query.cgi>
 <b>Enter keyword(s) to search for: </b><input type=text size=45 name=query value="$query">
@@ -291,18 +286,17 @@ if($query && ($query ne "")){
 	$tmpgrep = $grepquery;
 	@tmpgrep = split / /, $stemquery;
 	#$tmpgrep =~ s/\|/\\|/g;
-	#$first = shift @tmpgrep;
+	$first = shift @tmpgrep;
 	#print "<pre>";
 	#print $first;
 	#@grepmatches = `grep -I -i -n -H '$tmpgrep' $files | head -$num_matches`;
-	$match_expr = "(".join ("|", @tmpgrep).")";
-	@grepmatches = `grep -E -I -i -n -H \"$match_expr\" $files`;
+	@grepmatches = `grep -I -i -n -H '$first' $files`;
 	#print @grepmatches;
-	# foreach (@tmpgrep){
+	foreach (@tmpgrep){
 		#print $_;
-	#	@grepmatches = grep '$_', @grepmatches; 
+		@grepmatches = grep '$_', @grepmatches; 
 		#print @grepmatches;
-	#}
+	}
 	#print "</pre>";
 	if($#grepmatches > $num_matches){
 		@grepmatches = @grepmatches[0..$num_matches];
@@ -564,8 +558,7 @@ if($query && ($query ne "")){
 	print "</font>";
 	close STORE;
 	system("chmod 777 $cache/$storefile");
-#	$ls = `ls -la $cache`;
-#	print "<pre>$ls</pre>";
+
 
 }
 

@@ -48,7 +48,6 @@ print <<_STYLE_;
 
 <STYLE TYPE=text/css>
 body {background-color:white}
-td {white-space:pre;font-family:fixed,courier;font-size:12pt}
 A:link, A:active, A:visited { text-decoration:none;color:black;}
 .popupLink { COLOR: blue; outline: none }
 .popup { POSITION:absolute; VISIBILITY:hidden; BACKGROUND-COLOR:white; LAYER-BACKGROUND-COLOR:white; BORDER:2px solid orange; PADDING: 3px; z-index: 10 }
@@ -149,20 +148,25 @@ if(param()){
 	
 	#filename
 	&filename($stemquery);
-	my @newrevs;
+#	my @newrevs;
     print STDERR "# of revs $#revs @revs\n";
 
-	foreach (@revs) {
-		if($revMAPmatch{$_}){
-			@newrevs = (@newrevs, $_);
-		}elsif($_ eq "grep"){
-			@newrevs = (@newrevs, $_);
-		}
-	}
-	@revs = @newrevs;
+#	foreach (@revs) {
+#		if($revMAPmatch{$_}){
+#			@newrevs = (@newrevs, $_);
+#		}elsif($_ eq "grep"){
+#			@newrevs = (@newrevs, $_);
+#		}
+#	}
+#	@revs = @newrevs;
+	
+	@revs = keys %revMAPmatch;
+	
     @revs = sort {&cmp_cvs_version($a, $b)} @revs;
     print STDERR "# of revs $#revs\n";
-    @colors = Cvssearch::getSpectrum($#revs+1);
+    if(@revs){
+    	@colors = Cvssearch::getSpectrum($#revs+1);
+    }
     print "<pre>";
 
 	foreach ($i=0;$i<$#revs+1;$i++){
@@ -194,16 +198,16 @@ if(param()){
 		if($lineMAPinfo{$i}){
 			$line = Entities::encode_entities($line);
 			print "<tr>";
-#			print "<a name=$i><td><pre>$i:</td>";
-			print "<a name=$i><td>$i:</td>";
+			print "<a name=$i><td><pre>$i:</td>";
+#			print "<a name=$i><td>$i:</td>";
 
 			$info = $lineMAPinfo{$i};
 			@info = split / /, $info;
 			$weight = shift @info;
 			
 			#print revs, in the column it belongs to
-#			print "<td><pre>";
-			print "<td>";
+			print "<td><pre>";
+#			print "<td>";
 
 			#print "<td class=pre>";
 			$flag = 1;
@@ -248,8 +252,8 @@ if(param()){
 			
 			$color = Cvssearch::get_color($weight, 150);
 			$line = &highlightquery($line);
-			print "<td bgcolor=$color><a href=\"$source$passparam#$i\" target=source>$line </a></td></tr>\n";
-#			print "<td bgcolor=$color><pre><a href=\"$source$passparam#$i\" target=source>$line</a></td></tr>\n";
+#			print "<td bgcolor=$color><a href=\"$source$passparam#$i\" target=source>$line </a></td></tr>\n";
+			print "<td bgcolor=$color><pre><a href=\"$source$passparam#$i\" target=source>$line</a></td></tr>\n";
 		}
 		if ($lineMAPinfo{$i+1} > $lineMAPinfo{$i}) {
 			print "<tr></tr>";
