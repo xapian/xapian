@@ -40,13 +40,13 @@ different groups of tests (eg: api_db.cc, which performs tests on the
 API that require a database backend, has basic tests, a few
 specialised groups that only contain one or two tests, tests that
 require a writeable database, tests that require a local database, and
-finally tests that require a remote database.
+finally tests that require a remote database).
 
 To add a new api test, figure out what the test will be dependent on
 and put it in the appropriate place (eg: if adding a test for a bug
 that occurs while writing to a database, you want a writeable
 database, so you add a test to api_db.cc and reference it in the
-writabledb_tests table.
+writabledb_tests table).
 
 Currently, there's api_nodb.cc (no db required, largely testing query
 construction and boundary conditions), api_posdb.cc (db with
