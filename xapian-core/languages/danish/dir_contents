@@ -1,0 +1,6 @@
+<Directory>languages/danish</Directory>
+
+<Description>
+Code for processing danish, such as a stemming algorithm for normalising
+danish words.
+</Description>

@@ -29,6 +29,7 @@
 #include "utils.h"
 #include "omlocks.h"
 
+#include "danish/stem_danish.h"
 #include "dutch/stem_dutch.h"
 #include "english/stem_english.h"
 #include "french/stem_french.h"
@@ -46,6 +47,7 @@
  */
 enum stemmer_language {
     STEMLANG_NULL,
+    STEMLANG_DANISH,
     STEMLANG_DUTCH,
     STEMLANG_ENGLISH,
     STEMLANG_FRENCH,
@@ -64,6 +66,7 @@ enum stemmer_language {
  */
 static const char * language_names[] = {
     "",
+    "danish",
     "dutch",
     "english",
     "french",
@@ -81,6 +84,8 @@ static const char * language_names[] = {
  *  also.
  */
 static const StringAndValue language_strings[] = {
+    {"da",		STEMLANG_DANISH},
+    {"danish",		STEMLANG_DANISH},
     {"de",		STEMLANG_GERMAN},
     {"dutch",		STEMLANG_DUTCH},
     {"en",		STEMLANG_ENGLISH},
@@ -184,6 +189,11 @@ OmStem::Internal::set_language(stemmer_language langcode)
     }
     stemmer_setup = 0;
     switch(langcode) {
+	case STEMLANG_DANISH:
+	    stemmer_setup = setup_danish_stemmer;
+	    stemmer_stem = danish_stem;
+	    stemmer_closedown = closedown_danish_stemmer;
+	    break;
 	case STEMLANG_DUTCH:
 	    stemmer_setup = setup_dutch_stemmer;
 	    stemmer_stem = dutch_stem;

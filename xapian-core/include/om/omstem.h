@@ -31,7 +31,7 @@
 // OmStem class
 // ============
 
-/// This class privides an interace to the stemming algorithms.
+/// This class provides an interace to the stemming algorithms.
 class OmStem {
     private:
 	class Internal;
