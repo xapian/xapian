@@ -35,22 +35,26 @@ class SleepyPostList : public virtual DBPostList {
 
 class SleepyDatabaseTermCache;
 // Termlist - a list of terms indexing a given document
-class SleepyTermList : public virtual TermList {
+class SleepyTermList : public virtual DBTermList {
     friend class SleepyDatabase;
     private:
 	termcount pos;
 	termid *data;
 	termcount terms;
+	doccount dbsize;
 
 	const SleepyDatabaseTermCache *termcache;
 
-	SleepyTermList(const SleepyDatabaseTermCache *, termid *, termcount);
+	SleepyTermList(const SleepyDatabaseTermCache *,
+		       termid *,
+		       termcount,
+		       doccount);
     public:
 	~SleepyTermList();
 	termcount get_approx_size() const;
 
-	weight get_weight() const;  // Gets weight of current term
-	const termname & get_termname() const;  // Current term
+	ExpandBits get_weighting() const;  // Gets weight of current term
+	const termname get_termname() const;  // Current term
 	termcount get_wdf() const;  // Occurences of current term in doc
 	doccount get_termfreq() const;  // Docs indexed by current term
 	TermList * next();
@@ -162,14 +166,19 @@ SleepyTermList::get_approx_size() const
     return terms;
 }
 
-inline weight
-SleepyTermList::get_weight() const {
+inline ExpandBits
+SleepyTermList::get_weighting() const {
     Assert(!at_end());
     Assert(pos != 0);
-    return 1.0; // FIXME
+    Assert(wt != NULL);
+
+    termcount wdf = 1; // FIXME - not yet stored in data structure
+    doclength norm_len = 1.0; // FIXME - not yet stored in data structure
+
+    return wt->get_bits(wdf, norm_len, SleepyTermList::get_termfreq(), dbsize);
 }
 
-inline const termname &
+inline const termname
 SleepyTermList::get_termname() const
 {
     Assert(!at_end());
