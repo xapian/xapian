@@ -1006,7 +1006,7 @@ eval(const string &fmt, const string &loopvar)
 		int len = args[0].length();
 		while (len) {
 		    value += *i++;
-		    if (--len && len % 3 == 0) res += option["thousand"];
+		    if (--len && len % 3 == 0) value += option["thousand"];
 		}
 		break;
 	    }

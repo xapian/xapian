@@ -1,3 +1,7 @@
+Thu Nov 22 12:55:00 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Fixed $nice to put the comma (or dot) in the right place.
+
 Tue Nov 20 17:30:19 GMT 2001  Olly Betts <olly@survex.com>
 
 	* $lastpage now returns 0 when there are no matches (previously
