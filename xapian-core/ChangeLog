@@ -1,3 +1,8 @@
+Thu Jul 10 19:19:30 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Defined _XOPEN_SOURCE=500 for GLIBC
+	  so we get pread() and pwrite().
+
 Thu Jul 10 00:28:25 BST 2003  Olly Betts <olly@survex.com>
 
 	* HACKING,Makefile.am,configure.in,bindings/.cvsignore,

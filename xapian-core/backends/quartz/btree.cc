@@ -24,6 +24,11 @@
 
 #include <config.h>
 
+#if defined __GLIBC__ && !defined _XOPEN_SOURCE
+// To get pread and pwrite
+#define _XOPEN_SOURCE 500
+#endif
+
 #include <unistd.h>
 
 #include <sys/types.h>
