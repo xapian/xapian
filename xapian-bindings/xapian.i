@@ -563,10 +563,14 @@ class TradWeight : public Weight {
 class Database {
     public:
 	void add_database(const Database & database);
-	Database();
-#ifndef SWIGPHP4
-	Database(const string &path);
+#ifdef SWIGPHP4
+	%rename(Database_empty) Database;
 #endif
+	Database();
+#ifdef SWIGPHP4
+	%rename(Database) Database;
+#endif
+	Database(const string &path);
 	virtual ~Database();
 	Database(const Database & database);
 	void reopen();
