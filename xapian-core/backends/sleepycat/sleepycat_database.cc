@@ -115,7 +115,7 @@ weight SleepyPostList::get_weight() const {
     
     doccount wdf = 1;
 
-    return ir_wt->get_weight(wdf);
+    return ir_wt->get_weight(wdf, 1.0);
 }
 
 weight SleepyPostList::get_maxweight() const {

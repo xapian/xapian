@@ -98,6 +98,7 @@ PostList * MultiPostList::next(weight w_min)
 ///////////////////////////
 
 MultiDatabase::MultiDatabase()
+	: length_initialised(false)
 {
     Assert((opened = false) == false);
     Assert((used = false) == false);

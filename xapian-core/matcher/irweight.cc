@@ -7,6 +7,8 @@
 
 #include "database.h"
 
+const double k = 1;
+
 // Calculate weights using statistics retrieved from databases
 void
 IRWeight::calc_termweight() const
@@ -14,6 +16,7 @@ IRWeight::calc_termweight() const
     Assert(initialised);
 
     doccount dbsize = database->get_doccount();
+    lenpart = k / database->get_avlength();
 
     //printf("Statistics: N=%d n_t=%d ", dbsize, termfreq);
 
@@ -32,23 +35,20 @@ IRWeight::calc_termweight() const
     weight_calculated = true;
 }
 
-const double k = 1;
-
 weight
-IRWeight::get_weight(doccount wdf) const
+IRWeight::get_weight(doccount wdf, doclength len) const
 {
     if(!weight_calculated) calc_termweight();
 
     weight wt;
 
-    doclength avlength = database->get_avlength();
 
-    //printf("(wdf, termweight, avlength)  = (%4d, %4.2f, %4f)\n",
-    //	   wdf, termweight, avlength);
+    //printf("(wdf, len, termweight, k * avlength)  = (%4d, %4f, %4.2f, %4f)\n",
+    //	wdf, len, termweight, lenpart);
 
     // FIXME - precalculate this freq score for several values of wdf - may
     // remove much computation.
-    wt = (double) wdf / (k * avlength + wdf);
+    wt = (double) wdf / (len * lenpart + wdf);
 
     //printf("(freq score %4.2f)", wt);
 

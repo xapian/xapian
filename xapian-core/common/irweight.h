@@ -15,6 +15,7 @@ class IRWeight {
 
 	mutable bool weight_calculated;
 	mutable weight termweight;
+	mutable doclength lenpart;
     public:
 	IRWeight() : initialised(false), weight_calculated(false) {}
 	void set_stats(const IRDatabase *db, doccount tf) {
@@ -23,7 +24,7 @@ class IRWeight {
 	    initialised = true;
 	}
 	void calc_termweight() const;
-	weight get_weight(doccount wdf) const;
+	weight get_weight(doccount wdf, doclength len) const;
 	weight get_maxweight() const;
 };
 

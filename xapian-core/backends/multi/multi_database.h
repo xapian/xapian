@@ -124,6 +124,9 @@ class MultiDatabase : public virtual IRDatabase {
 
 	list<IRDatabase *> databases;
 
+	mutable bool length_initialised;
+	mutable doclength avlength;
+
 	bool opened; // Whether we have opened the database (ie, added a subDB)
 	mutable bool used;// Have we used the database (if so, can't add more DBs)
     public:
@@ -182,20 +185,23 @@ MultiDatabase::get_avlength() const
     Assert(opened);
     Assert((used = true) == true);
 
-    doccount docs = 0;
-    doclength totlen = 0;
+    if(!length_initialised) {
+	doccount docs = 0;
+	doclength totlen = 0;
 
-    list<IRDatabase *>::const_iterator i = databases.begin(); 
-    while(i != databases.end()) {
-	doccount db_doccount = (*i)->get_doccount();
-	docs += db_doccount;
-	totlen += (*i)->get_avlength() * db_doccount;
-	i++;
+	list<IRDatabase *>::const_iterator i = databases.begin(); 
+	while(i != databases.end()) {
+	    doccount db_doccount = (*i)->get_doccount();
+	    docs += db_doccount;
+	    totlen += (*i)->get_avlength() * db_doccount;
+	    i++;
+	}
+
+	avlength = totlen / docs;
+	length_initialised = true;
     }
 
-    doclength avlen = totlen / docs;
-
-    return avlen;
+    return avlength;
 }
 
 #endif /* _sleepy_database_h_ */

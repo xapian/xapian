@@ -29,7 +29,7 @@ weight DAPostList::get_weight() const
     Assert(!at_end());
 
     // NB ranges from daread share the same wdf value
-    return ir_wt->get_weight(postlist->wdf);
+    return ir_wt->get_weight(postlist->wdf, 1.0);
 }
 
 // return an upper bound on the termweight
