@@ -21,7 +21,9 @@
  * -----END-LICENCE-----
  */
 
+#include <stdio.h>
 #include <ctype.h>
+#include <getopt.h>
 
 #include <string>
 #include <iostream>
@@ -72,7 +74,7 @@ int main(int argc, char **argv)
     bool syntax_error = false;
 
     int c;
-    while ((c = getopt_long(argc, argv, "", opts, NULL)) != EOF) {
+    while ((c = getopt_long(argc, argv, "l", opts, NULL)) != EOF) {
 	if (c == 'l') {
 	    lang = argv[optind];
 	} else {
@@ -82,7 +84,7 @@ int main(int argc, char **argv)
 
     try {
 	OmStem stemmer(lang);
-	while (arg[optind]) {
+	while (argv[optind]) {
 	    FILE * f = fopen(argv[optind], "r");
 	    if (f == NULL) {
 		cerr << "File " << argv[optind] << " not found\n";
