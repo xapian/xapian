@@ -1,3 +1,7 @@
+Wed Mar  8 18:24:27 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added OmBatchEnquire for batch queries.
+
 Tue Mar  7 18:09:36 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added configure option to use error-checking mutexes instead

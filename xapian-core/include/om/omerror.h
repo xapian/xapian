@@ -123,5 +123,10 @@ class OmOpeningError : public OmDatabaseError {
         OmOpeningError(const string &msg) : OmDatabaseError(msg) {};
 };
 
+/** Thrown when trying to access invalid data. */
+class OmInvalidResultError : public OmRuntimeError {
+    public:
+	OmInvalidResultError(const string &msg) : OmRuntimeError(msg) {};
+};
 
 #endif /* OM_HGUARD_ERROR_H */
