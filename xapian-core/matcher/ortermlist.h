@@ -8,13 +8,14 @@
 
 class OrTermList : public virtual BranchTermList {
     private:
-        termid lhead, rhead;
+        termname lhead, rhead;
 //        weight lmax, rmax, minmax;
+	bool started;
     public:
 	termcount get_approx_size() const;
 
 	weight get_weight() const;
-	termid get_termid() const;
+	termname get_termname() const;
         termcount get_wdf() const;
         doccount get_termfreq() const;
 
@@ -32,7 +33,7 @@ class OrTermList : public virtual BranchTermList {
 inline weight
 OrTermList::get_weight() const
 {
-    Assert(lhead != 0 && rhead != 0); // check we've started
+    Assert(started); // check we've started
     if (lhead < rhead) return l->get_weight();
     if (lhead > rhead) return r->get_weight();
     return l->get_weight() + r->get_weight();
@@ -41,22 +42,22 @@ OrTermList::get_weight() const
 inline doccount
 OrTermList::get_termfreq() const
 {
-    Assert(lhead != 0 && rhead != 0); // check we've started
+    Assert(started); // check we've started
     if (lhead < rhead) return l->get_termfreq();
     return r->get_termfreq();
 }
 
-inline termid
-OrTermList::get_termid() const
+inline termname
+OrTermList::get_termname() const
 {
-    Assert(lhead != 0 && rhead != 0); // check we've started
+    Assert(started); // check we've started
     return min(lhead, rhead);
 }
 
 inline termcount
 OrTermList::get_wdf() const
 {
-    Assert(lhead != 0 && rhead != 0); // check we've started
+    Assert(started); // check we've started
     if (lhead < rhead) return l->get_wdf();
     if (lhead > rhead) return r->get_wdf();
     return l->get_wdf() + r->get_wdf();
@@ -65,7 +66,8 @@ OrTermList::get_wdf() const
 inline bool
 OrTermList::at_end() const
 {
-    return lhead == 0 && rhead == 0;
+    AssertParanoid(!(l->at_end()) && !(r->at_end()));
+    return false; // Should have thrown a sub-tree, rather than got to end
 }
 
 inline termcount

@@ -24,7 +24,7 @@ IRWeight::calc_termweight() const
     weight tw = 0;
     doccount rsize;
     if(rset != NULL && (rsize = rset->get_rsize()) != 0) {
-	doccount rtermfreq = rset->get_reltermfreq(tid);
+	doccount rtermfreq = rset->get_reltermfreq(tname);
 
 	printf("R=%d r_t=%d ", rsize, rtermfreq);
 
@@ -87,7 +87,7 @@ BM25Weight::calc_termweight() const
     weight tw = 0;
     doccount rsize;
     if(rset != NULL && (rsize = rset->get_rsize()) != 0) {
-	doccount rtermfreq = rset->get_reltermfreq(tid);
+	doccount rtermfreq = rset->get_reltermfreq(tname);
 
 	printf("R=%d r_t=%d ", rsize, rtermfreq);
 

@@ -33,7 +33,7 @@ class DAPostList : public virtual DBPostList {
 	DAPostList(const IRDatabase *,
 		   struct postings *,
 		   doccount,
-		   termid,
+		   const termname,
 		   const RSet *);
     public:
 	~DAPostList();
@@ -245,7 +245,7 @@ class DADatabase : public virtual IRDatabase {
 	doccount  get_doccount() const;
 	doclength get_avlength() const;
 
-	DBPostList * open_post_list(termid id, RSet *) const;
+	DBPostList * open_post_list(const termname&, RSet *) const;
 	TermList * open_term_list(docid id) const;
 	IRDocument * open_document(docid id) const;
 

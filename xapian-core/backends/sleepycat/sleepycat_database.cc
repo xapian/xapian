@@ -105,11 +105,11 @@ SleepyDatabaseInternals::close()
 SleepyPostList::SleepyPostList(const IRDatabase *root,
 			       docid *data_new,
 			       doccount tf,
-			       termid tid,
+			       const termname tname,
 			       const RSet *rset)
 	: pos(0), data(data_new), termfreq(tf)
 {
-    own_wt.set_stats(root, tf, tid, rset);
+    own_wt.set_stats(root, tf, tname, rset);
 }
 
 SleepyPostList::~SleepyPostList() {
@@ -179,8 +179,12 @@ void SleepyDatabase::close() {
 }
 
 DBPostList *
-SleepyDatabase::open_post_list(termid tid, RSet * rset) const {
+SleepyDatabase::open_post_list(const termname & tname, RSet *rset) const
+{
     Assert(opened);
+    termid tid = root->term_name_to_id(tname);
+    Assert(tid != 0);
+
     Dbt key(&tid, sizeof(tid));
     Dbt data;
 
@@ -202,7 +206,7 @@ SleepyDatabase::open_post_list(termid tid, RSet * rset) const {
     return new SleepyPostList(root,
 			      (docid *)data.get_data(),
 			      data.get_size() / sizeof(docid),
-			      tid, rset);
+			      tname, rset);
 }
 
 TermList *

@@ -297,8 +297,8 @@ pretty_printf(const char *p, int *a)
 	    RSet tmp(&database);
 	    
 	    for (int m = min(4, int(msize) - 1); m >= 0; m--) {
-		cout << "Autotopterm id: " << matcher->mset[m].id << endl;
-		tmp.add_document(matcher->mset[m].id);
+		cout << "Autotopterm id: " << matcher->mset[m].did << endl;
+		tmp.add_document(matcher->mset[m].did);
 	    }
 		
 	    topterms.expand(&tmp);
@@ -307,11 +307,10 @@ pretty_printf(const char *p, int *a)
 	int c = 0;
 	vector<ESetItem>::const_iterator i;
 	for (i = topterms.eset.begin(); i != topterms.eset.end(); i++) {
-	    string term = database.term_id_to_name(i->tid);
-	    cout << term << ":" << i->wt << " " << endl;
+	    cout << i->tname << ":" << i->wt << " " << endl;
 	}
 	for (i = topterms.eset.begin(); i != topterms.eset.end(); i++) {
-	    string term = database.term_id_to_name(i->tid);
+	    string term = i->tname;
 	    // only suggest 4 or more letter words for now to
 	    // avoid italian problems FIXME: fix this at index time
 	    if (term.length() <= 3) continue;
@@ -407,9 +406,8 @@ pretty_printf(const char *p, int *a)
 
 	    // FIXME: is there a better way?
 	    int freq = 0;
-	    termid id = database.term_name_to_id(*i);
-	    if (id) {
-		PostList *pl = database.open_post_list(id, NULL); // FIXME NULL?
+	    if (database.term_exists(*i)) {
+		PostList *pl = database.open_post_list(*i, NULL); // FIXME NULL?
 		freq = pl->get_termfreq();
 		delete pl;
 	    }

@@ -1,7 +1,7 @@
 #include "ortermlist.h"
 
 OrTermList::OrTermList(TermList *left, TermList *right)
-	: lhead(0), rhead(0)
+	: started(false)
 {
     l = left;
     r = right;
@@ -10,6 +10,7 @@ OrTermList::OrTermList(TermList *left, TermList *right)
 TermList *
 OrTermList::next()
 {
+    Assert((started = true) == true);
     bool ldry = false;
     bool rnext = false;
 
@@ -30,11 +31,11 @@ OrTermList::next()
 	    l = NULL;
 	    return ret;
 	}
-	rhead = r->get_termid();
+	rhead = r->get_termname();
     }
 
     if (!ldry) {
-	lhead = l->get_termid();
+	lhead = l->get_termname();
 	return NULL;
     }
 

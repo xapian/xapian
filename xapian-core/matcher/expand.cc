@@ -13,7 +13,7 @@ class ESetCmp {
         bool operator()(const ESetItem &a, const ESetItem &b) {
 	    if(a.wt > b.wt) return true;
 	    if(a.wt != b.wt) return false;
-	    return a.tid > b.tid;
+	    return a.tname > b.tname;
         }
 };
 
@@ -117,8 +117,8 @@ Expand::expand(const RSet *rset)
         weight wt = merger->get_weight();
         
         if (wt > w_min) {
-	    termid id = merger->get_termid();
-	    eset.push_back(ESetItem(wt, id));
+	    termname tname = merger->get_termname();
+	    eset.push_back(ESetItem(wt, tname));
 
 	    // FIXME: find balance between larger size for more efficient
 	    // nth_element and smaller size for better w_min optimisations

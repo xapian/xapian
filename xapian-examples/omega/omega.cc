@@ -219,7 +219,7 @@ static int main2(int argc, char *argv[])
 	int c = 0;
 	vector<ESetItem>::const_iterator i;
 	for (i = topterms.eset.begin(); i != topterms.eset.end(); i++) {
-	    string term = database.term_id_to_name(i->tid);
+	    string term = i->tname;
 	    if (term.empty()) continue;
 	    if (more) big_buf += ' ';
 	    big_buf += term;

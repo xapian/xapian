@@ -19,7 +19,7 @@ class RSet {
     private:
 	IRDatabase *root;
 
-	mutable map<termid, doccount> reltermfreqs;
+	mutable map<termname, doccount> reltermfreqs;
 	mutable bool initialised_reltermfreqs;
     public:
 	vector<RSetItem> documents; // FIXME - should be encapsulated
@@ -27,9 +27,9 @@ class RSet {
 	RSet(IRDatabase *root_new)
 		: root(root_new), initialised_reltermfreqs(false) { return; }
 	void add_document(docid did);
-	void will_want_termfreq(termid tid) const;
+	void will_want_termfreq(termname tname) const;
 	doccount get_rsize() const;
-	doccount get_reltermfreq(termid tid) const;
+	doccount get_reltermfreq(termname tname) const;
 };
 
 ///////////////////////////////
@@ -51,13 +51,13 @@ RSet::get_rsize() const
 }
 
 inline void
-RSet::will_want_termfreq(termid tid) const
+RSet::will_want_termfreq(termname tname) const
 {
-    reltermfreqs[tid] = 0;
+    reltermfreqs[tname] = 0;
 }
 
 inline doccount
-RSet::get_reltermfreq(termid tid) const
+RSet::get_reltermfreq(termname tname) const
 {
     if(!initialised_reltermfreqs) {
 	vector<RSetItem>::const_iterator doc;
@@ -66,20 +66,20 @@ RSet::get_reltermfreq(termid tid) const
 	    tl->next();
 	    while(!(tl->at_end())) {
 		// FIXME - can this lookup be done faster?
-		// Store termids in a hash for each document, rather than
+		// Store termnamess in a hash for each document, rather than
 		// a list?
-		termid newtid = tl->get_termid();
-		if(reltermfreqs.find(newtid) != reltermfreqs.end())
-		    reltermfreqs[newtid] ++;
+		termname tname_new = tl->get_termname();
+		if(reltermfreqs.find(tname_new) != reltermfreqs.end())
+		    reltermfreqs[tname_new] ++;
 		tl->next();
 	    }
 	}
 	initialised_reltermfreqs = true;
     }
 
-    Assert(reltermfreqs.find(tid) != reltermfreqs.end());
+    Assert(reltermfreqs.find(tname) != reltermfreqs.end());
 
-    return reltermfreqs[tid];
+    return reltermfreqs[tname];
 }
 
 #endif /* _rset_h_ */

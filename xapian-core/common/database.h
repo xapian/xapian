@@ -24,6 +24,7 @@ class IRDatabase {
 
 	void set_root(IRDatabase *db) {root = db;}
 
+	virtual bool term_exists(const termname &) const;
 	virtual termid term_name_to_id(const termname &) const = 0;
 	virtual termname term_id_to_name(termid) const = 0;
     
@@ -39,9 +40,8 @@ class IRDatabase {
 	// Average length of a document
 	virtual doclength get_avlength() const = 0;
 
-	// Throws RangeError if termid invalid
-	//virtual DBPostList * open_post_list(termid, RSet * = NULL) const = 0;
-	virtual DBPostList * open_post_list(termid, RSet *) const = 0;
+	// Throws RangeError if term not in database
+	virtual DBPostList * open_post_list(const termname&, RSet *) const = 0;
 
 	// Throws RangeError if docid invalid
 	virtual TermList * open_term_list(docid) const = 0;
@@ -52,5 +52,12 @@ class IRDatabase {
 	// Introspection methods
 	virtual const string get_database_path() const = 0;
 };
+
+inline bool
+IRDatabase::term_exists(const termname &tname) const
+{
+    if(term_name_to_id(tname)) return true;
+    return false;
+}
 
 #endif /* _database_h_ */

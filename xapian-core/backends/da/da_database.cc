@@ -18,11 +18,11 @@
 DAPostList::DAPostList(const IRDatabase *root,
 		       struct postings *pl,
 		       doccount tf,
-		       termid tid,
+		       const termname tname,
 		       const RSet *rset)
 	: postlist(pl), currdoc(0), termfreq(tf)
 {
-    own_wt.set_stats(root, tf, tid, rset);
+    own_wt.set_stats(root, tf, tname, rset);
 }
 
 DAPostList::~DAPostList()
@@ -156,29 +156,29 @@ DADatabase::close()
 }
 
 // Returns a new posting list, for the postings in this database for given term
-DBPostList * DADatabase::open_post_list(termid id, RSet *rset) const
+DBPostList * DADatabase::open_post_list(const termname &tname, RSet *rset) const
 {
     Assert(opened);
-    Assert(id > 0 && id <= termvec.size());
 
-    termname name = term_id_to_name(id);
+    termid tid = term_name_to_id(tname);
+    Assert(tid != 0);
 
     struct postings * postlist;
-    postlist = DAopenpostings(termvec[id - 1].get_ti(), DA_t);
+    postlist = DAopenpostings(termvec[tid - 1].get_ti(), DA_t);
 
     DBPostList * pl = new DAPostList(root, postlist,
-				     termvec[id - 1].get_ti()->freq,
-				     id, rset);
+				     termvec[tid - 1].get_ti()->freq,
+				     tname, rset);
     return pl;
 }
 
 // Returns a new term list, for the terms in this database for given document
-TermList * DADatabase::open_term_list(docid id) const
+TermList * DADatabase::open_term_list(docid did) const
 {
     Assert(opened);
 
     struct termvec *tv = maketermvec();
-    int found = DAgettermvec(DA_r, id, tv);
+    int found = DAgettermvec(DA_r, did, tv);
 
     if(found == 0) {
 	losetermvec(tv);
@@ -191,12 +191,12 @@ TermList * DADatabase::open_term_list(docid id) const
     return tl;
 }
 
-IRDocument * DADatabase::open_document(docid id) const
+IRDocument * DADatabase::open_document(docid did) const
 {
     Assert(opened);
 
     struct record *r = makerecord();
-    int found = DAgetrecord(DA_r, id, r);
+    int found = DAgetrecord(DA_r, did, r);
 
     if(found == 0) {
 	loserecord(r);

@@ -415,7 +415,7 @@ print_caption(long int m)
 {
     long int q0 = 0;
     int percent;
-    long int w = 0; 
+    long int wt = 0; 
     time_t lastmod = -1;
     string hostname = "localhost"; /* erk */
     string country;
@@ -423,8 +423,8 @@ print_caption(long int m)
     string language;
     string language_code = "x";
 
-    w = (int)matcher->mset[m].w;
-    q0 = matcher->mset[m].id;
+    wt = (long int)matcher->mset[m].wt;
+    q0 = matcher->mset[m].did;
     
     /* get hostname from longest N tag
      * and country from shortest (allowing for uk+) */
@@ -432,7 +432,7 @@ print_caption(long int m)
     TermList *terms = database.open_term_list(q0);
     terms->next();
     while (!terms->at_end()) {
-	string term = database.term_id_to_name(terms->get_termid());
+	string term = terms->get_termname();
 	int length = term.length();
 	switch (term[0]) {
 	 case 'N':
@@ -461,7 +461,7 @@ print_caption(long int m)
     language = option["BOOL-L" + language_code];
     if (language.empty()) language = language_code;
    
-    percent = percentage((double)w, matcher->get_max_weight());
+    percent = percentage((double)wt, matcher->get_max_weight());
     
     string path, sample, caption;
     int port = -1;
@@ -602,7 +602,7 @@ print_caption(long int m)
 	     TermList *terms = database.open_term_list(q0);
 	     terms->next();
 	     while (!terms->at_end()) {
-		 termname term = database.term_id_to_name(terms->get_termid());
+		 termname term = terms->get_termname();
 		 map<termname, int>::iterator i = matching_map.find(term);
 		 if (i != matching_map.end()) {
 #ifdef META

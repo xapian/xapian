@@ -10,9 +10,11 @@
 
 class MSetItem {
     public:
-        weight w;
-        docid id;
-        MSetItem(weight w_, docid id_) { w = w_; id = id_; }
+        weight wt;
+        docid did;
+        MSetItem(weight wt_new, docid did_new)
+		: wt(wt_new), did(did_new)
+		{ return; }
 };
 
 typedef enum { AND, OR, FILTER, AND_NOT, AND_MAYBE, XOR } matchop;
@@ -35,10 +37,8 @@ class Match {
     public:
         Match(IRDatabase *);
         void add_term(const termname &);
-        void add_term(termid);
 	bool add_op(matchop op);
 	void add_oplist(matchop op, const vector<termname>&);
-	void add_oplist(matchop op, const vector<termid>&);
 
         void match();
         void set_max_msize(doccount n);
@@ -51,12 +51,6 @@ class Match {
         doccount msize;
         doccount mtotal;
 };
-
-inline void
-Match::add_term(const string& termname)
-{
-    Match::add_term(DB->term_name_to_id(termname));
-}
 
 inline void
 Match::set_rset(RSet *new_rset)

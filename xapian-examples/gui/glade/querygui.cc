@@ -62,7 +62,7 @@ string floattostring(double a)
 
 class TopTermItemGTK {
     public:
-	TopTermItemGTK(termid tid_new, termname tname) : tid(tid_new)
+	TopTermItemGTK(termname &tname_new) : tname(tname_new)
 	{
 	    data = new gchar *[1];
 	    data[0] = c_string(tname);
@@ -71,7 +71,7 @@ class TopTermItemGTK {
 	    delete data[0];
 	    delete data;
 	}
-	termid tid;
+	termname tname;
 	
 	gchar **data;
 };
@@ -142,10 +142,12 @@ static void do_topterms() {
 
 	vector<ESetItem>::const_iterator i;
 	for (i = topterms.eset.begin(); i != topterms.eset.end(); i++) {
-	    string tname = database->term_id_to_name(i->tid);
+	    string tname = i->tname;
+//#ifdef DEBUG
 	    tname = tname + " (" + floattostring(i->wt) + ")";
+//#endif
 
-	    TopTermItemGTK * item = new TopTermItemGTK(i->tid, tname);
+	    TopTermItemGTK * item = new TopTermItemGTK(tname);
 	    gint index = gtk_clist_append(topterms_widget, item->data);
 
 	    // Make sure it gets freed when item is removed from result list
@@ -202,7 +204,7 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	gtk_clist_clear(results_widget);
 	cout << "MTotal: " << mtotal << " Maxweight: " << maxweight << endl;
 	for (docid i = 0; i < msize; i++) {
-	    docid q0 = matcher.mset[i].id;
+	    docid q0 = matcher.mset[i].did;
 	    IRDocument *doc = database->open_document(q0);
 	    IRData data = doc->get_data();
 	    string message;
@@ -214,8 +216,8 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	    message += " ";
 	    message += data.value;
 	    message = data.value;
-	    ResultItemGTK * item = new ResultItemGTK(matcher.mset[i].id,
-		100 * matcher.mset[i].w / maxweight, message);
+	    ResultItemGTK * item = new ResultItemGTK(matcher.mset[i].did,
+		100 * matcher.mset[i].wt / maxweight, message);
 	    gint index = gtk_clist_append(results_widget, item->data);
 
 	    // Make sure it gets freed when item is removed from result list

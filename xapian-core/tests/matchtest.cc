@@ -205,11 +205,11 @@ main(int argc, char *argv[])
 	
 	if (showmset) {
 	    for (docid i = 0; i < match.msize; i++) {
-		docid q0 = match.mset[i].id;
+		docid q0 = match.mset[i].did;
 		IRDocument *doc = database->open_document(q0);
 		IRData data = doc->get_data();
 		string p = data.value;
-		cout << q0 << ":[" << p << "] " << match.mset[i].w << "\n\n";
+		cout << q0 << ":[" << p << "] " << match.mset[i].wt << "\n\n";
 	    }
 	    cout << endl;
 	}

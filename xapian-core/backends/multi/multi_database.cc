@@ -15,12 +15,12 @@
 
 MultiPostList::MultiPostList(const IRDatabase *root,
 			     list<MultiPostListInternal> &pls,
-			     termid tid, 
+			     termname tname, 
 			     const RSet *rset)
 	: postlists(pls), finished(false), currdoc(0),
 	  freq_initialised(false)
 {
-    own_wt.set_stats(root, get_termfreq(), tid, rset);
+    own_wt.set_stats(root, get_termfreq(), tname, rset);
 
     // Make all the sub-postlists use the same (our) termweight
     set_termweight(&own_wt);
@@ -144,11 +144,10 @@ void MultiDatabase::close() {
 }
 
 DBPostList *
-MultiDatabase::open_post_list(termid tid, RSet *rset) const {
+MultiDatabase::open_post_list(const termname & tname, RSet *rset) const
+{
     Assert(opened);
     Assert((used = true) == true);
-
-    termname tname = term_id_to_name(tid);
 
     doccount offset = 1;
     doccount multiplier = databases.size();
@@ -156,9 +155,8 @@ MultiDatabase::open_post_list(termid tid, RSet *rset) const {
     list<MultiPostListInternal> pls;
     vector<IRDatabase *>::const_iterator i = databases.begin();
     while(i != databases.end()) {
-	termid local_tid = (*i)->term_name_to_id(tname);
-	if(local_tid) {
-	    MultiPostListInternal pl((*i)->open_post_list(local_tid, rset),
+	if((*i)->term_exists(tname)) {
+	    MultiPostListInternal pl((*i)->open_post_list(tname, rset),
 				     offset, multiplier);
 	    pls.push_back(pl);
 	}
@@ -167,7 +165,7 @@ MultiDatabase::open_post_list(termid tid, RSet *rset) const {
     }
     Assert(pls.begin() != pls.end());
     
-    DBPostList * newpl = new MultiPostList(root, pls, tid, rset);
+    DBPostList * newpl = new MultiPostList(root, pls, tname, rset);
     return newpl;
 }
 

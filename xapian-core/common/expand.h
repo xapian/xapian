@@ -11,9 +11,9 @@
 class ESetItem {
     public:
 	weight wt;
-	termid tid;
-	ESetItem(weight wt_new, termid tid_new)
-		: wt(wt_new), tid(tid_new)
+	termname tname;
+	ESetItem(weight wt_new, termname tname_new)
+		: wt(wt_new), tname(tname_new)
 		{ return ; }
 };
 

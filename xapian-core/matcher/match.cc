@@ -28,24 +28,24 @@ class PLPCmpLt {
         }
 };
 
-Match::Match(IRDatabase *database)
+Match::Match(IRDatabase *database_new)
 	: have_added_terms(false)
 {
-    DB = database;
+    DB = database_new;
     max_msize = 1000;
     min_weight_percent = -1;
     rset = NULL;
 }
 
 void
-Match::add_term(termid id)
+Match::add_term(const termname& tname)
 {
     Assert((have_added_terms = true) == true);
     // We want to push a null PostList in most (all?) situations
     // for similar reasons to using the muscat3.6 zerofreqs option
-    if (id) {
-	q.push(DB->open_post_list(id, rset));
-	if(rset) rset->will_want_termfreq(id);
+    if (DB->term_exists(tname)) {
+	q.push(DB->open_post_list(tname, rset));
+	if(rset) rset->will_want_termfreq(tname);
 	// FIXME - should get called automatically when we open a post list
 	// -- want a postlist factory
     } else {
@@ -53,36 +53,23 @@ Match::add_term(termid id)
     }
 }
 
-// FIXME: sort out error handling in next 2 methods (e.g. term not found...)
+// FIXME: sort out error handling in next method (e.g. term not found...)
 void
 Match::add_oplist(matchop op, const vector<termname> &terms)
-{
-    Assert(op == OR || op == AND);
-    vector<termid> ids;
-    vector<termname>::const_iterator i;
-    for (i = terms.begin(); i != terms.end(); i++) {
-	ids.push_back(DB->term_name_to_id(*i));
-    }
-    Match::add_oplist(op, ids);
-}
-
-void
-Match::add_oplist(matchop op, const vector<termid> &ids)
 {
     Assert((have_added_terms = true) == true);
     Assert(op == OR || op == AND);
     if (op == OR) {
 	// FIXME: try using a heap instead (C++ sect 18.8)?
 	priority_queue<PostList*, vector<PostList*>, PLPCmpGt> pq;
-	vector<termid>::const_iterator i;
-	for (i = ids.begin(); i != ids.end(); i++) {
+	vector<termname>::const_iterator i;
+	for (i = terms.begin(); i != terms.end(); i++) {
 	    // for an OR, we can just ignore zero freq terms
-	    termid id = *i;
-	    if (id) {
-		pq.push(DB->open_post_list(id, rset));
-		if(rset) rset->will_want_termfreq(id);
-		// FIXME - should get called automatically when we open a
-		// post list -- want a postlist factory
+	    if (DB->term_exists(*i)) {
+		pq.push(DB->open_post_list(*i, rset));
+		if(rset) rset->will_want_termfreq(*i);
+		// FIXME - should get called automatically when we open any
+		// post list
 	    }
 	}
 
@@ -115,18 +102,17 @@ Match::add_oplist(matchop op, const vector<termid> &ids)
     // SORT list into ascending freq order
     // AND last two elements, then AND with each subsequent element
     vector<PostList *> sorted;
-    vector<termid>::const_iterator i;
-    for (i = ids.begin(); i != ids.end(); i++) {
-	termid id = *i;
-	if (id == 0) {
+    vector<termname>::const_iterator i;
+    for (i = terms.begin(); i != terms.end(); i++) {
+	if (!DB->term_exists(*i)) {
 	    // a zero freq term => the AND has zero freq
 	    vector<PostList *>::const_iterator j;
 	    for (j = sorted.begin(); j != sorted.end(); j++) delete *j;
 	    sorted.clear();
 	    break;
 	}
-	sorted.push_back(DB->open_post_list(id, rset));
-	if(rset) rset->will_want_termfreq(id);
+	sorted.push_back(DB->open_post_list(*i, rset));
+	if(rset) rset->will_want_termfreq(*i);
 	// FIXME - should get called automatically when we open a post list
 	// -- want a postlist factory
     }
@@ -186,8 +172,8 @@ Match::add_op(matchop op)
 class MSetCmp {
     public:
         bool operator()(const MSetItem &a, const MSetItem &b) {
-	    if(a.w > b.w) return true;
-	    if(a.w == b.w) return a.id > b.id;
+	    if(a.wt > b.wt) return true;
+	    if(a.wt == b.wt) return a.did > b.did;
 	    return false;
         }
 };
@@ -271,7 +257,7 @@ Match::match()
 		nth_element(mset.begin(), mset.begin() + max_msize, mset.end(), MSetCmp());
 		// erase elements which don't make the grade
 	        mset.erase(mset.begin() + max_msize, mset.end());
-	        w_min = mset.back().w;
+	        w_min = mset.back().wt;
 	        cout << "mset size = " << mset.size() << endl;
 	    }
 	}
@@ -293,8 +279,8 @@ Match::match()
 
     cout << "msize = " << msize << ", mtotal = " << mtotal << endl;
     if (msize) {
-	cout << "max weight in mset = " << mset[0].w
-	     << ", min weight in mset = " << mset[msize - 1].w << endl;
+	cout << "max weight in mset = " << mset[0].wt
+	     << ", min weight in mset = " << mset[msize - 1].wt << endl;
     }
     delete merger;
     merger = NULL;

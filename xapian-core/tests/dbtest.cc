@@ -9,7 +9,6 @@
 int main(int argc, char *argv[]) {
     DBPostList * postlist;
     TermList * termlist;
-    termid tid;
     docid did;
 
     try {
@@ -32,15 +31,13 @@ int main(int argc, char *argv[]) {
 	database.open("testdir", 0);
 #endif
 
-	tid = database.term_name_to_id("thou");
-	printf("tid is %d\n", tid);
-	if(tid == 0) {
+	termname tname = "thou";
+	if(database.term_exists(tname) == 0) {
 	    printf("Term not found\n");
 	} else {
-	    termname tname = database.term_id_to_name(tid);
 	    printf("tname is `%s'\n", tname.c_str());
 	    // posting list 122 141 142 174 ...
-	    postlist = database.open_post_list(tid, NULL);
+	    postlist = database.open_post_list(tname, NULL);
 	    printf("Termfreq: %d\n", postlist->get_termfreq());
 	    postlist->next(0.0);
 	    while(!postlist->at_end()) {
@@ -51,8 +48,8 @@ int main(int argc, char *argv[]) {
 		did = postlist->get_docid();
 		wt = postlist->get_weight();
 		maxwt = postlist->get_maxweight();
-		printf("TermId: %d  DocId: %d  Weight: %f  Maxweight: %f\n",
-		       tid, did, wt, maxwt);
+		printf("Termname: %s  DocId: %d  Weight: %f  Maxweight: %f\n",
+		       tname.c_str(), did, wt, maxwt);
 		if(did == 120) postlist->skip_to(144, 0.0);
 		else postlist->next(0.0);
 	    }
@@ -71,12 +68,11 @@ int main(int argc, char *argv[]) {
 	termlist = database.open_term_list(did);
 	termlist->next();
 	while(!termlist->at_end()) {
-	    termid tid = termlist->get_termid();
+	    termname tname = termlist->get_termname();
 
-	    printf("Term (Id %d) `%s' wdf=%d termfreq=%d\n", tid,
-		   database.term_id_to_name(tid).c_str(),
-		   termlist->get_wdf(),
-		   termlist->get_termfreq());
+	    cout << "Term `" << tname <<
+		    "' wdf=" << termlist->get_wdf() <<
+		    " termfreq=" << termlist->get_termfreq() << endl;
 	    termlist->next();
 	}
 	delete termlist;

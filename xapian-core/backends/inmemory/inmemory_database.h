@@ -107,7 +107,7 @@ class TextfilePostList : public virtual DBPostList {
 	TextfilePostList(const IRDatabase *,
 			 const TextfileDatabase *,
 			 const TextfileTerm &,
-			 termid tid,
+			 const termname tname,
 			 const RSet *rset);
     public:
 	doccount get_termfreq() const;
@@ -190,7 +190,7 @@ class TextfileDatabase : public virtual IRDatabase,
 	doclength get_avlength() const;
 	doccount get_termfreq(termid) const;  // Number of docs indexed by term
 
-	DBPostList * open_post_list(termid, RSet *) const;
+	DBPostList * open_post_list(const termname&, RSet *) const;
 	TermList * open_term_list(docid) const;
 	IRDocument * open_document(docid) const;
 
@@ -214,7 +214,7 @@ inline
 TextfilePostList::TextfilePostList(const IRDatabase *root,
 				   const TextfileDatabase *db,
 				   const TextfileTerm &term,
-				   termid tid,
+				   const termname tname,
 				   const RSet *rset)
 	: pos(term.docs.begin()),
 	  end(term.docs.end()),
@@ -222,7 +222,7 @@ TextfilePostList::TextfilePostList(const IRDatabase *root,
 	  started(false),
 	  this_db(db)
 {
-    own_wt.set_stats(root, get_termfreq(), tid, rset);
+    own_wt.set_stats(root, get_termfreq(), tname, rset);
 }
 
 inline doccount
