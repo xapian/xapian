@@ -58,7 +58,7 @@ ${	       else if (strchr(p, ' '))
 <hr>
 Expand terms<br>
 <table><tr><th>Term</th><th>Freq</th></tr>
-<tr><td>
+<tr><td bgcolor="#ccffcc">
 $map{$topterms{1000},<INPUT TYPE=checkbox NAME=X VALUE=",." onClick="C(this)">&nbsp;,. }
 </td></tr></table>
 </form>

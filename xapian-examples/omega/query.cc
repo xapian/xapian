@@ -48,10 +48,6 @@ set<om_termname> new_terms;
 
 static OmMSet mset;
 
-// Note: fx \STATLINE -> $if{$or{$if{$ne{$msize,0},ok},$queryterms},...}
-
-// Note: FIXME: add ability to lookup in table (e.g. en -> English)
-
 static void ensure_match();
 
 string raw_prob;
@@ -66,13 +62,15 @@ om_queryop op = OM_MOP_OR; // default matching mode
 querytype
 set_probabilistic(const string &newp, const string &oldp)
 {
-    int first_nonspace = 0;
-    /* skip leading whitespace */
-    while (isspace(newp[first_nonspace])) first_nonspace++;
-    int len = newp.length();
-    /* and strip trailing whitespace */
-    while (len > first_nonspace && isspace(newp[len - 1])) len--;
-    raw_prob = newp.substr(first_nonspace, len - first_nonspace);
+    // strip leading and trailing whitespace
+    size_t first_nonspace = newp.find_first_not_of(" \t\r\n\v");
+    size_t len = newp.find_last_not_of(" \t\r\n\v");
+    if (len < first_nonspace)
+	raw_prob = "";
+    else
+	raw_prob = newp.substr(first_nonspace, len + 1 - first_nonspace);
+
+    // call YACC generated parser
     parse_prob();
 
     // Check new query against the previous one
@@ -149,7 +147,6 @@ static void
 do_picker(char prefix, const char **opts)
 {
     const char **p;
-    char buf[16] = "BOOL-X";
     bool do_current = false;
     string current;
     vector<string> picker;
@@ -162,11 +159,11 @@ do_picker(char prefix, const char **opts)
 
     cout << "<SELECT NAME=B>\n<OPTION VALUE=\"\"";
 
+    // Some versions of MSIE don't default to selecting the first option,
+    // so we explicitly have to
     if (!do_current) cout << " SELECTED";
 
     cout << '>';
-
-    buf[5] = prefix;
 
     string tmp = option[buf];
     if (!tmp.empty())
@@ -175,8 +172,7 @@ do_picker(char prefix, const char **opts)
 	cout << "-Any-";
     
     for (p = opts; *p; p++) {
-	strcpy(buf+6, *p);
-	string trans = option[buf];
+	string trans = option["BOOL-" + prefix + *p];
 	if (trans.empty()) {
 	    if (prefix == 'N')
 		trans = string(".") + *p;
@@ -908,13 +904,41 @@ eval_file(const string &fmtfile)
     return eval(fmt);
 }
 
+/* return a sane (1-100) percentage value for num/denom */
+static int
+percentage(double ratio)
+{
+    /* default to 100 so pure boolean queries give 100% not 0%) */
+    long int percent = 100;
+    percent = (long)(100.0 * ratio + 0.5);
+    if (percent > 100) percent = 100;
+    else if (percent < 1) percent = 1;
+    return (int)percent;
+}
+
 static string
 print_caption(om_docid m, const string &fmt)
 {
     relevant_cached = false;
 
     q0 = mset.items[m].did;
-    percent = mset.convert_to_percent(mset.items[m]);
+
+    static double scale = -1;
+    if (scale < 0) {
+	double denom = 0;
+	list<om_termname>::const_iterator i;
+	for (i = new_terms_list.begin(); i != new_terms_list.end(); i++)
+	    denom += mset.get_termweight(*i);
+	denom *= mset.items[0].wt;
+	scale = 0;
+	om_termname_list matching =
+	    enquire->get_matching_terms(mset.items[0].did);
+	for (i = matching.begin(); i != matching.end(); i++)
+	    scale += mset.get_termweight(*i);
+	if (denom > 0) scale /= denom;
+    }
+    percent = percentage(mset.items[m].wt * scale);
+    // percent = mset.convert_to_percent(mset.items[m]);
 
     OmDocument doc = enquire->get_doc(q0);
     OmData data = doc.get_data();
@@ -926,11 +950,11 @@ print_caption(om_docid m, const string &fmt)
     while (1) {
 	size_t old_i = i;
 	i = text.find('\n', i);
-	string line = text.substr(old_i, i);
+	string line = text.substr(old_i, i - old_i);
 	size_t j = line.find('=');
 	if (j != string::npos) {
 	    field[line.substr(0, j)] = line.substr(j + 1);
-	} else if (line != "") {
+	} else if (!line.empty()) {
 	    // FIXME: bodge for now
 	    if (field["caption"].empty()) field["caption"] = line;
 	    field["sample"] += line;

@@ -73,12 +73,14 @@ make_log_entry(const string &action, long matches)
     char buf[80];
     strftime(buf, 80, "\t[%d/%b/%Y:%H:%M:%S", gmtime(&t));
     line += buf;
-    line = line + " +0000]\t" + action + '\t' + dbname + '\t' + raw_prob;
+    line = line + " +0000]\t" + action + '\t' + dbname + '\t' + raw_prob + '\t';
     sprintf(buf, "%li ", matches);
-    line = line + buf + '\t';
+    line = line + buf;
     var = getenv("HTTP_REFERER");
-    if (var == NULL) var = "-";
-    line += var;
+    if (var != NULL) {
+	line += '/t';
+	line += var;
+    }
     line += '\n';
     write(fd, line.data(), line.length());
     close(fd);
@@ -95,7 +97,6 @@ main2(int argc, char *argv[])
 {
     string big_buf;
     bool more = false;
-    int is_old;
     char *method;
     MCI val;
     pair<MCI, MCI> g;
@@ -131,22 +132,6 @@ main2(int argc, char *argv[])
 	list_size = 1000;
     }
 
-    val = cgi_params.find("TOPDOC");
-    if (val != cgi_params.end()) topdoc = atol(val->second.c_str());
-
-    // Handle next, previous, and page links
-    if (cgi_params.find(">") != cgi_params.end()) {
-	topdoc += list_size;
-    } else if (cgi_params.find("<") != cgi_params.end()) {
-	topdoc -= list_size;
-    } else if ((val = cgi_params.find("[")) != cgi_params.end()) {
-	topdoc = (atol(val->second.c_str()) - 1) * list_size;
-    }
-
-    // snap topdoc to page boundary
-    topdoc = (topdoc / list_size) * list_size;
-    if (topdoc < 0) topdoc = 0;
-    
     OmDatabaseGroup omdb;
     try {
 	// get database(s) to search
@@ -189,11 +174,6 @@ main2(int argc, char *argv[])
 	exit(0);
     }
 
-    enquire = new OmEnquire(omdb);
-   
-    // Create rset to put relevant items in.
-    rset = new OmRSet();
-       
     val = cgi_params.find("MATCHOP");
     if (val != cgi_params.end()) {
 	if (val->second == "AND" || val->second == "and") op = OM_MOP_AND;
@@ -201,7 +181,18 @@ main2(int argc, char *argv[])
 	if (atoi(val->second.c_str()) == 100) op = OM_MOP_AND;
     }
 
+    enquire = new OmEnquire(omdb);
+   
     big_buf = "";
+
+    val = cgi_params.find("FMT");
+    if (val != cgi_params.end()) {
+	string v = val->second;
+	if (!v.empty()) {
+	    size_t i = v.find_first_not_of("abcdefghijklmnopqrstuvwxyz");
+	    if (i == string::npos) fmtname = v;
+	}
+    }
 
     val = cgi_params.find("MORELIKE");
     if (val != cgi_params.end()) {
@@ -224,15 +215,6 @@ main2(int argc, char *argv[])
 	    more = true;
 	}
 	if (more) goto got_query_from_morelike;
-    }
-
-    val = cgi_params.find("FMT");
-    if (val != cgi_params.end()) {
-	string v = val->second;
-	if (!v.empty()) {
-	    size_t i = v.find_first_not_of("abcdefghijklmnopqrstuvwxyz");
-	    if (i == string::npos) fmtname = v;
-	}
     }
 
     // collect the prob fields
@@ -269,21 +251,34 @@ main2(int argc, char *argv[])
 	if (!v.empty() && isalnum(v[0])) add_bterm(v);
     }
 
-    /*** get old prob query (if any) ***/
+    rset = new OmRSet();
+    string v;
+    // get list of terms from previous iteration of query
     val = cgi_params.find("OLDP");
     if (val == cgi_params.end()) {
-	set_probabilistic(big_buf, "");
-	is_old = 1; // not really, but it should work
+	v = "";
     } else {
-	is_old = set_probabilistic(big_buf, val->second);
+	v = val->second;
     }
+    if (set_probabilistic(big_buf, v) != NEW_QUERY) {
+	// work out which mset element is at top of the new page of hits
+	val = cgi_params.find("TOPDOC");
+	if (val != cgi_params.end()) topdoc = atol(val->second.c_str());
 
-    /* if query has changed, force first page of hits */
-    if (is_old < 1) topdoc = 0;
+	// Handle next, previous, and page links
+	if (cgi_params.find(">") != cgi_params.end()) {
+	    topdoc += list_size;
+	} else if (cgi_params.find("<") != cgi_params.end()) {
+	    topdoc -= list_size;
+	} else if ((val = cgi_params.find("[")) != cgi_params.end()) {
+	    topdoc = (atol(val->second.c_str()) - 1) * list_size;
+	}
 
-    ticked.clear();
-    if (is_old != 0) {
-	// set up the R-set
+	// snap topdoc to page boundary
+	topdoc = (topdoc / list_size) * list_size;
+	if (topdoc < 0) topdoc = 0;
+    
+	// put documents marked as relevant into the rset
 	g = cgi_params.equal_range("R");
 	for (MCI i = g.first; i != g.second; i++) {
 	    string v = i->second;

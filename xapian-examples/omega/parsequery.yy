@@ -39,8 +39,8 @@ class U {
 
 #define YYSTYPE U
 
-int yyerror(const char *s);
-int yylex();
+static int yyerror(const char *s);
+static int yylex();
 
 static string::const_iterator q_ptr;
 
@@ -103,7 +103,7 @@ term:	  TERM		{ $$ = $1; }
 	                  v.push_back($3.q);
 			  $$ = U(OmQuery(OM_MOP_NEAR, v.begin(), v.end(), 11)); }
 	| '"' phrase '"'{ $$ = U(OmQuery(OM_MOP_PHRASE, $2.v.begin(), $2.v.end(), $2.v.size())); }
-/*	| dashphr       { $$ = U(OmQuery(OM_MOP_PLRASE, $2.v.begin(), $2.v.end(), $2.v.size())); } */
+/*	| dashphr       { $$ = U(OmQuery(OM_MOP_PHRASE, $2.v.begin(), $2.v.end(), $2.v.size())); } */
 	| '{' phrase '}'{ $$ = U(OmQuery(OM_MOP_NEAR, $2.v.begin(), $2.v.end(), $2.v.size())); }
 ;
 

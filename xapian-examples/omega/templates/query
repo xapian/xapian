@@ -36,7 +36,6 @@ ${
 $map{$topterms,<INPUT TYPE=checkbox NAME=X VALUE=",." onClick="C(this)">&nbsp;,. }
 $if{$topterms,<BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>}
 </td></tr></table>
-$list{$freqs,<hr>,$. ,<hr>}
 <hr>
 $if{$eq{$msize,0},
 
@@ -50,6 +49,7 @@ $if{$ne{$last,$msize},
 }
 <hr>
 </center>
+$list{$freqs,Term frequencies: <b>,$. ,</b>}
 <table>
 $hitlist{<TR><TD VALIGN=top><IMG
 SRC="http://www.euroferret.com/fx-gif/score-$score.gif"

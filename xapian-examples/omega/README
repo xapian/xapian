@@ -1,0 +1,28 @@
+Some Random Notes and Thoughts
+==============================
+
+Omega:
+
+MuscatFX \STATLINE... -> $if{$or{$if{$ne{$msize,0},ok},$queryterms},...}
+
+Add ability to lookup in table (e.g. en -> English)?  Or just use create map
+like so: $set{Len,English}$set{Lfr,French}$set{Lde,German}
+And then lookup like so: $var{L$field{language}}
+
+Wrap up code into objects...
+
+Document page description language.
+
+Clean up page description langyage.
+
+Parser probably needs to know about whitespace so that:
+`co-ordinate' -> `"co ordinate"' -> PHRASE(co,ordinate,2)
+`co -ordinate' ANDNOT(co,ordinate)
+`AT&T' -> at&t
+`AT & T' -> AND(at,t)
+`C++ d' -> OR(c++,d)
+`c +d' -> ANDMAYBE(d,c+)
+
+Test suite for parser?
+
+Sort out some images...
