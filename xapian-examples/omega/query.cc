@@ -830,9 +830,8 @@ eval(const string &fmt)
 		break;
 	    case CMD_terms: {
 		// list of matching terms
-		om_termname_list matching = enquire->get_matching_terms(q0);
-		list<om_termname>::const_iterator term;
-		for (term = matching.begin(); term != matching.end(); term++)
+		OmTermIterator term = enquire->get_matching_terms_begin(q0);
+		for ( ; term != enquire->get_matching_terms_end(q0); term++)
 		    value = value + *term + '\t';
 
 		if (!value.empty()) value.erase(value.size() - 1);
@@ -943,9 +942,9 @@ print_caption(om_docid m, const string &fmt)
 	    denom += mset.get_termweight(*i);
 	denom *= mset[0].get_weight();
 	scale = 0;
-	om_termname_list matching = enquire->get_matching_terms(*(mset[0]));
-	for (i = matching.begin(); i != matching.end(); i++)
-	    scale += mset.get_termweight(*i);
+	OmTermIterator j = enquire->get_matching_terms_begin(*(mset[0]));
+	for ( ; j != enquire->get_matching_terms_end(*(mset[0])); j++)
+	    scale += mset.get_termweight(*j);
 	if (denom > 0) scale /= denom;
     }
     percent = percentage(mset[m].get_weight() * scale);

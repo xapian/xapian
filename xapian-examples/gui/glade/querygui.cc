@@ -276,12 +276,12 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	        " max_attained: " << mset.get_max_attained() << endl;
 
 	for (OmMSetIterator j = mset.begin(); j != mset.end(); j++) {
-	    om_termname_list mterms = enquire->get_matching_terms(j);
-	    std::vector<std::string> sorted_mterms(mterms.begin(), mterms.end());
+	    std::vector<std::string> sorted_mterms(
+	    	enquire->get_matching_terms_begin(j),
+		enquire->get_matching_terms_end(j));
 	    std::string message;
 	    for (std::vector<std::string>::const_iterator i = sorted_mterms.begin();
-		 i != sorted_mterms.end();
-		 ++i) {
+		 i != sorted_mterms.end(); ++i) {
 		if (message.size() > 0) message += " ";
 
 		message += *i;

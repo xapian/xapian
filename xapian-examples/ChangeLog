@@ -1,3 +1,7 @@
+Sun Dec 17 16:17:17 GMT 2000 Olly Betts
+
+	* Updated to use OmTermIterator.
+
 Fri Dec 15 12:56:40 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove begin_session() and end_session() from omindex.cc
