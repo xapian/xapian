@@ -1,3 +1,8 @@
+Tue Dec 07 19:53:48 GMT 2004  Olly Betts <olly@survex.com>
+
+	* README: Updated to list fully supported languages and improved
+	  wording.
+
 Thu Dec 02 13:31:40 GMT 2004  Olly Betts <olly@survex.com>
 
 	* xapian.i: Weight::clone is for internal use - don't wrap it.
