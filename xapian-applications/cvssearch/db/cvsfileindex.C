@@ -658,10 +658,8 @@ int main(unsigned int argc, char *argv[]) {
     // commit.count
     // transactions are in commit_code_words
     // ----------------------------------------
-    assert( commit_id_set.size() == commit_code_words.size() );
-    assert( commit_id_set.size() == commit_comment_words.size() );
     ofstream out((commit_path + ".count").c_str());
-    out << commit_id_set.size() << endl;
+    out << commit_comment_words.size() << endl; // # files
     out.close();
 
     // ----------------------------------------
@@ -883,7 +881,8 @@ get_data(lines & lines,
 {
   unsigned int commitid = 0;
   unsigned int fileid = 0;
-  string filename = "";
+  string full_filename = "";
+  string package_filename = "";
 
   while ( lines.readNextLine() ) {
     string data = lines.getData();
@@ -905,16 +904,14 @@ get_data(lines & lines,
         }
     **/
 
-    if (strcmp(filename.c_str(), lines.getCurrentFile().c_str())) {
-      filename = lines.getCurrentFile();
-cerr << "filename1 -" << filename << "-" << endl;
-      filename = filename.substr(package_path.length() + 1, filename.length() - package_path.length() - 1);
-cerr << "filename2 -" << filename << "-" << endl;
+    if (strcmp(package_filename.c_str(), lines.getCurrentFile().c_str())) {
+      full_filename = lines.getCurrentFile();
+      package_filename = full_filename.substr(package_path.length() + 1, full_filename.length() - package_path.length() - 1);
       // ----------------------------------------
       // need to obtain file id
       // only when the file has changed.
       // ----------------------------------------
-      if (db_file.get_fileid(fileid, filename) != 0) {
+      if (db_file.get_fileid(fileid, package_filename) != 0) {
 	fileid = 0;
       }
     }
@@ -943,17 +940,17 @@ cerr << "filename2 -" << filename << "-" << endl;
 	  commit_id_set.insert( commitid+offset ); // set of all commit ids
 
 
-	  if ( commit_comment_words.find( filename ) == commit_comment_words.end() ) {
+	  if ( commit_comment_words.find( full_filename ) == commit_comment_words.end() ) {
 	    list<string> empty;
-	    commit_comment_words[ filename ] = empty;
+	    commit_comment_words[ full_filename ] = empty;
 	  }
-	  if ( commit_code_words.find( filename ) == commit_code_words.end() ) {
+	  if ( commit_code_words.find( full_filename ) == commit_code_words.end() ) {
 	    list<string> empty;
-	    commit_code_words[ filename ] = empty;
+	    commit_code_words[ full_filename ] = empty;
 	  }
-	  if ( commit_all_words.find( filename ) == commit_all_words.end() ) {
+	  if ( commit_all_words.find( full_filename ) == commit_all_words.end() ) {
 	    list<string> empty;
-	    commit_all_words[ filename ] = empty;
+	    commit_all_words[ full_filename ] = empty;
 	  }
 
 	  // ----------------------------------------
@@ -973,8 +970,8 @@ cerr << "filename2 -" << filename << "-" << endl;
 		const list<string>& words = itr->second;
 		for( list<string>::const_iterator i = words.begin(); i != words.end(); i++ ) {
 		  if ( stopSet.find(*i) == stopSet.end() ) {
-		    commit_comment_words[filename].push_back(*i);
-		    commit_all_words[filename].push_back(*i);		  
+		    commit_comment_words[full_filename].push_back(*i);
+		    commit_all_words[full_filename].push_back(*i);		  
 		  }
 		}
 	      }
@@ -988,8 +985,8 @@ cerr << "filename2 -" << filename << "-" << endl;
 	  // this is to be done for every line associated with the commit
 	  for( list<string>::iterator s = symbol_terms.begin(); s != symbol_terms.end(); ++s ) {
 	    if ( stopSet.find(*s) == stopSet.end() ) {
-	      commit_code_words[filename].push_back(*s);
-	      commit_all_words[filename].push_back(*s);
+	      commit_code_words[full_filename].push_back(*s);
+	      commit_all_words[full_filename].push_back(*s);
 	    }
 	  }
 	}
