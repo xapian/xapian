@@ -110,13 +110,19 @@ class SleepyListItem {
 	/** Create a new SleepyListItem, based on a packed version.
 	 *
 	 *  @param packed     The packed representation of the item.
+	 *  @param store_termfreq  If true, term frequencies are assumed to
+	 *                         be stored in the packed list.
 	 */
-	SleepyListItem(string packed);
+	SleepyListItem(string packed,
+		       bool store_termfreq = true);
 
 	/** Return a packed representation of the item, for storing in
 	 *  the file.
+	 *
+	 *  @param store_termfreq  If true, term frequencies will be stored
+	 *                         in the packed list.
 	 */
-	string pack() const;
+	string pack(bool store_termfreq) const;
 };
 
 /** A list of items which might comprise a termlist or a postlist,
@@ -161,6 +167,10 @@ class SleepyList {
 	 *  present, the value is 0.
 	 */
 	om_termcount wdfsum;
+
+	/** Whether to store term frequency information.
+	 */
+	bool store_termfreq;
 
 	/** Whether to store wdfsum information.
 	 */

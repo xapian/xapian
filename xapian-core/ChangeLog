@@ -1,3 +1,9 @@
+Mon Jun  5 17:41:14 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Make sleepylist optionally store termfreqency information in
+	  list.  Make sleepy_termlists not store termfrequency information:
+	  it will get looked up in the database instead.
+
 Mon Jun  5 16:35:42 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added apitest for correct wdf values in termlists (indirectly,

@@ -191,10 +191,13 @@ SleepyDatabase::add_document(const struct OmDocumentContents & document)
     // Make a new termlist for this document
     make_new_termlist(did, terms);
 
-    // FIXME - need to go through each term in the termlist, open the
-    // appropriate postlist, and for each document in each of these postlists
-    // update the documents termlist to have the correct wdf for this document.
-    // EEEK!
+    // Now: to store the termfrequency in termlists we would need to go
+    // through each term in the termlist, open the appropriate postlist,
+    // and for each document in each of these postlists update the
+    // documents termlist to have the correct termfreq for this term.
+    //
+    // This can't be done efficiently, so we don't store the termfreq in the
+    // termlist for dynamically updatable databases such as these.
 
     // Increase the document count and total length
     internals->set_doccount(get_doccount() + 1);
@@ -242,7 +245,8 @@ SleepyDatabase::make_new_termlist(om_docid did,
 // FIXME: suggest refactoring this method into a constructor of SleepyTermList
     SleepyList mylist(internals->termlist_db,
 		      reinterpret_cast<void *>(&did),
-		      sizeof(did));
+		      sizeof(did),
+		      false);
 
     Assert(mylist.get_item_count() == 0);
 

@@ -83,13 +83,20 @@ SleepyListItem::SleepyListItem(id_type id_,
 {
 }
 
-SleepyListItem::SleepyListItem(string packed)
+SleepyListItem::SleepyListItem(string packed,
+			       bool store_termfreq)
+	: id(0),
+	  wdf(0),
+	  termfreq(0),
+	  doclength(0)
 {
     string::size_type pos = 0;
 
     id = readentry<id_type>(packed, pos);
     wdf = readentry<entry_type>(packed, pos);
-    termfreq = readentry<entry_type>(packed, pos);
+    if(store_termfreq) {
+	termfreq = readentry<entry_type>(packed, pos);
+    }
     doclength = readentry<len_type>(packed, pos);
 
     vector<om_termpos>::size_type positions_size;
@@ -102,7 +109,7 @@ SleepyListItem::SleepyListItem(string packed)
 
 
 string
-SleepyListItem::pack() const
+SleepyListItem::pack(bool store_termfreq) const
 {
     string packed;
     id_type idtemp;
@@ -115,8 +122,10 @@ SleepyListItem::pack() const
     entrytemp = wdf;
     packed.append(reinterpret_cast<char *>(&entrytemp), sizeof(entrytemp));
 
-    entrytemp = termfreq;
-    packed.append(reinterpret_cast<char *>(&entrytemp), sizeof(entrytemp));
+    if(store_termfreq) {
+	entrytemp = termfreq;
+	packed.append(reinterpret_cast<char *>(&entrytemp), sizeof(entrytemp));
+    }
 
     lentemp = doclength;
     packed.append(reinterpret_cast<char *>(&lentemp), sizeof(lentemp));
@@ -144,6 +153,7 @@ SleepyList::SleepyList(Db * db_, void * keydata_, size_t keylen_,
 	  modified_and_locked(false),
 	  iteration_in_progress(false),
 	  wdfsum(0),
+	  store_termfreq(store_termfreq_),
 	  store_wdfsum(store_wdfsum_)
 {
     // Copy and store key data
@@ -281,7 +291,8 @@ class SleepyListItemLess {
 };
 
 void
-SleepyList::make_entry(const SleepyListItem & newitem) {
+SleepyList::make_entry(const SleepyListItem & newitem)
+{
     vector<SleepyListItem>::iterator p;
     p = lower_bound(items.begin(), items.end(),
 		    newitem,
@@ -307,7 +318,8 @@ SleepyList::unpack(string packed)
     while(items.size() < number_of_items) {
 	entry_type itemsize = readentry<entry_type>(packed, pos);
 
-	items.push_back(SleepyListItem(packed.substr(pos, itemsize)));
+	items.push_back(SleepyListItem(packed.substr(pos, itemsize),
+				       store_termfreq));
 	pos += itemsize;
     }
 }
@@ -328,7 +340,7 @@ SleepyList::pack() const
 
     vector<SleepyListItem>::const_iterator i;
     for(i = items.begin(); i != items.end(); i++) {
-	string packeditem = i->pack();
+	string packeditem = i->pack(store_termfreq);
 	temp = packeditem.size();
 	packed.append(reinterpret_cast<char *>(&temp), sizeof(entry_type));
 	packed.append(packeditem);
