@@ -11,10 +11,13 @@ class DAPostList : public virtual PostList {
     private:
 	struct postings * postlist;
 	docid  currdoc;
+	doccount termfreq;
 
-	DAPostList(struct postings *pl);
+	DAPostList(struct postings *pl, doccount tf);
     public:
 	~DAPostList();
+
+	doccount get_termfreq(); 
 
 	docid  get_docid();     // Gets current docid
 	docid  get_weight();    // Gets current weight

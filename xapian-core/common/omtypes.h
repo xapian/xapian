@@ -5,6 +5,9 @@
 
 typedef unsigned int termid;
 typedef unsigned int docid;
+
+typedef docid doccount;
+
 typedef unsigned int weight;
 
 #ifdef __cplusplus

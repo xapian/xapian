@@ -8,13 +8,18 @@
 #include "da_database.h"
 #include "daread.h"
 
-DAPostList::DAPostList(struct postings *pl) {
+DAPostList::DAPostList(struct postings *pl, doccount tf) {
+    termfreq = tf;
     postlist = pl;
     DAreadpostings(postlist, 0, 0);
 }
 
 DAPostList::~DAPostList() {
     DAclosepostings(postlist);
+}
+
+doccount DAPostList::get_termfreq() {
+    return termfreq;
 }
 
 docid DAPostList::get_docid() {
@@ -111,7 +116,7 @@ PostList * DADatabase::open_post_list(termid id)
     struct postings * postlist;
     postlist = DAopenpostings(&ti, DA_t);
 
-    DAPostList * pl = new DAPostList(postlist);
+    DAPostList * pl = new DAPostList(postlist, ti.freq);
     return pl;
 }
 
@@ -129,11 +134,11 @@ DADatabase::term_name_to_id(termname name)
     id = termidmap[name];
     if (!id) {
 	id = termidvec.size() + 1;
-	printf("Adding term `%s' as ID %d\n", name.c_str(), id);
+//	printf("Adding term `%s' as ID %d\n", name.c_str(), id);
 	termidvec.push_back(name);
 	termidmap[name] = id;
     }
-    printf("Looking up term `%s': ID = %d\n", name.c_str(), id);
+//    printf("Looking up term `%s': ID = %d\n", name.c_str(), id);
     return id;
 }
 
@@ -141,6 +146,6 @@ termname
 DADatabase::term_id_to_name(termid id)
 {
     if (id <= 0 || id > termidvec.size()) throw RangeError("invalid termid");
-    printf("Looking up termid %d: name = `%s'\n", id, termidvec[id - 1].c_str());
+//    printf("Looking up termid %d: name = `%s'\n", id, termidvec[id - 1].c_str());
     return termidvec[id - 1];
 }

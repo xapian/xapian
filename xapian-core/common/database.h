@@ -38,6 +38,8 @@ class OpeningError : public OmError {
 class PostList {
     private:
     public:
+	virtual doccount get_termfreq() = 0;// Gets number of docs indexed by this term
+
 	virtual docid  get_docid() = 0;     // Gets current docid
 	virtual weight get_weight() = 0;    // Gets current weight
 
