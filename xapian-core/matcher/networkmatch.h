@@ -39,8 +39,8 @@ class RemoteSubMatch : public SubMatch {
 
 	PendingMSetPostList *postlist; // FIXME used in get_term_info() - do this better
 
-	/// RSet to be used (affects weightings)
-	AutoPtr<RSet> rset;
+	/// RSetI to be used (affects weightings)
+	AutoPtr<RSetI> rset;
     
 	/// A pointer to the gatherer, to access the statistics.
 	StatsGatherer *gatherer;

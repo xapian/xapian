@@ -57,7 +57,7 @@ RemoteSubMatch::RemoteSubMatch(const NetworkDatabase *db_,
 			weight_cutoff, wtscheme, omrset);
     db->link->register_statssource(statssource);
 
-    AutoPtr<RSet> new_rset(new RSet(db, omrset));
+    AutoPtr<RSetI> new_rset(new RSetI(db, omrset));
     rset = new_rset;
 }
 

@@ -31,9 +31,9 @@
 #include "termlist.h"
 
 void
-RSet::calculate_stats()
+RSetI::calculate_stats()
 {
-    DEBUGCALL(MATCH, void, "RSet::calculate_stats", "");
+    DEBUGCALL(MATCH, void, "RSetI::calculate_stats", "");
     Assert(!calculated_reltermfreqs);
     std::vector<RSetItem>::const_iterator doc;
     for (doc = documents.begin(); doc != documents.end(); doc++) {
@@ -72,9 +72,9 @@ RSet::calculate_stats()
 }
 
 void
-RSet::give_stats_to_statssource(Xapian::Weight::Internal *statssource)
+RSetI::give_stats_to_statssource(Xapian::Weight::Internal *statssource)
 {
-    DEBUGCALL(MATCH, void, "RSet::give_stats_to_statssource", statssource);
+    DEBUGCALL(MATCH, void, "RSetI::give_stats_to_statssource", statssource);
     Assert(calculated_reltermfreqs);
 
     std::map<string, om_doccount>::const_iterator i;

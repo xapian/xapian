@@ -31,7 +31,7 @@
 
 using namespace std;
 
-class RSet;
+class RSetI;
 
 /** Information which is passed up through tree of termlists to calculate
  *  term weightings.

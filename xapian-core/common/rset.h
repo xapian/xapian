@@ -44,11 +44,11 @@ class RSetItem {
  * This is used internally, and performs the calculation and caching of
  * relevant term frequencies.
  */
-class RSet {
+class RSetI {
     private:
 	// disallow copy
-	RSet(const RSet &);
-	void operator=(const RSet &);
+	RSetI(const RSetI &);
+	void operator=(const RSetI &);
 
 	// FIXME: should use one or the other (probably OmDatabase)
 	const OmDatabase root;
@@ -59,9 +59,9 @@ class RSet {
     public:
 	std::vector<RSetItem> documents; // FIXME - should be encapsulated
 
-	RSet(const OmDatabase &root_);
-	RSet(const OmDatabase &root_, const OmRSet & omrset);
-	RSet(const Database *dbroot_, const OmRSet & omrset);
+	RSetI(const OmDatabase &root_);
+	RSetI(const OmDatabase &root_, const OmRSet & rset);
+	RSetI(const Database *dbroot_, const OmRSet & rset);
 
 	void add_document(om_docid did);
 	void will_want_reltermfreq(string tname);
@@ -79,13 +79,13 @@ class RSet {
 
 /// Empty initialisation
 inline
-RSet::RSet(const OmDatabase &root_)
+RSetI::RSetI(const OmDatabase &root_)
 	: root(root_), dbroot(NULL), calculated_reltermfreqs(false)
 {}
 
-/// Initialise with an OmRSet
+/// Initialise with an Xapian::RSet
 inline
-RSet::RSet(const OmDatabase &root_, const OmRSet & omrset)
+RSetI::RSetI(const OmDatabase &root_, const OmRSet & omrset)
 	: root(root_), dbroot(NULL), calculated_reltermfreqs(false)
 {
     std::set<om_docid>::const_iterator i;
@@ -97,7 +97,7 @@ RSet::RSet(const OmDatabase &root_, const OmRSet & omrset)
 
 /// Initialise with an OmRSet
 inline
-RSet::RSet(const Database *dbroot_, const OmRSet & omrset)
+RSetI::RSetI(const Database *dbroot_, const OmRSet & omrset)
 	: dbroot(dbroot_), calculated_reltermfreqs(false)
 {
     std::set<om_docid>::const_iterator i;
@@ -108,7 +108,7 @@ RSet::RSet(const Database *dbroot_, const OmRSet & omrset)
 }
 
 inline void
-RSet::add_document(om_docid did)
+RSetI::add_document(om_docid did)
 {
     // FIXME - check that document isn't already in rset
     Assert(!calculated_reltermfreqs);
@@ -116,19 +116,19 @@ RSet::add_document(om_docid did)
 }
 
 inline void
-RSet::will_want_reltermfreq(string tname)
+RSetI::will_want_reltermfreq(string tname)
 {
     reltermfreqs[tname] = 0;
 }
 
 inline om_doccount
-RSet::get_rsize() const
+RSetI::get_rsize() const
 {
     return documents.size();
 }
 
 inline om_doccount
-RSet::get_reltermfreq(string tname) const
+RSetI::get_reltermfreq(string tname) const
 {
     Assert(calculated_reltermfreqs);
 

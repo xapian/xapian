@@ -52,8 +52,10 @@
 
 using namespace std;
 
-Xapian::ExpandDeciderFilterTerms::ExpandDeciderFilterTerms(Xapian::TermIterator terms,
-						       Xapian::TermIterator termsend)
+namespace Xapian {
+   
+ExpandDeciderFilterTerms::ExpandDeciderFilterTerms(TermIterator terms,
+						   TermIterator termsend)
 #ifndef __SUNPRO_CC
     : tset(terms, termsend)
 {
@@ -71,7 +73,7 @@ Xapian::ExpandDeciderFilterTerms::ExpandDeciderFilterTerms(Xapian::TermIterator 
 #endif
 
 int
-Xapian::ExpandDeciderFilterTerms::operator()(const string &tname) const
+ExpandDeciderFilterTerms::operator()(const string &tname) const
 {
     /* Solaris CC returns an iterator from tset.find() const, and then
      * doesn't like comparing it to the const_iterator from end().
@@ -81,19 +83,19 @@ Xapian::ExpandDeciderFilterTerms::operator()(const string &tname) const
     return (i == tset.end());
 }
 
-Xapian::ExpandDeciderAnd::ExpandDeciderAnd(const Xapian::ExpandDecider *left_,
-                                       const Xapian::ExpandDecider *right_)
-        : left(left_), right(right_) {}
+ExpandDeciderAnd::ExpandDeciderAnd(const ExpandDecider *left_,
+                                   const ExpandDecider *right_)
+        : left(left_), right(right_) { }
 
 int
-Xapian::ExpandDeciderAnd::operator()(const string &tname) const
+ExpandDeciderAnd::operator()(const string &tname) const
 {
     return ((*left)(tname)) && ((*right)(tname));
 }
 
-////////////////////////
-// Methods for OmRSet //
-////////////////////////
+}
+
+// Methods for Xapian::RSet
 
 OmRSet::OmRSet()
 	: internal(new OmRSet::Internal())
@@ -729,7 +731,7 @@ Xapian::Enquire::Internal::get_eset(om_termcount maxitems,
 
     // FIXME: make expand and rset take a refcntptr
     OmExpand expand(db);
-    RSet rset(db, omrset);
+    RSetI rseti(db, omrset);
 
     DEBUGLINE(API, "rset size is " << omrset.size());
 
@@ -758,7 +760,7 @@ Xapian::Enquire::Internal::get_eset(om_termcount maxitems,
 	edecider = &decider_always;
     }
 
-    expand.expand(maxitems, retval, &rset, edecider,
+    expand.expand(maxitems, retval, &rseti, edecider,
 		  bool(flags & Xapian::Enquire::use_exact_termfreq), k);
 
     return retval;

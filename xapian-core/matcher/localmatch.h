@@ -61,7 +61,7 @@ class LocalSubMatch : public SubMatch {
 	const Database *db;
 
 	/// RSet to be used (affects weightings)
-	AutoPtr<RSet> rset;
+	AutoPtr<RSetI> rset;
     
 	/// The size of the query (passed to Xapian::Weight objects)
 	om_doclength querysize;
@@ -111,7 +111,7 @@ class LocalSubMatch : public SubMatch {
 	    DEBUGCALL(MATCH, void, "LocalSubMatch::LocalSubMatch",
 		      db << ", " << query << ", " << omrset << ", " <<
 		      gatherer << ", [wtscheme]");
-	    AutoPtr<RSet> new_rset(new RSet(db, omrset));
+	    AutoPtr<RSetI> new_rset(new RSetI(db, omrset));
 	    rset = new_rset;
 
 	    statssource->take_my_stats(db->get_doccount(), db->get_avlength());

@@ -33,6 +33,8 @@
 #include <vector>
 #include "autoptr.h"
 
+class RSetI;
+
 namespace Xapian {
 
 /** Expand decision functor which always decides to use the term. */
@@ -53,17 +55,17 @@ class OmExpand {
 	const OmDatabase &db;
 
         bool recalculate_maxweight;
-	AutoPtr<TermList> build_tree(const RSet *rset,
-				      const OmExpandWeight *ewt);
+	AutoPtr<TermList> build_tree(const RSetI *rset,
+				     const OmExpandWeight *ewt);
     public:
         OmExpand(const OmDatabase &db_);
 
 	void expand(om_termcount max_esize,
 		    Xapian::ESet & eset,
-		    const RSet * rset,
+		    const RSetI * rset,
 		    const Xapian::ExpandDecider * decider,
 		    bool use_exact_termfreq,
-		    double expand_k );
+		    double expand_k);
 };
 
 inline OmExpand::OmExpand(const OmDatabase &db_) : db(db_)

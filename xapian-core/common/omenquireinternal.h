@@ -35,6 +35,7 @@
 using namespace std;
 
 class OmExpand;
+class RSetI;
 
 namespace Xapian {
 
@@ -317,14 +318,14 @@ class RSet;
 
 class OmRSet::Internal {
     friend class OmRSet;
-    friend class RSet;
+    friend class RSetI;
     friend class OmExpand;
     friend class MultiMatch;
     friend string omrset_to_string(const OmRSet &omrset);
 
     private:
 	/// Items in the relevance set.
-	set<om_docid> items;
+	set<Xapian::docid> items;
 
     public:
 	/** Returns a string representing the rset.

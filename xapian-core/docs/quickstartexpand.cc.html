@@ -8,6 +8,7 @@
 <FONT color=#0000ff> *</FONT>
 <FONT color=#0000ff> * ----START-LICENCE----</FONT>
 <FONT color=#0000ff> * Copyright 1999,2000,2001 BrightStation PLC</FONT>
+<FONT color=#0000ff> * Copyright 2003 Olly Betts</FONT>
 <FONT color=#0000ff> * </FONT>
 <FONT color=#0000ff> * This program is free software; you can redistribute it and/or </FONT>
 <FONT color=#0000ff> * modify it under the terms of the GNU General Public License as </FONT>
@@ -59,7 +60,7 @@
         }
 
         <FONT color=#0000ff>// Prepare the relevant document list</FONT>
-        OmRSet reldocs;
+        Xapian::RSet reldocs;
         <B><FONT color=#a52a2a>for</FONT></B>(; optpos &lt; argc; optpos++) {
             om_docid rdid = atoi(argv[optpos]);
             <B><FONT color=#a52a2a>if</FONT></B>(rdid != <FONT color=#ff00ff>0</FONT>) {

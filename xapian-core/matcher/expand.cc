@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -57,7 +57,7 @@ class TLPCmpGt {
 };
 
 AutoPtr<TermList>
-OmExpand::build_tree(const RSet *rset, const OmExpandWeight *ewt)
+OmExpand::build_tree(const RSetI *rset, const OmExpandWeight *ewt)
 {
     // Put items in priority queue, such that items with greatest size
     // are returned first.
@@ -118,7 +118,7 @@ OmExpand::build_tree(const RSet *rset, const OmExpandWeight *ewt)
 void
 OmExpand::expand(om_termcount max_esize,
 		 Xapian::ESet & eset,
-		 const RSet * rset,
+		 const RSetI * rset,
 		 const Xapian::ExpandDecider * decider,
 		 bool use_exact_termfreq,
 		 double expand_k )

@@ -1,3 +1,10 @@
+Fri May 09 00:41:20 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/,docs/quickstartexpand.cc.html,matcher/:
+	  RSet internal class renamed to RSetI to aid upcoming OmRSet ->
+	  Xapian::RSet change.  RSetI looks like it can be eliminated
+	  later.
+
 Thu May 08 23:54:44 BST 2003  Olly Betts <olly@survex.com>
 
 	* tests/: Removed make_dbgrp() helper function from apitest as it
