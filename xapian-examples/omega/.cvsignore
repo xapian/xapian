@@ -1,9 +1,8 @@
 .*.swp
 *.lo
-ompf
+omega
 Makefile.in
 Makefile
 .deps
 .libs
-parsepage.cc
 parsequery.cc
