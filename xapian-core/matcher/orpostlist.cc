@@ -55,17 +55,7 @@ OrPostList::next()
         rhead = 0;
         if (!r->at_end()) rhead = r->get_docid();
     }
-
-    PostList *ret = NULL;
-    if (!rhead) {
-	ret = l;
-	l = NULL;
-    } else if (!lhead) {
-	ret = r;
-	r = NULL;
-    }
-    return ret;
-//    return maybe_throw_kid();
+    return maybe_throw_kid();
 }
 
 PostList *
@@ -88,14 +78,5 @@ OrPostList::skip_to(docid id)
     rhead = 0;
     if (!r->at_end()) rhead = r->get_docid();
 
-    ret = NULL;
-    if (!rhead) {
-	ret = l;
-	l = NULL;
-    } else if (!lhead) {
-	ret = r;
-	r = NULL;
-    }
-    return ret;
-//    return maybe_throw_kid();
+    return maybe_throw_kid();
 }
