@@ -1,1 +1,115 @@
-Not yet documented.
+Chapter 1: QueryServer
+----------------------
+
+   1.1 What is QueryServer for?
+
+       QueryServer is intended to provide a simple way to use Xapian from
+       a wide variety of scripting languages, without having to implement
+       (or compile) special extensions for that language. As long as the
+       languague supports use of UNIX sockets, a simple communication layer
+       can be implemented
+
+       QueryServer could easily be extended to work using TCP sockets, or
+       any similar messaging system, for platforms in which UNIX sockets
+       are not available.
+
+       The implementation of the QueryServer aims mainly for simplicity,
+       rather than maximum possible performance. However, it should be
+       perfectly suitable for low to medium load environments.
+
+Chapter 2: Running the server
+-----------------------------
+
+   2.1 Compiling the server
+
+       QueryServer uses the same autotools setup that the rest of Xapian
+       uses. This means that compilation is a simple matter of running:
+
+         $ ./configure
+         $ make
+         $ make install
+
+       You may wish to supply additional parameters to the configure
+       statement. In particular the `--prefix' parameter is useful to
+       determine where to install the server.
+
+   2.2 Invoking the server
+
+       The server is invoked with two parameters.
+
+        -  The first parameter gives the location of a socket that the
+           queryserver will use to listen for requests. Note that this is
+           a location in the filesystem: there must not be any file in
+           the given location when the queryserver is started, and the
+           queryserver will remove the socket when it exits.
+
+           Note also that the socket may be created with global read
+           and write access. You should read the documentation of your
+           operating system to determine how access to a UNIX socket is
+           controlled. For example, on Linux, permissions on the directory
+           the socket is in may be used to control access to the socket,
+           but this is not true on many BSD-derived systems.
+
+           The queryserver itself performs _no_ authentication whatsoever.
+
+        -  The second parameter gives the location of a directory holding
+           the Xapian databases to be searched. No databases outside the
+           directory, or in subdirectories of this directory, will be
+           accessible via the queryserver. However, symbolic links inside
+           the directory will be followed, whether they point elsewhere in
+           the directory, or elsewhere on the filesystem.
+
+       For example the following command runs the queryserver, listening to
+       the socket /tmp/socket, and allowing access to databases stored in
+       the directory /var/lib/omega/data/
+
+         $ ./queryserver /tmp/socket /var/lib/omega/data
+
+ 2.2.1 Stopping the server
+
+       The queryserver should be stopped by sending it a `SIG_TERM' signal.
+       For this reason, it is desirable to keep track of the process ID of
+       the server. Many systems provide tools to assist with this task -
+       for example, the `start-stop-daemon' tool on Debian systems.
+
+   2.3 How the server works
+
+       Once invoked, the server starts listening to the socket for
+       connections from clients. When a client connects, the server
+       immediately forks a new process to deal with the request, and then
+       continues listening for new connections. This allows the server to
+       deal with many requests simultaneously.
+
+       Note that there is no upper limit on the number of concurrent
+       requests other than any limits imposed by the operating systems on
+       the number of child processes of the server. This means that the
+       server may not deal with extreme loads very well. This design of
+       server is suitable for low to medium loads only.
+
+       Also, note that the server does not maintain a pool of open
+       databases, and share them between the subprocesses dealing with
+       requests. Instead, each new request causes the appropriate database
+       to be opened, used, and then closed at the end of the request.
+       This is less efficient than if database connections were to be
+       cached in some way, but is extremely simple to implement, and
+       does have the small benefit that there is no need to deal with
+       DatabaseModifiedErrors (assuming that the database modification
+       transactions take longer than the maximum time taken to execute a
+       query).
+
+Chapter 3: Clients
+------------------
+
+   3.1 PHP4 client
+
+Appendix A: Communications protocol
+-----------------------------------
+
+       The communications protocol is intentionally kept extremely simple.
+       A conversation consists of exactly two messages, and is always
+       initiated by the client.
+
+   A.1 Client request
+
+   A.2 Server response
+
