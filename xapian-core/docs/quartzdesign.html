@@ -109,13 +109,159 @@ we shall look at what is stored within each table.
 There are six tables comprising a quartz database.
 <ul>
 <li>
+<B>Record</B>.
+This stores the arbitrary chunk of data associated with each document.
+<p>
+It also stores a couple of special fields - one containing the next
+document ID to use when adding a document (document IDs are allocated in
+increasing order, starting at 1, and are currently never reused), and one
+field containing the total length of the documents in the database.  This
+latter quantity is used for calculation of the average document length, and
+hence for calculation of normalised document lengths.
+<p>
 </li><li>
+<B>Attribute</B>.
+This stores a set of attributes for each document 
+<p>
+Currently, there is one item for each document in the database, which
+consists of a list of keyno's and attribute values for that document.  The
+alternative implementation is to store an item for each attribute, whose
+key is a combination of the document ID and the keyno, and whose tag is the
+attribute value.
+<p>
+Which implementation is better depends on the access pattern: if a document
+is being passed across a network link, all the attributes for a document
+are read - if a document is being dealt with locally, usually only some of
+the attributes will be read.
+<p>
+Documents will usually have very few attribute values, so the current
+implementation may actually be the most suitable.
+<p>
 </li><li>
+<b>Lexicon</b>.
+This stores some information about each term in the database in a fast
+access form.
+<p>
+For each term in the database, this has an entry whose key is the term, and
+whose contents are the term ID for that term, and the term frequency for
+that term.  This is intended to be a fast access table, so that processes
+can determine the term ID or weight of a term quickly, whether for the
+purpose of doing an expand or for the purpose of selecting important terms.
+<p>
+The term IDs stored in the lexicon are used (only) in the keys used to
+access items in the PostList and PositionList table.  The termIDs allow the
+size of the keys for these tables to be bounded, and may also allow better
+compression.  It is debatable whether the termIDs are a good idea, however,
+or whether it would be better simply to use the termnames instead.
+<p>
+This table also has a special entry, which stores the next term ID to
+allocate.  Like document IDs, term IDs are allocated in increasing order,
+starting at 1, and are currently never reused.
+<p>
+Speed of access to this table is likely to be critical - attempting to
+ensure that the most frequently used part of the lexicon is always cached
+in memory to a large extent is likely to give high rewards.
+<p>
 </li><li>
+<b>TermList</b>.
+This stores the list of terms which appear in a document.
+<p>
+The list first stores the document length, and the number of entries in the
+termlist (this latter value is stored for quick access - it could also be
+determined by running through the termlist).  It then stores a set of
+entries: each entry in the list consists of a term (as a string), and the
+wdf (within document frequency - how many times the term appears in the
+document) of that term.
+<p>
+In a non-modifiable database, the term frequency could be stored in the
+termlist for each entry in each list.  This would enable query expansion
+operations to occur significantly faster by avoiding the need for a large
+number of extra lookups - however, this cannot be implemented in a
+writable database without causing any modifications to modify a very large
+proportion of the database.
+<p>
 </li><li>
+<b>PositionList</b>.
+For each term / document pair, this stores the list of positions in the
+document at which the term occurs.
+<p>
 </li><li>
+<b>PostList</b>.
+This stores the list of documents in which each term appears.
+<p>
 </li>
 </ul>
+
+(Note that the PositionList and PostList are not yet implemented.)
+
+<h2>Representation of integers, strings, etc.</h2>
+
+It is well known that in modern computers there are many, many CPU cycles
+for each disk read, or even memory read.  It is therefore important to
+minimse disk reads, and can be advantageous to do so even at the expense of
+a large amount of computation.  In other words, <em>Compression is
+good</em>. ;-)
+<p>
+(The current implementation doesn't make use of any real compression.
+However, it has been designed to scan through lists of data in such a way
+as to facilitate introducing proper compression.)
+<p>
+It is planned to use various compression techniques, for example:
+<ul>
+<li>
+In posting lists, successive document IDs will be compressed by a difference
+encoding, and then by some further scheme, such as a huffman encoding, or
+similar.
+<p>
+</li><li>
+In position lists, successive positions will be encoded similarly.
+<p>
+</li><li>
+In termlists, terms are stored as string values in sorted order - a
+string difference can be used to reduce storage size.
+<p>
+</li>
+</ul>
+<p>
+The only compression currently performed is, whereever an unsigned integer
+is stored in a table, to represent it in a simply encoded form as:
+<ol>
+<li>
+First byte: if integer is &lt; 128, store integer, otherwise store
+integer modulo 128, but with top bit set.
+</li><li>
+Shift integer right 7 places.
+</li><li>
+Second byte: if integer is &lt; 128, store integer, otherwise store
+integer modulo 128, but with top bit set.
+</li><li>
+Shift integer right 7 places.
+</li><li>
+etc...
+</li>
+</ol>
+
+<h2>PostLists and chunks.</h2>
+
+Posting lists can grow to be very large - some terms occur in a very large
+proportion of the documents, and their posting lists can represent a
+significant fraction of the size of the whole database.  Therefore, we do
+not wish to read an entire posting list into memory at once.  (Indeed, we'd
+rather only read a small portion of it at all, but that's a different
+story - see the documentation on optimisation of the matcher [which doesn't
+exist yet, ed.]).
+<p>
+To deal with this, we store posting lists in small chunks, each the right
+size to be stored in a single B-tree block, and hence to be accessed with a
+minimal amount of disk latency.  
+<p>
+The key for the first chunk in a posting list is the term ID of the term
+whose posting list it is.  The key in subsequent
+each of these chunks is the
+
+<p>
+It is quite possible that data in other tables (eg, termlist and possibly
+position lists) would benefit from being split into chunks in this way.
 
 <h2>Btree implementation</h2>
 
@@ -248,6 +394,22 @@ in this order.
 <li>
 An better explanation of why there will always be a consistent set of table
 versions using the scheme described above.
+</li>
+<li>
+Mention that future versions will allow the database creator to decide
+whether to store certain levels of detail in the database - eg, whether to
+store document lengths, term frequencies in the termlists, document lengths
+in the posting lists, etc.
+</li>
+<li>
+Mention that when writing to a database, items are kept in the packed form
+they are stored in on disk and simply scanned through, modified and written
+on-the-fly.  This minimises memory use, allowing more data to be cached,
+and hopefully keeping performance high.
+</li>
+<li>
+Add comment about the inversion process - we are essentially doing a text
+based partitioning scheme.
 </li>
 <li>
 Describe thread locking system.
