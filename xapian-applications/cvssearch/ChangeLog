@@ -1,3 +1,9 @@
+Sat Mar 27 15:10:18 GMT 2004  Olly Betts <olly@survex.com>
+
+	* db/cvscommitindex.C,db/cvsfileindex.C,db/cvsmineindex.C: Removed
+	  no longer relevant comments apparently left over from taking one
+	  source file as the basis for another.
+
 Sat Mar 27 15:07:53 GMT 2004  Olly Betts <olly@survex.com>
 
 	* db/: Removed lots of source files which are no longer used.

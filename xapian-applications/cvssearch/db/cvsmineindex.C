@@ -60,8 +60,7 @@
 //    we describe them by in comments
 // ------------------------------------------------------------
 
-#warning "should generate unique file for tags"\
- "ctags contains inheritance information; this can help"
+#warning "ctags contains inheritance information; this can help"
 #warning "if (t,S) does not occur in class declaration say or where member variable is declared"
 
 #include <xapian.h>

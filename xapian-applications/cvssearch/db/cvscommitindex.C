@@ -34,8 +34,8 @@
 #warning "*** COMMIT OFFSET FILE SHARED BETWEEN MINE & COMMIT RIGHT NOW!"
 
 
-#warning "perhaps we should not stem words in symbols at all"
-#warning "but of course we should continue stemming in comment words"
+#warning "perhaps we should not stem words in symbols at all"\
+ "but of course we should continue stemming in comment words"
 
 
 
@@ -486,11 +486,6 @@ char *stopList[] = {
 //    we describe them by in comments
 // ------------------------------------------------------------
 
-#warning "should generate unique file for tags"
-#warning "ctags contains inheritance information; this can help"
-#warning "if (t,S) does not occur in class declaration say or where member variable is declared"
-
-
 #include <xapian.h>
 #include <unistd.h>
 #include <db_cxx.h>
@@ -505,22 +500,6 @@ char *stopList[] = {
 
 #include "cvs_db_file.h"
 #include "util.h"
-
-// ----------------------------------------
-// ctags options
-//  want classes
-//  want public/protected member *functions*
-//  ignore inheritance for now...
-
-// -R (recursive)
-// --c-types=cfsuAC
-// --kind-long=yes (verbose tag descriptions)
-// from this, ignore all entries with access:private
-
-// /tmp is small, so we use /tmp
-// ----------------------------------------
-
-
 
 // ----------------------------------------
 // function declarations.
