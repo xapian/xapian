@@ -43,6 +43,9 @@ class MultiAllTermsList : public AllTermsList
 	/// Flag indicating the end of the lists
 	bool is_at_end;
 
+	/// Flag saying whether we've started iterating yet
+	bool started;
+
 	void update_current();
     public:
 	/// Standard constructor for base class.

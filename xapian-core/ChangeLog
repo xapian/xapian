@@ -1,3 +1,7 @@
+Fri Jan 12 17:14:16 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Fixed MultiAllTermsList, which had stopped working.
+
 Fri Jan 12 15:32:34 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add test to apitest (postlist6) that doclengths got from postlists

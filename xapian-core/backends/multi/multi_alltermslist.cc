@@ -23,9 +23,8 @@
 #include "multialltermslist.h"
 
 MultiAllTermsList::MultiAllTermsList(const std::vector<TermList *> &lists_)
-	: lists(lists_), is_at_end(false)
+	: lists(lists_), is_at_end(false), started(false)
 {
-    update_current();
 }
 
 MultiAllTermsList::~MultiAllTermsList()
@@ -76,12 +75,14 @@ MultiAllTermsList::get_approx_size() const
 om_termname
 MultiAllTermsList::get_termname() const
 {
+    Assert(started);
     return current;
 }
 
 om_doccount
 MultiAllTermsList::get_termfreq() const
 {
+    Assert(started);
     om_doccount termfreq = 0;
 
     std::vector<TermList *>::const_iterator i;
@@ -112,6 +113,8 @@ MultiAllTermsList::get_collection_freq() const
 TermList *
 MultiAllTermsList::skip_to(const om_termname &tname)
 {
+    started = true;
+
     std::vector<TermList *>::const_iterator i;
     for (i = lists.begin(); i != lists.end(); ++i) {
 	(*i)->skip_to(tname);
@@ -124,10 +127,20 @@ MultiAllTermsList::skip_to(const om_termname &tname)
 TermList *
 MultiAllTermsList::next()
 {
-    std::vector<TermList *>::const_iterator i;
-    for (i = lists.begin(); i != lists.end(); ++i) {
-	if (!(*i)->at_end() && (*i)->get_termname() == current) {
+    if (!started) {
+	started = true;
+	
+	std::vector<TermList *>::const_iterator i;
+	for (i = lists.begin(); i != lists.end(); ++i) {
 	    (*i)->next();
+	}
+    } else {
+
+	std::vector<TermList *>::const_iterator i;
+	for (i = lists.begin(); i != lists.end(); ++i) {
+	    if (!(*i)->at_end() && (*i)->get_termname() == current) {
+		(*i)->next();
+	    }
 	}
     }
     update_current();
@@ -137,5 +150,7 @@ MultiAllTermsList::next()
 bool
 MultiAllTermsList::at_end() const
 {
+    Assert(started);
+
     return is_at_end;
 }
