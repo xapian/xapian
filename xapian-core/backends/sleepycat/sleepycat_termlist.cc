@@ -35,7 +35,7 @@ SleepyTermList::SleepyTermList(om_docid did_,
 			       const SleepyDatabase * database_,
 			       const SleepyDatabaseInternals * internals_,
 			       const SleepyDatabaseTermCache *termcache_)
-	: mylist(internals_->postlist_db,
+	: mylist(internals_->termlist_db,
 		 reinterpret_cast<void *>(&did_),
 		 sizeof(did_)),
 	  database(database_),
