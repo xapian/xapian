@@ -24,7 +24,6 @@
 #define OM_HGUARD_EXPANDWEIGHT_H
 
 #include "om/omtypes.h"
-#include "omassert.h"
 #include "database.h"
 
 class RSet;

@@ -24,7 +24,7 @@
 #include "rset.h"
 #include "database.h"
 #include "ortermlist.h"
-#include "omassert.h"
+#include "omdebug.h"
 
 #include <algorithm>
 

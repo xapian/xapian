@@ -25,7 +25,6 @@
 
 #include "irweight.h"
 #include "om/omtypes.h"
-#include "omassert.h"
 
 // BM25 weighting scheme
 class BM25Weight : public IRWeight {

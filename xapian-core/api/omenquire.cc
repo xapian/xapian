@@ -20,7 +20,7 @@
  * -----END-LICENCE-----
  */
 
-#include "omassert.h"
+#include "omdebug.h"
 #include "omlocks.h"
 #include "omdatabaseinternal.h"
 

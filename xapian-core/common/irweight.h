@@ -24,7 +24,7 @@
 #define OM_HGUARD_IRWEIGHT_H
 
 #include "om/omtypes.h"
-#include "omassert.h"
+#include "omdebug.h"
 
 class IRDatabase;
 class RSet;

@@ -30,7 +30,7 @@
 #include "document.h"
 
 #include "utils.h"
-#include "omassert.h"
+#include "omdebug.h"
 
 #include "leafpostlist.h"
 #include "termlist.h"

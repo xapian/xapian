@@ -25,7 +25,7 @@
 
 #include "config.h"
 #include <memory>  // auto_ptr
-#include "omassert.h"
+#include "omdebug.h"
 #include "database.h"
 #include "netclient.h"
 

@@ -22,7 +22,7 @@
 
 #include "andmaybepostlist.h"
 #include "andpostlist.h"
-#include "omassert.h"
+#include "omdebug.h"
 
 inline PostList *
 AndMaybePostList::process_next_or_skip_to(om_weight w_min, PostList *ret)

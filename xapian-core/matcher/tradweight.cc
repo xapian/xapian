@@ -27,7 +27,7 @@
 #include "stats.h"
 #include "tradweight.h"
 #include "rset.h"
-#include "omassert.h"
+#include "omdebug.h"
 
 const double k = 1;
 

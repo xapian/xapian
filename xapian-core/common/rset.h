@@ -25,7 +25,7 @@
 
 #include <vector>
 #include <map>
-#include "omassert.h"
+#include "omdebug.h"
 #include "om/omenquire.h"
 
 class IRDatabase;

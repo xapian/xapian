@@ -20,7 +20,7 @@
  * -----END-LICENCE-----
  */
 
-#include "omassert.h"
+#include "config.h"
 #include "database_builder.h"
 
 // Include headers for all the database types

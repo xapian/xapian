@@ -1,6 +1,5 @@
 /* irweight.cc: How to create irweight objects */
 
-#include "omassert.h"
 #include "irweight.h"
 
 // Include headers for all the weight types

@@ -29,7 +29,7 @@
 #include <fcntl.h>
 #include <cerrno>
 #include "socketcommon.h"
-#include "omassert.h"
+#include "omdebug.h"
 #include "omqueryinternal.h"
 #include "readquery.h"
 #include "stats.h"

@@ -25,6 +25,7 @@
 
 #include "database.h"
 #include "branchpostlist.h"
+#include "omdebug.h"
 
 /** A postlist comprising two postlists ANDed together.
  *

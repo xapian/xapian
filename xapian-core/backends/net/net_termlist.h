@@ -23,8 +23,6 @@
 #ifndef OM_HGUARD_NET_TERMLIST_H
 #define OM_HGUARD_NET_TERMLIST_H
 
-#include "omassert.h"
-
 #include "om/omtypes.h"
 #include "om/omerror.h"
 #include "termlist.h"

@@ -23,7 +23,7 @@
 
 #include <stdlib.h>
 #include "om/omtypes.h"
-#include "omassert.h"
+#include "omdebug.h"
 #include "utils.h"
 #include "sleepy_postlist.h"
 #include "sleepy_database_internals.h"

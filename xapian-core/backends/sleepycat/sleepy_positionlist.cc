@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include "omdebug.h"
 #include "sleepy_positionlist.h"
 
 void

@@ -23,7 +23,7 @@
 #include <math.h>
 #include "config.h"
 
-#include "omassert.h"
+#include "omdebug.h"
 #include "bm25weight.h"
 #include "stats.h"
 

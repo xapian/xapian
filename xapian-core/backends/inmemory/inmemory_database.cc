@@ -22,7 +22,7 @@
 
 #include <stdio.h>
 
-#include "omassert.h"
+#include "omdebug.h"
 #include "inmemory_database.h"
 #include "inmemory_document.h"
 

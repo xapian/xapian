@@ -23,6 +23,7 @@
 #include "rset.h"
 #include "termlist.h"
 #include "stats.h"
+#include "omdebug.h"
 
 #include <memory>
 

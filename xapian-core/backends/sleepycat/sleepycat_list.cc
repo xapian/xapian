@@ -22,7 +22,7 @@
 
 #include <algorithm>
 
-#include "omassert.h"
+#include "omdebug.h"
 #include "sleepy_list.h"
 
 // Sleepycat database stuff

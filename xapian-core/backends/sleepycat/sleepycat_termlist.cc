@@ -24,7 +24,7 @@
 #include <db_cxx.h>
 
 #include "utils.h"
-#include "omassert.h"
+#include "omdebug.h"
 #include "sleepy_termlist.h"
 #include "sleepy_termcache.h"
 #include "sleepy_database_internals.h"

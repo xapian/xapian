@@ -23,7 +23,7 @@
 #include <math.h>
 
 #include "expandweight.h"
-#include "omassert.h"
+#include "omdebug.h"
 #include "config.h"
 
 OmExpandBits

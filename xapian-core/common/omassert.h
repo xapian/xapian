@@ -70,17 +70,4 @@
 #define AssertEqDouble(a,b)
 #endif
 
-#ifdef MUS_DEBUG_VERBOSE
-// Verbose debugging output
-
-// Don't bracket a, because it may have <<'s in it
-// Send to cout, not cerr, so that output appears on page in CGI scripts
-// (otherwise it clogs up error logs)
-// FIXME - should send it to a file.
-#define DebugMsg(a) cerr << a ; cerr.flush()
-
-#else
-#define DebugMsg(a)
-#endif
-
 #endif /* OM_HGUARD_OMASSERT_H */

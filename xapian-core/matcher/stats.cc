@@ -21,7 +21,7 @@
  */
 
 #include "stats.h"
-#include "omassert.h"
+#include "omdebug.h"
 #include "netserver.h"
 #include "netclient.h"
 

@@ -27,6 +27,7 @@
 #include "localmatch.h"
 #include "rset.h"
 #include "multi_database.h"
+#include "omdebug.h"
 
 #include <algorithm>
 

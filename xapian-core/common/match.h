@@ -24,7 +24,6 @@
 #define OM_HGUARD_MATCH_H
 
 #include "database.h"
-#include "omassert.h"
 #include "om/omdocument.h"
 #include "om/omenquire.h"
 #include "irweight.h"

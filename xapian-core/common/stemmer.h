@@ -23,7 +23,7 @@
 #ifndef OM_HGUARD_STEMMER_H
 #define OM_HGUARD_STEMMER_H
 
-#include "omassert.h"
+#include "omdebug.h"
 #include <string>
 
 /** The available languages for the stemming algorithms to use. */

@@ -20,7 +20,6 @@
  * -----END-LICENCE-----
  */
 
-#include "omassert.h"
 #include "om/omerror.h"
 #include "omwritabledbinternal.h"
 

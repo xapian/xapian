@@ -24,7 +24,7 @@
 #define OM_HGUARD_STATS_H
 
 #include "om/omtypes.h"
-#include "omassert.h"
+#include "omdebug.h"
 #include "omrefcnt.h"
 #include <map>
 #include <vector>

@@ -24,6 +24,7 @@
 #include "da_database.h"
 #include "da_document.h"
 #include "daread.h"
+#include "omdebug.h"
 
 /** Create a DADocument: this is only called by DADatabase::open_document()
  */

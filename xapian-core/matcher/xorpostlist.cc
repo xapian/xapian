@@ -22,6 +22,7 @@
 
 #include "xorpostlist.h"
 #include "andnotpostlist.h"
+#include "omdebug.h"
 
 // for XOR we just pass w_min through unchanged since both branches matching
 // doesn't cause a match

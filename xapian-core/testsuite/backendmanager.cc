@@ -33,7 +33,7 @@
 #include "textfile_indexer.h"
 #include "../indexer/index_utils.h"
 #include "backendmanager.h"
-#include "omassert.h"
+#include "omdebug.h"
 
 OmDocumentContents
 string_to_document(string paragraph)

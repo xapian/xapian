@@ -22,6 +22,7 @@
 
 #include "config.h"
 #include "localmatch.h"
+#include "omdebug.h"
 
 #include "andpostlist.h"
 #include "orpostlist.h"

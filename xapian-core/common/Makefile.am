@@ -20,4 +20,4 @@ noinst_HEADERS = \
 
 noinst_LTLIBRARIES = libcommon.la
 
-libcommon_la_SOURCES = utils.cc
+libcommon_la_SOURCES = utils.cc omdebug.cc

@@ -23,6 +23,7 @@
 #include "orpostlist.h"
 #include "andpostlist.h"
 #include "andmaybepostlist.h"
+#include "omdebug.h"
 
 OrPostList::OrPostList(PostList *left, PostList *right, LocalMatch *matcher_)
 {

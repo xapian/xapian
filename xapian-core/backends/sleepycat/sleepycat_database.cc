@@ -31,7 +31,7 @@
 #include <om/omdocument.h>
 
 #include "utils.h"
-#include "omassert.h"
+#include "omdebug.h"
 
 // Sleepycat database stuff
 #include <db_cxx.h>

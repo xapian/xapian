@@ -92,6 +92,7 @@ includetest.cc:
 	@depends="$(ALL_INCLUDES)"; destfile=".deps-includetest-cc"; $(GENDEPS)
 	@for header in $(ALL_INCLUDES) ; do echo $$header ; done | \
 	grep -v sleepy | sed 's/\(.*\)/#include "\1"/' > $@
+	@echo '#include "$(top_srcdir)/common/omdebug.cc"' >> $@
 	@echo 'int main() { return 0; }' >> $@
 
 ## Compile internaltest with the extra CXXFLAGS

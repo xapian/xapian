@@ -24,6 +24,7 @@
 #include "db_database.h"
 #include "db_document.h"
 #include "dbread.h"
+#include "omdebug.h"
 
 DBDocument::DBDocument(const DBDatabase * database_,
 		       om_docid did_,

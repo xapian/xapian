@@ -21,13 +21,13 @@
  */
 
 #include <cstdlib>
-#include "omassert.h"
 #include "net_database.h"
 #include "net_termlist.h"
 #include "net_document.h"
 #include "database_builder.h"
 #include "progclient.h"
 #include "tcpclient.h"
+#include "omdebug.h"
 
 #include <om/omerror.h>
 

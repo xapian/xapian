@@ -20,7 +20,7 @@
  * -----END-LICENCE-----
  */
 
-#include "omassert.h"
+#include "omdebug.h"
 #include "om/omerror.h"
 #include "textfile_indexer.h"
 #include "om/omstem.h"

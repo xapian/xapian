@@ -24,7 +24,7 @@
 #define OM_HGUARD_MULTI_POSTLIST_H
 
 #include "utils.h"
-#include "omassert.h"
+#include "omdebug.h"
 #include "leafpostlist.h"
 #include <stdlib.h>
 #include <set>

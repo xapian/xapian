@@ -25,7 +25,7 @@
 
 #include <string>
 #include <vector>
-#include "omassert.h"
+#include "omdebug.h"
 
 inline string
 tohex(char c)

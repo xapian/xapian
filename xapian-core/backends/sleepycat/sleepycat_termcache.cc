@@ -21,7 +21,7 @@
  */
 
 
-#include "omassert.h"
+#include "omdebug.h"
 #include "om/omerror.h"
 #include "om/omtypes.h"
 #include "sleepy_database_internals.h"

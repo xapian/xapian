@@ -32,6 +32,7 @@
 #include "omerr_string.h"
 #include "termlist.h"
 #include "document.h"
+#include "omdebug.h"
 #include <memory>
 #include <strstream.h>
 #include <signal.h>

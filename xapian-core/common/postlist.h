@@ -23,8 +23,6 @@
 #ifndef OM_HGUARD_POSTLIST_H
 #define OM_HGUARD_POSTLIST_H
 
-#include "omassert.h"
-
 #include "om/omtypes.h"
 #include "om/omerror.h"
 

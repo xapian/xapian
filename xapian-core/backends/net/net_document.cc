@@ -22,7 +22,7 @@
 
 #include "net_document.h"
 #include <om/omdocument.h>
-#include "omassert.h"
+#include "omdebug.h"
 
 NetworkDocument::NetworkDocument(const string & doc_,
 				 const map<om_keyno, OmKey> &keys_)

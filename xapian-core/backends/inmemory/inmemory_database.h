@@ -23,7 +23,7 @@
 #ifndef OM_HGUARD_INMEMORY_DATABASE_H
 #define OM_HGUARD_INMEMORY_DATABASE_H
 
-#include "omassert.h"
+#include "omdebug.h"
 #include "utils.h"
 #include "leafpostlist.h"
 #include "termlist.h"

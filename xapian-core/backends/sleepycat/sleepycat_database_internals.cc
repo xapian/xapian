@@ -30,7 +30,7 @@
 // Sleepycat database stuff
 #include <db_cxx.h>
 
-#include "omassert.h"
+#include "omdebug.h"
 #include "om/omerror.h"
 #include "sleepy_database_internals.h"
 

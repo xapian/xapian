@@ -27,7 +27,7 @@
 #include <strstream.h>
 #include "om/omerror.h"
 #include "omerr_string.h"
-#include "omassert.h"
+#include "omdebug.h"
 
 /** A class to convert from an OmError reference to a string description.
  */

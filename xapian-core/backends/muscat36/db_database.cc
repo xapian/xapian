@@ -34,9 +34,10 @@
 #include "db_database.h"
 #include "db_document.h"
 #include "dbread.h"
-#include "om/omdocument.h"
+#include "omdebug.h"
 
-#include "om/omerror.h"
+#include <om/omdocument.h>
+#include <om/omerror.h>
 
 DBPostList::DBPostList(const om_termname & tname_,
 		       struct DB_postings * postlist_,

@@ -23,7 +23,7 @@
 #ifndef OM_HGUARD_MULTI_TERMLIST_H
 #define OM_HGUARD_MULTI_TERMLIST_H
 
-#include "omassert.h"
+#include "omdebug.h"
 #include "termlist.h"
 #include "database.h"
 #include <stdlib.h>

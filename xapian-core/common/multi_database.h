@@ -23,7 +23,6 @@
 #ifndef OM_HGUARD_MULTI_DATABASE_H
 #define OM_HGUARD_MULTI_DATABASE_H
 
-#include "omassert.h"
 #include "database.h"
 #include "leafpostlist.h"
 #include <om/omenquire.h>

@@ -22,7 +22,7 @@
 
 #include <stdio.h>
 
-#include "omassert.h"
+#include "omdebug.h"
 #include "net_termlist.h"
 
 #include <string>

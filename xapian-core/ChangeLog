@@ -1,3 +1,10 @@
+Thu Jun  8 14:43:51 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Create an OmDebug object to manage debug messages.  This allows
+	  the level of debug message to be selected and the output file for
+	  debug messages to be set using OM_DEBUG_FILE and OM_DEBUG_TYPES
+	  environment variables.
+
 Thu Jun  8 11:32:11 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Removed some warnings from BackendManager.

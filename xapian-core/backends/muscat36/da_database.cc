@@ -33,9 +33,10 @@
 #include "da_database.h"
 #include "da_document.h"
 #include "daread.h"
-#include "om/omdocument.h"
+#include "omdebug.h"
 
-#include "om/omerror.h"
+#include <om/omdocument.h>
+#include <om/omerror.h>
 
 DAPostList::DAPostList(const om_termname & tname_,
 		       struct DA_postings * postlist_,
