@@ -1,3 +1,10 @@
+Sun Aug 10 01:00:08 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: If fork is found, but socketpair isn't automatically
+	  disable the remote backend rather than configure dying with an
+	  error.
+	* autoconf/: Removed various unused autoconf macros.
+
 Sat Aug 09 23:57:44 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.h: Made "overwritten" protected.
