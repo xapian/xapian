@@ -170,9 +170,7 @@ class SocketClient : public NetClient {
 	/** Do the actual MSet fetching */
 	bool get_mset(om_doccount first,
 		      om_doccount maxitems,
-		      std::vector<OmMSetItem> &mset,
-		      om_doccount *mbound,
-		      om_weight *greatest_wt);
+		      OmMSet &mset);
 
 	/** get the remote termlist */
 	void get_tlist(om_docid did,

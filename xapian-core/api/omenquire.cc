@@ -331,6 +331,12 @@ OmMSet::get_termweight(om_termname tname) const
     return i->second.termweight;
 }
 
+std::map<om_termname, OmMSet::TermFreqAndWeight>
+OmMSet::get_all_terminfo() const
+{
+    return termfreqandwts;
+}
+
 std::string
 OmMSet::get_description() const
 {

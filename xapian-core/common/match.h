@@ -148,9 +148,6 @@ class SingleMatch : public OmRefCntBase
 	 *  @param first          First item to return (start at 0)
 	 *  @param maxitems       Maximum number of items to return
 	 *  @param mset           Results will be put here
-	 *  @param mbound         Mbound will returned here
-	 *  @param greatest_wt    Gets set to max weight attained
-	 *  @param termfreqandwts
 	 *  @param mdecider       Optional decision functor
 	 *  @param nowait         If true, then work asynchronously -
 	 *                        see prepare_match()
@@ -165,10 +162,7 @@ class SingleMatch : public OmRefCntBase
 	 */
 	virtual bool get_mset(om_doccount first,
 			      om_doccount maxitems,
-			      std::vector<OmMSetItem> & mset,
-			      om_doccount * mbound,
-			      om_weight * greatest_wt,
-			      std::map<om_termname, OmMSet::TermFreqAndWeight> & termfreqandwts,
+			      OmMSet &mset,
 			      const OmMatchDecider *mdecider,
 			      bool nowait) = 0;
 };

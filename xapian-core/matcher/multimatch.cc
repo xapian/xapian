@@ -221,11 +221,8 @@ MultiMatch::add_next_sub_mset(SingleMatch * leaf,
     OmMSet sub_mset;
 
     // Get next mset
-    if (leaf->get_mset(0, lastitem, sub_mset.items, &(sub_mset.mbound),
-			  &(sub_mset.max_attained),
-			  OmMSet::InternalInterface::get_termfreqandwts(sub_mset),
+    if (leaf->get_mset(0, lastitem, sub_mset,
 			  mdecider, nowait)) {
-	sub_mset.max_possible = leaf->get_max_weight();
 
 	// Merge stats
 	mset.mbound += sub_mset.mbound;
@@ -385,12 +382,8 @@ MultiMatch::match(om_doccount first,
 
     if(leaves.size() == 1) {
 	// Only one mset to get - so get it, and block.
-	leaves.front()->get_mset(first, maxitems, mset.items,
-				 &(mset.mbound), &(mset.max_attained),
-				 OmMSet::InternalInterface::get_termfreqandwts(mset),
+	leaves.front()->get_mset(first, maxitems, mset,
 				 mdecider, false);
-	mset.firstitem = first;
-	mset.max_possible = leaves.front()->get_max_weight();
     } else if(leaves.size() > 1) {
 	// Need to merge msets.
 	collect_msets(first + maxitems, mdecider, mset);

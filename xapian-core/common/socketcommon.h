@@ -26,13 +26,14 @@
 #include <string>
 #include "omlinebuf.h"
 
-#define OM_SOCKET_PROTOCOL_VERSION 1
+#define OM_SOCKET_PROTOCOL_VERSION 2
 
 class OmQueryInternal;
 class OmMatchOptions;
 class Stats;
 class OmRSet;
 class OmKey;
+class OmMSet;
 
 /** The OmSocketLineBuf class implements a two-way line discipline
  *  using Unix filedescriptors, allowing the client to read
@@ -126,6 +127,18 @@ std::string omrset_to_string(const OmRSet &omrset);
  *  @param s		The serialised object as a string.
  */
 OmRSet string_to_omrset(const std::string &s);
+
+/** Convert an OmMSet object into a string representation.
+ *
+ *  @param ommset		The object to serialise.
+ */
+std::string ommset_to_string(const OmMSet &ommset);
+
+/** Convert a serialised OmMSet string back into an object.
+ *
+ *  @param s		The serialised object as a string.
+ */
+OmMSet string_to_ommset(const std::string &s);
 
 /** Convert an OmKey object into a string representation.
  *

@@ -170,10 +170,7 @@ NetworkMatch::recalc_maxweight()
 bool
 NetworkMatch::get_mset(om_doccount first,
 		       om_doccount maxitems,
-		       std::vector<OmMSetItem> & mset,
-		       om_doccount * mbound,
-		       om_weight * greatest_wt,
-		       std::map<om_termname, OmMSet::TermFreqAndWeight> & termfreqandwts,
+		       OmMSet &mset,
 		       const OmMatchDecider *mdecider,
 		       bool nowait)
 {
@@ -190,14 +187,14 @@ NetworkMatch::get_mset(om_doccount first,
     bool finished = false;
     if (nowait) {
 	finished = database->link->get_mset(first, maxitems,
-					    mset, mbound, greatest_wt);
+					    mset);
     } else {
 	finished = database->link->get_mset(first, maxitems,
-					    mset, mbound, greatest_wt);
+					    mset);
 	while (!finished) {
 	    database->link->wait_for_input();
 	    finished = database->link->get_mset(first, maxitems,
-						mset, mbound, greatest_wt);
+						mset);
 	};
     }
     return finished;

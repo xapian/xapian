@@ -641,10 +641,7 @@ LocalMatch::get_max_weight()
 bool
 LocalMatch::get_mset(om_doccount first,
 		    om_doccount maxitems,
-		    std::vector<OmMSetItem> & mset,
-		    om_doccount * mbound,
-		    om_weight * greatest_wt,
-		    std::map<om_termname, OmMSet::TermFreqAndWeight> & termfreqandwts,
+		    OmMSet & mset,
 		    const OmMatchDecider *mdecider,
 		    bool nowait)
 {
@@ -655,10 +652,10 @@ LocalMatch::get_mset(om_doccount first,
     Assert(query != 0);
 
     // Empty result set
-    *mbound = 0;
-    *greatest_wt = 0;
-    mset.clear();
-    termfreqandwts.clear();
+    om_doccount mbound = 0;
+    om_weight greatest_wt = 0;
+    std::vector<OmMSetItem> items;
+    std::map<om_termname, OmMSet::TermFreqAndWeight> termfreqandwts;
 
     for (std::map<om_termname, om_weight>::const_iterator i = term_weights.begin(); i != term_weights.end(); i++) {
 	termfreqandwts[i->first].termweight = i->second;
@@ -675,6 +672,9 @@ LocalMatch::get_mset(om_doccount first,
     // Check that any results have been asked for (might just be wanting
     // maxweight)
     if(maxitems == 0) {
+	mset = OmMSet(first, mbound,
+		      get_max_weight(), greatest_wt,
+		      items, termfreqandwts);
 	return true;
     }
 
@@ -739,7 +739,7 @@ LocalMatch::get_mset(om_doccount first,
 
 	if (query->at_end()) break;
 
-        (*mbound)++;
+        mbound++;
 
 	om_docid did = query->get_docid();
 	// FIXME: next line is inefficient, due to design.  (Makes it hard /
@@ -777,66 +777,70 @@ LocalMatch::get_mset(om_doccount first,
 		    irdoc = temp;
 		}
 		new_item.collapse_key = irdoc.get()->get_key(collapse_key);
-		add_item = perform_collapse(mset, collapse_table, did,
+		add_item = perform_collapse(items, collapse_table, did,
 					    new_item, min_item);
 	    }
 
 	    if(add_item) {
-		mset.push_back(new_item);
+		items.push_back(new_item);
 
 		// Keep a track of the greatest weight we've seen.
-		if(wt > *greatest_wt) *greatest_wt = wt;
+		if(wt > greatest_wt) greatest_wt = wt;
 
 		// FIXME: find balance between larger size for more efficient
 		// nth_element and smaller size for better minimum weight
 		// optimisations
-		if (mset.size() == max_msize * 2) {
+		if (items.size() == max_msize * 2) {
 		    // find last element we care about
 		    DEBUGLINE(MATCH, "finding nth");
-		    std::nth_element(mset.begin(), mset.begin() + max_msize,
-				mset.end(), mcmp);
+		    std::nth_element(items.begin(), items.begin() + max_msize,
+				items.end(), mcmp);
 		    // erase elements which don't make the grade
-		    mset.erase(mset.begin() + max_msize, mset.end());
-		    min_item = mset.back();
-		    DEBUGLINE(MATCH, "mset size = " << mset.size());
+		    items.erase(items.begin() + max_msize, items.end());
+		    min_item = items.back();
+		    DEBUGLINE(MATCH, "mset size = " << items.size());
 		}
 	    }
 	}
     }
 
-    if (mset.size() > max_msize) {
+    if (items.size() > max_msize) {
 	// find last element we care about
 	DEBUGLINE(MATCH, "finding nth");
-	std::nth_element(mset.begin(), mset.begin() + max_msize, mset.end(), mcmp);
+	std::nth_element(items.begin(), items.begin() + max_msize, items.end(), mcmp);
 	// erase elements which don't make the grade
-	mset.erase(mset.begin() + max_msize, mset.end());
+	items.erase(items.begin() + max_msize, items.end());
     }
     DEBUGLINE(MATCH, "sorting");
 
     if(first > 0) {
 	// Remove unwanted leading entries
-	if(mset.size() <= first) {
-	    mset.clear();
+	if(items.size() <= first) {
+	    items.clear();
 	} else {
 	    DEBUGLINE(MATCH, "finding " << first << "th");
-	    std::nth_element(mset.begin(), mset.begin() + first, mset.end(), mcmp);
+	    std::nth_element(items.begin(), items.begin() + first, items.end(), mcmp);
 	    // erase the leading ``first'' elements
-	    mset.erase(mset.begin(), mset.begin() + first);
+	    items.erase(items.begin(), items.begin() + first);
 	}
     }
 
     // Need a stable sort, but this is provided by comparison operator
-    std::sort(mset.begin(), mset.end(), mcmp);
+    std::sort(items.begin(), items.end(), mcmp);
 
-    DEBUGLINE(MATCH, "msize = " << mset.size() << ", mbound = " << *mbound);
-    if (mset.size()) {
-	DEBUGLINE(MATCH, "max weight in mset = " << mset[0].wt <<
-		  ", min weight in mset = " << mset[mset.size() - 1].wt);
+    DEBUGLINE(MATCH, "msize = " << items.size() << ", mbound = " << mbound);
+    if (items.size()) {
+	DEBUGLINE(MATCH, "max weight in mset = " << items[0].wt <<
+		  ", min weight in mset = " << items[items.size() - 1].wt);
     }
 
     // Query now needs to be recalculated if it is needed again.
     delete query;
     query = 0;
+
+    mset = OmMSet(first, mbound,
+		  get_max_weight(), greatest_wt,
+		  items, termfreqandwts);
 
     return true;
 }

@@ -354,9 +354,7 @@ SocketClient::send_global_stats(const Stats &stats)
 bool
 SocketClient::get_mset(om_doccount first,
 		       om_doccount maxitems,
-		       std::vector<OmMSetItem> &mset,
-		       om_doccount *mbound,
-		       om_weight *greatest_wt)
+		       OmMSet &mset)
 {
     Assert(global_stats_valid);
     Assert(conv_state >= state_getmset);
@@ -389,25 +387,12 @@ SocketClient::get_mset(om_doccount first,
 	    // Message 6
 	    {
 		std::string response = do_read();
-		if (response.substr(0, 9) != "MSETITEMS") {
-		    throw OmNetworkError(std::string("Expected MSETITEMS, got ") + response);
+		if (response.substr(0, 4) != "MSET") {
+		    throw OmNetworkError(std::string("Expected MSET, got ") + response);
 		}
-		response = response.substr(10);
+		response = response.substr(5);
 
-		int numitems;
-		{
-		    istrstream is(response.c_str());
-
-		    is >> numitems >> remote_maxweight >> *greatest_wt;
-		}
-
-		for (int i=0; i<numitems; ++i) {
-		    std::string msetline = do_read();
-		    //DEBUGLINE(UNKNOWN, "MSet string: " << msetline);
-		    OmMSetItem mitem = string_to_msetitem(msetline);
-		    //DEBUGLINE(UNKNOWN, "MSet item: " << mitem.wt << " " << mitem.did);
-		    mset.push_back(mitem);
-		}
+		mset = string_to_ommset(response);
 		response = do_read();
 		if (response != "OK") {
 		    throw OmNetworkError("Error at end of mset");

@@ -492,6 +492,22 @@ class OmMSet {
     public:
 	OmMSet() : mbound(0) {}
 
+	/** Create an OmMSet from the constituent data.
+	 *  There should be no need to use this from user programs.
+	 */
+	OmMSet(om_doccount firstitem_,
+	       om_doccount mbound_,
+	       om_weight max_possible_,
+	       om_weight max_attained_,
+	       const vector<OmMSetItem> &items_,
+	       const map<om_termname, TermFreqAndWeight> &termfreqandwts_)
+	    : termfreqandwts(termfreqandwts_),
+	      items(items_),
+	      firstitem(firstitem_),
+	      mbound(mbound_),
+	      max_possible(max_possible_),
+	      max_attained(max_attained_) {}
+
 	/** This converts the weight supplied to a percentage score.
 	 *  The return value will be in the range 0 to 100, and will be 0 if
 	 *  and only if the item did not match the query at all.
@@ -518,6 +534,10 @@ class OmMSet {
 	 *             in the query.
 	 */
 	om_weight get_termweight(om_termname tname) const;
+
+	/** Return all the available term weights and frequencies
+	 */
+	std::map<om_termname, TermFreqAndWeight> get_all_terminfo() const;
 
 	/// A list of items comprising the (selected part of the) mset.
 	std::vector<OmMSetItem> items;

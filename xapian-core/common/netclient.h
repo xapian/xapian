@@ -100,9 +100,7 @@ class NetClient : public OmRefCntBase {
 	/** Do the actual MSet fetching */
 	virtual bool get_mset(om_doccount first,
 			      om_doccount maxitems,
-			      std::vector<OmMSetItem> &mset,
-			      om_doccount *mbound,
-			      om_weight *greatest_wt) = 0;
+			      OmMSet &mset) = 0;
 
 	/** The structure used to hold a termlist item */
 	struct TermListItem {

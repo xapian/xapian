@@ -1,3 +1,12 @@
+Wed Aug  9 15:09:14 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Cleaned up the MSet passing internals.  The various get_mset
+	  functions now pass things around in OmMSets rather than as parts.
+
+	* mbound now works with network backend.
+
+	* Fixed the match options serialisation.
+
 Wed Aug  9 14:54:30 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add detection of BerkeleyDB version 3.1 to configure.in, ready

@@ -504,9 +504,9 @@ moptions_to_string(const OmMatchOptions &moptions)
 {
     std::string result;
 
-    result += om_tostring(moptions.do_collapse) + " ";
+    result += om_tostring((int)moptions.do_collapse) + " ";
     result += om_tostring(moptions.collapse_key) + " ";
-    result += om_tostring(moptions.sort_forward) + " ";
+    result += om_tostring((int)moptions.sort_forward) + " ";
     result += om_tostring(moptions.percent_cutoff) + " ";
     result += om_tostring(moptions.max_or_terms);
 
@@ -526,8 +526,9 @@ string_to_moptions(const std::string &s)
        >> mopt.percent_cutoff
        >> mopt.max_or_terms;
 
-    DEBUGLINE(UNKNOWN, "string_to_moptions: mopt " << s << "->"
-	      << moptions_to_string(mopt));
+    Assert(s == moptions_to_string(mopt));
+//    DEBUGLINE(UNKNOWN, "string_to_moptions: mopt " << s << "->"
+//	      << moptions_to_string(mopt));
     return mopt;
 }
 
@@ -543,6 +544,178 @@ omrset_to_string(const OmRSet &omrset)
 	result += om_tostring(*i);
     }
     return result;
+}
+
+std::string
+ommsetitems_to_string(const vector<OmMSetItem> &ommsetitems)
+{
+    // format: length:wt,did,key;wt,did,key;...
+    std::string result = om_tostring(ommsetitems.size()) + ":";
+
+    for (std::vector<OmMSetItem>::const_iterator i=ommsetitems.begin();
+	 i != ommsetitems.end();
+	 ++i) {
+	result += om_tostring(i->wt);
+	result += ",";
+	result += om_tostring(i->did);
+	result += ",";
+	result += omkey_to_string(i->collapse_key);
+
+	if (i != ommsetitems.end()) {
+	    result += ";";
+	}
+
+	DEBUGLINE(UNKNOWN, "MSETITEM: " << i->wt << " " << i->did);
+    }
+    //DEBUGLINE(UNKNOWN, "sent items...");
+
+    return result;
+}
+
+std::string
+ommset_termfreqwts_to_string(const std::map<om_termname,
+			                OmMSet::TermFreqAndWeight> &terminfo)
+{
+    // encode as term:freq,weight;term2:freq2,weight2;...
+    string result;
+
+    std::map<om_termname, OmMSet::TermFreqAndWeight>::const_iterator i;
+    for (i = terminfo.begin(); i!= terminfo.end(); ++i) {
+	result += encode_tname(i->first);
+	result += ":";
+	result += om_tostring(i->second.termfreq);
+	result += ",";
+	result += om_tostring(i->second.termweight);
+	result += ";";
+    }
+    return result;
+}
+
+std::string
+ommset_to_string(const OmMSet &ommset)
+{
+    std::string result;
+
+    // termandfreqthingies
+    // items
+    result += om_tostring(ommset.firstitem);
+    result += " ";
+    result += om_tostring(ommset.mbound);
+    result += " ";
+    result += om_tostring(ommset.max_possible);
+    result += " ";
+    result += om_tostring(ommset.max_attained);
+    result += " ";
+    result += ommsetitems_to_string(ommset.items);
+    result += " ";
+    result += ommset_termfreqwts_to_string(ommset.get_all_terminfo());
+
+    return result;
+}
+
+vector<OmMSetItem>
+string_to_ommsetitems(const std::string &s_)
+{
+    vector<OmMSetItem> result;
+    std::string s = s_;
+
+    string lens = s.substr(0, s.find_first_of(':'));
+    s = s.substr(s.find_first_of(':')+1);
+
+    unsigned int len = atoi(lens.c_str());
+    while (s.length() > 0) {
+	std::string wt_s, did_s, key_s;
+	std::string::size_type pos = s.find_first_of(',');
+	if (pos == s.npos) {
+	    throw OmNetworkError("Invalid msetitem string");
+	}
+	wt_s = s.substr(0, pos);
+	s = s.substr(pos+1);
+
+	pos = s.find_first_of(',');
+	if (pos == s.npos) {
+	    throw OmNetworkError("Invalid msetitem string");
+	}
+	did_s = s.substr(0, pos);
+	s = s.substr(pos+1);
+
+	pos = s.find_first_of(';');
+	if (pos == s.npos) {
+	    key_s = s;
+	    s = "";
+	} else {
+	    key_s = s.substr(0, pos);
+	    s = s.substr(pos+1);
+	}
+	result.push_back(OmMSetItem(atof(wt_s.c_str()),
+				    atol(did_s.c_str()),
+				    string_to_omkey(key_s)));
+    }
+    Assert(len == result.size());
+    return result;
+}
+
+std::map<om_termname, OmMSet::TermFreqAndWeight>
+string_to_ommset_termfreqwts(const std::string &s_)
+{
+    std::map<om_termname, OmMSet::TermFreqAndWeight> result;
+    std::string s = s_;
+
+    while (s.length() > 0) {
+	std::string::size_type pos = s.find_first_of(';');
+	std::string terminfo = s.substr(0, pos);
+	s = s.substr(pos+1);
+
+	om_termname term;
+	om_doccount freq;
+	om_weight wt;
+
+	pos = terminfo.find_first_of(':');
+	if (pos == terminfo.npos) {
+	    throw OmNetworkError("Invalid term frequency/weight info string");
+	}
+	term = decode_tname(terminfo.substr(0, pos));
+	terminfo = terminfo.substr(pos+1);
+
+	pos = terminfo.find_first_of(',');
+	if (pos == terminfo.npos || (pos != terminfo.find_last_of(','))) {
+	    throw OmNetworkError("Invalid term frequency/weight info string");
+	}
+	freq = atoi(terminfo.substr(0, pos).c_str());
+	wt = atof(terminfo.substr(pos+1).c_str());
+
+	OmMSet::TermFreqAndWeight tfaw;
+	tfaw.termfreq = freq;
+	tfaw.termweight = wt;
+	result[term] = tfaw;
+    }
+
+    return result;
+}
+
+OmMSet
+string_to_ommset(const std::string &s)
+{
+    istrstream is(s.c_str());
+
+    om_doccount firstitem;
+    om_doccount mbound;
+    om_weight max_possible;
+    om_weight max_attained;
+    vector<OmMSetItem> items;
+    std::map<om_termname, OmMSet::TermFreqAndWeight> terminfo;
+
+    // first the easy ones...
+    is >> firstitem >> mbound >> max_possible >> max_attained;
+    std::string items_s, terminfo_s;
+    is >> items_s >> terminfo_s;
+
+    items = string_to_ommsetitems(items_s);
+    terminfo = string_to_ommset_termfreqwts(terminfo_s);
+
+    return OmMSet(firstitem, mbound,
+		  max_possible, max_attained,
+		  items, terminfo);
 }
 
 std::string

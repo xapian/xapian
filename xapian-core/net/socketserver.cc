@@ -245,25 +245,9 @@ SocketServer::run_match(const std::string &firstmessage)
 
     DEBUGLINE(UNKNOWN, "done get_mset...");
 
-    buf->writeline(std::string("MSETITEMS ") +
-		  om_tostring(mset.items.size()) + " "
-		  + om_tostring(mset.max_possible)
-		  + om_tostring(mset.max_attained));
+    buf->writeline(std::string("MSET ") + ommset_to_string(mset));
 
-    DEBUGLINE(UNKNOWN, "sent size, maxweight...");
-
-    for (std::vector<OmMSetItem>::iterator i=mset.items.begin();
-	 i != mset.items.end();
-	 ++i) {
-	char charbuf[100];
-	ostrstream os(charbuf, 100);
-	os << "MSETITEM: " << i->wt << " " << i->did <<
-		" " << omkey_to_string(i->collapse_key) << ends;
-	buf->writeline(charbuf);
-
-	DEBUGLINE(UNKNOWN, "MSETITEM: " << i->wt << " " << i->did);
-    }
-    //DEBUGLINE(UNKNOWN, "sent items...");
+    DEBUGLINE(UNKNOWN, "sent mset...");
 
     buf->writeline("OK");
 

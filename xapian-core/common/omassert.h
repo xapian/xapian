@@ -68,6 +68,14 @@
 #else
 #define Assert(a)
 #define AssertEqDouble(a,b)
+
+// CompiletimeAssert(foo) takes a constant integral expression and causes
+// a compile-time error if false.  It must be used at the top-level, not
+// within a function definition.
+#define CompiletimeAssert(EXPR) \
+struct CompileTimeCheck ## __FILE__ ## __LINE__ {	\
+    int member[(EXPR)?1:-1];				\
+};
 #endif
 
 #endif /* OM_HGUARD_OMASSERT_H */
