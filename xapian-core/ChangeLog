@@ -1,3 +1,10 @@
+Wed Nov 03 02:43:26 GMT 2004  Olly Betts <olly@survex.com>
+
+	* autoconf/type_socklen_t.m4,matcher/networkmatch.cc,net/: If
+	  __WIN32__ is defined, we want winsock2.h instead of sys/socket.h.
+	  Mingw doesn't seem to even have the latter, so I think previously
+	  we've been compiling by picking one up from somewhere random!
+
 Wed Nov 03 01:10:01 GMT 2004  Olly Betts <olly@survex.com>
 
 	* autoconf/type_socklen_t.m4: Rewritten to work with HPUX which

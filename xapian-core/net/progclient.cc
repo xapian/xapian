@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,14 +32,17 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <sys/socket.h>
-#include <cstdio>
+#ifdef __WIN32__
+# include <winsock2.h>
+#else
+# include <sys/socket.h>
+#endif
 #include <cerrno>
+
+using namespace std;
 
 ProgClient::ProgClient(string progname, const string &args, int msecs_timeout_)
 	: SocketClient(get_spawned_socket(progname, args),
@@ -56,8 +59,7 @@ ProgClient::get_progcontext(string progname, const string &args)
 {
     DEBUGCALL_STATIC(DB, string, "ProgClient::get_progcontext", progname <<
 	   	    ", " << args);
-    string result = "remote:prog(" + progname + " " + args;
-    return result;
+    RETURN("remote:prog(" + progname + " " + args);
 }
 
 int

@@ -32,12 +32,6 @@
 #include "networkstats.h"
 #include "net_database.h"
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <cerrno>
-#include <cstdio>
-
 RemoteSubMatch::RemoteSubMatch(const NetworkDatabase *db_,
 			       const Xapian::Query::Internal * query,
 			       const Xapian::RSet & omrset,

@@ -16,7 +16,11 @@ AC_DEFUN([TYPE_SOCKLEN_T],
     for t in socklen_t int size_t unsigned long "unsigned long"; do
       AC_TRY_COMPILE([
 	#include <sys/types.h>
-        #include <sys/socket.h>
+	#ifdef __WIN32__
+	# include <winsock2.h>
+	#else
+        # include <sys/socket.h>
+	#endif
       ],[
 	$t len;
 	getsockopt(0, 0, 0, 0, &len);
