@@ -940,7 +940,7 @@ example a fatal database error, in which case an exception will be
 thrown.
 </P><P>
 The main operation which can be done on a <CODE>batch_result</CODE> is
-to call <CODE>value()<CODE>, which will usually return the <CODE>OmMSet</CODE>
+to call <CODE>value()</CODE>, which will usually return the <CODE>OmMSet</CODE>
 associated with the relevant query.  If that query failed, however,
 <CODE>value()</CODE> will throw an exception of type <CODE>OmInvalidResultError</CODE>.  The validity of a result can also be determined by calling
 <CODE>is_valid()</CODE> to avoid an exception.
