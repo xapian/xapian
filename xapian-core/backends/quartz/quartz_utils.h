@@ -315,11 +315,9 @@ pack_string(string value)
 }
 
 /** Pack a string into a representation which preserves sort order.
- *  The string is split into chunks of N bytes, the last one padded
- *  with null bytes if needed.  Each chunk is followed by a byte
- *  containing a count of the number of bytes within that chunk which
- *  "count", ie aren't part of the padding.  The count has 64 added
- *  if this _isn't_ the last chunk.
+ *  We do this by replacing zero bytes in the string with a zero byte
+ *  followed by byte value 0xff, and then appending two zero bytes to
+ *  the end.
  */
 inline string
 pack_string_preserving_sort(string value)
