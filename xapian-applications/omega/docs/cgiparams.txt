@@ -83,17 +83,21 @@ COLLAPSE
 	removed from the mset ($value{$cgi{COLLAPSE}}) can be used to
 	access the actual value for each hit
 
-DAYSMINUS
-	filter on this number of days up to DATE1 (if present) or
-	now (if not)
+SPAN
+	filter on this number of days up to END (if set), or after
+	START (if set), or before today's date (otherwise).
+	
+START
+	start of date range (defaults to 1st January 1970).
 
-DATE1
-	end of date range if DAYSMINUS set; otherwise start of date
-	range (defaults to 1st January 1970)
+END
+	end of date range (defaults to today's date).
 
-DATE2
-	end of date range if DAYSMINUS not set (defaults to now)
-	DATE1 should not be larger (more recent) than DATE2
+	The old deprecated names are DATE1 (START), DATE2 (END), and
+	DAYSMINUS (SPAN) which for now are checked if the new variables
+	aren't present.  The semantics of DAYSMINUS are slightly different
+	- DAYSMINUS is always days before DATE1 or now (whereas SPAN is
+	days after START, before END, or before today's date).
 
 xFILTERS
 	used to spot when the filters have changed from the previous search.

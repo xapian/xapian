@@ -1,3 +1,11 @@
+Wed Apr 09 13:56:14 BST 2003  Olly Betts <olly@survex.com>
+
+	* omega.cc,query.cc,omega.h,docs/cgiparams.txt: Renamed DATE1, DATE2,
+	  and DAYSMINUS to the more meaningful START, END, and SPAN (NB SPAN
+	  is days before END, or after START, or before today - whereas
+	  SPAN was before *DATE1* or before today).  The old parameters names
+	  are supported (with the original semantics) for now.
+
 Wed Apr 09 13:44:28 BST 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Install docs in /usr/share/doc/omega to be FHS

@@ -334,25 +334,12 @@ run_query()
 	}
     }
 
-    if (!date1.empty() || !date2.empty() || !daysminus.empty()) {
-	int y1 = 1970, m1 = 1, d1 = 1;
-	if (!date1.empty()) {
-	    parse_date(date1, &y1, &m1, &d1);	
-	}
-	int y2, m2, d2;
-	if (!daysminus.empty()) {
-	    time_t end;
-	    if (date1.empty()) {
-		end = time(NULL);
-		struct tm *t = localtime(&end);
-		y2 = t->tm_year + 1900;
-		m2 = t->tm_mon + 1;
-		d2 = t->tm_mday;
-	    } else {
-		y2 = y1;
-		m2 = m1;
-		d2 = d1;
-		
+    if (!date_start.empty() || !date_end.empty() || !date_span.empty()) {
+	int y1, m1, d1, y2, m2, d2;
+	if (!date_span.empty()) {
+	    time_t secs = atoi(date_span.c_str()) * (24 * 60 * 60);
+	    if (!date_end.empty()) {
+		parse_date(date_end, &y2, &m2, &d2);
 		struct tm t;
 		t.tm_year = y2 - 1900;
 		t.tm_mon = m2 - 1;
@@ -360,22 +347,54 @@ run_query()
 		t.tm_hour = 12;
 		t.tm_min = t.tm_sec = 0;
 		t.tm_isdst = -1;
-
-		end = mktime(&t);
+		time_t then = mktime(&t) - secs;
+		struct tm *t2 = localtime(&then);
+		y1 = t2->tm_year + 1900;
+		m1 = t2->tm_mon + 1;
+		d1 = t2->tm_mday;
+	    } else if (!date_start.empty()) {
+		parse_date(date_start, &y1, &m1, &d1);	
+		struct tm t;
+		t.tm_year = y1 - 1900;
+		t.tm_mon = m1 - 1;
+		t.tm_mday = d1;
+		t.tm_hour = 12;
+		t.tm_min = t.tm_sec = 0;
+		t.tm_isdst = -1;
+		time_t end = mktime(&t) + secs;
+		struct tm *t2 = localtime(&end);
+		y2 = t2->tm_year + 1900;
+		m2 = t2->tm_mon + 1;
+		d2 = t2->tm_mday;
+	    } else {
+		time_t end = time(NULL);
+		struct tm *t = localtime(&end);
+		y2 = t->tm_year + 1900;
+		m2 = t->tm_mon + 1;
+		d2 = t->tm_mday;
+		time_t then = end - secs;
+		struct tm *t2 = localtime(&then);
+		y1 = t2->tm_year + 1900;
+		m1 = t2->tm_mon + 1;
+		d1 = t2->tm_mday;
 	    }
-	    time_t then = end - atoi(daysminus.c_str()) * 86400;
-	    struct tm *t = localtime(&then);
-	    y1 = t->tm_year + 1900;
-	    m1 = t->tm_mon + 1;
-	    d1 = t->tm_mday;
-	} else if (date2.empty()) {
-	    time_t now = time(NULL);
-	    struct tm *t = localtime(&now);
-	    y2 = t->tm_year + 1900;
-	    m2 = t->tm_mon + 1;
-	    d2 = t->tm_mday;
 	} else {
-	    parse_date(date2, &y2, &m2, &d2);
+	    if (date_start.empty()) {
+		y1 = 1970;
+		m1 = 1;
+		d1 = 1;
+	    } else {
+		parse_date(date_start, &y1, &m1, &d1);	
+	    }
+	    if (date_end.empty()) {
+		time_t now = time(NULL);
+		struct tm *t = localtime(&now);
+		y2 = t->tm_year + 1900;
+		m2 = t->tm_mon + 1;
+		d2 = t->tm_mday;
+	    } else {
+		parse_date(date_end, &y2, &m2, &d2);
+	    }
 	}
 
 	query = OmQuery(OmQuery::OP_FILTER,

@@ -4,7 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,7 +47,7 @@ OmRSet * rset;
 
 map<string, string> option;
 
-string date1, date2, daysminus;
+string date_start, date_end, date_span;
 
 const string default_dbname = "default";
 
@@ -116,9 +116,8 @@ map_dbname_to_dir(const string &dbname)
     return database_dir + dbname;
 }
 
-static int
-main2(int argc, char *argv[])
-{
+int main(int argc, char *argv[])
+try {
     read_config_file();
 
     string big_buf;
@@ -283,14 +282,28 @@ main2(int argc, char *argv[])
     }
 
     // date range filters
-    val = cgi_params.find("DATE1");
-    if (val != cgi_params.end()) date1 = val->second;
-    val = cgi_params.find("DATE2");
-    if (val != cgi_params.end()) date2 = val->second;
-    val = cgi_params.find("DAYSMINUS");
-    if (val != cgi_params.end()) daysminus = val->second;
+    val = cgi_params.find("START");
+    // DATE1 is the deprecated name - check for backward compatibility
+    if (val == cgi_params.end()) val = cgi_params.find("DATE1");
+    if (val != cgi_params.end()) date_start = val->second;
+    val = cgi_params.find("END");
+    // DATE2 is the deprecated name - check for backward compatibility
+    if (val == cgi_params.end()) val = cgi_params.find("DATE2");
+    if (val != cgi_params.end()) date_end = val->second;
+    val = cgi_params.find("SPAN");
+    // DAYSMINUS is the deprecated name - check for backward compatibility
+    if (val == cgi_params.end()) {
+	val = cgi_params.find("DAYSMINUS");
+	if (val != cgi_params.end()) {
+	    // Range used to be DAYSMINUS days before DATE1
+	    // Now it's SPAN days after START or before END
+	    date_end = date_start;
+	    date_start = "";
+	}
+    }
+    if (val != cgi_params.end()) date_span = val->second;
 
-    filters += date1 + filter_sep + date2 + filter_sep + daysminus
+    filters += date_start + filter_sep + date_end + filter_sep + date_span
 	+ (default_op == OmQuery::OP_AND ? 'A' : 'O');
 
     // collapsing
@@ -475,25 +488,12 @@ main2(int argc, char *argv[])
     } else if (!big_buf.empty()) {
 	make_log_entry("query", matches);
     }
-    return 0;
-}
-
-int main(int argc, char *argv[])
-{
-    try {
-	return main2(argc, argv);
-    }
-    catch (const OmError &e) {
-	cout << "Exception: " << e.get_msg() << endl;
-    }
-    catch (const string &s) {
-	cout << "Exception: " << s << endl;
-    }
-    catch (const char *s) {
-	cout << "Exception: " << s << endl;
-    }
-    catch (...) {
-	cout << "Caught unknown exception" << endl;
-    }
-    return 0;
+} catch (const OmError &e) {
+    cout << "Exception: " << e.get_msg() << endl;
+} catch (const string &s) {
+    cout << "Exception: " << s << endl;
+} catch (const char *s) {
+    cout << "Exception: " << s << endl;
+} catch (...) {
+    cout << "Caught unknown exception" << endl;
 }
