@@ -112,6 +112,9 @@ packaging:
 
 omega:
 
+* omega: $topdoc now ensures the match has been run; $date no longer ensures
+  the match has been run.
+
 * omega: Fixed to build with Sun's C++ compiler.
 
 Xapian 0.7.3 (2003-08-08):
