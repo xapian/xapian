@@ -1,3 +1,7 @@
+Wed Nov 28 15:43:33 2001  James Aylett  <tartarus@users.sourceforge.net>
+
+	* check for libxml2 and GNU getopt (fall back to POSIX getopt)
+
 Wed Nov 28 12:32:59 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 	* works again with very latest OmQuery

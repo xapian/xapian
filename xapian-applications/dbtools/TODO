@@ -2,4 +2,4 @@ TODO list for dbtools
 =====================
 
 * some tests? :-)
-* getopt, libxml (and libxml2 test) in configure
+* getopt in configure

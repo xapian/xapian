@@ -633,10 +633,11 @@ int main(int argc, char** argv)
 {
     // getopt
     char* optstring = "hvcg:";
-    struct option longopts[5];
     int longindex, getopt_ret;
     bool auto_create = false;
 
+#ifdef HAVE_GETOPT_LONG
+    struct option longopts[5];
     longopts[0].name = "help";
     longopts[0].has_arg = 0;
     longopts[0].flag = NULL;
@@ -660,14 +661,24 @@ int main(int argc, char** argv)
 
     while ((getopt_ret = getopt_long(argc, argv, optstring,
                                      longopts, &longindex))!=EOF) {
+#else
+    while ((getopt_ret = getopt(argc, argv, optstring))!=EOF) {
+#endif
         switch (getopt_ret) {
         case 'h':
             cout << "Usage: " << argv[0] << " [OPTION] FILE" << endl
 	         << endl << "Manage an Xapian database via XML files." << endl
+#ifdef HAVE_GETOPT_LONG
                  << "  -c, --auto-create\tcreate database if necessary" << endl
                  << "  -g, --generator\tdefault indexgraph generator file" << endl
                  << "  -h, --help\t\tdisplay this help and exit" << endl
                  << "  -v --version\t\toutput version and exit" << endl << endl
+#else
+                 << "  -c\t\tcreate database if necessary" << endl
+                 << "  -g\t\tdefault indexgraph generator file" << endl
+                 << "  -h\t\tdisplay this help and exit" << endl
+                 << "  -v\t\toutput version and exit" << endl << endl
+#endif
                  << "Report bugs via the web interface at:" << endl
                  << "<http://sourceforge.net/tracker/?func=add&group_id=35626&atid=414875>" << endl;
             return 0;
