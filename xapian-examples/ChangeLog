@@ -1,3 +1,8 @@
+Fri Feb  2 16:34:26 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Fix a reference to the old style of OmDocument::add_posting() - now
+	  uses add_term()
+
 Wed Jan 31 00:31:11 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add simplecreate to distributions.

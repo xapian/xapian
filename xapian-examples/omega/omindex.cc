@@ -247,7 +247,7 @@ index_file(const string &url, const string &mimetype)
     pos = index_text(title, newdocument, stemmer, pos);
     pos = index_text(dump, newdocument, stemmer, pos + 100);
     pos = index_text(keywords, newdocument, stemmer, pos + 100);
-    newdocument.add_posting("M" + mimetype);
+    newdocument.add_term("M" + mimetype);
 
     // Add the document to the database
     db->add_document(newdocument);
