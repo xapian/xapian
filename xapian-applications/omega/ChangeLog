@@ -1,3 +1,8 @@
+Wed Oct 30 02:02:32 GMT 2002  Olly Betts <olly@survex.com>
+
+	* omega.spec.in: Use bootstrap instead of buildall; don't use "-j4"
+	  with make - most people don't all have quad processor boxes!
+
 Wed Oct 30 01:56:31 GMT 2002  Olly Betts <olly@survex.com>
 
 	* buildall: Removed in favour of bootstrap script.
