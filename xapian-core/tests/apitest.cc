@@ -2114,8 +2114,6 @@ static bool test_near1()
     return true;
 }
 
-#if 0
-// This isn't implemented yet...
 /// Test NEAR over operators
 static bool test_near2()
 {
@@ -2128,32 +2126,44 @@ static bool test_near2()
     OmQuery q;
     subqs.push_back(OmQuery(OmQuery::OP_AND,
 			    OmQuery(stemmer.stem_word("phrase")),
-			    OmQuery(stemmer.stem_word("test"))));
-    subqs.push_back(OmQuery(stemmer.stem_word("near")));
+			    OmQuery(stemmer.stem_word("near"))));
+    subqs.push_back(OmQuery(stemmer.stem_word("and")));
     q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end(), 2);
     q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
     OmMSet mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset);
+    TEST_EXPECTED_DOCS(mymset, 1);
 
     subqs.clear();
     subqs.push_back(OmQuery(OmQuery::OP_AND,
 			    OmQuery(stemmer.stem_word("phrase")),
-			    OmQuery(stemmer.stem_word("operator"))));
-    subqs.push_back(OmQuery(stemmer.stem_word("near")));
+			    OmQuery(stemmer.stem_word("near"))));
+    subqs.push_back(OmQuery(stemmer.stem_word("operator")));
     q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end(), 2);
     q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
     mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 1, 2, 3);
+    TEST_EXPECTED_DOCS(mymset, 2);
+
+    subqs.clear();
+    subqs.push_back(OmQuery(stemmer.stem_word("operator")));
+    subqs.push_back(OmQuery(OmQuery::OP_AND,
+			    OmQuery(stemmer.stem_word("phrase")),
+			    OmQuery(stemmer.stem_word("near"))));
+    q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end(), 2);
+    q.set_bool(true);
+    enquire.set_query(q);
+
+    // retrieve the top ten results
+    mymset = enquire.get_mset(0, 10);
+    TEST_EXPECTED_DOCS(mymset, 2);
 
     return true;
 }
-#endif
 
 /// Simple test of PHRASE
 static bool test_phrase1()
@@ -2359,8 +2369,6 @@ static bool test_phrase1()
     return true;
 }
 
-#if 0
-// This isn't implemented yet...
 /// Test PHRASE over operators
 static bool test_phrase2()
 {
@@ -2373,8 +2381,8 @@ static bool test_phrase2()
     OmQuery q;
     subqs.push_back(OmQuery(OmQuery::OP_AND,
 			    OmQuery(stemmer.stem_word("phrase")),
-			    OmQuery(stemmer.stem_word("test"))));
-    subqs.push_back(OmQuery(stemmer.stem_word("near")));
+			    OmQuery(stemmer.stem_word("near"))));
+    subqs.push_back(OmQuery(stemmer.stem_word("and")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     q.set_bool(true);
     enquire.set_query(q);
@@ -2386,8 +2394,21 @@ static bool test_phrase2()
     subqs.clear();
     subqs.push_back(OmQuery(OmQuery::OP_AND,
 			    OmQuery(stemmer.stem_word("phrase")),
-			    OmQuery(stemmer.stem_word("operator"))));
-    subqs.push_back(OmQuery(stemmer.stem_word("near")));
+			    OmQuery(stemmer.stem_word("near"))));
+    subqs.push_back(OmQuery(stemmer.stem_word("operator")));
+    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 2);
+    q.set_bool(true);
+    enquire.set_query(q);
+
+    // retrieve the top ten results
+    mymset = enquire.get_mset(0, 10);
+    TEST_EXPECTED_DOCS(mymset, 2);
+
+    subqs.clear();
+    subqs.push_back(OmQuery(stemmer.stem_word("operator")));
+    subqs.push_back(OmQuery(OmQuery::OP_AND,
+			    OmQuery(stemmer.stem_word("phrase")),
+			    OmQuery(stemmer.stem_word("near"))));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     q.set_bool(true);
     enquire.set_query(q);
@@ -2396,22 +2417,8 @@ static bool test_phrase2()
     mymset = enquire.get_mset(0, 10);
     TEST_EXPECTED_DOCS(mymset);
 
-    subqs.clear();
-    subqs.push_back(OmQuery(stemmer.stem_word("near")));
-    subqs.push_back(OmQuery(OmQuery::OP_AND,
-			    OmQuery(stemmer.stem_word("phrase")),
-			    OmQuery(stemmer.stem_word("operator"))));
-    q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end(), 2);
-    q.set_bool(true);
-    enquire.set_query(q);
-
-    // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
-    TEST_EXPECTED_DOCS(mymset, 1, 2, 3);
-
     return true;
 }
-#endif
 
 /// Test the termfrequency and termweight info returned for query terms
 static bool test_qterminfo1()
@@ -2724,9 +2731,9 @@ test_desc db_tests[] = {
 /// The tests which need a backend which supports positional information
 test_desc positionaldb_tests[] = {
     {"near1",		   test_near1},
-//    {"near2",		   test_near2},
+    {"near2",		   test_near2},
     {"phrase1",		   test_phrase1},
-//    {"phrase2",		   test_phrase2},
+    {"phrase2",		   test_phrase2},
 };
 
 /// The tests which use a writable backend
