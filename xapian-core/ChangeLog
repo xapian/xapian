@@ -1,3 +1,10 @@
+Mon Jul 28 23:37:15 BST 2003  Olly Betts <olly@survex.com>
+
+	* testsuite/backendmanager.cc: Increased default timeout used by
+	  tests running on the remote backend from 10 seconds to 5 minutes
+	  to avoid tests failing just because the machine running them is
+	  slow and/or busy.
+
 Mon Jul 28 15:41:12 BST 2003  Olly Betts <olly@survex.com>
 
 	* testsuite/testutils.h: Fixed check for broken exception handling

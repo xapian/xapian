@@ -451,6 +451,7 @@ BackendManager::getdb_remote(const vector<string> &dbnames)
 {
     // run an omprogsrv for now.  Later we should also use omtcpsrv
     string args = datadir;
+    bool timeout = false;
     vector<string>::const_iterator i;
     for (i = dbnames.begin(); i != dbnames.end(); ++i) {
 	if (*i == "#TIMEOUT#") {
@@ -459,11 +460,15 @@ BackendManager::getdb_remote(const vector<string> &dbnames)
 		throw Xapian::InvalidArgumentError("Missing timeout parameter");
 	    }
 	    args += " -t" + *i;
+	    timeout = true;
 	} else {
 	    args += ' ';
 	    args += *i;
 	}
     }
+    // Nice long timeout (5 minutes) so we don't timeout just because
+    // the host is slow.
+    if (!timeout) args += " -t300000";
     return Xapian::Remote::open("../bin/omprogsrv", args);
 }
 
