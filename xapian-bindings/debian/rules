@@ -46,8 +46,8 @@ maintclean: clean
 
 debian/control: debian/rules debian/control.in debian/control-python.in
 	cat debian/control.in | \
-		sed 's/@PYTHON_VERSION_MAIN@/$(PYTHON_VERSION_MAIN)/g' | \
-		sed 's/@PYTHON_BUILD_DEPENDS@/$(PYTHON_BUILD_DEPENDS)/g' \
+		sed "s/@PYTHON_VERSION_MAIN@/$(PYTHON_VERSION_MAIN)/g" | \
+		sed "s/@PYTHON_BUILD_DEPENDS@/$(PYTHON_BUILD_DEPENDS)/g" \
 		> debian/control
 	for v in $(PYTHON_VERSIONS); do \
 		cat debian/control-python.in | \
