@@ -29,12 +29,14 @@
 
 #include "config.h"
 #include "omassert.h"
+#include "omstringstream.h"
 
 #ifdef MUS_DEBUG_VERBOSE
 #include <iostream>
 #include <fstream>
 #include <memory>
 #include <vector>
+#include <strstream.h>
 
 class OmLock;
 #include "omlocks.h"
@@ -155,7 +157,10 @@ extern OmDebug om_debug;
 #define DEBUGMSG(a,b) { \
     /*OmLockSentry sentry(*(om_debug.get_mutex()));*/ \
     if(om_debug.want_type(OM_DEBUG_##a)) { \
-	om_debug << OM_DEBUG_##a << b ; \
+	om_ostringstream os; \
+	os << b; \
+	OmLockSentry sentry(*(om_debug.get_mutex())); \
+	om_debug << OM_DEBUG_##a << os.str(); \
     } \
 }
 #else
@@ -163,11 +168,12 @@ extern OmDebug om_debug;
 #endif
 
 #ifdef HAVE_LIBPTHREAD
-#define DEBUGLINE(a,b) DEBUGMSG(a, "Om (Thread " << pthread_self() << \
-                                   "): " << b << endl)
-#else /* HAVE_LIBPTHREAD */
-#define DEBUGLINE(a,b) DEBUGMSG(a, "Om: " << b << endl)
-#endif /* HAVE_LIBPTHREAD */
+#define THREAD_INFO " (Thread " << pthread_self() << ")"
+#else // HAVE_LIBPTHREAD
+#define THREAD_INFO
+#endif // HAVE_LIBPTHREAD
+
+#define DEBUGLINE(a,b) DEBUGMSG(a, "Om" THREAD_INFO ": " << b << endl)
 
 #define DebugMsg(a) DEBUGMSG(UNKNOWN, a)
 

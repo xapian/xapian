@@ -1,3 +1,11 @@
+Fri Jun 30 16:04:19 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added an om_stringstream class as a simple implementation of 
+	  something like std::stringstream.
+
+	* Debug messages now have a finer-grain lock to avoid entangling
+	  of messages or deadlocks.
+
 Thu Jun 29 03:39:46 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix tests/Makefile.am so that internaltest links again.

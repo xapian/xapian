@@ -15,8 +15,8 @@ noinst_HEADERS = \
  omdatabaseinterface.h \
  netutils.h netserver.h progserver.h socketclient.h socketserver.h \
  socketcommon.h positionlist.h testsuite.h testutils.h tcpclient.h \
- tcpserver.h omerr_string.h omdebug.h omlinebuf.h
+ tcpserver.h omerr_string.h omdebug.h omlinebuf.h omstringstream.h
 
 noinst_LTLIBRARIES = libcommon.la
 
-libcommon_la_SOURCES = utils.cc omdebug.cc
+libcommon_la_SOURCES = utils.cc omdebug.cc omstringstream.cc
