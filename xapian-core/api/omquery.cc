@@ -725,10 +725,11 @@ OmQueryInternal::initialise_from_vector(
 		newsubqs.push_back(new OmQueryInternal(op, copy.begin(), copy.end(), window));
 	    }	    
 	    op = newop;
-	    for (j = subqs.begin(); j != subqs.end(); j++) {
+	    initialise_from_vector(newsubqs.begin(), newsubqs.end());
+	    for (j = newsubqs.begin(); j != newsubqs.end(); j++) {
 		delete *j;
 	    }
-	    subqs = newsubqs;
+	    return;
 	}
     }
 
