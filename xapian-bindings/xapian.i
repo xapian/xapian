@@ -7,7 +7,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2005 James Aylett
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -206,11 +206,18 @@ class Document {
     string get_data() const;
     void set_data(const string & data);
 
+#ifndef SWIGPHP4
     void add_posting(const string & tname, termpos tpos, termcount wdfinc=1);
     void add_term(const string & tname, termcount wdfinc = 1);
     // For compatibility with older code.
     void add_term_nopos(const string & tname, termcount wdfinc = 1);
     void remove_posting(const string & tname, termpos tpos, termcount wdfdec = 1);
+#else
+    void add_posting(const string & tname, termpos tpos);
+    void add_term(const string & tname);
+    void add_term_nopos(const string & tname);
+    void remove_posting(const string & tname, termpos tpos);
+#endif
     void remove_term(const string & tname);
     void clear_terms();
 
@@ -397,11 +404,17 @@ class Enquire {
     void set_weighting_scheme(const Weight& weight);
     void set_collapse_key(valueno collapse_key);
     void set_sort_forward(bool sort_forward);
+#ifndef SWIGPHP4
     void set_cutoff(int percent_cutoff, weight weight_cutoff = 0);
     void set_sorting(Xapian::valueno sort_key, int sort_bands,
 		     bool sort_by_relevance = false);
+#else
+    void set_cutoff(int percent_cutoff);
+    void set_sorting(Xapian::valueno sort_key, int sort_bands);
+#endif
     void set_bias(weight bias_weight, time_t bias_halflife);
 
+#ifndef SWIGPHP4
     MSet get_mset(doccount first,
 	    doccount maxitems,
 	    const RSet *omrset = 0,
@@ -413,6 +426,10 @@ class Enquire {
 	    int flags = 0, double k = 1.0,
 	    const ExpandDecider *edecider = 0) const;
     // FIXME wrap form without flags and k?
+#else
+    MSet get_mset(doccount first, doccount maxitems) const;
+    ESet get_eset(termcount maxitems, const RSet &omrset) const;
+#endif
 
     TermIterator get_matching_terms_begin(docid did) const;
     TermIterator get_matching_terms_end(docid did) const;
@@ -423,7 +440,9 @@ class Enquire {
     TermIterator get_matching_terms_begin(const MSetIterator& i) const;
     TermIterator get_matching_terms_end(const MSetIterator& i) const;
 
+#ifndef SWIGPHP4
     void register_match_decider(const std::string& name, const MatchDecider* mdecider=NULL);
+#endif
 
     %extend {
 	std::list<std::string>
@@ -625,8 +644,10 @@ namespace Quartz {
 #ifndef SWIGTCL
 #ifdef SWIGPHP4
     %rename(quartz_open_writable) open;
-#endif
+    WritableDatabase open(const std::string &dir, int action);
+#else
     WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
+#endif
 #endif
 }
 
@@ -642,8 +663,12 @@ namespace InMemory {
 namespace Remote {
     // FIXME: prog factory function not currently wrapped - is it useful?
     %rename(remote_open) open;
+#ifndef SWIGPHP4
     Database open(const std::string &host, unsigned int port,
 	timeout timeout = 10000, timeout connect_timeout = 0);
+#else
+    Database open(const std::string &host, unsigned int port);
+#endif
 }
 
 // xapian/query.h:
@@ -661,30 +686,32 @@ class Query {
 	    OP_PHRASE,
 	    OP_ELITE_SET
 	};
-	Query(const string &tname,
-		termcount wqf = 1,
-		termpos term_pos = 0);
-#ifdef SWIGPHP4
+#ifndef SWIGPHP4
+	Query(const string &tname, termcount wqf = 1, termpos term_pos = 0);
+#else
+	Query(const string &tname);
 	%rename(Query_from_query_pair) Query;
 #endif
 	Query(Query::op op_, const Query & left, const Query & right);
 #ifdef SWIGPHP4
 	%rename(Query_from_term_pair) Query;
 #endif
-	Query(Query::op op_, const std::string & left, const std::string & right);
+	Query(Query::op op_, const string & left, const string & right);
 #ifndef SWIGPHP4
 	Query(const Query& copyme);
         %extend {
-           /** Constructs a query from a vector of terms merged with the specified operator */
-	    Query(Query::op op,
-		  std::vector<std::string>* subqs,
-		  termpos parameter = 0) {
-		    Xapian::Query * query=new Xapian::Query(op, subqs->begin(),subqs->end(), parameter);
-		    return query;
+	    /** Constructs a query from a vector of terms merged with the
+	     *  specified operator */
+	    Query(Query::op op, vector<string> * subqs,
+		  termcount parameter = 0) {
+		return new Xapian::Query(op, subqs->begin(), subqs->end(),
+					 parameter);
 	    }
 	}
+#ifndef SWIGGUILE
 	/** Apply the specified operator to a single Xapian::Query object. */
 	Query(Query::op op_, Xapian::Query q);
+#endif
 #endif
 
 	/** Constructs a new empty query object */
@@ -711,6 +738,9 @@ class Query {
 #endif
 class Stopper {
 public:
+#if defined SWIGPHP4 || defined SWIGTCL || defined SWIGGUILE
+    %rename(apply) operator();
+#endif
     virtual bool operator()(const std::string & term) const = 0;
     virtual ~Stopper() { }
 };
@@ -736,7 +766,11 @@ public:
 #endif
     void set_stemmer(const Xapian::Stem & stemmer);
     void set_stemming_options(stem_strategy strategy);
+#ifndef SWIGPHP4
     void set_stopper(Stopper *stop = NULL);
+#else
+    void set_stopper(Stopper *stop);
+#endif
     void set_default_op(Query::op default_op_);
     Query::op get_default_op() const;
     void set_database(const Database &db_);

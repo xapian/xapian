@@ -38,7 +38,7 @@ $XAPIAN_VERSION.[[1-9]]*) ;;
     ;;
 esac
 
-SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags`"
+SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags` -Werror"
 AC_SUBST(SWIG_FLAGS)
 
 AC_ARG_WITH(swig,

@@ -1,3 +1,8 @@
+Tue Mar 29 13:39:36 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Pass -Werror to SWIG.
+	* xapian.i: Fix all the SWIG warnings which are now errors.
+
 Tue Mar 29 13:29:47 BST 2005  James Aylett  <james@tartarus.org>
 
 	* don't wrap MSet::max_size() as it's there for STL
