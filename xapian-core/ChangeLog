@@ -1,3 +1,9 @@
+Sat Nov 06 21:16:15 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,include/xapian/version.h.in: Fix generation of
+	  version.h to work with aCC -E which concatenates adjacent literal
+	  strings.
+
 Sat Nov 06 20:58:00 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/,testsuite/btreecheck.cc: Started to refactor the

@@ -577,7 +577,7 @@ rm -f $tmpfile
 ln -s $srcdir/include/xapian/version.h.in $tmpfile
 test -d include/xapian || mkdir include/xapian
 dnl Use @ around $VERSION so we get " in the final output
-$CXXCPP -DVERSION="@$VERSION@" -DMAJOR_VERSION="$MAJOR_VERSION" -DMINOR_VERSION="$MINOR_VERSION" -DREVISION="$REVISION" $tmpfile|sed 's/^ *//;/^#/d;/^$/d;s/"//g;s/@/"/g;s/  */ /g' > include/xapian/version.h.tmp
+$CXXCPP -DVERSION="@$VERSION@" -DMAJOR_VERSION="$MAJOR_VERSION" -DMINOR_VERSION="$MINOR_VERSION" -DREVISION="$REVISION" $tmpfile|sed 's/^ *//;/^#/d;/^$/d;s/"//g;s/@/"/g;s/  */ /g;s/N$//' > include/xapian/version.h.tmp
 rm -f $tmpfile
 if cmp include/xapian/version.h.tmp include/xapian/version.h >/dev/null 2>&1
 then
