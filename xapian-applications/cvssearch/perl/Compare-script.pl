@@ -17,6 +17,9 @@ my $ctrlB = chr(02);
 my $ctrlC = chr(03);
 my @class = ("class=\"e\"", "class=\"o\"");
 
+# prototypes
+sub compare_index();
+
 # ------------------------------------------------------------
 # path where all our files are stored.
 # ------------------------------------------------------------
@@ -88,7 +91,7 @@ sub compare_index() {
 # ------------------------------------------------------------
 # only the root parameter is given
 # ------------------------------------------------------------
-sub compare_root_index() {
+sub compare_root_index {
     my ($root) = @_;
     
     print "<html>\n";

@@ -30,9 +30,9 @@ $CVSROOTS = "$CVSDATA/CVSROOTS";
 $own = "./PatternBrowser.cgi"; # name of this script
 
 #---------------------------------------------
-# global mappigns defind in the script
+# global mappings defined in the script
 #---------------------------------------------
-# %dirMAProot - map root directory to cvsroot
+# UNUSED - %dirMAProot - map root directory to cvsroot
 # %modeMAPcommand - map modes like => to command line parameters =\> (escape pipping)
 # %modeMAPhtml - map mode to html presentation, e.g. => to =&gt;
 
@@ -86,7 +86,7 @@ print "<form action=$own><b>Select Repository: </b><select name=root>\n";
 open ROOTS, "< $CVSROOTS";
 while (<ROOTS>) {
 	($curroot, $curdir) = split /\s/, $_;
-	$dirMAProot{$curdir} = $curroot;
+	# UNUSED $dirMAProot{$curdir} = $curroot;
 	  
 	if(!$root){
 		$root = $curdir;

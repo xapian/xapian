@@ -106,7 +106,7 @@ print "</body></html>";
 #-----------------------------------
 sub highlightquery{
 	my ($words) = @_;
-	$words =~ s/($grepquery)/<b>\1<\/b>/ig;
+	$words =~ s!($grepquery)!<b>$1</b>!ig;
 	return $words;
 }
 

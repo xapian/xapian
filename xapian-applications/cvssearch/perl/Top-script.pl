@@ -31,7 +31,7 @@ if(param()){
   my $id = param("id");
   my $did = Cvssearch::encode($id);
   my $displayname = param("displayname");
-  my $displayname = Cvssearch::decode($displayname);
+  $displayname = Cvssearch::decode($displayname);
   my $query = "";
   my $cvsdata = Cvssearch::get_cvsdata();
   my %dirMAProot = Cvssearch::read_cvsroots($cvsdata);

@@ -16,7 +16,7 @@ $CVSDATA = &Cvssearch::get_cvsdata(); # path where database content file is stor
 $cvsmine = "./cvsminesearch";
 $num_query = "100"; # to get 100 matches
 $cvsquery = "./cvsquerydb";
-$own = "./QueryCommit.cgi"; # name of this script
+# UNUSED $own = "./QueryCommit.cgi"; # name of this script
 
 
 # control character separator
@@ -183,8 +183,7 @@ sub insertArray{
 		my $cur = $hash{$key};
 		push @$cur, $value;
 	}else{
-		push my @cur, $value;
-		$hash{$key} = \@cur;
+		$hash{$key} = [$value]; # anon array ref
 	}
 	return %hash;
 }
@@ -196,6 +195,6 @@ sub insertArray{
 #-----------------------------------
 sub highlightquery{
 	my ($words) = @_;
-	$words =~ s/($grepquery)/<b>\1<\/b>/ig;
+	$words =~ s!($grepquery)!<b>$1</b>!ig;
 	return $words;
 }

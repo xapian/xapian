@@ -256,6 +256,6 @@ sub toChar{
 #-----------------------------------
 sub highlightquery{
 	my ($words, $word) = @_;
-	$words =~ s/($word)/<b>\1<\/b>/ig;
+	$words =~ s!($word)!<b>$1</b>!ig;
 	return $words;
 }

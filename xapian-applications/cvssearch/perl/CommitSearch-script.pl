@@ -18,7 +18,7 @@ $cvsrelated = "./cvsrelatedsearch";
 $commit_num_query = "10000"; # to get 100 matches
 $related_num_query = "100";
 $cvsquery = "./cvsquerydb";
-$own = "./CommitSearch.cgi"; # name of this script
+# UNUSED: $own = "./CommitSearch.cgi"; # name of this script
 
 
 # control character separator
@@ -195,8 +195,7 @@ sub insertArray{
 		my $cur = $hash{$key};
 		push @$cur, $value;
 	}else{
-		push my @cur, $value;
-		$hash{$key} = \@cur;
+		$hash{$key} = [$value]; # anon list ref
 	}
 	return %hash;
 }
@@ -213,7 +212,7 @@ sub highlightquery{
 	    # don't highlight for now
 	  } else {
 
-	    $words =~ s/(^|[^a-zA-Z]+)($grepquery)/\1<b>\2<\/b>/ig;
+	    $words =~ s!(^|[^a-zA-Z]+)($grepquery)!$1<b>$2</b>!ig;
           }
 
 

@@ -710,8 +710,7 @@ sub insertArray{
 		my $cur = $hash{$key};
 		push @$cur, $value;
 	}else{
-		push my @cur, $value;
-		$hash{$key} = \@cur;
+		$hash{$key} = [$value]; # anon array ref
 	}
 	return %hash;
 }

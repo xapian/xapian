@@ -2,7 +2,7 @@
 
 use CGI qw(:standard);
 use strict;
-use cvssearch;
+use Cvssearch;
 
 my $cvsdata = &cvssearch::get_cvsdata();
 my $cvscompare = "./cvscompare.cgi";
@@ -15,6 +15,8 @@ my $ctrlC = chr(03);
 my @class;
 $class[0] = "class=\"e\"";
 $class[1] = "class=\"o\"";
+
+sub compare_index();
 
 # ------------------------------------------------------------
 # path where all our files are stored.
@@ -67,7 +69,7 @@ sub compare_index() {
     }
 }
 
-sub compare_root_index() {
+sub compare_root_index {
     my ($root) = @_;
 
     print "<html>\n";

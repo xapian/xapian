@@ -37,7 +37,8 @@ my $path;
 my @colors;
 my @revs;
 my $yesgrep;
-my $passparam;
+
+sub print_html();
 
 #-------------
 # start html
@@ -386,7 +387,7 @@ sub filename{
 #-----------------------------------
 sub highlightquery{
 	my ($words) = @_;
-	$words =~ s/($grepquery)/<b>\1<\/b>/ig;
+	$words =~ s!($grepquery)!<b>$1</b>!ig;
 	return $words;
 }
 
