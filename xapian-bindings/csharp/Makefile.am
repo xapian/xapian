@@ -38,7 +38,10 @@ XAPIAN_SWIG_CS_SRCS=\
 	$(ASSEMBLY)PINVOKE.cs \
 	$(ASSEMBLY).cs
 
-$(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs
+XapianSharp.snk:
+	sn -k $@
+
+$(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
 	$(CSC) --unsafe --target library -o $(ASSEMBLY).dll $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs
 
 BUILT_SOURCES = $(ASSEMBLY).cc $(XAPIAN_SWIG_CS_SRCS)
