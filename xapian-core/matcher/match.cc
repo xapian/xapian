@@ -89,7 +89,7 @@ bool msetcmp_reverse(const OMMSetItem &a, const OMMSetItem &b) {
 OMMatch::OMMatch(IRDatabase *_database)
 	: do_collapse(false),
 	  have_added_terms(false),
-	  query_ready(false)
+	  query(NULL)
 {
     database = _database;
     min_weight_percent = -1;
@@ -222,7 +222,11 @@ PostList *
 OMMatch::postlist_from_query(const OMQuery *qu)
 {
     PostList *pl = NULL;
-    Assert(!qu->isnull); // FIXME Throw exception, rather than assert
+
+    Assert(!qu->isnull); // This shouldn't happen, because we check the
+			 // top level of the query, and isnull should only
+			 // ever occur there.
+
     switch (qu->op) {
 	case OM_MOP_LEAF:
 	    // Make a postlist for a single term
@@ -279,7 +283,18 @@ OMMatch::postlist_from_query(const OMQuery *qu)
 void
 OMMatch::set_query(const OMQuery *qu)
 {
-    query.push(postlist_from_query(qu));
+    // Clear existing query
+    max_weight = 0;
+    if(query) {
+	delete query;
+	query = NULL;
+    }
+    
+    // Prepare query
+    if(!qu->isnull) {
+	query = postlist_from_query(qu);
+	max_weight = query->recalc_maxweight();
+    }
 }
 
 ///////////////////
@@ -292,22 +307,6 @@ void
 OMMatch::recalc_maxweight()
 {
     recalculate_maxweight = true;
-}
-
-// Prepare the query for running, if it isn't already ready
-PostList *
-OMMatch::build_query()
-{
-    if(!query_ready) {
-	query_ready = true;
-	max_weight = 0;
-
-	if (query.size() == 0) return NULL; // No query
-
-	Assert(query.size() == 1);
-	max_weight = query.top()->recalc_maxweight();
-    }
-    return query.top();
 }
 
 // This is the method which runs the query, generating the M set
@@ -323,10 +322,9 @@ OMMatch::match(doccount first, doccount maxitems,
     *mbound = 0;
     mset.clear();
 
-    PostList * merger = build_query();
-    if(merger == NULL) return;
+    if(query == NULL) return;
 
-    DebugMsg("match.match(" << merger->intro_term_description() << ")" << endl);
+    DebugMsg("match.match(" << query->intro_term_description() << ")" << endl);
 
     weight w_min = 0;
     if (min_weight_percent >= 0) w_min = min_weight_percent * max_weight / 100;
@@ -342,7 +340,7 @@ OMMatch::match(doccount first, doccount maxitems,
     while (1) {
 	if (recalculate_maxweight) {
 	    recalculate_maxweight = false;
-	    w_max = merger->recalc_maxweight();
+	    w_max = query->recalc_maxweight();
 	    DebugMsg("max possible doc weight = " << w_max << endl);
 	    if (w_max < w_min) {
 		DebugMsg("*** TERMINATING EARLY (1)" << endl);
@@ -350,17 +348,17 @@ OMMatch::match(doccount first, doccount maxitems,
 	    }
 	}    
 
-	PostList *ret = merger->next(w_min);
+	PostList *ret = query->next(w_min);
         if (ret) {
-	    delete merger;
-	    merger = ret;
+	    delete query;
+	    query = ret;
 
 	    DebugMsg("*** REPLACING ROOT" << endl);
 	    // no need for a full recalc (unless we've got to do one because
 	    // of a prune elsewhere) - we're just switching to a subtree
-	    w_max = merger->get_maxweight();
+	    w_max = query->get_maxweight();
 	    DebugMsg("max possible doc weight = " << w_max << endl);
-            AssertParanoid(recalculate_maxweight || fabs(w_max - merger->recalc_maxweight()) < 1e-9);
+            AssertParanoid(recalculate_maxweight || fabs(w_max - query->recalc_maxweight()) < 1e-9);
 
 	    if (w_max < w_min) {
 		DebugMsg("*** TERMINATING EARLY (2)" << endl);
@@ -368,14 +366,14 @@ OMMatch::match(doccount first, doccount maxitems,
 	    }
 	}
 
-	if (merger->at_end()) break;
+	if (query->at_end()) break;
 
         (*mbound)++;
 	
-        weight w = merger->get_weight();
+        weight w = query->get_weight();
         
         if (w > w_min) {
-	    docid did = merger->get_docid();
+	    docid did = query->get_docid();
 	    bool add_item = true;
 	    OMMSetItem mitem(w, did);
 
@@ -466,5 +464,6 @@ OMMatch::match(doccount first, doccount maxitems,
 	DebugMsg("max weight in mset = " << mset[0].wt <<
 		 ", min weight in mset = " << mset[mset.size() - 1].wt << endl);
     }
-    delete merger;
+    delete query;
+    query = NULL;
 }

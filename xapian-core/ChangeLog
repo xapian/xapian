@@ -1,3 +1,13 @@
+Mon Jan 31 17:00:18 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* OMMatch stores query in a pointer rather than the historical
+	  remnants of a stack.
+	  OMEnquire updated accordingly.
+
+	* OMEnquire deallocates RSet correctly.
+
+	* querygui example compiles and works.
+
 Fri Jan 28 16:44:49 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fixed problems with assigning to a query (old query elements were

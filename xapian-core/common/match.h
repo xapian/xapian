@@ -51,7 +51,7 @@ class OMMatch
         int min_weight_percent;
         weight max_weight;
 
-	stack<PostList *> query;
+	PostList * query;
 	vector<IRWeight *> weights;
 
 	RSet *rset;         // RSet to be used (affects weightings)
@@ -61,9 +61,6 @@ class OMMatch
 
 	bool have_added_terms;
         bool recalculate_maxweight;
-
-	bool query_ready; 
-	PostList * build_query();
 
 	// Make a postlist from a query object
 	PostList * postlist_from_query(const OMQuery *);
@@ -158,7 +155,7 @@ inline void
 OMMatch::set_rset(RSet *new_rset)
 {
     Assert(!have_added_terms);
-    query_ready = false;
+    Assert(query == NULL);
     rset = new_rset;
 }
 
@@ -171,7 +168,6 @@ OMMatch::set_min_weight_percent(int pcent)
 inline weight
 OMMatch::get_max_weight()
 {
-    (void) build_query();
     return max_weight;
 }
 

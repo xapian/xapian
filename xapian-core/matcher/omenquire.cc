@@ -429,8 +429,9 @@ OMEnquireInternal::get_mset(OMMSet &mset,
     OMMatch match(database);
 
     // Set Rset
+    RSet *rset = NULL;
     if(omrset.items.size() != 0) {
-	RSet *rset = new RSet(database, omrset);
+	rset = new RSet(database, omrset);
 	match.set_rset(rset);
     }
 
@@ -447,6 +448,9 @@ OMEnquireInternal::get_mset(OMMSet &mset,
 
     // Get max weight for an item in the MSet
     mset.max_weight = match.get_max_weight();
+
+    // Clear up
+    delete rset;
 }
 
 ////////////////////////////////////////////
