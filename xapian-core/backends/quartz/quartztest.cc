@@ -1175,6 +1175,140 @@ static bool test_postlist1()
     return true;
 }
 
+/// Test playing with a postlist
+static bool test_postlist2()
+{
+    OmSettings settings;
+    system("rm -fr .testdb_postlist2");
+    system("mkdir .testdb_postlist2");
+    settings.set("quartz_dir", ".testdb_postlist2");
+    settings.set("quartz_logfile", "log_postlist2");
+    settings.set("backend", "quartz");
+    RefCntPtr<Database> database_w = DatabaseBuilder::create(settings, false);
+
+    QuartzDiskTable disktable(".testdb_postlist2/postlist_", false, 8192);
+    disktable.open();
+    QuartzBufferedTable bufftable(&disktable);
+    QuartzTable * table = &bufftable;
+    QuartzDiskTable positiontable(".testdb_postlist2/position_", false, 8192);
+
+    {
+	QuartzPostList pl2(database_w, table, &positiontable, "foo");
+	TEST_EQUAL(pl2.get_termfreq(), 0);
+	pl2.next(0);
+	TEST(pl2.at_end());
+    }
+
+
+    vector<unsigned int> testdata;
+    unsigned int pos = 0;
+    srand(17);
+    for (unsigned int i = 10000; i > 0; i--) {
+	pos += (unsigned int)(10.0*rand()/(RAND_MAX+1.0)) + 1;
+	testdata.push_back(pos);
+    }
+    for (vector<unsigned int>::const_iterator i2 = testdata.begin();
+	 i2 != testdata.end(); i2++) {
+	QuartzPostList::add_entry(&bufftable, "foo",
+				  *i2, (*i2) % 5 + 1, (*i2) % 7 + 1);
+    }
+    bufftable.apply(disktable.get_latest_revision_number() + 1);
+
+    {
+	QuartzPostList pl2(database_w, table, &positiontable, "foo");
+	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
+	pl2.next(0);
+	vector<unsigned int>::const_iterator i3 = testdata.begin();
+
+	while(!pl2.at_end()) {
+	    TEST_EQUAL(pl2.get_docid(), *i3);
+	    TEST_EQUAL(pl2.get_wdf(), (*i3) % 5 + 1);
+	    TEST_EQUAL(pl2.get_doclength(), (*i3) % 7 + 1);
+
+	    pl2.next(0);
+	    i3++;
+	}
+	TEST(i3 == testdata.end());
+	TEST(pl2.at_end());
+    }
+    {
+	QuartzPostList pl2(database_w, table, &positiontable, "foo");
+	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
+	pl2.next(0);
+	vector<unsigned int>::const_iterator i3 = testdata.begin();
+
+	while(!pl2.at_end()) {
+	    TEST_EQUAL(pl2.get_docid(), *i3);
+	    TEST_EQUAL(pl2.get_wdf(), (*i3) % 5 + 1);
+	    TEST_EQUAL(pl2.get_doclength(), (*i3) % 7 + 1);
+
+	    pl2.skip_to(*i3 - 1, 0);
+	    TEST_EQUAL(pl2.get_docid(), *i3);
+	    TEST_EQUAL(pl2.get_wdf(), (*i3) % 5 + 1);
+	    TEST_EQUAL(pl2.get_doclength(), (*i3) % 7 + 1);
+
+	    pl2.skip_to(*i3, 0);
+	    TEST_EQUAL(pl2.get_docid(), *i3);
+	    TEST_EQUAL(pl2.get_wdf(), (*i3) % 5 + 1);
+	    TEST_EQUAL(pl2.get_doclength(), (*i3) % 7 + 1);
+
+	    i3++;
+	    if (i3 == testdata.end()) {
+		pl2.skip_to(1000000000, 0);
+	    } else {
+		pl2.skip_to(*i3, 0);
+	    }
+	}
+	TEST(i3 == testdata.end());
+	TEST(pl2.at_end());
+    }
+    {
+	QuartzPostList pl2(database_w, table, &positiontable, "foo");
+	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
+	pl2.next(0);
+	vector<unsigned int>::const_iterator i3 = testdata.begin();
+
+	while(!pl2.at_end()) {
+	    TEST_EQUAL(pl2.get_docid(), *i3);
+	    TEST_EQUAL(pl2.get_wdf(), (*i3) % 5 + 1);
+	    TEST_EQUAL(pl2.get_doclength(), (*i3) % 7 + 1);
+
+	    pl2.skip_to(*i3 + 1, 0);
+	    i3++;
+	}
+	TEST(i3 == testdata.end());
+	TEST(pl2.at_end());
+    }
+    {
+	QuartzPostList pl2(database_w, table, &positiontable, "foo");
+	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
+	vector<unsigned int>::const_iterator i3 = testdata.begin();
+
+	while(!pl2.at_end()) {
+	    while (i3 != testdata.end()) {
+		if ((unsigned int)(10.0*rand()/(RAND_MAX+1.0)) == 1) break;
+		i3++;
+	    }
+	    if (i3 == testdata.end()) {
+		break;
+	    }
+	    pl2.skip_to(*i3 + 1, 0);
+	    i3++;
+	    if (i3 == testdata.end()) {
+		TEST(pl2.at_end());
+		break;
+	    } else {
+		TEST_EQUAL(pl2.get_docid(), *i3);
+		TEST_EQUAL(pl2.get_wdf(), (*i3) % 5 + 1);
+		TEST_EQUAL(pl2.get_doclength(), (*i3) % 7 + 1);
+	    }
+	}
+	TEST(i3 == testdata.end());
+    }
+
+    return true;
+}
+
 /// Test playing with a positionlist, testing skip_to in particular.
 static bool test_positionlist1()
 {
@@ -1269,6 +1403,7 @@ test_desc tests[] = {
     {"quartzunpackint1",	test_unpackint1},
     {"quartzbtree1",		test_btree1},
     {"quartzpostlist1",		test_postlist1},
+    {"quartzpostlist2",		test_postlist2},
     {"quartzpositionlist1",	test_positionlist1},
     {0, 0}
 };
