@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "proto_database.h"
 #include "match.h"
 
