@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -171,10 +172,9 @@ int sys_read_bytes(int h, int n, byte * p)
     return true;
 }
 
-string sys_read_all_bytes(int h, size_t max)
+string sys_read_all_bytes(int h, size_t bytes_to_read)
 {
     ssize_t bytes_read;
-    size_t bytes_to_read = max;
     string retval;
     while (1) {
 	char buf[1024];
@@ -772,8 +772,7 @@ Btree::enter_key(struct Cursor * C_, int j, byte * prevkey, byte * newkey)
 here:
      */
     /*
-       if (j > 1)
-       {
+       if (j > 1) {
 	   int newkey_len = GETK(newkey, 0);
 	   int n = get_int4(newkey, newkey_len);
 	   int new_total_free = TOTAL_FREE(p) + (newkey_len - K1);
@@ -807,12 +806,11 @@ Btree::split_off(struct Cursor * C_, int j, int c, byte * p, byte * q)
     SET_DIR_END(q, c);
     compress(q);      /* to reset TOTAL_FREE, MAX_FREE */
 
-    {
-	int residue = DIR_END(p) - c;
-        int new_dir_end = DIR_START + residue;
-        memmove(p + DIR_START, p + c, residue);
-        SET_DIR_END(p, new_dir_end);
-    }
+    int residue = DIR_END(p) - c;
+    int new_dir_end = DIR_START + residue;
+    memmove(p + DIR_START, p + c, residue);
+    SET_DIR_END(p, new_dir_end);
+
     compress(p);      /* to reset TOTAL_FREE, MAX_FREE */
 }
 
@@ -868,11 +866,10 @@ Btree::add_item_to_block(byte * p, byte * kt, int c)
     memmove(p + c + D2, p + c, dir_end - c);
     dir_end += D2;
     SET_DIR_END(p, dir_end);
-    {
-	int o = dir_end + new_max;
-        SETD(p, c, o);
-        memmove(p + o, kt, kt_len);
-    }
+
+    int o = dir_end + new_max;
+    SETD(p, c, o);
+    memmove(p + o, kt, kt_len);
 
     SET_MAX_FREE(p, new_max);
 
@@ -1246,7 +1243,10 @@ Btree::delete_(byte * key, int key_len)
 
 	if (overwritten) return 0;
     }
-    if (n > 0) { item_count--; return 1; }
+    if (n > 0) {
+	item_count--;
+	return 1;
+    }
     return 0;
 }
 
@@ -1583,8 +1583,8 @@ Btree::do_open_to_write(const char * name_,
 	if (C[j].split_p == 0) {
 	    throw std::bad_alloc();
 	}
-	read_root();
     }
+    read_root();
 
     buffer = zeroed_new(block_size);
     if (buffer == 0) {

@@ -1,3 +1,8 @@
+Mon Jun 10 01:57:53 BST 2002  Olly Betts <olly@survex.com>
+
+	* More btree fixes and tidying.  Fixed bug introduced by typo in
+	  previous change which causes tests to fail.
+
 Sun Jun 09 17:50:28 BST 2002  Olly Betts <olly@survex.com>
 
 	* btree_util.h: use inlines rather than macros.

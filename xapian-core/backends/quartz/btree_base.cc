@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +28,7 @@
 #include "om/omerror.h"
 #include "omassert.h"
 #include <errno.h>
+using namespace std;
 
 /************ Base file parameters ************/
 
@@ -74,7 +76,7 @@ Btree_base::Btree_base()
 {
 }
 
-Btree_base::Btree_base(const std::string &name_, char ch)
+Btree_base::Btree_base(const string &name_, char ch)
 	: revision(0),
 	  block_size(0),
 	  root(0),
@@ -85,7 +87,7 @@ Btree_base::Btree_base(const std::string &name_, char ch)
 	  have_fakeroot(false),
 	  sequential(false)
 {
-    std::string err_msg;
+    string err_msg;
     if (!read(name_, ch, err_msg)) {
 	throw OmOpeningError(err_msg);
     }
@@ -109,8 +111,8 @@ Btree_base::Btree_base(const Btree_base &other)
 	bit_map0 = new byte[bit_map_size];
 	bit_map = new byte[bit_map_size];
 
-	memmove(bit_map0, other.bit_map0, bit_map_size);
-	memmove(bit_map, other.bit_map, bit_map_size);
+	memcpy(bit_map0, other.bit_map0, bit_map_size);
+	memcpy(bit_map, other.bit_map, bit_map_size);
     } catch (...) {
 	delete [] bit_map0;
 	delete [] bit_map;
@@ -144,13 +146,13 @@ Btree_base::~Btree_base()
 
 bool
 Btree_base::do_unpack_uint(const char **start, const char *end,
-			   uint4 *dest, std::string &err_msg, 
-			   const std::string &basename,
+			   uint4 *dest, string &err_msg, 
+			   const string &basename,
 			   const char *varname)
 {
     bool result = unpack_uint(start, end, dest);
     if (!result) {
-	err_msg += "Unable to read " + std::string(varname) + " from " +
+	err_msg += "Unable to read " + string(varname) + " from " +
 		    basename + "\n";
     }
     return result;
@@ -158,8 +160,8 @@ Btree_base::do_unpack_uint(const char **start, const char *end,
 
 bool
 Btree_base::do_unpack_int(const char **start, const char *end,
-			   int4 *dest, std::string &err_msg, 
-			   const std::string &basename,
+			   int4 *dest, string &err_msg, 
+			   const string &basename,
 			   const char *varname)
 {
     return do_unpack_uint(start, end, reinterpret_cast<uint4 *>(dest),
@@ -188,9 +190,9 @@ do { \
 #define REASONABLE_BASE_SIZE 1024
 
 bool
-Btree_base::read(const std::string & name, char ch, std::string &err_msg)
+Btree_base::read(const string & name, char ch, string &err_msg)
 {
-    std::string basename = name + "base" + ch;
+    string basename = name + "base" + ch;
     int h = sys_open_to_read_no_except(basename);
     fdcloser closefd(h);
     if ( ! valid_handle(h)) {
@@ -198,7 +200,7 @@ Btree_base::read(const std::string & name, char ch, std::string &err_msg)
 		": " + strerror(errno) + "\n";
 	return false;
     }
-    std::string buf(sys_read_all_bytes(h, REASONABLE_BASE_SIZE));
+    string buf(sys_read_all_bytes(h, REASONABLE_BASE_SIZE));
 
     const char *start = buf.data();
     const char *end = start + buf.length();
@@ -268,8 +270,8 @@ Btree_base::read(const std::string & name, char ch, std::string &err_msg)
 
     bit_map0 = new byte[bit_map_size];
     bit_map = new byte[bit_map_size];
-    memmove(bit_map0, start, bit_map_size);
-    memmove(bit_map, bit_map0, bit_map_size);
+    memcpy(bit_map0, start, bit_map_size);
+    memcpy(bit_map, bit_map0, bit_map_size);
     start += bit_map_size;
 
     uint4 revision3;
@@ -391,11 +393,11 @@ Btree_base::set_sequential(bool sequential_)
 }
 
 void
-Btree_base::write_to_file(const std::string &filename)
+Btree_base::write_to_file(const string &filename)
 {
     calculate_last_block();
 
-    std::string buf;
+    string buf;
     buf += pack_uint(revision);
     buf += pack_uint(CURR_FORMAT);
     buf += pack_uint(block_size);
@@ -468,14 +470,11 @@ Btree_base::extend_bit_map()
 	new_bit_map0 = new byte[n];
 	new_bit_map = new byte[n];
 
-	memmove(new_bit_map0, bit_map0, bit_map_size);
-	memmove(new_bit_map, bit_map, bit_map_size);
-
-        for (int i = bit_map_size; i < n; i++)
-        {
-	    new_bit_map0[i] = 0;
-            new_bit_map[i] = 0;
-        }
+	memcpy(new_bit_map0, bit_map0, bit_map_size);
+	memset(new_bit_map0 + bit_map_size, 0, n - bit_map_size);
+	
+	memcpy(new_bit_map, bit_map, bit_map_size);
+	memset(new_bit_map + bit_map_size, 0, n - bit_map_size);
     } catch (...) {
 	delete [] new_bit_map0;
 	delete [] new_bit_map;
@@ -568,7 +567,5 @@ Btree_base::is_empty() const
 void
 Btree_base::clear_bit_map()
 {
-    for (int i=0; i<bit_map_size; ++i) {
-	bit_map[i] = 0;
-    }
+    memset(bit_map, 0, bit_map_size);
 }

@@ -80,10 +80,11 @@
 
 #endif
 
-// CompiletimeAssert(foo); takes a constant integral expression and causes
+// CompileTimeAssert(expr); takes a constant expression, expr, and causes
 // a compile-time error if false.  Must be used within a function, not at
 // the top level (this is because we can't encode the filename, only
-// the linenumber, so we can't avoid the risk of collision at the top level)
+// the linenumber, so we can't avoid the risk of collisions between
+// uses at the same line in different header files at the top level)
 
 #define CompileTimeAssert(EXPR)\
  do{int CompileTimeCheck[(EXPR)?1:-1];(void)CompileTimeCheck;}while(0)
