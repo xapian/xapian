@@ -22,6 +22,8 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
+
 #include <algorithm>
 using std::find;
 using std::find_if;

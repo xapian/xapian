@@ -1,3 +1,10 @@
+Thu Sep 16 00:57:13 BST 2004  Olly Betts <olly@survex.com>
+
+	* cgiparam.cc,configfile.cc,configfile.h,htmlparse.cc,indextext.cc,
+	  omega.cc,omindex-config.cc: All C++ sources should #include
+	  <config.h> as the first header; no header files should #include
+	  <config.h>.
+
 Thu Sep 16 00:54:31 BST 2004  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: --version now actually reports the version.  --help

@@ -25,7 +25,6 @@
 #ifndef HGUARD_OMEGA_CONFIGFILE
 #define HGUARD_OMEGA_CONFIGFILE
 
-#include <config.h>
 #include <string>
 using std::string;
 

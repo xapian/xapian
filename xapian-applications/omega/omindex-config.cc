@@ -20,6 +20,8 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
+
 #include <string>
 #include <map>
 #include <fstream>

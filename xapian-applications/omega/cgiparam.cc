@@ -23,6 +23,8 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
+
 #include <stdio.h>
 #include <limits.h>
 #include <map>

@@ -22,6 +22,8 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
+
 #include "indextext.h"
 
 #include "symboltab.h"

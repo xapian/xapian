@@ -22,6 +22,8 @@
  * -----END-LICENCE-----
  */
 
+#include <config.h>
+
 #include <fstream>
 #include <iostream>
 using std::ifstream;
