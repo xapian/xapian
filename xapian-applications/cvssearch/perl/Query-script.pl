@@ -100,13 +100,13 @@ print "<OPTION>$all</OPTION>\n";
 
 open ROOTS, "< $CVSROOTS" or die "can't open cvsroots";
 while (<ROOTS>) {
-		($curroot, $curdir) = split /\s/, $_;
-		$dirMAProot{$curdir} = $curroot;
-		print "<OPTION";
-		if ($root eq $curdir){
-			print " selected";
-		}
-		print " value=$curdir>$curroot</OPTION>\n";
+  ($curroot, $curdir) = split /\s/, $_;
+  $dirMAProot{$curdir} = $curroot;
+  print "<OPTION";
+  if ($root eq $curdir){
+    print " selected";
+  }
+  print " value=$curdir>$curroot</OPTION>\n";
 }
 close ROOTS;
 

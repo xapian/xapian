@@ -111,7 +111,7 @@ sub read_root_dir {
             }
             close(CVSROOTS);
         }
-
+        
         # ----------------------------------------
         # lets try to create that directory if not
         # previously existed
@@ -136,7 +136,7 @@ sub read_root_dir {
             # ----------------------------------------
             $root_dir = "root$j";
             mk_root_dir($root_dir, $cvsdata);
-
+            
             # ----------------------------------------
             # write to CVSROOTS
             # ----------------------------------------
@@ -175,8 +175,8 @@ sub encode{
 
 sub decode{
 	my ($string) = @_;
-	$string =~ tr/+/ /; #pluses become spaces
-	$string =~ s/%(..)/pack('c',hex($1))/ge;
+	$string =~ tr/+/ /; #pluses become spaces 
+      $string =~ s/%(..)/pack('c',hex($1))/ge;
 	return $string;
 }
 
@@ -211,14 +211,14 @@ sub findfile{
 sub get_color {
     my ($val, $max_val) = @_;
     my $ratio = $val/$max_val;
-  
+    
     # ----------------------------------------
     # change color here.. darkest color
     # ----------------------------------------
     my $max_color_red   = 255;
     my $max_color_blue  = 0;
     my $max_color_green = 232;
-
+    
     # ----------------------------------------
     # change color here.. lightest color
     # ----------------------------------------
@@ -229,8 +229,8 @@ sub get_color {
     my $distance_red   = $max_color_red   - $min_color_red;
     my $distance_blue  = $max_color_blue  - $min_color_blue;
     my $distance_green = $max_color_green - $min_color_green;
-
-
+    
+    
     my $r = $min_color_red  + $ratio * $distance_red;
     my $g = $min_color_green+ $ratio * $distance_green;
     my $b = $min_color_blue + $ratio * $distance_blue;
@@ -245,7 +245,7 @@ sub cvs_stat {
     my %authors;
     my @authors;
     my $word_count;
-
+    
     if ($pkg ne "") {
         chdir $path || die "cannot change directory to $path: $!";
         open (ChangeLog, "$pwd/cvs2cl --stdout --xml $pkg 2>/dev/null|");
@@ -281,8 +281,8 @@ sub code_comment_counter {
     my $line = "";
     my $temp = "";
     my $word_count = 0;
-
-
+    
+    
     my ($file) = @_;
     if (-e "$file") {
         open (MYFILE, "<$file");
@@ -297,7 +297,7 @@ sub code_comment_counter {
             $temp .= " ";
         }
         close(MYFILE);
-        while ($temp =~ s#(/\*(.*?)\*/)##) {
+        while ($temp =~ s#(/\*(.*?)\*/)##) { 
                my @words = split(/\s/, $1);
                $word_count += $#words;
            }
@@ -335,7 +335,7 @@ sub cvsupdatedb {
     $path = "$cvsdata/$root/$filename";
     
     if(-d "$cvsdata/$root") {
-        if($flag eq "-r"){ # remove database
+        if($flag eq "-r"){      # remove database
             my @files;
             if (-e $path) {
                 # ----------------------------------------
@@ -364,7 +364,7 @@ sub cvsupdatedb {
             
             if($bestmatches){
                 $output .= $bestmatches;
-            }else{ #find everything below it
+            }else{              #find everything below it
                 if ($filepath eq ".") {
                     # ----------------------------------------
                     # whole repository
@@ -425,8 +425,7 @@ size=-1>$left&nbsp; </FONT></TD>
 <TD noWrap align=right bgColor=#3366cc><FONT face=arial,sans-serif color=white 
 size=-1>$right</FONT></TD></TR></TBODY></TABLE>
 _HTML_
-
-return $header;
+    return $header;
 }
 
 sub getSpectrum{
@@ -437,7 +436,7 @@ sub getSpectrum{
     if ($num == 0) {
         return;
     }
-
+    
 	my $step = (255*6)/$num;
 	for($i=0;$i<$num;$i++){
 		$curstep = $step*$i;
@@ -476,7 +475,7 @@ sub getSpectrum{
 			$b=0;
 		}
     	$curcolor = sprintf("#%2.2X%2.2X%2.2X",$r,$g,$b);
-
+        
 		push @colors, $curcolor;
 	}
 	return @colors;
@@ -485,23 +484,22 @@ sub getSpectrum{
 ### This function will be passed to the standard
 ### perl sort function for sort the cvs versions.
 ### ie. 1.10 is later than l.9
-sub cmp_cvs_version
-  {
-      my $first = $_[0];
-      my $second = $_[1];
-      
-      my @first = split(/\./, $first);
-      my @second = split(/\./, $second);
-      
-      my $size = $#first;
-      $size = $#second if ($#first > $#second); 
-      
-      for (my $i=0; $i<=$size; $i++) {
-          if ($first[$i]>$second[$i]) {
-              return 1;
-          } elsif ($first[$i]<$second[$i]) {
-              return -1;
-          } else {
+sub cmp_cvs_version {
+    my $first = $_[0];
+    my $second = $_[1];
+    
+    my @first = split(/\./, $first);
+    my @second = split(/\./, $second);
+    
+    my $size = $#first;
+    $size = $#second if ($#first > $#second); 
+    
+    for (my $i=0; $i<=$size; $i++) {
+        if ($first[$i]>$second[$i]) {
+            return 1;
+        } elsif ($first[$i]<$second[$i]) {
+            return -1;
+        } else {
             next;
         }
     }

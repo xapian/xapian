@@ -41,21 +41,21 @@ print "</header>\n<body>\n";
 # Parse Parameters
 #----------------------------------------
 if(param()){
-	$dump = param("dump");
-	$id = param("id");
-	$id = Cvssearch::decode($id);
-	
-	$found = Cvssearch::findfile($dump,$id);
-	if (!$found){
-		&error("Page expired");
-	}
-	@entries = split /\n/, $found;
-	shift @entries;#query
-	shift @entries;#stemquery
-	$grepquery = shift @entries;
-	shift @entries; #id
+    $dump = param("dump");
+    $id = param("id");
+    $id = Cvssearch::decode($id);
+    
+    $found = Cvssearch::findfile($dump,$id);
+    if (!$found){
+        &error("Page expired");
+    }
+    @entries = split /\n/, $found;
+	shift @entries;             #query
+    shift @entries;             #stemquery
+    $grepquery = shift @entries;
+	shift @entries;             #id
 	$path = shift @entries;
-	shift @entries; #revs
+	shift @entries;             #revs
 	
 	#go through each line entry
 	foreach (@entries){
@@ -71,7 +71,7 @@ if(param()){
 	print "<table cellSpacing=0 cellPadding=0 width=100% border=0>";
 	@file = `cat $path`;
 	#print @file;
-	$i=1; #line index
+	$i=1;                       #line index
 	foreach(@file){
 		s/\n//g;
 		$line = $_;
@@ -96,11 +96,11 @@ if(param()){
 	print "</table>";	
 	
 	#print an empty page so html can scroll to the last line
-#	print "<pre>";
-#	for($j=0;$j<60;$j++){
-#		print "\n";	
-#	}
-#	print "</pre>";
+    #	print "<pre>";
+    #	for($j=0;$j<60;$j++){
+    #		print "\n";	
+    #	}
+    #	print "</pre>";
 }
 
 print "</body></html>";
