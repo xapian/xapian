@@ -1,3 +1,7 @@
+Mon Sep 11 14:57:42 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Stopped OmDatabase::postlist_{begin,end} from being virtual.
+
 Mon Sep 11 14:00:04 BST 2000 Olly Betts
 
 	* Added .daflimsy, .db, and .dbflimsy to .cvsignore.
