@@ -1,3 +1,26 @@
+/* parsequerytest.cc: tests for parsequery.yy
+ *
+ * ----START-LICENCE----
+ * Copyright 2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ * -----END-LICENCE-----
+ */
+
 #include "parsequery.h"
 #include <strstream.h>
 
@@ -35,9 +58,9 @@ main(int argc, char **argv)
 	if (buf == expect) {
 	    succeed++;
 	} else {
-	    cout << "Query:\t`" << p->query << "'\n";
-	    cout << "Expected:\t`" << expect << "'\n";	    
-	    cout << "Got:\t\t`" << buf << "'\n";
+	    std::cout << "Query:\t`" << p->query << "'\n";
+	    std::cout << "Expected:\t`" << expect << "'\n";
+	    std::cout << "Got:\t\t`" << buf << std::endl;
 	    fail++;
 	}
 	p++;
