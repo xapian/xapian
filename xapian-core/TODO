@@ -20,9 +20,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Urgent  | Chris           | Juggle
 ---------+-----------------+--------------------------------------------------
- High    | Stemming        | Make a separate package to contain stemming
-         | Algorithms      | algorithm stuff (docs, code, stemtest)
----------+-----------------+--------------------------------------------------
  High    | Muscat36 Backend| Protect open_post_list() from concurrent access
          |                 | (might currently end up with a divorced D[AB]term
 	 |                 | object).
@@ -65,9 +62,6 @@ Priority | Area            | Task
          |                 | multidatabase object if get_multi_database() is
 	 |                 | called repeatedly without calling add_database()
 	 |                 | in-between.
----------+-----------------+--------------------------------------------------
- Low     | Purify          | Write autoconf macro to turn on purify support.
-         |                 | Submit to http://peti.cys.de/autoconf-archive/
 ---------+-----------------+--------------------------------------------------
  Medium  | Options         | Make an OmOptions object, storing a map of
          |                 | option strings to their values.  Use for things
@@ -143,6 +137,12 @@ Priority | Area            | Task
  Medium  | Matchers        | Deprecate get_max_weight() - not useful
          |                 | independently of get_mset(), which now returns
 	 |                 | its value.
+---------+-----------------+--------------------------------------------------
+ Medium  | Stemming        | Make a separate package to contain stemming
+         | Algorithms      | algorithm stuff (docs, code, stemtest)
+---------+-----------------+--------------------------------------------------
+ Low     | Purify          | Write autoconf macro to turn on purify support.
+         |                 | Submit to http://peti.cys.de/autoconf-archive/
 ---------+-----------------+--------------------------------------------------
  Low     | Documentation   | Add notes about catching exceptions throughout
          |                 | userman, particuarly in examples (eg, search
