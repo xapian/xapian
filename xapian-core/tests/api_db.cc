@@ -1126,6 +1126,7 @@ static bool test_sortrel1()
 
     const Xapian::docid order1[] = { 1,2,3,4,5,6,7,8,9 };
     const Xapian::docid order2[] = { 2,1,3,6,5,4,7,9,8 };
+    const Xapian::docid order3[] = { 3,2,1,6,5,4,9,8,7 };
 
     Xapian::MSet mset;
     size_t i;
@@ -1150,6 +1151,24 @@ static bool test_sortrel1()
     TEST_EQUAL(mset.size(), sizeof(order1) / sizeof(Xapian::docid));
     for (i = 0; i < sizeof(order1) / sizeof(Xapian::docid); ++i) {
 	TEST_EQUAL(*mset[i], order1[i]);
+    }
+
+    enquire.set_sorting(1, 1, true);
+    enquire.set_sort_forward(false);
+
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), sizeof(order2) / sizeof(Xapian::docid));
+    for (i = 0; i < sizeof(order2) / sizeof(Xapian::docid); ++i) {
+	TEST_EQUAL(*mset[i], order2[i]);
+    }
+
+    enquire.set_sorting(1, 1, false);
+    enquire.set_sort_forward(false);
+
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), sizeof(order1) / sizeof(Xapian::docid));
+    for (i = 0; i < sizeof(order3) / sizeof(Xapian::docid); ++i) {
+	TEST_EQUAL(*mset[i], order3[i]);
     }
 
     return true;

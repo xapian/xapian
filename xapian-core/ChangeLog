@@ -1,3 +1,8 @@
+Thu Sep 09 21:58:37 BST 2004  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Extended feature test sortrel1 to check interaction
+	  with Enquire::set_sort_forward(false).
+
 Thu Sep 09 21:46:12 BST 2004  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,common/multimatch.h,common/omenquireinternal.h,
