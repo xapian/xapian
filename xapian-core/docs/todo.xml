@@ -1,10 +1,4 @@
 <todo>
-<todoitem priority="H" difficulty="3" owner="" area="Debug" release="">
-
-OmDebug should open the log file with O_APPEND and write debug lines in one
-go to try to ensure threaded use of Xapian doesn't mangle the debug log.
-
-</todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="Debug" release="">
 
 Try to find some way to write a thread identifier into the debug log, while

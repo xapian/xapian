@@ -34,7 +34,6 @@
 
 #ifdef MUS_DEBUG_VERBOSE
 #include <vector>
-#include <stdio.h>
 
 #include <unistd.h>
 
@@ -125,9 +124,8 @@ class OmDebug {
 	/// Whether the object has been initialised
 	bool initialised;
 
-	/** Stream to send output to.  If this is null, it'll go to stderr.
-	 */
-	FILE * outfile;
+	/// file descriptor to send debug output to.
+	int fd;
 
     public:
 	/// Method for outputting something

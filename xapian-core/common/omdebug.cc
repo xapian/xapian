@@ -29,6 +29,7 @@
 
 OmDebug om_debug;
 
+#include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -38,9 +39,7 @@ OmDebug om_debug;
 #define OM_ENV_DEBUG_FILE  "OM_DEBUG_FILE"
 #define OM_ENV_DEBUG_TYPES "OM_DEBUG_TYPES"
 
-OmDebug::OmDebug()
-	: initialised(false),
-	  outfile(0)
+OmDebug::OmDebug() : initialised(false), fd(2)
 {
     // Can't do much in this constructor, because on Solaris the contents get
     // wiped just before the start of main().
@@ -65,9 +64,11 @@ OmDebug::open_output()
 	    filename = s.c_str();
 	}
 	    
-	outfile = fopen(filename, "w");
-	if (outfile == 0) {
-	    fprintf(stderr, "Can't open requested debug file `%s' using stderr.\n",
+	fd = open(filename, O_CREAT | O_SYNC | O_APPEND);
+	
+	if (fd == -1) {
+	    fd = 2;
+	    fprintf(stderr, "Can't open requested debug file `%s' - using stderr.\n",
 		    filename);
 	    fflush(stderr);
 	}
@@ -123,17 +124,12 @@ void
 OmDebug::display_message(enum om_debug_types type, std::string msg)
 {
     initialise();
-    if(!want_type(type)) return;
+    if (!want_type(type)) return;
 
-    if (outfile) {
-	fprintf(outfile, "{%d}", type);
-	fwrite(msg.data(), 1, msg.size(), outfile);
-	fflush(outfile);
-    } else {
-	fprintf(stderr, "{%d}", type);
-	fwrite(msg.data(), 1, msg.size(), stderr);
-	fflush(stderr);
-    }
+    char buf[20];
+    sprintf(buf, "{%d}", type);
+    msg = buf + msg;
+    write(fd, msg.data(), msg.size());
 }
 
 #endif /* MUS_DEBUG_VERBOSE */

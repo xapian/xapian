@@ -1,3 +1,9 @@
+Mon Apr 22 13:11:32 BST 2002  Olly Betts <olly@survex.com>
+
+	* Write debug log using unbuffered IO and O_APPEND which should prevent
+	  the log file becoming garbled when used from applications which use
+	  Xapian objects in multiple threads.
+
 Mon Apr 22 12:19:18 BST 2002  Olly Betts <olly@survex.com>
 
 	* Updated copyright notices for last change.
