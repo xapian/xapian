@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -233,7 +233,16 @@ class test_driver {
 
 #include <float.h> // for DBL_EPSILON
 #include <math.h> // for fabs
-#define TEST_EQUAL_DOUBLE(a, b) TEST_AND_EXPLAIN((fabs((a) - (b)) < DBL_EPSILON), \
+inline bool
+TEST_EQUAL_DOUBLE_helper(double a, double b)
+{
+    double abs_diff = fabs(a - b);
+    double abs_a = fabs(a);
+    double abs_b = fabs(b);
+    return (abs_diff / (abs_a < abs_b ? abs_a : abs_b)) < DBL_EPSILON;
+}
+ 
+#define TEST_EQUAL_DOUBLE(a, b) TEST_AND_EXPLAIN(TEST_EQUAL_DOUBLE_helper((a), (b)), \
 	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' to be (nearly) equal:" \
 	" were " << (a) << " and " << (b))
 

@@ -1,3 +1,8 @@
+Sat Mar 05 00:23:47 GMT 2005  Olly Betts <olly@survex.com>
+
+	* testsuite/testsuite.h: Fixed TEST_EQUAL_DOUBLE to use DBL_EPSILON
+	  correctly.
+
 Fri Mar 04 21:06:38 GMT 2005  Olly Betts <olly@survex.com>
 
 	* tests/testdata/etext.txt: Stripped carriage returns.
