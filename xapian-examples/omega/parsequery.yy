@@ -97,7 +97,7 @@ exp:	  prob		{
 ;
 
 prob:	  term		{ $$ = $1; }
-	| prob term	{ $$ = U(OmQuery(OmQuery::OP_OR, $1.q, $2.q));
+	| prob term	{ $$ = U(OmQuery(default_op, $1.q, $2.q));
 	                  $$.love = $1.love;
 	                  $$.hate = $1.hate; }			  
 	| prob '+' term	{ $$ = $1; $$.love.push_back($3.q); }

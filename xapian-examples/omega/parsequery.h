@@ -32,6 +32,8 @@ using std::string;
 using std::list;
 using std::set;
 
+#include "query.h"
+
 class QueryParser {
     public:
 	QueryParser() {
