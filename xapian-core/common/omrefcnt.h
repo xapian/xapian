@@ -128,7 +128,9 @@ inline OmRefCntPtr<T>::OmRefCntPtr(T *dest_) : dest(dest_)
 template <class T>
 inline OmRefCntPtr<T>::OmRefCntPtr(const OmRefCntPtr &other) : dest(other.dest)
 {
-    dest->ref_increment();
+    if (dest) {
+	dest->ref_increment();
+    }
 }
 
 template <class T>

@@ -1,3 +1,7 @@
+Wed Jun  7 18:06:58 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Hopefully fixed a nasty refcount pointer bug.
+
 Wed Jun  7 15:40:34 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.2.0
