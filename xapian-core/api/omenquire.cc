@@ -27,11 +27,11 @@
 #include "omdatabaseinternal.h"
 #include "omdocumentinternal.h"
 
-#include "xapian/error.h"
+#include <xapian/error.h>
 #include "om/omenquire.h"
 #include <xapian/output.h>
-#include "xapian/termiterator.h"
-#include "xapian/expanddecider.h"
+#include <xapian/termiterator.h>
+#include <xapian/expanddecider.h>
 
 #include "omtermlistiteratorinternal.h"
 
@@ -40,7 +40,7 @@
 #include "expand.h"
 #include "database.h"
 #include "om/omdocument.h"
-#include "xapian/errorhandler.h"
+#include <xapian/errorhandler.h>
 #include "om/omenquire.h"
 #include "omenquireinternal.h"
 #include "utils.h"
@@ -270,19 +270,19 @@ OmMSet::fetch() const
 				internal->data->items.end());
 }
 
-om_percent
+Xapian::percent
 OmMSet::convert_to_percent(om_weight wt) const
 {
-    DEBUGAPICALL(om_percent, "OmMSet::convert_to_percent", wt);
+    DEBUGAPICALL(Xapian::percent, "OmMSet::convert_to_percent", wt);
     Assert(internal != 0);
     Assert(internal->data.get() != 0);
     RETURN(internal->data->convert_to_percent_internal(wt));
 }
 
-om_percent
+Xapian::percent
 OmMSet::convert_to_percent(const OmMSetIterator & it) const
 {
-    DEBUGAPICALL(om_percent, "OmMSet::convert_to_percent", it);
+    DEBUGAPICALL(Xapian::percent, "OmMSet::convert_to_percent", it);
     Assert(internal != 0);
     Assert(internal->data.get() != 0);
     RETURN(internal->data->convert_to_percent_internal(it.get_weight()));
@@ -454,14 +454,14 @@ OmMSet::get_description() const
     RETURN("OmMSet(" + internal->data->get_description() + ")");
 }
 
-om_percent
+Xapian::percent
 OmMSet::Internal::Data::convert_to_percent_internal(om_weight wt) const
 {
-    DEBUGAPICALL(om_percent, "OmMSet::Internal::convert_to_percent", wt);
+    DEBUGAPICALL(Xapian::percent, "OmMSet::Internal::convert_to_percent", wt);
     if (percent_factor == 0) RETURN(100);
 
     // FIXME: + 0.5 ???
-    om_percent pcent = static_cast<om_percent>(wt * percent_factor);
+    Xapian::percent pcent = static_cast<Xapian::percent>(wt * percent_factor);
     DEBUGLINE(API, "wt = " << wt << ", max_possible = "
 	      << max_possible << " =>  pcent = " << pcent);
     if (pcent > 100) pcent = 100;
@@ -841,10 +841,10 @@ OmMSetIterator::get_collapse_count() const
     return internal->it->collapse_count;
 }
 
-om_percent
+Xapian::percent
 OmMSetIterator::get_percent() const
 {
-    DEBUGAPICALL(om_percent, "OmMSetIterator::get_percent", "");
+    DEBUGAPICALL(Xapian::percent, "OmMSetIterator::get_percent", "");
     RETURN(internal->msetdata->convert_to_percent_internal(internal->it->wt));
 }
 
@@ -1176,7 +1176,7 @@ OmEnquire::set_sort_forward(bool sort_forward)
 }
 
 void
-OmEnquire::set_cutoff(int percent_cutoff, om_weight weight_cutoff)
+OmEnquire::set_cutoff(Xapian::percent percent_cutoff, om_weight weight_cutoff)
 {
     internal->data->percent_cutoff = percent_cutoff;
     internal->data->weight_cutoff = weight_cutoff;

@@ -175,7 +175,7 @@ class OmEnquire::Internal::Data : public RefCntBase {
 
 	bool sort_forward;
 
-	int percent_cutoff;
+	Xapian::percent percent_cutoff;
 
 	om_weight weight_cutoff;
 
@@ -326,7 +326,7 @@ class OmMSet::Internal::Data : public RefCntBase {
 	OmDocument get_doc_by_rank(om_doccount rank) const;
 
 	/// Converts a weight to a percentage weight
-	om_percent convert_to_percent_internal(om_weight wt) const;
+	Xapian::percent convert_to_percent_internal(om_weight wt) const;
 
 	/** Returns a string representing the mset.
 	 *  Introspection method.

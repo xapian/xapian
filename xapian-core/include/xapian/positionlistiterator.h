@@ -89,7 +89,7 @@ class PositionListIterator {
 	// Allow use as an STL iterator
 	typedef std::input_iterator_tag iterator_category;
 	typedef om_termpos value_type;
-	typedef om_termpos_diff difference_type;  // "om_termposcount"
+	typedef Xapian::termpos_diff difference_type;  // "om_termposcount"
 	typedef om_termpos * pointer;
 	typedef om_termpos & reference;
 };

@@ -60,6 +60,14 @@ typedef std::string om_termname;
 #define OmPositionListIterator Xapian::PositionListIterator
 #define OmTermIterator Xapian::TermIterator
 #define OmPostListIterator Xapian::PostListIterator
+//#define OmDocument Xapian::Document
+
+#define om_percent Xapian::percent
+#define om_doccount_diff Xapian::doccount_diff
+#define om_termcount_diff Xapian::termcount_diff
+#define om_termpos_diff Xapian::termpos_diff
+#define om_valueno_diff Xapian::valueno_diff
+#define om_timeout Xapian::timeout
 
 // om/omoutput.h used to include iostream, but xapian/output.h includes iosfwd
 // instead.  So we include iostream here in case anyone relied on iostream

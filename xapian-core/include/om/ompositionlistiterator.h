@@ -4,6 +4,7 @@
 /* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,7 +77,7 @@ class OmPositionListIterator {
 	// Allow use as an STL iterator
 	typedef std::input_iterator_tag iterator_category;
 	typedef om_termpos value_type;
-	typedef om_termpos_diff difference_type;  // "om_termposcount"
+	typedef Xapian::termpos_diff difference_type;  // "om_termposcount"
 	typedef om_termpos * pointer;
 	typedef om_termpos & reference;
 };

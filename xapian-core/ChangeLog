@@ -1,3 +1,8 @@
+Wed Apr 30 20:37:27 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/omenquireinternal.h,include/:
+	  typedefs om_* -> Xapian::*, but not changed all internal uses yet.
+
 Wed Apr 30 03:51:52 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/,backends/,common/,extra/omparsequery.h,extra/parsequery.yy,

@@ -76,9 +76,9 @@ class OmMSetIterator {
 	/// Get the document ID for the current position.
 	om_docid operator *() const;
 
-	/** Get an OmDocument object for the current position.
+	/** Get a OmDocument object for the current position.
 	 *
-	 *  This method returns an OmDocument object which provides the
+	 *  This method returns a OmDocument object which provides the
 	 *  information about the document pointed to by the MSetIterator.
 	 *
 	 *  If the underlying database has suitable support, using this call
@@ -89,7 +89,7 @@ class OmMSetIterator {
 	 *
 	 *  @param it   The OmMSetIterator for which to retrieve the data.
 	 *
-	 *  @return      An OmDocument object containing the document data.
+	 *  @return     A OmDocument object containing the document data.
 	 *
 	 *  @exception Xapian::DocNotFoundError The document specified could not
 	 *                                 be found in the database.
@@ -130,7 +130,7 @@ class OmMSetIterator {
 	 *  The return value will be in the range 0 to 100:  0 meaning
 	 *  that the item did not match the query at all.
 	 */
-	om_percent get_percent() const;
+	Xapian::percent get_percent() const;
 
 	/** Returns a string describing this object.
 	 *  Introspection method.
@@ -141,7 +141,7 @@ class OmMSetIterator {
 	//@{	
 	typedef std::input_iterator_tag iterator_category;
 	typedef om_docid value_type;
-	typedef om_doccount_diff difference_type;
+	typedef Xapian::doccount_diff difference_type;
 	typedef om_docid * pointer;
 	typedef om_docid & reference;
 	//@}
@@ -209,10 +209,10 @@ class OmMSet {
 	 *  The return value will be in the range 0 to 100, and will be 0 if
 	 *  and only if the item did not match the query at all.
 	 */
-	om_percent convert_to_percent(om_weight wt) const;
+	Xapian::percent convert_to_percent(om_weight wt) const;
 
 	/// Return the percentage score for a particular item.
-	om_percent convert_to_percent(const OmMSetIterator &it) const;
+	Xapian::percent convert_to_percent(const OmMSetIterator &it) const;
 
 	/** Return the term frequency of the given query term.
 	 *
@@ -323,7 +323,7 @@ class OmMSet {
 	typedef OmMSetIterator & reference; // Hmm
 	typedef OmMSetIterator & const_reference;
 	typedef OmMSetIterator * pointer; // Hmm
-	typedef om_doccount_diff difference_type;
+	typedef Xapian::doccount_diff difference_type;
 	typedef om_doccount size_type;
 	//@}
 	
@@ -382,7 +382,7 @@ class OmESetIterator {
 	//@{	
 	typedef std::input_iterator_tag iterator_category;
 	typedef std::string value_type;
-	typedef om_termcount_diff difference_type;
+	typedef Xapian::termcount_diff difference_type;
 	typedef std::string * pointer;
 	typedef std::string & reference;
 	//@}
@@ -571,7 +571,7 @@ class OmEnquire {
 	 *
 	 *  This frees all resources associated with the OmEnquire object,
 	 *  such as handles on the databases used.  As a result, any object
-	 *  which refers to these databases, such as an OmDocument, will
+	 *  which refers to these databases, such as a OmDocument, will
 	 *  become invalid after the destruction of the object, and must
 	 *  not be used subsequently. (FIXME: I don't think this is actually
 	 *  true - check)
@@ -656,7 +656,7 @@ class OmEnquire {
 	 *	alerting operations.  The other potential use is with a user
 	 *	specified weighting scheme.
          */
-	void set_cutoff(int percent_cutoff, om_weight weight_cutoff = 0);
+	void set_cutoff(Xapian::percent percent_cutoff, om_weight weight_cutoff = 0);
 
         /** Set the percentage and/or weight cutoffs.
          *

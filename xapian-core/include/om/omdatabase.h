@@ -91,7 +91,7 @@ class OmDatabase {
 	/** Re-open the database.
 	 *  This re-opens the database(s) to the latest available version(s).
 	 *  It can be used either to make sure the latest results are
-	 *  returned, or to recover from an Xapian::DatabaseModifiedError.
+	 *  returned, or to recover from a Xapian::DatabaseModifiedError.
 	 */
 	void reopen();
 
@@ -175,12 +175,12 @@ class OmDatabase {
 
 	/** Get a document from the database, given its document id.
 	 *
-	 *  This method returns an OmDocument object which provides the
+	 *  This method returns a OmDocument object which provides the
 	 *  information about a document.
 	 *
 	 *  @param did   The document id for which to retrieve the data.
 	 *
-	 *  @return      An OmDocument object containing the document data
+	 *  @return      A OmDocument object containing the document data
 	 *
 	 *  @exception Xapian::DocNotFoundError      The document specified
 	 *		could not be found in the database.
@@ -497,12 +497,12 @@ OmDatabase OmMuscat36DB__open(const std::string &DB, const std::string &values =
  * @param program the program to run
  * @param arguments the arguments to pass to the program
  * @param timeout how long to wait for a response (in milliseconds).
- *  If this timeout is reached for any operation, then a Xapian::NetworkTimeoutError
- *  exception will be thrown.  The default if not specified is 10000ms
- *  (10 seconds).
+ *  If this timeout is reached for any operation, then a
+ *  Xapian::NetworkTimeoutError exception will be thrown.  The default if not
+ *  specified is 10000ms (i.e. 10 seconds).
  */
 OmDatabase OmRemote__open(const std::string &program, const std::string &args,
-	unsigned int timeout = 10000);
+	Xapian::timeout timeout = 10000);
 
 /** Open a remote database (using a TCP connection).
  *
@@ -517,12 +517,12 @@ OmDatabase OmRemote__open(const std::string &program, const std::string &args,
  *  (10 seconds).
  * @param connect_timeout how long to wait when attempting to connect to
  *  the server.  If this timeout is reached when attempting to connect, then
- *  a Xapian::NetworkTimeoutError exception wil be thrown.  The default if not specified
- *  is to use the same value given for timeout.
+ *  a Xapian::NetworkTimeoutError exception wil be thrown.  The default if not
+ *  specified is to use the same value given for timeout.
  */
 OmDatabase
 OmRemote__open(const std::string &host, unsigned int port,
-	unsigned int timeout = 10000, unsigned int connect_timeout = 0);
+	Xapian::timeout timeout = 10000, Xapian::timeout connect_timeout = 0);
 
 /** Open a stub database.
  *

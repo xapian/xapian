@@ -4,7 +4,7 @@
 /* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -82,7 +82,7 @@ class OmValueIterator {
 	//@{
 	typedef std::input_iterator_tag iterator_category;
 	typedef std::string value_type;
-	typedef om_valueno_diff difference_type;
+	typedef Xapian::valueno_diff difference_type;
 	typedef std::string * pointer;
 	typedef std::string & reference;
 	//@}

@@ -30,7 +30,6 @@
 #include <string>
 
 #include <xapian/base.h>
-
 #include <xapian/types.h>
 
 class OmDatabase;
@@ -44,7 +43,7 @@ class TermIterator {
     private:
 	// friend classes which need to be able to construct us
 	friend class OmDatabase;
-	friend class OmDocument;
+	friend class Document;
 
     public:
 	class Internal;
@@ -98,7 +97,7 @@ class TermIterator {
 	//@{
 	typedef std::input_iterator_tag iterator_category;
 	typedef std::string value_type;
-	typedef om_termcount_diff difference_type;
+	typedef Xapian::termcount_diff difference_type;
 	typedef std::string * pointer;
 	typedef std::string & reference;
 	//@}

@@ -24,56 +24,74 @@
  * -----END-LICENCE-----
  */
 
-/* Keep this file free from C++ style comments (//) so it can be used from C */
+/* Keep this file free from C++ style comments (//) so it can be used from C
+ * (although it's probably no longer used from C) */
 
 #ifndef XAPIAN_INCLUDED_TYPES_H
 #define XAPIAN_INCLUDED_TYPES_H
+
+#ifdef __cplusplus
+namespace Xapian {
+#endif
 
 /** A unique id for a document.
  *  Document ids start at 1.  A zero docid isn't valid, and may be used to
  *  indicate "no document".
  */
-typedef unsigned int om_docid;
+typedef unsigned int docid;
 
 /** Type for counts of documents. */
-typedef om_docid     om_doccount;
+typedef docid     doccount;
 
 /** Type for signed difference between counts of documents. */
-typedef int	     om_doccount_diff;
+typedef int	     doccount_diff;
 
 /** Type for counts of terms (eg, wdf, wqf). */
-typedef unsigned int om_termcount;
+typedef unsigned int termcount;
 
 /** Type for signed difference between counts of terms. */
-typedef int	     om_termcount_diff;
+typedef int	     termcount_diff;
 
 /** Type for term positions within documents.
  *  These start at 1.  A value of 0 means that the positional information
  *  is not available for that term.
  */
-typedef unsigned int om_termpos;
+typedef unsigned int termpos;
 
 /** Type for signed difference between term positions. */
-typedef int	     om_termpos_diff;
+typedef int	     termpos_diff;
 
 /** Type for (normalised) lengths of documents. */
-typedef double       om_doclength;
+typedef double       doclength;
 
 /** Type for referring to the number of a value in document. */
-typedef unsigned int om_valueno;
+typedef unsigned int valueno;
 
-/** Type for signed difference between two om_valueno-s. */
-typedef int	     om_valueno_diff;
+/** Type for signed difference between two valueno-s. */
+typedef int	     valueno_diff;
 
 /** A calculated weight, for a term or document. */
-typedef double       om_weight;
+typedef double       weight;
 
 /** A percentage weight, for a term or document. */
-typedef int	     om_percent;
+typedef int	     percent;
 
 /** Type for specifying a timeout.  This refers to a time in microseconds:
  *  ie. a timeout value of 1000000 corresponds to a timeout of 1 second.
  */
-typedef unsigned int om_timeout;
+typedef unsigned int timeout;
+
+#ifdef __cplusplus
+}
+
+#define om_doccount Xapian::doccount
+#define om_docid Xapian::docid
+#define om_doclength Xapian::doclength
+#define om_termcount Xapian::termcount
+#define om_termpos Xapian::termpos
+#define om_valueno Xapian::valueno
+#define om_weight Xapian::weight
+
+#endif
 
 #endif /* XAPIAN_INCLUDED_TYPES_H */
