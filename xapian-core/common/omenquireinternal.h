@@ -32,6 +32,8 @@
 #include <math.h>
 #include <map>
 
+class OmErrorHandler;
+
 /** Internals of enquire system.
  *  This allows the implementation of OmEnquire to be hidden, allows
  *  cleaner pthread locking by separating the API calls from the internals,
@@ -66,10 +68,10 @@ class OmEnquireInternal {
 	 */
 	OmErrorHandler * errorhandler;
 
-	OmEnquireInternal(const OmDatabase &databases);
+	OmEnquireInternal(const OmDatabase &databases,
+			  OmErrorHandler * errorhandler_);
 	~OmEnquireInternal();
 
-	void set_error_handler(OmErrorHandler * errorhandler_);
 	void set_query(const OmQuery & query_);
 	const OmQuery & get_query();
 	OmMSet get_mset(om_doccount first,

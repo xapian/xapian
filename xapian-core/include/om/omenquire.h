@@ -536,8 +536,15 @@ class OmEnquire {
 	 *
 	 *  @param database Specification of the database or databases to
 	 *         use.
+	 *  @param errorhandler_  A pointer to the error handler to use.
+	 *         Ownership of the object pointed to is not assumed by the
+	 *         OmEnquire object - the user should delete the
+	 *         OmErrorHandler object after the OmEnquire object is
+	 *         deleted.  To use no error handler, this parameter
+	 *         should be 0.
 	 */
-        OmEnquire(const OmDatabase &databases);
+        OmEnquire(const OmDatabase &databases,
+		  OmErrorHandler * errorhandler_ = 0);
 
 	/** Close the OmEnquire object.
 	 *
@@ -548,21 +555,6 @@ class OmEnquire {
 	 *  not be used subsequently.
 	 */
 	~OmEnquire();
-
-	/** Set an error handler to use.
-	 *
-	 *  The error handler is called whenever an error occurs, and
-	 *  determines what is done with the error.
-	 *
-	 *  @param errorhandler_  A pointer to the error handler to use.
-	 *                        Ownership of the object pointed to is not
-	 *                        assumed by the OmEnquire object - the user
-	 *                        should free the OmErrorHandler object after
-	 *                        the OmEnquire object closes.  To remove
-	 *                        the error handler, this parameter should be
-	 *                        0.
-	 */
-	void set_error_handler(OmErrorHandler * errorhandler_);
 
 	/** Set the query to run.
 	 *

@@ -25,6 +25,7 @@
 
 #include "database.h"
 #include "branchpostlist.h"
+#include "om/omerrorhandler.h"
 
 /** A postlist comprising postlists from different databases mergeed together.
  */
@@ -112,10 +113,21 @@ inline om_weight
 MergePostList::recalc_maxweight()
 {
     w_max = 0;
-    std::vector<PostList *>::const_iterator i;
+    std::vector<PostList *>::iterator i;
     for (i = plists.begin(); i != plists.end(); i++) {
-	om_weight w = (*i)->recalc_maxweight();
-	if (w > w_max) w_max = w;
+	try {
+	    om_weight w = (*i)->recalc_maxweight();
+	    if (w > w_max) w_max = w;
+	} catch (OmError & e) {
+	    if (errorhandler) (*errorhandler)(e);
+	    if (current == i - plists.begin()) {
+		// Fatal error
+		throw;
+	    } 
+	    // Continue match without this sub-postlist.
+	    delete (*i);
+	    *i = new EmptyPostList();
+	}
     }
     return w_max;
 }

@@ -28,10 +28,13 @@
 #include "om/omerror.h"
 #include "omerr_string.h"
 #include "omdebug.h"
+#include "netutils.h"
 
 std::string omerror_to_string(const OmError &e)
 {
-    return e.get_type();
+    return encode_tname(e.get_type()) + " " +
+	   encode_tname(e.get_context()) + " " +
+	   encode_tname(e.get_msg());
 }
 
 void string_to_omerror(const std::string &except, const std::string &prefix)
@@ -39,36 +42,43 @@ void string_to_omerror(const std::string &except, const std::string &prefix)
     istrstream is(except.c_str());
 
     std::string type;
+    std::string context;
+    std::string msg;
+
     is >> type;
-
-    std::string msg = prefix + except.substr(type.length());
-
-    // FIXME: use a map or something instead.
-    // FIXME: update with new exceptions
-    if (type == "OmAssertionError") {
-	throw OmAssertionError(msg);
-    } else if (type == "OmUnimplementedError") {
-	throw OmUnimplementedError(msg);
-    } else if (type == "OmInvalidArgumentError") {
-	throw OmInvalidArgumentError(msg);
-    } else if (type == "OmDocNotFoundError") {
-	throw OmDocNotFoundError(msg);
-    } else if (type == "OmRangeError") {
-	throw OmRangeError(msg);
-    } else if (type == "OmInternalError") {
-	throw OmInternalError(msg);
-    } else if (type == "OmOpeningError") {
-	throw OmOpeningError(msg);
-    } else if (type == "OmDatabaseError") {
-	throw OmDatabaseError(msg);
-    } else if (type == "OmInvalidResultError") {
-	throw OmInvalidResultError(msg);
-    } else if (type == "UNKNOWN") {
-	msg = "UNKNOWN " + msg;
-	throw OmInternalError(msg);
+    if (type == "UNKNOWN") {
+	throw OmInternalError("UNKNOWN", context);
     } else {
-	msg = "Unknown remote exception type " + type + ":" + msg;
-	throw OmInternalError(msg);
+	is >> context;
+	is >> msg;
+	type = decode_tname(type);
+	context = decode_tname(context);
+	msg = prefix + decode_tname(msg);
+
+	// FIXME: use a map or something instead.
+	// FIXME: update with new exceptions
+	if (type == "OmAssertionError") {
+	    throw OmAssertionError(msg, context);
+	} else if (type == "OmUnimplementedError") {
+	    throw OmUnimplementedError(msg, context);
+	} else if (type == "OmInvalidArgumentError") {
+	    throw OmInvalidArgumentError(msg, context);
+	} else if (type == "OmDocNotFoundError") {
+	    throw OmDocNotFoundError(msg, context);
+	} else if (type == "OmRangeError") {
+	    throw OmRangeError(msg, context);
+	} else if (type == "OmInternalError") {
+	    throw OmInternalError(msg, context);
+	} else if (type == "OmOpeningError") {
+	    throw OmOpeningError(msg, context);
+	} else if (type == "OmDatabaseError") {
+	    throw OmDatabaseError(msg, context);
+	} else if (type == "OmInvalidResultError") {
+	    throw OmInvalidResultError(msg, context);
+	}
+
+	msg = "Unknown remote exception type `" + type + "', " + msg;
+	throw OmInternalError(msg, context);
     }
     Assert(false);
 }

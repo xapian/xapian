@@ -246,8 +246,9 @@ OmESet::get_description() const
 // Methods for OmEnquireInternal //
 ///////////////////////////////////
 
-OmEnquireInternal::OmEnquireInternal(const OmDatabase &db_)
-  : db(db_), query(0), errorhandler(0)
+OmEnquireInternal::OmEnquireInternal(const OmDatabase &db_,
+				     OmErrorHandler * errorhandler_)
+  : db(db_), query(0), errorhandler(errorhandler_)
 {
 }
 
@@ -257,12 +258,6 @@ OmEnquireInternal::~OmEnquireInternal()
 	delete query;
 	query = 0;
     }
-}
-
-void
-OmEnquireInternal::set_error_handler(OmErrorHandler * errorhandler_)
-{
-    errorhandler = errorhandler_;
 }
 
 void
@@ -523,10 +518,11 @@ OmEnquireInternal::calc_matching_terms(om_docid did) const
 // Methods of OmEnquire //
 //////////////////////////
 
-OmEnquire::OmEnquire(const OmDatabase &databases)
+OmEnquire::OmEnquire(const OmDatabase &databases,
+		     OmErrorHandler * errorhandler)
 {
     DEBUGAPICALL(void, "OmEnquire::OmEnquire", databases);
-    internal = new OmEnquireInternal(databases);
+    internal = new OmEnquireInternal(databases, errorhandler);
 }
 
 OmEnquire::~OmEnquire()
@@ -534,13 +530,6 @@ OmEnquire::~OmEnquire()
     DEBUGAPICALL(void, "OmEnquire::~OmEnquire", "");
     delete internal;
     internal = NULL;
-}
-
-void
-OmEnquire::set_error_handler(OmErrorHandler * errorhandler_)
-{
-    DEBUGAPICALL(void, "OmEnquire::set_error_handler", errorhandler_);
-    internal->set_error_handler(errorhandler_);
 }
 
 void

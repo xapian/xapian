@@ -285,15 +285,14 @@ class MyErrorHandler : public OmErrorHandler {
 };
 
 // tests error handler in multimatch().
-static bool test_multidb6()
+static bool test_multierrhandler1()
 {
     MyErrorHandler myhandler;
 
     OmDatabase mydb2(get_database("apitest_simpledata"));
     OmDatabase mydb3(get_database("apitest_simpledata2"));
     OmDatabase mydb4(get_database("-e", "apitest_termorder"));
-    OmEnquire enquire(make_dbgrp(&mydb2, &mydb3, &mydb4));
-    enquire.set_error_handler(&myhandler);
+    OmEnquire enquire(make_dbgrp(&mydb2, &mydb3, &mydb4), &myhandler);
 
     // make a query
     OmQuery myquery = query(OmQuery::OP_OR, "inmemory", "word");
@@ -304,7 +303,7 @@ static bool test_multidb6()
     OmMSet mymset = enquire.get_mset(0, 10);
 
     TEST_EQUAL(myhandler.count, 1);
-    mset_expect_order(mymset, 2, 3, 10);
+    mset_expect_order(mymset, 2, 4, 10);
 
     return true;
 }
@@ -1679,6 +1678,6 @@ test_desc localdb_tests[] = {
 };
 
 test_desc remotedb_tests[] = {
-    {"multidb6",           test_multidb6},
+    {"multierrhandler1",           test_multierrhandler1},
     {0, 0}
 };

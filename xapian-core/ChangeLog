@@ -1,3 +1,27 @@
+Wed Oct 18 16:19:42 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Error handler is now set in constructor of OmEnquire - this means
+	  that errors during the constructor can be handled, and also helps
+	  to ensure that handler is deleted after OmEnquire.
+
+	* Error handler copes with (most) problems in
+	  MergePostList::recalc_maxweight(), and in the event of an error it
+	  can cope with, replaces the relevant postlist by an emptypostlist
+	  instead of deleting it.
+
+	* Renamed test multidb6 to multierrhandler1.  This test now passes.
+
+	* omerror.h has the actual definitions of the errors split off into
+	  separate file omerrortypes.h, for reuse elsewhere (eg,
+	  net/omerr_string.c)
+
+	* network errors handle new context field.  Modified encode_tname and
+	  decode_tname so that a null term is not completely empty.  Modified
+	  query parser to match new termname encoding.  Incremented protocol
+	  version.
+
+	* Added items to TODO.
+
 Wed Oct 18 15:38:39 BST 2000 Olly Betts
 
 	* New RemotePostList which streams postings across a network

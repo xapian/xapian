@@ -28,7 +28,7 @@ HEXDIGIT	[0-9a-fA-F]
 TCHAR		{HEXDIGIT}{HEXDIGIT}
 DIGIT		[0-9]
 
-TERM		%T{TCHAR}*,{DIGIT}*,{DIGIT}*
+TERM		%T{TCHAR}*\.,{DIGIT}*,{DIGIT}*
 
 NULL_QUERY	%N
 
@@ -46,7 +46,7 @@ OP_KET		%\)
 		    qt.term_pos = 0;
 		    qt.tname.erase();
 		    char *p = yytext + 2; // skip %T
-		    while (*p && *p != ',') {
+		    while (*p && *p != '.') {
 		        char high = *p++;
 			if (!isxdigit(high)) {
 			    qt.type = querytok::ERROR;
@@ -59,6 +59,11 @@ OP_KET		%\)
 			}
 			qt.tname += hextochar(high, low);
 		    }
+		    if (*p != '.') {
+		    	qt.type = querytok::ERROR;
+			return qt;
+		    }
+		    p++;
 		    if (*p != ',') {
 		    	qt.type = querytok::ERROR;
 			return qt;

@@ -66,16 +66,17 @@ encode_tname(const std::string &tname)
 	 ++i) {
 	result += tohex(*i);
     }
-    return result;
+    return result + ".";
 }
 
 inline std::string
 decode_tname(const std::string &thex)
 {
-    Assert((thex.length() % 2) == 0);
+    Assert((thex.length() % 2) == 1);
+    Assert((thex[thex.size() - 1] == '.'));
     std::string result;
 
-    for (std::string::size_type i=0; i<thex.length(); i+=2) {
+    for (std::string::size_type i=0; i<thex.length() - 1; i+=2) {
 	result += hextochar(thex[i], thex[i+1]);
     }
 

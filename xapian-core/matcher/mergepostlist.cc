@@ -51,13 +51,11 @@ MergePostList::next(om_weight w_min)
     do {
 	// FIXME: should skip over Remote matchers which aren't ready yet
 	// and come back to them later...
-	PostList *p = 0;
-	
 	try {
-	    p = plists[current]->next(w_min);
-	    if (p) {
+	    PostList *pruned_postlist = plists[current]->next(w_min);
+	    if (pruned_postlist) {
 		delete plists[current];
-		plists[current] = p;
+		plists[current] = pruned_postlist;
 	    }
 	    if (!plists[current]->at_end()) break;
 	    current++;
@@ -65,7 +63,7 @@ MergePostList::next(om_weight w_min)
 	    if (errorhandler) (*errorhandler)(e);
 	    // Continue match without this sub-postlist.
 	    delete plists[current];
-	    plists.erase(plists.begin() + current);
+	    plists[current] = new EmptyPostList();
 	}
     } while ((unsigned)current < plists.size());
     DEBUGLINE(MATCH, "current = " << current);
