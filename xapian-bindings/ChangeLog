@@ -1,3 +1,7 @@
+Tue Mar 29 14:48:21 BST 2005  Olly Betts <olly@survex.com>
+
+	* xapian.i: Fix C# warnings.
+
 Tue Mar 29 13:57:36 BST 2005  Olly Betts <olly@survex.com>
 
 	* xapian.i: For PHP4, rename default Database ctor to Database_empty

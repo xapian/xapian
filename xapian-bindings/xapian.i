@@ -495,6 +495,7 @@ class Weight {
 	virtual bool get_sumpart_needs_doclength() const;
 };
 
+%warnfilter(842) BoolWeight::unserialise;
 class BoolWeight : public Weight {
     public:
 	BoolWeight * clone() const;
@@ -512,6 +513,7 @@ class BoolWeight : public Weight {
 	bool get_sumpart_needs_doclength() const;
 };
 
+%warnfilter(842) BM25Weight::unserialise;
 class BM25Weight : public Weight {
     public:
 	BM25Weight(double A_, double B_, double C_, double D_,
@@ -535,6 +537,7 @@ class BM25Weight : public Weight {
 	bool get_sumpart_needs_doclength() const;
 };
 
+%warnfilter(842) TradWeight::unserialise;
 class TradWeight : public Weight {
     public:
 	explicit TradWeight(double k);
@@ -742,7 +745,7 @@ class Query {
 #endif
 class Stopper {
 public:
-#if defined SWIGPHP4 || defined SWIGTCL || defined SWIGGUILE
+#if defined SWIGPHP4 || defined SWIGTCL || defined SWIGGUILE || defined SWIGCSHARP
     %rename(apply) operator();
 #endif
     virtual bool operator()(const std::string & term) const = 0;
