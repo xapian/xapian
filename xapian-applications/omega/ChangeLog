@@ -1,3 +1,7 @@
+Mon Sep 20 14:52:24 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Version 0.8.3.
+
 Mon Sep 20 14:49:26 BST 2004  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac: Require same versions of autoconf and

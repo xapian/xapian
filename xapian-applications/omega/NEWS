@@ -1,3 +1,16 @@
+Omega 0.8.3 (2004-09-20):
+
+* scriptindex: --version now actually reports the version.  --help now exits
+  with status 0 rather than status 1.
+
+* RPM packaging: Updated.  The most notable change is that the RPM is now
+  called xapian-omega because there's already an omega RPM (in Fedora Core at
+  least) which is a game.  Also htdig2omega and htdig2omega.script are now
+  included in the RPM.
+
+* Install htdig2omega.script in ${prefix}/share/omega/ rather than
+  ${prefix}/share/.
+
 Omega 0.8.2 (2004-09-13):
 
 * omega: $highlight now handles accented characters (bug#9).
