@@ -1204,7 +1204,7 @@ Btree::add(const string &key, const string &tag)
     for (i = 1; i <= m; i++) {
 	int l = i == m ? residue :
 		i == 1 ? first_L : L;
-	Assert(cd + l <= 65536);
+	Assert(cd + l <= block_size);
 	Assert(o + l <= tag.length());
 	memmove(kt + cd, tag.data() + o, l);
 	o += l;
