@@ -7,13 +7,17 @@ INCLUDES = -I/usr/local/BerkeleyDB/include
 noinst_HEADERS = da_database.h daread.h database.h match.h mergedpostlist.h \
  muscat.h omtypes.h proto_database.h proto_db.h
 
-bin_PROGRAMS = dbtest matchtest
+bin_PROGRAMS = dbtest matchtest stemtest
 
 ACCESS_PROTO = proto_database.cc proto_db.c
 ACCESS_DA = da_database.cc trial.cc
 
+STEMMER_SRC = stem.c stem_en.cc
+
 dbtest_SOURCES = dbtest.cc $(ACCESS_PROTO) $(ACCESS_DA)
 dbtest_LDADD = -L/usr/local/BerkeleyDB/lib -ldb
 
-matchtest_SOURCES = match.cc mergedpostlist.cc matchtest.cc $(ACCESS_PROTO) $(ACCESS_DA)
+matchtest_SOURCES = match.cc mergedpostlist.cc matchtest.cc $(ACCESS_PROTO) $(ACCESS_DA) $(STEMMER_SRC)
 matchtest_LDADD = -L/usr/local/BerkeleyDB/lib -ldb
+
+stemtest_SOURCES = $(STEMMER_SRC) stemtest.cc
