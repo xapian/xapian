@@ -74,41 +74,45 @@ input:	  /* nothing */	{ query = Query(); }
 	| exp		{ query = $1.q; }
 ;
 
-exp:	  prob		{
-			    Query q = $1.q;
-			    if ($1.love.size()) {
-				Query love(Query::OP_AND,
-					     $1.love.begin(),
-					     $1.love.end());
-				if (q.is_empty()) {
-				    q = love;
-				} else {
-				    q = Query(Query::OP_AND_MAYBE, love, q);
-				}				
-			    }
-			    if ($1.hate.size()) {
-				q = Query(Query::OP_AND_NOT,
-					    q,
-					    Query(Query::OP_OR,
-						    $1.hate.begin(),
-						    $1.hate.end()));
-			    }
-			    $$ = q;
-			}
-	| exp AND exp	{ $$ = U(Query(Query::OP_AND, $1.q, $3.q)); }
-	| exp OR exp	{ $$ = U(Query(Query::OP_OR, $1.q, $3.q)); }
-	| exp NOT exp	{ $$ = U(Query(Query::OP_AND_NOT, $1.q, $3.q)); }
-	| exp XOR exp	{ $$ = U(Query(Query::OP_XOR, $1.q, $3.q)); }
+boolarg:  exp		{ $$ = $1; }
+	| /* nothing */ { $$.q = Query(); }
+;
+
+exp:	  prob
+	    {
+		Query q = $1.q;
+		if ($1.love.size()) {
+		    Query love(Query::OP_AND, $1.love.begin(), $1.love.end());
+		    if (q.is_empty()) {
+			q = love;
+		    } else {
+			q = Query(Query::OP_AND_MAYBE, love, q);
+		    }				
+		}
+		if ($1.hate.size()) {
+		    q = Query(Query::OP_AND_NOT, q,
+			      Query(Query::OP_OR,
+				    $1.hate.begin(), $1.hate.end()));
+		}
+		$$ = q;
+	    }
+	| boolarg AND boolarg
+	    {   if ($1.q.is_empty() || $3.q.is_empty())
+		    throw "Syntax: <expression> AND <expression>";
+		$$ = U(Query(Query::OP_AND, $1.q, $3.q)); }
+	| boolarg OR boolarg
+	    {	if ($1.q.is_empty() || $3.q.is_empty())
+		    throw "Syntax: <expression> OR <expression>";
+		$$ = U(Query(Query::OP_OR, $1.q, $3.q)); }
+	| boolarg NOT boolarg
+	    {	if ($1.q.is_empty() || $3.q.is_empty())
+		    throw "Syntax: <expression> NOT <expression>";
+		$$ = U(Query(Query::OP_AND_NOT, $1.q, $3.q)); }
+	| boolarg XOR boolarg
+	    {	if ($1.q.is_empty() || $3.q.is_empty())
+		    throw "Syntax: <expression> XOR <expression>";
+		$$ = U(Query(Query::OP_XOR, $1.q, $3.q)); }
 	| '(' exp ')'	{ $$ = $2; }
-	/* error catches */
-	| exp AND	{ throw "Syntax: expression AND expression"; }
-	| AND exp	{ throw "Syntax: expression AND expression"; }
-	| exp OR	{ throw "Syntax: expression OR expression"; }
-	| OR exp	{ throw "Syntax: expression OR expression"; }
-	| exp NOT	{ throw "Syntax: expression NOT expression"; }
-	| NOT exp	{ throw "Syntax: expression NOT expression"; }
-	| exp XOR	{ throw "Syntax: expression XOR expression"; }
-	| XOR exp	{ throw "Syntax: expression XOR expression"; }
 ;
 
 prob:	  probterm

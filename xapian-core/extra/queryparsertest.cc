@@ -43,6 +43,7 @@ static test tests[] = {
     { "a- grade", "(a-:(pos=1) OR grade:(pos=2))" },
     { "gtk+ -gimp", "(gtk+:(pos=1) AND_NOT gimp:(pos=2))" },
     { "c++ -c--", "(c++:(pos=1) AND_NOT c--:(pos=2))" },
+    { "Mg2+ Cl-", "(Rmg2+:(pos=1) OR Rcl-:(pos=2))" },
     { "\"c++ standard\"", "(c++:(pos=1) PHRASE 2 standard:(pos=2))" },
     { "AT&T M&S", "(Rat&t:(pos=1) OR Rm&s:(pos=2))" },
     { "E.T. N.A.T.O AB.C.", "(Ret:(pos=1) OR Rnato:(pos=2) OR (Rab:(pos=3) PHRASE 2 c:(pos=4)))" },
@@ -64,12 +65,15 @@ static test tests[] = {
       "(Rerror:(pos=1) OR R2003:(pos=2) OR (Rcan:(pos=3) PHRASE 2 t:(pos=4)) OR connect:(pos=5) OR to:(pos=6) OR Rmysql:(pos=7) OR server:(pos=8) OR on:(pos=9) OR localhost:(pos=10) OR R10061:(pos=11))" },
     { "location.href = \"\"", "(locat:(pos=1) PHRASE 2 href:(pos=2))" },
     { "method=\"post\" action=\"\">", "(method:(pos=1) OR post:(pos=2) OR action:(pos=3))" },
+    { "NOT windows", "Syntax: <expression> NOT <expression>" },
     // These are currently parse errors, but many shouldn't be:
     { "behuizing 19\" inch", NULL },
     { "\"missing quote", NULL }, //"(miss:(pos=1) PHRASE 2 quot:(pos=2))" },
     { "\"phrase one \"phrase two\"", NULL },
     { "19\" rack", NULL },
     { "3,5\" mainboard", NULL },
+    { "NEAR 207 46 249 27", NULL },
+    { "- NEAR 12V voeding", NULL },
     { "553 sorry, that domain isn't in my list of allowed rcpthosts (#5.7.1)", NULL },
     { "data error (clic redundancy check)", NULL },
     { "? mediaplayer 9\"", NULL },
@@ -246,7 +250,6 @@ static test tests[] = {
     { "<META NAME=\"ROBOTS", NULL },
     { "lp0: using parport0 (interrupt-driven)", NULL },
     { "ULTRA PC-TUNING, COOLING & MODDING (4,6)", NULL },
-    { "NEAR 207 46 249 27", NULL },
     { "512MB PC2700 DDR SDRAM Rood (Dane-Elec)", NULL },
     { "header(\"Content Type: text/html\");", NULL },
     { "\"-RW\" \"+RW\"", NULL },
@@ -466,7 +469,6 @@ static test tests[] = {
     { "~ Could not retrieve directory listing for \"/\"", NULL },
     { "asp CreateObject(\"Word.Document\")", NULL },
     { "De lees- of schrijfbewerking (\"written\") op het geheugen is mislukt.", NULL },
-    { "- NEAR 12V voeding", NULL },
     { "putStr (map (\\x -> chr (round (21/2 * x^3 - 92 * x^2 + 503/2 * x - 105))) [1..4])", NULL },
     { "parent.document.getElementById(\\\"leftmenu\\\").cols", NULL },
     { "<% if not isEmpty(Request.QueryString) then", NULL },
@@ -484,13 +486,13 @@ main(void)
     int succeed = 0, fail = 0;
     while (p->query) {
 	string expect, parsed;
-	if (p->expect) {
-	    expect = string("Xapian::Query(") + p->expect + ')';
-	} else {
+	if (p->expect)
+	    expect = p->expect;
+	else
 	    expect = "parse error";
-	}
 	try {
 	    parsed = qp.parse_query(p->query).get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
 	} catch (const Xapian::Error &e) {
 	    parsed = e.get_msg();
 	} catch (const char *s) {
