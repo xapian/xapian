@@ -31,6 +31,7 @@ class IRWeight;
 #include <stack>
 #include <vector>
 
+// An item in the MSet
 class MSetItem {
     public:
         weight wt;
@@ -38,6 +39,35 @@ class MSetItem {
         MSetItem(weight wt_new, docid did_new)
 		: wt(wt_new), did(did_new)
 		{ return; }
+};
+
+// Comparison to determine the order of elements in the MSet
+// Return true if a should be listed before b
+// (By default, equally weighted items will be returned in reverse
+// document id number.)
+class MSetCmp {
+    public:
+	virtual bool operator()(const MSetItem &a, const MSetItem &b) = 0;
+};
+
+// Comparison which sorts equally weighted MSetItems in docid order
+class MSetCmpForward : public MSetCmp {
+    public:
+	bool operator()(const MSetItem &a, const MSetItem &b) {
+	    if(a.wt > b.wt) return true;
+	    if(a.wt == b.wt) return a.did < b.did;
+	    return false;
+	}
+};
+
+// Comparison which sorts equally weighted MSetItems in reverse docid order
+class MSetCmpReverse : public MSetCmp {
+    public:
+	bool operator()(const MSetItem &a, const MSetItem &b) {
+	    if(a.wt > b.wt) return true;
+	    if(a.wt == b.wt) return a.did > b.did;
+	    return false;
+	}
 };
 
 // Match operations
@@ -50,6 +80,7 @@ typedef enum {
     MOP_XOR
 } matchop;
 
+// Class which encapsulates best match operation
 class Match
 {
     private:
@@ -126,8 +157,8 @@ class Match
 	// Perform the match operation, and get the matching items
 	void match(doccount first,         // First item to return (start at 0)
 		   doccount maxitems,      // Maximum number of items to return
-		   vector<MSetItem> &      // Results will be put in this vector
-		  );
+		   vector<MSetItem> &,     // Results will be put in this vector
+		   MSetCmp *);             // Comparison operator to sort by
 
 	// Perform the match operation, but also return a lower bound on the
 	// number of matching records in the database (mtotal).  Because of
@@ -142,6 +173,7 @@ class Match
 	void match(doccount first,         // First item to return (start at 0)
 		   doccount maxitems,      // Maximum number of items to return
 		   vector<MSetItem> &,     // Results will be put in this vector
+		   MSetCmp *,              // Comparison operator to sort by
 		   doccount *);            // Mtotal will returned here
 
 	///////////////////////////////////////////////////////////////////
@@ -152,6 +184,10 @@ class Match
 	// and the maxweight now possible is smaller.
         void recalc_maxweight();
 };
+
+///////////////////////////////
+// Inline method definitions //
+///////////////////////////////
 
 inline void
 Match::set_default_op(matchop _default_op)

@@ -57,19 +57,6 @@ class PLPCmpLt {
         }
 };
 
-// Determine the order of elements in the MSet
-// Return true if a should be listed before b
-// (By default, equally weighted items will be returned in reverse
-// document id number.)
-class MSetCmp {
-    public:
-        bool operator()(const MSetItem &a, const MSetItem &b) {
-	    if(a.wt > b.wt) return true;
-	    if(a.wt == b.wt) return a.did > b.did;
-	    return false;
-        }
-};
-
 ////////////////////////////////////
 // Initialisation and cleaning up //
 ////////////////////////////////////
@@ -274,18 +261,21 @@ Match::build_query()
 
 // Convenience wrapper
 void
-Match::match(doccount first, doccount maxitems, vector<MSetItem> &mset)
+Match::match(doccount first, doccount maxitems,
+	     vector<MSetItem> &mset, MSetCmp *mcmp)
 {
     doccount mtotal;
-    match(first, maxitems, mset, &mtotal);
+    match(first, maxitems, mset, mcmp, &mtotal);
 }
 
 // This is the method which runs the query, generating the M set
 void
 Match::match(doccount first, doccount maxitems,
-	     vector<MSetItem> &mset, doccount *mtotal)
+	     vector<MSetItem> &mset, MSetCmp *mcmp,  doccount *mtotal)
 {
     Assert(maxitems > 0);
+
+    MSetCmpForward mc; mcmp = &mc;
 
     // Prepare query
     *mtotal = 0;
@@ -304,7 +294,7 @@ Match::match(doccount first, doccount maxitems,
     weight w_max = max_weight;
     recalculate_maxweight = false;
 
-    map<IRKey, pair<weight, docid> > collapse_table;
+    map<IRKey, MSetItem> collapse_table;
 
     // Perform query
     while (1) {
@@ -345,31 +335,32 @@ Match::match(doccount first, doccount maxitems,
         if (w > w_min) {
 	    docid did = merger->get_docid();
 	    bool add_item = true;
+	    MSetItem mitem(w, did);
 
 	    // Item has high enough weight to go in MSet: do collapse if wanted
 	    if(do_collapse) {
 		IRDocument * irdoc = database->open_document(did);
 		IRKey irkey = irdoc->get_key(collapse_key);
-		map<IRKey, pair<weight, docid> >::iterator oldkey;
+		map<IRKey, MSetItem>::iterator oldkey;
 		oldkey = collapse_table.find(irkey);
 		if(oldkey == collapse_table.end()) {
 		    DebugMsg("collapsem: new key: " << irkey.value << endl);
 		    // Key not been seen before
-		    collapse_table.insert(pair<IRKey, pair<weight, docid> >(irkey, pair<weight, docid>(w, did)));
+		    collapse_table.insert(pair<IRKey, MSetItem>(irkey, mitem));
 		} else {
-		    weight oldw = (*oldkey).second.first;
-		    if(oldw > w) {
+		    MSetItem olditem = (*oldkey).second;
+		    if(mcmp->operator()(olditem, mitem)) {
 			DebugMsg("collapsem: better exists: " << irkey.value << endl);
 			// There's already a better match with this key
 			add_item = false;
 		    } else {
 			// This is best match with this key so far:
 			// remove the old one from the MSet
-			if(oldw >= w_min) {
+			if(olditem.wt >= w_min) { // FIXME: should use MSetCmp
 			    // Old one hasn't fallen out of MSet yet
 			    // Scan through (unsorted) MSet looking for entry
 			    // FIXME: more efficient way that just scanning?
-			    weight olddid = (*oldkey).second.second;
+			    weight olddid = olditem.did;
 			    DebugMsg("collapsem: removing " << olddid << ": " << irkey.value << endl);
 			    vector<MSetItem>::iterator i = mset.begin();
 			    for(;;) {
@@ -378,17 +369,15 @@ Match::match(doccount first, doccount maxitems,
 				    break;
 				}
 				i++;
-				// Check that it was found
-				Assert(i != mset.end());
 			    }
 			}
-			oldkey->second = pair<weight, docid>(w, did);
+			oldkey->second = mitem;
 		    }
 		}
 	    }
 
 	    if(add_item) {
-		mset.push_back(MSetItem(w, did));
+		mset.push_back(mitem);
 
 		// FIXME: find balance between larger size for more efficient
 		// nth_element and smaller size for better w_min optimisations
@@ -396,7 +385,7 @@ Match::match(doccount first, doccount maxitems,
 		    // find last element we care about
 		    DebugMsg("finding nth" << endl);
 		    nth_element(mset.begin(), mset.begin() + max_msize,
-				mset.end(), MSetCmp());
+				mset.end(), *mcmp);
 		    // erase elements which don't make the grade
 		    mset.erase(mset.begin() + max_msize, mset.end());
 		    w_min = mset.back().wt;
@@ -409,7 +398,7 @@ Match::match(doccount first, doccount maxitems,
     if (mset.size() > max_msize) {
 	// find last element we care about
 	DebugMsg("finding nth" << endl);
-	nth_element(mset.begin(), mset.begin() + max_msize, mset.end(), MSetCmp());
+	nth_element(mset.begin(), mset.begin() + max_msize, mset.end(), *mcmp);
 	// erase elements which don't make the grade
 	mset.erase(mset.begin() + max_msize, mset.end());
     }
@@ -421,14 +410,14 @@ Match::match(doccount first, doccount maxitems,
 	    mset.clear();
 	} else {
 	    DebugMsg("finding " << first << "th" << endl);
-	    nth_element(mset.begin(), mset.begin() + first, mset.end(), MSetCmp());
+	    nth_element(mset.begin(), mset.begin() + first, mset.end(), *mcmp);
 	    // erase the leading ``first'' elements
 	    mset.erase(mset.begin(), mset.begin() + first);
 	}
     }
 
     // Need a stable sort, but this is provided by comparison operator
-    sort(mset.begin(), mset.end(), MSetCmp());
+    sort(mset.begin(), mset.end(), *mcmp);
 
     DebugMsg("msize = " << mset.size() << ", mtotal = " << *mtotal << endl);
     if (mset.size()) {
