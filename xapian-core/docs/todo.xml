@@ -564,4 +564,12 @@ Find paper about "illusion of control" that boolean operators give.  It's
 makes some good points which ought to be more widely aired.
 
 </todoitem>
+<todoitem priority=" " difficulty="" owner="Olly" area="" release="">
+
+Sort out some sort of framework for stopwording (OmStopper class?)  Should
+it use static lists (compiled in, perhaps using gperf) or dynamically load
+lists?  Stopword lists should be fine tunable in general, so probably the
+latter...
+
+</todoitem>
 </todo>
