@@ -55,10 +55,6 @@ Several new features
  * Various portability fixes (including our own implementation of auto_ptr,
    (called AutoPtr) to get around the differing versions available).
 
- * Postlists and Termlists now keep a reference to the database open, so that
-   they will continue to work even if the OmDatabase they were created from
-   is closed.
-
 
 Bugs fixed include:
 
