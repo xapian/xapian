@@ -209,14 +209,13 @@ fi
 
 if [ -r Makefile ] ; then
   CREATED_MAKEFILE=1
-  if [ -r Makefile.old ] ; then
-    rm -f Makefile.old
+  if [ -r "Makefile.old$$" ] ; then
+    rm -f "Makefile.old$$"
   fi
 else
   CREATED_MAKEFILE=0
   RUNMAKE=0
-  if [ -r Makefile.old ] ; then
-    mv Makefile.old Makefile
+  if [ -r "Makefile.old$$" ] ; then
     display "${PROGNAME}: replacing existing Makefile"
     mv "Makefile.old$$" Makefile
   fi
