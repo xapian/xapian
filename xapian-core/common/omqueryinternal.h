@@ -141,6 +141,11 @@ class OmQueryInternal {
 	/** Destructor. */
 	~OmQueryInternal();
 
+	/** Return a string in an easily parsed form
+	 *  which contains all the information in a query.
+	 */
+	string serialise() const;
+
 	/** Returns a string representing the query.
 	 * Introspection method.
 	 */

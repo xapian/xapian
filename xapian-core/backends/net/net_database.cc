@@ -71,7 +71,8 @@ NetworkDatabase::open(const DatabaseBuilderParams & params) {
 
     if (params.paths[0] == "prog") {
 	link = OmRefCntPtr<NetClient>(new ProgClient(params.paths[1]));
-	initialise_link();
+	assert(link.get() != 0);
+	//initialise_link();
     } else {
 	throw OmUnimplementedError(string("Network database type ") +
 				   params.paths[0]);
@@ -79,6 +80,7 @@ NetworkDatabase::open(const DatabaseBuilderParams & params) {
     opened = true;
 }
 
+#if 0
 void NetworkDatabase::initialise_link() {
     link->write_data("GETDOCCOUNT");
     string response = link->read_data();
@@ -88,12 +90,13 @@ void NetworkDatabase::initialise_link() {
     // FIXME: do some more error checking
     remote_doccount = atol(response.c_str());
 }
+#endif
 
 om_doccount
 NetworkDatabase::get_doccount() const
 {
-    Assert(opened);
-    return remote_doccount;
+    Assert(false);
+//    return remote_doccount;
 }
 
 LeafPostList *

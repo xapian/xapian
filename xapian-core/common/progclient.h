@@ -45,6 +45,11 @@ class ProgClient : public NetClient {
 	string do_read();
 	void do_write(string data);
 
+	/** Write the string and get an "OK" message back,
+	 *  or else throw an exception
+	 */
+	void do_simple_transaction(string msg);
+
     public:
 	/** Constructor.
 	 *
@@ -58,6 +63,12 @@ class ProgClient : public NetClient {
 	/** Write some bytes to the process.
 	 */
 	void write_data(string msg);
+
+	/** Set the weighting type */
+	void set_weighting(IRWeight::weight_type wt_type);
+
+	/** Set the query */
+	void set_query(const OmQueryInternal *query_);
 
 	/** Read some data from the process.
 	 */

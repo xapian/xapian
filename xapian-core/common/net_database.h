@@ -31,6 +31,7 @@
 
 class NetworkDatabase : public IRDatabase {
     friend class DatabaseBuilder;
+    friend class NetworkMatch;
     private:
         /// Reference to the network link object
     	OmRefCntPtr<NetClient> link;
@@ -40,9 +41,6 @@ class NetworkDatabase : public IRDatabase {
 
 	/// Set up the connection, including swapping statistics.
 	void initialise_link();
-
-	// Cached data from the remote side
-	om_doccount remote_doccount;
 
 	NetworkDatabase();
 	void open(const DatabaseBuilderParams & params);

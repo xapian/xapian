@@ -23,6 +23,7 @@
 #include "config.h"
 #include "progclient.h"
 #include "om/omerror.h"
+#include "utils.h"
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -94,7 +95,9 @@ ProgClient::do_read()
     }
     string retval(buffer.begin(), buffer.begin() + pos);
 
-    buffer.erase(0, pos);
+    //cout << "PreBuffer: [" << buffer << "]" << endl;
+    buffer.erase(0, pos+1);
+    //cout << "PostBuffer: [" << buffer << "]" << endl;
 
     return retval;
 }
@@ -134,4 +137,28 @@ ProgClient::data_is_available()
 ProgClient::~ProgClient()
 {
     close(socketfd);
+}
+
+void
+ProgClient::set_weighting(IRWeight::weight_type wt_type)
+{
+    do_simple_transaction(string("SETWEIGHT ") + inttostring(wt_type));
+}
+
+void
+ProgClient::set_query(const OmQueryInternal *query_)
+{
+    do_simple_transaction(string("SETQUERY ") + query_->serialise());
+} 
+
+void
+ProgClient::do_simple_transaction(string msg)
+{
+    do_write(msg + '\n');
+    string response = do_read();
+
+    if (response != "OK") {
+	throw OmNetworkError(string("Invalid response: (") +
+			     msg + ") -> (" + response + ")");
+    }
 }

@@ -25,6 +25,8 @@
 
 #include <string>
 #include "omrefcnt.h"
+#include "irweight.h"
+#include "omqueryinternal.h"
 
 /** The base class of the network interface.
  *  A NetClient object is used by NetworkMatch to communicate
@@ -47,6 +49,12 @@ class NetClient : public OmRefCntBase {
 	 *  writer and reader functions.
 	 */
 	virtual void write_data(string msg) = 0;
+
+	/** Set the weighting type */
+	virtual void set_weighting(IRWeight::weight_type wt_type) = 0;
+
+	/** Set the query */
+	virtual void set_query(const OmQueryInternal *query_) = 0;
 
 	/** Read some data from the remote process.
 	 */

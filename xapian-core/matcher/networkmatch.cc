@@ -37,8 +37,8 @@
 ////////////////////////////////////
 
 NetworkMatch::NetworkMatch(IRDatabase *database_)
-	: database(database_) /*,
-	  statsleaf(),
+	: database(dynamic_cast<NetworkDatabase *>(database_)),
+	  statsleaf() /*,
 	  min_weight_percent(-1),
 	  max_weight_needs_calc(true),
 	  query(0),
@@ -48,45 +48,25 @@ NetworkMatch::NetworkMatch(IRDatabase *database_)
 	  wt_type(IRWeight::WTTYPE_BM25),
 	  do_collapse(false) */
 {
-    int sv[2];
+    // make sure that the database was a NetworkDatabase after all
+    Assert(database != 0);
+}
 
-    if (socketpair(PF_UNIX, SOCK_STREAM, 0, sv) < 0) {
-	// FIXME: make a networkerror exception
-	perror("socketpair");
-	throw OmDatabaseError(std::string("socketpair:") + strerror(errno));
+void
+NetworkMatch::prepare_match()
+{
+    if (!is_prepared) {
+	get_remote_stats();
+
+	statsleaf.contrib_my_stats();
+	is_prepared = true;
     }
-    
-    pid_t pid = fork();
+}
 
-    if (pid < 0) {
-	// FIXME: make a networkerror exception
-	perror("fork");
-	throw OmDatabaseError(std::string("fork:") + strerror(errno));
-    }
-
-    if (pid == 0) {
-	// child process
-	execlp("omnetclient", "omnetclient", inttostring(sv[1]).c_str(), 0);
-
-	perror("execlp");
-
-	// if we get here, then execlp failed.
-	exit(-1);
-    } else {
-	// child
-	to = sv[0];
-	from = sv[0];
-
-	ssize_t written = write(to, "HELLO!\n", 7);
-	if (written != 7) {
-	    cout << "Only wrote " << written << " bytes." << endl;
-	}
-
-	char buf[10];
-	ssize_t received = read(from, buf, 10);
-	cout << "Read back " << received << " bytes: ["
-             << std::string(buf, buf+received) << "]" << endl;
-    }
+void
+NetworkMatch::get_remote_stats()
+{
+    Assert(false);
 }
 
 //////////////////////////////////////////////////////////
@@ -98,11 +78,9 @@ NetworkMatch::NetworkMatch(IRDatabase *database_)
 void
 NetworkMatch::link_to_multi(StatsGatherer *gatherer)
 {
-#if 0
     statsleaf.connect_to_gatherer(gatherer);
-    statsleaf.my_collection_size_is(database->get_doccount());
-    statsleaf.my_average_length_is(database->get_avlength());
-#endif
+//    statsleaf.my_collection_size_is(database->get_doccount());
+//    statsleaf.my_average_length_is(database->get_avlength());
 }
 
 NetworkMatch::~NetworkMatch()
@@ -174,6 +152,7 @@ NetworkMatch::del_query_tree()
 void
 NetworkMatch::set_collapse_key(om_keyno key)
 {
+    Assert(false);
 #if 0
     do_collapse = true;
     collapse_key = key;
@@ -183,6 +162,7 @@ NetworkMatch::set_collapse_key(om_keyno key)
 void
 NetworkMatch::set_no_collapse()
 {
+    Assert(false);
 #if 0
     do_collapse = false;
 #endif
@@ -191,6 +171,7 @@ NetworkMatch::set_no_collapse()
 void
 NetworkMatch::set_min_weight_percent(int pcent)
 {
+    Assert(false);
 #if 0
     min_weight_percent = pcent;
 #endif
@@ -199,6 +180,7 @@ NetworkMatch::set_min_weight_percent(int pcent)
 void
 NetworkMatch::set_rset(RSet *rset_)
 {
+    Assert(false);
 #if 0
     Assert(query == NULL);
     rset = rset_;
@@ -209,6 +191,7 @@ NetworkMatch::set_rset(RSet *rset_)
 void
 NetworkMatch::set_weighting(IRWeight::weight_type wt_type_)
 {
+    database->link->set_weighting(wt_type_);
 #if 0
     Assert(query == NULL);
     wt_type = wt_type_;
@@ -389,17 +372,7 @@ NetworkMatch::postlist_from_query(const OmQueryInternal *query_)
 void
 NetworkMatch::set_query(const OmQueryInternal *query_)
 {
-#if 0
-    // Clear existing query
-    max_weight = 0;
-    if(query) {
-	delete query;
-	query = NULL;
-    }
-
-    // Remember query
-    users_query = *query_;
-#endif
+    database->link->set_query(query_);
 }
 
 /// Build the query tree, if it isn't already built.
@@ -420,6 +393,7 @@ NetworkMatch::build_query_tree()
 om_weight
 NetworkMatch::get_max_weight()
 {
+    Assert(false);
     Assert(is_prepared);
 #if 0
     if (max_weight_needs_calc) {
@@ -446,6 +420,7 @@ NetworkMatch::get_max_weight()
 void
 NetworkMatch::recalc_maxweight()
 {
+    Assert(false);
 #if 0
     recalculate_maxweight = true;
 #endif
@@ -505,14 +480,6 @@ NetworkMatch::perform_collapse(vector<OmMSetItem> &mset,
 }
 #endif
 
-void
-NetworkMatch::prepare_match()
-{
-    Assert(!is_prepared);
-    //statsleaf.contrib_my_stats();
-    is_prepared = true;
-}
-
 // This is the method which runs the query, generating the M set
 void
 NetworkMatch::get_mset(om_doccount first,
@@ -523,6 +490,7 @@ NetworkMatch::get_mset(om_doccount first,
 		       om_weight * greatest_wt,
 		       const OmMatchDecider *mdecider)
 {
+    Assert(false);
     Assert(is_prepared);
 #if 0
     // Empty result set

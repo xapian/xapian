@@ -4,7 +4,7 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
-noinst_HEADERS = net_database.h
+noinst_HEADERS =
 
 noinst_LTLIBRARIES = libnetdb.la
 

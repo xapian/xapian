@@ -39,7 +39,8 @@
 #include "multi_database.h"
 #endif
 #ifdef MUS_BUILD_BACKEND_NET
-#include "net/net_database.h"
+// net_database.h is in common/
+#include "net_database.h"
 #endif
 #include "database.h"
 

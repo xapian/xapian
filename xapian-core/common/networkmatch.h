@@ -25,6 +25,7 @@
 
 #include "match.h"
 #include "stats.h"
+#include "net_database.h"
 
 /** Class for performing match calculations over a network interface.
  */
@@ -36,12 +37,15 @@ class NetworkMatch : public SingleMatch
 	void operator=(const NetworkMatch &);
 
 	// the database object
-	IRDatabase *database;
+	NetworkDatabase *database;
 
-	// network socket state
-	// FIXME: encapsulate into an object.
-	int to;
-	int from;
+	/// the statistics object
+	StatsLeaf statsleaf;
+
+	/// Prepare the statsleaf object with contributed
+	/// statistics from the remote end.
+	void get_remote_stats();
+
     public:
         NetworkMatch(IRDatabase * database_);
         ~NetworkMatch();

@@ -23,6 +23,7 @@
 #include "omassert.h"
 #include "omlocks.h"
 #include "omqueryinternal.h"
+#include "utils.h"
 
 #include <om/omerror.h>
 #include <om/omenquire.h>
@@ -166,6 +167,96 @@ om_termname_list OmQuery::get_terms() const
 // Methods for OmQueryInternal //
 /////////////////////////////////
 
+string
+tohex(char c)
+{
+    static char hexdigits[] = "0123456789ABCDEF";
+    int high = (c & 0xf0) >> 4;
+    int low = (c & 0x0f);
+    return string() + hexdigits[high] + hexdigits[low];
+}
+
+string
+encode_tname(string tname)
+{
+    string result;
+
+    string::const_iterator i;
+    for (i = tname.begin();
+	 i != tname.end();
+	 ++i) {
+	result += tohex(*i);
+    }
+    return result;
+}
+
+/** serialising method, for network matches.
+ *
+ *  The format is designed to be relatively easy
+ *  to parse, as well as encodable in one line of text.
+ *
+ *  A null query is represented as `%N'.
+ *
+ *  A single-term query becomes `%T<tname>,<wqf>,<termpos>',
+ *  where:
+ *  	<tname> is the encoded term name
+ *  	<wqf> is the decimal within query frequency,
+ *  	<termpos> is the decimal term position.
+ *
+ *  A term name is encoded as a string of hex digits, two per
+ *  byte in the term.  The first digit is the high nibble, and
+ *  the second is the low nibble.
+ *
+ *  A compound query becomes `%(<subqueries> <op>%)', where:
+ *  	<subqueries> is the space-separated list of subqueries
+ *  	<op> is one of: %and, %or, %filter, %andmaybe, %andnot, %xor
+ */
+string
+OmQueryInternal::serialise() const
+{
+    if (!isdefined) return "%N";
+
+    string result;
+
+    if (op == OM_MOP_LEAF) {
+	result = "%T" + encode_tname(tname) +
+		"," + inttostring(wqf) +
+		"," + inttostring(term_pos);
+    } else {
+	result += "%(";
+	for (subquery_list::const_iterator i=subqs.begin();
+	     i != subqs.end();
+	     ++i) {
+	    result += (*i)->serialise() + " ";
+	}
+	switch (op) {
+	    case OM_MOP_LEAF:
+		Assert(false);
+		break;
+	    case OM_MOP_AND:
+		result += "%and";
+		break;
+	    case OM_MOP_OR:
+		result += "%or";
+		break;
+	    case OM_MOP_FILTER:
+		result += "%filter";
+		break;
+	    case OM_MOP_AND_MAYBE:
+		result += "%andmaybe";
+		break;
+	    case OM_MOP_AND_NOT:
+		result += "%andnot";
+		break;
+	    case OM_MOP_XOR:
+		result += "%xor";
+		break;
+	} // switch(op)
+	result += "%)";
+    }
+    return result;
+}
+
 // Introspection
 string
 OmQueryInternal::get_description() const
@@ -174,26 +265,26 @@ OmQueryInternal::get_description() const
     string opstr;
     switch(op) {
 	case OM_MOP_LEAF:
-		return tname;
-		break;
+	    return tname;
+	    break;
 	case OM_MOP_AND:
-		opstr = " AND ";
-		break;
+	    opstr = " AND ";
+	    break;
 	case OM_MOP_OR:
-		opstr = " OR ";
-		break;
+	    opstr = " OR ";
+	    break;
 	case OM_MOP_FILTER:
-		opstr = " FILTER ";
-		break;
+	    opstr = " FILTER ";
+	    break;
 	case OM_MOP_AND_MAYBE:
-		opstr = " AND_MAYBE ";
-		break;
+	    opstr = " AND_MAYBE ";
+	    break;
 	case OM_MOP_AND_NOT:
-		opstr = " AND_NOT ";
-		break;
+	    opstr = " AND_NOT ";
+	    break;
 	case OM_MOP_XOR:
-		opstr = " XOR ";
-		break;
+	    opstr = " XOR ";
+	    break;
     }
     string description;
     vector<OmQueryInternal *>::const_iterator i;
