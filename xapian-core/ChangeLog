@@ -1,3 +1,10 @@
+Thu Aug 31 11:41:00 BST 2000 Olly Betts
+
+	* Window size for NEAR and PHRASE now defaults to number of
+	  subqueries.
+
+	* NEAR and PHRASE can now be built with OmQuery pair constructor.
+
 Thu Aug 31 13:29:20 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* OmIndexer type-checking now seems to work.

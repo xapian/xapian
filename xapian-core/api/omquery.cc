@@ -69,10 +69,9 @@ OmQuery::OmQuery(OmQuery::op op_,
     DEBUGAPICALL("OmQuery::OmQuery",
 		 op_ << ", " << "std::vector<OmQuery *>, " << window);
     std::vector<OmQueryInternal *> temp;
-    std::vector<OmQuery *>::const_iterator i = qbegin;
-    while (i != qend) {
+    std::vector<OmQuery *>::const_iterator i;
+    for (i = qbegin; i != qend; i++) {
 	temp.push_back((*i)->internal);
-	++i;
     }
     internal = new OmQueryInternal(op_, temp.begin(), temp.end(), window);
 }
@@ -87,10 +86,9 @@ OmQuery::OmQuery(OmQuery::op op_,
     DEBUGAPICALL("OmQuery::OmQuery",
 		 op_ << ", " << "std::vector<OmQuery>, " << window);
     std::vector<OmQueryInternal *> temp;
-    std::vector<OmQuery>::const_iterator i = qbegin;
-    while (i != qend) {
+    std::vector<OmQuery>::const_iterator i;
+    for (i = qbegin; i != qend; i++) {
 	temp.push_back(i->internal);
-	++i;
     }
     internal = new OmQueryInternal(op_, temp.begin(), temp.end(), window);
 }
@@ -359,9 +357,7 @@ OmQueryInternal::accumulate_terms(
     } else {
     	subquery_list::const_iterator end = subqs.end();
         // not a leaf, concatenate results from all subqueries
-	for (subquery_list::const_iterator i = subqs.begin();
-	     i != end;
-	     ++i) {
+	for (subquery_list::const_iterator i = subqs.begin(); i != end; ++i) {
  	    (*i)->accumulate_terms(terms);
 	}
     }
@@ -479,7 +475,11 @@ OmQueryInternal::OmQueryInternal(OmQuery::op op_,
     }
 
     if (op == OmQuery::OP_NEAR || op == OmQuery::OP_PHRASE) {
-    	throw OmInvalidArgumentError("NEAR/PHRASE take window size and list of terms or queries");
+	std::vector<const OmQueryInternal *> temp;
+	temp.push_back(&left);
+	temp.push_back(&right);	
+	initialise_from_vector(temp.begin(), temp.end());
+	return;
     }
 
     // reject any attempt to make up a composite query when any sub-query
@@ -588,8 +588,8 @@ OmQueryInternal::OmQueryInternal(OmQuery::op op_,
 }
 
 OmQueryInternal::OmQueryInternal(OmQuery::op op_,
-		 const std::vector<OmQueryInternal *>::const_iterator qbegin,
-		 const std::vector<OmQueryInternal *>::const_iterator qend,
+		 const std::vector<const OmQueryInternal *>::const_iterator qbegin,
+		 const std::vector<const OmQueryInternal *>::const_iterator qend,
 		 om_termpos window_)
 	: isdefined(true), isbool(false), op(op_)
 {
@@ -603,7 +603,7 @@ OmQueryInternal::OmQueryInternal(OmQuery::op op_,
 		 om_termpos window_)
 	: isdefined(true), isbool(false), op(op_)
 {
-    std::vector<OmQueryInternal *> subqueries;
+    std::vector<const OmQueryInternal *> subqueries;
     std::vector<om_termname>::const_iterator i;
     try {
 	for(i = tbegin; i != tend; i++) {
@@ -665,8 +665,8 @@ OmQueryInternal::initialise_from_copy(const OmQueryInternal &copyme)
 
 void
 OmQueryInternal::initialise_from_vector(
-			const std::vector<OmQueryInternal *>::const_iterator qbegin,
-			const std::vector<OmQueryInternal *>::const_iterator qend,
+			const std::vector<const OmQueryInternal *>::const_iterator qbegin,
+			const std::vector<const OmQueryInternal *>::const_iterator qend,
                         om_termpos window_)
 {
     bool merge_ok = false; // set if merging with subqueries is valid
@@ -679,6 +679,8 @@ OmQueryInternal::initialise_from_vector(
 	    break;
 	case OmQuery::OP_NEAR:
 	case OmQuery::OP_PHRASE:
+	    // if NEAR/PHRASE and window_ == 0 default to number of subqueries
+	    if (window_ == 0) window_ = (qend - qbegin);
 	    break;
 	case OmQuery::OP_AND_NOT:
 	case OmQuery::OP_XOR:
@@ -691,7 +693,6 @@ OmQueryInternal::initialise_from_vector(
 	case OmQuery::OP_LEAF:
 	    throw OmInvalidArgumentError("LEAF queries from vectors invalid");
     }
-    // FIXME: if NEAR/PHRASE and window_ == 0 default to number of subqueries
     window = window_;
     qlen = 0;
 
@@ -729,9 +730,7 @@ OmQueryInternal::initialise_from_vector(
 	    }
 	}
     } catch (...) {
-	for (subquery_list::iterator i=subqs.begin();
-	     i != subqs.end();
-	     ++i) {
+	for (subquery_list::iterator i=subqs.begin(); i != subqs.end(); ++i) {
 	    delete *i;
 	}
         throw;
