@@ -30,10 +30,11 @@
 
 #include "quartz_table.h"
 #include <xapian/types.h>
+#include "btree.h"
 
 using namespace std;
 
-class QuartzValueTable : public QuartzTable {
+class QuartzValueTable : public Btree {
     private:
 	/** Read an entry from position.  Throw appropriate exceptions if
 	 *  data runs out.
@@ -62,8 +63,8 @@ class QuartzValueTable : public QuartzTable {
 	 *  @param blocksize_     - Size of blocks to use.  This parameter is
 	 *                          only used when creating the table.
 	 */
-	QuartzValueTable(string path_, bool readonly_, unsigned int blocksize_)
-	    : QuartzTable(path_ + "/value_", readonly_, blocksize_) { }
+	QuartzValueTable(string path_, bool readonly_)
+	    : Btree(path_ + "/value_", readonly_) { }
 
 	/** Store a value.  If a value of the same document ID and
 	 *  value number already exists, it is overwritten by this.

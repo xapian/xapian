@@ -30,12 +30,13 @@
 #include <xapian/types.h>
 #include "quartz_types.h"
 #include "quartz_table.h"
+#include "btree.h"
 
 using namespace std;
 
 /** A record in a quartz database.
  */
-class QuartzRecordTable : public QuartzTable {
+class QuartzRecordTable : public Btree {
     public:
 	/** Create a new table object.
 	 *
@@ -51,8 +52,8 @@ class QuartzRecordTable : public QuartzTable {
 	 *  @param blocksize_     - Size of blocks to use.  This parameter is
 	 *                          only used when creating the table.
 	 */
-	QuartzRecordTable(string path_, bool readonly_, unsigned int blocksize_)
-	    : QuartzTable(path_ + "/record_", readonly_, blocksize_) { }
+	QuartzRecordTable(string path_, bool readonly_)
+	    : Btree(path_ + "/record_", readonly_) { }
 
 	/** Retrieve a document from the table.
 	 */

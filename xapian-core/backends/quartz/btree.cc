@@ -46,6 +46,7 @@
 #include "btree.h"
 #include "btree_util.h"
 #include "btree_base.h"
+#include "quartz_table.h"
 
 #include "omassert.h"
 #include "omdebug.h"
@@ -242,7 +243,7 @@ static void sys_unlink(const string &filename)
 
 /// read_block(n, p) reads block n of the DB file to address p.
 void
-Btree::read_block(uint4 n, byte * p)
+Btree::read_block(uint4 n, byte * p) const
 {
     DEBUGCALL(DB, void, "Btree::read_block", n << ", " << p);
     /* Use the base bit_map_size not the bitmap's size, because
@@ -312,7 +313,7 @@ Btree::read_block(uint4 n, byte * p)
  *  subsequently as an invalid base.
  */
 void
-Btree::write_block(uint4 n, const byte * p)
+Btree::write_block(uint4 n, const byte * p) const
 {
     DEBUGCALL(DB, void, "Btree::write_block", n << ", " << p);
     Assert(writable);
@@ -325,15 +326,10 @@ Btree::write_block(uint4 n, const byte * p)
     /* write revision is okay */
     AssertParanoid(REVISION(p) == next_revision);
 
-    if (! Btree_modified) {
-	// Things to do when we start a modification session.
-
-	Btree_modified = true;
-
-	if (both_bases) {
-	    /* delete the old base */
-	    sys_unlink(name + "base" + other_base_letter);
-	}
+    if (both_bases) {
+	// Delete the old base before modifying the database.
+	sys_unlink(name + "base" + other_base_letter);
+	both_bases = false;
     }
 
 #ifdef HAVE_PWRITE
@@ -395,7 +391,7 @@ Btree::write_block(uint4 n, const byte * p)
 
 
 void
-Btree::set_overwritten()
+Btree::set_overwritten() const
 {
     DEBUGCALL(DB, void, "Btree::set_overwritten", "");
     // If we're writable, there shouldn't be another writer who could cause
@@ -415,7 +411,7 @@ Btree::set_overwritten()
 */
 
 void
-Btree::block_to_cursor(Cursor * C_, int j, uint4 n)
+Btree::block_to_cursor(Cursor * C_, int j, uint4 n) const
 {
     DEBUGCALL(DB, void, "Btree::block_to_cursor", (void*)C_ << ", " << j << ", " << n);
     if (n == C_[j].n) return;
@@ -601,7 +597,7 @@ int Btree::find_in_block(const byte * p, const byte * key, int offset, int c)
 */
 
 bool
-Btree::find(Cursor * C_)
+Btree::find(Cursor * C_) const
 {
     DEBUGCALL(DB, bool, "Btree::find", (void*)C_);
     // Note: the parameter is needed when we're called by BCursor
@@ -627,7 +623,7 @@ Btree::find(Cursor * C_)
 #endif /* BTREE_DEBUG_FULL */
     C_[0].c = c;
     if (c < DIR_START) RETURN(false);
-    RETURN((compare_keys(kt + I2, key_of(p, c)) == 0));
+    RETURN((compare_keys(k, key_of(p, c)) == 0));
 }
 
 /** compress(p) compresses the block at p by shuffling all the items up to the end.
@@ -1124,7 +1120,7 @@ The bracketed parts are left blank. The key is filled in with key_len bytes and
 K set accordingly. c is set to 1.
 */
 
-void Btree::form_key(const string & key)
+void Btree::form_key(const string & key) const
 {
     Assert(key.length() <= max_key_len);
 
@@ -1169,13 +1165,21 @@ Btree::add(const string &key, const string &tag)
     DEBUGCALL(DB, bool, "Btree::add", key << ", " << tag);
     Assert(writable);
 
+    if (key.size() > Btree::max_key_len) {
+	throw Xapian::InvalidArgumentError(
+		"Key too long: length was " +
+		om_tostring(key.size()) +
+		" bytes, maximum length of a key is " + 
+		STRINGIZE(Btree::max_key_len) + " bytes");
+    }
+
     form_key(key);
 
-    int ck = GETK(kt, I2) + I2 - C2;  // offset to the counter in the key
-    int ct = ck + C2;                 // offset to the tag counter
-    int cd = ct + C2;                 // offset to the tag data
-    int L = max_item_size - cd;	      // largest amount of tag data for any tag
-    int first_L = L;                  // - amount for tag1
+    size_t ck = GETK(kt, I2) + I2 - C2;  // offset to the counter in the key
+    size_t ct = ck + C2;                 // offset to the tag counter
+    size_t cd = ct + C2;                 // offset to the tag data
+    size_t L = max_item_size - cd;	 // largest amount of tag data for any chunk
+    size_t first_L = L;                  // - amount for tag1
     bool found = find(C);
     if (full_compaction && !found) {
 	byte * p = C[0].p;
@@ -1193,13 +1197,12 @@ Btree::add(const string &key, const string &tag)
 
     int n = 0; // initialise to shut off warning
 				      // - and there will be n to delete
-    int o = 0;                        // offset into the tag
-    int residue = tag.length();       // bytes of the tag remaining to add in
-    int replacement = false;          // has there been a replacement ?
+    int o = 0;                        // Offset into the tag
+    size_t residue = tag.length();    // Bytes of the tag remaining to add in
+    int replacement = false;          // Has there been a replacement ?
     int i;
     for (i = 1; i <= m; i++) {
-	int l = i == m ? residue :
-		i == 1 ? first_L : L;
+	size_t l = (i == m ? residue : (i == 1 ? first_L : L));
 	Assert(cd + l <= block_size);
 	Assert(string::size_type(o + l) <= tag.length());
 	memmove(kt + cd, tag.data() + o, l);
@@ -1218,8 +1221,8 @@ Btree::add(const string &key, const string &tag)
 	SETC(kt, ck, i);
 	delete_kt();
     }
-    if (replacement) RETURN(false);
-    item_count++;
+    if (!replacement) ++item_count;
+    Btree_modified = true;
     RETURN(true);
 }
 
@@ -1235,6 +1238,9 @@ Btree::del(const string &key)
     DEBUGCALL(DB, bool, "Btree::del", key);
     Assert(writable);
 
+    // We can't delete a key which we is too long for us to store.
+    if (key.size() > Btree::max_key_len) RETURN(false);
+
     if (key.empty()) RETURN(false);
     form_key(key);
 
@@ -1249,11 +1255,24 @@ Btree::del(const string &key)
     }
 
     item_count--;
+    Btree_modified = true;
     RETURN(true);
 }
 
 bool
-Btree::find_key(const string &key)
+Btree::get_exact_entry(const string &key, string & tag) const
+{
+    DEBUGCALL(DB, bool, "Btree::get_exact_entry", key << ", " << tag);
+    Assert(!key.empty());
+
+    // An oversized key can't exist, so attempting to search for it should fail.
+    if (key.size() > Btree::max_key_len) RETURN(false);
+
+    RETURN(find_tag(key, &tag));
+}
+
+bool
+Btree::find_key(const string &key) const
 {
     DEBUGCALL(DB, bool, "Btree::find_key", key);
     form_key(key);
@@ -1261,9 +1280,9 @@ Btree::find_key(const string &key)
 }
 
 bool
-Btree::find_tag(const string &key, string * tag)
+Btree::find_tag(const string &key, string * tag) const
 {
-    DEBUGCALL(DB, bool, "Btree::find_key", key << ", &tag");
+    DEBUGCALL(DB, bool, "Btree::find_tag", key << ", &tag");
     form_key(key);
     if (!find(C)) RETURN(false);
 
@@ -1306,16 +1325,17 @@ Btree::set_full_compaction(bool parity)
     full_compaction = parity;
 }
 
+QuartzCursor * Btree::cursor_get() const {
+    // FIXME Ick - casting away const is nasty
+    return new QuartzCursor((Btree *)this);
+}
+
 /************ B-tree opening and closing ************/
 
 bool
-Btree::basic_open(const string & name_,
-		  bool revision_supplied,
-		  uint4 revision_)
+Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
 {
     int ch = 'X'; /* will be 'A' or 'B' */
-
-    name = name_;
 
     {
 	string err_msg;
@@ -1334,7 +1354,7 @@ Btree::basic_open(const string & name_,
 	if (base_ok[0] && base_ok[1]) both_bases = true;
 	if (!base_ok[0] && !base_ok[1]) {
 	    string message = "Error opening table `";
-	    message += name_;
+	    message += name;
 	    message += "':\n";
 	    message += err_msg;
 	    throw Xapian::DatabaseOpeningError(message);
@@ -1357,7 +1377,7 @@ Btree::basic_open(const string & name_,
 		return false;
 	    }
 	} else {
-	    uint4 highest_revision = 0;
+	    quartz_revision_number_t highest_revision = 0;
 	    for (size_t i = 0; i < basenames.size(); ++i) {
 		if (base_ok[i] && bases[i].get_revision() >= highest_revision) {
 		    ch = basenames[i];
@@ -1409,7 +1429,7 @@ Btree::basic_open(const string & name_,
 	}
     }
 
-    /* k holds constructed items as well as keys */
+    /* kt holds constructed items as well as keys */
     kt = zeroed_new(block_size);
     if (kt == 0) {
 	throw std::bad_alloc();
@@ -1471,14 +1491,12 @@ Btree::read_root()
 }
 
 bool
-Btree::do_open_to_write(const string & name_,
-			bool revision_supplied,
-			uint4 revision_)
+Btree::do_open_to_write(bool revision_supplied, quartz_revision_number_t revision_)
 {
     /* FIXME: do the exception safety the right way, by making all the
      * parts into sensible objects.
      */
-    if (!basic_open(name_, revision_supplied, revision_)) {
+    if (!basic_open(revision_supplied, revision_)) {
 	if (!revision_supplied) {
 	    throw Xapian::DatabaseOpeningError("Failed to open for writing");
 	}
@@ -1523,21 +1541,6 @@ Btree::do_open_to_write(const string & name_,
     return true;
 }
 
-void
-Btree::open_to_write(const string & name_)
-{
-    DEBUGCALL(DB, void, "Btree::open_to_write", name_);
-    // Any errors are thrown if revision_supplied is false
-    (void)do_open_to_write(name_, false, 0);
-}
-
-bool
-Btree::open_to_write(const string & name_, uint4 n)
-{
-    DEBUGCALL(DB, bool, "Btree::open_to_write", name_ << ", " << n);
-    RETURN(do_open_to_write(name_, true, n));
-}
-
 Btree::Btree()
 	: revision_number(0),
 	  item_count(0),
@@ -1568,6 +1571,44 @@ Btree::Btree()
     DEBUGCALL(DB, void, "Btree::Btree", "");
 }
 
+Btree::Btree(string path_, bool readonly_)
+	: revision_number(0),
+	  item_count(0),
+	  block_size(0),
+	  other_revision_number(0),
+	  both_bases(false),
+	  base_letter('A'),
+	  faked_root_block(true),
+	  sequential(true),
+	  handle(-1),
+	  level(0),
+	  root(0),
+	  kt(0),
+	  buffer(0),
+	  next_revision(0),
+	  base(),
+	  other_base_letter(0),
+	  name(path_),
+	  seq_count(0),
+	  changed_n(0),
+	  changed_c(0),
+	  max_item_size(0),
+	  Btree_modified(false),
+	  full_compaction(false),
+	  writable(!readonly_),
+	  dont_close_handle(false),
+	  split_p(0)
+{
+    DEBUGCALL(DB, void, "Btree::Btree", path_ << ", " << readonly_);
+}
+
+bool
+Btree::exists() const {
+    DEBUGCALL(DB, bool, "Btree::exists", "");
+    return (file_exists(name + "DB") &&
+	    (file_exists(name + "baseA") || file_exists(name + "baseB")));
+}
+
 /** Delete file, throwing an error if can't delete it (but not if it
  *  doesn't exist)
  */
@@ -1582,9 +1623,11 @@ sys_unlink_if_exists(const string & filename)
 }
 
 void
-Btree::create(const string &name_, int block_size)
+Btree::create(unsigned int block_size)
 {
-    DEBUGCALL_STATIC(DB, void, "Btree::create", name_ << ", " << block_size);
+    DEBUGCALL(DB, void, "Btree::create", block_size);
+    close();
+
     // FIXME: it would be good to arrange that this works such that there's
     // always a valid table in place...
 
@@ -1598,34 +1641,34 @@ Btree::create(const string &name_, int block_size)
 	throw Xapian::InvalidArgumentError("Btree block size too small");
     }
 
-    /* indeed it will need to be a good bit bigger */
-
     /* write initial values to files */
-    {
-	/* create the base file */
-	Btree_base base;
-	base.set_block_size(block_size);
-	base.set_have_fakeroot(true);
-	base.set_sequential(true);
-	base.write_to_file(name_ + "baseA");
 
-	/* remove the alternative base file, if any */
-	sys_unlink_if_exists(name_ + "baseB");
+    /* create the base file */
+    Btree_base base;
+    base.set_block_size(block_size);
+    base.set_have_fakeroot(true);
+    base.set_sequential(true);
+    base.write_to_file(name + "baseA");
 
-	/* create the main file */
-	{
-	    int h = sys_open_to_write(name_ + "DB");      /* - null */
-	    if (h == -1 || !sys_close(h)) {
-		string message = "Error creating DB file: ";
-		message += strerror(errno);
-		throw Xapian::DatabaseOpeningError(message);
-	    }
-	}
+    /* remove the alternative base file, if any */
+    sys_unlink_if_exists(name + "baseB");
+
+    /* create the main file */
+    int h = sys_open_to_write(name + "DB");
+    if (h == -1 || !sys_close(h)) {
+	string message = "Error creating DB file: ";
+	message += strerror(errno);
+	throw Xapian::DatabaseOpeningError(message);
     }
 }
 
 Btree::~Btree() {
     DEBUGCALL(DB, void, "Btree::~Btree", "");
+    Btree::close();
+}
+
+void Btree::close() {
+    DEBUGCALL(DB, void, "Btree::close", "");
 
     if (handle != -1) {
 	// If an error occurs here, we just ignore it, since we're just
@@ -1644,7 +1687,7 @@ Btree::~Btree() {
 }
 
 void
-Btree::commit(uint4 revision)
+Btree::commit(quartz_revision_number_t revision)
 {
     DEBUGCALL(DB, void, "Btree::commit", revision);
     Assert(writable);
@@ -1652,6 +1695,12 @@ Btree::commit(uint4 revision)
     if (revision < next_revision) {
 	throw Xapian::DatabaseError("New revision too low");
     }
+
+    // FIXME: this doesn't work (probably because the table revisions get
+    // out of step) but it's wasteful to keep applying changes to value
+    // and position if they're never used...
+    //
+    // if (!Btree_modified) return;
 
     for (int j = level; j >= 0; j--) {
 	if (C[j].rewrite) {
@@ -1711,14 +1760,25 @@ Btree::commit(uint4 revision)
     seq_count = SEQ_START_POINT;
 }
 
+void
+Btree::cancel()
+{
+    DEBUGCALL(DB, void, "Btree::cancel", "");
+    Assert(writable);
+
+    if (Btree_modified) {
+	// FIXME : this could be done without closing and reopening the Btrees
+	// filedescriptors, etc.
+	open();
+    }
+}
+
 /************ B-tree reading ************/
 
 void
-Btree::do_open_to_read(const string & name_,
-		       bool revision_supplied,
-		       uint4 revision_)
+Btree::do_open_to_read(bool revision_supplied, quartz_revision_number_t revision_)
 {
-    if (!basic_open(name_, revision_supplied, revision_)) {
+    if (!basic_open(revision_supplied, revision_)) {
 	throw Xapian::DatabaseOpeningError("Failed to open table for reading");
     }
 
@@ -1732,27 +1792,54 @@ Btree::do_open_to_read(const string & name_,
 	next_ptr = &Btree::next_default;
     }
 
-    C[level].n = BLK_UNUSED;
-    C[level].p = new byte[block_size];
-    if (C[level].p == 0) {
-	throw std::bad_alloc();
+    for (int j = 0; j <= level; j++) {
+	C[j].n = BLK_UNUSED;
+	C[j].p = new byte[block_size];
+	if (C[j].p == 0) {
+	    throw std::bad_alloc();
+	}
     }
 
     read_root();
 }
 
 void
-Btree::open_to_read(const string & name_)
+Btree::open()
 {
-    DEBUGCALL(DB, void, "Btree::open_to_read", name_);
-    do_open_to_read(name_, false, 0);
+    DEBUGCALL(DB, void, "Btree::open", "");
+    DEBUGLINE(DB, "opening at path " << name);
+    close();
+
+    if (!writable) {
+	do_open_to_read(false, 0);
+	return;
+    }
+
+    // Any errors are thrown if revision_supplied is false
+    (void)do_open_to_write(false, 0);
 }
 
-void
-Btree::open_to_read(const string & name_, uint4 n)
+bool
+Btree::open(quartz_revision_number_t revision)
 {
-    DEBUGCALL(DB, void, "Btree::open_to_read", name_ << ", " << n);
-    do_open_to_read(name_, true, n);
+    DEBUGCALL(DB, bool, "Btree::open", revision);
+    DEBUGLINE(DB, "opening for particular revision at path " << name);
+    close();
+
+    if (!writable) {
+	do_open_to_read(true, revision);
+	AssertEq(revision_number, revision);
+	RETURN(true);
+    }
+
+    if (!do_open_to_write(true, revision)) {
+	// Can't open at the requested revision.
+	close();
+	RETURN(false);
+    }
+
+    AssertEq(revision_number, revision);
+    RETURN(true);
 }
 
 bool

@@ -106,7 +106,7 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	/** Create new tables, and open them.
 	 *  Any existing tables will be removed first.
 	 */
-	void create_and_open_tables();
+	void create_and_open_tables(unsigned int blocksize);
 
 	/** Open all tables at most recent consistent revision.
 	 *

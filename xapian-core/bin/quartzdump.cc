@@ -24,6 +24,7 @@
 
 #include <config.h>
 #include <xapian/error.h>
+#include "btree.h"
 #include "quartz_table.h"
 #include "quartz_types.h"
 #include <iostream>
@@ -109,7 +110,7 @@ main(int argc, char *argv[])
     vector<string>::const_iterator i;
     for (i = tables.begin(); i != tables.end(); i++) {
 	try {
-	    QuartzTable table(*i, true, 0);
+	    Btree table(*i, true);
 	    if (use_revno) {
 		table.open(revnum);
 	    } else {

@@ -30,10 +30,11 @@
 #include "quartz_table.h"
 #include <xapian/types.h>
 #include "termlist.h"
+#include "btree.h"
 
 using namespace std;
 
-class QuartzTermListTable : public QuartzTable {
+class QuartzTermListTable : public Btree {
     public:
 	/** Create a new table object.
 	 *
@@ -49,8 +50,8 @@ class QuartzTermListTable : public QuartzTable {
 	 *  @param blocksize_     - Size of blocks to use.  This parameter is
 	 *                          only used when creating the table.
 	 */
-	QuartzTermListTable(string path_, bool readonly_, unsigned int blocksize_)
-	    : QuartzTable(path_ + "/termlist_", readonly_, blocksize_) { }
+	QuartzTermListTable(string path_, bool readonly_)
+	    : Btree(path_ + "/termlist_", readonly_) { }
 
 	/** Set the entries in the termlist.
 	 *
@@ -89,7 +90,7 @@ class QuartzTermList : public LeafTermList {
 
 	/** The table holding the termlist.
 	 */
-	const QuartzTable * table;
+	const Btree * table;
 
 	/** The data for the (part of the) termlist currently being read.
 	 *
@@ -148,7 +149,7 @@ class QuartzTermList : public LeafTermList {
 	/** Open the termlist for the specified document, for reading.
 	 */
 	QuartzTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
-		       const QuartzTable * table_,
+		       const Btree * table_,
 		       Xapian::docid did_,
 		       Xapian::doccount doccount_);
 

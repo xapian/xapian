@@ -94,7 +94,7 @@ QuartzRecordTable::get_newdocid()
     }
     tag = pack_uint(did);
     tag += pack_uint_last(totlen);
-    set_entry(METAINFO_KEY, tag);
+    add(METAINFO_KEY, tag);
 
     RETURN(did);
 }
@@ -123,7 +123,7 @@ QuartzRecordTable::add_record(const string & data)
     Xapian::docid did = get_newdocid();
 
     string key(quartz_docid_to_key(did));
-    set_entry(key, data);
+    add(key, data);
 
     RETURN(did);
 }
@@ -133,7 +133,7 @@ QuartzRecordTable::replace_record(const string & data, Xapian::docid did)
 {
     DEBUGCALL(DB, void, "QuartzRecordTable::replace_record", data << ", " << did);
     string key(quartz_docid_to_key(did));
-    set_entry(key, data);
+    add(key, data);
 }
 
 void
@@ -171,7 +171,7 @@ QuartzRecordTable::modify_total_length(quartz_doclen_t old_doclen,
 
     tag = pack_uint(did);
     tag += pack_uint_last(newlen);
-    set_entry(METAINFO_KEY, tag);
+    add(METAINFO_KEY, tag);
 }
 
 // FIXME: probably want to cache the average length (but not miss updates)
@@ -202,5 +202,5 @@ void
 QuartzRecordTable::delete_record(Xapian::docid did)
 {
     DEBUGCALL(DB, void, "QuartzRecordTable::delete_record", did);
-    set_entry(quartz_docid_to_key(did));
+    del(quartz_docid_to_key(did));
 }

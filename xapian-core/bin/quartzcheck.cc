@@ -107,7 +107,7 @@ static void check_table(const char *filename, int opts) {
     BtreeCheck::check(filename, opts);
 
     // Now check the quartz structures inside the btree.
-    QuartzTable table(filename, true, 0);
+    Btree table(filename, true);
     table.open();
     AutoPtr<QuartzCursor> cursor(table.cursor_get());
 

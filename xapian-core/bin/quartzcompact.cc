@@ -4,7 +4,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -78,17 +78,17 @@ main(int argc, char **argv)
 	    src += '/';
 	    src += *t;
 	    src += '_';
-	    Btree in;
-	    in.open_to_read(src);
+	    Btree in(src, true);
+	    in.open();
 
 	    string dest = destdir;
 	    dest += '/';
 	    dest += *t;
 	    dest += '_';
-	    Btree::create(dest, 8192);
 
-	    Btree out;
-	    out.open_to_write(dest);
+	    Btree out(dest, false);
+	    out.create(8192);
+	    out.open();
 	    out.set_full_compaction(true);
 
 	    string key, tag;

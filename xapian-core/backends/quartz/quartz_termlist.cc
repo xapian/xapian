@@ -78,7 +78,7 @@ QuartzTermListTable::set_entries(Xapian::docid did,
     tag += pack_uint(size);
     tag += pack_bool(store_termfreqs);
     tag += v;
-    set_entry(quartz_docid_to_key(did), tag);
+    add(quartz_docid_to_key(did), tag);
 
     DEBUGLINE(DB, "QuartzTermList::set_entries() - new entry is `" + tag + "'");
 }
@@ -87,12 +87,12 @@ void
 QuartzTermListTable::delete_termlist(Xapian::docid did)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzTermList::delete_termlist", did);
-    set_entry(quartz_docid_to_key(did));
+    del(quartz_docid_to_key(did));
 }
 
 
 QuartzTermList::QuartzTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
-			       const QuartzTable * table_,
+			       const Btree * table_,
 			       Xapian::docid did_,
 			       Xapian::doccount doccount_)
 	: this_db(this_db_), did(did_), table(table_),

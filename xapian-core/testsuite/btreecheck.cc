@@ -128,13 +128,13 @@ void
 BtreeCheck::block_check(Cursor * C_, int j, int opts)
 {
     byte * p = C_[j].p;
-    int4 n = C_[j].n;
-    int c;
-    int significant_c = j == 0 ? DIR_START : DIR_START + D2;
+    uint4 n = C_[j].n;
+    size_t c;
+    size_t significant_c = j == 0 ? DIR_START : DIR_START + D2;
 	/* the first key in an index block is dummy, remember */
 
-    int max_free = MAX_FREE(p);
-    int dir_end = DIR_END(p);
+    size_t max_free = MAX_FREE(p);
+    size_t dir_end = DIR_END(p);
     int total_free = block_size - dir_end;
 
     if (base.block_free_at_start(n)) failure(0);
@@ -150,11 +150,11 @@ BtreeCheck::block_check(Cursor * C_, int j, int opts)
 
     for (c = DIR_START; c < dir_end; c += D2) {
 	int o = GETD(p, c);
-	if (o > block_size) failure(21);
+	if (o > (int)block_size) failure(21);
 	if (o - dir_end < max_free) failure(30);
 
 	int kt_len = GETI(p, o);
-	if (o + kt_len > block_size) failure(40);
+	if (o + kt_len > (int)block_size) failure(40);
 	total_free -= kt_len;
 
 	if (c > significant_c &&
@@ -200,8 +200,8 @@ BtreeCheck::block_check(Cursor * C_, int j, int opts)
 void
 BtreeCheck::check(const string & name, int opts, ostream &out)
 {
-    BtreeCheck B(out);
-    B.open_to_write(name); // throws exception if open fails
+    BtreeCheck B(name, false, out);
+    B.open(); // throws exception if open fails
     Cursor * C = B.C;
 
     if (opts & OPT_SHOW_STATS)

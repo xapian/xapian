@@ -70,11 +70,11 @@ QuartzDatabase::QuartzDatabase(const string &quartz_dir, int action,
 	: db_dir(quartz_dir),
 	  readonly(action == OM_DB_READONLY),
 	  metafile(db_dir + "/meta"),
-	  postlist_table(db_dir, readonly, block_size),
-	  positionlist_table(db_dir, readonly, block_size),
-	  termlist_table(db_dir, readonly, block_size),
-	  value_table(db_dir, readonly, block_size),
-	  record_table(db_dir, readonly, block_size),
+	  postlist_table(db_dir, readonly),
+	  positionlist_table(db_dir, readonly),
+	  termlist_table(db_dir, readonly),
+	  value_table(db_dir, readonly),
+	  record_table(db_dir, readonly),
 	  log(db_dir + "/log")
 {
     DEBUGCALL(DB, void, "QuartzDatabase", quartz_dir << ", " << action <<
@@ -125,7 +125,7 @@ QuartzDatabase::QuartzDatabase(const string &quartz_dir, int action,
 	    }
 	    get_database_write_lock();
 
-	    create_and_open_tables();
+	    create_and_open_tables(block_size);
 	    return;
 	}
 	
@@ -140,7 +140,7 @@ QuartzDatabase::QuartzDatabase(const string &quartz_dir, int action,
 	// if we're overwriting, pretend the db doesn't exists
 	// FIXME: if we allow Xapian::DB_OVERWRITE, check it here
 	if (action == Xapian::DB_CREATE_OR_OVERWRITE) {
-	    create_and_open_tables();
+	    create_and_open_tables(block_size);
 	    return;
 	}
 
@@ -158,11 +158,11 @@ QuartzDatabase::QuartzDatabase(const string &quartz_dir, int action,
 			    "all revision numbers to consistent state (" +
 			    om_tostring(new_revision) + ") to proceed - "
 			    "this will remove partial changes");
-	    postlist_table    .apply(new_revision);
-	    positionlist_table.apply(new_revision);
-	    termlist_table    .apply(new_revision);
-	    value_table       .apply(new_revision);
-	    record_table      .apply(new_revision);
+	    postlist_table.commit(new_revision);
+	    positionlist_table.commit(new_revision);
+	    termlist_table.commit(new_revision);
+	    value_table.commit(new_revision);
+	    record_table.commit(new_revision);
 	}
     }
 }
@@ -186,7 +186,7 @@ QuartzDatabase::database_exists() {
 }
 
 void
-QuartzDatabase::create_and_open_tables()
+QuartzDatabase::create_and_open_tables(unsigned int block_size)
 {
     DEBUGCALL(DB, void, "QuartzDatabase::create_and_open_tables", "");
     //FIXME - check that database directory exists.
@@ -195,11 +195,11 @@ QuartzDatabase::create_and_open_tables()
     // Create postlist_table first, and record_table last.  Existence of
     // record_table is considered to imply existence of the database.
     metafile.create();
-    postlist_table.create();
-    positionlist_table.create();
-    termlist_table.create();
-    value_table.create();
-    record_table.create();
+    postlist_table.create(block_size);
+    positionlist_table.create(block_size);
+    termlist_table.create(block_size);
+    value_table.create(block_size);
+    record_table.create(block_size);
 
     Assert(database_exists());
 
@@ -330,11 +330,11 @@ void
 QuartzDatabase::set_revision_number(quartz_revision_number_t new_revision)
 {
     DEBUGCALL(DB, void, "QuartzDatabase::set_revision_number", new_revision);
-    postlist_table    .apply(new_revision);
-    positionlist_table.apply(new_revision);
-    termlist_table    .apply(new_revision);
-    value_table       .apply(new_revision);
-    record_table      .apply(new_revision);
+    postlist_table.commit(new_revision);
+    positionlist_table.commit(new_revision);
+    termlist_table.commit(new_revision);
+    value_table.commit(new_revision);
+    record_table.commit(new_revision);
 }
 
 void
@@ -454,11 +454,11 @@ QuartzDatabase::apply()
     log.make_entry("Applying modifications.  New revision number is " + om_tostring(new_revision));
 
     try {
-	postlist_table.apply(new_revision);
-	positionlist_table.apply(new_revision);
-	termlist_table.apply(new_revision);
-	value_table.apply(new_revision);
-	record_table.apply(new_revision);
+	postlist_table.commit(new_revision);
+	positionlist_table.commit(new_revision);
+	termlist_table.commit(new_revision);
+	value_table.commit(new_revision);
+	record_table.commit(new_revision);
 
 	log.make_entry("Modifications succeeded");
     } catch (...) {

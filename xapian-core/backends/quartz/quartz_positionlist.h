@@ -28,13 +28,13 @@
 
 #include <xapian/types.h>
 #include "positionlist.h"
-#include "quartz_table.h"
+#include "btree.h"
 
 #include <string>
 
 using namespace std;
 
-class QuartzPositionListTable : public QuartzTable {
+class QuartzPositionListTable : public Btree {
     public:
 	/** Create a new table object.
 	 *
@@ -50,8 +50,8 @@ class QuartzPositionListTable : public QuartzTable {
 	 *  @param blocksize_     - Size of blocks to use.  This parameter is
 	 *                          only used when creating the table.
 	 */
-	QuartzPositionListTable(string path_, bool readonly_, unsigned int blocksize_)
-	    : QuartzTable(path_ + "/position_", readonly_, blocksize_) { }
+	QuartzPositionListTable(string path_, bool readonly_)
+	    : Btree(path_ + "/position_", readonly_) { }
 
 	/// Set the position list for the given docid and termname
 	void set_positionlist(Xapian::docid did, const string & tname,
@@ -106,7 +106,7 @@ class QuartzPositionList : public PositionList {
         ~QuartzPositionList() { return; }
 
         /// Fill list with data, and move the position to the start.
-        void read_data(const QuartzTable * table,
+        void read_data(const Btree * table,
 		       Xapian::docid did,
 		       const string & tname);
 

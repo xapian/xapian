@@ -84,8 +84,8 @@ static int do_update(const string & btree_dir,
 		     const string & datafile,
 		     bool full_compact = false)
 {
-    Btree btree;
-    btree.open_to_write(btree_dir.c_str());
+    Btree btree(btree_dir, false);
+    btree.open();
 
     if (full_compact) {
 	tout << "Compact mode\n";
@@ -115,7 +115,8 @@ static void do_create(const string & btree_dir, int block_size = 2048)
     rmdir(no_slash);
     make_dir(no_slash);
 
-    Btree::create(btree_dir.c_str(), block_size);
+    Btree dummy(btree_dir, false);
+    dummy.create(block_size);
     tout << btree_dir << "/DB created with block size " << block_size << "\n";
 }
 
@@ -123,9 +124,9 @@ static void do_create(const string & btree_dir, int block_size = 2048)
 static bool test_simple1()
 {
     string path = tmpdir + "/test_simple1_";
-    Btree::create(path, 8192);
-    Btree btree;
-    btree.open_to_read(path);
+    Btree btree(path, true);
+    btree.create(8192);
+    btree.open();
 
     string key = "foo";
     {
@@ -155,16 +156,16 @@ static bool test_insertdelete1()
     unsigned int count = do_update(btree_dir, datadir + "ord+");
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
     {
-	Btree btree;
-	btree.open_to_read(btree_dir.c_str());
+	Btree btree(btree_dir, true);
+	btree.open();
 	TEST_EQUAL(count, btree.item_count);
     }
 
     count += do_update(btree_dir, datadir + "ord-");
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS | OPT_SHORT_TREE);
     {
-	Btree btree;
-	btree.open_to_read(btree_dir.c_str());
+	Btree btree(btree_dir, true);
+	btree.open();
 	TEST_EQUAL(btree.item_count, 0);
 	TEST_EQUAL(count, btree.item_count);
     }
@@ -194,8 +195,8 @@ static bool test_sequent1()
     do_update(btree_dir, datadir + "ordnum-");
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS | OPT_SHORT_TREE);
 
-    Btree btree;
-    btree.open_to_read(btree_dir.c_str());
+    Btree btree(btree_dir, true);
+    btree.open();
     TEST_EQUAL(btree.item_count, 0);
 
     return true;
@@ -208,8 +209,8 @@ static bool test_emptykey1()
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
     {
-	Btree btree;
-	btree.open_to_write(btree_dir.c_str());
+	Btree btree(btree_dir, false);
+	btree.open();
 
 	tout << "Setting tag to jam" << endl;
 	btree.add("", "jam");
@@ -218,8 +219,8 @@ static bool test_emptykey1()
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
     {
-	Btree btree;
-	btree.open_to_write(btree_dir.c_str());
+	Btree btree(btree_dir, false);
+	btree.open();
 	TEST_EQUAL(btree.item_count, 0);
 
 	tout << "Setting tag to marmite" << endl;
@@ -229,8 +230,8 @@ static bool test_emptykey1()
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
     {
-	Btree btree;
-	btree.open_to_write(btree_dir.c_str());
+	Btree btree(btree_dir, false);
+	btree.open();
 	TEST_EQUAL(btree.item_count, 0);
 
 	tout << "Deleting tag" << endl;
@@ -240,8 +241,8 @@ static bool test_emptykey1()
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
     {
-	Btree btree;
-	btree.open_to_write(btree_dir.c_str());
+	Btree btree(btree_dir, false);
+	btree.open();
 	TEST_EQUAL(btree.item_count, 0);
 
 	tout << "Setting tag to butter" << endl;
@@ -251,8 +252,8 @@ static bool test_emptykey1()
     }
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
-    Btree btree;
-    btree.open_to_read(btree_dir.c_str());
+    Btree btree(btree_dir, true);
+    btree.open();
     TEST_EQUAL(btree.item_count, 1);
  
     return true;

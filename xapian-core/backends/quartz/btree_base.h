@@ -58,23 +58,37 @@ class Btree_base {
 	 */
 	bool read(const string &name, char ch, string &err_msg);
 
-	uint4 get_revision();
-	uint4 get_block_size();
-	uint4 get_root();
-	uint4 get_level();
-	uint4 get_bit_map_size();
-	uint4 get_item_count();
-	uint4 get_last_block();
-	bool get_have_fakeroot();
-	bool get_sequential();
+	uint4 get_revision() const { return revision; }
+	uint4 get_block_size() const { return block_size; }
+	uint4 get_root() const { return root; }
+	uint4 get_level() const { return level; }
+	uint4 get_bit_map_size() const { return bit_map_size; }
+	uint4 get_item_count() const { return item_count; }
+	uint4 get_last_block() const { return last_block; }
+	bool get_have_fakeroot() const { return have_fakeroot; }
+	bool get_sequential() const { return sequential; }
 
-	void set_revision(uint4 revision_);
-	void set_block_size(uint4 block_size_);
-	void set_root(uint4 root_);
-	void set_level(uint4 level_);
-	void set_item_count(uint4 item_count_);
-	void set_have_fakeroot(bool have_fakeroot_);
-	void set_sequential(bool sequential_);
+	void set_revision(uint4 revision_) {
+	    revision = revision_;
+	}
+	void set_block_size(uint4 block_size_) {
+	    block_size = block_size_;
+	}
+	void set_root(uint4 root_) {
+	    root = root_;
+	}
+	void set_level(uint4 level_) {
+	    level = level_;
+	}
+	void set_item_count(uint4 item_count_) {
+	    item_count = item_count_;
+	}
+	void set_have_fakeroot(bool have_fakeroot_) {
+	    have_fakeroot = have_fakeroot_;
+	}
+	void set_sequential(bool sequential_) {
+	    sequential = sequential_;
+	}
 
 	/** Write the btree base file to disk. */
 	void write_to_file(const string &filename);

@@ -29,7 +29,6 @@
 #include "document.h"
 
 class QuartzDatabase;
-class QuartzTable;
 
 /// A document from a Quartz format database
 class QuartzDocument : public Xapian::Document::Internal {

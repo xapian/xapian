@@ -63,7 +63,7 @@ class PostlistChunkWriter {
 			    bool is_last_chunk_);
 
 	/// Append an entry to this chunk.
-	void append(QuartzTable * table, Xapian::docid did,
+	void append(Btree * table, Xapian::docid did,
 		    Xapian::termcount wdf, quartz_doclen_t doclen);
 
 	/// Append a block of raw entries to this chunk.
@@ -82,7 +82,7 @@ class PostlistChunkWriter {
 	 *  with a different key to the original one, if for example the first
 	 *  entry has changed.
 	 */
-	void flush(QuartzTable *table);
+	void flush(Btree *table);
 
     private:
 	string orig_key;
@@ -313,7 +313,7 @@ PostlistChunkWriter::PostlistChunkWriter(const string &orig_key_,
 }
 
 void
-PostlistChunkWriter::append(QuartzTable * table, Xapian::docid did,
+PostlistChunkWriter::append(Btree * table, Xapian::docid did,
 			    Xapian::termcount wdf, quartz_doclen_t doclen)
 {
     if (!started) {
@@ -362,7 +362,7 @@ make_start_of_chunk(bool new_is_last_chunk,
 }
 
 void
-PostlistChunkWriter::flush(QuartzTable *table)
+PostlistChunkWriter::flush(Btree *table)
 {
     DEBUGCALL(DB, void, "PostlistChunkWriter::flush", table);
 
@@ -391,7 +391,7 @@ PostlistChunkWriter::flush(QuartzTable *table)
 		/* This is the first and the last chunk, ie the only
 		 * chunk, so just delete the tag.
 		 */
-		table->set_entry(orig_key);
+		table->del(orig_key);
 		return;
 	    }
 
@@ -447,7 +447,7 @@ PostlistChunkWriter::flush(QuartzTable *table)
 	    string chunk_data(tagpos, tagend);
 
 	    // First remove the renamed tag
-	    table->set_entry(cursor->current_key);
+	    table->del(cursor->current_key);
 
 	    // And now write it as the first chunk
 	    string tag;
@@ -456,7 +456,7 @@ PostlistChunkWriter::flush(QuartzTable *table)
 					      new_first_did,
 					      new_last_did_in_chunk);
 	    tag += chunk_data;
-	    table->set_entry(orig_key, tag);
+	    table->add(orig_key, tag);
 	    return;
 	}
 
@@ -466,7 +466,7 @@ PostlistChunkWriter::flush(QuartzTable *table)
 	 */
 
 	// Delete this chunk
-	table->set_entry(orig_key);
+	table->del(orig_key);
 
 	if (is_last_chunk) {
 	    DEBUGLINE(DB, "PostlistChunkWriter::flush(): deleting secondary last chunk");
@@ -517,7 +517,7 @@ PostlistChunkWriter::flush(QuartzTable *table)
 				 true, // is_last_chunk
 				 first_did_in_chunk,
 				 last_did_in_chunk);
-	    table->set_entry(cursor->current_key, tag);
+	    table->add(cursor->current_key, tag);
 	}
     } else {
 	DEBUGLINE(DB, "PostlistChunkWriter::flush(): updating chunk which still has items in it");
@@ -556,7 +556,7 @@ PostlistChunkWriter::flush(QuartzTable *table)
 
 	    tag += make_start_of_chunk(is_last_chunk, first_did, current_did);
 	    tag += chunk;
-	    table->set_entry(key, tag);
+	    table->add(key, tag);
 	    return;
 	}
 
@@ -588,7 +588,7 @@ PostlistChunkWriter::flush(QuartzTable *table)
 	     * the old one.
 	     */
 	    make_key(tname, first_did, new_key);
-	    table->set_entry(orig_key);
+	    table->del(orig_key);
 	} else {
 	    new_key = orig_key;
 	}
@@ -597,7 +597,7 @@ PostlistChunkWriter::flush(QuartzTable *table)
 	tag = make_start_of_chunk(is_last_chunk, first_did, current_did);
 
 	tag += chunk;
-	table->set_entry(new_key, tag);
+	table->add(new_key, tag);
     }
 }
 
@@ -635,8 +635,8 @@ void QuartzPostList::read_number_of_entries(const char ** posptr,
  *  first document, then has the header of a standard chunk.
  */
 QuartzPostList::QuartzPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
-			       const QuartzTable * table_,
-			       const QuartzTable * positiontable_,
+			       const Btree * table_,
+			       const Btree * positiontable_,
 			       const string & tname_)
 	: this_db(this_db_),
 	  table(table_),
@@ -1037,7 +1037,7 @@ QuartzPostListTable::merge_changes(
 		if (!cursor->find_entry(current_key)) {
 		    throw Xapian::DatabaseCorruptError("The key we're working on has disappeared");
 		}
-		set_entry(current_key);
+		del(current_key);
 		if (islast) continue;
 		while (true) {
 		    // FIXME: faster to always check is_last flag?  it would
@@ -1047,7 +1047,7 @@ QuartzPostListTable::merge_changes(
 		    const char *kpos = cursor->current_key.data();
 		    const char *kend = kpos + cursor->current_key.size();
 		    if (!check_tname_in_key_lite(&kpos, kend, tname)) break;
-		    set_entry(cursor->current_key);
+		    del(cursor->current_key);
 		}
 		continue;
 	    }
@@ -1056,11 +1056,11 @@ QuartzPostListTable::merge_changes(
 	    string newhdr = make_start_of_first_chunk(termfreq, collfreq, firstdid);
 	    newhdr += make_start_of_chunk(islast, firstdid, lastdid);
 	    if (pos == end) {
-		set_entry(current_key, newhdr);
+		add(current_key, newhdr);
 	    } else {
 		Assert((size_t)(pos - tag.data()) <= tag.size());
 		tag.replace(0, pos - tag.data(), newhdr);
-		set_entry(current_key, tag);
+		add(current_key, tag);
 	    }
 	}
 	map<Xapian::docid, pair<char, Xapian::termcount> >::const_iterator j;

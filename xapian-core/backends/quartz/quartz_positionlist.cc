@@ -41,7 +41,7 @@ make_key(Xapian::docid did, const string & tname, string & key)
 }
 
 void
-QuartzPositionList::read_data(const QuartzTable * table,
+QuartzPositionList::read_data(const Btree * table,
 			      Xapian::docid did,
 			      const string & tname)
 {
@@ -157,7 +157,7 @@ QuartzPositionListTable::set_positionlist(Xapian::docid did,
 	size++;
     }
     tag = pack_uint(size) + tag;
-    set_entry(key, tag);
+    add(key, tag);
 }
 
 void
@@ -167,5 +167,5 @@ QuartzPositionListTable::delete_positionlist(Xapian::docid did,
     DEBUGCALL(DB, void, "QuartzPositionList::delete_positionlist", did << ", " << tname);
     string key;
     make_key(did, tname, key);
-    set_entry(key);
+    del(key);
 }

@@ -105,7 +105,7 @@ QuartzValueTable::add_value(const string & value,
 	newvalue += pack_string(value);
     }
 
-    set_entry(key, newvalue);
+    add(key, newvalue);
 }
 
 void
@@ -169,5 +169,5 @@ QuartzValueTable::delete_all_values(Xapian::docid did)
     DEBUGCALL(DB, void, "QuartzValueTable::delete_all_values", did);
     string key;
     make_key(key, did, 0);
-    set_entry(key);
+    del(key);
 }

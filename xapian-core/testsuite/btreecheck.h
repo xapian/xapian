@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,13 +28,15 @@
 #include "../backends/quartz/btree.h"
 
 #include <iostream>
+#include <string>
 
 class BtreeCheck : public Btree {
     public:
 	static void check(const string & name, int opts,
 			  std::ostream &out = std::cout);
     private:
-	BtreeCheck(std::ostream &out_) : out(out_) {}
+	BtreeCheck(const std::string &name, bool readonly, std::ostream &out_)
+	    : Btree(name, readonly), out(out_) { }
 
 	void block_check(Cursor * C_, int j, int opts);
 	int block_usage(const byte * p) const;

@@ -83,7 +83,7 @@ static void unlink_table(const string & path)
 }
 
 /// Check the values returned by a table containing key/tag "hello"/"world"
-static void check_table_values_hello(QuartzTable & table, const string &world)
+static void check_table_values_hello(Btree & table, const string &world)
 {
     string key;
     string tag;
@@ -127,7 +127,7 @@ static void check_table_values_hello(QuartzTable & table, const string &world)
 }
 
 /// Check the values returned by a table containing no key/tag pairs
-static void check_table_values_empty(QuartzTable & table)
+static void check_table_values_empty(Btree & table)
 {
     string key;
     string tag;
@@ -170,19 +170,19 @@ static void check_table_values_empty(QuartzTable & table)
     TEST_EQUAL(cursor->current_tag, "");
 }
 
-/// Test making and playing with a QuartzTable
+/// Test making and playing with a Btree
 static bool test_disktable1()
 {
     unlink_table(tmpdir + "test_disktable1_");
     {
-	QuartzTable table0(tmpdir + "test_disktable1_", true, 0);
+	Btree table0(tmpdir + "test_disktable1_", true);
 	TEST_EXCEPTION(Xapian::DatabaseOpeningError, table0.open());
 	TEST_EXCEPTION(Xapian::DatabaseOpeningError, table0.open(10));
     }
-    QuartzTable rw_table(tmpdir + "test_disktable1_", false, 8192);
-    rw_table.create();
+    Btree rw_table(tmpdir + "test_disktable1_", false);
+    rw_table.create(8192);
     rw_table.open();
-    QuartzTable ro_table(tmpdir + "test_disktable1_", true, 0);
+    Btree ro_table(tmpdir + "test_disktable1_", true);
     ro_table.open();
 
     quartz_revision_number_t rev1 = ro_table.get_open_revision_number();
@@ -197,9 +197,9 @@ static bool test_disktable1()
 
 #ifdef MUS_DEBUG
     TEST_EXCEPTION(Xapian::AssertionError,
-		   ro_table.apply(ro_table.get_latest_revision_number() + 1));
+		   ro_table.commit(ro_table.get_latest_revision_number() + 1));
 #endif
-    rw_table.apply(rw_table.get_latest_revision_number() + 1);
+    rw_table.commit(rw_table.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, ro_table.get_open_revision_number());
     TEST_NOT_EQUAL(rev2, rw_table.get_open_revision_number());
@@ -215,10 +215,10 @@ static bool test_disktable1()
     tag = "world";
     
 #ifdef MUS_DEBUG
-    TEST_EXCEPTION(Xapian::AssertionError, ro_table.set_entry(key, tag));
+    TEST_EXCEPTION(Xapian::AssertionError, ro_table.add(key, tag));
 #endif
-    rw_table.set_entry(key, tag);
-    rw_table.apply(rw_table.get_latest_revision_number() + 1);
+    rw_table.add(key, tag);
+    rw_table.commit(rw_table.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, ro_table.get_open_revision_number());
     TEST_NOT_EQUAL(rev2, rw_table.get_open_revision_number());
@@ -233,10 +233,10 @@ static bool test_disktable1()
 
     // Check adding the same entries
 #ifdef MUS_DEBUG
-    TEST_EXCEPTION(Xapian::AssertionError, ro_table.set_entry(key, tag));
+    TEST_EXCEPTION(Xapian::AssertionError, ro_table.add(key, tag));
 #endif
-    rw_table.set_entry(key, tag);
-    rw_table.apply(rw_table.get_latest_revision_number() + 1);
+    rw_table.add(key, tag);
+    rw_table.commit(rw_table.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, ro_table.get_open_revision_number());
     TEST_NOT_EQUAL(rev2, rw_table.get_open_revision_number());
@@ -249,23 +249,23 @@ static bool test_disktable1()
     check_table_values_empty(ro_table);
     check_table_values_hello(rw_table, "world");
 
-    // Check adding an entry with a null key
-    key = "";
 #ifdef MUS_DEBUG
+    // Check adding an entry with a null key
     // Can't add a key to a read-only table anyway, empty or not!
-    TEST_EXCEPTION(Xapian::AssertionError, ro_table.set_entry(key, tag));
-    // Empty keys aren't allowed.
-    TEST_EXCEPTION(Xapian::AssertionError, rw_table.set_entry(key, tag));
+    TEST_EXCEPTION(Xapian::AssertionError, ro_table.add("", tag));
+    // Empty keys aren't allowed (we no longer enforce this so the
+    // magic empty key can be set).
+    //TEST_EXCEPTION(Xapian::AssertionError, rw_table.add("", tag));
 #endif
 
     // Check changing an entry, to a null tag
     key = "hello";
     tag = "";
 #ifdef MUS_DEBUG
-    TEST_EXCEPTION(Xapian::AssertionError, ro_table.set_entry(key, tag));
+    TEST_EXCEPTION(Xapian::AssertionError, ro_table.add(key, tag));
 #endif
-    rw_table.set_entry(key, tag);
-    rw_table.apply(rw_table.get_latest_revision_number() + 1);
+    rw_table.add(key, tag);
+    rw_table.commit(rw_table.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, ro_table.get_open_revision_number());
     TEST_NOT_EQUAL(rev2, rw_table.get_open_revision_number());
@@ -281,10 +281,10 @@ static bool test_disktable1()
     // Check deleting an entry
     key = "hello";
 #ifdef MUS_DEBUG
-    TEST_EXCEPTION(Xapian::AssertionError, ro_table.set_entry(key));
+    TEST_EXCEPTION(Xapian::AssertionError, ro_table.del(key));
 #endif
-    rw_table.set_entry(key);
-    rw_table.apply(rw_table.get_latest_revision_number() + 1);
+    rw_table.del(key);
+    rw_table.commit(rw_table.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, ro_table.get_open_revision_number());
     TEST_NOT_EQUAL(rev2, rw_table.get_open_revision_number());
@@ -300,12 +300,12 @@ static bool test_disktable1()
     // Check find_entry when looking for something between two elements
     key = "hello";
     tag = "world";
-    rw_table.set_entry(key, tag);
+    rw_table.add(key, tag);
     key = "whooo";
     tag = "world";
-    rw_table.set_entry(key, tag);
+    rw_table.add(key, tag);
 
-    rw_table.apply(rw_table.get_latest_revision_number() + 1);
+    rw_table.commit(rw_table.get_latest_revision_number() + 1);
 
     TEST_EQUAL(rev1, ro_table.get_open_revision_number());
     TEST_NOT_EQUAL(rev2, rw_table.get_open_revision_number());
@@ -321,45 +321,45 @@ static bool test_disktable1()
     return true;
 }
 
-/// Test making and playing with a QuartzTable
+/// Test making and playing with a Btree
 static bool test_disktable2()
 {
     unlink_table(tmpdir + "test_disktable2_");
 
-    QuartzTable table(tmpdir + "test_disktable2_", false, 8192);
-    table.create();
+    Btree table(tmpdir + "test_disktable2_", false);
+    table.create(8192);
     table.open();
     TEST_EQUAL(get_filesize(tmpdir + "test_disktable2_DB"), 0);
 
-    table.apply(table.get_latest_revision_number() + 1);
+    table.commit(table.get_latest_revision_number() + 1);
     TEST_EQUAL(get_filesize(tmpdir + "test_disktable2_DB"), 0);
 
-    table.apply(table.get_latest_revision_number() + 1);
+    table.commit(table.get_latest_revision_number() + 1);
     TEST_EQUAL(get_filesize(tmpdir + "test_disktable2_DB"), 0);
 
-    table.apply(table.get_latest_revision_number() + 1);
+    table.commit(table.get_latest_revision_number() + 1);
     TEST_EQUAL(get_filesize(tmpdir + "test_disktable2_DB"), 0);
 
     string key = "foo";
     string tag = "bar";
 
-    table.set_entry(key, tag);
-    table.apply(table.get_latest_revision_number() + 1);
+    table.add(key, tag);
+    table.commit(table.get_latest_revision_number() + 1);
     TEST_EQUAL(get_filesize(tmpdir + "test_disktable2_DB"), 8192);
 
     return true;
 }
 
-/// Test making and playing with a QuartzTable
+/// Test making and playing with a Btree
 static bool test_disktable3()
 {
     unlink_table(tmpdir + "test_disktable3_");
 
-    QuartzTable table(tmpdir + "test_disktable3_", false, 8192);
-    table.create();
+    Btree table(tmpdir + "test_disktable3_", false);
+    table.create(8192);
     table.open();
 
-    table.apply(table.get_latest_revision_number() + 1);
+    table.commit(table.get_latest_revision_number() + 1);
 
     string tradeakey;
     string tradekey;
@@ -373,13 +373,13 @@ static bool test_disktable3()
 
     {
 	tag = string(2200, 'a');
-	table.set_entry(tradkey, tag);
+	table.add(tradkey, tag);
 	tag = string(3800, 'b');
-	table.set_entry(tradekey, tag);
+	table.add(tradekey, tag);
 	tag = string(2000, 'c');
-	table.set_entry(tradeakey, tag);
+	table.add(tradeakey, tag);
 
-	table.apply(table.get_latest_revision_number() + 1);
+	table.commit(table.get_latest_revision_number() + 1);
     }
 
     {
@@ -394,8 +394,8 @@ static bool test_disktable3()
 
     {
 	tag = string(4000, 'd');
-	table.set_entry(tradekey, tag);
-	table.apply(table.get_latest_revision_number() + 1);
+	table.add(tradekey, tag);
+	table.commit(table.get_latest_revision_number() + 1);
     }
 
     {
@@ -411,14 +411,14 @@ static bool test_disktable3()
     return true;
 }
 
-/// Test making and playing with a QuartzTable
+/// Test making and playing with a Btree
 static bool test_bufftable1()
 {
     unlink_table(tmpdir + "test_bufftable1_");
-    QuartzTable bufftable1(tmpdir + "test_bufftable1_", false, 8192);
-    bufftable1.create();
+    Btree bufftable1(tmpdir + "test_bufftable1_", false);
+    bufftable1.create(8192);
     bufftable1.open();
-    QuartzTable disktable1(tmpdir + "test_bufftable1_", true, 0u);
+    Btree disktable1(tmpdir + "test_bufftable1_", true);
     disktable1.open();
 
     TEST_EQUAL(disktable1.get_entry_count(), 0);
@@ -426,45 +426,45 @@ static bool test_bufftable1()
 
     string key = "foo1";
 
-    bufftable1.set_entry(key);
+    bufftable1.del(key);
     TEST_EQUAL(disktable1.get_entry_count(), 0);
     TEST_EQUAL(bufftable1.get_entry_count(), 0);
 
-    bufftable1.set_entry(key, "");
+    bufftable1.add(key, "");
     TEST_EQUAL(disktable1.get_entry_count(), 0);
     TEST_EQUAL(bufftable1.get_entry_count(), 1);
 
     quartz_revision_number_t new_revision =
 	    disktable1.get_latest_revision_number() + 1;
-    bufftable1.apply(new_revision);
+    bufftable1.commit(new_revision);
     disktable1.open();
     TEST_EQUAL(disktable1.get_entry_count(), 1);
     TEST_EQUAL(bufftable1.get_entry_count(), 1);
 
-    bufftable1.set_entry(key, "");
+    bufftable1.add(key, "");
     TEST_EQUAL(disktable1.get_entry_count(), 1);
     TEST_EQUAL(bufftable1.get_entry_count(), 1);
 
-    bufftable1.set_entry(key);
+    bufftable1.del(key);
     TEST_EQUAL(disktable1.get_entry_count(), 1);
     TEST_EQUAL(bufftable1.get_entry_count(), 0);
 
-    bufftable1.set_entry(key);
+    bufftable1.del(key);
     TEST_EQUAL(disktable1.get_entry_count(), 1);
     TEST_EQUAL(bufftable1.get_entry_count(), 0);
 
     key = "bar";
-    bufftable1.set_entry(key, "");
+    bufftable1.add(key, "");
     TEST_EQUAL(disktable1.get_entry_count(), 1);
     TEST_EQUAL(bufftable1.get_entry_count(), 1);
 
     key = "bar2";
-    bufftable1.set_entry(key, "");
+    bufftable1.add(key, "");
     TEST_EQUAL(disktable1.get_entry_count(), 1);
     TEST_EQUAL(bufftable1.get_entry_count(), 2);
 
     new_revision += 1;
-    bufftable1.apply(new_revision);
+    bufftable1.commit(new_revision);
     disktable1.open();
 
     TEST_EQUAL(disktable1.get_entry_count(), 2);
@@ -473,7 +473,7 @@ static bool test_bufftable1()
     return true;
 }
 
-/// Test making and playing with a QuartzTable
+/// Test making and playing with a Btree
 static bool test_bufftable2()
 {
     unlink_table(tmpdir + "test_bufftable2_");
@@ -481,10 +481,10 @@ static bool test_bufftable2()
     quartz_revision_number_t old_revision;
     {
 	// Open table and add a few documents
-	QuartzTable bufftable(tmpdir + "test_bufftable2_", false, 8192);
-	bufftable.create();
+	Btree bufftable(tmpdir + "test_bufftable2_", false);
+	bufftable.create(8192);
 	bufftable.open();
-	QuartzTable disktable(tmpdir + "test_bufftable2_", true, 0u);
+	Btree disktable(tmpdir + "test_bufftable2_", true);
 	disktable.open();
 
 	TEST_EQUAL(disktable.get_entry_count(), 0);
@@ -493,14 +493,14 @@ static bool test_bufftable2()
 	string key;
 
 	key = "foo1";
-	bufftable.set_entry(key, "bar1");
+	bufftable.add(key, "bar1");
 	key = "foo2";
-	bufftable.set_entry(key, "bar2");
+	bufftable.add(key, "bar2");
 	key = "foo3";
-	bufftable.set_entry(key, "bar3");
+	bufftable.add(key, "bar3");
 
 	new_revision = disktable.get_latest_revision_number() + 1;
-	bufftable.apply(new_revision);
+	bufftable.commit(new_revision);
 	disktable.open();
 
 	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
@@ -508,9 +508,9 @@ static bool test_bufftable2()
     }
     {
 	// Reopen and check that the documents are still there.
-	QuartzTable bufftable(tmpdir + "test_bufftable2_", false, 8192);
+	Btree bufftable(tmpdir + "test_bufftable2_", false);
 	bufftable.open();
-	QuartzTable disktable(tmpdir + "test_bufftable2_", true, 0u);
+	Btree disktable(tmpdir + "test_bufftable2_", true);
 	disktable.open();
 
 	TEST_EQUAL(disktable.get_entry_count(), 3);
@@ -547,10 +547,10 @@ static bool test_bufftable2()
 
 	// Add a new tag
 	key = "foo25";
-	bufftable.set_entry(key, "bar25");
+	bufftable.add(key, "bar25");
 	old_revision = new_revision;
 	new_revision += 1;
-	bufftable.apply(new_revision);
+	bufftable.commit(new_revision);
 	disktable.open();
 
 	TEST_EQUAL(disktable.get_entry_count(), 4);
@@ -561,9 +561,9 @@ static bool test_bufftable2()
     }
     {
 	// Open old revision
-	QuartzTable bufftable(tmpdir + "test_bufftable2_", false, 8192);
+	Btree bufftable(tmpdir + "test_bufftable2_", false);
 	TEST(bufftable.open(old_revision));
-	QuartzTable disktable(tmpdir + "test_bufftable2_", true, 0u);
+	Btree disktable(tmpdir + "test_bufftable2_", true);
 	disktable.open(old_revision);
 
 	TEST_EQUAL(disktable.get_entry_count(), 3);
@@ -576,9 +576,9 @@ static bool test_bufftable2()
 
 	// Add a new tag
 	key = "foo26";
-	bufftable.set_entry(key, "bar26");
+	bufftable.add(key, "bar26");
 	new_revision += 1;
-	bufftable.apply(new_revision);
+	bufftable.commit(new_revision);
 	disktable.open();
 
 	TEST_EQUAL(disktable.get_entry_count(), 4);
@@ -586,7 +586,7 @@ static bool test_bufftable2()
 
 	// Add another new tag, but don't apply this one.
 	key = "foo37";
-	bufftable.set_entry(key, "bar37");
+	bufftable.add(key, "bar37");
 	TEST_EQUAL(disktable.get_entry_count(), 4);
 	TEST_EQUAL(bufftable.get_entry_count(), 5);
 
@@ -595,9 +595,9 @@ static bool test_bufftable2()
     }
     {
 	// Reopen and check that the documents are still there.
-	QuartzTable bufftable(tmpdir + "test_bufftable2_", false, 8192);
+	Btree bufftable(tmpdir + "test_bufftable2_", false);
 	bufftable.open();
-	QuartzTable disktable(tmpdir + "test_bufftable2_", true, 0u);
+	Btree disktable(tmpdir + "test_bufftable2_", true);
 	disktable.open();
 
 	TEST_EQUAL(disktable.get_entry_count(), 4);
@@ -640,24 +640,24 @@ static bool test_bufftable2()
     {
 	// Check that opening a nonexistant revision returns false (and doesn't
 	// throw an exception).
-	QuartzTable disktable(tmpdir + "test_bufftable2_", false, 8192);
+	Btree disktable(tmpdir + "test_bufftable2_", false);
 	TEST(!disktable.open(new_revision + 10));
     }
 
     return true;
 }
 
-/// Test making and playing with a QuartzTable
+/// Test making and playing with a Btree
 static bool test_bufftable3()
 {
     unlink_table(tmpdir + "test_bufftable3_");
     quartz_revision_number_t new_revision;
     {
 	// Open table and add a couple of documents
-	QuartzTable bufftable(tmpdir + "test_bufftable3_", false, 8192);
-	bufftable.create();
+	Btree bufftable(tmpdir + "test_bufftable3_", false);
+	bufftable.create(8192);
 	bufftable.open();
-	QuartzTable disktable(tmpdir + "test_bufftable3_", true, 0u);
+	Btree disktable(tmpdir + "test_bufftable3_", true);
 	disktable.open();
 
 	TEST_EQUAL(disktable.get_entry_count(), 0);
@@ -666,17 +666,17 @@ static bool test_bufftable3()
 	string key;
 
 	key = "foo1";
-	bufftable.set_entry(key, "bar1");
+	bufftable.add(key, "bar1");
 
 	key = "foo2";
-	bufftable.set_entry(key, "bar2");
+	bufftable.add(key, "bar2");
 	bufftable.cancel();
 
 	key = "foo3";
-	bufftable.set_entry(key, "bar3");
+	bufftable.add(key, "bar3");
 
 	new_revision = disktable.get_latest_revision_number() + 1;
-	bufftable.apply(new_revision);
+	bufftable.commit(new_revision);
 	disktable.open();
 
 	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
@@ -684,9 +684,9 @@ static bool test_bufftable3()
     }
     {
 	// Reopen and check that the documents are still there.
-	QuartzTable bufftable(tmpdir + "test_bufftable3_", false, 8192);
+	Btree bufftable(tmpdir + "test_bufftable3_", false);
 	bufftable.open();
-	QuartzTable disktable(tmpdir + "test_bufftable3_", true, 0u);
+	Btree disktable(tmpdir + "test_bufftable3_", true);
 	disktable.open();
 
 	TEST_EQUAL(disktable.get_entry_count(), 1);
@@ -714,17 +714,17 @@ static bool test_bufftable3()
     return true;
 }
 
-/// Test making and playing with a QuartzTable
+/// Test making and playing with a Btree
 static bool test_cursor3()
 {
     unlink_table(tmpdir + "test_tableskipto1_");
     quartz_revision_number_t new_revision;
     {
 	// Open table and add a couple of documents
-	QuartzTable bufftable(tmpdir + "test_cursor3_", false, 8192);
-	bufftable.create();
+	Btree bufftable(tmpdir + "test_cursor3_", false);
+	bufftable.create(8192);
 	bufftable.open();
-	QuartzTable disktable(tmpdir + "test_cursor3_", true, 0u);
+	Btree disktable(tmpdir + "test_cursor3_", true);
 	disktable.open();
 
 	TEST_EQUAL(disktable.get_entry_count(), 0);
@@ -732,10 +732,10 @@ static bool test_cursor3()
 	    string key;
 
 	    key = "A";
-	    bufftable.set_entry(key, "A");
+	    bufftable.add(key, "A");
 
 	    key = "B";
-	    bufftable.set_entry(key, "B");
+	    bufftable.add(key, "B");
 	}
 
 	{
@@ -753,7 +753,7 @@ static bool test_cursor3()
 	}
 
 	new_revision = disktable.get_latest_revision_number() + 1;
-	bufftable.apply(new_revision);
+	bufftable.commit(new_revision);
 	disktable.open();
 
 	{
@@ -775,7 +775,7 @@ static bool test_cursor3()
     }
     {
 	// Reopen and check that the documents are still there.
-	QuartzTable disktable(tmpdir + "test_cursor3_", false, 8192);
+	Btree disktable(tmpdir + "test_cursor3_", false);
 	disktable.open();
 	TEST_EQUAL(disktable.get_entry_count(), 2);
 
@@ -807,24 +807,24 @@ static bool test_cursor1()
     string key;
 
     // Open table and put stuff in it.
-    QuartzTable bufftable1(tmpdir + "test_cursor1_", false, 8192);
-    bufftable1.create();
+    Btree bufftable1(tmpdir + "test_cursor1_", false);
+    bufftable1.create(8192);
     bufftable1.open();
-    QuartzTable disktable1(tmpdir + "test_cursor1_", true, 0u);
+    Btree disktable1(tmpdir + "test_cursor1_", true);
     disktable1.open();
 
     key = "foo1";
-    bufftable1.set_entry(key, "bar1");
+    bufftable1.add(key, "bar1");
     key = "foo2";
-    bufftable1.set_entry(key, "bar2");
+    bufftable1.add(key, "bar2");
     key = "foo3";
-    bufftable1.set_entry(key, "bar3");
+    bufftable1.add(key, "bar3");
     quartz_revision_number_t new_revision = disktable1.get_latest_revision_number();
     new_revision += 1;
-    bufftable1.apply(new_revision);
+    bufftable1.commit(new_revision);
     disktable1.open();
 
-    QuartzTable * table = &disktable1;
+    Btree * table = &disktable1;
     int count = 2;
 
     while (count != 0) {
@@ -871,12 +871,12 @@ static bool test_cursor1()
 
     // Test cursors when we have unapplied changes
     key = "foo25";
-    bufftable1.set_entry(key, "bar25");
+    bufftable1.add(key, "bar25");
 
     key = "foo26";
-    bufftable1.set_entry(key);
+    bufftable1.del(key);
     key = "foo1";
-    bufftable1.set_entry(key);
+    bufftable1.del(key);
 
     key = "foo25";
     AutoPtr<QuartzCursor> cursor(disktable1.cursor_get());
@@ -950,7 +950,7 @@ static bool test_cursor1()
     TEST_EQUAL(cursor->current_tag, "bar3");
 
     new_revision += 1;
-    bufftable1.apply(new_revision);
+    bufftable1.commit(new_revision);
     disktable1.open();
 
     cursor.reset(bufftable1.cursor_get());
@@ -975,7 +975,7 @@ static bool test_cursor1()
     TEST_EQUAL(cursor->current_tag, "bar2");
 
     key = "foo25";
-    bufftable1.set_entry(key);
+    bufftable1.del(key);
 
     key = "foo25";
     cursor.reset(bufftable1.cursor_get());
@@ -997,10 +997,10 @@ static bool test_cursor2()
     unlink_table(tmpdir + "test_cursor2_");
 
     // Open table and put stuff in it.
-    QuartzTable bufftable1(tmpdir + "test_cursor2_", false, 8192);
-    bufftable1.create();
+    Btree bufftable1(tmpdir + "test_cursor2_", false);
+    bufftable1.create(8192);
     bufftable1.open();
-    QuartzTable disktable1(tmpdir + "test_cursor2_", true, 0u);
+    Btree disktable1(tmpdir + "test_cursor2_", true);
     disktable1.open();
 
     string key1 = "a";
@@ -1009,11 +1009,11 @@ static bool test_cursor2()
     string tag2 = "bar2";
     string searchkey = "b";
 
-    bufftable1.set_entry(key1, tag1);
-    bufftable1.set_entry(key2, tag2);
+    bufftable1.add(key1, tag1);
+    bufftable1.add(key2, tag2);
     quartz_revision_number_t new_revision = disktable1.get_latest_revision_number();
     new_revision += 1;
-    bufftable1.apply(new_revision);
+    bufftable1.commit(new_revision);
     disktable1.open();
 
     AutoPtr<QuartzCursor> cursor(disktable1.cursor_get());
@@ -1525,11 +1525,11 @@ static bool test_postlist1()
     removedir(dbdir);
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_w = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 8192);
 
-    QuartzTable bufftable(dbdir + "/postlist_", false, 8192);
+    Btree bufftable(dbdir + "/postlist_", false);
     bufftable.open();
-    QuartzTable disktable(dbdir + "/postlist_", true, 0u);
-    QuartzTable * table = &bufftable;
-    QuartzTable positiontable(dbdir + "/position_", false, 8192);
+    Btree disktable(dbdir + "/postlist_", true);
+    Btree * table = &bufftable;
+    Btree positiontable(dbdir + "/position_", false);
 
     {
 	QuartzPostList pl2(db_w, table, &positiontable, "foo");
@@ -1584,12 +1584,12 @@ static bool test_postlist2()
     removedir(dbdir);
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_w = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 8192);
 
-    QuartzTable bufftable(tmpdir + "testdb_postlist2/postlist_", false, 2048);
+    Btree bufftable(tmpdir + "testdb_postlist2/postlist_", false);
     bufftable.open();
-    QuartzTable disktable(tmpdir + "testdb_postlist2/postlist_", true, 0u);
+    Btree disktable(tmpdir + "testdb_postlist2/postlist_", true);
     disktable.open();
-    QuartzTable * table = &bufftable;
-    QuartzTable positiontable(tmpdir + "testdb_postlist2/position_", false, 8192);
+    Btree * table = &bufftable;
+    Btree positiontable(tmpdir + "testdb_postlist2/position_", false);
 
     {
 	QuartzPostList pl2(db_w, table, &positiontable, "foo");
@@ -1614,7 +1614,7 @@ static bool test_postlist2()
 				  *i2, (*i2) % 5 + 1, (*i2) % 7 + 1);
 	collfreq += (*i2) % 5 + 1;
     }
-    bufftable.apply(disktable.get_latest_revision_number() + 1);
+    bufftable.commit(disktable.get_latest_revision_number() + 1);
     disktable.open();
 
     {
@@ -1718,10 +1718,10 @@ static bool test_postlist2()
 static bool test_overwrite1()
 {
     unlink_table(tmpdir + "testdb_overwrite1_");
-    QuartzTable bufftable(tmpdir + "testdb_overwrite1_", false, 2048);
-    bufftable.create();
+    Btree bufftable(tmpdir + "testdb_overwrite1_", false);
+    bufftable.create(2048);
     bufftable.open();
-    QuartzTable disktable(tmpdir + "testdb_overwrite1_", true, 0u);
+    Btree disktable(tmpdir + "testdb_overwrite1_", true);
     disktable.open();
 
     quartz_revision_number_t new_revision;
@@ -1731,32 +1731,32 @@ static bool test_overwrite1()
     for (int i=1; i<=1000; ++i) {
 	key = "foo" + om_tostring(i);
 
-	bufftable.set_entry(key, "bar" + om_tostring(i));
+	bufftable.add(key, "bar" + om_tostring(i));
     }
     new_revision = disktable.get_latest_revision_number() + 1;
-    bufftable.apply(new_revision);
+    bufftable.commit(new_revision);
     disktable.open();
 
     key = "foo1";
     string key2;
     key2 = "foo999";
 
-    QuartzTable disktable_ro(tmpdir + "testdb_overwrite1_", true, 2048);
+    Btree disktable_ro(tmpdir + "testdb_overwrite1_", true);
     disktable_ro.open();
     TEST(disktable_ro.get_exact_entry(key, tag));
     TEST_EQUAL(tag, "bar1");
 
-    bufftable.set_entry(key, "bar2");
+    bufftable.add(key, "bar2");
     new_revision = disktable.get_latest_revision_number() + 1;
-    bufftable.apply(new_revision);
+    bufftable.commit(new_revision);
     disktable.open();
     TEST(disktable_ro.get_exact_entry(key2, tag));
     TEST(disktable_ro.get_exact_entry(key, tag));
     TEST_EQUAL(tag, "bar1");
 
-    bufftable.set_entry(key, "bar3");
+    bufftable.add(key, "bar3");
     new_revision = disktable.get_latest_revision_number() + 1;
-    bufftable.apply(new_revision);
+    bufftable.commit(new_revision);
     disktable.open();
     TEST(disktable_ro.get_exact_entry(key2, tag));
     TEST_EXCEPTION(Xapian::DatabaseModifiedError, disktable_ro.get_exact_entry(key, tag));
@@ -1872,10 +1872,10 @@ static bool test_bitmap1()
     const string dbname = tmpdir + "testdb_bitmap1_";
     unlink_table(dbname);
     /* Use a small block size to make it easier to get a large bitmap */
-    QuartzTable bufftable(dbname, false, 2048);
-    bufftable.create();
+    Btree bufftable(dbname, false);
+    bufftable.create(2048);
     bufftable.open();
-    QuartzTable disktable(dbname, true, 0u);
+    Btree disktable(dbname, true);
     disktable.open();
 
     quartz_revision_number_t new_revision;
@@ -1883,10 +1883,10 @@ static bool test_bitmap1()
     for (int j = 0; j < 100; ++j) {
 	for (int i = 1; i <= 1000; ++i) {
 	    string key = "foo" + om_tostring(j) + "_" + om_tostring(i);
-	    bufftable.set_entry(key, "bar" + om_tostring(i));
+	    bufftable.add(key, "bar" + om_tostring(i));
 	}
 	new_revision = disktable.get_latest_revision_number() + 1;
-	bufftable.apply(new_revision);
+	bufftable.commit(new_revision);
 	disktable.open();
     }
     return true;

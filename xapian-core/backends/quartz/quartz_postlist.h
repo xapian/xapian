@@ -44,7 +44,7 @@ class Xapian::Database::Internal;
 class PostlistChunkReader;
 class PostlistChunkWriter;
 
-class QuartzPostListTable : public QuartzTable {
+class QuartzPostListTable : public Btree {
     public:
 	/** Create a new table object.
 	 *
@@ -60,8 +60,8 @@ class QuartzPostListTable : public QuartzTable {
 	 *  @param blocksize_     - Size of blocks to use.  This parameter is
 	 *                          only used when creating the table.
 	 */
-	QuartzPostListTable(string path_, bool readonly_, unsigned int blocksize_)
-	    : QuartzTable(path_ + "/postlist_", readonly_, blocksize_) { }
+	QuartzPostListTable(string path_, bool readonly_)
+	    : Btree(path_ + "/postlist_", readonly_) { }
 
 	/// Merge added, removed, and changed entries.
 	void merge_changes(
@@ -84,10 +84,10 @@ class QuartzPostList : public LeafPostList {
 	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db;
 
 	/// The table containing the postlist.
-	const QuartzTable * table;
+	const Btree * table;
 
 	/// The table containing positionlists.
-	const QuartzTable * positiontable;
+	const Btree * positiontable;
 
 	/// The termname for this postlist.
 	string tname;
@@ -188,8 +188,8 @@ class QuartzPostList : public LeafPostList {
     public:
 	/// Default constructor.
 	QuartzPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
-		       const QuartzTable * table_,
-		       const QuartzTable * positiontable_,
+		       const Btree * table_,
+		       const Btree * positiontable_,
 		       const string & tname);
 
 	/// Destructor.

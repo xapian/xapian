@@ -1,3 +1,10 @@
+Sat Aug 14 14:46:43 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/,bin/quartzcheck.cc,bin/quartzcompact.cc,
+	  bin/quartzdump.cc,tests/btreetest.cc,tests/quartztest.cc,
+	  testsuite/btreecheck.cc,testsuite/btreecheck.h: Eliminated
+	  QuartzTable which had become just a thin wrapper around Btree.
+
 Fri Aug 13 19:19:02 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_postlist.cc:
