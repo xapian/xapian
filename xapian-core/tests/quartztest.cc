@@ -1717,12 +1717,10 @@ static bool test_postlist2()
 /// Test playing with a positionlist, testing skip_to in particular.
 static bool test_positionlist1()
 {
-    unlink_table(tmpdir + "testdb_positionlist1_");
-    QuartzTable bufftable(tmpdir + "testdb_positionlist1_", false, 8192);
-    bufftable.create();
-    bufftable.open();
-    QuartzTable disktable(tmpdir + "testdb_positionlist1_", true, 0u);
-    disktable.open();
+    QuartzPositionListTable table(tmpdir + "testdb_positionlist1", false, 8192);
+    table.erase();
+    table.create();
+    table.open();
 
     vector<Xapian::termpos> positions;
 
@@ -1731,17 +1729,17 @@ static bool test_positionlist1()
     document.add_posting("foo", 8);
     document.add_posting("foo", 10);
     document.add_posting("foo", 12);
-    bufftable.set_positionlist(1, "foo",
+    table.set_positionlist(1, "foo",
 		 document.termlist_begin().positionlist_begin(),
 		 document.termlist_begin().positionlist_end());
 
     QuartzPositionList pl;
 
-    pl.read_data(&bufftable, 1, "foobar");
+    pl.read_data(&table, 1, "foobar");
     TEST_EQUAL(pl.get_size(), 0);
-    pl.read_data(&bufftable, 2, "foo");
+    pl.read_data(&table, 2, "foo");
     TEST_EQUAL(pl.get_size(), 0);
-    pl.read_data(&bufftable, 1, "foo");
+    pl.read_data(&table, 1, "foo");
     TEST_EQUAL(pl.get_size(), 4);
 
     pl.next();
@@ -1764,7 +1762,7 @@ static bool test_positionlist1()
     pl.next();
     TEST(pl.at_end());
 
-    pl.read_data(&bufftable, 1, "foo");
+    pl.read_data(&table, 1, "foo");
     TEST_EQUAL(pl.get_size(), 4);
 
     pl.skip_to(5);
@@ -1790,7 +1788,7 @@ static bool test_positionlist1()
     return true;
 }
 
-/// Test playing with a positionlist, testing skip_to in particular.
+/// Test overwriting a table.
 static bool test_overwrite1()
 {
     unlink_table(tmpdir + "testdb_overwrite1_");
