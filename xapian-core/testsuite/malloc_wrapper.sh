@@ -6,17 +6,17 @@ run_prog() {
     then
         LD_PRELOAD="$preload"
 	export LD_PRELOAD
-	exec ./$1
+	exec "$@"
     else
         echo "malloccheck.so not found" >&2
-	exec ./$1
+	exec "$@"
     fi
 }
 
 # this is a bit of a hack...
 for x in * ; do
     case "$0" in 
-        *run-$x) run_prog "$x" ;;
+        *run-$x) run_prog ./"$x" "$@" ;;
 	*) ;;
     esac
 done

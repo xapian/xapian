@@ -1,3 +1,7 @@
+Wed Sep 20 13:11:30 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* malloc_wrapper.sh now passes parameters in
+
 Wed Sep 20 13:02:22 BST 2000 Olly Betts
 
 	* *PostList: Put back in Assert-s re at_end() not being valid before
