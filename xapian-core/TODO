@@ -46,6 +46,9 @@ Priority | Area            | Task
 	 |                 | such as, what debugging to output, what size
 	 |                 | caches to use, etc.
 ---------+-----------------+--------------------------------------------------
+ Medium  | Postlist        | Add ability to retrieve collection frequency
+         |                 | (ie, sum of wdfs).
+---------+-----------------+--------------------------------------------------
  Medium  | Databases       | Make database parameters into name/value pairs,
          |                 | rather than simply be anonymous.
 ---------+-----------------+--------------------------------------------------
