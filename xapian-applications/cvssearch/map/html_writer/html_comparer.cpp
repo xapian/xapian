@@ -471,7 +471,7 @@ html_comparer::style(ostream & os) const
     os << "<style type=\"text/css\">" << endl;
     os << "body  {background-color:#EEEEEE;}" << endl;
     os << "table {background-color:#FFFFFF;}" << endl;
-    os << "td    {white-space:pre; overflow:hidden;font-family:courier;}" << endl;
+    os << "td    {white-space:pre; overflow:hidden;font-family:sans_serif;}" << endl;
     os << ".s {background-color:#3366CC; color:#FFFFFF;}" << endl;
     os << ".a {background-color:#CCCCFF;}" << endl;
     os << ".c {background-color:#99FF99;}" << endl;
