@@ -102,7 +102,7 @@ class OmPostListIterator {
 	//@{
 	typedef std::input_iterator_tag iterator_category;
 	typedef om_docid value_type;
-	typedef om_docid difference_type;
+	typedef ptrdiff_t difference_type;
 	typedef om_docid * pointer;
 	typedef om_docid & reference;
 	//@}

@@ -76,12 +76,14 @@ class OmTermListIterator {
 	 */
 	std::string get_description() const;
 
-	// Allow use as an STL iterator
+	/// Allow use as an STL iterator
+	//@{
 	typedef std::input_iterator_tag iterator_category;
 	typedef om_termname value_type;
-	typedef om_termname difference_type;
+	typedef ptrdiff_t difference_type;
 	typedef om_termname * pointer;
 	typedef om_termname & reference;
+	//@}
 };
 
 inline bool operator!=(const OmTermListIterator &a,

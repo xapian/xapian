@@ -71,11 +71,10 @@ class OmKeyListIterator {
 	/// Allow use as an STL iterator
 	//@{
 	typedef std::input_iterator_tag iterator_category;
-	// FIXME: these are almost certainly wrong:
-	typedef om_docid value_type;
-	typedef om_docid difference_type;
-	typedef om_docid * pointer;
-	typedef om_docid & reference;
+	typedef OmKey value_type;
+	typedef ptrdiff_t difference_type;
+	typedef OmKey * pointer;
+	typedef OmKey & reference;
 	//@}
 };
 
