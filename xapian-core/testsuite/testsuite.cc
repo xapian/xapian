@@ -406,7 +406,7 @@ test_driver::report(const test_driver::result &r, const std::string &desc)
 }
 
 // call via atexit if there's more than one test run
-static void
+void
 report_totals()
 {
     test_driver::report(test_driver::total, "total");
