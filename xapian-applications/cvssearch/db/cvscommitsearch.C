@@ -61,12 +61,9 @@
 
 // Examples:
 //
-//   cvsminesearch root0/db/mining.om 10
-//   cvsminesearch root0/db/mining.om 10 drag drop =>
-//   cvsminesearch root0/db/mining.om 10 :QdropEvent =>
-//   cvsminesearch root0/db/mining.om 10 drag drop :QDropEvent =>
-//
-//   cvsminesearch root0/db/mining.om 10 drag drop (without arrow)
+//   cvsminesearch root0/db/commit.om 10
+//   cvsminesearch root0/db/commit.om 10 drag drop =>
+//   cvsminesearch root0/db/commit.om 10 drag drop (without arrow)
 //      just returns commits with drag drop in comments
 //
 
@@ -384,13 +381,13 @@ int main(unsigned int argc, char *argv[]) {
     try {
 
         unsigned int total_commit_transactions = 0;
-        ifstream in( (cvsdata +"/root0/db/mining.count").c_str() );
+        ifstream in( (cvsdata +"/root0/db/commit.count").c_str() );
         in >> total_commit_transactions;
         in.close();
         cerr << "TOTAL COMMIT TRANSACTIONS " << total_commit_transactions << endl;
 
         Db db(0,0);
-        db.open( (cvsdata +"/root0/db/mining.db").c_str(),  0 , DB_HASH, DB_RDONLY, 0 );
+        db.open( (cvsdata +"/root0/db/commit.db").c_str(),  0 , DB_HASH, DB_RDONLY, 0 );
 
 
 
@@ -472,7 +469,10 @@ int main(unsigned int argc, char *argv[]) {
             int commit_id = -1;
             for( list<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
                 if ( isdigit((*s)[0]) ) {
-                        assert( commit_id == -1 );
+                        if( commit_id != -1 ) {
+				cerr << "warning:  found " << (*s) << " in code symbol terms" << endl;
+				continue;
+                        }
                         commit_id = atoi( s->c_str() );
                         continue;
                 }

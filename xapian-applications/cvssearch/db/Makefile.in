@@ -71,8 +71,7 @@ libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C
 
 libcvs_lines_a_SOURCES = util.C util.h lines.h lines.C lines_cmt.C lines_cmt.h lines_db.C lines_db.h
 
-bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsmine2index cvsminesearch cvsmine2search cvsfileindex cvsfilesearch 	# cvssearch cvsusagesearch cvscomments 	# cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
-
+bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsminesearch cvscommitindex cvscommitsearch
 
 LIBS = $(noinst_LIBRARIES) -lomseek -ldb_cxx
 @DYNAMIC_TRUE@FLAGS = 
@@ -94,39 +93,17 @@ cvsminesearch_SOURCES = cvsminesearch.C
 cvsminesearch_LDFLAGS = $(FLAGS)
 cvsminesearch_LDADD = $(LIBS)
 
-cvsmine2search_SOURCES = cvsmine2search.C
-cvsmine2search_LDFLAGS = $(FLAGS)
-cvsmine2search_LDADD = $(LIBS)
-
-cvsfilesearch_SOURCES = cvsfilesearch.C
-cvsfilesearch_LDFLAGS = $(FLAGS)
-cvsfilesearch_LDADD = $(LIBS) 
-
-#cvsusagesearch_SOURCES =   cvsusagesearch.C
-#cvsusagesearch_LDFLAGS = $(FLAGS) 
-#cvsusagesearch_LDADD = $(LIBS) 
-
-#cvsclasses_SOURCES =   cvspatterns.C
-#cvsclasses_LDADD = $(LIBS) 
-
-#cvsfunctions_SOURCES =   cvspatterns.C
-#cvsfunctions_LDADD = $(LIBS) 
-
-#cvsusageindex_SOURCES =   cvsusageindex.C
-#cvsusageindex_LDADD = $(LIBS) 
-#cvsusageindex_LDFLAGS = $(FLAGS)
-
 cvsmineindex_SOURCES = cvsmineindex.C
-cvsmineindex_LDADD = $(LIBS) 
+cvsmineindex_LDADD = $(LIBS)
 cvsmineindex_LDFLAGS = $(FLAGS)
 
-cvsmine2index_SOURCES = cvsmine2index.C
-cvsmine2index_LDADD = $(LIBS)
-cvsmine2index_LDFLAGS = $(FLAGS)
+cvscommitsearch_SOURCES = cvscommitsearch.C
+cvscommitsearch_LDFLAGS = $(FLAGS)
+cvscommitsearch_LDADD = $(LIBS)
 
-cvsfileindex_SOURCES = cvsfileindex.C
-cvsfileindex_LDADD = $(LIBS)
-cvsfileindex_LDFLAGS = $(FLAGS)
+cvscommitindex_SOURCES = cvscommitindex.C
+cvscommitindex_LDADD = $(LIBS)
+cvscommitindex_LDFLAGS = $(FLAGS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
 LIBRARIES =  $(noinst_LIBRARIES)
@@ -152,16 +129,12 @@ cvsquery_OBJECTS =  cvsquery.o
 cvsquery_DEPENDENCIES =  libcvs_db.a libcvs_lines.a
 cvsmineindex_OBJECTS =  cvsmineindex.o
 cvsmineindex_DEPENDENCIES =  libcvs_db.a libcvs_lines.a
-cvsmine2index_OBJECTS =  cvsmine2index.o
-cvsmine2index_DEPENDENCIES =  libcvs_db.a libcvs_lines.a
 cvsminesearch_OBJECTS =  cvsminesearch.o
 cvsminesearch_DEPENDENCIES =  libcvs_db.a libcvs_lines.a
-cvsmine2search_OBJECTS =  cvsmine2search.o
-cvsmine2search_DEPENDENCIES =  libcvs_db.a libcvs_lines.a
-cvsfileindex_OBJECTS =  cvsfileindex.o
-cvsfileindex_DEPENDENCIES =  libcvs_db.a libcvs_lines.a
-cvsfilesearch_OBJECTS =  cvsfilesearch.o
-cvsfilesearch_DEPENDENCIES =  libcvs_db.a libcvs_lines.a
+cvscommitindex_OBJECTS =  cvscommitindex.o
+cvscommitindex_DEPENDENCIES =  libcvs_db.a libcvs_lines.a
+cvscommitsearch_OBJECTS =  cvscommitsearch.o
+cvscommitsearch_DEPENDENCIES =  libcvs_db.a libcvs_lines.a
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
@@ -180,12 +153,12 @@ DEP_FILES =  .deps/cvs_comment_db.P .deps/cvs_comment_id2_db.P \
 .deps/cvs_comment_id_db.P .deps/cvs_db.P .deps/cvs_db_file.P \
 .deps/cvs_diff_db.P .deps/cvs_file_id_db.P .deps/cvs_file_revision_db.P \
 .deps/cvs_filename_db.P .deps/cvs_line_db.P .deps/cvs_revision_db.P \
-.deps/cvsfileindex.P .deps/cvsfilesearch.P .deps/cvsindex.P \
-.deps/cvsmine2index.P .deps/cvsmine2search.P .deps/cvsmineindex.P \
-.deps/cvsminesearch.P .deps/cvsquery.P .deps/cvssearch.P .deps/lines.P \
-.deps/lines_cmt.P .deps/lines_db.P .deps/util.P
-SOURCES = $(libcvs_db_a_SOURCES) $(libcvs_lines_a_SOURCES) $(cvsindex_SOURCES) $(cvssearch_SOURCES) $(cvsquery_SOURCES) $(cvsmineindex_SOURCES) $(cvsmine2index_SOURCES) $(cvsminesearch_SOURCES) $(cvsmine2search_SOURCES) $(cvsfileindex_SOURCES) $(cvsfilesearch_SOURCES)
-OBJECTS = $(libcvs_db_a_OBJECTS) $(libcvs_lines_a_OBJECTS) $(cvsindex_OBJECTS) $(cvssearch_OBJECTS) $(cvsquery_OBJECTS) $(cvsmineindex_OBJECTS) $(cvsmine2index_OBJECTS) $(cvsminesearch_OBJECTS) $(cvsmine2search_OBJECTS) $(cvsfileindex_OBJECTS) $(cvsfilesearch_OBJECTS)
+.deps/cvscommitindex.P .deps/cvscommitsearch.P .deps/cvsindex.P \
+.deps/cvsmineindex.P .deps/cvsminesearch.P .deps/cvsquery.P \
+.deps/cvssearch.P .deps/lines.P .deps/lines_cmt.P .deps/lines_db.P \
+.deps/util.P
+SOURCES = $(libcvs_db_a_SOURCES) $(libcvs_lines_a_SOURCES) $(cvsindex_SOURCES) $(cvssearch_SOURCES) $(cvsquery_SOURCES) $(cvsmineindex_SOURCES) $(cvsminesearch_SOURCES) $(cvscommitindex_SOURCES) $(cvscommitsearch_SOURCES)
+OBJECTS = $(libcvs_db_a_OBJECTS) $(libcvs_lines_a_OBJECTS) $(cvsindex_OBJECTS) $(cvssearch_OBJECTS) $(cvsquery_OBJECTS) $(cvsmineindex_OBJECTS) $(cvsminesearch_OBJECTS) $(cvscommitindex_OBJECTS) $(cvscommitsearch_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -274,25 +247,17 @@ cvsmineindex: $(cvsmineindex_OBJECTS) $(cvsmineindex_DEPENDENCIES)
 	@rm -f cvsmineindex
 	$(CXXLINK) $(cvsmineindex_LDFLAGS) $(cvsmineindex_OBJECTS) $(cvsmineindex_LDADD) $(LIBS)
 
-cvsmine2index: $(cvsmine2index_OBJECTS) $(cvsmine2index_DEPENDENCIES)
-	@rm -f cvsmine2index
-	$(CXXLINK) $(cvsmine2index_LDFLAGS) $(cvsmine2index_OBJECTS) $(cvsmine2index_LDADD) $(LIBS)
-
 cvsminesearch: $(cvsminesearch_OBJECTS) $(cvsminesearch_DEPENDENCIES)
 	@rm -f cvsminesearch
 	$(CXXLINK) $(cvsminesearch_LDFLAGS) $(cvsminesearch_OBJECTS) $(cvsminesearch_LDADD) $(LIBS)
 
-cvsmine2search: $(cvsmine2search_OBJECTS) $(cvsmine2search_DEPENDENCIES)
-	@rm -f cvsmine2search
-	$(CXXLINK) $(cvsmine2search_LDFLAGS) $(cvsmine2search_OBJECTS) $(cvsmine2search_LDADD) $(LIBS)
+cvscommitindex: $(cvscommitindex_OBJECTS) $(cvscommitindex_DEPENDENCIES)
+	@rm -f cvscommitindex
+	$(CXXLINK) $(cvscommitindex_LDFLAGS) $(cvscommitindex_OBJECTS) $(cvscommitindex_LDADD) $(LIBS)
 
-cvsfileindex: $(cvsfileindex_OBJECTS) $(cvsfileindex_DEPENDENCIES)
-	@rm -f cvsfileindex
-	$(CXXLINK) $(cvsfileindex_LDFLAGS) $(cvsfileindex_OBJECTS) $(cvsfileindex_LDADD) $(LIBS)
-
-cvsfilesearch: $(cvsfilesearch_OBJECTS) $(cvsfilesearch_DEPENDENCIES)
-	@rm -f cvsfilesearch
-	$(CXXLINK) $(cvsfilesearch_LDFLAGS) $(cvsfilesearch_OBJECTS) $(cvsfilesearch_LDADD) $(LIBS)
+cvscommitsearch: $(cvscommitsearch_OBJECTS) $(cvscommitsearch_DEPENDENCIES)
+	@rm -f cvscommitsearch
+	$(CXXLINK) $(cvscommitsearch_LDFLAGS) $(cvscommitsearch_OBJECTS) $(cvscommitsearch_LDADD) $(LIBS)
 .C.o:
 	$(CXXCOMPILE) -c $<
 
@@ -472,45 +437,6 @@ all-redirect all-am all installdirs mostlyclean-generic \
 distclean-generic clean-generic maintainer-clean-generic clean \
 mostlyclean distclean maintainer-clean
 
-
-#cvscomments_SOURCES = cvscomments.C
-#cvscomments_LDADD = $(LIBS)
-#cvscomments_LDFLAGS = $(FLAGS)
-
-#cvssymbolcount_SOURCES = cvssymbolcount.C
-#cvssymbolcount_LDADD = $(LIBS)
-#cvssymbolcount_LDFLAGS = $(FLAGS)
-
-#cvscountsymbols_SOURCES =   cvscountsymbols.C
-#cvscountsymbols_LDADD = $(LIBS)
-#cvscountsymbols_LDFLAGS = $(FLAGS)
-
-#cvsminelocal_SOURCES =   cvsminelocal.C
-#cvsminelocal_LDADD = $(LIBS)
-#cvsminelocal_LDFLAGS = $(FLAGS)
-
-#cvsmineglobal_SOURCES =   cvsmineglobal.C
-#cvsmineglobal_LDADD = $(LIBS)
-
-#cvseval_SOURCES =   cvseval.C
-
-#cvscomments_SOURCES = cvscomments.C
-#cvscomments_LDADD = $(LIBS)
-
-#cvssymbolcount_SOURCES = cvssymbolcount.C
-#cvssymbolcount_LDADD = $(LIBS)
-
-#cvscountsymbols_SOURCES =   cvscountsymbols.C
-#cvscountsymbols_LDADD = $(LIBS)
-
-#cvsminelocal_SOURCES =   cvsminelocal.C
-#cvsminelocal_LDADD = $(LIBS) 
-
-#cvsmineglobal_SOURCES =   cvsmineglobal.C
-#cvsmineglobal_LDADD = $(LIBS)
-
-#cvseval_SOURCES =   cvseval.C
-#cvseval_LDADD = $(LIBS)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

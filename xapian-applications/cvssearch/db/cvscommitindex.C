@@ -1,5 +1,5 @@
 /********************************************************************************
- * cvsmineindex.C
+ * cvscommitindex.C
  * 
  * (c) 2001 Amir Michail (amir@users.sourceforge.net)
  * modified by Andrew Yao (andrewy@users.sourceforge.net)
@@ -12,12 +12,12 @@
  * Usage:     cvsmineindex -r root0 -f package_list_file lib1_dir lib2_dir
  *
  *           => builds a directory 
- *                        $CVSDATA/root0/db/mining.om with quartz database
+ *                        $CVSDATA/root0/db/commit.om with quartz database
  *                         inside
  *           => builds a directory
- *                        $CVSDATA/root0/db/mining.db with berkerley db 
+ *                        $CVSDATA/root0/db/commit.db with berkerley db 
  *           => builds a file
- *                        $CVSDATA/root0/db/mining.count with # of commits
+ *                        $CVSDATA/root0/db/commit.count with # of commits
  * 
  ********************************************************************************/
 
@@ -28,7 +28,7 @@
 // ??????????? is this info still correct below?
 //     Generates omsee databases each page.
 //
-//     If library directories given, also generates a "mining" omsee database
+//     If library directories given, also generates a "commit" omsee database
 //     for library usage
 //
 
@@ -39,7 +39,7 @@
 //  with lines containing that symbol.
 //
 // We do not put duplicate comments in the symbol's profile, so
-// the profiles are reasonably small.  
+// the profiles are reasonably small.
 //
 //
 // Query => classes/functions related to the task at hand, both
@@ -53,7 +53,6 @@
 //    we describe them by in comments
 // ------------------------------------------------------------
 
-#warning "requires ctags 5.0 from http://ctags.sourceforge.net/"
 #warning "should generate unique file for tags"
 #warning "ctags contains inheritance information; this can help"
 #warning "if (t,S) does not occur in class declaration say or where member variable is declared"
@@ -91,37 +90,32 @@
 // ----------------------------------------
 
 
-// support C/C++/Java for now
-// ctags 5.0 flags (see http://ctags.sourceforge.net/ctags.html)
-const string CTAGS_OUTPUT = "/tmp/tags";
-const string CTAGS_FLAGS = "-R -n --file-scope=no --fields=aiKs --c-types=cfsu --java-types=cim -f" + CTAGS_OUTPUT;
 
 // ----------------------------------------
 // function declarations.
 // ----------------------------------------
 static void usage(char * prog_name);
 static void write_OM_database( const string & database_dir,
-                               const map<unsigned int, set <string> > & commit_symbols,
+                               const map<unsigned int, set <string> > & commit_symbol_terms,
                                const map<unsigned int, set<string> > & commit_words
                                );
 
 static void write_DB_database( const string & database_file,
-                               const map<unsigned int, set<string> > & commit_symbols
+                               const map<unsigned int, set<string> > & commit_symbol_terms
                                );
 
 static void
-get_data(lines & lines, 
-         const string & package_path, cvs_db_file & db_file, 
-         map<unsigned int, set <string> > & commit_symbols,
+get_data(lines & lines,
+         const string & package_path, cvs_db_file & db_file,
+         map<unsigned int, set <string> > & commit_symbol_terms,
          map<unsigned int, set<string> >  & commit_words,
-         set<unsigned int> & commit_id_set, 
-         const set<string> & lib_symbols,
+         set<unsigned int> & commit_id_set,        
          unsigned int offset);
 
 void
-compare(map<unsigned int, set <string> > & commit_symbols,
+compare(map<unsigned int, set <string> > & commit_symbol_terms,
         map<unsigned int, set<string> >  & commit_words,
-        map<unsigned int, set <string> > & commit_symbols1,
+        map<unsigned int, set <string> > & commit_symbol_terms1,
         map<unsigned int, set<string> >  & commit_words1
     );
 
@@ -130,8 +124,8 @@ int main(unsigned int argc, char *argv[]) {
     string cvsdata = get_cvsdata();
     string root = "";
     set<string> packages;
-    bool read_library = false;
-    system( ("rm -f " + CTAGS_OUTPUT).c_str() );
+    
+
     for (unsigned int i = 1; i < argc; ++i) {
         if (0) {
         } else if (!strcmp(argv[i],"-f") && i+1 < argc) {
@@ -139,48 +133,27 @@ int main(unsigned int argc, char *argv[]) {
             get_packages(fin, packages);
         } else if (!strcmp(argv[i],"-r") && i+1 < argc) {
             root = argv[++i];
-        } else if (!strcmp(argv[i],"-h")) {
+        } else /*if (!strcmp(argv[i],"-h")) */ {
             usage(argv[0]);
-        } else {
-            // ----------------------------------------
-            // get libraries if any from cmd line
-            // and run ctags on it.
-            // ----------------------------------------
-            string dir = argv[i];
-            cerr << "... running ctags on library " << dir << endl;
-            string cmd = string("ctags -a ") + string(CTAGS_FLAGS) + " " + dir; // append mode
-            cerr << "... invoking " << cmd << endl;
-            system(cmd.c_str());
-            read_library = true;
         }
     }
     if (root.length() == 0) {
         usage(argv[0]);
     }
 
-    // ----------------------------------------
-    // get symbols from library
-    // ----------------------------------------
-    set<string> lib_symbols;
-    map<string, set<string> > lib_symbol_parents;
-    if (read_library) {
-        cerr << "... reading library tags" << endl;
-        readTags( CTAGS_OUTPUT, lib_symbols, lib_symbol_parents );
-        cerr << "... reading library tags done" << endl;
-    }
 
     // ----------------------------------------
     // This is the key:   It takes a commit id
     // (global) to all the symbols under that commit.
     // ----------------------------------------
-    // commit_symbols[commit_id] -> code symbols.
+    // commit_symbol_terms[commit_id] -> code symbols.
     // commit_words  [commit_id] -> stemmed words.
 
     set<unsigned int> commit_id_set; // set of all commit ids
-    map<unsigned int, set <string> > commit_symbols;
+    map<unsigned int, set <string> > commit_symbol_terms;
     map<unsigned int, set<string> > commit_words;
     set<unsigned int> commit_id_set1;
-    map<unsigned int, set <string> > commit_symbols1;
+    map<unsigned int, set <string> > commit_symbol_terms1;
     map<unsigned int, set<string> > commit_words1;
 
     unsigned int offset = 0;
@@ -199,50 +172,32 @@ int main(unsigned int argc, char *argv[]) {
             string package_db_path  = cvsdata + "/" + root + "/db/" + package_name; // e.g. ...cvsdata/root0/db/kdebase_konqueror
             string package_src_path = cvsdata + "/" + root + "/src/" + package_path;// e.g. ...cvsdata/root0/src/kdebase/konqueror
 
-            // ----------------------------------------
-            // run ctags on that package
-            // ----------------------------------------
-            system( ("rm -f " + CTAGS_OUTPUT).c_str() );
-            string cmd = string("ctags ") + CTAGS_FLAGS + " " + package_src_path;
-            cerr << "... invoking " << cmd << endl;
-            system(cmd.c_str());
-
-            // ----------------------------------------
-            // read symbols from each application
-            // ----------------------------------------
-            set<string> app_symbols;
-            map<string, set<string> > app_symbol_parents;
-            cerr << "... reading application tags" << endl;
-            readTags( CTAGS_OUTPUT, app_symbols, app_symbol_parents );
-
             // ------------------------------------------------------------
             // need first input to be
             // "...cvsdata/root0/db/pkg" + ".db/" + pkg.db"
             // ------------------------------------------------------------
             cvs_db_file db_file(package_db_path + ".db/" + package_name + ".db", true);
-            lines_db  lines (root, package_path, " mining", db_file);
+            lines_db  lines (root, package_path, " commit", db_file);
 #if !DB_ONLY
-            lines_cmt lines1(root, package_path, package_db_path + ".cmt", package_db_path + ".offset", " mining");
+            lines_cmt lines1(root, package_path, package_db_path + ".cmt", package_db_path + ".offset", " commit");
 #endif
 
             // cerr << "getdata " << endl;
-            get_data(lines, 
-                     package_path, 
-                     db_file, 
-                     commit_symbols,
+            get_data(lines,
+                     package_path,
+                     db_file,
+                     commit_symbol_terms,
                      commit_words,
-                     commit_id_set, 
-                     lib_symbols,
+                     commit_id_set,
                      offset);
             // cerr << "getdata1" << endl;
 #if !DB_ONLY
             get_data(lines1,
                      package_path,
                      db_file,
-                     commit_symbols1,
+                     commit_symbol_terms1,
                      commit_words1,
                      commit_id_set1,
-                     lib_symbols,
                      offset);
 #endif
             // ----------------------------------------
@@ -259,7 +214,7 @@ int main(unsigned int argc, char *argv[]) {
             }
         } // for packages
 #if !DB_ONLY
-        compare(commit_symbols, commit_words, commit_symbols1, commit_words1);
+        compare(commit_symbol_terms, commit_words, commit_symbol_terms1, commit_words1);
 #endif
         fout.close();
 
@@ -268,36 +223,36 @@ int main(unsigned int argc, char *argv[]) {
         // ----------------------------------------
 
         // ----------------------------------------
-        // data mining location.
+        // data commit location.
         // ----------------------------------------
-        string mining_path = cvsdata + "/" + root + "/db/mining";
+        string commit_path = cvsdata + "/" + root + "/db/commit";
 
         // ----------------------------------------
-        // printing # of commits to a file 
-        // mining.count
-        // transactions are in commit_symbols
+        // printing # of commits to a file
+        // commit.count
+        // transactions are in commit_symbol_terms
         // ----------------------------------------
-        assert( commit_id_set.size() == commit_symbols.size() );
+        assert( commit_id_set.size() == commit_symbol_terms.size() );
         assert( commit_id_set.size() == commit_words.size() );
-        ofstream out((mining_path + ".count").c_str());
-        out << commit_id_set.size() << endl; 
+        ofstream out((commit_path + ".count").c_str());
+        out << commit_id_set.size() << endl;
         out.close();
-        
+
         // ----------------------------------------
         // write out the berkeley database
         // mainly the frequency of each symbol and
         // # of times it appeared.
         // ----------------------------------------
-        write_DB_database( mining_path + ".db",  commit_symbols);
-        write_DB_database( mining_path + ".db1", commit_symbols1);
+        write_DB_database( commit_path + ".db",  commit_symbol_terms);
+        write_DB_database( commit_path + ".db1", commit_symbol_terms1);
 
         // ----------------------------------------
         // write out the omsee database
-        // index by comment terms, the info field 
+        // index by comment terms, the info field
         // should contain all the symbols
         // ----------------------------------------
-        write_OM_database( mining_path + ".om",  commit_symbols, commit_words);
-        write_OM_database( mining_path + ".om1", commit_symbols1, commit_words1);
+        write_OM_database( commit_path + ".om",  commit_symbol_terms, commit_words);
+        write_OM_database( commit_path + ".om1", commit_symbol_terms1, commit_words1);
     } catch(OmError & error) {
         cerr << "OmSee Exception: " << error.get_msg() << endl;
     } catch( DbException& e ) {
@@ -320,24 +275,24 @@ usage(char * prog_name)
 }
 
 void write_DB_database( const string & database_file,
-                        const map<unsigned int, set<string> > & commit_symbols)
+                        const map<unsigned int, set<string> > & commit_symbol_terms)
 {
     // ----------------------------------------
-    // we also want to generate a sleepy cat 
+    // we also want to generate a sleepy cat
     // database with the following
     // information
     //
     // a=>b -> confidence (irrespective of query)
     // b -> confidence (irrespective of query)
     // this can all be put in one database
-    // 
+    //
         // item_count maps each code symbol to # of
     // times it appeared in the entire
     // package.
     // ----------------------------------------
     map< string, unsigned int > item_count;
     map<unsigned int, set<string> >::const_iterator t;
-    for (t = commit_symbols.begin(); t!= commit_symbols.end(); ++t) {
+    for (t = commit_symbol_terms.begin(); t!= commit_symbol_terms.end(); ++t) {
         const set<string> & symbols = t->second;
 //cerr << "... transaction of size " << symbols.size() << endl;
         set<string>::const_iterator s;
@@ -348,12 +303,12 @@ void write_DB_database( const string & database_file,
     }
 
     // ----------------------------------------
-    // write to a berkeley db, each symbol 
+    // write to a berkeley db, each symbol
     // and # of times it has appeared.
     // ----------------------------------------
     system( ("rm -rf " + database_file ).c_str() );
     cerr << "... writing out item counts" << endl;
-    
+
     Db db(0,0);
     db.open(database_file.c_str(), 0, DB_HASH, DB_CREATE, 0);
 
@@ -365,7 +320,7 @@ void write_DB_database( const string & database_file,
         string count = convert(i->second);
 
 //cerr << "... writing item " << item << " with count " << count << endl;
-        
+
         // ----------------------------------------
         // write to database
         // ----------------------------------------
@@ -386,7 +341,7 @@ void write_DB_database( const string & database_file,
 // ----------------------------------------
 
 void write_OM_database( const string & database_dir,
-                        const map<unsigned int, set <string> > & commit_symbols, 
+                        const map<unsigned int, set <string> > & commit_symbol_terms,
                         const map<unsigned int, set<string> > & commit_words
     )
 {
@@ -397,7 +352,7 @@ void write_OM_database( const string & database_dir,
     db_parameters.set("backend", "quartz");
     db_parameters.set("quartz_dir", database_dir);
     db_parameters.set("database_create", true);
-    OmWritableDatabase database(db_parameters); // open database 
+    OmWritableDatabase database(db_parameters); // open database
 
 
     int transactions_written = 0;
@@ -405,7 +360,7 @@ void write_OM_database( const string & database_dir,
     map<unsigned int, set <string> >::const_iterator i;
 
     // iterate over commits
-    for (i = commit_symbols.begin(); i != commit_symbols.end(); ++i)
+    for (i = commit_symbol_terms.begin(); i != commit_symbol_terms.end(); ++i)
     {
 
         // find symbols associated with commit
@@ -416,7 +371,7 @@ void write_OM_database( const string & database_dir,
             symbol_string += (*j) + " ";
         }
 
-        //cerr << "DATA = " << symbol_string << endl;
+        // cerr << "DATA = " << symbol_string << endl;
 
         // find comment words associated with that commit
         map<unsigned int, set<string> >::const_iterator f = commit_words.find(i->first);
@@ -438,9 +393,10 @@ void write_OM_database( const string & database_dir,
         set<string>::const_iterator w;
         for (w = words.begin(); w != words.end(); ++w) {
             newdocument.add_posting(*w, ++pos);
-                //cerr << "... term " << (*w) << endl;
+             //   cerr << "... index term " << (*w) << endl;
         }
 
+/***************
         // ----------------------------------------
         // add symbols for indexing (symbols get a
         // : prefix to distinguish them from terms)
@@ -449,6 +405,7 @@ void write_OM_database( const string & database_dir,
             newdocument.add_posting(":"+(*j), ++pos);
             //cerr << "... symbol " << (":"+(*j)) << endl;
         }
+***************/
 
         // ----------------------------------------
         // put transaction contents in data
@@ -462,22 +419,38 @@ void write_OM_database( const string & database_dir,
 }
 
 void
-get_data(lines & lines, 
-         const string & package_path, 
-         cvs_db_file & db_file, 
-         map<unsigned int, set <string> > & commit_symbols,
+get_data(lines & lines,
+         const string & package_path,
+         cvs_db_file & db_file,
+         map<unsigned int, set <string> > & commit_symbol_terms,
          map<unsigned int, set<string> >  & commit_words,
-         set<unsigned int> & commit_id_set, 
-         const set<string> & lib_symbols,
-         unsigned int offset) 
+         set<unsigned int> & commit_id_set,
+         unsigned int offset)
 {
     unsigned int commitid = 0;
     unsigned int fileid = 0;
     string filename = "";
+
     while ( lines.readNextLine() ) {
         string data = lines.getData();
+
+/***
         set<string> symbols = lines.getCodeSymbols();
-        
+
+        cerr << "Just read line " << data << endl;
+        for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
+                cerr << "... symbol " << (*i) << endl;
+        }
+***/
+
+        set<string> symbol_terms = lines.getCodeSymbolTerms();
+
+/***
+        for( set<string>::iterator i = symbol_terms.begin(); i != symbol_terms.end(); i++ ) {
+                cerr << "... term " << (*i) << endl;
+        }
+**/
+
         if (strcmp(filename.c_str(), lines.getCurrentFile().c_str())) {
             filename = lines.getCurrentFile();
             filename = filename.substr(package_path.length() + 1, filename.length() - package_path.length() - 1);
@@ -504,24 +477,24 @@ get_data(lines & lines,
         // ----------------------------------------
         const map<string, string > & revisions = lines.getRevisionCommentString();
         map<string, string >::const_iterator i;
-        
+
         // cycle through every revision that this line is part of
         for(i = revisions.begin(); i != revisions.end(); ++i ) {
             // cerr << "get commit with input " << fileid << " " << i->first << endl;
-            if (db_file.get_commit(fileid, i->first, commitid) == 0) 
+            if (db_file.get_commit(fileid, i->first, commitid) == 0)
             {
                 // cerr << "got commit " << commitid << " with input " << fileid << " " << i->first << endl;
                 commit_id_set.insert( commitid+offset ); // set of all commit ids
-                
+
                 if ( commit_words.find( commitid+offset ) == commit_words.end() ) {
                     set<string> empty;
                     commit_words[ commitid+offset ] = empty;
                 }
-                if ( commit_symbols.find( commitid+offset ) == commit_symbols.end() ) {
+                if ( commit_symbol_terms.find( commitid+offset ) == commit_symbol_terms.end() ) {
                     set<string> empty;
-                    commit_symbols[ commitid+offset ] = empty;
+                    commit_symbol_terms[ commitid+offset ] = empty;
                 }
-                
+
                 // ----------------------------------------
                 // have we entered info for this commit ?
                 // ----------------------------------------
@@ -542,27 +515,11 @@ get_data(lines & lines,
                 }
                 // ----------------------------------------
                 // now go through each symbol,
-                // and add it to the commit_symbols mapping
+                // and add it to the commit_symbol_terms mapping
                 // ----------------------------------------
-                for( set<string>::iterator s = symbols.begin(); s != symbols.end(); ++s ) {
-                    if ( lib_symbols.find(*s) != lib_symbols.end() ) {
-                        commit_symbols[commitid+offset].insert(*s);
-                    } else {
-                                // ----------------------------------------
-                                // this symbol is not in the library, so
-                                // let's see if its parents are;
-                                // if so, we add every such parent
-                                // ----------------------------------------
-#warning "doesn't look at parents now"
-#if 0 // took it out as it messes up rankings; need special support in ranking function for parents/ancestors
-                        set<string> parents = app_symbol_parents[*s];
-                        for( set<string>::iterator p = parents.begin(); p != parents.end(); ++p ) {
-                            if ( lib_symbols.find(*p) != lib_symbols.end() ) {
-                                commit_symbols[commitid+offset].insert(*p);
-                            }
-                        }
-#endif
-                    }
+#warning "this is changed to have symbol words instead of symbols"
+                for( set<string>::iterator s = symbol_terms.begin(); s != symbol_terms.end(); ++s ) {
+                        commit_symbol_terms[commitid+offset].insert(*s);
                 }
             }
         }
@@ -570,27 +527,27 @@ get_data(lines & lines,
 }
 
 void
-compare(map<unsigned int, set <string> > & commit_symbols,
+compare(map<unsigned int, set <string> > & commit_symbol_terms,
         map<unsigned int, set<string> >  & commit_words,
-        map<unsigned int, set <string> > & commit_symbols1,
+        map<unsigned int, set <string> > & commit_symbol_terms1,
         map<unsigned int, set<string> >  & commit_words1
-        ) 
+        )
 {
     assert(commit_words1.size()   == commit_words.size());
-    assert(commit_symbols1.size() == commit_symbols.size());
+    assert(commit_symbol_terms1.size() == commit_symbol_terms.size());
     if (commit_words1.size()   != commit_words.size()) {
         cerr << "commit_words1   size" << commit_words1.size() << endl;
         cerr << "commit_words    size" << commit_words.size() << endl;
     }
-    if (commit_symbols1.size() != commit_symbols.size()) {
-        cerr << "commit_symbols1 size" << commit_symbols1.size() << endl;
-        cerr << "commit_symbols  size" << commit_symbols.size() << endl;
+    if (commit_symbol_terms1.size() != commit_symbol_terms.size()) {
+        cerr << "commit_symbol_terms1 size" << commit_symbol_terms1.size() << endl;
+        cerr << "commit_symbol_terms  size" << commit_symbol_terms.size() << endl;
     }
     map<unsigned int, set<string> >::const_iterator itr;
     map<unsigned int, set<string> >::const_iterator itr1;
-    for (itr = commit_symbols.begin(), itr1 = commit_symbols1.begin();
-         itr != commit_symbols.end() && itr1 != commit_symbols1.end(); 
-         ++itr, ++itr1) 
+    for (itr = commit_symbol_terms.begin(), itr1 = commit_symbol_terms1.begin();
+         itr != commit_symbol_terms.end() && itr1 != commit_symbol_terms1.end();
+         ++itr, ++itr1)
     {
         if ((itr->second).size() != (itr1->second).size()) {
             cerr << "symbols  size " << (itr->second).size() << endl;
@@ -612,8 +569,8 @@ compare(map<unsigned int, set <string> > & commit_symbols,
     }
 
     for (itr = commit_words.begin(), itr1 = commit_words1.begin();
-         itr != commit_words.end() && itr1 != commit_words1.end(); 
-         ++itr, ++itr1) 
+         itr != commit_words.end() && itr1 != commit_words1.end();
+         ++itr, ++itr1)
     {
         cerr << "commit id  " << (itr->first) << endl;
         cerr << "commit id1 " << (itr1->first) << endl;

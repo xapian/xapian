@@ -32,37 +32,22 @@ cvssearch_SOURCES = cvssearch.C
 cvssearch_LDFLAGS = $(FLAGS)
 cvssearch_LDADD = $(LIBS)
 
-cvscommitsearch_SOURCES =  cvscommitsearch.C
-cvscommitsearch_LDFLAGS = $(FLAGS)
-cvscommitsearch_LDADD = $(LIBS)
 
 cvsminesearch_SOURCES =  cvsminesearch.C
 cvsminesearch_LDFLAGS = $(FLAGS)
 cvsminesearch_LDADD = $(LIBS)
 
-cvsmine2search_SOURCES =  cvsmine2search.C
-cvsmine2search_LDFLAGS = $(FLAGS)
-cvsmine2search_LDADD = $(LIBS)
-
-cvsfilesearch_SOURCES =   cvsfilesearch.C
-cvsfilesearch_LDFLAGS = $(FLAGS)
-cvsfilesearch_LDADD = $(LIBS)
-
-
 cvsmineindex_SOURCES =   cvsmineindex.C
 cvsmineindex_LDADD = $(LIBS)
 cvsmineindex_LDFLAGS = $(FLAGS)
+
+cvscommitsearch_SOURCES =  cvscommitsearch.C
+cvscommitsearch_LDFLAGS = $(FLAGS)
+cvscommitsearch_LDADD = $(LIBS)
 
 cvscommitindex_SOURCES =   cvscommitindex.C
 cvscommitindex_LDADD = $(LIBS)
 cvscommitindex_LDFLAGS = $(FLAGS)
 
 
-cvsmine2index_SOURCES =   cvsmine2index.C
-cvsmine2index_LDADD = $(LIBS)
-cvsmine2index_LDFLAGS = $(FLAGS)
-
-cvsfileindex_SOURCES =   cvsfileindex.C
-cvsfileindex_LDADD = $(LIBS)
-cvsfileindex_LDFLAGS = $(FLAGS)
 
