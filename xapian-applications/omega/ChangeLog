@@ -1,3 +1,8 @@
+Mon May 26 12:01:55 BST 2003  Olly Betts <olly@survex.com>
+
+	* query.cc: If the query is empty, don't bother running it through
+	  enquire.
+
 Wed Apr 30 01:18:47 BST 2003  Olly Betts <olly@survex.com>
 
 	* docs/cgiparams.txt,docs/omegascript.txt: Minor improvements.

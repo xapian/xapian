@@ -447,16 +447,19 @@ run_query()
 	sec = time(NULL);
 	if (sec != (time_t)-1) usec = 0;
 #endif
-	enquire->set_query(query);
-	// We could use the value of topdoc as first parameter, but we
-	// need to know the first few items on the mset to fake a
-	// relevance set for topterms.
-	//
-	// Fetch one extra result so we know if we've reached the end of the
-	// matches or not - then we can avoid offering a "next" button which
-	// leads to an empty page
-	mset = enquire->get_mset(0, topdoc + max(hits_per_page + 1,min_hits),
-				 rset);
+	if (!query.is_empty()) {
+	    enquire->set_query(query);
+	    // We could use the value of topdoc as first parameter, but we
+	    // need to know the first few items on the mset to fake a
+	    // relevance set for topterms.
+	    //
+	    // Fetch one extra result so we know if we've reached the end of the
+	    // matches or not - then we can avoid offering a "next" button which
+	    // leads to an empty page
+	    mset = enquire->get_mset(0,
+				     topdoc + max(hits_per_page + 1, min_hits),
+				     rset);
+	}
 	if (usec != -1) {
 #ifdef HAVE_GETTIMEOFDAY
 	    if (gettimeofday(&tv, 0) == 0) {
