@@ -71,8 +71,12 @@ desc_from_xml_file(const std::string &filename)
 {
     auto_xmlDocPtr doc = xmlParseFile(filename.c_str());
 
-    if (!doc.get() || !doc_is_valid(doc.get())) {
-	throw OmInvalidDataError("Graph definition is invalid");
+    if (!doc.get()) {
+	throw OmInvalidDataError("Error parsing XML file");
+    }
+
+    if (!doc_is_valid(doc.get())) {
+	throw OmInvalidDataError("Graph did not validate");
     }
 
     return desc_from_tree(doc.get());
@@ -185,6 +189,14 @@ CHAR *get_dtd_path()
     return result;
 }
 
+void
+add_dtd_if_needed(xmlDocPtr doc) {
+    // add the internal subset Dtd if it's not there
+    if (doc->intSubset == 0) {
+	xmlCreateIntSubset(doc, "omindexer", 0, get_dtd_path());
+    }
+}
+
 static bool
 doc_is_valid(xmlDocPtr doc)
 {
@@ -196,6 +208,8 @@ doc_is_valid(xmlDocPtr doc)
     // Add our predefined "START" id
     xmlAttrPtr attr = xmlNewDocProp(doc, "id", "START");
     xmlAddID(&ctxt, doc, "START", attr);
+
+    add_dtd_if_needed(doc);
 
     xmlFreeProp(attr);
     attr = 0;
@@ -375,17 +389,16 @@ get_config_values(xmlNodePtr node, OmSettings &config)
 static AutoPtr<OmIndexerDesc>
 desc_from_tree(xmlDocPtr doc)
 {
-    // add the internal subset Dtd if it's not there
-    if (doc->intSubset == 0) {
-	xmlCreateIntSubset(doc, "omindexer", 0, get_dtd_path());
-    }
-
     xmlNodePtr root = doc->root;
     //cerr << "intSubset = " << doc->intSubset << endl;
     //cerr << "extSubset = " << doc->extSubset << endl;
     if (!root) {
 	throw OmInvalidDataError("Error parsing graph description");
     }
+
+    /* Add the DTD declarations, so that default values etc. work. */
+    add_dtd_if_needed(doc);
+
     std::string rootname = xmlChar2string(root->name);
     if (rootname != "omindexer") {
 	throw OmInvalidDataError(std::string("Root tag was `")
