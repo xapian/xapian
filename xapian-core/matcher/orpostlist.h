@@ -9,11 +9,13 @@
 class OrPostList : public virtual BranchPostList {
     private:
         docid lhead, rhead;
+        weight lmax, rmax;
     public:
 	doccount get_termfreq() const;
 
 	docid  get_docid() const;
 	weight get_weight() const;
+	weight get_maxweight() const;
 
 	PostList *next();
 	PostList *skip_to(docid);
@@ -45,6 +47,13 @@ OrPostList::get_weight() const
     if (lhead < rhead) return l->get_weight();
     if (lhead > rhead) return r->get_weight();
     return l->get_weight() + r->get_weight();
+}
+
+// only called if we are doing a probabilistic operation
+inline weight
+OrPostList::get_maxweight() const
+{
+    return lmax + rmax;
 }
 
 inline bool

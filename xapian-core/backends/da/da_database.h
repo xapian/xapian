@@ -27,6 +27,7 @@ class DAPostList : public virtual PostList {
 
 	docid  get_docid() const;     // Gets current docid
 	weight get_weight() const;    // Gets current weight
+	weight get_maxweight() const;    // Gets max weight
 	PostList *next();          // Moves to next docid
 	PostList *skip_to(docid);  // Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list

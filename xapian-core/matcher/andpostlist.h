@@ -9,6 +9,7 @@
 class AndPostList : public virtual BranchPostList {
     private:
         docid head;
+        weight lmax, rmax;
 
         void process_next_or_skip_to(PostList *);
     public:
@@ -16,6 +17,7 @@ class AndPostList : public virtual BranchPostList {
 
 	docid  get_docid() const;
 	weight get_weight() const;
+	weight get_maxweight() const;
     
         PostList *next();
         PostList *skip_to(docid);
@@ -43,6 +45,13 @@ inline weight
 AndPostList::get_weight() const
 {
     return l->get_weight() + r->get_weight();
+}
+
+// only called if we are doing a probabilistic operation
+inline weight
+AndPostList::get_maxweight() const
+{
+    return lmax + rmax;
 }
 
 inline bool

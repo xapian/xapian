@@ -15,6 +15,7 @@ class AndNotPostList : public virtual BranchPostList {
 
 	docid  get_docid() const;
 	weight get_weight() const;
+	weight get_maxweight() const;
 
         PostList *next();
         PostList *skip_to(docid);
@@ -41,6 +42,13 @@ inline weight
 AndNotPostList::get_weight() const
 {
     return l->get_weight();
+}
+
+// only called if we are doing a probabilistic AND NOT
+inline weight
+AndNotPostList::get_maxweight() const
+{
+    return l->get_maxweight();
 }
 
 inline bool

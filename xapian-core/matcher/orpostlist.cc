@@ -4,6 +4,8 @@ OrPostList::OrPostList(PostList *left, PostList *right)
 {
     l = left;
     r = right;
+    lmax = l->get_maxweight();
+    rmax = r->get_maxweight();
     lhead = rhead = 0;
 }
 
@@ -26,7 +28,6 @@ OrPostList::next()
     } else {
 	rnext = true;
     }
-
 
     if (rnext) {
 	PostList *ret;

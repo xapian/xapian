@@ -28,6 +28,8 @@ DAPostList::~DAPostList()
     DAclosepostings(postlist);
 }
 
+const double k = 1;
+
 /* This is the biggie */
 weight DAPostList::get_weight() const
 {
@@ -56,7 +58,6 @@ weight DAPostList::get_weight() const
 
 //    printf("(wdf, termweight)  = (%4d, %4.2f)", wdf, termweight);
 
-    const double k = 1;
     // FIXME - precalculate this freq score for several values of wdf - may
     // remove much computation.
     wt = (double) wdf / (k + wdf);
@@ -67,6 +68,29 @@ weight DAPostList::get_weight() const
 //    printf("\t=> weight = %f\n", wt);
 
     return wt;
+}
+
+// return an upper bound on the termweight
+weight DAPostList::get_maxweight() const
+{
+    if (!weight_initialised) {
+	// FIXME: golden gluepot strikes again
+	weight_initialised = true;
+
+	termweight = (dbsize - termfreq + 0.5) / (termfreq + 0.5);
+	if (termweight < 2) {
+	    // if size and/or termfreq is estimated we can get termweight <= 0
+	    // so handle this gracefully
+	    if (termweight <= 1e-6) termweight = 1e-6;
+	    termweight = termweight / 2 + 1;
+	}
+	termweight = log(termweight);
+
+	printf("(dbsize, termfreq) = (%4d, %4d)\t=> termweight = %f\n",
+	       dbsize, termfreq, termweight);
+    }
+
+    return termweight * (k + 1);
 }
 
 PostList * DAPostList::next()

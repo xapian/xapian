@@ -21,6 +21,7 @@ class PostList {
 
 	virtual docid  get_docid() const = 0;     // Gets current docid
 	virtual weight get_weight() const = 0;    // Gets current weight
+        virtual weight get_maxweight() const = 0;    // Gets max weight
 
 	virtual PostList *next() = 0;          // Moves to next docid
 	virtual PostList *skip_to(docid);  // Moves to next docid >= specified docid

@@ -140,15 +140,23 @@ Match::match(void)
     weight w_min = 0;
     vector<MSetItem> mset;
     int sorted_to = 0;
+    weight w_max = merger->get_maxweight();
+    cout << "max possible doc weight = " << w_max << endl;
 
     // FIXME: clean all this up
     // FIXME: partial_sort?
     // FIXME: quicker to just resort whole lot than sort and merge?
     while (1) {
-        PostList *ret = merger->next(); 	    
+        PostList *ret = merger->next();
         if (ret) {
 	    delete merger;
 	    merger = ret;
+	    w_max = merger->get_maxweight();
+	    cout << "max possible doc weight = " << w_max << endl;
+	    if (w_max < w_min) {
+		cout << "TERMINATING EARLY" << endl;
+		break;
+	    }
 	}
 
 	if (merger->at_end()) break;
@@ -195,6 +203,10 @@ Match::match(void)
     cout << "mset size = " << mset.size() << endl;
 
     cout << "msize = " << msize << ", mtotal = " << mtotal << endl;
+    if (msize) {
+	cout << "max weight in mset = " << mset[0].w
+	     << ", min weight in mset = " << mset[msize - 1].w << endl;
+    }
 #if 0
     for (docid i = 0; i < msize; i++) {
         cout << mset[i].id << "\t" << mset[i].w << endl;
