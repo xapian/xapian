@@ -1,3 +1,8 @@
+Fri May 19 11:43:09 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Further test to check that rset weights are getting distributed
+	  correctly in multidatabase cases.
+
 Thu May 18 18:11:16 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* MultiMatch now splits up RSets appropriately for each of its sub

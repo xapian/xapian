@@ -121,68 +121,9 @@ bool test_rset2();
 // test that rsets behave correctly with multiDBs
 bool test_rsetmultidb1();
 
-test_desc tests[] = {
-    {"trivial",            test_trivial},
-    // {"alwaysfail",       test_alwaysfail},
-    {"zerodocid_inmemory", test_zerodocid_inmemory},
-    {"simplequery1",       test_simplequery1},
-    {"simplequery2",       test_simplequery2},
-    {"simplequery3",       test_simplequery3},
-    {"multidb1",           test_multidb1},
-    {"multidb2",           test_multidb2},
-    {"changequery1",	   test_changequery1},
-    {"nullquery1",	   test_nullquery1},
-    {"msetmaxitems1",      test_msetmaxitems1},
-    {"expandmaxitems1",    test_expandmaxitems1},
-    {"boolquery1",         test_boolquery1},
-    {"msetfirst1",         test_msetfirst1},
-    {"topercent1",	   test_topercent1},
-    {"expandfunctor1",	   test_expandfunctor1},
-    {"matchfunctor1",	   test_matchfunctor1},
-    {"pctcutoff1",	   test_pctcutoff1},
-    {"allowqterms1",       test_allowqterms1},
-    {"maxattain1",         test_maxattain1},
-    {"collapsekey1",	   test_collapsekey1},
-    {"reversebool1",	   test_reversebool1},
-    {"reversebool2",	   test_reversebool2},
-    {"getqterms1",	   test_getqterms1},
-    {"getmterms1",	   test_getmterms1},
-    {"boolsubq1",	   test_boolsubq1},
-    {"absentfile1",	   test_absentfile1},
-    {"querylen1",	   test_querylen1},
-    {"querylen2",	   test_querylen2},
-    {"querylen3",	   test_querylen3},
-    {"poscollapse1",	   test_poscollapse1},
-    {"subqcollapse1",	   test_subqcollapse1},
-    {"batchquery1",	   test_batchquery1},
-    {"repeatquery1",	   test_repeatquery1},
-    {"absentterm1",	   test_absentterm1},
-    {"absentterm2",	   test_absentterm2},
-    {"emptyquerypart1",    test_emptyquerypart1},
-    {"multidb3",           test_multidb3},
-    {"multidb4",           test_multidb4},
-    {"rset1",              test_rset1},
-    {"rset2",              test_rset2},
-    {"rsetmultidb1",       test_rsetmultidb1},
-    {0, 0}
-};
-
 string datadir;
 
 vector<OmDocumentContents> documentcontents;
-    
-int main(int argc, char *argv[])
-{
-    char *srcdir = getenv("srcdir");
-    if (srcdir == NULL) {
-        cout << "Error: $srcdir must be in the environment!" << endl;
-	return(1);
-    }
-    datadir = std::string(srcdir) + "/testdata/";
-
-    return test_driver::main(argc, argv, tests);
-}
-
 
 bool floats_are_equal_enough(double a, double b)
 {
@@ -298,8 +239,8 @@ make_dbgrp(OmDatabase * db1 = 0,
     return result;
 }
 
-//////////////////////////////////////////////////////////////////////////
-// Tests start here
+// #######################################################################
+// # Tests start here
 
 bool test_trivial()
 {
@@ -1794,11 +1735,9 @@ bool test_rsetmultidb1()
     OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
 
     OmStem stemmer("english");
-
     OmQuery myquery(OM_MOP_OR,
 		    OmQuery(stemmer.stem_word("cuddly")),
 		    OmQuery(stemmer.stem_word("multiple")));
-
 
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
@@ -1834,4 +1773,123 @@ bool test_rsetmultidb1()
     TEST_NOT_EQUAL(mymset2a, mymset2b);
 
     return true;
+}
+
+bool test_rsetmultidb2()
+{
+    OmWritableDatabase mydb1("inmemory", make_strvec());
+    OmWritableDatabase mydb2("inmemory", make_strvec());
+    OmWritableDatabase mydb3("inmemory", make_strvec());
+    index_file_to_database(mydb1, datadir + "/apitest_rset.txt");
+    index_file_to_database(mydb1, datadir + "/apitest_simpledata2.txt");
+    index_file_to_database(mydb2, datadir + "/apitest_rset.txt");
+    index_file_to_database(mydb3, datadir + "/apitest_simpledata2.txt");
+
+    OmEnquire enquire1(make_dbgrp(&mydb1));
+    OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
+
+    OmStem stemmer("english");
+    OmQuery myquery(stemmer.stem_word("is"));
+
+    enquire1.set_query(myquery);
+    enquire2.set_query(myquery);
+
+    OmRSet myrset1;
+    OmRSet myrset2;
+    myrset1.add_document(4);
+    myrset2.add_document(2);
+
+    OmMSet mymset1a = enquire1.get_mset(0, 10);
+    OmMSet mymset1b = enquire1.get_mset(0, 10, &myrset1);
+    OmMSet mymset2a = enquire2.get_mset(0, 10);
+    OmMSet mymset2b = enquire2.get_mset(0, 10, &myrset2);
+
+    TEST_EQUAL(mymset1a.items.size(), 2);
+    TEST_EQUAL(mymset1b.items.size(), 2);
+    TEST_EQUAL(mymset2a.items.size(), 2);
+    TEST_EQUAL(mymset2b.items.size(), 2);
+
+    om_docid order1a[] = {4, 3};
+    om_docid order1b[] = {4, 3};
+    om_docid order2a[] = {2, 5};
+    om_docid order2b[] = {2, 5};
+
+    expect_mset_order(mymset1a, order1a, 2, "mymset1a");
+    expect_mset_order(mymset1b, order1b, 2, "mymset1b");
+    expect_mset_order(mymset2a, order2a, 2, "mymset2a");
+    expect_mset_order(mymset2b, order2b, 2, "mymset2b");
+
+    mset_range_is_same_weights(mymset1a, 0, mymset2a, 0, 2);
+    mset_range_is_same_weights(mymset1b, 0, mymset2b, 0, 2);
+    TEST_NOT_EQUAL(mymset1a, mymset1b);
+    TEST_NOT_EQUAL(mymset2a, mymset2b);
+
+    return true;
+}
+
+
+
+
+
+
+// #######################################################################
+// # End of test cases: now we list the tests to run.
+
+test_desc tests[] = {
+    {"trivial",            test_trivial},
+    // {"alwaysfail",       test_alwaysfail},
+    {"zerodocid_inmemory", test_zerodocid_inmemory},
+    {"simplequery1",       test_simplequery1},
+    {"simplequery2",       test_simplequery2},
+    {"simplequery3",       test_simplequery3},
+    {"multidb1",           test_multidb1},
+    {"multidb2",           test_multidb2},
+    {"changequery1",	   test_changequery1},
+    {"nullquery1",	   test_nullquery1},
+    {"msetmaxitems1",      test_msetmaxitems1},
+    {"expandmaxitems1",    test_expandmaxitems1},
+    {"boolquery1",         test_boolquery1},
+    {"msetfirst1",         test_msetfirst1},
+    {"topercent1",	   test_topercent1},
+    {"expandfunctor1",	   test_expandfunctor1},
+    {"matchfunctor1",	   test_matchfunctor1},
+    {"pctcutoff1",	   test_pctcutoff1},
+    {"allowqterms1",       test_allowqterms1},
+    {"maxattain1",         test_maxattain1},
+    {"collapsekey1",	   test_collapsekey1},
+    {"reversebool1",	   test_reversebool1},
+    {"reversebool2",	   test_reversebool2},
+    {"getqterms1",	   test_getqterms1},
+    {"getmterms1",	   test_getmterms1},
+    {"boolsubq1",	   test_boolsubq1},
+    {"absentfile1",	   test_absentfile1},
+    {"querylen1",	   test_querylen1},
+    {"querylen2",	   test_querylen2},
+    {"querylen3",	   test_querylen3},
+    {"poscollapse1",	   test_poscollapse1},
+    {"subqcollapse1",	   test_subqcollapse1},
+    {"batchquery1",	   test_batchquery1},
+    {"repeatquery1",	   test_repeatquery1},
+    {"absentterm1",	   test_absentterm1},
+    {"absentterm2",	   test_absentterm2},
+    {"emptyquerypart1",    test_emptyquerypart1},
+    {"multidb3",           test_multidb3},
+    {"multidb4",           test_multidb4},
+    {"rset1",              test_rset1},
+    {"rset2",              test_rset2},
+    {"rsetmultidb1",       test_rsetmultidb1},
+    {"rsetmultidb2",       test_rsetmultidb2},
+    {0, 0}
+};
+
+int main(int argc, char *argv[])
+{
+    char *srcdir = getenv("srcdir");
+    if (srcdir == NULL) {
+        cout << "Error: $srcdir must be in the environment!" << endl;
+	return(1);
+    }
+    datadir = std::string(srcdir) + "/testdata/";
+
+    return test_driver::main(argc, argv, tests);
 }
