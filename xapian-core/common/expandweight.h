@@ -44,6 +44,7 @@ class ExpandWeight {
 	ExpandBits get_bits(doccount wdf, doclength len,
 			    doccount termfreq, doccount dbsize) const;
 	weight get_weight(const ExpandBits &, const termname &) const;
+	weight get_maxweight() const;
 };
 
 ///////////////////////////////

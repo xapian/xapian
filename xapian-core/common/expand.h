@@ -17,6 +17,16 @@ class ESetItem {
 		{ return ; }
 };
 
+class ExpandDecider {
+    public:
+	virtual bool want_term(const termname&) const = 0;
+};
+
+class ExpandDeciderAlways : public virtual ExpandDecider {
+    public:
+	bool want_term(const termname&) const { return true; }
+};
+
 class Expand {
     private:
         IRDatabase *database;
@@ -28,7 +38,7 @@ class Expand {
     public:
         Expand(IRDatabase *);
 
-        void expand(const RSet *);
+	void expand(const RSet *, const ExpandDecider *);
 
         vector<ESetItem> eset;
 	termcount etotal;

@@ -52,7 +52,7 @@ Expand::build_tree(const RSet *rset, const ExpandWeight *ewt)
     while (true) {
 	TermList *p = pq.top();
 #ifdef MUS_DEBUG_VERBOSE
-	cout << "Expand: adding termlist " << p << " to tree" << endl;
+	//cout << "Expand: adding termlist " << p << " to tree" << endl;
 #endif /* MUS_DEBUG_VERBOSE */
 	pq.pop();
 	if (pq.empty()) {
@@ -66,7 +66,7 @@ Expand::build_tree(const RSet *rset, const ExpandWeight *ewt)
 }
 
 void
-Expand::expand(const RSet *rset)
+Expand::expand(const RSet *rset, const ExpandDecider *decider)
 {    
     eset.clear();
     etotal = 0;
@@ -81,46 +81,49 @@ Expand::expand(const RSet *rset)
     TermList *merger = build_tree(rset, &ewt);
     if(merger == NULL) return;
 
+#ifdef MUS_DEBUG_VERBOSE
+    cout << "ewt.get_maxweight() = " << ewt.get_maxweight() << endl;
+#endif /* MUS_DEBUG_VERBOSE */
     while (1) {
 	TermList *ret = merger->next();
         if (ret) {
-	    cout << "Merger:" << merger << " Ret:" << ret << endl;
+#ifdef MUS_DEBUG_VERBOSE
+	    //cout << "*** REPLACING ROOT\n";
+#endif /* MUS_DEBUG_VERBOSE */
 	    delete merger;
 	    merger = ret;
-
-#ifdef MUS_DEBUG_VERBOSE
-	    cout << "*** REPLACING ROOT\n";
-#endif /* MUS_DEBUG_VERBOSE */
 	}
 
 	if (merger->at_end()) break;
 
-        etotal++;
-	
-	ExpandBits ebits = merger->get_weighting();
-	weight wt = ewt.get_weight(ebits, merger->get_termname());
-        
-        if (wt > w_min) {
-	    termname tname = merger->get_termname();
-	    eset.push_back(ESetItem(wt, tname));
+	termname tname = merger->get_termname();
+	if(decider->want_term(tname)) {
+	    etotal++;
 
-	    // FIXME: find balance between larger size for more efficient
-	    // nth_element and smaller size for better w_min optimisations
-	    if (eset.size() == max_esize * 2) {
-		// find last element we care about
+	    ExpandBits ebits = merger->get_weighting();
+	    weight wt = ewt.get_weight(ebits, tname);
+
+	    if (wt > w_min) {
+		eset.push_back(ESetItem(wt, tname));
+
+		// FIXME: find balance between larger size for more efficient
+		// nth_element and smaller size for better w_min optimisations
+		if (eset.size() == max_esize * 2) {
+		    // find last element we care about
 #ifdef MUS_DEBUG_VERBOSE
-		cout << "finding nth\n";		
+		    cout << "finding nth\n";		
 #endif /* MUS_DEBUG_VERBOSE */
-		nth_element(eset.begin(),
-			    eset.begin() + max_esize,
-			    eset.end(),
-			    ESetCmp());
-		// erase elements which don't make the grade
-	        eset.erase(eset.begin() + max_esize, eset.end());
-	        w_min = eset.back().wt;
+		    nth_element(eset.begin(),
+				eset.begin() + max_esize,
+				eset.end(),
+				ESetCmp());
+		    // erase elements which don't make the grade
+		    eset.erase(eset.begin() + max_esize, eset.end());
+		    w_min = eset.back().wt;
 #ifdef MUS_DEBUG_VERBOSE
-	        cout << "eset size = " << eset.size() << endl;
+		    cout << "eset size = " << eset.size() << endl;
 #endif /* MUS_DEBUG_VERBOSE */
+		}
 	    }
 	}
     }

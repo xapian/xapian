@@ -24,7 +24,7 @@ operator+(const ExpandBits &bits1, const ExpandBits &bits2)
 	sum.dbsize = bits2.dbsize;
     }
 #ifdef MUS_DEBUG_VERBOSE
-    else {
+    else if(bits2.dbsize < sum.dbsize){
 	cout << "ExpandBits::operator+ using first operand: " << 
 		bits1.termfreq << "/" << bits1.dbsize << " instead of " <<
 		bits2.termfreq << "/" << bits2.dbsize << endl;
@@ -60,19 +60,39 @@ ExpandWeight::get_weight(const ExpandBits &bits, const termname &tname) const
 	    "n=" << termfreq << ", "
 	    "R=" << rsize << ", "
 	    "r=" << bits.rtermfreq << ", "
-	    "mult=" << bits.multiplier << ")" << endl;
+	    "mult=" << bits.multiplier << ")";
 #endif /* MUS_DEBUG_VERBOSE */
 
     double rtermfreq = bits.rtermfreq;
     
-    weight wt;
-    wt = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /
+    weight tw;
+    tw = (rtermfreq + 0.5) * (dbsize - rsize - termfreq + rtermfreq + 0.5) /
 	    ((rsize - rtermfreq + 0.5) * (termfreq - rtermfreq + 0.5));
 
+    // FIXME - this is c&pasted from tradweight.  Inherit instead.
+    // FIXME This is to guarantee nice properties (monotonic increase) of the
+    // weighting function.
+    // Check whether this actually helps / whether it hinders efficiency
+    if (tw < 2) {
+	// if size and/or termfreq is estimated we can get tw <= 0
+	// so handle this gracefully
+	if (tw <= 1e-6) tw = 1e-6;
+	tw = tw / 2 + 1;
+    }
+    tw = log(tw);
+
 #ifdef MUS_DEBUG_VERBOSE
-    cout << "Term weight = " << wt <<
-	    " Expand weight = " << bits.multiplier * wt << endl;
+    cout << " => Term weight = " << tw <<
+	    " Expand weight = " << bits.multiplier * tw << endl;
 #endif /* MUS_DEBUG_VERBOSE */
 
-    return(bits.multiplier * wt);
+    return(bits.multiplier * tw);
+}
+
+// Provide an upper bound on the values which may be returned as weights 
+weight
+ExpandWeight::get_maxweight() const
+{
+    // FIXME - check the maths behind this.
+    return(log(4.0 * (rsize + 0.5) * (dbsize - rsize + 0.5)) * rsize);
 }
