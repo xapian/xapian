@@ -1,3 +1,8 @@
+Mon Sep 11 18:34:30 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix from Martin for DB database skip_to problem - reenabled skip_to
+	  in DBPostList.
+
 Mon Sep 11 17:48:50 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* OmRefCntPtr updated to deal with conversions between different
