@@ -53,20 +53,9 @@ variables will have no effect.
 Debugging memory allocations
 ============================
 
-The testsuite library used in most of the test programs (apitest, internaltest,
-nettest) includes implementations of the C++ memory allocation operators
-(operator new/delete).  These help the testsuite to detect memory leaks.
-
-When a test reports a memory leak, rerun it with the "-v" command-line option
-and note down the hex number in bracket "()" for the leak you want to
-investigate.
-
-Then set OM_ALLOC_TRAP to this value and rerun the test - e.g.:
-
-OM_ALLOC_TRAP=1c ./run-apitest -v
-
-This will cause a segfault when this block is allocated and you can use gdb
-to find out where this is.
+The testsuite's leak checking has unfortunately proved not to work well with
+many STL implementations, and it gives spurious reports.  For the time being
+we've removed it, and suggest using a third party product to trap leaks.
 
 Building with various profiling and leak-finding tools:
 =======================================================

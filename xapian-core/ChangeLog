@@ -1,3 +1,7 @@
+Mon Apr 22 17:58:56 BST 2002  Olly Betts <olly@survex.com>
+
+	* Removed leak checker.
+
 Mon Apr 22 13:40:01 BST 2002  Olly Betts <olly@survex.com>
 
 	* Tiny code tweak.

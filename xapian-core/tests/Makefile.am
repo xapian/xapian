@@ -17,7 +17,7 @@ INTERNALTEST_CXXFLAGS =
 endif
 
 ## Test programs to be run
-TESTS = run-apitest run-internaltest $(PERLTESTS)
+TESTS = apitest internaltest $(PERLTESTS)
 
 ## Programs to build
 check_PROGRAMS = apitest internaltest stemtest
@@ -96,13 +96,3 @@ internaltest.o: internaltest.cc
 
 internaltest.lo: internaltest.cc
 	$(LTCXXCOMPILE) $(internaltest_CXXFLAGS) -c $(srcdir)/internaltest.cc
-
-## Make links to a wrapper script which adds the LD_PRELOAD for malloc
-## checking
-run-apitest: apitest
-	rm -f run-apitest
-	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-apitest
-
-run-internaltest: internaltest
-	rm -f run-internaltest
-	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-internaltest

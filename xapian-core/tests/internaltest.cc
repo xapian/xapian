@@ -461,7 +461,8 @@ test_desc tests[] = {
     {"except1",			test_except1},
     {"testsuite1",		test_testsuite1},
     {"testsuite2",		test_testsuite2},
-    {"testsuite3",		test_testsuite3},
+//FIXME: disabled until we have leak checking again...
+//    {"testsuite3",		test_testsuite3},
     {"testsuite4",		test_testsuite4},
     {"exception1",              test_exception1},
 #ifdef HAVE_NO_ACCESS_CONTROL

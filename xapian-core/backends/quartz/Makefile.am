@@ -46,11 +46,9 @@ libquartz_la_SOURCES = quartz_database.cc \
 
 noinst_LTLIBRARIES = libquartz.la
 
-TESTS = run-quartztest run-btreetest
+TESTS = quartztest btreetest
 
-check_PROGRAMS = btreetest \
-		 quartztest \
-                 quartzdump
+check_PROGRAMS = btreetest quartztest quartzdump
 
 quartztest_SOURCES = quartztest.cc
 quartztest_LDADD = libquartz.la \
@@ -66,12 +64,3 @@ btreetest_LDADD = ../../testsuite/libtest.la \
 quartzdump_SOURCES = quartzdump.cc
 quartzdump_LDADD = libquartz.la \
 		   ../../libxapian.la
-
-run-quartztest:
-	rm -f run-quartztest
-	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-quartztest
-
-run-btreetest:
-	rm -f run-btreetest
-	$(LN_S) $(top_srcdir)/testsuite/malloc_wrapper.sh run-btreetest
-

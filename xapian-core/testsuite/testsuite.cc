@@ -38,16 +38,8 @@
 #include <set>
 
 #include <string>
-#include <new>
 #include <cstdio>
 #include <dlfcn.h>
-#include "allocdata.h"
-#include "alloccommon.h"
-
-/* On some systems <dlfcn.h> doesn't define RTLD_DEFAULT */
-#ifndef RTLD_DEFAULT
-#define RTLD_DEFAULT (void *)0
-#endif
 
 #include <stdlib.h>
 
@@ -138,42 +130,6 @@ test_driver::get_srcdir(const std::string & argv0)
     return srcdir;
 }
 
-/** Our overridden new and delete operators, which
- *  allow us to check for leaks.
- */
-void *operator new(size_t size) throw(std::bad_alloc) {
-    size_t real_size = (size > 0) ? size : 1;
-
-    void *result = checked_malloc(real_size);
-
-    if (!result) throw std::bad_alloc();
-
-    return result;
-}
-
-void *operator new[](size_t size) throw (std::bad_alloc)
-{
-    // some STLs use new[], so don't check for now...
-    void * result = malloc(size);
-    if (!result) throw std::bad_alloc();
-    return result;
-}
-
-/// This method is simply here to be an easy place to set a break point
-void memory_weirdness() {
-}
-
-void operator delete(void *p) throw() {
-    if (p) {
-	checked_free(p, "deleting memory at %p which wasn't newed\n");
-    }
-}
-
-void operator delete[](void *p) throw() {
-    // some STLs use new[], so don't check for now...
-    free(p);
-}
-
 test_driver::test_driver(const test_desc *tests_)
 	: abort_on_error(false),
 	  out(std::cout.rdbuf()),
@@ -214,7 +170,7 @@ test_driver::runtest(const test_desc *test)
     while (true) {
 	runcount++;
 	tout.str("");
-	allocation_snapshot before = get_alloc_snapshot();
+	// FIXME get snapshot with valgrind
 	if (!setjmp(jb)) {
 	    signal(SIGSEGV, handle_sig);
 	    signal(SIGFPE, handle_sig);
@@ -288,8 +244,9 @@ test_driver::runtest(const test_desc *test)
 	    success = false;
 	}
 
-	allocation_snapshot after = get_alloc_snapshot();
-	if (check_alloc_differences(before, after)) return success; // all new allocations freed
+	// check snapshot with valgrind
+	return success; // all new allocations freed
+#if 0
 	if (!success || runcount >= 2) {
 	    if (verbose) {
 		print_alloc_differences(before, after, out);
@@ -297,6 +254,7 @@ test_driver::runtest(const test_desc *test)
 	    out << " " << COL_RED << "LEAK" << COL_RESET;
 	    return false;
 	}
+#endif
     }
 }
 
