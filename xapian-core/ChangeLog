@@ -1,3 +1,15 @@
+Tue Apr 05 00:37:05 BST 2005  Olly Betts <olly@survex.com>
+
+	* m4/.cvsignore,debian/.cvsignore,matcher/.cvsignore,docs/.cvsignore,
+	  tests/.cvsignore,bin/.cvsignore,.cvsignore,autoconf/.cvsignore,
+	  extra/.cvsignore,include/xapian/.cvsignore,include/.cvsignore,
+	  net/.cvsignore,common/.cvsignore,testsuite/.cvsignore,
+	  getopt/.cvsignore,languages/.cvsignore,api/.cvsignore,
+	  backends/inmemory/.cvsignore,backends/muscat36/.cvsignore,
+	  backends/net/.cvsignore,backends/quartz/.cvsignore,
+	  backends/multi/.cvsignore,backends/.cvsignore: Remove .cvsignore
+	  files, as they're not used by SVN.
+
 Thu Mar 10 01:48:20 GMT 2005  Olly Betts <olly@survex.com>
 
 	* testsuite/backendmanager.cc,testsuite/index_utils.cc,
