@@ -71,6 +71,7 @@ static set<om_termname> termset;
 static string error_msg;
 
 class MyStopper : public OmStopper {
+  public:
     bool operator()(const om_termname &t) {
 	switch (t[0]) {
 	    case 'a':
@@ -812,7 +813,7 @@ static struct func_desc func_tab[] = {
 {T(highlight),	2, 4, N, 0, 0}}, // html escape and highlight words from list
 {T(hit),	0, 0, N, 0, 0}}, // hit number of current mset entry (starting
 				 // from 0)
-{T(hitlist),	1, N, 0, 1, 0}}, // display hitlist using format in argument
+{T(hitlist),	1, 1, 0, 1, 0}}, // display hitlist using format in argument
 {T(hitsperpage),0, 0, N, 0, 0}}, // hits per page
 {T(hostname),	1, 1, N, 0, 0}}, // extract hostname from URL
 {T(html),	1, 1, N, 0, 0}}, // html escape string (<>&")
@@ -855,7 +856,7 @@ static struct func_desc func_tab[] = {
 {T(thispage),	0, 0, N, 1, 0}}, // page number of current page
 {T(topdoc),	0, 0, N, 0, 0}}, // first document on current page of hit list (counting from 0)
 // FIXME: cache really needs to be smart about parameter value...
-{T(topterms),	0, 1, N, 1, 1}}, // list of up to N top relevance feedback terms (default 20)
+{T(topterms),	0, 1, N, 1, 1}}, // list of up to N top relevance feedback terms (default 16)
 {T(url),	1, 1, N, 0, 0}}, // url encode argument
 {T(version),	0, 0, N, 0, 0}}, // omega version string
 { NULL,{0,      0, 0, 0, 0, 0}}
@@ -1503,7 +1504,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_topterms:
 		if (enquire) {
-		    int howmany = 20;
+		    int howmany = 16;
 		    if (!args.empty()) howmany = string_to_int(args[0]);
 		    if (howmany < 0) howmany = 0;
 
@@ -1512,7 +1513,7 @@ eval(const string &fmt, const vector<string> &param)
 		    ExpandDeciderOmega decider(omdb);
 
 		    if (!rset->empty()) {
-			eset = enquire->get_eset(howmany, *rset, &decider);
+			eset = enquire->get_eset(howmany * 2, *rset, &decider);
 		    } else if (mset.size()) {
 			// invent an rset
 			OmRSet tmp;
@@ -1525,13 +1526,39 @@ eval(const string &fmt, const vector<string> &param)
 			    if (--c == 0) break;
 			}
 
-			eset = enquire->get_eset(howmany, tmp, &decider);
+			eset = enquire->get_eset(howmany * 2, tmp, &decider);
 		    }
 
 		    OmESetIterator i;
+		    set<om_termname> seen;
+		    {
+			if (!stemmer)
+			    stemmer = new OmStem(option["no_stem"] == "true" ? "" : "english");
+			// Exclude terms "similar" to those already in
+			// the query
+			set<om_termname>::const_iterator t;
+			for (t = termset.begin(); t != termset.end(); ++t) {
+			    string term = *t;
+			    if (term[0] == 'R') {
+				term.erase(0, 1);
+				term = stemmer->stem_word(term);
+			    }
+			    seen.insert(term);
+			}
+		    }
+		    MyStopper stop;
 		    for (i = eset.begin(); i != eset.end(); ++i) {
+			string term = *i;
+			if (term[0] == 'R') {
+			    term.erase(0, 1);
+			    if (stop(term)) continue;
+			    term = stemmer->stem_word(term);
+			}
+			if (seen.find(term) != seen.end()) continue;
+			seen.insert(term);
 			value += *i;
 			value += '\t';
+			if (--howmany == 0) break;
 		    }
 		    if (!value.empty()) value.erase(value.size() - 1);
 		}
@@ -1620,6 +1647,7 @@ pretty_term(const string & term)
 
     // If the term wasn't indexed unstemmed, it's probably a non-term
     // e.g. "litr" - the stem of "litre"
+    // FIXME: perhaps ought to check termfreq > some threshold
     if (!omdb.term_exists('R' + term))
 	return term + '.';
 

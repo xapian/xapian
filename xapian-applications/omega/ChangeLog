@@ -1,3 +1,10 @@
+Sun Dec 08 06:39:30 GMT 2002  Olly Betts <olly@survex.com>
+
+	* query.cc,docs/omegascript.txt: Fixed $hitlist to complain if more
+	  than one parameter is passed; $topterms now defaults to 16 terms
+	  rather than 20; $topterms now weeds out terms which stem to the
+	  same as those in the query, or those already in $topterms. 
+
 Sun Dec 08 06:36:04 GMT 2002  Olly Betts <olly@survex.com>
 
 	* templates/query: Make background white - the very light grey just

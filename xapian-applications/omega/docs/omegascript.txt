@@ -247,7 +247,7 @@ $topdoc
 	first document on current page of hit list (counting from 0)
 
 $topterms[{N}]
-	list of up to N top relevance feedback terms (default 20)
+	list of up to N top relevance feedback terms (default 16)
 
 $url{TEXT}
 	url encode argument
