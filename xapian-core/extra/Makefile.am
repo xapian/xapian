@@ -21,9 +21,10 @@ else
 YYSOURCES = queryparser.cc
 endif
 
-libxapianqueryparser_la_LDFLAGS = -version-info -no-undefined $(LIBRARY_VERSION_INFO)
+libxapianqueryparser_la_LDFLAGS = -no-undefined -version-info $(LIBRARY_VERSION_INFO)
+libxapianqueryparser_la_LIBADD = @ldflags@ ../libxapian.la
 
 libxapianqueryparser_la_SOURCES = $(YYSOURCES)
 
 queryparsertest_SOURCES = queryparsertest.cc
-queryparsertest_LDADD = libxapianqueryparser.la ../libxapian.la
+queryparsertest_LDADD = libxapianqueryparser.la
