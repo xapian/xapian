@@ -483,9 +483,6 @@ AC_OUTPUT(
  docs/doxygen_full_conf
  tests/stemtest.pl
  tests/findheaders.pl
- bindings/java/apitest_to_java.pl
- bindings/python/apitest_to_python.pl
- bindings/python/apitest_helpers.py
  bindings/Makefile
  bindings/python/Makefile
  bindings/perl5/Makefile
@@ -494,6 +491,9 @@ AC_OUTPUT(
  bindings/php4/Makefile
  bindings/java/Makefile
  bindings/java/native/Makefile
+ bindings/java/apitest_to_java.pl
+ bindings/python/apitest_to_python.pl
+ bindings/python/apitest_helpers.py
  extra/Makefile
 ,
  for a in docs/mkdoc.pl docs/todo2html.pl tests/stemtest.pl \

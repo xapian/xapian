@@ -1,3 +1,9 @@
+Sat Apr  6 20:45:21 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* Reordered some output generation in configure so it won't
+	  complain about directories not existing. (I don't understand
+	  what the problem is, but this does fix it.)
+
 Sat Apr 06 20:27:57 BST 2002  Olly Betts <olly@survex.com>
 
 	* Moved a few lingering traces of XML indexer stuff to indexer
