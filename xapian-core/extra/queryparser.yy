@@ -34,15 +34,16 @@
 #include <ctype.h>
 
 using namespace std;
+using namespace Xapian;
  
 class U {
     public:
-	Xapian::Query q;
-	vector<Xapian::Query> v;
-	vector<Xapian::Query> love;
-	vector<Xapian::Query> hate;
+	Query q;
+	vector<Query> v;
+	vector<Query> love;
+	vector<Query> hate;
 
-	U(Xapian::Query q) : q(q) { }
+	U(Query q) : q(q) { }
 	U() { }
 };
 
@@ -54,9 +55,9 @@ static int yyparse();
 static int yyerror(const char *s);
 static int yylex();
 
-static Xapian::Query query;
+static Query query;
 
-static Xapian::QueryParser *qp;
+static QueryParser *qp;
 static string q;
 %}
 
@@ -69,35 +70,35 @@ static string q;
 
 /* Grammar follows */
 %%
-input:	  /* nothing */	{ query = Xapian::Query(); }
+input:	  /* nothing */	{ query = Query(); }
 	| exp		{ query = $1.q; }
 ;
 
 exp:	  prob		{
-			    Xapian::Query q = $1.q;
+			    Query q = $1.q;
 			    if ($1.love.size()) {
-				Xapian::Query love(Xapian::Query::OP_AND,
+				Query love(Query::OP_AND,
 					     $1.love.begin(),
 					     $1.love.end());
 				if (q.is_empty()) {
 				    q = love;
 				} else {
-				    q = Xapian::Query(Xapian::Query::OP_AND_MAYBE, love, q);
+				    q = Query(Query::OP_AND_MAYBE, love, q);
 				}				
 			    }
 			    if ($1.hate.size()) {
-				q = Xapian::Query(Xapian::Query::OP_AND_NOT,
+				q = Query(Query::OP_AND_NOT,
 					    q,
-					    Xapian::Query(Xapian::Query::OP_OR,
+					    Query(Query::OP_OR,
 						    $1.hate.begin(),
 						    $1.hate.end()));
 			    }
 			    $$ = q;
 			}
-	| exp AND exp	{ $$ = U(Xapian::Query(Xapian::Query::OP_AND, $1.q, $3.q)); }
-	| exp OR exp	{ $$ = U(Xapian::Query(Xapian::Query::OP_OR, $1.q, $3.q)); }
-	| exp NOT exp	{ $$ = U(Xapian::Query(Xapian::Query::OP_AND_NOT, $1.q, $3.q)); }
-	| exp XOR exp	{ $$ = U(Xapian::Query(Xapian::Query::OP_XOR, $1.q, $3.q)); }
+	| exp AND exp	{ $$ = U(Query(Query::OP_AND, $1.q, $3.q)); }
+	| exp OR exp	{ $$ = U(Query(Query::OP_OR, $1.q, $3.q)); }
+	| exp NOT exp	{ $$ = U(Query(Query::OP_AND_NOT, $1.q, $3.q)); }
+	| exp XOR exp	{ $$ = U(Query(Query::OP_XOR, $1.q, $3.q)); }
 	| '(' exp ')'	{ $$ = $2; }
 	/* error catches */
 	| exp AND	{ throw "Syntax: expression AND expression"; }
@@ -116,7 +117,7 @@ prob:	  probterm
 			  } else if ($2.q.is_empty()) {
 			      $$ = $1;
 			  } else {
-			      $$ = U(Xapian::Query(qp->default_op, $1.q, $2.q));
+			      $$ = U(Query(qp->default_op, $1.q, $2.q));
 			  }
 	                  $$.love = $1.love;
 	                  $$.hate = $1.hate; }			  
@@ -151,21 +152,21 @@ stopterm: ignorehypterm	{ string term = *($1.q.get_terms_begin());
 			  } else {
 			      $$ = $1;
 			  } }
-	| '"' phrase '"'{ $$ = U(Xapian::Query(Xapian::Query::OP_PHRASE, $2.v.begin(), $2.v.end()));
+	| '"' phrase '"'{ $$ = U(Query(Query::OP_PHRASE, $2.v.begin(), $2.v.end()));
 			  $$.q.set_window($2.v.size()); }
-	| hypphr        { $$ = U(Xapian::Query(Xapian::Query::OP_PHRASE, $1.v.begin(), $1.v.end()));
+	| hypphr        { $$ = U(Query(Query::OP_PHRASE, $1.v.begin(), $1.v.end()));
 			  $$.q.set_window($1.v.size()); }
-	| nearphr	{ $$ = U(Xapian::Query(Xapian::Query::OP_NEAR, $1.v.begin(), $1.v.end()));
+	| nearphr	{ $$ = U(Query(Query::OP_NEAR, $1.v.begin(), $1.v.end()));
 			  $$.q.set_window($1.v.size() + 9); }
 ;
 
 term:	  ignorehypterm	{ $$ = $1; }
 	| PREFIXTERM
-	| '"' phrase '"'{ $$ = U(Xapian::Query(Xapian::Query::OP_PHRASE, $2.v.begin(), $2.v.end()));
+	| '"' phrase '"'{ $$ = U(Query(Query::OP_PHRASE, $2.v.begin(), $2.v.end()));
 			  $$.q.set_window($2.v.size()); }
-	| hypphr        { $$ = U(Xapian::Query(Xapian::Query::OP_PHRASE, $1.v.begin(), $1.v.end()));
+	| hypphr        { $$ = U(Query(Query::OP_PHRASE, $1.v.begin(), $1.v.end()));
 			  $$.q.set_window($1.v.size()); }
-	| nearphr	{ $$ = U(Xapian::Query(Xapian::Query::OP_NEAR, $1.v.begin(), $1.v.end()));
+	| nearphr	{ $$ = U(Query(Query::OP_NEAR, $1.v.begin(), $1.v.end()));
 			  $$.q.set_window($1.v.size() + 9); }
 ;
 
@@ -187,12 +188,12 @@ nearphr:  TERM NEAR TERM	{ $$.v.push_back($1.q); $$.v.push_back($3.q); }
 
 static string::iterator qptr;
 static int pending_token;
-static Xapian::termpos term_pos;
+static termpos term_pos;
 static string prefix;
 
 void
-Xapian::QueryParser::set_stemming_options(const string &lang, bool stem_all_,
-					  Xapian::Stopper * stop_)
+QueryParser::set_stemming_options(const string &lang, bool stem_all_,
+					  Stopper * stop_)
 {
     if (stop) delete stop;
     stop = stop_;
@@ -200,7 +201,7 @@ Xapian::QueryParser::set_stemming_options(const string &lang, bool stem_all_,
 	stem = false;
     } else {
 	if (stemmer) delete stemmer;
-	stemmer = new Xapian::Stem(lang);
+	stemmer = new Stem(lang);
 	stem = true;
 	stem_all = stem_all_;
     }
@@ -402,7 +403,7 @@ more_term:
 	    term = prefix + term;
 	    prefix = "";
 	}
-	yylval = U(Xapian::Query(term, 1, term_pos++));
+	yylval = U(Query(term, 1, term_pos++));
 	qp->termlist.push_back(term);
 	qp->unstem.insert(make_pair(term, original_term));
 	return TERM;
@@ -483,8 +484,8 @@ yyerror(const char *s)
     throw s;
 }
 
-Xapian::Query
-Xapian::QueryParser::parse_query(const string &q_)
+Query
+QueryParser::parse_query(const string &q_)
 {
     qp = this;
     q = q_;
@@ -495,8 +496,8 @@ Xapian::QueryParser::parse_query(const string &q_)
     if (yyparse() == 1) {
 	throw "query failed to parse";
     }
-    Xapian::Query res = query;
-    query = Xapian::Query();
+    Query res = query;
+    query = Query();
     q = "";
     return res;
 }

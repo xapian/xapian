@@ -1,3 +1,7 @@
+Wed Jun 18 17:58:56 BST 2003  Olly Betts <olly@survex.com>
+
+	* extra/queryparser.yy: `using namespace Xapian;'
+
 Fri Jun 06 01:33:33 BST 2003  Olly Betts <olly@survex.com>
 
 	* docs/quartzdesign.html: Commented out the section on the Lexicon,
