@@ -1,3 +1,8 @@
+Tue May 23 14:06:40 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* apitest sleepy tests now remove the generated indexes before
+	  running.
+
 Tue May 23 12:18:31 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* SocketServer now correctly handles more than one query.

@@ -269,7 +269,8 @@ class BackendManager {
 
 	/** Set the database type to use.
 	 *
-	 *  Valid values for dbtype are "inmemory" and "sleepycat"
+	 *  Valid values for dbtype are "inmemory", "sleepycat",
+	 *  "void", and "net".
 	 */
 	void set_dbtype(const string &type);
 
@@ -286,6 +287,8 @@ void BackendManager::set_dbtype(const string &type)
 	do_getdb = &getdb_inmemory;
     } else if (type == "sleepycat") {
 	do_getdb = &getdb_sleepy;
+	cout << "Removing .sleepy/..." << endl;
+	system("rm -fr .sleepy");
     } else if (type == "net") {
 	do_getdb = &getdb_net;
     } else if (type == "void") {
