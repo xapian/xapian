@@ -1,3 +1,10 @@
+Mon Oct 16 19:09:22 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added OM_MAX_POSS_DOCID macro to om/om_types.h, to represent the
+	  maxiumum value that a document ID may take (in a particular
+	  compilation of the library.)  Use this in multimatch.cc for the
+	  document ID in max_possible_item.
+
 Mon Oct 16 18:59:35 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* In multimatch.cc, replace w_max by max_possible_item, so that

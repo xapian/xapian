@@ -197,7 +197,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // Maxium possible item that could exist.
     // FIXME: the "(om_docid)-1" is a hack to get the maximum possible
     // document ID.
-    OmMSetItem max_possible_item(max_weight, (om_docid)-1);
+    OmMSetItem max_possible_item(max_weight, OM_MAX_POSS_DOCID);
     recalculate_w_max = false;
 
     // Check if any results have been asked for (might just be wanting

@@ -31,10 +31,16 @@ typedef unsigned int om_termid;
  */
 typedef unsigned int om_docid;
 
-/// Type for counts of documents
+/** The maximum possible value for a document ID, in this version of the
+ *  library.  Note that this limit applies nowhere on permanent storage - it
+ *  is merely a limit applicable for this compilation of the limrary.
+ */
+#define OM_MAX_POSS_DOCID ((om_docid)-1)
+
+/** Type for counts of documents. */
 typedef om_docid     om_doccount;
 
-/// Type for counts of terms (eg, wdf, wqf, termfreq).
+/** Type for counts of terms (eg, wdf, wqf). */
 typedef om_termid    om_termcount;
 
 /** Type for term positions within documents.
@@ -43,16 +49,16 @@ typedef om_termid    om_termcount;
  */
 typedef unsigned int om_termpos;
 
-/// Type for (normalised) lengths of documents
+/** Type for (normalised) lengths of documents. */
 typedef double       om_doclength;
 
-/// Type for sum of lengths of documents
+/** Type for sum of lengths of documents. */
 typedef double       om_totlength;
 
-/// Type for referring to key in document
+/** Type for referring to key in document. */
 typedef unsigned int om_keyno;
 
-/// A calculated weight, for a term or document
+/** A calculated weight, for a term or document. */
 typedef double       om_weight;
 
 /** Type for specifying a timeout.  This refers to a time in microseconds:
@@ -63,13 +69,15 @@ typedef unsigned int om_timeout;
 #ifdef __cplusplus
 #include <string>
 #include <list>
-/// A term name.  This is a string representing the term, and will often be the actual text of the term.
+/** A term name.  This is a string representing the term, and will often be
+ *  the actual text of the term.
+ */
 typedef std::string om_termname;
 
-/// A list of terms.  This is a container of term names.
+/** A list of terms.  This is a container of term names. */
 typedef std::list<om_termname> om_termname_list;
 
-/// A document name.  This is used when making a new document.
+/** A document name.  This is used when making a new document. */
 typedef std::string om_docname;
 #endif
 
