@@ -97,10 +97,19 @@ while test 0 != "$#"; do
     	# check if this is an uninstalled xapian-config
    	if test -n "$builddir" -a -f "${builddir}Makefile" ; then
 	    if test no = "$xo_lib_xapian" ; then
-		echo "$0: Use libtool and \`xapian-config --ltlibs' to link with an uninstalled libxapian." 1>&2
+		echo "$0: Use libtool and 'xapian-config --ltlibs'" 1>&2
 	    else
-		echo "$0: Add AC_PROG_LIBTOOL to your configure.in (or configure.ac) to link with an uninstalled libxapian." 1>&2
+	        configure_ac='configure.in (or configure.ac)'
+		# If ac_top_srcdir isn't passed to us, we just end up looking
+		# in the current directory, which is a sensible fallback.
+		if test -r "${ac_top_srcdir}configure.ac" ; then
+		    configure_ac=configure.ac
+		elif test -r "${ac_top_srcdir}configure.in" ; then
+		    configure_ac=configure.in
+		fi
+		echo "$0: Add AC_PROG_LIBTOOL to your $configure_ac" 1>&2
 	    fi
+	    echo "to link with an uninstalled libxapian." 1>&2
 	    exit 1
 	fi
 	F=

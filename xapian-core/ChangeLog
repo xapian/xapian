@@ -1,3 +1,10 @@
+Sat Nov 06 15:40:05 GMT 2004  Olly Betts <olly@survex.com>
+
+	* xapian-config.in,m4/xapian.m4: Pass across ac_top_srcdir and use it
+	  if provided to say "configure.ac" or "configure.in" rather than
+	  "configure.in (or configure.ac)" in the "Add AC_PROG_LIBTOOL"
+	  error message.
+
 Sat Nov 06 14:49:05 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Updated comment - we now find SOURCEDOC in 2 goes (as
