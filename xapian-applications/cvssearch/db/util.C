@@ -13,402 +13,11 @@
 #include "util.h"
 #include <strstream>
 
-#define INCLUDE_TERM_STOP_LIST_IN_SYMBOL_STOP_LIST true
-
 #define SHOW_WARNINGS 0 
 
 #if SHOW_WARNINGS
 #warning "use stemming on symbols"
 #endif
-
-// http://www.dcs.gla.ac.uk/idom/ir_resources/linguistic_utils/stop_words
-const static char *term_stoplist[] = {
-  "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", 
-  "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-  "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-
-  "a",
-  "about",
-  "above",
-  "across",
-  "after",
-  "afterwards",
-  "again",
-  "against",
-  "all",
-  "almost",
-  "alone",
-  "along",
-  "already",
-  "also",
-  "although",
-  "always",
-  "am",
-  "among",
-  "amongst",
-  "amoungst",
-  "amount",
-  "an",
-  "and",
-  "another",
-  "any",
-  "anyhow",
-  "anyone",
-  "anything",
-  "anyway",
-  "anywhere",
-  "are",
-  "around",
-  "as",
-  "at",
-  "back",
-  "be",
-  "became",
-  "because",
-  "become",
-  "becomes",
-  "becoming",
-  "been",
-  "before",
-  "beforehand",
-  "behind",
-  "being",
-  "below",
-  "beside",
-  "besides",
-  "between",
-  "beyond",
-  "bill",
-  "both",
-  "bottom",
-  "but",
-  "by",
-  "call",
-  "can",
-  "cannot",
-  "cant",
-  "co",
-  "computer",
-  "con",
-  "could",
-  "couldnt",
-  "cry",
-  "de",
-  "describe",
-  "detail",
-  "do",
-  "done",
-  "down",
-  "due",
-  "during",
-  "each",
-  "eg",
-  "eight",
-  "either",
-  "eleven",
-  "else",
-  "elsewhere",
-  "empty",
-  "enough",
-  "etc",
-  "even",
-  "ever",
-  "every",
-  "everyone",
-  "everything",
-  "everywhere",
-  "except",
-  "few",
-  "fifteen",
-  "fify",
-  "fill",
-  "find",
-  "fire",
-  "first",
-  "five",
-  "for",
-  "former",
-  "formerly",
-  "forty",
-  "found",
-  "four",
-  "from",
-  "front",
-  "full",
-  "further",
-  "get",
-  "give",
-  "go",
-  "had",
-  "has",
-  "hasnt",
-  "have",
-  "he",
-  "hence",
-  "her",
-  "here",
-  "hereafter",
-  "hereby",
-  "herein",
-  "hereupon",
-  "hers",
-  "herself",
-  "him",
-  "himself",
-  "his",
-  "how",
-  "however",
-  "hundred",
-  "i",
-  "ie",
-  "if",
-  "in",
-  "inc",
-  "indeed",
-  "interest",
-  "into",
-  "is",
-  "it",
-  "its",
-  "itself",
-  "keep",
-  "last",
-  "latter",
-  "latterly",
-  "least",
-  "less",
-  "ltd",
-  "made",
-  "many",
-  "may",
-  "me",
-  "meanwhile",
-  "might",
-  "mill",
-  "mine",
-  "more",
-  "moreover",
-  "most",
-  "mostly",
-  "move",
-  "much",
-  "must",
-  "my",
-  "myself",
-  "name",
-  "namely",
-  "neither",
-  "never",
-  "nevertheless",
-  "next",
-  "nine",
-  "no",
-  "nobody",
-  "none",
-  "noone",
-  "nor",
-  "not",
-  "nothing",
-  "now",
-  "nowhere",
-  "of",
-  "off",
-  "often",
-  "on",
-  "once",
-  "one",
-  "only",
-  "onto",
-  "or",
-  "other",
-  "others",
-  "otherwise",
-  "our",
-  "ours",
-  "ourselves",
-  "out",
-  "over",
-  "own",
-  "part",
-  "per",
-  "perhaps",
-  "please",
-  "put",
-  "rather",
-  "re",
-  "same",
-  "see",
-  "seem",
-  "seemed",
-  "seeming",
-  "seems",
-  "serious",
-  "several",
-  "she",
-  "should",
-  "show",
-  "side",
-  "since",
-  "sincere",
-  "six",
-  "sixty",
-  "so",
-  "some",
-  "somehow",
-  "someone",
-  "something",
-  "sometime",
-  "sometimes",
-  "somewhere",
-  "still",
-  "such",
-  "system",
-  "take",
-  "ten",
-  "than",
-  "that",
-  "the",
-  "their",
-  "them",
-  "themselves",
-  "then",
-  "thence",
-  "there",
-  "thereafter",
-  "thereby",
-  "therefore",
-  "therein",
-  "thereupon",
-  "these",
-  "they",
-  "thick",
-  "thin",
-  "third",
-  "this",
-  "those",
-  "though",
-  "three",
-  "through",
-  "throughout",
-  "thru",
-  "thus",
-  "to",
-  "together",
-  "too",
-  "top",
-  "toward",
-  "towards",
-  "twelve",
-  "twenty",
-  "two",
-  "un",
-  "under",
-  "until",
-  "up",
-  "upon",
-  "us",
-  "very",
-  "via",
-  "was",
-  "we",
-  "well",
-  "were",
-  "what",
-  "whatever",
-  "when",
-  "whence",
-  "whenever",
-  "where",
-  "whereafter",
-  "whereas",
-  "whereby",
-  "wherein",
-  "whereupon",
-  "wherever",
-  "whether",
-  "which",
-  "while",
-  "whither",
-  "who",
-  "whoever",
-  "whole",
-  "whom",
-  "whose",
-  "why",
-  "will",
-  "with",
-  "within",
-  "without",
-  "would",
-  "yet",
-  "you",
-  "your",
-  "yours",
-  "yourself",
-  "yourselves"
-};
-
-// C++ keywords for now (uses () for functions?)
-// www.cs.pdx.edu/~annieg/cs145/handouts/reservedwords.html 
-// probably not necessary
-const static char *symbol_stoplist[] = {
-  "include", 
-  "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", 
-  "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-  "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-  "asm",
-  "auto",
-  "bool",
-  "break",
-  "case",
-  "catch",
-  "char",
-  "class",
-  "const",
-  "continue",
-  "default",
-  "delete",
-  "do",
-  "double",
-  "else",
-  "enum",
-  "extern",
-  "false",
-  "float",
-  "for",
-  "friend",
-  "goto",
-  "if",
-  "inline",
-  "int",
-  "long",
-  "mutable",
-  "new",
-  "operator",
-  "private",
-  "protected",
-  "public",
-  "register",
-  "return",
-  "short",
-  "signed",
-  "sizeof",
-  "static",
-  "struct",
-  "switch",
-  "template",
-  "this",
-  "throw",
-  "true",
-  "try",
-  "typedef",
-  "union",
-  "unsigned",
-  "virtual",
-  "void",
-  "volatile",
-  "while"
-};
 
 void lowercase_term(om_termname &term)
 {
@@ -482,29 +91,23 @@ void Lines::extractSymbols( const string& s ) {
       if (! okSubChar(c) ) {
 	if ( c == '(' ) {
 	  assert( current != "" );
-	  if ( symbolStopWords.find(current) == symbolStopWords.end() ) {
-	    current += "()";
-	    //cerr << "... found " << current << endl;
-	    symbols.insert(current);
-	  }
+	  current += "()";
+	  //cerr << "... found " << current << endl;
+	  symbols.insert(current);
 	  current = "";
 	  foundBlank = false;
 	} else {
 	  // identifier ended
 	  //cerr << "... found " << current << endl;
 	  assert( current != "" );
-	  if ( symbolStopWords.find(current) == symbolStopWords.end() ) {
-	    symbols.insert(current);
-	  }
+	  symbols.insert(current);
 	  current = "";
 	  foundBlank = false;
 	}
       } else { // okay subsequent character
 	if ( foundBlank ) {
 	  assert( current != "" );
-	  if ( symbolStopWords.find(current) == symbolStopWords.end() ) {
-	    symbols.insert(current);
-	  }
+	  symbols.insert(current);
 	  current = "";	  
 	  foundBlank = false;
 	}
@@ -514,9 +117,7 @@ void Lines::extractSymbols( const string& s ) {
   } 
   if ( current != "" ) {
     //    cerr << "...found " << current << endl;
-    if ( symbolStopWords.find(current) == symbolStopWords.end() ) {
-      symbols.insert(current);
-    }
+    symbols.insert(current);
   }
 }
 
@@ -551,15 +152,12 @@ void Lines::stemWords( const list<string>& words, list<string>& term_list ) {
     lowercase_term(term);
     term = stemmer->stem_word(term);
       
-    if ( termStopWords.find(term) == termStopWords.end() ) {
-      //      cerr << "inserting word " << term << endl;
-      terms.insert(term);
-      term_list.push_back(term);
-    }
+    terms.insert(term);
+    term_list.push_back(term);
   }
 }
 
-Lines::Lines( const string& p, const string& sroot, const string& pkg, const string& file_db, const string& file_offset, bool use_stop_words ) {
+Lines::Lines( const string& p, const string& sroot, const string& pkg, const string& file_db, const string& file_offset ) {
   
   path = p;
   root = sroot;
@@ -577,31 +175,6 @@ Lines::Lines( const string& p, const string& sroot, const string& pkg, const str
   
   file_count = 0;
 
-  if ( use_stop_words ) {
-  
-    for ( unsigned int i = 0; i < sizeof(term_stoplist)/sizeof(char*); i++ ) {
-      string word = term_stoplist[i];
-      lowercase_term(word);
-      word = stemmer->stem_word(word);
-      cerr << "adding " << word << endl;
-      termStopWords.insert( word );
-
-#if  INCLUDE_TERM_STOP_LIST_IN_SYMBOL_STOP_LIST
-      symbolStopWords.insert( word );
-#endif
-    }
-    
-    for ( unsigned int i = 0; i < sizeof(symbol_stoplist)/sizeof(char*); i++ ) {
-      string word = symbol_stoplist[i];
-      lowercase_term(word);
-      cerr << "adding " << word << endl;
-      symbolStopWords.insert( word );
-    }
-
-  } else {
-    cerr << "... [ no stop words ]" << endl;
-  }
-  
   in_code = 0;
   
 }
