@@ -52,7 +52,7 @@ static void make_query_log_entry( const char *buf, size_t length );
 
 static void do_easter_egg( void );
 
-char *db_name;
+string db_name;
 static string db_dir;
 char dash_chr = '-'; /* renamed from dash_char to avoid odd BCPL problem -- Olly 1997-03-19 */
 char *fmt = NULL;
@@ -202,8 +202,11 @@ int main(int argc, char *argv[]) {
     }
 
     /*** get database name ***/
-    db_name = GetEntry("DB");
-    if (db_name == NULL) db_name = default_db_name.c_str();
+    char *tmp = GetEntry("DB");
+    if (tmp != NULL)
+	db_name = tmp;
+    else
+	db_name = default_db_name;
 #ifdef META
     ssi = 0;
 #else
@@ -679,7 +682,7 @@ static void make_log_entry( const char *action, long matches ) {
       p = log_buf + strlen( log_buf );
       strftime( p, log_buf+sizeof(log_buf)-p, " - - [%d/%b/%Y:%H:%M:%S +0000] \"", gmtime(&t) );
       p += strlen( p );
-      sprintf( p, "GET /%s/%s\" 200 %li ", db_name, action, matches );
+      sprintf( p, "GET /%s/%s\" 200 %li ", db_name.c_str(), action, matches );
       p += strlen( p );
       var = getenv( "HTTP_REFERER" );
       if (var != NULL) {

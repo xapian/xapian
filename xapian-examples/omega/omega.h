@@ -13,7 +13,7 @@
 
 extern FILE *page_fopen(const string &page);
 
-extern char *db_name;
+extern string db_name;
 extern char dash_chr;
 extern int have_query;
 extern char *fmt, *fmtfile;

@@ -1125,22 +1125,22 @@ static void print_query_page( const char* page, long int first, long int size) {
 		   /* ferret advert link (with keywords) */
 		   int pageid = time(NULL) - 894000000;
 		   int tag = 7533; /* english */
-		   if (strlen(db_name) >= 12) {
+		   if (db_name.size() >= 12) {
 		      switch (db_name[8]) {
 		       case 'r':
-			 if (strcmp(db_name, "ferret.french") == 0) tag = 7542;
+			 if (db_name == "ferret.french") tag = 7542;
 			 break;
 		       case 'e':
-			 if (strcmp(db_name, "ferret.german") == 0) tag = 7543;
+			 if (db_name == "ferret.german") tag = 7543;
 			 break;
 		       case 't':
-			 if (strcmp(db_name, "ferret.italian") == 0) tag = 7584;
+			 if (db_name == "ferret.italian") tag = 7584;
 			 break;
 		       case 'p':
-			 if (strcmp(db_name, "ferret.spanish") == 0) tag = 7544;
+			 if (db_name == "ferret.spanish") tag = 7544;
 			 break;
 		       case 'w':
-			 if (strcmp(db_name, "ferret.swedish") == 0) tag = 7545;
+			 if (db_name == "ferret.swedish") tag = 7545;
 			 break;
 		      }
 		   }
