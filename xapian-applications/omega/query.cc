@@ -4,6 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001 Ananova Ltd
+ * Copyright 2002 Intercede 1749 Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -726,7 +727,7 @@ static struct func_desc func_tab[] = {
 {T(ne), 	2, 2, N, 0, 0}}, // test not equal
 {T(nice),	1, 1, N, 0, 0}}, // pretty print integer (with thousands sep)
 {T(not),	1, 1, N, 0, 0}}, // logical not
-{T(opt),	1, 1, N, 0, 0}}, // lookup an option value
+{T(opt),	1, 2, N, 0, 0}}, // lookup an option value
 {T(or),		1, N, 0, 0, 0}}, // logical shortcutting or of a list of values
 {T(percentage),	0, 0, N, 0, 0}}, // percentage score of current hit
 {T(prettyterm),	1, 1, N, 0, 0}}, // pretty print term name
@@ -1235,7 +1236,11 @@ eval(const string &fmt, const vector<string> &param)
 		if (args[0].empty()) value = "true";
 		break;
 	    case CMD_opt:
-		value = option[args[0]];
+		if (args.size()==2) {
+		    value = option[args[0] + "," + args[1]];
+		} else {
+		    value = option[args[0]];
+		}
 		break;
 	    case CMD_or: {
 		for (vector<string>::const_iterator i = args.begin();

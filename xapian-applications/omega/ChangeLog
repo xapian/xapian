@@ -1,3 +1,9 @@
+Thu Jan 10 14:30:19 GMT 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* $opt with two arguments now acts as a lookup for a $setmap
+	  map. This was previously documented in a misleading fashion.
+	  The new system is backwards compatible with the old.
+
 Fri Dec 21 17:56:02 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Namespace fixes to allow use of find and find_if on Redhat's

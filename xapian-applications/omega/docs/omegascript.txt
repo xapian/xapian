@@ -162,8 +162,10 @@ $nice{number}
 	pretty print integer (with thousands separator)
 
 $opt{OPT}
-
 	lookup an option value (as set by $set).
+
+$opt{MAP,OPT}
+	lookup an option within a map (as set by $setmap).
 
 $percentage
 	percentage score of current hit (in range 1-100).
@@ -197,13 +199,14 @@ $score
 	score (0-10) of current hit (equivalent to $div{$percentage,10})
 
 $set{OPT,VALUE}
-	set option value
+	set option value which may be looked up using $opt
 
 $set_relevant{docids}
 	add documents into the rset
 
 $setmap{PREFIX,NAME1,VALUE1,...}
-	set a map of option values (<PREFIX><NAME1>=<VALUE1>, etc)
+	set a map of option values which may be looked up against using
+	$opt
 
 $terms
 	list of matching terms for current hit
