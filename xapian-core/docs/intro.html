@@ -70,40 +70,56 @@ These tools generate a configure script for each of the archives, which you
 should run to set up the code for compilation.
 <p>
 A typical build would be done using the commands:
-<blockquote> <code>
-cd om<br>
-./configure<br>
-make
-</code> </blockquote>
+<pre>
+    cd om
+    ./configure
+    make
+    make install
+</pre>
 
 Various options may be given to the configure script: see the installation
 documentation within the archive for more details.
 <p>
-Note that, at present, Muscat does not present a well defined API to the
-outside world, so it may not be installed.  We therefore recommend that
-you do not perform a <code>make install</code>.
+By default, muscat will be installed in directories under
+<CODE>/usr/local</CODE>.  This can be altered using the --prefix option
+to configure.
+</p>
 
 <H3>Configuring and building the examples</H3>
 The examples can be built in almost exactly the same way as the core library.
-However, because they need to refer to Muscat, and Muscat can not currently
-be installed, you must pass parameters to configure to specify where to find
-Muscat.
+Simply run:
+<pre>
+    cd om-examples
+    ./configure
+    make
+</pre>
+Note that we do not currently recommend attempting to install the
+examples.
 <p>
+<CODE>configure</CODE> should automatically find the installed muscat
+library: if it doesn't you may need to specify the path to the 
+<CODE>libomus-config</CODE> script, by using the
+<CODE>--with-libomus-config</CODE> option to configure.
+<p>
+If you do not have an installed version of muscat, you 
+you must pass parameters to configure to specify where to find
+Muscat, as follows:
+<ul><li>
 The <code>--with-libomus-uninst</code> parameter specifies an (absolute) path
-where the Muscat code can be found.  The
-<code>--with-libomus-uninst-exec</code> specifies an
+where the Muscat code can be found.
+</li><li>
+The <code>--with-libomus-uninst-exec</code> specifies an
 (absolute) path where a built Muscat library can be found (this defaults to
 the value of <code>--with-libomus-uninst</code>).
+</li></ul>
 <p>
 Supposing you had unpacked both om and om-examples in the same
 directory, you could use:
-<blockquote> <code>
-cd om-examples<br>
-./configure --with-libomus-uninst=`pwd`/../om<br>
-make
-</code> </blockquote>
-Again, note that we do not currently recommend attempting to install the
-examples.
+<pre>
+    cd om-examples
+    ./configure --with-libomus-uninst=`pwd`/../om
+    make
+</pre>
 <p>
 Check the documentation within the examples archive for more details on
 building and running the examples.
