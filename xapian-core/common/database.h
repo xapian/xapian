@@ -12,6 +12,7 @@ class IRDocument;
 class PostList;
 class DBPostList;
 class TermList;
+class DBTermList;
 class RSet;
 
 class IRDatabase {
