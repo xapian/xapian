@@ -27,6 +27,7 @@ DB - database name (give multiple values to search over several databases)
      each DB value may be a list of database names separated by "/"
 
 DEFAULTOP - default operator - values recognised "AND", "and", "OR", "or".
+Default: OR.
 
 FMT - name of page format to use (a-z only).
 
@@ -132,3 +133,6 @@ Indexer - transliterate entities (e.g. &aumlaut;) and literals.
 
 Search - transliterate literals
 
+boolean pickers?  functions?
+
+documentation

@@ -17,7 +17,7 @@ o.substring(1,i)+o.substring(i+c.value.length+1,o.length-1);
 </head>
 <body bgcolor=white>
 <FORM NAME=P METHOD=GET 
-ACTION="$html{$or{$env{SCRIPT_NAME},ompf}}" TARGET="_top">
+ACTION="$html{$or{$env{SCRIPT_NAME},omega}}" TARGET="_top">
 <center>
 <INPUT NAME=P VALUE="$html{$query}" SIZE=65>
 <INPUT TYPE=IMAGE VALUE="Search" BORDER=0 WIDTH=56 HEIGHT=56 ALIGN=middle 

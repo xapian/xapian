@@ -1,3 +1,11 @@
+Fri Jan 12 11:22:24 GMT 2001 Olly Betts
+
+	* Suppressed warnings in query.cc.
+
+	* Removed unused relevant_cached flag.
+
+	* Updated docs.
+
 Fri Jan 12 11:18:34 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Update acinclude.m4

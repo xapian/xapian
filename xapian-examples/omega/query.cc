@@ -346,8 +346,6 @@ static int percent;
 
 static string print_caption(om_docid m, const string &fmt);
 
-static bool relevant_cached = false;
-
 enum tagval {
 CMD_,
 CMD_add,
@@ -405,7 +403,7 @@ struct func_attrib {
 #define STRINGIZE(N) _STRINGIZE(N)
 #define _STRINGIZE(N) #N
     
-#define T(F) STRINGIZE(F), CMD_##F
+#define T(F) STRINGIZE(F), { CMD_##F
 struct func_desc {
     const char *name;
     struct func_attrib a;
@@ -414,52 +412,52 @@ struct func_desc {
 #define N -1
 static struct func_desc func_tab[] = {
 //name minargs maxargs evalargs ensure_match cache
-{"", CMD_,	N, N, 0, 0, 0 }, // commented out code
-{T(add),	0, N, N, 0, 0 }, // add a list of numbers
-{T(cgi),	1, 1, N, 0, 0 }, // return cgi parameter value
-{T(cgilist),	1, 1, N, 0, 0 }, // return list of values for cgi parameter
-{T(date),	1, 2, N, 1, 0 }, // convert time_t to strftime format (default: YYYY-MM-DD)
-{T(dbname),	0, 0, N, 0, 0 }, // database name
-{T(defaultop),	0, 0, N, 0, 0 }, // default operator: "and" or "or"
-{T(env),	1, 1, N, 0, 0 }, // environment variable
-{T(eq),		2, 2, N, 0, 0 }, // test equality
-{T(field),	1, 1, N, 0, 0 }, // lookup field in record
-{T(filesize),	1, 1, N, 0, 0 }, // pretty printed filesize
-{T(fmt),	0, 0, N, 0, 0 }, // name of current format
-{T(freqs),	0, 0, N, 1, 1 }, // return HTML string listing query terms and frequencies
-{T(hitlist),	N, N, 0, 1, 0 }, // display hitlist using format in argument
-{T(hitsperpage),0, 0, N, 0, 0 }, // hits per page
-{T(html),	1, 1, N, 0, 0 }, // html escape string (<>&)
-{T(id),		0, 0, N, 0, 0 }, // docid of current doc
-{T(if),		2, 3, 1, 0, 0 }, // conditional
-{T(last),	0, 0, N, 1, 0 }, // m-set number of last hit on page
-{T(lastpage),	0, 0, N, 1, 0 }, // number of last hit page
-{T(list),	2, 5, N, 0, 0 }, // pretty print list
-{T(map),	1, N, 1, 0, 0 }, // map a list into another list
-{T(max),	1, N, N, 0, 0 }, // maximum of a list of values
-{T(min),	1, N, N, 0, 0 }, // minimum of a list of values
-{T(msize),	0, 0, N, 1, 0 }, // number of matches
-{T(ne), 	2, 2, N, 0, 0 }, // test not equal
-{T(not),	1, 1, N, 0, 0 }, // logical not
-{T(opt),	1, 1, N, 0, 0 }, // lookup an option value
-{T(or),		1, N, 0, 0, 0 }, // logical shortcutting or of a list of values
-{T(percentage),	0, 0, N, 0, 0 }, // percentage score of current hit
-{T(query),	0, 0, N, 0, 0 }, // query
-{T(queryterms),	0, 0, N, 0, 1 }, // list of query terms
-{T(range),	2, 2, N, 0, 0 }, // return list of values between start and end
-{T(record),	0, 1, N, 1, 0 }, // record contents of document
-{T(relevant),	0, 1, N, 1, 0 }, // is document relevant?
-{T(relevants),	0, 0, N, 1, 0 }, // return list of relevant documents
-{T(score),	0, 0, N, 0, 0 }, // score (0-10) of current hit
-{T(set),	2, 2, N, 0, 0 }, // set option value
-{T(terms),	0, 0, N, 1, 0 }, // list of matching terms
-{T(thispage),	0, 0, N, 1, 0 }, // page number of current page
-{T(topdoc),	0, 0, N, 0, 0 }, // first document on current page of hit list (counting from 0)
+{"",{CMD_,	N, N, 0, 0, 0}}, // commented out code
+{T(add),	0, N, N, 0, 0}}, // add a list of numbers
+{T(cgi),	1, 1, N, 0, 0}}, // return cgi parameter value
+{T(cgilist),	1, 1, N, 0, 0}}, // return list of values for cgi parameter
+{T(date),	1, 2, N, 1, 0}}, // convert time_t to strftime format (default: YYYY-MM-DD)
+{T(dbname),	0, 0, N, 0, 0}}, // database name
+{T(defaultop),	0, 0, N, 0, 0}}, // default operator: "and" or "or"
+{T(env),	1, 1, N, 0, 0}}, // environment variable
+{T(eq),		2, 2, N, 0, 0}}, // test equality
+{T(field),	1, 1, N, 0, 0}}, // lookup field in record
+{T(filesize),	1, 1, N, 0, 0}}, // pretty printed filesize
+{T(fmt),	0, 0, N, 0, 0}}, // name of current format
+{T(freqs),	0, 0, N, 1, 1}}, // return HTML string listing query terms and frequencies
+{T(hitlist),	N, N, 0, 1, 0}}, // display hitlist using format in argument
+{T(hitsperpage),0, 0, N, 0, 0}}, // hits per page
+{T(html),	1, 1, N, 0, 0}}, // html escape string (<>&)
+{T(id),		0, 0, N, 0, 0}}, // docid of current doc
+{T(if),		2, 3, 1, 0, 0}}, // conditional
+{T(last),	0, 0, N, 1, 0}}, // m-set number of last hit on page
+{T(lastpage),	0, 0, N, 1, 0}}, // number of last hit page
+{T(list),	2, 5, N, 0, 0}}, // pretty print list
+{T(map),	1, N, 1, 0, 0}}, // map a list into another list
+{T(max),	1, N, N, 0, 0}}, // maximum of a list of values
+{T(min),	1, N, N, 0, 0}}, // minimum of a list of values
+{T(msize),	0, 0, N, 1, 0}}, // number of matches
+{T(ne), 	2, 2, N, 0, 0}}, // test not equal
+{T(not),	1, 1, N, 0, 0}}, // logical not
+{T(opt),	1, 1, N, 0, 0}}, // lookup an option value
+{T(or),		1, N, 0, 0, 0}}, // logical shortcutting or of a list of values
+{T(percentage),	0, 0, N, 0, 0}}, // percentage score of current hit
+{T(query),	0, 0, N, 0, 0}}, // query
+{T(queryterms),	0, 0, N, 0, 1}}, // list of query terms
+{T(range),	2, 2, N, 0, 0}}, // return list of values between start and end
+{T(record),	0, 1, N, 1, 0}}, // record contents of document
+{T(relevant),	0, 1, N, 1, 0}}, // is document relevant?
+{T(relevants),	0, 0, N, 1, 0}}, // return list of relevant documents
+{T(score),	0, 0, N, 0, 0}}, // score (0-10) of current hit
+{T(set),	2, 2, N, 0, 0}}, // set option value
+{T(terms),	0, 0, N, 1, 0}}, // list of matching terms
+{T(thispage),	0, 0, N, 1, 0}}, // page number of current page
+{T(topdoc),	0, 0, N, 0, 0}}, // first document on current page of hit list (counting from 0)
 // FIXME: cache really needs to be smart about parameter value...
-{T(topterms),	0, 1, N, 1, 1 }, // list of up to N top relevance feedback terms (default 20)
-{T(url),	1, 1, N, 0, 0 }, // url encode argument
-{T(version),	0, 0, N, 0, 0 }, // omega version string
-{ NULL, 0,      0, 0, 0, 0, 0 }
+{T(topterms),	0, 1, N, 1, 1}}, // list of up to N top relevance feedback terms (default 20)
+{T(url),	1, 1, N, 0, 0}}, // url encode argument
+{T(version),	0, 0, N, 0, 0}}, // omega version string
+{ NULL,{0,      0, 0, 0, 0, 0}}
 };
 
 static string
@@ -537,9 +535,10 @@ eval(const string &fmt)
 	    args.clear();
 
 	if (i->second->minargs != N) {
-	    if (args.size() < i->second->minargs)
+	    if ((int)args.size() < i->second->minargs)
 		throw "too few arguments to $" + var;
-	    if (i->second->maxargs != N && args.size() > i->second->maxargs)
+	    if (i->second->maxargs != N &&
+		(int)args.size() > i->second->maxargs)
 		throw "too many arguments to $" + var;
 
 	    std::vector<string>::size_type n;
@@ -956,8 +955,6 @@ percentage(double ratio)
 static string
 print_caption(om_docid m, const string &fmt)
 {
-    relevant_cached = false;
-
     q0 = *(mset[m]);
 
     static double scale = -1;
