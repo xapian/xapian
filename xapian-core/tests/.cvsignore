@@ -1,0 +1,8 @@
+.*.swp
+dbtest
+idxtest
+matchtest
+stemtest
+Makefile.in
+Makefile
+.deps

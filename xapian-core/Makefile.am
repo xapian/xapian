@@ -2,32 +2,10 @@
 
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
-INCLUDES = -I/usr/local/BerkeleyDB/include
+SUBDIRS = include backends matcher stemmer . tests #gui
 
-noinst_HEADERS = da_database.h da_record.h daread.h database.h match.h \
- orpostlist.h andpostlist.h andnotpostlist.h andmaybepostlist.h \
- xorpostlist.h branchpostlist.h filterpostlist.h \
- damuscat.h omtypes.h sleepy_database.h sleepy_list.h \
- multi_database.h error.h stem.h irweight.h omassert.h irdocument.h
+lib_LTLIBRARIES = libom.la
 
-bin_PROGRAMS = dbtest matchtest idxtest stemtest
-
-ACCESS_MULTI = multi_database.cc
-ACCESS_SLEEPY = sleepy_database.cc sleepy_list.cc
-ACCESS_DA = da_database.cc daread.c da_record.cc
-
-STEMMER_SRC = stem.c stem_en.cc
-
-dbtest_SOURCES = irweight.cc dbtest.cc $(ACCESS_DA) $(ACCESS_SLEEPY) \
-                 $(ACCESS_MULTI)
-dbtest_LDADD = -L/usr/local/BerkeleyDB/lib -ldb
-
-matchtest_SOURCES = match.cc orpostlist.cc andpostlist.cc andnotpostlist.cc \
- andmaybepostlist.cc xorpostlist.cc matchtest.cc irweight.cc \
- $(ACCESS_DA) $(STEMMER_SRC) $(ACCESS_MULTI)
-matchtest_LDADD = -L/usr/local/BerkeleyDB/lib -ldb
-
-idxtest_SOURCES = irweight.cc idxtest.cc $(ACCESS_SLEEPY) $(ACCESS_MULTI)
-idxtest_LDADD = -L/usr/local/BerkeleyDB/lib -ldb
-
-stemtest_SOURCES = $(STEMMER_SRC) stemtest.cc
+libom_la_SOURCES =
+libom_la_LIBADD = backends/da/libda.la backends/sleepy/libsleepy.la \
+ backends/multi/libmulti.la matcher/libmatcher.la stemmer/libstem.la
