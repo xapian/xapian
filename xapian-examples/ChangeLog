@@ -1,3 +1,8 @@
+Tue Apr  9 19:00:36 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* msearch: Remove GTK and LIBGLADE cflags, which were unwanted and
+	  causing problems for me.
+
 Thu Dec 20 16:29:27 GMT 2001  Richard Boulton <richard@tartarus.org>
 
 	* Remove querygui (moved to xapview in the applications module).

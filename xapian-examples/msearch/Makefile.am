@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = $(XAPIAN_CFLAGS) $(GTK_CFLAGS) $(LIBGLADE_CFLAGS)
+INCLUDES = $(XAPIAN_CFLAGS)
 
 bin_PROGRAMS = msearch
 
