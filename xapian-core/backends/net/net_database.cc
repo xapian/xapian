@@ -40,7 +40,7 @@ NetworkDatabase::NetworkDatabase(const DatabaseBuilderParams & params)
 {
     // Check validity of parameters
     if(params.readonly != true) {
-	throw OmInvalidArgumentError("DBDatabase must be opened readonly.");
+	throw OmInvalidArgumentError("NetworkDatabase must be opened readonly.");
     }
     if(params.subdbs.size() != 0) {
 	throw OmInvalidArgumentError("NetworkDatabase cannot have sub databases.");
