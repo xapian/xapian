@@ -1,6 +1,11 @@
+Thu May 09 18:27:30 BST 2002  Olly Betts <olly@survex.com>
+
+	* match_sort_key now runs at a sensible speed (approx. 20x speed
+	  up on my test case).
+
 Thu May 09 16:58:11 BST 2002  Olly Betts <olly@survex.com>
 
-	* Added another optimisation for match_sort_bands - my test case
+	* Added another optimisation for match_sort_key - my test case
 	  is now 25% faster (still slow though).
 
 Thu May 09 11:57:59 BST 2002  Olly Betts <olly@survex.com>
@@ -13,7 +18,7 @@ Thu May 09 11:57:59 BST 2002  Olly Betts <olly@survex.com>
 Thu May 09 10:57:59 BST 2002  Olly Betts <olly@survex.com>
 
 	* Removed references to match_max_or_terms (which was replaced
-	  by OmQuery::OP_ELITE_SET long, long ago.
+	  by OmQuery::OP_ELITE_SET long, long ago).
 
 Wed May 08 17:38:50 BST 2002  Olly Betts <olly@survex.com>
 

@@ -116,13 +116,17 @@ class MSetSortCmp {
 	    int band_b = int(b.wt * factor);
 	    if (band_a != band_b) return band_a > band_b;
 	    if (have_key) {
-		OmDocument doc_a = db.get_document(a.did);		
-		OmDocument doc_b = db.get_document(b.did);		
-		string key_a = doc_a.get_value(sort_key);
-		string key_b = doc_b.get_value(sort_key);
+		if (a.sort_key.empty()) {
+		    OmDocument doc = db.get_document(a.did);
+		    a.sort_key = doc.get_value(sort_key);
+		}
+		if (b.sort_key.empty()) {
+		    OmDocument doc = db.get_document(b.did);
+		    b.sort_key = doc.get_value(sort_key);
+		}
 		// "bigger is better"
-		if (key_a > key_b) return true;
-		if (key_a < key_b) return false;
+		if (a.sort_key > b.sort_key) return true;
+		if (a.sort_key < b.sort_key) return false;
 	    }
 	    if (forward) return a.did < b.did;
 	    return a.did > b.did;

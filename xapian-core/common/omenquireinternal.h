@@ -112,6 +112,11 @@ class OmMSetItem {
 	 */
 	string collapse_key;
 
+	/** For use by match_sort_key option - FIXME: document if this stays */
+	/* FIXME: this being mutable is a gross hack */
+	/* FIXME: why not just cache the OmDocument here!?! */
+	mutable string sort_key;
+
 	/** Returns a string representing the mset item.
 	 *  Introspection method.
 	 */
