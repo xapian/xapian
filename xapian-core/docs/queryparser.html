@@ -8,7 +8,7 @@
 <H1>Xapian::QueryParser Syntax</H1>
 
 <P>This document describes the query syntax supported by the
-Xapian::QueryParser class.  The syntax is design to be similar to other web
+Xapian::QueryParser class.  The syntax is designed to be similar to other web
 based search engines, so that users familiar with them don't have to learn
 a whole new syntax.
 
@@ -36,12 +36,12 @@ the precedence using <code>(one OR two) AND three</code>.
 <H3>+ and -</H3>
 <P>A group of terms with some marked with + and - will match documents
 containing all of the + terms, but none of the - terms.  Terms
-not marked with + or - contribute towards the documents ranking.
+not marked with + or - contribute towards the document rankings.
 <H3>NEAR</H3>
 <P><code>one NEAR two NEAR three</code> matches documents containing those
 words within 10 words of each other.
 <H3>Phrase searches</H3>
-<P>A phrase surrounded with double quotes ("") match documents containing
+<P>A phrase surrounded with double quotes ("") matches documents containing
 that exact phrase.  Hyphenated words are also treated as phrases, as are
 cases such as filenames and email addresses (e.g. /etc/passwd or president@whitehouse.gov).
 <H3>Searching within a probabilistic field</H3>
