@@ -1,3 +1,7 @@
+Fri Apr 19 15:04:13 BST 2002  Olly Betts <olly@survex.com>
+
+	* Added more RETURN(...) wrappers.
+
 Fri Apr 19 14:46:19 BST 2002  Olly Betts <olly@survex.com>
 
 	* Added more DEBUGCALL tracing to quartz.

@@ -353,42 +353,42 @@ QuartzDiskTable *
 QuartzDiskTableManager::get_postlist_table()
 {
     DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_postlist_table", "");
-    return &postlist_table;
+    RETURN(&postlist_table);
 }
 
 QuartzDiskTable *
 QuartzDiskTableManager::get_positionlist_table()
 {
     DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_positionlist_table", "");
-    return &positionlist_table;
+    RETURN(&positionlist_table);
 }
 
 QuartzDiskTable *
 QuartzDiskTableManager::get_termlist_table()
 {
     DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_termlist_table", "");
-    return &termlist_table;
+    RETURN(&termlist_table);
 }
 
 QuartzDiskTable *
 QuartzDiskTableManager::get_lexicon_table()
 {
     DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_lexicon_table", "");
-    return &lexicon_table;
+    RETURN(&lexicon_table);
 }
 
 QuartzDiskTable *
 QuartzDiskTableManager::get_attribute_table()
 {
     DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_attribute_table", "");
-    return &attribute_table;
+    RETURN(&attribute_table);
 }
 
 QuartzDiskTable *
 QuartzDiskTableManager::get_record_table()
 {
     DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_record_table", "");
-    return &record_table;
+    RETURN(&record_table);
 }
 
 void
@@ -578,42 +578,42 @@ QuartzBufferedTable *
 QuartzBufferedTableManager::get_postlist_table()
 {
     DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_postlist_table", "");
-    return &postlist_buffered_table;
+    RETURN(&postlist_buffered_table);
 }
 
 QuartzBufferedTable *
 QuartzBufferedTableManager::get_positionlist_table()
 {
     DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_positionlist_table", "");
-    return &positionlist_buffered_table;
+    RETURN(&positionlist_buffered_table);
 }
 
 QuartzBufferedTable *
 QuartzBufferedTableManager::get_termlist_table()
 {
     DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_termlist_table", "");
-    return &termlist_buffered_table;
+    RETURN(&termlist_buffered_table);
 }
 
 QuartzBufferedTable *
 QuartzBufferedTableManager::get_lexicon_table()
 {
     DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_lexicon_table", "");
-    return &lexicon_buffered_table;
+    RETURN(&lexicon_buffered_table);
 }
 
 QuartzBufferedTable *
 QuartzBufferedTableManager::get_attribute_table()
 {
     DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_attribute_table", "");
-    return &attribute_buffered_table;
+    RETURN(&attribute_buffered_table);
 }
 
 QuartzBufferedTable *
 QuartzBufferedTableManager::get_record_table()
 {
     DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_record_table", "");
-    return &record_buffered_table;
+    RETURN(&record_buffered_table);
 }
 
 void

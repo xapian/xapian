@@ -28,7 +28,9 @@
 #include "omassert.h"
 #include "omdebug.h"
 
-static const std::string metafile_magic = "OMMETA";
+using std::string;
+
+static const string metafile_magic = "OMMETA";
 static const unsigned int metafile_version = 1;
 
 #ifndef MUS_DEBUG  // FIXME: CompiletimeAssert is in an #ifndef MUS_DEBUG in omassert.h
@@ -40,7 +42,7 @@ static const size_t min_metafile_size = metafile_magic.length() +
 
 static const size_t max_metafile_size = min_metafile_size;
 
-QuartzMetaFile::QuartzMetaFile(const std::string &filename_)
+QuartzMetaFile::QuartzMetaFile(const string &filename_)
 	: filename(filename_)
 {
     DEBUGCALL(DB, void, "QuartzMetaFile", filename_);
@@ -51,9 +53,9 @@ QuartzMetaFile::~QuartzMetaFile()
     DEBUGCALL(DB, void, "~QuartzMetaFile", "");
 }
 
-static std::string encode_version(unsigned int version)
+static string encode_version(unsigned int version)
 {
-    std::string data;
+    string data;
 
     for (size_t i=0; i<sizeof(metafile_version); ++i) {
 	data += (char)(version & 0xff);
@@ -63,7 +65,7 @@ static std::string encode_version(unsigned int version)
     return data;
 }
 
-static unsigned int decode_version(const std::string &s)
+static unsigned int decode_version(const string &s)
 {
     unsigned int version = 0;
 
@@ -81,7 +83,7 @@ void QuartzMetaFile::open()
     int fd = sys_open_to_read(filename);
     fdcloser fdc(fd);
 
-    std::string data = sys_read_all_bytes(fd, min_metafile_size + 1);
+    string data = sys_read_all_bytes(fd, min_metafile_size + 1);
 
     if (data.length() < min_metafile_size) {
 	throw OmDatabaseCorruptError("Quartz metafile " + filename +
@@ -113,7 +115,7 @@ void QuartzMetaFile::create()
 
     fdcloser fdc(fd);
 
-    std::string data = metafile_magic;
+    string data = metafile_magic;
 
     data += encode_version(metafile_version);
 

@@ -199,14 +199,14 @@ om_termcount
 QuartzTermList::get_approx_size() const
 {
     DEBUGCALL(DB, om_termcount, "QuartzTermList::get_approx_size", "");
-    return termlist_size;
+    RETURN(termlist_size);
 }
 
 quartz_doclen_t
 QuartzTermList::get_doclength() const
 {
     DEBUGCALL(DB, quartz_doclen_t, "QuartzTermList::get_doclength", "");
-    return doclen;
+    RETURN(doclen);
 }
 
 
@@ -231,28 +231,28 @@ bool
 QuartzTermList::at_end() const
 {
     DEBUGCALL(DB, bool, "QuartzTermList::at_end", "");
-    return have_finished;
+    RETURN(have_finished);
 }
 
 om_termname
 QuartzTermList::get_termname() const
 {
     DEBUGCALL(DB, om_termname, "QuartzTermList::get_termname", "");
-    return current_tname;
+    RETURN(current_tname);
 }
 
 om_termcount
 QuartzTermList::get_wdf() const
 {
     DEBUGCALL(DB, om_termcount, "QuartzTermList::get_wdf", "");
-    return current_wdf;
+    RETURN(current_wdf);
 }
 
 om_doccount
 QuartzTermList::get_termfreq() const
 {
     DEBUGCALL(DB, om_doccount, "QuartzTermList::get_termfreq", "");
-    return get_termfreq_internal();
+    RETURN(get_termfreq_internal());
 }
 
 om_doccount

@@ -91,5 +91,5 @@ OmData
 QuartzDocument::do_get_data() const
 {
     DEBUGCALL(DB, OmData, "QuartzDocument::do_get_data", "");
-    return QuartzRecordManager::get_record(*record_table, did);
+    RETURN(QuartzRecordManager::get_record(*record_table, did));
 }

@@ -43,6 +43,7 @@
 #include "quartz_alltermslist.h"
 
 #include <string>
+using std::string;
 
 //
 // Compulsory settings.
@@ -93,36 +94,39 @@ QuartzDatabase::~QuartzDatabase()
     }
 }
 
-std::string
+string
 QuartzDatabase::get_db_dir(const OmSettings & settings)
 {
-    return settings.get("quartz_dir");
+    DEBUGCALL(DB, string, "QuartzDatabase::get_db_dir", settings);
+    RETURN(settings.get("quartz_dir"));
 }
 
-std::string
+string
 QuartzDatabase::get_log_filename(const OmSettings & settings)
 {
-    return settings.get("quartz_logfile", "");
+    DEBUGCALL(DB, string, "QuartzDatabase::get_log_filename", settings);
+    RETURN(settings.get("quartz_logfile", ""));
 }
 
 unsigned int
 QuartzDatabase::get_block_size(const OmSettings & settings)
 {
-    return settings.get_int("quartz_block_size", QUARTZ_BTREE_DEF_BLOCK_SIZE);
+    DEBUGCALL(DB, string, "QuartzDatabase::get_block_size", settings);
+    RETURN(settings.get_int("quartz_block_size", QUARTZ_BTREE_DEF_BLOCK_SIZE));
 }
 
 bool
 QuartzDatabase::get_create(const OmSettings & settings)
 {
     DEBUGCALL(DB, bool, "QuartzDatabase::get_create", settings);
-    return settings.get_bool("database_create", false);
+    RETURN(settings.get_bool("database_create", false));
 }
 
 bool
 QuartzDatabase::get_allow_overwrite(const OmSettings & settings)
 {
     DEBUGCALL(DB, bool, "QuartzDatabase::get_allow_overwrite", settings);
-    return settings.get_bool("database_allow_overwrite", false);
+    RETURN(settings.get_bool("database_allow_overwrite", false));
 }
 
 void
@@ -183,7 +187,7 @@ om_doccount
 QuartzDatabase::get_doccount_internal() const
 {
     DEBUGCALL(DB, om_doccount, "QuartzDatabase::get_doccount_internal", "");
-    return QuartzRecordManager::get_doccount(*(tables->get_record_table()));
+    RETURN(QuartzRecordManager::get_doccount(*(tables->get_record_table())));
 }
 
 om_doclength

@@ -53,7 +53,7 @@ om_termcount
 QuartzAllTermsList::get_approx_size() const
 {
     DEBUGCALL(DB, om_termcount, "QuartzAllTermsList::get_approx_size", "");
-    return 1000000000; // FIXME
+    RETURN(1000000000); // FIXME
 }
 
 om_termname
@@ -164,5 +164,5 @@ bool
 QuartzAllTermsList::at_end() const
 {
     DEBUGCALL(DB, bool, "QuartzAllTermsList::at_end", "");
-    return is_at_end;
+    RETURN(is_at_end);
 }

@@ -562,7 +562,7 @@ bool
 QuartzBufferedTable::is_modified()
 {
     DEBUGCALL(DB, bool, "QuartzBufferedTable::is_modified", "");
-    return !changed_entries.empty();
+    RETURN(!changed_entries.empty());
 }
 
 bool
@@ -637,7 +637,7 @@ quartz_tablesize_t
 QuartzBufferedTable::get_entry_count() const
 {
     DEBUGCALL(DB, quartz_tablesize_t, "QuartzBufferedTable::get_entry_count", "");
-    return entry_count;
+    RETURN(entry_count);
 }
 
 bool
@@ -732,7 +732,7 @@ bool
 QuartzBufferedCursor::after_end()
 {
     DEBUGCALL(DB, bool, "QuartzBufferedCursor::after_end", "");
-    return (diskcursor->after_end() && changed_entries->after_end(iter));
+    RETURN(diskcursor->after_end() && changed_entries->after_end(iter));
 }
 
 void
