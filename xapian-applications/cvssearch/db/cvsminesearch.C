@@ -268,9 +268,11 @@ void rank_all_items( Db& db,
     Dbt key;
     Dbt data;
 
+//cerr << "... looking through count db" << endl;
     while( cursor->get( &key, &data, DB_NEXT ) != DB_NOTFOUND ) {
         string k = (char*)key.get_data();
         double c = 100.0*(double)atoi((char*)data.get_data()) / (double) total_commit_transactions;
+//cerr << "... found " << k << " with " << c << "%" << endl;
         if ( k.find("()") == string::npos ) {
             class_ranking[-c].insert(k);
         } else {
@@ -443,6 +445,7 @@ int main(unsigned int argc, char *argv[]) {
             matches = enquire.get_mset(0, num_results);
             cerr <<  matches.size() << " results found" << endl;
         } else {
+            cerr << "... simple mode" << endl;
             map< double, set<string> > function_ranking;
             map< double, set<string> > class_ranking;
             rank_all_items(db, total_commit_transactions, class_ranking, function_ranking);

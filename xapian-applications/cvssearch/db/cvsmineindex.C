@@ -21,6 +21,9 @@
  * 
  ********************************************************************************/
 
+// if DB_ONLY is false, it looks at cmt files and compares two methods
+#define DB_ONLY 1
+
 
 // ??????????? is this info still correct below?
 //     Generates omsee databases each page.
@@ -218,7 +221,10 @@ int main(unsigned int argc, char *argv[]) {
             // ------------------------------------------------------------
             cvs_db_file db_file(package_db_path + ".db/" + package_name + ".db", true);
             lines_db  lines (root, package_path, " mining", db_file);
+#if !DB_ONLY
             lines_cmt lines1(root, package_path, package_db_path + ".cmt", package_db_path + ".offset", " mining");
+#endif
+
             // cerr << "getdata " << endl;
             get_data(lines, 
                      package_path, 
@@ -229,6 +235,7 @@ int main(unsigned int argc, char *argv[]) {
                      lib_symbols,
                      offset);
             // cerr << "getdata1" << endl;
+#if !DB_ONLY
             get_data(lines1,
                      package_path,
                      db_file,
@@ -237,6 +244,7 @@ int main(unsigned int argc, char *argv[]) {
                      commit_id_set1,
                      lib_symbols,
                      offset);
+#endif
             // ----------------------------------------
             // writing to the offset of each package
             // commits here. (pkg, commit_offset)
@@ -250,7 +258,9 @@ int main(unsigned int argc, char *argv[]) {
                 cerr << "... offset now " << offset << endl;
             }
         } // for packages
+#if !DB_ONLY
         compare(commit_symbols, commit_words, commit_symbols1, commit_words1);
+#endif
         fout.close();
 
         // ----------------------------------------
@@ -329,8 +339,10 @@ void write_DB_database( const string & database_file,
     map<unsigned int, set<string> >::const_iterator t;
     for (t = commit_symbols.begin(); t!= commit_symbols.end(); ++t) {
         const set<string> & symbols = t->second;
+//cerr << "... transaction of size " << symbols.size() << endl;
         set<string>::const_iterator s;
         for (s = symbols.begin(); s != symbols.end(); ++s) {
+//cerr << "........... symbol " << (*s) << endl;
             ++(item_count[*s]);
         }
     }
@@ -345,10 +357,14 @@ void write_DB_database( const string & database_file,
     Db db(0,0);
     db.open(database_file.c_str(), 0, DB_HASH, DB_CREATE, 0);
 
+//cerr << "... writing counts to db file -" << database_file << "-" << endl;
+
     map<string, unsigned int>::const_iterator i;
     for(i = item_count.begin(); i != item_count.end(); ++i) {
         string item = i->first;
         string count = convert(i->second);
+
+//cerr << "... writing item " << item << " with count " << count << endl;
         
         // ----------------------------------------
         // write to database
