@@ -1,3 +1,8 @@
+Wed Jul 12 17:19:25 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added test_msetzeroitems1 to apitest, to check that statistics are
+	  correctly returned when an empty mset is requested.
+
 Wed Jul 12 17:05:26 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added much debugging information to weight calculation, and 

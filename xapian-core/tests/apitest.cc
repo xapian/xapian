@@ -2211,6 +2211,21 @@ bool test_qterminfo1()
     return true;
 }
 
+// tests that when specifiying that no items are to be returned, those
+// statistics which should be the same are.
+bool test_msetzeroitems1()
+{
+    OmMSet mymset1 = do_get_simple_query_mset(OmQuery("thi"), 0);
+    OmMSet mymset2 = do_get_simple_query_mset(OmQuery("thi"), 1);
+
+    //TEST_EQUAL(mymset1.mbound, mymset2.mbound);
+    //TEST_EQUAL(mymset1.max_attained, mymset2.max_attained);
+    TEST_EQUAL(mymset1.max_possible, mymset2.max_possible);
+
+    return true;
+}
+
+
 
 
 // #######################################################################
@@ -2259,6 +2274,7 @@ test_desc db_tests[] = {
     {"near1",		   test_near1},
     {"phrase1",		   test_phrase1},
     {"qterminfo1",	   test_qterminfo1},
+    {"msetzeroitems1",     test_msetzeroitems1},
     {0, 0}
 };
 
