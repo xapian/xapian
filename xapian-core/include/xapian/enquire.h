@@ -865,7 +865,7 @@ namespace Xapian {
 /// Abstract base class for weighting schemes
 class Weight {
     friend class Enquire; // So Enquire can clone us
-    friend class SocketServer; // So SocketServer can clone us - FIXME
+    friend class ::SocketServer; // So SocketServer can clone us - FIXME
     public:
 	class Internal;
     private:
