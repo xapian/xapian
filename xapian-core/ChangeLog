@@ -1,3 +1,7 @@
+Tue Jan  9 18:14:04 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add some extra debugging code into btree code in quartz.
+
 Tue Jan  9 17:22:12 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Make skip_to() work (ie, do nothing) on OmTermIterators, when the

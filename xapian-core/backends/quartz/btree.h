@@ -208,6 +208,10 @@ class Btree {
 	/* B-tree navigation functions */
 
 	struct Cursor C[BTREE_CURSOR_LEVELS];
+
+	/* Debugging methods */
+    private:
+	void report_block_full(int m, int n, byte * p);
 };
 
 extern int Btree_find_key(struct Btree * B, byte * key, int key_len);

@@ -48,12 +48,17 @@
 #include <string>
 #include <algorithm>  // for std::min()
 
-/*------debugging aids from here--------
+//#define BTREE_DEBUG_FULL 1
+#undef BTREE_DEBUG_FULL
+
+#ifdef BTREE_DEBUG_FULL
+/*------debugging aids from here--------*/
 
 static void print_bytes(int n, byte * p);
-static void report_block_full(struct Btree * B, int m, int n, byte * p);
-static int print_key(byte * p, int c, int j);
+static void print_key(byte * p, int c, int j);
+static void print_tag(byte * p, int c, int j);
 
+/*
 static void report_cursor(int N, struct Btree * B, struct Cursor * C)
 {
     int i;
@@ -62,8 +67,10 @@ static void report_cursor(int N, struct Btree * B, struct Cursor * C)
         printf("p=%d, c=%d, n=[%d], rewrite=%d\n",
                 C[i].p, C[i].c, C[i].n, C[i].rewrite);
 }
+*/
 
-------to here--------*/
+/*------to here--------*/
+#endif /* BTREE_DEBUG_FULL */
 
 /* Input/output is defined with calls to the basic Unix system interface: */
 
@@ -599,14 +606,20 @@ Btree::find(struct Cursor * C_)
     {
 	p = C_[j].p;
         c = find_in_block(p, k, 0, C_[j].c);
-            /*  debug with e.g. report_block_full(B, j, C_[j].n, p);  */
+#ifdef BTREE_DEBUG_FULL
+	printf("Block in Btree:find - code position 1");
+	report_block_full(j, C_[j].n, p);
+#endif /* BTREE_DEBUG_FULL */
         C_[j].c = c;
         block_to_cursor(C_, j - 1, block_given_by(p, c));
         if (overwritten) return false;
     }
     p = C_[0].p;
     c = find_in_block(p, k, D2, C_[j].c);
-            /*  and again report_block_full(B, j, C_[j].n, p);  */
+#ifdef BTREE_DEBUG_FULL
+    printf("Block in Btree:find - code position 2");
+    report_block_full(j, C_[j].n, p);
+#endif /* BTREE_DEBUG_FULL */
     C_[0].c = c;
     if (c < DIR_START) return false;
     return compare_keys(kt + I2, key_of(p, c)) == 0;
@@ -2077,14 +2090,14 @@ static void report_block(struct Btree * B, int m, int n, byte * p)
     printf("\n");
 }
 
-static void report_block_full(struct Btree * B, int m, int n, byte * p)
+void Btree::report_block_full(int m, int n, byte * p)
 {   int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);
     int c;
     printf("\n");
     print_spaces(m);
     printf("Block [%d] revision *%d items (%d) usage %d%%:\n",
-            n, REVISION(p), (dir_end - DIR_START)/D2, block_usage(B, p));
+            n, REVISION(p), (dir_end - DIR_START)/D2, block_usage(this, p));
 
     for (c = DIR_START; c < dir_end; c += D2)
     {
@@ -2125,7 +2138,7 @@ Btree::block_check(struct Cursor * C_, int j, int opts)
 
     if (opts & 1) report_block(this, 3*(level - j), n, p);
 
-    if (opts & 2) report_block_full(this, 3*(level - j), n, p);
+    if (opts & 2) report_block_full(3*(level - j), n, p);
 
     for (c = DIR_START; c < dir_end; c += D2)
     {   int o = GETD(p, c);
