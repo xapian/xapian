@@ -26,6 +26,5 @@
 package org.xapian;
 
 public interface ExpandDecider {
-
-    public boolean accept(String term);
+    boolean accept(String term);
 }

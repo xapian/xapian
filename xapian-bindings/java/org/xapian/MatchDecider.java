@@ -26,7 +26,5 @@
 package org.xapian;
 
 public interface MatchDecider {
-
-    public boolean accept(Document doc);
-
+    boolean accept(Document doc);
 }

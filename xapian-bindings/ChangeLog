@@ -1,3 +1,8 @@
+Mon Feb 21 18:42:32 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/ExpandDecider.java,
+	  java/org/xapian/MatchDecider.java: Fix GCJ warning.
+
 Mon Feb 21 18:42:03 GMT 2005  Olly Betts <olly@survex.com>
 
 	* java/org/xapian/errors/Makefile.am: Remove lingering reference to
