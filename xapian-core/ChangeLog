@@ -1,3 +1,8 @@
+Mon Dec 09 03:30:27 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/quartzdesign.html: Improved wording and punctuation in 3
+	  places.
+
 Mon Dec 09 03:25:09 GMT 2002  Olly Betts <olly@survex.com>
 
 	* common/,docs/todo.xml,include/om/omenquire.h,matcher/,

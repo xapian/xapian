@@ -239,7 +239,7 @@ significant fraction of the size of the whole database.  Therefore, we do
 not wish to read an entire posting list into memory at once.  (Indeed, we'd
 rather only read a small portion of it at all, but that's a different
 story - see the documentation on <A HREF="matcherdesign.html">optimisations
-performed by the matcher</A>.
+performed by the matcher</A>).
 <p>
 To deal with this, we store posting lists in small chunks, each the right
 size to be stored in a single B-tree block, and hence to be accessed with a
@@ -258,11 +258,11 @@ position lists) would benefit from being split into chunks in this way.
 <h2>Btree implementation</h2>
 
 The tables are currently all implemented as B-trees (actually a form of
-B-tree which I think is often know as a B+ tree).
+B-tree sometimes known as a B+ tree).
 <p>
 In some situations, the use of a different structure could be appropriate - in
 particular for the lexicon where key ordering is irrelevant, and a hashing
-scheme might provide more memory and time efficient access.  This
+scheme might provide more space and time efficient access.  This
 is an area for future investigation.
 <p>
 A B-tree is a fairly standard structure for storing this kind of data, so I
