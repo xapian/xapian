@@ -1,3 +1,8 @@
+Wed Oct 20 05:18:36 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/examples/simplesearch.tcl: Translated simplesearch into
+	  Tcl.
+
 Tue Oct 19 21:07:06 BST 2004  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Added xapian_wrap.h as a target for the rule
