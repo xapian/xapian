@@ -307,7 +307,7 @@ Btree::read_block(uint4 n, byte * p)
 /** write_block(n, p) writes block n in the DB file from address p.
  *  In writing we check to see if the DB file has as yet been
  *  modified. If not (so this is the first write) the old base is
- *  deleted. This prevents the possibility of it being openend
+ *  deleted. This prevents the possibility of it being opened
  *  subsequently as an invalid base.
  */
 void
@@ -1277,7 +1277,7 @@ Btree::find_tag(const string &key, string * tag)
     if (n > 1) {
 	string::size_type space_for_tag = (string::size_type) max_item_size * n;
 	tag->reserve(space_for_tag);
-    }	
+    }
 
     while (true) { // FIXME: code to do very similar thing in bcursor.cc...
 	/* number of bytes to extract from current component */

@@ -1,3 +1,7 @@
+Mon May 10 01:30:24 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Fixed typo.
+
 Sat May 08 20:14:40 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/: Pruned some #include-s which were unused, or could
