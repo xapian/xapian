@@ -135,6 +135,14 @@ html_comparer::get_class_type (string & select0, unsigned int index0, bool & do0
         return;
     } 
 
+    if (index1 == _diff[diff_index].source().end() && 
+        index2 == _diff[diff_index].dest().end() &&
+        diff_index + 1< _diff.size()) 
+    {
+        ++diff_index;
+    }
+
+
     if (0) {
     } else if (!do0 && do1 && do2) {
         // ----------------------------------------
@@ -146,14 +154,16 @@ html_comparer::get_class_type (string & select0, unsigned int index0, bool & do0
         {
         case e_delete:
             assert(_diff[diff_index].dest().begin() == _diff[diff_index].dest().end());
-            if (_diff[diff_index].dest().begin() == index2) 
+            if (_diff[diff_index].dest().begin() <= index2 &&
+                _diff[diff_index].source().end() > index1) 
             {
                 do2 = false;
             }
             break;
         case e_add:
             assert(_diff[diff_index].source().begin() == _diff[diff_index].source().end());
-            if (_diff[diff_index].source().begin() == index1) 
+            if (_diff[diff_index].source().begin() <= index1 &
+                _diff[diff_index].dest().end() > index2) 
             {
                 do1 = false;
             }
@@ -170,30 +180,40 @@ html_comparer::get_class_type (string & select0, unsigned int index0, bool & do0
         if (_diff[diff_index].source().begin() <= index1 && 
             _diff[diff_index].source().end()   >  index1) 
         {
-            select2 = " class=\"change\"";        
+            select1 = " class=\"change\"";        
         }
         if (_diff[diff_index].dest().begin() <= index2 && 
             _diff[diff_index].dest().end()   >  index2) 
         {
-            select1 = " class=\"change\"";
+            select2 = " class=\"change\"";
         }
     }
     
     if (!do1 && do2) {
-        select1 = " class=\"current\"";
-        select2 = " class=\"add\"";
+        if (_diff[diff_index].dest().begin() <= index2 && 
+            _diff[diff_index].dest().end()   >  index2) 
+        {
+            select2 = " class=\"current\"";
+            select1 = " class=\"delete\"";
+        }
     }
     
     if (!do2 && do1) {
-        select1 = " class=\"delete\"";
-        select2 = " class=\"current\"";        
+        if (_diff[diff_index].source().begin() <= index1 && 
+            _diff[diff_index].source().end()   >  index1) 
+        {
+            select2 = " class=\"current\"";        
+            select1 = " class=\"add\"";
+        }
     }
+
+    cerr << do0 << " " << index0 << select0 << endl;
+    cerr << do1 << " " << index1 << select1 << endl;
+    cerr << do2 << " " << index2 << select2 << endl;
+    cerr << _diff[diff_index] << endl;
+    cerr << endl;
     
-    if (index1 == _diff[diff_index].source().end() && 
-        index2 == _diff[diff_index].dest().end()) 
-    {
-        ++diff_index;
-    }
+    
 }
 
 void 
@@ -506,7 +526,7 @@ html_comparer::write(ostream & os) const
         }
         while (*pis1 || *pis2) 
         {
-            bool do1, do2;
+            bool do1 = false, do2 = false;
             if (*pis1) {
                 do1 = true;
             } 
