@@ -23,6 +23,7 @@
 #ifndef OM_HGUARD_DB_DATABASE_H
 #define OM_HGUARD_DB_DATABASE_H
 
+#include <stdio.h>
 #include <map>
 #include <vector>
 #include <errno.h>
@@ -238,6 +239,8 @@ class DBDatabase : public IRDatabase {
 	bool   opened;
 	struct DB_file * DB;
 
+	FILE * keyfile;
+
 	mutable map<om_termname, DBTerm> termmap;
 
 	int heavy_duty;
@@ -251,6 +254,11 @@ class DBDatabase : public IRDatabase {
 
 	// Get a record
 	struct record * get_record(om_docid did) const;
+
+	/** Get a key from keyfile (will return empty value if keyfile
+	 *  not open.
+	 */
+	OmKey get_key(om_docid did, om_keyno keyid) const;
 
 	DBDatabase(int heavy_duty_);
 	void open(const DatabaseBuilderParams & params);

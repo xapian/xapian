@@ -31,7 +31,7 @@ OmKey
 InMemoryDocument::get_key(om_keyno keyid) const
 {
     OmKey key;
-    key.value = 0;
+    key.value = "";
     return key;
 }
 

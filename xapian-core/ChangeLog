@@ -1,3 +1,15 @@
+Thu Mar 23 12:49:03 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Changed OmKey to use a string rather than an integer for the
+	  key value.
+
+	* Added ability for DA and DB databases to read keys from a fast
+	  access separate keyfile, falling back to reading from the record 
+	  if the keyfile isn't present, or doesn't contain enough keys.
+
+	* Changed parameters for DA and DB database slightly.  Change is
+	  backwards compatible.
+
 Wed Mar 22 18:39:03 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added configure option to turn on profiling.

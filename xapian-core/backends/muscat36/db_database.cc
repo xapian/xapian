@@ -34,6 +34,7 @@
 #include "db_database.h"
 #include "db_document.h"
 #include "dbread.h"
+#include "om/omdocument.h"
 
 DBPostList::DBPostList(const om_termname & tname_,
 		       struct DB_postings * postlist_,
@@ -120,17 +121,18 @@ DBTermList::get_weighting() const
 
 
 DBDatabase::DBDatabase(int heavy_duty_)
-	: heavy_duty(heavy_duty_)
+	: opened(false),
+	  DB(0),
+	  keyfile(0),
+	  heavy_duty(heavy_duty_)
 {
-    DB = NULL;
-    opened = false;
 }
 
 DBDatabase::~DBDatabase()
 {
-    if(DB != NULL) {
+    if(DB != 0) {
 	DB_close(DB);
-	DB = NULL;
+	DB = 0;
     }
 }
 
@@ -142,12 +144,18 @@ DBDatabase::open(const DatabaseBuilderParams & params)
     // Check validity of parameters
     Assert(params.readonly == true);
     Assert(params.subdbs.size() == 0);
-    Assert(params.paths.size() <= 1);
-    Assert(params.paths.size() >= 2);
+    Assert(params.paths.size() >= 1);
+    Assert(params.paths.size() <= 2);
 
     // Open database with specified path
-    string filename_r = params.paths[0] + "/R";
-    string filename_t = params.paths[0] + "/T";
+    string filename = params.paths[0];
+    string filename_k;
+
+    if (params.paths.size() > 1) {
+	filename_k = params.paths[1];
+    } else {
+	filename_k = filename + "_keyfile";
+    }
 
     // Get the cache_size
     int cache_size = 30;
@@ -156,9 +164,32 @@ DBDatabase::open(const DatabaseBuilderParams & params)
     }
 
     // Actually open
-    DB = DB_open(filename_r.c_str(), cache_size, heavy_duty);
-    if(DB == NULL) {
-	throw OmOpeningError(string("When opening ") + filename_r + ": " + strerror(errno));
+    DB = DB_open(filename.c_str(), cache_size, heavy_duty);
+    if(DB == 0) {
+	throw OmOpeningError(string("When opening ") + filename + ": " + strerror(errno));
+    }
+
+    // Open keyfile, if we can
+    keyfile = fopen(filename_k.c_str(), "rb");
+    if (keyfile != 0) {
+	// Check for magic string at beginning of file.
+	char input[9];
+	size_t bytes_read = fread(input, sizeof(char), 8, keyfile);
+	if(bytes_read < 8) {
+	    fclose(keyfile);
+	    DB_close(DB);
+	    DB = 0;
+	    throw OmOpeningError(string("When opening ") + filename_k + ": couldn't read magic - " + strerror(errno));
+	} else {
+	    input[8] = '\0';
+	    if(strcmp(input, "omrocks!")) {
+		fclose(keyfile);
+		keyfile = 0;
+		DB_close(DB);
+		DB = 0;
+		throw OmOpeningError(string("When opening ") + filename_k + ": couldn't read magic - got `" + input + "'");
+	    }
+	}
     }
 
     opened = true;
@@ -219,6 +250,33 @@ DBDatabase::get_record(om_docid did) const
     }
 
     return r;
+}
+
+/// Get the specified key for given document from the fast lookup file.
+OmKey
+DBDatabase::get_key(om_docid did, om_keyno keyid) const
+{
+    OmKey key;
+    DebugMsg("Looking in keyfile for keyno " << keyid << " in document " << did);
+
+    if (keyfile == 0) {
+	DebugMsg(": don't have keyfile - using record" << endl);
+    } else {
+	int seekok = fseek(keyfile, (long)did * 8, SEEK_SET);
+	if(seekok == -1) {
+	    DebugMsg(": seek off end of keyfile - using record" << endl);
+	} else {
+	    char input[9];
+	    size_t bytes_read = fread(input, sizeof(char), 8, keyfile);
+	    if(bytes_read < 8) {
+		DebugMsg(": read off end of keyfile - using record" << endl);
+	    } else {
+		key.value = string(input, 8);
+		DebugMsg(": found - value is `" << key.value << "'" << endl);
+	    }
+	}
+    }
+    return key;
 }
 
 LeafDocument *

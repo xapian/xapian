@@ -52,7 +52,26 @@ DADocument::~DADocument()
 OmKey
 DADocument::get_key(om_keyno keyid) const
 {
-    return database->get_key(did, keyid);
+    OmKey key = database->get_key(did, keyid);
+
+    if (key.value.size() == 0) {
+	DebugMsg("Looking in record for keyno " << keyid <<
+		 " in document " << did);
+	if (rec == 0) rec = database->get_record(did);
+
+	unsigned char *pos = (unsigned char *)rec->p;
+	unsigned int len = LENGTH_OF(pos, 0, heavy_duty);
+	unsigned int keypos = keyid;
+	if (keyid + 8 > len) {
+	    // Record not big enough.
+	    DebugMsg(": not found in record" << endl);
+	} else {
+	    key.value = string((char *)pos + LWIDTH(heavy_duty) + 3 + keyid, 8);
+	    DebugMsg(": found in record - value is `" << key.value << "'" << endl);
+	}
+    }
+
+    return key;
 }
 
 /** Get the data for a DA Document.
@@ -63,7 +82,7 @@ DADocument::get_key(om_keyno keyid) const
 OmData
 DADocument::get_data() const
 {
-    if(rec == NULL) rec = database->get_record(did);
+    if(rec == 0) rec = database->get_record(did);
     OmData data;
     unsigned char *pos = (unsigned char *)rec->p;
     unsigned int len = LENGTH_OF(pos, 0, heavy_duty);

@@ -148,12 +148,26 @@ DADatabase::open(const DatabaseBuilderParams & params)
     // Check validity of parameters
     Assert(params.readonly == true);
     Assert(params.subdbs.size() == 0);
-    Assert(params.paths.size() == 1);
+    Assert(params.paths.size() >= 1);
+    Assert(params.paths.size() <= 3);
 
     // Work out file paths
-    string filename_r = params.paths[0] + "/R";
-    string filename_t = params.paths[0] + "/T";
-    string filename_k = params.paths[0] + "/keyfile";
+    string filename_r;
+    string filename_t;
+    string filename_k;
+
+    if(params.paths.size() == 1) {
+	filename_r = params.paths[0] + "/R";
+	filename_t = params.paths[0] + "/T";
+	filename_k = params.paths[0] + "/keyfile";
+    } else {
+	filename_r = params.paths[0];
+	filename_t = params.paths[1];
+	if(params.paths.size() == 3) {
+	    filename_k = params.paths[2];
+	}
+    }
+
 
     // Open database with specified path
     DA_r = DA_open(filename_r.c_str(), DA_RECS, heavy_duty);
@@ -255,23 +269,29 @@ DADatabase::get_record(om_docid did) const
     return r;
 }
 
-/** Get the specified key for given document.  Use the fast lookup file
- *  if available.
- */
+/// Get the specified key for given document from the fast lookup file.
 OmKey
 DADatabase::get_key(om_docid did, om_keyno keyid) const
 {
     OmKey key;
-    DebugMsg("Looking for keyno " << keyid << " in document " << did);
+    DebugMsg("Looking in keyfile for keyno " << keyid << " in document " << did);
 
     if (keyfile == 0) {
-	DebugMsg(": don't have keyfile - returning value of 0" << endl);
-	key.value = 0;
+	DebugMsg(": don't have keyfile - using record" << endl);
     } else {
-	//fseek();
-
-	key.value = 1;
-	DebugMsg(": found - value is `" << key.value << "'" << endl);
+	int seekok = fseek(keyfile, (long)did * 8, SEEK_SET);
+	if(seekok == -1) {
+	    DebugMsg(": seek off end of keyfile - using record" << endl);
+	} else {
+	    char input[9];
+	    size_t bytes_read = fread(input, sizeof(char), 8, keyfile);
+	    if(bytes_read < 8) {
+		DebugMsg(": read off end of keyfile - using record" << endl);
+	    } else {
+		key.value = string(input, 8);
+		DebugMsg(": found - value is `" << key.value << "'" << endl);
+	    }
+	}
     }
     return key;
 }

@@ -681,7 +681,8 @@ bool test_expandfunctor1()
 class myMatchDecider : public OmMatchDecider {
     public:
         int operator()(const OmDocument *doc) const {
-	    return doc->get_key(2).value == 0;
+	    // Note that this is not recommended usage of get_data()
+	    return strncmp(doc->get_data().value.c_str(), "This is", 7) == 0;
 	}
 };
 

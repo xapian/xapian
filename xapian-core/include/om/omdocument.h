@@ -44,12 +44,8 @@ class OmData {
 /// A key in a document.
 class OmKey {
     public:
-	/** The value of a key.
-	 *  FIXME: The value here should be of variable length, rather
-	 *  than an integer. (Some backends will only allow keys of a given
-	 *  fixed length, however.)
-	 */
-	unsigned int value;
+	/// The value of a key.
+	string value;
 
 	/// Ordering for keys, so they can be stored in STL containers.
 	bool operator < (const OmKey &k) const { return(value < k.value); }

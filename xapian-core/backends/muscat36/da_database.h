@@ -258,7 +258,9 @@ class DADatabase : public IRDatabase {
 	// Get a record
 	struct record * get_record(om_docid did) const;
 
-	/** Get a key. */
+	/** Get a key from keyfile (will return empty value if keyfile
+	 *  not open.
+	 */
 	OmKey get_key(om_docid did, om_keyno keyid) const;
 
 	DADatabase(int heavy_duty_);
