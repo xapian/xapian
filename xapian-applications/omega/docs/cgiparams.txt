@@ -88,10 +88,11 @@ SPAN
 	START (if set), or before today's date (otherwise).
 	
 START
-	start of date range (defaults to 1st January 1970).
+	start of date range, in the format YYYYMMDD (defaults to 1st January
+	1970).
 
 END
-	end of date range (defaults to today's date).
+	end of date range, in the format YYYYMMDD (defaults to today's date).
 
 	The old deprecated names are DATE1 (START), DATE2 (END), and
 	DAYSMINUS (SPAN) which for now are checked if the new variables

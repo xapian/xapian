@@ -1,3 +1,8 @@
+Sat Feb 14 00:11:52 GMT 2004  Olly Betts <olly@survex.com>
+
+	* docs/cgiparams.txt: Note that START and END should be in the format
+	  YYYYMMDD.
+
 Sat Feb 14 00:07:41 GMT 2004  Olly Betts <olly@survex.com>
 
 	* query.cc: Don't crash if there's a date filter but no probabilistic
