@@ -885,7 +885,15 @@ static bool test_adddoc2()
 		TEST_EQUAL(i->second.wdf, j->second.wdf);
 		TEST_NOT_EQUAL(i->second.termfreq, j->second.termfreq);
 		TEST_EQUAL(0, i->second.termfreq);
-		TEST_EQUAL(2, j->second.termfreq);
+		TEST_NOT_EQUAL(0, j->second.termfreq);
+		if (i->second.tname == "foobar") {
+		    // termfreq of foobar is 2
+		    TEST_EQUAL(2, j->second.termfreq);
+		} else {
+		    // termfreq of rising is 1
+		    TEST_EQUAL(i->second.tname, "rising");
+		    TEST_EQUAL(1, j->second.termfreq);
+		}
 		TEST_EQUAL(i->second.positions.size(),
 			   j->second.positions.size());
 		OmDocumentTerm::term_positions::const_iterator k,l;
