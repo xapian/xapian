@@ -1,3 +1,7 @@
+Sun Mar 14 17:48:52 GMT 2004  Olly Betts <olly@survex.com>
+
+	* tests/runtest.in: Mark with @configure_input@.
+
 Thu Mar 11 23:53:43 GMT 2004  Olly Betts <olly@survex.com>
 
 	* common/database.h,common/termlist.h,include/xapian/database.h,
