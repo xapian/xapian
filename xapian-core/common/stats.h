@@ -67,8 +67,13 @@ class StatsGatherer {
 	 */
 	Stats total_stats;
     public:
-	StatsGatherer(om_doccount collection_size,
-		      om_doccount rset_size);
+	StatsGatherer();
+
+	/** Set the global collection statistics.
+	 *  Should be called before the match is performed.
+	 */
+	void set_global_stats(om_doccount collection_size,
+			      om_doccount rset_size);
 
 	/** Contribute some statistics to the overall statistics.
 	 *  Should only be called once by each sub-database.
@@ -89,7 +94,7 @@ class StatsLeaf {
 	/** The gatherer which we report our information to, and ask
 	 *  for the global information from.
 	 */
-	const StatsGatherer * gatherer;
+	StatsGatherer * gatherer;
 
 	/** The stats to give to the StatsGatherer.
 	 */
@@ -107,7 +112,7 @@ class StatsLeaf {
 	void perform_request() const;
     public:
 	/// Constructor: takes the gatherer to talk to.
-	StatsLeaf(const StatsGatherer * gatherer_);
+	StatsLeaf(StatsGatherer * gatherer_);
 
 	/** Set the term frequency in the sub-database which this stats
 	 *  object represents.  This is the number of documents in
@@ -160,16 +165,20 @@ Stats::operator +=(const Stats & inc)
 }
 
 inline
-StatsGatherer::StatsGatherer(om_doccount collection_size,
-			     om_doccount rset_size)
+StatsGatherer::StatsGatherer()
 	: have_gathered(false)
+{}
+
+inline void
+StatsGatherer::set_global_stats(om_doccount collection_size,
+				om_doccount rset_size)
 {
     total_stats.collection_size = collection_size;
     total_stats.rset_size = rset_size;
 }
 
 inline
-StatsLeaf::StatsLeaf(const StatsGatherer * gatherer_)
+StatsLeaf::StatsLeaf(StatsGatherer * gatherer_)
 	: gatherer(gatherer_), total_stats(0)
 {
 }

@@ -88,8 +88,9 @@ bool msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b) {
 // Initialisation and cleaning up //
 ////////////////////////////////////
 
-LeafMatch::LeafMatch(IRDatabase *database_)
-	: query(NULL),
+LeafMatch::LeafMatch(IRDatabase *database_, StatsGatherer * gatherer_)
+	: statsleaf(gatherer_),
+	  query(NULL),
 	  do_collapse(false),
 	  have_added_terms(false)
 {

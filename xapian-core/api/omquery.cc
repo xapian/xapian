@@ -489,7 +489,7 @@ OmQueryInternal::initialise_from_vector(
     // operators specially.
     for (i=qbegin; i!= qend; ++i) {
 	if ((*i)->isbool) {
-	    throw OmInvalidArgumentError("Only the top-level query can be bool");
+	    throw OmInvalidArgumentError("Only the top-level query can be pure boolean");
 	}
     }
     

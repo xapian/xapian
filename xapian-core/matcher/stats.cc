@@ -37,13 +37,14 @@ StatsGatherer::get_stats() const
 	have_gathered = true;
     }
 
-    return & total_stats;
+    return (&total_stats);
 }
 
 void
 StatsLeaf::perform_request() const
 {
     Assert(total_stats == 0);
+    gatherer->contrib_stats(my_stats);
     total_stats = gatherer->get_stats();
     Assert(total_stats != 0);
 }

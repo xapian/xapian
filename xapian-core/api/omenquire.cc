@@ -244,8 +244,11 @@ OmEnquireInternal::get_mset(om_doccount first,
         moptions = &defmoptions;
     }
 
+    // Collection point for statistics
+    StatsGatherer gatherer;
+
     // Set Database
-    LeafMatch match(database);
+    LeafMatch match(database, &gatherer);
 
     // Set cutoff percent
     if (moptions->percent_cutoff > 0) {
@@ -257,6 +260,14 @@ OmEnquireInternal::get_mset(om_doccount first,
     if((omrset != 0) && (omrset->items.size() != 0)) {
 	rset = new RSet(database, *omrset);
 	match.set_rset(rset);
+    }
+
+    // FIXME: should be done by top match object.
+    if(rset == 0) {
+	gatherer.set_global_stats(database->get_doccount(), 0);
+    } else {
+	gatherer.set_global_stats(database->get_doccount(),
+				  rset->get_rsize());
     }
 
     // Set options

@@ -23,12 +23,14 @@
 #ifndef OM_HGUARD_LEAFMATCH_H
 #define OM_HGUARD_LEAFMATCH_H
 
-#include "match.h"
 
-#include "database.h"
 #include "omassert.h"
 #include "om/omenquire.h"
 
+#include "match.h"
+#include "stats.h"
+
+class IRDatabase;
 class OmDocument;
 class IRWeight;
 
@@ -55,6 +57,7 @@ class LeafMatch : public Match
 {
     private:
         IRDatabase *database;
+	StatsLeaf statsleaf;
 
         int min_weight_percent;
         om_weight max_weight;
@@ -106,7 +109,8 @@ class LeafMatch : public Match
 	LeafMatch(const LeafMatch &);
 	void operator=(const LeafMatch &);
     public:
-        LeafMatch(IRDatabase * database_);
+        LeafMatch(IRDatabase * database_,
+		  class StatsGatherer * gatherer_);
         ~LeafMatch();
 
 	///////////////////////////////////////////////////////////////////
