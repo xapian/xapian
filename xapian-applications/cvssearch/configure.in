@@ -1,4 +1,4 @@
-AC_INIT(map/cvssearch.cpp)
+AC_INIT(map/map.cpp)
 AM_INIT_AUTOMAKE(cvssearch, 1.0)
 AC_SUBST(CXXFLAGS)
 AC_PROG_CXX 
