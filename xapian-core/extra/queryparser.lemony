@@ -458,8 +458,8 @@ class TermList {
     /// Convert to a Xapian::Query * using OP_PHRASE.
     Query * as_phrase_query() const {
 	Query * term;
-	term = new Query(Query::OP_PHRASE, terms.begin(), terms.end());
-	term->set_window(terms.size());
+	term = new Query(Query::OP_PHRASE, terms.begin(), terms.end(),
+			 terms.size());
 	delete this;
 	return term;
     }
@@ -467,11 +467,11 @@ class TermList {
     /// Convert to a Xapian::Query * using OP_NEAR.
     Query * as_near_query() const {
 	Query * term;
-	term = new Query(Query::OP_NEAR, terms.begin(), terms.end());
 	// The common meaning of 'a NEAR b' is "a within 10 terms of b", which
 	// means a window size of 11.  For more than 2 terms, we just add one
 	// to the window size for each extra term.
-	term->set_window(terms.size() + 9);
+	term = new Query(Query::OP_NEAR, terms.begin(), terms.end(),
+			 terms.size() + 9);
 	delete this;
 	return term;
     }
