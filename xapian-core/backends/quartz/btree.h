@@ -342,9 +342,6 @@ class Btree {
 	/// buffer of size block_size for reforming blocks
 	byte * buffer;
 
-	/// 1 + revision number of the opened B-tree
-	quartz_revision_number_t next_revision;
-
 	/// For writing back as file baseA or baseB.
 	Btree_base base;
 

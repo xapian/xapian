@@ -324,7 +324,7 @@ Btree::write_block(uint4 n, const byte * p) const
     AssertParanoid(base.block_free_at_start(n));
 
     /* write revision is okay */
-    AssertParanoid(REVISION(p) == next_revision);
+    AssertParanoid(REVISION(p) == revision_number + 1);
 
     if (both_bases) {
 	// Delete the old base before modifying the database.
@@ -507,7 +507,7 @@ Btree::alter()
 	base.free_block(n);
 	n = base.next_free_block();
 	C[j].n = n;
-	SET_REVISION(p, next_revision);
+	SET_REVISION(p, revision_number + 1);
 
 	if (j == level) return;
 	j++;
@@ -687,7 +687,7 @@ Btree::split_root(uint4 split_n)
     C[level].c = DIR_START;
     C[level].n = base.next_free_block();
     C[level].rewrite = true;
-    SET_REVISION(q, next_revision);
+    SET_REVISION(q, revision_number + 1);
     SET_LEVEL(q, level);
     SET_DIR_END(q, DIR_START);
     compress(q);   /* to reset TOTAL_FREE, MAX_FREE */
@@ -1440,7 +1440,6 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
     /* ready to open the main file */
 
     base_letter = ch;
-    next_revision = revision_number + 1;
 
     return true;
 }
@@ -1478,14 +1477,14 @@ Btree::read_root()
 	    C[0].n = 0;
 	} else {
 	    /* writing - */
-	    SET_REVISION(p, next_revision);
+	    SET_REVISION(p, revision_number + 1);
 	    C[0].n = base.next_free_block();
 	}
     } else {
 	/* using a root block stored on disk */
 	block_to_cursor(C, level, root);
 
-	if (REVISION(C[level].p) >= next_revision) set_overwritten();
+	if (REVISION(C[level].p) > revision_number) set_overwritten();
 	/* although this is unlikely */
     }
 }
@@ -1555,7 +1554,6 @@ Btree::Btree()
 	  root(0),
 	  kt(0),
 	  buffer(0),
-	  next_revision(0),
 	  base(),
 	  other_base_letter(0),
 	  seq_count(0),
@@ -1585,7 +1583,6 @@ Btree::Btree(string path_, bool readonly_)
 	  root(0),
 	  kt(0),
 	  buffer(0),
-	  next_revision(0),
 	  base(),
 	  other_base_letter(0),
 	  name(path_),
@@ -1692,7 +1689,7 @@ Btree::commit(quartz_revision_number_t revision)
     DEBUGCALL(DB, void, "Btree::commit", revision);
     Assert(writable);
 
-    if (revision < next_revision) {
+    if (revision <= revision_number) {
 	throw Xapian::DatabaseError("New revision too low");
     }
 
@@ -1751,8 +1748,6 @@ Btree::commit(quartz_revision_number_t revision)
     base.write_to_file(name + "base" + (char)base_letter);
     base.commit();
 
-    next_revision = revision_number + 1;
-
     read_root();
 
     changed_n = 0;
@@ -1783,8 +1778,6 @@ Btree::cancel()
     sequential =       base.get_sequential();
 
     other_revision_number = 0;
-
-    next_revision = revision_number + 1;
 
     prev_ptr = &Btree::prev_default;
     next_ptr = &Btree::next_default;

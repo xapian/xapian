@@ -1,3 +1,8 @@
+Sat Aug 14 15:45:28 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/btree.h: Don't redundantly
+	  store next_revision - it's always just revision_number + 1.
+
 Sat Aug 14 15:30:30 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Implemented Btree::cancel directly rather
