@@ -95,9 +95,8 @@ at the time of writing, the versions known to work are:
 		Note that automake 1.6 has a bug which causes it to emit
 		spurious warnings: this is fixed in automake 1.6.1.
 		
-	Autoconf version 2.13
-		autoconf >= 2.50 is likely to become a requirement in the
-		medium term.
+	Autoconf version 2.50
+		Needed for many things.
 		
 	ltmain.sh (GNU libtool) 1.3.3
 
@@ -110,6 +109,8 @@ at the time of writing, the versions known to work are:
 
 		There are apparently some bugs in earlier versions, which
 		might affect us, so we require at least 1.35.
+
+	GNU Flex
 	
 Please tell us if you find that older (or newer) versions work or fail to work.
 

@@ -1,3 +1,8 @@
+Tue May 07 16:50:20 BST 2002  Olly Betts <olly@survex.com>
+
+	* Now require autoconf 2.50, which allows us to clean up some of the
+	  more unpleasant parts of the build system.
+
 Tue May 07 14:55:37 BST 2002  Olly Betts <olly@survex.com>
 
 	* Added "match_sort_bands" option to sort results within relevance

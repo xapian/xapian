@@ -57,9 +57,6 @@ endif
 ctags:
 	ctags-exuberant -R --links=no
 
-acinclude.m4: autoconf/acinclude.m4
-	cp autoconf/acinclude.m4 acinclude.m4
-
 # doesn't really work as we'd hope as we get to play with the mangled symbols
 libxapian_la_LDFLAGS = -export-symbols-regex 'Om[A-Z]'
 

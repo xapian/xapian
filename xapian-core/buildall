@@ -25,7 +25,7 @@
 
 # Details of this script
 PROGNAME="`echo $0 | sed -e 's#^.*/##'`"
-VERSION="0.17"
+VERSION="0.18"
 
 # Little bit of paranoia
 test -z "${PROGNAME}" && PROGNAME="[build script]"
@@ -108,8 +108,10 @@ ERRMSG=""
 case "`autoconf --version|sed 's/.* //;q'`" in
 "")
   ERRMSG="${ERRMSG}Maintainer tool autoconf not found\\n" ;;
-[01].*|2.[0-9]|2.[0-9][^0-9]*|2.1[012]|2.1[012][^0-9]*)
-  ERRMSG="${ERRMSG}Maintainer tool autoconf needs to be at least version 2.13\\n" ;;
+2.[5-9][0-9]|2.[5-9][0-9][^0-9]*)
+  ;;
+*)
+  ERRMSG="${ERRMSG}Maintainer tool autoconf needs to be at least version 2.50\\n" ;;
 esac
 case "`automake --version|sed 's/.* //;q' 2>/dev/null`" in
 "")
@@ -127,7 +129,7 @@ case "`libtool --version|sed 's/.* //;q' 2>/dev/null`" in
 esac
 case "`bison --version|sed 's/.* //;q'`" in
 "")
-  ERRMSG="${ERRMSG}Maintainer tool autoconf not found\\n" ;;
+  ERRMSG="${ERRMSG}Maintainer tool bison not found\\n" ;;
 1.3[5-9]|1.[4-9][0-9]|1.[1-9][0-9][0-9]*|[2-9].*|[1-9][0-9]*)
   ;; # 1.35 or newer
 *)
@@ -148,8 +150,10 @@ esac
 case "`autoheader --version|sed 's/.* //;q'`" in
 "")
   ERRMSG="${ERRMSG}Maintainer tool autoheader (part of autoconf) not found\\n" ;;
-[01].*|2.[0-9]|2.[0-9][^0-9]*|2.1[012]|2.1[012][^0-9]*)
-  ERRMSG="${ERRMSG}Maintainer tool autoheader needs to be from autoconf at least version 2.13\\n" ;;
+2.[5-9][0-9]|2.[5-9][0-9][^0-9]*)
+  ;;
+*)
+  ERRMSG="${ERRMSG}Maintainer tool autoheader needs to be from autoconf at least version 2.50\\n" ;;
 esac
 test -z "${ERRMSG}" ||
 error "${ERRMSG}See HACKING for details of tools needed to develop $PACKAGE"
@@ -158,24 +162,6 @@ error "${ERRMSG}See HACKING for details of tools needed to develop $PACKAGE"
 cd "${SRCDIR}"
 if test . != "${SRCDIR}" ; then
   display "${PROGNAME}: changed to source directory, `pwd`"
-fi
-
-if test -d autoconf ; then
-  # FIXME: this is so yucky - there must be a better way...
-  # Build acinclude file from *.m4 files
-  # NB this list must be kept in step with that in autoconf/Makefile.am
-  m4_files="cme_find_hstrerror.m4 \
-	   cme_find_socketpair.m4 \
-	   rjb_find_gethostent.m4 \
-	   rjb_find_stlport.m4 \
-	   definedir.m4 \
-	   ac_sys_largefile.m4"
-
-  display "${PROGNAME}: generating acinclude.m4"
-  cd autoconf
-  ./genacinclude.sh $m4_files
-  cp acinclude.m4 ..
-  cd ..
 fi
 
 if (exec >/dev/null 2>&1 ; xapian-config --prefix; exit $?) then

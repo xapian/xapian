@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001 Ananova Ltd
+ * Copyright 2001,2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -175,10 +175,5 @@ OmQuery::Internal qfs_readquery();
 /** returns true if the string s starts with prefix.
  */
 bool startswith(const string &s, const string &prefix);
-
-/* socklen_t doesn't exist on eg Solaris 5.6 */
-#ifndef HAVE_SOCKLEN_T
-typedef unsigned int socklen_t;
-#endif  /* HAVE_SOCKLEN_T */
 
 #endif /* OM_HGUARD_SOCKETCOMMON_H */
