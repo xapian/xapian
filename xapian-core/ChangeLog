@@ -1,3 +1,8 @@
+Thu Jul 17 00:56:35 BST 2003  Olly Betts <olly@survex.com>
+
+	* COPYING: Updated FSF address, and reinstated missing section: "How
+	  to Apply These Terms to Your New Programs"
+
 Thu Jul 17 00:48:40 BST 2003  Olly Betts <olly@survex.com>
 
 	* HACKING,bootstrap: Removed bootstrap in favour of top-level
