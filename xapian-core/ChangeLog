@@ -1,3 +1,7 @@
+Wed Jul 09 01:27:39 BST 2003  Olly Betts <olly@survex.com>
+
+	* bindings/swig/om_util_php4.i: om_termname -> std::string.
+
 Wed Jul 09 01:25:11 BST 2003  Olly Betts <olly@survex.com>
 
 	* docs/overview.html,include/xapian/base.h,include/xapian/database.h:

@@ -4,7 +4,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,11 +33,14 @@
 
 %include typemaps.i
 
-%typemap(php4, out) std::list<om_termname > {
+%typemap(php4, out) std::list<std::string> {
     array_init($result);
 
-    for(std::list<om_termname >::const_iterator tn = $1.begin(); tn!=$1.end();tn++) {
-      // We can cast away const because we pass 1 as last param meaning duplicate
-      add_next_index_stringl($result,(char *)(tn->c_str()),tn->length(),1);
+    std::list<std::string>::const_iterator tn;
+    for (tn = $1.begin(); tn != $1.end(); ++tn) {
+	// We can cast away const because we pass 1 as last param meaning
+	// duplicate
+	add_next_index_stringl($result, const_cast<char *>(tn->c_str()),
+			       tn->length(), 1);
     }
 }
