@@ -6,7 +6,10 @@ ToDo items on the coding side.  (Not a complete list)
 Near term
 =========
 
-Split database definition files into database/postlist/termlist files.
+Set appropriate copy and assignment methods for each class with a destructor.
+
+Change Asserts in API to be OMError exceptions.  Do some general work on the
+error reporting mechanisms.
 
 Remove hardcoded reference to an indexer in InMemoryDatabase.  Index to it
 in the usual way.
@@ -33,6 +36,8 @@ Do same for postlists, termlists, documents, matcher, etc.
 
 Middle term
 ===========
+
+Split database definition files into database/postlist/termlist files.
 
 A couple of objects get copied a lot - look into doing copy-on-write for them.
 (Notably term objects (currently strings so this happens, but may not stay
