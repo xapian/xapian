@@ -1,3 +1,9 @@
+Wed Oct 11 17:37:57 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added method OmIndexerNode::set_empty_output(), useful as
+	  a shorthand for set_output("foo",
+	  OmIndexerMessage(new OmIndexerData()))
+
 Wed Oct 11 17:35:49 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* New method is_empty() for OmIndexerData to easily check for

@@ -259,9 +259,16 @@ OmIndexerNode::Internal::calculate_if_needed(const std::string &output_name)
 
     if (i == outputs_record.end()) {
 	outputs_record.clear();
-	DEBUGLINE(UNKNOWN, "Calculating " << typeid(*this).name() <<
+	DEBUGLINE(UNKNOWN, "Calculating " << typeid(*owner).name() <<
 		           " (output " << output_name << " requested)");
+	/*
+	cerr << "Calculating " << typeid(*owner).name() <<
+		           " (output " << output_name << " requested)" << endl;
+	 */
 	owner->calculate();
+	/*
+	cerr << "Calculated!" << endl;
+	 */
     }
 }
 
@@ -306,6 +313,11 @@ OmIndexerNode::Internal::connect_input(const std::string &input_name,
     con.node_output = other_outputname;
 
     inputs[input_name] = con;
+}
+
+void OmIndexerNode::set_empty_output(const std::string &output_name)
+{
+    internal->set_output(output_name, OmIndexerMessage(new OmIndexerData()));
 }
 
 void OmIndexerNode::set_output(const std::string &output_name,

@@ -105,6 +105,9 @@ class OmIndexerNode {
 			const std::string &value);
 	void set_output(const std::string &output_name, OmIndexerMessage value);
 
+	/** Set the given output to an empty message */
+	void set_empty_output(const std::string &output_name);
+
 	/* The implementation's interface to the configuration data. */
 
 	/** Return the current value of a given configuration parameter. */
