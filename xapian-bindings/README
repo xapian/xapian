@@ -20,11 +20,11 @@ Guile		rm@fabula.de is working on reviving these.
 Ruby		Supported by SWIG 1.3.6 onwards
 Mzscheme	Supported by SWIG 1.3.6 onwards
 Ocaml		Supported by SWIG 1.3.14 onwards
+Pike		Supported by SWIG 1.3.14 onwards
 C#		Supported by SWIG 1.3.18 onwards
 Chicken		Supported by SWIG 1.3.18 onwards
 Allegro CL	Supported by SWIG 1.3.22 onwards
 Modula-3	Supported by SWIG 1.3.22 onwards
-Pike		"work is in progress on a Pike module." says:
 		http://www.swig.org/compare.html
 JavaScript	See http://www.ultravioletconsulting.com/projects/swigjs/
                 (Appears to have seen no activity for over 5 years!)

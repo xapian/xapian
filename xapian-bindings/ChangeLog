@@ -1,3 +1,7 @@
+Wed Sep 08 05:34:10 BST 2004  Olly Betts <olly@survex.com>
+
+	* README: Pike support is now in SWIG it seems.
+
 Wed Sep 08 05:30:58 BST 2004  Olly Betts <olly@survex.com>
 
 	* README: Updated list of languages which SWIG supports.
