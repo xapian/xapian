@@ -83,6 +83,15 @@ can run configure with:
 
 ./configure VALGRIND=
 
+Or you can disable use of valgrind during a particular run of "make check"
+like so:
+
+make check VALGRIND=
+
+Or disable it while running a test directly (under sh or bash):
+
+VALGRIND= ./runtest ./apitest
+
 Running test programs
 =====================
 
