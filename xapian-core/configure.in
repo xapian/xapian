@@ -16,12 +16,19 @@ AC_PROG_CXX
 AM_PROG_LEX
 
 dnl Checks for perl.  (Needed to make some of the documentation)
-AC_PATH_PROG(PERL, perl)
-AM_CONDITIONAL(HAVE_PERL, test -n "$PERL")
+AC_PATH_PROG(PERL_PATH, perl)
+AM_CONDITIONAL(HAVE_PERL, test -n "$PERL_PATH")
+AC_SUBST(PERL_PATH)
 
 dnl Check for doc++. (Needed to make some more of the documentation)
-AC_PATH_PROG(DOCPP, doc++)
-AM_CONDITIONAL(HAVE_DOCPP, test -n "$DOCPP")
+AC_PATH_PROG(DOCPP_PATH, doc++)
+AM_CONDITIONAL(HAVE_DOCPP, test -n "$DOCPP_PATH")
+AC_SUBST(DOCPP_PATH)
+
+dnl Check for dvips. (Needed to make some more of the documentation)
+AC_PATH_PROG(DVIPS_PATH, dvips)
+AM_CONDITIONAL(HAVE_DVIPS, test -n "$DVIPS_PATH")
+AC_SUBST(DVIPS_PATH)
 
 dnl Turn off shared libraries for now as the make the build take longer
 AC_DISABLE_SHARED

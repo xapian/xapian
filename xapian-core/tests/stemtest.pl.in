@@ -1,4 +1,4 @@
-#! @PERL@ -w
+#! @PERL_PATH@ -w
 # @configure_input@
 # stemtest.pl is automatically generated from stemtest.pl.in
 # *** Do not edit the generated file ***

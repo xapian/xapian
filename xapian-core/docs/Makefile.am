@@ -1,5 +1,8 @@
 ### Process this file with automake to produce Makefile.in
 
+DOCPP = @DOCPP_PATH@
+DVIPS = @DVIPS_PATH@
+
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 HTMLFILES = index.html intro.html intro_ir.html userman.html \
@@ -7,7 +10,8 @@ HTMLFILES = index.html intro.html intro_ir.html userman.html \
 
 # Files which should be put in the distribution by automake
 EXTRA_DIST = mkdoc.pl.in $(HTMLFILES) \
-        MatcherDesign Notes stemming.txt
+        MatcherDesign Notes stemming.txt \
+	docxx.sty
 
 # Things to do if have perl installed
 if HAVE_PERL
@@ -16,9 +20,9 @@ endif
 
 # Things to do if have doc++ installed
 if HAVE_DOCPP
-all-local: apidoc/index.html sourcedoc/index.html
-dist-hook: apidoc/index.html apidoc-dist
-install-data-local: apidoc/index.html apidoc-install
+all-local: apidoc/index.html sourcedoc/index.html apidoc.dvi sourcedoc.dvi
+dist-hook: apidoc/index.html apidoc.dvi apidoc-dist
+install-data-local: apidoc/index.html apidoc.dvi apidoc-install
 else
 all-local:
 dist-hook: apidoc-dist
@@ -32,36 +36,66 @@ docdata_DATA = $(CREATED_DOCUMENTS1) $(HTMLFILES)
 #########################################
 # How to put apidoc in the distribution #
 #########################################
-apidoc-dist:
+apidoc-dist: apidoc-html-dist apidoc-dvi-dist
+
+apidoc-dvi-dist:
+	@if [ -r apidoc.dvi ] ; then \
+	  echo "Adding API DVI documentation to distribution" ; \
+	  cp apidoc.dvi $(distdir)/ ; \
+	else \
+	  if [ -r $(srcdir)/apidoc.dvi ] ; then \
+	    echo "Adding API DVI documentation to distribution" ; \
+	    cp $(srcdir)/apidoc.dvi $(distdir)/ ; \
+	  else \
+	    echo "Skipping API DVI documentation from distribution: can't build" ; \
+	  fi \
+	fi
+
+apidoc-html-dist:
 	@if [ -r apidoc/index.html ] ; then \
-	  echo "Adding API documentation to distribution" ; \
+	  echo "Adding API HTML documentation to distribution" ; \
 	  $(mkinstalldirs) $(distdir)/apidoc ; \
 	  cp apidoc/* $(distdir)/apidoc/ ; \
 	else \
 	  if [ -r $(srcdir)/apidoc/index.html ] ; then \
-	    echo "Adding API documentation to distribution" ; \
+	    echo "Adding API HTML documentation to distribution" ; \
 	    $(mkinstalldirs) $(distdir)/apidoc ; \
 	    cp $(srcdir)/apidoc/* $(distdir)/apidoc/ ; \
 	  else \
-	    echo "Skipping API documentation from distribution: can't build" ; \
+	    echo "Skipping API HTML documentation from distribution: can't build" ; \
 	  fi \
 	fi
 
 #########################
 # How to install apidoc #
 #########################
-apidoc-install:
+apidoc-install: apidoc-html-install apidoc-dvi-install
+
+apidoc-html-install:
 	@if [ -r apidoc/index.html ] ; then \
-	  echo "Installing API documentation" ; \
+	  echo "Installing API HTML documentation" ; \
 	  $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc ; \
 	  $(INSTALL_DATA) apidoc/* $(DESTDIR)$(docdatadir)/apidoc/ ; \
 	else \
 	  if [ -r $(srcdir)/apidoc/index.html ] ; then \
-	    echo "Installing API documentation" ; \
+	    echo "Installing API HTML documentation" ; \
 	    $(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc ; \
 	    $(INSTALL_DATA) $(srcdir)/apidoc/* $(DESTDIR)$(docdatadir)/apidoc/ ; \
 	  else \
-	    echo "NOT installing API documentation: not present, and can't generate" ; \
+	    echo "NOT installing API HTML documentation: not present, and can't generate" ; \
+	  fi \
+	fi
+
+apidoc-dvi-install:
+	@if [ -r apidoc.dvi ] ; then \
+	  echo "Installing API DVI documentation" ; \
+	  $(INSTALL_DATA) apidoc.dvi $(DESTDIR)$(docdatadir)/ ; \
+	else \
+	  if [ -r $(srcdir)/apidoc.dvi ] ; then \
+	    echo "Installing API DVI documentation" ; \
+	    $(INSTALL_DATA) $(srcdir)/apidoc.dvi $(DESTDIR)$(docdatadir)/ ; \
+	  else \
+	    echo "NOT installing API DVI documentation: not present, and can't generate" ; \
 	  fi \
 	fi
 
@@ -72,8 +106,14 @@ clean-local:
 	@if [ -d apidoc ]; then \
 	  echo "removing apidoc/"; $(RM) apidoc/* ; rmdir apidoc ; \
 	fi
+	@if [ -r apidoc.tex ]; then \
+	  echo "removing apidoc.*"; $(RM) apidoc.* ; \
+	fi
 	@if [ -d sourcedoc ]; then \
 	  echo "removing sourcedoc/"; $(RM) sourcedoc/* ; rmdir sourcedoc ; \
+	fi
+	@if [ -r sourcedoc.tex ]; then \
+	  echo "removing sourcedoc.*"; $(RM) sourcedoc.* ; \
 	fi
 
 ################################
@@ -83,6 +123,10 @@ uninstall-local:
 	@echo "Uninstalling API documentation ($(DESTDIR)$(docdatadir)/apidoc)"
 	@if [ -d $(DESTDIR)$(docdatadir)/apidoc ]; then \
 	  rm -rf $(DESTDIR)$(docdatadir)/apidoc ; \
+	fi
+	@echo "Uninstalling API documentation ($(DESTDIR)$(docdatadir)/apidoc.*)"
+	@if [ -r $(DESTDIR)$(docdatadir)/apidoc.tex ]; then \
+	  rm -rf $(DESTDIR)$(docdatadir)/apidoc.* ; \
 	fi
 
 ###############
@@ -96,17 +140,22 @@ code_structure.html: mkdoc.pl
 DOCPPFLAGS = --sort --no-java-graphs --c-comments --quantel \
              --upwards-arrows --no-define
 
+%.dvi: %.tex docxx.sty
+	if [ ! -r docxx.sty ] ; then ln -s ${srcdir}/docxx.sty . ; fi
+	latex "$(basename $@)" || :
+	latex "$(basename $@)" || ( $(RM) $@ ; false )
+
+%.ps: %.dvi
+	$(DVIPS) -o $@ $<
+
 apidoc/index.html:
 	doc++ ${DOCPPFLAGS} --dir apidoc `find ${top_srcdir}/include -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
 
 apidoc.tex:
 	doc++ -t ${DOCPPFLAGS} --output $@ `find ${top_srcdir}/include -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
 
-%.dvi: %.tex docxx.sty
-	if [ ! -r docxx.sty ] ; then ln -s ${srcdir}/docxx.sty . ; fi
-	latex "\\scrollmode\\input $(basename $@)" || :
-	latex "\\scrollmode\\input $(basename $@)" || ( $(RM) $@ ; false )
-
 sourcedoc/index.html:
-	doc++ ${DOCPPFLAGS} --all --private --dir sourcedoc `find ${top_srcdir} -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
+	doc++ ${DOCPPFLAGS} --private --dir sourcedoc `find ${top_srcdir} -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
 
+sourcedoc.tex:
+	doc++ -t ${DOCPPFLAGS} --private --output $@ `find ${top_srcdir} -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`

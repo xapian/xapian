@@ -1,3 +1,8 @@
+Tue Feb 15 12:59:43 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* The dvi documentation is now automatically built and added
+	  to the distribution.
+
 Mon Feb 14 17:23:38 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Implemented OmQuery::get_terms()

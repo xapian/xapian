@@ -567,7 +567,6 @@ class OmEnquire {
 	 *  @exception OmOpeningError          See class documentation.
 	 *  @exception OmDocNotFoundError      The document specified could not
 	 *                                     be found in the database.
-	 *  @exception
 	 */
 	OmData get_doc_data(om_docid did) const;
 
