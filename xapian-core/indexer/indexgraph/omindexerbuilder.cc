@@ -152,13 +152,13 @@ OmIndexerBuilder::desc_from_string(const std::string &xmldesc)
 OmIndexerDesc
 OmIndexerBuilder::sort_desc(OmIndexerDesc &desc)
 {
-    vector<int> sorted = Internal::sort_nodes(desc);
+    std::vector<int> sorted = Internal::sort_nodes(desc);
 
     OmIndexerDesc result;
     result.output_node = desc.output_node;
     result.output_conn = desc.output_conn;
 
-    vector<int>::const_iterator i = sorted.begin();
+    std::vector<int>::const_iterator i = sorted.begin();
     while (i != sorted.end()) {
 	result.nodes.push_back(desc.nodes[*i]);
 	++i;

@@ -576,7 +576,7 @@ omrset_to_string(const OmRSet &omrset)
 }
 
 std::string
-ommsetitems_to_string(const vector<OmMSetItem> &ommsetitems)
+ommsetitems_to_string(const std::vector<OmMSetItem> &ommsetitems)
 {
     // format: length:wt,did,key;wt,did,key;...
     std::string result = om_tostring(ommsetitems.size()) + ":";
@@ -642,10 +642,10 @@ ommset_to_string(const OmMSet &ommset)
     return result;
 }
 
-vector<OmMSetItem>
+std::vector<OmMSetItem>
 string_to_ommsetitems(const std::string &s_)
 {
-    vector<OmMSetItem> result;
+    std::vector<OmMSetItem> result;
 
     std::string::size_type colon = s_.find_first_of(':');
     std::string s = s_.substr(colon + 1);
@@ -729,7 +729,7 @@ string_to_ommset(const std::string &s)
     om_doccount mbound;
     om_weight max_possible;
     om_weight max_attained;
-    vector<OmMSetItem> items;
+    std::vector<OmMSetItem> items;
     std::map<om_termname, OmMSet::TermFreqAndWeight> terminfo;
 
     // first the easy ones...

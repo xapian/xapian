@@ -39,7 +39,7 @@ class SettingsData : public RefCntBase {
 	typedef std::string key_type;
 	typedef std::string value_type;
 
-	typedef map<key_type, value_type> map_type;
+	typedef std::map<key_type, value_type> map_type;
 
 	map_type values;
 };
@@ -112,7 +112,7 @@ OmSettings::operator=(const OmSettings &other)
     DEBUGAPICALL(void, "OmSettings::operator=", other);
     OmSettings temp(other);
 
-    swap(internal, temp.internal);
+    std::swap(internal, temp.internal);
 
     // temp object deleted.
 }
@@ -159,8 +159,9 @@ OmSettings::set(const std::string &key, bool value)
 }
 
 void
-OmSettings::set(const std::string &key, vector<string>::const_iterator begin,
-		      vector<string>::const_iterator end)
+OmSettings::set(const std::string &key,
+		std::vector<std::string>::const_iterator begin,
+		std::vector<std::string>::const_iterator end)
 {
     DEBUGAPICALL(void, "OmSettings::set", key << ", " << begin << ", " << end);
     std::string s;
@@ -213,14 +214,14 @@ OmSettings::get_real(const std::string &key) const
     RETURN(res);
 }
 
-vector<string>
+std::vector<std::string>
 OmSettings::get_vector(const std::string &key) const
 {
-    DEBUGAPICALL(vector<string>, "OmSettings::get_vector", key);
+    DEBUGAPICALL(std::vector<std::string>, "OmSettings::get_vector", key);
     std::string val;
     (void) internal->find(key, val, true);
     std::string::size_type p = 0, q;
-    vector<string> v;
+    std::vector<std::string> v;
     while (1) {	    
 	q = val.find('\0', p);
 	v.push_back(val.substr(p, q - p));
@@ -309,7 +310,7 @@ OmSettings::Internal::operator=(const OmSettings::Internal &other)
 {
     OmLockSentry sentry(mutex);
     OmSettings::Internal temp(other);
-    swap(data, temp.data);
+    std::swap(data, temp.data);
 }
 
 OmSettings::Internal::~Internal()

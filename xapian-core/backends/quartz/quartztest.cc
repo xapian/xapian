@@ -1208,8 +1208,8 @@ static bool test_packint3()
     TEST(p != 0);
     TEST(i == ints.end());
 
-    sort(ints.begin(), ints.end());
-    sort(strings.begin(), strings.end());
+    std::sort(ints.begin(), ints.end());
+    std::sort(strings.begin(), strings.end());
 
     for (i = ints.begin(), j = strings.begin();
 	 i != ints.end() && j != strings.end();
@@ -1403,7 +1403,7 @@ static bool test_postlist2()
     }
 
 
-    vector<unsigned int> testdata;
+    std::vector<unsigned int> testdata;
     unsigned int pos = 0;
     srand(17);
     for (unsigned int i = 10000; i > 0; i--) {
@@ -1411,7 +1411,7 @@ static bool test_postlist2()
 	testdata.push_back(pos);
     }
     unsigned int collfreq = 0;
-    for (vector<unsigned int>::const_iterator i2 = testdata.begin();
+    for (std::vector<unsigned int>::const_iterator i2 = testdata.begin();
 	 i2 != testdata.end(); i2++) {
 	QuartzPostList::add_entry(&bufftable, "foo",
 				  *i2, (*i2) % 5 + 1, (*i2) % 7 + 1);
@@ -1424,7 +1424,7 @@ static bool test_postlist2()
 	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
 	TEST_EQUAL(pl2.get_collection_freq(), collfreq);
 	pl2.next(0);
-	vector<unsigned int>::const_iterator i3 = testdata.begin();
+	std::vector<unsigned int>::const_iterator i3 = testdata.begin();
 
 	while(!pl2.at_end()) {
 	    TEST_EQUAL(pl2.get_docid(), *i3);
@@ -1441,7 +1441,7 @@ static bool test_postlist2()
 	QuartzPostList pl2(database_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
 	pl2.next(0);
-	vector<unsigned int>::const_iterator i3 = testdata.begin();
+	std::vector<unsigned int>::const_iterator i3 = testdata.begin();
 
 	while(!pl2.at_end()) {
 	    TEST_EQUAL(pl2.get_docid(), *i3);
@@ -1472,7 +1472,7 @@ static bool test_postlist2()
 	QuartzPostList pl2(database_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
 	pl2.next(0);
-	vector<unsigned int>::const_iterator i3 = testdata.begin();
+	std::vector<unsigned int>::const_iterator i3 = testdata.begin();
 
 	while(!pl2.at_end()) {
 	    TEST_EQUAL(pl2.get_docid(), *i3);
@@ -1488,7 +1488,7 @@ static bool test_postlist2()
     {
 	QuartzPostList pl2(database_w, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
-	vector<unsigned int>::const_iterator i3 = testdata.begin();
+	std::vector<unsigned int>::const_iterator i3 = testdata.begin();
 
 	while(!pl2.at_end()) {
 	    while (i3 != testdata.end()) {

@@ -218,8 +218,9 @@ class OmSettings {
 	 *
 	 *  @param end   Iterator pointing to end of vector.
 	 */
-	void set(const std::string &key, vector<string>::const_iterator begin,
-		 vector<string>::const_iterator end);
+	void set(const std::string &key,
+		 std::vector<std::string>::const_iterator begin,
+		 std::vector<std::string>::const_iterator end);
 
 	/** Get a setting value as a string.
 	 *
@@ -283,7 +284,7 @@ class OmSettings {
 	 *
 	 *  @exception   OmRangeError will be thrown for an invalid key.
 	 */
-        vector<string> get_vector(const std::string &key) const;
+	std::vector<std::string> get_vector(const std::string &key) const;
 
 	/** Returns a string representing the database group object.
 	 *  Introspection method.

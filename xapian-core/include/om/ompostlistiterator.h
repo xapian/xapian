@@ -101,12 +101,18 @@ class OmPostListIterator {
 
 	/// Allow use as an STL iterator
 	//@{
-	typedef input_iterator_tag iterator_category;
+	typedef std::input_iterator_tag iterator_category;
 	typedef om_docid value_type;
 	typedef om_docid difference_type;
 	typedef om_docid * pointer;
 	typedef om_docid & reference;
 	//@}
 };
+
+inline bool operator!=(const OmPostListIterator &a,
+		       const OmPostListIterator &b)
+{
+    return !(a == b);
+}
 
 #endif /* OM_HGUARD_OMPOSTLISTITERATOR_H */

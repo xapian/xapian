@@ -47,7 +47,7 @@ class IRWeight {
 	bool initialised;
 	mutable bool weight_calculated;
 
-	static map<string, const IRWeight *> custom_weights;
+	static std::map<std::string, const IRWeight *> custom_weights;
     public:
 	IRWeight() : initialised(false), weight_calculated(false) { }
 	virtual ~IRWeight() { }

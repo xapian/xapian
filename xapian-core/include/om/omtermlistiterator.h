@@ -77,11 +77,17 @@ class OmTermListIterator {
 	std::string get_description() const;
 
 	// Allow use as an STL iterator
-	typedef input_iterator_tag iterator_category;
+	typedef std::input_iterator_tag iterator_category;
 	typedef om_termname value_type;
 	typedef om_termname difference_type;
 	typedef om_termname * pointer;
 	typedef om_termname & reference;
 };
+
+inline bool operator!=(const OmTermListIterator &a,
+		       const OmTermListIterator &b)
+{
+    return !(a == b);
+}
 
 #endif /* OM_HGUARD_OMTERMLISTITERATOR_H */

@@ -27,7 +27,7 @@
 #include "bm25weight.h"
 #include "boolweight.h"
 
-map<string, const IRWeight *> IRWeight::custom_weights;
+std::map<std::string, const IRWeight *> IRWeight::custom_weights;
 
 IRWeight *
 IRWeight::create(const std::string &wt_type, const OmSettings & opts)
@@ -48,7 +48,7 @@ IRWeight::create(const std::string &wt_type, const OmSettings & opts)
 	}	
     } else {
 	// handle custom weights
-	map<string, const IRWeight *>::iterator i;
+	std::map<std::string, const IRWeight *>::iterator i;
 	i = custom_weights.find(wt_type);
 	if (i == custom_weights.end()) {
 	    // FIXME: is this really the right error?

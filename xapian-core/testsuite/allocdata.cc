@@ -99,10 +99,10 @@ print_alloc_differences(const struct allocation_snapshot &before,
 		 ++i) {
 		allocation_data *allocdata = allocators[alloc].allocdata;
 		if (allocdata->allocations[i].p != 0) {
-		    out << hex;
+		    out << std::hex;
 		    out << allocdata->allocations[i].p << "("
 			    << allocdata->allocations[i].size << ") ";
-		    out << dec;
+		    out << std::dec;
 		}
 	    }
 	    out << std::endl;

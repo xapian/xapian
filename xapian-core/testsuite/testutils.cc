@@ -98,7 +98,7 @@ mset_expect_order_(const OmMSet &A, bool beginning,
 		   om_docid d5, om_docid d6, om_docid d7, om_docid d8,
 		   om_docid d9, om_docid d10, om_docid d11, om_docid d12)
 {
-    vector<om_docid> expect;
+    std::vector<om_docid> expect;
     if (d1) {
 	expect.push_back(d1);
 	if (d2) {

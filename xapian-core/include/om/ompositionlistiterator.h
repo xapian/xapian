@@ -66,11 +66,17 @@ class OmPositionListIterator {
 	std::string get_description() const;
 
 	// Allow use as an STL iterator
-	typedef input_iterator_tag iterator_category;
+	typedef std::input_iterator_tag iterator_category;
 	typedef om_termpos value_type;
 	typedef om_termpos difference_type;
 	typedef om_termpos * pointer;
 	typedef om_termpos & reference;
 };
+
+inline bool operator!=(const OmPositionListIterator &a,
+		       const OmPositionListIterator &b)
+{
+    return !(a == b);
+}
 
 #endif /* OM_HGUARD_OMPOSITIONLISTITERATOR_H */

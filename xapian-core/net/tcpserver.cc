@@ -21,6 +21,9 @@
  */
 
 #include "config.h"
+// need _GNU_SOURCE to stop _POSIX_SOURCE making things go weird.
+// FIXME: remove -ansi?
+#define _GNU_SOURCE 1
 // need _POSIX_SOURCE to get kill() on Linux
 #define _POSIX_SOURCE 1
 #include "tcpserver.h"
@@ -148,7 +151,7 @@ TcpServer::get_connected_socket()
     }
 
     if (verbose) {
-	cout << "Connection from " << hent->h_name << ", port " <<
+	std::cout << "Connection from " << hent->h_name << ", port " <<
 #ifndef TIMING_PATCH
 	    remote_address.sin_port << endl;
 #else /* TIMING_PATCH */
@@ -173,7 +176,7 @@ TcpServer::run_once()
     // record start time
     int returnval = gettimeofday(&stp,NULL);
     if (returnval != 0) {
-	cerr << "Could not get time of day...\n";
+	std::cerr << "Could not get time of day...\n";
     }
 #endif /* TIMING_PATCH */
     int pid = fork();
@@ -188,7 +191,7 @@ TcpServer::run_once()
 #endif /* TIMING_PATCH */
 	    sserv.run();
 	} catch (const OmError &err) {
-	    cerr << "Got exception " << err.get_type()
+	    std::cerr << "Got exception " << err.get_type()
 		 << ": " << err.get_msg() << endl;
 	} catch (...) {
 	    // ignore other exceptions
@@ -196,15 +199,15 @@ TcpServer::run_once()
 	close(connected_socket);
 
 #ifndef TIMING_PATCH
-	if (verbose) cout << "Closing connection.\n";
+	if (verbose) std::cout << "Closing connection.\n";
 #else /* TIMING_PATCH */
 	// record end time
 	returnval = gettimeofday(&etp, NULL);
 	if (returnval != 0) {
-	    cerr << "Could not get time of day...\n";
+	    std::cerr << "Could not get time of day...\n";
 	}
 	uint64_t total = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
-	if (verbose) cout << "Connection held open for " <<  total << " usecs. (tcpserver.cc)\n\n";
+	if (verbose) std::cout << "Connection held open for " <<  total << " usecs. (tcpserver.cc)\n\n";
 #endif /* TIMING_PATCH */
 	exit(0);
     } else if (pid > 0) {

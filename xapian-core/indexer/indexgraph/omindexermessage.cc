@@ -23,6 +23,7 @@
 #include "om/omindexermessage.h"
 #include "om/omerror.h"
 #include "omstringstream.h"
+#include <algorithm>
 
 OmIndexerData::OmIndexerData() : type(rt_empty)
 {
@@ -51,7 +52,7 @@ OmIndexerData::OmIndexerData(const std::vector<OmIndexerData> &value)
 {
     u.vector_val = new std::vector<OmIndexerData>(value.size());
     try {
-	copy(value.begin(), value.end(), u.vector_val->begin());
+	std::copy(value.begin(), value.end(), u.vector_val->begin());
     } catch (...) {
 	delete u.vector_val;
 	throw;
@@ -74,7 +75,7 @@ OmIndexerData::OmIndexerData(const OmIndexerData &other)
 	    u.string_val = new std::string(*other.u.string_val);
 	    break;
 	case rt_vector:
-	    u.vector_val = new vector<OmIndexerData>(*other.u.vector_val);
+	    u.vector_val = new std::vector<OmIndexerData>(*other.u.vector_val);
 	    break;
     }
 }

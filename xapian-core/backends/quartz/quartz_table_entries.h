@@ -64,7 +64,10 @@ struct QuartzDbKey {
 	/** Comparison operator, so that keys may be used in standard
 	 *  containers.
 	 */
-	bool operator < (const QuartzDbKey & a) const {return (value<a.value);}
+	bool operator <(const QuartzDbKey & a) const {return (value<a.value);}
+	bool operator <=(const QuartzDbKey & a) const {return (value<=a.value);}
+	bool operator >(const QuartzDbKey & a) const {return (value>a.value);}
+	bool operator >=(const QuartzDbKey & a) const {return (value>=a.value);}
 };
 
 /** This class stores a set of entries from a quartz database table.

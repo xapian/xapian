@@ -168,7 +168,7 @@ std::string sys_read_all_bytes(int h, size_t max)
     std::string retval;
     while (1) {
 	char buf[1024];
-	bytes_read = read(h, buf, min(sizeof(buf), bytes_to_read));
+	bytes_read = read(h, buf, std::min(sizeof(buf), bytes_to_read));
 	if (bytes_read > 0) {
 	    // add byte to string, continue unless we reached max
 	    retval.append(buf, buf+bytes_read);

@@ -117,8 +117,8 @@ class OmMSet {
 	       om_doccount mbound_,
 	       om_weight max_possible_,
 	       om_weight max_attained_,
-	       const vector<OmMSetItem> &items_,
-	       const map<om_termname, TermFreqAndWeight> &termfreqandwts_)
+	       const std::vector<OmMSetItem> &items_,
+	       const std::map<om_termname, TermFreqAndWeight> &termfreqandwts_)
 	    : termfreqandwts(termfreqandwts_),
 	      items(items_),
 	      firstitem(firstitem_),

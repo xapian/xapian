@@ -1,3 +1,11 @@
+Fri Dec  1 17:01:02 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add std::'s and similar to fix compilation with STLport.
+
+	* Fix bug in expander due to nth_element being called on the wrong
+	  element.  This is the counterpoint of the bug fixed on Nov 24th
+	  with the matcher.
+
 Fri Dec  1 16:30:26 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Minor tweaks in error strings.

@@ -262,7 +262,7 @@ LocalSubMatch::postlist_from_queries(OmQuery::op op,
 		    for (j = postlists.begin(); j != postlists.end(); j++)
 			(*j)->recalc_maxweight();
 		    std::nth_element(postlists.begin(),
-				postlists.begin() + max_or_terms,
+				postlists.begin() + max_or_terms - 1,
 				postlists.end(), PlCmpGtTermWt());
 		    DEBUGLINE(MATCH, "Discarding " <<
 			      (postlists.size() - max_or_terms) <<

@@ -120,7 +120,8 @@ OmExpand::expand(om_termcount max_esize,
     eset.ebound = 0;
 
     DEBUGLINE(EXPAND, "OmExpand::expand()");
-    if (rset->get_rsize() == 0) return; // No query
+    if (rset->get_rsize() == 0 || max_esize == 0)
+	return; // No possibility of results
     DEBUGLINE(EXPAND, "OmExpand::expand() 2");
 
     om_weight w_min = 0;
@@ -160,7 +161,7 @@ OmExpand::expand(om_termcount max_esize,
 		    // find last element we care about
 		    DEBUGLINE(EXPAND, "finding nth");
 		    std::nth_element(eset.items.begin(),
-				eset.items.begin() + max_esize,
+				eset.items.begin() + max_esize - 1,
 				eset.items.end(),
 				OmESetCmp());
 		    // erase elements which don't make the grade
@@ -177,7 +178,7 @@ OmExpand::expand(om_termcount max_esize,
 	// find last element we care about
 	DEBUGLINE(EXPAND, "finding nth");
 	std::nth_element(eset.items.begin(),
-		    eset.items.begin() + max_esize,
+		    eset.items.begin() + max_esize - 1,
 		    eset.items.end(), OmESetCmp());
 	// erase elements which don't make the grade
 	eset.items.erase(eset.items.begin() + max_esize, eset.items.end());

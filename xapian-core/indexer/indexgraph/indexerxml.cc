@@ -29,6 +29,7 @@
 #ifdef HAVE_LIBXML_VALID
 #include <valid.h>
 #endif
+#include <stdarg.h>
 #include <algorithm>
 #include <map>
 

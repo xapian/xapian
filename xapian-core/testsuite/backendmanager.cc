@@ -95,9 +95,9 @@ index_files_to_m36(const std::string &prog, const std::string &dbdir,
 		   std::vector<std::string> paths)
 {
     std::string dump = dbdir + "/DATA";
-    ofstream out(dump.c_str());
+    std::ofstream out(dump.c_str());
     std::string keyfile = dbdir + "/keyfile";
-    ofstream keys(keyfile.c_str());
+    std::ofstream keys(keyfile.c_str());
     keys << "omrocks!"; // magic word
     for (std::vector<std::string>::const_iterator p = paths.begin();
 	 p != paths.end();

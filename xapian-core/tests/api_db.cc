@@ -25,7 +25,6 @@
 #include <string>
 #include <vector>
 
-using std::endl;
 using std::vector;
 using std::string;
 
@@ -418,7 +417,7 @@ class myExpandFunctor : public OmExpandDecider {
 		sum += *i;
 	    }
 //	    if (verbose) {
-//		cout << tname << "==> " << sum << endl;
+//		cout << tname << "==> " << sum << "\n";
 //	    }
 	    return (sum % 2) == 0;
 	}
@@ -453,12 +452,12 @@ static bool test_expandfunctor1()
 	tout << "orig_eset: ";
 	copy(myeset_orig.items.begin(), myeset_orig.items.end(),
 	     ostream_iterator<OmESetItem>(tout, " "));
-	tout << endl;
+	tout << "\n";
 
 	tout << "new_eset: ";
 	copy(myeset.items.begin(), myeset.items.end(),
 	     ostream_iterator<OmESetItem>(tout, " "));
-	tout << endl;
+	tout << "\n";
     }
 #endif
     vector<OmESetItem>::const_iterator orig, filt;
@@ -533,7 +532,7 @@ static bool test_pctcutoff1()
     if (verbose) {
 	tout << "Original mset pcts:";
 	print_mset_percentages(mymset1);
-	tout << endl;
+	tout << "\n";
     }
 
     unsigned int num_items = 0;
@@ -551,7 +550,7 @@ static bool test_pctcutoff1()
 
     TEST_AND_EXPLAIN(changes > 3, "MSet not varied enough to test");
     if (verbose) {
-        tout << "Cutoff percent: " << my_pct << endl;
+        tout << "Cutoff percent: " << my_pct << "\n";
     }
 
     OmSettings mymopt;
@@ -561,7 +560,7 @@ static bool test_pctcutoff1()
     if (verbose) {
         tout << "Percentages after cutoff:";
 	print_mset_percentages(mymset2);
-        tout << endl;
+        tout << "\n";
     }
 
     TEST_AND_EXPLAIN(mymset2.items.size() >= num_items,
@@ -630,7 +629,7 @@ static bool test_collapsekey1()
 	TEST_AND_EXPLAIN(mymsize1 > mymset.items.size(),
 			 "Had no fewer items when performing collapse: don't know whether it worked.");
 
-        map<string, om_docid> keys;
+	std::map<string, om_docid> keys;
 	vector<OmMSetItem>::const_iterator i;
 	for (i = mymset.items.begin(); i != mymset.items.end(); ++i) {
 	    OmKey key = enquire.get_doc(*i).get_key(key_no);
@@ -797,8 +796,8 @@ static bool test_poscollapse1()
     OmQuery myquery2("thi", 2, 1);
 
     if (verbose) {
-	tout << myquery1.get_description() << endl;
-	tout << myquery2.get_description() << endl;
+	tout << myquery1.get_description() << "\n";
+	tout << myquery2.get_description() << "\n";
     }
 
     OmMSet mymset1 = do_get_simple_query_mset(myquery1);

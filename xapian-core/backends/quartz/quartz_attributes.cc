@@ -148,7 +148,7 @@ QuartzAttributesManager::get_all_attributes(const QuartzTable & table,
 	std::string this_attribute;
 
 	unpack_entry(&pos, end, &this_attrib_no, this_attribute);
-	attributes.insert(make_pair(this_attrib_no, OmKey(this_attribute)));
+	attributes.insert(std::make_pair(this_attrib_no, OmKey(this_attribute)));
     }
 }
 
