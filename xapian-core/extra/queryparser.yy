@@ -284,6 +284,14 @@ yylex2()
 #endif
 {
     int c;
+    // Whitespace nullifies pending hyphenation.
+    if (pending_token == HYPHEN) {
+	while (qptr != q.end() && strchr("_/\\@'*.", *qptr)) ++qptr;
+	if (qptr == q.end() || isspace(*qptr)) {
+	    pending_token = 0;
+	}
+    }
+
     if (pending_token) {
 	c = pending_token;
 	pending_token = 0;
@@ -363,8 +371,13 @@ more_term:
 		// space after '.' to mean "don't stem"
 		qptr++;
 		if (qptr == q.end() || isspace(*qptr)) {
-		    if (original_term.empty()) original_term = term + '.';
-		    already_stemmed = true;
+		    if (isupper(term[0])) {
+			// Can't have come from relevance feedback - must be
+			// something like E.T. or pasted text...
+		    } else {
+			if (original_term.empty()) original_term = term + '.';
+			already_stemmed = true;
+		    }
 		} else {
 		    pending_token = HYPHEN;
 		}
@@ -466,7 +479,7 @@ more_term:
 
 	while (!isalnum(*qptr)) {
 	    // Skip multiple phrase generaters
-	    if (!strchr("_/\\@'*", *qptr)) return yylex();
+	    if (!strchr("_/\\@'*.", *qptr)) return yylex();
 	    ++qptr;
 	    // Ignore at end of query
 	    if (qptr == q.end()) return 0;
@@ -582,7 +595,7 @@ QueryParser::parse_query(const string &q_)
 	while (true) {
 	    j = find_if(j, q.end(), p_notalnum);
 	    if (j == q.end()) break;
-	    *j = ' ';
+	    if (*j != '.') *j = ' ';
 	    ++j;
 	}
 
