@@ -1,3 +1,7 @@
+Wed Dec 05 16:31:33 GMT 2001  Olly Betts <olly@survex.com>
+
+	* omindex: sped up HTML parsing.
+
 Wed Dec 05 14:52:53 GMT 2001  Olly Betts <olly@survex.com>
 
 	* omindex: parsing terms from text is now twice as fast.

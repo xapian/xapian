@@ -1,7 +1,8 @@
-/* htmlparse.cc: simple HTML parser for omega
+/* htmlparse.cc: simple HTML parser for omega indexer
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,35 +20,65 @@
  * USA
  * -----END-LICENCE-----
  */
-#include <htmlparse.h>
+
+#include "htmlparse.h"
 #include <stdio.h>
 #include <ctype.h>
+
+inline static bool
+p_alpha(char c)
+{
+    return (((unsigned int)c | 32) - 'a') <= ('z' - 'a');
+}
+
+inline static bool
+p_notdigit(char c)
+{
+    return ((unsigned int)c - '0') <= ('9' - '0');
+}
+
+inline static bool
+p_notxdigit(char c)
+{
+    return !isxdigit(c);
+}
+
+inline static bool
+p_notalnum(char c)
+{
+    return !isalnum(c);
+}
+
+inline static bool
+p_notplusminus(char c)
+{
+    return c != '+' && c != '-';
+}
 
 void
 HtmlParser::decode_entities(string &s)
 {
-    string::size_type amp = 0;
-    while ((amp = s.find('&', amp)) != string::npos) {
-	int val = 0;
-	string::size_type end;
-	size_t p = amp + 1;
-	if (p < s.size() && s[p] == '#') {
+    // We need a const_iterator version of s.end() - otherwise the
+    // find() and find_if() templates don't work...
+    string::const_iterator amp = s.begin(), s_end = s.end();
+    while ((amp = find(amp, s_end, '&')) != s_end) {
+	unsigned int val = 0;
+	std::string::const_iterator end, p = amp + 1;
+	if (p != s_end && *p == '#') {
 	    p++;
-	    if (p < s.size() && tolower(s[p]) == 'x') {
+	    if (p != s_end && tolower(*p) == 'x') {
 		// hex
 		p++;
-		end = s.find_first_not_of("ABCDEFabcdef0123456789", p);
-		sscanf(s.substr(p, end - p).c_str(), "%x", &val);
+		end = find_if(p, s_end, p_notxdigit);
+		sscanf(s.substr(p - s.begin(), end - p).c_str(), "%x", &val);
 	    } else {
 		// number
-		end = s.find_first_not_of("0123456789", p);
-		val = atoi(s.substr(p, end - p).c_str());
+		end = find_if(p, s_end, p_notdigit);
+		val = atoi(s.substr(p - s.begin(), end - p).c_str());
 	    }
 	} else {
-	    end = s.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-				      "abcdefghijklmnopqrstuvwxyz"
-				      "0123456789", p);
-	    string code = s.substr(p, end - p);
+	    end = find_if(p, s_end, p_notalnum);
+	    string code = s.substr(p - s.begin(), end - p);
 	    // FIXME: make this list complete
 	    if (code == "amp") val = '&';
 	    else if (code == "lt") val = '<';
@@ -55,10 +86,11 @@ HtmlParser::decode_entities(string &s)
 	    else if (code == "nbsp") val = '\xa0';
 	    else if (code == "quot") val = '\"';
 	}
-	if (end < s.size() && s[end] == ';') end++;
+	if (end < s_end && *end == ';') end++;
 	if (val) {
-	    s.replace(amp, end - amp, 1u, char(val));
-	    amp += 1;
+	    s.replace(amp - s.begin(), end - amp, 1u, char(val));
+	    s_end = s.end();
+	    ++amp;
 	} else {
 	    amp = end;
 	}
