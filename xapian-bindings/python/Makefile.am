@@ -1,6 +1,11 @@
 ## Process this file with automake to produce Makefile.in
 
-EXTRA_DIST = util.i extra.i
+TESTS_ENVIRONMENT = PYTHONPATH=.:.libs $(PYTHON)
+
+## Test programs to be run
+TESTS = smoketest.py
+
+EXTRA_DIST = util.i extra.i $(TESTS)
 DIST_SUBDIRS = docs
 SUBDIRS = docs
 
@@ -31,10 +36,3 @@ xapian.pyc: xapian.py
 	PYTHONPATH=.:.libs $(PYTHON) -c "import xapian"
 
 CLEANFILES = $(BUILT_SOURCES) xapian.py xapian.pyc
-
-TESTS_ENVIRONMENT = PYTHONPATH=.:.libs $(PYTHON)
-
-## Test programs to be run
-TESTS = smoketest.py
-
-EXTRA_DIST = $(TESTS)

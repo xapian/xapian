@@ -1,6 +1,11 @@
 ## Process this file with automake to produce Makefile.in
 
-EXTRA_DIST = util.i extra.i
+TESTS_ENVIRONMENT = $(PHP4) -d extension_dir=.libs
+
+## Test programs to be run
+TESTS = smoketest.php
+
+EXTRA_DIST = util.i extra.i $(TESTS)
 DIST_SUBDIRS = docs
 SUBDIRS = docs
 

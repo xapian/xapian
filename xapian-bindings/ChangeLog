@@ -1,3 +1,9 @@
+Thu Sep 09 04:19:54 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,php4/Makefile.am,php4/smoketest.php: Added smoke test
+	  for PHP4 bindings.
+	* python/Makefile.am: Fixed multiple setting of EXTRA_DIST.
+
 Thu Sep 09 03:21:30 BST 2004  Olly Betts <olly@survex.com>
 
 	* php4/docs/examples/simpleindex.php,

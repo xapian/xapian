@@ -95,6 +95,7 @@ if test no != "$with_swig" ; then
     if test -n "$PHP_CONFIG" ; then
 	case "`$PHP_CONFIG --version 2> /dev/null`" in
 	4.*)
+	    AC_PATH_PROG(PHP4, php4, [])
 	    SWIG_PHP_LDFLAGS="`$SWIG -php -ldflags`"
 	    AC_SUBST(SWIG_PHP_LDFLAGS)
 	    PHP_INC="`$PHP_CONFIG --includes`"
