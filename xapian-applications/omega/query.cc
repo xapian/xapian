@@ -1500,7 +1500,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_setmap: {
 		string base = args[0] + ',';
-		for (unsigned int i = 1; i + 1 < args.size(); i++) {
+		for (unsigned int i = 1; i + 1 < args.size(); i += 2) {
 		    option[base + args[i]] = args[i + 1];
 		}
 		break;

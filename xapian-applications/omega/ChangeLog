@@ -1,3 +1,7 @@
+Tue Oct 21 21:29:18 BST 2003  Olly Betts <olly@survex.com>
+
+	* query.cc: Fixed $setmap{} to not add bogus entries.
+
 Tue Oct 21 21:20:31 BST 2003  Olly Betts <olly@survex.com>
 
 	* query.cc: Allow the QueryParser prefix map to be set up using
