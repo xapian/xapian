@@ -29,13 +29,13 @@ class TextfileIndexerSource : public virtual IndexerSource {
     private:
 	string filename;
     public:
-	TextfileIndexerSource(const string &);
+	TextfileIndexerSource(const string & fname);
 	istream * get_stream() const;
 };
 
 class TextfileIndexer : public virtual Indexer {
     public:
-	void add_source(const IndexerSource &);
+	void add_source(const IndexerSource & source);
 };
 
 #endif /* _textfile_indexer_h_ */

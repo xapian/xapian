@@ -47,7 +47,7 @@ class Stemmer {
 
 class StemmerBuilder {
     public:
-	static Stemmer * create(stemmer_language);
+	static Stemmer * create(stemmer_language lang);
 };
 
 #endif /* _stemmer_h_ */

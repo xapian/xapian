@@ -63,16 +63,17 @@ class OMMatch
         bool recalculate_maxweight;
 
 	// Make a postlist from a query object
-	PostList * postlist_from_query(const OMQuery *);
+	PostList * postlist_from_query(const OMQuery * query_);
 
 	// Make a postlist from a vector of query objects (AND or OR)
-	PostList * postlist_from_queries(om_queryop, const vector<OMQuery *> &);
+	PostList * postlist_from_queries(om_queryop op,
+					 const vector<OMQuery *> & queries);
 
 	// Open a postlist
 	DBPostList * mk_postlist(const om_termname& tname,
 				 RSet * rset);
     public:
-        OMMatch(IRDatabase *);
+        OMMatch(IRDatabase * database_);
         ~OMMatch();
 
 	///////////////////////////////////////////////////////////////////
@@ -80,7 +81,7 @@ class OMMatch
 	// =====================================================
 
 	// Sets query to use.
-	void set_query(const OMQuery *);
+	void set_query(const OMQuery * query_);
 
 	///////////////////////////////////////////////////////////////////
 	// Set additional options for performing the query
@@ -88,15 +89,15 @@ class OMMatch
 
 	// Set relevance information - the RSet object should not be
 	// altered after this call
-        void set_rset(RSet *);
+        void set_rset(RSet * rset_);
 
 	// Set cutoff at min percentage - defaults to -1, which means no cutoff
-        void set_min_weight_percent(int);
+        void set_min_weight_percent(int pcent);
 
 	// Add a key number to collapse by.  Each key value will appear only
 	// once in the result set.  Collapsing can only be done on one key
 	// number.
-	void set_collapse_key(om_keyno);
+	void set_collapse_key(om_keyno key);
 
 	// Remove the collapse key
 	void set_no_collapse();
@@ -121,14 +122,14 @@ class OMMatch
 	// undesirable.
 	void match(om_doccount first,      // First item to return (start at 0)
 		   om_doccount maxitems,   // Maximum number of items to return
-		   vector<OMMSetItem> &,   // Results will be put in this vector
-		   mset_cmp,               // Comparison operator to sort by
-		   om_doccount *);            // Mbound will returned here
+		   vector<OMMSetItem> & mset,// Results will be put here
+		   mset_cmp cmp,           // Comparison operator to sort by
+		   om_doccount * mbound);  // Mbound will returned here
 
 	// Do a boolean only match
 	void boolmatch(om_doccount first,     // First item to return (start at 0)
 		       om_doccount maxitems,  // Maximum number of items to return
-		       vector<OMMSetItem> &); // Results
+		       vector<OMMSetItem> & mset); // Results
 
 	///////////////////////////////////////////////////////////////////
 	// Miscellaneous
@@ -157,11 +158,11 @@ OMMatch::set_no_collapse()
 }
 
 inline void
-OMMatch::set_rset(RSet *new_rset)
+OMMatch::set_rset(RSet *rset_)
 {
     Assert(!have_added_terms);
     Assert(query == NULL);
-    rset = new_rset;
+    rset = rset_;
 }
 
 inline void

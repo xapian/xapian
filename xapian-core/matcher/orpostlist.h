@@ -42,12 +42,12 @@ class OrPostList : public virtual BranchPostList {
         om_weight recalc_maxweight();
 
 	PostList *next(om_weight w_min);
-	PostList *skip_to(om_docid, om_weight w_min);
+	PostList *skip_to(om_docid did, om_weight w_min);
 	bool   at_end() const;
 
 	string intro_term_description() const;
 
-        OrPostList(PostList *, PostList *, OMMatch *);
+        OrPostList(PostList * left, PostList * right, OMMatch * root_);
 };
 
 inline om_doccount

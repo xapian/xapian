@@ -86,12 +86,12 @@ bool msetcmp_reverse(const OMMSetItem &a, const OMMSetItem &b) {
 // Initialisation and cleaning up //
 ////////////////////////////////////
 
-OMMatch::OMMatch(IRDatabase *_database)
+OMMatch::OMMatch(IRDatabase *database_)
 	: query(NULL),
 	  do_collapse(false),
 	  have_added_terms(false)
 {
-    database = _database;
+    database = database_;
     min_weight_percent = -1;
     rset = NULL;
 }
@@ -217,25 +217,26 @@ OMMatch::postlist_from_queries(om_queryop op, const vector<OMQuery *> &queries)
     }
 }
 
-// Make a postlist from a query object
+// Make a postlist from a query object - this is called recursively down
+// the query tree.
 PostList *
-OMMatch::postlist_from_query(const OMQuery *qu)
+OMMatch::postlist_from_query(const OMQuery *query_)
 {
     PostList *pl = NULL;
 
-    Assert(!qu->isnull); // This shouldn't happen, because we check the
+    Assert(!query_->isnull); // This shouldn't happen, because we check the
 			 // top level of the query, and isnull should only
 			 // ever occur there.
 
-    switch (qu->op) {
+    switch (query_->op) {
 	case OM_MOP_LEAF:
 	    // Make a postlist for a single term
-	    Assert(qu->subqs.size() == 0);
-	    if (database->term_exists(qu->tname)) {
-		DebugMsg("Leaf: tname = " << qu->tname << endl);
-		pl = mk_postlist(qu->tname, rset);
+	    Assert(query_->subqs.size() == 0);
+	    if (database->term_exists(query_->tname)) {
+		DebugMsg("Leaf: tname = " << query_->tname << endl);
+		pl = mk_postlist(query_->tname, rset);
 	    } else {
-		DebugMsg("Leaf: tname = " << qu->tname << " (not in database)" << endl);
+		DebugMsg("Leaf: tname = " << query_->tname << " (not in database)" << endl);
 		// Term doesn't exist in this database.  However, we create
 		// a (empty) postlist for it to help make distributed searching
 		// cleaner (term might exist in other databases).
@@ -246,30 +247,30 @@ OMMatch::postlist_from_query(const OMQuery *qu)
 	case OM_MOP_AND:
 	case OM_MOP_OR:
 	    // Build a tree of postlists for AND or OR
-	    pl = postlist_from_queries(qu->op, qu->subqs);
+	    pl = postlist_from_queries(query_->op, query_->subqs);
 	    break;
 	case OM_MOP_FILTER:
-	    Assert(qu->subqs.size() == 2);
-	    pl = new FilterPostList(postlist_from_query(qu->subqs[0]),
-				    postlist_from_query(qu->subqs[1]),
+	    Assert(query_->subqs.size() == 2);
+	    pl = new FilterPostList(postlist_from_query(query_->subqs[0]),
+				    postlist_from_query(query_->subqs[1]),
 				    this);
 	    break;
 	case OM_MOP_AND_NOT:
-	    Assert(qu->subqs.size() == 2);
-	    pl = new AndNotPostList(postlist_from_query(qu->subqs[0]),
-				    postlist_from_query(qu->subqs[1]),
+	    Assert(query_->subqs.size() == 2);
+	    pl = new AndNotPostList(postlist_from_query(query_->subqs[0]),
+				    postlist_from_query(query_->subqs[1]),
 				    this);
 	    break;
 	case OM_MOP_AND_MAYBE:
-	    Assert(qu->subqs.size() == 2);
-	    pl = new AndMaybePostList(postlist_from_query(qu->subqs[0]),
-				    postlist_from_query(qu->subqs[1]),
+	    Assert(query_->subqs.size() == 2);
+	    pl = new AndMaybePostList(postlist_from_query(query_->subqs[0]),
+				    postlist_from_query(query_->subqs[1]),
 				    this);
 	    break;
 	case OM_MOP_XOR:
-	    Assert(qu->subqs.size() == 2);
-	    pl = new XorPostList(postlist_from_query(qu->subqs[0]),
-				    postlist_from_query(qu->subqs[1]),
+	    Assert(query_->subqs.size() == 2);
+	    pl = new XorPostList(postlist_from_query(query_->subqs[0]),
+				    postlist_from_query(query_->subqs[1]),
 				    this);
 	    break;
     }
@@ -281,7 +282,7 @@ OMMatch::postlist_from_query(const OMQuery *qu)
 ////////////////////////
 
 void
-OMMatch::set_query(const OMQuery *qu)
+OMMatch::set_query(const OMQuery *query_)
 {
     // Clear existing query
     max_weight = 0;
@@ -291,8 +292,8 @@ OMMatch::set_query(const OMQuery *qu)
     }
     
     // Prepare query
-    if(!qu->isnull) {
-	query = postlist_from_query(qu);
+    if(!query_->isnull) {
+	query = postlist_from_query(query_);
 	max_weight = query->recalc_maxweight();
     }
 }

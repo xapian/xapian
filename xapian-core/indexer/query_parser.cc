@@ -31,8 +31,8 @@
 // (eg: gcc version egcs-2.91.66)
 #include <strstream.h>
 
-QueryParserSource::QueryParserSource(const string &q)
-	: query(q)
+QueryParserSource::QueryParserSource(const string & query_)
+	: query(query_)
 { return; }
 
 istream *
@@ -74,7 +74,9 @@ QueryParser::make_doc(const om_docname &dname)
 { return 1; }
 
 void
-QueryParser::make_posting(const om_termname &tname, om_docid did, om_termcount tpos)
+QueryParser::make_posting(const om_termname &tname,
+			  om_docid did,
+			  om_termpos tpos)
 {
     map<om_termname,om_termid>::const_iterator p = termidmap.find(tname);
     Assert(p != termidmap.end());

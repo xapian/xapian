@@ -124,7 +124,7 @@ XorPostList::next(om_weight w_min)
 }
 
 PostList *
-XorPostList::skip_to(om_docid id, om_weight w_min)
+XorPostList::skip_to(om_docid did, om_weight w_min)
 {
     if (w_min > minmax) {
 	// we can replace the XOR with another operator (or run dry)

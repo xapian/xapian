@@ -41,7 +41,7 @@ class OrTermList : public virtual BranchTermList {
 	TermList *next();
 	bool   at_end() const;
 
-        OrTermList(TermList *, TermList *);
+        OrTermList(TermList * left, TermList * right);
 };
 
 inline OMExpandBits

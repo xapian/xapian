@@ -96,7 +96,7 @@ OrPostList::next(om_weight w_min)
 }
 
 PostList *
-OrPostList::skip_to(om_docid id, om_weight w_min)
+OrPostList::skip_to(om_docid did, om_weight w_min)
 {
     if (w_min > minmax) {
 	// we can replace the OR with another operator

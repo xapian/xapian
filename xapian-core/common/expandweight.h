@@ -58,11 +58,12 @@ class OMExpandWeight {
 	om_doccount dbsize;        // Size of whole collection
 	om_doccount rsize;         // Size of RSet
     public:
-	OMExpandWeight(const IRDatabase *root, om_doccount rsetsize_new);
+	OMExpandWeight(const IRDatabase *root_, om_doccount rsetsize_);
 
 	OMExpandBits get_bits(om_termcount wdf, om_doclength len,
 			      om_doccount termfreq, om_doccount dbsize) const;
-	om_weight get_weight(const OMExpandBits &, const om_termname &) const;
+	om_weight get_weight(const OMExpandBits & bits,
+			     const om_termname & tname) const;
 	om_weight get_maxweight() const;
 };
 
@@ -71,12 +72,12 @@ class OMExpandWeight {
 ///////////////////////////////
 
 inline
-OMExpandWeight::OMExpandWeight(const IRDatabase *root_new,
-			   om_doccount rsetsize_new)
-	: root(root_new),
-	  rsize(rsetsize_new)
+OMExpandWeight::OMExpandWeight(const IRDatabase *root_,
+			   om_doccount rsetsize_)
+	: root(root_),
+	  rsize(rsetsize_)
 {
-    dbsize = root_new->get_doccount();
+    dbsize = root->get_doccount();
     return;
 }
 

@@ -51,7 +51,7 @@ class QueryParserSource : public virtual IndexerSource {
     private:
 	string query;
     public:
-	QueryParserSource(const string &);
+	QueryParserSource(const string & query_);
 	istream * get_stream() const;
 };
 
@@ -66,11 +66,13 @@ class QueryParser : public virtual IndexerDestination {
 
 	void    set_indexer(Indexer *newidx) {idx = newidx;}
 
-	vector<QueryTerm> parse_query(const string &);
+	vector<QueryTerm> parse_query(const string & query);
 	
-	void  make_term(const om_termname &);
-	om_docid make_doc(const om_docname &);
-	void  make_posting(const om_termname &, om_docid, om_termcount);
+	void  make_term(const om_termname & tname);
+	om_docid make_doc(const om_docname & dname);
+	void  make_posting(const om_termname & tname,
+			   om_docid did,
+			   om_termpos tpos);
 };
 
 #endif /* _query_parser_h_ */

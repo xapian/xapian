@@ -29,7 +29,7 @@
 #include <cstdlib>
 #include <string>
 
-TextfileIndexerSource::TextfileIndexerSource(const string &fname)
+TextfileIndexerSource::TextfileIndexerSource(const string & fname)
 	: filename(fname)
 { return; }
 
@@ -43,7 +43,7 @@ TextfileIndexerSource::get_stream() const
 
 
 void
-TextfileIndexer::add_source(const IndexerSource &source)
+TextfileIndexer::add_source(const IndexerSource & source)
 {
     Assert(dest != NULL);
     istream *from = source.get_stream();

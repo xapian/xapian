@@ -32,7 +32,7 @@ class StemmerFrench : public virtual Stemmer {
     public:
 	StemmerFrench();
 	~StemmerFrench();
-	string stem_word(const string &);
+	string stem_word(const string & word);
 	const char * get_lang() { return "French"; }
 };
 
@@ -49,7 +49,7 @@ StemmerFrench::~StemmerFrench()
 }
 
 inline string
-StemmerFrench::stem_word(const string &word)
+StemmerFrench::stem_word(const string & word)
 {   
     int len = word.length();
     if(len == 0) return "";

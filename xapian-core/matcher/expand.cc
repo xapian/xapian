@@ -89,7 +89,7 @@ OMExpand::build_tree(const RSet *rset, const OMExpandWeight *ewt)
 
 void
 OMExpand::expand(om_termcount max_esize,
-		 class OMESet & eset,
+		 OMESet & eset,
 		 const RSet * rset,
 		 const OMExpandDecider * decider)
 {
