@@ -146,8 +146,28 @@ TcpServer::get_connected_socket()
 
     if (hent == 0) {
 	close(con_socket);
-	throw OmNetworkError(std::string("gethostbyaddr: ") +
-			     hstrerror(h_errno));
+	std::string errmsg = "gethostbyaddr: ";
+	switch(h_errno) {
+	    case HOST_NOT_FOUND:
+		errmsg += "Unknown host";
+		break;
+	    case NO_DATA:
+#if NO_DATA != NO_ADDRESS
+		/* Is this ever different? */
+	    case NO_ADDRESS:
+#endif
+		errmsg += "No address for hostname";
+		break;
+	    case NO_RECOVERY:
+		errmsg += "Unrecoverable name server error";
+		break;
+	    case TRY_AGAIN:
+		errmsg += "Temporary nameserver error";
+		break;
+	    default:
+		errmsg += "Unknown error.";
+	}
+	throw OmNetworkError(errmsg);
     }
 
     if (verbose) {

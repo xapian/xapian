@@ -411,9 +411,6 @@ if test x$build_remote = xtrue; then
   dnl Add -lnsl to $LDFLAGS if needed (eg Solaris)
   RJB_FIND_GETHOSTENT
 
-  dnl Add -lresolv to $LDFLAGS if needed (eg Solaris)
-  CME_FIND_HSTRERROR
-
   AC_DEFINE(MUS_BUILD_BACKEND_REMOTE,,
     [Define if you want to build remote database backend])
 fi

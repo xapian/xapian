@@ -1,3 +1,7 @@
+Mon Jan 15 18:18:01 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Removed use of hstrerror, which isn't portable.
+
 Mon Jan 15 18:02:42 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix assertion which was the wrong way round in multimatch.cc
