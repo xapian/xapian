@@ -8,5 +8,5 @@ omdatabase.h omsettings.h omoutput.h \
 ompostlistiterator.h ompositionlistiterator.h omtermlistiterator.h \
 omkeylistiterator.h \
 omindexer.h omindexerbuilder.h omindexercommon.h omindexerdesc.h \
-omindexermessage.h omindexernode.h omnodedescriptor.h autoptr.h \
+omindexermessage.h omindexernode.h omnodedescriptor.h \
 omnodeconnection.h

@@ -28,7 +28,7 @@
 #include "om/omtypes.h"
 #include "termlist.h"
 #include "quartz_database.h"
-#include "om/autoptr.h"
+#include "autoptr.h"
 
 /** A termlist in a quartz database.
  */

@@ -24,7 +24,7 @@
 #define OM_HGUARD_BCURSOR_H
 
 #include "btree_types.h"
-#include "om/autoptr.h"
+#include "autoptr.h"
 
 class Btree;
 

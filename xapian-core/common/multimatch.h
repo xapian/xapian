@@ -31,7 +31,7 @@
 
 #include <vector>
 #include <map>
-#include "om/autoptr.h"  // auto_ptr
+#include "autoptr.h"  // auto_ptr
 
 class SubMatch;
 class OmErrorHandler;

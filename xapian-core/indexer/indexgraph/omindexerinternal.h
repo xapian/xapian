@@ -27,10 +27,11 @@
 #include "om/omindexernode.h"
 #include "om/omerror.h"
 #include "deleter_map.h"
+#include "refcnt.h"
 
 class OmIndexerStartNode;
 
-class OmIndexer::Internal {
+class OmIndexer::Internal : public RefCntBase {
     public:
 	typedef deleter_map<std::string, OmIndexerNode *> NodeMap;
 

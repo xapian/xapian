@@ -37,7 +37,7 @@ class PostList;
 
 #include <vector>
 #include <map>
-#include "om/autoptr.h"
+#include "autoptr.h"
 
 class LocalSubMatch : public SubMatch {
     private:

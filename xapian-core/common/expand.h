@@ -30,7 +30,7 @@
 #include <queue>
 #include <stack>
 #include <vector>
-#include "om/autoptr.h"
+#include "autoptr.h"
 
 /** Expand decision functor which always decides to use the term. */
 class OmExpandDeciderAlways : public OmExpandDecider {

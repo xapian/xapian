@@ -30,7 +30,7 @@
 #include "socketcommon.h"
 #include "networkstats.h"
 #include "omlinebuf.h"
-#include "om/autoptr.h"
+#include "autoptr.h"
 
 /** The base class of the network server object.
  *  A NetServer object is used by server programs to take care

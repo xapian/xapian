@@ -56,6 +56,11 @@ class OmIndexer {
 	/** Destructor
 	 */
 	~OmIndexer();
+
+	/** Copy constructor */
+	OmIndexer(const OmIndexer &other);
+	/** Assignment operator */
+	void operator=(const OmIndexer &other);
     private:
 	friend class OmIndexerBuilder;
 

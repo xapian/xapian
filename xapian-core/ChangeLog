@@ -1,3 +1,12 @@
+Fri Dec  8 16:44:26 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* IndexerBuilder now returns OmIndexer objects instead of
+	  AutoPtr<OmIndexer>.  OmIndexer's internals are reference
+	  counted.
+	
+	* Moved autoptr.h from include/om to common/, since it's no
+	  longer used in the API.
+
 Fri Dec  8 16:22:48 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed omstemmer node bug and made debug slightly more verbose

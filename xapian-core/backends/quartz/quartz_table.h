@@ -26,7 +26,7 @@
 #include "config.h"
 #include "quartz_types.h"
 #include "quartz_table_entries.h"
-#include "om/autoptr.h"
+#include "autoptr.h"
 #include <string>
 #include <map>
 

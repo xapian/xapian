@@ -25,7 +25,6 @@
 
 #include <string>
 #include <vector>
-#include <om/autoptr.h>
 #include <om/omindexercommon.h>
 
 /** OmIndexerMessage is a basic message element.  More complex message may

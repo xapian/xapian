@@ -25,7 +25,7 @@
 
 #include "config.h"
 #include <map>
-#include "om/autoptr.h"
+#include "autoptr.h"
 #include "quartz_types.h"
 #include <string>
 

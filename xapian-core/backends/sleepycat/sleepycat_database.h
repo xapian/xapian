@@ -27,7 +27,7 @@
 #ifdef MUS_BUILD_BACKEND_SLEEPYCAT
 
 #include <stdlib.h>
-#include "om/autoptr.h"
+#include "autoptr.h"
 #include "database.h"
 #include "om/omerror.h"
 #include "om/omdocument.h"

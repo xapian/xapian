@@ -24,7 +24,6 @@
 #define OM_HGUARD_OMINDEXERBUILDER_H
 
 #include <string>
-#include <om/autoptr.h>
 #include <om/omindexer.h>
 #include <om/omnodeconnection.h>
 
@@ -46,19 +45,19 @@ class OmIndexerBuilder {
 	 *  @param filename	The name of the file describing the indexer
 	 *                      network.
 	 */
-	AutoPtr<OmIndexer> build_from_file(const std::string &filename);
+	OmIndexer build_from_file(const std::string &filename);
 
 	/** Build an indexer from an XML string
 	 *  
 	 *  @param xmldesc	The string describing the indexer network.
 	 */
-	AutoPtr<OmIndexer> build_from_string(const std::string &xmldesc);
+	OmIndexer build_from_string(const std::string &xmldesc);
 
 	/** Build an indexer from an in-memory structure.
 	 * 
 	 *  @param desc		The description of the graph.
 	 */
-	AutoPtr<OmIndexer> build_from_desc(const OmIndexerDesc &desc);
+	OmIndexer build_from_desc(const OmIndexerDesc &desc);
 
 	/** Build the OmIndexerDesc from an XML file
 	 *

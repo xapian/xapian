@@ -166,11 +166,11 @@ OmIndexerBuilder::sort_desc(OmIndexerDesc &desc)
     return result;
 }
 
-AutoPtr<OmIndexer>
+OmIndexer
 OmIndexerBuilder::build_from_file(const std::string &filename)
 {
-    AutoPtr<OmIndexer> indexer(new OmIndexer());
-    internal->build_from_file(filename, indexer->internal);
+    OmIndexer indexer;
+    internal->build_from_file(filename, indexer.internal);
     return indexer;
 }
 
@@ -183,11 +183,11 @@ OmIndexerBuilder::Internal::build_from_file(const std::string &filename,
     build_graph(indexer, *doc);
 }
 
-AutoPtr<OmIndexer>
+OmIndexer
 OmIndexerBuilder::build_from_string(const std::string &xmldesc)
 {
-    AutoPtr<OmIndexer> indexer(new OmIndexer());
-    internal->build_from_string(xmldesc, indexer->internal);
+    OmIndexer indexer;
+    internal->build_from_string(xmldesc, indexer.internal);
     return indexer;
 }
 

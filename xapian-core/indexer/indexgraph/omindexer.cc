@@ -30,11 +30,27 @@
 OmIndexer::OmIndexer()
 	: internal(new OmIndexer::Internal)
 {
+    internal->ref_start();
 }
 
 OmIndexer::~OmIndexer()
 {
-    delete internal;
+    if (internal->ref_decrement()) {
+	delete internal;
+    }
+}
+
+OmIndexer::OmIndexer(const OmIndexer &other)
+	: internal(other.internal)
+{
+    internal->ref_increment();
+}
+
+void
+OmIndexer::operator=(const OmIndexer &other)
+{
+    OmIndexer temp(other);
+    std::swap(internal, temp.internal);
 }
 
 OmIndexerMessage
