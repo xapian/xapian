@@ -43,7 +43,7 @@ OMEnquire * enquire;
 OMMSet mset;
 string query;
 
-doccount max_msize;
+om_doccount max_msize;
 GtkCList *results_widget;
 GtkCList *topterms_widget;
 GtkLabel *result_query;
@@ -82,7 +82,7 @@ string floattostring(double a)
 
 class TopTermItemGTK {
     public:
-	TopTermItemGTK(termname &tname_new) : tname(tname_new)
+	TopTermItemGTK(om_termname &tname_new) : tname(tname_new)
 	{
 	    data = new gchar *[1];
 	    data[0] = c_string(tname);
@@ -91,14 +91,16 @@ class TopTermItemGTK {
 	    delete data[0];
 	    delete data;
 	}
-	termname tname;
+	om_termname tname;
 	
 	gchar **data;
 };
 
 class ResultItemGTK {
     public:
-	ResultItemGTK(docid did_new, int percent, docname dname) : did(did_new)
+	ResultItemGTK(om_docid did_new, 
+		      int percent,
+		      om_docname dname) : did(did_new)
 	{
 	    data = new gchar *[3];
 	    data[0] = c_string(inttostring(percent));
@@ -111,7 +113,7 @@ class ResultItemGTK {
 	    delete data[2];
 	    delete data;
 	}
-	docid did;
+	om_docid did;
 	
 	gchar **data;
 };
@@ -132,7 +134,7 @@ result_destroy_notify(gpointer data)
 
 static void do_resultdisplay(gint row) {
     try {
-	docid did = mset.items[row].did;
+	om_docid did = mset.items[row].did;
 	//IRDocument *doc = database->open_document(did);
 	//IRData data = doc->get_data();
 	//string fulltext = data.value;
@@ -146,7 +148,7 @@ static void do_resultdisplay(gint row) {
 	gtk_label_set_text(result_query, query.c_str());
 	gtk_label_set_text(result_score, score.c_str());
 	gtk_label_set_text(result_docid, inttostring(did).c_str());
-    } catch (OmError e) {
+    } catch (OmError &e) {
 	cout << e.get_msg() << endl;
     }
 }
@@ -196,7 +198,7 @@ static void do_topterms() {
 	    gtk_clist_set_row_data_full(topterms_widget, index, item,
 					topterm_destroy_notify);
 	}
-    } catch (OmError e) {
+    } catch (OmError &e) {
 	cout << e.get_msg() << endl;
     }
     gtk_clist_thaw(topterms_widget);
@@ -246,7 +248,7 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 
 	vector<OMMSetItem>::const_iterator j;
 	for (j = mset.items.begin(); j != mset.items.end(); j++) {
-	    docid did = j->did;
+	    om_docid did = j->did;
 #if 0
 	    IRDocument *doc = database->open_document(did);
 	    IRData data = doc->get_data();
@@ -271,7 +273,7 @@ string message = "<unimplemented>";
 	    gtk_clist_set_row_data_full(results_widget, index, item,
 					result_destroy_notify);
 	}
-    } catch (OmError e) {
+    } catch (OmError &e) {
 	cout << e.get_msg() << endl;
     }
     gtk_clist_thaw(results_widget);
@@ -381,7 +383,7 @@ int main(int argc, char *argv[]) {
 
 	/* start the event loop */
 	gtk_main();
-    } catch (OmError e) {
+    } catch (OmError &e) {
 	cout << "OMError: " << e.get_msg() << endl;
     }
     delete enquire;
