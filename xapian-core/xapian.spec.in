@@ -1,9 +1,10 @@
 # RedHat-style .spec file for Xapian
 # RPM Informational headers
-Summary: Xapian a library that enables developers to use advanced information retrieval techniques in their own projects
+# @configure_input@
+Summary: Xapian is a library that enables developers to use advanced information retrieval techniques in their own projects
 Name: xapian-core
 Version: @VERSION@
-Release: 2
+Release: 1
 License: GPL
 Group: Development/Libraries
 URL: http://www.xapian.org/
@@ -22,19 +23,20 @@ to be extensively hacked in order to use it as a specialty search engine.
 Features of Xapian include: 
  
 * Flexible indexing of documents; 
-* Full access to the index: from term to document, but also from document to terms; 
+* Full access to the index: from term to document and from document to terms; 
 * Good query possibilities, including Boolean and phrase search; 
 * Advanced ranking techniques; 
 * Relevance feedback. 
 
 %package devel
 Group: Development/Libraries
-Summary: Files needed for building against xapian
+Summary: Files needed for building packages which use Xapian
 Requires: xapian-core
 
 %description devel
-The xapian-devel package contains the files needed for building against xapian.
-You will need this if you develop any packages that require xapian.
+The xapian-devel package contains the files needed for building packages which
+use the Xapian library.  You don't need this package if you only want to use
+pre-built packages which make use of Xapian.
 
 %prep
 %setup -q -n xapian-core-%{version}
@@ -46,7 +48,7 @@ You will need this if you develop any packages that require xapian.
 
 test -f ./configure || ./buildall
 ./configure --prefix=/usr
-make -j4
+make
 echo $RPM_BUILD_ROOT
 
 %install

@@ -1,3 +1,7 @@
+Sat Jul 06 13:53:27 BST 2002  Olly Betts <olly@survex.com>
+
+	* xapian.spec.in: Updated in preparation for release.
+
 Sat Jul 06 13:04:45 BST 2002  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: Run latex twice to get forward references resolved.
