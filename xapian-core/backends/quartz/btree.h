@@ -59,6 +59,10 @@ class Btree {
 	 */
 	void open_to_read(const string &name_, uint4 revision_);
 
+	/** Open a read-only version of a given Btree
+	 */
+	void open_to_read(const Btree &);
+
 	/** Open the btree to write at the latest revision
 	 */
 	void open_to_write(const string &name_);
@@ -232,6 +236,9 @@ class Btree {
 
 	/// Set to true when the database is opened to write.
 	bool writable;
+
+	/// Set to true if we shouldn't close handle ourselves.
+	bool dont_close_handle;
 
 	/* B-tree navigation functions */
 	bool prev(Cursor *C_, int j) { return (this->*prev_ptr)(C_, j); }

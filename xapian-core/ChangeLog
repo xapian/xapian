@@ -1,3 +1,10 @@
+Wed Apr 21 02:45:28 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/btree.h,
+	  backends/quartz/quartz_table.cc: Share file descriptors between
+	  the read and write Btree objects so that a quartz WritableDatabase
+	  now uses 5 fds rather than 10.
+
 Wed Apr 21 02:37:38 BST 2004  Olly Betts <olly@survex.com>
 
 	* docs/scalability.html: Removed the reference to the Quartz update

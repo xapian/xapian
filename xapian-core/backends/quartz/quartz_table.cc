@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -236,7 +236,7 @@ QuartzDiskTable::open()
 
     btree_for_reading = new Btree();
     // FIXME: check for errors
-    btree_for_reading->open_to_read(path, btree_for_writing->revision_number);
+    btree_for_reading->open_to_read(*btree_for_writing);
     if (btree_for_reading->error) {
 	// FIXME: explain why
 	string errormsg = "Cannot open table `" + path +

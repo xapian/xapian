@@ -1495,7 +1495,7 @@ Btree::basic_open(const string & name_,
 	}
     }
 
-    /* k holds contructed items as well as keys */
+    /* k holds constructed items as well as keys */
     kt = zeroed_new(block_size);
     if (kt == 0) {
 	throw std::bad_alloc();
@@ -1650,7 +1650,8 @@ Btree::Btree()
 	  max_item_size(0),
 	  Btree_modified(false),
 	  full_compaction(false),
-	  writable(false)
+	  writable(false),
+	  dont_close_handle(false)
 {
 }
 
@@ -1717,7 +1718,7 @@ Btree::~Btree() {
     if (handle != -1) {
 	// If an error occurs here, we just ignore it, since we're just
 	// trying to free everything.
-	(void)sys_close(handle);
+	if (!dont_close_handle) (void)sys_close(handle);
 	handle = -1;
     }
 
@@ -1759,10 +1760,18 @@ Btree::commit(uint4 revision)
     }
 
     errorval = BTREE_ERROR_DB_CLOSE;
-    if (!sys_flush(handle) || !sys_close(handle)) {
+    if (!sys_flush(handle)) {
+	if (!dont_close_handle) (void)sys_close(handle);
 	handle = -1;
 	return errorval;
     }
+    if (!dont_close_handle) {
+	if (!sys_close(handle)) {
+	    handle = -1;
+	    return errorval;
+	}
+    }
+    handle = -1;
 
     if (Btree_modified) {
 	faked_root_block = false;
@@ -1835,6 +1844,58 @@ void
 Btree::open_to_read(const string & name_, uint4 n)
 {
     do_open_to_read(name_, true, n);
+}
+
+void
+Btree::open_to_read(const Btree &btree)
+{
+    name = btree.name;
+
+    both_bases = btree.both_bases;
+    {
+	Btree_base tmp(btree.base);
+	base.swap(tmp);
+    }
+
+    revision_number = btree.revision_number;
+    block_size = btree.block_size;
+    root = btree.root;
+    level = btree.level;
+    //bit_map_size = btree.bit_map_size;
+    item_count = btree.item_count;
+    faked_root_block = btree.faked_root_block;
+    sequential = btree.sequential;
+    other_revision_number = btree.other_revision_number;
+
+    /* k holds constructed items as well as keys */
+    kt = zeroed_new(block_size);
+    if (kt == 0) {
+	throw std::bad_alloc();
+    }
+
+    max_item_size = btree.max_item_size;
+
+    base_letter = btree.base_letter;
+    next_revision = revision_number + 1;
+
+    dont_close_handle = true;
+    handle = btree.handle;
+
+    if (sequential) {
+	prev_ptr = &Btree::prev_for_sequential;
+	next_ptr = &Btree::next_for_sequential;
+    } else {
+	prev_ptr = &Btree::prev_default;;
+	next_ptr = &Btree::next_default;;
+    }
+
+    C[level].n = BLK_UNUSED;
+    C[level].p = new byte[block_size];
+    if (C[level].p == 0) {
+	throw std::bad_alloc();
+    }
+
+    read_root();
 }
 
 bool
