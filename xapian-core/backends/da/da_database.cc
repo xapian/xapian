@@ -16,14 +16,9 @@ DAPostList::DAPostList(struct postings *pl, doccount tf, doccount size)
 {
     termfreq = tf;
     postlist = pl;
+    dbsize = size;
 
-    termweight = (size - tf + 0.5) / (tf + 0.5);
-    if(termweight < 1) termweight = 1;
-
-    termweight = log(termweight);
-
-    printf("(dbsize, termfreq) = (%4d, %4d)\t=> termweight = %f\n",
-	   size, tf, termweight);
+    weight_initialised = false;
 
     DAreadpostings(postlist, 0, 0);
 }
@@ -39,6 +34,22 @@ weight DAPostList::get_weight() const
     Assert(!at_end());
     doccount wdf;
     weight wt;
+
+    if (!weight_initialised) {
+	weight_initialised = true;
+
+	termweight = (dbsize - termfreq + 0.5) / (termfreq + 0.5);
+	if (termweight < 2) {
+	    // if size and/or termfreq is estimated we can get termweight <= 0
+	    // so handle this gracefully
+	    if (termweight <= 1e-6) termweight = 1e-6;
+	    termweight = termweight / 2 + 1;
+	}
+	termweight = log(termweight);
+
+	printf("(dbsize, termfreq) = (%4d, %4d)\t=> termweight = %f\n",
+	       dbsize, termfreq, termweight);
+    }
 
     wdf = postlist->wdf;
 

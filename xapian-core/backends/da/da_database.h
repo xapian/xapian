@@ -14,7 +14,10 @@ class DAPostList : public virtual PostList {
 	struct postings * postlist;
 	docid  currdoc;
 	doccount termfreq;
-	weight termweight;
+        mutable weight termweight;
+	doccount dbsize;
+    
+        mutable bool weight_initialised;
 
 	DAPostList(struct postings *pl, doccount termf, doccount dbsize);
     public:
