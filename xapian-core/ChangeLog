@@ -1,3 +1,8 @@
+Fri Nov 24 19:23:56 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Quartztests now deletes all old tables, so that database formats
+	  don't cause problems.
+
 Fri Nov 24 19:03:59 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added std:: prefix to lots of strings which didn't have it.

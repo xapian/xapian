@@ -1505,6 +1505,7 @@ static bool test_postlist2()
 /// Test playing with a positionlist, testing skip_to in particular.
 static bool test_positionlist1()
 {
+    unlink_table("./testdb_positionlist1_");
     QuartzDiskTable disktable("testdb_positionlist1_", false, 8192);
     disktable.open();
     QuartzBufferedTable bufftable(&disktable);
