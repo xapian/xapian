@@ -72,15 +72,24 @@ void
 OmDatabaseGroup::operator=(const OmDatabaseGroup &other)
 {
     DEBUGAPICALL("OmDatabaseGroup::operator=", "OmDatabaseGroup");
+    if(this == &other) {
+	DEBUGLINE(API, "OmDatabaseGroup assigned to itself");
+	return;
+    }
+    
     // we get these locks in a defined order to avoid deadlock
     // should two threads try to assign two databases to each
     // other at the same time.
-    OmLockSentry locksentry1(min(internal, other.internal)->mutex);
-    OmLockSentry locksentry2(max(internal, other.internal)->mutex);
-    
-    Internal *newinternal = new Internal(*other.internal);
+    Internal * newinternal;
 
-    swap(internal, newinternal);
+    {
+	OmLockSentry locksentry1(min(internal, other.internal)->mutex);
+	OmLockSentry locksentry2(max(internal, other.internal)->mutex);
+
+	newinternal = new Internal(*other.internal);
+
+	swap(internal, newinternal);
+    }
 
     delete newinternal;
 }

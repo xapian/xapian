@@ -196,9 +196,13 @@ class OmDebugApiCall {
  *  message when the method ends.
  */
 #define DEBUGAPICALL(a,b) \
-    om_ostringstream omdebugapicall_os; \
-    omdebugapicall_os << b; \
-    OmDebugApiCall omdebugapicall(a, omdebugapicall_os.str());
+    string omdebugapicall_str; \
+    {\
+	om_ostringstream os; \
+	os << b; \
+	omdebugapicall_str = os.str(); \
+    } \
+    OmDebugApiCall omdebugapicall(a, omdebugapicall_str);
 
 /** Use in conjunction with DEBUGAPICALL - specify the value that the method
  *  is going to return.

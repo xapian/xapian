@@ -62,6 +62,12 @@ class om_ostringstream : public ostream {
 	 *  internal string.
 	 */
 	auto_ptr<om_stringbuf<char> > ombuf;
+
+	/// Copies are not allowed.
+	om_ostringstream(const om_ostringstream &);
+
+	/// Assignment is not allowed.
+	void operator=(const om_ostringstream &);
 };
 
 #endif // HAVE_SSTREAM
