@@ -72,9 +72,13 @@ OmDatabase::Internal::add_database(OmRefCntPtr<IRDatabase> newdb)
 }
 
 OmRefCntPtr<MultiDatabase>
-OmDatabase::Internal::get_irdatabase()
+OmDatabase::Internal::get_multi_database()
 {
     OmLockSentry locksentry(mutex);
+
+    if (databases.size() == 0) {
+	throw OmInvalidArgumentError("No databases specified to search.");
+    }
 
 //    if (databases.size() == 1) return databases[0];
 
@@ -90,7 +94,7 @@ OmDatabase::Internal::get_irdatabase()
 //////////////////////////////////////////////
 
 OmRefCntPtr<MultiDatabase>
-OmDatabase::InternalInterface::get_irdatabase(const OmDatabase &dbg)
+OmDatabase::InternalInterface::get_multi_database(const OmDatabase &db)
 {
-    return dbg.internal->get_irdatabase();
+    return db.internal->get_multi_database();
 }

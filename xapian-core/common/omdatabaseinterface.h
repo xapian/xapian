@@ -35,24 +35,21 @@
  */
 class OmDatabase::InternalInterface {
     public:
-	/** Create a IRDatabase from an OmDatabase.
+	/** Create a MultiDatabase from an OmDatabase.
 	 *
-	 *  FIXME: always return MultiDatabase for now (need to fettle
-	 *  OmEnquire otherwise).
-	 *
-	 *  If the OmDatabase contains only one IRDatabase, this will be
-	 *  returned.  Otherwise a MultiDatabase will be returned.
+	 *  Even if the OmDatabase contains only one IRDatabase, this will
+	 *  be returned encapsulated in a MultiDatabase.
 	 *
 	 *  The MultiDatabase will be newly created if it hasn't been
 	 *  asked for previously (for example, a database has been added
 	 *  to the group since it was last requested).  Otherwise, the
 	 *  previously created MultiDatabase will be returned.
 	 *
-	 *  @param dbg		The source OmDatabase object.
+	 *  @param db		The source OmDatabase object.
 	 *
-	 *  @return  A reference counted pointer to the IRDatabase.
+	 *  @return  A reference counted pointer to the MultiDatabase.
 	 */
-	static OmRefCntPtr<MultiDatabase> get_irdatabase(const OmDatabase &dbg);
+	static OmRefCntPtr<MultiDatabase> get_multi_database(const OmDatabase &db);
 };
 
 #endif // OM_HGUARD_OMDATABASEINTERFACE_H
