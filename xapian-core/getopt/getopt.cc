@@ -21,11 +21,6 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-/* This tells Alpha OSF/1 not to define a getopt prototype in <stdio.h>.
-   Ditto for AIX 3.2 and <stdlib.h>.  */
-#ifndef _NO_PROTO
-# define _NO_PROTO
-#endif
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -39,7 +34,12 @@
 # endif
 #endif
 
-#include <stdio.h>
+/* Alpha OSF/1 defines a getopt prototype in <stdio.h>.
+   Ditto for AIX 3.2 and <stdlib.h>.  So use cstdio and pull in what we
+   want */
+#include <cstdio>
+using std::printf;
+using std::fprintf;
 
 /* Comment out all this code if we are using the GNU C Library, and are not
    actually compiling the library itself.  This code is part of the GNU C

@@ -1,3 +1,8 @@
+Wed Nov 03 03:47:46 GMT 2004  Olly Betts <olly@survex.com>
+
+	* getopt/getopt.cc: Defining _NO_PROTO is a really bad idea for C++
+	  code!
+
 Wed Nov 03 03:34:06 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Removed AC_HEADER_STDC - Compaq's C++ compiler can't
