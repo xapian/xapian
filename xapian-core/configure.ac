@@ -85,6 +85,7 @@ if test -z "$CC_FOR_BUILD" ; then
   dnl Unset CC to make sure we don't accidentally use it.
   unset CC
 fi
+AC_SUBST(CC_FOR_BUILD)
 
 dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
