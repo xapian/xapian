@@ -227,3 +227,13 @@ ProgClient::do_transaction_with_result(string msg)
     }
     return response;
 }
+
+void
+ProgClient::get_mset(om_doccount first,
+		     om_doccount maxitems,
+		     vector<OmMSetItem> &mset,
+		     om_doccount *mbound,
+		     om_weight *greatest_wt)
+{
+    Assert(false);
+}

@@ -83,6 +83,13 @@ class ProgClient : public NetClient {
 	/** Get the remote stats */
 	Stats get_remote_stats();
 
+	/** Do the actual MSet fetching */
+	void get_mset(om_doccount first,
+		      om_doccount maxitems,
+		      vector<OmMSetItem> &mset,
+		      om_doccount *mbound,
+		      om_weight *greatest_wt);
+
 	/** Read some data from the process.
 	 */
 	string read_data();
