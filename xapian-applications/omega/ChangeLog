@@ -10,7 +10,6 @@ Wed Aug 21 10:48:06 BST 2002  Richard Boulton <richard@tartarus.org>
 	* docs/scriptindex.txt: Mention that multiple instances of fields
 	  are permitted.
 
->>>>>>> 1.103
 Tue Aug 20 18:02:45 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* docs/quickstart.txt: correct for new(ish) omindex behaviour
