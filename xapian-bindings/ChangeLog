@@ -1,3 +1,8 @@
+Tue Sep 07 22:18:20 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Fixed to use xapian_wrap.cpp not $@ - otherwise
+	  "make xapian.py" doesn't work correctly.  Fixed typo in comment.
+
 Fri Sep 03 18:44:56 BST 2004  Olly Betts <olly@survex.com>
 
 	* python/.cvsignore: Added xapian.pyc.

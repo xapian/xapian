@@ -11,7 +11,7 @@ pylib_SCRIPTS = xapian.py xapian.pyc
 pylib_LTLIBRARIES = _xapian.la
 
 # Remove the .la file - _xapian.la is never linked against (it's a module)
-# and Python doesn't use libltdl.  Note that the library gets install by
+# and Python doesn't use libltdl.  Note that the library gets installed by
 # install-data, so that's where we need to hook.
 install-data-hook:
 	rm -f $(DESTDIR)$(pylibdir)/_xapian.la
@@ -26,7 +26,7 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS)
 BUILT_SOURCES = xapian_wrap.cc
 
 xapian_wrap.cc xapian.py: ../xapian.i util.i extra.i
-	$(SWIG) -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -python -shadow -o $@ $(srcdir)/../xapian.i
+	$(SWIG) -I/usr/include -I$(srcdir) $(XAPIAN_CXXFLAGS) -c++ -python -shadow -o xapian_wrap.cc $(srcdir)/../xapian.i
 
 xapian.pyc: xapian.py
 	PYTHONPATH=.:.libs $(PYTHON) -c "import xapian"
