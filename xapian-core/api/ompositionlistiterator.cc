@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,7 +54,7 @@ om_termpos
 Xapian::PositionListIterator::operator *() const
 {
     DEBUGAPICALL(om_termpos, "Xapian::PositionListIterator::operator*", "");
-    Assert(internal);
+    Assert(internal.get());
     Assert(!internal->at_end());
     RETURN(internal->get_position());
 }
@@ -62,7 +63,7 @@ Xapian::PositionListIterator &
 Xapian::PositionListIterator::operator++()
 {
     DEBUGAPICALL(Xapian::PositionListIterator &, "Xapian::PositionListIterator::operator++", "");
-    Assert(internal);
+    Assert(internal.get());
     Assert(!internal->at_end());
     internal->next();
     if (internal->at_end()) internal = 0;
@@ -73,7 +74,7 @@ void
 Xapian::PositionListIterator::operator++(int)
 {
     DEBUGAPICALL(void, "Xapian::PositionListIterator::operator++(int)", "");
-    Assert(internal);
+    Assert(internal.get());
     Assert(!internal->at_end());
     internal->next();
     if (internal->at_end()) internal = 0;
@@ -84,7 +85,7 @@ void
 Xapian::PositionListIterator::skip_to(om_termpos pos)
 {
     DEBUGAPICALL(void, "Xapian::PositionListIterator::skip_to", pos);
-    Assert(internal);
+    Assert(internal.get());
     Assert(!internal->at_end());
     internal->skip_to(pos);
     if (internal->at_end()) internal = 0;
