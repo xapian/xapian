@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 
 	// Prepare the query terms
 	vector<om_termname> queryterms;
-	for(int optpos = 2; optpos < argc; optpos++) {
+	for (int optpos = 2; optpos < argc; optpos++) {
 	    queryterms.push_back(argv[optpos]);
 	}
 
@@ -41,6 +41,13 @@ int main(int argc, char *argv[])
 
 	// Display the results
 	cout << matches.items.size() << " results found" << endl;
+
+	for (vector<OmMSetItem>::const_iterator i = matches.items.begin();
+	     i != matches.items.end();
+	     i++) {
+	    cout << "Document ID " << i->did << "\t" <<
+		    matches.convert_to_percent(*i) << "%" << endl;
+	}
     }
     catch(OmError &error) {
 	cout << "Exception: "  << error.get_msg() << endl;
