@@ -125,7 +125,7 @@ BackendManager::set_dbtype(const string &type)
     } else if (type == "void") {
 	do_getdb = &BackendManager::getdb_void;
     } else {
-	throw OmInvalidArgumentError("Expected inmemory or sleepy");
+	throw OmInvalidArgumentError("Expected inmemory, sleepy, net or void");
     }
 }
 
@@ -192,36 +192,6 @@ bool create_dir_if_needed(const string &dirname)
 	}
 	return false; // Already a directory.
     }
-}
-
-/** Return true if the files fname exists.
- */
-bool file_exists(const string &fname)
-{
-    // create a directory for sleepy indexes if not present
-    struct stat sbuf;
-    int result = stat(fname.c_str(), &sbuf);
-    if (result < 0) {
-	return false;
-    } else {
-	if (!S_ISREG(sbuf.st_mode)) {
-	    return false;
-	}
-	return true;
-    }
-}
-
-/** Return true if all the files fnames exist.
- */
-bool
-files_exist(const vector<string> &fnames)
-{
-    for (vector<string>::const_iterator i = fnames.begin();
-	 i != fnames.end();
-	 i++) {
-	if (!file_exists(*i)) return false;
-    }
-    return true;
 }
 
 OmDatabase

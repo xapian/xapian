@@ -71,9 +71,9 @@ int main(int argc, char *argv[]) {
 	dbgrp.add_database(db);
 
 #if 0
-	DatabaseBuilderParams param(OM_DBTYPE_INMEMORY);
+	DatabaseBuilderParams param("inmemory");
 
-	DatabaseBuilderParams mparam(OM_DBTYPE_MULTI);
+	DatabaseBuilderParams mparam("multi");
 	mparam.subdbs.push_back(param);
 	auto_ptr<IRDatabase> db(DatabaseBuilder::create(mparam));
 	OmRefCntPtr<MultiDatabase> mdb(dynamic_cast<MultiDatabase *>(db.get()));

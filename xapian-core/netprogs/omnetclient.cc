@@ -304,7 +304,7 @@ string_to_stats(const string &s)
 
 void run_matcher(const char *filename) {
     // open the database to return results
-    DatabaseBuilderParams param(OM_DBTYPE_INMEMORY);
+    DatabaseBuilderParams param("inmemory");
     param.paths.push_back(filename);
     auto_ptr<IRDatabase> db(DatabaseBuilder::create(param));
 

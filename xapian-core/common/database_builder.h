@@ -29,28 +29,14 @@
 
 class IRDatabase;
 
-/** Type of a database */
-enum om_database_type {
-    OM_DBTYPE_NULL,
-    OM_DBTYPE_MUSCAT36_DA_F,
-    OM_DBTYPE_MUSCAT36_DA_H,
-    OM_DBTYPE_MUSCAT36_DB_F,
-    OM_DBTYPE_MUSCAT36_DB_H,
-    OM_DBTYPE_INMEMORY,
-    OM_DBTYPE_SLEEPY,
-    OM_DBTYPE_MULTI,
-    OM_DBTYPE_NET
-};
-
 /** Parameters used when opening a database*/
 class DatabaseBuilderParams {
     public:
-	DatabaseBuilderParams(om_database_type type_ = OM_DBTYPE_NULL,
-			      bool readonly_ = true)
+	DatabaseBuilderParams(string type_ = "", bool readonly_ = true)
 		: type(type_), readonly(readonly_)
 	{ return; }
 
-	om_database_type type;
+	string type;
 	bool readonly;
 
 	vector<string> paths;

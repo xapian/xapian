@@ -35,6 +35,7 @@
 #include "textfile_indexer.h"
 #include "../indexer/index_utils.h"
 #include "backendmanager.h"
+#include "utils.h"
 
 static bool inline
 TEST_EXPECTED_DOCS(const OmMSet &A,

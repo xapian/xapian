@@ -30,32 +30,12 @@
 
 #include <vector>
 
-///////////////////////////////////////////////////////////////////////
-// Translation of types as strings to types as enum om_database_type
-
-// Table of names of database types
-stringToType<om_database_type> stringToTypeMap<om_database_type>::types[] = {
-    { "da_flimsy",		OM_DBTYPE_MUSCAT36_DA_F	},
-    { "da_heavy",		OM_DBTYPE_MUSCAT36_DA_H	},
-    { "db_flimsy",		OM_DBTYPE_MUSCAT36_DB_F	},
-    { "db_heavy",		OM_DBTYPE_MUSCAT36_DB_H	},
-    { "inmemory",		OM_DBTYPE_INMEMORY	},
-    { "multidb",		OM_DBTYPE_MULTI		},
-    { "sleepycat",		OM_DBTYPE_SLEEPY	},
-    { "net",			OM_DBTYPE_NET		},
-    { "",			OM_DBTYPE_NULL		}  // End
-};
-
 OmDatabase::Internal::Internal(const string & type,
 			       const vector<string> & paths,
 			       bool readonly)
 {
-    // Convert type into an om_database_type
-    om_database_type dbtype = OM_DBTYPE_NULL;
-    dbtype = stringToTypeMap<om_database_type>::get_type(type);
-
     // Prepare parameters to build database with (open it writable)
-    DatabaseBuilderParams params(dbtype, readonly);
+    DatabaseBuilderParams params(type, readonly);
     params.paths = paths;
 
     // Open database
@@ -131,12 +111,8 @@ OmDatabaseGroup::Internal::add_database(const string & type,
     // Forget existing multidatabase
     multi_database = 0;
 
-    // Convert type into an om_database_type
-    om_database_type dbtype = OM_DBTYPE_NULL;
-    dbtype = stringToTypeMap<om_database_type>::get_type(type);
-
     // Prepare parameters to build database with (opening it readonly)
-    DatabaseBuilderParams dbparam(dbtype, true);
+    DatabaseBuilderParams dbparam(type, true);
     dbparam.paths = paths;
 
     // Open database and add it to the list

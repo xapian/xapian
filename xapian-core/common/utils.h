@@ -24,6 +24,7 @@
 #define OM_HGUARD_UTILS_H
 
 #include <string>
+#include <vector>
 
 // Convert an integer to a string
 string om_inttostring(int a);
@@ -55,5 +56,14 @@ template<class X> class stringToTypeMap {
 	    return haystack->type;
 	}
 };
+
+
+/** Return true if the files fname exists.
+ */
+bool file_exists(const string &fname);
+
+/** Return true if all the files fnames exist.
+ */
+bool files_exist(const vector<string> &fnames);
 
 #endif /* OM_HGUARD_UTILS_H */

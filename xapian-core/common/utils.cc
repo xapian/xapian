@@ -22,6 +22,8 @@
 
 #include "utils.h"
 
+#include <sys/stat.h>
+
 // Convert a number to a string
 #include <strstream.h>
 string om_inttostring(int a)
@@ -40,4 +42,34 @@ string doubletostring(double a)
     ostrstream ost(buf, 100);
     ost << a << ends;
     return string(buf);
+}
+
+/** Return true if the files fname exists.
+ */
+bool file_exists(const string &fname)
+{
+    // create a directory for sleepy indexes if not present
+    struct stat sbuf;
+    int result = stat(fname.c_str(), &sbuf);
+    if (result < 0) {
+	return false;
+    } else {
+	if (!S_ISREG(sbuf.st_mode)) {
+	    return false;
+	}
+	return true;
+    }
+}
+
+/** Return true if all the files fnames exist.
+ */
+bool
+files_exist(const vector<string> &fnames)
+{
+    for (vector<string>::const_iterator i = fnames.begin();
+	 i != fnames.end();
+	 i++) {
+	if (!file_exists(*i)) return false;
+    }
+    return true;
 }
