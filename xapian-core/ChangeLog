@@ -1,3 +1,8 @@
+Thu Apr 08 17:19:43 BST 2004  Olly Betts <olly@survex.com>
+
+	* include/xapian/base.h: Note in doxygen comment why the ref_count
+	  is mutable.
+
 Thu Apr 08 15:33:16 BST 2004  Olly Betts <olly@survex.com>
 
 	* testsuite/testsuite.cc: valgrinding code needs errno.h too.

@@ -49,7 +49,9 @@ class RefCntBase {
 
 	typedef unsigned int ref_count_t;
 
-	/// The actual reference count
+	/** The actual reference count.  It's mutable so we can have reference
+	 *  counting work with const pointers.
+	 */
 	mutable ref_count_t ref_count;
 };
 
@@ -111,7 +113,7 @@ template <class T>
 inline void RefCntPtr<T>::operator=(T *dest_) {
     // check if we're assigning a pointer to itself
     if (dest == dest_) return;
-    
+
     // copy the new dest in before we delete the old to avoid a small
     // window in which dest points to a deleted object
     // FIXME: if pointer assignment isn't atomic, we ought to use locking...
