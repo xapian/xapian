@@ -2,7 +2,8 @@
 
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
-noinst_HEADERS = indexergraph.h omindexernode.h testnodes.h deleter_map.h
+noinst_HEADERS = indexergraph.h omindexernode.h testnodes.h deleter_map.h \
+		register_core.h node_reg.h
 
 noinst_LTLIBRARIES = libindexgraph.la
 

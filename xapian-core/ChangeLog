@@ -1,3 +1,7 @@
+Sun Sep 24 13:53:03 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added node_reg.h and register_core.h to Makefile.am
+
 Sat Sep 23 16:17:10 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Passed srcdir into make_register.pl
