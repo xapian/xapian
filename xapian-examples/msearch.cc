@@ -1,4 +1,4 @@
-/* msearch.cc - command line search example - implements a probabilistic and
+/* msearch.cc - command line search example - implements probabilistic and
  *   boolean searching (boolean uses reverse polish notation)
  *
  * Note: this example tries to include support for most features in the
@@ -86,6 +86,7 @@ main(int argc, char **argv)
 		case 'k':
 		    collapse_key = atoi(optarg);
 		    break;
+#ifndef _WIN32 // FIXME: temporary bodge so it'll compile under mingw
 		case 'r': {
 		    char *p = strchr(optarg, ':');
 		    if (p) {
@@ -97,6 +98,7 @@ main(int argc, char **argv)
 		    }
 		    break;
 		}
+#endif
 		case 'd':
 		    mydbs.add_database(Auto::open(optarg));
 		    ++n_dbs;

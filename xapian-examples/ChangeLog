@@ -1,3 +1,7 @@
+Fri Aug 01 15:37:40 BST 2003  Olly Betts <olly@survex.com>
+
+	* msearch.cc: Quick fix to get mingw building going.
+
 Wed Jul 30 19:09:00 BST 2003  Olly Betts <olly@survex.com>
 
 	* getopt.h: Copied over latest getopt.h from xapian-core.
