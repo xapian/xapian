@@ -19,6 +19,7 @@
 // (package is the directory with the quartz database inside)
 //
 
+#warning "sometimes have '(null)' in results"
 
 #include <om/om.h>
 #include <db_cxx.h>
@@ -26,6 +27,8 @@
 #include <math.h>
 
 #include "util.h"
+
+
 
 int main(int argc, char *argv[]) {
      if(argc < 3) {

@@ -46,6 +46,25 @@ Some queries to try:
 ************/
 
 
+//
+//
+// Local mining:
+//
+//  symbols - from app itself
+//  
+//
+// Global mining:
+// 
+//    give a list of apps as usual, but specify
+//    global option, e.g., -g file.list
+//    which are the files to use symbols from
+//   
+//   The counting is also different in global minine.
+//   We only count apps, not individual lines.
+//   We also generate one set of database files, not
+//   one per app.
+//
+
 
 
 
@@ -68,7 +87,7 @@ Some queries to try:
 #define USE_STOP_LIST false
 
 // /tmp is small, so we use /home/amichail/temp
-#define CTAGS_FLAGS "-a -R --c-types=cfsuAC --kind-long=yes -f/home/amichail/temp/tags"
+#define CTAGS_FLAGS "-R --c-types=cfsuAC --kind-long=yes -f/home/amichail/temp/tags"
 
 
 //
@@ -85,9 +104,6 @@ Some queries to try:
 
 #define MIN_SUPP 1 
 #define MIN_SURPRISE 0.0
-
-#define SKIP_FUNCTIONS false
-
 
 // if true, counts files.
 // however, still requires line pairing of comment term, code symbol
@@ -177,6 +193,24 @@ int main(int argc, char *argv[]) {
 
     cerr << "package -" << package << "-" << endl;
 
+    cerr << "Running ctags on " << package << endl;
+    string fullpath = cvsdata +"/" + package;
+    string cmd = string("ctags ") + string(CTAGS_FLAGS) + " " + fullpath;
+    cerr << "Invoking " << cmd << endl;
+    system(cmd.c_str());
+    cerr << "Done" << endl;
+
+
+
+
+
+
+    set<string> defined_symbols;
+    readTags( "/home/amichail/temp/tags", defined_symbols );
+
+
+
+
     // change / to _ in package
     for( int i = 0; i < package.length(); i++ ) {
       if ( package[i] == '/' ) {
@@ -204,9 +238,10 @@ int main(int argc, char *argv[]) {
 
 	  if ( lines.currentFile() != prev_file ) {
 	    // run ctags on file
+	    /****
 	    string cmd = string("ctags ") + string(CTAGS_FLAGS) + " " + cvsdata +"/"+lines.currentFile();
-	    //	    cerr << "** invoking " << cmd << endl;
 	    system(cmd.c_str());
+	    ***/
 	    prev_file = lines.currentFile();
 	  }
 
@@ -221,23 +256,13 @@ int main(int argc, char *argv[]) {
 	  }
 
 	  for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
-	    symbol_count[*i]++;
+	    if ( defined_symbols.find(*i) != defined_symbols.end() ) {
+	      symbol_count[*i]++;
+	    }
 	  }
 	  lines_read++;
 	} // while
       }
-
-
-
-
-
-      set<string> defined_symbols;
-      readTags( "/home/amichail/temp/tags", defined_symbols );
-
-
-
-
-
 
 
       map< pair<string, string>, set<string> > rule_support;
@@ -298,10 +323,6 @@ int main(int argc, char *argv[]) {
 	int supp = (r->second).size();
 	string ant = (r->first).first;
 	string con = (r->first).second;
-
-	if ( SKIP_FUNCTIONS && con.find("()") != -1 ) {
-	  continue;
-	}
 
 	if ( ant != prev_term ) { 
 	  // print out results in sorted order
