@@ -24,10 +24,47 @@
 #define OM_HGUARD_QUARTZ_TABLE_ENTRIES_H
 
 #include "config.h"
-#include "quartz_table.h"
 #include <map>
 #include "autoptr.h"
 #include <string>
+
+/** A tag in a quartz table.
+ *
+ *  A tag is a piece of data associated with a given key.
+ */
+struct QuartzDbTag {
+    public:
+	/** The contents of the tag.
+	 *
+	 *  Tags may be of arbitrary length.  Note though that they will be
+	 *  loaded into memory in their entirety, so should not be permitted
+	 *  to grow without bound in normal usage.
+	 *
+	 *  Tags which are null strings _are_ valid, and are different from a
+	 *  tag simply not being in the table.
+	 */
+	string value;
+};
+
+/** The key used to access a block of data in a quartz table.
+ */
+struct QuartzDbKey {
+    public:
+	/** The contents of the key.
+	 *
+	 *  Keys may be of arbitrary length.  Note though that they will be
+	 *  loaded into memory in their entirety, so should not be permitted
+	 *  to grow without bound in normal usage.
+	 *
+	 *  Keys may not have null contents.
+	 */
+	string value;
+
+	/** Comparison operator, so that keys may be used in standard
+	 *  containers.
+	 */
+	bool operator < (const QuartzDbKey & a) const {return (value<a.value);}
+};
 
 /** This class stores a set of entries from a quartz database table.
  *

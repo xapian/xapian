@@ -25,47 +25,9 @@
 
 #include "config.h"
 #include "quartz_types.h"
+#include "quartz_table_entries.h"
 #include <string>
 #include <map>
-
-/** A tag in a quartz table.
- *
- *  A tag is a piece of data associated with a given key.
- */
-struct QuartzDbTag {
-    public:
-	/** The contents of the tag.
-	 *
-	 *  Tags may be of arbitrary length.  Note though that they will be
-	 *  loaded into memory in their entirety, so should not be permitted
-	 *  to grow without bound in normal usage.
-	 *
-	 *  Tags which are null strings _are_ valid, and are different from a
-	 *  tag simply not being in the table.
-	 */
-	string value;
-};
-
-
-/** The key used to access a block of data in a quartz table.
- */
-struct QuartzDbKey {
-    public:
-	/** The contents of the key.
-	 *
-	 *  Keys may be of arbitrary length.  Note though that they will be
-	 *  loaded into memory in their entirety, so should not be permitted
-	 *  to grow without bound in normal usage.
-	 *
-	 *  Keys may not have null contents.
-	 */
-	string value;
-
-	/** Comparison operator, so that keys may be used in standard
-	 *  containers.
-	 */
-	bool operator < (const QuartzDbKey & a) const {return (value<a.value);}
-};
 
 class QuartzDiskTable;
 
@@ -334,33 +296,48 @@ class QuartzDiskTable : public QuartzTable {
 	//@}
 };
 
-/** Class managing a table in a Quartz database.
+/** A buffered table in a Quartz database.
  *
- *  A table is a store holding a set of key/tag pairs.  See the
- *  documentation for QuartzDbKey and QuartzDbTag for details of what
- *  comprises a valid key or tag.
+ *  This class provides buffered access to a quartz database.  This allows
+ *  a set of modifications to be built up in memory, and flushed to disk
+ *  only when it grows sufficiently large.
  */
-class QuartzModifiedTable : public QuartzTable {
+class QuartzBufferedTable : public QuartzTable {
     private:
 	/// Copying not allowed
-	QuartzModifiedTable(const QuartzModifiedTable &);
+	QuartzBufferedTable(const QuartzBufferedTable &);
 
 	/// Assignment not allowed
-	void operator=(const QuartzModifiedTable &);
+	void operator=(const QuartzBufferedTable &);
 
 	/// The underlying table
-	QuartzDiskTable disktable;
+	QuartzDiskTable * disktable;
+
+	/** Entries which have been changed.
+	 */
+	QuartzTableEntries changed_entries;
 
     public:
 	/** Create a new table.  This does not open the table - the open()
 	 *  method must be called before use is made of the table.
 	 *
 	 */
-	QuartzModifiedTable(QuartzDiskTable disktable_);
+	QuartzBufferedTable(QuartzDiskTable disktable_);
 
 	/** Close the table.
 	 */
-	~QuartzModifiedTable();
+	~QuartzBufferedTable();
+
+	/** Apply any outstanding changes.
+	 *
+	 *  If an error occurs during the operation, this will be signalled
+	 *  by a return value of false.  The table on disk will be left in an
+	 *  unmodified state, and the changes made to it will be lost.
+	 *
+	 *  @return true if the operation completed successfully, false
+	 *          otherwise.
+	 */
+	bool apply();
 
 	/** Virtual methods of QuartzTable.
 	 */

@@ -1,3 +1,11 @@
+Tue Oct  3 18:14:51 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Changed QuartzModifiedTable to QuartzBufferedTable.
+
+	* Moved QuartzDbTag and QuartzDbKey to quartz_table_entries.h, to
+	  make include dependencies possible.  These should probably have a
+	  file to themselves.
+
 Tue Oct  3 14:28:48 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* QuartzDbTable becomes QuartzDiskTable, which inherits from
