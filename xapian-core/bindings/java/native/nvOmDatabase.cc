@@ -10,13 +10,29 @@
  * Method:    createNativeObject
  * Signature: (Lcom/muscat/om/OmSettings;)J
  */
-JNIEXPORT jlong JNICALL Java_com_muscat_om_OmDatabase_createNativeObject
+JNIEXPORT jlong JNICALL Java_com_muscat_om_OmDatabase_createNativeObject__Lcom_muscat_om_OmSettings_2
   (JNIEnv *env, jobject obj, jobject params)
 {
     const OmSettings *params_n = (const OmSettings *) tryGetLongField (env, params, "nativePtr");
 
     try {
 	return (jlong) new OmDatabase(*params_n);
+    } catch (OmError &err) {
+	handleNativeError (env, err);
+	return -1;
+    }
+}
+
+/*
+ * Class:     com_muscat_om_OmDatabase
+ * Method:    createNativeObject
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_muscat_om_OmDatabase_createNativeObject__
+  (JNIEnv *env, jobject obj)
+{
+    try {
+	return (jlong) new OmDatabase();
     } catch (OmError &err) {
 	handleNativeError (env, err);
 	return -1;
@@ -33,6 +49,41 @@ JNIEXPORT void JNICALL Java_com_muscat_om_OmDatabase_deleteNativeObject
 {
     delete (OmDatabase *) tryGetLongField (env, obj, "nativePtr");
 }
+
+/*
+ * Class:     com_muscat_om_OmDatabase
+ * Method:    add_database
+ * Signature: (Lcom/muscat/om/OmSettings;)V
+ */
+JNIEXPORT void JNICALL Java_com_muscat_om_OmDatabase_add_1database__Lcom_muscat_om_OmSettings_2
+  (JNIEnv *env, jobject obj, jobject param)
+{
+    OmDatabase* db_n = (OmDatabase*) tryGetLongField (env, obj, "nativePtr");
+    OmSettings* param_n = (OmSettings*) tryGetLongField(env, param, "nativePtr");
+    try {
+	db_n->add_database(*param_n);
+    } catch (OmError &err) {
+	handleNativeError (env, err);
+    }
+}
+
+/*
+ * Class:     com_muscat_om_OmDatabase
+ * Method:    add_database
+ * Signature: (Lcom/muscat/om/OmDatabase;)V
+ */
+JNIEXPORT void JNICALL Java_com_muscat_om_OmDatabase_add_1database__Lcom_muscat_om_OmDatabase_2
+  (JNIEnv *env, jobject obj, jobject db)
+{
+    OmDatabase* db_n = (OmDatabase*) tryGetLongField (env, obj, "nativePtr");
+    OmDatabase* db2_n = (OmDatabase*) tryGetLongField(env, db, "nativePtr");
+    try {
+	db_n->add_database(*db2_n);
+    } catch (OmError &err) {
+	handleNativeError (env, err);
+    }
+}
+
 
 /*
  * Class:     com_muscat_om_OmDatabase

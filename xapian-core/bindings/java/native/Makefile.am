@@ -42,6 +42,7 @@ EXTRA_DIST = nvOmEnquire.cc			\
 	nvOmESetItem.cc			\
 	nvOmESetItemVector.cc		\
 	nvOmPrefixExpandDecider.cc	\
+	nvOmSettings.cc			\
 	utils.cc
 
 native_sources = nvOmEnquire.lo			\
@@ -59,6 +60,7 @@ native_sources = nvOmEnquire.lo			\
 	nvOmESetItem.lo			\
 	nvOmESetItemVector.lo		\
 	nvOmPrefixExpandDecider.lo	\
+	nvOmSettings.lo			\
 	utils.lo
 
 all-local: headers libomusjava.so

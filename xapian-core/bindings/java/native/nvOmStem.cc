@@ -56,20 +56,20 @@ JNIEXPORT jstring JNICALL Java_com_muscat_om_OmStem_stem_1word
     return NULL;
 }
 
-///*
-// * Class:     com_muscat_om_OmStem
-// * Method:    get_available_languages
-// * Signature: ()[Ljava/lang/String;
-// */
-//JNIEXPORT jobjectArray JNICALL Java_com_muscat_om_OmStem_get_1available_1languages
-//  (JNIEnv *env, jclass clazz)
-//{
-//    vector<string> langs = OmStem::get_available_languages ();
-//    jclass strClass = env->FindClass ("java/lang/String");
-//    int size = langs.size();
-//    jobjectArray ret = env->NewObjectArray (size, strClass, NULL);
-//    for (int i = 0; i < size; i++)
-//	  env->SetObjectArrayElement (ret, i, env->NewStringUTF (langs[i].c_str()));
-//
-//    return ret;
-//}
+/*
+ * Class:     com_muscat_om_OmStem
+ * Method:    get_available_languages
+ * Signature: ()[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_muscat_om_OmStem_get_1available_1languages
+  (JNIEnv *env, jclass clazz)
+{
+    vector<string> langs = OmStem::get_available_languages ();
+    jclass strClass = env->FindClass ("java/lang/String");
+    int size = langs.size();
+    jobjectArray ret = env->NewObjectArray (size, strClass, NULL);
+    for (int i = 0; i < size; i++)
+	  env->SetObjectArrayElement (ret, i, env->NewStringUTF (langs[i].c_str()));
+
+    return ret;
+}
