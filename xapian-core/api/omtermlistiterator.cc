@@ -27,6 +27,11 @@
 #include "ompositionlistiteratorinternal.h"
 #include "omdebug.h"
 
+OmTermIterator::OmTermIterator()
+	: internal(0)
+{
+}
+
 OmTermIterator::OmTermIterator(Internal *internal_)
 	: internal(internal_)
 {

@@ -44,6 +44,10 @@ class OmKeyListIterator {
 	OmKeyListIterator(Internal *internal_);
 
     public:
+	/// Default constructor - for declaring an uninitialised iterator
+	OmKeyListIterator();
+
+	/// Destructor
         ~OmKeyListIterator();
 
 	/// Copying is allowed (and is cheap).

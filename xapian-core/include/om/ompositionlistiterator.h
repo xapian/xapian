@@ -47,6 +47,10 @@ class OmPositionListIterator {
 	// FIXME: ought to be private
 	OmPositionListIterator(Internal *internal_);
 
+	/// Default constructor - for declaring an uninitialised iterator
+	OmPositionListIterator();
+
+	/// Destructor
         ~OmPositionListIterator();
 
 	void operator=(OmPositionListIterator &o);

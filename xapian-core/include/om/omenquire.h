@@ -333,6 +333,7 @@ class OmESetIterator {
 	 */
         OmESetIterator();
 
+	/// Destructor
         ~OmESetIterator();
 
 	/// Copying is allowed (and is cheap).

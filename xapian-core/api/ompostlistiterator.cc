@@ -27,6 +27,11 @@
 #include "postlist.h"
 #include "omdebug.h"
 
+OmPostListIterator::OmPostListIterator()
+	: internal(0)
+{
+}
+
 OmPostListIterator::OmPostListIterator(Internal *internal_)
 	: internal(internal_)
 {

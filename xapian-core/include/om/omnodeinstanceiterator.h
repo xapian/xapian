@@ -42,6 +42,10 @@ class OmNodeInstanceIterator {
 	// FIXME: ought to be private
 	OmNodeInstanceIterator(Internal *internal_);
 
+	/// Default constructor - for declaring an uninitialised iterator
+	OmNodeInstanceIterator();
+
+	/// Destructor
         ~OmNodeInstanceIterator();
 
 	void operator=(const OmNodeInstanceIterator &o);

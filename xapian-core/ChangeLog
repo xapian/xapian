@@ -1,3 +1,9 @@
+Mon Feb 12 12:35:41 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Make OmPositionListIterators and any other appropriate iterators
+	  (postlist, termlist) have a default constructor allowing them to
+	  be declared uninitialised.
+
 Mon Feb 12 10:51:41 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Updated todo.xml

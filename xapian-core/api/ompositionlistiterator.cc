@@ -25,6 +25,11 @@
 #include "positionlist.h"
 #include "omdebug.h"
 
+OmPositionListIterator::OmPositionListIterator()
+	: internal(0)
+{
+}
+
 OmPositionListIterator::OmPositionListIterator(Internal *internal_)
 	: internal(internal_)
 {

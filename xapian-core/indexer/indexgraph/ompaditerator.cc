@@ -24,6 +24,11 @@
 #include "ompaditeratorinternal.h"
 #include "omdebug.h"
 
+OmPadIterator::OmPadIterator()
+	: internal(0)
+{
+}
+
 OmPadIterator::OmPadIterator(Internal *internal_)
 	: internal(internal_)
 {

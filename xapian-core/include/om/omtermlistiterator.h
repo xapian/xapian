@@ -48,6 +48,10 @@ class OmTermIterator {
 	// FIXME: better if this was private...
 	OmTermIterator(Internal *internal_);
 
+	/// Default constructor - for declaring an uninitialised iterator
+	OmTermIterator();
+
+	/// Destructor
         ~OmTermIterator();
 
         /** Copying is allowed.  The internals are reference counted, so

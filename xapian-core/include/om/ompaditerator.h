@@ -41,6 +41,10 @@ class OmPadIterator {
 	// FIXME: ought to be private
 	OmPadIterator(Internal *internal_);
 
+	/// Default constructor - for declaring an uninitialised iterator
+	OmPadIterator();
+
+	/// Destructor
         ~OmPadIterator();
 
 	void operator=(OmPadIterator &o);

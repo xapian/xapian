@@ -24,6 +24,11 @@
 #include "omnodeinstanceiteratorinternal.h"
 #include "omdebug.h"
 
+OmNodeInstanceIterator::OmNodeInstanceIterator()
+	: internal(0)
+{
+}
+
 OmNodeInstanceIterator::OmNodeInstanceIterator(Internal *internal_)
 	: internal(internal_)
 {

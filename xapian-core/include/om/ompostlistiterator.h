@@ -42,6 +42,10 @@ class OmPostListIterator {
 	OmPostListIterator(Internal *internal_);
 
     public:
+	/// Default constructor - for declaring an uninitialised iterator
+	OmPostListIterator();
+
+	/// Destructor
         ~OmPostListIterator();
 
         /** Copying is allowed.  The internals are reference counted, so
