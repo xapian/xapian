@@ -72,7 +72,7 @@ class RemoteSubMatch : public SubMatch {
 	/// Calculate the statistics for the query
 	bool prepare_match(bool nowait);
 
-	PostList * get_postlist(om_doccount maxitems);
+	PostList * get_postlist(om_doccount maxitems, MultiMatch *matcher);
 
 	virtual LeafDocument * open_document(om_docid did) const {
 	    return db->open_document(did);

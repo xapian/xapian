@@ -158,12 +158,12 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     PostList *pl;
     if (leaves.size() == 1) {
 	// Only one mset to get - so get it
-	pl = leaves.front()->get_postlist(first + maxitems);
+	pl = leaves.front()->get_postlist(first + maxitems, this);
     } else {
 	std::vector<PostList *> v;
 	std::vector<RefCntPtr<SubMatch> >::iterator i;
 	for (i = leaves.begin(); i != leaves.end(); i++) {
-	    v.push_back((*i)->get_postlist(first + maxitems));
+	    v.push_back((*i)->get_postlist(first + maxitems, this));
 	}
 	pl = new MergePostList(v);
     }
@@ -174,8 +174,6 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
     const std::map<om_termname, OmMSet::TermFreqAndWeight> &termfreqandwts =
 	leaves.front()->get_term_info();
-
-    pl->set_matcher(this); // FIXME - this can go away again now
 
     DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
 

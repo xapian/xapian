@@ -141,8 +141,6 @@ class PostList : public RefCntBase
 	/// Returns true if we're off the end of the list
 	virtual bool at_end() const = 0;
 
-	virtual void set_matcher(MultiMatch *matcher_) { }
-
 	///////////////////////////////////////////////////////////////////
 	// Introspection methods
 	//

@@ -47,6 +47,8 @@ MergePostList::next(om_weight w_min)
     DEBUGLINE(MATCH, "current = " << current);
     if (current == -1) current = 0;
     do {
+	// FIXME: should skip over Remote matchers which aren't ready yet
+	// and come back to them later...
 	PostList *p = plists[current]->next(w_min);
 	if (p) {
 	    delete plists[current];

@@ -72,22 +72,13 @@ RemoteSubMatch::~RemoteSubMatch()
 }
 
 PostList *
-RemoteSubMatch::get_postlist(om_doccount maxitems)
+RemoteSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
 //		       const OmMatchDecider *mdecider,
 {
-    // FIXME: need to pass termfreqandwts to each link->get_mset() call and
-    // to get the results back.
-
 // FIXME: for efficiency, MatchDecider should probably be applied remotely
 //    if (mdecider != 0) {
 //	throw OmInvalidArgumentError("Can't use a match decider remotely");
 //    }
-
-    // FIXME: Want to get remote end going, and return an MSetPostList
-    // which will return the results later.  And MergePostList should
-    // skip over Remote matchers which aren't ready yet and come back to
-    // them later...
-
     db->link->send_global_stats(*(gatherer->get_stats()));
     return (postlist = new PendingMSetPostList(db, maxitems));
 }

@@ -111,7 +111,8 @@ class PlCmpGtTermWt {
 // empty, else it needs to have all the postlists in (though the order
 // can be different) - this is ultra-icky
 PostList *
-LocalSubMatch::build_and_tree(std::vector<PostList *> &postlists)
+LocalSubMatch::build_and_tree(std::vector<PostList *> &postlists,
+			      MultiMatch *matcher)
 {
     // Build nice tree for AND-ed terms
     // SORT list into ascending freq order
@@ -144,13 +145,14 @@ LocalSubMatch::build_and_tree(std::vector<PostList *> &postlists)
     while (j > 0) {
 	j--;
 	// NB right is always <= left - we use this to optimise.
-	pl = new AndPostList(postlists[j], pl, NULL);
+	pl = new AndPostList(postlists[j], pl, matcher);
     }
     return pl;
 }
 
 PostList *
-LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists)
+LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists,
+			     MultiMatch *matcher)
 {
     // Build nice tree for OR-ed postlists
     // Want postlists with most entries to be at top of tree, to reduce
@@ -195,7 +197,7 @@ LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists)
 	pq.pop();
 	if (pq.empty()) return pl;
 	// NB right is always <= left - we can use this to optimise
-	pl = new OrPostList(pq.top(), pl, NULL);
+	pl = new OrPostList(pq.top(), pl, matcher);
 	pq.pop();
 	pq.push(pl);
     }
@@ -206,8 +208,9 @@ LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists)
 // Optimise query by building tree carefully.
 PostList *
 LocalSubMatch::postlist_from_queries(OmQuery::op op,
-				  const std::vector<OmQueryInternal *> &queries,
-				  om_termcount window)
+				     const std::vector<OmQueryInternal *> &queries,
+				     om_termcount window,
+				     MultiMatch *matcher)
 {
     Assert(op == OmQuery::OP_OR || op == OmQuery::OP_AND ||
 	   op == OmQuery::OP_NEAR || op == OmQuery::OP_PHRASE);
@@ -219,7 +222,7 @@ LocalSubMatch::postlist_from_queries(OmQuery::op op,
 
     std::vector<OmQueryInternal *>::const_iterator q;
     for (q = queries.begin(); q != queries.end(); q++) {
-	postlists.push_back(postlist_from_query(*q));
+	postlists.push_back(postlist_from_query(*q, matcher));
 	DEBUGLINE(MATCH, "Made postlist: get_termfreq() = " <<
 		  postlists.back()->get_termfreq());
     }
@@ -227,11 +230,11 @@ LocalSubMatch::postlist_from_queries(OmQuery::op op,
     // Build tree
     switch (op) {
 	case OmQuery::OP_AND:
-	    return build_and_tree(postlists);
+	    return build_and_tree(postlists, matcher);
 
 	case OmQuery::OP_NEAR:
 	{
-	    PostList *res = build_and_tree(postlists);
+	    PostList *res = build_and_tree(postlists, matcher);
 	    // FIXME: handle EmptyPostList return specially?
 	    return new NearPostList(res, window, postlists);
 	}
@@ -242,7 +245,7 @@ LocalSubMatch::postlist_from_queries(OmQuery::op op,
 	    // important for phrase, so we need to keep a copy
 	    // FIXME: there must be a cleaner way for this to work...
 	    std::vector<PostList *> postlists_orig = postlists;
-	    PostList *res = build_and_tree(postlists);
+	    PostList *res = build_and_tree(postlists, matcher);
 	    // FIXME: handle EmptyPostList return specially?
 	    return new PhrasePostList(res, window, postlists_orig);
 	}
@@ -275,7 +278,7 @@ LocalSubMatch::postlist_from_queries(OmQuery::op op,
 	 	}
 	     }
 
-	     return build_or_tree(postlists);
+	     return build_or_tree(postlists, matcher);
 
 	default:
 	    Assert(0);
@@ -287,7 +290,8 @@ LocalSubMatch::postlist_from_queries(OmQuery::op op,
 // Make a postlist from a query object - this is called recursively down
 // the query tree.
 PostList *
-LocalSubMatch::postlist_from_query(const OmQueryInternal *query)
+LocalSubMatch::postlist_from_query(const OmQueryInternal *query,
+				   MultiMatch *matcher)
 {
     // This should never fail, because isdefined should only be false
     // at the root of a query tree
@@ -323,27 +327,27 @@ LocalSubMatch::postlist_from_query(const OmQueryInternal *query)
 	case OmQuery::OP_NEAR:
 	    // Build a tree of postlists for AND, OR, PHRASE, or NEAR
 	    return postlist_from_queries(query->op, query->subqs,
-					 query->window);
+					 query->window, matcher);
 	case OmQuery::OP_FILTER:
 	    Assert(query->subqs.size() == 2);
-	    return new FilterPostList(postlist_from_query(query->subqs[0]),
-				      postlist_from_query(query->subqs[1]),
-				      NULL);
+	    return new FilterPostList(postlist_from_query(query->subqs[0], matcher),
+				      postlist_from_query(query->subqs[1], matcher),
+				      matcher);
 	case OmQuery::OP_AND_NOT:
 	    Assert(query->subqs.size() == 2);
-	    return new AndNotPostList(postlist_from_query(query->subqs[0]),
-				      postlist_from_query(query->subqs[1]),
-				      NULL);
+	    return new AndNotPostList(postlist_from_query(query->subqs[0], matcher),
+				      postlist_from_query(query->subqs[1], matcher),
+				      matcher);
 	case OmQuery::OP_AND_MAYBE:
 	    Assert(query->subqs.size() == 2);
-	    return new AndMaybePostList(postlist_from_query(query->subqs[0]),
-					postlist_from_query(query->subqs[1]),
-					NULL);
+	    return new AndMaybePostList(postlist_from_query(query->subqs[0], matcher),
+					postlist_from_query(query->subqs[1], matcher),
+					matcher);
 	case OmQuery::OP_XOR:
 	    Assert(query->subqs.size() == 2);
-	    return new XorPostList(postlist_from_query(query->subqs[0]),
-				   postlist_from_query(query->subqs[1]),
-				   NULL);
+	    return new XorPostList(postlist_from_query(query->subqs[0], matcher),
+				   postlist_from_query(query->subqs[1], matcher),
+				   matcher);
     }
     Assert(false);
     return NULL;
@@ -377,9 +381,9 @@ LocalSubMatch::prepare_match(bool nowait)
 }
 
 PostList *
-LocalSubMatch::get_postlist(om_doccount maxitems)
+LocalSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
 {
-    return postlist_from_query(&users_query);
+    return postlist_from_query(&users_query, matcher);
 }
 
 

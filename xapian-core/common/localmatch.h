@@ -104,7 +104,7 @@ class SubMatch : public RefCntBase {
 	/// Make a weight - default argument is used for finding extra_weight
 	IRWeight * mk_weight(const OmQueryInternal *query = NULL);
 
-	virtual PostList * get_postlist(om_doccount maxitems) = 0;
+	virtual PostList * get_postlist(om_doccount maxitems, MultiMatch *matcher) = 0;
 
 	virtual LeafDocument * open_document(om_docid did) const = 0;
 
@@ -133,17 +133,20 @@ class LocalSubMatch : public SubMatch {
 	std::map<om_termname, OmMSet::TermFreqAndWeight> term_info;
 
 
-	PostList * build_and_tree(std::vector<PostList *> &postlists);
+	PostList * build_and_tree(std::vector<PostList *> &postlists,
+				  MultiMatch *matcher);
 
-	PostList * build_or_tree(std::vector<PostList *> &postlists);
+	PostList * build_or_tree(std::vector<PostList *> &postlists,
+				 MultiMatch *matcher);
 
 	/// Make a postlist from a vector of query objects (AND or OR)
 	PostList *postlist_from_queries(OmQuery::op op,
 				const std::vector<OmQueryInternal *> & queries,
-				om_termcount window);
+				om_termcount window, MultiMatch *matcher);
 
 	/// Make a postlist from a query object
-	PostList *postlist_from_query(const OmQueryInternal * query);
+	PostList *postlist_from_query(const OmQueryInternal * query,
+				      MultiMatch *matcher);
 
 	void register_term(const om_termname &tname) {
 	    statssource->my_termfreq_is(tname, db->get_termfreq(tname));
@@ -169,7 +172,7 @@ class LocalSubMatch : public SubMatch {
 	/// Calculate the statistics for the query
 	bool prepare_match(bool nowait);
 
-	PostList * get_postlist(om_doccount maxitems);
+	PostList * get_postlist(om_doccount maxitems, MultiMatch *matcher);
 
 	virtual LeafDocument * open_document(om_docid did) const {
 	    return db->open_document(did);

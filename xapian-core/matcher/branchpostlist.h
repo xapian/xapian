@@ -60,12 +60,6 @@ class BranchPostList : public PostList {
 	 *  an OmUnimplementedError exception will be thrown.
 	 */
 	virtual PositionList *get_position_list();
-
-	virtual void set_matcher(MultiMatch *matcher_) {
-	    matcher = matcher_;
-	    l->set_matcher(matcher);
-	    r->set_matcher(matcher);
-	}
 };
 
 inline

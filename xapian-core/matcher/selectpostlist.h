@@ -52,10 +52,6 @@ class SelectPostList : public PostList {
 	PositionList * get_position_list() { return source->get_position_list(); }
 	bool at_end() const { return source->at_end(); }
 
-	virtual void set_matcher(MultiMatch *matcher_) {
-	    source->set_matcher(matcher_);
-	}
-
 	std::string get_description() const;    
     
 	SelectPostList(PostList *source_) : source(source_) { }
