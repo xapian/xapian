@@ -50,7 +50,9 @@ QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
 	  postlist_table(postlist_path(), readonly, block_size),
 	  positionlist_table(positionlist_path(), readonly, block_size),
 	  termlist_table(termlist_path(), readonly, block_size),
+#ifdef USE_LEXICON
 	  lexicon_table(lexicon_path(), readonly, block_size),
+#endif
 	  value_table(value_path(), readonly, block_size),
 	  record_table(record_path(), readonly, block_size)
 {
@@ -113,7 +115,9 @@ QuartzDiskTableManager::QuartzDiskTableManager(std::string db_dir_,
 	    postlist_table    .apply(new_revision);
 	    positionlist_table.apply(new_revision);
 	    termlist_table    .apply(new_revision);
+#ifdef USE_LEXICON
 	    lexicon_table     .apply(new_revision);
+#endif
 	    value_table       .apply(new_revision);
 	    record_table      .apply(new_revision);
 	}
@@ -133,7 +137,9 @@ QuartzDiskTableManager::database_exists() {
 	    postlist_table.exists() &&
 	    positionlist_table.exists() &&
 	    termlist_table.exists() &&
+#ifdef USE_LEXICON
 	    lexicon_table.exists() &&
+#endif
 	    value_table.exists();
 }
 
@@ -149,7 +155,9 @@ QuartzDiskTableManager::create_and_open_tables()
     postlist_table.erase();
     positionlist_table.erase();
     termlist_table.erase();
+#ifdef USE_LEXICON
     lexicon_table.erase();
+#endif
     value_table.erase();
     record_table.erase();
 
@@ -160,7 +168,9 @@ QuartzDiskTableManager::create_and_open_tables()
     postlist_table.create();
     positionlist_table.create();
     termlist_table.create();
+#ifdef USE_LEXICON
     lexicon_table.create();
+#endif
     value_table.create();
     record_table.create();
 
@@ -170,7 +180,9 @@ QuartzDiskTableManager::create_and_open_tables()
     metafile.open();
     record_table.open();
     value_table.open();
+#ifdef USE_LEXICON
     lexicon_table.open();
+#endif
     termlist_table.open();
     positionlist_table.open();
     postlist_table.open();
@@ -178,14 +190,18 @@ QuartzDiskTableManager::create_and_open_tables()
     // Check consistency
     quartz_revision_number_t revision = record_table.get_open_revision_number();
     if (revision != value_table.get_open_revision_number() ||
+#ifdef USE_LEXICON
 	revision != lexicon_table.get_open_revision_number() ||
+#endif
 	revision != termlist_table.get_open_revision_number() ||
 	revision != positionlist_table.get_open_revision_number() ||
 	revision != postlist_table.get_open_revision_number()) {
 	log->make_entry("Revisions are not consistent: have " + 
 			om_tostring(revision) + ", " +
 			om_tostring(value_table.get_open_revision_number()) + ", " +
+#ifdef USE_LEXICON
 			om_tostring(lexicon_table.get_open_revision_number()) + ", " +
+#endif
 			om_tostring(termlist_table.get_open_revision_number()) + ", " +
 			om_tostring(positionlist_table.get_open_revision_number()) + " and " +
 			om_tostring(postlist_table.get_open_revision_number()) + ".");
@@ -219,7 +235,9 @@ QuartzDiskTableManager::open_tables_consistent()
 	
 	bool opened;
 	opened = value_table.open(revision);
+#ifdef USE_LEXICON
 	if (opened) opened = lexicon_table.open(revision);
+#endif
 	if (opened) opened = termlist_table.open(revision);
 	if (opened) opened = positionlist_table.open(revision);
 	if (opened) opened = postlist_table.open(revision);
@@ -275,11 +293,13 @@ QuartzDiskTableManager::value_path() const
     return db_dir + "/value_";
 }
 
+#ifdef USE_LEXICON
 std::string
 QuartzDiskTableManager::lexicon_path() const
 {
     return db_dir + "/lexicon_";
 }
+#endif
 
 std::string
 QuartzDiskTableManager::termlist_path() const
@@ -307,7 +327,9 @@ QuartzDiskTableManager::open_tables(quartz_revision_number_t revision)
     metafile.open();
     record_table.open(revision);
     value_table.open(revision);
+#ifdef USE_LEXICON
     lexicon_table.open(revision);
+#endif
     termlist_table.open(revision);
     positionlist_table.open(revision);
     postlist_table.open(revision);
@@ -343,7 +365,9 @@ QuartzDiskTableManager::set_revision_number(quartz_revision_number_t new_revisio
     postlist_table    .apply(new_revision);
     positionlist_table.apply(new_revision);
     termlist_table    .apply(new_revision);
+#ifdef USE_LEXICON
     lexicon_table     .apply(new_revision);
+#endif
     value_table       .apply(new_revision);
     record_table      .apply(new_revision);
 }
@@ -369,12 +393,14 @@ QuartzDiskTableManager::get_termlist_table()
     RETURN(&termlist_table);
 }
 
+#ifdef USE_LEXICON
 QuartzDiskTable *
 QuartzDiskTableManager::get_lexicon_table()
 {
     DEBUGCALL(DB, QuartzDiskTable *, "QuartzDiskTableManager::get_lexicon_table", "");
     RETURN(&lexicon_table);
 }
+#endif
 
 QuartzDiskTable *
 QuartzDiskTableManager::get_value_table()
@@ -414,7 +440,9 @@ QuartzBufferedTableManager::QuartzBufferedTableManager(std::string db_dir_,
 	  postlist_buffered_table(disktables.get_postlist_table()),
 	  positionlist_buffered_table(disktables.get_positionlist_table()),
 	  termlist_buffered_table(disktables.get_termlist_table()),
+#ifdef USE_LEXICON
 	  lexicon_buffered_table(disktables.get_lexicon_table()),
+#endif
 	  value_buffered_table(disktables.get_value_table()),
 	  record_buffered_table(disktables.get_record_table()),
 	  lock_name(db_dir_ + "/db_lock")
@@ -511,7 +539,9 @@ QuartzBufferedTableManager::apply()
     if(!postlist_buffered_table.is_modified() &&
        !positionlist_buffered_table.is_modified() &&
        !termlist_buffered_table.is_modified() &&
+#ifdef USE_LEXICON
        !lexicon_buffered_table.is_modified() &&
+#endif
        !value_buffered_table.is_modified() &&
        !record_buffered_table.is_modified()) {
 	disktables.log->make_entry("No modifications to apply.");
@@ -527,7 +557,9 @@ QuartzBufferedTableManager::apply()
 	postlist_buffered_table.apply(new_revision);
 	positionlist_buffered_table.apply(new_revision);
 	termlist_buffered_table.apply(new_revision);
+#ifdef USE_LEXICON
 	lexicon_buffered_table.apply(new_revision);
+#endif
 	value_buffered_table.apply(new_revision);
 	record_buffered_table.apply(new_revision);
 
@@ -569,7 +601,9 @@ QuartzBufferedTableManager::cancel()
     postlist_buffered_table.cancel();
     positionlist_buffered_table.cancel();
     termlist_buffered_table.cancel();
+#ifdef USE_LEXICON
     lexicon_buffered_table.cancel();
+#endif
     value_buffered_table.cancel();
     record_buffered_table.cancel();
 }
@@ -595,12 +629,14 @@ QuartzBufferedTableManager::get_termlist_table()
     RETURN(&termlist_buffered_table);
 }
 
+#ifdef USE_LEXICON
 QuartzBufferedTable *
 QuartzBufferedTableManager::get_lexicon_table()
 {
     DEBUGCALL(DB, QuartzBufferedTable *, "QuartzBufferedTableManager::get_lexicon_table", "");
     RETURN(&lexicon_buffered_table);
 }
+#endif
 
 QuartzBufferedTable *
 QuartzBufferedTableManager::get_value_table()

@@ -23,6 +23,7 @@
  */
 
 #include <config.h>
+#ifdef USE_LEXICON
 #include "quartz_lexicon.h"
 #include "quartz_utils.h"
 #include "omassert.h"
@@ -118,3 +119,4 @@ QuartzLexicon::get_entry(const QuartzTable * table,
 
     RETURN(true);
 }
+#endif

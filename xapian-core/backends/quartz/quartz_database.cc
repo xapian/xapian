@@ -37,7 +37,11 @@
 #include "quartz_postlist.h"
 #include "quartz_termlist.h"
 #include "quartz_positionlist.h"
+#ifdef USE_LEXICON               
 #include "quartz_lexicon.h"
+#else
+#include "quartz_utils.h"
+#endif
 #include "quartz_record.h"
 #include "quartz_values.h"
 #include "quartz_document.h"
@@ -217,7 +221,11 @@ QuartzDatabase::get_doclength(om_docid did) const
 
     QuartzTermList termlist(0,
 			    tables->get_termlist_table(),
+#ifdef USE_LEXICON               
 			    tables->get_lexicon_table(),
+#else
+			    tables->get_postlist_table(),
+#endif
 			    did,
 			    0);
     RETURN(termlist.get_doclength());
@@ -230,9 +238,14 @@ QuartzDatabase::get_termfreq(const om_termname & tname) const
     Assert(!tname.empty());
 
     om_doccount termfreq = 0; // If not found, this value will be unchanged.
+#ifdef USE_LEXICON               
     QuartzLexicon::get_entry(tables->get_lexicon_table(),
 			     tname,
 			     &termfreq);
+#else
+    QuartzPostList pl(NULL, tables->get_postlist_table(), NULL, tname);
+    termfreq = pl.get_termfreq();
+#endif
     RETURN(termfreq);
 }
 
@@ -243,10 +256,7 @@ QuartzDatabase::get_collection_freq(const om_termname & tname) const
     Assert(!tname.empty());
 
     om_termcount collfreq = 0; // If not found, this value will be unchanged.
-    QuartzPostList pl(0,
-		      tables->get_postlist_table(),
-		      tables->get_positionlist_table(),
-		      tname);
+    QuartzPostList pl(NULL, tables->get_postlist_table(), NULL, tname);
     collfreq = pl.get_collection_freq();
     RETURN(collfreq);
 }
@@ -256,8 +266,16 @@ QuartzDatabase::term_exists(const om_termname & tname) const
 {
     DEBUGCALL(DB, bool, "QuartzDatabase::term_exists", tname);
     Assert(!tname.empty());
+#ifdef USE_LEXICON
     return QuartzLexicon::get_entry(tables->get_lexicon_table(),
 				    tname, 0);
+#else
+    const QuartzTable * table = tables->get_postlist_table();
+    AutoPtr<QuartzCursor> cursor(table->cursor_get());
+    // FIXME: nasty C&P from backends/quartz/quartz_postlist.cc
+    string key = pack_string_preserving_sort(tname);
+    return cursor->find_entry(key);
+#endif
 }
 
 
@@ -292,7 +310,11 @@ QuartzDatabase::open_term_list_internal(om_docid did,
     Assert(did != 0);
     return(new QuartzTermList(ptrtothis,
 			      tables->get_termlist_table(),
+#ifdef USE_LEXICON
 			      tables->get_lexicon_table(),
+#else
+			      tables->get_postlist_table(),
+#endif
 			      did,
 			      get_doccount_internal()));
 }
@@ -492,9 +514,11 @@ QuartzWritableDatabase::do_add_document(const OmDocument & document)
 	OmTermIterator term = document.termlist_begin();
 	OmTermIterator term_end = document.termlist_end();    
 	for ( ; term != term_end; ++term) {
+#ifdef USE_LEXICON
 	    QuartzLexicon::increment_termfreq(
 		buffered_tables->get_lexicon_table(),
 		*term);
+#endif
 	    QuartzPostList::add_entry(buffered_tables->get_postlist_table(),
 				      *term, did, term.get_wdf(),
 				      new_doclen);
@@ -538,7 +562,11 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
 
 	QuartzTermList termlist(ptrtothis,
 				database_ro.tables->get_termlist_table(),
+#ifdef USE_LEXICON
 				database_ro.tables->get_lexicon_table(),
+#else
+				database_ro.tables->get_postlist_table(),
+#endif
 				did,
 				database_ro.get_doccount_internal());
 
@@ -550,9 +578,11 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
 	    QuartzPositionList::delete_positionlist(
 		buffered_tables->get_positionlist_table(),
 		did, tname);
+#ifdef USE_LEXICON
 	    QuartzLexicon::decrement_termfreq(
 		buffered_tables->get_lexicon_table(),
 		tname);
+#endif
 	    termlist.next();
 	}
 
@@ -649,7 +679,11 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 	    RefCntPtr<const QuartzWritableDatabase> ptrtothis(tmp, this);
 	    QuartzTermList termlist(ptrtothis,
 	  			    database_ro.tables->get_termlist_table(),
+#ifdef USE_LEXICON
 				    database_ro.tables->get_lexicon_table(),
+#else
+				    database_ro.tables->get_postlist_table(),
+#endif
 				    did,
 				    database_ro.get_doccount_internal());
 	    old_doclen = termlist.get_doclength();
@@ -695,9 +729,11 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 	        QuartzPositionList::delete_positionlist(
 		    buffered_tables->get_positionlist_table(),
 		    did, tname);
+#ifdef USE_LEXICON
 	        QuartzLexicon::decrement_termfreq(
 		    buffered_tables->get_lexicon_table(),
 		    tname);
+#endif
                 ++vIter;
 	    }
             // Now add the terms that are new...
@@ -705,9 +741,11 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
             while (vIter != addTerms.end()) {
                 OmTermIterator tIter = document.termlist_begin();
                 tIter.skip_to((*vIter));
+#ifdef USE_LEXICON
 		QuartzLexicon::increment_termfreq(
 		    buffered_tables->get_lexicon_table(),
 		    *tIter);
+#endif
 		QuartzPostList::add_entry(buffered_tables->get_postlist_table(),
 					  *tIter, did, tIter.get_wdf(),
 					  new_doclen);

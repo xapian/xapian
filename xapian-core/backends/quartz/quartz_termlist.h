@@ -50,8 +50,11 @@ class QuartzTermList : public LeafTermList {
 	/** The table holding the lexicon.
 	 *  (Used when we have to perform a term frequency lookup).
 	 */
+#ifdef USE_LEXICON               
 	const QuartzTable * lexicon_table;
-
+#else
+	const QuartzTable * postlist_table;
+#endif
 
 	/** The data for the (part of the) termlist currently being read.
 	 *

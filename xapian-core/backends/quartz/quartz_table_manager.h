@@ -61,9 +61,11 @@ class QuartzTableManager {
 	 */
 	virtual QuartzTable * get_termlist_table() = 0;
 
+#ifdef USE_LEXICON
 	/** Get table storing lexicon.
 	 */
 	virtual QuartzTable * get_lexicon_table() = 0;
+#endif
 
 	/** Get table storing values.
 	 */
@@ -117,9 +119,11 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 */
 	QuartzDiskTable termlist_table;
 
+#ifdef USE_LEXICON
 	/** Table storing lexicon.
 	 */
 	QuartzDiskTable lexicon_table;
+#endif
 
 	/** Table storing values.
 	 */
@@ -168,8 +172,10 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	/// Return the path that the value table is stored at.
 	std::string value_path() const;
 
+#ifdef USE_LEXICON
 	/// Return the path that the lexicon table is stored at.
 	std::string lexicon_path() const;
+#endif
 
 	/// Return the path that the termlist table is stored at.
 	std::string termlist_path() const;
@@ -248,7 +254,9 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	QuartzDiskTable * get_postlist_table();
 	QuartzDiskTable * get_positionlist_table();
 	QuartzDiskTable * get_termlist_table();
+#ifdef USE_LEXICON
 	QuartzDiskTable * get_lexicon_table();
+#endif
 	QuartzDiskTable * get_value_table();
 	QuartzDiskTable * get_record_table();
 	void reopen();
@@ -273,7 +281,9 @@ class QuartzBufferedTableManager : public QuartzTableManager {
 	QuartzBufferedTable postlist_buffered_table;
 	QuartzBufferedTable positionlist_buffered_table;
 	QuartzBufferedTable termlist_buffered_table;
+#ifdef USE_LEXICON
 	QuartzBufferedTable lexicon_buffered_table;
+#endif
 	QuartzBufferedTable value_buffered_table;
 	QuartzBufferedTable record_buffered_table;
 	//@}
@@ -328,7 +338,9 @@ class QuartzBufferedTableManager : public QuartzTableManager {
 	QuartzBufferedTable * get_postlist_table();
 	QuartzBufferedTable * get_positionlist_table();
 	QuartzBufferedTable * get_termlist_table();
+#ifdef USE_LEXICON
 	QuartzBufferedTable * get_lexicon_table();
+#endif
 	QuartzBufferedTable * get_value_table();
 	QuartzBufferedTable * get_record_table();
 	void reopen();

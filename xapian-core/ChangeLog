@@ -1,3 +1,8 @@
+Wed Nov 06 01:56:41 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/: disable quartz lexicon table unless USE_LEXICON
+	  is defined.
+
 Wed Nov 06 01:54:30 GMT 2002  Olly Betts <olly@survex.com>
 
 	* docs/overview.html: Corrected link to API docs on website.

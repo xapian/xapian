@@ -22,6 +22,10 @@
  * -----END-LICENCE-----
  */
 
+#ifndef USE_LEXICON
+#error quartz_lexicon.h should not get included with USE_LEXICON
+#endif
+
 #ifndef OM_HGUARD_QUARTZ_LEXICON_H
 #define OM_HGUARD_QUARTZ_LEXICON_H
 
