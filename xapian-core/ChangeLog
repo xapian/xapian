@@ -1,3 +1,7 @@
+Mon Jul 28 10:37:17 BST 2003  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated FreeBSD success report.
+
 Sun Jul 27 16:01:25 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Explicitly remove include/xapian/version.h from
