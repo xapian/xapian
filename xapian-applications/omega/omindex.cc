@@ -323,15 +323,13 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 #else
     newdocument.add_term_nopos("T" + mimetype); // mimeType
     string::size_type j;
-    j = baseurl.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-				  "abcdefghijklmnopqrstuvwxyz"
-			    	  "0123456789");
+    j = find_if(baseurl.begin(), baseurl.end(), p_notalnum) - baseurl.begin();
     if (j > 0 && baseurl.substr(j, 3) == "://") {
 	j += 3;
-    	string::size_type k = baseurl.find_first_of(":/", j);
-	newdocument.add_term_nopos("H" + baseurl.substr(j, k - j)); // Host
-	k = baseurl.find('/', k);
+    	string::size_type k = baseurl.find('/', j);
 	newdocument.add_term_nopos("P" + baseurl.substr(k)); // Path
+    	string::const_iterator l = find(baseurl.begin() + j, baseurl.begin() + k, ':');
+	newdocument.add_term_nopos("H" + baseurl.substr(j, l - baseurl.begin() - j)); // Host
     } else {
 	newdocument.add_term_nopos("P" + baseurl); // Path
     }

@@ -1,3 +1,7 @@
+Wed Dec 05 17:07:33 GMT 2001  Olly Betts <olly@survex.com>
+
+	* omindex: minor speed tweaks.
+
 Wed Dec 05 16:52:21 GMT 2001  Olly Betts <olly@survex.com>
 
 	* omindex: further HTML parser speed-ups.
