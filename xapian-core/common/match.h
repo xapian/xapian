@@ -63,12 +63,15 @@ class Match
 	stack<PostList *> query;
 	vector<IRWeight *> weights;
 
-	RSet *rset;
-    
+	RSet *rset;         // RSet to be used (affects weightings)
+
+	bool do_collapse;   // Whether to perform collapsem operation
+	keyno collapse_key; // Key to collapse on, if desired
+
 	bool have_added_terms;
         bool recalculate_maxweight;
 
-	bool query_ready;
+	bool query_ready; 
 	PostList * build_query();
 
 	DBPostList * mk_postlist(const termname& tname,
@@ -106,8 +109,12 @@ class Match
         void set_min_weight_percent(int);
 
 	// Add a key number to collapse by.  Each key value will appear only
-	// once in the result set.
-	//void add_collapse_key(keyno);
+	// once in the result set.  Collapsing can only be done on one key
+	// number.
+	void set_collapse_key(keyno);
+
+	// Remove the collapse key
+	void set_no_collapse();
 
 	///////////////////////////////////////////////////////////////////
 	// Get information about result
@@ -123,10 +130,10 @@ class Match
 		  );
 
 	// Perform the match operation, but also return a lower bound on the
-	// number of matching records in the database.  Because of some of
-	// the optimisations performed, this is likely to be much lower than
-	// the actual number of matching records, but it is expensive to do
-	// the calculation properly.
+	// number of matching records in the database (mtotal).  Because of
+	// some of the optimisations performed, this is likely to be much
+	// lower than the actual number of matching records, but it is
+	// expensive to do the calculation properly.
 	//
 	// It is generally considered that presenting the mtotal to users
 	// causes them to worry about the large number of results, rather
@@ -150,6 +157,19 @@ inline void
 Match::set_default_op(matchop _default_op)
 {
     default_op = _default_op;
+}
+
+inline void
+Match::set_collapse_key(keyno key)
+{
+    do_collapse = true;
+    collapse_key = key;
+}
+
+inline void
+Match::set_no_collapse()
+{
+    do_collapse = false;
 }
 
 inline void
