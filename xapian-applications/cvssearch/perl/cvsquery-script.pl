@@ -29,7 +29,7 @@ $_ = $ARGV[1];
 
 my $root_dir = $ARGV[0];
 my $package = Cvssearch::strip_last_slash($ARGV[1]);
-$package =~ tr/\//\_/;
+$package =~ tr!/!_!;
 
 $ARGV[0]= "$cvsdata/$root_dir/db/$package.db/$package.db";
 # ------------------------------------------------------------

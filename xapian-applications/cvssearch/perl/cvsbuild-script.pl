@@ -194,7 +194,7 @@ sub cvsbuild {
         my $app_path = &Cvssearch::strip_last_slash ($_);
         my $app_name = $app_path; 
        
-        $app_name =~tr/\//\_/;
+        $app_name =~ tr!/!_!;
         
         if ($app_path ne "" ) {
             # ----------------------------------------
@@ -300,7 +300,7 @@ sub cvsbuild {
                     my $xapian_size = 0;
                     my $cmt_size = 0;
                     
-                    open(SIZE, "du $prefix_path.db|");
+                    open(SIZE, "du -k $prefix_path.db|");
                     while (<SIZE>) {
                         chomp;
                         my @fields = split(/\t/);
@@ -309,7 +309,7 @@ sub cvsbuild {
                     }
                     close (SIZE);
 
-                    open(SIZE, "du $prefix_path.om|");
+                    open(SIZE, "du -k $prefix_path.om|");
                     while (<SIZE>) {
                         chomp;
                         my @fields = split(/\t/);
