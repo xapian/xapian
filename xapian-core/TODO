@@ -208,19 +208,16 @@ Big Jobs
 ========
 
 ---------+-----------------+--------------------------------------------------
- High    | Matcher         | Distributed searching (distributed enquire
-	 |                 | objects).
+ High    | API             | Write bindings for other languages (Java, C,
+         |                 | perl, python, etc.).
 ---------+-----------------+--------------------------------------------------
- Medium  | API             | Write bindings for other languages (Java, C,
-         |                 | perl, python, etc)
+ High    | Performance     | Write (speed) performance test suite.
 ---------+-----------------+--------------------------------------------------
- Medium  | Indexer         | Write indexer modules.
----------+-----------------+--------------------------------------------------
- Medium  | Performance     | Write (speed) performance test suite.
+ High    | Indexer         | Write indexer modules.
 ---------+-----------------+--------------------------------------------------
  Low     | Positional      | Passage retrieval.
 ---------+-----------------+--------------------------------------------------
- Low     | Matcher         | Other search functions (sort, cluster).
+ Low     | Matcher         | Clustering algorithms.
 ---------+-----------------+--------------------------------------------------
  Verylow | General         | Sanify and implement introspection methods -
 	 |                 | get_database_path, etc.  Should be able to get
