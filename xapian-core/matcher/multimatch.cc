@@ -818,21 +818,40 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	Assert(percent_cutoff || docs_matched == items.size());
 	matches_lower_bound = matches_upper_bound = matches_estimated
 	    = items.size();
-    } else if (percent_cutoff) {
-	// another approach: Xapian::doccount new_est = items.size() * (1 - percent_factor) / (1 - min_item.wt / greatest_wt);
-	Xapian::doccount new_est = (Xapian::doccount)((1 - percent_factor) *
-					    matches_estimated);
-	matches_estimated = max((size_t)new_est, items.size());
-	// and another: items.size() + (1 - greatest_wt * percent_factor / min_item.wt) * (matches_estimated - items.size());
-	
-	// Very likely an underestimate, but we can't really do better without
-	// checking further matches...  Only possibility would be to track how
-	// many docs made the min weight test but didn't make the candidate set
-	// since the last greatest_wt change, which we could use if the top
-	// documents matched all the prob terms.
-	matches_lower_bound = items.size();
-	// matches_upper_bound could be reduced by the number of documents
-	// which fail the min weight test
+    } else {
+	if (percent_cutoff) {
+	    // another approach: Xapian::doccount new_est = items.size() * (1 - percent_factor) / (1 - min_item.wt / greatest_wt);
+	    Xapian::doccount new_est = (Xapian::doccount)((1 - percent_factor) *
+							  matches_estimated);
+	    matches_estimated = max((size_t)new_est, items.size());
+	    // and another: items.size() + (1 - greatest_wt * percent_factor / min_item.wt) * (matches_estimated - items.size());
+
+	    // Very likely an underestimate, but we can't really do better without
+	    // checking further matches...  Only possibility would be to track how
+	    // many docs made the min weight test but didn't make the candidate set
+	    // since the last greatest_wt change, which we could use if the top
+	    // documents matched all the prob terms.
+	    matches_lower_bound = items.size();
+	    // matches_upper_bound could be reduced by the number of documents
+	    // which fail the min weight test
+	}
+
+	DEBUGLINE(MATCH,
+		"docs_matched = " << docs_matched << ", " <<
+		"matches_lower_bound = " << matches_lower_bound << ", " <<
+		"matches_estimated = " << matches_estimated << ", " <<
+		"matches_upper_bound = " << matches_upper_bound);
+
+	Assert(matches_estimated >= matches_lower_bound);
+	Assert(matches_estimated <= matches_upper_bound);
+
+	if (!percent_cutoff) {
+	    Assert(docs_matched <= matches_upper_bound);
+	    if (docs_matched > matches_lower_bound)
+		matches_lower_bound = docs_matched;
+	    if (docs_matched > matches_estimated)
+		matches_estimated = docs_matched;
+	}
     }
 
     DEBUGLINE(MATCH, items.size() << " items in potential mset");
@@ -851,12 +870,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	}
     }
 
-    DEBUGLINE(MATCH,
-	      "msize = " << items.size() << ", " <<
-	      "docs_matched = " << docs_matched << ", " <<
-	      "matches_lower_bound = " << matches_lower_bound << ", " <<
-	      "matches_estimated = " << matches_estimated << ", " <<
-	      "matches_upper_bound = " << matches_upper_bound);
+    DEBUGLINE(MATCH, "msize = " << items.size());
 
     if (sort_bands <= 1 && !items.empty()) {
 	DEBUGLINE(MATCH, "sorting");
@@ -870,14 +884,6 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     Assert(matches_estimated >= matches_lower_bound);
     Assert(matches_estimated <= matches_upper_bound);
-
-    if (!percent_cutoff) {
-	Assert(docs_matched <= matches_upper_bound);
-	if (docs_matched > matches_lower_bound)
-	    matches_lower_bound = docs_matched;
-	if (docs_matched > matches_estimated)
-	    matches_estimated = docs_matched;
-    }
 
     // We may need to qualify any collapse_count to see if the highest weight
     // collapsed item would have qualified percent_cutoff 

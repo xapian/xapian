@@ -1,3 +1,9 @@
+Wed Jun 16 01:55:29 BST 2004  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Rearranged code so that the behaviour can
+	  be easily seen to be unchanged, but so that it's closer to the
+	  result of applying Richard's patch for bug #31.
+
 Wed Jun 16 01:27:09 BST 2004  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Trimmed extra whitespace.
