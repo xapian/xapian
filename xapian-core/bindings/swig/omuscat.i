@@ -133,7 +133,7 @@ class mset_batch {
 
 class OmBatchEnquire {
     public:
-        OmBatchEnquire(const OmDatabaseGroup &databases);
+        OmBatchEnquire(const OmDatabase &databases);
         ~OmBatchEnquire();
 
 	void set_queries(const query_batch &queries_);
@@ -221,6 +221,10 @@ class OmDatabase {
     public:
 	OmDatabase(const OmSettings &params);
 	virtual ~OmDatabase();
+
+	%name(add_dbargs) void add_database(const OmSettings &params);
+	
+	void add_database(const OmDatabase & database);
 };
 
 class OmWritableDatabase : public OmDatabase {
@@ -259,19 +263,9 @@ class OmDocument {
 };
 
 
-class OmDatabaseGroup {
-    public:
-    	OmDatabaseGroup();
-	~OmDatabaseGroup();
-
-	%name(add_dbargs) void add_database(const OmSettings &params);
-	
-	void add_database(const OmDatabase & database);
-};
-
 class OmEnquire {
     public:
-        OmEnquire(const OmDatabaseGroup &databases);
+        OmEnquire(const OmDatabase &databases);
 	~OmEnquire();
 
 	void set_query(const OmQuery &query);

@@ -27,9 +27,7 @@ print "terms = ", terms
 if (terms != [ "one", "two", "three", "four" ]):
     print "Incorrect term list."
 
-dbgrp = OmDatabaseGroup()
-
-dbgrp.add_dbargs({ "backend": "sleepycat",
+dbgrp = OmDatabase({ "backend": "sleepycat",
                    "sleepycat_dir":
 		   "../../tests/.sleepycat/db=apitest_simpledata="})
 

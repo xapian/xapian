@@ -184,10 +184,13 @@
 	    if (PyString_Check(val)) {
 	        std::string value = PyString_AsString(val);
 		s.set(key, value);
+		cout << "Set " << key << " to string `" << value << "'" << endl;
 	    } else if (PyNumber_Check(val)) {
 	        double value = PyFloat_AsDouble(PyNumber_Float(val));
 		s.set(key, value);
+		cout << "Set " << key << " to double `" << value << "'" << endl;
 	    } else {
+	        cout << "FOO" << endl;
 		PyErr_SetString(PyExc_TypeError,
 				"unexpected value type");
 		return NULL;

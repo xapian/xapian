@@ -1,3 +1,9 @@
+Wed Sep 13 15:33:35 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Some changes to Python (and general SWIG) bindings to support 
+	  new OmDatabase and OmSettings.  There's a bug in there somewhere
+	  though.
+
 Wed Sep 13 15:23:26 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added the native part of the OmSettings Java wrappers.  (Oops!)

@@ -2,8 +2,7 @@
 from omuscat import *
 
 def get_simple_database():
-    mydb = OmDatabaseGroup()
-    mydb.add_dbargs({ "backend": "sleepycat",
+    mydb = OmDatabase({ "backend": "sleepycat",
                       "sleepycat_dir":
 		      "../../tests/.sleepycat/db=apitest_simpledata="})
     return mydb
@@ -54,6 +53,7 @@ def test_pctcutoff1():
     print "Cutoff percent: ", my_pct
 
     mymopt = { "match_percent_cutoff": my_pct}
+    print repr(mymopt)
     mymset2 = enquire.get_mset(0, 100, "NULL", mymopt)
 
     print "Percentages after cutoff:",
