@@ -1,3 +1,53 @@
+Announcing version 0.4.1 of Muscat.
+===================================
+
+This is mainly a bug fix release, but also contains one API addition.
+It should require no changes to code to make existing applications work,
+so we recommend that you upgrade.
+
+This release is available from the usual place:
+        http://open.muscat.com/download/index.html
+
+As ever, for the most up-to-date documentation, see our online copy at
+	http://open.muscat.com/developer/index.html
+
+
+API modifications:
+
+ * Added a get_collection_freq() method to OmDatabase, which returns
+   the total number of occurences of a term in the database (this is
+   the sum over all the documents of the number of occurences of the
+   term, and is quite distinct from the "term frequency" which is the
+   number of documents containing the term).
+
+
+Bug fixes:
+
+ * Detect dead hosts when trying to make a tcp connection to them: don't
+   block indefinitely.
+
+ * Perform automatic detection of fdatasync(), and libraries required for it.
+
+ * More validity checking of user supplied parameters.
+
+ * Errors occuring within quartz get reported in a consistent manner.
+
+ * Fixes so that it compiles again with --disable-phread-support.
+
+ * Various warnings present only with --disable-debug eliminated.
+
+ * Testsuite now works despite RTLD_DEFAULT not being defined on some systems.
+
+
+Quartz continues to undergo significant modifications for performance
+improvments, to use less disk space (a fair way to go here), remove some
+arbitrary limits which existed in the file format.
+
+Quartz still needs to be made properly safe for reading whilst updating,
+and also needs to lock database directory to prevent accidental multiple
+writers (which would result in a corrupt database).
+
+
 Announcing version 0.4.0 of Muscat.
 ===================================
 
