@@ -2,9 +2,32 @@ This directory contains example programs which can be compiled against
 Muscat.
 
 Due to the lack of a proper API, Muscat should currently not be installed.
-The makefiles in this directory therefore expect to find libom and the
-needed header files in the directory tree for Muscat, in the path ../om
-relative to this directory.  ie: the examples directory should be placed
-in the same directory as the om directory.
+Therefore, when configuring this directory, you need to specify the
+location of a built, but not installed, Muscat library.
 
-This will be fixed at a later date.
+This is further complicated if you are performing a VPATH build
+(ie, builddir != srcdir), in which case you must also specify
+
+The configure.in uses a macro defined by Muscat, so you must also
+point at this if you are rebuilding the configure script (with aclocal)
+This can be done using the ACLOCAL_FLAGS environment variable, if you're
+using the "buildall" script.
+
+Note that you shouldn't specify relative directories in this environment
+variable, or in the --with-libomus-uninst* parameters
+
+Here's the way I get this compiled and working:
+
+Check out om and examples within the same directory. Within this directory:
+
+mkdir BUILD
+cd BUILD
+mkdir om
+cd om
+../../om/buildall
+cd ..
+mkdir examples
+cd examples
+ACLOCAL_FLAGS="-I `pwd`/../../om/m4" ../../examples/buildall --with-libomus-uninst=`pwd`/../../om --with-libomus-uninst-exec=`pwd`/../om
+
+(Note: the above commands may have typos: I havn't tested them yet)
