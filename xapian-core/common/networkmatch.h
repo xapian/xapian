@@ -76,7 +76,7 @@ class NetworkMatch : public SingleMatch
         om_weight get_max_weight();
 	bool get_mset(om_doccount first,
 		      om_doccount maxitems,
-		      vector<OmMSetItem> & mset,
+		      std::vector<OmMSetItem> & mset,
 		      om_doccount * mbound,
 		      om_weight * greatest_wt,
 		      const OmMatchDecider *mdecider,

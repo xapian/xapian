@@ -32,13 +32,13 @@ RSet::calculate_stats()
 {
     Assert(!calculated_reltermfreqs);
     DebugMsg("RSet::calculate_stats(): ");
-    vector<RSetItem>::const_iterator doc;
+    std::vector<RSetItem>::const_iterator doc;
     for (doc = documents.begin();
 	 doc != documents.end();
 	 doc++) {
 	DebugMsg("document " << doc->did << " [ ");
-	auto_ptr<TermList> tl =
-	    auto_ptr<TermList>(root->open_term_list(doc->did));
+	std::auto_ptr<TermList> tl =
+	    std::auto_ptr<TermList>(root->open_term_list(doc->did));
 	tl->next();
 	while(!(tl->at_end())) {
 	    // FIXME - can this lookup be done faster?
@@ -61,7 +61,7 @@ RSet::give_stats_to_statssource(StatsSource &statssource)
 {
     Assert(calculated_reltermfreqs);
 
-    map<om_termname, om_doccount>::const_iterator reltermfreq;
+    std::map<om_termname, om_doccount>::const_iterator reltermfreq;
     for (reltermfreq = reltermfreqs.begin();
 	 reltermfreq != reltermfreqs.end();
 	 reltermfreq++) {

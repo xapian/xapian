@@ -32,26 +32,26 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-TcpClient::TcpClient(string hostname, int port)
+TcpClient::TcpClient(std::string hostname, int port)
 	: SocketClient(get_remote_socket(hostname, port))
 {
 
 }
 
 int
-TcpClient::get_remote_socket(string hostname, int port)
+TcpClient::get_remote_socket(std::string hostname, int port)
 {
     struct hostent *host = gethostbyname(hostname.c_str());
 
     if (host == 0) {
-	throw OmNetworkError(string("Couldn't resolve host ") +
+	throw OmNetworkError(std::string("Couldn't resolve host ") +
 			     hostname);
     }
 
     int socketfd = socket(PF_INET, SOCK_STREAM, 0);
 
     if (socketfd < 0) {
-	throw OmNetworkError(string("socket: ") + strerror(errno));
+	throw OmNetworkError(std::string("socket: ") + strerror(errno));
     }
 
     struct sockaddr_in remaddr;
@@ -65,7 +65,7 @@ TcpClient::get_remote_socket(string hostname, int port)
 
     if (retval < 0) {
 	close(socketfd);
-	throw OmNetworkError(string("connect: ") + strerror(errno));
+	throw OmNetworkError(std::string("connect: ") + strerror(errno));
     }
 
     return socketfd;

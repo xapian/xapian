@@ -41,18 +41,18 @@ OmDocumentTerm::add_posting(om_termpos tpos)
     wdf++;
 
     if(tpos != 0) {
-	vector<om_termpos>::iterator i;
-	i = lower_bound(positions.begin(), positions.end(), tpos);
+	std::vector<om_termpos>::iterator i;
+	i = std::lower_bound(positions.begin(), positions.end(), tpos);
 	if(i == positions.end() || *i != tpos) {
 	    positions.insert(i, tpos);
 	}
     }
 }
 
-string
+std::string
 OmDocumentTerm::get_description() const
 {
-    string description;
+    std::string description;
 
     description = "OmDocumentTerm(" + tname +
 	    ", wdf = " + om_inttostring(wdf) +
@@ -66,20 +66,20 @@ OmDocumentTerm::get_description() const
 void
 OmDocumentContents::add_posting(const om_termname & tname, om_termpos tpos)
 {
-    map<om_termname, OmDocumentTerm>::iterator documentterm;
+    std::map<om_termname, OmDocumentTerm>::iterator documentterm;
     documentterm = terms.find(tname);
 
     if(documentterm == terms.end()) {
-	terms.insert(make_pair(tname, OmDocumentTerm(tname, tpos)));
+	terms.insert(std::make_pair(tname, OmDocumentTerm(tname, tpos)));
     } else {
 	documentterm->second.add_posting(tpos);
     }
 }
 
-string
+std::string
 OmDocumentContents::get_description() const
 {
-    string description;
+    std::string description;
 
     description = "OmDocumentContents(" +
 	    data.get_description() +

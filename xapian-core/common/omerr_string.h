@@ -33,7 +33,7 @@
  *
  *  @param e		A reference to the exception to convert.
  */
-string omerror_to_string(const OmError &e);
+std::string omerror_to_string(const OmError &e);
 
 /** Take a string representation of an exception (from omerror_to_string)
  *  and effectively rethrow the exception, optionally with a prefix added
@@ -43,6 +43,6 @@ string omerror_to_string(const OmError &e);
  *                              thrown.
  *  @param	prefix		A string to be prepended to the message.
  */
-void string_to_omerror(const string &except, const string &prefix = "");
+void string_to_omerror(const std::string &except, const std::string &prefix = "");
 
 #endif /* OM_HGUARD_ERR_STRING_H */

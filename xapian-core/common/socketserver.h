@@ -50,7 +50,7 @@ class SocketServer : public NetServer {
 	int writefd;
 
 	/// The line buffer for doing the actual I/O
-	auto_ptr<OmLineBuf> buf;
+	std::auto_ptr<OmLineBuf> buf;
 
 	/// The various states of the conversation we can be in
 	enum conv_states {
@@ -77,13 +77,13 @@ class SocketServer : public NetServer {
 	void read_global_stats();
 
 	/// Run the match conversation
-	void run_match(const string &firstmessage);
+	void run_match(const std::string &firstmessage);
 
 	/// run the get term list conversation
-	void run_gettermlist(const string &firstmessage);
+	void run_gettermlist(const std::string &firstmessage);
 	
 	/// run the get document conversation
-	void run_getdocument(const string &firstmessage);
+	void run_getdocument(const std::string &firstmessage);
 	
     public:
 	/** Default constructor. 
@@ -105,7 +105,7 @@ class SocketServer : public NetServer {
 	 *                      instead.
 	 */
 	SocketServer(OmRefCntPtr<MultiDatabase> db,
-		     auto_ptr<OmLineBuf> buffer);
+		     std::auto_ptr<OmLineBuf> buffer);
 
 	/** Destructor. */
 	~SocketServer();

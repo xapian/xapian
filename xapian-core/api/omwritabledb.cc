@@ -25,8 +25,8 @@
 #include "omdebug.h"
 #include <om/omoutput.h>
 
-OmDatabase::OmDatabase(const string & type,
-		       const vector<string> & params,
+OmDatabase::OmDatabase(const std::string & type,
+		       const std::vector<std::string> & params,
 		       bool readonly)
 	: internal(new OmDatabase::Internal(type, params, readonly))
 {
@@ -34,8 +34,8 @@ OmDatabase::OmDatabase(const string & type,
 		 type << ", " << "[params]" << ", " << readonly);
 }
 
-OmDatabase::OmDatabase(const string & type,
-		       const vector<string> & params)
+OmDatabase::OmDatabase(const std::string & type,
+		       const std::vector<std::string> & params)
 	: internal(new OmDatabase::Internal(type, params, true))
 {
     DEBUGAPICALL("OmDatabase::OmDatabase",
@@ -64,7 +64,7 @@ OmDatabase::~OmDatabase()
     internal = 0;
 }
 
-string
+std::string
 OmDatabase::get_description() const
 {
     DEBUGAPICALL("OmDatabase::get_description", "");
@@ -73,8 +73,8 @@ OmDatabase::get_description() const
 }
 
 
-OmWritableDatabase::OmWritableDatabase(const string & type,
-				       const vector<string> & params)
+OmWritableDatabase::OmWritableDatabase(const std::string & type,
+				       const std::vector<std::string> & params)
 	: OmDatabase(type, params, false)
 {
     DEBUGAPICALL("OmWritableDatabase::OmWritableDatabase",
@@ -163,11 +163,11 @@ OmWritableDatabase::add_document(const OmDocumentContents & document)
     return did;
 }
 
-string
+std::string
 OmWritableDatabase::get_description() const
 {
     /// \todo display contents of the writable database
-    string description = "OmWritableDatabase()";
+    std::string description = "OmWritableDatabase()";
     DEBUGAPICALL("OmWritableDatabase::get_description", "");
     return description;
 }

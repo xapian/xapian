@@ -1,5 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
+AUTOMAKE_OPTIONS = no-dependencies
+
 if BUILD_BACKEND_NET
 BUILDSUBDIR_NET1 = net
 BUILDSUBDIR_NET2 = netprogs

@@ -139,7 +139,7 @@ XorPostList::skip_to(om_docid did, om_weight w_min)
 	    }
 	    DebugMsg("XOR -> AND NOT (in skip_to) (1)" << endl);
 	    AndNotPostList *ret3 = new AndNotPostList(r, l, matcher);
-	    did = max(did, rhead);
+	    did = std::max(did, rhead);
 	    ret2 = ret3->sync_and_skip_to(did, w_min, rhead, lhead);
 	    ret = ret3;
 	} else {
@@ -147,7 +147,7 @@ XorPostList::skip_to(om_docid did, om_weight w_min)
 	    Assert(w_min > rmax);
 	    DebugMsg("XOR -> AND NOT (in skip_to) (2)" << endl);
 	    AndNotPostList *ret3 = new AndNotPostList(l, r, matcher);
-	    did = max(did, lhead);
+	    did = std::max(did, lhead);
 	    ret2 = ret3->sync_and_skip_to(did, w_min, lhead, rhead);
 	    ret = ret3;
 	}

@@ -52,13 +52,13 @@ class SelectPostList : public PostList {
 	PositionList * get_position_list() { return source->get_position_list(); }
 	bool at_end() const { return source->at_end(); }
 
-	string intro_term_description() const;
+	std::string intro_term_description() const;
 
 	SelectPostList(PostList *source_) : source(source_) { }
         ~SelectPostList() { delete source; }
 };
 
-inline string
+inline std::string
 SelectPostList::intro_term_description() const
 {
     return "(Select " + source->intro_term_description() + ")";

@@ -53,8 +53,8 @@ OmExpand::build_tree(const RSet *rset, const OmExpandWeight *ewt)
     // the matcher.
     //
     // FIXME: try using a heap instead (C++ sect 18.8)?
-    priority_queue<TermList*, vector<TermList*>, TLPCmpGt> pq;
-    vector<RSetItem>::const_iterator i;
+    std::priority_queue<TermList*, std::vector<TermList*>, TLPCmpGt> pq;
+    std::vector<RSetItem>::const_iterator i;
     for (i = rset->documents.begin();
 	 i != rset->documents.end();
 	 i++) {
@@ -135,7 +135,7 @@ OmExpand::expand(om_termcount max_esize,
 		if (eset.items.size() == max_esize * 2) {
 		    // find last element we care about
 		    DEBUGMSG(EXPAND, "finding nth" << endl);
-		    nth_element(eset.items.begin(),
+		    std::nth_element(eset.items.begin(),
 				eset.items.begin() + max_esize,
 				eset.items.end(),
 				OmESetCmp());
@@ -152,7 +152,7 @@ OmExpand::expand(om_termcount max_esize,
     if (eset.items.size() > max_esize) {
 	// find last element we care about
 	DEBUGMSG(EXPAND, "finding nth" << endl);
-	nth_element(eset.items.begin(),
+	std::nth_element(eset.items.begin(),
 		    eset.items.begin() + max_esize,
 		    eset.items.end(), OmESetCmp());
 	// erase elements which don't make the grade
@@ -161,7 +161,7 @@ OmExpand::expand(om_termcount max_esize,
     DEBUGMSG(EXPAND, "sorting" << endl);
 
     // Need a stable sort, but this is provided by comparison operator
-    sort(eset.items.begin(), eset.items.end(), OmESetCmp());
+    std::sort(eset.items.begin(), eset.items.end(), OmESetCmp());
 
     DEBUGMSG(EXPAND, "esize = " << eset.items.size() << ", ebound = " << eset.ebound << endl);
     if (eset.items.size()) {

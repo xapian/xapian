@@ -40,7 +40,7 @@ const Stats *
 LocalStatsGatherer::get_stats() const
 {
     if(!have_gathered) {
-	for (vector<StatsSource *>::iterator i = sources.begin();
+	for (std::vector<StatsSource *>::iterator i = sources.begin();
 	     i != sources.end();
 	     ++i) {
 	    (*i)->contrib_my_stats();
@@ -75,7 +75,7 @@ void
 NetworkStatsGatherer::fetch_local_stats() const
 {
     if (!have_gathered) {
-	for (vector<StatsSource *>::iterator i = sources.begin();
+	for (std::vector<StatsSource *>::iterator i = sources.begin();
 	     i != sources.end();
 	     ++i) {
 	    (*i)->contrib_my_stats();

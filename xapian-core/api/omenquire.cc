@@ -190,12 +190,25 @@ OmExpandOptions::set_use_exact_termfreq(bool use_exact_termfreq_)
 
 OmExpandDeciderFilterTerms::OmExpandDeciderFilterTerms(
                                const om_termname_list &terms)
-	: tset(terms.begin(), terms.end()) {}
+{
+    // I'd prefer using an initialiser list for this, but it seems
+    // that Solaris' CC doesn't like initialising a set with list
+    // iterators.
+    om_termname_list::const_iterator i = terms.begin();
+    while (i != terms.end()) {
+        tset.insert(*i);
+    }
+}
 
 int
 OmExpandDeciderFilterTerms::operator()(const om_termname &tname) const
 {
-    return (tset.find(tname) == tset.end());
+    /* Solaris CC returns an iterator from tset.find() const, and then
+     * doesn't like comparing it to the const_iterator from end().
+     * Therefore make sure we get a const_iterator to do the comparision.
+     */
+    std::set<om_termname>::const_iterator i = tset.find(tname);
+    return (i == tset.end());
 }
 
 OmExpandDeciderAnd::OmExpandDeciderAnd(const OmExpandDecider *left_,

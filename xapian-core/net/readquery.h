@@ -31,6 +31,6 @@ struct querytok {
 	    : type(static_cast<etype>(type_)) {}
 };
 
-void qfs_start(string text);
+void qfs_start(std::string text);
 querytok qfs_gettok();
 void qfs_end();

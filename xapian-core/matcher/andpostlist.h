@@ -53,7 +53,7 @@ class AndPostList : public BranchPostList {
 	PostList *skip_to(om_docid did, om_weight w_min);
 	bool   at_end() const;
 
-	string intro_term_description() const;
+	std::string intro_term_description() const;
 
 	/** Return the document length of the document the current term
 	 *  comes from.
@@ -76,7 +76,7 @@ AndPostList::get_termfreq() const
 {
     // this is actually the maximum possible frequency for the intersection of
     // the terms
-    return min(l->get_termfreq(), r->get_termfreq());
+    return std::min(l->get_termfreq(), r->get_termfreq());
 }
 
 inline om_docid
@@ -113,7 +113,7 @@ AndPostList::at_end() const
     return head == 0;
 }
 
-inline string
+inline std::string
 AndPostList::intro_term_description() const
 {
     return "(" + l->intro_term_description() + " And " +

@@ -52,7 +52,7 @@ TcpServer::get_listening_socket(int port)
     int socketfd = socket(PF_INET, SOCK_STREAM, 0);
 
     if (socketfd < 0) {
-	throw OmNetworkError(string("socket: ") + strerror(errno));
+	throw OmNetworkError(std::string("socket: ") + strerror(errno));
     }
 
     int retval;
@@ -68,7 +68,7 @@ TcpServer::get_listening_socket(int port)
 
     if (retval < 0) {
 	close(socketfd);
-	throw OmNetworkError(string("setsockopt: ") + strerror(errno));
+	throw OmNetworkError(std::string("setsockopt: ") + strerror(errno));
     }
 
     struct sockaddr_in addr;
@@ -82,7 +82,7 @@ TcpServer::get_listening_socket(int port)
 
     if (retval < 0) {
 	close(socketfd);
-	throw OmNetworkError(string("bind: ") + strerror(errno));
+	throw OmNetworkError(std::string("bind: ") + strerror(errno));
     }
 
     // FIXME: backlog argument should perhaps be larger.
@@ -90,7 +90,7 @@ TcpServer::get_listening_socket(int port)
 
     if (retval < 0) {
 	close(socketfd);
-	throw OmNetworkError(string("listen: ") + strerror(errno));
+	throw OmNetworkError(std::string("listen: ") + strerror(errno));
     }
     return socketfd;
 }
@@ -106,7 +106,7 @@ TcpServer::get_connected_socket()
 			    &remote_address_size);
 
     if (con_socket < 0) {
-	throw OmNetworkError(string("accept: ") + strerror(errno));
+	throw OmNetworkError(std::string("accept: ") + strerror(errno));
     }
 
     if (remote_address_size != sizeof(remote_address)) {
@@ -123,12 +123,12 @@ TcpServer::get_connected_socket()
     if (hent == 0) {
 	close(socketfd);
 	close(con_socket);
-	throw OmNetworkError(string("gethostbyaddr: ") +
+	throw OmNetworkError(std::string("gethostbyaddr: ") +
 			     hstrerror(h_errno));
     }
 
-    cerr << "Connection from " << hent->h_name
-	 << ", port " << remote_address.sin_port << endl;
+    std::cerr << "Connection from " << hent->h_name
+	 << ", port " << remote_address.sin_port << std::endl;
 
 #endif
 
@@ -156,7 +156,7 @@ TcpServer::run()
 	    run_once();
 	} catch (...) {
 	    // FIXME: better error handling.
-	    cerr << "Caught exception." << endl;
+	    std::cerr << "Caught exception." << std::endl;
 	}
     }
 }

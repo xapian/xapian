@@ -49,7 +49,7 @@ class AndNotPostList : public BranchPostList {
 	PostList *skip_to(om_docid did, om_weight w_min);
 	bool   at_end() const;
 
-	string intro_term_description() const;
+	std::string intro_term_description() const;
 
 	/** Return the document length of the document the current term
 	 *  comes from.
@@ -105,7 +105,7 @@ AndNotPostList::at_end() const
     return lhead == 0;
 }
 
-inline string
+inline std::string
 AndNotPostList::intro_term_description() const
 {
     return "(" + l->intro_term_description() + " AndNot " +

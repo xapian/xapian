@@ -41,7 +41,7 @@ class EmptyPostList : public PostList {
 	PostList *skip_to(om_docid did, om_weight w_min);
 	bool   at_end() const;
 
-	string intro_term_description() const;
+	std::string intro_term_description() const;
 };
 
 inline om_doccount
@@ -108,7 +108,7 @@ EmptyPostList::at_end() const
     return true;
 }
 
-inline string
+inline std::string
 EmptyPostList::intro_term_description() const
 {
     return "[empty]";

@@ -39,23 +39,23 @@ class PositionList;
 class NearPostList : public SelectPostList {
     private:
         om_termpos window;
-	vector<PostList *> terms;
+	std::vector<PostList *> terms;
 
     	bool test_doc();
-        bool do_test(vector<PositionList *> &plists, om_termcount i,
+        bool do_test(std::vector<PositionList *> &plists, om_termcount i,
 		     om_termcount min, om_termcount max);
     public:
-	string intro_term_description() const;
+	std::string intro_term_description() const;
 
         NearPostList(PostList *source, om_termpos window_,
-		     vector<PostList *> terms_) : SelectPostList(source)
+		     std::vector<PostList *> terms_) : SelectPostList(source)
         {
 	    window = window_;
 	    terms = terms_;
 	}
 };
 
-inline string
+inline std::string
 NearPostList::intro_term_description() const
 {
     return "(Near " + om_inttostring(window) + " "
@@ -73,23 +73,23 @@ NearPostList::intro_term_description() const
 class PhrasePostList : public SelectPostList {
     private:
         om_termpos window;
-	vector<PostList *> terms;
+	std::vector<PostList *> terms;
 
     	bool test_doc();
-        bool do_test(vector<PositionList *> &plists, om_termcount i,
+        bool do_test(std::vector<PositionList *> &plists, om_termcount i,
 		     om_termcount min, om_termcount max);
     public:
-	string intro_term_description() const;
+	std::string intro_term_description() const;
 
         PhrasePostList(PostList *source, om_termpos window_,
-		       vector<PostList *> terms_) : SelectPostList(source)
+		       std::vector<PostList *> terms_) : SelectPostList(source)
         {
 	    window = window_;
 	    terms = terms_;
 	}
 };
 
-inline string
+inline std::string
 PhrasePostList::intro_term_description() const
 {
     return "(Phrase " + om_inttostring(window) + " "

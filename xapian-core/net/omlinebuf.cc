@@ -22,10 +22,10 @@
 
 #include "omlinebuf.h"
 
-string
+std::string
 OmLineBuf::readline()
 {
-    string retval;
+    std::string retval;
     if (line_buffer.length() > 0) {
 	retval = line_buffer;
 	line_buffer = "";
@@ -36,13 +36,13 @@ OmLineBuf::readline()
 }
 
 void
-OmLineBuf::writeline(string msg)
+OmLineBuf::writeline(std::string msg)
 {
     do_writeline(msg);
 }
 
 void
-OmLineBuf::wait_for_data(int msecs = 0) {
+OmLineBuf::wait_for_data(int msecs) {
     if (line_buffer.length() > 0) {
 	return;
     } else {

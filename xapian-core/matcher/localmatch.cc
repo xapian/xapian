@@ -114,13 +114,13 @@ bool msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b) {
 // empty, else it needs to have all the postlists in (though the order
 // can be different) - this is ultra-icky
 PostList *
-LocalMatch::build_and_tree(vector<PostList *> &postlists)
+LocalMatch::build_and_tree(std::vector<PostList *> &postlists)
 {
     // Build nice tree for AND-ed terms
     // SORT list into ascending freq order
     // AND last two elements, then AND with each subsequent element
 	
-    vector<PostList *>::const_iterator i;
+    std::vector<PostList *>::const_iterator i;
     for (i = postlists.begin(); i != postlists.end(); i++) {
 	if ((*i)->get_termfreq() == 0) {
 	    // a zero freq term => the AND has zero freq
@@ -133,7 +133,7 @@ LocalMatch::build_and_tree(vector<PostList *> &postlists)
 
     if (postlists.empty()) return new EmptyPostList();
     
-    stable_sort(postlists.begin(), postlists.end(), PLPCmpLt());
+    std::stable_sort(postlists.begin(), postlists.end(), PLPCmpLt());
 
     int j = postlists.size() - 1;
     PostList *pl = postlists[j];
@@ -146,7 +146,7 @@ LocalMatch::build_and_tree(vector<PostList *> &postlists)
 }
 
 PostList *
-LocalMatch::build_or_tree(vector<PostList *> &postlists)
+LocalMatch::build_or_tree(std::vector<PostList *> &postlists)
 {
     // Build nice tree for OR-ed postlists
     // Want postlists with most entries to be at top of tree, to reduce
@@ -156,8 +156,8 @@ LocalMatch::build_or_tree(vector<PostList *> &postlists)
     // term frequency are returned first.
     // FIXME: try using a heap instead (C++ sect 18.8)?
 
-    priority_queue<PostList *, vector<PostList *>, PLPCmpGt> pq;
-    vector<PostList *>::const_iterator i;
+    std::priority_queue<PostList *, std::vector<PostList *>, PLPCmpGt> pq;
+    std::vector<PostList *>::const_iterator i;
     for (i = postlists.begin(); i != postlists.end(); i++) {
 	// for an OR, we can just ignore zero freq terms
 	if ((*i)->get_termfreq() == 0) {
@@ -298,7 +298,7 @@ LocalMatch::set_rset(const OmRSet & omrset)
 {
     Assert(!is_prepared);
     del_query_tree();
-    auto_ptr<RSet> new_rset(new RSet(database, omrset));
+    std::auto_ptr<RSet> new_rset(new RSet(database, omrset));
     rset = new_rset;
 }
 
@@ -317,7 +317,7 @@ LocalMatch::set_weighting(IRWeight::weight_type wt_type_)
 // Optimise query by building tree carefully.
 PostList *
 LocalMatch::postlist_from_queries(om_queryop op,
-				  const vector<OmQueryInternal *> &queries,
+				  const std::vector<OmQueryInternal *> &queries,
 				  om_termcount window)
 {
     Assert(op == OM_MOP_OR || op == OM_MOP_AND || op == OM_MOP_NEAR ||
@@ -325,10 +325,10 @@ LocalMatch::postlist_from_queries(om_queryop op,
     Assert(queries.size() >= 2);
 
     // Open a postlist for each query, and store these postlists in a vector.
-    vector<PostList *> postlists;
+    std::vector<PostList *> postlists;
     postlists.reserve(queries.size());
 
-    vector<OmQueryInternal *>::const_iterator q;
+    std::vector<OmQueryInternal *>::const_iterator q;
     for (q = queries.begin(); q != queries.end(); q++) {
 	postlists.push_back(postlist_from_query(*q));
 	DebugMsg("Made postlist: get_termfreq() = " <<
@@ -362,16 +362,16 @@ LocalMatch::postlist_from_queries(om_queryop op,
 		if (postlists.size() > max_or_terms) {
 		    // Call recalc_maxweight() as otherwise get_maxweight()
 		    // may not be valid before next() or skip_to()
-		    vector<PostList *>::iterator j;
+		    std::vector<PostList *>::iterator j;
 		    for (j = postlists.begin(); j != postlists.end(); j++)
 			(*j)->recalc_maxweight();
-		    nth_element(postlists.begin(),
+		    std::nth_element(postlists.begin(),
 				postlists.begin() + max_or_terms,
 				postlists.end(), PlCmpGtTermWt());
 		    DebugMsg("Discarding " << (postlists.size() - max_or_terms) <<
 			     " terms." << endl);
 
-		    vector<PostList *>::const_iterator i;
+		    std::vector<PostList *>::const_iterator i;
 	 	    for (i = postlists.begin() + max_or_terms;
 			 i != postlists.end(); i++) {
 			delete *i;
@@ -512,7 +512,7 @@ LocalMatch::select_query_terms()
 	om_termname_list::const_iterator tname;
 	for (tname = terms.begin(); tname != terms.end(); tname++) {
 	    IRWeight * wt = mk_weight(1, *tname);
-	    term_weights.insert(make_pair(*tname, wt->get_maxpart()));
+	    term_weights.insert(std::make_pair(*tname, wt->get_maxpart()));
 	    DebugMsg("TERM `" <<  *tname << "' get_maxpart = " <<
 		     wt->get_maxpart() << endl);
 	}
@@ -533,8 +533,8 @@ LocalMatch::recalc_maxweight()
 
 // Internal method to perform the collapse operation
 inline bool
-LocalMatch::perform_collapse(vector<OmMSetItem> &mset,
-         		  map<OmKey, OmMSetItem> &collapse_table,
+LocalMatch::perform_collapse(std::vector<OmMSetItem> &mset,
+         		  std::map<OmKey, OmMSetItem> &collapse_table,
 			  om_docid did,
 			  const OmMSetItem &new_item,
 			  const OmMSetItem &min_item)
@@ -543,12 +543,12 @@ LocalMatch::perform_collapse(vector<OmMSetItem> &mset,
     if(new_item.collapse_key.value.size() == 0) return true;
 
     bool add_item = true;
-    map<OmKey, OmMSetItem>::iterator oldkey;
+    std::map<OmKey, OmMSetItem>::iterator oldkey;
     oldkey = collapse_table.find(new_item.collapse_key);
     if(oldkey == collapse_table.end()) {
 	DebugMsg("collapsem: new key: " << new_item.collapse_key.value << endl);
 	// Key not been seen before
-	collapse_table.insert(pair<OmKey, OmMSetItem>(new_item.collapse_key, new_item));
+	collapse_table.insert(std::pair<OmKey, OmMSetItem>(new_item.collapse_key, new_item));
     } else {
 	const OmMSetItem olditem = (*oldkey).second;
 	if(mcmp(olditem, new_item)) {
@@ -564,7 +564,7 @@ LocalMatch::perform_collapse(vector<OmMSetItem> &mset,
 		// FIXME: more efficient way that just scanning?
 		om_weight olddid = olditem.did;
 		DebugMsg("collapsem: removing " << olddid << ": " << new_item.collapse_key.value << endl);
-		vector<OmMSetItem>::iterator i = mset.begin();
+		std::vector<OmMSetItem>::iterator i = mset.begin();
 		for(;;) {
 		    if(i->did == olddid) {
 			mset.erase(i);
@@ -613,7 +613,7 @@ LocalMatch::get_max_weight()
 bool
 LocalMatch::get_mset(om_doccount first,
 		    om_doccount maxitems,
-		    vector<OmMSetItem> & mset,
+		    std::vector<OmMSetItem> & mset,
 		    om_doccount * mbound,
 		    om_weight * greatest_wt,
 		    const OmMatchDecider *mdecider,
@@ -654,7 +654,7 @@ LocalMatch::get_mset(om_doccount first,
 
 #ifdef MUS_DEBUG_PARANOID
     // Check that max_extra weight is really right
-    for(vector<IRWeight *>::const_iterator i = weights.begin();
+    for(std::vector<IRWeight *>::const_iterator i = weights.begin();
 	i != weights.end(); i++) {
 	Assert(max_extra_weight == (*i)->get_maxextra());
     }
@@ -668,7 +668,7 @@ LocalMatch::get_mset(om_doccount first,
     }
 
     // Table of keys which have been seen already, for collapsing.
-    map<OmKey, OmMSetItem> collapse_table;
+    std::map<OmKey, OmMSetItem> collapse_table;
 
     // Perform query
     while (1) {
@@ -756,7 +756,7 @@ LocalMatch::get_mset(om_doccount first,
 		if (mset.size() == max_msize * 2) {
 		    // find last element we care about
 		    DebugMsg("finding nth" << endl);
-		    nth_element(mset.begin(), mset.begin() + max_msize,
+		    std::nth_element(mset.begin(), mset.begin() + max_msize,
 				mset.end(), mcmp);
 		    // erase elements which don't make the grade
 		    mset.erase(mset.begin() + max_msize, mset.end());
@@ -770,7 +770,7 @@ LocalMatch::get_mset(om_doccount first,
     if (mset.size() > max_msize) {
 	// find last element we care about
 	DebugMsg("finding nth" << endl);
-	nth_element(mset.begin(), mset.begin() + max_msize, mset.end(), mcmp);
+	std::nth_element(mset.begin(), mset.begin() + max_msize, mset.end(), mcmp);
 	// erase elements which don't make the grade
 	mset.erase(mset.begin() + max_msize, mset.end());
     }
@@ -782,14 +782,14 @@ LocalMatch::get_mset(om_doccount first,
 	    mset.clear();
 	} else {
 	    DebugMsg("finding " << first << "th" << endl);
-	    nth_element(mset.begin(), mset.begin() + first, mset.end(), mcmp);
+	    std::nth_element(mset.begin(), mset.begin() + first, mset.end(), mcmp);
 	    // erase the leading ``first'' elements
 	    mset.erase(mset.begin(), mset.begin() + first);
 	}
     }
 
     // Need a stable sort, but this is provided by comparison operator
-    sort(mset.begin(), mset.end(), mcmp);
+    std::sort(mset.begin(), mset.end(), mcmp);
 
     DebugMsg("msize = " << mset.size() << ", mbound = " << *mbound << endl);
     if (mset.size()) {

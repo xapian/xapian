@@ -27,13 +27,13 @@
 #include <vector>
 #include "omdebug.h"
 
-inline string
+inline std::string
 tohex(char c)
 {
     static char hexdigits[] = "0123456789ABCDEF";
     int high = (c & 0xf0) >> 4;
     int low = (c & 0x0f);
-    return string() + hexdigits[high] + hexdigits[low];
+    return std::string() + hexdigits[high] + hexdigits[low];
 }
 
 inline char hextochar(char high, char low)
@@ -55,12 +55,12 @@ inline char hextochar(char high, char low)
     return l + (h << 4);
 }
 
-inline string
-encode_tname(string tname)
+inline std::string
+encode_tname(const std::string &tname)
 {
-    string result;
+    std::string result;
 
-    string::const_iterator i;
+    std::string::const_iterator i;
     for (i = tname.begin();
 	 i != tname.end();
 	 ++i) {
@@ -69,20 +69,22 @@ encode_tname(string tname)
     return result;
 }
 
-inline string
-decode_tname(string thex)
+inline std::string
+decode_tname(const std::string &thex)
 {
     Assert((thex.length() % 2) == 0);
-    string result;
+    std::string result;
 
-    for (string::size_type i=0; i<thex.length(); i+=2) {
+    for (std::string::size_type i=0; i<thex.length(); i+=2) {
 	result += hextochar(thex[i], thex[i+1]);
     }
 
     return result;
 }
 
-inline void split_words(string text, vector<string> &words, char ws = ' ') {
+inline void split_words(std::string text,
+                        std::vector<std::string> &words,
+                        char ws = ' ') {
     if (text.length() > 0 && text[0] == ws) {
 	text.erase(0, text.find_first_not_of(ws));
     }

@@ -43,14 +43,14 @@ class PositionListCmpLt {
 bool
 NearPostList::test_doc()
 {
-    vector<PositionList *> plists;
+    std::vector<PositionList *> plists;
 
-    vector<PostList *>::iterator i;
+    std::vector<PostList *>::iterator i;
     for (i = terms.begin(); i != terms.end(); i++) {
 	plists.push_back((*i)->get_position_list());
     }
 
-    sort(plists.begin(), plists.end(), PositionListCmpLt());
+    std::sort(plists.begin(), plists.end(), PositionListCmpLt());
 
     om_termpos pos;
     do {
@@ -63,7 +63,7 @@ NearPostList::test_doc()
 }
 
 bool
-NearPostList::do_test(vector<PositionList *> &plists, om_termcount i,
+NearPostList::do_test(std::vector<PositionList *> &plists, om_termcount i,
 		      om_termcount min, om_termcount max)
 {
     DebugMsg("NearPostList::do_test([...], " << i << ", " << min << ", "
@@ -94,16 +94,16 @@ NearPostList::do_test(vector<PositionList *> &plists, om_termcount i,
 bool
 PhrasePostList::test_doc()
 {
-    vector<PositionList *> plists;
+    std::vector<PositionList *> plists;
 
-    vector<PostList *>::iterator i;
+    std::vector<PostList *>::iterator i;
     for (i = terms.begin(); i != terms.end(); i++) {
 	PositionList *p = (*i)->get_position_list();
 	p->index = i - terms.begin();
 	plists.push_back(p);				       
     }
 
-    sort(plists.begin(), plists.end(), PositionListCmpLt());
+    std::sort(plists.begin(), plists.end(), PositionListCmpLt());
      
     om_termpos pos;
     om_termpos idx, min;
@@ -120,7 +120,7 @@ PhrasePostList::test_doc()
 }
 
 bool
-PhrasePostList::do_test(vector<PositionList *> &plists, om_termcount i,
+PhrasePostList::do_test(std::vector<PositionList *> &plists, om_termcount i,
 			om_termcount min, om_termcount max)
 {
     DebugMsg("PhrasePostList::do_test([...], " << i << ", " << min << ", "

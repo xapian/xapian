@@ -34,20 +34,21 @@
 class ErrorMap {
     private:
 	struct typeinfo_less {
-	    bool operator()(const type_info *a, const type_info *b) {
+	    bool operator()(const std::type_info *a,
+                            const std::type_info *b) const {
 		return a->before(*b);
 	    }
 	};
-	typedef map<const type_info *, string, typeinfo_less> tmap;
+	typedef std::map<const std::type_info *, std::string, typeinfo_less> tmap;
 	tmap name;
     public:
 	ErrorMap();
-	string to_string(const OmError &e);
+	std::string to_string(const OmError &e);
 };
 
 ErrorMap emap;
 
-string omerror_to_string(const OmError &e)
+std::string omerror_to_string(const OmError &e)
 {
     return emap.to_string(e);
 }
@@ -65,25 +66,25 @@ ErrorMap::ErrorMap()
     name[&typeid(OmInvalidResultError)] = "OmInvalidResultError";
 }
 
-string
+std::string
 ErrorMap::to_string(const OmError &e) {
     tmap::const_iterator i = name.find(&typeid(e));
 
     if (i == name.end()) {
-	return string("UNKNOWN OmError " + e.get_msg());
+	return std::string("UNKNOWN OmError " + e.get_msg());
     } else {
 	return i->second + " " + e.get_msg();
     }
 }
 
-void string_to_omerror(const string &except, const string &prefix)
+void string_to_omerror(const std::string &except, const std::string &prefix)
 {
     istrstream is(except.c_str());
 
-    string type;
+    std::string type;
     is >> type;
 
-    string msg = prefix + except.substr(type.length());
+    std::string msg = prefix + except.substr(type.length());
 
     // FIXME: use a map or something instead.
     if (type == "OmAssertionError") {

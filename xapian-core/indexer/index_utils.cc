@@ -23,6 +23,7 @@
 #include "index_utils.h"
 #include <ctype.h>
 #include <cctype>
+#include <iostream>
 
 void lowercase_term(om_termname &term)
 {
@@ -35,40 +36,40 @@ void lowercase_term(om_termname &term)
 
 // Keep only the characters in keep
 // FIXME - make this accept character ranges in "keep"
-void select_characters(om_termname &term, const string & keep)
+void select_characters(om_termname &term, const std::string & keep)
 {
-    string chars;
+    std::string chars;
     if(keep.size() == 0) {
 	chars ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     } else {
 	chars = keep;
     }
-    string::size_type pos;
-    while((pos = term.find_first_not_of(chars)) != string::npos)
+    std::string::size_type pos;
+    while((pos = term.find_first_not_of(chars)) != std::string::npos)
     {
-	string::size_type endpos = term.find_first_of(chars, pos);
+	std::string::size_type endpos = term.find_first_of(chars, pos);
 	term.erase(pos, endpos - pos);
     }
 }
 
 // Read a paragraph from stream.
-void get_paragraph(istream &input, string &para) {
+void get_paragraph(std::istream &input, std::string &para) {
     para = "";
-    string line;
+    std::string line;
     unsigned linecount = 0;
     do {
-	getline(input, line);
+	std::getline(input, line);
 	para += line;
 	para += "\n";
 	linecount ++;
 	if(linecount > 30) break;;
-    } while(line.find_first_not_of(" \t\f") != string::npos || linecount < 3);
+    } while(line.find_first_not_of(" \t\f") != std::string::npos || linecount < 3);
 }
 
 // Read a line from stream.
-void get_a_line(istream &input, string &line) {
+void get_a_line(std::istream &input, std::string &line) {
     while(input) {
-	getline(input, line);
-	if(line.find_first_not_of(" \t\f") != string::npos) break;
+	std::getline(input, line);
+	if(line.find_first_not_of(" \t\f") != std::string::npos) break;
     }
 }

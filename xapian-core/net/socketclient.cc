@@ -48,12 +48,12 @@ SocketClient::SocketClient(int socketfd_,
     // ignore SIGPIPE - we check return values instead, and that
     // way we can easily throw an exception.
     if (signal(SIGPIPE, SIG_IGN) < 0) {
-	throw OmNetworkError(string("signal: ") + strerror(errno));
+	throw OmNetworkError(std::string("signal: ") + strerror(errno));
     }
 
     do_write("HELLO!\n");
 
-    string received = do_read();
+    std::string received = do_read();
 
     DebugMsg("Read back " << received << endl);
     if (received.substr(0, 5) != "HELLO") {
@@ -64,7 +64,7 @@ SocketClient::SocketClient(int socketfd_,
 }
 
 void
-SocketClient::handle_hello(const string &s)
+SocketClient::handle_hello(const std::string &s)
 {
     istrstream is(s.c_str());
 
@@ -72,18 +72,18 @@ SocketClient::handle_hello(const string &s)
     is >> version >> doccount >> avlength;
 
     if (version != OM_SOCKET_PROTOCOL_VERSION) {
-	throw OmNetworkError(string("Invalid protocol version: ") +
+	throw OmNetworkError(std::string("Invalid protocol version: ") +
 			     om_inttostring(version));
     }
 }
 
 NetClient::TermListItem
-string_to_tlistitem(const string &s)
+string_to_tlistitem(const std::string &s)
 {
     istrstream is(s.c_str());
     NetClient::TermListItem item;
 
-    string tencoded;
+    std::string tencoded;
 
     is >> tencoded >> item.wdf >> item.termfreq;
 
@@ -94,31 +94,31 @@ string_to_tlistitem(const string &s)
 
 void
 SocketClient::get_tlist(om_docid did,
-			vector<NetClient::TermListItem> &items) {
-    string message;
+			std::vector<NetClient::TermListItem> &items) {
+    std::string message;
 
-    buf.writeline(string("GETTLIST ") + om_inttostring(did));
+    buf.writeline(std::string("GETTLIST ") + om_inttostring(did));
 
     while (startswith(message = do_read(), "TLISTITEM ")) {
 	items.push_back(string_to_tlistitem(message.substr(10)));
     }
 
     if (message != "END") {
-	throw OmNetworkError(string("Expected END, got ") + message);
+	throw OmNetworkError(std::string("Expected END, got ") + message);
     }
 }
 
 void
 SocketClient::get_doc(om_docid did,
-		      string &doc,
-		      map<om_keyno, OmKey> &keys)
+		      std::string &doc,
+		      std::map<om_keyno, OmKey> &keys)
 {
-    string message;
-    buf.writeline(string("GETDOC ") + om_inttostring(did));
+    std::string message;
+    buf.writeline(std::string("GETDOC ") + om_inttostring(did));
 
     message = do_read();
     if (!startswith(message, "DOC ")) {
-	throw OmNetworkError(string("Expected DOC, got ") + message);
+	throw OmNetworkError(std::string("Expected DOC, got ") + message);
     }
 
     doc = decode_tname(message.substr(4));
@@ -126,13 +126,13 @@ SocketClient::get_doc(om_docid did,
     while (startswith(message = do_read(), "KEY ")) {
 	istrstream is(message.substr(4).c_str());
 	om_keyno keyno;
-	string omkey;
+	std::string omkey;
 	is >> keyno >> omkey;
 	keys[keyno] = string_to_omkey(omkey);
     }
 
     if (message != "END") {
-	throw OmNetworkError(string("Expected END, got ") + message);
+	throw OmNetworkError(std::string("Expected END, got ") + message);
     }
 }
 
@@ -148,10 +148,10 @@ SocketClient::get_avlength()
     return avlength;
 }
 
-string
+std::string
 SocketClient::do_read()
 {
-    string retval = buf.readline();
+    std::string retval = buf.readline();
 
     DebugMsg("do_read(): " << retval << endl);
 
@@ -163,19 +163,19 @@ SocketClient::do_read()
 }
 
 void
-SocketClient::do_write(string data)
+SocketClient::do_write(std::string data)
 {
     DebugMsg("do_write(): " << data.substr(0, data.find_last_of('\n')) << endl);
     buf.writeline(data);
 }
 
 void
-SocketClient::write_data(string msg)
+SocketClient::write_data(std::string msg)
 {
     do_write(msg);
 }
 
-string
+std::string
 SocketClient::read_data()
 {
     return do_read();
@@ -234,7 +234,7 @@ SocketClient::finish_query()
 	case state_getquery:
 	    // Message 3 (see README_progprotocol.txt)
 	    {
-		string message;
+		std::string message;
 
 		message += "MOPTIONS " +
 			moptions_to_string(moptions) + '\n';
@@ -255,7 +255,7 @@ SocketClient::finish_query()
 	    }
 	    
 	    {
-		string response = do_read();
+		std::string response = do_read();
 		if (response.substr(0, 7) != "MYSTATS") {
 		    throw OmNetworkError("Error getting statistics");
 		}
@@ -298,39 +298,39 @@ SocketClient::get_remote_stats(Stats &out)
 }
 
 void
-SocketClient::do_simple_transaction(string msg)
+SocketClient::do_simple_transaction(std::string msg)
 {
     do_write(msg + '\n');
-    string response = do_read();
+    std::string response = do_read();
 
     if (response != "OK") {
-	throw OmNetworkError(string("Invalid response: (") +
+	throw OmNetworkError(std::string("Invalid response: (") +
 			     msg + ") -> (" + response + ")");
     }
 }
 
-string
-SocketClient::do_transaction_with_result(string msg)
+std::string
+SocketClient::do_transaction_with_result(std::string msg)
 {
     do_write(msg + '\n');
-    string response = do_read();
+    std::string response = do_read();
 
     if (response == "ERROR") {
-	throw OmNetworkError(string("Error response: (") +
+	throw OmNetworkError(std::string("Error response: (") +
 			     msg + ") -> (" + response + ")");
     }
     return response;
 }
 
 OmMSetItem
-string_to_msetitem(string s)
+string_to_msetitem(std::string s)
 {
     istrstream is(s.c_str());
     om_weight wt;
     om_docid did;
-    string keyval;
+    std::string keyval;
 
-    string header;
+    std::string header;
 
     is >> header >> wt >> did >> keyval;
 
@@ -354,7 +354,7 @@ SocketClient::send_global_stats(const Stats &stats)
 bool
 SocketClient::get_mset(om_doccount first,
 		       om_doccount maxitems,
-		       vector<OmMSetItem> &mset,
+		       std::vector<OmMSetItem> &mset,
 		       om_doccount *mbound,
 		       om_weight *greatest_wt)
 {
@@ -370,7 +370,7 @@ SocketClient::get_mset(om_doccount first,
 
 	    // Message 5 (see README_progprotocol.txt)
 	    {
-		string message = "GLOBSTATS " +
+		std::string message = "GLOBSTATS " +
 			stats_to_string(global_stats) + '\n';
 		message += "GETMSET " +
 			    om_inttostring(first) + " " +
@@ -388,9 +388,9 @@ SocketClient::get_mset(om_doccount first,
 	
 	    // Message 6
 	    {
-		string response = do_read();
+		std::string response = do_read();
 		if (response.substr(0, 9) != "MSETITEMS") {
-		    throw OmNetworkError(string("Expected MSETITEMS, got ") + response);
+		    throw OmNetworkError(std::string("Expected MSETITEMS, got ") + response);
 		}
 		response = response.substr(10);
 
@@ -402,7 +402,7 @@ SocketClient::get_mset(om_doccount first,
 		}
 
 		for (int i=0; i<numitems; ++i) {
-		    string msetline = do_read();
+		    std::string msetline = do_read();
 		    //DebugMsg("MSet string: " << msetline);
 		    OmMSetItem mitem = string_to_msetitem(msetline);
 		    //DebugMsg("MSet item: " << mitem.wt << " " << mitem.did << endl);

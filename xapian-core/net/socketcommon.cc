@@ -40,7 +40,7 @@
 
 OmQueryInternal qfs_readcompound();
 
-OmQueryInternal query_from_string(string qs)
+OmQueryInternal query_from_string(std::string qs)
 {
     Assert(qs.length() > 1);
 
@@ -56,7 +56,7 @@ OmQueryInternal query_from_string(string qs)
     return retval;
 }
 
-string stats_to_string(const Stats &stats)
+std::string stats_to_string(const Stats &stats)
 {
 #if 0
     ostrstream os;
@@ -64,7 +64,7 @@ string stats_to_string(const Stats &stats)
     os << stats.collection_size << " ";
     os << stats.average_length << " ";
 
-    map<om_termname, om_doccount>::const_iterator i;
+    std::map<om_termname, om_doccount>::const_iterator i;
 
     for (i=stats.termfreq.begin();
 	 i != stats.termfreq.end();
@@ -81,11 +81,11 @@ string stats_to_string(const Stats &stats)
     // FIXME: should be eos.
     os << '\0';
 
-    string result(os.str());
+    std::string result(os.str());
 
     os.freeze(0);
 #endif
-    string result;
+    std::string result;
 
     result += om_inttostring(stats.collection_size);
     result += " ";
@@ -94,7 +94,7 @@ string stats_to_string(const Stats &stats)
     result += doubletostring(stats.average_length);
     result += " ";
 
-    map<om_termname, om_doccount>::const_iterator i;
+    std::map<om_termname, om_doccount>::const_iterator i;
 
     for (i=stats.termfreq.begin();
 	 i != stats.termfreq.end();
@@ -114,7 +114,7 @@ string stats_to_string(const Stats &stats)
 }
 
 Stats
-string_to_stats(const string &s)
+string_to_stats(const std::string &s)
 {
     Stats stat;
 
@@ -124,32 +124,32 @@ string_to_stats(const string &s)
     is >> stat.rset_size;
     is >> stat.average_length;
 
-    string word;
+    std::string word;
     while (is >> word) {
 	if (word.length() == 0) continue;
 
 	if (word[0] == 'T') {
-            vector<string> parts;
+            std::vector<std::string> parts;
 	    split_words(word.substr(1), parts, '=');
 
 	    if (parts.size() != 2) {
-		throw OmNetworkError(string("Invalid stats string word part: ")
+		throw OmNetworkError(std::string("Invalid stats string word part: ")
 				     + word);
 	    }
 
 	    stat.termfreq[decode_tname(parts[0])] = atoi(parts[1].c_str());
 	} else if (word[0] == 'R') {
-            vector<string> parts;
+            std::vector<std::string> parts;
 	    split_words(word.substr(1), parts, '=');
 
 	    if (parts.size() != 2) {
-		throw OmNetworkError(string("Invalid stats string word part: ")
+		throw OmNetworkError(std::string("Invalid stats string word part: ")
 				     + word);
 	    }
 	    
 	    stat.reltermfreq[decode_tname(parts[0])] = atoi(parts[1].c_str());
 	} else {
-	    throw OmNetworkError(string("Invalid stats string word: ") + word);
+	    throw OmNetworkError(std::string("Invalid stats string word: ") + word);
 	}
     }
 
@@ -158,10 +158,10 @@ string_to_stats(const string &s)
 
 // A vector converter: vector<OmQueryInternal> to vector<OmQueryInternal *>
 // The original vector is still responsible for destroying the objects.
-vector<OmQueryInternal *>
-convert_subqs(vector<OmQueryInternal> &v) {
-    vector<OmQueryInternal *> result;
-    for (vector<OmQueryInternal>::iterator i=v.begin();
+std::vector<OmQueryInternal *>
+convert_subqs(std::vector<OmQueryInternal> &v) {
+    std::vector<OmQueryInternal *> result;
+    for (std::vector<OmQueryInternal>::iterator i=v.begin();
 	 i != v.end();
 	 ++i) {
 	result.push_back(&(*i));
@@ -199,7 +199,7 @@ OmQueryInternal qfs_readquery()
 OmQueryInternal qfs_readcompound()
 {
     querytok qt;
-    vector<OmQueryInternal> subqs;
+    std::vector<OmQueryInternal> subqs;
     while(1) {
 	qt = qfs_gettok();
 	switch (qt.type) {
@@ -230,7 +230,7 @@ OmQueryInternal qfs_readcompound()
 		break;
 	    case querytok::OP_AND:
 		{
-		    vector<OmQueryInternal *> temp =
+		    std::vector<OmQueryInternal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
@@ -243,7 +243,7 @@ OmQueryInternal qfs_readcompound()
 		break;
 	    case querytok::OP_OR:
 		{
-		    vector<OmQueryInternal *> temp =
+		    std::vector<OmQueryInternal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
@@ -256,7 +256,7 @@ OmQueryInternal qfs_readcompound()
 		break;
 	    case querytok::OP_FILTER:
 		{
-		    vector<OmQueryInternal *> temp =
+		    std::vector<OmQueryInternal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
@@ -269,7 +269,7 @@ OmQueryInternal qfs_readcompound()
 		break;
 	    case querytok::OP_XOR:
 		{
-		    vector<OmQueryInternal *> temp =
+		    std::vector<OmQueryInternal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
@@ -282,7 +282,7 @@ OmQueryInternal qfs_readcompound()
 		break;
 	    case querytok::OP_ANDMAYBE:
 		{
-		    vector<OmQueryInternal *> temp =
+		    std::vector<OmQueryInternal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
@@ -295,7 +295,7 @@ OmQueryInternal qfs_readcompound()
 		break;
 	    case querytok::OP_ANDNOT:
 		{
-		    vector<OmQueryInternal *> temp =
+		    std::vector<OmQueryInternal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
@@ -308,7 +308,7 @@ OmQueryInternal qfs_readcompound()
 		break;
 	    case querytok::OP_NEAR:
 		{
-		    vector<OmQueryInternal *> temp =
+		    std::vector<OmQueryInternal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
@@ -321,7 +321,7 @@ OmQueryInternal qfs_readcompound()
 		break;
 	    case querytok::OP_PHRASE:
 		{
-		    vector<OmQueryInternal *> temp =
+		    std::vector<OmQueryInternal *> temp =
 			    convert_subqs(subqs);
 		    querytok myqt = qfs_gettok();
 		    if (myqt.type != querytok::OP_KET) {
@@ -356,10 +356,10 @@ OmSocketLineBuf::OmSocketLineBuf(int fd_)
     };
 }
 
-string
+std::string
 OmSocketLineBuf::do_readline()
 {
-    string::size_type pos;
+    std::string::size_type pos;
 
     // FIXME: put the timeout somewhere sensible.
     const int timeout = 10;
@@ -386,7 +386,7 @@ OmSocketLineBuf::do_readline()
 	    if (errno == EAGAIN) {
 		continue;
 	    } else {
-		throw OmNetworkError(string("select:") = strerror(errno));
+		throw OmNetworkError(std::string("select:") = strerror(errno));
 	    }
 	} else if (retval == 0) {
 	    continue;
@@ -394,13 +394,13 @@ OmSocketLineBuf::do_readline()
 
 	ssize_t received = read(readfd, buf, sizeof(buf) - 1);
 
-	buffer += string(buf, buf + received);
+	buffer += std::string(buf, buf + received);
     }
     if (curr_time > (start_time + timeout)) {
 	throw OmNetworkTimeoutError("No response from remote end");
     }
 
-    string retval(buffer.begin(), buffer.begin() + pos);
+    std::string retval(buffer.begin(), buffer.begin() + pos);
 
     buffer.erase(0, pos+1);
 
@@ -448,11 +448,11 @@ OmSocketLineBuf::wait_for_data(int msecs)
 	    received = read(readfd, buf, sizeof(buf) - 1);
 
 	    if (received > 0) {
-		buffer += string(buf, buf + received);
+		buffer += std::string(buf, buf + received);
 	    } else if (received < 0) {
 		if (errno != EAGAIN) {
-		    throw OmNetworkError(string("Network error: ") +
-					 string(strerror(errno)));
+		    throw OmNetworkError(std::string("Network error: ") +
+					 std::string(strerror(errno)));
 		}
 	    }
 	} while (received > 0);
@@ -484,7 +484,7 @@ OmSocketLineBuf::data_waiting()
 }
 
 void
-OmSocketLineBuf::do_writeline(string s)
+OmSocketLineBuf::do_writeline(std::string s)
 {
     if (s.length() == 0 || s[s.length()-1] != '\n') {
 	s += '\n';
@@ -500,10 +500,10 @@ OmSocketLineBuf::do_writeline(string s)
     }
 }
 
-string
+std::string
 moptions_to_string(const OmMatchOptions &moptions)
 {
-    string result;
+    std::string result;
 
     result += om_inttostring(moptions.do_collapse) + " ";
     result += om_inttostring(moptions.collapse_key) + " ";
@@ -515,7 +515,7 @@ moptions_to_string(const OmMatchOptions &moptions)
 }
 
 OmMatchOptions
-string_to_moptions(const string &s)
+string_to_moptions(const std::string &s)
 {
     istrstream is(s.c_str());
 
@@ -532,12 +532,12 @@ string_to_moptions(const string &s)
     return mopt;
 }
 
-string
+std::string
 omrset_to_string(const OmRSet &omrset)
 {
-    string result = om_inttostring(omrset.items.size());
+    std::string result = om_inttostring(omrset.items.size());
 
-    for (set<om_docid>::const_iterator i = omrset.items.begin();
+    for (std::set<om_docid>::const_iterator i = omrset.items.begin();
 	 i != omrset.items.end();
 	 ++i) {
 	result += " ";
@@ -546,20 +546,20 @@ omrset_to_string(const OmRSet &omrset)
     return result;
 }
 
-string
+std::string
 omkey_to_string(const OmKey &omkey)
 {
     return encode_tname(omkey.value);
 }
 
 OmKey
-string_to_omkey(const string &s)
+string_to_omkey(const std::string &s)
 {
     return decode_tname(s);
 }
 
 OmRSet
-string_to_omrset(const string &s)
+string_to_omrset(const std::string &s)
 {
     OmRSet omrset;
 
@@ -577,9 +577,9 @@ string_to_omrset(const string &s)
     return omrset;
 }
 
-bool startswith(const string &s, const string &prefix)
+bool startswith(const std::string &s, const std::string &prefix)
 {
-    for (string::size_type i=0; i<prefix.length(); ++i) {
+    for (std::string::size_type i=0; i<prefix.length(); ++i) {
 	if ((i > s.length()) || (s[i] != prefix[i])) {
 	    return false;
 	}

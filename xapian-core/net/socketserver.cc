@@ -55,7 +55,7 @@ SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
     // ignore SIGPIPE - we check return values instead, and that
     // way we can easily throw an exception.
     if (signal(SIGPIPE, SIG_IGN) < 0) {
-	throw OmNetworkError(string("signal: ") + strerror(errno));
+	throw OmNetworkError(std::string("signal: ") + strerror(errno));
     }
     buf->readline();
     buf->writeline("HELLO " +
@@ -65,7 +65,7 @@ SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
 }
 
 SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
-			   auto_ptr<OmLineBuf> buf_)
+			   std::auto_ptr<OmLineBuf> buf_)
 	: db(db_),
 	  readfd(-1),
 	  writefd(-1),
@@ -85,7 +85,7 @@ SocketServer::~SocketServer()
 void
 SocketServer::send_local_stats(Stats stats)
 {
-    string mystatstr = string("MYSTATS ") + stats_to_string(stats);
+    std::string mystatstr = std::string("MYSTATS ") + stats_to_string(stats);
 
     buf->writeline(mystatstr);
     DebugMsg("SocketServer::send_local_stats(): wrote " << mystatstr);
@@ -104,7 +104,7 @@ SocketServer::run()
 {
     try {
 	while (1) {
-	    string message;
+	    std::string message;
 
 	    // Message 3 (see README_progprotocol.txt)
 	    message = buf->readline();
@@ -118,7 +118,7 @@ SocketServer::run()
 	    } else if (startswith(message, "GETDOC ")) {
 		run_getdocument(message);
 	    } else {
-		throw OmInvalidArgumentError(string("Unexpected message:") +
+		throw OmInvalidArgumentError(std::string("Unexpected message:") +
 					     message);
 	    }
 
@@ -128,21 +128,21 @@ SocketServer::run()
 	// been caused by an error talking to the other end.
 	throw;
     } catch (OmError &e) {
-	buf->writeline(string("ERROR ") + omerror_to_string(e));
+	buf->writeline(std::string("ERROR ") + omerror_to_string(e));
 	throw;
     } catch (...) {
-	buf->writeline(string("ERROR UNKNOWN"));
+	buf->writeline(std::string("ERROR UNKNOWN"));
 	throw;
     }
 }
 
 void
-SocketServer::run_match(const string &firstmessage)
+SocketServer::run_match(const std::string &firstmessage)
 {
-    string message = firstmessage;
+    std::string message = firstmessage;
     // extract the match options
     if (!startswith(message, "MOPTIONS ")) {
-	throw OmNetworkError(string("Expected MOPTIONS, got ") + message);
+	throw OmNetworkError(std::string("Expected MOPTIONS, got ") + message);
     }
 
     OmMatchOptions moptions = string_to_moptions(message.substr(9));
@@ -151,7 +151,7 @@ SocketServer::run_match(const string &firstmessage)
     message = buf->readline();
     if (!startswith(message, "RSET ")) {
 	DebugMsg("Expected RSET, got " << message << endl);
-	throw OmNetworkError(string("Invalid message: ") + message);
+	throw OmNetworkError(std::string("Invalid message: ") + message);
     }
     OmRSet omrset = string_to_omrset(message.substr(5));
 
@@ -165,7 +165,7 @@ SocketServer::run_match(const string &firstmessage)
 
     message = message.substr(9, message.npos);
 
-    string wt_string;
+    std::string wt_string;
     // FIXME: use an iterator or something.
     while (message.length() > 0 && isdigit(message[0])) {
 	wt_string += message[0];
@@ -191,7 +191,7 @@ SocketServer::run_match(const string &firstmessage)
 		     omrset,
 		     wt_type,
 		     moptions,
-		     auto_ptr<StatsGatherer>(gatherer =
+		     std::auto_ptr<StatsGatherer>(gatherer =
 					     new NetworkStatsGatherer(this)));
 
 #if 0
@@ -206,7 +206,7 @@ SocketServer::run_match(const string &firstmessage)
     message = buf->readline();
 
     if (message.substr(0, 9) != "GLOBSTATS") {
-	throw OmNetworkError(string("Expected GLOBSTATS, got ") + message);
+	throw OmNetworkError(std::string("Expected GLOBSTATS, got ") + message);
     }
 
     global_stats = string_to_stats(message.substr(10));
@@ -216,7 +216,7 @@ SocketServer::run_match(const string &firstmessage)
     message = buf->readline();
 
     if (message.substr(0, 7) != "GETMSET") {
-	throw OmNetworkError(string("Expected GETMSET, got ") + message);
+	throw OmNetworkError(std::string("Expected GETMSET, got ") + message);
     }
     message = message.substr(8);
 
@@ -245,14 +245,14 @@ SocketServer::run_match(const string &firstmessage)
 
     DebugMsg("done get_mset..." << endl);
 
-    buf->writeline(string("MSETITEMS ") +
+    buf->writeline(std::string("MSETITEMS ") +
 		  om_inttostring(mset.items.size()) + " "
 		  + doubletostring(mset.max_possible)
 		  + doubletostring(mset.max_attained));
 
     DebugMsg("sent size, maxweight..." << endl);
 
-    for (vector<OmMSetItem>::iterator i=mset.items.begin();
+    for (std::vector<OmMSetItem>::iterator i=mset.items.begin();
 	 i != mset.items.end();
 	 ++i) {
 	char charbuf[100];
@@ -271,22 +271,22 @@ SocketServer::run_match(const string &firstmessage)
 }
 
 void
-SocketServer::run_gettermlist(const string &firstmessage)
+SocketServer::run_gettermlist(const std::string &firstmessage)
 {
-    string message = firstmessage;
+    std::string message = firstmessage;
     // extract the match options
     if (!startswith(message, "GETTLIST ")) {
-	throw OmNetworkError(string("Expected GETTLIST, got ") + message);
+	throw OmNetworkError(std::string("Expected GETTLIST, got ") + message);
     }
 
     om_docid did = atoi(message.c_str() + 9);
 
-    auto_ptr<LeafTermList> tl(db->open_term_list(did));
+    std::auto_ptr<LeafTermList> tl(db->open_term_list(did));
 
     tl->next();
 
     while (!tl->at_end()) {
-	string item = "TLISTITEM ";
+	std::string item = "TLISTITEM ";
 	item = item + encode_tname(tl->get_termname()) + " ";
 	item = item + om_inttostring(tl->get_wdf()) + " ";
 	item = item + om_inttostring(tl->get_termfreq());
@@ -299,25 +299,25 @@ SocketServer::run_gettermlist(const string &firstmessage)
 }
 
 void
-SocketServer::run_getdocument(const string &firstmessage)
+SocketServer::run_getdocument(const std::string &firstmessage)
 {
-    string message = firstmessage;
+    std::string message = firstmessage;
     // extract the match options
     if (!startswith(message, "GETDOC ")) {
-	throw OmNetworkError(string("Expected GETDOC, got ") + message);
+	throw OmNetworkError(std::string("Expected GETDOC, got ") + message);
     }
 
     om_docid did = atoi(message.c_str() + 7);
 
-    auto_ptr<LeafDocument> doc(db->open_document(did));
+    std::auto_ptr<LeafDocument> doc(db->open_document(did));
 
-    buf->writeline(string("DOC ") + encode_tname(doc->get_data().value));
+    buf->writeline(std::string("DOC ") + encode_tname(doc->get_data().value));
 
-    map<om_keyno, OmKey> keys = doc->get_all_keys();
+    std::map<om_keyno, OmKey> keys = doc->get_all_keys();
 
-    map<om_keyno, OmKey>::const_iterator i = keys.begin();
+    std::map<om_keyno, OmKey>::const_iterator i = keys.begin();
     while (i != keys.end()) {
-	string item = string("KEY ") +
+	std::string item = std::string("KEY ") +
 		om_inttostring(i->first) + " " +
 		omkey_to_string(i->second);
 	buf->writeline(item);

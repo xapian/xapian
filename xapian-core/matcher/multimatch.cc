@@ -43,12 +43,12 @@ MultiMatch::MultiMatch(const MultiDatabase * multi_database_,
 		       const OmRSet & omrset,
 		       IRWeight::weight_type wt_type,
 		       const OmMatchOptions & moptions,
-		       auto_ptr<StatsGatherer> gatherer_)
+		       std::auto_ptr<StatsGatherer> gatherer_)
 	: multi_database(multi_database_),
 	  gatherer(gatherer_),
 	  mcmp(msetcmp_forward)
 {
-    vector<OmRefCntPtr<IRDatabase> >::const_iterator db;
+    std::vector<OmRefCntPtr<IRDatabase> >::const_iterator db;
     for (db = multi_database->databases.begin();
 	 db != multi_database->databases.end();
 	 ++db) {
@@ -89,7 +89,7 @@ MultiMatch::~MultiMatch()
 void
 MultiMatch::set_query(const OmQueryInternal * query)
 {
-    for(vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
+    for(std::vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_query(query);
     }
@@ -99,9 +99,9 @@ void
 MultiMatch::set_rset(const OmRSet & omrset)
 {
     om_doccount number_of_leaves = leaves.size();
-    vector<OmRSet> subrsets(number_of_leaves);
+    std::vector<OmRSet> subrsets(number_of_leaves);
 
-    for (set<om_docid>::const_iterator reldoc = omrset.items.begin();
+    for (std::set<om_docid>::const_iterator reldoc = omrset.items.begin();
 	 reldoc != omrset.items.end();
 	 reldoc++) {
 	om_doccount local_docid = ((*reldoc) - 1) / number_of_leaves + 1;
@@ -109,8 +109,8 @@ MultiMatch::set_rset(const OmRSet & omrset)
 	subrsets[subdatabase].add_document(local_docid);
     }
 
-    vector<OmRSet>::const_iterator subrset;
-    vector<OmRefCntPtr<SingleMatch> >::iterator leaf;
+    std::vector<OmRSet>::const_iterator subrset;
+    std::vector<OmRefCntPtr<SingleMatch> >::iterator leaf;
     for (leaf = leaves.begin(), subrset = subrsets.begin();
 	 leaf != leaves.end(), subrset != subrsets.end();
 	 leaf++, subrset++) {
@@ -123,7 +123,7 @@ MultiMatch::set_rset(const OmRSet & omrset)
 void
 MultiMatch::set_weighting(IRWeight::weight_type wt_type_)
 {
-    for(vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
+    for(std::vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_weighting(wt_type_);
     }
@@ -133,7 +133,7 @@ MultiMatch::set_weighting(IRWeight::weight_type wt_type_)
 void
 MultiMatch::set_options(const OmMatchOptions & moptions)
 {
-    for(vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
+    for(std::vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_options(moptions);
     }
@@ -153,7 +153,7 @@ MultiMatch::get_max_weight()
     // way so that the load is fairly spread?
     om_weight result = 0;
 
-    for (vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
+    for (std::vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
 	 i != leaves.end();
 	 i++) {
 	om_weight this_max = (*i)->get_max_weight();
@@ -165,11 +165,11 @@ MultiMatch::get_max_weight()
 
 
 void
-MultiMatch::change_docids_to_global(vector<OmMSetItem> & mset,
+MultiMatch::change_docids_to_global(std::vector<OmMSetItem> & mset,
 				    om_doccount leaf_number)
 {
     om_doccount number_of_leaves = leaves.size();
-    vector<OmMSetItem>::iterator mset_item;
+    std::vector<OmMSetItem>::iterator mset_item;
     for (mset_item = mset.begin();
 	 mset_item != mset.end();
 	 mset_item++) {
@@ -178,17 +178,17 @@ MultiMatch::change_docids_to_global(vector<OmMSetItem> & mset,
 }
 
 bool
-MultiMatch::have_not_seen_key(set<OmKey> & collapse_entries,
+MultiMatch::have_not_seen_key(std::set<OmKey> & collapse_entries,
 			      const OmKey & new_key)
 {
     if (new_key.value.size() == 0) return true;
-    pair<set<OmKey>::iterator, bool> p = collapse_entries.insert(new_key);
+    std::pair<std::set<OmKey>::iterator, bool> p = collapse_entries.insert(new_key);
     return p.second;
 }
 
 void
-MultiMatch::merge_msets(vector<OmMSetItem> &mset,
-			vector<OmMSetItem> &more_mset,
+MultiMatch::merge_msets(std::vector<OmMSetItem> &mset,
+			std::vector<OmMSetItem> &more_mset,
 			om_doccount lastitem)
 {
     // FIXME - this method is likely to be very inefficient
@@ -199,13 +199,13 @@ MultiMatch::merge_msets(vector<OmMSetItem> &mset,
 	     " to existing set of size " << mset.size() <<
 	     endl);
 
-    vector<OmMSetItem> old_mset;
+    std::vector<OmMSetItem> old_mset;
     old_mset.swap(mset);
 
-    set<OmKey> collapse_entries;
+    std::set<OmKey> collapse_entries;
 
-    vector<OmMSetItem>::const_iterator i = old_mset.begin();
-    vector<OmMSetItem>::const_iterator j = more_mset.begin();
+    std::vector<OmMSetItem>::const_iterator i = old_mset.begin();
+    std::vector<OmMSetItem>::const_iterator j = more_mset.begin();
     while(mset.size() < lastitem &&
 	  i != old_mset.end() && j != more_mset.end()) {
 	if(mcmp(*i, *j)) {
@@ -266,7 +266,7 @@ MultiMatch::prepare_matchers()
     bool nowait = true;
     do {
 	prepared = true;
-	for(vector<OmRefCntPtr<SingleMatch> >::iterator leaf = leaves.begin();
+	for(std::vector<OmRefCntPtr<SingleMatch> >::iterator leaf = leaves.begin();
 	    leaf != leaves.end(); leaf++) {
 	    if (!(*leaf)->prepare_match(nowait)) {
 		prepared = false;
@@ -289,11 +289,11 @@ MultiMatch::collect_msets(om_doccount lastitem,
     mset.max_attained = 0;
     mset.firstitem = 0;
 
-    vector<bool> mset_received(leaves.size(), false);
-    vector<OmRefCntPtr<SingleMatch> >::size_type msets_received = 0;
+    std::vector<bool> mset_received(leaves.size(), false);
+    std::vector<OmRefCntPtr<SingleMatch> >::size_type msets_received = 0;
 
     om_doccount leaf_number;
-    vector<OmRefCntPtr<SingleMatch> >::iterator leaf;
+    std::vector<OmRefCntPtr<SingleMatch> >::iterator leaf;
 
     // Get msets one by one, and merge each one with the current mset.
     // FIXME: this approach may be very inefficient - needs attention.

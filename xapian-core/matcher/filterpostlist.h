@@ -47,7 +47,7 @@ class FilterPostList : public AndPostList {
 
         om_weight recalc_maxweight();
 
-	string intro_term_description() const;
+	std::string intro_term_description() const;
 
         FilterPostList(PostList *l, PostList *r, LocalMatch *matcher_) :
             AndPostList(l, r, matcher_) {};

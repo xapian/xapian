@@ -30,14 +30,14 @@
 #include <string>
 #include <memory>
 
-TextfileIndexerSource::TextfileIndexerSource(const string & fname)
+TextfileIndexerSource::TextfileIndexerSource(const std::string & fname)
 	: filename(fname)
 { return; }
 
-auto_ptr<istream>
+std::auto_ptr<std::istream>
 TextfileIndexerSource::get_stream() const
 {
-    auto_ptr<istream> from(new std::ifstream(filename.c_str()));
+    std::auto_ptr<std::istream> from(new std::ifstream(filename.c_str()));
     if(!*from) throw OmOpeningError("Cannot open file " + filename + " for indexing");
     // FIXME: return an auto_ptr here
     return from;
@@ -48,7 +48,7 @@ void
 TextfileIndexer::add_source(const IndexerSource & source)
 {
     Assert(dest != NULL);
-    auto_ptr<istream> from(source.get_stream());
+    std::auto_ptr<std::istream> from(source.get_stream());
 
     // Read lines, each paragraph is a document, split lines into words,
     // each word is a term
@@ -59,7 +59,7 @@ TextfileIndexer::add_source(const IndexerSource & source)
     OmStem stemmer("english");
 
     while(*from) {
-	string para;
+	std::string para;
 	get_paragraph(*from, para);
 	//get_a_line(*from, para);
 	
@@ -67,9 +67,9 @@ TextfileIndexer::add_source(const IndexerSource & source)
 	document.data = OmData(para);
 	om_termcount position = 1;
 
-	string::size_type spacepos;
+	std::string::size_type spacepos;
 	om_termname word;
-	while((spacepos = para.find_first_not_of(" \t\n")) != string::npos) {
+	while((spacepos = para.find_first_not_of(" \t\n")) != std::string::npos) {
 	    if(spacepos) para = para.erase(0, spacepos);
 	    spacepos = para.find_first_of(" \t\n");
 	    word = para.substr(0, spacepos);

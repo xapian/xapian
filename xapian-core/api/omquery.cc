@@ -60,16 +60,16 @@ OmQuery::OmQuery(om_queryop op_, const OmQuery &left, const OmQuery &right)
 }
 
 OmQuery::OmQuery(om_queryop op_,
-		 const vector<OmQuery *>::const_iterator qbegin,
-		 const vector<OmQuery *>::const_iterator qend,
+		 const std::vector<OmQuery *>::const_iterator qbegin,
+		 const std::vector<OmQuery *>::const_iterator qend,
 		 om_termpos window)
 	: internal(0)
 {
     // FIXME: display the contents of the vector
     DEBUGAPICALL("OmQuery::OmQuery",
-		 op_ << ", " << "vector<OmQuery *>, " << window);
-    vector<OmQueryInternal *> temp;
-    vector<OmQuery *>::const_iterator i = qbegin;
+		 op_ << ", " << "std::vector<OmQuery *>, " << window);
+    std::vector<OmQueryInternal *> temp;
+    std::vector<OmQuery *>::const_iterator i = qbegin;
     while (i != qend) {
 	temp.push_back((*i)->internal);
 	++i;
@@ -78,16 +78,16 @@ OmQuery::OmQuery(om_queryop op_,
 }
 
 OmQuery::OmQuery(om_queryop op_,
-		 const vector<OmQuery>::const_iterator qbegin,
-		 const vector<OmQuery>::const_iterator qend,
+		 const std::vector<OmQuery>::const_iterator qbegin,
+		 const std::vector<OmQuery>::const_iterator qend,
 		 om_termpos window)
 	: internal(0)
 {   
     // FIXME: display the contents of the vector
     DEBUGAPICALL("OmQuery::OmQuery",
-		 op_ << ", " << "vector<OmQuery>, " << window);
-    vector<OmQueryInternal *> temp;
-    vector<OmQuery>::const_iterator i = qbegin;
+		 op_ << ", " << "std::vector<OmQuery>, " << window);
+    std::vector<OmQueryInternal *> temp;
+    std::vector<OmQuery>::const_iterator i = qbegin;
     while (i != qend) {
 	temp.push_back(i->internal);
 	++i;
@@ -97,13 +97,13 @@ OmQuery::OmQuery(om_queryop op_,
 
 
 OmQuery::OmQuery(om_queryop op_,
-		 const vector<om_termname>::const_iterator tbegin,
-		 const vector<om_termname>::const_iterator tend,
+		 const std::vector<om_termname>::const_iterator tbegin,
+		 const std::vector<om_termname>::const_iterator tend,
 		 om_termpos window)
 	: internal(0)
 {
     DEBUGAPICALL("OmQuery::OmQuery",
-		 op_ << ", " << "vector<om_termname>, " << window);
+		 op_ << ", " << "std::vector<om_termname>, " << window);
     internal = new OmQueryInternal(op_, tbegin, tend, window);
 }
 
@@ -121,7 +121,7 @@ OmQuery::operator=(const OmQuery & copyme)
 {
     DEBUGAPICALL("OmQuery::operator=", copyme);
     OmQueryInternal * temp = new OmQueryInternal(*(copyme.internal));
-    swap(temp, this->internal);
+    std::swap(temp, this->internal);
     delete temp;
 
     DEBUGAPIRETURN(*this);
@@ -143,12 +143,12 @@ OmQuery::~OmQuery()
     delete internal;
 }
 
-string
+std::string
 OmQuery::get_description() const
 {
     DEBUGAPICALL("OmQuery::get_description", "");
     OmLockSentry locksentry(internal->mutex);
-    string description = "OmQuery(" + internal->get_description() + ")";
+    std::string description = "OmQuery(" + internal->get_description() + ")";
     DEBUGAPIRETURN(description);
     return description;
 }
@@ -230,12 +230,12 @@ om_termname_list OmQuery::get_terms() const
  *  	<subqueries> is the space-separated list of subqueries
  *  	<op> is one of: %and, %or, %filter, %andmaybe, %andnot, %xor
  */
-string
+std::string
 OmQueryInternal::serialise() const
 {
     if (!isdefined) return "%N";
 
-    string result;
+    std::string result;
 
     if (isbool) {
 	result = "%B";
@@ -286,11 +286,11 @@ OmQueryInternal::serialise() const
 }
 
 // Introspection
-string
+std::string
 OmQueryInternal::get_description() const
 {
     if(!isdefined) return "<NULL>";
-    string opstr;
+    std::string opstr;
     switch(op) {
 	case OM_MOP_LEAF:
 	    return tname;
@@ -320,8 +320,8 @@ OmQueryInternal::get_description() const
 	    opstr = " PHRASE " + om_inttostring(window) + " ";
 	    break;
     }
-    string description;
-    vector<OmQueryInternal *>::const_iterator i;
+    std::string description;
+    std::vector<OmQueryInternal *>::const_iterator i;
     for(i = subqs.begin(); i != subqs.end(); i++) {
 	if(description.size()) description += opstr;
 	description += (**i).get_description();
@@ -347,13 +347,13 @@ OmQueryInternal::set_length(om_termcount qlen_)
 
 void
 OmQueryInternal::accumulate_terms(
-			vector<pair<om_termname, om_termpos> > &terms) const
+			std::vector<std::pair<om_termname, om_termpos> > &terms) const
 { 
     Assert(isdefined);
 
     if (op == OM_MOP_LEAF) {
         // We're a leaf, so just return our term.
-        terms.push_back(make_pair(tname, term_pos));
+        terms.push_back(std::make_pair(tname, term_pos));
     } else {
     	subquery_list::const_iterator end = subqs.end();
         // not a leaf, concatenate results from all subqueries
@@ -366,7 +366,7 @@ OmQueryInternal::accumulate_terms(
 }
 
 struct LessByTermpos {
-    typedef const pair<om_termname, om_termpos> argtype;
+    typedef const std::pair<om_termname, om_termpos> argtype;
     bool operator()(argtype &left, argtype &right) {
 	if (left.second != right.second) {
 	    return left.second < right.second;
@@ -381,7 +381,7 @@ OmQueryInternal::get_terms() const
 {
     om_termname_list result;
 
-    vector<pair<om_termname, om_termpos> > terms;
+    std::vector<std::pair<om_termname, om_termpos> > terms;
     if (isdefined) {
         accumulate_terms(terms);
     }
@@ -390,12 +390,12 @@ OmQueryInternal::get_terms() const
 
     // remove adjacent duplicates, and return an iterator pointing
     // to just after the last unique element
-    vector<pair<om_termname, om_termpos> >::iterator newlast =
+    std::vector<std::pair<om_termname, om_termpos> >::iterator newlast =
 	    	unique(terms.begin(), terms.end());
     // and remove the rest...  (See Stroustrup 18.6.3)
     terms.erase(newlast, terms.end());
 
-    vector<pair<om_termname, om_termpos> >::const_iterator i;
+    std::vector<std::pair<om_termname, om_termpos> >::const_iterator i;
     for (i=terms.begin(); i!= terms.end(); ++i) {
 	result.push_back(i->first);
     }
@@ -554,7 +554,7 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 	    if(left.op == op && right.op == op) {
 		// Both queries have same operation as top
 		initialise_from_copy(left);
-		vector<OmQueryInternal *>::const_iterator i;
+		std::vector<OmQueryInternal *>::const_iterator i;
 		for(i = right.subqs.begin(); i != right.subqs.end(); i++) {
 		    subqs.push_back(new OmQueryInternal(**i));
 		}
@@ -586,33 +586,33 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 }
 
 OmQueryInternal::OmQueryInternal(om_queryop op_,
-		 const vector<OmQueryInternal *>::const_iterator qbegin,
-		 const vector<OmQueryInternal *>::const_iterator qend,
-		 om_termpos window)
+		 const std::vector<OmQueryInternal *>::const_iterator qbegin,
+		 const std::vector<OmQueryInternal *>::const_iterator qend,
+		 om_termpos window_)
 	: isdefined(true), isbool(false), op(op_)
 {   
-    initialise_from_vector(qbegin, qend, window);
+    initialise_from_vector(qbegin, qend, window_);
     collapse_subqs();
 }
 
 OmQueryInternal::OmQueryInternal(om_queryop op_,
-		 const vector<om_termname>::const_iterator tbegin,
-		 const vector<om_termname>::const_iterator tend,
-		 om_termpos window)
+		 const std::vector<om_termname>::const_iterator tbegin,
+		 const std::vector<om_termname>::const_iterator tend,
+		 om_termpos window_)
 	: isdefined(true), isbool(false), op(op_)
 {
-    vector<OmQueryInternal *> subqueries;
-    vector<om_termname>::const_iterator i;
+    std::vector<OmQueryInternal *> subqueries;
+    std::vector<om_termname>::const_iterator i;
     try {
 	for(i = tbegin; i != tend; i++) {
 	    subqueries.push_back(new OmQueryInternal(*i));
 	}
-	initialise_from_vector(subqueries.begin(), subqueries.end(), window);
+	initialise_from_vector(subqueries.begin(), subqueries.end(), window_);
 	collapse_subqs();
     } catch (...) {
 	// this code would be in a finally clause if there were one...
 	// could also go in a destructor.
-	for (vector<OmQueryInternal *>::iterator i=subqueries.begin();
+	for (std::vector<OmQueryInternal *>::iterator i=subqueries.begin();
 	     i!= subqueries.end();
 	     ++i) {
 	    delete *i;
@@ -621,7 +621,7 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
     };
     // same code as above.
     // FIXME: use a destructor instead.
-    for (vector<OmQueryInternal *>::iterator i=subqueries.begin();
+    for (std::vector<OmQueryInternal *>::iterator i=subqueries.begin();
 	 i!= subqueries.end();
 	 ++i) {
 	delete *i;
@@ -630,7 +630,7 @@ OmQueryInternal::OmQueryInternal(om_queryop op_,
 
 OmQueryInternal::~OmQueryInternal()
 {
-    vector<OmQueryInternal *>::const_iterator i;
+    std::vector<OmQueryInternal *>::const_iterator i;
     for(i = subqs.begin(); i != subqs.end(); i++) {
 	delete *i;
     }
@@ -650,7 +650,7 @@ OmQueryInternal::initialise_from_copy(const OmQueryInternal &copyme)
 	term_pos = copyme.term_pos;
 	wqf = copyme.wqf;
     } else {
-	vector<OmQueryInternal *>::const_iterator i;
+	std::vector<OmQueryInternal *>::const_iterator i;
 	for(i = subqs.begin(); i != subqs.end(); i++) {
 	    delete *i;
 	}
@@ -663,8 +663,8 @@ OmQueryInternal::initialise_from_copy(const OmQueryInternal &copyme)
 
 void
 OmQueryInternal::initialise_from_vector(
-			const vector<OmQueryInternal *>::const_iterator qbegin,
-			const vector<OmQueryInternal *>::const_iterator qend,
+			const std::vector<OmQueryInternal *>::const_iterator qbegin,
+			const std::vector<OmQueryInternal *>::const_iterator qend,
                         om_termpos window_)
 {
     bool merge_ok = false; // set if merging with subqueries is valid
@@ -747,8 +747,8 @@ OmQueryInternal::initialise_from_vector(
 }
 
 struct Collapse_PosNameLess {
-    bool operator()(const pair<om_termpos, om_termname> &left,
-		    const pair<om_termpos, om_termname> &right) {
+    bool operator()(const std::pair<om_termpos, om_termname> &left,
+		    const std::pair<om_termpos, om_termname> &right) const {
 	if (left.first != right.first) {
 	    return left.first < right.first;
 	} else {
@@ -762,7 +762,7 @@ void OmQueryInternal::collapse_subqs()
     // We must have more than one query item for collapsing to make sense
     // For the moment, we only collapse ORs and ANDs.
     if ((subqs.size() > 1) && ((op == OM_MOP_OR) || (op == OM_MOP_AND))) {
-	typedef map<pair<om_termpos, om_termname>,
+	typedef std::map<std::pair<om_termpos, om_termname>,
 	            OmQueryInternal *,
 		    Collapse_PosNameLess> subqtable;
 
@@ -770,7 +770,7 @@ void OmQueryInternal::collapse_subqs()
 	subquery_list::iterator sq = subqs.begin();
 	while (sq != subqs.end()) {
 	    if ((*sq)->op == OM_MOP_LEAF) {
-		subqtable::key_type key(make_pair((*sq)->term_pos,
+		subqtable::key_type key(std::make_pair((*sq)->term_pos,
 						  (*sq)->tname));
 		subqtable::iterator s = sqtab.find(key);
 		if (s == sqtab.end()) {

@@ -87,7 +87,7 @@ OmDocument::~OmDocument()
     delete internal;
 }
 
-string
+std::string
 OmDocument::get_description() const
 {
     // FIXME - return document contents

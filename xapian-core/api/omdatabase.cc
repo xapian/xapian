@@ -32,8 +32,8 @@
 #include <om/omoutput.h>
 #include <vector>
 
-OmDatabase::Internal::Internal(const string & type,
-			       const vector<string> & paths,
+OmDatabase::Internal::Internal(const std::string & type,
+			       const std::vector<std::string> & paths,
 			       bool readonly)
 {
     // Prepare parameters to build database with (open it writable)
@@ -83,20 +83,20 @@ OmDatabaseGroup::operator=(const OmDatabaseGroup &other)
     Internal * newinternal;
 
     {
-	OmLockSentry locksentry1(min(internal, other.internal)->mutex);
-	OmLockSentry locksentry2(max(internal, other.internal)->mutex);
+	OmLockSentry locksentry1(std::min(internal, other.internal)->mutex);
+	OmLockSentry locksentry2(std::max(internal, other.internal)->mutex);
 
 	newinternal = new Internal(*other.internal);
 
-	swap(internal, newinternal);
+	std::swap(internal, newinternal);
     }
 
     delete newinternal;
 }
 
 void
-OmDatabaseGroup::add_database(const string &type,
-			      const vector<string> &params)
+OmDatabaseGroup::add_database(const std::string &type,
+			      const std::vector<std::string> &params)
 {
     // FIXME: describe the params
     DEBUGAPICALL("OmDatabaseGroup::add_database", type << ", " << "[params]");
@@ -116,12 +116,12 @@ OmDatabaseGroup::add_database(const OmDatabase & database)
     internal->add_database(dbptr);
 }
 
-string
+std::string
 OmDatabaseGroup::get_description() const
 {
     DEBUGAPICALL("OmDatabaseGroup::get_description", "");
     /// \todo display the contents of the database group
-    string description = "OmDatabaseGroup()";
+    std::string description = "OmDatabaseGroup()";
     DEBUGAPIRETURN(description);
     return description;
 }
@@ -131,8 +131,8 @@ OmDatabaseGroup::get_description() const
 //////////////////////////////////////////
 
 void
-OmDatabaseGroup::Internal::add_database(const string & type,
-					const vector<string> & paths)
+OmDatabaseGroup::Internal::add_database(const std::string & type,
+					const std::vector<std::string> & paths)
 {
     OmLockSentry locksentry(mutex);
 

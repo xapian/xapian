@@ -33,7 +33,7 @@ LeafDocument::get_key(om_keyno keyid) const
     return do_get_key(keyid);
 }
 	
-map<om_keyno, OmKey>
+std::map<om_keyno, OmKey>
 LeafDocument::get_all_keys() const
 {
     OmLockSentry locksentry(mutex);

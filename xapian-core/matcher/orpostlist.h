@@ -51,7 +51,7 @@ class OrPostList : public BranchPostList {
 	PostList *skip_to(om_docid did, om_weight w_min);
 	bool   at_end() const;
 
-	string intro_term_description() const;
+	std::string intro_term_description() const;
 
 	/** Return the document length of the document the current term
 	 *  comes from.
@@ -77,7 +77,7 @@ inline om_docid
 OrPostList::get_docid() const
 {
     Assert(lhead != 0 && rhead != 0); // check we've started
-    return min(lhead, rhead);
+    return std::min(lhead, rhead);
 }
 
 // only called if we are doing a probabilistic OR
@@ -102,7 +102,7 @@ OrPostList::recalc_maxweight()
 {
     lmax = l->recalc_maxweight();
     rmax = r->recalc_maxweight();
-    minmax = min(lmax, rmax);
+    minmax = std::min(lmax, rmax);
     return OrPostList::get_maxweight();
 }
 
@@ -114,7 +114,7 @@ OrPostList::at_end() const
     return false;
 }
 
-inline string
+inline std::string
 OrPostList::intro_term_description() const
 {
     return "(" + l->intro_term_description() + " Or " +

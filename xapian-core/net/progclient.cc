@@ -34,14 +34,14 @@
 #include <cerrno>
 #include <strstream.h>
 
-ProgClient::ProgClient(string progname, const vector<string> &args)
+ProgClient::ProgClient(std::string progname, const std::vector<std::string> &args)
 	: SocketClient(get_spawned_socket(progname, args),
 		       false /* closing socket our responsibility */)
 {
 }
 
 int
-ProgClient::get_spawned_socket(string progname, const vector<string> &args)
+ProgClient::get_spawned_socket(std::string progname, const std::vector<std::string> &args)
 {
     /* socketpair() returns two sockets.  We keep sv[0] and give
      * sv[1] to the child process.
@@ -49,13 +49,13 @@ ProgClient::get_spawned_socket(string progname, const vector<string> &args)
     int sv[2];
 
     if (socketpair(PF_UNIX, SOCK_STREAM, 0, sv) < 0) {
-	throw OmNetworkError(string("socketpair:") + strerror(errno));
+	throw OmNetworkError(std::string("socketpair:") + strerror(errno));
     }
     
     pid = fork();
 
     if (pid < 0) {
-	throw OmNetworkError(string("fork:") + strerror(errno));
+	throw OmNetworkError(std::string("fork:") + strerror(errno));
     }
 
     if (pid == 0) {
@@ -81,7 +81,7 @@ ProgClient::get_spawned_socket(string progname, const vector<string> &args)
 	const char **new_argv = new const char *[args.size() + 2];
 
 	new_argv[0] = progname.c_str();
-	for (vector<string>::size_type i=0;
+	for (std::vector<std::string>::size_type i=0;
 	     i<args.size();
 	     ++i) {
 	    new_argv[i+1] = args[i].c_str();

@@ -73,7 +73,7 @@ AndMaybePostList::next(om_weight w_min)
 	DebugMsg("AND MAYBE -> AND" << endl);
 	ret = new AndPostList(l, r, matcher, true);
 	l = r = NULL;
-	PostList *ret2 = ret->skip_to(max(lhead, rhead) + 1, w_min);
+	PostList *ret2 = ret->skip_to(std::max(lhead, rhead) + 1, w_min);
 	if (ret2) {
 	    delete ret;
 	    ret = ret2;
@@ -91,7 +91,7 @@ AndMaybePostList::skip_to(om_docid did, om_weight w_min)
 	PostList *ret;
 	DebugMsg("AND MAYBE -> AND (in skip_to)" << endl);
 	ret = new AndPostList(l, r, matcher, true);
-	did = max(did, max(lhead, rhead));
+	did = std::max(did, std::max(lhead, rhead));
 	l = r = NULL;
 	PostList *ret2 = ret->skip_to(did, w_min);
 	if (ret2) {

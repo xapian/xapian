@@ -176,7 +176,7 @@ OP_KET		%\)
 
 static YY_BUFFER_STATE qfs_yystate;
 
-void qfs_start(string text)
+void qfs_start(std::string text)
 {
     qfs_yystate = yy_scan_string(text.c_str());
 }

@@ -38,7 +38,7 @@ std::string doubletostring(double a);
 ///////////////////////////////////////////
 
 struct StringAndValue {
-    char * name;
+    const char * name;
     int value;
 };
 
