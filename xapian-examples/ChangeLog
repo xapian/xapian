@@ -1,3 +1,7 @@
+Wed Nov 14 11:24:33 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Fixed gui to compile on GCC3.0.
+
 Mon Nov  5 12:38:56 GMT 2001 Richard Boulton <richard@tartarus.org>
 
 	* Move omega into separate "applications" module.

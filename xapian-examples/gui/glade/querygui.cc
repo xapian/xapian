@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -92,7 +93,7 @@ std::string inttostring(int a)
     // Use ostrstream (because ostringstream often doesn't exist)
     char buf[100];  // Very big (though we're also bounds checked)
     ostrstream ost(buf, 100);
-    ost << a << ends;
+    ost << a << std::ends;
     return std::string(buf);
 }
 
@@ -101,7 +102,7 @@ std::string floattostring(double a)
     // Use ostrstream (because ostringstream often doesn't exist)
     char buf[100];  // Very big (though we're also bounds checked)
     ostrstream ost(buf, 100);
-    ost << a << ends;
+    ost << a << std::ends;
     return std::string(buf);
 }
 
@@ -174,7 +175,7 @@ static void do_resultdisplay(gint row) {
 	gtk_label_set_text(result_score, score.c_str());
 	gtk_label_set_text(result_docid, inttostring(*i).c_str());
     } catch (OmError &e) {
-	cout << e.get_msg() << endl;
+	std::cout << e.get_msg() << std::endl;
     }
 }
 
@@ -222,7 +223,7 @@ static void do_topterms() {
 					topterm_destroy_notify);
 	}
     } catch (OmError &e) {
-	cout << e.get_msg() << endl;
+	std::cout << e.get_msg() << std::endl;
     }
     gtk_clist_thaw(topterms_widget);
 }
@@ -238,7 +239,7 @@ on_results_selection(GtkWidget *widget,
     do_resultdisplay(row);
 }
 
-static void
+void
 on_query_changed(GtkWidget *widget, gpointer user_data) {
     GtkEditable *textbox = GTK_EDITABLE(widget);
     char *tmp = gtk_editable_get_chars( textbox, 0, -1);
@@ -270,11 +271,11 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 
 	gtk_clist_freeze(results_widget);
 	gtk_clist_clear(results_widget);
-	cout << "matches_lower_bound: " << mset.get_matches_lower_bound() <<
+	std::cout << "matches_lower_bound: " << mset.get_matches_lower_bound() <<
 		" matches_estimated: " << mset.get_matches_estimated() <<
 		" matches_upper_bound: " << mset.get_matches_upper_bound() <<
 	        " max_possible: " << mset.get_max_possible() <<
-	        " max_attained: " << mset.get_max_attained() << endl;
+	        " max_attained: " << mset.get_max_attained() << std::endl;
 
 	for (OmMSetIterator j = mset.begin(); j != mset.end(); j++) {
 	    std::vector<std::string> sorted_mterms(
@@ -300,11 +301,11 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	do_topterms();
     } catch (OmError &e) {
 	gtk_clist_thaw(results_widget);
-	cout << e.get_msg() << endl;
+	std::cout << e.get_msg() << std::endl;
     }
 }
 
-static gboolean
+gboolean
 on_mainwindow_destroy(GtkWidget *widget,
 		      GdkEvent *event,
 		      gpointer user_data) {
@@ -349,10 +350,10 @@ int main(int argc, char *argv[]) {
     }
 
     if (dbs.empty() || syntax_error || argc >= 1) {
-	cout << "Syntax: " << progname << " [options]" << endl;
-	cout << "\t--msize <maximum msize>\n";
-	cout << "\t--dbdir <directory>\n";
-	cout << "\t--glade <glade interface definition file>\n";
+	std::cout << "Syntax: " << progname << " [options]" << std::endl;
+	std::cout << "\t--msize <maximum msize>\n";
+	std::cout << "\t--dbdir <directory>\n";
+	std::cout << "\t--glade <glade interface definition file>\n";
 	exit(1);
     }
 
@@ -371,15 +372,15 @@ int main(int argc, char *argv[]) {
 	/* load the interface */
 	struct stat statbuf;
 	int err = stat(gladefile.c_str(), &statbuf);
-	if(err) {
-	    cerr << "Unable to open " << gladefile <<
-		    " (" << strerror(errno) << ")" << endl;
+	if (err) {
+	    std::cerr << "Unable to open " << gladefile <<
+		    " (" << strerror(errno) << ")" << std::endl;
 	    return 1;
 	}
 
 	xml = glade_xml_new(gladefile.c_str(), NULL);
 	if(xml == NULL) {
-	    cerr << "Unable to open " << gladefile << endl;
+	    std::cerr << "Unable to open " << gladefile << std::endl;
 	    return 1;
 	}
 
@@ -400,7 +401,7 @@ int main(int argc, char *argv[]) {
 	gtk_main();
 
     } catch (OmError &e) {
-	cout << "OmError: " << e.get_msg() << endl;
+	std::cout << "OmError: " << e.get_msg() << std::endl;
     }
     delete enquire;
     enquire = NULL;
