@@ -55,8 +55,8 @@ debian/control: debian/rules debian/control.in debian/control-python.in
 			>> debian/control; \
 	done
 
-configure: debian/control configure-stamp
-configure-stamp:
+configure: debian/control debian/configure-stamp
+debian/configure-stamp:
 	dh_testdir
 
 	# Use the latest config.sub and config.guess from the autotools-dev
@@ -77,8 +77,8 @@ configure-stamp:
 
 	touch $@
 
-build: configure build-stamp
-build-stamp:
+build: configure debian/build-stamp
+debian/build-stamp:
 	dh_testdir
 	for v in $(PYTHON_VERSIONS); do \
 	    set -e; \
@@ -154,6 +154,6 @@ clean: debian/control
 	done
 	rm -f config.sub config.guess
 	dh_clean
-	rm -f build-stamp configure-stamp
+	rm -f debian/build-stamp debian/configure-stamp
 
 .PHONY: maint maintclean configure build install binary binary-arch binary-indep clean

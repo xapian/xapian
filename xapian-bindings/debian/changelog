@@ -1,3 +1,12 @@
+xapian-bindings (0.8.0-5) unstable; urgency=low
+
+  * debian/rules: move stamp files into debian directory, to avoid polluting
+    other builds.
+  * debian/patch: Add patch containing missing documentation files for python
+    bindings (were missing from distribution tarballs in the 0.8.0 release).
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 29 Jun 2004 15:13:50 +0100
+
 xapian-bindings (0.8.0-4) unstable; urgency=low
 
   * Split debian/control into debian/control.in and debian/control-python.in
