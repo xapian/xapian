@@ -109,16 +109,50 @@ working from a CVS copy of the code, you can use "cvs diff -puN" to generate
 your patch, or put the line "diff -puN" in your ~/.cvsrc file and just use
 "cvs diff".
 
-If your patch is a small change, we are likely to simply apply it to our CVS
-tree.  If your patch is larger, we will require a copyright assignment from you
-before we can incorporate it: see the "legal" section of the website for
-details of this.  You are, of course, under no obligation to give a copyright
-assignment, but if you don't the patch will not be applied.
+We will however do our best to give proper attribution to you.  In
+particular, if we have used patches from you, or received helpful
+reports or advice, we will add your name to the AUTHORS file; unless
+you specifically request us not to.  If you see we have forgotten to
+do this, please draw it to our attention so that we can sort it out.
 
-We reserve the right to use only part of, or to modify, patches which are
-submitted.  We will however do our best to give proper attribution to you.  In
-particular, if we have used patches from you, or received helpful reports or
-advice, we will add your name to the AUTHORS file; unless you specifically
-request us not to.  If you see we have forgotten to do this, please draw it to
-our attention so that we can sort it out.
+Developers with CVS access:
+===========================
 
+People who are more seriously involved with the project are likely to
+have write access to the repository at SourceForge. This section gives
+the conventions for those developers. In addition to this, obviously
+you should make sure you update any documentation, especially the
+inline source code documentation that generates the API docs.
+
+1  Make sure the tests are right
+--------------------------------
+
+ * If you're adding a feature, also add tests for it.
+ * If you've fixed a bug, make sure there's a regression test which
+   fails on the existing code and succeeds after your changes.
+ * Make sure all existing tests continue to pass.
+
+If you don't know how to write tests using the Omseek test rig, then
+ask. It's reasonably simple once you've done it once.
+
+2  Make sure the attributions are right
+---------------------------------------
+
+ * If necessary, modify the copyright statement at the top of any
+   files you've altered. If there is no copyright statement, you may
+   add one (there are a couple of Makefile.am's and similar that don't
+   have copyright statements; anything that small doesn't really need
+   one anyway, so it's a judgement call).
+   If you've added files, they should include the GPL boilerplate
+   with your name only.
+ * If you're not in there, add yourself to the AUTHORS file.
+
+3  Create a log entry and commit
+--------------------------------
+
+ * Add an entry to the ChangeLog file at the top of the module. The
+   text of this can be identical to the cvs commit message.
+ * Commit to the repository.
+
+Then you can update any patch, bug or feature request items in the
+tracker to indicate that they've been dealt with.

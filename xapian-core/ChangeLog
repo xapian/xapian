@@ -1,3 +1,9 @@
+Thu Jun 21 11:05:31 2001  James Aylett  <tartarus@users.sourceforge.net>
+
+	* HACKING updated to (a) remove inaccurate statements about
+	  copyright assignment, and (b) talk about developer write
+	  access to CVS.
+
 Mon Jun 11 13:24:43 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 	* pthread support detected using an automake macro. Should
