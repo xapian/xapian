@@ -1,3 +1,7 @@
+Fri Nov 24 14:20:01 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Turn TIMING_PATCH off in cvs.
+
 Fri Nov 24 14:14:58 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add parameter check to network databases to ensure that supplied

@@ -23,7 +23,7 @@
 #ifndef OM_HGUARD_SOCKETSERVER_H
 #define OM_HGUARD_SOCKETSERVER_H
 
-#define TIMING_PATCH // for webtop
+//#define TIMING_PATCH // for webtop
 
 #include "netserver.h"
 #include "multimatch.h"
