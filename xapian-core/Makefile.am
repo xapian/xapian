@@ -16,9 +16,13 @@ endif
 # Order is relvant: when building, tests must be at end
 # When installing, should install script and m4 stuff last, in case of failure
 SUBDIRS = include testsuite autoconf common \
-          backends api matcher languages $(BUILDSUBDIR_REMOTE1) \
+          api backends matcher languages $(BUILDSUBDIR_REMOTE1) \
 	  $(BUILDSUBDIR_INDEXER) . m4 \
 	  docs $(BUILDSUBDIR_REMOTE2) tests bindings
+
+DIST_SUBDIRS = include testsuite autoconf common \
+               api backends matcher languages net \
+	       indexer  . m4 docs netprogs tests bindings
 
 bin_SCRIPTS=libomus-config
 
