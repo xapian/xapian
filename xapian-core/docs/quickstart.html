@@ -359,72 +359,99 @@ version is available <A HREF="simplesearch.cc.html">here</A>.
 </P>
 <P>
 The &quot;searcher&quot; presented here is, like the &quot;indexer&quot;,
-simply a small program which takes a path to a database and some search
-terms, performs a probabalistic search for documents represented by
-those terms and displays a ranked list of matching documents
+simply a small command line driven program.  It takes a path to a database
+and some search terms, performs a probabalistic search for documents
+represented by those terms and displays a ranked list of matching documents.
 </P>
 
-<H3>Header files</H3>
+<H3>Setting up</H3>
 
+<P>
+Just like simpleindex, we have a single function example.  So we include the
+Muscat header file, and begin: 
+</P>
 <PRE>
     #include &lt;om/om.h&gt;
+
     int main(int argc, char *argv[])
     {
 </PRE>
+
+<H3>Options parsing</H3>
+<P>
+Again, we are going to use no special options, and have a very simple
+command line syntax:
+<UL><LI>
+<B>Parameter 1</B> - the (possibly relative) path to the database.
+</LI><LI>
+<B>Parameters 2 onward</B> - the terms to be stored in the database.  The
+terms will be assumed to occur at successive positions in the document.
+</LI></UL>
+</P><P>
+The validity of a command line can therefore be checked very simply by
+ensuring that there are at least 2 parameters:
+</P>
 <PRE>
-        // Simplest possible options parsing: we just require two or more
-        // parameters.
-        if(argc &lt; 3) {
-            cout &lt;&lt; "usage: " &lt;&lt; argv[0] &lt;&lt;
-                    " &lt;path to database&gt; &lt;search terms&gt;" &lt;&lt; endl;
-            exit(1);
-        }
+    if(argc &lt; 3) {
+        cout &lt;&lt; "usage: " &lt;&lt; argv[0] &lt;&lt;
+                " &lt;path to database&gt; &lt;search terms&gt;" &lt;&lt; endl;
+        exit(1);
+    }
+</PRE>
+</P>
 
-        // Catch any OmError exceptions thrown
-        try {
-            // Make the database group
-            OmDatabaseGroup databases;
-            vector&lt;string&gt; parameters;
-            parameters.push_back(argv[1]);
-            databases.add_database("sleepycat", parameters);
-
-            // Start an enquire session
-            OmEnquire enquire(databases);
-
-            // Prepare the query terms
-            vector&lt;om_termname&gt; queryterms;
-            for (int optpos = 2; optpos &lt; argc; optpos++) {
-                queryterms.push_back(argv[optpos]);
-            }
-
-            // Build the query object
-            OmQuery query(OM_MOP_OR, queryterms.begin(), queryterms.end());
-            cout &lt;&lt; "Performing query `" &lt;&lt; query.get_description() &lt;&lt; "'" &lt;&lt; endl;
-
-            // Give the query object to the enquire session
-            enquire.set_query(query);
-
-            // Get the top 10 results of the query
-            OmMSet matches = enquire.get_mset(0, 10);
-
-            // Display the results
-            cout &lt;&lt; matches.items.size() &lt;&lt; " results found" &lt;&lt; endl;
-
-            for (vector&lt;OmMSetItem&gt;::const_iterator i = matches.items.begin();
-                 i != matches.items.end();
-                 i++) {
-                OmDocument doc = enquire.get_doc(*i);
-                cout &lt;&lt; "Document ID " &lt;&lt; i-&gt;did &lt;&lt; "\t" &lt;&lt;
-                        matches.convert_to_percent(*i) &lt;&lt; "% [" &lt;&lt;
-                        doc.get_data().value &lt;&lt; "]" &lt;&lt; endl;
-            }
-        }
-        catch(OmError &error) {
-            cout &lt;&lt; "Exception: "  &lt;&lt; error.get_msg() &lt;&lt; endl;
-        }
+<H3>Catching exceptions</H3>
+<P>
+Again, this is performed just as it was for the simple indexer.
+</P>
+<PRE>
+    try {
+        <B>[code which accesses Muscat]</B>
+    }
+    catch(OmError &amp; error) {
+        cout &lt;&lt; "Exception: "  &lt;&lt; error.get_msg() &lt;&lt; endl;
     }
 </PRE>
 
+<H3>Specifying the databases</H3>
+<PRE>
+    // Make the database group
+    OmDatabaseGroup databases;
+    vector&lt;string&gt; parameters;
+    parameters.push_back(argv[1]);
+    databases.add_database("sleepycat", parameters);
+
+    // Start an enquire session
+    OmEnquire enquire(databases);
+
+    // Prepare the query terms
+    vector&lt;om_termname&gt; queryterms;
+    for (int optpos = 2; optpos &lt; argc; optpos++) {
+        queryterms.push_back(argv[optpos]);
+    }
+
+    // Build the query object
+    OmQuery query(OM_MOP_OR, queryterms.begin(), queryterms.end());
+    cout &lt;&lt; "Performing query `" &lt;&lt; query.get_description() &lt;&lt; "'" &lt;&lt; endl;
+
+    // Give the query object to the enquire session
+    enquire.set_query(query);
+
+    // Get the top 10 results of the query
+    OmMSet matches = enquire.get_mset(0, 10);
+
+    // Display the results
+    cout &lt;&lt; matches.items.size() &lt;&lt; " results found" &lt;&lt; endl;
+
+    for (vector&lt;OmMSetItem&gt;::const_iterator i = matches.items.begin();
+         i != matches.items.end();
+         i++) {
+        OmDocument doc = enquire.get_doc(*i);
+        cout &lt;&lt; "Document ID " &lt;&lt; i-&gt;did &lt;&lt; "\t" &lt;&lt;
+                matches.convert_to_percent(*i) &lt;&lt; "% [" &lt;&lt;
+                doc.get_data().value &lt;&lt; "]" &lt;&lt; endl;
+    }
+</PRE>
 
 <HR>
 <H2>Compiling</H2>
