@@ -44,6 +44,18 @@ Priority | Area            | Task
          |                 | userman, particuarly in examples (eg, search
 	 |                 | engine example)
 ---------+-----------------+--------------------------------------------------
+ Medium  | General         | If two OmEnquire objects are initialised with
+         |                 | the same OmDatabase, they should share the
+	 |                 | same IRDatabase object.  This could be done with
+	 |                 | reference counted internals of OmDatabase
+	 |                 | (though this might cause problems if the
+	 |                 | OmDatabase was subsequently modified - it could
+	 |                 | make new internals for itself in that situation,
+	 |                 | though).  Would need pthread locks in the
+	 |                 | database class in this case, which might be less
+	 |                 | efficient, or might avoid resource conflicts and
+	 |                 | be better.
+---------+-----------------+--------------------------------------------------
  Low     |cBackends        | Use pthread locks around inmemory methods
 ---------+-----------------+--------------------------------------------------
  Low     | Backends        | Use pthread locks around database methods
