@@ -1,3 +1,9 @@
+Tue Dec 24 19:58:57 GMT 2002  Olly Betts <olly@survex.com>
+
+	* omega.cc,docs/cgiparams.txt: Prefer MINHITS to MIN_HITS and
+	  RAWSEARCH to RAW_SEARCH since none of the other CGI parameter
+	  names have _ separating words.  Also support old names for now.
+
 Mon Dec 23 03:23:33 GMT 2002  Olly Betts <olly@survex.com>
 
 	* query.cc,docs/omegascript.txt,templates/query: Added $unstem to map

@@ -53,19 +53,23 @@ MORELIKE
 	indexes will be used - this allows a MORELIKE query based on the
 	unique id from an external database)
 
-RAW_SEARCH
+RAWSEARCH
 	when set to non-zero value, this prevents TOPDOC being snapped to a
 	multiple of HITSPERPAGE.  Normally we snap TOPDOC like this so that
 	things work nicely if HITSPERPAGE is in a picker or on radio buttons.
 	If we're postprocessing the output of omega and want variable sized
-	pages, this is unhelpful.
+	pages, this is unhelpful.  (Alternative deprecated spelling is
+	RAW_SEARCH).
 
-MIN_HINTS
-	can be set to look for more matches than needed for HITSPERPAGE so
-	you can be sure of how many more consecutive pages will definitely
-	be needed to show results.  Note that setting this high can slow
-	down the search.
-
+MINHITS
+	can be set to look for more matches than would otherwise be looked for
+	to you can be sure how many more consecutive pages will definitely be
+	needed to show results.  By default omega asks for one hit more than
+	the last one displayed on this page (so we know for sure if there is a
+	next page or not).  If MINHITS is set, we ask for at least MINHITS
+	matches from the start of the current page - you can think of MINHITS
+	as defaulting to (HITSPERPAGE + 1).  (Alternative deprecated spelling
+	is MIN_HITS).
 
 Filtering parameters
 --------------------

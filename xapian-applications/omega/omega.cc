@@ -311,7 +311,10 @@ main2(int argc, char *argv[])
 
     // min_hits (fill mset past topdoc+(hits_per_page+1) to
     // topdoc+max(hits_per_page+1,min_hits)
-    val = cgi_params.find("MIN_HITS");
+    val = cgi_params.find("MINHITS");
+    // In Omega <= 0.6.3, MINHITS was MIN_HITS - renamed to be consistent
+    // with the naming of other CGI parameters.
+    if (val == cgi_params.end()) val = cgi_params.find("MIN_HITS");
     if (val != cgi_params.end()) {
 	min_hits = atol(val->second.c_str());
     } else {
@@ -330,7 +333,10 @@ main2(int argc, char *argv[])
     // HITSPERPAGE is in a picker or on radio buttons.  If we're postprocessing
     // the output of omega and want variable sized pages, this is unhelpful.
     bool raw_search = false; 
-    val = cgi_params.find("RAW_SEARCH");
+    val = cgi_params.find("RAWSEARCH");
+    // In Omega <= 0.6.3, RAWSEARCH was RAW_SEARCH - renamed to be consistent
+    // with the naming of other CGI parameters.
+    if (val == cgi_params.end()) val = cgi_params.find("RAW_SEARCH");
     if (val != cgi_params.end()) {
 	raw_search = bool(atol(val->second.c_str()));
     }
