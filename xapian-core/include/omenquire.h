@@ -67,9 +67,16 @@ class OmQuery {
 	om_termpos term_pos; /// Position in query of this term
 	om_termcount wqf;    /// Within query frequency of this term
 
+	/// Copy another OmQuery into self.
 	void initialise_from_copy(const OmQuery & copyme);
+
+	/** Set my vector of queries to be a memberwise copy of the
+	 *  supplied vector of OmQuery objects. */
 	void initialise_from_vector(const vector<OmQuery>::const_iterator qbegin,
 				    const vector<OmQuery>::const_iterator qend);
+
+	/** Set my vector of queries to be a memberwise copy of the
+	 *  supplied vector of OmQuery pointers. */
 	void initialise_from_vector(const vector<OmQuery *>::const_iterator qbegin,
 				    const vector<OmQuery *>::const_iterator qend);
     public:
@@ -317,7 +324,10 @@ class OmMSet {
 // =============
 // Representation a set of expand terms
 
-/// An item in the ESet
+/** An item in the ESet.
+ *  This item contains the termname, and the weight calculated for
+ *  the document.
+ */
 class OmESetItem {
     friend class OmExpand;
     private:
@@ -328,7 +338,9 @@ class OmESetItem {
 	om_termname tname;
 };
 
-/// Class representing an ESet
+/** Class representing an ESet.
+ *  This set represents the results of an OmEnquire::get_eset()
+ */
 class OmESet {
     private:
     public:
