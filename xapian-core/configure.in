@@ -463,7 +463,7 @@ if test "$GCC" = yes; then
 fi
 
 dnl modify flags for building with stlport
-if test "x$use_stlport" = yes; then
+if test "x$use_stlport" = "xyes"; then
   dnl STLport doesn't work with -ansi (at least, at version 4.0)
   CXXFLAGS=`echo "$CXXFLAGS" | sed "s/-ansi//"`
   if test "$GCC" = yes; then
