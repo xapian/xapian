@@ -1,3 +1,9 @@
+Sat Feb 21 18:33:15 GMT 2004  Olly Betts <olly@survex.com>
+
+	* omega.cc,query.cc,docs/omegascript.txt: Added $httpheader
+	  Omegascript to allow arbitrary HTTP headers and alternative
+	  Content-Type headers to be specified.
+	
 Sat Feb 14 00:32:06 GMT 2004  Olly Betts <olly@survex.com>
 
 	* query.cc: If the probabilistic query was bad, don't try to run the

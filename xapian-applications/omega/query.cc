@@ -100,6 +100,8 @@ static const char * DEFAULT_LOG_ENTRY =
 	"$query\t"
 	"$msize$if{$env{HTTP_REFERER},\t$env{HTTP_REFERER}}";
 
+static bool set_content_type = false;
+
 class MyStopper : public Xapian::Stopper {
   public:
     bool operator()(const string &t) {
@@ -724,6 +726,7 @@ CMD_hitsperpage,
 CMD_hostname,
 CMD_html,
 CMD_htmlstrip,
+CMD_httpheader,
 CMD_id,
 CMD_if,
 CMD_include,
@@ -833,6 +836,7 @@ T(hitsperpage,	   0, 0, N, 0), // hits per page
 T(hostname,	   1, 1, N, 0), // extract hostname from URL
 T(html,		   1, 1, N, 0), // html escape string (<>&")
 T(htmlstrip,	   1, 1, N, 0), // html strip tags string (s/<[^>]*>?//g)
+T(httpheader,      2, 2, N, 0), // arbitrary HTTP header
 T(id,		   0, 0, N, 0), // docid of current doc
 T(if,		   2, 3, 1, 0), // conditional
 T(include,	   1, 1, 1, 0), // include another file
@@ -1256,6 +1260,13 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_htmlstrip:
 	        value = html_strip(args[0]);
 		break;
+	    case CMD_httpheader:
+		cout << args[0] << ": " << args[1] << endl;
+		if (!set_content_type && args[0].length() == 12 &&
+			strcasecmp(args[0].c_str(), "Content-Type") == 0) {
+		    set_content_type = true;
+		}
+	        break;
 	    case CMD_id:
 		// document id
 		value = int_to_string(q0);
@@ -1867,11 +1878,14 @@ print_caption(const string &fmt, const vector<string> &param)
 void
 parse_omegascript()
 {
-    cout << eval_file(fmtname);
+    std::string output = eval_file(fmtname);
+    if (!set_content_type) {
+	cout << "Content-Type: text/html" << std::endl;
+    }
+    cout << std::endl;
+    cout << output;
 }
 
-// Sets:
-//
 static void
 ensure_query_parsed()
 {
