@@ -31,8 +31,9 @@
 #include "omdebug.h"
 using std::string;
 
-// Tag used to store next free docid and total length
-static const string METAINFO_TAG("\000\000", 2);
+// Magic key (which corresponds to an invalid docid) is used to store the
+// next free docid and total length of all documents
+static const string METAINFO_KEY("", 1);
 
 string
 QuartzRecordManager::get_record(QuartzTable & table, om_docid did)
@@ -54,22 +55,20 @@ QuartzRecordManager::get_doccount(QuartzTable & table)
 {   
     DEBUGCALL_STATIC(DB, om_doccount, "QuartzRecordManager::get_doccount", "[table]");
     // Check that we can't overflow (the unsigned test is actually too
-    // strict as we can assign an unsigned char to a signed long, but this
-    // shouldn't actually matter).
+    // strict as we can typucally assign an unsigned short to a signed long,
+    // but this shouldn't actually matter here).
     CASSERT(sizeof(om_doccount) >= sizeof(quartz_tablesize_t));
     CASSERT((om_doccount)(-1) > 0);
     CASSERT((quartz_tablesize_t)(-1) > 0);
     om_doccount entries = table.get_entry_count();
-
-    if (entries < 1) RETURN(0);
-    RETURN(entries - 1);
+    RETURN(entries ? entries - 1 : 0);
 }
 
 om_docid
 QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
 {
     DEBUGCALL_STATIC(DB, om_docid, "QuartzRecordManager::get_newdocid", "[table]");
-    string * tag = table.get_or_make_tag(METAINFO_TAG);
+    string * tag = table.get_or_make_tag(METAINFO_KEY);
 
     om_docid did;
     quartz_totlen_t totlen;
@@ -130,7 +129,7 @@ QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
 					 quartz_doclen_t new_doclen)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzRecordManager::modify_total_length", "[table], " << old_doclen << ", " << new_doclen);
-    string * tag = table.get_or_make_tag(METAINFO_TAG);
+    string * tag = table.get_or_make_tag(METAINFO_KEY);
 
     om_docid did;
     quartz_totlen_t totlen;
@@ -173,7 +172,7 @@ QuartzRecordManager::get_avlength(QuartzTable & table)
     if (docs == 0) RETURN(0);
 
     string tag;
-    if (!table.get_exact_entry(METAINFO_TAG, tag)) RETURN(0u);
+    if (!table.get_exact_entry(METAINFO_KEY, tag)) RETURN(0u);
 
     om_docid did;
     quartz_totlen_t totlen;

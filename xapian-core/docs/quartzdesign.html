@@ -110,7 +110,7 @@ There are six tables comprising a quartz database.
 <B>Record</B>.
 This stores the arbitrary chunk of data associated with each document.
 <p>
-Key: pack_uint(docid) 
+Key: lsb ... msb of the docid, until all remaining bytes are zero
 <p>
 It also stores a couple of special fields - one containing the next
 document ID to use when adding a document (document IDs are allocated in
@@ -158,6 +158,8 @@ Lexicon can be removed and the PostList table used instead...
 </li><li>
 <b>TermList</b>.
 This stores the list of terms which appear in a document.
+<p>
+Key: lsb ... msb of the docid, until all remaining bytes are zero
 <p>
 The list first stores the document length, and the number of entries in the
 termlist (this latter value is stored for quick access - it could also be

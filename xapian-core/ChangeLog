@@ -1,3 +1,9 @@
+Fri Nov 15 13:05:06 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_record.cc,backends/quartz/quartz_utils.h,
+	  docs/quartzdesign.html: Changed encoding of keys for quartz record
+	  and termlist tables.
+
 Fri Nov 15 12:54:39 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_table_entries.cc: Fixed

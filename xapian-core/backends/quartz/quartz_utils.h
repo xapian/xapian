@@ -319,11 +319,19 @@ pack_bool(bool value)
 #include "om/omtypes.h"
 
 /** Convert a document id to a key.
+ *
+ * This key encoding works when the key consists of just the docid, since the
+ * encoding doesn't include its own length...
  */
 inline string
 quartz_docid_to_key(om_docid did)
 {
-    return pack_uint(did);
+    string r;
+    while (did) {
+        r += (char)did;
+	did >>= 8;
+    }
+    return r;
 }
 
 #endif /* OM_HGUARD_QUARTZ_UTILS_H */
