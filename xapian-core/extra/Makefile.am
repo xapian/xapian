@@ -10,7 +10,7 @@ omcompatinclude_HEADERS = omparsequery.h
 
 lib_LTLIBRARIES = libomqueryparser.la
 check_PROGRAMS = queryparsertest
-TESTS = queryparsertest
+TESTS = queryparsertest$(EXEEXT)
 
 libomqueryparser_la_SOURCES = queryparser.yy
 queryparsertest_SOURCES = queryparsertest.cc
