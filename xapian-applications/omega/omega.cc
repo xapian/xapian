@@ -345,7 +345,7 @@ main2(int argc, char *argv[])
 	}
 
 	// snap topdoc to page boundry
-	topdoc = (topdoc / hits_per_page) * hits_per_page;
+	if (! raw_search) topdoc = (topdoc / hits_per_page) * hits_per_page;
     }
 
     if (want_rset) {
