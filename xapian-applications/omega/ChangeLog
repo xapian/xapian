@@ -1,3 +1,8 @@
+Fri Dec 21 17:53:59 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Added quick'n'dirty interface to allow experimentation with
+	  OmBiasFunctor.
+
 Thu Dec 20 14:46:33 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Document xDB, xDAYSMINUS, xDATE1, xDATE2, xB.

@@ -334,6 +334,19 @@ run_query()
 
 	OmSettings opt;
 	opt.set("match_percent_cutoff", threshold);
+	
+	// Temporary bodge to allow experimentation with OmBiasFunctor
+	MCI i;
+	i = cgi_params.find("bias_weight");
+	if (i != cgi_params.end()) {
+	    opt.set("match_bias", true);
+	    opt.set("match_bias_weight", atof(i->second.c_str()));
+	    i = cgi_params.find("bias_halflife");
+	    if (i != cgi_params.end()) {
+		opt.set("match_bias_halflife", atof(i->second.c_str()));
+	    }
+	}
+				
 	// FIXME - set msetcmp to reverse?
 	//
 	// We could use the value of topdoc as first parameter, but we
