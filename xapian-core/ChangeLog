@@ -1,3 +1,7 @@
+Thu Dec 05 23:27:57 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/remote.html: Updated from OmSettings to factory functions.
+
 Thu Dec 05 23:26:42 GMT 2002  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: ixion is actually Linux 2.2.

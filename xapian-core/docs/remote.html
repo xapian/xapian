@@ -38,36 +38,31 @@ production use, but is useful for debugging and testing.  The omprogsrv
 program, which is designed to be the program spawned, currently only uses
 text files indexed into inmemory databases.
 
-<P>From the client end, the following database parameters are used:
+<P>From the client end, create the database with <code>OmDatabase database(OmRemote__open(<i>program</i>, <i>args</i>));</code> - for example:
 
-<ul>
-<li> "remote_type" = "prog"
+<pre>
+OmDatabase database(OmRemote__open("omprogsrv", "file1.txt file2.txt"));
+</pre>
 
-<li> "remote_program" - The program to be run, ie "omprogsrv", which is built in
-            the netprogs directory in the xapian-core distribution.  If a full path
-            isn't given, the PATH environment variable is used.
-
-<li> "remote_args" - a string giving the arguments to the program.  In the
-            case of omprogsrv, each argument is the name of a text file to be
-            indexed into an inmemory database.  Any number can be specified.
-</ul>
+If the program has no path, the PATH environment variable is used.  The
+args are a list of one or more names of text files to be indexed into an
+inmemory database.  Any number can be specified.
 
 <h2>The TCP Method</h2>
 
 <P>The tcp method uses TCP/IP sockets to connect to a running server on a remote
 (or indeed local) machine.
 
-<P>The client's database parameters are:
+<P>From the client end, create the database with <code>OmDatabase database(OmRemote__open(<i>host</i>, <i>port</i>));</code> - for example:
 
-<ul>
-<li> "remote_type" = "tcp"
+<pre>
+OmDatabase database(OmRemote__open("searchserver", 33333));
+</pre>
 
-<li> "remote_server" - The server's hostname.
+The host is the server's hostname, the port is the tcp port on the server to
+use.
 
-<li> "remote_port" - The tcp port on the server to use.
-</ul>
-
-The server is omtcpsrv in the netprogs/ directory of the xapian-core distribution.
+<P>The server is omtcpsrv in the netprogs/ directory of the xapian-core distribution.
 This should be started and left running in the background before searches
 are performed.
 
