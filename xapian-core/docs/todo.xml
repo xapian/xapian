@@ -78,7 +78,7 @@ currently, sometimes you have to supply a begin and end iterator, and sometimes
 you have to supply a reference to an object.  Always use begin and end
 iterators.
 
-Particular offenders are: OmMSet, OmESet, OmRSet, OmBatchEnquire, OmStem.
+Particular offenders are: OmMSet, OmRSet, OmBatchEnquire, OmStem.
 
 Also OmEnquire::get_matching_terms(), OmQuery::get_terms(),
 OmExpandDeciderFilterTerms. (om_termnamelist), and some parts of the indexer.

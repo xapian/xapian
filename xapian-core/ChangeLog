@@ -1,3 +1,10 @@
+Sun Dec 10 17:28:59 GMT 2000 Olly Betts
+
+	* Updated TODO to reflect OmESet being cleaned up.
+
+	* Term position argument to OmDocument::add_posting() is now
+	  optional (as it was for OmDocumentContents).
+
 Sun Dec 10 16:55:17 GMT 2000 Olly Betts
 
 	* OmESetItem is dead - long live OmESetIterator!

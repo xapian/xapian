@@ -139,7 +139,7 @@ class OmDocument {
 	 *  @param tname  The name of the term.
 	 *  @param tpos   The position of the term.
 	 */
-	void add_posting(const om_termname & tname, om_termpos tpos);
+	void add_posting(const om_termname & tname, om_termpos tpos = 0);
 
 	/** Remove an occurrence of a term to the document.
 	 *
