@@ -44,6 +44,7 @@ static test tests[] = {
     { "c++ -c--", "(c++:(pos=1) AND_NOT c--:(pos=2))" },
     { "\"c++ standard\"", "(c++:(pos=1) PHRASE 2 standard:(pos=2))" },
     { "AT&T M&S", "(Rat&t:(pos=1) OR Rm&s:(pos=2))" },
+    { "E.T. N.A.T.O AB.C.", "(Ret:(pos=1) OR Rnato:(pos=2) OR Rab:(pos=3) OR c:(pos=4))" },
     { NULL, NULL }
 };
 

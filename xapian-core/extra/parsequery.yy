@@ -253,24 +253,37 @@ yylex()
 	string term;
 	bool already_stemmed = !qp->stem;
 	string::iterator term_start = qptr, term_end;
-more_term:
-	term_end = find_if(qptr, q.end(), p_notalnum);
-	if (term_end != q.end()) {
-	    if (*term_end == '&') {
-		// Treat AT&T M&S A&P etc as a single term
-		if (term_end + 1 != q.end() && isalnum(term_end[1])) {
-		    qptr = term_end + 1;
-		    goto more_term;
-		}
-	    } else {
-		string::iterator end2;
-		end2 = find_if(term_end, q.end(), p_notplusminus);
-		if (end2 == q.end() || !isalnum(*end2)) term_end = end2;
+	if (isupper(*qptr)) {
+	    term = *qptr;
+	    while (++qptr != q.end() && *qptr == '.' &&
+		   ++qptr != q.end() && isupper(*qptr)) {
+		term += *qptr;
+	    }
+	    if (term.length() < 2 || (qptr != q.end() && isalnum(*qptr))) {
+		qptr = term_start;
+		term = "";
 	    }
 	}
+	if (term.empty()) {
+more_term:
+	    term_end = find_if(qptr, q.end(), p_notalnum);
+	    if (term_end != q.end()) {
+		if (*term_end == '&') {
+		    // Treat AT&T M&S A&P etc as a single term
+		    if (term_end + 1 != q.end() && isalnum(term_end[1])) {
+			qptr = term_end + 1;
+			goto more_term;
+		    }
+		} else {
+		    string::iterator end2;
+		    end2 = find_if(term_end, q.end(), p_notplusminus);
+		    if (end2 == q.end() || !isalnum(*end2)) term_end = end2;
+		}
+	    }
+	    term = q.substr(term_start - q.begin(), term_end - term_start);
+	    qptr = term_end;
+	}
 
-	term = q.substr(term_start - q.begin(), term_end - term_start);
-	qptr = term_end;
 	if (qptr != q.end()) {
 	    if (*qptr == '.') {
 		// "example.com" should give "exampl" and "com" - need EOF or

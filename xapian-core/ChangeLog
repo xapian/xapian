@@ -1,3 +1,8 @@
+Tue May 14 15:25:05 BST 2002  Olly Betts <olly@survex.com>
+
+	* OmQueryParser: parse acronyms as a single term (so "E.T." -> "ET"
+	  and "N.A.T.O" -> "NATO").
+
 Tue May 14 15:23:20 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 	* Fixed config.h includes: source definition (ie not header) files
@@ -16,7 +21,8 @@ Tue May 14 13:14:51 BST 2002  Olly Betts <olly@survex.com>
 
 Tue May 14 13:10:33 BST 2002  Olly Betts <olly@survex.com>
 
-	* Search for <word>&<word> as a single term (e.g. AT&T, M&S, A&P).
+	* OmQueryParser: Parse <word>&<word> as a single term (e.g. AT&T,
+	  M&S, A&P).
 
 Tue May 14 11:50:03 BST 2002  Olly Betts <olly@survex.com>
 
@@ -43,7 +49,7 @@ Mon May 13 15:12:30 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 Mon May 13 15:09:17 BST 2002  Olly Betts <olly@survex.com>
 
-	* confingure.in: Moved AH_TOP/AH_BOTTOM to more logical place.
+	* configure.in: Moved AH_TOP/AH_BOTTOM to more logical place.
 
 	* docs/todo.xml: Updated.
 
