@@ -8,11 +8,6 @@ location of a built, but not installed, Muscat library.
 This is further complicated if you are performing a VPATH build
 (ie, builddir != srcdir), in which case you must also specify
 
-The configure.in uses a macro defined by Muscat, so you must also
-point at this if you are rebuilding the configure script (with aclocal)
-This can be done using the ACLOCAL_FLAGS environment variable, if you're
-using the "buildall" script.
-
 Note that you shouldn't specify relative directories in this environment
 variable, or in the --with-libomus-uninst* parameters
 
@@ -28,6 +23,4 @@ cd om
 cd ..
 mkdir examples
 cd examples
-ACLOCAL_FLAGS="-I `pwd`/../../om/m4" ../../examples/buildall --with-libomus-uninst=`pwd`/../../om --with-libomus-uninst-exec=`pwd`/../om
-
-(Note: the above commands may have typos: I havn't tested them yet)
+../../examples/buildall --with-libomus-uninst=`pwd`/../../om --with-libomus-uninst-exec=`pwd`/../om
