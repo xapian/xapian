@@ -4,6 +4,8 @@ ToDo items on the coding side.
 Near term (within a fortnight)
 =========================
 
+Make Builder work when some access methods are configured off.
+
 Split database definition files into database/postlist/termlist files.
 Rename TextfileDatabase (to DynamicDatabase?) - indexer is all that is Textfile.
 Remove old references to term_id_to_name() and term_name_to_id().
