@@ -1,3 +1,7 @@
+Sat Aug 14 18:56:06 BST 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Improved library versioning comment.
+
 Sat Aug 14 18:55:17 BST 2004  Olly Betts <olly@survex.com>
 
 	* docs/overview.html: Fixed om_queryop to Xapian::Query::op, and added
