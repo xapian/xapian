@@ -712,7 +712,6 @@ void Btree::make_index_item(byte * result, int result_len,
 			    const byte * prevkey, const byte * newkey,
 			    const int4 blocknumber, bool truncate) const
 {
-    // FIXME: check we don't overrun result_len
     Assert(compare_keys(prevkey, newkey) < 0);
 
     int prevkey_len = GETK(prevkey, 0) - C2;
@@ -730,6 +729,10 @@ void Btree::make_index_item(byte * result, int result_len,
     } else {
 	i = newkey_len;
     }
+
+    // FIXME: abort not good - better than buffer overrun though
+    if (I2 + i + C2 + sizeof(blocknumber) > result_len) abort();
+
     SETI(result, 0, I2 + i + C2 + sizeof(blocknumber)); // Set item length
     SETK(result, I2, i + C2);    // Set key length
     memmove(result + I2 + K1, newkey + K1, i - K1); // Copy the main part of the key

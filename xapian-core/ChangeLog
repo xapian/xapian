@@ -1,3 +1,7 @@
+Tue Jun 11 02:01:53 BST 2002  Olly Betts <olly@survex.com>
+
+	* Btree::make_index_item(): Added check for buffer overflow.
+
 Tue Jun 11 01:49:51 BST 2002  Olly Betts <olly@survex.com>
 
 	* Still more...
