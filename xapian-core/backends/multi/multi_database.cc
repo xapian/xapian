@@ -154,7 +154,7 @@ MultiDatabase::open_post_list(const om_termname & tname) const
     }
     Assert(pls.begin() != pls.end());
     
-    LeafPostList * newpl = new MultiPostList(pls);
+    LeafPostList * newpl = new MultiPostList(pls, this);
     return newpl;
 }
 

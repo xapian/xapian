@@ -1,3 +1,22 @@
+Sat Jun  3 00:31:19 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Attempt to make LocalMatch asks the query for the document length,
+	  rather than the database.  This code currently commented out,
+	  because it causes test failures and a segfault.
+
+Sat Jun  3 00:18:50 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added a get_doclength() method to postlists.  Some return the
+	  result of calling the get_doclength() method of the corresponding
+	  database, branch ones return the result from one of the sub-branches,
+	  and the sleepycat one returns the value stored in the postlist.
+	  SleepyDatabase::get_doclength() is still unimplemented, however.
+
+Sat Jun  3 00:01:55 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Improved configuration for finding c++ interface to sleepycat.  Now
+	  works at home again...
+
 Fri Jun  2 19:09:41 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Now stores document lengths in postlists.  Not yet accessible,

@@ -24,6 +24,7 @@
 
 #include "omassert.h"
 #include "multi_postlist.h"
+#include "multi_database.h"
 #include "database_builder.h"
 
 #include <string>
@@ -34,8 +35,12 @@
 // Postlist //
 //////////////
 
-MultiPostList::MultiPostList(list<MultiPostListInternal> & pls)
-	: postlists(pls), finished(false), currdoc(0),
+MultiPostList::MultiPostList(list<MultiPostListInternal> & pls,
+			     const MultiDatabase * this_db_)
+	: postlists(pls),
+	  this_db(this_db_),
+	  finished(false),
+	  currdoc(0),
 	  freq_initialised(false)
 {
 }
@@ -51,10 +56,9 @@ MultiPostList::~MultiPostList()
     }
 }
 
-om_weight MultiPostList::get_weight() const
+om_weight
+MultiPostList::get_weight() const
 {
-    Assert(freq_initialised);
-
     om_weight wt = 0;
     list<MultiPostListInternal>::const_iterator i = postlists.begin();
     while(i != postlists.end()) {
@@ -65,13 +69,20 @@ om_weight MultiPostList::get_weight() const
     return wt;
 }
 
+om_doclength
+MultiPostList::get_doclength() const
+{
+    return this_db->get_doclength(get_docid());
+}
+
 PositionList &
 MultiPostList::get_position_list()
 {
     throw OmUnimplementedError("MultiPostList::get_position_list() unimplemented");
 }
 
-PostList * MultiPostList::next(om_weight w_min)
+PostList *
+MultiPostList::next(om_weight w_min)
 {
     Assert(!at_end());
 

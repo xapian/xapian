@@ -59,12 +59,40 @@ class PostList
 
 	///////////////////////////////////////////////////////////////////
 	// Information about the current item
-	//
-	// These may only be called after a next() or a skip_to(),
-	// and before at_end() returns true (or would do were it to be called)
 
-	virtual om_docid  get_docid() const = 0;
-	virtual om_weight get_weight() const = 0;
+	/** Get the ID of the document at the current position in the postlist.
+	 *
+	 *  This method may only be called while the current position is at a
+	 *  valid item: ie, after at least one next() or skip_to() has been
+	 *  performed, and before at_end() returns true (or would do were it to
+	 *  be called).
+	 */
+	virtual om_docid     get_docid() const = 0;
+
+	/** Calculate the weight for the item at the current position.
+	 *
+	 *  This method may only be called while the current position is at a
+	 *  valid item: ie, after at least one next() or skip_to() has been
+	 *  performed, and before at_end() returns true (or would do were it to
+	 *  be called).
+	 */
+	virtual om_weight    get_weight() const = 0;
+
+	/** Get the length of the document at the current position in the
+	 *  postlist.
+	 *
+	 *  This information may be stored in the postlist, in which case
+	 *  this lookup should be extremely fast (indeed, not require further
+	 *  disk access).  If the information is not present in the postlist,
+	 *  it will be retrieved from the database, at a greater performance
+	 *  cost.
+	 *
+	 *  This method may only be called while the current position is at a
+	 *  valid item: ie, after at least one next() or skip_to() has been
+	 *  performed, and before at_end() returns true (or would do were it to
+	 *  be called).
+	 */
+	virtual om_doclength get_doclength() const = 0;
 
 	// recalculate weights (used when tree has been autopruned)
         virtual om_weight recalc_maxweight() = 0;

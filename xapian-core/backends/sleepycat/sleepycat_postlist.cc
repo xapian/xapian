@@ -60,6 +60,12 @@ SleepyPostList::get_docid() const
     return mylist.get_current_item().id;
 }
 
+om_doclength
+SleepyPostList::get_doclength() const
+{
+    return mylist.get_current_item().doclength;
+}
+
 om_weight
 SleepyPostList::get_weight() const
 {

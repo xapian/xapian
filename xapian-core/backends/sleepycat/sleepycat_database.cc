@@ -56,10 +56,11 @@ SleepyDatabase::SleepyDatabase(const DatabaseBuilderParams &params)
 	throw OmInvalidArgumentError("SleepyDatabase cannot have sub databases.");
     }
 
-    internals = auto_ptr<SleepyDatabaseInternals>(
-				new SleepyDatabaseInternals());
-    termcache = auto_ptr<SleepyDatabaseTermCache>(
-				new SleepyDatabaseTermCache(internals.get()));
+    auto_ptr<SleepyDatabaseInternals> tempptr1(new SleepyDatabaseInternals());
+    auto_ptr<SleepyDatabaseTermCache>
+	tempptr2(new SleepyDatabaseTermCache(internals.get()));
+    internals = tempptr1;
+    termcache = tempptr2;
 
     // Check that path is to a valid extant directory
     struct stat buf;
@@ -106,8 +107,7 @@ SleepyDatabase::get_avlength() const
 om_doclength
 SleepyDatabase::get_doclength(om_docid did) const
 {
-    // FIXME
-    return get_avlength();
+    throw OmUnimplementedError("SleepyDatabase::get_doclength(did) is not yet implemented.");
 }
 
 om_doccount

@@ -32,6 +32,7 @@ class EmptyPostList : public PostList {
 
 	om_docid  get_docid() const;
 	om_weight get_weight() const;
+	om_doclength get_doclength() const;
 	PositionList & get_position_list();
 
         om_weight recalc_maxweight();
@@ -60,6 +61,13 @@ inline om_weight
 EmptyPostList::get_weight() const
 {
     Assert(0); // no documents
+    return 0;
+}
+
+inline om_doclength
+EmptyPostList::get_doclength() const
+{
+    Assert(0);
     return 0;
 }
 
