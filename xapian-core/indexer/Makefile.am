@@ -4,8 +4,8 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 INCLUDES = -I$(top_srcdir)/include
 
-include_HEADERS = 
+include_HEADERS = index_utils.h
 
 noinst_LTLIBRARIES = libindexer.la
 
-libindexer_la_SOURCES = textfile_indexer.cc
+libindexer_la_SOURCES = textfile_indexer.cc index_utils.cc
