@@ -1,15 +1,47 @@
 Updated from ChangeLog as far as:
-Mon Dec 02 19:44:37 GMT 2002  Olly Betts <olly@survex.com>
+Sat Dec 07 20:21:41 GMT 2002  Olly Betts <olly@survex.com>
+
+* Set env var XAPIAN_SIG_DFL to stop the testsuite installing its
+  signal handler (may be useful with some debugging tools).
+
+* backends/quartz/btree.cc: max_item_size wasn't being set due to
+  some over-zealous code pruning.  It was defaulting to 0, and
+  was causing the code to write off the end of allocated memory
+  blocks.
+
+* matcher/localmatch.cc: fixed handling of wtscheme() - we were
+  trying to use it for the extra weights, and then double
+  deleting it!
+
+* common/omdebug.cc,common/omdebug.h: Fixed permissions on newly
+  created log file (was getting 000!); Simplified class internals;
+  Renamed env vars: OM_DEBUG_FILE is now XAPIAN_DEBUG_LOG,
+  OM_DEBUG_TYPES is now XAPIAN_DEBUG_FLAGS (old versions still work
+  for now).
+
+* testsuite/testsuite.cc: Fixed so running "gdb .libs/apitest"
+  finds srcdir (for an in-tree build at least).
+
+* Fixed to compile with --enable-debug=full.
+
+* docs/remote.html: Updated from OmSettings to factory functions.
+
+* PLATFORMS: ixion is actually Linux 2.2.
 
 * OmWritableDatabase now has a default constructor.
 
 * Weighting scheme now specified by passing OmWeight object to OmEnquire.
+  This also allows user weighting schemes (just subclass OmWeight and
+  pass in an instance of this new class).  [This doesn't currently work
+  with the remote backend.]
 
 * No longer use OmSettings to specify parameters for constructing databases.
   Instead there's a factory function for each database type - temporary naming
-  scheme is OmXxx__open(), mostly because it's easy to grep for later.  At
-  present stub databases and the machinery in InMemory to allow the
-  multierrhandler1 test aren't working.  Everything else should be.
+  scheme is OmXxx__open(), mostly because it's easy to grep for later.
+  Instead of create and overwrite flags, we pass in a value - a new possible
+  opening mode is "create or open".  [At present stub databases and the
+  machinery in InMemory to allow the multierrhandler1 test aren't working.
+  Everything else should be.]
 
 * OmEnquire::get_eset() takes parameters instead of an OmSettings object.
 
@@ -18,7 +50,7 @@ Mon Dec 02 19:44:37 GMT 2002  Olly Betts <olly@survex.com>
 
 * Documentation: Link to annotated class lists in doxygen generated
   documentation instead of the rather empty index pages; added doxygen
-  markup so that apidoc now documents header files.
+  markup so that apidoc now documents header files; updated todo list.
 
 * Documentation: intro doc thing was very out of date in places - fixed.
 

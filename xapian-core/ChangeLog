@@ -1,7 +1,10 @@
+Sat Dec 07 20:24:46 GMT 2002  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated.
+
 Sat Dec 07 20:21:41 GMT 2002  Olly Betts <olly@survex.com>
 
-	* docs/quickstart.html: Fixed parameters passed to
-	  OmQuartz__open().
+	* docs/quickstart.html: Fixed parameters passed to OmQuartz__open().
 
 Sat Dec 07 20:17:42 GMT 2002  Olly Betts <olly@survex.com>
 
