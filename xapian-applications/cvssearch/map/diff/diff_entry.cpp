@@ -1,8 +1,24 @@
 /************************************************************
  *
- * diff_entry implementation.
- * 
- * $Id$
+ *  diff_entry.cpp implementation.
+ *
+ *  (c) 2001 Andrew Yao (andrewy@users.sourceforge.net)
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *  $Id$
  *
  ************************************************************/
 
@@ -22,11 +38,6 @@ diff_entry::diff_entry()
 
 diff_entry::diff_entry(unsigned int s1, unsigned int s2, unsigned int d1, unsigned d2, diff_type type)
 {
-//     cout << "s1 " << s1 
-//          << "s2 " << s2
-//          << "d1 " << d1 
-//          << "d2 " << d2 << endl; 
-        
     init(s1,s2,d1,d2,type);
 }
 
