@@ -330,7 +330,7 @@ print "</body></html>";
 sub filename{
 	my ($name) = @_;
 	$num = scalar(keys %lineMAPinfo);
-	print Cvssearch::fileheader("<b>$num</b> Matched lines for <b>$name</b>", "Move over C/G to see comment; Click C/G to make it stick/unstick; Click matched line to see its context below");
+	print Cvssearch::fileheader("<b>$num</b> Matched lines for <b>$name</b>", "Move over C/G to see comment; Click C to see original commit below; Click matched line to see its context below");
     
 }
 
