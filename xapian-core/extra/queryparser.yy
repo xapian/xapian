@@ -493,14 +493,34 @@ QueryParser::parse_query(const string &q_)
 {
     qp = this;
 
-    /* Trim leading and trailing whitespace */
-    string::size_type b;
-    b = find_if(q_.begin(), q_.end(), p_notwhitespace) - q_.begin();
-    string::size_type e;
-    e = q_.rend() - find_if(q_.rbegin(), q_.rend(), p_notwhitespace);
-    if (e <= b) return Query();
-    q = q_.substr(b, e - b);
-//    printf("[%s]\n", q.c_str());
+    q.erase();
+    q.reserve(q_.size());
+
+    string::const_iterator i = q_.begin();
+    // Skip leading whitespace
+    while (isspace((unsigned char)*i)) ++i;
+    
+    for ( ; i != q_.end(); ++i) {
+	int ch = (unsigned char)*i;
+	int cache = 0;
+	// Transliterate accented characters in step with what the indexers do
+	switch (ch) {
+#include "symboltab.h"
+	}
+	q += (char)ch;
+	if (cache) q += (char)cache;
+    }
+
+    if (q.empty()) return Query();
+
+    // Skip trailing whitespace
+    i = q.end();
+    while (isspace((unsigned char)i[-1])) --i;
+    q.erase(i - q.begin());
+ 
+#if 0 
+    printf("[%s]\n", q.c_str());
+#endif
     
     pending_token = 0;
     term_pos = 1;
@@ -514,27 +534,6 @@ QueryParser::parse_query(const string &q_)
     q = "";
     return res;
 }
-
-#if 0
-// FIXME
-// transliterate accented characters in step with what the indexers do
-static int
-get_next_char(const char **p)
-{
-    static int cache = 0;
-    int ch;
-    if (cache) {
-	ch = cache;
-	cache = 0;
-	return ch;
-    }
-    ch = (int)(unsigned char)(*(*p)++);
-    switch (ch) {
-#include "symboltab.h"
-    }
-    return ch;
-}
-#endif
 
 /* Tell vim this is a yacc file
  * vim: syntax=yacc
