@@ -1,3 +1,7 @@
+Wed Dec 05 14:52:53 GMT 2001  Olly Betts <olly@survex.com>
+
+	* omindex: parsing terms from text is now twice as fast.
+
 Thu Nov 29 16:53:45 GMT 2001  Olly Betts <olly@survex.com>
 
 	* NEAR phrases (e.g. "a NEAR b NEAR c") now work; removed "{a b c}" syntax for

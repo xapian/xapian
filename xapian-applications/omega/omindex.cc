@@ -68,7 +68,7 @@ static void
 lowercase_term(om_termname &term)
 {
     om_termname::iterator i = term.begin();
-    while(i != term.end()) {
+    while (i != term.end()) {
 	*i = tolower(*i);
 	i++;
     }
@@ -146,31 +146,44 @@ MyHtmlParser::closing_tag(const string &text)
     }
 }
 
+inline static bool
+p_alpha(unsigned int c)
+{
+    return ((c | 32) - 'a') <= ('z' - 'a');
+}
+
+inline static bool
+p_notalnum(unsigned int c)
+{
+    return !isalnum(c);
+}
+
+inline static bool
+p_notplusminus(unsigned int c)
+{
+    return c != '+' && c != '-';
+}
+
 static om_termpos
 index_text(const string &s, OmDocument &doc, OmStem &stemmer, om_termpos pos)
-{    
-    size_t i, j = 0, k;
-    while ((i = s.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-				"abcdefghijklmnopqrstuvwxyz", j))
-	   != string::npos) {
-	
-	j = s.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-				"abcdefghijklmnopqrstuvwxyz"
-				"0123456789", i);
-	k = s.find_first_not_of("+-", j);
-	if (k == string::npos || !isalnum(s[k])) j = k;
-	om_termname term = s.substr(i, j - i);
-	lowercase_term(term);
-	if (isupper(s[i]) || isdigit(s[i])) {
-	  doc.add_posting(term, pos);
-	}
-
+{
+    std::string::const_iterator i, j = s.begin(), k;
+    while ((i = find_if(j, s.end(), p_alpha)) != s.end()) {
+        j = find_if(i, s.end(), p_notalnum);
+        k = find_if(j, s.end(), p_notplusminus);
+        if (k == s.end() || !isalnum(*k)) j = k;
+        om_termname term = s.substr(i - s.begin(), j - i);
+        lowercase_term(term);
+        if (isupper(*i) || isdigit(*i)) {
+	    doc.add_posting(term, pos);
+        }
+ 
         term = stemmer.stem_word(term);
-	doc.add_posting(term, pos++);
-	i = j + 1;
+        doc.add_posting(term, pos++);
+        i = j + 1;
     }
     return pos;
-}
+}                           
 
 static void
 index_file(const string &url, const string &mimetype, time_t last_mod)
