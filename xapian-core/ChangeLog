@@ -1,3 +1,8 @@
+Sun Aug 22 12:58:21 BST 2004  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.in,configure.ac,backends/Makefile.am,
+	  docs/Makefile.am: Renamed configure.in to configure.ac.
+
 Sun Aug 22 12:47:43 BST 2004  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Add "(or configure.ac)" in message telling the

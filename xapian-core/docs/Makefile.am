@@ -70,19 +70,19 @@ doxygen_source_docs: sourcedoc/html/index.html
 doxygen_api_docs: apidoc/html/index.html
 doxygen_docs: doxygen_source_docs doxygen_api_docs
 
-doxygen_api_conf: $(top_srcdir)/configure.in
-doxygen_full_conf: $(top_srcdir)/configure.in
+doxygen_api_conf: $(top_srcdir)/configure.ac
+doxygen_full_conf: $(top_srcdir)/configure.ac
 
 if MAINTAINER_MODE
-# depend on configure.in so we rebuild if VERSION changes
-code_structure.html: mkdoc.pl $(top_srcdir)/configure.in
+# depend on configure.ac so we rebuild if VERSION changes
+code_structure.html: mkdoc.pl $(top_srcdir)/configure.ac
 	$(PERL) $(srcdir)/mkdoc.pl "$(VERSION)" $(top_srcdir) $@
 
 # We run into problems with line length limits in older sed implementations
 # (e.g. on Solaris) so use $T instead of $(top_srcdir) in APIDOC_SRC, etc
 T=$(top_srcdir)
 
-apidoc/html/index.html: $(top_srcdir)/configure.in \
+apidoc/html/index.html: $(top_srcdir)/configure.ac \
 		$(srcdir)/doxygen_api_header.html_tmpl \
 		$(srcdir)/doxygen_api_footer.html_tmpl \
 		$(srcdir)/doxygen_api_conf.in \
@@ -93,7 +93,7 @@ apidoc/html/index.html: $(top_srcdir)/configure.in \
 apidoc.ps: apidoc/html/index.html
 	cd apidoc/latex && make refman.ps && mv refman.ps ../../apidoc.ps
 
-sourcedoc/html/index.html: $(top_srcdir)/configure.in \
+sourcedoc/html/index.html: $(top_srcdir)/configure.ac \
 		$(srcdir)/doxygen_full_header.html_tmpl \
 		$(srcdir)/doxygen_full_footer.html_tmpl \
 		$(srcdir)/doxygen_full_conf.in \

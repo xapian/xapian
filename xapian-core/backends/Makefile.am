@@ -9,7 +9,7 @@ noinst_LTLIBRARIES = libbackend.la
 libbackend_la_SOURCES = database.cc
 
 # Define backend libraries to include.  To add a new one:
-# i)   Add lines to configure.in to define the automake conditional
+# i)   Add lines to configure.ac to define the automake conditional
 #      "BUILD_BACKEND_NEWONE"
 # ii)  Add lines below to define BUILDSUBDIR_NEWONE and LIBADD_NEWONE
 # iii) Add $(BUILDSUBDIR_NEWONE) and $(LIBADD_NEWONE) to the definitions
