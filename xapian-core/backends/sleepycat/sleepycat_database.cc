@@ -265,16 +265,26 @@ SleepyDatabase::add(termid tid, docid did) {
 	}
 
 	// Look through postlist for doc id
-
-	// Add doc id to postlist
-	postlist_size += sizeof(docid);
-	docid * postlist_new = (docid *) realloc(postlist, postlist_size);
-	if(postlist_new == NULL) {
-	    free(postlist);
-	    throw std::bad_alloc();
+	docid * pos = postlist;
+	docid * end = postlist + postlist_size / sizeof(docid);
+	while(pos != end && *pos < did) pos++;
+	if(pos != end && *pos == did) {
+	    // Already there
+	} else {
+	    // Add doc id to postlist
+	    postlist_size += sizeof(docid);
+	    docid * postlist_new;
+	    postlist_new = (docid *) realloc(postlist, postlist_size);
+	    if(postlist_new == NULL) {
+		free(postlist);
+		throw std::bad_alloc();
+	    }
+	    pos = pos - postlist + postlist_new;
+	    postlist = postlist_new;
+	    memmove(pos + 1, pos,
+		    postlist_size - (1 + (pos - postlist)) * sizeof(docid));
+	    *pos = did;
 	}
-	postlist = postlist_new;
-	postlist[postlist_size / sizeof(docid) - 1] = did;
 
 	// Save new postlist
 	data.set_data(postlist);
@@ -282,6 +292,16 @@ SleepyDatabase::add(termid tid, docid did) {
 	data.set_flags(0);
 	found = internals->postlist_db->put(NULL, &key, &data, 0);
 	Assert(found == 0); // Any errors should cause an exception.
+
+#if 1
+	cout << "New postlist: (";
+	for(docid *pos = postlist;
+	    pos != postlist + postlist_size / sizeof(docid);
+	    pos++) {
+	    cout << *pos << " ";
+	}
+	cout << ")" << endl;
+#endif
 
 	free(postlist);
     }
