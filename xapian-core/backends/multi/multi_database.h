@@ -32,11 +32,11 @@ class MultiPostList : public virtual DBPostList {
 
 	weight termweight;
 
-	MultiPostList(list<MultiPostListInternal> &);
+	MultiPostList(IRDatabase *, list<MultiPostListInternal> &);
     public:
 	~MultiPostList();
 
-	void  set_termweight(const IRWeight &); // Sets term weight
+	void  set_termweight(const IRWeight *); // Sets term weight
 
 	doccount get_termfreq() const;
 
@@ -51,7 +51,7 @@ class MultiPostList : public virtual DBPostList {
 };
 
 inline void
-MultiPostList::set_termweight(const IRWeight & wt)
+MultiPostList::set_termweight(const IRWeight * wt)
 {
     list<MultiPostListInternal>::const_iterator i = postlists.begin();
     while(i != postlists.end()) {

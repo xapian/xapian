@@ -15,7 +15,7 @@ class DAPostList : public virtual DBPostList {
 	docid  currdoc;
 
 	doccount termfreq;
-    
+
 	DAPostList(const IRDatabase *, struct postings *, doccount);
     public:
 	~DAPostList();

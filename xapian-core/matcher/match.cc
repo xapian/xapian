@@ -20,7 +20,7 @@ Match::add_pterm(const string& termname)
     if (!id) return false;
 
     PostList *postlist = DB->open_post_list(id);
-   
+
     pq.push(postlist);
    
     return true;

@@ -15,7 +15,7 @@
 DAPostList::DAPostList(const IRDatabase *db, struct postings *pl, doccount tf)
 	: postlist(pl), currdoc(0), termfreq(tf)
 {
-    set_termweight(IRWeight(db, tf));
+    own_wt.set_stats(db, tf);
 }
 
 DAPostList::~DAPostList()

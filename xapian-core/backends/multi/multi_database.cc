@@ -12,14 +12,14 @@
 // Postlist //
 //////////////
 
-MultiPostList::MultiPostList(list<MultiPostListInternal> &pls)
+MultiPostList::MultiPostList(IRDatabase *db, list<MultiPostListInternal> &pls)
+	: postlists(pls), finished(false), currdoc(0),
+	  freq_initialised(false)
 {
-    postlists = pls;
-
-    freq_initialised = false;
-    currdoc = 0;
-    finished = false;
+    own_wt.set_stats(db, get_termfreq());
+    set_termweight(&own_wt);
 }
+
 
 MultiPostList::~MultiPostList()
 {
@@ -163,7 +163,9 @@ MultiDatabase::open_post_list(termid tid) const {
 	i++;
     }
     Assert(pls.begin() != pls.end());
-    return new MultiPostList(pls);
+    
+    DBPostList * newpl = new MultiPostList(root, pls);
+    return newpl;
 }
 
 TermList *

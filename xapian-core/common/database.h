@@ -52,26 +52,24 @@ PostList::skip_to(docid id, weight w_min)
 
 class DBPostList : public virtual PostList {
     protected:
-	IRWeight * ir_wt;
+	IRWeight own_wt;
+	const IRWeight * ir_wt;
 
 	mutable bool weight_initialised;
 	mutable weight termweight;
 	void calc_termweight() const; // Calculates term weight
     public:
-	DBPostList() :
-		ir_wt(NULL), weight_initialised(false) {}
-	~DBPostList() {
-	    if(ir_wt) delete ir_wt;
-	}
-	void set_termweight(const IRWeight &); // Sets term weight
+	DBPostList()
+		: ir_wt(&own_wt), weight_initialised(false)
+		{}
+	void set_termweight(const IRWeight *); // Sets term weight
 };
 
 inline void
-DBPostList::set_termweight(const IRWeight & wt)
+DBPostList::set_termweight(const IRWeight * wt)
 {
-    if(ir_wt) delete ir_wt;
     weight_initialised = false;
-    ir_wt = new IRWeight(wt);
+    ir_wt = wt;
 }
 
 inline void
