@@ -10,7 +10,7 @@
  * (at your option) any later version.
  * 
  * Usage:     cvsmineindex -r root0 -f package_list_file lib1_dir lib2_dir
- * 
+ *
  *           => builds a directory 
  *                        $CVSDATA/root0/db/mining.om with quartz database
  *                         inside
@@ -99,7 +99,7 @@ const string CTAGS_FLAGS = "-R -n --file-scope=no --fields=aiKs --c-types=cfsu -
 static void usage(char * prog_name);
 static void write_OM_database( const string & database_dir,
                                const map<unsigned int, set <string> > & commit_symbols,
-                               const map<unsigned int, list<string> > & commit_words
+                               const map<unsigned int, set<string> > & commit_words
                                );
 
 static void write_DB_database( const string & database_file,
@@ -157,12 +157,10 @@ int main(unsigned int argc, char *argv[]) {
     // commit_symbols[commit_id] -> code symbols.
     // commit_words  [commit_id] -> stemmed words.
 
-    set<unsigned int> commit_id_set;
+    set<unsigned int> commit_id_set; // set of all commit ids
     map<unsigned int, set <string> > commit_symbols;
-    map<unsigned int, list<string> > commit_words;
+    map<unsigned int, set<string> > commit_words;
 
-    // map<unsigned int, set <string> > commit_symbols1;
-    // map<unsigned int, list<string> > commit_words1;
 
     unsigned int offset = 0;
 
@@ -196,36 +194,9 @@ int main(unsigned int argc, char *argv[]) {
             cerr << "... reading application tags" << endl;
             readTags( CTAGS_OUTPUT, app_symbols, app_symbol_parents );
 
-#if 0
-            for( set<string>::iterator s = app_symbols.begin(); s != app_symbols.end(); s++ ) {
-                cerr << (*s) << endl;
-                set<string> parents = app_symbol_parents[*s];
-                for( set<string>::iterator p = parents.begin(); p != parents.end(); p++ ) {
-                    cerr << "... has parent " << (*p) << endl;
-                }
-            }
-#endif
-
-            // map< unsigned int, const set<list<string> > > app_symbol_terms; // accumulated from all its points of usage
-            // map< unsigned int, int> app_symbol_count;
-            // set<string> found_symbol_before;
-
-//             string file_cmt    = package_db_path + ".cmt";
-//             string file_offset = package_db_path + ".offset";
-
-//             // file may not exist (if it was deleted in repostory at some point)
-//             {
-//                 ifstream in( file_cmt.c_str() );
-//                 if ( !in ) {
-//                     cerr << "Could not find " << file_cmt << endl;
-//                     continue;
-//                 }
-//             }
-//             cerr << "... reading " << file_cmt << endl;
-//             lines_cmt lines(root, package_name, file_cmt, file_offset, " mining");
 
             // ------------------------------------------------------------
-            // need first input to be 
+            // need first input to be
             // "...cvsdata/root0/db/pkg" + ".db/" + pkg.db"
             // ------------------------------------------------------------
             cvs_db_file db_file(package_db_path + ".db/" + package_name + ".db", true);
@@ -233,9 +204,9 @@ int main(unsigned int argc, char *argv[]) {
             unsigned int count;
 
             // ----------------------------------------
-            // writing to the offset of each package 
+            // writing to the offset of each package
             // commits here. (pkg, commit_offset)
-            // so later we can do 
+            // so later we can do
             // global commit id-> (pkg, local commit id)
             // ----------------------------------------
             if (db_file.get_commit_count(count) == 0) {
@@ -249,7 +220,7 @@ int main(unsigned int argc, char *argv[]) {
             while ( lines.readNextLine() ) {
                 string data = lines.getData();
                 set<string> symbols = lines.getCodeSymbols();
-                
+
                 if (strcmp(filename.c_str(), lines.getCurrentFile().c_str())) {
                     filename = lines.getCurrentFile();
                     filename = filename.substr(package_path.length() + 1, filename.length() - package_path.length() - 1);
@@ -261,6 +232,7 @@ int main(unsigned int argc, char *argv[]) {
                         fileid = 0;
                     }
                 }
+#warning "when is fileid zero?"
                 if (fileid == 0) {
                     continue;
                 }
@@ -270,15 +242,27 @@ int main(unsigned int argc, char *argv[]) {
                 // ----------------------------------------
                 const map<string, string > & revisions = lines.getRevisionCommentString();
                 map<string, string >::const_iterator i;
-                
+
+                // cycle through every revision that this line is part of
                 for(i = revisions.begin(); i != revisions.end(); ++i ) {
                     if (db_file.get_commit(fileid, i->first, commitid) == 0) {
 
-                        commit_id_set.insert( commitid+offset );
+                        commit_id_set.insert( commitid+offset ); // set of all commit ids
+
+
+                        if ( commit_words.find( commitid+offset ) == commit_words.end() ) {
+				set<string> empty;
+				commit_words[ commitid+offset ] = empty;
+                        }
+                        if ( commit_symbols.find( commitid+offset ) == commit_symbols.end() ) {
+				set<string> empty;
+				commit_symbols[ commitid+offset ] = empty;
+                        }
+
                         // ----------------------------------------
                         // have we entered info for this commit ?
                         // ----------------------------------------
-                        if (commit_words.find(commitid+offset) == commit_words.end())
+                        if (commit_words[commitid+offset].empty())
                         {
                             // ----------------------------------------
                             // nope, we have not. so need to set
@@ -287,7 +271,10 @@ int main(unsigned int argc, char *argv[]) {
                             const map<string, list<string> > & terms = lines.getRevisionCommentWords();
                             map<string, list<string> >::const_iterator itr = terms.find(i->first);
                             if (itr != terms.end()) {
-                                commit_words[commitid+offset] = itr->second;
+                                const list<string>& words = itr->second;
+                                for( list<string>::const_iterator i = words.begin(); i != words.end(); i++ ) {
+                                        commit_words[commitid+offset].insert(*i);
+                                }
                             }
                         }
                         // ----------------------------------------
@@ -299,16 +286,19 @@ int main(unsigned int argc, char *argv[]) {
                                 commit_symbols[commitid+offset].insert(*s);
                             } else {
                                 // ----------------------------------------
-                                // this symbol is not in the library, so 
+                                // this symbol is not in the library, so
                                 // let's see if its parents are;
                                 // if so, we add every such parent
                                 // ----------------------------------------
+#warning "doesn't look at parents now"
+#if 0 // took it out as it messes up rankings; need special support in ranking function for parents/ancestors
                                 set<string> parents = app_symbol_parents[*s];
                                 for( set<string>::iterator p = parents.begin(); p != parents.end(); ++p ) {
                                     if ( lib_symbols.find(*p) != lib_symbols.end() ) {
                                         commit_symbols[commitid+offset].insert(*p);
                                     }
                                 }
+#endif
                             }
                         }
                     }
@@ -316,7 +306,7 @@ int main(unsigned int argc, char *argv[]) {
             }
         } // for packages
         fout.close();
-        
+
         // ----------------------------------------
         // write results
         // ----------------------------------------
@@ -331,8 +321,10 @@ int main(unsigned int argc, char *argv[]) {
         // mining.count
         // transactions are in commit_symbols
         // ----------------------------------------
+        assert( commit_id_set.size() == commit_symbols.size() );
+        assert( commit_id_set.size() == commit_words.size() );
         ofstream out((mining_path + ".count").c_str());
-        out << commit_id_set.size() << endl; //commit_symbols.size() << endl;
+        out << commit_id_set.size() << endl; 
         out.close();
         
         // ----------------------------------------
@@ -366,7 +358,7 @@ usage(char * prog_name)
          << "  -r root                the root? directory under $CVSDATA where cvssearch information is stored" << endl
          << "  -h                     prints out this message" << endl
         ;
-    
+
     exit(0);
 }
 
@@ -432,8 +424,8 @@ void write_DB_database( const string & database_file,
 
 void write_OM_database( const string & database_dir,
                         const map<unsigned int, set <string> > & commit_symbols, 
-                        const map<unsigned int, list<string> > & commit_words
-    ) 
+                        const map<unsigned int, set<string> > & commit_words
+    )
 {
     system( ("rm -rf " + database_dir).c_str() );
     system( ("mkdir " + database_dir).c_str() );
@@ -443,10 +435,17 @@ void write_OM_database( const string & database_dir,
     db_parameters.set("quartz_dir", database_dir);
     db_parameters.set("database_create", true);
     OmWritableDatabase database(db_parameters); // open database 
-    
+
+
+    int transactions_written = 0;
+
     map<unsigned int, set <string> >::const_iterator i;
+
+    // iterate over commits
     for (i = commit_symbols.begin(); i != commit_symbols.end(); ++i)
     {
+
+        // find symbols associated with commit
         const set<string> & symbols = i->second;
         string symbol_string = convert(i->first) + " ";
         set<string>::iterator j;
@@ -454,51 +453,56 @@ void write_OM_database( const string & database_dir,
             symbol_string += (*j) + " ";
         }
 
-        map<unsigned int, list<string> >::const_iterator f = commit_words.find(i->first);
-        if (f == commit_words.end()) {
-            continue;
+        //cerr << "DATA = " << symbol_string << endl;
+
+        // find comment words associated with that commit
+        map<unsigned int, set<string> >::const_iterator f = commit_words.find(i->first);
+        set<string> words;
+        assert( f != commit_words.end() );
+        if ( f->second.empty() ) { // no commit words..., create transaction anyways...
+		words.insert("EMPTY"); // won't match anything since upper case & no preceding :
+        } else {
+		words = f->second;
         }
 
-        const list<string> & words = f->second;
-        
+
         OmDocument newdocument;
         int pos = 0;
-        
+
         // ----------------------------------------
         // add terms for indexing
         // ----------------------------------------
-        set<string> added;
-        list<string>::const_iterator w;
+        set<string>::const_iterator w;
         for (w = words.begin(); w != words.end(); ++w) {
-            if ( added.find(*w) != added.end() ) {
-                continue; // added already, save some space by skipping
-            }
-            newdocument.add_posting(*w, ++pos); 
-            added.insert(*w);
+            newdocument.add_posting(*w, ++pos);
+                //cerr << "... term " << (*w) << endl;
         }
-        
+
         // ----------------------------------------
-        // add symbols for indexing (symbols get a 
+        // add symbols for indexing (symbols get a
         // : prefix to distinguish them from terms)
         // ----------------------------------------
         for(j = symbols.begin(); j != symbols.end(); ++j) {
-            newdocument.add_posting(":"+(*j), ++pos); 
+            newdocument.add_posting(":"+(*j), ++pos);
+            cerr << "... symbol " << (":"+(*j)) << endl;
         }
-        
+
         // ----------------------------------------
         // put transaction contents in data
         // ----------------------------------------
         newdocument.set_data(  symbol_string );
-        
+
         database.add_document(newdocument);
+        transactions_written++;
     }
+    cerr << "transactions written = " << transactions_written << endl;
 }
 
 //             {
-//                 lines_db lines1(root, package_path, " mining", db_file); 
-            
+//                 lines_db lines1(root, package_path, " mining", db_file);
+
 //                 // ------------------------------------------------------------
-//                 // need first input to be 
+//                 // need first input to be
 //                 // "...cvsdata/root0/db/pkg" + ".db/" + pkg.db"
 //                 // ------------------------------------------------------------
 
