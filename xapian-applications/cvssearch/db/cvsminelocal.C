@@ -13,39 +13,6 @@
 //     Generates Berkeley database files with results.
 //           
 
-/***********
-
-KWord seems easiest to test.
-
-Some queries to try:
-
-    *  Normal editing and formatting (fonts, colors, attributes, super/sub script, etc.)
-    * Paragraph styles (alignment, spacings, indentations, default font, etc.)
-    * Stylist to edit, add, remove and update paragraph styles. There are predefined ones like Standard Text, Header 1 - 3, Bullet List, Ordered List, etc.
-    * Frame orientation (for DTP you can insert multiple frames and connect/disconnect some of them, which means defining a text flow)
-    * Multiple columns
-    * Inserting Tables
-    * Inserting Pictures
-    * Embedding other KOffice parts
-    * In-Place formula editor
-    * Letting text of one (text)frame run around another frame(s)
-    * Headers/Footers
-    * Endnotes
-    * Numbering of chapters
-    * Automatic generation of Table of Contents
-    * Inserting Predefined variables (Date, Time, Page Number, etc.)
-    * Inserting and defining custom variables
-    * Generating serial letters
-    * Autocorrection
-    * Spell checking (uses ISpell)
-    * Document structure viewer
-    * Templates
-    * Creating own Templates
-
-
-************/
-
-
 //
 //
 // Local mining:
@@ -59,7 +26,7 @@ Some queries to try:
 //    global option, e.g., -g file.list
 //    which are the files to use symbols from
 //   
-//   The counting is also different in global minine.
+//   The counting is also different in global mining.
 //   We only count apps, not individual lines.
 //   We also generate one set of database files, not
 //   one per app.
@@ -325,71 +292,8 @@ int main(int argc, char *argv[]) {
 	string con = (r->first).second;
 
 	if ( ant != prev_term ) { 
-	  // print out results in sorted order
 
-	  // What we need to store in the database
-	  //
-	  // term => symbol
-	  //
-	  // we also need to know all lines in which (term, symbol) are found
-	  // this includes information about the file id, etc.
-
-	  // let's try to use the standard format:
-	  //
-	  //	  0.453 15:80 kdepim/korganizer:1.8 1.3 1.1
-	  //              0.454 16:80 kdepim/korganizer:1.8 1.3
-	  //              0.467 17:80 kdepim/korganizer:1.8 1.1
-	  //              0.453 266:80 kdebase/konqueror:1.8 1.3 1.1
-	  //              0.353 267:80 kdebase/konqueror:1.3 1.1
-	  //              0.443 17:87 kdepim/korganizer:1.12 1.2
-	  //              0.453 18:87 kdepim/korganizer:1.13 1.4 1.1
-	  //              0.453 19:87 kdepim/korganizer:1.14 1.6 1.1
-
-	  // we should probably have other commands to show you these
-	  //
-	  // What happens if you search multiple applications?  What rules
-	  // should we show?
-	  //
-	  // cvslocalpatterns < APPS.txt 10 10 term 
-	  //
-	  // cvspatterns --local --classes < APPS.txt 10 term
-	  // cvspatterns --global --classes 10 term
-	  //
-	  // (max # classes, max # functions)
-	  //
-	  // What should it output?  Should we put it in several files?
-	  //
-	  // class KMainWindow
-	  //	  0.453 15:80 kdepim/korganizer:1.8 1.3 1.1
-	  //              0.454 16:80 kdepim/korganizer:1.8 1.3
-	  //              0.467 17:80 kdepim/korganizer:1.8 1.1
-	  //              0.453 266:80 kdebase/konqueror:1.8 1.3 1.1
-	  //              0.353 267:80 kdebase/konqueror:1.3 1.1
-	  //              0.443 17:87 kdepim/korganizer:1.12 1.2
-	  //              0.453 18:87 kdepim/korganizer:1.13 1.4 1.1
-	  // 
-	  // function exec()
-	  //	  0.453 15:80 kdepim/korganizer:1.8 1.3 1.1
-	  //              0.454 16:80 kdepim/korganizer:1.8 1.3
-	  //              0.467 17:80 kdepim/korganizer:1.8 1.1
-	  //              0.453 266:80 kdebase/konqueror:1.8 1.3 1.1
-	  //              0.353 267:80 kdebase/konqueror:1.3 1.1
-	  //              0.443 17:87 kdepim/korganizer:1.12 1.2
-	  //              0.453 18:87 kdepim/korganizer:1.13 1.4 1.1
-	  //
-	  // What database files do we need to generate all this?
-	  //
-	  // For app X, say we have:
-	  //   term -> 
-	  //       KMainWindow\n15:80 kdepim/korganizer:1.8 1.3 1.1\n0.454 16:80 kdepim/korganizer:1.8 1.3
-	  //  For each app, you store files:
-	  //
-	  //   
-	  // Basically, we just need two databases.  X.classes and X.functions
-	  //
-	  // 
-
-
+	  // all rules with prev_term in antecedent
 	  cerr << "*** ENTRY FOR " << prev_term << endl << entryclasses << entryfunctions << endl;
 
 	  if ( entryclasses != "" ) {
@@ -413,11 +317,8 @@ int main(int argc, char *argv[]) {
 	if ( supp >= MIN_SUPP ) {
 
 	  double con_conf = 100.0*(double)symbol_count[con] / (double)lines_read;
-
 	  double conf = 100.0*(double)supp / (double)term_count[ant];
-
 	  double surprise = (conf / con_conf ) * (double)supp; // log(1.1+(double)supp);
-
 	  bool isFunction = ( con.find("()") != -1 );
 
 	  static char str[256];
@@ -431,12 +332,6 @@ int main(int argc, char *argv[]) {
 
 	  if ( surprise >= MIN_SURPRISE ) {
 	    //	    cerr << ant << " => " << con << " has conf " << conf << " and support " << supp << " with con conf " << con_conf << endl;
-	    //	    results[-surprise].insert(ant + " => " + con);
-
-	    // we can dump everything to the database at this point
-	    // database depends on whether we have a class or a function
-
-
 	    set<string> L = r->second;
 	    for( set<string>::iterator l = L.begin(); l != L.end(); l++ ) {
 	      //	      cerr << "..." << surprise << " " << (*l) << endl;

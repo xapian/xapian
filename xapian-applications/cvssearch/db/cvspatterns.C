@@ -88,6 +88,8 @@ int main(int argc, char *argv[]) {
        int num_results = atoi( argv[npos] );
 
        bool doFunctions = ( string(argv[0]).find("functions") != -1 );
+
+       map< double, set<string> > results;
        
        // cycle over all packages
        for( set<string>::iterator p = packages.begin(); p != packages.end(); p++ ) {
@@ -113,9 +115,32 @@ int main(int argc, char *argv[]) {
 	 Dbt key((void*) queryterm.c_str(), queryterm.length()+1);
 	 Dbt data;
 	 db.get(0, &key, &data, 0);
-	 cout << (char*)data.get_data();
+	 //	 cout << (char*)data.get_data();
 
+	 string data_str = string((char*)data.get_data());
+	 list<string> lines;
+	 split( data_str, "\n", lines );
+	 for( list<string>::iterator line = lines.begin(); line != lines.end(); line++ ) {
+	   string score_str = line->substr(0, line->find(" "));
+	   double score = atof(score_str.c_str());
+	   // cerr << "*** score = " << score << " " << (*line) << endl;
+	   results[-score].insert(*line);
+	 }
 	 db.close(0);
+
+	 int c = 0;
+	 for( map<double, set<string> >::iterator i = results.begin(); i != results.end(); i++ ) {
+	   double score = i->first;
+	   set<string> S = i->second;
+	   for( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
+	     cout << (*s) << endl;
+	     c++;
+	     if ( c == num_results ) {
+	       goto done;
+	     }
+	   }
+	 }
+       done: ;
        }
        
     } catch( DbException& e ) {
