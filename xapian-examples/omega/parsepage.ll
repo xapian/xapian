@@ -290,14 +290,18 @@ pretty_printf(const char *p, int *a)
 	Expand topterms(&database);
 
 	if (rset->get_rsize()) {
+#ifdef DEBUG
 	    cout << "Expanding with " << rset->get_rsize() << " ids" << endl;
+#endif
 	    topterms.expand(rset);
 	} else {
 	    // invent an rset
 	    RSet tmp(&database);
 	    
 	    for (int m = min(4, int(msize) - 1); m >= 0; m--) {
+#ifdef DEBUG
 		cout << "Autotopterm id: " << matcher->mset[m].did << endl;
+#endif
 		tmp.add_document(matcher->mset[m].did);
 	    }
 		
@@ -306,9 +310,11 @@ pretty_printf(const char *p, int *a)
 
 	int c = 0;
 	vector<ESetItem>::const_iterator i;
+#ifdef DEBUG
 	for (i = topterms.eset.begin(); i != topterms.eset.end(); i++) {
 	    cout << i->tname << ":" << i->wt << " " << endl;
 	}
+#endif
 	for (i = topterms.eset.begin(); i != topterms.eset.end(); i++) {
 	    string term = i->tname;
 	    // only suggest 4 or more letter words for now to
