@@ -1,3 +1,7 @@
+Wed Aug  9 15:29:58 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Documentation comment fix in OmMSet.
+
 Wed Aug  9 15:09:14 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Cleaned up the MSet passing internals.  The various get_mset

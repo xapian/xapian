@@ -577,8 +577,18 @@ class OmMSet {
 	 */
 	om_weight max_possible;
 
-	/** The greatest weight which is attained in the mset.
-	 *  This is useful when firstitem != 0.
+	/** The greatest weight which is attained by any document in the
+	 *  database.  
+	 *
+	 *  If firstitem == 0, this is the weight of the first entry in
+	 *  items.
+	 *
+	 *  If no documents are found by the query, this will be 0.
+	 *
+	 *  Note that calculation of max_attained requires calculation
+	 *  of at least one result item - therefore, if no items were
+	 *  requested when the query was performed (by specifying
+	 *  maxitems = 0 in OmEnquire::get_mset()), this value will be 0.
 	 */
 	om_weight max_attained;
 
