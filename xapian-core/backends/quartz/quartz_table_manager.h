@@ -170,6 +170,12 @@ class QuartzDiskTableManager : public QuartzTableManager {
 
 	/** Construct the manager.
 	 *
+	 *  @param block_size Block size, in bytes, to use when creating
+	 *                    tables.  This is only important, and has the
+	 *                    correct value, when the database is being
+	 *                    created.  (ie, opened writable for the first
+	 *                    time).
+	 *
 	 *  @exception OmNeedRecoveryError is thrown if versions are not
 	 *             consistent, and perform_recovery is not specified.
 	 *  @exception OmDatabaseCorruptError is thrown if there is no
@@ -178,7 +184,8 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	QuartzDiskTableManager(string db_dir_,
 			       string log_filename_,
 			       bool readonly_,
-			       bool perform_recovery);
+			       bool perform_recovery,
+			       unsigned int block_size);
 
 	/** Delete the manager.
 	 */
@@ -261,7 +268,8 @@ class QuartzBufferedTableManager : public QuartzTableManager {
 	 */
 	QuartzBufferedTableManager(string db_dir_,
 				   string log_filename_,
-				   bool perform_recovery);
+				   bool perform_recovery,
+				   unsigned int block_size);
 	
 	/** Destroy the manager.  Any anapplied modifications will
 	 *  be lost.

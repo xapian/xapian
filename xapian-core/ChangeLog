@@ -1,3 +1,15 @@
+Tue Oct 10 14:41:49 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix documentation comment in database.h
+
+Tue Oct 10 14:14:40 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added quartz_block_size parameter - and pass it down to the
+	  constructor of a QuartzDiskTable, ready for use when the Btree
+	  manager is added.
+
+	* Removed old quartz_{diffs,modifications}.{cc,h} files - obselete.
+
 Tue Oct 10 12:14:20 BST 2000 Olly Betts
 
 	* Documents should now fetch in parallel pipelines with the remote

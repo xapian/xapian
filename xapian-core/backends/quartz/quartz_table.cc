@@ -128,7 +128,9 @@ readfile(string filename,
     fclose(fp);
 }
 
-QuartzDiskTable::QuartzDiskTable(string path_, bool readonly_)
+QuartzDiskTable::QuartzDiskTable(string path_,
+				 bool readonly_,
+				 unsigned int blocksize_)
 	: path(path_),
           readonly(readonly_),
 	  revision(0)

@@ -95,6 +95,9 @@ class QuartzDatabase : public Database {
 	/// Get whether recovery should be performed.
 	static bool get_perform_recovery(const OmSettings & settings);
 
+	/// Get the block size to use.
+	static unsigned int get_block_size(const OmSettings & settings);
+
 	/** Virtual methods of Database.
 	 */
 	//@{

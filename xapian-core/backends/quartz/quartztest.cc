@@ -155,12 +155,12 @@ static bool test_disktable1()
     unlink("./test_dbtable1_data_1");
     unlink("./test_dbtable1_data_2");
     {
-	QuartzDiskTable table0("./test_dbtable1_", true);
+	QuartzDiskTable table0("./test_dbtable1_", true, 0);
 	TEST_EXCEPTION(OmOpeningError, table0.open());
     }
-    QuartzDiskTable table2("./test_dbtable1_", false);
+    QuartzDiskTable table2("./test_dbtable1_", false, 8192);
     table2.open();
-    QuartzDiskTable table1("./test_dbtable1_", true);
+    QuartzDiskTable table1("./test_dbtable1_", true, 0);
     table1.open();
 
 
@@ -350,7 +350,7 @@ static bool test_bufftable1()
 {
     unlink("./test_bufftable1_data_1");
     unlink("./test_bufftable1_data_2");
-    QuartzDiskTable disktable1("./test_bufftable1_", false);
+    QuartzDiskTable disktable1("./test_bufftable1_", false, 8192);
     QuartzBufferedTable bufftable1(&disktable1);
     disktable1.open();
 

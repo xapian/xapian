@@ -23,7 +23,6 @@
 #include "config.h"
 
 #include "quartz_table_manager.h"
-#include "quartz_modifications.h"
 
 #include "quartz_database.h"
 #include "utils.h"
@@ -61,18 +60,20 @@
 //                 not need to be performed before readonly access to the
 //                 database is allowed.
 //
+// quartz_block_size - Integer.  This is the size of the blocks to use in
+//                 the tables, in bytes.  Acceptable values are powers of
+//                 two in the range 2048 to 65536.  The default is 8192.
+//                 This setting is only used when creating databases.  If
+//                 the database already exists, it is completely ignored.
+//
 QuartzDatabase::QuartzDatabase(const OmSettings & settings)
 {
-    // Read parameters
-    string db_dir  = get_db_dir(settings);
-    string log_filename = get_log_filename(settings);
-    bool perform_recovery = get_perform_recovery(settings);
-
     // Open database manager
-    tables.reset(new QuartzDiskTableManager(db_dir,
-					    log_filename,
+    tables.reset(new QuartzDiskTableManager(get_db_dir(settings),
+					    get_log_filename(settings),
 					    true,
-					    perform_recovery));
+					    false,
+					    0u));
 }
 
 QuartzDatabase::QuartzDatabase(AutoPtr<QuartzTableManager> tables_)
@@ -108,6 +109,12 @@ bool
 QuartzDatabase::get_perform_recovery(const OmSettings & settings)
 {
     return settings.get_bool("quartz_perform_recovery", false);
+}
+
+unsigned int
+QuartzDatabase::get_block_size(const OmSettings & settings)
+{
+    return settings.get_bool("quartz_block_size", QUARTZ_BTREE_DEF_BLOCK_SIZE);
 }
 
 void
@@ -253,7 +260,8 @@ QuartzWritableDatabase::QuartzWritableDatabase(const OmSettings & settings)
 	: buffered_tables(new QuartzBufferedTableManager(
 				QuartzDatabase::get_db_dir(settings),
 				QuartzDatabase::get_log_filename(settings),
-				QuartzDatabase::get_perform_recovery(settings))),
+				QuartzDatabase::get_perform_recovery(settings),
+				QuartzDatabase::get_block_size(settings))),
 	  database_ro(AutoPtr<QuartzTableManager>(buffered_tables))
 {
 }

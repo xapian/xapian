@@ -32,15 +32,16 @@
 QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_,
 					       string log_filename,
 					       bool readonly_,
-					       bool perform_recovery)
+					       bool perform_recovery,
+					       unsigned int block_size)
 	: db_dir(db_dir_),
 	  readonly(readonly_),
-	  postlist_table(postlist_path(), readonly),
-	  positionlist_table(positionlist_path(), readonly),
-	  termlist_table(termlist_path(), readonly),
-	  lexicon_table(lexicon_path(), readonly),
-	  attribute_table(attribute_path(), readonly),
-	  record_table(record_path(), readonly)
+	  postlist_table(postlist_path(), readonly, block_size),
+	  positionlist_table(positionlist_path(), readonly, block_size),
+	  termlist_table(termlist_path(), readonly, block_size),
+	  lexicon_table(lexicon_path(), readonly, block_size),
+	  attribute_table(attribute_path(), readonly, block_size),
+	  record_table(record_path(), readonly, block_size)
 {
     // Open modification log
     log.reset(new QuartzLog(log_filename));
@@ -332,11 +333,13 @@ QuartzDiskTableManager::get_record_table()
 
 QuartzBufferedTableManager::QuartzBufferedTableManager(string db_dir_,
 						       string log_filename,
-						       bool perform_recovery)
+						       bool perform_recovery,
+						       unsigned int block_size)
 	: disktables(db_dir_,
 		     log_filename,
 		     false,
-		     perform_recovery),
+		     perform_recovery,
+		     block_size),
 	  postlist_buffered_table(disktables.get_postlist_table()),
 	  positionlist_buffered_table(disktables.get_positionlist_table()),
 	  termlist_buffered_table(disktables.get_termlist_table()),

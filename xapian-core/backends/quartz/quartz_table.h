@@ -209,8 +209,10 @@ class QuartzDiskTable : public QuartzTable {
 	 *  @param path_          - Path at which the table is stored.
 	 *  @param readonly_      - whether to open the table for read only
 	 *                          access.
+	 *  @param blocksize_     - Size of blocks to use.  This parameter is
+	 *                          only used when creating the table.
 	 */
-	QuartzDiskTable(string path_, bool readonly_);
+	QuartzDiskTable(string path_, bool readonly_, unsigned int blocksize_);
 
 	/** Close the table.
 	 */
@@ -350,8 +352,9 @@ class QuartzBufferedTable : public QuartzTable {
 
 	/** Determine whether the object contains modifications.
 	 *
-	 *  @return true if the diffs object contains modifications to the
-	 *          database, false if no changes have been made.
+	 *  @return true if the changed_entries object contains
+	 *          modifications to the database, false if no changes have
+	 *          been made.
 	 */
 	bool is_modified();
 

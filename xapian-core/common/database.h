@@ -307,19 +307,22 @@ class Database : public RefCntBase {
 	 */
 	OmDocumentContents get_document(om_docid did);
 
-	/** Request a document from the database.  Multiple documents can
-	 *  be requested, and then collected with collect_document().
-	 *  Allows the backend to optimise (e.g. the remote backend can
-	 *  start requests for all the documents so they fetch in parallel).
+	/** Request and later collect a document from the database.
+	 *  Multiple documents can be requested with request_document(),
+	 *  and then collected with collect_document().  Allows the backend
+	 *  to optimise (e.g. the remote backend can start requests for all
+	 *  the documents so they fetch in parallel).
 	 *
-	 *  If a backend doesn't support this, this can be a no-op and
-	 *  collect_document() the same as open_document().
+	 *  If a backend doesn't support this, request_document() can be a
+	 *  no-op and collect_document() the same as open_document().
 	 */
+	//@{
 	virtual void request_document(om_docid did) const { }
 
 	virtual LeafDocument * collect_document(om_docid did) const {
 	    return open_document(did);
 	}
+	//@}
 
 	//////////////////////////////////////////////////////////////////
 	// Introspection methods:
