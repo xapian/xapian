@@ -189,6 +189,13 @@ AC_OUTPUT(
  backends/inmemory/Makefile
  languages/Makefile
  languages/en/Makefile
+ languages/dutch/Makefile
+ languages/english/Makefile
+ languages/french/Makefile
+ languages/german/Makefile
+ languages/italian/Makefile
+ languages/portuguese/Makefile
+ languages/spanish/Makefile
  matcher/Makefile
  indexer/Makefile
  tests/Makefile

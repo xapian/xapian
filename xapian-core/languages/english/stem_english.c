@@ -172,8 +172,8 @@ void r(struct stemmer * z, char * s, int length)
 
 void step_1ab(struct stemmer * z)
 {   if (z->p[z->k] == 's')
-    {   if (ends(z, "~sses")) z->k -= 2; else
-        if (ends(z, "~ies"))
+    {   if (ends(z, "sses", 4)) z->k -= 2; else
+        if (ends(z, "ies", 3))
             if (z->j == 0) z->k--; else z->k -= 2;
 
         /* this line extends the original algorithm, so that 'flies'->'fli' but
@@ -183,24 +183,24 @@ void step_1ab(struct stemmer * z)
             if (z->p[z->k - 1] != 's') z->k--;
     }
 
-    if (ends(z, "~ied")) { if (z->j == 0) z->k--; else z->k -= 2; } else
+    if (ends(z, "ied", 3)) { if (z->j == 0) z->k--; else z->k -= 2; } else
 
     /* this line extends the original algorithm, so that 'spied'->'spi' but
        'died'->'die' etc */
 
-    if (ends(z, "~eed")) { if (m(z) > 0) z->k--; } else
-    if ((ends(z, "~ed") || ends(z, "~ing")) && vowelinstem(z))
+    if (ends(z, "eed", 3)) { if (m(z) > 0) z->k--; } else
+    if ((ends(z, "ed", 2) || ends(z, "ing", 3)) && vowelinstem(z))
     {   z->k = z->j;
-        if (ends(z, "~at")) setto(z, "~ate"); else
-        if (ends(z, "~bl")) setto(z, "~ble"); else
-        if (ends(z, "~iz")) setto(z, "~ize"); else
+        if (ends(z, "at", 2)) setto(z, "ate", 3); else
+        if (ends(z, "bl", 2)) setto(z, "ble", 3); else
+        if (ends(z, "iz", 2)) setto(z, "ize", 3); else
         if (doublec(z, z->k))
         {   z->k--;
             {   int ch = z->p[z->k];
                 if (ch == 'l' || ch == 's' || ch == 'z') z->k++;
             }
         }
-        else if (m(z) == 1 && cvc(z, z->k)) setto(z, "~e");
+        else if (m(z) == 1 && cvc(z, z->k)) setto(z, "e", 1);
     }
 }
 
@@ -227,7 +227,7 @@ void step_1ab(struct stemmer * z)
 
 void step_1c(struct stemmer * z)
 {
-    if (ends(z, "~y") && z->j > 0 && cons(z, z->k - 1)) z->p[z->k] = 'i';
+    if (ends(z, "y", 1) && z->j > 0 && cons(z, z->k - 1)) z->p[z->k] = 'i';
 }
 
 
@@ -240,47 +240,47 @@ void step_2(struct stemmer * z)
 {   switch (z->p[z->k - 1])
     {
         case 'a':
-            if (ends(z, "~ational")) { r(z, "~ate"); break; }
-            if (ends(z, "~tional")) { r(z, "~tion"); break; }
+            if (ends(z, "ational", 7)) { r(z, "ate", 3); break; }
+            if (ends(z, "tional", 6)) { r(z, "tion", 4); break; }
             break;
         case 'c':
-            if (ends(z, "~enci")) { r(z, "~ence"); break; }
-            if (ends(z, "~anci")) { r(z, "~ance"); break; }
+            if (ends(z, "enci", 4)) { r(z, "ence", 4); break; }
+            if (ends(z, "anci", 4)) { r(z, "ance", 4); break; }
             break;
         case 'e':
-            if (ends(z, "~izer")) { r(z, "~ize"); break; }
+            if (ends(z, "izer", 4)) { r(z, "ize", 3); break; }
             break;
         case 'l':
-            if (ends(z, "~bli")) { r(z, "~ble"); break; } /*-DEPARTURE-*/
+            if (ends(z, "bli", 3)) { r(z, "ble", 3); break; } /*-DEPARTURE-*/
 
      /* To match the published algorithm, replace this line with
         case 'l':
-            if (ends(z, "~abli")) { r(z, "~able"); break; }
+            if (ends(z, "abli", 4)) { r(z, "able", 4); break; }
      */
 
-            if (ends(z, "~alli")) { r(z, "~al"); break; }
-            if (ends(z, "~entli")) { r(z, "~ent"); break; }
-            if (ends(z, "~eli")) { r(z, "~e"); break; }
-            if (ends(z, "~ousli")) { r(z, "~ous"); break; }
+            if (ends(z, "alli", 4)) { r(z, "al", 2); break; }
+            if (ends(z, "entli", 5)) { r(z, "ent", 3); break; }
+            if (ends(z, "eli", 3)) { r(z, "e", 1); break; }
+            if (ends(z, "ousli", 5)) { r(z, "ous", 3); break; }
             break;
         case 'o':
-            if (ends(z, "~ization")) { r(z, "~ize"); break; }
-            if (ends(z, "~ation")) { r(z, "~ate"); break; }
-            if (ends(z, "~ator")) { r(z, "~ate"); break; }
+            if (ends(z, "ization", 7)) { r(z, "ize", 3); break; }
+            if (ends(z, "ation", 5)) { r(z, "ate", 3); break; }
+            if (ends(z, "ator", 4)) { r(z, "ate", 3); break; }
             break;
         case 's':
-            if (ends(z, "~alism")) { r(z, "~al"); break; }
-            if (ends(z, "~iveness")) { r(z, "~ive"); break; }
-            if (ends(z, "~fulness")) { r(z, "~ful"); break; }
-            if (ends(z, "~ousness")) { r(z, "~ous"); break; }
+            if (ends(z, "alism", 5)) { r(z, "al", 2); break; }
+            if (ends(z, "iveness", 7)) { r(z, "ive", 3); break; }
+            if (ends(z, "fulness", 7)) { r(z, "ful", 3); break; }
+            if (ends(z, "ousness", 7)) { r(z, "ous", 3); break; }
             break;
         case 't':
-            if (ends(z, "~aliti")) { r(z, "~al"); break; }
-            if (ends(z, "~iviti")) { r(z, "~ive"); break; }
-            if (ends(z, "~biliti")) { r(z, "~ble"); break; }
+            if (ends(z, "aliti", 5)) { r(z, "al", 2); break; }
+            if (ends(z, "iviti", 5)) { r(z, "ive", 3); break; }
+            if (ends(z, "biliti", 6)) { r(z, "ble", 3); break; }
             break;
         case 'g':
-            if (ends(z, "~logi")) { r(z, "~log"); break; } /*-DEPARTURE-*/
+            if (ends(z, "logi", 4)) { r(z, "log", 3); break; } /*-DEPARTURE-*/
 
      /* To match the published algorithm, delete this line */
 
@@ -294,19 +294,19 @@ void step_3(struct stemmer * z)
 {   switch (z->p[z->k])
     {
         case 'e':
-            if (ends(z, "~icate")) { r(z, "~ic"); break; }
-            if (ends(z, "~ative")) { r(z, "~"); break; }
-            if (ends(z, "~alize")) { r(z, "~al"); break; }
+            if (ends(z, "icate", 5)) { r(z, "ic", 2); break; }
+            if (ends(z, "ative", 5)) { r(z, "", 0); break; }
+            if (ends(z, "alize", 5)) { r(z, "al", 2); break; }
             break;
         case 'i':
-            if (ends(z, "~iciti")) { r(z, "~ic"); break; }
+            if (ends(z, "iciti", 5)) { r(z, "ic", 2); break; }
             break;
         case 'l':
-            if (ends(z, "~ical")) { r(z, "~ic"); break; }
-            if (ends(z, "~ful")) { r(z, "~"); break; }
+            if (ends(z, "ical", 4)) { r(z, "ic", 2); break; }
+            if (ends(z, "ful", 3)) { r(z, "", 0); break; }
             break;
         case 's':
-            if (ends(z, "~ness")) { r(z, "~"); break; }
+            if (ends(z, "ness", 4)) { r(z, "", 0); break; }
             break;
     }
 }
@@ -317,38 +317,38 @@ void step_3(struct stemmer * z)
 void step_4(struct stemmer * z)
 {   switch (z->p[z->k - 1])
     {   case 'a':
-            if (ends(z, "~al")) break; return;
+            if (ends(z, "al", 2)) break; return;
         case 'c':
-            if (ends(z, "~ance")) break;
-            if (ends(z, "~ence")) break; return;
+            if (ends(z, "ance", 4)) break;
+            if (ends(z, "ence", 4)) break; return;
         case 'e':
-            if (ends(z, "~er")) break; return;
+            if (ends(z, "er", 2)) break; return;
         case 'i':
-            if (ends(z, "~ic")) break; return;
+            if (ends(z, "ic", 2)) break; return;
         case 'l':
-            if (ends(z, "~able")) break;
-            if (ends(z, "~ible")) break; return;
+            if (ends(z, "able", 4)) break;
+            if (ends(z, "ible", 4)) break; return;
         case 'n':
-            if (ends(z, "~ant")) break;
-            if (ends(z, "~ement")) break;
-            if (ends(z, "~ment")) break;
-            if (ends(z, "~ent")) break; return;
+            if (ends(z, "ant", 3)) break;
+            if (ends(z, "ement", 5)) break;
+            if (ends(z, "ment", 4)) break;
+            if (ends(z, "ent", 3)) break; return;
         case 'o':
-            if (ends(z, "~ion") && (z->p[z->j] == 's' ||
+            if (ends(z, "ion", 3) && (z->p[z->j] == 's' ||
                                     z->p[z->j] == 't')) break;
-            if (ends(z, "~ou")) break; return;
+            if (ends(z, "ou", 2)) break; return;
             /* takes care of -ous */
         case 's':
-            if (ends(z, "~ism")) break; return;
+            if (ends(z, "ism", 3)) break; return;
         case 't':
-            if (ends(z, "~ate")) break;
-            if (ends(z, "~iti")) break; return;
+            if (ends(z, "ate", 3)) break;
+            if (ends(z, "iti", 3)) break; return;
         case 'u':
-            if (ends(z, "~ous")) break; return;
+            if (ends(z, "ous", 3)) break; return;
         case 'v':
-            if (ends(z, "~ive")) break; return;
+            if (ends(z, "ive", 3)) break; return;
         case 'z':
-            if (ends(z, "~ize")) break; return;
+            if (ends(z, "ize", 3)) break; return;
         default:
             return;
     }
