@@ -1,3 +1,7 @@
+Tue Oct 23 18:19:32 BST 2001  Olly Betts <olly@survex.com>
+
+	* More cleaning up of MultiMatch.
+
 Tue Oct 23 16:14:27 BST 2001  Olly Betts <olly@survex.com>
 
 	* Removed RemotePostList - it was an experimental idea which proved

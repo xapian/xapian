@@ -40,7 +40,6 @@ class SocketServer;
 
 class MultiMatch
 {
-    friend class SocketServer; // FIXME: temporary bodge
     private:
 	/// stats gatherer
 	AutoPtr<StatsGatherer> gatherer;
@@ -112,10 +111,6 @@ class MultiMatch
 		      om_doccount maxitems,
 		      OmMSet & mset,
 		      const OmMatchDecider * mdecider);
-
-	// FIXME: temporary bodge
-	PostList *get_postlist(om_doccount first, om_doccount maxitems,
-			       std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> & termfreqandwts);
 
 	/** Called by postlists to indicate that they've rearranged themselves
 	 *  and the maxweight now possible is smaller.

@@ -184,12 +184,44 @@ MultiMatch::prepare_matchers()
     } while (!prepared);
 }
 
-PostList *
-MultiMatch::get_postlist(om_doccount first, om_doccount maxitems,
-			 std::map<om_termname, OmMSet::Internal::Data::Data::TermFreqAndWeight> & termfreqandwts)
+inline OmKey
+MultiMatch::get_collapse_key(PostList *pl, const OmDatabase &db, om_docid did,
+			     om_keyno keyno, RefCntPtr<Document> &doc)
+{		      
+    const OmKey *key = pl->get_collapse_key();
+    if (key) return *key;
+    if (doc.get() == 0) {
+	RefCntPtr<Document> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
+	doc = temp;
+    }
+    return doc->get_key(keyno);
+}
+
+om_weight
+MultiMatch::getorrecalc_maxweight(PostList *pl)
 {
-    DEBUGCALL(EXCEPTION, PostList *, "MultiMatch::get_postlist",
-	      first << ", " << maxitems << ", <termfreqandwts>");
+    om_weight wt;
+    if (recalculate_w_max) {
+	DEBUGLINE(MATCH, "recalculating max weight");
+	wt = pl->recalc_maxweight();
+	recalculate_w_max = false;
+    } else {
+	wt = pl->get_maxweight();
+	AssertParanoid(fabs(wt - pl->recalc_maxweight()) < 1e-9);
+    }
+    DEBUGLINE(MATCH, "max possible doc weight = " << wt);
+    return wt;
+}
+
+void
+MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
+		     OmMSet & mset, const OmMatchDecider *mdecider)
+{
+    DEBUGCALL(EXCEPTION, void, "MultiMatch::get_mset",
+	      first << ", " << maxitems << ", ...");
+
+    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> termfreqandwts;
+
     Assert(!leaves.empty());
 
     // Start matchers
@@ -267,48 +299,6 @@ MultiMatch::get_postlist(om_doccount first, om_doccount maxitems,
 	pl = new MergePostList(postlists, this, errorhandler);
     }
 
-    RETURN(pl);
-}
-
-inline OmKey
-MultiMatch::get_collapse_key(PostList *pl, const OmDatabase &db, om_docid did,
-			     om_keyno keyno, RefCntPtr<Document> &doc)
-{		      
-    const OmKey *key = pl->get_collapse_key();
-    if (key) return *key;
-    if (doc.get() == 0) {
-	RefCntPtr<Document> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
-	doc = temp;
-    }
-    return doc->get_key(keyno);
-}
-
-om_weight
-MultiMatch::getorrecalc_maxweight(PostList *pl)
-{
-    om_weight wt;
-    if (recalculate_w_max) {
-	DEBUGLINE(MATCH, "recalculating max weight");
-	wt = pl->recalc_maxweight();
-	recalculate_w_max = false;
-    } else {
-	wt = pl->get_maxweight();
-	AssertParanoid(fabs(wt - pl->recalc_maxweight()) < 1e-9);
-    }
-    DEBUGLINE(MATCH, "max possible doc weight = " << wt);
-    return wt;
-}
-
-void
-MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
-		     OmMSet & mset, const OmMatchDecider *mdecider)
-{
-    DEBUGCALL(EXCEPTION, void, "MultiMatch::get_mset",
-	      first << ", " << maxitems << ", ...");
-
-    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> termfreqandwts;
-
-    PostList *pl = get_postlist(first, maxitems, termfreqandwts);
     DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
 
     // Empty result set
