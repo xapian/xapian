@@ -51,15 +51,9 @@
 
 #ifdef HAVE_MEMCHECK_H
 # include <valgrind/memcheck.h>
-// Check that the valgrind version installed supports the client requests
-// which we use
-# if defined(VALGRIND_DO_LEAK_CHECK) && defined(VALGRIND_COUNT_ERRORS) && defined(VALGRIND_COUNT_LEAKS)
-#  include <sys/types.h>
-#  include <sys/stat.h>
-#  include <fcntl.h>
-# else
-#  undef HAVE_MEMCHECK_H
-# endif
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <fcntl.h>
 #endif
 
 // fd that we elsewhere tell valgrind to log to (with --logfile-fd=N)

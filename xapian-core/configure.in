@@ -127,8 +127,21 @@ dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h limits.h)
 
-dnl If valgrind is installed, we use it for leak checking in the testsuite
-dnl FIXME: sort this out AC_CHECK_HEADERS(valgrind.h)
+dnl If valgrind is installed and new enough, we use it for leak checking in the
+dnl testsuite
+AC_CHECK_HEADERS(memcheck.h)
+AC_PATH_PROG(VALGRIND, valgrind, [])
+if test -z "$VALGRIND" ; then
+    ac_cv_header_memcheck_h=no
+else
+    dnl Check that the valgrind version installed supports the most recently
+    dnl added client request which we use - VALGRIND_DO_LEAK_CHECK is ages old,
+    dnl VALGRIND_COUNT_ERRORS was added at the same time as VALGRIND_COUNT_LEAKS
+    AC_EGREP_HEADER(VALGRIND_COUNT_LEAKS, memcheck.h, [],
+	VALGRIND=
+	ac_cv_header_memcheck_h=no
+    )
+fi
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -386,7 +399,7 @@ dnl **************************
 dnl * Build the output files *
 dnl **************************
 
-AC_OUTPUT(
+AC_CONFIG_FILES([
  Makefile
  testsuite/Makefile
  include/Makefile
@@ -407,12 +420,27 @@ AC_OUTPUT(
  net/Makefile
  netprogs/Makefile
  getopt/Makefile
+ extra/Makefile
  xapian-config.nodep
  docs/doxygen_api_conf
  docs/doxygen_full_conf
- extra/Makefile
  xapian.spec
-)
+])
+AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
+dnl AC_CONFIG_FILES([
+dnl bindings/Makefile
+dnl bindings/python/Makefile
+dnl bindings/perl5/Makefile
+dnl bindings/guile/Makefile
+dnl bindings/tcl8/Makefile
+dnl bindings/php4/Makefile
+dnl bindings/java/Makefile
+dnl bindings/java/native/Makefile
+dnl bindings/java/apitest_to_java.pl
+dnl bindings/python/apitest_to_python.pl
+dnl bindings/python/apitest_helpers.py
+dnl ], [chmod +x bindings/java/apitest_to_java.pl bindings/python/apitest_to_python.pl bindings/python/apitest_helpers.py])
+AC_OUTPUT
 
 MAJOR_VERSION="`echo \"$VERSION\"|sed 's/\..*//'`"
 MINOR_VERSION="`echo \"$VERSION\"|sed 's/[^.]*\.//;s/\..*//'`"
@@ -427,16 +455,3 @@ then
 else
   mv include/xapian/version.h.tmp include/xapian/version.h
 fi
- 
-dnl need to AC_OUTPUT:
-dnl bindings/Makefile
-dnl bindings/python/Makefile
-dnl bindings/perl5/Makefile
-dnl bindings/guile/Makefile
-dnl bindings/tcl8/Makefile
-dnl bindings/php4/Makefile
-dnl bindings/java/Makefile
-dnl bindings/java/native/Makefile
-dnl bindings/java/apitest_to_java.pl
-dnl bindings/python/apitest_to_python.pl
-dnl bindings/python/apitest_helpers.py

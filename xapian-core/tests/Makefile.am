@@ -2,6 +2,8 @@
 
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_srcdir)/testsuite -I${top_builddir}/include
 
+TESTS_ENVIRONMENT = ./runtest
+
 ## Test programs to be run
 TESTS = apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT)
 
@@ -27,7 +29,8 @@ internaltest_CXXFLAGS =
 endif
 
 ## Distribute test data:
-EXTRA_DIST = testdata/apitest_onedoc.txt \
+EXTRA_DIST = runtest.in \
+	     testdata/apitest_onedoc.txt \
              testdata/apitest_simpledata.txt \
              testdata/apitest_simpledata2.txt \
 	     testdata/apitest_termorder.txt \

@@ -56,20 +56,26 @@ from uninitialised memory durings tests.  valgrind is x86 specific, and
 currently only works on Linux, but Xapian contains little platform specific
 code so this still gives good coverage.
 
-FIXME: explain how to enable use of valgrind once we've implemented a nice
-configure option...
+If you have a new enough version of valgrind installed, it's automatically
+detected and used for running the testsuite.  If you want to suppress this
+configure with:
 
-Building with various profiling and leak-finding tools:
-=======================================================
+./configure VALGRIND=
+
+Using various debugging, profiling, and leak-finding tools:
+===========================================================
+
+To use gdb on a libtool dynamically linked binary, run gdb like so:
+
+  env srcdir=. libtool --mode=execute gdb ./apitest
 
 For use with valgrind, no special build flags are required.  You just need to
 run the program to be checked with valgrind.  The only tricky part is that
 libtool creates a wrapper script for executables if you use dynamic linking,
-so you need to get libtool to run valgrind on the actually executable, which
-can be done by fooling libtool into running valgrind like gdb - e.g.:
+so you need to get libtool to run valgrind on the actual executable.  You can
+get libtool to take care of this like so:
 
-  ln -s `which valgrind` valgrind-hack-to-fool-libtool-gdb
-  env srcdir=. libtool ./valgrind-hack-to-fool-libtool-gdb ./apitest -v deldoc1
+  env srcdir=. libtool --mode=execute valgrind ./apitest -v deldoc1
 
 If you're statically linking xapian (note that you must use dynamic linking
 for at least one library (e.g. libc) for valgrind to work), you can avoid this
@@ -115,8 +121,9 @@ at the time of writing, the versions known to work are:
 	Autoconf version 2.54 is required by automake 1.6.3; autoconf 2.50 is
 		needed for many reasons anyway.
 		
-	ltmain.sh (GNU libtool) 1.4.2 (1.3.3 used to work, and may still, but
-		we've not tried it recently).
+	ltmain.sh (GNU libtool) 1.5 (libtool 1.4.2 doesn't seem to support
+		--mode=execute properly; libtool 1.3.3 used to work, and may
+		still, but we've not tried it recently).
 
 	GNU Bison version 1.35
 		Bison versions 1.31 to 1.34 don't handle parsequery.yy - for
