@@ -901,7 +901,7 @@ static bool test_open1()
     OmSettings settings;
     deletedir(tmpdir + "testdb_open1");
     settings.set("quartz_dir", tmpdir + "testdb_open1");
-    settings.set("quartz_logfile", "log_open1");
+    settings.set("quartz_logfile", tmpdir + "log_open1");
     settings.set("backend", "quartz");
 
     TEST_EXCEPTION(OmOpeningError,
@@ -925,7 +925,7 @@ static bool test_adddoc1()
     deletedir(tmpdir + "testdb_adddoc1");
     makedir(tmpdir + "testdb_adddoc1");
     settings.set("quartz_dir", tmpdir + "testdb_adddoc1");
-    settings.set("quartz_logfile", "log_adddoc1");
+    settings.set("quartz_logfile", tmpdir + "log_adddoc1");
     settings.set("backend", "quartz");
 
     RefCntPtr<Database> database = DatabaseBuilder::create(settings, false);
@@ -940,7 +940,7 @@ static bool test_adddoc1()
     TEST_EQUAL(database->get_doccount(), 1);
     TEST_EQUAL(did, 1);
     TEST_EQUAL(database->get_avlength(), 0);
-    settings.set("quartz_logfile", "log_adddoc1_ro");
+    settings.set("quartz_logfile", tmpdir + "log_adddoc1_ro");
     {
 	RefCntPtr<Database> db_readonly =
 		DatabaseBuilder::create(settings, true);
@@ -991,7 +991,7 @@ static bool test_adddoc2()
     deletedir(tmpdir + "testdb_adddoc2");
     makedir(tmpdir + "testdb_adddoc2");
     settings.set("quartz_dir", tmpdir + "testdb_adddoc2");
-    settings.set("quartz_logfile", "log_adddoc2");
+    settings.set("quartz_logfile", tmpdir + "log_adddoc2");
     settings.set("backend", "quartz");
 
     om_docid did;
@@ -1060,7 +1060,7 @@ static bool test_adddoc2()
     }
 
     {
-	settings.set("quartz_logfile", "log_adddoc2_ro");
+	settings.set("quartz_logfile", tmpdir + "log_adddoc2_ro");
 	RefCntPtr<Database> database = DatabaseBuilder::create(settings, true);
 	OmDocumentContents document_out = database->get_document(did);
 
@@ -1323,7 +1323,7 @@ static bool test_postlist1()
     deletedir(tmpdir + "testdb_postlist1");
     makedir(tmpdir + "testdb_postlist1");
     settings.set("quartz_dir", tmpdir + "testdb_postlist1");
-    settings.set("quartz_logfile", "log_postlist1");
+    settings.set("quartz_logfile", tmpdir + "log_postlist1");
     settings.set("backend", "quartz");
     RefCntPtr<Database> database_w = DatabaseBuilder::create(settings, false);
 
@@ -1384,7 +1384,7 @@ static bool test_postlist2()
     deletedir(tmpdir + "testdb_postlist2");
     makedir(tmpdir + "testdb_postlist2");
     settings.set("quartz_dir", tmpdir + "testdb_postlist2");
-    settings.set("quartz_logfile", "log_postlist2");
+    settings.set("quartz_logfile", tmpdir + "log_postlist2");
     settings.set("backend", "quartz");
     RefCntPtr<Database> database_w = DatabaseBuilder::create(settings, false);
 
