@@ -204,7 +204,7 @@ static bool test_puncterms1()
 }
 
 
-// tests a query accross multiple databases
+// tests a query across multiple databases
 static bool test_multidb1()
 {
     Xapian::Database mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
@@ -229,7 +229,7 @@ static bool test_multidb1()
     return true;
 }
 
-// tests a query accross multiple databases with terms only
+// tests a query across multiple databases with terms only
 // in one of the two databases
 static bool test_multidb2()
 {
@@ -2042,7 +2042,7 @@ static bool test_termlisttermfreq1()
     return true;
 }
 
-// tests an expand accross multiple databases
+// tests an expand across multiple databases
 static bool test_multiexpand1()
 {
     Xapian::Database mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
