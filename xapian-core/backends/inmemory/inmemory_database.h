@@ -132,7 +132,9 @@ class TextfileTermList : public virtual TermList {
 	vector<TextfilePosting>::const_iterator end;
 	bool started;
 
-	TextfileTermList(const TextfileDoc &);
+	const TextfileDatabase * this_db;
+
+	TextfileTermList(const TextfileDatabase *, const TextfileDoc &);
     public:
 	termid get_termid() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
@@ -178,6 +180,7 @@ class TextfileDatabase : public virtual IRDatabase {
 
 	doccount  get_doccount() const;
 	doclength get_avlength() const;
+	doccount get_termfreq(termid) const;  // Number of docs indexed by term
 
 	DBPostList * open_post_list(termid) const;
 	TermList * open_term_list(docid) const;
@@ -247,10 +250,12 @@ TextfilePostList::at_end() const
 // Inline function definitions for termlist //
 //////////////////////////////////////////////
 
-inline TextfileTermList::TextfileTermList(const TextfileDoc &doc)
+inline TextfileTermList::TextfileTermList(const TextfileDatabase *db,
+					  const TextfileDoc &doc)
 	: pos(doc.terms.begin()),
 	  end(doc.terms.end()),
-	  started(false)
+	  started(false),
+	  this_db(db)
 {}
 
 inline termid TextfileTermList::get_termid() const
@@ -271,7 +276,8 @@ inline doccount TextfileTermList::get_termfreq() const
 {
     Assert(started);
     Assert(!at_end());
-    throw OmError("TextfileTermList::get_termfreq() not yet implemented");
+
+    return this_db->get_termfreq(get_termid());
 }
 
 inline TermList * TextfileTermList::next()
@@ -309,8 +315,16 @@ TextfileDatabase::get_avlength() const
     Assert(opened);
     doccount docs = TextfileDatabase::get_doccount();
     Assert(docs != 0);
-    printf("Avlen: %f\n", ((doclength) totlen) / docs);
     return ((doclength) totlen) / docs;
+}
+
+inline doccount
+TextfileDatabase::get_termfreq(termid tid) const
+{
+    Assert(opened);
+    Assert(tid > 0 && tid <= postlists.size());
+
+    return postlists[tid - 1].docs.size();
 }
 
 inline doclength

@@ -93,7 +93,7 @@ TextfileDatabase::open_term_list(docid did) const {
     Assert(opened);
     Assert(did > 0 && did <= termlists.size());
 
-    return new TextfileTermList(termlists[did - 1]);
+    return new TextfileTermList(this, termlists[did - 1]);
 }
 
 IRDocument *
