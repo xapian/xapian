@@ -128,7 +128,7 @@ OmPostListIterator::positionlist_end()
 std::string
 OmPostListIterator::get_description() const
 {
-    DEBUGAPICALL(std::string, "OmPostListIterator::get_description", "");
+    DEBUGCALL(INTRO, std::string, "OmPostListIterator::get_description", "");
     /// \todo display contents of the object
     om_ostringstream desc;
     desc << "OmPostListIterator([pos=";

@@ -91,6 +91,11 @@ enum om_debug_types {
      */
     OM_DEBUG_INDEXER,
 
+    /** Type for messages from methods performing introspection (eg,
+     *  get_description()).
+     */
+    OM_DEBUG_INTRO,
+
     /** A value equal to the number of known types.
      */
     OM_DEBUG_NUMTYPES

@@ -143,7 +143,7 @@ OmQuery::~OmQuery()
 std::string
 OmQuery::get_description() const
 {
-    DEBUGAPICALL(std::string, "OmQuery::get_description", "");
+    DEBUGCALL(INTRO, std::string, "OmQuery::get_description", "");
     OmLockSentry locksentry(internal->mutex);
     RETURN("OmQuery(" + internal->get_description() + ")");
 }

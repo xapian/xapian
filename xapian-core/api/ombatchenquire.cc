@@ -108,7 +108,7 @@ OmBatchEnquire::get_matching_terms(const OmMSetItem &mitem) const
 std::string
 OmBatchEnquire::get_description() const
 {
-    DEBUGAPICALL(std::string, "Calling OmBatchEnquire::get_description()", "");
+    DEBUGCALL(INTRO, std::string, "Calling OmBatchEnquire::get_description()", "");
     RETURN("OmBatchEnquire(" + internal->get_description() + ")");
 }
 

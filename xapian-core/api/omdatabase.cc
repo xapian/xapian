@@ -228,7 +228,7 @@ OmDatabase::term_exists(const om_termname & tname) const
 std::string
 OmDatabase::get_description() const
 {
-    DEBUGAPICALL(std::string, "OmDatabase::get_description", "");
+    DEBUGCALL(INTRO, std::string, "OmDatabase::get_description", "");
     /// \todo display contents of the database
     RETURN("OmDatabase()");
 }
@@ -422,7 +422,7 @@ OmWritableDatabase::get_document(om_docid did) const
 std::string
 OmWritableDatabase::get_description() const
 {
-    DEBUGAPICALL(std::string, "OmWritableDatabase::get_description", "");
+    DEBUGCALL(INTRO, std::string, "OmWritableDatabase::get_description", "");
     /// \todo display contents of the writable database
     RETURN("OmWritableDatabase()");
 }

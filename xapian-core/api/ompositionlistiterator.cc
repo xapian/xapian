@@ -63,7 +63,7 @@ OmPositionListIterator::skip_to(om_termpos pos)
 std::string
 OmPositionListIterator::get_description() const
 {
-    DEBUGAPICALL(std::string, "OmPositionListIterator::get_description", "");
+    DEBUGCALL(INTRO, std::string, "OmPositionListIterator::get_description", "");
     /// \todo display contents of the object
     RETURN("OmPositionListIterator()");
 }

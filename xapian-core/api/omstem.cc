@@ -332,6 +332,6 @@ OmStem::get_available_languages()
 std::string
 OmStem::get_description() const
 {
-    DEBUGAPICALL(std::string, "OmStem::get_description", "");
+    DEBUGCALL(INTRO, std::string, "OmStem::get_description", "");
     RETURN("OmStem(" + std::string(language_names[internal->langcode]) + ")");
 }

@@ -1,3 +1,9 @@
+Tue Nov 14 17:22:28 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added new debugging category for display of messages related to
+	  introspection methods.  Should have debugging completely cluttered
+	  with get_description() methods now.
+
 Tue Nov 14 13:33:24 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Don't compile malloccheck if shared libraries are disabled.

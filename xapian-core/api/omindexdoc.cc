@@ -62,7 +62,7 @@ OmDocumentTerm::add_posting(om_termpos tpos)
 std::string
 OmDocumentTerm::get_description() const
 {
-    DEBUGAPICALL(std::string, "OmDocumentTerm::get_description", "");
+    DEBUGCALL(INTRO, std::string, "OmDocumentTerm::get_description", "");
     std::string description;
 
     description = "OmDocumentTerm(" + tname +
@@ -91,7 +91,7 @@ OmDocumentContents::add_posting(const om_termname & tname, om_termpos tpos)
 std::string
 OmDocumentContents::get_description() const
 {
-    DEBUGAPICALL(std::string, "OmDocumentContents::get_description", "");
+    DEBUGCALL(INTRO, std::string, "OmDocumentContents::get_description", "");
     std::string description;
 
     description = "OmDocumentContents(" +

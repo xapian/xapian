@@ -86,7 +86,7 @@ OmExpandDeciderAnd::operator()(const om_termname &tname) const
 std::string
 OmRSet::get_description() const
 {
-    DEBUGAPICALL(std::string, "OmRSet::get_description", "");
+    DEBUGCALL(INTRO, std::string, "OmRSet::get_description", "");
     std::string description;
 
     for (std::set<om_docid>::const_iterator i = items.begin();
@@ -108,7 +108,7 @@ OmRSet::get_description() const
 std::string
 OmMSetItem::get_description() const
 {
-    DEBUGAPICALL(std::string, "OmMSetItem::get_description", "");
+    DEBUGCALL(INTRO, std::string, "OmMSetItem::get_description", "");
     std::string description;
 
     description = om_tostring(did) + ", " + om_tostring(wt) + ", " +
@@ -188,7 +188,7 @@ OmMSet::get_all_terminfo() const
 std::string
 OmMSet::get_description() const
 {
-    DEBUGAPICALL(std::string, "OmMSet::get_description", "");
+    DEBUGCALL(INTRO, std::string, "OmMSet::get_description", "");
     std::string description;
 
     description = "firstitem=" + om_tostring(firstitem) + ", " +
@@ -215,7 +215,7 @@ OmMSet::get_description() const
 std::string
 OmESetItem::get_description() const
 {
-    DEBUGAPICALL(std::string, "OmESetItem::get_description", "");
+    DEBUGCALL(INTRO, std::string, "OmESetItem::get_description", "");
     RETURN("OmESetItem(" + tname + ", " + om_tostring(wt) + ")");
 }
 
@@ -226,7 +226,7 @@ OmESetItem::get_description() const
 std::string
 OmESet::get_description() const
 {
-    DEBUGAPICALL(std::string, "OmESet::get_description", "");
+    DEBUGCALL(INTRO, std::string, "OmESet::get_description", "");
     std::string description;
 
     description = "ebound=" + om_tostring(ebound);
@@ -668,7 +668,7 @@ OmEnquire::get_matching_terms(om_docid did) const
 std::string
 OmEnquire::get_description() const
 {
-    DEBUGAPICALL(std::string, "OmEnquire::get_description", "");
+    DEBUGCALL(INTRO, std::string, "OmEnquire::get_description", "");
     try {
 	RETURN("OmEnquire(" + internal->get_description() + ")");
     } catch (OmError & e) {
