@@ -1,3 +1,8 @@
+Tue Apr 05 16:28:06 BST 2005  Olly Betts <olly@survex.com>
+
+	* m4/xapian.m4: Fix XO_LIB_XAPIAN to trim off any _svn6789 from
+	  XAPIAN_VERSION.
+
 Tue Apr 05 16:17:31 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix m4 quoting.

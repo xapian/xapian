@@ -43,7 +43,7 @@ dnl If AC_PROG_LIBTOOL (or the deprecated older version AM_PROG_LIBTOOL)
 dnl has already been expanded, enable libtool support now, otherwise add
 dnl hooks to the end of AC_PROG_LIBTOOL and AM_PROG_LIBTOOL to enable it
 dnl if either is expanded later.
-    XAPIAN_VERSION="`$XAPIAN_CONFIG --version|sed 's/.* //'`"
+    XAPIAN_VERSION="`$XAPIAN_CONFIG --version|sed 's/.* //;s/_svn[0-9]*$//'`"
     XAPIAN_CXXFLAGS="`$XAPIAN_CONFIG --cxxflags`"
     AC_PROVIDE_IFELSE([AC_PROG_LIBTOOL],
       [XAPIAN_LIBS="`$XAPIAN_CONFIG --ltlibs`"],
