@@ -1,3 +1,9 @@
+xapian-omega (0.8.0-2) unstable; urgency=low
+
+  * Make xapian-omega package recommend httpd.
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 29 Jun 2004 14:42:55 +0100
+
 xapian-omega (0.8.0-1) unstable; urgency=low
 
   * Initial packaging.
