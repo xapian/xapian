@@ -111,36 +111,27 @@ static void check_table_values_empty(QuartzDiskTable & table)
 #ifdef MUS_DEBUG
     key.value = "";
     tag.value = "foo";
-    TEST_EXCEPTION(OmAssertionError, table.get_nearest_entry(key, tag, *cursor));
-    TEST_EQUAL(tag.value, "foo");
+    TEST_EXCEPTION(OmAssertionError, cursor->find_entry(key));
 #endif
     
     // Check normal reads
     key.value = "hello";
     tag.value = "foo";
-    TEST(!table.get_nearest_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "");
-    TEST_EQUAL(tag.value, "");
+    TEST(!cursor->find_entry(key));
+    TEST_EQUAL(cursor->current_key.value, "");
+    TEST_EQUAL(cursor->current_tag.value, "");
 
     key.value = "jello";
     tag.value = "foo";
-    TEST(!table.get_nearest_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "");
-    TEST_EQUAL(tag.value, "");
+    TEST(!cursor->find_entry(key));
+    TEST_EQUAL(cursor->current_key.value, "");
+    TEST_EQUAL(cursor->current_tag.value, "");
 
     key.value = "bello";
     tag.value = "foo";
-    TEST(!table.get_nearest_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "");
-    TEST_EQUAL(tag.value, "");
-    
-#ifdef MUS_DEBUG
-    key.value = "";
-    tag.value = "foo";
-    TEST_EXCEPTION(OmAssertionError, table.get_nearest_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "");
-    TEST_EQUAL(tag.value, "foo");
-#endif
+    TEST(!cursor->find_entry(key));
+    TEST_EQUAL(cursor->current_key.value, "");
+    TEST_EQUAL(cursor->current_tag.value, "");
 }
 
 static void unlink_table(const string & path)
@@ -267,7 +258,7 @@ static bool test_disktable1()
     check_table_values_empty(table1);
     check_table_values_empty(table2);
     
-    // Check get_nearest_entry when looking for something between two elements
+    // Check find_entry when looking for something between two elements
     key.value = "hello";
     tag.value = "world";
     table2.set_entry(key, &tag);
@@ -442,26 +433,28 @@ static bool test_bufftable2()
 
 	key.value = "foo";
 	tag.value = "bar";
-	AutoPtr<QuartzCursor> cursor(bufftable.make_cursor());
-	TEST(!bufftable.get_nearest_entry(key, tag, *cursor));
-	TEST_EQUAL(key.value, "");
-	TEST_EQUAL(tag.value, "");
+	AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
+	TEST(!cursor->find_entry(key));
+	TEST_EQUAL(cursor->current_key.value, "");
+	TEST_EQUAL(cursor->current_tag.value, "");
 
-	TEST(bufftable.get_next_entry(key, tag, *cursor));
-	TEST_EQUAL(key.value, "foo1");
-	TEST_EQUAL(tag.value, "bar1");
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key.value, "foo1");
+	TEST_EQUAL(cursor->current_tag.value, "bar1");
 
-	TEST(bufftable.get_next_entry(key, tag, *cursor));
-	TEST_EQUAL(key.value, "foo2");
-	TEST_EQUAL(tag.value, "bar2");
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key.value, "foo2");
+	TEST_EQUAL(cursor->current_tag.value, "bar2");
 
-	TEST(bufftable.get_next_entry(key, tag, *cursor));
-	TEST_EQUAL(key.value, "foo3");
-	TEST_EQUAL(tag.value, "bar3");
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key.value, "foo3");
+	TEST_EQUAL(cursor->current_tag.value, "bar3");
 
-	TEST(!bufftable.get_next_entry(key, tag, *cursor));
-	TEST_EQUAL(key.value, "foo3");
-	TEST_EQUAL(tag.value, "bar3");
+	cursor->next();
+	TEST(cursor->after_end());
 
 	// Add a new tag
 	key.value = "foo25";
@@ -520,30 +513,33 @@ static bool test_bufftable2()
 
 	key.value = "foo";
 	tag.value = "";
-	AutoPtr<QuartzCursor> cursor(bufftable.make_cursor());
-	TEST(!bufftable.get_nearest_entry(key, tag, *cursor));
-	TEST_EQUAL(key.value, "");
-	TEST_EQUAL(tag.value, "");
+	AutoPtr<QuartzCursor> cursor(bufftable.cursor_get());
+	TEST(!cursor->find_entry(key));
+	TEST_EQUAL(cursor->current_key.value, "");
+	TEST_EQUAL(cursor->current_tag.value, "");
 
-	TEST(bufftable.get_next_entry(key, tag, *cursor));
-	TEST_EQUAL(key.value, "foo1");
-	TEST_EQUAL(tag.value, "bar1");
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key.value, "foo1");
+	TEST_EQUAL(cursor->current_tag.value, "bar1");
 
-	TEST(bufftable.get_next_entry(key, tag, *cursor));
-	TEST_EQUAL(key.value, "foo2");
-	TEST_EQUAL(tag.value, "bar2");
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key.value, "foo2");
+	TEST_EQUAL(cursor->current_tag.value, "bar2");
 
-	TEST(bufftable.get_next_entry(key, tag, *cursor));
-	TEST_EQUAL(key.value, "foo3");
-	TEST_EQUAL(tag.value, "bar3");
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key.value, "foo3");
+	TEST_EQUAL(cursor->current_tag.value, "bar3");
 
-	TEST(bufftable.get_next_entry(key, tag, *cursor));
-	TEST_EQUAL(key.value, "foo36");
-	TEST_EQUAL(tag.value, "bar36");
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key.value, "foo36");
+	TEST_EQUAL(cursor->current_tag.value, "bar36");
 
-	TEST(!bufftable.get_next_entry(key, tag, *cursor));
-	TEST_EQUAL(key.value, "foo3");
-	TEST_EQUAL(tag.value, "bar3");
+	cursor->next();
+	TEST(cursor->after_end());
     }
     {
 	// Check that opening a nonexistant revision returns false (but doesn't
@@ -583,39 +579,41 @@ static bool test_cursor1()
 
     while(count != 0) {
 	key.value = "foo25";
-	tag.value = "";
-	AutoPtr<QuartzCursor> cursor(table->make_cursor());
-	TEST(!table->get_nearest_entry(key, tag, *cursor));
-	TEST_EQUAL(key.value, "foo2");
-	TEST_EQUAL(tag.value, "bar2");
+	AutoPtr<QuartzCursor> cursor(table->cursor_get());
+	TEST(!cursor->find_entry(key));
+	TEST_EQUAL(cursor->current_key.value, "foo2");
+	TEST_EQUAL(cursor->current_tag.value, "bar2");
 
-	TEST(table->get_next_entry(key, tag, *cursor));
-	TEST_EQUAL(key.value, "foo3");
-	TEST_EQUAL(tag.value, "bar3");
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key.value, "foo3");
+	TEST_EQUAL(cursor->current_tag.value, "bar3");
 
-	TEST(!table->get_next_entry(key, tag, *cursor));
-	TEST_EQUAL(key.value, "foo3");
-	TEST_EQUAL(tag.value, "bar3");
+	cursor->next();
+	TEST(cursor->after_end());
 
 	key.value = "foo";
-	tag.value = "blank";
-	TEST(!table->get_nearest_entry(key, tag, *cursor));
-	TEST_EQUAL(key.value, "");
-	TEST_EQUAL(tag.value, "");
+	TEST(!cursor->find_entry(key));
+	TEST_EQUAL(cursor->current_key.value, "");
+	TEST_EQUAL(cursor->current_tag.value, "");
 
-	TEST(table->get_next_entry(key, tag, *cursor));
-	TEST_EQUAL(key.value, "foo1");
-	TEST_EQUAL(tag.value, "bar1");
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key.value, "foo1");
+	TEST_EQUAL(cursor->current_tag.value, "bar1");
 
 	key.value = "foo2";
-	tag.value = "";
-	TEST(table->get_nearest_entry(key, tag, *cursor));
-	TEST_EQUAL(key.value, "foo2");
-	TEST_EQUAL(tag.value, "bar2");
+	TEST(cursor->find_entry(key));
+	TEST_EQUAL(cursor->current_key.value, "foo2");
+	TEST_EQUAL(cursor->current_tag.value, "bar2");
 
-	TEST(table->get_next_entry(key, tag, *cursor));
-	TEST_EQUAL(key.value, "foo3");
-	TEST_EQUAL(tag.value, "bar3");
+	cursor->next();
+	TEST(!cursor->after_end());
+	TEST_EQUAL(cursor->current_key.value, "foo3");
+	TEST_EQUAL(cursor->current_tag.value, "bar3");
+
+	cursor->next();
+	TEST(cursor->after_end());
 
 	table = &bufftable1;
 	count -= 1;
@@ -631,65 +629,75 @@ static bool test_cursor1()
     bufftable1.delete_tag(key);
 
     key.value = "foo25";
-    tag.value = "";
-    AutoPtr<QuartzCursor> cursor(disktable1.make_cursor());
-    TEST(!disktable1.get_nearest_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "foo2");
-    TEST_EQUAL(tag.value, "bar2");
+    AutoPtr<QuartzCursor> cursor(disktable1.cursor_get());
+    TEST(!cursor->find_entry(key));
+    TEST_EQUAL(cursor->current_key.value, "foo2");
+    TEST_EQUAL(cursor->current_tag.value, "bar2");
 
-    TEST(disktable1.get_next_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "foo3");
-    TEST_EQUAL(tag.value, "bar3");
+    cursor->next();
+    TEST(!cursor->after_end());
+    TEST_EQUAL(cursor->current_key.value, "foo3");
+    TEST_EQUAL(cursor->current_tag.value, "bar3");
 
     key.value = "foo25";
-    tag.value = "";
-    cursor = bufftable1.make_cursor();
-    TEST(!bufftable1.get_nearest_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "foo25");
-    TEST_EQUAL(tag.value, "bar25");
+    cursor.reset(bufftable1.cursor_get());
+    TEST(!cursor->find_entry(key));
+    TEST_EQUAL(cursor->current_key.value, "foo25");
+    TEST_EQUAL(cursor->current_tag.value, "bar25");
 
-    TEST(bufftable1.get_next_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "foo3");
-    TEST_EQUAL(tag.value, "bar3");
+    cursor->next();
+    TEST(!cursor->after_end());
+    TEST_EQUAL(cursor->current_key.value, "foo3");
+    TEST_EQUAL(cursor->current_tag.value, "bar3");
 
     key.value = "foo26";
-    tag.value = "";
-    cursor = bufftable1.make_cursor();
-    TEST(!bufftable1.get_nearest_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "foo25");
-    TEST_EQUAL(tag.value, "bar25");
+    cursor.reset(bufftable1.cursor_get());
+    TEST(!cursor->find_entry(key));
+    TEST_EQUAL(cursor->current_key.value, "foo25");
+    TEST_EQUAL(cursor->current_tag.value, "bar25");
 
-    TEST(bufftable1.get_next_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "foo3");
-    TEST_EQUAL(tag.value, "bar3");
+    cursor->next();
+    TEST(!cursor->after_end());
+    TEST_EQUAL(cursor->current_key.value, "foo3");
+    TEST_EQUAL(cursor->current_tag.value, "bar3");
 
     key.value = "foo2";
-    tag.value = "";
-    TEST(!bufftable1.get_nearest_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "foo2");
-    TEST_EQUAL(tag.value, "bar2");
+    TEST(!cursor->find_entry(key));
+    TEST_EQUAL(cursor->current_key.value, "foo2");
+    TEST_EQUAL(cursor->current_tag.value, "bar2");
 
-    TEST(bufftable1.get_next_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "foo25");
-    TEST_EQUAL(tag.value, "bar25");
+    cursor->next();
+    TEST(!cursor->after_end());
+    TEST_EQUAL(cursor->current_key.value, "foo25");
+    TEST_EQUAL(cursor->current_tag.value, "bar25");
 
-    TEST(bufftable1.get_next_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "foo3");
-    TEST_EQUAL(tag.value, "bar3");
+    cursor->next();
+    TEST(!cursor->after_end());
+    TEST_EQUAL(cursor->current_key.value, "foo3");
+    TEST_EQUAL(cursor->current_tag.value, "bar3");
+
+    cursor->next();
+    TEST(cursor->after_end());
 
     key.value = "foo1";
-    tag.value = "";
-    TEST(!bufftable1.get_nearest_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "foo2");
-    TEST_EQUAL(tag.value, "bar2");
+    TEST(!cursor->find_entry(key));
+    TEST_EQUAL(cursor->current_key.value, "");
+    TEST_EQUAL(cursor->current_tag.value, "");
 
-    TEST(bufftable1.get_next_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "foo25");
-    TEST_EQUAL(tag.value, "bar25");
+    cursor->next();
+    TEST(!cursor->after_end());
+    TEST_EQUAL(cursor->current_key.value, "foo2");
+    TEST_EQUAL(cursor->current_tag.value, "bar2");
 
-    TEST(bufftable1.get_next_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "foo3");
-    TEST_EQUAL(tag.value, "bar3");
+    cursor->next();
+    TEST(!cursor->after_end());
+    TEST_EQUAL(cursor->current_key.value, "foo25");
+    TEST_EQUAL(cursor->current_tag.value, "bar25");
+
+    cursor->next();
+    TEST(!cursor->after_end());
+    TEST_EQUAL(cursor->current_key.value, "foo3");
+    TEST_EQUAL(cursor->current_tag.value, "bar3");
 
     new_revision += 1;
     TEST(bufftable1.apply(new_revision));
@@ -698,15 +706,15 @@ static bool test_cursor1()
     bufftable1.delete_tag(key);
 
     key.value = "foo25";
-    tag.value = "";
-    cursor = bufftable1.make_cursor();
-    TEST(!bufftable1.get_nearest_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "foo2");
-    TEST_EQUAL(tag.value, "bar2");
+    cursor.reset(bufftable1.cursor_get());
+    TEST(!cursor->find_entry(key));
+    TEST_EQUAL(cursor->current_key.value, "foo2");
+    TEST_EQUAL(cursor->current_tag.value, "bar2");
 
-    TEST(bufftable1.get_next_entry(key, tag, *cursor));
-    TEST_EQUAL(key.value, "foo3");
-    TEST_EQUAL(tag.value, "bar3");
+    cursor->next();
+    TEST(!cursor->after_end());
+    TEST_EQUAL(cursor->current_key.value, "foo3");
+    TEST_EQUAL(cursor->current_tag.value, "bar3");
 
     return true;
 }
@@ -1035,6 +1043,8 @@ static bool test_btree1()
     }
     
     Btree_quit(btree);
+
+    return true;
 }
 
 // ================================
