@@ -1,3 +1,16 @@
+Sat Dec 14 22:57:41 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/Makefile.am,backends/quartz/quartzcheck.cc,
+	  backends/quartz/quartzcompact.cc,backends/quartz/quartzdump.cc:
+	  Enhanced quartzcheck to check all the btrees in a quartz database
+	  if passed a directory name.  It also default to "v" rather than
+	  "+" which is more appropriate for an end user checking if tables
+	  in a non-trivial sized database are corrupt.  Added quartzcompact
+	  utility to make a copy of a quartz database with full compaction
+	  turned on - this results in a smaller database which is faster to
+	  search.  The next update will result in a lot of block splitting
+	  though (since all blocks are as full as possible).
+
 Sat Dec 14 16:28:11 GMT 2002  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated for 0.6.3 release.

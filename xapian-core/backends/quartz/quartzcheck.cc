@@ -1,4 +1,5 @@
-/* quartzcheck.cc: use Btree::check to check consistency of a quartz btree
+/* quartzcheck.cc: use Btree::check to check consistency of a quartz database
+ * or btree
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -34,13 +35,16 @@ main(int argc, char **argv)
 {
     if (argc < 2 || argc > 3) {
 	cout << "usage: " << argv[0]
-	     << " <path to btree and prefix> [[t][f][b][v][+]]\n"
+	     << " <path to btree and prefix>|<quartz directory> [[t][f][b][v][+]]\n"
+	        "The btree(s) is/are always checked - control the output verbosity with:\n"
 		" t = short tree printing\n"
 		" f = full tree printing\n"
 		" b = show bitmap\n"
-		" v = show stats about B-tree\n"
-		" + = same as tbv (default)\n"
+		" v = show stats about B-tree (default)\n"
+		" + = same as tbv\n"
 		" e.g. " << argv[0]
+	     << " /var/lib/xapian/data/default"
+		"      " << argv[0]
 	     << " /var/lib/xapian/data/default/postlist_ fbv"
 	     << endl;
 	exit(1);
@@ -48,7 +52,7 @@ main(int argc, char **argv)
 
     int opts = 0;
     const char * opt_string = argv[2];
-    if (!opt_string) opt_string = "+";
+    if (!opt_string) opt_string = "v";
     for (const char *p = opt_string; *p; ++p) {
 	switch (*p) {
 	    case 't': opts |= OPT_SHORT_TREE; break;
@@ -68,11 +72,26 @@ main(int argc, char **argv)
     }
 
     try {
-	BtreeCheck::check(argv[1], opts);
-    }
-    catch (const OmError &error) {
+	struct stat sb;
+	if (stat(argv[1], &sb) == 0 && S_ISDIR(sb.st_mode)) {
+	    // Assume it's a quartz directory and try to check all the btrees
+	    const char * tables[] = {
+		"record", "postlist", "termlist", "position", "value"
+	    };
+	    for (const char **t = tables;
+		 t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
+		string table(argv[1]);
+		table += '/';
+		table += *t;
+		table += '_';
+		cout << *t << ":\n";
+		BtreeCheck::check(table, opts);
+	    }
+	} else {
+	    BtreeCheck::check(argv[1], opts);
+	}
+    } catch (const OmError &error) {
 	cerr << argv[0] << ": " << error.get_msg() << endl;
 	exit(1);
     }
-    return 0;
 }

@@ -138,10 +138,8 @@ main(int argc, char *argv[])
 		     << hex_encode(cursor->current_tag) << "\n";
 		cursor->next();
 	    }
-	}
-	catch (const OmError &e) {
+	} catch (const OmError &e) {
 	    cout << "Error: " << e.get_msg() << endl;
 	}
     }
-    return 0;
 }
