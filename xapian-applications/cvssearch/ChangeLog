@@ -1,3 +1,13 @@
+Tue Apr 05 00:46:34 BST 2005  Olly Betts <olly@survex.com>
+
+	* perl/.cvsignore,db/.cvsignore,map/xmlxx/.cvsignore,
+	  map/include/.cvsignore,map/map_algorithm/.cvsignore,
+	  map/aligned_diff/.cvsignore,map/range/.cvsignore,
+	  map/html_writer/.cvsignore,map/cvs_parser/.cvsignore,
+	  map/diff/.cvsignore,map/.cvsignore,map/alignment/.cvsignore,
+	  map/process/.cvsignore,.cvsignore: Remove .cvsignore files, as
+	  they're not used by SVN.
+
 Fri Dec 17 22:21:13 GMT 2004  Olly Betts <olly@survex.com>
 
 	* perl/: Tidied HTML output.
