@@ -13,7 +13,9 @@ HTMLFILES = index.html intro.html intro_ir.html userman.html \
 EXTRA_DIST = mkdoc.pl.in doxygen_api_conf.in doxygen_full_conf.in \
         $(HTMLFILES) \
         MatcherDesign Notes stemming.txt \
-	docxx.sty api_footer.html api_header.html  
+	docxx.sty \
+	doxygen_api_header.html_tmpl \
+	doxygen_api_footer.html_tmpl
 
 # Things to do if have perl installed
 if HAVE_PERL
@@ -203,7 +205,8 @@ doxygen_api_conf: $(top_srcdir)/configure
 doxygen_full_conf: $(top_srcdir)/configure
 
 apidoc/html/index.html: doxygen_api_conf \
-                        $(srcdir)/api_header.html $(srcdir)/api_footer.html
+                        $(srcdir)/doxygen_api_header.html_tmpl \
+			$(srcdir)/doxygen_api_footer.html_tmpl
 	@echo "Generating API documentation with doxygen"
 	@depends="$(APIDOC_SRC)"; destfile=".deps-apidoc-html"; $(GENDEPS)
 	@top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN_PATH) doxygen_api_conf
