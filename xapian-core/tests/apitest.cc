@@ -2335,17 +2335,29 @@ test_desc nodb_tests[] = {
 
 int main(int argc, char *argv[])
 {
-    char *srcdir = getenv("srcdir");
-    if (srcdir == NULL) {
-        cout << "Error: $srcdir must be in the environment!" << endl;
-	return(1);
+    string srcdir;
+    char *srcdir_ = getenv("srcdir");
+    if (srcdir_ != NULL) {
+	srcdir = srcdir_;
+    } else {
+	// default srcdir to everything leading up to the last "/" on argv[0]
+	srcdir = argv[0];
+	string::size_type i = srcdir.find_last_of('/');
+	if (i != string::npos) {
+	    srcdir.erase(i);
+	} else {	    
+	    // default to current directory - probably won't work if libtool
+	    // is involved
+	    srcdir = ".";
+	}
+	cerr << "srcdir not in environment - guessing at `" << srcdir << "'\n";
     }
 
     int result;
     test_driver::result summary = {0, 0};
     test_driver::result sum_temp;
     
-    backendmanager.set_datadir(std::string(srcdir) + "/testdata/");
+    backendmanager.set_datadir(srcdir + "/testdata/");
     backendmanager.set_dbtype("void");
     cout << "Running tests with no backend..." << endl;
     result = test_driver::main(argc, argv, nodb_tests, &summary);
