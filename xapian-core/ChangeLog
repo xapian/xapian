@@ -1,3 +1,12 @@
+Mon Oct 30 17:35:17 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added test to quartz to check behaviour of cursor operations.
+	  Test is fairly comprehensive - cursor operations don't yet work.
+
+Mon Oct 30 16:13:09 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add entry to todo.
+
 Mon Oct 30 14:20:46 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed a segfault when trying to use a non-existant node type,
