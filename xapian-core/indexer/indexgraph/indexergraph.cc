@@ -22,12 +22,16 @@
 
 #include "omindexernode.h"
 #include "indexergraph.h"
+#include "om/omerror.h"
 #include <parser.h>  // libxml
+#include <algorithm>
 
 class OmIndexerStartNode : public OmIndexerNode
 {
     public:
-	OmIndexerStartNode() {}
+	static OmIndexerNode *create(const OmSettings &) {
+	    return new OmIndexerStartNode();
+	}
 
 	void set_message(Message msg) {
 	    //cout << "Setting message:" << msg << endl;
@@ -141,9 +145,11 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 	throw "Bad root tag";
     }
     //cout << "root name is " << rootname << endl;
-
-    indexer->nodemap["START"] = new OmIndexerStartNode();
+    std::map<std::string, std::string> types;
+    
+    indexer->nodemap["START"] = make_node("START");
     indexer->start = dynamic_cast<OmIndexerStartNode *>(indexer->nodemap["START"]);
+    types["START"] = "START";
     
     for (xmlNodePtr node = root->childs;
 	 node != 0;
@@ -151,12 +157,12 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 	std::string type = (char *)node->name;
 	// cout << "node name = " << type << endl;
 	if (type == "node") {
-	    std::map<std::string, std::string> attrs(attr_to_map(node->properties));
-	    if (indexer->nodemap.find(attrs["id"]) != indexer->nodemap.end()) {
+	    std::map<std::string, std::string> node_attrs(attr_to_map(node->properties));
+	    if (indexer->nodemap.find(node_attrs["id"]) != indexer->nodemap.end()) {
 		throw "Duplicate node id!";
 	    }
-	    OmIndexerNode *newnode = make_node(attrs["type"]);
-	    indexer->nodemap[attrs["id"]] = newnode;
+	    OmIndexerNode *newnode = make_node(node_attrs["type"]);
+	    indexer->nodemap[node_attrs["id"]] = newnode;
 	    // connect the inputs
 	    for (xmlNodePtr input = node->childs;
 		 input != 0;
@@ -164,15 +170,20 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 		if (std::string((char *)input->name) != "input") {
 		    throw "Expected input";
 		}
-		std::map<std::string, std::string> attrs(attr_to_map(input->properties));
+		std::map<std::string, std::string> input_attrs(attr_to_map(input->properties));
 		OmIndexer::NodeMap::const_iterator i =
-			indexer->nodemap.find(attrs["node"]);
+			indexer->nodemap.find(input_attrs["node"]);
 		if (i == indexer->nodemap.end()) {
 		    throw "input node not found";
 		}
-		newnode->connect_input(attrs["name"],
+		// typecheck throws on an error
+		typecheck(node_attrs["type"],
+			  input_attrs["name"],
+			  types[input_attrs["node"]],
+			  input_attrs["out_name"]);
+		newnode->connect_input(input_attrs["name"],
 				       i->second,
-				       attrs["out_name"]);
+				       input_attrs["out_name"]);
 	    }
 	} else if (type == "output") {
 	    std::map<std::string, std::string> attrs(attr_to_map(node->properties));
@@ -186,6 +197,76 @@ OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
 	    throw "Unknown tag";
 	}
     }
+}
+
+void
+OmIndexerBuilder::typecheck(const std::string &sendertype,
+			    const std::string &senderout,
+			    const std::string &receivertype,
+			    const std::string &receiverin)
+{
+    NodeConnection sendercon = get_outputcon(sendertype, senderout);
+    NodeConnection receivercon = get_inputcon(receivertype, receiverin);
+
+    // First check that the physical type is compatible
+    if (sendercon.phys_type != receivercon.phys_type) {
+	if (sendercon.phys_type == mt_record ||
+	    receivercon.phys_type == mt_record) {
+	    throw OmUnimplementedError("Automatic type conversions not implemented, so rejecting.");
+	} else {
+	    throw OmInvalidArgumentError(std::string("Types of ") + 
+					 sendertype + "[" + senderout + "]" +
+					 " and " + receivertype + "[" +
+					 receiverin + "] are not physically compatible.");
+	}
+    } else if (sendercon.type != receivercon.type) {
+	    throw OmInvalidArgumentError(std::string("Types of ") + 
+					 sendertype + "[" + senderout + "]" +
+					 " and " + receivertype + "[" +
+					 receiverin + "] are not compatible.");
+    }
+}
+
+OmIndexerBuilder::NodeConnection
+OmIndexerBuilder::get_outputcon(const std::string &nodetype,
+				const std::string &output_name)
+{
+    std::map<std::string, node_desc>::const_iterator type;
+    type = nodetypes.find(nodetype);
+    if (type == nodetypes.end()) {
+	throw OmInvalidArgumentError(std::string("Unknown node type ") +
+				     nodetype);
+    }
+    std::vector<NodeConnection>::const_iterator i;
+    for (i=type->second.outputs.begin(); i!= type->second.outputs.end(); ++i) {
+	// FIXME: probably ought to be a map rather than a vector.
+	if (i->name == output_name) {
+	    return *i;
+	}
+    }
+    throw OmInvalidArgumentError(std::string("Invalid output connection ") +
+				 nodetype + "[" + output_name + "]");
+}
+
+OmIndexerBuilder::NodeConnection
+OmIndexerBuilder::get_inputcon(const std::string &nodetype,
+			       const std::string &input_name)
+{
+    std::map<std::string, node_desc>::const_iterator type;
+    type = nodetypes.find(nodetype);
+    if (type == nodetypes.end()) {
+	throw OmInvalidArgumentError(std::string("Unknown node type ") +
+				     nodetype);
+    }
+    std::vector<NodeConnection>::const_iterator i;
+    for (i=type->second.inputs.begin(); i!= type->second.inputs.end(); ++i) {
+	// FIXME: probably ought to be a map rather than a vector.
+	if (i->name == input_name) {
+	    return *i;
+	}
+    }
+    throw OmInvalidArgumentError(std::string("Invalid input connection ") +
+				 nodetype + "[" + input_name + "]");
 }
 
 Message
@@ -202,6 +283,10 @@ OmIndexer::set_input(Message msg)
 
 OmIndexerBuilder::OmIndexerBuilder()
 {
+    register_node_type("START",
+		       &OmIndexerStartNode::create,
+		       std::vector<NodeConnection>(),
+		       std::vector<NodeConnection>());
 }
 
 void
@@ -213,8 +298,10 @@ OmIndexerBuilder::register_node_type(const std::string &nodename,
     // FIXME: check for duplicate node type
     node_desc ndesc;
     ndesc.create = create;
-    std::copy(inputs.begin(), inputs.end(), ndesc.inputs.begin());
-    std::copy(outputs.begin(), outputs.end(), ndesc.outputs.begin());
+    std::copy(inputs.begin(), inputs.end(),
+	      std::back_inserter(ndesc.inputs));
+    std::copy(outputs.begin(), outputs.end(),
+	      std::back_inserter(ndesc.outputs));
 
     nodetypes[nodename] = ndesc;
 }

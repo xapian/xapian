@@ -33,7 +33,9 @@ enum OmIndexerMessageType {
     mt_int,
     mt_double,
     mt_string,
-    mt_vector
+    mt_vector,
+    mt_record // Invalid in an actual Record object.
+	    // FIXME: separate message types from Record content types?
 };
 
 /** BasicMessage is a basic message element.  More complex message may

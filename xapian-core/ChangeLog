@@ -1,3 +1,7 @@
+Wed Aug 30 19:15:29 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Partially implemented type-checking in OmIndexer
+
 Wed Aug 30 18:21:02 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add a test to the quartz testsuite - currently doesn't compile.

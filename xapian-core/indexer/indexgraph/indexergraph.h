@@ -108,6 +108,16 @@ class OmIndexerBuilder {
 
 	/** The description of an input or output connection. */
 	struct NodeConnection {
+	    NodeConnection(std::string name_,
+			   std::string type_,
+			   OmIndexerMessageType phys_type_)
+		    : name(name_), type(type_), phys_type(phys_type_) {}
+	    NodeConnection(const NodeConnection &other)
+		    : name(other.name), type(other.type),
+	              phys_type(other.phys_type) {}
+	    NodeConnection()
+		    : name(""), type(""), phys_type() {}
+
 	    /** The name of this input or output */
 	    std::string name;
 
@@ -136,7 +146,30 @@ class OmIndexerBuilder {
 	 */
 	void build_graph(OmIndexer *indexer, xmlDocPtr doc);
 
-	/** Create a node given a name */
+	/** Make sure that the types at each end of a connection are
+	 *  compatible.  Throw an exception if not.
+	 */
+	void typecheck(const std::string &sendertype,
+		       const std::string &senderout,
+		       const std::string &receivertype,
+		       const std::string &receiverin);
+
+	/** Get the descriptor for an output connection for a particular
+	 *  node type.
+	 */
+	NodeConnection get_outputcon(const std::string &nodetype,
+				     const std::string &output_name);
+
+	/** Get the descriptor for an input connection for a particular
+	 *  node type.
+	 */
+	NodeConnection get_inputcon(const std::string &nodetype,
+				    const std::string &input_name);
+
+	/** Create a node given a name
+	 *
+	 *  @param type  The node type.
+	 */
 	OmIndexerNode *make_node(const std::string &type);
 
 	/** Node descriptor */

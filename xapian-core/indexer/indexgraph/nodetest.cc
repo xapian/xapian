@@ -23,14 +23,28 @@
 #include "omindexernode.h"
 #include "testnodes.h"
 #include "indexergraph.h"
+#include "om/omerror.h"
 
 int main() {
     try {
 	OmIndexerBuilder builder;
-	builder.register_node_type("split",
-				   &SplitNode::create,
-				   vector<OmIndexerBuilder::NodeConnection>(),
-				   vector<OmIndexerBuilder::NodeConnection>());
+	{
+	    vector<OmIndexerBuilder::NodeConnection> in;
+	    vector<OmIndexerBuilder::NodeConnection> out;
+	    in.push_back(OmIndexerBuilder::NodeConnection("in",
+							  "mystr",
+							  mt_record));
+	    out.push_back(OmIndexerBuilder::NodeConnection("out1",
+							   "mystr",
+							   mt_record));
+	    out.push_back(OmIndexerBuilder::NodeConnection("out2",
+							   "mystr",
+							   mt_record));
+	    builder.register_node_type("split",
+				       &SplitNode::create,
+				       in,
+				       out);
+	}
 	builder.register_node_type("reverse",
 				   &ReverseNode::create,
 				   vector<OmIndexerBuilder::NodeConnection>(),
@@ -61,6 +75,9 @@ int main() {
 	    case mt_vector:
 		cout << "Vector";
 		break;
+	    case mt_record:
+		cout << "Invalid";
+		break;
 	};
 	cout << endl;
     } catch (const std::string &s) {
@@ -69,5 +86,9 @@ int main() {
 	cout << "Got exception: " << s << endl;
     } catch (char *s) {
 	cout << "Got exception: " << s << endl;
+    } catch (OmError &e) {
+	cout << "Got " << e.get_type() << ": " << e.get_msg() << endl;
+    } catch (...) {
+	cout << "Got unknown exception" << endl;
     }
 }
