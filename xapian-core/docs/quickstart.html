@@ -13,9 +13,10 @@ first application using Muscat.  It does not attempt to provide complete
 coverage of all the features of Muscat: for that, see the accompanying
 user manual and reference document.
 </P><P>
-The document consists of a walk-through development of a simple
-application using the Muscat library, together with commentary on how
-the application could be taken further.
+The document contains a quick introduction to the basic concepts, and then
+a walk-through development of a simple application using the Muscat
+library, together with commentary on how the application could be taken
+further.
 </P>
 
 <HR>
@@ -32,24 +33,121 @@ You will also need a reasonably recent C++ compiler.  We currently use GCC
 version 2.95.2, but any reasonably ANSI compilant C++ compiler should have
 a decent chance of successfully compiling the code.
 </P>
+<P>
+In addition, to run the examples, you will need a version of Muscat
+compiled with support for the "sleepycat" database access method.  This
+requires a copy of the sleepycat database system library to be installed on
+your system, and for Muscat to be compiled to use this (by passing the
+--enable-backend-sleepy parameter to the configuration script).
+</P>
+<P>
+If you don't have this library available, there is at the time of writing
+no database access method which allows you to write databases to permanent
+storage.  As a temporary measure, you could use the InMemory database
+method, which keeps a database entirely in memory, and either search the
+database directly, or write it to a text file and create a DA file from it,
+using the makeDA utility (which is binary only, and available only for Linux).
+</P>
+<P>
+Other access methods will be written in due course, and in the meantime
+this guide should be useful to you as an overview of how the system works.
+</P>
 
 <HR>
-<H2>The index</H2>
+<H2>Databases</H2>
 
 <P>
 An information retrieval system using Muscat typically has two parts.  The
-first part is the indexer, which takes documents in various formats,
-processes them so that they can be efficiently searched, and stores the
-processed documents in an appropriate data structure.  The second part
-is the searcher, which takes queries and reads the index to return a list
-of the documents relevant to each query.
+first part is the <EM>indexer</EM>, which takes documents in various
+formats, processes them so that they can be efficiently searched, and
+stores the processed documents in an appropriate data structure (the
+<EM>database</EM>).  The second part is the <EM>searcher</EM>, which takes
+queries and reads the database to return a list of the documents relevant
+to each query.
+</P>
+<P>
+The database is the data structure which ties the indexer and searcher
+together, and is fundamental to the retrieval process.  Given how
+fundamental it is, it is unsurprising that different applications put
+different demands on the database.  For example, some applications may be
+happy to deal with searching a static collection of data, but need to do
+this extremely fast (for example, a web search engine which builds new
+databases from scratch nightly or even weekly).  Other applications may
+require that new data can be added to the system incrementally, but don't
+require extremely high performance searching (perhaps an email system,
+which is only being searched occasionally).  There are many other
+constraints which may be placed on an information retrieval system: for
+example, it may be required to have small database sizes, even at the
+expense of getting poorer results from the system.
+</P>
+<P>
+To provide the required flexibility, Muscat has the ability to use one of
+many available database <EM>backends</EM>, each of which satisfies a
+different set of constraints, stores its data in a different way.
+
+Currently, these must be compiled into the whole system, and selected at
+runtime, but the ability to dynamically load modules for each of these
+backends is likely to be added in future, and would require little design
+modification.
+</P>
+<P>
+If you are in a real hurry, you could probably skip the rest of this
+section, but it is helpful to understand roughly what information Muscat
+stores in a database and how it is structured, and the following
+subsections detail this.
 </P>
 
-<H3>The contents of an index</H3>
+<H3>The contents of a database</H3>
 
-[This isn't required knowledge, but it is helpful to understand roughly what
-the information which Muscat stores in an index consists of.]
-<H3>Building the index</H3>
+<P>
+FIXME: to be written.
+Documents, terms, data, keys.
+What can be accessed fast, what can't.
+How each piece of data might be stored.
+</P>
+
+<H3><A NAME="sleepycat_databases">SleepyCat databases</A></H3>
+
+<H3><A NAME="da_databases">DA databases</A></H3>
+
+<P>
+The DA database format is one of the formats which our old software used to
+store data.  It is a non-modifyable format; all the data must be known at
+the time at which it is created.  It is however a fairly efficient database
+format for searching, and is certainly better than the sleepycat database
+structure, which is in the early stages of development and is currently
+rather inefficient.
+</P><P>
+On the other hand, it does have various drawbacks, foremost of which is
+that of not storing positional information in the posting lists, and thus
+some operations (such as phrase searching) will never be possible with
+this database format.
+</P>
+<P>
+Another major disadvantage is that document length information is not
+stored in this database, so retrieval will not be as good as it could be
+with this information.
+</P>
+<P>
+Because the DA format is an old format, we do not provide software to directly
+create DA files.  However, you may use the makeDA utility to create these
+files, either from text data which you have hand prepared, or from data
+unloaded from a sleepycat (or other format) database.
+</P>
+<P>
+You can search a DA database in exactly the same way as you would search a
+sleepycat database (see the <A HREF="#searcher">example searcher</A>).
+</P>
+
+<HR>
+<H2><A NAME="indexer">An example indexer</A></H2>
+
+<P>
+The first requirement in any program 
+</P>
+
+<HR>
+<H2><A NAME="searcher">An example searcher</A></H2>
 
 <HR>
 <H2>Compiling</H2>
@@ -74,15 +172,26 @@ backtick notation to include them on your command line).
 If your project uses the GNU autoconf tool, you may also use the
 <CODE>OM_PATH_LIBOMUS</CODE> macro, which is included as part of Muscat,
 and will check for an installation of Muscat and set (and
-<CODE>AC_SUBST</CODE>) the <CODE>LIBOMUS_CFLAGS</CODE> and <CODE>LIBOMUS_LIBS</CODE> variables to
+<CODE>AC_SUBST</CODE>) the <CODE>LIBOMUS_CFLAGS</CODE> and
+<CODE>LIBOMUS_LIBS</CODE> variables to
 be the flags to pass to the compiler and linker, respectively.
-
+This macro will also allow you to use an uninstalled version of Muscat.
+</P><P>
 If you don't use GNU autoconf, don't worry about this.
 </P>
 
-<H3>Compiling the simple example</H3>
+<H3>Compiling the simple examples</H3>
 Once you know the compilation flags, compilation is a simple matter of
-invoking the compiler!  For our example, we would
+invoking the compiler!  For our example, we could compile the two
+utilities (simpleindex and simplesearch) by the commands:
+<PRE>
+c++ simpleindex.cc `libomus-config --libs --cflags` -o simpleindex
+<BR>
+c++ simplesearch.cc `libomus-config --libs --cflags` -o simplesearch
+</PRE>
+
+<HR>
+<H2>Running the examples</H2>
 
 <!-- FOOTER $Author$ $Date$ $Id$ -->
 </BODY>
