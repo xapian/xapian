@@ -3,6 +3,98 @@ Announcing version 0.3.1 of Muscat.
 
 This release contains bugfixes and minor enhancements.
 
+This release contains a few fairly significant API changes; applications
+will require several modifications to work with this version.
+
+
+This release is available from the usual place:
+        http://open.muscat.com/download/index.html
+
+As ever, for the most up-to-date documentation, see our online copy at
+	http://open.muscat.com/developer/index.html
+
+
+API modifications:
+
+ * OmDatabaseGroup merged into OmDatabase.  Upgrading your code should
+   just be a matter of replacing OmDatabaseGroup with OmDatabase.
+
+ * Added iterators to allow direct access to PostLists, PositionLists and
+   TermLists from an OmDatabase object - mainly useful for debugging, but
+   _very_ useful for this.
+
+ * Sorted out various irregularities with assignment of OmDatabases and
+   OmWritableDatabases, and constness of methods; these shouldn't require
+   changes to any sensible code.
+
+ * Window size for NEAR and PHRASE now defaults to number of subqueries.
+
+ * NEAR and PHRASE queries can now be built with OmQuery pair constructor.
+
+ * New exceptions: OmInvalidDataError, for bad data which isn't really an
+   API misuse, and OmNeedRecoveryError, to signal that a database needs a
+   recovery step to be performed.
+
+
+Several new features 
+
+ * Parameters for the weighting formulae may now be specified by the user:
+   see the autoextracted documentation for OmSettings for details.
+   (http://open.muscat.com/developer/docs/apidoc/html/
+    class_OmSettings.html#_details)
+   (This feature will not yet work with distributed searching.)
+
+ * Timeouts for distributed searching are also now user configurable (see
+   same page).
+
+ * Query length is now included in the calculation of a document's score.
+
+ * Many more tests in the testsuite, including some rather whizzy malloc
+   checking stuff.
+
+ * Various portability fixes (including our own implementation of auto_ptr,
+   (called AutoPtr) to get around the differing versions available).
+
+ * Postlists and Termlists now keep a reference to the database open, so that
+   they will continue to work even if the OmDatabase they were created from
+   is closed.
+
+
+Bugs fixed include:
+
+ * Fixed potential core-dump bug in OmSocketLineBuf.
+
+ * The java bindings should function again with this release, but the testsuite
+   has not yet been updated to match, so you may experience problems.
+
+ * The python bindings have also been updated, but not quite enough to work
+   correctly.
+
+ * Fixed a very occasional problem which DB databases had with skip_to.
+
+ * Fixed segfault problem with OrPostList decomposing into AndMaybePostList
+   at the very start of a query.
+
+ * Assertion error in matcher when searching for several terms, none of which
+   exist.
+
+
+Work in progress:
+
+ * New database backend, Quartz, is coming along nicely.  It has been decided
+   not to use sleepycat as the underlying database system initially; instead
+   we're writing our own B-tree management system, drawing on our previous
+   proprietary developments.  The structure is such that sleepycat could be
+   slotted in later as an alternative, and we may well do this to compare
+   performance at a later date.
+
+ * Indexing system is progressing; the framework is nearly complete; the
+   main work remaining is to produce suitably generic nodes and
+   documentation.
+
+ * A rework of the matcher is just beginning, to share statistics between
+   different matchers as they progress, and also to neaten up the code.
+
 
 
 Announcing version 0.3.0 of Muscat.
