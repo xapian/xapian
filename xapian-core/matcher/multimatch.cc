@@ -271,8 +271,6 @@ MultiMatch::get_mset_2(PostList *pl,
 	}
     }
 
-    om_docid new_did;    
-
     // Perform query
 
     // We form the mset in two stages.  In the first we fill up our working
@@ -283,8 +281,6 @@ MultiMatch::get_mset_2(PostList *pl,
     if (min_item.wt <= 0) {
 	while (items.size() < max_msize) {
 	    next_handling_prune(pl, min_item.wt);
-
-	    skipped:
 
 	    if (pl->at_end()) break;
 	    
@@ -354,24 +350,12 @@ MultiMatch::get_mset_2(PostList *pl,
 	    if (wt > greatest_wt) greatest_wt = wt;
 
 	    if (snooper) {
-		new_did = snooper(new_item, min_item.wt);
-		if (new_did) {
-		    if (skip_to_handling_prune(pl, new_did, min_item.wt)) {
-			DEBUGLINE(MATCH, "*** REPLACING ROOT");
-		
-			// no need for a full recalc (unless we've got to do one because
-			// of a prune elsewhere) - we're just switching to a subtree
-			om_weight w_max = pl->get_maxweight();
-			DEBUGLINE(MATCH, "max possible doc weight = " << w_max);
-			AssertParanoid(recalculate_w_max || fabs(w_max - pl->recalc_maxweight()) < 1e-9);
-			
-			if (w_max < min_item.wt) {
-			    DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
-			    break;
-			}			
-		    }
-		    if (min_item.wt > 0) goto skipped2;
-		    goto skipped;
+		om_weight wmin = 0;
+		om_docid new_did = snooper(new_item, wmin);
+		if (new_did) abort();
+		if (wmin > 0) {
+		    min_item.wt = wmin;
+		    goto skipped2;
 		}
 	    }
 	}
@@ -500,28 +484,15 @@ MultiMatch::get_mset_2(PostList *pl,
 				 items.end(), mcmp);
 		// erase elements which don't make the grade
 		items.erase(items.begin() + max_msize, items.end());
-		min_item = items.back();
+		if (mcmp(items.back(), min_item)) min_item = items.back();
 		DEBUGLINE(MATCH, "mset size = " << items.size());
 	    }
 	    if (snooper) {
-		new_did = snooper(new_item, min_item.wt);
-		now_have_min_wt:
-		if (new_did) {
-		    if (skip_to_handling_prune(pl, new_did, min_item.wt)) {
-			DEBUGLINE(MATCH, "*** REPLACING ROOT");
-		
-			// no need for a full recalc (unless we've got to do one because
-			// of a prune elsewhere) - we're just switching to a subtree
-			om_weight w_max = pl->get_maxweight();
-			DEBUGLINE(MATCH, "max possible doc weight = " << w_max);
-			AssertParanoid(recalculate_w_max || fabs(w_max - pl->recalc_maxweight()) < 1e-9);
-			
-			if (w_max < min_item.wt) {
-			    DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
-			    break;
-			}			
-		    }
-		    goto skipped2;
+		om_weight wmin = min_item.wt;
+		om_docid new_did = snooper(new_item, wmin);
+		if (new_did) abort();
+		if (wmin > min_item.wt) {
+		    min_item.wt = wmin;
 		}
 	    }
 	}
@@ -562,7 +533,15 @@ MultiMatch::get_mset_2(PostList *pl,
 	DEBUGLINE(MATCH, "max weight in mset = " << items[0].wt <<
 		  ", min weight in mset = " << items.back().wt);
     }
-
+    
+    std::vector<OmMSetItem>::iterator r;
+    for (r = items.begin(); r != items.end(); r++) {
+	if (items.back().wt < min_item.wt) {
+	    items.erase(r, items.end());
+	    break;
+	}
+    }
+    
     mset = OmMSet(first, mbound, max_weight, greatest_wt, items,
 		  termfreqandwts);
 }

@@ -70,7 +70,7 @@ SocketServer::SocketServer(OmDatabase db_, int readfd_, int writefd_,
     if (signal(SIGPIPE, SIG_IGN) < 0) {
 	throw OmNetworkError(std::string("signal: ") + strerror(errno));
     }
-    buf->writeline("OM " + om_tostring(OM_SOCKET_PROTOCOL_VERSION) + " " +
+    buf->writeline("OM "STRINGIZE(OM_SOCKET_PROTOCOL_VERSION)" " +
 		   om_tostring(db.get_doccount()) + " " +
 		   om_tostring(db.get_avlength()));
 }
