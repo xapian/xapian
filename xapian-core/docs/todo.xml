@@ -89,21 +89,6 @@ Rework OmQuery interface.
 Make all errors return a context if appropriate.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="API" release="0.9">
-
-API cleanup.  Classes should hide implementation in internals, and should
-not use STL containers as parameters or return types.  Member variables
-shouldn't be exposed.
-
-Visible members:
-OmKey
-OmData
-OmError (probably necessary?)
-
-Vectors:
-OmQuery (see other TODO item)
-
-</todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
 
 "Percentage" scores - should be made more useful: a document which is indexed
