@@ -133,4 +133,4 @@ chmod +x configure.tmp
 mv -f configure.tmp configure
 
 trap EXIT
-echo "Bootstrapped successfully - now run \"${srcdir}configure\" and \"${MAKE-make}\""
+echo "Bootstrapped successfully - now run \"./configure\" and \"${MAKE-make}\""
