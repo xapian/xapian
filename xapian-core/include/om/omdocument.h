@@ -67,6 +67,9 @@ class OmKey {
 	/// Default constructor.
 	OmKey() {}
 
+	/// Default destructor.
+	~OmKey() {}
+
 	/** Returns a string representing the OmKey.
 	 *  Introspection method.
 	 */

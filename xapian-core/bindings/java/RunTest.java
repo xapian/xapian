@@ -52,8 +52,8 @@ public class RunTest {
 	String[] terms = myquery.get_terms();
 	String[] correct_terms = { "one", "two", "three", "four" };
 	System.out.print("terms = ");
+	printStringArray(terms);
 	for (int i=0; i<terms.length; ++i) {
-	    System.out.print(terms[i] + " ");
 	    if (i < correct_terms.length) {
 	        if (terms[i].compareTo(correct_terms[i]) != 0) {
 	            System.err.println("Incorrect term. (expected " +
@@ -65,7 +65,6 @@ public class RunTest {
 		success = false;
 	    }
 	}
-	System.out.println("");
 
 	OmDatabaseGroup dbgrp = new OmDatabaseGroup();
 
@@ -76,10 +75,26 @@ public class RunTest {
 
 	enq.set_query(new OmQuery("word", 0, 2));
 
-	/*OmMSet mset = */ enq.get_mset(0, 10);
+	OmMSet mset = enq.get_mset(0, 10);
+
+	OmVector items = mset.get_items();
+	for (int i = 0; i < items.size(); ++i) {
+	    OmMSetItem item = (OmMSetItem)items.elementAt(i);
+	    System.out.println(item.get_did() + ", " + item.get_wt());
+	}
+
+	String[] match_terms = enq.get_matching_terms((OmMSetItem)mset.get_items().elementAt(0));
+	printStringArray(match_terms);
 
         if (!success) {
 	    System.out.println("FAILED!");
 	}
+    }
+
+    private static void printStringArray(String[] a) {
+        for (int i=0; i<a.length; i++) {
+	    System.out.print(a[i] + " ");
+	}       
+	System.out.println("");
     }
 }

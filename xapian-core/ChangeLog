@@ -1,3 +1,8 @@
+Wed Jul 12 18:48:52 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Work on java bindings - OmWritableDatabase added.
+	  OmDocumentContents still needs adding.
+
 Wed Jul 12 17:19:25 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added test_msetzeroitems1 to apitest, to check that statistics are

@@ -61,8 +61,8 @@ native_sources = nvOmEnquire.lo			\
 
 all-local: headers libomusjava.so
 
-libomusjava.so: $(native_sources)
-	$(LIBTOOL) $(CXX) -shared $^ ../../../libomus.la -o $@
+libomusjava.so: $(native_sources) ../../../libomus.la
+	$(LIBTOOL) $(CXX) -shared $^ -o $@
 
 #all:	$(MODS)
 #	$(CPP) -shared -O3 -o libomusjava.so -lpthread $(MODS) $(OMLIB)

@@ -1,12 +1,9 @@
 package com.muscat.om;
 
-public class OmDatabase extends OmObject {
+public class OmWritableDatabase extends OmDatabase {
 
-    public OmDatabase (String type, String[] params) throws OmError { 
+    public OmWritableDatabase (String type, String[] params) throws OmError { 
 	nativePtr = createNativeObject (type, params);
-    }
-    protected OmDatabase() {
-        super();
     }
     protected native long createNativeObject (String type, String[] params);
 
@@ -14,6 +11,15 @@ public class OmDatabase extends OmObject {
 	super.finalize ();
     }
     protected native void deleteNativeObject ();
+
+    public void lock() {
+        lock(0);
+    }
+
+    public native void lock(int timeout);
+    public native void unlock();
+
+//    public native int add_document(OmDocumentContents document);
 
     public native String get_description();
 }

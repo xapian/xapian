@@ -1,5 +1,5 @@
 
-SUBDIRS = native .
+SUBDIRS = . native
 
 # classpath needed for compilation
 
@@ -9,6 +9,7 @@ JSRC  = com/muscat/om/OmObject.java			\
 	com/muscat/om/OmReturnObject.java		\
 	com/muscat/om/OmDatabaseGroup.java		\
 	com/muscat/om/OmDatabase.java			\
+	com/muscat/om/OmWritableDatabase.java		\
 	com/muscat/om/OmEnquire.java			\
 	com/muscat/om/OmDocument.java			\
 	com/muscat/om/OmKey.java			\
@@ -44,6 +45,7 @@ JCLASSES  = com/muscat/om/OmObject.class			\
 	com/muscat/om/OmReturnObject.class		\
 	com/muscat/om/OmDatabaseGroup.class		\
 	com/muscat/om/OmDatabase.class 			\
+	com/muscat/om/OmWritableDatabase.class 		\
 	com/muscat/om/OmEnquire.class			\
 	com/muscat/om/OmDocument.class			\
 	com/muscat/om/OmKey.class			\
