@@ -1,3 +1,7 @@
+Mon Sep 15 00:41:10 BST 2003  Olly Betts <olly@survex.com>
+
+	* extra/queryparser.yy: Fixed to build with Sun's C++ compiler.
+
 Thu Sep 11 03:35:29 BST 2003  Olly Betts <olly@survex.com>
 
 	* dummy.c,dummy.cc,Makefile.am: Change the default file to be C++ so

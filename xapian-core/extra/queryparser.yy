@@ -420,7 +420,11 @@ more_term:
 	}
 	yylval = U(Query(term, 1, term_pos++));
 	qp->termlist.push_back(term);
+#ifndef __SUNPRO_CC
 	qp->unstem.insert(make_pair(term, original_term));
+#else
+	qp->unstem.insert(make_pair<const string, string>(term, original_term));
+#endif
 	return TERM;
     }
     c = *qptr++;
