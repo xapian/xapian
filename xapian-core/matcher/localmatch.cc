@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -375,7 +375,6 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 	case Xapian::Query::Internal::OP_LEAF: {
 	    // Make a postlist for a single term
 	    Assert(query->subqs.size() == 0);
-	    Xapian::MSet::Internal::TermFreqAndWeight info;
 
 	    // FIXME: pass the weight type and the info needed to create it to
 	    // the postlist instead (why?)
@@ -392,15 +391,23 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 		AssertEqDouble(wt->get_maxextra(), temp_wt->get_maxextra());
 #endif
 	    }
-	    info.termweight = wt->get_maxpart();
 
-	    // MULTI - this statssource should be the combined one...
-	    info.termfreq = statssource->get_total_termfreq(query->tname);
+	    map<string, Xapian::MSet::Internal::TermFreqAndWeight>::iterator i;
+	    i = term_info.find(query->tname);
+	    if (i == term_info.end()) {
+		Xapian::MSet::Internal::TermFreqAndWeight info;
+		info.termweight = wt->get_maxpart();
 
-	    DEBUGLINE(MATCH, " weight = " << info.termweight <<
-		      ", frequency = " << info.termfreq);
+		// MULTI - this statssource should be the combined one...
+		info.termfreq = statssource->get_total_termfreq(query->tname);
 
-	    term_info.insert(std::make_pair(query->tname, info));
+		DEBUGLINE(MATCH, " weight = " << info.termweight <<
+			  ", frequency = " << info.termfreq);
+
+		term_info.insert(std::make_pair(query->tname, info));
+	    } else {
+		i->second.termweight += wt->get_maxpart();
+	    }
 
 	    // MULTI
 	    LeafPostList * pl = db->open_post_list(query->tname);

@@ -1,3 +1,8 @@
+Thu Aug 19 13:31:37 BST 2004  Olly Betts <olly@survex.com>
+
+	* matcher/localmatch.cc: Fixed problems handling termweights in
+	  queries with the same term repeated (bug #37).
+
 Thu Aug 19 13:22:12 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_table.cc: Disable the "lazy tag reading" in
