@@ -52,13 +52,15 @@ EXTRA_DIST = templates/query \
 	docs/cgiparams.txt \
 	docs/omegascript.txt \
 	docs/overview.txt \
-	docs/quickstart.txt
+	docs/quickstart.txt \
+	dbi2omega
 
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
 
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
 bin_PROGRAMS = omindex scriptindex
+bin_SCRIPTS = dbi2omega
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc
 omega_LDADD = $(XAPIAN_LIBS) -lomqueryparser
