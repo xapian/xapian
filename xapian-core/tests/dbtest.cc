@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
 	database.open("testdir");
 	database.close();
     }
-    catch (Error e) {
+    catch (OmError e) {
 	cout << e.get_msg() << endl;
     }
 }
