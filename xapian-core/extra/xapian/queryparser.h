@@ -61,6 +61,13 @@ class QueryParser {
 	    set_stemming_options("english");
 	}
 
+	/** Destruct the parser. */
+	~QueryParser()
+	{
+	    delete stop;
+	    delete stemmer;
+	}
+
 	/** Set the stemming language and options.
 	 */
 	void set_stemming_options(const std::string &lang,
