@@ -201,10 +201,12 @@ doxygen_docs: apidoc/html/index.html sourcedoc/html/index.html
 
 apidoc/html/index.html: doxygen_api_conf
 	@echo "Generating API documentation with doxygen"
+	@depends="$(APIDOC_SRC)"; destfile=".deps-apidoc-html"; $(GENDEPS)
 	@top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN_PATH) doxygen_api_conf
 
 sourcedoc/html/index.html: doxygen_full_conf
 	@echo "Generating full source documentation with doxygen"
+	@depends="$(SOURCEDOC_SRC)"; destfile=".deps-sourcedoc-html"; $(GENDEPS)
 	@top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN_PATH) doxygen_full_conf
 
 ## apidoc/index.html:
