@@ -1,3 +1,8 @@
+Tue Sep 14 02:56:52 BST 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Install htdig2omega.script in ${prefix}/share/omega/
+	  rather than ${prefix}/share/.
+
 Mon Sep 13 03:22:55 BST 2004  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Version 0.8.2.

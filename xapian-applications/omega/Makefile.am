@@ -72,7 +72,8 @@ docdata_DATA = docs/cgiparams.txt \
 	docs/quickstart.txt \
 	docs/scriptindex.txt
 
-data_DATA = htdig2omega.script
+omegadatadir = $(datadir)/omega
+omegadata_DATA = htdig2omega.script
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc
 omega_LDADD = $(XAPIAN_LIBS) -lxapianqueryparser # -lpcre
