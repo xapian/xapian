@@ -13,6 +13,10 @@ struct DAfile;
 struct terminfo;
 struct termvec;
 
+// But it turns out we need to include this anyway
+// FIXME - try and sort this out sometime.
+#include "daread.h"
+
 class DAPostList : public virtual DBPostList {
     friend class DADatabase;
     private:
