@@ -1,3 +1,8 @@
+Mon Apr 29 16:08:21 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated buildall to check various tools have the required version
+	  numbers.
+
 Mon Apr 29 15:58:57 BST 2002  Olly Betts <olly@survex.com>
 
 	* Tweaked use of HAVE_STREAMBUF
