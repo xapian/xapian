@@ -22,12 +22,9 @@
 
 #include "omindexernode.h"
 #include "indexergraph.h"
+#include "indexerxml.h"
 #include "om/omerror.h"
 #include "register_core.h"
-#include <parser.h>  // libxml
-#ifdef HAVE_LIBXML_VALID
-#include <valid.h>
-#endif
 #include <algorithm>
 
 class OmIndexerStartNode : public OmIndexerNode
@@ -62,10 +59,10 @@ OmIndexer::~OmIndexer()
 AutoPtr<OmIndexer>
 OmIndexerBuilder::build_from_file(std::string filename)
 {
-    xmlDocPtr doc = get_xmltree_from_file(filename);
+    AutoPtr<OmIndexerDesc> doc = desc_from_xml_file(filename);
 
     AutoPtr<OmIndexer> indexer(new OmIndexer());
-    build_graph(indexer.get(), doc);
+    build_graph(indexer.get(), *doc);
 
     return indexer;
 }
@@ -73,75 +70,12 @@ OmIndexerBuilder::build_from_file(std::string filename)
 AutoPtr<OmIndexer>
 OmIndexerBuilder::build_from_string(std::string filename)
 {
-    xmlDocPtr doc = get_xmltree_from_string(filename);
+    AutoPtr<OmIndexerDesc> doc = desc_from_xml_string(filename);
 
     AutoPtr<OmIndexer> indexer(new OmIndexer());
-    build_graph(indexer.get(), doc);
+    build_graph(indexer.get(), *doc);
 
     return indexer;
-}
-
-xmlDocPtr
-OmIndexerBuilder::get_xmltree_from_file(const std::string &filename)
-{
-    xmlDocPtr doc = xmlParseFile(filename.c_str());
-
-    if (!doc || !doc_is_valid(doc)) {
-	throw OmInvalidDataError("Graph definition is invalid");
-    }
-
-    return doc;
-}
-
-xmlDocPtr
-OmIndexerBuilder::get_xmltree_from_string(const std::string &xmldesc)
-{
-    xmlDocPtr doc = xmlParseMemory(const_cast<char *>(xmldesc.c_str()),
-				   xmldesc.length());
-
-    if (!doc || !doc_is_valid(doc)) {
-	throw OmInvalidDataError("Graph definition is invalid");
-    }
-
-    return doc;
-}
-
-extern "C" {
-static void xml_error_func(void *ctx, const char *fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-    fprintf(stderr, "ERROR: ");
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-    throw OmInvalidDataError("xml is not valid");
-}
-
-static void xml_warn_func(void *ctx, const char *fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-    fprintf(stderr, "WARNING: ");
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-}
-
-} // extern "C"
-
-bool
-OmIndexerBuilder::doc_is_valid(xmlDocPtr doc)
-{
-#ifdef HAVE_LIBXML_VALID
-    xmlValidCtxt ctxt;
-    ctxt.error = &xml_error_func;
-    ctxt.error = &xml_warn_func;
-
-    // Add our predefined "START" id
-    xmlAttrPtr attr = xmlNewDocProp(doc, "id", "START");
-    xmlAddID(&ctxt, doc, "START", attr);
-
-    return xmlValidateDocument(&ctxt, doc);
-#else  // HAVE_LIBXML_VALID
-    return true;
-#endif
 }
 
 OmIndexerNode *
@@ -157,205 +91,64 @@ OmIndexerBuilder::make_node(const std::string &type,
     }
 }
 
-typedef std::map<std::string, std::string> attrmap;
 typedef std::map<std::string, std::string> typemap;
 
-static std::string
-get_prop(xmlNodePtr node, const std::string &prop)
-{
-    /* CHAR is used because it works with older libxmls, before
-     * the xmlChar typedef.
-     */
-    CHAR *temp = 0;
-    std::string retval;
-    try {
-	temp = xmlGetProp(node, prop.c_str());
-	retval = (char *)temp;
-	free(temp);
-	temp = 0;
-    } catch (...) {
-	if (temp) free(temp);
-	temp = 0;
-	throw;
-    }
-    return retval;
-}
-
-// FIXME: handle the unicode stuff rather than char *
-static attrmap attr_to_map(xmlNodePtr node)
-{
-    xmlAttrPtr attr = node->properties;
-    std::map<std::string, std::string> result;
-    while (attr) {
-	std::string name = (char *)attr->name;
-	CHAR *temp = 0;
-	std::string value;
-	try {
-	    //cerr << "Attr " << node->name << "." << name << "=" << endl;
-	    temp = xmlGetProp(node, name.c_str());
-	    if (temp) {
-		value = (char *)temp;
-		//cerr << "\tvalue = " << value << endl;
-		free(temp);
-		temp = 0;
-	    }
-#if 0  /* this is there to help in debugging odd attributes */
-	    {
-		xmlDocPtr doc = node->doc;
-		xmlAttributePtr attrDecl;
-		if (doc->intSubset) {
-		    attrDecl = xmlGetDtdAttrDesc(doc->intSubset, node->name,
-						 name.c_str());
-		    if (attrDecl) {
-			//cerr << "\tintSubset default = "
-			//	<< attrDecl->defaultValue << endl;
-		    }
-		}
-		if (doc->extSubset) {
-		    attrDecl = xmlGetDtdAttrDesc(doc->extSubset, node->name,
-						 name.c_str());
-		    if (attrDecl) {
-			//cerr << "\tintSubset default = "
-			//	<< attrDecl->defaultValue << endl;
-		    }
-		}
-	    }
-#endif
-	} catch (...) {
-	    if (temp) free(temp);
-	    throw;
-	}
-	/*
-	 *
-	 * xmlNodePtr val = attr->val;
-	 * std::string value = (char *)val->content;
-	 */
-
-	result[name] = value;
-
-	attr = attr->next;
-    }
-    return result;
-}
-
-/** Turn the parameters specified in <param> tags into OmSettings
- *  entries.
- *  
- *  @param node		The first <param> node
- *  @param config	The OmSettings object to modify
- *
- *  @return The first non-<param> node found.
- */
-xmlNodePtr
-get_config_values(xmlNodePtr node, OmSettings &config)
-{
-    while (node != 0 &&
-	   std::string((char *)node->name) == "param") {
-	std::string type = get_prop(node, "type");
-	if (type == "string") {
-	    config.set(get_prop(node, "name"),
-		       get_prop(node, "value"));
-	} else if (type == "list") {
-	    xmlNodePtr items = node->childs;
-	    std::vector<std::string> values;
-	    while (items) {
-		std::string name((char *)items->name);
-		if (name != "item") {
-		    throw OmInvalidDataError(std::string("Unexpected tag `")
-					     + name + "'");
-		}
-		values.push_back(get_prop(items, "value"));
-		items = items->next;
-	    }
-	    config.set(get_prop(node, "name"),
-		       values.begin(),
-		       values.end());
-	} else {
-	    throw OmInvalidDataError(std::string("Invalid <param> type `")
-				     + type + "'");
-	}
-	node = node->next;
-    }
-    return node;
-}
-
 void
-OmIndexerBuilder::build_graph(OmIndexer *indexer, xmlDocPtr doc)
+OmIndexerBuilder::build_graph(OmIndexer *indexer,
+			      const OmIndexerDesc &desc)
 {
-    xmlNodePtr root = doc->root;
-    //cerr << "intSubset = " << doc->intSubset << endl;
-    //cerr << "extSubset = " << doc->extSubset << endl;
-    if (!root) {
-	throw OmInvalidDataError("Error parsing graph description");
-    }
-    std::string rootname = (char *)root->name;
-    if (rootname != "omindexer") {
-	throw OmInvalidDataError("Root tag was not <omindexer>");
-    }
-    //cout << "root name is " << rootname << endl;
     typemap types;
     
     indexer->nodemap["START"] = make_node("START", OmSettings());
     indexer->start = dynamic_cast<OmIndexerStartNode *>(indexer->nodemap["START"]);
     types["START"] = "START";
-    
-    for (xmlNodePtr node = root->childs;
-	 node != 0;
-	 node = node->next) {
-	std::string type = (char *)node->name;
-	// cout << "node name = " << type << endl;
-	if (type == "node") {
-	    attrmap node_attrs(attr_to_map(node));
-	    if (indexer->nodemap.find(node_attrs["id"]) != indexer->nodemap.end()) {
-		throw OmInvalidDataError(std::string("Duplicate node id ")
-					 + node_attrs["id"]);
-	    }
-	    xmlNodePtr child = node->childs;
-	    OmSettings config;
-	    child = get_config_values(child, config);
-	    OmIndexerNode *newnode = make_node(node_attrs["type"], config);
-	    types[node_attrs["id"]] = node_attrs["type"];
-	    indexer->nodemap[node_attrs["id"]] = newnode;
-	    // connect the inputs
-	    while (child != 0) {
-		if (std::string((char *)child->name) != "input") {
-		    throw OmInvalidDataError(std::string("<input> tag expected, found ") + std::string((char *)child->name));
-		}
-		attrmap input_attrs(attr_to_map(child));
-		OmIndexer::NodeMap::const_iterator i =
-			indexer->nodemap.find(input_attrs["node"]);
-		if (i == indexer->nodemap.end()) {
-		    throw OmInvalidDataError(std::string("Input node ") +
-					     input_attrs["node"] +
-					     " not found");
-		}
-		// typecheck throws on an error
-		typecheck(node_attrs["type"], // this node's type
-			  input_attrs["name"],// this node's input name
-			  types[input_attrs["node"]], // the input node's type
-			  input_attrs["out_name"]);  // the input node's output
-		newnode->connect_input(input_attrs["name"],
-				       i->second,
-				       input_attrs["out_name"]);
 
-		child = child->next;
-	    }
-	} else if (type == "output") {
-	    attrmap attrs(attr_to_map(node));
-	    OmIndexer::NodeMap::const_iterator i = indexer->nodemap.find(attrs["node"]);
+    std::vector<OmIndexerDesc::NodeInstance>::const_iterator node;
+    for (node = desc.nodes.begin();
+	 node != desc.nodes.end();
+	 ++node) {
+
+	if (indexer->nodemap.find(node->id) != indexer->nodemap.end()) {
+		throw OmInvalidDataError(std::string("Duplicate node id ")
+					 + node->id);
+	}
+
+	OmIndexerNode *newnode = make_node(node->type, node->param);
+	types[node->id] = node->type;
+	indexer->nodemap[node->id] = newnode;
+
+	// connect the inputs
+	std::vector<OmIndexerDesc::Connect>::const_iterator input;
+	for (input = node->input.begin();
+	     input != node->input.end();
+	     ++input) {
+	    OmIndexer::NodeMap::const_iterator i =
+		    indexer->nodemap.find(input->feeder_node);
 	    if (i == indexer->nodemap.end()) {
-		throw OmInvalidDataError(std::string("Unknown output node ") +
-					 attrs["node"]);
+		throw OmInvalidDataError(std::string("Input node ") +
+					 input->feeder_node + " not found");
 	    }
-	    indexer->final = i->second;
-	    indexer->final_out = attrs["out_name"];
-	} else {
-	    if (node->type != XML_COMMENT_NODE) {
-		throw OmInvalidDataError(std::string("Unexpected tag ") +
-					 "`" + type + "'");
-	    }
+
+	    // typecheck throws on an error
+	    typecheck(node->type, // this node's type
+		      input->input_name,// this node's input name
+		      types[input->feeder_node], // the input node's type
+		      input->feeder_out);  // the input node's output
+	    newnode->connect_input(input->input_name,
+				   i->second,
+				   input->feeder_out);
 	}
     }
+
+    /* connect the output of the whole graph */
+    OmIndexer::NodeMap::const_iterator i =
+	    indexer->nodemap.find(desc.output_node);
+    if (i == indexer->nodemap.end()) {
+	throw OmInvalidDataError(std::string("Unknown output node ") +
+				 desc.output_node);
+    }
+    indexer->final = i->second;
+    indexer->final_out = desc.output_conn;
 }
 
 void

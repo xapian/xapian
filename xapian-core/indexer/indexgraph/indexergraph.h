@@ -24,12 +24,8 @@
 #define OM_HGUARD_OMINDEXERGRAPH_H
 
 #include "config.h"
-
-#ifdef HAVE_LIBXML
-
 #include <string>
 #include <map>
-#include <parser.h>
 #include "autoptr.h"
 #include "omindexernode.h"
 #include "om/omsettings.h"
@@ -95,7 +91,7 @@ struct OmNodeConnection {
 	    : name(name_), type(type_), phys_type(phys_type_) {}
     OmNodeConnection(const OmNodeConnection &other)
 	    : name(other.name), type(other.type),
-    phys_type(other.phys_type) {}
+    	      phys_type(other.phys_type) {}
     OmNodeConnection()
 	    : name(""), type("") {}
 
@@ -149,6 +145,48 @@ class OmNodeDescriptor {
 	std::vector<OmNodeConnection> outputs;
 };
 
+/** An intermediate form for the node graphs.
+ *  This is a description of an indexer graph which can be used instead
+ *  of an XML file to build an indexer.  It contains the same information.
+ */
+struct OmIndexerDesc {
+    /** Connect describes a node's connection to other nodes. */
+    struct Connect {
+	/** The name of the input being described. */
+	std::string input_name;
+	/** The id of the node this input is connected to. */
+	std::string feeder_node;
+	/** The feeder's output connection */
+	std::string feeder_out;
+    };
+    /** NodeInstance contains all the information about a particular node
+     *  in the graph.
+     */
+    struct NodeInstance {
+	/** The type of the node.  This must be one of the registered node
+	 *  types.
+	 */
+	std::string type;
+	/** This node's id, which must be unique. */
+	std::string id;
+
+	/** This node's input connections */
+	std::vector<Connect> input;
+
+	/** This node's initial parameters */
+	OmSettings param;
+    };
+
+    /** The information about all the nodes in the graph */
+    std::vector<NodeInstance> nodes;
+
+    /** The id of the node from which the final results come */
+    std::string output_node;
+
+    /** The name of the output connection to use on the final node. */
+    std::string output_conn;
+};
+
 class OmIndexerBuilder {
     public:
 	/** Constructor */
@@ -167,23 +205,21 @@ class OmIndexerBuilder {
 	 */
 	AutoPtr<OmIndexer> build_from_string(std::string xmldesc);
 
+	/** Build an indexer from an in-memory structure.
+	 * 
+	 *  @param desc		The description of the graph.
+	 */
+	AutoPtr<OmIndexer> build_from_desc(const OmIndexerDesc &desc);
+
 	/** Register a new node type */
 	void register_node_type(const OmNodeDescriptor &nodedesc);
 
     private:
-	/** Get the XML parse tree from a file */
-	xmlDocPtr get_xmltree_from_file(const std::string &filename);
-
-	/** Get the XML parse tree from a string*/
-	xmlDocPtr get_xmltree_from_string(const std::string &xmldesc);
-
-	/** Check the validity of a parsed tree */
-	static bool doc_is_valid(xmlDocPtr doc);
-
 	/** Build the node graph (with checking) and set up the final
 	 *  node pointer.
 	 */
-	void build_graph(OmIndexer *indexer, xmlDocPtr doc);
+	void build_graph(OmIndexer *indexer,
+			 const OmIndexerDesc &desc);
 
 	/** Make sure that the types at each end of a connection are
 	 *  compatible.  Throw an exception if not.
@@ -222,7 +258,5 @@ class OmIndexerBuilder {
 	/** Node database */
 	std::map<std::string, node_desc> nodetypes;
 };
-
-#endif // HAVE_LIBXML
 
 #endif /* OM_HGUARD_OMINDEXERGRAPH_H */

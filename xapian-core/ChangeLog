@@ -1,3 +1,15 @@
+Fri Sep 29 18:29:58 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Split XML-specific code into a separate file and cleaned up
+	  the Makefile
+
+	* Cleaned up the graph-building code (see above!)
+
+	* Should now cope with comments anywhere in the XML file.
+
+	* Can now build an indexer from an in-memory structure without
+	  needing an XML description (fall-out from first item)
+
 Fri Sep 29 13:38:10 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Workaround for a bad interaction between <rxposix.h> and some C++

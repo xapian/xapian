@@ -31,6 +31,7 @@ extern "C" {
  * in one of the regex structs.  So we move it out of the way first...
  */
 #define pair PAIR_BY_ANOTHER_NAME
+
 #ifdef HAVE_RXPOSIX_H
 #include <rxposix.h>
 #define HAVE_REGEX
