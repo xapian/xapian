@@ -92,9 +92,9 @@ if(param()){
 			$weight = $lineMAPweight{$i};
 			$color = Cvssearch::get_color($weight, 150);
 			$line = &highlightquery($line);
-			print "<td bgcolor=$color><pre>$line</td>";
+			print "<td bgcolor=$color><pre>$line </td>";
 		}else{
-			print "<td><pre>$line</td>";
+			print "<td><pre>$line </td>";
 		}
 		print "</tr>\n";
 		$i++;

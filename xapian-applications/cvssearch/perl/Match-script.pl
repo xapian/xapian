@@ -253,7 +253,7 @@ if(param()){
 			$color = Cvssearch::get_color($weight, 150);
 			$line = &highlightquery($line);
 #			print "<td bgcolor=$color><a href=\"$source$passparam#$i\" target=source>$line </a></td></tr>\n";
-			print "<td bgcolor=$color><pre><a href=\"$source$passparam#$i\" target=source>$line</a></td></tr>\n";
+			print "<td bgcolor=$color><pre><a href=\"$source$passparam#$i\" target=source>$line </a></td></tr>\n";
 		}
 		if ($lineMAPinfo{$i+1} > $lineMAPinfo{$i}) {
 			print "<tr></tr>";
