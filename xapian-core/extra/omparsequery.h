@@ -53,6 +53,10 @@ class OmQueryParser {
 	    default_op = default_op_;
 	}
 
+	void set_database(const OmDatabase &db_) {
+	    db = db_;
+	}
+
 	OmQuery parse_query(const string &q);
 	
 	list<om_termname> termlist;
@@ -66,6 +70,8 @@ class OmQueryParser {
 	OmStem *stemmer;
 
 	bool stem, stem_all;
+
+	OmDatabase db;
 };
 
 #endif /* OM_HGUARD_PARSEQUERY_H */

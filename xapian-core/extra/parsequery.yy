@@ -223,6 +223,12 @@ p_notalnum(char c)
 }
 
 inline static bool
+p_whitespace(char c)
+{
+    return isspace(c);
+}
+
+inline static bool
 p_notwhitespace(char c)
 {
     return !isspace(c);
@@ -253,7 +259,28 @@ yylex()
 	string term;
 	bool already_stemmed = !qp->stem;
 	string::iterator term_start = qptr, term_end;
-	if (isupper(*qptr)) {
+	// This needs more work - e.g. keywords have no positional info so this
+	// must not fire for a phrase search
+#ifdef AUTO_SEARCH_KEYWORDS 
+	// See if we've got a term with punctuation in by checking if
+	// the longest non-whitespace string is a keyword.
+	// So if there's a term "Kb*witched", you can search for
+	// `B*witched concert tickets'.
+	term_end = find_if(term_start, q.end(), p_whitespace);
+	if (find_if(term_start, term_end, p_notalnum) != term_end) {
+	    // It contains punctuation, so see if it's a keyword
+	    term = q.substr(term_start - q.begin(), term_end - term_start);
+	    lowercase_term(term);
+	    term = "K" + term;
+	    if (qp->db.term_exists("K" + term)) {
+		// It's a keyword, so don't stem it
+		already_stemmed = true;
+	    } else {
+		term = "";
+	    }
+	}
+#endif
+	if (term.empty() && isupper(*qptr)) {
 	    term = *qptr;
 	    while (++qptr != q.end() && *qptr == '.' &&
 		   ++qptr != q.end() && isupper(*qptr)) {
@@ -320,16 +347,18 @@ more_term:
 	return TERM;
     }
     c = *qptr++;
-    // FIXME: Some people may not want & and | to mean AND and OR
-    // FIXME: Some people may not want _ / \ and @ to mean phrase search
     switch (c) {
+#if 0 // Most people won't want these, but make configurable somehow?
      case '&':
 	return AND;
      case '|':
 	return OR;
+#endif
+     // FIXME: Make this list configurable
      case '_': case '/': case '\\': case '@':
+     case '\'': case '*':
 	/* these characters generate a phrase search */
-	if (!isspace(*qptr)) return HYPHEN;
+	if (isalnum(*qptr)) return HYPHEN;
 	break;
      case '(': case ')': case '-': case '+': case '"':
 	/* these characters are used in the grammar rules */

@@ -1,3 +1,14 @@
+Fri May 17 14:52:45 BST 2002  Olly Betts <ollybe@ananova.net>
+
+	* OmQueryParser::set_database() method added.
+
+	* Added disabled code to search for a keyword used in the query.
+
+	* Added ' and * to the list of "phrase making characters".
+
+	* To make a phrase, a phrase-maker must be followed by an alphanumeric
+	  rather than just a non-space.
+
 Fri May 17 14:49:54 BST 2002  Olly Betts <ollybe@ananova.net>
 
 	* INSTALL: GCC 3.1 release version works, so noted this.
