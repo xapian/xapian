@@ -5,3 +5,5 @@ Makefile
 .deps
 .libs
 libnet.la
+readquery.cc
+omnetclient
