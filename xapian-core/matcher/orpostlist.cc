@@ -15,23 +15,25 @@ OrPostList::next(weight w_min)
 {
     if (w_min > minmax) {
 	// we can replace the OR with another operator
-	PostList *ret;
+	PostList *ret, *ret2;
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
 		cout << "OR -> AND\n";
 		ret = new AndPostList(l, r, root, true);
+		ret2 = ret->skip_to(max(lhead, rhead) + 1, w_min);
 	    } else {
 		cout << "OR -> AND MAYBE (1)\n";
 		ret = new AndMaybePostList(r, l, root, rhead, lhead);
+		ret2 = ret->next(w_min);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    cout << "OR -> AND MAYBE (2)\n";
 	    ret = new AndMaybePostList(l, r, root, lhead, rhead);
+	    ret2 = ret->next(w_min);
 	}
 		
-	PostList *ret2 = ret->next(w_min);
 	l = r = NULL;
 	if (ret2) {
 	    delete ret;

@@ -49,7 +49,7 @@ AndMaybePostList::next(weight w_min)
 	cout << "AND MAYBE -> AND\n";
 	ret = new AndPostList(l, r, root, true);
 	l = r = NULL;
-	PostList *ret2 = ret->next(w_min);
+	PostList *ret2 = ret->skip_to(max(lhead, rhead) + 1, w_min);
 	if (ret2) {
 	    delete ret;
 	    ret = ret2;
