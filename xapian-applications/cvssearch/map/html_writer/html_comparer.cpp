@@ -1,5 +1,6 @@
 #include "html_comparer.h"
 #include <strstream>
+#include "code_to_html.h"
 
 html_comparer::html_comparer(const vector<unsigned int> & inputs, 
                              const set<unsigned int> & adds,
@@ -64,11 +65,13 @@ static void write_line(ostream & os,
                        const string & select2, unsigned int index2, const string & line2, bool do2)
 {
     unsigned int size = 40;
+    code_to_html converter1(line1, size);
+    code_to_html converter2(line2, size);
     os << "<TR>";
-    os << "<TD" << select2 << "> "; if (do2) os << index2; os << "</TD>";
-    os << "<TD" << select2 << "> "; if (do2) os << ((line2.length() > size) ? line2.substr(0,size) + "..." : line2) ; os << "</TD>";
-    os << "<TD" << select1 << "> "; if (do1) os << index1; os << "</TD>";
-    os << "<TD" << select1 << "> "; if (do1) os << ((line1.length() > size) ? line1.substr(0,size) + "..." : line1) ; os << "</TD>";
+    os << "<TD" << select2 << "> "; if (do2) os << index2;     os << "</TD>";
+    os << "<TD" << select2 << "> "; if (do2) os << converter2; os << "</TD>";
+    os << "<TD" << select1 << "> "; if (do1) os << index1;     os << "</TD>";
+    os << "<TD" << select1 << "> "; if (do1) os << converter1; os << "</TD>";
     os << "</TR>" << endl;
 }
 
