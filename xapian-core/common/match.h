@@ -41,34 +41,15 @@ class MSetItem {
 		{ return; }
 };
 
-// Comparison to determine the order of elements in the MSet
+////////////////////////////////////////////////////////////////////////////
+// Comparison functions to determine the order of elements in the MSet
 // Return true if a should be listed before b
 // (By default, equally weighted items will be returned in reverse
 // document id number.)
-class MSetCmp {
-    public:
-	virtual bool operator()(const MSetItem &a, const MSetItem &b) = 0;
-};
 
-// Comparison which sorts equally weighted MSetItems in docid order
-class MSetCmpForward : public MSetCmp {
-    public:
-	bool operator()(const MSetItem &a, const MSetItem &b) {
-	    if(a.wt > b.wt) return true;
-	    if(a.wt == b.wt) return a.did < b.did;
-	    return false;
-	}
-};
-
-// Comparison which sorts equally weighted MSetItems in reverse docid order
-class MSetCmpReverse : public MSetCmp {
-    public:
-	bool operator()(const MSetItem &a, const MSetItem &b) {
-	    if(a.wt > b.wt) return true;
-	    if(a.wt == b.wt) return a.did > b.did;
-	    return false;
-	}
-};
+typedef bool (* mset_cmp)(const MSetItem &, const MSetItem &);
+bool msetcmp_forward(const MSetItem &, const MSetItem &);
+bool msetcmp_reverse(const MSetItem &, const MSetItem &);
 
 // Match operations
 typedef enum {
@@ -158,7 +139,7 @@ class Match
 	void match(doccount first,         // First item to return (start at 0)
 		   doccount maxitems,      // Maximum number of items to return
 		   vector<MSetItem> &,     // Results will be put in this vector
-		   MSetCmp *);             // Comparison operator to sort by
+		   mset_cmp);              // Comparison operator to sort by
 
 	// Perform the match operation, but also return a lower bound on the
 	// number of matching records in the database (mtotal).  Because of
@@ -173,7 +154,7 @@ class Match
 	void match(doccount first,         // First item to return (start at 0)
 		   doccount maxitems,      // Maximum number of items to return
 		   vector<MSetItem> &,     // Results will be put in this vector
-		   MSetCmp *,              // Comparison operator to sort by
+		   mset_cmp,               // Comparison operator to sort by
 		   doccount *);            // Mtotal will returned here
 
 	///////////////////////////////////////////////////////////////////

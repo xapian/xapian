@@ -57,6 +57,30 @@ class PLPCmpLt {
         }
 };
 
+// Compare an MSetItem, using a custom function
+class MSetCmp {
+    public:
+	bool (* fn)(const MSetItem &a, const MSetItem &b);
+	MSetCmp(bool (* _fn)(const MSetItem &a, const MSetItem &b)) : fn(_fn) {}
+	bool operator()(const MSetItem &a, const MSetItem &b) {
+	    return fn(a, b);
+	}
+};
+
+// Comparison which sorts equally weighted MSetItems in docid order
+bool msetcmp_forward(const MSetItem &a, const MSetItem &b) {
+    if(a.wt > b.wt) return true;
+    if(a.wt == b.wt) return a.did < b.did;
+    return false;
+}
+
+// Comparison which sorts equally weighted MSetItems in reverse docid order
+bool msetcmp_reverse(const MSetItem &a, const MSetItem &b) {
+    if(a.wt > b.wt) return true;
+    if(a.wt == b.wt) return a.did > b.did;
+    return false;
+}
+
 ////////////////////////////////////
 // Initialisation and cleaning up //
 ////////////////////////////////////
@@ -262,20 +286,20 @@ Match::build_query()
 // Convenience wrapper
 void
 Match::match(doccount first, doccount maxitems,
-	     vector<MSetItem> &mset, MSetCmp *mcmp)
+	     vector<MSetItem> &mset, mset_cmp cmp)
 {
     doccount mtotal;
-    match(first, maxitems, mset, mcmp, &mtotal);
+    match(first, maxitems, mset, cmp, &mtotal);
 }
 
 // This is the method which runs the query, generating the M set
 void
 Match::match(doccount first, doccount maxitems,
-	     vector<MSetItem> &mset, MSetCmp *mcmp,  doccount *mtotal)
+	     vector<MSetItem> &mset, mset_cmp cmp,  doccount *mtotal)
 {
     Assert(maxitems > 0);
 
-    MSetCmpForward mc; mcmp = &mc;
+    MSetCmp mcmp(cmp);
 
     // Prepare query
     *mtotal = 0;
@@ -349,7 +373,7 @@ Match::match(doccount first, doccount maxitems,
 		    collapse_table.insert(pair<IRKey, MSetItem>(irkey, mitem));
 		} else {
 		    MSetItem olditem = (*oldkey).second;
-		    if(mcmp->operator()(olditem, mitem)) {
+		    if(mcmp.operator()(olditem, mitem)) {
 			DebugMsg("collapsem: better exists: " << irkey.value << endl);
 			// There's already a better match with this key
 			add_item = false;
@@ -385,7 +409,7 @@ Match::match(doccount first, doccount maxitems,
 		    // find last element we care about
 		    DebugMsg("finding nth" << endl);
 		    nth_element(mset.begin(), mset.begin() + max_msize,
-				mset.end(), *mcmp);
+				mset.end(), mcmp);
 		    // erase elements which don't make the grade
 		    mset.erase(mset.begin() + max_msize, mset.end());
 		    w_min = mset.back().wt;
@@ -398,7 +422,7 @@ Match::match(doccount first, doccount maxitems,
     if (mset.size() > max_msize) {
 	// find last element we care about
 	DebugMsg("finding nth" << endl);
-	nth_element(mset.begin(), mset.begin() + max_msize, mset.end(), *mcmp);
+	nth_element(mset.begin(), mset.begin() + max_msize, mset.end(), mcmp);
 	// erase elements which don't make the grade
 	mset.erase(mset.begin() + max_msize, mset.end());
     }
@@ -410,14 +434,14 @@ Match::match(doccount first, doccount maxitems,
 	    mset.clear();
 	} else {
 	    DebugMsg("finding " << first << "th" << endl);
-	    nth_element(mset.begin(), mset.begin() + first, mset.end(), *mcmp);
+	    nth_element(mset.begin(), mset.begin() + first, mset.end(), mcmp);
 	    // erase the leading ``first'' elements
 	    mset.erase(mset.begin(), mset.begin() + first);
 	}
     }
 
     // Need a stable sort, but this is provided by comparison operator
-    sort(mset.begin(), mset.end(), *mcmp);
+    sort(mset.begin(), mset.end(), mcmp);
 
     DebugMsg("msize = " << mset.size() << ", mtotal = " << *mtotal << endl);
     if (mset.size()) {

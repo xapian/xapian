@@ -219,8 +219,7 @@ main(int argc, char *argv[])
 	if(collapse_key != -1) match.set_collapse_key(collapse_key);
 
 	vector<MSetItem> mset;
-	MSetCmpReverse mcmp;
-        match.match(mfirst, msize, mset, &mcmp);
+        match.match(mfirst, msize, mset, msetcmp_forward);
 	
 	if (showmset) {
 	    vector<MSetItem>::const_iterator i;
