@@ -180,18 +180,16 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
 	RefCntPtr<SubMatch> smatch;
 	try {
 	    // There is currently only one special case, for network databases.
-	    if (db->is_network()) {
 #ifdef MUS_BUILD_BACKEND_REMOTE
-		const NetworkDatabase *netdb = dynamic_cast<const NetworkDatabase *>(db);
-		// (dynamic_cast<foo *> returns 0 if the cast fails)
-		Assert(netdb);
+	    const NetworkDatabase *netdb = db->as_networkdatabase();
+	    if (netdb) {
 		smatch = RefCntPtr<SubMatch>(new RemoteSubMatch(netdb, query, *subrset, opts, gatherer.get()));
-#else /* MUS_BUILD_BACKEND_REMOTE */
-		throw OmUnimplementedError("Network operation is not available");
-#endif /* MUS_BUILD_BACKEND_REMOTE */
 	    } else {
+#endif /* MUS_BUILD_BACKEND_REMOTE */
 		smatch = RefCntPtr<SubMatch>(new LocalSubMatch(db, query, *subrset, opts, gatherer.get()));
+#ifdef MUS_BUILD_BACKEND_REMOTE
 	    }
+#endif /* MUS_BUILD_BACKEND_REMOTE */
 	} catch (OmError & e) {
 	    if (errorhandler) {
 		DEBUGLINE(EXCEPTION, "Calling error handler for creation of a SubMatch from a database and query.");

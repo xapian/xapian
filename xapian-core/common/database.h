@@ -37,6 +37,7 @@ class LeafPostList;
 class TermList;
 class LeafTermList;
 class PositionList;
+class NetworkDatabase;
 
 /** Base class for databases.
  *
@@ -354,19 +355,16 @@ class Database : public RefCntBase {
 	// Introspection methods:
 	// ======================
 
-	/** Determine whether the database is a network database.  This is
-	 *  used by MultiMatch to decide whether to use a LocalSubMatch or a
-	 *  RemoteSubMatch to perform a search over the database.
+	/** Return a pointer to this object as a NetworkDatabase, or NULL.
 	 *
-	 *  The default implementation returns "false".
+	 *  This method is used by MultiMatch to decide whether to use a
+	 *  LocalSubMatch or a RemoteSubMatch to perform a search over the
+	 *  database.
 	 */
-	virtual bool is_network() const;
+	virtual const NetworkDatabase * as_networkdatabase() const {
+	    return NULL;
+	}
 };
-
-inline bool Database::is_network() const
-{
-    return false;
-}
 
 inline void Database::do_reopen()
 {

@@ -1,3 +1,10 @@
+Sun Nov 03 22:46:34 GMT 2002  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc,common/database.h,common/net_database.h:
+	  Replace Database::is_network() with Database::as_networkdatabase()
+	  which returns a pointer or NULL.  This eliminates the need to use
+	  dynamic_cast in MultiMatch.
+
 Wed Oct 23 05:24:14 BST 2002  Olly Betts <olly@survex.com>
 
 	* docs/todo.xml: Resolved TODO entry by consulting Stroustrup

@@ -125,19 +125,13 @@ class NetworkDatabase : public Database {
 	void keep_alive() const;
 
 	// Introspection methods...
-	bool is_network() const;
+	const NetworkDatabase * as_networkdatabase() const { return this; }
 };
 
 inline om_termcount
 NetworkDatabase::get_collection_freq(const om_termname & /*tname*/) const
 {
     throw OmUnimplementedError("NetworkDatabase::get_collection_freq() not implemented: data not stored in database.");
-}
-
-inline bool
-NetworkDatabase::is_network() const
-{
-    return true;
 }
 
 #endif /* OM_HGUARD_NET_DATABASE_H */
