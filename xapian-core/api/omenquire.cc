@@ -231,7 +231,8 @@ MSet::fetch(const MSetIterator & beginiter, const MSetIterator & enditer) const
 {
     DEBUGAPICALL(void, "Xapian::MSet::fetch", beginiter << ", " << enditer);
     Assert(internal.get() != 0);
-    internal->fetch_items(beginiter.index, enditer.index - 1);
+    if (beginiter != enditer)
+	internal->fetch_items(beginiter.index, enditer.index - 1);
 }
 
 void
@@ -239,7 +240,7 @@ MSet::fetch(const MSetIterator & beginiter) const
 {
     DEBUGAPICALL(void, "Xapian::MSet::fetch", beginiter);
     Assert(internal.get() != 0);
-    internal->fetch_items(beginiter.index, beginiter.index + 1);
+    internal->fetch_items(beginiter.index, beginiter.index);
 }
 
 void
@@ -432,7 +433,7 @@ MSet::Internal::get_doc_by_index(Xapian::doccount index) const
     if (index < firstitem || index >= firstitem + items.size()) {
 	throw RangeError("The mset returned from the match does not contain the document at index " + om_tostring(index));
     }
-    fetch_items(index, index);
+    fetch_items(index, index); // FIXME: this checks indexeddocs AGAIN!
     /* Actually read the fetched documents */
     read_docs();
     Assert(indexeddocs.find(index) != indexeddocs.end());
@@ -457,7 +458,7 @@ MSet::Internal::fetch_items(Xapian::doccount first, Xapian::doccount last) const
 	    s = requested_docs.find(i);
 	    if (s == requested_docs.end()) {
 		/* We haven't even requested it yet - do so now. */
-		enquire->request_doc(items[i]);
+		enquire->request_doc(items[i - firstitem]);
 		requested_docs.insert(i);
 	    }
 	}

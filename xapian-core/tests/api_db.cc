@@ -588,6 +588,17 @@ static bool test_msetfirst1()
     return true;
 }
 
+// Regression test - we weren't adjusting the index into items[] by firstitem
+// in api/omenquire.cc.
+static bool test_msetfirst2()
+{
+    Xapian::MSet mymset1 = do_get_simple_query_mset(query("this"), 6, 0);
+    Xapian::MSet mymset2 = do_get_simple_query_mset(query("this"), 3, 3);
+    TEST_EQUAL(mymset1[5].get_document().get_data(),
+	       mymset2[2].get_document().get_data());
+    return true;
+}
+
 // tests the converting-to-percent functions
 static bool test_topercent1()
 {
@@ -3240,6 +3251,7 @@ test_desc db_tests[] = {
     {"expandmaxitems1",    test_expandmaxitems1},
     {"boolquery1",         test_boolquery1},
     {"msetfirst1",         test_msetfirst1},
+    {"msetfirst2",         test_msetfirst2},
     {"topercent1",	   test_topercent1},
     {"expandfunctor1",	   test_expandfunctor1},
     {"pctcutoff1",	   test_pctcutoff1},
