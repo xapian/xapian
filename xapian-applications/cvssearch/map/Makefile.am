@@ -15,6 +15,7 @@ rm -rf $@
 echo "#! " $(PERL) > $@
 cat $(firstword $^) >> $@
 chmod ugo+rx $@
+endef
 
 cvsmap-script : $(srcdir)/cvsmap-script.pl
-	$*build-perl-script)
+	$(build-perl-script)
