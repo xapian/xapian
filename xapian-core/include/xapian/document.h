@@ -31,9 +31,11 @@
 #include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
-#include "om/omvalueiterator.h"
+//#include <xapian/valueiterator.h>
 
 namespace Xapian {
+
+class ValueIterator;
 
 /// A document in the database - holds data, values, terms, and postings
 class Document {
@@ -155,7 +157,7 @@ class Document {
 	void clear_terms();
 
 	/// Count the terms in this document.
-	om_termcount termlist_count();
+	om_termcount termlist_count() const;
 
 	/// Iterator for the terms in this document.
 	TermIterator termlist_begin() const;
@@ -164,13 +166,13 @@ class Document {
 	TermIterator termlist_end() const;
 
 	/// Count the values in this document.
-	om_termcount values_count();
+	om_termcount values_count() const;
 
 	/// Iterator for the values in this document.
-	OmValueIterator values_begin() const;
+	ValueIterator values_begin() const;
 
 	/// Equivalent end iterator for values_begin().
-	OmValueIterator values_end() const;
+	ValueIterator values_end() const;
 
 	/** Introspection method.
 	 *

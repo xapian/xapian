@@ -1,4 +1,4 @@
-/** \file omvalueiterator.h
+/** \file valueiterator.h
  * \brief classes for iterating through values
  */
 /* ----START-LICENCE----
@@ -29,48 +29,59 @@
 #include <iterator>
 #include <string>
 #include <xapian/types.h>
+#include <xapian/document.h>
 
 namespace Xapian {
-class Document;
-}
 
 /** An iterator pointing to values associated with a document.
  */
-class OmValueIterator {
-    public:
-	class Internal;
-	/// @internal Reference counted internals.
-	Internal *internal;
-
+class ValueIterator {
     private:
-	friend class Xapian::Document; // So Xapian::Document can construct us
+	friend class Document;
+        friend bool operator==(const ValueIterator &a, const ValueIterator &b);
+        friend bool operator!=(const ValueIterator &a, const ValueIterator &b);
 
-        friend bool operator==(const OmValueIterator &a, const OmValueIterator &b);
+	ValueIterator(om_valueno index_, const Document & doc_)
+	    : index(index_), doc(doc_) { }
 
-	OmValueIterator(Internal *internal_);
+	om_valueno index;
+	Document doc;
 
     public:
-	/// Default constructor - for declaring an uninitialised iterator
-	OmValueIterator();
+	/** Create an uninitialised iterator; this cannot be used, but is
+	 *  convenient syntactically.
+	 */
+        ValueIterator() : index(0), doc() { }
 
-	/// Destructor
-        ~OmValueIterator();
+        ~ValueIterator() { }
 
 	/// Copying is allowed (and is cheap).
-	OmValueIterator(const OmValueIterator &other);
+	ValueIterator(const ValueIterator &other) {
+	    index = other.index;
+	    doc = other.doc;
+	}
 
         /// Assignment is allowed (and is cheap).
-	void operator=(const OmValueIterator &other);
+	void operator=(const ValueIterator &other) {
+	    index = other.index;
+	    doc = other.doc;
+	}
 
-	OmValueIterator & operator++();
+	/// Advance the iterator
+	ValueIterator & operator++() {
+	    ++index;
+	    return *this;
+	}
 
-	void operator++(int);
+	void operator++(int) {
+	    ++index;
+	}
 
-	/// Get the value for the current position
-	const std::string & operator *() const;
+	/// Get the value for the current position.
+	const std::string & operator*() const;
 
-	/// Get the value for the current position
-	const std::string * operator ->() const;
+	/// Get the value for the current position.
+	const std::string * operator->() const;
 
 	/// Get the number of the value at the current position
         om_valueno get_valueno() const;
@@ -81,7 +92,7 @@ class OmValueIterator {
 	std::string get_description() const;
 
 	/// Allow use as an STL iterator
-	//@{
+	//@{	
 	typedef std::input_iterator_tag iterator_category;
 	typedef std::string value_type;
 	typedef Xapian::valueno_diff difference_type;
@@ -90,9 +101,16 @@ class OmValueIterator {
 	//@}
 };
 
-inline bool operator!=(const OmValueIterator &a, const OmValueIterator &b)
+inline bool operator==(const ValueIterator &a, const ValueIterator &b)
 {
-    return !(a == b);
+    return (a.index == b.index);
+}
+
+inline bool operator!=(const ValueIterator &a, const ValueIterator &b)
+{
+    return (a.index != b.index);
+}
+
 }
 
 #endif /* OM_HGUARD_OMVALUEITERATOR_H */

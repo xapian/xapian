@@ -405,8 +405,8 @@ QuartzWritableDatabase::do_add_document(const Xapian::Document & document)
 
 	// Set the values.
 	{
-	    OmValueIterator value = document.values_begin();
-	    OmValueIterator value_end = document.values_end();
+	    Xapian::ValueIterator value = document.values_begin();
+	    Xapian::ValueIterator value_end = document.values_end();
 	    for ( ; value != value_end; ++value) {
 		QuartzValueManager::add_value(
 		    *(buffered_tables->get_value_table()),
@@ -568,8 +568,8 @@ QuartzWritableDatabase::do_replace_document(om_docid did,
 		*(buffered_tables->get_value_table()),
 		did);
 	{
-	    OmValueIterator value = document.values_begin();
-	    OmValueIterator value_end = document.values_end();
+	    Xapian::ValueIterator value = document.values_begin();
+	    Xapian::ValueIterator value_end = document.values_end();
 	    for ( ; value != value_end; ++value) {
 		QuartzValueManager::add_value(
 		    *(buffered_tables->get_value_table()),

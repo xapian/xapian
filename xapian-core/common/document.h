@@ -35,6 +35,8 @@ using namespace std;
 
 class Xapian::Database::Internal;
 
+class ModifiedDocument;
+
 /// A document in the database - holds values, terms, postings, etc
 class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
     private:
@@ -82,11 +84,7 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	virtual map<om_valueno, string> get_all_values() const = 0;
 
-	virtual om_termcount values_count() { Assert(false); return 0; }
-	virtual OmValueIterator::Internal * values_begin() const
-	{ Assert(false); return 0; }
-	virtual OmValueIterator::Internal * values_end() const
-	{ Assert(false); return 0; }
+	virtual om_valueno values_count() const { Assert(false); return 0; }
 	virtual void add_value(om_valueno, const string &) { Assert(false); }
 	virtual void remove_value(om_valueno) { Assert(false); }
 	virtual void clear_values() { Assert(false); }
@@ -98,7 +96,7 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	{ Assert(false); }
 	virtual void remove_term(const string &) { Assert(false); }
 	virtual void clear_terms() { Assert(false); }
-	virtual om_termcount termlist_count() { Assert(false); return 0; }
+	virtual om_termcount termlist_count() const { Assert(false); return 0; }
 
 	/** Get data stored in document.
 	 *
@@ -133,6 +131,12 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	
 	virtual Xapian::Document::Internal * modify();
 
+	virtual const ModifiedDocument * valueitor_helper() const
+	{
+	    Assert(false);
+	    return NULL;
+	}
+   
 	/** Returns a string representing the object.
 	 *  Introspection method.
 	 */

@@ -28,7 +28,6 @@
 #include "document.h"
 #include "modifieddocument.h"
 #include "maptermlist.h"
-#include "omvalueiteratorinternal.h"
 #include "xapian/error.h"
 #include <algorithm>
 #include <string>
@@ -112,10 +111,8 @@ void
 Document::remove_value(om_valueno valueno)
 {
     DEBUGAPICALL(void, "Document::remove_value", valueno);
-    if (!internal.get())
-	internal = new ModifiedDocument(0);
-    else
-	internal = internal->modify();
+    if (!internal.get()) return;
+    internal = internal->modify();
     internal->remove_value(valueno);
 }
 
@@ -123,10 +120,8 @@ void
 Document::clear_values()
 {
     DEBUGAPICALL(void, "Document::clear_values", "");
-    if (!internal.get())
-	internal = new ModifiedDocument(0);
-    else
-	internal = internal->modify();
+    if (!internal.get()) return;
+    internal = internal->modify();
     internal->clear_values();
 }
 
@@ -171,9 +166,10 @@ Document::remove_posting(const string & tname, om_termpos tpos,
 	throw InvalidArgumentError("Empty termnames aren't allowed.");
     }
     if (!internal.get())
-	internal = new ModifiedDocument(0);
-    else
-	internal = internal->modify();
+	throw Xapian::InvalidArgumentError("Term `" + tname +
+		"' is not present in document, in "
+		"Document::remove_posting()");
+    internal = internal->modify();
     internal->remove_posting(tname, tpos, wdfdec);
 }
 
@@ -182,9 +178,10 @@ Document::remove_term(const string & tname)
 {
     DEBUGAPICALL(void, "Document::remove_term", tname);
     if (!internal.get())
-	internal = new ModifiedDocument(0);
-    else
-	internal = internal->modify();
+	throw Xapian::InvalidArgumentError("Term `" + tname +
+		"' is not present in document, in "
+		"Document::remove_term()");
+    internal = internal->modify();
     internal->remove_term(tname);
 }
 
@@ -192,20 +189,16 @@ void
 Document::clear_terms()
 {
     DEBUGAPICALL(void, "Document::clear_terms", "");
-    if (!internal.get())
-	internal = new ModifiedDocument(0);
-    else
-	internal = internal->modify();
+    if (!internal.get()) return;
+    internal = internal->modify();
     internal->clear_terms();
 }
 
 om_termcount
-Document::termlist_count() {
+Document::termlist_count() const {
     DEBUGAPICALL(om_termcount, "Document::termlist_count", "");
-    if (!internal.get())
-	internal = new ModifiedDocument(0);
-    else
-	internal = internal->modify();
+    if (!internal.get()) RETURN(0);
+    internal = internal->modify();
     RETURN(internal->termlist_count());
 }
 
@@ -213,7 +206,7 @@ TermIterator
 Document::termlist_begin() const
 {
     DEBUGAPICALL(TermIterator, "Document::termlist_begin", "");
-    if (!internal.get()) RETURN(NULL);
+    if (!internal.get()) RETURN(TermIterator(NULL));
     RETURN(TermIterator(internal->open_term_list()));
 }
 
@@ -225,35 +218,29 @@ Document::termlist_end() const
 }
 
 om_termcount
-Document::values_count() {
+Document::values_count() const {
     DEBUGAPICALL(om_termcount, "Document::values_count", "");
-    if (!internal.get())
-	internal = new ModifiedDocument(0);
-    else
-	internal = internal->modify();
+    if (!internal.get()) RETURN(0);
+    DEBUGLINE(UNKNOWN, hex << (int)internal.get() << " " << typeid(internal.get()).name());
+    internal = internal->modify();
+    DEBUGLINE(UNKNOWN, hex << (int)internal.get() << " " << typeid(internal.get()).name());
     RETURN(internal->values_count());
 }
 
-OmValueIterator
+ValueIterator
 Document::values_begin() const
 {
-    DEBUGAPICALL(OmValueIterator, "Document::values_begin", "");
-    if (!internal.get())
-	internal = new ModifiedDocument(0);
-    else
+    DEBUGAPICALL(ValueIterator, "Document::values_begin", "");
+    if (internal.get())
 	internal = internal->modify();
-    RETURN(OmValueIterator(internal->values_begin()));
+    RETURN(ValueIterator(0, *this));
 }
 
-OmValueIterator
+ValueIterator
 Document::values_end() const
 {
-    DEBUGAPICALL(OmValueIterator, "Document::values_end", "");
-    if (!internal.get())
-	internal = new ModifiedDocument(0);
-    else
-	internal = internal->modify();
-    RETURN(OmValueIterator(internal->values_end()));
+    DEBUGAPICALL(ValueIterator, "Document::values_end", "");
+    RETURN(ValueIterator(values_count(), *this));
 }
 
 }
@@ -297,10 +284,8 @@ OmDocumentTerm::remove_position(om_termpos tpos)
 				     tname +
 				     "' occurs at,"
 				     " when removing position from list");
-	positions.insert(i, tpos);
-    } else {
-	positions.erase(i);
     }
+    positions.erase(i);
 }
 
 string
@@ -333,12 +318,8 @@ ModifiedDocument::get_value(om_valueno valueid) const
 map<om_valueno, string>
 ModifiedDocument::get_all_values() const
 {
-    if (values_here) return values;
-    if (!ptr.get()) {
-	map<om_valueno, string> nowt;
-	return nowt;
-    }
-    return ptr->get_all_values();
+    need_values();
+    return values;
 }
 
 string
@@ -371,19 +352,28 @@ ModifiedDocument::add_value(om_valueno valueno, const string &value)
 {
     need_values();
     values.insert(make_pair(valueno, value));	
+    value_nos.clear();
 }
 
 void
 ModifiedDocument::remove_value(om_valueno valueno)
 {
     need_values();
-    values.erase(valueno);
+    map<om_valueno, string>::iterator i = values.find(valueno);
+    if (i == values.end()) {
+	throw Xapian::InvalidArgumentError("Value #" + om_tostring(valueno) +
+		" is not present in document, in "
+		"ModifiedDocument::remove_value()");
+    }
+    values.erase(i);
+    value_nos.clear();
 }
 
 void
 ModifiedDocument::clear_values()
 {
     values.clear();
+    value_nos.clear();
     values_here = true;
 }
 
@@ -452,7 +442,7 @@ ModifiedDocument::remove_term(const string & tname)
     if (i == terms.end()) {
 	throw Xapian::InvalidArgumentError("Term `" + tname +
 		"' is not present in document, in "
-		"Document::remove_term()");
+		"ModifiedDocument::remove_term()");
     }
     terms.erase(i);
 }
@@ -465,7 +455,7 @@ ModifiedDocument::clear_terms()
 }
 
 om_termcount
-ModifiedDocument::termlist_count()
+ModifiedDocument::termlist_count() const
 {
     if (!terms_here) {
 	// How equivalent is this line to the rest?
@@ -477,7 +467,7 @@ ModifiedDocument::termlist_count()
 }
 
 void
-ModifiedDocument::need_terms()
+ModifiedDocument::need_terms() const
 {
     if (terms_here) return;
     if (ptr.get()) {
@@ -497,26 +487,26 @@ ModifiedDocument::need_terms()
     terms_here = true;
 }
 
-om_termcount
-ModifiedDocument::values_count()
+om_valueno
+ModifiedDocument::values_count() const
 {
+    DEBUGLINE(UNKNOWN, "ModifiedDocument::values_count() called");
     need_values();
     Assert(values_here);
     return values.size();
 }
 
-OmValueIterator::Internal *
-ModifiedDocument::values_begin() const
+const ModifiedDocument *
+ModifiedDocument::valueitor_helper() const
 {
-    need_values();
-    return new OmValueIterator::Internal(values.begin());
-}
-
-OmValueIterator::Internal *
-ModifiedDocument::values_end() const
-{
-    need_values();
-    return new OmValueIterator::Internal(values.end());
+    if (value_nos.empty()) {
+	value_nos.reserve(values.size());
+	map<om_valueno, string>::const_iterator i;
+	for (i = values.begin(); i != values.end(); ++i) {
+	    value_nos.push_back(i->first);
+	}
+    }
+    return this;
 }
 
 string
@@ -551,7 +541,10 @@ void
 ModifiedDocument::need_values() const//FIXME const is hack
 {
     if (!values_here) {
-	if (ptr.get()) values = ptr->get_all_values();
+	if (ptr.get()) {
+	    values = ptr->get_all_values();
+	    value_nos.clear();
+	}
 	values_here = true;
     }
 }
@@ -559,10 +552,13 @@ ModifiedDocument::need_values() const//FIXME const is hack
 Xapian::Document::Internal *
 ModifiedDocument::modify()
 {
+    DEBUGLINE(UNKNOWN, "ModifiedDocument::modify()");
     return this;
 }
 
-Xapian::Document::Internal * Xapian::Document::Internal::modify()
+Xapian::Document::Internal *
+Xapian::Document::Internal::modify()
 {
+    DEBUGLINE(UNKNOWN, "Xapian::Document::Internal::modify()");
     return new ModifiedDocument(this);
 }

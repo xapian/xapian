@@ -33,8 +33,8 @@ class InMemoryDocument : public Xapian::Document::Internal {
 	string doc;
 	map<om_valueno, string> values;
 
-	InMemoryDocument(const Xapian::Database::Internal *database_, om_docid did_,
-			 const string & doc_,
+	InMemoryDocument(const Xapian::Database::Internal *database_,
+			 om_docid did_, const string & doc_,
 			 const map<om_valueno, string> &values_);
 
 	// Stop copying

@@ -73,6 +73,7 @@ typedef std::string om_termname;
 #define OmDatabase Xapian::Database
 #define OmWritableDatabase Xapian::WritableDatabase
 #define OmDocument Xapian::Document
+#define OmValueIterator Xapian::ValueIterator
 
 #define OmAuto__open Xapian::Auto::open
 #define OmQuartz__open Xapian::Quartz::open
@@ -110,7 +111,7 @@ typedef std::string om_termname;
 #include <xapian/postlistiterator.h>
 #include <xapian/positionlistiterator.h>
 #include <xapian/termiterator.h>
-#include "om/omvalueiterator.h"
+#include <xapian/valueiterator.h>
 
 // Searching
 #include <xapian/enquire.h>

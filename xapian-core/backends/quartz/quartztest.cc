@@ -1252,8 +1252,8 @@ static bool test_adddoc2()
 	TEST_EQUAL(document_in.get_data(), document_out.get_data());
 
 	{
-	    OmValueIterator i(document_in.values_begin());
-	    OmValueIterator j(document_out.values_begin());
+	    Xapian::ValueIterator i(document_in.values_begin());
+	    Xapian::ValueIterator j(document_out.values_begin());
 	    for (; i != document_in.values_end(); i++, j++) {
 		TEST_NOT_EQUAL(j, document_out.values_end());
 		TEST_EQUAL(*i, *j);

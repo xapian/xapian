@@ -65,7 +65,7 @@ XAPIAN_OUTPUT_FUNCTION(Xapian::PositionListIterator)
 #include <xapian/termiterator.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::TermIterator)
 
-#include "om/omvalueiterator.h"
-XAPIAN_OUTPUT_FUNCTION(OmValueIterator)
+#include <xapian/valueiterator.h>
+XAPIAN_OUTPUT_FUNCTION(Xapian::ValueIterator)
 
 #endif /* XAPIAN_INCLUDED_OUTPUT_H */

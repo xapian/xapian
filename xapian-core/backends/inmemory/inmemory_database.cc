@@ -271,8 +271,8 @@ InMemoryDatabase::finish_add_doc(om_docid did, const Xapian::Document &document)
 {
     {
 	map<om_valueno, string> values;
-	OmValueIterator k = document.values_begin();
-	OmValueIterator k_end = document.values_end();
+	Xapian::ValueIterator k = document.values_begin();
+	Xapian::ValueIterator k_end = document.values_end();
 	for ( ; k != k_end; ++k) {
 	    values.insert(make_pair(k.get_valueno(), *k));
 	    DEBUGLINE(DB, "InMemoryDatabase::do_add_document(): adding value "

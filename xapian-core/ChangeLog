@@ -1,3 +1,13 @@
+Sat May 24 23:35:46 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/,backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_document.h,
+	  backends/quartz/quartz_database.cc,backends/quartz/quartztest.cc,
+	  common/,include/Makefile.am,include/om/om.h,
+	  include/om/omvalueiterator.h,include/xapian/,
+	  testsuite/backendmanager.cc: OmValueIterator -> Xapian::ValueIterator
+	  etc.
+
 Fri May 23 15:32:29 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/,backends/database.cc,backends/inmemory/,backends/muscat36/,

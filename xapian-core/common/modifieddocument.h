@@ -45,7 +45,7 @@ class ModifiedDocument : public Xapian::Document::Internal {
 
 	bool data_here;
 	mutable bool values_here; // FIXME mutable is a hack
-	bool terms_here;
+	mutable bool terms_here;
 
 	/// The (user defined) data associated with this document.
 	string data;
@@ -56,11 +56,14 @@ class ModifiedDocument : public Xapian::Document::Internal {
 	/// The values associated with this document.
 	mutable document_values values; // FIXME mutable is a hack
 
+	/// The value numbers, for use by ValueIterators.
+	mutable vector<om_valueno> value_nos; // FIXME mutable is a hack
+
 	/// Type to store terms in.
 	typedef map<string, OmDocumentTerm> document_terms;
 
 	/// The terms (and their frequencies and positions) in this document.
-	document_terms terms;
+	mutable document_terms terms;
 
 	explicit ModifiedDocument(Xapian::Document::Internal *ld)
 		: ptr(ld), data_here(false), values_here(false),
@@ -80,10 +83,9 @@ class ModifiedDocument : public Xapian::Document::Internal {
 			    om_termcount wdfdec);
 	void remove_term(const string & tname);
 	void clear_terms();
-	om_termcount termlist_count();
-	om_termcount values_count();
-	OmValueIterator::Internal * values_begin() const;
-	OmValueIterator::Internal * values_end() const;
+	om_termcount termlist_count() const;
+	om_valueno values_count() const;
+	const ModifiedDocument * ModifiedDocument::valueitor_helper() const;
 	/** Returns a string representing the object.
 	 *  Introspection method.
 	 */
@@ -92,7 +94,7 @@ class ModifiedDocument : public Xapian::Document::Internal {
          * methods seem to be doing this independantly.
          */
         void need_values() const/*FIXME const is a hack*/;
-	void need_terms();
+	void need_terms() const;
 	Xapian::Document::Internal * modify();
 };
 

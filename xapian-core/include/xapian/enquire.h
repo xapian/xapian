@@ -80,8 +80,7 @@ class MSet {
 	 *  @param begin   MSetIterator for first item to fetch.
 	 *  @param end     MSetIterator for item after last item to fetch.
 	 */
-	void fetch(const MSetIterator &begin,
-		   const MSetIterator &end) const;
+	void fetch(const MSetIterator &begin, const MSetIterator &end) const;
 
 	/** Fetch the single item specified.
 	 */

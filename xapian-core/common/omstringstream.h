@@ -104,7 +104,7 @@ OSTRINGSTREAMFUNC(Xapian::Stem)
 OSTRINGSTREAMFUNC(Xapian::PostListIterator)
 OSTRINGSTREAMFUNC(Xapian::PositionListIterator)
 OSTRINGSTREAMFUNC(Xapian::TermIterator)
-OSTRINGSTREAMFUNC(OmValueIterator)
+OSTRINGSTREAMFUNC(Xapian::ValueIterator)
 
 #undef OSTRINGSTREAMFUNC
 

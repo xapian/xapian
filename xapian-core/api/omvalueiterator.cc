@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,101 +22,45 @@
  */
 
 #include <config.h>
-#include "om/omvalueiterator.h"
-#include "omvalueiteratorinternal.h"
+#include <xapian/valueiterator.h>
+#include "modifieddocument.h"
 #include "omdebug.h"
+#include "utils.h"
 
-OmValueIterator::OmValueIterator()
-	: internal(0)
-{
-}
-
-OmValueIterator::OmValueIterator(Internal *internal_)
-	: internal(internal_)
-{
-}
-
-OmValueIterator::~OmValueIterator() {
-    DEBUGAPICALL(void, "OmValueIterator::~OmValueIterator", "");
-    delete internal;
-}
-
-OmValueIterator::OmValueIterator(const OmValueIterator &other)
-    : internal(NULL)
-{
-    DEBUGAPICALL(void, "OmValueIterator::OmValueIterator", other);
-    if (other.internal) internal = new Internal(*(other.internal));
-}
-
-void
-OmValueIterator::operator=(const OmValueIterator &other)
-{
-    DEBUGAPICALL(void, "OmValueIterator::operator=", other);
-    if (this == &other) {
-	DEBUGLINE(API, "OmValueIterator assigned to itself");
-	return;
-    }
-
-    Internal * newinternal = NULL;
-    if (other.internal)
-	newinternal = new Internal(*(other.internal));
-    std::swap(internal, newinternal);
-    delete newinternal;
-}
+namespace Xapian {
 
 const string &
-OmValueIterator::operator *() const
+ValueIterator::operator *() const
 {
-    DEBUGAPICALL(const string &, "OmValueIterator::operator*", "");
-    Assert(internal);
-    RETURN(internal->it->second);
+    DEBUGAPICALL(const string &, "ValueIterator::operator*", "");
+    const ModifiedDocument * d = doc.internal->valueitor_helper();
+    Assert(index < d->value_nos.size());
+    RETURN(d->values[d->value_nos[index]]);
 }
 
 const string *
-OmValueIterator::operator ->() const
+ValueIterator::operator->() const
 {
-    DEBUGAPICALL(const string *, "OmValueIterator::operator->", "");
-    Assert(internal);
-    RETURN(&(internal->it->second));
-}
-
-OmValueIterator &
-OmValueIterator::operator++()
-{
-    DEBUGAPICALL(OmValueIterator &, "OmValueIterator::operator++", "");
-    Assert(internal);
-    internal->it++;
-    RETURN(*this);
-}
-
-void
-OmValueIterator::operator++(int)
-{
-    DEBUGAPICALL(void, "OmValueIterator::operator++", "int");
-    Assert(internal);
-    internal->it++;
+    DEBUGAPICALL(const string *, "ValueIterator::operator->", "");
+    const ModifiedDocument * d = doc.internal->valueitor_helper();
+    Assert(index < d->value_nos.size());
+    RETURN(&(d->values[d->value_nos[index]]));
 }
 
 om_valueno
-OmValueIterator::get_valueno() const
+ValueIterator::get_valueno() const
 {
-    DEBUGAPICALL(om_valueno, "OmValueIterator::get_valueno", "");
-    Assert(internal);
-    RETURN(internal->it->first);
+    DEBUGAPICALL(om_valueno, "ValueIterator::get_valueno", "");
+    const ModifiedDocument * d = doc.internal->valueitor_helper();
+    Assert(index < d->value_nos.size());
+    RETURN(d->value_nos[index]);
 }
 
 std::string
-OmValueIterator::get_description() const
+ValueIterator::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "OmValueIterator::get_description", "");
-    /// \todo display contents of the object
-    RETURN("OmValueIterator()");
+    DEBUGCALL(INTRO, std::string, "ValueIterator::get_description", "");
+    RETURN("ValueIterator(" + om_tostring(index) + ")");
 }
 
-bool
-operator==(const OmValueIterator &a, const OmValueIterator &b)
-{
-    Assert(a.internal);
-    Assert(b.internal);
-    return a.internal->it == b.internal->it;    
 }

@@ -409,7 +409,8 @@ MSet::Internal::convert_to_percent_internal(om_weight wt) const
 Document
 MSet::Internal::get_doc_by_index(om_doccount index) const
 {
-    DEBUGCALL(API, Document, "Xapian::MSet::Internal::Data::get_doc_by_index", index);
+    DEBUGCALL(API, Document, "Xapian::MSet::Internal::Data::get_doc_by_index",
+	      index);
     map<om_doccount, Document>::const_iterator doc;
     doc = indexeddocs.find(index);
     if (doc != indexeddocs.end()) {

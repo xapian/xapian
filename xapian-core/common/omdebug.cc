@@ -80,6 +80,7 @@ OmDebug::initialise()
 	    }
 
 	    fd = open(s, O_CREAT | O_SYNC | O_APPEND, 0644);
+	    cerr << "fd = " << fd << " errno = " << errno << endl;
 
 	    if (fd == -1) {
 		fd = 2;

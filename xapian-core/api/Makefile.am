@@ -3,7 +3,7 @@
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
            -I$(top_srcdir)/languages
 
-noinst_HEADERS = omvalueiteratorinternal.h maptermlist.h vectortermlist.h
+noinst_HEADERS = maptermlist.h vectortermlist.h
 noinst_LTLIBRARIES = libapi.la
 
 libapi_la_SOURCES = omenquire.cc omquery.cc omqueryinternal.cc \

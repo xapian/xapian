@@ -136,7 +136,7 @@ index_files_to_m36(const string &prog, const string &dbdir,
 		}
 	    }
 	    out << "#TEND#\n";
-	    OmValueIterator value_i = doc.values_begin();
+	    Xapian::ValueIterator value_i = doc.values_begin();
 	    string value = string("\0\0\0\0\0\0\0", 8);
 	    if (value_i != doc.values_end()) value = (*value_i) + value;
 	    value = value.substr(0, 8);
