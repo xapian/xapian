@@ -285,38 +285,42 @@ int main(int argc, char *argv[]) {
 	dbtypes.push_back(OM_DBTYPE_TEXTFILE);
     }
 
-    try {
-	if (dbnames.size() > 1) {
-	    DatabaseFactory dbfact;
-	    IRGroupDatabase *multidb = dbfact.makegroup(OM_DBGRPTYPE_MULTI);
-	    list<string>::const_iterator p;
-	    list<om_database_type>::const_iterator q;
-	    for(p = dbnames.begin(), q = dbtypes.begin();
-		p != dbnames.end();
-		p++, q++) {
-		multidb->open(*q, *p, true);
-	    }
-	    database = multidb;
-	} else {
-	    DatabaseFactory dbfact;
-	    IRSingleDatabase *singledb = dbfact.make(*(dbtypes.begin()));
-	    singledb->open(*(dbnames.begin()), true);
-	    database = singledb;
+    // Prepare to open database
+    DatabaseBuilderParams dbparams;
+    if (dbnames.size() > 1) {
+	dbparams.type = OM_DBTYPE_MULTI;
+
+	list<string>::const_iterator p;
+	list<om_database_type>::const_iterator q;
+	for(p = dbnames.begin(), q = dbtypes.begin();
+	    p != dbnames.end();
+	    p++, q++) {
+	    DatabaseBuilderParams subparams(*q);
+	    subparams.paths.push_back(*p);
+	    dbparams.subdbs.push_back(subparams);
 	}
+    } else {
+	dbparams.type = *(dbtypes.begin());
+	dbparams.paths.push_back(*(dbnames.begin()));
+    }
+
+    // Actually open the database
+    try {
+	database = DatabaseBuilder::create(dbparams);
     } catch (OmError e) {
 	cout << e.get_msg() << endl;
 	exit(1);
     }
 
     // FIXME - debugging code - remove this
-	Match matcher(database); 
-	matcher.add_term("olli");
-	matcher.set_max_msize(10);
-	matcher.match();
-	weight maxweight = matcher.get_max_weight();
-	doccount mtotal = matcher.mtotal;
-	doccount mressize = matcher.msize;
-	cout << maxweight << " " << mtotal << " " << mressize << endl;
+    Match matcher(database); 
+    matcher.add_term("olli");
+    matcher.set_max_msize(10);
+    matcher.match();
+    weight maxweight = matcher.get_max_weight();
+    doccount mtotal = matcher.mtotal;
+    doccount mressize = matcher.msize;
+    cout << maxweight << " " << mtotal << " " << mressize << endl;
 
 
     GladeXML *xml;

@@ -178,9 +178,7 @@ static int main2(int argc, char *argv[])
 #ifdef DEBUG
 	cout << "Dlist file opened" << endl;
 #endif
-	DatabaseFactory dbfact;
-	IRGroupDatabase * dbgroup = dbfact.makegroup(OM_DBGRPTYPE_MULTI);
-	database = dbgroup;
+	DatabaseBuilderParams dbparams(OM_DBTYPE_MULTI);
 	string line;
 	while (!dlist_in.eof()) {
 	    getline(dlist_in, line);
@@ -197,44 +195,30 @@ static int main2(int argc, char *argv[])
 		    cout << "Dlist found: path `" << dbpath <<
 			    "', number " << db_id << endl;
 #endif
-		    try {
-			dbgroup->open(OM_DBTYPE_DA, dbpath, true);
-		    } catch (OmError e) {
-			cout << e.get_msg() << endl;
-		    }
+		    DatabaseBuilderParams subparams(OM_DBTYPE_DA);
+		    subparams.paths.push_back(dbpath);
+		    dbparams.subdbs.push_back(subparams);
 		}
 	    }
 	}
 	dlist_in.close();
-    } else {
-	cout << "Opening DA database " << db_dir << endl;
-	DatabaseFactory dbfact;
-	IRSingleDatabase * db = dbfact.make(OM_DBTYPE_DA);
-	database = db;
 	try {
-	    db->open(db_dir, true);
+	    database = DatabaseBuilder::create(dbparams);
+	} catch (OmError e) {
+	    cout << e.get_msg() << endl;
+	}
+    } else {
+#ifdef DEBUG
+	cout << "Opening DA database " << db_dir << endl;
+#endif
+	DatabaseBuilderParams dbparams(OM_DBTYPE_DA);
+	dbparams.paths.push_back(db_dir);
+	try {
+	    database = DatabaseBuilder::create(dbparams);
 	} catch (OmError e) {
 	    cout << e.get_msg() << endl;
 	}
     }
-#if 0 //def FERRET
-     {
-	FILE *f;
-	f = fopen("t/dlist", "r");
-	if (f) {
-	   while (!feof(f)) {
-	      char dlistbuf[256];
-	      if (!fgets(dlistbuf, 256, f)) break;
-	      /* da recs /netapp/ferret-data/data-912508010/R terms /netapp/ferret-data/data-912508010/T */
-	      if (strncmp(dlistbuf, "da recs ", 8) == 0) {
-		  char *p = strstr(dlistbuf + 8, "/data-");
-		  if (p) dlist[n_dlist++] = atoi(p + 6);
-	      }
-	   }
-	   fclose(f);
-	}
-     }
-#endif
    
     matcher = new Match(database);
     rset = new RSet(database);
