@@ -1,3 +1,8 @@
+Thu May 18 11:20:58 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added test that setting an rset has appropriate effect on match
+	  results (relevant document comes to top).
+
 Thu May 18 11:15:36 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added new exception OmInternalError for really weird problems.

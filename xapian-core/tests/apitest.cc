@@ -115,6 +115,8 @@ bool test_multidb3();
 bool test_multidb4();
 // test that rsets do sensible things
 bool test_rset1();
+// test that rsets do more sensible things
+bool test_rset2();
 
 test_desc tests[] = {
     {"trivial",            test_trivial},
@@ -156,7 +158,8 @@ test_desc tests[] = {
     {"emptyquerypart1",    test_emptyquerypart1},
     {"multidb3",           test_multidb3},
     {"multidb4",           test_multidb4},
-    {"rset1",           test_rset1},
+    {"rset1",              test_rset1},
+    {"rset2",              test_rset2},
     {0, 0}
 };
 
@@ -193,6 +196,38 @@ bool weights_are_equal_enough(double a, double b)
     return false;
 }
 
+ostream &
+operator<<(ostream &os, const OmMSetItem &mitem)
+{
+    os << mitem.wt << " " << mitem.did;
+    return os;
+}
+
+ostream &
+operator<<(ostream &os, const OmMSet &mset)
+{
+    copy(mset.items.begin(), mset.items.end(),
+	 ostream_iterator<OmMSetItem>(os, "\n"));
+    return os;
+}
+
+// so that we can print out esets conveniently
+ostream &
+operator<<(ostream &os, const OmESetItem &item)
+{
+    cout << item.tname;
+    return os;
+}
+
+ostream &
+operator<<(ostream &os, const vector<unsigned int> &ints)
+{
+    copy(ints.begin(), ints.end(),
+	 ostream_iterator<unsigned int>(os, ", "));
+    return os;
+}
+
+
 bool mset_range_is_same(const OmMSet &mset1, unsigned int first1,
                         const OmMSet &mset2, unsigned int first2,
 			unsigned int count)
@@ -217,6 +252,17 @@ bool mset_range_is_same(const OmMSet &mset1, unsigned int first1,
         }
     }
     return true;
+}
+
+bool operator==(const OmMSet &first, const OmMSet &second)
+{
+    if ((first.mbound != second.mbound) ||
+	(first.max_possible != second.max_possible) ||
+	(first.items.size() != second.items.size())) {
+         return false;
+    }
+    if(first.items.size() == 0) return true;
+    return mset_range_is_same(first, 0, second, 0, first.items.size());
 }
 
 bool mset_range_is_same_weights(const OmMSet &mset1, unsigned int first1,
@@ -244,31 +290,32 @@ bool mset_range_is_same_weights(const OmMSet &mset1, unsigned int first1,
     return true;
 }
 
-bool operator==(const OmMSet &first, const OmMSet &second)
+bool expect_mset_order(OmMSet mset, vector<om_docid> order, string mset_name)
 {
-    if ((first.mbound != second.mbound) ||
-	(first.max_possible != second.max_possible) ||
-	(first.items.size() != second.items.size())) {
-         return false;
+    int success = true;
+
+    for (unsigned int i = 0;
+	 i < order.size();
+	 i++) {
+	if (mset.items.size() <= i) {
+	    success = false;
+	    if (verbose) {
+		cout << "Mset too small: was " << mset <<
+			", expected " << order << endl;
+	    }
+	}
+	if (mset.items[i].did != order[i]) {
+	    if (verbose) {
+		cout << "Mset has wrong contents: was " << mset <<
+			", expected " << order << endl;
+	    }
+	}
     }
-    if(first.items.size() == 0) return true;
-    return mset_range_is_same(first, 0, second, 0, first.items.size());
+
+    return success;
 }
 
-ostream &
-operator<<(ostream &os, const OmMSetItem &mitem)
-{
-    os << mitem.wt << " " << mitem.did;
-    return os;
-}
 
-ostream &
-operator<<(ostream &os, const OmMSet &mset)
-{
-    copy(mset.items.begin(), mset.items.end(),
-	 ostream_iterator<OmMSetItem>(os, "\n"));
-    return os;
-}
 
 OmDocumentContents
 string_to_document(string paragraph)
@@ -738,13 +785,6 @@ class myExpandFunctor : public OmExpandDecider {
 	    return (sum % 2) == 0;
 	}
 };
-
-// so that we can print out esets conveniently
-ostream &operator<<(ostream &os, const OmESetItem &item)
-{
-    cout << item.tname;
-    return os;
-}
 
 bool test_expandfunctor1()
 {
@@ -1801,6 +1841,52 @@ bool test_rset1()
 	}
 	success = false;
     }
+
+    return success;
+}
+
+bool test_rset2()
+{
+    bool success = true;
+
+    OmWritableDatabase mydb("inmemory", make_strvec());
+    index_file_to_database(mydb, datadir + "/apitest_rset.txt");
+
+    OmEnquire enquire(make_dbgrp(&mydb));
+    OmStem stemmer("english");
+    
+    OmQuery myquery(OM_MOP_OR,
+		    OmQuery(stemmer.stem_word("cuddly")),
+		    OmQuery(stemmer.stem_word("people")));
+
+    enquire.set_query(myquery);
+
+    OmMSet mymset1 = enquire.get_mset(0, 10);
+
+    OmRSet myrset;
+    myrset.add_document(2);
+
+    OmMSet mymset2 = enquire.get_mset(0, 10, &myrset);
+
+    // We should have the same documents turn up, but 1 and 3 should
+    // have higher weights with the RSet.
+    if (mymset1.items.size() != 2 ||
+	mymset2.items.size() != 2) {
+	if (verbose) {
+	    cout << "MSets are of different size: " << endl;
+	    cout << "mset1: " << mymset1 << endl;
+	    cout << "mset2: " << mymset2 << endl;
+	}
+	success = false;
+    }
+
+    om_docid order1[] = {1, 2};
+    om_docid order2[] = {2, 1};
+
+    if (!expect_mset_order(mymset1, vector<om_docid>(order1, order1 + 2),
+			   "mymset1")) success = false;
+    if (!expect_mset_order(mymset2, vector<om_docid>(order2, order2 + 2),
+			   "mymset2")) success = false;
 
     return success;
 }
