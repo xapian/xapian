@@ -240,15 +240,17 @@ Omega CGI itself, or '/etc/omega.conf').
 The format of the file is very simple: a line per option, with the
 option name followed by its value, separated by a space. The current
 options are 'database_dir' (the directory containing all the Omega
-databases), and 'template_dir' (the directory containing the Omega
-templates).
+databases), 'template_dir' (the directory containing the Omega
+templates), and 'log_dir' (the directory which the omegascript $log command
+writes log files to).
 
 If neither configuration file can be opened, defaults are used (this
 is also supplied as omega.conf in the distribution):
 
 ----------------------------------------------------------------------
-database_dir /home/omega/data
-template_dir /home/omega/templates
+database_dir /var/lib/omega/data
+template_dir /var/lib/omega/templates
+log_dir /var/log/omega
 ----------------------------------------------------------------------
 
 

@@ -1,3 +1,11 @@
+Wed May 28 23:38:02 BST 2003  Olly Betts <olly@survex.com>
+
+	* configfile.cc,configfile.h,omega.cc,omega.conf,query.cc,query.h,
+	  docs/omegascript.txt,docs/overview.txt,docs/quickstart.txt:
+	  Replaced half-hearted logging support with flexible
+	  OmegaScript-based approach with new $log command.  Also added
+	  $now to allow the current date/time to be logged.
+
 Tue May 27 17:55:24 BST 2003  Olly Betts <olly@survex.com>
 
 	* query.cc: Added missing "#include <assert.h>".

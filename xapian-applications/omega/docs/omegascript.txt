@@ -169,6 +169,13 @@ $list{LIST,...}
 	NB $list returns an empty string for an empty list (so the
 	last two forms aren't redundant as it may at first appear).
 
+$log{LOGFILE[,ENTRY]}
+	write to the log file LOGFILE in directory log_dir (set in omega.conf).
+	ENTRY is the omegascript for the log entry, and a linefeed is appended.
+	If LOGFILE cannot be opened for writing, nothing is done (and ENTRY
+	isn't evaluated).  ENTRY defaults to a format similar to the Common Log
+	Format used by webservers.
+
 $map{LIST,STUFF)
 	map a list into the evaluated argument. If "LIST" is
 	1, 2 then:
@@ -187,6 +194,10 @@ $msizeexact
 
 $nice{number}
 	pretty print integer (with thousands separator).
+
+$now
+	number of seconds since the epoch (suitable for feeding to $date) -
+	whether $now returns the same value for repeated calls is unspecified.
 
 $opt{OPT}
 	lookup an option value (as set by $set).
@@ -355,4 +366,3 @@ $if{COND,THEN[,ELSE]}
 
 $include{FILE}
 	include another omegascript file
-

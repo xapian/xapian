@@ -52,7 +52,6 @@ string date_start, date_end, date_span;
 const string default_dbname = "default";
 
 string dbname;
-string log_dir = "/tmp";
 string fmtname = "query";
 string filters;
 
@@ -74,41 +73,6 @@ const static char filter_sep = '-';
 // false positives, but the situation is contrived, and just means that if
 // someone changed a filter, the first page wouldn't be forced.
 // That's hardly the end of the world...
-
-static void
-make_log_entry(const string &action, long matches)
-{
-    string log_buf = log_dir + "/omega.log";
-    int fd = open(log_buf.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
-       
-    if (fd == -1) return;
-
-    // (remote host)\t(date/time)\t(action)\t(db)\t(query)\t(referer)
-    // 193.131.74.35 [01/Jan/1997:09:07:22 +0000] query db1 test http://x.com/
-    char *var;
-    string line;
-    time_t t = time(NULL);
-    var = getenv("REMOTE_HOST");
-    if (var == NULL) {
-	var = getenv("REMOTE_ADDR");
-	if (var == NULL) var = "-";
-    }
-    line = var;    
-    char buf[80];
-    strftime(buf, 80, "\t[%d/%b/%Y:%H:%M:%S", gmtime(&t));
-    line += buf;
-    line = line + " +0000]\t" + action + '\t' + dbname + '\t' + raw_prob + '\t';
-    sprintf(buf, "%li ", matches);
-    line = line + buf;
-    var = getenv("HTTP_REFERER");
-    if (var != NULL) {
-	line += '\t';
-	line += var;
-    }
-    line += '\n';
-    write(fd, line.data(), line.length());
-    close(fd);
-}
 
 static string
 map_dbname_to_dir(const string &dbname)
@@ -480,14 +444,7 @@ try {
     }
 
     // process commands
-    long matches = do_match();
-    if (cgi_params.find("X") != cgi_params.end()) {
-	make_log_entry("add", matches);
-    } else if (cgi_params.find("MORELIKE") != cgi_params.end()) {
-	make_log_entry("morelike", matches);
-    } else if (!big_buf.empty()) {
-	make_log_entry("query", matches);
-    }
+    do_match();
 } catch (const OmError &e) {
     cout << "Exception: " << e.get_msg() << endl;
 } catch (const string &s) {

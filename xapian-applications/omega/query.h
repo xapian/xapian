@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,8 +43,8 @@ using namespace std;
 // BAD_QUERY parse error (message in query_parse_error)
 typedef enum { NEW_QUERY, SAME_QUERY, EXTENDED_QUERY, BAD_QUERY } querytype;
 
-querytype set_probabilistic(const string&, const string&);
-om_doccount do_match();
+querytype set_probabilistic(const string &, const string &);
+void do_match();
 
 void add_bterm(const string &);
 

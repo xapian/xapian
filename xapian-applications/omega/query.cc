@@ -90,6 +90,14 @@ static string error_msg;
 
 static long int sec = 0, usec = -1;
 
+static const char * DEFAULT_LOG_ENTRY =
+	"$or{$env{REMOTE_HOST},$env{REMOTE_ADDR},-}\t"
+	"[$date{$now,%d/%b/%Y:%H:%M:%S} +0000]\t"
+	"$if{$cgi{X},add,$if{$cgi{MORELIKE},morelike},query}\t"
+	"$dbname\t"
+	"$query\t"
+	"$msize$if{$env{HTTP_REFERER},\t$env{HTTP_REFERER}}";
+
 class MyStopper : public OmStopper {
   public:
     bool operator()(const om_termname &t) {
@@ -120,6 +128,17 @@ class MyStopper : public OmStopper {
 	}
     }
 };
+
+// Don't allow ".." in format names, log file names, etc as this would allow
+// people to open a format "../../etc/passwd" or similar.
+// FIXME: make this check more exact ("foo..bar" is safe)
+// FIXME: log when this check fails
+static bool
+vet_filename(const string &filename)
+{
+    string::size_type i = filename.find("..");
+    return (i == string::npos);
+}
 
 querytype
 set_probabilistic(const string &newp, const string &oldp)
@@ -825,6 +844,7 @@ CMD_last,
 CMD_lastpage,
 CMD_le,
 CMD_list,
+CMD_log,
 CMD_lt,
 CMD_map,
 CMD_max,
@@ -836,6 +856,7 @@ CMD_mul,
 CMD_ne,
 CMD_nice,
 CMD_not,
+CMD_now,
 CMD_opt,
 CMD_or,
 CMD_percentage,
@@ -927,6 +948,7 @@ static struct func_desc func_tab[] = {
 {T(lastpage),	0, 0, N, 1, 0}}, // number of last hit page
 {T(le),		2, 2, N, 0, 0}}, // test <=
 {T(list),	2, 5, N, 0, 0}}, // pretty print list
+{T(log),	1, 2, 1, 0, 0}}, // create a log entry
 {T(lt),		2, 2, N, 0, 0}}, // test <
 {T(map),	1, 2, 1, 0, 0}}, // map a list into another list
 {T(max),	1, N, N, 0, 0}}, // maximum of a list of values
@@ -938,6 +960,7 @@ static struct func_desc func_tab[] = {
 {T(ne), 	2, 2, N, 0, 0}}, // test not equal
 {T(nice),	1, 1, N, 0, 0}}, // pretty print integer (with thousands sep)
 {T(not),	1, 1, N, 0, 0}}, // logical not
+{T(now),	0, 0, N, 0, 0}}, // current date/time as a time_t
 {T(opt),	1, 2, N, 0, 0}}, // lookup an option value
 {T(or),		1, N, 0, 0, 0}}, // logical shortcutting or of a list of values
 {T(percentage),	0, 0, N, 0, 0}}, // percentage score of current hit
@@ -1391,6 +1414,20 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		break;
 	    }
+	    case CMD_log: {
+		if (!vet_filename(args[0])) break;
+		string logfile = log_dir + args[0];
+	        int fd = open(logfile.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
+		if (fd == -1) break;
+		vector<string> noargs;
+		noargs.resize(1);
+		string line = (args.size() > 1 ? args[1] : DEFAULT_LOG_ENTRY);
+		line = eval(line, noargs);
+		line += '\n';
+		write(fd, line.data(), line.length());
+		close(fd);
+		break;
+	    }
             case CMD_lt:
 		if (string_to_int(args[0]) < string_to_int(args[1]))
 		    value = "true";
@@ -1474,6 +1511,12 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_not:
 		if (args[0].empty()) value = "true";
 		break;
+	    case CMD_now: {
+		char buf[64];
+		sprintf(buf, "%u", time(NULL));
+		value = buf;
+		break;
+	    }
 	    case CMD_opt:
 		if (args.size() == 2) {
 		    value = option[args[0] + "," + args[1]];
@@ -1785,13 +1828,8 @@ eval(const string &fmt, const vector<string> &param)
 static string
 eval_file(const string &fmtfile)
 {
-    // don't allow ".." in format names as this would allow people to open
-    // a format "../../etc/passwd" or similar
-    // FIXME: make this check more exact ("foo..bar" is safe)
-    // FIXME: log when this check fails
     string err;
-    string::size_type i = fmtfile.find("..");
-    if (i == string::npos) {
+    if (vet_filename(fmtfile)) {
 	string file = template_dir + fmtfile;
 	struct stat st;
 	int fd = open(file.c_str(), O_RDONLY);
@@ -1914,11 +1952,10 @@ print_caption(const string &fmt, const vector<string> &param)
     return eval(fmt, param);
 }
 
-om_doccount
+void
 do_match()
 {
     cout << eval_file(fmtname);
-    return mset.get_matches_estimated();
 }
 
 // run query if we haven't already

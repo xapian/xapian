@@ -15,10 +15,16 @@ can be changed once you've got things going.
 
 2.      Edit omega.conf:
 
-database_dir should point to the directory containing your database,
-such as /var/lib/omega/data (it should contain the 'default' directory
-that is the actual database you indexed to above), and template_dir to
-where the templates are - e.g. /var/lib/omega/templates.
+This contains 3 settings, written one per line as "<SETTING> <VALUE>":
+
+* database_dir - this should point to the directory containing your database,
+  such as /var/lib/omega/data (it should contain the 'default' directory
+  that is the actual database you indexed to above).
+
+* template_dir - where the templates are - e.g. /var/lib/omega/templates
+
+* log_dir - the directory which the omegascript $log command writes log files
+  to - e.g. /var/log/omega
 
 3.      Test omega from the command line:
 
