@@ -21,9 +21,9 @@ DIST_SUBDIRS = include testsuite autoconf common \
                api backends matcher languages net \
 	       . m4 docs netprogs tests bindings extra
 
-bin_SCRIPTS=xapian-config
+bin_SCRIPTS = xapian-config
 
-CLEANFILES=TODO xapian-config
+CLEANFILES = TODO xapian-config
 
 EXTRA_DIST = Makefile_common.am ChangeLog buildall HACKING PLATFORMS \
              ar-wrapper-solaris TODO TODO.release
