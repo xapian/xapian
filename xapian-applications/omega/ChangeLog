@@ -1,3 +1,7 @@
+Thu May 16 12:56:55 BST 2002  Sam Liddicott <saml@ananova.net>
+
+	* Fixes to spec file to add various missing files
+
 Wed May 15 12:59:37 BST 2002  Olly Betts <olly@survex.com>
 
 	* omindex now understand acronyms (N.A.T.O. E.T ...).

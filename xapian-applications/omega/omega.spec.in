@@ -4,6 +4,8 @@
 Name: @PACKAGE@
 Version: @VERSION@
 Release: 2
+Requires: xapian-core
+BuildPrereq: xapian-core, xapian-core-devel
 License: GPL
 Group: Applications/Internet
 URL: http://www.xapian.org/
@@ -32,10 +34,24 @@ make -j4
 mkdir -p $RPM_BUILD_ROOT
 
 make install-strip prefix=$RPM_BUILD_ROOT%{_prefix}
-mkdir -p $RPM_BUILD_ROOT%{_prefix}/share/docs/%{name}
-cp README NEWS TODO docs/* $RPM_BUILD_ROOT%{_prefix}/share/docs/%{name}/
+mkdir -p $RPM_BUILD_ROOT/var/www/cgi-bin
+mv $RPM_BUILD_ROOT%/usr/bin/omega $RPM_BUILD_ROOT/var/www/cgi-bin
+mkdir -p $RPM_BUILD_ROOT%{_prefix}/share/doc/%{name}
+
+# docs
+cp Copyright README NEWS TODO docs/* $RPM_BUILD_ROOT%{_prefix}/share/doc/%{name}/
 mkdir -p $RPM_BUILD_ROOT/etc
 cp omega.conf $RPM_BUILD_ROOT/etc
+
+# default templates
+mkdir -p $RPM_BUILD_ROOT/var/lib/omega/templates
+cp templates/* $RPM_BUILD_ROOT/var/lib/omega/templates/
+# data dir
+mkdir -p $RPM_BUILD_ROOT/var/lib/omega/data
+
+# now images for templates
+mdir -p $RPM_BUILD_ROOT/var/www/html/images/omega
+cp images/* $RPM_BUILD_ROOT/var/www/html/images/omega/
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
@@ -43,8 +59,10 @@ cp omega.conf $RPM_BUILD_ROOT/etc
 %files
 %defattr(-,root,root)
 /usr/bin/*
+/var/lib/omega/
+/var/www/html/images/omega
 %docdir /usr/share/doc/%{name}
-/usr/share/docs/%{name}
+/usr/share/doc/%{name}
 %config /etc/omega.conf
 
 %post -p /sbin/ldconfig
