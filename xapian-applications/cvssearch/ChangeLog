@@ -1,3 +1,8 @@
+Fri Dec 10 02:19:06 GMT 2004  Olly Betts <olly@survex.com>
+
+	* perl/Logo-script.pl: use strict; call handle IMG not GIF; better
+	  error message.
+
 Fri Dec 10 01:57:25 GMT 2004  Olly Betts <olly@survex.com>
 
 	* db/Makefile.am: Build system changes to go with the previous change.

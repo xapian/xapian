@@ -1,5 +1,7 @@
+use strict;
+
 print "Content-Type: image/png\n\n";
-open (GIF, "<fishlogo.png") || die "no such file exist.";
-while (<GIF>) {
+open IMG, "<fishlogo.png" or die "Couldn't read image: $!\n";
+while (<IMG>) {
     print $_;
 }
