@@ -132,15 +132,22 @@ sub compare_root_index() {
     # ----------------------------------------
     # found a repository, list all the packages
     # ----------------------------------------
-    print "<h1 align=center>Repository $cvsroot</h1>\n";
     open (DBCONTENT, "<$cvsdata/$root/dbcontent");
-    print "<table  width=100% align=center border=0 cellspacing=1 cellpadding=2>\n";
-    print "<tr><td colspan=3 class=s>Package</td></tr>\n";
     my $i = 0;
+    my @pkgs;
     while (<DBCONTENT>) {
         chomp;
         my $pkg = $_;
         $pkg =~tr/\_/\//;
+        push(@pkgs, $pkg);
+    }
+    close (DBCONTENT);
+
+    print "<h1 align=center>Repository $cvsroot</h1>\n";
+    print "<table  width=100% align=center border=0 cellspacing=1 cellpadding=2>\n";
+    print "<tr><td colspan=3 class=s>Package</td></tr>\n";
+    @pkgs = sort (@pkgs);
+    foreach my $pkg (@pkgs) {
         print "<tr>\n";
         print "<td $class[$i%2]>$pkg</td>";
         print "<td $class[$i%2]><a href=\"$cvscompare?root=$root&pkg=$pkg\">grouped by file</a></td>";
@@ -148,7 +155,6 @@ sub compare_root_index() {
         print "</tr>\n";
         $i++;
     }
-    close (DBCONTENT);
     print "</table>\n";
     print end_html;
 }

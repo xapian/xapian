@@ -160,7 +160,8 @@ sub commit_pkg_index {
                 if ($printed_comment) {
                     print "</tr>\n";
                 } else {
-                    print "<td $class[1] rowspan=$count valign=top><a href=# onclick=\"return c($commitid);\">$comment</a></td>\n";
+                    print "<td $class[1] rowspan=$count valign=top>";
+                    print "<a href=\"$querycomment?root=$root&pkg=$pkg&id=$commitid\" target=_top>$comment</a></td>\n";
                     print "</tr>\n";
                     $printed_comment = 1;
                     $commitid++;

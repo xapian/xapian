@@ -224,6 +224,7 @@ sub cvsbuild {
             my @files;
 
             if (chdir ("$cvsdata/$root/src/$app_path")) {
+                system ("chmod -R o+r *");
                 for ($i = 0; $i <= $#file_types; ++$i) {
                     open(FIND_RESULT, "find . -name \"*.$file_types[$i]\"|");
                     while (<FIND_RESULT>) {
