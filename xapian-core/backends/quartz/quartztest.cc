@@ -643,7 +643,7 @@ static bool test_cursor1()
 
     key.value = "foo25";
     cursor.reset(bufftable1.cursor_get());
-    TEST(!cursor->find_entry(key));
+    TEST(cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key.value, "foo25");
     TEST_EQUAL(cursor->current_tag.value, "bar25");
 
@@ -664,7 +664,7 @@ static bool test_cursor1()
     TEST_EQUAL(cursor->current_tag.value, "bar3");
 
     key.value = "foo2";
-    TEST(!cursor->find_entry(key));
+    TEST(cursor->find_entry(key));
     TEST_EQUAL(cursor->current_key.value, "foo2");
     TEST_EQUAL(cursor->current_tag.value, "bar2");
 
